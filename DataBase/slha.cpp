@@ -23,30 +23,34 @@ public:
 // Factory pour créer des instances de blocs
 class SlhaBlockFactory {
 public:
-    static std::unique_ptr<SlhaBlock> createBlock(const std::string& blockName) {
-        if (blockName == "MASS") {
+    static std::unique_ptr<SlhaBlock> createBlock(const std::string& blockName, bool isFLHA) {
+        std::string effectiveBlockName = isFLHA ? "F" + blockName : blockName;
+        if (effectiveBlockName == "MASS" || effectiveBlockName == "FMASS") {
             return std::make_unique<MassBlock>();
         }
-        // On ajoute ici les autres blocs
+        //  On ajoute les blocs ici
         return nullptr;
     }
 };
 
 // Classe principale pour lire les fichiers SLHA
 class ReadSlha {
-    std::map<std::string, std::unique_ptr<SlhaBlock>> blocks;
+    std::map<std::string, std::vector<std::unique_ptr<SlhaBlock>>> blocks;
+    bool isFLHA = false;
 
 public:
     void readFromFile(const std::string& filename) {
         std::ifstream file(filename);
         std::string line;
+        // Détection du type de fichier (SLHA ou FLHA)
+        // ...
+
         while (std::getline(file, line)) {
-            // Analyser le nom du bloc et créer l'objet bloc correspondant
-            // Exemple simplifié, nécessite une analyse plus détaillée de la ligne
-            std::string blockName = line; // À remplacer par l'analyse réelle de la ligne
-            blocks[blockName] = SlhaBlockFactory::createBlock(blockName);
-            if (blocks[blockName]) {
-                blocks[blockName]->readData(file);
+            std::string blockName = /* Analyse de la ligne */;
+            auto block = SlhaBlockFactory::createBlock(blockName, isFLHA);
+            if (block) {
+                block->readData(file);
+                blocks[blockName].push_back(std::move(block));
             }
         }
     }
