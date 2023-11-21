@@ -1,3 +1,7 @@
+Block FCINFO  # Program information
+	1	MARTY	
+	2	4.1
+
 BLOCK FMASS
     11  5.11e-4
     13  1.05e-1

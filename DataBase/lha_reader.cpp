@@ -35,43 +35,102 @@ BlockId getBlockId(const std::string& value) {
 // Interface de base pour les blocs
 class LhaBlock {
 protected:
-    std::map<int, LhaElement> content;   
+    std::vector<std::unique_ptr<AbstractElement>> entries;
+    BlockId id;
 
 public:
+    LhaBlock(BlockId id) : id(id) {}
+
     virtual void readData(std::ifstream& file) = 0;
-    LhaElement get(int id) { return content.at(id); }
+
+    AbstractElement* get(std::string_view id) const { 
+        auto p = [id](const std::unique_ptr<AbstractElement>& e) { 
+            return e->getId() == id; 
+        };
+        return (*std::find_if(entries.begin(), entries.end(), p)).get(); 
+    }
+
+    std::string toString() const {
+        std::stringstream stream;
+        stream << "Block " << getBlockName(this->id) << ":\n";
+        for (auto& entry: entries) {
+            stream << entry->toString();
+        }
+        return stream.str();
+    }
 };
 
-// Exemple de bloc spécifique (le plus simple)
 class MassBlock : public LhaBlock {
 public:
+    MassBlock(BlockId id) : LhaBlock(id) {}
+
     void readData(std::ifstream& file) override {
-        std::string line;
+        std::string line, id;
+        int scheme;
+        double value, scale;
         while (std::getline(file, line)) {
-            if (tolower(file.peek()) == 'b' || file.peek() == EOF) break;
-            int id;
-            double value;
+            if (line.at(0) == '#') continue;
             std::istringstream stream(line);
-            stream >> id >> value;
-            LhaReal elt (id, value);
-            this->content.insert({id, elt});
+            stream >> id >> value >> scheme >> scale;
+            RenormalizationScheme s = static_cast<RenormalizationScheme>(scheme);
+            this->entries.emplace_back(std::make_unique<GeneralElement<double>>(id, value, s, scale));
+            if (tolower(file.peek()) == 'b' || file.peek() == EOF) break;
         }
     }
 };
+
+class InfoBlock : public LhaBlock {
+public:
+    InfoBlock(BlockId id) : LhaBlock(id) {}
+
+    void readData(std::ifstream& file) override {
+        std::string line, id, value;
+        while (std::getline(file, line)) {
+            if (line.at(0) == '#') continue;
+            std::istringstream stream(line);
+            stream >> id >> value;
+            this->entries.emplace_back(std::make_unique<TypedElement<std::string>>(id, value));
+            if (tolower(file.peek()) == 'b' || file.peek() == EOF) break;
+        }
+    }
+}; 
+
+// class ModSelBlock : public LhaBlock {
+// public:
+//     ModSelBlock(BlockId id) : LhaBlock(id) {}
+
+//     void readData(std::ifstream& file) override {
+//         std::string line;
+//         while (std::getline(file, line)) {
+//             if (line.at(0) == '#') continue;
+//             std::istringstream stream(line);
+//             int id;
+//             if (id == 99) {
+//                 std::string value;
+//                 stream >> value;
+//                 this->entries.emplace_back(std::make_unique<TypedElement<std::string>>(id, value));
+//             }
+            
+//             if (tolower(file.peek()) == 'b' || file.peek() == EOF) break;
+//         }
+//     }
+// }; 
 
 // Factory pour créer des instances de blocs
 class LhaBlockFactory {
 public:
     static std::unique_ptr<LhaBlock> createBlock(BlockId id, bool isFLHA) {
         if (id == BlockId::MASS && !isFLHA || id == BlockId::FMASS && isFLHA) {
-            return std::make_unique<MassBlock>();
+            return std::make_unique<MassBlock>(id);
+        } else if (id == BlockId::FCINFO && isFLHA) {
+            return std::make_unique<InfoBlock>(id);
         }
-        //  On ajoute les blocs ici
+        // TODO : Parse all block names (switch ?)
         return nullptr;
     }
 };
 
-// Classe principale pour lire les fichiers SLHA
+
 class LhaReader {
 private:
     std::map<BlockId, std::unique_ptr<LhaBlock>> blocks;
@@ -88,12 +147,12 @@ private:
 
 public:
     LhaReader(std::string_view path) : lhaFile(std::filesystem::path(path)) {
-        if (this->lhaFile.extension().string() == ".flha") {
-            isFLHA = true;
-        }
+        isFLHA = this->lhaFile.extension().string() == ".flha"; 
     }
 
     void readBlock(BlockId id) {
+        if (this->blocks.contains(id)) return; // C++20. Use blocks.count(id) != 0 before.
+
         std::ifstream file(this->lhaFile.string());
         std::string line;
         std::string targetName = getBlockName(id);
@@ -122,8 +181,6 @@ public:
         }
     }
 
-    // Méthodes pour accéder aux données des blocs
-
     LhaBlock* getBlock(BlockId id) {
         return blocks.at(id).get();
     }
@@ -135,10 +192,11 @@ public:
 
 int main() {
     LhaReader reader("../DataBase/example.flha");
-    reader.readBlock(BlockId::FMASS);
+    reader.readAll();
 
     std::cout << "Parsing ended, read " << reader.getBlockCount() << " block(s)." << std::endl;
-    std::cout << reader.getBlock(BlockId::FMASS)->get(13).getValue() << std::endl;
+    std::cout << reader.getBlock(BlockId::FCINFO)->toString() << std::endl;
+    std::cout << reader.getBlock(BlockId::FMASS)->toString() << std::endl;
 
     return 0;
 }
