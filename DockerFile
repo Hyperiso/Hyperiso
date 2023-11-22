@@ -1,0 +1,29 @@
+# image de base avec GCC
+FROM gcc:latest
+
+# Installation de CMake et d'autres dépendances potentielles
+RUN apt-get update && \
+    apt-get install -y cmake
+
+# installation de package
+# RUN apt-get install -y ...
+
+# Repertoire de travail
+WORKDIR /usr/src/myapp
+
+# On copie les fichiers de build (CMakeLists.txt, etc.) dans le conteneur
+COPY CMakeLists.txt ./
+
+# (Optionnel) On copie les répertoires estils, et tout ce qu'on a besoin
+COPY src ./src
+COPY include ./include
+
+# On construit le projet
+RUN cmake . && \
+    make
+
+#  On fait des tests au cas ou
+# RUN ./runTests
+
+# (Optionnel) Commande a exécuter au démarage
+# CMD ["./myapp"]
