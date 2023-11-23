@@ -3,6 +3,6 @@ Block FCINFO  # Program information
 	2	4.1
 
 BLOCK FMASS
-    11  5.11e-4
-    13  1.05e-1
-    15  1.77
+    11  5.11e-4 3   0.125       # e
+    13  1.05e-1 1   5.1254      # mu
+    15  1.77    3   1125.4845   # tau

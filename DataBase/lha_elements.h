@@ -1,10 +1,13 @@
+#ifndef HYPERISO_LHA_ELEMENTS_H
+#define HYPERISO_LHA_ELEMENTS_H
+
 #include <complex>
 #include <string>
 
 typedef std::complex<double> complex_t;
 
 enum class RenormalizationScheme {
-    POLE, MSBAR, DRBAR, ONE_S, KIN, INVARIANT, MOM, SMOM
+    POLE, MSBAR, DRBAR, ONE_S, KIN, INVARIANT, MOM, SMOM, NONE
 };
 
 class AbstractElement {
@@ -34,32 +37,33 @@ public:
     }
 };
 
-// TODO: Implement constructor forwarding
 template <typename T>
-class SchemeDependentElement : public TypedElement<T> {
+class GeneralElement : public TypedElement<T> {
 private:
     const RenormalizationScheme scheme;
-
-public:
-    SchemeDependentElement(const std::string& id, const T& value, RenormalizationScheme scheme) : TypedElement<T>(id, value), scheme(scheme) {}
-    RenormalizationScheme getScheme() const { return this->scheme; }
-};
-
-template <typename T>
-class ScaleDependentElement : public TypedElement<T> {
-private:
     double Q;
 
 public:
-    ScaleDependentElement(const std::string& id, const T& value, double scale) : TypedElement<T>(id, value), Q(scale) {}
+    GeneralElement(const std::string& id, const T& value, RenormalizationScheme scheme, double scale) 
+        : TypedElement<T>(id, value), scheme(scheme), Q(scale) {}
+    RenormalizationScheme getScheme() const { return this->scheme; }
     double getScale() const { return this->Q; }
 };
 
 template <typename T>
-class GeneralElement : public SchemeDependentElement<T>, public ScaleDependentElement<T> {
+class SchemeDependentElement : public GeneralElement<T> {
 
 public:
-    GeneralElement(const std::string& id, const T& value, RenormalizationScheme scheme, double scale) 
-        : SchemeDependentElement<T>(id, value, scheme), 
-        ScaleDependentElement<T>(id, value, scale) {}
+    SchemeDependentElement(const std::string& id, const T& value, RenormalizationScheme scheme) 
+        : GeneralElement<T>(id, value, scheme, 0) {}
 };
+
+template <typename T>
+class ScaleDependentElement : public GeneralElement<T> {
+
+public:
+    ScaleDependentElement(const std::string& id, const T& value, double scale) 
+        : GeneralElement<T>(id, value, RenormalizationScheme::NONE, scale) {}
+};
+
+#endif // HYPERISO_LHA_ELEMENTS_H

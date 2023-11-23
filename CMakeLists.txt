@@ -3,7 +3,7 @@ project(Hyperiso)
 set(CMAKE_CXX_STANDARD 20)
 
 set(SRC
-    ./DataBase/lha_elements.cpp
-    ./DataBase/lha_reader.cpp)
+    ./DataBase/lha_reader.cpp
+    ./DataBase/lha_blocks.cpp)
 
 add_executable(hyperiso ${SRC})
