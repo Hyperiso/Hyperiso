@@ -2,12 +2,12 @@
 #include <unordered_map>
 #include <memory>
 #include <cstdlib>
-#include "lha_reader.h"
+#include "../DataBase/lha_reader.h"
 
 class MemoryManager {
 private:
     LhaReader* db;
-    std::unordered_map<int, std::unique_ptr<std::string>> cache;
+    std::unordered_map<BlockId, std::unique_ptr<std::string>> cache;
 
 public:
     explicit MemoryManager(LhaReader* db) : db(db) {}
@@ -28,9 +28,9 @@ public:
         return makeUniquePtr(ptr);
     }
 
-    const std::string& getData(int key) {
+    const std::string& getData(BlockId key) {
         if (cache.find(key) == cache.end()) {
-            cache[key] = std::make_unique<std::string>(db->getData(key));
+            cache[key] = std::make_unique<std::string>(db->readBlock(key));
         }
         return *cache[key];
     }
