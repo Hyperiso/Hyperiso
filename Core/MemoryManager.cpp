@@ -2,14 +2,15 @@
 #include <unordered_map>
 #include <memory>
 #include <cstdlib>
+#include "lha_reader.h"
 
 class MemoryManager {
 private:
-    DataBase* db;
+    LhaReader* db;
     std::unordered_map<int, std::unique_ptr<std::string>> cache;
 
 public:
-    explicit MemoryManager(DataBase* db) : db(db) {}
+    explicit MemoryManager(LhaReader* db) : db(db) {}
 
     // Creation pointeur unique
     template<typename T>
