@@ -217,3 +217,241 @@ std::complex<double> hpl3(int i1, int i2, int i3, std::complex<double> x) {
 
     return {0.0, 0.0}; // Default return for unhandled cases
 }
+
+std::complex<double> hpl4(int i1, int i2, int i3, int i4, std::complex<double> x) {
+    const std::complex<double> i(0, 1);
+    const double pi = acos(-1);
+
+    if (i1 == 0 && i2 == 0 && i3 == 0 && i4 == 0) {
+        if (abs(x) > 1) return pow(hpl1(0, 1.0 / x), 4) / 24.0;
+        if (real(x) > 0.5) return pow(hpl1(1, 1.0 - x), 4) / 24.0;
+        return pow(hpl_base1(0, x), 4) / 24.0;
+    }
+
+    if (i1 == 0 && i2 == 0 && i3 == 0 && i4 == 1) {
+        if (abs(x) > 1) return -hpl4(0, 0, 0, 1, 1.0 / x) + pow(pi, 4) / 45.0 + (pow(pi, 2) * pow(hpl1(0, 1.0 / x), 2)) / 6.0 + pi * i * -0.16666666666666666 * pow(hpl1(0, 1.0 / x), 3) - pow(hpl1(0, 1.0 / x), 4) / 24.0;
+        if (real(x) > 0.5) return -1.2020569031595942 * hpl1(1, 1.0 - x) + hpl1(1, 1.0 - x) * hpl3(0, 1, 1, 1.0 - x) - hpl4(0, 1, 1, 1, 1.0 - x) + pow(pi, 4) / 90.0 - (hpl2(0, 1, 1.0 - x) * pow(hpl1(1, 1.0 - x), 2)) / 2.0 + (pow(pi, 2) * pow(hpl1(1, 1.0 - x), 2)) / 12.0 + (hpl1(0, 1.0 - x) * pow(hpl1(1, 1.0 - x), 3)) / 6.0;
+        return hpl_base4(0, 0, 0, 1, x);
+    }
+
+    if (i1 == 0 && i2 == 0 && i3 == 1 && i4 == 0) {
+        if (abs(x) > 1) return -(hpl1(0, 1.0 / x) * (hpl3(0, 0, 1, 1.0 / x) - (hpl1(0, 1.0 / x) * pow(pi, 2)) / 3.0 + pi * i * 0.5 * pow(hpl1(0, 1.0 / x), 2) + pow(hpl1(0, 1.0 / x), 3) / 6.0)) - 3 * (-hpl4(0, 0, 0, 1, 1.0 / x) + pow(pi, 4) / 45.0 + (pow(pi, 2) * pow(hpl1(0, 1.0 / x), 2)) / 6.0 + pi * i * -0.16666666666666666 * pow(hpl1(0, 1.0 / x), 3) - pow(hpl1(0, 1.0 / x), 4) / 24.0);
+        if (real(x) > 0.5) return -(hpl1(1, 1.0 - x) * (1.2020569031595942 + hpl1(1, 1.0 - x) * hpl2(0, 1, 1.0 - x) - hpl3(0, 1, 1, 1.0 - x) - (hpl1(1, 1.0 - x) * pow(pi, 2)) / 6.0 - (hpl1(0, 1.0 - x) * pow(hpl1(1, 1.0 - x), 2)) / 2.0)) - 3 * (-1.2020569031595942 * hpl1(1, 1.0 - x) + hpl1(1, 1.0 - x) * hpl3(0, 1, 1, 1.0 - x) - hpl4(0, 1, 1, 1, 1.0 - x) + pow(pi, 4) / 90.0 - (hpl2(0, 1, 1.0 - x) * pow(hpl1(1, 1.0 - x), 2)) / 2.0 + (pow(pi, 2) * pow(hpl1(1, 1.0 - x), 2)) / 12.0 + (hpl1(0, 1.0 - x) * pow(hpl1(1, 1.0 - x), 3)) / 6.0);
+        return hpl_base1(0, x) * hpl_base3(0, 0, 1, x) - 3 * hpl_base4(0, 0, 0, 1, x);
+    }
+
+    if (i1 == 0 && i2 == 0 && i3 == 1 && i4 == 1) {
+        if (abs(x) > 1) {
+            return (-2 * (3.7763731361630786 * std::complex<double>(0, 2) + 
+                          2.4041138063191885 * hpl1(0, 1.0 / x) + 
+                          pi * std::complex<double>(0, 1) * hpl1(0, 1.0 / x) * hpl2(0, 1, 1.0 / x) + 
+                          pi * std::complex<double>(0, -2) * hpl3(0, 0, 1, 1.0 / x) - 
+                          2.0 * hpl1(0, 1.0 / x) * hpl3(0, 0, 1, 1.0 / x) + 
+                          4 * hpl4(0, 0, 0, 1, 1.0 / x) + hpl4(0, 1, 0, 1, 1.0 / x) - 
+                          (hpl2(0, 1, 1.0 / x) * pow(pi, 2)) / 3.0 + pow(pi, 4) / 90.0 + 
+                          (hpl2(0, 1, 1.0 / x) * pow(hpl1(0, 1.0 / x), 2)) / 2.0 - 
+                          (pow(pi, 2) * pow(hpl1(0, 1.0 / x), 2)) / 6.0 + 
+                          pi * std::complex<double>(0, 0.16666666666666666) * pow(hpl1(0, 1.0 / x), 3) + 
+                          pow(hpl1(0, 1.0 / x), 4) / 24.0) + 
+                   pow(pi * std::complex<double>(0, -1) * hpl1(0, 1.0 / x) - hpl2(0, 1, 1.0 / x) + 
+                       pow(pi, 2) / 3.0 - pow(hpl1(0, 1.0 / x), 2) / 2.0, 2)) / 4.0;
+        } else if (real(x) > 0.5) {
+            return (-2 * (2.4041138063191885 * hpl1(1, 1.0 - x) + 
+               hpl1(0, 1.0 - x) * hpl1(1, 1.0 - x) * hpl2(0, 1, 1.0 - x) - 
+               hpl4(0, 1, 0, 1, 1.0 - x) + 
+               (hpl1(0, 1.0 - x) * hpl1(1, 1.0 - x) * pow(pi, 2)) / 6.0 - 
+               (hpl2(0, 1, 1.0 - x) * pow(pi, 2)) / 6.0 + 
+               pow(pi, 4) / 120.0 + 
+               pow(hpl2(0, 1, 1.0 - x), 2) - 
+               2 * (hpl1(1, 1.0 - x) * hpl3(0, 0, 1, 1.0 - x) + 
+               (2 * hpl4(0, 1, 0, 1, 1.0 - x) - pow(hpl2(0, 1, 1.0 - x), 2)) / 2.0 + 
+               (-2 * hpl4(0, 1, 0, 1, 1.0 - x) + pow(hpl2(0, 1, 1.0 - x), 2)) / 2.0) - 
+               2 * (hpl1(0, 1.0 - x) * hpl3(0, 1, 1, 1.0 - x) + 
+               (2 * hpl4(0, 1, 0, 1, 1.0 - x) - pow(hpl2(0, 1, 1.0 - x), 2)) / 2.0 + 
+               (-2 * hpl4(0, 1, 0, 1, 1.0 - x) + pow(hpl2(0, 1, 1.0 - x), 2)) / 2.0)) + 
+               pow(hpl1(0, 1.0 - x) * hpl1(1, 1.0 - x) - hpl2(0, 1, 1.0 - x) + 
+               pow(pi, 2) / 6.0, 2)) / 4.0;
+        } else {
+            return (-2 * hpl_base4(0, 1, 0, 1, x) + pow(hpl_base2(0, 1, x), 2)) / 4.0;
+        }
+    }
+
+    if (i1 == 0 && i2 == 1 && i3 == 0 && i4 == 0) {
+    if (abs(x) > 1) {
+        return (((pi * std::complex<double>(0, -1) * hpl1(0, 1.0 / x) - hpl2(0, 1, 1.0 / x) + pow(pi, 2) / 3.0 - 
+                  pow(hpl1(0, 1.0 / x), 2) / 2.0) * pow(hpl1(0, 1.0 / x), 2) + 
+                 4.0 * hpl1(0, 1.0 / x) * (hpl3(0, 0, 1, 1.0 / x) - 
+                 (hpl1(0, 1.0 / x) * pow(pi, 2)) / 3.0 + 
+                 pi * std::complex<double>(0, 0.5) * pow(hpl1(0, 1.0 / x), 2) + 
+                 pow(hpl1(0, 1.0 / x), 3) / 6.0) + 
+                 6.0 * (-hpl4(0, 0, 0, 1, 1.0 / x) + pow(pi, 4) / 45.0 + 
+                 (pow(pi, 2) * pow(hpl1(0, 1.0 / x), 2)) / 6.0 + 
+                 pi * std::complex<double>(0, -0.16666666666666666) * pow(hpl1(0, 1.0 / x), 3) - 
+                 pow(hpl1(0, 1.0 / x), 4) / 24.0)) / 2.0;
+    } else if (real(x) > 0.5) {
+        return ((hpl1(0, 1.0 - x) * hpl1(1, 1.0 - x) - hpl2(0, 1, 1.0 - x) + pow(pi, 2) / 6.0) * pow(hpl1(1, 1.0 - x), 2) + 
+                4.0 * hpl1(1, 1.0 - x) * (1.2020569031595942 + hpl1(1, 1.0 - x) * hpl2(0, 1, 1.0 - x) - hpl3(0, 1, 1, 1.0 - x) - 
+                (hpl1(1, 1.0 - x) * pow(pi, 2)) / 6.0 - (hpl1(0, 1.0 - x) * pow(hpl1(1, 1.0 - x), 2)) / 2.0) + 
+                6.0 * (-1.2020569031595942 * hpl1(1, 1.0 - x) + hpl1(1, 1.0 - x) * hpl3(0, 1, 1, 1.0 - x) - 
+                hpl4(0, 1, 1, 1, 1.0 - x) + pow(pi, 4) / 90.0 - (hpl2(0, 1, 1.0 - x) * pow(hpl1(1, 1.0 - x), 2)) / 2.0 + 
+                (pow(pi, 2) * pow(hpl1(1, 1.0 - x), 2)) / 12.0 + (hpl1(0, 1.0 - x) * pow(hpl1(1, 1.0 - x), 3)) / 6.0)) / 2.0;
+    } else {
+        
+        return 
+		(-4*hpl_base1(0,x)*hpl_base3(0,0,1,x) + 6*hpl_base4(0,0,0,1,x) + 
+		hpl_base2(0,1,x)*pow(hpl_base1(0,x),2))/2.;
+    }
+}
+    if (i1 == 0 && i2 == 1 && i3 == 0 && i4 == 1) {
+    if (abs(x) > 1) {
+        return 3.7763731361630786 * std::complex<double>(0, 2) + 
+               2.4041138063191885 * hpl1(0, 1.0 / x) + 
+               pi * std::complex<double>(0, 1) * hpl1(0, 1.0 / x) * hpl2(0, 1, 1.0 / x) + 
+               pi * std::complex<double>(0, -2) * hpl3(0, 0, 1, 1.0 / x) - 
+               2.0 * hpl1(0, 1.0 / x) * hpl3(0, 0, 1, 1.0 / x) + 
+               4.0 * hpl4(0, 0, 0, 1, 1.0 / x) + 
+               hpl4(0, 1, 0, 1, 1.0 / x) - 
+               (hpl2(0, 1, 1.0 / x) * pow(pi, 2)) / 3.0 + 
+               pow(pi, 4) / 90.0 + 
+               (hpl2(0, 1, 1.0 / x) * pow(hpl1(0, 1.0 / x), 2)) / 2.0 - 
+               (pow(pi, 2) * pow(hpl1(0, 1.0 / x), 2)) / 6.0 + 
+               pi * std::complex<double>(0, 0.16666666666666666) * pow(hpl1(0, 1.0 / x), 3) + 
+               pow(hpl1(0, 1.0 / x), 4) / 24.0;
+    } else if (real(x) > 0.5) {
+        return 2.4041138063191885 * hpl1(1, 1.0 - x) + 
+               hpl1(0, 1.0 - x) * hpl1(1, 1.0 - x) * hpl2(0, 1, 1.0 - x) - 
+               hpl4(0, 1, 0, 1, 1.0 - x) + 
+               (hpl1(0, 1.0 - x) * hpl1(1, 1.0 - x) * pow(pi, 2)) / 6.0 - 
+               (hpl2(0, 1, 1.0 - x) * pow(pi, 2)) / 6.0 + 
+               pow(pi, 4) / 120.0 + 
+               pow(hpl2(0, 1, 1.0 - x), 2) - 
+               2.0 * (hpl1(1, 1.0 - x) * hpl3(0, 0, 1, 1.0 - x) + 
+               (2.0 * hpl4(0, 1, 0, 1, 1.0 - x) - pow(hpl2(0, 1, 1.0 - x), 2)) / 2.0 + 
+               (-2.0 * hpl4(0, 1, 0, 1, 1.0 - x) + pow(hpl2(0, 1, 1.0 - x), 2)) / 2.0) - 
+               2.0 * (hpl1(0, 1.0 - x) * hpl3(0, 1, 1, 1.0 - x) + 
+               (2.0 * hpl4(0, 1, 0, 1, 1.0 - x) - pow(hpl2(0, 1, 1.0 - x), 2)) / 2.0 + 
+               (-2.0 * hpl4(0, 1, 0, 1, 1.0 - x) + pow(hpl2(0, 1, 1.0 - x), 2)) / 2.0);
+    } else {
+        return hpl_base4(0,1,0,1,x);
+}
+    }
+
+    if (i1 == 0 && i2 == 1 && i3 == 1 && i4 == 0) {
+        if (abs(x) > 1) {
+            return 3.7763731361630786 * std::complex<double>(0, -2) - 
+                   2.4041138063191885 * hpl1(0, 1.0 / x) + 
+                   pi * std::complex<double>(0, -1) * hpl1(0, 1.0 / x) * hpl2(0, 1, 1.0 / x) + 
+                   pi * std::complex<double>(0, 2) * hpl3(0, 0, 1, 1.0 / x) + 
+                   2.0 * hpl1(0, 1.0 / x) * hpl3(0, 0, 1, 1.0 / x) - 
+                   4 * hpl4(0, 0, 0, 1, 1.0 / x) - 
+                   hpl4(0, 1, 0, 1, 1.0 / x) + 
+                   (hpl2(0, 1, 1.0 / x) * pow(pi, 2)) / 3.0 - 
+                   pow(pi, 4) / 90.0 - 
+                   (hpl2(0, 1, 1.0 / x) * pow(hpl1(0, 1.0 / x), 2)) / 2.0 + 
+                   (pow(pi, 2) * pow(hpl1(0, 1.0 / x), 2)) / 6.0 - 
+                   hpl1(0, 1.0 / x) * (1.2020569031595942 + 
+                   pi * std::complex<double>(0, -1) * hpl2(0, 1, 1.0 / x) - 
+                   hpl1(0, 1.0 / x) * hpl2(0, 1, 1.0 / x) + 
+                   hpl3(0, 0, 1, 1.0 / x) - 
+                   hpl3(0, 1, 1, 1.0 / x) + 
+                   (hpl1(0, 1.0 / x) * pow(pi, 2)) / 2.0 + 
+                   std::complex<double>(0, 0.16666666666666666) * pow(pi, 3) + 
+                   pi * std::complex<double>(0, -0.5) * pow(hpl1(0, 1.0 / x), 2) - 
+                   pow(hpl1(0, 1.0 / x), 3) / 6.0) + 
+                   pi * std::complex<double>(0, -0.16666666666666666) * pow(hpl1(0, 1.0 / x), 3) - 
+                   pow(hpl1(0, 1.0 / x), 4) / 24.0 + 
+                   (2.0 * (3.7763731361630786 * std::complex<double>(0, 2) + 
+                   2.4041138063191885 * hpl1(0, 1.0 / x) + 
+                   pi * std::complex<double>(0, 1) * hpl1(0, 1.0 / x) * hpl2(0, 1, 1.0 / x) + 
+                   pi * std::complex<double>(0, -2) * hpl3(0, 0, 1, 1.0 / x) - 
+                   2.0 * hpl1(0, 1.0 / x) * hpl3(0, 0, 1, 1.0 / x) + 
+                   4 * hpl4(0, 0, 0, 1, 1.0 / x) + 
+                   hpl4(0, 1, 0, 1, 1.0 / x) - 
+                   (hpl2(0, 1, 1.0 / x) * pow(pi, 2)) / 3.0 + 
+                   pow(pi, 4) / 90.0 + 
+                   (hpl2(0, 1, 1.0 / x) * pow(hpl1(0, 1.0 / x), 2)) / 2.0 - 
+                   (pow(pi, 2) * pow(hpl1(0, 1.0 / x), 2)) / 6.0 + 
+                   pi * std::complex<double>(0, 0.16666666666666666) * pow(hpl1(0, 1.0 / x), 3) + 
+                   pow(hpl1(0, 1.0 / x), 4) / 24.0) - 
+                   pow(pi * std::complex<double>(0, -1) * hpl1(0, 1.0 / x) - hpl2(0, 1, 1.0 / x) + 
+                   pow(pi, 2) / 3.0 - pow(hpl1(0, 1.0 / x), 2) / 2.0, 2)) / 2.0;
+        } else if (real(x) > 0.5) {
+            return -2.4041138063191885 * hpl1(1, 1.0 - x) - 
+                   hpl1(0, 1.0 - x) * hpl1(1, 1.0 - x) * hpl2(0, 1, 1.0 - x) + 
+                   hpl4(0, 1, 0, 1, 1.0 - x) - 
+                   (hpl1(0, 1.0 - x) * hpl1(1, 1.0 - x) * pow(pi, 2)) / 6.0 + 
+                   (hpl2(0, 1, 1.0 - x) * pow(pi, 2)) / 6.0 - 
+                   pow(pi, 4) / 120.0 - 
+                   hpl1(1, 1.0 - x) * (1.2020569031595942 + 
+                   hpl1(0, 1.0 - x) * hpl2(0, 1, 1.0 - x) - 
+                   hpl3(0, 0, 1, 1.0 - x) - 
+                   (hpl1(1, 1.0 - x) * pow(hpl1(0, 1.0 - x), 2)) / 2.0) - 
+                   pow(hpl2(0, 1, 1.0 - x), 2) + 
+                   2.0 * (hpl1(1, 1.0 - x) * hpl3(0, 0, 1, 1.0 - x) + 
+                   (2.0 * hpl4(0, 1, 0, 1, 1.0 - x) - pow(hpl2(0, 1, 1.0 - x), 2)) / 2.0 + 
+                   (-2.0 * hpl4(0, 1, 0, 1, 1.0 - x) + pow(hpl2(0, 1, 1.0 - x), 2)) / 2.0) + 
+                   2.0 * (hpl1(0, 1.0 - x) * hpl3(0, 1, 1, 1.0 - x) + 
+                   (2.0 * hpl4(0, 1, 0, 1, 1.0 - x) - pow(hpl2(0, 1, 1.0 - x), 2)) / 2.0 + 
+                   (-2.0 * hpl4(0, 1, 0, 1, 1.0 - x) + pow(hpl2(0, 1, 1.0 - x), 2)) / 2.0) + 
+                   (2.0 * (2.4041138063191885 * hpl1(1, 1.0 - x) + 
+                   hpl1(0, 1.0 - x) * hpl1(1, 1.0 - x) * hpl2(0, 1, 1.0 - x) - 
+                   hpl4(0, 1, 0, 1, 1.0 - x) + 
+                   (hpl1(0, 1.0 - x) * hpl1(1, 1.0 - x) * pow(pi, 2)) / 6.0 - 
+                   (hpl2(0, 1, 1.0 - x) * pow(pi, 2)) / 6.0 + 
+                   pow(pi, 4) / 120.0 + 
+                   pow(hpl2(0, 1, 1.0 - x), 2) - 
+                   2.0 * (hpl1(1, 1.0 - x) * hpl3(0, 0, 1, 1.0 - x) + 
+                   (2.0 * hpl4(0, 1, 0, 1, 1.0 - x) - pow(hpl2(0, 1, 1.0 - x), 2)) / 2.0 + 
+                   (-2.0 * hpl4(0, 1, 0, 1, 1.0 - x) + pow(hpl2(0, 1, 1.0 - x), 2)) / 2.0) - 
+                   2.0 * (hpl1(0, 1.0 - x) * hpl3(0, 1, 1, 1.0 - x) + 
+                   (2.0 * hpl4(0, 1, 0, 1, 1.0 - x) - pow(hpl2(0, 1, 1.0 - x), 2)) / 2.0 + 
+                   (-2.0 * hpl4(0, 1, 0, 1, 1.0 - x) + pow(hpl2(0, 1, 1.0 - x), 2)) / 2.0) - 
+                   pow(hpl1(0, 1.0 - x) * hpl1(1, 1.0 - x) - hpl2(0, 1, 1.0 - x) + 
+                   pow(pi, 2) / 6.0, 2)) / 2.0;
+        }
+        else {
+            hpl_base1(0,x)*hpl_base3(0,1,1,x) - hpl_base4(0,1,0,1,x) + 
+   		(2.*hpl_base4(0,1,0,1,x) - pow(hpl_base2(0,1,x),2))/2.;
+        }
+    }
+
+    if (i1 == 0 && i2 == 1 && i3 == 1 && i4 == 1) {
+        if (abs(x) > 1) {
+            return pi * complex<double>(0, -1) * hpl1(0, 1.0 / x) * hpl2(0, 1, 1.0 / x) + 
+                   pi * complex<double>(0, 1) * hpl3(0, 0, 1, 1.0 / x) + 
+                   hpl1(0, 1.0 / x) * hpl3(0, 0, 1, 1.0 / x) + 
+                   pi * complex<double>(0, -1) * hpl3(0, 1, 1, 1.0 / x) - 
+                   hpl1(0, 1.0 / x) * hpl3(0, 1, 1, 1.0 / x) - 
+                   hpl4(0, 0, 0, 1, 1.0 / x) - 
+                   hpl4(0, 1, 0, 1, 1.0 / x) / 2.0 - 
+                   hpl4(0, 1, 1, 1, 1.0 / x) + 
+                   (hpl2(0, 1, 1.0 / x) * pow(pi, 2)) / 2.0 + 
+                   complex<double>(0, 0.16666666666666666) * hpl1(0, 1.0 / x) * pow(pi, 3) - 
+                   (19 * pow(pi, 4)) / 360.0 - 
+                   (hpl2(0, 1, 1.0 / x) * pow(hpl1(0, 1.0 / x), 2)) / 2.0 + 
+                   (pow(pi, 2) * pow(hpl1(0, 1.0 / x), 2)) / 4.0 + 
+                   pi * complex<double>(0, -0.16666666666666666) * pow(hpl1(0, 1.0 / x), 3) - 
+                   pow(hpl1(0, 1.0 / x), 4) / 24.0 + 
+                   (2.0 * hpl4(0, 1, 0, 1, 1.0 / x) - pow(hpl2(0, 1, 1.0 / x), 2)) / 2.0 + 
+                   pow(hpl2(0, 1, 1.0 / x), 2) / 4.0 + 
+                   (-2.0 * hpl4(0, 1, 0, 1, 1.0 / x) + pow(hpl2(0, 1, 1.0 / x), 2)) / 2.0;
+        } else if (real(x) > 0.5) {
+            return hpl1(0, 1.0 - x) * hpl3(0, 0, 1, 1.0 - x) - 
+                   hpl4(0, 0, 0, 1, 1.0 - x) + 
+                   pow(pi, 4) / 90.0 - 
+                   (hpl2(0, 1, 1.0 - x) * pow(hpl1(0, 1.0 - x), 2)) / 2.0 + 
+                   (hpl1(1, 1.0 - x) * pow(hpl1(0, 1.0 - x), 3)) / 6.0;
+        } else {
+            return hpl_base4(0, 1, 1, 1, x);
+        }
+    }
+
+    
+
+
+
+
+
+
+}
+    
