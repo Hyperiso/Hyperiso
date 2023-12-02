@@ -1107,7 +1107,7 @@ void initialize_constants() {
 
 initialize_constants()
 
-double complex polylog(int n, int m, double complex x) {
+std::complex<double> polylog(int n, int m, std::complex<double> x) {
     // initialisation d'ailleurs
     extern double s1[5][5], c[5][5], a[31][11];
 
@@ -1116,9 +1116,9 @@ double complex polylog(int n, int m, double complex x) {
     const int index[32] = {0, 1, 2, 3, 4, 0, 0, 0, 0, 0, 0, 5, 6, 7, 0, 0, 0, 0, 0, 0, 0, 8, 9, 0, 0, 0, 0, 0, 0, 0, 0, 10};
     const int nc[11] = {0, 24, 26, 28, 30, 22, 24, 26, 19, 22, 17};
 
-    double complex z = 0.0;
-    double complex v[6] = {0.0};
-    double complex sk, sj;
+    std::complex<double> z = 0.0;
+    std::complex<double> v[6] = {0.0};
+    std::complex<double> sk, sj;
     if ((n < 1) || (n > 4) || (m < 1) || (m > 4) || ((n + m) > 5)) {
         return 0.0;
     }
@@ -1233,4 +1233,142 @@ double complex polylog(int n, int m, double complex x) {
     }
 
     return z;
+
+
+// LI2 ! -------------------------------------------------------------------------------------------------------------------
+
+double Li2(double x) {
+    const double pisq6 = M_PI * M_PI / 6.0;
+    const double x_0 = -0.3;
+    const double x_1 = 0.25;
+    const double x_2 = 0.51;
+
+    if (x == 1.0) {
+        return pisq6;
+    }
+
+    if (x <= x_0) {
+        double temp = log(fabs(1.0 - x));
+        return -Li2(-x / (1.0 - x)) - temp * temp / 2.0;
+    } else if (x < x_1) {
+        double z = -log(1.0 - x);
+        double temp = z * (1.0 - z / 4.0 * (1.0 - z / 9.0 * (1.0 - z * z / 100.0 * (1.0 - 5.0 * z * z / 294.0 * (1.0 - 7.0 * z * z / 360.0 * (1.0 - 5.0 * z * z / 242.0 * (1.0 - 7601.0 * z * z / 354900.0 * (1.0 - 91.0 * z * z / 4146.0 * (1.0 - 3617.0 * z * z / 161840.0)))))))));
+        return temp;
+    } else if (x < x_2) {
+        return -Li2(-x) + Li2(x * x) / 2.0;
+    } else {
+        return pisq6 - Li2(1.0 - x) - log(fabs(x)) * log(fabs(1.0 - x));
+    }
+}
+
+
+// LI3 ! -------------------------------------------------------------------------------------------------------------------
+
+
+const double zeta3 = 1.202056903159594; // Apery's constant
+
+double Li3(double x) {
+    const double pisq6 = 16.0 * M_PI * M_PI / 6.0;
+    const double x_0 = -1.0;
+    const double x_1 = -0.85;
+    const double x_2 = 0.25;
+    const double x_3 = 0.63;
+    const double x_4 = 1.0;
+
+    if (x == 1.0) return zeta3;
+    if (x == -1.0) return -0.75 * zeta3;
+
+    if (x <= x_0) {
+        double lnx = log(-x);
+        return Li3(1.0 / x) - pisq6 * lnx - lnx * lnx * lnx / 6.0;
+    } else if (x < x_1) {
+        return Li3(x * x) / 4.0 - Li3(-x);
+    } else if (x < x_2) {
+    double z = -log(1.0 - x);
+    double temp = z * (1.0 - 3.0 * z / 8.0 * (1.0 - 17.0 * z / 81.0 * (1.0 - 15.0 * z / 136.0 *
+        (1.0 - 28.0 * z / 1875.0 * (1.0 + 5.0 * z / 8.0 * (1.0 - 304.0 * z / 7203.0 *
+        (1.0 + 945.0 * z / 2432.0 * (1.0 - 44.0 * z / 675.0 * (1.0 + 7.0 * z / 24.0 *
+        (1.0 - 26104.0 * z / 307461.0 * (1.0 + 1925.0 * z / 8023.0 *
+        (1.0 - 53598548.0 * z / 524808375.0 *
+        (1.0 + 22232925.0 * z / 107197096.0)))))))))))))));
+    return temp;
+} else if (x < x_3) {
+        return Li3(x * x) / 4.0 - Li3(-x);
+    } else if (x < x_4) {
+        double ln1x = log(1.0 - x);
+        return -Li3(1.0 - x) - Li3(-x / (1.0 - x)) + zeta3 + pisq6 * ln1x - log(x) * ln1x * ln1x / 2.0 + ln1x * ln1x * ln1x / 6.0;
+    } else {
+        double lnx = log(x);
+        return Li3(1.0 / x) + 2.0 * pisq6 * lnx - lnx * lnx * lnx / 6.0;
+    }
+}
+
+double Li4(double x)
+/* calculates the quadrilogarithm function of x */
+{
+	return polylog(3,1,x);
+}
+
+/* calculates the dilogarithm function of x, extended to complex numbers */ -------------------------------------------------------------
+
+std::complex<double> CLi2(std::complex<double> x) {
+    const double pisq6 = std::pow((4.0 * std::atan(1.0)), 2.0) / 6.0;
+
+    const double x_0 = -0.30;
+    const double x_1 = 0.25;
+    const double x_2 = 0.51;
+
+    if (x == 1.0) {
+        return pisq6;
+    }
+
+    if (std::real(x) >= x_2) {
+        return pisq6 - CLi2(1.0 - x) - std::log(x) * std::log(1.0 - x);
+    }
+
+    if ((std::abs(std::imag(x)) > 1.0) || (std::norm(x) > 1.2)) {
+        return -CLi2(1.0 / x) - 0.5 * std::log(-x) * std::log(-x) - pisq6;
+    }
+
+    if (std::real(x) <= x_0) {
+        std::complex<double> zz = std::log(1.0 - x);
+        return -CLi2(-x / (1.0 - x)) - zz * zz / 2.0;
+    } else if (std::real(x) < x_1) {
+        std::complex<double> z = -std::log(1.0 - x);
+        std::complex<double> temp = z * (1.0 - z / 4.0 * (1.0 - z / 9.0 * (1.0 - z * z / 100.0 *
+            (1.0 - 5.0 * z * z / 294.0 * (1.0 - 7.0 * z * z / 360.0 *
+            (1.0 - 5.0 * z * z / 242.0 * (1.0 - 7601.0 * z * z / 354900.0 *
+            (1.0 - 91.0 * z * z / 4146.0 * (1.0 - 3617.0 * z * z / 161840.0)))))))));
+        return temp;
+    } else {
+        return -CLi2(-x) + CLi2(x * x) / 2.0;
+    }
+}
+
+
+std::complex<double> CLi3(std::complex<double> x)
+/* calculates the trilogarithm function of x, extended to complex numbers */
+{
+	return hpl3(0,0,1,x);
+}
+
+std::complex<double> CLi4(std::complex<double> x)
+/* calculates the quadrilogarithm function of x, extended to complex numbers */
+{
+	return hpl4(0,0,0,1,x);
+}
+
+
+double Cl2(double x) {
+    std::complex<double> z = std::cos(x) + std::complex<double>(0, 1) * std::sin(x);
+    return std::imag(CLi2(z));
+}
+
+double Cl3(double x) {
+    std::complex<double> z = std::cos(x) + std::complex<double>(0, 1) * std::sin(x);
+    return std::real(CLi3(z));
+}
+
+
+
 
