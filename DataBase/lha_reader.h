@@ -6,8 +6,44 @@
 #include <map>
 #include <memory>
 #include <filesystem>
+#include <optional>
+#include <regex>
 
 #include "lha_blocks.h"
+
+enum class TokenType {
+    FLOAT,
+    INTEGER,
+    BLOCK,
+    NEWLINE,
+    SKIP,
+    COMMENT,
+    WORD,
+    OTHER
+};
+
+const std::regex analyzer_rx(
+    "((?:[\\+\\-])?((?:\\d+\\.\\d*|\\.\\d+)(?:[eEdD][\\+\\-]\\d+)?|\\d+(?:[eEdD][\\+\\-]\\d+))(?!\\.))|((?:[\\+\\-])?\\d+(?!\\.))|(^[a-z]+)|(\\n)|([ \\t]+)|(#.)|([\\w\\=\\.]+)|([^#]*)",
+    std::regex_constants::icase
+); 
+
+struct Token {
+    TokenType type;
+    std::optional<std::string> value;
+};
+
+class Tokenizer {
+    public:
+        inline explicit Tokenizer(std::string src) : src(std::move(src)) {}
+        std::vector<Token> tokenize();
+
+    private:
+        const std::string src;
+        int index;
+
+        std::optional<TokenType> peek() const;
+        Token consume();
+};
 
 class LhaReader {
 private:
@@ -15,18 +51,19 @@ private:
     bool isFLHA = false;
     std::filesystem::path lhaFile;
 
-    void addBlock(BlockId id, std::ifstream& file);
+    std::unique_ptr<LhaBlock> addBlock(BlockId id, std::ifstream& file);
 
 public:
     LhaReader(std::string_view path);
-    void readBlock(BlockId id);
+    bool hasBlock(BlockId id) const;
+    std::unique_ptr<LhaBlock> readBlock(BlockId id);
     void readAll();
 
-    LhaBlock* getBlock(BlockId id) {
+    inline LhaBlock* getBlock(BlockId id) const {
         return blocks.at(id).get();
     }
 
-    int getBlockCount() {
+    inline int getBlockCount() const {
         return blocks.size();
     }
 };

@@ -1,4 +1,4 @@
-#if !defined(HYPERISO_LHA_BLOCKS_H)
+#ifndef HYPERISO_LHA_BLOCKS_H
 #define HYPERISO_LHA_BLOCKS_H
 
 #include <iostream>
@@ -53,6 +53,33 @@ class MassBlock : public LhaBlock {
 public:
     MassBlock(BlockId id) : LhaBlock(id) {}
     std::unique_ptr<AbstractElement> createElement(const std::vector<std::string>& words) override;
+    
+};
+
+class SingleValueBlock : public LhaBlock {
+public:
+    SingleValueBlock(BlockId id) : LhaBlock(id) {}
+    std::unique_ptr<AbstractElement> createElement(const std::vector<std::string>& words) override;
+};
+
+class SMInputsBlock : public SingleValueBlock {
+public:
+    SMInputsBlock(BlockId id) : SingleValueBlock(id) {}
+};
+
+class CKMParamBlock : public SingleValueBlock {
+public:
+    CKMParamBlock(BlockId id) : SingleValueBlock(id) {}
+};
+
+class PMNSParamBlock : public SingleValueBlock {
+public:
+    PMNSParamBlock(BlockId id) : SingleValueBlock(id) {}
+};
+
+class LifetimeBlock : public SingleValueBlock {
+public:
+    LifetimeBlock(BlockId id) : SingleValueBlock(id) {}
 };
 
 class InfoBlock : public LhaBlock {
@@ -60,6 +87,39 @@ public:
     InfoBlock(BlockId id) : LhaBlock(id) {}
     std::unique_ptr<AbstractElement> createElement(const std::vector<std::string>& words) override;
 }; 
+
+class DecayConstBlock : public LhaBlock {
+public:
+    DecayConstBlock(BlockId id) : LhaBlock(id) {}
+    std::unique_ptr<AbstractElement> createElement(const std::vector<std::string>& words) override;
+};
+
+class DecayConstRatioBlock : public LhaBlock {
+public:
+    DecayConstRatioBlock(BlockId id) : LhaBlock(id) {}
+    std::unique_ptr<AbstractElement> createElement(const std::vector<std::string>& words) override;
+};
+
+class BagBlock : public LhaBlock {
+public:
+    BagBlock(BlockId id) : LhaBlock(id) {}
+    std::unique_ptr<AbstractElement> createElement(const std::vector<std::string>& words) override;
+};
+
+class ObsBlock : public LhaBlock {
+public:
+    ObsBlock(BlockId id) : LhaBlock(id) {}
+    std::unique_ptr<AbstractElement> createElement(const std::vector<std::string>& words) override;
+};
+
+class WilsonBlock : public LhaBlock {
+public:
+    WilsonBlock(BlockId id) : LhaBlock(id) {}
+    void readData(std::ifstream& file);
+    int findImOffset(std::ifstream& file);
+    std::unique_ptr<AbstractElement> createElement(const std::vector<std::string>& words) override;
+};
+
 
 class LhaBlockFactory {
 public:

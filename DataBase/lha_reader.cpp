@@ -7,24 +7,34 @@
 #include <vector>
 #include <filesystem>
 #include <algorithm>
+#include <regex>
 
 #include "lha_blocks.h"
 #include "lha_reader.h"
 
-void LhaReader::addBlock(BlockId id, std::ifstream& file) {
+std::vector<Token> Tokenizer::tokenize() {
+    auto rit = std::sregex_iterator(src.begin(), src.end(), analyzer_rx);
+    auto rend = std::sregex_iterator();
+
+    while (rit != rend) {
+        
+    } 
+}
+
+std::unique_ptr<LhaBlock> LhaReader::addBlock(BlockId id, std::ifstream& file) {
     auto block = LhaBlockFactory::createBlock(id, isFLHA);
     if (block) {
         block->readData(file);
-        blocks[id] = std::move(block);
     }
+    return block;
 }
 
 LhaReader::LhaReader(std::string_view path) : lhaFile(std::filesystem::path(path)) {
-        isFLHA = this->lhaFile.extension().string() == ".flha"; 
-    }
+    isFLHA = this->lhaFile.extension().string() == ".flha"; 
+}
 
-void LhaReader::readBlock(BlockId id) {
-    if (this->blocks.contains(id)) return; // C++20. Use blocks.count(id) != 0 before.
+std::unique_ptr<LhaBlock> LhaReader::readBlock(BlockId id) {
+    if (this->hasBlock(id)) return nullptr; 
 
     std::ifstream file(this->lhaFile.string());
     std::string line;
@@ -36,10 +46,10 @@ void LhaReader::readBlock(BlockId id) {
         std::istringstream stream(line);
         stream >> _ >> name;
         if (name == targetName) {
-            addBlock(id, file);
-            break;
+            return addBlock(id, file);
         }
     }
+    return nullptr;
 }
 
 void LhaReader::readAll() {
@@ -54,13 +64,21 @@ void LhaReader::readAll() {
     }
 }
 
+bool LhaReader::hasBlock(BlockId id) const {
+    return this->blocks.contains(id);  // C++20. Use blocks.count(id) != 0 before.
+}
+
 int main() {
     LhaReader reader("../DataBase/example.flha");
     reader.readAll();
 
     std::cout << "Parsing ended, read " << reader.getBlockCount() << " block(s)." << std::endl;
-    std::cout << reader.getBlock(BlockId::FCINFO)->toString() << std::endl;
-    std::cout << reader.getBlock(BlockId::FMASS)->toString() << std::endl;
+    for (const auto& k : blockNames) {
+        BlockId id = BlockIdHelper::getBlockId(k);
+        if (reader.hasBlock(id)) {
+            std::cout << reader.getBlock(id)->toString() << std::endl;
+        }
+    }
 
     return 0;
 }

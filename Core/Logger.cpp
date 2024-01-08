@@ -1,6 +1,3 @@
-#include <string>
-#include <iostream>
-
 class Logger {
 public:
     enum class LogLevel {
