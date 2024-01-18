@@ -13,7 +13,7 @@
 
 class LhaBlock {
 private:
-    std::vector<std::unique_ptr<AbstractElement>> entries;     // Don't touch, it works [not quite actually, leads to a segfault]
+    std::vector<std::unique_ptr<AbstractElement>> entries; 
     std::string name;
 
 public:
