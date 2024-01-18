@@ -22,44 +22,58 @@ enum class TokenType {
     OTHER
 };
 
+std::map<TokenType, std::string> tokenTypeNames {{TokenType::FLOAT, "Float"}
+                                                , {TokenType::INTEGER, "Integer"}
+                                                , {TokenType::BLOCK, "Block"}
+                                                , {TokenType::NEWLINE, "Newline"}
+                                                , {TokenType::SKIP, "Skip"}
+                                                , {TokenType::COMMENT, "Comment"}
+                                                , {TokenType::WORD, "Word"}
+                                                , {TokenType::OTHER, "Other"}};
+
 const std::regex analyzer_rx(
-    "((?:[\\+\\-])?((?:\\d+\\.\\d*|\\.\\d+)(?:[eEdD][\\+\\-]\\d+)?|\\d+(?:[eEdD][\\+\\-]\\d+))(?!\\.))|((?:[\\+\\-])?\\d+(?!\\.))|(^[a-z]+)|(\\n)|([ \\t]+)|(#.)|([\\w\\=\\.]+)|([^#]*)",
+    "((?:[\\+\\-])?((?:\\d+\\.\\d*|\\.\\d+)(?:[eEdD][\\+\\-]\\d+)?|\\d+(?:[eEdD][\\+\\-]\\d+))(?!\\.))|((?:[\\+\\-])?\\d+(?!\\.))|(block)|(\\n)|([ \\t]+)|(#.*)|([\\w\\=\\.]+)|([^#]*)",
     std::regex_constants::icase
 ); 
 
 struct Token {
     TokenType type;
-    std::optional<std::string> value;
+    std::string value;
+    int row;
+    int col;
+
+    inline explicit Token(TokenType tt, const std::string& val, int r, int c) : type(tt), value(val), row(r), col(c) {}
 };
 
-class Tokenizer {
+class Parser {
     public:
-        inline explicit Tokenizer(std::string src) : src(std::move(src)) {}
-        std::vector<Token> tokenize();
+        inline explicit Parser(std::string src) : src(std::move(src)) {}
+        void parse(bool comments = false);
+        inline std::vector<std::vector<std::string>> getBlock(const std::string& blockName) { return this->rawBlocks[blockName]; }
+        inline std::map<std::string, std::vector<std::vector<std::string>>> getBlocks() { return this->rawBlocks; }
 
     private:
         const std::string src;
-        int index;
+        std::vector<Token> tokens;
+        std::map<std::string, std::vector<std::vector<std::string>>> rawBlocks;
 
-        std::optional<TokenType> peek() const;
-        Token consume();
+        void tokenize();
 };
 
 class LhaReader {
 private:
-    std::map<BlockId, std::unique_ptr<LhaBlock>> blocks;
+    std::map<std::string, std::unique_ptr<LhaBlock>> blocks;
     bool isFLHA = false;
     std::filesystem::path lhaFile;
 
-    std::unique_ptr<LhaBlock> addBlock(BlockId id, std::ifstream& file);
+    void addBlock(const std::string& id, const std::vector<std::vector<std::string>>& lines);
 
 public:
     LhaReader(std::string_view path);
-    bool hasBlock(BlockId id) const;
-    std::unique_ptr<LhaBlock> readBlock(BlockId id);
+    bool hasBlock(const std::string& id) const;
     void readAll();
 
-    inline LhaBlock* getBlock(BlockId id) const {
+    inline LhaBlock* getBlock(const std::string& id) const {
         return blocks.at(id).get();
     }
 
