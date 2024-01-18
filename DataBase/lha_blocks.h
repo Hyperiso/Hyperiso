@@ -1,13 +1,9 @@
 #ifndef HYPERISO_LHA_BLOCKS_H
 #define HYPERISO_LHA_BLOCKS_H
 
-#include <iostream>
-#include <fstream>
 #include <string>
-#include <map>
 #include <memory>
 #include <vector>
-#include <algorithm>
 
 #include "lha_elements.h"
 

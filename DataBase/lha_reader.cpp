@@ -2,7 +2,6 @@
 #include <fstream>
 #include <string>
 #include <sstream>
-#include <map>
 #include <memory>
 #include <vector>
 #include <filesystem>
@@ -39,7 +38,7 @@ void Parser::tokenize() {
             ++cLine;
             cCol = 0;
         } else if (tokenType != TokenType::SKIP && value != "") {
-            this->tokens.emplace_back(Token(tokenType, value, cLine, cCol));
+            this->tokens.emplace_back(Token{tokenType, value, cLine, cCol});
             ++cCol;
         }
 

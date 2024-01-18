@@ -1,16 +1,12 @@
 #ifndef HYPERISO_LHA_ELEMENTS_H
 #define HYPERISO_LHA_ELEMENTS_H
 
-#include <complex>
 #include <string>
 #include <optional>
 #include <vector>
 #include <memory>
-#include <algorithm>
 #include <map>
 #include "../Core/Logger.cpp"
-
-typedef std::complex<double> complex_t;
 
 enum class RenormalizationScheme {
     POLE, MSBAR, DRBAR, ONE_S, KIN, INVARIANT, MOM, SMOM, NONE
@@ -19,27 +15,6 @@ enum class RenormalizationScheme {
 const std::map<std::string, int> SCALE_BLOCKS = {{"FMASS", 3}, {"FCONST", 4}, {"FCONSTRATIO", 6}, {"FBAG", 4}, {"FWCOEF", 0}, {"IMFWCOEF", 0}, {"FOBS", 3}, {"FOBSSM", 3}, {"FOBSERR", 3}};
 const std::map<std::string, int> SCHEME_BLOCKS = {{"FMASS", 2}, {"FCONST", 3}, {"FCONSTRATIO", 5}, {"FBAG", 3}};
 const std::map<std::string, int> VALUE_POS = {{"FCONST", 2}, {"FCONSTRATIO", 4}, {"FBAG", 2}, {"FWCOEF", 5}, {"IMFWCOEF", 5}, {"FOBS", 2}, {"FOBSSM", 2}, {"FOBSERR", 2}, {"FDIPOLE", 3}};
-
-template <typename U>
-struct StringConverter {
-    static U convert(const std::string& str) {
-        static_assert(std::is_same_v<U, void>, "Unsupported conversion");
-    }
-};
-
-template <>
-struct StringConverter<double> {
-    static double convert(const std::string& str) {
-        return std::stod(str);
-    }
-};
-
-template <>
-struct StringConverter<std::string> {
-    static std::string convert(const std::string& str) {
-        return str;
-    }
-};
 
 class AbstractElement {
 protected:

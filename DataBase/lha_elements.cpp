@@ -3,6 +3,28 @@
 #include <vector>
 #include <string>
 #include <memory>
+#include <sstream>
+
+template <typename U>
+struct StringConverter {
+    static U convert(const std::string& str) {
+        static_assert(std::is_same_v<U, void>, "Unsupported conversion");
+    }
+};
+
+template <>
+struct StringConverter<double> {
+    static double convert(const std::string& str) {
+        return std::stod(str);
+    }
+};
+
+template <>
+struct StringConverter<std::string> {
+    static std::string convert(const std::string& str) {
+        return str;
+    }
+};
 
 template<typename T>
 LhaElement<T>::LhaElement(const std::string& block, const std::vector<std::string>& line) : block(block), AbstractElement(encodeId(block, line)) {

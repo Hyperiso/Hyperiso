@@ -1,12 +1,10 @@
 #ifndef HYPERISO_LHA_READER_H
 #define HYPERISO_LHA_READER_H
 
-#include <fstream>
 #include <string>
 #include <map>
 #include <memory>
 #include <filesystem>
-#include <optional>
 #include <regex>
 
 #include "lha_blocks.h"
@@ -22,15 +20,6 @@ enum class TokenType {
     OTHER
 };
 
-std::map<TokenType, std::string> tokenTypeNames {{TokenType::FLOAT, "Float"}
-                                                , {TokenType::INTEGER, "Integer"}
-                                                , {TokenType::BLOCK, "Block"}
-                                                , {TokenType::NEWLINE, "Newline"}
-                                                , {TokenType::SKIP, "Skip"}
-                                                , {TokenType::COMMENT, "Comment"}
-                                                , {TokenType::WORD, "Word"}
-                                                , {TokenType::OTHER, "Other"}};
-
 const std::regex analyzer_rx(
     "((?:[\\+\\-])?((?:\\d+\\.\\d*|\\.\\d+)(?:[eEdD][\\+\\-]\\d+)?|\\d+(?:[eEdD][\\+\\-]\\d+))(?!\\.))|((?:[\\+\\-])?\\d+(?!\\.))|(block)|(\\n)|([ \\t]+)|(#.*)|([\\w\\=\\.]+)|([^#]*)",
     std::regex_constants::icase
@@ -41,8 +30,6 @@ struct Token {
     std::string value;
     int row;
     int col;
-
-    inline explicit Token(TokenType tt, const std::string& val, int r, int c) : type(tt), value(val), row(r), col(c) {}
 };
 
 class Parser {
