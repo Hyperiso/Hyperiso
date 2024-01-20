@@ -17,7 +17,7 @@ public:
     
     QCDParameters();
 
-    double alphasRunning(double Q, double Lambda, int nf);
+    double alphasRunning(double Q, double Lambda, int nf) const;
     double DichotomieLambda(double alpha_running, double Q, int nf);
     double runningAlphasCalculation(double Q);
 
