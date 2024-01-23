@@ -9,7 +9,8 @@ complex_t ObsEvaluator::Evaluate(Observable *o)
 {
     auto wm = WilsonManager::GetInstance();
     wm->setScale(o->getScale());
-    ObsEvaluator::alpha_s = QCDParameters::runningAlphasCalculation(o->getScale());
+    QCDParameters QCDParams;
+    ObsEvaluator::alpha_s = QCDParams.runningAlphasCalculation(o->getScale());
 
     switch (o->getId())
     {
