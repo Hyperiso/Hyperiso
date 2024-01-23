@@ -10,19 +10,30 @@
 typedef std::complex<double> complex_t; 
 typedef std::vector<std::vector<complex_t>> WilsonSet;
 
+enum class WilsonCoefficient {
+    C1, C2, C3, C4, C5, C6, C7, C8, C9, C10, CQ1, CQ2, CP7, CP8, CP9, CP10, CPQ1, CPQ2
+};
+
 class WilsonManager{
 private:
+    static WilsonManager* instance;
+
     WilsonSet C_match;  // C1...10, CQ1, CQ2, C'7...10, CQ'1, CQ'2 for each order
     WilsonSet C;
     const double matching_scale;
     double scale;
 
-public:
     inline explicit WilsonManager(double mu_match): matching_scale(mu_match) {
         WilsonInitializer wi{C_match, mu_match};
         wi.init();
     }
-    complex_t get(size_t id, int order);    // Returns C_id at a given order
+
+public:
+    WilsonManager(WilsonManager&) = delete;
+    void operator=(const WilsonManager&) = delete;
+    static WilsonManager* GetInstance(double mu_match=0);
+
+    complex_t get(WilsonCoefficient wc, int order) const;    // Returns C_id at a given order
     void setScale(double mu);               // Computes the C's at scale mu using RGEs  
 };  
 
