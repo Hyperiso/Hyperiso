@@ -3,6 +3,9 @@
 
 #include <complex>
 #include <vector>
+#include "./External_Integration/tensorflow-master/tensorflow/core/public/session.h"
+#include "./External_Integration/tensorflow-master/tensorflow/core/platform/env.h"
+#include "./External_Integration/tensorflow-master/tensorflow/core/framework/tensor.h"
 
 #define MAX_ORDER 2
 #define NW 18
@@ -20,8 +23,8 @@ private:
 
     WilsonSet C_match;  // C1...10, CQ1, CQ2, C'7...10, CQ'1, CQ'2 for each order
     WilsonSet C;
-    const double matching_scale;
-    double scale;
+    const double matching_scale {81};
+    double scale {matching_scale};
 
     inline explicit WilsonManager(double mu_match): matching_scale(mu_match) {
         WilsonInitializer wi{C_match, mu_match};
