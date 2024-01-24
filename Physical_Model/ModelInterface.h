@@ -1,8 +1,8 @@
 #ifndef MODEL_INTERFACE_H
 #define MODEL_INTERFACE_H
 
-#include "ModelParameters.h"
-#include "ModelOutput.h"
+#include "QCDParameters.h"
+//#include "ModelOutput.h"
 
 class ModelInterface {
 public:

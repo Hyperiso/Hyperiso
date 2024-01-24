@@ -6,5 +6,7 @@ set(SRC
     ./DataBase/lha_reader.cpp
     ./DataBase/lha_blocks.cpp
     ./DataBase/lha_elements.cpp)
+    ./Physical_Model/QCDParameters.cpp
+    ./main.cpp)
 
 add_executable(hyperiso ${SRC})
