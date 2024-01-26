@@ -3,7 +3,7 @@
 class Wilson_parameters {
 
     QCDParameters run;
-    Wilson_parameters();
+    
 
 
     static constexpr int arraySize {11};
@@ -43,4 +43,6 @@ class Wilson_parameters {
     std::array<std::array<double, arraySize>, arraySize> U2 = {};
     std::array<double, arraySize> etaMuPowers = {};
 
+    public:
+    Wilson_parameters();
 };

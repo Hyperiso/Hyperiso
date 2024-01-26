@@ -32,6 +32,10 @@ Parameters::Parameters() {
     yub = std::vector<double>(4, 0); // yub[3]
     stop_tan_betamix = std::vector<std::vector<double>>(2, std::vector<double>(2, 0.0));
 
+    masses[6] = 173.0;  // Top quark
+    masses[5] = 4.18;
+    coupling[1] = 1;
+    coupling[2] = 1;
     A_t = 0;
     MqL3_Q = 0;
     MbR_Q = 0;
@@ -49,6 +53,6 @@ Parameters *Parameters::GetInstance()
 void Parameters::setScale(double Q) {
 
     this->Q = Q;
-    this->sm.mass_b_Q = run.(Q);
+    this->sm.mass_b_Q = run.runningAlphasCalculation(Q);
     this->sm.mass_t_Q = run.runningAlphasCalculation(Q);
 }

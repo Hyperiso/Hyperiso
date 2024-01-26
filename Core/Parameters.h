@@ -1,6 +1,7 @@
 #include <vector>
 #include "QCDParameters.h"
-
+#include <map>
+#include <string>
 
 class Parameters {
 public:
@@ -15,16 +16,30 @@ public:
     double Q {sm.mass_top_pole};
 
     static Parameters* GetInstance();
-    void setScale(double Q); 
+    void setScale(double Q);
+
+    double operator()(std::string block, int pdgCode) {
+        if (block == "MASS") {
+            return masses[pdgCode];
+        }
+        if (block =="Coupling") {
+            return coupling[pdgCode];
+        }
+        
+    }
 private:
     static Parameters* instance;
     Parameters(); // Constructeur pour initialiser les paramètres
+
+    std::map<int, double> masses;
+    std::map<int, double> coupling;
 
     Parameters(const Parameters&) = delete;
     Parameters& operator=(const Parameters&) = delete;
     Parameters(Parameters&&) noexcept = default;
     Parameters& operator=(Parameters&&) noexcept = default;
 
+    
     
 };
 
