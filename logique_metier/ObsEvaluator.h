@@ -10,7 +10,6 @@ typedef std::complex<double> complex_t;
 
 class ObsEvaluator {
 private:
-    static double alpha_s;
     static complex_t Bs_mumu();
     static complex_t Bd_mumu();
 
