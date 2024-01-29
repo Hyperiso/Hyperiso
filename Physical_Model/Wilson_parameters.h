@@ -1,11 +1,15 @@
+#pragma once
 #include "QCDParameters.h"
+#include <array>
 
 class Wilson_parameters {
 
     QCDParameters run;
     
-
-
+    static Wilson_parameters* instance;
+    Wilson_parameters();
+    
+    public:
     static constexpr int arraySize {11};
     std::array<double, arraySize> C0w = {};
     std::array<double, arraySize> C1w = {};
@@ -42,7 +46,19 @@ class Wilson_parameters {
     std::array<std::array<double, arraySize>, arraySize> U1 = {};
     std::array<std::array<double, arraySize>, arraySize> U2 = {};
     std::array<double, arraySize> etaMuPowers = {};
+    
 
-    public:
-    Wilson_parameters();
+    
+    Wilson_parameters(const Wilson_parameters&) = delete;
+    void operator=(const Wilson_parameters&) = delete;
+
+    // Méthode statique pour accéder à l'instance
+    static Wilson_parameters* GetInstance() {
+        if (!instance) {
+            instance = new Wilson_parameters();
+        }
+        return instance;
+    }
 };
+
+Wilson_parameters* Wilson_parameters::instance = nullptr;

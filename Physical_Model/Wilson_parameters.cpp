@@ -1,5 +1,4 @@
 #include "Wilson_parameters.h"
-#include <array>
 #include <cmath>
 
 Wilson_parameters::Wilson_parameters() {

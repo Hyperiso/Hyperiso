@@ -22,15 +22,16 @@ enum class WilsonCoefficient {
 class WilsonManager{
 private:
     static WilsonManager* instance;
-
+    QCDParameters run;
     WilsonSet C_match;  // C1...10, CQ1, CQ2, C'7...10, CQ'1, CQ'2 for each order
     WilsonSet C;
     const double Q_matching;
     double Q;
+    std::unique_ptr<InitializationStrategy> strategy;
 
     inline explicit WilsonManager(double mu_match, InitializationStrategy* strategy): Q_matching(mu_match) {
-        WilsonInitializer wi{C_match, mu_match, strategy};
-        wi.init();
+        WilsonInitializer wi{mu_match, strategy};
+        wi.init(C_match);
     }
 
 public:
@@ -48,7 +49,9 @@ public:
     }
 
     complex_t get(WilsonCoefficient wc, int order) const;    // Returns C_id at a given order
-    void setScale(double mu);               // Computes the C's at scale mu using RGEs  
+    void setScale(double mu) {
+        strategy->set_base1(C, C_match, Q, Q_matching, run);  // Appel à set_base1
+    }               // Computes the C's at scale mu using RGEs 
 };  
 
 class WilsonInitializer {
@@ -56,9 +59,7 @@ private:
     Parameters* sm = Parameters::GetInstance();
     std::unique_ptr<InitializationStrategy> strategy;
     double scale;
-    WilsonSet C;
     QCDParameters run;
-    Wilson_parameters W_param;
     void scanLHA(std::string_view file); 
     // void initSM_LO();
     // void initSM_NLO();
@@ -67,12 +68,13 @@ private:
     // void initSUSY();
 
 public:
-    WilsonInitializer(WilsonSet& C_empty, double mu_match, InitializationStrategy* strat) :
-    C(C_empty), scale(mu_match), strategy(strat) {}
+    WilsonInitializer(double mu_match, InitializationStrategy* strat) :
+    scale(mu_match), strategy(strat) {}
 
-    void init() {
-        strategy->init(sm, scale, C, run, W_param);
+    void init(WilsonSet& C_match) {
+        strategy->init(sm, scale, C_match, run);
     }
+    
 };
 
 class InitializationStrategy {
@@ -80,25 +82,29 @@ class InitializationStrategy {
     
 
 public:
-    virtual void init(Parameters* sm, double scale, WilsonSet& C, QCDParameters& run, Wilson_parameters& W_param) = 0;
+    virtual void init(Parameters* sm, double scale, WilsonSet& C_match, QCDParameters& run) = 0;
+    virtual void set_base1(WilsonSet& C, WilsonSet& C_match, double Q, const double Q_match, QCDParameters& run) = 0;
     virtual ~InitializationStrategy() {}
 };
 
 class SM_LO_Strategy : public InitializationStrategy {
 public:
-    void init(Parameters* sm, double scale, WilsonSet& C, QCDParameters& run, Wilson_parameters& W_param) override;
+    void init(Parameters* sm, double scale, WilsonSet& C_match, QCDParameters& run) override;
+    void set_base1(WilsonSet& C, WilsonSet& C_match, double Q, const double Q_match, QCDParameters& run) override;
 
 };
 
 class SM_NLO_Strategy : public InitializationStrategy {
 public:
-    void init(Parameters* sm, double scale, WilsonSet& C, QCDParameters& run, Wilson_parameters& W_param) override;
+    void init(Parameters* sm, double scale, WilsonSet& C_match, QCDParameters& run) override;
+    void set_base1(WilsonSet& C, WilsonSet& C_match, double Q, const double Q_match, QCDParameters& run) override;
 
 };
 
 class SM_NNLO_Strategy : public InitializationStrategy {
 public:
-    void init(Parameters* sm, double scale, WilsonSet& C, QCDParameters& run, Wilson_parameters& W_param) override;
+    void init(Parameters* sm, double scale, WilsonSet& C_match, QCDParameters& run) override;
+    void set_base1(WilsonSet& C, WilsonSet& C_match, double Q, const double Q_match, QCDParameters& run) override;
 
 };
 #endif // HYPERISO_WILSON_H

@@ -1,59 +1,43 @@
-#include <string>
+#include "Logger.h"
 #include <iostream>
 
-class Logger {
-public:
-    enum class LogLevel {
-        INFO,
-        WARN,
-        ERROR,
-        DEBUG
-    };
+Logger& Logger::getInstance() {
+    static Logger instance;
+    return instance;
+}
 
-    static Logger& getInstance() {
-        static Logger instance;
-        return instance;
+void Logger::setLevel(LogLevel level) {
+    this->level = level;
+}
+
+void Logger::log(LogLevel messageLevel, const std::string& message) {
+    if (messageLevel >= level) {
+        std::cout << "[" << toString(messageLevel) << "] " << message << std::endl;
     }
+}
 
-    void setLevel(LogLevel level) {
-        this->level = level;
+void Logger::info(const std::string& message) {
+    log(LogLevel::INFO, message);
+}
+
+void Logger::warn(const std::string& message) {
+    log(LogLevel::WARN, message);
+}
+
+void Logger::error(const std::string& message) {
+    log(LogLevel::ERROR, message);
+}
+
+void Logger::debug(const std::string& message) {
+    log(LogLevel::DEBUG, message);
+}
+
+std::string Logger::toString(LogLevel level) {
+    switch (level) {
+        case LogLevel::INFO:  return "INFO";
+        case LogLevel::WARN:  return "WARN";
+        case LogLevel::ERROR: return "ERROR";
+        case LogLevel::DEBUG: return "DEBUG";
+        default: return "UNKNOWN";
     }
-
-    void log(LogLevel messageLevel, const std::string& message) {
-        if (messageLevel >= level) {
-            // Implémentation de la logique de log, exemple:
-            std::cout << "[" << toString(messageLevel) << "] " << message << std::endl;
-        }
-    }
-
-    // Méthodes spécifiques pour chaque niveau
-    void info(const std::string& message) {
-        log(LogLevel::INFO, message);
-    }
-
-    void warn(const std::string& message) {
-        log(LogLevel::WARN, message);
-    }
-
-    void error(const std::string& message) {
-        log(LogLevel::ERROR, message);
-    }
-
-    void debug(const std::string& message) {
-        log(LogLevel::DEBUG, message);
-    }
-
-private:
-    Logger() {}
-    LogLevel level = LogLevel::INFO;
-
-    std::string toString(LogLevel level) {
-        switch (level) {
-            case LogLevel::INFO:  return "INFO";
-            case LogLevel::WARN:  return "WARN";
-            case LogLevel::ERROR: return "ERROR";
-            case LogLevel::DEBUG: return "DEBUG";
-            default: return "UNKNOWN";
-        }
-    }
-};
+}
