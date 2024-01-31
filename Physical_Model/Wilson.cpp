@@ -115,6 +115,43 @@ void SM_LO_Strategy::set_base1(WilsonSet& C, WilsonSet& C_match, double Q, const
 
 }
 
+void SM_LO_Strategy::set_base2(WilsonSet& C, WilsonSet& C_match, double Q, const double Q_match, QCDParameters& run) {
+
+	auto C_matchs = extractCoefficients(C_match, 0);
+
+	double alphas_muW=run.runningAlphasCalculation(Q_match); //mt pole and mb pole
+	double alphas_mu=run.runningAlphasCalculation(Q); //mt pole and mb pole
+	double eta_mu=alphas_muW/alphas_mu;
+	
+	complex_t C0w7= C_matchs[7]-1./3.*C_matchs[5]-C_matchs[6]; 
+
+	complex_t C0w8= C_matchs[8]+C_matchs[5];
+
+	std::vector<double> etaMuPowers;
+
+    for (auto exponent : {6./23., -12./23., 0.4086, -0.4230, -0.8994, 0.1456, 16./23., 14./23., 11./23., 29./23.}) {
+        etaMuPowers.push_back(std::pow(eta_mu, exponent));
+    }
+
+	if (C.size() < 1) C.resize(1);
+    auto& C_LO = C[0];
+	C_LO.resize(static_cast<size_t>(WilsonCoefficient::CPQ2) + 1, complex_t(0, 0));
+
+	C_LO[0] = (0.5 * etaMuPowers[0] - 0.5 * etaMuPowers[1]) * C_matchs[2];  // C1
+    C_LO[1] = (0.5 * etaMuPowers[0] + 0.5 * etaMuPowers[1]) * C_matchs[2];  // C2
+    C_LO[2] = (-1./14. * etaMuPowers[0] + 1./6. * etaMuPowers[1] + 0.0509 * etaMuPowers[2] - 0.1403 * etaMuPowers[3] - 0.01126 * etaMuPowers[4] + 0.0054 * etaMuPowers[5]) * C_matchs[2];  // C3
+    C_LO[3] = (-1./14. * etaMuPowers[0] - 1./6. * etaMuPowers[1] + 0.0984 * etaMuPowers[2] + 0.1214 * etaMuPowers[3] + 0.0156 * etaMuPowers[4] + 0.0026 * etaMuPowers[5]) * C_matchs[2];  // C4
+    C_LO[4] = (-0.0397 * etaMuPowers[2] + 0.0117 * etaMuPowers[3] - 0.0025 * etaMuPowers[4] + 0.0304 * etaMuPowers[5]) * C_matchs[2];  // C5
+    C_LO[5] = (0.0335 * etaMuPowers[2] + 0.0239 * etaMuPowers[3] - 0.0462 * etaMuPowers[4] - 0.0112 * etaMuPowers[5]) * C_matchs[2];  // C6
+    C_LO[6] = std::pow(eta_mu, 16./23.) * C_matchs[7] + 8./3. * (std::pow(eta_mu, 14./23.) - std::pow(eta_mu, 16./23.)) * C_matchs[8] + C_matchs[2] * (2.2996 * etaMuPowers[7] - 1.0880 * etaMuPowers[6] - 3./7. * etaMuPowers[0] - 1./14. * etaMuPowers[1] - 0.6494 * etaMuPowers[2] - 0.0380 * etaMuPowers[3] - 0.0185 * etaMuPowers[4] - 0.0057 * etaMuPowers[5]);  // C7
+    C_LO[7] = std::pow(eta_mu, 14./23.) * C_matchs[8] + C_matchs[2] * (0.8623 * etaMuPowers[7] - 0.9135 * etaMuPowers[2] + 0.0873 * etaMuPowers[3] - 0.0571 * etaMuPowers[4] + 0.0209 * etaMuPowers[5]);  // C8
+    C_LO[8] = C_matchs[9] + 4. * pi / alphas_muW * (-4. / 33. * (1. - etaMuPowers[8]) + 8. / 87. * (1. - etaMuPowers[9])) * C_matchs[2];  // C9
+    C_LO[9] = C_matchs[10];  // C10
+
+
+
+}
+
 
 void SM_NLO_Strategy::init(Parameters* sm, double scale, WilsonSet& C_match, QCDParameters& run) {
 
@@ -218,6 +255,81 @@ void SM_NLO_Strategy::set_base1(WilsonSet& C, WilsonSet& C_match, double Q, cons
 
     C_NLO[10] = eta_mu * C_matchs[10];
 
+}
+
+void SM_NLO_Strategy::set_base2(WilsonSet& C, WilsonSet& C_match, double Q, const double Q_match, QCDParameters& run) {
+
+	auto C_matchs_0 = extractCoefficients(C_match, 0);
+	auto C_matchs = extractCoefficients(C_match, 1);
+
+	double alphas_muW=run.runningAlphasCalculation(Q_match); //mt pole and mb pole
+	double alphas_mu=run.runningAlphasCalculation(Q); //mt pole and mb pole
+	double eta_mu=alphas_muW/alphas_mu;
+	
+	complex_t C0w7= C_matchs_0[7]-1./3.*C_matchs_0[5]-C_matchs_0[6]; 
+	complex_t C1w7= C_matchs[7]-1./3.*C_matchs[5]-C_matchs[6]; 
+
+	complex_t C0w8= C_matchs_0[8]+C_matchs_0[5];
+	complex_t C1w8= C_matchs[8]+C_matchs[5]; 
+ 
+	
+
+	std::vector<double> etaMuPowers;
+
+	for (auto exponent : {6./23., -12./23., 0.4086, -0.4230, -0.8994, 0.1456, 39./23., 37./23., 11./23., 29./23.}) {
+        etaMuPowers.push_back(std::pow(eta_mu, exponent));
+    }
+
+	if (C.size() < 1) C.resize(1);
+    auto& C_NLO = C[1];
+
+	C_NLO[0] = (C_matchs_0[2] * 0.8136 + 1.0197 * eta_mu * C_matchs[1] / 15.) * etaMuPowers[0] + (C_matchs_0[2] * 0.7142 + 2.9524 * eta_mu * C_matchs[1] / 15.) * etaMuPowers[1];  // C1
+    C_NLO[1] = (C_matchs_0[2] * 0.8136 + 1.0197 * eta_mu * C_matchs[1] / 15.) * etaMuPowers[0] - (C_matchs_0[2] * 0.7142 + 2.9524 * eta_mu * C_matchs[1] / 15.) * etaMuPowers[1];  // C2
+    C_NLO[2] = (-0.0766 * C_matchs_0[2] - 0.1457 * eta_mu * C_matchs[1] / 15.) * etaMuPowers[0] + (-0.1455 * C_matchs_0[2] - 0.9841 * eta_mu * C_matchs[1] / 15.) * etaMuPowers[1]
+               + (0.1494 * eta_mu * C_matchs[4] - 0.8848 * C_matchs_0[2] + 0.2303 * eta_mu * C_matchs[1] / 15.) * etaMuPowers[2]
+               + (-0.3726 * eta_mu * C_matchs[4] + 0.4137 * C_matchs_0[2] + 1.4672 * eta_mu * C_matchs[1] / 15.) * etaMuPowers[3]
+               + (0.0738 * eta_mu * C_matchs[4] - 0.0114 * C_matchs_0[2] + 0.0971 * eta_mu * C_matchs[1] / 15.) * etaMuPowers[4]
+               + (-0.0173 * eta_mu * C_matchs[4] + 0.1722 * C_matchs_0[2] - 0.0213 * eta_mu * C_matchs[1] / 15.) * etaMuPowers[5];  // C3
+
+	C_NLO[3] = (-0.2353 * C_matchs_0[2] - 0.1457 * eta_mu * C_matchs[1] / 15.) * etaMuPowers[0]
+			+ (-0.0397 * C_matchs_0[2] + 0.9841 * eta_mu * C_matchs[1] / 15.) * etaMuPowers[1]
+			+ (0.2885 * eta_mu * C_matchs[4] + 0.4920 * C_matchs_0[2] + 0.4447 * eta_mu * C_matchs[1] / 15.) * etaMuPowers[2]
+			+ (0.3224 * eta_mu * C_matchs[4] - 0.2758 * C_matchs_0[2] - 1.2696 * eta_mu * C_matchs[1] / 15.) * etaMuPowers[3]
+			+ (-0.1025 * eta_mu * C_matchs[4] + 0.0019 * C_matchs_0[2] - 0.1349 * eta_mu * C_matchs[1] / 15.) * etaMuPowers[4]
+			+ (-0.0084 * eta_mu * C_matchs[4] - 0.1449 * C_matchs_0[2] - 0.0104 * eta_mu * C_matchs[1] / 15.) * etaMuPowers[5];
+
+	// C5
+	C_NLO[4] = 0.0397 * C_matchs_0[2] * etaMuPowers[0] + 0.0926 * C_matchs_0[2] * etaMuPowers[1]
+			+ (-0.1163 * eta_mu * C_matchs[4] + 0.7342 * C_matchs_0[2] - 0.1792 * eta_mu * C_matchs[1] / 15.) * etaMuPowers[2]
+			+ (0.0310 * eta_mu * C_matchs[4] - 0.1262 * C_matchs_0[2] - 0.1221 * eta_mu * C_matchs[1] / 15.) * etaMuPowers[3]
+			+ (0.0162 * eta_mu * C_matchs[4] - 0.1209 * C_matchs_0[2] + 0.0213 * eta_mu * C_matchs[1] / 15.) * etaMuPowers[4]
+			+ (-0.0975 * eta_mu * C_matchs[4] - 0.1085 * C_matchs_0[2] - 0.1197 * eta_mu * C_matchs[1] / 15.) * etaMuPowers[5];
+
+	C_NLO[5] = -0.1191 * C_matchs_0[2] * etaMuPowers[0] - 0.2778 * C_matchs_0[2] * etaMuPowers[1]
+           + (0.0982 * eta_mu * C_matchs[4] - 0.5544 * C_matchs_0[2] + 0.1513 * eta_mu * C_matchs[1] / 15.) * etaMuPowers[2]
+           + (0.0634 * eta_mu * C_matchs[4] + 0.1915 * C_matchs_0[2] - 0.2497 * eta_mu * C_matchs[1] / 15.) * etaMuPowers[3]
+           + (0.3026 * eta_mu * C_matchs[4] - 0.2744 * C_matchs_0[2] + 0.3983 * eta_mu * C_matchs[1] / 15.) * etaMuPowers[4]
+           + (0.0358 * eta_mu * C_matchs[4] + 0.3568 * C_matchs_0[2] + 0.0440 * eta_mu * C_matchs[1] / 15.) * etaMuPowers[5];
+
+
+	C_NLO[6] = std::pow(eta_mu, 39./23.) * C1w7 
+           + 8./3. * (std::pow(eta_mu, 37./23.) - std::pow(eta_mu, 39./23.)) * C1w8 
+           + (297664./14283. * std::pow(eta_mu, 16./23.) - 7164416./357075. * std::pow(eta_mu, 14./23.) + 256868./14283. * std::pow(eta_mu, 37./23.) - 6698884./357075. * std::pow(eta_mu, 39./23.)) * C_matchs_0[8]
+           + 37208./4761. * (std::pow(eta_mu, 39./23.) - std::pow(eta_mu, 16./23.)) * C_matchs_0[7]
+           + (4661194./816831. * eta_mu * C_matchs[4] - 17.3023 * C_matchs_0[2] + 14.8088 * eta_mu * C_matchs[1] / 15.) * std::pow(eta_mu, 14./23.)
+           + (-8516./2217. * eta_mu * C_matchs[4] + 8.5027 * C_matchs_0[2] - 10.8090 * eta_mu * C_matchs[1] / 15.) * std::pow(eta_mu, 16./23.)
+           + (4.5508 * C_matchs_0[2] - 0.8740 * eta_mu * C_matchs[1] / 15.) * etaMuPowers[0]
+           + (0.7519 * C_matchs_0[2] + 0.4218 * eta_mu * C_matchs[1] / 15.) * etaMuPowers[1]
+           + (-1.9043 * eta_mu * C_matchs[4] + 2.0040 * C_matchs_0[2] - 2.9347 * eta_mu * C_matchs[1] / 15.) * etaMuPowers[2]
+           + (-0.1008 * eta_mu * C_matchs[4] + 0.7476 * C_matchs_0[2] + 0.3971 * eta_mu * C_matchs[1] / 15.) * etaMuPowers[3]
+           + (0.1216 * eta_mu * C_matchs[4] - 0.5385 * C_matchs_0[2] + 0.1600 * eta_mu * C_matchs[1] / 15.) * etaMuPowers[4]
+           + (0.0183 * eta_mu * C_matchs[4] + 0.0914 * C_matchs_0[2] + 0.0225 * eta_mu * C_matchs[1] / 15.) * etaMuPowers[5];
+
+	// C9
+	C_NLO[8] = eta_mu * (C_matchs[9] + 4. * pi / alphas_muW * (-4. / 33. * (1. - etaMuPowers[8]) + 8. / 87. * (1. - etaMuPowers[9])) * C_matchs[2]);
+
+	// C10
+	C_NLO[9] = eta_mu * C_matchs[10];
 }
 
 
@@ -341,4 +453,27 @@ void SM_NNLO_Strategy::set_base1(WilsonSet& C, WilsonSet& C_match, double Q, con
     C_NNLO[9-1] += fourPiOverAlphasMu * eta_mu * eta_mu * ((W_param->U0)[8][8] * C1_matchs[8] + (W_param->U1)[8][8] * C0_matchs[8]);
 
 
+}
+
+
+void init_prime(WilsonSet& C, double Q, const double Q_match, QCDParameters& run) {
+	if (C.size() < 2) C.resize(2); // Ajustez selon le besoin réel
+    auto& C_NLO = C[1]; // Supposons que CP7 et CP8 doivent être stockés dans le second vecteur de C
+    C_NLO.resize(static_cast<size_t>(WilsonCoefficient::CPQ2) + 1, complex_t(0, 0));
+
+    double alphas_muW = run.runningAlphasCalculation(Q_match);
+    double alphas_mu = run.runningAlphasCalculation(Q);
+    double eta_mu = alphas_muW / alphas_mu;
+
+    double mass_c_muW = run.running_mass(run.mass_c, run.mu_W);
+    double mass_b_muW = run.running_mass(run.mass_b, run.mu_W);
+    double mass_top_muW = run.running_mass(run.mtmt, run.mu_W);
+
+    double xt = std::pow(mass_top_muW / run.mass_W, 2);
+    complex_t C7pSM = run.mass_s / mass_b_muW * (-0.5 * A0t(xt) - 23. / 36.);
+    C_NLO[static_cast<size_t>(WilsonCoefficient::CP7)] = std::pow(eta_mu, 16. / 23.) * C7pSM;
+
+    complex_t C8pSM = run.mass_s / mass_b_muW * (-0.5 * F0t(xt) - 1. / 3.);
+    C_NLO[static_cast<size_t>(WilsonCoefficient::CP8)] = std::pow(eta_mu, 14. / 23.) * C8pSM;
+	
 }

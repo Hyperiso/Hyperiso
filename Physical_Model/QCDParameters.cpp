@@ -44,7 +44,18 @@ double QCDParameters::DichotomieLambda(double alpha_running, double Q, int nf){
     return Lambda_min;
 }
 
-double QCDParameters::runningAlphasCalculation(double Q){
+double QCDParameters::runningAlphasCalculation(double Q, std::string option_massb = "pole", std::string option_masst = "pole"){
+
+    if option_massb == "pole":
+        mass_b = (*sm)("MASS", 5);
+    else if option_massb == "mass":
+        mass_b = (*sm)("MASS", 5);
+        
+    if option_masst == "pole":
+        mass_t = (*sm)("MASS",6);
+    else if option_masst == "mass":
+        mass_t = (*sm)("MASS",6);
+
     if (Lambda5 == -1.0) {
         return -1.0;
     }

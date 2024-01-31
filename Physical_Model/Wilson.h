@@ -84,6 +84,7 @@ class InitializationStrategy {
 public:
     virtual void init(Parameters* sm, double scale, WilsonSet& C_match, QCDParameters& run) = 0;
     virtual void set_base1(WilsonSet& C, WilsonSet& C_match, double Q, const double Q_match, QCDParameters& run) = 0;
+    virtual void set_base2(WilsonSet& C, WilsonSet& C_match, double Q, const double Q_match, QCDParameters& run) =0;
     virtual ~InitializationStrategy() {}
 };
 
@@ -91,20 +92,21 @@ class SM_LO_Strategy : public InitializationStrategy {
 public:
     void init(Parameters* sm, double scale, WilsonSet& C_match, QCDParameters& run) override;
     void set_base1(WilsonSet& C, WilsonSet& C_match, double Q, const double Q_match, QCDParameters& run) override;
-
+    void set_base2(WilsonSet& C, WilsonSet& C_match, double Q, const double Q_match, QCDParameters& run) override;
 };
+
 
 class SM_NLO_Strategy : public InitializationStrategy {
 public:
     void init(Parameters* sm, double scale, WilsonSet& C_match, QCDParameters& run) override;
     void set_base1(WilsonSet& C, WilsonSet& C_match, double Q, const double Q_match, QCDParameters& run) override;
-
+    void set_base2(WilsonSet& C, WilsonSet& C_match, double Q, const double Q_match, QCDParameters& run) override;
 };
 
 class SM_NNLO_Strategy : public InitializationStrategy {
 public:
     void init(Parameters* sm, double scale, WilsonSet& C_match, QCDParameters& run) override;
     void set_base1(WilsonSet& C, WilsonSet& C_match, double Q, const double Q_match, QCDParameters& run) override;
-
+    void set_base2(WilsonSet& C, WilsonSet& C_match, double Q, const double Q_match, QCDParameters& run) override;
 };
 #endif // HYPERISO_WILSON_H

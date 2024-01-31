@@ -1,8 +1,10 @@
 #include <cmath>
+#include "Core/Parameters.h"
 
 class QCDParameters {
 public:
     // Paramètres à initialiser
+    Parameters* sm = Parameters::GetInstance();
     int nf {5};
     double mass_Z;        // MZ
     double alphas_MZ;     // alphas(MZ)
@@ -19,6 +21,6 @@ public:
 
     double alphasRunning(double Q, double Lambda, int nf) const;
     double DichotomieLambda(double alpha_running, double Q, int nf);
-    double runningAlphasCalculation(double Q);
+    double runningAlphasCalculation(double Q, std::string option_massb = "pole", std::string option_masst = "pole");
 
 };
