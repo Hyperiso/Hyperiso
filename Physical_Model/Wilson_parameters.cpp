@@ -3,11 +3,11 @@
 
 Wilson_parameters::Wilson_parameters() {
 
-    
+    Parameters* sm = Parameters::GetInstance();
 
     constexpr double pi = 3.141592654;
-	alphas_muW=run.runningAlphasCalculation(mu_W);
-	alphas_mu=run.runningAlphasCalculation(mu);	
+	alphas_muW=(*sm).run.runningAlphasCalculation(mu_W);
+	alphas_mu=(*sm).run.runningAlphasCalculation(mu);	
 	double eta_mu=alphas_muW/alphas_mu;
 
 	C0w7= C0w[7]-1./3.*C0w[3]-4./9.*C0w[4]-20./3.*C0w[5]-80./9.*C0w[6]; 
@@ -813,71 +813,13 @@ Wilson_parameters::Wilson_parameters() {
 	}}
     }};
 
-/*--------------------------*/
-
-    //precalculus of the power of ai
-    for (int i = 0; i < arraySize; ++i) {
-        etaMuPowers[i] = std::pow(eta_mu, ai[i]);
-    }
-
-	for (int ke = 0; ke < arraySize; ++ke) {
-        for (int le = 0; le < arraySize; ++le) {
-            for (int ie = 0; ie < arraySize; ++ie) {
-                U0[ke][le] += m00[ke][le][ie] * etaMuPowers[ie];
-                U1[ke][le] += m10[ke][le][ie] * etaMuPowers[ie] + m11[ke][le][ie] * etaMuPowers[ie] / eta_mu;
-                U2[ke][le] += m20[ke][le][ie] * etaMuPowers[ie] + m21[ke][le][ie] * etaMuPowers[ie] / eta_mu + m22[ke][le][ie] * etaMuPowers[ie] / (eta_mu * eta_mu);
-            }
-        }
-    }
-
-    auto calculateC0b = [&](int ie, int je) {
-        return U0[ie-1][je-1] * (je <= 6 ? C0w[je] : (je == 7 ? C0w7 : C0w8));
-    };
-
-    auto calculateC1b = [&](int ie, int je) {
-        double u0_term = U0[ie-1][je-1] * (je <= 6 ? C1w[je] : (je == 7 ? C1w7 : C1w8));
-        double u1_term = U1[ie-1][je-1] * (je <= 6 ? C0w[je] : (je == 7 ? C0w7 : C0w8));
-        return eta_mu * (u0_term + u1_term);
-    };
-
-    auto calculateC2b = [&](int ie, int je) {
-        double u0_term = U0[ie-1][je-1] * (je <= 6 ? C2w[je] : (je == 7 ? C2w7 : C2w8));
-        double u1_term = U1[ie-1][je-1] * (je <= 6 ? C1w[je] : (je == 7 ? C1w7 : C1w8));
-        double u2_term = U2[ie-1][je-1] * (je <= 6 ? C0w[je] : (je == 7 ? C0w7 : C0w8));
-        return eta_mu * eta_mu * (u0_term + u1_term + u2_term);
-    };
-
-	for (int ie = 1; ie <= 8; ie++) {
-        for (int je = 1; je <= 8; je++) {
-            C0b[ie] += calculateC0b(ie, je);
-            C1b[ie] += calculateC1b(ie, je);
-            C2b[ie] += calculateC2b(ie, je);
-        }
-    }
-
-	double fourPiOverAlphasMu = 4.0 * pi / alphas_mu;
-
-    auto updateC0b = [&](int je) {
-        return U0[8][je-1] * C0w[je];
-    };
-
-    auto updateC1b = [&](int je) {
-        return eta_mu * (U0[8][je-1] * C1w[je] + U1[8][je-1] * C0w[je]);
-    };
-
-    auto updateC2b = [&](int je) {
-        return eta_mu * eta_mu * (U0[8][je-1] * C2w[je] + U1[8][je-1] * C1w[je] + U2[8][je-1] * C0w[je]);
-    };
-
-    for (int je = 1; je <= 8; je++) {
-        C0b[9] += fourPiOverAlphasMu * updateC0b(je);
-        C1b[9] += fourPiOverAlphasMu * updateC1b(je);
-        C2b[9] += fourPiOverAlphasMu * updateC2b(je);
-    }
-
-    C1b[9] += fourPiOverAlphasMu * eta_mu * U0[8][8] * C0w[8];
-    C2b[9] += fourPiOverAlphasMu * eta_mu * eta_mu * (U0[8][8] * C1w[8] + U1[8][8] * C0w[8]);
-
-    C0b[10] = C0w[10];
-    C1b[10] = eta_mu * C1w[10];
 }
+
+Wilson_parameters* Wilson_parameters::GetInstance() {
+        if (!Wilson_parameters::instance) {
+            Wilson_parameters::instance = new Wilson_parameters();
+        }
+        return Wilson_parameters::instance;
+    }
+
+Wilson_parameters* Wilson_parameters::instance = nullptr;

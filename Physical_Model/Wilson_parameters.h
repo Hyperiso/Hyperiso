@@ -1,10 +1,8 @@
 #pragma once
-#include "QCDParameters.h"
 #include <array>
-
+#include "../Core/Parameters.h"
 class Wilson_parameters {
 
-    QCDParameters run;
     
     static Wilson_parameters* instance;
     Wilson_parameters();
@@ -53,12 +51,6 @@ class Wilson_parameters {
     void operator=(const Wilson_parameters&) = delete;
 
     // Méthode statique pour accéder à l'instance
-    static Wilson_parameters* GetInstance() {
-        if (!instance) {
-            instance = new Wilson_parameters();
-        }
-        return instance;
-    }
+    static Wilson_parameters* GetInstance();
 };
 
-Wilson_parameters* Wilson_parameters::instance = nullptr;

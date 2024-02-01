@@ -1,8 +1,5 @@
 #include "lha_elements.h"
 
-#include <vector>
-#include <string>
-#include <memory>
 #include <sstream>
 
 template <typename U>
@@ -60,9 +57,9 @@ std::string LhaElement<T>::encodeId(const std::string& block, const std::vector<
         stream << line.at(0) << "|" << line.at(1) << "|" << line.at(2);
     } else if (block == "FPARAM") {
         stream << line.at(0);
-        Logger::getInstance().warn("Treatment of block FPARAM should be user-defined. Please check results.");
+        Logger::getInstance()->warn("Treatment of block FPARAM should be user-defined. Please check results.");
     } else {
-        Logger::getInstance().error("Unknown block. Please define appropriate behaviour.");
+        Logger::getInstance()->error("Unknown block. Please define appropriate behaviour.");
     }
 
     return stream.str();

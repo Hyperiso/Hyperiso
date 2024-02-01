@@ -1,5 +1,6 @@
+#pragma once
 #include <vector>
-#include "QCDParameters.h"
+#include "./../Physical_Model/QCDParameters.h"
 #include <map>
 #include <string>
 
@@ -11,9 +12,9 @@ public:
     std::vector<double> yut, yub, mass_neut;
     std::vector<std::vector<double>> sbot_mix, charg_Umix, charg_Vmix, stop_mix, neut_mix;
     std::vector<std::vector<double>> stop_tan_betamix;
-    SM sm;
-    QCDParameters run;
-    double Q {sm.mass_top_pole};
+    // SM sm;
+    QCDParameters run = QCDParameters(masses[5], masses[5], masses[6], masses[6]);
+    // double Q {sm.mass_top_pole};
 
     static Parameters* GetInstance();
     void setScale(double Q);
@@ -43,6 +44,6 @@ private:
     
 };
 
-struct SM {
-    double SM, gp, g2, MSOFT_Q, mass_top_pole, mass_b_pole, mass_b_Q, mass_t_Q;
-};
+// struct SM {
+//     double SM, gp, g2, MSOFT_Q, mass_top_pole, mass_b_pole, mass_b_Q, mass_t_Q;
+// };

@@ -12,7 +12,7 @@ public:
         DEBUG
     };
 
-    static Logger& getInstance();
+    static Logger* getInstance();
 
     void setLevel(LogLevel level);
     void log(LogLevel messageLevel, const std::string& message);
@@ -23,7 +23,8 @@ public:
     void debug(const std::string& message);
 
 private:
-    Logger();
+    static Logger* instance;
+    Logger() {}
     LogLevel level = LogLevel::INFO;
     std::string toString(LogLevel level);
 };

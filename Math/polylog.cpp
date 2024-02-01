@@ -1117,7 +1117,8 @@ std::complex<double> polylog(int n, int m, double x) {
     initialize_constants<MAX_N, MAX_M, MAX_LE, MAX_NC>(s1, c, a);
 
 
-    double u[5],s1[5][5],c[5][5],a[31][11];
+    // double u[5],s1[5][5],c[5][5],a[31][11];
+    double u[5];
     const int fct[5] = {1, 1, 2, 6, 24};
     const int sgn[5] = {1, -1, 1, -1, 1};
     const int index[32] = {0, 1, 2, 3, 4, 0, 0, 0, 0, 0, 0, 5, 6, 7, 0, 0, 0, 0, 0, 0, 0, 8, 9, 0, 0, 0, 0, 0, 0, 0, 0, 10};

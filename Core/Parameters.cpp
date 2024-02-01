@@ -2,14 +2,14 @@
 
 Parameters::Parameters() {
     // Initialisation des paramètres utilisés dans les calculs epsilon_x
-    sm.SM = 1;  // Exemple de valeur, à ajuster selon votre cas
-    sm.gp = 0;
-    sm.g2 = 0;
-    sm.MSOFT_Q = 0;
-    sm.mass_top_pole = 0;
-    sm.mass_b_pole = 0;
-    sm.mass_b_Q = 0;
-    sm.mass_t_Q = 0;
+    // sm.SM = 1;  // Exemple de valeur, à ajuster selon votre cas
+    // sm.gp = 0;
+    // sm.g2 = 0;
+    // sm.MSOFT_Q = 0;
+    // sm.mass_top_pole = 0;
+    // sm.mass_b_pole = 0;
+    // sm.mass_b_Q = 0;
+    // sm.mass_t_Q = 0;
     A_b = 0;
     tan_beta = 1;  // Éviter la division par zéro, ajustez selon votre cas
     mu_Q = 0;
@@ -52,7 +52,9 @@ Parameters *Parameters::GetInstance()
 
 void Parameters::setScale(double Q) {
 
-    this->Q = Q;
-    this->sm.mass_b_Q = run.runningAlphasCalculation(Q);
-    this->sm.mass_t_Q = run.runningAlphasCalculation(Q);
+    // this->Q = Q;
+    // this->sm.mass_b_Q = run.runningAlphasCalculation(Q);
+    // this->sm.mass_t_Q = run.runningAlphasCalculation(Q);
 }
+
+Parameters* Parameters::instance = nullptr;

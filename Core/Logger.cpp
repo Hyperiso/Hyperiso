@@ -1,9 +1,11 @@
 #include "Logger.h"
 #include <iostream>
 
-Logger& Logger::getInstance() {
-    static Logger instance;
-    return instance;
+Logger* Logger::getInstance() {
+    if (!Logger::instance) {
+        Logger::instance = new Logger();
+    }
+    return Logger::instance;
 }
 
 void Logger::setLevel(LogLevel level) {
@@ -41,3 +43,5 @@ std::string Logger::toString(LogLevel level) {
         default: return "UNKNOWN";
     }
 }
+
+Logger* Logger::instance = nullptr;
