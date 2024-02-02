@@ -13,7 +13,8 @@ public:
     std::vector<std::vector<double>> sbot_mix, charg_Umix, charg_Vmix, stop_mix, neut_mix;
     std::vector<std::vector<double>> stop_tan_betamix;
     // SM sm;
-    QCDParameters run = QCDParameters(masses[5], masses[5], masses[6], masses[6]);
+    
+    QCDParameters run;
     // double Q {sm.mass_top_pole};
 
     static Parameters* GetInstance();
@@ -26,6 +27,7 @@ public:
         if (block =="Coupling") {
             return coupling[pdgCode];
         }
+        return 0;
         
     }
 private:

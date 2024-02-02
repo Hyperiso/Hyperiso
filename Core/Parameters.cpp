@@ -34,12 +34,16 @@ Parameters::Parameters() {
 
     masses[6] = 173.0;  // Top quark
     masses[5] = 4.18;
-    coupling[1] = 1;
-    coupling[2] = 1;
+    masses[24] = 8.04229965E+01;
+    masses[25] = 1.15104301E+02;
+    coupling[1] = 3.57522130E-01;
+    coupling[2] = 6.52355075E-01;
     A_t = 0;
     MqL3_Q = 0;
     MbR_Q = 0;
     mass_stl = 0;
+
+    run = QCDParameters(masses[5], masses[5], masses[6], masses[6]);
 }
 
 Parameters *Parameters::GetInstance()

@@ -5,6 +5,7 @@
 #include <vector>
 #include <string>
 #include <memory>
+#include <iostream>
 #include "../Math/Math.h"
 #include "../Core/Parameters.h"
 #include "Wilson_parameters.h"
@@ -59,9 +60,9 @@ public:
 class WilsonInitializer {
 private:
     Parameters* sm = Parameters::GetInstance();
-    std::unique_ptr<InitializationStrategy> strategy;
+    std::shared_ptr<InitializationStrategy> strategy = std::make_shared<SM_LO_Strategy>();;
     double scale;
-    void scanLHA(std::string_view file); 
+    // void scanLHA(std::string_view file); 
     // void initSM_LO();
     // void initSM_NLO();
     // void initSM_NNLO();
@@ -69,8 +70,10 @@ private:
     // void initSUSY();
 
 public:
-    WilsonInitializer(double mu_match, InitializationStrategy* strat) :
-    scale(mu_match), strategy(strat) {}
+    WilsonInitializer(double mu_match, std::shared_ptr<InitializationStrategy> strat) :
+    scale(mu_match){
+        std::cout <<"Creation of WilsonManager" << std::endl;
+    }
 
     void init(WilsonSet& C_match) {
         strategy->init(sm, scale, C_match);
@@ -88,20 +91,25 @@ private:
     WilsonSet C;
     const double Q_matching;
     double Q;
-    std::unique_ptr<InitializationStrategy> strategy;
+    std::shared_ptr<InitializationStrategy> strategy;
 
-    inline explicit WilsonManager(double mu_match, InitializationStrategy* strategy): Q_matching(mu_match) {
+    inline explicit WilsonManager(double mu_match, std::shared_ptr<InitializationStrategy> strat): Q_matching(mu_match), strategy(strat) {
+        
+        std::cout <<"Creation of WilsonManager" << std::endl;
         WilsonInitializer wi{mu_match, strategy};
+        std::cout <<"Creation of WilsonInitializer Done" << std::endl;
         wi.init(C_match);
+        // std::cout << "First wilson Coefficient " << C_match[0][static_cast<size_t>(WilsonCoefficient::C7)] << std::endl;
     }
 
 public:
     WilsonManager(WilsonManager&) = delete;
     void operator=(const WilsonManager&) = delete;
-    static WilsonManager* GetInstance(double mu_match=0, InitializationStrategy* strategy = nullptr) {
+    static WilsonManager* GetInstance(double mu_match=0, std::shared_ptr<InitializationStrategy> strategy = nullptr) {
         if (!WilsonManager::instance) {
             if (mu_match == 0.0) {
-                // Log an error
+                std::cerr << "Erreur: mu_match ne doit pas être 0 lors de la première création de WilsonManager." << std::endl;
+                std::exit(EXIT_FAILURE);
             } else {
                 WilsonManager::instance = new WilsonManager(mu_match, strategy);
             }
@@ -110,7 +118,9 @@ public:
     }
 
     complex_t get(WilsonCoefficient wc, int order) const;    // Returns C_id at a given order
+    complex_t get_matchs(WilsonCoefficient wc_match, int order) const;
     void setScale(double mu) {
+        Q= mu;
         strategy->set_base1(C, C_match, Q, Q_matching);  // Appel à set_base1
     }               // Computes the C's at scale mu using RGEs 
 };  

@@ -5,6 +5,43 @@
     
 // }
 
+
+complex_t WilsonManager::get(WilsonCoefficient wc, int order) const {
+    if (order < 0 || order >= C.size()) {
+        std::cerr << "Ordre demandé non disponible: " << order << std::endl;
+        return complex_t(0, 0);
+    }
+
+
+    const auto& C_order = C[order];
+
+
+    if (static_cast<size_t>(wc) < C_order.size()) {
+        return C_order[static_cast<size_t>(wc)];
+    } else {
+        std::cerr << "Coefficient de Wilson demandé non disponible: " << static_cast<size_t>(wc) << std::endl;
+        return complex_t(0, 0); 
+    }
+}
+
+complex_t WilsonManager::get_matchs(WilsonCoefficient wc, int order) const {
+    if (order < 0 || order >= C_match.size()) {
+        std::cerr << "Ordre demandé non disponible: " << order << std::endl;
+        return complex_t(0, 0);
+    }
+
+
+    const auto& C_order = C_match[order];
+
+
+    if (static_cast<size_t>(wc) < C_order.size()) {
+        return C_order[static_cast<size_t>(wc)];
+    } else {
+        std::cerr << "Coefficient de Wilson demandé non disponible: " << static_cast<size_t>(wc) << std::endl;
+        return complex_t(0, 0); 
+    }
+}
+
 std::array<complex_t, 11> extractCoefficients(const WilsonSet& C_match, int order) {
     std::array<complex_t, 11> coefficients = {};
 
@@ -26,13 +63,17 @@ void SM_LO_Strategy::init(Parameters* sm, double scale, WilsonSet& C_match) {
 	double mass_b_muW=(*sm).run.runningAlphasCalculation((*sm)("MASS",5)); //mass bottom 6 (at pole)
     // or the opposite
 
+    
+
     double L=log(scale*scale/(*sm)("MASS",24)/(*sm)("MASS",24)); // scale -> mu_W
- 	double sw2=pow(sin(atan((*sm)("COUPLING",1)/(*sm)("COUPLING",2))),2.); //1 = param-> gp and 2 = param->g2
+ 	double sw2=pow(sin(atan((*sm)("Coupling",1)/(*sm)("Coupling",2))),2.); //1 = param-> gp and 2 = param->g2
+
 
 
 	double xt= pow(mass_top_muW/(*sm)("MASS",24),2.); // W boson mass (24)
 	double yt= pow(mass_top_muW/(*sm)("MASS",25),2.); // param->mass_H (25)
 
+    
 	/* LO */
 	
 	double C2SM_0 = 1.;
@@ -51,7 +92,7 @@ void SM_LO_Strategy::init(Parameters* sm, double scale, WilsonSet& C_match) {
     C_LO[static_cast<size_t>(WilsonCoefficient::C9)] = complex_t(C9SM_0, 0);
     C_LO[static_cast<size_t>(WilsonCoefficient::C10)] = complex_t(C10SM_0, 0);
 
-
+    
 
 }
 
@@ -70,9 +111,14 @@ void SM_LO_Strategy::set_base1(WilsonSet& C, WilsonSet& C_match, double Q, const
 	complex_t C7_eff= C_matchs[7]-1./3.*C_matchs[3]-4./9.*C_matchs[4]-20./3.*C_matchs[5]-80./9.*C_matchs[6]; 
 	complex_t C8_eff= C_matchs[8]+C_matchs[3]-1./6.*C_matchs[4]+20.*C_matchs[5]-10./3.*C_matchs[6]; 
 
+    
+    // std::cout << "Value is : " << C8_eff << std::endl;
+
 	Wilson_parameters *W_param = Wilson_parameters::GetInstance();
 	for (int i = 0; i < W_param->arraySize; ++i) {
         (W_param->etaMuPowers)[i] = std::pow(eta_mu, (W_param->ai)[i]);
+        // std::cout << "Value is : " << (W_param->etaMuPowers)[i] << std::endl;
+
     }
 
 	for (int ke = 0; ke < W_param->arraySize; ++ke) {
@@ -97,7 +143,9 @@ void SM_LO_Strategy::set_base1(WilsonSet& C, WilsonSet& C_match, double Q, const
 	for (int ie = 1; ie <= 8; ie++) {
         for (int je = 1; je <= 8; je++) {
             C_LO[ie-1] += calculateC0b(ie, je);
+
         }
+        
     }
 
 	double fourPiOverAlphasMu = 4.0 * pi / alphas_mu;
