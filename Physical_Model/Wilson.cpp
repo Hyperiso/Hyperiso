@@ -137,6 +137,9 @@ void SM_LO_Strategy::set_base1(WilsonSet& C, WilsonSet& C_match, double Q, const
 
 
 	if (C.size() < 1) C.resize(1);  
+    for (auto& C_LO : C) {
+    C_LO.resize(static_cast<size_t>(WilsonCoefficient::CPQ2) + 1, complex_t(0, 0));
+}
     auto& C_LO = C[0];
 	C_LO.resize(static_cast<size_t>(WilsonCoefficient::CPQ2) + 1, complex_t(0, 0));
 
