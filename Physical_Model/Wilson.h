@@ -8,6 +8,7 @@
 #include <iostream>
 #include "../Math/Math.h"
 #include "../Core/Parameters.h"
+#include "../Core/Logger.h"
 #include "Wilson_parameters.h"
 #define MAX_ORDER 2
 #define NW 18
@@ -53,8 +54,6 @@ public:
     void set_base1(WilsonSet& C, WilsonSet& C_match, double Q, const double Q_match) override;
     void set_base2(WilsonSet& C, WilsonSet& C_match, double Q, const double Q_match) override {}
 };
-
-
 
 
 class WilsonInitializer {

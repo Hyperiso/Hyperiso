@@ -48,7 +48,11 @@ Parameters::Parameters() {
     masses[25] = 1.15104301E+02;
     coupling[1] = 3.57522130E-01;
     coupling[2] = 6.52355075E-01;
-    A_t = 0;
+
+    extpar[25] = 10.; // tanb
+    extpar[11] = -3800. //At(MX)
+    extpar[12] = -3800. //Ab(MX)
+    A_t = 0; 
     MqL3_Q = 0;
     MbR_Q = 0;
     mass_stl = 0;

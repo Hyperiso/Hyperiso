@@ -112,7 +112,6 @@ void SM_LO_Strategy::set_base1(WilsonSet& C, WilsonSet& C_match, double Q, const
 	complex_t C7_eff= C_matchs[7]-1./3.*C_matchs[3]-4./9.*C_matchs[4]-20./3.*C_matchs[5]-80./9.*C_matchs[6]; 
 	complex_t C8_eff= C_matchs[8]+C_matchs[3]-1./6.*C_matchs[4]+20.*C_matchs[5]-10./3.*C_matchs[6]; 
 
-    std::cout << Q << std::endl  ;
     // std::cout << C7_eff << std::endl;
     // std::cout << "Value is : " << C8_eff << std::endl;
 
@@ -129,7 +128,6 @@ void SM_LO_Strategy::set_base1(WilsonSet& C, WilsonSet& C_match, double Q, const
             for (int ie = 0; ie < W_param->arraySize; ++ie) {
                 (W_param->U0)[ke][le] += (W_param->m00)[ke][le][ie] * (W_param->etaMuPowers)[ie];
         }
-        std::cout << ke << "   " << le << "   "<< (W_param->U0)[ke][le] << std::endl;
     }
     }
 

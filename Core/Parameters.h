@@ -12,6 +12,7 @@ public:
     std::vector<double> yut, yub, mass_neut;
     std::vector<std::vector<double>> sbot_mix, charg_Umix, charg_Vmix, stop_mix, neut_mix;
     std::vector<std::vector<double>> stop_tan_betamix;
+    std::vector<std::vector<double>> lambda_u, lambda_d;
     // SM sm;
     
     QCDParameters run;
@@ -27,6 +28,15 @@ public:
         if (block =="Coupling") {
             return coupling[pdgCode];
         }
+        if (block=="YUKAWA_CH_U") {
+            return lambda_u[pdgCode/10][pdgCode%10];
+        }
+        if (block=="YUKAWA_CH_D") {
+            return lambda_d[pdgCode/10][pdgCode%10];
+        }
+        if (block=="EXTPAR") {
+            return extpar[pdgCode];
+        }
         return 0;
         
     }
@@ -36,6 +46,7 @@ private:
 
     std::map<int, double> masses;
     std::map<int, double> coupling;
+    std::map<int, double> minpar;
 
     Parameters(const Parameters&) = delete;
     Parameters& operator=(const Parameters&) = delete;
