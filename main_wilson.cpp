@@ -7,12 +7,12 @@ int main() {
     file << "Q,C7_real,C7_imag\n"; 
 
     double Q_initial = 1.0;
-    double Q_final = 500.0;
+    double Q_final = 100.0;
     double Q_step = 1.0;
 
     
     auto strat = std::make_shared<SM_LO_Strategy>();
-    WilsonManager* wm = WilsonManager::GetInstance(100.0, strat);
+    WilsonManager* wm = WilsonManager::GetInstance(81.0, strat);
 
     
     for (double Q = Q_initial; Q <= Q_final; Q += Q_step) {
