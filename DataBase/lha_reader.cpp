@@ -1,14 +1,10 @@
 #include <iostream>
 #include <fstream>
-#include <string>
 #include <sstream>
-#include <memory>
 #include <vector>
-#include <filesystem>
 #include <algorithm>
-#include <regex>
 
-#include "lha_blocks.h"
+// #include "lha_blocks.h"
 #include "lha_reader.h"
 
 void Parser::tokenize() {
@@ -113,36 +109,36 @@ bool LhaReader::hasBlock(const std::string& id) const {
     return this->blocks.contains(id);  // C++20. Use blocks.count(id) != 0 before.
 }
 
-int main() {
+// int main() {
 
-    // std::ifstream file("../DataBase/example.flha");
-    // std::stringstream buffer;
-    // buffer << file.rdbuf();
-    // Parser parser {buffer.str()};
-    // parser.parse();
-    // auto blocks = parser.getBlocks();
+//     // std::ifstream file("../DataBase/example.flha");
+//     // std::stringstream buffer;
+//     // buffer << file.rdbuf();
+//     // Parser parser {buffer.str()};
+//     // parser.parse();
+//     // auto blocks = parser.getBlocks();
 
-    // for (auto p : blocks) {
-    //     std::cout << "Block " << p.first << std::endl;
-    //     for (auto line: p.second) {
-    //         for (auto w: line) {
-    //             std::cout << w << '\t';
-    //         }
-    //         std::cout << '\n';
-    //     }
-    // }
+//     // for (auto p : blocks) {
+//     //     std::cout << "Block " << p.first << std::endl;
+//     //     for (auto line: p.second) {
+//     //         for (auto w: line) {
+//     //             std::cout << w << '\t';
+//     //         }
+//     //         std::cout << '\n';
+//     //     }
+//     // }
 
-    LhaReader reader("../DataBase/example.flha");
+//     LhaReader reader("../DataBase/example.flha");
 
-    reader.readAll();
+//     reader.readAll();
 
-    std::cout << "Parsing ended, read " << reader.getBlockCount() << " block(s)." << std::endl;
-    // for (const auto& k : blockNames) {
-    //     BlockId id = BlockIdHelper::getBlockId(k);
-    //     if (reader.hasBlock(id)) {
-    //         std::cout << reader.getBlock(id)->toString() << std::endl;
-    //     }
-    // }
+//     std::cout << "Parsing ended, read " << reader.getBlockCount() << " block(s)." << std::endl;
+//     // for (const auto& k : blockNames) {
+//     //     BlockId id = BlockIdHelper::getBlockId(k);
+//     //     if (reader.hasBlock(id)) {
+//     //         std::cout << reader.getBlock(id)->toString() << std::endl;
+//     //     }
+//     // }
 
-    return 0;
-}
+//     return 0;
+// }

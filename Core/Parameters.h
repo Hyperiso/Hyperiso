@@ -1,6 +1,8 @@
+#pragma once
 #include <vector>
-#include "QCDParameters.h"
-
+#include "./../Physical_Model/QCDParameters.h"
+#include <map>
+#include <string>
 
 class Parameters {
 public:
@@ -10,15 +12,30 @@ public:
     std::vector<double> yut, yub, mass_neut;
     std::vector<std::vector<double>> sbot_mix, charg_Umix, charg_Vmix, stop_mix, neut_mix;
     std::vector<std::vector<double>> stop_tan_betamix;
-    SM sm;
+    // SM sm;
+    
     QCDParameters run;
-    double Q {sm.mass_top_pole};
+    // double Q {sm.mass_top_pole};
 
     static Parameters* GetInstance();
-    void setScale(double Q); 
+    void setScale(double Q);
+
+    double operator()(std::string block, int pdgCode) {
+        if (block == "MASS") {
+            return masses[pdgCode];
+        }
+        if (block =="Coupling") {
+            return coupling[pdgCode];
+        }
+        return 0;
+        
+    }
 private:
     static Parameters* instance;
     Parameters(); // Constructeur pour initialiser les paramètres
+
+    std::map<int, double> masses;
+    std::map<int, double> coupling;
 
     Parameters(const Parameters&) = delete;
     Parameters& operator=(const Parameters&) = delete;
@@ -26,8 +43,9 @@ private:
     Parameters& operator=(Parameters&&) noexcept = default;
 
     
+    
 };
 
-struct SM {
-    double SM, gp, g2, MSOFT_Q, mass_top_pole, mass_b_pole, mass_b_Q, mass_t_Q;
-};
+// struct SM {
+//     double SM, gp, g2, MSOFT_Q, mass_top_pole, mass_b_pole, mass_b_Q, mass_t_Q;
+// };

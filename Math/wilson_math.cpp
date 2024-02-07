@@ -1,7 +1,6 @@
 #include <cmath>
 #include "Math.h"
 
-constexpr double pi = 3.141592654;
 /*--------------------------------------------------------------------*/
 
 double Bplus(double x, double y)
@@ -10,6 +9,18 @@ double Bplus(double x, double y)
 }
 
 /*---------------------------------------------------------------------*/
+
+
+double D3(double x)
+{
+	if(fabs(x)<1.e-5) return 0.;
+	if(fabs(x-1.)<1.e-5) return -1.;
+	
+	return x*log(x)/(1.-x);
+}
+
+
+/*--------------------------------------------------------------------*/
 
 double D2(double x, double y)
 {
@@ -24,15 +35,6 @@ double D2(double x, double y)
 
 /*---------------------------------------------------------------------*/
 
-double D3(double x)
-{
-	if(fabs(x)<1.e-5) return 0.;
-	if(fabs(x-1.)<1.e-5) return -1.;
-	
-	return x*log(x)/(1.-x);
-}
-
-/*--------------------------------------------------------------------*/
 
 double h10(double x)
 {

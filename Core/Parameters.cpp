@@ -2,14 +2,24 @@
 
 Parameters::Parameters() {
     // Initialisation des paramètres utilisés dans les calculs epsilon_x
-    sm.SM = 1;  // Exemple de valeur, à ajuster selon votre cas
-    sm.gp = 0;
-    sm.g2 = 0;
-    sm.MSOFT_Q = 0;
-    sm.mass_top_pole = 0;
-    sm.mass_b_pole = 0;
-    sm.mass_b_Q = 0;
-    sm.mass_t_Q = 0;
+    // sm.SM = 1;  // Exemple de valeur, à ajuster selon votre cas
+    // sm.gp = 0;
+    // sm.g2 = 0;
+    // sm.MSOFT_Q = 0;
+    // sm.mass_top_pole = 0;
+    // sm.mass_b_pole = 0;
+    // sm.mass_b_Q = 0;
+    // sm.mass_t_Q = 0;
+
+    // sm.SM = 1;  // Exemple de valeur, à ajuster selon votre cas
+    // sm.gp = 0;
+    // sm.g2 = 0;
+    // sm.MSOFT_Q = 0;
+    // sm.mass_top_pole = 0;
+    // sm.mass_b_pole = 0;
+    // sm.mass_b_Q = 0;
+    // sm.mass_t_Q = 0;
+
     A_b = 0;
     tan_beta = 1;  // Éviter la division par zéro, ajustez selon votre cas
     mu_Q = 0;
@@ -32,10 +42,18 @@ Parameters::Parameters() {
     yub = std::vector<double>(4, 0); // yub[3]
     stop_tan_betamix = std::vector<std::vector<double>>(2, std::vector<double>(2, 0.0));
 
+    masses[6] = 173.0;  // Top quark
+    masses[5] = 4.18;
+    masses[24] = 8.04229965E+01;
+    masses[25] = 1.15104301E+02;
+    coupling[1] = 3.57522130E-01;
+    coupling[2] = 6.52355075E-01;
     A_t = 0;
     MqL3_Q = 0;
     MbR_Q = 0;
     mass_stl = 0;
+
+    run = QCDParameters(masses[5], masses[5], masses[6], masses[6]);
 }
 
 Parameters *Parameters::GetInstance()
@@ -48,7 +66,10 @@ Parameters *Parameters::GetInstance()
 
 void Parameters::setScale(double Q) {
 
-    this->Q = Q;
-    this->sm.mass_b_Q = run.runningAlphasCalculation(Q);
-    this->sm.mass_t_Q = run.runningAlphasCalculation(Q);
+    // this->Q = Q;
+    // this->sm.mass_b_Q = run.runningAlphasCalculation(Q);
+    // this->sm.mass_t_Q = run.runningAlphasCalculation(Q);
 }
+
+Parameters* Parameters::instance = nullptr;
+
