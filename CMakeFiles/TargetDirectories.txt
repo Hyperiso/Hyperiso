@@ -1,3 +1,0 @@
-/home/theorie/treymermier/Documents/hyperiso/CMakeFiles/hyperiso.dir
-/home/theorie/treymermier/Documents/hyperiso/CMakeFiles/edit_cache.dir
-/home/theorie/treymermier/Documents/hyperiso/CMakeFiles/rebuild_cache.dir
