@@ -12,7 +12,7 @@ jobs:
     - name: Setup CMake
       uses: actions/setup-cmake@v1
       with:
-        cmake-version: '3.18.2' # Spécifiez la version de CMake que vous utilisez
+        cmake-version: '3.18.2'
 
     - name: Setup Environment
       run: sudo apt-get update && sudo apt-get install -y build-essential
