@@ -67,8 +67,8 @@ void THDM_NNLO_Strategy::init(Parameters* sm, double scale, WilsonSet& C_match) 
 
     double C4H_1=EH(yt,lu);
 
-    double C3H_2=G3H(yt,lu)+Delta3H(yt,lu)*log(pow(scale/param->mass_H,2.));
-	double C4H_2=G4H(yt,lu)+Delta4H(yt,lu)*log(pow(scale/param->mass_H,2.));
+    double C3H_2=G3H(yt,lu)+Delta3H(yt,lu)*log(pow(scale/(*sm)("MASS",25),2.));
+	double C4H_2=G4H(yt,lu)+Delta4H(yt,lu)*log(pow(scale/(*sm)("MASS",25),2.));
 	double C5H_2=-C3H_2/10.+2./15.*C4H_1;
 	double C6H_2=-3./16.*C3H_2+1./4.*C4H_1;
 }

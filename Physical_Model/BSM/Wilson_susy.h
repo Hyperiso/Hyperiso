@@ -2,6 +2,7 @@
 #include "../../Core/Logger.h"
 #include "../Wilson.h"
 #include "epsilon_calculator.h"
+#include "../Math/Math_BSM/Math_SUSY.h"
 
 class SUSY_LO_Strategy : public InitializationStrategy {
 public:
