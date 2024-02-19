@@ -1,5 +1,23 @@
 #include "Wilson_susy.h"
 
+constexpr int N_UL_UR = 7, M_UL_UR = 4, N_NL_NR = 4, M_NL_NR = 4, N_Gamma_U = 7, M_Gamma_U = 7, N_X = 3, N_Mch = 3, N_MsqU = 7, N_MsqD = 7, N_Msn = 4;
+
+using Array2D_7x4 = std::array<std::array<double, M_UL_UR>, N_UL_UR>;
+using Array2D_4x4 = std::array<std::array<double, M_NL_NR>, N_NL_NR>;
+using Array2D_7x7 = std::array<std::array<double, M_Gamma_U>, N_Gamma_U>;
+using Array3D_3x7x4 = std::array<Array2D_7x4, N_X>;
+using Array1D_4 = std::array<double, 4>;
+using Array1D_3 = std::array<double, N_Mch>;
+using Array1D_7 = std::array<double, N_MsqU>;
+
+// double computeContributions(const Array2D_7x4& X, double (func)(double), int ie, double factor) {
+//     double result = 0.0;
+//     for (int ae = 0; ae < 6; ++ae) {
+//         double msqOverMchSquared = std::pow(MsqU[ae] / Mch[ie], 2.0);
+//         result += (X[ie][ae][1] * X[ie][ae][2] * func(msqOverMchSquared)) * factor;
+//     }
+//     return result;
+// }
 
 void SUSY_LO_Strategy::init(Parameters* sm, double scale, WilsonSet& C_match) {
 
@@ -23,47 +41,47 @@ void SUSY_LO_Strategy::init(Parameters* sm, double scale, WilsonSet& C_match) {
 	double xt= pow(mass_top_muW/(*sm)("MASS",24),2.); // W boson mass (24)
 	double yt= pow(mass_top_muW/(*sm)("MASS",25),2.); // param->mass_H (25)
 
-	double C7SMeps_0= (epsilonb-epsilonbp)/(1.+epsilonb*param->tan_beta)*param->tan_beta*F7_2(xt);
-	double C8SMeps_0= (epsilonb-epsilonbp)/(1.+epsilonb*param->tan_beta)*param->tan_beta*F8_2(xt);
+	double C7SMeps_0= (epsilonb-epsilonbp)/(1.+epsilonb*(*sm)("EXTPAR",25))*(*sm)("EXTPAR",25)*F7_2(xt);
+	double C8SMeps_0= (epsilonb-epsilonbp)/(1.+epsilonb*(*sm)("EXTPAR",25))*(*sm)("EXTPAR",25)*F8_2(xt);
 
 
-	double C7Heps_0=(-epsilon0p-epsilonb)/(1.+epsilonb*param->tan_beta)*param->tan_beta*F7_2(yt);
-	double C8Heps_0=(-epsilon0p-epsilonb)/(1.+epsilonb*param->tan_beta)*param->tan_beta*F8_2(yt);
+	double C7Heps_0=(-epsilon0p-epsilonb)/(1.+epsilonb*(*sm)("EXTPAR",25))*(*sm)("EXTPAR",25)*F7_2(yt);
+	double C8Heps_0=(-epsilon0p-epsilonb)/(1.+epsilonb*(*sm)("EXTPAR",25))*(*sm)("EXTPAR",25)*F8_2(yt);
 
 	double C7Heps2_0=0.;
 	double C8Heps2_0=0.;
 
 	if((param->mass_A02==0.)&&(param->mass_H03==0.))
 	{
-		C7Heps2_0=-epsilon2*epsilon1p*pow(param->tan_beta,2.)/(1.+epsilonb*param->tan_beta)/(1.+epsilon0*param->tan_beta)*F7_2(yt);
-		C7Heps2_0+=epsilon2/pow(1.+epsilonb*param->tan_beta,2.)*(1.+pow(param->tan_beta,2.))/(1.+epsilon0*param->tan_beta)/72.		*((cos(param->alpha)+sin(param->alpha)*param->tan_beta)*(-sin(param->alpha)+epsilonb*cos(param->alpha))*pow(mass_b_muW/param->mass_h0,2.)
-		+(sin(param->alpha)-cos(param->alpha)*param->tan_beta)*(cos(param->alpha)+epsilonb*sin(param->alpha))*pow(mass_b_muW/param->mass_H0,2.)			+(-cos(atan(param->tan_beta))-sin(atan(param->tan_beta))*param->tan_beta)*(sin(atan(param->tan_beta))-epsilonb*cos(atan(param->tan_beta)))*pow(mass_b_muW/param->mass_A0,2.));
+		C7Heps2_0=-epsilon2*epsilon1p*pow((*sm)("EXTPAR",25),2.)/(1.+epsilonb*(*sm)("EXTPAR",25))/(1.+epsilon0*(*sm)("EXTPAR",25))*F7_2(yt);
+		C7Heps2_0+=epsilon2/pow(1.+epsilonb*(*sm)("EXTPAR",25),2.)*(1.+pow((*sm)("EXTPAR",25),2.))/(1.+epsilon0*(*sm)("EXTPAR",25))/72.		*((cos(param->alpha)+sin(param->alpha)*(*sm)("EXTPAR",25))*(-sin(param->alpha)+epsilonb*cos(param->alpha))*pow(mass_b_muW/param->mass_h0,2.)
+		+(sin(param->alpha)-cos(param->alpha)*(*sm)("EXTPAR",25))*(cos(param->alpha)+epsilonb*sin(param->alpha))*pow(mass_b_muW/param->mass_H0,2.)			+(-cos(atan((*sm)("EXTPAR",25)))-sin(atan((*sm)("EXTPAR",25)))*(*sm)("EXTPAR",25))*(sin(atan((*sm)("EXTPAR",25)))-epsilonb*cos(atan((*sm)("EXTPAR",25))))*pow(mass_b_muW/param->mass_A0,2.));
 
-		C8Heps2_0=-epsilon2*epsilon1p*pow(param->tan_beta,2.)/(1.+epsilonb*param->tan_beta)/(1.+epsilon0*param->tan_beta)*F8_2(yt);
-		C8Heps2_0+=epsilon2/pow(1.+epsilonb*param->tan_beta,2.)*(1.+pow(param->tan_beta,2.))/(1.+epsilon0*param->tan_beta)/72.		*((cos(param->alpha)+sin(param->alpha)*param->tan_beta)*(-sin(param->alpha)+epsilonb*cos(param->alpha))*pow(mass_b_muW/param->mass_h0,2.)
-		+(sin(param->alpha)-cos(param->alpha)*param->tan_beta)*(cos(param->alpha)+epsilonb*sin(param->alpha))*pow(mass_b_muW/param->mass_H0,2.)			+(-cos(atan(param->tan_beta))-sin(atan(param->tan_beta))*param->tan_beta)*(sin(atan(param->tan_beta))-epsilonb*cos(atan(param->tan_beta)))*pow(mass_b_muW/param->mass_A0,2.));
+		C8Heps2_0=-epsilon2*epsilon1p*pow((*sm)("EXTPAR",25),2.)/(1.+epsilonb*(*sm)("EXTPAR",25))/(1.+epsilon0*(*sm)("EXTPAR",25))*F8_2(yt);
+		C8Heps2_0+=epsilon2/pow(1.+epsilonb*(*sm)("EXTPAR",25),2.)*(1.+pow((*sm)("EXTPAR",25),2.))/(1.+epsilon0*(*sm)("EXTPAR",25))/72.		*((cos(param->alpha)+sin(param->alpha)*(*sm)("EXTPAR",25))*(-sin(param->alpha)+epsilonb*cos(param->alpha))*pow(mass_b_muW/param->mass_h0,2.)
+		+(sin(param->alpha)-cos(param->alpha)*(*sm)("EXTPAR",25))*(cos(param->alpha)+epsilonb*sin(param->alpha))*pow(mass_b_muW/param->mass_H0,2.)			+(-cos(atan((*sm)("EXTPAR",25)))-sin(atan((*sm)("EXTPAR",25)))*(*sm)("EXTPAR",25))*(sin(atan((*sm)("EXTPAR",25)))-epsilonb*cos(atan((*sm)("EXTPAR",25))))*pow(mass_b_muW/param->mass_A0,2.));
 	}
 	else
 	{		
-		C7Heps2_0=-epsilon2*epsilon1p*pow(param->tan_beta,2.)/(1.+epsilonb*param->tan_beta)/(1.+epsilon0*param->tan_beta)*F7_2(yt);
-		C7Heps2_0+=epsilon2/pow(1.+epsilonb*param->tan_beta,2.)*(1.+pow(param->tan_beta,2.))/(1.+epsilon0*param->tan_beta)/72.	*((param->H0_mix[1][1]+param->H0_mix[1][2]*param->tan_beta)*(-param->H0_mix[1][2]+epsilonb*param->H0_mix[1][1])*pow(mass_b_muW/param->mass_h0,2.)
-		+(param->H0_mix[2][1]+param->H0_mix[2][2]*param->tan_beta)*(-param->H0_mix[2][2]+epsilonb*param->H0_mix[2][1])*pow(mass_b_muW/param->mass_H0,2.)
-		+(param->H0_mix[3][1]+param->H0_mix[3][2]*param->tan_beta)*(-param->H0_mix[3][2]+epsilonb*param->H0_mix[3][1])*pow(mass_b_muW/param->mass_H03,2.)
+		C7Heps2_0=-epsilon2*epsilon1p*pow((*sm)("EXTPAR",25),2.)/(1.+epsilonb*(*sm)("EXTPAR",25))/(1.+epsilon0*(*sm)("EXTPAR",25))*F7_2(yt);
+		C7Heps2_0+=epsilon2/pow(1.+epsilonb*(*sm)("EXTPAR",25),2.)*(1.+pow((*sm)("EXTPAR",25),2.))/(1.+epsilon0*(*sm)("EXTPAR",25))/72.	*((param->H0_mix[1][1]+param->H0_mix[1][2]*(*sm)("EXTPAR",25))*(-param->H0_mix[1][2]+epsilonb*param->H0_mix[1][1])*pow(mass_b_muW/param->mass_h0,2.)
+		+(param->H0_mix[2][1]+param->H0_mix[2][2]*(*sm)("EXTPAR",25))*(-param->H0_mix[2][2]+epsilonb*param->H0_mix[2][1])*pow(mass_b_muW/param->mass_H0,2.)
+		+(param->H0_mix[3][1]+param->H0_mix[3][2]*(*sm)("EXTPAR",25))*(-param->H0_mix[3][2]+epsilonb*param->H0_mix[3][1])*pow(mass_b_muW/param->mass_H03,2.)
 
-		+(param->A0_mix[1][1]+param->A0_mix[1][2]*param->tan_beta)*(-param->A0_mix[1][2]+epsilonb*param->A0_mix[1][1])*pow(mass_b_muW/param->mass_A0,2.)
-		+(param->A0_mix[2][1]+param->A0_mix[2][2]*param->tan_beta)*(-param->A0_mix[2][2]+epsilonb*param->A0_mix[2][1])*pow(mass_b_muW/param->mass_A02,2.));
-		C8Heps2_0=-epsilon2*epsilon1p*pow(param->tan_beta,2.)/(1.+epsilonb*param->tan_beta)/(1.+epsilon0*param->tan_beta)*F8_2(yt);
-		C8Heps2_0+=-3.*epsilon2/pow(1.+epsilonb*param->tan_beta,2.)*(1.+pow(param->tan_beta,2.))/(1.+epsilon0*param->tan_beta)/72.
-		*((param->H0_mix[1][1]+param->H0_mix[1][2]*param->tan_beta)*(-param->H0_mix[1][2]+epsilonb*param->H0_mix[1][1])*pow(mass_b_muW/param->mass_h0,2.)
-		+(param->H0_mix[2][1]+param->H0_mix[2][2]*param->tan_beta)*(-param->H0_mix[2][2]+epsilonb*param->H0_mix[2][1])*pow(mass_b_muW/param->mass_H0,2.)
-		+(param->H0_mix[3][1]+param->H0_mix[3][2]*param->tan_beta)*(-param->H0_mix[3][2]+epsilonb*param->H0_mix[3][1])*pow(mass_b_muW/param->mass_H03,2.)		
+		+(param->A0_mix[1][1]+param->A0_mix[1][2]*(*sm)("EXTPAR",25))*(-param->A0_mix[1][2]+epsilonb*param->A0_mix[1][1])*pow(mass_b_muW/param->mass_A0,2.)
+		+(param->A0_mix[2][1]+param->A0_mix[2][2]*(*sm)("EXTPAR",25))*(-param->A0_mix[2][2]+epsilonb*param->A0_mix[2][1])*pow(mass_b_muW/param->mass_A02,2.));
+		C8Heps2_0=-epsilon2*epsilon1p*pow((*sm)("EXTPAR",25),2.)/(1.+epsilonb*(*sm)("EXTPAR",25))/(1.+epsilon0*(*sm)("EXTPAR",25))*F8_2(yt);
+		C8Heps2_0+=-3.*epsilon2/pow(1.+epsilonb*(*sm)("EXTPAR",25),2.)*(1.+pow((*sm)("EXTPAR",25),2.))/(1.+epsilon0*(*sm)("EXTPAR",25))/72.
+		*((param->H0_mix[1][1]+param->H0_mix[1][2]*(*sm)("EXTPAR",25))*(-param->H0_mix[1][2]+epsilonb*param->H0_mix[1][1])*pow(mass_b_muW/param->mass_h0,2.)
+		+(param->H0_mix[2][1]+param->H0_mix[2][2]*(*sm)("EXTPAR",25))*(-param->H0_mix[2][2]+epsilonb*param->H0_mix[2][1])*pow(mass_b_muW/param->mass_H0,2.)
+		+(param->H0_mix[3][1]+param->H0_mix[3][2]*(*sm)("EXTPAR",25))*(-param->H0_mix[3][2]+epsilonb*param->H0_mix[3][1])*pow(mass_b_muW/param->mass_H03,2.)		
 
-+(param->A0_mix[1][1]+param->A0_mix[1][2]*param->tan_beta)*(-param->A0_mix[1][2]+epsilonb*param->A0_mix[1][1])*pow(mass_b_muW/param->mass_A0,2.)
-		+(param->A0_mix[2][1]+param->A0_mix[2][2]*param->tan_beta)*(-param->A0_mix[2][2]+epsilonb*param->A0_mix[2][1])*pow(mass_b_muW/param->mass_A02,2.));
++(param->A0_mix[1][1]+param->A0_mix[1][2]*(*sm)("EXTPAR",25))*(-param->A0_mix[1][2]+epsilonb*param->A0_mix[1][1])*pow(mass_b_muW/param->mass_A0,2.)
+		+(param->A0_mix[2][1]+param->A0_mix[2][2]*(*sm)("EXTPAR",25))*(-param->A0_mix[2][2]+epsilonb*param->A0_mix[2][1])*pow(mass_b_muW/param->mass_A02,2.));
 		}
 
-	double lu=1./param->tan_beta;
-	double ld=-param->tan_beta;
+	double lu=1./(*sm)("EXTPAR",25);
+	double ld=-(*sm)("EXTPAR",25);
 
 	double C7H_0=1./3.*lu*lu*F7_1(yt) - lu*ld*F7_2(yt);
 	double C8H_0=1./3.*lu*lu*F8_1(yt) - lu*ld*F8_2(yt);
@@ -74,88 +92,22 @@ void SUSY_LO_Strategy::init(Parameters* sm, double scale, WilsonSet& C_match) {
 
 	/* ...........................................................*/
 
-	double C4charg_1,C4charg_2;
-	double C3charg_2,C5charg_2,C6charg_2;
-	double C7charg_0,C8charg_0,C7_chargeps_0,C8_chargeps_0,C7charg_1,C8charg_1;
-	double C9charg_0,C9charg_1,C10charg_0,C10charg_1;
-	double C7four_1,C8four_1,C9four_1,C10four_1,C4four_2;
-	double C1squark_2;
-	
-	double Gamma_UL[7][4],Gamma_UR[7][4],Gamma_NL[4][4],Gamma_NR[4][4];
-	double Gamma_U[7][7],I_LR[7][7],P_U[7][7];
-	double X_UL[3][7][4],X_UR[3][7][4],X_NL[3][4][4],X_NR[3][4][4];
-	double MU[4],MD[4],ME[4],VCKM[4][4],Mch[3],MsqU[7],MsqD[7],Msn[4],mintmp;
-	double kappa,ag,aY,cosb,sinb,st,ct,alphas_mg;
-	int ae,be,ce,de,ee,fe,ge,je,ke;
-
-
-	alphas_mg=(*sm).run.runningAlphasCalculation(param->mass_gluino);
-	ag=1.-7./12./pi*alphas_mg;
-	aY=1.+alphas_mg/4./pi;
-	
-	kappa=1./(param->g2*param->g2*param->Vtb*param->Vts);
-	
-	VCKM[1][1]=param->Vud;
-	VCKM[1][2]=param->Vus;
-	VCKM[1][3]=-(param->Vts*param->Vtb+param->Vcs*param->Vcb)/param->Vus; /* Vub from unitarity */
-	VCKM[2][1]=param->Vcd;
-	VCKM[2][2]=param->Vcs;
-	VCKM[2][3]=param->Vcb;
-	VCKM[3][1]=param->Vtd;
-	VCKM[3][2]=param->Vts;
-	VCKM[3][3]=param->Vtb;
-	
-	sinb=sin(atan(param->tan_beta));
-	cosb=cos(atan(param->tan_beta));
-	ct=param->stop_mix[2][2];
-	st=param->stop_mix[1][2];
-	
-	MU[1]=param->mass_u;
-	MU[2]=param->mass_c;
-	MU[3]=mass_top_muW;
-
-	MD[1]=param->mass_u;
-	MD[2]=param->mass_s;
-	MD[3]=mass_b_muW;
-
-	ME[1]=param->mass_e;
-	ME[2]=param->mass_mu;
-	ME[3]=param->mass_tau;
-
-	Mch[1]=param->mass_cha1;
-	Mch[2]=param->mass_cha2;
-	
-	MsqU[1]=param->mass_upl;
-	MsqU[2]=param->mass_chl;
-	MsqU[3]=param->mass_t1;
-	MsqU[4]=param->mass_upr;
-	MsqU[5]=param->mass_chr;
-	MsqU[6]=param->mass_t2;
-	
-	Msn[1]=param->mass_nuel;
-	Msn[2]=param->mass_numl;
-	Msn[3]=param->mass_nutl;
-
 	constexpr double Pi = 3.14159265358979323846;
-	constexpr int N_UL_UR = 7, M_UL_UR = 4, N_NL_NR = 4, M_NL_NR = 4, N_Gamma_U = 7, M_Gamma_U = 7, N_X = 3, N_Mch = 3, N_MsqU = 7, N_MsqD = 7, N_Msn = 4;
 	
-	using Array2D_7x4 = std::array<std::array<double, M_UL_UR>, N_UL_UR>;
-	using Array2D_4x4 = std::array<std::array<double, M_NL_NR>, N_NL_NR>;
-	using Array2D_7x7 = std::array<std::array<double, M_Gamma_U>, N_Gamma_U>;
-	using Array3D_3x7x4 = std::array<Array2D_7x4, N_X>;
-	using Array1D_4 = std::array<double, 4>;
-	using Array1D_3 = std::array<double, N_Mch>;
-	using Array1D_7 = std::array<double, N_MsqU>;
 
 	// Initialisation des variables (utilisation de std::array)
 	Array2D_7x4 Gamma_UL, Gamma_UR;
 	Array2D_4x4 Gamma_NL, Gamma_NR;
 	Array2D_7x7 Gamma_U, I_LR, P_U;
 	Array3D_3x7x4 X_UL, X_UR, X_NL, X_NR;
-	Array1D_4 MU, MD, ME, VCKM[4]; // VCKM est un tableau de Array1D_4
-	Array1D_3 Mch;
-	Array1D_7 MsqU, MsqD;
-	Array1D_4 Msn;
+	Array2D_4x4  VCKM = {{{0.,0.,0.,0.},
+					{param->Vud, param->Vus, -(param->Vts * param->Vtb + param->Vcs * param->Vcb) / param->Vus, 0.0},
+					{param->Vcd, param->Vcs, param->Vcb, 0.0},
+					{param->Vtd, param->Vts, param->Vtb, 0.0}
+					}}; 
+	Array1D_7 MsqD;
+	constexpr size_t NumSquarks = 6;
+	std::array<std::array<double, 4>, 7> sU_mix;
 	double kappa, ag, aY, cosb, sinb, st, ct, alphas_mg;
 	double C4charg_1, C4charg_2, C3charg_2, C5charg_2, C6charg_2, C7charg_0, C8charg_0, C7_chargeps_0, C8_chargeps_0, C7charg_1, C8charg_1, C9charg_0, C9charg_1, C10charg_0, C10charg_1, C7four_1, C8four_1, C9four_1, C10four_1, C4four_2, C1squark_2;
 
@@ -166,45 +118,55 @@ void SUSY_LO_Strategy::init(Parameters* sm, double scale, WilsonSet& C_match) {
 	kappa = 1.0 / (param->g2 * param->g2 * param->Vtb * param->Vts);
 
 
-	VCKM[0] = {param->Vud, param->Vus, -(param->Vts * param->Vtb + param->Vcs * param->Vcb) / param->Vus, 0.0}; // Ajout d'un élément pour la compatibilité de taille
-	VCKM[1] = {param->Vcd, param->Vcs, param->Vcb, 0.0}; // Idem
-	VCKM[2] = {param->Vtd, param->Vts, param->Vtb, 0.0};
-
-	sinb = std::sin(std::atan(param->tan_beta));
-	cosb = std::cos(std::atan(param->tan_beta));
+	sinb = std::sin(std::atan((*sm)("EXTPAR",25)));
+	cosb = std::cos(std::atan((*sm)("EXTPAR",25)));
 	ct = param->stop_mix[1][1]; // Ajustement des indices pour base-0
 	st = param->stop_mix[0][1]; // Ajustement des indices pour base-0
 
 	// Initialisation des masses
-	MU = {0.0, param->mass_u, param->mass_c, param->mass_top_muW}; // Ajout d'un élément vide pour compatibilité d'indice
-	MD = {0.0, param->mass_d, param->mass_s, param->mass_b_muW}; // Correction pour inclure mass_d et ajustement pour base-0
-	ME = {0.0, param->mass_e, param->mass_mu, param->mass_tau}; // Ajout d'un élément vide pour compatibilité d'indice
+	Array1D_4 MU = {0.0, param->mass_u, param->mass_c, param->mass_top_muW}; // Ajout d'un élément vide pour compatibilité d'indice
+	Array1D_4 MD = {0.0, param->mass_d, param->mass_s, param->mass_b_muW}; // Correction pour inclure mass_d et ajustement pour base-0
+	Array1D_4 ME = {0.0, param->mass_e, param->mass_mu, param->mass_tau}; // Ajout d'un élément vide pour compatibilité d'indice
 
-	Mch = {param->mass_cha1, param->mass_cha2, 0.0}; // Ajout d'un élément pour compatibilité de taille
-	MsqU = {param->mass_upl, param->mass_chl, param->mass_t1, param->mass_upr, param->mass_chr, param->mass_t2, 0.0}; // Ajout d'un élément pour compatibilité de taille
-	Msn = {param->mass_nuel, param->mass_numl, param->mass_nutl, 0.0}; // Ajout d'un élément pour compatibilité de taille
+	Array1D_3 Mch = {0.0,param->mass_cha1, param->mass_cha2 }; // Ajout d'un élément pour compatibilité de taille
+	Array1D_7 MsqU = { 0.0, param->mass_upl, param->mass_chl, param->mass_t1, param->mass_upr, param->mass_chr, param->mass_t2}; // Ajout d'un élément pour compatibilité de taille
+	Array1D_7 MsqD = {
+    0.0, // L'indice 0 est laissé à 0 pour la compatibilité avec l'indexation 1-based utilisée dans votre exemple.
+    param->mass_dnl,
+    param->mass_stl,
+    param->mass_b1,
+    param->mass_dnr,
+    param->mass_str,
+    param->mass_b2
+};
+	Array1D_4 Msn = {param->mass_nuel, param->mass_numl, param->mass_nutl, 0.0}; // Ajout d'un élément pour compatibilité de taille
 
 	// Vérification du mélange sU_mix et initialisation conditionnelle de Gamma_UL et Gamma_UR
-	bool isNonZeroMix = std::any_of(param->sU_mix.begin(), param->sU_mix.end(), [](const auto& mix) {
-		return std::accumulate(mix.begin(), mix.end(), 1.0, std::multiplies<>()) != 0.0;
-	});
+	bool isNonZeroMix = true;
+	for (size_t i = 0; i < NumSquarks; ++i) {
+		double product = 1.0;
+		for (size_t j = 0; j < 6; ++j) { // Pour chaque colonne dans la rangée i
+			product *= sU_mix[i][j];
+		}
+		if (product == 0.0) {
+			isNonZeroMix = false;
+			break;
+		}
+	}
 
 	if (isNonZeroMix) {
-		for (int i = 0; i < 6; ++i) { // Pour N_UL_UR - 1
-			for (int j = 0; j < 3; ++j) { // Pour M_UL_UR - 1
-				Gamma_UL[i][j] = param->sU_mix[i][j];
-				Gamma_UR[i][j] = param->sU_mix[i][j + 3];
+		// Tri de MsqU si la condition est vraie
+		std::sort(MsqU.begin(), MsqU.end());
+
+		// Remplissage des matrices Gamma_UL et Gamma_UR
+		for (size_t ae = 0; ae < NumSquarks; ++ae) {
+			for (size_t ie = 0; ie < 3; ++ie) { // Indices ajustés pour base-0
+				Gamma_UL[ae][ie] = sU_mix[ae][ie];
+				Gamma_UR[ae][ie] = sU_mix[ae][ie + 3];
 			}
 		}
-	} else {
-		// Réinitialisation de Gamma_UL et Gamma_UR à des valeurs par défaut
-		for (auto& row : Gamma_UL) {
-			row.fill(0.0); // Remplit toute la ligne avec des zéros
-		}
-		for (auto& row : Gamma_UR) {
-			row.fill(0.0); // Remplit toute la ligne avec des zéros
-		}
-
+}
+	else {
 		// Configuration spécifique basée sur les exigences décrites
 		Gamma_UL[0][0] = 1.0; // Correspond à Gamma_UL[1][1] = 1 dans l'indexation originale de base-1
 		Gamma_UL[1][1] = 1.0; // Correspond à Gamma_UL[2][2] = 1
@@ -217,207 +179,185 @@ void SUSY_LO_Strategy::init(Parameters* sm, double scale, WilsonSet& C_match) {
 		Gamma_UR[5][2] = ct;  // ct
 	}
 
+	for (int ae = 0; ae < 6; ++ae) {
+        for (int ie = 0; ie < 3; ++ie) {
+            Gamma_U[ae][ie] = Gamma_UL[ae][ie];
+            Gamma_U[ae][ie+3] = Gamma_UR[ae][ie];
+        }
+    }
 
+    I_LR.fill({});
+    for (int i = 0; i < 3; ++i) {
+        I_LR[i][i] = 1;
+        I_LR[i+3][i+3] = -1;
+    }
 
-/* .............................................................................;; */
-			
-	if(param->sU_mix[1][1]*param->sU_mix[1][2]*param->sU_mix[1][3]*param->sU_mix[1][4]*param->sU_mix[1][5]*param->sU_mix[1][6]!=0.)
-	{
-	
-		for(je=1;je<=5;je++)
-		{
-			for(ie=je+1;ie<=6;ie++) if (MsqU[je]>MsqU[ie])
-			{
-				mintmp=MsqU[je];
-				MsqU[je]=MsqU[ie];
-				MsqU[ie]=mintmp;
+    // Calcul de P_U
+    for (int ae = 0; ae < 6; ++ae) {
+        for (int be = 0; be < 6; ++be) {
+            for (int ce = 0; ce < 6; ++ce) {
+                for (int de = 0; de < 6; ++de) {
+                    P_U[ae][be] += Gamma_U[ae][ce] * I_LR[ce][de] * Gamma_U[be][de];
+                }
+            }
+        }
+    }
+
+    // Calculs pour X_UL et X_UR
+    for (int ie = 0; ie < 2; ++ie) {
+		for (int ae = 0; ae < 6; ++ae) { // Supposant que 6 est correct pour tous
+			for (int be = 0; be < 3; ++be) {
+				// Réinitialisation pour X_UL et X_UR
+				X_UL[ie][ae][be] = 0.0;
+				X_UR[ie][ae][be] = 0.0;
+
+				// Calculs pour X_UL et X_UR
+				for (int ce = 0; ce < 3; ++ce) {
+					X_UL[ie][ae][be] += -param->g2 * (
+						ag * param->charg_Vmix[ie][1] * Gamma_UL[ae][ce] -
+						aY * param->charg_Vmix[ie][2] * Gamma_UR[ae][ce] * MU[ce] / (sqrt(2.0) * param->mass_W * sinb)
+					) * VCKM[ce][be];
+
+					X_UR[ie][ae][be] += param->g2 * aY * param->charg_Umix[ie][2] * Gamma_UL[ae][ce] * VCKM[ce][be] * MD[be] / (sqrt(2.0) * param->mass_W * cosb);
+				}
+
+				// Condition pour éviter le dépassement dans X_NL et X_NR si ae > 2
+				if (ae < 3) {
+					X_NL[ie][ae][be] = -param->g2 * param->charg_Vmix[ie][1] * Gamma_NL[ae][be];
+					X_NR[ie][ae][be] = param->g2 * param->charg_Umix[ie][2] * Gamma_NL[ae][be] * ME[be] / (sqrt(2.0) * param->mass_W * cosb);
+				}
 			}
 		}
-	
-	
-		for(ae=1;ae<=6;ae++) for(ie=1;ie<=3;ie++) Gamma_UL[ae][ie]=param->sU_mix[ae][ie];
-		for(ae=1;ae<=6;ae++) for(ie=1;ie<=3;ie++) Gamma_UR[ae][ie]=param->sU_mix[ae][ie+3];
-	}
-	else
-	{
-		Gamma_UL[1][1]=1.;
-		Gamma_UL[2][1]=0.;
-		Gamma_UL[3][1]=0.;
-		Gamma_UL[4][1]=0.;
-		Gamma_UL[5][1]=0.;
-		Gamma_UL[6][1]=0.;
-		Gamma_UL[1][2]=0.;
-		Gamma_UL[2][2]=1.;
-		Gamma_UL[3][2]=0.;
-		Gamma_UL[4][2]=0.;
-		Gamma_UL[5][2]=0.;
-		Gamma_UL[6][2]=0.;
-		Gamma_UL[1][3]=0.;
-		Gamma_UL[2][3]=0.;
-		Gamma_UL[3][3]=ct;
-		Gamma_UL[4][3]=0.;
-		Gamma_UL[5][3]=0.;
-		Gamma_UL[6][3]=-st;
-	
-		Gamma_UR[1][1]=0.;
-		Gamma_UR[2][1]=0.;
-		Gamma_UR[3][1]=0.;
-		Gamma_UR[4][1]=1.;
-		Gamma_UR[5][1]=0.;
-		Gamma_UR[6][1]=0.;
-		Gamma_UR[1][2]=0.;
-		Gamma_UR[2][2]=0.;
-		Gamma_UR[3][2]=0.;
-		Gamma_UR[4][2]=0.;
-		Gamma_UR[5][2]=1.;
-		Gamma_UR[6][2]=0.;
-		Gamma_UR[1][3]=0.;
-		Gamma_UR[2][3]=0.;
-		Gamma_UR[3][3]=st;
-		Gamma_UR[4][3]=0.;
-		Gamma_UR[5][3]=0.;
-		Gamma_UR[6][3]=ct;
 	}
 
+	auto computeContributions = [&](int ie, auto func, double additionalFactor = 1.0) {
+		double result = 0.0;
+		for (int ae = 0; ae < 6; ++ae) {
+			double msqOverMchSquared = std::pow(MsqU[ae] / Mch[ie], 2.0);
+			result += (X_UL[ie][ae][1] * X_UL[ie][ae][2] * func(msqOverMchSquared) +
+					Mch[ie] / mass_b_muW * X_UL[ie][ae][1] * X_UR[ie][ae][2] * func(msqOverMchSquared)) * additionalFactor;
+		}
+		return result;
+	};
 
-	for(ae=1;ae<=6;ae++) for(ie=1;ie<=3;ie++)
-	{
-		Gamma_U[ae][ie]=Gamma_UL[ae][ie];
-		Gamma_U[ae][ie+3]=Gamma_UR[ae][ie];
-	}
-	
-	for(ae=1;ae<=6;ae++) for(be=1;be<=6;be++) I_LR[ae][be]=0.;
-	for(ae=1;ae<=3;ae++) I_LR[ae][ae]=1.;
-	for(ae=4;ae<=6;ae++) I_LR[ae][ae]=-1.;
-	
-	for(ae=1;ae<=6;ae++) for(be=1;be<=6;be++) for(ce=1;ce<=6;ce++) for(de=1;de<=6;de++) P_U[ae][be]=Gamma_U[ae][ce]*I_LR[ce][de]*Gamma_U[be][de];
-	
-	for(ae=1;ae<=3;ae++) for(be=1;be<=3;be++) if(ae==be) Gamma_NL[ae][be]=Gamma_NR[ae][be]=1.; else Gamma_NL[ae][be]=Gamma_NR[ae][be]=0.;
-			
-	for(ie=1;ie<=2;ie++) for(ae=1;ae<=6;ae++) for(be=1;be<=3;be++)
-	{
-		X_UL[ie][ae][be]=0.;
-		for(ce=1;ce<=3;ce++) X_UL[ie][ae][be]+=-param->g2*(ag*param->charg_Vmix[ie][1]*Gamma_UL[ae][ce]
-		-aY*param->charg_Vmix[ie][2]*Gamma_UR[ae][ce]*MU[ce]/(sqrt(2.)*param->mass_W*sinb))*VCKM[ce][be];
-	
-		X_UR[ie][ae][be]=0.;
-		for(ce=1;ce<=3;ce++) X_UR[ie][ae][be]+=param->g2*aY*param->charg_Umix[ie][2]*Gamma_UL[ae][ce]*VCKM[ce][be]*MD[be]/(sqrt(2)*param->mass_W*cosb);
-	}
 
-	for(ie=1;ie<=2;ie++) for(ae=1;ae<=3;ae++) for(be=1;be<=3;be++)
-	{
-		X_NL[ie][ae][be]=-param->g2*param->charg_Vmix[ie][1]*Gamma_NL[ae][be];
-		X_NR[ie][ae][be]=param->g2*param->charg_Umix[ie][2]*Gamma_NL[ae][be]*ME[be]/(sqrt(2.)*param->mass_W*cosb);
-	}
+	auto hFunc10 = [](double x) { return h10(x); };
+	auto hFunc20 = [](double x) { return h20(x); };
+	auto hFunc50 = [](double x) { return h50(x); };
+	auto hFunc60 = [](double x) { return h60(x); };
 
-	/* LO */
+	double kappaFactor = -0.5 * kappa;
 
-	C7charg_0=0.;
-	for(ie=1;ie<=2;ie++) for(ae=1;ae<=6;ae++) C7charg_0+=pow(param->mass_W/Mch[ie],2.)*(X_UL[ie][ae][2]*X_UL[ie][ae][3]*h10(pow(MsqU[ae]/Mch[ie],2.)) + Mch[ie]/mass_b_muW*X_UL[ie][ae][2]*X_UR[ie][ae][3]*h20(pow(MsqU[ae]/Mch[ie],2.)));		
-	C7charg_0*=-0.5*kappa; 
-	
+	auto calculateContribution = [&](auto hFunc, const Array3D_3x7x4& X, int ie, int ae, bool isChargeps) -> double {
+		double ratio = std::pow(param->mass_W / Mch[ie], 2);
+		double msqOverMchSquared = std::pow(MsqU[ae] / Mch[ie], 2.0);
+		double factor = isChargeps ? (-epsilonb / (1.0 + epsilonb * (*sm)("EXTPAR",25)) * (*sm)("EXTPAR",25)) : 1.0;
+		return ratio * (
+			X[ie][ae][1] * X[ie][ae][2] * hFunc(msqOverMchSquared) +
+			Mch[ie] / mass_b_muW * X[ie][ae][1] * X[ie][ae][2] * hFunc(msqOverMchSquared)
+		) * kappaFactor * factor;
+	};
 
-	C8charg_0=0.;
-	for(ie=1;ie<=2;ie++) for(ae=1;ae<=6;ae++) C8charg_0+=pow(param->mass_W/Mch[ie],2.)*(X_UL[ie][ae][2]*X_UL[ie][ae][3]*h50(pow(MsqU[ae]/Mch[ie],2.)) + Mch[ie]/mass_b_muW*X_UL[ie][ae][2]*X_UR[ie][ae][3]*h60(pow(MsqU[ae]/Mch[ie],2.)));		
-	C8charg_0*=-0.5*kappa; 
-	
+	C7charg_0 = 0.0;
+	C8charg_0 = 0.0;
+	C7_chargeps_0 = 0.0;
+	C8_chargeps_0 = 0.0;
 
-	C7_chargeps_0=0.;		
-	for(ie=1;ie<=2;ie++) for(ae=1;ae<=6;ae++) C7_chargeps_0+= -epsilonb/(1.+epsilonb*param->tan_beta)*param->tan_beta*pow(param->mass_W/Mch[ie],2.)*(Mch[ie]/mass_b_muW*X_UL[ie][ae][2]*X_UR[ie][ae][3]*h20(pow(MsqU[ae]/Mch[ie],2.)));				
-	C7_chargeps_0*=-0.5*kappa; 
-	
-
-	C8_chargeps_0=0.;		
-	for(ie=1;ie<=2;ie++) for(ae=1;ae<=6;ae++) C8_chargeps_0+= -epsilonb/(1.+epsilonb*param->tan_beta)*param->tan_beta*pow(param->mass_W/Mch[ie],2.)*(Mch[ie]/mass_b_muW*X_UL[ie][ae][2]*X_UR[ie][ae][3]*h60(pow(MsqU[ae]/Mch[ie],2.)));		
-	C8_chargeps_0*=-0.5*kappa; 
-
-	double B0c1=0.;
-	double B0c2=0.;
-	for(ie=1;ie<=2;ie++) for(je=1;je<=2;je++) for(ae=1;ae<=6;ae++) for(be=1;be<=3;be++)
-	{ 	B0c1+=X_UL[je][ae][2]*X_UL[ie][ae][3]/Mch[ie]/Mch[ie]*(0.5*X_NL[ie][be][2]*X_NL[je][be][2]*f50(pow(Mch[je]/Mch[ie],2.),pow(MsqU[ae]/Mch[ie],2.),pow(Msn[be]/Mch[ie],2.)));	 B0c2+=X_UL[je][ae][2]*X_UL[ie][ae][3]/Mch[ie]/Mch[ie]*(X_NR[ie][be][2]*X_NR[je][be][2]*fabs(Mch[je]/Mch[ie])*f60(pow(Mch[je]/Mch[ie],2.),pow(MsqU[ae]/Mch[ie],2.),pow(Msn[be]/Mch[ie],2.)));
-	}
-	
-	double B90c=-(B0c1-B0c2)*kappa*param->mass_W*param->mass_W/2./param->g2/param->g2;
-	
-	double B100c=(B0c1+B0c2)*kappa*param->mass_W*param->mass_W/2./param->g2/param->g2;
-	
-	
-	double C90c=0.;
-	for(ie=1;ie<=2;ie++) for(je=1;je<=2;je++) for(ae=1;ae<=6;ae++) C90c+=X_UL[je][ae][2]*X_UL[ie][ae][3]*(2.*fabs(Mch[je]/Mch[ie])*f30(pow(Mch[je]/Mch[ie],2.),pow(MsqU[ae]/Mch[ie],2.))*param->charg_Umix[je][1]*param->charg_Umix[ie][1] -f40(pow(Mch[je]/Mch[ie],2.),pow(MsqU[ae]/Mch[ie],2.))*param->charg_Vmix[je][1]*param->charg_Vmix[ie][1]);
-	
-	for(ie=1;ie<=2;ie++) for(ae=1;ae<=6;ae++) for(be=1;be<=6;be++) for(ce=1;ce<=3;ce++) C90c+=X_UL[ie][be][2]*X_UL[ie][ae][3]*f40(pow(MsqU[ae]/Mch[ie],2.),pow(MsqU[be]/Mch[ie],2.))*Gamma_UL[be][ce]*Gamma_UL[ae][ce];
-	C90c*=-kappa/8.;	
-	
-	
-	double D90c=0.;
-	for(ie=1;ie<=2;ie++) for(ae=1;ae<=6;ae++) D90c+=pow(param->mass_W/Mch[ie],2.)*X_UL[ie][ae][2]*X_UL[ie][ae][3]*h30(pow(MsqU[ae]/Mch[ie],2.));
-	D90c*=kappa;
-
-	C9charg_0=(1.-4.*sw2)/sw2*C90c-B90c/sw2-D90c;
-	C10charg_0=(B100c-C90c)/sw2;
-
-	MsqD[1]=param->mass_dnl;
-	MsqD[2]=param->mass_stl;
-	MsqD[3]=param->mass_b1;
-	MsqD[4]=param->mass_dnr;
-	MsqD[5]=param->mass_str;
-	MsqD[6]=param->mass_b2;
-	
-	int test=1;
-	for(ae=1;ae<=6;ae++) test=test&&(fabs(MsqU[ae])>param->mass_W/2.)&&(fabs(MsqD[ae])>param->mass_W/2.);
-	
-	if(test)
-	{		
-		C1squark_2=-208./3.;
-		double xsqa;
-		for(ae=1;ae<=6;ae++) 
-		{
-			xsqa=pow(MsqU[ae]/param->mass_W,2.);
-			C1squark_2+=-2.*pow(4.*xsqa-1.,1.5)*Cl2(2.*asin(0.5/sqrt(xsqa))) +8.*(xsqa-1./3.)*log(xsqa)+16.*xsqa;
-		
-			xsqa=pow(MsqD[ae]/param->mass_W,2.);
-			C1squark_2+=-2.*pow(4.*xsqa-1.,1.5)*Cl2(2.*asin(0.5/sqrt(xsqa))) +8.*(xsqa-1./3.)*log(xsqa)+16.*xsqa;
+	for (int ie = 0; ie < 2; ++ie) {
+		for (int ae = 0; ae < 6; ++ae) {
+			C7charg_0 += calculateContribution(h10, X_UL, ie, ae, false) + calculateContribution(h20, X_UR, ie, ae, false);
+			C8charg_0 += calculateContribution(h50, X_UL, ie, ae, false) + calculateContribution(h60, X_UR, ie, ae, false);
+			C7_chargeps_0 += calculateContribution(h20, X_UR, ie, ae, true);
+			C8_chargeps_0 += calculateContribution(h60, X_UR, ie, ae, true);
 		}
 	}
-	else C1squark_2=0.;
 
 
-	double alphas_mu=(*sm).run.runningAlphasCalculation(scale);
 
-	// if(cabs(C7H_1)*alphas_mu/4./pi>cabs(C0w[7])) C7H_1*=cabs(C0w[7])/cabs(C7H_1)*4.*pi/alphas_mu;
-	// if(cabs(C7charg_1)*alphas_mu/4./pi>cabs(C0w[7])) C7charg_1*=cabs(C0w[7])/cabs(C7charg_1)*4.*pi/alphas_mu;
-	// if(cabs(C7four_1)*alphas_mu/4./pi>cabs(C0w[7])) C7four_1*=cabs(C0w[7])/cabs(C7four_1)*4.*pi/alphas_mu;
+	double B0c1 = 0.0, B0c2 = 0.0, B90c = 0.0, B100c = 0.0, C90c = 0.0, D90c = 0.0;
 
-	// if(cabs(C8H_1)*alphas_mu/4./pi>cabs(C0w[8])) C8H_1*=cabs(C0w[8])/cabs(C8H_1)*4.*pi/alphas_mu;
-	// if(cabs(C8charg_1)*alphas_mu/4./pi>cabs(C0w[8])) C8charg_1*=cabs(C0w[8])/cabs(C8charg_1)*4.*pi/alphas_mu;
-	// if(cabs(C8four_1)*alphas_mu/4./pi>cabs(C0w[8])) C8four_1*=cabs(C0w[8])/cabs(C8four_1)*4.*pi/alphas_mu;   
+	for (int ie = 0; ie < 2; ++ie) {
+		for (int je = 0; je < 2; ++je) {
+			for (int ae = 0; ae < 6; ++ae) {
+				double mchRatioSquared = std::pow(Mch[je] / Mch[ie], 2.0);
+				double msqOverMchSquared = std::pow(MsqU[ae] / Mch[ie], 2.0);
 
-	// if(cabs(C9H_1)*alphas_mu/4./pi>cabs(C0w[9])) C9H_1*=cabs(C0w[9])/cabs(C9H_1)*4.*pi/alphas_mu;
-	// if(cabs(C9charg_1)*alphas_mu/4./pi>cabs(C0w[9])) C9charg_1*=cabs(C0w[9])/cabs(C9charg_1)*4.*pi/alphas_mu;
-	// if(cabs(C9four_1)*alphas_mu/4./pi>cabs(C0w[9])) C9four_1*=cabs(C0w[9])/cabs(C9four_1)*4.*pi/alphas_mu;
+				// Calculations for B0c1, B0c2, and part of C90c
+				for (int be = 0; be < 3; ++be) {
+					double msnOverMchSquared = std::pow(Msn[be] / Mch[ie], 2.0);
+					B0c1 += X_UL[je][ae][1] * X_UL[ie][ae][2] / (Mch[ie] * Mch[ie]) * (0.5 * X_NL[ie][be][1] * X_NL[je][be][1] * f50(mchRatioSquared, msqOverMchSquared, msnOverMchSquared));
+					B0c2 += X_UL[je][ae][1] * X_UL[ie][ae][2] / (Mch[ie] * Mch[ie]) * (X_NR[ie][be][1] * X_NR[je][be][1] * std::fabs(Mch[je] / Mch[ie]) * f60(mchRatioSquared, msqOverMchSquared, msnOverMchSquared));
+					
+					if (ie == je) { // Optimization to avoid duplicate calculations
+						C90c += X_UL[je][ae][1] * X_UL[ie][ae][2] * (2.0 * std::fabs(Mch[je] / Mch[ie]) * f30(mchRatioSquared, msqOverMchSquared) * param->charg_Umix[je][1] * param->charg_Umix[ie][1] - f40(mchRatioSquared, msqOverMchSquared) * param->charg_Vmix[je][1] * param->charg_Vmix[ie][1]);
+					}
+				}
 
-	// if(cabs(C10H_1)*alphas_mu/4./pi>cabs(C0w[10])) C10H_1*=cabs(C0w[10])/cabs(C10H_1)*4.*pi/alphas_mu;
-	// if(cabs(C10charg_1)*alphas_mu/4./pi>cabs(C0w[10])) C10charg_1*=cabs(C0w[10])/cabs(C10charg_1)*4.*pi/alphas_mu;
-	// if(cabs(C10four_1)*alphas_mu/4./pi>cabs(C0w[10])) C10four_1*=cabs(C0w[10])/cabs(C10four_1)*4.*pi/alphas_mu;
+				// Part of D90c calculation
+				D90c += std::pow(param->mass_W / Mch[ie], 2.0) * X_UL[ie][ae][1] * X_UL[ie][ae][2] * h30(msqOverMchSquared);
+			}
+		}
+	}
+
+	// Additional loop for the rest of C90c that depends on ae and be
+	for (int ie = 0; ie < 2; ++ie) {
+		for (int ae = 0; ae < 6; ++ae) {
+			for (int be = 0; be < 6; ++be) { // Notice that both ae and be go up to 6
+				double msqOverMchSquaredAe = std::pow(MsqU[ae] / Mch[ie], 2.0);
+				double msqOverMchSquaredBe = std::pow(MsqU[be] / Mch[ie], 2.0);
+				for (int ce = 0; ce < 3; ++ce) {
+					C90c += X_UL[ie][be][1] * X_UL[ie][ae][2] * f40(msqOverMchSquaredAe, msqOverMchSquaredBe) * Gamma_UL[be][ce] * Gamma_UL[ae][ce];
+				}
+			}
+		}
+	}
+
+	// Final adjustments
+	B90c = -(B0c1 - B0c2) * kappa * std::pow(param->mass_W, 2.0) / (2.0 * std::pow(param->g2, 2.0));
+	B100c = (B0c1 + B0c2) * kappa * std::pow(param->mass_W, 2.0) / (2.0 * std::pow(param->g2, 2.0));
+	C90c *= -kappa / 8.0;
+	D90c *= kappa;
+
+    C9charg_0 = (1.0 - 4.0 * sw2) / sw2 * C90c - B90c / sw2 - D90c;
+    C10charg_0 = (B100c - C90c) / sw2;
 
 
-	C0w[2]= 0.;
-	C0w[7]= C7SMeps_0+C7H_0+C7Heps_0+C7Heps2_0+C7charg_0+C7_chargeps_0;
-	C0w[8]= C8SMeps_0+C8H_0+C8Heps_0+C8Heps2_0+C8charg_0+C8_chargeps_0;
-	C0w[9]= C9H_0+C9charg_0;
-	C0w[10]= C10H_0+C10charg_0;
-	// C1w[1]= C1SM_1;
-	// C1w[4]= C4SM_1+C4H_1+C4charg_1;
-	// C1w[7]= C7SM_1+C7H_1+C7charg_1+C7four_1;
-	// C1w[8]= C8SM_1+C8H_1+C8charg_1+C8four_1;
-	// C1w[9]= C9SM_1+C9H_1+C9charg_1+C9four_1;
-	// C1w[10]= C10SM_1+C10H_1+C10charg_1+C10four_1;
-	// C2w[1]= C1SM_2+C1squark_2;
-	// C2w[2]= C2SM_2;
-	// C2w[3]= C3SM_2+C3H_2+C3charg_2;
-	// C2w[4]= C4SM_2+C4H_2+C4charg_2+C4four_2;
-	// C2w[5]= C5SM_2+C5H_2+C5charg_2;
-	// C2w[6]= C6SM_2+C6H_2+C6charg_2;
-	// C2w[7]= C7SM_2;
-	// C2w[8]= C8SM_2;
+	bool test = true;
+	for (int ae = 1; ae <= 6; ++ae) { // Conserve l'indexation à partir de 1
+		if (!(std::fabs(MsqU[ae]) > param->mass_W / 2. && std::fabs(MsqD[ae]) > param->mass_W / 2.)) {
+			test = false;
+			break; // Sort de la boucle dès qu'une condition n'est pas remplie
+		}
+	}
+
+	double C1squark_2 = 0.0;
+
+	if (test) {
+		C1squark_2 = -208.0 / 3.0;
+		for (int ae = 1; ae <= 6; ++ae) { // Continue avec l'indexation à partir de 1
+			double xsqaU = std::pow(MsqU[ae] / param->mass_W, 2.0);
+			double xsqaD = std::pow(MsqD[ae] / param->mass_W, 2.0);
+
+			// Ajoute les contributions de MsqU et MsqD séparément
+			C1squark_2 += -2.0 * std::pow(4.0 * xsqaU - 1.0, 1.5) * Cl2(2.0 * std::asin(0.5 / std::sqrt(xsqaU))) + 8.0 * (xsqaU - 1.0 / 3.0) * std::log(xsqaU) + 16.0 * xsqaU;
+			C1squark_2 += -2.0 * std::pow(4.0 * xsqaD - 1.0, 1.5) * Cl2(2.0 * std::asin(0.5 / std::sqrt(xsqaD))) + 8.0 * (xsqaD - 1.0 / 3.0) * std::log(xsqaD) + 16.0 * xsqaD;
+		}
+	} else {
+		C1squark_2 = 0.0;
+	}
+
+	if (C_match.empty()) C_match.resize(1);
+	auto& C_LO = C_match[0];
+	C_LO.resize(static_cast<size_t>(WilsonCoefficient::CPQ2) + 1, std::complex<double>(0, 0));
+
+	C_LO[static_cast<size_t>(WilsonCoefficient::C2)] = std::complex<double>(0, 0); // Exemple pour C2
+	C_LO[static_cast<size_t>(WilsonCoefficient::C7)] = std::complex<double>(C7SMeps_0 + C7H_0 + C7Heps_0 + C7Heps2_0 + C7charg_0 + C7_chargeps_0, 0);
+	C_LO[static_cast<size_t>(WilsonCoefficient::C8)] = std::complex<double>(C8SMeps_0 + C8H_0 + C8Heps_0 + C8Heps2_0 + C8charg_0 + C8_chargeps_0, 0);
+	C_LO[static_cast<size_t>(WilsonCoefficient::C9)] = std::complex<double>(C9H_0 + C9charg_0, 0);
+	C_LO[static_cast<size_t>(WilsonCoefficient::C10)] = std::complex<double>(C10H_0 + C10charg_0, 0);
+
+	// Affichage pour vérification, si nécessaire
+	std::cout << "C7: " << C_LO[static_cast<size_t>(WilsonCoefficient::C7)] << std::endl;
+	std::cout << "C8: " << C_LO[static_cast<size_t>(WilsonCoefficient::C8)] << std::endl;
+
 }

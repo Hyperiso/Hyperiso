@@ -3,6 +3,7 @@
 #include "../Wilson.h"
 #include "epsilon_calculator.h"
 #include "../Math/Math_BSM/Math_SUSY.h"
+#include <algorithm>
 
 class SUSY_LO_Strategy : public InitializationStrategy {
 public:
