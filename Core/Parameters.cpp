@@ -60,12 +60,16 @@ Parameters::Parameters() {
     run = QCDParameters(masses[5], masses[5], masses[6], masses[6]);
 }
 
-Parameters *Parameters::GetInstance()
+Parameters *Parameters::GetInstance(int index)
 {
-    if (!Parameters::instance) {
-        Parameters::instance = new Parameters();
+    if(index < 0 || index > 1) {
+            std::cerr << "Invalid index. Must be between 0 and 1." << std::endl;
+            return nullptr;
+        }
+    if (!Parameters::instance[index]) {
+        Parameters::instance[index] = new Parameters();
     }
-    return Parameters::instance;
+    return Parameters::instance[index];
 }
 
 void Parameters::setScale(double Q) {

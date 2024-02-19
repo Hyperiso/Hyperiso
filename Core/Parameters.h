@@ -18,7 +18,7 @@ public:
     QCDParameters run;
     // double Q {sm.mass_top_pole};
 
-    static Parameters* GetInstance();
+    static Parameters* GetInstance(int index = 0);
     void setScale(double Q);
 
     double operator()(std::string block, int pdgCode) {
@@ -41,7 +41,7 @@ public:
         
     }
 private:
-    static Parameters* instance;
+    static DualInstance* instances[2];
     Parameters(); // Constructeur pour initialiser les paramètres
 
     std::map<int, double> masses;

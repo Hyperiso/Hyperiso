@@ -21,6 +21,7 @@
 class EpsilonCalculator {
 protected:
     Parameters* sm = Parameters::GetInstance();
+    Parameters* susy = Parameters::GetInstance(1);
     static EpsilonCalculator* instance;
     EpsilonCalculator();
 
