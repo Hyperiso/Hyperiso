@@ -22,6 +22,8 @@ using Array1D_7 = std::array<double, N_MsqU>;
 void SUSY_LO_Strategy::init(Parameters* sm, double scale, WilsonSet& C_match) {
 
 	EpsilonCalculator* epsi = EpsilonCalculator::GetInstance();
+
+	Parameters* susy = Parameters::GetInstance(1);
     // Parameters* sm = Parameters::GetInstance();
     double epsilonbp,epsilon0p,epsilon0,epsilon2,epsilon1p,epsilonb;
 	
@@ -41,47 +43,47 @@ void SUSY_LO_Strategy::init(Parameters* sm, double scale, WilsonSet& C_match) {
 	double xt= pow(mass_top_muW/(*sm)("MASS",24),2.); // W boson mass (24)
 	double yt= pow(mass_top_muW/(*sm)("MASS",25),2.); // param->mass_H (25)
 
-	double C7SMeps_0= (epsilonb-epsilonbp)/(1.+epsilonb*(*sm)("EXTPAR",25))*(*sm)("EXTPAR",25)*F7_2(xt);
-	double C8SMeps_0= (epsilonb-epsilonbp)/(1.+epsilonb*(*sm)("EXTPAR",25))*(*sm)("EXTPAR",25)*F8_2(xt);
+	double C7SMeps_0= (epsilonb-epsilonbp)/(1.+epsilonb*(*susy)("EXTPAR",25))*(*susy)("EXTPAR",25)*F7_2(xt);
+	double C8SMeps_0= (epsilonb-epsilonbp)/(1.+epsilonb*(*susy)("EXTPAR",25))*(*susy)("EXTPAR",25)*F8_2(xt);
 
 
-	double C7Heps_0=(-epsilon0p-epsilonb)/(1.+epsilonb*(*sm)("EXTPAR",25))*(*sm)("EXTPAR",25)*F7_2(yt);
-	double C8Heps_0=(-epsilon0p-epsilonb)/(1.+epsilonb*(*sm)("EXTPAR",25))*(*sm)("EXTPAR",25)*F8_2(yt);
+	double C7Heps_0=(-epsilon0p-epsilonb)/(1.+epsilonb*(*susy)("EXTPAR",25))*(*susy)("EXTPAR",25)*F7_2(yt);
+	double C8Heps_0=(-epsilon0p-epsilonb)/(1.+epsilonb*(*susy)("EXTPAR",25))*(*susy)("EXTPAR",25)*F8_2(yt);
 
 	double C7Heps2_0=0.;
 	double C8Heps2_0=0.;
 
 	if((param->mass_A02==0.)&&(param->mass_H03==0.))
 	{
-		C7Heps2_0=-epsilon2*epsilon1p*pow((*sm)("EXTPAR",25),2.)/(1.+epsilonb*(*sm)("EXTPAR",25))/(1.+epsilon0*(*sm)("EXTPAR",25))*F7_2(yt);
-		C7Heps2_0+=epsilon2/pow(1.+epsilonb*(*sm)("EXTPAR",25),2.)*(1.+pow((*sm)("EXTPAR",25),2.))/(1.+epsilon0*(*sm)("EXTPAR",25))/72.		*((cos(param->alpha)+sin(param->alpha)*(*sm)("EXTPAR",25))*(-sin(param->alpha)+epsilonb*cos(param->alpha))*pow(mass_b_muW/param->mass_h0,2.)
-		+(sin(param->alpha)-cos(param->alpha)*(*sm)("EXTPAR",25))*(cos(param->alpha)+epsilonb*sin(param->alpha))*pow(mass_b_muW/param->mass_H0,2.)			+(-cos(atan((*sm)("EXTPAR",25)))-sin(atan((*sm)("EXTPAR",25)))*(*sm)("EXTPAR",25))*(sin(atan((*sm)("EXTPAR",25)))-epsilonb*cos(atan((*sm)("EXTPAR",25))))*pow(mass_b_muW/param->mass_A0,2.));
+		C7Heps2_0=-epsilon2*epsilon1p*pow((*susy)("EXTPAR",25),2.)/(1.+epsilonb*(*susy)("EXTPAR",25))/(1.+epsilon0*(*susy)("EXTPAR",25))*F7_2(yt);
+		C7Heps2_0+=epsilon2/pow(1.+epsilonb*(*susy)("EXTPAR",25),2.)*(1.+pow((*susy)("EXTPAR",25),2.))/(1.+epsilon0*(*susy)("EXTPAR",25))/72.		*((cos(param->alpha)+sin(param->alpha)*(*susy)("EXTPAR",25))*(-sin(param->alpha)+epsilonb*cos(param->alpha))*pow(mass_b_muW/param->mass_h0,2.)
+		+(sin(param->alpha)-cos(param->alpha)*(*susy)("EXTPAR",25))*(cos(param->alpha)+epsilonb*sin(param->alpha))*pow(mass_b_muW/param->mass_H0,2.)			+(-cos(atan((*susy)("EXTPAR",25)))-sin(atan((*susy)("EXTPAR",25)))*(*susy)("EXTPAR",25))*(sin(atan((*susy)("EXTPAR",25)))-epsilonb*cos(atan((*susy)("EXTPAR",25))))*pow(mass_b_muW/param->mass_A0,2.));
 
-		C8Heps2_0=-epsilon2*epsilon1p*pow((*sm)("EXTPAR",25),2.)/(1.+epsilonb*(*sm)("EXTPAR",25))/(1.+epsilon0*(*sm)("EXTPAR",25))*F8_2(yt);
-		C8Heps2_0+=epsilon2/pow(1.+epsilonb*(*sm)("EXTPAR",25),2.)*(1.+pow((*sm)("EXTPAR",25),2.))/(1.+epsilon0*(*sm)("EXTPAR",25))/72.		*((cos(param->alpha)+sin(param->alpha)*(*sm)("EXTPAR",25))*(-sin(param->alpha)+epsilonb*cos(param->alpha))*pow(mass_b_muW/param->mass_h0,2.)
-		+(sin(param->alpha)-cos(param->alpha)*(*sm)("EXTPAR",25))*(cos(param->alpha)+epsilonb*sin(param->alpha))*pow(mass_b_muW/param->mass_H0,2.)			+(-cos(atan((*sm)("EXTPAR",25)))-sin(atan((*sm)("EXTPAR",25)))*(*sm)("EXTPAR",25))*(sin(atan((*sm)("EXTPAR",25)))-epsilonb*cos(atan((*sm)("EXTPAR",25))))*pow(mass_b_muW/param->mass_A0,2.));
+		C8Heps2_0=-epsilon2*epsilon1p*pow((*susy)("EXTPAR",25),2.)/(1.+epsilonb*(*susy)("EXTPAR",25))/(1.+epsilon0*(*susy)("EXTPAR",25))*F8_2(yt);
+		C8Heps2_0+=epsilon2/pow(1.+epsilonb*(*susy)("EXTPAR",25),2.)*(1.+pow((*susy)("EXTPAR",25),2.))/(1.+epsilon0*(*susy)("EXTPAR",25))/72.		*((cos(param->alpha)+sin(param->alpha)*(*susy)("EXTPAR",25))*(-sin(param->alpha)+epsilonb*cos(param->alpha))*pow(mass_b_muW/param->mass_h0,2.)
+		+(sin(param->alpha)-cos(param->alpha)*(*susy)("EXTPAR",25))*(cos(param->alpha)+epsilonb*sin(param->alpha))*pow(mass_b_muW/param->mass_H0,2.)			+(-cos(atan((*susy)("EXTPAR",25)))-sin(atan((*susy)("EXTPAR",25)))*(*susy)("EXTPAR",25))*(sin(atan((*susy)("EXTPAR",25)))-epsilonb*cos(atan((*susy)("EXTPAR",25))))*pow(mass_b_muW/param->mass_A0,2.));
 	}
 	else
 	{		
-		C7Heps2_0=-epsilon2*epsilon1p*pow((*sm)("EXTPAR",25),2.)/(1.+epsilonb*(*sm)("EXTPAR",25))/(1.+epsilon0*(*sm)("EXTPAR",25))*F7_2(yt);
-		C7Heps2_0+=epsilon2/pow(1.+epsilonb*(*sm)("EXTPAR",25),2.)*(1.+pow((*sm)("EXTPAR",25),2.))/(1.+epsilon0*(*sm)("EXTPAR",25))/72.	*((param->H0_mix[1][1]+param->H0_mix[1][2]*(*sm)("EXTPAR",25))*(-param->H0_mix[1][2]+epsilonb*param->H0_mix[1][1])*pow(mass_b_muW/param->mass_h0,2.)
-		+(param->H0_mix[2][1]+param->H0_mix[2][2]*(*sm)("EXTPAR",25))*(-param->H0_mix[2][2]+epsilonb*param->H0_mix[2][1])*pow(mass_b_muW/param->mass_H0,2.)
-		+(param->H0_mix[3][1]+param->H0_mix[3][2]*(*sm)("EXTPAR",25))*(-param->H0_mix[3][2]+epsilonb*param->H0_mix[3][1])*pow(mass_b_muW/param->mass_H03,2.)
+		C7Heps2_0=-epsilon2*epsilon1p*pow((*susy)("EXTPAR",25),2.)/(1.+epsilonb*(*susy)("EXTPAR",25))/(1.+epsilon0*(*susy)("EXTPAR",25))*F7_2(yt);
+		C7Heps2_0+=epsilon2/pow(1.+epsilonb*(*susy)("EXTPAR",25),2.)*(1.+pow((*susy)("EXTPAR",25),2.))/(1.+epsilon0*(*susy)("EXTPAR",25))/72.	*((param->H0_mix[1][1]+param->H0_mix[1][2]*(*susy)("EXTPAR",25))*(-param->H0_mix[1][2]+epsilonb*param->H0_mix[1][1])*pow(mass_b_muW/param->mass_h0,2.)
+		+(param->H0_mix[2][1]+param->H0_mix[2][2]*(*susy)("EXTPAR",25))*(-param->H0_mix[2][2]+epsilonb*param->H0_mix[2][1])*pow(mass_b_muW/param->mass_H0,2.)
+		+(param->H0_mix[3][1]+param->H0_mix[3][2]*(*susy)("EXTPAR",25))*(-param->H0_mix[3][2]+epsilonb*param->H0_mix[3][1])*pow(mass_b_muW/param->mass_H03,2.)
 
-		+(param->A0_mix[1][1]+param->A0_mix[1][2]*(*sm)("EXTPAR",25))*(-param->A0_mix[1][2]+epsilonb*param->A0_mix[1][1])*pow(mass_b_muW/param->mass_A0,2.)
-		+(param->A0_mix[2][1]+param->A0_mix[2][2]*(*sm)("EXTPAR",25))*(-param->A0_mix[2][2]+epsilonb*param->A0_mix[2][1])*pow(mass_b_muW/param->mass_A02,2.));
-		C8Heps2_0=-epsilon2*epsilon1p*pow((*sm)("EXTPAR",25),2.)/(1.+epsilonb*(*sm)("EXTPAR",25))/(1.+epsilon0*(*sm)("EXTPAR",25))*F8_2(yt);
-		C8Heps2_0+=-3.*epsilon2/pow(1.+epsilonb*(*sm)("EXTPAR",25),2.)*(1.+pow((*sm)("EXTPAR",25),2.))/(1.+epsilon0*(*sm)("EXTPAR",25))/72.
-		*((param->H0_mix[1][1]+param->H0_mix[1][2]*(*sm)("EXTPAR",25))*(-param->H0_mix[1][2]+epsilonb*param->H0_mix[1][1])*pow(mass_b_muW/param->mass_h0,2.)
-		+(param->H0_mix[2][1]+param->H0_mix[2][2]*(*sm)("EXTPAR",25))*(-param->H0_mix[2][2]+epsilonb*param->H0_mix[2][1])*pow(mass_b_muW/param->mass_H0,2.)
-		+(param->H0_mix[3][1]+param->H0_mix[3][2]*(*sm)("EXTPAR",25))*(-param->H0_mix[3][2]+epsilonb*param->H0_mix[3][1])*pow(mass_b_muW/param->mass_H03,2.)		
+		+(param->A0_mix[1][1]+param->A0_mix[1][2]*(*susy)("EXTPAR",25))*(-param->A0_mix[1][2]+epsilonb*param->A0_mix[1][1])*pow(mass_b_muW/param->mass_A0,2.)
+		+(param->A0_mix[2][1]+param->A0_mix[2][2]*(*susy)("EXTPAR",25))*(-param->A0_mix[2][2]+epsilonb*param->A0_mix[2][1])*pow(mass_b_muW/param->mass_A02,2.));
+		C8Heps2_0=-epsilon2*epsilon1p*pow((*susy)("EXTPAR",25),2.)/(1.+epsilonb*(*susy)("EXTPAR",25))/(1.+epsilon0*(*susy)("EXTPAR",25))*F8_2(yt);
+		C8Heps2_0+=-3.*epsilon2/pow(1.+epsilonb*(*susy)("EXTPAR",25),2.)*(1.+pow((*susy)("EXTPAR",25),2.))/(1.+epsilon0*(*susy)("EXTPAR",25))/72.
+		*((param->H0_mix[1][1]+param->H0_mix[1][2]*(*susy)("EXTPAR",25))*(-param->H0_mix[1][2]+epsilonb*param->H0_mix[1][1])*pow(mass_b_muW/param->mass_h0,2.)
+		+(param->H0_mix[2][1]+param->H0_mix[2][2]*(*susy)("EXTPAR",25))*(-param->H0_mix[2][2]+epsilonb*param->H0_mix[2][1])*pow(mass_b_muW/param->mass_H0,2.)
+		+(param->H0_mix[3][1]+param->H0_mix[3][2]*(*susy)("EXTPAR",25))*(-param->H0_mix[3][2]+epsilonb*param->H0_mix[3][1])*pow(mass_b_muW/param->mass_H03,2.)		
 
-+(param->A0_mix[1][1]+param->A0_mix[1][2]*(*sm)("EXTPAR",25))*(-param->A0_mix[1][2]+epsilonb*param->A0_mix[1][1])*pow(mass_b_muW/param->mass_A0,2.)
-		+(param->A0_mix[2][1]+param->A0_mix[2][2]*(*sm)("EXTPAR",25))*(-param->A0_mix[2][2]+epsilonb*param->A0_mix[2][1])*pow(mass_b_muW/param->mass_A02,2.));
++(param->A0_mix[1][1]+param->A0_mix[1][2]*(*susy)("EXTPAR",25))*(-param->A0_mix[1][2]+epsilonb*param->A0_mix[1][1])*pow(mass_b_muW/param->mass_A0,2.)
+		+(param->A0_mix[2][1]+param->A0_mix[2][2]*(*susy)("EXTPAR",25))*(-param->A0_mix[2][2]+epsilonb*param->A0_mix[2][1])*pow(mass_b_muW/param->mass_A02,2.));
 		}
 
-	double lu=1./(*sm)("EXTPAR",25);
-	double ld=-(*sm)("EXTPAR",25);
+	double lu=1./(*susy)("EXTPAR",25);
+	double ld=-(*susy)("EXTPAR",25);
 
 	double C7H_0=1./3.*lu*lu*F7_1(yt) - lu*ld*F7_2(yt);
 	double C8H_0=1./3.*lu*lu*F8_1(yt) - lu*ld*F8_2(yt);
@@ -118,8 +120,8 @@ void SUSY_LO_Strategy::init(Parameters* sm, double scale, WilsonSet& C_match) {
 	kappa = 1.0 / (param->g2 * param->g2 * param->Vtb * param->Vts);
 
 
-	sinb = std::sin(std::atan((*sm)("EXTPAR",25)));
-	cosb = std::cos(std::atan((*sm)("EXTPAR",25)));
+	sinb = std::sin(std::atan((*susy)("EXTPAR",25)));
+	cosb = std::cos(std::atan((*susy)("EXTPAR",25)));
 	ct = param->stop_mix[1][1]; // Ajustement des indices pour base-0
 	st = param->stop_mix[0][1]; // Ajustement des indices pour base-0
 
@@ -251,7 +253,7 @@ void SUSY_LO_Strategy::init(Parameters* sm, double scale, WilsonSet& C_match) {
 	auto calculateContribution = [&](auto hFunc, const Array3D_3x7x4& X, int ie, int ae, bool isChargeps) -> double {
 		double ratio = std::pow(param->mass_W / Mch[ie], 2);
 		double msqOverMchSquared = std::pow(MsqU[ae] / Mch[ie], 2.0);
-		double factor = isChargeps ? (-epsilonb / (1.0 + epsilonb * (*sm)("EXTPAR",25)) * (*sm)("EXTPAR",25)) : 1.0;
+		double factor = isChargeps ? (-epsilonb / (1.0 + epsilonb * (*susy)("EXTPAR",25)) * (*susy)("EXTPAR",25)) : 1.0;
 		return ratio * (
 			X[ie][ae][1] * X[ie][ae][2] * hFunc(msqOverMchSquared) +
 			Mch[ie] / mass_b_muW * X[ie][ae][1] * X[ie][ae][2] * hFunc(msqOverMchSquared)
