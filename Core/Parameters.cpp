@@ -1,4 +1,5 @@
 #include "Parameters.h"
+#include <iostream>
 
 Parameters::Parameters() {
     // Initialisation des paramètres utilisés dans les calculs epsilon_x
@@ -50,8 +51,8 @@ Parameters::Parameters() {
     coupling[2] = 6.52355075E-01;
 
     extpar[25] = 10.; // tanb
-    extpar[11] = -3800. //At(MX)
-    extpar[12] = -3800. //Ab(MX)
+    extpar[11] = -3800.; //At(MX)
+    extpar[12] = -3800.; //Ab(MX)
     A_t = 0; 
     MqL3_Q = 0;
     MbR_Q = 0;
@@ -60,12 +61,18 @@ Parameters::Parameters() {
     run = QCDParameters(masses[5], masses[5], masses[6], masses[6]);
 }
 
-Parameters *Parameters::GetInstance()
+Parameters *Parameters::GetInstance(int index)
 {
-    if (!Parameters::instance) {
-        Parameters::instance = new Parameters();
+
+    if(index < 0 || index > 1) {
+            std::cerr << "Index invalide. Doit être 0 ou 1." << std::endl;
+            return nullptr;
+        }
+
+    if (!Parameters::instance[index]) {
+        Parameters::instance[index] = new Parameters();
     }
-    return Parameters::instance;
+    return Parameters::instance[index];
 }
 
 void Parameters::setScale(double Q) {
@@ -75,5 +82,5 @@ void Parameters::setScale(double Q) {
     // this->sm.mass_t_Q = run.runningAlphasCalculation(Q);
 }
 
-Parameters* Parameters::instance = nullptr;
+Parameters* Parameters::instance[2] = {nullptr, nullptr};
 

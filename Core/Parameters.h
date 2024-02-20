@@ -18,7 +18,7 @@ public:
     QCDParameters run;
     // double Q {sm.mass_top_pole};
 
-    static Parameters* GetInstance();
+    static Parameters* GetInstance(int index = 0);
     void setScale(double Q);
 
     double operator()(std::string block, int pdgCode) {
@@ -37,17 +37,48 @@ public:
         if (block=="EXTPAR") {
             return extpar[pdgCode];
         }
+        if (block=="ALPHA") {
+            return alpha[pdgCode];
+        }
+        if (block=="HMIX") {
+            return hmix[pdgCode/10][pdgCode%10];
+        }
+        if (block=="AMIX") {
+            return amix[pdgCode/10][pdgCode%10];
+        }
+        if (block == "CKM") {
+            return ckm[pdgCode/10][pdgCode%10];
+        }
+        if (block == "STOPMIX") {
+            return stopmix[pdgCode/10][pdgCode%10];
+        }
+        if (block == "UMIX") {
+            return umix[pdgCode/10][pdgCode%10];
+        }
+        if (block == "VMIX") {
+            return vmix[pdgCode/10][pdgCode%10];
+        }
         return 0;
         
     }
 private:
-    static Parameters* instance;
+    static Parameters* instance[2];
     Parameters(); // Constructeur pour initialiser les paramètres
 
     std::map<int, double> masses;
     std::map<int, double> coupling;
     std::map<int, double> minpar;
+    std::map<int, double> extpar;
+    std::map<int, double> alpha;
 
+
+    std::vector<std::vector<double>> hmix;
+    std::vector<std::vector<double>> amix;
+    std::vector<std::vector<double>> stopmix;
+    std::vector<std::vector<double>> umix;
+    std::vector<std::vector<double>> vmix;
+
+    std::vector<std::vector<double>> ckm;
     Parameters(const Parameters&) = delete;
     Parameters& operator=(const Parameters&) = delete;
     Parameters(Parameters&&) noexcept = default;
