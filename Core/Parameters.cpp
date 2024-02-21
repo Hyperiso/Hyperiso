@@ -1,25 +1,7 @@
 #include "Parameters.h"
+#include <iostream>
 
 Parameters::Parameters() {
-    // Initialisation des paramètres utilisés dans les calculs epsilon_x
-    // sm.SM = 1;  // Exemple de valeur, à ajuster selon votre cas
-    // sm.gp = 0;
-    // sm.g2 = 0;
-    // sm.MSOFT_Q = 0;
-    // sm.mass_top_pole = 0;
-    // sm.mass_b_pole = 0;
-    // sm.mass_b_Q = 0;
-    // sm.mass_t_Q = 0;
-
-    // sm.SM = 1;  // Exemple de valeur, à ajuster selon votre cas
-    // sm.gp = 0;
-    // sm.g2 = 0;
-    // sm.MSOFT_Q = 0;
-    // sm.mass_top_pole = 0;
-    // sm.mass_b_pole = 0;
-    // sm.mass_b_Q = 0;
-    // sm.mass_t_Q = 0;
-
     A_b = 0;
     tan_beta = 1;  // Éviter la division par zéro, ajustez selon votre cas
     mu_Q = 0;
@@ -50,8 +32,8 @@ Parameters::Parameters() {
     coupling[2] = 6.52355075E-01;
 
     extpar[25] = 10.; // tanb
-    extpar[11] = -3800. //At(MX)
-    extpar[12] = -3800. //Ab(MX)
+    extpar[11] = -3800.; //At(MX)
+    extpar[12] = -3800.; //Ab(MX)
     A_t = 0; 
     MqL3_Q = 0;
     MbR_Q = 0;
@@ -62,10 +44,12 @@ Parameters::Parameters() {
 
 Parameters *Parameters::GetInstance(int index)
 {
+
     if(index < 0 || index > 1) {
-            std::cerr << "Invalid index. Must be between 0 and 1." << std::endl;
+            std::cerr << "Invalid Index. Must be 0 or 1." << std::endl;
             return nullptr;
         }
+
     if (!Parameters::instance[index]) {
         Parameters::instance[index] = new Parameters();
     }
@@ -79,5 +63,5 @@ void Parameters::setScale(double Q) {
     // this->sm.mass_t_Q = run.runningAlphasCalculation(Q);
 }
 
-Parameters* Parameters::instance = nullptr;
+Parameters* Parameters::instance[2] = {nullptr, nullptr};
 
