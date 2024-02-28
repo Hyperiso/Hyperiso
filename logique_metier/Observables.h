@@ -2,8 +2,8 @@
 #define HYPERISO_OBSERVABLES_H
 
 enum class Observables {
-    BR_Bs_mumu,
-    BR_Bd_mumu,
+    BR_BS_MUMU,
+    BR_BD_MUMU,
 };
 
 #endif // HYPERISO_OBSERVABLES_H
