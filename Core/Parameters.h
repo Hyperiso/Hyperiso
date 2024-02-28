@@ -8,7 +8,7 @@ class Parameters {
 public:
     
     double A_b, tan_beta, mu_Q, mass_gluino, mass_b1, mass_b2;
-    double inv_alpha_em, M2_Q, mass_t1, mass_t2, A_t, MqL3_Q, MbR_Q, mass_stl, mass_cha1, mass_cha2;
+    double  M2_Q, mass_t1, mass_t2, A_t, MqL3_Q, MbR_Q, mass_stl, mass_cha1, mass_cha2;
     double MSOFT_Q;
     double inv_alpha_em;
     std::vector<double> yut, yub, mass_neut;
@@ -21,7 +21,7 @@ public:
     // double Q {sm.mass_top_pole};
 
     static Parameters* GetInstance(int index = 0);
-    static Parameters* GetInstance(int index = 0);
+
     void setScale(double Q);
 
     double operator()(std::string block, int pdgCode) {
