@@ -236,9 +236,9 @@ std::complex<double> hpl4(int i1, int i2, int i3, int i4, std::complex<double> x
     }
 
     if (i1 == 0 && i2 == 0 && i3 == 1 && i4 == 0) {
-        if (abs(x) > 1) return -(hpl1(0, 1.0 / x) * (hpl3(0, 0, 1, 1.0 / x) - (hpl1(0, 1.0 / x) * pow(pi, 2)) / 3.0 + pi * i * 0.5 * pow(hpl1(0, 1.0 / x), 2) + pow(hpl1(0, 1.0 / x), 3) / 6.0)) - 3 * (-hpl4(0, 0, 0, 1, 1.0 / x) + pow(pi, 4) / 45.0 + (pow(pi, 2) * pow(hpl1(0, 1.0 / x), 2)) / 6.0 + pi * i * -0.16666666666666666 * pow(hpl1(0, 1.0 / x), 3) - pow(hpl1(0, 1.0 / x), 4) / 24.0);
-        if (real(x) > 0.5) return -(hpl1(1, 1.0 - x) * (1.2020569031595942 + hpl1(1, 1.0 - x) * hpl2(0, 1, 1.0 - x) - hpl3(0, 1, 1, 1.0 - x) - (hpl1(1, 1.0 - x) * pow(pi, 2)) / 6.0 - (hpl1(0, 1.0 - x) * pow(hpl1(1, 1.0 - x), 2)) / 2.0)) - 3 * (-1.2020569031595942 * hpl1(1, 1.0 - x) + hpl1(1, 1.0 - x) * hpl3(0, 1, 1, 1.0 - x) - hpl4(0, 1, 1, 1, 1.0 - x) + pow(pi, 4) / 90.0 - (hpl2(0, 1, 1.0 - x) * pow(hpl1(1, 1.0 - x), 2)) / 2.0 + (pow(pi, 2) * pow(hpl1(1, 1.0 - x), 2)) / 12.0 + (hpl1(0, 1.0 - x) * pow(hpl1(1, 1.0 - x), 3)) / 6.0);
-        return hpl_base1(0, x) * hpl_base3(0, 0, 1, x) - 3 * hpl_base4(0, 0, 0, 1, x);
+        if (abs(x) > 1) return -(hpl1(0, 1.0 / x) * (hpl3(0, 0, 1, 1.0 / x) - (hpl1(0, 1.0 / x) * pow(pi, 2)) / 3.0 + pi * i * 0.5 * pow(hpl1(0, 1.0 / x), 2) + pow(hpl1(0, 1.0 / x), 3) / 6.0)) - 3. * (-hpl4(0, 0, 0, 1, 1.0 / x) + pow(pi, 4) / 45.0 + (pow(pi, 2) * pow(hpl1(0, 1.0 / x), 2)) / 6.0 + pi * i * -0.16666666666666666 * pow(hpl1(0, 1.0 / x), 3) - pow(hpl1(0, 1.0 / x), 4) / 24.0);
+        if (real(x) > 0.5) return -(hpl1(1, 1.0 - x) * (1.2020569031595942 + hpl1(1, 1.0 - x) * hpl2(0, 1, 1.0 - x) - hpl3(0, 1, 1, 1.0 - x) - (hpl1(1, 1.0 - x) * pow(pi, 2)) / 6.0 - (hpl1(0, 1.0 - x) * pow(hpl1(1, 1.0 - x), 2)) / 2.0)) - 3. * (-1.2020569031595942 * hpl1(1, 1.0 - x) + hpl1(1, 1.0 - x) * hpl3(0, 1, 1, 1.0 - x) - hpl4(0, 1, 1, 1, 1.0 - x) + pow(pi, 4) / 90.0 - (hpl2(0, 1, 1.0 - x) * pow(hpl1(1, 1.0 - x), 2)) / 2.0 + (pow(pi, 2) * pow(hpl1(1, 1.0 - x), 2)) / 12.0 + (hpl1(0, 1.0 - x) * pow(hpl1(1, 1.0 - x), 3)) / 6.0);
+        return hpl_base1(0, x) * hpl_base3(0, 0, 1, x) - 3. * hpl_base4(0, 0, 0, 1, x);
     }
 
     if (i1 == 0 && i2 == 0 && i3 == 1 && i4 == 1) {
@@ -257,14 +257,14 @@ std::complex<double> hpl4(int i1, int i2, int i3, int i4, std::complex<double> x
                    pow(pi * std::complex<double>(0, -1) * hpl1(0, 1.0 / x) - hpl2(0, 1, 1.0 / x) + 
                        pow(pi, 2) / 3.0 - pow(hpl1(0, 1.0 / x), 2) / 2.0, 2)) / 4.0;
         } else if (real(x) > 0.5) {
-            return (-2 * (2.4041138063191885 * hpl1(1, 1.0 - x) + 
+            return (-2. * (2.4041138063191885 * hpl1(1, 1.0 - x) + 
                hpl1(0, 1.0 - x) * hpl1(1, 1.0 - x) * hpl2(0, 1, 1.0 - x) - 
                hpl4(0, 1, 0, 1, 1.0 - x) + 
                (hpl1(0, 1.0 - x) * hpl1(1, 1.0 - x) * pow(pi, 2)) / 6.0 - 
                (hpl2(0, 1, 1.0 - x) * pow(pi, 2)) / 6.0 + 
                pow(pi, 4) / 120.0 + 
                pow(hpl2(0, 1, 1.0 - x), 2) - 
-               2 * (hpl1(1, 1.0 - x) * hpl3(0, 0, 1, 1.0 - x) + 
+               2. * (hpl1(1, 1.0 - x) * hpl3(0, 0, 1, 1.0 - x) + 
                (2. * hpl4(0, 1, 0, 1, 1.0 - x) - pow(hpl2(0, 1, 1.0 - x), 2)) / 2.0 + 
                (-2. * hpl4(0, 1, 0, 1, 1.0 - x) + pow(hpl2(0, 1, 1.0 - x), 2)) / 2.0) - 
                2. * (hpl1(0, 1.0 - x) * hpl3(0, 1, 1, 1.0 - x) + 
@@ -299,7 +299,7 @@ std::complex<double> hpl4(int i1, int i2, int i3, int i4, std::complex<double> x
     } else {
         
         return 
-		(-4*hpl_base1(0,x)*hpl_base3(0,0,1,x) + 6.*hpl_base4(0,0,0,1,x) + 
+		(-4.*hpl_base1(0,x)*hpl_base3(0,0,1,x) + 6.*hpl_base4(0,0,0,1,x) + 
 		hpl_base2(0,1,x)*pow(hpl_base1(0,x),2))/2.;
     }
 }
@@ -635,17 +635,17 @@ std::complex<double> hpl4(int i1, int i2, int i3, int i4, std::complex<double> x
                    pow(hpl1(0, 1.0 / x), 4) / 24.0 + 
                    (2.0 * hpl4(0, 1, 0, 1, 1.0 / x) - pow(hpl2(0, 1, 1.0 / x), 2)) / 2.0 + 
                    pow(hpl2(0, 1, 1.0 / x), 2) / 4.0 + 
-                   (-2.0 * hpl4(0, 1, 0, 1, 1.0 / x) + pow(hpl2(0, 1, 1.0 / x), 2)) / 2.0;
+                   (-2.0 * hpl4(0, 1, 0, 1, 1.0 / x) + pow(hpl2(0, 1, 1.0 / x), 2)) / 2.0);
         } else if (real(x) > 0.5) {
             return -(hpl1(0, 1.0 - x) * (1.2020569031595942 + 
                    hpl1(0, 1.0 - x) * hpl2(0, 1, 1.0 - x) - hpl3(0, 0, 1, 1.0 - x) - 
                    (hpl1(1, 1.0 - x) * pow(hpl1(0, 1.0 - x), 2)) / 2.0)) - 
-                   3 * (hpl1(0, 1.0 - x) * hpl3(0, 0, 1, 1.0 - x) - 
+                   3. * (hpl1(0, 1.0 - x) * hpl3(0, 0, 1, 1.0 - x) - 
                    hpl4(0, 0, 0, 1, 1.0 - x) + pow(pi, 4) / 90.0 - 
                    (hpl2(0, 1, 1.0 - x) * pow(hpl1(0, 1.0 - x), 2)) / 2.0 + 
                    (hpl1(1, 1.0 - x) * pow(hpl1(0, 1.0 - x), 3)) / 6.0);
         } else {
-            return hpl_base1(1, x) * hpl_base3(0, 1, 1, x) - 3 * hpl_base4(0, 1, 1, 1, x);
+            return hpl_base1(1, x) * hpl_base3(0, 1, 1, x) - 3. * hpl_base4(0, 1, 1, 1, x);
         }
     }
 
@@ -730,7 +730,7 @@ std::complex<double> hpl4(int i1, int i2, int i3, int i4, std::complex<double> x
                     (pi * std::complex<double>(0, -1) * hpl1(0, 1.0 / x) - hpl2(0, 1, 1.0 / x) + 
                     pow(pi, 2) / 3.0 - pow(hpl1(0, 1.0 / x), 2) / 2.0) *
                     pow(pi * std::complex<double>(0, 1) + hpl1(0, 1.0 / x) + hpl1(1, 1.0 / x), 2) + 
-                    6 * (pi * std::complex<double>(0, -1) * hpl1(0, 1.0 / x) * hpl2(0, 1, 1.0 / x) + 
+                    6. * (pi * std::complex<double>(0, -1) * hpl1(0, 1.0 / x) * hpl2(0, 1, 1.0 / x) + 
                     pi * std::complex<double>(0, 1) * hpl3(0, 0, 1, 1.0 / x) + 
                     hpl1(0, 1.0 / x) * hpl3(0, 0, 1, 1.0 / x) + 
                     pi * std::complex<double>(0, -1) * hpl3(0, 1, 1, 1.0 / x) - 
@@ -745,19 +745,19 @@ std::complex<double> hpl4(int i1, int i2, int i3, int i4, std::complex<double> x
                     pow(hpl1(0, 1.0 / x), 4) / 24.0 + 
                     (2.0 * hpl4(0, 1, 0, 1, 1.0 / x) - pow(hpl2(0, 1, 1.0 / x), 2)) / 2.0 + 
                     pow(hpl2(0, 1, 1.0 / x), 2) / 4.0 + 
-                    (-2.0 * hpl4(0, 1, 0, 1, 1.0 / x) + pow(hpl2(0, 1, 1.0 / x), 2)) / 2.0) / 2.0;
+                    (-2.0 * hpl4(0, 1, 0, 1, 1.0 / x) + pow(hpl2(0, 1, 1.0 / x), 2)) / 2.0)) / 2.0;
         } else if (real(x) > 0.5) {
             return ((hpl1(0, 1.0 - x) * hpl1(1, 1.0 - x) - hpl2(0, 1, 1.0 - x) + 
                     pow(pi, 2) / 6.0) * pow(hpl1(0, 1.0 - x), 2) + 
-                    4 * hpl1(0, 1.0 - x) * (1.2020569031595942 + 
+                    4. * hpl1(0, 1.0 - x) * (1.2020569031595942 + 
                     hpl1(0, 1.0 - x) * hpl2(0, 1, 1.0 - x) - hpl3(0, 0, 1, 1.0 - x) - 
                     (hpl1(1, 1.0 - x) * pow(hpl1(0, 1.0 - x), 2)) / 2.0) + 
-                    6 * (hpl1(0, 1.0 - x) * hpl3(0, 0, 1, 1.0 - x) - 
+                    6. * (hpl1(0, 1.0 - x) * hpl3(0, 0, 1, 1.0 - x) - 
                     hpl4(0, 0, 0, 1, 1.0 - x) + pow(pi, 4) / 90.0 - 
                     (hpl2(0, 1, 1.0 - x) * pow(hpl1(0, 1.0 - x), 2)) / 2.0 + 
                     (hpl1(1, 1.0 - x) * pow(hpl1(0, 1.0 - x), 3)) / 6.0)) / 2.0;
         }
-        return (-4 * hpl_base1(1, x) * hpl_base3(0, 1, 1, x) + 6. * hpl_base4(0, 1, 1, 1, x) + 
+        return (-4. * hpl_base1(1, x) * hpl_base3(0, 1, 1, x) + 6. * hpl_base4(0, 1, 1, 1, x) + 
                 hpl_base2(0, 1, x) * pow(hpl_base1(1, x), 2)) / 2.0;
     }
 
@@ -790,7 +790,7 @@ std::complex<double> hpl4(int i1, int i2, int i3, int i4, std::complex<double> x
                     pow(hpl1(0, 1.0 / x), 4) / 24.0 + 
                     (2.0 * hpl4(0, 1, 0, 1, 1.0 / x) - pow(hpl2(0, 1, 1.0 / x), 2)) / 2.0 + 
                     pow(hpl2(0, 1, 1.0 / x), 2) / 4.0 + 
-                    (-2.0 * hpl4(0, 1, 0, 1, 1.0 / x) + pow(hpl2(0, 1, 1.0 / x), 2)) / 2.0) / 6.0;
+                    (-2.0 * hpl4(0, 1, 0, 1, 1.0 / x) + pow(hpl2(0, 1, 1.0 / x), 2)) / 2.0)) / 6.0;
         } else if (real(x) > 0.5) {
             return (-3. * (hpl1(0, 1.0 - x) * hpl1(1, 1.0 - x) - hpl2(0, 1, 1.0 - x) + 
                     pow(pi, 2) / 6.0) * pow(hpl1(0, 1.0 - x), 2) - 
@@ -801,7 +801,7 @@ std::complex<double> hpl4(int i1, int i2, int i3, int i4, std::complex<double> x
                     6. * (hpl1(0, 1.0 - x) * hpl3(0, 0, 1, 1.0 - x) - 
                     hpl4(0, 0, 0, 1, 1.0 - x) + pow(pi, 4) / 90.0 - 
                     (hpl2(0, 1, 1.0 - x) * pow(hpl1(0, 1.0 - x), 2)) / 2.0 + 
-                    (hpl1(1, 1.0 - x) * pow(hpl1(0, 1.0 - x), 3)) / 6.0) / 6.0;
+                    (hpl1(1, 1.0 - x) * pow(hpl1(0, 1.0 - x), 3)) / 6.0)) / 6.0;
         }
         return (6. * hpl_base1(1, x) * hpl_base3(0, 1, 1, x) - 6. * hpl_base4(0, 1, 1, 1, x) - 
                 3. * hpl_base2(0, 1, x) * pow(hpl_base1(1, x), 2) + hpl_base1(0, x) * pow(hpl_base1(1, x), 3)) / 6.0;
@@ -820,16 +820,9 @@ std::complex<double> hpl4(int i1, int i2, int i3, int i4, std::complex<double> x
 
 }
 
-const int MAX_N = 5;
-const int MAX_M = 5;
-const int MAX_LE = 31;
-const int MAX_NC = 11;
 
-// Déclaration des tableaux pour les constantes
-array<array<double, MAX_M>, MAX_N> s1, c;
-array<array<double, MAX_LE>, MAX_NC> a;
-
-void initialize_constants() {
+template <size_t MAX_N, size_t MAX_M, size_t MAX_LE, size_t MAX_NC>
+void initialize_constants(std::array<std::array<double, MAX_M>, MAX_N> &s1, std::array<std::array<double, MAX_M>, MAX_N> &c, std::array<std::array<double, MAX_LE>, MAX_NC> &a) {
     // Initialisation des constantes s1
     s1[1][1] = 1.6449340668482;
     s1[1][2] = 1.2020569031596;
@@ -852,7 +845,7 @@ void initialize_constants() {
     c[2][3] = -3.0142321054407;
     c[3][1] = 1.8940656589945;
     c[3][2] = 3.0142321054407;
-    c[4][1] = 0.0
+    c[4][1] = 0.0;
 
 
 
@@ -1104,16 +1097,28 @@ void initialize_constants() {
     a[15][10]=.00000000000015;
     a[16][10]=.00000000000004;
     a[17][10]=.00000000000001;
-
-initialize_constants();
-
+}
 
 
 
-std::complex<double> polylog(int n, int m, std::complex<double> x) {
-    // initialisation d'ailleurs
-    extern double s1[5][5], c[5][5], a[31][11];
 
+
+
+std::complex<double> polylog(int n, int m, double x) {
+
+    const int MAX_N = 5;
+    const int MAX_M = 5;
+    const int MAX_LE = 31;
+    const int MAX_NC = 11;
+
+    std::array<std::array<double, MAX_M>, MAX_N> s1, c;
+    std::array<std::array<double, MAX_LE>, MAX_NC> a;
+
+    initialize_constants<MAX_N, MAX_M, MAX_LE, MAX_NC>(s1, c, a);
+
+
+    // double u[5],s1[5][5],c[5][5],a[31][11];
+    double u[5];
     const int fct[5] = {1, 1, 2, 6, 24};
     const int sgn[5] = {1, -1, 1, -1, 1};
     const int index[32] = {0, 1, 2, 3, 4, 0, 0, 0, 0, 0, 0, 5, 6, 7, 0, 0, 0, 0, 0, 0, 0, 8, 9, 0, 0, 0, 0, 0, 0, 0, 0, 10};
@@ -1121,96 +1126,100 @@ std::complex<double> polylog(int n, int m, std::complex<double> x) {
 
     std::complex<double> z = 0.0;
     std::complex<double> v[6] = {0.0};
-    std::complex<double> sk, sj;
+    std::complex<double> sk;
+    std::complex<double> sj;
+
+    double z1=1.;
+    double hf=z1/2.;
+    double b0{0.};
+
     if ((n < 1) || (n > 4) || (m < 1) || (m > 4) || ((n + m) > 5)) {
         return 0.0;
     }
 
     if (x == 1.0) {
         z = s1[n][m];
-    } else if ((abs(x) > 2.0) || (abs(x) < -1.0)) {
+    } else if ((x > 2.0) || (x < -1.0)) {
         // Logique pour x > 2 ou x < -1
-        std::complex<double> x1 = 1.0 / x;
-        std::complex<double> h = 4.0 / 3.0 * x1 + 1.0 / 3.0;
-        std::complex<double> alfa = h + h;
+        double x1 = 1.0 / x;
+        double h = 4.0 / 3.0 * x1 + 1.0 / 3.0;
+        double alfa = h + h;
         v[0] = 1.0;
         v[1] = log(-x);
 
         for (int le = 2; le <= n + m; le++) {
-            v[le] = v[1] * v[le - 1] / le;
+            v[le] = v[1] * v[le - 1] / (le*1.);
         }
 
-        double sk = 0.0;
 
         for (int ke = 0; ke <= m - 1; ke++) {
-            double m1 = m - ke;
-            r = pow(x1, m1) / (fct[m1] * fct[n - 1]);
+            int m1 = m - ke;
+            double r = pow(x1, m1) / ((fct[m1] * fct[n - 1])*1.);
             sj = 0.0;
 
-            for (je = 0; je <= ke; je++) {
-                n1 = n + ke - je;
-                le = index[10 * n1 + m1 - 10];
-                b1 = 0.0;
-                b2 = 0.0;
+            for (int je = 0; je <= ke; je++) {
+                int n1 = n + ke - je;
+                int le = index[10 * n1 + m1 - 10];
+                double b1 = 0.0;
+                double b2 = 0.0;
 
-                for (it = nc[le]; it >= 0; it--) {
+                for (int it = nc[le]; it >= 0; it--) {
                     b0 = a[it][le] + alfa * b1 - b2;
                     b2 = b1;
                     b1 = b0;
                 }
 
-                q = (fct[n1 - 1] / fct[ke - je]) * (b0 - h * b2) * r / pow(m1, n1);
+                double q = (fct[n1 - 1] / fct[ke - je]) * (b0 - h * b2) * r / pow(m1, n1);
                 sj += v[je] * q;
             }
 
-            sk += sgn<int>(ke) * sj;
+            sk += sgn[ke]*1. * sj;
         }
 
-        double sj = 0.0;
+
 
         for (int je = 0; je <= n - 1; je++) {
             sj += v[je] * c[n - je][m];
         }
 
-        double z = sgn[n] * sk + sgn[m] * (sj + v[n + m]);
-    } else if (real(x) > 0.5) {
+        std::complex<double> z = sgn[n] *1.* sk + sgn[m]*1. * (sj + v[n + m]);
+    } else if (x>hf) {
         // Logique pour x > 0.5
-        x1 = 1.0 - x;
-        h = 4.0 / 3.0 * x1 + 1.0 / 3.0;
-        alfa = h + h;
+        double x1 = 1.0 - x;
+        double h = 4.0 / 3.0 * x1 + 1.0 / 3.0;
+        double alfa = h + h;
         v[0] = 1.0;
         u[0] = 1.0;
         v[1] = log(x1);
         u[1] = log(x);
 
-        for (le = 2; le <= m; le++) {
-            v[le] = v[1] * v[le - 1] / le;
+        for (int le = 2; le <= m; le++) {
+            v[le] = v[1] * v[le - 1] / (1.*le);
         }
 
-        for (le = 2; le <= n; le++) {
+        for (int le = 2; le <= n; le++) {
             u[le] = u[1] * u[le - 1] / le;
         }
 
         sk = 0.0;
 
         for (int ke = 0; ke <= n - 1; ke++) {
-            m1 = n - ke;
-            std::complex<double> r = pow(x1, m1) / fct[m1];
-            double sj = 0.0;
+            int m1 = n - ke;
+            double r = pow(x1, m1) / fct[m1];
 
             for (int je = 0; je <= m - 1; je++) {
-                n1 = m - je;
-                le = index[10 * n1 + m1 - 10];
-                b1 = 0.0;
-                b2 = 0.0;
+                int n1 = m - je;
+                int le = index[10 * n1 + m1 - 10];
+                double b1 = 0.0;
+                double b2 = 0.0;
 
-                for (it = nc[le]; it >= 0; it--) {
+                for (int it = nc[le]; it >= 0; it--) {
                     b0 = a[it][le] + alfa * b1 - b2;
                     b2 = b1;
                     b1 = b0;
                 }
 
-                q = sgn[je] * (b0 - h * b2) * r / pow(m1, n1);
+                double q = sgn[je] * (b0 - h * b2) * r / pow(m1, n1);
                 sj += v[je] * q;
             }
 
@@ -1220,11 +1229,11 @@ std::complex<double> polylog(int n, int m, std::complex<double> x) {
         z = sk + sgn[m] * u[n] * v[m];
     } else {
         // Logique pour les autres cas
-        le = index[10 * n + m - 10];
-        h = 4.0 / 3.0 * x + 1.0 / 3.0;
-        alfa = h + h;
-        b1 = 0.0;
-        b2 = 0.0;
+        int le = index[10 * n + m - 10];
+        double h = 4.0 / 3.0 * x + 1.0 / 3.0;
+        double alfa = h + h;
+        double b1 = 0.0;
+        double b2 = 0.0;
 
         for (int it = nc[le]; it >= 0; it--) {
             b0 = a[it][le] + alfa * b1 - b2;
@@ -1293,7 +1302,7 @@ double Li3(double x) {
         (1.0 + 945.0 * z / 2432.0 * (1.0 - 44.0 * z / 675.0 * (1.0 + 7.0 * z / 24.0 *
         (1.0 - 26104.0 * z / 307461.0 * (1.0 + 1925.0 * z / 8023.0 *
         (1.0 - 53598548.0 * z / 524808375.0 *
-        (1.0 + 22232925.0 * z / 107197096.0)))))))))))))));
+        (1.0 + 22232925.0 * z / 107197096.0)))))))))))));
     return temp;
 } else if (x < x_3) {
         return Li3(x * x) / 4.0 - Li3(-x);
@@ -1306,13 +1315,14 @@ double Li3(double x) {
     }
 }
 
-double Li4(double x)
+std::complex<double> Li4(double x)
 /* calculates the quadrilogarithm function of x */
 {
 	return polylog(3,1,x);
 }
 
-/* calculates the dilogarithm function of x, extended to complex numbers */ -------------------------------------------------------------
+/* calculates the dilogarithm function of x, extended to complex numbers */ 
+/*-------------------------------------------------------------*/
 
 std::complex<double> CLi2(std::complex<double> x) {
     const double pisq6 = std::pow((4.0 * std::atan(1.0)), 2.0) / 6.0;
