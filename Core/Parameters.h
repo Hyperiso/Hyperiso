@@ -1,8 +1,11 @@
 #pragma once
 #include <vector>
 #include "./../Physical_Model/QCDParameters.h"
+#include "../DataBase/lha_reader.h"
 #include <map>
 #include <string>
+
+typedef std::complex<double> complex_t; 
 
 class Parameters {
 public:
@@ -17,7 +20,7 @@ public:
     std::vector<std::vector<double>> lambda_u, lambda_d;
     // SM sm;
     
-    QCDParameters run;
+    QCDParameters QCDRunner;
     // double Q {sm.mass_top_pole};
 
     static Parameters* GetInstance(int index = 0);
@@ -79,9 +82,13 @@ public:
         return 0;
         
     }
+
 private:
     static Parameters* instance[2];
-    Parameters(); // Constructeur pour initialiser les paramètres
+    Parameters(int modelId); // Constructeur pour initialiser les paramètres
+    void extractFromBlock(std::string block, std::vector<double*>& vars);
+    void initSM();
+    void initSUSY();
 
     std::map<int, double> masses;
     std::map<int, double> coupling;
@@ -99,15 +106,13 @@ private:
     std::vector<std::vector<double>> nmix;
     std::vector<std::vector<double>> yu;
     std::vector<std::vector<double>> yd;
+    std::vector<std::vector<complex_t>> ckm;
 
-    std::vector<std::vector<double>> ckm;
     Parameters(const Parameters&) = delete;
     Parameters& operator=(const Parameters&) = delete;
     Parameters(Parameters&&) noexcept = default;
     Parameters& operator=(Parameters&&) noexcept = default;
-
-    
-    
+  
 };
 
 // struct SM {

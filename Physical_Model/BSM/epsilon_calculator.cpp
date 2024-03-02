@@ -9,7 +9,7 @@ EpsilonCalculator::EpsilonCalculator() {}
 double EpsilonCalculator::epsilon_0() {
 
     double sw2 = std::pow(std::sin(std::atan((*sm)("Coupling",1)/ (*sm)("Coupling",2))), 2);
-    double alphas_MSOFT = (*sm).run.runningAlphasCalculation((*susy).MSOFT_Q);
+    double alphas_MSOFT = (*sm).QCDRunner.runningAlphasCalculation((*susy).MSOFT_Q);
 
     
 
@@ -60,7 +60,7 @@ double EpsilonCalculator::epsilon_b() {
 double EpsilonCalculator::epsilon_bp() {
 
     double sw2 = std::pow(std::sin(std::atan((*sm)("Coupling",1)/ (*sm)("Coupling",2))), 2);
-    double alphas_MSOFT = (*sm).run.runningAlphasCalculation((*susy).MSOFT_Q);
+    double alphas_MSOFT = (*sm).QCDRunner.runningAlphasCalculation((*susy).MSOFT_Q);
     int nb_neut = ((*sm).mass_neut[5] == 0.) ? 4 : 5;
 
     double epsilonbp = 2.0 / 3.0 * alphas_MSOFT / M_PI * 
@@ -107,7 +107,7 @@ double EpsilonCalculator::epsilon_bp() {
 // Implémentation de epsilon_0p
 double EpsilonCalculator::epsilon_0p() {
 
-    double alphas_MSOFT = (*sm).run.runningAlphasCalculation((*susy).MSOFT_Q);
+    double alphas_MSOFT = (*sm).QCDRunner.runningAlphasCalculation((*susy).MSOFT_Q);
     int nb_neut = ((*susy)("MASS", 1000039) == 0.) ? 4 : 5;
 
     double epsilon0p = -2.0 / 3.0 * alphas_MSOFT / M_PI * 

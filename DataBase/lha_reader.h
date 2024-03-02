@@ -60,8 +60,11 @@ public:
     bool hasBlock(const std::string& id) const;
     void readAll();
 
+    template <class T>
+    void extractFromBlock(std::string block, std::vector<T*>& vars);
+
     inline LhaBlock* getBlock(const std::string& id) const {
-        return blocks.at(id).get();
+        return this->hasBlock(id) ? blocks.at(id).get() : nullptr;
     }
 
     inline int getBlockCount() const {

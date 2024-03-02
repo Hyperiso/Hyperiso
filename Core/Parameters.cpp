@@ -1,7 +1,84 @@
 #include "Parameters.h"
+#include "../Core/Logger.h"
+#include "../Core/MemoryManager.h"
 #include <iostream>
+#include <complex>
 
-Parameters::Parameters() {
+typedef std::complex<double> complex_t; 
+
+Parameters::Parameters(int modelId) {
+    switch (modelId) {
+        case 0: // SM
+            initSM();
+            break;
+        case 1: // SUSY
+            initSUSY();
+            break;
+        default:
+            Logger::getInstance()->error("Trying to instantiate parameters for unknown model ID " + std::to_string(modelId));
+    }
+}
+
+void Parameters::initSM() {
+
+    /* 
+        Reading LHA blocks if given 
+    */
+
+    LhaReader* lha = MemoryManager::GetInstance()->getReader();
+
+    // SMINPUTS
+    double inv_alpha_em{1.27934e2}, G_F{1.16637e-5}, alpha_s_MZ{1.184e-1}, m_Z_pole{91.1876}, m_b_mb{4.18}, m_t_pole{172.7}, m_tau_pole{1.777};
+    std::vector<double*> sm_inputs = {&inv_alpha_em, &G_F, &alpha_s_MZ, &m_Z_pole, &m_b_mb, &m_t_pole, &m_tau_pole};
+    lha->extractFromBlock("SMINPUTS", sm_inputs);
+
+    // VCKMIN 
+    double lambda{0.22500}, A{0.826}, rho{0.159}, eta{0.348};
+    std::vector<double*> ckm_inputs = {&lambda, &A, &rho, &eta};
+    lha->extractFromBlock("VCKMIN", ckm_inputs);
+
+    /* 
+        Initializing SM parameters
+    */
+
+    double m_W = std::sqrt(std::pow(m_Z_pole, 2) / 2 + std::sqrt(std::pow(m_Z_pole, 4) / 4 - M_PI * std::pow(m_Z_pole, 2) / inv_alpha_em / G_F / std::sqrt(2)));
+    QCDRunner = QCDParameters(alpha_s_MZ, m_Z_pole, m_b_mb, m_b_mb, m_t_pole, m_t_pole);
+
+    // Masses (from PDG 2023) all given at Q = m_W
+    masses[1] = QCDRunner.running_mass(4.7e-3, 2, m_W, m_t_pole, m_b_mb);       // d
+    masses[2] = QCDRunner.running_mass(2.2e-3, 2, m_W, m_t_pole, m_b_mb);       // u
+    masses[3] = QCDRunner.running_mass(93e-3, 2, m_W, m_t_pole, m_b_mb);        // s
+    masses[4] = QCDRunner.running_mass(1.27, 1.27, m_W, m_t_pole, m_b_mb);      // c
+    masses[5] = QCDRunner.running_mass(4.18, 4.18, m_W, m_t_pole, m_b_mb);      // b
+    masses[6] = m_t_pole;       // t
+    masses[11] = 0.511e-3;      // e
+    masses[13] = 0.105658;      // mu
+    masses[15] = m_tau_pole;    // tau 
+    masses[23] = m_Z_pole;      // Z
+    masses[24] = m_W;           // W 
+    masses[25] = 125.1;         // h0
+
+    // Couplings
+    double sW = std::sqrt(1 - std::pow(m_W / m_Z_pole, 2));
+    coupling[2] = std::pow(2, 1.25) * m_W * std::sqrt(G_F);   // g2
+    coupling[1] = coupling[2] * sW / std::sqrt(1 - sW * sW);   // gp 
+    coupling[3] = std::sqrt(4 * M_PI * alpha_s_MZ); // gs
+    coupling[4] = std::sqrt(4 * M_PI / inv_alpha_em); // e_em     
+
+    // CKM Matrix
+    ckm[0][0] = 1 - lambda * lambda / 2;
+    ckm[0][1] = lambda;
+    ckm[0][2] = A * lambda * lambda * lambda * complex_t{rho, -eta};
+    ckm[1][0] = -lambda;
+    ckm[1][1] = 1 - lambda * lambda / 2;
+    ckm[1][2] = A * lambda * lambda;
+    ckm[2][0] = A * lambda * lambda * lambda * complex_t{1 - rho, -eta};
+    ckm[2][1] = -A * lambda * lambda;
+    ckm[2][2] = 1;
+
+}
+
+void Parameters::initSUSY() {
     A_b = 0;
     tan_beta = 1;  // Éviter la division par zéro, ajustez selon votre cas
     mu_Q = 0;
@@ -24,13 +101,6 @@ Parameters::Parameters() {
     yub = std::vector<double>(4, 0); // yub[3]
     stop_tan_betamix = std::vector<std::vector<double>>(2, std::vector<double>(2, 0.0));
 
-    masses[6] = 173.0;  // Top quark
-    masses[5] = 4.18;
-    masses[24] = 8.04229965E+01;
-    masses[25] = 1.15104301E+02;
-    coupling[1] = 3.57522130E-01;
-    coupling[2] = 6.52355075E-01;
-
     extpar[25] = 10.; // tanb
     extpar[11] = -3800.; //At(MX)
     extpar[12] = -3800.; //Ab(MX)
@@ -38,22 +108,20 @@ Parameters::Parameters() {
     MqL3_Q = 0;
     MbR_Q = 0;
     mass_stl = 0;
-
-    run = QCDParameters(masses[5], masses[5], masses[6], masses[6]);
 }
 
-Parameters *Parameters::GetInstance(int index)
+Parameters *Parameters::GetInstance(int modelId)
 {
 
-    if(index < 0 || index > 1) {
-            std::cerr << "Invalid Index. Must be 0 or 1." << std::endl;
-            return nullptr;
-        }
-
-    if (!Parameters::instance[index]) {
-        Parameters::instance[index] = new Parameters();
+    if(modelId < 0 || modelId > 1) {
+        std::cerr << "Invalid Index. Must be 0 or 1." << std::endl;
+        return nullptr;
     }
-    return Parameters::instance[index];
+
+    if (!Parameters::instance[modelId]) {
+        Parameters::instance[modelId] = new Parameters(modelId);
+    }
+    return Parameters::instance[modelId];
 }
 
 void Parameters::setScale(double Q) {
