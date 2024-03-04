@@ -1,6 +1,6 @@
 #include "Parameters.h"
-#include "../Core/Logger.h"
-#include "../Core/MemoryManager.h"
+#include "Logger.h"
+#include "MemoryManager.h"
 #include <iostream>
 #include <complex>
 
@@ -44,19 +44,19 @@ void Parameters::initSM() {
     double m_W = std::sqrt(std::pow(m_Z_pole, 2) / 2 + std::sqrt(std::pow(m_Z_pole, 4) / 4 - M_PI * std::pow(m_Z_pole, 2) / inv_alpha_em / G_F / std::sqrt(2)));
     QCDRunner = QCDParameters(alpha_s_MZ, m_Z_pole, m_b_mb, m_b_mb, m_t_pole, m_t_pole);
 
-    // Masses (from PDG 2023) all given at Q = m_W
-    masses[1] = QCDRunner.running_mass(4.7e-3, 2, m_W, m_t_pole, m_b_mb);       // d
-    masses[2] = QCDRunner.running_mass(2.2e-3, 2, m_W, m_t_pole, m_b_mb);       // u
-    masses[3] = QCDRunner.running_mass(93e-3, 2, m_W, m_t_pole, m_b_mb);        // s
-    masses[4] = QCDRunner.running_mass(1.27, 1.27, m_W, m_t_pole, m_b_mb);      // c
-    masses[5] = QCDRunner.running_mass(4.18, 4.18, m_W, m_t_pole, m_b_mb);      // b
-    masses[6] = m_t_pole;       // t
-    masses[11] = 0.511e-3;      // e
-    masses[13] = 0.105658;      // mu
-    masses[15] = m_tau_pole;    // tau 
-    masses[23] = m_Z_pole;      // Z
-    masses[24] = m_W;           // W 
-    masses[25] = 125.1;         // h0
+    // Masses (from PDG 2023)
+    masses[1] = 4.7e-3;         // d (2 GeV)
+    masses[2] = 2.2e-3;         // u (2 GeV)
+    masses[3] = 93e-3;          // s (2 GeV)
+    masses[4] = 1.27;           // c (running, 1.27 GeV)
+    masses[5] = 4.18;           // b (running, 4.18 GeV)
+    masses[6] = m_t_pole;       // t (pole)
+    masses[11] = 0.511e-3;      // e (pole)
+    masses[13] = 0.105658;      // mu (pole)
+    masses[15] = m_tau_pole;    // tau (pole)
+    masses[23] = m_Z_pole;      // Z (running MZ_MZ)
+    masses[24] = m_W;           // W  (running MW_MZ)
+    masses[25] = 125.1;         // h0 
 
     // Couplings
     double sW = std::sqrt(1 - std::pow(m_W / m_Z_pole, 2));

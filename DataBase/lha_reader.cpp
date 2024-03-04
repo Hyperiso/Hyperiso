@@ -4,7 +4,6 @@
 #include <vector>
 #include <algorithm>
 
-// #include "lha_blocks.h"
 #include "lha_reader.h"
 
 void Parser::tokenize() {
@@ -107,16 +106,6 @@ void LhaReader::readAll() {
 
 bool LhaReader::hasBlock(const std::string& id) const {
     return this->blocks.contains(id);  // C++20. Use blocks.count(id) != 0 before.
-}
-
-template <class T>
-void LhaReader::extractFromBlock(std::string blockName, std::vector<T*>& vars) {
-    LhaBlock* block = this->getBlock(blockName);
-    if (block) {
-        for (int id=0; id!=vars.size(); ++id) {
-            *(vars.at(id)) = static_cast<LhaElement<T>*>(block->get(std::to_string(id + 1)))->getValue();
-        }
-    }
 }
 
 // int main() {

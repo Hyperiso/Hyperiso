@@ -5,7 +5,7 @@
 #include <unordered_map>
 #include <memory>
 #include <cstdlib>
-#include "../DataBase/lha_reader.h"
+#include "lha_reader.h"
 
 class MemoryManager {
 private:
@@ -14,7 +14,7 @@ private:
     std::unordered_map<std::string, std::unique_ptr<std::string>> cache;
     std::unique_ptr<LhaReader> reader;
     static MemoryManager* instance;
-    inline explicit MemoryManager(std::string lhaPath, std::vector<int> models) : lhaPath(lhaPath), models(std::move(models)) { init(); };
+    inline explicit MemoryManager(std::string lhaPath, std::vector<int> models) : lhaPath(lhaPath), models(std::move(models)) {};
 
 public:
 

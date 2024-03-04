@@ -9,6 +9,7 @@ set(SRC
     ./Physical_Model/QCDParameters.cpp
     ./Core/Parameters.cpp
     ./Core/Logger.cpp 
+    ./Core/MemoryManager.cpp
     ./Physical_Model/Wilson.cpp 
     ./Physical_Model/Wilson_parameters.cpp
     ./main_wilson.cpp

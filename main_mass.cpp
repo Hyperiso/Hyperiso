@@ -1,4 +1,4 @@
-#include "./Physical_Model/QCDParameters.h"
+#include "QCDParameters.h"
 #include <fstream>
 #include <iostream>
 
@@ -12,7 +12,7 @@ int main() {
     double mbot = 4.18; // Masse du quark bottom
     double quark_mass = mbot; // Exemple : calculer le running pour la masse du quark bottom
 
-    QCDParameters qcdParams = QCDParameters(4.19000000e+00, 1.72900000e+02,4.19000000e+00,1.72900000e+02);
+    QCDParameters qcdParams = QCDParameters(0.1, 91, 4.19000000e+00, 1.72900000e+02,4.19000000e+00,1.72900000e+02);
 
     // Ouverture du fichier CSV pour écrire
     std::ofstream file("quark_mass_running.csv");

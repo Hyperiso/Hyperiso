@@ -60,8 +60,15 @@ public:
     bool hasBlock(const std::string& id) const;
     void readAll();
 
-    template <class T>
-    void extractFromBlock(std::string block, std::vector<T*>& vars);
+    template <typename T>
+    inline void extractFromBlock(std::string blockName, std::vector<T*>& vars) {
+        LhaBlock* block = this->getBlock(blockName);
+        if (block) {
+            for (int id=0; id!=vars.size(); ++id) {
+                *(vars.at(id)) = static_cast<LhaElement<T>*>(block->get(std::to_string(id + 1)))->getValue();
+            }
+        }
+    }
 
     inline LhaBlock* getBlock(const std::string& id) const {
         return this->hasBlock(id) ? blocks.at(id).get() : nullptr;

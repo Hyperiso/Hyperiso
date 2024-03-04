@@ -1,9 +1,13 @@
 #pragma once
+
+#include "QCDParameters.h"
+#include "lha_reader.h"
+
 #include <vector>
-#include "./../Physical_Model/QCDParameters.h"
-#include "../DataBase/lha_reader.h"
+#include <array>
 #include <map>
 #include <string>
+#include <complex>
 
 typedef std::complex<double> complex_t; 
 
@@ -53,7 +57,8 @@ public:
             return amix[pdgCode/10][pdgCode%10];
         }
         if (block == "CKM") {
-            return ckm[pdgCode/10][pdgCode%10];
+            // return ckm[pdgCode/10][pdgCode%10];
+            return 1.0;
         }
         if (block == "STOPMIX") {
             return stopmix[pdgCode/10][pdgCode%10];
@@ -86,7 +91,6 @@ public:
 private:
     static Parameters* instance[2];
     Parameters(int modelId); // Constructeur pour initialiser les paramètres
-    void extractFromBlock(std::string block, std::vector<double*>& vars);
     void initSM();
     void initSUSY();
 
@@ -106,7 +110,7 @@ private:
     std::vector<std::vector<double>> nmix;
     std::vector<std::vector<double>> yu;
     std::vector<std::vector<double>> yd;
-    std::vector<std::vector<complex_t>> ckm;
+    std::array<std::array<complex_t, 3>, 3> ckm;
 
     Parameters(const Parameters&) = delete;
     Parameters& operator=(const Parameters&) = delete;

@@ -1,5 +1,4 @@
 #include "lha_elements.h"
-
 #include <sstream>
 
 template <typename U>

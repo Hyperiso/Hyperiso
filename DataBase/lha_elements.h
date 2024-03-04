@@ -6,7 +6,7 @@
 #include <vector>
 #include <memory>
 #include <map>
-#include "../Core/Logger.h"
+#include "Logger.h"
 
 enum class RenormalizationScheme {
     POLE, MSBAR, DRBAR, ONE_S, KIN, INVARIANT, MOM, SMOM, NONE

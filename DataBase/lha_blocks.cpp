@@ -1,8 +1,6 @@
 #include <sstream>
 #include <algorithm>
-
 #include "lha_blocks.h"
-// #include "lha_elements.h"
 
 AbstractElement* LhaBlock::get(const std::string& id) const
 {

@@ -5,7 +5,7 @@
 #include <cassert>
 
 int main() {
-    auto mm = MemoryManager::GetInstance("../example.flha", {0});  // Initialize program manager with LHA file containing SMINPUTS block
+    auto mm = MemoryManager::GetInstance("../testParams.flha", {0});  // Initialize program manager with LHA file containing SMINPUTS block
     mm->init();  // Initialize parameters from given LHA file
 
     auto sm_params = Parameters::GetInstance(0); 

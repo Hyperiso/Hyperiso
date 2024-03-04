@@ -1,9 +1,9 @@
 #include "ObsEvaluator.h"
-#include "./Physical_Model/Wilson.h"
-#include "./Physical_Model/QCDParameters.h"
-#include "./Core/Logger.h"
-#include "./Math/Math.h"
-#include "./Core/Parameters.h"
+#include "Wilson.h"
+#include "QCDParameters.h"
+#include "Logger.h"
+#include "Math.h"
+#include "Parameters.h"
 
 complex_t ObsEvaluator::Evaluate(Observable *o)
 {

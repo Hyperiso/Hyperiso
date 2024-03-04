@@ -1,9 +1,7 @@
 #include "MemoryManager.h"
-#include <iostream>
-#include <unordered_map>
-#include <memory>
-#include <cstdlib>
-#include "../DataBase/lha_reader.h"
+#include "Parameters.h"
+
+MemoryManager* MemoryManager::instance = nullptr;
 
 // Creation pointeur unique
 template<typename T>
@@ -21,8 +19,8 @@ std::unique_ptr<T, void(*)(void*)> MemoryManager::allocate() {
     return makeUniquePtr(ptr);
 }
 
-MemoryManager* MemoryManager::GetInstance(std::string lhaFile="./example.flha", std::vector<int> models={0}) {
-    if (!instance) {
+MemoryManager* MemoryManager::GetInstance(std::string lhaFile, std::vector<int> models) {
+    if (!MemoryManager::instance) {
         MemoryManager::instance = new MemoryManager(lhaFile, models);
     }
     return MemoryManager::instance;
@@ -41,9 +39,12 @@ LhaReader* MemoryManager::getReader() {
 }
 
 void MemoryManager::init() {
+    
     // Init SM parameters from SMINPUTS
     reader = std::make_unique<LhaReader>(LhaReader(lhaPath));
     reader->readAll();
+
+    auto _ = Parameters::GetInstance(0);
 
     // Init other parameters
 

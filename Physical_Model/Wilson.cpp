@@ -104,7 +104,7 @@ void SM_LO_Strategy::set_base1(WilsonSet& C, WilsonSet& C_match, double Q, const
 	auto C_matchs = extractCoefficients(C_match, 0);
 
 
-	constexpr double pi = 3.141592654;
+	// constexpr double pi = 3.141592654;
 	double alphas_muW=(*sm).QCDRunner.runningAlphasCalculation(Q_match);
 	double alphas_mu=(*sm).QCDRunner.runningAlphasCalculation(Q);	
 	double eta_mu=alphas_muW/alphas_mu;
@@ -152,7 +152,7 @@ void SM_LO_Strategy::set_base1(WilsonSet& C, WilsonSet& C_match, double Q, const
         
     }
 
-	double fourPiOverAlphasMu = 4.0 * pi / alphas_mu;
+	double fourPiOverAlphasMu = 4.0 * PI / alphas_mu;
 
     auto updateC0b = [&](int je) {
         return (W_param->U0)[8][je-1] * C_matchs[je];
@@ -199,7 +199,7 @@ void SM_LO_Strategy::set_base2(WilsonSet& C, WilsonSet& C_match, double Q, const
     C_LO[5] = (0.0335 * etaMuPowers[2] + 0.0239 * etaMuPowers[3] - 0.0462 * etaMuPowers[4] - 0.0112 * etaMuPowers[5]) * C_matchs[2];  // C6
     C_LO[6] = std::pow(eta_mu, 16./23.) * C_matchs[7] + 8./3. * (std::pow(eta_mu, 14./23.) - std::pow(eta_mu, 16./23.)) * C_matchs[8] + C_matchs[2] * (2.2996 * etaMuPowers[7] - 1.0880 * etaMuPowers[6] - 3./7. * etaMuPowers[0] - 1./14. * etaMuPowers[1] - 0.6494 * etaMuPowers[2] - 0.0380 * etaMuPowers[3] - 0.0185 * etaMuPowers[4] - 0.0057 * etaMuPowers[5]);  // C7
     C_LO[7] = std::pow(eta_mu, 14./23.) * C_matchs[8] + C_matchs[2] * (0.8623 * etaMuPowers[7] - 0.9135 * etaMuPowers[2] + 0.0873 * etaMuPowers[3] - 0.0571 * etaMuPowers[4] + 0.0209 * etaMuPowers[5]);  // C8
-    C_LO[8] = C_matchs[9] + 4. * pi / alphas_muW * (-4. / 33. * (1. - etaMuPowers[8]) + 8. / 87. * (1. - etaMuPowers[9])) * C_matchs[2];  // C9
+    C_LO[8] = C_matchs[9] + 4. * PI / alphas_muW * (-4. / 33. * (1. - etaMuPowers[8]) + 8. / 87. * (1. - etaMuPowers[9])) * C_matchs[2];  // C9
     C_LO[9] = C_matchs[10];  // C10
 
 
@@ -224,7 +224,7 @@ void SM_NLO_Strategy::init(Parameters* sm, double scale, WilsonSet& C_match) {
 	double C4SM_1 = E0t(xt)-7./9.+2./3.*L;
 	double C7SM_1 = -0.5*A1t(xt,log(scale*scale/mass_top_muW/mass_top_muW))+713./243.+4./81.*L-4./9.*C4SM_1;
 	double C8SM_1 = -0.5*F1t(xt,log(scale*scale/mass_top_muW/mass_top_muW))+91./324.-4./27.*L-C4SM_1/6.;
-	double C9SM_1 = (1.-4.*sw2)/sw2*C1t(xt,log(scale*scale/mass_top_muW/mass_top_muW))-B1t(xt,log(scale*scale/mass_top_muW/mass_top_muW))/sw2-D1t(xt,log(scale*scale/mass_top_muW/mass_top_muW)) +1./sw2+524./729.-128./243.*pi*pi-16./3.*L-128./81.*L*L;
+	double C9SM_1 = (1.-4.*sw2)/sw2*C1t(xt,log(scale*scale/mass_top_muW/mass_top_muW))-B1t(xt,log(scale*scale/mass_top_muW/mass_top_muW))/sw2-D1t(xt,log(scale*scale/mass_top_muW/mass_top_muW)) +1./sw2+524./729.-128./243.*PI*PI-16./3.*L-128./81.*L*L;
 	double C10SM_1 = (B1t(xt,log(scale*scale/mass_top_muW/mass_top_muW))-C1t(xt,log(scale*scale/mass_top_muW/mass_top_muW)))/sw2-1./sw2;
 
 	if (C_match.size() < 1) C_match.resize(1);  
@@ -246,7 +246,7 @@ void SM_NLO_Strategy::set_base1(WilsonSet& C, WilsonSet& C_match, double Q, cons
 	auto C_matchs = extractCoefficients(C_match, 1);
 	auto C0_matchs = extractCoefficients(C_match, 0);
 
-	constexpr double pi = 3.141592654;
+	// constexpr double pi = 3.141592654;
 	double alphas_muW=(*sm).QCDRunner.runningAlphasCalculation(Q_match);
 	double alphas_mu=(*sm).QCDRunner.runningAlphasCalculation(Q);	
 	double eta_mu=alphas_muW/alphas_mu;
@@ -292,7 +292,7 @@ void SM_NLO_Strategy::set_base1(WilsonSet& C, WilsonSet& C_match, double Q, cons
         }
     }
 
-	double fourPiOverAlphasMu = 4.0 * pi / alphas_mu;
+	double fourPiOverAlphasMu = 4.0 * PI / alphas_mu;
 
 
     auto updateC1b = [&](int je) {
@@ -382,7 +382,7 @@ void SM_NLO_Strategy::set_base2(WilsonSet& C, WilsonSet& C_match, double Q, cons
            + (0.0183 * eta_mu * C_matchs[4] + 0.0914 * C_matchs_0[2] + 0.0225 * eta_mu * C_matchs[1] / 15.) * etaMuPowers[5];
 
 	// C9
-	C_NLO[8] = eta_mu * (C_matchs[9] + 4. * pi / alphas_muW * (-4. / 33. * (1. - etaMuPowers[8]) + 8. / 87. * (1. - etaMuPowers[9])) * C_matchs[2]);
+	C_NLO[8] = eta_mu * (C_matchs[9] + 4. * PI / alphas_muW * (-4. / 33. * (1. - etaMuPowers[8]) + 8. / 87. * (1. - etaMuPowers[9])) * C_matchs[2]);
 
 	// C10
 	C_NLO[9] = eta_mu * C_matchs[10];
@@ -402,12 +402,12 @@ void SM_NNLO_Strategy::init(Parameters* sm, double scale, WilsonSet& C_match) {
 	double L=log(scale*scale/(*sm)("MASS",24)/(*sm)("MASS",24)); // scale -> mu_W
  	double sw2=pow(sin(atan((*sm)("COUPLING",1)/(*sm)("COUPLING",2))),2.); //1 = param-> gp and 2 = param->g2
 
-    double C1SM_2 = -T(xt)+7987./72.+17.*pi*pi/3.+475./6.*L+17.*L*L;
-	double C2SM_2 = 127./18.+4./3.*pi*pi+46./3.*L+4.*L*L;
-	double C3SM_2 = G1t(xt,log(scale*scale/mass_top_muW/mass_top_muW))-680./243.-20./81.*pi*pi-68./81.*L-20./27.*L*L;
-	double C4SM_2 = E1t(xt,log(scale*scale/mass_top_muW/mass_top_muW))+950./243.+10./81.*pi*pi+124./27.*L+10./27.*L*L;
-	double C5SM_2 = -G1t(xt,log(scale*scale/mass_top_muW/mass_top_muW))/10.+2./15.*E0t(xt)+68./243.+2./81.*pi*pi+14./81.*L+2./27.*L*L;
-	double C6SM_2 = -3./16.*G1t(xt,log(scale*scale/mass_top_muW/mass_top_muW))+E0t(xt)/4.+85./162.+5./108.*pi*pi+35./108.*L+5./36.*L*L;
+    double C1SM_2 = -T(xt)+7987./72.+17.*PI*PI/3.+475./6.*L+17.*L*L;
+	double C2SM_2 = 127./18.+4./3.*PI*PI+46./3.*L+4.*L*L;
+	double C3SM_2 = G1t(xt,log(scale*scale/mass_top_muW/mass_top_muW))-680./243.-20./81.*PI*PI-68./81.*L-20./27.*L*L;
+	double C4SM_2 = E1t(xt,log(scale*scale/mass_top_muW/mass_top_muW))+950./243.+10./81.*PI*PI+124./27.*L+10./27.*L*L;
+	double C5SM_2 = -G1t(xt,log(scale*scale/mass_top_muW/mass_top_muW))/10.+2./15.*E0t(xt)+68./243.+2./81.*PI*PI+14./81.*L+2./27.*L*L;
+	double C6SM_2 = -3./16.*G1t(xt,log(scale*scale/mass_top_muW/mass_top_muW))+E0t(xt)/4.+85./162.+5./108.*PI*PI+35./108.*L+5./36.*L*L;
 
 	double xtW=pow((*sm).QCDRunner.runningAlphasCalculation((*sm)("MASS",6))/(*sm)("MASS",24),2.); // mass top at mass top
 	double xtt=pow((*sm)("MASS",6)/(*sm)("MASS",24),2.); // 24 -> W
@@ -451,7 +451,7 @@ void SM_NNLO_Strategy::set_base1(WilsonSet& C, WilsonSet& C_match, double Q, con
 	auto C1_matchs = extractCoefficients(C_match, 1);
 	auto C0_matchs = extractCoefficients(C_match, 0);
 
-	constexpr double pi = 3.141592654;
+	// constexpr double pi = 3.141592654;
 	double alphas_muW=(*sm).QCDRunner.runningAlphasCalculation(Q_match);
 	double alphas_mu=(*sm).QCDRunner.runningAlphasCalculation(Q);	
 	double eta_mu=alphas_muW/alphas_mu;
@@ -499,7 +499,7 @@ void SM_NNLO_Strategy::set_base1(WilsonSet& C, WilsonSet& C_match, double Q, con
         }
     }
 
-	double fourPiOverAlphasMu = 4.0 * pi / alphas_mu;
+	double fourPiOverAlphasMu = 4.0 * PI / alphas_mu;
 
     auto updateC2b = [&](int je) {
         return eta_mu * eta_mu * ((W_param->U0)[8][je-1] * C_matchs[je] + (W_param->U1)[8][je-1] * C1_matchs[je] + (W_param->U2)[8][je-1] * C0_matchs[je]);

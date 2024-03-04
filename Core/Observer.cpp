@@ -1,3 +1,7 @@
+#include <iostream>
+#include <string>
+#include <list>
+
 class IObserver {
 public:
     virtual ~IObserver() {}
@@ -60,11 +64,11 @@ public:
     }
 
     void update(const std::string &messageFromSubject) override {
-        message = messageFromSubject;
+       this->messageFromSubject = messageFromSubject;
         printInfo();
     }
 
     void printInfo() {
-        std::cout << "Observer " << number << ": a new message is available --> " << message << std::endl;
+        std::cout << "Observer " << number << ": a new message is available --> " << messageFromSubject << std::endl;
     }
 };
