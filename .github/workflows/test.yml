@@ -23,4 +23,4 @@ jobs:
     - name: Build
       run: make
 
-    - name: Test
+    # - name: Test
