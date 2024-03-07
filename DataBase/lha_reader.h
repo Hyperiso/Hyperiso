@@ -8,6 +8,7 @@
 #include <regex>
 
 #include "lha_blocks.h"
+#include "lha_elements.h"
 
 enum class TokenType {
     FLOAT,
@@ -32,23 +33,28 @@ struct Token {
     int col;
 };
 
+class LhaReader;
+
 class Parser {
     public:
-        inline explicit Parser(std::string src) : src(std::move(src)) {}
+        inline explicit Parser(std::string src, LhaReader* reader) : src(std::move(src)), reader(reader) {}
         void parse(bool comments = false);
         inline std::vector<std::vector<std::string>> getBlock(const std::string& blockName) { return this->rawBlocks[blockName]; }
         inline std::map<std::string, std::vector<std::vector<std::string>>> getBlocks() { return this->rawBlocks; }
 
     private:
         const std::string src;
+        const LhaReader* reader;
         std::vector<Token> tokens;
         std::map<std::string, std::vector<std::vector<std::string>>> rawBlocks;
+
 
         void tokenize();
 };
 
 class LhaReader {
 private:
+    std::vector<Prototype> blockPrototypes;
     std::map<std::string, std::unique_ptr<LhaBlock>> blocks;
     bool isFLHA = false;
     std::filesystem::path lhaFile;
@@ -59,6 +65,12 @@ public:
     LhaReader(std::string_view path);
     bool hasBlock(const std::string& id) const;
     void readAll();
+    Prototype findPrototype(std::string name) const;
+
+    inline void addBlockType(std::string blockName, int itemCount=2, int valueIdx=1, int scaleIdx=-1, int rgIdx=-1, bool globalScale=false) {
+        std::transform(blockName.begin(), blockName.end(), blockName.begin(), ::toupper);  // Make sure block name is uppercase 
+        this->blockPrototypes.emplace_back(Prototype{blockName, itemCount, valueIdx, scaleIdx, rgIdx, globalScale});
+    }
 
     template <typename T>
     inline void extractFromBlock(std::string blockName, std::vector<T*>& vars) {
@@ -70,13 +82,16 @@ public:
         }
     }
 
-    inline LhaBlock* getBlock(const std::string& id) const {
+    inline LhaBlock* getBlock(std::string id) const {
+        std::transform(id.begin(), id.end(), id.begin(), ::toupper);
         return this->hasBlock(id) ? blocks.at(id).get() : nullptr;
     }
 
     inline int getBlockCount() const {
         return blocks.size();
     }
+
+    std::string toString() const;
 };
 
 

@@ -1,22 +1,30 @@
 cmake_minimum_required(VERSION 3.20)
-project(Hyperiso)
+project(TestHyperiso)
+
+# Set C++ standard
 set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-set(SRC
-    ./DataBase/lha_reader.cpp
-    ./DataBase/lha_blocks.cpp
-    ./DataBase/lha_elements.cpp
-    ./Physical_Model/QCDParameters.cpp
-    ./Core/Parameters.cpp
-    ./Core/Logger.cpp 
-    ./Core/MemoryManager.cpp
-    ./Physical_Model/Wilson.cpp 
-    ./Physical_Model/Wilson_parameters.cpp
-    ./main_wilson.cpp
-    ./Math/wilson_math.cpp
-    ./Math/polylog.cpp 
-    ./Math/others_functions.cpp 
-    ./Math/exponential_integral.cpp 
-    ./Math/bessel_function.cpp)
 
-add_executable(hyperiso ${SRC})
+file(GLOB SOURCES "./Core/*.cpp" "./DataBase/*.cpp" "./logique_metier/*.cpp" "./Math/*.cpp" "./Physical_Model/*.cpp" "main_wilson.cpp")
+
+add_executable(test ${SOURCES})
+
+# Add include directories
+target_include_directories(test 
+    PUBLIC 
+    "${CMAKE_SOURCE_DIR}/Core"
+    "${CMAKE_SOURCE_DIR}/DataBase"
+    "${CMAKE_SOURCE_DIR}/logique_metier"
+    "${CMAKE_SOURCE_DIR}/Math"
+    "${CMAKE_SOURCE_DIR}/Physical_Model"
+)
+
+# Link any necessary libraries to the test executable
+# For example:
+# target_link_libraries(tests PRIVATE gtest)
+
+# Optionally, add a custom target for running tests with CTest
+# enable_testing()
+# add_test(NAME AllTests COMMAND tests)
+

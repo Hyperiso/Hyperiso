@@ -44,7 +44,7 @@ void MemoryManager::init() {
     reader = std::make_unique<LhaReader>(LhaReader(lhaPath));
     reader->readAll();
 
-    auto _ = Parameters::GetInstance(0);
+    Parameters::GetInstance(0);
 
     // Init other parameters
 

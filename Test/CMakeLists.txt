@@ -6,12 +6,12 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 
-file(GLOB SOURCES "../Core/*.cpp" "../DataBase/*.cpp" "../logique_metier/*.cpp" "../Math/*.cpp" "../Physical_Model/*.cpp" "testParams.cpp")
+file(GLOB SOURCES "../Core/*.cpp" "../DataBase/*.cpp" "../logique_metier/*.cpp" "../Math/*.cpp" "../Physical_Model/*.cpp" "testReader.cpp")
 
-add_executable(test ${SOURCES})
+add_executable(testReader ${SOURCES})
 
 # Add include directories
-target_include_directories(test 
+target_include_directories(testReader 
     PUBLIC 
     "${CMAKE_SOURCE_DIR}/../Core"
     "${CMAKE_SOURCE_DIR}/../DataBase"

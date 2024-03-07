@@ -37,6 +37,8 @@ void Parameters::initSM() {
     std::vector<double*> ckm_inputs = {&lambda, &A, &rho, &eta};
     lha->extractFromBlock("VCKMIN", ckm_inputs);
 
+    // TODO: PMNS matrix
+
     /* 
         Initializing SM parameters
     */
