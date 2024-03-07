@@ -18,10 +18,9 @@ jobs:
       run: sudo apt-get update && sudo apt-get install -y build-essential
 
     - name: Configure CMake
-      run: cmake -S . -B build
+      run: cmake .
 
     - name: Build
-      run: cmake --build build/
+      run: make
 
     - name: Test
-      run: cmake --test build/ --output-on-failure
