@@ -16,8 +16,8 @@ susy_parameters::susy_parameters(double scale) {
 
 	
 
-    mass_top_muW=(*sm).run.running_mass((*sm)("MASS",6), (*sm)("MASS",6),scale,  (*sm)("MASS",6),(*sm)("MASS",5));
-	mass_b_muW=(*sm).run.running_mass((*sm)("MASS",5), (*sm)("MASS",5), scale,  (*sm)("MASS",6), (*sm)("MASS",5)); //mass bottom 6 (at pole)
+    mass_top_muW=(*sm).QCDRunner.running_mass((*sm)("MASS",6), (*sm)("MASS",6),scale,  (*sm)("MASS",6),(*sm)("MASS",5));
+	mass_b_muW=(*sm).QCDRunner.running_mass((*sm)("MASS",5), (*sm)("MASS",5), scale,  (*sm)("MASS",6), (*sm)("MASS",5)); //mass bottom 6 (at pole)
 
 	L=log(scale*scale/(*sm)("MASS",24)/(*sm)("MASS",24)); // scale -> mu_W
  	sw2=pow(sin(atan((*sm)("Coupling",1)/(*sm)("Coupling",2))),2.); //1 = param-> gp and 2 = (*sm)("COUPLING",2)
@@ -29,7 +29,7 @@ susy_parameters::susy_parameters(double scale) {
 	ld=-(*susy)("EXTPAR",25);
 	
 
-    alphas_mg = sm->run.runningAlphasCalculation((*susy)("MASS",1000021));
+    alphas_mg = sm->QCDRunner.runningAlphasCalculation((*susy)("MASS",1000021));
 	ag = 1.0 - 7.0 / (12.0 * Pi * alphas_mg);
 	aY = 1.0 + alphas_mg / (4.0 * Pi);
 	kappa = 1.0 / ((*sm)("Coupling",2) * (*sm)("Coupling",2) * (*susy)("CKM",33)* (*susy)("CKM",32));

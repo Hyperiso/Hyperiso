@@ -32,6 +32,15 @@ Block TESTSKIP
     4   -2.84   # delta_CP
     5   0       # alpha_1
     6   0       # alpha_2
+
+
+Block TESTADD
+    1   2.4579  # t_12_L
+    1   1.648   # t_23_L
+    1   0.476   # t_13_L
+    1   0       # t_12_R
+    1   0.14    # t_23_R
+    1   0.004   # t_13_R
     
 Block FLIFE
 # PDG_code  lifetime        particle

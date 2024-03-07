@@ -2,7 +2,6 @@
 #define HYPERISO_OBSERVABLE_H
 
 #include "Observables.h"
-
 #include <complex>
 
 typedef std::complex<double> complex_t;

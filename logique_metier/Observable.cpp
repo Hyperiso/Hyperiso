@@ -1,6 +1,6 @@
 #include "Observable.h"
 #include "ObsEvaluator.h"
-#include "./Core/Logger.cpp"
+#include "Logger.h"
 
 void Observable::evaluate() {
     this->value = ObsEvaluator::Evaluate(this);
@@ -11,6 +11,6 @@ complex_t Observable::getValue() const {
     if (this->evaluated) {
         return this->value;
     } 
-    auto log = Logger::getInstance();    
-    log.error("Trying to access an unevaluated observable value.");
+    Logger::getInstance()->error("Trying to access an unevaluated observable value.");  
+    return complex_t(-1);  
 }
