@@ -522,7 +522,7 @@ double f111(double x, double y)
 
 	if(fabs(1.-x/y)<5.e-3) return f111(y*0.98,y);
 	
-	return 4.*x*(8.*y+(x-1.)*(x-y)*pi*pi)/3./y/(x-1.)/(x-y)
+	return 4.*x*(8.*y+(x-1.)*(x-y)*PI*PI)/3./y/(x-1.)/(x-y)
 	-8.*x*(x*x-7.*y+3.*x*(1.+y))/3./(x-y)/(x-y)/(x-1.)/(x-1.)*log(x)
 	-8.*x*(3.*x-7.*y)/3./(x-y)/(x-y)/(y-1.)*log(y)
 	-8.*x/(y-1.)*Li2(1.-1./x)

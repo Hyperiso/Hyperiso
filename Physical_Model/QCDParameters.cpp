@@ -1,15 +1,13 @@
 #include "./QCDParameters.h"
 #include <iostream>
 
-QCDParameters::QCDParameters(double massb_pole, double masst_pole, double massb_b, double masst_t) {
-    mass_Z = 91.1699982;
-    alphas_MZ = 0.117200002;
+QCDParameters::QCDParameters(double alpha_Z, double m_Z, double massb_pole, double masst_pole, double massb_b, double masst_t) {
+    mass_Z = m_Z;
+    alphas_MZ = alpha_Z;
     mass_b_pole=massb_pole;
     mass_t_pole = masst_pole;
     mass_b_b = massb_b;
     mass_t_t = masst_t;
-
-    
 }
 
 double QCDParameters::alphasRunning(double Q, double Lambda, int nf) const{
@@ -20,7 +18,7 @@ double QCDParameters::alphasRunning(double Q, double Lambda, int nf) const{
     return 4.*pi/beta0/log(pow(Q/Lambda,2.))*(1.-2.*beta1/beta0/beta0*log(log(pow(Q/Lambda,2.)))/log(pow(Q/Lambda,2.))+4.*beta1*beta1/pow(beta0*beta0*log(pow(Q/Lambda,2.)),2.)*(pow(log(log(pow(Q/Lambda,2.)))-1./2.,2.)+beta2*beta0/8./beta1/beta1-5./4.));
 }
 
-double QCDParameters::DichotomieLambda(double alpha_running, double Q, int nf){
+double QCDParameters::matchLambda(double alpha_running, double Q, int nf){
 
     double Lambda_min=1.e-3;
     double Lambda_max=1.;
@@ -28,8 +26,7 @@ double QCDParameters::DichotomieLambda(double alpha_running, double Q, int nf){
     double alphas_max=0;
     double alphas_moy = 0;
     double Lambda_moy = 0;
-    while((fabs(1.-alphas_min/alpha_running)>=1.e-4)&&(fabs(1.-Lambda_min/Lambda_max)>1.e-5))
-    {
+    while((fabs(1.-alphas_min/alpha_running)>=1.e-4)&&(fabs(1.-Lambda_min/Lambda_max)>1.e-5)) {
         alphas_min = alphasRunning(Q,Lambda_min, nf);
         alphas_max = alphasRunning(Q,Lambda_max, nf);
 
@@ -41,8 +38,7 @@ double QCDParameters::DichotomieLambda(double alpha_running, double Q, int nf){
         else Lambda_min=Lambda_moy;
     }
     
-    if(fabs(1.-Lambda_min/Lambda_max)<=1.e-5)
-    {
+    if(fabs(1.-Lambda_min/Lambda_max)<=1.e-5) {
         Lambda5=-1.;
         return -1.;
     }
@@ -53,12 +49,12 @@ double QCDParameters::runningAlphasCalculation(double Q, std::string option_mass
 
     if (option_massb == "pole")
         mass_b = mass_b_pole;
-    else if (option_massb == "mass")
+    else if (option_massb == "running")
         mass_b = mass_b_b;
 
     if (option_masst == "pole")
         mass_t = mass_t_pole;
-    else if (option_masst == "mass")
+    else if (option_masst == "running")
         mass_t = mass_t_t;
 
     if (Lambda5 == -1.0) {
@@ -66,7 +62,7 @@ double QCDParameters::runningAlphasCalculation(double Q, std::string option_mass
     }
 
     if (Lambda5 == 0.0) {
-        Lambda5 = DichotomieLambda( alphas_MZ,  mass_Z, 5);
+        Lambda5 = matchLambda(alphas_MZ, mass_Z, 5);
         if (Lambda5 == -1);
             return Lambda5;
     }
@@ -75,19 +71,18 @@ double QCDParameters::runningAlphasCalculation(double Q, std::string option_mass
     if (Q <= mass_t && Q >= mass_b) {
         // 5 active flavors
         return alphas_running;
-
     } else if (Q > mass_t) {
         // 6 active flavors
         nf = 6;
         alphas_running = alphasRunning(mass_t, Lambda5, 5);
-        Lambda6 = DichotomieLambda( alphas_running,  mass_t, nf);
+        Lambda6 = matchLambda( alphas_running,  mass_t, nf);
         return alphasRunning(Q,Lambda6, nf);
     } else {
         // 4 active flavors
-        alphas_running = alphasRunning(mass_b, Lambda5, 5);
         nf = 4;
-        Lambda4 = DichotomieLambda( alphas_running,  mass_b, nf);
-        return alphasRunning(Q,Lambda4,  nf);
+        alphas_running = alphasRunning(mass_b, Lambda5, 5);
+        Lambda4 = matchLambda(alphas_running, mass_b, nf);
+        return alphasRunning(Q, Lambda4, nf);
     }
 
     throw std::logic_error("Invalid parameters or conditions in alphas_running function");
@@ -111,20 +106,17 @@ double QCDParameters::running_mass(double quark_mass, double Qinit, double Qfin,
 	
     if (Qinit <= mbot) {
         nf_init=4;
-    }
-    else if(Qinit <= mtop) {
+    } else if(Qinit <= mtop) {
         nf_init = 5;
-    }
-    else {
+    } else {
         nf_init = 6;
     }
+
     if (Qinit <= mbot) {
         nf_fin=4;
-    }
-    else if(Qinit <= mtop) {
+    } else if(Qinit <= mtop) {
         nf_fin = 5;
-    }
-    else {
+    } else {
         nf_fin = 6;
     }
 

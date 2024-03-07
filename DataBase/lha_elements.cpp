@@ -1,6 +1,7 @@
 #include "lha_elements.h"
-
+#include "lha_blocks.h"
 #include <sstream>
+#include <iostream>
 
 template <typename U>
 struct StringConverter {
@@ -24,42 +25,31 @@ struct StringConverter<std::string> {
 };
 
 template<typename T>
-LhaElement<T>::LhaElement(const std::string& block, const std::vector<std::string>& line) : block(block), AbstractElement(encodeId(block, line)) {
-    if (SCALE_BLOCKS.contains(block)) {
-        this->Q.emplace(std::stod(line.at(SCALE_BLOCKS.at(block))));
-        if (SCHEME_BLOCKS.contains(block)) {
+LhaElement<T>::LhaElement(LhaBlock* block, const std::vector<std::string>& line) 
+        : AbstractElement(block, encodeId(block, line)) {
+    if (block->getPrototype().scaleIdx != -1) {
+        this->Q.emplace(std::stod(line.at(block->getPrototype().scaleIdx)));
+        if (block->getPrototype().rgIdx != -1) {
             // WRONG !!! To be corrected.
-            this->rScheme.emplace(static_cast<RenormalizationScheme>(stoi(line.at(SCHEME_BLOCKS.at(block)))));
+            this->rScheme.emplace(static_cast<RenormalizationScheme>(stoi(line.at(block->getPrototype().rgIdx))));
         }
+    } else if (block->getPrototype().globalScale) {
+        this->Q.emplace(std::stod(line.at(0)));
     }
-    int value_index = VALUE_POS.contains(block) ? VALUE_POS.at(block) : 1;
-    this->value = StringConverter<T>::convert(line.at(value_index));
+    this->value = StringConverter<T>::convert(line.at(block->getPrototype().valueIdx));
 }
 
 template <typename T>
-std::string LhaElement<T>::encodeId(const std::string& block, const std::vector<std::string>& line) {
+std::string LhaElement<T>::encodeId(LhaBlock* block, const std::vector<std::string>& line) {
     std::stringstream stream;
+    stream << "|";
 
-    if (block == "FCINFO" || block == "FMODSEL" || block == "SMINPUTS" || block == "VCKMIN" || block == "UPMNSIN" || block == "FMASS" || block == "FLIFE") {
-        stream << line.at(0);
-    } else if (block == "FCONST" || block == "FBAG") {
-        stream << line.at(0) << "|" << line.at(1);
-    } else if (block == "FCONSTRATIO") {
-        stream << line.at(0) << "|" << line.at(1) << "|" << line.at(2) << "|" << line.at(3);
-    } else if (block.ends_with("FWCOEF")) {
-        stream << line.at(1) << "|" << line.at(2) << "|" << line.at(3) << "|" << line.at(4);
-    } else if (block.starts_with("FOBS")) {
-        stream << line.at(0) << "|" << line.at(1) << "|" << line.at(4);
-        for (int i=5; i!=5 + std::stoi(line.at(4)); ++i) {
-            stream << "|" << line.at(i);
+    Prototype p = block->getPrototype();
+    for (int i=0; i!=line.size(); ++i) {
+        if (i != p.valueIdx && i != p.scaleIdx && i != p.rgIdx) {
+            if (p.globalScale && i == 0) continue;
+            stream << line.at(i) << "|";
         }
-    } else if (block == "FDIPOLE") {
-        stream << line.at(0) << "|" << line.at(1) << "|" << line.at(2);
-    } else if (block == "FPARAM") {
-        stream << line.at(0);
-        Logger::getInstance()->warn("Treatment of block FPARAM should be user-defined. Please check results.");
-    } else {
-        Logger::getInstance()->error("Unknown block. Please define appropriate behaviour.");
     }
 
     return stream.str();
@@ -68,14 +58,21 @@ std::string LhaElement<T>::encodeId(const std::string& block, const std::vector<
 template <typename T>
 std::string LhaElement<T>::toString() const {
     std::stringstream stream;
-    stream << this->getId() << '\t' << this->getValue() << '\t' << static_cast<int>(this->getScheme()) << '\t' << this->getScale() << "\n";
+    stream << this->getId() << '\t' << this->getValue();
+    if (Q.has_value()) {
+        stream << '\t' << this->getScale();
+    }   
+    if (rScheme.has_value()) {
+        stream << '\t' << static_cast<int>(this->getScheme());
+    }
+    stream << "\n";
     return stream.str();
 }
 
-std::unique_ptr<AbstractElement> LhaElementFactory::createElement(const std::string& blockName, const std::vector<std::string>& line) {
-    if (blockName == "FCINFO" || blockName == "FMODSEL") {
-        return std::make_unique<LhaElement<std::string>>(blockName, line);
+std::unique_ptr<AbstractElement> LhaElementFactory::createElement(LhaBlock* block, const std::vector<std::string>& line) {
+    if (block->getPrototype().blockName == "FCINFO" || block->getPrototype().blockName == "FMODSEL") {
+        return std::make_unique<LhaElement<std::string>>(block, line);
     } else {
-        return std::make_unique<LhaElement<double>>(blockName, line);
+        return std::make_unique<LhaElement<double>>(block, line);
     }
 }

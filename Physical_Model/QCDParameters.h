@@ -22,9 +22,8 @@ public:
     double mass_b_b;
     double mass_t_t;
     
-    QCDParameters() {mass_Z = 91.1699982;
-    alphas_MZ = 0.117200002;}
-    QCDParameters(double massb_pole, double masst_pole, double massb_b, double masst_t);
+    QCDParameters() {mass_Z = 91.1699982; alphas_MZ = 0.117200002;}
+    QCDParameters(double alpha_Z, double m_Z, double massb_pole, double masst_pole, double massb_b, double masst_t);
     QCDParameters& operator=(const QCDParameters& other) {
         if (this != &other) {
             this->mass_t_pole = other.mass_t_pole;
@@ -36,7 +35,7 @@ public:
     }
 
     double alphasRunning(double Q, double Lambda, int nf) const;
-    double DichotomieLambda(double alpha_running, double Q, int nf);
+    double matchLambda(double alpha_running, double Q, int nf);
     double runningAlphasCalculation(double Q, std::string option_massb = "pole", std::string option_masst = "pole");
     double running_mass(double quark_mass, double Qinit, double Qfin,  double mtop, double mbot);
 

@@ -1,8 +1,6 @@
 #include <sstream>
 #include <algorithm>
-
 #include "lha_blocks.h"
-// #include "lha_elements.h"
 
 AbstractElement* LhaBlock::get(const std::string& id) const
 {
@@ -14,21 +12,19 @@ AbstractElement* LhaBlock::get(const std::string& id) const
 
 std::string LhaBlock::toString() const {
     std::stringstream stream;
-    stream << "Block " << this->name << ":\n";
+    stream << "Block " << this->prototype.blockName << ":\n";
     for (const auto& entry: entries) {
         stream << entry->toString();
     }
     return stream.str();
 }
 
-void LhaBlock::addElement(const std::vector<std::string> &line)
-{
-    auto elt = LhaElementFactory::createElement(this->name, line);
+void LhaBlock::addElement(const std::vector<std::string> &line) {
+    auto elt = LhaElementFactory::createElement(this, line);
     this->entries.emplace_back(std::move(elt));
 }
 
-void LhaBlock::readData(const std::vector<std::vector<std::string>> &lines)
-{
+void LhaBlock::readData(const std::vector<std::vector<std::string>> &lines) {
     for (auto line : lines) {
         if (!line.empty()) {
             this->addElement(line);

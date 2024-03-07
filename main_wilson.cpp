@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
-#include "./Physical_Model/Wilson.h"
+#include "Wilson.h"
+#include "MemoryManager.h"
 
 int main() {
     std::ofstream file("C7_running.csv");
@@ -10,6 +11,7 @@ int main() {
     double Q_final = 100.0;
     double Q_step = 1.0;
 
+    MemoryManager::GetInstance()->init();
     
     auto strat = std::make_shared<SM_LO_Strategy>();
     WilsonManager* wm = WilsonManager::GetInstance(81.0, strat);
