@@ -9,18 +9,16 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - name: Setup CMake
-      uses: actions/setup-cmake@v1
-      with:
-        cmake-version: '3.18.2'
-
-    - name: Setup Environment
-      run: sudo apt-get update && sudo apt-get install -y build-essential
+    - name: Install CMake, Make, and Build Essentials
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y cmake make build-essential
 
     - name: Configure CMake
       run: cmake .
 
     - name: Build
       run: make
+
 
     # - name: Test
