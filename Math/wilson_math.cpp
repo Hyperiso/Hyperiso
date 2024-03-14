@@ -856,7 +856,7 @@ double E1t(double x, double l)
 }
 
 /*----------------------------------------------------------------------*/
-
+#include <iostream>
 double T(double x)
 {
 	return -(16.*x+8.)*sqrt(4.*x-1.)*Cl2(2.*asin(0.5/sqrt(x)))+(16.*x+20./3.)*log(x)+32.*x+112./9.;

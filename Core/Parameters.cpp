@@ -28,7 +28,7 @@ void Parameters::initSM() {
     LhaReader* lha = MemoryManager::GetInstance()->getReader();
 
     // SMINPUTS
-    double inv_alpha_em{1.27934e2}, G_F{1.16637e-5}, alpha_s_MZ{1.184e-1}, m_Z_pole{91.1876}, m_b_mb{4.18}, m_t_pole{172.7}, m_tau_pole{1.777};
+    double inv_alpha_em{1.37934e2}, G_F{1.16637e-5}, alpha_s_MZ{1.184e-1}, m_Z_pole{91.1876}, m_b_mb{4.18}, m_t_pole{172.7}, m_tau_pole{1.777};
     std::vector<double*> sm_inputs = {&inv_alpha_em, &G_F, &alpha_s_MZ, &m_Z_pole, &m_b_mb, &m_t_pole, &m_tau_pole};
     lha->extractFromBlock("SMINPUTS", sm_inputs);
 
@@ -44,7 +44,12 @@ void Parameters::initSM() {
     */
 
     double m_W = std::sqrt(std::pow(m_Z_pole, 2) / 2 + std::sqrt(std::pow(m_Z_pole, 4) / 4 - M_PI * std::pow(m_Z_pole, 2) / inv_alpha_em / G_F / std::sqrt(2)));
-    QCDRunner = QCDParameters(alpha_s_MZ, m_Z_pole, m_b_mb, m_b_mb, m_t_pole, m_t_pole);
+
+    std::cout << "MZ " << alpha_s_MZ << std::endl;
+    std::cout << "alpha MZ " << m_Z_pole << std::endl;
+    std::cout << "mass top pole" << m_t_pole << std::endl;
+    std::cout << "mass b b " << m_b_mb << std::endl;
+    QCDRunner = QCDParameters(alpha_s_MZ, m_Z_pole, m_b_mb, m_t_pole, m_b_mb, m_t_pole);
 
     // Masses (from PDG 2023)
     masses[1] = 4.7e-3;         // d (2 GeV)
@@ -56,7 +61,7 @@ void Parameters::initSM() {
     masses[11] = 0.511e-3;      // e (pole)
     masses[13] = 0.105658;      // mu (pole)
     masses[15] = m_tau_pole;    // tau (pole)
-    masses[23] = m_Z_pole;      // Z (running MZ_MZ)
+    masses[23] = m_Z_pole;      // Z (pole)
     masses[24] = m_W;           // W  (running MW_MZ)
     masses[25] = 125.1;         // h0 
 

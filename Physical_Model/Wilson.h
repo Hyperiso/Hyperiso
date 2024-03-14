@@ -41,14 +41,14 @@ public:
 };
 
 
-class SM_NLO_Strategy : public InitializationStrategy {
+class SM_NLO_Strategy : public SM_LO_Strategy {
 public:
     void init(Parameters* sm, double scale, WilsonSet& C_match) override;
     void set_base1(WilsonSet& C, WilsonSet& C_match, double Q, const double Q_match) override;
     void set_base2(WilsonSet& C, WilsonSet& C_match, double Q, const double Q_match) override;
 };
 
-class SM_NNLO_Strategy : public InitializationStrategy {
+class SM_NNLO_Strategy : public SM_NLO_Strategy {
 public:
     void init(Parameters* sm, double scale, WilsonSet& C_match) override;
     void set_base1(WilsonSet& C, WilsonSet& C_match, double Q, const double Q_match) override;
@@ -61,16 +61,11 @@ private:
     Parameters* sm = Parameters::GetInstance();
     std::shared_ptr<InitializationStrategy> strategy = std::make_shared<SM_LO_Strategy>();;
     double scale;
-    // void scanLHA(std::string_view file); 
-    // void initSM_LO();
-    // void initSM_NLO();
-    // void initSM_NNLO();
-    // void initTHDM();
-    // void initSUSY();
+
 
 public:
     WilsonInitializer(double mu_match, std::shared_ptr<InitializationStrategy> strat) :
-    scale(mu_match){
+    scale(mu_match), strategy(strat){
         std::cout <<"Creation of WilsonManager" << std::endl;
     }
 
@@ -85,7 +80,7 @@ public:
 
 class WilsonManager{
 private:
-    static WilsonManager* instance;
+    static std::map<std::string, WilsonManager*> instances;
     WilsonSet C_match;  // C1...10, CQ1, CQ2, C'7...10, CQ'1, CQ'2 for each order
     WilsonSet C;
     const double Q_matching;
@@ -104,16 +99,29 @@ private:
 public:
     WilsonManager(WilsonManager&) = delete;
     void operator=(const WilsonManager&) = delete;
-    static WilsonManager* GetInstance(double mu_match=0, std::shared_ptr<InitializationStrategy> strategy = nullptr) {
-        if (!WilsonManager::instance) {
+    static WilsonManager* GetInstance(const std::string& strategyName, double mu_match, std::shared_ptr<InitializationStrategy> strategy) {
+        // Vérifier si l'instance existe déjà pour cette stratégie
+        auto it = instances.find(strategyName);
+        if (it == instances.end()) {
+            // Vérification de mu_match
             if (mu_match == 0.0) {
                 std::cerr << "Erreur: mu_match ne doit pas être 0 lors de la première création de WilsonManager." << std::endl;
                 std::exit(EXIT_FAILURE);
-            } else {
-                WilsonManager::instance = new WilsonManager(mu_match, strategy);
             }
+            // Créer une nouvelle instance
+            WilsonManager* newInstance = new WilsonManager(mu_match, strategy);
+            instances[strategyName] = newInstance;
+            return newInstance;
         }
-        return WilsonManager::instance;
+        // Retourner l'instance existante
+        return it->second;
+    }
+
+    static void Cleanup() {
+        for (auto& pair : instances) {
+            delete pair.second;
+        }
+        instances.clear();
     }
 
     complex_t get(WilsonCoefficient wc, int order) const;    // Returns C_id at a given order
