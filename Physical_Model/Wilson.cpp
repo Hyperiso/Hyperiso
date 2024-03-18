@@ -59,14 +59,14 @@ std::map<std::string, WilsonManager*> WilsonManager::instances = {};
 
 void SM_LO_Strategy::init(Parameters* sm, double scale, WilsonSet& C_match) {
 
-    double mass_top_muW=(*sm).QCDRunner.running_mass((*sm)("MASS",6), (*sm)("MASS",6),scale,  (*sm)("MASS",6),(*sm)("MASS",5)); //mass top at top ?
-	double mass_b_muW=(*sm).QCDRunner.running_mass((*sm)("MASS",5), (*sm)("MASS",5), scale,  (*sm)("MASS",6), (*sm)("MASS",5)); //mass bottom 6 (at pole)
+    double mass_top_muW=(*sm).QCDRunner.running_mass((*sm)("MASS",6), (*sm)("MASS",6),scale, "running"); //mass top at top ?
+	double mass_b_muW=(*sm).QCDRunner.running_mass((*sm)("MASS",5), (*sm)("MASS",5), scale, "running"); //mass bottom 6 (at pole)
     // or the opposite
 
     
 
     double L=log(scale*scale/(*sm)("MASS",24)/(*sm)("MASS",24)); // scale -> mu_W
- 	double sw2=pow(sin(atan((*sm)("Coupling",1)/(*sm)("Coupling",2))),2.); //1 = param-> gp and 2 = param->g2
+ 	double sw2=pow(sin(atan((*sm)("COUPLING",1)/(*sm)("COUPLING",2))),2.); //1 = param-> gp and 2 = param->g2
 
 
 
@@ -86,7 +86,6 @@ void SM_LO_Strategy::init(Parameters* sm, double scale, WilsonSet& C_match) {
     auto& C_LO = C_match[0];
 	C_LO.resize(static_cast<size_t>(WilsonCoefficient::CPQ2) + 1, complex_t(0, 0));
 
-    std::cout << C7SM_0 << "LO" <<std::endl;
 	C_LO[static_cast<size_t>(WilsonCoefficient::C2)] = complex_t(C2SM_0, 0);
     C_LO[static_cast<size_t>(WilsonCoefficient::C7)] = complex_t(C7SM_0, 0);
     C_LO[static_cast<size_t>(WilsonCoefficient::C8)] = complex_t(C8SM_0, 0);
@@ -94,7 +93,9 @@ void SM_LO_Strategy::init(Parameters* sm, double scale, WilsonSet& C_match) {
     C_LO[static_cast<size_t>(WilsonCoefficient::C10)] = complex_t(C10SM_0, 0);
 
     
-
+    for (int i=0; i<10; i++) {
+        std::cout << "C LO " << i+1 << " " <<  C_LO[i] << std::endl;
+    }
 }
 
 
@@ -108,7 +109,7 @@ void SM_LO_Strategy::set_base1(WilsonSet& C, WilsonSet& C_match, double Q, const
 	double alphas_muW=(*sm).QCDRunner.runningAlphasCalculation(Q_match);
 	double alphas_mu=(*sm).QCDRunner.runningAlphasCalculation(Q);	
 	double eta_mu=alphas_muW/alphas_mu;
-    std::cout << "eta " << eta_mu << std::endl;
+
 	complex_t C7_eff= C_matchs[7]-1./3.*C_matchs[3]-4./9.*C_matchs[4]-20./3.*C_matchs[5]-80./9.*C_matchs[6]; 
 	complex_t C8_eff= C_matchs[8]+C_matchs[3]-1./6.*C_matchs[4]+20.*C_matchs[5]-10./3.*C_matchs[6]; 
 
@@ -166,6 +167,8 @@ void SM_LO_Strategy::set_base1(WilsonSet& C, WilsonSet& C_match, double Q, const
 
     C_LO[10-1] = C_LO[10-1];
 
+    
+
 }
 
 void SM_LO_Strategy::set_base2(WilsonSet& C, WilsonSet& C_match, double Q, const double Q_match) {
@@ -202,6 +205,7 @@ void SM_LO_Strategy::set_base2(WilsonSet& C, WilsonSet& C_match, double Q, const
     C_LO[8] = C_matchs[9] + 4. * PI / alphas_muW * (-4. / 33. * (1. - etaMuPowers[8]) + 8. / 87. * (1. - etaMuPowers[9])) * C_matchs[2];  // C9
     C_LO[9] = C_matchs[10];  // C10
 
+    
 
 
 }
@@ -210,16 +214,18 @@ void SM_LO_Strategy::set_base2(WilsonSet& C, WilsonSet& C_match, double Q, const
 void SM_NLO_Strategy::init(Parameters* sm, double scale, WilsonSet& C_match) {
 
     SM_LO_Strategy::init(sm, scale, C_match);
-    double mass_top_muW=(*sm).QCDRunner.running_mass((*sm)("MASS",6), (*sm)("MASS",6),scale,  (*sm)("MASS",6),(*sm)("MASS",5)); //mass top at top ?
-	double mass_b_muW=(*sm).QCDRunner.running_mass((*sm)("MASS",5), (*sm)("MASS",5), scale,  (*sm)("MASS",6), (*sm)("MASS",5)); //mass bottom 6 (at pole)
+    double mass_top_muW=(*sm).QCDRunner.running_mass((*sm)("MASS",6), (*sm)("MASS",6),scale, "running"); //mass top at top ?
+	double mass_b_muW=(*sm).QCDRunner.running_mass((*sm)("MASS",5), (*sm)("MASS",5), scale, "running"); //mass bottom 6 (at pole)
     // or the opposite
 
 	double xt= pow(mass_top_muW/(*sm)("MASS",24),2.); // W boson mass (24)
 	double yt= pow(mass_top_muW/(*sm)("MASS",25),2.); // param->mass_H (25)
 
+    std::cout << "mass top muW " << mass_top_muW << std::endl;
+    std::cout << "mass top t " << (*sm)("MASS", 6) << std::endl;
+    std::cout << "xt " <<xt << std::endl;
 	double L=log(scale*scale/(*sm)("MASS",24)/(*sm)("MASS",24)); // scale -> mu_W
  	double sw2=pow(sin(atan((*sm)("COUPLING",1)/(*sm)("COUPLING",2))),2.); //1 = param-> gp and 2 = param->g2
-
 
     double C1SM_1 = 15.+6.*L;
 	double C4SM_1 = E0t(xt)-7./9.+2./3.*L;
@@ -229,11 +235,12 @@ void SM_NLO_Strategy::init(Parameters* sm, double scale, WilsonSet& C_match) {
 	double C10SM_1 = (B1t(xt,log(scale*scale/mass_top_muW/mass_top_muW))-C1t(xt,log(scale*scale/mass_top_muW/mass_top_muW)))/sw2-1./sw2;
 
     
+    
 	if (C_match.size() < 2) C_match.resize(2);  
     
     auto& C_NLO = C_match[1];
 	C_NLO.resize(static_cast<size_t>(WilsonCoefficient::CPQ2) + 1, complex_t(0, 0));
-    std::cout << "NLO" << C7SM_1 << std::endl;
+
 	C_NLO[static_cast<size_t>(WilsonCoefficient::C1)] = complex_t(C1SM_1, 0);
     
     C_NLO[static_cast<size_t>(WilsonCoefficient::C4)] = complex_t(C4SM_1, 0);
@@ -242,7 +249,11 @@ void SM_NLO_Strategy::init(Parameters* sm, double scale, WilsonSet& C_match) {
     C_NLO[static_cast<size_t>(WilsonCoefficient::C9)] = complex_t(C9SM_1, 0);
     
 	C_NLO[static_cast<size_t>(WilsonCoefficient::C10)] = complex_t(C10SM_1, 0);
-    std::cout << "NLO" << C7SM_1 << std::endl;
+
+    for (int i=0; i<10; i++) {
+        std::cout << "C_NLO" << " " << i+1 << " " << C_NLO[i] << std::endl;
+    }
+
 }
 
 
@@ -404,19 +415,19 @@ void SM_NNLO_Strategy::init(Parameters* sm, double scale, WilsonSet& C_match) {
     
 	// double mass_top_muW=(*sm).QCDRunner.runningAlphasCalculation((*sm)("MASS",6)); //mass top at top ?
 	// double mass_b_muW=(*sm).QCDRunner.runningAlphasCalculation((*sm)("MASS",5)); //mass bottom 6 (at pole)
-    double mass_top_muW=(*sm).QCDRunner.running_mass((*sm)("MASS",6), (*sm)("MASS",6),scale,  (*sm)("MASS",6),(*sm)("MASS",5)); //mass top at top ?
-	double mass_b_muW=(*sm).QCDRunner.running_mass((*sm)("MASS",5), (*sm)("MASS",5), scale,  (*sm)("MASS",6), (*sm)("MASS",5)); //mass bottom 6 (at pole)
+    double mass_top_muW=(*sm).QCDRunner.running_mass((*sm)("MASS",6), (*sm)("MASS",6),scale, "running"); //mass top at top ?
+	double mass_b_muW=(*sm).QCDRunner.running_mass((*sm)("MASS",5), (*sm)("MASS",5), scale, "running"); //mass bottom 6 (at pole)
     
     // or the opposite
     
 	double xt= pow(mass_top_muW/(*sm)("MASS",24),2.); // W boson mass (24)
 	double yt= pow(mass_top_muW/(*sm)("MASS",25),2.); // param->mass_H (25)
-    std::cout << "mass top " << mass_top_muW << std::endl;
-    std::cout << "mass top normal " << (*sm)("MASS",6) << std::endl;
-    std::cout << "mass W " << (*sm)("MASS",24) << std::endl;
+    // std::cout << "mass top " << mass_top_muW << std::endl;
+    // std::cout << "mass top normal " << (*sm)("MASS",6) << std::endl;
+    // std::cout << "mass W " << (*sm)("MASS",24) << std::endl;
 	double L=log(scale*scale/(*sm)("MASS",24)/(*sm)("MASS",24)); // scale -> mu_W
  	double sw2=pow(sin(atan((*sm)("COUPLING",1)/(*sm)("COUPLING",2))),2.); //1 = param-> gp and 2 = param->g2
-    std::cout << xt << std::endl;
+    // std::cout << xt << std::endl;
     double C1SM_2 = -T(xt)+7987./72.+17.*PI*PI/3.+475./6.*L+17.*L*L;
     
 	double C2SM_2 = 127./18.+4./3.*PI*PI+46./3.*L+4.*L*L;
@@ -425,7 +436,7 @@ void SM_NNLO_Strategy::init(Parameters* sm, double scale, WilsonSet& C_match) {
 	double C5SM_2 = -G1t(xt,log(scale*scale/mass_top_muW/mass_top_muW))/10.+2./15.*E0t(xt)+68./243.+2./81.*PI*PI+14./81.*L+2./27.*L*L;
 	double C6SM_2 = -3./16.*G1t(xt,log(scale*scale/mass_top_muW/mass_top_muW))+E0t(xt)/4.+85./162.+5./108.*PI*PI+35./108.*L+5./36.*L*L;
 
-	double xtW=pow((*sm).QCDRunner.running_mass((*sm)("MASS",6), (*sm)("MASS",6),(*sm)("MASS",24),(*sm)("MASS",6),(*sm)("MASS",5)  )/(*sm)("MASS",24),2.); // mass top at pole for mtot param
+	double xtW=pow((*sm).QCDRunner.running_mass((*sm)("MASS",6), (*sm)("MASS",6),(*sm)("MASS",24), "running"  )/(*sm)("MASS",24),2.); // mass top at pole for mtot param
 	double xtt=pow((*sm)("MASS",6)/(*sm)("MASS",24),2.); // 24 -> W
 
 	double C7SM_2 = (C7t2mt(xtt)+log(scale*scale/mass_top_muW/mass_top_muW)*((-592.*pow(xt,5.)-22.*pow(xt,4.)+12814.*pow(xt,3.)-6376.*xt*xt+512.*xt)/27./pow(xt-1.,5.)*Li2(1.-1./xt)
@@ -442,7 +453,6 @@ void SM_NNLO_Strategy::init(Parameters* sm, double scale, WilsonSet& C_match) {
 	+(1295.*pow(xt,5.)-7009.*pow(xt,4.)+29495.*pow(xt,3.)+64513.*xt*xt+17458.*xt-2072.)/216./pow(xt-1.,5.))) )
 	-(C8c2MW(xtW)+16607./5832.*log(scale*scale/(*sm)("MASS",24)/(*sm)("MASS",24))+397./486.*pow(log(scale*scale/(*sm)("MASS",24)/(*sm)("MASS",24)),2.));
 	
-    std::cout << "test" << std::endl;
 	if (C_match.size() < 3) C_match.resize(3);  
     auto& C_NNLO = C_match[2];
 	C_NNLO.resize(static_cast<size_t>(WilsonCoefficient::CPQ2) + 1, complex_t(0, 0));
@@ -464,7 +474,6 @@ void SM_NNLO_Strategy::set_base1(WilsonSet& C, WilsonSet& C_match, double Q, con
 
 	Parameters* sm = Parameters::GetInstance();
 
-    std::cout <<"NLLO" << std::endl;
     
 	auto C_matchs = extractCoefficients(C_match, 2);
 	auto C1_matchs = extractCoefficients(C_match, 1);
@@ -534,21 +543,21 @@ void SM_NNLO_Strategy::set_base1(WilsonSet& C, WilsonSet& C_match, double Q, con
 }
 
 
-void init_prime(WilsonSet& C, double Q, const double Q_match) {
+void SM_LO_Strategy::init_prime(double Q, double Q_match,int gen, WilsonSet& C) {
 	Parameters* sm = Parameters::GetInstance();
 
 
-	if (C.size() < 2) C.resize(2); // Ajustez selon le besoin réel
-    auto& C_NLO = C[1]; // Supposons que CP7 et CP8 doivent être stockés dans le second vecteur de C
+	if (C.size() < 2) C.resize(2); 
+    auto& C_NLO = C[1]; 
     C_NLO.resize(static_cast<size_t>(WilsonCoefficient::CPQ2) + 1, complex_t(0, 0));
 
     double alphas_muW = (*sm).QCDRunner.runningAlphasCalculation(Q_match);
     double alphas_mu = (*sm).QCDRunner.runningAlphasCalculation(Q);
     double eta_mu = alphas_muW / alphas_mu;
 
-    double mass_c_muW = (*sm).QCDRunner.running_mass((*sm).QCDRunner.mass_c, Q_match,Q_match,Q_match,Q_match);
-    double mass_b_muW = (*sm).QCDRunner.running_mass((*sm).QCDRunner.mass_b, Q_match,Q_match,Q_match,Q_match);
-    double mass_top_muW = (*sm).QCDRunner.running_mass((*sm).QCDRunner.mass_t_t, Q_match,Q_match,Q_match,Q_match);
+    double mass_c_muW = (*sm).QCDRunner.running_mass((*sm).QCDRunner.mass_c, Q_match,Q_match, "running");
+    double mass_b_muW = (*sm).QCDRunner.running_mass((*sm).QCDRunner.mass_b, Q_match,Q_match, "running");
+    double mass_top_muW = (*sm).QCDRunner.running_mass((*sm).QCDRunner.mass_t_t, Q_match,Q_match, "running");
 
 
     double xt = std::pow(mass_top_muW / (*sm)("MASS",24), 2);

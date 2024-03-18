@@ -28,6 +28,7 @@ class InitializationStrategy {
 
 public:
     virtual void init(Parameters* sm, double scale, WilsonSet& C_match) = 0;
+    virtual void init_prime(double scale_W,double scale,int gen, WilsonSet& C_match) = 0;
     virtual void set_base1(WilsonSet& C, WilsonSet& C_match, double Q, const double Q_match) = 0;
     virtual void set_base2(WilsonSet& C, WilsonSet& C_match, double Q, const double Q_match) =0;
     virtual ~InitializationStrategy() {}
@@ -36,6 +37,7 @@ public:
 class SM_LO_Strategy : public InitializationStrategy {
 public:
     void init(Parameters* sm, double scale, WilsonSet& C_match) override;
+    void init_prime(double scale_W,double scale,int gen, WilsonSet& C_match);
     void set_base1(WilsonSet& C, WilsonSet& C_match, double Q, const double Q_match) override;
     void set_base2(WilsonSet& C, WilsonSet& C_match, double Q, const double Q_match) override;
 };

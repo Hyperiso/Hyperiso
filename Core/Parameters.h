@@ -35,7 +35,7 @@ public:
         if (block == "MASS") {
             return masses[pdgCode];
         }
-        if (block =="Coupling") {
+        if (block =="COUPLING") {
             return coupling[pdgCode];
         }
         if (block=="YUKAWA_CH_U") {
