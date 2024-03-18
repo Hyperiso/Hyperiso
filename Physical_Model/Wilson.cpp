@@ -131,9 +131,13 @@ void SM_LO_Strategy::set_base1(WilsonSet& C, WilsonSet& C_match, double Q, const
         }
     }
     }
+    std::cout << "scale " << Q << std::endl;
+    std::cout << "U0 00 " << (W_param->U0)[0][0] << std::endl;
+    std::cout << "U0 01 " << (W_param->U0)[0][1] << std::endl;
+    std::cout << "U0 10 " << (W_param->U0)[1][0] << std::endl;
 
     auto calculateC0b = [&](int ie, int je) {
-        return (W_param->U0)[ie-1][je-1] * (je <= 6 ? C_matchs[je] : (je == 7 ? C_matchs[7] : C_matchs[8]));
+        return (W_param->U0)[ie-1][je-1] * (je <= 6 ? C_matchs[je] : (je == 7 ? C7_eff : C8_eff));
     };
 
 
@@ -165,7 +169,7 @@ void SM_LO_Strategy::set_base1(WilsonSet& C, WilsonSet& C_match, double Q, const
 
     }
 
-    C_LO[10-1] = C_LO[10-1];
+    C_LO[10-1] = C_matchs[10];
 
     
 
@@ -306,6 +310,7 @@ void SM_NLO_Strategy::set_base1(WilsonSet& C, WilsonSet& C_match, double Q, cons
 	C_NLO.resize(static_cast<size_t>(WilsonCoefficient::CPQ2) + 1, complex_t(0, 0));
 
 	for (int ie = 1; ie <= 8; ie++) {
+        C_NLO[ie-1] = complex_t(0,0);
         for (int je = 1; je <= 8; je++) {
             C_NLO[ie-1] += calculateC1b(ie, je);
         }
@@ -522,6 +527,7 @@ void SM_NNLO_Strategy::set_base1(WilsonSet& C, WilsonSet& C_match, double Q, con
 	C_NNLO.resize(static_cast<size_t>(WilsonCoefficient::CPQ2) + 1, complex_t(0, 0));
 
 	for (int ie = 1; ie <= 8; ie++) {
+        C_NNLO[ie-1] = complex_t(0,0);
         for (int je = 1; je <= 8; je++) {
             C_NNLO[ie-1] += calculateC2b(ie, je);
         }
