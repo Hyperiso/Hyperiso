@@ -424,8 +424,8 @@ void SM_NNLO_Strategy::init(Parameters* sm, double scale, WilsonSet& C_match) {
 	double C4SM_2 = E1t(xt,log(scale*scale/mass_top_muW/mass_top_muW))+950./243.+10./81.*PI*PI+124./27.*L+10./27.*L*L;
 	double C5SM_2 = -G1t(xt,log(scale*scale/mass_top_muW/mass_top_muW))/10.+2./15.*E0t(xt)+68./243.+2./81.*PI*PI+14./81.*L+2./27.*L*L;
 	double C6SM_2 = -3./16.*G1t(xt,log(scale*scale/mass_top_muW/mass_top_muW))+E0t(xt)/4.+85./162.+5./108.*PI*PI+35./108.*L+5./36.*L*L;
-    
-	double xtW=pow((*sm).QCDRunner.runningAlphasCalculation((*sm)("MASS",6))/(*sm)("MASS",24),2.); // mass top at mass top
+
+	double xtW=pow((*sm).QCDRunner.running_mass((*sm)("MASS",6), (*sm)("MASS",6),(*sm)("MASS",24),(*sm)("MASS",6),(*sm)("MASS",5)  )/(*sm)("MASS",24),2.); // mass top at pole for mtot param
 	double xtt=pow((*sm)("MASS",6)/(*sm)("MASS",24),2.); // 24 -> W
 
 	double C7SM_2 = (C7t2mt(xtt)+log(scale*scale/mass_top_muW/mass_top_muW)*((-592.*pow(xt,5.)-22.*pow(xt,4.)+12814.*pow(xt,3.)-6376.*xt*xt+512.*xt)/27./pow(xt-1.,5.)*Li2(1.-1./xt)
