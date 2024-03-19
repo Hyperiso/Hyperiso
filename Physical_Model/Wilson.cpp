@@ -81,7 +81,17 @@ void SM_LO_Strategy::init(Parameters* sm, double scale, WilsonSet& C_match) {
 	double C8SM_0 = -0.5*F0t(xt)-1./3.;
 	double C9SM_0 = (1.-4.*sw2)/sw2*C0t(xt)-B0t(xt)/sw2-D0t(xt) +1./4./sw2+38./27.-4./9.*L;
 	double C10SM_0 = (B0t(xt)-C0t(xt))/sw2-1./4./sw2;
+    // std::cout << "mass top at top" << (*sm)("MASS",6) << std::endl;
+    // std::cout << "xt" << xt << std::endl;
+    // std::cout << "mass bot bot" << (*sm).QCDRunner.mass_b_b << std::endl;
+    // std::cout << "mass_b_pole" << (*sm).QCDRunner.mass_b_pole << std::endl;
+    // std::cout << "mass_top_muw" << mass_top_muW << std::endl;
+    // std::cout << "mass W" << (*sm)("MASS",24) << std::endl;
 
+    // double mass_t_pole;
+    // double mass_b_pole;
+    // double mass_b_b;
+    // double mass_t_t;
 	if (C_match.size() < 1) C_match.resize(1);  
     auto& C_LO = C_match[0];
 	C_LO.resize(static_cast<size_t>(WilsonCoefficient::CPQ2) + 1, complex_t(0, 0));
@@ -93,9 +103,9 @@ void SM_LO_Strategy::init(Parameters* sm, double scale, WilsonSet& C_match) {
     C_LO[static_cast<size_t>(WilsonCoefficient::C10)] = complex_t(C10SM_0, 0);
 
     
-    for (int i=0; i<10; i++) {
-        std::cout << "C LO " << i+1 << " " <<  C_LO[i] << std::endl;
-    }
+    // for (int i=0; i<10; i++) {
+    //     std::cout << "C LO " << i+1 << " " <<  C_LO[i] << std::endl;
+    // }
 }
 
 
@@ -131,10 +141,10 @@ void SM_LO_Strategy::set_base1(WilsonSet& C, WilsonSet& C_match, double Q, const
         }
     }
     }
-    std::cout << "scale " << Q << std::endl;
-    std::cout << "U0 00 " << (W_param->U0)[0][0] << std::endl;
-    std::cout << "U0 01 " << (W_param->U0)[0][1] << std::endl;
-    std::cout << "U0 10 " << (W_param->U0)[1][0] << std::endl;
+    // std::cout << "scale " << Q << std::endl;
+    // std::cout << "U0 00 " << (W_param->U0)[0][0] << std::endl;
+    // std::cout << "U0 01 " << (W_param->U0)[0][1] << std::endl;
+    // std::cout << "U0 10 " << (W_param->U0)[1][0] << std::endl;
 
     auto calculateC0b = [&](int ie, int je) {
         return (W_param->U0)[ie-1][je-1] * (je <= 6 ? C_matchs[je] : (je == 7 ? C7_eff : C8_eff));
@@ -217,17 +227,20 @@ void SM_LO_Strategy::set_base2(WilsonSet& C, WilsonSet& C_match, double Q, const
 
 void SM_NLO_Strategy::init(Parameters* sm, double scale, WilsonSet& C_match) {
 
-    SM_LO_Strategy::init(sm, scale, C_match);
+    // double trash = (*sm).QCDRunner.runningAlphasCalculation(scale);
+    // double trash = (*sm).QCDRunner.running_mass((*sm)("MASS",6), (*sm)("MASS",6),scale, "running"); //mass top at top ?
     double mass_top_muW=(*sm).QCDRunner.running_mass((*sm)("MASS",6), (*sm)("MASS",6),scale, "running"); //mass top at top ?
 	double mass_b_muW=(*sm).QCDRunner.running_mass((*sm)("MASS",5), (*sm)("MASS",5), scale, "running"); //mass bottom 6 (at pole)
-    // or the opposite
 
+    SM_LO_Strategy::init(sm, scale, C_match);
+    // or the opposite
+    std::cout << "mass_top_muW at NLO" << mass_top_muW << std::endl;
 	double xt= pow(mass_top_muW/(*sm)("MASS",24),2.); // W boson mass (24)
 	double yt= pow(mass_top_muW/(*sm)("MASS",25),2.); // param->mass_H (25)
 
-    std::cout << "mass top muW " << mass_top_muW << std::endl;
-    std::cout << "mass top t " << (*sm)("MASS", 6) << std::endl;
-    std::cout << "xt " <<xt << std::endl;
+    // std::cout << "mass top muW " << mass_top_muW << std::endl;
+    // std::cout << "mass top t " << (*sm)("MASS", 6) << std::endl;
+    // std::cout << "xt " <<xt << std::endl;
 	double L=log(scale*scale/(*sm)("MASS",24)/(*sm)("MASS",24)); // scale -> mu_W
  	double sw2=pow(sin(atan((*sm)("COUPLING",1)/(*sm)("COUPLING",2))),2.); //1 = param-> gp and 2 = param->g2
 
@@ -236,7 +249,12 @@ void SM_NLO_Strategy::init(Parameters* sm, double scale, WilsonSet& C_match) {
 	double C7SM_1 = -0.5*A1t(xt,log(scale*scale/mass_top_muW/mass_top_muW))+713./243.+4./81.*L-4./9.*C4SM_1;
 	double C8SM_1 = -0.5*F1t(xt,log(scale*scale/mass_top_muW/mass_top_muW))+91./324.-4./27.*L-C4SM_1/6.;
 	double C9SM_1 = (1.-4.*sw2)/sw2*C1t(xt,log(scale*scale/mass_top_muW/mass_top_muW))-B1t(xt,log(scale*scale/mass_top_muW/mass_top_muW))/sw2-D1t(xt,log(scale*scale/mass_top_muW/mass_top_muW)) +1./sw2+524./729.-128./243.*PI*PI-16./3.*L-128./81.*L*L;
-	double C10SM_1 = (B1t(xt,log(scale*scale/mass_top_muW/mass_top_muW))-C1t(xt,log(scale*scale/mass_top_muW/mass_top_muW)))/sw2-1./sw2;
+    // std::cout << "xt " << xt <<std::endl;
+    // std::cout << "sw2 " << sw2 <<std::endl;
+    // std::cout << "truc " << log(scale*scale/mass_top_muW/mass_top_muW) <<std::endl;
+	// std::cout << "C1t " << C1t(xt,log(scale*scale/mass_top_muW/mass_top_muW)) << std::endl;
+    // std::cout << "B1t " << B1t(xt,log(scale*scale/mass_top_muW/mass_top_muW)) << std::endl;
+    double C10SM_1 = (B1t(xt,log(scale*scale/mass_top_muW/mass_top_muW))-C1t(xt,log(scale*scale/mass_top_muW/mass_top_muW)))/sw2-1./sw2;
 
     
     
@@ -289,6 +307,9 @@ void SM_NLO_Strategy::set_base1(WilsonSet& C, WilsonSet& C_match, double Q, cons
 
 	for (int ke = 0; ke < W_param->arraySize; ++ke) {
         for (int le = 0; le < W_param->arraySize; ++le) {
+            (W_param->U0)[ke][le] =0;
+            (W_param->U1)[ke][le] = 0;
+            (W_param->U1)[ke][le] = 0;
             for (int ie = 0; ie < W_param->arraySize; ++ie) {
                 (W_param->U0)[ke][le] += (W_param->m00)[ke][le][ie] * (W_param->etaMuPowers)[ie];
                 (W_param->U1)[ke][le] += (W_param->m10)[ke][le][ie] * (W_param->etaMuPowers)[ie] + (W_param->m11)[ke][le][ie] * (W_param->etaMuPowers)[ie] / eta_mu;
@@ -326,13 +347,13 @@ void SM_NLO_Strategy::set_base1(WilsonSet& C, WilsonSet& C_match, double Q, cons
 
     for (int je = 1; je <= 8; je++) {
 
-        C_NLO[9] += fourPiOverAlphasMu * updateC1b(je);
+        C_NLO[8] += fourPiOverAlphasMu * updateC1b(je);
 
     }
 
-    C_NLO[9] += fourPiOverAlphasMu * eta_mu * (W_param->U0)[8][8] * C_matchs[8];
+    C_NLO[8] += fourPiOverAlphasMu * eta_mu * (W_param->U0)[8][8] * C_matchs[8];
 
-    C_NLO[10] = eta_mu * C_matchs[10];
+    C_NLO[9] = eta_mu * C_matchs[10];
 
 }
 
@@ -506,6 +527,9 @@ void SM_NNLO_Strategy::set_base1(WilsonSet& C, WilsonSet& C_match, double Q, con
 
 	for (int ke = 0; ke < W_param->arraySize; ++ke) {
         for (int le = 0; le < W_param->arraySize; ++le) {
+            (W_param->U0)[ke][le] = 0;
+            (W_param->U1)[ke][le] = 0;
+            (W_param->U2)[ke][le] = 0;
             for (int ie = 0; ie < W_param->arraySize; ++ie) {
                 (W_param->U0)[ke][le] += (W_param->m00)[ke][le][ie] * (W_param->etaMuPowers)[ie];
                 (W_param->U1)[ke][le] += (W_param->m10)[ke][le][ie] * (W_param->etaMuPowers)[ie] + (W_param->m11)[ke][le][ie] * (W_param->etaMuPowers)[ie] / eta_mu;

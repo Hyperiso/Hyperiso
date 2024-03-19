@@ -10,6 +10,7 @@ QCDParameters::QCDParameters(double alpha_Z, double m_Z, double masst_pole, doub
     // mass_t_t = masst_t;
     this->mt_mt(this->mass_t_pole);
     this->mb_pole(mass_b_b, mass_u, mass_d, mass_s, mass_c);
+
 }
 
 double QCDParameters::alphasRunning(double Q, double Lambda, int nf) const{
@@ -65,8 +66,9 @@ double QCDParameters::runningAlphasCalculation(double Q, std::string option_mass
 
     if (Lambda5 == 0.0) {
         Lambda5 = matchLambda(alphas_MZ, mass_Z, 5);
-        if (Lambda5 == -1);
-            return Lambda5;
+        if (Lambda5 == -1){
+        std::cout << "ERROR" << std::endl;
+            return Lambda5;}
     }
     double alphas_running = alphasRunning(Q, Lambda5, 5);
 

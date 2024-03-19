@@ -20,9 +20,9 @@ void writeCoefficientsToFile(const std::string& strat_name, const std::string& f
     double Q_step = 1.0;
 
     MemoryManager::GetInstance()->init();
-
-    WilsonManager* wm = WilsonManager::GetInstance(strat_name, 81.0, strategy);
     Parameters* sm = Parameters::GetInstance();
+    WilsonManager* wm = WilsonManager::GetInstance(strat_name, 81.0, strategy);
+    
     for (double Q = Q_initial; Q <= Q_final; Q += Q_step) {
         wm->setScale(Q);
 
@@ -60,7 +60,7 @@ int main() {
     writeCoefficientsToFile("NLO", "WilsonCoefficients_NLO.csv", nloStrategy);
     writeCoefficientsToFile("LO", "WilsonCoefficients_LO.csv", loStrategy);
     writeCoefficientsToFile("NNLO", "WilsonCoefficients_NNLO.csv", nnloStrategy);
-
+    
     WilsonManager::Cleanup();
     return 0;
 }

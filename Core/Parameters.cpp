@@ -45,10 +45,10 @@ void Parameters::initSM() {
 
     double m_W = std::sqrt(std::pow(m_Z_pole, 2) / 2 + std::sqrt(std::pow(m_Z_pole, 4) / 4 - M_PI * std::pow(m_Z_pole, 2) / inv_alpha_em / G_F / std::sqrt(2)));
 
-    std::cout << "MZ " << alpha_s_MZ << std::endl;
-    std::cout << "alpha MZ " << m_Z_pole << std::endl;
-    std::cout << "mass top pole" << m_t_pole << std::endl;
-    std::cout << "mass b b " << m_b_mb << std::endl;
+    // std::cout << "MZ " << alpha_s_MZ << std::endl;
+    // std::cout << "alpha MZ " << m_Z_pole << std::endl;
+    // std::cout << "mass top pole" << m_t_pole << std::endl;
+    // std::cout << "mass b b " << m_b_mb << std::endl;
 
     
 
@@ -79,6 +79,8 @@ void Parameters::initSM() {
     coupling[3] = std::sqrt(4 * M_PI * alpha_s_MZ); // gs
     coupling[4] = std::sqrt(4 * M_PI / inv_alpha_em); // e_em     
 
+    std::cout << "coup 2 : " << coupling[2] <<std::endl;
+    std::cout << "coup 1 : " << coupling[1] <<std::endl;
     // CKM Matrix
     ckm[0][0] = 1 - lambda * lambda / 2;
     ckm[0][1] = lambda;
