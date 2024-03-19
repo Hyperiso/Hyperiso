@@ -10,7 +10,7 @@ void writeCoefficientsToFile(const std::string& strat_name, const std::string& f
     std::ofstream file(fileName);
 
     file << "Q,alpha_s";
-    for (int i = 1; i <= 9; ++i) {
+    for (int i = 1; i <= 10; ++i) {
         file << ",C" << i << "_real,C" << i << "_imag";
     }
     file << "\n";
@@ -30,8 +30,9 @@ void writeCoefficientsToFile(const std::string& strat_name, const std::string& f
 
         file << Q << "," << alpha_s;
 
-                for (int i = 1; i <= 9; ++i) {
+                for (int i = 0; i <= 9; ++i) {
             complex_t C = {0,0};
+
             if (strat_name == "LO")
                 C = wm->get(static_cast<WilsonCoefficient>(i), 0);
             else if (strat_name == "NLO")
@@ -46,7 +47,7 @@ void writeCoefficientsToFile(const std::string& strat_name, const std::string& f
 
     file.close();
 
-    std::cout << "Done writing " << fileName << std::endl;
+    // std::cout << "Done writing " << fileName << std::endl;
 }
 
 int main() {
