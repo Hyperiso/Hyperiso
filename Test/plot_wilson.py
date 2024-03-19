@@ -8,7 +8,7 @@ df_nnlo = pd.read_csv("build/WilsonCoefficients_NNLO.csv")
 alpha_s_nlo = df_nlo['alpha_s'] / (2 * 3.141592653589793)
 alpha_s_nnlo = (df_nnlo['alpha_s'] / (2 * 3.141592653589793))**2
 
-coefficients = ['C1', 'C2', 'C3', 'C4', 'C5', 'C6', 'C7', 'C8', 'C9']
+coefficients = ['C1', 'C2', 'C3', 'C4', 'C5', 'C6', 'C7', 'C8', 'C9', 'C10']
 
 for coef in coefficients:
     plt.figure(figsize=(18, 6))
