@@ -27,7 +27,7 @@ void readMatrix(std::array<std::array<double, SIZE>, SIZE>& matrix, std::string 
         values.resize(SIZE * SIZE);
         lha->extractFromBlock(blockName, values, ids);
         for (int i=0; i!=values.size(); ++i) {
-            matrix[30 + ids[i][0]][30 + ids[i][2]] = *values[i];
+            matrix[30 + ids[i][0]][30 + ids[i][2]] = values[i] ? *values[i] : 0;
         }
     } 
 }
@@ -71,13 +71,6 @@ void Parameters::initSM() {
 
     double m_W = std::sqrt(std::pow(m_Z_pole, 2) / 2 + std::sqrt(std::pow(m_Z_pole, 4) / 4 - M_PI * std::pow(m_Z_pole, 2) / inv_alpha_em / G_F / std::sqrt(2)));
 
-    // std::cout << "MZ " << alpha_s_MZ << std::endl;
-    // std::cout << "alpha MZ " << m_Z_pole << std::endl;
-    // std::cout << "mass top pole" << m_t_pole << std::endl;
-    // std::cout << "mass b b " << m_b_mb << std::endl;
-
-    
-
     // Masses (from PDG 2023)
     masses[1] = 4.7e-3;         // d (2 GeV)
     masses[2] = 2.2e-3;         // u (2 GeV)
@@ -85,7 +78,6 @@ void Parameters::initSM() {
     masses[4] = 1.27;           // c (running, 1.27 GeV)
 
     QCDRunner = QCDParameters(alpha_s_MZ, m_Z_pole, m_t_pole, m_b_mb, masses[2],masses[1],masses[3],masses[4]);
-
 
     masses[5] = 4.18;           // b (running, 4.18 GeV)
     masses[6] = QCDRunner.get_mt_mt();       // t (pole)
@@ -105,9 +97,6 @@ void Parameters::initSM() {
     gauge[3] = std::sqrt(4 * M_PI * alpha_s_MZ);             // gs
     gauge[4] = std::sqrt(4 * M_PI / inv_alpha_em);           // e_em     
 
-
-    std::cout << "coup 2 : " << coupling[2] <<std::endl;
-    std::cout << "coup 1 : " << coupling[1] <<std::endl;
     // CKM Matrix
     ckm[0][0] = 1 - lambda * lambda / 2;
     ckm[0][1] = lambda;
@@ -123,57 +112,13 @@ void Parameters::initSM() {
 
 void Parameters::initSUSY() {
 
-    /* 
-        Reading SLHA input blocks and calculating spectrum
-    */
-
-    LhaReader* lha = MemoryManager::GetInstance()->getReader();
-
-    // MODSEL
-    auto modsel = lha->getBlock("MODSEL");
-    int model, particles;
-    if (modsel) {
-        model = static_cast<LhaElement<double>*>(modsel->get("|1|"))->getValue();
-        particles = static_cast<LhaElement<double>*>(modsel->get("|3|"))->getValue();
-    } else {
-        Logger::getInstance()->warn("No MODSEL block found. Assuming full SUSY spectrum provided. Please check results.");
-    }
-
-    // MINPAR
-    if (lha->hasBlock("MINPAR")) {
-        size_t n_pars[4] {1, 5, 6, 4};
-        std::vector<double*> values;
-        values.resize(n_pars[model]);
-        if (model == 0) {
-            lha->extractFromBlock("MINPAR", values, {3});
-        } else {
-            lha->extractFromBlock("MINPAR", values);
-        }
-
-        for (int i=0; i!=values.size(); ++i) {
-            this->minpar[i + 1] = *values[i];
-        }
-    } else {
-        Logger::getInstance()->warn("No MINPAR block found. Assuming full EXTPAR block provided. Please check results.");
-    }
-
-
-    // EXTPAR
-    if (lha->hasBlock("EXTPAR")) {
-        std::vector<int> ids {0, 1, 2, 3, 11, 12, 13, 21, 22, 23, 24, 25, 26, 27, 31, 32, 33, 34, 35, 36, 41, 42, 43, 44, 45, 46, 47, 48, 49, 51, 52, 53};
-        std::vector<double*> values;
-        values.resize(32);
-        lha->extractFromBlock("EXTPAR", values, ids);
-        for (int i=0; i!=values.size(); ++i) {
-            this->extpar[ids[i]] = *values[i];
-        }
-    } 
-
     /*
         This is where we should launch any spectrum calculation code to update the SLHA file with the corresponding blocks
 
         SpectrumCalculator.calculate(modsel, minpar, extpar);
     */
+
+   LhaReader* lha = MemoryManager::GetInstance()->getReader();
 
     readMatrix(this->stopmix, "STOPMIX", lha);
     readMatrix(this->sbotmix, "SBOTMIX", lha);
@@ -214,15 +159,20 @@ void Parameters::initSUSY() {
     } 
 
     if (lha->hasBlock("MSOFT")) {
-        std::vector<int> ids {1, 2, 3, 21, 22, 31, 32, 33, 34, 35, 36, 41, 42, 43, 44, 45, 46, 47, 48, 49};
-        std::vector<double*> values;
-        values.resize(ids.size());
-        lha->extractFromBlock("MSOFT", values, ids);
-        for (int i=0; i!=values.size(); ++i) {
-            this->msoft[ids[i]] = *values[i];
+        auto elts = lha->getBlock("MSOFT")->getEntries();
+        for (size_t i = 0; i < elts->size(); ++i) {
+            auto e = static_cast<LhaElement<double>*>(elts->at(i).get());
+            this->msoft[std::stoi(e->getId())] = e->getValue();
         }
     } 
     
+    if (lha->hasBlock("MASS")) {
+        auto elts = lha->getBlock("MASS")->getEntries();
+        for (size_t i = 0; i < elts->size(); ++i) {
+            auto e = static_cast<LhaElement<double>*>(elts->at(i).get());
+            this->masses[std::stoi(e->getId())] = e->getValue();
+        }
+    } 
 }
 
 Parameters *Parameters::GetInstance(int modelId)
@@ -244,6 +194,14 @@ void Parameters::setScale(double Q) {
     // this->Q = Q;
     // this->sm.mass_b_Q = run.runningAlphasCalculation(Q);
     // this->sm.mass_t_Q = run.runningAlphasCalculation(Q);
+}
+
+double Parameters::alpha_s(double Q) {
+    return this->QCDRunner.runningAlphasCalculation(Q);
+}
+
+double Parameters::running_mass(double quark_m, double q_init, double q_fin, std::string opt_mb, std::string opt_mt) {
+    return this->QCDRunner.running_mass(quark_m, q_init, q_fin, opt_mb, opt_mt);
 }
 
 Parameters* Parameters::instance[2] = {nullptr, nullptr};

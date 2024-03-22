@@ -13,22 +13,19 @@ typedef std::complex<double> complex_t;
 
 class Parameters {
 public:
-
-    std::vector<std::vector<double>> lambda_u, lambda_d;
-    
-    QCDParameters QCDRunner;
     // double Q {sm.mass_top_pole};
 
     static Parameters* GetInstance(int index = 0);
 
     void setScale(double Q);
+    double alpha_s(double Q);
+    double running_mass(double m, double q_init, double q_fin, std::string opt_mb = "running", std::string opt_mt = "pole");
 
     double operator()(std::string block, int pdgCode) {
         if (block == "MASS") {
             return masses[pdgCode];
         }
-
-        if (block =="COUPLING") {
+        if (block =="GAUGE") {
             return gauge[pdgCode];
         }
         if (block=="YUKAWA_CH_U") {
@@ -83,6 +80,10 @@ private:
     Parameters(int modelId); // Constructeur pour initialiser les paramètres
     void initSM();
     void initSUSY();
+
+    std::vector<std::vector<double>> lambda_u, lambda_d;
+    
+    QCDParameters QCDRunner;
 
     std::map<int, double> minpar;
     std::map<int, double> extpar;

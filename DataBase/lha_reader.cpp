@@ -80,7 +80,7 @@ void Parser::parse(bool comments) {
                 isQ = false;
             }
             else {
-                if (t.col < cCol) {
+                if (t.col <= cCol) {   
                     this->rawBlocks[cBlock].emplace_back(std::vector<std::string> {});
                     if(hasGlobalScale)
                         this->rawBlocks[cBlock].back().emplace_back(globalQ);
@@ -113,7 +113,6 @@ void LhaReader::readAll() {
     Parser parser {buffer.str(), this};
     parser.parse();
     auto blocks = parser.getBlocks();
-
     for (auto p : blocks) {
         addBlock(p.first, p.second);
     }

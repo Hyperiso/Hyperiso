@@ -15,14 +15,26 @@ file(GLOB COMMON_SOURCES
 
 set(TEST_READER_SOURCE "testReader.cpp")
 set(TEST_WILSON_SOURCE "testWilson.cpp")
+set(TEST_PARAMS_SOURCE "testParams.cpp")
 set(TEST_QCDPARAMETERS_SOURCE "testQCDParameters.cpp") # Ajout de la nouvelle source
 
 add_executable(testReader ${COMMON_SOURCES} ${TEST_READER_SOURCE})
 add_executable(testWilson ${COMMON_SOURCES} ${TEST_WILSON_SOURCE})
+add_executable(testParams ${COMMON_SOURCES} ${TEST_PARAMS_SOURCE})
 add_executable(testQCDParameters ${COMMON_SOURCES} ${TEST_QCDPARAMETERS_SOURCE}) # Ajout de la nouvelle cible
 
 # Add include directories for testReader
 target_include_directories(testReader 
+    PUBLIC 
+    "${CMAKE_SOURCE_DIR}/../Core"
+    "${CMAKE_SOURCE_DIR}/../DataBase"
+    # "${CMAKE_SOURCE_DIR}/../logique_metier"
+    # "${CMAKE_SOURCE_DIR}/../Math"
+    # "${CMAKE_SOURCE_DIR}/../Physical_Model"
+)
+
+# Add include directories for testWilson
+target_include_directories(testWilson 
     PUBLIC 
     "${CMAKE_SOURCE_DIR}/../Core"
     "${CMAKE_SOURCE_DIR}/../DataBase"
@@ -32,7 +44,7 @@ target_include_directories(testReader
 )
 
 # Add include directories for testWilson
-target_include_directories(testWilson 
+target_include_directories(testParams
     PUBLIC 
     "${CMAKE_SOURCE_DIR}/../Core"
     "${CMAKE_SOURCE_DIR}/../DataBase"

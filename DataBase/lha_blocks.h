@@ -24,22 +24,22 @@ const Prototype UPMNSIN = Prototype{"UPMNSIN"}; // SLHA2
 const Prototype MINPAR = Prototype{"MINPAR"};
 const Prototype EXTPAR = Prototype{"EXTPAR"};
 const Prototype MASS = Prototype{"MASS"};
-const Prototype NMIX = Prototype{"NMIX"};
-const Prototype UMIX = Prototype{"UMIX"};
-const Prototype VMIX = Prototype{"VMIX"};
-const Prototype STOPMIX = Prototype{"STOPMIX"};
-const Prototype SBOTMIX = Prototype{"SBOTMIX"};
-const Prototype STAUMIX = Prototype{"STAUMIX"};
-const Prototype ALPHA = Prototype{"ALPHA"};
+const Prototype NMIX = Prototype{"NMIX", 3, 2};
+const Prototype UMIX = Prototype{"UMIX", 3, 2};
+const Prototype VMIX = Prototype{"VMIX", 3, 2};
+const Prototype STOPMIX = Prototype{"STOPMIX", 3, 2};
+const Prototype SBOTMIX = Prototype{"SBOTMIX", 3, 2};
+const Prototype STAUMIX = Prototype{"STAUMIX", 3, 2};
+const Prototype ALPHA = Prototype{"ALPHA", 1, 0};
 const Prototype HMIX = Prototype{"HMIX", 2, 1, -1, -1, true};
 const Prototype GAUGE = Prototype{"GAUGE", 2, 1, -1, -1, true};
 const Prototype MSOFT = Prototype{"MSOFT", 2, 1, -1, -1, true};
-const Prototype AU = Prototype{"AU", 2, 1, -1, -1, true};
-const Prototype AD = Prototype{"AD", 2, 1, -1, -1, true};
-const Prototype AE = Prototype{"AE", 2, 1, -1, -1, true};
-const Prototype YU = Prototype{"YU", 2, 1, -1, -1, true};
-const Prototype YD = Prototype{"YD", 2, 1, -1, -1, true};
-const Prototype YE = Prototype{"YE", 2, 1, -1, -1, true};
+const Prototype AU = Prototype{"AU", 3, 2, -1, -1, true};
+const Prototype AD = Prototype{"AD", 3, 2, -1, -1, true};
+const Prototype AE = Prototype{"AE", 3, 2, -1, -1, true};
+const Prototype YU = Prototype{"YU", 3, 2, -1, -1, true};
+const Prototype YD = Prototype{"YD", 3, 2, -1, -1, true};
+const Prototype YE = Prototype{"YE", 3, 2, -1, -1, true};
 const Prototype SPINFO = Prototype{"SPINFO"};
 
 const std::vector<Prototype> SLHA_BLOCKS = {MODSEL, SMINPUTS, VCKMIN, UPMNSIN, MINPAR, EXTPAR, MASS, NMIX, UMIX, VMIX, STOPMIX, SBOTMIX, STAUMIX, ALPHA, HMIX, GAUGE, MSOFT, AU, AD, AE, YU, YD, YE, SPINFO};
@@ -72,6 +72,7 @@ public:
     inline explicit LhaBlock(const Prototype& prototype) : prototype(prototype) {}
     void readData(const std::vector<std::vector<std::string>>& lines);
     AbstractElement* get(const std::string& id) const;
+    const std::vector<std::unique_ptr<AbstractElement>>* getEntries() const;
     void addElement(const std::vector<std::string>& line);
     inline Prototype getPrototype() { return this->prototype; };
     std::string toString() const;

@@ -52,7 +52,9 @@ std::string LhaElement<T>::encodeId(LhaBlock* block, const std::vector<std::stri
     }
 
     auto id = stream.str();
-    id.erase(id.length() - 1);
+    if (id.length() > 0) {
+        id.erase(id.length() - 1);
+    }
     return id;
 }
 
