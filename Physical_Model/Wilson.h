@@ -119,7 +119,7 @@ public:
     complex_t get(WilsonCoefficient wc, int order) const;    // Returns C_id at a given order
     complex_t get_matchs(WilsonCoefficient wc_match, int order) const;
     void setScale(double mu) {
-        Q= mu;
+        Q = mu;
         strategy->set_base1(C, C_match, Q, Q_matching);  // Appel à set_base1
     }               // Computes the C's at scale mu using RGEs 
 };  
