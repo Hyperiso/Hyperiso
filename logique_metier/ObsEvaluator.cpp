@@ -25,7 +25,7 @@ complex_t ObsEvaluator::Evaluate(Observable *o)
 
 complex_t ObsEvaluator::Bs_mumu()
 {
-    auto wm = WilsonManager::GetInstance();
+    auto wm = WilsonManager::GetInstance("LO",81, std::make_shared<SM_LO_Strategy>());
     auto p = Parameters::GetInstance();
     complex_t C10 = wm->get(WilsonCoefficient::C10, 2);
     complex_t CP10 = wm->get(WilsonCoefficient::CP10, 0);
