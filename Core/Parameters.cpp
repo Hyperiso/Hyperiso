@@ -106,8 +106,8 @@ void Parameters::initSM() {
     gauge[4] = std::sqrt(4 * M_PI / inv_alpha_em);           // e_em     
 
 
-    std::cout << "coup 2 : " << coupling[2] <<std::endl;
-    std::cout << "coup 1 : " << coupling[1] <<std::endl;
+    std::cout << "coup 2 : " << gauge[2] <<std::endl;
+    std::cout << "coup 1 : " << gauge[1] <<std::endl;
     // CKM Matrix
     ckm[0][0] = 1 - lambda * lambda / 2;
     ckm[0][1] = lambda;
