@@ -81,7 +81,7 @@ public:
 class SM_NLO_Strategy : public SM_LO_Strategy {
 public:
     void init(Parameters* sm, double scale, WilsonSet& C_match) override;
-    void init_prime(double scale_W,double scale,int gen, WilsonSet& C_match);
+    void init_prime(double scale_W,double scale,int gen, WilsonSet& C_match) {}
     void set_base1(WilsonSet& C, WilsonSet& C_match, double Q, const double Q_match) override;
     void set_base2(WilsonSet& C, WilsonSet& C_match, double Q, const double Q_match) override;
 };
@@ -89,7 +89,7 @@ public:
 class SM_NNLO_Strategy : public SM_NLO_Strategy {
 public:
     void init(Parameters* sm, double scale, WilsonSet& C_match) override;
-    void init_prime(double scale_W,double scale,int gen, WilsonSet& C_match);
+    void init_prime(double scale_W,double scale,int gen, WilsonSet& C_match) {}
     void set_base1(WilsonSet& C, WilsonSet& C_match, double Q, const double Q_match) override;
     void set_base2(WilsonSet& C, WilsonSet& C_match, double Q, const double Q_match) override {}
 };
