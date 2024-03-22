@@ -1,7 +1,7 @@
 #pragma once
 #include <cmath>
 #include <string>
-
+#include "Math.h"
 class QCDParameters {
 public:
     // Paramètres à initialiser
@@ -23,7 +23,7 @@ public:
     double mass_t_t;
     
     QCDParameters() {mass_Z = 91.1699982; alphas_MZ = 0.117200002;}
-    QCDParameters(double alpha_Z, double m_Z, double massb_pole, double masst_pole, double massb_b, double masst_t);
+    QCDParameters(double alpha_Z, double m_Z, double masst_pole, double massb_b, double mass_u, double mass_d, double mass_s, double mass_c);
     QCDParameters& operator=(const QCDParameters& other) {
         if (this != &other) {
             this->mass_t_pole = other.mass_t_pole;
@@ -37,10 +37,12 @@ public:
     double alphasRunning(double Q, double Lambda, int nf) const;
     double matchLambda(double alpha_running, double Q, int nf);
     double runningAlphasCalculation(double Q, std::string option_massb = "pole", std::string option_masst = "pole");
-    double running_mass(double quark_mass, double Qinit, double Qfin,  double mtop, double mbot);
+    double running_mass(double quark_mass, double Qinit, double Qfin,  std::string option_massb = "pole", std::string option_masst = "pole");
 
     double mb_pole(double mass_b, double mass_u, double mass_d, double mass_s, double mass_c);
     double mc_pole(double mass_u, double mass_d, double mass_s, double mass_c);
     double mb_1S(double mb_pole);
     double mt_mt(double mt_pole);
+
+    double get_mt_mt() {return this->mass_t_t;}
 };

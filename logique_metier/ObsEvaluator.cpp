@@ -7,7 +7,7 @@
 
 complex_t ObsEvaluator::Evaluate(Observable *o)
 {
-    WilsonManager::GetInstance()->setScale(o->getScale());
+    WilsonManager::GetInstance("LO",81, std::make_shared<SM_LO_Strategy>())->setScale(o->getScale());
     Parameters::GetInstance()->setScale(o->getScale());
 
     switch (o->getId())
@@ -25,7 +25,7 @@ complex_t ObsEvaluator::Evaluate(Observable *o)
 
 complex_t ObsEvaluator::Bs_mumu()
 {
-    auto wm = WilsonManager::GetInstance();
+    auto wm = WilsonManager::GetInstance("LO",81, std::make_shared<SM_LO_Strategy>());
     auto p = Parameters::GetInstance();
     complex_t C10 = wm->get(WilsonCoefficient::C10, 2);
     complex_t CP10 = wm->get(WilsonCoefficient::CP10, 0);
@@ -45,7 +45,7 @@ complex_t ObsEvaluator::Bs_mumu()
 
 complex_t ObsEvaluator::Bd_mumu()
 {
-    auto wm = WilsonManager::GetInstance();
+    auto wm = WilsonManager::GetInstance("LO",81, std::make_shared<SM_LO_Strategy>());
     auto p = Parameters::GetInstance();
     complex_t C10 = wm->get(WilsonCoefficient::C10, 2);
     complex_t CQ1 = wm->get(WilsonCoefficient::CQ1, 1);

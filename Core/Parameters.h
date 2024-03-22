@@ -27,8 +27,9 @@ public:
         if (block == "MASS") {
             return masses[pdgCode];
         }
-        if (block =="Coupling") {
-            return gauge[pdgCode];
+
+        if (block =="COUPLING") {
+            return coupling[pdgCode];
         }
         if (block=="YUKAWA_CH_U") {
             return lambda_u[pdgCode/10][pdgCode%10];
