@@ -29,7 +29,7 @@ public:
         }
 
         if (block =="COUPLING") {
-            return coupling[pdgCode];
+            return gauge[pdgCode];
         }
         if (block=="YUKAWA_CH_U") {
             return lambda_u[pdgCode/10][pdgCode%10];
