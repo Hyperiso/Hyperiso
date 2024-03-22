@@ -242,6 +242,7 @@ public:
         Q= mu;
         strategy->set_base1(C, C_match, Q, Q_matching);
     }
+
 };  
 
 

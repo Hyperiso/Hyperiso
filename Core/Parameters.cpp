@@ -3,8 +3,34 @@
 #include "MemoryManager.h"
 #include <iostream>
 #include <complex>
+#include <span>
 
 typedef std::complex<double> complex_t; 
+
+std::vector<std::string> matrixIds(int size) {
+    std::vector<std::string> ids;
+    for (int i = 1; i <= size; ++i) {
+        for (int j = 1; j <= size; ++j) {
+            std::stringstream ss;
+            ss << i << "|" << j;
+            ids.emplace_back(ss.str());
+        }
+    }
+    return ids;
+}
+
+template<std::size_t SIZE>
+void readMatrix(std::array<std::array<double, SIZE>, SIZE>& matrix, std::string blockName, LhaReader* lha) {
+    if (lha->hasBlock(blockName)) {
+        auto ids = matrixIds(SIZE);
+        std::vector<double*> values;
+        values.resize(SIZE * SIZE);
+        lha->extractFromBlock(blockName, values, ids);
+        for (int i=0; i!=values.size(); ++i) {
+            matrix[30 + ids[i][0]][30 + ids[i][2]] = *values[i];
+        }
+    } 
+}
 
 Parameters::Parameters(int modelId) {
     switch (modelId) {
@@ -74,10 +100,11 @@ void Parameters::initSM() {
     // Couplings
     double sW = std::sqrt(1 - std::pow(m_W / m_Z_pole, 2));
 
-    coupling[2] = std::pow(2, 1.25) * m_W * std::sqrt(G_F);   // g2
-    coupling[1] = coupling[2] * sW / std::sqrt(1 - sW * sW);   // gp 
-    coupling[3] = std::sqrt(4 * M_PI * alpha_s_MZ); // gs
-    coupling[4] = std::sqrt(4 * M_PI / inv_alpha_em); // e_em     
+    gauge[2] = std::pow(2, 1.25) * m_W * std::sqrt(G_F);     // g2
+    gauge[1] = gauge[2] * sW / std::sqrt(1 - sW * sW);    // gp 
+    gauge[3] = std::sqrt(4 * M_PI * alpha_s_MZ);             // gs
+    gauge[4] = std::sqrt(4 * M_PI / inv_alpha_em);           // e_em     
+
 
     std::cout << "coup 2 : " << coupling[2] <<std::endl;
     std::cout << "coup 1 : " << coupling[1] <<std::endl;
@@ -95,35 +122,107 @@ void Parameters::initSM() {
 }
 
 void Parameters::initSUSY() {
-    A_b = 0;
-    tan_beta = 1;  // Éviter la division par zéro, ajustez selon votre cas
-    mu_Q = 0;
-    mass_gluino = 1; // Éviter la division par zéro
-    mass_b1 = 0;
-    mass_b2 = 0;
-    inv_alpha_em = 137; // Valeur exemple pour la constante de structure fine
-    M2_Q = 0;
-    sbot_mix = std::vector<std::vector<double>>(3, std::vector<double>(3, 0)); // sbot_mix[1][1], sbot_mix[1][2], etc.
-    mass_t1 = 0;
-    mass_t2 = 0;
-    yut = std::vector<double>(4, 0); // yut[3]
-    charg_Umix = std::vector<std::vector<double>>(3, std::vector<double>(3, 0)); // charg_Umix[1][2], charg_Umix[2][2], etc.
-    charg_Vmix = std::vector<std::vector<double>>(3, std::vector<double>(3, 0)); // charg_Vmix[1][2], charg_Vmix[2][2], etc.
-    mass_cha1 = 1; // Éviter la division par zéro
-    mass_cha2 = 1; // Éviter la division par zéro
-    stop_mix = std::vector<std::vector<double>>(3, std::vector<double>(3, 0)); // stop_mix[1][1], stop_mix[1][2], etc.
-    neut_mix = std::vector<std::vector<double>>(6, std::vector<double>(5, 0)); // neut_mix[ie][4], neut_mix[ie][3], etc.
-    mass_neut = std::vector<double>(6, 0); // mass_neut[5]
-    yub = std::vector<double>(4, 0); // yub[3]
-    stop_tan_betamix = std::vector<std::vector<double>>(2, std::vector<double>(2, 0.0));
 
-    extpar[25] = 10.; // tanb
-    extpar[11] = -3800.; //At(MX)
-    extpar[12] = -3800.; //Ab(MX)
-    A_t = 0; 
-    MqL3_Q = 0;
-    MbR_Q = 0;
-    mass_stl = 0;
+    /* 
+        Reading SLHA input blocks and calculating spectrum
+    */
+
+    LhaReader* lha = MemoryManager::GetInstance()->getReader();
+
+    // MODSEL
+    auto modsel = lha->getBlock("MODSEL");
+    int model, particles;
+    if (modsel) {
+        model = static_cast<LhaElement<double>*>(modsel->get("|1|"))->getValue();
+        particles = static_cast<LhaElement<double>*>(modsel->get("|3|"))->getValue();
+    } else {
+        Logger::getInstance()->warn("No MODSEL block found. Assuming full SUSY spectrum provided. Please check results.");
+    }
+
+    // MINPAR
+    if (lha->hasBlock("MINPAR")) {
+        size_t n_pars[4] {1, 5, 6, 4};
+        std::vector<double*> values;
+        values.resize(n_pars[model]);
+        if (model == 0) {
+            lha->extractFromBlock("MINPAR", values, {3});
+        } else {
+            lha->extractFromBlock("MINPAR", values);
+        }
+
+        for (int i=0; i!=values.size(); ++i) {
+            this->minpar[i + 1] = *values[i];
+        }
+    } else {
+        Logger::getInstance()->warn("No MINPAR block found. Assuming full EXTPAR block provided. Please check results.");
+    }
+
+
+    // EXTPAR
+    if (lha->hasBlock("EXTPAR")) {
+        std::vector<int> ids {0, 1, 2, 3, 11, 12, 13, 21, 22, 23, 24, 25, 26, 27, 31, 32, 33, 34, 35, 36, 41, 42, 43, 44, 45, 46, 47, 48, 49, 51, 52, 53};
+        std::vector<double*> values;
+        values.resize(32);
+        lha->extractFromBlock("EXTPAR", values, ids);
+        for (int i=0; i!=values.size(); ++i) {
+            this->extpar[ids[i]] = *values[i];
+        }
+    } 
+
+    /*
+        This is where we should launch any spectrum calculation code to update the SLHA file with the corresponding blocks
+
+        SpectrumCalculator.calculate(modsel, minpar, extpar);
+    */
+
+    readMatrix(this->stopmix, "STOPMIX", lha);
+    readMatrix(this->sbotmix, "SBOTMIX", lha);
+    readMatrix(this->staumix, "STAUMIX", lha);
+    readMatrix(this->umix, "UMIX", lha);
+    readMatrix(this->vmix, "VMIX", lha);
+    readMatrix(this->nmix, "NMIX", lha);
+    readMatrix(this->yu, "YU", lha);
+    readMatrix(this->yd, "YD", lha);
+    readMatrix(this->ye, "YE", lha);
+    readMatrix(this->au, "AU", lha);
+    readMatrix(this->ad, "AD", lha);
+    readMatrix(this->ae, "AE", lha);
+
+    if (lha->hasBlock("ALPHA")) {
+        std::vector<double*> values = {&(this->alpha)};
+        lha->extractFromBlock("ALPHA", values);
+    } 
+
+    if (lha->hasBlock("HMIX")) {
+        std::vector<double*> values;
+        values.resize(4);
+        lha->extractFromBlock("HMIX", values);
+        for (int i=0; i!=values.size(); ++i) {
+            this->hmix[i + 1] = *values[i];
+        }
+
+        this->susy_Q = static_cast<LhaElement<double>*>(lha->getBlock("HMIX")->get("1"))->getScale();
+    } 
+
+    if (lha->hasBlock("GAUGE")) {
+        std::vector<double*> values;
+        values.resize(3);
+        lha->extractFromBlock("GAUGE", values);
+        for (int i=0; i!=values.size(); ++i) {
+            this->gauge[i + 1] = *values[i];
+        }
+    } 
+
+    if (lha->hasBlock("MSOFT")) {
+        std::vector<int> ids {1, 2, 3, 21, 22, 31, 32, 33, 34, 35, 36, 41, 42, 43, 44, 45, 46, 47, 48, 49};
+        std::vector<double*> values;
+        values.resize(ids.size());
+        lha->extractFromBlock("MSOFT", values, ids);
+        for (int i=0; i!=values.size(); ++i) {
+            this->msoft[ids[i]] = *values[i];
+        }
+    } 
+    
 }
 
 Parameters *Parameters::GetInstance(int modelId)

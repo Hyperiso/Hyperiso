@@ -42,7 +42,6 @@ LhaElement<T>::LhaElement(LhaBlock* block, const std::vector<std::string>& line)
 template <typename T>
 std::string LhaElement<T>::encodeId(LhaBlock* block, const std::vector<std::string>& line) {
     std::stringstream stream;
-    stream << "|";
 
     Prototype p = block->getPrototype();
     for (int i=0; i!=line.size(); ++i) {
@@ -52,7 +51,9 @@ std::string LhaElement<T>::encodeId(LhaBlock* block, const std::vector<std::stri
         }
     }
 
-    return stream.str();
+    auto id = stream.str();
+    id.erase(id.length() - 1);
+    return id;
 }
 
 template <typename T>
