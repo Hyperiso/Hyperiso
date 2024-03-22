@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 
-file(GLOB SOURCES "./Core/*.cpp" "./DataBase/*.cpp" "./logique_metier/*.cpp" "./Math/*.cpp" "./Physical_Model/*.cpp" "main_wilson.cpp")
+file(GLOB SOURCES "./Core/*.cpp" "./DataBase/*.cpp" "./logique_metier/*.cpp" "./Math/*.cpp" "./Physical_Model/*.cpp" "./User_Interface/*.cpp")
 
 add_executable(test ${SOURCES})
 
@@ -18,6 +18,7 @@ target_include_directories(test
     "${CMAKE_SOURCE_DIR}/logique_metier"
     "${CMAKE_SOURCE_DIR}/Math"
     "${CMAKE_SOURCE_DIR}/Physical_Model"
+    "${CMAKE_SOURCE_DIR}/User_Interface"
 )
 
 # Link any necessary libraries to the test executable

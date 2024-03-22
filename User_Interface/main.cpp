@@ -1,22 +1,22 @@
 #include <iostream>
-#include "ModelManager.h"
+// #include "ModelManager.h"
 
 int main() {
-    ModelManager modelManager;
+    // ModelManager modelManager;
 
-    std::string modelName;
-    std::cout << "Entrez le nom du modèle (MSSM, NMSSM, etc.): ";
-    std::cin >> modelName;
+    // std::string modelName;
+    std::cout << "Good Moooooorning";
+    // std::cin >> modelName;
 
-    modelManager.setModel(modelName);
+    // modelManager.setModel(modelName);
 
-    // Choix des paramètres
-    ModelParameters params(/* ... */);
-    modelManager.configureModelParameters(params);
+    // // Choix des paramètres
+    // ModelParameters params(/* ... */);
+    // modelManager.configureModelParameters(params);
 
-    // Calculs prédictions
-    ModelOutput output = modelManager.calculateModelPredictions();
-    std::cout << "Résultats du modèle : " << output.toString() << std::endl;
+    // // Calculs prédictions
+    // ModelOutput output = modelManager.calculateModelPredictions();
+    // std::cout << "Résultats du modèle : " << output.toString() << std::endl;
 
     return 0;
 }
