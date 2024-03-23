@@ -8,7 +8,7 @@
 
 complex_t WilsonManager::get(WilsonCoefficient wc, int order) const {
     if (order < 0 || order >= C.size()) {
-        std::cerr << "Ordre demandé non disponible: " << order << std::endl;
+        Logger::getInstance()->error("Requested order is not available: " + std::to_string(order));
         return complex_t(0, 0);
     }
 
@@ -19,14 +19,14 @@ complex_t WilsonManager::get(WilsonCoefficient wc, int order) const {
     if (static_cast<size_t>(wc) < C_order.size()) {
         return C_order[static_cast<size_t>(wc)];
     } else {
-        std::cerr << "Coefficient de Wilson demandé non disponible: " << static_cast<size_t>(wc) << std::endl;
+        Logger::getInstance()->error("Requested Wilson coefficient is not available: " + std::to_string(static_cast<size_t>(wc)));
         return complex_t(0, 0); 
     }
 }
 
 complex_t WilsonManager::get_matchs(WilsonCoefficient wc, int order) const {
     if (order < 0 || order >= C_match.size()) {
-        std::cerr << "Ordre demandé non disponible: " << order << std::endl;
+        Logger::getInstance()->error("Requested order is not available: " + std::to_string(order));
         return complex_t(0, 0);
     }
 
@@ -37,7 +37,7 @@ complex_t WilsonManager::get_matchs(WilsonCoefficient wc, int order) const {
     if (static_cast<size_t>(wc) < C_order.size()) {
         return C_order[static_cast<size_t>(wc)];
     } else {
-        std::cerr << "Coefficient de Wilson demandé non disponible: " << static_cast<size_t>(wc) << std::endl;
+        Logger::getInstance()->error("Requested Wilson coefficient is not available: " + std::to_string(static_cast<size_t>(wc)));
         return complex_t(0, 0); 
     }
 }
@@ -55,26 +55,24 @@ std::array<complex_t, 11> extractCoefficients(const WilsonSet& C_match, int orde
 }
 
 
-WilsonManager* WilsonManager::instance = nullptr;
+std::map<std::string, WilsonManager*> WilsonManager::instances = {};
 
 void SM_LO_Strategy::init(Parameters* sm, double scale, WilsonSet& C_match) {
 
-    double mass_top_muW=(*sm).QCDRunner.running_mass((*sm)("MASS",6), (*sm)("MASS",6),scale,  (*sm)("MASS",6),(*sm)("MASS",5)); //mass top at top ?
-	double mass_b_muW=(*sm).QCDRunner.running_mass((*sm)("MASS",5), (*sm)("MASS",5), scale,  (*sm)("MASS",6), (*sm)("MASS",5)); //mass bottom 6 (at pole)
-    // or the opposite
+    double mass_top_muW=(*sm).running_mass((*sm)("MASS",6), (*sm)("MASS",6),scale, "running");
+	double mass_b_muW=(*sm).running_mass((*sm)("MASS",5), (*sm)("MASS",5), scale, "running"); 
+
 
     
 
     double L=log(scale*scale/(*sm)("MASS",24)/(*sm)("MASS",24)); // scale -> mu_W
- 	double sw2=pow(sin(atan((*sm)("Coupling",1)/(*sm)("Coupling",2))),2.); //1 = param-> gp and 2 = param->g2
+ 	double sw2=pow(sin(atan((*sm)("COUPLING",1)/(*sm)("COUPLING",2))),2.); //1 = param-> gp and 2 = param->g2
 
 
 
 	double xt= pow(mass_top_muW/(*sm)("MASS",24),2.); // W boson mass (24)
 	double yt= pow(mass_top_muW/(*sm)("MASS",25),2.); // param->mass_H (25)
 
-    
-	/* LO */
 	
 	double C2SM_0 = 1.;
 	double C7SM_0 = -0.5*A0t(xt)-23./36.;
@@ -86,7 +84,6 @@ void SM_LO_Strategy::init(Parameters* sm, double scale, WilsonSet& C_match) {
     auto& C_LO = C_match[0];
 	C_LO.resize(static_cast<size_t>(WilsonCoefficient::CPQ2) + 1, complex_t(0, 0));
 
-    std::cout << C7SM_0 << std::endl;
 	C_LO[static_cast<size_t>(WilsonCoefficient::C2)] = complex_t(C2SM_0, 0);
     C_LO[static_cast<size_t>(WilsonCoefficient::C7)] = complex_t(C7SM_0, 0);
     C_LO[static_cast<size_t>(WilsonCoefficient::C8)] = complex_t(C8SM_0, 0);
@@ -94,7 +91,20 @@ void SM_LO_Strategy::init(Parameters* sm, double scale, WilsonSet& C_match) {
     C_LO[static_cast<size_t>(WilsonCoefficient::C10)] = complex_t(C10SM_0, 0);
 
     
-
+    Logger* logger = Logger::getInstance();
+    logger->debug("Initialized SM_LO_Strategy");
+    logger->debug("Mass of top quark at scale: " + std::to_string(mass_top_muW));
+    logger->debug("Mass of bottom quark at scale: " + std::to_string(mass_b_muW));
+    logger->debug("L (logarithm term): " + std::to_string(L));
+    logger->debug("Square of weak mixing angle: " + std::to_string(sw2));
+    logger->debug("Square of top quark mass over W boson mass (xt): " + std::to_string(xt));
+    logger->debug("LO Wilson Coefficients:");
+    logger->debug("C2SM_0: " + std::to_string(C2SM_0));
+    logger->debug("C7SM_0: " + std::to_string(C7SM_0));
+    logger->debug("C8SM_0: " + std::to_string(C8SM_0));
+    logger->debug("C9SM_0: " + std::to_string(C9SM_0));
+    logger->debug("C10SM_0: " + std::to_string(C10SM_0));
+    logger->info("LO Wilson Coefficient Initialized at scale " +std::to_string(scale)+" terminated successfully");
 }
 
 
@@ -103,12 +113,10 @@ void SM_LO_Strategy::set_base1(WilsonSet& C, WilsonSet& C_match, double Q, const
 	Parameters* sm = Parameters::GetInstance();
 	auto C_matchs = extractCoefficients(C_match, 0);
 
-
-	// constexpr double pi = 3.141592654;
-	double alphas_muW=(*sm).QCDRunner.runningAlphasCalculation(Q_match);
-	double alphas_mu=(*sm).QCDRunner.runningAlphasCalculation(Q);	
+	double alphas_muW=(*sm).alpha_s(Q_match);
+	double alphas_mu=(*sm).alpha_s(Q);	
 	double eta_mu=alphas_muW/alphas_mu;
-    std::cout << "eta " << eta_mu << std::endl;
+
 	complex_t C7_eff= C_matchs[7]-1./3.*C_matchs[3]-4./9.*C_matchs[4]-20./3.*C_matchs[5]-80./9.*C_matchs[6]; 
 	complex_t C8_eff= C_matchs[8]+C_matchs[3]-1./6.*C_matchs[4]+20.*C_matchs[5]-10./3.*C_matchs[6]; 
 
@@ -132,7 +140,7 @@ void SM_LO_Strategy::set_base1(WilsonSet& C, WilsonSet& C_match, double Q, const
     }
 
     auto calculateC0b = [&](int ie, int je) {
-        return (W_param->U0)[ie-1][je-1] * (je <= 6 ? C_matchs[je] : (je == 7 ? C_matchs[7] : C_matchs[8]));
+        return (W_param->U0)[ie-1][je-1] * (je <= 6 ? C_matchs[je] : (je == 7 ? C7_eff : C8_eff));
     };
 
 
@@ -164,7 +172,17 @@ void SM_LO_Strategy::set_base1(WilsonSet& C, WilsonSet& C_match, double Q, const
 
     }
 
-    C_LO[10-1] = C_LO[10-1];
+    C_LO[10-1] = C_matchs[10];
+
+    
+    Logger* logger = Logger::getInstance();
+    logger->debug("Initialized SM_LO_Strategy with base1 at scale " +std::to_string(Q));
+    logger->debug("Alpha_s at scale Q_match: " + std::to_string(alphas_muW));
+    logger->debug("Alpha_s at scale Q: " + std::to_string(alphas_mu));
+    logger->debug("Eta_mu: " + std::to_string(eta_mu));
+    logger->debug("C7_eff: " + std::to_string(C7_eff.real()) + " + " + std::to_string(C7_eff.imag()) + "i");
+    logger->debug("C8_eff: " + std::to_string(C8_eff.real()) + " + " + std::to_string(C8_eff.imag()) + "i");
+    logger->info("Initialized SM_LO_Strategy set_base1 at scale "+std::to_string(Q)+" terminated successfully");
 
 }
 
@@ -173,8 +191,8 @@ void SM_LO_Strategy::set_base2(WilsonSet& C, WilsonSet& C_match, double Q, const
 	Parameters* sm = Parameters::GetInstance();
 	auto C_matchs = extractCoefficients(C_match, 0);
 
-	double alphas_muW=(*sm).QCDRunner.runningAlphasCalculation(Q_match); //mt pole and mb pole
-	double alphas_mu=(*sm).QCDRunner.runningAlphasCalculation(Q); //mt pole and mb pole
+	double alphas_muW=(*sm).alpha_s(Q_match); //mt pole and mb pole
+	double alphas_mu=(*sm).alpha_s(Q); //mt pole and mb pole
 	double eta_mu=alphas_muW/alphas_mu;
 	
 	complex_t C0w7= C_matchs[7]-1./3.*C_matchs[5]-C_matchs[6]; 
@@ -202,54 +220,92 @@ void SM_LO_Strategy::set_base2(WilsonSet& C, WilsonSet& C_match, double Q, const
     C_LO[8] = C_matchs[9] + 4. * PI / alphas_muW * (-4. / 33. * (1. - etaMuPowers[8]) + 8. / 87. * (1. - etaMuPowers[9])) * C_matchs[2];  // C9
     C_LO[9] = C_matchs[10];  // C10
 
+    
 
-
+    Logger* logger = Logger::getInstance();
+    logger->debug("Initialized SM_LO_Strategy with base2 at scale " +std::to_string(Q));
+    logger->debug("Alpha_s at scale Q_match: " + std::to_string(alphas_muW));
+    logger->debug("Alpha_s at scale Q: " + std::to_string(alphas_mu));
+    logger->debug("Eta_mu: " + std::to_string(eta_mu));
+    logger->debug("C0w7: " + std::to_string(C0w7.real()) + " + " + std::to_string(C0w7.imag()) + "i");
+    logger->debug("C0w8: " + std::to_string(C0w8.real()) + " + " + std::to_string(C0w8.imag()) + "i");
+    logger->info("LO coefficient calculated in base 2 at scale " +std::to_string(Q)+" terminated successfully");
 }
 
 
 void SM_NLO_Strategy::init(Parameters* sm, double scale, WilsonSet& C_match) {
 
-	double mass_top_muW=(*sm).QCDRunner.runningAlphasCalculation((*sm)("MASS",6)); //mass top at top ?
-	double mass_b_muW=(*sm).QCDRunner.runningAlphasCalculation((*sm)("MASS",5)); //mass bottom 6 (at pole)
-    // or the opposite
+
+    double mass_top_muW=(*sm).running_mass((*sm)("MASS",6), (*sm)("MASS",6),scale, "running"); 
+	double mass_b_muW=(*sm).running_mass((*sm)("MASS",5), (*sm)("MASS",5), scale, "running");
+
+    SM_LO_Strategy::init(sm, scale, C_match);
+
+    Logger* logger = Logger::getInstance();
+    logger->debug("mass_top_muW at NLO: " + std::to_string(mass_top_muW));
+    logger->debug("mass_b_muW at NLO: " + std::to_string(mass_b_muW));
 
 	double xt= pow(mass_top_muW/(*sm)("MASS",24),2.); // W boson mass (24)
 	double yt= pow(mass_top_muW/(*sm)("MASS",25),2.); // param->mass_H (25)
 
+    logger->debug("xt at NLO: " + std::to_string(xt));
+    logger->debug("yt at NLO: " + std::to_string(yt));
+
 	double L=log(scale*scale/(*sm)("MASS",24)/(*sm)("MASS",24)); // scale -> mu_W
  	double sw2=pow(sin(atan((*sm)("COUPLING",1)/(*sm)("COUPLING",2))),2.); //1 = param-> gp and 2 = param->g2
 
+    logger->debug("L at NLO: " + std::to_string(L));
+    logger->debug("sw2 at NLO: " + std::to_string(sw2));
 
     double C1SM_1 = 15.+6.*L;
 	double C4SM_1 = E0t(xt)-7./9.+2./3.*L;
 	double C7SM_1 = -0.5*A1t(xt,log(scale*scale/mass_top_muW/mass_top_muW))+713./243.+4./81.*L-4./9.*C4SM_1;
 	double C8SM_1 = -0.5*F1t(xt,log(scale*scale/mass_top_muW/mass_top_muW))+91./324.-4./27.*L-C4SM_1/6.;
 	double C9SM_1 = (1.-4.*sw2)/sw2*C1t(xt,log(scale*scale/mass_top_muW/mass_top_muW))-B1t(xt,log(scale*scale/mass_top_muW/mass_top_muW))/sw2-D1t(xt,log(scale*scale/mass_top_muW/mass_top_muW)) +1./sw2+524./729.-128./243.*PI*PI-16./3.*L-128./81.*L*L;
-	double C10SM_1 = (B1t(xt,log(scale*scale/mass_top_muW/mass_top_muW))-C1t(xt,log(scale*scale/mass_top_muW/mass_top_muW)))/sw2-1./sw2;
+    double C10SM_1 = (B1t(xt,log(scale*scale/mass_top_muW/mass_top_muW))-C1t(xt,log(scale*scale/mass_top_muW/mass_top_muW)))/sw2-1./sw2;
 
-	if (C_match.size() < 1) C_match.resize(1);  
+    logger->debug("C1SM_1 at NLO: " + std::to_string(C1SM_1));
+    logger->debug("C4SM_1 at NLO: " + std::to_string(C4SM_1));
+    logger->debug("C7SM_1 at NLO: " + std::to_string(C7SM_1));
+    logger->debug("C8SM_1 at NLO: " + std::to_string(C8SM_1));
+    logger->debug("C9SM_1 at NLO: " + std::to_string(C9SM_1));
+    logger->debug("C10SM_1 at NLO: " + std::to_string(C10SM_1));
+    
+	if (C_match.size() < 2) C_match.resize(2);  
+    
     auto& C_NLO = C_match[1];
 	C_NLO.resize(static_cast<size_t>(WilsonCoefficient::CPQ2) + 1, complex_t(0, 0));
 
 	C_NLO[static_cast<size_t>(WilsonCoefficient::C1)] = complex_t(C1SM_1, 0);
+    
     C_NLO[static_cast<size_t>(WilsonCoefficient::C4)] = complex_t(C4SM_1, 0);
     C_NLO[static_cast<size_t>(WilsonCoefficient::C7)] = complex_t(C7SM_1, 0);
     C_NLO[static_cast<size_t>(WilsonCoefficient::C8)] = complex_t(C8SM_1, 0);
     C_NLO[static_cast<size_t>(WilsonCoefficient::C9)] = complex_t(C9SM_1, 0);
+    
 	C_NLO[static_cast<size_t>(WilsonCoefficient::C10)] = complex_t(C10SM_1, 0);
+
+    logger->info("NLO Wilson Coefficient Initialized at scale " +std::to_string(scale)+" terminated successfully");
 }
 
 
 void SM_NLO_Strategy::set_base1(WilsonSet& C, WilsonSet& C_match, double Q, const double Q_match) {
 
 	Parameters* sm = Parameters::GetInstance();
+    
+    
 	auto C_matchs = extractCoefficients(C_match, 1);
 	auto C0_matchs = extractCoefficients(C_match, 0);
-
+    
 	// constexpr double pi = 3.141592654;
-	double alphas_muW=(*sm).QCDRunner.runningAlphasCalculation(Q_match);
-	double alphas_mu=(*sm).QCDRunner.runningAlphasCalculation(Q);	
+	double alphas_muW=(*sm).alpha_s(Q_match);
+	double alphas_mu=(*sm).alpha_s(Q);	
 	double eta_mu=alphas_muW/alphas_mu;
+
+    Logger* logger = Logger::getInstance();
+    logger->debug("Alpha_s at Q_match: " + std::to_string(alphas_muW));
+    logger->debug("Alpha_s at Q: " + std::to_string(alphas_mu));
+    logger->debug("Eta_mu: " + std::to_string(eta_mu));
 
 	complex_t C7_eff= C_matchs[7]-1./3.*C_matchs[3]-4./9.*C_matchs[4]-20./3.*C_matchs[5]-80./9.*C_matchs[6]; 
 	complex_t C8_eff= C_matchs[8]+C_matchs[3]-1./6.*C_matchs[4]+20.*C_matchs[5]-10./3.*C_matchs[6]; 
@@ -257,6 +313,11 @@ void SM_NLO_Strategy::set_base1(WilsonSet& C, WilsonSet& C_match, double Q, cons
 
 	complex_t C7_eff_0= C0_matchs[7]-1./3.*C0_matchs[3]-4./9.*C0_matchs[4]-20./3.*C0_matchs[5]-80./9.*C0_matchs[6]; 
 	complex_t C8_eff_0= C0_matchs[8]+C0_matchs[3]-1./6.*C0_matchs[4]+20.*C0_matchs[5]-10./3.*C0_matchs[6]; 
+
+    logger->debug("C7_eff: " + std::to_string(C7_eff.real()) + " + i" + std::to_string(C7_eff.imag()));
+    logger->debug("C8_eff: " + std::to_string(C8_eff.real()) + " + i" + std::to_string(C8_eff.imag()));
+    logger->debug("C7_eff_0: " + std::to_string(C7_eff_0.real()) + " + i" + std::to_string(C7_eff_0.imag()));
+    logger->debug("C8_eff_0: " + std::to_string(C8_eff_0.real()) + " + i" + std::to_string(C8_eff_0.imag()));
 
 
 	Wilson_parameters *W_param = Wilson_parameters::GetInstance();
@@ -266,11 +327,17 @@ void SM_NLO_Strategy::set_base1(WilsonSet& C, WilsonSet& C_match, double Q, cons
 
 	for (int ke = 0; ke < W_param->arraySize; ++ke) {
         for (int le = 0; le < W_param->arraySize; ++le) {
+            (W_param->U0)[ke][le] =0;
+            (W_param->U1)[ke][le] = 0;
+            (W_param->U1)[ke][le] = 0;
             for (int ie = 0; ie < W_param->arraySize; ++ie) {
                 (W_param->U0)[ke][le] += (W_param->m00)[ke][le][ie] * (W_param->etaMuPowers)[ie];
                 (W_param->U1)[ke][le] += (W_param->m10)[ke][le][ie] * (W_param->etaMuPowers)[ie] + (W_param->m11)[ke][le][ie] * (W_param->etaMuPowers)[ie] / eta_mu;
                 (W_param->U2)[ke][le] += (W_param->m20)[ke][le][ie] * (W_param->etaMuPowers)[ie] + (W_param->m21)[ke][le][ie] * (W_param->etaMuPowers)[ie] / eta_mu + (W_param->m22)[ke][le][ie] * (W_param->etaMuPowers[ie]) / (eta_mu * eta_mu);
             }
+            logger->debug("U0[" + std::to_string(ke) + "][" + std::to_string(le) + "]: " + std::to_string((W_param->U0)[ke][le]));
+            logger->debug("U1[" + std::to_string(ke) + "][" + std::to_string(le) + "]: " + std::to_string((W_param->U1)[ke][le]));
+            logger->debug("U2[" + std::to_string(ke) + "][" + std::to_string(le) + "]: " + std::to_string((W_param->U2)[ke][le]));
         }
     }
 
@@ -282,11 +349,13 @@ void SM_NLO_Strategy::set_base1(WilsonSet& C, WilsonSet& C_match, double Q, cons
     };
 
 
-	if (C.size() < 1) C.resize(1);  
+	if (C.size() < 2) C.resize(2);  
     auto& C_NLO = C[1];
 	C_NLO.resize(static_cast<size_t>(WilsonCoefficient::CPQ2) + 1, complex_t(0, 0));
 
+    
 	for (int ie = 1; ie <= 8; ie++) {
+        C_NLO[ie-1] = complex_t(0,0);
         for (int je = 1; je <= 8; je++) {
             C_NLO[ie-1] += calculateC1b(ie, je);
         }
@@ -302,13 +371,15 @@ void SM_NLO_Strategy::set_base1(WilsonSet& C, WilsonSet& C_match, double Q, cons
 
     for (int je = 1; je <= 8; je++) {
 
-        C_NLO[9] += fourPiOverAlphasMu * updateC1b(je);
+        C_NLO[8] += fourPiOverAlphasMu * updateC1b(je);
 
     }
 
-    C_NLO[9] += fourPiOverAlphasMu * eta_mu * (W_param->U0)[8][8] * C_matchs[8];
+    C_NLO[8] += fourPiOverAlphasMu * eta_mu * (W_param->U0)[8][8] * C_matchs[8];
 
-    C_NLO[10] = eta_mu * C_matchs[10];
+    C_NLO[9] = eta_mu * C_matchs[10];
+
+    logger->info("NLO coefficient calculated in base 1 at scale " +std::to_string(Q)+" terminated successfully");
 
 }
 
@@ -318,10 +389,15 @@ void SM_NLO_Strategy::set_base2(WilsonSet& C, WilsonSet& C_match, double Q, cons
 	auto C_matchs_0 = extractCoefficients(C_match, 0);
 	auto C_matchs = extractCoefficients(C_match, 1);
 
-	double alphas_muW=(*sm).QCDRunner.runningAlphasCalculation(Q_match); //mt pole and mb pole
-	double alphas_mu=(*sm).QCDRunner.runningAlphasCalculation(Q); //mt pole and mb pole
+	double alphas_muW=(*sm).alpha_s(Q_match); //mt pole and mb pole
+	double alphas_mu=(*sm).alpha_s(Q); //mt pole and mb pole
 	double eta_mu=alphas_muW/alphas_mu;
 	
+    Logger* logger = Logger::getInstance();
+    logger->debug("Alpha_s at Q_match: " + std::to_string(alphas_muW));
+    logger->debug("Alpha_s at Q: " + std::to_string(alphas_mu));
+    logger->debug("Eta_mu: " + std::to_string(eta_mu));
+    
 	complex_t C0w7= C_matchs_0[7]-1./3.*C_matchs_0[5]-C_matchs_0[6]; 
 	complex_t C1w7= C_matchs[7]-1./3.*C_matchs[5]-C_matchs[6]; 
 
@@ -336,7 +412,7 @@ void SM_NLO_Strategy::set_base2(WilsonSet& C, WilsonSet& C_match, double Q, cons
         etaMuPowers.push_back(std::pow(eta_mu, exponent));
     }
 
-	if (C.size() < 1) C.resize(1);
+	if (C.size() < 2) C.resize(2);
     auto& C_NLO = C[1];
 
 	C_NLO[0] = (C_matchs_0[2] * 0.8136 + 1.0197 * eta_mu * C_matchs[1] / 15.) * etaMuPowers[0] + (C_matchs_0[2] * 0.7142 + 2.9524 * eta_mu * C_matchs[1] / 15.) * etaMuPowers[1];  // C1
@@ -386,32 +462,42 @@ void SM_NLO_Strategy::set_base2(WilsonSet& C, WilsonSet& C_match, double Q, cons
 
 	// C10
 	C_NLO[9] = eta_mu * C_matchs[10];
+
+    logger->info("NLO coefficient calculated in base 1 at scale " +std::to_string(Q) +" terminated successfully");
 }
 
 
 void SM_NNLO_Strategy::init(Parameters* sm, double scale, WilsonSet& C_match) {
 
-
-	double mass_top_muW=(*sm).QCDRunner.runningAlphasCalculation((*sm)("MASS",6)); //mass top at top ?
-	double mass_b_muW=(*sm).QCDRunner.runningAlphasCalculation((*sm)("MASS",5)); //mass bottom 6 (at pole)
+    SM_LO_Strategy::init(sm, scale, C_match);
+    SM_NLO_Strategy::init(sm, scale, C_match);
+    
+	// double mass_top_muW=(*sm).alpha_s((*sm)("MASS",6)); //mass top at top ?
+	// double mass_b_muW=(*sm).alpha_s((*sm)("MASS",5)); //mass bottom 6 (at pole)
+    double mass_top_muW=(*sm).running_mass((*sm)("MASS",6), (*sm)("MASS",6),scale, "running"); //mass top at top ?
+	double mass_b_muW=(*sm).running_mass((*sm)("MASS",5), (*sm)("MASS",5), scale, "running"); //mass bottom 6 (at pole)
+    
     // or the opposite
-
+    
 	double xt= pow(mass_top_muW/(*sm)("MASS",24),2.); // W boson mass (24)
 	double yt= pow(mass_top_muW/(*sm)("MASS",25),2.); // param->mass_H (25)
-
+    // std::cout << "mass top " << mass_top_muW << std::endl;
+    // std::cout << "mass top normal " << (*sm)("MASS",6) << std::endl;
+    // std::cout << "mass W " << (*sm)("MASS",24) << std::endl;
 	double L=log(scale*scale/(*sm)("MASS",24)/(*sm)("MASS",24)); // scale -> mu_W
  	double sw2=pow(sin(atan((*sm)("COUPLING",1)/(*sm)("COUPLING",2))),2.); //1 = param-> gp and 2 = param->g2
-
+    // std::cout << xt << std::endl;
     double C1SM_2 = -T(xt)+7987./72.+17.*PI*PI/3.+475./6.*L+17.*L*L;
+    
 	double C2SM_2 = 127./18.+4./3.*PI*PI+46./3.*L+4.*L*L;
 	double C3SM_2 = G1t(xt,log(scale*scale/mass_top_muW/mass_top_muW))-680./243.-20./81.*PI*PI-68./81.*L-20./27.*L*L;
 	double C4SM_2 = E1t(xt,log(scale*scale/mass_top_muW/mass_top_muW))+950./243.+10./81.*PI*PI+124./27.*L+10./27.*L*L;
 	double C5SM_2 = -G1t(xt,log(scale*scale/mass_top_muW/mass_top_muW))/10.+2./15.*E0t(xt)+68./243.+2./81.*PI*PI+14./81.*L+2./27.*L*L;
 	double C6SM_2 = -3./16.*G1t(xt,log(scale*scale/mass_top_muW/mass_top_muW))+E0t(xt)/4.+85./162.+5./108.*PI*PI+35./108.*L+5./36.*L*L;
 
-	double xtW=pow((*sm).QCDRunner.runningAlphasCalculation((*sm)("MASS",6))/(*sm)("MASS",24),2.); // mass top at mass top
+	double xtW=pow((*sm).running_mass((*sm)("MASS",6), (*sm)("MASS",6),(*sm)("MASS",24), "running"  )/(*sm)("MASS",24),2.); // mass top at pole for mtot param
 	double xtt=pow((*sm)("MASS",6)/(*sm)("MASS",24),2.); // 24 -> W
-	
+
 	double C7SM_2 = (C7t2mt(xtt)+log(scale*scale/mass_top_muW/mass_top_muW)*((-592.*pow(xt,5.)-22.*pow(xt,4.)+12814.*pow(xt,3.)-6376.*xt*xt+512.*xt)/27./pow(xt-1.,5.)*Li2(1.-1./xt)
 	+(-26838.*pow(xt,5.)+25938.*pow(xt,4.)+627367.*pow(xt,3.)-331956.*xt*xt+16989.*xt-460.)/729./pow(xt-1.,6.)*log(xt)
 	+(34400.*pow(xt,5.)+276644.*pow(xt,4.)-2668324.*pow(xt,3.)+1694437.*xt*xt-323354.*xt+53077.)/2187./pow(xt-1.,5.)
@@ -426,10 +512,10 @@ void SM_NNLO_Strategy::init(Parameters* sm, double scale, WilsonSet& C_match) {
 	+(1295.*pow(xt,5.)-7009.*pow(xt,4.)+29495.*pow(xt,3.)+64513.*xt*xt+17458.*xt-2072.)/216./pow(xt-1.,5.))) )
 	-(C8c2MW(xtW)+16607./5832.*log(scale*scale/(*sm)("MASS",24)/(*sm)("MASS",24))+397./486.*pow(log(scale*scale/(*sm)("MASS",24)/(*sm)("MASS",24)),2.));
 	
-	if (C_match.size() < 1) C_match.resize(1);  
+	if (C_match.size() < 3) C_match.resize(3);  
     auto& C_NNLO = C_match[2];
 	C_NNLO.resize(static_cast<size_t>(WilsonCoefficient::CPQ2) + 1, complex_t(0, 0));
-
+    
 	C_NNLO[static_cast<size_t>(WilsonCoefficient::C1)] = complex_t(C1SM_2, 0);
     C_NNLO[static_cast<size_t>(WilsonCoefficient::C2)] = complex_t(C2SM_2, 0);
     C_NNLO[static_cast<size_t>(WilsonCoefficient::C3)] = complex_t(C3SM_2, 0);
@@ -447,13 +533,14 @@ void SM_NNLO_Strategy::set_base1(WilsonSet& C, WilsonSet& C_match, double Q, con
 
 	Parameters* sm = Parameters::GetInstance();
 
+    
 	auto C_matchs = extractCoefficients(C_match, 2);
 	auto C1_matchs = extractCoefficients(C_match, 1);
 	auto C0_matchs = extractCoefficients(C_match, 0);
 
 	// constexpr double pi = 3.141592654;
-	double alphas_muW=(*sm).QCDRunner.runningAlphasCalculation(Q_match);
-	double alphas_mu=(*sm).QCDRunner.runningAlphasCalculation(Q);	
+	double alphas_muW=(*sm).alpha_s(Q_match);
+	double alphas_mu=(*sm).alpha_s(Q);	
 	double eta_mu=alphas_muW/alphas_mu;
 
 	complex_t C7_eff= C_matchs[7]-1./3.*C_matchs[3]-4./9.*C_matchs[4]-20./3.*C_matchs[5]-80./9.*C_matchs[6]; 
@@ -473,6 +560,9 @@ void SM_NNLO_Strategy::set_base1(WilsonSet& C, WilsonSet& C_match, double Q, con
 
 	for (int ke = 0; ke < W_param->arraySize; ++ke) {
         for (int le = 0; le < W_param->arraySize; ++le) {
+            (W_param->U0)[ke][le] = 0;
+            (W_param->U1)[ke][le] = 0;
+            (W_param->U2)[ke][le] = 0;
             for (int ie = 0; ie < W_param->arraySize; ++ie) {
                 (W_param->U0)[ke][le] += (W_param->m00)[ke][le][ie] * (W_param->etaMuPowers)[ie];
                 (W_param->U1)[ke][le] += (W_param->m10)[ke][le][ie] * (W_param->etaMuPowers)[ie] + (W_param->m11)[ke][le][ie] * (W_param->etaMuPowers)[ie] / eta_mu;
@@ -489,11 +579,12 @@ void SM_NNLO_Strategy::set_base1(WilsonSet& C, WilsonSet& C_match, double Q, con
         return eta_mu * eta_mu * (u0_term + u1_term + u2_term);
     };
 
-	if (C.size() < 1) C.resize(1);  
+	if (C.size() < 3) C.resize(3);  
     auto& C_NNLO = C[2];
 	C_NNLO.resize(static_cast<size_t>(WilsonCoefficient::CPQ2) + 1, complex_t(0, 0));
 
 	for (int ie = 1; ie <= 8; ie++) {
+        C_NNLO[ie-1] = complex_t(0,0);
         for (int je = 1; je <= 8; je++) {
             C_NNLO[ie-1] += calculateC2b(ie, je);
         }
@@ -515,28 +606,28 @@ void SM_NNLO_Strategy::set_base1(WilsonSet& C, WilsonSet& C_match, double Q, con
 }
 
 
-void init_prime(WilsonSet& C, double Q, const double Q_match) {
+void SM_LO_Strategy::init_prime(double Q, double Q_match,int gen, WilsonSet& C) {
 	Parameters* sm = Parameters::GetInstance();
 
 
-	if (C.size() < 2) C.resize(2); // Ajustez selon le besoin réel
-    auto& C_NLO = C[1]; // Supposons que CP7 et CP8 doivent être stockés dans le second vecteur de C
+	if (C.size() < 2) C.resize(2); 
+    auto& C_NLO = C[1]; 
     C_NLO.resize(static_cast<size_t>(WilsonCoefficient::CPQ2) + 1, complex_t(0, 0));
 
-    double alphas_muW = (*sm).QCDRunner.runningAlphasCalculation(Q_match);
-    double alphas_mu = (*sm).QCDRunner.runningAlphasCalculation(Q);
+    double alphas_muW = (*sm).alpha_s(Q_match);
+    double alphas_mu = (*sm).alpha_s(Q);
     double eta_mu = alphas_muW / alphas_mu;
 
-    double mass_c_muW = (*sm).QCDRunner.running_mass((*sm).QCDRunner.mass_c, Q_match,Q_match,Q_match,Q_match);
-    double mass_b_muW = (*sm).QCDRunner.running_mass((*sm).QCDRunner.mass_b, Q_match,Q_match,Q_match,Q_match);
-    double mass_top_muW = (*sm).QCDRunner.running_mass((*sm).QCDRunner.mass_t_t, Q_match,Q_match,Q_match,Q_match);
+    double mass_c_muW = (*sm).running_mass((*sm)("MASS", 4), (*sm)("MASS", 4), Q_match, "running");
+    double mass_b_muW = (*sm).running_mass((*sm)("MASS", 5), (*sm)("MASS", 5), Q_match, "running");
+    double mass_top_muW = (*sm).running_mass((*sm)("MASS", 6), (*sm)("MASS", 6), Q_match, "running");
 
 
     double xt = std::pow(mass_top_muW / (*sm)("MASS",24), 2);
-    complex_t C7pSM = (*sm).QCDRunner.mass_s / mass_b_muW * (-0.5 * A0t(xt) - 23. / 36.);
+    complex_t C7pSM = (*sm)("MASS", 3) / mass_b_muW * (-0.5 * A0t(xt) - 23. / 36.);
     C_NLO[static_cast<size_t>(WilsonCoefficient::CP7)] = std::pow(eta_mu, 16. / 23.) * C7pSM;
 
-    complex_t C8pSM = (*sm).QCDRunner.mass_s / mass_b_muW * (-0.5 * F0t(xt) - 1. / 3.);
+    complex_t C8pSM = (*sm)("MASS", 3) / mass_b_muW * (-0.5 * F0t(xt) - 1. / 3.);
     C_NLO[static_cast<size_t>(WilsonCoefficient::CP8)] = std::pow(eta_mu, 14. / 23.) * C8pSM;
 	
 }

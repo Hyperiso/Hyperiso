@@ -13,30 +13,20 @@ typedef std::complex<double> complex_t;
 
 class Parameters {
 public:
-    
-    double A_b, tan_beta, mu_Q, mass_gluino, mass_b1, mass_b2;
-    double  M2_Q, mass_t1, mass_t2, A_t, MqL3_Q, MbR_Q, mass_stl, mass_cha1, mass_cha2;
-    double MSOFT_Q;
-    double inv_alpha_em;
-    std::vector<double> yut, yub, mass_neut;
-    std::vector<std::vector<double>> sbot_mix, charg_Umix, charg_Vmix, stop_mix, neut_mix;
-    std::vector<std::vector<double>> stop_tan_betamix;
-    std::vector<std::vector<double>> lambda_u, lambda_d;
-    // SM sm;
-    
-    QCDParameters QCDRunner;
     // double Q {sm.mass_top_pole};
 
     static Parameters* GetInstance(int index = 0);
 
     void setScale(double Q);
+    double alpha_s(double Q);
+    double running_mass(double m, double q_init, double q_fin, std::string opt_mb = "running", std::string opt_mt = "pole");
 
     double operator()(std::string block, int pdgCode) {
         if (block == "MASS") {
             return masses[pdgCode];
         }
-        if (block =="Coupling") {
-            return coupling[pdgCode];
+        if (block =="GAUGE") {
+            return gauge[pdgCode];
         }
         if (block=="YUKAWA_CH_U") {
             return lambda_u[pdgCode/10][pdgCode%10];
@@ -48,13 +38,10 @@ public:
             return extpar[pdgCode];
         }
         if (block=="ALPHA") {
-            return alpha[pdgCode];
+            return alpha;
         }
         if (block=="HMIX") {
-            return hmix[pdgCode/10][pdgCode%10];
-        }
-        if (block=="AMIX") {
-            return amix[pdgCode/10][pdgCode%10];
+            return hmix[pdgCode];
         }
         if (block == "CKM") {
             // return ckm[pdgCode/10][pdgCode%10];
@@ -94,24 +81,34 @@ private:
     void initSM();
     void initSUSY();
 
-    std::map<int, double> masses;
-    std::map<int, double> coupling;
+    std::vector<std::vector<double>> lambda_u, lambda_d;
+    
+    QCDParameters QCDRunner;
+
     std::map<int, double> minpar;
     std::map<int, double> extpar;
-    std::map<int, double> alpha;
+
+    std::map<int, double> masses;
+    std::map<int, double> gauge;
+    std::map<int, double> hmix;
     std::map<int, double> msoft;
+    double alpha;
+    double susy_Q;
 
-    std::vector<std::vector<double>> hmix;
-    std::vector<std::vector<double>> amix;
-    std::vector<std::vector<double>> stopmix;
-    std::vector<std::vector<double>> sbotmix;
-    std::vector<std::vector<double>> umix;
-    std::vector<std::vector<double>> vmix;
-    std::vector<std::vector<double>> nmix;
-    std::vector<std::vector<double>> yu;
-    std::vector<std::vector<double>> yd;
+    std::array<std::array<double, 2>, 2> stopmix;
+    std::array<std::array<double, 2>, 2> staumix;
+    std::array<std::array<double, 2>, 2> sbotmix;
+    std::array<std::array<double, 2>, 2> umix;
+    std::array<std::array<double, 2>, 2> vmix;
+    std::array<std::array<double, 4>, 4> nmix;
+    std::array<std::array<double, 3>, 3> yu;
+    std::array<std::array<double, 3>, 3> yd;
+    std::array<std::array<double, 3>, 3> ye;
+    std::array<std::array<double, 3>, 3> au;
+    std::array<std::array<double, 3>, 3> ad;
+    std::array<std::array<double, 3>, 3> ae;
     std::array<std::array<complex_t, 3>, 3> ckm;
-
+    
     Parameters(const Parameters&) = delete;
     Parameters& operator=(const Parameters&) = delete;
     Parameters(Parameters&&) noexcept = default;

@@ -82,6 +82,28 @@ public:
         }
     }
 
+    template <typename T>
+    inline void extractFromBlock(std::string blockName, std::vector<T*>& vars, const std::vector<int>& ids) {
+        LhaBlock* block = this->getBlock(blockName);
+        if (block) {
+            for (int i=0; i!=vars.size(); ++i) {
+                auto e = block->get(std::to_string(ids.at(i)));
+                *(vars.at(i)) = e ? static_cast<LhaElement<T>*>(e)->getValue() : T {};
+            }
+        }
+    }
+
+    template <typename T>
+    inline void extractFromBlock(std::string blockName, std::vector<T*>& vars, const std::vector<std::string>& ids) {
+        LhaBlock* block = this->getBlock(blockName);
+        if (block) {
+            for (int i=0; i!=vars.size(); ++i) {
+                auto e = block->get(ids.at(i));
+                *(vars.at(i)) = e ? static_cast<LhaElement<T>*>(e)->getValue() : T {};
+            }
+        }
+    }
+
     inline LhaBlock* getBlock(std::string id) const {
         std::transform(id.begin(), id.end(), id.begin(), ::toupper);
         return this->hasBlock(id) ? blocks.at(id).get() : nullptr;

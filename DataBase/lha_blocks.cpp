@@ -10,6 +10,10 @@ AbstractElement* LhaBlock::get(const std::string& id) const
     return (*std::find_if(entries.begin(), entries.end(), p)).get();
 }
 
+const std::vector<std::unique_ptr<AbstractElement>>* LhaBlock::getEntries() const {
+    return &(this->entries);
+}
+
 std::string LhaBlock::toString() const {
     std::stringstream stream;
     stream << "Block " << this->prototype.blockName << ":\n";

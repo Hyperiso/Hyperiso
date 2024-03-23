@@ -792,6 +792,8 @@ double D0t(double x)
 
 double B1t(double x, double l)
 {
+	if(fabs(1.-x)<1.e-5) return B1t(0.9999,l);
+	
 	return -2.*x/(1.-x)/(1.-x)*Li2(1.-1./x) +(-x+17.)*x/3./pow(1.-x,3.)*log(x) +(13.*x+3)/3./(1.-x)/(1.-x) +((2.*x+2)*x/pow(1.-x,3.)*log(x)+4.*x/(1.-x)/(1.-x))*l;
 }
 
@@ -856,7 +858,7 @@ double E1t(double x, double l)
 }
 
 /*----------------------------------------------------------------------*/
-
+#include <iostream>
 double T(double x)
 {
 	return -(16.*x+8.)*sqrt(4.*x-1.)*Cl2(2.*asin(0.5/sqrt(x)))+(16.*x+20./3.)*log(x)+32.*x+112./9.;
