@@ -14,7 +14,7 @@ int main() {
     ICalculator* calculator = SoftsusyCalculatorFactory::createCalculator();
     
     // Assuming you have prepared "input.slha" and expect output in "output.slha"
-    std::string inputPath = "External_Integration/softsusy_ewinos_example.in";
+    std::string inputPath = "../External_Integration/softsusy_ewinos_example.in";
     std::string outputPath = "output.slha";
 
     // Create the command to calculate the spectrum
