@@ -25,7 +25,7 @@ ICalculator* SoftsusyCalculatorFactory::createCalculator() {
 void SoftsusyCalculator::calculateSpectrum(const std::string& inputFilePath, const std::string& outputFilePath) {
     Logger* logger = Logger::getInstance();
     // Example system call to SOFTSUSY - replace with actual implementation
-    std::string command = "./External_Integration/softsusy-4.1.13/softpoint.x leshouches < " + inputFilePath + " > " + outputFilePath;
+    std::string command = "./External_Integration/SOFTSUSY/src/SOFTSUSY/softpoint.x leshouches < " + inputFilePath + " > " + outputFilePath;
 
     logger->debug("SOFTSUSY COMMAND : " +command);
 

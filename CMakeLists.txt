@@ -16,7 +16,7 @@ if(BUILD_WITH_SOFTSUSY)
   # Add SOFTSUSY as an external project
   ExternalProject_Add(SOFTSUSY
     GIT_REPOSITORY "https://github.com/BAllanach/softsusy.git" # Specify the git repository of SOFTSUSY
-    GIT_TAG "v4.1.20" # Specify a commit, tag, or branch
+    GIT_TAG "v4.1.19" # Specify a commit, tag, or branch
     PREFIX "${CMAKE_BINARY_DIR}/External_Integration/SOFTSUSY"
     # CONFIGURE_COMMAND "autoreconf -fiv && ./configure"
     CONFIGURE_COMMAND ""
