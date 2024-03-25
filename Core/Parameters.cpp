@@ -22,12 +22,11 @@ std::vector<std::string> matrixIds(int size) {
 template<std::size_t SIZE>
 void readMatrix(std::array<std::array<double, SIZE>, SIZE>& matrix, std::string blockName, LhaReader* lha) {
     if (lha->hasBlock(blockName)) {
-        auto ids = matrixIds(SIZE);
-        std::vector<double*> values;
-        values.resize(SIZE * SIZE);
+        std::vector<std::string> ids = matrixIds(SIZE);
+        std::vector<double> values (SIZE * SIZE);
         lha->extractFromBlock(blockName, values, ids);
         for (int i=0; i!=values.size(); ++i) {
-            matrix[30 + ids[i][0]][30 + ids[i][2]] = values[i] ? *values[i] : 0;
+            matrix[ids[i][0] - 49][ids[i][2] - 49] = values[i];
         }
     } 
 }
@@ -134,27 +133,24 @@ void Parameters::initSUSY() {
     readMatrix(this->ae, "AE", lha);
 
     if (lha->hasBlock("ALPHA")) {
-        std::vector<double*> values = {&(this->alpha)};
-        lha->extractFromBlock("ALPHA", values);
+        this->alpha = lha->getValue<double>("ALPHA", "");
     } 
 
     if (lha->hasBlock("HMIX")) {
-        std::vector<double*> values;
-        values.resize(4);
+        std::vector<double> values (4);
         lha->extractFromBlock("HMIX", values);
         for (int i=0; i!=values.size(); ++i) {
-            this->hmix[i + 1] = *values[i];
+            this->hmix[i + 1] = values[i];
         }
 
         this->susy_Q = static_cast<LhaElement<double>*>(lha->getBlock("HMIX")->get("1"))->getScale();
-    } 
+    }
 
     if (lha->hasBlock("GAUGE")) {
-        std::vector<double*> values;
-        values.resize(3);
+        std::vector<double> values (3);
         lha->extractFromBlock("GAUGE", values);
         for (int i=0; i!=values.size(); ++i) {
-            this->gauge[i + 1] = *values[i];
+            this->gauge[i + 1] = values[i];
         }
     } 
 
