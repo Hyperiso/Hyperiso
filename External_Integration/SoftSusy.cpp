@@ -11,9 +11,9 @@
  * 
  * @return ICalculator* Pointer to the newly created ICalculator instance.
  */
-ICalculator* SoftsusyCalculatorFactory::createCalculator() {
-    return new SoftsusyCalculator();
-}
+// ICalculator* SoftsusyCalculatorFactory::createCalculator() {
+//     return new SoftsusyCalculator();
+// }
 
 
 /**
