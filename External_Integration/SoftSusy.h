@@ -1,5 +1,6 @@
 #include <string>
-
+#include <functional> // Pour std::function
+#include <unordered_map> 
 /**
  * @class ICalculator
  * @brief Interface for calculator classes.
@@ -22,7 +23,34 @@ public:
  */
 class SoftsusyCalculatorFactory {
 public:
-    static ICalculator* createCalculator();
+    /**
+     * @brief Creates an ICalculator instance for SOFTSUSY calculations.
+     * 
+     * @return ICalculator* Pointer to the newly created ICalculator instance.
+     */
+    static ICalculator* createCalculator() {
+        return new SoftsusyCalculator();
+    }
+
+    static void executeCommand(const std::string& commandName, const std::string& inputFilePath, const std::string& outputFilePath) {
+        // Mapping of command names to their respective execution functions
+        static std::unordered_map<std::string, std::function<void(const std::string&, const std::string&)>> commands = {
+            {"calculateSpectrum", [](const std::string& input, const std::string& output) {
+                SoftsusyCalculator* calculator = static_cast<SoftsusyCalculator*>(createCalculator());
+                CalculateSpectrumCommand command(*calculator, input, output);
+                command.execute();
+                delete calculator; // Clean up the calculator instance after command execution
+            }}
+        };
+
+        auto commandIterator = commands.find(commandName);
+        if (commandIterator != commands.end()) {
+            commandIterator->second(inputFilePath, outputFilePath); // Execute the found command
+        } else {
+            // Handle the case where the command is not found
+            std::cerr << "Command '" << commandName << "' not recognized." << std::endl;
+        }
+    }
 };
 
 
