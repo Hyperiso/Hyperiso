@@ -14,6 +14,34 @@ public:
     virtual ~ICalculator() = default;
 };
 
+
+class ICommand {
+public:
+    virtual void execute() = 0;
+    virtual ~ICommand() = default;
+};
+
+/**
+ * @class SoftsusyCalculator
+ * @brief Concrete implementation of ICalculator for SOFTSUSY.
+ *
+ * Implements the spectrum calculation using the SOFTSUSY library or executable.
+ */
+class SoftsusyCalculator : public ICalculator {
+public:
+    /**
+     * Calculates the particle spectrum using SOFTSUSY with the given input and output file paths.
+     * 
+     * @param inputFilePath The path to the input file containing the model parameters.
+     * @param outputFilePath The path where the calculated spectrum should be written.
+     */
+    void calculateSpectrum(const std::string& inputFilePath, const std::string& outputFilePath) override;
+};
+
+
+
+
+
 /**
  * @class CalculateSpectrumCommand
  * @brief Command to calculate the spectrum using a given calculator.
@@ -87,29 +115,7 @@ public:
 };
 
 
-/**
- * @class SoftsusyCalculator
- * @brief Concrete implementation of ICalculator for SOFTSUSY.
- *
- * Implements the spectrum calculation using the SOFTSUSY library or executable.
- */
-class SoftsusyCalculator : public ICalculator {
-public:
-    /**
-     * Calculates the particle spectrum using SOFTSUSY with the given input and output file paths.
-     * 
-     * @param inputFilePath The path to the input file containing the model parameters.
-     * @param outputFilePath The path where the calculated spectrum should be written.
-     */
-    void calculateSpectrum(const std::string& inputFilePath, const std::string& outputFilePath) override;
-};
 
-
-class ICommand {
-public:
-    virtual void execute() = 0;
-    virtual ~ICommand() = default;
-};
 
 
 
