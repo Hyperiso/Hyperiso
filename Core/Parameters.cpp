@@ -1,6 +1,7 @@
 #include "Parameters.h"
 #include "Logger.h"
 #include "MemoryManager.h"
+#include "SoftSusy.h"
 #include <iostream>
 #include <complex>
 #include <span>
@@ -106,18 +107,18 @@ void Parameters::initSM() {
     ckm[2][0] = A * lambda * lambda * lambda * complex_t{1 - rho, -eta};
     ckm[2][1] = -A * lambda * lambda;
     ckm[2][2] = 1;
-
 }
 
 void Parameters::initSUSY() {
 
-    /*
-        This is where we should launch any spectrum calculation code to update the SLHA file with the corresponding blocks
+    LhaReader* lha = MemoryManager::GetInstance()->getReader();
 
-        SpectrumCalculator.calculate(modsel, minpar, extpar);
-    */
+    std::string spectrumFile = "../spectrum.slha";
+    Logger::getInstance()->info("Starting SUSY spectrum calculation...");
+    SoftsusyCalculatorFactory::executeCommand("calculateSpectrum", lha->getLhaPath(), spectrumFile);
+    Logger::getInstance()->info("Done.");
 
-   LhaReader* lha = MemoryManager::GetInstance()->getReader();
+    lha->update(spectrumFile);
 
     readMatrix(this->stopmix, "STOPMIX", lha);
     readMatrix(this->sbotmix, "SBOTMIX", lha);
@@ -186,7 +187,6 @@ Parameters *Parameters::GetInstance(int modelId)
 }
 
 void Parameters::setScale(double Q) {
-
     // this->Q = Q;
     // this->sm.mass_b_Q = run.runningAlphasCalculation(Q);
     // this->sm.mass_t_Q = run.runningAlphasCalculation(Q);
@@ -196,8 +196,15 @@ double Parameters::alpha_s(double Q) {
     return this->QCDRunner.runningAlphasCalculation(Q);
 }
 
-double Parameters::running_mass(double quark_m, double q_init, double q_fin, std::string opt_mb, std::string opt_mt) {
-    return this->QCDRunner.running_mass(quark_m, q_init, q_fin, opt_mb, opt_mt);
+double Parameters::running_mass(int quark, double Q) {
+    if (quark <= 3) {
+        return this->QCDRunner.running_mass(this->masses[quark], 2, Q);
+    } else if (quark <= 6) {
+        return this->QCDRunner.running_mass(this->masses[quark], this->masses[quark], Q);
+    } else {
+        Logger::getInstance()->error("In Parameters::running_mass: PDG code " + std::to_string(quark) + " doesn't refer to a quark.");
+        return 0;
+    }
 }
 
 Parameters* Parameters::instance[2] = {nullptr, nullptr};

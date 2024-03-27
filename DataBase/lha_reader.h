@@ -66,6 +66,8 @@ public:
     bool hasBlock(const std::string& id) const;
     void readAll();
     Prototype findPrototype(std::string name) const;
+    std::string getLhaPath() const;
+    void update(std::string_view newLha);
 
     inline void addBlockType(std::string blockName, int itemCount=2, int valueIdx=1, int scaleIdx=-1, int rgIdx=-1, bool globalScale=false) {
         std::transform(blockName.begin(), blockName.end(), blockName.begin(), ::toupper);  // Make sure block name is uppercase 
