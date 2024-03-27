@@ -4,23 +4,7 @@
 #include "Math.h"
 class QCDParameters {
 public:
-    // Paramètres à initialiser
-    int nf {5};
-    double mass_Z;        // MZ
-    double alphas_MZ;     // alphas(MZ)
-    double Lambda5 {0.};
-    double Lambda3, Lambda4, Lambda6;
-    double alphasMZ_Lambda3, alphasMZ_Lambda4, alphasMZ_Lambda5, alphasMZ_Lambda6;
-    double mass_c;
-    double mass_b {4.19999981};
-    double mass_t {172.399994};
-    double mass_s;
-    const double pi {3.14159265358979323846};
-
-    double mass_t_pole;
-    double mass_b_pole;
-    double mass_b_b;
-    double mass_t_t;
+    
     
     QCDParameters() {mass_Z = 91.1699982; alphas_MZ = 0.117200002;}
     QCDParameters(double alpha_Z, double m_Z, double masst_pole, double massb_b, double mass_u, double mass_d, double mass_s, double mass_c);
@@ -45,4 +29,26 @@ public:
     double mt_mt(double mt_pole);
 
     double get_mt_mt() {return this->mass_t_t;}
+    double get_mt_pole() {return this->mass_t_pole;}
+    double get_mb_mb() {return this->mass_b_b;}
+    double get_mb_pole() {return this->mass_b_pole;}
+private:
+
+    // Paramètres à initialiser
+    int nf {5};
+    double mass_Z;        // MZ
+    double alphas_MZ;     // alphas(MZ)
+    double Lambda5 {0.};
+    double Lambda3, Lambda4, Lambda6;
+    double alphasMZ_Lambda3, alphasMZ_Lambda4, alphasMZ_Lambda5, alphasMZ_Lambda6;
+    double mass_c;
+    double mass_b {4.19999981};
+    double mass_t {172.399994};
+    double mass_s;
+    const double pi {3.14159265358979323846};
+
+    double mass_t_pole;
+    double mass_b_pole;
+    double mass_b_b;
+    double mass_t_t;
 };

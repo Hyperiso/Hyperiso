@@ -78,3 +78,5 @@ double Delta8H(double x, double lu, double ld);
 
 double C9llH0(double x, double y, double lu);
 double C9llH1(double x, double y, double lu, double L);
+
+double F0SP(double xt);

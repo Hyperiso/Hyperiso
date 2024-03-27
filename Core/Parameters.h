@@ -15,6 +15,7 @@ class Parameters {
 public:
     // double Q {sm.mass_top_pole};
 
+    QCDParameters QCDRunner;
     static Parameters* GetInstance(int index = 0);
 
     void setScale(double Q);
@@ -83,7 +84,7 @@ private:
 
     std::vector<std::vector<double>> lambda_u, lambda_d;
     
-    QCDParameters QCDRunner;
+    
 
     std::map<int, double> minpar;
     std::map<int, double> extpar;

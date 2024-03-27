@@ -48,6 +48,16 @@ public:
     virtual void init_prime(double scale_W,double scale,int gen, WilsonSet& C_match) = 0;
 
     /**
+     * @brief Initialize the scalar Wilson coefficients at scale scale (usually 81 GeV).
+     * 
+     * @param scale_W Matching scale.
+     * @param scale Scale of interest.
+     * @param gen number of generation.
+     * @param C_match Wilson coefficient set at matching scale.
+     */
+    virtual void init_scalar(double scale_W,double scale,int gen, WilsonSet& C_match) = 0;
+
+    /**
      * @brief Run the Wilson coefficient from the scale Q_match to the scale Q, in the conventional basis.
      * 
      * @param C Wilson coefficients at scale Q.
@@ -73,6 +83,7 @@ class SM_LO_Strategy : public InitializationStrategy {
 public:
     void init(Parameters* sm, double scale, WilsonSet& C_match) override;
     void init_prime(double scale_W,double scale,int gen, WilsonSet& C_match);
+    void init_scalar(double scale_W,double scale,int gen, WilsonSet& C_match);
     void set_base1(WilsonSet& C, WilsonSet& C_match, double Q, const double Q_match) override;
     void set_base2(WilsonSet& C, WilsonSet& C_match, double Q, const double Q_match) override;
 };
