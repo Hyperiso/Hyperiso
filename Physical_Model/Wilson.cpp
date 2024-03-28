@@ -641,8 +641,6 @@ void SM_LO_Strategy::init_scalar(double Q, double Q_match,int gen, WilsonSet& C)
 	else if(gen==3) ml=(*sm)("MASS", 13);
 	else {gen=2; ml=(*sm)("MASS", 15);}
 
-	int ie;
-	// for(ie=1;ie<=2;ie++) CQ0b[ie]=CQ1b[ie]=0.;
 	
  	double sw2=pow(sin(atan((*sm)("GAUGE",1)/(*sm)("GAUGE",2))),2.);
 	double MU[4];

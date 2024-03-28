@@ -35,6 +35,9 @@ public:
         if (block=="YUKAWA_CH_D") {
             return lambda_d[pdgCode/10][pdgCode%10];
         }
+        if (block=="YUKAWA_CH_L") {
+            return lambda_l[pdgCode/10][pdgCode%10];
+        }
         if (block=="EXTPAR") {
             return extpar[pdgCode];
         }
@@ -82,7 +85,7 @@ private:
     void initSM();
     void initSUSY();
 
-    std::vector<std::vector<double>> lambda_u, lambda_d;
+    std::vector<std::vector<double>> lambda_u, lambda_d, lambda_l;
     
     
 
