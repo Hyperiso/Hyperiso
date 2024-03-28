@@ -198,9 +198,9 @@ double Parameters::alpha_s(double Q) {
 
 double Parameters::running_mass(int quark, double Q) {
     if (quark <= 3) {
-        return this->QCDRunner.running_mass(this->masses[quark], 2, Q);
+        return this->QCDRunner.running_mass(this->masses[quark], 2, Q, "running");
     } else if (quark <= 6) {
-        return this->QCDRunner.running_mass(this->masses[quark], this->masses[quark], Q);
+        return this->QCDRunner.running_mass(this->masses[quark], this->masses[quark], Q, "running");
     } else {
         Logger::getInstance()->error("In Parameters::running_mass: PDG code " + std::to_string(quark) + " doesn't refer to a quark.");
         return 0;

@@ -1,5 +1,4 @@
-# SUSY Les Houches Accord 1.0 - example input file
-# Snowmsas point 1a
+# SUSY Les Houches Accord - example input file
 
 Block SMINPUTS # Standard Model inputs
     1   1.27934000e+02  # alpha_em^(-1)
@@ -12,11 +11,6 @@ Block SMINPUTS # Standard Model inputs
 
 Block MODSEL # Select model
     1   1       # sugra
-
-Block SMINPUTS # Standard Model inputs
-    3   0.1172  # alpha_s(MZ) SM MSbar
-    5   4.25    # Mb(mb) SM MSbar
-    6   174.3   # Mtop(pole)
 
 Block MINPAR # SUSY breaking input parameters
     3   10.0    # tanb
