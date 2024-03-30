@@ -16,8 +16,8 @@ susy_parameters::susy_parameters(double scale) {
 
 	
 
-    mass_top_muW=(*sm).QCDRunner.running_mass((*sm)("MASS",6), (*sm)("MASS",6),scale,  (*sm)("MASS",6),(*sm)("MASS",5));
-	mass_b_muW=(*sm).QCDRunner.running_mass((*sm)("MASS",5), (*sm)("MASS",5), scale,  (*sm)("MASS",6), (*sm)("MASS",5)); //mass bottom 6 (at pole)
+    mass_top_muW=(*sm).QCDRunner.running_mass((*sm)("MASS",6), (*sm)("MASS",6),scale);
+	mass_b_muW=(*sm).QCDRunner.running_mass((*sm)("MASS",5), (*sm)("MASS",5), scale); //mass bottom 6 (at pole)
 
 	L=log(scale*scale/(*sm)("MASS",24)/(*sm)("MASS",24)); // scale -> mu_W
  	sw2=pow(sin(atan((*sm)("Coupling",1)/(*sm)("Coupling",2))),2.); //1 = param-> gp and 2 = (*sm)("COUPLING",2)
@@ -28,6 +28,7 @@ susy_parameters::susy_parameters(double scale) {
     lu=1./(*susy)("EXTPAR",25);
 	ld=-(*susy)("EXTPAR",25);
 	
+	alphas_muW=(*sm).QCDRunner.runningAlphasCalculation(scale);
 
     alphas_mg = sm->QCDRunner.runningAlphasCalculation((*susy)("MASS",1000021));
 	ag = 1.0 - 7.0 / (12.0 * Pi * alphas_mg);
@@ -122,6 +123,7 @@ susy_parameters::susy_parameters(double scale) {
         }
     }
 
+
     // Calculs pour X_UL et X_UR
     for (int ie = 0; ie < 2; ++ie) {
 		for (int ae = 0; ae < 6; ++ae) { // Supposant que 6 est correct pour tous
@@ -138,6 +140,8 @@ susy_parameters::susy_parameters(double scale) {
 					) * VCKM[ce][be];
 
 					X_UR[ie][ae][be] += (*sm)("COUPLING",2) * aY * (*susy)(std::string("UMIX"), ie*10+2) * Gamma_UL[ae][ce] * VCKM[ce][be] * MD[be] / (sqrt(2.0) * (*sm)("MASS", 24) * cosb);
+
+					G_aimn[ae][ie][be][ce]=0.5/sqrt(2.)*(sqrt(2.)*(*sm)("MASS",24)*(*susy)("VMIX", ie*10+1)*Gamma_UL[ae][ce]*ag-MU[ce]*(*susy)("VMIX", ie*10+2)*Gamma_UR[ae][ce]*aY)*(VCKM[be][3]*VCKM[ce][2]/VCKM[3][3]/VCKM[3][2]);
 				}
 
 				// Condition pour éviter le dépassement dans X_NL et X_NR si ae > 2

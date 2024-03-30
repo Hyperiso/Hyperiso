@@ -20,6 +20,7 @@ public:
 class SUSY_NLO_Strategy : public SUSY_LO_Strategy {
 public:
     void init(Parameters* sm, double scale, WilsonSet& C_match) override;
+    void init_scalar(double Q_match,double Q,int gen, WilsonSet& C);
     void set_base1(WilsonSet& C, WilsonSet& C_match, double Q, const double Q_match) override;
     void set_base2(WilsonSet& C, WilsonSet& C_match, double Q, const double Q_match) override {}
 

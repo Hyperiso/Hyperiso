@@ -73,7 +73,7 @@ void THDM_NNLO_Strategy::init(Parameters* sm, double scale, WilsonSet& C_match) 
 	double C6H_2=-3./16.*C3H_2+1./4.*C4H_1;
 }
 
-void THDM_LO_Strategy::init_scalar(double Q_match,double Q,int gen, WilsonSet& C_match) {
+void THDM_LO_Strategy::init_scalar(double Q_match,double Q,int gen, WilsonSet& C) {
 	/* Wilson coefficients CQ1 et CQ2 in 2HDM */ 
 	
 	Parameters* sm = Parameters::GetInstance(0);
@@ -126,8 +126,8 @@ void THDM_LO_Strategy::init_scalar(double Q_match,double Q,int gen, WilsonSet& C
 	CQ1H_0*=(ml*mass_b_muW/(*sm)("MASS",24)/(*sm)("MASS",24))/sw2;
 	CQ2H_0*=(ml*mass_b_muW/(*sm)("MASS",24)/(*sm)("MASS",24))/sw2;
 	
-	if (C_match.size() < 1) C_match.resize(1); 
-    auto& C_LO = C_match[0]; 
+	if (C.size() < 1) C.resize(1); 
+    auto& C_LO = C[0]; 
     C_LO.resize(static_cast<size_t>(WilsonCoefficient::CPQ2) + 1, complex_t(0, 0));
 
     C_LO[static_cast<size_t>(WilsonCoefficient::CQ1)] = CQ1H_0*pow(eta_mu,-4./beta0);
