@@ -1089,3 +1089,10 @@ double C8c2MW(double x)
 	-0.004672*pow(w,5.)-0.003248*pow(w,6.)-0.002389*pow(w,7.)-0.001831*pow(w,8.);
 }
 
+
+double F0SP(double xt)
+{
+	if(fabs(1.-xt)<1.e-5) return F0SP(0.9999);
+
+	return 1./8./(xt-1.)/(xt-1.)*((xt-3.)/2.-xt*(xt-2.)/(xt-1.)*log(xt));
+}

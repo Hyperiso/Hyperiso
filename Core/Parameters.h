@@ -15,6 +15,7 @@ class Parameters {
 public:
     // double Q {sm.mass_top_pole};
 
+    QCDParameters QCDRunner;
     static Parameters* GetInstance(int index = 0);
 
     void setScale(double Q);
@@ -33,6 +34,9 @@ public:
         }
         if (block=="YUKAWA_CH_D") {
             return lambda_d[pdgCode/10][pdgCode%10];
+        }
+        if (block=="YUKAWA_CH_L") {
+            return lambda_l[pdgCode/10][pdgCode%10];
         }
         if (block=="EXTPAR") {
             return extpar[pdgCode];
@@ -81,9 +85,9 @@ private:
     void initSM();
     void initSUSY();
 
-    std::vector<std::vector<double>> lambda_u, lambda_d;
+    std::vector<std::vector<double>> lambda_u, lambda_d, lambda_l;
     
-    QCDParameters QCDRunner;
+    
 
     std::map<int, double> minpar;
     std::map<int, double> extpar;

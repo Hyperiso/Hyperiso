@@ -2,3 +2,13 @@
 *~
 build/
 *.vscode
+External_Integration/SOFTSUSY
+CMakeFiles
+Makefile
+CMakeCache.txt
+superiso_v4.1/
+cmake_install.cmake
+output.slha
+test
+hyperiso
+app

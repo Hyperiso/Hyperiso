@@ -610,9 +610,9 @@ void SM_LO_Strategy::init_prime(double Q, double Q_match,int gen, WilsonSet& C) 
 	Parameters* sm = Parameters::GetInstance();
 
 
-	if (C.size() < 2) C.resize(2); 
-    auto& C_NLO = C[1]; 
-    C_NLO.resize(static_cast<size_t>(WilsonCoefficient::CPQ2) + 1, complex_t(0, 0));
+	if (C.size() < 1) C.resize(1); 
+    auto& C_LO = C[0]; 
+    C_LO.resize(static_cast<size_t>(WilsonCoefficient::CPQ2) + 1, complex_t(0, 0));
 
     double alphas_muW = sm->alpha_s(Q_match);
     double alphas_mu = sm->alpha_s(Q);
@@ -625,9 +625,70 @@ void SM_LO_Strategy::init_prime(double Q, double Q_match,int gen, WilsonSet& C) 
 
     double xt = std::pow(mass_top_muW / (*sm)("MASS",24), 2);
     complex_t C7pSM = (*sm)("MASS", 3) / mass_b_muW * (-0.5 * A0t(xt) - 23. / 36.);
-    C_NLO[static_cast<size_t>(WilsonCoefficient::CP7)] = std::pow(eta_mu, 16. / 23.) * C7pSM;
+    C_LO[static_cast<size_t>(WilsonCoefficient::CP7)] = std::pow(eta_mu, 16. / 23.) * C7pSM;
 
     complex_t C8pSM = (*sm)("MASS", 3) / mass_b_muW * (-0.5 * F0t(xt) - 1. / 3.);
-    C_NLO[static_cast<size_t>(WilsonCoefficient::CP8)] = std::pow(eta_mu, 14. / 23.) * C8pSM;
+    C_LO[static_cast<size_t>(WilsonCoefficient::CP8)] = std::pow(eta_mu, 14. / 23.) * C8pSM;
 	
+}
+
+void SM_LO_Strategy::init_scalar(double Q, double Q_match,int gen, WilsonSet& C) {
+
+    Parameters* sm = Parameters::GetInstance(0);
+    double ml;
+
+	if(gen==1) ml=(*sm)("MASS", 11);
+	else if(gen==3) ml=(*sm)("MASS", 13);
+	else {gen=2; ml=(*sm)("MASS", 15);}
+
+	
+ 	double sw2=pow(sin(atan((*sm)("GAUGE",1)/(*sm)("GAUGE",2))),2.);
+	double MU[4];
+	
+	double mass_c_muW=(*sm).running_mass((*sm)("MASS", 4),(*sm)("MASS", 4),Q_match,"pole");
+	double mass_b_muW=(*sm).running_mass((*sm)("MASS", 5),(*sm)("MASS", 5),Q_match);
+	double mass_top_muW=(*sm).running_mass((*sm).QCDRunner.get_mt_mt(),(*sm).QCDRunner.get_mt_mt(),Q_match);
+	
+	MU[1]=(*sm)("MASS", 2);
+	MU[2]=mass_c_muW;
+	MU[3]=mass_top_muW;
+
+	double alphas_muW=(*sm).QCDRunner.runningAlphasCalculation(Q_match);
+	double alphas_mu=(*sm).QCDRunner.runningAlphasCalculation(Q);	
+	double eta_mu=alphas_muW/alphas_mu;
+
+	int nf=5;
+	double beta0 = 11.-2./3.*nf;
+
+	double xt=pow(mass_top_muW/(*sm)("MASS",24),2.);
+	double xt2=xt*xt;
+	double xt3=xt*xt2;
+	double xt4=xt*xt3;
+	double xh=pow((*sm)("MASS",25)/(*sm)("MASS",24),2.);
+	
+
+	/* SM - negligible components, 1511.05066 */
+	 
+	double CSc_SM=-xt*(xt-2.)/12./(xt-1.)/(xt-1.)+(xt-2.)*(3.*xt-1.)/24./pow(xt-1.,3.)*log(xt);
+	
+	double CPc_SM=1./24.*(xt*(36.*xt3-203.*xt2+352.*xt-209.)/6./pow(xt-1.,3.)+(17.*xt4-34.*xt3+4.*xt2+23.*xt-6.)/pow(xt-1.,4.)*log(xt))
+	-sw2/36.*(xt*(18.*xt3-139.*xt2+274.*xt-129.)/2./pow(xt-1.,3.)+(24.*xt4-33.*xt3-45.*xt2+50.*xt-8.)/pow(xt-1.,4.)*log(xt));
+		
+
+    double CSn_SMonly=-3.*xt/8./xh+xt*F0SP(xt);
+    
+    double CPn_SMonly=0.;
+    
+    if (C.size() < 1) C.resize(1); 
+    auto& C_LO = C[0]; 
+    C_LO.resize(static_cast<size_t>(WilsonCoefficient::CPQ2) + 1, complex_t(0, 0));
+
+    C_LO[static_cast<size_t>(WilsonCoefficient::CQ1)]=(CSc_SM+CSn_SMonly)*(ml*mass_b_muW/(*sm)("MASS",24)/(*sm)("MASS",24))/sw2;
+    C_LO[static_cast<size_t>(WilsonCoefficient::CQ2)]=(CPc_SM+CPn_SMonly)*(ml*mass_b_muW/(*sm)("MASS",24)/(*sm)("MASS",24))/sw2;
+
+    C_LO[static_cast<size_t>(WilsonCoefficient::CQ1)]*=pow(eta_mu,-4./beta0);
+    C_LO[static_cast<size_t>(WilsonCoefficient::CQ2)]*=pow(eta_mu,-4./beta0);
+
+
+
 }

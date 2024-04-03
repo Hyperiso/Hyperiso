@@ -114,14 +114,3 @@ void SoftsusyCalculator::calculateSpectrum(const std::string& inputFilePath, con
         logger->info("SOFTSUSY execution successful.");
     }
 }
-
-// /**
-//  * Execute the command to calculate the spectrum.
-//  * This method calls upon the SoftsusyCalculator's calculateSpectrum method,
-//  * passing in the previously specified input and output file paths, to perform
-//  * the actual calculation. This encapsulation allows for the command to be executed
-//  * without knowledge of the calculation specifics.
-//  */
-// void CalculateSpectrumCommand::execute() {
-//     calculator.calculateSpectrum(inputFilePath, outputFilePath);
-// }
