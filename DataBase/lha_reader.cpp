@@ -95,7 +95,9 @@ void Parser::parse(bool comments) {
 void LhaReader::addBlock(const std::string& id, const std::vector<std::vector<std::string>>& lines) {
     auto block = std::make_unique<LhaBlock>(findPrototype(id));
     block->readData(lines);
-    this->blocks.insert(std::pair(id, std::move(block)));
+    std::string id_ci = id;
+    std::transform(id_ci.begin(), id_ci.end(), id_ci.begin(), ::toupper);
+    this->blocks.insert(std::pair(id_ci, std::move(block)));
 }
 
 LhaReader::LhaReader(std::string_view path) : lhaFile(std::filesystem::path(path)) {
@@ -125,6 +127,20 @@ Prototype LhaReader::findPrototype(std::string name) const {
             return p;
     }
     return Prototype{""};
+}
+
+std::string LhaReader::getLhaPath() const {
+    return this->lhaFile.string();
+}
+
+void LhaReader::update(std::string_view newLha) {
+    this->lhaFile = std::filesystem::path(newLha);
+    isFLHA = lhaFile.extension().string() == ".flha"; 
+    if (isFLHA && this->blockPrototypes.size() == SLHA_BLOCKS.size()) {
+        this->blockPrototypes.insert(blockPrototypes.end(), FLHA_BLOCKS.begin(), FLHA_BLOCKS.end());
+    }
+    this->blocks.clear();
+    this->readAll();
 }
 
 std::string LhaReader::toString() const

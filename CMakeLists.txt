@@ -5,6 +5,11 @@ project(Hyperiso)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
+set(CONFIG_FILE "${CMAKE_CURRENT_SOURCE_DIR}/config.json")
+get_filename_component(PROJECT_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/" ABSOLUTE)
+set(CONFIG_CONTENT "{\"project_root\": \"${PROJECT_ROOT}\"}")
+file(WRITE "${CONFIG_FILE}" "${CONFIG_CONTENT}")
+message(STATUS "Configuration file created : ${CONFIG_FILE}")
 
 # Option for building with SOFTSUSY
 option(BUILD_WITH_SOFTSUSY "Build project with SOFTSUSY support" OFF)
@@ -35,7 +40,9 @@ if(BUILD_WITH_SOFTSUSY)
 endif()
 
 
+
 file(GLOB SOURCES "./Core/*.cpp" "./DataBase/*.cpp" "./logique_metier/*.cpp" "./Math/*.cpp" "./Physical_Model/*.cpp" "./External_Integration/main_softsusy.cpp" "./External_Integration/SoftSusy.cpp")
+
 
 add_executable(test ${SOURCES})
 
