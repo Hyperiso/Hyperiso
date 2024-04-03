@@ -858,7 +858,7 @@ void SUSY_NLO_Strategy::init_scalar(double Q_match,double Q,int gen, WilsonSet& 
 
 	/* NMSSM */
 
-	if((param->mass_A02!=0.)||(param->mass_H03!=0.))
+	if(((*susy)("MASS",36)2!=0.)||(param->mass_H03!=0.))
 	{
 		double s=param->lambdaSNMSSM/param->lambdaNMSSM;
 		double v=sqrt(1./sqrt(2.)/param->Gfermi);
@@ -879,8 +879,8 @@ void SUSY_NLO_Strategy::init_scalar(double Q_match,double Q,int gen, WilsonSet& 
 		mH0[1]=param->mass_h0;
 		mH0[2]=param->mass_H0;
 		mH0[3]=param->mass_H03;
-		mA0[1]=param->mass_A0;
-		mA0[2]=param->mass_A02;
+		mA0[1]=(*susy)("MASS",36);
+		mA0[2]=(*susy)("MASS",36)2;
 		
 		double Ralj[3][3][3],Qalj[4][3][3],G1[4][4][3][3];
 		double T1[3][4][4],T2[4][4][4];
@@ -968,25 +968,25 @@ void SUSY_NLO_Strategy::init_scalar(double Q_match,double Q,int gen, WilsonSet& 
 
 		complex_t CA=CAH+CAc;
 
-		if(param->mass_A0>Q_match) CQ0b[2]+=-v_deltam_s/2.*(*sus_param).mass_b_muW/(*sus_param).sw2*ml*CA/param->mass_A0/param->mass_A0;
+		if((*susy)("MASS",36)>Q_match) CQ0b[2]+=-v_deltam_s/2.*(*sus_param).mass_b_muW/(*sus_param).sw2*ml*CA/(*susy)("MASS",36)/(*susy)("MASS",36);
 
 		CQ0b[1]*=pow(eta_mu,-4./beta0);
 		CQ0b[2]*=pow(eta_mu,-4./beta0);
 		CQ1b[1]*=pow(eta_mu,-4./beta0)*eta_mu;
 		CQ1b[2]*=pow(eta_mu,-4./beta0)*eta_mu;
 		
-		if((param->mass_A0>param->mass_b_pole)&&(param->mass_A0<Q_match))
+		if(((*susy)("MASS",36)>param->mass_b_pole)&&((*susy)("MASS",36)<Q_match ))
 		{	
-			double alphas_Ma1=(*sm).QCDRunner.alphasRunning(param->mass_A0);	
+			double alphas_Ma1=(*sm).QCDRunner.runningAlphasCalculation((*susy)("MASS",36));	
 			double eta_a1=alphas_Ma1/alphas_mu;
-			double mass_b_ma1=(*sm).running_mass(param->mass_b,param->mass_b,param->mass_A0);
-			CQ0b[2]+=-v_deltam_s/2.*mass_b_ma1/(*sus_param).sw2*ml*CA/param->mass_A0/param->mass_A0*pow(eta_a1,-4./beta0);
+			double mass_b_ma1=(*sm).running_mass(param->mass_b,param->mass_b,(*susy)("MASS",36));
+			CQ0b[2]+=-v_deltam_s/2.*mass_b_ma1/(*sus_param).sw2*ml*CA/(*susy)("MASS",36)/(*susy)("MASS",36)*pow(eta_a1,-4./beta0);
 		}
 		
-		if(param->mass_A0<param->mass_b_pole)
+		if((*susy)("MASS",36)<param->mass_b_pole)
 		{	
 			double width_A0=1.e-6;
-			CQ0b[2]+=v_deltam_s/2.*param->mass_b/(*sus_param).sw2*ml*CA/(param->m_Bs*param->m_Bs-param->mass_A0*param->mass_A0+I*param->mass_A0*width_A0);
+			CQ0b[2]+=v_deltam_s/2.*param->mass_b/(*sus_param).sw2*ml*CA/(param->m_Bs*param->m_Bs-(*susy)("MASS",36)*(*susy)("MASS",36)+I*(*susy)("MASS",36)*width_A0);
 		}
 
 	}
