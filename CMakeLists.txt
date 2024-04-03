@@ -35,7 +35,7 @@ if(BUILD_WITH_SOFTSUSY)
 endif()
 
 
-file(GLOB SOURCES "./Core/*.cpp" "./DataBase/*.cpp" "./logique_metier/*.cpp" "./Math/*.cpp" "./Physical_Model/*.cpp" "./User_Interface/*.cpp")
+file(GLOB SOURCES "./Core/*.cpp" "./DataBase/*.cpp" "./logique_metier/*.cpp" "./Math/*.cpp" "./Physical_Model/*.cpp" "./External_Integration/main_softsusy.cpp" "./External_Integration/SoftSusy.cpp")
 
 add_executable(test ${SOURCES})
 
@@ -47,7 +47,7 @@ target_include_directories(test
     "${CMAKE_SOURCE_DIR}/logique_metier"
     "${CMAKE_SOURCE_DIR}/Math"
     "${CMAKE_SOURCE_DIR}/Physical_Model"
-    "${CMAKE_SOURCE_DIR}/User_Interface"
+    "${CMAKE_SOURCE_DIR}/External_Integration"
 )
 
 # Link any necessary libraries to the test executable
