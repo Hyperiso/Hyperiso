@@ -63,6 +63,12 @@ public:
         if (block == "VMIX") {
             return vmix[pdgCode/10][pdgCode%10];
         }
+        if (block == "H0MIX") {
+            return A0mix[pdgCode/10][pdgCode%10];
+        }
+        if (block == "A0MIX") {
+            return H0mix[pdgCode/10][pdgCode%10];
+        }
         if (block == "MSOFT") {
             return msoft[pdgCode];
         }
@@ -71,6 +77,9 @@ public:
         }
         if (block == "YD") {
             return yd[pdgCode/10][pdgCode%10];
+        }
+        if (block == "AU") {
+            return au[pdgCode/10][pdgCode%10];
         }
         if (block== "NMIX") {
             return nmix[pdgCode/10][pdgCode%10];
@@ -105,6 +114,9 @@ private:
     std::array<std::array<double, 2>, 2> umix;
     std::array<std::array<double, 2>, 2> vmix;
     std::array<std::array<double, 4>, 4> nmix;
+    std::array<std::array<double, 2>, 2> vmix;
+    std::array<std::array<double, 4>, 4> A0mix;
+    std::array<std::array<double, 4>, 4> H0mix;
     std::array<std::array<double, 3>, 3> yu;
     std::array<std::array<double, 3>, 3> yd;
     std::array<std::array<double, 3>, 3> ye;
