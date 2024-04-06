@@ -20,7 +20,7 @@ susy_parameters::susy_parameters(double scale) {
 	mass_b_muW=(*sm).QCDRunner.running_mass((*sm)("MASS",5), (*sm)("MASS",5), scale); //mass bottom 6 (at pole)
 
 	L=log(scale*scale/(*sm)("MASS",24)/(*sm)("MASS",24)); // scale -> mu_W
- 	sw2=pow(sin(atan((*sm)("Coupling",1)/(*sm)("Coupling",2))),2.); //1 = param-> gp and 2 = (*sm)("COUPLING",2)
+ 	sw2=pow(sin(atan((*sm)("GAUGE",1)/(*sm)("GAUGE",2))),2.); //1 = param-> gp and 2 = (*sm)("COUPLING",2)
 
 	xt= pow(mass_top_muW/(*sm)("MASS",24),2.); // W boson mass (24)
 	yt= pow(mass_top_muW/(*sm)("MASS",25),2.); // param->mass_H (25)
@@ -33,9 +33,9 @@ susy_parameters::susy_parameters(double scale) {
     alphas_mg = sm->QCDRunner.runningAlphasCalculation((*susy)("MASS",1000021));
 	ag = 1.0 - 7.0 / (12.0 * Pi * alphas_mg);
 	aY = 1.0 + alphas_mg / (4.0 * Pi);
-	kappa = 1.0 / ((*sm)("Coupling",2) * (*sm)("Coupling",2) * (*susy)("CKM",33)* (*susy)("CKM",32));
+	kappa = 1.0 / ((*sm)("GAUGE",2) * (*sm)("GAUGE",2) * (*susy)("CKM",33)* (*susy)("CKM",32));
 
-
+	z=pow((*susy)("MASS",37)/(*sm)("MASS",24),2.);
 	sinb = std::sin(std::atan((*susy)("EXTPAR",25)));
 	cosb = std::cos(std::atan((*susy)("EXTPAR",25)));
 	ct = (*susy)("STOPMIX",11); // Ajustement des indices pour base-0
