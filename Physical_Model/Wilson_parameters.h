@@ -9,27 +9,19 @@ class Wilson_parameters {
     
     public:
     static constexpr int arraySize {10};
-    std::array<double, arraySize> C0w = {};
-    std::array<double, arraySize> C1w = {};
-    std::array<double, arraySize> C2w = {};
+
     double mu_W;
-    std::array<double, arraySize> C0b = {};
-    std::array<double, arraySize> C1b = {};
-    std::array<double, arraySize> C2b = {};
     double mu;
 
     double alphas_muW;
     double alphas_mu;
+    double eta_mu;
 
-
-    double C0w7; 
-	double C1w7; 
-	double C2w7; 
-
-	double C0w8; 
-	double C1w8; 
-	double C2w8;
-
+    double sw2;
+    double xt;
+    
+    double mass_top_muW;
+    double mass_b_muW;
 
     std::array<std::array<std::array<double, 10>, 10>, 10> m00;
     std::array<std::array<std::array<double, 10>, 10>, 10> m10;

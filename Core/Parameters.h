@@ -20,7 +20,7 @@ public:
 
     void setScale(double Q);
     double alpha_s(double Q);
-    double running_mass(double m, double q_init, double q_fin, std::string opt_mb = "running", std::string opt_mt = "pole");
+    double running_mass(double quarkmass, double Q_init, double Q_end, std::string option_massb = "running", std::string option_masst = "pole");
 
     double operator()(std::string block, int pdgCode) {
         if (block == "MASS") {

@@ -4,19 +4,17 @@
 Wilson_parameters::Wilson_parameters() {
 
     Parameters* sm = Parameters::GetInstance();
+	Logger* logger = Logger::getInstance();
 
-    constexpr double pi = 3.141592654;
-	// alphas_muW=(*sm).run.runningAlphasCalculation(mu_W);
-	// alphas_mu=(*sm).run.runningAlphasCalculation(mu);	
-	// double eta_mu=alphas_muW/alphas_mu;
+	alphas_muW=(*sm).QCDRunner.runningAlphasCalculation(mu_W);
+	alphas_mu=(*sm).QCDRunner.runningAlphasCalculation(mu);	
+	eta_mu=alphas_muW/alphas_mu;
 
-	// C0w7= C0w[7]-1./3.*C0w[3]-4./9.*C0w[4]-20./3.*C0w[5]-80./9.*C0w[6]; 
-	// C1w7= C1w[7]-1./3.*C1w[3]-4./9.*C1w[4]-20./3.*C1w[5]-80./9.*C1w[6]; 
-	// C2w7= C2w[7]-1./3.*C2w[3]-4./9.*C2w[4]-20./3.*C2w[5]-80./9.*C2w[6]; 
+	mass_top_muW=(*sm).QCDRunner.running_mass((*sm)("MASS",6), (*sm)("MASS",6),mu_W); //mass top at top ?
+	mass_b_muW=(*sm).QCDRunner.running_mass((*sm)("MASS",5), (*sm)("MASS",5), mu_W); //mass bottom 6 (at pole)
 
-	// C0w8= C0w[8]+C0w[3]-1./6.*C0w[4]+20.*C0w[5]-10./3.*C0w[6]; 
-	// C1w8= C1w[8]+C1w[3]-1./6.*C1w[4]+20.*C1w[5]-10./3.*C1w[6]; 
-	// C2w8= C2w[8]+C2w[3]-1./6.*C2w[4]+20.*C2w[5]-10./3.*C2w[6]; 
+	sw2=pow(sin(atan((*sm)("GAUGE",1)/(*sm)("GAUGE",2))),2.);
+	xt = std::pow(mass_top_muW / (*sm)("MASS",24), 2);
 
 	m00= {{ 
 	/*m001[10][10]*/{{
@@ -812,6 +810,35 @@ Wilson_parameters::Wilson_parameters() {
 		{0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 }
 	}}
     }};
+
+	for (int ke = 0; ke < arraySize; ++ke) {
+        for (int le = 0; le < arraySize; ++le) {
+            (U0)[ke][le] =0;
+            (U1)[ke][le] = 0;
+            (U1)[ke][le] = 0;
+            for (int ie = 0; ie < arraySize; ++ie) {
+                (U0)[ke][le] += (m00)[ke][le][ie] * (etaMuPowers)[ie];
+                (U1)[ke][le] += (m10)[ke][le][ie] * (etaMuPowers)[ie] + (m11)[ke][le][ie] * (etaMuPowers)[ie] / eta_mu;
+                (U2)[ke][le] += (m20)[ke][le][ie] * (etaMuPowers)[ie] + (m21)[ke][le][ie] * (etaMuPowers)[ie] / eta_mu + (m22)[ke][le][ie] * (etaMuPowers[ie]) / (eta_mu * eta_mu);
+            }
+            logger->debug("U0[" + std::to_string(ke) + "][" + std::to_string(le) + "]: " + std::to_string((U0)[ke][le]));
+            logger->debug("U1[" + std::to_string(ke) + "][" + std::to_string(le) + "]: " + std::to_string((U1)[ke][le]));
+            logger->debug("U2[" + std::to_string(ke) + "][" + std::to_string(le) + "]: " + std::to_string((U2)[ke][le]));
+        }
+    }
+
+	for (int i = 0; i < arraySize; ++i) {
+        (etaMuPowers)[i] = std::pow(eta_mu, (ai)[i]);
+    }
+
+
+	logger->debug("Alpha_s at Q_match: " + std::to_string(alphas_muW));
+    logger->debug("Alpha_s at Q: " + std::to_string(alphas_mu));
+    logger->debug("Eta_mu: " + std::to_string(eta_mu));
+	logger->debug("Mass of top quark at scale: " + std::to_string(mass_top_muW));
+    logger->debug("Mass of bottom quark at scale: " + std::to_string(mass_b_muW));
+	logger->debug("Square of weak mixing angle: " + std::to_string(sw2));
+    logger->debug("Square of top quark mass over W boson mass (xt): " + std::to_string(xt));
 
 }
 

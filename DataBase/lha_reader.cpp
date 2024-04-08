@@ -129,6 +129,20 @@ Prototype LhaReader::findPrototype(std::string name) const {
     return Prototype{""};
 }
 
+std::string LhaReader::getLhaPath() const {
+    return this->lhaFile.string();
+}
+
+void LhaReader::update(std::string_view newLha) {
+    this->lhaFile = std::filesystem::path(newLha);
+    isFLHA = lhaFile.extension().string() == ".flha"; 
+    if (isFLHA && this->blockPrototypes.size() == SLHA_BLOCKS.size()) {
+        this->blockPrototypes.insert(blockPrototypes.end(), FLHA_BLOCKS.begin(), FLHA_BLOCKS.end());
+    }
+    this->blocks.clear();
+    this->readAll();
+}
+
 std::string LhaReader::toString() const
 {
     std::stringstream ss;
