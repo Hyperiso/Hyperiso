@@ -196,13 +196,11 @@ double Parameters::alpha_s(double Q) {
     return this->QCDRunner.runningAlphasCalculation(Q);
 }
 
-double Parameters::running_mass(int quark, double Q) {
-    if (quark <= 3) {
-        return this->QCDRunner.running_mass(this->masses[quark], 2, Q, "running");
-    } else if (quark <= 6) {
-        return this->QCDRunner.running_mass(this->masses[quark], this->masses[quark], Q, "running");
+double Parameters::running_mass(double quarkmass, double Q_init, double Q_end,  std::string option_massb, std::string option_masst) {
+    if (quarkmass > masses[4]) {
+        return this->QCDRunner.running_mass(quarkmass, Q_init, Q_end, option_massb, option_masst);
     } else {
-        Logger::getInstance()->error("In Parameters::running_mass: PDG code " + std::to_string(quark) + " doesn't refer to a quark.");
+        Logger::getInstance()->error("In Parameters::running_mass: Quark of mass " + std::to_string(quarkmass) + " lower than charm mass, not possible.");
         return 0;
     }
 }
