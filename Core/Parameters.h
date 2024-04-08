@@ -114,7 +114,6 @@ private:
     std::array<std::array<double, 2>, 2> umix;
     std::array<std::array<double, 2>, 2> vmix;
     std::array<std::array<double, 4>, 4> nmix;
-    std::array<std::array<double, 2>, 2> vmix;
     std::array<std::array<double, 4>, 4> A0mix;
     std::array<std::array<double, 4>, 4> H0mix;
     std::array<std::array<double, 3>, 3> yu;
