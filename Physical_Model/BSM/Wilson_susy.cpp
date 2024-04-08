@@ -3,10 +3,11 @@
 
 
 
-void SUSY_LO_Strategy::init(Parameters* sm, double scale, WilsonSet& C_match) {
+void SUSY_LO_Strategy::init(double scale, WilsonSet& C_match) {
 
 	EpsilonCalculator* epsi = EpsilonCalculator::GetInstance();
 
+	Parameters* sm = Parameters::GetInstance();
 	Parameters* susy = Parameters::GetInstance(1);
 	susy_parameters* sus_param = susy_parameters::GetInstance(scale);
 
@@ -118,11 +119,11 @@ void SUSY_LO_Strategy::init(Parameters* sm, double scale, WilsonSet& C_match) {
 }
 
 
-void SUSY_NLO_Strategy::init(Parameters* sm, double scale, WilsonSet& C_match) {
+void SUSY_NLO_Strategy::init(double scale, WilsonSet& C_match) {
 
 	auto* epsi = EpsilonCalculator::GetInstance();
+	Parameters* sm = Parameters::GetInstance();
 	auto* susy = Parameters::GetInstance(1);
-	auto* sm_param = Parameters::GetInstance(0);
 	auto* sus_param = susy_parameters::GetInstance(scale);
 
 	double mass_top_muW=(*sm).QCDRunner.running_mass((*sm)("MASS",6), (*sm)("MASS",6),scale); //mass top at top ?
@@ -299,10 +300,10 @@ void SUSY_NLO_Strategy::init(Parameters* sm, double scale, WilsonSet& C_match) {
 	complex_t C9H_1=(1.-4.*(*sus_param).sw2)/(*sus_param).sw2*C9llH1((*sus_param).xt,(*sus_param).yt,(*sus_param).lu,log(pow(scale/(*susy)("MASS", 25),2.)))-D9H1((*sus_param).yt,(*sus_param).lu,log(pow(scale/(*susy)("MASS", 25),2.)));
 	complex_t C10H_1=-C9llH1((*sus_param).xt,(*sus_param).yt,(*sus_param).lu,log(pow(scale/(*susy)("MASS", 25),2.)))/(*sus_param).sw2;
 
-	double alphas_mu = sm_param->QCDRunner.runningAlphasCalculation(scale);
+	double alphas_mu = sm->QCDRunner.runningAlphasCalculation(scale);
 	
 
-	SUSY_LO_Strategy::init(sm, scale, C_match);
+	SUSY_LO_Strategy::init(scale, C_match);
 
 	if (C_match.size() < 2) C_match.resize(2);
     auto& C_LO = C_match[0]; // Coefficients à l'ordre LO
@@ -342,11 +343,11 @@ void SUSY_NLO_Strategy::init(Parameters* sm, double scale, WilsonSet& C_match) {
 }
 
 
-void SUSY_NNLO_Strategy::init(Parameters* sm, double scale, WilsonSet& C_match) {
+void SUSY_NNLO_Strategy::init(double scale, WilsonSet& C_match) {
 
 	auto* epsi = EpsilonCalculator::GetInstance();
 	auto* susy = Parameters::GetInstance(1);
-	auto* sm_param = Parameters::GetInstance(0);
+	auto* sm = Parameters::GetInstance(0);
 	auto* sus_param = susy_parameters::GetInstance(scale);
 
 	complex_t C3charg_2 = 0.0;
@@ -383,17 +384,17 @@ void SUSY_NNLO_Strategy::init(Parameters* sm, double scale, WilsonSet& C_match) 
     complex_t C6charg_2 = -3.0 / 16.0 * C3charg_2 + 1.0 / 4.0 * C4charg_1;
 
 	double C1squark_2 = 0.0;
-	if (std::all_of(begin((*sus_param).MsqU), end((*sus_param).MsqU), [&](double m) { return std::abs(m) > (*sm_param)("MASS", 24) / 2.0; })) {
+	if (std::all_of(begin((*sus_param).MsqU), end((*sus_param).MsqU), [&](double m) { return std::abs(m) > (*sm)("MASS", 24) / 2.0; })) {
 		C1squark_2 = -208.0 / 3.0;
 		for (int ae = 1; ae <= 6; ++ae) {
-			double xsqa = std::pow((*sus_param).MsqU[ae] / (*sm_param)("MASS", 24), 2.0);
+			double xsqa = std::pow((*sus_param).MsqU[ae] / (*sm)("MASS", 24), 2.0);
 			if (4.0 * xsqa > 1.0) {
 				double angle = 2.0 * asin(0.5 / sqrt(xsqa));
 				C1squark_2 += -2.0 * std::pow(4.0 * xsqa - 1.0, 1.5) * Cl2(angle);
 			}
 			C1squark_2 += 8.0 * (xsqa - 1.0 / 3.0) * log(xsqa) + 16.0 * xsqa;
 
-			xsqa = std::pow((*sus_param).MsqD[ae] / (*sm_param)("MASS", 24), 2.0);
+			xsqa = std::pow((*sus_param).MsqD[ae] / (*sm)("MASS", 24), 2.0);
 			if (4.0 * xsqa > 1.0) {
 				double angle = 2.0 * asin(0.5 / sqrt(xsqa));
 				C1squark_2 += -2.0 * std::pow(4.0 * xsqa - 1.0, 1.5) * Cl2(angle);
