@@ -7,11 +7,13 @@ class Wilson_parameters {
     static Wilson_parameters* instance;
     Wilson_parameters();
     
-    public:
-    static constexpr int arraySize {10};
-
     double mu_W;
     double mu;
+
+public:
+    static constexpr int arraySize {10};
+
+    
 
     double alphas_muW;
     double alphas_mu;
@@ -38,7 +40,8 @@ class Wilson_parameters {
     std::array<double, arraySize> etaMuPowers = {};
     
 
-    
+    void SetMu(double mu);
+    void SetMuW(double mu_W);
     Wilson_parameters(const Wilson_parameters&) = delete;
     void operator=(const Wilson_parameters&) = delete;
 
