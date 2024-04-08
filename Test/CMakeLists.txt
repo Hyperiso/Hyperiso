@@ -23,7 +23,8 @@ file(GLOB COMMON_SOURCES
      # "../logique_metier/*.cpp"
      "../Math/*.cpp"
      "../Physical_Model/*.cpp"
-     "../External_Integration/*.cpp")
+     "../External_Integration/SoftSusy.cpp"
+     )
 
 set(TEST_READER_SOURCE "testReader.cpp")
 set(TEST_WILSON_SOURCE "testWilson.cpp")
@@ -43,6 +44,7 @@ target_include_directories(testReader
     # "${CMAKE_SOURCE_DIR}/../logique_metier"
     "${CMAKE_SOURCE_DIR}/../Math"
     "${CMAKE_SOURCE_DIR}/../Physical_Model"
+    "${CMAKE_SOURCE_DIR}/../External_Integration"
 )
 
 # Add include directories for testWilson
@@ -53,6 +55,7 @@ target_include_directories(testWilson
     # "${CMAKE_SOURCE_DIR}/../logique_metier"
     "${CMAKE_SOURCE_DIR}/../Math"
     "${CMAKE_SOURCE_DIR}/../Physical_Model"
+    "${CMAKE_SOURCE_DIR}/../External_Integration"
 )
 
 # Add include directories for testWilson
@@ -73,6 +76,7 @@ target_include_directories(testQCDParameters
     # "${CMAKE_SOURCE_DIR}/../logique_metier"
     "${CMAKE_SOURCE_DIR}/../Math"
     "${CMAKE_SOURCE_DIR}/../Physical_Model"
+    "${CMAKE_SOURCE_DIR}/../External_Integration"
 )
 
 # Link any necessary libraries to the test executable
