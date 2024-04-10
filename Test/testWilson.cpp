@@ -5,6 +5,7 @@
 #include <memory>
 #include "Wilson.h"
 #include "MemoryManager.h"
+#include "Logger.h"
 
 void writeCoefficientsToFile(const std::string& strat_name, const std::string& fileName, const std::shared_ptr<InitializationStrategy>& strategy) {
     std::ofstream file(fileName);
@@ -51,6 +52,9 @@ void writeCoefficientsToFile(const std::string& strat_name, const std::string& f
 }
 
 int main() {
+
+    Logger* logger = Logger::getInstance();
+    logger->setLevel(Logger::LogLevel::DEBUG);
 
     auto loStrategy = std::make_shared<SM_LO_Strategy>();
     auto nloStrategy = std::make_shared<SM_NLO_Strategy>();

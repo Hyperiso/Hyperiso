@@ -92,7 +92,7 @@ class susy_parameters {
 
 	double xt; // W boson mass (24)
 	double yt; // param->mass_H (25)
-	double z= pow((*susy)("MASS", 37)/(*sm)("MASS", 24),2.);
+	double z;
 
     double lu;
 	double ld;

@@ -5,10 +5,9 @@
 #include <vector>
 #include <string>
 #include <memory>
-#include <iostream>
-#include "../Math/Math.h"
-#include "../Core/Parameters.h"
-#include "../Core/Logger.h"
+#include "Math.h"
+#include "Parameters.h"
+#include "Logger.h"
 #include "Wilson_parameters.h"
 #define MAX_ORDER 2
 #define NW 18

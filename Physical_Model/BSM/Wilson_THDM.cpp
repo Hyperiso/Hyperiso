@@ -2,8 +2,9 @@
 
 
 
-void THDM_LO_Strategy::init(Parameters* sm, double scale, WilsonSet& C_match) {
+void THDM_LO_Strategy::init(double scale, WilsonSet& C_match) {
 
+	Parameters* sm = Parameters::GetInstance();
     double C7Heps_0,C8Heps_0,C7Heps2_0,C8Heps2_0;
 	double lu,ld;
 
@@ -25,8 +26,9 @@ void THDM_LO_Strategy::init(Parameters* sm, double scale, WilsonSet& C_match) {
 	double C10H_0=-C9llH0(xt,yt,lu)/sw2;
 }
 
-void THDM_NLO_Strategy::init(Parameters* sm, double scale, WilsonSet& C_match) {
+void THDM_NLO_Strategy::init(double scale, WilsonSet& C_match) {
 
+	Parameters* sm = Parameters::GetInstance();
     double C7Heps_0,C8Heps_0,C7Heps2_0,C8Heps2_0;
 	double lu,ld;
 
@@ -49,8 +51,9 @@ void THDM_NLO_Strategy::init(Parameters* sm, double scale, WilsonSet& C_match) {
 	double C10H_1=-C9llH1(xt,yt,lu,log(pow(scale/(*sm)("MASS",25),2.)))/sw2;
 }
 
-void THDM_NNLO_Strategy::init(Parameters* sm, double scale, WilsonSet& C_match) {
+void THDM_NNLO_Strategy::init(double scale, WilsonSet& C_match) {
 
+	Parameters* sm = Parameters::GetInstance();
     double C7Heps_0,C8Heps_0,C7Heps2_0,C8Heps2_0;
 	double lu,ld;
 
@@ -118,7 +121,7 @@ void THDM_LO_Strategy::init_scalar(double Q_match,double Q,int gen, WilsonSet& C
 	+xt/2./xh*(sin(alpha-beta)+cos(alpha-beta)*(*sm)("YUKAWA_CH_L",gen*gen))*(sin(alpha-beta)*G1+cos(alpha-beta)*G2)
 	+xt/2./xH0*(cos(alpha-beta)-sin(alpha-beta)*(*sm)("YUKAWA_CH_L",gen*gen))*(cos(alpha-beta)*G1-sin(alpha-beta)*G2);
 	
-	double CPn_2HDM=xt*(-(*sm)("YUKAWA_CH_L",gen*gen)*((*sm)("YUKAWA_CH_D",33)*F1SP(xt,xH)+(*sm)("YUKAWA_CH_U",33)*F2SP(xt,xH))+(*sm)("YUKAWA_CH_L",gen*gen)*(*sm)("YUKAWA_CH_U",33)*F3SP(xt,xH))+xt/2./xA*(*sm)("YUKAWA_CH_L",gen*gen)*G3;
+	double CPn_2HDM=xt*(-(*sm)("YUKAWA_CH_L",gen*gen)*((*sm)("YUKAWA_CH_D",33)*F1SP(xt,xH)+(*sm)("YUKAWA_CH_U",33)*F2SP(xt,xH))+(*sm)("YUKAWA_CH_L",gen*gen)*(*sm)("YUKAWA_CH_U",33)*F3SP(xt,xH))+xt/2./xA*((*sm)("YUKAWA_CH_L",gen*gen))*G3;
 
 	double CQ1H_0=CSc_2HDM(xH,xt,(*sm)("YUKAWA_CH_U",33),(*sm)("YUKAWA_CH_D",33),(*sm)("YUKAWA_CH_L",gen*gen))+CSn_2HDM;
 	double CQ2H_0=CPc_2HDM(xH,xt,(*sm)("YUKAWA_CH_U",33),(*sm)("YUKAWA_CH_D",33),(*sm)("YUKAWA_CH_L",gen*gen),sw2)+CPn_2HDM;

@@ -55,6 +55,8 @@ void SM_LO_Strategy::init(double scale, WilsonSet& C_match) {
 
     Parameters* sm = Parameters::GetInstance();
     Wilson_parameters *W_param = Wilson_parameters::GetInstance();
+    W_param->SetMuW(scale);
+
     Logger* logger = Logger::getInstance();
 
     double L=log(scale*scale/(*sm)("MASS",24)/(*sm)("MASS",24)); // scale -> mu_W
@@ -92,13 +94,15 @@ void SM_LO_Strategy::set_base1(WilsonSet& C, WilsonSet& C_match, double Q, const
 
 	Parameters* sm = Parameters::GetInstance();
     Logger* logger = Logger::getInstance();
+    Wilson_parameters *W_param = Wilson_parameters::GetInstance();
+    W_param->SetMu(Q);
 
 	auto C_matchs = extractCoefficients(C_match, 0);
 
 	complex_t C7_eff= C_matchs[7]-1./3.*C_matchs[3]-4./9.*C_matchs[4]-20./3.*C_matchs[5]-80./9.*C_matchs[6]; 
 	complex_t C8_eff= C_matchs[8]+C_matchs[3]-1./6.*C_matchs[4]+20.*C_matchs[5]-10./3.*C_matchs[6]; 
 
-	Wilson_parameters *W_param = Wilson_parameters::GetInstance();
+	
 	for (int i = 0; i < W_param->arraySize; ++i) {
         (W_param->etaMuPowers)[i] = std::pow(W_param->eta_mu, (W_param->ai)[i]);
     }
@@ -149,6 +153,7 @@ void SM_LO_Strategy::set_base2(WilsonSet& C, WilsonSet& C_match, double Q, const
 
 	Parameters* sm = Parameters::GetInstance();
     Wilson_parameters *W_param = Wilson_parameters::GetInstance();
+    W_param->SetMu(Q);
 
 	auto C_matchs = extractCoefficients(C_match, 0);
 	
@@ -188,6 +193,8 @@ void SM_NLO_Strategy::init(double scale, WilsonSet& C_match) {
 
     Parameters* sm = Parameters::GetInstance();
     Wilson_parameters *W_param = Wilson_parameters::GetInstance();
+    W_param->SetMuW(scale);
+
     Logger* logger = Logger::getInstance();
 
     SM_LO_Strategy::init(scale, C_match);
@@ -232,6 +239,8 @@ void SM_NLO_Strategy::set_base1(WilsonSet& C, WilsonSet& C_match, double Q, cons
 
 	Parameters* sm = Parameters::GetInstance();
     Wilson_parameters *W_param = Wilson_parameters::GetInstance();
+    W_param->SetMu(Q);
+
     Logger* logger = Logger::getInstance();
     
 	auto C_matchs = extractCoefficients(C_match, 1);
@@ -275,7 +284,7 @@ void SM_NLO_Strategy::set_base1(WilsonSet& C, WilsonSet& C_match, double Q, cons
         return W_param->eta_mu * ((W_param->U0)[8][je-1] * C_matchs[je] + (W_param->U1)[8][je-1] * C0_matchs[je]);
     };
 
-
+    C_NLO[9-1] = complex_t(0,0);
     for (int je = 1; je <= 8; je++) {
 
         C_NLO[8] += fourPiOverAlphasMu * updateC1b(je);
@@ -294,6 +303,8 @@ void SM_NLO_Strategy::set_base2(WilsonSet& C, WilsonSet& C_match, double Q, cons
 
 	Parameters* sm = Parameters::GetInstance();
     Wilson_parameters *W_param = Wilson_parameters::GetInstance();
+    W_param->SetMu(Q);
+
     Logger* logger = Logger::getInstance();
 
 	auto C_matchs_0 = extractCoefficients(C_match, 0);
@@ -370,6 +381,8 @@ void SM_NNLO_Strategy::init(double scale, WilsonSet& C_match) {
 
     Parameters* sm = Parameters::GetInstance();
     Wilson_parameters *W_param = Wilson_parameters::GetInstance();
+    W_param->SetMuW(scale);
+    Logger* logger = Logger::getInstance();
 
     SM_LO_Strategy::init(scale, C_match);
     SM_NLO_Strategy::init(scale, C_match);
@@ -415,6 +428,14 @@ void SM_NNLO_Strategy::init(double scale, WilsonSet& C_match) {
 	C_NNLO[static_cast<size_t>(WilsonCoefficient::C7)] = complex_t(C7SM_2, 0);
 	C_NNLO[static_cast<size_t>(WilsonCoefficient::C8)] = complex_t(C8SM_2, 0);
 
+    logger->debug("C1SM_2 at NLO: " + std::to_string(C1SM_2));
+    logger->debug("C2SM_2 at NLO: " + std::to_string(C2SM_2));
+    logger->debug("C3SM_2 at NLO: " + std::to_string(C3SM_2));
+    logger->debug("C4SM_2 at NLO: " + std::to_string(C4SM_2));
+    logger->debug("C5SM_2 at NLO: " + std::to_string(C5SM_2));
+    logger->debug("C6SM_2 at NLO: " + std::to_string(C6SM_2));
+    logger->debug("C7SM_2 at NLO: " + std::to_string(C7SM_2));
+    logger->debug("C8SM_2 at NLO: " + std::to_string(C8SM_2));
 
 }
 
@@ -423,7 +444,8 @@ void SM_NNLO_Strategy::set_base1(WilsonSet& C, WilsonSet& C_match, double Q, con
 
 	Parameters* sm = Parameters::GetInstance();
     Wilson_parameters *W_param = Wilson_parameters::GetInstance();
-    
+    W_param->SetMu(Q);
+
 	auto C_matchs = extractCoefficients(C_match, 2);
 	auto C1_matchs = extractCoefficients(C_match, 1);
 	auto C0_matchs = extractCoefficients(C_match, 0);
@@ -460,7 +482,7 @@ void SM_NNLO_Strategy::set_base1(WilsonSet& C, WilsonSet& C_match, double Q, con
     auto updateC2b = [&](int je) {
         return W_param->eta_mu * W_param->eta_mu * ((W_param->U0)[8][je-1] * C_matchs[je] + (W_param->U1)[8][je-1] * C1_matchs[je] + (W_param->U2)[8][je-1] * C0_matchs[je]);
     };
-
+    C_NNLO[9-1] = complex_t(0,0);
     for (int je = 1; je <= 8; je++) {
         C_NNLO[9-1] += fourPiOverAlphasMu * updateC2b(je);
     }
