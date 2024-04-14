@@ -73,7 +73,7 @@ std::string LhaElement<T>::toString() const {
 }
 
 std::unique_ptr<AbstractElement> LhaElementFactory::createElement(LhaBlock* block, const std::vector<std::string>& line) {
-    if (block->getPrototype().blockName == "FCINFO" || block->getPrototype().blockName == "FMODSEL") {
+    if (block->getPrototype().blockName == "FCINFO" || block->getPrototype().blockName == "FMODSEL" || block->getPrototype().blockName == "SPINFO") {
         return std::make_unique<LhaElement<std::string>>(block, line);
     } else {
         return std::make_unique<LhaElement<double>>(block, line);

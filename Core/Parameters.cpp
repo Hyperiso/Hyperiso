@@ -113,12 +113,13 @@ void Parameters::initSUSY() {
 
     LhaReader* lha = MemoryManager::GetInstance()->getReader();
 
-    std::string spectrumFile = "../spectrum.slha";
+    std::string root = MemoryManager::findNearestHyperisoDirectory();
+    std::string spectrumFile = root + "Test/spectrum.slha";
     Logger::getInstance()->info("Starting SUSY spectrum calculation...");
     SoftsusyCalculatorFactory::executeCommand("calculateSpectrum", lha->getLhaPath(), spectrumFile);
-    Logger::getInstance()->info("Done.");
 
     lha->update(spectrumFile);
+    Logger::getInstance()->info("LHA Blocks updated.");
 
     readMatrix(this->stopmix, "STOPMIX", lha);
     readMatrix(this->sbotmix, "SBOTMIX", lha);
