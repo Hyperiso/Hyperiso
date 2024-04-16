@@ -57,7 +57,7 @@ void Parser::parse(bool comments) {
         if (newBlock) {
             auto prototype = reader->findPrototype(t.value);
             if (prototype.blockName != "") {
-                Logger::getInstance()->info("LHA reader: Block " + prototype.blockName + " found.");
+                Logger::getInstance()->debug("LHA reader: Block " + prototype.blockName + " found.");
                 this->rawBlocks[t.value] = std::vector<std::vector<std::string>> {};
                 cBlock = t.value;
                 newBlock = false;
@@ -117,7 +117,7 @@ void LhaReader::readAll() {
     auto blocks = parser.getBlocks();
     for (auto p : blocks) {
         addBlock(p.first, p.second);
-    }
+    }        
 }
 
 Prototype LhaReader::findPrototype(std::string name) const {
@@ -134,6 +134,7 @@ std::string LhaReader::getLhaPath() const {
 }
 
 void LhaReader::update(std::string_view newLha) {
+    Logger::getInstance()->info("Updating LHA blocks...");
     this->lhaFile = std::filesystem::path(newLha);
     isFLHA = lhaFile.extension().string() == ".flha"; 
     if (isFLHA && this->blockPrototypes.size() == SLHA_BLOCKS.size()) {
