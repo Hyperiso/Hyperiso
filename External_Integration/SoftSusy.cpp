@@ -51,35 +51,6 @@ std::string getProjectRootFromConfig() {
 }
 
 /**
- * @brief Search for the nearest directory containing "hyperiso" in its name.
- * 
- * This function searches for the nearest directory containing "hyperiso" in its name
- * starting from the current directory and moving upwards in the directory tree.
- * It returns the absolute path of the found directory if one is found, otherwise an empty string.
- * 
- * @return The absolute path of the nearest directory containing "hyperiso" in its name.
- */
-std::string findNearestHyperisoDirectory() {
-    Logger* logger = Logger::getInstance();
-    fs::path currentDir = fs::current_path();
-
-    // Iterate through parent directories until "hyperiso" is found or root directory is reached
-    while (!currentDir.empty()) {
-        for (const auto& entry : fs::directory_iterator(currentDir)) {
-            if (entry.is_directory() && entry.path().filename().string().find("hyperiso") != std::string::npos) {
-                logger->info("Project root folder is " +entry.path().string());
-                return entry.path().string();
-            }
-        }
-        currentDir = currentDir.parent_path(); // Move to the parent directory
-    }
-
-    // If "hyperiso" directory is not found in any parent directory
-    logger->error("Error: Nearest directory containing 'hyperiso' not found.");
-    return "";
-}
-
-/**
  * Creates a new calculator instance.
  * This method implements the Factory Method pattern, providing a way to instantiate
  * ICalculator objects. It currently defaults to creating instances of SoftsusyCalculator.
@@ -101,11 +72,16 @@ std::string findNearestHyperisoDirectory() {
 void SoftsusyCalculator::calculateSpectrum(const std::string& inputFilePath, const std::string& outputFilePath) {
     Logger* logger = Logger::getInstance();
 
-    std::string root_file = findNearestHyperisoDirectory();
+    std::string root_file = MemoryManager::findNearestHyperisoDirectory();
     // Example system call to SOFTSUSY - replace with actual implementation
-    std::string command = root_file +"/External_Integration/SOFTSUSY/src/SOFTSUSY/softpoint.x leshouches < " + inputFilePath + " > " + outputFilePath;
+    std::string command;
+    if (inputFilePath.starts_with("/")) {
+        command = root_file + "External_Integration/SOFTSUSY/src/SOFTSUSY/softpoint.x leshouches < " + inputFilePath + " > " + outputFilePath;
+    } else {
+        command = root_file + "External_Integration/SOFTSUSY/src/SOFTSUSY/softpoint.x leshouches < " + root_file + inputFilePath + " > " + outputFilePath;
+    }
 
-    logger->debug("SOFTSUSY COMMAND : " +command);
+    logger->debug("SOFTSUSY COMMAND : " + command);
 
     int result = system(command.c_str());
     if (result != 0) {

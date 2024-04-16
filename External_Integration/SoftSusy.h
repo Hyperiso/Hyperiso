@@ -1,6 +1,7 @@
 #include <string>
 #include <functional> // Pour std::function
 #include <unordered_map> 
+#include "MemoryManager.h"
 /**
  * @class ICalculator
  * @brief Interface for calculator classes.
