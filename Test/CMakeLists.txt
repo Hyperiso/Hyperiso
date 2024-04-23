@@ -25,14 +25,16 @@ file(GLOB COMMON_SOURCES
      "../Physical_Model/*.cpp"
      "../External_Integration/SoftSusy.cpp"
      )
-
+file(GLOB SUSY "../Physical_Model/BSM/*.cpp" "../Math/Math_BSM/*.cpp")
 set(TEST_READER_SOURCE "testReader.cpp")
 set(TEST_WILSON_SOURCE "testWilson.cpp")
+set(TEST_SUSYWILSON_SOURCE "testSusyWilson.cpp" )
 set(TEST_PARAMS_SOURCE "testParams.cpp")
 set(TEST_QCDPARAMETERS_SOURCE "testQCDParameters.cpp") # Ajout de la nouvelle source
 
 add_executable(testReader ${COMMON_SOURCES} ${TEST_READER_SOURCE})
 add_executable(testWilson ${COMMON_SOURCES} ${TEST_WILSON_SOURCE})
+add_executable(testSusyWilson ${COMMON_SOURCES} ${SUSY} ${TEST_SUSYWILSON_SOURCE})
 add_executable(testParams ${COMMON_SOURCES} ${TEST_PARAMS_SOURCE})
 add_executable(testQCDParameters ${COMMON_SOURCES} ${TEST_QCDPARAMETERS_SOURCE}) # Ajout de la nouvelle cible
 
@@ -65,6 +67,18 @@ target_include_directories(testParams
     "${CMAKE_SOURCE_DIR}/../DataBase"
     "${CMAKE_SOURCE_DIR}/../Math"
     "${CMAKE_SOURCE_DIR}/../Physical_Model"
+    "${CMAKE_SOURCE_DIR}/../External_Integration"
+)
+
+# Add include directories for testSusyWilson
+target_include_directories(testSusyWilson
+    PUBLIC 
+    "${CMAKE_SOURCE_DIR}/../Core"
+    "${CMAKE_SOURCE_DIR}/../DataBase"
+    "${CMAKE_SOURCE_DIR}/../Math"
+    "${CMAKE_SOURCE_DIR}/../Math/Math_BSM"
+    "${CMAKE_SOURCE_DIR}/../Physical_Model"
+    "${CMAKE_SOURCE_DIR}/../Physical_Model/BSM"
     "${CMAKE_SOURCE_DIR}/../External_Integration"
 )
 

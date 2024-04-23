@@ -59,7 +59,7 @@ class susy_parameters {
 					{0.,(*susy)("CKM",21), (*susy)("CKM",22), (*susy)("CKM",23)},
 					{0., (*susy)("CKM",31), (*susy)("CKM",32),(*susy)("CKM",33)}
 					}}; 
-	Array1D_7 MsqD;
+
 	const size_t NumSquarks = 6;
 	std::array<std::array<double, 4>, 7> sU_mix;
 

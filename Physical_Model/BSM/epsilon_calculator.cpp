@@ -1,7 +1,8 @@
 #include "epsilon_calculator.h"
-#include "../Math/Math.h"
+#include "Math.h"
 
 
+//Ive put MSOFT to the block MSOFT and 1
 
 EpsilonCalculator::EpsilonCalculator() {}
 
@@ -9,7 +10,7 @@ EpsilonCalculator::EpsilonCalculator() {}
 double EpsilonCalculator::epsilon_0() {
 
     double sw2 = std::pow(std::sin(std::atan((*sm)("Coupling",1)/ (*sm)("Coupling",2))), 2);
-    double alphas_MSOFT = (*sm).QCDRunner.runningAlphasCalculation((*susy).MSOFT_Q);
+    double alphas_MSOFT = (*sm).QCDRunner.runningAlphasCalculation((*susy)("MSOFT",1));
 
     
 
@@ -18,8 +19,8 @@ double EpsilonCalculator::epsilon_0() {
 
     double term1 = 2.0 / 3.0 * alphas_MSOFT / M_PI * (((*susy)("EXTPAR",12) / (*susy)("EXTPAR",25) - mu_Q) / (*susy)("MASS",1000021) *
                H2((*susy)("MASS",1000005) * (*susy)("MASS",1000005) / (*susy)("MASS",1000021) / (*susy)("MASS",1000021), (*susy)("MASS",2000005) * (*susy)("MASS",2000005) / (*susy)("MASS",1000021) / (*susy)("MASS",1000021)));
-    double term2 = -0.5 * (B((*susy)("MASS",1000021), (*susy)("MASS",1000005), (*susy).MSOFT_Q) + B((*susy)("MASS",1000021), (*susy)("MASS",2000005), (*susy).MSOFT_Q)) / (*susy)("EXTPAR",25);
-    double term3 = 1.0 / (*sm).inv_alpha_em / sw2 / 4.0 / M_PI * (mu_Q * (*susy)("MSOFT",2)) * 
+    double term2 = -0.5 * (B((*susy)("MASS",1000021), (*susy)("MASS",1000005), (*susy)("MSOFT",1)) + B((*susy)("MASS",1000021), (*susy)("MASS",2000005), (*susy)("MSOFT",1))) / (*susy)("EXTPAR",25);
+    double term3 = 1.0 / (*sm)("SMINPUTS",1) / sw2 / 4.0 / M_PI * (mu_Q * (*susy)("MSOFT",2)) * 
                (((*susy)("SBOTMIX",11) * (*susy)("SBOTMIX",11) * H2((*susy)("MSOFT",2) * (*susy)("MSOFT",2) / (*susy)("MASS",1000005) / (*susy)("MASS",1000005), mu_Q * mu_Q / (*susy)("MASS",1000005) / (*susy)("MASS",1000005)) / (*susy)("MASS",1000005) / (*susy)("MASS",1000005) / 2.0) +
                ((*susy)("SBOTMIX",12) * (*susy)("SBOTMIX",12) * H2((*susy)("MSOFT",2) * (*susy)("MSOFT",2) / (*susy)("MASS",2000005) / (*susy)("MASS",2000005), mu_Q * mu_Q / (*susy)("MASS",2000005) / (*susy)("MASS",2000005)) / (*susy)("MASS",2000005) / (*susy)("MASS",2000005) / 2.0));
 
@@ -41,7 +42,7 @@ double EpsilonCalculator::epsilon_2() const {
                     ((*susy)("UMIX",22) * (*susy)("VMIX",22) / (*susy)("MASS",1000037) * 
                      H2((*susy)("MASS",1000006) * (*susy)("MASS",1000006) / (*susy)("MASS",1000037) / (*susy)("MASS",1000037), (*susy)("MASS",2000006) * (*susy)("MASS",2000006) / (*susy)("MASS",1000037) / (*susy)("MASS",1000037))));
     
-    double term2 = 1.0 / (*sm).inv_alpha_em / sw2 / 4.0 / M_PI * (mu_Q * (*susy)("MSOFT",2)) * 
+    double term2 = 1.0 / (*sm)("SMINPUTS",1) / sw2 / 4.0 / M_PI * (mu_Q * (*susy)("MSOFT",2)) * 
                    (((*susy)("STOPMIX",11) * (*susy)("STOPMIX",11) * 
                      H2((*susy)("MSOFT",2) * (*susy)("MSOFT",2) / (*susy)("MASS",1000006) / (*susy)("MASS",1000006), mu_Q * mu_Q / (*susy)("MASS",1000006) / (*susy)("MASS",1000006)) / (*susy)("MASS",1000006) / (*susy)("MASS",1000006)) +
                     ((*susy)("STOPMIX",12) * (*susy)("STOPMIX",12)* 
@@ -60,8 +61,8 @@ double EpsilonCalculator::epsilon_b() {
 double EpsilonCalculator::epsilon_bp() {
 
     double sw2 = std::pow(std::sin(std::atan((*sm)("Coupling",1)/ (*sm)("Coupling",2))), 2);
-    double alphas_MSOFT = (*sm).QCDRunner.runningAlphasCalculation((*susy).MSOFT_Q);
-    int nb_neut = ((*sm).mass_neut[5] == 0.) ? 4 : 5;
+    double alphas_MSOFT = (*sm).QCDRunner.runningAlphasCalculation((*susy)("MSOFT",1));
+    int nb_neut = ((*susy)("MASS", 1000039) == 0.) ? 4 : 5; //mass_neut[5] is gravitino ?
 
     double epsilonbp = 2.0 / 3.0 * alphas_MSOFT / M_PI * 
                        ((*susy)("EXTPAR",12)/ (*susy)("EXTPAR",25) - mu_Q) / (*susy)("MASS",1000021) * 
@@ -88,7 +89,7 @@ double EpsilonCalculator::epsilon_bp() {
                       H2((*susy)("MASS",1000006) * (*susy)("MASS",1000006) / (*susy)("MASS",neutralino[ie]) / (*susy)("MASS",neutralino[ie]), (*susy)("MASS",2000005) * (*susy)("MASS",2000005) / (*susy)("MASS",neutralino[ie]) / (*susy)("MASS",neutralino[ie])));
     }
 
-    epsilonbp += 1.0 / (*sm).inv_alpha_em / sw2 / 4.0 / M_PI * 
+    epsilonbp += 1.0 / (*sm)("SMINPUTS",1) / sw2 / 4.0 / M_PI * 
                  (mu_Q * (*susy)("MSOFT",2)) * 
                  (((*susy)("STOPMIX",11) * (*susy)("STOPMIX",11) *
                    H2((*susy)("MSOFT",2) * (*susy)("MSOFT",2) / (*susy)("MASS",1000006) / (*susy)("MASS",1000006), mu_Q * mu_Q / (*susy)("MASS",1000006) / (*susy)("MASS",1000006)) / (*susy)("MASS",1000006) / (*susy)("MASS",1000006) +
@@ -107,7 +108,7 @@ double EpsilonCalculator::epsilon_bp() {
 // Implémentation de epsilon_0p
 double EpsilonCalculator::epsilon_0p() {
 
-    double alphas_MSOFT = (*sm).QCDRunner.runningAlphasCalculation((*susy).MSOFT_Q);
+    double alphas_MSOFT = (*sm).QCDRunner.runningAlphasCalculation((*susy)("MSOFT",1));
     int nb_neut = ((*susy)("MASS", 1000039) == 0.) ? 4 : 5;
 
     double epsilon0p = -2.0 / 3.0 * alphas_MSOFT / M_PI * 
