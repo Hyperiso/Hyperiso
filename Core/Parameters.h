@@ -13,29 +13,30 @@ typedef std::complex<double> complex_t;
 
 class Parameters {
 public:
-
-    std::vector<std::vector<double>> lambda_u, lambda_d;
-    
-    QCDParameters QCDRunner;
     // double Q {sm.mass_top_pole};
 
+    QCDParameters QCDRunner;
     static Parameters* GetInstance(int index = 0);
 
     void setScale(double Q);
+    double alpha_s(double Q);
+    double running_mass(double quarkmass, double Q_init, double Q_end, std::string option_massb = "running", std::string option_masst = "pole");
 
     double operator()(std::string block, int pdgCode) {
         if (block == "MASS") {
             return masses[pdgCode];
         }
-
-        if (block =="COUPLING") {
-            return coupling[pdgCode];
+        if (block =="GAUGE") {
+            return gauge[pdgCode];
         }
         if (block=="YUKAWA_CH_U") {
             return lambda_u[pdgCode/10][pdgCode%10];
         }
         if (block=="YUKAWA_CH_D") {
             return lambda_d[pdgCode/10][pdgCode%10];
+        }
+        if (block=="YUKAWA_CH_L") {
+            return lambda_l[pdgCode/10][pdgCode%10];
         }
         if (block=="EXTPAR") {
             return extpar[pdgCode];
@@ -62,6 +63,12 @@ public:
         if (block == "VMIX") {
             return vmix[pdgCode/10][pdgCode%10];
         }
+        if (block == "H0MIX") {
+            return A0mix[pdgCode/10][pdgCode%10];
+        }
+        if (block == "A0MIX") {
+            return H0mix[pdgCode/10][pdgCode%10];
+        }
         if (block == "MSOFT") {
             return msoft[pdgCode];
         }
@@ -70,6 +77,9 @@ public:
         }
         if (block == "YD") {
             return yd[pdgCode/10][pdgCode%10];
+        }
+        if (block == "AU") {
+            return au[pdgCode/10][pdgCode%10];
         }
         if (block== "NMIX") {
             return nmix[pdgCode/10][pdgCode%10];
@@ -83,6 +93,10 @@ private:
     Parameters(int modelId); // Constructeur pour initialiser les paramètres
     void initSM();
     void initSUSY();
+
+    std::vector<std::vector<double>> lambda_u, lambda_d, lambda_l;
+    
+    
 
     std::map<int, double> minpar;
     std::map<int, double> extpar;
@@ -100,6 +114,8 @@ private:
     std::array<std::array<double, 2>, 2> umix;
     std::array<std::array<double, 2>, 2> vmix;
     std::array<std::array<double, 4>, 4> nmix;
+    std::array<std::array<double, 4>, 4> A0mix;
+    std::array<std::array<double, 4>, 4> H0mix;
     std::array<std::array<double, 3>, 3> yu;
     std::array<std::array<double, 3>, 3> yd;
     std::array<std::array<double, 3>, 3> ye;

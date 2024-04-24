@@ -1,0 +1,60 @@
+# Example input in SLHA format, and suitable for input to
+# SOFTSUSY (v1.8 or higher): CMSSM10.1.1 input - see arXiv:1109.3859
+Block MODSEL		     # Select model
+    1    0		     # Generic
+Block SMINPUTS		     # Standard Model inputs
+    1	1.279340000e+02	     # alpha^(-1) SM MSbar(MZ)
+    2   1.166370000e-05	     # G_Fermi
+    3   1.172000000e-01	     # alpha_s(MZ) SM MSbar
+    4   9.118760000e+01	     # MZ(pole)
+    5	4.250000000e+00	     # mb(mb) SM MSbar
+    6   1.725000000e+02	     # mtop(pole)
+    7	1.777000000e+00	     # mtau(pole)
+Block MINPAR               # SUSY breaking input parameters
+     3    1.00000000e+01   # tanb, DRbar, Feynman gauge
+Block EXTPAR               # non-universal SUSY breaking parameters
+      0   -1.00000000e+00  # Set MX=MSUSY
+      1    2.00000000e+03  # M_1(MX)
+      2    6.00000000e+02  # M_2(MX)
+      3    3.00000000e+03  # M_3(MX)
+     11   -3.80000000e+03  # At(MX)
+     12   -3.80000000e+03  # Ab(MX)
+     13    0.00000000e+00  # Atau(MX)
+     23    1.10000000e+02  # mu(MX)
+     26    2.00000000e+03  # mA(pole)
+     25    1.00000000e+01  # tan beta(MX)
+     31    5.00000000e+03  # meL(MX)
+     32    5.00000000e+03  # mmuL(MX)
+     33    5.00000000e+03  # mtauL(MX)
+     34    5.00000000e+03  # meR(MX)
+     35    5.00000000e+03  # mmuR(MX)
+     36    5.00000000e+03  # mtauR(MX)
+     41    5.00000000e+03  # mqL1(MX)
+     42    5.00000000e+03  # mqL2(MX)
+     43    2.00000000e+03  # mqL3(MX)
+     44    5.00000000e+03  # muR(MX)
+     45    5.00000000e+03  # mcR(MX)
+     46    3.00000000e+03  # mtR(MX)
+     47    5.00000000e+03  # mdR(MX)
+     48    5.00000000e+03  # msR(MX)
+     49    5.00000000e+03  # mbR(MX)
+Block SOFTSUSY               # Optional SOFTSUSY-specific parameters
+    0   1.000000000e+00      # Calculate decays in output (only for RPC (N)MSSM)
+# The default is that without this, SOFTSUSY will only calculate the spectrum   
+    1   1.000000000e-04      # Numerical precision: suggested range 10^(-3...-6)
+    2   0.000000000e+00	     # Quark mixing parameter: see manual
+    3   0.000000000e+00	     # Additional verbose output?
+    4   1.000000000e+00	     # Change electroweak symmetry breaking scale?
+    6   1.000000000e-04	     # Numerical precision
+    7	0.000000000e+00	     # Number of loops in Higgs mass computation
+   10	0.000000000e+00	     # Force it to SLHA***1*** output?
+   11	1.000000000e+19	     # Gravitino mass
+   12   1.000000000e+00	     # Print spectrum even when point disallowed
+   13	0.000000000e+00	     # Set a tachyonic A^0 to zero mass
+   19   1.000000000e+00      # Include 3-loop SUSY RGEs
+   21   0.000000000e+00	      # Calculate uncertainties in Higgs mass prediction
+   22   0.000000000e+00      # Include 2-loop sparticle mass thresholds
+#   23   0.000000000e+00      # No expansion of 2-loop gluino terms
+   24   1.000000000e-04      # If decay BR is below this number, don't output
+   25   1.000000000e+00	     # If set to 0, don't calculate 3-body decays (1=default)
+#   27   1.000000000e+03      # Scale to match QEDxQCD to MSSM (default mt)   

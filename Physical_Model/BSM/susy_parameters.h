@@ -47,6 +47,8 @@ class susy_parameters {
 	Array2D_4x4 Gamma_NL, Gamma_NR;
 	Array2D_7x7 Gamma_U, I_LR, P_U;
 	Array3D_3x7x4 X_UL, X_UR, X_NL, X_NR;
+
+	std::array<std::array<std::array<std::array<double, 4>, 4>, 3>, 7> G_aimn;
 	// Array2D_4x4  VCKM = {{{0.,0.,0.,0.},
 	// 				{param->Vud, param->Vus, -(param->Vts * param->Vtb + param->Vcs * param->Vcb) / param->Vus, 0.0},
 	// 				{param->Vcd, param->Vcs, param->Vcb, 0.0},
@@ -79,14 +81,18 @@ class susy_parameters {
 	// Parameters* sm = Parameters::GetInstance();
     double epsilonbp,epsilon0p,epsilon0,epsilon2,epsilon1p,epsilonb;
 
+	double epsfac=pow((1.+(*epsi).epsilon_b()*(*susy)("EXTPAR",25)),2.);
+
     double mass_top_muW;
 	double mass_b_muW; //mass bottom 6 (at pole)
 
 	double L; // scale -> mu_W
  	double sw2; //1 = param-> gp and 2 = (*sm)("COUPLING",2)
+	double alphas_muW;
 
 	double xt; // W boson mass (24)
 	double yt; // param->mass_H (25)
+	double z;
 
     double lu;
 	double ld;

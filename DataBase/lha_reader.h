@@ -66,6 +66,8 @@ public:
     bool hasBlock(const std::string& id) const;
     void readAll();
     Prototype findPrototype(std::string name) const;
+    std::string getLhaPath() const;
+    void update(std::string_view newLha);
 
     inline void addBlockType(std::string blockName, int itemCount=2, int valueIdx=1, int scaleIdx=-1, int rgIdx=-1, bool globalScale=false) {
         std::transform(blockName.begin(), blockName.end(), blockName.begin(), ::toupper);  // Make sure block name is uppercase 
@@ -83,23 +85,33 @@ public:
     }
 
     template <typename T>
-    inline void extractFromBlock(std::string blockName, std::vector<T*>& vars, const std::vector<int>& ids) {
+    inline void extractFromBlock(std::string blockName, std::vector<T>& vars) {
         LhaBlock* block = this->getBlock(blockName);
         if (block) {
-            for (int i=0; i!=vars.size(); ++i) {
-                auto e = block->get(std::to_string(ids.at(i)));
-                *(vars.at(i)) = e ? static_cast<LhaElement<T>*>(e)->getValue() : T {};
+            for (int id=0; id < vars.size(); ++id) {
+                vars.at(id) = static_cast<LhaElement<T>*>(block->get(std::to_string(id + 1)))->getValue();
             }
         }
     }
 
     template <typename T>
-    inline void extractFromBlock(std::string blockName, std::vector<T*>& vars, const std::vector<std::string>& ids) {
+    inline void extractFromBlock(std::string blockName, std::vector<T>& vars, const std::vector<int>& ids) {
         LhaBlock* block = this->getBlock(blockName);
         if (block) {
-            for (int i=0; i!=vars.size(); ++i) {
-                auto e = block->get(ids.at(i));
-                *(vars.at(i)) = e ? static_cast<LhaElement<T>*>(e)->getValue() : T {};
+            for (int i=0; i < vars.size(); ++i) {
+                auto e = block->get(std::to_string(ids.at(i)));
+                vars.at(i) = e ? static_cast<LhaElement<T>*>(e)->getValue() : T {};
+            }
+        }
+    }
+
+    template <typename T>
+    inline void extractFromBlock(std::string blockName, std::vector<T>& vars, std::vector<std::string>& ids) {
+        LhaBlock* block = this->getBlock(blockName);
+        if (block) {
+            for (int i=0; i < vars.size(); ++i) {
+                auto e = block->get(ids[i]);
+                vars[i] = e ? static_cast<LhaElement<T>*>(e)->getValue() : T {};
             }
         }
     }
@@ -107,6 +119,11 @@ public:
     inline LhaBlock* getBlock(std::string id) const {
         std::transform(id.begin(), id.end(), id.begin(), ::toupper);
         return this->hasBlock(id) ? blocks.at(id).get() : nullptr;
+    }
+
+    template <typename T>
+    inline T getValue(const std::string& blockName, const std::string& eltId) {
+        return static_cast<LhaElement<T>*>(this->getBlock(blockName)->get(eltId))->getValue();
     }
 
     inline int getBlockCount() const {

@@ -1,16 +1,16 @@
-#include "./QCDParameters.h"
-#include <iostream>
+#include "QCDParameters.h"
 
 QCDParameters::QCDParameters(double alpha_Z, double m_Z, double masst_pole, double massb_b, double mass_u, double mass_d, double mass_s, double mass_c) {
-    mass_Z = m_Z;
-    alphas_MZ = alpha_Z;
-    // mass_b_pole=massb_pole;
-    mass_t_pole = masst_pole;
-    mass_b_b = massb_b;
-    // mass_t_t = masst_t;
+    
+    this->mass_Z = m_Z;
+    this->alphas_MZ = alpha_Z;
+    this->mass_t_pole = masst_pole;
+    this->mass_b_b = massb_b;
+    this->mass_c = mass_c;
+    this->mass_s = mass_s;
+
     this->mt_mt(this->mass_t_pole);
     this->mb_pole(mass_b_b, mass_u, mass_d, mass_s, mass_c);
-
 }
 
 double QCDParameters::alphasRunning(double Q, double Lambda, int nf) const{
@@ -50,6 +50,10 @@ double QCDParameters::matchLambda(double alpha_running, double Q, int nf){
 
 double QCDParameters::runningAlphasCalculation(double Q, std::string option_massb, std::string option_masst){
 
+    Logger* logger = Logger::getInstance();
+
+    double mass_b, mass_t;
+
     if (option_massb == "pole")
         mass_b = mass_b_pole;
     else if (option_massb == "running")
@@ -67,7 +71,7 @@ double QCDParameters::runningAlphasCalculation(double Q, std::string option_mass
     if (Lambda5 == 0.0) {
         Lambda5 = matchLambda(alphas_MZ, mass_Z, 5);
         if (Lambda5 == -1){
-        std::cout << "ERROR" << std::endl;
+        logger->error("Error for Lambda5 calculation in QCCDParameters.cpp");
             return Lambda5;}
     }
     double alphas_running = alphasRunning(Q, Lambda5, 5);
@@ -89,12 +93,10 @@ double QCDParameters::runningAlphasCalculation(double Q, std::string option_mass
         return alphasRunning(Q, Lambda4, nf);
     }
 
-    throw std::logic_error("Invalid parameters or conditions in alphas_running function");
+    logger->debug("Invalid parameters or conditions in alphas_running function");
 }
 
 
-#define zeta3 1.2020569031595942855
-#define PI    3.1415926535897932385
 
 double QCDParameters::running_mass(double quark_mass, double Qinit, double Qfin,  std::string option_massb, std::string option_masst)
 /* computes the running quark mass at the energy Qfin, from a given running quark mass quark_mass at energy Qinit */
@@ -141,7 +143,7 @@ double QCDParameters::running_mass(double quark_mass, double Qinit, double Qfin,
 
     gamma0_init=2.;
     gamma1_init=101./12.-5./18.*nf_init;
-    gamma2_init=1./32.*(1249.-(2216./27.+160./3.*zeta3)*nf_init-140./81.*nf_init*nf_init);
+    gamma2_init=1./32.*(1249.-(2216./27.+160./3.*ZETA3)*nf_init-140./81.*nf_init*nf_init);
 
     beta0_fin=11.-2./3.*nf_fin;
     beta1_fin=51.-19./3.*nf_fin;
@@ -149,7 +151,7 @@ double QCDParameters::running_mass(double quark_mass, double Qinit, double Qfin,
 
     gamma0_fin=2.;
     gamma1_fin=101./12.-5./18.*nf_fin;
-    gamma2_fin=1./32.*(1249.-(2216./27.+160./3.*zeta3)*nf_fin-140./81.*nf_fin*nf_fin);
+    gamma2_fin=1./32.*(1249.-(2216./27.+160./3.*ZETA3)*nf_fin-140./81.*nf_fin*nf_fin);
 
     R_Qinit = pow(beta0_init/2./PI*alphas_Qinit,2.*gamma0_init/beta0_init)*(1.+(2.*gamma1_init/beta0_init-beta1_init*gamma0_init/(beta0_init*beta0_init))*alphas_Qinit/PI+1./2.*(pow(2.*gamma1_init/beta0_init-beta1_init*gamma0_init/(beta0_init*beta0_init),2.)+2.*gamma2_init/beta0_init-beta1_init*gamma1_init/(beta0_init*beta0_init)-beta2_init*gamma0_init/16./beta0_init/beta0_init+beta1_init*beta1_init*gamma0_init/2./(beta0_init*beta0_init*beta0_init))*pow(alphas_Qinit/PI,2.));
 	
@@ -190,14 +192,14 @@ double QCDParameters::mb_1S(double mb_pole)
 	double beta0=11.-8./3.;
 	double beta1=62.-32./3.;
 	double a1=31./3.-40./9.;
-	double a2=(4343./162.+4.*PI*PI-pow(PI,4.)/4.+22./3.*zeta3)*9.-(1798./81.+56./3.*zeta3)*6.
-	-(55./3.-16.*zeta3)*8./3.+1600./81.;
+	double a2=(4343./162.+4.*PI*PI-pow(PI,4.)/4.+22./3.*ZETA3)*9.-(1798./81.+56./3.*ZETA3)*6.
+	-(55./3.-16.*ZETA3)*8./3.+1600./81.;
 	
 	return mb_pole*(1.-2./9.*pow(as,2.)
 	/* -2./9.*pow(as,3.)/PI*(beta0*(L+1.)+a1/2.) */
 	)
 	-2./9.*pow(as,2.)
-	/* -2./9.*pow(as,4.)/PI/PI*(beta0*beta0*(3./4.*L*L+L+zeta3/2.+PI*PI/24.+1./4.)
+	/* -2./9.*pow(as,4.)/PI/PI*(beta0*beta0*(3./4.*L*L+L+ZETA3/2.+PI*PI/24.+1./4.)
 	+beta0*a1/2.*(3./2.*L+1.)+beta1/4.*(L+1.)+a1*a1/16.+a2/8.+(3.-1./36.)*4./3.*PI*PI) */
 	;
 }
@@ -208,9 +210,9 @@ double QCDParameters::mt_mt(double mt_pole)
 /* computes the top mass mt(mt) */
 {
 	double alphas_mtop=runningAlphasCalculation(mt_pole, "running"); 
-    this->mass_t_t = this->mass_t_pole/(1.+alphas_mtop/PI*(4./3.+alphas_mtop/PI*(307./32.+PI*PI/3.+PI*PI/9.*log(2.)-1./6.*zeta3-71./144.*5.)));
+    this->mass_t_t = this->mass_t_pole/(1.+alphas_mtop/PI*(4./3.+alphas_mtop/PI*(307./32.+PI*PI/3.+PI*PI/9.*log(2.)-1./6.*ZETA3-71./144.*5.)));
     alphas_mtop=runningAlphasCalculation(this->mass_t_t,"running","running");
-    this->mass_t_t = this->mass_t_pole/(1.+alphas_mtop/PI*(4./3.+alphas_mtop/PI*(307./32.+PI*PI/3.+PI*PI/9.*log(2.)-1./6.*zeta3-71./144.*5.)));
+    this->mass_t_t = this->mass_t_pole/(1.+alphas_mtop/PI*(4./3.+alphas_mtop/PI*(307./32.+PI*PI/3.+PI*PI/9.*log(2.)-1./6.*ZETA3-71./144.*5.)));
 	return mass_t_t;
 
 }

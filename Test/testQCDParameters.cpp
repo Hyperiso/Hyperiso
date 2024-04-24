@@ -11,16 +11,16 @@ int main() {
     double mbot = 4.18; 
     double mcharm = 1.275; 
 
-    QCDParameters qcdParams = QCDParameters(0.1, 91, 4.19000000e+00, 1.72900000e+02, 4.19000000e+00, 1.72900000e+02);
+    QCDParameters qcdParams = QCDParameters();
 
 
     std::ofstream file("quark_mass_running.csv");
     file << "Q,RunningMassTop,RunningMassBottom,RunningMassCharm\n";
 
     for (double Q = Qinit; Q <= Qfin; Q += step) {
-        double runningMassTop = qcdParams.running_mass(mtop, Qinit, Q, mtop, mbot); 
-        double runningMassBottom = qcdParams.running_mass(mbot, Qinit, Q, mtop, mbot);
-        double runningMassCharm = qcdParams.running_mass(mcharm, Qinit, Q, mtop, mbot); 
+        double runningMassTop = qcdParams.running_mass(mtop, Qinit, Q); 
+        double runningMassBottom = qcdParams.running_mass(mbot, Qinit, Q);
+        double runningMassCharm = qcdParams.running_mass(mcharm, Qinit, Q); 
         file << Q << "," << runningMassTop << "," << runningMassBottom << "," << runningMassCharm << "\n";
     }
 

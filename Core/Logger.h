@@ -8,12 +8,12 @@
 class Logger {
 public:
     enum class LogLevel {
+        TRACE,
+        VERBOSE,
+        DEBUG,
         INFO,
         WARN,
-        ERROR,
-        DEBUG,
-        TRACE,
-        VERBOSE
+        ERROR
     };
 
     static Logger* getInstance();

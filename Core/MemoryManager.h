@@ -18,6 +18,7 @@ private:
 
 public:
 
+    static std::string findNearestHyperisoDirectory();
     static MemoryManager* GetInstance(std::string lhaFile="./example.flha", std::vector<int> models={0});
 
     // Creation pointeur unique

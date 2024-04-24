@@ -57,7 +57,7 @@ void Parser::parse(bool comments) {
         if (newBlock) {
             auto prototype = reader->findPrototype(t.value);
             if (prototype.blockName != "") {
-                Logger::getInstance()->info("LHA reader: Block " + prototype.blockName + " found.");
+                Logger::getInstance()->debug("LHA reader: Block " + prototype.blockName + " found.");
                 this->rawBlocks[t.value] = std::vector<std::vector<std::string>> {};
                 cBlock = t.value;
                 newBlock = false;
@@ -80,7 +80,7 @@ void Parser::parse(bool comments) {
                 isQ = false;
             }
             else {
-                if (t.col < cCol) {
+                if (t.col <= cCol) {   
                     this->rawBlocks[cBlock].emplace_back(std::vector<std::string> {});
                     if(hasGlobalScale)
                         this->rawBlocks[cBlock].back().emplace_back(globalQ);
@@ -95,7 +95,9 @@ void Parser::parse(bool comments) {
 void LhaReader::addBlock(const std::string& id, const std::vector<std::vector<std::string>>& lines) {
     auto block = std::make_unique<LhaBlock>(findPrototype(id));
     block->readData(lines);
-    this->blocks.insert(std::pair(id, std::move(block)));
+    std::string id_ci = id;
+    std::transform(id_ci.begin(), id_ci.end(), id_ci.begin(), ::toupper);
+    this->blocks.insert(std::pair(id_ci, std::move(block)));
 }
 
 LhaReader::LhaReader(std::string_view path) : lhaFile(std::filesystem::path(path)) {
@@ -113,10 +115,9 @@ void LhaReader::readAll() {
     Parser parser {buffer.str(), this};
     parser.parse();
     auto blocks = parser.getBlocks();
-
     for (auto p : blocks) {
         addBlock(p.first, p.second);
-    }
+    }        
 }
 
 Prototype LhaReader::findPrototype(std::string name) const {
@@ -126,6 +127,21 @@ Prototype LhaReader::findPrototype(std::string name) const {
             return p;
     }
     return Prototype{""};
+}
+
+std::string LhaReader::getLhaPath() const {
+    return this->lhaFile.string();
+}
+
+void LhaReader::update(std::string_view newLha) {
+    Logger::getInstance()->info("Updating LHA blocks...");
+    this->lhaFile = std::filesystem::path(newLha);
+    isFLHA = lhaFile.extension().string() == ".flha"; 
+    if (isFLHA && this->blockPrototypes.size() == SLHA_BLOCKS.size()) {
+        this->blockPrototypes.insert(blockPrototypes.end(), FLHA_BLOCKS.begin(), FLHA_BLOCKS.end());
+    }
+    this->blocks.clear();
+    this->readAll();
 }
 
 std::string LhaReader::toString() const

@@ -5,10 +5,9 @@
 #include <vector>
 #include <string>
 #include <memory>
-#include <iostream>
-#include "../Math/Math.h"
-#include "../Core/Parameters.h"
-#include "../Core/Logger.h"
+#include "Math.h"
+#include "Parameters.h"
+#include "Logger.h"
 #include "Wilson_parameters.h"
 #define MAX_ORDER 2
 #define NW 18
@@ -35,7 +34,7 @@ public:
      * @param scale Matching scale.
      * @param C_match Wilson coefficients set at matching scale.
      */
-    virtual void init(Parameters* sm, double scale, WilsonSet& C_match) = 0;
+    virtual void init(double scale, WilsonSet& C_match) = 0;
 
     /**
      * @brief Initialize the prime Wilson coefficients at scale scale (usually 81 GeV).
@@ -46,6 +45,16 @@ public:
      * @param C_match Wilson coefficient set at matching scale.
      */
     virtual void init_prime(double scale_W,double scale,int gen, WilsonSet& C_match) = 0;
+
+    /**
+     * @brief Initialize the scalar Wilson coefficients at scale scale (usually 81 GeV).
+     * 
+     * @param scale_W Matching scale.
+     * @param scale Scale of interest.
+     * @param gen number of generation.
+     * @param C_match Wilson coefficient set at matching scale.
+     */
+    virtual void init_scalar(double scale_W,double scale,int gen, WilsonSet& C_match) = 0;
 
     /**
      * @brief Run the Wilson coefficient from the scale Q_match to the scale Q, in the conventional basis.
@@ -71,8 +80,9 @@ public:
 
 class SM_LO_Strategy : public InitializationStrategy {
 public:
-    void init(Parameters* sm, double scale, WilsonSet& C_match) override;
+    void init(double scale, WilsonSet& C_match) override;
     void init_prime(double scale_W,double scale,int gen, WilsonSet& C_match);
+    void init_scalar(double scale_W,double scale,int gen, WilsonSet& C_match);
     void set_base1(WilsonSet& C, WilsonSet& C_match, double Q, const double Q_match) override;
     void set_base2(WilsonSet& C, WilsonSet& C_match, double Q, const double Q_match) override;
 };
@@ -80,7 +90,7 @@ public:
 
 class SM_NLO_Strategy : public SM_LO_Strategy {
 public:
-    void init(Parameters* sm, double scale, WilsonSet& C_match) override;
+    void init(double scale, WilsonSet& C_match) override;
     void init_prime(double scale_W,double scale,int gen, WilsonSet& C_match) {}
     void set_base1(WilsonSet& C, WilsonSet& C_match, double Q, const double Q_match) override;
     void set_base2(WilsonSet& C, WilsonSet& C_match, double Q, const double Q_match) override;
@@ -88,7 +98,7 @@ public:
 
 class SM_NNLO_Strategy : public SM_NLO_Strategy {
 public:
-    void init(Parameters* sm, double scale, WilsonSet& C_match) override;
+    void init(double scale, WilsonSet& C_match) override;
     void init_prime(double scale_W,double scale,int gen, WilsonSet& C_match) {}
     void set_base1(WilsonSet& C, WilsonSet& C_match, double Q, const double Q_match) override;
     void set_base2(WilsonSet& C, WilsonSet& C_match, double Q, const double Q_match) override {}
@@ -109,7 +119,7 @@ public:
     }
 
     void init(WilsonSet& C_match) {
-        strategy->init(sm, scale, C_match);
+        strategy->init(scale, C_match);
     }
     
 };
