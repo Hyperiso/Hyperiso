@@ -1,6 +1,14 @@
 #include "Wilson_susy.h"
 #include "susy_parameters.h"
+#include <sstream>
+#include <iomanip>
 
+std::string doubleToString(double value, int precision) {
+
+	std::ostringstream out;
+	out << std::fixed << std::setprecision(precision) << value;
+	return out.str();
+}
 
 
 void SUSY_LO_Strategy::init(double scale, WilsonSet& C_match) {
@@ -25,14 +33,12 @@ void SUSY_LO_Strategy::init(double scale, WilsonSet& C_match) {
 	double C7Heps2_0=0.;
 	double C8Heps2_0=0.;
 
-	logger->info("epsilonb + " +std::to_string((*sus_param).epsilonb));
-	logger->info("epsilon0p + " +std::to_string((*sus_param).epsilon0p));
-	logger->info("xt + " +std::to_string((*sus_param).xt));
-	logger->info("yt + " +std::to_string((*sus_param).yt));
+	
 
 	if(((*sus_param).mass_A02==0.)&&((*sus_param).mass_H03==0.))
 	{
 		C7Heps2_0=-(*sus_param).epsilon2*(*sus_param).epsilon1p*pow((*susy)("HMIX",2),2.)/(1.+(*sus_param).epsilonb*(*susy)("HMIX",2))/(1.+(*sus_param).epsilon0*(*susy)("HMIX",2))*F7_2((*sus_param).yt);
+		// logger->info("C7Heps2_0 before + " +std::to_string((*sus_param).epsilon2*(*sus_param).epsilon1p*pow((*susy)("HMIX",2),2.)));
 		C7Heps2_0+=(*sus_param).epsilon2/pow(1.+(*sus_param).epsilonb*(*susy)("HMIX",2),2.)*(1.+pow((*susy)("HMIX",2),2.))/(1.+(*sus_param).epsilon0*(*susy)("HMIX",2))/72.		*((cos((*susy)("ALPHA",0))+sin((*susy)("ALPHA",0))*(*susy)("HMIX",2))*(-sin((*susy)("ALPHA",0))+(*sus_param).epsilonb*cos((*susy)("ALPHA",0)))*pow((*sus_param).mass_b_muW/(*susy)("MASS",25),2.)
 		+(sin((*susy)("ALPHA",0))-cos((*susy)("ALPHA",0))*(*susy)("HMIX",2))*(cos((*susy)("ALPHA",0))+(*sus_param).epsilonb*sin((*susy)("ALPHA",0)))*pow((*sus_param).mass_b_muW/(*susy)("MASS",35),2.)			+(-cos(atan((*susy)("HMIX",2)))-sin(atan((*susy)("HMIX",2)))*(*susy)("HMIX",2))*(sin(atan((*susy)("HMIX",2)))-(*sus_param).epsilonb*cos(atan((*susy)("HMIX",2))))*pow((*sus_param).mass_b_muW/(*susy)("MASS",36),2.));
 
@@ -59,12 +65,21 @@ void SUSY_LO_Strategy::init(double scale, WilsonSet& C_match) {
 		+((*susy)("AMIX", 21)+(*susy)("AMIX", 22)*(*susy)("HMIX",2))*(-(*susy)("AMIX", 22)+(*sus_param).epsilonb*(*susy)("AMIX", 21))*pow((*sus_param).mass_b_muW/(*sus_param).mass_A02,2.));
 		}
 
+	// logger->info("(*sus_param).epsilon2" +std::to_string((*sus_param).epsilon2));
+	// logger->info("(*sus_param).epsilon1p + " +std::to_string((*sus_param).epsilon1p));
+	// logger->info("(*sus_param).epsilon0 + " +std::to_string((*sus_param).epsilon0));
+	
+	
 
 	double C7H_0=1./3.*(*sus_param).lu*(*sus_param).lu*F7_1((*sus_param).yt) - (*sus_param).lu*(*sus_param).ld*F7_2((*sus_param).yt);
 	double C8H_0=1./3.*(*sus_param).lu*(*sus_param).lu*F8_1((*sus_param).yt) - (*sus_param).lu*(*sus_param).ld*F8_2((*sus_param).yt);
 
+	// logger->info("F7_2((*sus_param).yt) + " +std::to_string(F7_2((*sus_param).yt)));
+	// logger->info("C8H_0 + " +std::to_string(C8H_0));
 	double C9H_0=(1.-4.*(*sus_param).sw2)/(*sus_param).sw2*C9llH0((*sus_param).xt,(*sus_param).yt,(*sus_param).lu)-D9H0((*sus_param).yt,(*sus_param).lu);
 	double C10H_0=-C9llH0((*sus_param).xt,(*sus_param).yt,(*sus_param).lu)/(*sus_param).sw2;
+
+
 
 
 	auto calculateContribution = [&](auto hFunc, const Array3D_3x7x4& X, int ie, int ae, bool isChargeps) -> double {
@@ -90,6 +105,11 @@ void SUSY_LO_Strategy::init(double scale, WilsonSet& C_match) {
 			C8_chargeps_0 += calculateContribution(h60, (*sus_param).X_UR, ie, ae, true);
 		}
 	}
+
+	logger->info("C7charg_0 + " +doubleToString(C7charg_0, 10));
+	logger->info("C8charg_0 + " +doubleToString(C8charg_0, 10));
+	logger->info("C7_chargeps_0 + " +doubleToString(C7_chargeps_0, 10));
+	logger->info("C8_chargeps_0 + " +doubleToString(C8_chargeps_0, 10));
 
     double C9charg_0 = (1.0 - 4.0 * (*sus_param).sw2) / (*sus_param).sw2 * (*sus_param).C90c - (*sus_param).B90c / (*sus_param).sw2 - (*sus_param).D90c;
     double C10charg_0 = ((*sus_param).B100c - (*sus_param).C90c) / (*sus_param).sw2;

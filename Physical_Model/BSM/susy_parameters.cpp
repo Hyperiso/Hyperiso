@@ -3,7 +3,8 @@
 
 susy_parameters::susy_parameters(double scale) {
 
-    
+    mass_H03 = 0.;
+	mass_A02 = 0.; // for testing
 	
 	
 	
@@ -23,7 +24,7 @@ susy_parameters::susy_parameters(double scale) {
  	sw2=pow(sin(atan((*sm)("GAUGE",1)/(*sm)("GAUGE",2))),2.); //1 = param-> gp and 2 = (*sm)("COUPLING",2)
 
 	xt= pow(mass_top_muW/(*sm)("MASS",24),2.); // W boson mass (24)
-	yt= pow(mass_top_muW/(*sm)("MASS",25),2.); // param->mass_H (25)
+	yt= pow(mass_top_muW/(*susy)("MASS",37),2.); // param->mass_H (37)
 
     lu=1./(*susy)("HMIX",2);
 	ld=-(*susy)("HMIX",2);

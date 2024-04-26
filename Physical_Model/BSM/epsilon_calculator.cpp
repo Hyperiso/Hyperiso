@@ -9,7 +9,7 @@ EpsilonCalculator::EpsilonCalculator() {}
 
 double EpsilonCalculator::epsilon_0() {
 
-    double sw2 = std::pow(std::sin(std::atan((*sm)("Coupling",1)/ (*sm)("Coupling",2))), 2);
+    double sw2 = std::pow(std::sin(std::atan((*sm)("GAUGE",1)/ (*sm)("GAUGE",2))), 2);
     double alphas_MSOFT = sm->alpha_s(susy->get_susy_Q());
 
     
@@ -22,7 +22,7 @@ double EpsilonCalculator::epsilon_0() {
                ((*susy)("SBOTMIX",12) * (*susy)("SBOTMIX",12) * H2((*susy)("MSOFT",2) * (*susy)("MSOFT",2) / (*susy)("MASS",2000005) / (*susy)("MASS",2000005), mu_Q * mu_Q / (*susy)("MASS",2000005) / (*susy)("MASS",2000005)) / (*susy)("MASS",2000005) / (*susy)("MASS",2000005) / 2.0));
 
     Logger *logger = Logger::getInstance();
-    logger->info("term1 is " + std::to_string((*sm)("SMINPUTS",1)));
+    logger->info("term1 is " + std::to_string(term3));
 
     return term1 + term2 + term3;
 }
@@ -30,7 +30,7 @@ double EpsilonCalculator::epsilon_0() {
 
 double EpsilonCalculator::epsilon_2() const {
 
-    double sw2 = std::pow(std::sin(std::atan((*sm)("Coupling",1)/ (*sm)("Coupling",2))), 2);
+    double sw2 = std::pow(std::sin(std::atan((*sm)("GAUGE",1)/ (*sm)("GAUGE",2))), 2);
 
 
 
@@ -59,7 +59,7 @@ double EpsilonCalculator::epsilon_b() {
 // Implémentation de epsilon_bp
 double EpsilonCalculator::epsilon_bp() {
 
-    double sw2 = std::pow(std::sin(std::atan((*sm)("Coupling",1)/ (*sm)("Coupling",2))), 2);
+    double sw2 = std::pow(std::sin(std::atan((*sm)("GAUGE",1)/ (*sm)("GAUGE",2))), 2);
     double alphas_MSOFT = (*sm).QCDRunner.runningAlphasCalculation(susy->get_susy_Q());
     int nb_neut = ((*susy)("MASS", 1000039) == 0.) ? 4 : 5; //mass_neut[5] is gravitino ?
 
@@ -147,7 +147,7 @@ double EpsilonCalculator::epsilon_1p() const {
                     H2(std::pow((*susy)("MSOFT",43) / mu_Q, 2), std::pow((*susy)("MSOFT", 49) / mu_Q, 2))); //MbR_Q
 
     // Calcul du deuxième terme en utilisant g2, M2_Q, MqL3_Q, mu_Q
-    double term2 = -(*sm)("COUPLING", 2) * (*sm)("COUPLING", 2) * (*susy)("MSOFT",2) / mu_Q * 
+    double term2 = -(*sm)("GAUGE", 2) * (*sm)("GAUGE", 2) * (*susy)("MSOFT",2) / mu_Q * 
                    H2(std::pow((*susy)("MSOFT",43) / mu_Q, 2), std::pow((*susy)("MSOFT",2) / mu_Q, 2)) / 16.0 / M_PI / M_PI;
 
     return term1 + term2;

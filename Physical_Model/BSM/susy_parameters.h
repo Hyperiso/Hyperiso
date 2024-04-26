@@ -78,6 +78,8 @@ class susy_parameters {
     double mass_H03 = (*susy)("MASS",36); // We have H_0^3 = A_0 from pdg numering scheme ?
     double mass_A02 = (*susy)("HMIX",4);
 
+	
+
 	// Parameters* sm = Parameters::GetInstance();
     double epsilonbp,epsilon0p,epsilon0,epsilon2,epsilon1p,epsilonb;
 
