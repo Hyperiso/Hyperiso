@@ -96,8 +96,6 @@ private:
 
     std::vector<std::vector<double>> lambda_u, lambda_d, lambda_l;
     
-    
-
     std::map<int, double> minpar;
     std::map<int, double> extpar;
 

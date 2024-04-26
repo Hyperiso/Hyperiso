@@ -93,7 +93,7 @@ void Parameters::initSM() {
     double sW = std::sqrt(1 - std::pow(m_W / m_Z_pole, 2));
 
     gauge[2] = std::pow(2, 1.25) * m_W * std::sqrt(G_F);     // g2
-    gauge[1] = gauge[2] * sW / std::sqrt(1 - sW * sW);    // gp 
+    gauge[1] = gauge[2] * sW / std::sqrt(1 - sW * sW);       // gp 
     gauge[3] = std::sqrt(4 * M_PI * alpha_s_MZ);             // gs
     gauge[4] = std::sqrt(4 * M_PI / inv_alpha_em);           // e_em     
 
