@@ -91,6 +91,8 @@ public:
         
     }
 
+    double get_susy_Q() {return susy_Q;}
+
 private:
     static Parameters* instance[2];
     Parameters(int modelId); // Constructeur pour initialiser les paramètres

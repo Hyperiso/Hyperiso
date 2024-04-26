@@ -10,16 +10,13 @@ EpsilonCalculator::EpsilonCalculator() {}
 double EpsilonCalculator::epsilon_0() {
 
     double sw2 = std::pow(std::sin(std::atan((*sm)("Coupling",1)/ (*sm)("Coupling",2))), 2);
-    double alphas_MSOFT = (*sm).QCDRunner.runningAlphasCalculation((*susy)("MSOFT",1));
+    double alphas_MSOFT = sm->alpha_s(susy->get_susy_Q());
 
     
 
-    // Supposons que les valeurs suivantes sont définies dans param
-    // Exemple: param.A_b, param.tan_beta, mu_Q, (*susy)("MASS",1000021), etc.
-
     double term1 = 2.0 / 3.0 * alphas_MSOFT / M_PI * (((*susy)("AD",33) / (*susy)("HMIX",2) - mu_Q) / (*susy)("MASS",1000021) *
                H2((*susy)("MASS",1000005) * (*susy)("MASS",1000005) / (*susy)("MASS",1000021) / (*susy)("MASS",1000021), (*susy)("MASS",2000005) * (*susy)("MASS",2000005) / (*susy)("MASS",1000021) / (*susy)("MASS",1000021)));
-    double term2 = -0.5 * (B((*susy)("MASS",1000021), (*susy)("MASS",1000005), (*susy)("MSOFT",1)) + B((*susy)("MASS",1000021), (*susy)("MASS",2000005), (*susy)("MSOFT",1))) / (*susy)("HMIX",2);
+    double term2 = -0.5 * (B((*susy)("MASS",1000021), (*susy)("MASS",1000005), susy->get_susy_Q()) + B((*susy)("MASS",1000021), (*susy)("MASS",2000005), susy->get_susy_Q())) / (*susy)("HMIX",2);
     double term3 = 1.0 / (*sm)("SMINPUTS",1) / sw2 / 4.0 / M_PI * (mu_Q * (*susy)("MSOFT",2)) * 
                (((*susy)("SBOTMIX",11) * (*susy)("SBOTMIX",11) * H2((*susy)("MSOFT",2) * (*susy)("MSOFT",2) / (*susy)("MASS",1000005) / (*susy)("MASS",1000005), mu_Q * mu_Q / (*susy)("MASS",1000005) / (*susy)("MASS",1000005)) / (*susy)("MASS",1000005) / (*susy)("MASS",1000005) / 2.0) +
                ((*susy)("SBOTMIX",12) * (*susy)("SBOTMIX",12) * H2((*susy)("MSOFT",2) * (*susy)("MSOFT",2) / (*susy)("MASS",2000005) / (*susy)("MASS",2000005), mu_Q * mu_Q / (*susy)("MASS",2000005) / (*susy)("MASS",2000005)) / (*susy)("MASS",2000005) / (*susy)("MASS",2000005) / 2.0));
@@ -35,8 +32,7 @@ double EpsilonCalculator::epsilon_2() const {
 
     double sw2 = std::pow(std::sin(std::atan((*sm)("Coupling",1)/ (*sm)("Coupling",2))), 2);
 
-    // Supposons que les valeurs suivantes sont définies dans param
-    // Exemple: (*susy)("YU", 33), mu_Q, param.tan_beta, (*susy)("AU", 33), etc.
+
 
     double term1 = (*susy)("YU", 33) * (*susy)("YU", 33) / 16.0 / M_PI / M_PI * 
                    (mu_Q / (*susy)("HMIX",2) - (*susy)("AU", 33)) * 
@@ -64,7 +60,7 @@ double EpsilonCalculator::epsilon_b() {
 double EpsilonCalculator::epsilon_bp() {
 
     double sw2 = std::pow(std::sin(std::atan((*sm)("Coupling",1)/ (*sm)("Coupling",2))), 2);
-    double alphas_MSOFT = (*sm).QCDRunner.runningAlphasCalculation((*susy)("MSOFT",1));
+    double alphas_MSOFT = (*sm).QCDRunner.runningAlphasCalculation(susy->get_susy_Q());
     int nb_neut = ((*susy)("MASS", 1000039) == 0.) ? 4 : 5; //mass_neut[5] is gravitino ?
 
     double epsilonbp = 2.0 / 3.0 * alphas_MSOFT / M_PI * 
@@ -111,15 +107,15 @@ double EpsilonCalculator::epsilon_bp() {
 // Implémentation de epsilon_0p
 double EpsilonCalculator::epsilon_0p() {
 
-    double alphas_MSOFT = (*sm).QCDRunner.runningAlphasCalculation((*susy)("MSOFT",1));
+    double alphas_MSOFT = (*sm).QCDRunner.runningAlphasCalculation(susy->get_susy_Q());
     int nb_neut = ((*susy)("MASS", 1000039) == 0.) ? 4 : 5;
 
     double epsilon0p = -2.0 / 3.0 * alphas_MSOFT / M_PI * 
                        (mu_Q + (*susy)("AU", 33) / (*susy)("HMIX",2)) / (*susy)("MASS",1000021) *
                        ((*susy)("STOPMIX",11) * (*susy)("STOPMIX",11) * 
-                        H2((*susy)("MASS",2000006) * (*susy)("MASS",2000006) / (*susy)("MASS",1000021) / (*susy)("MASS",1000021), (*susy)("EXTPAR",42) * (*susy)("EXTPAR",42) / (*susy)("MASS",1000021) / (*susy)("MASS",1000021)) +
+                        H2((*susy)("MASS",2000006) * (*susy)("MASS",2000006) / (*susy)("MASS",1000021) / (*susy)("MASS",1000021), (*susy)("MASS",1000003) * (*susy)("MASS",1000003) / (*susy)("MASS",1000021) / (*susy)("MASS",1000021)) +
                         (*susy)("STOPMIX",12) * (*susy)("STOPMIX",12) * 
-                        H2((*susy)("MASS",1000006) * (*susy)("MASS",1000006) / (*susy)("MASS",1000021) / (*susy)("MASS",1000021), (*susy)("EXTPAR",42) * (*susy)("EXTPAR",42) / (*susy)("MASS",1000021) / (*susy)("MASS",1000021)));
+                        H2((*susy)("MASS",1000006) * (*susy)("MASS",1000006) / (*susy)("MASS",1000021) / (*susy)("MASS",1000021), (*susy)("MASS",1000003) * (*susy)("MASS",1000003) / (*susy)("MASS",1000021) / (*susy)("MASS",1000021)));
 
     for(int ie = 1; ie <= nb_neut; ++ie) {
         epsilon0p += (*susy)("YD", 33) * (*susy)("YD", 33) / 16.0 / M_PI / M_PI * 
@@ -148,11 +144,11 @@ double EpsilonCalculator::epsilon_1p() const {
     // Calcul du premier terme en utilisant yub[3], A_b, MqL3_Q, MbR_Q, mu_Q
     double term1 = 1.0 / 16.0 / M_PI / M_PI * 
                    ((*susy)("YD", 33) * (*susy)("YD", 33) * (*susy)("AD",33) / mu_Q * 
-                    H2(std::pow((*susy)("EXTPAR",43) / mu_Q, 2), std::pow((*susy)("EXTPAR", 49) / mu_Q, 2))); //MbR_Q
+                    H2(std::pow((*susy)("MSOFT",43) / mu_Q, 2), std::pow((*susy)("MSOFT", 49) / mu_Q, 2))); //MbR_Q
 
     // Calcul du deuxième terme en utilisant g2, M2_Q, MqL3_Q, mu_Q
     double term2 = -(*sm)("COUPLING", 2) * (*sm)("COUPLING", 2) * (*susy)("MSOFT",2) / mu_Q * 
-                   H2(std::pow((*susy)("EXTPAR",43) / mu_Q, 2), std::pow((*susy)("MSOFT",2) / mu_Q, 2)) / 16.0 / M_PI / M_PI;
+                   H2(std::pow((*susy)("MSOFT",43) / mu_Q, 2), std::pow((*susy)("MSOFT",2) / mu_Q, 2)) / 16.0 / M_PI / M_PI;
 
     return term1 + term2;
 }
