@@ -43,10 +43,17 @@ class susy_parameters {
 
     double kappa, ag, aY, cosb, sinb, st, ct, alphas_mg;
 
-    Array2D_7x4 Gamma_UL, Gamma_UR;
-	Array2D_4x4 Gamma_NL, Gamma_NR;
-	Array2D_7x7 Gamma_U, I_LR, P_U;
-	Array3D_3x7x4 X_UL, X_UR, X_NL, X_NR;
+    Array2D_7x4 Gamma_UL = {};
+	Array2D_7x4 Gamma_UR = {};
+	Array2D_4x4 Gamma_NL = {};
+	Array2D_4x4 Gamma_NR = {};
+	Array2D_7x7 Gamma_U{};
+	Array2D_7x7 I_LR{};
+	Array2D_7x7 P_U{};
+	Array3D_3x7x4 X_UL{};
+	Array3D_3x7x4 X_UR{};
+	Array3D_3x7x4 X_NL{};
+	Array3D_3x7x4 X_NR{};
 
 	std::array<std::array<std::array<std::array<double, 4>, 4>, 3>, 7> G_aimn;
 	// Array2D_4x4  VCKM = {{{0.,0.,0.,0.},
@@ -54,10 +61,9 @@ class susy_parameters {
 	// 				{param->Vcd, param->Vcs, param->Vcb, 0.0},
 	// 				{param->Vtd, param->Vts, param->Vtb, 0.0}
 	// 				}}; 
-	Array2D_4x4  VCKM = {{{0.,0.,0.,0.},
-					{0.,(*susy)("CKM",11), (*susy)("CKM",12), -((*susy)("CKM",32) * (*susy)("CKM",33) + (*susy)("CKM",22) * (*susy)("CKM",23)) / (*susy)("CKM",12)},
-					{0.,(*susy)("CKM",21), (*susy)("CKM",22), (*susy)("CKM",23)},
-					{0., (*susy)("CKM",31), (*susy)("CKM",32),(*susy)("CKM",33)}
+	Array2D_4x4  VCKM = {{{(*sm)("CKM",11), (*sm)("CKM",12), -((*sm)("CKM",32) * (*sm)("CKM",33) + (*sm)("sm",22) * (*sm)("CKM",23)) / (*sm)("CKM",12)},
+					{(*sm)("CKM",21), (*sm)("CKM",22), (*sm)("CKM",23)},
+					{(*sm)("CKM",31), (*sm)("CKM",32),(*sm)("CKM",33)}
 					}}; 
 
 	const size_t NumSquarks = 6;

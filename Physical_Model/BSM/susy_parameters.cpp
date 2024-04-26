@@ -21,7 +21,7 @@ susy_parameters::susy_parameters(double scale) {
 	mass_b_muW=(*sm).QCDRunner.running_mass((*sm)("MASS",5), (*sm)("MASS",5), scale); //mass bottom 6 (at pole)
 
 	L=log(scale*scale/(*sm)("MASS",24)/(*sm)("MASS",24)); // scale -> mu_W
- 	sw2=pow(sin(atan((*sm)("GAUGE",1)/(*sm)("GAUGE",2))),2.); //1 = param-> gp and 2 = (*sm)("COUPLING",2)
+ 	sw2=pow(sin(atan((*sm)("GAUGE",1)/(*sm)("GAUGE",2))),2.); //1 = param-> gp and 2 = (*sm)("GAUGE",2)
 
 	xt= pow(mass_top_muW/(*sm)("MASS",24),2.); // W boson mass (24)
 	yt= pow(mass_top_muW/(*susy)("MASS",37),2.); // param->mass_H (37)
@@ -44,16 +44,15 @@ susy_parameters::susy_parameters(double scale) {
 
 
     // Initialisation des masses
-	MU = {0.0, (*sm)("MASS",2), (*sm)("MASS",4), mass_top_muW}; // Ajout d'un élément vide pour compatibilité d'indice
-	MD = {0.0, (*sm)("MASS",1), (*sm)("MASS",3), mass_b_muW}; // Correction pour inclure mass_d et ajustement pour base-0
-	ME = {0.0, (*sm)("MASS",11), (*sm)("MASS",13), (*sm)("MASS",15)}; // Ajout d'un élément vide pour compatibilité d'indice
+	MU = {(*sm)("MASS",2), (*sm)("MASS",4), mass_top_muW}; // Ajout d'un élément vide pour compatibilité d'indice
+	MD = {(*sm)("MASS",1), (*sm)("MASS",3), mass_b_muW}; // Correction pour inclure mass_d et ajustement pour base-0
+	ME = {(*sm)("MASS",11), (*sm)("MASS",13), (*sm)("MASS",15)}; // Ajout d'un élément vide pour compatibilité d'indice
 
-	Mch = {0.0,(*susy)("MASS",1000024), (*susy)("MASS",1000037) }; // Ajout d'un élément pour compatibilité de taille
+	Mch = {(*susy)("MASS",1000024), (*susy)("MASS",1000037) }; // Ajout d'un élément pour compatibilité de taille
 	// Array1D_7 MsqU = { 0.0, param->mass_upl, param->mass_chl, param->mass_t1, param->mass_upr, param->mass_chr, param->mass_t2}; // Ajout d'un élément pour compatibilité de taille
-	MsqU = { 0.0, (*susy)("MASS",1000002), (*susy)("MASS",1000004), (*susy)("MASS",1000006), (*susy)("MASS",2000002), (*susy)("MASS",2000004), (*susy)("MASS",2000006)}; // Ajout d'un élément pour compatibilité de taille
+	MsqU = {(*susy)("MASS",1000002), (*susy)("MASS",1000004), (*susy)("MASS",1000006), (*susy)("MASS",2000002), (*susy)("MASS",2000004), (*susy)("MASS",2000006)}; // Ajout d'un élément pour compatibilité de taille
 	
 	MsqD = {
-    0.0, // L'indice 0 est laissé à 0 pour la compatibilité avec l'indexation 1-based utilisée dans votre exemple.
     (*susy)("MASS",1000001),
     (*susy)("MASS",1000003),
     (*susy)("MASS",1000005),
@@ -124,6 +123,9 @@ susy_parameters::susy_parameters(double scale) {
         }
     }
 
+	Logger *logger =Logger::getInstance();
+	logger->info("CT " + std::to_string(isNonZeroMix));
+	logger->info("ST " + std::to_string(st));
 
     // Calculs pour X_UL et X_UR
     for (int ie = 0; ie < 2; ++ie) {
@@ -135,20 +137,20 @@ susy_parameters::susy_parameters(double scale) {
 
 				// Calculs pour X_UL et X_UR
 				for (int ce = 0; ce < 3; ++ce) {
-					X_UL[ie][ae][be] += -(*sm)("COUPLING",2) * (
+					X_UL[ie][ae][be] += -(*sm)("GAUGE",2) * (
 						ag * (*susy)("VMIX", ie*10+1) * Gamma_UL[ae][ce] -
 						aY * (*susy)("VMIX", ie*10+2) * Gamma_UR[ae][ce] * MU[ce] / (sqrt(2.0) * (*sm)("MASS", 24) * sinb)
 					) * VCKM[ce][be];
-
-					X_UR[ie][ae][be] += (*sm)("COUPLING",2) * aY * (*susy)(std::string("UMIX"), ie*10+2) * Gamma_UL[ae][ce] * VCKM[ce][be] * MD[be] / (sqrt(2.0) * (*sm)("MASS", 24) * cosb);
+					// logger->info("GAMMA_UL " + std::to_string(ae) + " " + std::to_string(ce)  + " " + std::to_string(Gamma_UL[ae][ce]));
+					X_UR[ie][ae][be] += (*sm)("GAUGE",2) * aY * (*susy)(std::string("UMIX"), ie*10+2) * Gamma_UL[ae][ce] * VCKM[ce][be] * MD[be] / (sqrt(2.0) * (*sm)("MASS", 24) * cosb);
 
 					G_aimn[ae][ie][be][ce]=0.5/sqrt(2.)*(sqrt(2.)*(*sm)("MASS",24)*(*susy)("VMIX", ie*10+1)*Gamma_UL[ae][ce]*ag-MU[ce]*(*susy)("VMIX", ie*10+2)*Gamma_UR[ae][ce]*aY)*(VCKM[be][3]*VCKM[ce][2]/VCKM[3][3]/VCKM[3][2]);
 				}
 
 				// Condition pour éviter le dépassement dans X_NL et X_NR si ae > 2
 				if (ae < 3) {
-					X_NL[ie][ae][be] = -(*sm)("COUPLING",2) * (*susy)("VMIX", ie*10+1) * Gamma_NL[ae][be];
-					X_NR[ie][ae][be] = (*sm)("COUPLING",2) * (*susy)("UMIX", ie*10+2) * Gamma_NL[ae][be] * ME[be] / (sqrt(2.0) * (*sm)("MASS", 24) * cosb);
+					X_NL[ie][ae][be] = -(*sm)("GAUGE",2) * (*susy)("VMIX", ie*10+1) * Gamma_NL[ae][be];
+					X_NR[ie][ae][be] = (*sm)("GAUGE",2) * (*susy)("UMIX", ie*10+2) * Gamma_NL[ae][be] * ME[be] / (sqrt(2.0) * (*sm)("MASS", 24) * cosb);
 				}
 			}
 		}
@@ -221,8 +223,8 @@ susy_parameters::susy_parameters(double scale) {
 	}
 
 	// Final adjustments
-	B90c = -(B0c1 - B0c2) * kappa * std::pow((*sm)("MASS", 24), 2.0) / (2.0 * std::pow((*sm)("COUPLING",2), 2.0));
-	B100c = (B0c1 + B0c2) * kappa * std::pow((*sm)("MASS", 24), 2.0) / (2.0 * std::pow((*sm)("COUPLING",2), 2.0));
+	B90c = -(B0c1 - B0c2) * kappa * std::pow((*sm)("MASS", 24), 2.0) / (2.0 * std::pow((*sm)("GAUGE",2), 2.0));
+	B100c = (B0c1 + B0c2) * kappa * std::pow((*sm)("MASS", 24), 2.0) / (2.0 * std::pow((*sm)("GAUGE",2), 2.0));
 	C90c *= -kappa / 8.0;
 	D90c *= kappa;
 

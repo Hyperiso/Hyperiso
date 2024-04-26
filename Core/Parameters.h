@@ -47,9 +47,13 @@ public:
         if (block=="HMIX") {
             return hmix[pdgCode];
         }
-        if (block == "CKM") {
+        if (block == "RECKM") {
             // return ckm[pdgCode/10][pdgCode%10];
-            return 1.0;
+            return std::real(ckm[pdgCode/10][pdgCode%10]);
+        }
+        if (block == "IMCKM") {
+            // return ckm[pdgCode/10][pdgCode%10];
+            return std::imag(ckm[pdgCode/10][pdgCode%10]);
         }
         if (block == "STOPMIX") {
             return stopmix[pdgCode/10][pdgCode%10];

@@ -84,8 +84,11 @@ void SUSY_LO_Strategy::init(double scale, WilsonSet& C_match) {
 
 	auto calculateContribution = [&](auto hFunc, const Array3D_3x7x4& X, int ie, int ae, bool isChargeps) -> double {
 		double ratio = std::pow((*sm)("MASS", 24) / (*sus_param).Mch[ie], 2);
+		
 		double msqOverMchSquared = std::pow((*sus_param).MsqU[ae] / (*sus_param).Mch[ie], 2.0);
+		
 		double factor = isChargeps ? (-(*sus_param).epsilonb / (1.0 + (*sus_param).epsilonb * (*susy)("HMIX",2)) * (*susy)("HMIX",2)) : 1.0;
+		// logger->info("X[ie][ae][1] " + doubleToString(X[ie][ae][1], 10));
 		return ratio * (
 			X[ie][ae][1] * X[ie][ae][2] * hFunc(msqOverMchSquared) +
 			(*sus_param).Mch[ie] / (*sus_param).mass_b_muW * X[ie][ae][1] * X[ie][ae][2] * hFunc(msqOverMchSquared)
@@ -106,10 +109,10 @@ void SUSY_LO_Strategy::init(double scale, WilsonSet& C_match) {
 		}
 	}
 
-	logger->info("C7charg_0 + " +doubleToString(C7charg_0, 10));
-	logger->info("C8charg_0 + " +doubleToString(C8charg_0, 10));
-	logger->info("C7_chargeps_0 + " +doubleToString(C7_chargeps_0, 10));
-	logger->info("C8_chargeps_0 + " +doubleToString(C8_chargeps_0, 10));
+	// logger->info("C7charg_0 + " +doubleToString(C7charg_0, 10));
+	// logger->info("C8charg_0 + " +doubleToString(C8charg_0, 10));
+	// logger->info("C7_chargeps_0 + " +doubleToString(C7_chargeps_0, 10));
+	// logger->info("C8_chargeps_0 + " +doubleToString(C8_chargeps_0, 10));
 
     double C9charg_0 = (1.0 - 4.0 * (*sus_param).sw2) / (*sus_param).sw2 * (*sus_param).C90c - (*sus_param).B90c / (*sus_param).sw2 - (*sus_param).D90c;
     double C10charg_0 = ((*sus_param).B100c - (*sus_param).C90c) / (*sus_param).sw2;
@@ -369,6 +372,9 @@ void SUSY_NLO_Strategy::init(double scale, WilsonSet& C_match) {
     C_NLO[8] += C8H_1 + C8charg_1 + C8four_1;
     C_NLO[9] += C9H_1 + C9charg_1 + C9four_1;
     C_NLO[10] += C10H_1 + C10charg_1 + C10four_1;
+
+	std::cout << "C7 at NLO : " << C_NLO[static_cast<size_t>(WilsonCoefficient::C7)] << std::endl;
+	std::cout << "C8 at NLO : " << C_NLO[static_cast<size_t>(WilsonCoefficient::C8)] << std::endl;
 }
 
 
