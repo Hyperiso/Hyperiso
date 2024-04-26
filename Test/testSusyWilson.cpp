@@ -8,7 +8,7 @@
 #include "Logger.h"
 #include "Wilson_susy.h"
 
-void writeCoefficientsToFile(const std::string& strat_name, const std::string& fileName, const std::shared_ptr<InitializationStrategy>& strategy) {
+void writeCoefficientsToFile(const std::string& strat_name, const std::string& fileName, const std::shared_ptr<InitializationStrategy>& strategy, double Q_match) {
     std::ofstream file(fileName);
 
     file << "Q,alpha_s";
@@ -17,35 +17,33 @@ void writeCoefficientsToFile(const std::string& strat_name, const std::string& f
     }
     file << "\n";
 
-    double Q_initial = 1.0;
-    double Q_final = 100.0;
-    double Q_step = 1.0;
+    // double Q_initial = 1.0;
+    // double Q_final = 100.0;
+    // double Q_step = 1.0;
 
-    MemoryManager::GetInstance()->init();
+    MemoryManager::GetInstance("Test/testInput.slha", {0, 1})->init();
     Parameters* sm = Parameters::GetInstance();
     WilsonManager* wm = WilsonManager::GetInstance(strat_name, 81.0, strategy);
-    
-    for (double Q = Q_initial; Q <= Q_final; Q += Q_step) {
-        wm->setScale(Q);
 
-        double alpha_s = (*sm).QCDRunner.runningAlphasCalculation(Q);
+    wm->setScale(Q_match);
 
-        file << Q << "," << alpha_s;
+    double alpha_s = (*sm).QCDRunner.runningAlphasCalculation(Q_match);
 
-                for (int i = 0; i <= 9; ++i) {
-            complex_t C = {0,0};
+    file << Q_match << "," << alpha_s;
 
-            if (strat_name == "LO")
-                C = wm->get(static_cast<WilsonCoefficient>(i), 0);
-            else if (strat_name == "NLO")
-                C = wm->get(static_cast<WilsonCoefficient>(i), 1);
-            else if (strat_name == "NNLO")
-                C = wm->get(static_cast<WilsonCoefficient>(i), 2);
-            file << "," << C.real() << "," << C.imag();
-        }
+            for (int i = 0; i <= 9; ++i) {
+        complex_t C = {0,0};
 
-        file << "\n"; 
+        if (strat_name == "LO")
+            C = wm->get_matchs(static_cast<WilsonCoefficient>(i), 0);
+        else if (strat_name == "NLO")
+            C = wm->get_matchs(static_cast<WilsonCoefficient>(i), 1);
+        else if (strat_name == "NNLO")
+            C = wm->get_matchs(static_cast<WilsonCoefficient>(i), 2);
+        file << "," << C.real() << "," << C.imag();
     }
+
+    file << "\n"; 
 
     file.close();
 
@@ -55,16 +53,16 @@ void writeCoefficientsToFile(const std::string& strat_name, const std::string& f
 int main() {
 
     Logger* logger = Logger::getInstance();
-    logger->setLevel(Logger::LogLevel::DEBUG);
+    logger->setLevel(Logger::LogLevel::INFO);
 
     auto loStrategy = std::make_shared<SUSY_LO_Strategy>();
     auto nloStrategy = std::make_shared<SUSY_NLO_Strategy>();
     auto nnloStrategy = std::make_shared<SUSY_NNLO_Strategy>();
 
     
-    writeCoefficientsToFile("NLO", "../csv/susy/WilsonCoefficients_NLO.csv", nloStrategy);
-    writeCoefficientsToFile("LO", "../csv/susy/WilsonCoefficients_LO.csv", loStrategy);
-    writeCoefficientsToFile("NNLO", "../csv/susy/WilsonCoefficients_NNLO.csv", nnloStrategy);
+    // writeCoefficientsToFile("NLO", "../csv/susy/WilsonCoefficients_NLO.csv", nloStrategy, 81);
+    writeCoefficientsToFile("LO", "../csv/susy/WilsonCoefficients_LO.csv", loStrategy, 81);
+    // writeCoefficientsToFile("NNLO", "../csv/susy/WilsonCoefficients_NNLO.csv", nnloStrategy, 81);
     
     WilsonManager::Cleanup();
     return 0;

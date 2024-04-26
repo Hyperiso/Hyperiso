@@ -81,7 +81,7 @@ class susy_parameters {
 	// Parameters* sm = Parameters::GetInstance();
     double epsilonbp,epsilon0p,epsilon0,epsilon2,epsilon1p,epsilonb;
 
-	double epsfac=pow((1.+(*epsi).epsilon_b()*(*susy)("EXTPAR",25)),2.);
+	double epsfac=pow((1.+(*epsi).epsilon_b()*(*susy)("HMIX",2)),2.);
 
     double mass_top_muW;
 	double mass_b_muW; //mass bottom 6 (at pole)

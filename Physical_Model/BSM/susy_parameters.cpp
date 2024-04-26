@@ -25,8 +25,8 @@ susy_parameters::susy_parameters(double scale) {
 	xt= pow(mass_top_muW/(*sm)("MASS",24),2.); // W boson mass (24)
 	yt= pow(mass_top_muW/(*sm)("MASS",25),2.); // param->mass_H (25)
 
-    lu=1./(*susy)("EXTPAR",25);
-	ld=-(*susy)("EXTPAR",25);
+    lu=1./(*susy)("HMIX",2);
+	ld=-(*susy)("HMIX",2);
 	
 	alphas_muW=(*sm).QCDRunner.runningAlphasCalculation(scale);
 
@@ -36,8 +36,8 @@ susy_parameters::susy_parameters(double scale) {
 	kappa = 1.0 / ((*sm)("GAUGE",2) * (*sm)("GAUGE",2) * (*susy)("CKM",33)* (*susy)("CKM",32));
 
 	z=pow((*susy)("MASS",37)/(*sm)("MASS",24),2.);
-	sinb = std::sin(std::atan((*susy)("EXTPAR",25)));
-	cosb = std::cos(std::atan((*susy)("EXTPAR",25)));
+	sinb = std::sin(std::atan((*susy)("HMIX",2)));
+	cosb = std::cos(std::atan((*susy)("HMIX",2)));
 	ct = (*susy)("STOPMIX",11); // Ajustement des indices pour base-0
 	st = (*susy)("STOPMIX",01); // Ajustement des indices pour base-0
 
@@ -174,7 +174,7 @@ susy_parameters::susy_parameters(double scale) {
 	auto calculateContribution = [&](auto hFunc, const Array3D_3x7x4& X, int ie, int ae, bool isChargeps) -> double {
 		double ratio = std::pow((*sm)("MASS", 24) / Mch[ie], 2);
 		double msqOverMchSquared = std::pow(MsqU[ae] / Mch[ie], 2.0);
-		double factor = isChargeps ? (-epsilonb / (1.0 + epsilonb * (*susy)("EXTPAR",25)) * (*susy)("EXTPAR",25)) : 1.0;
+		double factor = isChargeps ? (-epsilonb / (1.0 + epsilonb * (*susy)("HMIX",2)) * (*susy)("HMIX",2)) : 1.0;
 		return ratio * (
 			X[ie][ae][1] * X[ie][ae][2] * hFunc(msqOverMchSquared) +
 			Mch[ie] / mass_b_muW * X[ie][ae][1] * X[ie][ae][2] * hFunc(msqOverMchSquared)

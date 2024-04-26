@@ -84,6 +84,9 @@ public:
         if (block== "NMIX") {
             return nmix[pdgCode/10][pdgCode%10];
         }
+        if (block== "SMINPUTS") {
+            return *sm_inputs[pdgCode-1];
+        }
         return 0;
         
     }
@@ -97,6 +100,7 @@ private:
     std::vector<std::vector<double>> lambda_u, lambda_d, lambda_l;
     
     
+    std::vector<double*> sm_inputs;
 
     std::map<int, double> minpar;
     std::map<int, double> extpar;
