@@ -23,8 +23,8 @@ double EpsilonCalculator::epsilon_0() {
 
     Logger *logger = Logger::getInstance();
     logger->info("term1 is " + std::to_string(term3));
-
-    return term1 + term2 + term3;
+    logger->info("sminput is " + std::to_string((*sm)("SMINPUTS",1)));
+    return term1 + term2 + term3; 
 }
 
 

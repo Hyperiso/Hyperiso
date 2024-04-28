@@ -55,9 +55,13 @@ void Parameters::initSM() {
 
     // SMINPUTS
     double inv_alpha_em{1.37934e2}, G_F{1.16637e-5}, alpha_s_MZ{1.184e-1}, m_Z_pole{91.1876}, m_b_mb{4.18}, m_t_pole{172.9}, m_tau_pole{1.777};
-    sm_inputs = {&inv_alpha_em, &G_F, &alpha_s_MZ, &m_Z_pole, &m_b_mb, &m_t_pole, &m_tau_pole};
+    std::vector<double*> sm_inputs = {&inv_alpha_em, &G_F, &alpha_s_MZ, &m_Z_pole, &m_b_mb, &m_t_pole, &m_tau_pole};
     lha->extractFromBlock("SMINPUTS", sm_inputs);
 
+    sminputs[0] = 0.;
+    sminputs[1] = *sm_inputs[0];
+
+    Logger::getInstance()->info("*sm_inputs[pdgCode-1]" + std::to_string(*sm_inputs[0]));
     // VCKMIN 
     double lambda{0.22500}, A{0.826}, rho{0.159}, eta{0.348};
     std::vector<double*> ckm_inputs = {&lambda, &A, &rho, &eta};

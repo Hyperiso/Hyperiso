@@ -17,7 +17,7 @@ using Array3D_3x7x4 = std::array<Array2D_7x4, N_X>;
 using Array1D_4 = std::array<double, 4>;
 using Array1D_3 = std::array<double, N_Mch>;
 using Array1D_7 = std::array<double, N_MsqU>;
-
+using Array2D_4x4_I = std::array<std::array<complex_t, M_NL_NR>, N_NL_NR>;
 
 class susy_parameters {
 
@@ -61,11 +61,37 @@ class susy_parameters {
 	// 				{param->Vcd, param->Vcs, param->Vcb, 0.0},
 	// 				{param->Vtd, param->Vts, param->Vtb, 0.0}
 	// 				}}; 
-	Array2D_4x4  VCKM = {{{(*sm)("CKM",11), (*sm)("CKM",12), -((*sm)("CKM",32) * (*sm)("CKM",33) + (*sm)("sm",22) * (*sm)("CKM",23)) / (*sm)("CKM",12)},
-					{(*sm)("CKM",21), (*sm)("CKM",22), (*sm)("CKM",23)},
-					{(*sm)("CKM",31), (*sm)("CKM",32),(*sm)("CKM",33)}
-					}}; 
+	// Array2D_4x4_I  VCKM = {{{(*sm)("CKM",11), (*sm)("CKM",12), -((*sm)("CKM",32) * (*sm)("CKM",33) + (*sm)("sm",22) * (*sm)("CKM",23)) / (*sm)("CKM",12)},
+	// 				{(*sm)("CKM",21), (*sm)("CKM",22), (*sm)("CKM",23)},
+	// 				{(*sm)("CKM",31), (*sm)("CKM",32),(*sm)("CKM",33)}
+	// 				}}; 
 
+	complex_t c11 = (*sm)("RECKM", 00) + (*sm)("IMCKM", 00) * complex_t(0, 1);
+	complex_t c12 = (*sm)("RECKM", 01) + (*sm)("IMCKM", 01) * complex_t(0, 1);
+	complex_t c22 = (*sm)("RECKM", 11) + (*sm)("IMCKM", 11) * complex_t(0, 1);
+	complex_t c23 = (*sm)("RECKM", 12) + (*sm)("IMCKM", 12) * complex_t(0, 1);
+	complex_t c32 = (*sm)("RECKM", 21) + (*sm)("IMCKM", 21) * complex_t(0, 1);
+	complex_t c33 = (*sm)("RECKM", 22) + (*sm)("IMCKM", 22) * complex_t(0, 1);
+
+	complex_t complexTerm = -(c32 * c33 + c22 * c23) / c12;
+
+	Array2D_4x4_I VCKM = {{
+    {
+        complex_t((*sm)("RECKM", 00), (*sm)("IMCKM", 00)),
+        complex_t((*sm)("RECKM", 01), (*sm)("IMCKM", 01)),
+        complexTerm
+    },
+    {
+        complex_t((*sm)("RECKM", 10), (*sm)("IMCKM", 10)),
+        complex_t((*sm)("RECKM", 11), (*sm)("IMCKM", 11)),
+        complex_t((*sm)("RECKM", 12), (*sm)("IMCKM", 12))
+    },
+    {
+        complex_t((*sm)("RECKM", 20), (*sm)("IMCKM", 20)),
+        complex_t((*sm)("RECKM", 21), (*sm)("IMCKM", 21)),
+        complex_t((*sm)("RECKM", 22), (*sm)("IMCKM", 22))
+    }
+}};
 	const size_t NumSquarks = 6;
 	std::array<std::array<double, 4>, 7> sU_mix;
 

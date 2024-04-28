@@ -1,6 +1,6 @@
 #include "susy_parameters.h"
 
-
+// CHOOSE REAL PART OF CKM WHY?????
 susy_parameters::susy_parameters(double scale) {
 
     mass_H03 = 0.;
@@ -34,7 +34,7 @@ susy_parameters::susy_parameters(double scale) {
     alphas_mg = sm->QCDRunner.runningAlphasCalculation((*susy)("MASS",1000021));
 	ag = 1.0 - 7.0 / (12.0 * Pi * alphas_mg);
 	aY = 1.0 + alphas_mg / (4.0 * Pi);
-	kappa = 1.0 / ((*sm)("GAUGE",2) * (*sm)("GAUGE",2) * (*susy)("CKM",33)* (*susy)("CKM",32));
+	kappa = 1.0 / ((*sm)("GAUGE",2) * (*sm)("GAUGE",2) * std::real(VCKM[2][2])* std::real(VCKM[2][1])); //VCKM 33 et 32
 
 	z=pow((*susy)("MASS",37)/(*sm)("MASS",24),2.);
 	sinb = std::sin(std::atan((*susy)("HMIX",2)));
@@ -124,8 +124,8 @@ susy_parameters::susy_parameters(double scale) {
     }
 
 	Logger *logger =Logger::getInstance();
-	logger->info("CT " + std::to_string(isNonZeroMix));
-	logger->info("ST " + std::to_string(st));
+	logger->debug("CT " + std::to_string(isNonZeroMix));
+	logger->debug("ST " + std::to_string(st));
 
     // Calculs pour X_UL et X_UR
     for (int ie = 0; ie < 2; ++ie) {
@@ -140,11 +140,12 @@ susy_parameters::susy_parameters(double scale) {
 					X_UL[ie][ae][be] += -(*sm)("GAUGE",2) * (
 						ag * (*susy)("VMIX", ie*10+1) * Gamma_UL[ae][ce] -
 						aY * (*susy)("VMIX", ie*10+2) * Gamma_UR[ae][ce] * MU[ce] / (sqrt(2.0) * (*sm)("MASS", 24) * sinb)
-					) * VCKM[ce][be];
+					) * std::real(VCKM[ce][be]);
 					// logger->info("GAMMA_UL " + std::to_string(ae) + " " + std::to_string(ce)  + " " + std::to_string(Gamma_UL[ae][ce]));
-					X_UR[ie][ae][be] += (*sm)("GAUGE",2) * aY * (*susy)(std::string("UMIX"), ie*10+2) * Gamma_UL[ae][ce] * VCKM[ce][be] * MD[be] / (sqrt(2.0) * (*sm)("MASS", 24) * cosb);
+					X_UR[ie][ae][be] += (*sm)("GAUGE",2) * aY * (*susy)(std::string("UMIX"), ie*10+2) * Gamma_UL[ae][ce] * std::real(VCKM[ce][be]) * MD[be] / (sqrt(2.0) * (*sm)("MASS", 24) * cosb);
 
-					G_aimn[ae][ie][be][ce]=0.5/sqrt(2.)*(sqrt(2.)*(*sm)("MASS",24)*(*susy)("VMIX", ie*10+1)*Gamma_UL[ae][ce]*ag-MU[ce]*(*susy)("VMIX", ie*10+2)*Gamma_UR[ae][ce]*aY)*(VCKM[be][3]*VCKM[ce][2]/VCKM[3][3]/VCKM[3][2]);
+					G_aimn[ae][ie][be][ce]=0.5/sqrt(2.)*(sqrt(2.)*(*sm)("MASS",24)*(*susy)("VMIX", ie*10+1)*Gamma_UL[ae][ce]*ag-MU[ce]*(*susy)("VMIX", ie*10+2)*Gamma_UR[ae][ce]*aY)*(std::real(VCKM[be][3])*std::real(VCKM[ce][2])/std::real(VCKM[3][3])/std::real(VCKM[3][2]));
+					// logger->info(std::to_string(std::real(VCKM[ce][be])) + " WAOUW");
 				}
 
 				// Condition pour éviter le dépassement dans X_NL et X_NR si ae > 2
@@ -155,13 +156,14 @@ susy_parameters::susy_parameters(double scale) {
 			}
 		}
 	}
+	//X_UL and X_UR change from here, -1 from superiso
 
 	auto computeContributions = [&](int ie, auto func, double additionalFactor = 1.0) {
 		double result = 0.0;
 		for (int ae = 0; ae < 6; ++ae) {
 			double msqOverMchSquared = std::pow(MsqU[ae] / Mch[ie], 2.0);
-			result += (X_UL[ie][ae][1] * X_UL[ie][ae][2] * func(msqOverMchSquared) +
-					Mch[ie] / mass_b_muW * X_UL[ie][ae][1] * X_UR[ie][ae][2] * func(msqOverMchSquared)) * additionalFactor;
+			result += (X_UL[ie][ae][0] * X_UL[ie][ae][1] * func(msqOverMchSquared) +
+					Mch[ie] / mass_b_muW * X_UL[ie][ae][0] * X_UR[ie][ae][1] * func(msqOverMchSquared)) * additionalFactor;
 		}
 		return result;
 	};
@@ -179,8 +181,8 @@ susy_parameters::susy_parameters(double scale) {
 		double msqOverMchSquared = std::pow(MsqU[ae] / Mch[ie], 2.0);
 		double factor = isChargeps ? (-epsilonb / (1.0 + epsilonb * (*susy)("HMIX",2)) * (*susy)("HMIX",2)) : 1.0;
 		return ratio * (
-			X[ie][ae][1] * X[ie][ae][2] * hFunc(msqOverMchSquared) +
-			Mch[ie] / mass_b_muW * X[ie][ae][1] * X[ie][ae][2] * hFunc(msqOverMchSquared)
+			X[ie][ae][0] * X[ie][ae][1] * hFunc(msqOverMchSquared) +
+			Mch[ie] / mass_b_muW * X[ie][ae][0] * X[ie][ae][1] * hFunc(msqOverMchSquared)
 		) * kappaFactor * factor;
 	};
 
@@ -195,16 +197,16 @@ susy_parameters::susy_parameters(double scale) {
 				// Calculations for B0c1, B0c2, and part of C90c
 				for (int be = 0; be < 3; ++be) {
 					double msnOverMchSquared = std::pow(Msn[be] / Mch[ie], 2.0);
-					B0c1 += X_UL[je][ae][1] * X_UL[ie][ae][2] / (Mch[ie] * Mch[ie]) * (0.5 * X_NL[ie][be][1] * X_NL[je][be][1] * f50(mchRatioSquared, msqOverMchSquared, msnOverMchSquared));
-					B0c2 += X_UL[je][ae][1] * X_UL[ie][ae][2] / (Mch[ie] * Mch[ie]) * (X_NR[ie][be][1] * X_NR[je][be][1] * std::fabs(Mch[je] / Mch[ie]) * f60(mchRatioSquared, msqOverMchSquared, msnOverMchSquared));
+					B0c1 += X_UL[je][ae][0] * X_UL[ie][ae][1] / (Mch[ie] * Mch[ie]) * (0.5 * X_NL[ie][be][0] * X_NL[je][be][0] * f50(mchRatioSquared, msqOverMchSquared, msnOverMchSquared));
+					B0c2 += X_UL[je][ae][0] * X_UL[ie][ae][1] / (Mch[ie] * Mch[ie]) * (X_NR[ie][be][0] * X_NR[je][be][0] * std::fabs(Mch[je] / Mch[ie]) * f60(mchRatioSquared, msqOverMchSquared, msnOverMchSquared));
 					
 					if (ie == je) { // Optimization to avoid duplicate calculations
-						C90c += X_UL[je][ae][1] * X_UL[ie][ae][2] * (2.0 * std::fabs(Mch[je] / Mch[ie]) * f30(mchRatioSquared, msqOverMchSquared) * (*susy)("UMIX", je*10+1) * (*susy)("UMIX", ie*10+1) - f40(mchRatioSquared, msqOverMchSquared) * (*susy)("VMIX", je*10+1) * (*susy)("VMIX", ie*10+1));
+						C90c += X_UL[je][ae][0] * X_UL[ie][ae][1] * (2.0 * std::fabs(Mch[je] / Mch[ie]) * f30(mchRatioSquared, msqOverMchSquared) * (*susy)("UMIX", je*10+1) * (*susy)("UMIX", ie*10+1) - f40(mchRatioSquared, msqOverMchSquared) * (*susy)("VMIX", je*10+1) * (*susy)("VMIX", ie*10+1));
 					}
 				}
 
 				// Part of D90c calculation
-				D90c += std::pow((*sm)("MASS", 24) / Mch[ie], 2.0) * X_UL[ie][ae][1] * X_UL[ie][ae][2] * h30(msqOverMchSquared);
+				D90c += std::pow((*sm)("MASS", 24) / Mch[ie], 2.0) * X_UL[ie][ae][0] * X_UL[ie][ae][1] * h30(msqOverMchSquared);
 			}
 		}
 	}
@@ -216,7 +218,7 @@ susy_parameters::susy_parameters(double scale) {
 				double msqOverMchSquaredAe = std::pow(MsqU[ae] / Mch[ie], 2.0);
 				double msqOverMchSquaredBe = std::pow(MsqU[be] / Mch[ie], 2.0);
 				for (int ce = 0; ce < 3; ++ce) {
-					C90c += X_UL[ie][be][1] * X_UL[ie][ae][2] * f40(msqOverMchSquaredAe, msqOverMchSquaredBe) * Gamma_UL[be][ce] * Gamma_UL[ae][ce];
+					C90c += X_UL[ie][be][0] * X_UL[ie][ae][1] * f40(msqOverMchSquaredAe, msqOverMchSquaredBe) * Gamma_UL[be][ce] * Gamma_UL[ae][ce];
 				}
 			}
 		}
