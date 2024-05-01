@@ -22,8 +22,7 @@ double EpsilonCalculator::epsilon_0() {
                ((*susy)("SBOTMIX",12) * (*susy)("SBOTMIX",12) * H2((*susy)("MSOFT",2) * (*susy)("MSOFT",2) / (*susy)("MASS",2000005) / (*susy)("MASS",2000005), mu_Q * mu_Q / (*susy)("MASS",2000005) / (*susy)("MASS",2000005)) / (*susy)("MASS",2000005) / (*susy)("MASS",2000005) / 2.0));
 
     Logger *logger = Logger::getInstance();
-    logger->info("term1 is " + std::to_string(term3));
-    logger->info("sminput is " + std::to_string((*sm)("SMINPUTS",1)));
+    logger->debug("term3 in epsilon_0 is " + std::to_string(term3));
     return term1 + term2 + term3; 
 }
 

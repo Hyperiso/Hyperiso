@@ -51,5 +51,5 @@ double q51(double x, double y);
 double q61(double x, double y);
 
 
-double C7H2(double yt, double lu, double ld, double L);
-double C8H2(double yt, double lu, double ld, double L);
+// double C7H2(double yt, double lu, double ld, double L);
+// double C8H2(double yt, double lu, double ld, double L);

@@ -90,7 +90,7 @@ public:
         }
         if (block== "SMINPUTS") {
             // int code= pdgCode-1;
-            Logger::getInstance()->info(std::to_string(sminputs[1]) + " " + std::to_string(pdgCode));
+            // Logger::getInstance()->info(std::to_string(sminputs[1]) + " " + std::to_string(pdgCode));
             return sminputs[1];
         }
         return 0;

@@ -71,13 +71,13 @@ void SUSY_LO_Strategy::init(double scale, WilsonSet& C_match) {
 	
 	
 
-	double C7H_0=1./3.*(*sus_param).lu*(*sus_param).lu*F7_1((*sus_param).yt) - (*sus_param).lu*(*sus_param).ld*F7_2((*sus_param).yt);
-	double C8H_0=1./3.*(*sus_param).lu*(*sus_param).lu*F8_1((*sus_param).yt) - (*sus_param).lu*(*sus_param).ld*F8_2((*sus_param).yt);
+	// double C7H_0=1./3.*(*sus_param).lu*(*sus_param).lu*F7_1((*sus_param).yt) - (*sus_param).lu*(*sus_param).ld*F7_2((*sus_param).yt);
+	// double C8H_0=1./3.*(*sus_param).lu*(*sus_param).lu*F8_1((*sus_param).yt) - (*sus_param).lu*(*sus_param).ld*F8_2((*sus_param).yt);
 
-	// logger->info("F7_2((*sus_param).yt) + " +std::to_string(F7_2((*sus_param).yt)));
-	// logger->info("C8H_0 + " +std::to_string(C8H_0));
-	double C9H_0=(1.-4.*(*sus_param).sw2)/(*sus_param).sw2*C9llH0((*sus_param).xt,(*sus_param).yt,(*sus_param).lu)-D9H0((*sus_param).yt,(*sus_param).lu);
-	double C10H_0=-C9llH0((*sus_param).xt,(*sus_param).yt,(*sus_param).lu)/(*sus_param).sw2;
+	// // logger->info("F7_2((*sus_param).yt) + " +std::to_string(F7_2((*sus_param).yt)));
+	// // logger->info("C8H_0 + " +std::to_string(C8H_0));
+	// double C9H_0=(1.-4.*(*sus_param).sw2)/(*sus_param).sw2*C9llH0((*sus_param).xt,(*sus_param).yt,(*sus_param).lu)-D9H0((*sus_param).yt,(*sus_param).lu);
+	// double C10H_0=-C9llH0((*sus_param).xt,(*sus_param).yt,(*sus_param).lu)/(*sus_param).sw2;
 
 
 
@@ -133,15 +133,21 @@ void SUSY_LO_Strategy::init(double scale, WilsonSet& C_match) {
 		C1squark_2 = 0.0;
 	}
 
+	std::unique_ptr<THDM_NNLO_Strategy> thdm_lo = std::make_unique<THDM_NNLO_Strategy>();
+
+	thdm_lo->set_lu(1/(*susy)("HMIX", 2));
+	thdm_lo->set_ld(-(*susy)("HMIX", 2));
+	thdm_lo->init(scale, C_match);
+
 	if (C_match.empty()) C_match.resize(1);
 	auto& C_LO = C_match[0];
 	C_LO.resize(static_cast<size_t>(WilsonCoefficient::CPQ2) + 1, std::complex<double>(0, 0));
 
 	C_LO[static_cast<size_t>(WilsonCoefficient::C2)] = std::complex<double>(0, 0); // Exemple pour C2
-	C_LO[static_cast<size_t>(WilsonCoefficient::C7)] = std::complex<double>(C7SMeps_0 + C7H_0 + C7Heps_0 + C7Heps2_0 + C7charg_0 + C7_chargeps_0, 0);
-	C_LO[static_cast<size_t>(WilsonCoefficient::C8)] = std::complex<double>(C8SMeps_0 + C8H_0 + C8Heps_0 + C8Heps2_0 + C8charg_0 + C8_chargeps_0, 0);
-	C_LO[static_cast<size_t>(WilsonCoefficient::C9)] = std::complex<double>(C9H_0 + C9charg_0, 0);
-	C_LO[static_cast<size_t>(WilsonCoefficient::C10)] = std::complex<double>(C10H_0 + C10charg_0, 0);
+	C_LO[static_cast<size_t>(WilsonCoefficient::C7)] = std::complex<double>(C7SMeps_0 + C7Heps_0 + C7Heps2_0 + C7charg_0 + C7_chargeps_0, 0);
+	C_LO[static_cast<size_t>(WilsonCoefficient::C8)] = std::complex<double>(C8SMeps_0 +  C8Heps_0 + C8Heps2_0 + C8charg_0 + C8_chargeps_0, 0);
+	C_LO[static_cast<size_t>(WilsonCoefficient::C9)] = std::complex<double>(C9charg_0, 0);
+	C_LO[static_cast<size_t>(WilsonCoefficient::C10)] = std::complex<double>(C10charg_0, 0);
 
 	// Affichage pour vérification, si nécessaire
 	std::cout << "C7: " << C_LO[static_cast<size_t>(WilsonCoefficient::C7)] << std::endl;
@@ -339,17 +345,23 @@ void SUSY_NLO_Strategy::init(double scale, WilsonSet& C_match) {
 
 	
 
-	complex_t C4H_1=EH((*sus_param).yt,(*sus_param).lu);
+	// complex_t C4H_1=EH((*sus_param).yt,(*sus_param).lu);
 	
- 	complex_t C7H_1= G7H((*sus_param).yt,(*sus_param).lu,(*sus_param).ld)+Delta7H((*sus_param).yt,(*sus_param).lu,(*sus_param).ld)*log(pow(scale/((*susy)("MASS", 25)),2.))-4./9.*C4H_1; // param->mass_H -> 25 ?
-	complex_t C8H_1= G8H((*sus_param).yt,(*sus_param).lu,(*sus_param).ld)+Delta8H((*sus_param).yt,(*sus_param).lu,(*sus_param).ld)*log(pow(scale/(*susy)("MASS", 25),2.))-1./6.*C4H_1;
-	complex_t C9H_1=(1.-4.*(*sus_param).sw2)/(*sus_param).sw2*C9llH1((*sus_param).xt,(*sus_param).yt,(*sus_param).lu,log(pow(scale/(*susy)("MASS", 25),2.)))-D9H1((*sus_param).yt,(*sus_param).lu,log(pow(scale/(*susy)("MASS", 25),2.)));
-	complex_t C10H_1=-C9llH1((*sus_param).xt,(*sus_param).yt,(*sus_param).lu,log(pow(scale/(*susy)("MASS", 25),2.)))/(*sus_param).sw2;
+ 	// complex_t C7H_1= G7H((*sus_param).yt,(*sus_param).lu,(*sus_param).ld)+Delta7H((*sus_param).yt,(*sus_param).lu,(*sus_param).ld)*log(pow(scale/((*susy)("MASS", 25)),2.))-4./9.*C4H_1; // param->mass_H -> 25 ?
+	// complex_t C8H_1= G8H((*sus_param).yt,(*sus_param).lu,(*sus_param).ld)+Delta8H((*sus_param).yt,(*sus_param).lu,(*sus_param).ld)*log(pow(scale/(*susy)("MASS", 25),2.))-1./6.*C4H_1;
+	// complex_t C9H_1=(1.-4.*(*sus_param).sw2)/(*sus_param).sw2*C9llH1((*sus_param).xt,(*sus_param).yt,(*sus_param).lu,log(pow(scale/(*susy)("MASS", 25),2.)))-D9H1((*sus_param).yt,(*sus_param).lu,log(pow(scale/(*susy)("MASS", 25),2.)));
+	// complex_t C10H_1=-C9llH1((*sus_param).xt,(*sus_param).yt,(*sus_param).lu,log(pow(scale/(*susy)("MASS", 25),2.)))/(*sus_param).sw2;
 
 	double alphas_mu = sm->QCDRunner.runningAlphasCalculation(scale);
 	
 
 	SUSY_LO_Strategy::init(scale, C_match);
+
+	std::unique_ptr<THDM_NNLO_Strategy> thdm_nlo = std::make_unique<THDM_NNLO_Strategy>();
+
+	thdm_nlo->set_lu(1/(*susy)("HMIX", 2)); 
+	thdm_nlo->set_ld(-(*susy)("HMIX", 2));
+	thdm_nlo->init(scale, C_match);
 
 	if (C_match.size() < 2) C_match.resize(2);
     auto& C_LO = C_match[0]; // Coefficients à l'ordre LO
@@ -364,28 +376,28 @@ void SUSY_NLO_Strategy::init(double scale, WilsonSet& C_match) {
         }
     };
 
-	adjustCoefficient(C7H_1, 7);
+	// adjustCoefficient(C7H_1, 7);
 	adjustCoefficient(C7charg_1, 7);
 	adjustCoefficient(C7four_1, 7);
 
-	adjustCoefficient(C8H_1, 8);
+	// adjustCoefficient(C8H_1, 8);
 	adjustCoefficient(C8charg_1, 8);
 	adjustCoefficient(C8four_1, 8);
 
-	adjustCoefficient(C9H_1, 9);
+	// adjustCoefficient(C9H_1, 9);
 	adjustCoefficient(C9charg_1, 9);
 	adjustCoefficient(C9four_1, 9);
 
-	adjustCoefficient(C10H_1, 10);
+	// adjustCoefficient(C10H_1, 10);
 	adjustCoefficient(C10charg_1, 10);
 	adjustCoefficient(C10four_1, 10);
 
 	C_NLO[1] += 0.;
-    C_NLO[4] += C4H_1 + C4charg_1;
-    C_NLO[7] += C7H_1 + C7charg_1 + C7four_1;
-    C_NLO[8] += C8H_1 + C8charg_1 + C8four_1;
-    C_NLO[9] += C9H_1 + C9charg_1 + C9four_1;
-    C_NLO[10] += C10H_1 + C10charg_1 + C10four_1;
+    C_NLO[4] += C4charg_1;
+    C_NLO[7] += C7charg_1 + C7four_1;
+    C_NLO[8] += C8charg_1 + C8four_1;
+    C_NLO[9] += C9charg_1 + C9four_1;
+    C_NLO[10] += C10charg_1 + C10four_1;
 
 	std::cout << "C7 at NLO : " << C_NLO[static_cast<size_t>(WilsonCoefficient::C7)] << std::endl;
 	std::cout << "C8 at NLO : " << C_NLO[static_cast<size_t>(WilsonCoefficient::C8)] << std::endl;
@@ -452,26 +464,35 @@ void SUSY_NNLO_Strategy::init(double scale, WilsonSet& C_match) {
 		}
 	}
 
-	complex_t C4H_1=EH((*sus_param).yt,(*sus_param).lu);
-	complex_t C3H_2=G3H((*sus_param).yt,(*sus_param).lu)+Delta3H((*sus_param).yt,(*sus_param).lu)*log(pow(scale/(*susy)("MASS",25),2.));
-	complex_t C4H_2=G4H((*sus_param).yt,(*sus_param).lu)+Delta4H((*sus_param).yt,(*sus_param).lu)*log(pow(scale/(*susy)("MASS",25),2.));
-	complex_t C5H_2=-C3H_2/10.+2./15.*C4H_1;
-	complex_t C6H_2=-3./16.*C3H_2+1./4.*C4H_1;
+	// complex_t C4H_1=EH((*sus_param).yt,(*sus_param).lu);
+	// complex_t C3H_2=G3H((*sus_param).yt,(*sus_param).lu)+Delta3H((*sus_param).yt,(*sus_param).lu)*log(pow(scale/(*susy)("MASS",25),2.));
+	// complex_t C4H_2=G4H((*sus_param).yt,(*sus_param).lu)+Delta4H((*sus_param).yt,(*sus_param).lu)*log(pow(scale/(*susy)("MASS",25),2.));
+	// complex_t C5H_2=-C3H_2/10.+2./15.*C4H_1;
+	// complex_t C6H_2=-3./16.*C3H_2+1./4.*C4H_1;
 	
-	complex_t C7H_2=C7H2((*sus_param).yt,(*sus_param).lu,(*sus_param).ld,log(pow(scale/(*sus_param).mass_top_muW,2.)));
-	complex_t C8H_2=C8H2((*sus_param).yt,(*sus_param).lu,(*sus_param).ld,log(pow(scale/(*sus_param).mass_top_muW,2.)));
+	// complex_t C7H_2=C7H2((*sus_param).yt,(*sus_param).lu,(*sus_param).ld,log(pow(scale/(*sus_param).mass_top_muW,2.)));
+	// complex_t C8H_2=C8H2((*sus_param).yt,(*sus_param).lu,(*sus_param).ld,log(pow(scale/(*sus_param).mass_top_muW,2.)));
+	
+	
+	std::unique_ptr<THDM_NNLO_Strategy> thdm_nnlo = std::make_unique<THDM_NNLO_Strategy>();
+
+	thdm_nnlo->set_lu(1/(*susy)("HMIX", 2));
+	Logger::getInstance()->info(std::to_string((*susy)("HMIX", 2)));
+	thdm_nnlo->set_ld(-(*susy)("HMIX", 2));
+	Logger::getInstance()->info("TOUT VA BIEEEEN0");
+	thdm_nnlo->init(scale, C_match);
 
 	if (C_match.size() < 3) C_match.resize(3);
     auto& C_NNLO = C_match[2]; // Coefficients à l'ordre NLO
     if (C_NNLO.empty()) C_NNLO.resize(static_cast<size_t>(WilsonCoefficient::CPQ2) + 1, std::complex<double>(0, 0));
 
 	C_NNLO[1] += C1squark_2;
-	C_NNLO[3] += C3H_2+C3charg_2;
-    C_NNLO[4] += C4H_2+C4charg_2+C4four_2;
-	C_NNLO[5] += C5H_2+C5charg_2;
-	C_NNLO[6] += C6H_2+C6charg_2;
-    C_NNLO[7] += C7H_2;
-    C_NNLO[8] += C8H_2;
+	C_NNLO[3] += C3charg_2;
+    C_NNLO[4] += C4charg_2+C4four_2;
+	C_NNLO[5] += C5charg_2;
+	C_NNLO[6] += C6charg_2;
+    // C_NNLO[7] += C7H_2;
+    // C_NNLO[8] += C8H_2;
 
 }
 
