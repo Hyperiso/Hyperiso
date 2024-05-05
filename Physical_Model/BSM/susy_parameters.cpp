@@ -32,7 +32,7 @@ susy_parameters::susy_parameters(double scale) {
 	alphas_muW=(*sm).QCDRunner.runningAlphasCalculation(scale);
 
     alphas_mg = sm->QCDRunner.runningAlphasCalculation((*susy)("MASS",1000021));
-	ag = 1.0 - 7.0 / (12.0 * Pi * alphas_mg);
+	ag = 1.0 - 7.0 / (12.0 * Pi) * alphas_mg;
 	aY = 1.0 + alphas_mg / (4.0 * Pi);
 	kappa = 1.0 / ((*sm)("GAUGE",2) * (*sm)("GAUGE",2) * std::real(VCKM[2][2])* std::real(VCKM[2][1])); //VCKM 33 et 32
 
@@ -41,14 +41,14 @@ susy_parameters::susy_parameters(double scale) {
 	cosb = std::cos(std::atan((*susy)("HMIX",2)));
 	ct = (*susy)("STOPMIX",11); // Ajustement des indices pour base-0
 	st = (*susy)("STOPMIX",01); // Ajustement des indices pour base-0
-
+	Logger::getInstance()->info("ST " + std::to_string((*susy)("STOPMIX",01)));
 
     // Initialisation des masses
-	MU = {(*sm)("MASS",2), (*sm)("MASS",4), mass_top_muW}; // Ajout d'un élément vide pour compatibilité d'indice
-	MD = {(*sm)("MASS",1), (*sm)("MASS",3), mass_b_muW}; // Correction pour inclure mass_d et ajustement pour base-0
-	ME = {(*sm)("MASS",11), (*sm)("MASS",13), (*sm)("MASS",15)}; // Ajout d'un élément vide pour compatibilité d'indice
+	MU = {(*sm)("MASS",2), (*sm)("MASS",4), mass_top_muW}; 
+	MD = {(*sm)("MASS",2), (*sm)("MASS",3), mass_b_muW}; 
+	ME = {(*sm)("MASS",11), (*sm)("MASS",13), (*sm)("MASS",15)}; 
 
-	Mch = {(*susy)("MASS",1000024), (*susy)("MASS",1000037) }; // Ajout d'un élément pour compatibilité de taille
+	Mch = {(*susy)("MASS",1000024), (*susy)("MASS",1000037) };
 	// Array1D_7 MsqU = { 0.0, param->mass_upl, param->mass_chl, param->mass_t1, param->mass_upr, param->mass_chr, param->mass_t2}; // Ajout d'un élément pour compatibilité de taille
 	MsqU = {(*susy)("MASS",1000002), (*susy)("MASS",1000004), (*susy)("MASS",1000006), (*susy)("MASS",2000002), (*susy)("MASS",2000004), (*susy)("MASS",2000006)}; // Ajout d'un élément pour compatibilité de taille
 	
@@ -103,27 +103,31 @@ susy_parameters::susy_parameters(double scale) {
         for (int ie = 0; ie < 3; ++ie) {
             Gamma_U[ae][ie] = Gamma_UL[ae][ie];
             Gamma_U[ae][ie+3] = Gamma_UR[ae][ie];
+			if (ae <3 && ae==ie) {
+				Gamma_NL[ae][ie] = 1.;
+			}
         }
     }
 
     I_LR.fill({});
     for (int i = 0; i < 3; ++i) {
-        I_LR[i][i] = 1;
-        I_LR[i+3][i+3] = -1;
+        I_LR[i][i] = 1.;
+        I_LR[i+3][i+3] = -1.;
     }
-
+	Logger *logger =Logger::getInstance();
     // Calcul de P_U
     for (int ae = 0; ae < 6; ++ae) {
         for (int be = 0; be < 6; ++be) {
             for (int ce = 0; ce < 6; ++ce) {
                 for (int de = 0; de < 6; ++de) {
-                    P_U[ae][be] += Gamma_U[ae][ce] * I_LR[ce][de] * Gamma_U[be][de];
+                    P_U[ae][be] = Gamma_U[ae][ce] * I_LR[ce][de] * Gamma_U[be][de];
+					logger->info("P_U[" + std::to_string(ae) + "][" + std::to_string(be) + "] = " + std::to_string(P_U[ae][be]));
                 }
             }
         }
     }
 
-	Logger *logger =Logger::getInstance();
+	
 	logger->debug("CT " + std::to_string(isNonZeroMix));
 	logger->debug("ST " + std::to_string(st));
 
@@ -138,24 +142,28 @@ susy_parameters::susy_parameters(double scale) {
 				// Calculs pour X_UL et X_UR
 				for (int ce = 0; ce < 3; ++ce) {
 					X_UL[ie][ae][be] += -(*sm)("GAUGE",2) * (
-						ag * (*susy)("VMIX", ie*10+1) * Gamma_UL[ae][ce] -
-						aY * (*susy)("VMIX", ie*10+2) * Gamma_UR[ae][ce] * MU[ce] / (sqrt(2.0) * (*sm)("MASS", 24) * sinb)
-					) * std::real(VCKM[ce][be]);
+						ag * (*susy)("VMIX", ie*10+0) * Gamma_UL[ae][ce] -
+						aY * (*susy)("VMIX", ie*10+1) * Gamma_UR[ae][ce] * MU[ce] / (sqrt(2.0) * (*sm)("MASS", 24) * sinb)
+					) * std::real(VCKM[ce][be])*(-1);
 					// logger->info("GAMMA_UL " + std::to_string(ae) + " " + std::to_string(ce)  + " " + std::to_string(Gamma_UL[ae][ce]));
-					X_UR[ie][ae][be] += (*sm)("GAUGE",2) * aY * (*susy)(std::string("UMIX"), ie*10+2) * Gamma_UL[ae][ce] * std::real(VCKM[ce][be]) * MD[be] / (sqrt(2.0) * (*sm)("MASS", 24) * cosb);
+					X_UR[ie][ae][be] += (*sm)("GAUGE",2) * aY * (*susy)(std::string("UMIX"), ie*10+1) * Gamma_UL[ae][ce] * std::real(VCKM[ce][be]) * MD[be] / (sqrt(2.0) * (*sm)("MASS", 24) * cosb);
 
-					G_aimn[ae][ie][be][ce]=0.5/sqrt(2.)*(sqrt(2.)*(*sm)("MASS",24)*(*susy)("VMIX", ie*10+1)*Gamma_UL[ae][ce]*ag-MU[ce]*(*susy)("VMIX", ie*10+2)*Gamma_UR[ae][ce]*aY)*(std::real(VCKM[be][3])*std::real(VCKM[ce][2])/std::real(VCKM[3][3])/std::real(VCKM[3][2]));
+					G_aimn[ae][ie][be][ce]=0.5/sqrt(2.)*(sqrt(2.)*(*sm)("MASS",24)*(*susy)("VMIX", ie*10+0)*Gamma_UL[ae][ce]*ag-MU[ce]*(*susy)("VMIX", ie*10+1)*Gamma_UR[ae][ce]*aY)*(std::real(VCKM[be][2])*std::real(VCKM[ce][1])/std::real(VCKM[2][2])/std::real(VCKM[2][1]));
 					// logger->info(std::to_string(std::real(VCKM[ce][be])) + " WAOUW");
 				}
-
+				logger->debug("X_UL[" + std::to_string(ie) + "][" +std::to_string(ae)+"]["+std::to_string(be)+"] = "+std::to_string(X_UL[ie][ae][be]));
+				logger->debug("X_UR[" + std::to_string(ie) + "][" +std::to_string(ae)+"]["+std::to_string(be)+"] = "+std::to_string(X_UR[ie][ae][be]));
 				// Condition pour éviter le dépassement dans X_NL et X_NR si ae > 2
 				if (ae < 3) {
-					X_NL[ie][ae][be] = -(*sm)("GAUGE",2) * (*susy)("VMIX", ie*10+1) * Gamma_NL[ae][be];
-					X_NR[ie][ae][be] = (*sm)("GAUGE",2) * (*susy)("UMIX", ie*10+2) * Gamma_NL[ae][be] * ME[be] / (sqrt(2.0) * (*sm)("MASS", 24) * cosb);
+					X_NL[ie][ae][be] = -(*sm)("GAUGE",2) * (*susy)("VMIX", ie*10+0) * Gamma_NL[ae][be];
+					X_NR[ie][ae][be] = (*sm)("GAUGE",2) * (*susy)("UMIX", ie*10+1) * Gamma_NL[ae][be] * ME[be] / (sqrt(2.0) * (*sm)("MASS", 24) * cosb);
 				}
 			}
 		}
 	}
+
+	logger->info("AG " + std::to_string(ag));
+	logger->info("AY " + std::to_string(aY));
 	//X_UL and X_UR change from here, -1 from superiso
 
 	auto computeContributions = [&](int ie, auto func, double additionalFactor = 1.0) {
@@ -168,6 +176,7 @@ susy_parameters::susy_parameters(double scale) {
 		return result;
 	};
 
+	logger->info("KAPPA IS " + std::to_string(kappa));
 
 	auto hFunc10 = [](double x) { return h10(x); };
 	auto hFunc20 = [](double x) { return h20(x); };
@@ -201,12 +210,12 @@ susy_parameters::susy_parameters(double scale) {
 					B0c2 += X_UL[je][ae][0] * X_UL[ie][ae][1] / (Mch[ie] * Mch[ie]) * (X_NR[ie][be][0] * X_NR[je][be][0] * std::fabs(Mch[je] / Mch[ie]) * f60(mchRatioSquared, msqOverMchSquared, msnOverMchSquared));
 					
 					if (ie == je) { // Optimization to avoid duplicate calculations
-						C90c += X_UL[je][ae][0] * X_UL[ie][ae][1] * (2.0 * std::fabs(Mch[je] / Mch[ie]) * f30(mchRatioSquared, msqOverMchSquared) * (*susy)("UMIX", je*10+1) * (*susy)("UMIX", ie*10+1) - f40(mchRatioSquared, msqOverMchSquared) * (*susy)("VMIX", je*10+1) * (*susy)("VMIX", ie*10+1));
+						C90c += X_UL[je][ae][1] * X_UL[ie][ae][2] * (2.0 * std::fabs(Mch[je] / Mch[ie]) * f30(mchRatioSquared, msqOverMchSquared) * (*susy)("UMIX", je*10+0) * (*susy)("UMIX", ie*10+0) - f40(mchRatioSquared, msqOverMchSquared) * (*susy)("VMIX", je*10+0) * (*susy)("VMIX", ie*10+0));
 					}
 				}
 
 				// Part of D90c calculation
-				D90c += std::pow((*sm)("MASS", 24) / Mch[ie], 2.0) * X_UL[ie][ae][0] * X_UL[ie][ae][1] * h30(msqOverMchSquared);
+				D90c += std::pow((*sm)("MASS", 24) / Mch[ie], 2.0) * X_UL[ie][ae][1] * X_UL[ie][ae][2] * h30(msqOverMchSquared);
 			}
 		}
 	}
@@ -218,7 +227,7 @@ susy_parameters::susy_parameters(double scale) {
 				double msqOverMchSquaredAe = std::pow(MsqU[ae] / Mch[ie], 2.0);
 				double msqOverMchSquaredBe = std::pow(MsqU[be] / Mch[ie], 2.0);
 				for (int ce = 0; ce < 3; ++ce) {
-					C90c += X_UL[ie][be][0] * X_UL[ie][ae][1] * f40(msqOverMchSquaredAe, msqOverMchSquaredBe) * Gamma_UL[be][ce] * Gamma_UL[ae][ce];
+					C90c += X_UL[ie][be][1] * X_UL[ie][ae][2] * f40(msqOverMchSquaredAe, msqOverMchSquaredBe) * Gamma_UL[be][ce] * Gamma_UL[ae][ce];
 				}
 			}
 		}
@@ -231,12 +240,13 @@ susy_parameters::susy_parameters(double scale) {
 	D90c *= kappa;
 
     test = true;
-	for (int ae = 1; ae <= 6; ++ae) { // Conserve l'indexation à partir de 1
+	for (int ae = 0; ae < 6; ++ae) { // Conserve l'indexation à partir de 1
 		if (!(std::fabs(MsqU[ae]) > (*sm)("MASS", 24) / 2. && std::fabs(MsqD[ae]) > (*sm)("MASS", 24) / 2.)) {
 			test = false;
 			break; // Sort de la boucle dès qu'une condition n'est pas remplie
 		}
 	}
+	
 }
 
 susy_parameters* susy_parameters::instance = nullptr;

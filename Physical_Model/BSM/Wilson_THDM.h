@@ -9,10 +9,11 @@ public:
     void init(double scale, WilsonSet& C_match) override;
     void init_prime(double scale_W,double scale,int gen, WilsonSet& C_match) override {}
     void init_scalar(double scale_W,double scale,int gen, WilsonSet& C_match) override;
-    // void set_base1(WilsonSet& C, WilsonSet& C_match, double Q, const double Q_match) override;
-    // void set_base2(WilsonSet& C, WilsonSet& C_match, double Q, const double Q_match) override {}
-    void set_lu(double lu) {this->lu = lu;}
-    void set_ld(double ld) {this->ld = ld;}
+
+    void set_lu(double lu) {this->lu = lu;
+    Logger::getInstance()->info("lu in THDM " + std::to_string(lu));}
+    void set_ld(double ld) {this->ld = ld;
+    Logger::getInstance()->info("ld in THDM " + std::to_string(ld));}
 
 protected:
     double lu{-1.};
@@ -23,16 +24,10 @@ protected:
 class THDM_NLO_Strategy : public THDM_LO_Strategy {
 public:
     void init(double scale, WilsonSet& C_match) override;
-    // void set_base1(WilsonSet& C, WilsonSet& C_match, double Q, const double Q_match) override;
-    // void set_base2(WilsonSet& C, WilsonSet& C_match, double Q, const double Q_match) override {}
-
 };
 
 
 class THDM_NNLO_Strategy : public THDM_NLO_Strategy {
 public:
     void init(double scale, WilsonSet& C_match) override;
-    // void set_base1(WilsonSet& C, WilsonSet& C_match, double Q, const double Q_match) override;
-    // void set_base2(WilsonSet& C, WilsonSet& C_match, double Q, const double Q_match) override {}
-
 };

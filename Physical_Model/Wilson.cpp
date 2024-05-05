@@ -145,7 +145,7 @@ void SM_LO_Strategy::set_base1(WilsonSet& C, WilsonSet& C_match, double Q, const
     logger->debug("Initialized SM_LO_Strategy with base1 at scale " +std::to_string(Q));
     logger->debug("C7_eff: " + std::to_string(C7_eff.real()) + " + " + std::to_string(C7_eff.imag()) + "i");
     logger->debug("C8_eff: " + std::to_string(C8_eff.real()) + " + " + std::to_string(C8_eff.imag()) + "i");
-    logger->info("Initialized SM_LO_Strategy set_base1 at scale "+std::to_string(Q)+" terminated successfully");
+    logger->info("SM_LO_Strategy calculation in base1 at scale "+std::to_string(Q)+" terminated successfully");
 
 }
 

@@ -21,8 +21,6 @@ void writeCoefficientsToFile(const std::string& strat_name, const std::string& f
     Parameters* sm = Parameters::GetInstance();
     WilsonManager* wm = WilsonManager::GetInstance(strat_name, 81.0, strategy);
 
-    wm->setScale(Q_match);
-
     double alpha_s = (*sm).QCDRunner.runningAlphasCalculation(Q_match);
 
     file << Q_match << "," << alpha_s;

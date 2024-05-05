@@ -21,7 +21,6 @@ void writeCoefficientsToFile(const std::string& strat_name, const std::string& f
     Parameters* sm = Parameters::GetInstance();
     WilsonManager* wm = WilsonManager::GetInstance(strat_name, 81.0, strategy);
 
-    wm->setScale(Q_match);
 
     double alpha_s = (*sm).QCDRunner.runningAlphasCalculation(Q_match);
 
@@ -57,7 +56,7 @@ int main() {
     
     writeCoefficientsToFile("NLO", "../csv/susy/WilsonCoefficients_NLO.csv", nloStrategy, 81);
     writeCoefficientsToFile("LO", "../csv/susy/WilsonCoefficients_LO.csv", loStrategy, 81);
-    writeCoefficientsToFile("NNLO", "../csv/susy/WilsonCoefficients_NNLO.csv", nnloStrategy, 81);
+    // writeCoefficientsToFile("NNLO", "../csv/susy/WilsonCoefficients_NNLO.csv", nnloStrategy, 81);
     
     WilsonManager::Cleanup();
     return 0;

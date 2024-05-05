@@ -61,7 +61,6 @@ void Parameters::initSM() {
     sminputs[0] = 0.;
     sminputs[1] = *sm_inputs[0];
 
-    Logger::getInstance()->info("*sm_inputs[pdgCode-1]" + std::to_string(*sm_inputs[0]));
     // VCKMIN 
     double lambda{0.22500}, A{0.826}, rho{0.159}, eta{0.348};
     std::vector<double*> ckm_inputs = {&lambda, &A, &rho, &eta};

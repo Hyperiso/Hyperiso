@@ -6,6 +6,7 @@
 #include "Wilson.h"
 #include "MemoryManager.h"
 #include "Logger.h"
+#include "Wilson_susy.h"
 
 void writeCoefficientsToFile(const std::string& strat_name, const std::string& fileName, const std::shared_ptr<InitializationStrategy>& strategy, double Q_match) {
     std::ofstream file(fileName);
@@ -19,6 +20,8 @@ void writeCoefficientsToFile(const std::string& strat_name, const std::string& f
     MemoryManager::GetInstance("Test/testInput.slha", {0, 1})->init();
     Parameters* sm = Parameters::GetInstance();
     WilsonManager* wm = WilsonManager::GetInstance(strat_name, 81.0, strategy);
+
+    wm->setScale(Q_match);
 
     double alpha_s = (*sm).QCDRunner.runningAlphasCalculation(Q_match);
 
@@ -47,14 +50,14 @@ int main() {
     Logger* logger = Logger::getInstance();
     logger->setLevel(Logger::LogLevel::INFO);
 
-    auto loStrategy = std::make_shared<SM_LO_Strategy>();
-    auto nloStrategy = std::make_shared<SM_NLO_Strategy>();
-    auto nnloStrategy = std::make_shared<SM_NNLO_Strategy>();
+    auto loStrategy = std::make_shared<SUSY_LO_Strategy>();
+    auto nloStrategy = std::make_shared<SUSY_NLO_Strategy>();
+    auto nnloStrategy = std::make_shared<SUSY_NNLO_Strategy>();
 
     
-    writeCoefficientsToFile("NLO", "../csv/sm/WilsonCoefficients_NLO.csv", nloStrategy, 81);
-    writeCoefficientsToFile("LO", "../csv/sm/WilsonCoefficients_LO.csv", loStrategy, 81);
-    writeCoefficientsToFile("NNLO", "../csv/sm/WilsonCoefficients_NNLO.csv", nnloStrategy, 81);
+    writeCoefficientsToFile("NLO", "../csv/susy/WilsonCoefficients_NLO.csv", nloStrategy, 81);
+    writeCoefficientsToFile("LO", "../csv/susy/WilsonCoefficients_LO.csv", loStrategy, 81);
+    writeCoefficientsToFile("NNLO", "../csv/susy/WilsonCoefficients_NNLO.csv", nnloStrategy, 81);
     
     WilsonManager::Cleanup();
     return 0;
