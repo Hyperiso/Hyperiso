@@ -5,16 +5,20 @@
 #include <memory>
 
 #include "Observable.h"
+#include "Wilson.h"
 
 typedef std::complex<double> complex_t;
 
 class ObsEvaluator {
 private:
-    static complex_t Bs_mumu();
-    static complex_t Bd_mumu();
+    static WilsonManager* computeWilsons(int model, int order, double scale);
+
+    static complex_t Bs_mumu(WilsonManager* wm);
+    static complex_t Bd_mumu(WilsonManager* wm);
 
 public:
     static complex_t Evaluate(Observable* o);
+    
 };
 
 #endif // RARE_DECAY_CALCULATOR_H

@@ -233,6 +233,15 @@ public:
     complex_t get(WilsonCoefficient wc, int order) const;    // Returns C_id at a given order
 
     /**
+     * @brief Get the Wilson coefficient up to a given order.
+     * 
+     * @param wc Wilson coefficient.
+     * @param order Maximal order of the coefficient.
+     * @return Wilson coefficient value.
+     */
+    complex_t get_full(WilsonCoefficient wc, int order) const;    // Returns C_id at a given order
+
+    /**
      * @brief Get the matched Wilson coefficient at a given order.
      * 
      * @param wc_match Matched Wilson coefficient.

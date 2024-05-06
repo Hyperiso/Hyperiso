@@ -11,6 +11,12 @@
 
 typedef std::complex<double> complex_t; 
 
+enum class FlavorParamType {
+    LIFETIME,
+    DECAY_CONSTANT,
+    DECAY_CONSTANT_RATIO
+};
+
 class Parameters {
 public:
     // double Q {sm.mass_top_pole};
@@ -21,6 +27,8 @@ public:
     void setScale(double Q);
     double alpha_s(double Q);
     double running_mass(double quarkmass, double Q_init, double Q_end, std::string option_massb = "running", std::string option_masst = "pole");
+
+    double getFlavorParam(FlavorParamType type, const std::string& id);
 
     double operator()(std::string block, int pdgCode) {
         if (block == "MASS") {
@@ -47,9 +55,11 @@ public:
         if (block=="HMIX") {
             return hmix[pdgCode];
         }
-        if (block == "CKM") {
-            // return ckm[pdgCode/10][pdgCode%10];
-            return 1.0;
+        if (block == "RECKM") {
+            return std::real(ckm[pdgCode/10][pdgCode%10]);
+        }
+        if (block == "IMCKM") {
+            return std::imag(ckm[pdgCode/10][pdgCode%10]);
         }
         if (block == "STOPMIX") {
             return stopmix[pdgCode/10][pdgCode%10];
@@ -89,10 +99,11 @@ public:
     }
 
 private:
-    static Parameters* instance[2];
+    static Parameters* instance[3];
     Parameters(int modelId); // Constructeur pour initialiser les paramètres
     void initSM();
     void initSUSY();
+    void initFlavor();
 
     std::vector<std::vector<double>> lambda_u, lambda_d, lambda_l;
     
@@ -121,7 +132,10 @@ private:
     std::array<std::array<double, 3>, 3> ad;
     std::array<std::array<double, 3>, 3> ae;
     std::array<std::array<complex_t, 3>, 3> ckm;
-    
+
+    std::map<std::string, double> lifetimes;
+    std::map<std::string, double> fconst;
+
     Parameters(const Parameters&) = delete;
     Parameters& operator=(const Parameters&) = delete;
     Parameters(Parameters&&) noexcept = default;

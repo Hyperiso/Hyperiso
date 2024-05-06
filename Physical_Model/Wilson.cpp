@@ -3,9 +3,8 @@
 complex_t WilsonManager::get(WilsonCoefficient wc, int order) const {
     if (order < 0 || order >= C.size()) {
         Logger::getInstance()->error("Requested order is not available: " + std::to_string(order));
-        return complex_t(0, 0);
+        return complex_t(-1, 0);
     }
-
 
     const auto& C_order = C[order];
 
@@ -14,8 +13,24 @@ complex_t WilsonManager::get(WilsonCoefficient wc, int order) const {
         return C_order[static_cast<size_t>(wc)];
     } else {
         Logger::getInstance()->error("Requested Wilson coefficient is not available: " + std::to_string(static_cast<size_t>(wc)));
-        return complex_t(0, 0); 
+        return complex_t(-1, 0); 
     }
+}
+
+complex_t WilsonManager::get_full(WilsonCoefficient wc, int order) const {
+    double factor = Parameters::GetInstance(0)->alpha_s(this->Q) / 4 / PI;
+
+    complex_t c = 0;
+    for (int i = 0; i <= order; ++i) {
+        auto c_i = get(wc, i);
+        if (c_i != complex_t(-1, 0)) {
+            c += std::pow(factor, i) * c_i;
+        } else {
+            Logger::getInstance()->warn("Some Wilson coefficients couldn't be computed to the desired order.");
+        }
+    }
+
+    return c;
 }
 
 complex_t WilsonManager::get_matchs(WilsonCoefficient wc, int order) const {
