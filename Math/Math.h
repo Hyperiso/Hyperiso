@@ -24,6 +24,8 @@ constexpr double M_N =   0.9395654;  // Gev
 
 /* Functions */
 
+double kron(int x, int y);
+
 double Li2(double x);
 double Cl2(double x);
 double H2(double x, double y);
@@ -78,3 +80,10 @@ double Delta8H(double x, double lu, double ld);
 
 double C9llH0(double x, double y, double lu);
 double C9llH1(double x, double y, double lu, double L);
+
+double C10Wt2mt(double x);
+double C10Wc2MW(double x);
+double C10Zt2mt(double x);
+double C10Z2tri(double x);
+
+double F0SP(double xt);

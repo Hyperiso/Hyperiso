@@ -18,7 +18,8 @@ private:
 
 public:
 
-    static MemoryManager* GetInstance(std::string lhaFile="./example.flha", std::vector<int> models={0});
+    static std::string findNearestHyperisoDirectory();
+    static MemoryManager* GetInstance(std::string lhaFile="DataBase/example.flha", std::vector<int> models={0});
 
     // Creation pointeur unique
     template<typename T>

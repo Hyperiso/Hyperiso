@@ -11,15 +11,24 @@
 
 typedef std::complex<double> complex_t; 
 
+enum class FlavorParamType {
+    LIFETIME,
+    DECAY_CONSTANT,
+    DECAY_CONSTANT_RATIO
+};
+
 class Parameters {
 public:
     // double Q {sm.mass_top_pole};
 
+    QCDParameters QCDRunner;
     static Parameters* GetInstance(int index = 0);
 
     void setScale(double Q);
     double alpha_s(double Q);
-    double running_mass(double m, double q_init, double q_fin, std::string opt_mb = "running", std::string opt_mt = "pole");
+    double running_mass(double quarkmass, double Q_init, double Q_end, std::string option_massb = "running", std::string option_masst = "pole");
+
+    double getFlavorParam(FlavorParamType type, const std::string& id);
 
     double operator()(std::string block, int pdgCode) {
         if (block == "MASS") {
@@ -34,6 +43,9 @@ public:
         if (block=="YUKAWA_CH_D") {
             return lambda_d[pdgCode/10][pdgCode%10];
         }
+        if (block=="YUKAWA_CH_L") {
+            return lambda_l[pdgCode/10][pdgCode%10];
+        }
         if (block=="EXTPAR") {
             return extpar[pdgCode];
         }
@@ -43,9 +55,11 @@ public:
         if (block=="HMIX") {
             return hmix[pdgCode];
         }
-        if (block == "CKM") {
-            // return ckm[pdgCode/10][pdgCode%10];
-            return 1.0;
+        if (block == "RECKM") {
+            return std::real(ckm[pdgCode/10][pdgCode%10]);
+        }
+        if (block == "IMCKM") {
+            return std::imag(ckm[pdgCode/10][pdgCode%10]);
         }
         if (block == "STOPMIX") {
             return stopmix[pdgCode/10][pdgCode%10];
@@ -59,6 +73,12 @@ public:
         if (block == "VMIX") {
             return vmix[pdgCode/10][pdgCode%10];
         }
+        if (block == "H0MIX") {
+            return A0mix[pdgCode/10][pdgCode%10];
+        }
+        if (block == "A0MIX") {
+            return H0mix[pdgCode/10][pdgCode%10];
+        }
         if (block == "MSOFT") {
             return msoft[pdgCode];
         }
@@ -68,23 +88,33 @@ public:
         if (block == "YD") {
             return yd[pdgCode/10][pdgCode%10];
         }
+        if (block == "AU") {
+            return au[pdgCode/10][pdgCode%10];
+        }
         if (block== "NMIX") {
             return nmix[pdgCode/10][pdgCode%10];
+        }
+        if (block== "SMINPUTS") {
+            // int code= pdgCode-1;
+            // Logger::getInstance()->info(std::to_string(sminputs[1]) + " " + std::to_string(pdgCode));
+            return sminputs[1];
         }
         return 0;
         
     }
 
+    double get_susy_Q() {return susy_Q;}
+
 private:
-    static Parameters* instance[2];
+    static Parameters* instance[3];
     Parameters(int modelId); // Constructeur pour initialiser les paramètres
     void initSM();
     void initSUSY();
+    void initFlavor();
 
-    std::vector<std::vector<double>> lambda_u, lambda_d;
+    std::vector<std::vector<double>> lambda_u, lambda_d, lambda_l;
     
-    QCDParameters QCDRunner;
-
+    std::map<int, double> sminputs;
     std::map<int, double> minpar;
     std::map<int, double> extpar;
 
@@ -101,6 +131,8 @@ private:
     std::array<std::array<double, 2>, 2> umix;
     std::array<std::array<double, 2>, 2> vmix;
     std::array<std::array<double, 4>, 4> nmix;
+    std::array<std::array<double, 4>, 4> A0mix;
+    std::array<std::array<double, 4>, 4> H0mix;
     std::array<std::array<double, 3>, 3> yu;
     std::array<std::array<double, 3>, 3> yd;
     std::array<std::array<double, 3>, 3> ye;
@@ -108,7 +140,10 @@ private:
     std::array<std::array<double, 3>, 3> ad;
     std::array<std::array<double, 3>, 3> ae;
     std::array<std::array<complex_t, 3>, 3> ckm;
-    
+
+    std::map<std::string, double> lifetimes;
+    std::map<std::string, double> fconst;
+
     Parameters(const Parameters&) = delete;
     Parameters& operator=(const Parameters&) = delete;
     Parameters(Parameters&&) noexcept = default;
