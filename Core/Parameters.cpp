@@ -40,6 +40,9 @@ Parameters::Parameters(int modelId) {
         case 1: // SUSY
             initSUSY();
             break;
+        case 2: // Flavor
+            initFlavor();
+            break;
         default:
             Logger::getInstance()->error("Trying to instantiate parameters for unknown model ID " + std::to_string(modelId));
     }
@@ -96,7 +99,7 @@ void Parameters::initSM() {
     double sW = std::sqrt(1 - std::pow(m_W / m_Z_pole, 2));
 
     gauge[2] = std::pow(2, 1.25) * m_W * std::sqrt(G_F);     // g2
-    gauge[1] = gauge[2] * sW / std::sqrt(1 - sW * sW);    // gp 
+    gauge[1] = gauge[2] * sW / std::sqrt(1 - sW * sW);       // gp 
     gauge[3] = std::sqrt(4 * M_PI * alpha_s_MZ);             // gs
     gauge[4] = std::sqrt(4 * M_PI / inv_alpha_em);           // e_em     
 
@@ -176,11 +179,23 @@ void Parameters::initSUSY() {
     } 
 }
 
+void Parameters::initFlavor() {
+    // Hardcoded for now, should read from LHA file eventually
+    this->masses[511] = 5.27958;
+    this->masses[531] = 5.36677;
+
+    this->lifetimes["511"] = 1.519e-12;
+    this->lifetimes["531"] = 1.510e-12;
+
+    this->fconst["511|1"] = 0.1905;
+    this->fconst["531|1"] = 0.2277;
+}
+
 Parameters *Parameters::GetInstance(int modelId)
 {
 
-    if(modelId < 0 || modelId > 1) {
-        std::cerr << "Invalid Index. Must be 0 or 1." << std::endl;
+    if(modelId < 0 || modelId > 2) {
+        std::cerr << "Invalid Index. Must be 0, 1 or 2." << std::endl;
         return nullptr;
     }
 
@@ -209,5 +224,26 @@ double Parameters::running_mass(double quarkmass, double Q_init, double Q_end,  
     }
 }
 
-Parameters* Parameters::instance[2] = {nullptr, nullptr};
+double return_if_defined(std::map<std::string, double>& map, const std::string& id, const std::string& error_label) {
+    if (map.contains(id)) {
+        return map[id];
+    } else {
+        Logger::getInstance()->warn(error_label + " with key [" + id + "] is undefined.");
+        return NAN;
+    }
+}
+
+double Parameters::getFlavorParam(FlavorParamType type, const std::string& id) {
+    switch (type) {
+        case FlavorParamType::LIFETIME:
+            return return_if_defined(this->lifetimes, id, "Lifetime");
+        case FlavorParamType::DECAY_CONSTANT:
+            return return_if_defined(this->fconst, id, "Decay constant");
+        default:
+            Logger::getInstance()->error("Unknown parameter type.");
+            return NAN;
+    }
+}
+
+Parameters* Parameters::instance[3] = {nullptr, nullptr, nullptr};
 

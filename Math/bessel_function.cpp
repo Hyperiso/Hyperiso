@@ -14,6 +14,12 @@ double I0(double x) {
     }
 }
 
+// J. Olivares et al 2018 J. Phys.: Conf. Ser. 1043 012003
+// double I0(double x) {
+//     double xs = x * x;
+//     return std::cosh(x) * (1 + 0.24273 * xs) / (std::pow(1 + 0.25 * xs, 0.25) * (1 + 0.43023 * xs));
+// }
+
 
 double I1(double x) {
     double y, tmp;
