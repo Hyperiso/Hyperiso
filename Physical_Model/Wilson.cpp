@@ -74,7 +74,7 @@ void SM_LO_Strategy::init(double scale, WilsonSet& C_match) {
 
     Logger* logger = Logger::getInstance();
 
-    double L=log(scale*scale/(*sm)("MASS",24)/(*sm)("MASS",24)); // scale -> mu_W
+    double L=log(scale*scale/(*sm)("MASS",24)/(*sm)("MASS",24)); // scale -> scale
 	
 	double C2SM_0 = 1.;
 	double C7SM_0 = -0.5*A0t(W_param->xt)-23./36.;
@@ -160,7 +160,7 @@ void SM_LO_Strategy::set_base1(WilsonSet& C, WilsonSet& C_match, double Q, const
     logger->debug("Initialized SM_LO_Strategy with base1 at scale " +std::to_string(Q));
     logger->debug("C7_eff: " + std::to_string(C7_eff.real()) + " + " + std::to_string(C7_eff.imag()) + "i");
     logger->debug("C8_eff: " + std::to_string(C8_eff.real()) + " + " + std::to_string(C8_eff.imag()) + "i");
-    logger->info("Initialized SM_LO_Strategy set_base1 at scale "+std::to_string(Q)+" terminated successfully");
+    logger->info("SM_LO_Strategy calculation in base1 at scale "+std::to_string(Q)+" terminated successfully");
 
 }
 
@@ -214,7 +214,7 @@ void SM_NLO_Strategy::init(double scale, WilsonSet& C_match) {
 
     SM_LO_Strategy::init(scale, C_match);
 
-	double L=log(scale*scale/(*sm)("MASS",24)/(*sm)("MASS",24)); // scale -> mu_W
+	double L=log(scale*scale/(*sm)("MASS",24)/(*sm)("MASS",24)); // scale -> scale
 
     logger->debug("L at NLO: " + std::to_string(L));
 
@@ -403,7 +403,7 @@ void SM_NNLO_Strategy::init(double scale, WilsonSet& C_match) {
     SM_NLO_Strategy::init(scale, C_match);
 
  
-	double L=log(scale*scale/(*sm)("MASS",24)/(*sm)("MASS",24)); // scale -> mu_W
+	double L=log(scale*scale/(*sm)("MASS",24)/(*sm)("MASS",24)); // scale -> scale
 
     double C1SM_2 = -T(W_param->xt)+7987./72.+17.*PI*PI/3.+475./6.*L+17.*L*L;
     
@@ -427,9 +427,21 @@ void SM_NNLO_Strategy::init(double scale, WilsonSet& C_match) {
 	+(-15984.*pow(W_param->xt,5.)+152379.*pow(W_param->xt,4.)-1358060.*pow(W_param->xt,3.)-1201653.*W_param->xt*W_param->xt,-74190.*W_param->xt+9188.)/1944./pow(W_param->xt-1.,6.)*log(W_param->xt)
 	+(109669.*pow(W_param->xt,5.)-1112675.*pow(W_param->xt,4.)+6239377.*pow(W_param->xt,3.)+8967623.*W_param->xt*W_param->xt,+768722.*W_param->xt-42796.)/11664./pow(W_param->xt-1.,5.)
 	+log(scale*scale/W_param->mass_top_muW/W_param->mass_top_muW)*((-139.*pow(W_param->xt,4.)-2938.*pow(W_param->xt,3.)-2683.*W_param->xt*W_param->xt)/12./pow(W_param->xt-1.,6.)*log(W_param->xt)
-	+(1295.*pow(W_param->xt,5.)-7009.*pow(W_param->xt,4.)+29495.*pow(W_param->xt,3.)+64513.*W_param->xt*W_param->xt,+17458.*W_param->xt-2072.)/216./pow(W_param->xt-1.,5.))) )
+	+(1295.*pow(W_param->xt,5.)-7009.*pow(W_param->xt,4.)+29495.*pow(W_param->xt,3.)+64513.*W_param->xt*W_param->xt+17458.*W_param->xt-2072.)/216./pow(W_param->xt-1.,5.))) )
 	-(C8c2MW(xtW)+16607./5832.*log(scale*scale/(*sm)("MASS",24)/(*sm)("MASS",24))+397./486.*pow(log(scale*scale/(*sm)("MASS",24)/(*sm)("MASS",24)),2.));
 	
+    double C10SM_2 = ((C10Wt2mt(xtt)+log(scale*scale/W_param->mass_top_muW/W_param->mass_top_muW)*((69.+1292.*W_param->xt-209.*W_param->xt*W_param->xt)/18./pow(W_param->xt-1.,3.)
+	-(521.*W_param->xt+105.*W_param->xt*W_param->xt-50.*pow(W_param->xt,3.))/9./pow(W_param->xt-1.,4.)*log(W_param->xt)
+	-(47.*W_param->xt+W_param->xt*W_param->xt)/3./pow(W_param->xt-1.,3.)*Li2(1.-1./W_param->xt)
+	+log(scale*scale/W_param->mass_top_muW/W_param->mass_top_muW)*((61.*W_param->xt+11.*W_param->xt*W_param->xt)/3./pow(W_param->xt-1.,3.)-(49.*W_param->xt+96.*W_param->xt*W_param->xt-pow(W_param->xt,3.))/6./pow(W_param->xt-1.,4.)*log(W_param->xt))))
+	-(C10Wc2MW(xtW)-23./6.*log(scale*scale/(*sm)("MASS", 24)/(*sm)("MASS",24)))
+	+(C10Zt2mt(xtt)+log(scale*scale/W_param->mass_top_muW/W_param->mass_top_muW)*((188.*W_param->xt+4.*W_param->xt*W_param->xt+95.*pow(W_param->xt,3.)-47.*pow(W_param->xt,4.))/6./pow(W_param->xt-1.,3.)*Li2(1.-1./W_param->xt)
+	+(1468.*W_param->xt+1578.*W_param->xt*W_param->xt-25.*pow(W_param->xt,3.)-141.*pow(W_param->xt,4.))/18./pow(W_param->xt-1.,4.)*log(W_param->xt)
+	-(4622.*W_param->xt+1031.*W_param->xt*W_param->xt+582.*pow(W_param->xt,3.)-475.*pow(W_param->xt,4.))/36./pow(W_param->xt-1.,3.)
+	+log(scale*scale/W_param->mass_top_muW/W_param->mass_top_muW)*((49.*W_param->xt+315.*W_param->xt*W_param->xt-4.*pow(W_param->xt,3.))/6./pow(W_param->xt-1.,4.)*log(W_param->xt)-(440.*W_param->xt+257.*W_param->xt*W_param->xt+72.*pow(W_param->xt,3.)-49.*pow(W_param->xt,4.))/12./pow(W_param->xt-1.,3.))))
+	+C10Z2tri(xtt)
+	)*(-2./W_param->sw2);
+
 	if (C_match.size() < 3) C_match.resize(3);  
     auto& C_NNLO = C_match[2];
 	C_NNLO.resize(static_cast<size_t>(WilsonCoefficient::CPQ2) + 1, complex_t(0, 0));
@@ -442,15 +454,17 @@ void SM_NNLO_Strategy::init(double scale, WilsonSet& C_match) {
 	C_NNLO[static_cast<size_t>(WilsonCoefficient::C6)] = complex_t(C6SM_2, 0);
 	C_NNLO[static_cast<size_t>(WilsonCoefficient::C7)] = complex_t(C7SM_2, 0);
 	C_NNLO[static_cast<size_t>(WilsonCoefficient::C8)] = complex_t(C8SM_2, 0);
+    C_NNLO[static_cast<size_t>(WilsonCoefficient::C10)] = complex_t(C10SM_2, 0);
 
-    logger->debug("C1SM_2 at NLO: " + std::to_string(C1SM_2));
-    logger->debug("C2SM_2 at NLO: " + std::to_string(C2SM_2));
-    logger->debug("C3SM_2 at NLO: " + std::to_string(C3SM_2));
-    logger->debug("C4SM_2 at NLO: " + std::to_string(C4SM_2));
-    logger->debug("C5SM_2 at NLO: " + std::to_string(C5SM_2));
-    logger->debug("C6SM_2 at NLO: " + std::to_string(C6SM_2));
-    logger->debug("C7SM_2 at NLO: " + std::to_string(C7SM_2));
-    logger->debug("C8SM_2 at NLO: " + std::to_string(C8SM_2));
+    logger->debug("C1SM_2 at NNLO: " + std::to_string(C1SM_2));
+    logger->debug("C2SM_2 at NNLO: " + std::to_string(C2SM_2));
+    logger->debug("C3SM_2 at NNLO: " + std::to_string(C3SM_2));
+    logger->debug("C4SM_2 at NNLO: " + std::to_string(C4SM_2));
+    logger->debug("C5SM_2 at NNLO: " + std::to_string(C5SM_2));
+    logger->debug("C6SM_2 at NNLO: " + std::to_string(C6SM_2));
+    logger->debug("C7SM_2 at NNLO: " + std::to_string(C7SM_2));
+    logger->debug("C8SM_2 at NNLO: " + std::to_string(C8SM_2));
+    logger->debug("C10SM_2 at NNLO: " + std::to_string(C10SM_2));
 
 }
 

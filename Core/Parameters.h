@@ -94,9 +94,16 @@ public:
         if (block== "NMIX") {
             return nmix[pdgCode/10][pdgCode%10];
         }
+        if (block== "SMINPUTS") {
+            // int code= pdgCode-1;
+            // Logger::getInstance()->info(std::to_string(sminputs[1]) + " " + std::to_string(pdgCode));
+            return sminputs[1];
+        }
         return 0;
         
     }
+
+    double get_susy_Q() {return susy_Q;}
 
 private:
     static Parameters* instance[3];
@@ -107,6 +114,7 @@ private:
 
     std::vector<std::vector<double>> lambda_u, lambda_d, lambda_l;
     
+    std::map<int, double> sminputs;
     std::map<int, double> minpar;
     std::map<int, double> extpar;
 

@@ -61,6 +61,9 @@ void Parameters::initSM() {
     std::vector<double*> sm_inputs = {&inv_alpha_em, &G_F, &alpha_s_MZ, &m_Z_pole, &m_b_mb, &m_t_pole, &m_tau_pole};
     lha->extractFromBlock("SMINPUTS", sm_inputs);
 
+    sminputs[0] = 0.;
+    sminputs[1] = *sm_inputs[0];
+
     // VCKMIN 
     double lambda{0.22500}, A{0.826}, rho{0.159}, eta{0.348};
     std::vector<double*> ckm_inputs = {&lambda, &A, &rho, &eta};
