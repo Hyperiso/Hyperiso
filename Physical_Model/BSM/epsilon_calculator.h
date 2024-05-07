@@ -1,7 +1,7 @@
 // EpsilonCalculator.h
 #ifndef EPSILONCALCULATOR_H
 #define EPSILONCALCULATOR_H
-#include "../Core/Parameters.h"
+#include "Parameters.h"
 #include <cmath>
 #include <vector>
 #include <map>
@@ -17,7 +17,7 @@ protected:
     EpsilonCalculator();
 
 public:
-    explicit EpsilonCalculator();
+    // explicit EpsilonCalculator();
     
     double epsilon_0();
     double epsilon_2() const;

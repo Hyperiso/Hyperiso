@@ -94,8 +94,14 @@ public:
         if (block== "NMIX") {
             return nmix[pdgCode/10][pdgCode%10];
         }
-        return NAN;    
+        if (block== "SMINPUTS") {
+            return sminputs[1];
+        }
+        return NAN;
+
     }
+
+    double get_susy_Q() {return susy_Q;}
 
 private:
     static Parameters* instance[3];
@@ -106,6 +112,7 @@ private:
 
     std::vector<std::vector<double>> lambda_u, lambda_d, lambda_l;
     
+    std::map<int, double> sminputs;
     std::map<int, double> minpar;
     std::map<int, double> extpar;
 
