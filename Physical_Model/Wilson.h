@@ -159,6 +159,7 @@ private:
      */
     double Q;
     std::shared_ptr<InitializationStrategy> strategy;
+    std::string strategyName;
 
     /**
      * @brief Constructor for WilsonManager.
@@ -166,7 +167,7 @@ private:
      * @param mu_match Matching scale.
      * @param strat Initialization strategy.
      */
-    inline explicit WilsonManager(double mu_match, std::shared_ptr<InitializationStrategy> strat): Q_matching(mu_match), strategy(strat) {
+    inline explicit WilsonManager(double mu_match, std::shared_ptr<InitializationStrategy> strat, std::string strategyName): Q_matching(mu_match), strategy(strat), strategyName(strategyName) {
         
         std::cout <<"Creation of WilsonManager" << std::endl;
         WilsonInitializer wi{mu_match, strategy};
@@ -204,7 +205,7 @@ public:
                 std::cerr << "Error: mu_match should not be 0 during the first creation of WilsonManager." << std::endl;
                 std::exit(EXIT_FAILURE);
             }
-            WilsonManager* newInstance = new WilsonManager(mu_match, strategy);
+            WilsonManager* newInstance = new WilsonManager(mu_match, strategy, strategyName);
             instances[strategyName] = newInstance;
             return newInstance;
         }
@@ -257,9 +258,24 @@ public:
      * 
      * @param mu Scale value.
      */
-    void setScale(double mu) {
+    void setScale(double mu, bool set_all= false) {
         Q= mu;
         strategy->set_base1(C, C_match, Q, Q_matching);
+        strategy->init_prime(this->Q_matching, Q, 6, C);
+        strategy->init_scalar(this->Q_matching, Q, 6, C);
+
+        if (set_all) {
+            if (strategyName == "NLO") {
+                SM_LO_Strategy sm_lo = SM_LO_Strategy();
+                sm_lo.set_base1(this->C, this->C_match, Q, this->Q_matching);
+            }
+            if (strategyName == "NNLO") {
+                SM_LO_Strategy sm_lo = SM_LO_Strategy();
+                sm_lo.set_base1(this->C, this->C_match, Q, this->Q_matching);
+                SM_NLO_Strategy sm_nlo = SM_NLO_Strategy();
+                sm_nlo.set_base1(this->C, this->C_match, Q, this->Q_matching);
+            }
+        }
     }
 
 };  

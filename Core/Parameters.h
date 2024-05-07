@@ -94,8 +94,7 @@ public:
         if (block== "NMIX") {
             return nmix[pdgCode/10][pdgCode%10];
         }
-        return 0;
-        
+        return NAN;    
     }
 
 private:
