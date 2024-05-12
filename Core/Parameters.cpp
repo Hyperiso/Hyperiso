@@ -63,7 +63,7 @@ void Parameters::initSM() {
 
     sminputs[0] = 0.;
     sminputs[1] = *sm_inputs[0];
-
+    Logger::getInstance()->debug("sminputs" + std::to_string(sminputs[1]));
     // VCKMIN 
     double lambda{0.22500}, A{0.826}, rho{0.159}, eta{0.348};
     std::vector<double*> ckm_inputs = {&lambda, &A, &rho, &eta};
@@ -140,9 +140,31 @@ void Parameters::initSUSY() {
     readMatrix(this->ad, "AD", lha);
     readMatrix(this->ae, "AE", lha);
 
+    vmix[0][0] = -vmix[0][0];
+    vmix[1][0] = -vmix[1][0];
+    vmix[1][1] = -vmix[1][1];
+
+    umix[0][0] = -umix[0][0];
+    umix[1][0] = -umix[1][0];
+    umix[1][1] = -umix[1][1];
+
+    nmix[0][1] = -nmix[0][1];
+    nmix[0][3] = -nmix[0][3];
+    nmix[1][0] = -nmix[1][0];
+    nmix[2][3] = -nmix[2][3];
+    nmix[3][1] = -nmix[3][1];
+    nmix[3][2] = -nmix[3][2];
+
+    ad[2][2] = -ad[2][2];
+    au[2][2] = -au[2][2];
+
+    sbotmix[1][0] = -sbotmix[1][0];
+    stopmix[1][0] = -stopmix[1][0];
+
     if (lha->hasBlock("ALPHA")) {
         this->alpha = lha->getValue<double>("ALPHA", "");
     } 
+    this-> alpha = -this->alpha;
 
     if (lha->hasBlock("HMIX")) {
         std::vector<double> values (4);
@@ -176,7 +198,8 @@ void Parameters::initSUSY() {
             auto e = static_cast<LhaElement<double>*>(elts->at(i).get());
             this->masses[std::stoi(e->getId())] = e->getValue();
         }
-    } 
+    }
+    // masses[1000023] = -masses[1000023];
 }
 
 void Parameters::initFlavor() {

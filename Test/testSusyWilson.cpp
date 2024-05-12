@@ -54,7 +54,7 @@ int main() {
     auto nnloStrategy = std::make_shared<SUSY_NNLO_Strategy>();
 
     
-    writeCoefficientsToFile("NLO", "../csv/susy/WilsonCoefficients_NLO.csv", nloStrategy, 81);
+    // writeCoefficientsToFile("NLO", "../csv/susy/WilsonCoefficients_NLO.csv", nloStrategy, 81);
     writeCoefficientsToFile("LO", "../csv/susy/WilsonCoefficients_LO.csv", loStrategy, 81);
     // writeCoefficientsToFile("NNLO", "../csv/susy/WilsonCoefficients_NNLO.csv", nnloStrategy, 81);
     
