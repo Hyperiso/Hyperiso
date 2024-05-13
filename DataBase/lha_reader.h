@@ -21,11 +21,6 @@ enum class TokenType {
     OTHER
 };
 
-// const std::regex analyzer_rx(
-//     R"x(((?:[+-])?((?:\d+\.\d*|\.\d+)(?:[eEdD][+-]\d+)?|\d+(?:[eEdD][+-]\d+))(?!\.))|((?:[+-])?\d+(?!\.))|(block)|(\n)|([ \t]+)|(#.*)|([\w\=\.]+)|([^#]*))x",
-//     std::regex_constants::icase
-// ); 
-
 const std::regex analyzer_rx(
     R"x(((?:[+-])?(?:\d+\.\d*|\.\d+)(?:[eEdD][+-]\d+)?|(\d+(?:[eEdD][+-]\d+)?))|(?:[+-]?\d+(?!\.))|(block)|(\n)|([ \t]+)|(#.*)|([\w\=\.]+)|([^#]*))x",
     std::regex_constants::icase
