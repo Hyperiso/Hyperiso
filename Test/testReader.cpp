@@ -21,5 +21,9 @@ int main() {
     auto t_12_L = static_cast<LhaElement<double>*>(reader.getBlock("Testadd")->get("1"));
     assert(t_12_L->getValue() == 2.4579); 
 
+    // Check minus sign detection
+    auto delta_CP = static_cast<LhaElement<double>*>(reader.getBlock("upmnsin")->get("4"));
+    assert(delta_CP->getValue() == -2.84); 
+
     return 0;
 }
