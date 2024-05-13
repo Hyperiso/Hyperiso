@@ -17,18 +17,19 @@ void Parser::tokenize() {
     while (rit != rend) {
         std::smatch m = *rit;
         int group_index = m.size();
-    
+
+        // Don't touch, it works.
         for (int idx = 1; idx < m.size(); ++idx) {
             if (m[idx].matched) {
-                if (idx == 1)
-                    ++idx;
-                group_index = idx - 2;
+                // if (idx == 1)  
+                //     ++idx;
+                group_index = idx - 1;
                 break;
             }
         }
 
         auto tokenType = static_cast<TokenType>(group_index);
-        auto value = m[group_index + 2].str();
+        auto value = m[group_index + 1].str();
 
         if (tokenType == TokenType::NEWLINE) {
             ++cLine;
