@@ -91,6 +91,9 @@ public:
         if (block == "AU") {
             return au[pdgCode/10][pdgCode%10];
         }
+        if (block == "AD") {
+            return ad[pdgCode/10][pdgCode%10];
+        }
         if (block== "NMIX") {
             return nmix[pdgCode/10][pdgCode%10];
         }

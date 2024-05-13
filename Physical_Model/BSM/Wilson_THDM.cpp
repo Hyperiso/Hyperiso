@@ -79,11 +79,12 @@ void THDM_NLO_Strategy::init(double scale, WilsonSet& C_match) {
         }
     };
 
-	adjustCoefficient(C7H_1, 7);
-	adjustCoefficient(C8H_1, 8);
-	adjustCoefficient(C9H_1, 9);
-	adjustCoefficient(C10H_1, 10);
-
+	Logger::getInstance()->info("C8H_1 in THDM " + std::to_string(std::real(C8H_1)));
+	// adjustCoefficient(C7H_1, 7);
+	// adjustCoefficient(C8H_1, 8);
+	// adjustCoefficient(C9H_1, 9);
+	// adjustCoefficient(C10H_1, 10);
+	Logger::getInstance()->info("C8H_1 in THDM " + std::to_string(std::real(C8H_1)));
 	Logger::getInstance()->info("C7H_1 in THDM " + std::to_string(std::real(C7H_1)));
 	Logger::getInstance()->info("C4H_1 in THDM " + std::to_string(std::real(C4H_1)));
 	// Logger::getInstance()->info("C4Char_1 in THDM " + std::to_string(std::real(C_LO[1])));
