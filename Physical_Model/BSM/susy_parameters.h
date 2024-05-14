@@ -77,6 +77,7 @@ class susy_parameters {
 	complex_t c32 = (*sm)("RECKM", 21) + (*sm)("IMCKM", 21) * complex_t(0, 1);
 	complex_t c33 = (*sm)("RECKM", 22) + (*sm)("IMCKM", 22) * complex_t(0, 1);
 
+	
 	complex_t complexTerm = -(c32 * c33 + c22 * c23) / c12;
 
 	Array2D_4x4_I VCKM = {{

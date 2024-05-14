@@ -187,3 +187,41 @@ if(BUILD_WITH_SOFTSUSY)
   target_include_directories(testParams PUBLIC "${SOURCE_DIR}")
   add_dependencies(testParams SOFTSUSY)
 endif()
+
+
+# Options
+option(BUILD_WITH_2HDMC "Build project with 2HDMC support" OFF)
+
+# Include the ExternalProject module
+include(ExternalProject)
+
+# Conditional inclusion of 2HDMC
+if(BUILD_WITH_2HDMC)
+
+    find_package(GSL REQUIRED)
+
+    ExternalProject_Add(2HDMC
+        URL "https://2hdmc.hepforge.org/downloads/?f=2HDMC-1.8.0.tar.gz"
+        PREFIX "${CMAKE_BINARY_DIR}/../../External_Integration/2HDMC"
+        CONFIGURE_COMMAND ""
+        BUILD_COMMAND "make"
+        BUILD_IN_SOURCE TRUE
+        INSTALL_COMMAND ""
+    
+    )
+    ExternalProject_Get_Property(2HDMC SOURCE_DIR)
+    target_include_directories(testParams PUBLIC "${SOURCE_DIR}")
+    add_dependencies(testParams 2HDMC)
+
+endif()
+
+if (BUILD_WITH_2HDMC)
+    ExternalProject_Get_Property(2HDMC SOURCE_DIR)
+    target_include_directories(testParams PUBLIC "${SOURCE_DIR}/src/2HDMC")
+
+    target_link_libraries(testParams PRIVATE ${GSL_LIBRARIES})
+    target_include_directories(testParams PRIVATE ${GSL_INCLUDE_DIRS})
+
+    add_dependencies(testParams 2HDMC)
+
+endif()

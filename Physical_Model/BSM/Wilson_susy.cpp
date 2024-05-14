@@ -3,12 +3,7 @@
 #include <sstream>
 #include <iomanip>
 
-std::string doubleToString(double value, int precision) {
 
-	std::ostringstream out;
-	out << std::fixed << std::setprecision(precision) << value;
-	return out.str();
-}
 
 
 void SUSY_LO_Strategy::init(double scale, WilsonSet& C_match) {
@@ -26,6 +21,8 @@ void SUSY_LO_Strategy::init(double scale, WilsonSet& C_match) {
 	complex_t C7SMeps_0= ((*sus_param).epsilonb-(*sus_param).epsilonbp)/(1.+(*sus_param).epsilonb*(*susy)("HMIX",2))*(*susy)("HMIX",2)*F7_2((*sus_param).xt);
 	complex_t C8SMeps_0= ((*sus_param).epsilonb-(*sus_param).epsilonbp)/(1.+(*sus_param).epsilonb*(*susy)("HMIX",2))*(*susy)("HMIX",2)*F8_2((*sus_param).xt);
 
+	logger->debug("epsilon b : " + std::to_string((*sus_param).epsilonb));
+	logger->debug("epsilon bp : " + std::to_string((*sus_param).epsilonbp));
 
 	complex_t C7Heps_0=(-(*sus_param).epsilon0p-(*sus_param).epsilonb)/(1.+(*sus_param).epsilonb*(*susy)("HMIX",2))*(*susy)("HMIX",2)*F7_2((*sus_param).yt);
 	complex_t C8Heps_0=(-(*sus_param).epsilon0p-(*sus_param).epsilonb)/(1.+(*sus_param).epsilonb*(*susy)("HMIX",2))*(*susy)("HMIX",2)*F8_2((*sus_param).yt);
@@ -95,6 +92,8 @@ void SUSY_LO_Strategy::init(double scale, WilsonSet& C_match) {
     complex_t C9charg_0 = (1.0 - 4.0 * (*sus_param).sw2) / (*sus_param).sw2 * (*sus_param).C90c - (*sus_param).B90c / (*sus_param).sw2 - (*sus_param).D90c;
     complex_t C10charg_0 = ((*sus_param).B100c - (*sus_param).C90c) / (*sus_param).sw2;
 
+	logger->info("C90c : " + std::to_string((*sus_param).C90c));
+	logger->info("B100c : " + doubleToString((*sus_param).B100c, 20));
 	complex_t C1squark_2 = 0.0;
 
 	if ((*sus_param).test) {
@@ -110,11 +109,11 @@ void SUSY_LO_Strategy::init(double scale, WilsonSet& C_match) {
 	} else {
 		C1squark_2 = 0.0;
 	}
-	logger->info("C7SMeps_0 : " + std::to_string(std::real(C7SMeps_0)));
-	logger->info("C7Heps_0 : " + std::to_string(std::real(C7Heps_0)));
-	logger->info("C7Heps2_0 : " + std::to_string(std::real(C7Heps2_0)));
-	logger->info("C7charg_0 : " + std::to_string(std::real(C7charg_0)));
-	logger->info("C7_chargeps_0 : " + std::to_string(std::real(C7_chargeps_0)));
+	logger->debug("C7SMeps_0 : " + std::to_string(std::real(C7SMeps_0)));
+	logger->debug("C7Heps_0 : " + std::to_string(std::real(C7Heps_0)));
+	logger->debug("C7Heps2_0 : " + std::to_string(std::real(C7Heps2_0)));
+	logger->debug("C7charg_0 : " + std::to_string(std::real(C7charg_0)));
+	logger->debug("C7_chargeps_0 : " + std::to_string(std::real(C7_chargeps_0)));
 
 
 	std::unique_ptr<THDM_LO_Strategy> thdm_lo = std::make_unique<THDM_LO_Strategy>();
@@ -127,7 +126,8 @@ void SUSY_LO_Strategy::init(double scale, WilsonSet& C_match) {
 	auto& C_LO = C_match[0];
 	C_LO.resize(static_cast<size_t>(WilsonCoefficient::CPQ2) + 1, std::complex<double>(0, 0));
 	
-	logger->info("CH7 : " + std::to_string(std::real(C_LO[static_cast<size_t>(WilsonCoefficient::C7)])));
+	logger->debug("CH7 : " + std::to_string(std::real(C_LO[static_cast<size_t>(WilsonCoefficient::C7)])));
+	logger->info("CH10 : " + std::to_string(std::real(C_LO[static_cast<size_t>(WilsonCoefficient::C10)])));
 
 	// C_LO[static_cast<size_t>(WilsonCoefficient::C2)] += std::complex<double>(0, 0);
 	C_LO[static_cast<size_t>(WilsonCoefficient::C7)] += C7SMeps_0 + C7Heps_0 + C7Heps2_0 + C7charg_0 + C7_chargeps_0;

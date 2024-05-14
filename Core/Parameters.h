@@ -155,3 +155,5 @@ private:
 // struct SM {
 //     double SM, gp, g2, MSOFT_Q, mass_top_pole, mass_b_pole, mass_b_Q, mass_t_Q;
 // };
+
+std::string doubleToString(double value, int precision);

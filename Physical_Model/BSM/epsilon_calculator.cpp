@@ -12,10 +12,10 @@ double EpsilonCalculator::epsilon_0() {
     double sw2 = std::pow(std::sin(std::atan((*sm)("GAUGE",1)/ (*sm)("GAUGE",2))), 2);
     double alphas_MSOFT = sm->alpha_s(susy->get_susy_Q());
 
-    
+    double factor = 2.0 / 3.0 * alphas_MSOFT / M_PI;
 
-    double term1 = 2.0 / 3.0 * alphas_MSOFT / M_PI * (((*susy)("AD",22) / (*susy)("HMIX",2) - mu_Q) / (*susy)("MASS",1000021) *
-               H2((*susy)("MASS",1000005) * (*susy)("MASS",1000005) / (*susy)("MASS",1000021) / (*susy)("MASS",1000021), (*susy)("MASS",2000005) * (*susy)("MASS",2000005) / (*susy)("MASS",1000021) / (*susy)("MASS",1000021)));
+    double term1 =  ((*susy)("AD",22) / (*susy)("HMIX",2) - mu_Q) / (*susy)("MASS",1000021) *
+               H2((*susy)("MASS",1000005) * (*susy)("MASS",1000005) / (*susy)("MASS",1000021) / (*susy)("MASS",1000021), (*susy)("MASS",2000005) * (*susy)("MASS",2000005) / (*susy)("MASS",1000021) / (*susy)("MASS",1000021));
     double term2 = -0.5 * (B((*susy)("MASS",1000021), (*susy)("MASS",1000005), susy->get_susy_Q()) + B((*susy)("MASS",1000021), (*susy)("MASS",2000005), susy->get_susy_Q())) / (*susy)("HMIX",2);
     double term3 = 1.0 / (*sm)("SMINPUTS",1) / sw2 / 4.0 / M_PI * (mu_Q * (*susy)("MSOFT",2)) * 
                ((*susy)("SBOTMIX",00) * (*susy)("SBOTMIX",00) * H2((*susy)("MSOFT",2) * (*susy)("MSOFT",2) / (*susy)("MASS",1000005) / (*susy)("MASS",1000005), mu_Q * mu_Q / (*susy)("MASS",1000005) / (*susy)("MASS",1000005)) / (*susy)("MASS",1000005) / (*susy)("MASS",1000005) / 2.0 +
@@ -26,7 +26,7 @@ double EpsilonCalculator::epsilon_0() {
     logger->debug("term1 in epsilon_0 is " + std::to_string(term1));
     logger->debug("term2 in epsilon_0 is " + std::to_string(term2));
     logger->debug("term3 in epsilon_0 is " + std::to_string(term3));
-    return term1 + term2 + term3; 
+    return factor * (term1 + term2) + term3; 
 }
 
 
@@ -53,6 +53,9 @@ double EpsilonCalculator::epsilon_2() const {
 }
 
 double EpsilonCalculator::epsilon_b() {
+
+    Logger::getInstance()->debug("epsilon 0 : " + std::to_string(epsilon_0()));
+    Logger::getInstance()->debug("epsilon 2 : " + std::to_string(epsilon_2()));
     return epsilon_0() + epsilon_2();
 }
 
@@ -65,7 +68,6 @@ double EpsilonCalculator::epsilon_bp() {
     double alphas_MSOFT = (*sm).QCDRunner.runningAlphasCalculation(susy->get_susy_Q());
     int nb_neut = ((*susy)("MASS", 1000039) == 0.) ? 4 : 5; //mass_neut[5] is gravitino ?
 
-    Logger::getInstance()->info("WAAAAOUW" + std::to_string(nb_neut));
 
     double epsilonbp = 2.0 / 3.0 * alphas_MSOFT / M_PI * 
                        ((*susy)("AD",22)/ (*susy)("HMIX",2) - mu_Q) / (*susy)("MASS",1000021) * 

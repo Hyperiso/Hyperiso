@@ -48,3 +48,5 @@ def compare_coefficients(path1, path2, title, model = "sm"):
 
 
 compare_coefficients('csv/susy/WilsonCoefficients_LO.csv', 'csv/superiso/susy/WilsonCoefficients_LO.csv', 'LO', model = "susy")
+compare_coefficients('csv/susy/WilsonCoefficients_NLO.csv', 'csv/superiso/susy/WilsonCoefficients_NLO.csv', 'NLO', model = "susy")
+compare_coefficients('csv/susy/WilsonCoefficients_NNLO.csv', 'csv/superiso/susy/WilsonCoefficients_NNLO.csv', 'NNLO', model = "susy")

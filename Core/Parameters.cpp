@@ -6,6 +6,13 @@
 #include <complex>
 #include <span>
 
+std::string doubleToString(double value, int precision) {
+
+	std::ostringstream out;
+	out << std::fixed << std::setprecision(precision) << value;
+	return out.str();
+}
+
 typedef std::complex<double> complex_t; 
 
 std::vector<std::string> matrixIds(int size) {
@@ -94,6 +101,7 @@ void Parameters::initSM() {
     masses[24] = m_W;           // W  (running MW_MZ)
     masses[25] = 125.1;         // h0 
 
+    Logger::getInstance()->info("mW : " + std::to_string(m_W));
     
     // Couplings
     double sW = std::sqrt(1 - std::pow(m_W / m_Z_pole, 2));
@@ -102,7 +110,7 @@ void Parameters::initSM() {
     gauge[1] = gauge[2] * sW / std::sqrt(1 - sW * sW);       // gp 
     gauge[3] = std::sqrt(4 * M_PI * alpha_s_MZ);             // gs
     gauge[4] = std::sqrt(4 * M_PI / inv_alpha_em);           // e_em     
-
+    Logger::getInstance()->info("gp : " + std::to_string(gauge[1]));
     // CKM Matrix
     ckm[0][0] = 1 - lambda * lambda / 2;
     ckm[0][1] = lambda;
@@ -140,26 +148,6 @@ void Parameters::initSUSY() {
     readMatrix(this->ad, "AD", lha);
     readMatrix(this->ae, "AE", lha);
 
-    vmix[0][0] = -vmix[0][0];
-    vmix[1][0] = -vmix[1][0];
-    vmix[1][1] = -vmix[1][1];
-
-    umix[0][0] = -umix[0][0];
-    umix[1][0] = -umix[1][0];
-    umix[1][1] = -umix[1][1];
-
-    nmix[0][1] = -nmix[0][1];
-    nmix[0][3] = -nmix[0][3];
-    nmix[1][0] = -nmix[1][0];
-    nmix[2][3] = -nmix[2][3];
-    nmix[3][1] = -nmix[3][1];
-    nmix[3][2] = -nmix[3][2];
-
-    ad[2][2] = -ad[2][2];
-    au[2][2] = -au[2][2];
-
-    sbotmix[1][0] = -sbotmix[1][0];
-    stopmix[1][0] = -stopmix[1][0];
 
     if (lha->hasBlock("ALPHA")) {
         this->alpha = lha->getValue<double>("ALPHA", "");

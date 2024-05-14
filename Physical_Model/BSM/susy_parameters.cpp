@@ -6,16 +6,25 @@ susy_parameters::susy_parameters(double scale) {
     mass_H03 = 0.;
 	mass_A02 = 0.; // for testing
 	
-	Logger::getInstance()->debug("c11 " + std::to_string(std::real(c11)));
-	Logger::getInstance()->debug("c12 " + std::to_string(std::real(c12)));
-	Logger::getInstance()->debug("c13 " + std::to_string(std::real(c13)));
-	Logger::getInstance()->debug("c21 " + std::to_string(std::real(c21)));
-	Logger::getInstance()->debug("c22 " + std::to_string(std::real(c22)));
-	Logger::getInstance()->debug("c23 " + std::to_string(std::real(c23)));
-	Logger::getInstance()->debug("c31 " + std::to_string(std::real(c31)));
-	Logger::getInstance()->debug("c32 " + std::to_string(std::real(c32)));
-	Logger::getInstance()->debug("c33 " + std::to_string(std::real(c33)));
+	Logger::getInstance()->info("c11 " + std::to_string(std::real(c11)));
+	Logger::getInstance()->info("c12 " + std::to_string(std::real(c12)));
+	Logger::getInstance()->info("c13 " + std::to_string(std::real(c13)));
+	Logger::getInstance()->info("c21 " + std::to_string(std::real(c21)));
+	Logger::getInstance()->info("c22 " + std::to_string(std::real(c22)));
+	Logger::getInstance()->info("c23 " + std::to_string(std::real(c23)));
+	Logger::getInstance()->info("c31 " + std::to_string(std::real(c31)));
+	Logger::getInstance()->info("c32 " + std::to_string(std::real(c32)));
+	Logger::getInstance()->info("c33 " + std::to_string(std::real(c33)));
 
+	Logger::getInstance()->info("imag c11 " + doubleToString(std::imag(c11), 20));
+	Logger::getInstance()->info("imag c12 " + doubleToString(std::imag(c12), 20));
+	Logger::getInstance()->info("imag c13 " + doubleToString(std::imag(c13), 20));
+	Logger::getInstance()->info("imag c21 " + doubleToString(std::imag(c21), 20));
+	Logger::getInstance()->info("imag c22 " + doubleToString(std::imag(c22), 20));
+	Logger::getInstance()->info("imag c23 " + doubleToString(std::imag(c23), 20));
+	Logger::getInstance()->info("imag c31 " + doubleToString(std::imag(c31), 20));
+	Logger::getInstance()->info("imag c32 " + doubleToString(std::imag(c32), 20));
+	Logger::getInstance()->info("imag c33 " + doubleToString(std::imag(c33), 20));
 	
 	epsilonbp=(*epsi).epsilon_bp();
 	epsilon0p=(*epsi).epsilon_0p();
@@ -27,11 +36,13 @@ susy_parameters::susy_parameters(double scale) {
 	Logger::getInstance()->info("epsilon0 " + std::to_string(std::real(epsilon0)));
 	Logger::getInstance()->info("epsilon2 " + std::to_string(std::real(epsilon2)));
 
-    mass_top_muW=(*sm).QCDRunner.running_mass((*sm)("MASS",6), (*sm)("MASS",6),scale);
-	mass_b_muW=(*sm).QCDRunner.running_mass((*sm)("MASS",5), (*sm)("MASS",5), scale); //mass bottom 6 (at pole)
+    mass_top_muW=(*sm).QCDRunner.running_mass((*sm)("MASS",6), (*sm)("MASS",6),scale, "running", "pole");
+	mass_b_muW=(*sm).QCDRunner.running_mass((*sm)("MASS",5), (*sm)("MASS",5), scale, "running", "pole"); //mass bottom 6 (at pole)
 
 	L=log(scale*scale/(*sm)("MASS",24)/(*sm)("MASS",24)); // scale -> mu_W
  	sw2=pow(sin(atan((*sm)("GAUGE",1)/(*sm)("GAUGE",2))),2.); //1 = param-> gp and 2 = (*sm)("GAUGE",2)
+
+	Logger::getInstance()->info("sw2 : " + std::to_string(sw2));
 
 	xt= pow(mass_top_muW/(*sm)("MASS",24),2.); // W boson mass (24)
 	yt= pow(mass_top_muW/(*susy)("MASS",37),2.); // param->mass_H (37)
@@ -44,8 +55,12 @@ susy_parameters::susy_parameters(double scale) {
     alphas_mg = sm->QCDRunner.runningAlphasCalculation((*susy)("MASS",1000021));
 	ag = 1.0 - 7.0 / (12.0 * Pi) * alphas_mg;
 	aY = 1.0 + alphas_mg / (4.0 * Pi);
-	kappa = 1.0 / ((*sm)("GAUGE",2) * (*sm)("GAUGE",2) * std::real(VCKM[2][2])* std::real(VCKM[2][1])); //VCKM 33 et 32
+	kappa = 1.0 / ((*sm)("GAUGE",2) * (*sm)("GAUGE",2) * std::real(VCKM[2][2]*VCKM[2][1])); //VCKM 33 et 32
 
+	Logger::getInstance()->info("prod : " + doubleToString((*sm)("GAUGE",2) * (*sm)("GAUGE",2) * std::real(VCKM[2][2]*VCKM[2][1]), 20));
+	Logger::getInstance()->info("vckm 22 : " + doubleToString(std::real(VCKM[2][2]), 20));
+	Logger::getInstance()->info("vckm 21 : " + doubleToString(std::real(VCKM[2][1]), 20));
+	Logger::getInstance()->info("g2 : " + doubleToString((*sm)("GAUGE",2),20 ));
 	z=pow((*susy)("MASS",37)/(*sm)("MASS",24),2.);
 	sinb = std::sin(std::atan((*susy)("HMIX",2)));
 	cosb = std::cos(std::atan((*susy)("HMIX",2)));
@@ -55,7 +70,7 @@ susy_parameters::susy_parameters(double scale) {
 
     // Initialisation des masses
 	MU = {(*sm)("MASS",2), (*sm)("MASS",4), mass_top_muW}; 
-	MD = {(*sm)("MASS",2), (*sm)("MASS",3), mass_b_muW}; 
+	MD = {(*sm)("MASS",1), (*sm)("MASS",3), mass_b_muW}; 
 	ME = {(*sm)("MASS",11), (*sm)("MASS",13), (*sm)("MASS",15)}; 
 
 	Mch = {(*susy)("MASS",1000024), (*susy)("MASS",1000037) };
@@ -69,7 +84,7 @@ susy_parameters::susy_parameters(double scale) {
     (*susy)("MASS",2000001),
     (*susy)("MASS",2000003),
     (*susy)("MASS",2000005)};
-	Msn = {(*susy)("MASS",1000012), (*susy)("MASS",1000014), (*susy)("MASS",1000016), 0.0}; // Ajout d'un élément pour compatibilité de taille
+	Msn = {(*susy)("MASS",1000012), (*susy)("MASS",1000014), (*susy)("MASS",1000016)};
 
 	// Vérification du mélange sU_mix et initialisation conditionnelle de Gamma_UL et Gamma_UR
 	bool isNonZeroMix = true;
@@ -161,7 +176,7 @@ susy_parameters::susy_parameters(double scale) {
 					G_aimn[ae][ie][be][ce]=0.5/sqrt(2.)*(sqrt(2.)*(*sm)("MASS",24)*(*susy)("VMIX", ie*10+0)*Gamma_UL[ae][ce]*ag-MU[ce]*(*susy)("VMIX", ie*10+1)*Gamma_UR[ae][ce]*aY)*(std::real(VCKM[be][2])*std::real(VCKM[ce][1])/std::real(VCKM[2][2])/std::real(VCKM[2][1]));
 					// logger->info(std::to_string(std::real(VCKM[ce][be])) + " WAOUW");
 				}
-				logger->debug("X_UL[" + std::to_string(ie) + "][" +std::to_string(ae)+"]["+std::to_string(be)+"] = "+std::to_string(X_UL[ie][ae][be]));
+				logger->info("X_UL[" + std::to_string(ie) + "][" +std::to_string(ae)+"]["+std::to_string(be)+"] = "+std::to_string(X_UL[ie][ae][be]));
 				logger->debug("X_UR[" + std::to_string(ie) + "][" +std::to_string(ae)+"]["+std::to_string(be)+"] = "+std::to_string(X_UR[ie][ae][be]));
 				// Condition pour éviter le dépassement dans X_NL et X_NR si ae > 2
 				if (ae < 3) {
@@ -220,7 +235,8 @@ susy_parameters::susy_parameters(double scale) {
 			}
 		}
 	}
-
+	logger->info("B0c1 : " + std::to_string(B0c1*1e10));
+	logger->info("B0c2 : " + doubleToString(B0c2*1e16, 20));
 	for (int ie = 0; ie < 2; ++ie) {
 		for (int ae = 0; ae < 6; ++ae) {
 			for (int be = 0; be < 6; ++be) {
