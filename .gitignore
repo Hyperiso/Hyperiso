@@ -3,6 +3,7 @@
 build/
 *.vscode
 External_Integration/SOFTSUSY
+External_Integration/2HDMC
 CMakeFiles
 Makefile
 CMakeCache.txt
