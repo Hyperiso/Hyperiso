@@ -26,6 +26,7 @@ file(GLOB COMMON_SOURCES
      "../Physical_Model/*.cpp"
     #  "../Physical_Model/BSM/*.cpp"
      "../External_Integration/SoftSusy.cpp"
+     
      )
 file(GLOB SUSY "../Physical_Model/BSM/*.cpp" "../Math/Math_BSM/*.cpp")
 set(TEST_READER_SOURCE "testReader.cpp")
@@ -37,6 +38,7 @@ set(TEST_CQPRIMEWILSON_SOURCE "testPrimeCQWilson.cpp" )
 set(TEST_PARAMS_SOURCE "testParams.cpp")
 set(TEST_OBS_SOURCE "testObservable.cpp")
 set(TEST_QCDPARAMETERS_SOURCE "testQCDParameters.cpp") # Ajout de la nouvelle source
+set(TEST_2HDM_SOURCE "test2HDMC.cpp" "../External_Integration/2HDMC.cpp")
 
 add_executable(testReader ${COMMON_SOURCES} ${TEST_READER_SOURCE})
 add_executable(testWilson ${COMMON_SOURCES} ${TEST_WILSON_SOURCE})
@@ -47,6 +49,7 @@ add_executable(testCQPrimeWilson ${COMMON_SOURCES} ${SUSY} ${TEST_CQPRIMEWILSON_
 add_executable(testParams ${COMMON_SOURCES} ${TEST_PARAMS_SOURCE})
 add_executable(testQCDParameters ${COMMON_SOURCES} ${TEST_QCDPARAMETERS_SOURCE}) # Ajout de la nouvelle cible
 add_executable(testObservable ${COMMON_SOURCES} ${TEST_OBS_SOURCE}) # Ajout de la nouvelle cible
+
 
 # Add include directories for testReader
 target_include_directories(testReader 
@@ -148,6 +151,7 @@ target_include_directories(testObservable
     "${CMAKE_SOURCE_DIR}/../External_Integration"
 )
 
+
 # Link any necessary libraries to the test executable
 # For example:
 # target_link_libraries(testReader PRIVATE gtest)
@@ -186,4 +190,75 @@ if(BUILD_WITH_SOFTSUSY)
   ExternalProject_Get_Property(SOFTSUSY SOURCE_DIR)
   target_include_directories(testParams PUBLIC "${SOURCE_DIR}")
   add_dependencies(testParams SOFTSUSY)
+endif()
+
+
+# Options
+option(BUILD_WITH_2HDMC "Build project with 2HDMC support" OFF)
+
+# Include the ExternalProject module
+include(ExternalProject)
+
+# Conditional inclusion of 2HDMC
+if(BUILD_WITH_2HDMC)
+
+    find_package(GSL REQUIRED)
+
+    ExternalProject_Add(2HDMC
+        URL "https://2hdmc.hepforge.org/downloads/?f=2HDMC-1.8.0.tar.gz"
+        PREFIX "${CMAKE_BINARY_DIR}/../../External_Integration/2HDMC"
+        CONFIGURE_COMMAND ""
+        BUILD_COMMAND "make"
+        BUILD_IN_SOURCE TRUE
+        INSTALL_COMMAND ""
+    
+    )
+    ExternalProject_Get_Property(2HDMC SOURCE_DIR)
+    target_include_directories(testParams PUBLIC "${SOURCE_DIR}")
+    add_dependencies(testParams 2HDMC)
+    message(STATUS "2HDM SOURCE_DIR is ${SOURCE_DIR}")
+
+    file(GLOB THDM "${SOURCE_DIR}/src/*.cpp" "../Math/Math_BSM/*.cpp")
+    set(EXCLUDE_FILE "${SOURCE_DIR}/src/HBHS.cpp")
+
+    # Vérification de l'existence du fichier avant de le retirer de la liste
+    if(EXISTS ${EXCLUDE_FILE})
+        list(REMOVE_ITEM THDM ${EXCLUDE_FILE})
+    endif()
+endif()
+
+
+
+
+add_executable(test2HDMC "${SOURCE_DIR}/src/THDM.cpp" "${SOURCE_DIR}/src/SM.cpp" "${SOURCE_DIR}/src/Util.cpp" "${SOURCE_DIR}/src/DecayTable.cpp" ${COMMON_SOURCES} ${TEST_2HDM_SOURCE})
+
+# Add include directories for testTHDMWilson
+target_include_directories(test2HDMC
+    PUBLIC 
+    "${CMAKE_SOURCE_DIR}/../Core"
+    "${CMAKE_SOURCE_DIR}/../DataBase"
+    "${CMAKE_SOURCE_DIR}/../Math"
+    "${CMAKE_SOURCE_DIR}/../Math/Math_BSM"
+    "${CMAKE_SOURCE_DIR}/../Physical_Model"
+    "${CMAKE_SOURCE_DIR}/../Physical_Model/BSM"
+    "${CMAKE_SOURCE_DIR}/../External_Integration"
+)
+
+if (BUILD_WITH_2HDMC)
+    # ExternalProject_Get_Property(2HDMC SOURCE_DIR)
+    target_include_directories(test2HDMC PUBLIC "${SOURCE_DIR}/src")
+    target_include_directories(test2HDMC PUBLIC 
+    ${HiggsBounds_DIR}/../include
+    ${HiggsSignals_DIR}/../include
+    # autres répertoires d'include nécessaires
+)
+    message(STATUS "2HDM HiggsBound is ${HiggsBounds_DIR}")
+    # target_include_directories(test2HDMC PUBLIC "${SOURCE_DIR}")
+
+
+    target_link_libraries(test2HDMC PRIVATE ${GSL_LIBRARIES} "${SOURCE_DIR}/src")
+    target_include_directories(test2HDMC PRIVATE ${GSL_INCLUDE_DIRS})
+
+    add_dependencies(test2HDMC 2HDMC)
+
 endif()
