@@ -107,11 +107,14 @@ public:
     double get_susy_Q() {return susy_Q;}
 
 private:
-    static Parameters* instance[3];
+    static Parameters* instance[4];
     Parameters(int modelId); // Constructeur pour initialiser les paramètres
     void initSM();
     void initSUSY();
+    void initTHDM();
     void initFlavor();
+
+    bool checkLHA(std::vector<std::string> mandatory_blocks);
 
     std::vector<std::vector<double>> lambda_u, lambda_d, lambda_l;
     
