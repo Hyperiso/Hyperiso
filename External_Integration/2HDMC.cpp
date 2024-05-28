@@ -8,8 +8,8 @@ void TwoHDMCalculator::calculateSpectrum(const std::string& inputFilePath, const
     THDM model;
     std::string root_file = MemoryManager::findNearestHyperisoDirectory();
 
-    bool pset = model.read_LesHouches((root_file + inputFilePath).c_str());
+    bool pset = model.read_LesHouches((inputFilePath).c_str());
 
-    model.write_LesHouches((root_file + outputFilePath).c_str(), true, true, true);
+    model.write_LesHouches((outputFilePath).c_str(), true, true, true);
 
 }

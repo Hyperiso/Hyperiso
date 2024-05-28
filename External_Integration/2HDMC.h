@@ -1,3 +1,4 @@
+#pragma once
 #include "Interface.h"
 #include <unordered_map>
 #include <functional>
@@ -11,20 +12,20 @@ public:
 
 
 
-class CalculateSpectrumCommand : public ICommand {
-private:
-    TwoHDMCalculator& calculator;
-    std::string inputFilePath;
-    std::string outputFilePath;
+// class CalculateSpectrumCommand : public ICommand {
+// private:
+//     TwoHDMCalculator& calculator;
+//     std::string inputFilePath;
+//     std::string outputFilePath;
 
-public:
-    CalculateSpectrumCommand(TwoHDMCalculator& calculator, std::string inputFilePath, std::string outputFilePath)
-        : calculator(calculator), inputFilePath(std::move(inputFilePath)), outputFilePath(std::move(outputFilePath)) {}
+// public:
+//     CalculateSpectrumCommand(TwoHDMCalculator& calculator, std::string inputFilePath, std::string outputFilePath)
+//         : calculator(calculator), inputFilePath(std::move(inputFilePath)), outputFilePath(std::move(outputFilePath)) {}
 
-    void execute() override {
-        calculator.calculateSpectrum(inputFilePath, outputFilePath);
-    }
-};
+//     void execute() override {
+//         calculator.calculateSpectrum(inputFilePath, outputFilePath);
+//     }
+// };
 
 
 

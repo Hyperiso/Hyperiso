@@ -31,7 +31,7 @@ void LhaBlock::addElement(const std::vector<std::string> &line) {
 
 void LhaBlock::readData(const std::vector<std::vector<std::string>> &lines) {
     for (auto line : lines) {
-        if (!line.empty()) {
+        if (!line.empty()) { 
             this->addElement(line);
         }
     }

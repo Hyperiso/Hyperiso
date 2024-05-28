@@ -2,7 +2,7 @@
 #include "Logger.h"
 #include "MemoryManager.h"
 #include "SoftSusy.h"
-// #include "2HDMC.h"
+#include "2HDMC.h"
 #include <iostream>
 #include <complex>
 #include <span>
@@ -213,18 +213,21 @@ bool Parameters::checkLHA(std::vector<std::string> mandatory_blocks)
 
 void Parameters::initTHDM() {
     LhaReader* lha = MemoryManager::GetInstance()->getReader();
+    MemoryManager * memo = MemoryManager::GetInstance();
 
     std::string root = MemoryManager::findNearestHyperisoDirectory();
-    std::string spectrumFile = root + "Test/thdm_spectrum.slha";
+    std::string spectrumFile = root + "Test/thdm_spectrum.lha";
     Logger::getInstance()->info("Starting THDM spectrum calculation...");
-    // TwoHDMCalculatorFactory::executeCommand("calculateSpectrum", lha->getLhaPath(), spectrumFile);
+    TwoHDMCalculatorFactory::executeCommand("calculateSpectrum", memo->getInputLhaPath(), spectrumFile);
 
+    Logger::getInstance()->info("WAOUW : " + memo->getInputLhaPath());  
+    
     lha->update(spectrumFile);
+    
     Logger::getInstance()->info("LHA Blocks updated.");
 
     std::vector<std::string> mandatory {"MINPAR", "MASS", "ALPHA"};
     if (this->checkLHA(mandatory)) {
-
         // Read MASS block
         auto elts = lha->getBlock("MASS")->getEntries();
         for (size_t i = 0; i < elts->size(); ++i) {
