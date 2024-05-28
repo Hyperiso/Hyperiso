@@ -6,10 +6,11 @@ void THDM_LO_Strategy::init(double scale, WilsonSet& C_match) {
 
 	Parameters* sm = Parameters::GetInstance();
 	Parameters* susy = Parameters::GetInstance(1);
+	Parameters* thdm = Parameters::GetInstance(2);
 
 	if (lu == -1 || ld == -1) {
-		lu=(*sm)("YUKAWA_CH_U", 33);
-		ld=(*sm)("YUKAWA_CH_D", 33);
+		lu=(*thdm)("YUKAWA_CH_U", 22);
+		ld=(*thdm)("YUKAWA_CH_D", 22);
 }
     double mass_top_muW=(*sm).QCDRunner.running_mass((*sm)("MASS",6), (*sm)("MASS",6),scale); //mass top at top ?
 	double mass_b_muW=(*sm).QCDRunner.running_mass((*sm)("MASS",5), (*sm)("MASS",5), scale); //mass bottom 6 (at pole)
@@ -42,10 +43,11 @@ void THDM_NLO_Strategy::init(double scale, WilsonSet& C_match) {
 
 	Parameters* sm = Parameters::GetInstance();
 	Parameters* susy = Parameters::GetInstance(1);
+	Parameters* thdm = Parameters::GetInstance(2);
 
     if (lu == -1 || ld == -1) {
-		lu=(*sm)("YUKAWA_CH_U", 33);
-		ld=(*sm)("YUKAWA_CH_D", 33);
+		lu=(*thdm)("YUKAWA_CH_U", 22);
+		ld=(*thdm)("YUKAWA_CH_D", 22);
 }
 
     double mass_top_muW=(*sm).QCDRunner.running_mass((*sm)("MASS",6), (*sm)("MASS",6),scale); //mass top at top ?
@@ -102,10 +104,11 @@ void THDM_NNLO_Strategy::init(double scale, WilsonSet& C_match) {
 
 	Parameters* sm = Parameters::GetInstance();
 	Parameters* susy = Parameters::GetInstance(1);
+	Parameters* thdm = Parameters::GetInstance(2);
 
     if (lu == -1 || ld == -1) {
-		lu=(*sm)("YUKAWA_CH_U", 33);
-		ld=(*sm)("YUKAWA_CH_D", 33);
+		lu=(*thdm)("YUKAWA_CH_U", 22);
+		ld=(*thdm)("YUKAWA_CH_D", 22);
 }
     double mass_top_muW=(*sm).QCDRunner.running_mass((*sm)("MASS",6), (*sm)("MASS",6),scale); //mass top at top ?
 	double mass_b_muW=(*sm).QCDRunner.running_mass((*sm)("MASS",5), (*sm)("MASS",5), scale); //mass bottom 6 (at pole)
@@ -147,6 +150,7 @@ void THDM_LO_Strategy::init_scalar(double Q_match,double Q,int gen, WilsonSet& C
 	
 	Parameters* sm = Parameters::GetInstance(0);
 	Parameters* susy = Parameters::GetInstance(1);
+	Parameters* thdm = Parameters::GetInstance(2);
     double ml;
 
 	
@@ -176,22 +180,22 @@ void THDM_LO_Strategy::init_scalar(double Q_match,double Q,int gen, WilsonSet& C
 	double xH0=pow((*sm)("MASS",35)/(*sm)("MASS",24),2.);
 	double xA=pow((*sm)("MASS",36)/(*sm)("MASS",24),2.);
 	
-	double G1=-3./4.+(*sm)("YUKAWA_CH_D",33)*(*sm)("YUKAWA_CH_U",33)*F4SP(xt,xH)+(*sm)("YUKAWA_CH_U",33)*(*sm)("YUKAWA_CH_U",33)*F5SP(xt,xH);
+	double G1=-3./4.+(*thdm)("YUKAWA_CH_D",22)*(*thdm)("YUKAWA_CH_U",22)*F4SP(xt,xH)+(*thdm)("YUKAWA_CH_U",22)*(*thdm)("YUKAWA_CH_U",22)*F5SP(xt,xH);
 	
-	double G2=(*sm)("YUKAWA_CH_D",33)*((*sm)("YUKAWA_CH_D",33)*(*sm)("YUKAWA_CH_U",33)+1.)*F6SP(xt,xH)-(*sm)("YUKAWA_CH_D",33)*(*sm)("YUKAWA_CH_U",33)*(*sm)("YUKAWA_CH_U",33)*F7SP(xt,xH)
-	+(*sm)("YUKAWA_CH_U",33)*(*sm)("YUKAWA_CH_U",33)*((*sm)("YUKAWA_CH_D",33)*F8SP(xt,xH)+(*sm)("YUKAWA_CH_U",33)*F9SP(xt,xH)-(*sm)("YUKAWA_CH_U",33)*F10SP(xt,xH))+(*sm)("YUKAWA_CH_U",33)*F11SP(xt,xH)-(*sm)("YUKAWA_CH_U",33)*F12SP(xt,xH);
+	double G2=(*thdm)("YUKAWA_CH_D",22)*((*thdm)("YUKAWA_CH_D",22)*(*thdm)("YUKAWA_CH_U",22)+1.)*F6SP(xt,xH)-(*thdm)("YUKAWA_CH_D",22)*(*thdm)("YUKAWA_CH_U",22)*(*thdm)("YUKAWA_CH_U",22)*F7SP(xt,xH)
+	+(*thdm)("YUKAWA_CH_U",22)*(*thdm)("YUKAWA_CH_U",22)*((*sm)("YUKAWA_CH_D",22)*F8SP(xt,xH)+(*thdm)("YUKAWA_CH_U",22)*F9SP(xt,xH)-(*thdm)("YUKAWA_CH_U",22)*F10SP(xt,xH))+(*thdm)("YUKAWA_CH_U",22)*F11SP(xt,xH)-(*thdm)("YUKAWA_CH_U",22)*F12SP(xt,xH);
 	
-	double G3=(*sm)("YUKAWA_CH_D",33)*((*sm)("YUKAWA_CH_D",33)*(*sm)("YUKAWA_CH_U",33)+1.)*F6SP(xt,xH)+(*sm)("YUKAWA_CH_D",33)*(*sm)("YUKAWA_CH_U",33)*(*sm)("YUKAWA_CH_U",33)*F7SP(xt,xH)
-	+(*sm)("YUKAWA_CH_U",33)*(*sm)("YUKAWA_CH_U",33)*((*sm)("YUKAWA_CH_D",33)*F8SP(xt,xH)+(*sm)("YUKAWA_CH_U",33)*F9SP(xt,xH)+(*sm)("YUKAWA_CH_U",33)*F10SP(xt,xH))+(*sm)("YUKAWA_CH_U",33)*F11SP(xt,xH)+(*sm)("YUKAWA_CH_D",33)*F12SP(xt,xH);
+	double G3=(*thdm)("YUKAWA_CH_D",22)*((*thdm)("YUKAWA_CH_D",22)*(*thdm)("YUKAWA_CH_U",22)+1.)*F6SP(xt,xH)+(*thdm)("YUKAWA_CH_D",22)*(*thdm)("YUKAWA_CH_U",22)*(*sm)("YUKAWA_CH_U",22)*F7SP(xt,xH)
+	+(*thdm)("YUKAWA_CH_U",22)*(*thdm)("YUKAWA_CH_U",22)*((*thdm)("YUKAWA_CH_D",22)*F8SP(xt,xH)+(*thdm)("YUKAWA_CH_U",22)*F9SP(xt,xH)+(*thdm)("YUKAWA_CH_U",22)*F10SP(xt,xH))+(*thdm)("YUKAWA_CH_U",22)*F11SP(xt,xH)+(*thdm)("YUKAWA_CH_D",22)*F12SP(xt,xH);
 
-	double CSn_2HDM=xt*(F0SP(xt)+(*sm)("YUKAWA_CH_L",gen*gen)*((*sm)("YUKAWA_CH_D",33)*F1SP(xt,xH)+(*sm)("YUKAWA_CH_U",33)*F2SP(xt,xH))+(*sm)("YUKAWA_CH_L",gen*gen)*(*sm)("YUKAWA_CH_U",33)*F3SP(xt,xH))
+	double CSn_2HDM=xt*(F0SP(xt)+(*sm)("YUKAWA_CH_L",gen*gen)*((*sm)("YUKAWA_CH_D",22)*F1SP(xt,xH)+(*sm)("YUKAWA_CH_U",22)*F2SP(xt,xH))+(*sm)("YUKAWA_CH_L",gen*gen)*(*sm)("YUKAWA_CH_U",22)*F3SP(xt,xH))
 	+xt/2./xh*(sin(alpha-beta)+cos(alpha-beta)*(*sm)("YUKAWA_CH_L",gen*gen))*(sin(alpha-beta)*G1+cos(alpha-beta)*G2)
 	+xt/2./xH0*(cos(alpha-beta)-sin(alpha-beta)*(*sm)("YUKAWA_CH_L",gen*gen))*(cos(alpha-beta)*G1-sin(alpha-beta)*G2);
 	
-	double CPn_2HDM=xt*(-(*sm)("YUKAWA_CH_L",gen*gen)*((*sm)("YUKAWA_CH_D",33)*F1SP(xt,xH)+(*sm)("YUKAWA_CH_U",33)*F2SP(xt,xH))+(*sm)("YUKAWA_CH_L",gen*gen)*(*sm)("YUKAWA_CH_U",33)*F3SP(xt,xH))+xt/2./xA*((*sm)("YUKAWA_CH_L",gen*gen))*G3;
+	double CPn_2HDM=xt*(-(*sm)("YUKAWA_CH_L",gen*gen)*((*sm)("YUKAWA_CH_D",22)*F1SP(xt,xH)+(*sm)("YUKAWA_CH_U",22)*F2SP(xt,xH))+(*sm)("YUKAWA_CH_L",gen*gen)*(*sm)("YUKAWA_CH_U",22)*F3SP(xt,xH))+xt/2./xA*((*sm)("YUKAWA_CH_L",gen*gen))*G3;
 
-	double CQ1H_0=CSc_2HDM(xH,xt,(*sm)("YUKAWA_CH_U",33),(*sm)("YUKAWA_CH_D",33),(*sm)("YUKAWA_CH_L",gen*gen))+CSn_2HDM;
-	double CQ2H_0=CPc_2HDM(xH,xt,(*sm)("YUKAWA_CH_U",33),(*sm)("YUKAWA_CH_D",33),(*sm)("YUKAWA_CH_L",gen*gen),sw2)+CPn_2HDM;
+	double CQ1H_0=CSc_2HDM(xH,xt,(*sm)("YUKAWA_CH_U",22),(*sm)("YUKAWA_CH_D",22),(*sm)("YUKAWA_CH_L",gen*gen))+CSn_2HDM;
+	double CQ2H_0=CPc_2HDM(xH,xt,(*sm)("YUKAWA_CH_U",22),(*sm)("YUKAWA_CH_D",22),(*sm)("YUKAWA_CH_L",gen*gen),sw2)+CPn_2HDM;
 	
 	CQ1H_0*=(ml*mass_b_muW/(*sm)("MASS",24)/(*sm)("MASS",24))/sw2;
 	CQ2H_0*=(ml*mass_b_muW/(*sm)("MASS",24)/(*sm)("MASS",24))/sw2;
