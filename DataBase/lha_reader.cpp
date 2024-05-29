@@ -49,6 +49,7 @@ void Parser::parse(bool comments) {
     bool hasGlobalScale = false;
     bool isQ = false;
     bool skipBlock = false;
+    bool decay = false;
     std::string globalQ;
     std::string cBlock;
 
@@ -64,12 +65,21 @@ void Parser::parse(bool comments) {
                 newBlock = false;
                 hasGlobalScale = prototype.globalScale;
                 skipBlock = false;
+            } else if (decay) {
+                
+                Logger::getInstance()->info("LHA reader: Decay block found. Skipping.");
+                skipBlock = true;
+                newBlock = false;
+                decay = false;
             } else {
                 Logger::getInstance()->warn("LHA reader: Unknown block " + t.value + " encountered. Skipping.");
                 skipBlock = true;
                 newBlock = false;
             }
         } else if (t.type == TokenType::BLOCK) {
+            newBlock = true;
+        } else if (t.type == TokenType::DECAY) {
+            decay = true;
             newBlock = true;
         } else if (!comments && t.type == TokenType::COMMENT) {
             continue;
@@ -98,6 +108,7 @@ void LhaReader::addBlock(const std::string& id, const std::vector<std::vector<st
     block->readData(lines);
     std::string id_ci = id;
     std::transform(id_ci.begin(), id_ci.end(), id_ci.begin(), ::toupper);
+    Logger::getInstance()->info(block->toString());
     this->blocks.insert(std::pair(id_ci, std::move(block)));
 }
 
@@ -116,9 +127,12 @@ void LhaReader::readAll() {
     Parser parser {buffer.str(), this};
     parser.parse();
     auto blocks = parser.getBlocks();
+    
     for (auto p : blocks) {
+        Logger::getInstance()->info(p.first);
         addBlock(p.first, p.second);
-    }        
+    }
+          
 }
 
 Prototype LhaReader::findPrototype(std::string name) const {
@@ -137,11 +151,13 @@ std::string LhaReader::getLhaPath() const {
 void LhaReader::update(std::string_view newLha) {
     Logger::getInstance()->info("Updating LHA blocks...");
     this->lhaFile = std::filesystem::path(newLha);
-    isFLHA = lhaFile.extension().string() == ".flha"; 
+    isFLHA = lhaFile.extension().string() == ".flha";
+    
     if (isFLHA && this->blockPrototypes.size() == SLHA_BLOCKS.size()) {
         this->blockPrototypes.insert(blockPrototypes.end(), FLHA_BLOCKS.begin(), FLHA_BLOCKS.end());
     }
     this->blocks.clear();
+     
     this->readAll();
 }
 

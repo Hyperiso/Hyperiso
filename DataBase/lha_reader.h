@@ -14,6 +14,7 @@ enum class TokenType {
     FLOAT,
     INTEGER,
     BLOCK,
+    DECAY,
     NEWLINE,
     SKIP,
     COMMENT,
@@ -22,7 +23,7 @@ enum class TokenType {
 };
 
 const std::regex analyzer_rx(
-    R"x(((?:[+-])?(?:\d+\.\d*|\.\d+)(?:[eEdD][+-]\d+)?|(\d+(?:[eEdD][+-]\d+)?))|(?:[+-]?\d+(?!\.))|(block)|(\n)|([ \t]+)|(#.*)|([\w\=\.]+)|([^#]*))x",
+    R"x(((?:[+-])?(?:\d+\.\d*|\.\d+)(?:[eEdD][+-]\d+)?|(\d+(?:[eEdD][+-]\d+)?))|(?:[+-]?\d+(?!\.))|(block)|(decay)|(\n)|([ \t]+)|(#.*)|([\w\=\.]+)|([^#]*))x",
     std::regex_constants::icase
 ); 
 
