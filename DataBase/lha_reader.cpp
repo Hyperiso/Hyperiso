@@ -59,23 +59,20 @@ void Parser::parse(bool comments) {
         if (newBlock) {
             auto prototype = reader->findPrototype(t.value);
             if (prototype.blockName != "") {
-                Logger::getInstance()->debug("LHA reader: Block " + prototype.blockName + " found.");
+                Logger::getInstance()->info("LHA reader: Block " + prototype.blockName + " found.");
                 this->rawBlocks[t.value] = std::vector<std::vector<std::string>> {};
                 cBlock = t.value;
-                newBlock = false;
                 hasGlobalScale = prototype.globalScale;
                 skipBlock = false;
             } else if (decay) {
-                
                 Logger::getInstance()->info("LHA reader: Decay block found. Skipping.");
                 skipBlock = true;
-                newBlock = false;
                 decay = false;
             } else {
                 Logger::getInstance()->warn("LHA reader: Unknown block " + t.value + " encountered. Skipping.");
                 skipBlock = true;
-                newBlock = false;
             }
+            newBlock = false;
         } else if (t.type == TokenType::BLOCK) {
             newBlock = true;
         } else if (t.type == TokenType::DECAY) {
@@ -91,10 +88,11 @@ void Parser::parse(bool comments) {
                 isQ = false;
             }
             else {
+                // std::cout << "Token : [" << (int)t.type << ", " << t.value  << "]" << std::endl;
                 if (t.col <= cCol) {   
                     this->rawBlocks[cBlock].emplace_back(std::vector<std::string> {});
                     if(hasGlobalScale)
-                        this->rawBlocks[cBlock].back().emplace_back(globalQ);
+                        this->rawBlocks[cBlock].back().emplace_back(globalQ != "" ? globalQ : "-1");
                 }
                 this->rawBlocks[cBlock].back().emplace_back(t.value);
                 cCol = t.col;
@@ -108,7 +106,6 @@ void LhaReader::addBlock(const std::string& id, const std::vector<std::vector<st
     block->readData(lines);
     std::string id_ci = id;
     std::transform(id_ci.begin(), id_ci.end(), id_ci.begin(), ::toupper);
-    Logger::getInstance()->info(block->toString());
     this->blocks.insert(std::pair(id_ci, std::move(block)));
 }
 
@@ -129,7 +126,6 @@ void LhaReader::readAll() {
     auto blocks = parser.getBlocks();
     
     for (auto p : blocks) {
-        Logger::getInstance()->info(p.first);
         addBlock(p.first, p.second);
     }
           

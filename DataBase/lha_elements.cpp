@@ -76,7 +76,6 @@ std::unique_ptr<AbstractElement> LhaElementFactory::createElement(LhaBlock* bloc
     if (block->getPrototype().blockName == "FCINFO" || block->getPrototype().blockName == "FMODSEL" || block->getPrototype().blockName == "SPINFO") {
         return std::make_unique<LhaElement<std::string>>(block, line);
     } else {
-        Logger::getInstance()->info(std::to_string(line.size())); 
         return std::make_unique<LhaElement<double>>(block, line);
     }
 }

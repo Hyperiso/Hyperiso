@@ -238,7 +238,7 @@ void Parameters::initTHDM() {
             auto e = static_cast<LhaElement<double>*>(elts->at(i).get());
             this->masses[std::stoi(e->getId())] = e->getValue();
         }
-
+        
         // Read ALPHA block
         this->alpha = lha->getValue<double>("ALPHA", "");
 
@@ -270,7 +270,7 @@ void Parameters::initTHDM() {
             default:
                 Logger::getInstance()->error("Cannot initialize THDM parameters: Unknown Yukawa type " + std::to_string(type));
         }
-
+        Logger::getInstance()->info("THDM parameters initialized.");
     } else {
         Logger::getInstance()->error("Cannot intialize THDM parameters: LHA file is incomplete.");
     }
@@ -331,4 +331,3 @@ double Parameters::getFlavorParam(FlavorParamType type, const std::string& id) {
 }
 
 Parameters* Parameters::instance[4] = {nullptr, nullptr, nullptr, nullptr};
-
