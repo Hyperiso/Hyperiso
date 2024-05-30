@@ -25,10 +25,10 @@ file(GLOB COMMON_SOURCES
     #  "../Math/Math_BSM/*.cpp"
      "../Physical_Model/*.cpp"
     #  "../Physical_Model/BSM/*.cpp"
-     "../External_Integration/SoftSusy.cpp"
+     
      
      )
-file(GLOB SUSY "../Physical_Model/BSM/*.cpp" "../Math/Math_BSM/*.cpp")
+file(GLOB SUSY "../Physical_Model/BSM/*.cpp" "../Math/Math_BSM/*.cpp" "../External_Integration/SoftSusy.cpp" "../External_Integration/Interface.cpp")
 set(TEST_READER_SOURCE "testReader.cpp")
 set(TEST_WILSON_SOURCE "testWilson.cpp")
 set(TEST_SMWILSON_SOURCE "testSMWilson.cpp" )
@@ -155,6 +155,7 @@ target_include_directories(testObservable
 # add_test(NAME QCDParametersTest COMMAND testQCDParameters) # Ajout d'un test CTest
 
 if(BUILD_WITH_SOFTSUSY)
+    add_definitions(-DBUILD_WITH_SOFTSUSY)
   # Include the ExternalProject module
   include(ExternalProject)
   
@@ -190,7 +191,7 @@ option(BUILD_WITH_2HDMC "Build project with 2HDMC support" OFF)
 include(ExternalProject)
 
 if(BUILD_WITH_2HDMC)
-
+add_definitions(-DBUILD_WITH_2HDMC)
     find_package(GSL REQUIRED)
 
     set(DOWNLOAD_DIR "${CMAKE_BINARY_DIR}/downloads")

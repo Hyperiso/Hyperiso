@@ -1,3 +1,4 @@
+#ifdef BUILD_WITH_SOFTSUSY
 #include <iostream>
 #include <fstream>
 #include <filesystem>
@@ -90,3 +91,5 @@ void SoftsusyCalculator::calculateSpectrum(const std::string& inputFilePath, con
         logger->info("SOFTSUSY execution successful.");
     }
 }
+
+#endif

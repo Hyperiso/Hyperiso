@@ -1,3 +1,4 @@
+#ifdef BUILD_WITH_2HDMC
 #include "2HDMC.h"
 #include "THDM.h"
 #include "Constraints.h"
@@ -13,3 +14,5 @@ void TwoHDMCalculator::calculateSpectrum(const std::string& inputFilePath, const
     model.write_LesHouches((outputFilePath).c_str(), true, true, true);
 
 }
+
+#endif

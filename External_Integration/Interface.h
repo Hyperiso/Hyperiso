@@ -1,5 +1,15 @@
 #pragma once
 #include <string>
+#include <iostream>
+#include <memory>
+#include <unordered_map>
+#include <functional>
+
+enum class CalculatorType {
+    Softsusy,
+    TwoHDM
+};
+
 
 /**
  * @class ICalculator
@@ -54,3 +64,13 @@ public:
         calculator.calculateSpectrum(inputFilePath, outputFilePath);
     }
 };
+
+
+
+
+class GeneralCalculatorFactory {
+public:
+    static std::unique_ptr<ICalculator> createCalculator(CalculatorType type);
+    static void executeCommand(CalculatorType type, const std::string& commandName, const std::string& inputFilePath, const std::string& outputFilePath);
+};
+

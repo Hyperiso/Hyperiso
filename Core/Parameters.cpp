@@ -1,8 +1,7 @@
 #include "Parameters.h"
 #include "Logger.h"
 #include "MemoryManager.h"
-#include "SoftSusy.h"
-#include "2HDMC.h"
+#include "Interface.h"
 #include <iostream>
 #include <complex>
 #include <span>
@@ -136,7 +135,9 @@ void Parameters::initSUSY() {
     std::string root = MemoryManager::findNearestHyperisoDirectory();
     std::string spectrumFile = root + "Test/spectrum.slha";
     Logger::getInstance()->info("Starting SUSY spectrum calculation...");
-    SoftsusyCalculatorFactory::executeCommand("calculateSpectrum", lha->getLhaPath(), spectrumFile);
+    
+    CalculatorType calculatorType = CalculatorType::Softsusy;
+    GeneralCalculatorFactory::executeCommand(calculatorType, "calculateSpectrum", lha->getLhaPath(), spectrumFile);
 
     lha->update(spectrumFile);
     Logger::getInstance()->info("LHA Blocks updated.");
@@ -218,7 +219,10 @@ void Parameters::initTHDM() {
     std::string root = MemoryManager::findNearestHyperisoDirectory();
     std::string spectrumFile = root + "Test/thdm_spectrum.lha";
     Logger::getInstance()->info("Starting THDM spectrum calculation...");
-    TwoHDMCalculatorFactory::executeCommand("calculateSpectrum", memo->getInputLhaPath(), spectrumFile);
+    // TwoHDMCalculatorFactory::executeCommand("calculateSpectrum", memo->getInputLhaPath(), spectrumFile);
+
+    CalculatorType calculatorType = CalculatorType::TwoHDM;
+    GeneralCalculatorFactory::executeCommand(calculatorType, "calculateSpectrum", memo->getInputLhaPath(), spectrumFile);
 
     Logger::getInstance()->info("WAOUW : " + memo->getInputLhaPath());  
     

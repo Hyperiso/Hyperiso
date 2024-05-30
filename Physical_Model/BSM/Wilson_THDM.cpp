@@ -5,7 +5,7 @@
 void THDM_LO_Strategy::init(double scale, WilsonSet& C_match) {
 
 	Parameters* sm = Parameters::GetInstance();
-	Parameters* susy = Parameters::GetInstance(1);
+	// Parameters* susy = Parameters::GetInstance(1);
 	Parameters* thdm = Parameters::GetInstance(2);
 
 	if (lu == -1 || ld == -1) {
@@ -18,7 +18,7 @@ void THDM_LO_Strategy::init(double scale, WilsonSet& C_match) {
     double sw2=pow(sin(atan((*sm)("GAUGE",1)/(*sm)("GAUGE",2))),2.); //1 = param-> gp and 2 = param->g2
 
     double xt= pow(mass_top_muW/(*sm)("MASS",24),2.); // W boson mass (24)
-	double yt= pow(mass_top_muW/(*susy)("MASS",37),2.); // param->mass_H (25)
+	double yt= pow(mass_top_muW/(*thdm)("MASS",37),2.); // param->mass_H (25)
 
     complex_t C7H_0=1./3.*lu*lu*F7_1(yt) - lu*ld*F7_2(yt);
 	complex_t C8H_0=1./3.*lu*lu*F8_1(yt) - lu*ld*F8_2(yt);
@@ -42,7 +42,7 @@ void THDM_LO_Strategy::init(double scale, WilsonSet& C_match) {
 void THDM_NLO_Strategy::init(double scale, WilsonSet& C_match) {
 
 	Parameters* sm = Parameters::GetInstance();
-	Parameters* susy = Parameters::GetInstance(1);
+	// Parameters* susy = Parameters::GetInstance(1);
 	Parameters* thdm = Parameters::GetInstance(2);
 
     if (lu == -1 || ld == -1) {
@@ -56,13 +56,13 @@ void THDM_NLO_Strategy::init(double scale, WilsonSet& C_match) {
     double sw2=pow(sin(atan((*sm)("GAUGE",1)/(*sm)("GAUGE",2))),2.); //1 = param-> gp and 2 = param->g2
 
     double xt= pow(mass_top_muW/(*sm)("MASS",24),2.); // W boson mass (24)
-	double yt= pow(mass_top_muW/(*susy)("MASS",37),2.); // param->mass_H (25)
+	double yt= pow(mass_top_muW/(*thdm)("MASS",37),2.); // param->mass_H (25)
     complex_t C4H_1=EH(yt,lu);
 
-    complex_t C7H_1= G7H(yt,lu,ld)+Delta7H(yt,lu,ld)*log(pow(scale/(*susy)("MASS",37),2.))-4./9.*C4H_1;
-	complex_t C8H_1= G8H(yt,lu,ld)+Delta8H(yt,lu,ld)*log(pow(scale/(*susy)("MASS",37),2.))-1./6.*C4H_1;
-	complex_t C9H_1=(1.-4.*sw2)/sw2*C9llH1(xt,yt,lu,log(pow(scale/(*susy)("MASS",37),2.)))-D9H1(yt,lu,log(pow(scale/(*susy)("MASS",37),2.)));
-	complex_t C10H_1=-C9llH1(xt,yt,lu,log(pow(scale/(*susy)("MASS",37),2.)))/sw2;
+    complex_t C7H_1= G7H(yt,lu,ld)+Delta7H(yt,lu,ld)*log(pow(scale/(*thdm)("MASS",37),2.))-4./9.*C4H_1;
+	complex_t C8H_1= G8H(yt,lu,ld)+Delta8H(yt,lu,ld)*log(pow(scale/(*thdm)("MASS",37),2.))-1./6.*C4H_1;
+	complex_t C9H_1=(1.-4.*sw2)/sw2*C9llH1(xt,yt,lu,log(pow(scale/(*thdm)("MASS",37),2.)))-D9H1(yt,lu,log(pow(scale/(*thdm)("MASS",37),2.)));
+	complex_t C10H_1=-C9llH1(xt,yt,lu,log(pow(scale/(*thdm)("MASS",37),2.)))/sw2;
 
 	if (C_match.size() < 2) C_match.resize(2);
 	auto& C_NLO = C_match[1];
@@ -103,7 +103,7 @@ void THDM_NLO_Strategy::init(double scale, WilsonSet& C_match) {
 void THDM_NNLO_Strategy::init(double scale, WilsonSet& C_match) {
 
 	Parameters* sm = Parameters::GetInstance();
-	Parameters* susy = Parameters::GetInstance(1);
+	// Parameters* susy = Parameters::GetInstance(1);
 	Parameters* thdm = Parameters::GetInstance(2);
 
     if (lu == -1 || ld == -1) {
@@ -116,12 +116,12 @@ void THDM_NNLO_Strategy::init(double scale, WilsonSet& C_match) {
     double sw2=pow(sin(atan((*sm)("GAUGE",1)/(*sm)("GAUGE",2))),2.); //1 = param-> gp and 2 = param->g2
 
     double xt= pow(mass_top_muW/(*sm)("MASS",24),2.); // W boson mass (24)
-	double yt= pow(mass_top_muW/(*susy)("MASS",37),2.); // param->mass_H (25)
+	double yt= pow(mass_top_muW/(*thdm)("MASS",37),2.); // param->mass_H (25)
 
     complex_t C4H_1=EH(yt,lu);
 
-    complex_t C3H_2=G3H(yt,lu)+Delta3H(yt,lu)*log(pow(scale/(*susy)("MASS",37),2.));
-	complex_t C4H_2=G4H(yt,lu)+Delta4H(yt,lu)*log(pow(scale/(*susy)("MASS",37),2.));
+    complex_t C3H_2=G3H(yt,lu)+Delta3H(yt,lu)*log(pow(scale/(*thdm)("MASS",37),2.));
+	complex_t C4H_2=G4H(yt,lu)+Delta4H(yt,lu)*log(pow(scale/(*thdm)("MASS",37),2.));
 	complex_t C5H_2=-C3H_2/10.+2./15.*C4H_1;
 	complex_t C6H_2=-3./16.*C3H_2+1./4.*C4H_1;
 
