@@ -5,20 +5,29 @@
 void THDM_LO_Strategy::init(double scale, WilsonSet& C_match) {
 
 	Parameters* sm = Parameters::GetInstance();
-	Parameters* thdm = Parameters::GetInstance(2);
+	Parameters* mod = nullptr;
 
-	if (lu == -1 || ld == -1) {
-		lu=(*thdm)("YU", 22);
-		ld=(*thdm)("YD", 22);
+	if (is_thdm) {
+		mod = Parameters::GetInstance(2);
+		lu=(*mod)("YU", 22);
+		ld=(*mod)("YD", 22);
+		Logger::getInstance()->info("YU : " + std::to_string(lu));
+		Logger::getInstance()->info("37 : " + std::to_string((*mod)("MASS",37)));
 	}
-    double mass_top_muW=(*sm).QCDRunner.running_mass((*sm)("MASS",6), (*sm)("MASS",6),scale); //mass top at top ?
+	else {
+		mod = Parameters::GetInstance(1);
+	}
+    double mass_top_muW=(*sm).QCDRunner.running_mass((*sm)("MASS",6), (*sm)("MASS",6),scale, "running", "pole"); //mass top at top ?
 	double mass_b_muW=(*sm).QCDRunner.running_mass((*sm)("MASS",5), (*sm)("MASS",5), scale); //mass bottom 6 (at pole)
 
     double sw2=pow(sin(atan((*sm)("GAUGE",1)/(*sm)("GAUGE",2))),2.); //1 = param-> gp and 2 = param->g2
 
+	Logger::getInstance()->info("g1 : " + std::to_string((*sm)("GAUGE",1)));
+	Logger::getInstance()->info("g2 : " + std::to_string((*sm)("GAUGE",2)));
+	Logger::getInstance()->info("mt : " + std::to_string((*sm)("MASS",6)));
     double xt= pow(mass_top_muW/(*sm)("MASS",24),2.); // W boson mass (24)
-	double yt= pow(mass_top_muW/(*thdm)("MASS",37),2.); // param->mass_H (25)
-
+	double yt= pow(mass_top_muW/(*mod)("MASS",37),2.); // param->mass_H (25)
+	Logger::getInstance()->info("xt : " + std::to_string(xt));
     complex_t C7H_0=1./3.*lu*lu*F7_1(yt) - lu*ld*F7_2(yt);
 	complex_t C8H_0=1./3.*lu*lu*F8_1(yt) - lu*ld*F8_2(yt);
 
@@ -42,18 +51,22 @@ void THDM_NLO_Strategy::init(double scale, WilsonSet& C_match) {
 
 	Parameters* sm = Parameters::GetInstance();
 	// Parameters* susy = Parameters::GetInstance(1);
-	Parameters* thdm = Parameters::GetInstance(2);
+	Parameters* mod = nullptr;
 
     if (lu == -1 || ld == -1) {
-		lu=(*thdm)("YU", 22);
-		ld=(*thdm)("YD", 22);
+		mod = Parameters::GetInstance(2);
+		lu=(*mod)("YU", 22);
+		ld=(*mod)("YD", 22);
+	}
+	else {
+		mod = Parameters::GetInstance(1);
 	}
 
     double mass_top_muW=(*sm).QCDRunner.running_mass((*sm)("MASS",6), (*sm)("MASS",6),scale); //mass top at top ?
 	double mass_b_muW=(*sm).QCDRunner.running_mass((*sm)("MASS",5), (*sm)("MASS",5), scale); //mass bottom 6 (at pole)
 
     double sw2=pow(sin(atan((*sm)("GAUGE",1)/(*sm)("GAUGE",2))),2.); //1 = param-> gp and 2 = param->g2
-	double m_H = (*thdm)("MASS", 37); // Charged Higgs mass (37)
+	double m_H = (*mod)("MASS", 37); // Charged Higgs mass (37)
     double xt= pow(mass_top_muW/(*sm)("MASS",24),2.); // W boson mass (24)
 	double yt= pow(mass_top_muW/m_H,2.); // param->mass_H (25)
     complex_t C4H_1=EH(yt,lu);
@@ -103,24 +116,29 @@ void THDM_NNLO_Strategy::init(double scale, WilsonSet& C_match) {
 
 	Parameters* sm = Parameters::GetInstance();
 	// Parameters* susy = Parameters::GetInstance(1);
-	Parameters* thdm = Parameters::GetInstance(2);
+	// Parameters* thdm = Parameters::GetInstance(2);
+	Parameters* mod = nullptr;
 
     if (lu == -1 || ld == -1) {
-		lu=(*thdm)("YU", 22);
-		ld=(*thdm)("YD", 22);
-}
+		mod = Parameters::GetInstance(2);
+		lu=(*mod)("YU", 22);
+		ld=(*mod)("YD", 22);
+	}
+	else {
+		mod = Parameters::GetInstance(1);
+	}
     double mass_top_muW=(*sm).QCDRunner.running_mass((*sm)("MASS",6), (*sm)("MASS",6),scale); //mass top at top ?
 	double mass_b_muW=(*sm).QCDRunner.running_mass((*sm)("MASS",5), (*sm)("MASS",5), scale); //mass bottom 6 (at pole)
 
     double sw2=pow(sin(atan((*sm)("GAUGE",1)/(*sm)("GAUGE",2))),2.); //1 = param-> gp and 2 = param->g2
 
     double xt= pow(mass_top_muW/(*sm)("MASS",24),2.); // W boson mass (24)
-	double yt= pow(mass_top_muW/(*thdm)("MASS",37),2.); // param->mass_H (25)
+	double yt= pow(mass_top_muW/(*mod)("MASS",37),2.); // param->mass_H (25)
 
     complex_t C4H_1=EH(yt,lu);
 
-    complex_t C3H_2=G3H(yt,lu)+Delta3H(yt,lu)*log(pow(scale/(*thdm)("MASS",37),2.));
-	complex_t C4H_2=G4H(yt,lu)+Delta4H(yt,lu)*log(pow(scale/(*thdm)("MASS",37),2.));
+    complex_t C3H_2=G3H(yt,lu)+Delta3H(yt,lu)*log(pow(scale/(*mod)("MASS",37),2.));
+	complex_t C4H_2=G4H(yt,lu)+Delta4H(yt,lu)*log(pow(scale/(*mod)("MASS",37),2.));
 	complex_t C5H_2=-C3H_2/10.+2./15.*C4H_1;
 	complex_t C6H_2=-3./16.*C3H_2+1./4.*C4H_1;
 

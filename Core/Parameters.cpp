@@ -301,7 +301,7 @@ double Parameters::alpha_s(double Q) {
 }
 
 double Parameters::running_mass(double quarkmass, double Q_init, double Q_end,  std::string option_massb, std::string option_masst) {
-    if (quarkmass > masses[4]) {
+    if (quarkmass >= masses[4]) {
         return this->QCDRunner.running_mass(quarkmass, Q_init, Q_end, option_massb, option_masst);
     } else {
         Logger::getInstance()->error("In Parameters::running_mass: Quark of mass " + std::to_string(quarkmass) + " lower than charm mass, not possible.");

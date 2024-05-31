@@ -58,3 +58,6 @@ compare_coefficients('csv/sm/WilsonCoefficients_NNLO.csv', 'csv/superiso/sm/Wils
 compare_coefficients('csv/thdm/WilsonCoefficients_LO.csv', 'csv/superiso/thdm/WilsonCoefficients_LO.csv', 'LO', model = "thdm")
 compare_coefficients('csv/thdm/WilsonCoefficients_NLO.csv', 'csv/superiso/thdm/WilsonCoefficients_NLO.csv', 'NLO', model = "thdm")
 compare_coefficients('csv/thdm/WilsonCoefficients_NNLO.csv', 'csv/superiso/thdm/WilsonCoefficients_NNLO.csv', 'NNLO', model = "thdm")
+
+
+compare_coefficients('csv/sm/WilsonCoefficients_PRIMECQ_LO.csv', 'csv/superiso/sm/WilsonCoefficients_PRIMECQ_LO.csv', 'LO prime and scalar', model = "sm")

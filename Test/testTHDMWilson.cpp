@@ -17,7 +17,7 @@ void writeCoefficientsToFile(const std::string& strat_name, const std::string& f
     }
     file << "\n";
 
-    MemoryManager::GetInstance("Test/LH_sample_input.lha", {0, 2})->init();
+    MemoryManager::GetInstance("Test/testinput_thdm.lha", {0, 2})->init();
     Parameters* sm = Parameters::GetInstance();
     WilsonManager* wm = WilsonManager::GetInstance(strat_name, 81.0, strategy);
 
@@ -53,9 +53,9 @@ int main() {
     auto nnloStrategy = std::make_shared<THDM_NNLO_Strategy>();
 
     
-    writeCoefficientsToFile("NLO", "../csv/sm/WilsonCoefficients_NLO.csv", nloStrategy, 81);
-    writeCoefficientsToFile("LO", "../csv/sm/WilsonCoefficients_LO.csv", loStrategy, 81);
-    writeCoefficientsToFile("NNLO", "../csv/sm/WilsonCoefficients_NNLO.csv", nnloStrategy, 81);
+    writeCoefficientsToFile("NLO", "../csv/thdm/WilsonCoefficients_NLO.csv", nloStrategy, 81);
+    writeCoefficientsToFile("LO", "../csv/thdm/WilsonCoefficients_LO.csv", loStrategy, 81);
+    writeCoefficientsToFile("NNLO", "../csv/thdm/WilsonCoefficients_NNLO.csv", nnloStrategy, 81);
     
     WilsonManager::Cleanup();
     return 0;

@@ -23,11 +23,12 @@ void writeCoefficientsToFile(const std::string& strat_name, const std::string& f
     Parameters* sm = Parameters::GetInstance();
     WilsonManager* wm = WilsonManager::GetInstance(strat_name, 81.0, strategy);
 
-    wm->setScale(Q_match);
+    double answer = 42.;
+    wm->setScale(answer);
 
-    double alpha_s = (*sm).QCDRunner.runningAlphasCalculation(Q_match);
+    double alpha_s = (*sm).QCDRunner.runningAlphasCalculation(answer);
 
-    file << Q_match << "," << alpha_s;
+    file << answer << "," << alpha_s;
 
             for (int i = 10; i <= 17; ++i) {
         complex_t C = {0,0};
@@ -53,13 +54,13 @@ int main() {
     logger->setLevel(Logger::LogLevel::INFO);
 
     auto loStrategy = std::make_shared<SM_LO_Strategy>();
-    auto susyloStrategy = std::make_shared<SUSY_LO_Strategy>();
-    auto susynloStrategy = std::make_shared<SUSY_NLO_Strategy>();
+    auto nloStrategy = std::make_shared<SM_NLO_Strategy>();
+    auto nnloStrategy = std::make_shared<SM_NNLO_Strategy>();
 
     
-    // writeCoefficientsToFile("NLO", "../csv/susy/WilsonCoefficients_NLO.csv", nloStrategy, 81);
+    writeCoefficientsToFile("NLO", "../csv/sm/WilsonCoefficients_PRIMECQ_NLO.csv", nloStrategy, 81);
     writeCoefficientsToFile("LO", "../csv/sm/WilsonCoefficients_PRIMECQ_LO.csv", loStrategy, 81);
-    // writeCoefficientsToFile("NNLO", "../csv/susy/WilsonCoefficients_NNLO.csv", nnloStrategy, 81);
+    writeCoefficientsToFile("NNLO", "../csv/sm/WilsonCoefficients_PRIMECQ_NNLO.csv", nnloStrategy, 81);
     
     WilsonManager::Cleanup();
     return 0;

@@ -261,8 +261,8 @@ public:
     void setScale(double mu, bool set_all= false) {
         Q= mu;
         strategy->set_base1(C, C_match, Q, Q_matching);
-        strategy->init_prime(this->Q_matching, Q, 6, C);
-        strategy->init_scalar(this->Q_matching, Q, 6, C);
+        strategy->init_prime(this->Q_matching, Q, 2, C);
+        strategy->init_scalar(this->Q_matching, Q, 2, C);
 
         if (set_all) {
             if (strategyName == "NLO") {

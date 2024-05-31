@@ -31,10 +31,10 @@ file(GLOB COMMON_SOURCES
 file(GLOB SUSY "../Physical_Model/BSM/*.cpp" "../Math/Math_BSM/*.cpp" "../External_Integration/SoftSusy.cpp" "../External_Integration/Interface.cpp")
 set(TEST_READER_SOURCE "testReader.cpp")
 set(TEST_WILSON_SOURCE "testWilson.cpp")
-set(TEST_SMWILSON_SOURCE "testSMWilson.cpp" )
+set(TEST_SMWILSON_SOURCE "testSMWilson.cpp" "../External_Integration/Interface.cpp")
 set(TEST_THDMWILSON_SOURCE "testTHDMWilson.cpp" "../External_Integration/2HDMC.cpp")
 set(TEST_SUSYWILSON_SOURCE "testSusyWilson.cpp" "../External_Integration/2HDMC.cpp")
-set(TEST_CQPRIMEWILSON_SOURCE "testPrimeCQWilson.cpp" )
+set(TEST_CQPRIMEWILSON_SOURCE "testPrimeCQWilson.cpp" "../External_Integration/Interface.cpp")
 set(TEST_PARAMS_SOURCE "testParams.cpp")
 set(TEST_OBS_SOURCE "testObservable.cpp")
 set(TEST_QCDPARAMETERS_SOURCE "testQCDParameters.cpp") # Ajout de la nouvelle source
