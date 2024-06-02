@@ -6,7 +6,7 @@
 #include <memory>
 #include <filesystem>
 #include <regex>
-
+#include <climits>
 #include "lha_blocks.h"
 #include "lha_elements.h"
 
