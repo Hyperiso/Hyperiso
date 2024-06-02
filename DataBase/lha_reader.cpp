@@ -17,18 +17,19 @@ void Parser::tokenize() {
     while (rit != rend) {
         std::smatch m = *rit;
         int group_index = m.size();
-    
+
+        // Don't touch, it works.
         for (int idx = 1; idx < m.size(); ++idx) {
             if (m[idx].matched) {
-                if (idx == 1)
-                    ++idx;
-                group_index = idx - 2;
+                // if (idx == 1)  
+                //     ++idx;
+                group_index = idx - 1;
                 break;
             }
         }
 
         auto tokenType = static_cast<TokenType>(group_index);
-        auto value = m[group_index + 2].str();
+        auto value = m[group_index + 1].str();
 
         if (tokenType == TokenType::NEWLINE) {
             ++cLine;
@@ -48,6 +49,7 @@ void Parser::parse(bool comments) {
     bool hasGlobalScale = false;
     bool isQ = false;
     bool skipBlock = false;
+    bool decay = false;
     std::string globalQ;
     std::string cBlock;
 
@@ -57,18 +59,24 @@ void Parser::parse(bool comments) {
         if (newBlock) {
             auto prototype = reader->findPrototype(t.value);
             if (prototype.blockName != "") {
-                Logger::getInstance()->debug("LHA reader: Block " + prototype.blockName + " found.");
+                Logger::getInstance()->info("LHA reader: Block " + prototype.blockName + " found.");
                 this->rawBlocks[t.value] = std::vector<std::vector<std::string>> {};
                 cBlock = t.value;
-                newBlock = false;
                 hasGlobalScale = prototype.globalScale;
                 skipBlock = false;
+            } else if (decay) {
+                Logger::getInstance()->info("LHA reader: Decay block found. Skipping.");
+                skipBlock = true;
+                decay = false;
             } else {
                 Logger::getInstance()->warn("LHA reader: Unknown block " + t.value + " encountered. Skipping.");
                 skipBlock = true;
-                newBlock = false;
             }
+            newBlock = false;
         } else if (t.type == TokenType::BLOCK) {
+            newBlock = true;
+        } else if (t.type == TokenType::DECAY) {
+            decay = true;
             newBlock = true;
         } else if (!comments && t.type == TokenType::COMMENT) {
             continue;
@@ -80,10 +88,11 @@ void Parser::parse(bool comments) {
                 isQ = false;
             }
             else {
+                // std::cout << "Token : [" << (int)t.type << ", " << t.value  << "]" << std::endl;
                 if (t.col <= cCol) {   
                     this->rawBlocks[cBlock].emplace_back(std::vector<std::string> {});
                     if(hasGlobalScale)
-                        this->rawBlocks[cBlock].back().emplace_back(globalQ);
+                        this->rawBlocks[cBlock].back().emplace_back(globalQ != "" ? globalQ : "-1");
                 }
                 this->rawBlocks[cBlock].back().emplace_back(t.value);
                 cCol = t.col;
@@ -115,9 +124,11 @@ void LhaReader::readAll() {
     Parser parser {buffer.str(), this};
     parser.parse();
     auto blocks = parser.getBlocks();
+    
     for (auto p : blocks) {
         addBlock(p.first, p.second);
-    }        
+    }
+          
 }
 
 Prototype LhaReader::findPrototype(std::string name) const {
@@ -136,11 +147,13 @@ std::string LhaReader::getLhaPath() const {
 void LhaReader::update(std::string_view newLha) {
     Logger::getInstance()->info("Updating LHA blocks...");
     this->lhaFile = std::filesystem::path(newLha);
-    isFLHA = lhaFile.extension().string() == ".flha"; 
+    isFLHA = lhaFile.extension().string() == ".flha";
+    
     if (isFLHA && this->blockPrototypes.size() == SLHA_BLOCKS.size()) {
         this->blockPrototypes.insert(blockPrototypes.end(), FLHA_BLOCKS.begin(), FLHA_BLOCKS.end());
     }
     this->blocks.clear();
+     
     this->readAll();
 }
 

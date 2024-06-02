@@ -5,20 +5,29 @@
 void THDM_LO_Strategy::init(double scale, WilsonSet& C_match) {
 
 	Parameters* sm = Parameters::GetInstance();
-	Parameters* susy = Parameters::GetInstance(1);
+	Parameters* mod = nullptr;
 
-	if (lu == -1 || ld == -1) {
-		lu=(*sm)("YUKAWA_CH_U", 33);
-		ld=(*sm)("YUKAWA_CH_D", 33);
-}
-    double mass_top_muW=(*sm).QCDRunner.running_mass((*sm)("MASS",6), (*sm)("MASS",6),scale); //mass top at top ?
+	if (is_thdm) {
+		mod = Parameters::GetInstance(2);
+		lu=(*mod)("YU", 22);
+		ld=(*mod)("YD", 22);
+		Logger::getInstance()->info("YU : " + std::to_string(lu));
+		Logger::getInstance()->info("37 : " + std::to_string((*mod)("MASS",37)));
+	}
+	else {
+		mod = Parameters::GetInstance(1);
+	}
+    double mass_top_muW=(*sm).QCDRunner.running_mass((*sm)("MASS",6), (*sm)("MASS",6),scale, "running", "pole"); //mass top at top ?
 	double mass_b_muW=(*sm).QCDRunner.running_mass((*sm)("MASS",5), (*sm)("MASS",5), scale); //mass bottom 6 (at pole)
 
     double sw2=pow(sin(atan((*sm)("GAUGE",1)/(*sm)("GAUGE",2))),2.); //1 = param-> gp and 2 = param->g2
 
+	Logger::getInstance()->info("g1 : " + std::to_string((*sm)("GAUGE",1)));
+	Logger::getInstance()->info("g2 : " + std::to_string((*sm)("GAUGE",2)));
+	Logger::getInstance()->info("mt : " + std::to_string((*sm)("MASS",6)));
     double xt= pow(mass_top_muW/(*sm)("MASS",24),2.); // W boson mass (24)
-	double yt= pow(mass_top_muW/(*susy)("MASS",37),2.); // param->mass_H (25)
-
+	double yt= pow(mass_top_muW/(*mod)("MASS",37),2.); // param->mass_H (25)
+	Logger::getInstance()->info("xt : " + std::to_string(xt));
     complex_t C7H_0=1./3.*lu*lu*F7_1(yt) - lu*ld*F7_2(yt);
 	complex_t C8H_0=1./3.*lu*lu*F8_1(yt) - lu*ld*F8_2(yt);
 
@@ -41,26 +50,31 @@ void THDM_LO_Strategy::init(double scale, WilsonSet& C_match) {
 void THDM_NLO_Strategy::init(double scale, WilsonSet& C_match) {
 
 	Parameters* sm = Parameters::GetInstance();
-	Parameters* susy = Parameters::GetInstance(1);
+	// Parameters* susy = Parameters::GetInstance(1);
+	Parameters* mod = nullptr;
 
     if (lu == -1 || ld == -1) {
-		lu=(*sm)("YUKAWA_CH_U", 33);
-		ld=(*sm)("YUKAWA_CH_D", 33);
-}
+		mod = Parameters::GetInstance(2);
+		lu=(*mod)("YU", 22);
+		ld=(*mod)("YD", 22);
+	}
+	else {
+		mod = Parameters::GetInstance(1);
+	}
 
     double mass_top_muW=(*sm).QCDRunner.running_mass((*sm)("MASS",6), (*sm)("MASS",6),scale); //mass top at top ?
 	double mass_b_muW=(*sm).QCDRunner.running_mass((*sm)("MASS",5), (*sm)("MASS",5), scale); //mass bottom 6 (at pole)
 
     double sw2=pow(sin(atan((*sm)("GAUGE",1)/(*sm)("GAUGE",2))),2.); //1 = param-> gp and 2 = param->g2
-
+	double m_H = (*mod)("MASS", 37); // Charged Higgs mass (37)
     double xt= pow(mass_top_muW/(*sm)("MASS",24),2.); // W boson mass (24)
-	double yt= pow(mass_top_muW/(*susy)("MASS",37),2.); // param->mass_H (25)
+	double yt= pow(mass_top_muW/m_H,2.); // param->mass_H (25)
     complex_t C4H_1=EH(yt,lu);
 
-    complex_t C7H_1= G7H(yt,lu,ld)+Delta7H(yt,lu,ld)*log(pow(scale/(*susy)("MASS",37),2.))-4./9.*C4H_1;
-	complex_t C8H_1= G8H(yt,lu,ld)+Delta8H(yt,lu,ld)*log(pow(scale/(*susy)("MASS",37),2.))-1./6.*C4H_1;
-	complex_t C9H_1=(1.-4.*sw2)/sw2*C9llH1(xt,yt,lu,log(pow(scale/(*susy)("MASS",37),2.)))-D9H1(yt,lu,log(pow(scale/(*susy)("MASS",37),2.)));
-	complex_t C10H_1=-C9llH1(xt,yt,lu,log(pow(scale/(*susy)("MASS",37),2.)))/sw2;
+    complex_t C7H_1= G7H(yt,lu,ld)+Delta7H(yt,lu,ld)*log(pow(scale/m_H,2.))-4./9.*C4H_1;
+	complex_t C8H_1= G8H(yt,lu,ld)+Delta8H(yt,lu,ld)*log(pow(scale/m_H,2.))-1./6.*C4H_1;
+	complex_t C9H_1=(1.-4.*sw2)/sw2*C9llH1(xt,yt,lu,log(pow(scale/m_H,2.)))-D9H1(yt,lu,log(pow(scale/m_H,2.)));
+	complex_t C10H_1=-C9llH1(xt,yt,lu,log(pow(scale/m_H,2.)))/sw2;
 
 	if (C_match.size() < 2) C_match.resize(2);
 	auto& C_NLO = C_match[1];
@@ -79,11 +93,12 @@ void THDM_NLO_Strategy::init(double scale, WilsonSet& C_match) {
         }
     };
 
-	adjustCoefficient(C7H_1, 7);
-	adjustCoefficient(C8H_1, 8);
-	adjustCoefficient(C9H_1, 9);
-	adjustCoefficient(C10H_1, 10);
-
+	Logger::getInstance()->info("C8H_1 in THDM " + std::to_string(std::real(C8H_1)));
+	// adjustCoefficient(C7H_1, 7);
+	// adjustCoefficient(C8H_1, 8);
+	// adjustCoefficient(C9H_1, 9);
+	// adjustCoefficient(C10H_1, 10);
+	Logger::getInstance()->info("C8H_1 in THDM " + std::to_string(std::real(C8H_1)));
 	Logger::getInstance()->info("C7H_1 in THDM " + std::to_string(std::real(C7H_1)));
 	Logger::getInstance()->info("C4H_1 in THDM " + std::to_string(std::real(C4H_1)));
 	// Logger::getInstance()->info("C4Char_1 in THDM " + std::to_string(std::real(C_LO[1])));
@@ -100,24 +115,30 @@ void THDM_NLO_Strategy::init(double scale, WilsonSet& C_match) {
 void THDM_NNLO_Strategy::init(double scale, WilsonSet& C_match) {
 
 	Parameters* sm = Parameters::GetInstance();
-	Parameters* susy = Parameters::GetInstance(1);
+	// Parameters* susy = Parameters::GetInstance(1);
+	// Parameters* thdm = Parameters::GetInstance(2);
+	Parameters* mod = nullptr;
 
     if (lu == -1 || ld == -1) {
-		lu=(*sm)("YUKAWA_CH_U", 33);
-		ld=(*sm)("YUKAWA_CH_D", 33);
-}
+		mod = Parameters::GetInstance(2);
+		lu=(*mod)("YU", 22);
+		ld=(*mod)("YD", 22);
+	}
+	else {
+		mod = Parameters::GetInstance(1);
+	}
     double mass_top_muW=(*sm).QCDRunner.running_mass((*sm)("MASS",6), (*sm)("MASS",6),scale); //mass top at top ?
 	double mass_b_muW=(*sm).QCDRunner.running_mass((*sm)("MASS",5), (*sm)("MASS",5), scale); //mass bottom 6 (at pole)
 
     double sw2=pow(sin(atan((*sm)("GAUGE",1)/(*sm)("GAUGE",2))),2.); //1 = param-> gp and 2 = param->g2
 
     double xt= pow(mass_top_muW/(*sm)("MASS",24),2.); // W boson mass (24)
-	double yt= pow(mass_top_muW/(*susy)("MASS",37),2.); // param->mass_H (25)
+	double yt= pow(mass_top_muW/(*mod)("MASS",37),2.); // param->mass_H (25)
 
     complex_t C4H_1=EH(yt,lu);
 
-    complex_t C3H_2=G3H(yt,lu)+Delta3H(yt,lu)*log(pow(scale/(*susy)("MASS",37),2.));
-	complex_t C4H_2=G4H(yt,lu)+Delta4H(yt,lu)*log(pow(scale/(*susy)("MASS",37),2.));
+    complex_t C3H_2=G3H(yt,lu)+Delta3H(yt,lu)*log(pow(scale/(*mod)("MASS",37),2.));
+	complex_t C4H_2=G4H(yt,lu)+Delta4H(yt,lu)*log(pow(scale/(*mod)("MASS",37),2.));
 	complex_t C5H_2=-C3H_2/10.+2./15.*C4H_1;
 	complex_t C6H_2=-3./16.*C3H_2+1./4.*C4H_1;
 
@@ -145,7 +166,7 @@ void THDM_LO_Strategy::init_scalar(double Q_match,double Q,int gen, WilsonSet& C
 	/* Wilson coefficients CQ1 et CQ2 in 2HDM */ 
 	
 	Parameters* sm = Parameters::GetInstance(0);
-	Parameters* susy = Parameters::GetInstance(1);
+	Parameters* thdm = Parameters::GetInstance(2);
     double ml;
 
 	
@@ -159,7 +180,7 @@ void THDM_LO_Strategy::init_scalar(double Q_match,double Q,int gen, WilsonSet& C
 
 	double xt=pow(mass_top_muW/(*sm)("MASS",24),2.);
 
-	double xh=pow((*susy)("MASS",37)/(*susy)("MASS",24),2.);
+	double xh=pow((*thdm)("MASS",37)/(*thdm)("MASS",24),2.);
 
 	int nf=5;
 	double beta0 = 11.-2./3.*nf;
@@ -171,26 +192,26 @@ void THDM_LO_Strategy::init_scalar(double Q_match,double Q,int gen, WilsonSet& C
 	double alpha=(*sm)("ALPHA", 42);
 	double beta=atan((*sm)("EXTPAR", 37));
 
-	double xH=pow((*susy)("MASS",37)/(*sm)("MASS",24),2.);
+	double xH=pow((*thdm)("MASS",37)/(*sm)("MASS",24),2.);
 	double xH0=pow((*sm)("MASS",35)/(*sm)("MASS",24),2.);
 	double xA=pow((*sm)("MASS",36)/(*sm)("MASS",24),2.);
 	
-	double G1=-3./4.+(*sm)("YUKAWA_CH_D",33)*(*sm)("YUKAWA_CH_U",33)*F4SP(xt,xH)+(*sm)("YUKAWA_CH_U",33)*(*sm)("YUKAWA_CH_U",33)*F5SP(xt,xH);
+	double G1=-3./4.+(*thdm)("YD",22)*(*thdm)("YU",22)*F4SP(xt,xH)+(*thdm)("YU",22)*(*thdm)("YU",22)*F5SP(xt,xH);
 	
-	double G2=(*sm)("YUKAWA_CH_D",33)*((*sm)("YUKAWA_CH_D",33)*(*sm)("YUKAWA_CH_U",33)+1.)*F6SP(xt,xH)-(*sm)("YUKAWA_CH_D",33)*(*sm)("YUKAWA_CH_U",33)*(*sm)("YUKAWA_CH_U",33)*F7SP(xt,xH)
-	+(*sm)("YUKAWA_CH_U",33)*(*sm)("YUKAWA_CH_U",33)*((*sm)("YUKAWA_CH_D",33)*F8SP(xt,xH)+(*sm)("YUKAWA_CH_U",33)*F9SP(xt,xH)-(*sm)("YUKAWA_CH_U",33)*F10SP(xt,xH))+(*sm)("YUKAWA_CH_U",33)*F11SP(xt,xH)-(*sm)("YUKAWA_CH_U",33)*F12SP(xt,xH);
+	double G2=(*thdm)("YD",22)*((*thdm)("YD",22)*(*thdm)("YU",22)+1.)*F6SP(xt,xH)-(*thdm)("YD",22)*(*thdm)("YU",22)*(*thdm)("YU",22)*F7SP(xt,xH)
+	+(*thdm)("YU",22)*(*thdm)("YU",22)*((*sm)("YD",22)*F8SP(xt,xH)+(*thdm)("YU",22)*F9SP(xt,xH)-(*thdm)("YU",22)*F10SP(xt,xH))+(*thdm)("YU",22)*F11SP(xt,xH)-(*thdm)("YU",22)*F12SP(xt,xH);
 	
-	double G3=(*sm)("YUKAWA_CH_D",33)*((*sm)("YUKAWA_CH_D",33)*(*sm)("YUKAWA_CH_U",33)+1.)*F6SP(xt,xH)+(*sm)("YUKAWA_CH_D",33)*(*sm)("YUKAWA_CH_U",33)*(*sm)("YUKAWA_CH_U",33)*F7SP(xt,xH)
-	+(*sm)("YUKAWA_CH_U",33)*(*sm)("YUKAWA_CH_U",33)*((*sm)("YUKAWA_CH_D",33)*F8SP(xt,xH)+(*sm)("YUKAWA_CH_U",33)*F9SP(xt,xH)+(*sm)("YUKAWA_CH_U",33)*F10SP(xt,xH))+(*sm)("YUKAWA_CH_U",33)*F11SP(xt,xH)+(*sm)("YUKAWA_CH_D",33)*F12SP(xt,xH);
+	double G3=(*thdm)("YD",22)*((*thdm)("YD",22)*(*thdm)("YU",22)+1.)*F6SP(xt,xH)+(*thdm)("YD",22)*(*thdm)("YU",22)*(*sm)("YU",22)*F7SP(xt,xH)
+	+(*thdm)("YU",22)*(*thdm)("YU",22)*((*thdm)("YD",22)*F8SP(xt,xH)+(*thdm)("YU",22)*F9SP(xt,xH)+(*thdm)("YU",22)*F10SP(xt,xH))+(*thdm)("YU",22)*F11SP(xt,xH)+(*thdm)("YD",22)*F12SP(xt,xH);
 
-	double CSn_2HDM=xt*(F0SP(xt)+(*sm)("YUKAWA_CH_L",gen*gen)*((*sm)("YUKAWA_CH_D",33)*F1SP(xt,xH)+(*sm)("YUKAWA_CH_U",33)*F2SP(xt,xH))+(*sm)("YUKAWA_CH_L",gen*gen)*(*sm)("YUKAWA_CH_U",33)*F3SP(xt,xH))
-	+xt/2./xh*(sin(alpha-beta)+cos(alpha-beta)*(*sm)("YUKAWA_CH_L",gen*gen))*(sin(alpha-beta)*G1+cos(alpha-beta)*G2)
-	+xt/2./xH0*(cos(alpha-beta)-sin(alpha-beta)*(*sm)("YUKAWA_CH_L",gen*gen))*(cos(alpha-beta)*G1-sin(alpha-beta)*G2);
+	double CSn_2HDM=xt*(F0SP(xt)+(*sm)("YL",gen*gen)*((*sm)("YD",22)*F1SP(xt,xH)+(*sm)("YU",22)*F2SP(xt,xH))+(*sm)("YL",gen*gen)*(*sm)("YU",22)*F3SP(xt,xH))
+	+xt/2./xh*(sin(alpha-beta)+cos(alpha-beta)*(*sm)("YL",gen*gen))*(sin(alpha-beta)*G1+cos(alpha-beta)*G2)
+	+xt/2./xH0*(cos(alpha-beta)-sin(alpha-beta)*(*sm)("YL",gen*gen))*(cos(alpha-beta)*G1-sin(alpha-beta)*G2);
 	
-	double CPn_2HDM=xt*(-(*sm)("YUKAWA_CH_L",gen*gen)*((*sm)("YUKAWA_CH_D",33)*F1SP(xt,xH)+(*sm)("YUKAWA_CH_U",33)*F2SP(xt,xH))+(*sm)("YUKAWA_CH_L",gen*gen)*(*sm)("YUKAWA_CH_U",33)*F3SP(xt,xH))+xt/2./xA*((*sm)("YUKAWA_CH_L",gen*gen))*G3;
+	double CPn_2HDM=xt*(-(*sm)("YL",gen*gen)*((*sm)("YD",22)*F1SP(xt,xH)+(*sm)("YU",22)*F2SP(xt,xH))+(*sm)("YL",gen*gen)*(*sm)("YU",22)*F3SP(xt,xH))+xt/2./xA*((*sm)("YL",gen*gen))*G3;
 
-	double CQ1H_0=CSc_2HDM(xH,xt,(*sm)("YUKAWA_CH_U",33),(*sm)("YUKAWA_CH_D",33),(*sm)("YUKAWA_CH_L",gen*gen))+CSn_2HDM;
-	double CQ2H_0=CPc_2HDM(xH,xt,(*sm)("YUKAWA_CH_U",33),(*sm)("YUKAWA_CH_D",33),(*sm)("YUKAWA_CH_L",gen*gen),sw2)+CPn_2HDM;
+	double CQ1H_0=CSc_2HDM(xH,xt,(*sm)("YU",22),(*sm)("YD",22),(*sm)("YL",gen*gen))+CSn_2HDM;
+	double CQ2H_0=CPc_2HDM(xH,xt,(*sm)("YU",22),(*sm)("YD",22),(*sm)("YL",gen*gen),sw2)+CPn_2HDM;
 	
 	CQ1H_0*=(ml*mass_b_muW/(*sm)("MASS",24)/(*sm)("MASS",24))/sw2;
 	CQ2H_0*=(ml*mass_b_muW/(*sm)("MASS",24)/(*sm)("MASS",24))/sw2;

@@ -3,12 +3,7 @@
 #include <sstream>
 #include <iomanip>
 
-std::string doubleToString(double value, int precision) {
 
-	std::ostringstream out;
-	out << std::fixed << std::setprecision(precision) << value;
-	return out.str();
-}
 
 
 void SUSY_LO_Strategy::init(double scale, WilsonSet& C_match) {
@@ -26,6 +21,8 @@ void SUSY_LO_Strategy::init(double scale, WilsonSet& C_match) {
 	complex_t C7SMeps_0= ((*sus_param).epsilonb-(*sus_param).epsilonbp)/(1.+(*sus_param).epsilonb*(*susy)("HMIX",2))*(*susy)("HMIX",2)*F7_2((*sus_param).xt);
 	complex_t C8SMeps_0= ((*sus_param).epsilonb-(*sus_param).epsilonbp)/(1.+(*sus_param).epsilonb*(*susy)("HMIX",2))*(*susy)("HMIX",2)*F8_2((*sus_param).xt);
 
+	logger->debug("epsilon b : " + std::to_string((*sus_param).epsilonb));
+	logger->debug("epsilon bp : " + std::to_string((*sus_param).epsilonbp));
 
 	complex_t C7Heps_0=(-(*sus_param).epsilon0p-(*sus_param).epsilonb)/(1.+(*sus_param).epsilonb*(*susy)("HMIX",2))*(*susy)("HMIX",2)*F7_2((*sus_param).yt);
 	complex_t C8Heps_0=(-(*sus_param).epsilon0p-(*sus_param).epsilonb)/(1.+(*sus_param).epsilonb*(*susy)("HMIX",2))*(*susy)("HMIX",2)*F8_2((*sus_param).yt);
@@ -33,12 +30,10 @@ void SUSY_LO_Strategy::init(double scale, WilsonSet& C_match) {
 	complex_t C7Heps2_0=0.;
 	complex_t C8Heps2_0=0.;
 
-	
 
 	if(((*sus_param).mass_A02==0.)&&((*sus_param).mass_H03==0.))
 	{
 		C7Heps2_0=-(*sus_param).epsilon2*(*sus_param).epsilon1p*pow((*susy)("HMIX",2),2.)/(1.+(*sus_param).epsilonb*(*susy)("HMIX",2))/(1.+(*sus_param).epsilon0*(*susy)("HMIX",2))*F7_2((*sus_param).yt);
-		// logger->info("C7Heps2_0 before + " +std::to_string((*sus_param).epsilon2*(*sus_param).epsilon1p*pow((*susy)("HMIX",2),2.)));
 		C7Heps2_0+=(*sus_param).epsilon2/pow(1.+(*sus_param).epsilonb*(*susy)("HMIX",2),2.)*(1.+pow((*susy)("HMIX",2),2.))/(1.+(*sus_param).epsilon0*(*susy)("HMIX",2))/72.		*((cos((*susy)("ALPHA",0))+sin((*susy)("ALPHA",0))*(*susy)("HMIX",2))*(-sin((*susy)("ALPHA",0))+(*sus_param).epsilonb*cos((*susy)("ALPHA",0)))*pow((*sus_param).mass_b_muW/(*susy)("MASS",25),2.)
 		+(sin((*susy)("ALPHA",0))-cos((*susy)("ALPHA",0))*(*susy)("HMIX",2))*(cos((*susy)("ALPHA",0))+(*sus_param).epsilonb*sin((*susy)("ALPHA",0)))*pow((*sus_param).mass_b_muW/(*susy)("MASS",35),2.)			+(-cos(atan((*susy)("HMIX",2)))-sin(atan((*susy)("HMIX",2)))*(*susy)("HMIX",2))*(sin(atan((*susy)("HMIX",2)))-(*sus_param).epsilonb*cos(atan((*susy)("HMIX",2))))*pow((*sus_param).mass_b_muW/(*susy)("MASS",36),2.));
 
@@ -49,35 +44,36 @@ void SUSY_LO_Strategy::init(double scale, WilsonSet& C_match) {
 	else
 	{		
 		C7Heps2_0=-(*sus_param).epsilon2*(*sus_param).epsilon1p*pow((*susy)("HMIX",2),2.)/(1.+(*sus_param).epsilonb*(*susy)("HMIX",2))/(1.+(*sus_param).epsilon0*(*susy)("HMIX",2))*F7_2((*sus_param).yt);
-		C7Heps2_0+=(*sus_param).epsilon2/pow(1.+(*sus_param).epsilonb*(*susy)("HMIX",2),2.)*(1.+pow((*susy)("HMIX",2),2.))/(1.+(*sus_param).epsilon0*(*susy)("HMIX",2))/72.	*(((*susy)("HMIX", 11)+(*susy)("HMIX", 12)*(*susy)("HMIX",2))*(-(*susy)("HMIX", 12)+(*sus_param).epsilonb*(*susy)("HMIX", 11))*pow((*sus_param).mass_b_muW/(*susy)("MASS",25),2.)
-		+((*susy)("HMIX", 21)+(*susy)("HMIX", 22)*(*susy)("HMIX",2))*(-(*susy)("HMIX", 22)+(*sus_param).epsilonb*(*susy)("HMIX", 21))*pow((*sus_param).mass_b_muW/(*susy)("MASS",35),2.)
-		+((*susy)("HMIX", 31)+(*susy)("HMIX", 32)*(*susy)("HMIX",2))*(-(*susy)("HMIX", 32)+(*sus_param).epsilonb*(*susy)("HMIX", 31))*pow((*sus_param).mass_b_muW/(*sus_param).mass_H03,2.)
+		C7Heps2_0+=(*sus_param).epsilon2/pow(1.+(*sus_param).epsilonb*(*susy)("HMIX",2),2.)*(1.+pow((*susy)("HMIX",2),2.))/(1.+(*sus_param).epsilon0*(*susy)("HMIX",2))/72.	*(((*susy)("HMIX", 00)+(*susy)("HMIX", 01)*(*susy)("HMIX",2))*(-(*susy)("HMIX", 01)+(*sus_param).epsilonb*(*susy)("HMIX", 00))*pow((*sus_param).mass_b_muW/(*susy)("MASS",25),2.)
+		+((*susy)("HMIX", 10)+(*susy)("HMIX", 11)*(*susy)("HMIX",2))*(-(*susy)("HMIX", 11)+(*sus_param).epsilonb*(*susy)("HMIX", 10))*pow((*sus_param).mass_b_muW/(*susy)("MASS",35),2.)
+		+((*susy)("HMIX", 20)+(*susy)("HMIX", 21)*(*susy)("HMIX",2))*(-(*susy)("HMIX", 21)+(*sus_param).epsilonb*(*susy)("HMIX", 20))*pow((*sus_param).mass_b_muW/(*sus_param).mass_H03,2.)
 
-		+((*susy)("AMIX", 11)+(*susy)("AMIX", 12)*(*susy)("HMIX",2))*(-(*susy)("AMIX", 12)+(*sus_param).epsilonb*(*susy)("AMIX", 11))*pow((*sus_param).mass_b_muW/(*susy)("MASS",36),2.) //mass_A0 = 36 ? = HO3 ?
-		+((*susy)("AMIX", 21)+(*susy)("AMIX", 22)*(*susy)("HMIX",2))*(-(*susy)("AMIX", 22)+(*sus_param).epsilonb*(*susy)("AMIX", 21))*pow((*sus_param).mass_b_muW/(*sus_param).mass_A02,2.));
+		+((*susy)("AMIX", 00)+(*susy)("AMIX", 01)*(*susy)("HMIX",2))*(-(*susy)("AMIX", 01)+(*sus_param).epsilonb*(*susy)("AMIX", 00))*pow((*sus_param).mass_b_muW/(*susy)("MASS",36),2.) //mass_A0 = 36 ? = HO3 ?
+		+((*susy)("AMIX", 10)+(*susy)("AMIX", 11)*(*susy)("HMIX",2))*(-(*susy)("AMIX", 11)+(*sus_param).epsilonb*(*susy)("AMIX", 10))*pow((*sus_param).mass_b_muW/(*sus_param).mass_A02,2.));
 		C8Heps2_0=-(*sus_param).epsilon2*(*sus_param).epsilon1p*pow((*susy)("HMIX",2),2.)/(1.+(*sus_param).epsilonb*(*susy)("HMIX",2))/(1.+(*sus_param).epsilon0*(*susy)("HMIX",2))*F8_2((*sus_param).yt);
 		C8Heps2_0+=-3.*(*sus_param).epsilon2/pow(1.+(*sus_param).epsilonb*(*susy)("HMIX",2),2.)*(1.+pow((*susy)("HMIX",2),2.))/(1.+(*sus_param).epsilon0*(*susy)("HMIX",2))/72.
-		*(((*susy)("HMIX", 11)+(*susy)("HMIX", 12)*(*susy)("HMIX",2))*(-(*susy)("HMIX", 12)+(*sus_param).epsilonb*(*susy)("HMIX", 11))*pow((*sus_param).mass_b_muW/(*susy)("MASS",25),2.)
-		+((*susy)("HMIX", 21)+(*susy)("HMIX", 22)*(*susy)("HMIX",2))*(-(*susy)("HMIX", 22)+(*sus_param).epsilonb*(*susy)("HMIX", 21))*pow((*sus_param).mass_b_muW/(*susy)("MASS",35),2.)
-		+((*susy)("HMIX", 31)+(*susy)("HMIX", 32)*(*susy)("HMIX",2))*(-(*susy)("HMIX", 32)+(*sus_param).epsilonb*(*susy)("HMIX", 31))*pow((*sus_param).mass_b_muW/(*sus_param).mass_H03,2.)		
+		*(((*susy)("HMIX", 00)+(*susy)("HMIX", 01)*(*susy)("HMIX",2))*(-(*susy)("HMIX", 01)+(*sus_param).epsilonb*(*susy)("HMIX", 00))*pow((*sus_param).mass_b_muW/(*susy)("MASS",25),2.)
+		+((*susy)("HMIX", 10)+(*susy)("HMIX", 11)*(*susy)("HMIX",2))*(-(*susy)("HMIX", 11)+(*sus_param).epsilonb*(*susy)("HMIX", 10))*pow((*sus_param).mass_b_muW/(*susy)("MASS",35),2.)
+		+((*susy)("HMIX", 31)+(*susy)("HMIX", 21)*(*susy)("HMIX",2))*(-(*susy)("HMIX", 21)+(*sus_param).epsilonb*(*susy)("HMIX", 20))*pow((*sus_param).mass_b_muW/(*sus_param).mass_H03,2.)		
 
-+((*susy)("AMIX", 11)+(*susy)("AMIX", 12)*(*susy)("HMIX",2))*(-(*susy)("AMIX", 12)+(*sus_param).epsilonb*(*susy)("AMIX", 11))*pow((*sus_param).mass_b_muW/(*susy)("MASS",36),2.)
-		+((*susy)("AMIX", 21)+(*susy)("AMIX", 22)*(*susy)("HMIX",2))*(-(*susy)("AMIX", 22)+(*sus_param).epsilonb*(*susy)("AMIX", 21))*pow((*sus_param).mass_b_muW/(*sus_param).mass_A02,2.));
++((*susy)("AMIX", 00)+(*susy)("AMIX", 01)*(*susy)("HMIX",2))*(-(*susy)("AMIX", 01)+(*sus_param).epsilonb*(*susy)("AMIX", 00))*pow((*sus_param).mass_b_muW/(*susy)("MASS",36),2.)
+		+((*susy)("AMIX", 10)+(*susy)("AMIX", 11)*(*susy)("HMIX",2))*(-(*susy)("AMIX", 11)+(*sus_param).epsilonb*(*susy)("AMIX", 10))*pow((*sus_param).mass_b_muW/(*sus_param).mass_A02,2.));
 		}
 
 
-	auto calculateContribution = [&](auto hFunc, const Array3D_3x7x4& X, int ie, int ae, bool isChargeps) -> double {
+	logger->info("truc : " + std::to_string(std::real(C7SMeps_0)));
+
+	auto calculateContribution = [&](auto hFunc, const Array3D_3x7x4& X,const Array3D_3x7x4& X2, int ie, int ae, bool isChargeps) -> double {
 		double ratio = std::pow((*sm)("MASS", 24) / (*sus_param).Mch[ie], 2);
 		
 		double msqOverMchSquared = std::pow((*sus_param).MsqU[ae] / (*sus_param).Mch[ie], 2.0);
 		
 		double factor = isChargeps ? (-(*sus_param).epsilonb / (1.0 + (*sus_param).epsilonb * (*susy)("HMIX",2)) * (*susy)("HMIX",2)) : 1.0;
+		// logger->info("truc1 : " + std::to_string((*sus_param).epsilonb));
 		return ratio * (
-			X[ie][ae][1] * X[ie][ae][2] * hFunc(msqOverMchSquared) +
-			(*sus_param).Mch[ie] / (*sus_param).mass_b_muW * X[ie][ae][1] * X[ie][ae][2] * hFunc(msqOverMchSquared)
-		) * (*sus_param).kappaFactor * factor;
+			X[ie][ae][1] * X2[ie][ae][2] * hFunc(msqOverMchSquared)) * (*sus_param).kappaFactor * factor;
 	};
-
+	
 	complex_t C7charg_0 = 0.0;
 	complex_t C8charg_0 = 0.0;
 	complex_t C7_chargeps_0 = 0.0;
@@ -85,16 +81,19 @@ void SUSY_LO_Strategy::init(double scale, WilsonSet& C_match) {
 
 	for (int ie = 0; ie < 2; ++ie) {
 		for (int ae = 0; ae < 6; ++ae) {
-			C7charg_0 += calculateContribution(h10, (*sus_param).X_UL, ie, ae, false) + calculateContribution(h20, (*sus_param).X_UR, ie, ae, false);
-			C8charg_0 += calculateContribution(h50, (*sus_param).X_UL, ie, ae, false) + calculateContribution(h60, (*sus_param).X_UR, ie, ae, false);
-			C7_chargeps_0 += calculateContribution(h20, (*sus_param).X_UR, ie, ae, true);
-			C8_chargeps_0 += calculateContribution(h60, (*sus_param).X_UR, ie, ae, true);
+			
+			C7charg_0 += calculateContribution(h10, (*sus_param).X_UL,(*sus_param).X_UL, ie, ae, false) + (*sus_param).Mch[ie]/(*sus_param).mass_b_muW *calculateContribution(h20, (*sus_param).X_UL, (*sus_param).X_UR, ie, ae, false);
+			C8charg_0 += calculateContribution(h50, (*sus_param).X_UL, (*sus_param).X_UL, ie, ae, false) + (*sus_param).Mch[ie]/(*sus_param).mass_b_muW*calculateContribution(h60,(*sus_param).X_UL,  (*sus_param).X_UR, ie, ae, false);
+			C7_chargeps_0 += (*sus_param).Mch[ie]/(*sus_param).mass_b_muW *calculateContribution(h20, (*sus_param).X_UL, (*sus_param).X_UR, ie, ae, true);
+			C8_chargeps_0 += (*sus_param).Mch[ie]/(*sus_param).mass_b_muW *calculateContribution(h60, (*sus_param).X_UL,  (*sus_param).X_UR, ie, ae, true);
 		}
 	}
 
     complex_t C9charg_0 = (1.0 - 4.0 * (*sus_param).sw2) / (*sus_param).sw2 * (*sus_param).C90c - (*sus_param).B90c / (*sus_param).sw2 - (*sus_param).D90c;
     complex_t C10charg_0 = ((*sus_param).B100c - (*sus_param).C90c) / (*sus_param).sw2;
 
+	logger->info("C90c : " + std::to_string((*sus_param).C90c));
+	logger->info("B100c : " + doubleToString((*sus_param).B100c, 20));
 	complex_t C1squark_2 = 0.0;
 
 	if ((*sus_param).test) {
@@ -110,6 +109,12 @@ void SUSY_LO_Strategy::init(double scale, WilsonSet& C_match) {
 	} else {
 		C1squark_2 = 0.0;
 	}
+	logger->debug("C7SMeps_0 : " + std::to_string(std::real(C7SMeps_0)));
+	logger->debug("C7Heps_0 : " + std::to_string(std::real(C7Heps_0)));
+	logger->debug("C7Heps2_0 : " + std::to_string(std::real(C7Heps2_0)));
+	logger->debug("C7charg_0 : " + std::to_string(std::real(C7charg_0)));
+	logger->debug("C7_chargeps_0 : " + std::to_string(std::real(C7_chargeps_0)));
+
 
 	std::unique_ptr<THDM_LO_Strategy> thdm_lo = std::make_unique<THDM_LO_Strategy>();
 
@@ -121,6 +126,9 @@ void SUSY_LO_Strategy::init(double scale, WilsonSet& C_match) {
 	auto& C_LO = C_match[0];
 	C_LO.resize(static_cast<size_t>(WilsonCoefficient::CPQ2) + 1, std::complex<double>(0, 0));
 	
+	logger->debug("CH7 : " + std::to_string(std::real(C_LO[static_cast<size_t>(WilsonCoefficient::C7)])));
+	logger->info("CH10 : " + std::to_string(std::real(C_LO[static_cast<size_t>(WilsonCoefficient::C10)])));
+
 	// C_LO[static_cast<size_t>(WilsonCoefficient::C2)] += std::complex<double>(0, 0);
 	C_LO[static_cast<size_t>(WilsonCoefficient::C7)] += C7SMeps_0 + C7Heps_0 + C7Heps2_0 + C7charg_0 + C7_chargeps_0;
 	C_LO[static_cast<size_t>(WilsonCoefficient::C8)] += C8SMeps_0 +  C8Heps_0 + C8Heps2_0 + C8charg_0 + C8_chargeps_0;
@@ -197,11 +205,37 @@ void SUSY_NLO_Strategy::init(double scale, WilsonSet& C_match) {
 					for (int ke=0; ke<6; ke++) {
 						C91f+=(*sus_param).P_U[de][ke] * pow((*sus_param).MsqU[ke]/(*sus_param).Mch[ie],2.) * (*sus_param).P_U[ke][ae] * (1+log(pow(scale/(*sus_param).MsqU[ke],2.)))*(*sus_param).X_UL[je][de][1]*(*sus_param).X_UL[ie][ae][2] * (
 							2.*fabs((*sus_param).Mch[je]/(*sus_param).Mch[ie]) * f60(pow((*sus_param).Mch[je]/(*sus_param).Mch[ie],2.), pow((*sus_param).MsqU[ae]/(*sus_param).Mch[ie], 2.), pow((*sus_param).MsqU[de]/(*sus_param).Mch[ie], 2.))*(*susy)("UMIX", je*10+0)*(*susy)("UMIX", ie*10+0)
-							-f50(pow((*sus_param).Mch[ie]/(*sus_param).Mch[ie], 2.), pow((*sus_param).MsqU[ae]/(*sus_param).Mch[ie], 2.), pow((*sus_param).MsqU[de]/(*sus_param).Mch[ie], 2.)) *  (*susy)("VMIX", ie * 10+0)*(*susy)("VMIX", ie * 10+0));
+							-f50(pow((*sus_param).Mch[je]/(*sus_param).Mch[ie], 2.), pow((*sus_param).MsqU[ae]/(*sus_param).Mch[ie], 2.), pow((*sus_param).MsqU[de]/(*sus_param).Mch[ie], 2.)) *  (*susy)("VMIX", ie * 10+0)*(*susy)("VMIX", ie * 10+0));
 						
 					}
 				}
+
+				for (int be=0; be<3; be++) {
+					double ratio_Mch = (*sus_param).Mch[je] / (*sus_param).Mch[ie];
+					double ratio_MsqU = (*sus_param).MsqU[ae] / (*sus_param).Mch[ie];
+					double ratio_Msn = (*sus_param).Msn[be] / (*sus_param).Mch[ie];
+					
+					B1c1 += (*sus_param).X_UL[je][ae][1] * (*sus_param).X_UL[ie][ae][2] / pow((*sus_param).Mch[ie], 2) * 
+							(0.5 * (*sus_param).X_NL[ie][be][1] * (*sus_param).X_NL[je][be][1] * 
+							(f81(pow(ratio_Mch, 2), pow(ratio_MsqU, 2), pow(ratio_Msn, 2)) + 
+							4 * (f50(pow(ratio_Mch, 2), pow(ratio_MsqU, 2), pow(ratio_Msn, 2)) +
+							(f50(pow(ratio_Mch, 2), pow(ratio_MsqU, 2) * 1.0001, pow(ratio_Msn, 2)) - 
+							f50(pow(ratio_Mch, 2), pow(ratio_MsqU, 2) * 0.9999, pow(ratio_Msn, 2))) / 0.0002) *
+							log(pow(scale / (*sus_param).MsqU[ae], 2))));
+
+					B1c2 += (*sus_param).X_UL[je][ae][1] * (*sus_param).X_UL[ie][ae][2] / pow((*sus_param).Mch[ie], 2) * 
+							((*sus_param).X_NR[ie][be][1] * (*sus_param).X_NR[je][be][1] * fabs(ratio_Mch) * 
+							(f91(pow(ratio_Mch, 2), pow(ratio_MsqU, 2), pow(ratio_Msn, 2)) + 
+							4 * (f60(pow(ratio_Mch, 2), pow(ratio_MsqU, 2), pow(ratio_Msn, 2)) +
+							(f60(pow(ratio_Mch, 2), pow(ratio_MsqU, 2) * 1.0001, pow(ratio_Msn, 2)) - 
+							f60(pow(ratio_Mch, 2), pow(ratio_MsqU, 2) * 0.9999, pow(ratio_Msn, 2))) / 0.0002) *
+							log(pow(scale / (*sus_param).MsqU[ae], 2))));
+				}
 			}
+
+
+
+			
 
 			for (int ce = 0; ce < 6; ce++) {
 				for (int fe = 0; fe < 3; fe++) {
@@ -209,18 +243,20 @@ void SUSY_NLO_Strategy::init(double scale, WilsonSet& C_match) {
 						for (int ke = 0; ke < 6; ke++) {
 							double MsqU_ke_Mch_ie_squared = pow((*sus_param).MsqU[ke] / (*sus_param).Mch[ie], 2.0);
 							double log_scale_MsqU_ke = log(pow(scale / (*sus_param).MsqU[ke], 2.0));
+							C91f += (*sus_param).P_U[de][ke] * MsqU_ke_Mch_ie_squared * (*sus_param).P_U[ke][ae] * 
+									(1.0 + log_scale_MsqU_ke) * (*sus_param).X_UL[ie][ce][1] * (*sus_param).X_UL[ie][ae][2] * 
+									f50(pow((*sus_param).MsqU[ae] / (*sus_param).Mch[ie], 2.0), 
+										pow((*sus_param).MsqU[de] / (*sus_param).Mch[ie], 2.0), 
+										pow((*sus_param).MsqU[ce] / (*sus_param).Mch[ie], 2.0)) * 
+									(*sus_param).Gamma_UL[ce][fe] * (*sus_param).Gamma_UL[de][fe];
+
 							C91f += (*sus_param).P_U[de][ke] * MsqU_ke_Mch_ie_squared * (*sus_param).P_U[ke][ce] * 
 									(1.0 + log_scale_MsqU_ke) * (*sus_param).X_UL[ie][de][1] * (*sus_param).X_UL[ie][ae][2] * 
 									f50(pow((*sus_param).MsqU[ae] / (*sus_param).Mch[ie], 2.0), 
 										pow((*sus_param).MsqU[ce] / (*sus_param).Mch[ie], 2.0), 
 										pow((*sus_param).MsqU[de] / (*sus_param).Mch[ie], 2.0)) * 
 									(*sus_param).Gamma_UL[ce][fe] * (*sus_param).Gamma_UL[ae][fe];
-							C91f += (*sus_param).P_U[de][ke] * MsqU_ke_Mch_ie_squared * (*sus_param).P_U[ke][ce] * 
-									(1.0 + log_scale_MsqU_ke) * (*sus_param).X_UL[ie][ce][1] * (*sus_param).X_UL[ie][ae][2] * 
-									f50(pow((*sus_param).MsqU[ae] / (*sus_param).Mch[ie], 2.0), 
-										pow((*sus_param).MsqU[de] / (*sus_param).Mch[ie], 2.0), 
-										pow((*sus_param).MsqU[ce] / (*sus_param).Mch[ie], 2.0)) * 
-									(*sus_param).Gamma_UL[ce][fe] * (*sus_param).Gamma_UL[de][fe];
+							
 						}
 
 						for (int je = 0; je < 2; je++) {
@@ -239,34 +275,18 @@ void SUSY_NLO_Strategy::init(double scale, WilsonSet& C_match) {
 											pow((*sus_param).Msn[fe] / (*sus_param).Mch[ie], 2.0)) *
 									(*sus_param).X_NR[ie][fe][1] * (*sus_param).X_NR[je][fe][1];
 
-							double ratio_Mch = (*sus_param).Mch[je] / (*sus_param).Mch[ie];
-                        double ratio_MsqU = (*sus_param).MsqU[ae] / (*sus_param).Mch[ie];
-                        double ratio_Msn = (*sus_param).Msn[fe] / (*sus_param).Mch[ie];
-                        
-                        B1c1 += (*sus_param).X_UL[je][ae][1] * (*sus_param).X_UL[ie][ae][2] / pow((*sus_param).Mch[ie], 2) * 
-                                (0.5 * (*sus_param).X_NL[ie][fe][1] * (*sus_param).X_NL[je][fe][1] * 
-                                (f81(pow(ratio_Mch, 2), pow(ratio_MsqU, 2), pow(ratio_Msn, 2)) + 
-                                4 * (f50(pow(ratio_Mch, 2), pow(ratio_MsqU, 2), pow(ratio_Msn, 2)) +
-                                (f50(pow(ratio_Mch, 2), pow(ratio_MsqU, 2) * 1.0001, pow(ratio_Msn, 2)) - 
-                                 f50(pow(ratio_Mch, 2), pow(ratio_MsqU, 2) * 0.9999, pow(ratio_Msn, 2))) / 0.0002) *
-                                 log(pow(scale / (*sus_param).MsqU[ae], 2))));
-
-                        B1c2 += (*sus_param).X_UL[je][ae][1] * (*sus_param).X_UL[ie][ae][2] / pow((*sus_param).Mch[ie], 2) * 
-                                ((*sus_param).X_NR[ie][fe][1] * (*sus_param).X_NR[je][fe][1] * fabs(ratio_Mch) * 
-                                (f91(pow(ratio_Mch, 2), pow(ratio_MsqU, 2), pow(ratio_Msn, 2)) + 
-                                4 * (f60(pow(ratio_Mch, 2), pow(ratio_MsqU, 2), pow(ratio_Msn, 2)) +
-                                (f60(pow(ratio_Mch, 2), pow(ratio_MsqU, 2) * 1.0001, pow(ratio_Msn, 2)) - 
-                                 f60(pow(ratio_Mch, 2), pow(ratio_MsqU, 2) * 0.9999, pow(ratio_Msn, 2))) / 0.0002) *
-                                 log(pow(scale / (*sus_param).MsqU[ae], 2))));
+							
 						}
 					}
 
 					C91c += (*sus_param).X_UL[ie][ce][1] * (*sus_param).X_UL[ie][ae][2] *
-                        (f51(ratio_MsqU_ae_Mch_ie, std::pow((*sus_param).MsqU[ce] / (*sus_param).Mch[ie], 2.0)) +
-                         4.0 * ((f40(ratio_MsqU_ae_Mch_ie, std::pow((*sus_param).MsqU[ce] / (*sus_param).Mch[ie], 2.0)) + 
-                         (f40(ratio_MsqU_ae_Mch_ie * 1.0001, std::pow((*sus_param).MsqU[ce] / (*sus_param).Mch[ie], 2.0)) - 
-                          f40(ratio_MsqU_ae_Mch_ie * 0.9999, std::pow((*sus_param).MsqU[ce] / (*sus_param).Mch[ie], 2.0))) / 0.0002)) * log_mu_W_MsqU_ae) *
-                        (*sus_param).Gamma_UL[ce][fe] * (*sus_param).Gamma_UL[ae][fe];
+						(f51(ratio_MsqU_ae_Mch_ie, std::pow((*sus_param).MsqU[ce] / (*sus_param).Mch[ie], 2.0)) +
+							4.0 * (f40(ratio_MsqU_ae_Mch_ie, std::pow((*sus_param).MsqU[ce] / (*sus_param).Mch[ie], 2.0)) + 
+							(f40(ratio_MsqU_ae_Mch_ie, std::pow((*sus_param).MsqU[ce] / (*sus_param).Mch[ie], 2.0)* 1.0001) - 
+							f40(ratio_MsqU_ae_Mch_ie, std::pow((*sus_param).MsqU[ce] / (*sus_param).Mch[ie], 2.0)* 0.9999)) / 0.0002
+							+(f40(ratio_MsqU_ae_Mch_ie*1.0001, std::pow((*sus_param).MsqU[ce]/(*sus_param).Mch[ie],2.))
+							-f40(ratio_MsqU_ae_Mch_ie*0.9999, std::pow((*sus_param).MsqU[ce] / (*sus_param).Mch[ie], 2.0)))/0.0002)* log_mu_W_MsqU_ae) *
+						(*sus_param).Gamma_UL[ce][fe] * (*sus_param).Gamma_UL[ae][fe];
 				}
 
 				double MsqU_ce_Mch_ie_squared = pow((*sus_param).MsqU[ce] / (*sus_param).Mch[ie], 2.0);
@@ -325,6 +345,12 @@ void SUSY_NLO_Strategy::init(double scale, WilsonSet& C_match) {
 	logger->info("B101f  in NLO SUSY " + doubleToString(std::real(B101f), 20));
 	logger->info("B91f  in NLO SUSY " + doubleToString(std::real(B91f), 20));
 
+	logger->info("B1c1  in NLO SUSY " + doubleToString(std::real(B1c1), 20));
+	logger->info("B1c2  in NLO SUSY " + doubleToString(std::real(B1c2), 20));
+	logger->info("B91c  in NLO SUSY " + doubleToString(std::real(B91c), 20));
+	logger->info("B101c  in NLO SUSY " + doubleToString(std::real(B101c), 20));
+	logger->info("C91c  in NLO SUSY " + doubleToString(std::real(C91c), 20));
+	logger->info("D91c  in NLO SUSY " + doubleToString(std::real(D91c), 20));
     complex_t C9four_1 = (1. - 4. * (*sus_param).sw2) / (*sus_param).sw2 * C91f - B91f / (*sus_param).sw2 - D91f;
     complex_t C10four_1 = (B101f - C91f) / (*sus_param).sw2;	
 
@@ -372,9 +398,9 @@ void SUSY_NLO_Strategy::init(double scale, WilsonSet& C_match) {
 	logger->info("C8H_1 " + std::to_string(std::real(C_NLO[7])));
 	logger->info("C4H_1 " + std::to_string(std::real(C_NLO[3])));
 
-	logger->info("C7Char_1 " + std::to_string(std::real(C7charg_1)));
-	logger->info("C7four_1 " + std::to_string(std::real(C7four_1)));
-	logger->info("C7h_1 " + std::to_string(std::real(C_NLO[6])));
+	logger->info("C8Char_1 " + std::to_string(std::real(C7charg_1)));
+	logger->info("C8four_1 " + std::to_string(std::real(C7four_1)));
+	logger->info("C8H_1 " + std::to_string(std::real(C_NLO[7])));
 
 	C_NLO[static_cast<size_t>(WilsonCoefficient::C1)] += 0.;
     C_NLO[static_cast<size_t>(WilsonCoefficient::C4)] += C4charg_1;

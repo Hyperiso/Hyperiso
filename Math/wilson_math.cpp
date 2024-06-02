@@ -992,6 +992,9 @@ double Delta3H(double x, double lu)
 
 double C9llH0(double x, double y, double lu)
 {
+	if(fabs(1.-y)<1.e-5) {
+		return C9llH0(x,0.9999,lu);
+	}
 	return x/y/8.*lu*lu*(-log(y)/(y-1.)+1.)*y*y/(y-1.);
 }
 
@@ -999,6 +1002,9 @@ double C9llH0(double x, double y, double lu)
 
 double D9H0(double x, double lu)
 {
+	if(fabs(1.-x)<1.e-5) {
+		return D9H0(0.9999,lu);
+	}
 	return lu*lu*((-3.*x*x*x+6.*x-4.)*x/18./pow(x-1.,4.)*log(x)+(47.*x*x-79.*x+38.)*x/108./pow(x-1.,3.));	
 }
 

@@ -1220,8 +1220,8 @@ void Wilson_parameters::SetMuW(double mu_W) {
 	this->mu_W = mu_W;
 	
 	alphas_muW=(*sm).QCDRunner.runningAlphasCalculation(mu_W);	
-	mass_top_muW=(*sm).QCDRunner.running_mass((*sm)("MASS",6), (*sm)("MASS",6),mu_W); //mass top at top ?
-	mass_b_muW=(*sm).QCDRunner.running_mass((*sm)("MASS",5), (*sm)("MASS",5), mu_W); //mass bottom 6 (at pole)
+	mass_top_muW=(*sm).QCDRunner.running_mass((*sm)("MASS",6), (*sm)("MASS",6),mu_W, "running"); //mass top at top ?
+	mass_b_muW=(*sm).QCDRunner.running_mass((*sm)("MASS",5), (*sm)("MASS",5), mu_W, "running"); //mass bottom 6 (at pole)
 
 	sw2=pow(sin(atan((*sm)("GAUGE",1)/(*sm)("GAUGE",2))),2.);
 	xt = std::pow(mass_top_muW / (*sm)("MASS",24), 2);

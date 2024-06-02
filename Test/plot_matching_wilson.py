@@ -2,7 +2,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 
-def compare_coefficients(path1, path2, title):
+def compare_coefficients(path1, path2, title, model = "sm"):
     df1 = pd.read_csv(path1)
     df2 = pd.read_csv(path2)
 
@@ -43,8 +43,21 @@ def compare_coefficients(path1, path2, title):
     ax[1, 1].axhline(0, color='black', linewidth=0.8)
 
     plt.tight_layout()
-    plt.savefig(f"Wilson_comparison_{title}.png")
+    plt.savefig(f"Wilson_comparison_{title}_{model}.png")
 
 
 
-compare_coefficients('csv/sm/WilsonCoefficients_NNLO.csv', 'csv/superiso/sm/WilsonCoefficients_NNLO.csv', 'NNLO')
+compare_coefficients('csv/susy/WilsonCoefficients_LO.csv', 'csv/superiso/susy/WilsonCoefficients_LO.csv', 'LO', model = "susy")
+compare_coefficients('csv/susy/WilsonCoefficients_NLO.csv', 'csv/superiso/susy/WilsonCoefficients_NLO.csv', 'NLO', model = "susy")
+compare_coefficients('csv/susy/WilsonCoefficients_NNLO.csv', 'csv/superiso/susy/WilsonCoefficients_NNLO.csv', 'NNLO', model = "susy")
+
+compare_coefficients('csv/sm/WilsonCoefficients_LO.csv', 'csv/superiso/sm/WilsonCoefficients_LO.csv', 'LO', model = "sm")
+compare_coefficients('csv/sm/WilsonCoefficients_NLO.csv', 'csv/superiso/sm/WilsonCoefficients_NLO.csv', 'NLO', model = "sm")
+compare_coefficients('csv/sm/WilsonCoefficients_NNLO.csv', 'csv/superiso/sm/WilsonCoefficients_NNLO.csv', 'NNLO', model = "sm")
+
+compare_coefficients('csv/thdm/WilsonCoefficients_LO.csv', 'csv/superiso/thdm/WilsonCoefficients_LO.csv', 'LO', model = "thdm")
+compare_coefficients('csv/thdm/WilsonCoefficients_NLO.csv', 'csv/superiso/thdm/WilsonCoefficients_NLO.csv', 'NLO', model = "thdm")
+compare_coefficients('csv/thdm/WilsonCoefficients_NNLO.csv', 'csv/superiso/thdm/WilsonCoefficients_NNLO.csv', 'NNLO', model = "thdm")
+
+
+compare_coefficients('csv/sm/WilsonCoefficients_PRIMECQ_LO.csv', 'csv/superiso/sm/WilsonCoefficients_PRIMECQ_LO.csv', 'LO prime and scalar', model = "sm")

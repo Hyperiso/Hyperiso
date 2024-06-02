@@ -1,9 +1,10 @@
 #include <algorithm>
 #include <array>
 #include <functional>
-#include "../../Core/Parameters.h"
+#include "Parameters.h"
 #include "epsilon_calculator.h"
-#include "../Math/Math_BSM/Math_SUSY.h"
+#include "Math_SUSY.h"
+#include "Logger.h"
 
 
 constexpr double Pi = 3.14159265358979323846;
@@ -68,30 +69,36 @@ class susy_parameters {
 
 	complex_t c11 = (*sm)("RECKM", 00) + (*sm)("IMCKM", 00) * complex_t(0, 1);
 	complex_t c12 = (*sm)("RECKM", 01) + (*sm)("IMCKM", 01) * complex_t(0, 1);
+	complex_t c13 = (*sm)("RECKM", 02) + (*sm)("IMCKM", 02) * complex_t(0, 1);
+	complex_t c21 = (*sm)("RECKM", 10) + (*sm)("IMCKM", 10) * complex_t(0, 1);
 	complex_t c22 = (*sm)("RECKM", 11) + (*sm)("IMCKM", 11) * complex_t(0, 1);
 	complex_t c23 = (*sm)("RECKM", 12) + (*sm)("IMCKM", 12) * complex_t(0, 1);
+	complex_t c31 = (*sm)("RECKM", 20) + (*sm)("IMCKM", 20) * complex_t(0, 1);
 	complex_t c32 = (*sm)("RECKM", 21) + (*sm)("IMCKM", 21) * complex_t(0, 1);
 	complex_t c33 = (*sm)("RECKM", 22) + (*sm)("IMCKM", 22) * complex_t(0, 1);
 
+	
 	complex_t complexTerm = -(c32 * c33 + c22 * c23) / c12;
 
 	Array2D_4x4_I VCKM = {{
     {
-        complex_t((*sm)("RECKM", 00), (*sm)("IMCKM", 00)),
-        complex_t((*sm)("RECKM", 01), (*sm)("IMCKM", 01)),
-        complexTerm
+        c11,
+        c12,
+        c13
     },
     {
-        complex_t((*sm)("RECKM", 10), (*sm)("IMCKM", 10)),
-        complex_t((*sm)("RECKM", 11), (*sm)("IMCKM", 11)),
-        complex_t((*sm)("RECKM", 12), (*sm)("IMCKM", 12))
+        c21,
+        c22,
+        c23
     },
     {
-        complex_t((*sm)("RECKM", 20), (*sm)("IMCKM", 20)),
-        complex_t((*sm)("RECKM", 21), (*sm)("IMCKM", 21)),
-        complex_t((*sm)("RECKM", 22), (*sm)("IMCKM", 22))
+        c31,
+        c32,
+        c33
     }
 }};
+	
+
 	const size_t NumSquarks = 6;
 	std::array<std::array<double, 4>, 7> sU_mix;
 

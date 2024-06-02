@@ -12,7 +12,7 @@ protected:
     Parameters* susy = Parameters::GetInstance(1);
 
     double mu_Q = (*susy)("HMIX",1);
-    std::map<int,int> neutralino = {{1, 1000022},{2, 1000023},{3, 1000025},{4, 1000035}};
+    std::map<int,int> neutralino = {{0, 1000022},{1, 1000023},{2, 1000025},{3, 1000035}};
     static EpsilonCalculator* instance;
     EpsilonCalculator();
 

@@ -541,23 +541,25 @@ void SM_LO_Strategy::init_prime(double Q, double Q_match,int gen, WilsonSet& C) 
 	
 }
 
-void SM_LO_Strategy::init_scalar(double Q, double Q_match,int gen, WilsonSet& C) {
+void SM_LO_Strategy::init_scalar(double Q_match, double Q,int gen, WilsonSet& C) {
 
     Parameters* sm = Parameters::GetInstance(0);
     Wilson_parameters *W_param = Wilson_parameters::GetInstance();
+    W_param->SetMuW(Q_match);
+    W_param->SetMu(Q);
     double ml;
 
 	if(gen==1) ml=(*sm)("MASS", 11);
 	else if(gen==3) ml=(*sm)("MASS", 13);
 	else {gen=2; ml=(*sm)("MASS", 15);}
 
-	double MU[4];
+	// double MU[4];
 	
 	double mass_c_muW=(*sm).running_mass((*sm)("MASS", 4),(*sm)("MASS", 4),Q_match,"pole");
 	
-	MU[1]=(*sm)("MASS", 2);
-	MU[2]=mass_c_muW;
-	MU[3]=W_param->mass_top_muW;
+	// MU[1]=(*sm)("MASS", 2);
+	// MU[2]=mass_c_muW;
+	// MU[3]=W_param->mass_top_muW;
 
 	int nf=5;
 	double beta0 = 11.-2./3.*nf;
@@ -567,7 +569,8 @@ void SM_LO_Strategy::init_scalar(double Q, double Q_match,int gen, WilsonSet& C)
 	double xt4=W_param->xt*xt3;
 	double xh=pow((*sm)("MASS",25)/(*sm)("MASS",24),2.);
 	
-
+    Logger::getInstance()->info("eta_mu " + std::to_string(W_param->eta_mu));
+    Logger::getInstance()->info("mb " + std::to_string(W_param->mass_b_muW));
 	/* SM - negligible components, 1511.05066 */
 	 
 	double CSc_SM=-W_param->xt*(W_param->xt-2.)/12./(W_param->xt-1.)/(W_param->xt-1.)+(W_param->xt-2.)*(3.*W_param->xt-1.)/24./pow(W_param->xt-1.,3.)*log(W_param->xt);

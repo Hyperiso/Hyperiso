@@ -35,6 +35,8 @@ std::string MemoryManager::findNearestHyperisoDirectory() {
     Logger* logger = Logger::getInstance();
     fs::path currentDir = fs::current_path();
 
+    std::cout << "Looking for project root..." << std::endl;
+
     // Iterate through parent directories until "hyperiso" is found or root directory is reached
     while (!currentDir.empty()) {
         for (const auto& entry : fs::directory_iterator(currentDir)) {
