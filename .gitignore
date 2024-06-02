@@ -6,7 +6,8 @@ ExternalIntegration/SOFTSUSY
 ExternalIntegration/2HDMC
 Test/output.lha
 Test/spectrum.slha
-
+Test/thdm_spectrum.lha
+Test/*.png
 CMakeFiles
 Makefile
 CMakeCache.txt
