@@ -7,6 +7,7 @@
 #include "MemoryManager.h"
 #include "Logger.h"
 #include "Wilson_THDM.h"
+#include "config.hpp"
 
 void writeCoefficientsToFile(const std::string& strat_name, const std::string& fileName, const std::shared_ptr<InitializationStrategy>& strategy, double Q_match) {
     std::ofstream file(fileName);
@@ -52,10 +53,11 @@ int main() {
     auto nloStrategy = std::make_shared<THDM_NLO_Strategy>();
     auto nnloStrategy = std::make_shared<THDM_NNLO_Strategy>();
 
-    
-    writeCoefficientsToFile("NLO", "../csv/thdm/WilsonCoefficients_NLO.csv", nloStrategy, 81);
-    writeCoefficientsToFile("LO", "../csv/thdm/WilsonCoefficients_LO.csv", loStrategy, 81);
-    writeCoefficientsToFile("NNLO", "../csv/thdm/WilsonCoefficients_NNLO.csv", nnloStrategy, 81);
+    std::string root_file = project_root.data();
+
+    writeCoefficientsToFile("NLO", root_file + "/Test/csv/thdm/WilsonCoefficients_NLO.csv", nloStrategy, 81);
+    writeCoefficientsToFile("LO", root_file + "/Test/csv/thdm/WilsonCoefficients_LO.csv", loStrategy, 81);
+    writeCoefficientsToFile("NNLO", root_file + "/Test/csv/thdm/WilsonCoefficients_NNLO.csv", nnloStrategy, 81);
     
     WilsonManager::Cleanup();
     return 0;
