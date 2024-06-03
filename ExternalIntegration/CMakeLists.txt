@@ -5,8 +5,12 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 project(ExternalIntegration)
 
-option(BUILD_WITH_SOFTSUSY "Build project with SOFTSUSY support" OFF)
-option(BUILD_WITH_2HDMC "Build project with 2HDMC support" OFF)
+if (NOT DEFINED BUILD_WITH_SOFTSUSY)
+    option(BUILD_WITH_SOFTSUSY "Build project with SOFTSUSY support" OFF)
+endif()
+if (NOT DEFINED BUILD_WITH_2HDMC)
+    option(BUILD_WITH_2HDMC "Build project with 2HDMC support" OFF)
+endif()
 
 if (NOT TARGET CommonLib)
     add_subdirectory(../Common CommonLib)
