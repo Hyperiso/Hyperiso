@@ -5,6 +5,13 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 project(PhysicalModel)
 
+if (NOT DEFINED BUILD_WITH_SOFTSUSY)
+    option(BUILD_WITH_SOFTSUSY "Build project with SOFTSUSY support" OFF)
+endif()
+if (NOT DEFINED BUILD_WITH_2HDMC)
+    option(BUILD_WITH_2HDMC "Build project with 2HDMC support" OFF)
+endif()
+
 if (NOT TARGET CommonLib)
     add_subdirectory(../Common CommonLib)
 endif()
@@ -30,4 +37,4 @@ set_target_properties(PhysicalModelLib PROPERTIES PUBLIC_HEADER "Wilson.h;Wilson
 
 target_include_directories(PhysicalModelLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/BSM)
 
-target_link_libraries(PhysicalModelLib PUBLIC CoreLib CommonLib ConfiguredLib MathLib)
+target_link_libraries(PhysicalModelLib PUBLIC CoreLib CommonLib ConfiguredModule MathLib)

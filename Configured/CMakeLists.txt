@@ -1,9 +1,9 @@
-cmake_minimum_required(VERSION 3.20)
+# cmake_minimum_required(VERSION 3.20)
 
-set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_STANDARD_REQUIRED True)
+# set(CMAKE_CXX_STANDARD 20)
+# set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-project(ConfiguredModule)
+# project(ConfiguredModule)
 
 if (NOT DEFINED PROJECT_ROOT)
     set(PROJECT_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/..)

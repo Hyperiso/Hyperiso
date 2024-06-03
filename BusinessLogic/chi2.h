@@ -1,7 +1,7 @@
 #include <string>
 #include <cmath>
 #include <unordered_map>
-#include "../Core/Logger.h"
+#include "Logger.h"
 
 enum DistributionType {
     Gaussian = 1,
