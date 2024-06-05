@@ -2,191 +2,150 @@
 
 QCDParameters::QCDParameters(double alpha_Z, double m_Z, double masst_pole, double massb_b, double mass_u, double mass_d, double mass_s, double mass_c) {
     
-    this->mass_Z = m_Z;
-    this->alphas_MZ = alpha_Z;
-    this->mass_t_pole = masst_pole;
-    this->mass_b_b = massb_b;
-    this->mass_c = mass_c;
+    this->Lambda5 = this->matchLambda(alpha_Z, m_Z, 5);
+    this->mass_u = mass_u;
+    this->mass_d = mass_d;
     this->mass_s = mass_s;
-
-    Logger* logger = Logger::getInstance();
-
-    logger->info("m_Z : " + std::to_string(m_Z));
-    logger->info("alpha_MZ : " + std::to_string(alpha_Z));
-    logger->info("mass_c : " + std::to_string(mass_c));
-    logger->info("mass_s : " + std::to_string(mass_s));
-
-
+    this->mass_c = mass_c;
+    this->mass_b_b = massb_b;
+    this->mass_t_pole = masst_pole;
     this->mt_mt(this->mass_t_pole);
     this->mb_pole(mass_b_b, mass_u, mass_d, mass_s, mass_c);
+    this->setMassTypes("pole", "pole");
 }
 
-double QCDParameters::alphasRunning(double Q, double Lambda, int nf) const{
-    double beta0 = 11.-2./3.*nf;
-    double beta1=51.-19./3.*nf;
-    double beta2=2857.-5033.*nf/9.+325./27.*nf*nf;
-
-    return 4.*PI/beta0/log(pow(Q/Lambda,2.))*(1.-2.*beta1/beta0/beta0*log(log(pow(Q/Lambda,2.)))/log(pow(Q/Lambda,2.))+4.*beta1*beta1/pow(beta0*beta0*log(pow(Q/Lambda,2.)),2.)*(pow(log(log(pow(Q/Lambda,2.)))-1./2.,2.)+beta2*beta0/8./beta1/beta1-5./4.));
-}
-
-double QCDParameters::matchLambda(double alpha_running, double Q, int nf){
-
-    double Lambda_min=1.e-3;
-    double Lambda_max=1.;
-    double alphas_min=0.;
-    double alphas_max=0;
-    double alphas_moy = 0;
-    double Lambda_moy = 0;
-    while((fabs(1.-alphas_min/alpha_running)>=1.e-4)&&(fabs(1.-Lambda_min/Lambda_max)>1.e-5)) {
-        alphas_min = alphasRunning(Q,Lambda_min, nf);
-        alphas_max = alphasRunning(Q,Lambda_max, nf);
-
-        Lambda_moy=(Lambda_min+Lambda_max)/2.;
-        alphas_moy = alphasRunning(Q,Lambda_moy, nf);
-
-        if((alpha_running>=alphas_min)&&(alpha_running<=alphas_moy))
-            Lambda_max=Lambda_moy;
-        else Lambda_min=Lambda_moy;
-    }
-    
-    if(fabs(1.-Lambda_min/Lambda_max)<=1.e-5) {
-        Lambda5=-1.;
-        return -1.;
-    }
-    return Lambda_min;
-}
-
-double QCDParameters::runningAlphasCalculation(double Q, std::string option_massb, std::string option_masst){
-
+double QCDParameters::runningAlphasCalculation(double Q, std::string option_massb, std::string option_masst) {
     Logger* logger = Logger::getInstance();
+    this->setMassTypes(option_massb, option_masst);
 
-    double mass_b, mass_t;
+    int n_i = 5;
+    int n_f = this->getNf(Q);
 
-    if (option_massb == "pole")
-        mass_b = mass_b_pole;
-    else if (option_massb == "running")
-        mass_b = mass_b_b;
-
-    if (option_masst == "pole")
-        mass_t = mass_t_pole;
-    else if (option_masst == "running")
-        mass_t = mass_t_t;
-
-    if (Lambda5 == -1.0) {
-        return -1.0;
+    if (n_f < 4) {
+        logger->warn("Scale for alpha_s calculation is below charm mass.");
     }
 
-    if (Lambda5 == 0.0) {
-        Lambda5 = matchLambda(alphas_MZ, mass_Z, 5);
-        if (Lambda5 == -1){
-        logger->error("Error for Lambda5 calculation in QCCDParameters.cpp");
-            return Lambda5;}
-    }
-    double alphas_running = alphasRunning(Q, Lambda5, 5);
+    double L = this->Lambda5;
+    auto Q_bounds = this->getOrderedMasses();
 
-    if (Q <= mass_t && Q >= mass_b) {
-        // 5 active flavors
-        return alphas_running;
-    } else if (Q > mass_t) {
-        // 6 active flavors
-        nf = 6;
-        alphas_running = alphasRunning(mass_t, Lambda5, 5);
-        Lambda6 = matchLambda( alphas_running,  mass_t, nf);
-        return alphasRunning(Q,Lambda6, nf);
-    } else {
-        // 4 active flavors
-        nf = 4;
-        alphas_running = alphasRunning(mass_b, Lambda5, 5);
-        Lambda4 = matchLambda(alphas_running, mass_b, nf);
-        return alphasRunning(Q, Lambda4, nf);
+    while (n_i > n_f) {
+        double alpha_match = this->alphasRunning(Q_bounds.at(n_i - 1), L, n_i);
+        L = this->matchLambda(alpha_match, Q_bounds.at(n_i - 1), n_i - 1);
+        --n_i;
     }
 
-    logger->debug("Invalid parameters or conditions in alphas_running function");
+    while (n_i < n_f) {
+        double alpha_match = this->alphasRunning(Q_bounds.at(n_i), L, n_i);
+        L = this->matchLambda(alpha_match, Q_bounds.at(n_i), n_i + 1);
+        ++n_i;
+    }
+
+    return this->alphasRunning(Q, L, n_f);
 }
 
-std::tuple<double, double, double> calculateBetas(int nf) {
-    double beta0 = 11.0 - 2.0 / 3.0 * nf;
-    double beta1 = 51.0 - 19.0 / 3.0 * nf;
-    double beta2 = 2857.0 - 5033.0 / 9.0 * nf + 325.0 / 27.0 * nf * nf;
-    return {beta0, beta1, beta2};
-}
-
-std::tuple<double, double, double> calculateGammas(int nf) {
-    double gamma0 = 2.0;
-    double gamma1 = 101.0 / 12.0 - 5.0 / 18.0 * nf;
-    double gamma2 = 1.0 / 32.0 * (1249.0 - (2216.0 / 27.0 + 160.0 / 3.0 * ZETA3) * nf - 140.0 / 81.0 * nf * nf);
-    return {gamma0, gamma1, gamma2};
-}
-
-double calculateR(double alphas, double beta0, double beta1, double beta2, double gamma0, double gamma1, double gamma2) {
-    double term1 = pow(beta0 / (2.0 * PI) * alphas, 2.0 * gamma0 / beta0);
-    double term2 = 1.0 + (2.0 * gamma1 / beta0 - beta1 * gamma0 / (beta0 * beta0)) * alphas / PI;
-    double term3 = 0.5 * (pow(2.0 * gamma1 / beta0 - beta1 * gamma0 / (beta0 * beta0), 2.0)
-                        + 2.0 * gamma2 / beta0
-                        - beta1 * gamma1 / (beta0 * beta0)
-                        - beta2 * gamma0 / (16.0 * beta0 * beta0)
-                        + beta1 * beta1 * gamma0 / (2.0 * beta0 * beta0 * beta0)) * pow(alphas / PI, 2.0);
-    return term1 * (term2 + term3);
-}
-
-double QCDParameters::running_mass(double quark_mass, double Qinit, double Qfin,  std::string option_massb, std::string option_masst)
+double QCDParameters::running_mass(double quark_mass, double Qinit, double Qfin, std::string option_massb, std::string option_masst)
 /* computes the running quark mass at the energy Qfin, from a given running quark mass quark_mass at energy Qinit */
 {
+    this->setMassTypes(option_massb, option_masst);
+    int n_i = this->getNf(Qinit);
+    int n_f = this->getNf(Qfin);
+    auto Q_bounds = this->getOrderedMasses();
 
-    double mbot = (option_massb == "pole") ? mass_b_pole : mass_b_b;
-    double mtop = (option_masst == "pole") ? mass_t_pole : mass_t_t;
-
-    double alphas_Qinit = runningAlphasCalculation(Qinit, option_massb, option_masst);
-
-    int nf_init = (Qinit <= mbot) ? 4 : (Qinit <= mtop) ? 5 : 6;
-    int nf_fin = (Qfin <= mbot) ? 4 : (Qfin <= mtop) ? 5 : 6;
-
-    auto [beta0_init, beta1_init, beta2_init] = calculateBetas(nf_init);
-    auto [gamma0_init, gamma1_init, gamma2_init] = calculateGammas(nf_init);
-
-    double R_Qinit = calculateR(alphas_Qinit, beta0_init, beta1_init, beta2_init, gamma0_init, gamma1_init, gamma2_init);
-
-    double intermediate_mass = quark_mass;
-
-    auto runStep = [&](double Qstart, double Qend, int nf_start, int nf_end, double &mass) {
-        double alphas_start = runningAlphasCalculation(Qstart, option_massb, option_masst);
-        double alphas_end = runningAlphasCalculation(Qend, option_massb, option_masst);
-
-        auto [beta0_start, beta1_start, beta2_start] = calculateBetas(nf_start);
-        auto [gamma0_start, gamma1_start, gamma2_start] = calculateGammas(nf_start);
-        double R_start = calculateR(alphas_start, beta0_start, beta1_start, beta2_start, gamma0_start, gamma1_start, gamma2_start);
-
-        auto [beta0_end, beta1_end, beta2_end] = calculateBetas(nf_end);
-        auto [gamma0_end, gamma1_end, gamma2_end] = calculateGammas(nf_end);
-        double R_end = calculateR(alphas_end, beta0_end, beta1_end, beta2_end, gamma0_end, gamma1_end, gamma2_end);
-
-        mass *= R_end / R_start;
-    };
-
-    if (nf_init != nf_fin) {
-        if (nf_init == 4 && nf_fin == 6) {
-            runStep(Qinit, mbot, 4, 5, intermediate_mass);
-            runStep(mbot, mtop, 5, 6, intermediate_mass);
-        } else if (nf_init == 6 && nf_fin == 4) {
-            runStep(Qinit, mtop, 6, 5, intermediate_mass);
-            runStep(mtop, mbot, 5, 4, intermediate_mass);
-        } else if (nf_init < nf_fin) {
-            double Q_intermediate = (nf_init == 4) ? mbot : mtop;
-            runStep(Qinit, Q_intermediate, nf_init, nf_init + 1, intermediate_mass);
-        } else {
-            double Q_intermediate = (nf_fin == 4) ? mbot : mtop;
-            runStep(Qinit, Q_intermediate, nf_init, nf_init - 1, intermediate_mass);
-        }
+    while (n_i > n_f) {
+        quark_mass = this->runMass(quark_mass, Qinit, Q_bounds.at(n_i - 1), n_i);
+        Qinit = Q_bounds.at(n_i - 1);
+        --n_i;
     }
 
-    if (nf_init != nf_fin) {
-        runStep((nf_init < nf_fin) ? ((nf_init == 4) ? mbot : mtop) : ((nf_fin == 4) ? mbot : mtop), Qfin, nf_fin, nf_fin, intermediate_mass);
-    } else {
-        runStep(Qinit, Qfin, nf_init, nf_fin, intermediate_mass);
+    while (n_i < n_f) {
+        quark_mass = this->runMass(quark_mass, Qinit, Q_bounds.at(n_i), n_i);
+        Qinit = Q_bounds.at(n_i);
+        ++n_i;
     }
 
-    return intermediate_mass;
+    return this->runMass(quark_mass, Qinit, Qfin, n_f);
+}
 
+void QCDParameters::setMassTypes(std::string m_b_type, std::string m_t_type) {
+    if (m_b_type != "")
+        this->m_b_type = m_b_type;
+    if (m_t_type != "")
+        this->m_t_type = m_t_type;
+}
+
+std::vector<double> QCDParameters::getOrderedMasses() {
+    double m_b = this->m_b_type == "running" ? this->get_mb_mb() : this-> get_mb_pole();
+    double m_t = this->m_t_type == "running" ? this->get_mt_mt() : this-> get_mt_pole();
+    return {this->mass_u, this->mass_d, this->mass_s, this->mass_c, m_b, m_t};
+}
+
+double QCDParameters::runMass(double mass, double Q_i, double Q_f, int nf) {
+    return mass * this->R(this->runningAlphasCalculation(Q_f), nf) / this->R(this->runningAlphasCalculation(Q_i), nf);
+}
+
+int QCDParameters::getNf(double Q) {
+    auto masses = this->getOrderedMasses();
+    for (int i = 0; i < masses.size(); ++i) {
+        if (Q < masses.at(i))
+            return i;
+    }
+    return 6;
+}
+
+std::tuple<double, double, double> QCDParameters::getBetas(int nf) const {
+    double b0 = 11 - 2. * nf / 3;
+    double b1 = 51 - 19. * nf / 3;
+    double b2 = 2857. - 5033. * nf / 9 + 325. * nf * nf / 27;
+    return {b0, b1, b2};
+}
+
+std::tuple<double, double, double> QCDParameters::getGammas(int nf) const {
+    double g0 = 2;
+    double g1 = 101.0 / 12 - 5. * nf / 18;
+    double g2 = (1249. - (2216. / 27 + 160 * ZETA3 / 3) * nf - 140. * nf * nf / 81) / 32;
+    return {g0, g1, g2};
+}
+
+double QCDParameters::R(double alpha, int nf) const {
+    auto [b0, b1, b2] = this->getBetas(nf);
+    auto [g0, g1, g2] = this->getGammas(nf);
+    double b02 = b0 * b0;
+    double a = std::pow(b0 * alpha / (2 * PI), 2 * g0 / b0);
+    double b = (2 * g1 / b0 - b1 * g0 / b02) * alpha / PI;
+    double c = .5 * (std::pow(2 * g1 / b0 - b1 * g0 / b02, 2) 
+                   + 2 * g2 / b0 - b1 * g1 / b02 - b2 * g0 / (16 * b02) 
+                   + b1 * b1 * g0 / (2 * b0 * b02)) * std::pow(alpha / PI, 2);
+    return a * (1 + b + c);
+}
+
+double QCDParameters::alphasRunning(double Q, double Lambda, int nf) const {
+    double r = std::pow(Q / Lambda, 2);
+    double L = std::log(r);
+    double LL = std::log(L);
+    auto [b0, b1, b2] = this->getBetas(nf);
+    double b02 = b0 * b0;
+    double b12 = b1 * b1;
+    return 4 * PI * (1 - 2 * b1 * LL / (b02 * L) + 4 * b12 * (std::pow(LL - .5, 2) + b2 * b0 / 8 / b12 - 1.25) / std::pow(b02 * L, 2)) / (b0 * L);
+}
+
+double QCDParameters::matchLambda(double target_alpha, double Q, int nf){
+    auto f = [&](double L) { return this->alphasRunning(Q, L, nf) - target_alpha; };
+    double L_min = 1e-3;
+    double L_max = 1;
+    double L_moy = L_min;
+
+    while (std::abs(1 - L_min / L_max) > 1e-5) {
+        L_moy = (L_min + L_max) / 2;
+        f(L_moy) > 0 ? L_max = L_moy : L_min = L_moy;
+    }
+
+    if (std::abs(f(L_moy)) > 1e-5) {
+        Logger::getInstance()->error("Unable to find suitable QCD Lambda value to match alpha_s = " + std::to_string(target_alpha) 
+                 + " at scale " + std::to_string(Q) + " GeV with " + std::to_string(nf) + " active flavors.");
+        return -1;
+    }
+
+    return L_min;
 }
 
 /*--------------------------------------------------------------------*/
@@ -242,4 +201,3 @@ double QCDParameters::mt_mt(double mt_pole)
 	return mass_t_t;
 
 }
-

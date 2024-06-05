@@ -576,8 +576,6 @@ void SM_LO_Strategy::init_scalar(double Q_match, double Q,int gen, WilsonSet& C)
     Logger::getInstance()->info("mb " + std::to_string(W_param->mass_b_muW));
 	/* SM - negligible components, 1511.05066 */
 
-    W_param->mass_b_muW = 2.967564; // TO CHANGE
-
 	double CSc_SM=-W_param->xt*(W_param->xt-2.)/12./(W_param->xt-1.)/(W_param->xt-1.)+(W_param->xt-2.)*(3.*W_param->xt-1.)/24./pow(W_param->xt-1.,3.)*log(W_param->xt);
 	
 	double CPc_SM=1./24.*(W_param->xt*(36.*xt3-203.*xt2+352.*W_param->xt-209.)/6./pow(W_param->xt-1.,3.)+(17.*xt4-34.*xt3+4.*xt2+23.*W_param->xt-6.)/pow(W_param->xt-1.,4.)*log(W_param->xt))
@@ -587,10 +585,6 @@ void SM_LO_Strategy::init_scalar(double Q_match, double Q,int gen, WilsonSet& C)
     double CSn_SMonly=-3.*W_param->xt/8./xh+W_param->xt*F0SP(W_param->xt);
     
     double CPn_SMonly=0.;
-    logger->info("ml: " + std::to_string(ml));
-    logger->info("CSc_SM : " + std::to_string(CSc_SM));
-    logger->info("CPc_SM : " + std::to_string(CPc_SM));
-    logger->info("CSn_SMonly : " + std::to_string(CSn_SMonly));
 
     if (C.size() < 1) C.resize(1); 
     auto& C_LO = C[0]; 

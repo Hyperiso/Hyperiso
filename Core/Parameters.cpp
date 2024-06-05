@@ -109,8 +109,6 @@ void Parameters::initSM() {
     // Couplings
     double sW = std::sqrt(1 - std::pow(m_W / m_Z_pole, 2));
 
-    std::cout << asin(sW) << std::endl;
-
     gauge[2] = std::pow(2, 1.25) * m_W * std::sqrt(G_F);     // g2
     gauge[1] = gauge[2] * sW / std::sqrt(1 - sW * sW);       // gp 
     gauge[3] = std::sqrt(4 * M_PI * alpha_s_MZ);             // gs

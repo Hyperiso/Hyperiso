@@ -108,7 +108,7 @@ public:
 class WilsonInitializer {
 private:
     Parameters* sm = Parameters::GetInstance();
-    std::shared_ptr<InitializationStrategy> strategy = std::make_shared<SM_LO_Strategy>();;
+    std::shared_ptr<InitializationStrategy> strategy = std::make_shared<SM_LO_Strategy>();
     double scale;
 
 
