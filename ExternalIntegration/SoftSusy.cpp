@@ -77,9 +77,9 @@ void SoftsusyCalculator::calculateSpectrum(const std::string& inputFilePath, con
     // Example system call to SOFTSUSY - replace with actual implementation
     std::string command;
     if (inputFilePath.starts_with("/")) {
-        command = root_file + "External_Integration/SOFTSUSY/src/SOFTSUSY/softpoint.x leshouches < " + inputFilePath + " > " + outputFilePath;
+        command = root_file + "/ExternalIntegration/SOFTSUSY/src/SOFTSUSY/softpoint.x leshouches < " + inputFilePath + " > " + outputFilePath;
     } else {
-        command = root_file + "External_Integration/SOFTSUSY/src/SOFTSUSY/softpoint.x leshouches < " + root_file + inputFilePath + " > " + outputFilePath;
+        command = root_file + "/ExternalIntegration/SOFTSUSY/src/SOFTSUSY/softpoint.x leshouches < " + root_file + "/" + inputFilePath + " > " + outputFilePath;
     }
 
     logger->debug("SOFTSUSY COMMAND : " + command);

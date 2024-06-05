@@ -75,7 +75,7 @@ void THDM_NLO_Strategy::init(double scale, WilsonSet& C_match) {
 	complex_t C8H_1= G8H(yt,lu,ld)+Delta8H(yt,lu,ld)*log(pow(scale/m_H,2.))-1./6.*C4H_1;
 	complex_t C9H_1=(1.-4.*sw2)/sw2*C9llH1(xt,yt,lu,log(pow(scale/m_H,2.)))-D9H1(yt,lu,log(pow(scale/m_H,2.)));
 	complex_t C10H_1=-C9llH1(xt,yt,lu,log(pow(scale/m_H,2.)))/sw2;
-
+	Logger::getInstance()->info("C10H_1 : " + std::to_string(std::real(C10H_1)));
 	if (C_match.size() < 2) C_match.resize(2);
 	auto& C_NLO = C_match[1];
 	C_NLO.resize(static_cast<size_t>(WilsonCoefficient::CPQ2) + 1, std::complex<double>(0, 0));

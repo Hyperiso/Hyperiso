@@ -7,7 +7,7 @@
 #ifdef BUILD_WITH_2HDMC
 #include "2HDMC.h"
 #endif
-
+#include "Logger.h"
 
 std::unique_ptr<ICalculator> GeneralCalculatorFactory::createCalculator(CalculatorType type) {
     switch(type) {
@@ -30,7 +30,6 @@ std::unique_ptr<ICalculator> GeneralCalculatorFactory::createCalculator(Calculat
 
 void GeneralCalculatorFactory::executeCommand(CalculatorType type, const std::string& commandName, const std::string& inputFilePath, const std::string& outputFilePath) {
     using CommandFunction = std::function<void(const std::string&, const std::string&)>;
-    
     static std::unordered_map<std::string, CommandFunction> commonCommands = {
         {"calculateSpectrum", [type](const std::string& input, const std::string& output) {
             auto calculator = createCalculator(type);

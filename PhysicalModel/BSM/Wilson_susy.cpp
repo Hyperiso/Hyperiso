@@ -205,7 +205,7 @@ void SUSY_NLO_Strategy::init(double scale, WilsonSet& C_match) {
 					for (int ke=0; ke<6; ke++) {
 						C91f+=(*sus_param).P_U[de][ke] * pow((*sus_param).MsqU[ke]/(*sus_param).Mch[ie],2.) * (*sus_param).P_U[ke][ae] * (1+log(pow(scale/(*sus_param).MsqU[ke],2.)))*(*sus_param).X_UL[je][de][1]*(*sus_param).X_UL[ie][ae][2] * (
 							2.*fabs((*sus_param).Mch[je]/(*sus_param).Mch[ie]) * f60(pow((*sus_param).Mch[je]/(*sus_param).Mch[ie],2.), pow((*sus_param).MsqU[ae]/(*sus_param).Mch[ie], 2.), pow((*sus_param).MsqU[de]/(*sus_param).Mch[ie], 2.))*(*susy)("UMIX", je*10+0)*(*susy)("UMIX", ie*10+0)
-							-f50(pow((*sus_param).Mch[je]/(*sus_param).Mch[ie], 2.), pow((*sus_param).MsqU[ae]/(*sus_param).Mch[ie], 2.), pow((*sus_param).MsqU[de]/(*sus_param).Mch[ie], 2.)) *  (*susy)("VMIX", ie * 10+0)*(*susy)("VMIX", ie * 10+0));
+							-f50(pow((*sus_param).Mch[je]/(*sus_param).Mch[ie], 2.), pow((*sus_param).MsqU[ae]/(*sus_param).Mch[ie], 2.), pow((*sus_param).MsqU[de]/(*sus_param).Mch[ie], 2.)) *  (*susy)("VMIX", je * 10+0)*(*susy)("VMIX", ie * 10+0));
 						
 					}
 				}
@@ -261,7 +261,9 @@ void SUSY_NLO_Strategy::init(double scale, WilsonSet& C_match) {
 
 						for (int je = 0; je < 2; je++) {
 							// logger->info(std::to_string((*sus_param).X_NL[ie][fe][1]));
-							double factor_common = mass24_Mch_ie_squared * (*sus_param).P_U[ae][ce] * (*sus_param).X_UL[je][ae][1] * (*sus_param).X_UL[ie][ce][2];
+							double factor_common = mass24_Mch_ie_squared * (*sus_param).P_U[ae][de] *pow((*sus_param).MsqU[de]/(*sus_param).Mch[ie],2)*(*sus_param).P_U[de][ce] *
+							(1+log(pow(scale/(*sus_param).MsqU[de],2))) *  (*sus_param).X_UL[je][ae][1] * (*sus_param).X_UL[ie][ce][2];
+
 							B1f1 += factor_common * 0.5 * f90(pow((*sus_param).Mch[je] / (*sus_param).Mch[ie], 2.0), 
 										pow((*sus_param).MsqU[ae] / (*sus_param).Mch[ie], 2.0), 
 										pow((*sus_param).MsqU[ce] / (*sus_param).Mch[ie], 2.0), 
@@ -291,9 +293,7 @@ void SUSY_NLO_Strategy::init(double scale, WilsonSet& C_match) {
 
 				double MsqU_ce_Mch_ie_squared = pow((*sus_param).MsqU[ce] / (*sus_param).Mch[ie], 2.0);
 				double log_scale_MsqU_ce = 1.0 + log(pow(scale / (*sus_param).MsqU[ce], 2.0));
-				D91f += mass24_Mch_ie_squared * (*sus_param).P_U[ae][ce] * MsqU_ce_Mch_ie_squared * log_scale_MsqU_ce * 
-						(*sus_param).X_UL[ie][ae][1] * (*sus_param).X_UL[ie][ce][2] * 
-						q51(pow((*sus_param).MsqU[ae] / (*sus_param).Mch[ie], 2.0), MsqU_ce_Mch_ie_squared);
+				
 
 				double log_mu_W_MsqU_ce = std::log(std::pow(scale / (*sus_param).MsqU[ce], 2.0));
 				double MsqU_be_Mch_ie_ratio = (*sus_param).MsqU[ce] / (*sus_param).Mch[ie];
@@ -302,6 +302,9 @@ void SUSY_NLO_Strategy::init(double scale, WilsonSet& C_match) {
 					double ratio_MsqU_ae_Mch_ie = std::pow((*sus_param).MsqU[ae] / (*sus_param).Mch[ie], 2.0);
 					double ratio_MsqU_de_Mch_ie = std::pow((*sus_param).MsqU[de] / (*sus_param).Mch[ie], 2.0);
 					
+					D91f += mass24_Mch_ie_squared * (*sus_param).P_U[ae][ce] * MsqU_ce_Mch_ie_squared * (*sus_param).P_U[ce][de] * log_scale_MsqU_ce * 
+						(*sus_param).X_UL[ie][ae][1] * (*sus_param).X_UL[ie][de][2] * 
+						q51(pow((*sus_param).MsqU[ae] / (*sus_param).Mch[ie], 2.0), ratio_MsqU_de_Mch_ie);
 
 					C7four_1 += std::pow((*sm)("MASS", 24) / (*sus_param).Mch[ie], 2.0) * (*sus_param).P_U[ae][ce] * MsqU_be_Mch_ie_ratio * (*sus_param).P_U[ce][de] * (1.0 + log_mu_W_MsqU_ce) *
 								((*sus_param).X_UL[ie][ae][1] * (*sus_param).X_UL[ie][de][2] * (-q11(ratio_MsqU_ae_Mch_ie, ratio_MsqU_de_Mch_ie) + 2.0 / 3.0 * q21(ratio_MsqU_ae_Mch_ie, ratio_MsqU_de_Mch_ie)) +
@@ -331,8 +334,8 @@ void SUSY_NLO_Strategy::init(double scale, WilsonSet& C_match) {
 	complex_t B101c = (B1c1 + B1c2) * (*sus_param).kappa * (*sm)("MASS", 24) * (*sm)("MASS", 24) / 2.0 / pow((*sm)("GAUGE", 2), 2);
 
 	C91f *= (*sus_param).kappa / 6.0;
-	B1f1 *= (*sus_param).kappa;
-	B1f2 *= (*sus_param).kappa;
+	// B1f1 *= (*sus_param).kappa;
+	// B1f2 *= (*sus_param).kappa;
 	D91f *= (*sus_param).kappa;
 
 	complex_t B91f = (B1f1 - B1f2) * 2.0 / 3.0 * (*sus_param).kappa / pow((*sm)("GAUGE", 2), 2);
@@ -358,6 +361,11 @@ void SUSY_NLO_Strategy::init(double scale, WilsonSet& C_match) {
 	complex_t C9charg_1=(1.-4.*(*sus_param).sw2)/(*sus_param).sw2*C91c-B91c/(*sus_param).sw2-D91c;
 	complex_t C10charg_1=(B101c-C91c)/(*sus_param).sw2;
 
+	Logger::getInstance()->info("C10Charg_1 : " + std::to_string(std::real(C10charg_1)));
+	Logger::getInstance()->info("C10four_1 : " + std::to_string(std::real(C10four_1)));
+
+	Logger::getInstance()->info("C9Charg_1 : " + std::to_string(std::real(C9charg_1)));
+	Logger::getInstance()->info("C9four_1 : " + std::to_string(std::real(C9four_1)));
 	double alphas_mu = sm->QCDRunner.runningAlphasCalculation(scale);
 	
 
@@ -383,17 +391,17 @@ void SUSY_NLO_Strategy::init(double scale, WilsonSet& C_match) {
         }
     };
 
-	adjustCoefficient(C7charg_1, 7);
-	adjustCoefficient(C7four_1, 7);
+	// adjustCoefficient(C7charg_1, 7);
+	// adjustCoefficient(C7four_1, 7);
 
-	adjustCoefficient(C8charg_1, 8);
-	adjustCoefficient(C8four_1, 8);
+	// adjustCoefficient(C8charg_1, 8);
+	// adjustCoefficient(C8four_1, 8);
 
-	adjustCoefficient(C9charg_1, 9);
-	adjustCoefficient(C9four_1, 9);
+	// adjustCoefficient(C9charg_1, 9);
+	// adjustCoefficient(C9four_1, 9);
 
-	adjustCoefficient(C10charg_1, 10);
-	adjustCoefficient(C10four_1, 10);
+	// adjustCoefficient(C10charg_1, 10);
+	// adjustCoefficient(C10four_1, 10);
 
 	logger->info("C8H_1 " + std::to_string(std::real(C_NLO[7])));
 	logger->info("C4H_1 " + std::to_string(std::real(C_NLO[3])));

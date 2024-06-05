@@ -85,7 +85,7 @@ susy_parameters::susy_parameters(double scale) {
     (*susy)("MASS",2000003),
     (*susy)("MASS",2000005)};
 	Msn = {(*susy)("MASS",1000012), (*susy)("MASS",1000014), (*susy)("MASS",1000016)};
-
+	Logger::getInstance()->info("Msn : " + std::to_string(Msn[0]) + " " + std::to_string(Msn[1]) + " " + std::to_string(Msn[2]));
 	// Vérification du mélange sU_mix et initialisation conditionnelle de Gamma_UL et Gamma_UR
 	bool isNonZeroMix = true;
 	for (size_t i = 0; i < NumSquarks; ++i) {

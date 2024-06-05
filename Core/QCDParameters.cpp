@@ -9,6 +9,14 @@ QCDParameters::QCDParameters(double alpha_Z, double m_Z, double masst_pole, doub
     this->mass_c = mass_c;
     this->mass_s = mass_s;
 
+    Logger* logger = Logger::getInstance();
+
+    logger->info("m_Z : " + std::to_string(m_Z));
+    logger->info("alpha_MZ : " + std::to_string(alpha_Z));
+    logger->info("mass_c : " + std::to_string(mass_c));
+    logger->info("mass_s : " + std::to_string(mass_s));
+
+
     this->mt_mt(this->mass_t_pole);
     this->mb_pole(mass_b_b, mass_u, mass_d, mass_s, mass_c);
 }
@@ -96,70 +104,88 @@ double QCDParameters::runningAlphasCalculation(double Q, std::string option_mass
     logger->debug("Invalid parameters or conditions in alphas_running function");
 }
 
+std::tuple<double, double, double> calculateBetas(int nf) {
+    double beta0 = 11.0 - 2.0 / 3.0 * nf;
+    double beta1 = 51.0 - 19.0 / 3.0 * nf;
+    double beta2 = 2857.0 - 5033.0 / 9.0 * nf + 325.0 / 27.0 * nf * nf;
+    return {beta0, beta1, beta2};
+}
 
+std::tuple<double, double, double> calculateGammas(int nf) {
+    double gamma0 = 2.0;
+    double gamma1 = 101.0 / 12.0 - 5.0 / 18.0 * nf;
+    double gamma2 = 1.0 / 32.0 * (1249.0 - (2216.0 / 27.0 + 160.0 / 3.0 * ZETA3) * nf - 140.0 / 81.0 * nf * nf);
+    return {gamma0, gamma1, gamma2};
+}
+
+double calculateR(double alphas, double beta0, double beta1, double beta2, double gamma0, double gamma1, double gamma2) {
+    double term1 = pow(beta0 / (2.0 * PI) * alphas, 2.0 * gamma0 / beta0);
+    double term2 = 1.0 + (2.0 * gamma1 / beta0 - beta1 * gamma0 / (beta0 * beta0)) * alphas / PI;
+    double term3 = 0.5 * (pow(2.0 * gamma1 / beta0 - beta1 * gamma0 / (beta0 * beta0), 2.0)
+                        + 2.0 * gamma2 / beta0
+                        - beta1 * gamma1 / (beta0 * beta0)
+                        - beta2 * gamma0 / (16.0 * beta0 * beta0)
+                        + beta1 * beta1 * gamma0 / (2.0 * beta0 * beta0 * beta0)) * pow(alphas / PI, 2.0);
+    return term1 * (term2 + term3);
+}
 
 double QCDParameters::running_mass(double quark_mass, double Qinit, double Qfin,  std::string option_massb, std::string option_masst)
 /* computes the running quark mass at the energy Qfin, from a given running quark mass quark_mass at energy Qinit */
 {
-    double mbot, mtop;
 
-    if (option_massb == "pole")
-        mbot = mass_b_pole;
-    else if (option_massb == "running")
-        mbot = mass_b_b;
+    double mbot = (option_massb == "pole") ? mass_b_pole : mass_b_b;
+    double mtop = (option_masst == "pole") ? mass_t_pole : mass_t_t;
 
-    if (option_masst == "pole")
-        mtop = mass_t_pole;
-    else if (option_masst == "running")
-        mtop = mass_t_t;
-	double alphas_Qinit,alphas_Qfin,running_mass;
-	double beta0_init,beta1_init,beta2_init,gamma0_init,gamma1_init,gamma2_init;
-    double beta0_fin,beta1_fin,beta2_fin,gamma0_fin,gamma1_fin,gamma2_fin;
-	int nf_init, nf_fin;
+    double alphas_Qinit = runningAlphasCalculation(Qinit, option_massb, option_masst);
 
-	alphas_Qinit=runningAlphasCalculation(Qinit, option_massb, option_masst);
-	
-	double R_Qinit,R_Qfin;
-	
-    if (Qinit <= mbot) {
-        nf_init=4;
-    } else if(Qinit <= mtop) {
-        nf_init = 5;
-    } else {
-        nf_init = 6;
+    int nf_init = (Qinit <= mbot) ? 4 : (Qinit <= mtop) ? 5 : 6;
+    int nf_fin = (Qfin <= mbot) ? 4 : (Qfin <= mtop) ? 5 : 6;
+
+    auto [beta0_init, beta1_init, beta2_init] = calculateBetas(nf_init);
+    auto [gamma0_init, gamma1_init, gamma2_init] = calculateGammas(nf_init);
+
+    double R_Qinit = calculateR(alphas_Qinit, beta0_init, beta1_init, beta2_init, gamma0_init, gamma1_init, gamma2_init);
+
+    double intermediate_mass = quark_mass;
+
+    auto runStep = [&](double Qstart, double Qend, int nf_start, int nf_end, double &mass) {
+        double alphas_start = runningAlphasCalculation(Qstart, option_massb, option_masst);
+        double alphas_end = runningAlphasCalculation(Qend, option_massb, option_masst);
+
+        auto [beta0_start, beta1_start, beta2_start] = calculateBetas(nf_start);
+        auto [gamma0_start, gamma1_start, gamma2_start] = calculateGammas(nf_start);
+        double R_start = calculateR(alphas_start, beta0_start, beta1_start, beta2_start, gamma0_start, gamma1_start, gamma2_start);
+
+        auto [beta0_end, beta1_end, beta2_end] = calculateBetas(nf_end);
+        auto [gamma0_end, gamma1_end, gamma2_end] = calculateGammas(nf_end);
+        double R_end = calculateR(alphas_end, beta0_end, beta1_end, beta2_end, gamma0_end, gamma1_end, gamma2_end);
+
+        mass *= R_end / R_start;
+    };
+
+    if (nf_init != nf_fin) {
+        if (nf_init == 4 && nf_fin == 6) {
+            runStep(Qinit, mbot, 4, 5, intermediate_mass);
+            runStep(mbot, mtop, 5, 6, intermediate_mass);
+        } else if (nf_init == 6 && nf_fin == 4) {
+            runStep(Qinit, mtop, 6, 5, intermediate_mass);
+            runStep(mtop, mbot, 5, 4, intermediate_mass);
+        } else if (nf_init < nf_fin) {
+            double Q_intermediate = (nf_init == 4) ? mbot : mtop;
+            runStep(Qinit, Q_intermediate, nf_init, nf_init + 1, intermediate_mass);
+        } else {
+            double Q_intermediate = (nf_fin == 4) ? mbot : mtop;
+            runStep(Qinit, Q_intermediate, nf_init, nf_init - 1, intermediate_mass);
+        }
     }
 
-    if (Qfin <= mbot) {
-        nf_fin=4;
-    } else if(Qfin <= mtop) {
-        nf_fin = 5;
+    if (nf_init != nf_fin) {
+        runStep((nf_init < nf_fin) ? ((nf_init == 4) ? mbot : mtop) : ((nf_fin == 4) ? mbot : mtop), Qfin, nf_fin, nf_fin, intermediate_mass);
     } else {
-        nf_fin = 6;
+        runStep(Qinit, Qfin, nf_init, nf_fin, intermediate_mass);
     }
 
-    beta0_init=11.-2./3.*nf_init;
-    beta1_init=51.-19./3.*nf_init;
-    beta2_init=2857.-5033./9.*nf_init+325./27.*nf_init*nf_init;
-
-    gamma0_init=2.;
-    gamma1_init=101./12.-5./18.*nf_init;
-    gamma2_init=1./32.*(1249.-(2216./27.+160./3.*ZETA3)*nf_init-140./81.*nf_init*nf_init);
-
-    beta0_fin=11.-2./3.*nf_fin;
-    beta1_fin=51.-19./3.*nf_fin;
-    beta2_fin=2857.-5033./9.*nf_fin+325./27.*nf_fin*nf_fin;
-
-    gamma0_fin=2.;
-    gamma1_fin=101./12.-5./18.*nf_fin;
-    gamma2_fin=1./32.*(1249.-(2216./27.+160./3.*ZETA3)*nf_fin-140./81.*nf_fin*nf_fin);
-
-    R_Qinit = pow(beta0_init/2./PI*alphas_Qinit,2.*gamma0_init/beta0_init)*(1.+(2.*gamma1_init/beta0_init-beta1_init*gamma0_init/(beta0_init*beta0_init))*alphas_Qinit/PI+1./2.*(pow(2.*gamma1_init/beta0_init-beta1_init*gamma0_init/(beta0_init*beta0_init),2.)+2.*gamma2_init/beta0_init-beta1_init*gamma1_init/(beta0_init*beta0_init)-beta2_init*gamma0_init/16./beta0_init/beta0_init+beta1_init*beta1_init*gamma0_init/2./(beta0_init*beta0_init*beta0_init))*pow(alphas_Qinit/PI,2.));
-	
-    alphas_Qfin=runningAlphasCalculation(Qfin, option_massb, option_masst);
-
-    R_Qfin = pow(beta0_fin/2./PI*alphas_Qfin,2.*gamma0_fin/beta0_fin)*(1.+(2.*gamma1_fin/beta0_fin-beta1_fin*gamma0_fin/(beta0_fin*beta0_fin))*alphas_Qfin/PI+1./2.*(pow(2.*gamma1_fin/beta0_fin-beta1_fin*gamma0_fin/(beta0_fin*beta0_fin),2.)+2.*gamma2_init/beta0_init-beta1_fin*gamma1_fin/(beta0_fin*beta0_fin)-beta2_fin*gamma0_fin/16./beta0_fin/beta0_fin+beta1_fin*beta1_fin*gamma0_fin/2./(beta0_fin*beta0_fin*beta0_fin))*pow(alphas_Qfin/PI,2.));
-	
-    return R_Qfin/R_Qinit*quark_mass;
+    return intermediate_mass;
 
 }
 
@@ -216,3 +242,4 @@ double QCDParameters::mt_mt(double mt_pole)
 	return mass_t_t;
 
 }
+

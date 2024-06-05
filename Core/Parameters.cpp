@@ -95,7 +95,7 @@ void Parameters::initSM() {
 
     QCDRunner = QCDParameters(alpha_s_MZ, m_Z_pole, m_t_pole, m_b_mb, masses[2],masses[1],masses[3],masses[4]);
 
-    masses[5] = 4.18;           // b (running, 4.18 GeV)
+    masses[5] = m_b_mb;           // b (running, 4.18 GeV)
     masses[6] = QCDRunner.get_mt_mt();       // t (running, m_t)
     masses[11] = 0.511e-3;      // e (pole)
     masses[13] = 0.105658;      // mu (pole)
@@ -138,7 +138,7 @@ void Parameters::initSUSY() {
     
     CalculatorType calculatorType = CalculatorType::Softsusy;
     GeneralCalculatorFactory::executeCommand(calculatorType, "calculateSpectrum", lha->getLhaPath(), spectrumFile);
-
+    
     lha->update(spectrumFile);
     Logger::getInstance()->info("LHA Blocks updated.");
 
