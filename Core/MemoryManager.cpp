@@ -55,7 +55,7 @@ std::string MemoryManager::findNearestHyperisoDirectory() {
 
 MemoryManager* MemoryManager::GetInstance(std::string lhaFile, std::vector<int> models) {
     if (!MemoryManager::instance) {
-        MemoryManager::instance = new MemoryManager(findNearestHyperisoDirectory() + lhaFile, models);
+        MemoryManager::instance = new MemoryManager(project_root.data() + lhaFile, models);
     }
     return MemoryManager::instance;
 }
