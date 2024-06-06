@@ -33,10 +33,10 @@ public:
     double runningAlphasCalculation(double Q, std::string option_massb = "pole", std::string option_masst = "pole");
     double running_mass(double quark_mass, double Qinit, double Qfin,  std::string option_massb = "pole", std::string option_masst = "pole");
 
-    double mb_pole(double mass_b, double mass_u, double mass_d, double mass_s, double mass_c);
-    double mc_pole(double mass_u, double mass_d, double mass_s, double mass_c);
-    double mb_1S(double mb_pole);
-    double mt_mt(double mt_pole);
+    double mb_pole();
+    double mc_pole();
+    double mb_1S();
+    double mt_mt();
 
     double get_mt_mt() {return this->mass_t_t;}
     double get_mt_pole() {return this->mass_t_pole;}

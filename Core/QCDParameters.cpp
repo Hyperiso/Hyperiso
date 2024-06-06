@@ -1,7 +1,18 @@
 #include "QCDParameters.h"
 
+/**
+ * @brief Creates a fully-initialized QCD Runner.
+ * 
+ * @param alpha_Z Value of alpha_s at M_Z in MSbar scheme 
+ * @param m_Z Mass of the Z boson
+ * @param masst_pole Pole mass of the top quark
+ * @param massb_b Running mass of the bottom quark at m_b in MSbar
+ * @param mass_u Running mass of the up quark at 2 GeV in MSbar
+ * @param mass_d Running mass of the down quark at 2 GeV in MSbar
+ * @param mass_s Running mass of the strange quark at 2 GeV in MSbar
+ * @param mass_c Running mass of the charm quark at m_c in MSbar
+ */ 
 QCDParameters::QCDParameters(double alpha_Z, double m_Z, double masst_pole, double massb_b, double mass_u, double mass_d, double mass_s, double mass_c) {
-    
     this->Lambda5 = this->matchLambda(alpha_Z, m_Z, 5);
     this->mass_u = mass_u;
     this->mass_d = mass_d;
@@ -9,20 +20,28 @@ QCDParameters::QCDParameters(double alpha_Z, double m_Z, double masst_pole, doub
     this->mass_c = mass_c;
     this->mass_b_b = massb_b;
     this->mass_t_pole = masst_pole;
-    this->mt_mt(this->mass_t_pole);
-    this->mb_pole(mass_b_b, mass_u, mass_d, mass_s, mass_c);
+    this->mt_mt();
+    this->mb_pole();
     this->setMassTypes("pole", "pole");
+
+    Logger::getInstance()->info("In QCDParameters constructor mb(81 GeV) = " + std::to_string(this->running_mass(4.25, 4.25, 81, "running")));
 }
 
+/**
+ * @brief Computes the value of alpha_s at scale Q in the MSbar scheme. 
+ * 
+ * @param Q Energy scale
+ * @param option_massb Toggle to choose whether to take the running or pole bottom mass
+ * @param option_masst Toggle to choose whether to take the running or pole top mass
+ * @return The value of alpha_s(Q) in MSbar
+ */
 double QCDParameters::runningAlphasCalculation(double Q, std::string option_massb, std::string option_masst) {
-    Logger* logger = Logger::getInstance();
     this->setMassTypes(option_massb, option_masst);
-
     int n_i = 5;
     int n_f = this->getNf(Q);
 
     if (n_f < 4) {
-        logger->warn("Scale for alpha_s calculation is below charm mass.");
+        Logger::getInstance()->warn("Scale for alpha_s calculation is below charm mass.");
     }
 
     double L = this->Lambda5;
@@ -43,9 +62,17 @@ double QCDParameters::runningAlphasCalculation(double Q, std::string option_mass
     return this->alphasRunning(Q, L, n_f);
 }
 
-double QCDParameters::running_mass(double quark_mass, double Qinit, double Qfin, std::string option_massb, std::string option_masst)
-/* computes the running quark mass at the energy Qfin, from a given running quark mass quark_mass at energy Qinit */
-{
+/**
+ * @brief Computes the value of the given quark mass at scale Qfin in the MSbar scheme 
+ * 
+ * @param quark_mass Initial value for the quark mass
+ * @param Qinit Scale at which quark_mass is given
+ * @param Qfin Scale at which quark_mass should be run
+ * @param option_massb Toggle to choose whether to take the running or pole bottom mass
+ * @param option_masst Toggle to choose whether to take the running or pole bottom mass
+ * @return 
+ */
+double QCDParameters::running_mass(double quark_mass, double Qinit, double Qfin, std::string option_massb, std::string option_masst) {
     this->setMassTypes(option_massb, option_masst);
     int n_i = this->getNf(Qinit);
     int n_f = this->getNf(Qfin);
@@ -66,6 +93,11 @@ double QCDParameters::running_mass(double quark_mass, double Qinit, double Qfin,
     return this->runMass(quark_mass, Qinit, Qfin, n_f);
 }
 
+/**
+ * @brief Sets the type of mass (running or pole) to be taken for the calculations
+ * @param m_b_type Toggle for b mass
+ * @param m_t_type Toggle for t mass
+ */
 void QCDParameters::setMassTypes(std::string m_b_type, std::string m_t_type) {
     if (m_b_type != "")
         this->m_b_type = m_b_type;
@@ -79,19 +111,41 @@ std::vector<double> QCDParameters::getOrderedMasses() {
     return {this->mass_u, this->mass_d, this->mass_s, this->mass_c, m_b, m_t};
 }
 
+/**
+ * @brief Runs the given quark mass between two scales with the same number of active flavors in the MSbar scheme
+ * 
+ * @param mass Initial quark mass
+ * @param Q_i Scale of initial quark mass
+ * @param Q_f Scale at which quark mass should be run
+ * @param nf Number of active flavors at the given scales
+ * @return The value of mass(Q_f) in MSbar
+ */
 double QCDParameters::runMass(double mass, double Q_i, double Q_f, int nf) {
-    return mass * this->R(this->runningAlphasCalculation(Q_f), nf) / this->R(this->runningAlphasCalculation(Q_i), nf);
+    return mass * this->R(this->runningAlphasCalculation(Q_f, this->m_b_type, this->m_t_type), nf) 
+                    / this->R(this->runningAlphasCalculation(Q_i, this->m_b_type, this->m_t_type), nf);
 }
 
+/**
+ * @brief Computes the number of active flavors at a given energy scale
+ * 
+ * @param Q Energy scale
+ * @return The number of active flavors at scale Q
+ */
 int QCDParameters::getNf(double Q) {
     auto masses = this->getOrderedMasses();
     for (int i = 0; i < masses.size(); ++i) {
-        if (Q < masses.at(i))
+        if (1 - Q / masses.at(i) > 1e-4)
             return i;
     }
     return 6;
 }
 
+/**
+ * @brief Computes the values of the QCD beta function coefficients
+ * 
+ * @param nf Number of active flavors
+ * @return The values of the first three QCD beta function coefficients
+ */
 std::tuple<double, double, double> QCDParameters::getBetas(int nf) const {
     double b0 = 11 - 2. * nf / 3;
     double b1 = 51 - 19. * nf / 3;
@@ -99,6 +153,12 @@ std::tuple<double, double, double> QCDParameters::getBetas(int nf) const {
     return {b0, b1, b2};
 }
 
+/**
+ * @brief Computes the values of the quark mass anomalous dimension coefficients
+ * 
+ * @param nf Number of active flavors
+ * @return The values of the first three quark mass anomalous dimension coefficients
+ */
 std::tuple<double, double, double> QCDParameters::getGammas(int nf) const {
     double g0 = 2;
     double g1 = 101.0 / 12 - 5. * nf / 18;
@@ -118,6 +178,14 @@ double QCDParameters::R(double alpha, int nf) const {
     return a * (1 + b + c);
 }
 
+/**
+ * @brief Evaluates alpha_s at a given scale given the appropriate value of Lambda_QCD and the corresponding number of active flavors.
+ * 
+ * @param Q Energy scale 
+ * @param Lambda Value Lambda_QCD at the given energy scale
+ * @param nf Number of active flavors at the given energy scale
+ * @return 
+ */
 double QCDParameters::alphasRunning(double Q, double Lambda, int nf) const {
     double r = std::pow(Q / Lambda, 2);
     double L = std::log(r);
@@ -128,6 +196,14 @@ double QCDParameters::alphasRunning(double Q, double Lambda, int nf) const {
     return 4 * PI * (1 - 2 * b1 * LL / (b02 * L) + 4 * b12 * (std::pow(LL - .5, 2) + b2 * b0 / 8 / b12 - 1.25) / std::pow(b02 * L, 2)) / (b0 * L);
 }
 
+/**
+ * @brief Computes the value of Lambda_QCD for a given number of active flavors
+ * 
+ * @param target_alpha Known value of alpha_s at scale Q
+ * @param Q Energy scale
+ * @param nf Number of active flavors at energy scale Q
+ * @return 
+ */
 double QCDParameters::matchLambda(double target_alpha, double Q, int nf){
     auto f = [&](double L) { return this->alphasRunning(Q, L, nf) - target_alpha; };
     double L_min = 1e-3;
@@ -148,56 +224,50 @@ double QCDParameters::matchLambda(double target_alpha, double Q, int nf){
     return L_min;
 }
 
-/*--------------------------------------------------------------------*/
-
-double QCDParameters::mb_pole(double mass_b, double mass_u, double mass_d, double mass_s, double mass_c)
-/* computes the b pole mass */
-{
-	double alphas_mb=runningAlphasCalculation(mass_b, "running", "pole");	
-    this->mass_b_pole = mass_b*(1.+alphas_mb/PI*(4./3.+alphas_mb/PI*((13.4434-1.0414*4.+1.0414*4./3.*((mass_u+mass_d+mass_s+mass_c)/mass_b)))));
+/**
+ * @brief Computes the bottom quark pole mass 
+ * 
+ * @return The bottom quark pole mass
+ */
+double QCDParameters::mb_pole() {
+	double alphas_mb = runningAlphasCalculation(this->mass_b_b, "running", "pole");	
+    this->mass_b_pole = this->mass_b_b * (1. + alphas_mb / PI * (4. / 3. 
+            + alphas_mb / PI * ((13.4434 - 1.0414 * 4. + 1.0414 * 4. / 3. * ((this->mass_u + this->mass_d + this->mass_s + this->mass_c) / this->mass_b_b)))));
  	return this->mass_b_pole;
-	/* +alphas_mb/PI*(190.595-4.*(26.655-4.*0.6527)) */
 }
 
-/*--------------------------------------------------------------------*/
-
-double QCDParameters::mc_pole(double mass_u, double mass_d, double mass_s, double mass_c)
-/* computes the c pole mass */{
-	double alphas_mc=runningAlphasCalculation(mass_c);	
-
- 	return mass_c*(1+alphas_mc/PI*(4./3.+alphas_mc/PI*((13.4434-1.0414*3.+1.0414*4./3.*((mass_u+mass_d+mass_s)/mass_c)))));
+/**
+ * @brief Computes the charm quark pole mass 
+ * 
+ * @return The charm quark pole mass
+ */
+double QCDParameters::mc_pole() {
+	double alphas_mc = runningAlphasCalculation(this->mass_c);	
+ 	return this->mass_c * (1 + alphas_mc / PI * (4. / 3. + alphas_mc / PI * ((13.4434 - 1.0414 * 3. 
+            + 1.0414 * 4. / 3. * ((this->mass_u + this->mass_d + this->mass_s) / this->mass_c)))));
 }
 
-double QCDParameters::mb_1S(double mb_pole)
-/* computes the 1S b mass */
-{
-	double mu=mb_pole/2.;
-	double as=runningAlphasCalculation(mu);
-	double L=log(mu/(4./3.*as*mb_pole));
-	double beta0=11.-8./3.;
-	double beta1=62.-32./3.;
-	double a1=31./3.-40./9.;
-	double a2=(4343./162.+4.*PI*PI-pow(PI,4.)/4.+22./3.*ZETA3)*9.-(1798./81.+56./3.*ZETA3)*6.
-	-(55./3.-16.*ZETA3)*8./3.+1600./81.;
-	
-	return mb_pole*(1.-2./9.*pow(as,2.)
-	/* -2./9.*pow(as,3.)/PI*(beta0*(L+1.)+a1/2.) */
-	)
-	-2./9.*pow(as,2.)
-	/* -2./9.*pow(as,4.)/PI/PI*(beta0*beta0*(3./4.*L*L+L+ZETA3/2.+PI*PI/24.+1./4.)
-	+beta0*a1/2.*(3./2.*L+1.)+beta1/4.*(L+1.)+a1*a1/16.+a2/8.+(3.-1./36.)*4./3.*PI*PI) */
-	;
+/**
+ * @brief Computes the 1S bottom quark mass 
+ * 
+ * @return The 1S bottom quark mass
+ */
+double QCDParameters::mb_1S() {
+	double mu = this->mass_b_pole / 2.;
+	double alpha = runningAlphasCalculation(mu);
+	return this->mass_b_pole * (1 - 2. / 9 * pow(alpha, 2.));
 }
 
-/*--------------------------------------------------------------------*/
-
-double QCDParameters::mt_mt(double mt_pole)
-/* computes the top mass mt(mt) */
-{
-	double alphas_mtop=runningAlphasCalculation(mt_pole, "running"); 
-    this->mass_t_t = this->mass_t_pole/(1.+alphas_mtop/PI*(4./3.+alphas_mtop/PI*(307./32.+PI*PI/3.+PI*PI/9.*log(2.)-1./6.*ZETA3-71./144.*5.)));
-    alphas_mtop=runningAlphasCalculation(this->mass_t_t,"running","running");
-    this->mass_t_t = this->mass_t_pole/(1.+alphas_mtop/PI*(4./3.+alphas_mtop/PI*(307./32.+PI*PI/3.+PI*PI/9.*log(2.)-1./6.*ZETA3-71./144.*5.)));
+/**
+ * @brief Computes the top quark running mass at m_top in MSbar
+ * 
+ * @return The top quark running mass at m_top in MSbar
+ */
+double QCDParameters::mt_mt() {
+	double alpha = runningAlphasCalculation(this->mass_t_pole, "running"); 
+    double a = 307. / 32 + PI2 / 3. + PI2 / 9. * log(2) - 1. / 6 * ZETA3 - 71. / 144 * 5;
+    this->mass_t_t = this->mass_t_pole / (1 + alpha / PI * (4. / 3 + alpha / PI * a));
+    alpha = runningAlphasCalculation(this->mass_t_t, "running", "running");
+    this->mass_t_t = this->mass_t_pole / (1 + alpha / PI * (4. / 3 + alpha / PI * a));
 	return mass_t_t;
-
 }
