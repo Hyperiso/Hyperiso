@@ -140,6 +140,9 @@ void Parameters::initSUSY() {
     lha->update(spectrumFile);
     Logger::getInstance()->info("LHA Blocks updated.");
 
+    masses[45] = 0.; // for NMSSM conditions
+    masses[46] = 0.; // for NMSSM conditions
+
     std::vector<std::string> mandatory {"STOPMIX", "SBOTMIX", "STAUMIX", "UMIX", "VMIX", "NMIX", "YU", "YD", "YE", "AU", "AD", "AE", "ALPHA", "HMIX", "GAUGE", "MSOFT", "MASS"};
     if (this->checkLHA(mandatory)) {
         readMatrix(this->stopmix, "STOPMIX", lha);

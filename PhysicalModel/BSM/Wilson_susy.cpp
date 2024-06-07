@@ -548,7 +548,7 @@ void SUSY_LO_Strategy::init_prime(double Q_match,double Q,int gen, WilsonSet& C)
 
 			for(int je=0;je<2;je++) {
 				C9pc+=(*sus_param).X_UR[je][ae][2]*(*sus_param).X_UR[ie][ae][2]*(2.*fabs((*sus_param).Mch[je]/(*sus_param).Mch[ie])*f30(pow((*sus_param).Mch[je]/(*sus_param).Mch[ie],2.),pow((*sus_param).MsqU[ae]/(*sus_param).Mch[ie],2.))*(*susy)("VMIX", je*10+1)*(*susy)("VMIX", ie*10+1) -f40(pow((*sus_param).Mch[je]/(*sus_param).Mch[ie],2.),pow((*sus_param).MsqU[ae]/(*sus_param).Mch[ie],2.))*(*susy)("UMIX", je*10+1)*(*susy)("UMIX", ie*10+1));
-				B10pc*=(*sus_param).kappa* ((*sm)("MASS",24))*(*sm)("MASS",24)/2./(*sm)("MASS",2)/(*sm)("MASS",2);
+				
 
 				for(int be=0;be<3;be++) {
 					B10pc+=-(*sus_param).X_UR[je][ae][1]*(*sus_param).X_UR[ie][ae][2]/(*sus_param).Mch[ie]/(*sus_param).Mch[ie]*(0.5*(*sus_param).X_NR[ie][be][2]*(*sus_param).X_NR[je][be][2]*f50(pow((*sus_param).Mch[je]/(*sus_param).Mch[ie],2.),pow((*sus_param).MsqU[ae]/(*sus_param).Mch[ie],2.),pow((*sus_param).Msn[be]/(*sus_param).Mch[ie],2.)) +(*sus_param).X_NL[ie][be][2]*(*sus_param).X_NL[je][be][2]*fabs((*sus_param).Mch[je]/(*sus_param).Mch[ie])*f60(pow((*sus_param).Mch[je]/(*sus_param).Mch[ie],2.),pow((*sus_param).MsqU[ae]/(*sus_param).Mch[ie],2.),pow((*sus_param).Msn[be]/(*sus_param).Mch[ie],2.)));
@@ -587,9 +587,11 @@ void SUSY_LO_Strategy::init_prime(double Q_match,double Q,int gen, WilsonSet& C)
 			D9pc+=pow((*sm)("MASS",24)/(*sus_param).Mch[ie],2.)*(*sus_param).X_UR[ie][ae][1]*(*sus_param).X_UR[ie][ae][2]*h30(pow((*sus_param).MsqU[ae]/(*sus_param).Mch[ie],2.));
 		}
 	} 		
-	C7pcharg*=-0.5*(*sus_param).kappa; 
+	C7pcharg*=-0.5*(*sus_param).kappa;
+
 	B9pc*=(*sus_param).kappa*((*sm)("MASS",24))*(*sm)("MASS",24)/2./(*sm)("GAUGE", 2)/(*sm)("GAUGE", 2);	
-	
+	B10pc*=(*sus_param).kappa* ((*sm)("MASS",24))*(*sm)("MASS",24)/2./(*sm)("MASS",2)/(*sm)("MASS",2);
+
 	C8pcharg*=-0.5*(*sus_param).kappa; 
 	C9pc*=-(*sus_param).kappa/8.;
 
@@ -609,7 +611,7 @@ void SUSY_LO_Strategy::init_prime(double Q_match,double Q,int gen, WilsonSet& C)
 	
 	double C10pcharg=(B10pc-C9pc)/(*sus_param).sw2;
 	
-	
+	Logger::getInstance()->info("B10pc : " + std::to_string(B10pc));
 	Logger::getInstance()->info("C10pcharg : " + std::to_string(C10pcharg));
 	Logger::getInstance()->info("C10pH : " + std::to_string(C10pH));
 	Logger::getInstance()->info("C9pH : " + std::to_string(C9pH));
@@ -786,8 +788,8 @@ void SUSY_NLO_Strategy::init_scalar(double Q_match,double Q,int gen, WilsonSet& 
 	complex_t NQ11f=0.;
 	complex_t NQ21f=0.;
 
-	double Dp, Dm, temp, temp2;
-	double a0a, a0b, a0c, a0Q1, a0Q2, a0p, a1,a2p;
+	double Dp{0}, Dm{0}, temp{0}, temp2{0};
+	double a0a{0}, a0b{0}, a0c{0}, a0Q1{0}, a0Q2{0}, a0p{0}, a1{0},a2p{0};
 
 	for(int ie=0;ie<2;ie++) {
 		for(int ae=0;ae<6;ae++){
@@ -810,9 +812,9 @@ void SUSY_NLO_Strategy::init_scalar(double Q_match,double Q,int gen, WilsonSet& 
 						
 							a0Q1=a0a+a0b+Dp*a0c;
 							a0Q2=-a0a+a0b+Dm*a0c;
-							a0p=4.*(*sus_param).G_aimn[ae][ie][be][ne]/(*sm)("MASS",24)/((*sm)("VCKM", be*10+2)*(*sm)("VCKM", ne*10+1)/(*sm)("VCKM", 22)/(*sm)("VCKM", 21))/(*susy)("UMIX", je*10+1)*f151(pow((*sus_param).MsqU[ae]/(*sus_param).Mch[ie],2.))*kron(ie,je)*kron(ae,me)*kron(be,ne);
+							a0p=4.*(*sus_param).G_aimn[ae][ie][be][ne]/(*sm)("MASS",24)/((*sm)("RECKM", be*10+2)*(*sm)("RECKM", ne*10+1)/(*sm)("RECKM", 22)/(*sm)("RECKM", 21))/(*susy)("UMIX", je*10+1)*f151(pow((*sus_param).MsqU[ae]/(*sus_param).Mch[ie],2.))*kron(ie,je)*kron(ae,me)*kron(be,ne);
 							a1=(*sus_param).Mch[ie]/sqrt(2.)/(*sm)("MASS",24)*(f161(pow((*sus_param).MsqU[ae]/(*sus_param).Mch[ie],2.))+4.*(f80(pow((*sus_param).MsqU[ae]/(*sus_param).Mch[ie],2.)*1.0001)-f80(pow((*sus_param).MsqU[ae]/(*sus_param).Mch[ie],2.)*0.9999))/0.0002*log(pow((*sus_param).mass_top_muW/(*sus_param).MsqU[ae],2.)))*kron(ie,je)*kron(ae,me);
-							a2p=(*sus_param).Gamma_UL[me][be]*((*sm)("VCKM", be*10+2)*(*sm)("VCKM", ne*10+1)/(*sm)("VCKM", 22)/(*sm)("VCKM", 21))*(*susy)("UMIX", je*10+1)/2./(*sm)("MASS",24)*f151(pow((*sus_param).MsqU[ae]/(*sus_param).Mch[ie],2.))*kron(ie,je)*kron(ae,me)*kron(be,ne);
+							a2p=(*sus_param).Gamma_UL[me][be]*((*sm)("RECKM", be*10+2)*(*sm)("RECKM", ne*10+1)/(*sm)("RECKM", 22)/(*sm)("RECKM", 21))*(*susy)("UMIX", je*10+1)/2./(*sm)("MASS",24)*f151(pow((*sus_param).MsqU[ae]/(*sus_param).Mch[ie],2.))*kron(ie,je)*kron(ae,me)*kron(be,ne);
 							
 							NQ11c+=(*sus_param).G_aimn[ae][ie][be][ne]*(*sus_param).Gamma_UL[me][be]*(*susy)("UMIX", je*10+1)*(a0Q1+a1*(*susy)("HMIX",2))
 							+(*sus_param).G_aimn[ae][ie][be][ne]*(*susy)("UMIX", je*10+1)*a0p
@@ -820,6 +822,7 @@ void SUSY_NLO_Strategy::init_scalar(double Q_match,double Q,int gen, WilsonSet& 
 							NQ21c+=(*sus_param).G_aimn[ae][ie][be][ne]*(*sus_param).Gamma_UL[me][be]*(*susy)("UMIX", je*10+1)*(a0Q2+a1*(*susy)("HMIX",2))
 							+(*sus_param).G_aimn[ae][ie][be][ne]*(*susy)("UMIX", je*10+1)*a0p
 							+(*sus_param).Gamma_UL[me][be]*(*susy)("UMIX", je*10+1)*a2p*pow((*sm)("MASS",3)*(*susy)("HMIX",2),2.);
+							Logger::getInstance()->info("a0p", a0p);
 						}
 					}
 				
@@ -877,12 +880,16 @@ void SUSY_NLO_Strategy::init_scalar(double Q_match,double Q,int gen, WilsonSet& 
 	complex_t BQ11c=(BQ11c1+BQ11c2)*(*sus_param).kappa*(*sm)("MASS",24)*(*sm)("MASS",24)/2./(*sm)("GAUGE",2)/(*sm)("GAUGE",2)/(*sus_param).sw2;
 	complex_t BQ21c=-(BQ11c1-BQ11c2)*(*sus_param).kappa*(*sm)("MASS",24)*(*sm)("MASS",24)/2./(*sm)("GAUGE",2)/(*sm)("GAUGE",2)/(*sus_param).sw2;
 	
-	
+	Logger::getInstance()->info("NQ11c", NQ11c);
+
 	NQ11c*=ml*((*susy)("HMIX",2))*(*susy)("HMIX",2)/(*sm)("MASS",24)/((*susy)("MASS",37)*(*susy)("MASS",37)-(*sm)("MASS",24)*(*sm)("MASS",24))*(*sus_param).aY*(*sus_param).mass_b_muW/(*sus_param).sw2;
 	NQ21c*=-ml*((*susy)("HMIX",2))*(*susy)("HMIX",2)/(*sm)("MASS",24)/((*susy)("MASS",37)*(*susy)("MASS",37)-(*sm)("MASS",24)*(*sm)("MASS",24))*(*sus_param).aY*(*sus_param).mass_b_muW/(*sus_param).sw2;
 	
 	complex_t CQ1charg_1=NQ11c+BQ11c;
 	
+	// Logger::getInstance()->info("NQ11c", NQ11c);
+	Logger::getInstance()->info("ay", (*sus_param).aY);
+
 	if (C.size() < 2) C.resize(2); 
     auto& C_LO = C[0];
 	auto& C_NLO = C[1]; 
@@ -890,21 +897,24 @@ void SUSY_NLO_Strategy::init_scalar(double Q_match,double Q,int gen, WilsonSet& 
 	C_NLO.resize(static_cast<size_t>(WilsonCoefficient::CPQ2) + 1, complex_t(0, 0));
 
 
-	if(fabs(CQ1charg_1)*alphas_mu/4./Pi>fabs(C_LO[static_cast<size_t>(WilsonCoefficient::CPQ1)])) CQ1charg_1*=fabs(C_LO[static_cast<size_t>(WilsonCoefficient::CPQ1)])/fabs(CQ1charg_1)*4.*Pi/alphas_mu;
-	if(fabs(CQ1H_1)*alphas_mu/4./Pi>fabs(C_LO[static_cast<size_t>(WilsonCoefficient::CPQ1)])) CQ1H_1*=fabs(C_LO[static_cast<size_t>(WilsonCoefficient::CPQ1)])/fabs(CQ1H_1)*4.*Pi/alphas_mu;
+	// if(fabs(CQ1charg_1)*alphas_mu/4./Pi>fabs(C_LO[static_cast<size_t>(WilsonCoefficient::CPQ1)])) CQ1charg_1*=fabs(C_LO[static_cast<size_t>(WilsonCoefficient::CPQ1)])/fabs(CQ1charg_1)*4.*Pi/alphas_mu;
+	// if(fabs(CQ1H_1)*alphas_mu/4./Pi>fabs(C_LO[static_cast<size_t>(WilsonCoefficient::CPQ1)])) CQ1H_1*=fabs(C_LO[static_cast<size_t>(WilsonCoefficient::CPQ1)])/fabs(CQ1H_1)*4.*Pi/alphas_mu;
 	C_NLO[static_cast<size_t>(WilsonCoefficient::CPQ1)]=CQ1H_1+CQ1charg_1;
 	
 	C_NLO[static_cast<size_t>(WilsonCoefficient::CPQ1)]/=(*sus_param).epsfac;
 	
 	complex_t CQ2charg_1=NQ21c+BQ21c;
 	
-	if(fabs(CQ2charg_1)*alphas_mu/4./Pi>fabs(C_LO[static_cast<size_t>(WilsonCoefficient::CPQ2)])) CQ2charg_1*=fabs(C_LO[static_cast<size_t>(WilsonCoefficient::CPQ2)])/fabs(CQ2charg_1)*4.*Pi/alphas_mu;
-	if(fabs(CQ2H_1)*alphas_mu/4./Pi>fabs(C_LO[static_cast<size_t>(WilsonCoefficient::CPQ2)])) CQ2H_1*=fabs(C_LO[static_cast<size_t>(WilsonCoefficient::CPQ2)])/fabs(CQ2H_1)*4.*Pi/alphas_mu;
+	// if(fabs(CQ2charg_1)*alphas_mu/4./Pi>fabs(C_LO[static_cast<size_t>(WilsonCoefficient::CPQ2)])) CQ2charg_1*=fabs(C_LO[static_cast<size_t>(WilsonCoefficient::CPQ2)])/fabs(CQ2charg_1)*4.*Pi/alphas_mu;
+	// if(fabs(CQ2H_1)*alphas_mu/4./Pi>fabs(C_LO[static_cast<size_t>(WilsonCoefficient::CPQ2)])) CQ2H_1*=fabs(C_LO[static_cast<size_t>(WilsonCoefficient::CPQ2)])/fabs(CQ2H_1)*4.*Pi/alphas_mu;
 	C_NLO[static_cast<size_t>(WilsonCoefficient::CPQ2)]=CQ2H_1+CQ2charg_1;
 		
 	C_NLO[static_cast<size_t>(WilsonCoefficient::CPQ2)]/=(*sus_param).epsfac;
 	
-	
+	Logger::getInstance()->info("CQ1H_1", CQ1H_1);
+	Logger::getInstance()->info("CQ1charg_1", CQ1charg_1);
+	Logger::getInstance()->info("epsfac", (*sus_param).epsfac);
+
 	/* Wilson coefficient CQ1 */ 
 	/* NLO  - four points */
 		
@@ -919,13 +929,14 @@ void SUSY_NLO_Strategy::init_scalar(double Q_match,double Q,int gen, WilsonSet& 
 
 	complex_t CQ1four_1=NQ11f+BQ11f;
 
-	if(fabs(CQ1four_1)*alphas_mu/4./Pi>fabs(C_LO[static_cast<size_t>(WilsonCoefficient::CPQ1)])) CQ1four_1*=fabs(C_LO[static_cast<size_t>(WilsonCoefficient::CPQ1)])/fabs(CQ1four_1)*4.*Pi/alphas_mu;
-		
+	// if(fabs(CQ1four_1)*alphas_mu/4./Pi>fabs(C_LO[static_cast<size_t>(WilsonCoefficient::CPQ1)])) CQ1four_1*=fabs(C_LO[static_cast<size_t>(WilsonCoefficient::CPQ1)])/fabs(CQ1four_1)*4.*Pi/alphas_mu;
+	
+	Logger::getInstance()->info("CQ1four_1", CQ1four_1);	
 	C_NLO[static_cast<size_t>(WilsonCoefficient::CPQ1)]+=CQ1four_1;
 
 	complex_t CQ2four_1=NQ21f+BQ21f;
 	
-	if(fabs(CQ2four_1)*alphas_mu/4./Pi>fabs(C_LO[static_cast<size_t>(WilsonCoefficient::CPQ2)])) CQ2four_1*=fabs(C_LO[static_cast<size_t>(WilsonCoefficient::CPQ2)])/fabs(CQ2four_1)*4.*Pi/alphas_mu;
+	// if(fabs(CQ2four_1)*alphas_mu/4./Pi>fabs(C_LO[static_cast<size_t>(WilsonCoefficient::CPQ2)])) CQ2four_1*=fabs(C_LO[static_cast<size_t>(WilsonCoefficient::CPQ2)])/fabs(CQ2four_1)*4.*Pi/alphas_mu;
 	C_NLO[static_cast<size_t>(WilsonCoefficient::CPQ2)]+=CQ2four_1;
 
 	C_LO[static_cast<size_t>(WilsonCoefficient::CPQ1)]*=pow(eta_mu,-4./beta0);
@@ -933,6 +944,8 @@ void SUSY_NLO_Strategy::init_scalar(double Q_match,double Q,int gen, WilsonSet& 
 	C_NLO[static_cast<size_t>(WilsonCoefficient::CPQ1)]*=pow(eta_mu,-4./beta0)*eta_mu;
 	C_NLO[static_cast<size_t>(WilsonCoefficient::CPQ2)]*=pow(eta_mu,-4./beta0)*eta_mu;
 
+	Logger::getInstance()->info("eta_mu", eta_mu);
+	Logger::getInstance()->info("beta0", beta0);
 
 	/* NMSSM */
 
@@ -943,8 +956,10 @@ void SUSY_NLO_Strategy::init_scalar(double Q_match,double Q,int gen, WilsonSet& 
 	double m_Bs = 1;
 	double mass_nutl = 1;
 
-	if((*susy)("MASS",36)!=0.)
+	if((*susy)("MASS",46)!=0.||(*susy)("MASS",45)!=0.)
 	{
+		Logger::getInstance()->info("NMSSM ? Doesn't exist, don't search for it.");
+
 		double s=lambdaSNMSSM/lambdaNMSSM;
 		double v=sqrt(1./sqrt(2.)/(*sm)("SMINPUTS", 2));
 		
@@ -1048,6 +1063,8 @@ void SUSY_NLO_Strategy::init_scalar(double Q_match,double Q,int gen, WilsonSet& 
 		CQ1c*=ml/4.*(*susy)("HMIX",2)*(*susy)("HMIX",2);
 		CQ2c*=-ml/4.*(*susy)("HMIX",2)*(*susy)("HMIX",2);		
 	
+		
+
 		C_LO[static_cast<size_t>(WilsonCoefficient::CPQ1)]=(CQ1H+CQ1c)*(*sus_param).mass_b_muW/(*sus_param).sw2/(*sus_param).epsfac;
 		C_LO[static_cast<size_t>(WilsonCoefficient::CPQ2)]=(CQ2H+CQ2c)*(*sus_param).mass_b_muW/(*sus_param).sw2/(*sus_param).epsfac;
 

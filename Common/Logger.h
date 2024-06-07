@@ -4,6 +4,9 @@
 #include <string>
 #include <iostream>
 #include <fstream>
+#include <complex>
+#include <vector>
+#include <sstream>
 
 class Logger {
 public:
@@ -20,20 +23,36 @@ public:
 
     void setLevel(LogLevel level);
     void setLogFile(const std::string& filename);
-    void log(LogLevel messageLevel, const std::string& message);
+    template<typename... Args>
+    void log(LogLevel messageLevel, Args... args);
 
-    void info(const std::string& message);
-    void warn(const std::string& message);
-    void error(const std::string& message);
-    void debug(const std::string& message);
-    void trace(const std::string& message);
-    void verbose(const std::string& message);
+    template<typename... Args>
+    void info(Args... args) { log(LogLevel::INFO, args...); }
+    template<typename... Args>
+    void warn(Args... args) { log(LogLevel::WARN, args...); }
+    template<typename... Args>
+    void error(Args... args) { log(LogLevel::ERROR, args...); }
+    template<typename... Args>
+    void debug(Args... args) { log(LogLevel::DEBUG, args...); }
+    template<typename... Args>
+    void trace(Args... args) { log(LogLevel::TRACE, args...); }
+    template<typename... Args>
+    void verbose(Args... args) { log(LogLevel::VERBOSE, args...); }
+
 private:
     static Logger* instance;
     Logger() {}
     LogLevel level = LogLevel::INFO;
     std::ofstream logFile;
     std::string toString(LogLevel level);
+    
+    template<typename T>
+    void logMessage(std::ostream& os, T value);
+    template<typename T, typename... Args>
+    void logMessage(std::ostream& os, T value, Args... args);
 };
 
+#include "Logger.tpp"
+
 #endif // LOGGER_H
+
