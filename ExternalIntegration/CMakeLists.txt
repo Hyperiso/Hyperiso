@@ -85,7 +85,7 @@ if (BUILD_WITH_2HDMC)
     message(STATUS "2HDMC source files: ${THDM}")
 
     target_sources(ExternalIntegrationLib PRIVATE "${EXTRACT_DIR}/src/THDM.cpp" "${EXTRACT_DIR}/src/SM.cpp" "${EXTRACT_DIR}/src/Util.cpp" "${EXTRACT_DIR}/src/DecayTable.cpp")
-    target_link_libraries(ExternalIntegrationLib PRIVATE ${GSL_LIBRAIRIES})
+    target_link_libraries(ExternalIntegrationLib PRIVATE ${GSL_LIBRARIES})
     target_include_directories(ExternalIntegrationLib PRIVATE "${EXTRACT_DIR}/src" ${GSL_INCLUDE_DIRS})
     
 endif()

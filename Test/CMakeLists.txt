@@ -26,6 +26,11 @@ target_link_libraries(testParams CoreLib)
 add_executable(testPrimeCQWilson testPrimeCQWilson.cpp)
 target_link_libraries(testPrimeCQWilson PhysicalModelLib)
 
+add_executable(testPrimeCQTHDMWilson testPrimeCQTHDMWilson.cpp)
+target_link_libraries(testPrimeCQTHDMWilson PhysicalModelLib)
+
+add_executable(testPrimeCQSUSYWilson testPrimeCQSUSYWilson.cpp)
+target_link_libraries(testPrimeCQSUSYWilson PhysicalModelLib)
 # add_executable(test2HDMC test2HDMC.cpp)
 # target_link_libraries(test2HDMC ExternalIntegrationLib)
 

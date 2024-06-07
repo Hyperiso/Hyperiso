@@ -3,7 +3,7 @@
 complex_t WilsonManager::get(WilsonCoefficient wc, int order) const {
     if (order < 0 || order >= C.size()) {
         Logger::getInstance()->error("Requested order is not available: " + std::to_string(order));
-        return complex_t(-1, 0);
+        return complex_t(0, 0);
     }
 
     const auto& C_order = C[order];

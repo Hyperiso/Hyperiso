@@ -171,8 +171,8 @@ void THDM_LO_Strategy::init_scalar(double Q_match,double Q,int gen, WilsonSet& C
 
 	
 	if(gen==1) ml=(*sm)("MASS", 11);
-	else if(gen==3) ml=(*sm)("MASS", 13);
-	else {gen=2; ml=(*sm)("MASS", 15);}
+	else if(gen==3) ml=(*sm)("MASS", 15);
+	else {gen=2; ml=(*sm)("MASS", 13);}
 	
 	double mass_top_muW=(*sm).QCDRunner.running_mass((*sm)("MASS",6), (*sm)("MASS",6),Q_match); //mass top at top ?
 	double mass_b_muW=(*sm).QCDRunner.running_mass((*sm)("MASS",5), (*sm)("MASS",5), Q_match); //mass bottom 6 (at pole)
@@ -180,8 +180,8 @@ void THDM_LO_Strategy::init_scalar(double Q_match,double Q,int gen, WilsonSet& C
 
 	double xt=pow(mass_top_muW/(*sm)("MASS",24),2.);
 
-	double xh=pow((*thdm)("MASS",37)/(*thdm)("MASS",24),2.);
-
+	double xh=pow((*thdm)("MASS",25)/(*sm)("MASS",24),2.);
+	Logger::getInstance()->info("xh : " + std::to_string(xh));
 	int nf=5;
 	double beta0 = 11.-2./3.*nf;
 
@@ -189,29 +189,55 @@ void THDM_LO_Strategy::init_scalar(double Q_match,double Q,int gen, WilsonSet& C
 	double alphas_mu=(*sm).QCDRunner.runningAlphasCalculation(Q);	
 	double eta_mu=alphas_muW/alphas_mu;
 
-	double alpha=(*sm)("ALPHA", 42);
-	double beta=atan((*sm)("EXTPAR", 37));
-
+	double alpha=(*thdm)("ALPHA", 0);
+	Logger::getInstance()->info("alPHA : "+ std::to_string(alpha));
+	double beta=atan((*thdm)("HMIX", 2));
+	Logger::getInstance()->info("beta : "+ std::to_string(beta));
 	double xH=pow((*thdm)("MASS",37)/(*sm)("MASS",24),2.);
-	double xH0=pow((*sm)("MASS",35)/(*sm)("MASS",24),2.);
-	double xA=pow((*sm)("MASS",36)/(*sm)("MASS",24),2.);
+	double xH0=pow((*thdm)("MASS",35)/(*sm)("MASS",24),2.);
+	double xA=pow((*thdm)("MASS",36)/(*sm)("MASS",24),2.);
 	
+	Logger::getInstance()->info("xt : "+ std::to_string(xt));
+	Logger::getInstance()->info("xH : "+ std::to_string(xH));
+	Logger::getInstance()->info("xH0 : "+ std::to_string(xH0));
+	Logger::getInstance()->info("mass_A : "+ std::to_string((*thdm)("MASS",36)));
+	Logger::getInstance()->info("mass_W : "+ std::to_string((*sm)("MASS",24)));
+
+	Logger::getInstance()->info("YD : "+ std::to_string(((*thdm)("YD",22))));
+	Logger::getInstance()->info("YU : "+ std::to_string((*thdm)("YU",22)));
+	Logger::getInstance()->info("YL : "+ std::to_string((*thdm)("YL",10*(gen-1)+gen-1)));
+
+
 	double G1=-3./4.+(*thdm)("YD",22)*(*thdm)("YU",22)*F4SP(xt,xH)+(*thdm)("YU",22)*(*thdm)("YU",22)*F5SP(xt,xH);
-	
+	Logger::getInstance()->info("G1 : "+ std::to_string(G1));
 	double G2=(*thdm)("YD",22)*((*thdm)("YD",22)*(*thdm)("YU",22)+1.)*F6SP(xt,xH)-(*thdm)("YD",22)*(*thdm)("YU",22)*(*thdm)("YU",22)*F7SP(xt,xH)
-	+(*thdm)("YU",22)*(*thdm)("YU",22)*((*sm)("YD",22)*F8SP(xt,xH)+(*thdm)("YU",22)*F9SP(xt,xH)-(*thdm)("YU",22)*F10SP(xt,xH))+(*thdm)("YU",22)*F11SP(xt,xH)-(*thdm)("YU",22)*F12SP(xt,xH);
-	
-	double G3=(*thdm)("YD",22)*((*thdm)("YD",22)*(*thdm)("YU",22)+1.)*F6SP(xt,xH)+(*thdm)("YD",22)*(*thdm)("YU",22)*(*sm)("YU",22)*F7SP(xt,xH)
+	+(*thdm)("YU",22)*(*thdm)("YU",22)*((*thdm)("YD",22)*F8SP(xt,xH)+(*thdm)("YU",22)*F9SP(xt,xH)-(*thdm)("YU",22)*F10SP(xt,xH))+(*thdm)("YU",22)*F11SP(xt,xH)-(*thdm)("YU",22)*F12SP(xt,xH);
+	Logger::getInstance()->info("G2 : "+ std::to_string(G2));
+	double G3=(*thdm)("YD",22)*((*thdm)("YD",22)*(*thdm)("YU",22)+1.)*F6SP(xt,xH)+(*thdm)("YD",22)*(*thdm)("YU",22)*(*thdm)("YU",22)*F7SP(xt,xH)
 	+(*thdm)("YU",22)*(*thdm)("YU",22)*((*thdm)("YD",22)*F8SP(xt,xH)+(*thdm)("YU",22)*F9SP(xt,xH)+(*thdm)("YU",22)*F10SP(xt,xH))+(*thdm)("YU",22)*F11SP(xt,xH)+(*thdm)("YD",22)*F12SP(xt,xH);
+	Logger::getInstance()->info("G3 : "+ std::to_string(G3));
+	double CSn_2HDM=xt*(F0SP(xt)+(*thdm)("YL",10*(gen-1)+gen-1)*((*thdm)("YD",22)*F1SP(xt,xH)+(*thdm)("YU",22)*F2SP(xt,xH))+(*thdm)("YL",10*(gen-1)+gen-1)*(*thdm)("YU",22)*F3SP(xt,xH))
+	+xt/2./xh*(sin(alpha-beta)+cos(alpha-beta)*(*thdm)("YL",10*(gen-1)+gen-1))*(sin(alpha-beta)*G1+cos(alpha-beta)*G2)
+	+xt/2./xH0*(cos(alpha-beta)-sin(alpha-beta)*(*thdm)("YL",10*(gen-1)+gen-1))*(cos(alpha-beta)*G1-sin(alpha-beta)*G2);
 
-	double CSn_2HDM=xt*(F0SP(xt)+(*sm)("YL",gen*gen)*((*sm)("YD",22)*F1SP(xt,xH)+(*sm)("YU",22)*F2SP(xt,xH))+(*sm)("YL",gen*gen)*(*sm)("YU",22)*F3SP(xt,xH))
-	+xt/2./xh*(sin(alpha-beta)+cos(alpha-beta)*(*sm)("YL",gen*gen))*(sin(alpha-beta)*G1+cos(alpha-beta)*G2)
-	+xt/2./xH0*(cos(alpha-beta)-sin(alpha-beta)*(*sm)("YL",gen*gen))*(cos(alpha-beta)*G1-sin(alpha-beta)*G2);
+	Logger::getInstance()->info("1er terme : "+ std::to_string(xt*(F0SP(xt)+(*thdm)("YL",10*(gen-1)+gen-1)*((*thdm)("YD",22)*F1SP(xt,xH)+(*thdm)("YU",22)*F2SP(xt,xH))+(*thdm)("YL",10*(gen-1)+gen-1)*(*thdm)("YU",22)*F3SP(xt,xH))));
+	Logger::getInstance()->info("2eme terme : "+ std::to_string(xt/2./xh*(sin(alpha-beta)+cos(alpha-beta)*(*thdm)("YL",10*(gen-1)+gen-1))*(sin(alpha-beta)*G1+cos(alpha-beta)*G2)));
+	Logger::getInstance()->info("3eme terme : "+ std::to_string(xt/2./xH0*(cos(alpha-beta)-sin(alpha-beta)*(*thdm)("YL",10*(gen-1)+gen-1))*(cos(alpha-beta)*G1-sin(alpha-beta)*G2)));
+
 	
-	double CPn_2HDM=xt*(-(*sm)("YL",gen*gen)*((*sm)("YD",22)*F1SP(xt,xH)+(*sm)("YU",22)*F2SP(xt,xH))+(*sm)("YL",gen*gen)*(*sm)("YU",22)*F3SP(xt,xH))+xt/2./xA*((*sm)("YL",gen*gen))*G3;
+	Logger::getInstance()->info("F0SP(xt) : "+ std::to_string(F0SP(xt)));
+	Logger::getInstance()->info("F1SP(xt,xH) : "+ std::to_string(F1SP(xt,xH)));
+	Logger::getInstance()->info("F2SP(xt,xH) : "+ std::to_string(F2SP(xt,xH)));
+	Logger::getInstance()->info("F3SP(xt,xH) : "+ std::to_string(F3SP(xt,xH)));
+	
+	Logger::getInstance()->info("sin : "+ std::to_string(sin(alpha-beta)));
+	Logger::getInstance()->info("cos : "+ std::to_string(cos(alpha-beta)));
 
-	double CQ1H_0=CSc_2HDM(xH,xt,(*sm)("YU",22),(*sm)("YD",22),(*sm)("YL",gen*gen))+CSn_2HDM;
-	double CQ2H_0=CPc_2HDM(xH,xt,(*sm)("YU",22),(*sm)("YD",22),(*sm)("YL",gen*gen),sw2)+CPn_2HDM;
+	Logger::getInstance()->info("CSn_2HDM : "+ std::to_string(CSn_2HDM));
+	double CPn_2HDM=xt*(-(*thdm)("YL",10*(gen-1)+gen-1)*((*thdm)("YD",22)*F1SP(xt,xH)+(*thdm)("YU",22)*F2SP(xt,xH))+(*thdm)("YL",10*(gen-1)+gen-1)*(*thdm)("YU",22)*F3SP(xt,xH))+xt/2./xA*((*thdm)("YL",10*(gen-1)+gen-1))*G3;
+	Logger::getInstance()->info("CPn_2HDM : "+ std::to_string(CPn_2HDM));
+	double CQ1H_0=CSc_2HDM(xH,xt,(*thdm)("YU",22),(*thdm)("YD",22),(*thdm)("YL",10*(gen-1)+gen-1))+CSn_2HDM;
+	double CQ2H_0=CPc_2HDM(xH,xt,(*thdm)("YU",22),(*thdm)("YD",22),(*thdm)("YL",10*(gen-1)+gen-1),sw2)+CPn_2HDM;
 	
 	CQ1H_0*=(ml*mass_b_muW/(*sm)("MASS",24)/(*sm)("MASS",24))/sw2;
 	CQ2H_0*=(ml*mass_b_muW/(*sm)("MASS",24)/(*sm)("MASS",24))/sw2;

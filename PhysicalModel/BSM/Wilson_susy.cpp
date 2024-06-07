@@ -513,8 +513,8 @@ void SUSY_LO_Strategy::init_prime(double Q_match,double Q,int gen, WilsonSet& C)
 
 	
 	if(gen==1) ml=(*sm)("MASS", 11);
-	else if(gen==3) ml=(*sm)("MASS", 13);
-	else {gen=2; ml=(*sm)("MASS", 15);}
+	else if(gen==3) ml=(*sm)("MASS", 15);
+	else {gen=2; ml=(*sm)("MASS", 13);}
 
 	double alphas_muW = (*sm).alpha_s(Q_match);
     double alphas_mu = (*sm).alpha_s(Q);
@@ -538,11 +538,11 @@ void SUSY_LO_Strategy::init_prime(double Q_match,double Q,int gen, WilsonSet& C)
 	double BQ1pc1=0.;
 	double BQ1pc2=0.;
 
-	double Dp,Dm;
-	double a0a, a0b, a0c, a0Q1, a0Q2, a1, NQ1pc, NQ2pc;
+	double Dp{0},Dm{0};
+	double a0a{0}, a0b{0}, a0c{0}, a0Q1{0}, a0Q2{0}, a1{0}, NQ1pc{0}, NQ2pc{0};
 
 	for(int ie=0;ie<2;ie++) {
-		for(int ae=1;ae<=6;ae++) {
+		for(int ae=0;ae<6;ae++) {
 			C7pcharg+=pow((*sm)("MASS",24)/(*sus_param).Mch[ie],2.)*((*sus_param).X_UR[ie][ae][1]*(*sus_param).X_UR[ie][ae][2]*h10(pow((*sus_param).MsqU[ae]/(*sus_param).Mch[ie],2.)) + (*sus_param).Mch[ie]/(*sus_param).mass_b_muW*(*sus_param).X_UR[ie][ae][1]*(*sus_param).X_UL[ie][ae][2]*h20(pow((*sus_param).MsqU[ae]/(*sus_param).Mch[ie],2.)));
 			C8pcharg+=pow((*sm)("MASS",24)/(*sus_param).Mch[ie],2.)*((*sus_param).X_UR[ie][ae][1]*(*sus_param).X_UR[ie][ae][2]*h50(pow((*sus_param).MsqU[ae]/(*sus_param).Mch[ie],2.)) + (*sus_param).Mch[ie]/(*sus_param).mass_b_muW*(*sus_param).X_UR[ie][ae][1]*(*sus_param).X_UL[ie][ae][2]*h60(pow((*sus_param).MsqU[ae]/(*sus_param).Mch[ie],2.)));
 
@@ -553,7 +553,7 @@ void SUSY_LO_Strategy::init_prime(double Q_match,double Q,int gen, WilsonSet& C)
 				for(int be=0;be<3;be++) {
 					B10pc+=-(*sus_param).X_UR[je][ae][1]*(*sus_param).X_UR[ie][ae][2]/(*sus_param).Mch[ie]/(*sus_param).Mch[ie]*(0.5*(*sus_param).X_NR[ie][be][2]*(*sus_param).X_NR[je][be][2]*f50(pow((*sus_param).Mch[je]/(*sus_param).Mch[ie],2.),pow((*sus_param).MsqU[ae]/(*sus_param).Mch[ie],2.),pow((*sus_param).Msn[be]/(*sus_param).Mch[ie],2.)) +(*sus_param).X_NL[ie][be][2]*(*sus_param).X_NL[je][be][2]*fabs((*sus_param).Mch[je]/(*sus_param).Mch[ie])*f60(pow((*sus_param).Mch[je]/(*sus_param).Mch[ie],2.),pow((*sus_param).MsqU[ae]/(*sus_param).Mch[ie],2.),pow((*sus_param).Msn[be]/(*sus_param).Mch[ie],2.)));
 					B9pc+=(*sus_param).X_UR[je][ae][1]*(*sus_param).X_UR[ie][ae][2]/(*sus_param).Mch[ie]/(*sus_param).Mch[ie]*(0.5*(*sus_param).X_NR[ie][be][2]*(*sus_param).X_NR[je][be][2]*f50(pow((*sus_param).Mch[je]/(*sus_param).Mch[ie],2.),pow((*sus_param).MsqU[ae]/(*sus_param).Mch[ie],2.),pow((*sus_param).Msn[be]/(*sus_param).Mch[ie],2.)) -(*sus_param).X_NL[ie][be][2]*(*sus_param).X_NL[je][be][2]*fabs((*sus_param).Mch[je]/(*sus_param).Mch[ie])*f60(pow((*sus_param).Mch[je]/(*sus_param).Mch[ie],2.),pow((*sus_param).MsqU[ae]/(*sus_param).Mch[ie],2.),pow((*sus_param).Msn[be]/(*sus_param).Mch[ie],2.)));
-					B9pc*=(*sus_param).kappa*((*sm)("MASS",24))*(*sm)("MASS",24)/2./(*sm)("GAUGE", 2)/(*sm)("GAUGE", 2);
+					
 					BQ1pc1+=(*sus_param).X_UR[je][ae][1]*(*sus_param).X_UL[ie][ae][2]/(*sus_param).Mch[ie]/(*sus_param).Mch[ie]*((*sus_param).X_NL[ie][be][2]*(*sus_param).X_NR[je][be][2]*f50(pow((*sus_param).Mch[je]/(*sus_param).Mch[ie],2.),pow((*sus_param).MsqU[ae]/(*sus_param).Mch[ie],2.),pow((*sus_param).Msn[be]/(*sus_param).Mch[ie],2.))); 	
 					BQ1pc2+=(*sus_param).X_UR[je][ae][1]*(*sus_param).X_UL[ie][ae][2]/(*sus_param).Mch[ie]/(*sus_param).Mch[ie]*((*sus_param).X_NR[ie][be][2]*(*sus_param).X_NL[je][be][2]*fabs((*sus_param).Mch[je]/(*sus_param).Mch[ie])*f60(pow((*sus_param).Mch[je]/(*sus_param).Mch[ie],2.),pow((*sus_param).MsqU[ae]/(*sus_param).Mch[ie],2.),pow((*sus_param).Msn[be]/(*sus_param).Mch[ie],2.)));
 					for(int me=0;me<3;me++) {
@@ -588,7 +588,7 @@ void SUSY_LO_Strategy::init_prime(double Q_match,double Q,int gen, WilsonSet& C)
 		}
 	} 		
 	C7pcharg*=-0.5*(*sus_param).kappa; 
-		
+	B9pc*=(*sus_param).kappa*((*sm)("MASS",24))*(*sm)("MASS",24)/2./(*sm)("GAUGE", 2)/(*sm)("GAUGE", 2);	
 	
 	C8pcharg*=-0.5*(*sus_param).kappa; 
 	C9pc*=-(*sus_param).kappa/8.;
@@ -610,15 +610,23 @@ void SUSY_LO_Strategy::init_prime(double Q_match,double Q,int gen, WilsonSet& C)
 	double C10pcharg=(B10pc-C9pc)/(*sus_param).sw2;
 	
 	
-	
+	Logger::getInstance()->info("C10pcharg : " + std::to_string(C10pcharg));
+	Logger::getInstance()->info("C10pH : " + std::to_string(C10pH));
+	Logger::getInstance()->info("C9pH : " + std::to_string(C9pH));
 	
 	
 	D9pc*=(*sus_param).kappa;
 
 	double C9pcharg=(1.-4.*(*sus_param).sw2)/(*sus_param).sw2*C9pc-B9pc/(*sus_param).sw2-D9pc;
 	
+	Logger::getInstance()->info("C9pcharg : " + std::to_string(C9pcharg));
+	Logger::getInstance()->info("C9pc : " + std::to_string(C9pc));
+	Logger::getInstance()->info("B9pc : " + std::to_string(B9pc));
+	Logger::getInstance()->info("D9pc : " + std::to_string(D9pc));
+
+
 	C_LO[static_cast<size_t>(WilsonCoefficient::CP9)]+=C9pH+C9pcharg;
-	C_LO[static_cast<size_t>(WilsonCoefficient::CP10)]+=C10pH+C10pcharg;	
+	C_LO[static_cast<size_t>(WilsonCoefficient::CP10)]=C10pH+C10pcharg;	
 
 	/* Wilson coefficients CQ1 and CQ2 prime */ 
 	double NQ1pH=-ml*((*susy)("HMIX",2))*(*susy)("HMIX",2)/4./(*sm)("MASS",24)/(*sm)("MASS",24)*(*sus_param).xt*f30((*sus_param).xt,(*sus_param).z);
@@ -664,8 +672,8 @@ void SUSY_LO_Strategy::init_scalar(double Q_match,double Q,int gen, WilsonSet& C
 
 	double ml;
 	if(gen==1) ml=(*sm)("MASS", 11);
-	else if(gen==3) ml=(*sm)("MASS", 13);
-	else {gen=2; ml=(*sm)("MASS", 15);}
+	else if(gen==3) ml=(*sm)("MASS", 15);
+	else {gen=2; ml=(*sm)("MASS", 13);}
 
 	complex_t BQ10c1=0.;
 	complex_t BQ10c2=0.;
@@ -752,8 +760,8 @@ void SUSY_NLO_Strategy::init_scalar(double Q_match,double Q,int gen, WilsonSet& 
 	double eta_mu=(*sus_param).alphas_muW/alphas_mu;
 	double ml;
 	if(gen==1) ml=(*sm)("MASS", 11);
-	else if(gen==3) ml=(*sm)("MASS", 13);
-	else {gen=2; ml=(*sm)("MASS", 15);}
+	else if(gen==3) ml=(*sm)("MASS", 15);
+	else {gen=2; ml=(*sm)("MASS", 13);}
 
 	int nf=5;
 	double beta0 = 11.-2./3.*nf;
@@ -788,8 +796,8 @@ void SUSY_NLO_Strategy::init_scalar(double Q_match,double Q,int gen, WilsonSet& 
 					BQ11c1+=(*sus_param).X_UL[je][ae][1]*(*sus_param).X_UR[ie][ae][2]/(*sus_param).Mch[ie]/(*sus_param).Mch[ie]*((*sus_param).X_NR[ie][be][1]*(*sus_param).X_NL[je][be][1]*(f121(pow((*sus_param).Mch[je]/(*sus_param).Mch[ie],2.),pow((*sus_param).MsqU[ae]/(*sus_param).Mch[ie],2.),pow((*sus_param).Msn[be]/(*sus_param).Mch[ie],2.))+4.*(f50(pow((*sus_param).Mch[je]/(*sus_param).Mch[ie],2.),pow((*sus_param).MsqU[ae]/(*sus_param).Mch[ie],2.)*1.0001,pow((*sus_param).Msn[be]/(*sus_param).Mch[ie],2.))-f50(pow((*sus_param).Mch[je]/(*sus_param).Mch[ie],2.),pow((*sus_param).MsqU[ae]/(*sus_param).Mch[ie],2.)*0.9999,pow((*sus_param).Msn[be]/(*sus_param).Mch[ie],2.)))/0.0002*log(pow((*sus_param).mass_top_muW/(*sus_param).MsqU[ae],2.))));
 					BQ11c2+=(*sus_param).X_UL[je][ae][1]*(*sus_param).X_UR[ie][ae][2]/(*sus_param).Mch[ie]/(*sus_param).Mch[ie]*((*sus_param).X_NL[ie][be][1]*(*sus_param).X_NR[je][be][1]*fabs((*sus_param).Mch[je]/(*sus_param).Mch[ie])*(f131(pow((*sus_param).Mch[je]/(*sus_param).Mch[ie],2.),pow((*sus_param).MsqU[ae]/(*sus_param).Mch[ie],2.),pow((*sus_param).Msn[be]/(*sus_param).Mch[ie],2.))+4.*(f60(pow((*sus_param).Mch[je]/(*sus_param).Mch[ie],2.),pow((*sus_param).MsqU[ae]/(*sus_param).Mch[ie],2.)*1.0001,pow((*sus_param).Msn[be]/(*sus_param).Mch[ie],2.))-f60(pow((*sus_param).Mch[je]/(*sus_param).Mch[ie],2.),pow((*sus_param).MsqU[ae]/(*sus_param).Mch[ie],2.)*0.9999,pow((*sus_param).Msn[be]/(*sus_param).Mch[ie],2.)))/0.0002*log(pow((*sus_param).mass_top_muW/(*sus_param).MsqU[ae],2.))));
 
-					for(int me=1;me<=6;me++){ 
-						for(int ne=1;ne<=3;ne++) {
+					for(int me=0;me<6;me++){ 
+						for(int ne=0;ne<3;ne++) {
 							Dp=0.;
 							Dm=0.;
 							for(int fe=1;fe<=3;fe++) { 	
@@ -814,11 +822,11 @@ void SUSY_NLO_Strategy::init_scalar(double Q_match,double Q,int gen, WilsonSet& 
 							+(*sus_param).Gamma_UL[me][be]*(*susy)("UMIX", je*10+1)*a2p*pow((*sm)("MASS",3)*(*susy)("HMIX",2),2.);
 						}
 					}
-
+				
 				}
-				for(int be=1;be<=6;be++) {
-					for(int ce=1;ce<=6;ce++) {
-						for(int fe=1;fe<=3;fe++) {
+				for(int be=0;be<6;be++) {
+					for(int ce=0;ce<6;ce++) {
+						for(int fe=0;fe<3;fe++) {
 							BQ11f1+=-(*sus_param).X_UL[je][be][1]*(*sus_param).X_UR[ie][ae][2]*pow((*sm)("MASS",24)/(*sus_param).Mch[ie],2.)*(*sus_param).P_U[ae][ce]*(*sus_param).MsqU[ce]/(*sus_param).Mch[ie]*(*sus_param).P_U[ce][be]*(1.+log(pow((*sus_param).mass_top_muW/(*sus_param).MsqU[ce],2.)))	*(f90(pow((*sus_param).Mch[je]/(*sus_param).Mch[ie],2.),pow((*sus_param).MsqU[ae]/(*sus_param).Mch[ie],2.),pow((*sus_param).MsqU[be]/(*sus_param).Mch[ie],2.),pow((*sus_param).Msn[fe]/(*sus_param).Mch[ie],2.))*(*sus_param).X_NR[ie][fe][2]*(*sus_param).X_NL[je][fe][2]);
 							BQ11f2+=-(*sus_param).X_UL[je][be][1]*(*sus_param).X_UR[ie][ae][2]*pow((*sm)("MASS",24)/(*sus_param).Mch[ie],2.)*(*sus_param).P_U[ae][ce]*(*sus_param).MsqU[ce]/(*sus_param).Mch[ie]*(*sus_param).P_U[ce][be]*(1.+log(pow((*sus_param).mass_top_muW/(*sus_param).MsqU[ce],2.)))	*(fabs((*sus_param).Mch[je]/(*sus_param).Mch[ie])*f100(pow((*sus_param).Mch[je]/(*sus_param).Mch[ie],2.),pow((*sus_param).MsqU[ae]/(*sus_param).Mch[ie],2.),pow((*sus_param).MsqU[be]/(*sus_param).Mch[ie],2.),pow((*sus_param).Msn[fe]/(*sus_param).Mch[ie],2.))*(*sus_param).X_NL[ie][fe][1]*(*sus_param).X_NR[je][fe][1]);
 
@@ -827,18 +835,18 @@ void SUSY_NLO_Strategy::init_scalar(double Q_match,double Q,int gen, WilsonSet& 
 				}
 			}
 
-			for(int me=1;me<=3;me++) {
-				for(int ne=1;ne<=3;ne++) {
-					for(int de=1;de<=6;de++) {
-						for(int ke=1;ke<=6;ke++) {
+			for(int me=0;me<3;me++) {
+				for(int ne=0;ne<3;ne++) {
+					for(int de=0;de<6;de++) {
+						for(int ke=0;ke<6;ke++) {
 							
 							temp2 = (*sus_param).G_aimn[ae][ie][me][ne]*(*sus_param).Gamma_UL[de][me]*(*susy)("UMIX",ie*10+2)*(*sus_param).P_U[ae][ke]*(*sus_param).MsqU[ke]/(*sus_param).Mch[ie]*(*sus_param).P_U[ke][de]*(1.+log(pow((*sus_param).mass_top_muW/(*sus_param).MsqU[ke],2.)))*(*susy)("HMIX",2)*(*sus_param).Mch[ie]/sqrt(2.)*f30(pow((*sus_param).MsqU[ae]/(*sus_param).Mch[ie],2.),pow((*sus_param).MsqU[de]/(*sus_param).Mch[ie],2.));
 							NQ11f+=temp2;
 							NQ21f+=temp2;
-							for(int ce=1;ce<=6;ce++) {
+							for(int ce=0;ce<6;ce++) {
 								Dp=0.;
 								Dm=0.;
-								for(int fe=1;fe<=3;fe++) 
+								for(int fe=0;fe<3;fe++) 
 								{		
 									Dp+=(*sus_param).MU[fe]/sqrt(2.)/(*sus_param).Mch[ie]*(*susy)("HMIX",1)*((*sus_param).Gamma_UR[de][fe]*(*sus_param).Gamma_UL[ce][fe]+(*sus_param).Gamma_UL[de][fe]*(*sus_param).Gamma_UR[ce][fe]); 
 									Dm+=(*sus_param).MU[fe]/sqrt(2.)/(*sus_param).Mch[ie]*(*susy)("HMIX",1)*((*sus_param).Gamma_UR[de][fe]*(*sus_param).Gamma_UL[ce][fe]-(*sus_param).Gamma_UL[de][fe]*(*sus_param).Gamma_UR[ce][fe]); 
@@ -848,7 +856,7 @@ void SUSY_NLO_Strategy::init_scalar(double Q_match,double Q,int gen, WilsonSet& 
 								NQ11f+=Dp*temp;
 								NQ21f+=Dm*temp;
 							}
-							for(int je=1;je<=2;je++) {
+							for(int je=0;je<2;je++) {
 								temp=-(*sus_param).G_aimn[ae][ie][me][ne]*(*sus_param).Gamma_UL[de][me]*(*susy)("UMIX",je*10+2)*(*sus_param).P_U[ae][ke]*(*sus_param).MsqU[ke]/(*sus_param).Mch[je]*(*sus_param).P_U[ke][de]*
 								(1.+log(pow((*sus_param).mass_top_muW/(*sus_param).MsqU[ke],2.)))*(*sm)("MASS",24)*(fabs((*sus_param).Mch[ie]/(*sus_param).Mch[je])*f60(pow((*sus_param).Mch[ie]/(*sus_param).Mch[je],2.),pow((*sus_param).MsqU[ae]/(*sus_param).Mch[je],2.),pow((*sus_param).MsqU[de]/(*sus_param).Mch[je],2.))*(*susy)("UMIX",ie*10+2)*(*susy)("VMIX",je*10+1)+
 								f50(pow((*sus_param).Mch[ie]/(*sus_param).Mch[je],2.),pow((*sus_param).MsqU[ae]/(*sus_param).Mch[je],2.),pow((*sus_param).MsqU[de]/(*sus_param).Mch[je],2.))*(*susy)("UMIX",je*10+2)*(*susy)("VMIX",ie*10+1)); 
@@ -863,6 +871,7 @@ void SUSY_NLO_Strategy::init_scalar(double Q_match,double Q,int gen, WilsonSet& 
 			}
 		}
 	}
+	
 	//Warning, triple calculation in superiso, not done here
 	
 	complex_t BQ11c=(BQ11c1+BQ11c2)*(*sus_param).kappa*(*sm)("MASS",24)*(*sm)("MASS",24)/2./(*sm)("GAUGE",2)/(*sm)("GAUGE",2)/(*sus_param).sw2;
@@ -874,7 +883,7 @@ void SUSY_NLO_Strategy::init_scalar(double Q_match,double Q,int gen, WilsonSet& 
 	
 	complex_t CQ1charg_1=NQ11c+BQ11c;
 	
-	if (C.size() < 1) C.resize(2); 
+	if (C.size() < 2) C.resize(2); 
     auto& C_LO = C[0];
 	auto& C_NLO = C[1]; 
     C_LO.resize(static_cast<size_t>(WilsonCoefficient::CPQ2) + 1, complex_t(0, 0));
@@ -963,8 +972,8 @@ void SUSY_NLO_Strategy::init_scalar(double Q_match,double Q,int gen, WilsonSet& 
 		std::array<std::array<double,4>,4> TU;
 	
 		TU[1][1]=1.;
-		for(int ie=1;ie<=2;ie++){
-			 for(int je=1;je<=2;je++) {
+		for(int ie=0;ie<2;ie++){
+			 for(int je=0;je<2;je++) {
 				TU[ie+1][je+1]=(*susy)("STOPMIX", ie*10+je);
 			}
 		}
@@ -973,9 +982,9 @@ void SUSY_NLO_Strategy::init_scalar(double Q_match,double Q,int gen, WilsonSet& 
 		double vu=sqrt(pow(sin(atan((*susy)("HMIX",2))),2.)/sqrt(2.)/(*sm)("SMINPUTS", 2));
 		double vd=vu/(*susy)("HMIX",2);
 
-		for(int je=1;je<=2;je++) {
-			for(int le=1;le<=2;le++) {
-				 for(int ae=1;ae<=3;ae++) {
+		for(int je=0;je<2;je++) {
+			for(int le=0;le<2;le++) {
+				 for(int ae=0;ae<3;ae++) {
 					if (ae <3 ){
 						Ralj[ae][le][je]=-(*sm)("GAUGE",2)/sqrt(2.)*((*susy)("A0MIX",ae*10+1)*(*susy)("UMIX",20+le)*(*susy)("VMIX",20+je)+(*susy)("A0MIX",ae*10+2)*(*susy)("UMIX",10+le)*(*susy)("VMIX",20+je))-lambdaNMSSM/sqrt(2.)*(*susy)("A0MIX",ae*10+3)*(*susy)("UMIX",20+le)*(*susy)("VMIX",20+je);
 					}
@@ -985,8 +994,8 @@ void SUSY_NLO_Strategy::init_scalar(double Q_match,double Q,int gen, WilsonSet& 
 					}
 				}
 			}
-			for(int ie=1;ie<=3;ie++) {
-				for(int ke=1;ke<=3;ke++) {
+			for(int ie=0;ie<3;ie++) {
+				for(int ke=0;ke<3;ke++) {
 					T1[je][ie][ke]=(TU[ie][3]*TU[ke][2]-TU[ie][2]*TU[ke][3])*((lambdaNMSSM/sqrt(2.)*(vd*(*susy)("A0MIX",je*10+3)+s*(*susy)("A0MIX",je*10+1)))-(*susy)("AU", 11)*(*susy)("A0MIX",je*10+2));
 				}
 			}
@@ -998,13 +1007,13 @@ void SUSY_NLO_Strategy::init_scalar(double Q_match,double Q,int gen, WilsonSet& 
 		complex_t CQ2c=0.;
 		complex_t CAc=0.;
 
-		for(int ae=1;ae<=3;ae++) {
-			for(int ie=1;ie<=3;ie++) {
-				for(int ke=1;ke<=3;ke++){
+		for(int ae=0;ae<3;ae++) {
+			for(int ie=0;ie<3;ie++) {
+				for(int ke=0;ke<3;ke++){
 					T2[ae][ie][ke]=-(*sus_param).mass_top_muW/2./(*sm)("MASS",24)*(2.*(*sus_param).mass_top_muW*(*susy)("H0MIX",ae*10+2)*(TU[ie][2]*TU[ke][2]+TU[ie][3]*TU[ke][3])	+((lambdaNMSSM/sqrt(2.)*(vd*(*susy)("H0MIX",ae*10+3)+s*(*susy)("H0MIX",ae*10+1)))+(*susy)("AU", 11)*(*susy)("H0MIX",ae*10+2))*(TU[ie][3]*TU[ke][2]+TU[ie][2]*TU[ke][3]))	+(*sm)("MASS",23)/2./sqrt(1.-(*sus_param).sw2)*(1.-4./3.*(*sus_param).sw2)*(*susy)("H0MIX",ae*10+2)*(TU[ie][1]*TU[ke][1]+TU[ie][2]*TU[ke][2])+2./3.*(*sm)("MASS",24)*(*sus_param).sw2/(1.-(*sus_param).sw2)*(*susy)("H0MIX",ae*10+2)*TU[ie][3]*TU[ke][3];
 
-					for(int je=1;je<=2;je++) {
-						for(int le=1;le<=2;le++) {
+					for(int je=0;je<2;je++) {
+						for(int le=0;le<2;le++) {
 							CQ1c+=G1[ie][ke][je][le]/mH0[ae]/mH0[ae]*( sqrt(2.)*(*susy)("H0MIX",ae*10+1)*(*susy)("H0MIX",ae*10+1)*(*sus_param).Mch[je]/(*sm)("MASS",24)/cos(atan((*susy)("HMIX",2)))*kron(ie,ke)*kron(le,je)*f80(pow(mstop[ie-1]/(*sus_param).Mch[je],2.))
 							-2.*sqrt(2.)*(*susy)("H0MIX",ae*10+1)/(*sm)("GAUGE",2)*kron(ie,ke)*(Qalj[ae][le][je]*f40(pow(mstop[ie-1]/(*sus_param).Mch[le],2.),pow((*sus_param).Mch[je]/(*sus_param).Mch[le],2.))+(*sus_param).Mch[je]/(*sus_param).Mch[le]*Qalj[ae][je][le]*f30(pow(mstop[ie-1]/(*sus_param).Mch[le],2.),pow((*sus_param).Mch[je]/(*sus_param).Mch[le],2.)))		+2.*sqrt(2.)*(*susy)("H0MIX",ae*10+1)*T2[ae][ie][ke]*(*sus_param).Mch[je]/mstop[ke-1]/mstop[ke-1]*kron(le,je)*f30(pow(mstop[ie-1]/mstop[ke-1],2.),pow((*sus_param).Mch[je]/mstop[ke-1],2.))
 							+mH0[ae]*mH0[ae]/(*sus_param).Mch[je]/(*sus_param).Mch[je]*kron(ie,ke)*((*susy)("UMIX",20+je)*(*susy)("VMIX",10+le)*f50(pow(mstop[ie-1]/(*sus_param).Mch[je],2.),pow((*sus_param).Mch[le]/(*sus_param).Mch[je],2.),pow(mass_nutl/(*sus_param).Mch[le],2.))
@@ -1023,8 +1032,8 @@ void SUSY_NLO_Strategy::init_scalar(double Q_match,double Q,int gen, WilsonSet& 
 			if (ae < 3) {
 				CQ2H+=(((*susy)("MASS",37)*(*susy)("MASS",37)/(*sm)("MASS",24)/(*sm)("MASS",24)*(*susy)("A0MIX",ae*10+1)*(*susy)("A0MIX",ae*10+1)+kron(ae,2)*(*susy)("A0MIX",ae*10+1))*f30((*susy)("MASS",37)*(*susy)("MASS",37)/(*sus_param).mass_top_muW/(*sus_param).mass_top_muW,(*sm)("MASS",24)*(*sm)("MASS",24)/(*sus_param).mass_top_muW/(*sus_param).mass_top_muW)	+(*sus_param).mass_top_muW*(*sus_param).mass_top_muW*mA0[ae]*mA0[ae]/(*sm)("MASS",24)/(*sm)("MASS",24)/(*susy)("MASS",37)/(*susy)("MASS",37)*f30((*sus_param).mass_top_muW*(*sus_param).mass_top_muW/(*susy)("MASS",37)/(*susy)("MASS",37),(*sus_param).mass_top_muW*(*sus_param).mass_top_muW/(*sm)("MASS",24)/(*sm)("MASS",24)))/mA0[ae]/mA0[ae];
 			}
-			for(int je=1;je<=2;je++) {
-				for(int le=1;le<=2;le++) {
+			for(int je=0;je<2;je++) {
+				for(int le=0;le<2;le++) {
 					CAc = std::complex<double>(CAc.real(), CAc.imag()+((*susy)("HMIX",2))/sqrt(2.)*G1[ae][ae][je][le]*(v_deltam_s*kron(le,je)*fabs((*sus_param).Mch[je]/(*sm)("MASS",24))*f80(pow(mstop[ae-1]/(*sus_param).Mch[je],2.))-(Ralj[1][je][le]*fabs((*sus_param).Mch[je]/(*sus_param).Mch[le])*f30(pow(mstop[ae-1]/(*sus_param).Mch[le],2.),pow((*sus_param).Mch[je]/(*sus_param).Mch[le],2.))-Ralj[1][le][je]*f40(pow(mstop[ae-1]/(*sus_param).Mch[le],2.),pow((*sus_param).Mch[je]/(*sus_param).Mch[le],2.)))));
 					}
 				}

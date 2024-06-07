@@ -2,6 +2,7 @@
 
 #include "QCDParameters.h"
 #include "lha_reader.h"
+#include "config.hpp"
 
 #include <vector>
 #include <array>
@@ -87,6 +88,9 @@ public:
         }
         if (block == "YD") {
             return yd[pdgCode/10][pdgCode%10];
+        }
+        if (block == "YL") {
+            return ye[2][2];
         }
         if (block == "AU") {
             return au[pdgCode/10][pdgCode%10];

@@ -130,8 +130,8 @@ void Parameters::initSUSY() {
 
     LhaReader* lha = MemoryManager::GetInstance()->getReader();
 
-    std::string root = MemoryManager::findNearestHyperisoDirectory();
-    std::string spectrumFile = root + "Test/spectrum.slha";
+    std::string root = project_root.data();
+    std::string spectrumFile = root +"/" + "Test/spectrum.slha";
     Logger::getInstance()->info("Starting SUSY spectrum calculation...");
     
     CalculatorType calculatorType = CalculatorType::Softsusy;
@@ -214,8 +214,8 @@ void Parameters::initTHDM() {
     LhaReader* lha = MemoryManager::GetInstance()->getReader();
     MemoryManager * memo = MemoryManager::GetInstance();
 
-    std::string root = MemoryManager::findNearestHyperisoDirectory();
-    std::string spectrumFile = root + "Test/thdm_spectrum.lha";
+    std::string root = project_root.data();
+    std::string spectrumFile = root + "/" + "Test/thdm_spectrum.lha";
     Logger::getInstance()->info("Starting THDM spectrum calculation...");
     // TwoHDMCalculatorFactory::executeCommand("calculateSpectrum", memo->getInputLhaPath(), spectrumFile);
 
