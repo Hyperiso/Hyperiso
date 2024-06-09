@@ -37,4 +37,4 @@ set_target_properties(BusinessLogicLib PROPERTIES PUBLIC_HEADER "chi2.h;Observab
 
 target_include_directories(BusinessLogicLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
-target_link_libraries(BusinessLogicLib PUBLIC PhysicalModelLib CoreLib CommonLib ConfiguredLib MathLib)
+target_link_libraries(BusinessLogicLib PUBLIC PhysicalModelLib CoreLib CommonLib ConfiguredModule MathLib)

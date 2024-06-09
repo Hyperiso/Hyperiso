@@ -137,6 +137,8 @@ void Parameters::initSUSY() {
     CalculatorType calculatorType = CalculatorType::Softsusy;
     GeneralCalculatorFactory::executeCommand(calculatorType, "calculateSpectrum", lha->getLhaPath(), spectrumFile);
     
+    Logger::getInstance()->info("SUSY spectrum calculation ran sucessfully");
+
     lha->update(spectrumFile);
     Logger::getInstance()->info("LHA Blocks updated.");
 
@@ -224,8 +226,9 @@ void Parameters::initTHDM() {
 
     CalculatorType calculatorType = CalculatorType::TwoHDM;
     GeneralCalculatorFactory::executeCommand(calculatorType, "calculateSpectrum", memo->getInputLhaPath(), spectrumFile);
-
-    Logger::getInstance()->info("WAOUW : " + memo->getInputLhaPath());  
+    
+    Logger::getInstance()->info("SUSY spectrum calculation ran sucessfully");
+ 
     
     lha->update(spectrumFile);
     
