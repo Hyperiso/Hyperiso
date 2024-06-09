@@ -1,7 +1,6 @@
 find_package(Doxygen)
 
 if (DOXYGEN_FOUND)
-    message(STATUS "WAOUW")
     add_custom_target(
         docs
         ${DOXYGEN_EXECUTABLE}

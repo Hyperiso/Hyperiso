@@ -39,3 +39,9 @@ set_target_properties(CoreLib PROPERTIES PUBLIC_HEADER "MemoryManager.h;Paramete
 target_include_directories(CoreLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 target_link_libraries(CoreLib PUBLIC CommonLib DataBaseLib ConfiguredModule ExternalIntegrationLib MathLib)
+
+if (${ENABLE_WARNINGS})
+    target_set_warnings(CoreLib
+                        ${ENABLE_WARNINGS}
+                        ${ENABLE_WARNINGS_AS_ERRORS})
+endif()

@@ -6,6 +6,9 @@ int main() {
 
     // std::string modelName;
     std::cout << "Good Moooooorning";
+
+    int x[2];
+    x[2] = 1337;
     // std::cin >> modelName;
 
     // modelManager.setModel(modelName);

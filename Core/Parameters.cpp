@@ -106,6 +106,8 @@ void Parameters::initSM() {
 
     Logger::getInstance()->info("mW : " + std::to_string(m_W));
     
+    
+
     // Couplings
     double sW = std::sqrt(1 - std::pow(m_W / m_Z_pole, 2));
 
@@ -254,6 +256,8 @@ void Parameters::initTHDM() {
         int type = static_cast<int>(lha->getValue<double>("MINPAR", "24"));
         double cot_beta = 1 / tan_beta;
         this->yu[2][2] = cot_beta;
+
+        
         switch (type) {
             case 1:
                 this->yd[2][2] = cot_beta;
