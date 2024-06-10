@@ -9,6 +9,10 @@ int main() {
 
     int x[2];
     x[2] = 1337;
+
+    int a;
+
+    int b = a+1;
     // std::cin >> modelName;
 
     // modelManager.setModel(modelName);

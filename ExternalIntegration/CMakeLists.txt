@@ -27,7 +27,7 @@ add_library(ExternalIntegrationLib STATIC
 
 if (BUILD_WITH_SOFTSUSY)
     add_definitions(-DBUILD_WITH_SOFTSUSY)
-
+    message(STATUS "Building application with SOFTSUSY software")
     include(ExternalProject)
   
     # Add SOFTSUSY as an external project
@@ -43,12 +43,15 @@ if (BUILD_WITH_SOFTSUSY)
         BUILD_IN_SOURCE TRUE
         INSTALL_COMMAND ""
     )
+    ExternalProject_Get_Property(SOFTSUSY SOURCE_DIR)
+    target_include_directories(ExternalIntegrationLib PUBLIC "${SOURCE_DIR}")
+    add_dependencies(ExternalIntegrationLib SOFTSUSY)
 
 endif()
 
 if (BUILD_WITH_2HDMC)
     add_definitions(-DBUILD_WITH_2HDMC)
-
+    message(STATUS "Building application with 2HDMC software")
     find_package(GSL REQUIRED)
 
     set(DOWNLOAD_DIR "${CMAKE_BINARY_DIR}/downloads")
