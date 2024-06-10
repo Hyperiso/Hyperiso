@@ -133,7 +133,7 @@ double QCDParameters::runMass(double mass, double Q_i, double Q_f, int nf) {
  */
 int QCDParameters::getNf(double Q) {
     auto masses = this->getOrderedMasses();
-    for (int i = 0; i < masses.size(); ++i) {
+    for (size_t i = 0; i < masses.size(); ++i) {
         if (1 - Q / masses.at(i) > 1e-4)
             return i;
     }

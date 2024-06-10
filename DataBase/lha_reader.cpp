@@ -16,10 +16,10 @@ void Parser::tokenize() {
 
     while (rit != rend) {
         std::smatch m = *rit;
-        int group_index = m.size();
+        size_t group_index = m.size();
 
         // Don't touch, it works.
-        for (int idx = 1; idx < m.size(); ++idx) {
+        for (size_t idx = 1; idx < m.size(); ++idx) {
             if (m[idx].matched) {
                 // if (idx == 1)  
                 //     ++idx;

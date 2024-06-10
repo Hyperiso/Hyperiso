@@ -21,7 +21,7 @@ option(ENABLE_TESTS "Enable building of tests" OFF)
 option(ENABLE_WARNINGS "Enable warnings" ON)
 option(ENABLE_WARNINGS_AS_ERRORS "Enable warnings as errors" OFF)
 
-option(ENABLE_ADRESS_SANITIZER "Enable adress sanitizer" ON)
+option(ENABLE_ADRESS_SANITIZER "Enable adress sanitizer" OFF)
 option(ENABLE_UNDEFINED_SANITIZER "Enable undefined sanitizer" ON)
 
 if (ENABLE_ADRESS_SANITIZER OR ENABLE_UNDEFINED_SANITIZER)

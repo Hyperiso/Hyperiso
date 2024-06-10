@@ -33,7 +33,7 @@ void readMatrix(std::array<std::array<double, SIZE>, SIZE>& matrix, std::string 
         std::vector<std::string> ids = matrixIds(SIZE);
         std::vector<double> values (SIZE * SIZE);
         lha->extractFromBlock(blockName, values, ids);
-        for (int i=0; i!=values.size(); ++i) {
+        for (size_t i=0; i!=values.size(); ++i) {
             matrix[ids[i][0] - 49][ids[i][2] - 49] = values[i];
         }
     } 
@@ -167,13 +167,13 @@ void Parameters::initSUSY() {
         
         std::vector<double> values (4);
         lha->extractFromBlock("HMIX", values);
-        for (int i=0; i!=values.size(); ++i) {
+        for (size_t i=0; i!=values.size(); ++i) {
             this->hmix[i + 1] = values[i];
         }
         
         values.resize(3);
         lha->extractFromBlock("GAUGE", values);
-        for (int i=0; i!=values.size(); ++i) {
+        for (size_t i=0; i!=values.size(); ++i) {
             this->gauge[i + 1] = values[i];
         }
 
@@ -298,11 +298,11 @@ Parameters *Parameters::GetInstance(int modelId)
     return Parameters::instance[modelId];
 }
 
-void Parameters::setScale(double Q) {
-    // this->Q = Q;
-    // this->sm.mass_b_Q = run.runningAlphasCalculation(Q);
-    // this->sm.mass_t_Q = run.runningAlphasCalculation(Q);
-}
+// void Parameters::setScale(double Q) {
+//     // this->Q = Q;
+//     // this->sm.mass_b_Q = run.runningAlphasCalculation(Q);
+//     // this->sm.mass_t_Q = run.runningAlphasCalculation(Q);
+// }
 
 double Parameters::alpha_s(double Q) {
     return this->QCDRunner.runningAlphasCalculation(Q);

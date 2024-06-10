@@ -25,7 +25,7 @@ public:
     QCDParameters QCDRunner;
     static Parameters* GetInstance(int index = 0);
 
-    void setScale(double Q);
+    // void setScale(double Q);
     double alpha_s(double Q);
     double running_mass(double quarkmass, double Q_init, double Q_end, std::string option_massb = "running", std::string option_masst = "pole");
 
