@@ -9,7 +9,7 @@
 
 constexpr double Pi = 3.14159265358979323846;
 
-constexpr int N_UL_UR = 7, M_UL_UR = 4, N_NL_NR = 4, M_NL_NR = 4, N_Gamma_U = 7, M_Gamma_U = 7, N_X = 3, N_Mch = 3, N_MsqU = 7, N_MsqD = 7, N_Msn = 4;
+constexpr int N_UL_UR = 7, M_UL_UR = 4, N_NL_NR = 4, M_NL_NR = 4, N_Gamma_U = 7, M_Gamma_U = 7, N_X = 3, N_Mch = 3, N_MsqU = 6, N_MsqD = 6, N_Msn = 4;
 
 using Array2D_7x4 = std::array<std::array<double, M_UL_UR>, N_UL_UR>;
 using Array2D_4x4 = std::array<std::array<double, M_NL_NR>, N_NL_NR>;

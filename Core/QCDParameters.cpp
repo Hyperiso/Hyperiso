@@ -1,5 +1,6 @@
 #include "QCDParameters.h"
-
+#include <iostream>
+#include <iomanip>
 /**
  * @brief Creates a fully-initialized QCD Runner.
  * 
@@ -264,10 +265,11 @@ double QCDParameters::mb_1S() {
  * @return The top quark running mass at m_top in MSbar
  */
 double QCDParameters::mt_mt() {
-	double alpha = runningAlphasCalculation(this->mass_t_pole, "running"); 
-    double a = 307. / 32 + PI2 / 3. + PI2 / 9. * log(2) - 1. / 6 * ZETA3 - 71. / 144 * 5;
-    this->mass_t_t = this->mass_t_pole / (1 + alpha / PI * (4. / 3 + alpha / PI * a));
+	double alpha = runningAlphasCalculation(this->mass_t_pole, "running");
+    std::cout << std::fixed << std::setprecision(20) << alpha;
+    double a = 307. / 32. + PI2 / 3. + PI2 / 9. * log(2.) - 1. / 6 * ZETA3 - 71. / 144. * 5.;
+    this->mass_t_t = this->mass_t_pole / (1. + alpha / PI * (4. / 3 + alpha / PI * a));
     alpha = runningAlphasCalculation(this->mass_t_t, "running", "running");
-    this->mass_t_t = this->mass_t_pole / (1 + alpha / PI * (4. / 3 + alpha / PI * a));
+    this->mass_t_t = this->mass_t_pole / (1. + alpha / PI * (4. / 3 + alpha / PI * a));
 	return mass_t_t;
 }

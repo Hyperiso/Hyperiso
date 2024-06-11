@@ -416,16 +416,28 @@ void SM_NNLO_Strategy::init(double scale, WilsonSet& C_match) {
 	double xtW=pow(sm->running_mass((*sm)("MASS",6),(*sm)("MASS",6), (*sm)("MASS",24))/(*sm)("MASS", 24), 2); // mass top at pole for mtot param
 	double xtt=pow((*sm)("MASS",6)/(*sm)("MASS",24),2.); // 24 -> W
 
-	double C7SM_2 = (C7t2mt(xtt)+log(scale*scale/W_param->mass_top_muW/W_param->mass_top_muW)*((-592.*pow(W_param->xt,5.)-22.*pow(W_param->xt,4.)+12814.*pow(W_param->xt,3.)-6376.*W_param->xt*W_param->xt,+512.*W_param->xt)/27./pow(W_param->xt-1.,5.)*Li2(1.-1./W_param->xt)
-	+(-26838.*pow(W_param->xt,5.)+25938.*pow(W_param->xt,4.)+627367.*pow(W_param->xt,3.)-331956.*W_param->xt*W_param->xt,+16989.*W_param->xt-460.)/729./pow(W_param->xt-1.,6.)*log(W_param->xt)
-	+(34400.*pow(W_param->xt,5.)+276644.*pow(W_param->xt,4.)-2668324.*pow(W_param->xt,3.)+1694437.*W_param->xt*W_param->xt,-323354.*W_param->xt+53077.)/2187./pow(W_param->xt-1.,5.)
+    logger->info("mtmt", (*sm).QCDRunner.get_mt_mt());
+    logger->info("mtmt_2", (*sm)("MASS",6));
+    logger->info("W", (*sm)("MASS",24));
+    logger->info("xt : ", W_param->xt);
+    logger->info("xtW : ", xtW);
+    logger->info("xtt : ", xtt);
+    logger->info("Li2", Li2(1.-1./W_param->xt));
+    logger->info ("C8c2MW(xtW)", C8c2MW(xtW));
+    logger->info("C8t2mt(xtt)", C8t2mt(xtt));
+    logger->info("mtmt_3", doubleToString((*sm)("MASS",6), 20));
+    logger->info("mtoppole", doubleToString((*sm).QCDRunner.get_mt_pole(), 20));
+
+	double C7SM_2 = (C7t2mt(xtt)+log(scale*scale/W_param->mass_top_muW/W_param->mass_top_muW)*((-592.*pow(W_param->xt,5.)-22.*pow(W_param->xt,4.)+12814.*pow(W_param->xt,3.)-6376.*W_param->xt*W_param->xt+512.*W_param->xt)/27./pow(W_param->xt-1.,5.)*Li2(1.-1./W_param->xt)
+	+(-26838.*pow(W_param->xt,5.)+25938.*pow(W_param->xt,4.)+627367.*pow(W_param->xt,3.)-331956.*W_param->xt*W_param->xt+16989.*W_param->xt-460.)/729./pow(W_param->xt-1.,6.)*log(W_param->xt)
+	+(34400.*pow(W_param->xt,5.)+276644.*pow(W_param->xt,4.)-2668324.*pow(W_param->xt,3.)+1694437.*W_param->xt*W_param->xt-323354.*W_param->xt+53077.)/2187./pow(W_param->xt-1.,5.)
 	+log(scale*scale/W_param->mass_top_muW/W_param->mass_top_muW)*((-63.*pow(W_param->xt,5.)+532.*pow(W_param->xt,4.)+2089.*pow(W_param->xt,3.)-1118.*W_param->xt*W_param->xt)/9./pow(W_param->xt-1.,6.)*log(W_param->xt)
-	+(1186.*pow(W_param->xt,5.)-2705.*pow(W_param->xt,4.)-24791.*pow(W_param->xt,3.)-16099.*W_param->xt*W_param->xt,+19229.*W_param->xt-2740.)/162./pow(W_param->xt-1.,5.))) )
+	+(1186.*pow(W_param->xt,5.)-2705.*pow(W_param->xt,4.)-24791.*pow(W_param->xt,3.)-16099.*W_param->xt*W_param->xt+19229.*W_param->xt-2740.)/162./pow(W_param->xt-1.,5.))) )
 	-(C7c2MW(xtW)+13763./2187.*log(scale*scale/(*sm)("MASS",24)/(*sm)("MASS",24))+814./729.*pow(log(scale*scale/(*sm)("MASS",24)/(*sm)("MASS",24)),2.));
 
-	double C8SM_2 = (C8t2mt(xtt)+log(scale*scale/W_param->mass_top_muW/W_param->mass_top_muW)*((-148.*pow(W_param->xt,5.)+1052.*pow(W_param->xt,4.)-4811.*pow(W_param->xt,3.)-3520.*W_param->xt*W_param->xt,-61.*W_param->xt)/18./pow(W_param->xt-1.,5.)*Li2(1.-1./W_param->xt)
-	+(-15984.*pow(W_param->xt,5.)+152379.*pow(W_param->xt,4.)-1358060.*pow(W_param->xt,3.)-1201653.*W_param->xt*W_param->xt,-74190.*W_param->xt+9188.)/1944./pow(W_param->xt-1.,6.)*log(W_param->xt)
-	+(109669.*pow(W_param->xt,5.)-1112675.*pow(W_param->xt,4.)+6239377.*pow(W_param->xt,3.)+8967623.*W_param->xt*W_param->xt,+768722.*W_param->xt-42796.)/11664./pow(W_param->xt-1.,5.)
+	double C8SM_2 = (C8t2mt(xtt)+log(scale*scale/W_param->mass_top_muW/W_param->mass_top_muW)*((-148.*pow(W_param->xt,5.)+1052.*pow(W_param->xt,4.)-4811.*pow(W_param->xt,3.)-3520.*W_param->xt*W_param->xt-61.*W_param->xt)/18./pow(W_param->xt-1.,5.)*Li2(1.-1./W_param->xt)
+	+(-15984.*pow(W_param->xt,5.)+152379.*pow(W_param->xt,4.)-1358060.*pow(W_param->xt,3.)-1201653.*W_param->xt*W_param->xt-74190.*W_param->xt+9188.)/1944./pow(W_param->xt-1.,6.)*log(W_param->xt)
+	+(109669.*pow(W_param->xt,5.)-1112675.*pow(W_param->xt,4.)+6239377.*pow(W_param->xt,3.)+8967623.*W_param->xt*W_param->xt+768722.*W_param->xt-42796.)/11664./pow(W_param->xt-1.,5.)
 	+log(scale*scale/W_param->mass_top_muW/W_param->mass_top_muW)*((-139.*pow(W_param->xt,4.)-2938.*pow(W_param->xt,3.)-2683.*W_param->xt*W_param->xt)/12./pow(W_param->xt-1.,6.)*log(W_param->xt)
 	+(1295.*pow(W_param->xt,5.)-7009.*pow(W_param->xt,4.)+29495.*pow(W_param->xt,3.)+64513.*W_param->xt*W_param->xt+17458.*W_param->xt-2072.)/216./pow(W_param->xt-1.,5.))) )
 	-(C8c2MW(xtW)+16607./5832.*log(scale*scale/(*sm)("MASS",24)/(*sm)("MASS",24))+397./486.*pow(log(scale*scale/(*sm)("MASS",24)/(*sm)("MASS",24)),2.));
