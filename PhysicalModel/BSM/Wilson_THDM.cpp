@@ -11,8 +11,8 @@ void THDM_LO_Strategy::init(double scale, WilsonSet& C_match) {
 		mod = Parameters::GetInstance(2);
 		lu=(*mod)("YU", 22);
 		ld=(*mod)("YD", 22);
-		Logger::getInstance()->info("YU : " + std::to_string(lu));
-		Logger::getInstance()->info("37 : " + std::to_string((*mod)("MASS",37)));
+		LOG_INFO("YU : " + std::to_string(lu));
+		LOG_INFO("37 : " + std::to_string((*mod)("MASS",37)));
 	}
 	else {
 		mod = Parameters::GetInstance(1);
@@ -22,12 +22,12 @@ void THDM_LO_Strategy::init(double scale, WilsonSet& C_match) {
 
     double sw2=pow(sin(atan((*sm)("GAUGE",1)/(*sm)("GAUGE",2))),2.); //1 = param-> gp and 2 = param->g2
 
-	Logger::getInstance()->info("g1 : " + std::to_string((*sm)("GAUGE",1)));
-	Logger::getInstance()->info("g2 : " + std::to_string((*sm)("GAUGE",2)));
-	Logger::getInstance()->info("mt : " + std::to_string((*sm)("MASS",6)));
+	LOG_INFO("g1 : " + std::to_string((*sm)("GAUGE",1)));
+	LOG_INFO("g2 : " + std::to_string((*sm)("GAUGE",2)));
+	LOG_INFO("mt : " + std::to_string((*sm)("MASS",6)));
     double xt= pow(mass_top_muW/(*sm)("MASS",24),2.); // W boson mass (24)
 	double yt= pow(mass_top_muW/(*mod)("MASS",37),2.); // param->mass_H (25)
-	Logger::getInstance()->info("xt : " + std::to_string(xt));
+	LOG_INFO("xt : " + std::to_string(xt));
     complex_t C7H_0=1./3.*lu*lu*F7_1(yt) - lu*ld*F7_2(yt);
 	complex_t C8H_0=1./3.*lu*lu*F8_1(yt) - lu*ld*F8_2(yt);
 
@@ -43,7 +43,7 @@ void THDM_LO_Strategy::init(double scale, WilsonSet& C_match) {
 	C_LO[static_cast<size_t>(WilsonCoefficient::C9)] = C9H_0;
 	C_LO[static_cast<size_t>(WilsonCoefficient::C10)] = C10H_0;
 
-	Logger::getInstance()->info("THDM LO Wilson Coefficient Initialized at scale " +std::to_string(scale)+" terminated successfully");
+	LOG_INFO("THDM LO Wilson Coefficient Initialized at scale " +std::to_string(scale)+" terminated successfully");
 
 }
 
@@ -75,7 +75,7 @@ void THDM_NLO_Strategy::init(double scale, WilsonSet& C_match) {
 	complex_t C8H_1= G8H(yt,lu,ld)+Delta8H(yt,lu,ld)*log(pow(scale/m_H,2.))-1./6.*C4H_1;
 	complex_t C9H_1=(1.-4.*sw2)/sw2*C9llH1(xt,yt,lu,log(pow(scale/m_H,2.)))-D9H1(yt,lu,log(pow(scale/m_H,2.)));
 	complex_t C10H_1=-C9llH1(xt,yt,lu,log(pow(scale/m_H,2.)))/sw2;
-	Logger::getInstance()->info("C10H_1 : " + std::to_string(std::real(C10H_1)));
+	LOG_INFO("C10H_1 : " + std::to_string(std::real(C10H_1)));
 	if (C_match.size() < 2) C_match.resize(2);
 	auto& C_NLO = C_match[1];
 	C_NLO.resize(static_cast<size_t>(WilsonCoefficient::CPQ2) + 1, std::complex<double>(0, 0));
@@ -93,23 +93,23 @@ void THDM_NLO_Strategy::init(double scale, WilsonSet& C_match) {
         }
     };
 
-	Logger::getInstance()->info("C8H_1 in THDM " + std::to_string(std::real(C8H_1)));
+	LOG_INFO("C8H_1 in THDM " + std::to_string(std::real(C8H_1)));
 	// adjustCoefficient(C7H_1, 7);
 	// adjustCoefficient(C8H_1, 8);
 	// adjustCoefficient(C9H_1, 9);
 	// adjustCoefficient(C10H_1, 10);
-	Logger::getInstance()->info("C8H_1 in THDM " + std::to_string(std::real(C8H_1)));
-	Logger::getInstance()->info("C7H_1 in THDM " + std::to_string(std::real(C7H_1)));
-	Logger::getInstance()->info("C4H_1 in THDM " + std::to_string(std::real(C4H_1)));
-	// Logger::getInstance()->info("C4Char_1 in THDM " + std::to_string(std::real(C_LO[1])));
-	// Logger::getInstance()->info("C4Char_1 in THDM " + std::to_string(std::real(C_NLO[5])));
+	LOG_INFO("C8H_1 in THDM " + std::to_string(std::real(C8H_1)));
+	LOG_INFO("C7H_1 in THDM " + std::to_string(std::real(C7H_1)));
+	LOG_INFO("C4H_1 in THDM " + std::to_string(std::real(C4H_1)));
+	// LOG_INFO("C4Char_1 in THDM " + std::to_string(std::real(C_LO[1])));
+	// LOG_INFO("C4Char_1 in THDM " + std::to_string(std::real(C_NLO[5])));
 	C_NLO[static_cast<size_t>(WilsonCoefficient::C4)] = C4H_1;
 	C_NLO[static_cast<size_t>(WilsonCoefficient::C7)] = C7H_1;
 	C_NLO[static_cast<size_t>(WilsonCoefficient::C8)] = C8H_1;
 	C_NLO[static_cast<size_t>(WilsonCoefficient::C9)] = C9H_1;
 	C_NLO[static_cast<size_t>(WilsonCoefficient::C10)] = C10H_1;
 
-	Logger::getInstance()->info("THDM NLO Wilson Coefficient Initialized at scale " +std::to_string(scale)+" terminated successfully");
+	LOG_INFO("THDM NLO Wilson Coefficient Initialized at scale " +std::to_string(scale)+" terminated successfully");
 }
 
 void THDM_NNLO_Strategy::init(double scale, WilsonSet& C_match) {
@@ -159,7 +159,7 @@ void THDM_NNLO_Strategy::init(double scale, WilsonSet& C_match) {
 	C_NNLO[static_cast<size_t>(WilsonCoefficient::C7)] = C7H_2;
 	C_NNLO[static_cast<size_t>(WilsonCoefficient::C8)] = C8H_2;
 
-	Logger::getInstance()->info("THDM NNLO Wilson Coefficient Initialized at scale " +std::to_string(scale)+" terminated successfully");
+	LOG_INFO("THDM NNLO Wilson Coefficient Initialized at scale " +std::to_string(scale)+" terminated successfully");
 }
 
 void THDM_LO_Strategy::init_scalar(double Q_match,double Q,int gen, WilsonSet& C) {
@@ -179,7 +179,7 @@ void THDM_LO_Strategy::init_scalar(double Q_match,double Q,int gen, WilsonSet& C
 		le=(*mod)("YL",10*(gen-1)+gen-1);
 	}
 	else {
-		Logger::getInstance()->info("CA MARCHEEEE");
+		LOG_INFO("CA MARCHEEEE");
 		mod = Parameters::GetInstance(1);
 	}
 
@@ -194,7 +194,7 @@ void THDM_LO_Strategy::init_scalar(double Q_match,double Q,int gen, WilsonSet& C
 	double xt=pow(mass_top_muW/(*sm)("MASS",24),2.);
 
 	double xh=pow((*mod)("MASS",25)/(*sm)("MASS",24),2.);
-	Logger::getInstance()->info("xh : " + std::to_string(xh));
+	LOG_INFO("xh : " + std::to_string(xh));
 	int nf=5;
 	double beta0 = 11.-2./3.*nf;
 
@@ -203,52 +203,52 @@ void THDM_LO_Strategy::init_scalar(double Q_match,double Q,int gen, WilsonSet& C
 	double eta_mu=alphas_muW/alphas_mu;
 
 	double alpha=(*mod)("ALPHA", 0);
-	Logger::getInstance()->info("alPHA : "+ std::to_string(alpha));
+	LOG_INFO("alPHA : "+ std::to_string(alpha));
 	double beta=atan((*mod)("HMIX", 2));
-	Logger::getInstance()->info("beta : "+ std::to_string(beta));
+	LOG_INFO("beta : "+ std::to_string(beta));
 	double xH=pow((*mod)("MASS",37)/(*sm)("MASS",24),2.);
 	double xH0=pow((*mod)("MASS",35)/(*sm)("MASS",24),2.);
 	double xA=pow((*mod)("MASS",36)/(*sm)("MASS",24),2.);
 	
-	Logger::getInstance()->info("xt : "+ std::to_string(xt));
-	Logger::getInstance()->info("xH : "+ std::to_string(xH));
-	Logger::getInstance()->info("xH0 : "+ std::to_string(xH0));
-	Logger::getInstance()->info("mass_A : "+ std::to_string((*mod)("MASS",36)));
-	Logger::getInstance()->info("mass_W : "+ std::to_string((*sm)("MASS",24)));
+	LOG_INFO("xt : "+ std::to_string(xt));
+	LOG_INFO("xH : "+ std::to_string(xH));
+	LOG_INFO("xH0 : "+ std::to_string(xH0));
+	LOG_INFO("mass_A : "+ std::to_string((*mod)("MASS",36)));
+	LOG_INFO("mass_W : "+ std::to_string((*sm)("MASS",24)));
 
-	// Logger::getInstance()->info("YD : "+ std::to_string(((*thdm)("YD",22))));
-	// Logger::getInstance()->info("YU : "+ std::to_string((*thdm)("YU",22)));
-	// Logger::getInstance()->info("YL : "+ std::to_string((*thdm)("YL",10*(gen-1)+gen-1)));
+	// LOG_INFO("YD : "+ std::to_string(((*thdm)("YD",22))));
+	// LOG_INFO("YU : "+ std::to_string((*thdm)("YU",22)));
+	// LOG_INFO("YL : "+ std::to_string((*thdm)("YL",10*(gen-1)+gen-1)));
 
 
 	double G1=-3./4.+ld*lu*F4SP(xt,xH)+lu*lu*F5SP(xt,xH);
-	Logger::getInstance()->info("G1 : "+ std::to_string(G1));
+	LOG_INFO("G1 : "+ std::to_string(G1));
 	double G2=ld*(ld*lu+1.)*F6SP(xt,xH)-ld*lu*lu*F7SP(xt,xH)
 	+lu*lu*(ld*F8SP(xt,xH)+lu*F9SP(xt,xH)-lu*F10SP(xt,xH))+lu*F11SP(xt,xH)-lu*F12SP(xt,xH);
-	Logger::getInstance()->info("G2 : "+ std::to_string(G2));
+	LOG_INFO("G2 : "+ std::to_string(G2));
 	double G3=ld*(ld*lu+1.)*F6SP(xt,xH)+ld*lu*lu*F7SP(xt,xH)
 	+lu*lu*(ld*F8SP(xt,xH)+lu*F9SP(xt,xH)+lu*F10SP(xt,xH))+lu*F11SP(xt,xH)+ld*F12SP(xt,xH);
-	Logger::getInstance()->info("G3 : "+ std::to_string(G3));
+	LOG_INFO("G3 : "+ std::to_string(G3));
 	double CSn_2HDM=xt*(F0SP(xt)+le*(ld*F1SP(xt,xH)+lu*F2SP(xt,xH))+le*lu*F3SP(xt,xH))
 	+xt/2./xh*(sin(alpha-beta)+cos(alpha-beta)*le)*(sin(alpha-beta)*G1+cos(alpha-beta)*G2)
 	+xt/2./xH0*(cos(alpha-beta)-sin(alpha-beta)*le)*(cos(alpha-beta)*G1-sin(alpha-beta)*G2);
 
-	Logger::getInstance()->info("1er terme : "+ std::to_string(xt*(F0SP(xt)+le*(ld*F1SP(xt,xH)+lu*F2SP(xt,xH))+le*lu*F3SP(xt,xH))));
-	Logger::getInstance()->info("2eme terme : "+ std::to_string(xt/2./xh*(sin(alpha-beta)+cos(alpha-beta)*le)*(sin(alpha-beta)*G1+cos(alpha-beta)*G2)));
-	Logger::getInstance()->info("3eme terme : "+ std::to_string(xt/2./xH0*(cos(alpha-beta)-sin(alpha-beta)*le)*(cos(alpha-beta)*G1-sin(alpha-beta)*G2)));
+	LOG_INFO("1er terme : "+ std::to_string(xt*(F0SP(xt)+le*(ld*F1SP(xt,xH)+lu*F2SP(xt,xH))+le*lu*F3SP(xt,xH))));
+	LOG_INFO("2eme terme : "+ std::to_string(xt/2./xh*(sin(alpha-beta)+cos(alpha-beta)*le)*(sin(alpha-beta)*G1+cos(alpha-beta)*G2)));
+	LOG_INFO("3eme terme : "+ std::to_string(xt/2./xH0*(cos(alpha-beta)-sin(alpha-beta)*le)*(cos(alpha-beta)*G1-sin(alpha-beta)*G2)));
 
 	
-	Logger::getInstance()->info("F0SP(xt) : "+ std::to_string(F0SP(xt)));
-	Logger::getInstance()->info("F1SP(xt,xH) : "+ std::to_string(F1SP(xt,xH)));
-	Logger::getInstance()->info("F2SP(xt,xH) : "+ std::to_string(F2SP(xt,xH)));
-	Logger::getInstance()->info("F3SP(xt,xH) : "+ std::to_string(F3SP(xt,xH)));
+	LOG_INFO("F0SP(xt) : "+ std::to_string(F0SP(xt)));
+	LOG_INFO("F1SP(xt,xH) : "+ std::to_string(F1SP(xt,xH)));
+	LOG_INFO("F2SP(xt,xH) : "+ std::to_string(F2SP(xt,xH)));
+	LOG_INFO("F3SP(xt,xH) : "+ std::to_string(F3SP(xt,xH)));
 	
-	Logger::getInstance()->info("sin : "+ std::to_string(sin(alpha-beta)));
-	Logger::getInstance()->info("cos : "+ std::to_string(cos(alpha-beta)));
+	LOG_INFO("sin : "+ std::to_string(sin(alpha-beta)));
+	LOG_INFO("cos : "+ std::to_string(cos(alpha-beta)));
 
-	Logger::getInstance()->info("CSn_2HDM : "+ std::to_string(CSn_2HDM));
+	LOG_INFO("CSn_2HDM : "+ std::to_string(CSn_2HDM));
 	double CPn_2HDM=xt*(-le*(ld*F1SP(xt,xH)+lu*F2SP(xt,xH))+le*lu*F3SP(xt,xH))+xt/2./xA*(le)*G3;
-	Logger::getInstance()->info("CPn_2HDM : "+ std::to_string(CPn_2HDM));
+	LOG_INFO("CPn_2HDM : "+ std::to_string(CPn_2HDM));
 	double CQ1H_0=CSc_2HDM(xH,xt,lu,ld,le)+CSn_2HDM;
 	double CQ2H_0=CPc_2HDM(xH,xt,lu,ld,le,sw2)+CPn_2HDM;
 	
@@ -262,6 +262,6 @@ void THDM_LO_Strategy::init_scalar(double Q_match,double Q,int gen, WilsonSet& C
     C_LO[static_cast<size_t>(WilsonCoefficient::CQ1)] = CQ1H_0*pow(eta_mu,-4./beta0);
     C_LO[static_cast<size_t>(WilsonCoefficient::CQ2)]= CQ2H_0*pow(eta_mu,-4./beta0);
 
-	Logger::getInstance()->info("THDM LO Wilson Scalars Coefficient Initialized from scale " +std::to_string(Q_match)+" to scale" + std::to_string(Q) + " terminated successfully");
+	LOG_INFO("THDM LO Wilson Scalars Coefficient Initialized from scale " +std::to_string(Q_match)+" to scale" + std::to_string(Q) + " terminated successfully");
 
 }

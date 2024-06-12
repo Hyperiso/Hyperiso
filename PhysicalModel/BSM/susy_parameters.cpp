@@ -6,25 +6,25 @@ susy_parameters::susy_parameters(double scale) {
     mass_H03 = 0.;
 	mass_A02 = 0.; // for testing
 	
-	Logger::getInstance()->debug("c11 " + std::to_string(std::real(c11)));
-	Logger::getInstance()->debug("c12 " + std::to_string(std::real(c12)));
-	Logger::getInstance()->debug("c13 " + std::to_string(std::real(c13)));
-	Logger::getInstance()->debug("c21 " + std::to_string(std::real(c21)));
-	Logger::getInstance()->debug("c22 " + std::to_string(std::real(c22)));
-	Logger::getInstance()->debug("c23 " + std::to_string(std::real(c23)));
-	Logger::getInstance()->debug("c31 " + std::to_string(std::real(c31)));
-	Logger::getInstance()->debug("c32 " + std::to_string(std::real(c32)));
-	Logger::getInstance()->debug("c33 " + std::to_string(std::real(c33)));
+	LOG_DEBUG("c11 " + std::to_string(std::real(c11)));
+	LOG_DEBUG("c12 " + std::to_string(std::real(c12)));
+	LOG_DEBUG("c13 " + std::to_string(std::real(c13)));
+	LOG_DEBUG("c21 " + std::to_string(std::real(c21)));
+	LOG_DEBUG("c22 " + std::to_string(std::real(c22)));
+	LOG_DEBUG("c23 " + std::to_string(std::real(c23)));
+	LOG_DEBUG("c31 " + std::to_string(std::real(c31)));
+	LOG_DEBUG("c32 " + std::to_string(std::real(c32)));
+	LOG_DEBUG("c33 " + std::to_string(std::real(c33)));
 
-	Logger::getInstance()->debug("imag c11 " + doubleToString(std::imag(c11), 20));
-	Logger::getInstance()->debug("imag c12 " + doubleToString(std::imag(c12), 20));
-	Logger::getInstance()->debug("imag c13 " + doubleToString(std::imag(c13), 20));
-	Logger::getInstance()->debug("imag c21 " + doubleToString(std::imag(c21), 20));
-	Logger::getInstance()->debug("imag c22 " + doubleToString(std::imag(c22), 20));
-	Logger::getInstance()->debug("imag c23 " + doubleToString(std::imag(c23), 20));
-	Logger::getInstance()->debug("imag c31 " + doubleToString(std::imag(c31), 20));
-	Logger::getInstance()->debug("imag c32 " + doubleToString(std::imag(c32), 20));
-	Logger::getInstance()->debug("imag c33 " + doubleToString(std::imag(c33), 20));
+	LOG_DEBUG("imag c11 " + doubleToString(std::imag(c11), 20));
+	LOG_DEBUG("imag c12 " + doubleToString(std::imag(c12), 20));
+	LOG_DEBUG("imag c13 " + doubleToString(std::imag(c13), 20));
+	LOG_DEBUG("imag c21 " + doubleToString(std::imag(c21), 20));
+	LOG_DEBUG("imag c22 " + doubleToString(std::imag(c22), 20));
+	LOG_DEBUG("imag c23 " + doubleToString(std::imag(c23), 20));
+	LOG_DEBUG("imag c31 " + doubleToString(std::imag(c31), 20));
+	LOG_DEBUG("imag c32 " + doubleToString(std::imag(c32), 20));
+	LOG_DEBUG("imag c33 " + doubleToString(std::imag(c33), 20));
 	
 	epsilonbp=(*epsi).epsilon_bp();
 	epsilon0p=(*epsi).epsilon_0p();
@@ -33,8 +33,8 @@ susy_parameters::susy_parameters(double scale) {
 	epsilon1p=(*epsi).epsilon_1p();
 	epsilonb=epsilon0+epsilon2;
 
-	Logger::getInstance()->debug("epsilon0 " + std::to_string(std::real(epsilon0)));
-	Logger::getInstance()->debug("epsilon2 " + std::to_string(std::real(epsilon2)));
+	LOG_DEBUG("epsilon0 " + std::to_string(std::real(epsilon0)));
+	LOG_DEBUG("epsilon2 " + std::to_string(std::real(epsilon2)));
 
     mass_top_muW=(*sm).QCDRunner.running_mass((*sm)("MASS",6), (*sm)("MASS",6),scale, "running", "pole");
 	mass_b_muW=(*sm).QCDRunner.running_mass((*sm)("MASS",5), (*sm)("MASS",5), scale, "running", "pole"); //mass bottom 6 (at pole)
@@ -42,7 +42,7 @@ susy_parameters::susy_parameters(double scale) {
 	L=log(scale*scale/(*sm)("MASS",24)/(*sm)("MASS",24)); // scale -> mu_W
  	sw2=pow(sin(atan((*sm)("GAUGE",1)/(*sm)("GAUGE",2))),2.); //1 = param-> gp and 2 = (*sm)("GAUGE",2)
 
-	Logger::getInstance()->debug("sw2 : " + std::to_string(sw2));
+	LOG_DEBUG("sw2 : " + std::to_string(sw2));
 
 	xt= pow(mass_top_muW/(*sm)("MASS",24),2.); // W boson mass (24)
 	yt= pow(mass_top_muW/(*susy)("MASS",37),2.); // param->mass_H (37)
@@ -57,16 +57,16 @@ susy_parameters::susy_parameters(double scale) {
 	aY = 1.0 + alphas_mg / (4.0 * Pi);
 	kappa = 1.0 / ((*sm)("GAUGE",2) * (*sm)("GAUGE",2) * std::real(VCKM[2][2]*VCKM[2][1])); //VCKM 33 et 32
 
-	Logger::getInstance()->debug("prod : " + doubleToString((*sm)("GAUGE",2) * (*sm)("GAUGE",2) * std::real(VCKM[2][2]*VCKM[2][1]), 20));
-	Logger::getInstance()->debug("vckm 22 : " + doubleToString(std::real(VCKM[2][2]), 20));
-	Logger::getInstance()->debug("vckm 21 : " + doubleToString(std::real(VCKM[2][1]), 20));
-	Logger::getInstance()->debug("g2 : " + doubleToString((*sm)("GAUGE",2),20 ));
+	LOG_DEBUG("prod : " + doubleToString((*sm)("GAUGE",2) * (*sm)("GAUGE",2) * std::real(VCKM[2][2]*VCKM[2][1]), 20));
+	LOG_DEBUG("vckm 22 : " + doubleToString(std::real(VCKM[2][2]), 20));
+	LOG_DEBUG("vckm 21 : " + doubleToString(std::real(VCKM[2][1]), 20));
+	LOG_DEBUG("g2 : " + doubleToString((*sm)("GAUGE",2),20 ));
 	z=pow((*susy)("MASS",37)/(*sm)("MASS",24),2.);
 	sinb = std::sin(std::atan((*susy)("HMIX",2)));
 	cosb = std::cos(std::atan((*susy)("HMIX",2)));
 	ct = (*susy)("STOPMIX",11); // Ajustement des indices pour base-0
 	st = (*susy)("STOPMIX",01); // Ajustement des indices pour base-0
-	Logger::getInstance()->debug("ST " + std::to_string((*susy)("STOPMIX",01)));
+	LOG_DEBUG("ST " + std::to_string((*susy)("STOPMIX",01)));
 
     // Initialisation des masses
 	MU = {(*sm)("MASS",2), (*sm)("MASS",4), mass_top_muW}; 
@@ -85,7 +85,7 @@ susy_parameters::susy_parameters(double scale) {
     (*susy)("MASS",2000003),
     (*susy)("MASS",2000005)};
 	Msn = {(*susy)("MASS",1000012), (*susy)("MASS",1000014), (*susy)("MASS",1000016)};
-	Logger::getInstance()->info("Msn : " + std::to_string(Msn[0]) + " " + std::to_string(Msn[1]) + " " + std::to_string(Msn[2]));
+	LOG_INFO("Msn : " + std::to_string(Msn[0]) + " " + std::to_string(Msn[1]) + " " + std::to_string(Msn[2]));
 	// Vérification du mélange sU_mix et initialisation conditionnelle de Gamma_UL et Gamma_UR
 	bool isNonZeroMix = true;
 	for (size_t i = 0; i < NumSquarks; ++i) {
@@ -146,15 +146,15 @@ susy_parameters::susy_parameters(double scale) {
             for (int ce = 0; ce < 6; ++ce) {
                 for (int de = 0; de < 6; ++de) {
                     P_U[ae][be] = Gamma_U[ae][ce] * I_LR[ce][de] * Gamma_U[be][de];
-					logger->debug("P_U[" + std::to_string(ae) + "][" + std::to_string(be) + "] = " + std::to_string(P_U[ae][be]));
+					LOG_DEBUG("P_U[" + std::to_string(ae) + "][" + std::to_string(be) + "] = " + std::to_string(P_U[ae][be]));
                 }
             }
         }
     }
 
 	
-	logger->debug("CT " + std::to_string(isNonZeroMix));
-	logger->debug("ST " + std::to_string(st));
+	LOG_DEBUG("CT " + std::to_string(isNonZeroMix));
+	LOG_DEBUG("ST " + std::to_string(st));
 
     // Calculs pour X_UL et X_UR
     for (int ie = 0; ie < 2; ++ie) {
@@ -170,14 +170,14 @@ susy_parameters::susy_parameters(double scale) {
 						ag * (*susy)("VMIX", ie*10+0) * Gamma_UL[ae][ce] -
 						aY * (*susy)("VMIX", ie*10+1) * Gamma_UR[ae][ce] * MU[ce] / (sqrt(2.0) * (*sm)("MASS", 24) * sinb)
 					) * std::real(VCKM[ce][be]);
-					// logger->info("GAMMA_UL " + std::to_string(ae) + " " + std::to_string(ce)  + " " + std::to_string(Gamma_UL[ae][ce]));
+					// LOG_INFO("GAMMA_UL " + std::to_string(ae) + " " + std::to_string(ce)  + " " + std::to_string(Gamma_UL[ae][ce]));
 					X_UR[ie][ae][be] += (*sm)("GAUGE",2) * aY * (*susy)(std::string("UMIX"), ie*10+1) * Gamma_UL[ae][ce] * std::real(VCKM[ce][be]) * MD[be] / (sqrt(2.0) * (*sm)("MASS", 24) * cosb);
 
 					G_aimn[ae][ie][be][ce]=0.5/sqrt(2.)*(sqrt(2.)*(*sm)("MASS",24)*(*susy)("VMIX", ie*10+0)*Gamma_UL[ae][ce]*ag-MU[ce]*(*susy)("VMIX", ie*10+1)*Gamma_UR[ae][ce]*aY)*(std::real(VCKM[be][2])*std::real(VCKM[ce][1])/std::real(VCKM[2][2])/std::real(VCKM[2][1]));
-					// logger->info(std::to_string(std::real(VCKM[ce][be])) + " WAOUW");
+					// LOG_INFO(std::to_string(std::real(VCKM[ce][be])) + " WAOUW");
 				}
-				logger->debug("X_UL[" + std::to_string(ie) + "][" +std::to_string(ae)+"]["+std::to_string(be)+"] = "+std::to_string(X_UL[ie][ae][be]));
-				logger->debug("X_UR[" + std::to_string(ie) + "][" +std::to_string(ae)+"]["+std::to_string(be)+"] = "+std::to_string(X_UR[ie][ae][be]));
+				LOG_DEBUG("X_UL[" + std::to_string(ie) + "][" +std::to_string(ae)+"]["+std::to_string(be)+"] = "+std::to_string(X_UL[ie][ae][be]));
+				LOG_DEBUG("X_UR[" + std::to_string(ie) + "][" +std::to_string(ae)+"]["+std::to_string(be)+"] = "+std::to_string(X_UR[ie][ae][be]));
 				// Condition pour éviter le dépassement dans X_NL et X_NR si ae > 2
 				if (ae < 3) {
 					X_NL[ie][ae][be] = -(*sm)("GAUGE",2) * (*susy)("VMIX", ie*10+0) * Gamma_NL[ae][be];
@@ -187,12 +187,12 @@ susy_parameters::susy_parameters(double scale) {
 		}
 	}
 
-	logger->debug("AG " + std::to_string(ag));
-	logger->debug("AY " + std::to_string(aY));
-	logger->debug("vmix00 " + std::to_string((*susy)("VMIX", 0)));
-	logger->debug("vmix01 " + std::to_string((*susy)("VMIX", 01)));
-	logger->debug("vmix10 " + std::to_string((*susy)("VMIX", 10)));
-	logger->debug("vmix11 " + std::to_string((*susy)("VMIX", 11)));
+	LOG_DEBUG("AG " + std::to_string(ag));
+	LOG_DEBUG("AY " + std::to_string(aY));
+	LOG_DEBUG("vmix00 " + std::to_string((*susy)("VMIX", 0)));
+	LOG_DEBUG("vmix01 " + std::to_string((*susy)("VMIX", 01)));
+	LOG_DEBUG("vmix10 " + std::to_string((*susy)("VMIX", 10)));
+	LOG_DEBUG("vmix11 " + std::to_string((*susy)("VMIX", 11)));
 	//X_UL and X_UR change from here, -1 from superiso
 
 	auto computeContributions = [&](int ie, auto func, double additionalFactor = 1.0) {
@@ -205,7 +205,7 @@ susy_parameters::susy_parameters(double scale) {
 		return result;
 	};
 
-	logger->debug("KAPPA IS " + std::to_string(kappa));
+	LOG_DEBUG("KAPPA IS " + std::to_string(kappa));
 
 	auto hFunc10 = [](double x) { return h10(x); };
 	auto hFunc20 = [](double x) { return h20(x); };
@@ -235,8 +235,8 @@ susy_parameters::susy_parameters(double scale) {
 			}
 		}
 	}
-	logger->debug("B0c1 : " + std::to_string(B0c1*1e10));
-	logger->debug("B0c2 : " + doubleToString(B0c2*1e16, 20));
+	LOG_DEBUG("B0c1 : " + std::to_string(B0c1*1e10));
+	LOG_DEBUG("B0c2 : " + doubleToString(B0c2*1e16, 20));
 	for (int ie = 0; ie < 2; ++ie) {
 		for (int ae = 0; ae < 6; ++ae) {
 			for (int be = 0; be < 6; ++be) {

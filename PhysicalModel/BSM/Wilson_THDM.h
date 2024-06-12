@@ -11,11 +11,11 @@ public:
     void init_scalar(double scale_W,double scale,int gen, WilsonSet& C_match) override;
 
     void set_lu(double lu) {this->lu = lu;
-    Logger::getInstance()->info("lu in THDM " + std::to_string(lu)); is_thdm=false;}
+    LOG_INFO("lu in THDM " + std::to_string(lu)); is_thdm=false;}
     void set_ld(double ld) {this->ld = ld;
-    Logger::getInstance()->info("ld in THDM " + std::to_string(ld)); is_thdm=false;}
+    LOG_INFO("ld in THDM " + std::to_string(ld)); is_thdm=false;}
     void set_le(double le) {this->le = le;
-    Logger::getInstance()->info("le in THDM " + std::to_string(le)); is_thdm=false;}
+    LOG_INFO("le in THDM " + std::to_string(le)); is_thdm=false;}
 
 protected:
     double lu{-1.};

@@ -816,6 +816,7 @@ double D1t(double x, double l)
 
 double F0t(double x)
 {
+	if (fabs(1.-x)<1.e-5) return F0t(0.9999);
 	return  (5.*x*x*x-9.*x*x+30.*x-8.)/12./pow(1.-x,3.)+3.*x*x/2./pow(1.-x,4.)*log(x);
 }
 

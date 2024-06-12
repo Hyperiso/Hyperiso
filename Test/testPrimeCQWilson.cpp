@@ -53,6 +53,7 @@ int main() {
 
     Logger* logger = Logger::getInstance();
     logger->setLevel(Logger::LogLevel::INFO);
+    logger->setLogDirectory("logs");
 
     auto loStrategy = std::make_shared<SM_LO_Strategy>();
     auto nloStrategy = std::make_shared<SM_NLO_Strategy>();

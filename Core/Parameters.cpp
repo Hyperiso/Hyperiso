@@ -54,7 +54,7 @@ Parameters::Parameters(int modelId) {
             initFlavor();
             break;
         default:
-            Logger::getInstance()->error("Trying to instantiate parameters for unknown model ID " + std::to_string(modelId));
+            LOG_ERROR("Trying to instantiate parameters for unknown model ID " + std::to_string(modelId));
     }
 }
 
@@ -73,7 +73,7 @@ void Parameters::initSM() {
 
     sminputs[0] = 0.;
     sminputs[1] = *sm_inputs[0];
-    Logger::getInstance()->debug("sminputs" + std::to_string(sminputs[1]));
+    LOG_DEBUG("sminputs" + std::to_string(sminputs[1]));
     // VCKMIN 
     double lambda{0.22500}, A{0.826}, rho{0.159}, eta{0.348};
     std::vector<double*> ckm_inputs = {&lambda, &A, &rho, &eta};
@@ -104,7 +104,7 @@ void Parameters::initSM() {
     masses[24] = m_W;           // W  (running MW_MZ)
     masses[25] = 125.1;         // h0 
 
-    Logger::getInstance()->info("mW : " + std::to_string(m_W));
+    LOG_INFO("mW : " + std::to_string(m_W));
     
     
 
@@ -115,7 +115,7 @@ void Parameters::initSM() {
     gauge[1] = gauge[2] * sW / std::sqrt(1 - sW * sW);       // gp 
     gauge[3] = std::sqrt(4 * M_PI * alpha_s_MZ);             // gs
     gauge[4] = std::sqrt(4 * M_PI / inv_alpha_em);           // e_em     
-    Logger::getInstance()->info("gp : " + std::to_string(gauge[1]));
+    LOG_INFO("gp : " + std::to_string(gauge[1]));
     // CKM Matrix
     ckm[0][0] = 1 - lambda * lambda / 2;
     ckm[0][1] = lambda;
@@ -134,15 +134,15 @@ void Parameters::initSUSY() {
 
     std::string root = project_root.data();
     std::string spectrumFile = root +"/" + "Test/spectrum.slha";
-    Logger::getInstance()->info("Starting SUSY spectrum calculation...");
+    LOG_INFO("Starting SUSY spectrum calculation...");
     
     CalculatorType calculatorType = CalculatorType::Softsusy;
     GeneralCalculatorFactory::executeCommand(calculatorType, "calculateSpectrum", lha->getLhaPath(), spectrumFile);
     
-    Logger::getInstance()->info("SUSY spectrum calculation ran sucessfully");
+    LOG_INFO("SUSY spectrum calculation ran sucessfully");
 
     lha->update(spectrumFile);
-    Logger::getInstance()->info("LHA Blocks updated.");
+    LOG_INFO("LHA Blocks updated.");
 
     masses[45] = 0.; // for NMSSM conditions
     masses[46] = 0.; // for NMSSM conditions
@@ -189,7 +189,7 @@ void Parameters::initSUSY() {
             this->masses[std::stoi(e->getId())] = e->getValue();
         }
     } else {
-        Logger::getInstance()->error("Cannot intialize SUSY parameters: LHA file is incomplete.");
+        LOG_ERROR("Cannot intialize SUSY parameters: LHA file is incomplete.");
     }
 
     
@@ -223,18 +223,18 @@ void Parameters::initTHDM() {
 
     std::string root = project_root.data();
     std::string spectrumFile = root + "/" + "Test/thdm_spectrum.lha";
-    Logger::getInstance()->info("Starting THDM spectrum calculation...");
+    LOG_INFO("Starting THDM spectrum calculation...");
     // TwoHDMCalculatorFactory::executeCommand("calculateSpectrum", memo->getInputLhaPath(), spectrumFile);
 
     CalculatorType calculatorType = CalculatorType::TwoHDM;
     GeneralCalculatorFactory::executeCommand(calculatorType, "calculateSpectrum", memo->getInputLhaPath(), spectrumFile);
     
-    Logger::getInstance()->info("SUSY spectrum calculation ran sucessfully");
+    LOG_INFO("SUSY spectrum calculation ran sucessfully");
  
     
     lha->update(spectrumFile);
     
-    Logger::getInstance()->info("LHA Blocks updated.");
+    LOG_INFO("LHA Blocks updated.");
 
     std::vector<std::string> mandatory {"MINPAR", "MASS", "ALPHA"};
     if (this->checkLHA(mandatory)) {
@@ -276,11 +276,11 @@ void Parameters::initTHDM() {
                 this->ye[2][2] = -tan_beta;
                 break;
             default:
-                Logger::getInstance()->error("Cannot initialize THDM parameters: Unknown Yukawa type " + std::to_string(type));
+                LOG_ERROR("Cannot initialize THDM parameters: Unknown Yukawa type " + std::to_string(type));
         }
-        Logger::getInstance()->info("THDM parameters initialized.");
+        LOG_INFO("THDM parameters initialized.");
     } else {
-        Logger::getInstance()->error("Cannot intialize THDM parameters: LHA file is incomplete.");
+        LOG_ERROR("Cannot intialize THDM parameters: LHA file is incomplete.");
     }
 }
 
@@ -312,7 +312,7 @@ double Parameters::running_mass(double quarkmass, double Q_init, double Q_end,  
     if (quarkmass >= masses[4]) {
         return this->QCDRunner.running_mass(quarkmass, Q_init, Q_end, option_massb, option_masst);
     } else {
-        Logger::getInstance()->error("In Parameters::running_mass: Quark of mass " + std::to_string(quarkmass) + " lower than charm mass, not possible.");
+        LOG_ERROR("In Parameters::running_mass: Quark of mass " + std::to_string(quarkmass) + " lower than charm mass, not possible.");
         return 0;
     }
 }
@@ -321,7 +321,7 @@ double return_if_defined(std::map<std::string, double>& map, const std::string& 
     if (map.contains(id)) {
         return map[id];
     } else {
-        Logger::getInstance()->warn(error_label + " with key [" + id + "] is undefined.");
+        LOG_WARN(error_label + " with key [" + id + "] is undefined.");
         return NAN;
     }
 }
@@ -333,7 +333,7 @@ double Parameters::getFlavorParam(FlavorParamType type, const std::string& id) {
         case FlavorParamType::DECAY_CONSTANT:
             return return_if_defined(this->fconst, id, "Decay constant");
         default:
-            Logger::getInstance()->error("Unknown parameter type.");
+            LOG_ERROR("Unknown parameter type.");
             return NAN;
     }
 }

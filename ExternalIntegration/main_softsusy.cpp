@@ -11,9 +11,9 @@ int main() {
     std::string inputPath = "External_Integration/softsusy_ewinos_example.in";
     std::string outputPath = "output.slha";
 
-    logger->info("Starting spectrum calculation...");
+    LOG_INFO("Starting spectrum calculation...");
     SoftsusyCalculatorFactory::executeCommand("calculateSpectrum", inputPath, outputPath);
-    logger->info("Spectrum calculation completed.");
+    LOG_INFO("Spectrum calculation completed.");
 
     return 0;
 }

@@ -59,17 +59,17 @@ void Parser::parse(bool comments) {
         if (newBlock) {
             auto prototype = reader->findPrototype(t.value);
             if (prototype.blockName != "") {
-                Logger::getInstance()->info("LHA reader: Block " + prototype.blockName + " found.");
+                LOG_INFO("LHA reader: Block " + prototype.blockName + " found.");
                 this->rawBlocks[t.value] = std::vector<std::vector<std::string>> {};
                 cBlock = t.value;
                 hasGlobalScale = prototype.globalScale;
                 skipBlock = false;
             } else if (decay) {
-                Logger::getInstance()->info("LHA reader: Decay block found. Skipping.");
+                LOG_INFO("LHA reader: Decay block found. Skipping.");
                 skipBlock = true;
                 decay = false;
             } else {
-                Logger::getInstance()->warn("LHA reader: Unknown block " + t.value + " encountered. Skipping.");
+                LOG_WARN("LHA reader: Unknown block " + t.value + " encountered. Skipping.");
                 skipBlock = true;
             }
             newBlock = false;
@@ -145,7 +145,7 @@ std::string LhaReader::getLhaPath() const {
 }
 
 void LhaReader::update(std::string_view newLha) {
-    Logger::getInstance()->info("Updating LHA blocks...");
+    LOG_INFO("Updating LHA blocks...");
     this->lhaFile = std::filesystem::path(newLha);
     isFLHA = lhaFile.extension().string() == ".flha";
     

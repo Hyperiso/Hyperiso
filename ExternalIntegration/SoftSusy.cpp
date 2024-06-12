@@ -26,7 +26,7 @@ std::string getProjectRootFromConfig() {
 
     std::ifstream ifs(configFile);
     if (!ifs.is_open()) {
-        logger->error("Not possible to open the config file");
+        LOG_ERROR("Not possible to open the config file");
         return "";
     }
 
@@ -46,7 +46,7 @@ std::string getProjectRootFromConfig() {
 
     // Fermer le fichier
     ifs.close();
-    logger->info("Project root folder is " +projectRoot);
+    LOG_INFO("Project root folder is " +projectRoot);
     // Retourner la valeur du projet root
     return projectRoot;
 }
@@ -82,13 +82,13 @@ void SoftsusyCalculator::calculateSpectrum(const std::string& inputFilePath, con
         command = root_file + "/ExternalIntegration/SOFTSUSY/src/SOFTSUSY/softpoint.x leshouches < " + root_file + "/" + inputFilePath + " > " + outputFilePath;
     }
 
-    logger->debug("SOFTSUSY COMMAND : " + command);
+    LOG_DEBUG("SOFTSUSY COMMAND : " + command);
 
     int result = system(command.c_str());
     if (result != 0) {
-        logger->error("SOFTSUSY execution failed with code " + std::to_string(result));
+        LOG_ERROR("SOFTSUSY execution failed with code " + std::to_string(result));
     } else {
-        logger->info("SOFTSUSY execution successful.");
+        LOG_INFO("SOFTSUSY execution successful.");
     }
 }
 

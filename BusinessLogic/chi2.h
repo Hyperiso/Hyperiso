@@ -42,7 +42,7 @@ public:
         if (it != parameters.end()) {
             return it->second;
         }
-        logger->error("Parameter not found");
+        LOG_ERROR("Parameter not found");
     }
 
     bool hasParameter(const std::string& key) const {

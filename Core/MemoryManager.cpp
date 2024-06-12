@@ -41,7 +41,7 @@ std::string MemoryManager::findNearestHyperisoDirectory() {
     while (!currentDir.empty()) {
         for (const auto& entry : fs::directory_iterator(currentDir)) {
             if (entry.is_directory() && entry.path().filename().string().find("Hyperiso") != std::string::npos) {
-                logger->info("Project root folder is " +entry.path().string());
+                LOG_INFO("Project root folder is " +entry.path().string());
                 return entry.path().string() + "/";
             }
         }
@@ -49,7 +49,7 @@ std::string MemoryManager::findNearestHyperisoDirectory() {
     }
 
     // If "hyperiso" directory is not found in any parent directory
-    logger->error("Error: Nearest directory containing 'hyperiso' not found.");
+    LOG_ERROR("Error: Nearest directory containing 'hyperiso' not found.");
     return "";
 }
 

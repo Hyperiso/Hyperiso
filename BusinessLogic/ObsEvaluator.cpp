@@ -23,7 +23,7 @@ WilsonManager *ObsEvaluator::computeWilsons(int model, int order, double scale) 
                     wm = WilsonManager::GetInstance("NNLO", m_W, std::make_shared<SM_NNLO_Strategy>());
                     break;
                 default:
-                    Logger::getInstance()->warn("Order too high required for SM Wilson coefficients, defaulting to order 2.");
+                    LOG_WARN("Order too high required for SM Wilson coefficients, defaulting to order 2.");
                     wm = WilsonManager::GetInstance("NNLO", m_W, std::make_shared<SM_NNLO_Strategy>());
             }
             break;
@@ -39,7 +39,7 @@ WilsonManager *ObsEvaluator::computeWilsons(int model, int order, double scale) 
         //             wm = WilsonManager::GetInstance("NNLO", m_W, std::make_shared<SUSY_NNLO_Strategy>());
         //             break;
         //         default:
-        //             Logger::getInstance()->warn("Order too high required for SUSY Wilson coefficients, defaulting to order 2.");
+        //             LOG_WARN("Order too high required for SUSY Wilson coefficients, defaulting to order 2.");
         //             wm = WilsonManager::GetInstance("NNLO", m_W, std::make_shared<SUSY_NNLO_Strategy>());
         //     }
         //     break;
@@ -55,12 +55,12 @@ WilsonManager *ObsEvaluator::computeWilsons(int model, int order, double scale) 
         //             wm = WilsonManager::GetInstance("NNLO", m_W, std::make_shared<THDM_NNLO_Strategy>());
         //             break;
         //         default:
-        //             Logger::getInstance()->warn("Order too high required for THDM Wilson coefficients, defaulting to order 2.");
+        //             LOG_WARN("Order too high required for THDM Wilson coefficients, defaulting to order 2.");
         //             wm = WilsonManager::GetInstance("NNLO", m_W, std::make_shared<THDM_NNLO_Strategy>());
         //     }
         //     break;
         default:
-            Logger::getInstance()->error("Unknown model requested for Wilson coefficient calculation.");
+            LOG_ERROR("Unknown model requested for Wilson coefficient calculation.");
             return nullptr;
     }
     wm->setScale(scale, true);
@@ -86,7 +86,7 @@ complex_t ObsEvaluator::Evaluate(Observable *o) {
         case Observables::BR_BD_MUMU:
             return ObsEvaluator::Bd_mumu(wm);
         default:
-            Logger::getInstance()->error("Unknown observable.");
+            LOG_ERROR("Unknown observable.");
             return std::complex<double>(-1);
     }
 }
@@ -104,12 +104,12 @@ complex_t ObsEvaluator::Bs_mumu(WilsonManager* wm)
     complex_t CPQ2 = wm->get_full(WilsonCoefficient::CPQ2, 0);
 
     auto logger = Logger::getInstance();
-    logger->info("C10 at all order is : " + std::to_string(std::real(C10)));
-    logger->info("CP10 at all order is : " + std::to_string(std::real(CP10)));
-    logger->info("CQ1 at all order is : " + std::to_string(std::real(CQ1)));
-    logger->info("CQ2 at all order is : " + std::to_string(std::real(CQ2)));
-    logger->info("CPQ1 at all order is : " + std::to_string(std::real(CPQ1)));
-    logger->info("CPQ2 at all order is : " + std::to_string(std::real(CPQ2)));
+    LOG_INFO("C10 at all order is : " + std::to_string(std::real(C10)));
+    LOG_INFO("CP10 at all order is : " + std::to_string(std::real(CP10)));
+    LOG_INFO("CQ1 at all order is : " + std::to_string(std::real(CQ1)));
+    LOG_INFO("CQ2 at all order is : " + std::to_string(std::real(CQ2)));
+    LOG_INFO("CPQ1 at all order is : " + std::to_string(std::real(CPQ1)));
+    LOG_INFO("CPQ2 at all order is : " + std::to_string(std::real(CPQ2)));
 
     double G_F = (*sm_p)("SMINPUT", 2);
     double inv_alpha_em = (*sm_p)("SMINPUT", 1);

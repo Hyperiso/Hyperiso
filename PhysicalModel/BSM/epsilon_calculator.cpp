@@ -22,10 +22,10 @@ double EpsilonCalculator::epsilon_0() {
                (*susy)("SBOTMIX",01) * (*susy)("SBOTMIX",01) * H2((*susy)("MSOFT",2) * (*susy)("MSOFT",2) / (*susy)("MASS",2000005) / (*susy)("MASS",2000005), mu_Q * mu_Q / (*susy)("MASS",2000005) / (*susy)("MASS",2000005)) / (*susy)("MASS",2000005) / (*susy)("MASS",2000005) / 2.0);
 
     Logger *logger = Logger::getInstance();
-    logger->debug("AD 22 " + std::to_string((*susy)("AD",22)));
-    logger->debug("term1 in epsilon_0 is " + std::to_string(term1));
-    logger->debug("term2 in epsilon_0 is " + std::to_string(term2));
-    logger->debug("term3 in epsilon_0 is " + std::to_string(term3));
+    LOG_DEBUG("AD 22 " + std::to_string((*susy)("AD",22)));
+    LOG_DEBUG("term1 in epsilon_0 is " + std::to_string(term1));
+    LOG_DEBUG("term2 in epsilon_0 is " + std::to_string(term2));
+    LOG_DEBUG("term3 in epsilon_0 is " + std::to_string(term3));
     return factor * (term1 + term2) + term3; 
 }
 
@@ -54,8 +54,8 @@ double EpsilonCalculator::epsilon_2() const {
 
 double EpsilonCalculator::epsilon_b() {
 
-    Logger::getInstance()->debug("epsilon 0 : " + std::to_string(epsilon_0()));
-    Logger::getInstance()->debug("epsilon 2 : " + std::to_string(epsilon_2()));
+    LOG_DEBUG("epsilon 0 : " + std::to_string(epsilon_0()));
+    LOG_DEBUG("epsilon 2 : " + std::to_string(epsilon_2()));
     return epsilon_0() + epsilon_2();
 }
 

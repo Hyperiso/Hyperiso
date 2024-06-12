@@ -25,7 +25,7 @@ QCDParameters::QCDParameters(double alpha_Z, double m_Z, double masst_pole, doub
     this->mb_pole();
     this->setMassTypes("pole", "pole");
 
-    Logger::getInstance()->info("In QCDParameters constructor mb(81 GeV) = " + std::to_string(this->running_mass(4.25, 4.25, 81, "running")));
+    LOG_INFO("In QCDParameters constructor mb(81 GeV) = " + std::to_string(this->running_mass(4.25, 4.25, 81, "running")));
 }
 
 /**
@@ -42,7 +42,7 @@ double QCDParameters::runningAlphasCalculation(double Q, std::string option_mass
     int n_f = this->getNf(Q);
 
     if (n_f < 4) {
-        Logger::getInstance()->warn("Scale for alpha_s calculation is below charm mass.");
+        LOG_WARN("Scale for alpha_s calculation is below charm mass.");
     }
 
     double L = this->Lambda5;
@@ -217,7 +217,7 @@ double QCDParameters::matchLambda(double target_alpha, double Q, int nf){
     }
 
     if (std::abs(f(L_moy)) > 1e-5) {
-        Logger::getInstance()->error("Unable to find suitable QCD Lambda value to match alpha_s = " + std::to_string(target_alpha) 
+        LOG_ERROR("Unable to find suitable QCD Lambda value to match alpha_s = " + std::to_string(target_alpha) 
                  + " at scale " + std::to_string(Q) + " GeV with " + std::to_string(nf) + " active flavors.");
         return -1;
     }

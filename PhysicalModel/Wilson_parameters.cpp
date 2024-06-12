@@ -1218,21 +1218,21 @@ void Wilson_parameters::SetMuW(double mu_W) {
 	Logger* logger = Logger::getInstance();
 
 	this->mu_W = mu_W;
-	logger->info("mu_W : " + std::to_string(mu_W));
+	LOG_INFO("mu_W : " + std::to_string(mu_W));
 	alphas_muW=(*sm).QCDRunner.runningAlphasCalculation(mu_W);
 	mass_top_muW=(*sm).QCDRunner.running_mass((*sm)("MASS",6), (*sm)("MASS",6),mu_W, "running"); //mass top at top ?
 
-	logger->info("mass_top_muW : " + std::to_string(mass_top_muW));
+	LOG_INFO("mass_top_muW : " + std::to_string(mass_top_muW));
 	mass_b_muW=(*sm).QCDRunner.running_mass((*sm)("MASS",5), (*sm)("MASS",5), mu_W, "running"); //mass bottom 6 (at pole)
-	logger->info("mass_b_muW : " + std::to_string(mass_b_muW));
+	LOG_INFO("mass_b_muW : " + std::to_string(mass_b_muW));
 	sw2=pow(sin(atan((*sm)("GAUGE",1)/(*sm)("GAUGE",2))),2.);
 	xt = std::pow(mass_top_muW / (*sm)("MASS",24), 2);
 
-	logger->debug("Alpha_s at " +std::to_string(mu_W) +" : " + std::to_string(alphas_muW));
-	logger->debug("Mass of top quark at scale: " + std::to_string(mass_top_muW));
-    logger->debug("Mass of bottom quark at scale: " + std::to_string(mass_b_muW));
-	logger->debug("Square of weak mixing angle: " + std::to_string(sw2));
-    logger->debug("Square of top quark mass over W boson mass (xt): " + std::to_string(xt));
+	LOG_DEBUG("Alpha_s at " +std::to_string(mu_W) +" : " + std::to_string(alphas_muW));
+	LOG_DEBUG("Mass of top quark at scale: " + std::to_string(mass_top_muW));
+    LOG_DEBUG("Mass of bottom quark at scale: " + std::to_string(mass_b_muW));
+	LOG_DEBUG("Square of weak mixing angle: " + std::to_string(sw2));
+    LOG_DEBUG("Square of top quark mass over W boson mass (xt): " + std::to_string(xt));
 
 }
 
@@ -1249,7 +1249,7 @@ void Wilson_parameters::SetMu(double mu) {
         (etaMuPowers)[i] = std::pow(eta_mu, (ai)[i]);
     }
 
-	logger->debug("U0,U1, U2 for a scale of " + std::to_string(mu));
+	LOG_DEBUG("U0,U1, U2 for a scale of " + std::to_string(mu));
 	for (int ke = 0; ke < arraySize; ++ke) {
         for (int le = 0; le < arraySize; ++le) {
             (U0)[ke][le] =0;
@@ -1261,9 +1261,9 @@ void Wilson_parameters::SetMu(double mu) {
                 (U2)[ke][le] += (m20)[ke][le][ie] * (etaMuPowers)[ie] + (m21)[ke][le][ie] * (etaMuPowers)[ie] / eta_mu + (m22)[ke][le][ie] * (etaMuPowers[ie]) / (eta_mu * eta_mu);
             }
 			
-            logger->debug("U0[" + std::to_string(ke) + "][" + std::to_string(le) + "]: " + std::to_string((U0)[ke][le]));
-            logger->debug("U1[" + std::to_string(ke) + "][" + std::to_string(le) + "]: " + std::to_string((U1)[ke][le]));
-            logger->debug("U2[" + std::to_string(ke) + "][" + std::to_string(le) + "]: " + std::to_string((U2)[ke][le]));
+            LOG_DEBUG("U0[" + std::to_string(ke) + "][" + std::to_string(le) + "]: " + std::to_string((U0)[ke][le]));
+            LOG_DEBUG("U1[" + std::to_string(ke) + "][" + std::to_string(le) + "]: " + std::to_string((U1)[ke][le]));
+            LOG_DEBUG("U2[" + std::to_string(ke) + "][" + std::to_string(le) + "]: " + std::to_string((U2)[ke][le]));
         }
     }
 

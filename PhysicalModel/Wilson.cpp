@@ -2,7 +2,7 @@
 
 complex_t WilsonManager::get(WilsonCoefficient wc, int order) const {
     if (order < 0 || order >= C.size()) {
-        Logger::getInstance()->error("Requested order is not available: " + std::to_string(order));
+        LOG_ERROR("Requested order is not available: " + std::to_string(order));
         return complex_t(0, 0);
     }
 
@@ -12,7 +12,7 @@ complex_t WilsonManager::get(WilsonCoefficient wc, int order) const {
     if (static_cast<size_t>(wc) < C_order.size()) {
         return C_order[static_cast<size_t>(wc)];
     } else {
-        Logger::getInstance()->error("Requested Wilson coefficient is not available: " + std::to_string(static_cast<size_t>(wc)));
+        LOG_ERROR("Requested Wilson coefficient is not available: " + std::to_string(static_cast<size_t>(wc)));
         return complex_t(-1, 0); 
     }
 }
@@ -26,7 +26,7 @@ complex_t WilsonManager::get_full(WilsonCoefficient wc, int order) const {
         if (c_i != complex_t(-1, 0)) {
             c += std::pow(factor, i) * c_i;
         } else {
-            Logger::getInstance()->warn("Some Wilson coefficients couldn't be computed to the desired order.");
+            LOG_WARN("Some Wilson coefficients couldn't be computed to the desired order.");
         }
     }
 
@@ -35,7 +35,7 @@ complex_t WilsonManager::get_full(WilsonCoefficient wc, int order) const {
 
 complex_t WilsonManager::get_matchs(WilsonCoefficient wc, int order) const {
     if (order < 0 || order >= C_match.size()) {
-        Logger::getInstance()->error("Requested order is not available: " + std::to_string(order));
+        LOG_ERROR("Requested order is not available: " + std::to_string(order));
         return complex_t(0, 0);
     }
 
@@ -46,7 +46,7 @@ complex_t WilsonManager::get_matchs(WilsonCoefficient wc, int order) const {
     if (static_cast<size_t>(wc) < C_order.size()) {
         return C_order[static_cast<size_t>(wc)];
     } else {
-        Logger::getInstance()->error("Requested Wilson coefficient is not available: " + std::to_string(static_cast<size_t>(wc)));
+        LOG_ERROR("Requested Wilson coefficient is not available: " + std::to_string(static_cast<size_t>(wc)));
         return complex_t(0, 0); 
     }
 }
@@ -93,15 +93,15 @@ void SM_LO_Strategy::init(double scale, WilsonSet& C_match) {
     C_LO[static_cast<size_t>(WilsonCoefficient::C10)] = complex_t(C10SM_0, 0);
 
     
-    logger->debug("Initialized SM_LO_Strategy"); 
-    logger->debug("L (logarithm term): " + std::to_string(L));
-    logger->debug("LO Wilson Coefficients:");
-    logger->debug("C2SM_0: " + std::to_string(C2SM_0));
-    logger->debug("C7SM_0: " + std::to_string(C7SM_0));
-    logger->debug("C8SM_0: " + std::to_string(C8SM_0));
-    logger->debug("C9SM_0: " + std::to_string(C9SM_0));
-    logger->debug("C10SM_0: " + std::to_string(C10SM_0));
-    logger->info("LO Wilson Coefficient Initialized at scale " +std::to_string(scale)+" terminated successfully");
+    LOG_DEBUG("Initialized SM_LO_Strategy"); 
+    LOG_DEBUG("L (logarithm term): " + std::to_string(L));
+    LOG_DEBUG("LO Wilson Coefficients:");
+    LOG_DEBUG("C2SM_0: " + std::to_string(C2SM_0));
+    LOG_DEBUG("C7SM_0: " + std::to_string(C7SM_0));
+    LOG_DEBUG("C8SM_0: " + std::to_string(C8SM_0));
+    LOG_DEBUG("C9SM_0: " + std::to_string(C9SM_0));
+    LOG_DEBUG("C10SM_0: " + std::to_string(C10SM_0));
+    LOG_INFO("LO Wilson Coefficient Initialized at scale " +std::to_string(scale)+" terminated successfully");
 }
 
 
@@ -157,10 +157,10 @@ void SM_LO_Strategy::set_base1(WilsonSet& C, WilsonSet& C_match, double Q, const
 
     C_LO[10-1] = C_matchs[10];
     
-    logger->debug("Initialized SM_LO_Strategy with base1 at scale " +std::to_string(Q));
-    logger->debug("C7_eff: " + std::to_string(C7_eff.real()) + " + " + std::to_string(C7_eff.imag()) + "i");
-    logger->debug("C8_eff: " + std::to_string(C8_eff.real()) + " + " + std::to_string(C8_eff.imag()) + "i");
-    logger->info("SM_LO_Strategy calculation in base1 at scale "+std::to_string(Q)+" terminated successfully");
+    LOG_DEBUG("Initialized SM_LO_Strategy with base1 at scale " +std::to_string(Q));
+    LOG_DEBUG("C7_eff: " + std::to_string(C7_eff.real()) + " + " + std::to_string(C7_eff.imag()) + "i");
+    LOG_DEBUG("C8_eff: " + std::to_string(C8_eff.real()) + " + " + std::to_string(C8_eff.imag()) + "i");
+    LOG_INFO("SM_LO_Strategy calculation in base1 at scale "+std::to_string(Q)+" terminated successfully");
 
 }
 
@@ -197,10 +197,10 @@ void SM_LO_Strategy::set_base2(WilsonSet& C, WilsonSet& C_match, double Q, const
     C_LO[9] = C_matchs[10];  // C10
 
     Logger* logger = Logger::getInstance();
-    logger->debug("Initialized SM_LO_Strategy with base2 at scale " +std::to_string(Q));
-    logger->debug("C0w7: " + std::to_string(C0w7.real()) + " + " + std::to_string(C0w7.imag()) + "i");
-    logger->debug("C0w8: " + std::to_string(C0w8.real()) + " + " + std::to_string(C0w8.imag()) + "i");
-    logger->info("LO coefficient calculated in base 2 at scale " +std::to_string(Q)+" terminated successfully");
+    LOG_DEBUG("Initialized SM_LO_Strategy with base2 at scale " +std::to_string(Q));
+    LOG_DEBUG("C0w7: " + std::to_string(C0w7.real()) + " + " + std::to_string(C0w7.imag()) + "i");
+    LOG_DEBUG("C0w8: " + std::to_string(C0w8.real()) + " + " + std::to_string(C0w8.imag()) + "i");
+    LOG_INFO("LO coefficient calculated in base 2 at scale " +std::to_string(Q)+" terminated successfully");
 }
 
 
@@ -216,7 +216,7 @@ void SM_NLO_Strategy::init(double scale, WilsonSet& C_match) {
 
 	double L=log(scale*scale/(*sm)("MASS",24)/(*sm)("MASS",24)); // scale -> scale
 
-    logger->debug("L at NLO: " + std::to_string(L));
+    LOG_DEBUG("L at NLO: " + std::to_string(L));
 
     double C1SM_1 = 15.+6.*L;
 	double C4SM_1 = E0t(W_param->xt)-7./9.+2./3.*L;
@@ -225,12 +225,12 @@ void SM_NLO_Strategy::init(double scale, WilsonSet& C_match) {
 	double C9SM_1 = (1.-4.*W_param->sw2)/W_param->sw2*C1t(W_param->xt,log(scale*scale/W_param->mass_top_muW/W_param->mass_top_muW))-B1t(W_param->xt,log(scale*scale/W_param->mass_top_muW/W_param->mass_top_muW))/W_param->sw2-D1t(W_param->xt,log(scale*scale/W_param->mass_top_muW/W_param->mass_top_muW)) +1./W_param->sw2+524./729.-128./243.*PI*PI-16./3.*L-128./81.*L*L;
     double C10SM_1 = (B1t(W_param->xt,log(scale*scale/W_param->mass_top_muW/W_param->mass_top_muW))-C1t(W_param->xt,log(scale*scale/W_param->mass_top_muW/W_param->mass_top_muW)))/W_param->sw2-1./W_param->sw2;
 
-    logger->debug("C1SM_1 at NLO: " + std::to_string(C1SM_1));
-    logger->debug("C4SM_1 at NLO: " + std::to_string(C4SM_1));
-    logger->debug("C7SM_1 at NLO: " + std::to_string(C7SM_1));
-    logger->debug("C8SM_1 at NLO: " + std::to_string(C8SM_1));
-    logger->debug("C9SM_1 at NLO: " + std::to_string(C9SM_1));
-    logger->debug("C10SM_1 at NLO: " + std::to_string(C10SM_1));
+    LOG_DEBUG("C1SM_1 at NLO: " + std::to_string(C1SM_1));
+    LOG_DEBUG("C4SM_1 at NLO: " + std::to_string(C4SM_1));
+    LOG_DEBUG("C7SM_1 at NLO: " + std::to_string(C7SM_1));
+    LOG_DEBUG("C8SM_1 at NLO: " + std::to_string(C8SM_1));
+    LOG_DEBUG("C9SM_1 at NLO: " + std::to_string(C9SM_1));
+    LOG_DEBUG("C10SM_1 at NLO: " + std::to_string(C10SM_1));
     
 	if (C_match.size() < 2) C_match.resize(2);  
     
@@ -246,7 +246,7 @@ void SM_NLO_Strategy::init(double scale, WilsonSet& C_match) {
     
 	C_NLO[static_cast<size_t>(WilsonCoefficient::C10)] = complex_t(C10SM_1, 0);
 
-    logger->info("NLO Wilson Coefficient Initialized at scale " +std::to_string(scale)+" terminated successfully");
+    LOG_INFO("NLO Wilson Coefficient Initialized at scale " +std::to_string(scale)+" terminated successfully");
 }
 
 
@@ -267,10 +267,10 @@ void SM_NLO_Strategy::set_base1(WilsonSet& C, WilsonSet& C_match, double Q, cons
 	complex_t C7_eff_0= C0_matchs[7]-1./3.*C0_matchs[3]-4./9.*C0_matchs[4]-20./3.*C0_matchs[5]-80./9.*C0_matchs[6]; 
 	complex_t C8_eff_0= C0_matchs[8]+C0_matchs[3]-1./6.*C0_matchs[4]+20.*C0_matchs[5]-10./3.*C0_matchs[6]; 
 
-    logger->debug("C7_eff: " + std::to_string(C7_eff.real()) + " + i" + std::to_string(C7_eff.imag()));
-    logger->debug("C8_eff: " + std::to_string(C8_eff.real()) + " + i" + std::to_string(C8_eff.imag()));
-    logger->debug("C7_eff_0: " + std::to_string(C7_eff_0.real()) + " + i" + std::to_string(C7_eff_0.imag()));
-    logger->debug("C8_eff_0: " + std::to_string(C8_eff_0.real()) + " + i" + std::to_string(C8_eff_0.imag()));
+    LOG_DEBUG("C7_eff: " + std::to_string(C7_eff.real()) + " + i" + std::to_string(C7_eff.imag()));
+    LOG_DEBUG("C8_eff: " + std::to_string(C8_eff.real()) + " + i" + std::to_string(C8_eff.imag()));
+    LOG_DEBUG("C7_eff_0: " + std::to_string(C7_eff_0.real()) + " + i" + std::to_string(C7_eff_0.imag()));
+    LOG_DEBUG("C8_eff_0: " + std::to_string(C8_eff_0.real()) + " + i" + std::to_string(C8_eff_0.imag()));
 
 
     auto calculateC1b = [&](int ie, int je) {
@@ -310,7 +310,7 @@ void SM_NLO_Strategy::set_base1(WilsonSet& C, WilsonSet& C_match, double Q, cons
 
     C_NLO[9] = W_param->eta_mu * C_matchs[10];
 
-    logger->info("NLO coefficient calculated in base 1 at scale " +std::to_string(Q)+" terminated successfully");
+    LOG_INFO("NLO coefficient calculated in base 1 at scale " +std::to_string(Q)+" terminated successfully");
 
 }
 
@@ -388,7 +388,7 @@ void SM_NLO_Strategy::set_base2(WilsonSet& C, WilsonSet& C_match, double Q, cons
 	// C10
 	C_NLO[9] = W_param->eta_mu * C_matchs[10];
 
-    logger->info("NLO coefficient calculated in base 1 at scale " +std::to_string(Q) +" terminated successfully");
+    LOG_INFO("NLO coefficient calculated in base 1 at scale " +std::to_string(Q) +" terminated successfully");
 }
 
 
@@ -416,17 +416,17 @@ void SM_NNLO_Strategy::init(double scale, WilsonSet& C_match) {
 	double xtW=pow(sm->running_mass((*sm)("MASS",6),(*sm)("MASS",6), (*sm)("MASS",24))/(*sm)("MASS", 24), 2); // mass top at pole for mtot param
 	double xtt=pow((*sm)("MASS",6)/(*sm)("MASS",24),2.); // 24 -> W
 
-    logger->info("mtmt", (*sm).QCDRunner.get_mt_mt());
-    logger->info("mtmt_2", (*sm)("MASS",6));
-    logger->info("W", (*sm)("MASS",24));
-    logger->info("xt : ", W_param->xt);
-    logger->info("xtW : ", xtW);
-    logger->info("xtt : ", xtt);
-    logger->info("Li2", Li2(1.-1./W_param->xt));
-    logger->info ("C8c2MW(xtW)", C8c2MW(xtW));
-    logger->info("C8t2mt(xtt)", C8t2mt(xtt));
-    logger->info("mtmt_3", doubleToString((*sm)("MASS",6), 20));
-    logger->info("mtoppole", doubleToString((*sm).QCDRunner.get_mt_pole(), 20));
+    LOG_INFO("mtmt", (*sm).QCDRunner.get_mt_mt());
+    LOG_INFO("mtmt_2", (*sm)("MASS",6));
+    LOG_INFO("W", (*sm)("MASS",24));
+    LOG_INFO("xt : ", W_param->xt);
+    LOG_INFO("xtW : ", xtW);
+    LOG_INFO("xtt : ", xtt);
+    LOG_INFO("Li2", Li2(1.-1./W_param->xt));
+    LOG_INFO ("C8c2MW(xtW)", C8c2MW(xtW));
+    LOG_INFO("C8t2mt(xtt)", C8t2mt(xtt));
+    LOG_INFO("mtmt_3", doubleToString((*sm)("MASS",6), 20));
+    LOG_INFO("mtoppole", doubleToString((*sm).QCDRunner.get_mt_pole(), 20));
 
 	double C7SM_2 = (C7t2mt(xtt)+log(scale*scale/W_param->mass_top_muW/W_param->mass_top_muW)*((-592.*pow(W_param->xt,5.)-22.*pow(W_param->xt,4.)+12814.*pow(W_param->xt,3.)-6376.*W_param->xt*W_param->xt+512.*W_param->xt)/27./pow(W_param->xt-1.,5.)*Li2(1.-1./W_param->xt)
 	+(-26838.*pow(W_param->xt,5.)+25938.*pow(W_param->xt,4.)+627367.*pow(W_param->xt,3.)-331956.*W_param->xt*W_param->xt+16989.*W_param->xt-460.)/729./pow(W_param->xt-1.,6.)*log(W_param->xt)
@@ -468,15 +468,15 @@ void SM_NNLO_Strategy::init(double scale, WilsonSet& C_match) {
 	C_NNLO[static_cast<size_t>(WilsonCoefficient::C8)] = complex_t(C8SM_2, 0);
     C_NNLO[static_cast<size_t>(WilsonCoefficient::C10)] = complex_t(C10SM_2, 0);
 
-    logger->debug("C1SM_2 at NNLO: " + std::to_string(C1SM_2));
-    logger->debug("C2SM_2 at NNLO: " + std::to_string(C2SM_2));
-    logger->debug("C3SM_2 at NNLO: " + std::to_string(C3SM_2));
-    logger->debug("C4SM_2 at NNLO: " + std::to_string(C4SM_2));
-    logger->debug("C5SM_2 at NNLO: " + std::to_string(C5SM_2));
-    logger->debug("C6SM_2 at NNLO: " + std::to_string(C6SM_2));
-    logger->debug("C7SM_2 at NNLO: " + std::to_string(C7SM_2));
-    logger->debug("C8SM_2 at NNLO: " + std::to_string(C8SM_2));
-    logger->debug("C10SM_2 at NNLO: " + std::to_string(C10SM_2));
+    LOG_DEBUG("C1SM_2 at NNLO: " + std::to_string(C1SM_2));
+    LOG_DEBUG("C2SM_2 at NNLO: " + std::to_string(C2SM_2));
+    LOG_DEBUG("C3SM_2 at NNLO: " + std::to_string(C3SM_2));
+    LOG_DEBUG("C4SM_2 at NNLO: " + std::to_string(C4SM_2));
+    LOG_DEBUG("C5SM_2 at NNLO: " + std::to_string(C5SM_2));
+    LOG_DEBUG("C6SM_2 at NNLO: " + std::to_string(C6SM_2));
+    LOG_DEBUG("C7SM_2 at NNLO: " + std::to_string(C7SM_2));
+    LOG_DEBUG("C8SM_2 at NNLO: " + std::to_string(C8SM_2));
+    LOG_DEBUG("C10SM_2 at NNLO: " + std::to_string(C10SM_2));
 
 }
 
@@ -538,6 +538,8 @@ void SM_LO_Strategy::init_prime(double Q, double Q_match,int gen, WilsonSet& C) 
 
 	Parameters* sm = Parameters::GetInstance();
     Wilson_parameters *W_param = Wilson_parameters::GetInstance();
+    W_param->SetMuW(Q_match);
+    W_param->SetMu(Q);
 
 	if (C.size() < 1) C.resize(1); 
     auto& C_LO = C[0]; 
@@ -584,8 +586,8 @@ void SM_LO_Strategy::init_scalar(double Q_match, double Q,int gen, WilsonSet& C)
 	double xt4=W_param->xt*xt3;
 	double xh=pow((*sm)("MASS",25)/(*sm)("MASS",24),2.);
 	
-    Logger::getInstance()->info("eta_mu " + std::to_string(W_param->eta_mu));
-    Logger::getInstance()->info("mb " + std::to_string(W_param->mass_b_muW));
+    LOG_INFO("eta_mu " + std::to_string(W_param->eta_mu));
+    LOG_INFO("mb " + std::to_string(W_param->mass_b_muW));
 	/* SM - negligible components, 1511.05066 */
 
 	double CSc_SM=-W_param->xt*(W_param->xt-2.)/12./(W_param->xt-1.)/(W_param->xt-1.)+(W_param->xt-2.)*(3.*W_param->xt-1.)/24./pow(W_param->xt-1.,3.)*log(W_param->xt);
@@ -608,5 +610,5 @@ void SM_LO_Strategy::init_scalar(double Q_match, double Q,int gen, WilsonSet& C)
     C_LO[static_cast<size_t>(WilsonCoefficient::CQ1)]*=pow(W_param->eta_mu,-4./beta0);
     C_LO[static_cast<size_t>(WilsonCoefficient::CQ2)]*=pow(W_param->eta_mu,-4./beta0);
 
-    logger->info("LO scalar Wilson Coefficient Initialized at scale " +std::to_string(Q)+" with matching scale " + std::to_string(Q_match) + " terminated successfully");
+    LOG_INFO("LO scalar Wilson Coefficient Initialized at scale " +std::to_string(Q)+" with matching scale " + std::to_string(Q_match) + " terminated successfully");
 }
