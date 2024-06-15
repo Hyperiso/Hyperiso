@@ -534,7 +534,7 @@ void SM_NNLO_Strategy::set_base1(WilsonSet& C, WilsonSet& C_match, double Q, con
 }
 
 
-void SM_LO_Strategy::init_prime(double Q, double Q_match,int gen, WilsonSet& C) {
+void SM_LO_Strategy::init_prime(double Q_match, double Q,int gen, WilsonSet& C) {
 
 	Parameters* sm = Parameters::GetInstance();
     Wilson_parameters *W_param = Wilson_parameters::GetInstance();
@@ -546,13 +546,17 @@ void SM_LO_Strategy::init_prime(double Q, double Q_match,int gen, WilsonSet& C) 
     C_LO.resize(static_cast<size_t>(WilsonCoefficient::CPQ2) + 1, complex_t(0, 0));
 
 	double mass_c_muW=sm->running_mass((*sm)("MASS",4),(*sm)("MASS",4), Q_match, "pole");
-
+    LOG_INFO("alpha_muW", W_param->alphas_muW);
+    LOG_INFO("mass_c_muw", mass_c_muW);
+    LOG_INFO("mass_c", (*sm)("MASS",4));
     complex_t C7pSM = (*sm)("MASS", 3) / W_param->mass_b_muW * (-0.5 * A0t(W_param->xt) - 23. / 36.);
     C_LO[static_cast<size_t>(WilsonCoefficient::CP7)] = std::pow(W_param->eta_mu, 16. / 23.) * C7pSM;
 
     complex_t C8pSM = (*sm)("MASS", 3) / W_param->mass_b_muW * (-0.5 * F0t(W_param->xt) - 1. / 3.);
     C_LO[static_cast<size_t>(WilsonCoefficient::CP8)] = std::pow(W_param->eta_mu, 14. / 23.) * C8pSM;
 	
+    LOG_INFO("LO SM prime Wilson Coefficient Initialized at scale " +std::to_string(Q)+" with matching scale " + std::to_string(Q_match) + " terminated successfully");
+
 }
 
 void SM_LO_Strategy::init_scalar(double Q_match, double Q,int gen, WilsonSet& C) {
@@ -610,5 +614,5 @@ void SM_LO_Strategy::init_scalar(double Q_match, double Q,int gen, WilsonSet& C)
     C_LO[static_cast<size_t>(WilsonCoefficient::CQ1)]*=pow(W_param->eta_mu,-4./beta0);
     C_LO[static_cast<size_t>(WilsonCoefficient::CQ2)]*=pow(W_param->eta_mu,-4./beta0);
 
-    LOG_INFO("LO scalar Wilson Coefficient Initialized at scale " +std::to_string(Q)+" with matching scale " + std::to_string(Q_match) + " terminated successfully");
+    LOG_INFO("LO SM scalar Wilson Coefficient Initialized at scale " +std::to_string(Q)+" with matching scale " + std::to_string(Q_match) + " terminated successfully");
 }

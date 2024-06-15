@@ -49,12 +49,14 @@ double QCDParameters::runningAlphasCalculation(double Q, std::string option_mass
     auto Q_bounds = this->getOrderedMasses();
 
     while (n_i > n_f) {
+        LOG_INFO("DOWN");
         double alpha_match = this->alphasRunning(Q_bounds.at(n_i - 1), L, n_i);
         L = this->matchLambda(alpha_match, Q_bounds.at(n_i - 1), n_i - 1);
         --n_i;
     }
 
     while (n_i < n_f) {
+        LOG_INFO("UP");
         double alpha_match = this->alphasRunning(Q_bounds.at(n_i), L, n_i);
         L = this->matchLambda(alpha_match, Q_bounds.at(n_i), n_i + 1);
         ++n_i;
@@ -135,8 +137,9 @@ double QCDParameters::runMass(double mass, double Q_i, double Q_f, int nf) {
 int QCDParameters::getNf(double Q) {
     auto masses = this->getOrderedMasses();
     for (size_t i = 0; i < masses.size(); ++i) {
-        if (1 - Q / masses.at(i) > 1e-4)
+        if (1 - Q / masses.at(i) > 1e-4) {
             return i;
+            }
     }
     return 6;
 }
@@ -150,7 +153,7 @@ int QCDParameters::getNf(double Q) {
 std::tuple<double, double, double> QCDParameters::getBetas(int nf) const {
     double b0 = 11 - 2. * nf / 3;
     double b1 = 51 - 19. * nf / 3;
-    double b2 = 2857. - 5033. * nf / 9 + 325. * nf * nf / 27;
+    double b2 = 2857. - 5033. * nf / 9. + 325. * nf * nf / 27.;
     return {b0, b1, b2};
 }
 
@@ -208,19 +211,27 @@ double QCDParameters::alphasRunning(double Q, double Lambda, int nf) const {
 double QCDParameters::matchLambda(double target_alpha, double Q, int nf){
     auto f = [&](double L) { return this->alphasRunning(Q, L, nf) - target_alpha; };
     double L_min = 1e-3;
-    double L_max = 1;
+    double L_max = 1.;
     double L_moy = L_min;
+    double alphas_min=0;
+    double alphas_max=0;
+    double alphas_moy = alphas_min;
 
-    while (std::abs(1 - L_min / L_max) > 1e-5) {
+    while ((std::abs(1.- L_min / L_max) > 1e-5)&& (std::abs(1. - alphas_min / target_alpha) > 1e-4) ){
+        alphas_min = alphasRunning(Q, L_min, nf);
+        alphas_max = alphasRunning(Q, L_max, nf);
         L_moy = (L_min + L_max) / 2;
-        f(L_moy) > 0 ? L_max = L_moy : L_min = L_moy;
+        alphas_moy = alphasRunning(Q, L_moy, nf);
+
+        (target_alpha >= alphas_min && target_alpha<=alphas_moy)? L_max = L_moy : L_min = L_moy;
     }
 
-    if (std::abs(f(L_moy)) > 1e-5) {
+    if (std::abs(1-L_min/L_max) <= 1e-5) {
         LOG_ERROR("Unable to find suitable QCD Lambda value to match alpha_s = " + std::to_string(target_alpha) 
                  + " at scale " + std::to_string(Q) + " GeV with " + std::to_string(nf) + " active flavors.");
         return -1;
     }
+    LOG_INFO("L_MIN :", L_min);
 
     return L_min;
 }

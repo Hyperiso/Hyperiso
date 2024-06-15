@@ -5,9 +5,12 @@ project(Hyperiso VERSION 1.0.0 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/Cmake/")
 include(Docs)
 include(Warnings)
+include(Tools)
+
 
 if (NOT DEFINED BUILD_WITH_SOFTSUSY)
     option(BUILD_WITH_SOFTSUSY "Build project with SOFTSUSY support" OFF)
@@ -18,16 +21,25 @@ endif()
 
 option(ENABLE_TESTS "Enable building of tests" OFF)
 
-option(ENABLE_WARNINGS "Enable warnings" ON)
+option(ENABLE_WARNINGS "Enable warnings" OFF)
 option(ENABLE_WARNINGS_AS_ERRORS "Enable warnings as errors" OFF)
 
 option(ENABLE_ADRESS_SANITIZER "Enable adress sanitizer" OFF)
-option(ENABLE_UNDEFINED_SANITIZER "Enable undefined sanitizer" ON)
+option(ENABLE_UNDEFINED_SANITIZER "Enable undefined sanitizer" OFF)
+
+option(ENABLE_CLANG_TIDY "Enable to add clang tidy." OFF)
+
+option(ENABLE_CLANG_FORMAT "Enable to add clang-format." OFF)
+option(ENABLE_CMAKE_FORMAT "Enable to add cmake-format." OFF)
+
 
 if (ENABLE_ADRESS_SANITIZER OR ENABLE_UNDEFINED_SANITIZER)
     include(Sanitizers)
     add_sanitizer_flags()
 endif()
+
+add_cmake_format_target()
+add_clang_format_target()
 
 add_subdirectory(Common CommonLib)
 add_subdirectory(Configured ConfiguredModule)

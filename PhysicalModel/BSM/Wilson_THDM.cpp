@@ -188,17 +188,22 @@ void THDM_LO_Strategy::init_scalar(double Q_match,double Q,int gen, WilsonSet& C
 	else {gen=2; ml=(*sm)("MASS", 13);}
 	
 	double mass_top_muW=(*sm).QCDRunner.running_mass((*sm)("MASS",6), (*sm)("MASS",6),Q_match); //mass top at top ?
-	double mass_b_muW=(*sm).QCDRunner.running_mass((*sm)("MASS",5), (*sm)("MASS",5), Q_match); //mass bottom 6 (at pole)
+	double mass_b_muW=(*sm).QCDRunner.running_mass((*sm)("MASS",5), (*sm)("MASS",5), Q_match, "running"); //mass bottom 6 (at pole)
+	double mass_b_muW_2=(*sm).QCDRunner.running_mass((*sm)("MASS",5), (*sm)("MASS",5), Q_match);
+	LOG_INFO("BOTH MB", mass_b_muW, mass_b_muW_2);
+	LOG_INFO("BOTH MT", (*sm).QCDRunner.get_mt_mt(), (*sm).QCDRunner.get_mt_pole());
+	LOG_INFO("Q_match", Q_match);
 	double sw2=pow(sin(atan((*sm)("GAUGE",1)/(*sm)("GAUGE",2))),2.);
 
 	double xt=pow(mass_top_muW/(*sm)("MASS",24),2.);
 
 	double xh=pow((*mod)("MASS",25)/(*sm)("MASS",24),2.);
-	LOG_INFO("xh : " + std::to_string(xh));
+	LOG_INFO("mh :", (*mod)("MASS",25));
 	int nf=5;
 	double beta0 = 11.-2./3.*nf;
 
 	double alphas_muW=(*sm).QCDRunner.runningAlphasCalculation(Q_match);
+	LOG_INFO("alpha_muW", alphas_muW);
 	double alphas_mu=(*sm).QCDRunner.runningAlphasCalculation(Q);	
 	double eta_mu=alphas_muW/alphas_mu;
 
@@ -210,8 +215,12 @@ void THDM_LO_Strategy::init_scalar(double Q_match,double Q,int gen, WilsonSet& C
 	double xH0=pow((*mod)("MASS",35)/(*sm)("MASS",24),2.);
 	double xA=pow((*mod)("MASS",36)/(*sm)("MASS",24),2.);
 	
+	LOG_INFO("mbmb : ", (*sm).QCDRunner.get_mb_mb());
+	LOG_INFO("mbpole : ", (*sm).QCDRunner.get_mb_pole());
 	LOG_INFO("xt : "+ std::to_string(xt));
 	LOG_INFO("xH : "+ std::to_string(xH));
+	LOG_INFO("xA : "+ std::to_string(xA));
+	LOG_INFO("xh is : "+ std::to_string(xh));
 	LOG_INFO("xH0 : "+ std::to_string(xH0));
 	LOG_INFO("mass_A : "+ std::to_string((*mod)("MASS",36)));
 	LOG_INFO("mass_W : "+ std::to_string((*sm)("MASS",24)));
@@ -227,7 +236,7 @@ void THDM_LO_Strategy::init_scalar(double Q_match,double Q,int gen, WilsonSet& C
 	+lu*lu*(ld*F8SP(xt,xH)+lu*F9SP(xt,xH)-lu*F10SP(xt,xH))+lu*F11SP(xt,xH)-lu*F12SP(xt,xH);
 	LOG_INFO("G2 : "+ std::to_string(G2));
 	double G3=ld*(ld*lu+1.)*F6SP(xt,xH)+ld*lu*lu*F7SP(xt,xH)
-	+lu*lu*(ld*F8SP(xt,xH)+lu*F9SP(xt,xH)+lu*F10SP(xt,xH))+lu*F11SP(xt,xH)+ld*F12SP(xt,xH);
+	+lu*lu*(ld*F8SP(xt,xH)+lu*F9SP(xt,xH)+lu*F10SP(xt,xH))+lu*F11SP(xt,xH)+lu*F12SP(xt,xH);
 	LOG_INFO("G3 : "+ std::to_string(G3));
 	double CSn_2HDM=xt*(F0SP(xt)+le*(ld*F1SP(xt,xH)+lu*F2SP(xt,xH))+le*lu*F3SP(xt,xH))
 	+xt/2./xh*(sin(alpha-beta)+cos(alpha-beta)*le)*(sin(alpha-beta)*G1+cos(alpha-beta)*G2)
@@ -247,14 +256,23 @@ void THDM_LO_Strategy::init_scalar(double Q_match,double Q,int gen, WilsonSet& C
 	LOG_INFO("cos : "+ std::to_string(cos(alpha-beta)));
 
 	LOG_INFO("CSn_2HDM : "+ std::to_string(CSn_2HDM));
+	LOG_INFO("sw2 : ", sw2);
 	double CPn_2HDM=xt*(-le*(ld*F1SP(xt,xH)+lu*F2SP(xt,xH))+le*lu*F3SP(xt,xH))+xt/2./xA*(le)*G3;
 	LOG_INFO("CPn_2HDM : "+ std::to_string(CPn_2HDM));
+	LOG_INFO("F1SP(xt,xH)", F1SP(xt,xH));
+	LOG_INFO("F2SP(xt,xH)", F2SP(xt,xH));
+	LOG_INFO("F3SP(xt,xH)", F3SP(xt,xH));
 	double CQ1H_0=CSc_2HDM(xH,xt,lu,ld,le)+CSn_2HDM;
 	double CQ2H_0=CPc_2HDM(xH,xt,lu,ld,le,sw2)+CPn_2HDM;
-	
+	LOG_INFO("CQ2H_0_before", CQ2H_0);
+	LOG_INFO("mass_b_muW", mass_b_muW);
 	CQ1H_0*=(ml*mass_b_muW/(*sm)("MASS",24)/(*sm)("MASS",24))/sw2;
 	CQ2H_0*=(ml*mass_b_muW/(*sm)("MASS",24)/(*sm)("MASS",24))/sw2;
-	
+	LOG_INFO("ml", ml);
+	LOG_INFO("lu", lu);
+	LOG_INFO("ld", ld);
+	LOG_INFO("le", le);
+	LOG_INFO("CQ2H_0", CQ2H_0);
 	if (C.size() < 1) C.resize(1); 
     auto& C_LO = C[0]; 
     C_LO.resize(static_cast<size_t>(WilsonCoefficient::CPQ2) + 1, complex_t(0, 0));

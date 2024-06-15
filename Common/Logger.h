@@ -49,7 +49,7 @@ private:
     static Logger* instance;
     Logger();
     LogLevel level = LogLevel::INFO;
-    std::string logDirectory;
+    std::string logDirectory{"logs"};
     std::size_t maxFileSize;
     std::unordered_map<std::thread::id, std::ofstream> logFiles;
     std::mutex logFileMutex;

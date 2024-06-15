@@ -464,7 +464,6 @@ void SUSY_NNLO_Strategy::init(double scale, WilsonSet& C_match) {
 		
 		C1squark_2 = -208.0 / 3.0;
 		for (int ae = 0; ae < 6; ++ae) {
-			LOG_INFO("TEEEEEEST");
 			double xsqa = std::pow((*sus_param).MsqU[ae] / (*sm)("MASS", 24), 2.0);
 			if (4.0 * xsqa > 1.0) {
 				double angle = 2.0 * asin(0.5 / sqrt(xsqa));
@@ -487,7 +486,6 @@ void SUSY_NNLO_Strategy::init(double scale, WilsonSet& C_match) {
 	thdm_nnlo->set_lu(1/(*susy)("HMIX", 2));
 	LOG_INFO(std::to_string((*susy)("HMIX", 2)));
 	thdm_nnlo->set_ld(-(*susy)("HMIX", 2));
-	LOG_INFO("TOUT VA BIEEEEN0");
 	thdm_nnlo->init(scale, C_match);
 
 	if (C_match.size() < 3) C_match.resize(3);
@@ -752,17 +750,23 @@ void SUSY_LO_Strategy::init_scalar(double Q_match,double Q,int gen, WilsonSet& C
     auto& C_LO = C[0]; 
     C_LO.resize(static_cast<size_t>(WilsonCoefficient::CPQ2) + 1, complex_t(0, 0));
 
-
-	C_LO[static_cast<size_t>(WilsonCoefficient::CQ1)]+=CQ1charg_0;
-	C_LO[static_cast<size_t>(WilsonCoefficient::CQ1)]/= epsfac;
-	C_LO[static_cast<size_t>(WilsonCoefficient::CQ2)]+=CQ2charg_0;
-	C_LO[static_cast<size_t>(WilsonCoefficient::CQ2)]/=epsfac;
-
+	LOG_INFO("epsfac", epsfac);
 	int nf=5;
 	double beta0 = 11.-2./3.*nf;
 
-	C_LO[static_cast<size_t>(WilsonCoefficient::CQ1)]*=pow((*W_param).eta_mu,-4/beta0);
-	C_LO[static_cast<size_t>(WilsonCoefficient::CQ2)]*=pow((*W_param).eta_mu,-4/beta0);
+	LOG_INFO("CQ1charg_0 :", CQ1charg_0);
+	LOG_INFO("CQ1H_0 :", C_LO[static_cast<size_t>(WilsonCoefficient::CQ1)]);
+	LOG_INFO("CQ2charg_0 :", CQ2charg_0);
+	LOG_INFO("CQ2H_0 :", C_LO[static_cast<size_t>(WilsonCoefficient::CQ2)]);
+	C_LO[static_cast<size_t>(WilsonCoefficient::CQ1)]+=CQ1charg_0*pow((*W_param).eta_mu,-4/beta0);
+	C_LO[static_cast<size_t>(WilsonCoefficient::CQ1)]/= epsfac;
+	C_LO[static_cast<size_t>(WilsonCoefficient::CQ2)]+=CQ2charg_0*pow((*W_param).eta_mu,-4/beta0);
+	C_LO[static_cast<size_t>(WilsonCoefficient::CQ2)]/=epsfac;
+
+	
+
+	// C_LO[static_cast<size_t>(WilsonCoefficient::CQ1)]*=pow((*W_param).eta_mu,-4/beta0);
+	// C_LO[static_cast<size_t>(WilsonCoefficient::CQ2)]*=pow((*W_param).eta_mu,-4/beta0);
 	
 	LOG_INFO("SUSY LO Wilson Scalar Coefficient Initialized from scale " +std::to_string(Q_match)+" to scale" + std::to_string(Q) + " terminated successfully");
 }
@@ -841,7 +845,7 @@ void SUSY_NLO_Strategy::init_scalar(double Q_match,double Q,int gen, WilsonSet& 
 							NQ21c+=(*sus_param).G_aimn[ae][ie][be][ne]*(*sus_param).Gamma_UL[me][be]*(*susy)("UMIX", je*10+1)*(a0Q2+a1*(*susy)("HMIX",2))
 							+(*sus_param).G_aimn[ae][ie][be][ne]*(*susy)("UMIX", je*10+1)*a0p
 							+(*sus_param).Gamma_UL[me][be]*(*susy)("UMIX", je*10+1)*a2p*pow((*sm)("MASS",3)*(*susy)("HMIX",2),2.);
-							LOG_INFO("a0p", a0p);
+							// LOG_INFO("a0p", a0p);
 						}
 					}
 				

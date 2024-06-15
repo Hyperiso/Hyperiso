@@ -53,6 +53,7 @@ int main() {
 
     Logger* logger = Logger::getInstance();
     logger->setLevel(Logger::LogLevel::INFO);
+    logger->setLogDirectory("logs");
 
     auto loStrategy = std::make_shared<SUSY_LO_Strategy>();
     auto nloStrategy = std::make_shared<SUSY_NLO_Strategy>();
@@ -60,9 +61,9 @@ int main() {
 
     std::string root_file = project_root.data();
     
-    writeCoefficientsToFile("NLO", root_file + "/Test/csv/susy/WilsonCoefficients_PRIMECQ_NLO.csv", nloStrategy, 81);
+    // writeCoefficientsToFile("NLO", root_file + "/Test/csv/susy/WilsonCoefficients_PRIMECQ_NLO.csv", nloStrategy, 81);
     writeCoefficientsToFile("LO", root_file + "/Test/csv/susy/WilsonCoefficients_PRIMECQ_LO.csv", loStrategy, 81);
-    writeCoefficientsToFile("NNLO", root_file + "/Test/csv/susy/WilsonCoefficients_PRIMECQ_NNLO.csv", nnloStrategy, 81);
+    // writeCoefficientsToFile("NNLO", root_file + "/Test/csv/susy/WilsonCoefficients_PRIMECQ_NNLO.csv", nnloStrategy, 81);
     
     WilsonManager::Cleanup();
     return 0;
