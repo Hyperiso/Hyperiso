@@ -49,14 +49,14 @@ double QCDParameters::runningAlphasCalculation(double Q, std::string option_mass
     auto Q_bounds = this->getOrderedMasses();
 
     while (n_i > n_f) {
-        LOG_INFO("DOWN");
+        // LOG_INFO("DOWN");
         double alpha_match = this->alphasRunning(Q_bounds.at(n_i - 1), L, n_i);
         L = this->matchLambda(alpha_match, Q_bounds.at(n_i - 1), n_i - 1);
         --n_i;
     }
 
     while (n_i < n_f) {
-        LOG_INFO("UP");
+        // LOG_INFO("UP");
         double alpha_match = this->alphasRunning(Q_bounds.at(n_i), L, n_i);
         L = this->matchLambda(alpha_match, Q_bounds.at(n_i), n_i + 1);
         ++n_i;
@@ -231,7 +231,7 @@ double QCDParameters::matchLambda(double target_alpha, double Q, int nf){
                  + " at scale " + std::to_string(Q) + " GeV with " + std::to_string(nf) + " active flavors.");
         return -1;
     }
-    LOG_INFO("L_MIN :", L_min);
+    // LOG_INFO("L_MIN :", L_min);
 
     return L_min;
 }

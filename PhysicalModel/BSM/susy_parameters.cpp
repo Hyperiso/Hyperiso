@@ -173,7 +173,7 @@ susy_parameters::susy_parameters(double scale) {
 					// LOG_INFO("GAMMA_UL " + std::to_string(ae) + " " + std::to_string(ce)  + " " + std::to_string(Gamma_UL[ae][ce]));
 					X_UR[ie][ae][be] += (*sm)("GAUGE",2) * aY * (*susy)(std::string("UMIX"), ie*10+1) * Gamma_UL[ae][ce] * std::real(VCKM[ce][be]) * MD[be] / (sqrt(2.0) * (*sm)("MASS", 24) * cosb);
 
-					G_aimn[ae][ie][be][ce]=0.5/sqrt(2.)*(sqrt(2.)*(*sm)("MASS",24)*(*susy)("VMIX", ie*10+0)*Gamma_UL[ae][ce]*ag-MU[ce]*(*susy)("VMIX", ie*10+1)*Gamma_UR[ae][ce]*aY)*(std::real(VCKM[be][2])*std::real(VCKM[ce][1])/std::real(VCKM[2][2])/std::real(VCKM[2][1]));
+					G_aimn[ae][ie][be][ce]=0.5/sqrt(2.)*(sqrt(2.)*(*sm)("MASS",24)*(*susy)("VMIX", ie*10+0)*Gamma_UL[ae][ce]*ag-MU[ce]*(*susy)("VMIX", ie*10+1)*Gamma_UR[ae][ce]*aY)*(std::real(VCKM[be][2])*std::real(VCKM[ce][1])/std::real(VCKM[2][2])*std::real(VCKM[2][1]));
 					// LOG_INFO(std::to_string(std::real(VCKM[ce][be])) + " WAOUW");
 				}
 				LOG_DEBUG("X_UL[" + std::to_string(ie) + "][" +std::to_string(ae)+"]["+std::to_string(be)+"] = "+std::to_string(X_UL[ie][ae][be]));
@@ -187,8 +187,9 @@ susy_parameters::susy_parameters(double scale) {
 		}
 	}
 
-	LOG_DEBUG("AG " + std::to_string(ag));
-	LOG_DEBUG("AY " + std::to_string(aY));
+	LOG_INFO("AG " + std::to_string(ag));
+	LOG_INFO("MU ", MU[0], MU[1], MU[2]);
+	LOG_INFO("AY " + std::to_string(aY));
 	LOG_DEBUG("vmix00 " + std::to_string((*susy)("VMIX", 0)));
 	LOG_DEBUG("vmix01 " + std::to_string((*susy)("VMIX", 01)));
 	LOG_DEBUG("vmix10 " + std::to_string((*susy)("VMIX", 10)));
@@ -263,6 +264,80 @@ susy_parameters::susy_parameters(double scale) {
 		}
 	}
 	
+}
+
+void susy_parameters::reset_PrimeCQG(double Q_match) {
+	if (is_PrimeCQG) {return;}
+	is_PrimeCQG = true;
+	Parameters* sm = Parameters::GetInstance();
+	double mass_c_muW = (*sm).running_mass((*sm)("MASS", 4), (*sm)("MASS", 4), Q_match);
+	LOG_INFO("mass_c_muW", mass_c_muW);
+	MU = {(*sm)("MASS",2), mass_c_muW, mass_top_muW};
+	LOG_INFO("MU_0", MU[0]);
+	LOG_INFO("MU_1", MU[1]);
+	LOG_INFO("MU_2", MU[2]);
+	for (int ie = 0; ie < 2; ++ie) {
+		for (int ae = 0; ae < 6; ++ae) { 
+			for (int be = 0; be < 3; ++be) {
+				X_UL[ie][ae][be] = 0.0;
+
+				// Calculs pour X_UL et X_UR
+				for (int ce = 0; ce < 3; ++ce) {
+					X_UL[ie][ae][be] += -(*sm)("GAUGE",2) * (
+						ag * (*susy)("VMIX", ie*10+0) * Gamma_UL[ae][ce] -
+						aY * (*susy)("VMIX", ie*10+1) * Gamma_UR[ae][ce] * MU[ce] / (sqrt(2.0) * (*sm)("MASS", 24) * sinb)
+					) * std::real(VCKM[ce][be]);
+
+					G_aimn[ae][ie][be][ce]=0.5/sqrt(2.)*(sqrt(2.)*(*sm)("MASS",24)*(*susy)("VMIX", ie*10+0)*Gamma_UL[ae][ce]*ag-MU[ce]*(*susy)("VMIX", ie*10+1)*Gamma_UR[ae][ce]*aY)*(std::real(VCKM[be][2])*std::real(VCKM[ce][1])/std::real(VCKM[2][2])/std::real(VCKM[2][1]));
+				}
+
+			}
+		}
+	}
+	LOG_INFO("U1",(*susy)("VMIX", 1));
+	LOG_INFO("U2",(*susy)("VMIX", 11));
+	LOG_INFO("VCKM[2][2]", VCKM[2][2]);
+	LOG_INFO("VCKM[2][2]", VCKM[2][1]);
+
+	LOG_INFO("VCKM[0][0]", VCKM[0][0]);
+	LOG_INFO("VCKM[0][1]", VCKM[0][1]);
+	LOG_INFO("VCKM[0][2]", VCKM[0][2]);
+
+	LOG_INFO("VCKM[1][0]", VCKM[1][0]);
+	LOG_INFO("VCKM[1][1]", VCKM[1][1]);
+	LOG_INFO("VCKM[1]2]", VCKM[1][2]);
+
+	LOG_INFO("VCKM[2][0]", VCKM[2][0]);
+	LOG_INFO("VCKM[2][1]", VCKM[2][1]);
+	LOG_INFO("VCKM[2][2]", VCKM[2][2]);
+
+	LOG_INFO("VCKM[ce][1]*VCKM[ce][1]", VCKM[1][1]*VCKM[0][2]);
+	LOG_INFO("VCKM[ce][1]*VCKM[ce][1]", VCKM[1][1]*VCKM[0][2]);
+	LOG_INFO("VCKM[be][2]", VCKM[1][2]);
+}
+
+void susy_parameters::reset_G() {
+	if (!is_PrimeCQG) {return;}
+	is_PrimeCQG=false;
+	MU = {(*sm)("MASS",2), (*sm)("MASS",4), mass_top_muW}; 
+	for (int ie = 0; ie < 2; ++ie) {
+		for (int ae = 0; ae < 6; ++ae) { 
+			for (int be = 0; be < 3; ++be) {
+				X_UL[ie][ae][be] = 0.0;
+
+				// Calculs pour X_UL et X_UR
+				for (int ce = 0; ce < 3; ++ce) {
+					X_UL[ie][ae][be] += -(*sm)("GAUGE",2) * (
+						ag * (*susy)("VMIX", ie*10+0) * Gamma_UL[ae][ce] -
+						aY * (*susy)("VMIX", ie*10+1) * Gamma_UR[ae][ce] * MU[ce] / (sqrt(2.0) * (*sm)("MASS", 24) * sinb)
+					) * std::real(VCKM[ce][be]);
+
+					G_aimn[ae][ie][be][ce]=0.5/sqrt(2.)*(sqrt(2.)*(*sm)("MASS",24)*(*susy)("VMIX", ie*10+0)*Gamma_UL[ae][ce]*ag-MU[ce]*(*susy)("VMIX", ie*10+1)*Gamma_UR[ae][ce]*aY)*(std::real(VCKM[be][2])*std::real(VCKM[ce][1])/std::real(VCKM[2][2])*std::real(VCKM[2][1]));
+				}
+
+			}
+		}
+	}
 }
 
 susy_parameters* susy_parameters::instance = nullptr;

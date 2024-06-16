@@ -24,6 +24,7 @@ class susy_parameters {
 
     static susy_parameters* instance;
     double scale;
+	bool is_PrimeCQG = false;
 
     explicit susy_parameters(double scale);
     susy_parameters(const susy_parameters&) = delete;
@@ -41,7 +42,8 @@ class susy_parameters {
         }
         return susy_parameters::instance;
     }
-
+	void reset_PrimeCQG(double Qmatch);
+	void reset_G();
     double kappa, ag, aY, cosb, sinb, st, ct, alphas_mg;
 
     Array2D_7x4 Gamma_UL = {};

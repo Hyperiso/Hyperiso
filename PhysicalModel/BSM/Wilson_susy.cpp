@@ -508,7 +508,7 @@ void SUSY_LO_Strategy::init_prime(double Q_match,double Q,int gen, WilsonSet& C)
 	Parameters* susy = Parameters::GetInstance(1);
 	EpsilonCalculator* epsi = EpsilonCalculator::GetInstance();
 	susy_parameters* sus_param = susy_parameters::GetInstance(Q_match);
-
+	sus_param->reset_PrimeCQG(Q_match);
 	double ml;
 
 	
@@ -601,10 +601,16 @@ void SUSY_LO_Strategy::init_prime(double Q_match,double Q,int gen, WilsonSet& C)
     auto& C_LO = C[0]; 
     C_LO.resize(static_cast<size_t>(WilsonCoefficient::CPQ2) + 1, complex_t(0, 0));
 
+	LOG_INFO("C7pH", C7pH);
+	LOG_INFO("C7pcharg", C7pcharg);
+	LOG_INFO("C8pH", C8pH);
+	LOG_INFO("C8pcharg", C8pcharg);
 
 	C_LO[static_cast<size_t>(WilsonCoefficient::CP7)]+=pow(eta_mu,16./23.)*(C7pH+C7pcharg);
 	C_LO[static_cast<size_t>(WilsonCoefficient::CP8)]+=pow(eta_mu,14./23.)*(C8pH+C8pcharg);
 	
+	LOG_INFO("REALC7SUSY : ", pow(eta_mu,16./23.)*(C7pH+C7pcharg));
+	LOG_INFO("REALC8SUSY : ", pow(eta_mu,14./23.)*(C8pH+C8pcharg));
 	/* Wilson coefficients C9 and C10 prime */ 	
 	double C10pH = -(*sus_param).mass_b_muW*((*sm)("MASS",3))*((*susy)("HMIX",2)*(*susy)("HMIX",2)/8./(*sm)("MASS",24)/(*sm)("MASS",24)
 	+pow(ml*(*susy)("HMIX",2)*(*susy)("HMIX",2)/4./(*sm)("MASS",24)/(*susy)("MASS",37),2.))*f20((*sus_param).yt)/(*sus_param).sw2;
@@ -673,6 +679,7 @@ void SUSY_LO_Strategy::init_scalar(double Q_match,double Q,int gen, WilsonSet& C
 	Parameters* susy = Parameters::GetInstance(1);
 	EpsilonCalculator* epsi = EpsilonCalculator::GetInstance();
 	susy_parameters* sus_param = susy_parameters::GetInstance(Q_match);
+	sus_param->reset_PrimeCQG(Q_match);
 	Wilson_parameters* W_param = Wilson_parameters::GetInstance();
     W_param->SetMuW(Q_match);
 	W_param->SetMu(Q);
@@ -724,7 +731,7 @@ void SUSY_LO_Strategy::init_scalar(double Q_match,double Q,int gen, WilsonSet& C
 							a1=(*sus_param).Mch[ie]/sqrt(2.)/(*sm)("MASS",24)*f80(pow((*sus_param).MsqU[ae]/(*sus_param).Mch[ie],2.))*kron(ie,je)*kron(ae,me);
 							NQ10c+=(*sus_param).G_aimn[ae][ie][be][ne]*(*sus_param).Gamma_UL[me][be]*(*susy)("UMIX", je*10+1)*(a0Q1+a1*(*susy)("HMIX",2));
 							NQ20c+=(*sus_param).G_aimn[ae][ie][be][ne]*(*sus_param).Gamma_UL[me][be]*(*susy)("UMIX", je*10+1)*(a0Q2+a1*(*susy)("HMIX",2));
-
+							// LOG_INFO("(*sus_param).G_aimn",ae, ie, be, ne, (*sus_param).G_aimn[ae][ie][be][ne]);
 						}
 					
 					}
@@ -736,12 +743,12 @@ void SUSY_LO_Strategy::init_scalar(double Q_match,double Q,int gen, WilsonSet& C
 	complex_t BQ20c=-(BQ10c1-BQ10c2)*(*sus_param).kappa*(*sm)("MASS",24)*(*sm)("MASS",24)/2./(*sm)("GAUGE",2)/(*sm)("GAUGE",2)/(*sus_param).sw2;
 	
 	
-	
-
+	LOG_INFO("a1", a1);
+	LOG_INFO("NQ10c_before ", NQ10c);
 	NQ10c*=ml*((*susy)("HMIX",2))*(*susy)("HMIX",2)/(*sm)("MASS",24)/((*susy)("MASS",37)*(*susy)("MASS",37)-(*sm)("MASS",24)*(*sm)("MASS",24))*(*sus_param).aY*(*sus_param).mass_b_muW/(*sus_param).sw2;
 	NQ20c*=-ml*((*susy)("HMIX",2))*(*susy)("HMIX",2)/(*sm)("MASS",24)/((*susy)("MASS",37)*(*susy)("MASS",37)-(*sm)("MASS",24)*(*sm)("MASS",24))*(*sus_param).aY*(*sus_param).mass_b_muW/(*sus_param).sw2;
-
-
+	LOG_INFO("NQ10c and BQ10c ", NQ10c, BQ10c);
+	LOG_INFO("(*sus_param).sw2 ", (*sus_param).sw2);
 	complex_t CQ1charg_0=NQ10c+BQ10c;
 	complex_t CQ2charg_0=NQ20c+BQ20c;
 	double epsfac=pow((1.+(*epsi).epsilon_b()*(*susy)("HMIX",2)),2.);
