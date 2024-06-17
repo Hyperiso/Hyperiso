@@ -2,6 +2,7 @@
 #include <fstream>
 #include "MemoryManager.h"
 #include "Logger.h"
+#include "CompareCsv.h"
 
 void writeCoefficientsToFile(const std::string& strat_name, const std::string& fileName, const std::shared_ptr<InitializationStrategy>& strategy, double Q_match, const std::string& model) {
     std::ofstream file(fileName);
@@ -100,4 +101,14 @@ void writeCoefficientsPrimeCQToFile(const std::string& strat_name, const std::st
     file.close();
 
     wm->Cleanup();
+}
+
+void runTest(const std::string& strategyName, const std::shared_ptr<InitializationStrategy>& strategy, const std::string& testFile, const std::string& referenceFile,const std::string& model, double tolerance) {
+    writeCoefficientsToFile(strategyName, testFile, strategy, 81, model);
+    if (!compareCSV(testFile, referenceFile, tolerance)) {
+        std::cerr << "Test failed for " << strategyName << std::endl;
+        exit(EXIT_FAILURE);
+    } else {
+        std::cout << "Test passed for " << strategyName << std::endl;
+    }
 }

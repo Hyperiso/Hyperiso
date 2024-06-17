@@ -1,17 +1,8 @@
 #include <iostream>
-#include "CompareCsv.h"
 #include "WilsonUtils.h"
 #include "config.hpp"
 
-void runTest(const std::string& strategyName, const std::shared_ptr<InitializationStrategy>& strategy, const std::string& testFile, const std::string& referenceFile,const std::string& model, double tolerance) {
-    writeCoefficientsToFile(strategyName, testFile, strategy, 81, model);
-    if (!compareCSV(testFile, referenceFile, tolerance)) {
-        std::cerr << "Test failed for " << strategyName << std::endl;
-        exit(EXIT_FAILURE);
-    } else {
-        std::cout << "Test passed for " << strategyName << std::endl;
-    }
-}
+
 
 int main() {
     std::string root_file = project_root.data();
