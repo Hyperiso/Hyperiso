@@ -76,6 +76,8 @@ public:
     void addElement(const std::vector<std::string>& line);
     inline Prototype getPrototype() { return this->prototype; };
     std::string toString() const;
+
+    inline ~LhaBlock() {entries.clear();}
 };
 
 #endif // HYPERISO_LHA_BLOCKS_H

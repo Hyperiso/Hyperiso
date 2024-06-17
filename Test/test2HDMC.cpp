@@ -1,4 +1,5 @@
 #include "2HDMC.h"
+#include <string>
 
 int main() {
 

@@ -2,8 +2,13 @@
 *~
 build/
 *.vscode
-External_Integration/SOFTSUSY
-External_Integration/2HDMC
+ExternalIntegration/SOFTSUSY
+ExternalIntegration/2HDMC
+Test/build
+Test/output.lha
+Test/spectrum.slha
+Test/thdm_spectrum.lha
+Test/*.png
 CMakeFiles
 Makefile
 CMakeCache.txt
@@ -13,3 +18,5 @@ output.slha
 test
 hyperiso
 app
+Docs/html
+Docs/latex

@@ -1250,7 +1250,7 @@ std::complex<double> polylog(int n, int m, double x) {
 // LI2 ! -------------------------------------------------------------------------------------------------------------------
 
 double Li2(double x) {
-    const double pisq6 = M_PI * M_PI / 6.0;
+    const double pisq6 = pow((4.*atan(1.)), 2.) / 6.0;
     const double x_0 = -0.3;
     const double x_1 = 0.25;
     const double x_2 = 0.51;
