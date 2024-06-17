@@ -6,7 +6,7 @@
 #include <memory>
 #include <filesystem>
 #include <regex>
-
+#include <climits>
 #include "lha_blocks.h"
 #include "lha_elements.h"
 
@@ -79,7 +79,7 @@ public:
     inline void extractFromBlock(std::string blockName, std::vector<T*>& vars) {
         LhaBlock* block = this->getBlock(blockName);
         if (block) {
-            for (int id=0; id!=vars.size(); ++id) {
+            for (size_t id=0; id!=vars.size(); ++id) {
                 *(vars.at(id)) = static_cast<LhaElement<T>*>(block->get(std::to_string(id + 1)))->getValue();
             }
         }
@@ -89,7 +89,7 @@ public:
     inline void extractFromBlock(std::string blockName, std::vector<T>& vars) {
         LhaBlock* block = this->getBlock(blockName);
         if (block) {
-            for (int id=0; id < vars.size(); ++id) {
+            for (size_t id=0; id < vars.size(); ++id) {
                 vars.at(id) = static_cast<LhaElement<T>*>(block->get(std::to_string(id + 1)))->getValue();
             }
         }
@@ -99,7 +99,7 @@ public:
     inline void extractFromBlock(std::string blockName, std::vector<T>& vars, const std::vector<int>& ids) {
         LhaBlock* block = this->getBlock(blockName);
         if (block) {
-            for (int i=0; i < vars.size(); ++i) {
+            for (size_t i=0; i < vars.size(); ++i) {
                 auto e = block->get(std::to_string(ids.at(i)));
                 vars.at(i) = e ? static_cast<LhaElement<T>*>(e)->getValue() : T {};
             }
@@ -110,7 +110,7 @@ public:
     inline void extractFromBlock(std::string blockName, std::vector<T>& vars, std::vector<std::string>& ids) {
         LhaBlock* block = this->getBlock(blockName);
         if (block) {
-            for (int i=0; i < vars.size(); ++i) {
+            for (size_t i=0; i < vars.size(); ++i) {
                 auto e = block->get(ids[i]);
                 vars[i] = e ? static_cast<LhaElement<T>*>(e)->getValue() : T {};
             }

@@ -4,7 +4,11 @@
 #include <cassert>
 
 int main() {
+    Logger* logger = Logger::getInstance();
+    logger->setLogFile("app.log");
+    logger->setLevel(Logger::LogLevel::DEBUG);
 
+    LOG_WARN("Warning message with multiple", "arguments", 123, 45.6);
     LhaReader reader("../testInput.flha");
     reader.addBlockType("testadd", 2, 1);
     reader.readAll();

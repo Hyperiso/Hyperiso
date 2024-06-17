@@ -10,7 +10,7 @@ int main() {
     Logger::getInstance()->setLevel(Logger::LogLevel::INFO);
     auto mm = MemoryManager::GetInstance("Test/testInput.flha", {0});  // Initialize program manager with LHA file containing SMINPUTS block
     mm->init();  // Initialize parameters from given LHA file
-    Logger::getInstance()->info("tout va bien");
+    LOG_INFO("tout va bien");
     auto sm_params = Parameters::GetInstance(0); 
     double alpha_s_MZ = std::pow((*sm_params)("GAUGE", 3), 2) / (4 * M_PI);
     assert(std::abs(alpha_s_MZ - 0.1172) < 1e-5);  // gauge[3] is g_s

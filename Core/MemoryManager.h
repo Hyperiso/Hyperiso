@@ -6,6 +6,7 @@
 #include <memory>
 #include <cstdlib>
 #include "lha_reader.h"
+#include "config.hpp"
 
 class MemoryManager {
 private:

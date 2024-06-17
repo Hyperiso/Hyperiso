@@ -20,10 +20,12 @@ protected:
     const LhaBlock* block;
 
 public:
-    inline explicit AbstractElement(LhaBlock* block, const std::string& id) : block(block), id(id) {}
+    inline explicit AbstractElement(LhaBlock* block, const std::string& id) : id(id),block(block)  {}
 
     inline std::string getId() const { return this->id; }
     virtual std::string toString() const = 0;
+    virtual ~AbstractElement() = default;
+
 };
 
 template <typename T>
@@ -44,6 +46,7 @@ public:
     inline double getScale() const { return this->Q.has_value() ? this->Q.value() : 0; }
 
     std::string toString() const override;
+    
 };
 
 class LhaElementFactory {
