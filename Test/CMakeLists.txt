@@ -5,6 +5,10 @@ project(TestHyperiso)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
+if (NOT TARGET UtilsLib)
+    add_subdirectory(Utils UtilsLib)
+endif()
+
 add_executable(testSMWilson testSMWilson.cpp)
 target_link_libraries(testSMWilson PhysicalModelLib)
 
@@ -39,3 +43,6 @@ target_link_libraries(testPrimeCQSUSYWilson PhysicalModelLib)
 
 add_executable(testReader testReader.cpp)
 target_link_libraries(testReader DataBaseLib)
+
+add_executable(testtest Wilson/testSMWilson.cpp)
+target_link_libraries(testtest PhysicalModelLib UtilsLib)
