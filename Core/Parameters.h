@@ -2,6 +2,7 @@
 
 #include "QCDParameters.h"
 #include "lha_reader.h"
+#include "config.hpp"
 
 #include <vector>
 #include <array>
@@ -24,7 +25,7 @@ public:
     QCDParameters QCDRunner;
     static Parameters* GetInstance(int index = 0);
 
-    void setScale(double Q);
+    // void setScale(double Q);
     double alpha_s(double Q);
     double running_mass(double quarkmass, double Q_init, double Q_end, std::string option_massb = "running", std::string option_masst = "pole");
 
@@ -88,6 +89,9 @@ public:
         if (block == "YD") {
             return yd[pdgCode/10][pdgCode%10];
         }
+        if (block == "YL") {
+            return ye[2][2];
+        }
         if (block == "AU") {
             return au[pdgCode/10][pdgCode%10];
         }
@@ -113,6 +117,8 @@ private:
     void initSUSY();
     void initTHDM();
     void initFlavor();
+
+    
 
     bool checkLHA(std::vector<std::string> mandatory_blocks);
 

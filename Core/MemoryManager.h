@@ -6,6 +6,7 @@
 #include <memory>
 #include <cstdlib>
 #include "lha_reader.h"
+#include "config.hpp"
 
 class MemoryManager {
 private:
@@ -30,7 +31,7 @@ public:
     std::unique_ptr<T, void(*)(void*)> allocate();
 
     const std::string& getData(std::string key);
-
+    std::string getInputLhaPath() {return this->lhaPath;}
     LhaReader* getReader();
 
     // initializes the memory with all the necessary parameters and those read in the LHA file

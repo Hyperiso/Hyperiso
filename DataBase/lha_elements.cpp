@@ -44,7 +44,7 @@ std::string LhaElement<T>::encodeId(LhaBlock* block, const std::vector<std::stri
     std::stringstream stream;
 
     Prototype p = block->getPrototype();
-    for (int i=0; i!=line.size(); ++i) {
+    for (size_t i=0; i!=line.size(); ++i) {
         if (i != p.valueIdx && i != p.scaleIdx && i != p.rgIdx) {
             if (p.globalScale && i == 0) continue;
             stream << line.at(i) << "|";

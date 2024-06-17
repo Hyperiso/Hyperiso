@@ -35,11 +35,13 @@ std::string MemoryManager::findNearestHyperisoDirectory() {
     Logger* logger = Logger::getInstance();
     fs::path currentDir = fs::current_path();
 
+    std::cout << "Looking for project root..." << std::endl;
+
     // Iterate through parent directories until "hyperiso" is found or root directory is reached
     while (!currentDir.empty()) {
         for (const auto& entry : fs::directory_iterator(currentDir)) {
-            if (entry.is_directory() && entry.path().filename().string().find("hyperiso") != std::string::npos) {
-                logger->info("Project root folder is " +entry.path().string());
+            if (entry.is_directory() && entry.path().filename().string().find("Hyperiso") != std::string::npos) {
+                LOG_INFO("Project root folder is " +entry.path().string());
                 return entry.path().string() + "/";
             }
         }
@@ -47,13 +49,14 @@ std::string MemoryManager::findNearestHyperisoDirectory() {
     }
 
     // If "hyperiso" directory is not found in any parent directory
-    logger->error("Error: Nearest directory containing 'hyperiso' not found.");
+    LOG_ERROR("Error: Nearest directory containing 'hyperiso' not found.");
     return "";
 }
 
 MemoryManager* MemoryManager::GetInstance(std::string lhaFile, std::vector<int> models) {
     if (!MemoryManager::instance) {
-        MemoryManager::instance = new MemoryManager(findNearestHyperisoDirectory() + lhaFile, models);
+        std::string root_path = project_root.data();
+        MemoryManager::instance = new MemoryManager(root_path +"/"+ lhaFile, models);
     }
     return MemoryManager::instance;
 }

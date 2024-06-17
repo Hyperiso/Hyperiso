@@ -1,60 +1,56 @@
 cmake_minimum_required(VERSION 3.20)
-project(Hyperiso)
+project(Hyperiso VERSION 1.0.0 LANGUAGES CXX)
 
 # Set C++ standard
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/Cmake/")
+include(Docs)
+include(Warnings)
+include(Tools)
 
-# Option for building with SOFTSUSY
-option(BUILD_WITH_SOFTSUSY "Build project with SOFTSUSY support" OFF)
 
-if(BUILD_WITH_SOFTSUSY)
-  # Include the ExternalProject module
-  include(ExternalProject)
-  
-  # Add SOFTSUSY as an external project
-  ExternalProject_Add(SOFTSUSY
-    GIT_REPOSITORY "https://github.com/BAllanach/softsusy.git" # Specify the git repository of SOFTSUSY
-    GIT_TAG "v4.1.19" # Specify a commit, tag, or branch
-    PREFIX "${CMAKE_BINARY_DIR}/External_Integration/SOFTSUSY"
-    # CONFIGURE_COMMAND "autoreconf -fiv && ./configure"
-    CONFIGURE_COMMAND ""
-    COMMAND autoreconf -fiv
-    COMMAND ./configure
-    BUILD_COMMAND "make"
-    BUILD_IN_SOURCE TRUE
-    INSTALL_COMMAND ""
-  )
-  
-  # Specify SOFTSUSY's build directory as an include directory
-  # This assumes SOFTSUSY generates header files or you need to include something from its source.
-  # Adjust the path according to where the needed headers are located.
-#   externalproject_get_property(SOFTSUSY SOURCE_DIR)
-#   target_include_directories(test PUBLIC "${SOURCE_DIR}")
+if (NOT DEFINED BUILD_WITH_SOFTSUSY)
+    option(BUILD_WITH_SOFTSUSY "Build project with SOFTSUSY support" OFF)
+endif()
+if (NOT DEFINED BUILD_WITH_2HDMC)
+    option(BUILD_WITH_2HDMC "Build project with 2HDMC support" OFF)
 endif()
 
+option(ENABLE_TESTS "Enable building of tests" OFF)
 
-file(GLOB SOURCES "./Core/*.cpp" "./DataBase/*.cpp" "./logique_metier/*.cpp" "./Math/*.cpp" "./Math/bsm/*.cpp" "./Physical_Model/*.cpp" "./Physical_Model/bsm/*.cpp""./External_Integration/main_softsusy.cpp" "./External_Integration/SoftSusy.cpp")
+option(ENABLE_WARNINGS "Enable warnings" OFF)
+option(ENABLE_WARNINGS_AS_ERRORS "Enable warnings as errors" OFF)
 
-add_executable(test ${SOURCES})
+option(ENABLE_ADRESS_SANITIZER "Enable adress sanitizer" OFF)
+option(ENABLE_UNDEFINED_SANITIZER "Enable undefined sanitizer" OFF)
 
-# Add include directories
-target_include_directories(test 
-    PUBLIC 
-    "${CMAKE_SOURCE_DIR}/Core"
-    "${CMAKE_SOURCE_DIR}/DataBase"
-    "${CMAKE_SOURCE_DIR}/logique_metier"
-    "${CMAKE_SOURCE_DIR}/Math"
-    "${CMAKE_SOURCE_DIR}/Physical_Model"
-    "${CMAKE_SOURCE_DIR}/External_Integration"
-)
+option(ENABLE_CLANG_TIDY "Enable to add clang tidy." OFF)
 
-# Link any necessary libraries to the test executable
-# For example:
-# target_link_libraries(tests PRIVATE gtest)
+option(ENABLE_CLANG_FORMAT "Enable to add clang-format." OFF)
+option(ENABLE_CMAKE_FORMAT "Enable to add cmake-format." OFF)
 
-# Optionally, add a custom target for running tests with CTest
-# enable_testing()
-# add_test(NAME AllTests COMMAND tests)
 
+if (ENABLE_ADRESS_SANITIZER OR ENABLE_UNDEFINED_SANITIZER)
+    include(Sanitizers)
+    add_sanitizer_flags()
+endif()
+
+add_cmake_format_target()
+add_clang_format_target()
+
+add_subdirectory(Common CommonLib)
+add_subdirectory(Configured ConfiguredModule)
+add_subdirectory(Math MathLib)
+add_subdirectory(DataBase DataBaseLib)
+add_subdirectory(ExternalIntegration ExternalIntegrationLib)
+add_subdirectory(Core CoreLib)
+add_subdirectory(PhysicalModel PhysicalModelLib)
+add_subdirectory(BusinessLogic BusinessLogicLib)
+add_subdirectory(UserInterface UserInterfaceLib)
+
+if (ENABLE_TESTS)
+    add_subdirectory(Test)
+endif()
