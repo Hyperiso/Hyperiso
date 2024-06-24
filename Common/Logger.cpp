@@ -79,18 +79,28 @@ std::ofstream& Logger::getLogFile() {
 
 void Logger::rotateLogFile(std::thread::id threadId) {
     std::lock_guard<std::mutex> lock(logFileMutex);
-    std::ostringstream filename;
-    filename << logDirectory << "/log_" << currentDateTime() << "_thread_" << threadId << ".log";
-    std::string filepath = filename.str();
 
-    if (std::filesystem::exists(filepath) && std::filesystem::file_size(filepath) >= maxFileSize) {
-        std::ofstream& logFile = logFiles[threadId];
-        logFile.close();
-        std::ostringstream newFilename;
-        newFilename << logDirectory << "/log_" << currentDateTime() << "_thread_" << threadId << ".log";
-        std::filesystem::rename(filepath, newFilename.str());
-        logFile.open(filepath, std::ios_base::app);
-        if (!logFile.is_open()) {
+    auto it = logFiles.find(threadId);
+    if (it != logFiles.end()) {
+        std::ofstream& logFile = it->second;
+        if (logFile.is_open()) {
+            logFile.close();
+        }
+
+        std::ostringstream filename;
+        filename << logDirectory << "/log_" << currentDateTime() << "_thread_" << threadId << ".log";
+        std::string newFilename = filename.str();
+
+        std::ostringstream oldFilename;
+        oldFilename << logDirectory << "/log_" << currentDateTime() << "_thread_" << threadId << ".log";
+        std::string oldFilepath = oldFilename.str();
+
+        if (std::filesystem::exists(oldFilepath) && std::filesystem::file_size(oldFilepath) >= maxFileSize) {
+            std::filesystem::rename(oldFilepath, newFilename);
+        }
+
+        logFiles[threadId].open(oldFilepath, std::ios_base::app);
+        if (!logFiles[threadId].is_open()) {
             throw std::runtime_error("Cannot open log file after rotation for thread");
         }
     }

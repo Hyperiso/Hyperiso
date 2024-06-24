@@ -38,7 +38,7 @@ public:
     static Logger* getInstance();
 
     void setLevel(LogLevel level);
-    void setLogDirectory(const std::string& directory, std::size_t maxSize = 1048576);
+    void setLogDirectory(const std::string& directory, std::size_t maxSize = 10048576);
     
     template<typename... Args>
     void log(LogLevel messageLevel, const char* file, int line, const char* func, Args... args);
