@@ -17,7 +17,6 @@ int main() {
     runTest("NLO", nloStrategy, root_file + "/Test/csv/thdm/WilsonCoefficients_NLO.csv", root_file + "/Test/csv/superiso/thdm/WilsonCoefficients_NLO.csv", "THDM",tolerance);
     runTest("NNLO", nnloStrategy, root_file + "/Test/csv/thdm/WilsonCoefficients_NNLO.csv", root_file + "/Test/csv/superiso/thdm/WilsonCoefficients_NNLO.csv", "THDM",tolerance);
 
-    // Ajoutez d'autres tests pour SM, THDM, etc.
 
     return 0;
 }

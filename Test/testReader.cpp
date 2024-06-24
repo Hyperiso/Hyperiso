@@ -5,7 +5,6 @@
 
 int main() {
     Logger* logger = Logger::getInstance();
-    logger->setLogFile("app.log");
     logger->setLevel(Logger::LogLevel::DEBUG);
 
     LOG_WARN("Warning message with multiple", "arguments", 123, 45.6);

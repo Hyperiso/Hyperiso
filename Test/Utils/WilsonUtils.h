@@ -5,7 +5,7 @@
 #include <memory>
 #include "Wilson.h"
 #include "Wilson_susy.h"
-#include "Wilson_THDM.h"
+// #include "Wilson_THDM.h"
 
 void writeCoefficientsToFile(const std::string& strat_name, const std::string& fileName, const std::shared_ptr<InitializationStrategy>& strategy, double Q_match, const std::string& model);
 void writeCoefficientsPrimeCQToFile(const std::string& strat_name, const std::string& fileName, const std::shared_ptr<InitializationStrategy>& strategy, double Q_match, const std::string& model);

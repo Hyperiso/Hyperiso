@@ -12,12 +12,11 @@ int main() {
     auto nnloStrategy = std::make_shared<SM_NNLO_Strategy>();
 
     double tolerance = 0.01;
-
+    Logger* logger = Logger::getInstance();
     runTest("LO", loStrategy, root_file + "/Test/csv/sm/WilsonCoefficients_LO.csv", root_file + "/Test/csv/superiso/sm/WilsonCoefficients_LO.csv", "SM", tolerance);
     runTest("NLO", nloStrategy, root_file + "/Test/csv/sm/WilsonCoefficients_NLO.csv", root_file + "/Test/csv/superiso/sm/WilsonCoefficients_NLO.csv", "SM",tolerance);
     runTest("NNLO", nnloStrategy, root_file + "/Test/csv/sm/WilsonCoefficients_NNLO.csv", root_file + "/Test/csv/superiso/sm/WilsonCoefficients_NNLO.csv", "SM",tolerance);
 
-    // Ajoutez d'autres tests pour SM, THDM, etc.
 
     return 0;
 }

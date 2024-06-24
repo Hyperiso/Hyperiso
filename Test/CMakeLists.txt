@@ -9,14 +9,15 @@ if (NOT TARGET UtilsLib)
     add_subdirectory(Utils UtilsLib)
 endif()
 
-add_executable(testSMWilson testSMWilson.cpp)
-target_link_libraries(testSMWilson PhysicalModelLib)
+include(Catch)
+# add_executable(testSMWilson testSMWilson.cpp)
+# target_link_libraries(testSMWilson PhysicalModelLib)
 
-add_executable(testSusyWilson testSusyWilson.cpp)
-target_link_libraries(testSusyWilson PhysicalModelLib)
+# add_executable(testSusyWilson testSusyWilson.cpp)
+# target_link_libraries(testSusyWilson PhysicalModelLib)
 
-add_executable(testTHDMWilson testTHDMWilson.cpp)
-target_link_libraries(testTHDMWilson PhysicalModelLib)
+# add_executable(testTHDMWilson testTHDMWilson.cpp)
+# target_link_libraries(testTHDMWilson PhysicalModelLib)
 
 add_executable(testWilson testWilson.cpp)
 target_link_libraries(testWilson PhysicalModelLib)
@@ -44,5 +45,18 @@ target_link_libraries(testPrimeCQSUSYWilson PhysicalModelLib)
 add_executable(testReader testReader.cpp)
 target_link_libraries(testReader DataBaseLib)
 
-add_executable(testtest Wilson/testSMWilson.cpp)
-target_link_libraries(testtest PhysicalModelLib UtilsLib)
+add_executable(testSMWilson Wilson/testSMWilson.cpp)
+target_link_libraries(testSMWilson PhysicalModelLib UtilsLib)
+
+add_executable(testTHDMWilson Wilson/testTHDMWilson.cpp)
+target_link_libraries(testTHDMWilson PhysicalModelLib UtilsLib)
+
+add_executable(testSUSYWilson Wilson/testSUSYWilson.cpp)
+target_link_libraries(testSUSYWilson PhysicalModelLib UtilsLib)
+
+include(CTest)
+
+
+add_test(NAME WCTestSM COMMAND testSMWilson)
+add_test(NAME WCTestTHDM COMMAND testTHDMWilson)
+add_test(NAME WCTestSUSY COMMAND testSUSYWilson)

@@ -103,7 +103,6 @@ complex_t ObsEvaluator::Bs_mumu(WilsonManager* wm)
     complex_t CPQ1 = wm->get_full(WilsonCoefficient::CPQ1, 0);
     complex_t CPQ2 = wm->get_full(WilsonCoefficient::CPQ2, 0);
 
-    auto logger = Logger::getInstance();
     LOG_INFO("C10 at all order is : " + std::to_string(std::real(C10)));
     LOG_INFO("CP10 at all order is : " + std::to_string(std::real(CP10)));
     LOG_INFO("CQ1 at all order is : " + std::to_string(std::real(CQ1)));
