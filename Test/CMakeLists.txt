@@ -10,6 +10,7 @@ if (NOT TARGET UtilsLib)
 endif()
 
 include(Catch)
+set(CTEST_ENVIRONMENT_VARIABLE "CTEST_RUN")
 # add_executable(testSMWilson testSMWilson.cpp)
 # target_link_libraries(testSMWilson PhysicalModelLib)
 
@@ -58,5 +59,10 @@ include(CTest)
 
 
 add_test(NAME WCTestSM COMMAND testSMWilson)
+set_tests_properties(WCTestSM PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1")
+
 add_test(NAME WCTestTHDM COMMAND testTHDMWilson)
+set_tests_properties(WCTestTHDM PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1")
+
 add_test(NAME WCTestSUSY COMMAND testSUSYWilson)
+set_tests_properties(WCTestSUSY PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1")

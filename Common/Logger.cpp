@@ -40,6 +40,10 @@ void Logger::setLogDirectory(const std::string& directory, std::size_t maxSize) 
     }
 }
 
+void Logger::setEnabled(bool enabled) {
+    this->enabled = enabled;
+}
+
 std::string Logger::toString(LogLevel level) {
     switch (level) {
         case LogLevel::INFO:  return "INFO";
@@ -60,15 +64,24 @@ std::string Logger::currentDateTime() {
     return std::string(buf);
 }
 
-std::ofstream& Logger::getLogFile() {
-    std::thread::id threadId = std::this_thread::get_id();
+std::string Logger::getLogFilenameWithSuffix(const std::string& baseName, int suffix) {
+    std::ostringstream filename;
+    filename << baseName << "_" << suffix << ".log";
+    return filename.str();
+}
+
+std::string Logger::getLogFilenameForThread(std::thread::id threadId) {
+    std::ostringstream filename;
+    filename << logDirectory << "/log_" << currentDateTime() << "_thread_" << threadId;
+    return filename.str();
+}
+
+std::ofstream& Logger::getLogFile(std::thread::id threadId) {
     std::lock_guard<std::mutex> lock(logFileMutex);
 
     auto it = logFiles.find(threadId);
     if (it == logFiles.end()) {
-        std::ostringstream filename;
-        filename << logDirectory << "/log_" << currentDateTime() << "_thread_" << threadId << ".log";
-        std::string filepath = filename.str();
+        std::string filepath = getLogFilenameForThread(threadId) + ".log";
         logFiles[threadId].open(filepath, std::ios_base::app);
         if (!logFiles[threadId].is_open()) {
             throw std::runtime_error("Cannot open log file for thread");
@@ -80,29 +93,23 @@ std::ofstream& Logger::getLogFile() {
 void Logger::rotateLogFile(std::thread::id threadId) {
     std::lock_guard<std::mutex> lock(logFileMutex);
 
-    auto it = logFiles.find(threadId);
-    if (it != logFiles.end()) {
-        std::ofstream& logFile = it->second;
-        if (logFile.is_open()) {
-            logFile.close();
-        }
+    auto& logFile = logFiles[threadId];
+    logFile.close();
 
-        std::ostringstream filename;
-        filename << logDirectory << "/log_" << currentDateTime() << "_thread_" << threadId << ".log";
-        std::string newFilename = filename.str();
+    std::string baseFilepath = getLogFilenameForThread(threadId);
+    std::string oldFilepath = baseFilepath + ".log";
 
-        std::ostringstream oldFilename;
-        oldFilename << logDirectory << "/log_" << currentDateTime() << "_thread_" << threadId << ".log";
-        std::string oldFilepath = oldFilename.str();
+    int suffix = 1;
+    std::string newFilename = getLogFilenameWithSuffix(baseFilepath, suffix);
+    while (std::filesystem::exists(newFilename)) {
+        ++suffix;
+        newFilename = getLogFilenameWithSuffix(baseFilepath, suffix);
+    }
+    std::filesystem::rename(oldFilepath, newFilename);
 
-        if (std::filesystem::exists(oldFilepath) && std::filesystem::file_size(oldFilepath) >= maxFileSize) {
-            std::filesystem::rename(oldFilepath, newFilename);
-        }
-
-        logFiles[threadId].open(oldFilepath, std::ios_base::app);
-        if (!logFiles[threadId].is_open()) {
-            throw std::runtime_error("Cannot open log file after rotation for thread");
-        }
+    logFiles[threadId].open(oldFilepath, std::ios_base::app);
+    if (!logFiles[threadId].is_open()) {
+        throw std::runtime_error("Cannot open new log file for thread");
     }
 }
 
@@ -117,9 +124,15 @@ void Logger::processQueue() {
             lock.unlock();
 
             std::thread::id threadId = std::this_thread::get_id();
-            rotateLogFile(threadId);
+            std::string logFilePath = getLogFilenameForThread(threadId) + ".log";
 
-            std::ofstream& logFile = getLogFile();
+            if (std::filesystem::exists(logFilePath) && std::filesystem::file_size(logFilePath) >= maxFileSize) {
+                rotateLogFile(threadId);
+                std::cout << logFilePath << " " <<  std::filesystem::file_size(logFilePath) << std::endl;
+                logFilePath = getLogFilenameForThread(threadId) + ".log"; // Update the file path after rotation
+            }
+
+            std::ofstream& logFile = getLogFile(threadId);
             logFile << logEntry << std::endl;
 
             lock.lock();
@@ -132,9 +145,14 @@ void Logger::processQueue() {
         logQueue.pop();
 
         std::thread::id threadId = std::this_thread::get_id();
-        rotateLogFile(threadId);
+        std::string logFilePath = getLogFilenameForThread(threadId) + ".log";
 
-        std::ofstream& logFile = getLogFile();
+        if (std::filesystem::exists(logFilePath) && std::filesystem::file_size(logFilePath) >= maxFileSize) {
+            rotateLogFile(threadId);
+            logFilePath = getLogFilenameForThread(threadId) + ".log"; // Update the file path after rotation
+        }
+
+        std::ofstream& logFile = getLogFile(threadId);
         logFile << logEntry << std::endl;
     }
 }

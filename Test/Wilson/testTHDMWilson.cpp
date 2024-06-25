@@ -1,12 +1,18 @@
 #include <iostream>
+#include <cstdlib>
 #include "WilsonUtils.h"
 #include "config.hpp"
 
 
 
 int main() {
-    std::string root_file = project_root.data();
+    Logger* logger = Logger::getInstance();
 
+    if (std::getenv("DISABLE_LOGGER")) {
+        logger->setEnabled(false);
+    }
+
+    std::string root_file = project_root.data();
     auto loStrategy = std::make_shared<THDM_LO_Strategy>();
     auto nloStrategy = std::make_shared<THDM_NLO_Strategy>();
     auto nnloStrategy = std::make_shared<THDM_NNLO_Strategy>();

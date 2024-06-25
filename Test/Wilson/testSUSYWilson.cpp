@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cstdlib>
 #include "WilsonUtils.h"
 #include "config.hpp"
 #include "Logger.h"
@@ -6,6 +7,12 @@
 
 int main() {
     Logger* logger = Logger::getInstance();
+
+    if (std::getenv("DISABLE_LOGGER")) {
+        logger->setEnabled(false);
+    }
+    
+
     std::string root_file = project_root.data();
     LOG_INFO("BONCAMARCHEOUPAS");
     auto loStrategy = std::make_shared<SUSY_LO_Strategy>();

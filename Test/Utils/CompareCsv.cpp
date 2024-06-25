@@ -45,7 +45,7 @@ bool compareCSV(const std::string& file1, const std::string& file2, double toler
         for (size_t j = 0; j < data1[i].size(); ++j) {
             double val1 = std::stod(data1[i][j]);
             double val2 = std::stod(data2[i][j]);
-            if (!compareValues(val1, val1, tolerance)) {
+            if (!compareValues(val1, val2, tolerance)) {
                 std::cerr << "Mismatch at row " << i << ", column " << j
                           << ": " << data1[i][j] << " != " << data2[i][j] << " with tolerance " << tolerance << std::endl;
                 return false;
