@@ -103,8 +103,14 @@ void writeCoefficientsPrimeCQToFile(const std::string& strat_name, const std::st
     wm->Cleanup();
 }
 
-void runTest(const std::string& strategyName, const std::shared_ptr<InitializationStrategy>& strategy, const std::string& testFile, const std::string& referenceFile,const std::string& model, double tolerance) {
-    writeCoefficientsToFile(strategyName, testFile, strategy, 81, model);
+void runTest(const std::string& strategyName, const std::shared_ptr<InitializationStrategy>& strategy, const std::string& testFile, const std::string& referenceFile,const std::string& model, double tolerance, bool primeCQ) {
+    if (primeCQ) {
+        writeCoefficientsPrimeCQToFile(strategyName, testFile, strategy, 81, model);
+    }
+    else {
+        writeCoefficientsToFile(strategyName, testFile, strategy, 81, model);
+    }
+    
     if (!compareCSV(testFile, referenceFile, tolerance)) {
         std::cerr << "Test failed for " << strategyName << std::endl;
         exit(EXIT_FAILURE);

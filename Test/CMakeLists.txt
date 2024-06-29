@@ -55,11 +55,17 @@ target_link_libraries(testTHDMWilson PhysicalModelLib UtilsLib)
 add_executable(testSUSYWilson Wilson/testSUSYWilson.cpp)
 target_link_libraries(testSUSYWilson PhysicalModelLib UtilsLib)
 
+add_executable(testSMCQPrimeilson Wilson/testSMCQPrimeWilson.cpp)
+target_link_libraries(testSMCQPrimeilson PhysicalModelLib UtilsLib)
+
 include(CTest)
 
 
 add_test(NAME WCTestSM COMMAND testSMWilson)
 set_tests_properties(WCTestSM PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1")
+
+add_test(NAME WCTestSMCQPrime COMMAND testSMCQPrimeilson)
+set_tests_properties(WCTestSMCQPrime PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1")
 
 add_test(NAME WCTestTHDM COMMAND testTHDMWilson)
 set_tests_properties(WCTestTHDM PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1")
