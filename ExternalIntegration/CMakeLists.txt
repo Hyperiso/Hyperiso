@@ -89,19 +89,48 @@ if (BUILD_WITH_MARTY)
 
     include(ExternalProject)
   
-    set(MARTY_INSTALL_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../ExternalIntegration/MARTY")
+    set(MARTY_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../ExternalIntegration/MARTY")
+    set(MARTY_INSTALL_PATH "${MARTY_PATH}/install")
 
     set(MARTY_CORRECT_COMPILER_VERSION "11")  # Remplacez par la version correcte de votre compilateur
 
+    # Script pour modifier la version du compilateur dans .setup_script.sh
+    file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/MARTY/modify_compiler_version.sh" 
+        "#!/bin/bash\n"
+        "sed -i 's/defaultCompilerVersion=7/defaultCompilerVersion=${MARTY_CORRECT_COMPILER_VERSION}/' ${MARTY_PATH}/src/MARTY/.setup_script.sh\n"
+        "sed -i 's/\\([^:]\\)\\bsize_t\\b/\\1std::size_t/g' ${MARTY_PATH}/src/MARTY/csl/src/multipermutation.cpp\n"
+        "sed -i 's/\\([^:]\\)\\bsize_t\\b/\\1std::size_t/g' ${MARTY_PATH}/src/MARTY/csl/include/multipermutation.h\n"
+        
+    )
+    execute_process(COMMAND chmod +x "${CMAKE_CURRENT_BINARY_DIR}/MARTY/modify_compiler_version.sh")
+
+
+    # Script pour exécuter setup.sh
+    file(WRITE "${MARTY_PATH}/src/run_setup.sh" 
+        "#!/bin/bash\n"
+        "cd ${MARTY_PATH}/src/MARTY\n"
+        "source ./setup.sh ${MARTY_INSTALL_PATH}\n"
+        "make\n"
+        "make install"
+    )
+    execute_process(COMMAND chmod +x "${MARTY_PATH}/src/run_setup.sh")
+
+        
     ExternalProject_Add(MARTY
         GIT_REPOSITORY "https://github.com/docbrown1955/marty-public.git"
         GIT_TAG "v1.5"
-        PREFIX "${CMAKE_CURRENT_BINARY_DIR}/MARTY"
-        SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/MARTY/src"
-        BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}/MARTY/build"
+        PREFIX "${MARTY_PATH}"
+        # SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../ExternalIntegration/MARTY/src"
+        # BINARY_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../ExternalIntegration/MARTY/build"
         CONFIGURE_COMMAND ""
-        BUILD_COMMAND bash -c "sed -i 's/defaultCompilerVersion=7/defaultCompilerVersion=${MARTY_CORRECT_COMPILER_VERSION}/' ${CMAKE_CURRENT_BINARY_DIR}/MARTY/src/.setup_script.sh && source ${CMAKE_CURRENT_BINARY_DIR}/MARTY/src/setup.sh ${MARTY_INSTALL_PATH} && make"
-        INSTALL_COMMAND bash -c "make install"
+        COMMAND ${CMAKE_CURRENT_BINARY_DIR}/MARTY/modify_compiler_version.sh
+        COMMAND ${MARTY_PATH}/src/run_setup.sh
+        BUILD_COMMAND ""
+        INSTALL_COMMAND ""
+        BUILD_IN_SOURCE=TRUE
+        LOG_DOWNLOAD ON
+        LOG_UPDATE ON
+        LOG_BUILD ON
     )
 
     ExternalProject_Get_Property(MARTY INSTALL_DIR)

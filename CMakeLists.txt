@@ -19,6 +19,9 @@ endif()
 if (NOT DEFINED BUILD_WITH_2HDMC)
     option(BUILD_WITH_2HDMC "Build project with 2HDMC support" OFF)
 endif()
+if (NOT DEFINED BUILD_WITH_MARTY)
+    option(BUILD_WITH_MARTY "Build project with MARTY support" OFF)
+endif()
 
 option(ENABLE_TESTS "Enable building of tests" OFF)
 
