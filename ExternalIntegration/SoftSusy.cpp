@@ -20,7 +20,6 @@ namespace fs = std::filesystem;
  * @return The absolute path of the project.
  */
 std::string getProjectRootFromConfig() {
-    Logger* logger = Logger::getInstance();
 
     std::string configFile = "../config.json";
 
@@ -71,7 +70,6 @@ std::string getProjectRootFromConfig() {
  * @param outputFilePath Path where the calculated spectrum will be written.
  */
 void SoftsusyCalculator::calculateSpectrum(const std::string& inputFilePath, const std::string& outputFilePath) {
-    Logger* logger = Logger::getInstance();
 
     std::string root_file = project_root.data();
     // Example system call to SOFTSUSY - replace with actual implementation

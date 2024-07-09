@@ -21,7 +21,6 @@ double EpsilonCalculator::epsilon_0() {
                ((*susy)("SBOTMIX",00) * (*susy)("SBOTMIX",00) * H2((*susy)("MSOFT",2) * (*susy)("MSOFT",2) / (*susy)("MASS",1000005) / (*susy)("MASS",1000005), mu_Q * mu_Q / (*susy)("MASS",1000005) / (*susy)("MASS",1000005)) / (*susy)("MASS",1000005) / (*susy)("MASS",1000005) / 2.0 +
                (*susy)("SBOTMIX",01) * (*susy)("SBOTMIX",01) * H2((*susy)("MSOFT",2) * (*susy)("MSOFT",2) / (*susy)("MASS",2000005) / (*susy)("MASS",2000005), mu_Q * mu_Q / (*susy)("MASS",2000005) / (*susy)("MASS",2000005)) / (*susy)("MASS",2000005) / (*susy)("MASS",2000005) / 2.0);
 
-    Logger *logger = Logger::getInstance();
     LOG_DEBUG("AD 22 " + std::to_string((*susy)("AD",22)));
     LOG_DEBUG("term1 in epsilon_0 is " + std::to_string(term1));
     LOG_DEBUG("term2 in epsilon_0 is " + std::to_string(term2));

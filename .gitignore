@@ -4,6 +4,7 @@ build/
 *.vscode
 ExternalIntegration/SOFTSUSY
 ExternalIntegration/2HDMC
+ExternalIntegration/MARTY
 Test/build
 Test/output.lha
 Test/spectrum.slha

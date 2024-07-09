@@ -27,6 +27,9 @@ void Logger::logToTerminal(std::ostream& os, LogLevel messageLevel, Args... args
 
 template<typename... Args>
 void Logger::log(LogLevel messageLevel, const char* file, int line, const char* func, Args... args) {
+    if (!enabled || messageLevel < level) {
+        return;
+    }
     if (messageLevel >= level) {
         std::ostringstream fileMessageStream;
         std::ostringstream terminalMessageStream;

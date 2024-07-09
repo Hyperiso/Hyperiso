@@ -8,7 +8,6 @@
 
 void SUSY_LO_Strategy::init(double scale, WilsonSet& C_match) {
 
-	Logger *logger = Logger::getInstance();
 
 	EpsilonCalculator* epsi = EpsilonCalculator::GetInstance();
 
@@ -146,7 +145,6 @@ void SUSY_NLO_Strategy::init(double scale, WilsonSet& C_match) {
 	auto* susy = Parameters::GetInstance(1);
 
 	auto* sus_param = susy_parameters::GetInstance(scale);
-	Logger *logger = Logger::getInstance();
 
 	double mass_top_muW=(*sm).QCDRunner.running_mass((*sm)("MASS",6), (*sm)("MASS",6),scale); //mass top at top ?
 	double mass_b_muW=(*sm).QCDRunner.running_mass((*sm)("MASS",5), (*sm)("MASS",5), scale); //mass bottom 6 (at pole)

@@ -38,8 +38,9 @@ public:
     static Logger* getInstance();
 
     void setLevel(LogLevel level);
-    void setLogDirectory(const std::string& directory, std::size_t maxSize = 1048576);
-    
+    void setLogDirectory(const std::string& directory, std::size_t maxSize = 10048576);
+    void setEnabled(bool enabled);
+
     template<typename... Args>
     void log(LogLevel messageLevel, const char* file, int line, const char* func, Args... args);
 
@@ -50,15 +51,19 @@ private:
     Logger();
     LogLevel level = LogLevel::INFO;
     std::string logDirectory{"logs"};
-    std::size_t maxFileSize;
+    std::size_t maxFileSize{10048576};
     std::unordered_map<std::thread::id, std::ofstream> logFiles;
     std::mutex logFileMutex;
+    bool enabled{true};
 
     void rotateLogFile(std::thread::id threadId);
 
     std::string toString(LogLevel level);
     std::string currentDateTime();
-    std::ofstream& getLogFile();
+    std::ofstream& getLogFile(std::thread::id threadId);
+
+    std::string getLogFilenameForThread(std::thread::id threadId);
+    std::string getLogFilenameWithSuffix(const std::string& baseName, int suffix);
 
     template<typename T>
     void logMessage(std::ostream& os, T value);

@@ -98,7 +98,7 @@ susy_parameters::susy_parameters(double scale) {
 			break;
 		}
 	}
-
+	LOG_INFO("STILL FINE");
 	if (isNonZeroMix) {
 		// Tri de MsqU si la condition est vraie
 		std::sort(MsqU.begin(), MsqU.end());
@@ -139,7 +139,6 @@ susy_parameters::susy_parameters(double scale) {
         I_LR[i][i] = 1.;
         I_LR[i+3][i+3] = -1.;
     }
-	Logger *logger =Logger::getInstance();
     // Calcul de P_U
     for (int ae = 0; ae < 6; ++ae) {
         for (int be = 0; be < 6; ++be) {

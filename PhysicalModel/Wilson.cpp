@@ -72,7 +72,6 @@ void SM_LO_Strategy::init(double scale, WilsonSet& C_match) {
     Wilson_parameters *W_param = Wilson_parameters::GetInstance();
     W_param->SetMuW(scale);
 
-    Logger* logger = Logger::getInstance();
 
     double L=log(scale*scale/(*sm)("MASS",24)/(*sm)("MASS",24)); // scale -> scale
 	
@@ -108,7 +107,6 @@ void SM_LO_Strategy::init(double scale, WilsonSet& C_match) {
 void SM_LO_Strategy::set_base1(WilsonSet& C, WilsonSet& C_match, double Q, const double Q_match) {
 
 	Parameters* sm = Parameters::GetInstance();
-    Logger* logger = Logger::getInstance();
     Wilson_parameters *W_param = Wilson_parameters::GetInstance();
     W_param->SetMu(Q);
 
@@ -196,7 +194,6 @@ void SM_LO_Strategy::set_base2(WilsonSet& C, WilsonSet& C_match, double Q, const
     C_LO[8] = C_matchs[9] + 4. * PI / W_param->alphas_muW * (-4. / 33. * (1. - etaMuPowers[8]) + 8. / 87. * (1. - etaMuPowers[9])) * C_matchs[2];  // C9
     C_LO[9] = C_matchs[10];  // C10
 
-    Logger* logger = Logger::getInstance();
     LOG_DEBUG("Initialized SM_LO_Strategy with base2 at scale " +std::to_string(Q));
     LOG_DEBUG("C0w7: " + std::to_string(C0w7.real()) + " + " + std::to_string(C0w7.imag()) + "i");
     LOG_DEBUG("C0w8: " + std::to_string(C0w8.real()) + " + " + std::to_string(C0w8.imag()) + "i");
@@ -210,7 +207,6 @@ void SM_NLO_Strategy::init(double scale, WilsonSet& C_match) {
     Wilson_parameters *W_param = Wilson_parameters::GetInstance();
     W_param->SetMuW(scale);
 
-    Logger* logger = Logger::getInstance();
 
     SM_LO_Strategy::init(scale, C_match);
 
@@ -255,8 +251,6 @@ void SM_NLO_Strategy::set_base1(WilsonSet& C, WilsonSet& C_match, double Q, cons
 	Parameters* sm = Parameters::GetInstance();
     Wilson_parameters *W_param = Wilson_parameters::GetInstance();
     W_param->SetMu(Q);
-
-    Logger* logger = Logger::getInstance();
     
 	auto C_matchs = extractCoefficients(C_match, 1);
 	auto C0_matchs = extractCoefficients(C_match, 0);
@@ -319,8 +313,6 @@ void SM_NLO_Strategy::set_base2(WilsonSet& C, WilsonSet& C_match, double Q, cons
 	Parameters* sm = Parameters::GetInstance();
     Wilson_parameters *W_param = Wilson_parameters::GetInstance();
     W_param->SetMu(Q);
-
-    Logger* logger = Logger::getInstance();
 
 	auto C_matchs_0 = extractCoefficients(C_match, 0);
 	auto C_matchs = extractCoefficients(C_match, 1);
@@ -397,7 +389,6 @@ void SM_NNLO_Strategy::init(double scale, WilsonSet& C_match) {
     Parameters* sm = Parameters::GetInstance();
     Wilson_parameters *W_param = Wilson_parameters::GetInstance();
     W_param->SetMuW(scale);
-    Logger* logger = Logger::getInstance();
 
     SM_LO_Strategy::init(scale, C_match);
     SM_NLO_Strategy::init(scale, C_match);
@@ -566,7 +557,6 @@ void SM_LO_Strategy::init_scalar(double Q_match, double Q,int gen, WilsonSet& C)
     W_param->SetMuW(Q_match);
     W_param->SetMu(Q);
 
-    Logger* logger = Logger::getInstance();
 
     double ml;
 

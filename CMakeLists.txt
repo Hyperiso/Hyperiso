@@ -11,12 +11,16 @@ include(Docs)
 include(Warnings)
 include(Tools)
 
+include(FetchContent)
 
 if (NOT DEFINED BUILD_WITH_SOFTSUSY)
     option(BUILD_WITH_SOFTSUSY "Build project with SOFTSUSY support" OFF)
 endif()
 if (NOT DEFINED BUILD_WITH_2HDMC)
     option(BUILD_WITH_2HDMC "Build project with 2HDMC support" OFF)
+endif()
+if (NOT DEFINED BUILD_WITH_MARTY)
+    option(BUILD_WITH_MARTY "Build project with MARTY support" OFF)
 endif()
 
 option(ENABLE_TESTS "Enable building of tests" OFF)
@@ -52,5 +56,13 @@ add_subdirectory(BusinessLogic BusinessLogicLib)
 add_subdirectory(UserInterface UserInterfaceLib)
 
 if (ENABLE_TESTS)
+    FetchContent_Declare(
+        Catch2
+        GIT_REPOSITORY https://github.com/catchorg/Catch2
+        GIT_TAG v3.5.3
+        GIT_SHALLOW TRUE)
+    FetchContent_MakeAvailable(Catch2)
+    list(APPEND CMAKE_MODULE_PATH ${catch2_SOURCE_DIR}/extras)
+    enable_testing()
     add_subdirectory(Test)
 endif()
