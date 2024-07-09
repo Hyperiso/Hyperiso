@@ -104,9 +104,7 @@ void Parameters::initSM() {
     masses[24] = m_W;           // W  (running MW_MZ)
     masses[25] = 125.1;         // h0 
 
-    LOG_INFO("mW : " + std::to_string(m_W));
-    
-    
+    LOG_INFO("mW : ", m_W);
 
     // Couplings
     double sW = std::sqrt(1 - std::pow(m_W / m_Z_pole, 2));
@@ -115,7 +113,7 @@ void Parameters::initSM() {
     gauge[1] = gauge[2] * sW / std::sqrt(1 - sW * sW);       // gp 
     gauge[3] = std::sqrt(4 * M_PI * alpha_s_MZ);             // gs
     gauge[4] = std::sqrt(4 * M_PI / inv_alpha_em);           // e_em     
-    LOG_INFO("gp : " + std::to_string(gauge[1]));
+    LOG_INFO("gp : ", gauge[1]);
     // CKM Matrix
     ckm[0][0] = 1 - lambda * lambda / 2;
     ckm[0][1] = lambda;

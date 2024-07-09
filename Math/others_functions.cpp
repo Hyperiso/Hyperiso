@@ -1,4 +1,5 @@
 #include <cmath>
+#include "Math.h"
 
 double expcor(double x) {
     if (x > 100.0) {
@@ -10,7 +11,7 @@ double expcor(double x) {
     }
 }
 
-
+// Kronecker delta
 double kron(int x, int y) {
     return (x == y) ? 1.0 : 0.0;
 }

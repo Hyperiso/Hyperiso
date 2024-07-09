@@ -1,3 +1,6 @@
+#if !defined(HYPERISO_WILSON_THDM_H)
+#define HYPERISO_WILSON_THDM_H
+
 #include "Parameters.h"
 #include "Logger.h"
 #include "Wilson.h"
@@ -35,3 +38,5 @@ class THDM_NNLO_Strategy : public THDM_NLO_Strategy {
 public:
     void init(double scale, WilsonSet& C_match) override;
 };
+
+#endif // HYPERISO_WILSON_THDM_H
