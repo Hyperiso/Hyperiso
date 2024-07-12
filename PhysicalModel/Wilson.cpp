@@ -2,7 +2,7 @@
 
 complex_t WilsonManager::get(WilsonCoefficient wc, int order) const {
     if (order < 0 || order >= C.size()) {
-        LOG_ERROR("Requested order is not available: " + std::to_string(order));
+        LOG_ERROR("AttributeOrder", "Requested order is not available: " + std::to_string(order));
         return complex_t(0, 0);
     }
 
@@ -12,7 +12,7 @@ complex_t WilsonManager::get(WilsonCoefficient wc, int order) const {
     if (static_cast<size_t>(wc) < C_order.size()) {
         return C_order[static_cast<size_t>(wc)];
     } else {
-        LOG_ERROR("Requested Wilson coefficient is not available: " + std::to_string(static_cast<size_t>(wc)));
+        LOG_ERROR("AttributeError", "Requested Wilson coefficient is not available: " + std::to_string(static_cast<size_t>(wc)));
         return complex_t(-1, 0); 
     }
 }
@@ -35,7 +35,7 @@ complex_t WilsonManager::get_full(WilsonCoefficient wc, int order) const {
 
 complex_t WilsonManager::get_matchs(WilsonCoefficient wc, int order) const {
     if (order < 0 || order >= C_match.size()) {
-        LOG_ERROR("Requested order is not available: " + std::to_string(order));
+        LOG_ERROR("AttributeError", "Requested order is not available: " + std::to_string(order));
         return complex_t(0, 0);
     }
 
@@ -46,7 +46,7 @@ complex_t WilsonManager::get_matchs(WilsonCoefficient wc, int order) const {
     if (static_cast<size_t>(wc) < C_order.size()) {
         return C_order[static_cast<size_t>(wc)];
     } else {
-        LOG_ERROR("Requested Wilson coefficient is not available: " + std::to_string(static_cast<size_t>(wc)));
+        LOG_ERROR("AttributeError", "Requested Wilson coefficient is not available: " + std::to_string(static_cast<size_t>(wc)));
         return complex_t(0, 0); 
     }
 }

@@ -41,7 +41,7 @@ public:
         if (it != parameters.end()) {
             return it->second;
         }
-        LOG_ERROR("Parameter not found");
+        LOG_ERROR("AttributeError", "Parameter not found");
     }
 
     bool hasParameter(const std::string& key) const {

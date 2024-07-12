@@ -23,7 +23,7 @@ void writeCoefficientsToFile(const std::string& strat_name, const std::string& f
         MemoryManager::GetInstance("Test/testInput.slha", {0,1})->init();
     }
     else {
-        LOG_ERROR("MODEL not known");
+        LOG_ERROR("ModelError", "MODEL not known");
     }
     Parameters* sm = Parameters::GetInstance();
     WilsonManager* wm = WilsonManager::GetInstance(strat_name, 81.0, strategy);
@@ -72,7 +72,7 @@ void writeCoefficientsPrimeCQToFile(const std::string& strat_name, const std::st
         MemoryManager::GetInstance("Test/testInput.slha", {0,1})->init();
     }
     else {
-        LOG_ERROR("MODEL not known");
+        LOG_ERROR("ModelError", "MODEL not known");
     }
     Parameters* sm = Parameters::GetInstance();
     WilsonManager* wm = WilsonManager::GetInstance(strat_name, 81.0, strategy);

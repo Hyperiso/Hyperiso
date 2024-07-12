@@ -25,7 +25,7 @@ std::string getProjectRootFromConfig() {
 
     std::ifstream ifs(configFile);
     if (!ifs.is_open()) {
-        LOG_ERROR("Not possible to open the config file");
+        LOG_ERROR("FileError", "Not possible to open the config file");
         return "";
     }
 
@@ -84,7 +84,7 @@ void SoftsusyCalculator::calculateSpectrum(const std::string& inputFilePath, con
 
     int result = system(command.c_str());
     if (result != 0) {
-        LOG_ERROR("SOFTSUSY execution failed with code " + std::to_string(result));
+        LOG_ERROR("SoftwareError", "SOFTSUSY execution failed with code " + std::to_string(result));
     } else {
         LOG_INFO("SOFTSUSY execution successful.");
     }

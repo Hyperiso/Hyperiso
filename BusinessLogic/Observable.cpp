@@ -11,6 +11,6 @@ complex_t Observable::getValue() const {
     if (this->evaluated) {
         return this->value;
     } 
-    LOG_ERROR("Trying to access an unevaluated observable value.");  
+    LOG_ERROR("AccessError", "Trying to access an unevaluated observable value.");  
     return complex_t(-1);  
 }
