@@ -24,6 +24,5 @@ int main() {
     runTest("NLO", nloStrategy, root_file + "/Test/csv/sm/WilsonCoefficients_NLO.csv", root_file + "/Test/csv/superiso/sm/WilsonCoefficients_NLO.csv", "SM",tolerance);
     runTest("NNLO", nnloStrategy, root_file + "/Test/csv/sm/WilsonCoefficients_NNLO.csv", root_file + "/Test/csv/superiso/sm/WilsonCoefficients_NNLO.csv", "SM",tolerance);
 
-    LOG_ERROR("LogicError", "Mélanchon premier ministre");
     return 0;
 }

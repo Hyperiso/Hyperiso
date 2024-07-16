@@ -67,7 +67,7 @@ double EpsilonCalculator::epsilon_bp() {
     double alphas_MSOFT = (*sm).QCDRunner.runningAlphasCalculation(susy->get_susy_Q());
     int nb_neut = ((*susy)("MASS", 1000039) == 0.) ? 4 : 5; //mass_neut[5] is gravitino ?
 
-
+    
     double epsilonbp = 2.0 / 3.0 * alphas_MSOFT / M_PI * 
                        ((*susy)("AD",22)/ (*susy)("HMIX",2) - mu_Q) / (*susy)("MASS",1000021) * 
                        ((*susy)("STOPMIX",00) * (*susy)("STOPMIX",00) * (*susy)("SBOTMIX",00) * (*susy)("SBOTMIX",00)*
@@ -78,7 +78,13 @@ double EpsilonCalculator::epsilon_bp() {
                         H2((*susy)("MASS",2000006) * (*susy)("MASS",2000006) / (*susy)("MASS",1000021) / (*susy)("MASS",1000021), (*susy)("MASS",2000005) * (*susy)("MASS",2000005) / (*susy)("MASS",1000021) / (*susy)("MASS",1000021)) +
                         (*susy)("STOPMIX",01) * (*susy)("STOPMIX",01) * (*susy)("SBOTMIX",01) * (*susy)("SBOTMIX",01) *
                         H2((*susy)("MASS",2000006) * (*susy)("MASS",2000006) / (*susy)("MASS",1000021) / (*susy)("MASS",1000021), (*susy)("MASS",1000005) * (*susy)("MASS",1000005) / (*susy)("MASS",1000021) / (*susy)("MASS",1000021)));
-
+    LOG_INFO("AD", (*susy)("AD",22));
+    LOG_INFO("stopmix00", (*susy)("STOPMIX",00));
+    LOG_INFO("stopmix01", (*susy)("STOPMIX",01));
+    LOG_INFO("sbopmix00", (*susy)("SBOTMIX",00));
+    LOG_INFO("sbopmix01", (*susy)("SBOTMIX",01));
+    LOG_INFO("t1", (*susy)("MASS",1000006) );
+    LOG_INFO("t2", (*susy)("MASS",2000006) );
     for(int ie = 0; ie < nb_neut; ++ie) {
         epsilonbp += (*susy)("YU", 22) * (*susy)("YU", 22) / 16.0 / M_PI / M_PI * 
                      (*susy)("NMIX", ie*10+3) * (*susy)("NMIX", ie*10+2) * 

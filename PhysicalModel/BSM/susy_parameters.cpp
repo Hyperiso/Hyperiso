@@ -58,9 +58,9 @@ susy_parameters::susy_parameters(double scale) {
 	kappa = 1.0 / ((*sm)("GAUGE",2) * (*sm)("GAUGE",2) * std::real(VCKM[2][2]*VCKM[2][1])); //VCKM 33 et 32
 
 	LOG_DEBUG("prod : " + doubleToString((*sm)("GAUGE",2) * (*sm)("GAUGE",2) * std::real(VCKM[2][2]*VCKM[2][1]), 20));
-	LOG_DEBUG("vckm 22 : " + doubleToString(std::real(VCKM[2][2]), 20));
-	LOG_DEBUG("vckm 21 : " + doubleToString(std::real(VCKM[2][1]), 20));
-	LOG_DEBUG("g2 : " + doubleToString((*sm)("GAUGE",2),20 ));
+	LOG_INFO("vckm 22 : " + doubleToString(std::real(VCKM[2][2]), 20));
+	LOG_INFO("vckm 21 : " + doubleToString(std::real(VCKM[2][1]), 20));
+	LOG_INFO("g2 : " + doubleToString((*sm)("GAUGE",2),20 ));
 	z=pow((*susy)("MASS",37)/(*sm)("MASS",24),2.);
 	sinb = std::sin(std::atan((*susy)("HMIX",2)));
 	cosb = std::cos(std::atan((*susy)("HMIX",2)));

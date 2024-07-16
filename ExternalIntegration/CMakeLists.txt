@@ -135,7 +135,7 @@ if (BUILD_WITH_MARTY)
 
     ExternalProject_Get_Property(MARTY INSTALL_DIR)
     target_include_directories(ExternalIntegrationLib PUBLIC "${INSTALL_DIR}/include")
-    target_link_libraries(ExternalIntegrationLib PUBLIC "${INSTALL_DIR}/lib/libmarty.so")
+    target_link_libraries(ExternalIntegrationLib PUBLIC "${INSTALL_DIR}/install/lib/libmarty.so")
     add_dependencies(ExternalIntegrationLib MARTY)
 
 endif()
