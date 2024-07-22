@@ -45,7 +45,7 @@ def compare_coefficients(path1, path2, title, model = "sm"):
     ax[1, 1].axhline(0, color='black', linewidth=0.8)
 
     plt.tight_layout()
-    plt.savefig(f"Wilson_comparison_{title}_{model}.png")
+    plt.savefig(f"plot/wilson/Wilson_comparison_{title}_{model}.png")
 
 
 

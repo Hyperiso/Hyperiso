@@ -11,6 +11,9 @@ endif()
 if (NOT DEFINED BUILD_WITH_2HDMC)
     option(BUILD_WITH_2HDMC "Build project with 2HDMC support" OFF)
 endif()
+if (NOT DEFINED BUILD_WITH_MARTY)
+    option(BUILD_WITH_MARTY "Build project with MARTY support" OFF)
+endif()
 
 if (NOT TARGET CommonLib)
     add_subdirectory(../Common CommonLib)
@@ -30,12 +33,10 @@ if (BUILD_WITH_SOFTSUSY)
     message(STATUS "Building application with SOFTSUSY software")
     include(ExternalProject)
   
-    # Add SOFTSUSY as an external project
     ExternalProject_Add(SOFTSUSY
-        GIT_REPOSITORY "https://github.com/BAllanach/softsusy.git" # Specify the git repository of SOFTSUSY
-        GIT_TAG "v4.1.19" # Specify a commit, tag, or branch
+        GIT_REPOSITORY "https://github.com/BAllanach/softsusy.git"
+        GIT_TAG "v4.1.19"
         PREFIX "${CMAKE_CURRENT_SOURCE_DIR}/../ExternalIntegration/SOFTSUSY"
-        # CONFIGURE_COMMAND "autoreconf -fiv && ./configure"
         CONFIGURE_COMMAND ""
         COMMAND autoreconf -fiv
         COMMAND ./configure
@@ -59,7 +60,6 @@ if (BUILD_WITH_2HDMC)
     set(TAR_FILE "${DOWNLOAD_DIR}/2HDMC-1.8.0.tar.gz")
     set(URL "https://2hdmc.hepforge.org/downloads/?f=2HDMC-1.8.0.tar.gz")
 
-    # Téléchargement via execute_process
     execute_process(
         COMMAND ${CMAKE_COMMAND} -E make_directory ${DOWNLOAD_DIR}
     )
@@ -70,20 +70,10 @@ if (BUILD_WITH_2HDMC)
         COMMAND wget -O ${TAR_FILE} ${URL}
         WORKING_DIRECTORY ${DOWNLOAD_DIR}
     )
-    # Utilisation de la commande shell pour l'extraction
     execute_process(
         COMMAND tar xzf ${TAR_FILE} --strip-components=1 -C ${EXTRACT_DIR}
         WORKING_DIRECTORY ${DOWNLOAD_DIR}
     )
-
-    # file(GLOB THDM "${EXTRACT_DIR}/*.cpp")
-    # set(EXCLUDE_FILE "${EXTRACT_DIR}/HBHS.cpp")    
-
-    # if(EXISTS ${EXCLUDE_FILE})
-    #     list(REMOVE_ITEM THDM ${EXCLUDE_FILE})
-    # else()
-    #     message(WARNING "The file ${EXCLUDE_FILE} does not exist.")
-    # endif()
 
     message(STATUS "2HDMC source files: ${THDM}")
 
@@ -93,8 +83,62 @@ if (BUILD_WITH_2HDMC)
     
 endif()
 
+if (BUILD_WITH_MARTY)
+    add_definitions(-DBUILD_WITH_MARTY)
+    message(STATUS "Building application with MARTY software")
+
+    include(ExternalProject)
+  
+    set(MARTY_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../ExternalIntegration/MARTY")
+    set(MARTY_INSTALL_PATH "${MARTY_PATH}/install")
+
+    set(MARTY_CORRECT_COMPILER_VERSION "11")  # Remplacez par la version correcte de votre compilateur
+
+    # Script pour modifier la version du compilateur dans .setup_script.sh
+    file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/MARTY/modify_compiler_version.sh" 
+        "#!/bin/bash\n"
+        "sed -i 's/defaultCompilerVersion=7/defaultCompilerVersion=${MARTY_CORRECT_COMPILER_VERSION}/' ${MARTY_PATH}/src/MARTY/.setup_script.sh\n"
+        "sed -i 's/\\([^:]\\)\\bsize_t\\b/\\1std::size_t/g' ${MARTY_PATH}/src/MARTY/csl/src/multipermutation.cpp\n"
+        "sed -i 's/\\([^:]\\)\\bsize_t\\b/\\1std::size_t/g' ${MARTY_PATH}/src/MARTY/csl/include/multipermutation.h\n"
+        
+    )
+    execute_process(COMMAND chmod +x "${CMAKE_CURRENT_BINARY_DIR}/MARTY/modify_compiler_version.sh")
 
 
+    # Script pour exécuter setup.sh
+    file(WRITE "${MARTY_PATH}/src/run_setup.sh" 
+        "#!/bin/bash\n"
+        "cd ${MARTY_PATH}/src/MARTY\n"
+        "source ./setup.sh ${MARTY_INSTALL_PATH}\n"
+        "make\n"
+        "make install"
+    )
+    execute_process(COMMAND chmod +x "${MARTY_PATH}/src/run_setup.sh")
+
+        
+    ExternalProject_Add(MARTY
+        GIT_REPOSITORY "https://github.com/docbrown1955/marty-public.git"
+        GIT_TAG "v1.5"
+        PREFIX "${MARTY_PATH}"
+        # SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../ExternalIntegration/MARTY/src"
+        # BINARY_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../ExternalIntegration/MARTY/build"
+        CONFIGURE_COMMAND ""
+        COMMAND ${CMAKE_CURRENT_BINARY_DIR}/MARTY/modify_compiler_version.sh
+        COMMAND ${MARTY_PATH}/src/run_setup.sh
+        BUILD_COMMAND ""
+        INSTALL_COMMAND ""
+        BUILD_IN_SOURCE=TRUE
+        LOG_DOWNLOAD ON
+        LOG_UPDATE ON
+        LOG_BUILD ON
+    )
+
+    ExternalProject_Get_Property(MARTY INSTALL_DIR)
+    target_include_directories(ExternalIntegrationLib PUBLIC "${INSTALL_DIR}/include")
+    target_link_libraries(ExternalIntegrationLib PUBLIC "${INSTALL_DIR}/install/lib/libmarty.so")
+    add_dependencies(ExternalIntegrationLib MARTY)
+
+endif()
 set_target_properties(ExternalIntegrationLib PROPERTIES PUBLIC_HEADER "2HDMC.h;Interface.h;Softsusy.h")
 
 target_include_directories(ExternalIntegrationLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})

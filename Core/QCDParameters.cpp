@@ -227,7 +227,7 @@ double QCDParameters::matchLambda(double target_alpha, double Q, int nf){
     }
 
     if (std::abs(1-L_min/L_max) <= 1e-5) {
-        LOG_ERROR("Unable to find suitable QCD Lambda value to match alpha_s = " + std::to_string(target_alpha) 
+        LOG_ERROR("ValueError", "Unable to find suitable QCD Lambda value to match alpha_s = " + std::to_string(target_alpha) 
                  + " at scale " + std::to_string(Q) + " GeV with " + std::to_string(nf) + " active flavors.");
         return -1;
     }

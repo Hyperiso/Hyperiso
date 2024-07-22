@@ -1,3 +1,6 @@
+#if !defined(HYPERISO_WILSON_SUSY_H)
+#define HYPERISO_WILSON_SUSY_H
+
 #include "Parameters.h"
 #include "Logger.h"
 #include "Wilson.h"
@@ -27,3 +30,5 @@ class SUSY_NNLO_Strategy : public SUSY_NLO_Strategy {
 public:
     void init(double scale, WilsonSet& C_match) override;
 };
+
+#endif // HYPERISO_WILSON_SUSY_H

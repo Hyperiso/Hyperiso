@@ -13,26 +13,35 @@ void Logger::logMessage(std::ostream& os, T value, Args... args) {
 }
 
 template<typename... Args>
-void Logger::logToFile(std::ostream& os, LogLevel messageLevel, const char* file, int line, const char* func, Args... args) {
+void Logger::logToFile(std::ostream& os, LogLevel messageLevel, const char* file, int line, const char* func, const char* errorType, Args... args) {
     os << "[" << currentDateTime() << "] [" << toString(messageLevel) << "] [" 
        << file << ":" << line << " " << func << "] [Thread " << std::this_thread::get_id() << "] ";
+    if (messageLevel == LogLevel::ERROR) {
+        os << "[" << errorType << "] ";
+    }
     logMessage(os, args...);
 }
 
 template<typename... Args>
-void Logger::logToTerminal(std::ostream& os, LogLevel messageLevel, Args... args) {
+void Logger::logToTerminal(std::ostream& os, LogLevel messageLevel, const char* errorType, Args... args) {
     os << "[" << currentDateTime() << "] [" << toString(messageLevel) << "] ";
+    if (messageLevel == LogLevel::ERROR) {
+        os << "[" << errorType << "] ";
+    }
     logMessage(os, args...);
 }
 
 template<typename... Args>
-void Logger::log(LogLevel messageLevel, const char* file, int line, const char* func, Args... args) {
+void Logger::log(LogLevel messageLevel, const char* file, int line, const char* func, const char* errorType, Args... args) {
+    if (!enabled || messageLevel < level) {
+        return;
+    }
     if (messageLevel >= level) {
         std::ostringstream fileMessageStream;
         std::ostringstream terminalMessageStream;
 
-        logToFile(fileMessageStream, messageLevel, file, line, func, args...);
-        logToTerminal(terminalMessageStream, messageLevel, args...);
+        logToFile(fileMessageStream, messageLevel, file, line, func, errorType, args...);
+        logToTerminal(terminalMessageStream, messageLevel, errorType, args...);
 
         std::string fileMessage = fileMessageStream.str();
         std::string terminalMessage = terminalMessageStream.str();
@@ -44,5 +53,6 @@ void Logger::log(LogLevel messageLevel, const char* file, int line, const char* 
         conditionVar.notify_one();
 
         std::cout << terminalMessage << std::endl;
+
     }
 }

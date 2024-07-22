@@ -58,6 +58,7 @@ int main() {
     writeCoefficientsToFile("LO", root_file + "/Test/csv/sm/WilsonCoefficients_LO.csv", loStrategy, 81);
     writeCoefficientsToFile("NNLO", root_file + "/Test/csv/sm/WilsonCoefficients_NNLO.csv", nnloStrategy, 81);
     
+    
     WilsonManager::Cleanup();
     return 0;
 }

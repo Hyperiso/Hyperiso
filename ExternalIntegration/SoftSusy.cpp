@@ -20,13 +20,12 @@ namespace fs = std::filesystem;
  * @return The absolute path of the project.
  */
 std::string getProjectRootFromConfig() {
-    Logger* logger = Logger::getInstance();
 
     std::string configFile = "../config.json";
 
     std::ifstream ifs(configFile);
     if (!ifs.is_open()) {
-        LOG_ERROR("Not possible to open the config file");
+        LOG_ERROR("FileError", "Not possible to open the config file");
         return "";
     }
 
@@ -71,7 +70,6 @@ std::string getProjectRootFromConfig() {
  * @param outputFilePath Path where the calculated spectrum will be written.
  */
 void SoftsusyCalculator::calculateSpectrum(const std::string& inputFilePath, const std::string& outputFilePath) {
-    Logger* logger = Logger::getInstance();
 
     std::string root_file = project_root.data();
     // Example system call to SOFTSUSY - replace with actual implementation
@@ -86,7 +84,7 @@ void SoftsusyCalculator::calculateSpectrum(const std::string& inputFilePath, con
 
     int result = system(command.c_str());
     if (result != 0) {
-        LOG_ERROR("SOFTSUSY execution failed with code " + std::to_string(result));
+        LOG_ERROR("SoftwareError", "SOFTSUSY execution failed with code " + std::to_string(result));
     } else {
         LOG_INFO("SOFTSUSY execution successful.");
     }
