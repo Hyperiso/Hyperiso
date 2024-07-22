@@ -32,7 +32,6 @@ std::unique_ptr<T, void(*)(void*)> MemoryManager::allocate() {
  * @return The absolute path of the nearest directory containing "hyperiso" in its name.
  */
 std::string MemoryManager::findNearestHyperisoDirectory() {
-    Logger* logger = Logger::getInstance();
     fs::path currentDir = fs::current_path();
 
     std::cout << "Looking for project root..." << std::endl;
@@ -49,7 +48,7 @@ std::string MemoryManager::findNearestHyperisoDirectory() {
     }
 
     // If "hyperiso" directory is not found in any parent directory
-    LOG_ERROR("Error: Nearest directory containing 'hyperiso' not found.");
+    LOG_ERROR("OldError", "Error: Nearest directory containing 'hyperiso' not found.");
     return "";
 }
 

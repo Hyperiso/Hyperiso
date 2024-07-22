@@ -4,7 +4,6 @@
 Wilson_parameters::Wilson_parameters() {
 
     Parameters* sm = Parameters::GetInstance();
-	Logger* logger = Logger::getInstance();
 
 
 	m00= {{ 
@@ -1215,7 +1214,6 @@ Wilson_parameters* Wilson_parameters::GetInstance() {
 void Wilson_parameters::SetMuW(double mu_W) {
 	
 	Parameters* sm = Parameters::GetInstance();
-	Logger* logger = Logger::getInstance();
 
 	this->mu_W = mu_W;
 	LOG_INFO("mu_W : " + std::to_string(mu_W));
@@ -1240,7 +1238,6 @@ void Wilson_parameters::SetMuW(double mu_W) {
 void Wilson_parameters::SetMu(double mu) {
 
 	Parameters* sm = Parameters::GetInstance();
-	Logger* logger = Logger::getInstance();
 
 	this->mu = mu;
 	alphas_mu=(*sm).QCDRunner.runningAlphasCalculation(mu);	

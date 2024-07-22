@@ -23,7 +23,6 @@ class Nuisance {
 
 public:
     indnuis alphas_MZ, mass_b, mass_c, mass_s, mass_top_pole, mass_h0;
-    Logger *logger = Logger::getInstance();
     Nuisance()
         : alphas_MZ(0.1181, 0.0011, Gaussian, "alphas_MZ"),
           mass_b(4.18, 0.04, Gaussian, "mass_b"),
@@ -42,7 +41,7 @@ public:
         if (it != parameters.end()) {
             return it->second;
         }
-        LOG_ERROR("Parameter not found");
+        LOG_ERROR("AttributeError", "Parameter not found");
     }
 
     bool hasParameter(const std::string& key) const {

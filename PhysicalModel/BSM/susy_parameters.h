@@ -102,7 +102,7 @@ class susy_parameters {
 	
 
 	const size_t NumSquarks = 6;
-	std::array<std::array<double, 4>, 7> sU_mix;
+	Array2D_7x7 sU_mix;
 
     Array1D_4 MU;
 	Array1D_4 MD;

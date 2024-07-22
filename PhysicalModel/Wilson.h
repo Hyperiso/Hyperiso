@@ -10,13 +10,13 @@
 #include "Logger.h"
 #include "Wilson_parameters.h"
 #define MAX_ORDER 2
-#define NW 18
+#define NW 24
 
 typedef std::complex<double> complex_t; 
 typedef std::vector<std::vector<complex_t>> WilsonSet;
 
 enum class WilsonCoefficient {
-    C1, C2, C3, C4, C5, C6, C7, C8, C9, C10, CQ1, CQ2, CP7, CP8, CP9, CP10, CPQ1, CPQ2
+    C1, C2, C3, C4, C5, C6, C7, C8, C9, C10, CQ1, CQ2, CP1, CP2, CP3, CP4, CP5, CP6, CP7, CP8, CP9, CP10, CPQ1, CPQ2
 };
 
 
@@ -258,22 +258,22 @@ public:
      * 
      * @param mu Scale value.
      */
-    void setScale(double mu, bool set_all= false) {
-        Q= mu;
-        strategy->set_base1(C, C_match, Q, Q_matching);
+    void setScale(double mu, bool set_all=false, bool traditional_basis=false) {
+        this->Q = mu;
+        traditional_basis ? strategy->set_base2(C, C_match, Q, Q_matching) : strategy->set_base1(C, C_match, Q, Q_matching);
         strategy->init_prime(this->Q_matching, Q, 2, C);
         strategy->init_scalar(this->Q_matching, Q, 2, C);
 
         if (set_all) {
             if (strategyName == "NLO") {
                 SM_LO_Strategy sm_lo = SM_LO_Strategy();
-                sm_lo.set_base1(this->C, this->C_match, Q, this->Q_matching);
+                traditional_basis ? sm_lo.set_base2(C, C_match, Q, Q_matching) : sm_lo.set_base1(C, C_match, Q, Q_matching);
             }
             if (strategyName == "NNLO") {
                 SM_LO_Strategy sm_lo = SM_LO_Strategy();
-                sm_lo.set_base1(this->C, this->C_match, Q, this->Q_matching);
+                traditional_basis ? sm_lo.set_base2(C, C_match, Q, Q_matching) : sm_lo.set_base1(C, C_match, Q, Q_matching);
                 SM_NLO_Strategy sm_nlo = SM_NLO_Strategy();
-                sm_nlo.set_base1(this->C, this->C_match, Q, this->Q_matching);
+                traditional_basis ? sm_nlo.set_base2(C, C_match, Q, Q_matching) : sm_nlo.set_base1(C, C_match, Q, Q_matching);
             }
         }
     }

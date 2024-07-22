@@ -58,9 +58,9 @@ susy_parameters::susy_parameters(double scale) {
 	kappa = 1.0 / ((*sm)("GAUGE",2) * (*sm)("GAUGE",2) * std::real(VCKM[2][2]*VCKM[2][1])); //VCKM 33 et 32
 
 	LOG_DEBUG("prod : " + doubleToString((*sm)("GAUGE",2) * (*sm)("GAUGE",2) * std::real(VCKM[2][2]*VCKM[2][1]), 20));
-	LOG_DEBUG("vckm 22 : " + doubleToString(std::real(VCKM[2][2]), 20));
-	LOG_DEBUG("vckm 21 : " + doubleToString(std::real(VCKM[2][1]), 20));
-	LOG_DEBUG("g2 : " + doubleToString((*sm)("GAUGE",2),20 ));
+	LOG_INFO("vckm 22 : " + doubleToString(std::real(VCKM[2][2]), 20));
+	LOG_INFO("vckm 21 : " + doubleToString(std::real(VCKM[2][1]), 20));
+	LOG_INFO("g2 : " + doubleToString((*sm)("GAUGE",2),20 ));
 	z=pow((*susy)("MASS",37)/(*sm)("MASS",24),2.);
 	sinb = std::sin(std::atan((*susy)("HMIX",2)));
 	cosb = std::cos(std::atan((*susy)("HMIX",2)));
@@ -98,7 +98,7 @@ susy_parameters::susy_parameters(double scale) {
 			break;
 		}
 	}
-
+	LOG_INFO("STILL FINE");
 	if (isNonZeroMix) {
 		// Tri de MsqU si la condition est vraie
 		std::sort(MsqU.begin(), MsqU.end());
@@ -139,7 +139,6 @@ susy_parameters::susy_parameters(double scale) {
         I_LR[i][i] = 1.;
         I_LR[i+3][i+3] = -1.;
     }
-	Logger *logger =Logger::getInstance();
     // Calcul de P_U
     for (int ae = 0; ae < 6; ++ae) {
         for (int be = 0; be < 6; ++be) {
