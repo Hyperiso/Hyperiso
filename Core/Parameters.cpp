@@ -54,7 +54,7 @@ Parameters::Parameters(int modelId) {
             initFlavor();
             break;
         default:
-            LOG_ERROR("Trying to instantiate parameters for unknown model ID " + std::to_string(modelId));
+            LOG_ERROR("ModelError", "Trying to instantiate parameters for unknown model ID " + std::to_string(modelId));
     }
 }
 
@@ -187,7 +187,7 @@ void Parameters::initSUSY() {
             this->masses[std::stoi(e->getId())] = e->getValue();
         }
     } else {
-        LOG_ERROR("Cannot intialize SUSY parameters: LHA file is incomplete.");
+        LOG_ERROR("FileError", "Cannot intialize SUSY parameters: LHA file is incomplete.");
     }
 
     
@@ -274,11 +274,11 @@ void Parameters::initTHDM() {
                 this->ye[2][2] = -tan_beta;
                 break;
             default:
-                LOG_ERROR("Cannot initialize THDM parameters: Unknown Yukawa type " + std::to_string(type));
+                LOG_ERROR("ValueError", "Cannot initialize THDM parameters: Unknown Yukawa type " + std::to_string(type));
         }
         LOG_INFO("THDM parameters initialized.");
     } else {
-        LOG_ERROR("Cannot intialize THDM parameters: LHA file is incomplete.");
+        LOG_ERROR("FileError", "Cannot intialize THDM parameters: LHA file is incomplete.");
     }
 }
 
@@ -310,7 +310,7 @@ double Parameters::running_mass(double quarkmass, double Q_init, double Q_end,  
     if (quarkmass >= masses[4]) {
         return this->QCDRunner.running_mass(quarkmass, Q_init, Q_end, option_massb, option_masst);
     } else {
-        LOG_ERROR("In Parameters::running_mass: Quark of mass " + std::to_string(quarkmass) + " lower than charm mass, not possible.");
+        LOG_ERROR("NielsError", "In Parameters::running_mass: Quark of mass " + std::to_string(quarkmass) + " lower than charm mass, not possible.");
         return 0;
     }
 }
@@ -331,7 +331,7 @@ double Parameters::getFlavorParam(FlavorParamType type, const std::string& id) {
         case FlavorParamType::DECAY_CONSTANT:
             return return_if_defined(this->fconst, id, "Decay constant");
         default:
-            LOG_ERROR("Unknown parameter type.");
+            LOG_ERROR("ValueError", "Unknown parameter type.");
             return NAN;
     }
 }

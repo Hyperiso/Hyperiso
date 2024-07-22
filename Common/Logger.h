@@ -16,12 +16,17 @@
 #include <atomic>
 #include <unordered_map>
 
-#define LOG_INFO(...) Logger::getInstance()->log(Logger::LogLevel::INFO, __FILE__, __LINE__, __func__, __VA_ARGS__)
-#define LOG_WARN(...) Logger::getInstance()->log(Logger::LogLevel::WARN, __FILE__, __LINE__, __func__, __VA_ARGS__)
-#define LOG_ERROR(...) Logger::getInstance()->log(Logger::LogLevel::ERROR, __FILE__, __LINE__, __func__, __VA_ARGS__)
-#define LOG_DEBUG(...) Logger::getInstance()->log(Logger::LogLevel::DEBUG, __FILE__, __LINE__, __func__, __VA_ARGS__)
-#define LOG_TRACE(...) Logger::getInstance()->log(Logger::LogLevel::TRACE, __FILE__, __LINE__, __func__, __VA_ARGS__)
-#define LOG_VERBOSE(...) Logger::getInstance()->log(Logger::LogLevel::VERBOSE, __FILE__, __LINE__, __func__, __VA_ARGS__)
+#include "LoggingException.h"
+
+#define LOG_INFO(...) Logger::getInstance()->log(Logger::LogLevel::INFO, __FILE__, __LINE__, __func__, "", __VA_ARGS__)
+#define LOG_WARN(...) Logger::getInstance()->log(Logger::LogLevel::WARN, __FILE__, __LINE__, __func__, "",__VA_ARGS__)
+#define LOG_ERROR(type, ...) do { \
+    Logger::getInstance()->log(Logger::LogLevel::ERROR, __FILE__, __LINE__, __func__, type, __VA_ARGS__); \
+    std::terminate(); \
+} while(0)
+#define LOG_DEBUG(...) Logger::getInstance()->log(Logger::LogLevel::DEBUG, __FILE__, __LINE__, __func__,"", __VA_ARGS__)
+#define LOG_TRACE(...) Logger::getInstance()->log(Logger::LogLevel::TRACE, __FILE__, __LINE__, __func__,"", __VA_ARGS__)
+#define LOG_VERBOSE(...) Logger::getInstance()->log(Logger::LogLevel::VERBOSE, __FILE__, __LINE__, __func__,"", __VA_ARGS__)
 
 
 class Logger {
@@ -40,10 +45,13 @@ public:
     void setLevel(LogLevel level);
     void setLogDirectory(const std::string& directory, std::size_t maxSize = 10048576);
     void setEnabled(bool enabled);
-
+    std::string getLogFilenameForThread(std::thread::id threadId);
+    std::string getLogFilenameWithSuffix(const std::string& baseName, int suffix);
+    
+    std::thread::id threadId;
+    
     template<typename... Args>
-    void log(LogLevel messageLevel, const char* file, int line, const char* func, Args... args);
-
+    void log(LogLevel messageLevel, const char* file, int line, const char* func, const char* errorType, Args... args) noexcept(false);
     ~Logger();
 
 private:
@@ -62,8 +70,7 @@ private:
     std::string currentDateTime();
     std::ofstream& getLogFile(std::thread::id threadId);
 
-    std::string getLogFilenameForThread(std::thread::id threadId);
-    std::string getLogFilenameWithSuffix(const std::string& baseName, int suffix);
+    
 
     template<typename T>
     void logMessage(std::ostream& os, T value);
@@ -71,10 +78,10 @@ private:
     void logMessage(std::ostream& os, T value, Args... args);
 
     template<typename... Args>
-    void logToFile(std::ostream& os, LogLevel messageLevel, const char* file, int line, const char* func, Args... args);
+    void logToFile(std::ostream& os, LogLevel messageLevel, const char* file, int line, const char* func, const char* errorType, Args... args);
 
     template<typename... Args> 
-    void logToTerminal(std::ostream& os, LogLevel messageLevel, Args... args); 
+    void logToTerminal(std::ostream& os, LogLevel messageLevel, const char* errorType, Args... args); 
 
     std::queue<std::string> logQueue;
     std::thread loggingThread;
@@ -83,6 +90,7 @@ private:
     std::atomic<bool> exitFlag;
 
     void processQueue();
+
 };
 
 #include "Logger.tpp"

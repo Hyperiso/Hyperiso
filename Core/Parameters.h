@@ -66,7 +66,7 @@ public:
             return stopmix[pdgCode/10][pdgCode%10];
         }
         if (block == "SBOTMIX") {
-            return stopmix[pdgCode/10][pdgCode%10];
+            return sbotmix[pdgCode/10][pdgCode%10];
         }
         if (block == "UMIX") {
             return umix[pdgCode/10][pdgCode%10];

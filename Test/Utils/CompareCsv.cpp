@@ -17,7 +17,7 @@ std::vector<std::vector<std::string>> readCSV(const std::string& fileName) {
     std::vector<std::vector<std::string>> data;
     std::ifstream file(fileName);
     if (!file.is_open()) {
-        LOG_ERROR("Could not open file: ", fileName);
+        LOG_ERROR("FileError","Could not open file: ", fileName);
     }
 
     std::string line, cell;

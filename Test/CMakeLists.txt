@@ -37,6 +37,11 @@ target_link_libraries(testPrimeCQTHDMWilson PhysicalModelLib)
 
 add_executable(testPrimeCQSUSYWilson testPrimeCQSUSYWilson.cpp)
 target_link_libraries(testPrimeCQSUSYWilson PhysicalModelLib)
+
+
+add_executable(testCommon Common/testLogger.cpp)
+target_link_libraries(testCommon CommonLib)
+
 # add_executable(test2HDMC test2HDMC.cpp)
 # target_link_libraries(test2HDMC ExternalIntegrationLib)
 

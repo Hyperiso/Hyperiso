@@ -15,8 +15,8 @@ int main() {
     std::string root_file = project_root.data();
 
     auto loStrategy = std::make_shared<SM_LO_Strategy>();
-    auto nloStrategy = std::make_shared<SM_NLO_Strategy>();
-    auto nnloStrategy = std::make_shared<SM_NNLO_Strategy>();
+    // auto nloStrategy = std::make_shared<SM_NLO_Strategy>();
+    // auto nnloStrategy = std::make_shared<SM_NNLO_Strategy>();
 
     double tolerance = 0.01;
     

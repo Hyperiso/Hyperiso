@@ -20,8 +20,8 @@ void SUSY_LO_Strategy::init(double scale, WilsonSet& C_match) {
 	complex_t C7SMeps_0= ((*sus_param).epsilonb-(*sus_param).epsilonbp)/(1.+(*sus_param).epsilonb*(*susy)("HMIX",2))*(*susy)("HMIX",2)*F7_2((*sus_param).xt);
 	complex_t C8SMeps_0= ((*sus_param).epsilonb-(*sus_param).epsilonbp)/(1.+(*sus_param).epsilonb*(*susy)("HMIX",2))*(*susy)("HMIX",2)*F8_2((*sus_param).xt);
 
-	LOG_DEBUG("epsilon b : " + std::to_string((*sus_param).epsilonb));
-	LOG_DEBUG("epsilon bp : " + std::to_string((*sus_param).epsilonbp));
+	LOG_INFO("epsilon b : " + std::to_string((*sus_param).epsilonb));
+	LOG_INFO("epsilon bp : " + std::to_string((*sus_param).epsilonbp));
 
 	complex_t C7Heps_0=(-(*sus_param).epsilon0p-(*sus_param).epsilonb)/(1.+(*sus_param).epsilonb*(*susy)("HMIX",2))*(*susy)("HMIX",2)*F7_2((*sus_param).yt);
 	complex_t C8Heps_0=(-(*sus_param).epsilon0p-(*sus_param).epsilonb)/(1.+(*sus_param).epsilonb*(*susy)("HMIX",2))*(*susy)("HMIX",2)*F8_2((*sus_param).yt);
@@ -127,13 +127,17 @@ void SUSY_LO_Strategy::init(double scale, WilsonSet& C_match) {
 	
 	LOG_DEBUG("CH7 : " + std::to_string(std::real(C_LO[static_cast<size_t>(WilsonCoefficient::C7)])));
 	LOG_INFO("CH10 : " + std::to_string(std::real(C_LO[static_cast<size_t>(WilsonCoefficient::C10)])));
-
+	LOG_INFO("C7H_0", C_LO[static_cast<size_t>(WilsonCoefficient::C7)] );
 	// C_LO[static_cast<size_t>(WilsonCoefficient::C2)] += std::complex<double>(0, 0);
 	C_LO[static_cast<size_t>(WilsonCoefficient::C7)] += C7SMeps_0 + C7Heps_0 + C7Heps2_0 + C7charg_0 + C7_chargeps_0;
 	C_LO[static_cast<size_t>(WilsonCoefficient::C8)] += C8SMeps_0 +  C8Heps_0 + C8Heps2_0 + C8charg_0 + C8_chargeps_0;
 	C_LO[static_cast<size_t>(WilsonCoefficient::C9)] += C9charg_0;
 	C_LO[static_cast<size_t>(WilsonCoefficient::C10)] += C10charg_0;
-
+	LOG_INFO("C7SMeps_0", C7SMeps_0);
+	LOG_INFO("C7Heps_0", C7Heps_0);
+	LOG_INFO("C7Heps2_0", C7Heps2_0);
+	LOG_INFO("C7charg_0", C7charg_0);
+	LOG_INFO("C7_chargeps_0", C7_chargeps_0);
 	LOG_INFO("SUSY LO Wilson Coefficient Initialized at scale " +std::to_string(scale)+" terminated successfully");
 }
 
@@ -443,7 +447,7 @@ void SUSY_NNLO_Strategy::init(double scale, WilsonSet& C_match) {
 			for(int be = 0; be < 6; be++) {
 				for(int ce = 0; ce < 6; ce++) {
 					C4four_2 += ratio_mass_W_Mch * (*sus_param).P_U[ae][be] * (*sus_param).MsqU[be] / (*sus_param).Mch[ie] * (*sus_param).P_U[be][ce] *
-								(1.0 + log_mu_W_MsqU) * (*sus_param).X_UL[ie][ae][1] * (*sus_param).X_UL[ie][ce][3] *
+								(1.0 + log_mu_W_MsqU) * (*sus_param).X_UL[ie][ae][1] * (*sus_param).X_UL[ie][ce][2] *
 								q61(ratio_MsqU_Mch, std::pow((*sus_param).MsqU[ce] / (*sus_param).Mch[ie], 2.0));
 				}
 			}
@@ -452,8 +456,9 @@ void SUSY_NNLO_Strategy::init(double scale, WilsonSet& C_match) {
 
 	C3charg_2 *= (*sus_param).kappa;
 	C4charg_2 *= (*sus_param).kappa;
+	C4charg_1 *= (*sus_param).kappa;
 	C4four_2 *= (*sus_param).kappa;
-
+	LOG_INFO("kapaaaaaaaaaaaaa", (*sus_param).kappa);
 	complex_t C5charg_2 = -C3charg_2 / 10.0 + 2.0 / 15.0 * C4charg_1;
     complex_t C6charg_2 = -3.0 / 16.0 * C3charg_2 + 1.0 / 4.0 * C4charg_1;
 
@@ -490,6 +495,9 @@ void SUSY_NNLO_Strategy::init(double scale, WilsonSet& C_match) {
     auto& C_NNLO = C_match[2];
     if (C_NNLO.empty()) C_NNLO.resize(static_cast<size_t>(WilsonCoefficient::CPQ2) + 1, std::complex<double>(0, 0));
 
+	LOG_INFO("C4charg_2", C4charg_2);
+	LOG_INFO("C5charg_2", C5charg_2);
+	LOG_INFO("C5H_2",C_NNLO[static_cast<size_t>(WilsonCoefficient::C5)] );
 	C_NNLO[static_cast<size_t>(WilsonCoefficient::C1)] += C1squark_2;
 	C_NNLO[static_cast<size_t>(WilsonCoefficient::C3)] += C3charg_2;
     C_NNLO[static_cast<size_t>(WilsonCoefficient::C4)] += C4charg_2+C4four_2;
@@ -599,10 +607,17 @@ void SUSY_LO_Strategy::init_prime(double Q_match,double Q,int gen, WilsonSet& C)
     auto& C_LO = C[0]; 
     C_LO.resize(static_cast<size_t>(WilsonCoefficient::CPQ2) + 1, complex_t(0, 0));
 
+	LOG_INFO("VCKM",(*sm)("RECKM", 02));
 	LOG_INFO("C7pH", C7pH);
 	LOG_INFO("C7pcharg", C7pcharg);
 	LOG_INFO("C8pH", C8pH);
 	LOG_INFO("C8pcharg", C8pcharg);
+
+	LOG_INFO("yt", (*sus_param).yt);
+	LOG_INFO("sw2", (*sus_param).sw2);
+	LOG_INFO("mass_t_w", (*sus_param).mass_top_muW);
+	LOG_INFO("mass_b_w", (*sus_param).mass_b_muW);
+	LOG_INFO("mass_3", (*sm)("MASS", 3));
 
 	C_LO[static_cast<size_t>(WilsonCoefficient::CP7)]+=pow(eta_mu,16./23.)*(C7pH+C7pcharg);
 	C_LO[static_cast<size_t>(WilsonCoefficient::CP8)]+=pow(eta_mu,14./23.)*(C8pH+C8pcharg);
@@ -622,16 +637,18 @@ void SUSY_LO_Strategy::init_prime(double Q_match,double Q,int gen, WilsonSet& C)
 	LOG_INFO("C10pH : " + std::to_string(C10pH));
 	LOG_INFO("C9pH : " + std::to_string(C9pH));
 	
-	
+	LOG_INFO("mass_W", (*sm)("MASS",24));
 	D9pc*=(*sus_param).kappa;
 
 	double C9pcharg=(1.-4.*(*sus_param).sw2)/(*sus_param).sw2*C9pc-B9pc/(*sus_param).sw2-D9pc;
 	
 	LOG_INFO("C9pcharg : " + std::to_string(C9pcharg));
-	LOG_INFO("C9pc : " + std::to_string(C9pc));
-	LOG_INFO("B9pc : " + std::to_string(B9pc));
-	LOG_INFO("D9pc : " + std::to_string(D9pc));
+	LOG_INFO("C9pc : " + std::to_string(C9pc*10e7));
+	LOG_INFO("B9pc : " + std::to_string(B9pc*10e11));
+	LOG_INFO("D9pc : " + std::to_string(D9pc*10e6));
 
+	LOG_INFO("C9pH", C9pH);
+	LOG_INFO("C9pcharg", C9pcharg);
 
 	C_LO[static_cast<size_t>(WilsonCoefficient::CP9)]+=C9pH+C9pcharg;
 	C_LO[static_cast<size_t>(WilsonCoefficient::CP10)]=C10pH+C10pcharg;	
@@ -647,27 +664,32 @@ void SUSY_LO_Strategy::init_prime(double Q_match,double Q,int gen, WilsonSet& C)
 	
 	
 	
+
 	
 	double BQ1pc=(BQ1pc1+BQ1pc2)*(*sus_param).kappa*((*sm)("MASS",24))*(*sm)("MASS",24)/2./(*sm)("GAUGE", 2)/(*sm)("GAUGE", 2)/(*sus_param).sw2;
 	double BQ2pc=(BQ1pc1-BQ1pc2)*(*sus_param).kappa*((*sm)("MASS",24))*(*sm)("MASS",24)/2./(*sm)("GAUGE", 2)/(*sm)("GAUGE", 2)/(*sus_param).sw2;
 
 	NQ1pc*=ml*((*susy)("HMIX",2))*(*susy)("HMIX",2)/(*sm)("MASS",24)/((*susy)("MASS",37)*(*susy)("MASS",37)-(*sm)("MASS",24)*(*sm)("MASS",24))*(*sus_param).aY*((*sm)("MASS",3))/(*sus_param).sw2;
 	NQ2pc*=ml*((*susy)("HMIX",2))*(*susy)("HMIX",2)/(*sm)("MASS",24)/((*susy)("MASS",37)*(*susy)("MASS",37)-(*sm)("MASS",24)*(*sm)("MASS",24))*(*sus_param).aY*((*sm)("MASS",3))/(*sus_param).sw2;
+
+	LOG_INFO(NQ1pc, BQ1pc);
 	
 	complex_t CQ1pcharg=NQ1pc+BQ1pc;
 	C_LO[static_cast<size_t>(WilsonCoefficient::CPQ1)]=CQ1pH+CQ1pcharg;
 	C_LO[static_cast<size_t>(WilsonCoefficient::CPQ1)]/=epsfac;
-	
-
+	LOG_INFO("CQ1pH", CQ1pH);
+	LOG_INFO("CQ1pcharg", CQ1pcharg);
+	LOG_INFO("CQP1", C_LO[static_cast<size_t>(WilsonCoefficient::CPQ1)]);
 	complex_t CQ2pcharg=NQ2pc+BQ2pc;
 	C_LO[static_cast<size_t>(WilsonCoefficient::CPQ2)]=CQ2pH+CQ2pcharg;
 	C_LO[static_cast<size_t>(WilsonCoefficient::CPQ2)]/=epsfac;
-
+	LOG_INFO("etamu", eta_mu);
 	int nf=5;
 	double beta0 = 11.-2./3.*nf;
 	C_LO[static_cast<size_t>(WilsonCoefficient::CPQ1)]*=pow(eta_mu,-4./beta0);
 	C_LO[static_cast<size_t>(WilsonCoefficient::CPQ2)]*=pow(eta_mu,-4./beta0);
 
+	LOG_INFO("chang", pow(eta_mu,-4./beta0));
 	LOG_INFO("SUSY LO Wilson Primes Coefficient Initialized from scale " +std::to_string(Q_match)+" to scale" + std::to_string(Q) + " terminated successfully");
 }
 

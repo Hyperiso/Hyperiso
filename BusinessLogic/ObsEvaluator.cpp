@@ -61,7 +61,7 @@ WilsonManager *ObsEvaluator::computeWilsons(int model, int order, double scale, 
             }
             break;
         default:
-            LOG_ERROR("Unknown model requested for Wilson coefficient calculation.");
+            LOG_ERROR("ModelError", "Unknown model requested for Wilson coefficient calculation.");
             return nullptr;
     }
     wm->setScale(scale, true, traditional_basis);
@@ -95,7 +95,7 @@ complex_t ObsEvaluator::Evaluate(Observable *o) {
         case Observables::ISOSPIN_ASYMMETRY_B_KSTAR_GAMMA:
             return ObsEvaluator::Delta_0_B_Kstargamma(wm, o->getScale());
         default:
-            LOG_ERROR("Unknown observable.");
+            LOG_ERROR("ValueError", "Unknown observable.");
             return std::complex<double>(-1);
     }
 }

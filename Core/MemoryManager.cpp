@@ -48,7 +48,7 @@ std::string MemoryManager::findNearestHyperisoDirectory() {
     }
 
     // If "hyperiso" directory is not found in any parent directory
-    LOG_ERROR("Error: Nearest directory containing 'hyperiso' not found.");
+    LOG_ERROR("OldError", "Error: Nearest directory containing 'hyperiso' not found.");
     return "";
 }
 

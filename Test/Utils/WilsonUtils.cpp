@@ -23,7 +23,7 @@ void writeCoefficientsToFile(const std::string& strat_name, const std::string& f
         MemoryManager::GetInstance("Test/testInput.slha", {0,1})->init();
     }
     else {
-        LOG_ERROR("MODEL not known");
+        LOG_ERROR("ModelError", "MODEL not known");
     }
     Parameters* sm = Parameters::GetInstance();
     WilsonManager* wm = WilsonManager::GetInstance(strat_name, 81.0, strategy);
@@ -54,10 +54,10 @@ void writeCoefficientsToFile(const std::string& strat_name, const std::string& f
 void writeCoefficientsPrimeCQToFile(const std::string& strat_name, const std::string& fileName, const std::shared_ptr<InitializationStrategy>& strategy, double Q_match, const std::string& model) {
     std::ofstream file(fileName);
 
-    std::vector<std::string> name {"C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9", "C10", "CQ1", "CQ2", "CP7", "CP8", "CP9", "CP10", "CPQ1", "CPQ2"};
+    std::vector<std::string> name {"C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9", "C10", "CQ1", "CQ2", "CP1", "CP2", "CP3", "CP4", "CP5", "CP6", "CP7", "CP8", "CP9", "CP10", "CPQ1", "CPQ2"};
 
     file << "Q,alpha_s";
-    for (int i = 10; i <= 17; ++i) {
+    for (int i = 10; i <= 23; ++i) {
         file << "," << name[i] << "_real," << name[i] << "_imag";
     }
     file << "\n";
@@ -72,7 +72,7 @@ void writeCoefficientsPrimeCQToFile(const std::string& strat_name, const std::st
         MemoryManager::GetInstance("Test/testInput.slha", {0,1})->init();
     }
     else {
-        LOG_ERROR("MODEL not known");
+        LOG_ERROR("ModelError", "MODEL not known");
     }
     Parameters* sm = Parameters::GetInstance();
     WilsonManager* wm = WilsonManager::GetInstance(strat_name, 81.0, strategy);
@@ -84,11 +84,12 @@ void writeCoefficientsPrimeCQToFile(const std::string& strat_name, const std::st
 
     file << answer << "," << alpha_s;
 
-            for (int i = 10; i <= 17; ++i) {
+            for (int i = 10; i <= 23; ++i) {
         complex_t C = {0,0};
 
-        if (strat_name == "LO")
-            C = wm->get(static_cast<WilsonCoefficient>(i), 0);
+        if (strat_name == "LO"){
+            LOG_INFO(i, wm->get(static_cast<WilsonCoefficient>(i), 0));
+            C = wm->get(static_cast<WilsonCoefficient>(i), 0);}
         else if (strat_name == "NLO")
             C = wm->get(static_cast<WilsonCoefficient>(i), 1);
         else if (strat_name == "NNLO")
