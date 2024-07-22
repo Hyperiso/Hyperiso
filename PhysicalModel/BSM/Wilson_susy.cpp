@@ -683,12 +683,13 @@ void SUSY_LO_Strategy::init_prime(double Q_match,double Q,int gen, WilsonSet& C)
 	complex_t CQ2pcharg=NQ2pc+BQ2pc;
 	C_LO[static_cast<size_t>(WilsonCoefficient::CPQ2)]=CQ2pH+CQ2pcharg;
 	C_LO[static_cast<size_t>(WilsonCoefficient::CPQ2)]/=epsfac;
-
+	LOG_INFO("etamu", eta_mu);
 	int nf=5;
 	double beta0 = 11.-2./3.*nf;
 	C_LO[static_cast<size_t>(WilsonCoefficient::CPQ1)]*=pow(eta_mu,-4./beta0);
 	C_LO[static_cast<size_t>(WilsonCoefficient::CPQ2)]*=pow(eta_mu,-4./beta0);
 
+	LOG_INFO("chang", pow(eta_mu,-4./beta0));
 	LOG_INFO("SUSY LO Wilson Primes Coefficient Initialized from scale " +std::to_string(Q_match)+" to scale" + std::to_string(Q) + " terminated successfully");
 }
 
