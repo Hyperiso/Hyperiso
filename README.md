@@ -1,27 +1,31 @@
 # Hyperiso
 
 ## Introduction
-HyperIso est une refonte moderne du logiciel SuperIso, utilisé en physique des particules pour comparer théorie et expérience. Cette nouvelle version vise à améliorer l'interface utilisateur, optimiser les calculs et générations des données. Ainsi que de permettre l'utilisation de nouvelles fonctionnalité, et liens avec d'autres softwares.
+HyperIso is a modern redesign of the SuperIso software, used in particle physics for comparing theory and experiment. This new version aims to enhance the user interface, optimize calculations and data generation, as well as enable the use of new features and integration with other software.
 
-## Fonctionnalités
-- Calcul de coefficients de Wilson
-- Récupération de donnée SLHA/FLHA
+## Features
+- Calculation of Wilson coefficients
+- Retrieval of SLHA/FLHA data
 - Marty usages
 
 ## Installation
 
-### Prérequis
-- Système d'exploitation: Windows, Linux, pas MacOS
+### Prerequisites
+- Operating System: Windows, Linux (not MacOS)
 - gcc
 
-### Étapes d'Installation
-1. Clonez le dépôt : `git clone https://github.com/Hyperiso/Hyperiso.git`
-2. cmake .
-3. make
+### Installation Steps
+1. Clone the repository: `git clone https://github.com/Hyperiso/Hyperiso.git`
+2. Run cmake: `cmake .`
+3. Compile: `make`
 
-## Utilisation
-lancer la commande ./hyperiso et appréciez
+## Usage
+Execute the command `./hyperiso` and enjoy.
 
-### Exemples
-- Exemple 1: lecture de fichier slha
-  ./slha
+### Examples
+- Example 1: Reading SLHA file
+
+## Testing
+Tests can be performed by running the command `make test` in the test folder. Two targets, `testWilson` and `testDatabase`, are available.
+
+Feel free to adjust the formatting or provide additional details as needed!

@@ -1,0 +1,24 @@
+name: C++ Project CI
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install CMake, Make, and Build Essentials
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y cmake make build-essential
+
+    - name: Configure CMake
+      run: cmake .
+
+    - name: Build
+      run: make
+
+
+    # - name: Test

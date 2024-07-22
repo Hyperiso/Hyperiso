@@ -1,15 +1,11 @@
 #include <iostream>
 #include <fstream>
-#include <string>
 #include <sstream>
-#include <memory>
 #include <vector>
-#include <filesystem>
 #include <algorithm>
-#include <regex>
 
-#include "lha_blocks.h"
 #include "lha_reader.h"
+#include "Logger.h"
 
 void Parser::tokenize() {
     int cLine = 0;
@@ -20,19 +16,20 @@ void Parser::tokenize() {
 
     while (rit != rend) {
         std::smatch m = *rit;
-        int group_index = m.size();
-    
-        for (int idx = 1; idx < m.size(); ++idx) {
+        size_t group_index = m.size();
+
+        // Don't touch, it works.
+        for (size_t idx = 1; idx < m.size(); ++idx) {
             if (m[idx].matched) {
-                if (idx == 1)
-                    ++idx;
-                group_index = idx - 2;
+                // if (idx == 1)  
+                //     ++idx;
+                group_index = idx - 1;
                 break;
             }
         }
 
         auto tokenType = static_cast<TokenType>(group_index);
-        auto value = m[group_index + 2].str();
+        auto value = m[group_index + 1].str();
 
         if (tokenType == TokenType::NEWLINE) {
             ++cLine;
@@ -49,35 +46,53 @@ void Parser::tokenize() {
 void Parser::parse(bool comments) {
     this->tokenize();
     bool newBlock = false;
-    bool isWilson = false;
-    bool isWilsonQ = false;
-    std::string wilsonQ;
+    bool hasGlobalScale = false;
+    bool isQ = false;
+    bool skipBlock = false;
+    bool decay = false;
+    std::string globalQ;
     std::string cBlock;
 
     int cCol = INT_MAX;
 
     for (const Token& t : this->tokens) {
         if (newBlock) {
-            this->rawBlocks[t.value] = std::vector<std::vector<std::string>> {};
-            cBlock = t.value;
+            auto prototype = reader->findPrototype(t.value);
+            if (prototype.blockName != "") {
+                LOG_INFO("LHA reader: Block " + prototype.blockName + " found.");
+                this->rawBlocks[t.value] = std::vector<std::vector<std::string>> {};
+                cBlock = t.value;
+                hasGlobalScale = prototype.globalScale;
+                skipBlock = false;
+            } else if (decay) {
+                LOG_INFO("LHA reader: Decay block found. Skipping.");
+                skipBlock = true;
+                decay = false;
+            } else {
+                LOG_WARN("LHA reader: Unknown block " + t.value + " encountered. Skipping.");
+                skipBlock = true;
+            }
             newBlock = false;
-            isWilson = t.value.ends_with("WCOEF");
         } else if (t.type == TokenType::BLOCK) {
+            newBlock = true;
+        } else if (t.type == TokenType::DECAY) {
+            decay = true;
             newBlock = true;
         } else if (!comments && t.type == TokenType::COMMENT) {
             continue;
-        } else if (isWilson && t.type == TokenType::WORD) {
-            isWilsonQ = (t.value == "Q=");
-        } else {
-            if (isWilsonQ) {
-                wilsonQ = t.value;
-                isWilsonQ = false;
+        } else if (hasGlobalScale && t.type == TokenType::WORD && !skipBlock) {
+            isQ = (t.value == "Q=" || t.value == "q=");
+        } else if (!skipBlock) {
+            if (isQ) {
+                globalQ = t.value;
+                isQ = false;
             }
             else {
-                if (t.col < cCol) {
+                // std::cout << "Token : [" << (int)t.type << ", " << t.value  << "]" << std::endl;
+                if (t.col <= cCol) {   
                     this->rawBlocks[cBlock].emplace_back(std::vector<std::string> {});
-                    if(isWilson)
-                        this->rawBlocks[cBlock].back().emplace_back(wilsonQ);
+                    if(hasGlobalScale)
+                        this->rawBlocks[cBlock].back().emplace_back(globalQ != "" ? globalQ : "-1");
                 }
                 this->rawBlocks[cBlock].back().emplace_back(t.value);
                 cCol = t.col;
@@ -87,62 +102,72 @@ void Parser::parse(bool comments) {
 }
 
 void LhaReader::addBlock(const std::string& id, const std::vector<std::vector<std::string>>& lines) {
-    auto block = std::make_unique<LhaBlock>(id);
+    auto block = std::make_unique<LhaBlock>(findPrototype(id));
     block->readData(lines);
-    this->blocks.insert(std::pair(id, std::move(block)));
+    std::string id_ci = id;
+    std::transform(id_ci.begin(), id_ci.end(), id_ci.begin(), ::toupper);
+    this->blocks.insert(std::pair(id_ci, std::move(block)));
 }
 
 LhaReader::LhaReader(std::string_view path) : lhaFile(std::filesystem::path(path)) {
     isFLHA = this->lhaFile.extension().string() == ".flha"; 
+    blockPrototypes = SLHA_BLOCKS;
+    if (isFLHA) {
+        blockPrototypes.insert(blockPrototypes.end(), FLHA_BLOCKS.begin(), FLHA_BLOCKS.end());
+    }
 }
 
 void LhaReader::readAll() {
     std::ifstream file(this->lhaFile.string());
     std::stringstream buffer;
     buffer << file.rdbuf();
-    Parser parser {buffer.str()};
+    Parser parser {buffer.str(), this};
     parser.parse();
     auto blocks = parser.getBlocks();
-
+    
     for (auto p : blocks) {
         addBlock(p.first, p.second);
     }
+          
+}
+
+Prototype LhaReader::findPrototype(std::string name) const {
+    for (auto p : blockPrototypes) {
+        std::transform(name.begin(), name.end(), name.begin(), ::toupper);
+        if (p.blockName == name) 
+            return p;
+    }
+    return Prototype{""};
+}
+
+std::string LhaReader::getLhaPath() const {
+    return this->lhaFile.string();
+}
+
+void LhaReader::update(std::string_view newLha) {
+    LOG_INFO("Updating LHA blocks...");
+    this->lhaFile = std::filesystem::path(newLha);
+    isFLHA = lhaFile.extension().string() == ".flha";
+    
+    if (isFLHA && this->blockPrototypes.size() == SLHA_BLOCKS.size()) {
+        this->blockPrototypes.insert(blockPrototypes.end(), FLHA_BLOCKS.begin(), FLHA_BLOCKS.end());
+    }
+    this->blocks.clear();
+     
+    this->readAll();
+}
+
+std::string LhaReader::toString() const
+{
+    std::stringstream ss;
+    for (const auto& block: blocks) {
+        ss << "\n--- Block ID: " << block.first << " ---\n";
+        ss << block.second->toString();
+    }
+
+    return ss.str();
 }
 
 bool LhaReader::hasBlock(const std::string& id) const {
     return this->blocks.contains(id);  // C++20. Use blocks.count(id) != 0 before.
-}
-
-int main() {
-
-    // std::ifstream file("../DataBase/example.flha");
-    // std::stringstream buffer;
-    // buffer << file.rdbuf();
-    // Parser parser {buffer.str()};
-    // parser.parse();
-    // auto blocks = parser.getBlocks();
-
-    // for (auto p : blocks) {
-    //     std::cout << "Block " << p.first << std::endl;
-    //     for (auto line: p.second) {
-    //         for (auto w: line) {
-    //             std::cout << w << '\t';
-    //         }
-    //         std::cout << '\n';
-    //     }
-    // }
-
-    LhaReader reader("../DataBase/example.flha");
-
-    reader.readAll();
-
-    std::cout << "Parsing ended, read " << reader.getBlockCount() << " block(s)." << std::endl;
-    // for (const auto& k : blockNames) {
-    //     BlockId id = BlockIdHelper::getBlockId(k);
-    //     if (reader.hasBlock(id)) {
-    //         std::cout << reader.getBlock(id)->toString() << std::endl;
-    //     }
-    // }
-
-    return 0;
 }
