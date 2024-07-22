@@ -45,7 +45,11 @@ public:
     void setLevel(LogLevel level);
     void setLogDirectory(const std::string& directory, std::size_t maxSize = 10048576);
     void setEnabled(bool enabled);
-
+    std::string getLogFilenameForThread(std::thread::id threadId);
+    std::string getLogFilenameWithSuffix(const std::string& baseName, int suffix);
+    
+    std::thread::id threadId;
+    
     template<typename... Args>
     void log(LogLevel messageLevel, const char* file, int line, const char* func, const char* errorType, Args... args) noexcept(false);
     ~Logger();
@@ -66,8 +70,7 @@ private:
     std::string currentDateTime();
     std::ofstream& getLogFile(std::thread::id threadId);
 
-    std::string getLogFilenameForThread(std::thread::id threadId);
-    std::string getLogFilenameWithSuffix(const std::string& baseName, int suffix);
+    
 
     template<typename T>
     void logMessage(std::ostream& os, T value);

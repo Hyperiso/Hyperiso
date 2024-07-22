@@ -60,7 +60,7 @@ std::string Logger::toString(LogLevel level) {
 std::string Logger::currentDateTime() {
     std::time_t now = std::time(nullptr);
     char buf[80];
-    std::strftime(buf, sizeof(buf), "%Y-%m-%d %X", std::localtime(&now));
+    std::strftime(buf, sizeof(buf), "%Y-%m-%d_%H", std::localtime(&now));
     return std::string(buf);
 }
 
@@ -123,8 +123,8 @@ void Logger::processQueue() {
             logQueue.pop();
             lock.unlock();
 
-            std::thread::id threadId = std::this_thread::get_id();
-            std::string logFilePath = getLogFilenameForThread(threadId) + ".log";
+            this->threadId = std::this_thread::get_id();
+            std::string logFilePath = getLogFilenameForThread(this->threadId) + ".log";
 
             if (std::filesystem::exists(logFilePath) && std::filesystem::file_size(logFilePath) >= maxFileSize) {
                 rotateLogFile(threadId);
@@ -132,7 +132,7 @@ void Logger::processQueue() {
                 logFilePath = getLogFilenameForThread(threadId) + ".log"; // Update the file path after rotation
             }
 
-            std::ofstream& logFile = getLogFile(threadId);
+            std::ofstream& logFile = getLogFile(this->threadId);
             logFile << logEntry << std::endl;
 
             lock.lock();

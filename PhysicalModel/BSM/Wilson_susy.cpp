@@ -607,10 +607,17 @@ void SUSY_LO_Strategy::init_prime(double Q_match,double Q,int gen, WilsonSet& C)
     auto& C_LO = C[0]; 
     C_LO.resize(static_cast<size_t>(WilsonCoefficient::CPQ2) + 1, complex_t(0, 0));
 
+	LOG_INFO("VCKM",(*sm)("RECKM", 02));
 	LOG_INFO("C7pH", C7pH);
 	LOG_INFO("C7pcharg", C7pcharg);
 	LOG_INFO("C8pH", C8pH);
 	LOG_INFO("C8pcharg", C8pcharg);
+
+	LOG_INFO("yt", (*sus_param).yt);
+	LOG_INFO("sw2", (*sus_param).sw2);
+	LOG_INFO("mass_t_w", (*sus_param).mass_top_muW);
+	LOG_INFO("mass_b_w", (*sus_param).mass_b_muW);
+	LOG_INFO("mass_3", (*sm)("MASS", 3));
 
 	C_LO[static_cast<size_t>(WilsonCoefficient::CP7)]+=pow(eta_mu,16./23.)*(C7pH+C7pcharg);
 	C_LO[static_cast<size_t>(WilsonCoefficient::CP8)]+=pow(eta_mu,14./23.)*(C8pH+C8pcharg);
@@ -630,15 +637,15 @@ void SUSY_LO_Strategy::init_prime(double Q_match,double Q,int gen, WilsonSet& C)
 	LOG_INFO("C10pH : " + std::to_string(C10pH));
 	LOG_INFO("C9pH : " + std::to_string(C9pH));
 	
-	
+	LOG_INFO("mass_W", (*sm)("MASS",24));
 	D9pc*=(*sus_param).kappa;
 
 	double C9pcharg=(1.-4.*(*sus_param).sw2)/(*sus_param).sw2*C9pc-B9pc/(*sus_param).sw2-D9pc;
 	
 	LOG_INFO("C9pcharg : " + std::to_string(C9pcharg));
-	LOG_INFO("C9pc : " + std::to_string(C9pc));
-	LOG_INFO("B9pc : " + std::to_string(B9pc));
-	LOG_INFO("D9pc : " + std::to_string(D9pc));
+	LOG_INFO("C9pc : " + std::to_string(C9pc*10e7));
+	LOG_INFO("B9pc : " + std::to_string(B9pc*10e11));
+	LOG_INFO("D9pc : " + std::to_string(D9pc*10e6));
 
 	LOG_INFO("C9pH", C9pH);
 	LOG_INFO("C9pcharg", C9pcharg);
@@ -657,18 +664,22 @@ void SUSY_LO_Strategy::init_prime(double Q_match,double Q,int gen, WilsonSet& C)
 	
 	
 	
+
 	
 	double BQ1pc=(BQ1pc1+BQ1pc2)*(*sus_param).kappa*((*sm)("MASS",24))*(*sm)("MASS",24)/2./(*sm)("GAUGE", 2)/(*sm)("GAUGE", 2)/(*sus_param).sw2;
 	double BQ2pc=(BQ1pc1-BQ1pc2)*(*sus_param).kappa*((*sm)("MASS",24))*(*sm)("MASS",24)/2./(*sm)("GAUGE", 2)/(*sm)("GAUGE", 2)/(*sus_param).sw2;
 
 	NQ1pc*=ml*((*susy)("HMIX",2))*(*susy)("HMIX",2)/(*sm)("MASS",24)/((*susy)("MASS",37)*(*susy)("MASS",37)-(*sm)("MASS",24)*(*sm)("MASS",24))*(*sus_param).aY*((*sm)("MASS",3))/(*sus_param).sw2;
 	NQ2pc*=ml*((*susy)("HMIX",2))*(*susy)("HMIX",2)/(*sm)("MASS",24)/((*susy)("MASS",37)*(*susy)("MASS",37)-(*sm)("MASS",24)*(*sm)("MASS",24))*(*sus_param).aY*((*sm)("MASS",3))/(*sus_param).sw2;
+
+	LOG_INFO(NQ1pc, BQ1pc);
 	
 	complex_t CQ1pcharg=NQ1pc+BQ1pc;
 	C_LO[static_cast<size_t>(WilsonCoefficient::CPQ1)]=CQ1pH+CQ1pcharg;
 	C_LO[static_cast<size_t>(WilsonCoefficient::CPQ1)]/=epsfac;
-	
-
+	LOG_INFO("CQ1pH", CQ1pH);
+	LOG_INFO("CQ1pcharg", CQ1pcharg);
+	LOG_INFO("CQP1", C_LO[static_cast<size_t>(WilsonCoefficient::CPQ1)]);
 	complex_t CQ2pcharg=NQ2pc+BQ2pc;
 	C_LO[static_cast<size_t>(WilsonCoefficient::CPQ2)]=CQ2pH+CQ2pcharg;
 	C_LO[static_cast<size_t>(WilsonCoefficient::CPQ2)]/=epsfac;
