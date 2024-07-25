@@ -1,0 +1,28 @@
+{
+    "values": [
+      {
+        "name": "AI_BKstargamma",
+        "central_value": 0.012,
+        "stat_error": 0.051,
+        "syst_error": 0.0
+      },
+      {
+        "name": "BR_BXsgamma",
+        "central_value": 0.000332,
+        "stat_error": 0.000015,
+        "syst_error": 0.0
+      }
+    ],
+    "correlations": [
+      {
+        "name1": "S4_B0Kstar0mumu_2.5_4",
+        "name2": "AFB_B0Kstar0mumu_2.5_4",
+        "value": -0.1
+      },
+      {
+        "name1": "S4_B0Kstar0mumu_2.5_4",
+        "name2": "S7_B0Kstar0mumu_2.5_4",
+        "value": 0.01
+      }
+    ]
+}

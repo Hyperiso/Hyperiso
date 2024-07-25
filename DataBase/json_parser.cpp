@@ -13,10 +13,10 @@ std::string trim(const std::string& str) {
 }
 
 std::string remove_quotes(const std::string& str) {
-    if (str.front() == '"' && str.back() == '"') {
-        return str.substr(1, str.size() - 2);
-    }
-    return str;
+    std::string result = str;
+    result.erase(std::remove(result.begin(), result.end(), '"'), result.end());
+    result.erase(std::remove(result.begin(), result.end(), ','), result.end());
+    return result;
 }
 
 std::vector<std::string> split(const std::string& str, char delimiter) {

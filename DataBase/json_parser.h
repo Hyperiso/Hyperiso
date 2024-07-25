@@ -6,6 +6,7 @@
 #include <sstream>
 #include <vector>
 #include <string>
+#include <algorithm>
 
 // Structure pour les valeurs expérimentales
 struct Value {
