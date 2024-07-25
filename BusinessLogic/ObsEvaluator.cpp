@@ -9,10 +9,13 @@
 
 
 WilsonManager *ObsEvaluator::computeWilsons(int model, int order, double scale, bool traditional_basis=false) {
+    std::cout << "in computewilson1 " << std::endl;
     double m_W = (*Parameters::GetInstance(0))("MASS", 24);
+    std::cout << "in computewilson2 " << std::endl;
     WilsonManager* wm;
     switch (model) {
         case 0:
+            std::cout << "in ComputeWilson " << std::endl;
             switch (order) {
                 case 0:
                     wm = WilsonManager::GetInstance("LO", m_W, std::make_shared<SM_LO_Strategy>());
@@ -74,9 +77,11 @@ complex_t get_c_CKM_entry(int idx) {
 }
 
 complex_t ObsEvaluator::Evaluate(Observable *o) {
+    std::cout << "in Evaluate " << std::endl;
     auto p = Parameters::GetInstance(0);
+    std::cout << "in Evaluate2" << std::endl;
     WilsonManager* wm = ObsEvaluator::computeWilsons(o->getModel(), o->getOrder(), o->getScale(), o->getWilsonBasis() == 2);
-
+    std::cout << "in Evaluate3 " << std::endl;
     if (!wm) {
         return std::complex<double>(-1);
     }
@@ -88,11 +93,12 @@ complex_t ObsEvaluator::Evaluate(Observable *o) {
             return ObsEvaluator::Bs_mumu(wm, true);
         case Observables::BR_BD_MUMU:
             return ObsEvaluator::Bd_mumu(wm);
-        case Observables::BR_BU_TAUNU:
-            return ObsEvaluator::Bu_taunu(o->getModel(), false);
-        case Observables::BR_BU_TAUNU_NP_ONLY:
-            return ObsEvaluator::Bu_taunu(o->getModel(), true);
+        // case Observables::BR_BU_TAUNU:
+        //     return ObsEvaluator::Bu_taunu(o->getModel(), false);
+        // case Observables::BR_BU_TAUNU_NP_ONLY:
+        //     return ObsEvaluator::Bu_taunu(o->getModel(), true);
         case Observables::ISOSPIN_ASYMMETRY_B_KSTAR_GAMMA:
+            return 0;
             return ObsEvaluator::Delta_0_B_Kstargamma(wm, o->getScale());
         default:
             LOG_ERROR("ValueError", "Unknown observable.");
@@ -102,6 +108,7 @@ complex_t ObsEvaluator::Evaluate(Observable *o) {
 
 complex_t ObsEvaluator::Bs_mumu(WilsonManager* wm, bool untag)
 {
+    std::cout << "Bs_mummu" << std::endl;
     auto sm_p = Parameters::GetInstance(0); // SM params
     auto flav_p = Parameters::GetInstance(3); // Flavor params
 
@@ -145,6 +152,7 @@ complex_t ObsEvaluator::Bs_mumu(WilsonManager* wm, bool untag)
 }
 
 complex_t ObsEvaluator::Bd_mumu(WilsonManager* wm) {
+    std::cout << "Bdmumu " << std::endl;
     auto sm_p = Parameters::GetInstance(0); // SM params
     auto flav_p = Parameters::GetInstance(3); // Flavor params
 
@@ -167,6 +175,7 @@ complex_t ObsEvaluator::Bd_mumu(WilsonManager* wm) {
 }
 
 complex_t ObsEvaluator::Bu_taunu(int model, bool np_only) {
+    std::cout << "Bu_taunu " << std::endl;
     auto sm_p = Parameters::GetInstance(0); // SM params
     auto flav_p = Parameters::GetInstance(3); // Flavor params
     
@@ -197,6 +206,7 @@ complex_t ObsEvaluator::Bu_taunu(int model, bool np_only) {
 }
 
 complex_t ObsEvaluator::Delta_0_B_Kstargamma(WilsonManager* wm, double mu_b) {
+    std::cout << "Delta_0 " << std::endl;
     auto sm_p = Parameters::GetInstance(0); // SM params
     auto flav_p = Parameters::GetInstance(3); // Flavor params
 

@@ -2,9 +2,15 @@
 #include <fstream>
 
 Chi2Theo::Chi2Theo(const std::string& config_file) {
+    std::cout << "Creating Chi2Theo" << std::endl;
     if (!config_file.empty()) {
         load_parameters_from_json(config_file);
+        std::cout << "JSON loaded" << std::endl;
     }
+    std::cout << "trying to initialize obs" << std::endl;
+    initialize_observables();
+    std::cout << "observable initialized" << std::endl;
+
 }
 
 Chi2Theo& Chi2Theo::getInstance(const std::string& config_file) {
@@ -13,20 +19,16 @@ Chi2Theo& Chi2Theo::getInstance(const std::string& config_file) {
 }
 
 void Chi2Theo::load_parameters_from_json(const std::string& config_file) {
-
     std::vector<Value> values;
     std::vector<Correlation> correlations;
     read_json(config_file, values, correlations);
 
+    // Charger les paramètres
     for (const auto& value : values) {
-        parameters[value.name] = Nuisance(value.name, value.central_value, value.stat_error, value.syst_error);
+        parameters[value.name] = *ObservableFactory::createNuisance(value.name, value.central_value, value.stat_error, value.syst_error);
     }
 
-    for (const auto& obs : values) {
-        std::vector<std::string> relevant_params = { obs.name };
-        observables.push_back(ObservableFactory::createObservable("SpecificObservable", obs.name, relevant_params));
-    }
-
+    // Charger la matrice de corrélation
     int n = values.size();
     correlation_matrix.resize(n, std::vector<double>(n, 0.0));
 
@@ -44,12 +46,12 @@ void Chi2Theo::load_parameters_from_json(const std::string& config_file) {
     }
 }
 
-void Chi2Theo::calculate_observables() {
+// void Chi2Theo::calculate_observables() {
 
-    for (auto& obs : observables) {
-        obs->calculate(parameters);
-    }
-}
+//     for (auto& obs : observables) {
+//         obs->evaluate();
+//     }
+// }
 
 std::vector<std::vector<double>> Chi2Theo::calculate_covariance() {
     std::random_device rd;
@@ -70,7 +72,19 @@ std::vector<std::vector<double>> Chi2Theo::calculate_covariance() {
 }
 
 void Chi2Theo::print_observables() const {
+    std::cout << "trying to print observables" << std::endl;
     for (const auto& obs : observables) {
-        std::cout << "Observable: " << obs->name << ", Value: " << obs->value << std::endl;
+        std::cout << "Observable: " << static_cast<int>(obs->getId()) << ", Value: " << obs->getValue() << std::endl;
     }
+}
+
+void Chi2Theo::initialize_observables() {
+    for (int i = static_cast<int>(Observables::BR_BS_MUMU); i <= static_cast<int>(Observables::ISOSPIN_ASYMMETRY_B_KSTAR_GAMMA); ++i) {
+        std::cout << "new observable" << std::endl;
+        Observables obs_id = static_cast<Observables>(i);
+        auto observable = ObservableFactory::createObservable(obs_id, 0, 2, 5.27958, 0);
+        observables.push_back(std::move(observable));
+        std::cout << "new observable ended" << std::endl;
+    }
+    std::cout << "end observable" << std::endl;
 }

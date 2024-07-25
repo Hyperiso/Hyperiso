@@ -9,7 +9,9 @@
 #include <memory>
 #include "Nuisance.h"
 #include "ObservableStrategyChi2.h"
+#include "Observable.h"
 #include "../DataBase/json_parser.h"
+#include "ObservableFactory.h"
 
 class Chi2Theo {
 public:
@@ -20,9 +22,9 @@ public:
 
     void load_parameters_from_json(const std::string& config_file);
 
-    void calculate_observables();
+    // void calculate_observables();
     void print_observables() const;
-    
+
     std::vector<std::vector<double>> calculate_covariance();
 
     std::map<std::string, Nuisance> parameters;
@@ -31,6 +33,8 @@ public:
 
 private:
     Chi2Theo(const std::string& config_file);
+    void initialize_observables();
+
 
 };
 

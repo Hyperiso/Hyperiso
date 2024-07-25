@@ -2,7 +2,7 @@
 
 complex_t WilsonManager::get(WilsonCoefficient wc, int order) const {
     if (order < 0 || order >= C.size()) {
-        LOG_ERROR("AttributeOrder", "Requested order is not available: " + std::to_string(order));
+        LOG_ERROR("AttributeOrder", "Requested order is not available: " + std::to_string(order), "for coefficient", static_cast<size_t>(wc));
         return complex_t(0, 0);
     }
 

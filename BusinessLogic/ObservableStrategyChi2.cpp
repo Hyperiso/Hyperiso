@@ -1,15 +1,15 @@
 #include "ObservableStrategyChi2.h"
 
 
-Observable::Observable(const std::string& name, std::unique_ptr<ObservableStrategy> strategy, const std::vector<std::string>& relevant_params)
-    : name(name), strategy(std::move(strategy)), relevant_parameters(relevant_params), value(0.0) {}
+TheoObservable::TheoObservable(Observables id, std::unique_ptr<ObservableStrategy> strategy, int model, int order, double scale, int wilson_basis)
+    : id(id), strategy(std::move(strategy)), model(model), order(order), scale(scale), wilson_basis(wilson_basis), value(0.0) {}
 
-void Observable::calculate(const std::map<std::string, Nuisance>& params) {
-    std::vector<Nuisance> relevant_params;
-    for (const auto& param_name : relevant_parameters) {
-        relevant_params.push_back(params.at(param_name));
+void TheoObservable::calculate(const std::map<std::string, Nuisance>& params) {
+    std::vector<Nuisance> relevant_params_objects;
+    for (const auto& param : params) {
+        relevant_params_objects.push_back(param.second);
     }
-    value = strategy->calculate(relevant_params);
+    value = strategy->calculate(relevant_params_objects);
 }
 
 double SpecificObservable::calculate(const std::vector<Nuisance>& params) {
@@ -31,9 +31,6 @@ double SpecificObservable::calculate(const std::vector<Nuisance>& params) {
     return result;
 }
 
-std::unique_ptr<Observable> ObservableFactory::createObservable(const std::string& type, const std::string& name, const std::vector<std::string>& relevant_params) {
-    if (type == "SpecificObservable") {
-        return std::make_unique<Observable>(name, std::make_unique<SpecificObservable>(), relevant_params);
-    }
-    return nullptr;
-}
+// std::unique_ptr<TheoObservable> ObservableFactory::createObservable(Observables id, int model, int order, double scale, int wilson_basis) {
+//     return std::make_unique<TheoObservable>(id, std::make_unique<SpecificObservable>(), model, order, scale, wilson_basis);
+// }
