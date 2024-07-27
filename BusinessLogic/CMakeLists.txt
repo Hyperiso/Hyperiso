@@ -35,9 +35,10 @@ add_library(BusinessLogicLib STATIC
     Chi2Theo.cpp
     Nuisance.cpp
     ObservableFactory.cpp
-    ObservableStrategyChi2.cpp)
+    ObservableStrategyChi2.cpp
+    Chi2Exp.cpp)
 
-set_target_properties(BusinessLogicLib PROPERTIES PUBLIC_HEADER "chi2.h;Observable.h;Observables.h;ObsEvaluator.h;Chi2Theo.h;Nuisance.h;ObservableStrategyChi2.h")
+set_target_properties(BusinessLogicLib PROPERTIES PUBLIC_HEADER "chi2.h;Observable.h;Observables.h;ObsEvaluator.h;Chi2Theo.h;Nuisance.h;ObservableStrategyChi2.h;Chi2Exp.h")
 
 target_include_directories(BusinessLogicLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
