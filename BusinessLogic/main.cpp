@@ -13,6 +13,9 @@ int main() {
     // manager.calculate_observables();
     manager.print_observables();
     manager_exp.print_observables();
+
+    manager_exp.print_correlations();
+    manager_exp.print_correlations_matrix();
     return 0;
 
 }

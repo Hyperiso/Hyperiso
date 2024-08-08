@@ -24,12 +24,15 @@ public:
 
     // void calculate_observables();
     void print_observables() const;
+    void print_correlations() const;
+    void print_correlations_matrix();
+    void fill_from_theory();
 
-    std::vector<std::vector<double>> calculate_covariance();
+    void calculate_covariance();
 
     // std::map<std::string, Nuisance> parameters;
     std::vector<std::unique_ptr<Observable>> observables;
-    std::vector<std::vector<double>> correlation_matrix;
+    std::map<std::pair<std::string, std::string>, double> correlation_matrix;
 
 private:
     Chi2Exp(const std::string& config_file);
@@ -37,6 +40,8 @@ private:
 
     std::vector<Value> values;
     std::vector<Correlation> correlations;
+
+    ObservableMapper& mapper = ObservableMapper::getInstance();
 };
 
 #endif // CHI2EXP_H

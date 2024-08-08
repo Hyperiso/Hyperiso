@@ -100,6 +100,8 @@ complex_t ObsEvaluator::Evaluate(Observable *o) {
         case Observables::ISOSPIN_ASYMMETRY_B_KSTAR_GAMMA:
             return 0;
             return ObsEvaluator::Delta_0_B_Kstargamma(wm, o->getScale());
+        case Observables::LAST:
+            return 0;
         default:
             LOG_ERROR("ValueError", "Unknown observable.");
             return std::complex<double>(-1);
