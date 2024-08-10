@@ -6,6 +6,7 @@
 #include <iostream>
 
 enum class Observables {
+    FIRST,
     BR_BS_MUMU,
     BR_BS_MUMU_UNTAG,
     BR_BD_MUMU,
@@ -16,9 +17,17 @@ enum class Observables {
 };
 
 class ObservableMapper {
+    static ObservableMapper* instance;
 public:
-    static ObservableMapper& getInstance() {
-        static ObservableMapper instance;
+    // static ObservableMapper& getInstance() {
+    //     static ObservableMapper instance;
+    //     return instance;
+    // }
+
+    static ObservableMapper* GetInstance() {
+        if (!instance) {
+            instance = new ObservableMapper();
+        }
         return instance;
     }
 
@@ -43,15 +52,17 @@ public:
         }
         throw std::runtime_error("String not found in map");
     }
-
+    std::unordered_map<Observables, std::string> get_map() {
+        return this->observableToStringMap;
+    }
 private:
 
     std::unordered_map<Observables, std::string> observableToStringMap;
     ObservableMapper() {
         // Ajoutez ici les mappings initiaux
-        observableToStringMap[Observables::BR_BS_MUMU] = "BR_BS_MUMU";
-        observableToStringMap[Observables::BR_BS_MUMU_UNTAG] = "BR_BS_MUMU_UNTAG";
-        observableToStringMap[Observables::BR_BD_MUMU] = "BR_BD_MUMU";
+        observableToStringMap[Observables::BR_BS_MUMU] = "BR_Bdmumu";
+        observableToStringMap[Observables::BR_BS_MUMU_UNTAG] = "BRuntag_Bsmumu";
+        observableToStringMap[Observables::BR_BD_MUMU] = "BR_Bdmumu";
         observableToStringMap[Observables::ISOSPIN_ASYMMETRY_B_KSTAR_GAMMA] = "ISOSPIN_ASYMMETRY_B_KSTAR_GAMMA";
     }
 
@@ -61,5 +72,7 @@ private:
 
     
 };
+
+
 
 #endif // HYPERISO_OBSERVABLES_H

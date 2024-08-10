@@ -5,14 +5,10 @@
 #include <string>
 #include <map>
 #include <unordered_map>
-#include <random>
 #include <memory>
-#include "Nuisance.h"
-#include "ObservableStrategyChi2.h"
-#include "Observable.h"
 #include "../DataBase/json_parser.h"
-#include "ObservableFactory.h"
-
+#include "Observables.h"
+#include <complex>
 
 class Chi2Exp {
 public:
@@ -30,8 +26,7 @@ public:
 
     void calculate_covariance();
 
-    // std::map<std::string, Nuisance> parameters;
-    std::vector<std::unique_ptr<Observable>> observables;
+    std::map<std::string, std::complex<double>> obs;
     std::map<std::pair<std::string, std::string>, double> correlation_matrix;
 
 private:
@@ -41,7 +36,7 @@ private:
     std::vector<Value> values;
     std::vector<Correlation> correlations;
 
-    ObservableMapper& mapper = ObservableMapper::getInstance();
+    ObservableMapper* mapper = ObservableMapper::GetInstance();
 };
 
 #endif // CHI2EXP_H

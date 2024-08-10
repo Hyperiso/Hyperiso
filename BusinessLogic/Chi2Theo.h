@@ -14,8 +14,9 @@
 #include "ObservableFactory.h"
 
 class Chi2Theo {
+    static Chi2Theo* instance;
 public:
-    static Chi2Theo& getInstance(const std::string& config_file = "");
+    static Chi2Theo* GetInstance(const std::string& config_file = "");
 
     Chi2Theo(Chi2Theo const&) = delete;
     void operator=(Chi2Theo const&) = delete;
@@ -25,11 +26,13 @@ public:
     // void calculate_observables();
     void print_observables() const;
 
-    std::vector<std::vector<double>> calculate_covariance();
-
     std::map<std::string, Nuisance> parameters;
+    std::map<std::pair<std::string, std::string>, double> calculate_covariance();
+
     std::vector<std::unique_ptr<Observable>> observables;
-    std::vector<std::vector<double>> correlation_matrix;
+
+    std::map<std::string, std::complex<double>> obs;
+    std::map<std::pair<std::string, std::string>, double> correlation_matrix;
 
 private:
     Chi2Theo(const std::string& config_file);

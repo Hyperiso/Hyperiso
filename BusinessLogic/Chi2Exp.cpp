@@ -1,14 +1,15 @@
 #include "Chi2Exp.h"
+ObservableMapper* ObservableMapper::instance = nullptr;
 
 Chi2Exp::Chi2Exp(const std::string& config_file) {
-    std::cout << "Creating Chi2Theo" << std::endl;
+    std::cout << "Creating Chi2Exp" << std::endl;
     if (!config_file.empty()) {
         std::cout << "trying to initialize obs" << std::endl;
         initialize_observables(config_file);
         std::cout << "observable initialized" << std::endl;
         std::cout << "JSON loaded" << std::endl;
     }
-    
+    calculate_covariance();
 
 }
 
@@ -38,6 +39,19 @@ void Chi2Exp::calculate_covariance() {
     
     correlation_matrix = temp_step;
 }
+
+void Chi2Exp::fill_from_theory() {
+
+    for (const auto& obs : mapper->get_map()) {
+        if (!correlation_matrix.contains(std::make_pair(obs.second, obs.second)) ){
+            std::cout << "yes yes " << obs.second << std::endl;
+            correlation_matrix[std::make_pair(obs.second, obs.second)] = 1;
+        }
+        else {
+            std::cout << "no noo " << obs.second << std::endl;
+        }
+    }
+}
 void Chi2Exp::print_observables() const{
 
     for (const auto& value : values) {
@@ -54,7 +68,7 @@ void Chi2Exp::print_correlations() const{
 
 void Chi2Exp::print_correlations_matrix() {
 
-    calculate_covariance();
+    
     for (const auto& truc : correlation_matrix) {
         std::cout << "With pair format, " <<"between " <<  truc.first.first << " and " << truc.first.second << " : " << truc.second << std::endl;
     }

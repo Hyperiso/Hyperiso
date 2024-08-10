@@ -102,6 +102,8 @@ complex_t ObsEvaluator::Evaluate(Observable *o) {
             return ObsEvaluator::Delta_0_B_Kstargamma(wm, o->getScale());
         case Observables::LAST:
             return 0;
+        case Observables::FIRST:
+            return 0;
         default:
             LOG_ERROR("ValueError", "Unknown observable.");
             return std::complex<double>(-1);

@@ -31,6 +31,20 @@ public:
 
     double getFlavorParam(FlavorParamType type, const std::string& id);
 
+    double set_param(std::string block, int pdgCode, double value) {
+        
+        if (block == "MASS") {
+            temp[std::make_pair(block, pdgCode)] = masses[pdgCode];
+            masses[pdgCode] = value;
+        }
+    }
+    double restore_param() {
+        for (auto param : temp) {
+            if (param.first.first == "MASS") {
+            masses[param.first.second] = param.second;
+            }
+        }
+    }
     double operator()(std::string block, int pdgCode) {
         if (block == "MASS") {
             return masses[pdgCode];
@@ -153,6 +167,8 @@ private:
 
     std::map<std::string, double> lifetimes;
     std::map<std::string, double> fconst;
+
+    std::map<std::pair<std::string,int>,double> temp;
 
     Parameters(const Parameters&) = delete;
     Parameters& operator=(const Parameters&) = delete;
