@@ -11,8 +11,9 @@
 #include <complex>
 
 class Chi2Exp {
+    static Chi2Exp* instance;
 public:
-    static Chi2Exp& getInstance(const std::string& config_file = "");
+    static Chi2Exp* GetInstance(const std::string& config_file = "");
 
     Chi2Exp(Chi2Exp const&) = delete;
     void operator=(Chi2Exp const&) = delete;

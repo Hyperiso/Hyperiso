@@ -10,13 +10,15 @@ Chi2Exp::Chi2Exp(const std::string& config_file) {
         std::cout << "JSON loaded" << std::endl;
     }
     calculate_covariance();
-
+    fill_from_theory();
 }
 
-Chi2Exp& Chi2Exp::getInstance(const std::string& config_file) {
-    static Chi2Exp instance(config_file);
-    return instance;
-}
+Chi2Exp* Chi2Exp::GetInstance(const std::string& config_file) {
+        if (!Chi2Exp::instance) {
+            Chi2Exp::instance = new Chi2Exp(config_file);
+        }
+        return Chi2Exp::instance;
+    }
 
 void Chi2Exp::initialize_observables(const std::string& config_file) {
 
@@ -35,6 +37,7 @@ void Chi2Exp::calculate_covariance() {
 
     for (const auto& correlation : correlations) {
         temp_step[std::make_pair(correlation.name1,correlation.name2)] = correlation.value;
+        temp_step[std::make_pair(correlation.name2,correlation.name1)] = correlation.value;
     }
     
     correlation_matrix = temp_step;
@@ -74,3 +77,5 @@ void Chi2Exp::print_correlations_matrix() {
     }
 
 }
+
+Chi2Exp* Chi2Exp::instance = nullptr;

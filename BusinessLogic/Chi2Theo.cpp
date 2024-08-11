@@ -25,14 +25,11 @@ void Chi2Theo::load_parameters_from_json(const std::string& config_file) {
     std::vector<Correlation> correlations;
     read_json(config_file, values, correlations);
 
-    // Charger les paramètres
     for (const auto& value : values) {
         parameters[value.name] = *ObservableFactory::createNuisance(value.name, value.central_value, value.stat_error, value.syst_error);
     }
 
-    // Charger la matrice de corrélation
     int n = values.size();
-    // correlation_matrix.resize(n, std::vector<double>(n, 0.0));
 
     std::unordered_map<std::string, int> param_index;
     int index = 0;
@@ -81,7 +78,7 @@ void Chi2Theo::print_observables() const {
 }
 
 void Chi2Theo::initialize_observables() {
-    for (int i = static_cast<int>(Observables::BR_BS_MUMU); i < static_cast<int>(Observables::LAST); ++i) {
+    for (int i = static_cast<int>(Observables::FIRST)+1; i < static_cast<int>(Observables::LAST); ++i) {
         std::cout << "new observable" << std::endl;
         Observables obs_id = static_cast<Observables>(i);
         auto observable = ObservableFactory::createObservable(obs_id, 0, 2, 5.27958, 0);
