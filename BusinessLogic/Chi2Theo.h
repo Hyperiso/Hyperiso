@@ -23,11 +23,12 @@ public:
 
     void load_parameters_from_json(const std::string& config_file);
 
+    std::map<std::pair<std::string, std::string>, double> get_covariance() {return correlation_matrix;}
     // void calculate_observables();
     void print_observables() const;
 
     std::map<std::string, Nuisance> parameters;
-    std::map<std::pair<std::string, std::string>, double> calculate_covariance();
+    void calculate_covariance();
 
     std::vector<std::unique_ptr<Observable>> observables;
 

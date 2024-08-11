@@ -10,6 +10,7 @@ Chi2Theo::Chi2Theo(const std::string& config_file) {
     std::cout << "trying to initialize obs" << std::endl;
     initialize_observables();
     std::cout << "observable initialized" << std::endl;
+    calculate_covariance();
 
 }
 
@@ -52,12 +53,14 @@ void Chi2Theo::load_parameters_from_json(const std::string& config_file) {
 //     }
 // }
 
-std::map<std::pair<std::string, std::string>, double> Chi2Theo::calculate_covariance() {
+void Chi2Theo::calculate_covariance() {
     std::random_device rd;
     std::mt19937 rng(rd());
     int n = parameters.size();
     std::map<std::pair<std::string, std::string>, double> covariance_matrix;
-
+    for (auto& obs : ObservableMapper::GetInstance()->get_map()) {
+        this->correlation_matrix[std::make_pair(obs.second, obs.second)] = 1;
+    }
     // for (int i = 0; i < n; ++i) {
     //     for (int j = 0; j < n; ++j) {
     //         for (int k = 0; k < n; ++k) {
@@ -67,7 +70,6 @@ std::map<std::pair<std::string, std::string>, double> Chi2Theo::calculate_covari
     //         }
     //     }
     // }
-    return covariance_matrix;
 }
 
 void Chi2Theo::print_observables() const {

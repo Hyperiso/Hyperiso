@@ -3,7 +3,7 @@
 #include "Chi2Theo.h"
 #include "Chi2Exp.h"
 #include "MemoryManager.h"
-
+#include "chi2.h"
 int main() {
     // Charger les paramètres et les observables depuis un fichier JSON
     auto mm = MemoryManager::GetInstance("Test/testInput.flha", {0, 3});
@@ -17,6 +17,11 @@ int main() {
     // manager_exp->fill_from_theory();
     manager_exp->print_correlations();
     manager_exp->print_correlations_matrix();
+
+    Chi2Manager bite(0,0,81., 0);
+
+    bite.print_inv_cov();
+    
     return 0;
 
 }

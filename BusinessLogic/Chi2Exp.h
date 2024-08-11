@@ -18,7 +18,7 @@ public:
     Chi2Exp(Chi2Exp const&) = delete;
     void operator=(Chi2Exp const&) = delete;
 
-
+    std::map<std::pair<std::string, std::string>, double> get_covariance() {return correlation_matrix;}
     // void calculate_observables();
     void print_observables() const;
     void print_correlations() const;

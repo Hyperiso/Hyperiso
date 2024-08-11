@@ -3,8 +3,8 @@
 #include <string>
 #include <vector>
 #include <stdexcept>
+#include "Math.h"
 
-using SparseMatrix = std::map<std::pair<std::string, std::string>, double>;
 
 std::vector<std::string> getDiagonalElements(const SparseMatrix& matrix) {
     std::vector<std::string> diagonalElements;
@@ -82,27 +82,27 @@ void printMatrix(const SparseMatrix& matrix, const std::vector<std::string>& ind
     }
 }
 
-int main() {
-    SparseMatrix matrix = {
-        {{"1", "1"}, 1},
-        {{"1", "2"}, 3},
-        {{"2", "1"}, 3},
-        {{"2", "2"}, 1},
-        {{"3", "2"}, 5},
-        {{"3", "3"}, 1},
-        {{"2", "3"}, 5},
-        {{"d", "d"}, 1}
-    };
+// int main() {
+//     SparseMatrix matrix = {
+//         {{"1", "1"}, 1},
+//         {{"1", "2"}, 3},
+//         {{"2", "1"}, 3},
+//         {{"2", "2"}, 1},
+//         {{"3", "2"}, 5},
+//         {{"3", "3"}, 1},
+//         {{"2", "3"}, 5},
+//         {{"d", "d"}, 1}
+//     };
 
-    std::vector<std::string> indices = getDiagonalElements(matrix);
+//     std::vector<std::string> indices = getDiagonalElements(matrix);
 
-    try {
-        SparseMatrix inverse = invertMatrix(matrix, indices);
+//     try {
+//         SparseMatrix inverse = invertMatrix(matrix, indices);
 
-        printMatrix(inverse, indices);
-    } catch (const std::runtime_error& e) {
-        std::cerr << e.what() << std::endl;
-    }
+//         printMatrix(inverse, indices);
+//     } catch (const std::runtime_error& e) {
+//         std::cerr << e.what() << std::endl;
+//     }
 
-    return 0;
-}
+//     return 0;
+// }
