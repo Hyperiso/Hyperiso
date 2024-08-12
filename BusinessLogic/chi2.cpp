@@ -24,3 +24,16 @@ void Chi2Manager::print_inv_cov() {
         std::cout << "[" << elem.first.first << " , " << elem.first.second << "]" << " : " << elem.second << std::endl;
     }
 }
+
+double Chi2Manager::get_chi2() {
+
+    double result{0};
+    for (auto& obs1 : chi_theo->get_obs()) {
+        for (auto& obs2 : chi_theo->get_obs()) {
+            std::cout << "real of theory part : " << std::real(obs1.second) << std::endl;
+            result += (std::real(obs1.second)-std::real(chi_exp->get_obs()[obs1.first])) * this->inv_cov_tot[std::make_pair(obs1.first, obs2.first)] * (std::real(obs2.second)-std::real(this->chi_exp->get_obs()[obs2.first]));
+
+        }
+    }
+    return result;
+}

@@ -21,7 +21,8 @@ int main() {
     Chi2Manager bite(0,0,81., 0);
 
     bite.print_inv_cov();
-    
+
+    std::cout << "chi2 : " <<bite.get_chi2() << std::endl;
     return 0;
 
 }

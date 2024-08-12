@@ -23,6 +23,7 @@ public:
 
     void load_parameters_from_json(const std::string& config_file);
 
+    std::map<std::string, std::complex<double>> get_obs() {return obs;}
     std::map<std::pair<std::string, std::string>, double> get_covariance() {return correlation_matrix;}
     // void calculate_observables();
     void print_observables() const;

@@ -23,5 +23,7 @@ public:
     void set_cov_tot();
     void set_inv_cov_tot();
 
+    double get_chi2();
+
     void print_inv_cov();
 };
