@@ -9,6 +9,7 @@ Chi2Theo::Chi2Theo(const std::string& config_file) {
     }
     std::cout << "trying to initialize obs" << std::endl;
     initialize_observables();
+    transform_obs();
     std::cout << "observable initialized" << std::endl;
     calculate_covariance();
 
@@ -75,7 +76,7 @@ void Chi2Theo::calculate_covariance() {
 void Chi2Theo::print_observables() const {
     std::cout << "trying to print observables" << std::endl;
     for (const auto& obs : observables) {
-        std::cout << "Observable: " << static_cast<int>(obs->getId()) << ", Value: " << obs->getValue() << std::endl;
+        std::cout << "Observable: " << mapper->getString(obs->getId()) << ", Value: " << obs->getValue() << std::endl;
     }
 }
 
@@ -90,4 +91,10 @@ void Chi2Theo::initialize_observables() {
     std::cout << "end observable" << std::endl;
 }
 
+void Chi2Theo::transform_obs() {
+
+    for (auto& obs_ptr : this->observables) {
+        this->obs[mapper->getString(obs_ptr->getId())] = obs_ptr->getValue();
+    }
+}
 Chi2Theo* Chi2Theo::instance = nullptr;

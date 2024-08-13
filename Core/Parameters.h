@@ -116,7 +116,7 @@ public:
             return nmix[pdgCode/10][pdgCode%10];
         }
         if (block== "SMINPUTS") {
-            return sminputs[1];
+            return sminputs[pdgCode];
         }
         return NAN;
 

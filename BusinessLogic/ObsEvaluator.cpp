@@ -164,15 +164,26 @@ complex_t ObsEvaluator::Bd_mumu(WilsonManager* wm) {
     complex_t CQ1 = wm->get_full(WilsonCoefficient::CQ1, 1);
     complex_t CQ2 = wm->get_full(WilsonCoefficient::CQ2, 1);
 
-    double G_F = (*sm_p)("SMINPUT", 2);
-    double inv_alpha_em = (*sm_p)("SMINPUT", 1);
+    std::cout << "C1000000" << std::real(C10) << std::endl;
+    std::cout << "CQ111111" << std::real(CQ1) << std::endl;
+    std::cout << "CQ222222" << std::real(CQ2) << std::endl;
+
+    double G_F = (*sm_p)("SMINPUTS", 2);
+    double inv_alpha_em = (*sm_p)("SMINPUTS", 1);
     double V_tbV_td = std::abs(get_c_CKM_entry(33) * std::conj(get_c_CKM_entry(31))); 
-    double m_Bd = (*flav_p)("FMASS", 511);
+    double m_Bd = (*flav_p)("MASS", 511);
     double f_Bd = flav_p->getFlavorParam(FlavorParamType::DECAY_CONSTANT, "511|1");
     double life_Bd = flav_p->getFlavorParam(FlavorParamType::LIFETIME, "511");
 
+    std::cout << "G_F : " << G_F << std::endl;
+    std::cout << "inv_alpha_em : " << inv_alpha_em << std::endl;
+    std::cout << "V_tbV_td : " << V_tbV_td << std::endl;
+    std::cout << "m_Bd : " << m_Bd << std::endl;
+    std::cout << "f_Bd : " << f_Bd << std::endl;
+    std::cout << "life_Bd : " << life_Bd<< std::endl;
+
     double r = (*sm_p)("MASS", 13) / m_Bd;  // m_mu / m_Bd
-    double x = m_Bd / ((*sm_p)("SMINPUT", 5) + (*sm_p)("MASS", 2)); // m_Bd / (m_b_pole + m_d)
+    double x = m_Bd / ((*sm_p)("SMINPUTS", 5) + (*sm_p)("MASS", 2)); // m_Bd / (m_b_pole + m_d)
 
     return std::pow(G_F * f_Bd * V_tbV_td / inv_alpha_em, 2) / (64 * HBAR) * std::pow(m_Bd, 3) * INV_PI3 * life_Bd * std::sqrt(1 - 4 * r * r) 
         * ((1 - 4 * r * r) * pow(x * std::abs(CQ1), 2) + pow(std::abs(x * CQ2 + 2 * r * C10), 2));
@@ -188,7 +199,7 @@ complex_t ObsEvaluator::Bu_taunu(int model, bool np_only) {
     double f_B = flav_p->getFlavorParam(FlavorParamType::DECAY_CONSTANT, "521|1");
     double m_tau = (*sm_p)("MASS", 15);
     double V_ub = std::abs(get_c_CKM_entry(13)); 
-    double G_F = (*sm_p)("SMINPUT", 2);
+    double G_F = (*sm_p)("SMINPUTS", 2);
     
     double BR_SM = std::pow(G_F * f_B * V_ub * m_tau * (1 - std::pow(m_tau / m_B, 2)), 2) * life_B * m_B;
     

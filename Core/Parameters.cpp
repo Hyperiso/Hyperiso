@@ -73,6 +73,8 @@ void Parameters::initSM() {
 
     sminputs[0] = 0.;
     sminputs[1] = *sm_inputs[0];
+    sminputs[2] = *sm_inputs[1];
+    sminputs[5] = *sm_inputs[4];
     LOG_DEBUG("sminputs" + std::to_string(sminputs[1]));
     // VCKMIN 
     double lambda{0.22500}, A{0.826}, rho{0.159}, eta{0.348};

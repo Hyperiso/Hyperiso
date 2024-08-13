@@ -40,7 +40,8 @@ private:
     Chi2Theo(const std::string& config_file);
     void initialize_observables();
 
-
+    ObservableMapper* mapper = ObservableMapper::GetInstance();
+    void transform_obs();
 };
 
 #endif // CHI2THEO_H

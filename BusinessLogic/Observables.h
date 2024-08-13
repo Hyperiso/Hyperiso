@@ -60,7 +60,7 @@ private:
     std::unordered_map<Observables, std::string> observableToStringMap;
     ObservableMapper() {
         // Ajoutez ici les mappings initiaux
-        observableToStringMap[Observables::BR_BS_MUMU] = "BR_Bdmumu";
+        observableToStringMap[Observables::BR_BS_MUMU] = "BR_Bsmumu";
         observableToStringMap[Observables::BR_BS_MUMU_UNTAG] = "BRuntag_Bsmumu";
         observableToStringMap[Observables::BR_BD_MUMU] = "BR_Bdmumu";
         observableToStringMap[Observables::ISOSPIN_ASYMMETRY_B_KSTAR_GAMMA] = "ISOSPIN_ASYMMETRY_B_KSTAR_GAMMA";
