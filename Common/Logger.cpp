@@ -12,6 +12,14 @@ Logger* Logger::getInstance() {
 }
 
 Logger::Logger() : exitFlag(false) {
+    if (!std::filesystem::exists(this->logDirectory)) {
+        if(std::filesystem::create_directories(this->logDirectory)) {
+
+        }
+        else {
+            std::cerr << "Error during logDirectory creation" << std::endl;
+        }
+    }
     loggingThread = std::thread(&Logger::processQueue, this);
     this->threadId = loggingThread.get_id();
 }
