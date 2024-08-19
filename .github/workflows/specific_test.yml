@@ -29,5 +29,52 @@ jobs:
       - name: Run Common Tests
         run: ctest --test-dir build -L common --output-on-failure
 
+  test-PhysicalModelSM:
+    if: contains(github.event.head_commit.message, '[PhysicalModel]') || github.event_name == 'push'
+    runs-on: ubuntu-latest
+    name: Run PhysicalModel(SM) Tests 
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Configure Cmake
+        run: cmake -S. -B build -DENABLE_TESTS=ON
+
+      - name: Build Project
+        run: cmake --build build --target testSMWilson testSMCQPrimeWilson
+
+      - name: Run Common Tests
+        run: ctest --test-dir build -L wilson --output-on-failure
+    
+  test-PhysicalModelSUSY:
+    if: contains(github.event.commits[*].modified, 'PhysicalModel/BSM/Wilson_susy.h') || contains(github.event.commits[*].modified, 'PhysicalModel/BSM/Wilson_susy.cpp') || contains(github.event.commits[*].modified, 'PhysicalModel/BSM/susy_parameters.h') || contains(github.event.commits[*].modified, 'PhysicalModel/BSM/susy_parameters.cpp') || contains(github.event.commits[*].modified, 'PhysicalModel/BSM/epsilon_calculator.h') || contains(github.event.commits[*].modified, 'PhysicalModel/BSM/epsilon_calculator.cpp') || github.event_name == 'push'
+    runs-on: ubuntu-latest
+    name: Run PhysicalModel(SUSY) Tests 
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Configure Cmake
+        run: cmake -S. -B build -DENABLE_TESTS=ON -DBUILD_WITH_SOFTSUSY=ON
+
+      - name: Build Project
+        run: cmake --build build --target testSUSYWilson testSUSYCQPrimeWilson
+
+      - name: Run Common Tests
+        run: ctest --test-dir build -L wilson --output-on-failure
+
+  test-PhysicalModelTHDM:
+    if: contains(github.event.commits[*].modified, 'PhysicalModel/BSM/Wilson_THDM.h') || contains(github.event.commits[*].modified, 'PhysicalModel/BSM/Wilson_THDM.cpp') || github.event_name == 'push'
+    runs-on: ubuntu-latest
+    name: Run PhysicalModel(THDM) Tests 
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Configure Cmake
+        run: cmake -S. -B build -DENABLE_TESTS=ON -DBUILD_WITH_2HDMC=ON
+
+      - name: Build Project
+        run: cmake --build build --target testTHDMWilson testTHDMCQPrimeWilson
+
+      - name: Run Common Tests
+        run: ctest --test-dir build -L wilson --output-on-failure
 
 
