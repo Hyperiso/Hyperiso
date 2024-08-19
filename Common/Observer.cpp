@@ -2,6 +2,7 @@
 #include <string>
 #include <list>
 
+//this will be used one day
 class IObserver {
 public:
     virtual ~IObserver() {}
