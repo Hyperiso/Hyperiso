@@ -52,6 +52,9 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: Installation dependancies
+        run: sudo apt-get install textlive-latex-base texlive-fonts-recommended texlive-fonts-extra textlive-latex-extra
+        
       - name: Configure Cmake
         run: cmake -S. -B build -DENABLE_TESTS=ON -DBUILD_WITH_SOFTSUSY=ON
 
