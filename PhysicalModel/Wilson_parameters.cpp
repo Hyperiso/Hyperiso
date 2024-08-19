@@ -1204,6 +1204,7 @@ Wilson_parameters::Wilson_parameters() {
 
 }
 
+
 Wilson_parameters* Wilson_parameters::GetInstance() {
         if (!Wilson_parameters::instance) {
             Wilson_parameters::instance = new Wilson_parameters();
@@ -1226,7 +1227,7 @@ void Wilson_parameters::SetMuW(double mu_W) {
 
 	mass_b_muW=(*sm).QCDRunner.running_mass((*sm)("MASS",5), (*sm)("MASS",5), mu_W, "running"); //mass bottom 6 (at pole)
 	LOG_DEBUG("mass_b_muW : " + std::to_string(mass_b_muW));
-	
+
 	sw2=pow(sin(atan((*sm)("GAUGE",1)/(*sm)("GAUGE",2))),2.);
 	xt = std::pow(mass_top_muW / (*sm)("MASS",24), 2);
 
