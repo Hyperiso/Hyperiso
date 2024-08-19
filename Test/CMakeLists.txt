@@ -81,31 +81,31 @@ include(CTest)
 
 
 add_test(NAME WCTestSM COMMAND testSMWilson)
-set_tests_properties(WCTestSM PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1")
+set_tests_properties(WCTestSM PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "wilson")
 
 add_test(NAME WCTestSMCQPrime COMMAND testSMCQPrimeWilson)
-set_tests_properties(WCTestSMCQPrime PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1")
+set_tests_properties(WCTestSMCQPrime PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "wilson")
 
 if(BUILD_WITH_2HDMC)
     add_test(NAME WCTestTHDM COMMAND testTHDMWilson)
-    set_tests_properties(WCTestTHDM PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1")
+    set_tests_properties(WCTestTHDM PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "wilson")
 
     add_test(NAME WCTestTHDMCQPrime COMMAND testTHDMCQPrimeWilson)
-    set_tests_properties(WCTestTHDMCQPrime PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1")
+    set_tests_properties(WCTestTHDMCQPrime PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "wilson")
 else()
     message("Couldn't do the THDM test, 2HDMC is not installed or not configured, use -DBUILD_WITH_2HDMC=ON")
 endif()
 
 if(BUILD_WITH_SOFTSUSY)
     add_test(NAME WCTestSUSY COMMAND testSUSYWilson)
-    set_tests_properties(WCTestSUSY PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1")
+    set_tests_properties(WCTestSUSY PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "wilson")
 
     add_test(NAME WCTestSUSYCQPrime COMMAND testSUSYCQPrimeWilson)
-    set_tests_properties(WCTestSUSYCQPrime PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1")
+    set_tests_properties(WCTestSUSYCQPrime PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "wilson")
 else()
     message("Couldn't do the SUSY test, SoftSusy is not installed or not configured, use -DBUILD_WITH_SOFTSUSY=ON")
 endif()
 
 add_test(NAME TestLogger COMMAND testCommon)
-set_tests_properties(TestLogger PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1")
+set_tests_properties(TestLogger PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "common")
 
