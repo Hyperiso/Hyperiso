@@ -13,8 +13,6 @@ class Wilson_parameters {
 public:
     static constexpr int arraySize {10};
 
-    
-
     double alphas_muW;
     double alphas_mu;
     double eta_mu;
@@ -50,8 +48,7 @@ public:
     void SetMuW(double mu_W);
     Wilson_parameters(const Wilson_parameters&) = delete;
     void operator=(const Wilson_parameters&) = delete;
-
-    // Méthode statique pour accéder à l'instance
+    
     static Wilson_parameters* GetInstance();
 };
 

@@ -1216,14 +1216,17 @@ void Wilson_parameters::SetMuW(double mu_W) {
 	Parameters* sm = Parameters::GetInstance();
 
 	this->mu_W = mu_W;
-	LOG_INFO("mu_W : " + std::to_string(mu_W));
-	alphas_muW=(*sm).QCDRunner.runningAlphasCalculation(mu_W);
-	LOG_INFO("ALPHA AFTER CALCULATION :", alphas_muW);
-	mass_top_muW=(*sm).QCDRunner.running_mass((*sm)("MASS",6), (*sm)("MASS",6),mu_W, "running"); //mass top at top ?
+	LOG_DEBUG("mu_W : " + std::to_string(mu_W));
 
-	LOG_INFO("mass_top_muW : " + std::to_string(mass_top_muW));
+	alphas_muW=(*sm).QCDRunner.runningAlphasCalculation(mu_W);
+	LOG_DEBUG("ALPHA AFTER CALCULATION :", alphas_muW);
+
+	mass_top_muW=(*sm).QCDRunner.running_mass((*sm)("MASS",6), (*sm)("MASS",6),mu_W, "running"); //mass top at top ?
+	LOG_DEBUG("mass_top_muW : " + std::to_string(mass_top_muW));
+
 	mass_b_muW=(*sm).QCDRunner.running_mass((*sm)("MASS",5), (*sm)("MASS",5), mu_W, "running"); //mass bottom 6 (at pole)
-	LOG_INFO("mass_b_muW : " + std::to_string(mass_b_muW));
+	LOG_DEBUG("mass_b_muW : " + std::to_string(mass_b_muW));
+	
 	sw2=pow(sin(atan((*sm)("GAUGE",1)/(*sm)("GAUGE",2))),2.);
 	xt = std::pow(mass_top_muW / (*sm)("MASS",24), 2);
 
