@@ -91,3 +91,7 @@ set_tests_properties(WCTestSUSY PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1")
 
 add_test(NAME WCTestSUSYCQPrime COMMAND testSUSYCQPrimeWilson)
 set_tests_properties(WCTestSUSYCQPrime PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1")
+
+add_test(NAME TestLogger COMMAND testCommon)
+set_tests_properties(TestLogger PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1")
+

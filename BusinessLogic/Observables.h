@@ -10,8 +10,8 @@ enum class Observables {
     BR_BS_MUMU,
     BR_BS_MUMU_UNTAG,
     BR_BD_MUMU,
-    // BR_BU_TAUNU,
-    // BR_BU_TAUNU_NP_ONLY,
+    BR_BU_TAUNU,
+    BR_BU_TAUNU_NP_ONLY,
     ISOSPIN_ASYMMETRY_B_KSTAR_GAMMA,
     LAST
 };

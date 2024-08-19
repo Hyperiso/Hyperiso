@@ -13,6 +13,7 @@ Logger* Logger::getInstance() {
 
 Logger::Logger() : exitFlag(false) {
     loggingThread = std::thread(&Logger::processQueue, this);
+    this->threadId = loggingThread.get_id();
 }
 
 Logger::~Logger() {
@@ -123,7 +124,7 @@ void Logger::processQueue() {
             logQueue.pop();
             lock.unlock();
 
-            this->threadId = std::this_thread::get_id();
+            // this->threadId = std::this_thread::get_id();
             std::string logFilePath = getLogFilenameForThread(this->threadId) + ".log";
 
             if (std::filesystem::exists(logFilePath) && std::filesystem::file_size(logFilePath) >= maxFileSize) {
@@ -144,7 +145,7 @@ void Logger::processQueue() {
         std::string logEntry = logQueue.front();
         logQueue.pop();
 
-        std::thread::id threadId = std::this_thread::get_id();
+        // std::thread::id threadId = std::this_thread::get_id();
         std::string logFilePath = getLogFilenameForThread(threadId) + ".log";
 
         if (std::filesystem::exists(logFilePath) && std::filesystem::file_size(logFilePath) >= maxFileSize) {
