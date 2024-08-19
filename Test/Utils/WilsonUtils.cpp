@@ -14,13 +14,13 @@ void writeCoefficientsToFile(const std::string& strat_name, const std::string& f
     file << "\n";
 
     if (model == "SM") {
-        MemoryManager::GetInstance("Test/testinput_thdm.lha", {0})->init();
+        MemoryManager::GetInstance("Test/InputFiles/testinput_thdm.lha", {0})->init();
     }
     else if (model == "THDM") {
-        MemoryManager::GetInstance("Test/testinput_thdm.lha", {0,2})->init();
+        MemoryManager::GetInstance("Test/InputFiles/testinput_thdm.lha", {0,2})->init();
     }
     else if (model == "SUSY") {
-        MemoryManager::GetInstance("Test/testInput.slha", {0,1})->init();
+        MemoryManager::GetInstance("Test/InputFiles/testInput.slha", {0,1})->init();
     }
     else {
         LOG_ERROR("ModelError", "MODEL not known");
@@ -63,13 +63,13 @@ void writeCoefficientsPrimeCQToFile(const std::string& strat_name, const std::st
     file << "\n";
 
     if (model == "SM") {
-        MemoryManager::GetInstance("Test/testinput_thdm.lha", {0})->init();
+        MemoryManager::GetInstance("Test/InputFiles/testinput_thdm.lha", {0})->init();
     }
     else if (model == "THDM") {
-        MemoryManager::GetInstance("Test/testinput_thdm.lha", {0,2})->init();
+        MemoryManager::GetInstance("Test/InputFiles/testinput_thdm.lha", {0,2})->init();
     }
     else if (model == "SUSY") {
-        MemoryManager::GetInstance("Test/testInput.slha", {0,1})->init();
+        MemoryManager::GetInstance("Test/InputFiles/testInput.slha", {0,1})->init();
     }
     else {
         LOG_ERROR("ModelError", "MODEL not known");

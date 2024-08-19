@@ -46,8 +46,6 @@ add_executable(testPrimeCQSUSYWilson testPrimeCQSUSYWilson.cpp)
 target_link_libraries(testPrimeCQSUSYWilson PhysicalModelLib)
 
 
-add_executable(testCommon Common/testLogger.cpp)
-target_link_libraries(testCommon CommonLib)
 
 # add_executable(test2HDMC test2HDMC.cpp)
 # target_link_libraries(test2HDMC ExternalIntegrationLib)
@@ -55,8 +53,24 @@ target_link_libraries(testCommon CommonLib)
 # add_executable(testQCDParameters testQCDParameters.cpp)
 # target_link_libraries(testQCDParameters CoreLib)
 
-add_executable(testReader testReader.cpp)
-target_link_libraries(testReader DataBaseLib)
+# add_executable(testReader testReader.cpp)
+# target_link_libraries(testReader DataBaseLib)
+
+add_executable(testCommon Common/testLogger.cpp)
+target_link_libraries(testCommon CommonLib)
+
+
+add_executable(testReader DataBase/testReader.cpp)
+target_link_libraries(testReader DataBaseLib ConfiguredModule)
+
+add_executable(testjsonreader DataBase/testJsonReader.cpp)
+target_link_libraries(testjsonreader DataBaseLib ConfiguredModule)
+
+
+add_executable(testSMparams Core/testSMParameters.cpp)
+target_link_libraries(testSMparams CoreLib)
+
+
 
 add_executable(testSMWilson Wilson/testSMWilson.cpp)
 target_link_libraries(testSMWilson PhysicalModelLib UtilsLib)
@@ -78,6 +92,21 @@ target_link_libraries(testSUSYCQPrimeWilson PhysicalModelLib UtilsLib)
 
 
 include(CTest)
+
+
+add_test(NAME TestLogger COMMAND testCommon)
+set_tests_properties(TestLogger PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "common")
+
+
+add_test(NAME TestLHAReader COMMAND testReader)
+set_tests_properties(TestLHAReader PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "database")
+
+add_test(NAME TestJsonReader COMMAND testjsonreader)
+set_tests_properties(TestJsonReader PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "database")
+
+
+add_test(NAME TestSMParameters COMMAND testSMparams)
+set_tests_properties(TestSMParameters PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "core")
 
 
 add_test(NAME WCTestSM COMMAND testSMWilson)
@@ -106,6 +135,5 @@ else()
     message("Couldn't do the SUSY test, SoftSusy is not installed or not configured, use -DBUILD_WITH_SOFTSUSY=ON")
 endif()
 
-add_test(NAME TestLogger COMMAND testCommon)
-set_tests_properties(TestLogger PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "common")
+
 
