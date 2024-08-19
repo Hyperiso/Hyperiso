@@ -1,0 +1,33 @@
+name: Run special test
+
+on:
+  push:
+    paths:
+      - "Common/**"
+      - "Database/**"
+      - "Core/**"
+      - "PhysicalModel/**"
+      - "BusinessLogic/**"
+      - "ExternalIntegration/**"
+      - "Math/**"
+
+
+jobs:
+  test-common:
+    if: contains(github.event.head_commit.message, '[Common]') || github.event_name == 'push'
+    runs-on: ubuntu-latest
+    name: Run Common Tests 
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Configure Cmake
+        run: cmake -S. -B build -DENABLE_TESTS=ON
+
+      - name: Build Project
+        run: cmake --build build --target CommonLib
+
+      - name: Run Common Tests
+        run: ctest --test-dir build -L common --output-on-failure
+
+
+
