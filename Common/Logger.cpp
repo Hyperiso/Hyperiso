@@ -17,7 +17,7 @@ Logger::Logger() : exitFlag(false) {
 
         }
         else {
-            std::cerr << "Error during logDirectory creation" << std::endl;
+            std::cerr << "Error during logDirectory creation. " << std::endl;
         }
     }
     loggingThread = std::thread(&Logger::processQueue, this);
