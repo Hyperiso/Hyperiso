@@ -1,4 +1,4 @@
-name: Run special test
+name: Run sm test
 
 on:
   push:
