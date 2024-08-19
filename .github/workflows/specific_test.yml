@@ -24,7 +24,7 @@ jobs:
         run: cmake -S. -B build -DENABLE_TESTS=ON
 
       - name: Build Project
-        run: cmake --build build --target CommonLib
+        run: cmake --build build --target testCommon
 
       - name: Run Common Tests
         run: ctest --test-dir build -L common --output-on-failure
