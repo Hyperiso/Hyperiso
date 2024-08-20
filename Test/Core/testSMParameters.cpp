@@ -10,7 +10,7 @@ int main() {
 
     auto mm = MemoryManager::GetInstance("Test/InputFiles/testInput.flha", {0});  // Initialize program manager with LHA file containing SMINPUTS block
     mm->init();  // Initialize parameters from given LHA file
-    LOG_INFO("tout va bien");
+
     auto sm_params = Parameters::GetInstance(0); 
     double alpha_s_MZ = std::pow((*sm_params)("GAUGE", 3), 2) / (4 * M_PI);
     std::cout << alpha_s_MZ << std::endl;

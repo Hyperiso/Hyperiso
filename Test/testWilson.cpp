@@ -27,7 +27,7 @@ void writeCoefficientsToFile(const std::string& strat_name, const std::string& f
     for (double Q = Q_initial; Q <= Q_final; Q += Q_step) {
         wm->setScale(Q);
 
-        double alpha_s = (*sm).QCDRunner.runningAlphasCalculation(Q);
+        double alpha_s = (*sm).alpha_s(Q);
 
         file << Q << "," << alpha_s;
 

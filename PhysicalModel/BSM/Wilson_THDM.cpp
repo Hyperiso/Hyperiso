@@ -17,8 +17,8 @@ void THDM_LO_Strategy::init(double scale, WilsonSet& C_match) {
 	else {
 		mod = Parameters::GetInstance(1);
 	}
-    double mass_top_muW=(*sm).QCDRunner.running_mass((*sm)("MASS",6), (*sm)("MASS",6),scale, "running", "pole"); //mass top at top ?
-	double mass_b_muW=(*sm).QCDRunner.running_mass((*sm)("MASS",5), (*sm)("MASS",5), scale); //mass bottom 6 (at pole)
+    double mass_top_muW=(*sm).running_mass((*sm)("MASS",6), (*sm)("MASS",6),scale, "running", "pole"); //mass top at top ?
+	double mass_b_muW=(*sm).running_mass((*sm)("MASS",5), (*sm)("MASS",5), scale); //mass bottom 6 (at pole)
 
     double sw2=pow(sin(atan((*sm)("GAUGE",1)/(*sm)("GAUGE",2))),2.); //1 = param-> gp and 2 = param->g2
 
@@ -62,8 +62,8 @@ void THDM_NLO_Strategy::init(double scale, WilsonSet& C_match) {
 		mod = Parameters::GetInstance(1);
 	}
 
-    double mass_top_muW=(*sm).QCDRunner.running_mass((*sm)("MASS",6), (*sm)("MASS",6),scale); //mass top at top ?
-	double mass_b_muW=(*sm).QCDRunner.running_mass((*sm)("MASS",5), (*sm)("MASS",5), scale); //mass bottom 6 (at pole)
+    double mass_top_muW=(*sm).running_mass((*sm)("MASS",6), (*sm)("MASS",6),scale); //mass top at top ?
+	double mass_b_muW=(*sm).running_mass((*sm)("MASS",5), (*sm)("MASS",5), scale); //mass bottom 6 (at pole)
 
     double sw2=pow(sin(atan((*sm)("GAUGE",1)/(*sm)("GAUGE",2))),2.); //1 = param-> gp and 2 = param->g2
 	double m_H = (*mod)("MASS", 37); // Charged Higgs mass (37)
@@ -80,7 +80,7 @@ void THDM_NLO_Strategy::init(double scale, WilsonSet& C_match) {
 	auto& C_NLO = C_match[1];
 	C_NLO.resize(static_cast<size_t>(WilsonCoefficient::CPQ2) + 1, std::complex<double>(0, 0));
 
-	double alphas_mu = sm->QCDRunner.runningAlphasCalculation(scale);
+	double alphas_mu = sm->alpha_s(scale);
 
 	THDM_LO_Strategy::init(scale, C_match);
 	auto& C_LO = C_match[0];
@@ -127,8 +127,8 @@ void THDM_NNLO_Strategy::init(double scale, WilsonSet& C_match) {
 	else {
 		mod = Parameters::GetInstance(1);
 	}
-    double mass_top_muW=(*sm).QCDRunner.running_mass((*sm)("MASS",6), (*sm)("MASS",6),scale); //mass top at top ?
-	double mass_b_muW=(*sm).QCDRunner.running_mass((*sm)("MASS",5), (*sm)("MASS",5), scale); //mass bottom 6 (at pole)
+    double mass_top_muW=(*sm).running_mass((*sm)("MASS",6), (*sm)("MASS",6),scale); //mass top at top ?
+	double mass_b_muW=(*sm).running_mass((*sm)("MASS",5), (*sm)("MASS",5), scale); //mass bottom 6 (at pole)
 
     double sw2=pow(sin(atan((*sm)("GAUGE",1)/(*sm)("GAUGE",2))),2.); //1 = param-> gp and 2 = param->g2
 
@@ -187,9 +187,9 @@ void THDM_LO_Strategy::init_scalar(double Q_match,double Q,int gen, WilsonSet& C
 	else if(gen==3) ml=(*sm)("MASS", 15);
 	else {gen=2; ml=(*sm)("MASS", 13);}
 	
-	double mass_top_muW=(*sm).QCDRunner.running_mass((*sm)("MASS",6), (*sm)("MASS",6),Q_match); //mass top at top ?
-	double mass_b_muW=(*sm).QCDRunner.running_mass((*sm)("MASS",5), (*sm)("MASS",5), Q_match, "running"); //mass bottom 6 (at pole)
-	double mass_b_muW_2=(*sm).QCDRunner.running_mass((*sm)("MASS",5), (*sm)("MASS",5), Q_match);
+	double mass_top_muW=(*sm).running_mass((*sm)("MASS",6), (*sm)("MASS",6),Q_match); //mass top at top ?
+	double mass_b_muW=(*sm).running_mass((*sm)("MASS",5), (*sm)("MASS",5), Q_match, "running"); //mass bottom 6 (at pole)
+	double mass_b_muW_2=(*sm).running_mass((*sm)("MASS",5), (*sm)("MASS",5), Q_match);
 	// LOG_INFO("BOTH MB", mass_b_muW, mass_b_muW_2);
 	// LOG_INFO("BOTH MT", (*sm).QCDRunner.get_mt_mt(), (*sm).QCDRunner.get_mt_pole());
 	// LOG_INFO("Q_match", Q_match);
@@ -202,9 +202,9 @@ void THDM_LO_Strategy::init_scalar(double Q_match,double Q,int gen, WilsonSet& C
 	int nf=5;
 	double beta0 = 11.-2./3.*nf;
 
-	double alphas_muW=(*sm).QCDRunner.runningAlphasCalculation(Q_match);
+	double alphas_muW=(*sm).alpha_s(Q_match);
 	// LOG_INFO("alpha_muW", alphas_muW);
-	double alphas_mu=(*sm).QCDRunner.runningAlphasCalculation(Q);	
+	double alphas_mu=(*sm).alpha_s(Q);	
 	double eta_mu=alphas_muW/alphas_mu;
 
 	double alpha=(*mod)("ALPHA", 0);

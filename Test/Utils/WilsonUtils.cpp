@@ -28,7 +28,7 @@ void writeCoefficientsToFile(const std::string& strat_name, const std::string& f
     Parameters* sm = Parameters::GetInstance();
     WilsonManager* wm = WilsonManager::GetInstance(strat_name, 81.0, strategy);
 
-    double alpha_s = (*sm).QCDRunner.runningAlphasCalculation(Q_match);
+    double alpha_s = (*sm).alpha_s(Q_match);
 
     file << Q_match << "," << alpha_s;
 
@@ -80,7 +80,7 @@ void writeCoefficientsPrimeCQToFile(const std::string& strat_name, const std::st
     double answer = 42.;
     wm->setScale(answer);
 
-    double alpha_s = (*sm).QCDRunner.runningAlphasCalculation(answer);
+    double alpha_s = (*sm).alpha_s(answer);
 
     file << answer << "," << alpha_s;
 

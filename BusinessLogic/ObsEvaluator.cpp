@@ -134,7 +134,7 @@ complex_t ObsEvaluator::Bs_mumu(WilsonManager* wm, bool untag)
     double life_Bs = flav_p->getFlavorParam(FlavorParamType::LIFETIME, "531");
     
     double r = (*sm_p)("MASS", 13) / m_Bs;  // m_mu / m_Bs
-    double x = m_Bs / (sm_p->QCDRunner.get_mb_pole() + (*sm_p)("MASS", 3)); // m_Bs / (m_b_pole + m_s)
+    double x = m_Bs / (sm_p->get_QCD_masse("mb_pole") + (*sm_p)("MASS", 3)); // m_Bs / (m_b_pole + m_s)
 
     double untag_factor = 1;
     if (untag) {
@@ -268,7 +268,7 @@ complex_t ObsEvaluator::Delta_0_B_Kstargamma(WilsonManager* wm, double mu_b) {
     complex_t C8_h = wm->get_full(WilsonCoefficient::C8, 2) + wm->get_full(WilsonCoefficient::CP8, 2);
     
     double m_b_mu_b = sm_p->running_mass(m_b, m_b, mu_b, "pole");
-    double m_b_1S = sm_p->QCDRunner.mb_1S();
+    double m_b_1S = sm_p->get_QCD_masse("mb_1S");
     double m_c_mu_b = sm_p->running_mass((*sm_p)("MASS", 4), (*sm_p)("MASS", 4), mu_b, "pole");
     double sc = std::pow(m_c_mu_b / m_c_mu_b, 2);
 

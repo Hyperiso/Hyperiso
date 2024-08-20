@@ -36,8 +36,8 @@ susy_parameters::susy_parameters(double scale) {
 	LOG_DEBUG("epsilon0 " + std::to_string(std::real(epsilon0)));
 	LOG_DEBUG("epsilon2 " + std::to_string(std::real(epsilon2)));
 
-    mass_top_muW=(*sm).QCDRunner.running_mass((*sm)("MASS",6), (*sm)("MASS",6),scale, "running", "pole");
-	mass_b_muW=(*sm).QCDRunner.running_mass((*sm)("MASS",5), (*sm)("MASS",5), scale, "running", "pole"); //mass bottom 6 (at pole)
+    mass_top_muW=(*sm).running_mass((*sm)("MASS",6), (*sm)("MASS",6),scale, "running", "pole");
+	mass_b_muW=(*sm).running_mass((*sm)("MASS",5), (*sm)("MASS",5), scale, "running", "pole"); //mass bottom 6 (at pole)
 
 	L=log(scale*scale/(*sm)("MASS",24)/(*sm)("MASS",24)); // scale -> mu_W
  	sw2=pow(sin(atan((*sm)("GAUGE",1)/(*sm)("GAUGE",2))),2.); //1 = param-> gp and 2 = (*sm)("GAUGE",2)
@@ -50,9 +50,9 @@ susy_parameters::susy_parameters(double scale) {
     lu=1./(*susy)("HMIX",2);
 	ld=-(*susy)("HMIX",2);
 	
-	alphas_muW=(*sm).QCDRunner.runningAlphasCalculation(scale);
+	alphas_muW=(*sm).alpha_s(scale);
 
-    alphas_mg = sm->QCDRunner.runningAlphasCalculation((*susy)("MASS",1000021));
+    alphas_mg = sm->alpha_s((*susy)("MASS",1000021));
 	ag = 1.0 - 7.0 / (12.0 * Pi) * alphas_mg;
 	aY = 1.0 + alphas_mg / (4.0 * Pi);
 	kappa = 1.0 / ((*sm)("GAUGE",2) * (*sm)("GAUGE",2) * std::real(VCKM[2][2]*VCKM[2][1])); //VCKM 33 et 32
