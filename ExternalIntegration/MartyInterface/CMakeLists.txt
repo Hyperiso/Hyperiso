@@ -1,0 +1,41 @@
+cmake_minimum_required(VERSION 3.20)
+
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED True)
+
+project(ExternalMartyIntegration)
+
+if (NOT DEFINED BUILD_WITH_SOFTSUSY)
+    option(BUILD_WITH_SOFTSUSY "Build project with SOFTSUSY support" OFF)
+endif()
+if (NOT DEFINED BUILD_WITH_2HDMC)
+    option(BUILD_WITH_2HDMC "Build project with 2HDMC support" OFF)
+endif()
+if (NOT DEFINED BUILD_WITH_MARTY)
+    option(BUILD_WITH_MARTY "Build project with MARTY support" OFF)
+endif()
+
+if (NOT TARGET CommonLib)
+    add_subdirectory(../../Common CommonLib)
+endif()
+
+if (NOT TARGET ConfiguredModule)
+    add_subdirectory(../../Configured Configured)
+endif()
+
+add_library(ExternalMartyIntegrationLib STATIC 
+    CodeGenerator.cpp
+    GppCompilerStrategy.cpp
+    MartyInterface.cpp
+    SMModelModifier.cpp
+    TemplateManager.cpp
+    )
+
+set_target_properties(ExternalMartyIntegrationLib PROPERTIES PUBLIC_HEADER "ModelModifier.h;CodeGenerator.h;CompilerStrategy.h;GppCompilerStrategy;MartyInterface.h;SMModelModifier.h;TemplateManager.h")
+# target_include_directories(ExternalMartyIntegrationLib PRIVATE BSM)
+target_link_libraries(ExternalMartyIntegrationLib PUBLIC CommonLib)
+target_link_libraries(ExternalMartyIntegrationLib PUBLIC ConfiguredModule)
+
+add_executable(TEST_MARTY main_marty.cpp)
+
+target_link_libraries(TEST_MARTY ExternalMartyIntegrationLib)
