@@ -93,10 +93,10 @@ complex_t ObsEvaluator::Evaluate(Observable *o) {
             return ObsEvaluator::Bs_mumu(wm, true);
         case Observables::BR_BD_MUMU:
             return ObsEvaluator::Bd_mumu(wm);
-        // case Observables::BR_BU_TAUNU:
-        //     return ObsEvaluator::Bu_taunu(o->getModel(), false);
-        // case Observables::BR_BU_TAUNU_NP_ONLY:
-        //     return ObsEvaluator::Bu_taunu(o->getModel(), true);
+        case Observables::BR_BU_TAUNU:
+            return ObsEvaluator::Bu_taunu(o->getModel(), false);
+        case Observables::BR_BU_TAUNU_NP_ONLY:
+            return ObsEvaluator::Bu_taunu(o->getModel(), true);
         case Observables::ISOSPIN_ASYMMETRY_B_KSTAR_GAMMA:
             return 0;
             return ObsEvaluator::Delta_0_B_Kstargamma(wm, o->getScale());
@@ -123,8 +123,8 @@ complex_t ObsEvaluator::Bs_mumu(WilsonManager* wm, bool untag)
     complex_t CPQ1 = wm->get_full(WilsonCoefficient::CPQ1, 0);
     complex_t CPQ2 = wm->get_full(WilsonCoefficient::CPQ2, 0);
 
-    double G_F = (*sm_p)("SMINPUT", 2);
-    double inv_alpha_em = (*sm_p)("SMINPUT", 1);
+    double G_F = (*sm_p)("SMINPUTS", 2);
+    double inv_alpha_em = (*sm_p)("SMINPUTS", 1);
     inv_alpha_em = 137.;
     G_F = 1.166e-5;
     double V_tbV_ts = std::abs(get_c_CKM_entry(22) * std::conj(get_c_CKM_entry(21))); 
@@ -194,7 +194,7 @@ complex_t ObsEvaluator::Bu_taunu(int model, bool np_only) {
     auto sm_p = Parameters::GetInstance(0); // SM params
     auto flav_p = Parameters::GetInstance(3); // Flavor params
     
-    double m_B = (*flav_p)("FMASS", 521);
+    double m_B = (*flav_p)("MASS", 521);
     double life_B = (*flav_p)("FLIFE", 521);
     double f_B = flav_p->getFlavorParam(FlavorParamType::DECAY_CONSTANT, "521|1");
     double m_tau = (*sm_p)("MASS", 15);
@@ -237,8 +237,8 @@ complex_t ObsEvaluator::Delta_0_B_Kstargamma(WilsonManager* wm, double mu_b) {
     double alphas_1GeV = sm_p->alpha_s(1.);
     double eta = alphas_mu_b / alphas_1GeV;
     
-    double m_B = (*flav_p)("FMASS", 521);
-    double m_Ks = (*flav_p)("FMASS", 323);
+    double m_B = (*flav_p)("MASS", 521);
+    double m_Ks = (*flav_p)("MASS", 323);
     double m_b = (*sm_p)("MASS", 5);
     double f_B = flav_p->getFlavorParam(FlavorParamType::DECAY_CONSTANT, "521|1");
     double f_Ks = flav_p->getFlavorParam(FlavorParamType::DECAY_CONSTANT, "323|1");

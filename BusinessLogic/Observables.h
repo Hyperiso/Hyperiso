@@ -63,6 +63,8 @@ private:
         observableToStringMap[Observables::BR_BS_MUMU] = "BR_Bsmumu";
         observableToStringMap[Observables::BR_BS_MUMU_UNTAG] = "BRuntag_Bsmumu";
         observableToStringMap[Observables::BR_BD_MUMU] = "BR_Bdmumu";
+        observableToStringMap[Observables::BR_BU_TAUNU] = "BR_Bu_Taunu";
+        observableToStringMap[Observables::BR_BU_TAUNU_NP_ONLY] = "BR_Bu_Taunu_np_only";
         observableToStringMap[Observables::ISOSPIN_ASYMMETRY_B_KSTAR_GAMMA] = "ISOSPIN_ASYMMETRY_B_KSTAR_GAMMA";
     }
 

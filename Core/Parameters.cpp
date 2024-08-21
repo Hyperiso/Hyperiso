@@ -75,7 +75,6 @@ double Parameters::get_QCD_masse(std::string masstype) {
     }
 }
 
-// SMModelStrategy implementation
 void SMModelStrategy::initializeParameters(Parameters& params) {
 
     LhaReader* lha = MemoryManager::GetInstance()->getReader();
@@ -199,8 +198,6 @@ void SUSYModelStrategy::initializeParameters(Parameters& params) {
         {"AD", std::make_shared<ADBlock>()},
         {"AE", std::make_shared<AEBlock>()}
     };
-
-
 
     for (auto& elem : type22) {
         std::array<std::array<double, 2>,2> temp;
@@ -355,8 +352,31 @@ void THDMModelStrategy::initializeParameters(Parameters& params) {
 
 // FlAVORModelStrategy implementation
 void FlAVORModelStrategy::initializeParameters(Parameters& params) {
+    // Hardcoded for now, should read from LHA file eventually
+    auto massblock = std::make_unique<MassBlock>();
+    massblock->setValue(511, 5.27958);
+    massblock->setValue(531, 5.36677);
+    massblock->setValue(521, 5.27934);
+    massblock->setValue(323, 0.49368);
+    params.addBlock("MASS", std::move(massblock));
 
-}
+    auto lifetimeblock = std::make_unique<LifeTimeBlock>();
+    lifetimeblock->setValue("511", 1.519e-12);
+    lifetimeblock->setValue("531", 1.510e-12);
+    params.addFlavorBlock(FlavorParamType::LIFETIME, std::move(lifetimeblock));
+
+    auto fconstblock = std::make_unique<FConstBlock>();
+    fconstblock->setValue("511|1", 0.1905);
+    fconstblock->setValue("521|1", 0.1905); //FAKE
+    fconstblock->setValue("531|1", 0.2277);
+    fconstblock->setValue("323|1", 0.2277); //FAKE
+    fconstblock->setValue("323|2", 0.2277);//FAKE
+    params.addFlavorBlock(FlavorParamType::DECAY_CONSTANT, std::move(fconstblock));
+
+    auto flifeblock = std::make_unique<FLifeBlock>();
+    flifeblock->setValue(521, 1.638e-12);
+    params.addBlock("FLIFE", std::move(flifeblock));
+}   
 
 double return_if_defined(std::map<std::string, double>& map, const std::string& id, const std::string& error_label) {
     if (map.contains(id)) {
@@ -369,17 +389,6 @@ double return_if_defined(std::map<std::string, double>& map, const std::string& 
 
 double Parameters::getFlavorParam(FlavorParamType type, const std::string& id) {
     return this->flavorblockAccessor.getValue(type, id);
-    // switch (type) {
-
-    //     case FlavorParamType::LIFETIME:
-    //         return this->flavorblockAccessor.getValue(type, id);
-    //         return return_if_defined(this->lifetimes, id, "Lifetime");
-    //     case FlavorParamType::DECAY_CONSTANT:
-    //         return return_if_defined(this->fconst, id, "Decay constant");
-    //     default:
-    //         LOG_ERROR("ValueError", "Unknown parameter type.");
-    //         return NAN;
-    // }
 }
 
 Parameters* ParametersFactory::GetParameters(int modelId) {
@@ -400,7 +409,6 @@ ModelStrategy* ParametersFactory::createStrategy(int modelId) {
             return new THDMModelStrategy();
         case 3:
             return new FlAVORModelStrategy();
-        // Add other cases for different models (THDM, Flavor, etc.)
         default:
             throw std::invalid_argument("Unknown model ID");
     }

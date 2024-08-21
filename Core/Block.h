@@ -200,3 +200,8 @@ class FConstBlock : public FlavorBlock {
 public:
     FConstBlock() {this->blockname = "FConstBlock";}
 };
+
+class FLifeBlock : public MapBlock {
+public:
+    FLifeBlock() {this->blockname = "FLifeBlock";}
+};

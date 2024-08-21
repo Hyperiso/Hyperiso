@@ -49,6 +49,9 @@ public:
     void addBlock(const std::string& name, std::unique_ptr<Block> block) {
         blockAccessor.addBlock(name, std::move(block));
     }
+    void addFlavorBlock(FlavorParamType name, std::unique_ptr<FlavorBlock> block) {
+        flavorblockAccessor.addBlock(name, std::move(block));
+    }
     void setBlockValue(const std::string& name, int pdgCode, double value) {
         blockAccessor.setValue(name, pdgCode, value);
     }
