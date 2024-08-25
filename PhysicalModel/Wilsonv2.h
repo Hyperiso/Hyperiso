@@ -308,6 +308,10 @@ std::ostream& operator<<(std::ostream& os, BCoefficientGroup& coeffs) {
         os << coeff.second->get_name() << " --------------------------------" << std::endl;
         os << "Matching value at LO (" << coeff.second->get_Q_match() << " GeV) : " << coeff.second->get_CoefficientMatchingValue("LO") << std::endl;
         os << "Running value at LO (" << coeff.second->get_Q() << " GeV) : " << coeff.second->get_CoefficientRunValue("LO") << std::endl;
+        os << "Matching value at NLO (" << coeff.second->get_Q_match() << " GeV) : " << coeff.second->get_CoefficientMatchingValue("NLO") << std::endl;
+        os << "Running value at NLO (" << coeff.second->get_Q() << " GeV) : " << coeff.second->get_CoefficientRunValue("NLO") << std::endl;
+        os << "Matching value at NNLO (" << coeff.second->get_Q_match() << " GeV) : " << coeff.second->get_CoefficientMatchingValue("NNLO") << std::endl;
+        os << "Running value at NNLO (" << coeff.second->get_Q() << " GeV) : " << coeff.second->get_CoefficientRunValue("NNLO") << std::endl;
     }
     return os;
 }

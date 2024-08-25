@@ -230,6 +230,56 @@ void BCoefficientGroup::set_base_1_NLO() {
     it->second->set_WilsonCoeffRun("NLO", W_param->eta_mu * it->second->get_CoefficientMatchingValue("NLO"));
 }
 
+void BCoefficientGroup::set_base_1_NNLO() {
+    complex_t C7_eff= this->at("C7")->get_CoefficientMatchingValue("NNLO")-1./3.*this->at("C3")->get_CoefficientMatchingValue("NNLO")-4./9.*this->at("C4")->get_CoefficientMatchingValue("NNLO")
+    -20./3.*this->at("C5")->get_CoefficientMatchingValue("NNLO")-80./9.*this->at("C6")->get_CoefficientMatchingValue("NNLO"); 
+	complex_t C8_eff= this->at("C8")->get_CoefficientMatchingValue("NNLO")+this->at("C3")->get_CoefficientMatchingValue("NNLO")-1./6.*this->at("C4")->get_CoefficientMatchingValue("NNLO")
+    +20.*this->at("C5")->get_CoefficientMatchingValue("NNLO")-10./3.*this->at("C6")->get_CoefficientMatchingValue("NNLO"); 
+
+	complex_t C7_eff_0= this->at("C7")->get_CoefficientMatchingValue("LO")-1./3.*this->at("C3")->get_CoefficientMatchingValue("LO")-4./9.*this->at("C4")->get_CoefficientMatchingValue("LO")
+    -20./3.*this->at("C5")->get_CoefficientMatchingValue("LO")-80./9.*this->at("C6")->get_CoefficientMatchingValue("LO"); 
+	complex_t C8_eff_0= this->at("C8")->get_CoefficientMatchingValue("LO")+this->at("C3")->get_CoefficientMatchingValue("LO")-1./6.*this->at("C4")->get_CoefficientMatchingValue("LO")
+    +20.*this->at("C5")->get_CoefficientMatchingValue("LO")-10./3.*this->at("C6")->get_CoefficientMatchingValue("LO"); 
+
+	complex_t C7_eff_1= this->at("C7")->get_CoefficientMatchingValue("NLO")-1./3.*this->at("C3")->get_CoefficientMatchingValue("NLO")-4./9.*this->at("C4")->get_CoefficientMatchingValue("NLO")
+    -20./3.*this->at("C5")->get_CoefficientMatchingValue("NLO")-80./9.*this->at("C6")->get_CoefficientMatchingValue("NLO"); 
+	complex_t C8_eff_1= this->at("C8")->get_CoefficientMatchingValue("NLO")+this->at("C3")->get_CoefficientMatchingValue("NLO")-1./6.*this->at("C4")->get_CoefficientMatchingValue("NLO")
+    +20.*this->at("C5")->get_CoefficientMatchingValue("NLO")-10./3.*this->at("C6")->get_CoefficientMatchingValue("NLO"); 
+
+    auto calculateC2b = [&](int ie, int je, BCoefficientGroup::iterator& iterator) {
+        complex_t u0_term = (W_param->U0)[ie][je] * (je < 6 ? iterator->second->get_CoefficientMatchingValue("NNLO") : (je == 6 ? C7_eff : C8_eff));
+        complex_t u1_term = (W_param->U1)[ie][je] * (je < 6 ? iterator->second->get_CoefficientMatchingValue("NLO") : (je == 6 ? C7_eff_1 : C8_eff_1));
+        complex_t u2_term = (W_param->U2)[ie][je] * (je < 6 ? (iterator++)->second->get_CoefficientMatchingValue("LO") : (je == 6 ? C7_eff_0 : C8_eff_0));
+        return W_param->eta_mu * W_param->eta_mu * (u0_term + u1_term + u2_term);
+    };
+
+    BCoefficientGroup::iterator it = this->begin();
+	for (int ie = 0; ie < 8; ie++) {
+        BCoefficientGroup::iterator iterator = this->begin();
+        complex_t _{};
+        for (int je = 0; je < 8; je++) {
+            _ += calculateC2b(ie, je, iterator);
+        }
+        (it++)->second->set_WilsonCoeffRun("NNLO", _);
+    }
+
+	double fourPiOverAlphasMu = 4.0 * PI / W_param->alphas_mu;
+
+    auto updateC2b = [&](int je, BCoefficientGroup::iterator& iterator) {
+        return W_param->eta_mu * W_param->eta_mu * ((W_param->U0)[8][je] * iterator->second->get_CoefficientMatchingValue("NNLO") 
+        + (W_param->U1)[8][je] * iterator->second->get_CoefficientMatchingValue("NLO") + (W_param->U2)[8][je] * iterator->second->get_CoefficientMatchingValue("NLO"));
+    };
+
+    BCoefficientGroup::iterator iterator = this->begin();
+    complex_t _{};
+    for (int je = 0; je < 8; je++) {
+        _ += fourPiOverAlphasMu * updateC2b(je, iterator);
+        iterator++;
+    }
+
+    _ += fourPiOverAlphasMu * W_param->eta_mu * W_param->eta_mu * ((W_param->U0)[8][8] * it->second->get_CoefficientMatchingValue("NLO") + (W_param->U1)[8][8] * it->second->get_CoefficientMatchingValue("LO"));
+    (it++)->second->set_WilsonCoeffRun("NLO", _);
+}
 int main() {
     MemoryManager::GetInstance()->init();
 
@@ -243,12 +293,14 @@ int main() {
     bcoeff.init_LO();
     bcoeff.set_base_1_LO();
 
-    std::cout <<  bcoeff << std::endl;
-
-    std::cout << ".................................................................................................." << std::endl;
-
     bcoeff.init_NLO();
     bcoeff.set_base_1_NLO();
 
+    bcoeff.init_NNLO();
+    bcoeff.set_base_1_NNLO();
+
+    std::cout <<  bcoeff << std::endl;
+
+    std::cout << ".................................................................................................." << std::endl;
     return 0;
 }
