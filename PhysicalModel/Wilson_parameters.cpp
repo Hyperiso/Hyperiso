@@ -5,7 +5,6 @@ Wilson_parameters::Wilson_parameters() {
 
     Parameters* sm = Parameters::GetInstance();
 
-
 	m00= {{ 
 	/*m001[10][10]*/{{
 		{0 , 0 , 0.333333 , 0.666667 , 0 , 0 , 0 , 0 , 0 , 0}, 
