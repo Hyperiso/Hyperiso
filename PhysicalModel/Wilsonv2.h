@@ -205,7 +205,7 @@ public:
 
     std::complex<double> LO_calculation();
     std::complex<double> NLO_calculation();
-    std::complex<double> NNLO_calculation();
+    std::complex<double> NNLO_calculation() {return {0,0};} 
 
     Parameters* sm = Parameters::GetInstance();
 };
@@ -217,10 +217,11 @@ public:
     CQ1() : WilsonCoefficient() {this->set_name("CQ1");}
 
     std::complex<double> LO_calculation();
-    std::complex<double> NLO_calculation();
-    std::complex<double> NNLO_calculation();
+    std::complex<double> NLO_calculation() {return {0,0};} 
+    std::complex<double> NNLO_calculation() {return {0,0};} 
 
     Parameters* sm = Parameters::GetInstance();
+    int gen{3};
 };
 
 class CQ2 : public WilsonCoefficient {
@@ -229,10 +230,11 @@ public:
     CQ2() : WilsonCoefficient() {this->set_name("CQ2");}
 
     std::complex<double> LO_calculation();
-    std::complex<double> NLO_calculation();
-    std::complex<double> NNLO_calculation();
+    std::complex<double> NLO_calculation() {return {0,0};} 
+    std::complex<double> NNLO_calculation() {return {0,0};} 
 
     Parameters* sm = Parameters::GetInstance();
+    int gen{3};
 };
 
 class CP1 : public WilsonCoefficient {
@@ -240,11 +242,12 @@ public:
     CP1(double Q_match) : WilsonCoefficient(Q_match) {this->set_name("CP1");}
     CP1() : WilsonCoefficient() {this->set_name("CP1");}
 
-    std::complex<double> LO_calculation();
-    std::complex<double> NLO_calculation();
-    std::complex<double> NNLO_calculation();
+    std::complex<double> LO_calculation() {return {0,0};} 
+    std::complex<double> NLO_calculation() {return {0,0};} 
+    std::complex<double> NNLO_calculation() {return {0,0};} 
 
     Parameters* sm = Parameters::GetInstance();
+    int gen{3};
 };
 
 class CP2 : public WilsonCoefficient {
@@ -252,11 +255,12 @@ public:
     CP2(double Q_match) : WilsonCoefficient(Q_match) {this->set_name("CP2");}
     CP2() : WilsonCoefficient() {this->set_name("CP2");}
 
-    std::complex<double> LO_calculation();
-    std::complex<double> NLO_calculation();
-    std::complex<double> NNLO_calculation();
+    std::complex<double> LO_calculation() {return {0,0};} 
+    std::complex<double> NLO_calculation() {return {0,0};} 
+    std::complex<double> NNLO_calculation() {return {0,0};} 
 
     Parameters* sm = Parameters::GetInstance();
+    int gen{3};
 };
 
 class CP3 : public WilsonCoefficient {
@@ -264,11 +268,12 @@ public:
     CP3(double Q_match) : WilsonCoefficient(Q_match) {this->set_name("CP3");}
     CP3() : WilsonCoefficient() {this->set_name("CP3");}
 
-    std::complex<double> LO_calculation();
-    std::complex<double> NLO_calculation();
-    std::complex<double> NNLO_calculation();
+    std::complex<double> LO_calculation() {return {0,0};} 
+    std::complex<double> NLO_calculation() {return {0,0};} 
+    std::complex<double> NNLO_calculation() {return {0,0};} 
 
     Parameters* sm = Parameters::GetInstance();
+    int gen{3};
 };
 
 class CP4 : public WilsonCoefficient {
@@ -276,11 +281,12 @@ public:
     CP4(double Q_match) : WilsonCoefficient(Q_match) {this->set_name("CP4");}
     CP4() : WilsonCoefficient() {this->set_name("CP4");}
 
-    std::complex<double> LO_calculation();
-    std::complex<double> NLO_calculation();
-    std::complex<double> NNLO_calculation();
+    std::complex<double> LO_calculation() {return {0,0};} 
+    std::complex<double> NLO_calculation() {return {0,0};} 
+    std::complex<double> NNLO_calculation() {return {0,0};} 
 
     Parameters* sm = Parameters::GetInstance();
+    int gen{3};
 };
 
 class CP5 : public WilsonCoefficient {
@@ -288,11 +294,12 @@ public:
     CP5(double Q_match) : WilsonCoefficient(Q_match) {this->set_name("CP5");}
     CP5() : WilsonCoefficient() {this->set_name("CP5");}
 
-    std::complex<double> LO_calculation();
-    std::complex<double> NLO_calculation();
-    std::complex<double> NNLO_calculation();
+    std::complex<double> LO_calculation() {return {0,0};} 
+    std::complex<double> NLO_calculation() {return {0,0};} 
+    std::complex<double> NNLO_calculation() {return {0,0};} 
 
     Parameters* sm = Parameters::GetInstance();
+    int gen{3};
 };
 
 class CP6 : public WilsonCoefficient {
@@ -300,11 +307,12 @@ public:
     CP6(double Q_match) : WilsonCoefficient(Q_match) {this->set_name("CP6");}
     CP6() : WilsonCoefficient() {this->set_name("CP6");}
 
-    std::complex<double> LO_calculation();
-    std::complex<double> NLO_calculation();
-    std::complex<double> NNLO_calculation();
+    std::complex<double> LO_calculation() {return {0,0};} 
+    std::complex<double> NLO_calculation() {return {0,0};} 
+    std::complex<double> NNLO_calculation() {return {0,0};} 
 
     Parameters* sm = Parameters::GetInstance();
+    int gen{3};
 };
 
 class CP7 : public WilsonCoefficient {
@@ -313,10 +321,11 @@ public:
     CP7() : WilsonCoefficient() {this->set_name("CP7");}
 
     std::complex<double> LO_calculation();
-    std::complex<double> NLO_calculation();
-    std::complex<double> NNLO_calculation();
+    std::complex<double> NLO_calculation() {return {0,0};} 
+    std::complex<double> NNLO_calculation() {return {0,0};} 
 
     Parameters* sm = Parameters::GetInstance();
+    int gen{3};
 };
 
 class CP8 : public WilsonCoefficient {
@@ -325,10 +334,11 @@ public:
     CP8() : WilsonCoefficient() {this->set_name("CP8");}
 
     std::complex<double> LO_calculation();
-    std::complex<double> NLO_calculation();
-    std::complex<double> NNLO_calculation();
+    std::complex<double> NLO_calculation() {return {0,0};} 
+    std::complex<double> NNLO_calculation() {return {0,0};} 
 
     Parameters* sm = Parameters::GetInstance();
+    int gen{3};
 };
 
 class CP9 : public WilsonCoefficient {
@@ -336,11 +346,12 @@ public:
     CP9(double Q_match) : WilsonCoefficient(Q_match) {this->set_name("CP9");}
     CP9() : WilsonCoefficient() {this->set_name("CP9");}
 
-    std::complex<double> LO_calculation();
-    std::complex<double> NLO_calculation();
-    std::complex<double> NNLO_calculation();
+    std::complex<double> LO_calculation() {return {0,0};} 
+    std::complex<double> NLO_calculation() {return {0,0};} 
+    std::complex<double> NNLO_calculation() {return {0,0};} 
 
     Parameters* sm = Parameters::GetInstance();
+    int gen{3};
 };
 
 class CP10 : public WilsonCoefficient {
@@ -348,11 +359,12 @@ public:
     CP10(double Q_match) : WilsonCoefficient(Q_match) {this->set_name("CP10");}
     CP10() : WilsonCoefficient() {this->set_name("CP10");}
 
-    std::complex<double> LO_calculation();
-    std::complex<double> NLO_calculation();
-    std::complex<double> NNLO_calculation();
+    std::complex<double> LO_calculation() {return {0,0};} 
+    std::complex<double> NLO_calculation() {return {0,0};} 
+    std::complex<double> NNLO_calculation() {return {0,0};} 
 
     Parameters* sm = Parameters::GetInstance();
+    int gen{3};
 };
 
 class CPQ1 : public WilsonCoefficient {
@@ -360,11 +372,12 @@ public:
     CPQ1(double Q_match) : WilsonCoefficient(Q_match) {this->set_name("CPQ1");}
     CPQ1() : WilsonCoefficient() {this->set_name("CPQ1");}
 
-    std::complex<double> LO_calculation();
-    std::complex<double> NLO_calculation();
-    std::complex<double> NNLO_calculation();
+    std::complex<double> LO_calculation() {return {0,0};} 
+    std::complex<double> NLO_calculation() {return {0,0};} 
+    std::complex<double> NNLO_calculation() {return {0,0};} 
 
     Parameters* sm = Parameters::GetInstance();
+    int gen{3};
 };
 
 class CPQ2 : public WilsonCoefficient {
@@ -372,11 +385,12 @@ public:
     CPQ2(double Q_match) : WilsonCoefficient(Q_match) {this->set_name("CPQ2");}
     CPQ2() : WilsonCoefficient() {this->set_name("CPQ2");}
 
-    std::complex<double> LO_calculation();
-    std::complex<double> NLO_calculation();
-    std::complex<double> NNLO_calculation();
+    std::complex<double> LO_calculation() {return {0,0};} 
+    std::complex<double> NLO_calculation() {return {0,0};} 
+    std::complex<double> NNLO_calculation() {return {0,0};} 
 
     Parameters* sm = Parameters::GetInstance();
+    int gen{3};
 };
 
 std::ostream& operator<<(std::ostream& os, WilsonCoefficient& coeff) {
@@ -453,7 +467,7 @@ public:
     void set_base_2_NNLO();
 
     void set_W_params(Wilson_parameters* new_W_param) {this->W_param = new_W_param; for(auto& coeff : *this) {coeff.second->set_Wilson_Parameters(new_W_param);}}
-private:
+protected:
     Wilson_parameters* W_param = Wilson_parameters::GetInstance();
 
 };
@@ -473,9 +487,11 @@ public:
         this->insert(std::make_pair("CP10", std::make_unique<CP10>(Q_match))); this->insert(std::make_pair("CPQ1", std::make_unique<CPQ1>(Q_match))); this->insert(std::make_pair("CPQ2", std::make_unique<CPQ2>(Q_match)));
     }
 
-    void set_base_1();
-    void set_base_2();
-
+    void set_base_1_LO();
+    void set_base_1_NLO();
+    void set_base_1_NNLO();
+protected:
+    Wilson_parameters* W_param = Wilson_parameters::GetInstance();
 };
 
 class BScalarCoefficientGroup : public CoefficientGroup {
@@ -487,9 +503,11 @@ public:
         this->insert(std::make_pair("CQ1", std::make_unique<CQ1>(Q_match))); this->insert(std::make_pair("CQ2", std::make_unique<CQ2>(Q_match)));
     }
 
-    void set_base_1();
-    void set_base_2();
-
+    void set_base_1_LO();
+    void set_base_1_NLO();
+    void set_base_1_NNLO();
+protected:
+    Wilson_parameters* W_param = Wilson_parameters::GetInstance();
 };
 
 std::ostream& operator<<(std::ostream& os, BCoefficientGroup& coeffs) {

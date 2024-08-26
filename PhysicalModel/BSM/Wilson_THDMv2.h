@@ -1,24 +1,22 @@
 #include "Wilsonv2.h"
 #include "thdm_parameters.h"
+#include "Math_THDM.h"
 
 class WilsonCoefficient_THDM {
 protected:
     WilsonCoefficient_THDM(double Q_match) {thdm_params->set_params(Q_match);}
     WilsonCoefficient_THDM() {thdm_params->set_params(81.);}
     void set_mod_parameters(Parameters* new_mod) {this->mod = new_mod;};
-    void set_gen(int new_gen) {this->gen = new_gen; thdm_params->set_gen(new_gen);}
+    
 
     Parameters* mod = Parameters::GetInstance(2);
-    int gen{3};
 
     thdm_parameters *thdm_params = thdm_parameters::GetInstance();
 };
 class C1_THDM : public C1, public WilsonCoefficient_THDM {
 public:
     C1_THDM(double Q_match) : C1(Q_match) {}
-    C1_THDM(double Q_match, int gen) : C1(Q_match) {this->gen = gen;
-    thdm_params->set_gen(gen);
-    }
+    C1_THDM(double Q_match, int gen) : C1(Q_match) {}
     C1_THDM() : C1() {
 
     }
@@ -32,9 +30,8 @@ public:
 class C2_THDM : public C2, public WilsonCoefficient_THDM {
 public:
     C2_THDM(double Q_match) : C2(Q_match), WilsonCoefficient_THDM(Q_match){}
-    C2_THDM(double Q_match, int gen) : C2(Q_match), WilsonCoefficient_THDM(Q_match) {this->gen = gen;
-    thdm_params->set_gen(gen);
-    }
+    C2_THDM(double Q_match, int gen) : C2(Q_match), WilsonCoefficient_THDM(Q_match) {}
+    
     C2_THDM() : C2() {
 
     }
@@ -48,9 +45,8 @@ public:
 class C3_THDM : public C3, public WilsonCoefficient_THDM {
 public:
     C3_THDM(double Q_match) : C3(Q_match), WilsonCoefficient_THDM(Q_match) {}
-    C3_THDM(double Q_match, int gen) : C3(Q_match), WilsonCoefficient_THDM(Q_match) {this->gen = gen;
-    thdm_params->set_gen(gen);
-    }
+    C3_THDM(double Q_match, int gen) : C3(Q_match), WilsonCoefficient_THDM(Q_match) {}
+    
     C3_THDM() : C3() {
 
     }
@@ -64,9 +60,7 @@ public:
 class C4_THDM : public C4, public WilsonCoefficient_THDM {
 public:
     C4_THDM(double Q_match) : C4(Q_match), WilsonCoefficient_THDM(Q_match) {}
-    C4_THDM(double Q_match, int gen) : C4(Q_match), WilsonCoefficient_THDM(Q_match) {this->gen = gen;
-    thdm_params->set_gen(gen);
-    }
+    C4_THDM(double Q_match, int gen) : C4(Q_match), WilsonCoefficient_THDM(Q_match) {}
     C4_THDM() : C4() {
 
     }
@@ -80,9 +74,7 @@ public:
 class C5_THDM : public C5, public WilsonCoefficient_THDM {
 public:
     C5_THDM(double Q_match) : C5(Q_match), WilsonCoefficient_THDM(Q_match) {}
-    C5_THDM(double Q_match, int gen) : C5(Q_match), WilsonCoefficient_THDM(Q_match) {this->gen = gen;
-    thdm_params->set_gen(gen);
-    }
+    C5_THDM(double Q_match, int gen) : C5(Q_match), WilsonCoefficient_THDM(Q_match) {}
     C5_THDM() : C5() {
 
     }
@@ -96,9 +88,7 @@ public:
 class C6_THDM : public C6, public WilsonCoefficient_THDM {
 public:
     C6_THDM(double Q_match) : C6(Q_match), WilsonCoefficient_THDM(Q_match) {}
-    C6_THDM(double Q_match, int gen) : C6(Q_match), WilsonCoefficient_THDM(Q_match) {this->gen = gen;
-    thdm_params->set_gen(gen);
-    }
+    C6_THDM(double Q_match, int gen) : C6(Q_match), WilsonCoefficient_THDM(Q_match) {}
     C6_THDM() : C6() {
 
     }
@@ -112,9 +102,7 @@ public:
 class C7_THDM : public C7, public WilsonCoefficient_THDM {
 public:
     C7_THDM(double Q_match) : C7(Q_match), WilsonCoefficient_THDM(Q_match) {}
-    C7_THDM(double Q_match, int gen) : C7(Q_match), WilsonCoefficient_THDM(Q_match) {this->gen = gen;
-    thdm_params->set_gen(gen);
-    }
+    C7_THDM(double Q_match, int gen) : C7(Q_match), WilsonCoefficient_THDM(Q_match) {}
     C7_THDM() : C7() {
 
     }
@@ -128,9 +116,7 @@ public:
 class C8_THDM : public C8, public WilsonCoefficient_THDM {
 public:
     C8_THDM(double Q_match) : C8(Q_match), WilsonCoefficient_THDM(Q_match) {}
-    C8_THDM(double Q_match, int gen) : C8(Q_match), WilsonCoefficient_THDM(Q_match) {this->gen = gen;
-    thdm_params->set_gen(gen);
-    }
+    C8_THDM(double Q_match, int gen) : C8(Q_match), WilsonCoefficient_THDM(Q_match) {}
     C8_THDM() : C8() {
 
     }
@@ -144,9 +130,7 @@ public:
 class C9_THDM : public C9, public WilsonCoefficient_THDM {
 public:
     C9_THDM(double Q_match) : C9(Q_match), WilsonCoefficient_THDM(Q_match) {}
-    C9_THDM(double Q_match, int gen) : C9(Q_match), WilsonCoefficient_THDM(Q_match) {this->gen = gen;
-    thdm_params->set_gen(gen);
-    }
+    C9_THDM(double Q_match, int gen) : C9(Q_match), WilsonCoefficient_THDM(Q_match) {}
     C9_THDM() : C9() {
 
     }
@@ -160,9 +144,7 @@ public:
 class C10_THDM : public C10, public WilsonCoefficient_THDM {
 public:
     C10_THDM(double Q_match) : C10(Q_match), WilsonCoefficient_THDM(Q_match) {}
-    C10_THDM(double Q_match, int gen) : C10(Q_match), WilsonCoefficient_THDM(Q_match) {this->gen = gen;
-    thdm_params->set_gen(gen);
-    }
+    C10_THDM(double Q_match, int gen) : C10(Q_match), WilsonCoefficient_THDM(Q_match) {}
     C10_THDM() : C10() {
 
     }
@@ -176,9 +158,7 @@ public:
 class CQ1_THDM : public CQ1, public WilsonCoefficient_THDM {
 public:
     CQ1_THDM(double Q_match) : CQ1(Q_match), WilsonCoefficient_THDM(Q_match) {}
-    CQ1_THDM(double Q_match, int gen) : CQ1(Q_match), WilsonCoefficient_THDM(Q_match) {this->gen = gen;
-    thdm_params->set_gen(gen);
-    }
+    CQ1_THDM(double Q_match, int gen) : CQ1(Q_match), WilsonCoefficient_THDM(Q_match) {}
     CQ1_THDM() : CQ1() {
 
     }
@@ -192,9 +172,7 @@ public:
 class CQ2_THDM : public CQ2, public WilsonCoefficient_THDM {
 public:
     CQ2_THDM(double Q_match) : CQ2(Q_match), WilsonCoefficient_THDM(Q_match) {}
-    CQ2_THDM(double Q_match, int gen) : CQ2(Q_match), WilsonCoefficient_THDM(Q_match) {this->gen = gen;
-    thdm_params->set_gen(gen);
-    }
+    CQ2_THDM(double Q_match, int gen) : CQ2(Q_match), WilsonCoefficient_THDM(Q_match) {}
     CQ2_THDM() : CQ2() {
 
     }
@@ -208,9 +186,7 @@ public:
 class CP1_THDM : public CP1, public WilsonCoefficient_THDM {
 public:
     CP1_THDM(double Q_match) : CP1(Q_match), WilsonCoefficient_THDM(Q_match) {}
-    CP1_THDM(double Q_match, int gen) : CP1(Q_match), WilsonCoefficient_THDM(Q_match) {this->gen = gen;
-    thdm_params->set_gen(gen);
-    }
+    CP1_THDM(double Q_match, int gen) : CP1(Q_match), WilsonCoefficient_THDM(Q_match) {}
     CP1_THDM() : CP1() {
 
     }
@@ -224,9 +200,7 @@ public:
 class CP2_THDM : public CP2, public WilsonCoefficient_THDM {
 public:
     CP2_THDM(double Q_match) : CP2(Q_match), WilsonCoefficient_THDM(Q_match) {}
-    CP2_THDM(double Q_match, int gen) : CP2(Q_match), WilsonCoefficient_THDM(Q_match) {this->gen = gen;
-    thdm_params->set_gen(gen);
-    }
+    CP2_THDM(double Q_match, int gen) : CP2(Q_match), WilsonCoefficient_THDM(Q_match) {}
     CP2_THDM() : CP2() {
 
     }
@@ -240,9 +214,7 @@ public:
 class CP3_THDM : public CP3, public WilsonCoefficient_THDM {
 public:
     CP3_THDM(double Q_match) : CP3(Q_match), WilsonCoefficient_THDM(Q_match) {}
-    CP3_THDM(double Q_match, int gen) : CP3(Q_match), WilsonCoefficient_THDM(Q_match) {this->gen = gen;
-    thdm_params->set_gen(gen);
-    }
+    CP3_THDM(double Q_match, int gen) : CP3(Q_match), WilsonCoefficient_THDM(Q_match) {}
     CP3_THDM() : CP3() {
 
     }
@@ -256,9 +228,7 @@ public:
 class CP4_THDM : public CP4, public WilsonCoefficient_THDM {
 public:
     CP4_THDM(double Q_match) : CP4(Q_match), WilsonCoefficient_THDM(Q_match) {}
-    CP4_THDM(double Q_match, int gen) : CP4(Q_match), WilsonCoefficient_THDM(Q_match) {this->gen = gen;
-    thdm_params->set_gen(gen);
-    }
+    CP4_THDM(double Q_match, int gen) : CP4(Q_match), WilsonCoefficient_THDM(Q_match) {}
     CP4_THDM() : CP4() {
 
     }
@@ -272,9 +242,7 @@ public:
 class CP5_THDM : public CP5, public WilsonCoefficient_THDM {
 public:
     CP5_THDM(double Q_match) : CP5(Q_match), WilsonCoefficient_THDM(Q_match) {}
-    CP5_THDM(double Q_match, int gen) : CP5(Q_match), WilsonCoefficient_THDM(Q_match) {this->gen = gen;
-    thdm_params->set_gen(gen);
-    }
+    CP5_THDM(double Q_match, int gen) : CP5(Q_match), WilsonCoefficient_THDM(Q_match) {}
     CP5_THDM() : CP5() {
 
     }
@@ -288,9 +256,7 @@ public:
 class CP6_THDM : public CP6, public WilsonCoefficient_THDM {
 public:
     CP6_THDM(double Q_match) : CP6(Q_match), WilsonCoefficient_THDM(Q_match) {}
-    CP6_THDM(double Q_match, int gen) : CP6(Q_match), WilsonCoefficient_THDM(Q_match) {this->gen = gen;
-    thdm_params->set_gen(gen);
-    }
+    CP6_THDM(double Q_match, int gen) : CP6(Q_match), WilsonCoefficient_THDM(Q_match) {}
     CP6_THDM() : CP6() {
 
     }
@@ -304,9 +270,7 @@ public:
 class CP7_THDM : public CP7, public WilsonCoefficient_THDM {
 public:
     CP7_THDM(double Q_match) : CP7(Q_match) , WilsonCoefficient_THDM(Q_match){}
-    CP7_THDM(double Q_match, int gen) : CP7(Q_match), WilsonCoefficient_THDM(Q_match) {this->gen = gen;
-    thdm_params->set_gen(gen);
-    }
+    CP7_THDM(double Q_match, int gen) : CP7(Q_match), WilsonCoefficient_THDM(Q_match) {}
     CP7_THDM() : CP7() {
 
     }
@@ -320,9 +284,7 @@ public:
 class CP8_THDM : public CP8, public WilsonCoefficient_THDM {
 public:
     CP8_THDM(double Q_match) : CP8(Q_match), WilsonCoefficient_THDM(Q_match) {}
-    CP8_THDM(double Q_match, int gen) : CP8(Q_match) , WilsonCoefficient_THDM(Q_match){this->gen = gen;
-    thdm_params->set_gen(gen);
-    }
+    CP8_THDM(double Q_match, int gen) : CP8(Q_match) , WilsonCoefficient_THDM(Q_match) {}
     CP8_THDM() : CP8() {
 
     }
@@ -336,9 +298,7 @@ public:
 class CP9_THDM : public CP9, public WilsonCoefficient_THDM {
 public:
     CP9_THDM(double Q_match) : CP9(Q_match), WilsonCoefficient_THDM(Q_match) {}
-    CP9_THDM(double Q_match, int gen) : CP9(Q_match), WilsonCoefficient_THDM(Q_match) {this->gen = gen;
-    thdm_params->set_gen(gen);
-    }
+    CP9_THDM(double Q_match, int gen) : CP9(Q_match), WilsonCoefficient_THDM(Q_match) {}
     CP9_THDM() : CP9() {
 
     }
@@ -352,9 +312,7 @@ public:
 class CP10_THDM : public CP10, public WilsonCoefficient_THDM {
 public:
     CP10_THDM(double Q_match) : CP10(Q_match), WilsonCoefficient_THDM(Q_match) {}
-    CP10_THDM(double Q_match, int gen) : CP10(Q_match), WilsonCoefficient_THDM(Q_match) {this->gen = gen;
-    thdm_params->set_gen(gen);
-    }
+    CP10_THDM(double Q_match, int gen) : CP10(Q_match), WilsonCoefficient_THDM(Q_match) {}
     CP10_THDM() : CP10() {
 
     }
@@ -368,9 +326,7 @@ public:
 class CPQ1_THDM : public CPQ1, public WilsonCoefficient_THDM {
 public:
     CPQ1_THDM(double Q_match) : CPQ1(Q_match), WilsonCoefficient_THDM(Q_match) {}
-    CPQ1_THDM(double Q_match, int gen) : CPQ1(Q_match), WilsonCoefficient_THDM(Q_match) {this->gen = gen;
-    thdm_params->set_gen(gen);
-    }
+    CPQ1_THDM(double Q_match, int gen) : CPQ1(Q_match), WilsonCoefficient_THDM(Q_match) {}
     CPQ1_THDM() : CPQ1() {
 
     }
@@ -384,9 +340,7 @@ public:
 class CPQ2_THDM : public CPQ2, public WilsonCoefficient_THDM {
 public:
     CPQ2_THDM(double Q_match) : CPQ2(Q_match), WilsonCoefficient_THDM(Q_match) {}
-    CPQ2_THDM(double Q_match, int gen) : CPQ2(Q_match), WilsonCoefficient_THDM(Q_match) {this->gen = gen;
-    thdm_params->set_gen(gen);
-    }
+    CPQ2_THDM(double Q_match, int gen) : CPQ2(Q_match), WilsonCoefficient_THDM(Q_match) {}
     CPQ2_THDM() : CPQ2() {
 
     }

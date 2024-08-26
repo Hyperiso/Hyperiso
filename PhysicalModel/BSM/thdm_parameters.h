@@ -32,7 +32,6 @@ public:
     void set_sm_parameters(Parameters* sm) {this->sm = sm;}
     void set_mod_parameters(Parameters* sm) {this->mod = mod;}
     void set_params(double Q_match);
-    void set_gen(int new_gen) {this->gen = new_gen; le = (*mod)("YL",10*(gen-1)+gen-1); ml = (*sm)("MASS", 13+2*(this->gen-2));}
 
     double mass_top_muW=(*sm).running_mass((*sm)("MASS",6), (*sm)("MASS",6),scale, "running", "pole");
 	double mass_b_muW=(*sm).running_mass((*sm)("MASS",5), (*sm)("MASS",5), scale);
@@ -41,14 +40,19 @@ public:
     double xt= pow(mass_top_muW/(*sm)("MASS",24),2.); // W boson mass (24)
 	double yt= pow(mass_top_muW/(*mod)("MASS",37),2.); // param->mass_H (25)
     double xh=pow((*mod)("MASS",25)/(*sm)("MASS",24),2.);
-
+    double alpha=(*mod)("ALPHA", 0);
 	double L; // scale -> mu_W
 	double alphas_muW;
 	double z;
     double m_H = (*mod)("MASS", 37);
-    int gen{3};
-    double ml = (*sm)("MASS", 13+2*(this->gen-2));
+    
+    double beta=atan((*mod)("HMIX", 2));
+
+	double xH=pow((*mod)("MASS",37)/(*sm)("MASS",24),2.);
+	double xH0=pow((*mod)("MASS",35)/(*sm)("MASS",24),2.);
+	double xA=pow((*mod)("MASS",36)/(*sm)("MASS",24),2.);
+
     double lu = (*mod)("YU", 22);;
 	double ld = (*mod)("YD", 22);
-    double le = (*mod)("YL",10*(gen-1)+gen-1);
+    
 };

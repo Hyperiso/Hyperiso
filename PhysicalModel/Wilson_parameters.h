@@ -13,6 +13,7 @@ class Wilson_parameters {
 public:
     static constexpr int arraySize {10};
 
+    Parameters* sm = Parameters::GetInstance();
     double alphas_muW;
     double alphas_mu;
     double eta_mu;
@@ -22,6 +23,17 @@ public:
     
     double mass_top_muW;
     double mass_b_muW;
+    double mass_b_muW_2;
+    double mass_c_muW;
+
+    int nf=5;
+	double beta0 = 11.-2./3.*nf;
+    int gen{3};
+    double ml;
+	double xt2;
+	double xt3;
+	double xt4;
+	double xh;
 
     std::array<std::array<std::array<double, 10>, 10>, 10> m00;
     std::array<std::array<std::array<double, 10>, 10>, 10> m10;
@@ -46,6 +58,7 @@ public:
 
     void SetMu(double mu);
     void SetMuW(double mu_W);
+    void set_gen(int new_gen) {this->gen = new_gen; this->ml = (*sm)("MASS", 13+2*(this->gen-2));}
     Wilson_parameters(const Wilson_parameters&) = delete;
     void operator=(const Wilson_parameters&) = delete;
     

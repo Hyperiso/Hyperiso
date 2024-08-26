@@ -1212,7 +1212,7 @@ Wilson_parameters* Wilson_parameters::GetInstance() {
 
 void Wilson_parameters::SetMuW(double mu_W) {
 	
-	Parameters* sm = Parameters::GetInstance();
+	
 
 	this->mu_W = mu_W;
 	LOG_DEBUG("mu_W : " + std::to_string(mu_W));
@@ -1225,9 +1225,18 @@ void Wilson_parameters::SetMuW(double mu_W) {
 
 	mass_b_muW=(*sm).running_mass((*sm)("MASS",5), (*sm)("MASS",5), mu_W, "running"); //mass bottom 6 (at pole)
 	LOG_DEBUG("mass_b_muW : " + std::to_string(mass_b_muW));
-
+	mass_b_muW_2=(*sm).running_mass((*sm)("MASS",5), (*sm)("MASS",5), mu_W);
+	mass_c_muW=(*sm).running_mass((*sm)("MASS", 4),(*sm)("MASS", 4),mu_W,"pole");
 	sw2=pow(sin(atan((*sm)("GAUGE",1)/(*sm)("GAUGE",2))),2.);
 	xt = std::pow(mass_top_muW / (*sm)("MASS",24), 2);
+	ml = (*sm)("MASS", 13+2*(this->gen-2));
+	nf=5;
+	beta0 = 11.-2./3.*nf;
+
+	xt2=xt*xt;
+	xt3=xt*xt2;
+	xt4=xt*xt3;
+	xh=pow((*sm)("MASS",25)/(*sm)("MASS",24),2.);
 
 	LOG_DEBUG("Alpha_s at " +std::to_string(mu_W) +" : " + std::to_string(alphas_muW));
 	LOG_DEBUG("Mass of top quark at scale: " + std::to_string(mass_top_muW));
