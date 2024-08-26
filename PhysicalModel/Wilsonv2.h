@@ -210,6 +210,175 @@ public:
     Parameters* sm = Parameters::GetInstance();
 };
 
+
+class CQ1 : public WilsonCoefficient {
+public:
+    CQ1(double Q_match) : WilsonCoefficient(Q_match) {this->set_name("CQ1");}
+    CQ1() : WilsonCoefficient() {this->set_name("CQ1");}
+
+    std::complex<double> LO_calculation();
+    std::complex<double> NLO_calculation();
+    std::complex<double> NNLO_calculation();
+
+    Parameters* sm = Parameters::GetInstance();
+};
+
+class CQ2 : public WilsonCoefficient {
+public:
+    CQ2(double Q_match) : WilsonCoefficient(Q_match) {this->set_name("CQ2");}
+    CQ2() : WilsonCoefficient() {this->set_name("CQ2");}
+
+    std::complex<double> LO_calculation();
+    std::complex<double> NLO_calculation();
+    std::complex<double> NNLO_calculation();
+
+    Parameters* sm = Parameters::GetInstance();
+};
+
+class CP1 : public WilsonCoefficient {
+public:
+    CP1(double Q_match) : WilsonCoefficient(Q_match) {this->set_name("CP1");}
+    CP1() : WilsonCoefficient() {this->set_name("CP1");}
+
+    std::complex<double> LO_calculation();
+    std::complex<double> NLO_calculation();
+    std::complex<double> NNLO_calculation();
+
+    Parameters* sm = Parameters::GetInstance();
+};
+
+class CP2 : public WilsonCoefficient {
+public:
+    CP2(double Q_match) : WilsonCoefficient(Q_match) {this->set_name("CP2");}
+    CP2() : WilsonCoefficient() {this->set_name("CP2");}
+
+    std::complex<double> LO_calculation();
+    std::complex<double> NLO_calculation();
+    std::complex<double> NNLO_calculation();
+
+    Parameters* sm = Parameters::GetInstance();
+};
+
+class CP3 : public WilsonCoefficient {
+public:
+    CP3(double Q_match) : WilsonCoefficient(Q_match) {this->set_name("CP3");}
+    CP3() : WilsonCoefficient() {this->set_name("CP3");}
+
+    std::complex<double> LO_calculation();
+    std::complex<double> NLO_calculation();
+    std::complex<double> NNLO_calculation();
+
+    Parameters* sm = Parameters::GetInstance();
+};
+
+class CP4 : public WilsonCoefficient {
+public:
+    CP4(double Q_match) : WilsonCoefficient(Q_match) {this->set_name("CP4");}
+    CP4() : WilsonCoefficient() {this->set_name("CP4");}
+
+    std::complex<double> LO_calculation();
+    std::complex<double> NLO_calculation();
+    std::complex<double> NNLO_calculation();
+
+    Parameters* sm = Parameters::GetInstance();
+};
+
+class CP5 : public WilsonCoefficient {
+public:
+    CP5(double Q_match) : WilsonCoefficient(Q_match) {this->set_name("CP5");}
+    CP5() : WilsonCoefficient() {this->set_name("CP5");}
+
+    std::complex<double> LO_calculation();
+    std::complex<double> NLO_calculation();
+    std::complex<double> NNLO_calculation();
+
+    Parameters* sm = Parameters::GetInstance();
+};
+
+class CP6 : public WilsonCoefficient {
+public:
+    CP6(double Q_match) : WilsonCoefficient(Q_match) {this->set_name("CP6");}
+    CP6() : WilsonCoefficient() {this->set_name("CP6");}
+
+    std::complex<double> LO_calculation();
+    std::complex<double> NLO_calculation();
+    std::complex<double> NNLO_calculation();
+
+    Parameters* sm = Parameters::GetInstance();
+};
+
+class CP7 : public WilsonCoefficient {
+public:
+    CP7(double Q_match) : WilsonCoefficient(Q_match) {this->set_name("CP7");}
+    CP7() : WilsonCoefficient() {this->set_name("CP7");}
+
+    std::complex<double> LO_calculation();
+    std::complex<double> NLO_calculation();
+    std::complex<double> NNLO_calculation();
+
+    Parameters* sm = Parameters::GetInstance();
+};
+
+class CP8 : public WilsonCoefficient {
+public:
+    CP8(double Q_match) : WilsonCoefficient(Q_match) {this->set_name("CP8");}
+    CP8() : WilsonCoefficient() {this->set_name("CP8");}
+
+    std::complex<double> LO_calculation();
+    std::complex<double> NLO_calculation();
+    std::complex<double> NNLO_calculation();
+
+    Parameters* sm = Parameters::GetInstance();
+};
+
+class CP9 : public WilsonCoefficient {
+public:
+    CP9(double Q_match) : WilsonCoefficient(Q_match) {this->set_name("CP9");}
+    CP9() : WilsonCoefficient() {this->set_name("CP9");}
+
+    std::complex<double> LO_calculation();
+    std::complex<double> NLO_calculation();
+    std::complex<double> NNLO_calculation();
+
+    Parameters* sm = Parameters::GetInstance();
+};
+
+class CP10 : public WilsonCoefficient {
+public:
+    CP10(double Q_match) : WilsonCoefficient(Q_match) {this->set_name("CP10");}
+    CP10() : WilsonCoefficient() {this->set_name("CP10");}
+
+    std::complex<double> LO_calculation();
+    std::complex<double> NLO_calculation();
+    std::complex<double> NNLO_calculation();
+
+    Parameters* sm = Parameters::GetInstance();
+};
+
+class CPQ1 : public WilsonCoefficient {
+public:
+    CPQ1(double Q_match) : WilsonCoefficient(Q_match) {this->set_name("CPQ1");}
+    CPQ1() : WilsonCoefficient() {this->set_name("CPQ1");}
+
+    std::complex<double> LO_calculation();
+    std::complex<double> NLO_calculation();
+    std::complex<double> NNLO_calculation();
+
+    Parameters* sm = Parameters::GetInstance();
+};
+
+class CPQ2 : public WilsonCoefficient {
+public:
+    CPQ2(double Q_match) : WilsonCoefficient(Q_match) {this->set_name("CPQ2");}
+    CPQ2() : WilsonCoefficient() {this->set_name("CPQ2");}
+
+    std::complex<double> LO_calculation();
+    std::complex<double> NLO_calculation();
+    std::complex<double> NNLO_calculation();
+
+    Parameters* sm = Parameters::GetInstance();
+};
+
 std::ostream& operator<<(std::ostream& os, WilsonCoefficient& coeff) {
     os << "WilsonCoefficient " << coeff.get_name() << "has matching value (" << coeff.get_Q_match() << " GeV) : " << coeff.get_CoefficientMatchingValue("LO") << " at LO" << std::endl;
     os<< ", " << coeff.get_CoefficientMatchingValue("NLO") << " at NLO, " << coeff.get_CoefficientMatchingValue("NNLO") << "at NNLO" << std::endl;
@@ -265,13 +434,13 @@ public:
         this->insert(std::make_pair("C1", std::make_unique<C1>())); this->insert(std::make_pair("C2", std::make_unique<C2>())); this->insert(std::make_pair("C3", std::make_unique<C3>()));
         this->insert(std::make_pair("C4", std::make_unique<C4>()));  this->insert(std::make_pair("C5", std::make_unique<C5>())); this->insert(std::make_pair("C6", std::make_unique<C6>())); 
         this->insert(std::make_pair("C7", std::make_unique<C7>()));  this->insert(std::make_pair("C8", std::make_unique<C8>()));  this->insert(std::make_pair("C9", std::make_unique<C9>())); 
-        this->insert(std::make_pair("C10", std::make_unique<C10>())); 
+        this->insert(std::make_pair("C10", std::make_unique<CP10>())); 
     }
     BCoefficientGroup(double Q_match) {
         this->insert(std::make_pair("C1", std::make_unique<C1>(Q_match))); this->insert(std::make_pair("C2", std::make_unique<C2>(Q_match))); this->insert(std::make_pair("C3", std::make_unique<C3>(Q_match)));
         this->insert(std::make_pair("C4", std::make_unique<C4>(Q_match)));  this->insert(std::make_pair("C5", std::make_unique<C5>(Q_match))); this->insert(std::make_pair("C6", std::make_unique<C6>(Q_match))); 
         this->insert(std::make_pair("C7", std::make_unique<C7>(Q_match)));  this->insert(std::make_pair("C8", std::make_unique<C8>(Q_match)));  this->insert(std::make_pair("C9", std::make_unique<C9>(Q_match))); 
-        this->insert(std::make_pair("C10", std::make_unique<C10>(Q_match)));
+        this->insert(std::make_pair("C10", std::make_unique<CP10>(Q_match)));
     }
 
     void set_base_1_LO();
@@ -289,13 +458,33 @@ private:
 
 };
 
-class BScalarPrimeCoefficientGroup : public CoefficientGroup {
-
-    BScalarPrimeCoefficientGroup() {
-
+class BPrimeCoefficientGroup : public CoefficientGroup {
+public:
+    BPrimeCoefficientGroup() {
+        this->insert(std::make_pair("CP1", std::make_unique<CP1>())); this->insert(std::make_pair("CP2", std::make_unique<CP2>())); this->insert(std::make_pair("CP3", std::make_unique<CP3>()));
+        this->insert(std::make_pair("CP4", std::make_unique<CP4>()));  this->insert(std::make_pair("CP5", std::make_unique<CP5>())); this->insert(std::make_pair("CP6", std::make_unique<CP6>())); 
+        this->insert(std::make_pair("CP7", std::make_unique<CP7>()));  this->insert(std::make_pair("CP8", std::make_unique<CP8>()));  this->insert(std::make_pair("CP9", std::make_unique<CP9>())); 
+        this->insert(std::make_pair("CP10", std::make_unique<CP10>())); this->insert(std::make_pair("CPQ1", std::make_unique<CPQ1>())); this->insert(std::make_pair("CPQ2", std::make_unique<CPQ2>())); 
     }
-    BScalarPrimeCoefficientGroup(double Q_match) {
+    BPrimeCoefficientGroup(double Q_match) {
+        this->insert(std::make_pair("CP1", std::make_unique<CP1>(Q_match))); this->insert(std::make_pair("CP2", std::make_unique<CP2>(Q_match))); this->insert(std::make_pair("CP3", std::make_unique<CP3>(Q_match)));
+        this->insert(std::make_pair("CP4", std::make_unique<CP4>(Q_match)));  this->insert(std::make_pair("CP5", std::make_unique<CP5>(Q_match))); this->insert(std::make_pair("CP6", std::make_unique<CP6>(Q_match))); 
+        this->insert(std::make_pair("CP7", std::make_unique<CP7>(Q_match)));  this->insert(std::make_pair("CP8", std::make_unique<CP8>(Q_match)));  this->insert(std::make_pair("CP9", std::make_unique<CP9>(Q_match))); 
+        this->insert(std::make_pair("CP10", std::make_unique<CP10>(Q_match))); this->insert(std::make_pair("CPQ1", std::make_unique<CPQ1>(Q_match))); this->insert(std::make_pair("CPQ2", std::make_unique<CPQ2>(Q_match)));
+    }
 
+    void set_base_1();
+    void set_base_2();
+
+};
+
+class BScalarCoefficientGroup : public CoefficientGroup {
+public:
+    BScalarCoefficientGroup() {
+        this->insert(std::make_pair("CQ1", std::make_unique<CQ1>())); this->insert(std::make_pair("CQ2", std::make_unique<CQ2>()));
+    }
+    BScalarCoefficientGroup(double Q_match) {
+        this->insert(std::make_pair("CQ1", std::make_unique<CQ1>(Q_match))); this->insert(std::make_pair("CQ2", std::make_unique<CQ2>(Q_match)));
     }
 
     void set_base_1();
