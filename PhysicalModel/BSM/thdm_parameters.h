@@ -27,7 +27,6 @@ public:
     }
     void set_lu(double lu) {this->lu = lu;}
     void set_ld(double ld) {this->ld = ld;}
-    void set_le(double le) {this->le = le;}
 
     void set_sm_parameters(Parameters* sm) {this->sm = sm;}
     void set_mod_parameters(Parameters* sm) {this->mod = mod;}
