@@ -467,6 +467,7 @@ public:
     void set_base_2_NNLO();
 
     void set_W_params(Wilson_parameters* new_W_param) {this->W_param = new_W_param; for(auto& coeff : *this) {coeff.second->set_Wilson_Parameters(new_W_param);}}
+    void set_gen(int new_gen) {this->W_param->set_gen(new_gen);}
 protected:
     Wilson_parameters* W_param = Wilson_parameters::GetInstance();
 
