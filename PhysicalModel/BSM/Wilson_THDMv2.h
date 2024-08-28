@@ -121,7 +121,7 @@ public:
 
     }
 
-    std::complex<double> LO_calculation() {return {0,0};} 
+    std::complex<double> LO_calculation();
     std::complex<double> NLO_calculation();
     std::complex<double> NNLO_calculation() {return {0,0};} 
 
@@ -135,7 +135,7 @@ public:
 
     }
 
-    std::complex<double> LO_calculation() {return {0,0};} 
+    std::complex<double> LO_calculation();
     std::complex<double> NLO_calculation();
     std::complex<double> NNLO_calculation() {return {0,0};} 
 
@@ -149,7 +149,7 @@ public:
 
     }
 
-    std::complex<double> LO_calculation() {return {0,0};} 
+    std::complex<double> LO_calculation();
     std::complex<double> NLO_calculation();
     std::complex<double> NNLO_calculation() {return {0,0};} 
 
@@ -163,7 +163,7 @@ public:
 
     }
 
-    std::complex<double> LO_calculation() {return {0,0};} 
+    std::complex<double> LO_calculation();
     std::complex<double> NLO_calculation();
     std::complex<double> NNLO_calculation() {return {0,0};} 
 
@@ -177,7 +177,7 @@ public:
 
     }
 
-    std::complex<double> LO_calculation() {return {0,0};} 
+    std::complex<double> LO_calculation();
     std::complex<double> NLO_calculation();
     std::complex<double> NNLO_calculation() {return {0,0};} 
 

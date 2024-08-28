@@ -27,18 +27,18 @@ endif()
 
 add_library(PhysicalModelLib STATIC 
     Wilson_parameters.cpp
-    Wilson.cpp
+    Wilsonv2.cpp
     BSM/epsilon_calculator.cpp
     BSM/susy_parameters.cpp
-    BSM/Wilson_susy.cpp
-    BSM/Wilson_THDM.cpp)
+    BSM/Wilson_susyv2.cpp
+    BSM/Wilson_THDMv2.cpp)
 
-set_target_properties(PhysicalModelLib PROPERTIES PUBLIC_HEADER "Wilson.h;Wilson_parameters.h;epsilon_calculator.h;susy_parameters.h;Wilson_susy.h;Wilson_THDM.h")
+set_target_properties(PhysicalModelLib PROPERTIES PUBLIC_HEADER "Wilsonv2.h;Wilson_parameters.h;epsilon_calculator.h;susy_parameters.h;Wilson_susyv2.h;Wilson_THDMv2.h")
 
 target_include_directories(PhysicalModelLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/BSM)
 
 target_link_libraries(PhysicalModelLib PUBLIC CoreLib CommonLib ConfiguredModule MathLib)
 
-add_executable(test_wilson Wilsonv2.cpp)
-set_target_properties(test_wilson PROPERTIES PUBLIC_HEADER "Wilsonv2.h")
+add_executable(test_wilson main_phymod.cpp)
+# set_target_properties(test_wilson PROPERTIES PUBLIC_HEADER "Wilsonv2.h")
 target_link_libraries(test_wilson PhysicalModelLib)

@@ -248,7 +248,7 @@ susy_parameters::susy_parameters(double scale) {
 			}
 		}
 	}
-
+	m_H = (*susy)("MASS", 37);
 	// Final adjustments
 	B90c = -(B0c1 - B0c2) * kappa * std::pow((*sm)("MASS", 24), 2.0) / (2.0 * std::pow((*sm)("GAUGE",2), 2.0));
 	B100c = (B0c1 + B0c2) * kappa * std::pow((*sm)("MASS", 24), 2.0) / (2.0 * std::pow((*sm)("GAUGE",2), 2.0));

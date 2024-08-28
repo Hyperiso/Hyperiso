@@ -1,3 +1,5 @@
+#if !defined(HYPERISO_WILSON_H)
+#define HYPERISO_WILSON_H
 #include <map>
 #include <string>
 #include <complex>
@@ -7,6 +9,7 @@
 #include "Parameters.h"
 #include "Logger.h"
 #include "Wilson_parameters.h"
+
 
 class WilsonCoefficient {
 protected:
@@ -393,7 +396,7 @@ public:
     int gen{3};
 };
 
-std::ostream& operator<<(std::ostream& os, WilsonCoefficient& coeff) {
+inline std::ostream& operator<<(std::ostream& os, WilsonCoefficient& coeff) {
     os << "WilsonCoefficient " << coeff.get_name() << "has matching value (" << coeff.get_Q_match() << " GeV) : " << coeff.get_CoefficientMatchingValue("LO") << " at LO" << std::endl;
     os<< ", " << coeff.get_CoefficientMatchingValue("NLO") << " at NLO, " << coeff.get_CoefficientMatchingValue("NNLO") << "at NNLO" << std::endl;
     os << "and " << "has run value (" << coeff.get_Q() << " GeV) : " << coeff.get_CoefficientRunValue("LO") << " at LO" << std::endl;
@@ -473,6 +476,7 @@ protected:
 
 };
 
+
 class BPrimeCoefficientGroup : public CoefficientGroup {
 public:
     BPrimeCoefficientGroup() {
@@ -511,7 +515,7 @@ protected:
     Wilson_parameters* W_param = Wilson_parameters::GetInstance();
 };
 
-std::ostream& operator<<(std::ostream& os, BCoefficientGroup& coeffs) {
+inline std::ostream& operator<<(std::ostream& os, BCoefficientGroup& coeffs) {
     for(auto& coeff : coeffs) {
         os << coeff.second->get_name() << " --------------------------------" << std::endl;
         os << "Matching value at LO (" << coeff.second->get_Q_match() << " GeV) : " << coeff.second->get_CoefficientMatchingValue("LO") << std::endl;
@@ -523,3 +527,5 @@ std::ostream& operator<<(std::ostream& os, BCoefficientGroup& coeffs) {
     }
     return os;
 }
+
+#endif //Wilsonv2

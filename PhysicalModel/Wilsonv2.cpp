@@ -1,5 +1,5 @@
 #include "Wilsonv2.h"
-#include <iostream>
+
 
 
 std::complex<double> C1::NLO_calculation() {
@@ -306,6 +306,14 @@ void BScalarCoefficientGroup::set_base_1_LO() {
     this->at("CQ1")->set_WilsonCoeffRun("LO", coeff_temp);
     complex_t coeff_temp2= this->at("CQ2")->get_CoefficientMatchingValue("LO")* pow(W_param->eta_mu,-4./W_param->beta0);
     this->at("CQ2")->set_WilsonCoeffRun("LO", coeff_temp2);
+
+}
+
+void BScalarCoefficientGroup::set_base_1_NLO() {
+    complex_t coeff_temp= this->at("CQ1")->get_CoefficientMatchingValue("LO")* pow(W_param->eta_mu,-4./W_param->beta0)*W_param->eta_mu;
+    this->at("CQ1")->set_WilsonCoeffRun("LO", coeff_temp);
+    complex_t coeff_temp2= this->at("CQ2")->get_CoefficientMatchingValue("LO")* pow(W_param->eta_mu,-4./W_param->beta0)*W_param->eta_mu;
+    this->at("CQ2")->set_WilsonCoeffRun("LO", coeff_temp2);
 }
 
 void BPrimeCoefficientGroup::set_base_1_LO() {
@@ -313,28 +321,10 @@ void BPrimeCoefficientGroup::set_base_1_LO() {
     this->at("CP7")->set_WilsonCoeffRun("LO", coeff_temp);
     complex_t coeff_temp2= this->at("CP8")->get_CoefficientMatchingValue("LO")* std::pow(W_param->eta_mu, 14. / 23.);
     this->at("CP8")->set_WilsonCoeffRun("LO", coeff_temp2);
-}
-int main() {
-    MemoryManager::GetInstance()->init();
 
-    C4 C4_test{81.};
-    C4_test.LO_calculation();
-    C4_test.NLO_calculation();
-    C4_test.NNLO_calculation();
+    complex_t coeff_temp3= this->at("CPQ1")->get_CoefficientMatchingValue("LO")* pow(W_param->eta_mu,-4./W_param->beta0);
+    this->at("CPQ1")->set_WilsonCoeffRun("LO", coeff_temp3);
+    complex_t coeff_temp4= this->at("CPQ2")->get_CoefficientMatchingValue("LO")* pow(W_param->eta_mu,-4./W_param->beta0);
+    this->at("CPQ2")->set_WilsonCoeffRun("LO", coeff_temp4);
 
-    BCoefficientGroup bcoeff{81.};
-    bcoeff.set_Q_run(81.);
-    bcoeff.init_LO();
-    bcoeff.set_base_1_LO();
-
-    bcoeff.init_NLO();
-    bcoeff.set_base_1_NLO();
-
-    bcoeff.init_NNLO();
-    bcoeff.set_base_1_NNLO();
-
-    std::cout <<  bcoeff << std::endl;
-
-    std::cout << ".................................................................................................." << std::endl;
-    return 0;
 }
