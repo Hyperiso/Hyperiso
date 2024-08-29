@@ -10,14 +10,13 @@ class thdm_parameters {
     double scale{81};
 	bool is_PrimeCQG = false;
 
-    explicit thdm_parameters();
+    explicit thdm_parameters() {}
     thdm_parameters(const thdm_parameters&) = delete;
     void operator=(const thdm_parameters&) = delete;
 
 
 	Parameters* mod = Parameters::GetInstance(2);
     Parameters* sm = Parameters::GetInstance();
-
 public:
     static thdm_parameters* GetInstance() {
         if (!thdm_parameters::instance) {

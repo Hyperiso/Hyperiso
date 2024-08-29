@@ -13,3 +13,5 @@ void thdm_parameters::set_params(double Q_match) {
 
     m_H = (*mod)("MASS", 37);
 }
+
+thdm_parameters* thdm_parameters::instance = nullptr;

@@ -30,10 +30,11 @@ add_library(PhysicalModelLib STATIC
     Wilsonv2.cpp
     BSM/epsilon_calculator.cpp
     BSM/susy_parameters.cpp
+    BSM/thdm_parameters.cpp
     BSM/Wilson_susyv2.cpp
     BSM/Wilson_THDMv2.cpp)
 
-set_target_properties(PhysicalModelLib PROPERTIES PUBLIC_HEADER "Wilsonv2.h;Wilson_parameters.h;epsilon_calculator.h;susy_parameters.h;Wilson_susyv2.h;Wilson_THDMv2.h")
+set_target_properties(PhysicalModelLib PROPERTIES PUBLIC_HEADER "Wilsonv2.h;Wilson_parameters.h;epsilon_calculator.h;susy_parameters.h;thdm_parameters;Wilson_susyv2.h;Wilson_THDMv2.h;WilsonManager.h")
 
 target_include_directories(PhysicalModelLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/BSM)
 
