@@ -11,8 +11,10 @@ int main() {
     auto* manager = CoefficientManager::GetInstance("StandardModel");
     manager->registerCoefficientGroup("BCoefficients", std::make_unique<BCoefficientGroup>(81.0));
     manager->registerCoefficientGroup("ScalarCoefficients", std::make_unique<BScalarCoefficientGroup>(81.0));
-
-    std::complex<double> coeffValue = manager->getCoefficient("BCoefficients", "C1", "LO");
+    manager->setGroupScale("BCoefficients", 42.);
+    manager->setQMatch();
+    manager->setMatchingCoefficient("BCoefficients", "LO");
+    manager->getRunCoefficient("BCoefficients", "C1", "LO");
     manager->setGroupScale("BCoefficients", 100.0);
     manager->printGroupCoefficients("BCoefficients");
     // C4 C4_test{81.};

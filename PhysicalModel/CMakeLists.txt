@@ -28,6 +28,7 @@ endif()
 add_library(PhysicalModelLib STATIC 
     Wilson_parameters.cpp
     Wilsonv2.cpp
+    WilsonManager.cpp
     BSM/epsilon_calculator.cpp
     BSM/susy_parameters.cpp
     BSM/thdm_parameters.cpp

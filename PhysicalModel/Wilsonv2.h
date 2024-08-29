@@ -438,6 +438,15 @@ public:
     void set_Q_match(double Q_match) {this->Q_match = Q_match; for (auto& coeff : *this) {coeff.second->set_Q_match(Q_match);}}
     void set_Q_run(double Q_run) {this->Q_run = Q_run; for (auto& coeff : *this) {coeff.second->set_Q(Q_run);}}
 
+    virtual void set_base_1_LO() =0;
+    void set_base_2_LO() {}
+
+    virtual void set_base_1_NLO() =0;
+    void set_base_2_NLO() {}
+
+    virtual void set_base_1_NNLO() =0;
+    void set_base_2_NNLO() {}
+
     double Q_match{81};
     double Q_run{81};
 };
@@ -493,8 +502,8 @@ public:
     }
 
     void set_base_1_LO();
-    void set_base_1_NLO();
-    void set_base_1_NNLO();
+    void set_base_1_NLO() {}
+    void set_base_1_NNLO() {}
 protected:
     Wilson_parameters* W_param = Wilson_parameters::GetInstance();
 };
@@ -510,7 +519,7 @@ public:
 
     void set_base_1_LO();
     void set_base_1_NLO();
-    void set_base_1_NNLO();
+    void set_base_1_NNLO() {}
 protected:
     Wilson_parameters* W_param = Wilson_parameters::GetInstance();
 };
