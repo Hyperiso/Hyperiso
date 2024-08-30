@@ -10,14 +10,14 @@ InitialState::~InitialState() {
 
 void InitialState::setQMatch(CoefficientManager* manager) {
         std::cout << "Q match set." << std::endl;
-        manager->setState(std::make_unique<QMatchSetState>());
+        manager->setState(std::make_unique<QMatchSetState>(this->EnumToString(this->currentOrder)));
 }
 
 void MatchingSetState::setGroupScale(CoefficientManager* manager, const std::string& groupName, double Q) {
         CoefficientGroup* group = manager->getCoefficientGroup(groupName);
         group->set_Q_run(Q);
         std::cout << "Scale set to " << Q << " for group: " << groupName << std::endl;
-        manager->setState(std::make_unique<QSetState>());
+        manager->setState(std::make_unique<QSetState>(this->EnumToString(this->currentOrder)));
 }
 
 
@@ -44,10 +44,13 @@ void QMatchSetState::setMatchingCoefficient(CoefficientManager* manager, const s
 
         currentOrder = newOrder;
         std::cout << "Matching coefficients set for group: " << groupName << ", order: " << order << std::endl;
-        manager->setState(std::make_unique<MatchingSetState>());
+        manager->setState(std::make_unique<MatchingSetState>(order));
 }
 
 void QSetState::setRunCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& order) {
+    std::cout << "order is LO ? " << (currentOrder == CoefficientOrder::LO) << std::endl;
+    std::cout << "order is NLO ? " << (currentOrder == CoefficientOrder::NLO) << std::endl;
+    std::cout << "order is nNLO ? " << (currentOrder == CoefficientOrder::NNLO) << std::endl;
     if (!isOrderCalculated(order)) {
         throw std::runtime_error("Matching coefficient of the requested order has not been set.");
     }
@@ -62,7 +65,7 @@ void QSetState::setRunCoefficient(CoefficientManager* manager, const std::string
     }
 
     std::cout << "Run coefficients set for group: " << groupName << ", order: " << order << std::endl;
-    manager->setState(std::make_unique<RunSetState>());
+    manager->setState(std::make_unique<RunSetState>(this->EnumToString(this->currentOrder)));
 }
 
 void MatchingSetState::getMatchingCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) {
@@ -94,6 +97,7 @@ void RunSetState::getMatchingCoefficient(CoefficientManager* manager, const std:
 }
 
 void RunSetState::getRunCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) {
+    
     if (!isOrderCalculated(order)) {
         throw std::runtime_error("Run coefficient of the requested order has not been set.");
     }

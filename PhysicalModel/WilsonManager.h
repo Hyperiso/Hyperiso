@@ -18,9 +18,19 @@ enum class CoefficientOrder {
 class State {
 protected:
     CoefficientOrder currentOrder = CoefficientOrder::NONE;
-
 public:
     virtual ~State() = default;
+
+    State() = default;
+    State(std::string order) {
+        if (order == "LO") {
+            currentOrder = CoefficientOrder::LO;
+        } else if (order == "NLO") {
+            currentOrder = CoefficientOrder::NLO;
+        } else if (order == "NNLO") {
+            currentOrder = CoefficientOrder::NNLO;
+        }
+    }
 
     virtual void setGroupScale(CoefficientManager* manager, const std::string& groupName, double Q) {
         throw std::runtime_error("Invalid state: Cannot set group scale in current state.");
@@ -58,6 +68,29 @@ public:
         }
         return false;
     }
+    std::string EnumToString(CoefficientOrder order) {
+        if (order == CoefficientOrder::LO ) {
+            return "LO";
+        } else if (order == CoefficientOrder::NLO ) {
+            return "NLO";
+        } else if (order == CoefficientOrder::NNLO ) {
+            return "NNLO";
+        } else {
+            return "None";
+        }
+          
+    }
+    CoefficientOrder StringToEnum(std::string order) {
+        if (order == "LO") {
+            return CoefficientOrder::LO;
+        } else if (order == "NLO") {
+            return CoefficientOrder::NLO;
+        } else if (order == "NNLO") {
+            return CoefficientOrder::NNLO;
+        } else {
+            return CoefficientOrder::NONE;
+        }
+    }
 };
 
 // class QStetState;
@@ -76,13 +109,14 @@ public:
 
 class QMatchSetState : public State {
 public:
-    
+    QMatchSetState(std::string order) : State(order) {}
     void setMatchingCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& order) override;
 };
 
 
 class MatchingSetState : public State {
 public:
+    MatchingSetState(std::string order) : State(order) {}
     void setGroupScale(CoefficientManager* manager, const std::string& groupName, double Q) override;
     // void setRunCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& order) override;
 
@@ -91,11 +125,13 @@ public:
 
 class QSetState : public State {
 public:
+    QSetState(std::string order) : State(order) {}
     void setRunCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& order) override;
 };
 
 class RunSetState : public State {
 public:
+    RunSetState(std::string order) : State(order) {}
     void getMatchingCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) override;
 
     void getRunCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) override;
