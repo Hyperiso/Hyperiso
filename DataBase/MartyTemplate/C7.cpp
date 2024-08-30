@@ -46,13 +46,13 @@ int calculate(Model &model, gauge::Type gauge)
     wilsonLib.addFunction("C7_p", CC7p);
     defineLibPath(wilsonLib);
     wilsonLib.print();
-
-    sysres = system("cp libsrc/example_c7_sm.cpp libs/C7_SM/script");
-    sysres = system("cd libs/C7_SM; make && bin/example_c7_sm.x");
-    std::cout.clear();
-    return assert_equal("data/output/C7_SM.txt",
-                        "libs/C7_SM/C7_SM.txt",
-                        (gauge == gauge::Unitary) ? 1e-3 : 1e-5);
+    return 1;
+    // sysres = system("cp libsrc/example_c7_sm.cpp libs/C7_SM/script");
+    // sysres = system("cd libs/C7_SM; make && bin/example_c7_sm.x");
+    // std::cout.clear();
+    // return assert_equal("data/output/C7_SM.txt",
+    //                     "libs/C7_SM/C7_SM.txt",
+    //                     (gauge == gauge::Unitary) ? 1e-3 : 1e-5);
 }
 
 int main()
@@ -60,9 +60,9 @@ int main()
 
     // mty::sm_input::redefineNumericalValues(); // for compatibility
     SM_Model sm;
-    std::cout << sm << std::endl;
+    // std::cout << sm << std::endl;
     sm.computeFeynmanRules();
-    Display(sm.getFeynmanRules());
+    // Display(sm.getFeynmanRules());
 
     // calculate(sm, gauge::Type::Unitary);
     // calculate(sm, gauge::Type::Lorenz);

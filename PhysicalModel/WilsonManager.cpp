@@ -8,17 +8,19 @@ InitialState::~InitialState() {
 
 }
 
-void InitialState::setGroupScale(CoefficientManager* manager, const std::string& groupName, double Q) {
+void InitialState::setQMatch(CoefficientManager* manager) {
+        std::cout << "Q match set." << std::endl;
+        manager->setState(std::make_unique<QMatchSetState>());
+}
+
+void MatchingSetState::setGroupScale(CoefficientManager* manager, const std::string& groupName, double Q) {
         CoefficientGroup* group = manager->getCoefficientGroup(groupName);
         group->set_Q_run(Q);
         std::cout << "Scale set to " << Q << " for group: " << groupName << std::endl;
         manager->setState(std::make_unique<QSetState>());
 }
 
-void QSetState::setQMatch(CoefficientManager* manager) {
-        std::cout << "Q match set." << std::endl;
-        manager->setState(std::make_unique<QMatchSetState>());
-}
+
 
 void QMatchSetState::setMatchingCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& order) {
         CoefficientGroup* group = manager->getCoefficientGroup(groupName);
@@ -45,7 +47,7 @@ void QMatchSetState::setMatchingCoefficient(CoefficientManager* manager, const s
         manager->setState(std::make_unique<MatchingSetState>());
 }
 
-void MatchingSetState::setRunCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& order) {
+void QSetState::setRunCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& order) {
     if (!isOrderCalculated(order)) {
         throw std::runtime_error("Matching coefficient of the requested order has not been set.");
     }

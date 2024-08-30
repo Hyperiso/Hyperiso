@@ -67,30 +67,31 @@ public:
 
 class InitialState : public State {
 public:
-    void setGroupScale(CoefficientManager* manager, const std::string& groupName, double Q) override;
+    void setQMatch(CoefficientManager* manager) override;
 
     InitialState();
     ~InitialState();
 };
 
 
-class QSetState : public State {
-public:
-    void setQMatch(CoefficientManager* manager) override;
-};
-
-
 class QMatchSetState : public State {
 public:
+    
     void setMatchingCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& order) override;
 };
 
 
 class MatchingSetState : public State {
 public:
-    void setRunCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& order) override;
+    void setGroupScale(CoefficientManager* manager, const std::string& groupName, double Q) override;
+    // void setRunCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& order) override;
 
     void getMatchingCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) override;
+};
+
+class QSetState : public State {
+public:
+    void setRunCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& order) override;
 };
 
 class RunSetState : public State {
