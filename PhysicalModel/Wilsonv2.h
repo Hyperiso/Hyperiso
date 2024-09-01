@@ -43,6 +43,37 @@ public:
 
     std::complex<double> get_CoefficientMatchingValue(std::string order) const {return this->CoefficientMatchingValue.at(order);}
     std::complex<double> get_CoefficientRunValue(std::string order) const {return this->CoefficientRunValue.at(order);}
+
+    std::complex<double> get_CoefficientFullMatchingValue(std::string order) const {
+        if (order == "LO") {
+            return this->get_CoefficientMatchingValue("LO");
+        }
+        else if (order == "NLO") {
+            return this->get_CoefficientMatchingValue("LO") + this->get_CoefficientMatchingValue("NLO");
+        }
+        else if (order == "NNLO") {
+            return this->get_CoefficientMatchingValue("NNLO") + this->get_CoefficientMatchingValue("NLO") + this->get_CoefficientMatchingValue("LO");
+        }
+        else {
+            LOG_ERROR("ValueError", "Order request for wilson getfullmatching is not possible.");
+        }
+    }
+
+    std::complex<double> get_CoefficientFullRunValue(std::string order) const {
+        if (order == "LO") {
+            return this->get_CoefficientRunValue("LO");
+        }
+        else if (order == "NLO") {
+            return this->get_CoefficientRunValue("LO") + this->get_CoefficientRunValue("NLO");
+        }
+        else if (order == "NNLO") {
+            return this->get_CoefficientRunValue("NNLO") + this->get_CoefficientRunValue("NLO") + this->get_CoefficientRunValue("LO");
+        }
+        else {
+            LOG_ERROR("ValueError", "Order request for wilson getfullrun is not possible.");
+        }
+    }
+
     double get_Q_match() const {return this->Q_match;}
     double get_Q() const {return this->Q;}
     Wilson_parameters* get_W_params() const {return this->W_param;}
@@ -51,6 +82,7 @@ public:
     virtual std::complex<double> LO_calculation() =0;
     virtual std::complex<double> NLO_calculation() = 0;
     virtual std::complex<double> NNLO_calculation() = 0;
+
 
     bool is_it_calculated(std::string order) {return this->is_calculated[order];}
 
@@ -434,6 +466,11 @@ public:
 
     double get_Q_match() {return this->Q_match;}
     double get_Q_run() {return this->Q_run;}
+    std::complex<double> getfullMatching(std::string coeff, std::string order) {return this->at(coeff)->get_CoefficientFullMatchingValue(order);}
+    std::complex<double> getfullRun(std::string coeff, std::string order) {return this->at(coeff)->get_CoefficientFullRunValue(order);}
+
+    std::complex<double> getMatching(std::string coeff, std::string order) {return this->at(coeff)->get_CoefficientMatchingValue(order);}
+    std::complex<double> getRun(std::string coeff, std::string order) {return this->at(coeff)->get_CoefficientRunValue(order);}
 
     void set_Q_match(double Q_match) {this->Q_match = Q_match; for (auto& coeff : *this) {coeff.second->set_Q_match(Q_match);}}
     void set_Q_run(double Q_run) {this->Q_run = Q_run; for (auto& coeff : *this) {coeff.second->set_Q(Q_run);}}

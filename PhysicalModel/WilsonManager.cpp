@@ -8,7 +8,9 @@ InitialState::~InitialState() {
 
 }
 
-void InitialState::setQMatch(CoefficientManager* manager) {
+void InitialState::setQMatch(CoefficientManager* manager, const std::string& groupName, double Q_match) {
+        CoefficientGroup* group = manager->getCoefficientGroup(groupName);
+        group->set_Q_match(Q_match);
         std::cout << "Q match set." << std::endl;
         manager->setState(std::make_unique<QMatchSetState>(this->EnumToString(this->currentOrder)));
 }
@@ -36,8 +38,11 @@ void QMatchSetState::setMatchingCoefficient(CoefficientManager* manager, const s
             if (order == "LO") {
                 it.second->LO_calculation();
             } else if (order == "NLO") {
+                it.second->LO_calculation();
                 it.second->NLO_calculation();
             } else if (order == "NNLO") {
+                it.second->LO_calculation();
+                it.second->NLO_calculation();
                 it.second->NNLO_calculation();
             }
         }
@@ -68,47 +73,47 @@ void QSetState::setRunCoefficient(CoefficientManager* manager, const std::string
     manager->setState(std::make_unique<RunSetState>(this->EnumToString(this->currentOrder)));
 }
 
-void MatchingSetState::getMatchingCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) {
+std::complex<double> MatchingSetState::getMatchingCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) {
     if (!isOrderCalculated(order)) {
         throw std::runtime_error("Matching coefficient of the requested order has not been set.");
     }
 
     CoefficientGroup* group = manager->getCoefficientGroup(groupName);
-    auto it = group->find(coeffName);
-    if (it != group->end()) {
-        std::cout << "Matching coefficient: " << it->second->get_CoefficientRunValue(order) << std::endl;
-    } else {
-        throw std::invalid_argument("Matching Coefficient not found.");
-    }
+    return group->getMatching(coeffName, order);
 }
 
-void RunSetState::getMatchingCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) {
+std::complex<double> MatchingSetState::getFullMatchingCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) {
+    CoefficientGroup* group = manager->getCoefficientGroup(groupName);
+    return group->getfullMatching(coeffName, order);
+}
+
+std::complex<double> RunSetState::getFullMatchingCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) {
+    CoefficientGroup* group = manager->getCoefficientGroup(groupName);
+    return group->getfullMatching(coeffName, order);
+}
+
+std::complex<double> RunSetState::getFullRunCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) {
+    CoefficientGroup* group = manager->getCoefficientGroup(groupName);
+    return group->getfullRun(coeffName, order);
+}
+
+std::complex<double> RunSetState::getMatchingCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) {
     if (!isOrderCalculated(order)) {
         throw std::runtime_error("Matching coefficient of the requested order has not been set.");
     }
-
     CoefficientGroup* group = manager->getCoefficientGroup(groupName);
-    auto it = group->find(coeffName);
-    if (it != group->end()) {
-        std::cout << "Matching coefficient: " << it->second->get_CoefficientRunValue(order) << std::endl;
-    } else {
-        throw std::invalid_argument("Matching Coefficient not found.");
-    }
+    return group->getMatching(coeffName, order);
+
 }
 
-void RunSetState::getRunCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) {
+std::complex<double> RunSetState::getRunCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) {
     
     if (!isOrderCalculated(order)) {
         throw std::runtime_error("Run coefficient of the requested order has not been set.");
     }
 
     CoefficientGroup* group = manager->getCoefficientGroup(groupName);
-    auto it = group->find(coeffName);
-    if (it != group->end()) {
-        std::cout << "Run coefficient: " << it->second->get_CoefficientMatchingValue(order) << std::endl;
-    } else {
-        throw std::invalid_argument("Run Coefficient not found.");
-    }
+    return group->getRun(coeffName, order);
 }
 
 // Initialization of the static map

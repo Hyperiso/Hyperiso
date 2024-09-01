@@ -36,7 +36,7 @@ public:
         throw std::runtime_error("Invalid state: Cannot set group scale in current state.");
     }
 
-    virtual void setQMatch(CoefficientManager* manager) {
+    virtual void setQMatch(CoefficientManager* manager, const std::string& groupName, double Q_match) {
         throw std::runtime_error("Invalid state: Cannot set Q match in current state.");
     }
 
@@ -48,12 +48,20 @@ public:
         throw std::runtime_error("Invalid state: Cannot set run coefficients in current state.");
     }
 
-    virtual void getMatchingCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) {
+    virtual std::complex<double> getMatchingCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) {
         throw std::runtime_error("Invalid state: Cannot get matching coefficients in current state.");
     }
 
-    virtual void getRunCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) {
+    virtual std::complex<double> getFullMatchingCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) {
+        throw std::runtime_error("Invalid state: Cannot get full matching coefficients in current state.");
+    }
+
+    virtual std::complex<double> getRunCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) {
         throw std::runtime_error("Invalid state: Cannot get run coefficients in current state.");
+    }
+
+    virtual std::complex<double> getFullRunCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) {
+        throw std::runtime_error("Invalid state: Cannot get full run coefficients in current state.");
     }
 
     bool isOrderCalculated(const std::string& order) {
@@ -100,7 +108,7 @@ public:
 
 class InitialState : public State {
 public:
-    void setQMatch(CoefficientManager* manager) override;
+    void setQMatch(CoefficientManager* manager, const std::string& groupName, double Q_match) override;
 
     InitialState();
     ~InitialState();
@@ -120,7 +128,8 @@ public:
     void setGroupScale(CoefficientManager* manager, const std::string& groupName, double Q) override;
     // void setRunCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& order) override;
 
-    void getMatchingCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) override;
+    std::complex<double> getMatchingCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) override;
+    std::complex<double> getFullMatchingCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) override;
 };
 
 class QSetState : public State {
@@ -132,9 +141,10 @@ public:
 class RunSetState : public State {
 public:
     RunSetState(std::string order) : State(order) {}
-    void getMatchingCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) override;
-
-    void getRunCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) override;
+    std::complex<double> getMatchingCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) override;
+    std::complex<double> getFullMatchingCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) override;
+    std::complex<double> getFullRunCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) override;
+    std::complex<double> getRunCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) override;
 };
 
 
@@ -166,8 +176,8 @@ public:
         state->setGroupScale(this, groupName, Q);
     }
 
-    void setQMatch() {
-        state->setQMatch(this);
+    void setQMatch(const std::string& groupName, double Q_match) {
+        state->setQMatch(this, groupName, Q_match);
     }
 
     inline void setMatchingCoefficient(const std::string& groupName, const std::string& order) {
@@ -178,12 +188,20 @@ public:
         state->setRunCoefficient(this, groupName, order);
     }
 
-    inline void getMatchingCoefficient(const std::string& groupName, const std::string& coeffName, const std::string& order) {
-        state->getMatchingCoefficient(this, groupName, coeffName, order);
+    inline std::complex<double> getMatchingCoefficient(const std::string& groupName, const std::string& coeffName, const std::string& order) {
+        return state->getMatchingCoefficient(this, groupName, coeffName, order);
     }
 
-    inline void getRunCoefficient(const std::string& groupName, const std::string& coeffName, const std::string& order) {
-        state->getRunCoefficient(this, groupName, coeffName, order);
+    inline std::complex<double> getFullMatchingCoefficient(const std::string& groupName, const std::string& coeffName, const std::string& order) {
+        return state->getFullMatchingCoefficient(this, groupName, coeffName, order);
+    }
+
+    inline  std::complex<double> getRunCoefficient(const std::string& groupName, const std::string& coeffName, const std::string& order) {
+        return state->getRunCoefficient(this, groupName, coeffName, order);
+    }
+
+    inline std::complex<double> getFullRunCoefficient(const std::string& groupName, const std::string& coeffName, const std::string& order) {
+        return state->getFullRunCoefficient(this, groupName, coeffName, order);
     }
 
     // Register a new coefficient group under this manager

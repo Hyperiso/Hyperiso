@@ -11,15 +11,19 @@ int main() {
     auto* manager = CoefficientManager::GetInstance("StandardModel");
     manager->registerCoefficientGroup("BCoefficients", std::make_unique<BCoefficientGroup>(81.0));
     manager->registerCoefficientGroup("ScalarCoefficients", std::make_unique<BScalarCoefficientGroup>(81.0));
-    manager->setQMatch();
+    manager->setQMatch("BCoefficients", 81.);
     manager->setMatchingCoefficient("BCoefficients", "NLO");
 
     manager->setGroupScale("BCoefficients", 42.);
     manager->setRunCoefficient("BCoefficients", "LO");
     
-    manager->getRunCoefficient("BCoefficients", "C1", "LO");
+    std::cout << "matching coeff LO : " <<  manager->getMatchingCoefficient("BCoefficients", "C7", "LO") << std::endl;
+    std::cout << "matching coeff NLO : " <<  manager->getMatchingCoefficient("BCoefficients", "C7", "NLO") << std::endl;
+    std::cout << "matching coeff full NLO : " <<  manager->getFullMatchingCoefficient("BCoefficients", "C7", "NLO") << std::endl;
+    std::cout << "run coeff : " <<  manager->getRunCoefficient("BCoefficients", "C1", "LO") << std::endl;
     // manager->setGroupScale("BCoefficients", 100.0);
-    manager->printGroupCoefficients("BCoefficients");
+    // manager->printGroupCoefficients("BCoefficients");
+
     // C4 C4_test{81.};
     // C4_test.LO_calculation();
     // C4_test.NLO_calculation();
