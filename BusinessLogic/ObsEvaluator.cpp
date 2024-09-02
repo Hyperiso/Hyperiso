@@ -18,91 +18,16 @@ void ObsEvaluator::computeWilsons(int model, int order, double scale, bool tradi
     // WilsonManager* wm;
     switch (model) {
         case 0:
-            this->manager = CoefficientManager::GetInstance("StandardModel");
-            manager->registerCoefficientGroup("BCoefficients", std::make_unique<BCoefficientGroup>(81.0));
-            manager->registerCoefficientGroup("ScalarCoefficients", std::make_unique<BScalarCoefficientGroup>(81.0));
-            manager->registerCoefficientGroup("PrimeCoefficients", std::make_unique<BPrimeCoefficientGroup>(81.0));
-            manager->setQMatch();
-            std::cout << "in ComputeWilson " << std::endl;
-            switch (order) {
-                case 0:
-                    manager->setMatchingCoefficient("BCoefficients", "LO");
-                    manager->setMatchingCoefficient("ScalarCoefficients", "LO");
-                    manager->setMatchingCoefficient("PrimeCoefficients", "LO");
-                    // wm = WilsonManager::GetInstance("LO", m_W, std::make_shared<SM_LO_Strategy>());
-                    break;
-                case 1:
-                    manager->setMatchingCoefficient("BCoefficients", "NLO");
-                    manager->setMatchingCoefficient("ScalarCoefficients", "NLO");
-                    manager->setMatchingCoefficient("PrimeCoefficients", "NLO");
-                    // wm = WilsonManager::GetInstance("NLO", m_W, std::make_shared<SM_NLO_Strategy>());
-                    break;
-                case 2:
-                    manager->setMatchingCoefficient("BCoefficients", "NNLO");
-                    manager->setMatchingCoefficient("ScalarCoefficients", "NNLO");
-                    manager->setMatchingCoefficient("PrimeCoefficients", "NNLO");
-                    // wm = WilsonManager::GetInstance("NNLO", m_W, std::make_shared<SM_NNLO_Strategy>());
-                    break;
-                default:
-                    LOG_WARN("Order too high required for SM Wilson coefficients, defaulting to order 2.");
-                    // wm = WilsonManager::GetInstance("NNLO", m_W, std::make_shared<SM_NNLO_Strategy>());
-                    manager->setMatchingCoefficient("BCoefficients", "NNLO");
-                    manager->setMatchingCoefficient("ScalarCoefficients", "NNLO");
-                    manager->setMatchingCoefficient("PrimeCoefficients", "NNLO");
-            }
+            this->manager = CoefficientManager::Builder("StandardModel", std::map<std::string,std::shared_ptr<CoefficientGroup>>({std::make_pair("BCoefficient", std::make_shared<BCoefficientGroup>(81.)),
+            std::make_pair("BCoefficient", std::make_shared<BScalarCoefficientGroup>(81.)),std::make_pair("BCoefficient", std::make_shared<BPrimeCoefficientGroup>(81.))}), m_W, scale, "LO");
             break;
         case 1:
-            this->manager = CoefficientManager::GetInstance("Susy");
-            manager->registerCoefficientGroup("BCoefficients", std::make_unique<BCoefficientGroup_SUSY>(81.0));
-            manager->registerCoefficientGroup("ScalarCoefficients", std::make_unique<BScalarCoefficientGroup_SUSY>(81.0));
-            manager->registerCoefficientGroup("PrimeCoefficients", std::make_unique<BPrimeCoefficientGroup_SUSY>(81.0));
-            switch (order) {
-                case 0:
-                    manager->setMatchingCoefficient("BCoefficients", "LO");
-                    manager->setMatchingCoefficient("ScalarCoefficients", "LO");
-                    manager->setMatchingCoefficient("PrimeCoefficients", "LO");
-                    break;
-                case 1:
-                    manager->setMatchingCoefficient("BCoefficients", "NLO");
-                    manager->setMatchingCoefficient("ScalarCoefficients", "NLO");
-                    manager->setMatchingCoefficient("PrimeCoefficients", "NLO");
-                    break;
-                case 2:
-                    manager->setMatchingCoefficient("BCoefficients", "NNLO");
-                    manager->setMatchingCoefficient("ScalarCoefficients", "NNLO");
-                    manager->setMatchingCoefficient("PrimeCoefficients", "NNLO");
-                    break;
-                default:
-                    LOG_WARN("Order too high required for SUSY Wilson coefficients, defaulting to order 2.");
-                    manager->setMatchingCoefficient("BCoefficients", "NNLO");
-                    manager->setMatchingCoefficient("ScalarCoefficients", "NNLO");
-                    manager->setMatchingCoefficient("PrimeCoefficients", "NNLO");
-            }
+            this->manager = CoefficientManager::Builder("Susy", std::map<std::string,std::shared_ptr<CoefficientGroup>>({std::make_pair("BCoefficient", std::make_shared<BCoefficientGroup_susy>(81.)),
+            std::make_pair("BCoefficient", std::make_shared<BScalarCoefficientGroup_susy>(81.)),std::make_pair("BCoefficient", std::make_shared<BPrimeCoefficientGroup_susy>(81.))}), m_W, scale, "LO");
             break;
         case 2:
-            this->manager = CoefficientManager::GetInstance("THDM");
-            switch (order) {
-                case 0:
-                    manager->registerCoefficientGroup("BCoefficients", std::make_unique<BCoefficientGroup_THDM>(81.0));
-                    manager->registerCoefficientGroup("ScalarCoefficients", std::make_unique<BScalarCoefficientGroup_THDM>(81.0));
-                    manager->registerCoefficientGroup("PrimeCoefficients", std::make_unique<BPrimeCoefficientGroup_THDM>(81.0));
-                    break;
-                case 1:
-                    manager->setMatchingCoefficient("BCoefficients", "NLO");
-                    manager->setMatchingCoefficient("ScalarCoefficients", "NLO");
-                    manager->setMatchingCoefficient("PrimeCoefficients", "NLO");
-                    break;
-                case 2:
-                    manager->setMatchingCoefficient("BCoefficients", "NNLO");
-                    manager->setMatchingCoefficient("ScalarCoefficients", "NNLO");
-                    manager->setMatchingCoefficient("PrimeCoefficients", "NNLO");
-                    break;
-                default:
-                    LOG_WARN("Order too high required for THDM Wilson coefficients, defaulting to order 2.");
-                    manager->setMatchingCoefficient("BCoefficients", "NNLO");
-                    manager->setMatchingCoefficient("ScalarCoefficients", "NNLO");
-                    manager->setMatchingCoefficient("PrimeCoefficients", "NNLO");
-            }
+            this->manager = CoefficientManager::Builder("THDM", std::map<std::string,std::shared_ptr<CoefficientGroup>>({std::make_pair("BCoefficient", std::make_shared<BCoefficientGroup_THDM>(81.)),
+            std::make_pair("BCoefficient", std::make_shared<BScalarCoefficientGroup_THDM>(81.)),std::make_pair("BCoefficient", std::make_shared<BPrimeCoefficientGroup_THDM>(81.))}), m_W, scale, "LO");
             break;
         default:
             LOG_ERROR("ModelError", "Unknown model requested for Wilson coefficient calculation.");
@@ -129,18 +54,18 @@ complex_t ObsEvaluator::Evaluate(Observable *o) {
 
     switch (o->getId()) {
         case Observables::BR_BS_MUMU:
-            return ObsEvaluator::Bs_mumu(wm, false);
+            return ObsEvaluator::Bs_mumu(false);
         case Observables::BR_BS_MUMU_UNTAG:
-            return ObsEvaluator::Bs_mumu(wm, true);
+            return ObsEvaluator::Bs_mumu(true);
         case Observables::BR_BD_MUMU:
-            return ObsEvaluator::Bd_mumu(wm);
+            return ObsEvaluator::Bd_mumu();
         case Observables::BR_BU_TAUNU:
             return ObsEvaluator::Bu_taunu(o->getModel(), false);
         case Observables::BR_BU_TAUNU_NP_ONLY:
             return ObsEvaluator::Bu_taunu(o->getModel(), true);
         case Observables::ISOSPIN_ASYMMETRY_B_KSTAR_GAMMA:
             return 0;
-            return ObsEvaluator::Delta_0_B_Kstargamma(wm, o->getScale());
+            return ObsEvaluator::Delta_0_B_Kstargamma(o->getScale());
         case Observables::LAST:
             return 0;
         case Observables::FIRST:

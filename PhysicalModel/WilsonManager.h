@@ -18,6 +18,7 @@ enum class CoefficientOrder {
 class State {
 protected:
     CoefficientOrder currentOrder = CoefficientOrder::NONE;
+    std::string state{};
 public:
     virtual ~State() = default;
 
@@ -88,6 +89,7 @@ public:
         }
           
     }
+
     CoefficientOrder StringToEnum(std::string order) {
         if (order == "LO") {
             return CoefficientOrder::LO;
@@ -98,6 +100,10 @@ public:
         } else {
             return CoefficientOrder::NONE;
         }
+    }
+
+    std::string get_state() {
+        return this->state;
     }
 };
 
@@ -112,19 +118,20 @@ public:
 
     InitialState();
     ~InitialState();
+
 };
 
 
 class QMatchSetState : public State {
 public:
-    QMatchSetState(std::string order) : State(order) {}
+    QMatchSetState(std::string order) : State(order) { this->state = "QMatchSetState";}
     void setMatchingCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& order) override;
 };
 
 
 class MatchingSetState : public State {
 public:
-    MatchingSetState(std::string order) : State(order) {}
+    MatchingSetState(std::string order) : State(order) {this->state = "MatchingSetState";}
     void setGroupScale(CoefficientManager* manager, const std::string& groupName, double Q) override;
     // void setRunCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& order) override;
 
@@ -134,13 +141,15 @@ public:
 
 class QSetState : public State {
 public:
-    QSetState(std::string order) : State(order) {}
+    QSetState(std::string order) : State(order) {this->state = "QSetState";}
     void setRunCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& order) override;
+    std::complex<double> getMatchingCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) override;
+    std::complex<double> getFullMatchingCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) override;
 };
 
 class RunSetState : public State {
 public:
-    RunSetState(std::string order) : State(order) {}
+    RunSetState(std::string order) : State(order) {this->state = "RunSetState";}
     std::complex<double> getMatchingCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) override;
     std::complex<double> getFullMatchingCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) override;
     std::complex<double> getFullRunCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) override;
@@ -166,6 +175,10 @@ public:
             return instances[modelName].get();
         }
         return it->second.get();
+    }
+
+    std::string get_state(const std::string& groupName) {
+        return ensureGroupState(groupName)->get_state();
     }
 
     void setState(const std::string& groupName, std::unique_ptr<State> newState) {
@@ -238,6 +251,7 @@ public:
             manager->setQMatch(group.first, Q_match);
             manager->setMatchingCoefficient(group.first, order);
             manager->setGroupScale(group.first, Q);
+            manager->setRunCoefficient(group.first, order);
         }
         return manager;
     }

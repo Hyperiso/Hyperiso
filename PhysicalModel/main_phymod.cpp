@@ -13,6 +13,10 @@ int main() {
 
     auto* manager = CoefficientManager::Builder("StandardModel", groups , 81., 42., "LO");
 
+    std::cout << manager->getMatchingCoefficient("BCoefficient", "C7", "LO") << std::endl;
+    std::cout << manager->getFullMatchingCoefficient("BCoefficient", "C7", "LO") << std::endl;
+
+    std::cout << manager->get_state("BCoefficient") << std::endl;
     // manager->registerCoefficientGroup("BCoefficients", std::make_unique<BCoefficientGroup>(81.0));
     // manager->registerCoefficientGroup("ScalarBCoefficients", std::make_unique<BScalarCoefficientGroup>(81.0));
     // manager->setQMatch("BCoefficients", 81.);

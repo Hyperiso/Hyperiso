@@ -1,7 +1,7 @@
 #include "WilsonManager.h"
 
 InitialState::InitialState() {
-
+    this->state = "InitialState";
 }
 
 InitialState::~InitialState() {
@@ -92,12 +92,26 @@ std::complex<double> RunSetState::getFullMatchingCoefficient(CoefficientManager*
     return group->getfullMatching(coeffName, order);
 }
 
+std::complex<double> QSetState::getFullMatchingCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) {
+    CoefficientGroup* group = manager->getCoefficientGroup(groupName);
+    return group->getfullMatching(coeffName, order);
+}
+
 std::complex<double> RunSetState::getFullRunCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) {
     CoefficientGroup* group = manager->getCoefficientGroup(groupName);
     return group->getfullRun(coeffName, order);
 }
 
 std::complex<double> RunSetState::getMatchingCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) {
+    if (!isOrderCalculated(order)) {
+        throw std::runtime_error("Matching coefficient of the requested order has not been set.");
+    }
+    CoefficientGroup* group = manager->getCoefficientGroup(groupName);
+    return group->getMatching(coeffName, order);
+
+}
+
+std::complex<double> QSetState::getMatchingCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) {
     if (!isOrderCalculated(order)) {
         throw std::runtime_error("Matching coefficient of the requested order has not been set.");
     }
