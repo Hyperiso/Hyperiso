@@ -10,17 +10,28 @@ int main() {
 
     auto* manager = CoefficientManager::GetInstance("StandardModel");
     manager->registerCoefficientGroup("BCoefficients", std::make_unique<BCoefficientGroup>(81.0));
-    manager->registerCoefficientGroup("ScalarCoefficients", std::make_unique<BScalarCoefficientGroup>(81.0));
+    manager->registerCoefficientGroup("ScalarBCoefficients", std::make_unique<BScalarCoefficientGroup>(81.0));
     manager->setQMatch("BCoefficients", 81.);
     manager->setMatchingCoefficient("BCoefficients", "NLO");
 
     manager->setGroupScale("BCoefficients", 42.);
     manager->setRunCoefficient("BCoefficients", "LO");
+
+    manager->setQMatch("ScalarBCoefficients", 81.);
+    manager->setMatchingCoefficient("ScalarBCoefficients", "NLO");
+
+    manager->setGroupScale("ScalarBCoefficients", 42.);
+    manager->setRunCoefficient("ScalarBCoefficients", "LO");
     
     std::cout << "matching coeff LO : " <<  manager->getMatchingCoefficient("BCoefficients", "C7", "LO") << std::endl;
     std::cout << "matching coeff NLO : " <<  manager->getMatchingCoefficient("BCoefficients", "C7", "NLO") << std::endl;
     std::cout << "matching coeff full NLO : " <<  manager->getFullMatchingCoefficient("BCoefficients", "C7", "NLO") << std::endl;
-    std::cout << "run coeff : " <<  manager->getRunCoefficient("BCoefficients", "C1", "LO") << std::endl;
+    std::cout << "run coeff : " <<  manager->getRunCoefficient("BCoefficients", "C7", "LO") << std::endl;
+
+    std::cout << "scalar matching coeff LO : " <<  manager->getMatchingCoefficient("ScalarBCoefficients", "CQ1", "LO") << std::endl;
+    std::cout << "scalar matching coeff NLO : " <<  manager->getMatchingCoefficient("ScalarBCoefficients", "CQ1", "NLO") << std::endl;
+    std::cout << "scalar matching coeff full NLO : " <<  manager->getFullMatchingCoefficient("ScalarBCoefficients", "CQ1", "NLO") << std::endl;
+    std::cout << "scalar run coeff : " <<  manager->getRunCoefficient("ScalarBCoefficients", "CQ1", "LO") << std::endl;
     // manager->setGroupScale("BCoefficients", 100.0);
     // manager->printGroupCoefficients("BCoefficients");
 

@@ -12,14 +12,14 @@ void InitialState::setQMatch(CoefficientManager* manager, const std::string& gro
         CoefficientGroup* group = manager->getCoefficientGroup(groupName);
         group->set_Q_match(Q_match);
         std::cout << "Q match set." << std::endl;
-        manager->setState(std::make_unique<QMatchSetState>(this->EnumToString(this->currentOrder)));
+        manager->setState(groupName, std::make_unique<QMatchSetState>(this->EnumToString(this->currentOrder)));
 }
 
 void MatchingSetState::setGroupScale(CoefficientManager* manager, const std::string& groupName, double Q) {
         CoefficientGroup* group = manager->getCoefficientGroup(groupName);
         group->set_Q_run(Q);
         std::cout << "Scale set to " << Q << " for group: " << groupName << std::endl;
-        manager->setState(std::make_unique<QSetState>(this->EnumToString(this->currentOrder)));
+        manager->setState(groupName, std::make_unique<QSetState>(this->EnumToString(this->currentOrder)));
 }
 
 
@@ -49,7 +49,7 @@ void QMatchSetState::setMatchingCoefficient(CoefficientManager* manager, const s
 
         currentOrder = newOrder;
         std::cout << "Matching coefficients set for group: " << groupName << ", order: " << order << std::endl;
-        manager->setState(std::make_unique<MatchingSetState>(order));
+        manager->setState(groupName, std::make_unique<MatchingSetState>(order));
 }
 
 void QSetState::setRunCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& order) {
@@ -70,7 +70,7 @@ void QSetState::setRunCoefficient(CoefficientManager* manager, const std::string
     }
 
     std::cout << "Run coefficients set for group: " << groupName << ", order: " << order << std::endl;
-    manager->setState(std::make_unique<RunSetState>(this->EnumToString(this->currentOrder)));
+    manager->setState(groupName, std::make_unique<RunSetState>(this->EnumToString(this->currentOrder)));
 }
 
 std::complex<double> MatchingSetState::getMatchingCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) {

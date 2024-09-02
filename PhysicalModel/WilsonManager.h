@@ -153,9 +153,9 @@ class CoefficientManager {
 private:
     static std::map<std::string, std::unique_ptr<CoefficientManager>> instances;
     std::map<std::string, std::unique_ptr<CoefficientGroup>> coefficientGroups;
-    std::unique_ptr<State> state;
+    std::map<std::string, std::unique_ptr<State>> groupStates;
 
-    CoefficientManager() : state(std::make_unique<InitialState>()) {}
+    CoefficientManager() = default;
 
 public:
     // Singleton accessor
@@ -168,45 +168,47 @@ public:
         return it->second.get();
     }
 
-    inline void setState(std::unique_ptr<State> newState) {
-        state = std::move(newState);
+    void setState(const std::string& groupName, std::unique_ptr<State> newState) {
+        groupStates[groupName] = std::move(newState);
     }
 
-    inline void setGroupScale(const std::string& groupName, double Q) {
-        state->setGroupScale(this, groupName, Q);
+    void setGroupScale(const std::string& groupName, double Q) {
+        ensureGroupState(groupName)->setGroupScale(this, groupName, Q);
     }
 
     void setQMatch(const std::string& groupName, double Q_match) {
-        state->setQMatch(this, groupName, Q_match);
+        ensureGroupState(groupName)->setQMatch(this, groupName, Q_match);
     }
 
-    inline void setMatchingCoefficient(const std::string& groupName, const std::string& order) {
-        state->setMatchingCoefficient(this, groupName, order);
+    void setMatchingCoefficient(const std::string& groupName, const std::string& order) {
+        ensureGroupState(groupName)->setMatchingCoefficient(this, groupName, order);
     }
 
-    inline void setRunCoefficient(const std::string& groupName, const std::string& order) {
-        state->setRunCoefficient(this, groupName, order);
+    void setRunCoefficient(const std::string& groupName, const std::string& order) {
+        ensureGroupState(groupName)->setRunCoefficient(this, groupName, order);
     }
 
-    inline std::complex<double> getMatchingCoefficient(const std::string& groupName, const std::string& coeffName, const std::string& order) {
-        return state->getMatchingCoefficient(this, groupName, coeffName, order);
+    std::complex<double> getMatchingCoefficient(const std::string& groupName, const std::string& coeffName, const std::string& order) {
+        return ensureGroupState(groupName)->getMatchingCoefficient(this, groupName, coeffName, order);
     }
 
-    inline std::complex<double> getFullMatchingCoefficient(const std::string& groupName, const std::string& coeffName, const std::string& order) {
-        return state->getFullMatchingCoefficient(this, groupName, coeffName, order);
+    std::complex<double> getFullMatchingCoefficient(const std::string& groupName, const std::string& coeffName, const std::string& order) {
+        return ensureGroupState(groupName)->getFullMatchingCoefficient(this, groupName, coeffName, order);
     }
 
-    inline  std::complex<double> getRunCoefficient(const std::string& groupName, const std::string& coeffName, const std::string& order) {
-        return state->getRunCoefficient(this, groupName, coeffName, order);
+    std::complex<double> getRunCoefficient(const std::string& groupName, const std::string& coeffName, const std::string& order) {
+        return ensureGroupState(groupName)->getRunCoefficient(this, groupName, coeffName, order);
     }
 
-    inline std::complex<double> getFullRunCoefficient(const std::string& groupName, const std::string& coeffName, const std::string& order) {
-        return state->getFullRunCoefficient(this, groupName, coeffName, order);
+    std::complex<double> getFullRunCoefficient(const std::string& groupName, const std::string& coeffName, const std::string& order) {
+        return ensureGroupState(groupName)->getFullRunCoefficient(this, groupName, coeffName, order);
     }
 
     // Register a new coefficient group under this manager
-    inline void registerCoefficientGroup(const std::string& groupName, std::unique_ptr<CoefficientGroup> group) {
+    void registerCoefficientGroup(const std::string& groupName, std::unique_ptr<CoefficientGroup> group) {
         coefficientGroups[groupName] = std::move(group);
+        // Initialize the state for this new group
+        groupStates[groupName] = std::make_unique<InitialState>();
     }
 
     // Get a coefficient group by name
@@ -224,144 +226,23 @@ public:
     }
 
     // Print all coefficients of a group
-    inline void printGroupCoefficients(const std::string& groupName) const {
+    void printGroupCoefficients(const std::string& groupName) const {
         CoefficientGroup* group = getCoefficientGroup(groupName);
         std::cout << *dynamic_cast<BCoefficientGroup*>(group);
     }
+
+private:
+    State* ensureGroupState(const std::string& groupName) {
+        auto it = groupStates.find(groupName);
+        if (it != groupStates.end()) {
+            return it->second.get();
+        }
+        throw std::invalid_argument("State for the group not found.");
+    }
 };
 
-
-
-
-// class CoefficientManager {
-// private:
-//     static std::map<std::string, std::unique_ptr<CoefficientManager>> instances;
-
-//     std::map<std::string, std::unique_ptr<CoefficientGroup>> coefficientGroups;
-
-
-//     CoefficientManager() = default;
-
-// public:
-//     /**
-//      * @brief Singleton accessor. Returns the instance of CoefficientManager for a specific model.
-//      * 
-//      * @param modelName The name of the model (e.g., "StandardModel", "THDM", "SUSY").
-//      * @return Pointer to the CoefficientManager instance.
-//      */
-//     static CoefficientManager* GetInstance(const std::string& modelName) {
-//         auto it = instances.find(modelName);
-//         if (it == instances.end()) {
-//             instances[modelName] = std::unique_ptr<CoefficientManager>(new CoefficientManager());
-//             return instances[modelName].get();
-//         }
-//         return it->second.get();
-//     }
-
-//     /**
-//      * @brief Register a new coefficient group under this manager.
-//      * 
-//      * @param groupName The name of the group (e.g., "BCoefficientGroup", "ScalarCoefficientGroup").
-//      * @param group The unique_ptr to the group to be registered.
-//      */
-//     void registerCoefficientGroup(const std::string& groupName, std::unique_ptr<CoefficientGroup> group) {
-//         coefficientGroups[groupName] = std::move(group);
-//     }
-
-//     /**
-//      * @brief Get a coefficient group by name.
-//      * 
-//      * @param groupName The name of the group to retrieve.
-//      * @return Pointer to the CoefficientGroup instance.
-//      */
-//     CoefficientGroup* getCoefficientGroup(const std::string& groupName) const {
-//         auto it = coefficientGroups.find(groupName);
-//         if (it != coefficientGroups.end()) {
-//             return it->second.get();
-//         }
-//         throw std::invalid_argument("CoefficientGroup not found.");
-//     }
-
-//     /**
-//      * @brief Clean up all instances.
-//      */
-//     static void Cleanup() {
-//         instances.clear();
-//     }
-
-//     /**
-//      * @brief Get the Wilson coefficient from a specific group.
-//      * 
-//      * @param groupName Name of the coefficient group.
-//      * @param coeffName Name of the coefficient.
-//      * @param order Order of the coefficient ("LO", "NLO", "NNLO").
-//      * @return The Wilson coefficient value.
-//      */
-//     std::complex<double> getCoefficient(const std::string& groupName, const std::string& coeffName, const std::string& order) const {
-//         CoefficientGroup* group = getCoefficientGroup(groupName);
-//         auto it = group->find(coeffName);
-//         if (it != group->end()) {
-//             return it->second->get_CoefficientRunValue(order);
-//         }
-//         throw std::invalid_argument("Coefficient not found.");
-//     }
-
-//     /**
-//      * @brief Set the matching Wilson coefficients from a specific group.
-//      * 
-//      * @param groupName Name of the coefficient group.
-//      * @param order Order of the coefficient ("LO", "NLO", "NNLO").
-//      * @return None.
-//      */
-//     void setMatchingCoefficient(const std::string& groupName, const std::string& order) const {
-//         CoefficientGroup* group = getCoefficientGroup(groupName);
-//         for (auto& it : *group) {
-//             if (order == "LO")
-//                 it.second->LO_calculation();
-//             if (order == "NLO")
-//                 it.second->NLO_calculation();
-//             if (order == "NNLO")
-//                 it.second->NNLO_calculation();
-//         }
-//     }
-
-//     /**
-//      * @brief Set the Run Wilson coefficient from a specific group.
-//      * 
-//      * @param groupName Name of the coefficient group.
-//      * @param order Order of the coefficient ("LO", "NLO", "NNLO").
-//      * @return None.
-//      */
-//     std::complex<double> setRunCoefficient(const std::string& groupName, const std::string& order) const {
-//         CoefficientGroup* group = getCoefficientGroup(groupName);
-//         if (order == "LO")
-//             group->set_base_1_LO();
-//         if (order == "NLO")
-//             group->set_base_1_NLO();
-//         if (order == "NNLO")
-//             group->set_base_1_NNLO();
-//     }
-//     /**
-//      * @brief Set the scale for a specific coefficient group.
-//      * 
-//      * @param groupName Name of the coefficient group.
-//      * @param Q The new scale to set.
-//      */
-//     void setGroupScale(const std::string& groupName, double Q) {
-//         CoefficientGroup* group = getCoefficientGroup(groupName);
-//         group->set_Q_run(Q);
-//     }
-
-//     /**
-//      * @brief Print all coefficients of a group.
-//      */
-//     void printGroupCoefficients(const std::string& groupName) const {
-//         CoefficientGroup* group = getCoefficientGroup(groupName);
-//         std::cout << *dynamic_cast<BCoefficientGroup*>(group);
-//     }
-// };
-
-// // Initialization of the static map
+// Initialization of the static map
 // std::map<std::string, std::unique_ptr<CoefficientManager>> CoefficientManager::instances;
+
 
 #endif
