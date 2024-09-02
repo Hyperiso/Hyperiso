@@ -436,15 +436,20 @@ inline std::ostream& operator<<(std::ostream& os, WilsonCoefficient& coeff) {
     return os;
 }
 
-class CoefficientGroup : public std::map<std::string, std::unique_ptr<WilsonCoefficient>> {
+class CoefficientGroup : public std::map<std::string, std::shared_ptr<WilsonCoefficient>> {
 public:
+
+    CoefficientGroup(const CoefficientGroup&) = default;
+    CoefficientGroup(CoefficientGroup&&) = default;
+
     CoefficientGroup() {}
-    CoefficientGroup(std::map<std::string, std::unique_ptr<WilsonCoefficient>>& coeffs) {
+    CoefficientGroup(std::map<std::string, std::shared_ptr<WilsonCoefficient>>& coeffs) {
         for (auto& coeff : coeffs) {
             this->insert(std::make_pair(coeff.first, std::move(coeff.second)));
         }
     }
     virtual ~CoefficientGroup() = default;
+
 
     void init_LO() {
         for (auto& coeff : *this) {
@@ -494,16 +499,16 @@ class BCoefficientGroup : public CoefficientGroup {
 
 public:
     BCoefficientGroup() {
-        this->insert(std::make_pair("C1", std::make_unique<C1>())); this->insert(std::make_pair("C2", std::make_unique<C2>())); this->insert(std::make_pair("C3", std::make_unique<C3>()));
-        this->insert(std::make_pair("C4", std::make_unique<C4>()));  this->insert(std::make_pair("C5", std::make_unique<C5>())); this->insert(std::make_pair("C6", std::make_unique<C6>())); 
-        this->insert(std::make_pair("C7", std::make_unique<C7>()));  this->insert(std::make_pair("C8", std::make_unique<C8>()));  this->insert(std::make_pair("C9", std::make_unique<C9>())); 
-        this->insert(std::make_pair("C10", std::make_unique<CP10>())); 
+        this->insert(std::make_pair("C1", std::make_shared<C1>())); this->insert(std::make_pair("C2", std::make_shared<C2>())); this->insert(std::make_pair("C3", std::make_shared<C3>()));
+        this->insert(std::make_pair("C4", std::make_shared<C4>()));  this->insert(std::make_pair("C5", std::make_shared<C5>())); this->insert(std::make_pair("C6", std::make_shared<C6>())); 
+        this->insert(std::make_pair("C7", std::make_shared<C7>()));  this->insert(std::make_pair("C8", std::make_shared<C8>()));  this->insert(std::make_pair("C9", std::make_shared<C9>())); 
+        this->insert(std::make_pair("C10", std::make_shared<CP10>())); 
     }
     BCoefficientGroup(double Q_match) {
-        this->insert(std::make_pair("C1", std::make_unique<C1>(Q_match))); this->insert(std::make_pair("C2", std::make_unique<C2>(Q_match))); this->insert(std::make_pair("C3", std::make_unique<C3>(Q_match)));
-        this->insert(std::make_pair("C4", std::make_unique<C4>(Q_match)));  this->insert(std::make_pair("C5", std::make_unique<C5>(Q_match))); this->insert(std::make_pair("C6", std::make_unique<C6>(Q_match))); 
-        this->insert(std::make_pair("C7", std::make_unique<C7>(Q_match)));  this->insert(std::make_pair("C8", std::make_unique<C8>(Q_match)));  this->insert(std::make_pair("C9", std::make_unique<C9>(Q_match))); 
-        this->insert(std::make_pair("C10", std::make_unique<CP10>(Q_match)));
+        this->insert(std::make_pair("C1", std::make_shared<C1>(Q_match))); this->insert(std::make_pair("C2", std::make_shared<C2>(Q_match))); this->insert(std::make_pair("C3", std::make_shared<C3>(Q_match)));
+        this->insert(std::make_pair("C4", std::make_shared<C4>(Q_match)));  this->insert(std::make_pair("C5", std::make_shared<C5>(Q_match))); this->insert(std::make_pair("C6", std::make_shared<C6>(Q_match))); 
+        this->insert(std::make_pair("C7", std::make_shared<C7>(Q_match)));  this->insert(std::make_pair("C8", std::make_shared<C8>(Q_match)));  this->insert(std::make_pair("C9", std::make_shared<C9>(Q_match))); 
+        this->insert(std::make_pair("C10", std::make_shared<CP10>(Q_match)));
     }
 
     void set_base_1_LO();
@@ -517,6 +522,9 @@ public:
 
     void set_W_params(Wilson_parameters* new_W_param) {this->W_param = new_W_param; for(auto& coeff : *this) {coeff.second->set_Wilson_Parameters(new_W_param);}}
     void set_gen(int new_gen) {this->W_param->set_gen(new_gen);}
+
+
+
 protected:
     Wilson_parameters* W_param = Wilson_parameters::GetInstance();
 
@@ -526,21 +534,24 @@ protected:
 class BPrimeCoefficientGroup : public CoefficientGroup {
 public:
     BPrimeCoefficientGroup() {
-        this->insert(std::make_pair("CP1", std::make_unique<CP1>())); this->insert(std::make_pair("CP2", std::make_unique<CP2>())); this->insert(std::make_pair("CP3", std::make_unique<CP3>()));
-        this->insert(std::make_pair("CP4", std::make_unique<CP4>()));  this->insert(std::make_pair("CP5", std::make_unique<CP5>())); this->insert(std::make_pair("CP6", std::make_unique<CP6>())); 
-        this->insert(std::make_pair("CP7", std::make_unique<CP7>()));  this->insert(std::make_pair("CP8", std::make_unique<CP8>()));  this->insert(std::make_pair("CP9", std::make_unique<CP9>())); 
-        this->insert(std::make_pair("CP10", std::make_unique<CP10>())); this->insert(std::make_pair("CPQ1", std::make_unique<CPQ1>())); this->insert(std::make_pair("CPQ2", std::make_unique<CPQ2>())); 
+        this->insert(std::make_pair("CP1", std::make_shared<CP1>())); this->insert(std::make_pair("CP2", std::make_shared<CP2>())); this->insert(std::make_pair("CP3", std::make_shared<CP3>()));
+        this->insert(std::make_pair("CP4", std::make_shared<CP4>()));  this->insert(std::make_pair("CP5", std::make_shared<CP5>())); this->insert(std::make_pair("CP6", std::make_shared<CP6>())); 
+        this->insert(std::make_pair("CP7", std::make_shared<CP7>()));  this->insert(std::make_pair("CP8", std::make_shared<CP8>()));  this->insert(std::make_pair("CP9", std::make_shared<CP9>())); 
+        this->insert(std::make_pair("CP10", std::make_shared<CP10>())); this->insert(std::make_pair("CPQ1", std::make_shared<CPQ1>())); this->insert(std::make_pair("CPQ2", std::make_shared<CPQ2>())); 
     }
     BPrimeCoefficientGroup(double Q_match) {
-        this->insert(std::make_pair("CP1", std::make_unique<CP1>(Q_match))); this->insert(std::make_pair("CP2", std::make_unique<CP2>(Q_match))); this->insert(std::make_pair("CP3", std::make_unique<CP3>(Q_match)));
-        this->insert(std::make_pair("CP4", std::make_unique<CP4>(Q_match)));  this->insert(std::make_pair("CP5", std::make_unique<CP5>(Q_match))); this->insert(std::make_pair("CP6", std::make_unique<CP6>(Q_match))); 
-        this->insert(std::make_pair("CP7", std::make_unique<CP7>(Q_match)));  this->insert(std::make_pair("CP8", std::make_unique<CP8>(Q_match)));  this->insert(std::make_pair("CP9", std::make_unique<CP9>(Q_match))); 
-        this->insert(std::make_pair("CP10", std::make_unique<CP10>(Q_match))); this->insert(std::make_pair("CPQ1", std::make_unique<CPQ1>(Q_match))); this->insert(std::make_pair("CPQ2", std::make_unique<CPQ2>(Q_match)));
+        this->insert(std::make_pair("CP1", std::make_shared<CP1>(Q_match))); this->insert(std::make_pair("CP2", std::make_shared<CP2>(Q_match))); this->insert(std::make_pair("CP3", std::make_shared<CP3>(Q_match)));
+        this->insert(std::make_pair("CP4", std::make_shared<CP4>(Q_match)));  this->insert(std::make_pair("CP5", std::make_shared<CP5>(Q_match))); this->insert(std::make_pair("CP6", std::make_shared<CP6>(Q_match))); 
+        this->insert(std::make_pair("CP7", std::make_shared<CP7>(Q_match)));  this->insert(std::make_pair("CP8", std::make_shared<CP8>(Q_match)));  this->insert(std::make_pair("CP9", std::make_shared<CP9>(Q_match))); 
+        this->insert(std::make_pair("CP10", std::make_shared<CP10>(Q_match))); this->insert(std::make_pair("CPQ1", std::make_shared<CPQ1>(Q_match))); this->insert(std::make_pair("CPQ2", std::make_shared<CPQ2>(Q_match)));
     }
+
+    
 
     void set_base_1_LO();
     void set_base_1_NLO() {}
     void set_base_1_NNLO() {}
+
 protected:
     Wilson_parameters* W_param = Wilson_parameters::GetInstance();
 };
@@ -548,15 +559,17 @@ protected:
 class BScalarCoefficientGroup : public CoefficientGroup {
 public:
     BScalarCoefficientGroup() {
-        this->insert(std::make_pair("CQ1", std::make_unique<CQ1>())); this->insert(std::make_pair("CQ2", std::make_unique<CQ2>()));
+        this->insert(std::make_pair("CQ1", std::make_shared<CQ1>())); this->insert(std::make_pair("CQ2", std::make_shared<CQ2>()));
     }
     BScalarCoefficientGroup(double Q_match) {
-        this->insert(std::make_pair("CQ1", std::make_unique<CQ1>(Q_match))); this->insert(std::make_pair("CQ2", std::make_unique<CQ2>(Q_match)));
+        this->insert(std::make_pair("CQ1", std::make_shared<CQ1>(Q_match))); this->insert(std::make_pair("CQ2", std::make_shared<CQ2>(Q_match)));
     }
 
     void set_base_1_LO();
     void set_base_1_NLO();
     void set_base_1_NNLO() {}
+
+
 protected:
     Wilson_parameters* W_param = Wilson_parameters::GetInstance();
 };

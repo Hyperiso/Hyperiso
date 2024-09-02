@@ -8,30 +8,34 @@ int main() {
     auto mm = MemoryManager::GetInstance("Test/InputFiles/testinput_thdm.lha", {0,2});  // Initialize program manager with LHA file containing SMINPUTS block
     mm->init();
 
-    auto* manager = CoefficientManager::GetInstance("StandardModel");
-    manager->registerCoefficientGroup("BCoefficients", std::make_unique<BCoefficientGroup>(81.0));
-    manager->registerCoefficientGroup("ScalarBCoefficients", std::make_unique<BScalarCoefficientGroup>(81.0));
-    manager->setQMatch("BCoefficients", 81.);
-    manager->setMatchingCoefficient("BCoefficients", "NLO");
+    // auto* manager = CoefficientManager::GetInstance("StandardModel");
+    std::map<std::string, std::shared_ptr<CoefficientGroup>> groups = {std::make_pair("BCoefficient", std::make_shared<BCoefficientGroup>(81.)), std::make_pair("BScalarCoefficient", std::make_shared<BScalarCoefficientGroup>(81.)), std::make_pair("BPrimeCoefficient", std::make_shared<BPrimeCoefficientGroup>(81.))};
 
-    manager->setGroupScale("BCoefficients", 42.);
-    manager->setRunCoefficient("BCoefficients", "LO");
+    auto* manager = CoefficientManager::Builder("StandardModel", groups , 81., 42., "LO");
 
-    manager->setQMatch("ScalarBCoefficients", 81.);
-    manager->setMatchingCoefficient("ScalarBCoefficients", "NLO");
+    // manager->registerCoefficientGroup("BCoefficients", std::make_unique<BCoefficientGroup>(81.0));
+    // manager->registerCoefficientGroup("ScalarBCoefficients", std::make_unique<BScalarCoefficientGroup>(81.0));
+    // manager->setQMatch("BCoefficients", 81.);
+    // manager->setMatchingCoefficient("BCoefficients", "NLO");
 
-    manager->setGroupScale("ScalarBCoefficients", 42.);
-    manager->setRunCoefficient("ScalarBCoefficients", "LO");
+    // manager->setGroupScale("BCoefficients", 42.);
+    // manager->setRunCoefficient("BCoefficients", "LO");
+
+    // manager->setQMatch("ScalarBCoefficients", 81.);
+    // manager->setMatchingCoefficient("ScalarBCoefficients", "NLO");
+
+    // manager->setGroupScale("ScalarBCoefficients", 42.);
+    // manager->setRunCoefficient("ScalarBCoefficients", "LO");
     
-    std::cout << "matching coeff LO : " <<  manager->getMatchingCoefficient("BCoefficients", "C7", "LO") << std::endl;
-    std::cout << "matching coeff NLO : " <<  manager->getMatchingCoefficient("BCoefficients", "C7", "NLO") << std::endl;
-    std::cout << "matching coeff full NLO : " <<  manager->getFullMatchingCoefficient("BCoefficients", "C7", "NLO") << std::endl;
-    std::cout << "run coeff : " <<  manager->getRunCoefficient("BCoefficients", "C7", "LO") << std::endl;
+    // std::cout << "matching coeff LO : " <<  manager->getMatchingCoefficient("BCoefficients", "C7", "LO") << std::endl;
+    // std::cout << "matching coeff NLO : " <<  manager->getMatchingCoefficient("BCoefficients", "C7", "NLO") << std::endl;
+    // std::cout << "matching coeff full NLO : " <<  manager->getFullMatchingCoefficient("BCoefficients", "C7", "NLO") << std::endl;
+    // std::cout << "run coeff : " <<  manager->getRunCoefficient("BCoefficients", "C7", "LO") << std::endl;
 
-    std::cout << "scalar matching coeff LO : " <<  manager->getMatchingCoefficient("ScalarBCoefficients", "CQ1", "LO") << std::endl;
-    std::cout << "scalar matching coeff NLO : " <<  manager->getMatchingCoefficient("ScalarBCoefficients", "CQ1", "NLO") << std::endl;
-    std::cout << "scalar matching coeff full NLO : " <<  manager->getFullMatchingCoefficient("ScalarBCoefficients", "CQ1", "NLO") << std::endl;
-    std::cout << "scalar run coeff : " <<  manager->getRunCoefficient("ScalarBCoefficients", "CQ1", "LO") << std::endl;
+    // std::cout << "scalar matching coeff LO : " <<  manager->getMatchingCoefficient("ScalarBCoefficients", "CQ1", "LO") << std::endl;
+    // std::cout << "scalar matching coeff NLO : " <<  manager->getMatchingCoefficient("ScalarBCoefficients", "CQ1", "NLO") << std::endl;
+    // std::cout << "scalar matching coeff full NLO : " <<  manager->getFullMatchingCoefficient("ScalarBCoefficients", "CQ1", "NLO") << std::endl;
+    // std::cout << "scalar run coeff : " <<  manager->getRunCoefficient("ScalarBCoefficients", "CQ1", "LO") << std::endl;
     // manager->setGroupScale("BCoefficients", 100.0);
     // manager->printGroupCoefficients("BCoefficients");
 

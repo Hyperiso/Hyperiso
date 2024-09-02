@@ -152,7 +152,7 @@ public:
 class CoefficientManager {
 private:
     static std::map<std::string, std::unique_ptr<CoefficientManager>> instances;
-    std::map<std::string, std::unique_ptr<CoefficientGroup>> coefficientGroups;
+    std::map<std::string, std::shared_ptr<CoefficientGroup>> coefficientGroups;
     std::map<std::string, std::unique_ptr<State>> groupStates;
 
     CoefficientManager() = default;
@@ -205,8 +205,8 @@ public:
     }
 
     // Register a new coefficient group under this manager
-    void registerCoefficientGroup(const std::string& groupName, std::unique_ptr<CoefficientGroup> group) {
-        coefficientGroups[groupName] = std::move(group);
+    void registerCoefficientGroup(const std::string& groupName, std::shared_ptr<CoefficientGroup> group) {
+        coefficientGroups[groupName] = group;
         // Initialize the state for this new group
         groupStates[groupName] = std::make_unique<InitialState>();
     }
@@ -229,6 +229,17 @@ public:
     void printGroupCoefficients(const std::string& groupName) const {
         CoefficientGroup* group = getCoefficientGroup(groupName);
         std::cout << *dynamic_cast<BCoefficientGroup*>(group);
+    }
+
+    static CoefficientManager* Builder(std::string instance, std::map<std::string, std::shared_ptr<CoefficientGroup>> groups, double Q_match, double Q, std::string order) {
+        CoefficientManager *manager = CoefficientManager::GetInstance(instance);
+        for (auto& group : groups) {
+            manager->registerCoefficientGroup(group.first, group.second);
+            manager->setQMatch(group.first, Q_match);
+            manager->setMatchingCoefficient(group.first, order);
+            manager->setGroupScale(group.first, Q);
+        }
+        return manager;
     }
 
 private:
