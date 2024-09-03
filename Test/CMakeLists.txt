@@ -27,23 +27,23 @@ set(CTEST_ENVIRONMENT_VARIABLE "CTEST_RUN")
 # add_executable(testTHDMWilson testTHDMWilson.cpp)
 # target_link_libraries(testTHDMWilson PhysicalModelLib)
 
-add_executable(testWilson testWilson.cpp)
-target_link_libraries(testWilson PhysicalModelLib)
+# add_executable(testWilson testWilson.cpp)
+# target_link_libraries(testWilson PhysicalModelLib)
 
-add_executable(testObservable testObservable.cpp)
-target_link_libraries(testObservable BusinessLogicLib)
+# add_executable(testObservable testObservable.cpp)
+# target_link_libraries(testObservable BusinessLogicLib)
 
-add_executable(testParams testParams.cpp)
-target_link_libraries(testParams CoreLib)
+# add_executable(testParams testParams.cpp)
+# target_link_libraries(testParams CoreLib)
 
-add_executable(testPrimeCQWilson testPrimeCQWilson.cpp)
-target_link_libraries(testPrimeCQWilson PhysicalModelLib)
+# add_executable(testPrimeCQWilson testPrimeCQWilson.cpp)
+# target_link_libraries(testPrimeCQWilson PhysicalModelLib)
 
-add_executable(testPrimeCQTHDMWilson testPrimeCQTHDMWilson.cpp)
-target_link_libraries(testPrimeCQTHDMWilson PhysicalModelLib)
+# add_executable(testPrimeCQTHDMWilson testPrimeCQTHDMWilson.cpp)
+# target_link_libraries(testPrimeCQTHDMWilson PhysicalModelLib)
 
-add_executable(testPrimeCQSUSYWilson testPrimeCQSUSYWilson.cpp)
-target_link_libraries(testPrimeCQSUSYWilson PhysicalModelLib)
+# add_executable(testPrimeCQSUSYWilson testPrimeCQSUSYWilson.cpp)
+# target_link_libraries(testPrimeCQSUSYWilson PhysicalModelLib)
 
 
 

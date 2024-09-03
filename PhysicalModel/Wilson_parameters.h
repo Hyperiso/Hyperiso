@@ -28,7 +28,7 @@ public:
 
     int nf=5;
 	double beta0 = 11.-2./3.*nf;
-    int gen{3};
+    int gen{2};
     double ml;
 	double xt2;
 	double xt3;

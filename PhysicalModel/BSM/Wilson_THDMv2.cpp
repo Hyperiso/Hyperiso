@@ -1,8 +1,33 @@
 #include "Wilson_THDMv2.h"
 
+std::complex<double> C3_THDM::NNLO_calculation() {
+    double coeff_temp = G3H(thdm_params->yt,thdm_params->lu)+Delta3H(thdm_params->yt,thdm_params->lu)*log(pow(this->get_Q_match()/(*mod)("MASS",37),2.));
+    return this->double_to_complex_save("NNLO", coeff_temp);
+}
+
 std::complex<double> C4_THDM::NLO_calculation() {
     double coeff_temp = EH(thdm_params->yt,thdm_params->lu);
     return this->double_to_complex_save("NLO", coeff_temp);
+}
+
+std::complex<double> C4_THDM::NNLO_calculation() {
+    double coeff_temp=G4H(thdm_params->yt,thdm_params->lu)+Delta4H(thdm_params->yt,thdm_params->lu)*log(pow(this->get_Q_match()/(*mod)("MASS",37),2.));
+    return this->double_to_complex_save("NNLO", coeff_temp);
+}
+
+std::complex<double> C5_THDM::NNLO_calculation() {
+    double C4H_1=EH(thdm_params->yt,thdm_params->lu);
+    double C3H_2=G3H(thdm_params->yt,thdm_params->lu)+Delta3H(thdm_params->yt,thdm_params->lu)*log(pow(this->get_Q_match()/(*mod)("MASS",37),2.));
+	double coeff_temp=-C3H_2/10.+2./15.*C4H_1;
+    return this->double_to_complex_save("NNLO", coeff_temp);
+}
+
+std::complex<double> C6_THDM::NNLO_calculation() {
+    double C4H_1=EH(thdm_params->yt,thdm_params->lu);
+    double C3H_2=G3H(thdm_params->yt,thdm_params->lu)+Delta3H(thdm_params->yt,thdm_params->lu)*log(pow(this->get_Q_match()/(*mod)("MASS",37),2.));
+	double coeff_temp=-3./16.*C3H_2+1./4.*C4H_1;
+
+    return this->double_to_complex_save("NNLO", coeff_temp);
 }
 
 std::complex<double> C7_THDM::LO_calculation() {
@@ -16,6 +41,11 @@ std::complex<double> C7_THDM::NLO_calculation() {
     return this->double_to_complex_save("NLO", coeff_temp);
 }
 
+std::complex<double> C7_THDM::NNLO_calculation() {
+	double coeff_temp =C7H2(thdm_params->yt,thdm_params->lu,thdm_params->ld,log(pow(this->get_Q_match()/thdm_params->mass_top_muW, 2.)));
+    return this->double_to_complex_save("NNLO", coeff_temp);
+}
+
 std::complex<double> C8_THDM::LO_calculation() {
     double coeff_temp = 1./3.*thdm_params->lu*thdm_params->lu*F8_1(thdm_params->yt) - thdm_params->lu*thdm_params->ld*F8_2(thdm_params->yt);
     return this->double_to_complex_save("LO", coeff_temp);
@@ -25,6 +55,11 @@ std::complex<double> C8_THDM::NLO_calculation() {
     double coeff_temp = G8H(thdm_params->yt,thdm_params->lu,thdm_params->ld)+Delta8H(thdm_params->yt,thdm_params->lu,thdm_params->ld)*log(pow(this->get_Q_match()/thdm_params->m_H,2.))
     -1./6.*EH(thdm_params->yt,thdm_params->lu);
     return this->double_to_complex_save("NLO", coeff_temp);
+}
+
+std::complex<double> C8_THDM::NNLO_calculation() {
+	double coeff_temp =C8H2(thdm_params->yt,thdm_params->lu,thdm_params->ld,log(pow(this->get_Q_match()/thdm_params->mass_top_muW, 2.)));
+    return this->double_to_complex_save("NNLO", coeff_temp);
 }
 
 std::complex<double> C9_THDM::LO_calculation() {

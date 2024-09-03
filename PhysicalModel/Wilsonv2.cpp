@@ -27,6 +27,11 @@ std::complex<double> C2::NNLO_calculation() {
     return this->double_to_complex_save("NNLO", coeff_temp);
 }
 
+std::complex<double> C3::NNLO_calculation() {
+    double L=log(this->get_Q_match()*this->get_Q_match()/(*sm)("MASS",24)/(*sm)("MASS",24));
+    double coeff_temp = G1t(W_param->xt,log(this->get_Q_match()*this->get_Q_match()/W_param->mass_top_muW/W_param->mass_top_muW))-680./243.-20./81.*PI*PI-68./81.*L-20./27.*L*L;
+    return this->double_to_complex_save("NNLO", coeff_temp);
+}
 std::complex<double> C4::NLO_calculation() {
     double L=log(this->get_Q_match()*this->get_Q_match()/(*sm)("MASS",24)/(*sm)("MASS",24));
     double coeff_temp = E0t(W_param->xt)-7./9.+2./3.*L;
@@ -39,7 +44,17 @@ std::complex<double> C4::NNLO_calculation() {
     return this->double_to_complex_save("NNLO", coeff_temp);
 }
 
+std::complex<double> C5::NNLO_calculation() {
+    double L=log(this->get_Q_match()*this->get_Q_match()/(*sm)("MASS",24)/(*sm)("MASS",24));
+    double coeff_temp = -G1t(W_param->xt,log(this->get_Q_match()*this->get_Q_match()/W_param->mass_top_muW/W_param->mass_top_muW))/10.+2./15.*E0t(W_param->xt)+68./243.+2./81.*PI*PI+14./81.*L+2./27.*L*L;
+    return this->double_to_complex_save("NNLO", coeff_temp);
+}
 
+std::complex<double> C6::NNLO_calculation() {
+    double L=log(this->get_Q_match()*this->get_Q_match()/(*sm)("MASS",24)/(*sm)("MASS",24));
+    double coeff_temp = -3./16.*G1t(W_param->xt,log(this->get_Q_match()*this->get_Q_match()/W_param->mass_top_muW/W_param->mass_top_muW))+E0t(W_param->xt)/4.+85./162.+5./108.*PI*PI+35./108.*L+5./36.*L*L;
+    return this->double_to_complex_save("NNLO", coeff_temp);
+}
 std::complex<double> C7::LO_calculation() {
     double coeff_temp = -0.5*A0t(W_param->xt)-23./36.;
     return this->double_to_complex_save("LO", coeff_temp);
@@ -118,6 +133,7 @@ std::complex<double> C9::NNLO_calculation() {
 std::complex<double> C10::LO_calculation() {
 
     double coeff_temp = (B0t(W_param->xt)-C0t(W_param->xt))/W_param->sw2-1./4./W_param->sw2;
+    std::cout << coeff_temp << std::endl;
     return this->double_to_complex_save("LO", coeff_temp);
 }
 
@@ -126,8 +142,23 @@ std::complex<double> C10::NLO_calculation() {
     -C1t(W_param->xt,log(this->get_Q_match()*this->get_Q_match()/W_param->mass_top_muW/W_param->mass_top_muW)))/W_param->sw2-1./W_param->sw2;
     return this->double_to_complex_save("NLO", coeff_temp);
 }
-
-
+ 
+std::complex<double> C10::NNLO_calculation() {
+    double xtW=pow(sm->running_mass((*sm)("MASS",6),(*sm)("MASS",6), (*sm)("MASS",24))/(*sm)("MASS", 24), 2); // mass top at pole for mtot param
+	double xtt=pow((*sm)("MASS",6)/(*sm)("MASS",24),2.); // 24 -> W
+    double coeff_temp = ((C10Wt2mt(xtt)+log(this->get_Q_match()*this->get_Q_match()/W_param->mass_top_muW/W_param->mass_top_muW)*((69.+1292.*W_param->xt-209.*W_param->xt*W_param->xt)/18./pow(W_param->xt-1.,3.)
+	-(521.*W_param->xt+105.*W_param->xt*W_param->xt-50.*pow(W_param->xt,3.))/9./pow(W_param->xt-1.,4.)*log(W_param->xt)
+	-(47.*W_param->xt+W_param->xt*W_param->xt)/3./pow(W_param->xt-1.,3.)*Li2(1.-1./W_param->xt)
+	+log(this->get_Q_match()*this->get_Q_match()/W_param->mass_top_muW/W_param->mass_top_muW)*((61.*W_param->xt+11.*W_param->xt*W_param->xt)/3./pow(W_param->xt-1.,3.)-(49.*W_param->xt+96.*W_param->xt*W_param->xt-pow(W_param->xt,3.))/6./pow(W_param->xt-1.,4.)*log(W_param->xt))))
+	-(C10Wc2MW(xtW)-23./6.*log(this->get_Q_match()*this->get_Q_match()/(*sm)("MASS", 24)/(*sm)("MASS",24)))
+	+(C10Zt2mt(xtt)+log(this->get_Q_match()*this->get_Q_match()/W_param->mass_top_muW/W_param->mass_top_muW)*((188.*W_param->xt+4.*W_param->xt*W_param->xt+95.*pow(W_param->xt,3.)-47.*pow(W_param->xt,4.))/6./pow(W_param->xt-1.,3.)*Li2(1.-1./W_param->xt)
+	+(1468.*W_param->xt+1578.*W_param->xt*W_param->xt-25.*pow(W_param->xt,3.)-141.*pow(W_param->xt,4.))/18./pow(W_param->xt-1.,4.)*log(W_param->xt)
+	-(4622.*W_param->xt+1031.*W_param->xt*W_param->xt+582.*pow(W_param->xt,3.)-475.*pow(W_param->xt,4.))/36./pow(W_param->xt-1.,3.)
+	+log(this->get_Q_match()*this->get_Q_match()/W_param->mass_top_muW/W_param->mass_top_muW)*((49.*W_param->xt+315.*W_param->xt*W_param->xt-4.*pow(W_param->xt,3.))/6./pow(W_param->xt-1.,4.)*log(W_param->xt)-(440.*W_param->xt+257.*W_param->xt*W_param->xt+72.*pow(W_param->xt,3.)-49.*pow(W_param->xt,4.))/12./pow(W_param->xt-1.,3.))))
+	+C10Z2tri(xtt)
+	)*(-2./W_param->sw2);
+    return this->double_to_complex_save("NNLO", coeff_temp);
+}
 std::complex<double> CQ1::LO_calculation() {
     double CSc_SM=-W_param->xt*(W_param->xt-2.)/12./(W_param->xt-1.)/(W_param->xt-1.)+(W_param->xt-2.)*(3.*W_param->xt-1.)/24./pow(W_param->xt-1.,3.)*log(W_param->xt);
     double CSn_SMonly=-3.*W_param->xt/8./W_param->xh+W_param->xt*F0SP(W_param->xt);

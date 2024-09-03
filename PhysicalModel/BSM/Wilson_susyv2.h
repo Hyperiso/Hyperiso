@@ -179,7 +179,7 @@ public:
 
 
     std::complex<double> LO_calculation() {return {0,0};} 
-    std::complex<double> NLO_calculation();
+    std::complex<double> NLO_calculation() {return {0,0};} 
     std::complex<double> NNLO_calculation() {return {0,0};} 
 
 };
@@ -191,7 +191,7 @@ public:
     CP2_susy(double Q_match, int gen) : CP2(Q_match), WilsonCoefficient_susy(Q_match) {}
 
     std::complex<double> LO_calculation() {return {0,0};} 
-    std::complex<double> NLO_calculation();
+    std::complex<double> NLO_calculation() {return {0,0};} 
     std::complex<double> NNLO_calculation() {return {0,0};} 
 
 };
@@ -204,7 +204,7 @@ public:
 
 
     std::complex<double> LO_calculation() {return {0,0};} 
-    std::complex<double> NLO_calculation();
+    std::complex<double> NLO_calculation() {return {0,0};} 
     std::complex<double> NNLO_calculation() {return {0,0};} 
 
 };
@@ -217,7 +217,7 @@ public:
 
 
     std::complex<double> LO_calculation() {return {0,0};} 
-    std::complex<double> NLO_calculation();
+    std::complex<double> NLO_calculation() {return {0,0};} 
     std::complex<double> NNLO_calculation() {return {0,0};} 
 
 };
@@ -229,7 +229,7 @@ public:
     CP5_susy(double Q_match, int gen) : CP5(Q_match), WilsonCoefficient_susy(Q_match) {}
 
     std::complex<double> LO_calculation() {return {0,0};} 
-    std::complex<double> NLO_calculation();
+    std::complex<double> NLO_calculation() {return {0,0};} 
     std::complex<double> NNLO_calculation() {return {0,0};} 
 
 };
@@ -241,7 +241,7 @@ public:
     CP6_susy(double Q_match, int gen) : CP6(Q_match), WilsonCoefficient_susy(Q_match) {}
 
     std::complex<double> LO_calculation() {return {0,0};} 
-    std::complex<double> NLO_calculation();
+    std::complex<double> NLO_calculation() {return {0,0};} 
     std::complex<double> NNLO_calculation() {return {0,0};} 
 
 };
@@ -253,7 +253,7 @@ public:
     CP7_susy(double Q_match, int gen) : CP7(Q_match), WilsonCoefficient_susy(Q_match) {}
 
     std::complex<double> LO_calculation();
-    std::complex<double> NLO_calculation();
+    std::complex<double> NLO_calculation() {return {0,0};} 
     std::complex<double> NNLO_calculation() {return {0,0};} 
 
 };
@@ -265,7 +265,7 @@ public:
     CP8_susy(double Q_match, int gen) : CP8(Q_match) , WilsonCoefficient_susy(Q_match) {}
 
     std::complex<double> LO_calculation(); 
-    std::complex<double> NLO_calculation();
+    std::complex<double> NLO_calculation() {return {0,0};} 
     std::complex<double> NNLO_calculation() {return {0,0};} 
 
 };
@@ -277,7 +277,7 @@ public:
     CP9_susy(double Q_match, int gen) : CP9(Q_match), WilsonCoefficient_susy(Q_match) {}
 
     std::complex<double> LO_calculation();
-    std::complex<double> NLO_calculation();
+    std::complex<double> NLO_calculation() {return {0,0};} 
     std::complex<double> NNLO_calculation() {return {0,0};} 
 
 };
@@ -289,7 +289,7 @@ public:
     CP10_susy(double Q_match, int gen) : CP10(Q_match), WilsonCoefficient_susy(Q_match) {}
 
     std::complex<double> LO_calculation();
-    std::complex<double> NLO_calculation();
+    std::complex<double> NLO_calculation() {return {0,0};} 
     std::complex<double> NNLO_calculation() {return {0,0};} 
 
 };
@@ -301,7 +301,7 @@ public:
     CPQ1_susy(double Q_match, int gen) : CPQ1(Q_match), WilsonCoefficient_susy(Q_match) {}
 
     std::complex<double> LO_calculation();
-    std::complex<double> NLO_calculation();
+    std::complex<double> NLO_calculation() {return {0,0};} 
     std::complex<double> NNLO_calculation() {return {0,0};} 
 
 };
@@ -313,7 +313,7 @@ public:
     CPQ2_susy(double Q_match, int gen) : CPQ2(Q_match), WilsonCoefficient_susy(Q_match) {}
 
     std::complex<double> LO_calculation();
-    std::complex<double> NLO_calculation();
+    std::complex<double> NLO_calculation() {return {0,0};} 
     std::complex<double> NNLO_calculation() {return {0,0};} 
 
 };

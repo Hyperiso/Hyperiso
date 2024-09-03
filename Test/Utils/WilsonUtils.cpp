@@ -4,7 +4,7 @@
 #include "Logger.h"
 #include "CompareCsv.h"
 
-void writeCoefficientsToFile(const std::string& strat_name, const std::string& fileName, const std::shared_ptr<InitializationStrategy>& strategy, double Q_match, const std::string& model) {
+void writeCoefficientsToFile(const std::string& strat_name, const std::string& fileName, double Q_match, const std::string& model) {
     std::ofstream file(fileName);
 
     file << "Q,alpha_s";
@@ -13,34 +13,38 @@ void writeCoefficientsToFile(const std::string& strat_name, const std::string& f
     }
     file << "\n";
 
+    CoefficientManager* wm = CoefficientManager::GetInstance(model);
+
     if (model == "SM") {
         MemoryManager::GetInstance("Test/InputFiles/testinput_thdm.lha", {0})->init();
+        wm->registerCoefficientGroup("BCoefficient", std::make_shared<BCoefficientGroup>());
     }
     else if (model == "THDM") {
         MemoryManager::GetInstance("Test/InputFiles/testinput_thdm.lha", {0,2})->init();
+        wm->registerCoefficientGroup("BCoefficient", std::make_shared<BCoefficientGroup_THDM>());
     }
     else if (model == "SUSY") {
         MemoryManager::GetInstance("Test/InputFiles/testInput.slha", {0,1})->init();
+        wm->registerCoefficientGroup("BCoefficient", std::make_shared<BCoefficientGroup_susy>());
     }
     else {
         LOG_ERROR("ModelError", "MODEL not known");
     }
     Parameters* sm = Parameters::GetInstance();
-    WilsonManager* wm = WilsonManager::GetInstance(strat_name, 81.0, strategy);
+    // WilsonManager* wm = WilsonManager::GetInstance(strat_name, 81.0, strategy);
+    
 
+    
+    wm->setQMatch("BCoefficient", Q_match);
+    wm->setMatchingCoefficient("BCoefficient", strat_name);
     double alpha_s = (*sm).alpha_s(Q_match);
 
     file << Q_match << "," << alpha_s;
-
-    for (int i = 0; i <= 9; ++i) {
+    std::vector<std::string> name {"C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9", "C10"};
+    for (auto& coeff : name) {
         complex_t C = {0,0};
-
-        if (strat_name == "LO")
-            C = wm->get_matchs(static_cast<WilsonCoefficient>(i), 0);
-        else if (strat_name == "NLO")
-            C = wm->get_matchs(static_cast<WilsonCoefficient>(i), 1);
-        else if (strat_name == "NNLO")
-            C = wm->get_matchs(static_cast<WilsonCoefficient>(i), 2);
+        C = wm->getMatchingCoefficient("BCoefficient", coeff, strat_name);
+        std::cout << coeff << " " << C << std::endl;
         file << "," << C.real() << "," << C.imag();
     }
 
@@ -51,7 +55,7 @@ void writeCoefficientsToFile(const std::string& strat_name, const std::string& f
     wm->Cleanup();
 }
 
-void writeCoefficientsPrimeCQToFile(const std::string& strat_name, const std::string& fileName, const std::shared_ptr<InitializationStrategy>& strategy, double Q_match, const std::string& model) {
+void writeCoefficientsPrimeCQToFile(const std::string& strat_name, const std::string& fileName, double Q_match, const std::string& model) {
     std::ofstream file(fileName);
 
     std::vector<std::string> name {"C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9", "C10", "CQ1", "CQ2", "CP1", "CP2", "CP3", "CP4", "CP5", "CP6", "CP7", "CP8", "CP9", "CP10", "CPQ1", "CPQ2"};
@@ -62,38 +66,57 @@ void writeCoefficientsPrimeCQToFile(const std::string& strat_name, const std::st
     }
     file << "\n";
 
+    CoefficientManager* wm = CoefficientManager::GetInstance(model);
+
     if (model == "SM") {
         MemoryManager::GetInstance("Test/InputFiles/testinput_thdm.lha", {0})->init();
+        wm->registerCoefficientGroup("BPrimeCoefficient", std::make_shared<BPrimeCoefficientGroup>());
+        wm->registerCoefficientGroup("BScalarCoefficient", std::make_shared<BScalarCoefficientGroup>());    
     }
     else if (model == "THDM") {
         MemoryManager::GetInstance("Test/InputFiles/testinput_thdm.lha", {0,2})->init();
+        wm->registerCoefficientGroup("BPrimeCoefficient", std::make_shared<BPrimeCoefficientGroup_THDM>());
+        wm->registerCoefficientGroup("BScalarCoefficient", std::make_shared<BScalarCoefficientGroup_THDM>());
     }
     else if (model == "SUSY") {
         MemoryManager::GetInstance("Test/InputFiles/testInput.slha", {0,1})->init();
+        wm->registerCoefficientGroup("BPrimeCoefficient", std::make_shared<BPrimeCoefficientGroup_susy>());
+        wm->registerCoefficientGroup("BScalarCoefficient", std::make_shared<BScalarCoefficientGroup_susy>());
     }
     else {
         LOG_ERROR("ModelError", "MODEL not known");
     }
     Parameters* sm = Parameters::GetInstance();
-    WilsonManager* wm = WilsonManager::GetInstance(strat_name, 81.0, strategy);
+    // WilsonManager* wm = WilsonManager::GetInstance(strat_name, 81.0, strategy);
+    
+    
+    wm->setQMatch("BPrimeCoefficient", Q_match);
+    wm->setMatchingCoefficient("BPrimeCoefficient", strat_name);
+    wm->setQMatch("BScalarCoefficient", Q_match);
+    wm->setMatchingCoefficient("BScalarCoefficient", strat_name);
 
     double answer = 42.;
-    wm->setScale(answer);
+    wm->setGroupScale("BPrimeCoefficient", answer);
+    wm->setGroupScale("BScalarCoefficient", answer);
+    wm->setRunCoefficient("BPrimeCoefficient", strat_name);
+    wm->setRunCoefficient("BScalarCoefficient", strat_name);
+    // wm->setScale(answer);
 
     double alpha_s = (*sm).alpha_s(answer);
 
     file << answer << "," << alpha_s;
 
-            for (int i = 10; i <= 23; ++i) {
-        complex_t C = {0,0};
+    std::vector<std::string> name_scalar {"CQ1", "CQ2"};
+    std::vector<std::string> name_prime {"CP1", "CP2", "CP3", "CP4", "CP5", "CP6", "CP7", "CP8", "CP9", "CP10", "CPQ1", "CPQ2"};
 
-        if (strat_name == "LO"){
-            LOG_INFO(i, wm->get(static_cast<WilsonCoefficient>(i), 0));
-            C = wm->get(static_cast<WilsonCoefficient>(i), 0);}
-        else if (strat_name == "NLO")
-            C = wm->get(static_cast<WilsonCoefficient>(i), 1);
-        else if (strat_name == "NNLO")
-            C = wm->get(static_cast<WilsonCoefficient>(i), 2);
+    for (auto& coeff : name_scalar) {
+        complex_t C = {0.,0.};
+        C = wm->getRunCoefficient("BScalarCoefficient", coeff, strat_name);
+        file << "," << C.real() << "," << C.imag();
+    }
+    for (auto& coeff : name_prime) {
+        complex_t C = {0.,0.};
+        C = wm->getRunCoefficient("BPrimeCoefficient", coeff, strat_name);
         file << "," << C.real() << "," << C.imag();
     }
 
@@ -104,12 +127,12 @@ void writeCoefficientsPrimeCQToFile(const std::string& strat_name, const std::st
     wm->Cleanup();
 }
 
-void runTest(const std::string& strategyName, const std::shared_ptr<InitializationStrategy>& strategy, const std::string& testFile, const std::string& referenceFile,const std::string& model, double tolerance, bool primeCQ) {
+void runTest(const std::string& strategyName, const std::string& testFile, const std::string& referenceFile,const std::string& model, double tolerance, bool primeCQ) {
     if (primeCQ) {
-        writeCoefficientsPrimeCQToFile(strategyName, testFile, strategy, 81, model);
+        writeCoefficientsPrimeCQToFile(strategyName, testFile, 81, model);
     }
     else {
-        writeCoefficientsToFile(strategyName, testFile, strategy, 81, model);
+        writeCoefficientsToFile(strategyName, testFile, 81, model);
     }
     
     if (!compareCSV(testFile, referenceFile, tolerance)) {
