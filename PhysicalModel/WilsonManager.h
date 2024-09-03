@@ -49,6 +49,10 @@ public:
         throw std::runtime_error("Invalid state: Cannot set run coefficients in current state.");
     }
 
+    virtual void switchbasis(CoefficientManager* manager, const std::string& groupName) {
+        throw std::runtime_error("Invalid state: Cannot switch basis if not already calculated");
+    }
+
     virtual std::complex<double> getMatchingCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) {
         throw std::runtime_error("Invalid state: Cannot get matching coefficients in current state.");
     }
@@ -150,6 +154,8 @@ public:
 class RunSetState : public State {
 public:
     RunSetState(std::string order) : State(order) {this->state = "RunSetState";}
+    void switchbasis(CoefficientManager* manager, const std::string& groupName);
+    void setGroupScale(CoefficientManager* manager, const std::string& groupName, double Q) override;
     std::complex<double> getMatchingCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) override;
     std::complex<double> getFullMatchingCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) override;
     std::complex<double> getFullRunCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) override;
@@ -201,6 +207,9 @@ public:
         ensureGroupState(groupName)->setRunCoefficient(this, groupName, order);
     }
 
+    void switchbasis(const std::string& groupName) {
+        ensureGroupState(groupName)->switchbasis(this, groupName);
+    }
     std::complex<double> getMatchingCoefficient(const std::string& groupName, const std::string& coeffName, const std::string& order) {
         return ensureGroupState(groupName)->getMatchingCoefficient(this, groupName, coeffName, order);
     }

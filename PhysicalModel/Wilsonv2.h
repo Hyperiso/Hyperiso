@@ -448,6 +448,9 @@ public:
             this->insert(std::make_pair(coeff.first, std::move(coeff.second)));
         }
     }
+
+    bool is_double_base() {return this->double_base;}
+    void switch_base() {}
     virtual ~CoefficientGroup() = default;
 
 
@@ -491,6 +494,8 @@ public:
 
     double Q_match{81};
     double Q_run{81};
+
+    bool double_base = false;
 };
 
 
@@ -523,10 +528,31 @@ public:
     void set_W_params(Wilson_parameters* new_W_param) {this->W_param = new_W_param; for(auto& coeff : *this) {coeff.second->set_Wilson_Parameters(new_W_param);}}
     void set_gen(int new_gen) {this->W_param->set_gen(new_gen);}
 
-
+    void switch_base() {
+        if (base["LO"] == 1) {
+            set_base_2_LO();
+        }
+        else if (base["LO"] == 2) {
+            set_base_1_LO();
+        }
+        if (base["NLO"] == 1) {
+            set_base_2_NLO();
+        }
+        else if (base["NLO"] == 2) {
+            set_base_1_NLO();
+        }
+        if (base["NNLO"] == 1) {
+            set_base_2_NNLO();
+        }
+        else if (base["NNLO"] == 2) {
+            set_base_1_NNLO();
+        }
+    }
 
 protected:
     Wilson_parameters* W_param = Wilson_parameters::GetInstance();
+    bool double_base = true;
+    std::map<std::string, int> base = {{"LO",0}, {"NLO",0}, {"NNLO",0}};
 
 };
 

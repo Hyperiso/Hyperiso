@@ -87,6 +87,19 @@ std::complex<double> MatchingSetState::getFullMatchingCoefficient(CoefficientMan
     return group->getfullMatching(coeffName, order);
 }
 
+void RunSetState::setGroupScale(CoefficientManager* manager, const std::string& groupName, double Q) {
+    CoefficientGroup* group = manager->getCoefficientGroup(groupName);
+    group->set_Q_run(Q);
+    std::cout << "Scale set to " << Q << " for group: " << groupName << std::endl;
+    if (this->EnumToString(currentOrder) == "LO") {
+        group->set_base_1_LO();
+    } else if (this->EnumToString(currentOrder) == "NLO") {
+        group->set_base_1_NLO();
+    } else if (this->EnumToString(currentOrder) == "NNLO") {
+        group->set_base_1_NNLO();
+    }
+}
+
 std::complex<double> RunSetState::getFullMatchingCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) {
     CoefficientGroup* group = manager->getCoefficientGroup(groupName);
     return group->getfullMatching(coeffName, order);
@@ -97,6 +110,10 @@ std::complex<double> QSetState::getFullMatchingCoefficient(CoefficientManager* m
     return group->getfullMatching(coeffName, order);
 }
 
+void RunSetState::switchbasis(CoefficientManager* manager, const std::string& groupName) {
+    CoefficientGroup* group = manager->getCoefficientGroup(groupName);
+    return group->switch_base();
+}
 std::complex<double> RunSetState::getFullRunCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) {
     CoefficientGroup* group = manager->getCoefficientGroup(groupName);
     return group->getfullRun(coeffName, order);

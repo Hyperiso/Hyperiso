@@ -6,35 +6,35 @@
 #include "Math.h"
 #include "Parameters.h"
 #include "epsilon_calculator.h"
-#include "WilsonManager.h"
-#include "Wilsonv2.h"
 #include "Wilson_THDMv2.h"
 #include "Wilson_susyv2.h"
+#include "WilsonManager.h"
+#include "Wilsonv2.h"
 
-void ObsEvaluator::computeWilsons(int model, int order, double scale, bool traditional_basis=false) {
-    std::cout << "in computewilson1 " << std::endl;
+
+CoefficientManager* ObsEvaluator::computeWilsons(int model, int order, double scale, bool traditional_basis=false) {
+    CoefficientManager* manager;
     double m_W = (*Parameters::GetInstance(0))("MASS", 24);
-    std::cout << "in computewilson2 " << std::endl;
+
     // WilsonManager* wm;
     switch (model) {
         case 0:
-            this->manager = CoefficientManager::Builder("StandardModel", std::map<std::string,std::shared_ptr<CoefficientGroup>>({std::make_pair("BCoefficient", std::make_shared<BCoefficientGroup>(81.)),
-            std::make_pair("BCoefficient", std::make_shared<BScalarCoefficientGroup>(81.)),std::make_pair("BCoefficient", std::make_shared<BPrimeCoefficientGroup>(81.))}), m_W, scale, "LO");
+            manager = CoefficientManager::Builder(std::to_string(model), std::map<std::string,std::shared_ptr<CoefficientGroup>>({std::make_pair("BCoefficient", std::make_shared<BCoefficientGroup>(81.)),
+            std::make_pair("BScalarCoefficient", std::make_shared<BScalarCoefficientGroup>(81.)),std::make_pair("BPrimeCoefficient", std::make_shared<BPrimeCoefficientGroup>(81.))}), m_W, scale, "LO");
             break;
         case 1:
-            this->manager = CoefficientManager::Builder("Susy", std::map<std::string,std::shared_ptr<CoefficientGroup>>({std::make_pair("BCoefficient", std::make_shared<BCoefficientGroup_susy>(81.)),
-            std::make_pair("BCoefficient", std::make_shared<BScalarCoefficientGroup_susy>(81.)),std::make_pair("BCoefficient", std::make_shared<BPrimeCoefficientGroup_susy>(81.))}), m_W, scale, "LO");
+            manager = CoefficientManager::Builder(std::to_string(model), std::map<std::string,std::shared_ptr<CoefficientGroup>>({std::make_pair("BCoefficient", std::make_shared<BCoefficientGroup_susy>(81.)),
+            std::make_pair("BCoefficient", std::make_shared<BScalarCoefficientGroup_susy>(81.)),std::make_pair("BPrimeCoefficient", std::make_shared<BPrimeCoefficientGroup_susy>(81.))}), m_W, scale, "LO");
             break;
         case 2:
-            this->manager = CoefficientManager::Builder("THDM", std::map<std::string,std::shared_ptr<CoefficientGroup>>({std::make_pair("BCoefficient", std::make_shared<BCoefficientGroup_THDM>(81.)),
-            std::make_pair("BCoefficient", std::make_shared<BScalarCoefficientGroup_THDM>(81.)),std::make_pair("BCoefficient", std::make_shared<BPrimeCoefficientGroup_THDM>(81.))}), m_W, scale, "LO");
+            manager = CoefficientManager::Builder(std::to_string(model), std::map<std::string,std::shared_ptr<CoefficientGroup>>({std::make_pair("BCoefficient", std::make_shared<BCoefficientGroup_THDM>(81.)),
+            std::make_pair("BScalarCoefficient", std::make_shared<BScalarCoefficientGroup_THDM>(81.)),std::make_pair("BPrimeCoefficient", std::make_shared<BPrimeCoefficientGroup_THDM>(81.))}), m_W, scale, "LO");
             break;
         default:
             LOG_ERROR("ModelError", "Unknown model requested for Wilson coefficient calculation.");
             // return nullptr;
     }
-    // wm->setScale(scale, true, traditional_basis);
-    // return 0;
+    return manager;
 }
 
 complex_t get_c_CKM_entry(int idx) {
@@ -46,7 +46,7 @@ complex_t ObsEvaluator::Evaluate(Observable *o) {
     std::cout << "in Evaluate " << std::endl;
     auto p = Parameters::GetInstance(0);
     std::cout << "in Evaluate2" << std::endl;
-    ObsEvaluator::computeWilsons(o->getModel(), o->getOrder(), o->getScale(), o->getWilsonBasis() == 2);
+    CoefficientManager* manager = ObsEvaluator::computeWilsons(o->getModel(), o->getOrder(), o->getScale(), o->getWilsonBasis() == 2);
     std::cout << "in Evaluate3 " << std::endl;
     // if (!wm) {
     //     return std::complex<double>(-1);
@@ -54,18 +54,18 @@ complex_t ObsEvaluator::Evaluate(Observable *o) {
 
     switch (o->getId()) {
         case Observables::BR_BS_MUMU:
-            return ObsEvaluator::Bs_mumu(false);
+            return ObsEvaluator::Bs_mumu(manager, false);
         case Observables::BR_BS_MUMU_UNTAG:
-            return ObsEvaluator::Bs_mumu(true);
+            return ObsEvaluator::Bs_mumu(manager,true);
         case Observables::BR_BD_MUMU:
-            return ObsEvaluator::Bd_mumu();
+            return ObsEvaluator::Bd_mumu(manager);
         case Observables::BR_BU_TAUNU:
             return ObsEvaluator::Bu_taunu(o->getModel(), false);
         case Observables::BR_BU_TAUNU_NP_ONLY:
             return ObsEvaluator::Bu_taunu(o->getModel(), true);
         case Observables::ISOSPIN_ASYMMETRY_B_KSTAR_GAMMA:
             return 0;
-            return ObsEvaluator::Delta_0_B_Kstargamma(o->getScale());
+            return ObsEvaluator::Delta_0_B_Kstargamma(manager, o->getScale());
         case Observables::LAST:
             return 0;
         case Observables::FIRST:
@@ -76,18 +76,18 @@ complex_t ObsEvaluator::Evaluate(Observable *o) {
     }
 }
 
-complex_t ObsEvaluator::Bs_mumu(bool untag)
+complex_t ObsEvaluator::Bs_mumu(CoefficientManager* manager, bool untag)
 {
     std::cout << "Bs_mummu" << std::endl;
     auto sm_p = Parameters::GetInstance(0); // SM params
     auto flav_p = Parameters::GetInstance(3); // Flavor params
 
-    complex_t C10 = wm->get_full(WilsonCoefficient::C10, 2);
-    complex_t CP10 = wm->get_full(WilsonCoefficient::CP10, 0);
-    complex_t CQ1 = wm->get_full(WilsonCoefficient::CQ1, 1);
-    complex_t CQ2 = wm->get_full(WilsonCoefficient::CQ2, 1);
-    complex_t CPQ1 = wm->get_full(WilsonCoefficient::CPQ1, 0);
-    complex_t CPQ2 = wm->get_full(WilsonCoefficient::CPQ2, 0);
+    complex_t C10 = manager->getFullRunCoefficient("BCoefficient", "C10", "NNLO");
+    complex_t CP10 = manager->getFullRunCoefficient("BPrimeCoefficient", "CP10", "LO");
+    complex_t CQ1 = manager->getFullRunCoefficient("BScalarCoefficient", "CQ1", "NLO");
+    complex_t CQ2 = manager->getFullRunCoefficient("BScalarCoefficient", "CQ2", "NLO");
+    complex_t CPQ1 = manager->getFullRunCoefficient("BPrimeCoefficient", "CPQ1", "LO");
+    complex_t CPQ2 = manager->getFullRunCoefficient("BPrimeCoefficient", "CPQ2", "LO");
 
     double G_F = (*sm_p)("SMINPUTS", 2);
     double inv_alpha_em = (*sm_p)("SMINPUTS", 1);
@@ -104,8 +104,8 @@ complex_t ObsEvaluator::Bs_mumu(bool untag)
 
     double untag_factor = 1;
     if (untag) {
-        WilsonManager* wm_sm = ObsEvaluator::computeWilsons(0, 2, m_Bs);
-        complex_t C10_SM = wm_sm->get_full(WilsonCoefficient::C10, 2);
+        CoefficientManager* manager_sm = ObsEvaluator::computeWilsons(0, 2, m_Bs);
+        complex_t C10_SM = manager_sm->getFullRunCoefficient("BCoefficient", "C10", "NNLO");
         complex_t S = std::sqrt(1 - 4 * r * r) * x / 2 / r * (CQ1 - CPQ1) / C10_SM;
         complex_t P = (C10 - CP10 + x * (CQ2 - CPQ2) / (2 * r)) / C10_SM;
         double magn_S = std::pow(std::abs(S), 2);
@@ -121,14 +121,14 @@ complex_t ObsEvaluator::Bs_mumu(bool untag)
             * ((1 - 4 * r * r) * pow(x * std::abs(CQ1 - CPQ1), 2) + pow(std::abs(x * (CQ2 - CPQ2) + 2 * r * (C10 - CP10)), 2));
 }
 
-complex_t ObsEvaluator::Bd_mumu() {
+complex_t ObsEvaluator::Bd_mumu(CoefficientManager* manager) {
     std::cout << "Bdmumu " << std::endl;
     auto sm_p = Parameters::GetInstance(0); // SM params
     auto flav_p = Parameters::GetInstance(3); // Flavor params
 
-    complex_t C10 = wm->get_full(WilsonCoefficient::C10, 2);
-    complex_t CQ1 = wm->get_full(WilsonCoefficient::CQ1, 1);
-    complex_t CQ2 = wm->get_full(WilsonCoefficient::CQ2, 1);
+    complex_t C10 = manager->getFullRunCoefficient("BCoefficient", "C10", "NNLO");
+    complex_t CQ1 = manager->getFullRunCoefficient("BScalarCoefficient", "CQ1", "NLO");
+    complex_t CQ2 = manager->getFullRunCoefficient("BScalarCoefficient", "CQ2", "NLO");
 
     std::cout << "C1000000" << std::real(C10) << std::endl;
     std::cout << "CQ111111" << std::real(CQ1) << std::endl;
@@ -186,7 +186,7 @@ complex_t ObsEvaluator::Bu_taunu(int model, bool np_only) {
     return np_only ? np_fact : np_fact * BR_SM;
 }
 
-complex_t ObsEvaluator::Delta_0_B_Kstargamma(double mu_b) {
+complex_t ObsEvaluator::Delta_0_B_Kstargamma(CoefficientManager* manager, double mu_b) {
     std::cout << "Delta_0 " << std::endl;
     auto sm_p = Parameters::GetInstance(0); // SM params
     auto flav_p = Parameters::GetInstance(3); // Flavor params
@@ -216,22 +216,26 @@ complex_t ObsEvaluator::Delta_0_B_Kstargamma(double mu_b) {
     double a_2_par = FFInput::a_2_par * std::pow(eta, (FFInput::gamma_n_par(2, N) - C_F) / b0);
     double lambda_B = FFInput::lambda_B / (1 - alphas_mu_h * std::log(std::pow(mu_h, 2)) * 1.8 / (3 * PI));
     
-    complex_t C1 = wm->get_full(WilsonCoefficient::C1, 1) + wm->get_full(WilsonCoefficient::CP1, 1);
-    complex_t C2 = wm->get_full(WilsonCoefficient::C2, 1) + wm->get_full(WilsonCoefficient::CP2, 0);
-    complex_t C3 = wm->get_full(WilsonCoefficient::C3, 1);
-    complex_t CP3 = wm->get_full(WilsonCoefficient::CP3, 0);
-    complex_t C4 = wm->get_full(WilsonCoefficient::C4, 1);
-    complex_t CP4 = wm->get_full(WilsonCoefficient::CP4, 0);
-    complex_t C5 = wm->get_full(WilsonCoefficient::C5, 1);
-    complex_t CP5 = wm->get_full(WilsonCoefficient::CP5, 0);
-    complex_t C6 = wm->get_full(WilsonCoefficient::C6, 1);
-    complex_t CP6 = wm->get_full(WilsonCoefficient::CP6, 0);
-    complex_t C7 = wm->get_full(WilsonCoefficient::C7, 1) + wm->get_full(WilsonCoefficient::CP7, 0);
-    complex_t C8 = wm->get_full(WilsonCoefficient::C8, 1) + wm->get_full(WilsonCoefficient::CP8, 0);
+    complex_t C1 = manager->getFullRunCoefficient("BCoefficient", "C1", "NLO") + manager->getFullRunCoefficient("BPrimeCoefficient", "CP1", "NLO");
+    complex_t C2 = manager->getFullRunCoefficient("BCoefficient", "C2", "NLO") + manager->getFullRunCoefficient("BPrimeCoefficient", "CP2", "LO");
+    complex_t C3 = manager->getFullRunCoefficient("BCoefficient", "C3", "NLO");
+    complex_t CP3 = manager->getFullRunCoefficient("BPrimeCoefficient", "CP3", "LO");
+    complex_t C4 = manager->getFullRunCoefficient("BCoefficient", "C4", "NLO");
+    complex_t CP4 = manager->getFullRunCoefficient("BPrimeCoefficient", "CP4", "LO");
+    complex_t C5 = manager->getFullRunCoefficient("BCoefficient", "C5", "NLO");
+    complex_t CP5 = manager->getFullRunCoefficient("BPrimeCoefficient", "CP5", "LO");
+    complex_t C6 = manager->getFullRunCoefficient("BCoefficient", "C6", "NLO");
+    complex_t CP6 = manager->getFullRunCoefficient("BPrimeCoefficient", "CP6", "LO");
+    complex_t C7 = manager->getFullRunCoefficient("BCoefficient", "C7", "NLO") + manager->getFullRunCoefficient("BPrimeCoefficient", "CP7", "LO");
+    complex_t C8 = manager->getFullRunCoefficient("BCoefficient", "C8", "NLO") + manager->getFullRunCoefficient("BPrimeCoefficient", "CP8", "LO");
 
-    wm->setScale(mu_h, true, true);
-    complex_t C2_h = wm->get_full(WilsonCoefficient::C2, 2) + wm->get_full(WilsonCoefficient::CP2, 2);
-    complex_t C8_h = wm->get_full(WilsonCoefficient::C8, 2) + wm->get_full(WilsonCoefficient::CP8, 2);
+    manager->setGroupScale("BCoefficientGroup", mu_h);
+    manager->setGroupScale("BPrimeCoefficientGroup", mu_h);
+    manager->setGroupScale("BScalarCoefficientGroup", mu_h);
+    manager->switchbasis("BCoefficientGroup");
+
+    complex_t C2_h = manager->getFullRunCoefficient("BCoefficient", "C2", "NNLO") + manager->getFullRunCoefficient("BPrimeCoefficient", "CP2", "NNLO");
+    complex_t C8_h = manager->getFullRunCoefficient("BCoefficient", "C2",  "NNLO") + manager->getFullRunCoefficient("BPrimeCoefficient", "CP8", "NNLO");
     
     double m_b_mu_b = sm_p->running_mass(m_b, m_b, mu_b, "pole");
     double m_b_1S = sm_p->get_QCD_masse("mb_1S");

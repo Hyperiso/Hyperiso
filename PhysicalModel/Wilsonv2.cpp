@@ -201,6 +201,7 @@ void BCoefficientGroup::set_base_1_LO() {
     if (++it == this->end()) {
         std::cout << "Ca marche ! " << std::endl;
     }
+    this->base["LO"] = 1;
 }
 
 void BCoefficientGroup::set_base_1_NLO() {
@@ -248,6 +249,7 @@ void BCoefficientGroup::set_base_1_NLO() {
     _ += fourPiOverAlphasMu * W_param->eta_mu * (W_param->U0)[8][8] * it->second->get_CoefficientMatchingValue("NLO");
     (it++)->second->set_WilsonCoeffRun("NLO", _);
     it->second->set_WilsonCoeffRun("NLO", W_param->eta_mu * it->second->get_CoefficientMatchingValue("NLO"));
+    this->base["NLO"] = 1;
 }
 
 void BCoefficientGroup::set_base_1_NNLO() {
@@ -299,6 +301,7 @@ void BCoefficientGroup::set_base_1_NNLO() {
 
     _ += fourPiOverAlphasMu * W_param->eta_mu * W_param->eta_mu * ((W_param->U0)[8][8] * it->second->get_CoefficientMatchingValue("NLO") + (W_param->U1)[8][8] * it->second->get_CoefficientMatchingValue("LO"));
     (it++)->second->set_WilsonCoeffRun("NLO", _);
+    this->base["NNLO"] = 1;
 }
 
 void BScalarCoefficientGroup::set_base_1_LO() {

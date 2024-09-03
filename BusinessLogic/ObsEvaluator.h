@@ -11,18 +11,18 @@ typedef std::complex<double> complex_t;
 
 class ObsEvaluator {
 private:
-    void computeWilsons(int model, int order, double scale, bool traditional_basis);
+    static CoefficientManager* computeWilsons(int model, int order, double scale, bool traditional_basis);
 
-    complex_t Bs_mumu(bool untag);
-    complex_t Bd_mumu();
-    complex_t Bu_taunu(int model, bool np_only);
-    complex_t Delta_0_B_Kstargamma(double mu_b);
+    static complex_t Bs_mumu(CoefficientManager* manager, bool untag);
+    static complex_t Bd_mumu(CoefficientManager* manager);
+    static complex_t Bu_taunu(int model, bool np_only);
+    static complex_t Delta_0_B_Kstargamma(CoefficientManager* manager, double mu_b);
 
-    CoefficientManager* manager;
+    
 
 
 public:
-    complex_t Evaluate(Observable* o);
+    static complex_t Evaluate(Observable* o);
     
 };
 
