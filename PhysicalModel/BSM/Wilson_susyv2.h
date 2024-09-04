@@ -106,7 +106,7 @@ public:
 
     std::complex<double> LO_calculation() override;
     std::complex<double> NLO_calculation() override;
-    std::complex<double> NNLO_calculation() override {return {0,0};} 
+    std::complex<double> NNLO_calculation() override;
 
 };
 
@@ -118,7 +118,7 @@ public:
 
     std::complex<double> LO_calculation()override;
     std::complex<double> NLO_calculation() override;
-    std::complex<double> NNLO_calculation() override {return {0,0};} 
+    std::complex<double> NNLO_calculation() override; 
 
 };
 

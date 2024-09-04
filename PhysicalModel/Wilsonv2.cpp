@@ -344,10 +344,11 @@ void BScalarCoefficientGroup::set_base_1_LO() {
 }
 
 void BScalarCoefficientGroup::set_base_1_NLO() {
-    complex_t coeff_temp= this->at("CQ1")->get_CoefficientMatchingValue("LO")* pow(W_param->eta_mu,-4./W_param->beta0)*W_param->eta_mu;
-    this->at("CQ1")->set_WilsonCoeffRun("LO", coeff_temp);
-    complex_t coeff_temp2= this->at("CQ2")->get_CoefficientMatchingValue("LO")* pow(W_param->eta_mu,-4./W_param->beta0)*W_param->eta_mu;
-    this->at("CQ2")->set_WilsonCoeffRun("LO", coeff_temp2);
+    complex_t coeff_temp= this->at("CQ1")->get_CoefficientMatchingValue("NLO")* pow(W_param->eta_mu,-4./W_param->beta0)*W_param->eta_mu;
+    this->at("CQ1")->set_WilsonCoeffRun("NLO", coeff_temp);
+    complex_t coeff_temp2= this->at("CQ2")->get_CoefficientMatchingValue("NLO")* pow(W_param->eta_mu,-4./W_param->beta0)*W_param->eta_mu;
+    this->at("CQ2")->set_WilsonCoeffRun("NLO", coeff_temp2);
+    std::cout << coeff_temp2 << std::endl;
 }
 
 void BPrimeCoefficientGroup::set_base_1_LO() {
@@ -355,6 +356,11 @@ void BPrimeCoefficientGroup::set_base_1_LO() {
     this->at("CP7")->set_WilsonCoeffRun("LO", coeff_temp);
     complex_t coeff_temp2= this->at("CP8")->get_CoefficientMatchingValue("LO")* std::pow(W_param->eta_mu, 14. / 23.);
     this->at("CP8")->set_WilsonCoeffRun("LO", coeff_temp2);
+
+    complex_t coeff_temp5= this->at("CP9")->get_CoefficientMatchingValue("LO");
+    this->at("CP9")->set_WilsonCoeffRun("LO", coeff_temp5);
+    complex_t coeff_temp6= this->at("CP10")->get_CoefficientMatchingValue("LO");
+    this->at("CP10")->set_WilsonCoeffRun("LO", coeff_temp6);
 
     complex_t coeff_temp3= this->at("CPQ1")->get_CoefficientMatchingValue("LO")* pow(W_param->eta_mu,-4./W_param->beta0);
     this->at("CPQ1")->set_WilsonCoeffRun("LO", coeff_temp3);

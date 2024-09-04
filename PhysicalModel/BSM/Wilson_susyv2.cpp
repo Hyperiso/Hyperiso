@@ -37,9 +37,9 @@ std::complex<double> C3_susy::NNLO_calculation() {
 	}
 
 	C3charg_2 *= (*sus_param).kappa;
-
-    this->set_CoefficientMatchingValue("NNLO", C3charg_2);
-    return C3charg_2;
+	double C3H_2 = G3H(sus_param->yt,sus_param->lu)+Delta3H(sus_param->yt,sus_param->lu)*log(pow(this->get_Q_match()/(*susy)("MASS",37),2.));
+    this->set_CoefficientMatchingValue("NNLO", C3charg_2 + C3H_2);
+    return C3charg_2 + C3H_2;
 }
 
 std::complex<double> C4_susy::NLO_calculation() {
@@ -79,8 +79,9 @@ std::complex<double> C4_susy::NNLO_calculation() {
 
     C4charg_2 *= (*sus_param).kappa;
 	C4four_2 *= (*sus_param).kappa;
-    this->set_CoefficientMatchingValue("NNLO", C4charg_2+C4four_2);
-    return C4charg_2+C4four_2;
+	double C4H_2=G4H(sus_param->yt,sus_param->lu)+Delta4H(sus_param->yt,sus_param->lu)*log(pow(this->get_Q_match()/(*susy)("MASS",37),2.));
+    this->set_CoefficientMatchingValue("NNLO", C4charg_2+C4four_2+C4H_2);
+    return C4charg_2+C4four_2+C4H_2;
 }
 
 std::complex<double> C5_susy::NNLO_calculation() {
@@ -98,10 +99,14 @@ std::complex<double> C5_susy::NNLO_calculation() {
 			C4charg_1+= pow((*sm)("MASS", 24)/(*sus_param).Mch[ie],2.)*((*sus_param).X_UL[ie][ae][1]*(*sus_param).X_UL[ie][ae][2]*h40(pow((*sus_param).MsqU[ae]/(*sus_param).Mch[ie],2.)));
 		}
 	}
+	C3charg_2 *= (*sus_param).kappa;
 	C4charg_1 *= (*sus_param).kappa;
 	complex_t C5charg_2 = -C3charg_2 / 10.0 + 2.0 / 15.0 * C4charg_1;
-    this->set_CoefficientMatchingValue("NNLO", C5charg_2);
-    return C5charg_2;
+	double C4H_1=EH(sus_param->yt,sus_param->lu);
+    double C3H_2=G3H(sus_param->yt,sus_param->lu)+Delta3H(sus_param->yt,sus_param->lu)*log(pow(this->get_Q_match()/(*susy)("MASS",37),2.));
+	double C5H_2=-C3H_2/10.+2./15.*C4H_1;
+    this->set_CoefficientMatchingValue("NNLO", C5charg_2+C5H_2);
+    return C5charg_2+C5H_2;
 }
 
 std::complex<double> C6_susy::NNLO_calculation() {
@@ -122,8 +127,11 @@ std::complex<double> C6_susy::NNLO_calculation() {
 	C3charg_2 *= (*sus_param).kappa;
 	C4charg_1 *= (*sus_param).kappa;
     complex_t C6charg_2 = -3.0 / 16.0 * C3charg_2 + 1.0 / 4.0 * C4charg_1;
-    this->set_CoefficientMatchingValue("NNLO", C6charg_2);
-    return C6charg_2;
+	complex_t C4H_1=EH(sus_param->yt,sus_param->lu);
+    complex_t C3H_2=G3H(sus_param->yt,sus_param->lu)+Delta3H(sus_param->yt,sus_param->lu)*log(pow(this->get_Q_match()/(*susy)("MASS",37),2.));
+	complex_t C6H_2=-3./16.*C3H_2+1./4.*C4H_1;
+    this->set_CoefficientMatchingValue("NNLO", C6charg_2+C6H_2);
+    return C6charg_2+C6H_2;
 }
 
 
@@ -203,6 +211,11 @@ std::complex<double> C7_susy::NLO_calculation() {
 
 }
 
+std::complex<double> C7_susy::NNLO_calculation() {
+	double coeff_temp =C7H2(sus_param->yt,sus_param->lu,sus_param->ld,log(pow(this->get_Q_match()/sus_param->mass_top_muW, 2.)));
+    return this->double_to_complex_save("NNLO", coeff_temp);
+}
+
 std::complex<double> C8_susy::LO_calculation() {
 
 	complex_t C8SMeps_0= ((*sus_param).epsilonb-(*sus_param).epsilonbp)/(1.+(*sus_param).epsilonb*(*susy)("HMIX",2))*(*susy)("HMIX",2)*F8_2((*sus_param).xt);
@@ -268,6 +281,11 @@ std::complex<double> C8_susy::NLO_calculation() {
 
     this->set_CoefficientMatchingValue("NLO", C8charg_1 + C8four_1+C8H_1);
     return C8charg_1 + C8four_1 + C8H_1;
+}
+
+std::complex<double> C8_susy::NNLO_calculation() {
+	double coeff_temp =C8H2(sus_param->yt,sus_param->lu,sus_param->ld,log(pow(this->get_Q_match()/sus_param->mass_top_muW, 2.)));
+    return this->double_to_complex_save("NNLO", coeff_temp);
 }
 
 std::complex<double> C9_susy::LO_calculation() {
@@ -581,7 +599,7 @@ std::complex<double> C10_susy::NLO_calculation() {
 }
 
 std::complex<double> CP7_susy::LO_calculation() {
-
+	sus_param->reset_PrimeCQG(this->get_Q_match());
 	double C7pH=(*sm)("MASS",3)*(*sus_param).mass_b_muW/(*sus_param).mass_top_muW/(*sus_param).mass_top_muW*1./3.*(*sus_param).ld*(*sus_param).ld*F7_1((*sus_param).yt);
 	
 
@@ -622,6 +640,7 @@ std::complex<double> CP8_susy::LO_calculation() {
 }
 
 std::complex<double> CP9_susy::LO_calculation() {
+	sus_param->reset_PrimeCQG(this->get_Q_match());
     double B10pc=0.;
 	double C9pc=0.;
 	double B9pc=0.;
@@ -662,11 +681,15 @@ std::complex<double> CP9_susy::LO_calculation() {
 	D9pc*=(*sus_param).kappa;
 
 	double C9pcharg=(1.-4.*(*sus_param).sw2)/(*sus_param).sw2*C9pc-B9pc/(*sus_param).sw2-D9pc;
-
+	std::cout << "C9pcharg" << C9pcharg << std::endl;
+	std::cout << "C9pH" << C9pH << std::endl;
+	std::cout << "C9pcharg" << C9pcharg << std::endl;
+	std::cout << "total" << C9pH+ C9pcharg<< std::endl;
     return this->double_to_complex_save("LO", C9pH+C9pcharg);	
 }
 
 std::complex<double> CP10_susy::LO_calculation() {
+	sus_param->reset_PrimeCQG(this->get_Q_match());
     double B10pc=0.;
 	double C9pc=0.;
 
@@ -702,7 +725,7 @@ std::complex<double> CP10_susy::LO_calculation() {
 }
 
 std::complex<double> CPQ1_susy::LO_calculation() {
-
+	sus_param->reset_PrimeCQG(this->get_Q_match());
 	double BQ1pc1=0.;
 	double BQ1pc2=0.;
 
@@ -764,6 +787,7 @@ std::complex<double> CPQ1_susy::LO_calculation() {
 }
 
 std::complex<double> CPQ2_susy::LO_calculation() {
+	sus_param->reset_PrimeCQG(this->get_Q_match());
 	double BQ1pc1=0.;
 	double BQ1pc2=0.;
 
@@ -829,6 +853,7 @@ std::complex<double> CPQ2_susy::LO_calculation() {
 }
 
 std::complex<double> CQ1_susy::LO_calculation() {
+	sus_param->reset_PrimeCQG(this->get_Q_match());
 	complex_t BQ10c1=0.;
 	complex_t BQ10c2=0.;
 
@@ -1006,7 +1031,7 @@ std::complex<double> CQ1_susy::LO_calculation() {
 }
 
 std::complex<double> CQ1_susy::NLO_calculation() {
-
+	sus_param->reset_PrimeCQG(this->get_Q_match());
 	complex_t NQ11H=-W_param->ml*((*susy)("HMIX",2))*(*susy)("HMIX",2)/4./(*sm)("MASS",24)/(*sm)("MASS",24)*(f141((*sus_param).xt,(*sus_param).z)+8.*(*sus_param).xt*(f30((*sus_param).xt,(*sus_param).z)+(*sus_param).xt*(f30((*sus_param).xt*1.0001,(*sus_param).z)-f30((*sus_param).xt*0.9999,(*sus_param).z))/0.0002)*log(this->get_Q_match()*this->get_Q_match()/(*sus_param).mass_top_muW/(*sus_param).mass_top_muW));
 	complex_t BQ11H=W_param->ml*((*susy)("HMIX",2))*(*susy)("HMIX",2)/4./(*sm)("MASS",24)/(*sm)("MASS",24)*(f111((*sus_param).xt,(*sus_param).z)+8.*(f70((*sus_param).xt*1.0001,(*sus_param).z)-f70((*sus_param).xt*0.9999,(*sus_param).z))/0.0002*log(this->get_Q_match()*this->get_Q_match()/(*sus_param).mass_top_muW/(*sus_param).mass_top_muW));
 	complex_t CQ1H_1=(NQ11H+BQ11H)*(*sus_param).mass_b_muW/(*sus_param).sw2;
@@ -1139,6 +1164,7 @@ std::complex<double> CQ1_susy::NLO_calculation() {
 }
 
 std::complex<double> CQ2_susy::LO_calculation() {
+	sus_param->reset_PrimeCQG(this->get_Q_match());
     complex_t BQ10c1=0.;
 	complex_t BQ10c2=0.;
 
@@ -1329,7 +1355,7 @@ std::complex<double> CQ2_susy::LO_calculation() {
 }
 
 std::complex<double> CQ2_susy::NLO_calculation() {
-
+	sus_param->reset_PrimeCQG(this->get_Q_match());
 
 	complex_t NQ11H=-W_param->ml*((*susy)("HMIX",2))*(*susy)("HMIX",2)/4./(*sm)("MASS",24)/(*sm)("MASS",24)*(f141((*sus_param).xt,(*sus_param).z)+8.*(*sus_param).xt*(f30((*sus_param).xt,(*sus_param).z)+(*sus_param).xt*(f30((*sus_param).xt*1.0001,(*sus_param).z)-f30((*sus_param).xt*0.9999,(*sus_param).z))/0.0002)*log(this->get_Q_match()*this->get_Q_match()/(*sus_param).mass_top_muW/(*sus_param).mass_top_muW));
 	complex_t BQ11H=W_param->ml*((*susy)("HMIX",2))*(*susy)("HMIX",2)/4./(*sm)("MASS",24)/(*sm)("MASS",24)*(f111((*sus_param).xt,(*sus_param).z)+8.*(f70((*sus_param).xt*1.0001,(*sus_param).z)-f70((*sus_param).xt*0.9999,(*sus_param).z))/0.0002*log(this->get_Q_match()*this->get_Q_match()/(*sus_param).mass_top_muW/(*sus_param).mass_top_muW));
@@ -1454,7 +1480,7 @@ std::complex<double> CQ2_susy::NLO_calculation() {
 
     complex_t coeff_temp = (CQ2H_1+CQ2charg_1)/sus_param->epsfac+CQ2four_1;
     this->set_CoefficientMatchingValue("NLO", coeff_temp);
-
+	std::cout << coeff_temp << std::endl;
 	return coeff_temp;
 }
 
