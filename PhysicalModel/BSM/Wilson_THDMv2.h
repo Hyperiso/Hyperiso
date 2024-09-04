@@ -357,39 +357,39 @@ class BCoefficientGroup_THDM : public BCoefficientGroup {
 
 public:
     BCoefficientGroup_THDM() {this->clear();
-        this->insert(std::make_pair("C1", std::make_unique<C1_THDM>())); this->insert(std::make_pair("C2", std::make_unique<C2_THDM>())); this->insert(std::make_pair("C3", std::make_unique<C3_THDM>()));
-        this->insert(std::make_pair("C4", std::make_unique<C4_THDM>()));  this->insert(std::make_pair("C5", std::make_unique<C5_THDM>())); this->insert(std::make_pair("C6", std::make_unique<C6_THDM>())); 
-        this->insert(std::make_pair("C7", std::make_unique<C7_THDM>()));  this->insert(std::make_pair("C8", std::make_unique<C8_THDM>()));  this->insert(std::make_pair("C9", std::make_unique<C9_THDM>())); 
-        this->insert(std::make_pair("C10", std::make_unique<C10_THDM>())); 
+        this->insert(std::make_pair("C1", std::make_shared<C1_THDM>())); this->insert(std::make_pair("C2", std::make_shared<C2_THDM>())); this->insert(std::make_pair("C3", std::make_shared<C3_THDM>()));
+        this->insert(std::make_pair("C4", std::make_shared<C4_THDM>()));  this->insert(std::make_pair("C5", std::make_shared<C5_THDM>())); this->insert(std::make_pair("C6", std::make_shared<C6_THDM>())); 
+        this->insert(std::make_pair("C7", std::make_shared<C7_THDM>()));  this->insert(std::make_pair("C8", std::make_shared<C8_THDM>()));  this->insert(std::make_pair("C9", std::make_shared<C9_THDM>())); 
+        this->insert(std::make_pair("C10", std::make_shared<C10_THDM>())); 
     }
     BCoefficientGroup_THDM(double Q_match) {this->clear();
-        this->insert(std::make_pair("C1", std::make_unique<C1_THDM>(Q_match))); this->insert(std::make_pair("C2", std::make_unique<C2_THDM>(Q_match))); this->insert(std::make_pair("C3", std::make_unique<C3_THDM>(Q_match)));
-        this->insert(std::make_pair("C4", std::make_unique<C4_THDM>(Q_match)));  this->insert(std::make_pair("C5", std::make_unique<C5_THDM>(Q_match))); this->insert(std::make_pair("C6", std::make_unique<C6_THDM>(Q_match))); 
-        this->insert(std::make_pair("C7", std::make_unique<C7_THDM>(Q_match)));  this->insert(std::make_pair("C8", std::make_unique<C8_THDM>(Q_match)));  this->insert(std::make_pair("C9", std::make_unique<C9_THDM>(Q_match))); 
-        this->insert(std::make_pair("C10", std::make_unique<C10_THDM>(Q_match)));
+        this->insert(std::make_pair("C1", std::make_shared<C1_THDM>(Q_match))); this->insert(std::make_pair("C2", std::make_shared<C2_THDM>(Q_match))); this->insert(std::make_pair("C3", std::make_shared<C3_THDM>(Q_match)));
+        this->insert(std::make_pair("C4", std::make_shared<C4_THDM>(Q_match)));  this->insert(std::make_pair("C5", std::make_shared<C5_THDM>(Q_match))); this->insert(std::make_pair("C6", std::make_shared<C6_THDM>(Q_match))); 
+        this->insert(std::make_pair("C7", std::make_shared<C7_THDM>(Q_match)));  this->insert(std::make_pair("C8", std::make_shared<C8_THDM>(Q_match)));  this->insert(std::make_pair("C9", std::make_shared<C9_THDM>(Q_match))); 
+        this->insert(std::make_pair("C10", std::make_shared<C10_THDM>(Q_match)));
     }
     BCoefficientGroup_THDM(double Q_match, int gen) {
-        this->insert(std::make_pair("C1", std::make_unique<C1_THDM>(Q_match, gen))); this->insert(std::make_pair("C2", std::make_unique<C2_THDM>(Q_match, gen))); this->insert(std::make_pair("C3", std::make_unique<C3_THDM>(Q_match, gen)));
-        this->insert(std::make_pair("C4", std::make_unique<C4_THDM>(Q_match, gen)));  this->insert(std::make_pair("C5", std::make_unique<C5_THDM>(Q_match, gen))); this->insert(std::make_pair("C6", std::make_unique<C6_THDM>(Q_match, gen))); 
-        this->insert(std::make_pair("C7", std::make_unique<C7_THDM>(Q_match, gen)));  this->insert(std::make_pair("C8", std::make_unique<C8_THDM>(Q_match, gen)));  this->insert(std::make_pair("C9", std::make_unique<C9_THDM>(Q_match, gen))); 
-        this->insert(std::make_pair("C10", std::make_unique<C10_THDM>(Q_match, gen)));
+        this->insert(std::make_pair("C1", std::make_shared<C1_THDM>(Q_match, gen))); this->insert(std::make_pair("C2", std::make_shared<C2_THDM>(Q_match, gen))); this->insert(std::make_pair("C3", std::make_shared<C3_THDM>(Q_match, gen)));
+        this->insert(std::make_pair("C4", std::make_shared<C4_THDM>(Q_match, gen)));  this->insert(std::make_pair("C5", std::make_shared<C5_THDM>(Q_match, gen))); this->insert(std::make_pair("C6", std::make_shared<C6_THDM>(Q_match, gen))); 
+        this->insert(std::make_pair("C7", std::make_shared<C7_THDM>(Q_match, gen)));  this->insert(std::make_pair("C8", std::make_shared<C8_THDM>(Q_match, gen)));  this->insert(std::make_pair("C9", std::make_shared<C9_THDM>(Q_match, gen))); 
+        this->insert(std::make_pair("C10", std::make_shared<C10_THDM>(Q_match, gen)));
     }
 
 };
 
 class BPrimeCoefficientGroup_THDM : public BPrimeCoefficientGroup {
 public:
-    BPrimeCoefficientGroup_THDM() {
-        this->insert(std::make_pair("CP1", std::make_unique<CP1_THDM>())); this->insert(std::make_pair("CP2", std::make_unique<CP2_THDM>())); this->insert(std::make_pair("CP3", std::make_unique<CP3_THDM>()));
-        this->insert(std::make_pair("CP4", std::make_unique<CP4_THDM>()));  this->insert(std::make_pair("CP5", std::make_unique<CP5_THDM>())); this->insert(std::make_pair("CP6", std::make_unique<CP6_THDM>())); 
-        this->insert(std::make_pair("CP7", std::make_unique<CP7_THDM>()));  this->insert(std::make_pair("CP8", std::make_unique<CP8_THDM>()));  this->insert(std::make_pair("CP9", std::make_unique<CP9_THDM>())); 
-        this->insert(std::make_pair("CP10", std::make_unique<CP10_THDM>())); this->insert(std::make_pair("CPQ1", std::make_unique<CPQ1_THDM>())); this->insert(std::make_pair("CPQ2", std::make_unique<CPQ2_THDM>())); 
+    BPrimeCoefficientGroup_THDM() { this->clear();
+        this->insert(std::make_pair("CP1", std::make_shared<CP1_THDM>())); this->insert(std::make_pair("CP2", std::make_shared<CP2_THDM>())); this->insert(std::make_pair("CP3", std::make_shared<CP3_THDM>()));
+        this->insert(std::make_pair("CP4", std::make_shared<CP4_THDM>()));  this->insert(std::make_pair("CP5", std::make_shared<CP5_THDM>())); this->insert(std::make_pair("CP6", std::make_shared<CP6_THDM>())); 
+        this->insert(std::make_pair("CP7", std::make_shared<CP7_THDM>()));  this->insert(std::make_pair("CP8", std::make_shared<CP8_THDM>()));  this->insert(std::make_pair("CP9", std::make_shared<CP9_THDM>())); 
+        this->insert(std::make_pair("CP10", std::make_shared<CP10_THDM>())); this->insert(std::make_pair("CPQ1", std::make_shared<CPQ1_THDM>())); this->insert(std::make_pair("CPQ2", std::make_shared<CPQ2_THDM>())); 
     }
-    BPrimeCoefficientGroup_THDM(double Q_match) {
-        this->insert(std::make_pair("CP1", std::make_unique<CP1_THDM>(Q_match))); this->insert(std::make_pair("CP2", std::make_unique<CP2_THDM>(Q_match))); this->insert(std::make_pair("CP3", std::make_unique<CP3_THDM>(Q_match)));
-        this->insert(std::make_pair("CP4", std::make_unique<CP4_THDM>(Q_match)));  this->insert(std::make_pair("CP5", std::make_unique<CP5_THDM>(Q_match))); this->insert(std::make_pair("CP6", std::make_unique<CP6_THDM>(Q_match))); 
-        this->insert(std::make_pair("CP7", std::make_unique<CP7_THDM>(Q_match)));  this->insert(std::make_pair("CP8", std::make_unique<CP8_THDM>(Q_match)));  this->insert(std::make_pair("CP9", std::make_unique<CP9_THDM>(Q_match))); 
-        this->insert(std::make_pair("CP10", std::make_unique<CP10_THDM>(Q_match))); this->insert(std::make_pair("CPQ1", std::make_unique<CPQ1_THDM>(Q_match))); this->insert(std::make_pair("CPQ2", std::make_unique<CPQ2_THDM>(Q_match)));
+    BPrimeCoefficientGroup_THDM(double Q_match) { this->clear();
+        this->insert(std::make_pair("CP1", std::make_shared<CP1_THDM>(Q_match))); this->insert(std::make_pair("CP2", std::make_shared<CP2_THDM>(Q_match))); this->insert(std::make_pair("CP3", std::make_shared<CP3_THDM>(Q_match)));
+        this->insert(std::make_pair("CP4", std::make_shared<CP4_THDM>(Q_match)));  this->insert(std::make_pair("CP5", std::make_shared<CP5_THDM>(Q_match))); this->insert(std::make_pair("CP6", std::make_shared<CP6_THDM>(Q_match))); 
+        this->insert(std::make_pair("CP7", std::make_shared<CP7_THDM>(Q_match)));  this->insert(std::make_pair("CP8", std::make_shared<CP8_THDM>(Q_match)));  this->insert(std::make_pair("CP9", std::make_shared<CP9_THDM>(Q_match))); 
+        this->insert(std::make_pair("CP10", std::make_shared<CP10_THDM>(Q_match))); this->insert(std::make_pair("CPQ1", std::make_shared<CPQ1_THDM>(Q_match))); this->insert(std::make_pair("CPQ2", std::make_shared<CPQ2_THDM>(Q_match)));
     }
 
     void set_base_1();
@@ -399,11 +399,11 @@ public:
 
 class BScalarCoefficientGroup_THDM : public BScalarCoefficientGroup {
 public:
-    BScalarCoefficientGroup_THDM() {
-        this->insert(std::make_pair("CQ1", std::make_unique<CQ1_THDM>())); this->insert(std::make_pair("CQ2", std::make_unique<CQ2_THDM>()));
+    BScalarCoefficientGroup_THDM() { this->clear();
+        this->insert(std::make_pair("CQ1", std::make_shared<CQ1_THDM>())); this->insert(std::make_pair("CQ2", std::make_shared<CQ2_THDM>()));
     }
-    BScalarCoefficientGroup_THDM(double Q_match) {
-        this->insert(std::make_pair("CQ1", std::make_unique<CQ1_THDM>(Q_match))); this->insert(std::make_pair("CQ2", std::make_unique<CQ2_THDM>(Q_match)));
+    BScalarCoefficientGroup_THDM(double Q_match) { this->clear();
+        this->insert(std::make_pair("CQ1", std::make_shared<CQ1_THDM>(Q_match))); this->insert(std::make_pair("CQ2", std::make_shared<CQ2_THDM>(Q_match)));
     }
 
     void set_base_1();

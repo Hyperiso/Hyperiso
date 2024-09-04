@@ -870,7 +870,7 @@ std::complex<double> CQ1_susy::LO_calculation() {
 	complex_t BQ10c=(BQ10c1+BQ10c2)*(*sus_param).kappa*(*sm)("MASS",24)*(*sm)("MASS",24)/2./(*sm)("GAUGE",2)/(*sm)("GAUGE",2)/(*sus_param).sw2;
 
 	NQ10c*=W_param->ml*((*susy)("HMIX",2))*(*susy)("HMIX",2)/(*sm)("MASS",24)/((*susy)("MASS",37)*(*susy)("MASS",37)-(*sm)("MASS",24)*(*sm)("MASS",24))*(*sus_param).aY*(*sus_param).mass_b_muW/(*sus_param).sw2;
-    double le = (*mod)("YL",10*(W_param->gen-1)+W_param->gen-1);
+    double le = -(*susy)("HMIX", 2);
 	double G1=-3./4.+sus_param->ld*sus_param->lu*F4SP(sus_param->xt,sus_param->xH)+sus_param->lu*sus_param->lu*F5SP(sus_param->xt,sus_param->xH);
 	double G2=sus_param->ld*(sus_param->ld*sus_param->lu+1.)*F6SP(sus_param->xt,sus_param->xH)-sus_param->ld*sus_param->lu*sus_param->lu*F7SP(sus_param->xt,sus_param->xH)
 	+sus_param->lu*sus_param->lu*(sus_param->ld*F8SP(sus_param->xt,sus_param->xH)+sus_param->lu*F9SP(sus_param->xt,sus_param->xH)-sus_param->lu*F10SP(sus_param->xt,sus_param->xH))+sus_param->lu*F11SP(sus_param->xt,sus_param->xH)-sus_param->lu*F12SP(sus_param->xt,sus_param->xH);
@@ -1180,7 +1180,7 @@ std::complex<double> CQ2_susy::LO_calculation() {
 	}
 	complex_t BQ20c=-(BQ10c1-BQ10c2)*(*sus_param).kappa*(*sm)("MASS",24)*(*sm)("MASS",24)/2./(*sm)("GAUGE",2)/(*sm)("GAUGE",2)/(*sus_param).sw2;
 	
-	double le = (*mod)("YL",10*(W_param->gen-1)+W_param->gen-1);
+	double le = -(*susy)("HMIX", 2);
     double G3=sus_param->ld*(sus_param->ld*sus_param->lu+1.)*F6SP(sus_param->xt,sus_param->xH)+sus_param->ld*sus_param->lu*sus_param->lu*F7SP(sus_param->xt,sus_param->xH)
 	+sus_param->lu*sus_param->lu*(sus_param->ld*F8SP(sus_param->xt,sus_param->xH)+sus_param->lu*F9SP(sus_param->xt,sus_param->xH)+sus_param->lu*F10SP(sus_param->xt,sus_param->xH))+sus_param->lu*F11SP(sus_param->xt,sus_param->xH)+sus_param->lu*F12SP(sus_param->xt,sus_param->xH);
     double CPn_2HDM=sus_param->xt*(-le*(sus_param->ld*F1SP(sus_param->xt,sus_param->xH)+sus_param->lu*F2SP(sus_param->xt,sus_param->xH))+le*sus_param->lu*F3SP(sus_param->xt,sus_param->xH))+sus_param->xt/2./sus_param->xA*(le)*G3;

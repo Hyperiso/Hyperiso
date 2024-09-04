@@ -226,14 +226,11 @@ public:
         return ensureGroupState(groupName)->getFullRunCoefficient(this, groupName, coeffName, order);
     }
 
-    // Register a new coefficient group under this manager
     void registerCoefficientGroup(const std::string& groupName, std::shared_ptr<CoefficientGroup> group) {
         coefficientGroups[groupName] = group;
-        // Initialize the state for this new group
         groupStates[groupName] = std::make_unique<InitialState>();
     }
 
-    // Get a coefficient group by name
     CoefficientGroup* getCoefficientGroup(const std::string& groupName) const {
         auto it = coefficientGroups.find(groupName);
         if (it != coefficientGroups.end()) {
@@ -242,12 +239,10 @@ public:
         throw std::invalid_argument("CoefficientGroup not found.");
     }
 
-    // Clean up all instances
     static void Cleanup() {
         instances.clear();
     }
 
-    // Print all coefficients of a group
     void printGroupCoefficients(const std::string& groupName) const {
         CoefficientGroup* group = getCoefficientGroup(groupName);
         std::cout << *dynamic_cast<BCoefficientGroup*>(group);

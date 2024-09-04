@@ -456,18 +456,21 @@ public:
 
     void init_LO() {
         for (auto& coeff : *this) {
+            std::cout << "LO : " << coeff.first << std::endl;
             coeff.second->LO_calculation();
         }
     }
 
     void init_NLO() {
         for (auto& coeff : *this) {
+            std::cout << "NLO : " << coeff.first << std::endl;
             coeff.second->NLO_calculation();
         }
     }
 
     void init_NNLO() {
         for (auto& coeff : *this) {
+            std::cout << "NNLO : " << coeff.first << std::endl;
             coeff.second->NNLO_calculation();
         }
     }

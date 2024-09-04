@@ -6,7 +6,7 @@
 
 class WilsonCoefficient_susy {
 protected:
-    void set_mod_parameters(Parameters* new_mod) {this->mod = new_mod;};
+    // void set_mod_parameters(Parameters* new_mod) {this->mod = new_mod;};
 
     WilsonCoefficient_susy (double Q_match) {this->Q_match = Q_match; sus_param = susy_parameters::GetInstance(this->Q_match);
     calculateContribution = [&](auto hFunc, const Array3D_3x7x4& X, const Array3D_3x7x4& X2, int ie, int ae, bool isChargeps) -> double {
@@ -18,7 +18,7 @@ protected:
         };
     }
     
-    Parameters* mod = Parameters::GetInstance(2);
+    // Parameters* mod = Parameters::GetInstance(2);
     int gen{3};
     double Q_match;
     
@@ -173,7 +173,7 @@ public:
 
 class CP1_susy : public CP1, public WilsonCoefficient_susy {
 public:
-    CP1_susy() : CP1(), WilsonCoefficient_susy(81.) {}
+    CP1_susy() : CP1(), WilsonCoefficient_susy(81.) {std::cout << "333" << std::endl;}
     CP1_susy(double Q_match) : CP1(Q_match), WilsonCoefficient_susy(Q_match) {}
     CP1_susy(double Q_match, int gen) : CP1(Q_match), WilsonCoefficient_susy(Q_match) {}
 
@@ -321,40 +321,40 @@ public:
 class BCoefficientGroup_susy : public BCoefficientGroup {
 
 public:
-    BCoefficientGroup_susy() {
-        this->insert(std::make_pair("C1", std::make_unique<C1_susy>())); this->insert(std::make_pair("C2", std::make_unique<C2_susy>())); this->insert(std::make_pair("C3", std::make_unique<C3_susy>()));
-        this->insert(std::make_pair("C4", std::make_unique<C4_susy>()));  this->insert(std::make_pair("C5", std::make_unique<C5_susy>())); this->insert(std::make_pair("C6", std::make_unique<C6_susy>())); 
-        this->insert(std::make_pair("C7", std::make_unique<C7_susy>()));  this->insert(std::make_pair("C8", std::make_unique<C8_susy>()));  this->insert(std::make_pair("C9", std::make_unique<C9_susy>())); 
-        this->insert(std::make_pair("C10", std::make_unique<C10_susy>())); 
+    BCoefficientGroup_susy() { this->clear();
+        this->insert(std::make_pair("C1", std::make_shared<C1_susy>())); this->insert(std::make_pair("C2", std::make_shared<C2_susy>())); this->insert(std::make_pair("C3", std::make_shared<C3_susy>()));
+        this->insert(std::make_pair("C4", std::make_shared<C4_susy>()));  this->insert(std::make_pair("C5", std::make_shared<C5_susy>())); this->insert(std::make_pair("C6", std::make_shared<C6_susy>())); 
+        this->insert(std::make_pair("C7", std::make_shared<C7_susy>()));  this->insert(std::make_pair("C8", std::make_shared<C8_susy>()));  this->insert(std::make_pair("C9", std::make_shared<C9_susy>())); 
+        this->insert(std::make_pair("C10", std::make_shared<C10_susy>())); 
     }
-    BCoefficientGroup_susy(double Q_match) {
-        this->insert(std::make_pair("C1", std::make_unique<C1_susy>(Q_match))); this->insert(std::make_pair("C2", std::make_unique<C2_susy>(Q_match))); this->insert(std::make_pair("C3", std::make_unique<C3_susy>(Q_match)));
-        this->insert(std::make_pair("C4", std::make_unique<C4_susy>(Q_match)));  this->insert(std::make_pair("C5", std::make_unique<C5_susy>(Q_match))); this->insert(std::make_pair("C6", std::make_unique<C6_susy>(Q_match))); 
-        this->insert(std::make_pair("C7", std::make_unique<C7_susy>(Q_match)));  this->insert(std::make_pair("C8", std::make_unique<C8_susy>(Q_match)));  this->insert(std::make_pair("C9", std::make_unique<C9_susy>(Q_match))); 
-        this->insert(std::make_pair("C10", std::make_unique<C10_susy>(Q_match)));
+    BCoefficientGroup_susy(double Q_match) { this->clear();
+        this->insert(std::make_pair("C1", std::make_shared<C1_susy>(Q_match))); this->insert(std::make_pair("C2", std::make_shared<C2_susy>(Q_match))); this->insert(std::make_pair("C3", std::make_shared<C3_susy>(Q_match)));
+        this->insert(std::make_pair("C4", std::make_shared<C4_susy>(Q_match)));  this->insert(std::make_pair("C5", std::make_shared<C5_susy>(Q_match))); this->insert(std::make_pair("C6", std::make_shared<C6_susy>(Q_match))); 
+        this->insert(std::make_pair("C7", std::make_shared<C7_susy>(Q_match)));  this->insert(std::make_pair("C8", std::make_shared<C8_susy>(Q_match)));  this->insert(std::make_pair("C9", std::make_shared<C9_susy>(Q_match))); 
+        this->insert(std::make_pair("C10", std::make_shared<C10_susy>(Q_match)));
     }
     // BCoefficientGroup_susy(double Q_match, int gen) {
-    //     this->insert(std::make_pair("C1", std::make_unique<C1_susy>(Q_match, gen))); this->insert(std::make_pair("C2", std::make_unique<C2_susy>(Q_match, gen))); this->insert(std::make_pair("C3", std::make_unique<C3_susy>(Q_match, gen)));
-    //     this->insert(std::make_pair("C4", std::make_unique<C4_susy>(Q_match, gen)));  this->insert(std::make_pair("C5", std::make_unique<C5_susy>(Q_match, gen))); this->insert(std::make_pair("C6", std::make_unique<C6_susy>(Q_match, gen))); 
-    //     this->insert(std::make_pair("C7", std::make_unique<C7_susy>(Q_match, gen)));  this->insert(std::make_pair("C8", std::make_unique<C8_susy>(Q_match, gen)));  this->insert(std::make_pair("C9", std::make_unique<C9_susy>(Q_match, gen))); 
-    //     this->insert(std::make_pair("C10", std::make_unique<C10_susy>(Q_match, gen)));
+    //     this->insert(std::make_pair("C1", std::make_shared<C1_susy>(Q_match, gen))); this->insert(std::make_pair("C2", std::make_shared<C2_susy>(Q_match, gen))); this->insert(std::make_pair("C3", std::make_shared<C3_susy>(Q_match, gen)));
+    //     this->insert(std::make_pair("C4", std::make_shared<C4_susy>(Q_match, gen)));  this->insert(std::make_pair("C5", std::make_shared<C5_susy>(Q_match, gen))); this->insert(std::make_pair("C6", std::make_shared<C6_susy>(Q_match, gen))); 
+    //     this->insert(std::make_pair("C7", std::make_shared<C7_susy>(Q_match, gen)));  this->insert(std::make_pair("C8", std::make_shared<C8_susy>(Q_match, gen)));  this->insert(std::make_pair("C9", std::make_shared<C9_susy>(Q_match, gen))); 
+    //     this->insert(std::make_pair("C10", std::make_shared<C10_susy>(Q_match, gen)));
     // }
 
 };
 
 class BPrimeCoefficientGroup_susy : public BPrimeCoefficientGroup {
 public:
-    BPrimeCoefficientGroup_susy() {
-        this->insert(std::make_pair("CP1", std::make_unique<CP1_susy>())); this->insert(std::make_pair("CP2", std::make_unique<CP2_susy>())); this->insert(std::make_pair("CP3", std::make_unique<CP3_susy>()));
-        this->insert(std::make_pair("CP4", std::make_unique<CP4_susy>()));  this->insert(std::make_pair("CP5", std::make_unique<CP5_susy>())); this->insert(std::make_pair("CP6", std::make_unique<CP6_susy>())); 
-        this->insert(std::make_pair("CP7", std::make_unique<CP7_susy>()));  this->insert(std::make_pair("CP8", std::make_unique<CP8_susy>()));  this->insert(std::make_pair("CP9", std::make_unique<CP9_susy>())); 
-        this->insert(std::make_pair("CP10", std::make_unique<CP10_susy>())); this->insert(std::make_pair("CPQ1", std::make_unique<CPQ1_susy>())); this->insert(std::make_pair("CPQ2", std::make_unique<CPQ2_susy>())); 
+    BPrimeCoefficientGroup_susy() { this->clear();
+        this->insert(std::make_pair("CP1", std::make_shared<CP1_susy>())); this->insert(std::make_pair("CP2", std::make_shared<CP2_susy>())); this->insert(std::make_pair("CP3", std::make_shared<CP3_susy>()));
+        this->insert(std::make_pair("CP4", std::make_shared<CP4_susy>()));  this->insert(std::make_pair("CP5", std::make_shared<CP5_susy>())); this->insert(std::make_pair("CP6", std::make_shared<CP6_susy>())); 
+        this->insert(std::make_pair("CP7", std::make_shared<CP7_susy>()));  this->insert(std::make_pair("CP8", std::make_shared<CP8_susy>()));  this->insert(std::make_pair("CP9", std::make_shared<CP9_susy>())); 
+        this->insert(std::make_pair("CP10", std::make_shared<CP10_susy>())); this->insert(std::make_pair("CPQ1", std::make_shared<CPQ1_susy>())); this->insert(std::make_pair("CPQ2", std::make_shared<CPQ2_susy>())); 
     }
-    BPrimeCoefficientGroup_susy(double Q_match) {
-        this->insert(std::make_pair("CP1", std::make_unique<CP1_susy>(Q_match))); this->insert(std::make_pair("CP2", std::make_unique<CP2_susy>(Q_match))); this->insert(std::make_pair("CP3", std::make_unique<CP3_susy>(Q_match)));
-        this->insert(std::make_pair("CP4", std::make_unique<CP4_susy>(Q_match)));  this->insert(std::make_pair("CP5", std::make_unique<CP5_susy>(Q_match))); this->insert(std::make_pair("CP6", std::make_unique<CP6_susy>(Q_match))); 
-        this->insert(std::make_pair("CP7", std::make_unique<CP7_susy>(Q_match)));  this->insert(std::make_pair("CP8", std::make_unique<CP8_susy>(Q_match)));  this->insert(std::make_pair("CP9", std::make_unique<CP9_susy>(Q_match))); 
-        this->insert(std::make_pair("CP10", std::make_unique<CP10_susy>(Q_match))); this->insert(std::make_pair("CPQ1", std::make_unique<CPQ1_susy>(Q_match))); this->insert(std::make_pair("CPQ2", std::make_unique<CPQ2_susy>(Q_match)));
+    BPrimeCoefficientGroup_susy(double Q_match) { this->clear();
+        this->insert(std::make_pair("CP1", std::make_shared<CP1_susy>(Q_match))); this->insert(std::make_pair("CP2", std::make_shared<CP2_susy>(Q_match))); this->insert(std::make_pair("CP3", std::make_shared<CP3_susy>(Q_match)));
+        this->insert(std::make_pair("CP4", std::make_shared<CP4_susy>(Q_match)));  this->insert(std::make_pair("CP5", std::make_shared<CP5_susy>(Q_match))); this->insert(std::make_pair("CP6", std::make_shared<CP6_susy>(Q_match))); 
+        this->insert(std::make_pair("CP7", std::make_shared<CP7_susy>(Q_match)));  this->insert(std::make_pair("CP8", std::make_shared<CP8_susy>(Q_match)));  this->insert(std::make_pair("CP9", std::make_shared<CP9_susy>(Q_match))); 
+        this->insert(std::make_pair("CP10", std::make_shared<CP10_susy>(Q_match))); this->insert(std::make_pair("CPQ1", std::make_shared<CPQ1_susy>(Q_match))); this->insert(std::make_pair("CPQ2", std::make_shared<CPQ2_susy>(Q_match)));
     }
 
 
@@ -362,13 +362,13 @@ public:
 
 class BScalarCoefficientGroup_susy : public BScalarCoefficientGroup {
 public:
-    BScalarCoefficientGroup_susy() : BScalarCoefficientGroup() {
+    BScalarCoefficientGroup_susy() : BScalarCoefficientGroup() { this->clear();
         sus_param = susy_parameters::GetInstance(this->Q_match);
-        this->insert(std::make_pair("CQ1", std::make_unique<CQ1_susy>())); this->insert(std::make_pair("CQ2", std::make_unique<CQ2_susy>()));
+        this->insert(std::make_pair("CQ1", std::make_shared<CQ1_susy>())); this->insert(std::make_pair("CQ2", std::make_shared<CQ2_susy>()));
     }
-    BScalarCoefficientGroup_susy(double Q_match) : BScalarCoefficientGroup(Q_match) {
+    BScalarCoefficientGroup_susy(double Q_match) : BScalarCoefficientGroup(Q_match) { this->clear();
         sus_param = susy_parameters::GetInstance(this->Q_match);
-        this->insert(std::make_pair("CQ1", std::make_unique<CQ1_susy>(Q_match))); this->insert(std::make_pair("CQ2", std::make_unique<CQ2_susy>(Q_match)));
+        this->insert(std::make_pair("CQ1", std::make_shared<CQ1_susy>(Q_match))); this->insert(std::make_pair("CQ2", std::make_shared<CQ2_susy>(Q_match)));
     }
 
     void set_base_1_LO();

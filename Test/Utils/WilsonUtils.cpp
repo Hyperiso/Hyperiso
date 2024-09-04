@@ -89,12 +89,10 @@ void writeCoefficientsPrimeCQToFile(const std::string& strat_name, const std::st
     Parameters* sm = Parameters::GetInstance();
     // WilsonManager* wm = WilsonManager::GetInstance(strat_name, 81.0, strategy);
     
-    
     wm->setQMatch("BPrimeCoefficient", Q_match);
     wm->setMatchingCoefficient("BPrimeCoefficient", strat_name);
     wm->setQMatch("BScalarCoefficient", Q_match);
     wm->setMatchingCoefficient("BScalarCoefficient", strat_name);
-
     double answer = 42.;
     wm->setGroupScale("BPrimeCoefficient", answer);
     wm->setGroupScale("BScalarCoefficient", answer);
