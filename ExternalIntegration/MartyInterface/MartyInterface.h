@@ -4,10 +4,11 @@
 #include "CodeGenerator.h"
 #include "GppCompilerStrategy.h"
 #include "SMModelModifier.h"
-#include "THDMModelModifier.h"
+// #include "THDMModelModifier.h"
 
 class MartyInterface {
 public:
+    void generate();
     void run();
 };
 

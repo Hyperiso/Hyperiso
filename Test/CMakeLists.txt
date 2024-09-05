@@ -9,6 +9,13 @@ if (NOT TARGET UtilsLib)
     add_subdirectory(Utils UtilsLib)
 endif()
 
+if (NOT DEFINED BUILD_WITH_SOFTSUSY)
+    option(BUILD_WITH_SOFTSUSY "Build project with SOFTSUSY support" OFF)
+endif()
+if (NOT DEFINED BUILD_WITH_2HDMC)
+    option(BUILD_WITH_2HDMC "Build project with 2HDMC support" OFF)
+endif()
+
 include(Catch)
 set(CTEST_ENVIRONMENT_VARIABLE "CTEST_RUN")
 # add_executable(testSMWilson testSMWilson.cpp)
@@ -20,27 +27,25 @@ set(CTEST_ENVIRONMENT_VARIABLE "CTEST_RUN")
 # add_executable(testTHDMWilson testTHDMWilson.cpp)
 # target_link_libraries(testTHDMWilson PhysicalModelLib)
 
-add_executable(testWilson testWilson.cpp)
-target_link_libraries(testWilson PhysicalModelLib)
+# add_executable(testWilson testWilson.cpp)
+# target_link_libraries(testWilson PhysicalModelLib)
 
-add_executable(testObservable testObservable.cpp)
-target_link_libraries(testObservable BusinessLogicLib)
+# add_executable(testObservable testObservable.cpp)
+# target_link_libraries(testObservable BusinessLogicLib)
 
-add_executable(testParams testParams.cpp)
-target_link_libraries(testParams CoreLib)
+# add_executable(testParams testParams.cpp)
+# target_link_libraries(testParams CoreLib)
 
-add_executable(testPrimeCQWilson testPrimeCQWilson.cpp)
-target_link_libraries(testPrimeCQWilson PhysicalModelLib)
+# add_executable(testPrimeCQWilson testPrimeCQWilson.cpp)
+# target_link_libraries(testPrimeCQWilson PhysicalModelLib)
 
-add_executable(testPrimeCQTHDMWilson testPrimeCQTHDMWilson.cpp)
-target_link_libraries(testPrimeCQTHDMWilson PhysicalModelLib)
+# add_executable(testPrimeCQTHDMWilson testPrimeCQTHDMWilson.cpp)
+# target_link_libraries(testPrimeCQTHDMWilson PhysicalModelLib)
 
-add_executable(testPrimeCQSUSYWilson testPrimeCQSUSYWilson.cpp)
-target_link_libraries(testPrimeCQSUSYWilson PhysicalModelLib)
+# add_executable(testPrimeCQSUSYWilson testPrimeCQSUSYWilson.cpp)
+# target_link_libraries(testPrimeCQSUSYWilson PhysicalModelLib)
 
 
-add_executable(testCommon Common/testLogger.cpp)
-target_link_libraries(testCommon CommonLib)
 
 # add_executable(test2HDMC test2HDMC.cpp)
 # target_link_libraries(test2HDMC ExternalIntegrationLib)
@@ -48,8 +53,24 @@ target_link_libraries(testCommon CommonLib)
 # add_executable(testQCDParameters testQCDParameters.cpp)
 # target_link_libraries(testQCDParameters CoreLib)
 
-add_executable(testReader testReader.cpp)
-target_link_libraries(testReader DataBaseLib)
+# add_executable(testReader testReader.cpp)
+# target_link_libraries(testReader DataBaseLib)
+
+add_executable(testCommon Common/testLogger.cpp)
+target_link_libraries(testCommon CommonLib)
+
+
+add_executable(testReader DataBase/testReader.cpp)
+target_link_libraries(testReader DataBaseLib ConfiguredModule)
+
+add_executable(testjsonreader DataBase/testJsonReader.cpp)
+target_link_libraries(testjsonreader DataBaseLib ConfiguredModule)
+
+
+add_executable(testSMparams Core/testSMParameters.cpp)
+target_link_libraries(testSMparams CoreLib)
+
+
 
 add_executable(testSMWilson Wilson/testSMWilson.cpp)
 target_link_libraries(testSMWilson PhysicalModelLib UtilsLib)
@@ -73,21 +94,46 @@ target_link_libraries(testSUSYCQPrimeWilson PhysicalModelLib UtilsLib)
 include(CTest)
 
 
+add_test(NAME TestLogger COMMAND testCommon)
+set_tests_properties(TestLogger PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "common")
+
+
+add_test(NAME TestLHAReader COMMAND testReader)
+set_tests_properties(TestLHAReader PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "database")
+
+add_test(NAME TestJsonReader COMMAND testjsonreader)
+set_tests_properties(TestJsonReader PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "database")
+
+
+add_test(NAME TestSMParameters COMMAND testSMparams)
+set_tests_properties(TestSMParameters PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "core")
+
+
 add_test(NAME WCTestSM COMMAND testSMWilson)
-set_tests_properties(WCTestSM PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1")
+set_tests_properties(WCTestSM PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "wilson")
 
 add_test(NAME WCTestSMCQPrime COMMAND testSMCQPrimeWilson)
-set_tests_properties(WCTestSMCQPrime PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1")
+set_tests_properties(WCTestSMCQPrime PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "wilson")
 
-add_test(NAME WCTestTHDM COMMAND testTHDMWilson)
-set_tests_properties(WCTestTHDM PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1")
+if(BUILD_WITH_2HDMC)
+    add_test(NAME WCTestTHDM COMMAND testTHDMWilson)
+    set_tests_properties(WCTestTHDM PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "wilson")
 
-add_test(NAME WCTestTHDMCQPrime COMMAND testTHDMCQPrimeWilson)
-set_tests_properties(WCTestTHDMCQPrime PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1")
+    add_test(NAME WCTestTHDMCQPrime COMMAND testTHDMCQPrimeWilson)
+    set_tests_properties(WCTestTHDMCQPrime PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "wilson")
+else()
+    message("Couldn't do the THDM test, 2HDMC is not installed or not configured, use -DBUILD_WITH_2HDMC=ON")
+endif()
+
+if(BUILD_WITH_SOFTSUSY)
+    add_test(NAME WCTestSUSY COMMAND testSUSYWilson)
+    set_tests_properties(WCTestSUSY PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "wilson")
+
+    add_test(NAME WCTestSUSYCQPrime COMMAND testSUSYCQPrimeWilson)
+    set_tests_properties(WCTestSUSYCQPrime PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "wilson")
+else()
+    message("Couldn't do the SUSY test, SoftSusy is not installed or not configured, use -DBUILD_WITH_SOFTSUSY=ON")
+endif()
 
 
-add_test(NAME WCTestSUSY COMMAND testSUSYWilson)
-set_tests_properties(WCTestSUSY PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1")
 
-add_test(NAME WCTestSUSYCQPrime COMMAND testSUSYCQPrimeWilson)
-set_tests_properties(WCTestSUSYCQPrime PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1")

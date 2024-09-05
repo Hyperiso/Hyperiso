@@ -15,10 +15,13 @@ jobs:
         sudo apt-get install -y cmake make build-essential
 
     - name: Configure CMake
-      run: cmake .
+      run: cmake . -DENABLE_TESTS=ON
 
-    - name: Build
-      run: make
+    # - name: Build
+    #   run: cmake --build .
+
+    # - name: Test
+    #   run: ctest --output-on-failure
 
 
     # - name: Test

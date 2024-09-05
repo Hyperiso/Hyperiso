@@ -115,7 +115,7 @@ private:
 public:
     WilsonInitializer(double mu_match, std::shared_ptr<InitializationStrategy> strat) :
     scale(mu_match), strategy(strat){
-        std::cout <<"Creation of WilsonManager" << std::endl;
+        LOG_TRACE("Creation of WilsonManager");
     }
 
     void init(WilsonSet& C_match) {
@@ -169,11 +169,10 @@ private:
      */
     inline explicit WilsonManager(double mu_match, std::shared_ptr<InitializationStrategy> strat, std::string strategyName): Q_matching(mu_match), strategy(strat), strategyName(strategyName) {
         
-        std::cout <<"Creation of WilsonManager" << std::endl;
+        LOG_TRACE("Creation of WilsonManager Done");
         WilsonInitializer wi{mu_match, strategy};
-        std::cout <<"Creation of WilsonInitializer Done" << std::endl;
+        LOG_TRACE("Creation of WilsonInitializer Done");
         wi.init(C_match);
-        // std::cout << "First wilson Coefficient " << C_match[0][static_cast<size_t>(WilsonCoefficient::C7)] << std::endl;
     }
 
 public:
@@ -202,8 +201,7 @@ public:
         auto it = instances.find(strategyName);
         if (it == instances.end()) {
             if (mu_match == 0.0) {
-                std::cerr << "Error: mu_match should not be 0 during the first creation of WilsonManager." << std::endl;
-                std::exit(EXIT_FAILURE);
+                LOG_ERROR("ValueError", "mu_match should not be 0 during the first creation of WilsonManager.");
             }
             WilsonManager* newInstance = new WilsonManager(mu_match, strategy, strategyName);
             instances[strategyName] = newInstance;

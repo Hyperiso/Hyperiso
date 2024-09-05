@@ -25,7 +25,7 @@ int main() {
     Observable bd_mumu(Observables::BR_BD_MUMU, m_Bd, 2, 0);
     Observable bu_taunu(Observables::BR_BU_TAUNU, m_Bd, 2, 0);
     Observable bu_taunu_np(Observables::BR_BU_TAUNU_NP_ONLY, m_Bd, 2, 0);
-    Observable delta_0(Observables::ISOSPIN_ASYMMETRY_B_KSTAR_GAMMA, sm_p->QCDRunner.mb_1S() / 2, 1, 0, 2);
+    Observable delta_0(Observables::ISOSPIN_ASYMMETRY_B_KSTAR_GAMMA, sm_p->get_QCD_masse("mb_1S") / 2, 1, 0, 2);
 
     LOG_INFO("---------- Observables -----------");
     LOG_INFO("BR(Bs > mu mu) = ", bs_mumu.getValue());
