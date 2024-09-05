@@ -3,7 +3,7 @@
 int main() {
 
     MartyInterface MartyInterface;
-    MartyInterface.generate();
-    MartyInterface.run();
+    MartyInterface.generate("C7");
+    MartyInterface.compile("C7");
     return 0;
 }

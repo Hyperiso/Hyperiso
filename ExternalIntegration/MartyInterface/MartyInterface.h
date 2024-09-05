@@ -8,8 +8,12 @@
 
 class MartyInterface {
 public:
-    void generate();
-    void run();
+    void generate(std::string wilson);
+    void compile(std::string wilson);
+
+private:
+    bool generated = false;
+    bool compiled = false;
 };
 
 #endif // MARTY_INTERFACE_H

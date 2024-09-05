@@ -2,14 +2,15 @@
 #include <memory>
 #include "config.hpp"
 
-void MartyInterface::run() {
+void MartyInterface::compile(std::string wilson) {
     
 
     GppCompilerStrategy compiler;
-    compiler.compile("generated_main.cpp", "main");
+    compiler.compile("generated_"+wilson+".cpp", "generated_"+wilson);
+    this->compiled = true;
 }
 
-void MartyInterface::generate() {
+void MartyInterface::generate(std::string wilson) {
 
     std::unique_ptr<ModelModifier> smModifier = std::make_unique<SMModelModifier>();
     // std::unique_ptr<ModelModifier> thdmModifier = std::make_unique<THDMModelModifier>();
@@ -21,5 +22,6 @@ void MartyInterface::generate() {
     // templateManager.setModelModifier(std::move(thdmModifier));
 
     CodeGenerator codeGenerator(templateManager);
-    codeGenerator.generate("C7", "generated_main.cpp");
+    codeGenerator.generate(wilson, "generated_"+wilson+".cpp");
+    this->generated = true;
 }
