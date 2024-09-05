@@ -9,15 +9,17 @@ void TemplateManager::setModelModifier(std::unique_ptr<ModelModifier> modifier) 
 
 void TemplateManager::generateTemplate(const std::string& templateName, const std::string& outputPath) {
     std::string templatePath = templatesDir + "/" + templateName + ".cpp";
-    std::cout << templatePath << std::endl;
     std::ifstream templateFile(templatePath);
     std::ofstream outputFile(outputPath);
     std::string line;
+
     while (std::getline(templateFile, line)) {
-        std::cout << line << std::endl;
         if (modelModifier) {
             modelModifier->modifyLine(line);
+            outputFile << line << "\n";
+            modelModifier->addLine(outputFile, line);
+        } else {
+            outputFile << line << "\n";
         }
-        outputFile << line << "\n";
     }
 }
