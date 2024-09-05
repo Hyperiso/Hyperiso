@@ -2,17 +2,21 @@
 #include <memory>
 #include "config.hpp"
 
-void MartyInterface::compile(std::string wilson) {
+void MartyInterface::compile_run(std::string wilson, std::string model) {
     
 
     GppCompilerStrategy compiler;
-    compiler.compile("generated_"+wilson+".cpp", "generated_"+wilson);
+    compiler.compile_run("generated_"+wilson+".cpp", "generated_"+wilson);
     this->compiled = true;
 }
 
-void MartyInterface::generate(std::string wilson) {
+void MartyInterface::generate(std::string wilson, std::string model) {
 
-    std::unique_ptr<ModelModifier> smModifier = std::make_unique<SMModelModifier>();
+    std::unique_ptr<ModelModifier> smModifier;
+
+    if (model == "SM") {
+        smModifier = std::make_unique<SMModelModifier>();
+    }
     // std::unique_ptr<ModelModifier> thdmModifier = std::make_unique<THDMModelModifier>();
 
     std::string root_path = project_root.data();

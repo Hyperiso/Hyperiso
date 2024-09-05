@@ -8,8 +8,9 @@
 
 class MartyInterface {
 public:
-    void generate(std::string wilson);
-    void compile(std::string wilson);
+    void generate(std::string wilson, std::string model);
+    void compile_run(std::string wilson, std::string model);
+    void compile_run_libs(std::string wilson, std::string model);
 
 private:
     bool generated = false;
