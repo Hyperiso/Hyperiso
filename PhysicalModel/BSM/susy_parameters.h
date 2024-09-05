@@ -128,6 +128,8 @@ class susy_parameters {
 
     double mass_top_muW;
 	double mass_b_muW; //mass bottom 6 (at pole)
+	
+	double m_H;
 
 	double L; // scale -> mu_W
  	double sw2; //1 = param-> gp and 2 = (*sm)("COUPLING",2)
@@ -136,6 +138,14 @@ class susy_parameters {
 	double xt; // W boson mass (24)
 	double yt; // param->mass_H (25)
 	double z;
+
+	double alpha=(*susy)("ALPHA", 0);
+	double beta=atan((*susy)("HMIX", 2));
+
+	double xH=pow((*susy)("MASS",37)/(*sm)("MASS",24),2.);
+	double xH0=pow((*susy)("MASS",35)/(*sm)("MASS",24),2.);
+	double xA=pow((*susy)("MASS",36)/(*sm)("MASS",24),2.);
+	double xh=pow((*susy)("MASS",25)/(*sm)("MASS",24),2.);
 
     double lu;
 	double ld;

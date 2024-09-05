@@ -2,7 +2,7 @@
 
 complex_t WilsonManager::get(WilsonCoefficient wc, int order) const {
     if (order < 0 || order >= C.size()) {
-        LOG_ERROR("AttributeOrder", "Requested order is not available: " + std::to_string(order));
+        LOG_ERROR("AttributeOrder", "Requested order is not available: " + std::to_string(order), "for coefficient", static_cast<size_t>(wc));
         return complex_t(0, 0);
     }
 
@@ -407,17 +407,17 @@ void SM_NNLO_Strategy::init(double scale, WilsonSet& C_match) {
 	double xtW=pow(sm->running_mass((*sm)("MASS",6),(*sm)("MASS",6), (*sm)("MASS",24))/(*sm)("MASS", 24), 2); // mass top at pole for mtot param
 	double xtt=pow((*sm)("MASS",6)/(*sm)("MASS",24),2.); // 24 -> W
 
-    LOG_INFO("mtmt", (*sm).QCDRunner.get_mt_mt());
-    LOG_INFO("mtmt_2", (*sm)("MASS",6));
-    LOG_INFO("W", (*sm)("MASS",24));
-    LOG_INFO("xt : ", W_param->xt);
-    LOG_INFO("xtW : ", xtW);
-    LOG_INFO("xtt : ", xtt);
-    LOG_INFO("Li2", Li2(1.-1./W_param->xt));
-    LOG_INFO ("C8c2MW(xtW)", C8c2MW(xtW));
-    LOG_INFO("C8t2mt(xtt)", C8t2mt(xtt));
-    LOG_INFO("mtmt_3", doubleToString((*sm)("MASS",6), 20));
-    LOG_INFO("mtoppole", doubleToString((*sm).QCDRunner.get_mt_pole(), 20));
+    LOG_DEBUG("mtmt", (*sm).get_QCD_masse("mt_mt"));
+    LOG_DEBUG("mtmt_2", (*sm)("MASS",6));
+    LOG_DEBUG("W", (*sm)("MASS",24));
+    LOG_DEBUG("xt : ", W_param->xt);
+    LOG_DEBUG("xtW : ", xtW);
+    LOG_DEBUG("xtt : ", xtt);
+    LOG_DEBUG("Li2", Li2(1.-1./W_param->xt));
+    LOG_DEBUG ("C8c2MW(xtW)", C8c2MW(xtW));
+    LOG_DEBUG("C8t2mt(xtt)", C8t2mt(xtt));
+    LOG_DEBUG("mtmt_3", doubleToString((*sm)("MASS",6), 20));
+    LOG_DEBUG("mtoppole", doubleToString((*sm).get_QCD_masse("mt_pole"), 20));
 
 	double C7SM_2 = (C7t2mt(xtt)+log(scale*scale/W_param->mass_top_muW/W_param->mass_top_muW)*((-592.*pow(W_param->xt,5.)-22.*pow(W_param->xt,4.)+12814.*pow(W_param->xt,3.)-6376.*W_param->xt*W_param->xt+512.*W_param->xt)/27./pow(W_param->xt-1.,5.)*Li2(1.-1./W_param->xt)
 	+(-26838.*pow(W_param->xt,5.)+25938.*pow(W_param->xt,4.)+627367.*pow(W_param->xt,3.)-331956.*W_param->xt*W_param->xt+16989.*W_param->xt-460.)/729./pow(W_param->xt-1.,6.)*log(W_param->xt)
@@ -537,9 +537,9 @@ void SM_LO_Strategy::init_prime(double Q_match, double Q,int gen, WilsonSet& C) 
     C_LO.resize(static_cast<size_t>(WilsonCoefficient::CPQ2) + 1, complex_t(0, 0));
 
 	double mass_c_muW=sm->running_mass((*sm)("MASS",4),(*sm)("MASS",4), Q_match, "pole");
-    LOG_INFO("alpha_muW", W_param->alphas_muW);
-    LOG_INFO("mass_c_muw", mass_c_muW);
-    LOG_INFO("mass_c", (*sm)("MASS",4));
+    LOG_DEBUG("alpha_muW", W_param->alphas_muW);
+    LOG_DEBUG("mass_c_muw", mass_c_muW);
+    LOG_DEBUG("mass_c", (*sm)("MASS",4));
     complex_t C7pSM = (*sm)("MASS", 3) / W_param->mass_b_muW * (-0.5 * A0t(W_param->xt) - 23. / 36.);
     C_LO[static_cast<size_t>(WilsonCoefficient::CP7)] = std::pow(W_param->eta_mu, 16. / 23.) * C7pSM;
 
@@ -564,13 +564,8 @@ void SM_LO_Strategy::init_scalar(double Q_match, double Q,int gen, WilsonSet& C)
 	else if(gen==3) ml=(*sm)("MASS", 15);
 	else {gen=2; ml=(*sm)("MASS", 13);}
 
-	// double MU[4];
 	
 	double mass_c_muW=(*sm).running_mass((*sm)("MASS", 4),(*sm)("MASS", 4),Q_match,"pole");
-	
-	// MU[1]=(*sm)("MASS", 2);
-	// MU[2]=mass_c_muW;
-	// MU[3]=W_param->mass_top_muW;
 
 	int nf=5;
 	double beta0 = 11.-2./3.*nf;
@@ -580,8 +575,8 @@ void SM_LO_Strategy::init_scalar(double Q_match, double Q,int gen, WilsonSet& C)
 	double xt4=W_param->xt*xt3;
 	double xh=pow((*sm)("MASS",25)/(*sm)("MASS",24),2.);
 	
-    LOG_INFO("eta_mu " + std::to_string(W_param->eta_mu));
-    LOG_INFO("mb " + std::to_string(W_param->mass_b_muW));
+    LOG_DEBUG("eta_mu " + std::to_string(W_param->eta_mu));
+    LOG_DEBUG("mb " + std::to_string(W_param->mass_b_muW));
 	/* SM - negligible components, 1511.05066 */
 
 	double CSc_SM=-W_param->xt*(W_param->xt-2.)/12./(W_param->xt-1.)/(W_param->xt-1.)+(W_param->xt-2.)*(3.*W_param->xt-1.)/24./pow(W_param->xt-1.,3.)*log(W_param->xt);

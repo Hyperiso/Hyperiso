@@ -1,0 +1,23 @@
+name: Run sm test
+
+on:
+  push:
+    paths:
+      - "PhysicalModel/**"
+
+jobs:
+
+  test-PhysicalModelSM:
+    runs-on: ubuntu-latest
+    name: Run PhysicalModel(SM) Tests 
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Configure Cmake
+        run: cmake -S. -B build -DENABLE_TESTS=ON
+
+      - name: Build Project
+        run: cmake --build build --target testSMWilson testSMCQPrimeWilson
+
+      - name: Run Common Tests
+        run: ctest --test-dir build -L wilson --output-on-failure

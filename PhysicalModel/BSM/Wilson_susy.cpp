@@ -150,8 +150,8 @@ void SUSY_NLO_Strategy::init(double scale, WilsonSet& C_match) {
 
 	auto* sus_param = susy_parameters::GetInstance(scale);
 
-	double mass_top_muW=(*sm).QCDRunner.running_mass((*sm)("MASS",6), (*sm)("MASS",6),scale); //mass top at top ?
-	double mass_b_muW=(*sm).QCDRunner.running_mass((*sm)("MASS",5), (*sm)("MASS",5), scale); //mass bottom 6 (at pole)
+	double mass_top_muW=(*sm).running_mass((*sm)("MASS",6), (*sm)("MASS",6),scale); //mass top at top ?
+	double mass_b_muW=(*sm).running_mass((*sm)("MASS",5), (*sm)("MASS",5), scale); //mass bottom 6 (at pole)
 	complex_t C4charg_1 = 0.;
     complex_t C7charg_1 = 0.;
     complex_t C8charg_1 = 0.;
@@ -368,7 +368,7 @@ void SUSY_NLO_Strategy::init(double scale, WilsonSet& C_match) {
 
 	LOG_INFO("C9Charg_1 : " + std::to_string(std::real(C9charg_1)));
 	LOG_INFO("C9four_1 : " + std::to_string(std::real(C9four_1)));
-	double alphas_mu = sm->QCDRunner.runningAlphasCalculation(scale);
+	double alphas_mu = sm->alpha_s(scale);
 	
 
 	SUSY_LO_Strategy::init(scale, C_match);
@@ -808,7 +808,7 @@ void SUSY_NLO_Strategy::init_scalar(double Q_match,double Q,int gen, WilsonSet& 
 	EpsilonCalculator* epsi = EpsilonCalculator::GetInstance();
 	susy_parameters* sus_param = susy_parameters::GetInstance(Q_match);
 
-	double alphas_mu = sm->QCDRunner.runningAlphasCalculation(Q);
+	double alphas_mu = sm->alpha_s(Q);
 	double eta_mu=(*sus_param).alphas_muW/alphas_mu;
 	double ml;
 	if(gen==1) ml=(*sm)("MASS", 11);
@@ -1127,15 +1127,15 @@ void SUSY_NLO_Strategy::init_scalar(double Q_match,double Q,int gen, WilsonSet& 
 		C_NLO[static_cast<size_t>(WilsonCoefficient::CQ1)]*=pow(eta_mu,-4./beta0)*eta_mu;
 		C_NLO[static_cast<size_t>(WilsonCoefficient::CQ2)]*=pow(eta_mu,-4./beta0)*eta_mu;
 		
-		if(((*susy)("MASS",36)>(*sm).QCDRunner.get_mb_pole())&&((*susy)("MASS",36)<Q_match ))
+		if(((*susy)("MASS",36)>(*sm).get_QCD_masse("mb_pole"))&&((*susy)("MASS",36)<Q_match ))
 		{	
-			double alphas_Ma1=(*sm).QCDRunner.runningAlphasCalculation((*susy)("MASS",36));	
+			double alphas_Ma1=(*sm).alpha_s((*susy)("MASS",36));	
 			double eta_a1=alphas_Ma1/alphas_mu;
 			double mass_b_ma1=(*sm).running_mass((*sm)("MASS", 5),(*sm)("MASS", 5),(*susy)("MASS",36));
 			C_LO[static_cast<size_t>(WilsonCoefficient::CQ2)]+=-v_deltam_s/2.*mass_b_ma1/(*sus_param).sw2*ml*CA/(*susy)("MASS",36)/(*susy)("MASS",36)*pow(eta_a1,-4./beta0);
 		}
 		
-		if((*susy)("MASS",36)<(*sm).QCDRunner.get_mb_pole())
+		if((*susy)("MASS",36)<(*sm).get_QCD_masse("mb_pole"))
 		{	
 			double width_A0=1.e-6;
 			C_LO[static_cast<size_t>(WilsonCoefficient::CQ2)]+=std::complex<double>{v_deltam_s/2.*(*sm)("MASS", 5)/(*sus_param).sw2*ml*CA/(m_Bs*m_Bs-(*susy)("MASS",36)*(*susy)("MASS",36),(*susy)("MASS",36)*width_A0)};

@@ -15,7 +15,7 @@ void Logger::logMessage(std::ostream& os, T value, Args... args) {
 template<typename... Args>
 void Logger::logToFile(std::ostream& os, LogLevel messageLevel, const char* file, int line, const char* func, const char* errorType, Args... args) {
     os << "[" << currentDateTime() << "] [" << toString(messageLevel) << "] [" 
-       << file << ":" << line << " " << func << "] [Thread " << std::this_thread::get_id() << "] ";
+       << file << ":" << line << " " << func << "] [Thread " << this->threadId << "] ";
     if (messageLevel == LogLevel::ERROR) {
         os << "[" << errorType << "] ";
     }

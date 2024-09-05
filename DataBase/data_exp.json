@@ -1,0 +1,23 @@
+{
+    "values": [
+      {
+        "name": "BRuntag_Bsmumu",
+        "central_value": 2.65e-09,
+        "stat_error": 4.3e-10,
+        "syst_error": 0.0
+      },
+      {
+        "name": "BR_Bdmumu",
+        "central_value": 1.09e-10,
+        "stat_error": 7.4e-11,
+        "syst_error": 0.0
+      }
+    ],
+    "correlations": [
+      {
+        "name1": "BRuntag_Bsmumu",
+        "name2": "BR_Bdmumu",
+        "value": -0.2
+      }
+    ]
+}

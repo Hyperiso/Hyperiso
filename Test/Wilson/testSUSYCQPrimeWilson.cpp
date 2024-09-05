@@ -14,14 +14,14 @@ int main() {
     
     std::string root_file = project_root.data();
 
-    auto loStrategy = std::make_shared<SUSY_LO_Strategy>();
-    auto nloStrategy = std::make_shared<SUSY_NLO_Strategy>();
+    // auto loStrategy = std::make_shared<SUSY_LO_Strategy>();
+    // auto nloStrategy = std::make_shared<SUSY_NLO_Strategy>();
     // auto nnloStrategy = std::make_shared<SM_NNLO_Strategy>();
 
     double tolerance = 0.01;
     
-    runTest("LO", loStrategy, root_file + "/Test/csv/susy/WilsonCoefficients_PRIMECQ_LO.csv", root_file + "/Test/csv/superiso/susy/WilsonCoefficients_PRIMECQ_LO.csv", "SUSY", tolerance, true);
-    runTest("NLO", nloStrategy, root_file + "/Test/csv/susy/WilsonCoefficients_PRIMECQ_NLO.csv", root_file + "/Test/csv/superiso/susy/WilsonCoefficients_PRIMECQ_NLO.csv", "SUSY",tolerance, true);
+    runTest("LO", root_file + "/Test/csv/susy/WilsonCoefficients_PRIMECQ_LO.csv", root_file + "/Test/csv/superiso/susy/WilsonCoefficients_PRIMECQ_LO.csv", "SUSY", tolerance, true);
+    runTest("NLO", root_file + "/Test/csv/susy/WilsonCoefficients_PRIMECQ_NLO.csv", root_file + "/Test/csv/superiso/susy/WilsonCoefficients_PRIMECQ_NLO.csv", "SUSY",tolerance, true);
     // runTest("NNLO", nnloStrategy, root_file + "/Test/csv/sm/WilsonCoefficients_PRIMECQ_NNLO.csv", root_file + "/Test/csv/superiso/sm/WilsonCoefficients_PRIMECQ_NNLO.csv", "SM",tolerance, false);
 
     return 0;

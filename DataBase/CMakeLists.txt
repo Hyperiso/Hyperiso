@@ -12,9 +12,10 @@ endif()
 add_library(DataBaseLib STATIC 
     lha_blocks.cpp
     lha_elements.cpp
-    lha_reader.cpp)
+    lha_reader.cpp
+    json_parser.cpp)
 
-set_target_properties(DataBaseLib PROPERTIES PUBLIC_HEADER "lha_elements.h;lha_blocks.h;lha_reader.h")
+set_target_properties(DataBaseLib PROPERTIES PUBLIC_HEADER "lha_elements.h;lha_blocks.h;lha_reader.h;json_parser.h")
 
 target_include_directories(DataBaseLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 

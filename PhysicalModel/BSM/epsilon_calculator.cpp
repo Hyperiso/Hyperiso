@@ -10,13 +10,13 @@ EpsilonCalculator::EpsilonCalculator() {}
 double EpsilonCalculator::epsilon_0() {
 
     double sw2 = std::pow(std::sin(std::atan((*sm)("GAUGE",1)/ (*sm)("GAUGE",2))), 2);
-    double alphas_MSOFT = sm->alpha_s(susy->get_susy_Q());
+    double alphas_MSOFT = sm->alpha_s((*susy)("HMIX", 0));
 
     double factor = 2.0 / 3.0 * alphas_MSOFT / M_PI;
 
     double term1 =  ((*susy)("AD",22) / (*susy)("HMIX",2) - mu_Q) / (*susy)("MASS",1000021) *
                H2((*susy)("MASS",1000005) * (*susy)("MASS",1000005) / (*susy)("MASS",1000021) / (*susy)("MASS",1000021), (*susy)("MASS",2000005) * (*susy)("MASS",2000005) / (*susy)("MASS",1000021) / (*susy)("MASS",1000021));
-    double term2 = -0.5 * (B((*susy)("MASS",1000021), (*susy)("MASS",1000005), susy->get_susy_Q()) + B((*susy)("MASS",1000021), (*susy)("MASS",2000005), susy->get_susy_Q())) / (*susy)("HMIX",2);
+    double term2 = -0.5 * (B((*susy)("MASS",1000021), (*susy)("MASS",1000005), (*susy)("HMIX", 0)) + B((*susy)("MASS",1000021), (*susy)("MASS",2000005), (*susy)("HMIX", 0))) / (*susy)("HMIX",2);
     double term3 = 1.0 / (*sm)("SMINPUTS",1) / sw2 / 4.0 / M_PI * (mu_Q * (*susy)("MSOFT",2)) * 
                ((*susy)("SBOTMIX",00) * (*susy)("SBOTMIX",00) * H2((*susy)("MSOFT",2) * (*susy)("MSOFT",2) / (*susy)("MASS",1000005) / (*susy)("MASS",1000005), mu_Q * mu_Q / (*susy)("MASS",1000005) / (*susy)("MASS",1000005)) / (*susy)("MASS",1000005) / (*susy)("MASS",1000005) / 2.0 +
                (*susy)("SBOTMIX",01) * (*susy)("SBOTMIX",01) * H2((*susy)("MSOFT",2) * (*susy)("MSOFT",2) / (*susy)("MASS",2000005) / (*susy)("MASS",2000005), mu_Q * mu_Q / (*susy)("MASS",2000005) / (*susy)("MASS",2000005)) / (*susy)("MASS",2000005) / (*susy)("MASS",2000005) / 2.0);
@@ -64,7 +64,7 @@ double EpsilonCalculator::epsilon_b() {
 double EpsilonCalculator::epsilon_bp() {
 
     double sw2 = std::pow(std::sin(std::atan((*sm)("GAUGE",1)/ (*sm)("GAUGE",2))), 2);
-    double alphas_MSOFT = (*sm).QCDRunner.runningAlphasCalculation(susy->get_susy_Q());
+    double alphas_MSOFT = (*sm).alpha_s((*susy)("HMIX", 0));
     int nb_neut = ((*susy)("MASS", 1000039) == 0.) ? 4 : 5; //mass_neut[5] is gravitino ?
 
     
@@ -116,7 +116,7 @@ double EpsilonCalculator::epsilon_bp() {
 
 double EpsilonCalculator::epsilon_0p() {
 
-    double alphas_MSOFT = (*sm).QCDRunner.runningAlphasCalculation(susy->get_susy_Q());
+    double alphas_MSOFT = (*sm).alpha_s((*susy)("HMIX", 0));
     int nb_neut = ((*susy)("MASS", 1000039) == 0.) ? 4 : 5;
 
     double epsilon0p = -2.0 / 3.0 * alphas_MSOFT / M_PI * 

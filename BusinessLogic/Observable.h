@@ -3,6 +3,7 @@
 
 #include "Observables.h"
 #include <complex>
+#include <iostream>
 
 typedef std::complex<double> complex_t;
 
@@ -20,7 +21,9 @@ private:
 
 public:
     Observable(Observables id, double scale, int order, int model, int wilson_basis=1) : id(id), scale(scale), order(order), model(model), wilson_basis(wilson_basis) {
+        std::cout << "Evaluating observable ID: " << static_cast<int>(id) << std::endl;
         this->evaluate();
+        std::cout << "Evaluated observable ID: " << static_cast<int>(id) << std::endl;
     }
 
     complex_t getValue() const;  

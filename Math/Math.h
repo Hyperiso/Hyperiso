@@ -2,6 +2,8 @@
 #include <cmath>
 #include <complex>
 #include "Formfactors.h"
+#include <map>
+#include <vector>
 
 typedef std::complex<double> complex_t;
 
@@ -108,3 +110,8 @@ complex_t G8_perp(double rb); // Done
 complex_t H_perp(double s, double a_1_par, double a_2_par); // Done
 complex_t H2_perp(double s, double a_1_perp, double a_2_perp); // Done
 double H8_perp(double a_1_perp, double a_2_perp); // Done
+
+using SparseMatrix = std::map<std::pair<std::string, std::string>, double>;
+
+std::vector<std::string> getDiagonalElements(const SparseMatrix& matrix);
+SparseMatrix invertMatrix(const SparseMatrix& matrix, const std::vector<std::string>& indices);

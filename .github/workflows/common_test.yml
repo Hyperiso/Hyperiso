@@ -1,0 +1,22 @@
+name: Run common test
+
+on:
+  push:
+    paths:
+      - "Common/**"
+
+jobs:
+  test-common:
+    runs-on: ubuntu-latest
+    name: Run Common Tests 
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Configure Cmake
+        run: cmake -S. -B build -DENABLE_TESTS=ON
+
+      - name: Build Project
+        run: cmake --build build --target testCommon
+
+      - name: Run Common Tests
+        run: ctest --test-dir build -L common --output-on-failure

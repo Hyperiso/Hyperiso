@@ -2,6 +2,7 @@
 #include <string>
 #include <list>
 
+//this will be used one day, I'm sure
 class IObserver {
 public:
     virtual ~IObserver() {}
@@ -16,9 +17,6 @@ public:
     virtual void notify() = 0;
 };
 
-// Exemples juste pour expliquer 
-
-//Il se passe quelque chose ici !
 class ConcreteSubject : public ISubject {
     std::list<IObserver *> observers;
     std::string message;
@@ -46,7 +44,6 @@ public:
     }
 };
 
-//On observe ce qui vient de se passer ici !
 class ConcreteObserver : public IObserver {
     std::string messageFromSubject;
     ConcreteSubject &subject;
