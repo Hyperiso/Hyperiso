@@ -1,6 +1,10 @@
 #include "MartyInterface.h"
 #include <memory>
+#include <filesystem>
+#include <iostream>
 #include "config.hpp"
+
+namespace fs = std::filesystem;
 
 void MartyInterface::compile_run(std::string wilson, std::string model) {
     
@@ -28,4 +32,42 @@ void MartyInterface::generate(std::string wilson, std::string model) {
     CodeGenerator codeGenerator(templateManager);
     codeGenerator.generate(wilson, "generated_"+wilson+".cpp");
     this->generated = true;
+}
+
+void MartyInterface::generate_numlib(std::string wilson, std::string model) {
+    std::unique_ptr<ModelModifier> smModifier;
+
+    if (model == "SM") {
+        smModifier = std::make_unique<SMNumModelModifier>();
+    }
+    std::string path = "libs/"+wilson+"_"+model+"/script";
+    TemplateManager templateManager(path);
+
+    templateManager.setModelModifier(std::move(smModifier));
+    // templateManager.setModelModifier(std::move(thdmModifier));
+    fs::path file_path;
+    try {
+
+        for (const auto& entry : fs::directory_iterator(path)) {
+            if (fs::is_regular_file(entry.path())) {
+                file_path = entry.path();
+            }
+        }
+
+    } catch(const fs::filesystem_error& e) {
+        std::cerr << "Erreur: " << e.what() << std::endl;
+    }
+    CodeGenerator codeGenerator(templateManager);
+
+    codeGenerator.generate(file_path.stem().string(), file_path.string());
+    this->num_file_path = file_path;
+}
+
+void MartyInterface::compile_run_libs(std::string wilson, std::string model) {
+    if(this->num_file_path == "") {
+        LOG_ERROR("ValueError", "must generate librarie first");
+    }
+    MakeCompilerStrategy compiler;
+    compiler.compile_run("generated_"+wilson+".cpp", "generated_"+wilson);
+    this->compiled = true;
 }
