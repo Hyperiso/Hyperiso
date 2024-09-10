@@ -196,20 +196,22 @@ void BCoefficientGroup::set_base_1_LO() {
     std::cout << C7_eff << std::endl;
     std::cout << C8_eff << std::endl;
 
-    auto calculateC0b = [&](int ie, int je, BCoefficientGroup::iterator& iterator) {
-        return (W_param->U0)[ie][je] * (je < 6 ? (iterator++)->second->get_CoefficientMatchingValue("LO") : (je == 6 ? C7_eff : C8_eff));
+    auto calculateC0b = [&](int ie, int je, std::vector<std::string>& coeff_loop) {
+        return (W_param->U0)[ie][je] * (je < 6 ? this->find(coeff_loop[je])->second->get_CoefficientMatchingValue("LO") : (je == 6 ? C7_eff : C8_eff));
     };
+
+    std::vector<std::string> coeff_loop = {"C1", "C2", "C3", "C4", "C5", "C6","C7","C8"};
 
     BCoefficientGroup::iterator it = this->begin();
     for (int ie = 0; ie < 8; ie++) {
         complex_t _{};
-        BCoefficientGroup::iterator it2 = this->begin();
+        it = this->find(coeff_loop[ie]);
+
         for (int je = 0; je < 8; je++) {
-            _+= calculateC0b(ie, je, it2);
+            _+= calculateC0b(ie, je, coeff_loop);
 
         }
         it->second->set_WilsonCoeffRun("LO", _);
-        it++;
     }
     
 	double fourPiOverAlphasMu = 4.0 * PI / W_param->alphas_mu;
