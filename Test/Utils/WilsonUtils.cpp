@@ -159,7 +159,9 @@ void writeRunCoefficientsToFile(const std::string& strat_name, const std::string
     }
     Parameters* sm = Parameters::GetInstance();
     // WilsonManager* wm = WilsonManager::GetInstance(strat_name, 81.0, strategy);
+
     if (base==2){
+        
         wm->switchbasis("BCoefficient");
     }
     

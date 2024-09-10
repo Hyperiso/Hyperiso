@@ -311,6 +311,10 @@ void BCoefficientGroup::set_base_1_NLO() {
     this->base["NLO"] = 1;
 }
 
+void BCoefficientGroup::set_base_2_NLO() {
+
+}
+
 void BCoefficientGroup::set_base_1_NNLO() {
     complex_t C7_eff= this->at("C7")->get_CoefficientMatchingValue("NNLO")-1./3.*this->at("C3")->get_CoefficientMatchingValue("NNLO")-4./9.*this->at("C4")->get_CoefficientMatchingValue("NNLO")
     -20./3.*this->at("C5")->get_CoefficientMatchingValue("NNLO")-80./9.*this->at("C6")->get_CoefficientMatchingValue("NNLO"); 
@@ -361,6 +365,10 @@ void BCoefficientGroup::set_base_1_NNLO() {
     _ += fourPiOverAlphasMu * W_param->eta_mu * W_param->eta_mu * ((W_param->U0)[8][8] * it->second->get_CoefficientMatchingValue("NLO") + (W_param->U1)[8][8] * it->second->get_CoefficientMatchingValue("LO"));
     (it++)->second->set_WilsonCoeffRun("NLO", _);
     this->base["NNLO"] = 1;
+}
+
+void BCoefficientGroup::set_base_2_NNLO() {
+
 }
 
 void BScalarCoefficientGroup::set_base_1_LO() {
