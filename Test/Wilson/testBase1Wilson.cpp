@@ -20,9 +20,9 @@ int main() {
 
     double tolerance = 0.01;
     
-    runTest("LO", root_file + "/Test/csv/sm/WilsonCoefficients_LO.csv", root_file + "/Test/csv/superiso/sm/WilsonCoefficients_LO.csv", "SM", tolerance);
-    runTest("NLO", root_file + "/Test/csv/sm/WilsonCoefficients_NLO.csv", root_file + "/Test/csv/superiso/sm/WilsonCoefficients_NLO.csv", "SM",tolerance);
-    runTest("NNLO", root_file + "/Test/csv/sm/WilsonCoefficients_NNLO.csv", root_file + "/Test/csv/superiso/sm/WilsonCoefficients_NNLO.csv", "SM",tolerance);
+    runTest("LO", root_file + "/Test/csv/sm/Run1WilsonCoefficients_LO.csv", root_file + "/Test/csv/superiso/sm/Run1WilsonCoefficients_LO.csv", "SM", tolerance, false, 1);
+    runTest("NLO", root_file + "/Test/csv/sm/Run1WilsonCoefficients_NLO.csv", root_file + "/Test/csv/superiso/sm/Run1WilsonCoefficients_NLO.csv", "SM",tolerance, false, 1);
+    runTest("NNLO", root_file + "/Test/csv/sm/Run1WilsonCoefficients_NNLO.csv", root_file + "/Test/csv/superiso/sm/Run1WilsonCoefficients_NNLO.csv", "SM",tolerance, false, 1);
 
     return 0;
 }

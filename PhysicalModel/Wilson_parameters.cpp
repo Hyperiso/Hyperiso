@@ -1257,6 +1257,10 @@ void Wilson_parameters::SetMu(double mu) {
 	for (int i = 0; i < arraySize; ++i) {
         (etaMuPowers)[i] = std::pow(eta_mu, (ai)[i]);
     }
+	for (int i = 0; i < arraySize; ++i) {
+        (etaMuPowers2)[i] = std::pow(eta_mu, (ai2)[i]);
+    }
+	
 
 	LOG_DEBUG("U0,U1, U2 for a scale of " + std::to_string(mu));
 	for (int ke = 0; ke < arraySize; ++ke) {
