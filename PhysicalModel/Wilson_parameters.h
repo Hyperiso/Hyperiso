@@ -54,6 +54,8 @@ public:
     std::array<std::array<double, arraySize>, arraySize> U0 = {};
     std::array<std::array<double, arraySize>, arraySize> U1 = {};
     std::array<std::array<double, arraySize>, arraySize> U2 = {};
+    std::array<std::array<double, arraySize>, arraySize> V0 = {};
+    std::array<std::array<double, arraySize>, arraySize> V1 = {};
     std::array<double, arraySize> etaMuPowers = {};
     std::array<double, arraySize> etaMuPowers2 = {};
 
