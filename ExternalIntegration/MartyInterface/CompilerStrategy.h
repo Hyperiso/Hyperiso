@@ -6,7 +6,7 @@
 class CompilerStrategy {
 public:
     virtual ~CompilerStrategy() = default;
-    virtual void compile(const std::string& sourceFile, const std::string& outputBinary) = 0;
+    virtual void compile_run(const std::string& sourceFile, const std::string& outputBinary) = 0;
 };
 
 #endif // COMPILER_STRATEGY_H

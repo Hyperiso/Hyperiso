@@ -49,12 +49,15 @@ public:
 
 
 
-    std::array<double, arraySize> ai = {14.0 / 23.0, 16.0 / 23.0, 6.0 / 23.0, -12.0 / 23.0, 0.408619, -0.422989, -0.899395, 0.145649, -1.0, -1.0}; 
+    std::array<double, arraySize> ai = {14.0 / 23.0, 16.0 / 23.0, 6.0 / 23.0, -12.0 / 23.0, 0.408619, -0.422989, -0.899395, 0.145649, -1.0, -1.0};
+    std::array<double, arraySize> ai2 = {6./23., -12./23., 0.4086, -0.4230, -0.8994, 0.1456, 16./23., 14./23., 11./23., 29./23.}; 
     std::array<std::array<double, arraySize>, arraySize> U0 = {};
     std::array<std::array<double, arraySize>, arraySize> U1 = {};
     std::array<std::array<double, arraySize>, arraySize> U2 = {};
+    std::array<std::array<double, arraySize>, arraySize> V0 = {};
+    std::array<std::array<double, arraySize>, arraySize> V1 = {};
     std::array<double, arraySize> etaMuPowers = {};
-    
+    std::array<double, arraySize> etaMuPowers2 = {};
 
     void SetMu(double mu);
     void SetMuW(double mu_W);
