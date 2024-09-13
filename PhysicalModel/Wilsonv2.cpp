@@ -196,20 +196,22 @@ void BCoefficientGroup::set_base_1_LO() {
     std::cout << C7_eff << std::endl;
     std::cout << C8_eff << std::endl;
 
-    auto calculateC0b = [&](int ie, int je, BCoefficientGroup::iterator& iterator) {
-        return (W_param->U0)[ie][je] * (je < 6 ? (iterator++)->second->get_CoefficientMatchingValue("LO") : (je == 6 ? C7_eff : C8_eff));
+    auto calculateC0b = [&](int ie, int je, std::vector<std::string>& coeff_loop) {
+        return (W_param->U0)[ie][je] * (je < 6 ? this->find(coeff_loop[je])->second->get_CoefficientMatchingValue("LO") : (je == 6 ? C7_eff : C8_eff));
     };
+
+    std::vector<std::string> coeff_loop = {"C1", "C2", "C3", "C4", "C5", "C6","C7","C8"};
 
     BCoefficientGroup::iterator it = this->begin();
     for (int ie = 0; ie < 8; ie++) {
         complex_t _{};
-        BCoefficientGroup::iterator it2 = this->begin();
+        it = this->find(coeff_loop[ie]);
+
         for (int je = 0; je < 8; je++) {
-            _+= calculateC0b(ie, je, it2);
+            _+= calculateC0b(ie, je, coeff_loop);
 
         }
         it->second->set_WilsonCoeffRun("LO", _);
-        it++;
     }
     
 	double fourPiOverAlphasMu = 4.0 * PI / W_param->alphas_mu;
@@ -233,6 +235,57 @@ void BCoefficientGroup::set_base_1_LO() {
         std::cout << "Ca marche ! " << std::endl;
     }
     this->base["LO"] = 1;
+}
+
+void BCoefficientGroup::set_base_2_LO() {
+    std::vector<std::string> coeffs {"C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9", "C10"};
+    std::vector<complex_t> coeffs_t {};
+    std::vector<complex_t> coeffs_b(10);
+    std::cout << "Ca marche ! 2 " << std::endl;
+    coeffs_t.push_back(this->at("C1")->get_CoefficientMatchingValue("LO")/2.);
+
+    coeffs_t.push_back(-this->at("C1")->get_CoefficientMatchingValue("LO")/6.+this->at("C2")->get_CoefficientMatchingValue("LO"));
+	coeffs_t.push_back((54.*this->at("C3")->get_CoefficientMatchingValue("LO")-9.*this->at("C4")->get_CoefficientMatchingValue("LO")+864.*this->at("C5")->get_CoefficientMatchingValue("LO")-144.*this->at("C6")->get_CoefficientMatchingValue("LO"))/54.); 
+	coeffs_t.push_back(this->at("C4")->get_CoefficientMatchingValue("LO")/2.+8.*this->at("C6")->get_CoefficientMatchingValue("LO"));
+	coeffs_t.push_back((54.*this->at("C3")->get_CoefficientMatchingValue("LO")-9.*this->at("C4")->get_CoefficientMatchingValue("LO")+216.*this->at("C5")->get_CoefficientMatchingValue("LO")-36.*this->at("C6")->get_CoefficientMatchingValue("LO"))/54.);
+ 	coeffs_t.push_back(this->at("C4")->get_CoefficientMatchingValue("LO")/2.+2.*this->at("C6")->get_CoefficientMatchingValue("LO"));
+	coeffs_t.push_back(this->at("C7")->get_CoefficientMatchingValue("LO"));
+	coeffs_t.push_back(this->at("C8")->get_CoefficientMatchingValue("LO"));
+	coeffs_t.push_back(this->at("C9")->get_CoefficientMatchingValue("LO"));
+	coeffs_t.push_back(this->at("C10")->get_CoefficientMatchingValue("LO"));
+
+    std::cout << "Ca marche ! 3" << std::endl;
+    complex_t C0t7= coeffs_t[6]-1./3.*coeffs_t[4]-coeffs_t[5]; 
+
+	complex_t C0t8= coeffs_t[7]+coeffs_t[4]; 
+    for (int i=0; i<8; i++) {
+        for (int j=0; j<8;j++) {
+            if (j<6)
+		    {
+			    coeffs_b[i] += W_param->V0[i][j]*coeffs_t[j];
+		    }
+		    if (j==6)
+		    {
+		    	coeffs_b[i] += W_param->V0[i][j]*C0t7;
+		    }
+		    if (j==7)
+		    {
+			    coeffs_b[i] += W_param->V0[i][j]*C0t8;
+		    }
+        }
+    }
+    std::cout << "Ca marche ! 4" << std::endl;
+    for (int j=0; j<8; j++) {
+        coeffs_b[8] += 4.*PI/W_param->alphas_mu*(W_param->V0[9-1][j]*coeffs_t[j]);
+    }
+
+    coeffs_b[9] = coeffs_t[9];
+
+    for (int i=0; i<coeffs.size(); i++) {
+        this->at(coeffs[i])->set_WilsonCoeffRun("LO", coeffs_b[i]);
+    }
+    std::cout << "Ca marche ! 5" << std::endl;
+    this->base["LO"] = 2;
 }
 
 void BCoefficientGroup::set_base_1_NLO() {
@@ -281,6 +334,83 @@ void BCoefficientGroup::set_base_1_NLO() {
     (it++)->second->set_WilsonCoeffRun("NLO", _);
     it->second->set_WilsonCoeffRun("NLO", W_param->eta_mu * it->second->get_CoefficientMatchingValue("NLO"));
     this->base["NLO"] = 1;
+}
+
+void BCoefficientGroup::set_base_2_NLO() {
+
+    std::vector<std::string> coeffs {"C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9", "C10"};
+    std::vector<complex_t> coeffs_t {};
+    std::vector<complex_t> coeffs_t_0 {};
+    // std::vector<complex_t> coeffs_b_0 {};
+    std::vector<complex_t> coeffs_b(10);
+
+    std::cout << "WOOOOWOOOO" << std::endl;
+    coeffs_t_0.push_back(this->at("C1")->get_CoefficientMatchingValue("LO")/2.);
+	coeffs_t.push_back((-5.*this->at("C1")->get_CoefficientMatchingValue("LO")+3.*(-4.*this->at("C2")->get_CoefficientMatchingValue("LO")+this->at("C1")->get_CoefficientMatchingValue("NLO")))/6.);
+	coeffs_t_0.push_back(-this->at("C1")->get_CoefficientMatchingValue("LO")/6.+this->at("C2")->get_CoefficientMatchingValue("LO"));
+	coeffs_t.push_back(-((11.*this->at("C1")->get_CoefficientMatchingValue("LO"))/18.)+(2.*this->at("C2")->get_CoefficientMatchingValue("LO"))/3.
+    -this->at("C1")->get_CoefficientMatchingValue("NLO")/6.+this->at("C2")->get_CoefficientMatchingValue("NLO"));
+	coeffs_t_0.push_back((54.*this->at("C3")->get_CoefficientMatchingValue("LO")-9.*this->at("C4")->get_CoefficientMatchingValue("LO")+864.*this->at("C5")->get_CoefficientMatchingValue("LO")
+    -144.*this->at("C6")->get_CoefficientMatchingValue("LO"))/54.); 
+	coeffs_t.push_back((36.*this->at("C3")->get_CoefficientMatchingValue("LO")-33.*this->at("C4")->get_CoefficientMatchingValue("LO")+4416.*this->at("C5")->get_CoefficientMatchingValue("LO")
+    -700.*this->at("C6")->get_CoefficientMatchingValue("LO")+54.*this->at("C3")->get_CoefficientMatchingValue("NLO")-9.*this->at("C4")->get_CoefficientMatchingValue("NLO")
+    +864.*this->at("C5")->get_CoefficientMatchingValue("NLO")-144.*this->at("C6")->get_CoefficientMatchingValue("NLO"))/54.);
+	coeffs_t_0.push_back(this->at("C4")->get_CoefficientMatchingValue("LO")/2.+8.*this->at("C6")->get_CoefficientMatchingValue("LO"));
+	coeffs_t.push_back((-36.*this->at("C3")->get_CoefficientMatchingValue("LO")-15.*this->at("C4")->get_CoefficientMatchingValue("LO")-960.*this->at("C5")->get_CoefficientMatchingValue("LO")
+    -644.*this->at("C6")->get_CoefficientMatchingValue("LO")+9.*this->at("C4")->get_CoefficientMatchingValue("NLO")+144.*this->at("C6")->get_CoefficientMatchingValue("NLO"))/18.);
+	coeffs_t_0.push_back((54.*this->at("C3")->get_CoefficientMatchingValue("LO")-9.*this->at("C4")->get_CoefficientMatchingValue("LO")+216.*this->at("C5")->get_CoefficientMatchingValue("LO")
+    -36.*this->at("C6")->get_CoefficientMatchingValue("LO"))/54.);
+   	coeffs_t.push_back((-36.*this->at("C3")->get_CoefficientMatchingValue("LO")+33.*this->at("C4")->get_CoefficientMatchingValue("LO")-4080.*this->at("C5")->get_CoefficientMatchingValue("LO")
+    -40.*this->at("C6")->get_CoefficientMatchingValue("LO")+54.*this->at("C3")->get_CoefficientMatchingValue("NLO")-9.*this->at("C4")->get_CoefficientMatchingValue("NLO")
+    +216.*this->at("C5")->get_CoefficientMatchingValue("NLO")-36.*this->at("C6")->get_CoefficientMatchingValue("NLO"))/54.);
+ 	coeffs_t_0.push_back(this->at("C4")->get_CoefficientMatchingValue("LO")/2.+2.*this->at("C6")->get_CoefficientMatchingValue("LO"));
+ 	coeffs_t.push_back((36.*this->at("C3")->get_CoefficientMatchingValue("LO")+15.*this->at("C4")->get_CoefficientMatchingValue("LO")+624.*this->at("C5")->get_CoefficientMatchingValue("LO")
+    +808.*this->at("C6")->get_CoefficientMatchingValue("LO")+9.*this->at("C4")->get_CoefficientMatchingValue("NLO")+36.*this->at("C6")->get_CoefficientMatchingValue("NLO"))/18.);
+	coeffs_t_0.push_back(this->at("C7")->get_CoefficientMatchingValue("LO"));
+	coeffs_t.push_back(this->at("C7")->get_CoefficientMatchingValue("NLO"));
+	coeffs_t_0.push_back(this->at("C8")->get_CoefficientMatchingValue("LO"));
+	coeffs_t.push_back(this->at("C8")->get_CoefficientMatchingValue("NLO"));
+	coeffs_t_0.push_back(this->at("C9")->get_CoefficientMatchingValue("LO"));
+	coeffs_t.push_back(this->at("C9")->get_CoefficientMatchingValue("NLO"));
+	coeffs_t_0.push_back(this->at("C10")->get_CoefficientMatchingValue("LO"));
+	coeffs_t.push_back(this->at("C10")->get_CoefficientMatchingValue("NLO"));
+
+    complex_t C0t7= coeffs_t_0[6]-1./3.*coeffs_t_0[4]-coeffs_t_0[5]; 
+	complex_t C0t8= coeffs_t_0[7]+coeffs_t_0[4];
+
+	complex_t C1t7= coeffs_t[7]-1./3.*coeffs_t[5]-coeffs_t[6]; 
+	complex_t C1t8= coeffs_t[8]+coeffs_t[5];
+
+    for (int i=0; i<8; i++) {
+        for (int j=0; j<8;j++) {
+            if (j<6)
+		    {
+                coeffs_b[i] += W_param->eta_mu*(W_param->V0[i][j]*coeffs_t[j]+W_param->V1[i][j]*coeffs_t_0[j]);
+		    }
+		    if (j==6)
+		    {
+                coeffs_b[i] += W_param->eta_mu*(W_param->V0[i][j]*C1t7+W_param->V1[i][j]*C0t7);
+		    }
+		    if (j==7)
+		    {
+                coeffs_b[i] += W_param->eta_mu*(W_param->V0[i][j]*C1t8+W_param->V1[i][j]*C0t8);
+		    }
+        }
+    }
+
+    for (int j=0; j<8; j++) {
+        coeffs_b[8] += 4.*PI/W_param->alphas_mu*(W_param->eta_mu*(W_param->V0[9-1][j]*coeffs_t[j]+W_param->V1[9-1][j]*coeffs_t_0[j]));
+    }
+
+	coeffs_b[8] += 4.*PI/W_param->alphas_mu*(W_param->eta_mu*(W_param->V0[9-1][9-1]*coeffs_t_0[8]));
+
+	coeffs_b[9]=W_param->eta_mu*coeffs_t[9];
+
+    for (int i=0; i<coeffs.size(); i++) {
+        this->at(coeffs[i])->set_WilsonCoeffRun("NLO", coeffs_b[i]);
+    }
+    
+    this->base["NLO"] = 2;
 }
 
 void BCoefficientGroup::set_base_1_NNLO() {
@@ -333,6 +463,10 @@ void BCoefficientGroup::set_base_1_NNLO() {
     _ += fourPiOverAlphasMu * W_param->eta_mu * W_param->eta_mu * ((W_param->U0)[8][8] * it->second->get_CoefficientMatchingValue("NLO") + (W_param->U1)[8][8] * it->second->get_CoefficientMatchingValue("LO"));
     (it++)->second->set_WilsonCoeffRun("NLO", _);
     this->base["NNLO"] = 1;
+}
+
+void BCoefficientGroup::set_base_2_NNLO() {
+    
 }
 
 void BScalarCoefficientGroup::set_base_1_LO() {

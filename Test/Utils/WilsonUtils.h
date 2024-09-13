@@ -12,7 +12,8 @@
 
 void writeCoefficientsToFile(const std::string& strat_name, const std::string& fileName, double Q_match, const std::string& model);
 void writeCoefficientsPrimeCQToFile(const std::string& strat_name, const std::string& fileName, double Q_match, const std::string& model);
-void runTest(const std::string& strategyName, const std::string& testFile, const std::string& referenceFile,const std::string& model, double tolerance, bool PrimeCQ = false);
+void writeRunCoefficientsToFile(const std::string& strat_name, const std::string& fileName, double Q_match, double Q, const std::string& model, int base);
+void runTest(const std::string& strategyName, const std::string& testFile, const std::string& referenceFile,const std::string& model, double tolerance, bool PrimeCQ = false, int run = 0);
 
 #endif // WILSON_UTILS_H
 

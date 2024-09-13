@@ -1257,6 +1257,10 @@ void Wilson_parameters::SetMu(double mu) {
 	for (int i = 0; i < arraySize; ++i) {
         (etaMuPowers)[i] = std::pow(eta_mu, (ai)[i]);
     }
+	for (int i = 0; i < arraySize; ++i) {
+        (etaMuPowers2)[i] = std::pow(eta_mu, (ai2)[i]);
+    }
+	
 
 	LOG_DEBUG("U0,U1, U2 for a scale of " + std::to_string(mu));
 	for (int ke = 0; ke < arraySize; ++ke) {
@@ -1268,6 +1272,9 @@ void Wilson_parameters::SetMu(double mu) {
                 (U0)[ke][le] += (m00)[ke][le][ie] * (etaMuPowers)[ie];
                 (U1)[ke][le] += (m10)[ke][le][ie] * (etaMuPowers)[ie] + (m11)[ke][le][ie] * (etaMuPowers)[ie] / eta_mu;
                 (U2)[ke][le] += (m20)[ke][le][ie] * (etaMuPowers)[ie] + (m21)[ke][le][ie] * (etaMuPowers)[ie] / eta_mu + (m22)[ke][le][ie] * (etaMuPowers[ie]) / (eta_mu * eta_mu);
+
+				V0[ke][le]=V0[ke][le] + l00[ke][le][ie]*pow(eta_mu,ai[ie]);
+		        V1[ke][le]=V1[ke][le] + l10[ke][le][ie]*pow(eta_mu,ai[ie])+l11[ke][le][ie]*pow(eta_mu,ai[ie]-1.);
             }
 			
             LOG_DEBUG("U0[" + std::to_string(ke) + "][" + std::to_string(le) + "]: " + std::to_string((U0)[ke][le]));

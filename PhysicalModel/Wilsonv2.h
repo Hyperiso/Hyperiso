@@ -450,7 +450,7 @@ public:
     }
 
     bool is_double_base() {return this->double_base;}
-    void switch_base() {}
+    virtual void switch_base() {std::cout << "truc truc truc" << std::endl; LOG_ERROR("ValueError", "error");}
     virtual ~CoefficientGroup() = default;
 
 
@@ -531,7 +531,7 @@ public:
     void set_W_params(Wilson_parameters* new_W_param) {this->W_param = new_W_param; for(auto& coeff : *this) {coeff.second->set_Wilson_Parameters(new_W_param);}}
     void set_gen(int new_gen) {this->W_param->set_gen(new_gen);}
 
-    void switch_base() {
+    void switch_base() override {
         if (base["LO"] == 1) {
             set_base_2_LO();
         }
