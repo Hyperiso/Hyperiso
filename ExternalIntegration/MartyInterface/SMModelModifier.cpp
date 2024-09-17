@@ -33,7 +33,7 @@ void SMNumModelModifier::addLine(std::ofstream& outputFile, const std::string& c
             // outputFile << "\t double mb = 4.18;\n";
             // outputFile << "\t double ms = 95e-3;\n";
             // outputFile << "\t double s12 = (mb*mb+ms*ms)/2;\n";
-            outputFile << "\t param_t param;\n";
+            outputFile << "\tparam_t param;\n";
             // outputFile << "\t param.m_b = mb;\n";
             // outputFile << "\t param.m_s = ms;\n";
             // outputFile << "\t param.e_em = 0.01;\n";

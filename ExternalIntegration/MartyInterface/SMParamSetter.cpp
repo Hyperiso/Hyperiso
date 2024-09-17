@@ -6,6 +6,7 @@ void SMParamSetter::setParam(const std::string& name, const Interpreter::Interpr
     // Exemple de logique spécifique : pour certains blocs, on remplace directement par (*sm)(block, value)
     if (interpretedParam.block == "MASS" || interpretedParam.block == "SMINPUT") {
         std::cout << "(*sm)(" << interpretedParam.block << ", " << value << ");\n";
+        params[name] = 10.;
     } else {
         params[name] = value;
     }
