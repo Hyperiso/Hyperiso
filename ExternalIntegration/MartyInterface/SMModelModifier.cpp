@@ -27,19 +27,11 @@ void SMNumModelModifier::addLine(std::ofstream& outputFile, const std::string& c
     }
     if (currentLine.find("return 0;") != std::string::npos) {
         std::string filename = "libs/" + this->wilson+"_SM/include/params.h";
-        // std::string filename = "libs/C7_SM/include/params.h";
         auto extractedParams = extractor.extract(filename);
         auto interpretedParams = interpreter.interpret(extractedParams);
         if (addBefore) {
-            // outputFile << "\t double mb = 4.18;\n";
-            // outputFile << "\t double ms = 95e-3;\n";
-            // outputFile << "\t double s12 = (mb*mb+ms*ms)/2;\n";
             outputFile << "\tparam_t param;\n";
-            // outputFile << "\t param.m_b = mb;\n";
-            // outputFile << "\t param.m_s = ms;\n";
-            // outputFile << "\t param.e_em = 0.01;\n";
-            // outputFile << "\t param.s_12 = s12;\n";
-            // outputFile << "\t param.theta_W = 2;\n";
+
             
 
             for (const auto& [name, interpreted] : interpretedParams) {
@@ -50,7 +42,6 @@ void SMNumModelModifier::addLine(std::ofstream& outputFile, const std::string& c
                 outputFile << "\tparam." << name << " = " << value << ";\n";
             }
             outputFile << "\tauto out = std::ofstream(\""+ this->wilson +"_SM.txt\");\n";
-            // outputFile << "\t param.m_t = 173.2;\n";
             outputFile << "\tout << "+ this->wilson + "(param).real() << std::endl;\n";
             outputFile << "\tout.close();\n";
 
@@ -70,26 +61,4 @@ void SMNumModelModifier::addLine(std::ofstream& outputFile, const std::string& c
         outputFile << currentLine << "\n";
     }
     this->count++;
-}
-
-void SMNumModelModifier::processParams(std::ofstream& outputFile) {
-    // Charger et interpréter les paramètres
-    std::string filename = "libs/" + this->wilson + "_SM/include/params.h";
-    auto extractedParams = extractor.extract(filename);
-    auto interpretedParams = interpreter.interpret(extractedParams);
-
-    // Utiliser SMParamSetter pour traiter chaque paramètre
-    for (const auto& [name, interpreted] : interpretedParams) {
-        paramSetter.setParam(name, interpreted);
-    }
-
-    // Ajouter les paramètres dans le fichier de sortie
-    for (const auto& [name, value] : params) {
-        outputFile << "\tparam." << name << " = " << value << ";\n";
-    }
-
-    outputFile << "\tparam.m_t = 173.2;\n";
-    outputFile << "\tauto out = std::ofstream(\"C7_SM.txt\");\n";
-    outputFile << "\tout << C7(param).real() << std::endl;\n";
-    outputFile << "\tout.close();\n";
 }

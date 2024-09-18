@@ -4,7 +4,6 @@
 
 void MakeCompilerStrategy::compile_run(const std::string& sourceFile, const std::string& outputBinary) {
     std::cout << sourceFile << "  " << outputBinary << std::endl;
-    // std::string directory = "libs/C7_SM";
     
     std::string command = "cd " + sourceFile + " && make";
     system(command.c_str());
