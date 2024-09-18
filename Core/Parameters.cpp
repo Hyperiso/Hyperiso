@@ -91,8 +91,8 @@ void SMModelStrategy::initializeParameters(Parameters& params) {
     params.setBlockValue("SMINPUTS", 5, *sm_inputs[4]);
 
     // VCKMIN 
-    params.addBlock("RECKM", std::make_unique<CKMBlock>());
-    params.addBlock("IMCKM", std::make_unique<CKMBlock>());
+    params.addBlock("RECKM", std::make_unique<RECKMBlock>());
+    params.addBlock("IMCKM", std::make_unique<IMCKMBlock>());
     double lambda{0.22500}, A{0.826}, rho{0.159}, eta{0.348};
     std::vector<double*> ckm_inputs = {&lambda, &A, &rho, &eta};
     lha->extractFromBlock("VCKMIN", ckm_inputs);
@@ -154,9 +154,9 @@ void SMModelStrategy::initializeParameters(Parameters& params) {
     params.setBlockValue("GAUGE", 3, std::sqrt(4 * M_PI * alpha_s_MZ)); // gs
     params.setBlockValue("GAUGE", 4, std::sqrt(4 * M_PI / inv_alpha_em)); // e_em
 
-    // std::string root_path = project_root.data();
+    std::string root_path = project_root.data();
     // params.jsonparser.saveToFile(root_path+ "/DataBase/data_SM.json");
-
+    JSONParser::getInstance(0)->saveToFile(root_path+ "/DataBase/Params/data_SM.json");
 }
 
 // SUSYModelStrategy implementation
@@ -266,6 +266,8 @@ void SUSYModelStrategy::initializeParameters(Parameters& params) {
     }
     params.addBlock("MASS", std::move(massblock));
 
+    std::string root_path = project_root.data();
+    JSONParser::getInstance(0)->saveToFile(root_path+ "/DataBase/Params/data_SUSY.json");
 }
 
 // THDMModelStrategy implementation
@@ -351,6 +353,8 @@ void THDMModelStrategy::initializeParameters(Parameters& params) {
     params.addBlock("YD", std::move(ydblock));
     params.addBlock("YL", std::move(yeblock));
 
+    std::string root_path = project_root.data();
+    JSONParser::getInstance(0)->saveToFile(root_path+ "/DataBase/Params/data_THDM.json");
 }
 
 // FlAVORModelStrategy implementation

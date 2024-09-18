@@ -5,6 +5,7 @@
 #include <memory>
 #include <stdexcept>
 #include <array>
+#include "JSonParameters.h"
 
 // Abstract base class for all blocks
 class Block {
@@ -28,6 +29,7 @@ public:
     }
 
     void setValue(int pdgCode, double value) override {
+        JSONParser::getInstance(0)->addElement(this->blockname.substr(0, this->blockname.size()-5), pdgCode, value);
         values[pdgCode] = value;
     }
 
@@ -44,6 +46,7 @@ public:
     }
 
     void setValue(int pdgCode, double value) override {
+        JSONParser::getInstance(0)->addElement(this->blockname.substr(0, this->blockname.size()-5), pdgCode, value);
         values[pdgCode/10][pdgCode%10] = value;
     }
     ArrayBlock& operator=(const std::array<std::array<double, column>, index> block) {
@@ -58,25 +61,30 @@ protected:
 // Concrete block for masses
 class MassBlock : public MapBlock{
 public:
-    MassBlock() {this->blockname = "MassBlock";}
+    MassBlock() {this->blockname = "MASSBlock";}
 };
 
 // Concrete block for gauge parameters
 class GaugeBlock : public MapBlock{
 public:
-    GaugeBlock() {this->blockname = "GaugeBlock";}
+    GaugeBlock() {this->blockname = "GAUGEBlock";}
 };
 
 // Concrete block for sminputs parameters
 class SMInputBlock : public MapBlock {
 public:
-    SMInputBlock() {this->blockname = "SMInputBlock";}
+    SMInputBlock() {this->blockname = "SMINPUTBlock";}
 };
 
 // Concrete block for sminputs parameters
-class CKMBlock : public ArrayBlock<3,3> {
+class RECKMBlock : public ArrayBlock<3,3> {
 public:
-    CKMBlock() {this->blockname = "CKMBlock";}
+    RECKMBlock() {this->blockname = "RECKMBlock";}
+};
+
+class IMCKMBlock : public ArrayBlock<3,3> {
+public:
+    IMCKMBlock() {this->blockname = "IMCKMBlock";}
 };
 /* ------------------------------------------------------------------------------------------------
 SUSY BLOCKS*/
@@ -88,17 +96,17 @@ public:
 
 class StopMixBlock : public ArrayBlock<2,2> {
 public:
-    StopMixBlock() {this->blockname = "StopMixBlock";}
+    StopMixBlock() {this->blockname = "STOPMIXBlock";}
 };
 
 class SbotMixBlock : public ArrayBlock<2,2> {
 public:
-    SbotMixBlock() {this->blockname = "SbotMixBlock";}
+    SbotMixBlock() {this->blockname = "SBOTMIXBlock";}
 };
 
 class StauMixBlock : public ArrayBlock<2,2> {
 public:
-    StauMixBlock() {this->blockname = "StauMixBlock";}
+    StauMixBlock() {this->blockname = "STAUMIXBlock";}
 };
 
 class UMIXBlock : public ArrayBlock<2,2> {
@@ -118,12 +126,12 @@ public:
 
 class A0mixBlock : public ArrayBlock<4,4> {
 public:
-    A0mixBlock() {this->blockname = "A0mixBlock";}
+    A0mixBlock() {this->blockname = "A0MIXBlock";}
 };
 
 class H0mixBlock : public ArrayBlock<4,4> {
 public:
-    H0mixBlock() {this->blockname = "H0mixBlock";}
+    H0mixBlock() {this->blockname = "H0MIXBlock";}
 };
 
 class YUBlock : public ArrayBlock<3,3> {
@@ -158,7 +166,7 @@ public:
 
 class AlphaBlock : public ArrayBlock<1,1> {
 public:
-    AlphaBlock() {this->blockname = "AlphaBlock";}
+    AlphaBlock() {this->blockname = "ALPHABlock";}
 };
 
 class MSOFTBlock : public MapBlock {

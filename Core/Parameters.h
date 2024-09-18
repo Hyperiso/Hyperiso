@@ -63,7 +63,6 @@ public:
     double get_QCD_masse(std::string masstype);
     double getFlavorParam(FlavorParamType type, const std::string& id);
 
-    JSONParser jsonparser;
 private:
     explicit Parameters(ModelStrategy* modelStrategy);
     static std::map<int, Parameters*> instances;

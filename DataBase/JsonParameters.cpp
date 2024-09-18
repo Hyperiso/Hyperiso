@@ -95,46 +95,46 @@ std::unordered_map<int, JSONParser*> JSONParser::instances;
 //     return 0;
 // }
 
-int main() {
-    // Création de deux instances de JSONParser avec des identifiants spécifiques
-    JSONParser* parser1 = JSONParser::getInstance(100);  // Instance avec ID 100
-    JSONParser* parser2 = JSONParser::getInstance(200);  // Instance avec ID 200
+// int main() {
+//     // Création de deux instances de JSONParser avec des identifiants spécifiques
+//     JSONParser* parser1 = JSONParser::getInstance(100);  // Instance avec ID 100
+//     JSONParser* parser2 = JSONParser::getInstance(200);  // Instance avec ID 200
 
-    // Ajout d'éléments dans la première instance
-    parser1->addElement("block1", 2112, 10.5);
-    parser1->addElement("block1", 2212, 20.3);
+//     // Ajout d'éléments dans la première instance
+//     parser1->addElement("block1", 2112, 10.5);
+//     parser1->addElement("block1", 2212, 20.3);
 
-    // Ajout d'éléments dans la deuxième instance
-    parser2->addElement("block2", 11, 0.511);
-    parser2->addElement("block2", 13, 105.7);
+//     // Ajout d'éléments dans la deuxième instance
+//     parser2->addElement("block2", 11, 0.511);
+//     parser2->addElement("block2", 13, 105.7);
 
-    // Sauvegarde des deux instances dans des fichiers distincts
-    parser1->saveToFile("data_parser100.json");
-    parser2->saveToFile("data_parser200.json");
+//     // Sauvegarde des deux instances dans des fichiers distincts
+//     parser1->saveToFile("data_parser100.json");
+//     parser2->saveToFile("data_parser200.json");
 
-    // Chargement des données à partir des fichiers
-    JSONParser* loadedParser1 = JSONParser::getInstance(100);
-    loadedParser1->loadFromFile("data_parser100.json");
+//     // Chargement des données à partir des fichiers
+//     JSONParser* loadedParser1 = JSONParser::getInstance(100);
+//     loadedParser1->loadFromFile("data_parser100.json");
 
-    JSONParser* loadedParser2 = JSONParser::getInstance(200);
-    loadedParser2->loadFromFile("data_parser200.json");
+//     JSONParser* loadedParser2 = JSONParser::getInstance(200);
+//     loadedParser2->loadFromFile("data_parser200.json");
 
-    // Affichage des éléments de la première instance chargée
-    std::cout << "Parser 100 - block1, 2112 : " << loadedParser1->getElement("block1", 2112) << std::endl;
+//     // Affichage des éléments de la première instance chargée
+//     std::cout << "Parser 100 - block1, 2112 : " << loadedParser1->getElement("block1", 2112) << std::endl;
 
-    // Affichage des éléments de la deuxième instance chargée
-    std::cout << "Parser 200 - block2, 11 : " << loadedParser2->getElement("block2", 11) << std::endl;
+//     // Affichage des éléments de la deuxième instance chargée
+//     std::cout << "Parser 200 - block2, 11 : " << loadedParser2->getElement("block2", 11) << std::endl;
 
-    // Suppression de l'instance avec ID 100
-    JSONParser::removeInstance(100);
+//     // Suppression de l'instance avec ID 100
+//     JSONParser::removeInstance(100);
 
-    // Tentative d'accès à l'instance supprimée (ID 100)
-    try {
-        JSONParser* removedParser = JSONParser::getInstance(100);
-        std::cout << removedParser->getElement("block1", 2112) << std::endl;
-    } catch (const std::exception& e) {
-        std::cerr << "Erreur : " << e.what() << std::endl;
-    }
+//     // Tentative d'accès à l'instance supprimée (ID 100)
+//     try {
+//         JSONParser* removedParser = JSONParser::getInstance(100);
+//         std::cout << removedParser->getElement("block1", 2112) << std::endl;
+//     } catch (const std::exception& e) {
+//         std::cerr << "Erreur : " << e.what() << std::endl;
+//     }
 
-    return 0;
-}
+//     return 0;
+// }

@@ -1,3 +1,5 @@
+#ifndef JSON_PARAM_PARSER_H
+#define JSON_PARAM_PARSER_H
 #include <iostream>
 #include <unordered_map>
 #include <string>
@@ -85,3 +87,5 @@ private:
     static std::unordered_map<int, JSONParser*> instances;
     std::unordered_map<std::string, JSONBlock> blocks;
 };
+
+#endif
