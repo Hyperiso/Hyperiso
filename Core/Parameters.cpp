@@ -152,7 +152,10 @@ void SMModelStrategy::initializeParameters(Parameters& params) {
     params.setBlockValue("GAUGE", 2, std::pow(2, 1.25) * m_W * std::sqrt(G_F));  // g2
     params.setBlockValue("GAUGE", 1, params("GAUGE", 2) * sW / std::sqrt(1 - sW * sW)); // gp 
     params.setBlockValue("GAUGE", 3, std::sqrt(4 * M_PI * alpha_s_MZ)); // gs
-    params.setBlockValue("GAUGE", 4, std::sqrt(4 * M_PI / inv_alpha_em)); // e_em 
+    params.setBlockValue("GAUGE", 4, std::sqrt(4 * M_PI / inv_alpha_em)); // e_em
+
+    // std::string root_path = project_root.data();
+    // params.jsonparser.saveToFile(root_path+ "/DataBase/data_SM.json");
 
 }
 

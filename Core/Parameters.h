@@ -4,6 +4,7 @@
 #include "BlockAccessor.h"
 #include "MemoryManager.h"
 #include "Interface.h"
+#include "JSonParameters.h"
 
 #include <memory>
 typedef std::complex<double> complex_t; 
@@ -53,6 +54,7 @@ public:
         flavorblockAccessor.addBlock(name, std::move(block));
     }
     void setBlockValue(const std::string& name, int pdgCode, double value) {
+        // jsonparser.addElement(name, pdgCode, value);
         blockAccessor.setValue(name, pdgCode, value);
     }
 
@@ -60,6 +62,8 @@ public:
 
     double get_QCD_masse(std::string masstype);
     double getFlavorParam(FlavorParamType type, const std::string& id);
+
+    JSONParser jsonparser;
 private:
     explicit Parameters(ModelStrategy* modelStrategy);
     static std::map<int, Parameters*> instances;
@@ -68,6 +72,7 @@ private:
     BlockAccessor blockAccessor;
     FlavorBlockAccessor flavorblockAccessor;
     
+
     ModelStrategy* strategy;
 
     friend class ParametersFactory;
