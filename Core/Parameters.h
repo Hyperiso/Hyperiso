@@ -4,7 +4,7 @@
 #include "BlockAccessor.h"
 #include "MemoryManager.h"
 #include "Interface.h"
-#include "JSonParameters.h"
+#include "JsonParameters.h"
 
 #include <memory>
 typedef std::complex<double> complex_t; 

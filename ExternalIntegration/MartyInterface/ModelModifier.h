@@ -9,6 +9,9 @@ public:
     virtual ~ModelModifier() = default;
     virtual void modifyLine(std::string& line) = 0;
     virtual void addLine(std::ofstream& outputFile, const std::string& currentLine, bool addBefore) {outputFile << currentLine << "\n";};
+
+protected:
+    std::string wilson{};
 };
 
 #endif // MODEL_MODIFIER_H

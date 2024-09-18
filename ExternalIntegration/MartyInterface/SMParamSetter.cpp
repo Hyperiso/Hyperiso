@@ -4,11 +4,12 @@ void SMParamSetter::setParam(const std::string& name, const Interpreter::Interpr
     double value = calculateValue(name, interpretedParam);
 
     // Exemple de logique spécifique : pour certains blocs, on remplace directement par (*sm)(block, value)
-    if (interpretedParam.block == "MASS" || interpretedParam.block == "SMINPUT") {
-        std::cout << "(*sm)(" << interpretedParam.block << ", " << value << ");\n";
-        params[name] = 10.;
-    } else {
+    if (interpretedParam.block == "KIN" || interpretedParam.block == "WEIN" || interpretedParam.block == "Finite") {
+        std::cout << interpretedParam.block << std::endl;
         params[name] = value;
+    } else {
+        std::cout << interpretedParam.block << std::endl;
+        params[name] = jsonparser->getElement(interpretedParam.block, interpretedParam.code);
     }
 }
 

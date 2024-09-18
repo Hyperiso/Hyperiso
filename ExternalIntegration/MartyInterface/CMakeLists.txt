@@ -19,6 +19,10 @@ if (NOT TARGET CommonLib)
     add_subdirectory(../../Common CommonLib)
 endif()
 
+if (NOT TARGET DataBaseLib)
+    add_subdirectory(../../DataBase DataBaseLib)
+endif()
+
 if (NOT TARGET ConfiguredModule)
     add_subdirectory(../../Configured Configured)
 endif()
@@ -37,7 +41,7 @@ add_library(ExternalMartyIntegrationLib STATIC
 
 set_target_properties(ExternalMartyIntegrationLib PROPERTIES PUBLIC_HEADER "ModelModifier.h;CodeGenerator.h;CompilerStrategy.h;GppCompilerStrategy;MakeCompilerStrategy.h;MartyInterface.h;SMModelModifier.h;TemplateManager.h;Extractor.h;Interpreter.h;IParamSetter.h;SMParamSetter.h")
 # target_include_directories(ExternalMartyIntegrationLib PRIVATE BSM)
-target_link_libraries(ExternalMartyIntegrationLib PUBLIC CommonLib)
+target_link_libraries(ExternalMartyIntegrationLib PUBLIC CommonLib DataBaseLib)
 target_link_libraries(ExternalMartyIntegrationLib PUBLIC ConfiguredModule)
 
 add_executable(TEST_MARTY main_marty.cpp)

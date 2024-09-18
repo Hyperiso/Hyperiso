@@ -9,18 +9,21 @@
 
 class SMModelModifier : public ModelModifier {
 public:
+    SMModelModifier(std::string wilson) {this->wilson = wilson;}
     void modifyLine(std::string& line) override;
 };
 
 class SMNumModelModifier : public ModelModifier {
 public:
-    SMNumModelModifier();
+    SMNumModelModifier(std::string wilson) : paramSetter(params){this->wilson = wilson;}
+    // SMNumModelModifier();
     void modifyLine(std::string& line) override {}
     void addLine(std::ofstream& outputFile, const std::string& currentLine, bool addBefore) override;
 
 private:
     bool done = false;
     int count = 0;
+    
     std::unordered_map<std::string, double> params;
     Extractor extractor;
     Interpreter interpreter;

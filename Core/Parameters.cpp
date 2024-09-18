@@ -155,7 +155,6 @@ void SMModelStrategy::initializeParameters(Parameters& params) {
     params.setBlockValue("GAUGE", 4, std::sqrt(4 * M_PI / inv_alpha_em)); // e_em
 
     std::string root_path = project_root.data();
-    // params.jsonparser.saveToFile(root_path+ "/DataBase/data_SM.json");
     JSONParser::getInstance(0)->saveToFile(root_path+ "/DataBase/Params/data_SM.json");
 }
 

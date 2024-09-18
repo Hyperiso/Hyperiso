@@ -1,4 +1,4 @@
-#include "JSonParameters.h"
+#include "JsonParameters.h"
 
 std::string JSONBlock::toJSON(int indentLevel) const {
     std::stringstream ss;

@@ -3,8 +3,11 @@
 #include <filesystem>
 #include <iostream>
 #include "config.hpp"
+#include <algorithm>
 
 namespace fs = std::filesystem;
+
+std::string to_lowercase(const std::string& str);
 
 void MartyInterface::compile_run(std::string wilson, std::string model) {
     
@@ -19,7 +22,7 @@ void MartyInterface::generate(std::string wilson, std::string model) {
     std::unique_ptr<ModelModifier> smModifier;
 
     if (model == "SM") {
-        smModifier = std::make_unique<SMModelModifier>();
+        smModifier = std::make_unique<SMModelModifier>(wilson);
     }
     // std::unique_ptr<ModelModifier> thdmModifier = std::make_unique<THDMModelModifier>();
 
@@ -38,7 +41,7 @@ void MartyInterface::generate_numlib(std::string wilson, std::string model) {
     std::unique_ptr<ModelModifier> smModifier;
 
     if (model == "SM") {
-        smModifier = std::make_unique<SMNumModelModifier>();
+        smModifier = std::make_unique<SMNumModelModifier>(wilson);
     }
     std::string path = "libs/"+wilson+"_"+model+"/script";
     TemplateManager templateManager(path);
@@ -68,6 +71,12 @@ void MartyInterface::compile_run_libs(std::string wilson, std::string model) {
         LOG_ERROR("ValueError", "must generate librarie first");
     }
     MakeCompilerStrategy compiler;
-    compiler.compile_run("generated_"+wilson+".cpp", "generated_"+wilson);
+    compiler.compile_run("libs/" + wilson +"_" + model, "/bin/example_"+ to_lowercase(wilson) +"_"+to_lowercase(model)+".x");
     this->compiled = true;
+}
+
+std::string to_lowercase(const std::string& str) {
+    std::string result = str;
+    std::transform(result.begin(), result.end(), result.begin(), [](unsigned char c){return std::tolower(c);});
+    return result;
 }

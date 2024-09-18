@@ -9,6 +9,9 @@ std::unordered_map<std::string, Interpreter::InterpretedParam> Interpreter::inte
         if (param.name.rfind("m_", 0) == 0) {
             interpreted.block = "MASS";
             interpreted.code = getCode(param.name);
+        } else if (param.name.rfind("g_", 0) == 0) {
+            interpreted.block = "GAUGE";
+            interpreted.code = getCode(param.name);
         } else if (param.name.rfind("e_", 0) == 0) {
             interpreted.block = "SMINPUT";
             interpreted.code = getCode(param.name);
@@ -17,6 +20,9 @@ std::unordered_map<std::string, Interpreter::InterpretedParam> Interpreter::inte
             interpreted.code = getCode(param.name);
         } else if (param.name.rfind("theta_W", 0) == 0) {
             interpreted.block = "WEIN";
+            interpreted.code = getCode(param.name);
+        } else if (param.name.rfind("Finite", 0) == 0) {
+            interpreted.block = "Finite";
             interpreted.code = getCode(param.name);
         }
 

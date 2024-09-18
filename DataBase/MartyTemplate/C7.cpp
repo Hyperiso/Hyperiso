@@ -1,5 +1,4 @@
 #include <algorithm>
-#include "comparedata.h"
 #include "testutility.h"
 #include "../../MARTY/install/include/marty/SM.h"
 #include <marty.h>

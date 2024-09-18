@@ -1,11 +1,13 @@
 #include "MakeCompilerStrategy.h"
 #include <cstdlib>
+#include <iostream>
 
 void MakeCompilerStrategy::compile_run(const std::string& sourceFile, const std::string& outputBinary) {
-    std::string directory = "libs/C7_SM";
+    std::cout << sourceFile << "  " << outputBinary << std::endl;
+    // std::string directory = "libs/C7_SM";
     
-    std::string command = "cd " + directory + " && make";
+    std::string command = "cd " + sourceFile + " && make";
     system(command.c_str());
-    std::string command_run = "./" + directory + "/bin/" + "example_c7_sm.x";
+    std::string command_run = "./" + sourceFile + outputBinary;
     system(command_run.c_str());
 }

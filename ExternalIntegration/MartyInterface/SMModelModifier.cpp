@@ -1,9 +1,9 @@
 #include "SMModelModifier.h"
 #include <iostream>
 
-SMNumModelModifier::SMNumModelModifier()
-    : paramSetter(params) {  // Initialisation du paramSetter avec la référence de params
-}
+// SMNumModelModifier::SMNumModelModifier()
+//     : paramSetter(params) {  // Initialisation du paramSetter avec la référence de params
+// }
 
 void SMModelModifier::modifyLine(std::string& line) {
     if (line.find("//MODEL_SPECIFIC_CODE") != std::string::npos) {
@@ -26,7 +26,8 @@ void SMNumModelModifier::addLine(std::ofstream& outputFile, const std::string& c
         return;
     }
     if (currentLine.find("return 0;") != std::string::npos) {
-        std::string filename = "libs/C7_SM/include/params.h";
+        std::string filename = "libs/" + this->wilson+"_SM/include/params.h";
+        // std::string filename = "libs/C7_SM/include/params.h";
         auto extractedParams = extractor.extract(filename);
         auto interpretedParams = interpreter.interpret(extractedParams);
         if (addBefore) {
@@ -48,10 +49,10 @@ void SMNumModelModifier::addLine(std::ofstream& outputFile, const std::string& c
             for (const auto& [name, value] : params) {
                 outputFile << "\tparam." << name << " = " << value << ";\n";
             }
-            outputFile << "\t auto out = std::ofstream(\"C7_SM.txt\");\n";
+            outputFile << "\tauto out = std::ofstream(\""+ this->wilson +"_SM.txt\");\n";
             // outputFile << "\t param.m_t = 173.2;\n";
-            outputFile << "\t out << C7(param).real() << std::endl;\n";
-            outputFile << "\t out.close();\n";
+            outputFile << "\tout << "+ this->wilson + "(param).real() << std::endl;\n";
+            outputFile << "\tout.close();\n";
 
         }
         std::cout << currentLine << std::endl;
@@ -73,7 +74,7 @@ void SMNumModelModifier::addLine(std::ofstream& outputFile, const std::string& c
 
 void SMNumModelModifier::processParams(std::ofstream& outputFile) {
     // Charger et interpréter les paramètres
-    std::string filename = "libs/C7_SM/include/params.h";
+    std::string filename = "libs/" + this->wilson + "_SM/include/params.h";
     auto extractedParams = extractor.extract(filename);
     auto interpretedParams = interpreter.interpret(extractedParams);
 
