@@ -91,8 +91,6 @@ complex_t ObsEvaluator::Bs_mumu(CoefficientManager* manager, bool untag)
 
     double G_F = (*sm_p)("SMINPUTS", 2);
     double inv_alpha_em = (*sm_p)("SMINPUTS", 1);
-    inv_alpha_em = 137.;
-    G_F = 1.166e-5;
     double V_tbV_ts = std::abs(get_c_CKM_entry(22) * std::conj(get_c_CKM_entry(21))); 
 
     double m_Bs = (*flav_p)("MASS", 531);

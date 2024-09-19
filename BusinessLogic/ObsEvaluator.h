@@ -18,8 +18,6 @@ private:
     static complex_t Bu_taunu(int model, bool np_only);
     static complex_t Delta_0_B_Kstargamma(CoefficientManager* manager, double mu_b);
 
-    
-
 
 public:
     static complex_t Evaluate(Observable* o);

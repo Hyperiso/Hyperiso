@@ -1,5 +1,4 @@
 #include <algorithm>
-#include "testutility.h"
 #include "../../MARTY/install/include/marty/SM.h"
 #include <marty.h>
 
@@ -9,40 +8,43 @@ using namespace mty;
 using namespace std;
 using namespace sm_input;
 
+void defineLibPath(mty::Library &lib)
+{
+#ifdef MARTY_LIBRARY_PATH
+    lib.addLPath(MARTY_LIBRARY_PATH);
+    lib.addLPath(MARTY_LIBRARY_PATH "/..");
+    lib.addLPath(MARTY_LIBRARY_PATH "/marty");
+    lib.addLPath(MARTY_LIBRARY_PATH "/marty/lha");
+#endif
+#ifdef MARTY_INCLUDE_PATH
+    lib.addIPath(MARTY_INCLUDE_PATH);
+#endif
+}
+
 int calculate(Model &model, gauge::Type gauge)
 {
     using namespace mty::sm_input;
-    for (auto &expr : {e_em, m_b, m_t, m_s, theta_W, alpha_s, alpha_em, g_s})
-        expr->setValue(CSL_UNDEF);
-
+    undefineNumericalValues();
     model.getParticle("W")->setGaugeChoice(gauge);
 
     mty::FeynOptions options;
-    options.addFilters(mty::filter::forceParticle("t"));
-    auto res = model.computeAmplitude(
-        OneLoop, {Incoming("b"), Outgoing("s"), Outgoing("A")}, options);
-    Display(res);
+    auto res = model.computeAmplitude(OneLoop, {Incoming("b"), Outgoing("s"), Outgoing("A")}, options);
 
-    Expr V_ts_star      = csl::GetComplexConjugate(sm_input::V_ts);
-    Expr s2_theta_W     = csl::pow_s(csl::sin_s(theta_W), 2);
-    Expr factorOperator = -csl::pow_s(e_em, 3) * V_ts_star * V_tb * m_b
-                          / (32 * CSL_PI * CSL_PI * M_W * M_W * s2_theta_W);
+    // Disable NLO QCD contributions
+    res = res.filterOut([&](mty::FeynmanDiagram const &diagram) {return diagram.contains(m.getParticle("G"), mty::FeynmanDiagram::DiagramParticleType::Loop);});
+
+    Expr V_ts_star      = csl::GetComplexConjugate(V_ts);
+    Expr factorOperator = -V_ts_star * V_tb * G_F * e_em / (4 * csl::sqrt_s(2) * CSL_PI * CSL_PI);
 
     options.setWilsonOperatorCoefficient(factorOperator);
     auto wilsonC7 = model.getWilsonCoefficients(res, options);
-    Display(wilsonC7);
-    Expr CC7 = getWilsonCoefficient(
-        wilsonC7, chromoMagneticOperator(model, wilsonC7, DiracCoupling::R));
-    Expr CC7p = getWilsonCoefficient(
-        wilsonC7, chromoMagneticOperator(model, wilsonC7, DiracCoupling::L));
-    std::cout << CC7 << std::endl;
-    std::cout << CC7p << '\n';
+    Expr CC7 = getWilsonCoefficient(wilsonC7, chromoMagneticOperator(model, wilsonC7, DiracCoupling::R));
+    Expr CC7p = getWilsonCoefficient(wilsonC7, chromoMagneticOperator(model, wilsonC7, DiracCoupling::L));
 
     [[maybe_unused]] int sysres = system("rm -rf libs/C7_SM");
     mty::Library         wilsonLib("C7_SM", "libs");
     wilsonLib.cleanExistingSources();
-    wilsonLib.addFunction("C7", CC7);
-    wilsonLib.addFunction("C7_p", CC7p);
+    wilsonLib.addFunction("C7", m_b * CC7 + m_s * CC7p);
     defineLibPath(wilsonLib);
     wilsonLib.print();
     return 1;
@@ -53,7 +55,7 @@ int main()
 
     // mty::sm_input::redefineNumericalValues(); // for compatibility
     SM_Model sm;
-    sm.computeFeynmanRules();
+    // sm.computeFeynmanRules();
     // Display(sm.getFeynmanRules());
 
     // calculate(sm, gauge::Type::Unitary);
