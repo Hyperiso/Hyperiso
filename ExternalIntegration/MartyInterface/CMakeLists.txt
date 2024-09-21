@@ -19,6 +19,10 @@ if (NOT TARGET CommonLib)
     add_subdirectory(../../Common CommonLib)
 endif()
 
+if (NOT TARGET ExternalIntegrationLib)
+    add_subdirectory(.. ExternalIntegrationLib)
+endif()
+
 if (NOT TARGET DataBaseLib)
     add_subdirectory(../../DataBase DataBaseLib)
 endif()

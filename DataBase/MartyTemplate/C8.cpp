@@ -1,6 +1,6 @@
 #include <algorithm>
-#include "../../MARTY/install/include/marty/SM.h"
-#include <marty.h>
+#include "../../MARTY/MARTY_INSTALL/include/marty/models/sm.h"
+#include "../../MARTY/MARTY_INSTALL/include/marty.h"
 
 using namespace csl;
 using namespace mty;
@@ -25,16 +25,16 @@ std::vector<size_t> pos;
 int calculate(Model &model, gauge::Type gauge)
 {
     using namespace mty::sm_input;
-    undefineNumericalValues();
+    // undefineNumericalValues();
     model.getParticle("W")->setGaugeChoice(gauge);
 
-    FeynOptions options;
+    mty::FeynOptions options;
     auto res = model.computeAmplitude(Order::OneLoop,
                                  {Incoming("b"), Outgoing("s"), Outgoing("G")},
                                  options);
 
     // Disable NLO QCD contributions
-    res = res.filterOut([&](mty::FeynmanDiagram const &diagram) {return diagram.contains(m.getParticle("G"), mty::FeynmanDiagram::DiagramParticleType::Loop);});
+    res = res.filterOut([&](mty::FeynmanDiagram const &diagram) {return diagram.contains(model.getParticle("G"), mty::FeynmanDiagram::DiagramParticleType::Loop);});
 
     Expr V_ts_star      = csl::GetComplexConjugate(V_ts);
     Expr factorOperator = -V_ts_star * V_tb * G_F * g_s / (4 * csl::sqrt_s(2) * CSL_PI * CSL_PI);
