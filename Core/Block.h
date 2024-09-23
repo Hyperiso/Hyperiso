@@ -5,7 +5,7 @@
 #include <memory>
 #include <stdexcept>
 #include <array>
-#include "JSonParameters.h"
+#include "JsonParameters.h"
 
 // Abstract base class for all blocks
 class Block {
