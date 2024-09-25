@@ -9,6 +9,7 @@ public:
     struct Parameter {
         std::string type;
         std::string name;
+        bool complex;
     };
 
     std::vector<Parameter> extract(const std::string& filename);

@@ -7,17 +7,17 @@ void SMParamSetter::setParam(const std::string& name, const Interpreter::Interpr
         std::cout << interpretedParam.block << std::endl;
         params[name] = value;
     } else {
-        std::cout << interpretedParam.block << std::endl;
+        std::cout << interpretedParam.block << "  " << interpretedParam.code << std::endl;
         params[name] = jsonparser->getElement(interpretedParam.block, interpretedParam.code);
     }
 }
 
 double SMParamSetter::calculateValue(const std::string& name, const Interpreter::InterpretedParam& interpretedParam) {
     if (interpretedParam.block == "KIN") {
-        return 18;
+        return (std::pow(jsonparser->getElement("MASS", 5),2.) + std::pow(jsonparser->getElement("MASS", 3), 2.))/2;
     }
     if (interpretedParam.block == "WEIN") {
-        return 21;
+        return 2;
     }
 
     return 1.0;

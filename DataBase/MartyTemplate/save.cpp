@@ -24,15 +24,14 @@ void defineLibPath(mty::Library &lib)
 int calculate(Model &model, gauge::Type gauge)
 {
     using namespace mty::sm_input;
-    for (auto &expr : {e_em, m_b, m_t, m_s, theta_W, alpha_s, alpha_em, g_s})
-        expr->setValue(CSL_UNDEF);
-
+    // undefineNumericalValues();
     model.getParticle("W")->setGaugeChoice(gauge);
 
     mty::FeynOptions options;
-    // options.addFilters(mty::filter::forceParticle("t"));
-    auto res = model.computeAmplitude(
-        OneLoop, {Incoming("b"), Outgoing("s"), Outgoing("A")}, options);
+    auto res = model.computeAmplitude(OneLoop, {Incoming("b"), Outgoing("s"), Outgoing("A")}, options);
+
+    // Disable NLO QCD contributions
+    res = res.filterOut([&](mty::FeynmanDiagram const &diagram) {return diagram.contains(model.getParticle("G"), mty::FeynmanDiagram::DiagramParticleType::Loop);});
 
     Expr V_ts_star      = csl::GetComplexConjugate(V_ts);
     Expr factorOperator = -V_ts_star * V_tb * G_F * e_em / (4 * csl::sqrt_s(2) * CSL_PI * CSL_PI);

@@ -29,6 +29,5 @@ private:
     Interpreter interpreter;
     SMParamSetter paramSetter;
 
-    // void processParams(std::ofstream& outputFile);
 };
 #endif // SM_MODEL_MODIFIER_H

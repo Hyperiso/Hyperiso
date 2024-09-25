@@ -89,7 +89,7 @@ void SMModelStrategy::initializeParameters(Parameters& params) {
     params.setBlockValue("SMINPUTS", 1, *sm_inputs[0]);
     params.setBlockValue("SMINPUTS", 2, *sm_inputs[1]);
     params.setBlockValue("SMINPUTS", 5, *sm_inputs[4]);
-
+    params.setBlockValue("SMINPUTS", 10, 0.01);
     // VCKMIN 
     params.addBlock("RECKM", std::make_unique<RECKMBlock>());
     params.addBlock("IMCKM", std::make_unique<IMCKMBlock>());

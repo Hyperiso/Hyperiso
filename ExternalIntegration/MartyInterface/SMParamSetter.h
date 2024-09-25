@@ -6,7 +6,7 @@
 #include "config.hpp"
 
 #include <iostream>
-
+#include <cmath>
 class SMParamSetter : public IParamSetter {
 public:
     SMParamSetter(std::unordered_map<std::string, double>& params) : params(params) {

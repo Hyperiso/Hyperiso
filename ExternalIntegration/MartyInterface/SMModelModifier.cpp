@@ -1,6 +1,6 @@
 #include "SMModelModifier.h"
 #include <iostream>
-
+#include <complex>
 // SMNumModelModifier::SMNumModelModifier()
 //     : paramSetter(params) {  // Initialisation du paramSetter avec la référence de params
 // }
@@ -39,7 +39,16 @@ void SMNumModelModifier::addLine(std::ofstream& outputFile, const std::string& c
             }
 
             for (const auto& [name, value] : params) {
-                outputFile << "\tparam." << name << " = " << value << ";\n";
+                std::string real_name = name;
+                if (name.find("_im") != std::string::npos) {
+                    real_name = name.substr(0, name.size()-3);
+                    std::complex<double> complex_value = value + std::complex<double>(0,1) * params[real_name];
+                    
+                }
+                else {
+                    outputFile << "\tparam." << real_name << " = " << value << ";\n";
+                }
+                
             }
             outputFile << "\tauto out = std::ofstream(\""+ this->wilson +"_SM.txt\");\n";
             outputFile << "\tout << "+ this->wilson + "(param).real() << std::endl;\n";
