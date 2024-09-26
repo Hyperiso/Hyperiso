@@ -43,7 +43,7 @@ add_library(ExternalMartyIntegrationLib STATIC
     SMParamSetter.cpp
     )
 
-set_target_properties(ExternalMartyIntegrationLib PROPERTIES PUBLIC_HEADER "ModelModifier.h;CodeGenerator.h;CompilerStrategy.h;GppCompilerStrategy;MakeCompilerStrategy.h;MartyInterface.h;SMModelModifier.h;TemplateManager.h;Extractor.h;Interpreter.h;IParamSetter.h;SMParamSetter.h")
+set_target_properties(ExternalMartyIntegrationLib PROPERTIES PUBLIC_HEADER "ModelModifier.h;NumModelModifier.h;CodeGenerator.h;CompilerStrategy.h;GppCompilerStrategy;MakeCompilerStrategy.h;MartyInterface.h;SMModelModifier.h;TemplateManager.h;Extractor.h;Interpreter.h;IParamSetter.h;SMParamSetter.h")
 # target_include_directories(ExternalMartyIntegrationLib PRIVATE BSM)
 target_link_libraries(ExternalMartyIntegrationLib PUBLIC CommonLib DataBaseLib)
 target_link_libraries(ExternalMartyIntegrationLib PUBLIC ConfiguredModule)

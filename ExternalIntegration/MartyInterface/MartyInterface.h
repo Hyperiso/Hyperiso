@@ -6,6 +6,7 @@
 #include "MakeCompilerStrategy.h"
 #include "SMModelModifier.h"
 #include "Logger.h"
+#include "NumModelModifier.h"
 // #include "THDMModelModifier.h"
 
 class MartyInterface {

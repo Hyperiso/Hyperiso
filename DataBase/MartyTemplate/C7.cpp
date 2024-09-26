@@ -24,19 +24,26 @@ void defineLibPath(mty::Library &lib)
 int calculate(Model &model, gauge::Type gauge)
 {
     using namespace mty::sm_input;
-    for (auto &expr : {e_em, m_b, m_t, m_s, theta_W, alpha_s, alpha_em, g_s})
-        expr->setValue(CSL_UNDEF);
-
+    // for (auto &expr : {e_em, m_b, m_t, m_s, theta_W, alpha_s, alpha_em, g_s})
+    //     expr->setValue(CSL_UNDEF);
+    undefineNumericalValues();
     model.getParticle("W")->setGaugeChoice(gauge);
 
     mty::FeynOptions options;
-    // options.addFilters(mty::filter::forceParticle("t"));
+    options.addFilters(mty::filter::forceParticle("t"));
+    options.setTopology(mty::Topology::Triangle);
     auto res = model.computeAmplitude(
         OneLoop, {Incoming("b"), Outgoing("s"), Outgoing("A")}, options);
 
-    Expr V_ts_star      = csl::GetComplexConjugate(V_ts);
-    Expr factorOperator = -V_ts_star * V_tb * G_F * e_em / (4 * csl::sqrt_s(2) * CSL_PI * CSL_PI);
+    Show(res);
 
+    res = res.filterOut([&](mty::FeynmanDiagram const &diagram) {return !diagram.contains(model.getParticle("G"), mty::FeynmanDiagram::DiagramParticleType::Loop);});
+
+    Expr V_ts_star      = csl::GetComplexConjugate(V_ts);
+    // Expr V_cs_star      = csl::GetComplexConjugate(V_cs);
+    // Expr V_us_star      = csl::GetComplexConjugate(V_us);
+    Expr factorOperator = -V_ts_star * V_tb * G_F * e_em / (4 * csl::sqrt_s(2) * CSL_PI * CSL_PI);
+    // Expr factorOperator = (V_cs_star * V_cb + V_us_star * V_ub) * G_F * e_em / (4 * csl::sqrt_s(2) * CSL_PI * CSL_PI);
     options.setWilsonOperatorCoefficient(factorOperator);
     auto wilsonC7 = model.getWilsonCoefficients(res, options);
     Expr CC7 = getWilsonCoefficient(wilsonC7, chromoMagneticOperator(model, wilsonC7, DiracCoupling::R));
@@ -45,7 +52,7 @@ int calculate(Model &model, gauge::Type gauge)
     [[maybe_unused]] int sysres = system("rm -rf libs/C7_SM");
     mty::Library         wilsonLib("C7_SM", "libs");
     wilsonLib.cleanExistingSources();
-    wilsonLib.addFunction("C7", m_b * CC7 + m_s * CC7p);
+    wilsonLib.addFunction("C7", 1/m_b * CC7 + 1/m_s * CC7p);
     defineLibPath(wilsonLib);
     wilsonLib.print();
     return 1;

@@ -17,7 +17,7 @@ double SMParamSetter::calculateValue(const std::string& name, const Interpreter:
         return (std::pow(jsonparser->getElement("MASS", 5),2.) + std::pow(jsonparser->getElement("MASS", 3), 2.))/2;
     }
     if (interpretedParam.block == "WEIN") {
-        return 2;
+        return 0.5;
     }
 
     return 1.0;

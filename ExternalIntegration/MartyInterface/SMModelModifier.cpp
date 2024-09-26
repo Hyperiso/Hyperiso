@@ -42,16 +42,19 @@ void SMNumModelModifier::addLine(std::ofstream& outputFile, const std::string& c
                 std::string real_name = name;
                 if (name.find("_im") != std::string::npos) {
                     real_name = name.substr(0, name.size()-3);
-                    std::complex<double> complex_value = value + std::complex<double>(0,1) * params[real_name];
-                    
+                    // std::complex<double> complex_value = params[real_name+"_re"] + std::complex<double>(0,1) * value;
+                    outputFile << "\tparam." << real_name << " = {" << params[real_name+"_re"] << "," << value << "};\n";
+                } else if (name.find("_re") != std::string::npos) {
+                    continue;
                 }
                 else {
                     outputFile << "\tparam." << real_name << " = " << value << ";\n";
                 }
                 
             }
+            // outputFile << "\tsetMu(81.);\n";
             outputFile << "\tauto out = std::ofstream(\""+ this->wilson +"_SM.txt\");\n";
-            outputFile << "\tout << "+ this->wilson + "(param).real() << std::endl;\n";
+            outputFile << "\tout << "+ this->wilson + "(param).real() << \" \" << "+ this->wilson + "(param).imag() << std::endl;\n";
             outputFile << "\tout.close();\n";
 
         }

@@ -1,9 +1,9 @@
 #include "Interpreter.h"
 
-std::unordered_map<std::string, Interpreter::InterpretedParam> Interpreter::interpret(const std::vector<Extractor::Parameter>& params) {
+std::unordered_map<std::string, Interpreter::InterpretedParam> Interpreter::interpret(std::vector<Extractor::Parameter>& params) {
     std::unordered_map<std::string, InterpretedParam> interpretedParams;
 
-    for (const auto& param : params) {
+    for (auto& param : params) {
         InterpretedParam interpreted;
         
         if (param.name.rfind("m_", 0) == 0 || param.name.rfind("M_", 0) == 0) {
@@ -29,6 +29,8 @@ std::unordered_map<std::string, Interpreter::InterpretedParam> Interpreter::inte
                 interpreted_2.block = "IMCKM";
                 interpreted_2.code = interpreted.code;
                 interpretedParams[param.name+"_im"] = interpreted_2;
+                param.name = param.name+"_re";
+
             }
         } else if (param.name.rfind("theta_W", 0) == 0) {
             interpreted.block = "WEIN";

@@ -5,11 +5,11 @@
 
 class CodeGenerator {
 public:
-    CodeGenerator(TemplateManager& manager);
+    CodeGenerator(std::unique_ptr<TemplateManagerBase> manager);
     void generate(const std::string& templateName, const std::string& outputPath);
 
 private:
-    TemplateManager& templateManager;
+    std::unique_ptr<TemplateManagerBase> templateManager;
 };
 
 #endif // CODE_GENERATOR_H

@@ -27,12 +27,12 @@ void MartyInterface::generate(std::string wilson, std::string model) {
     // std::unique_ptr<ModelModifier> thdmModifier = std::make_unique<THDMModelModifier>();
 
     std::string root_path = project_root.data();
-    TemplateManager templateManager(root_path+"/DataBase/MartyTemplate");
+    std::unique_ptr<TemplateManagerBase> templateManager = std::make_unique<NonNumericTemplateManager>(root_path + "/DataBase/MartyTemplate");
 
-    templateManager.setModelModifier(std::move(smModifier));
+    templateManager->setModelModifier(std::move(smModifier));
     // templateManager.setModelModifier(std::move(thdmModifier));
 
-    CodeGenerator codeGenerator(templateManager);
+    CodeGenerator codeGenerator(std::move(templateManager));
     codeGenerator.generate(wilson, "generated_"+wilson+".cpp");
     this->generated = true;
 }
@@ -41,12 +41,13 @@ void MartyInterface::generate_numlib(std::string wilson, std::string model) {
     std::unique_ptr<ModelModifier> smModifier;
 
     if (model == "SM") {
-        smModifier = std::make_unique<SMNumModelModifier>(wilson);
+        smModifier = std::make_unique<NumModelModifier>(wilson);
     }
     std::string path = "libs/"+wilson+"_"+model+"/script";
-    TemplateManager templateManager(path);
+    // std::unique_ptr<ModelModifier> smModifier = std::make_unique<SMNumModelModifier>(wilson);
+    std::unique_ptr<TemplateManagerBase> templateManager = std::make_unique<NumericTemplateManager>("libs/"+wilson+"_"+model+"/script");
 
-    templateManager.setModelModifier(std::move(smModifier));
+    templateManager->setModelModifier(std::move(smModifier));
     // templateManager.setModelModifier(std::move(thdmModifier));
     fs::path file_path;
     try {
@@ -60,7 +61,7 @@ void MartyInterface::generate_numlib(std::string wilson, std::string model) {
     } catch(const fs::filesystem_error& e) {
         std::cerr << "Erreur: " << e.what() << std::endl;
     }
-    CodeGenerator codeGenerator(templateManager);
+    CodeGenerator codeGenerator(std::move(templateManager));
 
     codeGenerator.generate(file_path.stem().string(), file_path.string());
     this->num_file_path = file_path;

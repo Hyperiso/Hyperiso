@@ -12,7 +12,7 @@ public:
         int code;
     };
 
-    std::unordered_map<std::string, InterpretedParam> interpret(const std::vector<Extractor::Parameter>& params);
+    std::unordered_map<std::string, InterpretedParam> interpret(std::vector<Extractor::Parameter>& params);
 
 private:
     int getCode(const std::string& name);

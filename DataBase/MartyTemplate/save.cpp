@@ -31,7 +31,7 @@ int calculate(Model &model, gauge::Type gauge)
     auto res = model.computeAmplitude(OneLoop, {Incoming("b"), Outgoing("s"), Outgoing("A")}, options);
 
     // Disable NLO QCD contributions
-    res = res.filterOut([&](mty::FeynmanDiagram const &diagram) {return diagram.contains(model.getParticle("G"), mty::FeynmanDiagram::DiagramParticleType::Loop);});
+    res = res.filterOut([&](mty::FeynmanDiagram const &diagram) {return !diagram.contains(model.getParticle("G"), mty::FeynmanDiagram::DiagramParticleType::Loop);});
 
     Expr V_ts_star      = csl::GetComplexConjugate(V_ts);
     Expr factorOperator = -V_ts_star * V_tb * G_F * e_em / (4 * csl::sqrt_s(2) * CSL_PI * CSL_PI);
