@@ -9,6 +9,7 @@
 #include <fstream>
 #include "Series.h"
 #include "CSVOptions.h"
+#include <array>
 
 inline std::ostream& operator<<(std::ostream& os, const std::vector<std::string>& vec) {
     std::string result{};
@@ -21,18 +22,32 @@ inline std::ostream& operator<<(std::ostream& os, const std::vector<std::string>
     os << result;
     return os;
 }
-
+inline std::ostream& operator<<(std::ostream& os, const std::array<int,2>& vec) {
+    std::string result{};
+    result.append("[");
+    for (const auto& elem : vec) {
+        result.append(std::to_string(elem) + ", ");
+    }
+    result.replace(result.size()-2,2, "");
+    result.append("]");
+    os << result;
+    return os;
+}
 class DataFrame {
 private:
     std::unordered_map<std::string, std::shared_ptr<void>> columns_map;
-    std::vector<std::string> columns;
-    std::shared_ptr<void> index; 
+    
     size_t nRows = 0;
 
     CSVOptions csvOptions; 
-
+    std::vector<int> size;
 public:
-    DataFrame() : index(std::make_shared<std::vector<std::string>>()) {}
+    std::vector<std::string> columns;
+    std::vector<std::string> index;
+    std::array<int, 2> shape = {0,0};
+
+
+    DataFrame() : index(std::vector<std::string>()) {}
 
     template < typename T>
     void addColumn(const std::string& colName);
@@ -57,21 +72,23 @@ public:
 
     DataFrame head(size_t n = 5) const;
     DataFrame tail(size_t n = 5) const;
+
+    template <typename T>
+    void describeColumn(const std::string& colName) const;
+    
     void describe() const;
 
     template <typename T>
     Series<T> getColumn(const std::string& colName) const;
 
-    template <typename T>
-    void setIndex(const Series<T>& newIndex);
+    void setIndex(const std::vector<std::string>& newIndex);
 
-    template < typename T>
-    const Series<T>& getIndex() const;
+    const std::vector<std::string>& getIndex() const;
 
     void to_csv(const std::string& filename);
 
     void _set_csv_options(CSVOptions options) {
-        this-> csvOptions = options;
+        this->csvOptions = options;
     }
 };
 

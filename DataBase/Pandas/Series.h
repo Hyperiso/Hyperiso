@@ -5,6 +5,7 @@
 #include <vector>
 #include <iostream>
 #include <algorithm>
+#include <cmath>
 
 template <typename T>
 class Series {
@@ -41,9 +42,16 @@ public:
     T min() const;
     T max() const;
     double mean() const;
+    double stddev() const;
+
+    std::vector<T> quartiles() const;
 
     const std::shared_ptr<std::vector<std::string>>& getIndex() const {
         return index;
+    }
+
+    std::vector<T> to_vec() {
+        return data;
     }
 };
 

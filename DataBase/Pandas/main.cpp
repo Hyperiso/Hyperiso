@@ -14,31 +14,16 @@ int main() {
 
 
     DataFrame df = pd.read_csv("data.csv", options);
+    df.print();
 
     df.head();
 
     df.describe();
-    std::cout << df.getColumnNames() << std::endl;;
-
+    std::cout << df.columns << std::endl;;
+    std::cout << df.index << std::endl;
     df.to_csv("output.csv");
 
-
-    df.print();
-    
-    for (auto& i : df.getColumnNames()) {
-        std::cout << i << "\n";
-    }
-    std::cout << df.getIndex<std::string>().iat(0) << std::endl;;
-    std::cout << "\n";
-    
-    try {
-        int value = df.iat<int>(0, "truc1");
-        std::cout << "Value at (0, truc1): " << value << std::endl;
-    } catch (const std::exception& e) {
-        std::cerr << e.what() << std::endl;
-    }
-
-    
+    std::cout << df.shape << std::endl;
 
 
     return 0;

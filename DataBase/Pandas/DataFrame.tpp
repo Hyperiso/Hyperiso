@@ -5,6 +5,8 @@ void DataFrame::addColumn(const std::string& colName) {
     auto series = std::make_shared<Series<T>>(colName);
     columns_map[colName] = series;
     columns.push_back(colName);
+    shape[1] +=1;
+    csvOptions.columnTypes.emplace(colName, typeid(T));
 }
 
 template <typename T>
@@ -13,6 +15,10 @@ void DataFrame::addValueToColumn(const std::string& colName, const T& value) {
     col->add(value);
     if (col->size() > nRows) {
         nRows = col->size();
+        shape[0] = nRows;
+    }
+    if (csvOptions.columnTypes.find(colName) == csvOptions.columnTypes.end()) {
+        csvOptions.columnTypes.emplace(colName, typeid(T));
     }
 }
 
@@ -52,17 +58,21 @@ Series<T>& DataFrame::operator[](const std::string& colName) {
 }
 
 template <typename T>
-void DataFrame::setIndex(const Series<T>& newIndex) {
-    if (newIndex.size() != nRows && nRows > 0) {
-        throw std::invalid_argument("Index size does not match number of rows");
-    }
-    index = std::make_shared<Series<T>>(newIndex);
+void DataFrame::describeColumn(const std::string& colName) const {
+    // auto series = std::make_shared<Series<T>>(colName);
+    const auto& series = getColumn<T>(colName);  // Récupérer la colonne
+
+    std::cout << "Colonne: " << colName << std::endl;
+    std::cout << "Count: " << series.size() << std::endl;
+    std::cout << "Mean: " << series.mean() << std::endl;
+    std::cout << "Std: " << series.stddev() << std::endl;
+    std::cout << "Min: " << series.min() << std::endl;
+
+    auto quartiles = series.quartiles();
+    std::cout << "25%: " << quartiles[0] << std::endl;
+    std::cout << "50%: " << quartiles[1] << std::endl;  // Median
+    std::cout << "75%: " << quartiles[2] << std::endl;
+    std::cout << "Max: " << series.max() << std::endl;
+    std::cout << std::endl;
 }
 
-template <typename T>
-const Series<T>& DataFrame::getIndex() const {
-    if (!index) {
-        throw std::runtime_error("Index is not set");
-    }
-    return *std::static_pointer_cast<Series< T>>(index);
-}

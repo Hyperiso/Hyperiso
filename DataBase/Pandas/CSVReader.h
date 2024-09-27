@@ -11,7 +11,7 @@
 
 class CSVReader {
 public:
-    DataFrame read_csv(const std::string& filename, const CSVOptions& options = CSVOptions());
+    DataFrame read_csv(const std::string& filename, CSVOptions options = CSVOptions());
 };
 
 #endif // CSVREADER_H

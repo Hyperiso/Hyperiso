@@ -20,13 +20,12 @@ T convertValue(const std::string& value) {
     }
 }
 
-// Fonction générique pour ajouter une valeur dans une colonne
 template <typename T>
 void addValueToDataFrame(DataFrame& df, const std::string& colName, const std::string& value) {
     df.addValueToColumn<T>(colName, convertValue<T>(value));
 }
 
-DataFrame CSVReader::read_csv(const std::string& filename, const CSVOptions& options) {
+DataFrame CSVReader::read_csv(const std::string& filename, CSVOptions options) {
     std::ifstream file(filename);
     if (!file.is_open()) {
         throw std::runtime_error("Could not open file");
@@ -37,18 +36,15 @@ DataFrame CSVReader::read_csv(const std::string& filename, const CSVOptions& opt
     bool header = true;
     std::vector<std::string> headers;
 
-    // Index temporaire
-    std::shared_ptr<void> index;
+    std::vector<std::string> index{};
 
     while (std::getline(file, line)) {
         std::stringstream ss(line);
         std::string value;
         if (header) {
-            // Lecture des en-têtes de colonne
             while (std::getline(ss, value, ',')) {
                 headers.push_back(value);
                 if (!options.hasIndex || headers.size() > 1) {
-                    // Ajouter une colonne seulement si ce n'est pas un index
                     const auto& colName = headers.back();
                     const auto& colType = options.columnTypes.at(colName);
 
@@ -69,23 +65,12 @@ DataFrame CSVReader::read_csv(const std::string& filename, const CSVOptions& opt
             size_t indexPos = 0;
             std::vector<std::string> rowValues;
 
-            // Parcours des valeurs de la ligne
             while (std::getline(ss, value, ',')) {
                 if (options.hasIndex && colIdx == 0) {
                     // Gestion de l'index
-                    if (options.indexType == typeid(int)) {
-                        if (!index) index = std::make_shared<Series<int>>(Series<int>("Index"));
-                        auto& idxSeries = *std::static_pointer_cast<Series<int>>(index);
-                        idxSeries.add(convertValue<int>(value));
-                    } else if (options.indexType == typeid(std::string)) {
-                        if (!index) index = std::make_shared<Series<std::string>>(Series<std::string>("Index"));
-                        auto& idxSeries = *std::static_pointer_cast<Series<std::string>>(index);
-                        idxSeries.add(convertValue<std::string>(value));
-                    } else {
-                        throw std::invalid_argument("Unsupported index type");
-                    }
+                    index.emplace_back(value);
+
                 } else {
-                    // Gestion des colonnes
                     const auto& colName = headers[colIdx];
                     const auto& colType = options.columnTypes.at(colName);
 
@@ -105,12 +90,7 @@ DataFrame CSVReader::read_csv(const std::string& filename, const CSVOptions& opt
     }
 
     if (options.hasIndex) {
-        // Assigner l'index si nécessaire
-        if (options.indexType == typeid(int)) {
-            df.setIndex(*std::static_pointer_cast<Series< int>>(index));
-        } else if (options.indexType == typeid(std::string)) {
-            df.setIndex(*std::static_pointer_cast<Series<std::string>>(index));
-        }
+        df.setIndex(index);
     }
 
     file.close();

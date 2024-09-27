@@ -57,3 +57,36 @@ double Series<T>::mean() const {
     double sum = std::accumulate(data.begin(), data.end(), 0.0);
     return sum / data.size();
 }
+
+
+template <typename T>
+double Series<T>::stddev() const {
+    if (data.empty()) {
+        throw std::runtime_error("Empty series");
+    }
+
+    double meanValue = mean();
+    double sumOfSquares = 0.0;
+
+    for (const auto& value : data) {
+        sumOfSquares += (value - meanValue) * (value - meanValue);
+    }
+
+    return std::sqrt(sumOfSquares / data.size());
+}
+
+template <typename T>
+std::vector<T> Series<T>::quartiles() const {
+    if (data.empty()) {
+        throw std::runtime_error("Empty series");
+    }
+
+    std::vector<T> sortedData = data;
+    std::sort(sortedData.begin(), sortedData.end());
+
+    auto q1 = sortedData[sortedData.size() * 0.25];
+    auto q2 = sortedData[sortedData.size() * 0.50];  // Median
+    auto q3 = sortedData[sortedData.size() * 0.75];
+
+    return {q1, q2, q3};
+}
