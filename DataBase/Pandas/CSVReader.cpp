@@ -35,7 +35,7 @@ DataFrame CSVReader::read_csv(const std::string& filename, CSVOptions options) {
     std::string line;
     bool header = true;
     std::vector<std::string> headers;
-
+    int index_id=0;
     std::vector<std::string> index{};
 
     while (std::getline(file, line)) {
@@ -66,6 +66,9 @@ DataFrame CSVReader::read_csv(const std::string& filename, CSVOptions options) {
             std::vector<std::string> rowValues;
 
             while (std::getline(ss, value, ',')) {
+                if(!options.hasIndex && colIdx == 0) {
+                    index.emplace_back(std::to_string(index_id++));
+                }
                 if (options.hasIndex && colIdx == 0) {
                     // Gestion de l'index
                     index.emplace_back(value);
@@ -88,10 +91,10 @@ DataFrame CSVReader::read_csv(const std::string& filename, CSVOptions options) {
             }
         }
     }
-
-    if (options.hasIndex) {
-        df.setIndex(index);
-    }
+    df.setIndex(index);
+    // if (options.hasIndex) {
+    //     df.setIndex(index);
+    // }
 
     file.close();
     df._set_csv_options(options);
