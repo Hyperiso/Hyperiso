@@ -19,9 +19,11 @@ int main() {
     df.head();
 
     df.describe();
+
+    df.to_csv("output.csv");
     std::cout << df.columns << std::endl;;
     std::cout << df.index << std::endl;
-    df.to_csv("output.csv");
+    
 
     std::cout << df.shape << std::endl;
 
