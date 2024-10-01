@@ -6,7 +6,7 @@ int main() {
     CSVReader pd;
 
     CSVOptions options;
-    options.hasIndex = true;
+    options.hasIndex = false;
     options.indexType = typeid(std::string);
     options["truc1"] = typeid(int);
     options["truc2"] = typeid(double);
