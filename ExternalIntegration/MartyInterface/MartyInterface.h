@@ -17,8 +17,22 @@ public:
     void compile_run_libs(std::string wilson, std::string model);
 
 private:
-    bool generated = false;
-    bool compiled = false;
+
+    bool already_run(std::string&& outputBinary) {
+        std::cout << "Trying to see if something work with "<< outputBinary << std::endl;
+        struct stat buffer;
+        if (stat(outputBinary.c_str(), &buffer) != 0) {
+            return false;
+        }
+        if (buffer.st_size == 0) {
+            return false;
+        }
+        std::cout << "Already run !" << std::endl;
+        return true;
+    }
+    std::string output_binary_name(std::string& wilson, std::string& model) {
+        return "generated_" + wilson+"_" + model + ".cpp";
+    }
 
     std::string num_file_path{};
 };

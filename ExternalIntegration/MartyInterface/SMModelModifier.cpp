@@ -12,19 +12,20 @@ void SMModelModifier::modifyLine(std::string& line) {
 }
 
 void SMNumModelModifier::addLine(std::ofstream& outputFile, const std::string& currentLine, bool addBefore) {
-    if (currentLine.find("//42") != std::string::npos) {
-        this->done = true;
-    }
-    if (this->done) {
-        outputFile << currentLine << "\n";
-        return;
-    }
-    if(count == 0) {
-        outputFile << "//42" << "\n";
-        outputFile << currentLine << "\n";
-        this->count++;
-        return;
-    }
+    // if (currentLine.find("//42") != std::string::npos) {
+    //     this->done = true;
+    // }
+    // if (this->done) {
+    //     outputFile << currentLine << "\n";
+    //     return;
+    // }
+    // if(count == 0) {
+    //     std::cout << "BITE" << std::endl;
+    //     outputFile << "//42" << "\n";
+    //     outputFile << currentLine << "\n";
+    //     this->count++;
+    //     return;
+    // }
     if (currentLine.find("return 0;") != std::string::npos) {
         std::string filename = "libs/" + this->wilson+"_SM/include/params.h";
         auto extractedParams = extractor.extract(filename);
@@ -72,5 +73,5 @@ void SMNumModelModifier::addLine(std::ofstream& outputFile, const std::string& c
         std::cout << currentLine << std::endl;
         outputFile << currentLine << "\n";
     }
-    this->count++;
+    // this->count++;
 }

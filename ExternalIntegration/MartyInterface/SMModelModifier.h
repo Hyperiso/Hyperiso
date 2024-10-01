@@ -21,8 +21,8 @@ public:
     void addLine(std::ofstream& outputFile, const std::string& currentLine, bool addBefore) override;
 
 private:
-    bool done = false;
-    int count = 0;
+    // bool done = false;
+    // int count = 0;
     
     std::unordered_map<std::string, double> params;
     Extractor extractor;

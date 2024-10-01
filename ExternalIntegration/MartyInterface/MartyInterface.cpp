@@ -13,8 +13,9 @@ void MartyInterface::compile_run(std::string wilson, std::string model) {
     
 
     GppCompilerStrategy compiler;
-    compiler.compile_run("generated_"+wilson+".cpp", "generated_"+wilson);
-    this->compiled = true;
+    if (!this->already_run("libs/" + wilson +"_" + model + "/bin/example_"+ to_lowercase(wilson) +"_"+to_lowercase(model)+".x")){
+        compiler.compile_run("generated_"+wilson+".cpp", "generated_"+wilson);
+    }
 }
 
 void MartyInterface::generate(std::string wilson, std::string model) {
@@ -34,7 +35,6 @@ void MartyInterface::generate(std::string wilson, std::string model) {
 
     CodeGenerator codeGenerator(std::move(templateManager));
     codeGenerator.generate(wilson, "generated_"+wilson+".cpp");
-    this->generated = true;
 }
 
 void MartyInterface::generate_numlib(std::string wilson, std::string model) {
@@ -73,7 +73,6 @@ void MartyInterface::compile_run_libs(std::string wilson, std::string model) {
     }
     MakeCompilerStrategy compiler;
     compiler.compile_run("libs/" + wilson +"_" + model, "/bin/example_"+ to_lowercase(wilson) +"_"+to_lowercase(model)+".x");
-    this->compiled = true;
 }
 
 std::string to_lowercase(const std::string& str) {

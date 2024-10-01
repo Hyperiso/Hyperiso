@@ -20,6 +20,25 @@ public:
 protected:
     std::string templatesDir;
     std::unique_ptr<ModelModifier> modelModifier;
+
+    bool already_generated(const std::string& path) {
+        std::cout << "fk this" << std::endl;
+        std::ifstream file(path);
+
+        if (!file.is_open()) {
+            std::cerr << "Erreur : Impossible d'ouvrir le fichier " << path << std::endl;
+            return false;
+        }
+
+        std::string firstLine;
+        if (std::getline(file, firstLine)) {
+            if (firstLine.find("//42") != std::string::npos) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 };
 
 

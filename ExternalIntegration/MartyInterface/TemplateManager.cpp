@@ -39,12 +39,17 @@ void NumericTemplateManager::generateTemplateImpl(const std::string& templateNam
         input = &templateFile;
     }
     
+    if (this->already_generated(outputPath)) {
+        return;
+    }
+    
     std::ofstream outputFile(outputPath);
     if (!outputFile) {
         std::cerr << "Erreur: Impossible d'ouvrir le fichier de sortie " << outputPath << std::endl;
         return;
     }
-     
+
+    outputFile << "//42" << "\n"; 
     while (std::getline(*input, line)) {
         if (modelModifier) {
             bool addBefore = true;
@@ -65,6 +70,9 @@ void NonNumericTemplateManager::generateTemplateImpl(const std::string& template
         return;
     }
 
+    if (this->already_generated(outputPath)) {
+        return;
+    }
     std::ofstream outputFile(outputPath);
     if (!outputFile) {
         std::cerr << "Erreur: Impossible d'ouvrir le fichier de sortie " << outputPath << std::endl;
@@ -72,6 +80,11 @@ void NonNumericTemplateManager::generateTemplateImpl(const std::string& template
     }
 
     std::string line;
+    std::getline(templateFile, line);
+
+    modelModifier->addLine(outputFile, line, true);
+    outputFile << "//42" << "\n";
+
     while (std::getline(templateFile, line)) {
         if (modelModifier) {
             bool addBefore = true;
