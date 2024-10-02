@@ -5,10 +5,10 @@
 int main() {
 
     MartyInterface MartyInterface;
-    // MartyInterface.generate("C7", "SM");
+    MartyInterface.generate("C7", "SM");
     MartyInterface.compile_run("C7", "SM");
     MartyInterface.generate_numlib("C7", "SM");
-    // MartyInterface.compile_run_libs("C7", "SM");
+    MartyInterface.compile_run_libs("C7", "SM");
 
     // MartyInterface.generate("C8", "SM");
     // MartyInterface.compile_run("C8", "SM");

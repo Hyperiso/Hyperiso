@@ -22,7 +22,6 @@ protected:
     std::unique_ptr<ModelModifier> modelModifier;
 
     bool already_generated(const std::string& path) {
-        std::cout << "fk this" << std::endl;
         std::ifstream file(path);
 
         if (!file.is_open()) {

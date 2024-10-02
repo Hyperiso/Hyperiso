@@ -45,7 +45,7 @@ void MartyInterface::generate_numlib(std::string wilson, std::string model) {
     }
     std::string path = "libs/"+wilson+"_"+model+"/script";
     // std::unique_ptr<ModelModifier> smModifier = std::make_unique<SMNumModelModifier>(wilson);
-    std::unique_ptr<TemplateManagerBase> templateManager = std::make_unique<NumericTemplateManager>("libs/"+wilson+"_"+model+"/script");
+    std::unique_ptr<TemplateManagerBase> templateManager = std::make_unique<NumericTemplateManager>("libs/"+wilson+"_"+model);
 
     templateManager->setModelModifier(std::move(smModifier));
     // templateManager.setModelModifier(std::move(thdmModifier));
