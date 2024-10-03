@@ -53,7 +53,7 @@ void SMNumModelModifier::addLine(std::ofstream& outputFile, const std::string& c
                 }
                 
             }
-            // outputFile << "\tsetMu(81.);\n";
+            outputFile << "\tsetMu(81.);\n";
             outputFile << "\tauto out = std::ofstream(\""+ this->wilson +"_SM.txt\");\n";
             outputFile << "\tout << "+ this->wilson + "(param).real() << \" \" << "+ this->wilson + "(param).imag() << std::endl;\n";
             outputFile << "\tout.close();\n";

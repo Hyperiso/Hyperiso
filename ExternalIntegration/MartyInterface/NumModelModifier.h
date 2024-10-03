@@ -70,7 +70,8 @@ public:
                         outputFile << "\tparam." << real_name << " = " << value << ";\n";
                     }
                 }
-                outputFile << "writeWilsonCoefficients(\""+ wilson + "\", " + wilson +"(param), 200);\n";
+                outputFile << "\tsetMu(80.379);\n";
+                outputFile << "\twriteWilsonCoefficients(\""+ wilson + "\", " + wilson +"(param), 200);\n";
                 outputFile << "\tauto out = std::ofstream(\"" + wilson + "_SM.txt\");\n";
                 outputFile << "\tout << " + wilson + "(param).real() << \" \" << "
                            + wilson + "(param).imag() << std::endl;\n";

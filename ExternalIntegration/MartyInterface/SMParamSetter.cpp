@@ -25,7 +25,7 @@ double SMParamSetter::calculateValue(const std::string& name, const Interpreter:
         return pow(sin(0.5), 2);
     }
     if (interpretedParam.block == "REGPROP") {
-        return 1e-8;
+        return 1e-3;
     }
 
     return 1.0;
