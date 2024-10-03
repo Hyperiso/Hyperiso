@@ -102,6 +102,7 @@ double F0SP(double xt);
 
 // B > Ks gamma isospin asymmetry
 
+complex_t G(double, double);
 double F_perp(double a_1_perp, double a_2_perp); // Done
 double X_perp(double a_1_perp, double a_2_perp, double cutoff); // Done
 complex_t G_perp(double s, double a_1_perp, double a_2_perp); // Done

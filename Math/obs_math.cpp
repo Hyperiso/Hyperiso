@@ -13,7 +13,7 @@ using Integrand = std::function<double(double)>;
 using cIntegrand = std::function<complex_t(double)>;
 
 double unwrap_lambda(double x, void *p) {
-    auto fun = static_cast<std::function<double(double)>*>(p);
+    auto fun = static_cast<Integrand*>(p);
     return (*fun)(x);
 }
 

@@ -43,14 +43,8 @@ complex_t get_c_CKM_entry(int idx) {
 }
 
 complex_t ObsEvaluator::Evaluate(Observable *o) {
-    std::cout << "in Evaluate " << std::endl;
     auto p = Parameters::GetInstance(0);
-    std::cout << "in Evaluate2" << std::endl;
     CoefficientManager* manager = ObsEvaluator::computeWilsons(o->getModel(), o->getOrder(), o->getScale(), o->getWilsonBasis() == 2);
-    std::cout << "in Evaluate3 " << std::endl;
-    // if (!wm) {
-    //     return std::complex<double>(-1);
-    // }
 
     switch (o->getId()) {
         case Observables::BR_BS_MUMU:
@@ -64,7 +58,7 @@ complex_t ObsEvaluator::Evaluate(Observable *o) {
         case Observables::BR_BU_TAUNU_NP_ONLY:
             return ObsEvaluator::Bu_taunu(o->getModel(), true);
         case Observables::ISOSPIN_ASYMMETRY_B_KSTAR_GAMMA:
-            return 0;
+            // return 0;
             return ObsEvaluator::Delta_0_B_Kstargamma(manager, o->getScale());
         case Observables::LAST:
             return 0;
@@ -196,8 +190,9 @@ complex_t ObsEvaluator::Delta_0_B_Kstargamma(CoefficientManager* manager, double
     double C_F = (N * N - 1) / (2 * N);
     double b0 = 11 - 2 * nf / 3.;
 
+    double m_b = (*sm_p)("MASS", 5);
     double lambda_h = 0.5;
-    double mu_h = std::sqrt(lambda_h * mu_b);
+    double mu_h = std::sqrt(lambda_h * m_b);
     double alphas_mu_b = sm_p->alpha_s(mu_b);
     double alphas_mu_h = sm_p->alpha_s(mu_h);
     double alphas_1GeV = sm_p->alpha_s(1.);
@@ -205,7 +200,6 @@ complex_t ObsEvaluator::Delta_0_B_Kstargamma(CoefficientManager* manager, double
     
     double m_B = (*flav_p)("MASS", 521);
     double m_Ks = (*flav_p)("MASS", 323);
-    double m_b = (*sm_p)("MASS", 5);
     double f_B = flav_p->getFlavorParam(FlavorParamType::DECAY_CONSTANT, "521|1");
     double f_Ks = flav_p->getFlavorParam(FlavorParamType::DECAY_CONSTANT, "323|1");
     double f_Ks_perp = flav_p->getFlavorParam(FlavorParamType::DECAY_CONSTANT, "323|2") * pow(eta, FFInput::gamma_n_perp(0, N) / b0);
@@ -215,7 +209,7 @@ complex_t ObsEvaluator::Delta_0_B_Kstargamma(CoefficientManager* manager, double
     double a_1_par = FFInput::a_1_par * std::pow(eta, (FFInput::gamma_n_par(1, N) - C_F) / b0);
     double a_2_par = FFInput::a_2_par * std::pow(eta, (FFInput::gamma_n_par(2, N) - C_F) / b0);
     double lambda_B = FFInput::lambda_B / (1 - alphas_mu_h * std::log(std::pow(mu_h, 2)) * 1.8 / (3 * PI));
-    
+
     complex_t C1 = manager->getFullRunCoefficient("BCoefficient", "C1", "NLO") + manager->getFullRunCoefficient("BPrimeCoefficient", "CP1", "NLO");
     complex_t C2 = manager->getFullRunCoefficient("BCoefficient", "C2", "NLO") + manager->getFullRunCoefficient("BPrimeCoefficient", "CP2", "LO");
     complex_t C3 = manager->getFullRunCoefficient("BCoefficient", "C3", "NLO");
@@ -229,10 +223,10 @@ complex_t ObsEvaluator::Delta_0_B_Kstargamma(CoefficientManager* manager, double
     complex_t C7 = manager->getFullRunCoefficient("BCoefficient", "C7", "NLO") + manager->getFullRunCoefficient("BPrimeCoefficient", "CP7", "LO");
     complex_t C8 = manager->getFullRunCoefficient("BCoefficient", "C8", "NLO") + manager->getFullRunCoefficient("BPrimeCoefficient", "CP8", "LO");
 
-    manager->setGroupScale("BCoefficientGroup", mu_h);
-    manager->setGroupScale("BPrimeCoefficientGroup", mu_h);
-    manager->setGroupScale("BScalarCoefficientGroup", mu_h);
-    manager->switchbasis("BCoefficientGroup");
+    manager->setGroupScale("BCoefficient", mu_h);
+    manager->setGroupScale("BPrimeCoefficient", mu_h);
+    manager->setGroupScale("BScalarCoefficient", mu_h);
+    manager->switchbasis("BCoefficient");
 
     complex_t C2_h = manager->getFullRunCoefficient("BCoefficient", "C2", "NNLO") + manager->getFullRunCoefficient("BPrimeCoefficient", "CP2", "NNLO");
     complex_t C8_h = manager->getFullRunCoefficient("BCoefficient", "C2",  "NNLO") + manager->getFullRunCoefficient("BPrimeCoefficient", "CP8", "NNLO");
@@ -240,7 +234,7 @@ complex_t ObsEvaluator::Delta_0_B_Kstargamma(CoefficientManager* manager, double
     double m_b_mu_b = sm_p->running_mass(m_b, m_b, mu_b, "pole");
     double m_b_1S = sm_p->get_QCD_masse("mb_1S");
     double m_c_mu_b = sm_p->running_mass((*sm_p)("MASS", 4), (*sm_p)("MASS", 4), mu_b, "pole");
-    double sc = std::pow(m_c_mu_b / m_c_mu_b, 2);
+    double sc = std::pow(m_c_mu_b / m_b_mu_b, 2);
 
     double mu_0 = mu_b;
     complex_t r1 = (8. * C3 / 3. + 4 * nf * (C4 + C6) / 3. - 8. * (N * C6 + C5)) * F_perp(a_1_perp, a_2_perp) * std::log(mu_b / mu_0);
@@ -249,13 +243,25 @@ complex_t ObsEvaluator::Delta_0_B_Kstargamma(CoefficientManager* manager, double
     double rb = mu_b / m_b_1S;
     double cutoff = 1 - lambda_h / m_B;
     double F = F_perp(a_1_perp, a_2_perp);
+    LOG_INFO("a1_perp =", a_1_perp);
+    LOG_INFO("a2_perp =", a_2_perp);
+    LOG_INFO("F_perp =", F);
+    LOG_INFO("sc =", sc);
+    LOG_INFO("G(", sc, 0.5, ") =", G(sc, 0.5));
     complex_t G = G_perp(sc, a_1_perp, a_2_perp);
+    LOG_INFO("G_perp =", G);
     complex_t H = H_perp(sc, a_1_par, a_2_par);
+    std::cout << "H_perp OK" << std::endl;
     double X = X_perp(a_1_perp, a_2_perp, cutoff);
+    std::cout << "X_perp OK" << std::endl;
     complex_t G2 = G2_perp(sc, rb);
+    std::cout << "G2_perp OK" << std::endl;
     complex_t G8 = G8_perp(rb);
+    std::cout << "G8_perp OK" << std::endl;
     complex_t H2 = 2 * PI2 * f_B * f_Ks_perp / (3 * N * FFInput::T1_B_Kstar * m_B * lambda_B) * H2_perp(sc, a_1_perp, a_2_perp);
+    std::cout << "H2_perp OK" << std::endl;
     double H8 = 4 * PI2 * f_B * f_Ks_perp / (3 * N * FFInput::T1_B_Kstar * m_B * lambda_B) * H8_perp(a_1_perp, a_2_perp);
+    std::cout << "H8_perp OK" << std::endl;
 
     complex_t a7c = C7 + (alphas_mu_b * (C2 * G2 + C8 * G8) + alphas_mu_h * (C2_h * H2 + C8_h * H8)) * C_F / (4 * PI);
     complex_t K1 = -(C6 + CP6 + (C5 + CP5) / N) * F 
