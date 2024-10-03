@@ -35,6 +35,9 @@ std::unordered_map<std::string, Interpreter::InterpretedParam> Interpreter::inte
         } else if (param.name.rfind("theta_W", 0) == 0) {
             interpreted.block = "WEIN";
             interpreted.code = getCode(param.name);
+        } else if (param.name.rfind("s2_thetaW", 0) == 0){
+            interpreted.block = "S2_THETAW";
+            interpreted.code = 0;
         } else if (param.name.rfind("Finite", 0) == 0) {
             interpreted.block = "Finite";
             interpreted.code = getCode(param.name);

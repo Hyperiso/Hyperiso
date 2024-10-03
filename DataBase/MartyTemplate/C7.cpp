@@ -35,14 +35,16 @@ int calculate(Model &model, gauge::Type gauge)
     auto res = model.computeAmplitude(
         OneLoop, {Incoming("b"), Outgoing("s"), Outgoing("A")}, options);
 
-    Show(res);
+    // Show(res);
 
     res = res.filterOut([&](mty::FeynmanDiagram const &diagram) {return !diagram.contains(model.getParticle("G"), mty::FeynmanDiagram::DiagramParticleType::Loop);});
 
     Expr V_ts_star      = csl::GetComplexConjugate(V_ts);
     // Expr V_cs_star      = csl::GetComplexConjugate(V_cs);
     // Expr V_us_star      = csl::GetComplexConjugate(V_us);
-    Expr factorOperator = -V_ts_star * V_tb * G_F * e_em / (4 * csl::sqrt_s(2) * CSL_PI * CSL_PI);
+    // Expr factorOperator = -V_ts_star * V_tb * G_F * e_em / (4 * csl::sqrt_s(2) * CSL_PI * CSL_PI);
+    Expr factorOperator = -csl::pow_s(e_em, 3) * V_ts_star * V_tb * m_b
+        / (32 * CSL_PI*CSL_PI * M_W*M_W * s2_theta_W);
     // Expr factorOperator = (V_cs_star * V_cb + V_us_star * V_ub) * G_F * e_em / (4 * csl::sqrt_s(2) * CSL_PI * CSL_PI);
     options.setWilsonOperatorCoefficient(factorOperator);
     auto wilsonC7 = model.getWilsonCoefficients(res, options);
@@ -51,10 +53,15 @@ int calculate(Model &model, gauge::Type gauge)
 
     [[maybe_unused]] int sysres = system("rm -rf libs/C7_SM");
     mty::Library         wilsonLib("C7_SM", "libs");
+    mty::Library         wilsonLib2("C7p_SM", "libs");
     wilsonLib.cleanExistingSources();
-    wilsonLib.addFunction("C7", 1/m_b * CC7 + 1/m_s * CC7p);
+    wilsonLib2.cleanExistingSources();
+    wilsonLib.addFunction("C7",CC7);
+    wilsonLib2.addFunction("C7p",CC7p);
     defineLibPath(wilsonLib);
+    defineLibPath(wilsonLib2);
     wilsonLib.print();
+    wilsonLib2.print();
     return 1;
 }
 

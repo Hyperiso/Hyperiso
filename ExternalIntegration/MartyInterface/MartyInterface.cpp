@@ -64,13 +64,13 @@ void MartyInterface::generate_numlib(std::string wilson, std::string model) {
     CodeGenerator codeGenerator(std::move(templateManager));
 
     codeGenerator.generate(file_path.stem().string(), file_path.string());
-    this->num_file_path = file_path;
+    // this->num_file_path = file_path;
 }
 
 void MartyInterface::compile_run_libs(std::string wilson, std::string model) {
-    if(this->num_file_path == "") {
-        LOG_ERROR("ValueError", "must generate librarie first");
-    }
+    // if(this->num_file_path == "") {
+    //     LOG_ERROR("ValueError", "must generate librarie first");
+    // }
     MakeCompilerStrategy compiler;
     compiler.compile_run("libs/" + wilson +"_" + model, "/bin/example_"+ to_lowercase(wilson) +"_"+to_lowercase(model)+".x");
 }
