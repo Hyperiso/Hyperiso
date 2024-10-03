@@ -38,8 +38,8 @@ int calculate(Model &model, gauge::Type gauge)
     res = res.filterOut([&](mty::FeynmanDiagram const &diagram) {return !diagram.contains(model.getParticle("G"), mty::FeynmanDiagram::DiagramParticleType::Loop);});
 
     Expr V_ts_star      = csl::GetComplexConjugate(V_ts);
-    // Expr V_cs_star      = csl::GetComplexConjugate(V_cs);
-    // Expr V_us_star      = csl::GetComplexConjugate(V_us);
+    Expr V_cs_star      = csl::GetComplexConjugate(V_cs);
+    Expr V_us_star      = csl::GetComplexConjugate(V_us);
     // Expr factorOperator = -V_ts_star * V_tb * G_F * e_em / (4 * csl::sqrt_s(2) * CSL_PI * CSL_PI);
     Expr factorOperator = (V_cs_star * V_cb + V_us_star * V_ub) * G_F * e_em * m_b / (4 * csl::sqrt_s(2) * CSL_PI * CSL_PI);
     options.setWilsonOperatorCoefficient(factorOperator);

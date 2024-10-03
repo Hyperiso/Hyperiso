@@ -1,4 +1,5 @@
 #include "Interpreter.h"
+#include <iostream>
 
 std::unordered_map<std::string, Interpreter::InterpretedParam> Interpreter::interpret(std::vector<Extractor::Parameter>& params) {
     std::unordered_map<std::string, InterpretedParam> interpretedParams;
@@ -21,7 +22,10 @@ std::unordered_map<std::string, Interpreter::InterpretedParam> Interpreter::inte
         } else if (param.name.rfind("s_12", 0) == 0) {
             interpreted.block = "KIN";
             interpreted.code = getCode(param.name);
-        } else if (param.name.rfind("V_", 0) == 0) {
+        } else if (param.name.rfind("s_34", 0) == 0) {
+            interpreted.block = "KIN";
+            interpreted.code = getCode(param.name);
+        }else if (param.name.rfind("V_", 0) == 0) {
             interpreted.block = "RECKM";
             interpreted.code = getCode(param.name);
             if (param.complex == true) {
@@ -37,6 +41,9 @@ std::unordered_map<std::string, Interpreter::InterpretedParam> Interpreter::inte
             interpreted.code = getCode(param.name);
         } else if (param.name.rfind("s2_thetaW", 0) == 0){
             interpreted.block = "S2_THETAW";
+            interpreted.code = 0;
+        } else if (param.name.rfind("reg_prop", 0) == 0){
+            interpreted.block = "REGPROP";
             interpreted.code = 0;
         } else if (param.name.rfind("Finite", 0) == 0) {
             interpreted.block = "Finite";
@@ -59,13 +66,17 @@ int Interpreter::getCode(const std::string& name) {
     if (name.find("ub") != std::string::npos) return 02;
     if (name.find("_u") != std::string::npos) return 2;
     if (name.find("_d") != std::string::npos) return 1;
+    if (name.find("_mu") != std::string::npos) return 13;
     if (name.find("_s") != std::string::npos) return 3;
     if (name.find("_c") != std::string::npos) return 4;
     if (name.find("_t") != std::string::npos) return 6;
     if (name.find("_b") != std::string::npos) return 5;
     if (name.find("_W") != std::string::npos) return 24;
+    if (name.find("_Z") != std::string::npos) return 23;
     if (name.find("em") != std::string::npos) return 10;
     if (name.find("s_12") != std::string::npos) return 4;
+    if (name.find("s_34") != std::string::npos) return 34;
     if (name.find("theta_W") != std::string::npos) return 42;
+    std::cout << name << std::endl;
     return -1; // Default case if no code is found
 }

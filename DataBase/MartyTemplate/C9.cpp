@@ -13,8 +13,6 @@
 // You should have received a copy of the GNU General Public License
 // along with MARTY. If not, see <https://www.gnu.org/licenses/>.
 
-#include "comparedata.h"
-#include "testutility.h"
 #include "marty.h"
 #include "marty/models/sm.h"
 
@@ -23,15 +21,28 @@ using namespace mty;
 using namespace std;
 using namespace sm_input;
 
+void defineLibPath(mty::Library &lib)
+{
+#ifdef MARTY_LIBRARY_PATH
+    lib.addLPath(MARTY_LIBRARY_PATH);
+    lib.addLPath(MARTY_LIBRARY_PATH "/..");
+    lib.addLPath(MARTY_LIBRARY_PATH "/marty");
+    lib.addLPath(MARTY_LIBRARY_PATH "/marty/lha");
+#endif
+#ifdef MARTY_INCLUDE_PATH
+    lib.addIPath(MARTY_INCLUDE_PATH);
+#endif
+}
+
 auto calculate(Model &model, gauge::Type gauge)
 {
-    SM_Model model;
+    // SM_Model model;
     undefineNumericalValues(); 
 
     // Keep for testing
-    SM.getParticle("h")->setEnabledInDiagrams(false);
-    SM.getParticle("u")->setEnabledInDiagrams(false);
-    SM.getParticle("c")->setEnabledInDiagrams(false);
+    model.getParticle("h")->setEnabledInDiagrams(false);
+    model.getParticle("u")->setEnabledInDiagrams(false);
+    model.getParticle("c")->setEnabledInDiagrams(false);
     mty::option::keepOnlyFirstMassInLoop = false;
 
     FeynOptions options;
@@ -40,26 +51,26 @@ auto calculate(Model &model, gauge::Type gauge)
     Expr factorOperator = -csl::pow_s(e_em, 2) * G_F * V_ts_star * V_tb / (4 * sqrt(2) * CSL_PI * CSL_PI);
     options.setWilsonOperatorCoefficient(factorOperator);
 
-    auto C_bsmumu = model.computeWilsonCoefficients(OneLoop,
+    auto res = model.computeWilsonCoefficients(OneLoop,
                                                     {Incoming("b"),
                                                      Outgoing("s"),
                                                      Outgoing("mu"),
                                                      Outgoing(AntiPart("mu"))},
                                                     options);
 
-    Show(C_bsmumu);
+    Show(res);
 
     csl::Expr C9 = getWilsonCoefficient(
-        C_bsmumu,
-        dimension6Operator(model, wil, DiracCoupling::VL, DiracCoupling::V));
+        res,
+        dimension6Operator(model, res, DiracCoupling::VL, DiracCoupling::V));
 
-    Library::setQuadruplePrecision(true);
-    Library lib("C9_SM", "libs");
-    lib.addFunction("C9_Tot", C9);
+    // Library::setQuadruplePrecision(true);
+    Library wilsonLib("C9_SM", "libs");
+    wilsonLib.addFunction("C9", C9);
 
     [[maybe_unused]] int sysres = system("rm -rf libs/C9_SM");
-    defineLibPath(lib);
-    lib.print();
+    defineLibPath(wilsonLib);
+    wilsonLib.print();
 }
 
 int main()

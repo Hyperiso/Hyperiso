@@ -18,6 +18,7 @@ public:
         if (it != pdgCodeValues.end()) {
             return it->second;
         } else {
+            std::cout << pdgCode << std::endl;
             throw std::runtime_error("pdgCode non trouvé dans le block.");
         }
     }
