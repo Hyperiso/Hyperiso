@@ -8,7 +8,7 @@
 #include "Extractor.h"
 #include "Interpreter.h"
 #include "SMParamSetter.h"
-
+#include "config.hpp"
 class NumModelModifier : public ModelModifier {
 private:
     std::map<std::string, std::string> paramMap;  // Map pour stocker les paramètres
@@ -57,6 +57,7 @@ public:
         } 
         else if (currentLine.find("return 0;") != std::string::npos) {
             if (addBefore) {
+                outputFile << "std::string path = \"" << project_root.data() << "/DataBase/MartyWilson/SM_wilson.csv\";\n";
                 outputFile << "\tparam_t param;\n";
                 for (const auto& [name, value] : params) {
                     std::string real_name = name;
@@ -71,7 +72,7 @@ public:
                     }
                 }
                 outputFile << "\tsetMu(80.379);\n";
-                outputFile << "\twriteWilsonCoefficients(\""+ wilson + "\", " + wilson +"(param), 200);\n";
+                outputFile << "\twriteWilsonCoefficients(\""+ wilson + "\", " + wilson +"(param), 200, path);\n";
                 outputFile << "\tauto out = std::ofstream(\"" + wilson + "_SM.txt\");\n";
                 outputFile << "\tout << " + wilson + "(param).real() << \" \" << "
                            + wilson + "(param).imag() << std::endl;\n";
