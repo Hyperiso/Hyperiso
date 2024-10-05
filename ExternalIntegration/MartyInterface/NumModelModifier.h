@@ -11,12 +11,12 @@
 #include "config.hpp"
 class NumModelModifier : public ModelModifier {
 private:
-    std::map<std::string, std::string> paramMap;  // Map pour stocker les paramètres
+    std::map<std::string, std::string> paramMap;
     std::unordered_map<std::string, double> params;
-    bool done = false;  // Indique si la section marquée par "//42" a été atteinte
-    bool forceMode = false;  // Mode forcé pour ignorer le "//42"
-    int count = 0;  // Compteur de lignes
-    std::string wilson;  // Nom spécifique à Wilson
+    bool done = false;
+    bool forceMode = false;
+    int count = 0; 
+    std::string wilson;
     Extractor extractor;
     Interpreter interpreter;
     SMParamSetter paramSetter; 

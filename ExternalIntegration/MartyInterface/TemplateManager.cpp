@@ -4,6 +4,7 @@
 #include <string>
 #include <sstream>
 #include "config.hpp"
+#include "GeneralNumModelModifier.h"
 
 
 std::string joinLines(const std::vector<std::string>& lines) {
@@ -13,7 +14,6 @@ std::string joinLines(const std::vector<std::string>& lines) {
     }
     return ss.str();
 }
-
 
 void NumericTemplateManager::generateTemplateImpl(const std::string& templateName, const std::string& outputPath) {
     std::string csv_helper= "csv_helper";
@@ -30,47 +30,32 @@ void NumericTemplateManager::generateTemplateImpl(const std::string& templateNam
     }
     std::string templatePath = templatesDir + "/script/" + templateName + ".cpp";
     std::ifstream templateFile(templatePath);
-    std::vector<std::string> lines;
-    std::string line;
-    if (!templateFile) {
-        std::cerr << "Erreur: Impossible d'ouvrir le fichier template " << templatePath << std::endl;
-        return;
-    }
 
-    std::istringstream stringStream;
-    std::istream* input;
-
-    if (templatePath == outputPath) {
-        while (std::getline(templateFile, line)) {
-            lines.push_back(line);
-        }
-        templateFile.close();
-        stringStream.str(joinLines(lines));
-        input = &stringStream;
-    } else {
-        input = &templateFile;
-    }
-    
     if (this->already_generated(outputPath)) {
         return;
     }
     
-    std::ofstream outputFile(outputPath);
+    std::string tempFilePath = outputPath + ".tmp";
+    std::ofstream outputFile(tempFilePath);
     if (!outputFile) {
-        std::cerr << "Erreur: Impossible d'ouvrir le fichier de sortie " << outputPath << std::endl;
+        std::cerr << "Erreur: Impossible d'ouvrir le fichier temporaire " << tempFilePath << std::endl;
         return;
     }
 
-    outputFile << "//42" << "\n"; 
-    while (std::getline(*input, line)) {
-        if (modelModifier) {
-            bool addBefore = true;
-            modelModifier->addLine(outputFile, line, addBefore);
-            modelModifier->modifyLine(line);  // Modification de la ligne si nécessaire
-        } else {
-            outputFile << line << "\n";
-        }
-    }
+    std::string wilson = "C7";
+    bool forceMode = false;
+    GeneralNumModelModifier modelModifier(wilson, forceMode);
+
+    outputFile << "//42" << "\n";
+    std::cout << outputPath << std::endl;
+    std::cout << tempFilePath << std::endl;
+    modelModifier.modify(templateFile, outputFile);
+
+    templateFile.close();
+    outputFile.close();
+
+    std::string command = "cp " + tempFilePath + " " + outputPath;
+    system(command.c_str());
 }
 
 void NonNumericTemplateManager::generateTemplateImpl(const std::string& templateName, const std::string& outputPath) {
@@ -101,55 +86,9 @@ void NonNumericTemplateManager::generateTemplateImpl(const std::string& template
         if (modelModifier) {
             bool addBefore = true;
             modelModifier->addLine(outputFile, line, addBefore);
-            modelModifier->modifyLine(line);  // Modification de la ligne si nécessaire
+            modelModifier->modifyLine(line);
         } else {
             outputFile << line << "\n";
         }
     }
 }
-
-// void TemplateManager::generateTemplate(const std::string& templateName, const std::string& outputPath) {
-//     std::string templatePath = templatesDir + "/" + templateName + ".cpp";
-//     std::ifstream templateFile(templatePath);
-
-//     if (!templateFile) {
-//         std::cerr << "Erreur: Impossible d'ouvrir le fichier template " << templatePath << std::endl;
-//         return;
-//     }
-
-//     // Lire tout le contenu du fichier si l'entrée et la sortie sont les mêmes
-//     std::vector<std::string> lines;
-//     std::string line;
-
-//     std::istringstream stringStream;
-//     std::istream* input;
-
-//     if (templatePath == outputPath) {
-//         while (std::getline(templateFile, line)) {
-//             lines.push_back(line);
-//         }
-//         templateFile.close();
-//         stringStream.str(joinLines(lines));
-//         input = &stringStream;
-//     } else {
-//         input = &templateFile;
-//     }
-
-//     std::ofstream outputFile(outputPath);
-//     if (!outputFile) {
-//         std::cerr << "Erreur: Impossible d'ouvrir le fichier de sortie " << outputPath << std::endl;
-//         return;
-//     }
-
-//     while (std::getline(*input, line)) {
-//         if (modelModifier) {
-//             bool addBefore = true;
-//             modelModifier->addLine(outputFile, line, addBefore);
-//             modelModifier->modifyLine(line);
-//         } else {
-//             outputFile << line << "\n";
-//         }
-//     }
-// }
-
-
