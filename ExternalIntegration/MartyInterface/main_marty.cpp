@@ -6,14 +6,17 @@
 #include "LineProcessor.h"
 #include "ModelWriter.h"
 #include "SMParamSetter.h"
-
+#include "FileNameManager.h"
 int main() {
 
-    MartyInterface MartyInterface;
+    FileNameManager* truc = FileNameManager::getInstance("C7", "SM");
+
+    std::cout << truc->getGeneratedFileName();
+    // MartyInterface MartyInterface;
     // MartyInterface.generate("C7", "SM");
     // MartyInterface.compile_run("C7", "SM");
     
-    MartyInterface.generate_numlib("C7", "SM");
+    // MartyInterface.generate_numlib("C7", "SM");
 
     // MartyInterface.compile_run_libs("C7", "SM");
     // MartyInterface.generate("C9", "SM");
