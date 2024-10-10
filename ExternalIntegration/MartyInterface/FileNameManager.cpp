@@ -21,16 +21,25 @@ FileNameManager::FileNameManager(const std::string& wilson, const std::string& m
     baseDir_ = "libs/" + wilson_ + "_" + model_;
 }
 
-std::string FileNameManager::getOutputFileName() const {
-    return "generated_" + wilson_ + ".cpp";
-}
 
 std::string FileNameManager::getGeneratedFileName() const {
-    return "generated_" + wilson_ + ".cpp";
+    return this->root_dir + this->templateDir_ +"generated_" +this->model_ + "_" + this->wilson_ + ".cpp";
 }
 
 std::string FileNameManager::getExecutableFileName() const {
-    return baseDir_ + "/bin/example_" + lowercaseWilson_ + "_" + lowercaseModel_ + ".x";
+    return this->root_dir + this->templateDir_ +"generated_" +this->model_ + "_" + this->wilson_ + "";
+}
+
+std::string FileNameManager::getNumGeneratedFileName() const {
+    return this->root_dir + this->templateDir_ + "script/example_" + lowercaseWilson_ + "_" + lowercaseModel_ + ".cpp";
+}
+
+std::string FileNameManager::getNumExecutableFileName() const {
+    return this->root_dir + this->templateDir_ + "bin/example_" + lowercaseWilson_ + "_" + lowercaseModel_ + ".x";
+}
+
+std::string FileNameManager::getHelperFileName(const std::string &extension) const {
+    return this->root_dir + this->templateDir_ + "csv_helper." + extension;
 }
 
 std::string FileNameManager::toLowercase(const std::string& str) const {

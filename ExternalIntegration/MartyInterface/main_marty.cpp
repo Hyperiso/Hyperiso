@@ -11,7 +11,13 @@ int main() {
 
     FileNameManager* truc = FileNameManager::getInstance("C7", "SM");
 
-    std::cout << truc->getGeneratedFileName();
+    std::cout << truc->getGeneratedFileName() << std::endl;
+    std::cout << truc->getExecutableFileName() << std::endl;
+    std::cout << truc->getNumGeneratedFileName() << std::endl;
+    std::cout << truc->getNumExecutableFileName() << std::endl;
+    std::cout << truc->getHelperFileName("h") << std::endl;
+
+    
     // MartyInterface MartyInterface;
     // MartyInterface.generate("C7", "SM");
     // MartyInterface.compile_run("C7", "SM");

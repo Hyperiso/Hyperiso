@@ -12,9 +12,12 @@ public:
     FileNameManager(const FileNameManager&) = delete;
     FileNameManager& operator=(const FileNameManager&) = delete;
 
-    std::string getOutputFileName() const;
     std::string getGeneratedFileName() const;
     std::string getExecutableFileName() const;
+    std::string getNumGeneratedFileName() const;
+    std::string getNumExecutableFileName() const;
+
+    std::string getHelperFileName(const std::string &extension) const;
 
 private:
     FileNameManager(const std::string& wilson, const std::string& model);
@@ -27,6 +30,7 @@ private:
     std::string root_dir = project_root.data();
     std::string lowercaseWilson_;
     std::string lowercaseModel_;
+    std::string templateDir_ = "/DataBase/MartyWilson/";
 
     std::string toLowercase(const std::string& str) const;
 };

@@ -7,7 +7,7 @@ void GppCompilerStrategy::compile_run(const std::string& sourceFile, const std::
         this->compile(sourceFile, outputBinary);
     }
 
-    std::string command_run = "./"+outputBinary;
+    std::string command_run = "."+outputBinary;
     system(command_run.c_str());
 }
 
