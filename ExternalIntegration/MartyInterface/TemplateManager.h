@@ -17,8 +17,12 @@ public:
         modelModifier = std::move(modifier);
     }
 
+    void setModelAndWilson(std::string model, std::string wilson) {this->model = model; this->wilson = wilson;}
+
 protected:
     std::string templatesDir;
+    std::string wilson;
+    std::string model;
     std::unique_ptr<ModelModifier> modelModifier;
 
     bool already_generated(const std::string& path) {

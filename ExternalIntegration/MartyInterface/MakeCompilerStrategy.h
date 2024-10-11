@@ -5,6 +5,7 @@
 
 class MakeCompilerStrategy : public CompilerStrategy {
 public:
+    MakeCompilerStrategy(std::string model, std::string wilson) : CompilerStrategy(model, wilson) {}
     void compile_run(const std::string& sourceFile, const std::string& outputBinary) override;
     void compile(const std::string& sourceFile, const std::string& outputBinary) override;
 };

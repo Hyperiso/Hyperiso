@@ -18,9 +18,9 @@ int main() {
     std::cout << truc->getHelperFileName("h") << std::endl;
 
     
-    // MartyInterface MartyInterface;
-    // MartyInterface.generate("C7", "SM");
-    // MartyInterface.compile_run("C7", "SM");
+    MartyInterface MartyInterface;
+    MartyInterface.generate("C7", "SM");
+    MartyInterface.compile_run("C7", "SM");
     
     // MartyInterface.generate_numlib("C7", "SM");
 

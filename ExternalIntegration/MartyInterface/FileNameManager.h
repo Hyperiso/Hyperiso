@@ -17,6 +17,7 @@ public:
     std::string getNumGeneratedFileName() const;
     std::string getNumExecutableFileName() const;
 
+    std::string getOutputDir() const;
     std::string getHelperFileName(const std::string &extension) const;
 
 private:

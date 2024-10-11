@@ -8,6 +8,7 @@
 
 class CompilerStrategy {
 public:
+    CompilerStrategy(std::string model, std::string wilson) : model(model), wilson(wilson) {}
     virtual ~CompilerStrategy() = default;
     virtual void compile_run(const std::string& sourceFile, const std::string& outputBinary) = 0;
     virtual void compile(const std::string& sourceFile, const std::string& outputBinary) = 0;
@@ -25,6 +26,7 @@ public:
 
 protected:
     std::string wilson{};
+    std::string model{};
 };
 
 #endif // COMPILER_STRATEGY_H

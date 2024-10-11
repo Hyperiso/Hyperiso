@@ -1,7 +1,6 @@
 #include <algorithm>
-#include "../../MARTY/MARTY_INSTALL/include/marty/models/sm.h"
-#include "../../MARTY/MARTY_INSTALL/include/marty.h"
-
+#include "../../ExternalIntegration/MARTY/MARTY_INSTALL/include/marty/models/sm.h"
+#include "../../ExternalIntegration/MARTY/MARTY_INSTALL/include/marty.h"
 
 using namespace csl;
 using namespace mty;
