@@ -9,6 +9,7 @@
 #include "IncludeManager.h"
 #include "LineProcessor.h"
 #include "ModelWriter.h"
+#include "FileNameManager.h"
 
 class GeneralNumModelModifier {
 private:
@@ -18,6 +19,7 @@ private:
     bool forceMode = false;
     int count = 0;
     std::string wilson;
+    std::string model;
     Extractor extractor;
     Interpreter interpreter;
     SMParamSetter paramSetter;
@@ -27,8 +29,8 @@ private:
     ModelWriter modelWriter;
 
 public:
-    GeneralNumModelModifier(const std::string& wilson, bool force = false)
-        : wilson(wilson), forceMode(force), paramSetter(params), paramWriter(params, wilson), 
+    GeneralNumModelModifier(const std::string& wilson, const std::string& model, bool force = false)
+        : wilson(wilson), model(model), forceMode(force), paramSetter(params), paramWriter(params, wilson), 
           lineProcessor(paramWriter, includeManager, force), modelWriter(lineProcessor) {
         
         initializeParams();
@@ -40,7 +42,7 @@ public:
 
 private:
     void initializeParams() {
-        std::string filename = "libs/" + wilson + "_SM/include/params.h";
+        std::string filename = FileNameManager::getInstance(wilson, model)->getNumParamFileName();
         
         auto extractedParams = extractor.extract(filename);
 

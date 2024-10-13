@@ -42,30 +42,21 @@ void MartyInterface::generate_numlib(std::string wilson, std::string model) {
     if (model == "SM") {
         smModifier = std::make_unique<NumModelModifier>(wilson);
     }
+    
     std::string path = "libs/"+wilson+"_"+model+"/script";
     std::unique_ptr<TemplateManagerBase> templateManager = std::make_unique<NumericTemplateManager>("libs/"+wilson+"_"+model);
     templateManager->setModelAndWilson(model, wilson);
     templateManager->setModelModifier(std::move(smModifier));
-    fs::path file_path;
-    try {
+    std::string file_path = FileNameManager::getInstance(wilson, model)->getNumGeneratedFileName();
 
-        for (const auto& entry : fs::directory_iterator(path)) {
-            if (fs::is_regular_file(entry.path())) {
-                file_path = entry.path();
-            }
-        }
-
-    } catch(const fs::filesystem_error& e) {
-        std::cerr << "Error: " << e.what() << std::endl;
-    }
     CodeGenerator codeGenerator(std::move(templateManager));
 
-    codeGenerator.generate(file_path.stem().string(), file_path.string());
+    codeGenerator.generate(file_path, file_path);
 }
 
 void MartyInterface::compile_run_libs(std::string wilson, std::string model) {
     MakeCompilerStrategy compiler(model, wilson);
-    compiler.compile_run("libs/" + wilson +"_" + model, "/bin/example_"+ to_lowercase(wilson) +"_"+to_lowercase(model)+".x");
+    compiler.compile_run(FileNameManager::getInstance(wilson, model)->getLibDir(), FileNameManager::getInstance(wilson,model)->getNumExecutableFileName());
 }
 
 std::string to_lowercase(const std::string& str) {

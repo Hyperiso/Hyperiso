@@ -38,11 +38,24 @@ std::string FileNameManager::getNumExecutableFileName() const {
     return this->root_dir + this->templateDir_ +"libs/"+this->wilson_+"_"+this->model_+ "/bin/example_" + lowercaseWilson_ + "_" + lowercaseModel_ + ".x";
 }
 
+std::string FileNameManager::getNumParamFileName() const {
+    return this->root_dir + this->templateDir_ +"libs/"+this->wilson_+"_"+this->model_+ "/include/params.h";
+}
+
 std::string FileNameManager::getHelperFileName(const std::string &extension) const {
     if(extension == "h")
         return this->root_dir + this->templateDir_ +"libs/"+this->wilson_+"_"+this->model_+ "/include/csv_helper." + extension;
     else if (extension == "cpp")
         return this->root_dir + this->templateDir_ +"libs/"+this->wilson_+"_"+this->model_+ "/src/csv_helper." + extension;
+    else
+        throw std::runtime_error("Not good, Not good");
+}
+
+std::string FileNameManager::getBaseHelperFileName(const std::string &extension) const {
+    if(extension == "h")
+        return this->root_dir + this->baseTemplateDir_ +"csv_helper." + extension;
+    else if (extension == "cpp")
+        return this->root_dir + this->baseTemplateDir_ +"csv_helper." + extension;
     else
         throw std::runtime_error("Not good, Not good");
 }
@@ -55,4 +68,12 @@ std::string FileNameManager::toLowercase(const std::string& str) const {
 
 std::string FileNameManager::getOutputDir() const {
     return this->root_dir + this->templateDir_;
+}
+
+std::string FileNameManager::getTemplateDir() const {
+    return this->root_dir + this->baseTemplateDir_;
+}
+
+std::string FileNameManager::getLibDir() const {
+    return this->root_dir + this->templateDir_ + "libs/"+this->wilson_ + "_" + this->model_ + "/";
 }

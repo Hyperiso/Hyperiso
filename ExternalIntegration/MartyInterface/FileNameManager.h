@@ -18,8 +18,13 @@ public:
     std::string getNumExecutableFileName() const;
 
     std::string getOutputDir() const;
-    std::string getHelperFileName(const std::string &extension) const;
+    std::string getTemplateDir() const;
+    std::string getLibDir() const;
 
+    std::string getNumParamFileName() const;
+    std::string getHelperFileName(const std::string &extension) const;
+    std::string getBaseHelperFileName(const std::string &extension) const;
+    
 private:
     FileNameManager(const std::string& wilson, const std::string& model);
 
@@ -32,7 +37,7 @@ private:
     std::string lowercaseWilson_;
     std::string lowercaseModel_;
     std::string templateDir_ = "/DataBase/MartyWilson/";
-
+    std::string baseTemplateDir_ = "/DataBase/MartyTemplate/";
     std::string toLowercase(const std::string& str) const;
 };
 
