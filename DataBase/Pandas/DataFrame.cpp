@@ -2,37 +2,24 @@
 #include <iostream>
 
 void DataFrame::print() const {
-    // Afficher l'index si disponible
     if (!index.empty()) {
         std::cout << "Index\t";
     }
 
-    // Afficher les noms des colonnes
     for (const auto& colName : columns) {
         std::cout << colName << "\t";
     }
     std::cout << std::endl;
 
-    // Afficher les données
     for (size_t i = 0; i < nRows; ++i) {
-        // Afficher l'index si disponible
         if (!index.empty()) {
             std::cout << index[i] << "\t";
         }
 
-        // Afficher les valeurs de chaque colonne
         for (const auto& colName : columns) {
             try {
-                // std::cout << "tout va bien22" << std::endl;
-                // std::cout << colName << std::endl;
-                // std::cout << "name : "<<  this->csvOptions.columnTypes.at(colName).name() << std::endl;
-                // const std::type_index& colType = csvOptions.columnTypes.at(colName);
-                // std::cout << "tout va bien" << std::endl;
-                // for (auto& key : csvOptions.columnTypes) {
-                //     std::cout << key.first << " bite ";
-                // }
+
                 if (this->csvOptions.columnTypes.at(colName) == typeid(int)) {
-                    // std::cout << "tout va bienssdf" << std::endl;
                     std::cout << iat<int>(i, colName) << "\t";
                 } else if (this->csvOptions.columnTypes.at(colName) == typeid(double)) {
                     std::cout << iat<double>(i, colName) << "\t";
@@ -40,12 +27,12 @@ void DataFrame::print() const {
                     std::cout << iat<std::string>(i, colName) << "\t";
                 } else {
                     std::cout << "bug" << std::endl;
-                    std::cout << "NaN\t";  // Gestion des types inconnus
+                    std::cout << "NaN\t";
                 }
             } catch (const std::exception& e) {
                 std::cout << e.what() << " " << colName << std::endl;
                 std::cout << "ERROR" << std::endl;
-                std::cout << "NaN\t";  // Valeur manquante ou mauvais type
+                std::cout << "NaN\t";
             }
         }
         std::cout << std::endl;
@@ -128,7 +115,6 @@ void DataFrame::describe() const {
     std::cout << "Description des colonnes numériques :" << std::endl;
     
     for (const auto& colName : columns) {
-        // const std::type_index& colType = csvOptions.columnTypes.at(colName);
 
         if (csvOptions.columnTypes.at(colName) == typeid(int)) {
             describeColumn<int>(colName);
@@ -149,7 +135,6 @@ void DataFrame::to_csv(const std::string& filename) {
     const auto& columns = this->getColumnNames();
     size_t nRows = this->getRowCount();
 
-    // Écrire l'en-tête (index + colonnes)
     if (this->csvOptions.hasIndex) {
         file << "Index";
         for (const auto& colName : columns) {
@@ -166,18 +151,14 @@ void DataFrame::to_csv(const std::string& filename) {
         file << "\n";
     }
 
-    // Écrire les données
     for (size_t i = 0; i < nRows; ++i) {
         if (this->csvOptions.hasIndex) {
-            // Écrire l'index
-            file << i; // Utiliser l'index simple ici ; vous pouvez personnaliser selon vos besoins.
+            file << i;
         }
         
         for (size_t j = 0; j < columns.size(); ++j) {
             const std::string& colName = columns[j];
 
-            // Utiliser le type d'index pour déterminer comment écrire chaque colonne
-            // Par exemple : si le type est int, double ou string.
             if (this->csvOptions.columnTypes.at(colName) == typeid(int)) {
                 file << this->iat<int>(i, colName);
             } else if (this->csvOptions.columnTypes.at(colName) == typeid(double)) {

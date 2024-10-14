@@ -53,6 +53,14 @@ public:
     std::vector<T> to_vec() {
         return data;
     }
+
+    std::vector<std::string> to_string_vec() {
+        std::vector<std::string> res{};
+        for (auto _ : data) {
+            res.push_back(std::to_string(_));
+        }
+        return res;
+    }
 };
 
 #include "Series.tpp"

@@ -14,7 +14,7 @@
 class WilsonCoefficient {
 protected:
     WilsonCoefficient() {this->set_Q_match(81.);}
-    WilsonCoefficient(double Q_match) { this->set_Q_match(Q_match);}
+    WilsonCoefficient(double Q_match) {this->set_Q_match(Q_match);}
 
     void set_CoefficientMatchingValue(std::string order, std::complex<double> CoefficientMatchingValue) {
         this->is_now_calculated(order);

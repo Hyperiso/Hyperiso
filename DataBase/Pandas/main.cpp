@@ -9,13 +9,13 @@ int main() {
     options.hasIndex = false;
     options.indexType = typeid(std::string);
     options["truc1"] = typeid(int);
-    options["truc2"] = typeid(double);
-    options["truc3"] = typeid(double);
+    // options["truc2"] = typeid(double);
+    // options["truc3"] = typeid(double);
 
 
     DataFrame df = pd.read_csv("data.csv", options);
     df.print();
-
+    df.getColumn<double>("truc2").print();
     df.head();
 
     df.describe();
