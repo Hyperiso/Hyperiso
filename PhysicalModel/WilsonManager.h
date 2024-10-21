@@ -270,8 +270,5 @@ private:
     }
 };
 
-// Initialization of the static map
-// std::map<std::string, std::unique_ptr<CoefficientManager>> CoefficientManager::instances;
-
 
 #endif

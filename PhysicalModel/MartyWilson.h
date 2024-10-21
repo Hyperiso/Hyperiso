@@ -4,12 +4,21 @@
 #include "Interpolator.h"
 #include "DataFrame.h"
 #include "CSVReader.h"
+#include "config.hpp"
 #include <iostream>
 
 class MartyWilson : public WilsonCoefficient {
 public:
     MartyWilson(double Q_match, const std::string& coeff_name, const std::string& csv_path)
         : WilsonCoefficient(Q_match) {
+        this->set_name(coeff_name);
+        df = csv_reader.read_csv(csv_path);
+        df.setIndex(df.getColumn<double>("Q_match").to_string_vec());
+    }
+
+    MartyWilson(double Q_match, const std::string& coeff_name)
+        : WilsonCoefficient(Q_match) {
+        std::string csv_path = project_root.data()+std::string("") + "DataBase/MartyWilson/SM_wilson.csv";
         this->set_name(coeff_name);
         df = csv_reader.read_csv(csv_path);
         df.setIndex(df.getColumn<double>("Q_match").to_string_vec());
@@ -61,5 +70,15 @@ private:
         }
         std::cout << closest_above << " " << closest_below << std::endl;
         return {closest_below, closest_above};
+    }
+};
+
+class BCoefficientGroupMarty : public BCoefficientGroup {
+
+    BCoefficientGroupMarty(double Q_match) {
+        this->insert(std::make_pair("C1", std::make_shared<MartyWilson>(Q_match, "C1"))); this->insert(std::make_pair("C2", std::make_shared<MartyWilson>(Q_match, "C2"))); this->insert(std::make_pair("C3", std::make_shared<MartyWilson>(Q_match, "C3")));
+        this->insert(std::make_pair("C4", std::make_shared<MartyWilson>(Q_match, "C4")));  this->insert(std::make_pair("C5", std::make_shared<MartyWilson>(Q_match, "C5"))); this->insert(std::make_pair("C6", std::make_shared<MartyWilson>(Q_match, "C6"))); 
+        this->insert(std::make_pair("C7", std::make_shared<MartyWilson>(Q_match, "C7")));  this->insert(std::make_pair("C8", std::make_shared<MartyWilson>(Q_match, "C8")));  this->insert(std::make_pair("C9", std::make_shared<MartyWilson>(Q_match, "C7"))); 
+        this->insert(std::make_pair("C10", std::make_shared<MartyWilson>(Q_match, "C10")));
     }
 };
