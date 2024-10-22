@@ -42,7 +42,7 @@ void NumericTemplateManager::generateTemplateImpl(const std::string& templateNam
         return;
     }
 
-    std::string wilson = "C7";
+    // std::string wilson = "C7";
     bool forceMode = false;
     GeneralNumModelModifier modelModifier(wilson, model, forceMode);
 
@@ -85,8 +85,8 @@ void NonNumericTemplateManager::generateTemplateImpl(const std::string& template
     while (std::getline(templateFile, line)) {
         if (modelModifier) {
             bool addBefore = true;
-            modelModifier->addLine(outputFile, line, addBefore);
             modelModifier->modifyLine(line);
+            modelModifier->addLine(outputFile, line, addBefore);
         } else {
             outputFile << line << "\n";
         }

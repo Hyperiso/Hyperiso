@@ -3,9 +3,6 @@
 
 #include <unordered_map>
 #include "ModelModifier.h"
-#include "Extractor.h"
-#include "Interpreter.h"
-#include "SMParamSetter.h"
 
 class SMModelModifier : public ModelModifier {
 public:
@@ -13,18 +10,4 @@ public:
     void modifyLine(std::string& line) override;
 };
 
-// class SMNumModelModifier : public ModelModifier {
-// public:
-//     SMNumModelModifier(std::string wilson) : paramSetter(params){this->wilson = wilson;}
-//     void modifyLine(std::string& line) override {}
-//     void addLine(std::ofstream& outputFile, const std::string& currentLine, bool addBefore) override;
-
-// private:
-
-//     std::unordered_map<std::string, double> params;
-//     Extractor extractor;
-//     Interpreter interpreter;
-//     SMParamSetter paramSetter;
-
-// };
 #endif // SM_MODEL_MODIFIER_H

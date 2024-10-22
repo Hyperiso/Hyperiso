@@ -1,16 +1,25 @@
 #include "FileNameManager.h"
 #include <algorithm>
 #include <stdexcept>
+#include <iostream>
 
-FileNameManager* FileNameManager::instance = nullptr;
 
-FileNameManager* FileNameManager::getInstance(const std::string& wilson, const std::string& model) {
-    if (instance == nullptr) {
-        if (wilson.empty() || model.empty()) {
-            throw std::runtime_error("FileNameManager must be initialized with Wilson and model parameters.");
-        }
-        instance = new FileNameManager(wilson, model);
+std::map<std::string, std::shared_ptr<FileNameManager>> FileNameManager::instances;
+
+std::shared_ptr<FileNameManager> FileNameManager::getInstance(const std::string& wilson, const std::string& model) {
+    std::string key = wilson + ":" + model;
+
+    auto it = instances.find(key);
+    if (it != instances.end()) {
+        return it->second;
     }
+
+    if (wilson.empty() || model.empty()) {
+        throw std::runtime_error("FileNameManager must be initialized with Wilson and model parameters.");
+    }
+
+    std::shared_ptr<FileNameManager> instance(new FileNameManager(wilson, model));
+    instances[key] = instance;
     return instance;
 }
 
@@ -19,6 +28,8 @@ FileNameManager::FileNameManager(const std::string& wilson, const std::string& m
     lowercaseWilson_ = toLowercase(wilson_);
     lowercaseModel_ = toLowercase(model_);
     baseDir_ = "libs/" + wilson_ + "_" + model_;
+    std::cout << baseDir_ << std::endl;
+    std::cout << "sldkfjlskdjflskdjflskdjflsdkjflskdfj" << std::endl;
 }
 
 

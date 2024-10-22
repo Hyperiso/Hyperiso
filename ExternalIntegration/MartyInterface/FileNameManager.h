@@ -2,12 +2,13 @@
 #define FILENAME_MANAGER_H
 
 #include <string>
+#include <memory>
 #include <map>
 #include "config.hpp"
 
 class FileNameManager {
 public:
-    static FileNameManager* getInstance(const std::string& wilson = "", const std::string& model = "");
+    static std::shared_ptr<FileNameManager> getInstance(const std::string& wilson = "", const std::string& model = "");
 
     FileNameManager(const FileNameManager&) = delete;
     FileNameManager& operator=(const FileNameManager&) = delete;
@@ -28,7 +29,7 @@ public:
 private:
     FileNameManager(const std::string& wilson, const std::string& model);
 
-    static FileNameManager* instance;
+    static std::map<std::string, std::shared_ptr<FileNameManager>> instances;
 
     std::string wilson_;
     std::string model_;

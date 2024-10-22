@@ -42,9 +42,10 @@ add_library(ExternalMartyIntegrationLib STATIC
     Interpreter.cpp
     SMParamSetter.cpp
     FileNameManager.cpp
+    GeneralModelModifier.cpp
     )
 
-set_target_properties(ExternalMartyIntegrationLib PROPERTIES PUBLIC_HEADER "CinematicExtractor.h;FileNameManager.h;ModelModifier.h;GeneralNumModelModifier.h;NumModelModifier.h;CodeGenerator.h;CompilerStrategy.h;GppCompilerStrategy;MakeCompilerStrategy.h;MartyInterface.h;SMModelModifier.h;TemplateManager.h;IncludeManager.h;LineProcessor.h;ModelWriter.h;ParamWriter.h;Extractor.h;Interpreter.h;IParamSetter.h;SMParamSetter.h")
+set_target_properties(ExternalMartyIntegrationLib PROPERTIES PUBLIC_HEADER "CinematicExtractor.h;FileNameManager.h;ModelModifier.h;GeneralNumModelModifier.h;NumModelModifier.h;CodeGenerator.h;CompilerStrategy.h;GppCompilerStrategy;MakeCompilerStrategy.h;GeneralModelModifier.h;MartyInterface.h;SMModelModifier.h;TemplateManager.h;IncludeManager.h;LineProcessor.h;ModelWriter.h;ParamWriter.h;Extractor.h;Interpreter.h;IParamSetter.h;SMParamSetter.h")
 # target_include_directories(ExternalMartyIntegrationLib PRIVATE BSM)
 target_link_libraries(ExternalMartyIntegrationLib PUBLIC CommonLib DataBaseLib)
 target_link_libraries(ExternalMartyIntegrationLib PUBLIC ConfiguredModule)

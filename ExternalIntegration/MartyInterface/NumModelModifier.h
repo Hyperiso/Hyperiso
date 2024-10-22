@@ -1,3 +1,6 @@
+#ifndef NUM_MODEL_MODIFIER_H
+#define NUM_MODEL_MODIFIER_H
+
 #include <map>
 #include <string>
 #include <unordered_map>
@@ -9,6 +12,7 @@
 #include "Interpreter.h"
 #include "SMParamSetter.h"
 #include "config.hpp"
+
 class NumModelModifier : public ModelModifier {
 private:
     std::map<std::string, std::string> paramMap;
@@ -107,3 +111,5 @@ private:
         return line.substr(startPos, endPos - startPos);
     }
 };
+
+#endif
