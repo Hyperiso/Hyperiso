@@ -19,7 +19,7 @@ void defineLibPath(Library &lib) {
 #endif
 }
 
-int calculate_C8(Model &model, gauge::Type gauge) {
+int calculate_CP9mu(Model &model, gauge::Type gauge) {
 
     model.getParticle("W")->setGaugeChoice(gauge);
     model.getParticle("Z")->setGaugeChoice(gauge);
@@ -27,21 +27,23 @@ int calculate_C8(Model &model, gauge::Type gauge) {
     undefineNumericalValues(); // Allow for HIso to set all the parameters' values
     mty::option::excludeExternalLegsCorrections = true;
 
-    Expr factorOperator = -4 * G_F * GetComplexConjugate(V_ts) * V_tb * g_s * m_b / (16 * CSL_PI * CSL_PI * csl::sqrt_s(2));
+    Expr factorOperator = -4 * GetComplexConjugate(V_ts) * V_tb * G_F * pow_s(e_em / (4 * CSL_PI), 2) / csl::sqrt_s(2);
     FeynOptions opts;
+    opts.setFermionOrder({1, 0, 2, 3});
     opts.setWilsonOperatorCoefficient(factorOperator);
 
-    auto wil_t = model.computeWilsonCoefficients(mty::Order::OneLoop, 
-        {Incoming("b"), Outgoing("s"), Outgoing("G")}, 
+    auto wil = model.computeWilsonCoefficients(mty::Order::TreeLevel,
+        {Incoming("b"), Outgoing("s"),
+         Outgoing("mu"), Outgoing(AntiPart("mu"))},
         opts);
 
-    auto O8 = chromoMagneticOperator(model, wil_t, DiracCoupling::R);
-    Expr C8 = getWilsonCoefficient(wil_t, O8);
+    auto OP9_mu = dimension6Operator(model, wil, DiracCoupling::VR, DiracCoupling::V, {0, 2, 1, 3});
+    Expr CP9_mu = getWilsonCoefficient(wil, OP9_mu);
 
-    [[maybe_unused]] int sysres = system("rm -rf libs/C8_SM");
-    mty::Library wilsonLib("C8_SM", "libs");
+    [[maybe_unused]] int sysres = system("rm -rf libs/CP9_mu_SM");
+    mty::Library wilsonLib("CP9_mu_SM", "libs");
     wilsonLib.cleanExistingSources();
-    wilsonLib.addFunction("C8", C8);
+    wilsonLib.addFunction("CP9_mu", CP9_mu);
     defineLibPath(wilsonLib);
     wilsonLib.print();
 
@@ -50,5 +52,5 @@ int calculate_C8(Model &model, gauge::Type gauge) {
 
 int main() {
     SM_Model sm;
-    return calculate_C8(sm, gauge::Type::Feynman);
+    return calculate_CP9mu(sm, gauge::Type::Feynman);
 }

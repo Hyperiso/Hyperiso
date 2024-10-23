@@ -19,7 +19,7 @@ void defineLibPath(Library &lib) {
 #endif
 }
 
-int calculate_C8(Model &model, gauge::Type gauge) {
+int calculate_CP7(Model &model, gauge::Type gauge) {
 
     model.getParticle("W")->setGaugeChoice(gauge);
     model.getParticle("Z")->setGaugeChoice(gauge);
@@ -27,21 +27,21 @@ int calculate_C8(Model &model, gauge::Type gauge) {
     undefineNumericalValues(); // Allow for HIso to set all the parameters' values
     mty::option::excludeExternalLegsCorrections = true;
 
-    Expr factorOperator = -4 * G_F * GetComplexConjugate(V_ts) * V_tb * g_s * m_b / (16 * CSL_PI * CSL_PI * csl::sqrt_s(2));
+    Expr factorOperator = -4 * G_F * GetComplexConjugate(V_ts) * V_tb * e_em * m_b / (16 * CSL_PI * CSL_PI * csl::sqrt_s(2));
     FeynOptions opts;
     opts.setWilsonOperatorCoefficient(factorOperator);
 
     auto wil_t = model.computeWilsonCoefficients(mty::Order::OneLoop, 
-        {Incoming("b"), Outgoing("s"), Outgoing("G")}, 
+        {Incoming("b"), Outgoing("s"), Outgoing("A")}, 
         opts);
 
-    auto O8 = chromoMagneticOperator(model, wil_t, DiracCoupling::R);
-    Expr C8 = getWilsonCoefficient(wil_t, O8);
+    auto OP7 = chromoMagneticOperator(model, wil_t, DiracCoupling::L);
+    Expr CP7 = getWilsonCoefficient(wil_t, OP7);
 
-    [[maybe_unused]] int sysres = system("rm -rf libs/C8_SM");
-    mty::Library wilsonLib("C8_SM", "libs");
+    [[maybe_unused]] int sysres = system("rm -rf libs/CP7_SM");
+    mty::Library wilsonLib("CP7_SM", "libs");
     wilsonLib.cleanExistingSources();
-    wilsonLib.addFunction("C8", C8);
+    wilsonLib.addFunction("CP7", CP7);
     defineLibPath(wilsonLib);
     wilsonLib.print();
 
@@ -50,5 +50,5 @@ int calculate_C8(Model &model, gauge::Type gauge) {
 
 int main() {
     SM_Model sm;
-    return calculate_C8(sm, gauge::Type::Feynman);
+    return calculate_CP7(sm, gauge::Type::Feynman);
 }

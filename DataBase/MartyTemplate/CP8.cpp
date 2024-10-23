@@ -19,7 +19,7 @@ void defineLibPath(Library &lib) {
 #endif
 }
 
-int calculate_C8(Model &model, gauge::Type gauge) {
+int calculate_CP8(Model &model, gauge::Type gauge) {
 
     model.getParticle("W")->setGaugeChoice(gauge);
     model.getParticle("Z")->setGaugeChoice(gauge);
@@ -35,13 +35,13 @@ int calculate_C8(Model &model, gauge::Type gauge) {
         {Incoming("b"), Outgoing("s"), Outgoing("G")}, 
         opts);
 
-    auto O8 = chromoMagneticOperator(model, wil_t, DiracCoupling::R);
-    Expr C8 = getWilsonCoefficient(wil_t, O8);
+    auto OP8 = chromoMagneticOperator(model, wil_t, DiracCoupling::L);
+    Expr CP8 = getWilsonCoefficient(wil_t, OP8);
 
-    [[maybe_unused]] int sysres = system("rm -rf libs/C8_SM");
-    mty::Library wilsonLib("C8_SM", "libs");
+    [[maybe_unused]] int sysres = system("rm -rf libs/CP8_SM");
+    mty::Library wilsonLib("CP8_SM", "libs");
     wilsonLib.cleanExistingSources();
-    wilsonLib.addFunction("C8", C8);
+    wilsonLib.addFunction("CP8", CP8);
     defineLibPath(wilsonLib);
     wilsonLib.print();
 
@@ -50,5 +50,5 @@ int calculate_C8(Model &model, gauge::Type gauge) {
 
 int main() {
     SM_Model sm;
-    return calculate_C8(sm, gauge::Type::Feynman);
+    return calculate_CP8(sm, gauge::Type::Feynman);
 }

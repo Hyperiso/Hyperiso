@@ -19,7 +19,7 @@ void defineLibPath(Library &lib) {
 #endif
 }
 
-int calculate_C8(Model &model, gauge::Type gauge) {
+int calculate_C2(Model &model, gauge::Type gauge) {
 
     model.getParticle("W")->setGaugeChoice(gauge);
     model.getParticle("Z")->setGaugeChoice(gauge);
@@ -27,21 +27,24 @@ int calculate_C8(Model &model, gauge::Type gauge) {
     undefineNumericalValues(); // Allow for HIso to set all the parameters' values
     mty::option::excludeExternalLegsCorrections = true;
 
-    Expr factorOperator = -4 * G_F * GetComplexConjugate(V_ts) * V_tb * g_s * m_b / (16 * CSL_PI * CSL_PI * csl::sqrt_s(2));
+    Expr factorOperator = -4 * GetComplexConjugate(V_cs) * V_cb * G_F / csl::sqrt_s(2);
     FeynOptions opts;
+    opts.setFermionOrder({1, 3, 2, 0});
     opts.setWilsonOperatorCoefficient(factorOperator);
 
-    auto wil_t = model.computeWilsonCoefficients(mty::Order::OneLoop, 
-        {Incoming("b"), Outgoing("s"), Outgoing("G")}, 
+    auto wil = model.computeWilsonCoefficients(mty::Order::TreeLevel,
+        {Incoming("b"), Outgoing("s"),
+         Outgoing("c"), Outgoing(AntiPart("c"))},
         opts);
 
-    auto O8 = chromoMagneticOperator(model, wil_t, DiracCoupling::R);
-    Expr C8 = getWilsonCoefficient(wil_t, O8);
+    auto O2 = dimension6Operator(model, wil, DiracCoupling::VL, DiracCoupling::VL, {1, 3, 0, 2});
+    Expr C2 = getWilsonCoefficient(wil, O2);
+    Replace(C2, e_em, sqrt_s(8 * G_F / sqrt_s(2)) * M_W * sin_s(theta_W));
 
-    [[maybe_unused]] int sysres = system("rm -rf libs/C8_SM");
-    mty::Library wilsonLib("C8_SM", "libs");
+    [[maybe_unused]] int sysres = system("rm -rf libs/C2_SM");
+    mty::Library wilsonLib("C2_SM", "libs");
     wilsonLib.cleanExistingSources();
-    wilsonLib.addFunction("C8", C8);
+    wilsonLib.addFunction("C2", C2);
     defineLibPath(wilsonLib);
     wilsonLib.print();
 
@@ -50,5 +53,5 @@ int calculate_C8(Model &model, gauge::Type gauge) {
 
 int main() {
     SM_Model sm;
-    return calculate_C8(sm, gauge::Type::Feynman);
+    return calculate_C2(sm, gauge::Type::Feynman);
 }

@@ -1,4 +1,4 @@
-#include <algorithm>
+#include <iostream>
 #include "../../ExternalIntegration/MARTY/MARTY_INSTALL/include/marty/models/sm.h"
 #include "../../ExternalIntegration/MARTY/MARTY_INSTALL/include/marty.h"
 
@@ -7,8 +7,7 @@ using namespace mty;
 using namespace std;
 using namespace sm_input;
 
-void defineLibPath(mty::Library &lib)
-{
+void defineLibPath(Library &lib) {
 #ifdef MARTY_LIBRARY_PATH
     lib.addLPath(MARTY_LIBRARY_PATH);
     lib.addLPath(MARTY_LIBRARY_PATH "/..");
@@ -20,55 +19,36 @@ void defineLibPath(mty::Library &lib)
 #endif
 }
 
-int calculate(Model &model, gauge::Type gauge)
-{
-    using namespace mty::sm_input;
-    // for (auto &expr : {e_em, m_b, m_t, m_s, theta_W, alpha_s, alpha_em, g_s})
-    //     expr->setValue(CSL_UNDEF);
-    undefineNumericalValues();
+int calculate_C7(Model &model, gauge::Type gauge) {
+
     model.getParticle("W")->setGaugeChoice(gauge);
+    model.getParticle("Z")->setGaugeChoice(gauge);
 
-    mty::FeynOptions options;
-    options.addFilters(mty::filter::forceParticle("t"));
-    options.setTopology(mty::Topology::Triangle);
-    auto res = model.computeAmplitude(
-        OneLoop, {Incoming("b"), Outgoing("s"), Outgoing("A")}, options);
+    undefineNumericalValues(); // Allow for HIso to set all the parameters' values
+    mty::option::excludeExternalLegsCorrections = true;
 
-    res = res.filterOut([&](mty::FeynmanDiagram const &diagram) {return !diagram.contains(model.getParticle("G"), mty::FeynmanDiagram::DiagramParticleType::Loop);});
+    Expr factorOperator = -4 * G_F * GetComplexConjugate(V_ts) * V_tb * e_em * m_b / (16 * CSL_PI * CSL_PI * csl::sqrt_s(2));
+    FeynOptions opts;
+    opts.setWilsonOperatorCoefficient(factorOperator);
 
-    Expr V_ts_star      = csl::GetComplexConjugate(V_ts);
-    Expr V_cs_star      = csl::GetComplexConjugate(V_cs);
-    Expr V_us_star      = csl::GetComplexConjugate(V_us);
-    // Expr factorOperator = -V_ts_star * V_tb * G_F * e_em / (4 * csl::sqrt_s(2) * CSL_PI * CSL_PI);
-    Expr factorOperator = (V_cs_star * V_cb + V_us_star * V_ub) * G_F * e_em * m_b / (4 * csl::sqrt_s(2) * CSL_PI * CSL_PI);
-    options.setWilsonOperatorCoefficient(factorOperator);
-    auto wilsonC7 = model.getWilsonCoefficients(res, options);
-    Expr CC7 = getWilsonCoefficient(wilsonC7, chromoMagneticOperator(model, wilsonC7, DiracCoupling::R));
-    Expr CC7p = getWilsonCoefficient(wilsonC7, chromoMagneticOperator(model, wilsonC7, DiracCoupling::L));
+    auto wil = model.computeWilsonCoefficients(mty::Order::OneLoop, 
+        {Incoming("b"), Outgoing("s"), Outgoing("A")}, 
+        opts);
+
+    auto O7 = chromoMagneticOperator(model, wil, DiracCoupling::R);
+    Expr C7 = getWilsonCoefficient(wil, O7);
 
     [[maybe_unused]] int sysres = system("rm -rf libs/C7_SM");
-    mty::Library         wilsonLib("C7_SM", "libs");
-    mty::Library         wilsonLib2("C7p_SM", "libs");
+    mty::Library wilsonLib("C7_SM", "libs");
     wilsonLib.cleanExistingSources();
-    wilsonLib2.cleanExistingSources();
-    wilsonLib.addFunction("C7",CC7);
-    wilsonLib2.addFunction("C7p",CC7p);
+    wilsonLib.addFunction("C7", C7);
     defineLibPath(wilsonLib);
-    defineLibPath(wilsonLib2);
     wilsonLib.print();
-    wilsonLib2.print();
-    return 1;
+
+    return 0;
 }
 
-int main()
-{
-
-    // mty::sm_input::redefineNumericalValues(); // for compatibility
+int main() {
     SM_Model sm;
-    // sm.computeFeynmanRules();
-    // Display(sm.getFeynmanRules());
-
-    // calculate(sm, gauge::Type::Unitary);
-    // calculate(sm, gauge::Type::Lorenz);
-    return calculate(sm, gauge::Type::Feynman);
+    return calculate_C7(sm, gauge::Type::Feynman);
 }
