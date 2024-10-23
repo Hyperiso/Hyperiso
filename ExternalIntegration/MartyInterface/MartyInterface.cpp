@@ -37,9 +37,6 @@ void MartyInterface::generate(std::string wilson, std::string model) {
     templateManager->setModelModifier(std::move(smModifier));
 
     CodeGenerator codeGenerator(std::move(templateManager));
-    std::cout << "------------------------------------" << std::endl;
-    std::cout << FileNameManager::getInstance(wilson, model)->getGeneratedFileName() << std::endl;
-    std::cout << "......................................" << std::endl;
 
     codeGenerator.generate(wilson, FileNameManager::getInstance(wilson, model)->getGeneratedFileName());
 }
@@ -52,7 +49,6 @@ void MartyInterface::generate_numlib(std::string wilson, std::string model) {
     }
     
     
-    // std::string path = "libs/"+wilson+"_"+model+"/script";
     std::unique_ptr<TemplateManagerBase> templateManager = std::make_unique<NumericTemplateManager>(FileNameManager::getInstance(wilson, model)->getLibDir());
     templateManager->setModelAndWilson(model, wilson);
     templateManager->setModelModifier(std::move(smModifier));

@@ -29,7 +29,6 @@ protected:
         std::ifstream file(path);
 
         if (!file.is_open()) {
-            std::cerr << "Erreur : Impossible d'ouvrir le fichier " << path << std::endl;
             return false;
         }
 
@@ -61,7 +60,6 @@ class NonNumericTemplateManager : public TemplateManagerBase {
 public:
     NonNumericTemplateManager(const std::string& templatesDir) : TemplateManagerBase(templatesDir)  {}
     void generateTemplate(const std::string& templateName, const std::string& outputPath) override {
-        // Implémentation spécifique pour la gestion des templates non-numériques
         generateTemplateImpl(templateName, outputPath);
     }
 

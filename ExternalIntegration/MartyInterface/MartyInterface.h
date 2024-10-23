@@ -7,7 +7,6 @@
 #include "SMModelModifier.h"
 #include "Logger.h"
 #include "NumModelModifier.h"
-// #include "THDMModelModifier.h"
 
 class MartyInterface {
 public:
@@ -19,7 +18,6 @@ public:
 private:
 
     bool already_run(std::string&& outputBinary) {
-        std::cout << "Trying to see if something work with "<< outputBinary << std::endl;
         struct stat buffer;
         if (stat(outputBinary.c_str(), &buffer) != 0) {
             return false;

@@ -38,7 +38,6 @@ void NumericTemplateManager::generateTemplateImpl(const std::string& templateNam
     std::string tempFilePath = outputPath + ".tmp";
     std::ofstream outputFile(tempFilePath);
     if (!outputFile) {
-        std::cerr << "Erreur: Impossible d'ouvrir le fichier temporaire " << tempFilePath << std::endl;
         return;
     }
 
@@ -63,7 +62,6 @@ void NonNumericTemplateManager::generateTemplateImpl(const std::string& template
     std::ifstream templateFile(templatePath);
 
     if (!templateFile) {
-        std::cerr << "Erreur: Impossible d'ouvrir le fichier template " << templatePath << std::endl;
         return;
     }
 
@@ -72,7 +70,6 @@ void NonNumericTemplateManager::generateTemplateImpl(const std::string& template
     }
     std::ofstream outputFile(outputPath);
     if (!outputFile) {
-        std::cerr << "Erreur: Impossible d'ouvrir le fichier de sortie " << outputPath << std::endl;
         return;
     }
 

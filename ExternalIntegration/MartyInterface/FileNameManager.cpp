@@ -28,8 +28,6 @@ FileNameManager::FileNameManager(const std::string& wilson, const std::string& m
     lowercaseWilson_ = toLowercase(wilson_);
     lowercaseModel_ = toLowercase(model_);
     baseDir_ = "libs/" + wilson_ + "_" + model_;
-    std::cout << baseDir_ << std::endl;
-    std::cout << "sldkfjlskdjflskdjflskdjflsdkjflskdfj" << std::endl;
 }
 
 
