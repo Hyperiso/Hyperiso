@@ -35,7 +35,11 @@ int main() {
     MartyInterface.generate_numlib("C8", "SM");
     MartyInterface.compile_run_libs("C8", "SM");
 
-    MartyInterface.generate("C7", "THDM");
+    MartyInterface.generate("C7", "MSSM");
+    MartyInterface.compile_run("C7", "MSSM");
+
+    // MartyInterface.generate("C7", "THDM");
+    // MartyInterface.compile_run("C7", "THDM");
     // std::unordered_map<std::string, double> params;
     // Extractor extractor;
     // Interpreter interpreter;

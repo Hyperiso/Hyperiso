@@ -6,7 +6,11 @@ void GeneralModelModifier::modifyLine(std::string& line) {
         bool is_template = ModelFileChecker(this->model_path).isAnyModelTemplate();
         std::cout << this->model_path << std::endl;
         if (is_template) {
-            line.replace(line.find("SM_Model"), 8, this->model + "_Model<0>");
+            if(this->model == "THDM"){
+                line.replace(line.find("SM_Model"), 8, "TwoHDM_Model<0>");
+            } else {
+                line.replace(line.find("SM_Model"), 8, this->model + "_Model<0>");
+            }
         } else {
             line.replace(line.find("SM"), 2, this->model);
         }

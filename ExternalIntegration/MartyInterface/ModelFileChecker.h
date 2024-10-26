@@ -7,37 +7,23 @@ class ModelFileChecker {
 public:
     ModelFileChecker(const std::string& filePath) : filePath(filePath) {}
 
-    bool isTemplateClass(const std::string& className) {
-        std::ifstream file(filePath);
-        if (!file.is_open()) {
-            throw std::runtime_error("Cannot open file: " + filePath);
-        }
-
-        std::string pattern = "template\\s*<[^>]*>\\s*class\\s+" + className;
-        std::regex templateClassRegex(pattern);
-
-        std::string line;
-        while (std::getline(file, line)) {
-            if (std::regex_search(line, templateClassRegex)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     bool isAnyModelTemplate() {
         std::ifstream file(filePath);
         if (!file.is_open()) {
             throw std::runtime_error("Cannot open file: " + filePath);
         }
 
-        std::regex templateClassRegex(R"(template\s*<[^>]*>\s*class\s+\w*_Model)");
+        std::regex templateRegex(R"(template\s*<[^>]*>)");
+        std::regex classRegex(R"(class\s+\w+_Model\s*:\s*public\s+\w+::\w+)");
 
         std::string line;
+        bool foundTemplate = false;
+
         while (std::getline(file, line)) {
-            if (std::regex_search(line, templateClassRegex)) {
+            if (foundTemplate && std::regex_search(line, classRegex)) {
                 return true;
             }
+            foundTemplate = std::regex_search(line, templateRegex);
         }
         return false;
     }
