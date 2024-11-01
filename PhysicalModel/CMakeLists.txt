@@ -25,6 +25,11 @@ if (NOT TARGET CoreLib)
     add_subdirectory(../Core CoreLib)
 endif()
 
+if (NOT TARGET MartyInterfaceLib)
+    add_subdirectory(../ExternalIntegration/MartyInterface MartyInterfaceLib)
+endif()
+
+
 add_library(PhysicalModelLib STATIC 
     Wilson_parameters.cpp
     Wilsonv2.cpp
@@ -39,11 +44,11 @@ set_target_properties(PhysicalModelLib PROPERTIES PUBLIC_HEADER "Interpolator.h;
 
 target_include_directories(PhysicalModelLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/BSM)
 
-target_link_libraries(PhysicalModelLib PUBLIC CoreLib CommonLib ConfiguredModule MathLib)
+target_link_libraries(PhysicalModelLib PUBLIC MartyInterfaceLib CoreLib CommonLib ConfiguredModule MathLib)
 
 add_executable(test_wilson main_phymod.cpp)
 # set_target_properties(test_wilson PROPERTIES PUBLIC_HEADER "Wilsonv2.h")
 target_link_libraries(test_wilson PhysicalModelLib)
 
 add_executable(test_martywilson main.cpp)
-target_link_libraries(test_martywilson PhysicalModelLib)
+target_link_libraries(test_martywilson PhysicalModelLib MartyInterfaceLib)

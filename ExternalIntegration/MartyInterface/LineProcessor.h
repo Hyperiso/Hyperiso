@@ -22,7 +22,6 @@ public:
             outputFile << currentLine << "\n";
             return;
         }
-
         if (currentLine.find("param.") != std::string::npos) {
             std::string paramName = extractParamName(currentLine);
             double paramValue = std::stod(extractParamValue(currentLine));
@@ -33,6 +32,8 @@ public:
             } else {
                 outputFile << currentLine << "\n";
             }
+        } else if (currentLine.find("int main") != std::string::npos) {
+            outputFile << "int main(int argc, char** argv) {\n";
         } else if (currentLine.find("return 0;") != std::string::npos) {
             paramWriter.writeParams(outputFile);
             outputFile << currentLine << "\n";

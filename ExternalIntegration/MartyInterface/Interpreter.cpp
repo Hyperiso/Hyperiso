@@ -6,7 +6,7 @@ std::unordered_map<std::string, Interpreter::InterpretedParam> Interpreter::inte
 
     for (auto& param : params) {
         InterpretedParam interpreted;
-        
+        std::cout << param.name << std::endl;
         if (param.name.rfind("m_", 0) == 0 || param.name.rfind("M_", 0) == 0) {
             interpreted.block = "MASS";
             interpreted.code = getCode(param.name);
@@ -20,6 +20,9 @@ std::unordered_map<std::string, Interpreter::InterpretedParam> Interpreter::inte
             interpreted.block = "SMINPUT";
             interpreted.code = 2;
         } else if (param.name.rfind("s_12", 0) == 0) {
+            interpreted.block = "KIN";
+            interpreted.code = getCode(param.name);
+        } else if (param.name.rfind("s_13", 0) == 0) {
             interpreted.block = "KIN";
             interpreted.code = getCode(param.name);
         } else if (param.name.rfind("s_34", 0) == 0) {
@@ -75,6 +78,7 @@ int Interpreter::getCode(const std::string& name) {
     if (name.find("_Z") != std::string::npos) return 23;
     if (name.find("em") != std::string::npos) return 10;
     if (name.find("s_12") != std::string::npos) return 4;
+    if (name.find("s_13") != std::string::npos) return 7;
     if (name.find("s_34") != std::string::npos) return 34;
     if (name.find("theta_W") != std::string::npos) return 42;
     std::cout << name << std::endl;

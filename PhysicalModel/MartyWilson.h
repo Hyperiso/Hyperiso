@@ -4,6 +4,7 @@
 #include "Interpolator.h"
 #include "DataFrame.h"
 #include "CSVReader.h"
+#include "MartyInterface.h"
 #include "config.hpp"
 #include <iostream>
 
@@ -26,21 +27,24 @@ public:
 
     std::complex<double> LO_calculation() override {
         auto closest_indices = find_closest_Q_matches(get_Q_match());
+        // for (auto elem : df.getColumn<double>("Q_match")) {
+        //     std::cout << elem << std::endl;
+        // }
+        return {0., 0.};
+        // double Q1 = df.iat<double>(closest_indices.first, "Q_match");
+        // double Q2 = df.iat<double>(closest_indices.second, "Q_match");
 
-        double Q1 = df.iat<double>(closest_indices.first, "Q_match");
-        double Q2 = df.iat<double>(closest_indices.second, "Q_match");
+        // std::complex<double> C1 = {
+        //     df.iat<double>(closest_indices.first, this->get_name() + "_real"),
+        //     df.iat<double>(closest_indices.first, this->get_name() + "_img")
+        // };
 
-        std::complex<double> C1 = {
-            df.iat<double>(closest_indices.first, this->get_name() + "_real"),
-            df.iat<double>(closest_indices.first, this->get_name() + "_img")
-        };
+        // std::complex<double> C2 = {
+        //     df.iat<double>(closest_indices.second, this->get_name() + "_real"),
+        //     df.iat<double>(closest_indices.second, this->get_name() + "_img")
+        // };
 
-        std::complex<double> C2 = {
-            df.iat<double>(closest_indices.second, this->get_name() + "_real"),
-            df.iat<double>(closest_indices.second, this->get_name() + "_img")
-        };
-
-        return Interpolator::linearInterpolation(Q1, Q2, get_Q_match(), C1, C2);
+        // return Interpolator::linearInterpolation(Q1, Q2, get_Q_match(), C1, C2);
     }
 
     std::complex<double> NLO_calculation() override {}

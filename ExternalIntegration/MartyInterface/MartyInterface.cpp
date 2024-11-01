@@ -59,8 +59,10 @@ void MartyInterface::generate_numlib(std::string wilson, std::string model) {
     codeGenerator.generate(file_path, file_path);
 }
 
-void MartyInterface::compile_run_libs(std::string wilson, std::string model) {
+void MartyInterface::compile_run_libs(std::string wilson, std::string model, double Q_match) {
+
     MakeCompilerStrategy compiler(model, wilson);
+    compiler.set_Q_match(Q_match);
     compiler.compile_run(FileNameManager::getInstance(wilson, model)->getLibDir(), FileNameManager::getInstance(wilson,model)->getNumExecutableFileName());
 }
 

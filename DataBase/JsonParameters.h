@@ -38,11 +38,13 @@ public:
     }
 
     double getElement(const std::string& blockName, int pdgCode) const {
+        std::cout << blockName << std::endl;
+        std::cout << "." << std::endl;
         auto it = blocks.find(blockName);
         if (it != blocks.end()) {
             return it->second.getValue(pdgCode);
         } else {
-            throw std::runtime_error("Block non trouvé.");
+            throw std::runtime_error("Block " + blockName + " not found.");
         }
     }
 

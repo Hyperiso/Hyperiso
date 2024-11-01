@@ -24,19 +24,20 @@ int main() {
     
     MartyInterface.generate_numlib("C7", "SM");
 
-    MartyInterface.compile_run_libs("C7", "SM");
-    MartyInterface.generate("C9", "SM");
-    MartyInterface.compile_run("C9", "SM");
-    MartyInterface.generate_numlib("C9", "SM");
-    MartyInterface.compile_run_libs("C9", "SM");
+    MartyInterface.compile_run_libs("C7", "SM", 81);
+    MartyInterface.generate("C2", "SM");
+    MartyInterface.compile_run("C2", "SM");
+    MartyInterface.generate_numlib("C2", "SM");
+    MartyInterface.compile_run_libs("C2", "SM", 81);
 
     MartyInterface.generate("C8", "SM");
     MartyInterface.compile_run("C8", "SM");
     MartyInterface.generate_numlib("C8", "SM");
-    MartyInterface.compile_run_libs("C8", "SM");
+    MartyInterface.compile_run_libs("C8", "SM", 81);
 
-    MartyInterface.generate("C7", "MSSM");
-    MartyInterface.compile_run("C7", "MSSM");
+    MartyInterface.calculate("C3", "SM", 81);
+    // MartyInterface.generate("C7", "MSSM");
+    // MartyInterface.compile_run("C7", "MSSM");
 
     // MartyInterface.generate("C7", "THDM");
     // MartyInterface.compile_run("C7", "THDM");

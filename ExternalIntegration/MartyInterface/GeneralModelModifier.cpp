@@ -7,7 +7,7 @@ void GeneralModelModifier::modifyLine(std::string& line) {
         std::cout << this->model_path << std::endl;
         if (is_template) {
             if(this->model == "THDM"){
-                line.replace(line.find("SM_Model"), 8, "TwoHDM_Model<0>");
+                line.replace(line.find("SM_Model"), 8, this->model + "_Model<0>");
             } else {
                 line.replace(line.find("SM_Model"), 8, this->model + "_Model<0>");
             }
