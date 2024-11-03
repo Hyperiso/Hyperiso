@@ -25,7 +25,7 @@ void DataFrame::addValueToColumn(const std::string& colName, const T& value) {
 template <typename T>
 T DataFrame::iat(size_t row, const std::string& colName) const {
     if (columns_map.find(colName) == columns_map.end()) {
-        throw std::invalid_argument("Column not found");
+        throw std::invalid_argument("Column " + colName + " not found");
     }
     auto col = std::static_pointer_cast<Series<T>>(columns_map.at(colName));
     return col->iat(row);
@@ -34,7 +34,7 @@ T DataFrame::iat(size_t row, const std::string& colName) const {
 template <typename T>
 T DataFrame::at(const std::string& idxValue, const std::string& colName) const {
     if (columns_map.find(colName) == columns_map.end()) {
-        throw std::invalid_argument("Column not found");
+        throw std::invalid_argument("Column " + colName + " not found");
     }
     auto col = std::static_pointer_cast<Series<T>>(columns_map.at(colName));
     
@@ -44,7 +44,7 @@ T DataFrame::at(const std::string& idxValue, const std::string& colName) const {
 template <typename T>
 Series<T> DataFrame::getColumn(const std::string& colName) const {
     if (columns_map.find(colName) == columns_map.end()) {
-        throw std::invalid_argument("Column not found");
+        throw std::invalid_argument("Column " + colName + " not found");
     }
     return *std::static_pointer_cast<Series<T>>(columns_map.at(colName));
 }

@@ -19,7 +19,7 @@ void defineLibPath(Library &lib) {
 #endif
 }
 
-int calculate_C9mu(Model &model, gauge::Type gauge) {
+int calculate_C10mu(Model &model, gauge::Type gauge) {
 
     model.getParticle("W")->setGaugeChoice(gauge);
     model.getParticle("Z")->setGaugeChoice(gauge);
@@ -37,13 +37,13 @@ int calculate_C9mu(Model &model, gauge::Type gauge) {
          Outgoing("mu"), Outgoing(AntiPart("mu"))},
         opts);
 
-    auto O9_mu = dimension6Operator(model, wil, DiracCoupling::VL, DiracCoupling::V, {0, 2, 1, 3});
-    Expr C9_mu = getWilsonCoefficient(wil, O9_mu);
+    auto O10_mu = dimension6Operator(model, wil, DiracCoupling::VL, DiracCoupling::A, {0, 2, 1, 3});
+    Expr C10_mu = getWilsonCoefficient(wil, O10_mu);
 
-    [[maybe_unused]] int sysres = system("rm -rf libs/C9_mu_SM");
-    mty::Library wilsonLib("C9_mu_SM", "libs");
+    [[maybe_unused]] int sysres = system("rm -rf libs/C10_SM");
+    mty::Library wilsonLib("C10_SM", "libs");
     wilsonLib.cleanExistingSources();
-    wilsonLib.addFunction("C9_mu", C9_mu);
+    wilsonLib.addFunction("C10", C10_mu);
     defineLibPath(wilsonLib);
     wilsonLib.print();
 
@@ -52,5 +52,5 @@ int calculate_C9mu(Model &model, gauge::Type gauge) {
 
 int main() {
     SM_Model sm;
-    return calculate_C9mu(sm, gauge::Type::Feynman);
+    return calculate_C10mu(sm, gauge::Type::Feynman);
 }
