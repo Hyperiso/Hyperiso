@@ -40,6 +40,7 @@ public:
                 std::cout << this->get_name() << " waw" << std::endl;
                 for (auto& _ : this->df.getColumnNames()) {
                     if (this->get_name()+"_real" == _) {
+                        this->set_CoefficientMatchingValue("LO", {df.iat<double>(i, this->get_name()+"_real"), df.iat<double>(i, this->get_name()+"_img")});
                         return {df.iat<double>(i, this->get_name()+"_real"), df.iat<double>(i, this->get_name()+"_img")};
                     }
                 } 
@@ -54,6 +55,7 @@ public:
         for (size_t i = 0; i < df.getRowCount(); ++i) {
             double Q_match = df.iat<double>(i, "Q_match");
             if (fabs(Q_match-this->get_Q_match()) < epsi) {
+                this->set_CoefficientMatchingValue("LO", {df.iat<double>(i, this->get_name()+"_real"), df.iat<double>(i, this->get_name()+"_img")});
                 return {df.iat<double>(i, this->get_name()+"_real"), df.iat<double>(i, this->get_name()+"_img")};
             }
         }
@@ -103,8 +105,8 @@ public:
 
     BCoefficientGroupMarty() { this->clear();
         this->insert(std::make_pair("C1", std::make_shared<MartyWilson>(81, "C1"))); this->insert(std::make_pair("C2", std::make_shared<MartyWilson>(81, "C2"))); this->insert(std::make_pair("C3", std::make_shared<MartyWilson>(81, "C3")));
-        this->insert(std::make_pair("C4", std::make_shared<MartyWilson>(81, "C4")));  this->insert(std::make_pair("C5", std::make_shared<MartyWilson>(81, "C5"))); this->insert(std::make_pair("C6", std::make_shared<MartyWilson>(81, "C6"))); 
-        this->insert(std::make_pair("C7", std::make_shared<MartyWilson>(81, "C7")));  this->insert(std::make_pair("C8", std::make_shared<MartyWilson>(81, "C8")));  this->insert(std::make_pair("C9", std::make_shared<MartyWilson>(81, "C7"))); 
+        this->insert(std::make_pair("C4", std::make_shared<MartyWilson>(81, "C4")));  this->insert(std::make_pair("C5", std::make_shared<MartyWilson>(81, "C5"))); this->insert(std::make_pair("C6", std::make_shared<MartyWilson>(81, "C9"))); 
+        this->insert(std::make_pair("C7", std::make_shared<MartyWilson>(81, "C7")));  this->insert(std::make_pair("C8", std::make_shared<MartyWilson>(81, "C8")));  this->insert(std::make_pair("C9", std::make_shared<MartyWilson>(81, "C9"))); 
         this->insert(std::make_pair("C10", std::make_shared<MartyWilson>(81, "C10")));
     }
 };

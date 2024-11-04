@@ -26,7 +26,7 @@ vector<Wilson> getO5(const Model& model, const WilsonSet& wilsons, const std::st
     auto q = model.getParticle(up_quark);
     auto gamma = dirac4.gamma;
     auto gamma5 = dirac4.gamma_chir;
-    auto i = model.generateIndices(2, "C");
+    auto i = model.generateIndices(2, "C", s);
     auto al = DiracIndices(9);
     auto mu = MinkowskiIndices(3);
 
