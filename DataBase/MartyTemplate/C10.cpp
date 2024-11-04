@@ -37,7 +37,7 @@ int calculate_C10mu(Model &model, gauge::Type gauge) {
          Outgoing("mu"), Outgoing(AntiPart("mu"))},
         opts);
 
-    auto O10_mu = dimension6Operator(model, wil, DiracCoupling::VL, DiracCoupling::A, {0, 2, 1, 3});
+    auto O10_mu = dimension6Operator(model, wil, DiracCoupling::VL, DiracCoupling::A, {1, 2, 0, 3});
     Expr C10_mu = getWilsonCoefficient(wil, O10_mu);
 
     [[maybe_unused]] int sysres = system("rm -rf libs/C10_SM");

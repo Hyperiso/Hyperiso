@@ -37,7 +37,7 @@ int calculate_C9mu(Model &model, gauge::Type gauge) {
          Outgoing("mu"), Outgoing(AntiPart("mu"))},
         opts);
 
-    auto O9_mu = dimension6Operator(model, wil, DiracCoupling::VL, DiracCoupling::V, {0, 2, 1, 3});
+    auto O9_mu = dimension6Operator(model, wil, DiracCoupling::VL, DiracCoupling::V, {1, 2, 0, 3});
     Expr C9_mu = getWilsonCoefficient(wil, O9_mu);
 
     [[maybe_unused]] int sysres = system("rm -rf libs/C9_SM");
