@@ -9,14 +9,19 @@ if (NOT TARGET CommonLib)
     add_subdirectory(../Common CommonLib)
 endif()
 
+if (NOT TARGET PandasLib)
+    add_subdirectory(Pandas PandasLib)
+endif()
+
 add_library(DataBaseLib STATIC 
     lha_blocks.cpp
     lha_elements.cpp
     lha_reader.cpp
-    json_parser.cpp)
+    json_parser.cpp
+    JsonParameters.cpp)
 
-set_target_properties(DataBaseLib PROPERTIES PUBLIC_HEADER "lha_elements.h;lha_blocks.h;lha_reader.h;json_parser.h")
+set_target_properties(DataBaseLib PROPERTIES PUBLIC_HEADER "JsonParameters.h;lha_elements.h;lha_blocks.h;lha_reader.h;json_parser.h")
 
 target_include_directories(DataBaseLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
-target_link_libraries(DataBaseLib PUBLIC CommonLib)
+target_link_libraries(DataBaseLib PUBLIC PandasLib CommonLib)

@@ -6,15 +6,66 @@
 #include <memory>
 #include "ModelModifier.h"
 
-class TemplateManager {
+class TemplateManagerBase {
 public:
-    TemplateManager(const std::string& templatesDir);
-    void setModelModifier(std::unique_ptr<ModelModifier> modifier);
-    void generateTemplate(const std::string& templateName, const std::string& outputPath);
+    TemplateManagerBase(const std::string& templatesDir) : templatesDir(templatesDir) {}
+    virtual ~TemplateManagerBase() = default;
+
+    virtual void generateTemplate(const std::string& templateName, const std::string& outputPath) = 0;
+
+    void setModelModifier(std::unique_ptr<ModelModifier> modifier) {
+        modelModifier = std::move(modifier);
+    }
+
+    void setModelAndWilson(std::string model, std::string wilson) {this->model = model; this->wilson = wilson;}
+
+protected:
+    std::string templatesDir;
+    std::string wilson;
+    std::string model;
+    std::unique_ptr<ModelModifier> modelModifier;
+
+    bool already_generated(const std::string& path) {
+        std::ifstream file(path);
+
+        if (!file.is_open()) {
+            return false;
+        }
+
+        std::string firstLine;
+        if (std::getline(file, firstLine)) {
+            if (firstLine.find("//42") != std::string::npos) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+};
+
+
+
+class NumericTemplateManager : public TemplateManagerBase {
+public:
+    NumericTemplateManager(const std::string& templatesDir) : TemplateManagerBase(templatesDir)  {}
+    void generateTemplate(const std::string& templateName, const std::string& outputPath) override {
+        generateTemplateImpl(templateName, outputPath);
+    }
 
 private:
-    std::string templatesDir;
-    std::unique_ptr<ModelModifier> modelModifier;
+    void generateTemplateImpl(const std::string& templateName, const std::string& outputPath);
 };
+
+class NonNumericTemplateManager : public TemplateManagerBase {
+public:
+    NonNumericTemplateManager(const std::string& templatesDir) : TemplateManagerBase(templatesDir)  {}
+    void generateTemplate(const std::string& templateName, const std::string& outputPath) override {
+        generateTemplateImpl(templateName, outputPath);
+    }
+
+private:
+    void generateTemplateImpl(const std::string& templateName, const std::string& outputPath);
+};
+
 
 #endif // TEMPLATE_MANAGER_H

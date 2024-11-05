@@ -19,24 +19,40 @@ if (NOT TARGET CommonLib)
     add_subdirectory(../../Common CommonLib)
 endif()
 
+if (NOT TARGET ExternalIntegrationLib)
+    add_subdirectory(.. ExternalIntegrationLib)
+endif()
+
+if (NOT TARGET DataBaseLib)
+    add_subdirectory(../../DataBase DataBaseLib)
+endif()
+
 if (NOT TARGET ConfiguredModule)
     add_subdirectory(../../Configured Configured)
 endif()
 
-add_library(ExternalMartyIntegrationLib STATIC 
+add_library(MartyInterfaceLib STATIC 
     CodeGenerator.cpp
     GppCompilerStrategy.cpp
     MakeCompilerStrategy.cpp
     MartyInterface.cpp
     SMModelModifier.cpp
     TemplateManager.cpp
+    Extractor.cpp
+    Interpreter.cpp
+    SMParamSetter.cpp
+    FileNameManager.cpp
+    GeneralModelModifier.cpp
     )
 
-set_target_properties(ExternalMartyIntegrationLib PROPERTIES PUBLIC_HEADER "ModelModifier.h;CodeGenerator.h;CompilerStrategy.h;GppCompilerStrategy;MakeCompilerStrategy.h;MartyInterface.h;SMModelModifier.h;TemplateManager.h")
-# target_include_directories(ExternalMartyIntegrationLib PRIVATE BSM)
-target_link_libraries(ExternalMartyIntegrationLib PUBLIC CommonLib)
-target_link_libraries(ExternalMartyIntegrationLib PUBLIC ConfiguredModule)
+set_target_properties(MartyInterfaceLib PROPERTIES PUBLIC_HEADER "CinematicExtractor.h;FileNameManager.h;ModelModifier.h;GeneralNumModelModifier.h;NumModelModifier.h;CodeGenerator.h;CompilerStrategy.h;GppCompilerStrategy;MakeCompilerStrategy.h;GeneralModelModifier.h;MartyInterface.h;SMModelModifier.h;TemplateManager.h;IncludeManager.h;LineProcessor.h;ModelWriter.h;ParamWriter.h;Extractor.h;Interpreter.h;IParamSetter.h;SMParamSetter.h")
+# target_include_directories(MartyInterfaceLib PRIVATE BSM)
+
+target_include_directories(ExternalIntegrationLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+
+target_link_libraries(MartyInterfaceLib PUBLIC CommonLib DataBaseLib)
+target_link_libraries(MartyInterfaceLib PUBLIC ConfiguredModule)
 
 add_executable(TEST_MARTY main_marty.cpp)
 
-target_link_libraries(TEST_MARTY ExternalMartyIntegrationLib)
+target_link_libraries(TEST_MARTY MartyInterfaceLib)

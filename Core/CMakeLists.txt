@@ -46,5 +46,8 @@ if (${ENABLE_WARNINGS})
                         ${ENABLE_WARNINGS_AS_ERRORS})
 endif()
 
+add_executable(TEST_CORE main_core.cpp)
+target_link_libraries(TEST_CORE CoreLib)
+
 # add_executable(TEST main_parameters.cpp)
 # target_link_libraries(TEST CoreLib)

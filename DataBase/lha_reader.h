@@ -131,6 +131,14 @@ public:
         return blocks.size();
     }
 
+    inline std::vector<std::string> getBlocksNames() const {
+        std::vector<std::string> temp;
+        for (auto &elem : blocks) {
+            temp.push_back(elem.first);
+        }
+        return temp;
+    }
+
     std::string toString() const;
 };
 

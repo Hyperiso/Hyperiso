@@ -6,18 +6,39 @@
 #include "MakeCompilerStrategy.h"
 #include "SMModelModifier.h"
 #include "Logger.h"
-// #include "THDMModelModifier.h"
+#include "NumModelModifier.h"
 
 class MartyInterface {
 public:
     void generate(std::string wilson, std::string model);
     void compile_run(std::string wilson, std::string model);
     void generate_numlib(std::string wilson, std::string model);
-    void compile_run_libs(std::string wilson, std::string model);
+    void compile_run_libs(std::string wilson, std::string model, double Q_match);
+
+    void calculate(std::string wilson, std::string model, double Q_match) {
+        generate(wilson, model);
+        compile_run(wilson, model);
+        generate_numlib(wilson, model);
+        compile_run_libs(wilson, model, Q_match);
+
+    }
 
 private:
-    bool generated = false;
-    bool compiled = false;
+
+    bool already_run(std::string&& outputBinary) {
+        struct stat buffer;
+        if (stat(outputBinary.c_str(), &buffer) != 0) {
+            return false;
+        }
+        if (buffer.st_size == 0) {
+            return false;
+        }
+        std::cout << "Already run !" << std::endl;
+        return true;
+    }
+    std::string output_binary_name(std::string& wilson, std::string& model) {
+        return "generated_" + wilson+"_" + model + ".cpp";
+    }
 
     std::string num_file_path{};
 };
