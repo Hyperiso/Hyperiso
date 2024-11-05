@@ -384,6 +384,50 @@ void FlAVORModelStrategy::initializeParameters(Parameters& params) {
     params.addBlock("FLIFE", std::move(flifeblock));
 }   
 
+void GeneralModelStrategy::initializeParameters(Parameters& params) {
+    LhaReader* lha = MemoryManager::GetInstance()->getReader();
+    MemoryManager * memo = MemoryManager::GetInstance();
+
+    std::string root = project_root.data();
+    std::string spectrumFile = MemoryManager::GetInstance()->getInputLhaPath();
+
+    for (auto elem : lha->getBlocksNames()) {
+        std::cout << elem << std::endl;
+        std::cout << lha->findPrototype(elem).itemCount << std::endl;
+        if (lha->findPrototype(elem).itemCount == 2) {
+            auto generalblock = std::make_unique<MapBlock>();
+            generalblock->blockname = elem;
+            auto elts = lha->getBlock(elem)->getEntries();
+            for (size_t i = 0; i < elts->size(); ++i) {
+                auto e = static_cast<LhaElement<double>*>(elts->at(i).get());
+                generalblock->setValue(std::stoi(e->getId()), e->getValue());
+                std::cout << std::stoi(e->getId()) << " " << e->getValue() << std::endl; 
+            }
+            params.addBlock(elem, std::move(generalblock));
+            continue;
+        }
+        
+    }
+    lha->update(spectrumFile);
+    
+    LOG_INFO("LHA Blocks updated.");
+
+    std::vector<std::string> mandatory {"MINPAR", "MASS"};
+
+    // auto massblock = std::make_unique<MassBlock>();
+    // auto elts = lha->getBlock("MASS")->getEntries();
+    // for (size_t i = 0; i < elts->size(); ++i) {
+    //     auto e = static_cast<LhaElement<double>*>(elts->at(i).get());
+    //     massblock->setValue(std::stoi(e->getId()), e->getValue());
+    //     // this->masses[std::stoi(e->getId())] = e->getValue();
+    // }
+    // params.addBlock("MASS", std::move(massblock));
+
+
+    std::string root_path = project_root.data();
+    JSONParser::getInstance(0)->saveToFile(root_path+ "/DataBase/Params/data_GENERAL.json");
+}
+
 double return_if_defined(std::map<std::string, double>& map, const std::string& id, const std::string& error_label) {
     if (map.contains(id)) {
         return map[id];
@@ -395,6 +439,29 @@ double return_if_defined(std::map<std::string, double>& map, const std::string& 
 
 double Parameters::getFlavorParam(FlavorParamType type, const std::string& id) {
     return this->flavorblockAccessor.getValue(type, id);
+}
+
+void Parameters::changeParameterValue(const std::string& block, int pdgCode, double newValue) {
+    double currentValue = blockAccessor.getValue(block, pdgCode);
+
+    std::pair<std::string, int> key = std::make_pair(block, pdgCode);
+    if (originalValuesCache.find(key) == originalValuesCache.end()) {
+        originalValuesCache[key] = currentValue;
+    }
+
+    blockAccessor.setValue(block, pdgCode, newValue);
+}
+
+void Parameters::reset() {
+    for (const auto& entry : originalValuesCache) {
+        const std::string& block = entry.first.first;
+        int pdgCode = entry.first.second;
+        double originalValue = entry.second;
+
+        blockAccessor.setValue(block, pdgCode, originalValue);
+    }
+
+    originalValuesCache.clear();
 }
 
 Parameters* ParametersFactory::GetParameters(int modelId) {
@@ -415,6 +482,8 @@ ModelStrategy* ParametersFactory::createStrategy(int modelId) {
             return new THDMModelStrategy();
         case 3:
             return new FlAVORModelStrategy();
+        case 4:
+            return new GeneralModelStrategy();
         default:
             throw std::invalid_argument("Unknown model ID");
     }

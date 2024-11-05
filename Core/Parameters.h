@@ -37,6 +37,11 @@ public:
     void initializeParameters(class Parameters& params) override;
 };
 
+class GeneralModelStrategy : public ModelStrategy {
+public:
+    void initializeParameters(class Parameters& params) override;
+};
+
 class Parameters {
 public:
     static Parameters* GetInstance(int modelId = 0);
@@ -63,9 +68,14 @@ public:
     double get_QCD_masse(std::string masstype);
     double getFlavorParam(FlavorParamType type, const std::string& id);
 
+    void changeParameterValue(const std::string& block, int pdgCode, double newValue);
+    void reset();
+
+
 private:
     explicit Parameters(ModelStrategy* modelStrategy);
     static std::map<int, Parameters*> instances;
+    std::map<std::pair<std::string, int>, double> originalValuesCache;
 
     QCDParameters QCDRunner;
     BlockAccessor blockAccessor;

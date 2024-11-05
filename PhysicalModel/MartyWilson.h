@@ -105,8 +105,8 @@ public:
 
     BCoefficientGroupMarty() { this->clear();
         this->insert(std::make_pair("C1", std::make_shared<MartyWilson>(81, "C1"))); this->insert(std::make_pair("C2", std::make_shared<MartyWilson>(81, "C2"))); this->insert(std::make_pair("C3", std::make_shared<MartyWilson>(81, "C3")));
-        this->insert(std::make_pair("C4", std::make_shared<MartyWilson>(81, "C4")));  this->insert(std::make_pair("C5", std::make_shared<MartyWilson>(81, "C5"))); this->insert(std::make_pair("C6", std::make_shared<MartyWilson>(81, "C9"))); 
-        this->insert(std::make_pair("C7", std::make_shared<MartyWilson>(81, "C7")));  this->insert(std::make_pair("C8", std::make_shared<MartyWilson>(81, "C8")));  this->insert(std::make_pair("C9", std::make_shared<MartyWilson>(81, "C9"))); 
+        this->insert(std::make_pair("C4", std::make_shared<MartyWilson>(81, "C4")));  this->insert(std::make_pair("C5", std::make_shared<MartyWilson>(81, "C5"))); this->insert(std::make_pair("C6", std::make_shared<MartyWilson>(81, "C6"))); 
+        this->insert(std::make_pair("C7", std::make_shared<MartyWilson>(81, "C7")));  this->insert(std::make_pair("C8", std::make_shared<MartyWilson>(81, "C8")));  this->insert(std::make_pair("C9", std::make_shared<MartyWilson>(81, "C7"))); 
         this->insert(std::make_pair("C10", std::make_shared<MartyWilson>(81, "C10")));
     }
 };
