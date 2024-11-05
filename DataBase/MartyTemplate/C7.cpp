@@ -1,70 +1,54 @@
-#include <algorithm>
-#include "comparedata.h"
-#include "testutility.h"
-#include "../../MARTY/install/include/marty/SM.h"
-#include <marty.h>
-
+#include <iostream>
+#include "../../ExternalIntegration/MARTY/MARTY_INSTALL/include/marty/models/sm.h"
+#include "../../ExternalIntegration/MARTY/MARTY_INSTALL/include/marty.h"
 
 using namespace csl;
 using namespace mty;
 using namespace std;
 using namespace sm_input;
 
-int calculate(Model &model, gauge::Type gauge)
-{
-    using namespace mty::sm_input;
-    for (auto &expr : {e_em, m_b, m_t, m_s, theta_W, alpha_s, alpha_em, g_s})
-        expr->setValue(CSL_UNDEF);
-
-    model.getParticle("W")->setGaugeChoice(gauge);
-
-    mty::FeynOptions options;
-    options.addFilters(mty::filter::forceParticle("t"));
-    auto res = model.computeAmplitude(
-        OneLoop, {Incoming("b"), Outgoing("s"), Outgoing("A")}, options);
-    Display(res);
-
-    Expr V_ts_star      = csl::GetComplexConjugate(sm_input::V_ts);
-    Expr s2_theta_W     = csl::pow_s(csl::sin_s(theta_W), 2);
-    Expr factorOperator = -csl::pow_s(e_em, 3) * V_ts_star * V_tb * m_b
-                          / (32 * CSL_PI * CSL_PI * M_W * M_W * s2_theta_W);
-
-    options.setWilsonOperatorCoefficient(factorOperator);
-    auto wilsonC7 = model.getWilsonCoefficients(res, options);
-    Display(wilsonC7);
-    Expr CC7 = getWilsonCoefficient(
-        wilsonC7, chromoMagneticOperator(model, wilsonC7, DiracCoupling::R));
-    Expr CC7p = getWilsonCoefficient(
-        wilsonC7, chromoMagneticOperator(model, wilsonC7, DiracCoupling::L));
-    std::cout << CC7 << std::endl;
-    std::cout << CC7p << '\n';
-
-    [[maybe_unused]] int sysres = system("rm -rf libs/C7_SM");
-    mty::Library         wilsonLib("C7_SM", "libs");
-    wilsonLib.cleanExistingSources();
-    wilsonLib.addFunction("C7", CC7);
-    wilsonLib.addFunction("C7_p", CC7p);
-    defineLibPath(wilsonLib);
-    wilsonLib.print();
-    return 1;
-    // sysres = system("cp libsrc/example_c7_sm.cpp libs/C7_SM/script");
-    // sysres = system("cd libs/C7_SM; make && bin/example_c7_sm.x");
-    // std::cout.clear();
-    // return assert_equal("data/output/C7_SM.txt",
-    //                     "libs/C7_SM/C7_SM.txt",
-    //                     (gauge == gauge::Unitary) ? 1e-3 : 1e-5);
+void defineLibPath(Library &lib) {
+#ifdef MARTY_LIBRARY_PATH
+    lib.addLPath(MARTY_LIBRARY_PATH);
+    lib.addLPath(MARTY_LIBRARY_PATH "/..");
+    lib.addLPath(MARTY_LIBRARY_PATH "/marty");
+    lib.addLPath(MARTY_LIBRARY_PATH "/marty/lha");
+#endif
+#ifdef MARTY_INCLUDE_PATH
+    lib.addIPath(MARTY_INCLUDE_PATH);
+#endif
 }
 
-int main()
-{
+int calculate_C7(Model &model, gauge::Type gauge) {
 
-    // mty::sm_input::redefineNumericalValues(); // for compatibility
+    model.getParticle("W")->setGaugeChoice(gauge);
+    model.getParticle("Z")->setGaugeChoice(gauge);
+
+    undefineNumericalValues(); // Allow for HIso to set all the parameters' values
+    mty::option::excludeExternalLegsCorrections = true;
+
+    Expr factorOperator = -4 * G_F * GetComplexConjugate(V_ts) * V_tb * e_em * m_b / (16 * CSL_PI * CSL_PI * csl::sqrt_s(2));
+    FeynOptions opts;
+    opts.setWilsonOperatorCoefficient(factorOperator);
+
+    auto wil = model.computeWilsonCoefficients(mty::Order::OneLoop, 
+        {Incoming("b"), Outgoing("s"), Outgoing("A")}, 
+        opts);
+
+    auto O7 = chromoMagneticOperator(model, wil, DiracCoupling::R);
+    Expr C7 = getWilsonCoefficient(wil, O7);
+
+    [[maybe_unused]] int sysres = system("rm -rf libs/C7_SM");
+    mty::Library wilsonLib("C7_SM", "libs");
+    wilsonLib.cleanExistingSources();
+    wilsonLib.addFunction("C7", C7);
+    defineLibPath(wilsonLib);
+    wilsonLib.print();
+
+    return 0;
+}
+
+int main() {
     SM_Model sm;
-    // std::cout << sm << std::endl;
-    sm.computeFeynmanRules();
-    // Display(sm.getFeynmanRules());
-
-    // calculate(sm, gauge::Type::Unitary);
-    // calculate(sm, gauge::Type::Lorenz);
-    return calculate(sm, gauge::Type::Feynman);
+    return calculate_C7(sm, gauge::Type::Feynman);
 }

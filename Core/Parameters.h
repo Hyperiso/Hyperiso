@@ -4,6 +4,7 @@
 #include "BlockAccessor.h"
 #include "MemoryManager.h"
 #include "Interface.h"
+#include "JsonParameters.h"
 
 #include <memory>
 typedef std::complex<double> complex_t; 
@@ -36,6 +37,11 @@ public:
     void initializeParameters(class Parameters& params) override;
 };
 
+class GeneralModelStrategy : public ModelStrategy {
+public:
+    void initializeParameters(class Parameters& params) override;
+};
+
 class Parameters {
 public:
     static Parameters* GetInstance(int modelId = 0);
@@ -53,6 +59,7 @@ public:
         flavorblockAccessor.addBlock(name, std::move(block));
     }
     void setBlockValue(const std::string& name, int pdgCode, double value) {
+        // jsonparser.addElement(name, pdgCode, value);
         blockAccessor.setValue(name, pdgCode, value);
     }
 
@@ -60,14 +67,21 @@ public:
 
     double get_QCD_masse(std::string masstype);
     double getFlavorParam(FlavorParamType type, const std::string& id);
+
+    void changeParameterValue(const std::string& block, int pdgCode, double newValue);
+    void reset();
+
+
 private:
     explicit Parameters(ModelStrategy* modelStrategy);
     static std::map<int, Parameters*> instances;
+    std::map<std::pair<std::string, int>, double> originalValuesCache;
 
     QCDParameters QCDRunner;
     BlockAccessor blockAccessor;
     FlavorBlockAccessor flavorblockAccessor;
     
+
     ModelStrategy* strategy;
 
     friend class ParametersFactory;

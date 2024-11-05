@@ -78,18 +78,27 @@ target_link_libraries(testSMWilson PhysicalModelLib UtilsLib)
 add_executable(testSMCQPrimeWilson Wilson/testSMCQPrimeWilson.cpp)
 target_link_libraries(testSMCQPrimeWilson PhysicalModelLib UtilsLib)
 
-add_executable(testTHDMWilson Wilson/testTHDMWilson.cpp)
-target_link_libraries(testTHDMWilson PhysicalModelLib UtilsLib)
+add_executable(testBase1Wilson Wilson/testBase1Wilson.cpp)
+target_link_libraries(testBase1Wilson PhysicalModelLib UtilsLib)
 
-add_executable(testTHDMCQPrimeWilson Wilson/testTHDMCQPrimeWilson.cpp)
-target_link_libraries(testTHDMCQPrimeWilson PhysicalModelLib UtilsLib)
+add_executable(testBase2Wilson Wilson/testBase2Wilson.cpp)
+target_link_libraries(testBase2Wilson PhysicalModelLib UtilsLib)
 
-add_executable(testSUSYWilson Wilson/testSUSYWilson.cpp)
-target_link_libraries(testSUSYWilson PhysicalModelLib UtilsLib)
+if(BUILD_WITH_2HDMC)
+    add_executable(testTHDMWilson Wilson/testTHDMWilson.cpp)
+    target_link_libraries(testTHDMWilson PhysicalModelLib UtilsLib)
 
-add_executable(testSUSYCQPrimeWilson Wilson/testSUSYCQPrimeWilson.cpp)
-target_link_libraries(testSUSYCQPrimeWilson PhysicalModelLib UtilsLib)
+    add_executable(testTHDMCQPrimeWilson Wilson/testTHDMCQPrimeWilson.cpp)
+    target_link_libraries(testTHDMCQPrimeWilson PhysicalModelLib UtilsLib)
+endif()
 
+if(BUILD_WITH_SOFTSUSY)
+    add_executable(testSUSYWilson Wilson/testSUSYWilson.cpp)
+    target_link_libraries(testSUSYWilson PhysicalModelLib UtilsLib)
+
+    add_executable(testSUSYCQPrimeWilson Wilson/testSUSYCQPrimeWilson.cpp)
+    target_link_libraries(testSUSYCQPrimeWilson PhysicalModelLib UtilsLib)
+endif()
 
 include(CTest)
 
@@ -114,6 +123,12 @@ set_tests_properties(WCTestSM PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "
 
 add_test(NAME WCTestSMCQPrime COMMAND testSMCQPrimeWilson)
 set_tests_properties(WCTestSMCQPrime PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "wilson")
+
+add_test(NAME WCTestBase1 COMMAND testBase1Wilson)
+set_tests_properties(WCTestBase1 PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "wilson")
+
+add_test(NAME WCTestBase2 COMMAND testBase2Wilson)
+set_tests_properties(WCTestBase2 PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "wilson")
 
 if(BUILD_WITH_2HDMC)
     add_test(NAME WCTestTHDM COMMAND testTHDMWilson)

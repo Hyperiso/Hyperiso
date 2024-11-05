@@ -1,7 +1,7 @@
 #include "CodeGenerator.h"
 
-CodeGenerator::CodeGenerator(TemplateManager& manager) : templateManager(manager) {}
+CodeGenerator::CodeGenerator(std::unique_ptr<TemplateManagerBase> manager) : templateManager(std::move(manager)) {}
 
 void CodeGenerator::generate(const std::string& templateName, const std::string& outputPath) {
-    templateManager.generateTemplate(templateName, outputPath);
+    templateManager->generateTemplate(templateName, outputPath);
 }
