@@ -18,10 +18,15 @@ add_library(DataBaseLib STATIC
     lha_elements.cpp
     lha_reader.cpp
     json_parser.cpp
-    JsonParameters.cpp)
+    JsonParameters.cpp
+    MappingDataBase.cpp)
 
-set_target_properties(DataBaseLib PROPERTIES PUBLIC_HEADER "JsonParameters.h;lha_elements.h;lha_blocks.h;lha_reader.h;json_parser.h")
+set_target_properties(DataBaseLib PROPERTIES PUBLIC_HEADER "JsonParameters.h;MappingDataBase.h;lha_elements.h;lha_blocks.h;lha_reader.h;json_parser.h")
 
 target_include_directories(DataBaseLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 target_link_libraries(DataBaseLib PUBLIC PandasLib CommonLib)
+
+add_executable(TEST_DB main_db.cpp)
+
+target_link_libraries(TEST_DB DataBaseLib)

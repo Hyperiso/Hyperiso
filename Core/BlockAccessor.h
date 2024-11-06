@@ -25,7 +25,7 @@ public:
             return it->second->getValue(pdgCode);
         }
         std::cout<< blockName << std::endl;
-        throw std::invalid_argument("Block not found");
+        throw std::invalid_argument("Block " + blockName + " not found with pdg code : " + std::to_string(pdgCode));
     }
 
     void setValue(const std::string& blockName, int pdgCode, double value) {

@@ -1,0 +1,4 @@
+{
+    "m_Hp": {"block": "MASS", "pdgCode": 4},
+    "beta": {"block" : "MINPAR", "pdgCode": 10}
+}
