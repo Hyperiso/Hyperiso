@@ -35,14 +35,18 @@ int main() {
     // MartyInterface.generate_numlib("C8", "SM");
     // MartyInterface.compile_run_libs("C8", "SM", 81);
 
+
+    MartyInterface.calculate("C2", "SM", 81);
+    MartyInterface.calculate("C7", "SM", 81);
+
     // MartyInterface.calculate("C3", "SM", 81);
-    MartyInterface.calculate("C1", "THDM", 81);
-    MartyInterface.calculate("C2", "THDM", 81);
-    MartyInterface.calculate("C3", "THDM", 81);
-    MartyInterface.calculate("C4", "THDM", 81);
-    MartyInterface.calculate("C5", "THDM", 81);
-    MartyInterface.calculate("C6", "THDM", 81);
-    MartyInterface.calculate("C7", "THDM", 81);
+    // MartyInterface.calculate("C1", "THDM", 81);
+    // MartyInterface.calculate("C2", "THDM", 81);
+    // MartyInterface.calculate("C3", "THDM", 81);
+    // MartyInterface.calculate("C4", "THDM", 81);
+    // MartyInterface.calculate("C5", "THDM", 81);
+    // MartyInterface.calculate("C6", "THDM", 81);
+    // MartyInterface.calculate("C7", "THDM", 81);
     // MartyInterface.generate("C7", "MSSM");
     // MartyInterface.compile_run("C7", "MSSM");
 

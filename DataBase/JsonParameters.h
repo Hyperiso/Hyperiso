@@ -38,8 +38,6 @@ public:
     }
 
     double getElement(const std::string& blockName, int pdgCode) const {
-        std::cout << blockName << std::endl;
-        std::cout << "." << std::endl;
         auto it = blocks.find(blockName);
         if (it != blocks.end()) {
             return it->second.getValue(pdgCode);

@@ -5,7 +5,7 @@
     "m_s": {"block": "MASS", "pdgCode": 3},
     "m_t": {"block": "MASS", "pdgCode": 6},
     "m_b": {"block": "MASS", "pdgCode": 5},
-    "m_W": {"block": "MASS", "pdgCode": 24},
+    "M_W": {"block": "MASS", "pdgCode": 24},
     "m_Z": {"block": "MASS", "pdgCode": 23},
     "m_mu": {"block": "MASS", "pdgCode": 13},
     "V_tb": {"block": "RECKM", "pdgCode": 22},
@@ -20,6 +20,7 @@
     "s_13": {"block": "KIN", "pdgCode": 7},
     "s_34": {"block": "KIN", "pdgCode": 34},
     "G_F": {"block": "SMINPUT", "pdgCode": 2},
+    "e_em": {"block": "SMINPUT", "pdgCode": 10},
     "s2_thetaW": {"block": "S2_THETAW", "pdgCode": 0},
     "reg_prop": {"block": "REGPROP", "pdgCode": 0},
     "Finite": {"block": "Finite", "pdgCode": -1}
