@@ -78,7 +78,6 @@ public:
     }
 
     static void removeInstance(int id) {
-    // Supprime l'instance avec l'identifiant donné
     instances.erase(id);
     }
 

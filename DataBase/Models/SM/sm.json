@@ -8,6 +8,7 @@
     "M_W": {"block": "MASS", "pdgCode": 24},
     "m_Z": {"block": "MASS", "pdgCode": 23},
     "m_mu": {"block": "MASS", "pdgCode": 13},
+    "g_s": {"block": "GAUGE", "pdgCode": 3},
     "V_tb": {"block": "RECKM", "pdgCode": 22},
     "V_ts": {"block": "RECKM", "pdgCode": 21},
     "V_us": {"block": "RECKM", "pdgCode": 1},

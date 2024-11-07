@@ -30,6 +30,7 @@ std::unordered_map<std::string, Interpreter::InterpretedParam> Interpreter::inte
             } else {
                 // Si non trouvé dans aucune base, afficher une erreur
                 std::cerr << "Error: Parameter " << param.name << " not found in model or SM databases." << std::endl;
+                std::runtime_error("");
                 continue;
             }
         }

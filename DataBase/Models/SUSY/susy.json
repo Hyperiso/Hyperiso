@@ -1,4 +1,4 @@
 {
-    "m_Hp": {"block": "MASS", "pdgCode": 37},
+    "m_Hp": {"block": "MASS", "pdgCode": 4},
     "beta": {"block" : "HMIX", "pdgCode": 2}
 }
