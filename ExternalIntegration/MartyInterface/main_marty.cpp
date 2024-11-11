@@ -39,7 +39,7 @@ int main() {
     // MartyInterface.calculate("C2", "SM", 81);
     // MartyInterface.calculate("C7", "SM", 81);
     // MartyInterface.calculate("C5", "SM", 81);
-    MartyInterface.calculate("C9", "SM", 81);
+    MartyInterface.calculate("C3", "MSSM", 81);
     // MartyInterface.calculate("C1", "THDM", 81);
     // MartyInterface.calculate("C2", "THDM", 81);
     // MartyInterface.calculate("C3", "THDM", 81);

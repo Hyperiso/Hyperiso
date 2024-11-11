@@ -53,7 +53,7 @@ public:
     void saveToFile(const std::string& filename) const {
         std::ofstream file(filename);
         if (!file.is_open()) {
-            throw std::runtime_error("Impossible d'ouvrir le fichier pour écrire.");
+            throw std::runtime_error("Impossible d'ouvrir le fichier : " + filename + " pour écrire.");
         }
         file << toJSON();
         file.close();
@@ -62,7 +62,7 @@ public:
     void loadFromFile(const std::string& filename) {
         std::ifstream file(filename);
         if (!file.is_open()) {
-            throw std::runtime_error("Impossible d'ouvrir le fichier pour lire.");
+            throw std::runtime_error("Impossible d'ouvrir le fichier : " + filename + " pour lire.");
         }
         std::stringstream buffer;
         buffer << file.rdbuf();

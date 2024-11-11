@@ -15,7 +15,7 @@ void MartyInterface::compile_run(std::string wilson, std::string model) {
     
 
     GppCompilerStrategy compiler(model, wilson);
-    if (!this->already_run(FileNameManager::getInstance(wilson, model)->getNumExecutableFileName())){
+    if (!this->already_run(FileNameManager::getInstance(wilson, model)->getNumGeneratedFileName())){
         compiler.compile_run(FileNameManager::getInstance(wilson, model)->getGeneratedFileName(), FileNameManager::getInstance(wilson, model)->getExecutableFileName());
     }
 }
@@ -41,7 +41,7 @@ void MartyInterface::generate(std::string wilson, std::string model) {
     codeGenerator.generate(wilson, FileNameManager::getInstance(wilson, model)->getGeneratedFileName());
 }
 
-void MartyInterface::generate_numlib(std::string wilson, std::string model) {
+void MartyInterface::generate_numlib(std::string wilson, std::string model, double Q_match) {
     std::unique_ptr<ModelModifier> smModifier;
 
     if (model == "SM") {
