@@ -29,6 +29,7 @@ int main() {
     BR_Bu_taunu         br_Bu__tau_nu(0, 2, m_Bd);
     // Delta0_B__Kstar_gamma delta_0 (0, 1, sm_p->get_QCD_masse("mb_1S") / 2);
 
+    // Yields error
     // ModelEvaluator me ({br_Bs__mu_mu, br_Bd__mu_mu, br_Bu__tau_nu});
 
     LOG_INFO("---------- Observables -----------");
