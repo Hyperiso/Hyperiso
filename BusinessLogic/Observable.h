@@ -1,37 +1,40 @@
 #if !defined(HYPERISO_OBSERVABLE_H) 
 #define HYPERISO_OBSERVABLE_H
 
-#include "Observables.h"
-#include <complex>
-#include <iostream>
+#include "./Observables/Observables.h"
+#include "Compound.h"
+#include "Math.h"
+#include "WilsonManager.h"
+#include "Parameters.h"
+#include "epsilon_calculator.h"
+#include "Wilson_THDMv2.h"
+#include "Wilson_susyv2.h"
+#include "WilsonManager.h"
+#include "Wilsonv2.h"
 
-typedef std::complex<double> complex_t;
+class Observable : public Compound {
 
-class Observable {
-private:
-    Observables id;
-    int order;
+protected:
+
+    const Observables id;
+    const double exp_val;
+    const double exp_std;
     int model;
+    int order;
     double scale;
-    int wilson_basis;
-    complex_t value;
-    bool evaluated;
-
-    void evaluate();  // Evaluates the observable at a given scale and sets its value, sets evaluated to false if evaluation fails
 
 public:
-    Observable(Observables id, double scale, int order, int model, int wilson_basis=1) : id(id), scale(scale), order(order), model(model), wilson_basis(wilson_basis) {
-        std::cout << "Evaluating observable ID: " << static_cast<int>(id) << std::endl;
-        this->evaluate();
-        std::cout << "Evaluated observable ID: " << static_cast<int>(id) << std::endl;
-    }
 
-    complex_t getValue() const;  
-    inline double getScale() const { return this->scale; }   
-    inline Observables getId() const { return this->id; }   
-    inline int getModel() const { return this->model; }   
-    inline int getOrder() const { return this->order; }   
-    inline int getWilsonBasis() const { return this->wilson_basis; }   
+    Observable(Observables id, double exp_val, double exp_std, int model, int order, double scale) 
+        : id(id), exp_val(exp_val), exp_std(exp_std), model(model), order(order), scale(scale) {} 
+
+    Observables getId() const;
+    double get_exp_val() const;
+    double get_exp_var() const;
+    virtual double eval() const override;
+    CoefficientManager* computeWilsons(bool traditional_basis=false) const;
+    CoefficientManager* computeWilsons(int model, int order, double scale, bool traditional_basis=false) const;
+
 }; 
 
 
