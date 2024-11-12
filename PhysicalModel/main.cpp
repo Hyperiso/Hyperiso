@@ -23,7 +23,7 @@ int main() {
 
     CoefficientManager* wm = CoefficientManager::GetInstance("SM");
 
-    wm->registerCoefficientGroup("BCoefficient", std::make_shared<BCoefficientGroupMarty>());
+    wm->registerCoefficientGroup("BCoeffeicient", std::make_shared<BCoefficientGroupMarty>());
 
     wm->setQMatch("BCoefficient", 81);
     wm->setMatchingCoefficient("BCoefficient", "LO");

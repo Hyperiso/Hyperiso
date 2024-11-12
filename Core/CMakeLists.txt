@@ -34,6 +34,7 @@ add_library(CoreLib STATIC
     Parameters.cpp
     Parameter.cpp
     QCDParameters.cpp)
+set_target_properties(CoreLib PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
 set_target_properties(CoreLib PROPERTIES PUBLIC_HEADER "MemoryManager.h;Parameters.h;Parameter.h;QCDParameters.h")
 

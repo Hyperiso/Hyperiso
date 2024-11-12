@@ -30,7 +30,7 @@ private:
 
 public:
     GeneralNumModelModifier(const std::string& wilson, const std::string& model, bool force = false)
-        : wilson(wilson), model(model), forceMode(force), paramSetter(params), paramWriter(params, wilson), 
+        : wilson(wilson), model(model), forceMode(force), interpreter(model), paramSetter(params, model), paramWriter(params, wilson, model), 
           lineProcessor(paramWriter, includeManager, force), modelWriter(lineProcessor) {
         
         initializeParams();

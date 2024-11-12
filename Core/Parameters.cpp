@@ -40,7 +40,7 @@ Parameters* Parameters::GetInstance(int modelId) {
 }
 
 Parameters::Parameters(ModelStrategy* modelStrategy)
-    : strategy(modelStrategy) {
+    : strategy(modelStrategy) { std::cout << "Param creation " << this << std::endl;
     strategy->initializeParameters(*this);
 }
 
@@ -49,7 +49,13 @@ double Parameters::operator()(const std::string& block, int pdgCode) {
 }
 
 double Parameters::alpha_s(double Q) {
-    return this->QCDRunner.runningAlphasCalculation(Q);
+    std::cout << "WOWOWOWOO" << std::endl;
+    std::cout << this << std::endl;
+    std::cout << &this->QCDRunner << std::endl;
+    std::cout <<this->QCDRunner.get_mb_mb() << std::endl;
+    std::cout << &this->instances << std::endl;
+    std::cout << &this->blockAccessor << std::endl;
+    return this->QCDRunner.runningAlphasCalculation(Q, "pole", "pole");
 }
 
 double Parameters::running_mass(double quarkmass, double Q_init, double Q_end,  std::string option_massb, std::string option_masst) {
@@ -82,7 +88,7 @@ void SMModelStrategy::initializeParameters(Parameters& params) {
     double inv_alpha_em{1.37934e2}, G_F{1.16637e-5}, alpha_s_MZ{1.184e-1}, m_Z_pole{91.1876}, m_b_mb{4.18}, m_t_pole{172.9}, m_tau_pole{1.777};
     std::vector<double*> sm_inputs = {&inv_alpha_em, &G_F, &alpha_s_MZ, &m_Z_pole, &m_b_mb, &m_t_pole, &m_tau_pole};
     lha->extractFromBlock("SMINPUTS", sm_inputs);
-    params.addBlock("SMINPUTS", std::make_unique<SMInputBlock>());
+    params.addBlock("SMINPUTS", std::make_shared<SMInputBlock>());
 
     params.setBlockValue("SMINPUTS", 0, 0.);
     params.setBlockValue("SMINPUTS", 1, *sm_inputs[0]);
@@ -91,8 +97,8 @@ void SMModelStrategy::initializeParameters(Parameters& params) {
     params.setBlockValue("SMINPUTS", 10, 0.313);
 
     // VCKMIN 
-    params.addBlock("RECKM", std::make_unique<RECKMBlock>());
-    params.addBlock("IMCKM", std::make_unique<IMCKMBlock>());
+    params.addBlock("RECKM", std::make_shared<RECKMBlock>());
+    params.addBlock("IMCKM", std::make_shared<IMCKMBlock>());
     double lambda{0.22500}, A{0.826}, rho{0.159}, eta{0.348};
     std::vector<double*> ckm_inputs = {&lambda, &A, &rho, &eta};
     lha->extractFromBlock("VCKMIN", ckm_inputs);
@@ -125,15 +131,15 @@ void SMModelStrategy::initializeParameters(Parameters& params) {
 
     double m_W = std::sqrt(std::pow(m_Z_pole, 2) / 2 + std::sqrt(std::pow(m_Z_pole, 4) / 4 - M_PI * std::pow(m_Z_pole, 2) / inv_alpha_em / G_F / std::sqrt(2)));
     //Masses
-    params.addBlock("MASS", std::make_unique<MassBlock>());
+    params.addBlock("MASS", std::make_shared<MassBlock>());
     // Masses (from PDG 2023)
     params.setBlockValue("MASS", 1, 4.7e-3);
     params.setBlockValue("MASS", 2, 2.2e-3);
     params.setBlockValue("MASS", 3, 93e-3);
     params.setBlockValue("MASS", 4, 1.27);
-
+    std::cout << params.QCDaddress() << " first" << std::endl;
     params.setQCDParameters(QCDParameters(alpha_s_MZ, m_Z_pole, m_t_pole, m_b_mb, params("MASS", 2), params("MASS", 1), params("MASS", 3), params("MASS", 4)));
-
+    std::cout << params.QCDaddress() << " second" << std::endl;
     params.setBlockValue("MASS", 5, m_b_mb);
     params.setBlockValue("MASS", 6, params.get_QCD_masse("mt_mt"));
     params.setBlockValue("MASS", 11, 0.511e-3);
@@ -146,7 +152,7 @@ void SMModelStrategy::initializeParameters(Parameters& params) {
 
     // Couplings
     double sW = std::sqrt(1 - std::pow(m_W / m_Z_pole, 2));
-    params.addBlock("GAUGE", std::make_unique<GaugeBlock>());
+    params.addBlock("GAUGE", std::make_shared<GaugeBlock>());
 
     params.setBlockValue("GAUGE", 2, std::pow(2, 1.25) * m_W * std::sqrt(G_F));  // g2
     params.setBlockValue("GAUGE", 1, params("GAUGE", 2) * sW / std::sqrt(1 - sW * sW)); // gp 
@@ -203,32 +209,33 @@ void SUSYModelStrategy::initializeParameters(Parameters& params) {
     for (auto& elem : type22) {
         std::array<std::array<double, 2>,2> temp;
         readMatrix(temp, elem.first, lha);
-        std::unique_ptr<ArrayBlock<2, 2>> uniquePtr = std::make_unique<ArrayBlock<2,2>>();
-        uniquePtr->setValues(temp);
+        *(elem.second) = temp;
+        std::shared_ptr<ArrayBlock<2, 2>> uniquePtr = std::make_shared<ArrayBlock<2,2>>(std::move(*elem.second));
         params.addBlock(elem.first, std::move(uniquePtr));
     }
 
     for (auto& elem : type44) {
         std::array<std::array<double, 4>,4> temp;
         readMatrix(temp, elem.first, lha);
-        std::unique_ptr<ArrayBlock<4, 4>> uniquePtr = std::make_unique<ArrayBlock<4,4>>();
-        uniquePtr->setValues(temp);
+
+        *(elem.second) = temp;
+        std::shared_ptr<ArrayBlock<4, 4>> uniquePtr = std::make_shared<ArrayBlock<4,4>>(std::move(*elem.second));
         params.addBlock(elem.first, std::move(uniquePtr));
     }
 
     for (auto& elem : type33) {
         std::array<std::array<double, 3>,3> temp;
         readMatrix(temp, elem.first, lha);
-        std::unique_ptr<ArrayBlock<3, 3>> uniquePtr = std::make_unique<ArrayBlock<3,3>>();
-        uniquePtr->setValues(temp);
+        *(elem.second) = temp;
+        std::shared_ptr<ArrayBlock<3, 3>> uniquePtr = std::make_shared<ArrayBlock<3,3>>(std::move(*elem.second));
         params.addBlock(elem.first, std::move(uniquePtr));
     }
 
-    auto alphablock = std::make_unique<AlphaBlock>();
+    auto alphablock = std::make_shared<AlphaBlock>();
     alphablock->setValue(0, lha->getValue<double>("ALPHA", ""));
     params.addBlock("ALPHA", std::move(alphablock));
 
-    auto hmixblock = std::make_unique<HMIXBlock>();
+    auto hmixblock = std::make_shared<HMIXBlock>();
     hmixblock->setValue(0, static_cast<LhaElement<double>*>(lha->getBlock("HMIX")->get("1"))->getScale());
     std::vector<double> values (4);
     lha->extractFromBlock("HMIX", values);
@@ -238,14 +245,14 @@ void SUSYModelStrategy::initializeParameters(Parameters& params) {
     params.addBlock("HMIX", std::move(hmixblock));
 
     values.resize(3);
-    auto gaugeblock = std::make_unique<GaugeBlock>();
+    auto gaugeblock = std::make_shared<GaugeBlock>();
     lha->extractFromBlock("GAUGE", values);
     for (size_t i=0; i!=values.size(); ++i) {
         gaugeblock->setValue(i+1, values[i]);
     }
     params.addBlock("GAUGE", std::move(gaugeblock));
 
-    auto msoftblock = std::make_unique<MSOFTBlock>();
+    auto msoftblock = std::make_shared<MSOFTBlock>();
     auto elts = lha->getBlock("MSOFT")->getEntries();
     for (size_t i = 0; i < elts->size(); ++i) {
         auto e = static_cast<LhaElement<double>*>(elts->at(i).get());
@@ -253,7 +260,7 @@ void SUSYModelStrategy::initializeParameters(Parameters& params) {
     }
     params.addBlock("MSOFT", std::move(msoftblock));
 
-    auto massblock = std::make_unique<MassBlock>();
+    auto massblock = std::make_shared<MassBlock>();
     elts = lha->getBlock("MASS")->getEntries();
     massblock->setValue(1000039, 0.);
     massblock->setValue(45, 0.);
@@ -290,7 +297,7 @@ void THDMModelStrategy::initializeParameters(Parameters& params) {
 
     std::vector<std::string> mandatory {"MINPAR", "MASS", "ALPHA"};
 
-    auto massblock = std::make_unique<MassBlock>();
+    auto massblock = std::make_shared<MassBlock>();
     auto elts = lha->getBlock("MASS")->getEntries();
     for (size_t i = 0; i < elts->size(); ++i) {
         auto e = static_cast<LhaElement<double>*>(elts->at(i).get());
@@ -299,11 +306,11 @@ void THDMModelStrategy::initializeParameters(Parameters& params) {
     }
     params.addBlock("MASS", std::move(massblock));
 
-    auto alphablock = std::make_unique<AlphaBlock>();
+    auto alphablock = std::make_shared<AlphaBlock>();
     alphablock->setValue(0, lha->getValue<double>("ALPHA", ""));
     params.addBlock("ALPHA", std::move(alphablock));
 
-    auto hmixblock = std::make_unique<HMIXBlock>();
+    auto hmixblock = std::make_shared<HMIXBlock>();
     double tan_beta = lha->getValue<double>("MINPAR", "3");
     hmixblock->setValue(2, tan_beta);
     params.addBlock("HMIX", std::move(hmixblock));
@@ -311,9 +318,9 @@ void THDMModelStrategy::initializeParameters(Parameters& params) {
     int type = static_cast<int>(lha->getValue<double>("MINPAR", "24"));
     double cot_beta = 1 / tan_beta;
 
-    auto yublock = std::make_unique<YUBlock>();
-    auto ydblock = std::make_unique<YUBlock>();
-    auto yeblock = std::make_unique<YUBlock>();
+    auto yublock = std::make_shared<YUBlock>();
+    auto ydblock = std::make_shared<YUBlock>();
+    auto yeblock = std::make_shared<YUBlock>();
 
     yublock->setValue(22, cot_beta);
 
@@ -358,7 +365,7 @@ void THDMModelStrategy::initializeParameters(Parameters& params) {
 // FlAVORModelStrategy implementation
 void FlAVORModelStrategy::initializeParameters(Parameters& params) {
     // Hardcoded for now, should read from LHA file eventually
-    auto massblock = std::make_unique<MassBlock>();
+    auto massblock = std::make_shared<MassBlock>();
     massblock->setValue(511, 5.27958);
     massblock->setValue(531, 5.36677);
     massblock->setValue(521, 5.27934);
@@ -367,14 +374,14 @@ void FlAVORModelStrategy::initializeParameters(Parameters& params) {
 
     LOG_INFO("Flavor MASS block created");
 
-    auto lifetimeblock = std::make_unique<LifeTimeBlock>();
+    auto lifetimeblock = std::make_shared<LifeTimeBlock>();
     lifetimeblock->setValue("511", 1.519e-12);
     lifetimeblock->setValue("531", 1.510e-12);
     params.addFlavorBlock(FlavorParamType::LIFETIME, std::move(lifetimeblock));
 
     LOG_INFO("Flavor LIFETIME block created");
 
-    auto fconstblock = std::make_unique<FConstBlock>();
+    auto fconstblock = std::make_shared<FConstBlock>();
     fconstblock->setValue("511|1", 0.1905);
     fconstblock->setValue("521|1", 0.1905); //FAKE
     fconstblock->setValue("531|1", 0.2277);
@@ -384,7 +391,8 @@ void FlAVORModelStrategy::initializeParameters(Parameters& params) {
 
      LOG_INFO("Flavor DECAY_CONSTANT block created");
 
-    auto flifeblock = std::make_unique<FLifeBlock>();
+    auto flifeblock = std::make_shared<FLifeBlock>();
+
     flifeblock->setValue(521, 1.638e-12);
     params.addBlock("FLIFE", std::move(flifeblock));
 }   
@@ -400,7 +408,7 @@ void GeneralModelStrategy::initializeParameters(Parameters& params) {
         std::cout << elem << std::endl;
         std::cout << lha->findPrototype(elem).itemCount << std::endl;
         if (lha->findPrototype(elem).itemCount == 2) {
-            auto generalblock = std::make_unique<MapBlock>();
+            auto generalblock = std::make_shared<MapBlock>();
             generalblock->blockname = elem;
             auto elts = lha->getBlock(elem)->getEntries();
             for (size_t i = 0; i < elts->size(); ++i) {
@@ -419,7 +427,7 @@ void GeneralModelStrategy::initializeParameters(Parameters& params) {
 
     std::vector<std::string> mandatory {"MINPAR", "MASS"};
 
-    // auto massblock = std::make_unique<MassBlock>();
+    // auto massblock = std::make_shared<MassBlock>();
     // auto elts = lha->getBlock("MASS")->getEntries();
     // for (size_t i = 0; i < elts->size(); ++i) {
     //     auto e = static_cast<LhaElement<double>*>(elts->at(i).get());

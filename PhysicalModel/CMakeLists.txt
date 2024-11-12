@@ -40,6 +40,7 @@ add_library(PhysicalModelLib STATIC
     BSM/Wilson_susyv2.cpp
     BSM/Wilson_THDMv2.cpp)
 
+set_target_properties(PhysicalModelLib PROPERTIES POSITION_INDEPENDENT_CODE ON)
 set_target_properties(PhysicalModelLib PROPERTIES PUBLIC_HEADER "Interpolator.h;Wilsonv2.h;MartyWilson.h;Wilson_parameters.h;epsilon_calculator.h;susy_parameters.h;thdm_parameters;Wilson_susyv2.h;Wilson_THDMv2.h;WilsonManager.h")
 
 target_include_directories(PhysicalModelLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/BSM)

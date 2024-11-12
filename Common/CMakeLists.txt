@@ -9,6 +9,7 @@ add_library(CommonLib STATIC
     Logger.cpp
     Observer.cpp)
 
+set_target_properties(CommonLib PROPERTIES POSITION_INDEPENDENT_CODE ON)
 set_target_properties(CommonLib PROPERTIES PUBLIC_HEADER "Logger.h")
 
 target_include_directories(CommonLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})

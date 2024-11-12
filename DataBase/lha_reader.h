@@ -10,71 +10,159 @@
 #include "lha_blocks.h"
 #include "lha_elements.h"
 
+/**
+ * @enum TokenType
+ * @brief Enumeration of token types used in parsing LHA files.
+ */
 enum class TokenType {
-    FLOAT,
-    INTEGER,
-    BLOCK,
-    DECAY,
-    NEWLINE,
-    SKIP,
-    COMMENT,
-    WORD,
-    OTHER
+    FLOAT,  /**< Floating point number. */
+    INTEGER,/**< Integer number. */
+    BLOCK,  /**< Block keyword. */
+    DECAY,  /**< Decay keyword. */
+    NEWLINE,/**< Newline character. */
+    SKIP,   /**< Whitespace character. */
+    COMMENT,/**< Comment line. */
+    WORD,   /**< Word token. */
+    OTHER   /**< Other types of tokens. */
 };
 
+/**
+ * @var analyzer_rx
+ * @brief Regular expression for tokenizing LHA file content.
+ */
 const std::regex analyzer_rx(
     R"x(((?:[+-])?(?:\d+\.\d*|\.\d+)(?:[eEdD][+-]\d+)?|(\d+(?:[eEdD][+-]\d+)?))|(?:[+-]?\d+(?!\.))|(block)|(decay)|(\n)|([ \t]+)|(#.*)|([\w\=\.]+)|([^#]*))x",
     std::regex_constants::icase
 ); 
 
+/**
+ * @struct Token
+ * @brief Represents a parsed token from the LHA file.
+ */
 struct Token {
-    TokenType type;
-    std::string value;
-    int row;
-    int col;
+    TokenType type;     /**< Type of the token. */
+    std::string value;  /**< Text value of the token. */
+    int row;            /**< Row number where the token is located. */
+    int col;            /**< Column number where the token is located. */
 };
 
 class LhaReader;
 
+/**
+ * @class Parser
+ * @brief Parses LHA files and extracts blocks of data.
+ */
 class Parser {
     public:
+        /**
+         * @brief Constructs a Parser with the given source and reader.
+         * @param src Source string to be parsed.
+         * @param reader Pointer to the `LhaReader` instance managing this parser.
+         */
         inline explicit Parser(std::string src, LhaReader* reader) : src(std::move(src)), reader(reader) {}
+        
+        /**
+         * @brief Parses the source string into blocks, optionally including comments.
+         * @param comments If `true`, includes comments in the parsing process.
+         */
         void parse(bool comments = false);
+
+        /**
+         * @brief Retrieves a specific block by name.
+         * @param blockName Name of the block.
+         * @return Vector of string vectors representing lines in the block.
+         */
         inline std::vector<std::vector<std::string>> getBlock(const std::string& blockName) { return this->rawBlocks[blockName]; }
+        
+        /**
+         * @brief Retrieves all parsed blocks.
+         * @return Map of block names to vectors of lines in each block.
+         */
         inline std::map<std::string, std::vector<std::vector<std::string>>> getBlocks() { return this->rawBlocks; }
 
     private:
-        const std::string src;
-        const LhaReader* reader;
-        std::vector<Token> tokens;
-        std::map<std::string, std::vector<std::vector<std::string>>> rawBlocks;
+        const std::string src;                                                  /**< Source string to be parsed. */
+        const LhaReader* reader;                                                /**< Pointer to the LhaReader managing this parser. */
+        std::vector<Token> tokens;                                              /**< Tokens parsed from the source string. */
+        std::map<std::string, std::vector<std::vector<std::string>>> rawBlocks; /**< Map of parsed blocks. */
 
-
+        /**
+         * @brief Tokenizes the source string into individual tokens.
+         */
         void tokenize();
 };
 
+/**
+ * @class LhaReader
+ * @brief Reads and manages LHA blocks and elements from LHA or FLHA files.
+ */
 class LhaReader {
 private:
-    std::vector<Prototype> blockPrototypes;
-    std::map<std::string, std::unique_ptr<LhaBlock>> blocks;
-    bool isFLHA = false;
-    std::filesystem::path lhaFile;
+    std::vector<Prototype> blockPrototypes;                     /**< List of block prototypes used for parsing. */
+    std::map<std::string, std::unique_ptr<LhaBlock>> blocks;    /**< Map of block names to LhaBlock instances. */
+    bool isFLHA = false;                                        /**< Flag indicating if the file is in FLHA format. */
+    std::filesystem::path lhaFile;                              /**< Path to the LHA file being read. */
 
+    /**
+     * @brief Adds a new block to the reader from parsed lines.
+     * @param id Block identifier.
+     * @param lines Vector of lines containing the block's data.
+     */
     void addBlock(const std::string& id, const std::vector<std::vector<std::string>>& lines);
 
 public:
+    /**
+     * @brief Constructs an LhaReader with a specified file path.
+     * @param path Path to the LHA file to read.
+     */
     LhaReader(std::string_view path);
+    
+    /**
+     * @brief Checks if a block exists in the reader.
+     * @param id Block identifier.
+     * @return `true` if the block exists, otherwise `false`.
+     */
     bool hasBlock(const std::string& id) const;
+
+    /**
+     * @brief Reads all blocks from the LHA file.
+     */
     void readAll();
+
+    /**
+     * @brief Finds a prototype by block name.
+     * @param name Name of the block.
+     * @return `Prototype` instance if found; otherwise, an empty prototype.
+     */
     Prototype findPrototype(std::string name) const;
+
+    /**
+     * @brief Gets the file path of the LHA file.
+     * @return String representing the path to the LHA file.
+     */
     std::string getLhaPath() const;
+
+    /**
+     * @brief Updates the LHA file path and reloads all blocks.
+     * @param newLha New file path for the LHA file.
+     */
     void update(std::string_view newLha);
 
+    /**
+     * @brief Adds a new block type prototype to the reader.
+     * @param blockName Name of the block.
+     * @param itemCount Number of items in the block.
+     * @param valueIdx Index of the value column.
+     * @param scaleIdx Index of the scale column.
+     * @param rgIdx Index of the renormalization group column.
+     * @param globalScale Flag indicating if the block uses a global scale.
+     */
     inline void addBlockType(std::string blockName, int itemCount=2, int valueIdx=1, int scaleIdx=-1, int rgIdx=-1, bool globalScale=false) {
         std::transform(blockName.begin(), blockName.end(), blockName.begin(), ::toupper);  // Make sure block name is uppercase 
         this->blockPrototypes.emplace_back(Prototype{blockName, itemCount, valueIdx, scaleIdx, rgIdx, globalScale});
     }
 
+    
     template <typename T>
     inline void extractFromBlock(std::string blockName, std::vector<T*>& vars) {
         LhaBlock* block = this->getBlock(blockName);
@@ -117,20 +205,40 @@ public:
         }
     }
 
+    /**
+     * @brief Retrieves a block by its identifier.
+     * @param id Block identifier.
+     * @return Pointer to the `LhaBlock` if it exists; otherwise, `nullptr`.
+     */
     inline LhaBlock* getBlock(std::string id) const {
         std::transform(id.begin(), id.end(), id.begin(), ::toupper);
         return this->hasBlock(id) ? blocks.at(id).get() : nullptr;
     }
 
+    /**
+     * @brief Retrieves a value from a specified block and element.
+     * @tparam T Type of the value to retrieve.
+     * @param blockName Name of the block.
+     * @param eltId Identifier of the element.
+     * @return Value of the specified type.
+     */
     template <typename T>
     inline T getValue(const std::string& blockName, const std::string& eltId) {
         return static_cast<LhaElement<T>*>(this->getBlock(blockName)->get(eltId))->getValue();
     }
 
+    /**
+     * @brief Gets the total number of blocks in the reader.
+     * @return Number of blocks.
+     */
     inline int getBlockCount() const {
         return blocks.size();
     }
 
+    /**
+     * @brief Retrieves the names of all blocks.
+     * @return Vector of block names.
+     */
     inline std::vector<std::string> getBlocksNames() const {
         std::vector<std::string> temp;
         for (auto &elem : blocks) {
@@ -139,6 +247,10 @@ public:
         return temp;
     }
 
+    /**
+     * @brief Converts the reader's content to a string representation.
+     * @return String representing all blocks and their contents.
+     */
     std::string toString() const;
 };
 

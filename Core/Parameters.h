@@ -51,11 +51,13 @@ public:
     double alpha_s(double Q);
     double running_mass(double quarkmass, double Q_init, double Q_end, std::string option_massb = "running", std::string option_masst = "pole");
 
-    void addBlock(const std::string& name, std::unique_ptr<Block> block) {
-        blockAccessor.addBlock(name, std::move(block));
+
+    // Method to allow ModelStrategy to add blocks
+    void addBlock(const std::string& name, std::shared_ptr<Block> block) {
+        blockAccessor.addBlock(name, block);
     }
-    void addFlavorBlock(FlavorParamType name, std::unique_ptr<FlavorBlock> block) {
-        flavorblockAccessor.addBlock(name, std::move(block));
+    void addFlavorBlock(FlavorParamType name, std::shared_ptr<FlavorBlock> block) {
+        flavorblockAccessor.addBlock(name, block);
     }
     void setBlockValue(const std::string& name, int pdgCode, double value) {
         blockAccessor.setValue(name, pdgCode, value);
@@ -74,6 +76,12 @@ public:
         return complex_t((*p)("RECKM", idx), (*p)("IMCKM", idx));
     }
 
+
+    QCDParameters* QCDaddress() {
+        return &this->QCDRunner;
+    }
+  
+    ~Parameters() {std::cout << "Parameters : " << this << " was destroyed";}
 
 private:
     explicit Parameters(ModelStrategy* modelStrategy);

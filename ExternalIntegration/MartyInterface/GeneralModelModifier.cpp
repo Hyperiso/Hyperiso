@@ -6,15 +6,19 @@ void GeneralModelModifier::modifyLine(std::string& line) {
         bool is_template = ModelFileChecker(this->model_path).isAnyModelTemplate();
         std::cout << this->model_path << std::endl;
         if (is_template) {
+            int model_num = 1;
             if(this->model == "THDM"){
-                line.replace(line.find("SM_Model"), 8, this->model + "_Model<0>");
+                line.replace(line.find("SM_Model"), 8, this->model + "_Model<" + std::to_string(model_num) + ">");
             } else {
-                line.replace(line.find("SM_Model"), 8, this->model + "_Model<0>");
+                std::runtime_error("Unknown model");
             }
         } else {
             line.replace(line.find("SM"), 2, this->model);
         }
         std::cout << line << std::endl;
+    }
+    else if (line.find("_SM") != std::string::npos) {
+        line.replace(line.find("SM"), 2, this->model);
     }
 }
 

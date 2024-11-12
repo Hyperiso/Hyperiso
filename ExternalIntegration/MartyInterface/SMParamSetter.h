@@ -9,10 +9,17 @@
 #include <cmath>
 class SMParamSetter : public IParamSetter {
 public:
-    SMParamSetter(std::unordered_map<std::string, double>& params) : params(params) {
+    SMParamSetter(std::unordered_map<std::string, double>& params, const std::string& model) : params(params) {
         std::string root_path = project_root.data();
-        jsonparser->loadFromFile(root_path+ "/DataBase/Params/data_SM.json");
+        this->model = model;
+        if (this->model == "MSSM" || this->model == "NMSSM") {
+            jsonparser->loadFromFile(root_path+ "/DataBase/Params/data_SUSY.json");
+        } else if (this->model == "SM" || this->model == "THDM") {
+            jsonparser->loadFromFile(root_path+ "/DataBase/Params/data_" + this->model + ".json");
+        } else {
+            jsonparser->loadFromFile(root_path+ "/DataBase/Params/data_GENERAL.json");
         }
+    }
 
     void setParam(const std::string& name, const Interpreter::InterpretedParam& interpretedParam) override;
 
@@ -22,6 +29,7 @@ private:
     double calculateValue(const std::string& name, const Interpreter::InterpretedParam& interpretedParam);
 
     JSONParser *jsonparser = JSONParser::getInstance(0);
+    std::string model;
 };
 
 #endif // SMPARAMSETTER_H

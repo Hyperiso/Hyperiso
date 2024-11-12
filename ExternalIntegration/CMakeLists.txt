@@ -27,6 +27,7 @@ add_library(ExternalIntegrationLib STATIC
     Interface.cpp
     2HDMC.cpp
     SoftSusy.cpp)
+set_target_properties(ExternalIntegrationLib PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
 if (BUILD_WITH_SOFTSUSY)
     add_definitions(-DBUILD_WITH_SOFTSUSY)

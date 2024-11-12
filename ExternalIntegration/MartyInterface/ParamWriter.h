@@ -3,18 +3,20 @@
 #include <string>
 #include <fstream>
 #include "config.hpp"
+#include "FileNameManager.h"
 
 class ParamWriter {
 private:
     std::unordered_map<std::string, double>& params;  // Référence vers les paramètres
     std::string wilson;
-    
+    std::string model;
+
 public:
-    ParamWriter(std::unordered_map<std::string, double>& params, const std::string& wilson)
-        : params(params), wilson(wilson) {}
+    ParamWriter(std::unordered_map<std::string, double>& params, const std::string& wilson, const std::string& model)
+        : params(params), wilson(wilson), model(model) {}
 
     void writeParams(std::ofstream& outputFile) {
-        outputFile << "\tstd::string path = \"" << project_root.data() << "/DataBase/MartyWilson/SM_wilson.csv\";\n";
+        outputFile << "\tstd::string path = \"" << FileNameManager::getInstance(this->wilson, this->model)->getCsvWilsonFileName() <<"\";\n";
 
         add_argpars(outputFile);
 

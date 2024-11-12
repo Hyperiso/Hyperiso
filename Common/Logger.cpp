@@ -1,6 +1,4 @@
 #include "Logger.h"
-#include <filesystem>
-#include <iostream>
 
 Logger* Logger::instance = nullptr;
 
@@ -132,13 +130,12 @@ void Logger::processQueue() {
             logQueue.pop();
             lock.unlock();
 
-            // this->threadId = std::this_thread::get_id();
             std::string logFilePath = getLogFilenameForThread(this->threadId) + ".log";
 
             if (std::filesystem::exists(logFilePath) && std::filesystem::file_size(logFilePath) >= maxFileSize) {
                 rotateLogFile(threadId);
                 std::cout << logFilePath << " " <<  std::filesystem::file_size(logFilePath) << std::endl;
-                logFilePath = getLogFilenameForThread(threadId) + ".log"; // Update the file path after rotation
+                logFilePath = getLogFilenameForThread(threadId) + ".log";
             }
 
             std::ofstream& logFile = getLogFile(this->threadId);
@@ -148,17 +145,15 @@ void Logger::processQueue() {
         }
     }
 
-    // Drain the queue when exiting
     while (!logQueue.empty()) {
         std::string logEntry = logQueue.front();
         logQueue.pop();
 
-        // std::thread::id threadId = std::this_thread::get_id();
         std::string logFilePath = getLogFilenameForThread(threadId) + ".log";
 
         if (std::filesystem::exists(logFilePath) && std::filesystem::file_size(logFilePath) >= maxFileSize) {
             rotateLogFile(threadId);
-            logFilePath = getLogFilenameForThread(threadId) + ".log"; // Update the file path after rotation
+            logFilePath = getLogFilenameForThread(threadId) + ".log";
         }
 
         std::ofstream& logFile = getLogFile(threadId);

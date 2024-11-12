@@ -13,13 +13,9 @@
 
 class WilsonCoefficient {
 protected:
-    WilsonCoefficient() {this->set_Q_match(81.);}
+    WilsonCoefficient() {std::cout << "trying to try try try try" << std::endl;this->set_Q_match(81.);}
     WilsonCoefficient(double Q_match) {this->set_Q_match(Q_match);}
 
-    void set_CoefficientMatchingValue(std::string order, std::complex<double> CoefficientMatchingValue) {
-        this->is_now_calculated(order);
-        this->CoefficientMatchingValue[order] = CoefficientMatchingValue;
-        }
 
     void is_now_calculated(std::string order) {this->is_calculated[order] = true;}
     complex_t double_to_complex_save(std::string order, double double_temp) {
@@ -31,6 +27,10 @@ protected:
     std::string CoeffName{};
     Wilson_parameters* W_param = Wilson_parameters::GetInstance();
 public:
+    void set_CoefficientMatchingValue(std::string order, std::complex<double> CoefficientMatchingValue) {
+        this->is_now_calculated(order);
+        this->CoefficientMatchingValue[order] = CoefficientMatchingValue;
+        }
 
     void set_Q_match(double Q_match) {
         this->Q_match = Q_match;
@@ -119,7 +119,7 @@ private:
 
 class C1 : public WilsonCoefficient {
 public:
-    C1(double Q_match) : WilsonCoefficient(Q_match) {this->set_name("C1");}
+    C1(double Q_match) : WilsonCoefficient(Q_match) {std::cout << "trying to try try try" << std::endl; this->set_name("C1");}
     C1() : WilsonCoefficient() {this->set_name("C1");}
 
     std::complex<double> LO_calculation() {return {0,0};} 
@@ -506,8 +506,8 @@ public:
 class BCoefficientGroup : public CoefficientGroup {
 
 public:
-    BCoefficientGroup() {
-        this->insert(std::make_pair("C1", std::make_shared<C1>())); this->insert(std::make_pair("C2", std::make_shared<C2>())); this->insert(std::make_pair("C3", std::make_shared<C3>()));
+    BCoefficientGroup() { 
+        this->insert(std::make_pair("C1", std::make_shared<C1>())); std::cout << "trying to try try" << std::endl;this->insert(std::make_pair("C2", std::make_shared<C2>())); this->insert(std::make_pair("C3", std::make_shared<C3>()));
         this->insert(std::make_pair("C4", std::make_shared<C4>()));  this->insert(std::make_pair("C5", std::make_shared<C5>())); this->insert(std::make_pair("C6", std::make_shared<C6>())); 
         this->insert(std::make_pair("C7", std::make_shared<C7>()));  this->insert(std::make_pair("C8", std::make_shared<C8>()));  this->insert(std::make_pair("C9", std::make_shared<C9>())); 
         this->insert(std::make_pair("C10", std::make_shared<C10>())); 

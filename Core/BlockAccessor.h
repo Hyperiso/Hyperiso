@@ -15,7 +15,7 @@ enum class FlavorParamType {
 // Composite pattern to manage access to multiple blocks
 class BlockAccessor : public Block {
 public:
-    void addBlock(const std::string& name, std::unique_ptr<Block> block) {
+    void addBlock(const std::string& name, std::shared_ptr<Block> block) {
         blocks[name] = std::move(block);
     }
 
@@ -25,7 +25,7 @@ public:
             return it->second->getValue(pdgCode);
         }
         std::cout<< blockName << std::endl;
-        throw std::invalid_argument("Block not found");
+        throw std::invalid_argument("Block " + blockName + " not found with pdg code : " + std::to_string(pdgCode));
     }
 
     void setValue(const std::string& blockName, int pdgCode, double value) {
@@ -60,12 +60,12 @@ public:
     }
 
 private:
-    std::map<std::string, std::unique_ptr<Block>> blocks;
+    std::map<std::string, std::shared_ptr<Block>> blocks;
 };
 
 class FlavorBlockAccessor : public FlavorBlock {
 public:
-    void addBlock(FlavorParamType name, std::unique_ptr<FlavorBlock> block) {
+    void addBlock(FlavorParamType name, std::shared_ptr<FlavorBlock> block) {
         blocks[name] = std::move(block);
     }
 
@@ -95,5 +95,5 @@ public:
         }
     }
 private:
-    std::map<FlavorParamType, std::unique_ptr<FlavorBlock>> blocks;
+    std::map<FlavorParamType, std::shared_ptr<FlavorBlock>> blocks;
 };

@@ -27,7 +27,7 @@ private:
 
 public:
     NumModelModifier(const std::string& wilson, bool force = false)
-        : wilson(wilson), forceMode(force), paramSetter(params) {
+        : wilson(wilson), forceMode(force), paramSetter(params, "SM") {
         std::string filename = "libs/" + wilson + "_SM/include/params.h";
         auto extractedParams = extractor.extract(filename);
         auto interpretedParams = interpreter.interpret(extractedParams);
