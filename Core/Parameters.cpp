@@ -1,7 +1,6 @@
 #include "Parameters.h"
 
 std::string doubleToString(double value, int precision) {
-
 	std::ostringstream out;
 	out << std::fixed << std::setprecision(precision) << value;
 	return out.str();
@@ -204,24 +203,24 @@ void SUSYModelStrategy::initializeParameters(Parameters& params) {
     for (auto& elem : type22) {
         std::array<std::array<double, 2>,2> temp;
         readMatrix(temp, elem.first, lha);
-        *(elem.second) = temp;
-        std::unique_ptr<ArrayBlock<2, 2>> uniquePtr = std::make_unique<ArrayBlock<2,2>>(std::move(*elem.second));
+        std::unique_ptr<ArrayBlock<2, 2>> uniquePtr = std::make_unique<ArrayBlock<2,2>>();
+        uniquePtr->setValues(temp);
         params.addBlock(elem.first, std::move(uniquePtr));
     }
 
     for (auto& elem : type44) {
         std::array<std::array<double, 4>,4> temp;
         readMatrix(temp, elem.first, lha);
-        *(elem.second) = temp;
-        std::unique_ptr<ArrayBlock<4, 4>> uniquePtr = std::make_unique<ArrayBlock<4,4>>(std::move(*elem.second));
+        std::unique_ptr<ArrayBlock<4, 4>> uniquePtr = std::make_unique<ArrayBlock<4,4>>();
+        uniquePtr->setValues(temp);
         params.addBlock(elem.first, std::move(uniquePtr));
     }
 
     for (auto& elem : type33) {
         std::array<std::array<double, 3>,3> temp;
         readMatrix(temp, elem.first, lha);
-        *(elem.second) = temp;
-        std::unique_ptr<ArrayBlock<3, 3>> uniquePtr = std::make_unique<ArrayBlock<3,3>>(std::move(*elem.second));
+        std::unique_ptr<ArrayBlock<3, 3>> uniquePtr = std::make_unique<ArrayBlock<3,3>>();
+        uniquePtr->setValues(temp);
         params.addBlock(elem.first, std::move(uniquePtr));
     }
 
@@ -462,6 +461,15 @@ void Parameters::reset() {
     }
 
     originalValuesCache.clear();
+}
+
+void Parameters::changeParameterMode(const ParamId &param_id,
+                                     ParameterMode new_mode) {
+    
+}
+
+void Parameters::shiftParameter(const ParamId &param_id, double shift_value) {
+    blockAccessor.setValue(param_id.first, param_id.second, blockAccessor.getValue(param_id.first, param_id.second) + shift_value);
 }
 
 Parameters* ParametersFactory::GetParameters(int modelId) {

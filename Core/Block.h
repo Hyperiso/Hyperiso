@@ -6,12 +6,14 @@
 #include <stdexcept>
 #include <array>
 #include "JsonParameters.h"
+#include "Parameter.h"
 
 // Abstract base class for all blocks
 class Block {
 public:
     virtual double getValue(int pdgCode) const = 0;
     virtual void setValue(int pdgCode, double value) = 0;
+    virtual void setMode(int pdgCode, ParameterMode mode) = 0;
     virtual ~Block() = default;
     std::string blockname{};
 };
@@ -21,7 +23,7 @@ public:
     double getValue(int pdgCode) const override {
         auto it = values.find(pdgCode);
         if (it != values.end()) {
-            return it->second;
+            return it->second.get_val();
         }
         std::cout << "pdg code is : " << std::endl;
         std::cout << pdgCode << std::endl;
@@ -30,11 +32,16 @@ public:
 
     void setValue(int pdgCode, double value) override {
         JSONParser::getInstance(0)->addElement(this->blockname.substr(0, this->blockname.size()-5), pdgCode, value);
-        values[pdgCode] = value;
+        Parameter param (this->blockname.substr(0, this->blockname.size()-5), pdgCode, value, 0);
+        values.emplace(std::make_pair(pdgCode, param));
+    }
+
+    void setMode(int pdgCode, ParameterMode mode) override {
+        values.at(pdgCode).set_mode(mode);
     }
 
 protected:
-    std::map<int, double> values;
+    std::map<int, Parameter> values;
 
 };
 
@@ -42,19 +49,33 @@ template<std::size_t index, std::size_t column>
 class ArrayBlock : public Block {
 public:
     double getValue(int pdgCode) const override {
-        return values[pdgCode/10][pdgCode%10];
+        return values.at(pdgCode/10).at(pdgCode%10).get_val();
     }
 
     void setValue(int pdgCode, double value) override {
         JSONParser::getInstance(0)->addElement(this->blockname.substr(0, this->blockname.size()-5), pdgCode, value);
-        values[pdgCode/10][pdgCode%10] = value;
+        values.at(pdgCode/10).at(pdgCode%10) = Parameter(this->blockname.substr(0, this->blockname.size()-5), pdgCode, value, 0);
     }
-    ArrayBlock& operator=(const std::array<std::array<double, column>, index> block) {
+
+    void setValues(const std::array<std::array<double, column>, index>& values) {
+        for (size_t i = 0; i < index; i++) {
+            for (size_t j = 0; j < column; j++) {
+                setValue(i * 10 + j, values[i][j]);       
+            }
+        }
+    }
+
+    void setMode(int pdgCode, ParameterMode mode) override {
+        values.at(pdgCode/10).at(pdgCode%10).set_mode(mode);
+    }
+
+    ArrayBlock& operator=(const std::array<std::array<Parameter, column>, index> block) {
         values = block;
         return *this;
     }
+
 protected:
-    std::array<std::array<double, column>, index> values;
+    std::array<std::array<Parameter, column>, index> values;
 };
 
 
@@ -184,17 +205,21 @@ public:
     double getValue(std::string pdgCode) const {
         auto it = values.find(pdgCode);
         if (it != values.end()) {
-            return it->second;
+            return it->second.get_val();
         }
         throw std::out_of_range("PDG code not found in " + this->blockname);
     }
 
     void setValue(std::string pdgCode, double value) {
-        values[pdgCode] = value;
+        values.at(pdgCode) = Parameter(this->blockname.substr(0, this->blockname.size()-5), 0, value, 0);
+    }
+
+    void setMode(std::string pdgCode, ParameterMode mode) {
+        values[pdgCode].set_mode(mode);
     }
 
 protected:
-    std::map<std::string, double> values;
+    std::map<std::string, Parameter> values;
     std::string blockname{};
 
 };

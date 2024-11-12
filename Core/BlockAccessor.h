@@ -37,6 +37,15 @@ public:
         }
     }
 
+    void setMode(const std::string& blockName, int pdgCode, ParameterMode mode) {
+        auto it = blocks.find(blockName);
+        if (it != blocks.end()) {
+            it->second->setMode(pdgCode, mode);
+        } else {
+            throw std::invalid_argument("Block not found");
+        }
+    }
+
     // These methods are to satisfy the Block interface, but can be unused directly
     double getValue(int pdgCode) const override {
         throw std::logic_error("Use getValue with block name for BlockAccessor");
@@ -44,6 +53,10 @@ public:
 
     void setValue(int pdgCode, double value) override {
         throw std::logic_error("Use setValue with block name for BlockAccessor");
+    }
+
+    void setMode(int pdgCode, ParameterMode mode) override {
+        throw std::logic_error("Use setMode with block name for BlockAccessor");
     }
 
 private:
@@ -68,6 +81,15 @@ public:
         auto it = blocks.find(blockName);
         if (it != blocks.end()) {
             it->second->setValue(id, value);
+        } else {
+            throw std::invalid_argument("Block not found");
+        }
+    }
+
+    void setMode(FlavorParamType blockName, std::string id, ParameterMode mode) {
+        auto it = blocks.find(blockName);
+        if (it != blocks.end()) {
+            it->second->setMode(id, mode);
         } else {
             throw std::invalid_argument("Block not found");
         }
