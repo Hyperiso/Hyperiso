@@ -66,9 +66,6 @@ public:
     double get_QCD_masse(std::string masstype);
     double getFlavorParam(FlavorParamType type, const std::string& id);
 
-    void changeParameterValue(const std::string& block, int pdgCode, double newValue);
-    void reset();
-
     void changeParameterMode(const ParamId& param_id, ParameterMode new_mode);
     void shiftParameter(const ParamId& param_id, double shift_value);
 
