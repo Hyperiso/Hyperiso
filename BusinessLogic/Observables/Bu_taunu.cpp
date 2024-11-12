@@ -9,12 +9,12 @@ double BR_Bu_taunu::eval() const {
     double life_B = (*flav_p)("FLIFE", 521);
     double f_B = flav_p->getFlavorParam(FlavorParamType::DECAY_CONSTANT, "521|1");
     double m_tau = (*sm_p)("MASS", 15);
-    double V_ub = std::abs(Parameters::get_c_CKM_entry(13)); 
+    double V_ub = std::abs(Parameters::get_c_CKM_entry(02)); 
     double G_F = (*sm_p)("SMINPUTS", 2);
     
     double BR_SM = std::pow(G_F * f_B * V_ub * m_tau * (1 - std::pow(m_tau / m_B, 2)), 2) * life_B * m_B;
     
-    double np_fact = 0;
+    double np_fact = 1;
     if (model == 1) {
         double m_Hp = (*Parameters::GetInstance(model))("MASS", 37);
         double tan_b = (*Parameters::GetInstance(model))("HMIX", 2);

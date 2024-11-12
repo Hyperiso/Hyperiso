@@ -1,6 +1,11 @@
+#ifndef __COMPOUND_H__
+#define __COMPOUND_H__
+
 #include <string>
 #include <vector>
 #include <map>
+#include "Parameter.h"
+#include "Math.h"
 
 class Compound {
 
@@ -24,3 +29,5 @@ public:
     double correlation_with(const Compound& other) const;
 
 };
+
+#endif // __COMPOUND_H__

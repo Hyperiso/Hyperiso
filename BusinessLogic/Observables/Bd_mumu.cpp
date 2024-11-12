@@ -11,7 +11,7 @@ double BR_Bd_mumu::eval() const {
 
     double G_F = (*sm_p)("SMINPUTS", 2);
     double inv_alpha_em = (*sm_p)("SMINPUTS", 1);
-    double V_tbV_td = std::abs(Parameters::get_c_CKM_entry(33) * std::conj(Parameters::get_c_CKM_entry(31))); 
+    double V_tbV_td = std::abs(Parameters::get_c_CKM_entry(22) * std::conj(Parameters::get_c_CKM_entry(21))); 
     double m_Bd = (*flav_p)("MASS", 511);
     double f_Bd = flav_p->getFlavorParam(FlavorParamType::DECAY_CONSTANT, "511|1");
     double life_Bd = flav_p->getFlavorParam(FlavorParamType::LIFETIME, "511");

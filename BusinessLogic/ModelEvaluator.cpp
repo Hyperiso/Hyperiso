@@ -69,7 +69,7 @@ void ModelEvaluator::update_exp_covariance() {
 }
 
 SparseMatrix<Observables> ModelEvaluator::get_covariance() const {
-    SparseMatrix cov = th_cov_mtx;
+    SparseMatrix<Observables> cov = th_cov_mtx;
     for (auto &&p : exp_cov_mtx) {
         if (cov.contains(p.first)) {
             cov.at(p.first) += p.second;
@@ -77,12 +77,13 @@ SparseMatrix<Observables> ModelEvaluator::get_covariance() const {
             cov.emplace(p);
         }
     }
+    return cov;
 }
 
 double ModelEvaluator::chi2() const {
 
-    SparseMatrix covariance_mtx = get_covariance();
-    SparseMatrix precision_mtx = invertMatrix(covariance_mtx, getDiagonalElements(covariance_mtx));
+    SparseMatrix<Observables> covariance_mtx = get_covariance();
+    SparseMatrix<Observables> precision_mtx = invertMatrix(covariance_mtx, getDiagonalElements(covariance_mtx));
 
     double chi2 {0};
     for (auto &&o_i : observables) {

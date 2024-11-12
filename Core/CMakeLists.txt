@@ -32,9 +32,10 @@ endif()
 add_library(CoreLib STATIC 
     MemoryManager.cpp
     Parameters.cpp
+    Parameter.cpp
     QCDParameters.cpp)
 
-set_target_properties(CoreLib PROPERTIES PUBLIC_HEADER "MemoryManager.h;Parameters.h;QCDParameters.h")
+set_target_properties(CoreLib PROPERTIES PUBLIC_HEADER "MemoryManager.h;Parameters.h;Parameter.h;QCDParameters.h")
 
 target_include_directories(CoreLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 

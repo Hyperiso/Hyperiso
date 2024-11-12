@@ -78,8 +78,7 @@ void MemoryManager::init() {
     reader = std::make_unique<LhaReader>(LhaReader(lhaPath));
     reader->readAll();
 
-    Parameters::GetInstance(0);
-
-    // Init other parameters
-
+    for (auto &&m : models) {
+        Parameters::GetInstance(m);
+    }
 }

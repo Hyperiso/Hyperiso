@@ -1,3 +1,6 @@
+#ifndef __PARAMETER_H__
+#define __PARAMETER_H__
+
 #include <string>
 
 typedef std::pair<std::string, int> ParamId;
@@ -37,3 +40,7 @@ public:
     }
 
 };
+
+
+#endif // __PARAMETER_H__
+

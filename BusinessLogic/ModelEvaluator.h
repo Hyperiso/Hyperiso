@@ -3,6 +3,7 @@
 
 #include "Compound.h"
 #include "Observable.h"
+#include "Observables.h"
 #include "Math.h"
 #include <vector>
 #include <string>

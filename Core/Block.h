@@ -49,12 +49,14 @@ template<std::size_t index, std::size_t column>
 class ArrayBlock : public Block {
 public:
     double getValue(int pdgCode) const override {
-        return values.at(pdgCode/10).at(pdgCode%10).get_val();
+        LOG_INFO("Accessing value of parameter with code ", pdgCode, " in block ", this->blockname);
+        LOG_INFO("ParamId is ", values[pdgCode / 10][pdgCode % 10].get_id().first, ",", values[pdgCode / 10][pdgCode % 10].get_id().second);
+        return values[pdgCode / 10][pdgCode % 10].get_val();
     }
 
     void setValue(int pdgCode, double value) override {
         JSONParser::getInstance(0)->addElement(this->blockname.substr(0, this->blockname.size()-5), pdgCode, value);
-        values.at(pdgCode/10).at(pdgCode%10) = Parameter(this->blockname.substr(0, this->blockname.size()-5), pdgCode, value, 0);
+        values[pdgCode / 10][pdgCode % 10] = Parameter(this->blockname.substr(0, this->blockname.size()-5), pdgCode, value, 0);
     }
 
     void setValues(const std::array<std::array<double, column>, index>& values) {
@@ -211,7 +213,7 @@ public:
     }
 
     void setValue(std::string pdgCode, double value) {
-        values.at(pdgCode) = Parameter(this->blockname.substr(0, this->blockname.size()-5), 0, value, 0);
+        values.emplace(pdgCode, Parameter(this->blockname.substr(0, this->blockname.size()-5), 0, value, 0));
     }
 
     void setMode(std::string pdgCode, ParameterMode mode) {
