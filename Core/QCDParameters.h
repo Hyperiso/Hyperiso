@@ -54,8 +54,8 @@ private:
     double mass_b_b;
     double mass_t_t;
 
-    std::string m_b_type;
-    std::string m_t_type;
+    std::string m_b_type{"pole"};
+    std::string m_t_type{"pole"};
 
     double alphasRunning(double Q, double Lambda, int nf) const;
     double matchLambda(double target_alpha, double Q, int nf);

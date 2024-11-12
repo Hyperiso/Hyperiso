@@ -14,6 +14,7 @@ add_library(PandasLib STATIC
     CSVReader.cpp
     )
 
+set_target_properties(PandasLib PROPERTIES POSITION_INDEPENDENT_CODE ON)
 set_target_properties(PandasLib PROPERTIES PUBLIC_HEADER "Series.h;DataFrame.h;CSVReader.h;CSVOptions.h")
 
 target_include_directories(PandasLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})

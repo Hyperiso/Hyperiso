@@ -13,7 +13,7 @@ class Wilson_parameters {
 public:
     static constexpr int arraySize {10};
 
-    Parameters* sm = Parameters::GetInstance();
+    Parameters* sm;
     double alphas_muW;
     double alphas_mu;
     double eta_mu;

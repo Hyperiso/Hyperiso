@@ -63,8 +63,8 @@ public:
         return {0., 0.};
     }
 
-    std::complex<double> NLO_calculation() override {}
-    std::complex<double> NNLO_calculation() override {}
+    std::complex<double> NLO_calculation() override {return {0., 0.};}
+    std::complex<double> NNLO_calculation() override {return {0., 0.};}
 
 private:
     CSVReader csv_reader;

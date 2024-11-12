@@ -45,6 +45,8 @@ add_library(MartyInterfaceLib STATIC
     GeneralModelModifier.cpp
     )
 
+set_target_properties(MartyInterfaceLib PROPERTIES POSITION_INDEPENDENT_CODE ON)
+
 set_target_properties(MartyInterfaceLib PROPERTIES PUBLIC_HEADER "CinematicExtractor.h;FileNameManager.h;ModelModifier.h;GeneralNumModelModifier.h;NumModelModifier.h;CodeGenerator.h;CompilerStrategy.h;GppCompilerStrategy;MakeCompilerStrategy.h;GeneralModelModifier.h;MartyInterface.h;SMModelModifier.h;TemplateManager.h;IncludeManager.h;LineProcessor.h;ModelWriter.h;ParamWriter.h;Extractor.h;Interpreter.h;IParamSetter.h;SMParamSetter.h")
 # target_include_directories(MartyInterfaceLib PRIVATE BSM)
 

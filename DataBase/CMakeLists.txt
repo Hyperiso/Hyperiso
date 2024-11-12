@@ -21,6 +21,7 @@ add_library(DataBaseLib STATIC
     JsonParameters.cpp
     MappingDataBase.cpp)
 
+set_target_properties(DataBaseLib PROPERTIES POSITION_INDEPENDENT_CODE ON)
 set_target_properties(DataBaseLib PROPERTIES PUBLIC_HEADER "JsonParameters.h;MappingDataBase.h;lha_elements.h;lha_blocks.h;lha_reader.h;json_parser.h")
 
 target_include_directories(DataBaseLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})

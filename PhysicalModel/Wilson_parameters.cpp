@@ -3,8 +3,9 @@
 
 Wilson_parameters::Wilson_parameters() {
 
+	std::cout << "trying to try" << std::endl;
     Parameters* sm = Parameters::GetInstance();
-
+	std::cout << "not trying to try" << std::endl;
 	m00= {{ 
 	/*m001[10][10]*/{{
 		{0 , 0 , 0.333333 , 0.666667 , 0 , 0 , 0 , 0 , 0 , 0}, 
@@ -1199,6 +1200,7 @@ Wilson_parameters::Wilson_parameters() {
 		{0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 }
 	}}
 	}};
+
 	
 }
 
@@ -1212,17 +1214,17 @@ Wilson_parameters* Wilson_parameters::GetInstance() {
 
 void Wilson_parameters::SetMuW(double mu_W) {
 	
-	
+	std::cout << "BIIIITE" << std::endl;
 
 	this->mu_W = mu_W;
 	LOG_DEBUG("mu_W : " + std::to_string(mu_W));
-
+	std::cout << "BIIIITE2" << std::endl;
 	alphas_muW=(*sm).alpha_s(mu_W);
 	LOG_DEBUG("ALPHA AFTER CALCULATION :", alphas_muW);
-
+	std::cout << "BIIIITE3" << std::endl;
 	mass_top_muW=(*sm).running_mass((*sm)("MASS",6), (*sm)("MASS",6),mu_W, "running"); //mass top at top ?
 	LOG_DEBUG("mass_top_muW : " + std::to_string(mass_top_muW));
-
+	std::cout << "BIIIITE4" << std::endl;
 	mass_b_muW=(*sm).running_mass((*sm)("MASS",5), (*sm)("MASS",5), mu_W, "running"); //mass bottom 6 (at pole)
 	LOG_DEBUG("mass_b_muW : " + std::to_string(mass_b_muW));
 	mass_b_muW_2=(*sm).running_mass((*sm)("MASS",5), (*sm)("MASS",5), mu_W);
@@ -1232,7 +1234,7 @@ void Wilson_parameters::SetMuW(double mu_W) {
 	ml = (*sm)("MASS", 13+2*(this->gen-2));
 	nf=5;
 	beta0 = 11.-2./3.*nf;
-
+	std::cout << "BIIIITE5" << std::endl;
 	xt2=xt*xt;
 	xt3=xt*xt2;
 	xt4=xt*xt3;

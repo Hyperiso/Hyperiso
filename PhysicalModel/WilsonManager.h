@@ -5,6 +5,7 @@
 #include <string>
 #include <stdexcept>
 #include "Wilsonv2.h"
+#include "MemoryManager.h"
 
 class CoefficientManager; // Forward declaration
 
@@ -166,9 +167,9 @@ public:
 
 class CoefficientManager {
 private:
-    static std::map<std::string, std::unique_ptr<CoefficientManager>> instances;
+    static std::map<std::string, std::shared_ptr<CoefficientManager>> instances;
     std::map<std::string, std::shared_ptr<CoefficientGroup>> coefficientGroups;
-    std::map<std::string, std::unique_ptr<State>> groupStates;
+    std::map<std::string, std::shared_ptr<State>> groupStates;
 
     CoefficientManager() = default;
 
@@ -177,17 +178,22 @@ public:
     static CoefficientManager* GetInstance(const std::string& modelName) {
         auto it = instances.find(modelName);
         if (it == instances.end()) {
-            instances[modelName] = std::unique_ptr<CoefficientManager>(new CoefficientManager());
+            instances[modelName] = std::shared_ptr<CoefficientManager>(new CoefficientManager());
             return instances[modelName].get();
         }
         return it->second.get();
+    }
+
+    static void initialize(const std::string& lhaFile, const std::vector<int>& models) {
+        MemoryManager* mm = MemoryManager::GetInstance(lhaFile, models);
+        mm->init();
     }
 
     std::string get_state(const std::string& groupName) {
         return ensureGroupState(groupName)->get_state();
     }
 
-    void setState(const std::string& groupName, std::unique_ptr<State> newState) {
+    void setState(const std::string& groupName, std::shared_ptr<State> newState) {
         groupStates[groupName] = std::move(newState);
     }
 
@@ -228,7 +234,7 @@ public:
 
     void registerCoefficientGroup(const std::string& groupName, std::shared_ptr<CoefficientGroup> group) {
         coefficientGroups[groupName] = group;
-        groupStates[groupName] = std::make_unique<InitialState>();
+        groupStates[groupName] = std::make_shared<InitialState>();
     }
 
     CoefficientGroup* getCoefficientGroup(const std::string& groupName) const {

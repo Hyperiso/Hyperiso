@@ -3,19 +3,19 @@
 #include <pybind11/complex.h>
 
 #include "WilsonManager.h"
-#include "Wilsonv2.h"
 #include "MartyWilson.h"
 
 namespace py = pybind11;
 
 void init_coefficient_groups(py::module &m) {
+    // Classe de base CoefficientGroup, sans constructeur car abstraite
     py::class_<CoefficientGroup, std::shared_ptr<CoefficientGroup>>(m, "CoefficientGroup")
-        .def(py::init<>())
         .def("get_matching", &CoefficientGroup::getMatching)
         .def("get_run", &CoefficientGroup::getRun)
         .def("set_q_match", &CoefficientGroup::set_Q_match)
         .def("set_q_run", &CoefficientGroup::set_Q_run);
 
+    // Spécialisations pour les groupes de coefficients
     py::class_<BCoefficientGroup, CoefficientGroup, std::shared_ptr<BCoefficientGroup>>(m, "BCoefficientGroup")
         .def(py::init<>());
 
@@ -37,7 +37,6 @@ void init_coefficient_groups(py::module &m) {
 
 void init_wilson_coefficient(py::module &m) {
     py::class_<WilsonCoefficient, std::shared_ptr<WilsonCoefficient>>(m, "WilsonCoefficient")
-        .def(py::init<>())
         .def("get_coefficient_matching_value", &WilsonCoefficient::get_CoefficientMatchingValue)
         .def("get_coefficient_run_value", &WilsonCoefficient::get_CoefficientRunValue)
         .def("set_coefficient_matching_value", &WilsonCoefficient::set_CoefficientMatchingValue)
@@ -48,7 +47,16 @@ void init_wilson_coefficient(py::module &m) {
 
 void init_coefficient_manager(py::module &m) {
     py::class_<CoefficientManager, std::shared_ptr<CoefficientManager>>(m, "CoefficientManager")
-        .def("get_instance", &CoefficientManager::GetInstance, py::return_value_policy::reference)
+        .def_static("get_instance", [](const std::string &modelName) {
+            return CoefficientManager::GetInstance(modelName);
+        }, py::return_value_policy::reference)
+
+        .def_static("initialize", [](const std::string& lhaFile, const std::vector<int>& models) {
+            MemoryManager* mm = MemoryManager::GetInstance(lhaFile, models);
+            mm->init();
+        }, py::arg("lhaFile"), py::arg("models"),
+        "Initialise MemoryManager avec un fichier LHA et une liste de modèles.")
+
         .def("register_coefficient_group", &CoefficientManager::registerCoefficientGroup)
         .def("get_state", &CoefficientManager::get_state)
         .def("set_q_match", &CoefficientManager::setQMatch)
@@ -60,10 +68,19 @@ void init_coefficient_manager(py::module &m) {
         .def("get_coefficient_group", &CoefficientManager::getCoefficientGroup, py::return_value_policy::reference);
 }
 
-PYBIND11_MODULE(wilson_interface, m) {
+void init_wilson_parameters(py::module &m) {
+    py::class_<Wilson_parameters, std::shared_ptr<Wilson_parameters>>(m, "WilsonParameters")
+        .def_static("get_instance", &Wilson_parameters::GetInstance, py::return_value_policy::reference)
+        .def("set_mu", &Wilson_parameters::SetMu)
+        .def("set_mu_w", &Wilson_parameters::SetMuW)
+        .def("set_gen", &Wilson_parameters::set_gen);
+}
+
+PYBIND11_MODULE(wilson, m) {
     m.doc() = "Python interface for Wilson coefficient management";
 
     init_coefficient_groups(m);
     init_wilson_coefficient(m);
     init_coefficient_manager(m);
+    init_wilson_parameters(m);
 }

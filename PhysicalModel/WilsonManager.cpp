@@ -11,13 +11,13 @@ InitialState::~InitialState() {
 void InitialState::setQMatch(CoefficientManager* manager, const std::string& groupName, double Q_match) {
         CoefficientGroup* group = manager->getCoefficientGroup(groupName);
         group->set_Q_match(Q_match);
-        manager->setState(groupName, std::make_unique<QMatchSetState>(this->EnumToString(this->currentOrder)));
+        manager->setState(groupName, std::make_shared<QMatchSetState>(this->EnumToString(this->currentOrder)));
 }
 
 void MatchingSetState::setGroupScale(CoefficientManager* manager, const std::string& groupName, double Q) {
         CoefficientGroup* group = manager->getCoefficientGroup(groupName);
         group->set_Q_run(Q);
-        manager->setState(groupName, std::make_unique<QSetState>(this->EnumToString(this->currentOrder)));
+        manager->setState(groupName, std::make_shared<QSetState>(this->EnumToString(this->currentOrder)));
 }
 
 
@@ -46,7 +46,7 @@ void QMatchSetState::setMatchingCoefficient(CoefficientManager* manager, const s
         }
 
         currentOrder = newOrder;
-        manager->setState(groupName, std::make_unique<MatchingSetState>(order));
+        manager->setState(groupName, std::make_shared<MatchingSetState>(order));
 }
 
 void QSetState::setRunCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& order) {
@@ -139,4 +139,4 @@ std::complex<double> RunSetState::getRunCoefficient(CoefficientManager* manager,
     return group->getRun(coeffName, order);
 }
 
-std::map<std::string, std::unique_ptr<CoefficientManager>> CoefficientManager::instances;
+std::map<std::string, std::shared_ptr<CoefficientManager>> CoefficientManager::instances;
