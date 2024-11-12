@@ -70,8 +70,10 @@ public:
 
     void changeParameterValue(const std::string& block, int pdgCode, double newValue);
     void reset();
-
-
+    QCDParameters* QCDaddress() {
+        return &this->QCDRunner;
+    } 
+    ~Parameters() {std::cout << "Parameters : " << this << " was destroyed";}
 private:
     explicit Parameters(ModelStrategy* modelStrategy);
     static std::map<int, Parameters*> instances;

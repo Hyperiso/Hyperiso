@@ -15,7 +15,7 @@
  */ 
 QCDParameters::QCDParameters(double alpha_Z, double m_Z, double masst_pole, double massb_b, double mass_u, double mass_d, double mass_s, double mass_c) {
     this->Lambda5 = this->matchLambda(alpha_Z, m_Z, 5);
-    std::cout << "OSWPIJRFOSIDJFOSIJDFIO"<< std::endl;
+    std::cout << "QCDParameters special created at address: " << this << std::endl;
     this->mass_u = mass_u;
     this->mass_d = mass_d;
     this->mass_s = mass_s;
@@ -40,6 +40,7 @@ QCDParameters::QCDParameters(double alpha_Z, double m_Z, double masst_pole, doub
 double QCDParameters::runningAlphasCalculation(double Q, std::string option_massb, std::string option_masst) {
     std::cout << option_massb << std::endl;
     std::cout << "JEN AI MARRE1.1" << std::endl;
+    std::cout << this << std::endl;
     this->setMassTypes(option_massb, option_masst);
     std::cout << "JEN AI MARRE1.5" << std::endl;
     int n_i = 5;
@@ -108,6 +109,7 @@ double QCDParameters::running_mass(double quark_mass, double Qinit, double Qfin,
 void QCDParameters::setMassTypes(std::string m_b_type, std::string m_t_type) {
     std::cout <<"je comprend rien" << std::endl;
     std::cout << m_b_type << " " << m_t_type << std::endl;
+    std::cout << this << std::endl;
     std::cout << this->m_b_type << " " << this->m_t_type << std::endl;
     if (m_b_type != ""){ 
         this->m_b_type = m_b_type; std::cout <<"je comprend rieeeeen" << std::endl;}

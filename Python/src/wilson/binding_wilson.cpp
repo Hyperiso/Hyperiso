@@ -8,14 +8,12 @@
 namespace py = pybind11;
 
 void init_coefficient_groups(py::module &m) {
-    // Classe de base CoefficientGroup, sans constructeur car abstraite
     py::class_<CoefficientGroup, std::shared_ptr<CoefficientGroup>>(m, "CoefficientGroup")
         .def("get_matching", &CoefficientGroup::getMatching)
         .def("get_run", &CoefficientGroup::getRun)
         .def("set_q_match", &CoefficientGroup::set_Q_match)
         .def("set_q_run", &CoefficientGroup::set_Q_run);
 
-    // Spécialisations pour les groupes de coefficients
     py::class_<BCoefficientGroup, CoefficientGroup, std::shared_ptr<BCoefficientGroup>>(m, "BCoefficientGroup")
         .def(py::init<>());
 
@@ -51,11 +49,9 @@ void init_coefficient_manager(py::module &m) {
             return CoefficientManager::GetInstance(modelName);
         }, py::return_value_policy::reference)
 
-        .def_static("initialize", [](const std::string& lhaFile, const std::vector<int>& models) {
-            MemoryManager* mm = MemoryManager::GetInstance(lhaFile, models);
-            mm->init();
-        }, py::arg("lhaFile"), py::arg("models"),
-        "Initialise MemoryManager avec un fichier LHA et une liste de modèles.")
+        .def_static("initialize", &CoefficientManager::initialize, py::arg("lhaFile"), py::arg("models"),
+            "Initialise MemoryManager avec un fichier LHA et une liste de modèles.")
+        
 
         .def("register_coefficient_group", &CoefficientManager::registerCoefficientGroup)
         .def("get_state", &CoefficientManager::get_state)

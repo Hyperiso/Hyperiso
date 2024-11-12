@@ -1219,6 +1219,7 @@ void Wilson_parameters::SetMuW(double mu_W) {
 	this->mu_W = mu_W;
 	LOG_DEBUG("mu_W : " + std::to_string(mu_W));
 	std::cout << "BIIIITE2" << std::endl;
+	
 	alphas_muW=(*sm).alpha_s(mu_W);
 	LOG_DEBUG("ALPHA AFTER CALCULATION :", alphas_muW);
 	std::cout << "BIIIITE3" << std::endl;

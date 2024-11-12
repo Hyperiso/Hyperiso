@@ -41,7 +41,7 @@ Parameters* Parameters::GetInstance(int modelId) {
 }
 
 Parameters::Parameters(ModelStrategy* modelStrategy)
-    : strategy(modelStrategy) {
+    : strategy(modelStrategy) { std::cout << "Param creation " << this << std::endl;
     strategy->initializeParameters(*this);
 }
 
@@ -50,6 +50,12 @@ double Parameters::operator()(const std::string& block, int pdgCode) {
 }
 
 double Parameters::alpha_s(double Q) {
+    std::cout << "WOWOWOWOO" << std::endl;
+    std::cout << this << std::endl;
+    std::cout << &this->QCDRunner << std::endl;
+    std::cout <<this->QCDRunner.get_mb_mb() << std::endl;
+    std::cout << &this->instances << std::endl;
+    std::cout << &this->blockAccessor << std::endl;
     return this->QCDRunner.runningAlphasCalculation(Q, "pole", "pole");
 }
 
@@ -132,9 +138,9 @@ void SMModelStrategy::initializeParameters(Parameters& params) {
     params.setBlockValue("MASS", 2, 2.2e-3);
     params.setBlockValue("MASS", 3, 93e-3);
     params.setBlockValue("MASS", 4, 1.27);
-
+    std::cout << params.QCDaddress() << " first" << std::endl;
     params.setQCDParameters(QCDParameters(alpha_s_MZ, m_Z_pole, m_t_pole, m_b_mb, params("MASS", 2), params("MASS", 1), params("MASS", 3), params("MASS", 4)));
-
+    std::cout << params.QCDaddress() << " second" << std::endl;
     params.setBlockValue("MASS", 5, m_b_mb);
     params.setBlockValue("MASS", 6, params.get_QCD_masse("mt_mt"));
     params.setBlockValue("MASS", 11, 0.511e-3);
