@@ -13,7 +13,7 @@
 
 class WilsonCoefficient {
 protected:
-    WilsonCoefficient() {std::cout << "trying to try try try try" << std::endl;this->set_Q_match(81.);}
+    WilsonCoefficient() {this->set_Q_match(81.);}
     WilsonCoefficient(double Q_match) {this->set_Q_match(Q_match);}
 
 
@@ -119,7 +119,7 @@ private:
 
 class C1 : public WilsonCoefficient {
 public:
-    C1(double Q_match) : WilsonCoefficient(Q_match) {std::cout << "trying to try try try" << std::endl; this->set_name("C1");}
+    C1(double Q_match) : WilsonCoefficient(Q_match) {this->set_name("C1");}
     C1() : WilsonCoefficient() {this->set_name("C1");}
 
     std::complex<double> LO_calculation() {return {0,0};} 
@@ -450,7 +450,7 @@ public:
     }
 
     bool is_double_base() {return this->double_base;}
-    virtual void switch_base() {std::cout << "truc truc truc" << std::endl; LOG_ERROR("ValueError", "error");}
+    virtual void switch_base() {LOG_ERROR("ValueError", "error");}
     virtual ~CoefficientGroup() = default;
 
 
@@ -506,7 +506,7 @@ public:
 class BCoefficientGroup : public CoefficientGroup {
 
 public:
-    BCoefficientGroup() { 
+    BCoefficientGroup() {
         this->insert(std::make_pair("C1", std::make_shared<C1>())); std::cout << "trying to try try" << std::endl;this->insert(std::make_pair("C2", std::make_shared<C2>())); this->insert(std::make_pair("C3", std::make_shared<C3>()));
         this->insert(std::make_pair("C4", std::make_shared<C4>()));  this->insert(std::make_pair("C5", std::make_shared<C5>())); this->insert(std::make_pair("C6", std::make_shared<C6>())); 
         this->insert(std::make_pair("C7", std::make_shared<C7>()));  this->insert(std::make_pair("C8", std::make_shared<C8>()));  this->insert(std::make_pair("C9", std::make_shared<C9>())); 

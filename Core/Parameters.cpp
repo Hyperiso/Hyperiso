@@ -1,6 +1,7 @@
 #include "Parameters.h"
 
 std::string doubleToString(double value, int precision) {
+
 	std::ostringstream out;
 	out << std::fixed << std::setprecision(precision) << value;
 	return out.str();
@@ -49,13 +50,7 @@ double Parameters::operator()(const std::string& block, int pdgCode) {
 }
 
 double Parameters::alpha_s(double Q) {
-    std::cout << "WOWOWOWOO" << std::endl;
-    std::cout << this << std::endl;
-    std::cout << &this->QCDRunner << std::endl;
-    std::cout <<this->QCDRunner.get_mb_mb() << std::endl;
-    std::cout << &this->instances << std::endl;
-    std::cout << &this->blockAccessor << std::endl;
-    return this->QCDRunner.runningAlphasCalculation(Q, "pole", "pole");
+    return this->QCDRunner.runningAlphasCalculation(Q);
 }
 
 double Parameters::running_mass(double quarkmass, double Q_init, double Q_end,  std::string option_massb, std::string option_masst) {
@@ -95,7 +90,6 @@ void SMModelStrategy::initializeParameters(Parameters& params) {
     params.setBlockValue("SMINPUTS", 2, *sm_inputs[1]);
     params.setBlockValue("SMINPUTS", 5, *sm_inputs[4]);
     params.setBlockValue("SMINPUTS", 10, 0.313);
-
     // VCKMIN 
     params.addBlock("RECKM", std::make_shared<RECKMBlock>());
     params.addBlock("IMCKM", std::make_shared<IMCKMBlock>());
@@ -129,6 +123,7 @@ void SMModelStrategy::initializeParameters(Parameters& params) {
     params.setBlockValue("RECKM", 22, std::real(1));
     params.setBlockValue("IMCKM", 22, std::imag(1));
 
+
     double m_W = std::sqrt(std::pow(m_Z_pole, 2) / 2 + std::sqrt(std::pow(m_Z_pole, 4) / 4 - M_PI * std::pow(m_Z_pole, 2) / inv_alpha_em / G_F / std::sqrt(2)));
     //Masses
     params.addBlock("MASS", std::make_shared<MassBlock>());
@@ -137,9 +132,7 @@ void SMModelStrategy::initializeParameters(Parameters& params) {
     params.setBlockValue("MASS", 2, 2.2e-3);
     params.setBlockValue("MASS", 3, 93e-3);
     params.setBlockValue("MASS", 4, 1.27);
-    std::cout << params.QCDaddress() << " first" << std::endl;
     params.setQCDParameters(QCDParameters(alpha_s_MZ, m_Z_pole, m_t_pole, m_b_mb, params("MASS", 2), params("MASS", 1), params("MASS", 3), params("MASS", 4)));
-    std::cout << params.QCDaddress() << " second" << std::endl;
     params.setBlockValue("MASS", 5, m_b_mb);
     params.setBlockValue("MASS", 6, params.get_QCD_masse("mt_mt"));
     params.setBlockValue("MASS", 11, 0.511e-3);
@@ -209,26 +202,25 @@ void SUSYModelStrategy::initializeParameters(Parameters& params) {
     for (auto& elem : type22) {
         std::array<std::array<double, 2>,2> temp;
         readMatrix(temp, elem.first, lha);
-        *(elem.second) = temp;
         std::shared_ptr<ArrayBlock<2, 2>> uniquePtr = std::make_shared<ArrayBlock<2,2>>(std::move(*elem.second));
-        params.addBlock(elem.first, std::move(uniquePtr));
+        uniquePtr->setValues(temp);
+        params.addBlock(elem.first, uniquePtr);
     }
 
     for (auto& elem : type44) {
         std::array<std::array<double, 4>,4> temp;
         readMatrix(temp, elem.first, lha);
-
-        *(elem.second) = temp;
         std::shared_ptr<ArrayBlock<4, 4>> uniquePtr = std::make_shared<ArrayBlock<4,4>>(std::move(*elem.second));
-        params.addBlock(elem.first, std::move(uniquePtr));
+        uniquePtr->setValues(temp);
+        params.addBlock(elem.first, uniquePtr);
     }
 
     for (auto& elem : type33) {
         std::array<std::array<double, 3>,3> temp;
         readMatrix(temp, elem.first, lha);
-        *(elem.second) = temp;
         std::shared_ptr<ArrayBlock<3, 3>> uniquePtr = std::make_shared<ArrayBlock<3,3>>(std::move(*elem.second));
-        params.addBlock(elem.first, std::move(uniquePtr));
+        uniquePtr->setValues(temp);
+        params.addBlock(elem.first, uniquePtr);
     }
 
     auto alphablock = std::make_shared<AlphaBlock>();
@@ -372,14 +364,10 @@ void FlAVORModelStrategy::initializeParameters(Parameters& params) {
     massblock->setValue(323, 0.49368);
     params.addBlock("MASS", std::move(massblock));
 
-    LOG_INFO("Flavor MASS block created");
-
     auto lifetimeblock = std::make_shared<LifeTimeBlock>();
     lifetimeblock->setValue("511", 1.519e-12);
     lifetimeblock->setValue("531", 1.510e-12);
     params.addFlavorBlock(FlavorParamType::LIFETIME, std::move(lifetimeblock));
-
-    LOG_INFO("Flavor LIFETIME block created");
 
     auto fconstblock = std::make_shared<FConstBlock>();
     fconstblock->setValue("511|1", 0.1905);
@@ -389,10 +377,7 @@ void FlAVORModelStrategy::initializeParameters(Parameters& params) {
     fconstblock->setValue("323|2", 0.2277);//FAKE
     params.addFlavorBlock(FlavorParamType::DECAY_CONSTANT, std::move(fconstblock));
 
-     LOG_INFO("Flavor DECAY_CONSTANT block created");
-
     auto flifeblock = std::make_shared<FLifeBlock>();
-
     flifeblock->setValue(521, 1.638e-12);
     params.addBlock("FLIFE", std::move(flifeblock));
 }   
@@ -454,14 +439,28 @@ double Parameters::getFlavorParam(FlavorParamType type, const std::string& id) {
     return this->flavorblockAccessor.getValue(type, id);
 }
 
-void Parameters::changeParameterMode(const ParamId &param_id,
-                                     ParameterMode new_mode) {
-    blockAccessor.setMode(param_id.first, param_id.second, new_mode);
-}
+// void Parameters::changeParameterValue(const std::string& block, int pdgCode, double newValue) {
+//     double currentValue = blockAccessor.getValue(block, pdgCode);
 
-void Parameters::shiftParameter(const ParamId &param_id, double shift_value) {
-    blockAccessor.setValue(param_id.first, param_id.second, blockAccessor.getValue(param_id.first, param_id.second) + shift_value);
-}
+//     std::pair<std::string, int> key = std::make_pair(block, pdgCode);
+//     if (originalValuesCache.find(key) == originalValuesCache.end()) {
+//         originalValuesCache[key] = currentValue;
+//     }
+
+//     blockAccessor.setValue(block, pdgCode, newValue);
+// }
+
+// void Parameters::reset() {
+//     for (const auto& entry : originalValuesCache) {
+//         const std::string& block = entry.first.first;
+//         int pdgCode = entry.first.second;
+//         double originalValue = entry.second;
+
+//         blockAccessor.setValue(block, pdgCode, originalValue);
+//     }
+
+//     originalValuesCache.clear();
+// }
 
 Parameters* ParametersFactory::GetParameters(int modelId) {
     if (instances.find(modelId) == instances.end()) {

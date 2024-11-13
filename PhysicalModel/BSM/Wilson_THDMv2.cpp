@@ -31,7 +31,11 @@ std::complex<double> C6_THDM::NNLO_calculation() {
 }
 
 std::complex<double> C7_THDM::LO_calculation() {
+    std::cout << "YUUU" <<  (*mod)("YU", 22) << std::endl;
     double coeff_temp = 1./3.*thdm_params->lu*thdm_params->lu*F7_1(thdm_params->yt) - thdm_params->lu*thdm_params->ld*F7_2(thdm_params->yt);
+    std::cout << "lu : " << thdm_params->lu << std::endl;
+    std::cout << "yt : " << thdm_params->yt << std::endl;
+    std::cout << "ld : " << thdm_params->ld << std::endl;
     return this->double_to_complex_save("LO", coeff_temp);
 }
 
