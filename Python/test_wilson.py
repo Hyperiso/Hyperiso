@@ -27,12 +27,19 @@ def test_coefficient_manager():
     print("mtop : ", manager.get_params("MASS", 6))
     manager.set_params("BCoefficientGroup", "MASS", 6, 150)
     print("new mtop : ", manager.get_params("MASS", 6))
-    manager.set_matching_coefficient(group_name, "LO")
+    liste = []
+
+    order = "LO"
+    coeff_name = "C7"
+    for mt in range(50,200):
+        manager.set_params("BCoefficientGroup", "MASS", 6, mt)
+        manager.set_matching_coefficient(group_name, "LO")
+        liste.append(manager.get_matching_coefficient(group_name, coeff_name, order))
+
+    print(liste)
     manager.set_group_scale(group_name, Q)
     manager.set_run_coefficient(group_name, "LO")
     
-    order = "LO"
-    coeff_name = "C7"
     
     try:
         matching_value = manager.get_matching_coefficient(group_name, coeff_name, order)

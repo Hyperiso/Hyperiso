@@ -135,7 +135,7 @@ public:
     QMatchSetState(std::string order) : State(order) { this->state = "QMatchSetState";}
     void setMatchingCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& order) override;
     void setParams(const std::string& block, int pdgCode, double value) {
-        Parameters::GetInstance()->setBlockValue(block, pdgCode, value);
+        Parameters::GetInstance()->setBlockValue(block, pdgCode, value, true);
     }
 };
 
@@ -145,7 +145,10 @@ public:
     MatchingSetState(std::string order) : State(order) {this->state = "MatchingSetState";}
     void setGroupScale(CoefficientManager* manager, const std::string& groupName, double Q) override;
     // void setRunCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& order) override;
-
+    void setMatchingCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& order) override;
+    void setParams(const std::string& block, int pdgCode, double value) {
+        Parameters::GetInstance()->setBlockValue(block, pdgCode, value, true);
+    }
     std::complex<double> getMatchingCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) override;
     std::complex<double> getFullMatchingCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) override;
 };

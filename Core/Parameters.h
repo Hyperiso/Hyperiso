@@ -59,8 +59,8 @@ public:
     void addFlavorBlock(FlavorParamType name, std::shared_ptr<FlavorBlock> block) {
         flavorblockAccessor.addBlock(name, block);
     }
-    void setBlockValue(const std::string& name, int pdgCode, double value) {
-        blockAccessor.setValue(name, pdgCode, value);
+    void setBlockValue(const std::string& name, int pdgCode, double value, bool force = true) {
+        blockAccessor.setValue(name, pdgCode, value, force);
     }
 
     void setQCDParameters(const QCDParameters&& qcdparams) {QCDRunner = qcdparams;}
