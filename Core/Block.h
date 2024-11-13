@@ -54,14 +54,13 @@ template<std::size_t index, std::size_t column>
 class ArrayBlock : public Block {
 public:
     double getValue(int pdgCode) const override {
-        LOG_INFO("Accessing value of parameter with code ", pdgCode, " in block ", this->blockname);
-        LOG_INFO("ParamId is ", values[pdgCode / 10][pdgCode % 10].get_id().first, ",", values[pdgCode / 10][pdgCode % 10].get_id().second);
         return values[pdgCode / 10][pdgCode % 10].get_val();
     }
 
     void setValue(int pdgCode, double value) override {
         JSONParser::getInstance(0)->addElement(this->blockname.substr(0, this->blockname.size()-5), pdgCode, value);
-        values[pdgCode / 10][pdgCode % 10] = Parameter(this->blockname.substr(0, this->blockname.size()-5), pdgCode, value, 0);
+        auto p = Parameter(this->blockname.substr(0, this->blockname.size()-5), pdgCode, value, 0);
+        values[pdgCode / 10][pdgCode % 10] = p;
     }
 
     void setValues(const std::array<std::array<double, column>, index>& values) {

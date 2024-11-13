@@ -6,12 +6,13 @@ double BR_Bs_mumu::eval() const {
     auto flav_p = Parameters::GetInstance(3); // Flavor params
     auto manager = computeWilsons();
 
-    complex_t C10 = manager->getFullRunCoefficient("BCoefficient", "C10", "NNLO");
-    complex_t CP10 = manager->getFullRunCoefficient("BPrimeCoefficient", "CP10", "LO");
-    complex_t CQ1 = manager->getFullRunCoefficient("BScalarCoefficient", "CQ1", "NLO");
-    complex_t CQ2 = manager->getFullRunCoefficient("BScalarCoefficient", "CQ2", "NLO");
-    complex_t CPQ1 = manager->getFullRunCoefficient("BPrimeCoefficient", "CPQ1", "LO");
-    complex_t CPQ2 = manager->getFullRunCoefficient("BPrimeCoefficient", "CPQ2", "LO");
+    // These should be taken at b scale with getFullRunCoefficient() but currently doesn't work
+    complex_t C10 = manager->getFullMatchingCoefficient("BCoefficient", "C10", "NNLO");
+    complex_t CP10 = manager->getFullMatchingCoefficient("BPrimeCoefficient", "CP10", "LO");
+    complex_t CQ1 = manager->getFullMatchingCoefficient("BScalarCoefficient", "CQ1", "NLO");
+    complex_t CQ2 = manager->getFullMatchingCoefficient("BScalarCoefficient", "CQ2", "NLO");
+    complex_t CPQ1 = manager->getFullMatchingCoefficient("BPrimeCoefficient", "CPQ1", "LO");
+    complex_t CPQ2 = manager->getFullMatchingCoefficient("BPrimeCoefficient", "CPQ2", "LO");
 
     LOG_INFO("C10 = ", C10);
     LOG_INFO("CP10 = ", CP10);
@@ -30,13 +31,6 @@ double BR_Bs_mumu::eval() const {
     
     double r = (*sm_p)("MASS", 13) / m_Bs;  // m_mu / m_Bs
     double x = m_Bs / (sm_p->get_QCD_masse("mb_pole") + (*sm_p)("MASS", 3)); // m_Bs / (m_b_pole + m_s)
-
-    LOG_INFO("G_F = ", G_F);
-    LOG_INFO("alpha_inv = ", inv_alpha_em);
-    LOG_INFO("V_tbV_ts* = ", V_tbV_ts);
-    LOG_INFO("m_Bs = ", m_Bs);
-    LOG_INFO("f_Bs = ", f_Bs);
-    LOG_INFO("life_Bs = ", life_Bs);
 
     return std::pow(G_F * f_Bs * V_tbV_ts / inv_alpha_em, 2) / (64 * HBAR) * std::pow(m_Bs, 3) * INV_PI3 * life_Bs * std::sqrt(1 - 4 * r * r) 
             * ((1 - 4 * r * r) * pow(x * std::abs(CQ1 - CPQ1), 2) + pow(std::abs(x * (CQ2 - CPQ2) + 2 * r * (C10 - CP10)), 2));

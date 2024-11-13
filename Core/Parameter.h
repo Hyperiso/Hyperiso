@@ -2,6 +2,8 @@
 #define __PARAMETER_H__
 
 #include <string>
+#include <iostream>
+#include "Logger.h"
 
 typedef std::pair<std::string, int> ParamId;
 
@@ -35,8 +37,14 @@ public:
         this->id = other.id;
         this->expected = other.expected;
         this->deviation = other.deviation;
-        this->set_mode(other.mode);
+        this->mode = other.mode;
+        this->value = other.value;
         return *this;
+    }
+
+    friend std::ostream& operator<<(std::ostream& os, const Parameter& p) {
+        os << "Parameter " << p.id.first << "," << p.id.second << "=" << p.expected << "+-" << p.deviation << std::endl;
+        return os;
     }
 
 };
