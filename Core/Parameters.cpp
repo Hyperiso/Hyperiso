@@ -439,6 +439,15 @@ double Parameters::getFlavorParam(FlavorParamType type, const std::string& id) {
     return this->flavorblockAccessor.getValue(type, id);
 }
 
+void Parameters::changeParameterMode(const ParamId &param_id,
+                                     ParameterMode new_mode) {
+    blockAccessor.setMode(param_id.first, param_id.second, new_mode);
+}
+
+void Parameters::shiftParameter(const ParamId &param_id, double shift_value) {
+    blockAccessor.setValue(param_id.first, param_id.second, blockAccessor.getValue(param_id.first, param_id.second) + shift_value);
+}
+
 // void Parameters::changeParameterValue(const std::string& block, int pdgCode, double newValue) {
 //     double currentValue = blockAccessor.getValue(block, pdgCode);
 
