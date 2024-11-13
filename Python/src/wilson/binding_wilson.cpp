@@ -55,6 +55,7 @@ void init_coefficient_manager(py::module &m) {
 
         .def("register_coefficient_group", &CoefficientManager::registerCoefficientGroup)
         .def("get_state", &CoefficientManager::get_state)
+        .def("get_alpha_s", &CoefficientManager::getAlphaS)
         .def("set_q_match", &CoefficientManager::setQMatch)
         .def("set_params", &CoefficientManager::setParams)
         .def("get_params", &CoefficientManager::get_params)

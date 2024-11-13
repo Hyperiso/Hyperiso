@@ -59,8 +59,19 @@ public:
     void addFlavorBlock(FlavorParamType name, std::shared_ptr<FlavorBlock> block) {
         flavorblockAccessor.addBlock(name, block);
     }
-    void setBlockValue(const std::string& name, int pdgCode, double value) {
-        blockAccessor.setValue(name, pdgCode, value);
+    void setBlockValue(const std::string& name, int pdgCode, double value, bool force = true) {
+        if (force && (name == "MASS")) {
+            if (pdgCode == 6) {
+                QCDRunner.set_mt_pole(value);
+                blockAccessor.setValue(name, pdgCode, this->get_QCD_masse("mt_mt"), force);
+                return;
+            } else if (pdgCode == 5) {
+                QCDRunner.set_mb_mb(value);
+                blockAccessor.setValue(name, pdgCode, value, force);
+                return;
+            }
+        }
+        blockAccessor.setValue(name, pdgCode, value, force);
     }
 
     void setQCDParameters(const QCDParameters&& qcdparams) {QCDRunner = qcdparams;}

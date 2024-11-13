@@ -12,7 +12,7 @@
 class Block {
 public:
     virtual double getValue(int pdgCode) const = 0;
-    virtual void setValue(int pdgCode, double value) = 0;
+    virtual void setValue(int pdgCode, double value, bool force = false) = 0;
     virtual void setMode(int pdgCode, ParameterMode mode) = 0;
     virtual ~Block() = default;
     std::string blockname{};
@@ -30,7 +30,7 @@ public:
         throw std::out_of_range("PDG code not found in " + this->blockname);
     }
 
-    void setValue(int pdgCode, double value) override {
+    void setValue(int pdgCode, double value, bool force = false) override {
         JSONParser::getInstance(0)->addElement(this->blockname.substr(0, this->blockname.size()-5), pdgCode, value);
         Parameter param (this->blockname.substr(0, this->blockname.size()-5), pdgCode, value, 0);
         // std::cout << "------------------" << std::endl;
@@ -38,7 +38,11 @@ public:
         // std::cout << "value before : " << pdgCode << " " << values[pdgCode].get_val() << std::endl;
         // // values[pdgCode] = param;
         // std::cout << "value before : " << pdgCode << " " <<  values[pdgCode].get_val() << std::endl;
-        values.emplace(std::make_pair(pdgCode, param));
+        if (force) {
+            values[pdgCode] = param;
+        } else {
+            values.emplace(std::make_pair(pdgCode, param));
+        }
     }
 
     void setMode(int pdgCode, ParameterMode mode) override {
@@ -57,7 +61,7 @@ public:
         return values[pdgCode / 10][pdgCode % 10].get_val();
     }
 
-    void setValue(int pdgCode, double value) override {
+    void setValue(int pdgCode, double value, bool force = false) override {
         JSONParser::getInstance(0)->addElement(this->blockname.substr(0, this->blockname.size()-5), pdgCode, value);
         auto p = Parameter(this->blockname.substr(0, this->blockname.size()-5), pdgCode, value, 0);
         values[pdgCode / 10][pdgCode % 10] = p;
@@ -217,8 +221,8 @@ public:
         throw std::out_of_range("PDG code not found in " + this->blockname);
     }
 
-    void setValue(std::string pdgCode, double value) {
-        values.emplace(pdgCode, Parameter(pdgCode, 0, value, 0));
+    void setValue(std::string pdgCode, double value, bool force = false) {
+        values.emplace(pdgCode, Parameter(this->blockname.substr(0, this->blockname.size()-5), 0, value, 0));
     }
 
     void setMode(std::string pdgCode, ParameterMode mode) {

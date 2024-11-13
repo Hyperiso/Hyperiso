@@ -24,15 +24,13 @@ public:
         if (it != blocks.end()) {
             return it->second->getValue(pdgCode);
         }
-        std::cout<< blockName << std::endl;
         throw std::invalid_argument("Block " + blockName + " not found with pdg code : " + std::to_string(pdgCode));
     }
 
-    void setValue(const std::string& blockName, int pdgCode, double value) {
+    void setValue(const std::string& blockName, int pdgCode, double value, bool force = false) {
         auto it = blocks.find(blockName);
         if (it != blocks.end()) {
-            it->second->setValue(pdgCode, value);
-            std::cout << it->first << " " << value << std::endl;
+            it->second->setValue(pdgCode, value, force);
         } else {
             throw std::invalid_argument("Block not found");
         }
@@ -52,7 +50,7 @@ public:
         throw std::logic_error("Use getValue with block name for BlockAccessor");
     }
 
-    void setValue(int pdgCode, double value) override {
+    void setValue(int pdgCode, double value, bool force = false) override {
         throw std::logic_error("Use setValue with block name for BlockAccessor");
     }
 
@@ -78,7 +76,7 @@ public:
         throw std::invalid_argument("Block not found");
     }
 
-    void setValue(FlavorParamType blockName, std::string id, double value) {
+    void setValue(FlavorParamType blockName, std::string id, double value, bool force = false) {
         auto it = blocks.find(blockName);
         if (it != blocks.end()) {
             it->second->setValue(id, value);

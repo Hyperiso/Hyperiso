@@ -274,11 +274,13 @@ double QCDParameters::mb_1S() {
  * @return The top quark running mass at m_top in MSbar
  */
 double QCDParameters::mt_mt() {
+
 	double alpha = runningAlphasCalculation(this->mass_t_pole, "running");
-    std::cout << std::fixed << std::setprecision(20) << alpha;
     double a = 307. / 32. + PI2 / 3. + PI2 / 9. * log(2.) - 1. / 6 * ZETA3 - 71. / 144. * 5.;
     this->mass_t_t = this->mass_t_pole / (1. + alpha / PI * (4. / 3 + alpha / PI * a));
     alpha = runningAlphasCalculation(this->mass_t_t, "running", "running");
     this->mass_t_t = this->mass_t_pole / (1. + alpha / PI * (4. / 3 + alpha / PI * a));
+    std::cout << "m_t_pole : " << this->mass_t_pole << std::endl;
+    std::cout << "m_t_t : " << mass_t_t << std::endl;
 	return mass_t_t;
 }

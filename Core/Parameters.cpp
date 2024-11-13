@@ -399,7 +399,6 @@ void GeneralModelStrategy::initializeParameters(Parameters& params) {
             for (size_t i = 0; i < elts->size(); ++i) {
                 auto e = static_cast<LhaElement<double>*>(elts->at(i).get());
                 generalblock->setValue(std::stoi(e->getId()), e->getValue());
-                std::cout << std::stoi(e->getId()) << " " << e->getValue() << std::endl; 
             }
             params.addBlock(elem, std::move(generalblock));
             continue;

@@ -73,6 +73,11 @@ public:
         throw std::runtime_error("Invalid state: Cannot get full run coefficients in current state.");
     }
 
+    virtual double getAlphaS(CoefficientManager* manager, const std::string& groupName)  {
+        throw std::runtime_error("Invalid state: Cannot get alpha_s in current state.");
+    }
+    
+
     bool isOrderCalculated(const std::string& order) {
         if (order == "LO" && currentOrder >= CoefficientOrder::LO) {
             return true;
@@ -135,8 +140,9 @@ public:
     QMatchSetState(std::string order) : State(order) { this->state = "QMatchSetState";}
     void setMatchingCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& order) override;
     void setParams(const std::string& block, int pdgCode, double value) {
-        Parameters::GetInstance()->setBlockValue(block, pdgCode, value);
+        Parameters::GetInstance()->setBlockValue(block, pdgCode, value, true);
     }
+    double getAlphaS(CoefficientManager* manager, const std::string& groupName);
 };
 
 
@@ -145,7 +151,11 @@ public:
     MatchingSetState(std::string order) : State(order) {this->state = "MatchingSetState";}
     void setGroupScale(CoefficientManager* manager, const std::string& groupName, double Q) override;
     // void setRunCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& order) override;
-
+    void setMatchingCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& order) override;
+    void setParams(const std::string& block, int pdgCode, double value) {
+        Parameters::GetInstance()->setBlockValue(block, pdgCode, value, true);
+    }
+    double getAlphaS(CoefficientManager* manager, const std::string& groupName);
     std::complex<double> getMatchingCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) override;
     std::complex<double> getFullMatchingCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) override;
 };
@@ -244,6 +254,9 @@ public:
         return ensureGroupState(groupName)->getFullRunCoefficient(this, groupName, coeffName, order);
     }
 
+    double getAlphaS(const std::string& groupName) {
+        return ensureGroupState(groupName)->getAlphaS(this, groupName);
+    }
     void registerCoefficientGroup(const std::string& groupName, std::shared_ptr<CoefficientGroup> group) {
         coefficientGroups[groupName] = group;
         groupStates[groupName] = std::make_shared<InitialState>();
