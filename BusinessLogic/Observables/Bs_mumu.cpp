@@ -13,13 +13,6 @@ double BR_Bs_mumu::eval() const {
     complex_t CPQ1 = manager->getFullRunCoefficient("BPrimeCoefficient", "CPQ1", "LO");
     complex_t CPQ2 = manager->getFullRunCoefficient("BPrimeCoefficient", "CPQ2", "LO");
 
-    LOG_INFO("C10 = ", C10);
-    LOG_INFO("CP10 = ", CP10);
-    LOG_INFO("CQ1 = ", CQ1);
-    LOG_INFO("CQ2 = ", CQ2);
-    LOG_INFO("CPQ1 = ", CPQ1);
-    LOG_INFO("CPQ2 = ", CPQ2);
-
     double G_F = (*sm_p)("SMINPUTS", 2);
     double inv_alpha_em = (*sm_p)("SMINPUTS", 1);
     double V_tbV_ts = std::abs(Parameters::get_c_CKM_entry(22) * std::conj(Parameters::get_c_CKM_entry(21))); 
@@ -30,13 +23,6 @@ double BR_Bs_mumu::eval() const {
     
     double r = (*sm_p)("MASS", 13) / m_Bs;  // m_mu / m_Bs
     double x = m_Bs / (sm_p->get_QCD_masse("mb_pole") + (*sm_p)("MASS", 3)); // m_Bs / (m_b_pole + m_s)
-
-    LOG_INFO("G_F = ", G_F);
-    LOG_INFO("alpha_inv = ", inv_alpha_em);
-    LOG_INFO("V_tbV_ts* = ", V_tbV_ts);
-    LOG_INFO("m_Bs = ", m_Bs);
-    LOG_INFO("f_Bs = ", f_Bs);
-    LOG_INFO("life_Bs = ", life_Bs);
 
     return std::pow(G_F * f_Bs * V_tbV_ts / inv_alpha_em, 2) / (64 * HBAR) * std::pow(m_Bs, 3) * INV_PI3 * life_Bs * std::sqrt(1 - 4 * r * r) 
             * ((1 - 4 * r * r) * pow(x * std::abs(CQ1 - CPQ1), 2) + pow(std::abs(x * (CQ2 - CPQ2) + 2 * r * (C10 - CP10)), 2));
@@ -76,6 +62,14 @@ double BR_Bs_mumu_untag::eval() const {
     double A = (magn_P * std::cos(2 * phi_P) - magn_S * std::cos(2 * phi_S)) / (magn_P + magn_S);
     double ys_Bs = 0.068;
     double untag_factor = (1 + A * ys_Bs) / (1 - ys_Bs * ys_Bs);
+
+    LOG_INFO("C10 = ", C10);
+    LOG_INFO("CP10 = ", CP10);
+    LOG_INFO("CQ1 = ", CQ1);
+    LOG_INFO("CQ2 = ", CQ2);
+    LOG_INFO("CPQ1 = ", CPQ1);
+    LOG_INFO("CPQ2 = ", CPQ2);
+    LOG_INFO("Untag_factor = ", untag_factor);
 
     return untag_factor * std::pow(G_F * f_Bs * V_tbV_ts / inv_alpha_em, 2) / (64 * HBAR) * std::pow(m_Bs, 3) * INV_PI3 * life_Bs * std::sqrt(1 - 4 * r * r) 
             * ((1 - 4 * r * r) * pow(x * std::abs(CQ1 - CPQ1), 2) + pow(std::abs(x * (CQ2 - CPQ2) + 2 * r * (C10 - CP10)), 2));
