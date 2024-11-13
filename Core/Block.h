@@ -33,11 +33,11 @@ public:
     void setValue(int pdgCode, double value) override {
         JSONParser::getInstance(0)->addElement(this->blockname.substr(0, this->blockname.size()-5), pdgCode, value);
         Parameter param (this->blockname.substr(0, this->blockname.size()-5), pdgCode, value, 0);
-        std::cout << "------------------" << std::endl;
-        std::cout << this->blockname << std::endl;
-        std::cout << "value before : " << pdgCode << " " << values[pdgCode].get_val() << std::endl;
-        // values[pdgCode] = param;
-        std::cout << "value before : " << pdgCode << " " <<  values[pdgCode].get_val() << std::endl;
+        // std::cout << "------------------" << std::endl;
+        // std::cout << this->blockname << std::endl;
+        // std::cout << "value before : " << pdgCode << " " << values[pdgCode].get_val() << std::endl;
+        // // values[pdgCode] = param;
+        // std::cout << "value before : " << pdgCode << " " <<  values[pdgCode].get_val() << std::endl;
         values.emplace(std::make_pair(pdgCode, param));
     }
 
