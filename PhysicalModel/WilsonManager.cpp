@@ -49,6 +49,29 @@ void QMatchSetState::setMatchingCoefficient(CoefficientManager* manager, const s
         manager->setState(groupName, std::make_shared<MatchingSetState>(order));
 }
 
+void MatchingSetState::setMatchingCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& order) {
+        CoefficientGroup* group = manager->getCoefficientGroup(groupName);
+        CoefficientOrder newOrder = order == "LO" ? CoefficientOrder::LO :
+                                    order == "NLO" ? CoefficientOrder::NLO :
+                                    CoefficientOrder::NNLO;
+        Wilson_parameters::GetInstance()->SetMuW(manager->getCoefficientGroup(groupName)->get_Q_match());
+        for (auto& it : *group) {
+            if (order == "LO") {
+                it.second->LO_calculation();
+            } else if (order == "NLO") {
+                it.second->LO_calculation();
+                it.second->NLO_calculation();
+            } else if (order == "NNLO") {
+                it.second->LO_calculation();
+                it.second->NLO_calculation();
+                it.second->NNLO_calculation();
+            }
+        }
+
+        currentOrder = newOrder;
+        manager->setState(groupName, std::make_shared<MatchingSetState>(order));
+}
+
 void QSetState::setRunCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& order) {
     if (!isOrderCalculated(order)) {
         throw std::runtime_error("Matching coefficient of the requested order has not been set.");
@@ -78,6 +101,14 @@ std::complex<double> MatchingSetState::getMatchingCoefficient(CoefficientManager
 std::complex<double> MatchingSetState::getFullMatchingCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) {
     CoefficientGroup* group = manager->getCoefficientGroup(groupName);
     return group->getfullMatching(coeffName, order);
+}
+
+double MatchingSetState::getAlphaS(CoefficientManager* manager, const std::string& groupName) {
+    return Parameters::GetInstance()->alpha_s(manager->getCoefficientGroup(groupName)->get_Q_match());
+}
+
+double QMatchSetState::getAlphaS(CoefficientManager* manager, const std::string& groupName) {
+    return Parameters::GetInstance()->alpha_s(manager->getCoefficientGroup(groupName)->get_Q_match());
 }
 
 void RunSetState::setGroupScale(CoefficientManager* manager, const std::string& groupName, double Q) {
