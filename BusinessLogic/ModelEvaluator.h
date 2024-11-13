@@ -4,7 +4,7 @@
 #include "Compound.h"
 #include "Observable.h"
 #include "Observables.h"
-#include "Math.h"
+#include "Matrix.h"
 #include <vector>
 #include <string>
 
@@ -12,7 +12,7 @@ class ModelEvaluator {
 
 private:
 
-    std::vector<Observable> observables;
+    std::vector<std::shared_ptr<Observable>> observables;
     SparseMatrix<Observables> th_cov_mtx;
     SparseMatrix<Observables> exp_cov_mtx;
 
@@ -22,11 +22,11 @@ private:
 public:
 
     ModelEvaluator();
-    ModelEvaluator(std::vector<Observable> observables);
+    ModelEvaluator(const std::vector<std::shared_ptr<Observable>>& observables);
 
-    void add_observable(Observable obs);
-    void add_observables(std::vector<Observable> obs);
-    Observable find_from_id(Observables id);
+    // void add_observable(Observable obs);
+    // void add_observables(std::vector<Observable> obs);
+    std::shared_ptr<Observable> find_from_id(Observables id);
     SparseMatrix<Observables> get_covariance() const;
     double chi2() const;
 

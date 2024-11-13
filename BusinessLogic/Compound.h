@@ -1,11 +1,12 @@
 #ifndef __COMPOUND_H__
 #define __COMPOUND_H__
 
+#include <iostream>
 #include <string>
 #include <vector>
 #include <map>
 #include "Parameter.h"
-#include "Math.h"
+#include "Matrix.h"
 
 class Compound {
 
@@ -27,6 +28,7 @@ public:
     const std::map<ParamId, double>& get_gradient() const;
     double variance() const;
     double correlation_with(const Compound& other) const;
+    void print_gradient(std::ostream& os) const;
 
 };
 

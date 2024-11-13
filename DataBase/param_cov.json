@@ -1,0 +1,41 @@
+{
+    "values": [
+      {
+        "name": "MASS|5",
+        "central_value": 4.18,
+        "stat_error": 0.03,
+        "syst_error": 0
+      },
+      {
+        "name": "MASS|6",
+        "central_value": 173.34,
+        "stat_error": 0.98,
+        "syst_error": 0
+      },
+      {
+        "name": "MASS|3",
+        "central_value": 0.095,
+        "stat_error": 0.005,
+        "syst_error": 0
+      },
+      {
+        "name": "MASS|4",
+        "central_value": 1.275,
+        "stat_error": 0.025,
+        "syst_error": 0
+      },
+      {
+        "name": "SMINPUTS|2",
+        "central_value": 0.1184,
+        "stat_error": 0.0008,
+        "syst_error": 0
+      }
+    ],
+    "correlations": [
+      {
+        "name1": "MASS|5",
+        "name2": "MASS|421",
+        "value": 0.01
+      }
+    ]
+}

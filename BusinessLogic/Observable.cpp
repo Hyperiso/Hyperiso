@@ -12,10 +12,6 @@ double Observable::get_exp_var() const {
     return std::pow(exp_std, 2);
 }
 
-double Observable::eval() const {
-    return NAN;
-}
-
 CoefficientManager *Observable::computeWilsons(bool traditional_basis) const {
     return computeWilsons(model, order, scale, traditional_basis);
 }

@@ -14,13 +14,6 @@ double BR_Bs_mumu::eval() const {
     complex_t CPQ1 = manager->getFullMatchingCoefficient("BPrimeCoefficient", "CPQ1", "LO");
     complex_t CPQ2 = manager->getFullMatchingCoefficient("BPrimeCoefficient", "CPQ2", "LO");
 
-    LOG_INFO("C10 = ", C10);
-    LOG_INFO("CP10 = ", CP10);
-    LOG_INFO("CQ1 = ", CQ1);
-    LOG_INFO("CQ2 = ", CQ2);
-    LOG_INFO("CPQ1 = ", CPQ1);
-    LOG_INFO("CPQ2 = ", CPQ2);
-
     double G_F = (*sm_p)("SMINPUTS", 2);
     double inv_alpha_em = (*sm_p)("SMINPUTS", 1);
     double V_tbV_ts = std::abs(Parameters::get_c_CKM_entry(22) * std::conj(Parameters::get_c_CKM_entry(21))); 

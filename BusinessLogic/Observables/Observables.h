@@ -1,5 +1,6 @@
 #if !defined(HYPERISO_OBSERVABLES_H)
 #define HYPERISO_OBSERVABLES_H
+
 #include <string>
 #include <stdexcept>
 #include <unordered_map>
@@ -68,7 +69,5 @@ private:
     ObservableMapper(const ObservableMapper&) = delete;
     ObservableMapper& operator=(const ObservableMapper&) = delete;
 };
-
-
 
 #endif // HYPERISO_OBSERVABLES_H

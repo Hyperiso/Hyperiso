@@ -1,9 +1,14 @@
+#ifndef __MATRIX_H__
+#define __MATRIX_H__
+
 #include <iostream>
 #include <map>
 #include <string>
 #include <vector>
 #include <stdexcept>
-#include "Math.h"
+
+template<typename T>
+using SparseMatrix = std::map<std::pair<T, T>, double>;
 
 template<typename T>
 std::vector<T> getDiagonalElements(const SparseMatrix<T>& matrix) {
@@ -87,27 +92,4 @@ void printMatrix(const SparseMatrix<T>& matrix, const std::vector<T>& indices) {
     }
 }
 
-// int main() {
-//     SparseMatrix matrix = {
-//         {{"1", "1"}, 1},
-//         {{"1", "2"}, 3},
-//         {{"2", "1"}, 3},
-//         {{"2", "2"}, 1},
-//         {{"3", "2"}, 5},
-//         {{"3", "3"}, 1},
-//         {{"2", "3"}, 5},
-//         {{"d", "d"}, 1}
-//     };
-
-//     std::vector<std::string> indices = getDiagonalElements(matrix);
-
-//     try {
-//         SparseMatrix inverse = invertMatrix(matrix, indices);
-
-//         printMatrix(inverse, indices);
-//     } catch (const std::runtime_error& e) {
-//         std::cerr << e.what() << std::endl;
-//     }
-
-//     return 0;
-// }
+#endif // __MATRIX_H__

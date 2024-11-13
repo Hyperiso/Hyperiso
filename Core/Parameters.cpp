@@ -366,7 +366,7 @@ void FlAVORModelStrategy::initializeParameters(Parameters& params) {
 
     auto lifetimeblock = std::make_shared<LifeTimeBlock>();
     lifetimeblock->setValue("511", 1.519e-12);
-    lifetimeblock->setValue("531", 1.510e-12);
+    lifetimeblock->setValue("531", 1.512e-12);
     params.addFlavorBlock(FlavorParamType::LIFETIME, std::move(lifetimeblock));
 
     auto fconstblock = std::make_shared<FConstBlock>();
