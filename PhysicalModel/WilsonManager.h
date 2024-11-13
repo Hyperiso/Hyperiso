@@ -41,6 +41,9 @@ public:
     virtual void setQMatch(CoefficientManager* manager, const std::string& groupName, double Q_match) {
         throw std::runtime_error("Invalid state: Cannot set Q match in current state.");
     }
+    virtual void setParams(const std::string& block, int pdgCode, double value) {
+        throw std::runtime_error("Invalid state: Cannot set params in current state.");
+    }
 
     virtual void setMatchingCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& order) {
         throw std::runtime_error("Invalid state: Cannot set matching coefficients in current state.");
@@ -131,6 +134,9 @@ class QMatchSetState : public State {
 public:
     QMatchSetState(std::string order) : State(order) { this->state = "QMatchSetState";}
     void setMatchingCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& order) override;
+    void setParams(const std::string& block, int pdgCode, double value) {
+        Parameters::GetInstance()->setBlockValue(block, pdgCode, value);
+    }
 };
 
 
@@ -189,6 +195,9 @@ public:
         mm->init();
     }
 
+    double get_params(const std::string& block, int pdgCode) {
+        return (*Parameters::GetInstance())(block, pdgCode);
+    }
     std::string get_state(const std::string& groupName) {
         return ensureGroupState(groupName)->get_state();
     }
@@ -205,6 +214,9 @@ public:
         ensureGroupState(groupName)->setQMatch(this, groupName, Q_match);
     }
 
+    void setParams(const std::string& groupName, const std::string& block, int pdgCode, double value) {
+        ensureGroupState(groupName)->setParams(block, pdgCode, value);
+    }
     void setMatchingCoefficient(const std::string& groupName, const std::string& order) {
         ensureGroupState(groupName)->setMatchingCoefficient(this, groupName, order);
     }

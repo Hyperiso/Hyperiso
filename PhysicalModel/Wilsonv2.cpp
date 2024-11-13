@@ -231,9 +231,6 @@ void BCoefficientGroup::set_base_1_LO() {
 
     it->second->set_WilsonCoeffRun("LO", it->second->get_CoefficientMatchingValue("LO"));
 
-    if (++it == this->end()) {
-        std::cout << "Ca marche ! " << std::endl;
-    }
     this->base["LO"] = 1;
 }
 
@@ -241,7 +238,6 @@ void BCoefficientGroup::set_base_2_LO() {
     std::vector<std::string> coeffs {"C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9", "C10"};
     std::vector<complex_t> coeffs_t {};
     std::vector<complex_t> coeffs_b(10);
-    std::cout << "Ca marche ! 2 " << std::endl;
     coeffs_t.push_back(this->at("C1")->get_CoefficientMatchingValue("LO")/2.);
 
     coeffs_t.push_back(-this->at("C1")->get_CoefficientMatchingValue("LO")/6.+this->at("C2")->get_CoefficientMatchingValue("LO"));
@@ -254,7 +250,6 @@ void BCoefficientGroup::set_base_2_LO() {
 	coeffs_t.push_back(this->at("C9")->get_CoefficientMatchingValue("LO"));
 	coeffs_t.push_back(this->at("C10")->get_CoefficientMatchingValue("LO"));
 
-    std::cout << "Ca marche ! 3" << std::endl;
     complex_t C0t7= coeffs_t[6]-1./3.*coeffs_t[4]-coeffs_t[5]; 
 
 	complex_t C0t8= coeffs_t[7]+coeffs_t[4]; 
@@ -274,7 +269,6 @@ void BCoefficientGroup::set_base_2_LO() {
 		    }
         }
     }
-    std::cout << "Ca marche ! 4" << std::endl;
     for (int j=0; j<8; j++) {
         coeffs_b[8] += 4.*PI/W_param->alphas_mu*(W_param->V0[9-1][j]*coeffs_t[j]);
     }
@@ -284,7 +278,6 @@ void BCoefficientGroup::set_base_2_LO() {
     for (int i=0; i<coeffs.size(); i++) {
         this->at(coeffs[i])->set_WilsonCoeffRun("LO", coeffs_b[i]);
     }
-    std::cout << "Ca marche ! 5" << std::endl;
     this->base["LO"] = 2;
 }
 
