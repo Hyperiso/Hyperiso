@@ -31,7 +31,7 @@ public:
     Observables getId() const;
     double get_exp_val() const;
     double get_exp_var() const;
-    virtual double eval() const override;
+    virtual double eval() const override = 0;
     CoefficientManager* computeWilsons(bool traditional_basis=false) const;
     CoefficientManager* computeWilsons(int model, int order, double scale, bool traditional_basis=false) const;
 

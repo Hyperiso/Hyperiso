@@ -8,7 +8,7 @@ void Compound::read_param_covariance() {
     std::vector<Correlation> correlations;
     std::vector<Value> values;
     std::string root = project_root.data();
-    read_json(root + "/DataBase/param_corr.json", values, correlations);
+    read_json(root + "/DataBase/param_cov.json", values, correlations);
 
     std::map<ParamId, double> stds;
 
@@ -105,4 +105,10 @@ double Compound::correlation_with(const Compound &other) const {
         }
     }
     return corr;
+}
+
+void Compound::print_gradient(std::ostream& os) const {
+    for (auto &&p: gradient) {
+        os << "d/d(" << p.first.first << "," << p.first.second << ") = " << p.second << std::endl;
+    }
 }

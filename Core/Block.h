@@ -218,7 +218,7 @@ public:
     }
 
     void setValue(std::string pdgCode, double value) {
-        values.emplace(pdgCode, Parameter(this->blockname.substr(0, this->blockname.size()-5), 0, value, 0));
+        values.emplace(pdgCode, Parameter(pdgCode, 0, value, 0));
     }
 
     void setMode(std::string pdgCode, ParameterMode mode) {

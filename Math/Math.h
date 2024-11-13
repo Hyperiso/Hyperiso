@@ -110,12 +110,3 @@ complex_t G8_perp(double rb); // Done
 complex_t H_perp(double s, double a_1_par, double a_2_par); // Done
 complex_t H2_perp(double s, double a_1_perp, double a_2_perp); // Done
 double H8_perp(double a_1_perp, double a_2_perp); // Done
-
-template<typename T>
-using SparseMatrix = std::map<std::pair<T, T>, double>;
-
-template<typename T>
-std::vector<T> getDiagonalElements(const SparseMatrix<T>& matrix);
-
-template<typename T>
-SparseMatrix<T> invertMatrix(const SparseMatrix<T>& matrix, const std::vector<T>& indices);
