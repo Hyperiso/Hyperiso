@@ -507,7 +507,7 @@ class BCoefficientGroup : public CoefficientGroup {
 
 public:
     BCoefficientGroup() {
-        this->insert(std::make_pair("C1", std::make_shared<C1>())); std::cout << "trying to try try" << std::endl;this->insert(std::make_pair("C2", std::make_shared<C2>())); this->insert(std::make_pair("C3", std::make_shared<C3>()));
+        this->insert(std::make_pair("C1", std::make_shared<C1>())); this->insert(std::make_pair("C2", std::make_shared<C2>())); this->insert(std::make_pair("C3", std::make_shared<C3>()));
         this->insert(std::make_pair("C4", std::make_shared<C4>()));  this->insert(std::make_pair("C5", std::make_shared<C5>())); this->insert(std::make_pair("C6", std::make_shared<C6>())); 
         this->insert(std::make_pair("C7", std::make_shared<C7>()));  this->insert(std::make_pair("C8", std::make_shared<C8>()));  this->insert(std::make_pair("C9", std::make_shared<C9>())); 
         this->insert(std::make_pair("C10", std::make_shared<C10>())); 

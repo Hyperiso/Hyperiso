@@ -23,9 +23,13 @@ int main() {
 
     CoefficientManager* wm = CoefficientManager::GetInstance("SM");
 
-    wm->registerCoefficientGroup("BCoeffeicient", std::make_shared<BCoefficientGroupMarty>());
+    wm->registerCoefficientGroup("BCoefficient", std::make_shared<BCoefficientGroupMarty>());
 
     wm->setQMatch("BCoefficient", 81);
+    std::cout << "mass_top before : " << wm->get_params("MASS", 6) << std::endl;
+    wm->setParams("BCoefficient", "MASS", 6, 150);
+    std::cout << "mass_top after : " << wm->get_params("MASS", 6) << std::endl;
+
     wm->setMatchingCoefficient("BCoefficient", "LO");
     auto group = wm->getCoefficientGroup("BCoefficient");
     for (auto& elem : *group) {
