@@ -3,6 +3,7 @@
 #include <functional>
 #include "Parameters.h"
 #include "Logger.h"
+#include <iostream>
 
 class thdm_parameters {
 
@@ -50,7 +51,8 @@ public:
 	double xH0=pow((*mod)("MASS",35)/(*sm)("MASS",24),2.);
 	double xA=pow((*mod)("MASS",36)/(*sm)("MASS",24),2.);
 
-    double lu = (*mod)("YU", 22);;
+    
+    double lu = (*mod)("YU", 22);
 	double ld = (*mod)("YD", 22);
     
 };

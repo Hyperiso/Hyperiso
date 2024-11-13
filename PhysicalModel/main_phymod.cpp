@@ -2,12 +2,15 @@
 #include "Wilson_susyv2.h"
 #include "Wilson_THDMv2.h"
 #include "WilsonManager.h"
+#include "Parameters.h"
 
 #include <iostream>
 int main() {
-    auto mm = MemoryManager::GetInstance("Test/InputFiles/testinput_thdm.lha", {0,2});  // Initialize program manager with LHA file containing SMINPUTS block
+    auto mm = MemoryManager::GetInstance("Test/InputFiles/testinput_thdm.lha", {0});  // Initialize program manager with LHA file containing SMINPUTS block
     mm->init();
-
+    auto sm = Parameters::GetInstance(0);
+    std::cout << "mdfksmdlkfsmdlf" << std::endl;
+    std::cout << sm << std::endl;
     // auto* manager = CoefficientManager::GetInstance("StandardModel");
     std::map<std::string, std::shared_ptr<CoefficientGroup>> groups = {std::make_pair("BCoefficient", std::make_shared<BCoefficientGroup>(81.)), std::make_pair("BScalarCoefficient", std::make_shared<BScalarCoefficientGroup>(81.)), std::make_pair("BPrimeCoefficient", std::make_shared<BPrimeCoefficientGroup>(81.))};
 

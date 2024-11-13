@@ -76,6 +76,7 @@ public:
         return *this;
     }
 
+
 protected:
     std::array<std::array<Parameter, column>, index> values;
 };
