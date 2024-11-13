@@ -40,6 +40,8 @@ def test_coefficient_manager():
         order = "LO"
         manager.set_params("BCoefficientGroup", "MASS", 6, mt)
         manager.set_matching_coefficient(group_name, order)
+        manager.set_group_scale(group_name, Q)
+        manager.set_run_coefficient(group_name, order)
         liste_alpha.append(manager.get_alpha_s("BCoefficientGroup"))
         liste.append(manager.get_matching_coefficient(group_name, coeff_name, order).real)
 
@@ -52,7 +54,6 @@ def test_coefficient_manager():
         liste_NNLO.append(manager.get_matching_coefficient(group_name, coeff_name, order).real)
 
 
-    print(liste_alpha)
 
     LO = liste[1:]
     NLO = np.array(liste_NLO[1:]) *np.array( liste_alpha[1:]) / (2* np.pi)

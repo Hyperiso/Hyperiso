@@ -102,6 +102,7 @@ public:
         }
           
     }
+    std::string 
 
     CoefficientOrder StringToEnum(std::string order) {
         if (order == "LO") {
@@ -216,6 +217,11 @@ public:
         groupStates[groupName] = std::move(newState);
     }
 
+    void setState(const std::string& groupName, std::string state_name) {
+        if (state_name == "matchingstate"){
+            groupStates[groupName] = std::move(std::shared_ptr<State>(groupStates[groupName]->));
+        }
+    }
     void setGroupScale(const std::string& groupName, double Q) {
         ensureGroupState(groupName)->setGroupScale(this, groupName, Q);
     }

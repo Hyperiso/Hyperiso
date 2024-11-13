@@ -228,7 +228,7 @@ void BCoefficientGroup::set_base_1_LO() {
         }
         (it++)->second->set_WilsonCoeffRun("LO", _);
     }
-
+    std::cout << "Niels à tord : " << it->first << " " << it->second->get_CoefficientMatchingValue("LO") << std::endl;
     it->second->set_WilsonCoeffRun("LO", it->second->get_CoefficientMatchingValue("LO"));
 
     this->base["LO"] = 1;
