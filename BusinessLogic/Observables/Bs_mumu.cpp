@@ -6,12 +6,20 @@ double BR_Bs_mumu::eval() const {
     auto flav_p = Parameters::GetInstance(3); // Flavor params
     auto manager = computeWilsons();
 
-    complex_t C10 = manager->getFullRunCoefficient("BCoefficient", "C10", "NNLO");
-    complex_t CP10 = manager->getFullRunCoefficient("BPrimeCoefficient", "CP10", "LO");
-    complex_t CQ1 = manager->getFullRunCoefficient("BScalarCoefficient", "CQ1", "NLO");
-    complex_t CQ2 = manager->getFullRunCoefficient("BScalarCoefficient", "CQ2", "NLO");
-    complex_t CPQ1 = manager->getFullRunCoefficient("BPrimeCoefficient", "CPQ1", "LO");
-    complex_t CPQ2 = manager->getFullRunCoefficient("BPrimeCoefficient", "CPQ2", "LO");
+    // These should be taken at b scale with getFullRunCoefficient() but currently doesn't work
+    complex_t C10 = manager->getFullMatchingCoefficient("BCoefficient", "C10", "NNLO");
+    complex_t CP10 = manager->getFullMatchingCoefficient("BPrimeCoefficient", "CP10", "LO");
+    complex_t CQ1 = manager->getFullMatchingCoefficient("BScalarCoefficient", "CQ1", "NLO");
+    complex_t CQ2 = manager->getFullMatchingCoefficient("BScalarCoefficient", "CQ2", "NLO");
+    complex_t CPQ1 = manager->getFullMatchingCoefficient("BPrimeCoefficient", "CPQ1", "LO");
+    complex_t CPQ2 = manager->getFullMatchingCoefficient("BPrimeCoefficient", "CPQ2", "LO");
+
+    LOG_INFO("C10 = ", C10);
+    LOG_INFO("CP10 = ", CP10);
+    LOG_INFO("CQ1 = ", CQ1);
+    LOG_INFO("CQ2 = ", CQ2);
+    LOG_INFO("CPQ1 = ", CPQ1);
+    LOG_INFO("CPQ2 = ", CPQ2);
 
     double G_F = (*sm_p)("SMINPUTS", 2);
     double inv_alpha_em = (*sm_p)("SMINPUTS", 1);
@@ -62,14 +70,6 @@ double BR_Bs_mumu_untag::eval() const {
     double A = (magn_P * std::cos(2 * phi_P) - magn_S * std::cos(2 * phi_S)) / (magn_P + magn_S);
     double ys_Bs = 0.068;
     double untag_factor = (1 + A * ys_Bs) / (1 - ys_Bs * ys_Bs);
-
-    LOG_INFO("C10 = ", C10);
-    LOG_INFO("CP10 = ", CP10);
-    LOG_INFO("CQ1 = ", CQ1);
-    LOG_INFO("CQ2 = ", CQ2);
-    LOG_INFO("CPQ1 = ", CPQ1);
-    LOG_INFO("CPQ2 = ", CPQ2);
-    LOG_INFO("Untag_factor = ", untag_factor);
 
     return untag_factor * std::pow(G_F * f_Bs * V_tbV_ts / inv_alpha_em, 2) / (64 * HBAR) * std::pow(m_Bs, 3) * INV_PI3 * life_Bs * std::sqrt(1 - 4 * r * r) 
             * ((1 - 4 * r * r) * pow(x * std::abs(CQ1 - CPQ1), 2) + pow(std::abs(x * (CQ2 - CPQ2) + 2 * r * (C10 - CP10)), 2));
