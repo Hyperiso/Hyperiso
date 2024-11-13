@@ -43,6 +43,9 @@ public:
     double get_mb_mb() {return this->mass_b_b;}
     double get_mb_pole() {return this->mass_b_pole;}
 
+    double set_mt_pole(double mt) {this->mass_t_pole = mt; this->mt_mt();}
+    double set_mb_mb(double mb) {this->mass_b_b = mb; this->mb_pole();}
+
     ~QCDParameters() {
     std::cout << "QCDParameters destroyed at address: " << this << std::endl;
     }

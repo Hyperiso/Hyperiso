@@ -24,7 +24,6 @@ public:
         if (it != blocks.end()) {
             return it->second->getValue(pdgCode);
         }
-        std::cout<< blockName << std::endl;
         throw std::invalid_argument("Block " + blockName + " not found with pdg code : " + std::to_string(pdgCode));
     }
 
@@ -32,7 +31,6 @@ public:
         auto it = blocks.find(blockName);
         if (it != blocks.end()) {
             it->second->setValue(pdgCode, value, force);
-            std::cout << it->first << " " << value << "truc" <<std::endl;
         } else {
             throw std::invalid_argument("Block not found");
         }

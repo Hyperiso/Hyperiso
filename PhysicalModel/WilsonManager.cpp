@@ -103,6 +103,14 @@ std::complex<double> MatchingSetState::getFullMatchingCoefficient(CoefficientMan
     return group->getfullMatching(coeffName, order);
 }
 
+double MatchingSetState::getAlphaS(CoefficientManager* manager, const std::string& groupName) {
+    return Parameters::GetInstance()->alpha_s(manager->getCoefficientGroup(groupName)->get_Q_match());
+}
+
+double QMatchSetState::getAlphaS(CoefficientManager* manager, const std::string& groupName) {
+    return Parameters::GetInstance()->alpha_s(manager->getCoefficientGroup(groupName)->get_Q_match());
+}
+
 void RunSetState::setGroupScale(CoefficientManager* manager, const std::string& groupName, double Q) {
     CoefficientGroup* group = manager->getCoefficientGroup(groupName);
     group->set_Q_run(Q);
