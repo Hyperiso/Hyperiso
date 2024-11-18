@@ -123,10 +123,6 @@ public:
     }
 };
 
-// class QStetState;
-// class QMatchSetState;
-// class MatchingSetState;
-// class RunSetState;
 
 class InitialState : public State {
 public:
