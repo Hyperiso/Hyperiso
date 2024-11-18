@@ -24,7 +24,7 @@ jobs:
       run: cmake -S. -B build -DENABLE_TESTS=ON 
 
     - name: Build testReader
-      run: cmake --build build/ --target testReader
+      run: cmake --build build
 
-    - name: Run testReader
-      run: ./build/testReader
+    - name: Run dbtest
+      run: ctest --test-dir build -L database --output-on-failure
