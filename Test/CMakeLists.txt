@@ -69,6 +69,9 @@ target_link_libraries(testjsonreader DataBaseLib ConfiguredModule)
 add_executable(testmappingjson DataBase/testMapping.cpp)
 target_link_libraries(testmappingjson DataBaseLib ConfiguredModule)
 
+add_executable(teststatjson DataBase/testJsonStatParser.cpp)
+target_link_libraries(teststatjson DataBaseLib ConfiguredModule)
+
 add_executable(testSMparams Core/testSMParameters.cpp)
 target_link_libraries(testSMparams CoreLib)
 
@@ -117,6 +120,9 @@ set_tests_properties(TestJsonReader PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LA
 
 add_test(NAME TestMappingJson COMMAND testmappingjson)
 set_tests_properties(TestMappingJson PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "database")
+
+add_test(NAME TestStatJson COMMAND teststatjson)
+set_tests_properties(TestStatJson PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "database")
 
 
 add_test(NAME TestSMParameters COMMAND testSMparams)

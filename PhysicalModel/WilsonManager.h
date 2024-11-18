@@ -102,6 +102,9 @@ public:
         }
           
     }
+    std::string getCurrentOrder() {
+        return this->EnumToString(this->currentOrder);
+    }
 
     CoefficientOrder StringToEnum(std::string order) {
         if (order == "LO") {
@@ -216,6 +219,11 @@ public:
         groupStates[groupName] = std::move(newState);
     }
 
+    void setState(const std::string& groupName, std::string state_name) {
+        if (state_name == "matchingstate"){
+            groupStates[groupName] = std::make_shared<MatchingSetState>(groupStates[groupName]->getCurrentOrder());
+        }
+    }
     void setGroupScale(const std::string& groupName, double Q) {
         ensureGroupState(groupName)->setGroupScale(this, groupName, Q);
     }

@@ -54,7 +54,7 @@ void MatchingSetState::setMatchingCoefficient(CoefficientManager* manager, const
         CoefficientOrder newOrder = order == "LO" ? CoefficientOrder::LO :
                                     order == "NLO" ? CoefficientOrder::NLO :
                                     CoefficientOrder::NNLO;
-        Wilson_parameters::GetInstance()->SetMuW(manager->getCoefficientGroup(groupName)->get_Q_match());
+        // Wilson_parameters::GetInstance()->SetMuW(manager->getCoefficientGroup(groupName)->get_Q_match());
         for (auto& it : *group) {
             if (order == "LO") {
                 it.second->LO_calculation();

@@ -17,9 +17,7 @@ void writeCoefficientsToFile(const std::string& strat_name, const std::string& f
 
     if (model == "SM") {
         MemoryManager::GetInstance("Test/InputFiles/testinput_thdm.lha", {0})->init();
-        std::cout<< "SALOPERIE" << std::endl;
         wm->registerCoefficientGroup("BCoefficient", std::make_shared<BCoefficientGroup>());
-        std::cout<< "SALOPERIE2" << std::endl;
     }
     else if (model == "THDM") {
         MemoryManager::GetInstance("Test/InputFiles/testinput_thdm.lha", {0,2})->init();
