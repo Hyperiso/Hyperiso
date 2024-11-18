@@ -444,7 +444,7 @@ void Parameters::changeParameterMode(const ParamId &param_id,
 }
 
 void Parameters::shiftParameter(const ParamId &param_id, double shift_value) {
-    blockAccessor.setValue(param_id.first, param_id.second, blockAccessor.getValue(param_id.first, param_id.second) + shift_value);
+    blockAccessor.setValue(param_id.first, param_id.second, blockAccessor.getValue(param_id.first, param_id.second) + shift_value, true);
 }
 
 // void Parameters::changeParameterValue(const std::string& block, int pdgCode, double newValue) {
