@@ -1,7 +1,6 @@
 #include "Parameters.h"
 
 std::string doubleToString(double value, int precision) {
-
 	std::ostringstream out;
 	out << std::fixed << std::setprecision(precision) << value;
 	return out.str();

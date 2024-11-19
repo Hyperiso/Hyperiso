@@ -12,8 +12,8 @@ class Compound {
 
 protected:
     std::vector<ParamId> dependences;
-    std::map<ParamId, double> gradient;
     SparseMatrix<ParamId> param_corr;
+    std::map<ParamId, double> gradient;
 
     void read_param_covariance();
     double compute_pdv(const ParamId& param_name) const;

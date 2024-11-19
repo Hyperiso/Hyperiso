@@ -36,7 +36,7 @@ int main() {
     ModelEvaluator me (obss);
 
     LOG_INFO("---------- Observables -----------");
-    LOG_INFO("BR(Bs > mu mu) = ", br_Bs__mu_mu.eval(), " +- ", br_Bs__mu_mu.variance());
+    LOG_INFO("BR(Bs > mu mu) = ", br_Bs__mu_mu.eval(), " +- ", std::sqrt(br_Bs__mu_mu.variance()));
     // LOG_INFO("Untagged BR(Bs > mu mu) = ", br_Bs__mu_mu__untag.eval());
     // LOG_INFO("BR(Bd > mu mu) = ", br_Bd__mu_mu.eval());
     // LOG_INFO("BR(Bu > tau nu) = ", br_Bu__tau_nu.eval());

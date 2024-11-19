@@ -10,6 +10,7 @@ public:
         add_dependence({"MASS", 5});
         add_dependence({"MASS", 6});
         add_dependence({"SMINPUTS", 2});
+        printMatrix(param_corr, getDiagonalElements(param_corr));
     };
     double eval() const override;
 };

@@ -25,17 +25,12 @@
         "syst_error": 0
       },
       {
-        "name": "SMINPUTS|2",
+        "name": "SMINPUTS|3",
         "central_value": 0.1184,
         "stat_error": 0.0008,
         "syst_error": 0
       }
     ],
     "correlations": [
-      {
-        "name1": "MASS|5",
-        "name2": "MASS|421",
-        "value": 0.01
-      }
     ]
 }
