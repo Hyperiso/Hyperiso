@@ -1264,6 +1264,8 @@ void Wilson_parameters::SetMu(double mu) {
             (U0)[ke][le] =0;
             (U1)[ke][le] = 0;
             (U2)[ke][le] = 0;
+			V0[ke][le] = 0;
+			V1[ke][le] = 0;
             for (int ie = 0; ie < arraySize; ++ie) {
                 (U0)[ke][le] += (m00)[ke][le][ie] * (etaMuPowers)[ie];
                 (U1)[ke][le] += (m10)[ke][le][ie] * (etaMuPowers)[ie] + (m11)[ke][le][ie] * (etaMuPowers)[ie] / eta_mu;

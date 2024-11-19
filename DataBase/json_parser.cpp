@@ -6,7 +6,7 @@ std::string trim(const std::string& str) {
     }
     size_t first = str.find_first_not_of(' ');
     if (first == std::string::npos) {
-        return ""; // la chaîne ne contient que des espaces
+        return "";
     }
     size_t last = str.find_last_not_of(' ');
     return str.substr(first, (last - first + 1));
@@ -63,7 +63,6 @@ void read_json(const std::string& filename, std::vector<Value>& values, std::vec
                 Value val;
                 std::vector<std::string> parts;
                 
-                // Lire le champ "name"
                 parts = split(line, ':');
                 if (parts.size() > 1) {
                     val.name = remove_quotes(parts[1]);
@@ -73,7 +72,6 @@ void read_json(const std::string& filename, std::vector<Value>& values, std::vec
                     continue;
                 }
 
-                // Lire le champ "central_value"
                 if (std::getline(file, line)) {
                     parts = split(line, ':');
                     if (parts.size() > 1) {
@@ -85,7 +83,6 @@ void read_json(const std::string& filename, std::vector<Value>& values, std::vec
                     }
                 }
 
-                // Lire le champ "stat_error"
                 if (std::getline(file, line)) {
                     parts = split(line, ':');
                     if (parts.size() > 1) {
@@ -97,7 +94,6 @@ void read_json(const std::string& filename, std::vector<Value>& values, std::vec
                     }
                 }
 
-                // Lire le champ "syst_error"
                 if (std::getline(file, line)) {
                     parts = split(line, ':');
                     if (parts.size() > 1) {
@@ -111,7 +107,6 @@ void read_json(const std::string& filename, std::vector<Value>& values, std::vec
 
                 values.push_back(val);
 
-                // Lire la ligne de fermeture
                 if (std::getline(file, line)) {
                     continue;
                 }
@@ -123,7 +118,6 @@ void read_json(const std::string& filename, std::vector<Value>& values, std::vec
                 Correlation corr;
                 std::vector<std::string> parts;
                 
-                // Lire le champ "name1"
                 parts = split(line, ':');
                 if (parts.size() > 1) {
                     corr.name1 = remove_quotes(parts[1]);
@@ -133,7 +127,6 @@ void read_json(const std::string& filename, std::vector<Value>& values, std::vec
                     continue;
                 }
 
-                // Lire le champ "name2"
                 if (std::getline(file, line)) {
                     parts = split(line, ':');
                     if (parts.size() > 1) {
@@ -145,7 +138,6 @@ void read_json(const std::string& filename, std::vector<Value>& values, std::vec
                     }
                 }
 
-                // Lire le champ "value"
                 if (std::getline(file, line)) {
                     parts = split(line, ':');
                     if (parts.size() > 1) {
@@ -159,7 +151,6 @@ void read_json(const std::string& filename, std::vector<Value>& values, std::vec
 
                 correlations.push_back(corr);
 
-                // Lire la ligne de fermeture
                 if (std::getline(file, line)) {
                     continue;
                 }
