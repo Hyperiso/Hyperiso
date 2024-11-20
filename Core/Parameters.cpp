@@ -301,14 +301,20 @@ void THDMModelStrategy::initializeParameters(Parameters& params) {
     auto alphablock = std::make_shared<AlphaBlock>();
     alphablock->setValue(0, lha->getValue<double>("ALPHA", ""));
     params.addBlock("ALPHA", std::move(alphablock));
-
     auto hmixblock = std::make_shared<HMIXBlock>();
     double tan_beta = lha->getValue<double>("MINPAR", "3");
     hmixblock->setValue(2, tan_beta);
     params.addBlock("HMIX", std::move(hmixblock));
-
-    int type = static_cast<int>(lha->getValue<double>("MINPAR", "24"));
+    // std::cout << "dd : " << lha->getValue<int>("MINPAR", "24") << std::endl;
+     //small patch
+     int type;
+     try {
+        type = static_cast<int>(lha->getValue<double>("MINPAR", "24"));
+     } catch(...) {
+        type = 4;
+     }
     double cot_beta = 1 / tan_beta;
+    std::cout << "ici ?" << std::endl;
 
     auto yublock = std::make_shared<YUBlock>();
     auto ydblock = std::make_shared<YUBlock>();
@@ -350,8 +356,11 @@ void THDMModelStrategy::initializeParameters(Parameters& params) {
     params.addBlock("YD", std::move(ydblock));
     params.addBlock("YL", std::move(yeblock));
 
+    std::cout << "THDM almost initialized !" << std::endl;
     std::string root_path = project_root.data();
     JSONParser::getInstance(0)->saveToFile(root_path+ "/DataBase/Params/data_THDM.json");
+
+    std::cout << "THDM initialized !" << std::endl;
 }
 
 // FlAVORModelStrategy implementation
