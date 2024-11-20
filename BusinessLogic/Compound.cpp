@@ -38,14 +38,17 @@ void Compound::read_param_covariance() {
 
 double Compound::compute_pdv(const ParamId &param_id) const
 {
-    for (int i = 0; i < N_PARAM_INSTANCES; i++) {
+    const int instances[2] = {0, 3};
+    for (int i : instances) {
         auto p = Parameters::GetInstance(i);
         try {
-            double h = (*p)(param_id.first, param_id.second) * 1e-3;
+            double h = (*p)(param_id.first, param_id.second) * 1e-5;
+            if (h == 0)
+                h = 1e-8;
             p->changeParameterMode(param_id, ParameterMode::SHIFTABLE);
             p->shiftParameter(param_id, h);
             double f_p = eval();
-            p->shiftParameter(param_id, -h);
+            p->shiftParameter(param_id, -2 * h);
             double f_m = eval();
             p->changeParameterMode(param_id, ParameterMode::SHIFTABLE);
             return (f_p - f_m) / (2 * h);

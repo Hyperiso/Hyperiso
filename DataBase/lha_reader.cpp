@@ -59,13 +59,13 @@ void Parser::parse(bool comments) {
         if (newBlock) {
             auto prototype = reader->findPrototype(t.value);
             if (prototype.blockName != "") {
-                LOG_INFO("LHA reader: Block " + prototype.blockName + " found.");
+                LOG_DEBUG("LHA reader: Block " + prototype.blockName + " found.");
                 this->rawBlocks[t.value] = std::vector<std::vector<std::string>> {};
                 cBlock = t.value;
                 hasGlobalScale = prototype.globalScale;
                 skipBlock = false;
             } else if (decay) {
-                LOG_INFO("LHA reader: Decay block found. Skipping.");
+                LOG_DEBUG("LHA reader: Decay block found. Skipping.");
                 skipBlock = true;
                 decay = false;
             } else {

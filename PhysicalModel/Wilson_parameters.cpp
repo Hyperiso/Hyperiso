@@ -4,7 +4,6 @@
 Wilson_parameters::Wilson_parameters() {
     sm = Parameters::GetInstance();
 	alphas_muW=(*sm).alpha_s(81);
-	std::cout << sm << std::endl;
 
 	m00= {{ 
 	/*m001[10][10]*/{{

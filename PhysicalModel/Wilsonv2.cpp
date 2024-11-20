@@ -133,7 +133,7 @@ std::complex<double> C9::NNLO_calculation() {
 std::complex<double> C10::LO_calculation() {
 
     double coeff_temp = (B0t(W_param->xt)-C0t(W_param->xt))/W_param->sw2-1./4./W_param->sw2;
-    std::cout << coeff_temp << std::endl;
+    // std::cout << coeff_temp << std::endl;
     return this->double_to_complex_save("LO", coeff_temp);
 }
 
@@ -193,8 +193,8 @@ void BCoefficientGroup::set_base_1_LO() {
 	complex_t C8_eff= this->at("C8")->get_CoefficientMatchingValue("LO")+this->at("C3")->get_CoefficientMatchingValue("LO")-1./6.*this->at("C4")->get_CoefficientMatchingValue("LO")
     +20.*this->at("C5")->get_CoefficientMatchingValue("LO")-10./3.*this->at("C6")->get_CoefficientMatchingValue("LO"); 
 
-    std::cout << C7_eff << std::endl;
-    std::cout << C8_eff << std::endl;
+    // std::cout << C7_eff << std::endl;
+    // std::cout << C8_eff << std::endl;
 
     auto calculateC0b = [&](int ie, int je, std::vector<std::string>& coeff_loop) {
         return (W_param->U0)[ie][je] * (je < 6 ? this->find(coeff_loop[je])->second->get_CoefficientMatchingValue("LO") : (je == 6 ? C7_eff : C8_eff));
@@ -213,12 +213,12 @@ void BCoefficientGroup::set_base_1_LO() {
         }
         it->second->set_WilsonCoeffRun("LO", _);
     }
-    std::cout << "after first loop : " << it->first << std::endl;
+    // std::cout << "after first loop : " << it->first << std::endl;
 
 	double fourPiOverAlphasMu = 4.0 * PI / W_param->alphas_mu;
 
     auto updateC0b = [&](int je, BCoefficientGroup::iterator& iterator) {
-        std::cout << "truc : " << je << " " << this->find(coeff_loop[je])->first << std::endl;
+        // std::cout << "truc : " << je << " " << this->find(coeff_loop[je])->first << std::endl;
         return (W_param->U0)[8][je] * this->find(coeff_loop[je])->second->get_CoefficientMatchingValue("LO");
     };
     
@@ -230,11 +230,11 @@ void BCoefficientGroup::set_base_1_LO() {
         }
         (++it)->second->set_WilsonCoeffRun("LO", _);
     }
-    std::cout << "after ++it first : " << it->first << std::endl;
-    std::cout << "Niels à tord : " << it->first << " " << it->second->get_CoefficientMatchingValue("LO") << std::endl;
+    // std::cout << "after ++it first : " << it->first << std::endl;
+    // std::cout << "Niels à tord : " << it->first << " " << it->second->get_CoefficientMatchingValue("LO") << std::endl;
     // std::cout << "end of truc " << this->end()->first << std::endl;
     it = this->find("C10");
-    std::cout << "after second ++it : " << it->first << std::endl;
+    // std::cout << "after second ++it : " << it->first << std::endl;
     it->second->set_WilsonCoeffRun("LO", it->second->get_CoefficientMatchingValue("LO"));
 
 
@@ -401,7 +401,7 @@ void BCoefficientGroup::set_base_2_NLO() {
     // std::vector<complex_t> coeffs_b_0 {};
     std::vector<complex_t> coeffs_b(10);
 
-    std::cout << "WOOOOWOOOO" << std::endl;
+    // std::cout << "WOOOOWOOOO" << std::endl;
     coeffs_t_0.push_back(this->at("C1")->get_CoefficientMatchingValue("LO")/2.);
 	coeffs_t.push_back((-5.*this->at("C1")->get_CoefficientMatchingValue("LO")+3.*(-4.*this->at("C2")->get_CoefficientMatchingValue("LO")+this->at("C1")->get_CoefficientMatchingValue("NLO")))/6.);
 	coeffs_t_0.push_back(-this->at("C1")->get_CoefficientMatchingValue("LO")/6.+this->at("C2")->get_CoefficientMatchingValue("LO"));
@@ -541,7 +541,7 @@ void BScalarCoefficientGroup::set_base_1_NLO() {
     this->at("CQ1")->set_WilsonCoeffRun("NLO", coeff_temp);
     complex_t coeff_temp2= this->at("CQ2")->get_CoefficientMatchingValue("NLO")* pow(W_param->eta_mu,-4./W_param->beta0)*W_param->eta_mu;
     this->at("CQ2")->set_WilsonCoeffRun("NLO", coeff_temp2);
-    std::cout << coeff_temp2 << std::endl;
+    // std::cout << coeff_temp2 << std::endl;
 }
 
 void BPrimeCoefficientGroup::set_base_1_LO() {

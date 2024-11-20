@@ -40,7 +40,8 @@ Parameters* Parameters::GetInstance(int modelId) {
 }
 
 Parameters::Parameters(ModelStrategy* modelStrategy)
-    : strategy(modelStrategy) { std::cout << "Param creation " << this << std::endl;
+    : strategy(modelStrategy) { 
+    LOG_DEBUG("Param creation at", this);
     strategy->initializeParameters(*this);
 }
 
@@ -89,6 +90,7 @@ void SMModelStrategy::initializeParameters(Parameters& params) {
     params.setBlockValue("SMINPUTS", 2, *sm_inputs[1]);
     params.setBlockValue("SMINPUTS", 5, *sm_inputs[4]);
     params.setBlockValue("SMINPUTS", 10, 0.313);
+
     // VCKMIN 
     params.addBlock("RECKM", std::make_shared<RECKMBlock>());
     params.addBlock("IMCKM", std::make_shared<IMCKMBlock>());
@@ -123,7 +125,8 @@ void SMModelStrategy::initializeParameters(Parameters& params) {
     params.setBlockValue("IMCKM", 22, std::imag(1));
 
 
-    double m_W = std::sqrt(std::pow(m_Z_pole, 2) / 2 + std::sqrt(std::pow(m_Z_pole, 4) / 4 - M_PI * std::pow(m_Z_pole, 2) / inv_alpha_em / G_F / std::sqrt(2)));
+    // double m_W = std::sqrt(std::pow(m_Z_pole, 2) / 2 + std::sqrt(std::pow(m_Z_pole, 4) / 4 - M_PI * std::pow(m_Z_pole, 2) / inv_alpha_em / G_F / std::sqrt(2)));
+    double m_W = 79.829;
     //Masses
     params.addBlock("MASS", std::make_shared<MassBlock>());
     // Masses (from PDG 2023)
@@ -148,7 +151,7 @@ void SMModelStrategy::initializeParameters(Parameters& params) {
 
     params.setBlockValue("GAUGE", 2, std::pow(2, 1.25) * m_W * std::sqrt(G_F));  // g2
     params.setBlockValue("GAUGE", 1, params("GAUGE", 2) * sW / std::sqrt(1 - sW * sW)); // gp 
-    params.setBlockValue("GAUGE", 3, std::sqrt(4 * M_PI * alpha_s_MZ)); // gs
+    params.setBlockValue("GAUGE", 3, std::sqrt(4 * M_PI * alpha_s_MZ)); // gs_MZ
     params.setBlockValue("GAUGE", 4, std::sqrt(4 * M_PI / inv_alpha_em)); // e_em
 
     std::string root_path = project_root.data();
@@ -361,24 +364,21 @@ void FlAVORModelStrategy::initializeParameters(Parameters& params) {
     massblock->setValue(531, 5.36677);
     massblock->setValue(521, 5.27934);
     massblock->setValue(323, 0.49368);
-    params.addBlock("MASS", std::move(massblock));
+    params.addBlock("FMASS", std::move(massblock));
 
-    auto lifetimeblock = std::make_shared<LifeTimeBlock>();
-    lifetimeblock->setValue("511", 1.519e-12);
-    lifetimeblock->setValue("531", 1.512e-12);
-    params.addFlavorBlock(FlavorParamType::LIFETIME, std::move(lifetimeblock));
+    auto lifetimeblock = std::make_shared<FLifeBlock>();
+    lifetimeblock->setValue(511, 1.519e-12);
+    lifetimeblock->setValue(531, 1.510e-12);
+    lifetimeblock->setValue(521, 1.638e-12);
+    params.addBlock("FLIFE", std::move(lifetimeblock));
 
     auto fconstblock = std::make_shared<FConstBlock>();
-    fconstblock->setValue("511|1", 0.1905);
-    fconstblock->setValue("521|1", 0.1905); //FAKE
-    fconstblock->setValue("531|1", 0.2277);
-    fconstblock->setValue("323|1", 0.2277); //FAKE
-    fconstblock->setValue("323|2", 0.2277);//FAKE
-    params.addFlavorBlock(FlavorParamType::DECAY_CONSTANT, std::move(fconstblock));
-
-    auto flifeblock = std::make_shared<FLifeBlock>();
-    flifeblock->setValue(521, 1.638e-12);
-    params.addBlock("FLIFE", std::move(flifeblock));
+    fconstblock->setValue(51101, 0.1905);
+    fconstblock->setValue(52101, 0.1905); //FAKE
+    fconstblock->setValue(53101, 0.2277);
+    fconstblock->setValue(32301, 0.2277); //FAKE
+    fconstblock->setValue(32302, 0.2277);//FAKE
+    params.addBlock("FCONST", std::move(fconstblock));
 }   
 
 void GeneralModelStrategy::initializeParameters(Parameters& params) {
@@ -389,8 +389,8 @@ void GeneralModelStrategy::initializeParameters(Parameters& params) {
     std::string spectrumFile = MemoryManager::GetInstance()->getInputLhaPath();
 
     for (auto elem : lha->getBlocksNames()) {
-        std::cout << elem << std::endl;
-        std::cout << lha->findPrototype(elem).itemCount << std::endl;
+        LOG_DEBUG(elem);
+        LOG_DEBUG(lha->findPrototype(elem).itemCount);
         if (lha->findPrototype(elem).itemCount == 2) {
             auto generalblock = std::make_shared<MapBlock>();
             generalblock->blockname = elem;
@@ -419,22 +419,8 @@ void GeneralModelStrategy::initializeParameters(Parameters& params) {
     // }
     // params.addBlock("MASS", std::move(massblock));
 
-
     std::string root_path = project_root.data();
     JSONParser::getInstance(0)->saveToFile(root_path+ "/DataBase/Params/data_GENERAL.json");
-}
-
-double return_if_defined(std::map<std::string, double>& map, const std::string& id, const std::string& error_label) {
-    if (map.contains(id)) {
-        return map[id];
-    } else {
-        LOG_WARN(error_label + " with key [" + id + "] is undefined.");
-        return NAN;
-    }
-}
-
-double Parameters::getFlavorParam(FlavorParamType type, const std::string& id) {
-    return this->flavorblockAccessor.getValue(type, id);
 }
 
 void Parameters::changeParameterMode(const ParamId &param_id,
@@ -445,29 +431,6 @@ void Parameters::changeParameterMode(const ParamId &param_id,
 void Parameters::shiftParameter(const ParamId &param_id, double shift_value) {
     blockAccessor.setValue(param_id.first, param_id.second, blockAccessor.getValue(param_id.first, param_id.second) + shift_value, true);
 }
-
-// void Parameters::changeParameterValue(const std::string& block, int pdgCode, double newValue) {
-//     double currentValue = blockAccessor.getValue(block, pdgCode);
-
-//     std::pair<std::string, int> key = std::make_pair(block, pdgCode);
-//     if (originalValuesCache.find(key) == originalValuesCache.end()) {
-//         originalValuesCache[key] = currentValue;
-//     }
-
-//     blockAccessor.setValue(block, pdgCode, newValue);
-// }
-
-// void Parameters::reset() {
-//     for (const auto& entry : originalValuesCache) {
-//         const std::string& block = entry.first.first;
-//         int pdgCode = entry.first.second;
-//         double originalValue = entry.second;
-
-//         blockAccessor.setValue(block, pdgCode, originalValue);
-//     }
-
-//     originalValuesCache.clear();
-// }
 
 Parameters* ParametersFactory::GetParameters(int modelId) {
     if (instances.find(modelId) == instances.end()) {

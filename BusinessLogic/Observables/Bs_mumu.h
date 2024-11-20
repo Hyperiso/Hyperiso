@@ -9,8 +9,11 @@ public:
         add_dependence({"MASS", 3});
         add_dependence({"MASS", 5});
         add_dependence({"MASS", 6});
-        add_dependence({"SMINPUTS", 2});
-        printMatrix(param_corr, getDiagonalElements(param_corr));
+        add_dependence({"RECKM", 22});
+        add_dependence({"RECKM", 21});
+        add_dependence({"FMASS", 531});
+        add_dependence({"FLIFE", 531});
+        add_dependence({"FCONST", 53101});
     };
     double eval() const override;
 };

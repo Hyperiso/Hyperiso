@@ -5,14 +5,14 @@ double BR_Bu_taunu::eval() const {
     auto sm_p = Parameters::GetInstance(0); // SM params
     auto flav_p = Parameters::GetInstance(3); // Flavor params
     
-    double m_B = (*flav_p)("MASS", 521);
+    double m_B = (*flav_p)("FMASS", 521);
     double life_B = (*flav_p)("FLIFE", 521);
-    double f_B = flav_p->getFlavorParam(FlavorParamType::DECAY_CONSTANT, "521|1");
+    double f_B = (*flav_p)("FCONST", 52101);
     double m_tau = (*sm_p)("MASS", 15);
     double V_ub = std::abs(Parameters::get_c_CKM_entry(02)); 
     double G_F = (*sm_p)("SMINPUTS", 2);
     
-    double BR_SM = std::pow(G_F * f_B * V_ub * m_tau * (1 - std::pow(m_tau / m_B, 2)), 2) * life_B * m_B;
+    double BR_SM = std::pow(G_F * f_B * V_ub * m_tau * (1 - std::pow(m_tau / m_B, 2)), 2) * life_B * m_B / (8 * M_PI * HBAR);
     
     double np_fact = 1;
     if (model == 1) {

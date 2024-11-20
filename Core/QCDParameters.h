@@ -10,7 +10,7 @@ class QCDParameters {
 public:
     
     
-    QCDParameters() { Lambda5 = 0.2; std::cout << "QCDParameters created at address: " << this << std::endl;}
+    QCDParameters() { Lambda5 = 0.2; LOG_DEBUG("QCDParameters created at address: ", this); }
     QCDParameters(double alpha_Z, double m_Z, double masst_pole, double massb_b, double mass_u, double mass_d, double mass_s, double mass_c);
     QCDParameters& operator=(const QCDParameters& other) {
         if (this != &other) {
@@ -47,8 +47,9 @@ public:
     void set_mb_mb(double mb) {this->mass_b_b = mb; this->mb_pole();}
 
     ~QCDParameters() {
-    std::cout << "QCDParameters destroyed at address: " << this << std::endl;
+        LOG_DEBUG("QCDParameters destroyed at address: ", this);
     }
+
 private:
     double Lambda5;
     double mass_u;

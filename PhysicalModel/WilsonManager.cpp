@@ -81,8 +81,11 @@ void QSetState::setRunCoefficient(CoefficientManager* manager, const std::string
     if (order == "LO") {
         group->set_base_1_LO();
     } else if (order == "NLO") {
+        group->set_base_1_LO();
         group->set_base_1_NLO();
     } else if (order == "NNLO") {
+        group->set_base_1_LO();
+        group->set_base_1_NLO();
         group->set_base_1_NNLO();
     }
 

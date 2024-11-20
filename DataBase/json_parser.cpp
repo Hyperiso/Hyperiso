@@ -1,4 +1,5 @@
 #include "json_parser.h"
+#include "Logger.h"
 
 std::string trim(const std::string& str) {
     if (str.empty()) {
@@ -66,7 +67,7 @@ void read_json(const std::string& filename, std::vector<Value>& values, std::vec
                 parts = split(line, ':');
                 if (parts.size() > 1) {
                     val.name = remove_quotes(parts[1]);
-                    std::cout << "Name: " << val.name << std::endl;
+                    LOG_DEBUG("Name: ", val.name);
                 } else {
                     std::cerr << "Error parsing name in values section" << std::endl;
                     continue;
@@ -76,7 +77,7 @@ void read_json(const std::string& filename, std::vector<Value>& values, std::vec
                     parts = split(line, ':');
                     if (parts.size() > 1) {
                         val.central_value = std::stod(parts[1]);
-                        std::cout << "Central Value: " << val.central_value << std::endl;
+                        LOG_DEBUG("Central value: ", val.central_value);
                     } else {
                         std::cerr << "Error parsing central_value in values section" << std::endl;
                         continue;
@@ -87,7 +88,7 @@ void read_json(const std::string& filename, std::vector<Value>& values, std::vec
                     parts = split(line, ':');
                     if (parts.size() > 1) {
                         val.stat_error = std::stod(parts[1]);
-                        std::cout << "Stat Error: " << val.stat_error << std::endl;
+                        LOG_DEBUG("Stat error: ", val.stat_error);
                     } else {
                         std::cerr << "Error parsing stat_error in values section" << std::endl;
                         continue;
@@ -98,7 +99,7 @@ void read_json(const std::string& filename, std::vector<Value>& values, std::vec
                     parts = split(line, ':');
                     if (parts.size() > 1) {
                         val.syst_error = std::stod(parts[1]);
-                        std::cout << "Syst Error: " << val.syst_error << std::endl;
+                        LOG_DEBUG("Syst error: ", val.syst_error);
                     } else {
                         std::cerr << "Error parsing syst_error in values section" << std::endl;
                         continue;
@@ -121,7 +122,7 @@ void read_json(const std::string& filename, std::vector<Value>& values, std::vec
                 parts = split(line, ':');
                 if (parts.size() > 1) {
                     corr.name1 = remove_quotes(parts[1]);
-                    std::cout << "Name1: " << corr.name1 << std::endl;
+                    LOG_DEBUG("Name 1: ", corr.name1);
                 } else {
                     std::cerr << "Error parsing name1 in correlations section" << std::endl;
                     continue;
@@ -131,7 +132,7 @@ void read_json(const std::string& filename, std::vector<Value>& values, std::vec
                     parts = split(line, ':');
                     if (parts.size() > 1) {
                         corr.name2 = remove_quotes(parts[1]);
-                        std::cout << "Name2: " << corr.name2 << std::endl;
+                        LOG_DEBUG("Name 2: ", corr.name2);
                     } else {
                         std::cerr << "Error parsing name2 in correlations section" << std::endl;
                         continue;
@@ -142,7 +143,7 @@ void read_json(const std::string& filename, std::vector<Value>& values, std::vec
                     parts = split(line, ':');
                     if (parts.size() > 1) {
                         corr.value = std::stod(parts[1]);
-                        std::cout << "Value: " << corr.value << std::endl;
+                        LOG_DEBUG("Correlation: ", corr.value);
                     } else {
                         std::cerr << "Error parsing value in correlations section" << std::endl;
                         continue;
