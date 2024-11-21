@@ -223,3 +223,30 @@ class FLifeBlock : public MapBlock {
 public:
     FLifeBlock() {this->blockname = "FLifeBlock";}
 };
+
+struct WCoef {
+    WilsonCoefficient name;
+    complex_t value_LO;
+    complex_t value_NLO;
+    complex_t value_NNLO;
+    double scale;
+};
+
+class WilsonBlock : public Block {
+public:
+    WCoef getValue(WilsonCoefficient name) const {
+        auto it = values.find(name);
+        if (it != values.end()) {
+            return it->second;
+        }
+        throw std::out_of_range("PDG code not found in " + this->blockname);
+    }
+
+    void setValue(WilsonCoefficient name, complex_t value, int order, int type) {
+        values[name] = {name, type, order, value};
+    }
+
+protected:
+    std::map<WilsonCoefficient, WCoef> values;
+
+};

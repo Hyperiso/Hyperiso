@@ -4,6 +4,7 @@
 #include <string>
 #include <iostream>
 #include "Logger.h"
+#include "General.h"
 
 typedef std::pair<std::string, int> ParamId;
 

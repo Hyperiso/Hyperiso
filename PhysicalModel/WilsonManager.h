@@ -9,13 +9,6 @@
 
 class CoefficientManager; // Forward declaration
 
-enum class CoefficientOrder {
-    NONE,
-    LO,
-    NLO,
-    NNLO
-};
-
 class State {
 protected:
     CoefficientOrder currentOrder = CoefficientOrder::NONE;

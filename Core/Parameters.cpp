@@ -426,26 +426,29 @@ void GeneralModelStrategy::initializeParameters(Parameters& params) {
     JSONParser::getInstance(0)->saveToFile(root_path+ "/DataBase/Params/data_GENERAL.json");
 }
 
-<<<<<<< HEAD
+
 void WilsonInputStrategy::initializeParameters(Parameters &params) {
-    // TODO
-}
+    auto mm = MemoryManager::GetInstance();
 
-double return_if_defined(std::map<std::string, double>& map, const std::string& id, const std::string& error_label) {
-    if (map.contains(id)) {
-        return map[id];
-    } else {
-        LOG_WARN(error_label + " with key [" + id + "] is undefined.");
-        return NAN;
+    if (!mm->hasWilsons()) {
+        LOG_ERROR("Parameters", "No Wilson coefficients were given in the input file.");
     }
+
+    auto lha = mm->getReader();
+    params.addBlock("WCOEF", std::make_shared<WilsonBlock>());
+
+    for (size_t i = 0; i < WCoefMapper::n_wilsons(); i++) {
+        auto C = static_cast<WilsonCoefficient>(i);
+        for (size_t j = 0; j < 3; j++) {
+            auto e = lha->getBlock("FWCOEF")->get(WCoefMapper::flha(C));
+            int id = std::stoi(e->getId().substr(15, 2));
+            int type = std::stoi(e->getId().substr(18, 1));
+        }
+    }
+
+    params.setBlockValue("FWCOEF", 1, lha->getValue<double>("FWCOEF", "03040405|6161|01|1"));
 }
 
-double Parameters::getFlavorParam(FlavorParamType type, const std::string& id) {
-    return this->flavorblockAccessor.getValue(type, id);
-}
-
-=======
->>>>>>> origin/chi2
 void Parameters::changeParameterMode(const ParamId &param_id,
                                      ParameterMode new_mode) {
     blockAccessor.setMode(param_id.first, param_id.second, new_mode);

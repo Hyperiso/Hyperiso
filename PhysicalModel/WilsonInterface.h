@@ -2,12 +2,11 @@
 #include "Wilson_susyv2.h"
 #include "Wilson_THDMv2.h"
 #include "MartyWilson.h"
+#include "General.h"
 
 #include <map>
 
-enum class WilsonGroups {
-    BCoefficients, BPrimeCoefficients, BScalarCoefficients
-};
+
 
 // enum class order {
 //     LO, NLO, NNLO
