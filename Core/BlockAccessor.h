@@ -61,38 +61,3 @@ public:
 private:
     std::map<std::string, std::shared_ptr<Block>> blocks;
 };
-
-class FlavorBlockAccessor : public FlavorBlock {
-public:
-    void addBlock(FlavorParamType name, std::shared_ptr<FlavorBlock> block) {
-        blocks[name] = std::move(block);
-    }
-
-    double getValue(FlavorParamType blockName, std::string id) const {
-        auto it = blocks.find(blockName);
-        if (it != blocks.end()) {
-            return it->second->getValue(id);
-        }
-        throw std::invalid_argument("Block not found");
-    }
-
-    void setValue(FlavorParamType blockName, std::string id, double value, bool force = false) {
-        auto it = blocks.find(blockName);
-        if (it != blocks.end()) {
-            it->second->setValue(id, value);
-        } else {
-            throw std::invalid_argument("Block not found");
-        }
-    }
-
-    void setMode(FlavorParamType blockName, std::string id, ParameterMode mode) {
-        auto it = blocks.find(blockName);
-        if (it != blocks.end()) {
-            it->second->setMode(id, mode);
-        } else {
-            throw std::invalid_argument("Block not found");
-        }
-    }
-private:
-    std::map<FlavorParamType, std::shared_ptr<FlavorBlock>> blocks;
-};

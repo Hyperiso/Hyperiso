@@ -26,8 +26,11 @@ CoefficientManager *Observable::computeWilsons(int model,
 
     switch (model) {
         case 0:
-            manager = CoefficientManager::Builder(std::to_string(model), std::map<std::string,std::shared_ptr<CoefficientGroup>>({std::make_pair("BCoefficient", std::make_shared<BCoefficientGroup>(81.)),
-            std::make_pair("BScalarCoefficient", std::make_shared<BScalarCoefficientGroup>(81.)),std::make_pair("BPrimeCoefficient", std::make_shared<BPrimeCoefficientGroup>(81.))}), m_W, scale, orders[order]);
+            manager = CoefficientManager::Builder(std::to_string(model), std::map<std::string,std::shared_ptr<CoefficientGroup>>(
+                                                                            {std::make_pair("BCoefficient", std::make_shared<BCoefficientGroup>(81.)),
+                                                                            std::make_pair("BScalarCoefficient", std::make_shared<BScalarCoefficientGroup>(81.)),
+                                                                            std::make_pair("BPrimeCoefficient", std::make_shared<BPrimeCoefficientGroup>(81.))}),
+                                                         m_W, scale, orders[order]);
             break;
         case 1:
             manager = CoefficientManager::Builder(std::to_string(model), std::map<std::string,std::shared_ptr<CoefficientGroup>>({std::make_pair("BCoefficient", std::make_shared<BCoefficientGroup_susy>(81.)),

@@ -23,7 +23,7 @@ void Compound::read_param_covariance() {
         }
     }
 
-    // Read any nonzero correlation between obs pairs from data file and add it to the matrix
+    // Read any nonzero correlation between parameter pairs from data file and add it to the matrix
     for (const auto& corr : correlations) {
         std::string del = "|";
         auto split = corr.name1.find(del);
@@ -38,14 +38,17 @@ void Compound::read_param_covariance() {
 
 double Compound::compute_pdv(const ParamId &param_id) const
 {
-    for (int i = 0; i < N_PARAM_INSTANCES; i++) {
+    const int instances[2] = {0, 3};
+    for (int i : instances) {
         auto p = Parameters::GetInstance(i);
         try {
-            double h = (*p)(param_id.first, param_id.second) * 1e-3;
+            double h = (*p)(param_id.first, param_id.second) * 1e-5;
+            if (h == 0)
+                h = 1e-8;
             p->changeParameterMode(param_id, ParameterMode::SHIFTABLE);
             p->shiftParameter(param_id, h);
             double f_p = eval();
-            p->shiftParameter(param_id, -h);
+            p->shiftParameter(param_id, -2 * h);
             double f_m = eval();
             p->changeParameterMode(param_id, ParameterMode::SHIFTABLE);
             return (f_p - f_m) / (2 * h);
@@ -68,10 +71,10 @@ std::vector<ParamId> Compound::get_common_dependences_with(const Compound &other
     return common;
 }
 
-void Compound::add_dependence(const ParamId &param_name)
-{
+void Compound::add_dependence(const ParamId &param_name) {
     dependences.emplace_back(param_name);
     gradient.emplace(param_name, compute_pdv(param_name));
+    read_param_covariance();
 }
 
 void Compound::add_dependences(const std::vector<ParamId> &param_names) {

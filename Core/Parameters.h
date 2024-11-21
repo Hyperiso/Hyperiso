@@ -56,14 +56,11 @@ public:
     double alpha_s(double Q);
     double running_mass(double quarkmass, double Q_init, double Q_end, std::string option_massb = "running", std::string option_masst = "pole");
 
-
     // Method to allow ModelStrategy to add blocks
     void addBlock(const std::string& name, std::shared_ptr<Block> block) {
         blockAccessor.addBlock(name, block);
     }
-    void addFlavorBlock(FlavorParamType name, std::shared_ptr<FlavorBlock> block) {
-        flavorblockAccessor.addBlock(name, block);
-    }
+
     void setBlockValue(const std::string& name, int pdgCode, double value, bool force = false) {
         if (force && (name == "SMINPUTS")) {
             if(pdgCode ==6) {
@@ -83,7 +80,6 @@ public:
     void setQCDParameters(const QCDParameters&& qcdparams) {QCDRunner = qcdparams;}
 
     double get_QCD_masse(std::string masstype);
-    double getFlavorParam(FlavorParamType type, const std::string& id);
 
     void changeParameterMode(const ParamId& param_id, ParameterMode new_mode);
     void shiftParameter(const ParamId& param_id, double shift_value);
@@ -98,7 +94,7 @@ public:
         return &this->QCDRunner;
     }
   
-    ~Parameters() {std::cout << "Parameters : " << this << " was destroyed";}
+    ~Parameters() { LOG_DEBUG("Parameters at ", this); }
 
 private:
     explicit Parameters(ModelStrategy* modelStrategy);
@@ -107,7 +103,6 @@ private:
 
     QCDParameters QCDRunner;
     BlockAccessor blockAccessor;
-    FlavorBlockAccessor flavorblockAccessor;
 
     ModelStrategy* strategy;
 

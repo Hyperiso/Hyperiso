@@ -6,21 +6,20 @@ double BR_Bs_mumu::eval() const {
     auto flav_p = Parameters::GetInstance(3); // Flavor params
     auto manager = computeWilsons();
 
-    // These should be taken at b scale with getFullRunCoefficient() but currently doesn't work
-    complex_t C10 = manager->getFullMatchingCoefficient("BCoefficient", "C10", "NNLO");
-    complex_t CP10 = manager->getFullMatchingCoefficient("BPrimeCoefficient", "CP10", "LO");
-    complex_t CQ1 = manager->getFullMatchingCoefficient("BScalarCoefficient", "CQ1", "NLO");
-    complex_t CQ2 = manager->getFullMatchingCoefficient("BScalarCoefficient", "CQ2", "NLO");
-    complex_t CPQ1 = manager->getFullMatchingCoefficient("BPrimeCoefficient", "CPQ1", "LO");
-    complex_t CPQ2 = manager->getFullMatchingCoefficient("BPrimeCoefficient", "CPQ2", "LO");
+    complex_t C10 = manager->getFullRunCoefficient("BCoefficient", "C10", "NNLO");
+    complex_t CP10 = manager->getFullRunCoefficient("BPrimeCoefficient", "CP10", "LO");
+    complex_t CQ1 = manager->getFullRunCoefficient("BScalarCoefficient", "CQ1", "NLO");
+    complex_t CQ2 = manager->getFullRunCoefficient("BScalarCoefficient", "CQ2", "NLO");
+    complex_t CPQ1 = manager->getFullRunCoefficient("BPrimeCoefficient", "CPQ1", "LO");
+    complex_t CPQ2 = manager->getFullRunCoefficient("BPrimeCoefficient", "CPQ2", "LO");
 
     double G_F = (*sm_p)("SMINPUTS", 2);
     double inv_alpha_em = (*sm_p)("SMINPUTS", 1);
     double V_tbV_ts = std::abs(Parameters::get_c_CKM_entry(22) * std::conj(Parameters::get_c_CKM_entry(21))); 
 
-    double m_Bs = (*flav_p)("MASS", 531);
-    double f_Bs = flav_p->getFlavorParam(FlavorParamType::DECAY_CONSTANT, "531|1");
-    double life_Bs = flav_p->getFlavorParam(FlavorParamType::LIFETIME, "531");
+    double m_Bs = (*flav_p)("FMASS", 531);
+    double f_Bs = (*flav_p)("FCONST", 53101);
+    double life_Bs = (*flav_p)("FLIFE", 531);
     
     double r = (*sm_p)("MASS", 13) / m_Bs;  // m_mu / m_Bs
     double x = m_Bs / (sm_p->get_QCD_masse("mb_pole") + (*sm_p)("MASS", 3)); // m_Bs / (m_b_pole + m_s)
@@ -45,9 +44,9 @@ double BR_Bs_mumu_untag::eval() const {
     double inv_alpha_em = (*sm_p)("SMINPUTS", 1);
     double V_tbV_ts = std::abs(Parameters::get_c_CKM_entry(22) * std::conj(Parameters::get_c_CKM_entry(21))); 
 
-    double m_Bs = (*flav_p)("MASS", 531);
-    double f_Bs = flav_p->getFlavorParam(FlavorParamType::DECAY_CONSTANT, "531|1");
-    double life_Bs = flav_p->getFlavorParam(FlavorParamType::LIFETIME, "531");
+    double m_Bs = (*flav_p)("FMASS", 531);
+    double f_Bs = (*flav_p)("FCONST", 53101);
+    double life_Bs = (*flav_p)("FLIFE", 531);
     
     double r = (*sm_p)("MASS", 13) / m_Bs;  // m_mu / m_Bs
     double x = m_Bs / (sm_p->get_QCD_masse("mb_pole") + (*sm_p)("MASS", 3)); // m_Bs / (m_b_pole + m_s)

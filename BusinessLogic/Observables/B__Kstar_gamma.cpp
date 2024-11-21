@@ -18,12 +18,12 @@ double Delta0_B__Kstar_gamma::eval() const {
     double alphas_1GeV = sm_p->alpha_s(1.);
     double eta = alphas_mu_b / alphas_1GeV;
     
-    double m_B = (*flav_p)("MASS", 521);
-    double m_Ks = (*flav_p)("MASS", 323);
+    double m_B = (*flav_p)("FMASS", 521);
+    double m_Ks = (*flav_p)("FMASS", 323);
     double m_b = (*sm_p)("MASS", 5);
-    double f_B = flav_p->getFlavorParam(FlavorParamType::DECAY_CONSTANT, "521|1");
-    double f_Ks = flav_p->getFlavorParam(FlavorParamType::DECAY_CONSTANT, "323|1");
-    double f_Ks_perp = flav_p->getFlavorParam(FlavorParamType::DECAY_CONSTANT, "323|2") * pow(eta, FFInput::gamma_n_perp(0, N) / b0);
+    double f_B = (*flav_p)("FCONST", 52101);
+    double f_Ks = (*flav_p)("FCONST", 32301);
+    double f_Ks_perp = (*flav_p)("FCONST", 32302) * pow(eta, FFInput::gamma_n_perp(0, N) / b0);
     double CKM_factor = std::real(std::conj(Parameters::get_c_CKM_entry(12)) * Parameters::get_c_CKM_entry(13) 
                                   / (std::conj(Parameters::get_c_CKM_entry(22)) * Parameters::get_c_CKM_entry(23))); // Vus*Vub/Vcs*Vcb
     double a_1_perp = FFInput::a_1_perp * std::pow(eta, (FFInput::gamma_n_perp(1, N) - C_F) / b0);

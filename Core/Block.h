@@ -25,19 +25,12 @@ public:
         if (it != values.end()) {
             return it->second.get_val();
         }
-        std::cout << "pdg code is : " << std::endl;
-        std::cout << pdgCode << std::endl;
         throw std::out_of_range("PDG code not found in " + this->blockname);
     }
 
     void setValue(int pdgCode, double value, bool force = false) override {
         JSONParser::getInstance(0)->addElement(this->blockname.substr(0, this->blockname.size()-5), pdgCode, value);
         Parameter param (this->blockname.substr(0, this->blockname.size()-5), pdgCode, value, 0);
-        // std::cout << "------------------" << std::endl;
-        // std::cout << this->blockname << std::endl;
-        // std::cout << "value before : " << pdgCode << " " << values[pdgCode].get_val() << std::endl;
-        // // values[pdgCode] = param;
-        // std::cout << "value before : " << pdgCode << " " <<  values[pdgCode].get_val() << std::endl;
         if (force) {
             values[pdgCode] = param;
         } else {
@@ -211,38 +204,19 @@ THDM BLOCKS*/
 /* ------------------------------------------------------------------------------------------------
 Flavor BLOCKS*/
 
-class FlavorBlock {
-public:
-    double getValue(std::string pdgCode) const {
-        auto it = values.find(pdgCode);
-        if (it != values.end()) {
-            return it->second.get_val();
-        }
-        throw std::out_of_range("PDG code not found in " + this->blockname);
-    }
-
-    void setValue(std::string pdgCode, double value, bool force = false) {
-        values.emplace(pdgCode, Parameter(this->blockname.substr(0, this->blockname.size()-5), 0, value, 0));
-    }
-
-    void setMode(std::string pdgCode, ParameterMode mode) {
-        values[pdgCode].set_mode(mode);
-    }
-
-protected:
-    std::map<std::string, Parameter> values;
-    std::string blockname{};
-
-};
-
-class LifeTimeBlock : public FlavorBlock {
-public:
-    LifeTimeBlock() {this->blockname = "LifeTimeBlock";}
-};
-
-class FConstBlock : public FlavorBlock {
+class FConstBlock : public MapBlock {
 public:
     FConstBlock() {this->blockname = "FConstBlock";}
+};
+
+class FConstRatioBlock : public MapBlock {
+public:
+    FConstRatioBlock() {this->blockname = "FConstRatioBlock";}
+};
+
+class FBag : public MapBlock {
+public:
+    FBag() {this->blockname = "FBagBlock";}
 };
 
 class FLifeBlock : public MapBlock {

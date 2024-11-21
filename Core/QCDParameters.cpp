@@ -25,7 +25,7 @@ QCDParameters::QCDParameters(double alpha_Z, double m_Z, double masst_pole, doub
     this->mb_pole();
     this->setMassTypes("pole", "pole");
 
-    LOG_INFO("In QCDParameters constructor mb(81 GeV) = " + std::to_string(this->running_mass(4.25, 4.25, 81, "running")));
+    LOG_DEBUG("In QCDParameters constructor mb(81 GeV) = " + std::to_string(this->running_mass(4.25, 4.25, 81, "running")));
 }
 
 /**
@@ -280,7 +280,5 @@ double QCDParameters::mt_mt() {
     this->mass_t_t = this->mass_t_pole / (1. + alpha / PI * (4. / 3 + alpha / PI * a));
     alpha = runningAlphasCalculation(this->mass_t_t, "running", "running");
     this->mass_t_t = this->mass_t_pole / (1. + alpha / PI * (4. / 3 + alpha / PI * a));
-    std::cout << "m_t_pole : " << this->mass_t_pole << std::endl;
-    std::cout << "m_t_t : " << mass_t_t << std::endl;
 	return mass_t_t;
 }

@@ -25,17 +25,30 @@
         "syst_error": 0
       },
       {
-        "name": "SMINPUTS|2",
+        "name": "SMINPUTS|3",
         "central_value": 0.1184,
         "stat_error": 0.0008,
+        "syst_error": 0
+      },
+      {
+        "name": "FMASS|531",
+        "central_value": 5.36693,
+        "stat_error": 0.0001,
+        "syst_error": 0
+      },
+      {
+        "name": "FLIFE|531",
+        "central_value": 1.527e-12,
+        "stat_error": 1.1e-14,
+        "syst_error": 0
+      },
+      {
+        "name": "FCONST|53101",
+        "central_value": 0.234,
+        "stat_error": 0.010,
         "syst_error": 0
       }
     ],
     "correlations": [
-      {
-        "name1": "MASS|5",
-        "name2": "MASS|421",
-        "value": 0.01
-      }
     ]
 }
