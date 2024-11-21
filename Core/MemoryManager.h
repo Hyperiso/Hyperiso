@@ -5,22 +5,36 @@
 #include <unordered_map>
 #include <memory>
 #include <cstdlib>
+#include <thread>
+#include <filesystem>
 #include "lha_reader.h"
 #include "config.hpp"
 
+struct MemoryCache {
+    std::unique_ptr<LhaReader> reader;
+    std::filesystem::path lha_path;
+    std::filesystem::path obs_cov_path;
+    std::filesystem::path param_cov_path;
+    std::vector<int> models;
+    std::thread::id thread_id;
+    bool is_spectrum;
+    bool has_wilsons;
+    bool has_obs;
+    bool is_ready;
+};
+
 class MemoryManager {
 private:
-    std::string lhaPath;
-    std::vector<int> models;
-    std::unordered_map<std::string, std::unique_ptr<std::string>> cache;
-    std::unique_ptr<LhaReader> reader;
+    MemoryCache cache;
     static MemoryManager* instance;
-    inline explicit MemoryManager(std::string lhaPath, std::vector<int> models) : lhaPath(lhaPath), models(std::move(models)) {};
+    MemoryManager();
+
+    void check_if_ready();
 
 public:
 
     static std::string findNearestHyperisoDirectory();
-    static MemoryManager* GetInstance(std::string lhaFile="DataBase/example.flha", std::vector<int> models={0});
+    static MemoryManager* GetInstance();
 
     // Creation pointeur unique
     template<typename T>
@@ -30,12 +44,20 @@ public:
     template<typename T>
     std::unique_ptr<T, void(*)(void*)> allocate();
 
-    const std::string& getData(std::string key);
-    std::string getInputLhaPath() {return this->lhaPath;}
     LhaReader* getReader();
 
+    inline bool isSpectrum() { check_if_ready(); return cache.is_spectrum; }
+    inline bool hasWilsons() { check_if_ready(); return cache.has_wilsons; }
+    inline bool hasObservables() { check_if_ready(); return cache.has_obs; }
+    inline std::filesystem::path getInputLhaPath() { check_if_ready(); return cache.lha_path; }
+    inline std::filesystem::path getParameterCovariancePath() { check_if_ready(); return cache.param_cov_path; }
+    inline std::filesystem::path getObservableCovariancePath()  { check_if_ready(); return cache.obs_cov_path; }
+
     // initializes the memory with all the necessary parameters and those read in the LHA file
-    void init();
+    void init(const std::string& lhaFile, const std::vector<int>& models={0}, bool is_spectrum=false, bool has_wilsons=false, bool has_obs=false);
+
+    void set_observable_covariance_input_file(const std::string& path);
+    void set_parameter_covariance_input_file(const std::string& path);
 
     // Autres méthodes...
 

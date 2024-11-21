@@ -8,8 +8,8 @@
 #include <iostream>
 int main() {
     std::cout << "what ? " << std::endl;
-    auto mm = MemoryManager::GetInstance("Test/InputFiles/testInput.slha", {0});  // Initialize program manager with LHA file containing SMINPUTS block
-    mm->init();
+    auto mm = MemoryManager::GetInstance();  // Initialize program manager with LHA file containing SMINPUTS block
+    mm->init("Test/InputFiles/testInput.slha", {0});
 
     auto inter = WilsonInterface("SM");
     std::cout << "initialized" << std::endl;

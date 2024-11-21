@@ -30,7 +30,7 @@ set(CTEST_ENVIRONMENT_VARIABLE "CTEST_RUN")
 # add_executable(testWilson testWilson.cpp)
 # target_link_libraries(testWilson PhysicalModelLib)
 
-add_executable(testObservable testObservable.cpp)
+add_executable(testObservable BusinessLogic/testObservable.cpp)
 target_link_libraries(testObservable BusinessLogicLib)
 
 # add_executable(testParams testParams.cpp)

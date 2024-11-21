@@ -14,8 +14,8 @@ int main() {
 
     Logger::getInstance()->setLevel(Logger::LogLevel::INFO);
 
-    auto mm = MemoryManager::GetInstance("Test/testInput.flha", {0, 3});  // Initialize program manager with LHA file containing SMINPUTS block
-    mm->init();  // Initialize parameters from given LHA file
+    auto mm = MemoryManager::GetInstance();  // Initialize program manager with LHA file containing SMINPUTS block
+    mm->init("Test/testInput.flha", {0, 3});  // Initialize parameters from given LHA file
 
     auto flavp = Parameters::GetInstance(3);
     double m_Bs = (*flavp)("MASS", 531);

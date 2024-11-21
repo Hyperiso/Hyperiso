@@ -9,7 +9,7 @@
 
 typedef std::complex<double> complex_t; 
 
-constexpr int N_PARAM_INSTANCES = 5;
+constexpr int N_PARAM_INSTANCES = 6;
 
 class ModelStrategy {
 public:
@@ -32,12 +32,17 @@ public:
     void initializeParameters(class Parameters& params) override;
 };
 
-class FlAVORModelStrategy : public ModelStrategy {
+class FlavorStrategy : public ModelStrategy {
 public:
     void initializeParameters(class Parameters& params) override;
 };
 
 class GeneralModelStrategy : public ModelStrategy {
+public:
+    void initializeParameters(class Parameters& params) override;
+};
+
+class WilsonInputStrategy : public ModelStrategy {
 public:
     void initializeParameters(class Parameters& params) override;
 };

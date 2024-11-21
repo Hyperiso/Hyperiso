@@ -79,7 +79,7 @@ void SMModelStrategy::initializeParameters(Parameters& params) {
 
     LhaReader* lha = MemoryManager::GetInstance()->getReader();
 
-    // SMINPUTS
+    // SMINPUTS./
     double inv_alpha_em{1.37934e2}, G_F{1.16637e-5}, alpha_s_MZ{1.184e-1}, m_Z_pole{91.1876}, m_b_mb{4.18}, m_t_pole{172.9}, m_tau_pole{1.777};
     std::vector<double*> sm_inputs = {&inv_alpha_em, &G_F, &alpha_s_MZ, &m_Z_pole, &m_b_mb, &m_t_pole, &m_tau_pole};
     lha->extractFromBlock("SMINPUTS", sm_inputs);
@@ -159,20 +159,19 @@ void SMModelStrategy::initializeParameters(Parameters& params) {
 // SUSYModelStrategy implementation
 void SUSYModelStrategy::initializeParameters(Parameters& params) {
 
-    LhaReader* lha = MemoryManager::GetInstance()->getReader();
+    auto mm = MemoryManager::GetInstance();
+    LhaReader* lha = mm->getReader();
 
-    std::string root = project_root.data();
-    std::string spectrumFile = root +"/" + "Test/spectrum.slha";
-    LOG_INFO("Starting SUSY spectrum calculation...");
-    
-    CalculatorType calculatorType = CalculatorType::Softsusy;
-    GeneralCalculatorFactory::executeCommand(calculatorType, "calculateSpectrum", lha->getLhaPath(), spectrumFile);
-    
-    LOG_INFO("SUSY spectrum calculation ran sucessfully");
-
-    lha->update(spectrumFile);
-    LOG_INFO("LHA Blocks updated.");
-    
+    if (!mm->isSpectrum()) {
+        std::string root = project_root.data();
+        std::string spectrumFile = root + "/DataBase/Spectrum/" + mm->getInputLhaPath().filename().c_str();
+        LOG_INFO("Starting SUSY spectrum calculation...");
+        CalculatorType calculatorType = CalculatorType::Softsusy;
+        GeneralCalculatorFactory::executeCommand(calculatorType, "calculateSpectrum", mm->getInputLhaPath(), spectrumFile);
+        LOG_INFO("THDM spectrum calculation ran sucessfully");
+        lha->update(spectrumFile);
+        LOG_INFO("LHA Blocks updated.");
+    }
 
     std::vector<std::string> mandatory {"STOPMIX", "SBOTMIX", "STAUMIX", "UMIX", "VMIX", "NMIX", "YU", "YD", "YE", "AU", "AD", "AE", "ALPHA", "HMIX", "GAUGE", "MSOFT", "MASS"};
 
@@ -272,20 +271,16 @@ void THDMModelStrategy::initializeParameters(Parameters& params) {
     LhaReader* lha = MemoryManager::GetInstance()->getReader();
     MemoryManager * memo = MemoryManager::GetInstance();
 
-    std::string root = project_root.data();
-    std::string spectrumFile = root + "/" + "Test/thdm_spectrum.lha";
-    LOG_INFO("Starting THDM spectrum calculation...");
-    // TwoHDMCalculatorFactory::executeCommand("calculateSpectrum", memo->getInputLhaPath(), spectrumFile);
-
-    CalculatorType calculatorType = CalculatorType::TwoHDM;
-    GeneralCalculatorFactory::executeCommand(calculatorType, "calculateSpectrum", memo->getInputLhaPath(), spectrumFile);
-    
-    LOG_INFO("THDM spectrum calculation ran sucessfully");
- 
-    
-    lha->update(spectrumFile);
-    
-    LOG_INFO("LHA Blocks updated.");
+    if (!memo->isSpectrum()) {
+        std::string root = project_root.data();
+        std::string spectrumFile = root + "/" + "DataBase/Spectrum/" + memo->getInputLhaPath().filename().c_str();
+        LOG_INFO("Starting THDM spectrum calculation...");
+        CalculatorType calculatorType = CalculatorType::TwoHDM;
+        GeneralCalculatorFactory::executeCommand(calculatorType, "calculateSpectrum", memo->getInputLhaPath(), spectrumFile);
+        LOG_INFO("THDM spectrum calculation ran sucessfully");
+        lha->update(spectrumFile);
+        LOG_INFO("LHA Blocks updated.");
+    }
 
     std::vector<std::string> mandatory {"MINPAR", "MASS", "ALPHA"};
 
@@ -314,7 +309,6 @@ void THDMModelStrategy::initializeParameters(Parameters& params) {
         type = 4;
      }
     double cot_beta = 1 / tan_beta;
-    std::cout << "ici ?" << std::endl;
 
     auto yublock = std::make_shared<YUBlock>();
     auto ydblock = std::make_shared<YUBlock>();
@@ -364,7 +358,7 @@ void THDMModelStrategy::initializeParameters(Parameters& params) {
 }
 
 // FlAVORModelStrategy implementation
-void FlAVORModelStrategy::initializeParameters(Parameters& params) {
+void FlavorStrategy::initializeParameters(Parameters& params) {
     // Hardcoded for now, should read from LHA file eventually
     auto massblock = std::make_shared<MassBlock>();
     massblock->setValue(511, 5.27958);
@@ -434,6 +428,10 @@ void GeneralModelStrategy::initializeParameters(Parameters& params) {
     JSONParser::getInstance(0)->saveToFile(root_path+ "/DataBase/Params/data_GENERAL.json");
 }
 
+void WilsonInputStrategy::initializeParameters(Parameters &params) {
+    // TODO
+}
+
 double return_if_defined(std::map<std::string, double>& map, const std::string& id, const std::string& error_label) {
     if (map.contains(id)) {
         return map[id];
@@ -496,10 +494,12 @@ ModelStrategy* ParametersFactory::createStrategy(int modelId) {
         case 2:
             return new THDMModelStrategy();
         case 3:
-            return new FlAVORModelStrategy();
+            return new FlavorStrategy();
         case 4:
             return new GeneralModelStrategy();
+        case 5:
+            return new WilsonInputStrategy();
         default:
-            throw std::invalid_argument("Unknown model ID");
+            throw std::invalid_argument("Unknown parameters instance ID");
     }
 }

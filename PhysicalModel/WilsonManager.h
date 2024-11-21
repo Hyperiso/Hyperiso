@@ -200,8 +200,8 @@ public:
     }
 
     static void initialize(const std::string& lhaFile, const std::vector<int>& models) {
-        MemoryManager* mm = MemoryManager::GetInstance(lhaFile, models);
-        mm->init();
+        MemoryManager* mm = MemoryManager::GetInstance();
+        mm->init(lhaFile, models);
     }
 
     double get_params(const std::string& block, int pdgCode) {

@@ -6,7 +6,7 @@
 #include "WilsonManager.h"
 
 int main() {
-    MemoryManager::GetInstance("Test/InputFiles/testinput_thdm.lha", {0})->init();
+    MemoryManager::GetInstance()->init("Test/InputFiles/testinput_thdm.lha", {0});
     std::string csv_path = "../../DataBase/MartyWilson/SM_wilson.csv";
 
     std::string coefficient_name = "C7";
