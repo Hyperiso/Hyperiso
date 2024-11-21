@@ -224,7 +224,12 @@ public:
      */
     template <typename T>
     inline T getValue(const std::string& blockName, const std::string& eltId) {
-        return static_cast<LhaElement<T>*>(this->getBlock(blockName)->get(eltId))->getValue();
+        auto elt = this->getBlock(blockName)->get(eltId);
+        if (elt) {
+            return static_cast<LhaElement<T>*>(elt)->getValue();
+        } else {
+            LOG_ERROR("LHAReaderError", "Trying to access undefined element", eltId, "in block", blockName); 
+        }   
     }
 
     /**

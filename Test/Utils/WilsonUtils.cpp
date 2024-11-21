@@ -16,15 +16,15 @@ void writeCoefficientsToFile(const std::string& strat_name, const std::string& f
     CoefficientManager* wm = CoefficientManager::GetInstance(model);
 
     if (model == "SM") {
-        MemoryManager::GetInstance("Test/InputFiles/testinput_thdm.lha", {0})->init();
+        MemoryManager::GetInstance()->init("Test/InputFiles/testinput_thdm.lha", {0});
         wm->registerCoefficientGroup("BCoefficient", std::make_shared<BCoefficientGroup>());
     }
     else if (model == "THDM") {
-        MemoryManager::GetInstance("Test/InputFiles/testinput_thdm.lha", {0,2})->init();
+        MemoryManager::GetInstance()->init("Test/InputFiles/testinput_thdm.lha", {0,2});
         wm->registerCoefficientGroup("BCoefficient", std::make_shared<BCoefficientGroup_THDM>());
     }
     else if (model == "SUSY") {
-        MemoryManager::GetInstance("Test/InputFiles/testInput.slha", {0,1})->init();
+        MemoryManager::GetInstance()->init("Test/InputFiles/testInput.slha", {0,1});
         wm->registerCoefficientGroup("BCoefficient", std::make_shared<BCoefficientGroup_susy>());
     }
     else {
@@ -69,17 +69,17 @@ void writeCoefficientsPrimeCQToFile(const std::string& strat_name, const std::st
     CoefficientManager* wm = CoefficientManager::GetInstance(model);
 
     if (model == "SM") {
-        MemoryManager::GetInstance("Test/InputFiles/testinput_thdm.lha", {0})->init();
+        MemoryManager::GetInstance()->init("Test/InputFiles/testinput_thdm.lha", {0});
         wm->registerCoefficientGroup("BPrimeCoefficient", std::make_shared<BPrimeCoefficientGroup>());
         wm->registerCoefficientGroup("BScalarCoefficient", std::make_shared<BScalarCoefficientGroup>());    
     }
     else if (model == "THDM") {
-        MemoryManager::GetInstance("Test/InputFiles/testinput_thdm.lha", {0,2})->init();
+        MemoryManager::GetInstance()->init("Test/InputFiles/testinput_thdm.lha", {0,2});
         wm->registerCoefficientGroup("BPrimeCoefficient", std::make_shared<BPrimeCoefficientGroup_THDM>());
         wm->registerCoefficientGroup("BScalarCoefficient", std::make_shared<BScalarCoefficientGroup_THDM>());
     }
     else if (model == "SUSY") {
-        MemoryManager::GetInstance("Test/InputFiles/testInput.slha", {0,1})->init();
+        MemoryManager::GetInstance()->init("Test/InputFiles/testInput.slha", {0,1});
         wm->registerCoefficientGroup("BPrimeCoefficient", std::make_shared<BPrimeCoefficientGroup_susy>());
         wm->registerCoefficientGroup("BScalarCoefficient", std::make_shared<BScalarCoefficientGroup_susy>());
     }
@@ -137,19 +137,19 @@ void writeRunCoefficientsToFile(const std::string& strat_name, const std::string
     CoefficientManager* wm;
 
     if (model == "SM") {
-        MemoryManager::GetInstance("Test/InputFiles/testinput_thdm.lha", {0})->init();
+        MemoryManager::GetInstance()->init("Test/InputFiles/testinput_thdm.lha", {0});
         std::map<std::string, std::shared_ptr<CoefficientGroup>> temp_map;
         temp_map["BCoefficient"] = std::make_shared<BCoefficientGroup>();
         wm = CoefficientManager::Builder(model, temp_map, Q_match, Q, strat_name);
     }
     else if (model == "THDM") {
-        MemoryManager::GetInstance("Test/InputFiles/testinput_thdm.lha", {0,2})->init();
+        MemoryManager::GetInstance()->init("Test/InputFiles/testinput_thdm.lha", {0,2});
         std::map<std::string, std::shared_ptr<CoefficientGroup>> temp_map;
         temp_map["BCoefficient"] = std::make_shared<BCoefficientGroup_THDM>();
         wm = CoefficientManager::Builder(model, temp_map, Q_match, Q, strat_name);
     }
     else if (model == "SUSY") {
-        MemoryManager::GetInstance("Test/InputFiles/testInput.slha", {0,1})->init();
+        MemoryManager::GetInstance()->init("Test/InputFiles/testInput.slha", {0,1});
         std::map<std::string, std::shared_ptr<CoefficientGroup>> temp_map;
         temp_map["BCoefficient"] = std::make_shared<BCoefficientGroup_susy>();
         wm = CoefficientManager::Builder(model, temp_map, Q_match, Q, strat_name);

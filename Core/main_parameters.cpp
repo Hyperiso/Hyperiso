@@ -4,8 +4,8 @@
 
 int main() {
 
-    auto mm = MemoryManager::GetInstance("Test/InputFiles/testInput.slha", {0,1});  // Initialize program manager with LHA file containing SMINPUTS block
-    mm->init();
+    auto mm = MemoryManager::GetInstance();  // Initialize program manager with LHA file containing SMINPUTS block
+    mm->init("Test/InputFiles/testInput.slha", {0,1});
     auto sm_params = Parameters::GetInstance(0); // SM Model
     auto susy_params = Parameters::GetInstance(1); // SUSY Model
     

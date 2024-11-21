@@ -8,8 +8,8 @@ int main() {
 
     Logger::getInstance()->setLevel(Logger::LogLevel::INFO);
 
-    auto mm = MemoryManager::GetInstance("Test/InputFiles/testInput.flha", {2});  // Initialize program manager with LHA file containing SMINPUTS block
-    mm->init();  // Initialize parameters from given LHA file
+    auto mm = MemoryManager::GetInstance();  // Initialize program manager with LHA file containing SMINPUTS block
+    mm->init("Test/InputFiles/testInput.flha", {2});  // Initialize parameters from given LHA file
 
     auto sm_params = Parameters::GetInstance(0); 
     double alpha_s_MZ = std::pow((*sm_params)("GAUGE", 3), 2) / (4 * M_PI);

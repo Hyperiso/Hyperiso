@@ -6,6 +6,16 @@ namespace fs = std::filesystem;
 
 MemoryManager* MemoryManager::instance = nullptr;
 
+MemoryManager::MemoryManager() {
+    this->cache.is_ready = false;
+}
+
+void MemoryManager::check_if_ready() {
+    if (!cache.is_ready) {
+        LOG_ERROR("MemoryManager", "Please init the memory manager before using it.");
+    }
+}
+
 // Creation pointeur unique
 template<typename T>
 std::unique_ptr<T, void(*)(void*)> MemoryManager::makeUniquePtr(T* ptr) {
@@ -52,33 +62,47 @@ std::string MemoryManager::findNearestHyperisoDirectory() {
     return "";
 }
 
-MemoryManager* MemoryManager::GetInstance(std::string lhaFile, std::vector<int> models) {
+MemoryManager* MemoryManager::GetInstance() {
     if (!MemoryManager::instance) {
-        std::string root_path = project_root.data();
-        MemoryManager::instance = new MemoryManager(root_path +"/"+ lhaFile, models);
+        MemoryManager::instance = new MemoryManager();
     }
     return MemoryManager::instance;
 }
 
-const std::string &MemoryManager::getData(std::string key)
-{
-    // if (cache.find(key) == cache.end()) {
-    //     cache[key] = std::make_unique<std::string>(db->readBlock(key));
-    // }
-    return *cache[key];
-}
-
 LhaReader* MemoryManager::getReader() {
-    return reader.get();
+    check_if_ready();
+    return cache.reader.get();
 }
 
-void MemoryManager::init() {
-    
-    // Init SM parameters from SMINPUTS
-    reader = std::make_unique<LhaReader>(LhaReader(lhaPath));
-    reader->readAll();
+void MemoryManager::init(const std::string& lhaFile, const std::vector<int>& models, bool is_spectrum, bool has_wilsons, bool has_obs) {
+    if (cache.is_ready) {
+        LOG_WARN("MemoryManager has already been initialized.");
+        return;
+    }
+
+    std::stringstream ss;
+    ss << project_root.data() << "/" << lhaFile;
+    cache.reader = std::make_unique<LhaReader>(LhaReader(ss.str()));
+    cache.reader->readAll();
+    cache.lha_path = std::filesystem::u8path(ss.str());
+    cache.obs_cov_path = std::filesystem::u8path(project_root.data() + std::string("/DataBase/Exp/observable_covariance.json"));
+    cache.param_cov_path = std::filesystem::u8path(project_root.data() + std::string("/DataBase/Exp/_covariance.json"));
+    cache.models = std::move(models);
+    cache.is_spectrum = is_spectrum;
+    cache.has_wilsons = has_wilsons;
+    cache.has_obs = has_obs;
+    cache.thread_id = std::this_thread::get_id();
+    cache.is_ready = true;
 
     for (auto &&m : models) {
         Parameters::GetInstance(m);
     }
+}
+
+void MemoryManager::set_observable_covariance_input_file(const std::string &path) {
+    cache.obs_cov_path = path;
+}
+
+void MemoryManager::set_parameter_covariance_input_file(const std::string &path) {
+    cache.param_cov_path = path;
 }

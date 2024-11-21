@@ -3,23 +3,30 @@
 #include "Wilson_THDMv2.h"
 #include "WilsonManager.h"
 #include "Parameters.h"
+#include "WilsonInterface.h"
 
 #include <iostream>
 int main() {
-    auto mm = MemoryManager::GetInstance("Test/InputFiles/testinput_thdm.lha", {0});  // Initialize program manager with LHA file containing SMINPUTS block
-    mm->init();
-    auto sm = Parameters::GetInstance(0);
-    std::cout << "mdfksmdlkfsmdlf" << std::endl;
-    std::cout << sm << std::endl;
-    // auto* manager = CoefficientManager::GetInstance("StandardModel");
-    std::map<std::string, std::shared_ptr<CoefficientGroup>> groups = {std::make_pair("BCoefficient", std::make_shared<BCoefficientGroup>(81.)), std::make_pair("BScalarCoefficient", std::make_shared<BScalarCoefficientGroup>(81.)), std::make_pair("BPrimeCoefficient", std::make_shared<BPrimeCoefficientGroup>(81.))};
+    std::cout << "what ? " << std::endl;
+    auto mm = MemoryManager::GetInstance();  // Initialize program manager with LHA file containing SMINPUTS block
+    mm->init("Test/InputFiles/testInput.slha", {0});
 
-    auto* manager = CoefficientManager::Builder("StandardModel", groups , 81., 42., "LO");
+    auto inter = WilsonInterface("SM");
+    std::cout << "initialized" << std::endl;
+    inter.AddWilsonGroup(WilsonGroups::BCoefficients);
 
-    std::cout << manager->getMatchingCoefficient("BCoefficient", "C7", "LO") << std::endl;
-    std::cout << manager->getFullMatchingCoefficient("BCoefficient", "C7", "LO") << std::endl;
+    // auto sm = Parameters::GetInstance(0);
+    // std::cout << "mdfksmdlkfsmdlf" << std::endl;
+    // std::cout << sm << std::endl;
+    // // auto* manager = CoefficientManager::GetInstance("StandardModel");
+    // std::map<std::string, std::shared_ptr<CoefficientGroup>> groups = {std::make_pair("BCoefficient", std::make_shared<BCoefficientGroup>(81.)), std::make_pair("BScalarCoefficient", std::make_shared<BScalarCoefficientGroup>(81.)), std::make_pair("BPrimeCoefficient", std::make_shared<BPrimeCoefficientGroup>(81.))};
 
-    std::cout << manager->get_state("BCoefficient") << std::endl;
+    // auto* manager = CoefficientManager::Builder("StandardModel", groups , 81., 42., "LO");
+
+    // std::cout << manager->getMatchingCoefficient("BCoefficient", "C7", "LO") << std::endl;
+    // std::cout << manager->getFullMatchingCoefficient("BCoefficient", "C7", "LO") << std::endl;
+
+    // std::cout << manager->get_state("BCoefficient") << std::endl;
     // manager->registerCoefficientGroup("BCoefficients", std::make_unique<BCoefficientGroup>(81.0));
     // manager->registerCoefficientGroup("ScalarBCoefficients", std::make_unique<BScalarCoefficientGroup>(81.0));
     // manager->setQMatch("BCoefficients", 81.);

@@ -2,6 +2,7 @@
 #include "lha_blocks.h"
 #include <sstream>
 #include <iostream>
+#include <limits>
 
 template <typename U>
 struct StringConverter {
@@ -13,7 +14,11 @@ struct StringConverter {
 template <>
 struct StringConverter<double> {
     static double convert(const std::string& str) {
-        return std::stod(str);
+        try {
+            return std::stod(str);
+        } catch(...) {
+            return std::numeric_limits<double>::max(); //small patch
+        }
     }
 };
 
