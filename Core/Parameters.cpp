@@ -73,6 +73,8 @@ double Parameters::get_QCD_masse(std::string masstype) {
     if (masstype == "mb_1S") {
         return this->QCDRunner.mb_1S();
     }
+    LOG_ERROR("InvalidInput", "invalid masse for get_QCD_masse", masstype);
+    return 0.;
 }
 
 void SMModelStrategy::initializeParameters(Parameters& params) {
@@ -438,7 +440,7 @@ void WilsonInputStrategy::initializeParameters(Parameters &params) {
     params.addBlock("WCOEF", std::make_shared<WilsonBlock>());
 
     for (size_t i = 0; i < WCoefMapper::n_wilsons(); i++) {
-        auto C = static_cast<WilsonCoefficient>(i);
+        auto C = static_cast<WilsonCoefficientList>(i);
         for (size_t j = 0; j < 3; j++) {
             auto e = lha->getBlock("FWCOEF")->get(WCoefMapper::flha(C));
             int id = std::stoi(e->getId().substr(15, 2));

@@ -36,9 +36,9 @@ add_library(BusinessLogicLib STATIC
     Observables/Bs_mumu.cpp
     Observables/Bd_mumu.cpp
     Observables/B__Kstar_gamma.cpp
-    Observables/Observables.cpp)
+    )
 
-set_target_properties(BusinessLogicLib PROPERTIES PUBLIC_HEADER "Compound.h;Observable.h;ModelEvaluator.h;Observables.h;B__Kstar_gamma.h;Bd_mumu.h;Bs_mumu.h;Bu_taunu.h")
+set_target_properties(BusinessLogicLib PROPERTIES PUBLIC_HEADER "ObservableInterface.h;Compound.h;Observable.h;ModelEvaluator.h;B__Kstar_gamma.h;Bd_mumu.h;Bs_mumu.h;Bu_taunu.h")
 
 target_include_directories(BusinessLogicLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_include_directories(BusinessLogicLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/Observables)

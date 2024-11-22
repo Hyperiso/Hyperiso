@@ -225,7 +225,7 @@ public:
 };
 
 struct WCoef {
-    WilsonCoefficient name;
+    WilsonCoefficientList name;
     complex_t value_LO;
     complex_t value_NLO;
     complex_t value_NNLO;
@@ -234,7 +234,7 @@ struct WCoef {
 
 class WilsonBlock : public Block {
 public:
-    WCoef getValue(WilsonCoefficient name) const {
+    WCoef getValue(WilsonCoefficientList name) const {
         auto it = values.find(name);
         if (it != values.end()) {
             return it->second;
@@ -242,11 +242,15 @@ public:
         throw std::out_of_range("PDG code not found in " + this->blockname);
     }
 
-    void setValue(WilsonCoefficient name, complex_t value, int order, int type) {
+    double getValue(int pdgCode) const {return 0;}
+    void setValue(int pdgCode, double value, bool force = false) {}
+
+    void setValue(WilsonCoefficientList name, complex_t value, int order, int type) {
         values[name] = {name, type, order, value};
     }
 
+    void setMode(int pdgCode, ParameterMode mode) {}
 protected:
-    std::map<WilsonCoefficient, WCoef> values;
+    std::map<WilsonCoefficientList, WCoef> values;
 
 };
