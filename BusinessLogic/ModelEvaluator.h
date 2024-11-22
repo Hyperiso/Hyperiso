@@ -3,7 +3,7 @@
 
 #include "Compound.h"
 #include "Observable.h"
-#include "Observables.h"
+#include "General.h"
 #include "Matrix.h"
 #include <vector>
 #include <string>

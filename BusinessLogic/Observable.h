@@ -1,7 +1,7 @@
 #if !defined(HYPERISO_OBSERVABLE_H) 
 #define HYPERISO_OBSERVABLE_H
 
-#include "./Observables/Observables.h"
+#include "General.h"
 #include "Compound.h"
 #include "Math.h"
 #include "WilsonManager.h"

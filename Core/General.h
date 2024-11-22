@@ -93,7 +93,7 @@ private:
     static const std::map<std::string, CoefficientOrder> inverse_mapping; 
 };
 
-enum class WilsonCoefficient {
+enum class WilsonCoefficientList {
     C1, C2, C3, C4, C5, C6, C7, C8, C9, C10, CQ1, CQ2, CP1, CP2, CP3, CP4, CP5, CP6, CP7, CP8, CP9, CP10, CPQ1, CPQ2
 };
 
@@ -121,19 +121,19 @@ private:
 class WCoefMapper {
 
 public:
-    static std::string str(WilsonCoefficient order) {
+    static std::string str(WilsonCoefficientList order) {
         return WCoefMapper::mapping.at(order);
     };
 
-    static WilsonCoefficient enum_elt(std::string order) {
+    static WilsonCoefficientList enum_elt(std::string order) {
         return WCoefMapper::inverse_mapping.at(order);
     };
 
-    static std::string flha(WilsonCoefficient order) {
+    static std::string flha(WilsonCoefficientList order) {
         return WCoefMapper::flha_mapping.at(order);
     };
 
-    static std::vector<WilsonCoefficient> get_group(WilsonGroups group) {
+    static std::vector<WilsonCoefficientList> get_group(WilsonGroups group) {
         switch (group) {
             case WilsonGroups::BCoefficients:
                 return B_group;
@@ -149,12 +149,12 @@ public:
     }
 
 private:
-    static const std::vector<WilsonCoefficient> B_group;
-    static const std::vector<WilsonCoefficient> B_prime_group;
-    static const std::vector<WilsonCoefficient> B_scalar_group;
-    static const std::map<WilsonCoefficient, std::string> mapping; 
-    static const std::map<std::string, WilsonCoefficient> inverse_mapping; 
-    static const std::map<WilsonCoefficient, std::string> flha_mapping; 
+    static const std::vector<WilsonCoefficientList> B_group;
+    static const std::vector<WilsonCoefficientList> B_prime_group;
+    static const std::vector<WilsonCoefficientList> B_scalar_group;
+    static const std::map<WilsonCoefficientList, std::string> mapping; 
+    static const std::map<std::string, WilsonCoefficientList> inverse_mapping; 
+    static const std::map<WilsonCoefficientList, std::string> flha_mapping; 
 };
 
 
