@@ -9,68 +9,29 @@
 #include <vector>
 
 enum class Observables {
-    FIRST,
     BR_BS_MUMU,
     BR_BS_MUMU_UNTAG,
     BR_BD_MUMU,
     BR_BU_TAUNU,
-    ISOSPIN_ASYMMETRY_B_KSTAR_GAMMA,
-    LAST
+    ISOSPIN_ASYMMETRY_B_KSTAR_GAMMA
 };
 
 class ObservableMapper {
-    static ObservableMapper* instance;
 public:
+    static std::string str(Observables obs) {
+        return ObservableMapper::mapping.at(obs);
+    };
 
-    static ObservableMapper* GetInstance() {
-        if (!instance) {
-            instance = new ObservableMapper();
-        }
-        return instance;
-    }
-
-    void addMapping(Observables observable, const std::string& name) {
-        observableToStringMap[observable] = name;
-    }
-
-    std::string getString(Observables observable) const {
-        auto it = observableToStringMap.find(observable);
-        if (it != observableToStringMap.end()) {
-            return it->second;
-        } else {
-            throw std::runtime_error("Observable not found in map");
-        }
-    }
-
-    Observables getObservable(const std::string& name) const {
-        for (const auto& pair : observableToStringMap) {
-            if (pair.second == name) {
-                return pair.first;
-            }
-        }
-        throw std::runtime_error("String not found in map");
-    }
-
-    std::unordered_map<Observables, std::string> get_map() {
-        return this->observableToStringMap;
-    }
+    static Observables enum_elt(std::string name) {
+        return ObservableMapper::inverse_mapping.at(name);
+    };
 
 private:
-
-    std::unordered_map<Observables, std::string> observableToStringMap;
-    ObservableMapper() {
-        observableToStringMap[Observables::BR_BS_MUMU] = "BR_Bsmumu";
-        observableToStringMap[Observables::BR_BS_MUMU_UNTAG] = "BRuntag_Bsmumu";
-        observableToStringMap[Observables::BR_BD_MUMU] = "BR_Bdmumu";
-        observableToStringMap[Observables::BR_BU_TAUNU] = "BR_Bu_Taunu";
-        observableToStringMap[Observables::ISOSPIN_ASYMMETRY_B_KSTAR_GAMMA] = "ISOSPIN_ASYMMETRY_B_KSTAR_GAMMA";
-    }
-
-    ObservableMapper(const ObservableMapper&) = delete;
-    ObservableMapper& operator=(const ObservableMapper&) = delete;
+    static const std::map<Observables, std::string> mapping; 
+    static const std::map<std::string, Observables> inverse_mapping; 
 };
 
-enum class CoefficientOrder {
+enum class QCDOrder {
     NONE,
     LO,
     NLO,
@@ -80,20 +41,20 @@ enum class CoefficientOrder {
 class OrderMapper {
 
 public:
-    static std::string str(CoefficientOrder order) {
+    static std::string str(QCDOrder order) {
         return OrderMapper::mapping.at(order);
     };
 
-    static CoefficientOrder enum_elt(std::string order) {
+    static QCDOrder enum_elt(std::string order) {
         return OrderMapper::inverse_mapping.at(order);
     };
 
 private:
-    static const std::map<CoefficientOrder, std::string> mapping; 
-    static const std::map<std::string, CoefficientOrder> inverse_mapping; 
+    static const std::map<QCDOrder, std::string> mapping; 
+    static const std::map<std::string, QCDOrder> inverse_mapping; 
 };
 
-enum class WilsonCoefficientList {
+enum class BWilsonCoefficients {
     C1, C2, C3, C4, C5, C6, C7, C8, C9, C10, CQ1, CQ2, CP1, CP2, CP3, CP4, CP5, CP6, CP7, CP8, CP9, CP10, CPQ1, CPQ2
 };
 
@@ -101,6 +62,11 @@ enum class WilsonGroups {
     BCoefficients, 
     BPrimeCoefficients, 
     BScalarCoefficients
+};
+
+enum class BWilsonBasis {
+    STANDARD, 
+    TRADITIONAL
 };
 
 class GroupMapper {
@@ -121,19 +87,19 @@ private:
 class WCoefMapper {
 
 public:
-    static std::string str(WilsonCoefficientList order) {
+    static std::string str(BWilsonCoefficients order) {
         return WCoefMapper::mapping.at(order);
     };
 
-    static WilsonCoefficientList enum_elt(std::string order) {
+    static BWilsonCoefficients enum_elt(std::string order) {
         return WCoefMapper::inverse_mapping.at(order);
     };
 
-    static std::string flha(WilsonCoefficientList order) {
+    static std::string flha(BWilsonCoefficients order) {
         return WCoefMapper::flha_mapping.at(order);
     };
 
-    static std::vector<WilsonCoefficientList> get_group(WilsonGroups group) {
+    static std::vector<BWilsonCoefficients> get_group(WilsonGroups group) {
         switch (group) {
             case WilsonGroups::BCoefficients:
                 return B_group;
@@ -149,13 +115,34 @@ public:
     }
 
 private:
-    static const std::vector<WilsonCoefficientList> B_group;
-    static const std::vector<WilsonCoefficientList> B_prime_group;
-    static const std::vector<WilsonCoefficientList> B_scalar_group;
-    static const std::map<WilsonCoefficientList, std::string> mapping; 
-    static const std::map<std::string, WilsonCoefficientList> inverse_mapping; 
-    static const std::map<WilsonCoefficientList, std::string> flha_mapping; 
+    static const std::vector<BWilsonCoefficients> B_group;
+    static const std::vector<BWilsonCoefficients> B_prime_group;
+    static const std::vector<BWilsonCoefficients> B_scalar_group;
+    static const std::map<BWilsonCoefficients, std::string> mapping; 
+    static const std::map<std::string, BWilsonCoefficients> inverse_mapping; 
+    static const std::map<BWilsonCoefficients, std::string> flha_mapping; 
 };
 
+enum class Model {
+    SM,
+    SUSY,
+    THDM,
+    CUSTOM
+};
+
+class ModelMapper {
+public:
+    static std::string str(Model order) {
+        return ModelMapper::mapping.at(order);
+    };
+
+    static Model enum_elt(std::string order) {
+        return ModelMapper::inverse_mapping.at(order);
+    };
+
+private:
+    static const std::map<Model, std::string> mapping; 
+    static const std::map<std::string, Model> inverse_mapping; 
+};
 
 #endif // __GENERAL_H__
