@@ -77,5 +77,8 @@ public:
         return this->wm->getAlphaS(this->stringmapper[groupName]);
     }
 
+    complex_t getMatchingCoefficient(WilsonGroups groupName, WilsonCoefficientList coeff, CoefficientOrder order) {
+        return this->wm->getMatchingCoefficient(GroupMapper::str(groupName), WCoefMapper::str(coeff), OrderMapper::str(order));
+    }
 
 };
