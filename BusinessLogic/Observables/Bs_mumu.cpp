@@ -51,7 +51,7 @@ double BR_Bs_mumu_untag::eval() const {
     double r = (*sm_p)("MASS", 13) / m_Bs;  // m_mu / m_Bs
     double x = m_Bs / (sm_p->get_QCD_masse("mb_pole") + (*sm_p)("MASS", 3)); // m_Bs / (m_b_pole + m_s)
 
-    auto manager_sm = computeWilsons(0, 2, m_Bs);
+    auto manager_sm = computeWilsons(Model::SM, order, scale);
     complex_t C10_SM = manager_sm->getFullRunCoefficient("BCoefficient", "C10", "NNLO");
     complex_t S = std::sqrt(1 - 4 * r * r) * x / 2 / r * (CQ1 - CPQ1) / C10_SM;
     complex_t P = (C10 - CP10 + x * (CQ2 - CPQ2) / (2 * r)) / C10_SM;

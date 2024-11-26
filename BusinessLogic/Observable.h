@@ -19,13 +19,13 @@ protected:
     const Observables id;
     const double exp_val;
     const double exp_std;
-    int model;
-    int order;
+    Model model;
+    QCDOrder order;
     double scale;
 
 public:
 
-    Observable(Observables id, double exp_val, double exp_std, int model, int order, double scale) 
+    Observable(Observables id, double exp_val, double exp_std, Model model, QCDOrder order, double scale) 
         : id(id), exp_val(exp_val), exp_std(exp_std), model(model), order(order), scale(scale) {} 
 
     Observables getId() const;
@@ -33,7 +33,7 @@ public:
     double get_exp_var() const;
     virtual double eval() const override = 0;
     CoefficientManager* computeWilsons(bool traditional_basis=false) const;
-    CoefficientManager* computeWilsons(int model, int order, double scale, bool traditional_basis=false) const;
+    CoefficientManager* computeWilsons(Model model, QCDOrder order, double scale, bool traditional_basis=false) const;
 
 }; 
 

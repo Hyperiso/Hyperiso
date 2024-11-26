@@ -225,7 +225,7 @@ public:
 };
 
 struct WCoef {
-    WilsonCoefficientList name;
+    BWilsonCoefficients name;
     complex_t value_LO;
     complex_t value_NLO;
     complex_t value_NNLO;
@@ -234,7 +234,7 @@ struct WCoef {
 
 class WilsonBlock : public Block {
 public:
-    WCoef getValue(WilsonCoefficientList name) const {
+    WCoef getValue(BWilsonCoefficients name) const {
         auto it = values.find(name);
         if (it != values.end()) {
             return it->second;
@@ -245,12 +245,12 @@ public:
     double getValue(int pdgCode) const {return 0;}
     void setValue(int pdgCode, double value, bool force = false) {}
 
-    void setValue(WilsonCoefficientList name, complex_t value, int order, int type) {
+    void setValue(BWilsonCoefficients name, complex_t value, int order, int type) {
         values[name] = {name, type, order, value};
     }
 
     void setMode(int pdgCode, ParameterMode mode) {}
 protected:
-    std::map<WilsonCoefficientList, WCoef> values;
+    std::map<BWilsonCoefficients, WCoef> values;
 
 };

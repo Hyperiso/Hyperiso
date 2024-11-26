@@ -15,20 +15,6 @@ ModelEvaluator::ModelEvaluator(const std::vector<std::shared_ptr<Observable>>& o
     
 }
 
-// void ModelEvaluator::add_observable(Observable obs) {
-//     observables.emplace_back(std::move(obs));
-//     update_exp_covariance();
-//     update_th_covariance();
-// }
-
-// void ModelEvaluator::add_observables(std::vector<Observable> obs) {
-//     for (auto &&o : obs)
-//         observables.emplace_back(o);
-
-//     update_exp_covariance();
-//     update_th_covariance();
-// }
-
 std::shared_ptr<Observable> ModelEvaluator::find_from_id(Observables id) {
     for (auto o : observables) {
         if (o->getId() == id)
@@ -64,10 +50,9 @@ void ModelEvaluator::update_exp_covariance() {
     std::vector<Value> _;
     std::string root = project_root.data();
     read_json(root + "/DataBase/data_exp.json", _, correlations);
-    auto mapper = ObservableMapper::GetInstance();
     for (const auto& corr : correlations) {
-        auto id_1 = mapper->getObservable(corr.name1);
-        auto id_2 = mapper->getObservable(corr.name2);
+        auto id_1 = ObservableMapper::enum_elt(corr.name1);
+        auto id_2 = ObservableMapper::enum_elt(corr.name2);
         try {
             auto o_1 = find_from_id(id_1);
             auto o_2 = find_from_id(id_2);
@@ -84,9 +69,7 @@ void ModelEvaluator::update_exp_covariance() {
 SparseMatrix<Observables> ModelEvaluator::get_covariance() const {
     SparseMatrix<Observables> cov = th_cov_mtx;
     LOG_INFO("Theoretical covariance matrix size", cov.size());
-    auto mapper = ObservableMapper::GetInstance();
     for (auto &&p : exp_cov_mtx) {
-        LOG_INFO(mapper->getString(p.first.first), mapper->getString(p.first.second));
         if (cov.contains(p.first)) {
             cov.at(p.first) += p.second;
         } else {

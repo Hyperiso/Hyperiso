@@ -11,20 +11,14 @@ class CoefficientManager; // Forward declaration
 
 class State {
 protected:
-    CoefficientOrder currentOrder = CoefficientOrder::NONE;
+    QCDOrder currentOrder = QCDOrder::NONE;
     std::string state{};
 public:
     virtual ~State() = default;
 
     State() = default;
     State(std::string order) {
-        if (order == "LO") {
-            currentOrder = CoefficientOrder::LO;
-        } else if (order == "NLO") {
-            currentOrder = CoefficientOrder::NLO;
-        } else if (order == "NNLO") {
-            currentOrder = CoefficientOrder::NNLO;
-        }
+        currentOrder = OrderMapper::enum_elt(order);
     }
 
     virtual void setGroupScale(CoefficientManager* manager, const std::string& groupName, double Q) {
@@ -72,43 +66,20 @@ public:
     
 
     bool isOrderCalculated(const std::string& order) {
-        if (order == "LO" && currentOrder >= CoefficientOrder::LO) {
+        if (order == "LO" && currentOrder >= QCDOrder::LO) {
             return true;
         }
-        if (order == "NLO" && currentOrder >= CoefficientOrder::NLO) {
+        if (order == "NLO" && currentOrder >= QCDOrder::NLO) {
             return true;
         }
-        if (order == "NNLO" && currentOrder >= CoefficientOrder::NNLO) {
+        if (order == "NNLO" && currentOrder >= QCDOrder::NNLO) {
             return true;
         }
         return false;
     }
-    std::string EnumToString(CoefficientOrder order) {
-        if (order == CoefficientOrder::LO ) {
-            return "LO";
-        } else if (order == CoefficientOrder::NLO ) {
-            return "NLO";
-        } else if (order == CoefficientOrder::NNLO ) {
-            return "NNLO";
-        } else {
-            return "None";
-        }
-          
-    }
+    
     std::string getCurrentOrder() {
-        return this->EnumToString(this->currentOrder);
-    }
-
-    CoefficientOrder StringToEnum(std::string order) {
-        if (order == "LO") {
-            return CoefficientOrder::LO;
-        } else if (order == "NLO") {
-            return CoefficientOrder::NLO;
-        } else if (order == "NNLO") {
-            return CoefficientOrder::NNLO;
-        } else {
-            return CoefficientOrder::NONE;
-        }
+        return OrderMapper::str(this->currentOrder);
     }
 
     std::string get_state() {

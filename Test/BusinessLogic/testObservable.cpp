@@ -23,10 +23,10 @@ int main() {
     double m_Bd = (*flavp)("FMASS", 511);
     double m_Bu = (*flavp)("FMASS", 521);
 
-    BR_Bs_mumu          br_Bs__mu_mu(0, 2, m_Bs);
-    BR_Bs_mumu_untag    br_Bs__mu_mu__untag(0, 2, m_Bs);
-    BR_Bd_mumu          br_Bd__mu_mu(0, 2, m_Bd);
-    BR_Bu_taunu         br_Bu__tau_nu(0, 2, m_Bu);
+    BR_Bs_mumu          br_Bs__mu_mu(Model::SM, QCDOrder::NNLO, m_Bs);
+    BR_Bs_mumu_untag    br_Bs__mu_mu__untag(Model::SM, QCDOrder::NNLO, m_Bs);
+    BR_Bd_mumu          br_Bd__mu_mu(Model::SM, QCDOrder::NNLO, m_Bd);
+    BR_Bu_taunu         br_Bu__tau_nu(Model::SM, QCDOrder::NNLO, m_Bu);
     // Delta0_B__Kstar_gamma delta_0 (0, 1, sm_p->get_QCD_masse("mb_1S") / 2);
 
     LOG_INFO("---------- Observables -----------");

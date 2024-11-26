@@ -440,7 +440,7 @@ void WilsonInputStrategy::initializeParameters(Parameters &params) {
     params.addBlock("WCOEF", std::make_shared<WilsonBlock>());
 
     for (size_t i = 0; i < WCoefMapper::n_wilsons(); i++) {
-        auto C = static_cast<WilsonCoefficientList>(i);
+        auto C = static_cast<BWilsonCoefficients>(i);
         for (size_t j = 0; j < 3; j++) {
             auto e = lha->getBlock("FWCOEF")->get(WCoefMapper::flha(C));
             int id = std::stoi(e->getId().substr(15, 2));
@@ -448,7 +448,6 @@ void WilsonInputStrategy::initializeParameters(Parameters &params) {
         }
     }
 
-    params.setBlockValue("FWCOEF", 1, lha->getValue<double>("FWCOEF", "03040405|6161|01|1"));
 }
 
 void Parameters::changeParameterMode(const ParamId &param_id,

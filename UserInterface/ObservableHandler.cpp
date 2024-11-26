@@ -53,18 +53,18 @@ int handleObservableOptions(int argc, char* argv[]) {
 
         ObservableInterface obs_interface;
 
-        std::vector<ObservableEnum> selected_obs;
+        std::vector<Observables> selected_obs;
         for (const auto& name : observable_names) {
-            selected_obs.push_back(obs_interface.get_enum_from_string(name));
+            selected_obs.push_back(ObservableMapper::enum_elt(name));
         }
 
         for (const auto& obs : selected_obs) {
-            std::cout << obs_interface.get_string_from_enum(obs) << ": "
+            std::cout << ObservableMapper::str(obs) << ": "
                       << obs_interface.compute_observable(obs) << "\n";
         }
 
         if (!selected_obs.empty()) {
-            double chi2 = obs_interface.compute_chi2(selected_obs);
+            double chi2 = obs_interface.compute_chi2();
             std::cout << "Chi-squared: " << chi2 << "\n";
         }
 

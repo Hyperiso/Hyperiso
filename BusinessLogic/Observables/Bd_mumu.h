@@ -5,7 +5,7 @@
 
 class BR_Bd_mumu : public Observable {
 public:
-    BR_Bd_mumu(int model, int order, double scale) : Observable(Observables::BR_BD_MUMU, 1.09e-10, 7.4e-11, model, order, scale) {};
+    BR_Bd_mumu(Model model, QCDOrder order, double scale) : Observable(Observables::BR_BD_MUMU, 1.09e-10, 7.4e-11, model, order, scale) {};
     double eval() const override;
 };
 
