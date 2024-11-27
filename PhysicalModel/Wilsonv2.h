@@ -493,7 +493,7 @@ public:
     std::complex<double> getRun(std::string coeff, std::string order) {return this->at(coeff)->get_CoefficientRunValue(order);}
 
     void setExternalMatchingCoefficient(const std::string& coeff, std::string& order, complex_t value) {
-        if (std::shared_ptr<WilsonCoefficient> search = this->find(coeff); search !=this->end()) {
+        if (std::shared_ptr<WilsonCoefficient> search = this->find(coeff)->second; search !=this->end()->second) {
             search->set_WilsonCoeffMatching(order, value);
             return;
         }
@@ -501,7 +501,7 @@ public:
     }
 
     void setExternalRunningCoefficient(const std::string& coeff, std::string& order, complex_t value) {
-        if (std::shared_ptr<WilsonCoefficient> search = this->find(coeff); search !=this->end()) {
+        if (std::shared_ptr<WilsonCoefficient> search = this->find(coeff)->second; search !=this->end()->second) {
             search->set_WilsonCoeffRun(order, value);
             return;
         }
@@ -520,10 +520,12 @@ public:
     virtual void set_base_1_NNLO() =0;
     void set_base_2_NNLO() {}
 
+    virtual std::shared_ptr<CoefficientGroup> clone() const = 0;
     double Q_match{81};
     double Q_run{81};
 
     bool double_base = false;
+
 };
 
 
@@ -577,6 +579,10 @@ public:
         }
     }
 
+    std::shared_ptr<CoefficientGroup> clone() const override {
+        return std::make_shared<BCoefficientGroup>(*this);
+    }
+
 protected:
     Wilson_parameters* W_param = Wilson_parameters::GetInstance();
     bool double_base = true;
@@ -606,6 +612,10 @@ public:
     void set_base_1_NLO() {}
     void set_base_1_NNLO() {}
 
+    std::shared_ptr<CoefficientGroup> clone() const override {
+        return std::make_shared<BPrimeCoefficientGroup>(*this);
+    }
+
 protected:
     Wilson_parameters* W_param = Wilson_parameters::GetInstance();
 };
@@ -623,6 +633,9 @@ public:
     void set_base_1_NLO();
     void set_base_1_NNLO() {}
 
+    std::shared_ptr<CoefficientGroup> clone() const override {
+        return std::make_shared<BScalarCoefficientGroup>(*this);
+    }
 
 protected:
     Wilson_parameters* W_param = Wilson_parameters::GetInstance();

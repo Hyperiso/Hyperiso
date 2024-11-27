@@ -1,7 +1,7 @@
 #include "WilsonManager.h"
 
 InitialState::InitialState() {
-    this->state = "InitialState";
+    this->state = StateName::InitialState;
 }
 
 InitialState::~InitialState() {

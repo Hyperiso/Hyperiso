@@ -6,13 +6,34 @@
 #include <stdexcept>
 #include "Wilsonv2.h"
 #include "MemoryManager.h"
+#include <set>
+#define PRECISION 1e-5
+
+bool haveSameKeys(const std::map<std::string, std::shared_ptr<CoefficientGroup>>& map1, const std::map<std::string, std::shared_ptr<CoefficientGroup>>& map2) {
+    std::set<std::string> keys1;
+    std::set<std::string> keys2;
+
+    for (const auto& pair : map1) {
+        keys1.insert(pair.first);
+    }
+
+    for (const auto& pair : map2) {
+        keys2.insert(pair.first);
+    }
+
+    return keys1 == keys2;
+}
+
+enum class StateName {
+    InitialState, QMatchSetState, MatchinSetState, QSetState, RunSetState
+};
 
 class CoefficientManager; // Forward declaration
 
 class State {
 protected:
     QCDOrder currentOrder = QCDOrder::NONE;
-    std::string state{};
+    StateName state{};
 public:
     virtual ~State() = default;
 
@@ -82,7 +103,7 @@ public:
         return OrderMapper::str(this->currentOrder);
     }
 
-    std::string get_state() {
+    StateName get_state() {
         return this->state;
     }
 };
@@ -100,7 +121,7 @@ public:
 
 class QMatchSetState : public State {
 public:
-    QMatchSetState(std::string order) : State(order) { this->state = "QMatchSetState";}
+    QMatchSetState(std::string order) : State(order) { this->state = StateName::QMatchSetState;}
     void setMatchingCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& order) override;
     void setParams(const std::string& block, int pdgCode, double value) {
         Parameters::GetInstance()->setBlockValue(block, pdgCode, value, true);
@@ -111,7 +132,7 @@ public:
 
 class MatchingSetState : public State {
 public:
-    MatchingSetState(std::string order) : State(order) {this->state = "MatchingSetState";}
+    MatchingSetState(std::string order) : State(order) {this->state = StateName::MatchinSetState;}
     void setGroupScale(CoefficientManager* manager, const std::string& groupName, double Q) override;
     // void setRunCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& order) override;
     void setMatchingCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& order) override;
@@ -125,7 +146,7 @@ public:
 
 class QSetState : public State {
 public:
-    QSetState(std::string order) : State(order) {this->state = "QSetState";}
+    QSetState(std::string order) : State(order) {this->state = StateName::QSetState;}
     void setRunCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& order) override;
     std::complex<double> getMatchingCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) override;
     std::complex<double> getFullMatchingCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) override;
@@ -133,7 +154,7 @@ public:
 
 class RunSetState : public State {
 public:
-    RunSetState(std::string order) : State(order) {this->state = "RunSetState";}
+    RunSetState(std::string order) : State(order) {this->state = StateName::RunSetState;}
     void switchbasis(CoefficientManager* manager, const std::string& groupName);
     void setGroupScale(CoefficientManager* manager, const std::string& groupName, double Q) override;
     std::complex<double> getMatchingCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) override;
@@ -175,7 +196,7 @@ public:
     double get_params(const std::string& block, int pdgCode) {
         return (*Parameters::GetInstance())(block, pdgCode);
     }
-    std::string get_state(const std::string& groupName) {
+    StateName get_state(const std::string& groupName) {
         return ensureGroupState(groupName)->get_state();
     }
 
@@ -183,11 +204,26 @@ public:
         groupStates[groupName] = std::move(newState);
     }
 
-    void setState(const std::string& groupName, std::string state_name) {
-        if (state_name == "matchingstate"){
-            groupStates[groupName] = std::make_shared<MatchingSetState>(groupStates[groupName]->getCurrentOrder());
+    void setState(const std::string& groupName, StateName state_name) {
+        switch(state_name) {
+            case StateName::InitialState:
+                groupStates[groupName] = std::make_shared<InitialState>(groupStates[groupName]->getCurrentOrder());
+                break;
+            case StateName::QMatchSetState:
+                groupStates[groupName] = std::make_shared<QMatchSetState>(groupStates[groupName]->getCurrentOrder());
+                break;
+            case StateName::MatchinSetState:
+                groupStates[groupName] = std::make_shared<MatchingSetState>(groupStates[groupName]->getCurrentOrder());
+                break;
+            case StateName::QSetState:
+                groupStates[groupName] = std::make_shared<QSetState>(groupStates[groupName]->getCurrentOrder());
+                break;
+            case StateName::RunSetState:
+                groupStates[groupName] = std::make_shared<RunSetState>(groupStates[groupName]->getCurrentOrder());
+                break;
         }
     }
+
     void setGroupScale(const std::string& groupName, double Q) {
         ensureGroupState(groupName)->setGroupScale(this, groupName, Q);
     }
@@ -256,13 +292,40 @@ public:
         std::cout << *dynamic_cast<BCoefficientGroup*>(group);
     }
 
-    static std::shared_ptr<CoefficientManager> Concat(std::shared_ptr<CoefficientManager> manager1, std::shared_ptr<CoefficientManager> manager2) {
-        CoefficientManager* newmanager = CoefficientManager::GetInstance(manager1->getModel() + "_" + manager2->getModel());
-        for (auto& group : manager1) {
+    static bool compatible_concat(std::shared_ptr<CoefficientManager> manager1, std::shared_ptr<CoefficientManager> manager2) {
+        haveSameKeys(manager1->getGroups(), manager2->getGroups());
+        for (auto& group : manager1->getGroups()) {
+            if (manager1->get_state(group.first) != manager2->get_state(group.first)) {
+                return false;
+            }
+            if (std::abs(group.second->get_Q_match() -group.second->get_Q_match()) > PRECISION) {
+                return false;
+            }
+            if (std::abs(group.second->get_Q_run() - group.second->get_Q_run()) > PRECISION) {
+                return false;
+            }
+        }
+        return true;
+    }
 
+    static CoefficientManager* Concat(std::shared_ptr<CoefficientManager> manager1, std::shared_ptr<CoefficientManager> manager2) {
+        CoefficientManager* newmanager = CoefficientManager::GetInstance(manager1->getModel() + "_" + manager2->getModel());
+        if (!compatible_concat(manager1, manager2)) {
+            LOG_ERROR("INVALID OPERATION", "impossible to concatenate", manager1->getModel(), "and", manager2->getModel());
+        }
+        
+        for (auto& group : manager1->getGroups()) {
+            std::shared_ptr<CoefficientGroup> newgroup = group.second->clone();
+            for (auto& coeff : *group.second) {
+                *(*newgroup)[coeff.first] += *(*manager2->getCoefficientGroup(group.first))[coeff.first];
+            }
+            newmanager->registerCoefficientGroup(group.first, newgroup);
+            newmanager->setState(group.first, StateName::RunSetState);
         }
 
+        return newmanager;
     }
+    
     static CoefficientManager* Builder(std::string instance, std::map<std::string, std::shared_ptr<CoefficientGroup>> groups, double Q_match, double Q, std::string order) {
         CoefficientManager *manager = CoefficientManager::GetInstance(instance);
         for (auto& group : groups) {
