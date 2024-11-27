@@ -2,8 +2,8 @@
 
 
 double BR_Bs_mumu::eval() const {
-    auto sm_p = Parameters::GetInstance(0); // SM params
-    auto flav_p = Parameters::GetInstance(3); // Flavor params
+    auto sm_p = Parameters::GetInstance(ParameterType::SM); // SM params
+    auto flav_p = Parameters::GetInstance(ParameterType::FLAVOR); // Flavor params
     auto manager = computeWilsons();
 
     complex_t C10 = manager->getFullRunCoefficient("BCoefficient", "C10", "NNLO");
@@ -29,8 +29,8 @@ double BR_Bs_mumu::eval() const {
 }
 
 double BR_Bs_mumu_untag::eval() const {
-    auto sm_p = Parameters::GetInstance(0); // SM params
-    auto flav_p = Parameters::GetInstance(3); // Flavor params
+    auto sm_p = Parameters::GetInstance(ParameterType::SM); // SM params
+    auto flav_p = Parameters::GetInstance(ParameterType::FLAVOR); // Flavor params
     auto manager = computeWilsons();
 
     complex_t C10 = manager->getFullRunCoefficient("BCoefficient", "C10", "NNLO");

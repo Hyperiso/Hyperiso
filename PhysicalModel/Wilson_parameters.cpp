@@ -2,7 +2,7 @@
 #include <cmath>
 
 Wilson_parameters::Wilson_parameters() {
-    sm = Parameters::GetInstance();
+    sm = Parameters::GetInstance(ParameterType::SM);
 	alphas_muW=(*sm).alpha_s(81);
 
 	m00= {{ 

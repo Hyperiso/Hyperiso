@@ -38,8 +38,8 @@ void Compound::read_param_covariance() {
 
 double Compound::compute_pdv(const ParamId &param_id) const
 {
-    const int instances[2] = {0, 3};
-    for (int i : instances) {
+    const ParameterType types[3] = {ParameterType::SM, ParameterType::FLAVOR, ParameterType::FF};
+    for (ParameterType i : types) {
         auto p = Parameters::GetInstance(i);
         try {
             double h = (*p)(param_id.first, param_id.second) * 1e-5;
@@ -54,6 +54,7 @@ double Compound::compute_pdv(const ParamId &param_id) const
             return (f_p - f_m) / (2 * h);
         } catch(const std::invalid_argument& e) {}
     }
+    LOG_ERROR("OutOfRange", "Unable to find parameter", param_id.first, param_id.second, "in SM, FLAVOR or FF Parameters instances.");
 }
 
 void Compound::update_gradient() {

@@ -15,10 +15,10 @@ int main() {
     Logger::getInstance()->setLevel(Logger::LogLevel::INFO);
 
     auto mm = MemoryManager::GetInstance();  // Initialize program manager with LHA file containing SMINPUTS block
-    mm->init("Test/testInput.flha", {0, 3});  // Initialize parameters from given LHA file
+    mm->init("Test/testInput.flha", Model::SM);  // Initialize parameters from given LHA file
 
 
-    auto flavp = Parameters::GetInstance(3);
+    auto flavp = Parameters::GetInstance(ParameterType::FLAVOR);
     double m_Bs = (*flavp)("FMASS", 531);
     double m_Bd = (*flavp)("FMASS", 511);
     double m_Bu = (*flavp)("FMASS", 521);

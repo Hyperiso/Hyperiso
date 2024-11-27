@@ -32,8 +32,8 @@ class susy_parameters {
 
     EpsilonCalculator* epsi = EpsilonCalculator::GetInstance();
 
-	Parameters* susy = Parameters::GetInstance(1);
-    Parameters* sm = Parameters::GetInstance();
+	Parameters* susy = Parameters::GetInstance(ParameterType::SUSY);
+    Parameters* sm = Parameters::GetInstance(ParameterType::SM);
 
     public:
     static susy_parameters* GetInstance(double scale) {

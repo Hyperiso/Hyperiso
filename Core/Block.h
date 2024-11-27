@@ -224,33 +224,45 @@ public:
     FLifeBlock() {this->blockname = "FLifeBlock";}
 };
 
-struct WCoef {
-    BWilsonCoefficients name;
-    complex_t value_LO;
-    complex_t value_NLO;
-    complex_t value_NNLO;
-    double scale;
-};
-
 class WilsonBlock : public Block {
+    // pdgCode is NNO with NN = integer ID of the coefficient as in BWilsonCoefficients enum, O is QCD order
+    // pdgCode -1 is reserved to access the scale of the coefficients
+    // pdgCode -2 is reserved to access the type of the coefficients
 public:
-    WCoef getValue(BWilsonCoefficients name) const {
-        auto it = values.find(name);
-        if (it != values.end()) {
-            return it->second;
+    double getValue(int pdgCode) const {
+        if (pdgCode == -1) {
+            return scale;
+        } else if (pdgCode == -2) {
+            return type;
         }
-        throw std::out_of_range("PDG code not found in " + this->blockname);
+
+        int order = pdgCode % 10; 
+        BWilsonCoefficients id = static_cast<BWilsonCoefficients>((pdgCode - order) / 10); 
+
+        return values.at(id)[order];
     }
 
-    double getValue(int pdgCode) const {return 0;}
-    void setValue(int pdgCode, double value, bool force = false) {}
+    void setValue(int pdgCode, double value, bool force = false) {
+        if (pdgCode == -1) {
+            scale = value;
+        } else if (pdgCode == -2) {
+            type = (int)value;
+        }
 
-    void setValue(BWilsonCoefficients name, complex_t value, int order, int type) {
-        values[name] = {name, type, order, value};
+        int order = pdgCode % 10; 
+        BWilsonCoefficients id = static_cast<BWilsonCoefficients>((pdgCode - order) / 10); 
+        if (!values.contains(id)) {
+            values.emplace(std::make_pair(id, std::array<double, 3>()));
+        }
+        values.at(id)[order] = value;
     }
 
     void setMode(int pdgCode, ParameterMode mode) {}
+
 protected:
-    std::map<BWilsonCoefficients, WCoef> values;
+    // Index is QCD order
+    std::map<BWilsonCoefficients, std::array<double, 3>> values; 
+    double scale;
+    int type;
 
 };

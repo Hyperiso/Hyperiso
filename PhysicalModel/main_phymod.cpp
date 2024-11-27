@@ -9,7 +9,7 @@
 int main() {
     std::cout << "what ? " << std::endl;
     auto mm = MemoryManager::GetInstance();  // Initialize program manager with LHA file containing SMINPUTS block
-    mm->init("Test/InputFiles/testInput.slha", {0});
+    mm->init("Test/InputFiles/testInput.slha", Model::SM);
 
     auto inter = WilsonInterface("SM");
     std::cout << "initialized" << std::endl;

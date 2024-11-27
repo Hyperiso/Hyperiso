@@ -19,7 +19,7 @@ private:
     std::map<Observables, std::shared_ptr<Observable>> observable_map;
 
     void init_full_observable_map(Model model) {
-        auto flavp = Parameters::GetInstance(3);
+        auto flavp = Parameters::GetInstance(ParameterType::FLAVOR);
         double m_Bs = (*flavp)("FMASS", 531);
         double m_Bd = (*flavp)("FMASS", 511);
         double m_Bu = (*flavp)("FMASS", 521);

@@ -49,8 +49,8 @@ void init_coefficient_manager(py::module &m) {
             return CoefficientManager::GetInstance(modelName);
         }, py::return_value_policy::reference)
 
-        .def_static("initialize", &CoefficientManager::initialize, py::arg("lhaFile"), py::arg("models"),
-            "Initialise MemoryManager avec un fichier LHA et une liste de modèles.")
+        .def_static("initialize", &CoefficientManager::initialize, py::arg("lhaFile"), py::arg("model"),
+            "Initialise MemoryManager avec un fichier LHA et un modèle.")
         
 
         .def("register_coefficient_group", &CoefficientManager::registerCoefficientGroup)
