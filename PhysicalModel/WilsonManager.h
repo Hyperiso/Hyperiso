@@ -149,15 +149,16 @@ private:
     static std::map<std::string, std::shared_ptr<CoefficientManager>> instances;
     std::map<std::string, std::shared_ptr<CoefficientGroup>> coefficientGroups;
     std::map<std::string, std::shared_ptr<State>> groupStates;
-
+    std::string model{};
     CoefficientManager() = default;
+    CoefficientManager(std::string model) {this->model = model;}
 
 public:
     // Singleton accessor
     static CoefficientManager* GetInstance(const std::string& modelName) {
         auto it = instances.find(modelName);
         if (it == instances.end()) {
-            instances[modelName] = std::shared_ptr<CoefficientManager>(new CoefficientManager());
+            instances[modelName] = std::shared_ptr<CoefficientManager>(new CoefficientManager(modelName));
             return instances[modelName].get();
         }
         return it->second.get();
@@ -168,6 +169,9 @@ public:
         mm->init(lhaFile, models);
     }
 
+    std::string getModel() {
+        return this->model;
+    }
     double get_params(const std::string& block, int pdgCode) {
         return (*Parameters::GetInstance())(block, pdgCode);
     }
@@ -206,6 +210,7 @@ public:
     void switchbasis(const std::string& groupName) {
         ensureGroupState(groupName)->switchbasis(this, groupName);
     }
+    
     std::complex<double> getMatchingCoefficient(const std::string& groupName, const std::string& coeffName, const std::string& order) {
         return ensureGroupState(groupName)->getMatchingCoefficient(this, groupName, coeffName, order);
     }
@@ -238,6 +243,10 @@ public:
         throw std::invalid_argument("CoefficientGroup not found.");
     }
 
+    std::map<std::string, std::shared_ptr<CoefficientGroup>> getGroups() {
+        return this->coefficientGroups;
+    }
+
     static void Cleanup() {
         instances.clear();
     }
@@ -247,6 +256,13 @@ public:
         std::cout << *dynamic_cast<BCoefficientGroup*>(group);
     }
 
+    static std::shared_ptr<CoefficientManager> Concat(std::shared_ptr<CoefficientManager> manager1, std::shared_ptr<CoefficientManager> manager2) {
+        CoefficientManager* newmanager = CoefficientManager::GetInstance(manager1->getModel() + "_" + manager2->getModel());
+        for (auto& group : manager1) {
+
+        }
+
+    }
     static CoefficientManager* Builder(std::string instance, std::map<std::string, std::shared_ptr<CoefficientGroup>> groups, double Q_match, double Q, std::string order) {
         CoefficientManager *manager = CoefficientManager::GetInstance(instance);
         for (auto& group : groups) {

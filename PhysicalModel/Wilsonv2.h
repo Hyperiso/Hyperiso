@@ -487,6 +487,22 @@ public:
     std::complex<double> getMatching(std::string coeff, std::string order) {return this->at(coeff)->get_CoefficientMatchingValue(order);}
     std::complex<double> getRun(std::string coeff, std::string order) {return this->at(coeff)->get_CoefficientRunValue(order);}
 
+    void setExternalMatchingCoefficient(const std::string& coeff, std::string& order, complex_t value) {
+        if (std::shared_ptr<WilsonCoefficient> search = this->find(coeff); search !=this->end()) {
+            search->set_WilsonCoeffMatching(order, value);
+            return;
+        }
+        LOG_ERROR("KeyError", "matching coefficient", coeff, "Not found in coefficientgroup");
+    }
+
+    void setExternalRunningCoefficient(const std::string& coeff, std::string& order, complex_t value) {
+        if (std::shared_ptr<WilsonCoefficient> search = this->find(coeff); search !=this->end()) {
+            search->set_WilsonCoeffRun(order, value);
+            return;
+        }
+        LOG_ERROR("KeyError", "running coefficient", coeff, "Not found in coefficientgroup");
+    }
+
     void set_Q_match(double Q_match) {this->Q_match = Q_match; for (auto& coeff : *this) {coeff.second->set_Q_match(Q_match);}}
     void set_Q_run(double Q_run) {this->Q_run = Q_run; for (auto& coeff : *this) {coeff.second->set_Q(Q_run);}}
 
