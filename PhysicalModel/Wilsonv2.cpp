@@ -572,12 +572,12 @@ bool WilsonCoefficient::fill_from_flha() {
             LOG_ERROR("Value", "SM Wilsons coefficients were given, but the selected model is not SM.");
         }
 
-        this->set_CoefficientMatchingValue("LO", complex_t((*wc)("REWCOEF", (int)id * 10 + (int)QCDOrder::LO), 
-                                                            (*wc)("IMWCOEF", (int)id * 10 + (int)QCDOrder::LO)));
-        this->set_CoefficientMatchingValue("NLO", complex_t((*wc)("REWCOEF", (int)id * 10 + (int)QCDOrder::NLO), 
-                                                             (*wc)("IMWCOEF", (int)id * 10 + (int)QCDOrder::NLO)));
-        this->set_CoefficientMatchingValue("NNLO", complex_t((*wc)("REWCOEF", (int)id * 10 + (int)QCDOrder::NNLO), 
-                                                              (*wc)("IMWCOEF", (int)id * 10 + (int)QCDOrder::NNLO)));         
+        this->set_CoefficientMatchingValue("LO", complex_t((*wc)("REWCOEF", (int)id * 10 + (int)QCDOrder::LO-1), 
+                                                            (*wc)("IMWCOEF", (int)id * 10 + (int)QCDOrder::LO-1)));
+        this->set_CoefficientMatchingValue("NLO", complex_t((*wc)("REWCOEF", (int)id * 10 + (int)QCDOrder::NLO-1), 
+                                                             (*wc)("IMWCOEF", (int)id * 10 + (int)QCDOrder::NLO-1)));
+        this->set_CoefficientMatchingValue("NNLO", complex_t((*wc)("REWCOEF", (int)id * 10 + (int)QCDOrder::NNLO-1), 
+                                                              (*wc)("IMWCOEF", (int)id * 10 + (int)QCDOrder::NNLO-1)));         
         from_lha = true;
     }
     return from_lha;
