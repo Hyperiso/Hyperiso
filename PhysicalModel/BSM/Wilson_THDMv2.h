@@ -11,7 +11,7 @@ protected:
     void set_mod_parameters(Parameters* new_mod) {this->mod = new_mod;};
     
 
-    Parameters* mod = Parameters::GetInstance(2);
+    Parameters* mod = Parameters::GetInstance(ParameterType::THDM);
 
     thdm_parameters *thdm_params = thdm_parameters::GetInstance();
 };

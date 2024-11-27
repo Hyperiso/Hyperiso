@@ -49,7 +49,7 @@ int handleObservableOptions(int argc, char* argv[]) {
             observable_names.push_back(obs_list);
         }
 
-        MemoryManager::GetInstance()->init(input_file, {0, 3});
+        MemoryManager::GetInstance()->init(input_file, Model::SM);
 
         ObservableInterface obs_interface;
 

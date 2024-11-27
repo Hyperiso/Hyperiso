@@ -14,14 +14,20 @@
       },
       {
         "name": "MASS|3",
-        "central_value": 0.095,
-        "stat_error": 0.005,
+        "central_value": 0.0935,
+        "stat_error": 0.0008,
         "syst_error": 0
       },
       {
-        "name": "MASS|4",
-        "central_value": 1.275,
-        "stat_error": 0.025,
+        "name": "MASS|1",
+        "central_value": 0.0047,
+        "stat_error": 0.00007,
+        "syst_error": 0
+      },
+      {
+        "name": "MASS|2",
+        "central_value": 0.00216,
+        "stat_error": 0.00007,
         "syst_error": 0
       },
       {
@@ -45,6 +51,42 @@
       {
         "name": "FCONST|53101",
         "central_value": 0.234,
+        "stat_error": 0.010,
+        "syst_error": 0
+      },
+      {
+        "name": "FMASS|511",
+        "central_value": 5.27972,
+        "stat_error": 0.00008,
+        "syst_error": 0
+      },
+      {
+        "name": "FLIFE|511",
+        "central_value": 1.517e-12,
+        "stat_error": 4e-15,
+        "syst_error": 0
+      },
+      {
+        "name": "FCONST|51101",
+        "central_value": 0.194,
+        "stat_error": 0.010,
+        "syst_error": 0
+      },
+      {
+        "name": "FMASS|521",
+        "central_value": 5.27941,
+        "stat_error": 0.00007,
+        "syst_error": 0
+      },
+      {
+        "name": "FLIFE|521",
+        "central_value": 1.638e-12,
+        "stat_error": 4e-15,
+        "syst_error": 0
+      },
+      {
+        "name": "FCONST|52101",
+        "central_value": 0.194,
         "stat_error": 0.010,
         "syst_error": 0
       }

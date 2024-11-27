@@ -10,7 +10,7 @@ protected:
 
     WilsonCoefficient_susy (double Q_match) {this->Q_match = Q_match; sus_param = susy_parameters::GetInstance(this->Q_match);
     calculateContribution = [&](auto hFunc, const Array3D_3x7x4& X, const Array3D_3x7x4& X2, int ie, int ae, bool isChargeps) -> double {
-            double ratio = std::pow((*Parameters::GetInstance(0))("MASS", 24) / (*sus_param).Mch[ie], 2);
+            double ratio = std::pow((*Parameters::GetInstance(ParameterType::SM))("MASS", 24) / (*sus_param).Mch[ie], 2);
             double msqOverMchSquared = std::pow((*sus_param).MsqU[ae] / (*sus_param).Mch[ie], 2.0);
             double factor = isChargeps ? (-(*sus_param).epsilonb / (1.0 + (*sus_param).epsilonb * (*susy)("HMIX",2)) * (*susy)("HMIX",2)) : 1.0;
             return ratio * (
@@ -22,7 +22,7 @@ protected:
     int gen{3};
     double Q_match;
     
-    Parameters* susy = Parameters::GetInstance(1);
+    Parameters* susy = Parameters::GetInstance(ParameterType::SUSY);
 	std::function<double(std::function<double(double)>, const Array3D_3x7x4&, const Array3D_3x7x4&, int, int, bool)> calculateContribution;
 
 	susy_parameters* sus_param;
@@ -374,8 +374,8 @@ public:
     void set_base_1_LO();
 
 private:
-    Parameters* sm = Parameters::GetInstance(0);
-    Parameters* susy = Parameters::GetInstance(1);
+    Parameters* sm = Parameters::GetInstance(ParameterType::SM);
+    Parameters* susy = Parameters::GetInstance(ParameterType::SUSY);
     susy_parameters* sus_param;
 };
 

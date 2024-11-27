@@ -45,7 +45,7 @@ public:
     std::complex<double> get_CoefficientRunValue(std::string order) const {return this->CoefficientRunValue.at(order);}
 
     std::complex<double> get_CoefficientFullMatchingValue(std::string order) const {
-        double fact = Parameters::GetInstance(0)->alpha_s(Q_match) / (4 * M_PI);
+        double fact = Parameters::GetInstance(ParameterType::SM)->alpha_s(Q_match) / (4 * M_PI);
 
         if (order == "LO") {
             return this->get_CoefficientMatchingValue("LO");
@@ -62,7 +62,7 @@ public:
     }
 
     std::complex<double> get_CoefficientFullRunValue(std::string order) const {
-        double fact = Parameters::GetInstance(0)->alpha_s(Q) / (4 * M_PI);
+        double fact = Parameters::GetInstance(ParameterType::SM)->alpha_s(Q) / (4 * M_PI);
 
         if (order == "LO") {
             return this->get_CoefficientRunValue("LO");
@@ -87,6 +87,7 @@ public:
     virtual std::complex<double> NLO_calculation() = 0;
     virtual std::complex<double> NNLO_calculation() = 0;
 
+    bool fill_from_flha();
 
     bool is_it_calculated(std::string order) {return this->is_calculated[order];}
 
@@ -113,6 +114,7 @@ public:
 private:
     double Q_match{81};
     double Q{};
+    bool from_lha {false};
     std::map<std::string, std::complex<double>> CoefficientMatchingValue{{"LO", {0.,0.}}, {"NLO", {0.,0.}}, {"NNLO", {0.,0.}}};
     std::map<std::string, std::complex<double>> CoefficientRunValue{{"LO", {0.,0.}}, {"NLO", {0.,0.}}, {"NNLO", {0.,0.}}};
 
@@ -461,21 +463,24 @@ public:
     void init_LO() {
         for (auto& coeff : *this) {
             std::cout << "LO : " << coeff.first << std::endl;
-            coeff.second->LO_calculation();
+            if (!coeff.second->fill_from_flha())
+                coeff.second->LO_calculation();
         }
     }
 
     void init_NLO() {
         for (auto& coeff : *this) {
             std::cout << "NLO : " << coeff.first << std::endl;
-            coeff.second->NLO_calculation();
+            if (!coeff.second->fill_from_flha())
+                coeff.second->NLO_calculation();
         }
     }
 
     void init_NNLO() {
         for (auto& coeff : *this) {
             std::cout << "NNLO : " << coeff.first << std::endl;
-            coeff.second->NNLO_calculation();
+            if (!coeff.second->fill_from_flha())
+                coeff.second->NNLO_calculation();
         }
     }
 

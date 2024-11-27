@@ -49,7 +49,7 @@ public:
 
 class Parameters {
 public:
-    static Parameters* GetInstance(int modelId = 0);
+    static Parameters* GetInstance(ParameterType id = ParameterType::SM);
 
     double operator()(const std::string& block, int pdgCode);
 
@@ -85,7 +85,7 @@ public:
     void shiftParameter(const ParamId& param_id, double shift_value);
 
     static complex_t get_c_CKM_entry(int idx) {
-        auto p = Parameters::GetInstance(0);
+        auto p = Parameters::GetInstance();
         return complex_t((*p)("RECKM", idx), (*p)("IMCKM", idx));
     }
 
@@ -98,7 +98,7 @@ public:
 
 private:
     explicit Parameters(ModelStrategy* modelStrategy);
-    static std::map<int, Parameters*> instances;
+    static std::map<ParameterType, Parameters*> instances;
     std::map<std::pair<std::string, int>, double> originalValuesCache;
 
     QCDParameters QCDRunner;
@@ -111,11 +111,11 @@ private:
 
 class ParametersFactory {
 public:
-    static Parameters* GetParameters(int modelId);
+    static Parameters* GetParameters(ParameterType id);
 private:
-    static std::map<int, Parameters*> instances;
+    static std::map<ParameterType, Parameters*> instances;
 
-    static ModelStrategy* createStrategy(int modelId);
+    static ModelStrategy* createStrategy(ParameterType id);
 };
 
 std::string doubleToString(double value, int precision);

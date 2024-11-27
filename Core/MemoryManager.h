@@ -9,14 +9,16 @@
 #include <filesystem>
 #include "lha_reader.h"
 #include "config.hpp"
+#include "General.h"
 
 struct MemoryCache {
     std::unique_ptr<LhaReader> reader;
     std::filesystem::path lha_path;
     std::filesystem::path obs_cov_path;
     std::filesystem::path param_cov_path;
-    std::vector<int> models;
+    std::vector<ParameterType> parameter_types;
     std::thread::id thread_id;
+    Model model;
     bool is_spectrum;
     bool has_wilsons;
     bool has_obs;
@@ -52,9 +54,11 @@ public:
     inline std::filesystem::path getInputLhaPath() { check_if_ready(); return cache.lha_path; }
     inline std::filesystem::path getParameterCovariancePath() { check_if_ready(); return cache.param_cov_path; }
     inline std::filesystem::path getObservableCovariancePath()  { check_if_ready(); return cache.obs_cov_path; }
+    inline std::vector<ParameterType> getParameterTypes() { check_if_ready(); return cache.parameter_types; };
+    inline Model getModel() { check_if_ready(); return cache.model; };
 
     // initializes the memory with all the necessary parameters and those read in the LHA file
-    void init(const std::string& lhaFile, const std::vector<int>& models={0}, bool is_spectrum=false, bool has_wilsons=false, bool has_obs=false);
+    void init(const std::string& lhaFile, Model model = Model::SM, bool is_spectrum=false, bool has_wilsons=false, bool has_obs=false);
 
     void set_observable_covariance_input_file(const std::string& path);
     void set_parameter_covariance_input_file(const std::string& path);

@@ -164,9 +164,9 @@ public:
         return it->second.get();
     }
 
-    static void initialize(const std::string& lhaFile, const std::vector<int>& models) {
+    static void initialize(const std::string& lhaFile, Model model) {
         MemoryManager* mm = MemoryManager::GetInstance();
-        mm->init(lhaFile, models);
+        mm->init(lhaFile, model);
     }
 
     std::string getModel() {

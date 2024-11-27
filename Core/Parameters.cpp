@@ -1,4 +1,5 @@
 #include "Parameters.h"
+#include <ranges>
 
 std::string doubleToString(double value, int precision) {
 	std::ostringstream out;
@@ -32,11 +33,14 @@ void readMatrix(std::array<std::array<double, SIZE>, SIZE>& matrix, std::string 
     } 
 }
 
-std::map<int, Parameters*> Parameters::instances;
-std::map<int, Parameters*> ParametersFactory::instances;
+std::map<ParameterType, Parameters*> Parameters::instances;
+std::map<ParameterType, Parameters*> ParametersFactory::instances;
 
-Parameters* Parameters::GetInstance(int modelId) {
-    return ParametersFactory::GetParameters(modelId);
+Parameters* Parameters::GetInstance(ParameterType id) {
+    auto allowed = MemoryManager::GetInstance()->getParameterTypes();
+    if (std::find(allowed.begin(), allowed.end(), id) == allowed.end())
+        LOG_ERROR("OutOfRange", "Parameter type undefined");
+    return ParametersFactory::GetParameters(id);
 }
 
 Parameters::Parameters(ModelStrategy* modelStrategy)
@@ -415,39 +419,77 @@ void GeneralModelStrategy::initializeParameters(Parameters& params) {
 
     std::vector<std::string> mandatory {"MINPAR", "MASS"};
 
-    // auto massblock = std::make_shared<MassBlock>();
-    // auto elts = lha->getBlock("MASS")->getEntries();
-    // for (size_t i = 0; i < elts->size(); ++i) {
-    //     auto e = static_cast<LhaElement<double>*>(elts->at(i).get());
-    //     massblock->setValue(std::stoi(e->getId()), e->getValue());
-    //     // this->masses[std::stoi(e->getId())] = e->getValue();
-    // }
-    // params.addBlock("MASS", std::move(massblock));
-
     std::string root_path = project_root.data();
     JSONParser::getInstance(0)->saveToFile(root_path+ "/DataBase/Params/data_GENERAL.json");
 }
 
 
 void WilsonInputStrategy::initializeParameters(Parameters &params) {
-    auto mm = MemoryManager::GetInstance();
+    auto fill_wilson_block = [] (const std::string& block_name, const std::string& flha_name, double scale, int type, Parameters& params, std::vector<int>& nonzero) -> std::pair<double, int> {
+        params.addBlock(block_name, std::make_shared<WilsonBlock>());
+        auto lha = MemoryManager::GetInstance()->getReader();
+        auto block = lha->getBlock(flha_name);
+        if (!block) {
+            if (flha_name == "FWCOEF")
+                LOG_ERROR("Parameters", "Unable to find real parts of wilson coefficients (block FWCOEF not found in FLHA file)");
+            return {scale, type};
+        }
+        for (auto &e : *(block->getEntries())) {
+            size_t pos = e->getId().find('|', 0); 
+            pos = e->getId().find('|', pos + 1); // Skip first '|'
+            std::string id = e->getId().substr(0, pos);
+            int order = std::stoi(e->getId().substr(pos + 2, 2));
 
-    if (!mm->hasWilsons()) {
+            if (id.size() < 13) {
+                id.insert(0, 13 - id.size(), '0');
+            }
+
+            if (order >= 10) {
+                LOG_WARN("Found QED corrections to Wilson coefficient, skipping");
+                continue;
+            }
+            
+            auto c = static_cast<LhaElement<double>*>(e.get());
+            if (scale == -1)
+                scale = c->getScale();
+            else if (scale != c->getScale()) {
+                LOG_ERROR("Parameters", "All Wilson coefficients must be given at the same scale.");
+            }
+
+            if (type == -1)
+                type = std::stoi(e->getId().substr(pos + 4, 1));
+            else if (type != std::stoi(e->getId().substr(pos + 4, 1))) {
+                LOG_ERROR("Parameters", "All Wilson coefficients must be of the same type.");
+            }
+
+            params.setBlockValue(block_name, 10 * (int)WCoefMapper::from_flha(id) + order, c->getValue());
+            nonzero.push_back((int)WCoefMapper::from_flha(id));
+        }
+
+        return {scale, type};
+    };
+
+    if (!MemoryManager::GetInstance()->hasWilsons()) {
         LOG_ERROR("Parameters", "No Wilson coefficients were given in the input file.");
     }
 
-    auto lha = mm->getReader();
-    params.addBlock("WCOEF", std::make_shared<WilsonBlock>());
+    std::vector<int> nonzero_re = {};
+    std::vector<int> nonzero_im = {};
+    double scale = -1;
+    int type = -1;
+    auto p = fill_wilson_block("REWCOEF", "FWCOEF", scale, type, params, nonzero_re);
+    scale = p.first;
+    type = p.second;
+    fill_wilson_block("IMWCOEF", "IMFWCOEF", scale, type, params, nonzero_im);
 
-    for (size_t i = 0; i < WCoefMapper::n_wilsons(); i++) {
-        auto C = static_cast<BWilsonCoefficients>(i);
-        for (size_t j = 0; j < 3; j++) {
-            auto e = lha->getBlock("FWCOEF")->get(WCoefMapper::flha(C));
-            int id = std::stoi(e->getId().substr(15, 2));
-            int type = std::stoi(e->getId().substr(18, 1));
+    for (int i = 0; i < WCoefMapper::n_wilsons(); i++) {
+        if (std::find(nonzero_re.begin(), nonzero_re.end(), i) == nonzero_re.end()) {
+            params.setBlockValue("REWCOEF", i * 10, 0);
         }
-    }
-
+        if (std::find(nonzero_im.begin(), nonzero_im.end(), i) == nonzero_im.end()) {
+            params.setBlockValue("IMWCOEF", i * 10, 0);
+        }
+    }   
 }
 
 void Parameters::changeParameterMode(const ParamId &param_id,
@@ -459,27 +501,27 @@ void Parameters::shiftParameter(const ParamId &param_id, double shift_value) {
     blockAccessor.setValue(param_id.first, param_id.second, blockAccessor.getValue(param_id.first, param_id.second) + shift_value, true);
 }
 
-Parameters* ParametersFactory::GetParameters(int modelId) {
-    if (instances.find(modelId) == instances.end()) {
-        ModelStrategy* strategy = createStrategy(modelId);
-        instances[modelId] = new Parameters(strategy);
+Parameters* ParametersFactory::GetParameters(ParameterType id) {
+    if (instances.find(id) == instances.end()) {
+        ModelStrategy* strategy = createStrategy(id);
+        instances[id] = new Parameters(strategy);
     }
-    return instances[modelId];
+    return instances[id];
 }
 
-ModelStrategy* ParametersFactory::createStrategy(int modelId) {
-    switch (modelId) {
-        case 0:
+ModelStrategy* ParametersFactory::createStrategy(ParameterType id) {
+    switch (id) {
+        case ParameterType::SM:
             return new SMModelStrategy();
-        case 1:
+        case ParameterType::SUSY:
             return new SUSYModelStrategy();
-        case 2:
+        case ParameterType::THDM:
             return new THDMModelStrategy();
-        case 3:
+        case ParameterType::FLAVOR:
             return new FlavorStrategy();
-        case 4:
+        case ParameterType::CUSTOM:
             return new GeneralModelStrategy();
-        case 5:
+        case ParameterType::WILSON:
             return new WilsonInputStrategy();
         default:
             throw std::invalid_argument("Unknown parameters instance ID");
