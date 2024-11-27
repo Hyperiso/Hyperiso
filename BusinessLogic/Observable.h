@@ -32,8 +32,8 @@ public:
     double get_exp_val() const;
     double get_exp_var() const;
     virtual double eval() const override = 0;
-    CoefficientManager* computeWilsons(bool traditional_basis=false) const;
-    CoefficientManager* computeWilsons(Model model, QCDOrder order, double scale, bool traditional_basis=false) const;
+    std::shared_ptr<CoefficientManager> computeWilsons(bool traditional_basis=false) const;
+    std::shared_ptr<CoefficientManager> computeWilsons(Model model, QCDOrder order, double scale, bool traditional_basis=false) const;
 
 }; 
 

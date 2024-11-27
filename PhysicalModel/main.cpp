@@ -21,7 +21,7 @@ int main() {
         std::cerr << "An error occurred: " << ex.what() << std::endl;
     }
 
-    CoefficientManager* wm = CoefficientManager::GetInstance("SM");
+    auto wm = CoefficientManager::GetInstance("SM");
 
     wm->registerCoefficientGroup("BCoefficient", std::make_shared<BCoefficientGroupMarty>());
 

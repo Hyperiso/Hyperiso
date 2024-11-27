@@ -36,6 +36,9 @@ target_link_libraries(testObservable BusinessLogicLib)
 add_executable(testStat BusinessLogic/testChi2.cpp)
 target_link_libraries(testStat BusinessLogicLib)
 
+add_executable(testCustomWilsons BusinessLogic/testCustomWilson.cpp)
+target_link_libraries(testCustomWilsons BusinessLogicLib)
+
 # add_executable(testParams testParams.cpp)
 # target_link_libraries(testParams CoreLib)
 
@@ -77,9 +80,6 @@ target_link_libraries(teststatjson DataBaseLib ConfiguredModule)
 
 add_executable(testSMparams Core/testSMParameters.cpp)
 target_link_libraries(testSMparams CoreLib)
-
-add_executable(testCustomWilsons Core/testCustomWilson.cpp)
-target_link_libraries(testCustomWilsons CoreLib)
 
 add_executable(testSMWilson Wilson/testSMWilson.cpp)
 target_link_libraries(testSMWilson PhysicalModelLib UtilsLib)

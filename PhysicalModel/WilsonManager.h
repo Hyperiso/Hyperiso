@@ -9,7 +9,7 @@
 #include <set>
 #define PRECISION 1e-5
 
-bool haveSameKeys(const std::map<std::string, std::shared_ptr<CoefficientGroup>>& map1, const std::map<std::string, std::shared_ptr<CoefficientGroup>>& map2) {
+inline bool haveSameKeys(const std::map<std::string, std::shared_ptr<CoefficientGroup>>& map1, const std::map<std::string, std::shared_ptr<CoefficientGroup>>& map2) {
     std::set<std::string> keys1;
     std::set<std::string> keys2;
 
@@ -176,13 +176,13 @@ private:
 
 public:
     // Singleton accessor
-    static CoefficientManager* GetInstance(const std::string& modelName) {
+    static std::shared_ptr<CoefficientManager> GetInstance(const std::string& modelName) {
         auto it = instances.find(modelName);
         if (it == instances.end()) {
             instances[modelName] = std::shared_ptr<CoefficientManager>(new CoefficientManager(modelName));
-            return instances[modelName].get();
+            return instances[modelName];
         }
-        return it->second.get();
+        return it->second;
     }
 
     static void initialize(const std::string& lhaFile, Model model) {
@@ -207,7 +207,7 @@ public:
     void setState(const std::string& groupName, StateName state_name) {
         switch(state_name) {
             case StateName::InitialState:
-                groupStates[groupName] = std::make_shared<InitialState>(groupStates[groupName]->getCurrentOrder());
+                groupStates[groupName] = std::make_shared<InitialState>();
                 break;
             case StateName::QMatchSetState:
                 groupStates[groupName] = std::make_shared<QMatchSetState>(groupStates[groupName]->getCurrentOrder());
@@ -308,8 +308,8 @@ public:
         return true;
     }
 
-    static CoefficientManager* Concat(std::shared_ptr<CoefficientManager> manager1, std::shared_ptr<CoefficientManager> manager2) {
-        CoefficientManager* newmanager = CoefficientManager::GetInstance(manager1->getModel() + "_" + manager2->getModel());
+    static std::shared_ptr<CoefficientManager> Concat(std::shared_ptr<CoefficientManager> manager1, std::shared_ptr<CoefficientManager> manager2) {
+        std::shared_ptr<CoefficientManager> newmanager = CoefficientManager::GetInstance(manager1->getModel() + "_" + manager2->getModel());
         if (!compatible_concat(manager1, manager2)) {
             LOG_ERROR("INVALID OPERATION", "impossible to concatenate", manager1->getModel(), "and", manager2->getModel());
         }
@@ -326,8 +326,8 @@ public:
         return newmanager;
     }
     
-    static CoefficientManager* Builder(std::string instance, std::map<std::string, std::shared_ptr<CoefficientGroup>> groups, double Q_match, double Q, std::string order) {
-        CoefficientManager *manager = CoefficientManager::GetInstance(instance);
+    static std::shared_ptr<CoefficientManager> Builder(std::string instance, std::map<std::string, std::shared_ptr<CoefficientGroup>> groups, double Q_match, double Q, std::string order) {
+        std::shared_ptr<CoefficientManager> manager = CoefficientManager::GetInstance(instance);
         for (auto& group : groups) {
             manager->registerCoefficientGroup(group.first, group.second);
             manager->setQMatch(group.first, Q_match);

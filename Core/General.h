@@ -33,10 +33,10 @@ private:
 };
 
 enum class QCDOrder {
-    NONE,
     LO,
     NLO,
-    NNLO
+    NNLO,
+    NONE,
 };
 
 class OrderMapper {

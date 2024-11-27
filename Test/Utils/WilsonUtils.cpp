@@ -13,7 +13,7 @@ void writeCoefficientsToFile(const std::string& strat_name, const std::string& f
     }
     file << "\n";
 
-    CoefficientManager* wm = CoefficientManager::GetInstance(model);
+    auto wm = CoefficientManager::GetInstance(model);
 
     if (model == "SM") {
         MemoryManager::GetInstance()->init("Test/InputFiles/testinput_thdm.lha", Model::SM);
@@ -66,7 +66,7 @@ void writeCoefficientsPrimeCQToFile(const std::string& strat_name, const std::st
     }
     file << "\n";
 
-    CoefficientManager* wm = CoefficientManager::GetInstance(model);
+    auto wm = CoefficientManager::GetInstance(model);
 
     if (model == "SM") {
         MemoryManager::GetInstance()->init("Test/InputFiles/testinput_thdm.lha", Model::SM);
@@ -134,7 +134,7 @@ void writeRunCoefficientsToFile(const std::string& strat_name, const std::string
     }
     file << "\n";
 
-    CoefficientManager* wm;
+    std::shared_ptr<CoefficientManager> wm;
 
     if (model == "SM") {
         MemoryManager::GetInstance()->init("Test/InputFiles/testinput_thdm.lha", Model::SM);

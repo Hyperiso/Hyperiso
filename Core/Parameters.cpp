@@ -466,6 +466,8 @@ void WilsonInputStrategy::initializeParameters(Parameters &params) {
             nonzero.push_back((int)WCoefMapper::from_flha(id));
         }
 
+        params.setBlockValue(block_name, -1, scale);
+        params.setBlockValue(block_name, -2, type);
         return {scale, type};
     };
 
@@ -481,6 +483,8 @@ void WilsonInputStrategy::initializeParameters(Parameters &params) {
     scale = p.first;
     type = p.second;
     fill_wilson_block("IMWCOEF", "IMFWCOEF", scale, type, params, nonzero_im);
+
+    LOG_INFO("Hého");
 
     for (int i = 0; i < WCoefMapper::n_wilsons(); i++) {
         if (std::find(nonzero_re.begin(), nonzero_re.end(), i) == nonzero_re.end()) {
