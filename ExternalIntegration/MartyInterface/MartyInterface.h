@@ -6,7 +6,8 @@
 #include "MakeCompilerStrategy.h"
 #include "SMModelModifier.h"
 #include "Logger.h"
-#include "NumModelModifier.h"
+#include "GeneralNumModelModifier.h"
+// #include "NumModelModifier.h"
 
 class MartyInterface {
 public:

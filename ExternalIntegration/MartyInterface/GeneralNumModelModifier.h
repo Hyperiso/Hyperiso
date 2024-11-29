@@ -1,7 +1,10 @@
-// #include "ModelModifier.h"
+#ifndef GENERAL_NUM_MODEL_MODIFIER_H
+#define GENERAL_NUM_MODEL_MODIFIER_H
+
 #include <map>
 #include <string>
 #include <unordered_map>
+#include "ModelModifier.h"
 #include "Extractor.h"
 #include "Interpreter.h"
 #include "SMParamSetter.h"
@@ -53,3 +56,5 @@ private:
         }
     }
 };
+
+#endif

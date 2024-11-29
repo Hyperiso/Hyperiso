@@ -19,6 +19,10 @@ if (NOT TARGET CommonLib)
     add_subdirectory(../../Common CommonLib)
 endif()
 
+if (NOT TARGET CoreLib)
+    add_subdirectory(../../Core CoreLib)
+endif()
+
 if (NOT TARGET ExternalIntegrationLib)
     add_subdirectory(.. ExternalIntegrationLib)
 endif()
@@ -36,23 +40,22 @@ add_library(MartyInterfaceLib STATIC
     GppCompilerStrategy.cpp
     MakeCompilerStrategy.cpp
     MartyInterface.cpp
-    SMModelModifier.cpp
     TemplateManager.cpp
-    Extractor.cpp
-    Interpreter.cpp
-    SMParamSetter.cpp
+    NumericalScriptProcessing/Extractor.cpp
+    NumericalScriptProcessing/Interpreter.cpp
+    NumericalScriptProcessing/SMParamSetter.cpp
     FileNameManager.cpp
     GeneralModelModifier.cpp
     )
 
 set_target_properties(MartyInterfaceLib PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
-set_target_properties(MartyInterfaceLib PROPERTIES PUBLIC_HEADER "CinematicExtractor.h;FileNameManager.h;ModelModifier.h;GeneralNumModelModifier.h;NumModelModifier.h;CodeGenerator.h;CompilerStrategy.h;GppCompilerStrategy;MakeCompilerStrategy.h;GeneralModelModifier.h;MartyInterface.h;SMModelModifier.h;TemplateManager.h;IncludeManager.h;LineProcessor.h;ModelWriter.h;ParamWriter.h;Extractor.h;Interpreter.h;IParamSetter.h;SMParamSetter.h")
+set_target_properties(MartyInterfaceLib PROPERTIES PUBLIC_HEADER "CinematicExtractor.h;FileNameManager.h;ModelModifier.h;GeneralNumModelModifier.h;CodeGenerator.h;CompilerStrategy.h;GppCompilerStrategy;MakeCompilerStrategy.h;GeneralModelModifier.h;MartyInterface.h;TemplateManager.h;NumericalScriptProcessing/IncludeManager.h;NumericalScriptProcessing/LineProcessor.h;NumericalScriptProcessing/ModelWriter.h;NumericalScriptProcessing/ParamWriter.h;NumericalScriptProcessing/Extractor.h;NumericalScriptProcessing/Interpreter.h;NumericalScriptProcessing/IParamSetter.h;NumericalScriptProcessing/SMParamSetter.h")
 # target_include_directories(MartyInterfaceLib PRIVATE BSM)
 
-target_include_directories(ExternalIntegrationLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-
-target_link_libraries(MartyInterfaceLib PUBLIC CommonLib DataBaseLib)
+target_include_directories(MartyInterfaceLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(MartyInterfaceLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/NumericalScriptProcessing)
+target_link_libraries(MartyInterfaceLib PUBLIC CommonLib DataBaseLib CoreLib)
 target_link_libraries(MartyInterfaceLib PUBLIC ConfiguredModule)
 
 add_executable(TEST_MARTY main_marty.cpp)

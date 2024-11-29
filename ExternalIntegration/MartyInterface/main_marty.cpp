@@ -7,8 +7,13 @@
 #include "ModelWriter.h"
 #include "SMParamSetter.h"
 #include "FileNameManager.h"
-int main() {
+#include "MemoryManager.h"
+#include "config.hpp"
 
+int main() {
+    MemoryManager* mm = MemoryManager::GetInstance();
+    std::string base_path = project_root.data();
+    mm->init(base_path+"/Test/testinput_thdm.lha", Model::SM);
     // auto truc = FileNameManager::getInstance("C7", "SM");
 
     // std::cout << truc->getGeneratedFileName() << std::endl;
@@ -39,7 +44,10 @@ int main() {
     // MartyInterface.calculate("C2", "SM", 81);
     // MartyInterface.calculate("C7", "SM", 81);
     // MartyInterface.calculate("C5", "SM", 81);
-    MartyInterface.calculate("C3", "MSSM", 81);
+    MartyInterface.calculate("C7", "THDM", 81);
+    MartyInterface.calculate("C7", "SM", 81);
+    MartyInterface.calculate("C2", "THDM", 81);
+    MartyInterface.calculate("C2", "SM", 81);
     // MartyInterface.calculate("C1", "THDM", 81);
     // MartyInterface.calculate("C2", "THDM", 81);
     // MartyInterface.calculate("C3", "THDM", 81);

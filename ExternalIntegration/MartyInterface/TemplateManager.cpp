@@ -42,13 +42,14 @@ void NumericTemplateManager::generateTemplateImpl(const std::string& templateNam
     }
 
     // std::string wilson = "C7";
-    bool forceMode = false;
-    GeneralNumModelModifier modelModifier(wilson, model, forceMode);
+    // bool forceMode = false;
+    // GeneralNumModelModifier modelModifier(wilson, model, forceMode);
 
     outputFile << "//42" << "\n";
     std::cout << outputPath << std::endl;
     std::cout << tempFilePath << std::endl;
-    modelModifier.modify(templateFile, outputFile);
+    numModifier->modify(templateFile, outputFile);
+    // modelModifier.modify(templateFile, outputFile);
 
     templateFile.close();
     outputFile.close();
