@@ -2,8 +2,8 @@
 
 
 double BR_Bu_taunu::eval() const {
-    auto sm_p = Parameters::GetInstance(0); // SM params
-    auto flav_p = Parameters::GetInstance(3); // Flavor params
+    auto sm_p = Parameters::GetInstance(ParameterType::SM); // SM params
+    auto flav_p = Parameters::GetInstance(ParameterType::FLAVOR); // Flavor params
     
     double m_B = (*flav_p)("FMASS", 521);
     double life_B = (*flav_p)("FLIFE", 521);
@@ -16,15 +16,15 @@ double BR_Bu_taunu::eval() const {
     
     double np_fact = 1;
     if (model == Model::SUSY) {
-        double m_Hp = (*Parameters::GetInstance(1))("MASS", 37);
-        double tan_b = (*Parameters::GetInstance(1))("HMIX", 2);
+        double m_Hp = (*Parameters::GetInstance(ParameterType::SUSY))("MASS", 37);
+        double tan_b = (*Parameters::GetInstance(ParameterType::SUSY))("HMIX", 2);
         double eps_0 = EpsilonCalculator::GetInstance()->epsilon_0();
         np_fact = std::pow(1 - std::pow(m_B * tan_b / m_Hp, 2) / (1 + eps_0 * tan_b), 2);
     } else if (model == Model::THDM) {
-        double m_Hp = (*Parameters::GetInstance(2))("MASS", 37);
-        double tan_b = (*Parameters::GetInstance(2))("HMIX", 2);
-        double l_bb = (*Parameters::GetInstance(2))("YD", 33);
-        double l_tt = (*Parameters::GetInstance(2))("YU", 33);
+        double m_Hp = (*Parameters::GetInstance(ParameterType::THDM))("MASS", 37);
+        double tan_b = (*Parameters::GetInstance(ParameterType::THDM))("HMIX", 2);
+        double l_bb = (*Parameters::GetInstance(ParameterType::THDM))("YD", 33);
+        double l_tt = (*Parameters::GetInstance(ParameterType::THDM))("YU", 33);
         np_fact = std::pow(1 - std::pow(m_B / m_Hp, 2) * l_bb * l_tt, 2);
     }
 

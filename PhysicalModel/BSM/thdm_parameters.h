@@ -16,8 +16,8 @@ class thdm_parameters {
     void operator=(const thdm_parameters&) = delete;
 
 
-	Parameters* mod = Parameters::GetInstance(2);
-    Parameters* sm = Parameters::GetInstance();
+	Parameters* mod = Parameters::GetInstance(ParameterType::THDM);
+    Parameters* sm = Parameters::GetInstance(ParameterType::SM);
 public:
     static thdm_parameters* GetInstance() {
         if (!thdm_parameters::instance) {

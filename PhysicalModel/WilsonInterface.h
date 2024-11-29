@@ -1,3 +1,6 @@
+#ifndef __WILSONINTERFACE_H__
+#define __WILSONINTERFACE_H__
+
 #include "WilsonManager.h"
 #include "Wilson_susyv2.h"
 #include "Wilson_THDMv2.h"
@@ -6,15 +9,9 @@
 
 #include <map>
 
-
-
-// enum class order {
-//     LO, NLO, NNLO
-// };
-
 class WilsonInterface {
 
-    CoefficientManager* wm;
+    std::shared_ptr<CoefficientManager> wm;
     std::string model{"SM"};
      std::map<std::string, std::shared_ptr<CoefficientGroup>> groupmapper 
      = {
@@ -76,8 +73,10 @@ public:
         return this->wm->getAlphaS(GroupMapper::str(groupName));
     }
 
-    complex_t getMatchingCoefficient(WilsonGroups groupName, WilsonCoefficientList coeff, CoefficientOrder order) {
+    complex_t getMatchingCoefficient(WilsonGroups groupName, BWilsonCoefficients coeff, QCDOrder order) {
         return this->wm->getMatchingCoefficient(GroupMapper::str(groupName), WCoefMapper::str(coeff), OrderMapper::str(order));
     }
 
 };
+
+#endif // __WILSONINTERFACE_H__

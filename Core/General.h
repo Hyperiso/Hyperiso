@@ -7,6 +7,7 @@
 #include <iostream>
 #include <map>
 #include <vector>
+#include "Logger.h"
 
 enum class Observables {
     BR_BS_MUMU,
@@ -35,7 +36,7 @@ enum class QCDOrder {
     NONE,
     LO,
     NLO,
-    NNLO
+    NNLO,
 };
 
 class OrderMapper {
@@ -71,12 +72,12 @@ enum class BWilsonBasis {
 
 class GroupMapper {
 public:
-    static std::string str(WilsonGroups order) {
-        return GroupMapper::mapping.at(order);
+    static std::string str(WilsonGroups group) {
+        return GroupMapper::mapping.at(group);
     };
 
-    static WilsonGroups enum_elt(std::string order) {
-        return GroupMapper::inverse_mapping.at(order);
+    static WilsonGroups enum_elt(std::string group) {
+        return GroupMapper::inverse_mapping.at(group);
     };
 
 private:
@@ -87,16 +88,23 @@ private:
 class WCoefMapper {
 
 public:
-    static std::string str(BWilsonCoefficients order) {
-        return WCoefMapper::mapping.at(order);
+    static std::string str(BWilsonCoefficients coef) {
+        return WCoefMapper::mapping.at(coef);
     };
 
-    static BWilsonCoefficients enum_elt(std::string order) {
-        return WCoefMapper::inverse_mapping.at(order);
+    static BWilsonCoefficients enum_elt(std::string coef) {
+        return WCoefMapper::inverse_mapping.at(coef);
     };
 
-    static std::string flha(BWilsonCoefficients order) {
-        return WCoefMapper::flha_mapping.at(order);
+    static std::string flha(BWilsonCoefficients coef) {
+        return WCoefMapper::flha_mapping.at(coef);
+    };
+
+    static BWilsonCoefficients from_flha(std::string flha_id) {
+        if (WCoefMapper::inverse_flha_mapping.contains(flha_id)) {
+            return WCoefMapper::inverse_flha_mapping.at(flha_id);
+        }
+        LOG_ERROR("General", "Wilson coefficient with ID", flha_id, "is not supported");
     };
 
     static std::vector<BWilsonCoefficients> get_group(WilsonGroups group) {
@@ -121,6 +129,19 @@ private:
     static const std::map<BWilsonCoefficients, std::string> mapping; 
     static const std::map<std::string, BWilsonCoefficients> inverse_mapping; 
     static const std::map<BWilsonCoefficients, std::string> flha_mapping; 
+    static const std::map<std::string, BWilsonCoefficients> inverse_flha_mapping; 
+};
+
+/* !!!! Do not change the order of the first 4 entries !!!! */
+
+enum class ParameterType {
+    SM,
+    SUSY,
+    THDM,
+    CUSTOM,
+    FLAVOR,
+    WILSON,
+    FF
 };
 
 enum class Model {
@@ -132,12 +153,12 @@ enum class Model {
 
 class ModelMapper {
 public:
-    static std::string str(Model order) {
-        return ModelMapper::mapping.at(order);
+    static std::string str(Model model) {
+        return ModelMapper::mapping.at(model);
     };
 
-    static Model enum_elt(std::string order) {
-        return ModelMapper::inverse_mapping.at(order);
+    static Model enum_elt(std::string model) {
+        return ModelMapper::inverse_mapping.at(model);
     };
 
 private:

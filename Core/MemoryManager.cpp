@@ -74,7 +74,7 @@ LhaReader* MemoryManager::getReader() {
     return cache.reader.get();
 }
 
-void MemoryManager::init(const std::string& lhaFile, const std::vector<int>& models, bool is_spectrum, bool has_wilsons, bool has_obs) {
+void MemoryManager::init(const std::string& lhaFile, Model model, bool is_spectrum, bool has_wilsons, bool has_obs) {
     if (cache.is_ready) {
         LOG_WARN("MemoryManager has already been initialized.");
         return;
@@ -87,14 +87,21 @@ void MemoryManager::init(const std::string& lhaFile, const std::vector<int>& mod
     cache.lha_path = std::filesystem::u8path(ss.str());
     cache.obs_cov_path = std::filesystem::u8path(project_root.data() + std::string("/DataBase/Exp/observable_covariance.json"));
     cache.param_cov_path = std::filesystem::u8path(project_root.data() + std::string("/DataBase/Exp/_covariance.json"));
-    cache.models = std::move(models);
+    cache.model = model;
     cache.is_spectrum = is_spectrum;
     cache.has_wilsons = has_wilsons;
     cache.has_obs = has_obs;
     cache.thread_id = std::this_thread::get_id();
+    
+    cache.parameter_types = {ParameterType::SM, ParameterType::FLAVOR};
+    if (model != Model::SM)
+        cache.parameter_types.push_back(static_cast<ParameterType>(static_cast<int>(model))); // Sloppy
+    if (has_wilsons)
+        cache.parameter_types.push_back(ParameterType::WILSON);
+
     cache.is_ready = true;
 
-    for (auto &&m : models) {
+    for (auto &&m : cache.parameter_types) {
         Parameters::GetInstance(m);
     }
 }

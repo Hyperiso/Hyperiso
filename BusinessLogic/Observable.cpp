@@ -12,16 +12,18 @@ double Observable::get_exp_var() const {
     return std::pow(exp_std, 2);
 }
 
-CoefficientManager *Observable::computeWilsons(bool traditional_basis) const {
+std::shared_ptr<CoefficientManager> Observable::computeWilsons(bool traditional_basis) const {
     return computeWilsons(model, order, scale, traditional_basis);
 }
 
-CoefficientManager *Observable::computeWilsons(Model model,
+std::shared_ptr<CoefficientManager> Observable::computeWilsons(Model model,
                                                QCDOrder order,
                                                double scale,
                                                bool traditional_basis) const {
-    CoefficientManager* manager;
-    double m_W = (*Parameters::GetInstance(0))("MASS", 24);
+    std::shared_ptr<CoefficientManager> manager;
+    std::shared_ptr<CoefficientManager> manager_sm;
+    std::shared_ptr<CoefficientManager> manager_bsm;
+    double m_W = (*Parameters::GetInstance(ParameterType::SM))("MASS", 24);
 
     switch (model) {
         case Model::SM:
@@ -32,16 +34,32 @@ CoefficientManager *Observable::computeWilsons(Model model,
                                                          m_W, scale, OrderMapper::str(order));
             break;
         case Model::SUSY:
-            manager = CoefficientManager::Builder(ModelMapper::str(model), std::map<std::string,std::shared_ptr<CoefficientGroup>>({std::make_pair("BCoefficient", std::make_shared<BCoefficientGroup_susy>(81.)),
+            manager_bsm = CoefficientManager::Builder(ModelMapper::str(model), std::map<std::string,std::shared_ptr<CoefficientGroup>>({std::make_pair("BCoefficient", std::make_shared<BCoefficientGroup_susy>(81.)),
             std::make_pair("BCoefficient", std::make_shared<BScalarCoefficientGroup_susy>(81.)),std::make_pair("BPrimeCoefficient", std::make_shared<BPrimeCoefficientGroup_susy>(81.))}), m_W, scale, OrderMapper::str(order));
+            manager_sm = CoefficientManager::Builder("SM", std::map<std::string,std::shared_ptr<CoefficientGroup>>(
+                                                                            {std::make_pair("BCoefficient", std::make_shared<BCoefficientGroup>(81.)),
+                                                                            std::make_pair("BScalarCoefficient", std::make_shared<BScalarCoefficientGroup>(81.)),
+                                                                            std::make_pair("BPrimeCoefficient", std::make_shared<BPrimeCoefficientGroup>(81.))}),
+                                                         m_W, scale, OrderMapper::str(order));
+            manager = CoefficientManager::Concat(manager_bsm, manager_sm);
+            manager = manager_bsm;
             break;
         case Model::THDM:
-            manager = CoefficientManager::Builder(ModelMapper::str(model), std::map<std::string,std::shared_ptr<CoefficientGroup>>({std::make_pair("BCoefficient", std::make_shared<BCoefficientGroup_THDM>(81.)),
+            manager_bsm = CoefficientManager::Builder(ModelMapper::str(model), std::map<std::string,std::shared_ptr<CoefficientGroup>>({std::make_pair("BCoefficient", std::make_shared<BCoefficientGroup_THDM>(81.)),
             std::make_pair("BScalarCoefficient", std::make_shared<BScalarCoefficientGroup_THDM>(81.)),std::make_pair("BPrimeCoefficient", std::make_shared<BPrimeCoefficientGroup_THDM>(81.))}), m_W, scale, OrderMapper::str(order));
+            manager_sm = CoefficientManager::Builder("SM", std::map<std::string,std::shared_ptr<CoefficientGroup>>(
+                                                                            {std::make_pair("BCoefficient", std::make_shared<BCoefficientGroup>(81.)),
+                                                                            std::make_pair("BScalarCoefficient", std::make_shared<BScalarCoefficientGroup>(81.)),
+                                                                            std::make_pair("BPrimeCoefficient", std::make_shared<BPrimeCoefficientGroup>(81.))}),
+                                                         m_W, scale, OrderMapper::str(order));
+            manager = CoefficientManager::Concat(manager_bsm, manager_sm);
+            manager = manager_bsm;
+            break;
+        case Model::CUSTOM:
+            // Use MARTY
             break;
         default:
             LOG_ERROR("ModelError", "Unknown model requested for Wilson coefficient calculation.");
-            // return nullptr;
     }
     return manager;
 }

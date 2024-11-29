@@ -2,8 +2,8 @@
 
 
 double Delta0_B__Kstar_gamma::eval() const {
-    auto sm_p = Parameters::GetInstance(0); // SM params
-    auto flav_p = Parameters::GetInstance(3); // Flavor params
+    auto sm_p = Parameters::GetInstance(ParameterType::SM); // SM params
+    auto flav_p = Parameters::GetInstance(ParameterType::FLAVOR); // Flavor params
     auto manager = computeWilsons();
 
     double N = 3;

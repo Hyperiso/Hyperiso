@@ -68,6 +68,33 @@ const std::map<BWilsonCoefficients, std::string> WCoefMapper::flha_mapping = {
     {BWilsonCoefficients::CPQ2, "03051313|3133"}, 
 };
 
+const std::map<std::string, BWilsonCoefficients> WCoefMapper::inverse_flha_mapping = {
+    {"03040405|6161", BWilsonCoefficients::C1},
+    {"03040405|4141", BWilsonCoefficients::C2},
+    {"03050707|4133", BWilsonCoefficients::C3},
+    {"03050707|6153", BWilsonCoefficients::C4},
+    {"03050707|4536", BWilsonCoefficients::C5},
+    {"03050707|6556", BWilsonCoefficients::C6},
+    {"00000305|4422", BWilsonCoefficients::C7},
+    {"00000305|6421", BWilsonCoefficients::C8},
+    {"03051313|4133", BWilsonCoefficients::C9},
+    {"03051313|4137", BWilsonCoefficients::C10},
+    {"03040405|6262", BWilsonCoefficients::CP1},
+    {"03040405|4242", BWilsonCoefficients::CP2},
+    {"03050707|4233", BWilsonCoefficients::CP3},
+    {"03050707|6253", BWilsonCoefficients::CP4},
+    {"03050707|4636", BWilsonCoefficients::CP5},
+    {"03050707|6656", BWilsonCoefficients::CP6},
+    {"00000305|4322", BWilsonCoefficients::CP7},
+    {"00000305|4321", BWilsonCoefficients::CP8},
+    {"03051313|4233", BWilsonCoefficients::CP9},
+    {"03051313|4234", BWilsonCoefficients::CP10},
+    {"03051313|3230", BWilsonCoefficients::CQ1},
+    {"03051313|3233", BWilsonCoefficients::CQ2},
+    {"03051313|3130", BWilsonCoefficients::CPQ1},
+    {"03051313|3133", BWilsonCoefficients::CPQ2}, 
+};
+
 const std::map<std::string, BWilsonCoefficients> WCoefMapper::inverse_mapping = {
     {"C1", BWilsonCoefficients::C1},
     {"C2", BWilsonCoefficients::C2},
@@ -141,19 +168,19 @@ const std::map<std::string, WilsonGroups> GroupMapper::inverse_mapping = {
 }; 
 
 const std::map<Observables, std::string> ObservableMapper::mapping = {
-    {Observables::BR_BS_MUMU, "BR_Bsmumu"},
-    {Observables::BR_BS_MUMU_UNTAG, "BRuntag_Bsmumu"},
-    {Observables::BR_BD_MUMU, "BR_Bdmumu"},
-    {Observables::BR_BU_TAUNU, "BR_Bu_Taunu"},
-    {Observables::ISOSPIN_ASYMMETRY_B_KSTAR_GAMMA, "ISOSPIN_ASYMMETRY_B_KSTAR_GAMMA"}
+    {Observables::BR_BS_MUMU, "BR_Bs__mu_mu"},
+    {Observables::BR_BS_MUMU_UNTAG, "BRuntag_Bs__mu_mu"},
+    {Observables::BR_BD_MUMU, "BR_Bd__mu_mu"},
+    {Observables::BR_BU_TAUNU, "BR_Bu__tau_nu"},
+    {Observables::ISOSPIN_ASYMMETRY_B_KSTAR_GAMMA, "IA_B_K*__gamma"}
 };
 
 const std::map<std::string, Observables> ObservableMapper::inverse_mapping = {
-    {"BR_Bsmumu", Observables::BR_BS_MUMU},
-    {"BRuntag_Bsmumu", Observables::BR_BS_MUMU_UNTAG},
-    {"BR_Bdmumu", Observables::BR_BD_MUMU},
-    {"BR_Bu_Taunu", Observables::BR_BU_TAUNU},
-    {"ISOSPIN_ASYMMETRY_B_KSTAR_GAMMA", Observables::ISOSPIN_ASYMMETRY_B_KSTAR_GAMMA}
+    {"BR_Bs__mu_mu", Observables::BR_BS_MUMU},
+    {"BRuntag_Bs__mu_mu", Observables::BR_BS_MUMU_UNTAG},
+    {"BR_Bd__mu_mu", Observables::BR_BD_MUMU},
+    {"BR_Bu__tau_nu", Observables::BR_BU_TAUNU},
+    {"IA_B_K*__gamma", Observables::ISOSPIN_ASYMMETRY_B_KSTAR_GAMMA}
 };
 
 const std::map<Model, std::string> ModelMapper::mapping = {

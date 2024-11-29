@@ -6,7 +6,7 @@
 #include "WilsonManager.h"
 
 int main() {
-    MemoryManager::GetInstance()->init("Test/InputFiles/testinput_thdm.lha", {0});
+    MemoryManager::GetInstance()->init("Test/InputFiles/testinput_thdm.lha", Model::SM);
     std::string csv_path = "../../DataBase/MartyWilson/SM_wilson.csv";
 
     std::string coefficient_name = "C7";
@@ -21,7 +21,7 @@ int main() {
         std::cerr << "An error occurred: " << ex.what() << std::endl;
     }
 
-    CoefficientManager* wm = CoefficientManager::GetInstance("SM");
+    auto wm = CoefficientManager::GetInstance("SM");
 
     wm->registerCoefficientGroup("BCoefficient", std::make_shared<BCoefficientGroupMarty>());
 
