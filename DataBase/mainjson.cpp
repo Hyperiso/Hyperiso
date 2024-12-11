@@ -9,15 +9,15 @@ int main() {
     root->set("value", "level1", "level2");
     std::cout << "Structure JSON générée :\n";
     root->printJSON();
-    // parser->writeToFile("output.json", root);
+    parser->writeToFile("output.json", root);
 
-    // try {
-    //     auto newRoot = parser->readFromFile("output.json");
-    //     std::cout << "\nFichier JSON lu avec succès.\n";
-    //     newRoot->printJSON();
-    // } catch (const std::exception& e) {
-    //     std::cerr << "Erreur lors de la lecture : " << e.what() << "\n";
-    // }
+    try {
+        auto newRoot = parser->readFromFile("output.json");
+        std::cout << "\nFichier JSON lu avec succès.\n";
+        newRoot->printJSON();
+    } catch (const std::exception& e) {
+        std::cerr << "Erreur lors de la lecture : " << e.what() << "\n";
+    }
 
     return 0;
 }
