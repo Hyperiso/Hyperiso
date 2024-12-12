@@ -26,7 +26,16 @@ public:
 
     template <typename T, typename Key, typename... Rest>
     void set(T value, Key&& key, Rest&&... rest) {
-        setRecursive(data_, std::string(std::forward<Key>(key)), std::forward<Rest>(rest)..., std::forward<T>(value));
+        if constexpr (sizeof...(rest) == 0) {
+            data_[std::string(std::forward<Key>(key))] = std::forward<T>(value);
+        } else {
+            auto& node = data_[std::string(std::forward<Key>(key))];
+            if (!std::holds_alternative<std::shared_ptr<Node>>(node)) {
+                node = std::make_shared<Node>();
+            }
+            auto& childNode = std::get<std::shared_ptr<Node>>(node);
+            childNode->set(std::forward<T>(value), std::forward<Rest>(rest)...);
+        }
     }
 
     void printJSON(int level = 0) const {
@@ -49,6 +58,27 @@ public:
         std::cout << std::string(level, ' ') << "}";
     }
 
+    void printJSONToStream(std::ostream& os, int level = 0) const {
+        os << "{\n";
+        for (const auto& [key, value] : data_) {
+            os << std::string(level + 2, ' ') << "\"" << key << "\": ";
+            if (std::holds_alternative<std::string>(value)) {
+                os << "\"" << std::get<std::string>(value) << "\"";
+            } else if (std::holds_alternative<int>(value)) {
+                os << std::get<int>(value);
+            } else if (std::holds_alternative<double>(value)) {
+                os << std::get<double>(value);
+            } else if (std::holds_alternative<bool>(value)) {
+                os << (std::get<bool>(value) ? "true" : "false");
+            } else if (std::holds_alternative<std::shared_ptr<Node>>(value)) {
+                std::get<std::shared_ptr<Node>>(value)->printJSONToStream(os, level + 2);
+            }
+            os << ",\n";
+        }
+        os << std::string(level, ' ') << "}";
+    }
+    
+
 private:
     template <typename Key, typename... Rest>
     static Value getRecursive(const std::map<std::string, Value>& map, Key&& key, Rest&&... rest) {
@@ -61,20 +91,6 @@ private:
             auto node = std::get<std::shared_ptr<Node>>(it->second);
             return node->get(std::forward<Rest>(rest)...);
         }
-    }
-
-    template <typename T>
-    static void setRecursive(std::map<std::string, Value>& map, const std::string& key, T&& value) {
-        map[key] = std::forward<T>(value);
-    }
-
-    template <typename Key, typename... Rest, typename T>
-    static void setRecursive(std::map<std::string, Value>& map, const std::string& key, Key&& nextKey, Rest&&... rest, T&& value) {
-        auto& node = map[key];
-        if (!std::holds_alternative<std::shared_ptr<Node>>(node)) {
-            node = std::make_shared<Node>();
-        }
-        std::get<std::shared_ptr<Node>>(node)->set(std::forward<T>(value), std::forward<Key>(nextKey), std::forward<Rest>(rest)...);
     }
 };
 
@@ -106,9 +122,11 @@ public:
         if (!file.is_open()) throw std::runtime_error("Unable to open file for writing");
 
         std::ostringstream oss;
-        root->printJSON();
+        root->printJSONToStream(oss);
+        file << oss.str();
         file.close();
     }
+
 
     std::shared_ptr<Node> readFromFile(const std::string& filename) const override {
         std::ifstream file(filename);
