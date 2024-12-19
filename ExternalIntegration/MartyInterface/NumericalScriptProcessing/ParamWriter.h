@@ -10,7 +10,7 @@ private:
     std::unordered_map<std::string, double>& params;  // Référence vers les paramètres
     std::string wilson;
     std::string model;
-    bool top, bottom, charm;
+    bool top, bottom, charm = false;
 
 public:
     ParamWriter(std::unordered_map<std::string, double>& params, const std::string& wilson, const std::string& model)
@@ -33,6 +33,12 @@ public:
                            << params[real_name + "_re"] << ", " << value << "};\n";
             } else if (name.find("_re") != std::string::npos) {
                 continue;
+            } else if (name.find("m_c") != std::string::npos) {
+                this->charm = true;
+            } else if (name.find("m_b") != std::string::npos) {
+                this->bottom = true;
+            } else if (name.find("m_t") != std::string::npos) {
+                this->top = true;
             } else {
                 outputFile << "\tparam." << real_name << " = " << value << ";\n";
             }
