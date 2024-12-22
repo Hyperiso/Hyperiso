@@ -13,7 +13,7 @@ add_library(MathLib STATIC
     wilson_math.cpp
     MathBSM/wilson_susy.cpp
     MathBSM/wilson_THDM.cpp
-    obs_math.cpp)
+    integration.cpp)
 
 find_package(GSL REQUIRED)
 

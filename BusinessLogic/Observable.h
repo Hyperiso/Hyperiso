@@ -3,38 +3,22 @@
 
 #include "General.h"
 #include "Compound.h"
-#include "Math.h"
-#include "WilsonManager.h"
-#include "Parameters.h"
-#include "epsilon_calculator.h"
-#include "Wilson_THDMv2.h"
-#include "Wilson_susyv2.h"
-#include "WilsonManager.h"
-#include "Wilsonv2.h"
+#include "BKstarDecay.h"
 
 class Observable : public Compound {
 
 protected:
-
     const Observables id;
-    const double exp_val;
-    const double exp_std;
-    Model model;
-    QCDOrder order;
-    double scale;
+    double exp_val;
+    std::shared_ptr<DecayParent> decay_parent;
 
 public:
+    Observable(Observables id, std::shared_ptr<DecayParent> decay_parent, double exp_val = 0.0) : id(id), decay_parent(decay_parent), exp_val(exp_val) {}
 
-    Observable(Observables id, double exp_val, double exp_std, Model model, QCDOrder order, double scale) 
-        : id(id), exp_val(exp_val), exp_std(exp_std), model(model), order(order), scale(scale) {} 
-
-    Observables getId() const;
-    double get_exp_val() const;
-    double get_exp_var() const;
-    virtual double eval() const override = 0;
-    std::shared_ptr<CoefficientManager> computeWilsons(bool traditional_basis=false) const;
-    std::shared_ptr<CoefficientManager> computeWilsons(Model model, QCDOrder order, double scale, bool traditional_basis=false) const;
-
+    Observables getId() const { return id; }
+    double get_exp_val() const { return exp_val; }
+    void set_exp_val(double value) { exp_val = value; }
+    double eval() const override { return decay_parent->compute_observable(id); };
 }; 
 
 

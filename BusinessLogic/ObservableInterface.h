@@ -7,11 +7,6 @@
 #include <cmath>
 
 #include "General.h"
-
-#include "Bs_mumu.h"
-#include "Bd_mumu.h"
-#include "Bu_taunu.h"
-#include "B__Kstar_gamma.h"
 #include "ModelEvaluator.h"
 
 class ObservableInterface {
@@ -25,26 +20,26 @@ private:
         double m_Bu = (*flavp)("FMASS", 521);
 
         QCDOrder order = model == Model::CUSTOM ? QCDOrder::LO : QCDOrder::NNLO;
+        auto B_Ks = std::make_shared<BKstarDecay>(order, Parameters::Get({ParameterType::SM, "MASS", 24}), m_Bu);
 
         observable_map = {
-            {Observables::BR_BS_MUMU, std::make_shared<BR_Bs_mumu>(model, order, m_Bs)},
-            {Observables::BR_BD_MUMU, std::make_shared<BR_Bd_mumu>(model, order, m_Bs)},
-            {Observables::BR_BU_TAUNU, std::make_shared<BR_Bu_taunu>(model, order, m_Bd)},
-            {Observables::BR_BS_MUMU_UNTAG, std::make_shared<BR_Bs_mumu_untag>(model, order, m_Bs)}
+            // {Observables::BR_BS_MUMU, std::make_shared<BR_Bs_mumu>(model, order, m_Bs)},
+            // {Observables::BR_BD_MUMU, std::make_shared<BR_Bd_mumu>(model, order, m_Bs)},
+            // {Observables::BR_BU_TAUNU, std::make_shared<BR_Bu_taunu>(model, order, m_Bd)},
+            // {Observables::BR_BS_MUMU_UNTAG, std::make_shared<BR_Bs_mumu_untag>(model, order, m_Bs)}
+            {Observables::ISOSPIN_ASYMMETRY_B_KSTAR_GAMMA, std::make_shared<Observable>(Observables::ISOSPIN_ASYMMETRY_B_KSTAR_GAMMA, B_Ks)}
         };
     }
 
-public:
-    ObservableInterface() {
-        init_full_observable_map(Model::SM);
-    }
 
-    ObservableInterface(Model model) {
+
+public:
+    ObservableInterface(Model model = Model::SM) {
         init_full_observable_map(model);
     }
 
-    ObservableInterface(const std::map<Observables, double>& obs_list, Model model, QCDOrder max_order) {
-        add_observables(obs_list, model, max_order);
+    ObservableInterface(const std::vector<Observables>& obs_list, Model model, QCDOrder max_order) {
+        add_observables(std::move(obs_list), model, max_order);
     }
 
     double compute_observable(Observables obs) const {
@@ -64,28 +59,30 @@ public:
         }
     }
 
-    void add_observables(const std::map<Observables, double>& obs_list, Model model, QCDOrder max_order) {
+    void add_observables(const std::vector<Observables>& obs_list, Model model, QCDOrder max_order) {
         if (model == Model::CUSTOM && max_order > QCDOrder::LO) {
             LOG_WARN("Only LO calculations are available on custom models, defaulting to LO");
             max_order = QCDOrder::LO;
         }
 
-        for (auto &p : obs_list) {
-            switch (p.first) {
-                case Observables::BR_BS_MUMU:
-                    observable_map.emplace(std::make_pair(p.first, std::make_shared<BR_Bs_mumu>(model, max_order, p.second)));
-                    break;
-                case Observables::BR_BS_MUMU_UNTAG:
-                    observable_map.emplace(std::make_pair(p.first, std::make_shared<BR_Bs_mumu_untag>(model, max_order, p.second)));
-                    break;
-                case Observables::BR_BD_MUMU:
-                    observable_map.emplace(std::make_pair(p.first, std::make_shared<BR_Bd_mumu>(model, max_order, p.second)));
-                    break;
-                case Observables::BR_BU_TAUNU:
-                    observable_map.emplace(std::make_pair(p.first, std::make_shared<BR_Bu_taunu>(model, max_order, p.second)));
-                    break;
+        auto B_Ks = std::make_shared<BKstarDecay>(max_order, Parameters::Get({ParameterType::SM, "MASS", 24}), Parameters::Get({ParameterType::FLAVOR, "FMASS", 521}));
+
+        for (auto &o : obs_list) {
+            switch (o) {
+                // case Observables::BR_BS_MUMU:
+                //     observable_map.emplace(std::make_pair(o, std::make_shared<BR_Bs_mumu>(model, max_order, p.second)));
+                //     break;
+                // case Observables::BR_BS_MUMU_UNTAG:
+                //     observable_map.emplace(std::make_pair(o, std::make_shared<BR_Bs_mumu_untag>(model, max_order, p.second)));
+                //     break;
+                // case Observables::BR_BD_MUMU:
+                //     observable_map.emplace(std::make_pair(o, std::make_shared<BR_Bd_mumu>(model, max_order, p.second)));
+                //     break;
+                // case Observables::BR_BU_TAUNU:
+                //     observable_map.emplace(std::make_pair(o, std::make_shared<BR_Bu_taunu>(model, max_order, p.second)));
+                //     break;
                 case Observables::ISOSPIN_ASYMMETRY_B_KSTAR_GAMMA:
-                    observable_map.emplace(std::make_pair(p.first, std::make_shared<Delta0_B__Kstar_gamma>(model, max_order, p.second)));
+                    observable_map.emplace(std::make_pair(o, std::make_shared<Observable>(o, B_Ks)));
                     break;
             }
         }

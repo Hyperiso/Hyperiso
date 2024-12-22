@@ -338,7 +338,38 @@ public:
         return manager;
     }
 
+    static std::shared_ptr<CoefficientManager> Builder(std::string instance, std::vector<WilsonGroups> groups, double Q_match, double Q, std::string order) {
+        std::shared_ptr<CoefficientManager> manager = CoefficientManager::GetInstance(instance);
+        auto group_ptrs = BuildGroupPtrs(groups);
+        for (auto& group : group_ptrs) {
+            manager->registerCoefficientGroup(group.first, group.second);
+            manager->setQMatch(group.first, Q_match);
+            manager->setMatchingCoefficient(group.first, order);
+            manager->setGroupScale(group.first, Q);
+            manager->setRunCoefficient(group.first, order);
+        }
+        return manager;
+    }
+
 private:
+    static std::map<std::string, std::shared_ptr<CoefficientGroup>> BuildGroupPtrs(std::vector<WilsonGroups> group_ids) {
+        std::map<std::string,std::shared_ptr<CoefficientGroup>> groups;
+        for (auto g : group_ids) {
+            switch (g) {
+            case WilsonGroups::BCoefficients:
+                groups.emplace(GroupMapper::str(g), std::make_shared<BCoefficientGroup>());
+                break;
+            case WilsonGroups::BPrimeCoefficients:
+                groups.emplace(GroupMapper::str(g), std::make_shared<BPrimeCoefficientGroup>());
+                break;
+            case WilsonGroups::BScalarCoefficients:
+                groups.emplace(GroupMapper::str(g), std::make_shared<BScalarCoefficientGroup>());
+                break;
+            }
+        }
+        return groups;
+    }
+
     State* ensureGroupState(const std::string& groupName) {
         auto it = groupStates.find(groupName);
         if (it != groupStates.end()) {

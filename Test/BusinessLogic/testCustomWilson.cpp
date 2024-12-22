@@ -2,7 +2,6 @@
 #include "Parameters.h"
 #include "Logger.h"
 #include "General.h"
-#include "Bs_mumu.h"
 #include <iostream>
 #include <cassert>
 
@@ -20,6 +19,6 @@ int main() {
     std::cout << scale << std::endl;
     std::cout << C7_NLO << std::endl;
 
-    BR_Bs_mumu br_Bs__mu_mu(Model::SM, QCDOrder::NNLO, 5); 
-    LOG_INFO(br_Bs__mu_mu.eval());
+    // BR_Bs_mumu br_Bs__mu_mu(Model::SM, QCDOrder::NNLO, 5); 
+    // LOG_INFO(br_Bs__mu_mu.eval());
 }

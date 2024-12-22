@@ -41,25 +41,24 @@ double QCDParameters::runningAlphasCalculation(double Q, std::string option_mass
     int n_i = 5;
     int n_f = this->getNf(Q);
     if (n_f < 4) {
-        LOG_WARN("Scale for alpha_s calculation is below charm mass.");
+        // LOG_WARN("Scale for alpha_s calculation is below charm mass.");
     }
 
     double L = this->Lambda5;
     auto Q_bounds = this->getOrderedMasses();
 
     while (n_i > n_f) {
-        // LOG_INFO("DOWN");
         double alpha_match = this->alphasRunning(Q_bounds.at(n_i - 1), L, n_i);
         L = this->matchLambda(alpha_match, Q_bounds.at(n_i - 1), n_i - 1);
         --n_i;
     }
 
     while (n_i < n_f) {
-        // LOG_INFO("UP");
         double alpha_match = this->alphasRunning(Q_bounds.at(n_i), L, n_i);
         L = this->matchLambda(alpha_match, Q_bounds.at(n_i), n_i + 1);
         ++n_i;
     }
+    
     return this->alphasRunning(Q, L, n_f);
 }
 

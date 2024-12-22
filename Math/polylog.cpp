@@ -3,6 +3,8 @@
 #include <array>
 #include <vector>
 #include "Math.h"
+#include "gsl/gsl_sf_dilog.h"
+#include "gsl/gsl_sf_clausen.h"
 
 complex_t cd(double x, double y) {
     return {x, y};
@@ -1250,27 +1252,7 @@ complex_t polylog(int n, int m, double x) {
 // LI2 ! -------------------------------------------------------------------------------------------------------------------
 
 double Li2(double x) {
-    const double pisq6 = pow((4.*atan(1.)), 2.) / 6.0;
-    const double x_0 = -0.3;
-    const double x_1 = 0.25;
-    const double x_2 = 0.51;
-
-    if (x == 1.0) {
-        return pisq6;
-    }
-
-    if (x <= x_0) {
-        double temp = log(fabs(1.0 - x));
-        return -Li2(-x / (1.0 - x)) - temp * temp / 2.0;
-    } else if (x < x_1) {
-        double z = -log(1.0 - x);
-        double temp = z * (1.0 - z / 4.0 * (1.0 - z / 9.0 * (1.0 - z * z / 100.0 * (1.0 - 5.0 * z * z / 294.0 * (1.0 - 7.0 * z * z / 360.0 * (1.0 - 5.0 * z * z / 242.0 * (1.0 - 7601.0 * z * z / 354900.0 * (1.0 - 91.0 * z * z / 4146.0 * (1.0 - 3617.0 * z * z / 161840.0)))))))));
-        return temp;
-    } else if (x < x_2) {
-        return -Li2(-x) + Li2(x * x) / 2.0;
-    } else {
-        return pisq6 - Li2(1.0 - x) - log(fabs(x)) * log(fabs(1.0 - x));
-    }
+    return gsl_sf_dilog(x);
 }
 
 
@@ -1325,37 +1307,10 @@ complex_t Li4(double x)
 /*-------------------------------------------------------------*/
 
 complex_t CLi2(complex_t x) {
-    const double pisq6 = PI2 / 6.0;
-
-    const double x_0 = -0.30;
-    const double x_1 = 0.25;
-    const double x_2 = 0.51;
-
-    if (x == 1.0) {
-        return pisq6;
-    }
-
-    if (std::real(x) >= x_2) {
-        return pisq6 - CLi2(1.0 - x) - std::log(x) * std::log(1.0 - x);
-    }
-
-    if ((std::abs(std::imag(x)) > 1.0) || (std::norm(x) > 1.2)) {
-        return -CLi2(1.0 / x) - 0.5 * std::log(-x) * std::log(-x) - pisq6;
-    }
-
-    if (std::real(x) <= x_0) {
-        complex_t zz = std::log(1.0 - x);
-        return -CLi2(-x / (1.0 - x)) - zz * zz / 2.0;
-    } else if (std::real(x) < x_1) {
-        complex_t z = -std::log(1.0 - x);
-        complex_t temp = z * (1.0 - z / 4.0 * (1.0 - z / 9.0 * (1.0 - z * z / 100.0 *
-            (1.0 - 5.0 * z * z / 294.0 * (1.0 - 7.0 * z * z / 360.0 *
-            (1.0 - 5.0 * z * z / 242.0 * (1.0 - 7601.0 * z * z / 354900.0 *
-            (1.0 - 91.0 * z * z / 4146.0 * (1.0 - 3617.0 * z * z / 161840.0)))))))));
-        return temp;
-    } else {
-        return -CLi2(-x) + CLi2(x * x) / 2.0;
-    }
+    gsl_sf_result res_r;
+    gsl_sf_result res_i;
+    gsl_sf_complex_dilog_xy_e(x.real(), x.imag(), &res_r, &res_i);
+    return complex_t(res_r.val, res_i.val);
 }
 
 
@@ -1373,8 +1328,7 @@ complex_t CLi4(complex_t x)
 
 
 double Cl2(double x) {
-    complex_t z = std::cos(x) + complex_t(0, 1) * std::sin(x);
-    return std::imag(CLi2(z));
+    return gsl_sf_clausen(x);
 }
 
 double Cl3(double x) {
