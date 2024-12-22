@@ -7,8 +7,13 @@
 #include "ModelWriter.h"
 #include "SMParamSetter.h"
 #include "FileNameManager.h"
-int main() {
+#include "MemoryManager.h"
+#include "config.hpp"
 
+int main() {
+    MemoryManager* mm = MemoryManager::GetInstance();
+    std::string base_path = project_root.data();
+    mm->init(base_path+"/Test/testinput_thdm.lha", Model::SM);
     // auto truc = FileNameManager::getInstance("C7", "SM");
 
     // std::cout << truc->getGeneratedFileName() << std::endl;
@@ -27,8 +32,8 @@ int main() {
     // MartyInterface.compile_run_libs("C7", "SM", 81);
     // MartyInterface.generate("C2", "SM");
     // MartyInterface.compile_run("C2", "SM");
-    // MartyInterface.generate_numlib("C2", "SM");
-    // MartyInterface.compile_run_libs("C2", "SM", 81);
+    // MartyInterface.generate_numlib("C7", "Zprime", 81);
+    // MartyInterface.compile_run_libs("C2", "MSSSM", 81);
 
     // MartyInterface.generate("C8", "SM");
     // MartyInterface.compile_run("C8", "SM");
@@ -37,9 +42,17 @@ int main() {
 
 
     // MartyInterface.calculate("C2", "SM", 81);
-    // MartyInterface.calculate("C7", "SM", 81);
+    MartyInterface.calculate("C9", "ZPrime", 81);
+    MartyInterface.calculate("C10", "ZPrime", 81);
+    MartyInterface.calculate("C2", "ZPrime", 81);
+    MartyInterface.calculate("C7", "ZPrime", 81);
     // MartyInterface.calculate("C5", "SM", 81);
-    MartyInterface.calculate("C3", "MSSM", 81);
+    // MartyInterface.calculate("C7", "THDM", 81);
+    // MartyInterface.calculate("C7", "SM", 160);
+    // MartyInterface.calculate("C7", "SM", 81);
+    // MartyInterface.calculate("C7", "MSSM", 81);
+    // MartyInterface.calculate("C2", "THDM", 81);
+    // MartyInterface.calculate("C2", "SM", 81);
     // MartyInterface.calculate("C1", "THDM", 81);
     // MartyInterface.calculate("C2", "THDM", 81);
     // MartyInterface.calculate("C3", "THDM", 81);

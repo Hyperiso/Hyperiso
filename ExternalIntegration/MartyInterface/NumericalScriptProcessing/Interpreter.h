@@ -16,7 +16,6 @@ public:
     std::unordered_map<std::string, InterpretedParam> interpret(std::vector<Extractor::Parameter>& params);
 
 private:
-    // int getCode(const std::string& name);
     std::shared_ptr<MappingDatabase> modelDatabase;
     std::shared_ptr<MappingDatabase> defaultDatabase;
 };

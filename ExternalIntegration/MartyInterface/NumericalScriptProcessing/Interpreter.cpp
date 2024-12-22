@@ -14,28 +14,22 @@ std::unordered_map<std::string, Interpreter::InterpretedParam> Interpreter::inte
         InterpretedParam interpreted;
         std::cout << "Processing parameter: " << param.name << std::endl;
 
-        // Cherche d'abord dans la base de données du modèle spécifié
         auto it = modelDatabase->getParams().find(param.name);
         if (it != modelDatabase->getParams().end()) {
-            // Si trouvé dans la base de données du modèle spécifié
             interpreted.block = it->second.block;
             interpreted.code = it->second.pdgCode;
         } else {
-            // Sinon, on cherche dans la base de données SM
             it = defaultDatabase->getParams().find(param.name);
             if (it != defaultDatabase->getParams().end()) {
-                // Si trouvé dans la base de données SM
                 interpreted.block = it->second.block;
                 interpreted.code = it->second.pdgCode;
             } else {
-                // Si non trouvé dans aucune base, afficher une erreur
                 std::cerr << "Error: Parameter " << param.name << " not found in model or SM databases." << std::endl;
                 std::runtime_error("");
                 continue;
             }
         }
 
-        // Enregistre le paramètre interprété dans le résultat final
         interpretedParams[param.name] = interpreted;
     }
 

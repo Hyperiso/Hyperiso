@@ -23,13 +23,7 @@ void MartyInterface::compile_run(std::string wilson, std::string model) {
 void MartyInterface::generate(std::string wilson, std::string model) {
 
     std::unique_ptr<ModelModifier> smModifier;
-
-    if (model == "SM") {
-        smModifier = std::make_unique<SMModelModifier>(wilson);
-    }
-    else {
-        smModifier = std::make_unique<GeneralModelModifier>(wilson, model);
-    }
+    smModifier = std::make_unique<GeneralModelModifier>(wilson, model);
 
     std::string root_path = project_root.data();
     std::unique_ptr<TemplateManagerBase> templateManager = std::make_unique<NonNumericTemplateManager>(FileNameManager::getInstance(wilson, model)->getTemplateDir());
@@ -42,16 +36,13 @@ void MartyInterface::generate(std::string wilson, std::string model) {
 }
 
 void MartyInterface::generate_numlib(std::string wilson, std::string model, double Q_match) {
-    std::unique_ptr<ModelModifier> smModifier;
-
-    if (model == "SM") {
-        smModifier = std::make_unique<NumModelModifier>(wilson);
-    }
+    bool forceMode = false;
+    std::unique_ptr<GeneralNumModelModifier> smModifier = std::make_unique<GeneralNumModelModifier>(wilson, model, forceMode);
     
     
     std::unique_ptr<TemplateManagerBase> templateManager = std::make_unique<NumericTemplateManager>(FileNameManager::getInstance(wilson, model)->getLibDir());
     templateManager->setModelAndWilson(model, wilson);
-    templateManager->setModelModifier(std::move(smModifier));
+    templateManager->setNumModelModifier(std::move(smModifier));
     std::string file_path = FileNameManager::getInstance(wilson, model)->getNumGeneratedFileName();
 
     CodeGenerator codeGenerator(std::move(templateManager));
