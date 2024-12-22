@@ -43,6 +43,22 @@ Parameters* Parameters::GetInstance(ParameterType id) {
     return ParametersFactory::GetParameters(id);
 }
 
+ParameterType Parameters::GetType(const std::string &block, int pdgCode) {
+    auto allowed_types = MemoryManager::GetInstance()->getParameterTypes();
+    for (ParameterType tp : allowed_types) {
+        auto p = Parameters::GetInstance(tp);
+        try {
+            (*p)(block, pdgCode);
+            return tp;
+        } catch(const std::invalid_argument& e) { continue; }
+    }
+    LOG_ERROR("Invalid Parameter", "Parameter", block, ",", pdgCode, "is undefined.");
+}
+
+double Parameters::Get(ParamId id) {
+    return (*GetInstance(id.type))(id.block, id.code);
+}
+
 Parameters::Parameters(ModelStrategy* modelStrategy)
     : strategy(modelStrategy) { 
     LOG_DEBUG("Param creation at", this);
@@ -90,12 +106,9 @@ void SMModelStrategy::initializeParameters(Parameters& params) {
     std::vector<double*> sm_inputs = {&inv_alpha_em, &G_F, &alpha_s_MZ, &m_Z_pole, &m_b_mb, &m_t_pole, &m_tau_pole};
     lha->extractFromBlock("SMINPUTS", sm_inputs);
     params.addBlock("SMINPUTS", std::make_shared<SMInputBlock>());
-
-    params.setBlockValue("SMINPUTS", 0, 0.);
-    params.setBlockValue("SMINPUTS", 1, *sm_inputs[0]);
-    params.setBlockValue("SMINPUTS", 2, *sm_inputs[1]);
-    params.setBlockValue("SMINPUTS", 5, *sm_inputs[4]);
-    params.setBlockValue("SMINPUTS", 10, 0.313);
+    for (size_t i = 0; i < 7; i++) {
+        params.setBlockValue("SMINPUTS", i + 1, *sm_inputs[i]);
+    }
 
     // VCKMIN 
     params.addBlock("RECKM", std::make_shared<RECKMBlock>());
@@ -367,26 +380,38 @@ void THDMModelStrategy::initializeParameters(Parameters& params) {
 
 // FlAVORModelStrategy implementation
 void FlavorStrategy::initializeParameters(Parameters& params) {
-    // Hardcoded for now, should read from LHA file eventually
+    LhaReader* lha = MemoryManager::GetInstance()->getReader();
+
     auto massblock = std::make_shared<MassBlock>();
-    massblock->setValue(511, 5.27958);
-    massblock->setValue(531, 5.36677);
-    massblock->setValue(521, 5.27934);
-    massblock->setValue(323, 0.49368);
+    massblock->setValue(211, lha->getValue<double>("FMASS", "211")); // pi
+    massblock->setValue(321, lha->getValue<double>("FMASS", "321")); // K
+    massblock->setValue(323, lha->getValue<double>("FMASS", "323")); // K*
+    massblock->setValue(421, lha->getValue<double>("FMASS", "421")); // D0
+    massblock->setValue(411, lha->getValue<double>("FMASS", "411")); // D
+    massblock->setValue(431, lha->getValue<double>("FMASS", "431")); // Ds
+    massblock->setValue(511, lha->getValue<double>("FMASS", "511")); // Bu
+    massblock->setValue(521, lha->getValue<double>("FMASS", "521")); // Bd
+    massblock->setValue(531, lha->getValue<double>("FMASS", "531")); // Bs
     params.addBlock("FMASS", std::move(massblock));
 
     auto lifetimeblock = std::make_shared<FLifeBlock>();
-    lifetimeblock->setValue(511, 1.519e-12);
-    lifetimeblock->setValue(531, 1.510e-12);
-    lifetimeblock->setValue(521, 1.638e-12);
+    lifetimeblock->setValue(211, lha->getValue<double>("FLIFE", "211")); // pi
+    lifetimeblock->setValue(321, lha->getValue<double>("FLIFE", "321")); // K
+    lifetimeblock->setValue(323, lha->getValue<double>("FLIFE", "323")); // K*
+    lifetimeblock->setValue(421, lha->getValue<double>("FLIFE", "421")); // D0
+    lifetimeblock->setValue(411, lha->getValue<double>("FLIFE", "411")); // D
+    lifetimeblock->setValue(431, lha->getValue<double>("FLIFE", "431")); // Ds
+    lifetimeblock->setValue(511, lha->getValue<double>("FLIFE", "511")); // Bu
+    lifetimeblock->setValue(521, lha->getValue<double>("FLIFE", "521")); // Bd
+    lifetimeblock->setValue(531, lha->getValue<double>("FLIFE", "531")); // Bs
     params.addBlock("FLIFE", std::move(lifetimeblock));
 
     auto fconstblock = std::make_shared<FConstBlock>();
-    fconstblock->setValue(51101, 0.1905);
-    fconstblock->setValue(52101, 0.1905); //FAKE
-    fconstblock->setValue(53101, 0.2277);
-    fconstblock->setValue(32301, 0.2277); //FAKE
-    fconstblock->setValue(32302, 0.2277);//FAKE
+    fconstblock->setValue(51101, lha->getValue<double>("FCONST", "511|1")); // f_B
+    fconstblock->setValue(52101, lha->getValue<double>("FCONST", "521|1")); // f_B0
+    fconstblock->setValue(53101, lha->getValue<double>("FCONST", "531|1")); // f_Bs
+    fconstblock->setValue(32301, lha->getValue<double>("FCONST", "323|1")); // f_K*_par
+    fconstblock->setValue(32302, lha->getValue<double>("FCONST", "323|2")); // f_K*_perp
     params.addBlock("FCONST", std::move(fconstblock));
 }   
 
@@ -484,8 +509,6 @@ void WilsonInputStrategy::initializeParameters(Parameters &params) {
     type = p.second;
     fill_wilson_block("IMWCOEF", "IMFWCOEF", scale, type, params, nonzero_im);
 
-    LOG_INFO("Hého");
-
     for (int i = 0; i < WCoefMapper::n_wilsons(); i++) {
         if (std::find(nonzero_re.begin(), nonzero_re.end(), i) == nonzero_re.end()) {
             params.setBlockValue("REWCOEF", i * 10, 0);
@@ -496,13 +519,31 @@ void WilsonInputStrategy::initializeParameters(Parameters &params) {
     }   
 }
 
+void FormFactorStrategy::initializeParameters(Parameters &params) {
+    auto bksblock = std::make_shared<BKsBlock>();
+    bksblock->setValue(1, 0.04); // a_1_perp (1 GeV)
+    bksblock->setValue(2, 0.10); // a_2_perp (1 GeV)
+    bksblock->setValue(3, 0.06); // a_1_par (1 GeV)
+    bksblock->setValue(4, 0.16); // a_2_par (1 GeV)
+    bksblock->setValue(5, 0.013); // zeta_3_A (1 GeV)
+    bksblock->setValue(6, 0.032); // zeta_3_V (1 GeV)
+    bksblock->setValue(7, -2.1); // omega_10_A (1 GeV)
+    bksblock->setValue(8, 0.16); // delta_tilde_+ (1 GeV) 
+    bksblock->setValue(9, -0.16); // delta_tilde_- (1 GeV)
+    bksblock->setValue(10, 0.46); // lambda_B (1 GeV) [GeV]
+    bksblock->setValue(11, 0.312); // T1_B_Kstar (1 GeV) [hep-ph/0106067]
+    bksblock->setValue(12, 0.5); // Lambda_h (spectator scale) [GeV]
+    bksblock->setValue(13, -1); // mu_0 (remainder scale) [GeV]
+    params.addBlock("B_Ks", std::move(bksblock));
+}
+
 void Parameters::changeParameterMode(const ParamId &param_id,
                                      ParameterMode new_mode) {
-    blockAccessor.setMode(param_id.first, param_id.second, new_mode);
+    blockAccessor.setMode(param_id.block, param_id.code, new_mode);
 }
 
 void Parameters::shiftParameter(const ParamId &param_id, double shift_value) {
-    blockAccessor.setValue(param_id.first, param_id.second, blockAccessor.getValue(param_id.first, param_id.second) + shift_value, true);
+    blockAccessor.setValue(param_id.block, param_id.code, blockAccessor.getValue(param_id.block, param_id.code) + shift_value, true);
 }
 
 Parameters* ParametersFactory::GetParameters(ParameterType id) {
@@ -527,6 +568,8 @@ ModelStrategy* ParametersFactory::createStrategy(ParameterType id) {
             return new GeneralModelStrategy();
         case ParameterType::WILSON:
             return new WilsonInputStrategy();
+        case ParameterType::FF:
+            return new FormFactorStrategy();
         default:
             throw std::invalid_argument("Unknown parameters instance ID");
     }

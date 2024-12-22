@@ -86,22 +86,23 @@ void MemoryManager::init(const std::string& lhaFile, Model model, bool is_spectr
     cache.reader->readAll();
     cache.lha_path = std::filesystem::u8path(ss.str());
     cache.obs_cov_path = std::filesystem::u8path(project_root.data() + std::string("/DataBase/Exp/observable_covariance.json"));
-    cache.param_cov_path = std::filesystem::u8path(project_root.data() + std::string("/DataBase/Exp/_covariance.json"));
+    cache.param_cov_path = std::filesystem::u8path(project_root.data() + std::string("/DataBase/Exp/parameter_covariance.json"));
     cache.model = model;
     cache.is_spectrum = is_spectrum;
     cache.has_wilsons = has_wilsons;
     cache.has_obs = has_obs;
     cache.thread_id = std::this_thread::get_id();
     
-    cache.parameter_types = {ParameterType::SM, ParameterType::FLAVOR};
+    cache.parameter_types = {ParameterType::SM, ParameterType::FLAVOR, ParameterType::FF};
     if (model != Model::SM)
-        cache.parameter_types.push_back(static_cast<ParameterType>(static_cast<int>(model))); // Sloppy
+        cache.parameter_types.push_back(static_cast<ParameterType>(static_cast<int>(model)));
     if (has_wilsons)
         cache.parameter_types.push_back(ParameterType::WILSON);
 
     cache.is_ready = true;
 
     for (auto &&m : cache.parameter_types) {
+        LOG_DEBUG("Initializing parameters ", (int)m);
         Parameters::GetInstance(m);
     }
 }

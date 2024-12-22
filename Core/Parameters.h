@@ -47,9 +47,16 @@ public:
     void initializeParameters(class Parameters& params) override;
 };
 
+class FormFactorStrategy : public ModelStrategy {
+public:
+    void initializeParameters(class Parameters& params) override;
+};
+
 class Parameters {
 public:
     static Parameters* GetInstance(ParameterType id = ParameterType::SM);
+    static ParameterType GetType(const std::string& block, int pdgCode);
+    static double Get(ParamId id);
 
     double operator()(const std::string& block, int pdgCode);
 

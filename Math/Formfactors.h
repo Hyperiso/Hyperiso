@@ -10,8 +10,8 @@ constexpr double GAMMA = 0.5772156649015328;
 // Digamma function for integer inputs
 static double psi(int n) {
     double sum = 0;
-    for (int k = 1; k < n; ++k) {
-        sum += 1 / k;
+    for (int k = 1; k < n; k++) {
+        sum += 1. / k;
     }
     return sum - GAMMA;
 }
@@ -38,8 +38,8 @@ namespace FFInput {
     }
 
     // Other Gegenbauer momenta parameters [ref missing]
-    constexpr double zeta_3_V = 0.032;
-    constexpr double zeta_3_A = 0.013;
+    constexpr double zeta_3_V = 0.013;
+    constexpr double zeta_3_A = 0.032;
     constexpr double omega_10_A = -2.1;
     constexpr double delta_tilde_p = 0.16;
     constexpr double delta_tilde_m = -0.16;

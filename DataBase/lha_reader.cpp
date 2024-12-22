@@ -103,6 +103,7 @@ void Parser::parse(bool comments) {
 
 void LhaReader::addBlock(const std::string& id, const std::vector<std::vector<std::string>>& lines) {
     auto block = std::make_unique<LhaBlock>(findPrototype(id));
+    LOG_DEBUG(id);
     block->readData(lines);
     std::string id_ci = id;
     std::transform(id_ci.begin(), id_ci.end(), id_ci.begin(), ::toupper);
@@ -130,6 +131,7 @@ void LhaReader::readAll() {
         addBlock(p.first, p.second);
     }
           
+    LOG_DEBUG("LHA file parsed.");
 }
 
 Prototype LhaReader::findPrototype(std::string name) const {

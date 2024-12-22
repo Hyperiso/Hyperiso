@@ -89,6 +89,72 @@
         "central_value": 0.194,
         "stat_error": 0.010,
         "syst_error": 0
+      },
+      {
+        "name": "FCONST|32301",
+        "central_value": 0.220,
+        "stat_error": 0.005,
+        "syst_error": 0
+      },
+      {
+        "name": "FCONST|32302",
+        "central_value": 0.185,
+        "stat_error": 0.009,
+        "syst_error": 0
+      },
+      {
+        "name": "RECKM|21",
+        "central_value": 4.05e-2,
+        "stat_error": 1.1e-3,
+        "syst_error": 0
+      },
+      {
+        "name": "RECKM|22",
+        "central_value": 0.999139,
+        "stat_error": 0.000045,
+        "syst_error": 0
+      },
+      {
+        "name": "B_Ks|1",
+        "central_value": 0.10,
+        "stat_error": 0.07,
+        "syst_error": 0
+      },
+      {
+        "name": "B_Ks|2",
+        "central_value": 0.13,
+        "stat_error": 0.08,
+        "syst_error": 0
+      },
+      {
+        "name": "B_Ks|3",
+        "central_value": 0.10,
+        "stat_error": 0.07,
+        "syst_error": 0
+      },
+      {
+        "name": "B_Ks|4",
+        "central_value": 0.09,
+        "stat_error": 0.05,
+        "syst_error": 0
+      },
+      {
+        "name": "B_Ks|10",
+        "central_value": 0.460,
+        "stat_error": 0.110,
+        "syst_error": 0
+      },
+      {
+        "name": "B_Ks|11",
+        "central_value": 0.268,
+        "stat_error": 0.032,
+        "syst_error": 0
+      },
+      {
+        "name": "B_Ks|12",
+        "central_value": 0.5,
+        "stat_error": 0.1,
+        "syst_error": 0
       }
     ],
     "correlations": [

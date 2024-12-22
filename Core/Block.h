@@ -25,12 +25,12 @@ public:
         if (it != values.end()) {
             return it->second.get_val();
         }
-        throw std::out_of_range("PDG code not found in " + this->blockname);
+        throw std::invalid_argument("PDG code not found in " + this->blockname);
     }
 
     void setValue(int pdgCode, double value, bool force = false) override {
         JSONParser::getInstance(0)->addElement(this->blockname.substr(0, this->blockname.size()-5), pdgCode, value);
-        Parameter param (this->blockname.substr(0, this->blockname.size()-5), pdgCode, value, 0);
+        Parameter param (ParamId {ParameterType::CUSTOM, this->blockname.substr(0, this->blockname.size()-5), pdgCode}, value, 0);
         if (force) {
             values[pdgCode] = param;
         } else {
@@ -56,7 +56,7 @@ public:
 
     void setValue(int pdgCode, double value, bool force = false) override {
         JSONParser::getInstance(0)->addElement(this->blockname.substr(0, this->blockname.size()-5), pdgCode, value);
-        auto p = Parameter(this->blockname.substr(0, this->blockname.size()-5), pdgCode, value, 0);
+        auto p = Parameter(ParamId {ParameterType::CUSTOM, this->blockname.substr(0, this->blockname.size()-5), pdgCode}, value, 0);
         values[pdgCode / 10][pdgCode % 10] = p;
     }
 
@@ -224,6 +224,9 @@ public:
     FLifeBlock() {this->blockname = "FLifeBlock";}
 };
 
+/* ------------------------------------------------------------------------------------------------
+Wilson Input BLOCKS*/
+
 class WilsonBlock : public Block {
     // pdgCode is NNO with NN = integer ID of the coefficient as in BWilsonCoefficients enum, O is QCD order
     // pdgCode -1 is reserved to access the scale of the coefficients
@@ -265,4 +268,12 @@ protected:
     double scale;
     int type;
 
+};
+
+/* ------------------------------------------------------------------------------------------------
+Form Factors BLOCKS*/
+
+class BKsBlock : public MapBlock {
+public:
+    BKsBlock() {this->blockname = "BKsBlock";}
 };

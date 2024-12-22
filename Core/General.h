@@ -166,4 +166,20 @@ private:
     static const std::map<std::string, Model> inverse_mapping; 
 };
 
+struct ParamId {
+    ParameterType type;
+    std::string block;
+    int code;
+
+    bool operator==(const ParamId other) const {
+        return type == other.type && block == other.block && code == other.code;
+    }
+
+    bool operator<(const ParamId& other) const {
+        if (type != other.type) return type < other.type;
+        if (block != other.block) return block < other.block;
+        return code < other.code;
+    }
+};
+
 #endif // __GENERAL_H__

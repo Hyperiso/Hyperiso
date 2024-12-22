@@ -4,8 +4,14 @@
 #include "Formfactors.h"
 #include <map>
 #include <vector>
+#include <algorithm>
+#include <cstddef>
+#include <limits>
+#include <type_traits>
 
 typedef std::complex<double> complex_t;
+using Integrand = std::function<double(double)>;
+using cIntegrand = std::function<complex_t(double)>;
 
 /* Constants */
 
@@ -27,6 +33,8 @@ constexpr double M_NUCL =   0.939;  // Gev
 constexpr double M_P =   0.9382720;  // Gev
 constexpr double M_N =   0.9395654;  // Gev
 
+constexpr double EPSILON = 1e-5;
+
 constexpr std::complex<double> I = std::complex<double>(0, 1);
 
 /* Functions */
@@ -40,6 +48,18 @@ double H2(double x, double y);
 double B(double m1, double m2, double Q);
 template <typename T> int sgn(T val) {
     return (T(0) < val) -(val<T(0));
+}
+
+// Floating point numbers equality check (from cppreference)
+// Checks whether |x - y| is smaller than n * machine_precision 
+template <class T>
+std::enable_if_t<not std::numeric_limits<T>::is_integer, bool>
+fpeq(T x, T y, std::size_t n=10) {
+    const T m = std::min(std::fabs(x), std::fabs(y));
+    const int exp = m < std::numeric_limits<T>::min()
+                  ? std::numeric_limits<T>::min_exponent - 1
+                  : std::ilogb(m);
+    return std::fabs(x - y) <= n * std::ldexp(std::numeric_limits<T>::epsilon(), exp);
 }
 
 //for wilson coefficients
@@ -97,16 +117,8 @@ double C10Z2tri(double x);
 double F0SP(double xt);
 
 /*
-    For observables
-*/ 
+    Integration routines
+*/
 
-// B > Ks gamma isospin asymmetry
-
-double F_perp(double a_1_perp, double a_2_perp); // Done
-double X_perp(double a_1_perp, double a_2_perp, double cutoff); // Done
-complex_t G_perp(double s, double a_1_perp, double a_2_perp); // Done
-complex_t G2_perp(double s, double rb); // Done
-complex_t G8_perp(double rb); // Done
-complex_t H_perp(double s, double a_1_par, double a_2_par); // Done
-complex_t H2_perp(double s, double a_1_perp, double a_2_perp); // Done
-double H8_perp(double a_1_perp, double a_2_perp); // Done
+double integrate(Integrand f, double l, double u, double prec);
+complex_t c_integrate(cIntegrand f, double l, double u, double prec);
