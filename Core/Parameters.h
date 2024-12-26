@@ -58,12 +58,13 @@ public:
     static ParameterType GetType(const std::string& block, int pdgCode);
     static double Get(ParamId id);
 
+    bool exist(const std::string& block, int pdgCode);
+    
     double operator()(const std::string& block, int pdgCode);
 
     double alpha_s(double Q);
     double running_mass(double quarkmass, double Q_init, double Q_end, std::string option_massb = "running", std::string option_masst = "pole");
 
-    // Method to allow ModelStrategy to add blocks
     void addBlock(const std::string& name, std::shared_ptr<Block> block) {
         blockAccessor.addBlock(name, block);
     }

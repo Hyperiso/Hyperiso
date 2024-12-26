@@ -12,7 +12,6 @@ enum class FlavorParamType {
     DECAY_CONSTANT_RATIO
 };
 
-// Composite pattern to manage access to multiple blocks
 class BlockAccessor : public Block {
 public:
     void addBlock(const std::string& name, std::shared_ptr<Block> block) {
@@ -25,6 +24,14 @@ public:
             return it->second->getValue(pdgCode);
         }
         throw std::invalid_argument("Block " + blockName + " not found with pdg code : " + std::to_string(pdgCode));
+    }
+    
+    bool exist(const std::string blockName, int pdgCode) const {
+        auto it = blocks.find(blockName);
+        if (it != blocks.end()) {
+            return true;
+        }
+        throw false;
     }
 
     void setValue(const std::string& blockName, int pdgCode, double value, bool force = false) {

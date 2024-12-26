@@ -1,10 +1,14 @@
 #include "SMParamSetter.h"
 #include <cmath>
+#include <set>
+#include <string>
 
 void SMParamSetter::setParam(const std::string& name, const Interpreter::InterpretedParam& interpretedParam) {
     double value = calculateValue(name, interpretedParam);
 
-    if (interpretedParam.block == "KIN" || interpretedParam.block == "WEIN" || interpretedParam.block == "Finite" || interpretedParam.block == "S2_THETAW" || interpretedParam.block == "REGPROP") {
+    std::set<std::string> special = {"KIN", "WEIN", "Finite", "S2_THETAW", "REGPROP"};
+
+    if (special.find(interpretedParam.block) != special.end()) {
         params[name] = value;
     } else {
         params[name] = jsonparser->getElement(interpretedParam.block, interpretedParam.code);

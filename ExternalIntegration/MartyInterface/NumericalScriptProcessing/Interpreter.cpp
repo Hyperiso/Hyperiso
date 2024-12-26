@@ -24,7 +24,7 @@ std::unordered_map<std::string, Interpreter::InterpretedParam> Interpreter::inte
                 interpreted.block = it->second.block;
                 interpreted.code = it->second.pdgCode;
             } else {
-                std::cerr << "Error: Parameter " << param.name << " not found in model or SM databases." << std::endl;
+                std::cerr << "Error: Parameter " << param.name << " not found in model or SM mapping databases." << std::endl;
                 std::runtime_error("");
                 continue;
             }

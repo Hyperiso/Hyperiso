@@ -16,13 +16,11 @@ void MemoryManager::check_if_ready() {
     }
 }
 
-// Creation pointeur unique
 template<typename T>
 std::unique_ptr<T, void(*)(void*)> MemoryManager::makeUniquePtr(T* ptr) {
     return std::unique_ptr<T, void(*)(void*)>(ptr, [](void* p) { std::free(p); });
 }
 
-// Méthode pour allouer de la mémoire
 template<typename T>
 std::unique_ptr<T, void(*)(void*)> MemoryManager::allocate() {
     T* ptr = static_cast<T*>(std::malloc(sizeof(T)));

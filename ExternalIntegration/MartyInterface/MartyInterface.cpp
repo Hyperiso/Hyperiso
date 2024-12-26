@@ -37,16 +37,16 @@ void MartyInterface::generate(std::string wilson, std::string model) {
 
 void MartyInterface::generate_numlib(std::string wilson, std::string model, double Q_match) {
     bool forceMode = false;
-    std::unique_ptr<GeneralNumModelModifier> smModifier = std::make_unique<GeneralNumModelModifier>(wilson, model, forceMode);
+    std::unique_ptr<GeneralNumModelModifier> ModelModifier = std::make_unique<GeneralNumModelModifier>(wilson, model, forceMode);
     
     
     std::unique_ptr<TemplateManagerBase> templateManager = std::make_unique<NumericTemplateManager>(FileNameManager::getInstance(wilson, model)->getLibDir());
     templateManager->setModelAndWilson(model, wilson);
-    templateManager->setNumModelModifier(std::move(smModifier));
-    std::string file_path = FileNameManager::getInstance(wilson, model)->getNumGeneratedFileName();
+    templateManager->setNumModelModifier(std::move(ModelModifier));
 
     CodeGenerator codeGenerator(std::move(templateManager));
 
+    std::string file_path = FileNameManager::getInstance(wilson, model)->getNumGeneratedFileName();
     codeGenerator.generate(file_path, file_path);
 }
 

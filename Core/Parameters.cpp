@@ -69,6 +69,9 @@ double Parameters::operator()(const std::string& block, int pdgCode) {
     return blockAccessor.getValue(block, pdgCode);
 }
 
+bool Parameters::exist(const std::string& block, int pdgCode) {
+    return blockAccessor.exist(block, pdgCode);
+}
 double Parameters::alpha_s(double Q) {
     return this->QCDRunner.runningAlphasCalculation(Q);
 }

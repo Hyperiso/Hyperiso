@@ -57,13 +57,10 @@ public:
     inline std::vector<ParameterType> getParameterTypes() { check_if_ready(); return cache.parameter_types; };
     inline Model getModel() { check_if_ready(); return cache.model; };
 
-    // initializes the memory with all the necessary parameters and those read in the LHA file
     void init(const std::string& lhaFile, Model model = Model::SM, bool is_spectrum=false, bool has_wilsons=false, bool has_obs=false);
 
     void set_observable_covariance_input_file(const std::string& path);
     void set_parameter_covariance_input_file(const std::string& path);
-
-    // Autres méthodes...
 
     MemoryManager(const MemoryManager&) = delete;
     MemoryManager& operator=(const MemoryManager&) = delete;
