@@ -4,6 +4,7 @@
 #include "Formfactors.h"
 #include <map>
 #include <vector>
+#include <functional>
 #include <algorithm>
 #include <cstddef>
 #include <limits>

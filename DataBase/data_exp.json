@@ -7,6 +7,12 @@
         "syst_error": 0.05
       },
       {
+        "name": "IA_B_K*__gamma",
+        "central_value": 2.65e-09,
+        "stat_error": 0.045,
+        "syst_error": 0.05
+      },
+      {
         "name": "BR_Bd__mu_mu",
         "central_value": 3.6e-10,
         "stat_error": 1.6e-10,

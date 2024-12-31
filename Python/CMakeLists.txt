@@ -31,12 +31,22 @@ if (NOT TARGET PhysicalModelLib)
     add_subdirectory(../PhysicalModel PhysicalModelLib)
 endif()
 
+if (NOT TARGET BusinessLogicLib)
+    add_subdirectory(../BusinessLogic BusinessLogicLib)
+endif()
+
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/phyperiso)
 
-add_subdirectory(src/core)
-add_subdirectory(src/wilson)
+# add_subdirectory(src/core)
+# add_subdirectory(src/wilson)
 
+add_library(pyhyperiso MODULE src/pyhyperiso.cpp 
+    src/core/binding_core.cpp 
+    src/wilson/binding_wilson.cpp 
+    src/observable/binding_observable.cpp)
 
+target_link_libraries(pyhyperiso PRIVATE pybind11::module CoreLib PhysicalModelLib BusinessLogicLib)
+set_target_properties(pyhyperiso PROPERTIES PREFIX "${PYTHON_MODULE_PREFIX}" SUFFIX "${PYTHON_MODULE_EXTENSION}")
 # add_library(wilson_interface MODULE
 #     src/wilson/binding_wilson.cpp
 # )

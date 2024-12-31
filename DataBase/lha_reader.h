@@ -99,7 +99,7 @@ class Parser {
 class LhaReader {
 private:
     std::vector<Prototype> blockPrototypes;                     /**< List of block prototypes used for parsing. */
-    std::map<std::string, std::unique_ptr<LhaBlock>> blocks;    /**< Map of block names to LhaBlock instances. */
+    std::map<std::string, std::shared_ptr<LhaBlock>> blocks;    /**< Map of block names to LhaBlock instances. */
     bool isFLHA = false;                                        /**< Flag indicating if the file is in FLHA format. */
     std::filesystem::path lhaFile;                              /**< Path to the LHA file being read. */
 

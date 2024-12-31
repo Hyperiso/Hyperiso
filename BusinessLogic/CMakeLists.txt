@@ -35,6 +35,7 @@ add_library(BusinessLogicLib STATIC
     Node.cpp
     ModelEvaluator.cpp
 )
+set_target_properties(BusinessLogicLib PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
 set_target_properties(BusinessLogicLib PROPERTIES PUBLIC_HEADER "BKstarDecay.h;Compound.h;DecayParent.h;Node.h;Observable.h;ModelEvaluator.h")
 
