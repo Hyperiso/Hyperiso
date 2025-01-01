@@ -12,7 +12,7 @@
 #include "General.h"
 
 struct MemoryCache {
-    std::unique_ptr<LhaReader> reader;
+    std::shared_ptr<LhaReader> reader;
     std::filesystem::path lha_path;
     std::filesystem::path obs_cov_path;
     std::filesystem::path param_cov_path;
@@ -38,13 +38,11 @@ public:
     static std::string findNearestHyperisoDirectory();
     static MemoryManager* GetInstance();
 
-    // Creation pointeur unique
-    template<typename T>
-    std::unique_ptr<T, void(*)(void*)> makeUniquePtr(T* ptr);
+    // template<typename T>
+    // std::shared_ptr<T, void(*)(void*)> makeUniquePtr(T* ptr);
 
-    // Méthode pour allouer de la mémoire
-    template<typename T>
-    std::unique_ptr<T, void(*)(void*)> allocate();
+    // template<typename T>
+    // std::shared_ptr<T, void(*)(void*)> allocate();
 
     LhaReader* getReader();
 

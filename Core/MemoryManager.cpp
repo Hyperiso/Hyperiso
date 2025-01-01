@@ -16,19 +16,19 @@ void MemoryManager::check_if_ready() {
     }
 }
 
-template<typename T>
-std::unique_ptr<T, void(*)(void*)> MemoryManager::makeUniquePtr(T* ptr) {
-    return std::unique_ptr<T, void(*)(void*)>(ptr, [](void* p) { std::free(p); });
-}
+// template<typename T>
+// std::unique_ptr<T, void(*)(void*)> MemoryManager::makeUniquePtr(T* ptr) {
+//     return std::unique_ptr<T, void(*)(void*)>(ptr, [](void* p) { std::free(p); });
+// }
 
-template<typename T>
-std::unique_ptr<T, void(*)(void*)> MemoryManager::allocate() {
-    T* ptr = static_cast<T*>(std::malloc(sizeof(T)));
-    if (!ptr) {
-        throw std::bad_alloc();
-    }
-    return makeUniquePtr(ptr);
-}
+// template<typename T>
+// std::unique_ptr<T, void(*)(void*)> MemoryManager::allocate() {
+//     T* ptr = static_cast<T*>(std::malloc(sizeof(T)));
+//     if (!ptr) {
+//         throw std::bad_alloc();
+//     }
+//     return makeUniquePtr(ptr);
+// }
 
 /**
  * @brief Search for the nearest directory containing "hyperiso" in its name.
@@ -80,7 +80,7 @@ void MemoryManager::init(const std::string& lhaFile, Model model, bool is_spectr
 
     std::stringstream ss;
     ss << project_root.data() << "/" << lhaFile;
-    cache.reader = std::make_unique<LhaReader>(LhaReader(ss.str()));
+    cache.reader = std::make_shared<LhaReader>(LhaReader(ss.str()));
     cache.reader->readAll();
     cache.lha_path = std::filesystem::u8path(ss.str());
     cache.obs_cov_path = std::filesystem::u8path(project_root.data() + std::string("/DataBase/Exp/observable_covariance.json"));
