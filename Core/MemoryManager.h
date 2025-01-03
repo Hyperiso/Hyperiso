@@ -22,6 +22,7 @@ struct MemoryCache {
     bool is_spectrum;
     bool has_wilsons;
     bool has_obs;
+    bool use_marty;
     bool is_ready;
 };
 
@@ -49,13 +50,14 @@ public:
     inline bool isSpectrum() { check_if_ready(); return cache.is_spectrum; }
     inline bool hasWilsons() { check_if_ready(); return cache.has_wilsons; }
     inline bool hasObservables() { check_if_ready(); return cache.has_obs; }
+    inline bool useMarty() { check_if_ready(); return cache.use_marty; }
     inline std::filesystem::path getInputLhaPath() { check_if_ready(); return cache.lha_path; }
     inline std::filesystem::path getParameterCovariancePath() { check_if_ready(); return cache.param_cov_path; }
     inline std::filesystem::path getObservableCovariancePath()  { check_if_ready(); return cache.obs_cov_path; }
     inline std::vector<ParameterType> getParameterTypes() { check_if_ready(); return cache.parameter_types; };
     inline Model getModel() { check_if_ready(); return cache.model; };
 
-    void init(const std::string& lhaFile, Model model = Model::SM, bool is_spectrum=false, bool has_wilsons=false, bool has_obs=false);
+    void init(const std::string& lhaFile, Model model = Model::SM, bool use_marty = false, bool is_spectrum=false, bool has_wilsons=false, bool has_obs=false);
 
     void set_observable_covariance_input_file(const std::string& path);
     void set_parameter_covariance_input_file(const std::string& path);

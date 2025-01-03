@@ -9,8 +9,9 @@
 int main() {
     std::cout << "what ? " << std::endl;
     auto mm = MemoryManager::GetInstance();  // Initialize program manager with LHA file containing SMINPUTS block
-    mm->init("Test/InputFiles/testInput.slha", Model::SM);
+    mm->init("Test/InputFiles/testInput.flha", Model::SM);
 
+    std::cout << "mm okay" << std::endl;
     auto inter = WilsonInterface("SM");
     std::cout << "initialized" << std::endl;
     inter.AddWilsonGroup(WilsonGroups::BCoefficients);

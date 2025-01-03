@@ -62,7 +62,16 @@ enum class BWilsonCoefficients {
 enum class WilsonGroups {
     BCoefficients, 
     BPrimeCoefficients, 
-    BScalarCoefficients
+    BScalarCoefficients,
+    BCoefficients_THDM, 
+    BPrimeCoefficients_THDM, 
+    BScalarCoefficients_THDM,
+    BCoefficients_SUSY, 
+    BPrimeCoefficients_SUSY, 
+    BScalarCoefficients_SUSY,
+    BCoefficients_MARTY, 
+    BPrimeCoefficients_MARTY, 
+    BScalarCoefficients_MARTY
 };
 
 enum class BWilsonBasis {

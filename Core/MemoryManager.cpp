@@ -72,7 +72,7 @@ LhaReader* MemoryManager::getReader() {
     return cache.reader.get();
 }
 
-void MemoryManager::init(const std::string& lhaFile, Model model, bool is_spectrum, bool has_wilsons, bool has_obs) {
+void MemoryManager::init(const std::string& lhaFile, Model model, bool use_marty, bool is_spectrum, bool has_wilsons, bool has_obs) {
     if (cache.is_ready) {
         LOG_WARN("MemoryManager has already been initialized.");
         return;
@@ -89,6 +89,7 @@ void MemoryManager::init(const std::string& lhaFile, Model model, bool is_spectr
     cache.is_spectrum = is_spectrum;
     cache.has_wilsons = has_wilsons;
     cache.has_obs = has_obs;
+    cache.use_marty = use_marty;
     cache.thread_id = std::this_thread::get_id();
     
     cache.parameter_types = {ParameterType::SM, ParameterType::FLAVOR, ParameterType::FF};

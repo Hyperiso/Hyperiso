@@ -146,7 +146,6 @@ void SMModelStrategy::initializeParameters(Parameters& params) {
     params.setBlockValue("RECKM", 22, std::real(1));
     params.setBlockValue("IMCKM", 22, std::imag(1));
 
-
     // double m_W = std::sqrt(std::pow(m_Z_pole, 2) / 2 + std::sqrt(std::pow(m_Z_pole, 4) / 4 - M_PI * std::pow(m_Z_pole, 2) / inv_alpha_em / G_F / std::sqrt(2)));
     double m_W = 79.829;
     //Masses
@@ -165,7 +164,6 @@ void SMModelStrategy::initializeParameters(Parameters& params) {
     params.setBlockValue("MASS", 23, m_Z_pole);
     params.setBlockValue("MASS", 24, m_W);
     params.setBlockValue("MASS", 25, 125.1);
-
 
     // Couplings
     double sW = std::sqrt(1 - std::pow(m_W / m_Z_pole, 2));
@@ -374,17 +372,14 @@ void THDMModelStrategy::initializeParameters(Parameters& params) {
     params.addBlock("YD", std::move(ydblock));
     params.addBlock("YL", std::move(yeblock));
 
-    std::cout << "THDM almost initialized !" << std::endl;
     std::string root_path = project_root.data();
     JSONParser::getInstance(0)->saveToFile(root_path+ "/DataBase/Params/data_THDM.json");
 
-    std::cout << "THDM initialized !" << std::endl;
 }
 
 // FlAVORModelStrategy implementation
 void FlavorStrategy::initializeParameters(Parameters& params) {
     LhaReader* lha = MemoryManager::GetInstance()->getReader();
-
     auto massblock = std::make_shared<MassBlock>();
     massblock->setValue(211, lha->getValue<double>("FMASS", "211")); // pi
     massblock->setValue(321, lha->getValue<double>("FMASS", "321")); // K
@@ -396,7 +391,6 @@ void FlavorStrategy::initializeParameters(Parameters& params) {
     massblock->setValue(521, lha->getValue<double>("FMASS", "521")); // Bd
     massblock->setValue(531, lha->getValue<double>("FMASS", "531")); // Bs
     params.addBlock("FMASS", std::move(massblock));
-
     auto lifetimeblock = std::make_shared<FLifeBlock>();
     lifetimeblock->setValue(211, lha->getValue<double>("FLIFE", "211")); // pi
     lifetimeblock->setValue(321, lha->getValue<double>("FLIFE", "321")); // K
@@ -408,7 +402,6 @@ void FlavorStrategy::initializeParameters(Parameters& params) {
     lifetimeblock->setValue(521, lha->getValue<double>("FLIFE", "521")); // Bd
     lifetimeblock->setValue(531, lha->getValue<double>("FLIFE", "531")); // Bs
     params.addBlock("FLIFE", std::move(lifetimeblock));
-
     auto fconstblock = std::make_shared<FConstBlock>();
     fconstblock->setValue(51101, lha->getValue<double>("FCONST", "511|1")); // f_B
     fconstblock->setValue(52101, lha->getValue<double>("FCONST", "521|1")); // f_B0
@@ -449,6 +442,8 @@ void GeneralModelStrategy::initializeParameters(Parameters& params) {
 
     std::string root_path = project_root.data();
     JSONParser::getInstance(0)->saveToFile(root_path+ "/DataBase/Params/data_GENERAL.json");
+
+    std::cout << "end flavor"<< std::endl;
 }
 
 
