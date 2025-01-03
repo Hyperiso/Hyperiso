@@ -185,9 +185,9 @@ public:
         return it->second;
     }
 
-    static void initialize(const std::string& lhaFile, Model model) {
+    static void initialize(const std::string& lhaFile, Model model = Model::SM, bool use_marty = false, bool is_spectrum = false, bool has_wilsons = false, bool has_obs = false) {
         MemoryManager* mm = MemoryManager::GetInstance();
-        mm->init(lhaFile, model);
+        mm->init(lhaFile, model, use_marty, is_spectrum, has_wilsons, has_obs);
     }
 
     std::string getModel() {

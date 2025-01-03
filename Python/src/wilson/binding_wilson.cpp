@@ -4,6 +4,7 @@
 
 #include "WilsonManager.h"
 #include "MartyWilson.h"
+#include "WilsonInterface.h"
 
 namespace py = pybind11;
 
@@ -47,12 +48,23 @@ void init_wilson_coefficient(py::module &m) {
 
 // Initialisation du gestionnaire de coefficients
 void init_coefficient_manager(py::module &m) {
+    py::enum_<Model>(m, "Model")
+    .value("SM", Model::SM)
+    .value("THDM", Model::THDM)
+    .value("SUSY", Model::THDM)
+    .value("CUSTOM", Model::THDM)
+    .export_values();
+
     py::class_<CoefficientManager, std::shared_ptr<CoefficientManager>>(m, "CoefficientManager")
         .def_static("get_instance", [](const std::string &modelName) {
             return CoefficientManager::GetInstance(modelName);
         }, py::return_value_policy::reference)
 
-        .def_static("initialize", &CoefficientManager::initialize, py::arg("lhaFile"), py::arg("model"),
+        .def_static("initialize", &CoefficientManager::initialize, py::arg("lhaFile"), py::arg_v("model",Model::SM),
+            py::arg_v("use_marty",false),
+            py::arg_v("is_spectrum", false),
+            py::arg_v("has_wilsons", false),
+            py::arg_v("has_obs", false),
             "Initialise MemoryManager avec un fichier LHA et un modèle.")
         .def("register_coefficient_group", &CoefficientManager::registerCoefficientGroup)
         .def("get_state", &CoefficientManager::get_state)
@@ -84,12 +96,40 @@ void init_wilson_interface(py::module &m) {
         .value("C3", BWilsonCoefficients::C3)
         .value("C4", BWilsonCoefficients::C4)
         .value("C5", BWilsonCoefficients::C5)
+        .value("C6", BWilsonCoefficients::C6)
+        .value("C7", BWilsonCoefficients::C7)
+        .value("C8", BWilsonCoefficients::C8)
+        .value("C9", BWilsonCoefficients::C9)
+        .value("C10", BWilsonCoefficients::C10)
+        .value("CQ1", BWilsonCoefficients::CQ1)
+        .value("CQ2", BWilsonCoefficients::CQ2)
+        .value("CP1", BWilsonCoefficients::CP1)
+        .value("CP2", BWilsonCoefficients::CP2)
+        .value("CP3", BWilsonCoefficients::CP3)
+        .value("CP4", BWilsonCoefficients::CP4)
+        .value("CP5", BWilsonCoefficients::CP5)
+        .value("CP6", BWilsonCoefficients::CP6)
+        .value("CP7", BWilsonCoefficients::CP7)
+        .value("CP8", BWilsonCoefficients::CP8)
+        .value("CP9", BWilsonCoefficients::C9)
+        .value("CP10", BWilsonCoefficients::C10)
+        .value("CPQ1", BWilsonCoefficients::CPQ1)
+        .value("CPQ2", BWilsonCoefficients::CPQ2)
         .export_values();
 
     py::enum_<WilsonGroups>(m, "WilsonGroups")
         .value("BCoefficients", WilsonGroups::BCoefficients)
         .value("BPrimeCoefficients", WilsonGroups::BPrimeCoefficients)
         .value("BScalarCoefficients", WilsonGroups::BScalarCoefficients)
+        .value("BCoefficients_THDM", WilsonGroups::BCoefficients_THDM)
+        .value("BPrimeCoefficients_THDM", WilsonGroups::BPrimeCoefficients_THDM)
+        .value("BScalarCoefficients_THDM", WilsonGroups::BScalarCoefficients_THDM)
+        .value("BCoefficients_SUSY", WilsonGroups::BCoefficients_SUSY)
+        .value("BPrimeCoefficients_SUSY", WilsonGroups::BPrimeCoefficients_SUSY)
+        .value("BScalarCoefficients_SUSY", WilsonGroups::BScalarCoefficients_SUSY)
+        .value("BCoefficients_MARTY", WilsonGroups::BCoefficients_MARTY)
+        .value("BPrimeCoefficients_MARTY", WilsonGroups::BPrimeCoefficients_MARTY)
+        .value("BScalarCoefficients_MARTY", WilsonGroups::BScalarCoefficients_MARTY)
         .export_values();
 
     py::enum_<BWilsonBasis>(m, "BWilsonBasis")

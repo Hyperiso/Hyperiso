@@ -21,6 +21,7 @@ void init_core(py::module &m) {
         .def("init", &MemoryManager::init,
             py::arg("lhaFile"),
             py::arg_v("model", Model::SM),
+            py::arg_v("use_marty", false),
             py::arg("is_spectrum") = false,
             py::arg("has_wilsons") = false,
             py::arg("has_obs") = false)
