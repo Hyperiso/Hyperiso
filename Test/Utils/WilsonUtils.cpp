@@ -135,9 +135,11 @@ void writeRunCoefficientsToFile(const std::string& strat_name, const std::string
     file << "\n";
 
     std::shared_ptr<CoefficientManager> wm;
-
+    std::cout << "wtf " << std::endl;
     if (model == "SM") {
+        std::cout << "WHAT THE FUCK before" << std::endl;
         MemoryManager::GetInstance()->init("Test/InputFiles/testinput_thdm.lha", Model::SM);
+        std::cout << "WHAT THE FUCK" << std::endl;
         std::map<std::string, std::shared_ptr<CoefficientGroup>> temp_map;
         temp_map["BCoefficient"] = std::make_shared<BCoefficientGroup>();
         wm = CoefficientManager::Builder(model, temp_map, Q_match, Q, strat_name);

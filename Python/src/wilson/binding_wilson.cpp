@@ -48,12 +48,12 @@ void init_wilson_coefficient(py::module &m) {
 
 // Initialisation du gestionnaire de coefficients
 void init_coefficient_manager(py::module &m) {
-    py::enum_<Model>(m, "Model")
-    .value("SM", Model::SM)
-    .value("THDM", Model::THDM)
-    .value("SUSY", Model::THDM)
-    .value("CUSTOM", Model::THDM)
-    .export_values();
+    // py::enum_<Model>(m, "Model")
+    // .value("SM", Model::SM)
+    // .value("THDM", Model::THDM)
+    // .value("SUSY", Model::THDM)
+    // .value("CUSTOM", Model::THDM)
+    // .export_values();
 
     py::class_<CoefficientManager, std::shared_ptr<CoefficientManager>>(m, "CoefficientManager")
         .def_static("get_instance", [](const std::string &modelName) {

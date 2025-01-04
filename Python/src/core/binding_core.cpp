@@ -8,12 +8,19 @@ void init_core(py::module &m) {
 
     py::enum_<Model>(m, "Model")
     .value("SM", Model::SM)
+    .value("SUSY", Model::SUSY)
+    .value("THDM", Model::THDM)
     .value("CUSTOM", Model::CUSTOM)
     .export_values();
 
     py::enum_<ParameterType>(m, "ParameterType")
         .value("SM", ParameterType::SM)
+        .value("SUSY", ParameterType::SUSY)
+        .value("THDM", ParameterType::THDM)
+        .value("CUSTOM", ParameterType::CUSTOM)
         .value("FLAVOR", ParameterType::FLAVOR)
+        .value("WILSON", ParameterType::WILSON)
+        .value("FF", ParameterType::FF)
         .export_values();
         
     py::class_<MemoryManager, std::shared_ptr<MemoryManager>>(m, "MemoryManager")
@@ -26,7 +33,11 @@ void init_core(py::module &m) {
             py::arg("has_wilsons") = false,
             py::arg("has_obs") = false)
         .def("get_input_lha_path", &MemoryManager::getInputLhaPath)
-        .def("get_data", &MemoryManager::getReader);
+        .def("get_data", &MemoryManager::getReader)
+        .def("switch_model", &MemoryManager::switch_model)
+        .def("switch_lha", &MemoryManager::switch_lha)
+        .def("get_blocks_list", &MemoryManager::get_blocks_list)
+        .def("get_block_infos", &MemoryManager::get_block_infos);
 
     py::class_<Parameters, std::shared_ptr<Parameters>>(m, "Parameters")
         .def_static(

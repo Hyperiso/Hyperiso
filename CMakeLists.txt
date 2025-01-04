@@ -13,11 +13,11 @@ include(Tools)
 
 include(FetchContent)
 
-define_property(GLOBAL PROPERTY SUPPORTED_OS BRIEF_DOC "Supported Operating Systems")
-set_property(GLOBAL PROPERTY SUPPORTED_OS "Linux")
-if(NOT CMAKE_SYSTEM_NAME STREQUAL "Linux")
-    message(FATAL_ERROR "This project is only supported on Linux.")
-endif()
+# define_property(GLOBAL PROPERTY SUPPORTED_OS BRIEF_DOC "Supported Operating Systems")
+# set_property(GLOBAL PROPERTY SUPPORTED_OS "Linux")
+# if(NOT CMAKE_SYSTEM_NAME STREQUAL "Linux")
+#     message(FATAL_ERROR "This project is only supported on Linux.")
+# endif()
 
 
 if (NOT DEFINED BUILD_WITH_SOFTSUSY)
