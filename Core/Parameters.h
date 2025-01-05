@@ -97,7 +97,6 @@ public:
         return complex_t((*p)("RECKM", idx), (*p)("IMCKM", idx));
     }
 
-
     QCDParameters* QCDaddress() {
         return &this->QCDRunner;
     }

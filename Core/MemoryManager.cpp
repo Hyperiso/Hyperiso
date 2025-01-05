@@ -77,9 +77,21 @@ void MemoryManager::init(const std::string& lhaFile, Model model, bool use_marty
         LOG_WARN("MemoryManager has already been initialized.");
         return;
     }
-
+    const std::filesystem::path path(lhaFile);
+    const std::filesystem::path dir_path(project_root.data());
+    std::filesystem::path full_path;
+    if (path.is_relative()) {
+        full_path = dir_path/path;
+    } else if (path.is_absolute()) {
+        full_path = path;
+    } else {
+        LOG_ERROR("PathError", "File not relative or absolute");
+    }
+    if (!std::filesystem::exists(full_path)) {
+        LOG_ERROR("PathError", "Invalid lha path :", full_path.string());
+    }
     std::stringstream ss;
-    ss << project_root.data() << "/" << lhaFile;
+    ss << full_path.string();
     cache.reader = std::make_shared<LhaReader>(LhaReader(ss.str()));
     cache.reader->readAll();
     cache.lha_path = std::filesystem::u8path(ss.str());
@@ -104,6 +116,21 @@ void MemoryManager::init(const std::string& lhaFile, Model model, bool use_marty
         LOG_DEBUG("Initializing parameters ", (int)m);
         Parameters::GetInstance(m);
     }
+}
+
+void MemoryManager::switch_lha(const std::string& lhaFile, Model model, bool use_marty, bool is_spectrum, bool has_wilsons, bool has_obs) {
+    this->cache.is_ready = false;
+    this->init(lhaFile, model, use_marty, is_spectrum, has_wilsons, has_obs);
+    this->cache.param_cache_okay = false;
+
+}
+
+void MemoryManager::switch_model(Model model, bool use_marty) {
+    this->cache.model = model;
+    this->cache.use_marty = use_marty;
+    this->cache.parameter_types.push_back(static_cast<ParameterType>(static_cast<int>(model)));
+    Parameters::GetInstance(static_cast<ParameterType>(static_cast<int>(model)));
+    this->cache.param_cache_okay = false;
 }
 
 void MemoryManager::set_observable_covariance_input_file(const std::string &path) {

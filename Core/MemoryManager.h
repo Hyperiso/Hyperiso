@@ -10,6 +10,7 @@
 #include "lha_reader.h"
 #include "config.hpp"
 #include "General.h"
+#include "Block.h"
 
 struct MemoryCache {
     std::shared_ptr<LhaReader> reader;
@@ -24,6 +25,7 @@ struct MemoryCache {
     bool has_obs;
     bool use_marty;
     bool is_ready;
+    bool param_cache_okay;
 };
 
 class MemoryManager {
@@ -51,6 +53,7 @@ public:
     inline bool hasWilsons() { check_if_ready(); return cache.has_wilsons; }
     inline bool hasObservables() { check_if_ready(); return cache.has_obs; }
     inline bool useMarty() { check_if_ready(); return cache.use_marty; }
+    inline bool paramCacheOkay() { check_if_ready(); return cache.param_cache_okay; }
     inline std::filesystem::path getInputLhaPath() { check_if_ready(); return cache.lha_path; }
     inline std::filesystem::path getParameterCovariancePath() { check_if_ready(); return cache.param_cov_path; }
     inline std::filesystem::path getObservableCovariancePath()  { check_if_ready(); return cache.obs_cov_path; }
@@ -59,8 +62,29 @@ public:
 
     void init(const std::string& lhaFile, Model model = Model::SM, bool use_marty = false, bool is_spectrum=false, bool has_wilsons=false, bool has_obs=false);
 
+    void switch_lha(const std::string& lhaFile, Model model = Model::SM, bool use_marty = false, bool is_spectrum = false, bool has_wilson = false, bool has_obs = false);
+    void switch_model(Model model = Model::SM, bool use_marty = false);
+
     void set_observable_covariance_input_file(const std::string& path);
     void set_parameter_covariance_input_file(const std::string& path);
+
+    std::vector<std::string> get_blocks_list() {
+        return cache.reader->getBlocksNames();
+    }
+
+    std::map<int, double> get_block_infos(const std::string& block) {
+        std::shared_ptr<MapBlock> generalblock;
+        if (cache.reader->findPrototype(block).itemCount == 2) {
+            generalblock = std::make_shared<MapBlock>(MapBlock());
+            generalblock->blockname = block;
+            auto elts = cache.reader->getBlock(block)->getEntries();
+            for (size_t i = 0; i < elts->size(); ++i) {
+                auto e = static_cast<LhaElement<double>*>(elts->at(i).get());
+                generalblock->setValue(std::stoi(e->getId()), e->getValue());
+            }
+        }
+        return generalblock->getAllValues();
+    }
 
     MemoryManager(const MemoryManager&) = delete;
     MemoryManager& operator=(const MemoryManager&) = delete;

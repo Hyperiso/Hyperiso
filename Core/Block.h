@@ -42,6 +42,14 @@ public:
         values.at(pdgCode).set_mode(mode);
     }
 
+    std::map<int, double> getAllValues() {
+        std::map<int, double> map_values;
+        for (auto& value : values) {
+            map_values[value.first] = value.second.get_val();
+        }
+        return map_values;
+    }
+
 protected:
     std::map<int, Parameter> values;
 

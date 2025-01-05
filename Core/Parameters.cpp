@@ -1,5 +1,6 @@
 #include "Parameters.h"
 #include <ranges>
+#include <algorithm>
 
 std::string doubleToString(double value, int precision) {
 	std::ostringstream out;
@@ -381,33 +382,69 @@ void THDMModelStrategy::initializeParameters(Parameters& params) {
 void FlavorStrategy::initializeParameters(Parameters& params) {
     LhaReader* lha = MemoryManager::GetInstance()->getReader();
     auto massblock = std::make_shared<MassBlock>();
-    massblock->setValue(211, lha->getValue<double>("FMASS", "211")); // pi
-    massblock->setValue(321, lha->getValue<double>("FMASS", "321")); // K
-    massblock->setValue(323, lha->getValue<double>("FMASS", "323")); // K*
-    massblock->setValue(421, lha->getValue<double>("FMASS", "421")); // D0
-    massblock->setValue(411, lha->getValue<double>("FMASS", "411")); // D
-    massblock->setValue(431, lha->getValue<double>("FMASS", "431")); // Ds
-    massblock->setValue(511, lha->getValue<double>("FMASS", "511")); // Bu
-    massblock->setValue(521, lha->getValue<double>("FMASS", "521")); // Bd
-    massblock->setValue(531, lha->getValue<double>("FMASS", "531")); // Bs
+    std::vector<std::string> blocks = lha->getBlocksNames();
+    if (std::find(blocks.begin(), blocks.end(), "FMASS") != blocks.end()) {
+        massblock->setValue(211, lha->getValue<double>("FMASS", "211")); // pi
+        massblock->setValue(321, lha->getValue<double>("FMASS", "321")); // K
+        massblock->setValue(323, lha->getValue<double>("FMASS", "323")); // K*
+        massblock->setValue(421, lha->getValue<double>("FMASS", "421")); // D0
+        massblock->setValue(411, lha->getValue<double>("FMASS", "411")); // D
+        massblock->setValue(431, lha->getValue<double>("FMASS", "431")); // Ds
+        massblock->setValue(511, lha->getValue<double>("FMASS", "511")); // Bu
+        massblock->setValue(521, lha->getValue<double>("FMASS", "521")); // Bd
+        massblock->setValue(531, lha->getValue<double>("FMASS", "531")); // Bs
+    } else {
+        massblock->setValue(211, 0.14); // pi
+        massblock->setValue(321, 0.49); // K
+        massblock->setValue(323, 0.90); // K*
+        massblock->setValue(421, 1.86); // D0
+        massblock->setValue(411, 1.87); // D
+        massblock->setValue(431, 1.97); // Ds
+        massblock->setValue(511, 5.28); // Bu
+        massblock->setValue(521, 5.28); // Bd
+        massblock->setValue(531, 5.37); // Bs
+    }
     params.addBlock("FMASS", std::move(massblock));
     auto lifetimeblock = std::make_shared<FLifeBlock>();
-    lifetimeblock->setValue(211, lha->getValue<double>("FLIFE", "211")); // pi
-    lifetimeblock->setValue(321, lha->getValue<double>("FLIFE", "321")); // K
-    lifetimeblock->setValue(323, lha->getValue<double>("FLIFE", "323")); // K*
-    lifetimeblock->setValue(421, lha->getValue<double>("FLIFE", "421")); // D0
-    lifetimeblock->setValue(411, lha->getValue<double>("FLIFE", "411")); // D
-    lifetimeblock->setValue(431, lha->getValue<double>("FLIFE", "431")); // Ds
-    lifetimeblock->setValue(511, lha->getValue<double>("FLIFE", "511")); // Bu
-    lifetimeblock->setValue(521, lha->getValue<double>("FLIFE", "521")); // Bd
-    lifetimeblock->setValue(531, lha->getValue<double>("FLIFE", "531")); // Bs
+
+    if (std::find(blocks.begin(), blocks.end(), "FLIFE") != blocks.end()) {
+        lifetimeblock->setValue(211, lha->getValue<double>("FLIFE", "211")); // pi
+        lifetimeblock->setValue(321, lha->getValue<double>("FLIFE", "321")); // K
+        lifetimeblock->setValue(323, lha->getValue<double>("FLIFE", "323")); // K*
+        lifetimeblock->setValue(421, lha->getValue<double>("FLIFE", "421")); // D0
+        lifetimeblock->setValue(411, lha->getValue<double>("FLIFE", "411")); // D
+        lifetimeblock->setValue(431, lha->getValue<double>("FLIFE", "431")); // Ds
+        lifetimeblock->setValue(511, lha->getValue<double>("FLIFE", "511")); // Bu
+        lifetimeblock->setValue(521, lha->getValue<double>("FLIFE", "521")); // Bd
+        lifetimeblock->setValue(531, lha->getValue<double>("FLIFE", "531")); // Bs
+    } else {
+        lifetimeblock->setValue(211, 2.6e-8); // pi
+        lifetimeblock->setValue(321, 1.24e-8); // K
+        lifetimeblock->setValue(323, 1.42e-23); // K*
+        lifetimeblock->setValue(421, 4.10e-13); // D0
+        lifetimeblock->setValue(411, 1.03e-12); // D
+        lifetimeblock->setValue(431, 5.01e-13); // Ds
+        lifetimeblock->setValue(511, 1.64e-12); // Bu
+        lifetimeblock->setValue(521, 1.52e-12); // Bd
+        lifetimeblock->setValue(531, 1.53e-12); // Bs
+    }
     params.addBlock("FLIFE", std::move(lifetimeblock));
     auto fconstblock = std::make_shared<FConstBlock>();
-    fconstblock->setValue(51101, lha->getValue<double>("FCONST", "511|1")); // f_B
-    fconstblock->setValue(52101, lha->getValue<double>("FCONST", "521|1")); // f_B0
-    fconstblock->setValue(53101, lha->getValue<double>("FCONST", "531|1")); // f_Bs
-    fconstblock->setValue(32301, lha->getValue<double>("FCONST", "323|1")); // f_K*_par
-    fconstblock->setValue(32302, lha->getValue<double>("FCONST", "323|2")); // f_K*_perp
+
+    if (std::find(blocks.begin(), blocks.end(), "FCONST") != blocks.end()) {
+        fconstblock->setValue(51101, lha->getValue<double>("FCONST", "511|1")); // f_B
+        fconstblock->setValue(52101, lha->getValue<double>("FCONST", "521|1")); // f_B0
+        fconstblock->setValue(53101, lha->getValue<double>("FCONST", "531|1")); // f_Bs
+        fconstblock->setValue(32301, lha->getValue<double>("FCONST", "323|1")); // f_K*_par
+        fconstblock->setValue(32302, lha->getValue<double>("FCONST", "323|2")); // f_K*_perp
+
+    } else {
+        fconstblock->setValue(51101, 0.194); // f_B
+        fconstblock->setValue(52101, 0.194); // f_B0
+        fconstblock->setValue(53101, 0.234); // f_Bs
+        fconstblock->setValue(32301, 0.220); // f_K*_par
+        fconstblock->setValue(32302, 0.185); // f_K*_perp
+    }
     params.addBlock("FCONST", std::move(fconstblock));
 }   
 
@@ -442,8 +479,6 @@ void GeneralModelStrategy::initializeParameters(Parameters& params) {
 
     std::string root_path = project_root.data();
     JSONParser::getInstance(0)->saveToFile(root_path+ "/DataBase/Params/data_GENERAL.json");
-
-    std::cout << "end flavor"<< std::endl;
 }
 
 
