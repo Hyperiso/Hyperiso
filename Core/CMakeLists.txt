@@ -32,6 +32,7 @@ endif()
 add_library(CoreLib STATIC 
     MemoryManager.cpp
     Parameters.cpp
+    General.cpp
     Parameter.cpp
     QCDParameters.cpp)
 set_target_properties(CoreLib PROPERTIES POSITION_INDEPENDENT_CODE ON)

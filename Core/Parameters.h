@@ -47,16 +47,24 @@ public:
     void initializeParameters(class Parameters& params) override;
 };
 
+class FormFactorStrategy : public ModelStrategy {
+public:
+    void initializeParameters(class Parameters& params) override;
+};
+
 class Parameters {
 public:
-    static Parameters* GetInstance(int modelId = 0);
+    static Parameters* GetInstance(ParameterType id = ParameterType::SM);
+    static ParameterType GetType(const std::string& block, int pdgCode);
+    static double Get(ParamId id);
 
+    bool exist(const std::string& block, int pdgCode);
+    
     double operator()(const std::string& block, int pdgCode);
 
     double alpha_s(double Q);
     double running_mass(double quarkmass, double Q_init, double Q_end, std::string option_massb = "running", std::string option_masst = "pole");
 
-    // Method to allow ModelStrategy to add blocks
     void addBlock(const std::string& name, std::shared_ptr<Block> block) {
         blockAccessor.addBlock(name, block);
     }
@@ -77,6 +85,10 @@ public:
         blockAccessor.setValue(name, pdgCode, value, force);
     }
 
+    std::map<int, double> get_block_infos(std::string blockName) {
+        return blockAccessor.getAllValues(blockName);
+    }
+
     void setQCDParameters(const QCDParameters&& qcdparams) {QCDRunner = qcdparams;}
 
     double get_QCD_masse(std::string masstype);
@@ -85,10 +97,9 @@ public:
     void shiftParameter(const ParamId& param_id, double shift_value);
 
     static complex_t get_c_CKM_entry(int idx) {
-        auto p = Parameters::GetInstance(0);
+        auto p = Parameters::GetInstance();
         return complex_t((*p)("RECKM", idx), (*p)("IMCKM", idx));
     }
-
 
     QCDParameters* QCDaddress() {
         return &this->QCDRunner;
@@ -98,7 +109,7 @@ public:
 
 private:
     explicit Parameters(ModelStrategy* modelStrategy);
-    static std::map<int, Parameters*> instances;
+    static std::map<ParameterType, Parameters*> instances;
     std::map<std::pair<std::string, int>, double> originalValuesCache;
 
     QCDParameters QCDRunner;
@@ -111,11 +122,11 @@ private:
 
 class ParametersFactory {
 public:
-    static Parameters* GetParameters(int modelId);
+    static Parameters* GetParameters(ParameterType id);
 private:
-    static std::map<int, Parameters*> instances;
+    static std::map<ParameterType, Parameters*> instances;
 
-    static ModelStrategy* createStrategy(int modelId);
+    static ModelStrategy* createStrategy(ParameterType id);
 };
 
 std::string doubleToString(double value, int precision);

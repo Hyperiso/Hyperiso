@@ -5,6 +5,7 @@
 #include <fstream>
 #include <memory>
 #include "ModelModifier.h"
+#include "GeneralNumModelModifier.h"
 
 class TemplateManagerBase {
 public:
@@ -17,6 +18,10 @@ public:
         modelModifier = std::move(modifier);
     }
 
+    void setNumModelModifier(std::unique_ptr<GeneralNumModelModifier> modifier) {
+        numModifier = std::move(modifier);
+    }
+
     void setModelAndWilson(std::string model, std::string wilson) {this->model = model; this->wilson = wilson;}
 
 protected:
@@ -24,7 +29,7 @@ protected:
     std::string wilson;
     std::string model;
     std::unique_ptr<ModelModifier> modelModifier;
-
+    std::unique_ptr<GeneralNumModelModifier> numModifier;
     bool already_generated(const std::string& path) {
         std::ifstream file(path);
 

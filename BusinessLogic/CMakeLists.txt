@@ -29,16 +29,15 @@ if (NOT TARGET CoreLib)
 endif()
 
 add_library(BusinessLogicLib STATIC 
+    BKstarDecay.cpp
     Compound.cpp
-    Observable.cpp
+    DecayParent.cpp
+    Node.cpp
     ModelEvaluator.cpp
-    Observables/Bu_taunu.cpp
-    Observables/Bs_mumu.cpp
-    Observables/Bd_mumu.cpp
-    Observables/B__Kstar_gamma.cpp
-    Observables/Observables.cpp)
+)
+set_target_properties(BusinessLogicLib PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
-set_target_properties(BusinessLogicLib PROPERTIES PUBLIC_HEADER "Compound.h;Observable.h;ModelEvaluator.h;Observables.h;B__Kstar_gamma.h;Bd_mumu.h;Bs_mumu.h;Bu_taunu.h")
+set_target_properties(BusinessLogicLib PROPERTIES PUBLIC_HEADER "BKstarDecay.h;Compound.h;DecayParent.h;Node.h;Observable.h;ModelEvaluator.h")
 
 target_include_directories(BusinessLogicLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_include_directories(BusinessLogicLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/Observables)

@@ -8,7 +8,7 @@
 #include <limits>
 #include <cctype>
 
-std::string trim(const std::string& str) {
+std::string trim_str(const std::string& str) {
     size_t first = str.find_first_not_of(' ');
     size_t last = str.find_last_not_of(' ');
     return (first == std::string::npos || last == std::string::npos) ? "" : str.substr(first, last - first + 1);
@@ -16,7 +16,7 @@ std::string trim(const std::string& str) {
 
 template <typename T>
 T convertValue(const std::string& value) {
-    std::string cleaned_value = trim(value);
+    std::string cleaned_value = trim_str(value);
 
     if constexpr (std::is_same<T, int>::value) {
         return std::stoi(cleaned_value);
@@ -62,7 +62,7 @@ DataFrame CSVReader::read_csv(const std::string& filename, CSVOptions options) {
 
         if (header) {
             while (std::getline(ss, value, ',')) {
-                headers.push_back(trim(value));
+                headers.push_back(trim_str(value));
 
                 const auto& colName = headers.back();
 
@@ -91,7 +91,7 @@ DataFrame CSVReader::read_csv(const std::string& filename, CSVOptions options) {
                     index.emplace_back(std::to_string(index_id++));
                 }
                 if (options.hasIndex && colIdx == 0) {
-                    index.emplace_back(trim(value));
+                    index.emplace_back(trim_str(value));
                 } else {
                     const auto& colName = headers[colIdx];
 

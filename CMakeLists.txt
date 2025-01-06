@@ -13,6 +13,13 @@ include(Tools)
 
 include(FetchContent)
 
+# define_property(GLOBAL PROPERTY SUPPORTED_OS BRIEF_DOC "Supported Operating Systems")
+# set_property(GLOBAL PROPERTY SUPPORTED_OS "Linux")
+# if(NOT CMAKE_SYSTEM_NAME STREQUAL "Linux")
+#     message(FATAL_ERROR "This project is only supported on Linux.")
+# endif()
+
+
 if (NOT DEFINED BUILD_WITH_SOFTSUSY)
     option(BUILD_WITH_SOFTSUSY "Build project with SOFTSUSY support" OFF)
 endif()
@@ -21,6 +28,58 @@ if (NOT DEFINED BUILD_WITH_2HDMC)
 endif()
 if (NOT DEFINED BUILD_WITH_MARTY)
     option(BUILD_WITH_MARTY "Build project with MARTY support" OFF)
+endif()
+
+if (BUILD_WITH_SOFTSUSY)
+    if(CMAKE_CXX_STANDARD LESS 14)
+        message(FATAL_ERROR "SOFTSUSY requires at least C++14 support.")
+    endif()
+
+    find_program(MAKE_EXEC make PATHS /usr/local/bin /usr/bin /bin)
+    if(NOT MAKE_EXEC)
+        message(FATAL_ERROR "SOFTSUSY requires GNU Make. Install it before proceeding.")
+    endif()
+
+    find_program(FORTRAN_EXEC gfortran PATHS /usr/local/bin /usr/bin /bin)
+    if(NOT FORTRAN_EXEC)
+        message(FATAL_ERROR "SOFTSUSY requires a Fortran compiler (e.g., gfortran).")
+    endif()
+
+    find_program(LATEX_EXEC pdflatex PATHS /usr/local/bin /usr/bin /bin)
+    if(NOT LATEX_EXEC)
+        message(FATAL_ERROR "SOFTSUSY requires LaTeX. Install pdflatex and other LaTeX tools.")
+    endif()
+endif()
+
+if (BUILD_WITH_2HDMC)
+    message(STATUS "No specific dependency checks defined for 2HDMC in this script.")
+endif()
+
+if (BUILD_WITH_MARTY)
+    find_program(CMAKE_EXEC cmake PATHS /usr/local/bin /usr/bin /bin)
+    if(NOT CMAKE_EXEC)
+        message(FATAL_ERROR "MARTY requires CMake. Install it before proceeding.")
+    endif()
+
+    find_program(LATEX_EXEC pdflatex PATHS /usr/local/bin /usr/bin /bin)
+    if(NOT LATEX_EXEC)
+        message(FATAL_ERROR "MARTY requires pdflatex for generating documentation.")
+    endif()
+
+    find_program(LUALATEX_EXEC lualatex PATHS /usr/local/bin /usr/bin /bin)
+    if(NOT LUALATEX_EXEC)
+        message(FATAL_ERROR "MARTY requires lualatex. Install it before proceeding.")
+    endif()
+
+    find_program(DVIPNG_EXEC dvipng PATHS /usr/local/bin /usr/bin /bin)
+    if(NOT DVIPNG_EXEC)
+        message(FATAL_ERROR "MARTY requires dvipng for documentation. Install dvipng.")
+    endif()
+
+    find_program(CONVERT_EXEC convert PATHS /usr/local/bin /usr/bin /bin)
+    if(NOT CONVERT_EXEC)
+        message(FATAL_ERROR "MARTY requires ImageMagick (convert tool). Install it before proceeding.")
+    endif()
 endif()
 
 option(ENABLE_TESTS "Enable building of tests" OFF)

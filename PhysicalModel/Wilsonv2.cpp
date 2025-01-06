@@ -238,7 +238,7 @@ void BCoefficientGroup::set_base_1_LO() {
     it->second->set_WilsonCoeffRun("LO", it->second->get_CoefficientMatchingValue("LO"));
 
 
-    double alpha_ew=1./(*Parameters::GetInstance(0))("SMINPUTS", 1);
+    double alpha_ew=1./(*Parameters::GetInstance(ParameterType::SM))("SMINPUTS", 1);
 	double MH=125.9;
  	double sw2OS=0.2231;
 	
@@ -560,4 +560,25 @@ void BPrimeCoefficientGroup::set_base_1_LO() {
     complex_t coeff_temp4= this->at("CPQ2")->get_CoefficientMatchingValue("LO")* pow(W_param->eta_mu,-4./W_param->beta0);
     this->at("CPQ2")->set_WilsonCoeffRun("LO", coeff_temp4);
 
+}
+
+bool WilsonCoefficient::fill_from_flha() {
+    if (!from_lha && MemoryManager::GetInstance()->hasWilsons()) {
+        auto wc = Parameters::GetInstance(ParameterType::WILSON);
+        BWilsonCoefficients id = WCoefMapper::enum_elt(this->get_name());
+        Model m = MemoryManager::GetInstance()->getModel();
+        int w_type = (*wc)("REWCOEF", -2);
+        if (m != Model::SM && w_type == 0) {
+            LOG_ERROR("Value", "SM Wilsons coefficients were given, but the selected model is not SM.");
+        }
+
+        this->set_CoefficientMatchingValue("LO", complex_t((*wc)("REWCOEF", (int)id * 10 + (int)QCDOrder::LO-1), 
+                                                            (*wc)("IMWCOEF", (int)id * 10 + (int)QCDOrder::LO-1)));
+        this->set_CoefficientMatchingValue("NLO", complex_t((*wc)("REWCOEF", (int)id * 10 + (int)QCDOrder::NLO-1), 
+                                                             (*wc)("IMWCOEF", (int)id * 10 + (int)QCDOrder::NLO-1)));
+        this->set_CoefficientMatchingValue("NNLO", complex_t((*wc)("REWCOEF", (int)id * 10 + (int)QCDOrder::NNLO-1), 
+                                                              (*wc)("IMWCOEF", (int)id * 10 + (int)QCDOrder::NNLO-1)));         
+        from_lha = true;
+    }
+    return from_lha;
 }

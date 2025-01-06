@@ -16,7 +16,10 @@ void Compound::read_param_covariance() {
     for (const auto& val : values) {
         std::string del = "|";
         auto split = val.name.find(del);
-        ParamId id = std::make_pair(val.name.substr(0, split), std::stoi(val.name.substr(split + 1, val.name.size() - split)));
+        std::string block = val.name.substr(0, split);
+        int pdg = std::stoi(val.name.substr(split + 1, val.name.size() - split));
+        ParameterType type = Parameters::GetType(block, pdg);
+        ParamId id {type, block, pdg};
         if (std::find(dependences.begin(), dependences.end(), id) != dependences.end()) {
             param_corr.insert(std::make_pair(std::make_pair(id, id), std::pow(val.stat_error, 2)));
             stds.emplace(std::make_pair(id, val.stat_error));
@@ -27,9 +30,15 @@ void Compound::read_param_covariance() {
     for (const auto& corr : correlations) {
         std::string del = "|";
         auto split = corr.name1.find(del);
-        ParamId id_1 = std::make_pair(corr.name1.substr(0, split), std::stoi(corr.name1.substr(split + 1, corr.name1.size() - split)));
+        std::string block = corr.name1.substr(0, split);
+        int pdg = std::stoi(corr.name1.substr(split + 1, corr.name1.size() - split));
+        ParameterType type = Parameters::GetType(block, pdg);
+        ParamId id_1 = {type, block, pdg};
         split = corr.name2.find(del);
-        ParamId id_2 = std::make_pair(corr.name2.substr(0, split), std::stoi(corr.name2.substr(split + 1, corr.name2.size() - split)));
+        block = corr.name2.substr(0, split);
+        pdg = std::stoi(corr.name2.substr(split + 1, corr.name2.size() - split));
+        type = Parameters::GetType(block, pdg);
+        ParamId id_2 = {type, block, pdg};
         auto cov = corr.value * stds.at(id_1) * stds.at(id_2);
         param_corr.insert(std::make_pair(std::make_pair(id_1, id_2), cov));
         param_corr.insert(std::make_pair(std::make_pair(id_2, id_1), cov));
@@ -38,22 +47,17 @@ void Compound::read_param_covariance() {
 
 double Compound::compute_pdv(const ParamId &param_id) const
 {
-    const int instances[2] = {0, 3};
-    for (int i : instances) {
-        auto p = Parameters::GetInstance(i);
-        try {
-            double h = (*p)(param_id.first, param_id.second) * 1e-5;
-            if (h == 0)
-                h = 1e-8;
-            p->changeParameterMode(param_id, ParameterMode::SHIFTABLE);
-            p->shiftParameter(param_id, h);
-            double f_p = eval();
-            p->shiftParameter(param_id, -2 * h);
-            double f_m = eval();
-            p->changeParameterMode(param_id, ParameterMode::SHIFTABLE);
-            return (f_p - f_m) / (2 * h);
-        } catch(const std::invalid_argument& e) {}
-    }
+    auto p = Parameters::GetInstance(param_id.type);
+    double h = (*p)(param_id.block, param_id.code) * 1e-5;
+    if (h == 0)
+        h = 1e-8;
+    p->changeParameterMode(param_id, ParameterMode::SHIFTABLE);
+    p->shiftParameter(param_id, h);
+    double f_p = eval();
+    p->shiftParameter(param_id, -2 * h);
+    double f_m = eval();
+    p->changeParameterMode(param_id, ParameterMode::SHIFTABLE);
+    return (f_p - f_m) / (2 * h);
 }
 
 void Compound::update_gradient() {
@@ -98,6 +102,34 @@ double Compound::variance() const {
     return var;
 }
 
+const std::map<ParamId, double> Compound::get_leading_uncertainties(size_t n) const {
+    std::map<ParamId, double> uncertainties = get_uncertainties();
+    std::map<ParamId, double> max_uncertainties;
+    for (size_t i = 0; i < n; i++) {
+        std::pair<ParamId, double> max {{ParameterType::SM, "", 0}, 0};
+        for (auto &&p : uncertainties) {
+            if (!max_uncertainties.contains(p.first) && p.second > max.second) {
+                max = std::make_pair(p.first, p.second);
+            }
+        }
+        max_uncertainties.emplace(max);
+    }
+
+    return max_uncertainties;
+}
+
+const std::map<ParamId, double> Compound::get_uncertainties() const {
+    std::map<ParamId, double> uncertainties;
+    for (auto p : dependences) {
+        if (param_corr.contains({p, p})) {
+            std::pair<ParamId, double> u = {p, std::sqrt(param_corr.at({p, p})) * std::abs(gradient.at(p))};
+            uncertainties.emplace(u);
+        }
+    }
+
+    return uncertainties;
+}
+
 double Compound::correlation_with(const Compound &other) const {
     double corr = 0;
     auto common_dep = get_common_dependences_with(other);
@@ -112,6 +144,6 @@ double Compound::correlation_with(const Compound &other) const {
 
 void Compound::print_gradient(std::ostream& os) const {
     for (auto &&p: gradient) {
-        os << "d/d(" << p.first.first << "," << p.first.second << ") = " << p.second << std::endl;
+        os << "d/d(" << p.first.block << "," << p.first.code << ") = " << p.second << std::endl;
     }
 }

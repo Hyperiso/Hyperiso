@@ -45,7 +45,7 @@ public:
     std::complex<double> get_CoefficientRunValue(std::string order) const {return this->CoefficientRunValue.at(order);}
 
     std::complex<double> get_CoefficientFullMatchingValue(std::string order) const {
-        double fact = Parameters::GetInstance(0)->alpha_s(Q_match) / (4 * M_PI);
+        double fact = Parameters::GetInstance(ParameterType::SM)->alpha_s(Q_match) / (4 * M_PI);
 
         if (order == "LO") {
             return this->get_CoefficientMatchingValue("LO");
@@ -62,7 +62,7 @@ public:
     }
 
     std::complex<double> get_CoefficientFullRunValue(std::string order) const {
-        double fact = Parameters::GetInstance(0)->alpha_s(Q) / (4 * M_PI);
+        double fact = Parameters::GetInstance(ParameterType::SM)->alpha_s(Q) / (4 * M_PI);
 
         if (order == "LO") {
             return this->get_CoefficientRunValue("LO");
@@ -87,6 +87,7 @@ public:
     virtual std::complex<double> NLO_calculation() = 0;
     virtual std::complex<double> NNLO_calculation() = 0;
 
+    bool fill_from_flha();
 
     bool is_it_calculated(std::string order) {return this->is_calculated[order];}
 
@@ -113,6 +114,7 @@ public:
 private:
     double Q_match{81};
     double Q{};
+    bool from_lha {false};
     std::map<std::string, std::complex<double>> CoefficientMatchingValue{{"LO", {0.,0.}}, {"NLO", {0.,0.}}, {"NNLO", {0.,0.}}};
     std::map<std::string, std::complex<double>> CoefficientRunValue{{"LO", {0.,0.}}, {"NLO", {0.,0.}}, {"NNLO", {0.,0.}}};
 
@@ -461,21 +463,24 @@ public:
     void init_LO() {
         for (auto& coeff : *this) {
             std::cout << "LO : " << coeff.first << std::endl;
-            coeff.second->LO_calculation();
+            if (!coeff.second->fill_from_flha())
+                coeff.second->LO_calculation();
         }
     }
 
     void init_NLO() {
         for (auto& coeff : *this) {
             std::cout << "NLO : " << coeff.first << std::endl;
-            coeff.second->NLO_calculation();
+            if (!coeff.second->fill_from_flha())
+                coeff.second->NLO_calculation();
         }
     }
 
     void init_NNLO() {
         for (auto& coeff : *this) {
             std::cout << "NNLO : " << coeff.first << std::endl;
-            coeff.second->NNLO_calculation();
+            if (!coeff.second->fill_from_flha())
+                coeff.second->NNLO_calculation();
         }
     }
 
@@ -486,6 +491,22 @@ public:
 
     std::complex<double> getMatching(std::string coeff, std::string order) {return this->at(coeff)->get_CoefficientMatchingValue(order);}
     std::complex<double> getRun(std::string coeff, std::string order) {return this->at(coeff)->get_CoefficientRunValue(order);}
+
+    void setExternalMatchingCoefficient(const std::string& coeff, std::string& order, complex_t value) {
+        if (std::shared_ptr<WilsonCoefficient> search = this->find(coeff)->second; search !=this->end()->second) {
+            search->set_WilsonCoeffMatching(order, value);
+            return;
+        }
+        LOG_ERROR("KeyError", "matching coefficient", coeff, "Not found in coefficientgroup");
+    }
+
+    void setExternalRunningCoefficient(const std::string& coeff, std::string& order, complex_t value) {
+        if (std::shared_ptr<WilsonCoefficient> search = this->find(coeff)->second; search !=this->end()->second) {
+            search->set_WilsonCoeffRun(order, value);
+            return;
+        }
+        LOG_ERROR("KeyError", "running coefficient", coeff, "Not found in coefficientgroup");
+    }
 
     void set_Q_match(double Q_match) {this->Q_match = Q_match; for (auto& coeff : *this) {coeff.second->set_Q_match(Q_match);}}
     void set_Q_run(double Q_run) {this->Q_run = Q_run; for (auto& coeff : *this) {coeff.second->set_Q(Q_run);}}
@@ -499,10 +520,12 @@ public:
     virtual void set_base_1_NNLO() =0;
     void set_base_2_NNLO() {}
 
+    virtual std::shared_ptr<CoefficientGroup> clone() const = 0;
     double Q_match{81};
     double Q_run{81};
 
     bool double_base = false;
+
 };
 
 
@@ -556,6 +579,10 @@ public:
         }
     }
 
+    std::shared_ptr<CoefficientGroup> clone() const override {
+        return std::make_shared<BCoefficientGroup>(*this);
+    }
+
 protected:
     Wilson_parameters* W_param = Wilson_parameters::GetInstance();
     bool double_base = true;
@@ -585,6 +612,10 @@ public:
     void set_base_1_NLO() {}
     void set_base_1_NNLO() {}
 
+    std::shared_ptr<CoefficientGroup> clone() const override {
+        return std::make_shared<BPrimeCoefficientGroup>(*this);
+    }
+
 protected:
     Wilson_parameters* W_param = Wilson_parameters::GetInstance();
 };
@@ -602,6 +633,9 @@ public:
     void set_base_1_NLO();
     void set_base_1_NNLO() {}
 
+    std::shared_ptr<CoefficientGroup> clone() const override {
+        return std::make_shared<BScalarCoefficientGroup>(*this);
+    }
 
 protected:
     Wilson_parameters* W_param = Wilson_parameters::GetInstance();

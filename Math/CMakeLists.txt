@@ -13,8 +13,8 @@ add_library(MathLib STATIC
     wilson_math.cpp
     MathBSM/wilson_susy.cpp
     MathBSM/wilson_THDM.cpp
-    obs_math.cpp)
-
+    integration.cpp)
+set_target_properties(MathLib PROPERTIES POSITION_INDEPENDENT_CODE ON)
 find_package(GSL REQUIRED)
 
 set_target_properties(MathLib PROPERTIES PUBLIC_HEADER "Math.h;Math_SUSY.h;Math_THDM.h,Formfactors.h,Matrix.h")

@@ -4,8 +4,7 @@
 #include <string>
 #include <iostream>
 #include "Logger.h"
-
-typedef std::pair<std::string, int> ParamId;
+#include "General.h"
 
 enum class ParameterMode {
     FIXED,
@@ -24,8 +23,8 @@ private:
 
 public:
     
-    inline Parameter() : id({"NullBlock", 0}), expected(0), deviation(0), mode(ParameterMode::FIXED) {}
-    Parameter(std::string block, int pdgCode, double mean, double std);
+    inline Parameter() : id({ParameterType::SM, "NullBlock", 0}), expected(0), deviation(0), mode(ParameterMode::FIXED) {}
+    Parameter(ParamId id, double mean, double std);
 
     void set_mode(ParameterMode mode);
     double get_val() const;
@@ -43,7 +42,7 @@ public:
     }
 
     friend std::ostream& operator<<(std::ostream& os, const Parameter& p) {
-        os << "Parameter " << p.id.first << "," << p.id.second << "=" << p.expected << "+-" << p.deviation << std::endl;
+        os << "Parameter " << p.id.block << "," << p.id.code << "=" << p.expected << "+-" << p.deviation << std::endl;
         return os;
     }
 

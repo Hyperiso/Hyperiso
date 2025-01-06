@@ -138,7 +138,7 @@ public:
      * @param line Vector of strings representing the line data.
      * @return Unique pointer to the created `AbstractElement`.
      */
-    static std::unique_ptr<AbstractElement> createElement(LhaBlock* block, const std::vector<std::string>& line);
+    static std::shared_ptr<AbstractElement> createElement(LhaBlock* block, const std::vector<std::string>& line);
 };
 
 #endif // HYPERISO_LHA_ELEMENTS_H

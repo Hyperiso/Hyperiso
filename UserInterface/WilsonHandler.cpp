@@ -71,8 +71,8 @@ int handleWilsonOptions(int argc, char* argv[]) {
     }
 
     try {
-        MemoryManager::GetInstance()->init(input_file, {0});
-        CoefficientManager* manager = CoefficientManager::GetInstance(model_name);
+        MemoryManager::GetInstance()->init(input_file, Model::SM);
+        auto manager = CoefficientManager::GetInstance(model_name);
         
         if (group_name.empty()) {
             if (std::find(Bcoefficient.begin(), Bcoefficient.end(), coefficient_name) != Bcoefficient.end()) {

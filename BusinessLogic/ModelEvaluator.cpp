@@ -4,37 +4,22 @@
 
 ModelEvaluator::ModelEvaluator() {}
 
-ModelEvaluator::ModelEvaluator(const std::vector<std::shared_ptr<Observable>>& observables) : observables(observables) {
+ModelEvaluator::ModelEvaluator(const std::vector<std::shared_ptr<Observable>>& observables) : observables(std::move(observables)) {
     LOG_INFO("Instantiating chi squared calculator with", this->observables.size(), "observables");
-    update_exp_covariance();
+    update_exp_data();
     LOG_INFO("Experimental covariance updated");
     printMatrix(exp_cov_mtx, getDiagonalElements(exp_cov_mtx));
     update_th_covariance();
     LOG_INFO("Theoretical covariance updated");
     printMatrix(th_cov_mtx, getDiagonalElements(th_cov_mtx));
-    
 }
-
-// void ModelEvaluator::add_observable(Observable obs) {
-//     observables.emplace_back(std::move(obs));
-//     update_exp_covariance();
-//     update_th_covariance();
-// }
-
-// void ModelEvaluator::add_observables(std::vector<Observable> obs) {
-//     for (auto &&o : obs)
-//         observables.emplace_back(o);
-
-//     update_exp_covariance();
-//     update_th_covariance();
-// }
 
 std::shared_ptr<Observable> ModelEvaluator::find_from_id(Observables id) {
     for (auto o : observables) {
         if (o->getId() == id)
             return o;
     }
-    throw std::runtime_error("Observable not found in list.");
+    return nullptr;
 }
 
 void ModelEvaluator::update_th_covariance() {
@@ -52,31 +37,41 @@ void ModelEvaluator::update_th_covariance() {
     }
 }
 
-void ModelEvaluator::update_exp_covariance() {
-    // Fill diagonal elements with exp. variance for each obs
-    for (size_t i = 0; i < observables.size(); i++) {
-        exp_cov_mtx.insert(std::make_pair(std::make_pair(observables.at(i)->getId(), observables.at(i)->getId()), 
-                                          observables.at(i)->get_exp_var()));
+void ModelEvaluator::update_exp_data() {
+    std::vector<Correlation> correlations;
+    std::vector<Value> values;
+    std::string root = project_root.data();
+    read_json(root + "/DataBase/data_exp.json", values, correlations);
+
+    // Read central values for the stored observable and fill diagonal elements of cov matrix with exp. variance 
+    std::map<Observables, double> stds; 
+    for (const auto& val : values) {
+        Observables id = ObservableMapper::enum_elt(val.name);
+        auto obs = find_from_id(id);
+        if (obs) {
+            obs->set_exp_val(val.central_value);
+            double std = std::hypot(val.stat_error, val.syst_error);
+            stds.emplace(id, std);
+            exp_cov_mtx.insert(std::make_pair(std::make_pair(id, id), std * std));
+        }
+    }
+
+    for (const auto& o : observables) {
+        if (fpeq(o->get_exp_val(), 0.)) {
+            LOG_ERROR("Experimental data not found for observable ", ObservableMapper::str(o->getId()));
+        }
     }
 
     // Read any nonzero correlation between obs pairs from data file and add it to the matrix
-    std::vector<Correlation> correlations;
-    std::vector<Value> _;
-    std::string root = project_root.data();
-    read_json(root + "/DataBase/data_exp.json", _, correlations);
-    auto mapper = ObservableMapper::GetInstance();
     for (const auto& corr : correlations) {
-        auto id_1 = mapper->getObservable(corr.name1);
-        auto id_2 = mapper->getObservable(corr.name2);
-        try {
-            auto o_1 = find_from_id(id_1);
-            auto o_2 = find_from_id(id_2);
-            auto cov = corr.value * std::sqrt(o_1->get_exp_var() * o_2->get_exp_var());
-            exp_cov_mtx.insert(std::make_pair(std::make_pair(o_1->getId(), o_2->getId()), cov));
-            exp_cov_mtx.insert(std::make_pair(std::make_pair(o_2->getId(), o_1->getId()), cov));
-        } catch (std::runtime_error& e) {
-            LOG_WARN("Found correlation between observables ", corr.name1, "and", corr.name2, 
-                     ", but they do not contribute to the chi squared estimation.");
+        auto id_1 = ObservableMapper::enum_elt(corr.name1);
+        auto id_2 = ObservableMapper::enum_elt(corr.name2);
+        auto o_1 = find_from_id(id_1);
+        auto o_2 = find_from_id(id_2);
+        if (o_1 && o_2) {
+            auto cov = corr.value * stds.at(id_1) * stds.at(id_2);
+            exp_cov_mtx.insert(std::make_pair(std::make_pair(id_1, id_2), cov));
+            exp_cov_mtx.insert(std::make_pair(std::make_pair(id_2, id_1), cov));
         }
     }
 }
@@ -84,9 +79,7 @@ void ModelEvaluator::update_exp_covariance() {
 SparseMatrix<Observables> ModelEvaluator::get_covariance() const {
     SparseMatrix<Observables> cov = th_cov_mtx;
     LOG_INFO("Theoretical covariance matrix size", cov.size());
-    auto mapper = ObservableMapper::GetInstance();
     for (auto &&p : exp_cov_mtx) {
-        LOG_INFO(mapper->getString(p.first.first), mapper->getString(p.first.second));
         if (cov.contains(p.first)) {
             cov.at(p.first) += p.second;
         } else {

@@ -75,7 +75,7 @@ const std::vector<Prototype> FLHA_BLOCKS = {FCINFO, FMODSEL, FMASS, FLIFE, FCONS
 class LhaBlock {
 private:
     Prototype prototype; /**< The prototype defining the structure of the block. */
-    std::vector<std::unique_ptr<AbstractElement>> entries; /**< List of elements contained in the block. */
+    std::vector<std::shared_ptr<AbstractElement>> entries; /**< List of elements contained in the block. */
 
 public:
     /**
@@ -101,7 +101,7 @@ public:
      * @brief Retrieves all entries in the block.
      * @return Pointer to a vector of unique pointers to `AbstractElement`.
      */
-    const std::vector<std::unique_ptr<AbstractElement>>* getEntries() const;
+    const std::vector<std::shared_ptr<AbstractElement>>* getEntries() const;
 
     /**
      * @brief Adds a new element to the block from a line of data.

@@ -14,6 +14,7 @@ public:
     virtual double getValue(int pdgCode) const = 0;
     virtual void setValue(int pdgCode, double value, bool force = false) = 0;
     virtual void setMode(int pdgCode, ParameterMode mode) = 0;
+    virtual std::map<int, double> getAllValues() = 0;
     virtual ~Block() = default;
     std::string blockname{};
 };
@@ -25,12 +26,12 @@ public:
         if (it != values.end()) {
             return it->second.get_val();
         }
-        throw std::out_of_range("PDG code not found in " + this->blockname);
+        throw std::invalid_argument("PDG code not found in " + this->blockname);
     }
 
     void setValue(int pdgCode, double value, bool force = false) override {
         JSONParser::getInstance(0)->addElement(this->blockname.substr(0, this->blockname.size()-5), pdgCode, value);
-        Parameter param (this->blockname.substr(0, this->blockname.size()-5), pdgCode, value, 0);
+        Parameter param (ParamId {ParameterType::CUSTOM, this->blockname.substr(0, this->blockname.size()-5), pdgCode}, value, 0);
         if (force) {
             values[pdgCode] = param;
         } else {
@@ -40,6 +41,14 @@ public:
 
     void setMode(int pdgCode, ParameterMode mode) override {
         values.at(pdgCode).set_mode(mode);
+    }
+
+    std::map<int, double> getAllValues() override {
+        std::map<int, double> map_values;
+        for (auto& value : values) {
+            map_values[value.first] = value.second.get_val();
+        }
+        return map_values;
     }
 
 protected:
@@ -56,7 +65,7 @@ public:
 
     void setValue(int pdgCode, double value, bool force = false) override {
         JSONParser::getInstance(0)->addElement(this->blockname.substr(0, this->blockname.size()-5), pdgCode, value);
-        auto p = Parameter(this->blockname.substr(0, this->blockname.size()-5), pdgCode, value, 0);
+        auto p = Parameter(ParamId {ParameterType::CUSTOM, this->blockname.substr(0, this->blockname.size()-5), pdgCode}, value, 0);
         values[pdgCode / 10][pdgCode % 10] = p;
     }
 
@@ -77,6 +86,18 @@ public:
         return *this;
     }
 
+    std::map<int, double> getAllValues() override {
+        std::map<int, double> map_values;
+        int i,j=0;
+        for (auto& value : values) {
+            for (auto& valu : value) {
+                std::cout << i/10 +j%10 << " " << valu.get_val() << std::endl;
+                map_values[i/10 + j++%10] = valu.get_val();
+            }
+            ++i;
+        }
+        return map_values;
+    }
 
 protected:
     std::array<std::array<Parameter, column>, index> values;
@@ -222,4 +243,61 @@ public:
 class FLifeBlock : public MapBlock {
 public:
     FLifeBlock() {this->blockname = "FLifeBlock";}
+};
+
+/* ------------------------------------------------------------------------------------------------
+Wilson Input BLOCKS*/
+
+class WilsonBlock : public Block {
+    // pdgCode is NNO with NN = integer ID of the coefficient as in BWilsonCoefficients enum, O is QCD order
+    // pdgCode -1 is reserved to access the scale of the coefficients
+    // pdgCode -2 is reserved to access the type of the coefficients
+public:
+    double getValue(int pdgCode) const {
+        if (pdgCode == -1) {
+            return scale;
+        } else if (pdgCode == -2) {
+            return type;
+        }
+
+        int order = pdgCode % 10; 
+        BWilsonCoefficients id = static_cast<BWilsonCoefficients>((pdgCode - order) / 10); 
+
+        return values.at(id)[order];
+    }
+
+    void setValue(int pdgCode, double value, bool force = false) {
+        if (pdgCode == -1) {
+            scale = value;
+        } else if (pdgCode == -2) {
+            type = (int)value;
+        }
+
+        int order = pdgCode % 10; 
+        BWilsonCoefficients id = static_cast<BWilsonCoefficients>((pdgCode - order) / 10); 
+        if (!values.contains(id)) {
+            values.emplace(std::make_pair(id, std::array<double, 3>()));
+        }
+        values.at(id)[order] = value;
+    }
+
+    void setMode(int pdgCode, ParameterMode mode) {}
+
+    std::map<int, double> getAllValues() override {
+        return {};
+    }
+protected:
+    // Index is QCD order
+    std::map<BWilsonCoefficients, std::array<double, 3>> values; 
+    double scale;
+    int type;
+
+};
+
+/* ------------------------------------------------------------------------------------------------
+Form Factors BLOCKS*/
+
+class BKsBlock : public MapBlock {
+public:
+    BKsBlock() {this->blockname = "BKsBlock";}
 };

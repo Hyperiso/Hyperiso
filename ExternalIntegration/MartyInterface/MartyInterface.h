@@ -6,7 +6,8 @@
 #include "MakeCompilerStrategy.h"
 #include "SMModelModifier.h"
 #include "Logger.h"
-#include "NumModelModifier.h"
+#include "GeneralNumModelModifier.h"
+// #include "NumModelModifier.h"
 
 class MartyInterface {
 public:
@@ -15,7 +16,7 @@ public:
     void generate_numlib(std::string wilson, std::string model, double Q_match);
     void compile_run_libs(std::string wilson, std::string model, double Q_match);
 
-    void calculate(std::string wilson, std::string model, double Q_match) {
+    void calculate(std::string wilson, std::string model, double Q_match, bool new_params=false) {
         generate(wilson, model);
         compile_run(wilson, model);
         generate_numlib(wilson, model, Q_match);

@@ -28,6 +28,8 @@ public:
     const std::map<ParamId, double>& get_gradient() const;
     double variance() const;
     double correlation_with(const Compound& other) const;
+    const std::map<ParamId, double> get_leading_uncertainties(size_t n) const;
+    const std::map<ParamId, double> get_uncertainties() const;
     void print_gradient(std::ostream& os) const;
 
 };
