@@ -52,3 +52,8 @@ print("Running C8", wilManag.get_run_coefficient("BCoefficientGroup", "C8", "LO"
 obsInterface = ObservableInterface()
 
 print("obs truc", obsInterface.compute_observable(Observables.ISOSPIN_ASYMMETRY_B_KSTAR_GAMMA))
+
+print("list of blocks : ", mm.get_blocks_list())
+
+print("info of block mass", mm.get_block_infos("MASS"))
+print("info of block mass", mm.get_block_infos("MASS"))

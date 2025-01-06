@@ -140,3 +140,7 @@ void MemoryManager::set_observable_covariance_input_file(const std::string &path
 void MemoryManager::set_parameter_covariance_input_file(const std::string &path) {
     cache.param_cov_path = path;
 }
+
+std::map<int, double> MemoryManager::get_block_infos(const std::string& block) {
+    return Parameters::GetInstance()->get_block_infos(block);
+}

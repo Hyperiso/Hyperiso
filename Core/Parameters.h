@@ -85,6 +85,10 @@ public:
         blockAccessor.setValue(name, pdgCode, value, force);
     }
 
+    std::map<int, double> get_block_infos(std::string blockName) {
+        return blockAccessor.getAllValues(blockName);
+    }
+
     void setQCDParameters(const QCDParameters&& qcdparams) {QCDRunner = qcdparams;}
 
     double get_QCD_masse(std::string masstype);

@@ -52,6 +52,19 @@ public:
         }
     }
 
+    std::map<int, double> getAllValues(std::string blockName) {
+        auto it = blocks.find(blockName);
+        if (it != blocks.end()) {
+            return it->second->getAllValues();
+        } else {
+            throw std::invalid_argument("Block not found");
+        }
+    }
+
+    std::map<int, double> getAllValues() override {
+        throw std::logic_error("Use getValue with block name for BlockAccessor");
+    }
+
     // These methods are to satisfy the Block interface, but can be unused directly
     double getValue(int pdgCode) const override {
         throw std::logic_error("Use getValue with block name for BlockAccessor");

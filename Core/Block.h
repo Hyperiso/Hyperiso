@@ -14,6 +14,7 @@ public:
     virtual double getValue(int pdgCode) const = 0;
     virtual void setValue(int pdgCode, double value, bool force = false) = 0;
     virtual void setMode(int pdgCode, ParameterMode mode) = 0;
+    virtual std::map<int, double> getAllValues() = 0;
     virtual ~Block() = default;
     std::string blockname{};
 };
@@ -42,7 +43,7 @@ public:
         values.at(pdgCode).set_mode(mode);
     }
 
-    std::map<int, double> getAllValues() {
+    std::map<int, double> getAllValues() override {
         std::map<int, double> map_values;
         for (auto& value : values) {
             map_values[value.first] = value.second.get_val();
@@ -85,6 +86,18 @@ public:
         return *this;
     }
 
+    std::map<int, double> getAllValues() override {
+        std::map<int, double> map_values;
+        int i,j=0;
+        for (auto& value : values) {
+            for (auto& valu : value) {
+                std::cout << i/10 +j%10 << " " << valu.get_val() << std::endl;
+                map_values[i/10 + j++%10] = valu.get_val();
+            }
+            ++i;
+        }
+        return map_values;
+    }
 
 protected:
     std::array<std::array<Parameter, column>, index> values;
@@ -270,6 +283,9 @@ public:
 
     void setMode(int pdgCode, ParameterMode mode) {}
 
+    std::map<int, double> getAllValues() override {
+        return {};
+    }
 protected:
     // Index is QCD order
     std::map<BWilsonCoefficients, std::array<double, 3>> values; 

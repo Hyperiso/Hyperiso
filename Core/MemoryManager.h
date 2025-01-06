@@ -72,19 +72,7 @@ public:
         return cache.reader->getBlocksNames();
     }
 
-    std::map<int, double> get_block_infos(const std::string& block) {
-        std::shared_ptr<MapBlock> generalblock;
-        if (cache.reader->findPrototype(block).itemCount == 2) {
-            generalblock = std::make_shared<MapBlock>(MapBlock());
-            generalblock->blockname = block;
-            auto elts = cache.reader->getBlock(block)->getEntries();
-            for (size_t i = 0; i < elts->size(); ++i) {
-                auto e = static_cast<LhaElement<double>*>(elts->at(i).get());
-                generalblock->setValue(std::stoi(e->getId()), e->getValue());
-            }
-        }
-        return generalblock->getAllValues();
-    }
+    std::map<int, double> get_block_infos(const std::string& block);
 
     MemoryManager(const MemoryManager&) = delete;
     MemoryManager& operator=(const MemoryManager&) = delete;
