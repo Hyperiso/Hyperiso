@@ -12,7 +12,7 @@ jobs:
     - name: Install CMake, Make, and Build Essentials
       run: |
         sudo apt-get update
-        sudo apt-get install -y cmake make build-essential
+        sudo apt-get install -y cmake make build-essential libgsl-dev
 
     - name: Configure CMake
       run: cmake . -DENABLE_TESTS=ON
