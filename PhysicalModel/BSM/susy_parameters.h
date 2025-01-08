@@ -32,8 +32,8 @@ class susy_parameters {
 
     EpsilonCalculator* epsi = EpsilonCalculator::GetInstance();
 
-	Parameters* susy = Parameters::GetInstance(ParameterType::SUSY);
-    Parameters* sm = Parameters::GetInstance(ParameterType::SM);
+	std::shared_ptr<Parameters> susy = Parameters::GetInstance(ParameterType::SUSY);
+    std::shared_ptr<Parameters> sm = Parameters::GetInstance(ParameterType::SM);
 
     public:
     static susy_parameters* GetInstance(double scale) {
@@ -121,7 +121,7 @@ class susy_parameters {
 
 	
 
-	// Parameters* sm = Parameters::GetInstance();
+	// std::shared_ptr<Parameters> sm = Parameters::GetInstance();
     double epsilonbp,epsilon0p,epsilon0,epsilon2,epsilon1p,epsilonb;
 
 	double epsfac=pow((1.+(*epsi).epsilon_b()*(*susy)("HMIX",2)),2.);

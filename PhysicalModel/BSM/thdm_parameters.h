@@ -16,8 +16,8 @@ class thdm_parameters {
     void operator=(const thdm_parameters&) = delete;
 
 
-	Parameters* mod = Parameters::GetInstance(ParameterType::THDM);
-    Parameters* sm = Parameters::GetInstance(ParameterType::SM);
+	std::shared_ptr<Parameters> mod = Parameters::GetInstance(ParameterType::THDM);
+    std::shared_ptr<Parameters> sm = Parameters::GetInstance(ParameterType::SM);
 public:
     static thdm_parameters* GetInstance() {
         if (!thdm_parameters::instance) {
@@ -28,8 +28,8 @@ public:
     void set_lu(double lu) {this->lu = lu;}
     void set_ld(double ld) {this->ld = ld;}
 
-    void set_sm_parameters(Parameters* sm) {this->sm = sm;}
-    void set_mod_parameters(Parameters* sm) {this->mod = mod;}
+    void set_sm_parameters(std::shared_ptr<Parameters> sm) {this->sm = sm;}
+    void set_mod_parameters(std::shared_ptr<Parameters> sm) {this->mod = mod;}
     void set_params(double Q_match);
 
     double mass_top_muW=(*sm).running_mass((*sm)("MASS",6), (*sm)("MASS",6),scale, "running", "pole");

@@ -21,7 +21,7 @@ void writeCoefficientsToFile(const std::string& strat_name, const std::string& f
     double Q_step = 1.0;
 
     MemoryManager::GetInstance()->init();
-    Parameters* sm = Parameters::GetInstance();
+    std::shared_ptr<Parameters> sm = Parameters::GetInstance();
     WilsonManager* wm = WilsonManager::GetInstance(strat_name, 81.0, strategy);
     
     for (double Q = Q_initial; Q <= Q_final; Q += Q_step) {

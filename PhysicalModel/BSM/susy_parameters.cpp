@@ -268,7 +268,7 @@ susy_parameters::susy_parameters(double scale) {
 void susy_parameters::reset_PrimeCQG(double Q_match) {
 	if (is_PrimeCQG) {return;}
 	is_PrimeCQG = true;
-	Parameters* sm = Parameters::GetInstance();
+	std::shared_ptr<Parameters> sm = Parameters::GetInstance();
 	double mass_c_muW = (*sm).running_mass((*sm)("MASS", 4), (*sm)("MASS", 4), Q_match);
 	LOG_INFO("mass_c_muW", mass_c_muW);
 	MU = {(*sm)("MASS",2), mass_c_muW, mass_top_muW};

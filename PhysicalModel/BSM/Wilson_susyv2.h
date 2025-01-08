@@ -6,7 +6,7 @@
 
 class WilsonCoefficient_susy {
 protected:
-    // void set_mod_parameters(Parameters* new_mod) {this->mod = new_mod;};
+    // void set_mod_parameters(std::shared_ptr<Parameters> new_mod) {this->mod = new_mod;};
 
     WilsonCoefficient_susy (double Q_match) {this->Q_match = Q_match; sus_param = susy_parameters::GetInstance(this->Q_match);
     calculateContribution = [&](auto hFunc, const Array3D_3x7x4& X, const Array3D_3x7x4& X2, int ie, int ae, bool isChargeps) -> double {
@@ -18,11 +18,11 @@ protected:
         };
     }
     
-    // Parameters* mod = Parameters::GetInstance(2);
+    // std::shared_ptr<Parameters> mod = Parameters::GetInstance(2);
     int gen{3};
     double Q_match;
     
-    Parameters* susy = Parameters::GetInstance(ParameterType::SUSY);
+    std::shared_ptr<Parameters> susy = Parameters::GetInstance(ParameterType::SUSY);
 	std::function<double(std::function<double(double)>, const Array3D_3x7x4&, const Array3D_3x7x4&, int, int, bool)> calculateContribution;
 
 	susy_parameters* sus_param;
@@ -374,8 +374,8 @@ public:
     void set_base_1_LO();
 
 private:
-    Parameters* sm = Parameters::GetInstance(ParameterType::SM);
-    Parameters* susy = Parameters::GetInstance(ParameterType::SUSY);
+    std::shared_ptr<Parameters> sm = Parameters::GetInstance(ParameterType::SM);
+    std::shared_ptr<Parameters> susy = Parameters::GetInstance(ParameterType::SUSY);
     susy_parameters* sus_param;
 };
 

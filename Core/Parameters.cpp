@@ -34,14 +34,17 @@ void readMatrix(std::array<std::array<double, SIZE>, SIZE>& matrix, std::string 
     } 
 }
 
-std::map<ParameterType, Parameters*> Parameters::instances;
-std::map<ParameterType, Parameters*> ParametersFactory::instances;
+std::map<ParameterType, std::shared_ptr<Parameters>> Parameters::instances;
+std::map<ParameterType, std::shared_ptr<Parameters>> ParametersFactory::instances;
 
-Parameters* Parameters::GetInstance(ParameterType id) {
+std::shared_ptr<Parameters> Parameters::GetInstance(ParameterType id) {
     auto allowed = MemoryManager::GetInstance()->getParameterTypes();
     if (std::find(allowed.begin(), allowed.end(), id) == allowed.end())
         LOG_ERROR("OutOfRange", "Parameter type undefined");
     return ParametersFactory::GetParameters(id);
+}
+void Parameters::CleanupInstance(ParameterType id) {
+    ParametersFactory::removeParameters(id);
 }
 
 ParameterType Parameters::GetType(const std::string &block, int pdgCode) {
@@ -60,7 +63,7 @@ double Parameters::Get(ParamId id) {
     return (*GetInstance(id.type))(id.block, id.code);
 }
 
-Parameters::Parameters(ModelStrategy* modelStrategy)
+Parameters::Parameters(std::shared_ptr<ModelStrategy> modelStrategy)
     : strategy(modelStrategy) { 
     LOG_DEBUG("Param creation at", this);
     strategy->initializeParameters(*this);
@@ -157,7 +160,11 @@ void SMModelStrategy::initializeParameters(Parameters& params) {
     params.setBlockValue("MASS", 3, 93e-3);
     params.setBlockValue("MASS", 4, 1.27);
     params.setQCDParameters(QCDParameters(alpha_s_MZ, m_Z_pole, m_t_pole, m_b_mb, params("MASS", 2), params("MASS", 1), params("MASS", 3), params("MASS", 4)));
+    LOG_INFO("info", m_b_mb);
     params.setBlockValue("MASS", 5, m_b_mb);
+
+    LOG_INFO(params("MASS", 5));
+    
     params.setBlockValue("MASS", 6, params.get_QCD_masse("mt_mt"));
     params.setBlockValue("MASS", 11, 0.511e-3);
     params.setBlockValue("MASS", 13, 0.105658);
@@ -579,30 +586,39 @@ void Parameters::shiftParameter(const ParamId &param_id, double shift_value) {
     blockAccessor.setValue(param_id.block, param_id.code, blockAccessor.getValue(param_id.block, param_id.code) + shift_value, true);
 }
 
-Parameters* ParametersFactory::GetParameters(ParameterType id) {
+std::shared_ptr<Parameters> ParametersFactory::GetParameters(ParameterType id) {
     if (instances.find(id) == instances.end()) {
-        ModelStrategy* strategy = createStrategy(id);
-        instances[id] = new Parameters(strategy);
+        std::shared_ptr<ModelStrategy> strategy = createStrategy(id);
+        instances[id] = std::make_shared<Parameters>(Parameters(strategy));
+        LOG_INFO("creating instance", (int)id);
     }
     return instances[id];
 }
 
-ModelStrategy* ParametersFactory::createStrategy(ParameterType id) {
+void ParametersFactory::removeParameters(ParameterType id) {
+    if (instances.find(id) == instances.end()) {
+        LOG_ERROR("OutOfRange", "Cannot remove parameters if it doesn't exist");
+    }
+    LOG_INFO("erasing ; ", (int)id);
+    std::shared_ptr<Parameters> _ = instances[id];
+    instances.erase(id);
+}
+std::shared_ptr<ModelStrategy> ParametersFactory::createStrategy(ParameterType id) {
     switch (id) {
         case ParameterType::SM:
-            return new SMModelStrategy();
+            return std::make_shared<SMModelStrategy>(SMModelStrategy());
         case ParameterType::SUSY:
-            return new SUSYModelStrategy();
+            return std::make_shared<SUSYModelStrategy>(SUSYModelStrategy());
         case ParameterType::THDM:
-            return new THDMModelStrategy();
+            return std::make_shared<THDMModelStrategy>(THDMModelStrategy());
         case ParameterType::FLAVOR:
-            return new FlavorStrategy();
+            return std::make_shared<FlavorStrategy>(FlavorStrategy());
         case ParameterType::CUSTOM:
-            return new GeneralModelStrategy();
+            return std::make_shared<GeneralModelStrategy>(GeneralModelStrategy());
         case ParameterType::WILSON:
-            return new WilsonInputStrategy();
+            return std::make_shared<WilsonInputStrategy>(WilsonInputStrategy());
         case ParameterType::FF:
-            return new FormFactorStrategy();
+            return std::make_shared<FormFactorStrategy>(FormFactorStrategy());
         default:
             throw std::invalid_argument("Unknown parameters instance ID");
     }

@@ -54,7 +54,8 @@ public:
 
 class Parameters {
 public:
-    static Parameters* GetInstance(ParameterType id = ParameterType::SM);
+    static std::shared_ptr<Parameters> GetInstance(ParameterType id = ParameterType::SM);
+    void CleanupInstance(ParameterType id = ParameterType::SM);
     static ParameterType GetType(const std::string& block, int pdgCode);
     static double Get(ParamId id);
 
@@ -111,25 +112,26 @@ public:
     ~Parameters() { LOG_DEBUG("Parameters at ", this); }
 
 private:
-    explicit Parameters(ModelStrategy* modelStrategy);
-    static std::map<ParameterType, Parameters*> instances;
+    explicit Parameters(std::shared_ptr<ModelStrategy> modelStrategy);
+    static std::map<ParameterType, std::shared_ptr<Parameters>> instances;
     std::map<std::pair<std::string, int>, double> originalValuesCache;
 
     QCDParameters QCDRunner;
     BlockAccessor blockAccessor;
 
-    ModelStrategy* strategy;
+    std::shared_ptr<ModelStrategy> strategy;
 
     friend class ParametersFactory;
 };
 
 class ParametersFactory {
 public:
-    static Parameters* GetParameters(ParameterType id);
+    static std::shared_ptr<Parameters> GetParameters(ParameterType id);
+    static void removeParameters(ParameterType id);
 private:
-    static std::map<ParameterType, Parameters*> instances;
+    static std::map<ParameterType, std::shared_ptr<Parameters>> instances;
 
-    static ModelStrategy* createStrategy(ParameterType id);
+    static std::shared_ptr<ModelStrategy> createStrategy(ParameterType id);
 };
 
 std::string doubleToString(double value, int precision);

@@ -23,7 +23,7 @@ public:
     // double Q {sm.mass_top_pole};
 
     QCDParameters QCDRunner;
-    static Parameters* GetInstance(int index = 0);
+    static std::shared_ptr<Parameters> GetInstance(int index = 0);
 
     // void setScale(double Q);
     double alpha_s(double Q);
@@ -125,7 +125,7 @@ public:
     double get_susy_Q() {return susy_Q;}
 
 private:
-    static Parameters* instance[4];
+    static std::shared_ptr<Parameters> instance[4];
     Parameters(int modelId); // Constructeur pour initialiser les paramètres
     void initSM();
     void initSUSY();

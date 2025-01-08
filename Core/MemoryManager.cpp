@@ -90,6 +90,7 @@ void MemoryManager::init(const std::string& lhaFile, Model model, bool use_marty
     if (!std::filesystem::exists(full_path)) {
         LOG_ERROR("PathError", "Invalid lha path :", full_path.string());
     }
+    LOG_INFO("lha path", full_path);
     std::stringstream ss;
     ss << full_path.string();
     cache.reader = std::make_shared<LhaReader>(LhaReader(ss.str()));
@@ -111,7 +112,9 @@ void MemoryManager::init(const std::string& lhaFile, Model model, bool use_marty
         cache.parameter_types.push_back(ParameterType::WILSON);
 
     cache.is_ready = true;
-
+    for (auto& truc: cache.parameter_types) {
+        LOG_INFO("param is: ", (int)truc);
+    }
     for (auto &&m : cache.parameter_types) {
         LOG_DEBUG("Initializing parameters ", (int)m);
         Parameters::GetInstance(m);
@@ -119,6 +122,9 @@ void MemoryManager::init(const std::string& lhaFile, Model model, bool use_marty
 }
 
 void MemoryManager::switch_lha(const std::string& lhaFile, Model model, bool use_marty, bool is_spectrum, bool has_wilsons, bool has_obs) {
+    for (auto& param : cache.parameter_types) {
+        Parameters::GetInstance(param)->CleanupInstance(param);
+    }
     this->cache.is_ready = false;
     this->init(lhaFile, model, use_marty, is_spectrum, has_wilsons, has_obs);
     this->cache.param_cache_okay = false;

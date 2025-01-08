@@ -30,7 +30,7 @@ void writeCoefficientsToFile(const std::string& strat_name, const std::string& f
     else {
         LOG_ERROR("ModelError", "MODEL not known");
     }
-    Parameters* sm = Parameters::GetInstance();
+    std::shared_ptr<Parameters> sm = Parameters::GetInstance();
     // WilsonManager* wm = WilsonManager::GetInstance(strat_name, 81.0, strategy);
     
 
@@ -86,7 +86,7 @@ void writeCoefficientsPrimeCQToFile(const std::string& strat_name, const std::st
     else {
         LOG_ERROR("ModelError", "MODEL not known");
     }
-    Parameters* sm = Parameters::GetInstance();
+    std::shared_ptr<Parameters> sm = Parameters::GetInstance();
     // WilsonManager* wm = WilsonManager::GetInstance(strat_name, 81.0, strategy);
     
     wm->setQMatch("BPrimeCoefficient", Q_match);
@@ -159,7 +159,7 @@ void writeRunCoefficientsToFile(const std::string& strat_name, const std::string
     else {
         LOG_ERROR("ModelError", "MODEL not known");
     }
-    Parameters* sm = Parameters::GetInstance();
+    std::shared_ptr<Parameters> sm = Parameters::GetInstance();
     // WilsonManager* wm = WilsonManager::GetInstance(strat_name, 81.0, strategy);
 
     if (base==2){
