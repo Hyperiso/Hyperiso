@@ -1,4 +1,5 @@
 import streamlit as st
+st.set_page_config(layout="wide")
 from pages import login, parameters, wilson, observables
 
 PAGES = {

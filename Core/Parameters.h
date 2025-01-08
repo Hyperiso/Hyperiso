@@ -89,6 +89,9 @@ public:
         return blockAccessor.getAllValues(blockName);
     }
 
+    std::vector<std::string> get_blocks_list() {
+        return blockAccessor.get_blocks();
+    }
     void setQCDParameters(const QCDParameters&& qcdparams) {QCDRunner = qcdparams;}
 
     double get_QCD_masse(std::string masstype);

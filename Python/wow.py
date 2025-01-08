@@ -56,4 +56,7 @@ print("obs truc", obsInterface.compute_observable(Observables.ISOSPIN_ASYMMETRY_
 print("list of blocks : ", mm.get_blocks_list())
 
 print("info of block mass", mm.get_block_infos("MASS"))
-print("info of block mass", mm.get_block_infos("MASS"))
+
+for block in mm.get_blocks_list():
+    print(block, mm.get_block_infos(block))
+# print("info of block mass", mm.get_block_infos("MASS"))

@@ -68,9 +68,7 @@ public:
     void set_observable_covariance_input_file(const std::string& path);
     void set_parameter_covariance_input_file(const std::string& path);
 
-    std::vector<std::string> get_blocks_list() {
-        return cache.reader->getBlocksNames();
-    }
+    std::vector<std::string> get_blocks_list();
 
     std::map<int, double> get_block_infos(const std::string& block);
 
