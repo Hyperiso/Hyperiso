@@ -15,7 +15,6 @@ print(os.path.exists(os.getcwd() +"/Test/InputFiles/testInput.flha"))
 mm.init("Test/InputFiles/testInput.flha")
 
 pa = Parameters()
-
 print("MASS TEST FOR TOP MASS", pa("MASS", 6))
 print("ALPHA_S at 33 GeV", pa.alpha_s(33))
 print("Runinng mass test", pa.running_mass(4.18, 4.18, 33))
@@ -49,11 +48,30 @@ print("Matching C7", wilManag.get_matching_coefficient("BCoefficientGroup", "C7"
 
 print("Running C8", wilManag.get_run_coefficient("BCoefficientGroup", "C8", "LO"))
 
-obsInterface = ObservableInterface()
+# obsInterface = ObservableInterface()
 
-print("obs truc", obsInterface.compute_observable(Observables.ISOSPIN_ASYMMETRY_B_KSTAR_GAMMA))
+# print("obs truc", obsInterface.compute_observable(Observables.ISOSPIN_ASYMMETRY_B_KSTAR_GAMMA))
 
-print("list of blocks : ", mm.get_blocks_list())
+# print("list of blocks : ", mm.get_blocks_list())
 
-print("info of block mass", mm.get_block_infos("MASS"))
-print("info of block mass", mm.get_block_infos("MASS"))
+# print("info of block mass", mm.get_block_infos("MASS"))
+
+# for block in mm.get_blocks_list():
+#     print(block, mm.get_block_infos(block))
+# print("info of block mass", mm.get_block_infos("MASS"))
+
+print(pa("MASS", 5))
+
+mm.switch_lha("DataBase/lha/testInputv2.slha", Model.SM)
+print(pa.exists("MASS", 5))
+pa = Parameters()
+
+print(pa("MASS",5))
+
+mm.switch_lha("DataBase/lha/testInputv3.slha", Model.SM)
+pa = Parameters()
+print(pa("MASS", 5))
+
+print(pa.exists("MASS", 5))
+
+print(mm.get_blocks_list())

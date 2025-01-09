@@ -61,6 +61,13 @@ public:
         }
     }
 
+    std::vector<std::string> get_blocks() {
+        std::vector<std::string> keys;
+        for (auto key : blocks){
+            keys.push_back(key.first);
+        }
+        return keys;
+    }
     std::map<int, double> getAllValues() override {
         throw std::logic_error("Use getValue with block name for BlockAccessor");
     }

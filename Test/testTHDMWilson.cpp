@@ -19,7 +19,7 @@ void writeCoefficientsToFile(const std::string& strat_name, const std::string& f
     file << "\n";
 
     MemoryManager::GetInstance("Test/testinput_thdm.lha", {0, 2})->init();
-    Parameters* sm = Parameters::GetInstance();
+    std::shared_ptr<Parameters> sm = Parameters::GetInstance();
     WilsonManager* wm = WilsonManager::GetInstance(strat_name, 81.0, strategy);
 
     double alpha_s = (*sm).alpha_s(Q_match);

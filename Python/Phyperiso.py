@@ -61,11 +61,11 @@ class MemoryManager:
     def switch_model(self, model : Model, use_marty : bool = False):
         self._manager.switch_model(model.value, use_marty)
 
-    def get_blocks_list(self):
-        return self._manager.get_blocks_list()
+    def get_blocks_list(self, paramtype : ParameterType = ParameterType.SM):
+        return self._manager.get_blocks_list(paramtype.value)
     
-    def get_block_infos(self, block :str):
-        return self._manager.get_block_infos(block)
+    def get_block_infos(self, block :str, paramtype : ParameterType = ParameterType.SM):
+        return self._manager.get_block_infos(block, paramtype.value)
     
 class Parameters:
     """Interface for handling parameters."""

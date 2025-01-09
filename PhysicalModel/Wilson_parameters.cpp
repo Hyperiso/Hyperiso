@@ -1243,7 +1243,7 @@ void Wilson_parameters::SetMuW(double mu_W) {
 
 void Wilson_parameters::SetMu(double mu) {
 
-	Parameters* sm = Parameters::GetInstance();
+	std::shared_ptr<Parameters> sm = Parameters::GetInstance();
 
 	this->mu = mu;
 	alphas_mu=QCDHelper::alpha_s(mu);	

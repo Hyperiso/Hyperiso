@@ -35,7 +35,8 @@ public:
         if (force) {
             values[pdgCode] = param;
         } else {
-            values.emplace(std::make_pair(pdgCode, param));
+            // values.emplace(std::make_pair(pdgCode, param));
+            values[pdgCode] = param;
         }
     }
 

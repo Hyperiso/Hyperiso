@@ -9,8 +9,8 @@
 
 class EpsilonCalculator {
 protected:
-    Parameters* sm = Parameters::GetInstance(ParameterType::SM);
-    Parameters* susy = Parameters::GetInstance(ParameterType::SUSY);
+    std::shared_ptr<Parameters> sm = Parameters::GetInstance(ParameterType::SM);
+    std::shared_ptr<Parameters> susy = Parameters::GetInstance(ParameterType::SUSY);
 
     double mu_Q = (*susy)("HMIX",1);
     std::map<int,int> neutralino = {{0, 1000022},{1, 1000023},{2, 1000025},{3, 1000035}};

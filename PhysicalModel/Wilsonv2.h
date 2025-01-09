@@ -133,9 +133,9 @@ public:
     std::complex<double> NNLO_calculation();
 
 
-    void set_sm_parameters(Parameters* sm) {this->sm = sm;}
+    void set_sm_parameters(std::shared_ptr<Parameters> sm) {this->sm = sm;}
 
-    Parameters* sm = Parameters::GetInstance();
+    std::shared_ptr<Parameters> sm = Parameters::GetInstance();
 };
 
 class C2 : public WilsonCoefficient {
@@ -148,7 +148,7 @@ public:
     std::complex<double> NNLO_calculation();
 
 
-    Parameters* sm = Parameters::GetInstance();
+    std::shared_ptr<Parameters> sm = Parameters::GetInstance();
 };
 
 class C3 : public WilsonCoefficient {
@@ -161,7 +161,7 @@ public:
     std::complex<double> NNLO_calculation();
 
 
-    Parameters* sm = Parameters::GetInstance();
+    std::shared_ptr<Parameters> sm = Parameters::GetInstance();
 };
 
 class C4 : public WilsonCoefficient {
@@ -174,7 +174,7 @@ public:
     std::complex<double> NNLO_calculation();
 
 
-    Parameters* sm = Parameters::GetInstance();
+    std::shared_ptr<Parameters> sm = Parameters::GetInstance();
 };
 
 class C5 : public WilsonCoefficient {
@@ -187,7 +187,7 @@ public:
     std::complex<double> NNLO_calculation();
 
 
-    Parameters* sm = Parameters::GetInstance();
+    std::shared_ptr<Parameters> sm = Parameters::GetInstance();
 };
 
 class C6 : public WilsonCoefficient {
@@ -200,7 +200,7 @@ public:
     std::complex<double> NNLO_calculation();
 
 
-    Parameters* sm = Parameters::GetInstance();
+    std::shared_ptr<Parameters> sm = Parameters::GetInstance();
 };
 
 class C7 : public WilsonCoefficient {
@@ -212,7 +212,7 @@ public:
     std::complex<double> NLO_calculation();
     std::complex<double> NNLO_calculation();
 
-    Parameters* sm = Parameters::GetInstance();
+    std::shared_ptr<Parameters> sm = Parameters::GetInstance();
 };
 
 class C8 : public WilsonCoefficient {
@@ -224,7 +224,7 @@ public:
     std::complex<double> NLO_calculation();
     std::complex<double> NNLO_calculation();
 
-    Parameters* sm = Parameters::GetInstance();
+    std::shared_ptr<Parameters> sm = Parameters::GetInstance();
 };
 
 class C9 : public WilsonCoefficient {
@@ -236,7 +236,7 @@ public:
     std::complex<double> NLO_calculation();
     std::complex<double> NNLO_calculation();
 
-    Parameters* sm = Parameters::GetInstance();
+    std::shared_ptr<Parameters> sm = Parameters::GetInstance();
 };
 
 class C10 : public WilsonCoefficient {
@@ -248,7 +248,7 @@ public:
     std::complex<double> NLO_calculation();
     std::complex<double> NNLO_calculation();
 
-    Parameters* sm = Parameters::GetInstance();
+    std::shared_ptr<Parameters> sm = Parameters::GetInstance();
 };
 
 
@@ -261,7 +261,7 @@ public:
     std::complex<double> NLO_calculation() {return {0,0};} 
     std::complex<double> NNLO_calculation() {return {0,0};} 
 
-    Parameters* sm = Parameters::GetInstance();
+    std::shared_ptr<Parameters> sm = Parameters::GetInstance();
     int gen{2};
 };
 
@@ -274,7 +274,7 @@ public:
     std::complex<double> NLO_calculation() {return {0,0};} 
     std::complex<double> NNLO_calculation() {return {0,0};} 
 
-    Parameters* sm = Parameters::GetInstance();
+    std::shared_ptr<Parameters> sm = Parameters::GetInstance();
     int gen{2};
 };
 
@@ -287,7 +287,7 @@ public:
     std::complex<double> NLO_calculation() {return {0,0};} 
     std::complex<double> NNLO_calculation() {return {0,0};} 
 
-    Parameters* sm = Parameters::GetInstance();
+    std::shared_ptr<Parameters> sm = Parameters::GetInstance();
     int gen{2};
 };
 
@@ -300,7 +300,7 @@ public:
     std::complex<double> NLO_calculation() {return {0,0};} 
     std::complex<double> NNLO_calculation() {return {0,0};} 
 
-    Parameters* sm = Parameters::GetInstance();
+    std::shared_ptr<Parameters> sm = Parameters::GetInstance();
     int gen{2};
 };
 
@@ -313,7 +313,7 @@ public:
     std::complex<double> NLO_calculation() {return {0,0};} 
     std::complex<double> NNLO_calculation() {return {0,0};} 
 
-    Parameters* sm = Parameters::GetInstance();
+    std::shared_ptr<Parameters> sm = Parameters::GetInstance();
     int gen{2};
 };
 
@@ -326,7 +326,7 @@ public:
     std::complex<double> NLO_calculation() {return {0,0};} 
     std::complex<double> NNLO_calculation() {return {0,0};} 
 
-    Parameters* sm = Parameters::GetInstance();
+    std::shared_ptr<Parameters> sm = Parameters::GetInstance();
     int gen{2};
 };
 
@@ -339,7 +339,7 @@ public:
     std::complex<double> NLO_calculation() {return {0,0};} 
     std::complex<double> NNLO_calculation() {return {0,0};} 
 
-    Parameters* sm = Parameters::GetInstance();
+    std::shared_ptr<Parameters> sm = Parameters::GetInstance();
     int gen{2};
 };
 
@@ -352,7 +352,7 @@ public:
     std::complex<double> NLO_calculation() {return {0,0};} 
     std::complex<double> NNLO_calculation() {return {0,0};} 
 
-    Parameters* sm = Parameters::GetInstance();
+    std::shared_ptr<Parameters> sm = Parameters::GetInstance();
     int gen{2};
 };
 
@@ -365,7 +365,7 @@ public:
     std::complex<double> NLO_calculation() {return {0,0};} 
     std::complex<double> NNLO_calculation() {return {0,0};} 
 
-    Parameters* sm = Parameters::GetInstance();
+    std::shared_ptr<Parameters> sm = Parameters::GetInstance();
     int gen{2};
 };
 
@@ -378,7 +378,7 @@ public:
     std::complex<double> NLO_calculation() {return {0,0};} 
     std::complex<double> NNLO_calculation() {return {0,0};} 
 
-    Parameters* sm = Parameters::GetInstance();
+    std::shared_ptr<Parameters> sm = Parameters::GetInstance();
     int gen{2};
 };
 
@@ -391,7 +391,7 @@ public:
     std::complex<double> NLO_calculation() {return {0,0};} 
     std::complex<double> NNLO_calculation() {return {0,0};} 
 
-    Parameters* sm = Parameters::GetInstance();
+    std::shared_ptr<Parameters> sm = Parameters::GetInstance();
     int gen{2};
 };
 
@@ -404,7 +404,7 @@ public:
     std::complex<double> NLO_calculation() {return {0,0};} 
     std::complex<double> NNLO_calculation() {return {0,0};} 
 
-    Parameters* sm = Parameters::GetInstance();
+    std::shared_ptr<Parameters> sm = Parameters::GetInstance();
     int gen{2};
 };
 
@@ -417,7 +417,7 @@ public:
     std::complex<double> NLO_calculation() {return {0,0};} 
     std::complex<double> NNLO_calculation() {return {0,0};} 
 
-    Parameters* sm = Parameters::GetInstance();
+    std::shared_ptr<Parameters> sm = Parameters::GetInstance();
     int gen{2};
 };
 
@@ -430,7 +430,7 @@ public:
     std::complex<double> NLO_calculation() {return {0,0};} 
     std::complex<double> NNLO_calculation() {return {0,0};} 
 
-    Parameters* sm = Parameters::GetInstance();
+    std::shared_ptr<Parameters> sm = Parameters::GetInstance();
     int gen{2};
 };
 

@@ -4,8 +4,8 @@
 
 void THDM_LO_Strategy::init(double scale, WilsonSet& C_match) {
 
-	Parameters* sm = Parameters::GetInstance();
-	Parameters* mod = nullptr;
+	std::shared_ptr<Parameters> sm = Parameters::GetInstance();
+	std::shared_ptr<Parameters> mod = nullptr;
 
 	if (is_thdm) {
 		mod = Parameters::GetInstance(2);
@@ -49,9 +49,9 @@ void THDM_LO_Strategy::init(double scale, WilsonSet& C_match) {
 
 void THDM_NLO_Strategy::init(double scale, WilsonSet& C_match) {
 
-	Parameters* sm = Parameters::GetInstance();
-	// Parameters* susy = Parameters::GetInstance(1);
-	Parameters* mod = nullptr;
+	std::shared_ptr<Parameters> sm = Parameters::GetInstance();
+	// std::shared_ptr<Parameters> susy = Parameters::GetInstance(1);
+	std::shared_ptr<Parameters> mod = nullptr;
 
     if (is_thdm) {
 		mod = Parameters::GetInstance(2);
@@ -114,10 +114,10 @@ void THDM_NLO_Strategy::init(double scale, WilsonSet& C_match) {
 
 void THDM_NNLO_Strategy::init(double scale, WilsonSet& C_match) {
 
-	Parameters* sm = Parameters::GetInstance();
-	// Parameters* susy = Parameters::GetInstance(1);
-	// Parameters* thdm = Parameters::GetInstance(2);
-	Parameters* mod = nullptr;
+	std::shared_ptr<Parameters> sm = Parameters::GetInstance();
+	// std::shared_ptr<Parameters> susy = Parameters::GetInstance(1);
+	// std::shared_ptr<Parameters> thdm = Parameters::GetInstance(2);
+	std::shared_ptr<Parameters> mod = nullptr;
 
     if (is_thdm) {
 		mod = Parameters::GetInstance(2);
@@ -165,12 +165,12 @@ void THDM_NNLO_Strategy::init(double scale, WilsonSet& C_match) {
 void THDM_LO_Strategy::init_scalar(double Q_match,double Q,int gen, WilsonSet& C) {
 	/* Wilson coefficients CQ1 et CQ2 in 2HDM */ 
 	
-	Parameters* sm = Parameters::GetInstance(0);
-	// Parameters* thdm = Parameters::GetInstance(2);
+	std::shared_ptr<Parameters> sm = Parameters::GetInstance(0);
+	// std::shared_ptr<Parameters> thdm = Parameters::GetInstance(2);
     double ml;
 
 
-	Parameters* mod = nullptr;
+	std::shared_ptr<Parameters> mod = nullptr;
 
 	if (is_thdm) {
 		mod = Parameters::GetInstance(2);

@@ -90,6 +90,7 @@ void MemoryManager::init(const std::string& lhaFile, Model model, bool use_marty
     if (!std::filesystem::exists(full_path)) {
         LOG_ERROR("PathError", "Invalid lha path :", full_path.string());
     }
+    LOG_INFO("lha path", full_path);
     std::stringstream ss;
     ss << full_path.string();
     cache.reader = std::make_shared<LhaReader>(LhaReader(ss.str()));
@@ -111,7 +112,9 @@ void MemoryManager::init(const std::string& lhaFile, Model model, bool use_marty
         cache.parameter_types.push_back(ParameterType::WILSON);
 
     cache.is_ready = true;
-
+    for (auto& truc: cache.parameter_types) {
+        LOG_INFO("param is: ", (int)truc);
+    }
     for (auto &&m : cache.parameter_types) {
         LOG_DEBUG("Initializing parameters ", (int)m);
         Parameters::GetInstance(m);
@@ -119,6 +122,9 @@ void MemoryManager::init(const std::string& lhaFile, Model model, bool use_marty
 }
 
 void MemoryManager::switch_lha(const std::string& lhaFile, Model model, bool use_marty, bool is_spectrum, bool has_wilsons, bool has_obs) {
+    for (auto& param : cache.parameter_types) {
+        Parameters::GetInstance(param)->CleanupInstance(param);
+    }
     this->cache.is_ready = false;
     this->init(lhaFile, model, use_marty, is_spectrum, has_wilsons, has_obs);
     this->cache.param_cache_okay = false;
@@ -141,6 +147,10 @@ void MemoryManager::set_parameter_covariance_input_file(const std::string &path)
     cache.param_cov_path = path;
 }
 
-std::map<int, double> MemoryManager::get_block_infos(const std::string& block) {
-    return Parameters::GetInstance()->get_block_infos(block);
+std::map<int, double> MemoryManager::get_block_infos(const std::string& block, ParameterType param_type) {
+    return Parameters::GetInstance(param_type)->get_block_infos(block);
 }
+
+std::vector<std::string> MemoryManager::get_blocks_list(ParameterType param_type) {
+        return Parameters::GetInstance(param_type)->get_blocks_list();
+    }

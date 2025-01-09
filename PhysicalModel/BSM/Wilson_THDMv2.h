@@ -8,10 +8,10 @@ class WilsonCoefficient_THDM {
 protected:
     WilsonCoefficient_THDM(double Q_match) {thdm_params->set_params(Q_match);}
     WilsonCoefficient_THDM() {thdm_params->set_params(81.);}
-    void set_mod_parameters(Parameters* new_mod) {this->mod = new_mod;};
+    void set_mod_parameters(std::shared_ptr<Parameters> new_mod) {this->mod = new_mod;};
     
 
-    Parameters* mod = Parameters::GetInstance(ParameterType::THDM);
+    std::shared_ptr<Parameters> mod = Parameters::GetInstance(ParameterType::THDM);
 
     thdm_parameters *thdm_params = thdm_parameters::GetInstance();
 };
