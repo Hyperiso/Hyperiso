@@ -9,6 +9,7 @@ class MemoryManagerCache:
     def switch_lha(self, lha_input, model = False, use_marty = False, is_spectrum = False, has_wilsons = False, has_obs = False):
         self.lha = lha_input
         self.mm.switch_lha(lha_input, model, use_marty, is_spectrum, has_wilsons, has_obs)
+        print("I was here")
 
     def get_lha(self):
         with open(self.lha, 'r') as f:
@@ -27,7 +28,8 @@ class ParametersCache:
         self.param = Parameters(param_type)
 
     def exists(self, block : str, code : int):
-        return self.param.exists(block, code)
+        print(block, code)
+        return Parameters().exists(block, code)
     
     def __call__(self, block : str, code : int):
         return self.param(block, code)
@@ -46,6 +48,8 @@ class ParametersCache:
 
     def get_qcd_mass(self, masstype):
         return Parameters().get_qcd_mass(masstype)
+
+
     
 
 

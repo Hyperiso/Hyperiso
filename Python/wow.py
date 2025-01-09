@@ -15,7 +15,6 @@ print(os.path.exists(os.getcwd() +"/Test/InputFiles/testInput.flha"))
 mm.init("Test/InputFiles/testInput.flha")
 
 pa = Parameters()
-
 print("MASS TEST FOR TOP MASS", pa("MASS", 6))
 print("ALPHA_S at 33 GeV", pa.alpha_s(33))
 print("Runinng mass test", pa.running_mass(4.18, 4.18, 33))
@@ -64,6 +63,7 @@ print("Running C8", wilManag.get_run_coefficient("BCoefficientGroup", "C8", "LO"
 print(pa("MASS", 5))
 
 mm.switch_lha("DataBase/lha/testInputv2.slha", Model.SM)
+print(pa.exists("MASS", 5))
 pa = Parameters()
 
 print(pa("MASS",5))
@@ -71,3 +71,7 @@ print(pa("MASS",5))
 mm.switch_lha("DataBase/lha/testInputv3.slha", Model.SM)
 pa = Parameters()
 print(pa("MASS", 5))
+
+print(pa.exists("MASS", 5))
+
+print(mm.get_blocks_list())

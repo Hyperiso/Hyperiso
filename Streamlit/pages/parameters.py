@@ -9,10 +9,37 @@ from Streamlit.Utils.common_elements import add_header, add_footer, apply_custom
 BASE_API_URL = "http://127.0.0.1:8000/parameters"
 
 
+if "selected_file" not in st.session_state:
+    st.session_state.selected_file = None
+
 def list_lha_files(directory="DataBase/lha/"):
     if not os.path.exists(directory):
         return []
     return [f for f in os.listdir(directory) if os.path.isfile(os.path.join(directory, f))]
+
+def on_new_slha():
+    selected_file = st.session_state.selected_file
+    model = "SM"  # Exemple de modèle
+    print(os.getcwd())
+    print(os.path.join("DataBase/lha", selected_file))
+    response = requests.post(
+        f"{BASE_API_URL}/set_lha_model",
+        json={"lha_file": os.path.join("DataBase/lha",selected_file), "model": model, "use_marty": False,
+        "is_spectrum": False,
+        "has_wilsons": False,
+        "has_obs": False}
+    )
+    print(response)
+    print(response.status_code)
+    if response.status_code == 200:
+        st.session_state.api_status = "success"
+        st.session_state.api_message = "API appelée avec succès."
+    else:
+        st.session_state.api_status = "error"
+        st.session_state.api_message = f"Erreur lors de l'appel API : {response.status_code}"
+
+    print(selected_file)
+
 
 def app():
 
@@ -44,7 +71,9 @@ def app():
     with col_left:
         st.subheader("SLHA File Viewer")
         lha_files = list_lha_files()
-        selected_file = st.selectbox("Select a SLHA File", lha_files)
+        st.session_state.api_called_for = False
+        selected_file = st.selectbox("Select a SLHA File", lha_files, key= "selected_file", on_change=on_new_slha)
+
         if selected_file:
             file_path = os.path.join("DataBase/lha/", selected_file)
             st.text(f"Contents of {selected_file}:")
@@ -55,7 +84,7 @@ def app():
         st.subheader("Single File Analysis")
         block = st.text_input("Block Name", placeholder="Enter block name (e.g., MASS)")
         code = st.number_input("Parameter Code", step=1, min_value=0)
-        if st.button("Get Parameter Value"):
+        if st.button("Get Parameter Value") and block and code:
             response = requests.get(f"{BASE_API_URL}/value", params={"block": block, "code": code})
             if response.status_code == 200:
                 value = response.json().get("value")
@@ -63,6 +92,7 @@ def app():
             else:
                 st.error(response.json().get("detail", "Failed to retrieve parameter value"))
 
+        print(block, code)
         st.session_state.show_pie = True
         if st.button("Show Block Distribution"):
             st.session_state.show_pie = True
@@ -95,6 +125,18 @@ def app():
             selected_code = st.number_input("Histogram Parameter Code", step=1, min_value=0)
             values = []
             for lha_file in list_lha_files():
+                model = "SM"
+                if not selected_block or not selected_code:
+                    continue
+                response = requests.post(
+                    f"{BASE_API_URL}/set_lha_model",
+                    json={"lha_file": os.path.join("DataBase/lha",lha_file), "model": model, "use_marty": False,
+                    "is_spectrum": False,
+                    "has_wilsons": False,
+                    "has_obs": False}
+                )
+                if response.status_code != 200:
+                    print("Error.")
                 response = requests.get(
                     f"{BASE_API_URL}/value",
                     params={"block": selected_block, "code": selected_code}
