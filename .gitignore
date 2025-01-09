@@ -24,3 +24,4 @@ Docs/latex
 test.py
 superiso_v4.1.zip
 DataBase/MartyWilson
+*/__pycache__
