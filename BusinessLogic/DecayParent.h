@@ -26,7 +26,7 @@ protected:
 public:
     explicit DecayParent() = default;
 
-    std::shared_ptr<CoefficientManager> compute_wilsons();
+    std::shared_ptr<CoefficientManager> get_wilsons(bool force_update=false);
 
     scalar_t compute_observable(Observables obs);
 
