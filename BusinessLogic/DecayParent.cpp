@@ -1,7 +1,7 @@
 #include "DecayParent.h"
 
-std::shared_ptr<CoefficientManager> DecayParent::compute_wilsons() {
-    if (!manager) {
+std::shared_ptr<CoefficientManager> DecayParent::get_wilsons(bool force_update) {
+    if (!manager || force_update) {
         manager = CoefficientManager::Builder(ModelMapper::str(winfo.model), 
                                                 winfo.wgroups, 
                                                 winfo.matching_scale, 

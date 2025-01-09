@@ -132,7 +132,7 @@ complex_t BKstarDecay::a7c_h(double mu_h,
                              double lambda_B,
                              complex_t h2,
                              complex_t h8) {
-    auto manager = compute_wilsons();
+    auto manager = get_wilsons();
     manager->setGroupScale(GroupMapper::str(WilsonGroups::BCoefficients), mu_h);
     manager->setGroupScale(GroupMapper::str(WilsonGroups::BPrimeCoefficients), mu_h);
     manager->switchbasis(GroupMapper::str(WilsonGroups::BCoefficients));
@@ -146,7 +146,7 @@ complex_t BKstarDecay::a7c_h(double mu_h,
 }
 
 complex_t BKstarDecay::a7c_b(double alpha_s_mu_b, complex_t g2, complex_t g8) {
-    auto manager = compute_wilsons();
+    auto manager = get_wilsons();
     complex_t C2 = manager->getFullRunCoefficient(GroupMapper::str(WilsonGroups::BCoefficients), "C2", "NNLO") + manager->getFullRunCoefficient(GroupMapper::str(WilsonGroups::BPrimeCoefficients), "CP2", "LO");
     complex_t C7 = manager->getFullRunCoefficient(GroupMapper::str(WilsonGroups::BCoefficients), "C7", "NNLO") + manager->getFullRunCoefficient(GroupMapper::str(WilsonGroups::BPrimeCoefficients), "CP7", "LO");
     complex_t C8 = manager->getFullRunCoefficient(GroupMapper::str(WilsonGroups::BCoefficients), "C8",  "NNLO") + manager->getFullRunCoefficient(GroupMapper::str(WilsonGroups::BPrimeCoefficients), "CP8", "LO");
@@ -155,7 +155,7 @@ complex_t BKstarDecay::a7c_b(double alpha_s_mu_b, complex_t g2, complex_t g8) {
 
 complex_t BKstarDecay::r1(double mu_0, double F_p) {
     if (fpeq(mu_0, -1.)) mu_0 = winfo.hadronic_scale;
-    auto manager = compute_wilsons();
+    auto manager = get_wilsons();
     complex_t C3 = manager->getFullRunCoefficient(GroupMapper::str(WilsonGroups::BCoefficients), "C3", "NNLO") + manager->getFullRunCoefficient(GroupMapper::str(WilsonGroups::BPrimeCoefficients), "CP3", "LO");
     complex_t C4 = manager->getFullRunCoefficient(GroupMapper::str(WilsonGroups::BCoefficients), "C4", "NNLO") + manager->getFullRunCoefficient(GroupMapper::str(WilsonGroups::BPrimeCoefficients), "CP4", "LO");
     complex_t C5 = manager->getFullRunCoefficient(GroupMapper::str(WilsonGroups::BCoefficients), "C5",  "NNLO") + manager->getFullRunCoefficient(GroupMapper::str(WilsonGroups::BPrimeCoefficients), "CP5", "LO");
@@ -167,7 +167,7 @@ complex_t BKstarDecay::r1(double mu_0, double F_p) {
 
 complex_t BKstarDecay::r2(double mu_0) {
     if (fpeq(mu_0, -1.)) mu_0 = winfo.hadronic_scale;
-    auto manager = compute_wilsons();
+    auto manager = get_wilsons();
     complex_t C3 = manager->getFullRunCoefficient(GroupMapper::str(WilsonGroups::BCoefficients), "C3", "NNLO") + manager->getFullRunCoefficient(GroupMapper::str(WilsonGroups::BPrimeCoefficients), "CP3", "LO");
     complex_t C4 = manager->getFullRunCoefficient(GroupMapper::str(WilsonGroups::BCoefficients), "C4", "NNLO") + manager->getFullRunCoefficient(GroupMapper::str(WilsonGroups::BPrimeCoefficients), "CP4", "LO");
     complex_t C6 = manager->getFullRunCoefficient(GroupMapper::str(WilsonGroups::BCoefficients), "C6",  "NNLO") + manager->getFullRunCoefficient(GroupMapper::str(WilsonGroups::BPrimeCoefficients), "CP6", "LO");
@@ -183,7 +183,7 @@ complex_t BKstarDecay::K1(double mb_mb,
                           complex_t X_p,
                           complex_t r1)
 {
-    auto manager = compute_wilsons();
+    auto manager = get_wilsons();
     complex_t C2 = manager->getFullRunCoefficient(GroupMapper::str(WilsonGroups::BCoefficients), "C2", "NNLO") + manager->getFullRunCoefficient(GroupMapper::str(WilsonGroups::BPrimeCoefficients), "CP2", "LO");
     complex_t C5 = manager->getFullRunCoefficient(GroupMapper::str(WilsonGroups::BCoefficients), "C5",  "NNLO") + manager->getFullRunCoefficient(GroupMapper::str(WilsonGroups::BPrimeCoefficients), "CP5", "LO");
     complex_t C6 = manager->getFullRunCoefficient(GroupMapper::str(WilsonGroups::BCoefficients), "C6",  "NNLO") + manager->getFullRunCoefficient(GroupMapper::str(WilsonGroups::BPrimeCoefficients), "CP6", "LO");
@@ -199,7 +199,7 @@ complex_t BKstarDecay::K2d(double mb_mb,
                            complex_t H_p,
                            complex_t r2)
 {
-    auto manager = compute_wilsons();
+    auto manager = get_wilsons();
     complex_t C2 = manager->getFullRunCoefficient(GroupMapper::str(WilsonGroups::BCoefficients), "C2", "NNLO") + manager->getFullRunCoefficient(GroupMapper::str(WilsonGroups::BPrimeCoefficients), "CP2", "LO");
     complex_t C3 = manager->getFullRunCoefficient(GroupMapper::str(WilsonGroups::BCoefficients), "C3",  "NNLO") + manager->getFullRunCoefficient(GroupMapper::str(WilsonGroups::BPrimeCoefficients), "CP3", "LO");
     complex_t C4 = manager->getFullRunCoefficient(GroupMapper::str(WilsonGroups::BCoefficients), "C4",  "NNLO") + manager->getFullRunCoefficient(GroupMapper::str(WilsonGroups::BPrimeCoefficients), "CP4", "LO");
@@ -225,7 +225,7 @@ complex_t BKstarDecay::ckm_factor(double Vus_r,
 }
 
 complex_t BKstarDecay::K2u(complex_t ckm, complex_t K2d) {
-    auto manager = compute_wilsons();
+    auto manager = get_wilsons();
     complex_t C1 = manager->getFullRunCoefficient(GroupMapper::str(WilsonGroups::BCoefficients), "C1", "NNLO") + manager->getFullRunCoefficient(GroupMapper::str(WilsonGroups::BPrimeCoefficients), "CP1", "LO");
     complex_t C2 = manager->getFullRunCoefficient(GroupMapper::str(WilsonGroups::BCoefficients), "C2",  "NNLO") + manager->getFullRunCoefficient(GroupMapper::str(WilsonGroups::BPrimeCoefficients), "CP2", "LO");
     double N = QCDHelper::Nc;
