@@ -10,7 +10,7 @@ EpsilonCalculator::EpsilonCalculator() {}
 double EpsilonCalculator::epsilon_0() {
 
     double sw2 = std::pow(std::sin(std::atan((*sm)("GAUGE",1)/ (*sm)("GAUGE",2))), 2);
-    double alphas_MSOFT = sm->alpha_s((*susy)("HMIX", 0));
+    double alphas_MSOFT = QCDHelper::alpha_s((*susy)("HMIX", 0));
 
     double factor = 2.0 / 3.0 * alphas_MSOFT / M_PI;
 
@@ -64,7 +64,7 @@ double EpsilonCalculator::epsilon_b() {
 double EpsilonCalculator::epsilon_bp() {
 
     double sw2 = std::pow(std::sin(std::atan((*sm)("GAUGE",1)/ (*sm)("GAUGE",2))), 2);
-    double alphas_MSOFT = (*sm).alpha_s((*susy)("HMIX", 0));
+    double alphas_MSOFT = QCDHelper::alpha_s((*susy)("HMIX", 0));
     int nb_neut = ((*susy)("MASS", 1000039) == 0.) ? 4 : 5; //mass_neut[5] is gravitino ?
 
     
@@ -116,7 +116,7 @@ double EpsilonCalculator::epsilon_bp() {
 
 double EpsilonCalculator::epsilon_0p() {
 
-    double alphas_MSOFT = (*sm).alpha_s((*susy)("HMIX", 0));
+    double alphas_MSOFT = QCDHelper::alpha_s((*susy)("HMIX", 0));
     int nb_neut = ((*susy)("MASS", 1000039) == 0.) ? 4 : 5;
 
     double epsilon0p = -2.0 / 3.0 * alphas_MSOFT / M_PI * 

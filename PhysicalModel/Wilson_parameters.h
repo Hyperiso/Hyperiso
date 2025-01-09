@@ -1,6 +1,8 @@
 #pragma once
 #include <array>
 #include "Parameters.h"
+#include "QCDHelper.h"
+
 class Wilson_parameters {
 
     

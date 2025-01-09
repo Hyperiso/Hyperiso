@@ -6,6 +6,7 @@
 #include <stdexcept>
 #include "Wilsonv2.h"
 #include "MemoryManager.h"
+#include "QCDHelper.h"
 #include <set>
 #define PRECISION 1e-5
 
@@ -157,6 +158,7 @@ public:
     RunSetState(std::string order) : State(order) {this->state = StateName::RunSetState;}
     void switchbasis(CoefficientManager* manager, const std::string& groupName);
     void setGroupScale(CoefficientManager* manager, const std::string& groupName, double Q) override;
+    void setQMatch(CoefficientManager* manager, const std::string& groupName, double Q_match) override;
     std::complex<double> getMatchingCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) override;
     std::complex<double> getFullMatchingCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) override;
     std::complex<double> getFullRunCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) override;
@@ -290,6 +292,17 @@ public:
     void printGroupCoefficients(const std::string& groupName) const {
         CoefficientGroup* group = getCoefficientGroup(groupName);
         std::cout << *dynamic_cast<BCoefficientGroup*>(group);
+    }
+
+    void update(std::string group, double Q_match=0, double Q=0) {
+        Q_match = fpeq(Q_match, 0.) ? coefficientGroups[group]->get_Q_match() : Q_match; 
+        Q = fpeq(Q, 0.) ? coefficientGroups[group]->get_Q_run() : Q; 
+        auto order = ensureGroupState(group)->getCurrentOrder();
+
+        this->setQMatch(group, Q_match);
+        this->setMatchingCoefficient(group, order);
+        this->setGroupScale(group, Q);
+        this->setRunCoefficient(group, order);
     }
 
     static bool compatible_concat(std::shared_ptr<CoefficientManager> manager1, std::shared_ptr<CoefficientManager> manager2) {

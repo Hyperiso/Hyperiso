@@ -21,6 +21,7 @@ class DecayParent {
 protected:
     std::map<Observables, std::shared_ptr<OperatorNode>> roots;
     WilsonInfo winfo;
+    std::shared_ptr<CoefficientManager> manager;
 
 public:
     explicit DecayParent() = default;

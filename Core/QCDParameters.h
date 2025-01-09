@@ -9,8 +9,8 @@
 class QCDParameters {
 public:
 
-    static constexpr inline int Nc = 3;
-    static constexpr inline double C_F = (Nc * Nc - 1.) / (2. * Nc);
+    static constexpr int Nc = 3;
+    static constexpr double C_F = (Nc * Nc - 1.) / (2. * Nc);
     static constexpr inline double C_A = Nc;
     
     QCDParameters() { Lambda5 = 0.2; LOG_DEBUG("QCDParameters created at address: ", this); }

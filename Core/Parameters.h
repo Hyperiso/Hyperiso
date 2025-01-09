@@ -1,10 +1,11 @@
 #pragma once
 
-#include "QCDParameters.h"
+// #include "QCDParameters.h"
 #include "BlockAccessor.h"
 #include "MemoryManager.h"
 #include "Interface.h"
 #include "JsonParameters.h"
+#include "QCDHelper.h"
 #include <memory>
 
 typedef std::complex<double> complex_t; 
@@ -57,32 +58,33 @@ public:
     static std::shared_ptr<Parameters> GetInstance(ParameterType id = ParameterType::SM);
     void CleanupInstance(ParameterType id = ParameterType::SM);
     static ParameterType GetType(const std::string& block, int pdgCode);
+    static double Get(ParameterType type, const std::string& block, int code);
     static double Get(ParamId id);
 
     bool exist(const std::string& block, int pdgCode);
     
     double operator()(const std::string& block, int pdgCode);
 
-    double alpha_s(double Q);
-    double running_mass(double quarkmass, double Q_init, double Q_end, std::string option_massb = "running", std::string option_masst = "pole");
+    // double alpha_s(double Q);
+    // double running_mass(double quarkmass, double Q_init, double Q_end, std::string option_massb = "running", std::string option_masst = "pole");
 
     void addBlock(const std::string& name, std::shared_ptr<Block> block) {
         blockAccessor.addBlock(name, block);
     }
 
     void setBlockValue(const std::string& name, int pdgCode, double value, bool force = false) {
-        if (force && (name == "SMINPUTS")) {
-            if(pdgCode ==6) {
-                QCDRunner.set_mt_pole(value);
-                blockAccessor.setValue(name, pdgCode, this->get_QCD_masse("mt_mt"), force);
-                return;
+        // if (force && (name == "SMINPUTS")) {
+        //     if(pdgCode ==6) {
+        //         QCDRunner.set_mt_pole(value);
+        //         blockAccessor.setValue(name, pdgCode, this->get_QCD_masse("mt_mt"), force);
+        //         return;
             
-            } else if (pdgCode ==5) {
-                QCDRunner.set_mb_mb(value);
-                blockAccessor.setValue(name, pdgCode, value, force);
-                return;
-            }
-        }
+        //     } else if (pdgCode ==5) {
+        //         QCDRunner.set_mb_mb(value);
+        //         blockAccessor.setValue(name, pdgCode, value, force);
+        //         return;
+        //     }
+        // }
         blockAccessor.setValue(name, pdgCode, value, force);
     }
 
@@ -90,12 +92,16 @@ public:
         return blockAccessor.getAllValues(blockName);
     }
 
+
     std::vector<std::string> get_blocks_list() {
         return blockAccessor.get_blocks();
     }
     void setQCDParameters(const QCDParameters&& qcdparams) {QCDRunner = qcdparams;}
 
-    double get_QCD_masse(std::string masstype);
+    // void setQCDParameters(const QCDParameters&& qcdparams) {QCDRunner = qcdparams;}
+
+
+    // double get_QCD_masse(std::string masstype);
 
     void changeParameterMode(const ParamId& param_id, ParameterMode new_mode);
     void shiftParameter(const ParamId& param_id, double shift_value);
@@ -105,9 +111,9 @@ public:
         return complex_t((*p)("RECKM", idx), (*p)("IMCKM", idx));
     }
 
-    QCDParameters* QCDaddress() {
-        return &this->QCDRunner;
-    }
+    // QCDParameters* QCDaddress() {
+    //     return &this->QCDRunner;
+    // }
   
     ~Parameters() { LOG_DEBUG("Parameters at ", this); }
 
@@ -116,7 +122,8 @@ private:
     static std::map<ParameterType, std::shared_ptr<Parameters>> instances;
     std::map<std::pair<std::string, int>, double> originalValuesCache;
 
-    QCDParameters QCDRunner;
+
+    // QCDParameters QCDRunner;
     BlockAccessor blockAccessor;
 
     std::shared_ptr<ModelStrategy> strategy;

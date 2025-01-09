@@ -4,6 +4,7 @@
 #include "ModelEvaluator.h"
 #include "BKstarDecay.h"
 #include "Observable.h"
+#include "QCDHelper.h"
 
 #include <iostream>
 #include <cassert>
@@ -20,7 +21,7 @@ int main() {
     double m_Bd = (*flavp)("FMASS", 511);
     double m_Bu = (*flavp)("FMASS", 521);
 
-    auto B_Ks = std::make_shared<BKstarDecay>(QCDOrder::NNLO, 80, Parameters::GetInstance(ParameterType::SM)->get_QCD_masse("mb_1S") / 2);
+    auto B_Ks = std::make_shared<BKstarDecay>(QCDOrder::NNLO, 80, QCDHelper::mass_b_1S() / 2);
 
     // std::shared_ptr<BR_Bs_mumu_untag>   br_Bs__mu_mu = std::make_shared<BR_Bs_mumu_untag>(Model::SM, QCDOrder::NNLO, m_Bs);
     // std::shared_ptr<BR_Bd_mumu>         br_Bd__mu_mu = std::make_shared<BR_Bd_mumu>(Model::SM, QCDOrder::NNLO, m_Bd);

@@ -3,6 +3,7 @@
 
 #include "DecayParent.h"
 #include "General.h"
+#include "QCDHelper.h"
 
 class BKstarDecay : public DecayParent {
 

@@ -3,7 +3,7 @@
 
 Wilson_parameters::Wilson_parameters() {
     sm = Parameters::GetInstance(ParameterType::SM);
-	alphas_muW=(*sm).alpha_s(81);
+	alphas_muW=QCDHelper::alpha_s(81);
 
 	m00= {{ 
 	/*m001[10][10]*/{{
@@ -1215,14 +1215,14 @@ void Wilson_parameters::SetMuW(double mu_W) {
 	
 	this->mu_W = mu_W;
 	LOG_DEBUG("mu_W : " + std::to_string(mu_W));
-	alphas_muW=(*sm).alpha_s(mu_W);
+	alphas_muW=QCDHelper::alpha_s(mu_W);
 	LOG_DEBUG("ALPHA AFTER CALCULATION :", alphas_muW);
-	mass_top_muW=(*sm).running_mass((*sm)("MASS",6), (*sm)("MASS",6),mu_W, "running"); //mass top at top ?
+	mass_top_muW=QCDHelper::msbar_mass(6, mu_W, "running"); //mass top at top ?
 	LOG_DEBUG("mass_top_muW : " + std::to_string(mass_top_muW));
-	mass_b_muW=(*sm).running_mass((*sm)("MASS",5), (*sm)("MASS",5), mu_W, "running"); //mass bottom 6 (at pole)
+	mass_b_muW=QCDHelper::msbar_mass(5, mu_W, "running"); //mass bottom 6 (at pole)
 	LOG_DEBUG("mass_b_muW : " + std::to_string(mass_b_muW));
-	mass_b_muW_2=(*sm).running_mass((*sm)("MASS",5), (*sm)("MASS",5), mu_W);
-	mass_c_muW=(*sm).running_mass((*sm)("MASS", 4),(*sm)("MASS", 4),mu_W,"pole");
+	mass_b_muW_2=QCDHelper::msbar_mass(5, mu_W);
+	mass_c_muW=QCDHelper::msbar_mass(4, mu_W, "pole");
 	sw2=pow(sin(atan((*sm)("GAUGE",1)/(*sm)("GAUGE",2))),2.);
 	xt = std::pow(mass_top_muW / (*sm)("MASS",24), 2);
 	ml = (*sm)("MASS", 13+2*(this->gen-2));
@@ -1246,7 +1246,7 @@ void Wilson_parameters::SetMu(double mu) {
 	std::shared_ptr<Parameters> sm = Parameters::GetInstance();
 
 	this->mu = mu;
-	alphas_mu=(*sm).alpha_s(mu);	
+	alphas_mu=QCDHelper::alpha_s(mu);	
 	eta_mu=alphas_muW/alphas_mu;
 
 	for (int i = 0; i < arraySize; ++i) {

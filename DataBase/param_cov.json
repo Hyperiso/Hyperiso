@@ -155,6 +155,12 @@
         "central_value": 0.5,
         "stat_error": 0.1,
         "syst_error": 0
+      },
+      {
+        "name": "B_ll|1",
+        "central_value": 0.088,
+        "stat_error": 0.014,
+        "syst_error": 0
       }
     ],
     "correlations": [
