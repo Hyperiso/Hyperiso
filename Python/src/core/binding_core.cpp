@@ -47,18 +47,18 @@ void init_core(py::module &m) {
             py::arg("id") = ParameterType::SM,
             py::return_value_policy::reference
         )
-        .def("alpha_s", &Parameters::alpha_s, py::arg("Q"),
-             "Compute the strong coupling constant at scale Q.")
-        .def("running_mass", &Parameters::running_mass,
-             py::arg("quark_mass"), py::arg("q_init"), py::arg("q_end"),
-             py::arg("option_massb") = "running", py::arg("option_masst") = "pole",
-             "Compute the running mass of a quark.")
+        // .def("alpha_s", &Parameters::alpha_s, py::arg("Q"),
+        //      "Compute the strong coupling constant at scale Q.")
+        // .def("running_mass", &Parameters::running_mass,
+        //      py::arg("quark_mass"), py::arg("q_init"), py::arg("q_end"),
+        //      py::arg("option_massb") = "running", py::arg("option_masst") = "pole",
+        //      "Compute the running mass of a quark.")
         .def("set_block_value", &Parameters::setBlockValue,
              py::arg("block"), py::arg("code"), py::arg("value"), py::arg("force") = false,
              "Set a value in a specific block.")
-        .def("get_qcd_masse", &Parameters::get_QCD_masse,
-             py::arg("masstype"),
-             "Retrieve the QCD mass.")
+        // .def("get_qcd_masse", &Parameters::get_QCD_masse,
+        //      py::arg("masstype"),
+        //      "Retrieve the QCD mass.")
         .def("exists", &Parameters::exist, py::arg("block"), py::arg("code"),
              "Check if a parameter exists in a block.")
         .def("__call__", [](Parameters &self, const std::string &block, int code) {

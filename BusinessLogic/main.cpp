@@ -22,7 +22,7 @@ int main() {
     double m_Bd = (*flavp)("FMASS", 511);
     double m_Bu = (*flavp)("FMASS", 521);
 
-    auto B_Ks = std::make_shared<BKstarDecay>(QCDOrder::NNLO, 80, sm_p->get_QCD_masse("mb_1S") / 2);
+    auto B_Ks = std::make_shared<BKstarDecay>(QCDOrder::NNLO, 80, QCDHelper::mass_b_1S() / 2);
 
     // BR_Bs_mumu          br_Bs__mu_mu(Model::SM, QCDOrder::NNLO, m_Bs); 
     // BR_Bs_mumu_untag    br_Bs__mu_mu__untag(Model::SM, QCDOrder::NNLO, m_Bs);

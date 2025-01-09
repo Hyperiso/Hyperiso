@@ -36,8 +36,8 @@ susy_parameters::susy_parameters(double scale) {
 	LOG_DEBUG("epsilon0 " + std::to_string(std::real(epsilon0)));
 	LOG_DEBUG("epsilon2 " + std::to_string(std::real(epsilon2)));
 
-    mass_top_muW=(*sm).running_mass((*sm)("MASS",6), (*sm)("MASS",6),scale, "running", "pole");
-	mass_b_muW=(*sm).running_mass((*sm)("MASS",5), (*sm)("MASS",5), scale, "running", "pole"); //mass bottom 6 (at pole)
+    mass_top_muW = QCDHelper::msbar_mass(6, scale, "running", "pole");
+	mass_b_muW = QCDHelper::msbar_mass(5, scale, "running", "pole"); //mass bottom 6 (at pole)
 
 	L=log(scale*scale/(*sm)("MASS",24)/(*sm)("MASS",24)); // scale -> mu_W
  	sw2=pow(sin(atan((*sm)("GAUGE",1)/(*sm)("GAUGE",2))),2.); //1 = param-> gp and 2 = (*sm)("GAUGE",2)
@@ -50,9 +50,9 @@ susy_parameters::susy_parameters(double scale) {
     lu=1./(*susy)("HMIX",2);
 	ld=-(*susy)("HMIX",2);
 	
-	alphas_muW=(*sm).alpha_s(scale);
+	alphas_muW = QCDHelper::alpha_s(scale);
 
-    alphas_mg = sm->alpha_s((*susy)("MASS",1000021));
+    alphas_mg = QCDHelper::alpha_s((*susy)("MASS",1000021));
 	ag = 1.0 - 7.0 / (12.0 * Pi) * alphas_mg;
 	aY = 1.0 + alphas_mg / (4.0 * Pi);
 	kappa = 1.0 / ((*sm)("GAUGE",2) * (*sm)("GAUGE",2) * std::real(VCKM[2][2]*VCKM[2][1])); //VCKM 33 et 32
@@ -269,7 +269,7 @@ void susy_parameters::reset_PrimeCQG(double Q_match) {
 	if (is_PrimeCQG) {return;}
 	is_PrimeCQG = true;
 	Parameters* sm = Parameters::GetInstance();
-	double mass_c_muW = (*sm).running_mass((*sm)("MASS", 4), (*sm)("MASS", 4), Q_match);
+	double mass_c_muW = QCDHelper::msbar_mass(4, Q_match);
 	LOG_INFO("mass_c_muW", mass_c_muW);
 	MU = {(*sm)("MASS",2), mass_c_muW, mass_top_muW};
 	LOG_INFO("MU_0", MU[0]);
@@ -289,7 +289,6 @@ void susy_parameters::reset_PrimeCQG(double Q_match) {
 
 					G_aimn[ae][ie][be][ce]=0.5/sqrt(2.)*(sqrt(2.)*(*sm)("MASS",24)*(*susy)("VMIX", ie*10+0)*Gamma_UL[ae][ce]*ag-MU[ce]*(*susy)("VMIX", ie*10+1)*Gamma_UR[ae][ce]*aY)*(std::real(VCKM[be][2])*std::real(VCKM[ce][1])/std::real(VCKM[2][2])/std::real(VCKM[2][1]));
 				}
-
 			}
 		}
 	}

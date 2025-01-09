@@ -34,10 +34,11 @@ add_library(CoreLib STATIC
     Parameters.cpp
     General.cpp
     Parameter.cpp
-    QCDParameters.cpp)
+    # QCDParameters.cpp
+    QCDHelper.cpp)
 set_target_properties(CoreLib PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
-set_target_properties(CoreLib PROPERTIES PUBLIC_HEADER "MemoryManager.h;Parameters.h;Parameter.h;QCDParameters.h")
+set_target_properties(CoreLib PROPERTIES PUBLIC_HEADER "MemoryManager.h;Parameters.h;Parameter.h;QCDHelper.h")
 
 target_include_directories(CoreLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 

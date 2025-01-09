@@ -2,6 +2,7 @@
 #ifndef EPSILONCALCULATOR_H
 #define EPSILONCALCULATOR_H
 #include "Parameters.h"
+#include "QCDHelper.h"
 #include <cmath>
 #include <vector>
 #include <map>

@@ -105,9 +105,16 @@ protected:
 
 
 // Concrete block for masses
-class MassBlock : public MapBlock{
+class MassBlock : public MapBlock {
 public:
     MassBlock() {this->blockname = "MASSBlock";}
+
+    double getValue(int pdgCode) const override {
+        if (pdgCode < 7) {
+            // LOG_WARN("Accessing quark masses through Parameters is deprecated. Use QCDHelper instead.");
+        }
+        return MapBlock::getValue(pdgCode);
+    }
 };
 
 // Concrete block for gauge parameters
@@ -253,7 +260,7 @@ class WilsonBlock : public Block {
     // pdgCode -1 is reserved to access the scale of the coefficients
     // pdgCode -2 is reserved to access the type of the coefficients
 public:
-    double getValue(int pdgCode) const {
+    double getValue(int pdgCode) const override {
         if (pdgCode == -1) {
             return scale;
         } else if (pdgCode == -2) {
@@ -300,4 +307,9 @@ Form Factors BLOCKS*/
 class BKsBlock : public MapBlock {
 public:
     BKsBlock() {this->blockname = "BKsBlock";}
+};
+
+class BllBlock : public MapBlock {
+public:
+    BllBlock() {this->blockname = "BllBlock";}
 };

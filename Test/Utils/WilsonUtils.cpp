@@ -37,7 +37,7 @@ void writeCoefficientsToFile(const std::string& strat_name, const std::string& f
     
     wm->setQMatch("BCoefficient", Q_match);
     wm->setMatchingCoefficient("BCoefficient", strat_name);
-    double alpha_s = (*sm).alpha_s(Q_match);
+    double alpha_s = QCDHelper::alpha_s(Q_match);
 
     file << Q_match << "," << alpha_s;
     std::vector<std::string> name {"C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9", "C10"};
@@ -100,7 +100,7 @@ void writeCoefficientsPrimeCQToFile(const std::string& strat_name, const std::st
     wm->setRunCoefficient("BScalarCoefficient", strat_name);
     // wm->setScale(answer);
 
-    double alpha_s = (*sm).alpha_s(answer);
+    double alpha_s = QCDHelper::alpha_s(answer);
 
     file << answer << "," << alpha_s;
 
@@ -167,7 +167,7 @@ void writeRunCoefficientsToFile(const std::string& strat_name, const std::string
         wm->switchbasis("BCoefficient");
     }
     
-    double alpha_s = (*sm).alpha_s(Q_match);
+    double alpha_s = QCDHelper::alpha_s(Q_match);
 
     file << Q << "," << alpha_s;
     std::vector<std::string> name {"C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9", "C10"};

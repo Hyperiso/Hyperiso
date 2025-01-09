@@ -45,7 +45,7 @@ public:
     std::complex<double> get_CoefficientRunValue(std::string order) const {return this->CoefficientRunValue.at(order);}
 
     std::complex<double> get_CoefficientFullMatchingValue(std::string order) const {
-        double fact = Parameters::GetInstance(ParameterType::SM)->alpha_s(Q_match) / (4 * M_PI);
+        double fact = QCDHelper::alpha_s(Q_match) / (4 * M_PI);
 
         if (order == "LO") {
             return this->get_CoefficientMatchingValue("LO");
@@ -62,7 +62,7 @@ public:
     }
 
     std::complex<double> get_CoefficientFullRunValue(std::string order) const {
-        double fact = Parameters::GetInstance(ParameterType::SM)->alpha_s(Q) / (4 * M_PI);
+        double fact = QCDHelper::alpha_s(Q) / (4 * M_PI);
 
         if (order == "LO") {
             return this->get_CoefficientRunValue("LO");
@@ -454,6 +454,8 @@ public:
             this->insert(std::make_pair(coeff.first, std::move(coeff.second)));
         }
     }
+
+    std::map<ParamId, double> param_cache;
 
     bool is_double_base() {return this->double_base;}
     virtual void switch_base() {LOG_ERROR("ValueError", "error");}

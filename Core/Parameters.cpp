@@ -56,8 +56,12 @@ ParameterType Parameters::GetType(const std::string &block, int pdgCode) {
     LOG_ERROR("Invalid Parameter", "Parameter", block, ",", pdgCode, "is undefined.");
 }
 
+double Parameters::Get(ParameterType type, const std::string& block, int code) {
+    return (*GetInstance(type))(block, code);
+}
+
 double Parameters::Get(ParamId id) {
-    return (*GetInstance(id.type))(id.block, id.code);
+    return Get(id.type, id.block, id.code);
 }
 
 Parameters::Parameters(ModelStrategy* modelStrategy)
@@ -73,39 +77,41 @@ double Parameters::operator()(const std::string& block, int pdgCode) {
 bool Parameters::exist(const std::string& block, int pdgCode) {
     return blockAccessor.exist(block, pdgCode);
 }
-double Parameters::alpha_s(double Q) {
-    return this->QCDRunner.runningAlphasCalculation(Q);
-}
+// double Parameters::alpha_s(double Q) {
+//     return this->QCDRunner.runningAlphasCalculation(Q);
+// }
 
-double Parameters::running_mass(double quarkmass, double Q_init, double Q_end,  std::string option_massb, std::string option_masst) {
-    return this->QCDRunner.running_mass(quarkmass, Q_init, Q_end, option_massb, option_masst);
-}
+// double Parameters::running_mass(double quarkmass, double Q_init, double Q_end,  std::string option_massb, std::string option_masst) {
+//     return this->QCDRunner.running_mass(quarkmass, Q_init, Q_end, option_massb, option_masst);
+// }
 
-double Parameters::get_QCD_masse(std::string masstype) {
-    if (masstype == "mt_mt"){
-        return this->QCDRunner.get_mt_mt();
-    }
-    if (masstype == "mb_pole") {
-        return this->QCDRunner.get_mb_pole();
-    }
-    if (masstype == "mt_pole") {
-        return this->QCDRunner.get_mt_pole();
-    }
-    if (masstype == "mb_mb") {
-        return this->QCDRunner.get_mb_mb();
-    }
-    if (masstype == "mb_1S") {
-        return this->QCDRunner.mb_1S();
-    }
-    LOG_ERROR("InvalidInput", "invalid masse for get_QCD_masse", masstype);
-    return 0.;
-}
+// double Parameters::get_QCD_masse(std::string masstype) {
+//     if (masstype == "mt_mt"){
+//         return this->QCDRunner.get_mt_mt();
+//     }
+//     if (masstype == "mb_pole") {
+//         return this->QCDRunner.get_mb_pole();
+//     }
+//     if (masstype == "mt_pole") {
+//         return this->QCDRunner.get_mt_pole();
+//     }
+//     if (masstype == "mb_mb") {
+//         return this->QCDRunner.get_mb_mb();
+//     }
+//     if (masstype == "mb_1S") {
+//         return this->QCDRunner.mb_1S();
+//     }
+//     LOG_ERROR("InvalidInput", "invalid masse for get_QCD_masse", masstype);
+//     return 0.;
+// }
 
 void SMModelStrategy::initializeParameters(Parameters& params) {
 
+    LOG_INFO("Hi");
+
     LhaReader* lha = MemoryManager::GetInstance()->getReader();
 
-    // SMINPUTS./
+    // SMINPUTS
     double inv_alpha_em{1.37934e2}, G_F{1.16637e-5}, alpha_s_MZ{1.184e-1}, m_Z_pole{91.1876}, m_b_mb{4.18}, m_t_pole{172.9}, m_tau_pole{1.777};
     std::vector<double*> sm_inputs = {&inv_alpha_em, &G_F, &alpha_s_MZ, &m_Z_pole, &m_b_mb, &m_t_pole, &m_tau_pole};
     lha->extractFromBlock("SMINPUTS", sm_inputs);
@@ -147,18 +153,18 @@ void SMModelStrategy::initializeParameters(Parameters& params) {
     params.setBlockValue("RECKM", 22, std::real(1));
     params.setBlockValue("IMCKM", 22, std::imag(1));
 
-    // double m_W = std::sqrt(std::pow(m_Z_pole, 2) / 2 + std::sqrt(std::pow(m_Z_pole, 4) / 4 - M_PI * std::pow(m_Z_pole, 2) / inv_alpha_em / G_F / std::sqrt(2)));
-    double m_W = 79.829;
-    //Masses
+    double m_W = std::sqrt(std::pow(m_Z_pole, 2) / 2 + std::sqrt(std::pow(m_Z_pole, 4) / 4 - M_PI * std::pow(m_Z_pole, 2) / inv_alpha_em / G_F / std::sqrt(2)));
+    // double m_W = 79.829;
+    
+    //Masses (from PDG 2023)
     params.addBlock("MASS", std::make_shared<MassBlock>());
-    // Masses (from PDG 2023)
     params.setBlockValue("MASS", 1, 4.7e-3);
     params.setBlockValue("MASS", 2, 2.2e-3);
     params.setBlockValue("MASS", 3, 93e-3);
     params.setBlockValue("MASS", 4, 1.27);
-    params.setQCDParameters(QCDParameters(alpha_s_MZ, m_Z_pole, m_t_pole, m_b_mb, params("MASS", 2), params("MASS", 1), params("MASS", 3), params("MASS", 4)));
+    QCDHelper::Init(alpha_s_MZ, m_Z_pole, m_t_pole, m_b_mb, 1.27, 93e-3, 2.2e-3, 4.7e-3);
     params.setBlockValue("MASS", 5, m_b_mb);
-    params.setBlockValue("MASS", 6, params.get_QCD_masse("mt_mt"));
+    params.setBlockValue("MASS", 6, m_t_pole);
     params.setBlockValue("MASS", 11, 0.511e-3);
     params.setBlockValue("MASS", 13, 0.105658);
     params.setBlockValue("MASS", 15, m_tau_pole);
@@ -568,6 +574,10 @@ void FormFactorStrategy::initializeParameters(Parameters &params) {
     bksblock->setValue(12, 0.5); // Lambda_h (spectator scale) [GeV]
     bksblock->setValue(13, -1); // mu_0 (remainder scale) [GeV]
     params.addBlock("B_Ks", std::move(bksblock));
+
+    auto bllblock = std::make_shared<BllBlock>();
+    bllblock->setValue(1, 0.088); // y_s
+    params.addBlock("B_ll", std::move(bllblock));
 }
 
 void Parameters::changeParameterMode(const ParamId &param_id,

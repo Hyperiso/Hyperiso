@@ -1,20 +1,17 @@
 #include "BKstarDecay.h"
 
 double BKstarDecay::alpha_s(double mu) {
-    auto sm_p = Parameters::GetInstance(ParameterType::SM);
-    return sm_p->alpha_s(mu); 
+    return QCDHelper::alpha_s(mu); 
 }
 
 double BKstarDecay::beta_0(double mu) {
-    auto QCD = Parameters::GetInstance(ParameterType::SM)->QCDaddress();
-    auto [b0, _, __] = QCD->getBetas(QCD->getNf(mu));
-    return b0;
+    int nf = QCDHelper::get_nf(mu);
+    return QCDHelper::beta[nf][0];
 }
 
 double BKstarDecay::sc(double m_c_m_c, double m_b_m_b) {
-    auto sm_p = Parameters::GetInstance(ParameterType::SM);
-    double m_b_mu_b = sm_p->running_mass(m_b_m_b, m_b_m_b, this->winfo.hadronic_scale, "pole");
-    double m_c_mu_b = sm_p->running_mass(m_c_m_c, m_c_m_c, this->winfo.hadronic_scale, "pole");
+    double m_b_mu_b = QCDHelper::msbar_mass(5, this->winfo.hadronic_scale, "pole");
+    double m_c_mu_b = QCDHelper::msbar_mass(4, this->winfo.hadronic_scale, "pole");
     return std::pow(m_c_mu_b / m_b_mu_b, 2);
 }
 
@@ -23,14 +20,12 @@ double BKstarDecay::run(double initial_value, double eta, double gamma, double b
 }
 
 double BKstarDecay::a_n_perp(int n, double a_1_gev, double beta_0, double eta) {
-    double C_F = Parameters::GetInstance(ParameterType::SM)->QCDaddress()->C_F;
-    double gamma = 4 * C_F * (psi(n + 1) + GAMMA - 1. + 1. / (n + 1));
+    double gamma = 4 * QCDHelper::C_F * (psi(n + 1) + GAMMA - 1. + 1. / (n + 1));
     return run(a_1_gev, eta, gamma, beta_0);
 }
 
 double BKstarDecay::a_n_par(int n, double a_1_gev, double beta_0, double eta) {
-    double C_F = Parameters::GetInstance(ParameterType::SM)->QCDaddress()->C_F;
-    double gamma = 4 * C_F * (psi(n + 2) + GAMMA - .75 - 1. /(2 * (n + 1) * (n + 2)));
+    double gamma = 4 * QCDHelper::C_F * (psi(n + 2) + GAMMA - .75 - 1. /(2 * (n + 1) * (n + 2)));
     return run(a_1_gev, eta, gamma, beta_0);
 }
 
@@ -39,8 +34,7 @@ double BKstarDecay::lambda_B(double lam_B_1_gev, double mu_h, double alpha_s_mu_
 }
 
 double BKstarDecay::f_Ks_perp(double f_1_gev, double beta_0, double eta) {
-    double C_F = Parameters::GetInstance(ParameterType::SM)->QCDaddress()->C_F;
-    return run(f_1_gev, eta, C_F, beta_0);
+    return run(f_1_gev, eta, QCDHelper::C_F, beta_0);
 }
 
 complex_t BKstarDecay::h(double s, double u) {
@@ -98,13 +92,14 @@ complex_t BKstarDecay::G_perp(double s, double a1, double a2) {
 }
 
 complex_t BKstarDecay::G2(double s) {
-    double rb = this->winfo.hadronic_scale / Parameters::GetInstance(ParameterType::SM)->get_QCD_masse("mb_1S"); 
+    double rb = this->winfo.hadronic_scale / QCDHelper::mass_b_1S(); 
+    LOG_INFO("r_b =", rb);
     return 8 * std::log(rb) / 3 + g_2(s);
 }
 
 complex_t BKstarDecay::G8() {
-    double rb = this->winfo.hadronic_scale / Parameters::GetInstance(ParameterType::SM)->get_QCD_masse("mb_1S"); 
-    complex_t g_8 = 11 / 3 - 2 * PI2 / 9 + 2. * I * PI / 3.;
+    double rb = this->winfo.hadronic_scale / QCDHelper::mass_b_1S(); 
+    complex_t g_8 = 11. / 3 - 2 * PI2 / 9 + 2. * I * PI / 3.;
     return -104 * std::log(rb) / 27 + g_8;
 }
 
@@ -118,11 +113,10 @@ complex_t BKstarDecay::H_perp(double s, double a1par, double a2par, double z3a, 
 
 complex_t BKstarDecay::H2(double s, double a1, double a2) {
     auto iH2_perp = [this, s, a1, a2] (double x) {
-        double xbar = 1 - x;
-        return -h(s, xbar) * phi_perp(a1, a2, x);
+        return h(s, 1 - x) * phi_perp(a1, a2, x);
     }; 
 
-    return c_integrate(iH2_perp, 0, 1, 1e-3);
+    return c_integrate(iH2_perp, 0, 1, 1e-4);
 }
 
 double BKstarDecay::H8(double a1, double a2) {
@@ -138,16 +132,17 @@ complex_t BKstarDecay::a7c_h(double mu_h,
                              double lambda_B,
                              complex_t h2,
                              complex_t h8) {
-    int N = Parameters::GetInstance(ParameterType::SM)->QCDaddress()->Nc;
-    double C_F = Parameters::GetInstance(ParameterType::SM)->QCDaddress()->C_F;
     auto manager = compute_wilsons();
     manager->setGroupScale(GroupMapper::str(WilsonGroups::BCoefficients), mu_h);
     manager->setGroupScale(GroupMapper::str(WilsonGroups::BPrimeCoefficients), mu_h);
     manager->switchbasis(GroupMapper::str(WilsonGroups::BCoefficients));
     complex_t C2_h = manager->getFullRunCoefficient(GroupMapper::str(WilsonGroups::BCoefficients), "C2", "NNLO") + manager->getFullRunCoefficient(GroupMapper::str(WilsonGroups::BPrimeCoefficients), "CP2", "LO");
     complex_t C8_h = manager->getFullRunCoefficient(GroupMapper::str(WilsonGroups::BCoefficients), "C8",  "NNLO") + manager->getFullRunCoefficient(GroupMapper::str(WilsonGroups::BPrimeCoefficients), "CP8", "LO");
+    manager->setGroupScale(GroupMapper::str(WilsonGroups::BCoefficients), winfo.hadronic_scale);
+    manager->setGroupScale(GroupMapper::str(WilsonGroups::BPrimeCoefficients), winfo.hadronic_scale);
+    manager->switchbasis(GroupMapper::str(WilsonGroups::BCoefficients));
 
-    return PI * C_F * alpha_s_mu_h * f_B * f_Ks_perp * (2. * C8_h * h8 - C2_h * h2) / (6 * N * T1 * m_B * lambda_B);
+    return PI * QCDHelper::C_F * alpha_s_mu_h * f_B * f_Ks_perp * (2. * C8_h * h8 - C2_h * h2) / (6 * QCDHelper::Nc * T1 * m_B * lambda_B);
 }
 
 complex_t BKstarDecay::a7c_b(double alpha_s_mu_b, complex_t g2, complex_t g8) {
@@ -155,8 +150,7 @@ complex_t BKstarDecay::a7c_b(double alpha_s_mu_b, complex_t g2, complex_t g8) {
     complex_t C2 = manager->getFullRunCoefficient(GroupMapper::str(WilsonGroups::BCoefficients), "C2", "NNLO") + manager->getFullRunCoefficient(GroupMapper::str(WilsonGroups::BPrimeCoefficients), "CP2", "LO");
     complex_t C7 = manager->getFullRunCoefficient(GroupMapper::str(WilsonGroups::BCoefficients), "C7", "NNLO") + manager->getFullRunCoefficient(GroupMapper::str(WilsonGroups::BPrimeCoefficients), "CP7", "LO");
     complex_t C8 = manager->getFullRunCoefficient(GroupMapper::str(WilsonGroups::BCoefficients), "C8",  "NNLO") + manager->getFullRunCoefficient(GroupMapper::str(WilsonGroups::BPrimeCoefficients), "CP8", "LO");
-    double C_F = Parameters::GetInstance(ParameterType::SM)->QCDaddress()->C_F;
-    return C7 + alpha_s_mu_b * C_F * (C2 * g2 + C8 * g8) / (4 * PI);
+    return C7 + alpha_s_mu_b * QCDHelper::C_F * (C2 * g2 + C8 * g8) / (4 * PI);
 }
 
 complex_t BKstarDecay::r1(double mu_0, double F_p) {
@@ -166,8 +160,8 @@ complex_t BKstarDecay::r1(double mu_0, double F_p) {
     complex_t C4 = manager->getFullRunCoefficient(GroupMapper::str(WilsonGroups::BCoefficients), "C4", "NNLO") + manager->getFullRunCoefficient(GroupMapper::str(WilsonGroups::BPrimeCoefficients), "CP4", "LO");
     complex_t C5 = manager->getFullRunCoefficient(GroupMapper::str(WilsonGroups::BCoefficients), "C5",  "NNLO") + manager->getFullRunCoefficient(GroupMapper::str(WilsonGroups::BPrimeCoefficients), "CP5", "LO");
     complex_t C6 = manager->getFullRunCoefficient(GroupMapper::str(WilsonGroups::BCoefficients), "C6",  "NNLO") + manager->getFullRunCoefficient(GroupMapper::str(WilsonGroups::BPrimeCoefficients), "CP6", "LO");
-    double N = Parameters::GetInstance(ParameterType::SM)->QCDaddress()->Nc;
-    double nf = Parameters::GetInstance(ParameterType::SM)->QCDaddress()->getNf(winfo.hadronic_scale);
+    double N = QCDHelper::Nc;
+    double nf = QCDHelper::get_nf(winfo.hadronic_scale);
     return (8. * C3 / 3. + 4 * nf * (C4 + C6) / 3. - 8. * (N * C6 + C5)) * F_p * std::log(winfo.hadronic_scale / mu_0);
 }
 
@@ -177,7 +171,7 @@ complex_t BKstarDecay::r2(double mu_0) {
     complex_t C3 = manager->getFullRunCoefficient(GroupMapper::str(WilsonGroups::BCoefficients), "C3", "NNLO") + manager->getFullRunCoefficient(GroupMapper::str(WilsonGroups::BPrimeCoefficients), "CP3", "LO");
     complex_t C4 = manager->getFullRunCoefficient(GroupMapper::str(WilsonGroups::BCoefficients), "C4", "NNLO") + manager->getFullRunCoefficient(GroupMapper::str(WilsonGroups::BPrimeCoefficients), "CP4", "LO");
     complex_t C6 = manager->getFullRunCoefficient(GroupMapper::str(WilsonGroups::BCoefficients), "C6",  "NNLO") + manager->getFullRunCoefficient(GroupMapper::str(WilsonGroups::BPrimeCoefficients), "CP6", "LO");
-    double nf = Parameters::GetInstance(ParameterType::SM)->QCDaddress()->getNf(winfo.hadronic_scale);
+    double nf = QCDHelper::get_nf(winfo.hadronic_scale);
     return (-44. * C3 / 3. - 4 * nf * (C4 + C6) / 3.) * std::log(winfo.hadronic_scale / mu_0);
 }
 
@@ -194,8 +188,8 @@ complex_t BKstarDecay::K1(double mb_mb,
     complex_t C5 = manager->getFullRunCoefficient(GroupMapper::str(WilsonGroups::BCoefficients), "C5",  "NNLO") + manager->getFullRunCoefficient(GroupMapper::str(WilsonGroups::BPrimeCoefficients), "CP5", "LO");
     complex_t C6 = manager->getFullRunCoefficient(GroupMapper::str(WilsonGroups::BCoefficients), "C6",  "NNLO") + manager->getFullRunCoefficient(GroupMapper::str(WilsonGroups::BPrimeCoefficients), "CP6", "LO");
     complex_t C8 = manager->getFullRunCoefficient(GroupMapper::str(WilsonGroups::BCoefficients), "C8", "NNLO") + manager->getFullRunCoefficient(GroupMapper::str(WilsonGroups::BPrimeCoefficients), "CP8", "LO");
-    double N = Parameters::GetInstance(ParameterType::SM)->QCDaddress()->Nc;
-    double C_F = Parameters::GetInstance(ParameterType::SM)->QCDaddress()->C_F;
+    double N = QCDHelper::Nc;
+    double C_F = QCDHelper::C_F;
 
     return -(C6 + C5 / N) * F_p + C_F * alpha_s_mu_b / (4 * N * PI) * (std::pow(mb_mb / m_B, 2) * C8 * X_p - C2 * ((4 * std::log(mb_mb / winfo.hadronic_scale) + 2) * F_p / 3 - G_p) + r1);
 }
@@ -209,8 +203,8 @@ complex_t BKstarDecay::K2d(double mb_mb,
     complex_t C2 = manager->getFullRunCoefficient(GroupMapper::str(WilsonGroups::BCoefficients), "C2", "NNLO") + manager->getFullRunCoefficient(GroupMapper::str(WilsonGroups::BPrimeCoefficients), "CP2", "LO");
     complex_t C3 = manager->getFullRunCoefficient(GroupMapper::str(WilsonGroups::BCoefficients), "C3",  "NNLO") + manager->getFullRunCoefficient(GroupMapper::str(WilsonGroups::BPrimeCoefficients), "CP3", "LO");
     complex_t C4 = manager->getFullRunCoefficient(GroupMapper::str(WilsonGroups::BCoefficients), "C4",  "NNLO") + manager->getFullRunCoefficient(GroupMapper::str(WilsonGroups::BPrimeCoefficients), "CP4", "LO");
-    double N = Parameters::GetInstance(ParameterType::SM)->QCDaddress()->Nc;
-    double C_F = Parameters::GetInstance(ParameterType::SM)->QCDaddress()->C_F;
+    double N = QCDHelper::Nc;
+    double C_F = QCDHelper::C_F;
     return C4 + C3 / N + C_F * alpha_s_mu_b * (C2 * ((2 - 4 * std::log(mb_mb / winfo.hadronic_scale)) / 3. - H_p) + r2) / (4 * N * PI);
 }
 
@@ -234,7 +228,7 @@ complex_t BKstarDecay::K2u(complex_t ckm, complex_t K2d) {
     auto manager = compute_wilsons();
     complex_t C1 = manager->getFullRunCoefficient(GroupMapper::str(WilsonGroups::BCoefficients), "C1", "NNLO") + manager->getFullRunCoefficient(GroupMapper::str(WilsonGroups::BPrimeCoefficients), "CP1", "LO");
     complex_t C2 = manager->getFullRunCoefficient(GroupMapper::str(WilsonGroups::BCoefficients), "C2",  "NNLO") + manager->getFullRunCoefficient(GroupMapper::str(WilsonGroups::BPrimeCoefficients), "CP2", "LO");
-    double N = Parameters::GetInstance(ParameterType::SM)->QCDaddress()->Nc;
+    double N = QCDHelper::Nc;
     return ckm * (C2 + C1 / N) + K2d;
 }
 
@@ -256,6 +250,8 @@ double BKstarDecay::delta_0(double f_B,
     complex_t f2 = f_Ks_par * m_Ks / (6 * lambda_B * m_B);
     complex_t bd = -pref * (t1 + f2 * K2d);
     complex_t bu = 2. * pref * (t1 + f2 * K2u);
+    LOG_INFO("b_d = ", bd, "; b_u = ", bu);
+    LOG_INFO("alpha_s(M_Z) =", Parameters::Get(ParamId {ParameterType::SM, "SMINPUTS", 3}));
     return std::real(bd - bu);
 }
 
@@ -279,7 +275,7 @@ void BKstarDecay::build_op_tree() {
     auto T1_B_Ks    = std::make_shared<ParameterNode>(ParamId(ParameterType::FF, "B_Ks", 11));
     auto Lambda_h   = std::make_shared<ParameterNode>(ParamId(ParameterType::FF, "B_Ks", 12));
     auto mu_0       = std::make_shared<ParameterNode>(ParamId(ParameterType::FF, "B_Ks", 13));
-    
+  
     // Flavor parameters
     auto f_Ks_par   = std::make_shared<ParameterNode>(ParamId(ParameterType::FLAVOR, "FCONST", 32301));
     auto f_Ks_perp  = std::make_shared<ParameterNode>(ParamId(ParameterType::FLAVOR, "FCONST", 32302));

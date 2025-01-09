@@ -68,7 +68,7 @@ std::complex<double> C7::NLO_calculation() {
 
 std::complex<double> C7::NNLO_calculation() {
 
-    double xtW=pow(sm->running_mass((*sm)("MASS",6),(*sm)("MASS",6), (*sm)("MASS",24))/(*sm)("MASS", 24), 2); // mass top at pole for mtot param
+    double xtW=pow(QCDHelper::msbar_mass(6, (*sm)("MASS",24))/(*sm)("MASS", 24), 2); // mass top at pole for mtot param
 	double xtt=pow((*sm)("MASS",6)/(*sm)("MASS",24),2.); // 24 -> W
 
     double coeff_temp = (C7t2mt(xtt)+log(this->get_Q_match()*this->get_Q_match()/W_param->mass_top_muW/W_param->mass_top_muW)*((-592.*pow(W_param->xt,5.)-22.*pow(W_param->xt,4.)+12814.*pow(W_param->xt,3.)-6376.*W_param->xt*W_param->xt+512.*W_param->xt)/27./pow(W_param->xt-1.,5.)*Li2(1.-1./W_param->xt)
@@ -94,7 +94,7 @@ std::complex<double> C8::NLO_calculation() {
 
 std::complex<double> C8::NNLO_calculation() {
 
-    double xtW=pow(sm->running_mass((*sm)("MASS",6),(*sm)("MASS",6), (*sm)("MASS",24))/(*sm)("MASS", 24), 2); // mass top at pole for mtot param
+    double xtW=pow(QCDHelper::msbar_mass(6, (*sm)("MASS",24))/(*sm)("MASS", 24), 2); // mass top at pole for mtot param
 	double xtt=pow((*sm)("MASS",6)/(*sm)("MASS",24),2.); // 24 -> W
 
     double coeff_temp = (C8t2mt(xtt)+log(this->get_Q_match()*this->get_Q_match()/W_param->mass_top_muW/W_param->mass_top_muW)*((-148.*pow(W_param->xt,5.)+1052.*pow(W_param->xt,4.)-4811.*pow(W_param->xt,3.)-3520.*W_param->xt*W_param->xt-61.*W_param->xt)/18./pow(W_param->xt-1.,5.)*Li2(1.-1./W_param->xt)
@@ -144,7 +144,7 @@ std::complex<double> C10::NLO_calculation() {
 }
  
 std::complex<double> C10::NNLO_calculation() {
-    double xtW=pow(sm->running_mass((*sm)("MASS",6),(*sm)("MASS",6), (*sm)("MASS",24))/(*sm)("MASS", 24), 2); // mass top at pole for mtot param
+    double xtW=pow(QCDHelper::msbar_mass(6, (*sm)("MASS",24)) / (*sm)("MASS", 24), 2); // mass top at pole for mtot param
 	double xtt=pow((*sm)("MASS",6)/(*sm)("MASS",24),2.); // 24 -> W
     double coeff_temp = ((C10Wt2mt(xtt)+log(this->get_Q_match()*this->get_Q_match()/W_param->mass_top_muW/W_param->mass_top_muW)*((69.+1292.*W_param->xt-209.*W_param->xt*W_param->xt)/18./pow(W_param->xt-1.,3.)
 	-(521.*W_param->xt+105.*W_param->xt*W_param->xt-50.*pow(W_param->xt,3.))/9./pow(W_param->xt-1.,4.)*log(W_param->xt)

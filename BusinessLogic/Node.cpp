@@ -5,19 +5,18 @@ void ParameterNode::updateValue() {
 }
 
 scalar_t ParameterNode::getValue() {
-    // std::cout << "ParameterNode::getValue() [" << getName() << "] (" << value << ")" << std::endl;
+    LOG_DEBUG("ParameterNode::getValue() [", getName(), "] (", value, ")");
     return value;
 }
 
 bool ParameterNode::updateCacheFlag() {
-    // std::cout << "ParameterNode::updateCacheFlag() [" << getName() << "] ";
+    LOG_DEBUG("ParameterNode::updateCacheFlag() [", getName(), "]");
     if (!visited) {
         cacheValid = fpeq(value, Parameters::Get(lookup));
         if (!cacheValid)
             updateValue();
         visited = true;
-        // std::cout << (cacheValid ? "(o)" : "(!)") << std::endl;
-    } else { /* std::cout << "(x)" << std::endl; */ }
+    }
     
     return cacheValid;
 }
@@ -52,7 +51,7 @@ scalar_t OperatorNode::calculate() {
 }
 
 bool OperatorNode::updateCacheFlag() {
-    // std::cout << "OperatorNode::updateCacheFlag() [" << name << "]" << std::endl;
+    LOG_DEBUG("OperatorNode::updateCacheFlag() [", name, "]");
     if (!visited) {
         for (auto c : children)
             cacheValid &= c->updateCacheFlag();
@@ -62,7 +61,7 @@ bool OperatorNode::updateCacheFlag() {
 }
 
 scalar_t OperatorNode::getValue() {
-    // std::cout << "OperatorNode::getValue() [" << name << "]" << std::endl;
+    LOG_DEBUG("OperatorNode::getValue() [", name, "]");
     if (!cacheValid) {
         std::vector<scalar_t> childValues;
         for (const auto& child : children) {
@@ -70,7 +69,7 @@ scalar_t OperatorNode::getValue() {
         }
         cachedValue = computeFunc(childValues);
         cacheValid = true;
-        std::cout << "Call to OperatorNode::computeFunc [" << name << "] (" << cachedValue << ")" << std::endl;
+        LOG_INFO("Call to OperatorNode::computeFunc [", name, "] (", cachedValue, ")");
     }
     return cachedValue;
 }
