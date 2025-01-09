@@ -13,10 +13,28 @@ router = APIRouter()
 
 LHA_DIR = Path("DataBase/lha/")
 LHA_DIR.mkdir(parents=True, exist_ok=True)
+model = Model.SM
+param_type = ParameterType.SM
 
-mem_cache = MemoryManagerCache("Test/InputFiles/testInput.flha", Model.SM)
+mem_cache = MemoryManagerCache("Test/InputFiles/testInput.flha", model)
 
-param_cache = ParametersCache(ParameterType.SM)
+param_cache = ParametersCache(param_type)
+
+map_paramtype = {
+    "SM" : ParameterType.SM,
+    "SUSY" : ParameterType.SUSY,
+    "THDM" : ParameterType.THDM,
+    "CUSTOM" : ParameterType.CUSTOM,
+    "FLAVOR" : ParameterType.FLAVOR,
+    "FF" : ParameterType.FF,
+    "WILSON" : ParameterType.WILSON
+}
+
+map_model = {
+    "SM" : ParameterType.SM,
+    "SUSY" : ParameterType.SUSY,
+    "THDM" : ParameterType.THDM
+}
 
 class SetLHAModelRequest(BaseModel):
     lha_file: str
@@ -48,14 +66,14 @@ def get_lha():
     return {"lha" : mem_cache.get_lha()}
 
 @router.get("/blocks_list")
-def get_blocks():
-    return {"blocks" : mem_cache.get_blocks_list()}
+def get_blocks(param_type : str):
+    return {"blocks" : mem_cache.get_blocks_list(map_paramtype[param_type])}
 
 @router.get("/block_info")
-def get_block_info(block : str):
-    if not block in mem_cache.get_blocks_list():
+def get_block_info(block : str, param_type : str):
+    if not block in mem_cache.get_blocks_list(map_paramtype[param_type]):
         raise HTTPException(status_code=404, detail = f"Block {block} not found")
-    return {block : mem_cache.get_block_infos(block)}
+    return {block : mem_cache.get_block_infos(block, map_paramtype[param_type])}
 
 from fastapi import Request
 
@@ -65,7 +83,7 @@ def set_lha_model(request: SetLHAModelRequest):
     if request.model == "SM":
         mem_cache.switch_lha(
             request.lha_file,
-            Model.SM,
+            map_model[request.model],
             request.use_marty,
             request.is_spectrum,
             request.has_wilsons,

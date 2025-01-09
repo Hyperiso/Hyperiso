@@ -147,10 +147,10 @@ void MemoryManager::set_parameter_covariance_input_file(const std::string &path)
     cache.param_cov_path = path;
 }
 
-std::map<int, double> MemoryManager::get_block_infos(const std::string& block) {
-    return Parameters::GetInstance()->get_block_infos(block);
+std::map<int, double> MemoryManager::get_block_infos(const std::string& block, ParameterType param_type) {
+    return Parameters::GetInstance(param_type)->get_block_infos(block);
 }
 
-std::vector<std::string> MemoryManager::get_blocks_list() {
-        return Parameters::GetInstance()->get_blocks_list();
+std::vector<std::string> MemoryManager::get_blocks_list(ParameterType param_type) {
+        return Parameters::GetInstance(param_type)->get_blocks_list();
     }

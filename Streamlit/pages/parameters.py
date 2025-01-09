@@ -12,6 +12,12 @@ BASE_API_URL = "http://127.0.0.1:8000/parameters"
 if "selected_file" not in st.session_state:
     st.session_state.selected_file = None
 
+if "model" not in st.session_state:
+    st.session_state.model = "SM"
+
+if "param_type" not in st.session_state:
+    st.session_state.param_type = "SM"
+
 def list_lha_files(directory="DataBase/lha/"):
     if not os.path.exists(directory):
         return []
@@ -66,6 +72,7 @@ def app():
             os.remove(os.path.join("DataBase/lha/", f))
         st.sidebar.success("Directory cleaned!")
 
+    st.session_state.model = st.sidebar.selectbox("Model Choice", ["SM", "SUSY", "THDM", "CUSTOM"], key= "model")
     col_left, col_center, col_right = st.columns([2.5, 2, 2])
 
     with col_left:
@@ -98,12 +105,12 @@ def app():
             st.session_state.show_pie = True
 
         if st.session_state.show_pie:
-            response_blocks = requests.get(f"{BASE_API_URL}/blocks_list")
+            response_blocks = requests.get(f"{BASE_API_URL}/blocks_list", params={"param_type" : st.session_state.param_type})
             if response_blocks.status_code == 200:
                 blocks = response_blocks.json().get("blocks", [])
                 sizes = []
                 for block in blocks:
-                    response_info = requests.get(f"{BASE_API_URL}/block_info", params={"block": block})
+                    response_info = requests.get(f"{BASE_API_URL}/block_info", params={"block": block, "param_type" : st.session_state.param_type})
                     if response_info.status_code == 200:
                         sizes.append(len(response_info.json().get(block, {})))
                 fig, ax = plt.subplots()

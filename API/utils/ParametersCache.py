@@ -1,4 +1,4 @@
-from Python.Phyperiso import MemoryManager, Parameters
+from Python.Phyperiso import MemoryManager, Parameters, ParameterType
 
 class MemoryManagerCache:
     def __init__(self, lha_input, model, use_marty = False, is_spectrum = False, has_wilson = False, has_obs = False):
@@ -16,11 +16,11 @@ class MemoryManagerCache:
             data = f.read()
         return data
     
-    def get_blocks_list(self):
-        return self.mm.get_blocks_list()
+    def get_blocks_list(self, param_type = ParameterType.SM):
+        return self.mm.get_blocks_list(param_type)
     
-    def get_block_infos(self, block):
-        return self.mm.get_block_infos(block)
+    def get_block_infos(self, block, param_type = ParameterType.SM):
+        return self.mm.get_block_infos(block, param_type)
     
 
 class ParametersCache:
