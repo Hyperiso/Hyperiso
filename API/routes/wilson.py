@@ -1,6 +1,8 @@
 from fastapi import APIRouter, Query
 from Python.Phyperiso import WilsonManager, Model, ParameterType
+from Python.Phyperiso import BCoefficientGroup
 from API.utils.ParametersCache import MemoryManagerCache, ParametersCache
+from pydantic import BaseModel
 
 router = APIRouter()
 mmCache = MemoryManagerCache("Test/InputFiles/testInput.flha", model=Model.SM)
@@ -13,10 +15,35 @@ mock_coefficients = {
     "C2": {"matching_value": 0.34, "running_value": 0.30},
 }
 
+map_group = {"BCoefficientGroupSM" : BCoefficientGroup()}
+
+class GroupRequest(BaseModel):
+    group : str = "BCoefficientGroup"
+    model : str = "SM"
+
+class WilsonRequest(BaseModel):
+    group: str = "BCoefficientGroup"
+    scale : float = 81
+    qcd_order : str = "LO"
+
+@router.post("/register_group")
+def register_group(request : GroupRequest):
+    wilson_manager.register_coefficient_group(request.group, map_group[request.group + request.model])
+    return {"message" : f"group {request.group} initialized for model {request.model}"}
+
 @router.post("/set_matching_scale")
-def set_matching_scale(scale: float):
+def set_matching_scale(request: WilsonRequest):
     """Define matching scale for wilson coefficient."""
-    return {"message": f"Matching scale set to {scale} GeV"}
+    wilson_manager.set_q_match(request.group, request.scale)
+    wilson_manager.set_matching_coefficient(request.group, request.qcd_order)
+    return {"message": f"Matching scale set to {request.scale} GeV"}
+
+@router.post("/set_group_scale")
+def set_matching_scale(request: WilsonRequest):
+    """Define matching scale for wilson coefficient."""
+    wilson_manager.set_group_scale(request.group, request.scale)
+    wilson_manager.set_run_coefficient(request.group, request.qcd_order)
+    return {"message": f"Running scale set to {request.scale} GeV"}
 
 @router.get("/coefficient")
 def get_coefficient(name: str):

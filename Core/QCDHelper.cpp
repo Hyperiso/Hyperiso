@@ -8,6 +8,7 @@ void QCDHelper::Init(double alpha_s_mZ, double m_Z, double mt_pole, double mb_mb
     param_cache.mt_pole = mt_pole;
     param_cache.light_masses[0] = m_d;
     param_cache.light_masses[1] = m_u;
+    LOG_INFO("WOUW", m_s);
     param_cache.light_masses[2] = m_s;
     param_cache.light_masses[3] = m_c;
 
@@ -42,7 +43,7 @@ void QCDHelper::Update() {
 
 double QCDHelper::alpha_s(double mu, const std::string& mass_b_type, const std::string& mass_t_type) {
     if (mu < param_cache.light_masses[2]) {
-        LOG_ERROR("Scale Error", "Renormalisation scale for alpha_s calculation is below strange mass.");
+        LOG_ERROR("Scale Error", "Renormalisation scale for alpha_s calculation is below strange mass(", param_cache.light_masses[2] , ").");
     }
     update_cached_values();
     set_mass_types(mass_b_type, mass_t_type);

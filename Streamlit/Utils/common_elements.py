@@ -56,6 +56,21 @@ def apply_sidebar_style():
         unsafe_allow_html=True,
     )
 
+def apply_custom_css():
+    st.markdown(
+        """
+        <style>
+        /* Restreindre la largeur des selectbox dans une colonne */
+        .stSelectbox, .stTextInput, .stNumberInput {
+            width: 100%; /* Limite la largeur à 100% de la colonne */
+            padding: 30px;
+            float: left;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
+
 def apply_file_management_style():
     """Style adjustments specifically for the File Management section."""
     st.markdown(

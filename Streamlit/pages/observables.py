@@ -39,3 +39,6 @@ def app():
             st.write(f"Chi2 Value: {chi2_value}")
         else:
             st.error("Failed to calculate Chi2")
+
+if __name__ == "__main__":
+    app()

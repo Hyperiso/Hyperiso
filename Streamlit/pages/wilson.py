@@ -1,30 +1,61 @@
 import streamlit as st
 import requests
 from Streamlit.Utils.common_elements import add_header, add_footer, apply_custom_background, apply_sidebar_style, apply_file_management_style
-
+from Streamlit.Utils.common_elements import apply_custom_css
+import os
 
 BASE_API_URL = "http://127.0.0.1:8000"
 
+if "selected_file" not in st.session_state:
+    st.session_state.selected_file = None
+
+if "selected_model" not in st.session_state:
+    st.session_state.selected_model = "SM"
+
+if "param_type" not in st.session_state:
+    st.session_state.param_type = "SM"
+
+if "use_marty" not in st.session_state:
+    st.session_state.use_marty = False
+
+if "is_spectrum" not in st.session_state:
+    st.session_state.is_spectrum = False
+
+if "has_wilson" not in st.session_state:
+    st.session_state.has_wilson = False
+
+if "has_obs" not in st.session_state:
+    st.session_state.has_obs = False
+
+if "group" not in st.session_state:
+    st.session_state.group = "BCoefficientGroup"
+
+
+def truc():
+    print(st.session_state.use_marty, st.session_state.selected_file, st.session_state.selected_model)
+
 def app():
     apply_custom_background()
-    add_header() 
+    add_header()
     apply_file_management_style()
+    apply_custom_css()
     st.title("Wilson Coefficients")
 
     st.sidebar.header("Configuration")
-    model = st.sidebar.selectbox("Select Model", ["SM", "SUSY", "THDM", "CUSTOM"])
-    lha_files = ["file1.lha", "file2.lha", "file3.lha"]  # Simuler une liste de fichiers LHA
-    lha_file = st.sidebar.selectbox("Select LHA File", lha_files)
-    use_marty = st.sidebar.checkbox("Use Marty (forces LO Order)")
+    model = st.sidebar.selectbox("Select Model", ["SM", "SUSY", "THDM", "CUSTOM"], key="selected_model")
+    lha_files = os.listdir("DataBase/lha")
+    # lha_files = ["file1.lha", "file2.lha", "file3.lha"]  # Simuler une liste de fichiers LHA
+    lha_file = st.sidebar.selectbox("Select LHA File", lha_files, key="selected_file")
+    use_marty = st.sidebar.checkbox("Use Marty (forces LO Order)", key="use_marty")
 
     if st.sidebar.button("Set LHA and Model"):
         response = requests.post(
-            f"{BASE_API_URL}/set_lha_model",
-            json={
-                "lha_file": lha_file,
-                "model": model,
-                "use_marty": use_marty,
-            },
+            f"{BASE_API_URL}/parameters/set_memory_manager",
+            json={"lha_file": os.path.join("DataBase/lha",st.session_state.selected_file), "model": st.session_state.selected_model,
+                "use_marty": st.session_state.use_marty,
+            "is_spectrum": st.session_state.is_spectrum,
+            "has_wilsons": st.session_state.has_wilson,
+            "has_obs": st.session_state.has_obs}
         )
         if response.status_code == 200:
             st.sidebar.success("LHA and Model configured!")
@@ -32,13 +63,15 @@ def app():
             st.sidebar.error("Failed to configure LHA and Model")
 
     st.sidebar.subheader("Global Parameters")
-    q_match = st.sidebar.number_input("Q_match (Matching Scale)", min_value=0.0, step=0.1)
-    q_value = st.sidebar.number_input("Q (Running Scale)", min_value=0.0, step=0.1)
+    group = st.sidebar.selectbox("CoefficientGroup", ["BCoefficientGroup", "BPrimeCoefficientGroup", "BScalarCoefficientGroup"], key = "group")
+    q_match = st.sidebar.number_input("Q_match (Matching Scale)", min_value=81.0, step=0.1)
+    q_value = st.sidebar.number_input("Q (Running Scale)", min_value=1.0, step=0.1)
     qcd_order = st.sidebar.selectbox("QCD Order", ["LO", "NLO", "NNLO"], disabled=use_marty)
 
     if st.sidebar.button("Set Global Parameters"):
-        set_q_match = requests.post(f"{BASE_API_URL}/wilson/set_matching_scale", json={"scale": q_match})
-        set_group_scale = requests.post(f"{BASE_API_URL}/wilson/set_group_scale", json={"scale": q_value})
+        register_group = requests.post(f"{BASE_API_URL}/wilson/register_group", json = {"group" : group, "model" : st.session_state.selected_model})
+        set_q_match = requests.post(f"{BASE_API_URL}/wilson/set_matching_scale", json={"group" : group, "scale": q_match, "qcd_order" : qcd_order})
+        set_group_scale = requests.post(f"{BASE_API_URL}/wilson/set_group_scale", json={"group" : group, "scale": q_value, "qcd_order" : qcd_order})
 
         if set_q_match.status_code == 200 and set_group_scale.status_code == 200:
             st.sidebar.success("Global parameters configured!")
@@ -113,3 +146,7 @@ def app():
                 st.bar_chart([result["value"] for result in lha_data])
             else:
                 st.error("Failed to compute for all LHAs")
+    add_footer()
+
+if __name__ == "__main__":
+    app()

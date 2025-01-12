@@ -5,7 +5,7 @@ from Python.Phyperiso import Model
 from Python.Phyperiso import BCoefficientGroup
 from Python.Phyperiso import ObservableInterface
 from Python.Phyperiso import Observables
-
+from Python.Phyperiso import ParameterType
 import os
 
 mm = MemoryManager()
@@ -16,11 +16,11 @@ mm.init("Test/InputFiles/testInput.flha")
 
 pa = Parameters()
 print("MASS TEST FOR TOP MASS", pa("MASS", 6))
-print("ALPHA_S at 33 GeV", pa.alpha_s(33))
-print("Runinng mass test", pa.running_mass(4.18, 4.18, 33))
+# print("ALPHA_S at 33 GeV", pa.alpha_s(33))
+# print("Runinng mass test", pa.running_mass(4.18, 4.18, 33))
 print("check existence of value (bottom mass)", pa.exists("MASS", 5))
-print("try getting mt_mt", pa.get_qcd_mass("mt_mt"))
-pa.set_block_value("MASS", 3, 42)
+# print("try getting mt_mt", pa.get_qcd_mass("mt_mt"))
+# pa.set_block_value("MASS", 3, 42)
 print("setting charm mass to 42, after changes: ", pa("MASS", 3))
 
 wilManag = WilsonManager()
@@ -73,5 +73,5 @@ pa = Parameters()
 print(pa("MASS", 5))
 
 print(pa.exists("MASS", 5))
-
-print(mm.get_blocks_list())
+print(mm.switch_model(Model.SUSY))
+print(mm.get_blocks_list(ParameterType.SUSY))

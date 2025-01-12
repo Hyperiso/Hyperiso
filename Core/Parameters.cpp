@@ -598,7 +598,6 @@ std::shared_ptr<Parameters> ParametersFactory::GetParameters(ParameterType id) {
     if (instances.find(id) == instances.end()) {
         std::shared_ptr<ModelStrategy> strategy = createStrategy(id);
         instances[id] = std::make_shared<Parameters>(Parameters(strategy));
-        LOG_INFO("creating instance", (int)id);
     }
     return instances[id];
 }
@@ -607,7 +606,7 @@ void ParametersFactory::removeParameters(ParameterType id) {
     if (instances.find(id) == instances.end()) {
         LOG_ERROR("OutOfRange", "Cannot remove parameters if it doesn't exist");
     }
-    LOG_INFO("erasing ; ", (int)id);
+    LOG_DEBUG("erasing ; ", (int)id);
     std::shared_ptr<Parameters> _ = instances[id];
     instances.erase(id);
 }

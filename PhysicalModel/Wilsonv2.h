@@ -113,7 +113,7 @@ public:
     virtual ~WilsonCoefficient() = default;
 private:
     double Q_match{81};
-    double Q{};
+    double Q{81};
     bool from_lha {false};
     std::map<std::string, std::complex<double>> CoefficientMatchingValue{{"LO", {0.,0.}}, {"NLO", {0.,0.}}, {"NNLO", {0.,0.}}};
     std::map<std::string, std::complex<double>> CoefficientRunValue{{"LO", {0.,0.}}, {"NLO", {0.,0.}}, {"NNLO", {0.,0.}}};
