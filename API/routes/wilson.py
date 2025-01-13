@@ -105,7 +105,10 @@ def plot_coefficients(request : PlotWilsonRequest):
     values = []
     for step in range(request.steps):
         value = request.min_value + step * (request.max_value - request.min_value) / (request.steps - 1)
+        wilson_managers[request.model].set_params(request.group, request.param_block, request.param_code, value)
         parameters.set_block_value(request.param_block, request.param_code, value)
+        print(parameters(request.param_block, request.param_code))
+        print("v2: ",wilson_managers[request.model].get_params(request.param_block, request.param_code))
         wilson_managers[request.model].set_q_match(request.group, request.matching_scale)
         wilson_managers[request.model].set_matching_coefficient(request.group, request.order)
         coefficient = wilson_managers[request.model].get_matching_coefficient(request.group, request.name, request.order)

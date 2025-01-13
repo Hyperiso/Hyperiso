@@ -136,6 +136,7 @@ public:
     MatchingSetState(std::string order) : State(order) {this->state = StateName::MatchinSetState;}
     void setGroupScale(CoefficientManager* manager, const std::string& groupName, double Q) override;
     // void setRunCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& order) override;
+    void setQMatch(CoefficientManager* manager, const std::string& groupName, double Q_match) override;
     void setMatchingCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& order) override;
     void setParams(const std::string& block, int pdgCode, double value) {
         Parameters::GetInstance()->setBlockValue(block, pdgCode, value, true);
@@ -149,6 +150,9 @@ class QSetState : public State {
 public:
     QSetState(std::string order) : State(order) {this->state = StateName::QSetState;}
     void setRunCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& order) override;
+    void setParams(const std::string& block, int pdgCode, double value) {
+        Parameters::GetInstance()->setBlockValue(block, pdgCode, value, true);
+    }
     std::complex<double> getMatchingCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) override;
     std::complex<double> getFullMatchingCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) override;
 };
@@ -157,6 +161,9 @@ class RunSetState : public State {
 public:
     RunSetState(std::string order) : State(order) {this->state = StateName::RunSetState;}
     void switchbasis(CoefficientManager* manager, const std::string& groupName);
+    void setParams(const std::string& block, int pdgCode, double value) {
+        Parameters::GetInstance()->setBlockValue(block, pdgCode, value, true);
+    }
     void setGroupScale(CoefficientManager* manager, const std::string& groupName, double Q) override;
     void setQMatch(CoefficientManager* manager, const std::string& groupName, double Q_match) override;
     std::complex<double> getMatchingCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) override;

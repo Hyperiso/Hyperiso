@@ -2,7 +2,7 @@ from Python.Phyperiso import MemoryManager
 from Python.Phyperiso import Parameters
 from Python.Phyperiso import WilsonManager
 from Python.Phyperiso import Model
-from Python.Phyperiso import BCoefficientGroup
+from Python.Phyperiso import BCoefficientGroup, BPrimeCoefficientGroup
 from Python.Phyperiso import ObservableInterface
 from Python.Phyperiso import Observables
 from Python.Phyperiso import ParameterType
@@ -75,3 +75,17 @@ print(pa("MASS", 5))
 print(pa.exists("MASS", 5))
 print(mm.switch_model(Model.SUSY))
 print(mm.get_blocks_list(ParameterType.SUSY))
+
+coeffprimegroup = BPrimeCoefficientGroup()
+
+print("register a prime group in the manager")
+wilManag.register_coefficient_group("BPrimeCoefficientGroup", coeffprimegroup)
+wilManag.set_q_match("BPrimeCoefficientGroup", 81)
+wilManag.set_matching_coefficient("BPrimeCoefficientGroup", "LO")
+wilManag.set_group_scale("BPrimeCoefficientGroup", 81)
+wilManag.set_run_coefficient("BPrimeCoefficientGroup", "LO")
+print(wilManag.get_matching_coefficient("BPrimeCoefficientGroup", "CP1", "LO"))
+wilManag.set_q_match("BPrimeCoefficientGroup", 81)
+wilManag.set_matching_coefficient("BPrimeCoefficientGroup", "LO")
+print(wilManag.get_matching_coefficient("BPrimeCoefficientGroup", "CP1", "LO"))
+# print(wilManag.get_state())

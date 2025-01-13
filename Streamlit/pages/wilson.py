@@ -4,6 +4,7 @@ from Streamlit.Utils.common_elements import add_header, add_footer, apply_custom
 from Streamlit.Utils.common_elements import apply_custom_css
 import os
 import matplotlib.pyplot as plt
+import numpy as np
 
 BASE_API_URL = "http://127.0.0.1:8000"
 
@@ -162,7 +163,7 @@ def app():
             if response.status_code == 200:
                 plot_data = response.json()
                 fig, ax = plt.subplots()
-                plt.plot([val["coefficient"] for val in plot_data["values"]])
+                plt.plot(np.linspace(param_min, param_max, param_steps), [val["coefficient"] for val in plot_data["values"]])
                 st.pyplot(fig)
             else:
                 st.error("Failed to generate plot")
