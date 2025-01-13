@@ -47,6 +47,28 @@ class SetLHAModelRequest(BaseModel):
     has_wilsons: bool = None
     has_obs: bool = None
 
+def check_model_lha(lha : str, model : str) -> bool:
+    with open(lha, "r") as f:
+        data = f.readlines()
+
+    if model == "SUSY":
+        mandatory = ["MODSEL", "SMINPUTS", "MINPAR", "EXTPAR"]
+    elif model == "THDM":
+        mandatory = ["MODSEL", "SMINPUTS", "MINPAR", "MASS"]
+    else:
+        return True
+    is_okay = [False,False,False,False]
+    for line in data:
+        for i, elem in enumerate(mandatory):
+            if elem in line:
+                is_okay[i] = True
+    
+    if False in is_okay:
+        return False
+    else:
+        return True
+    
+
 @router.post("/upload")
 async def upload_lha(file: UploadFile = File(...)):
     """SLHA file or folder upload."""
@@ -91,6 +113,9 @@ def set_lha_model(request: SetLHAModelRequest):
     print("Requête reçue : ", request.dict())
     infos = {"lha": request.lha_file, "model" : map_model[request.model], "use_marty" : request.use_marty,
              "is_spectrum" : request.is_spectrum, "has_wilson" : request.has_wilsons, "has_obs":  request.has_obs}
+    if not check_model_lha(request.lha_file, request.model):
+        print("not compatible : ", request.lha_file, request.model)
+        return {"message", "LHA no switched, model and lha not compatible."}
     
     mem_cache.switch_info(infos)
     param_cache.switch_param(map_paramtype[request.model])

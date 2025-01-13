@@ -94,9 +94,9 @@ def app():
     base = st.sidebar.selectbox("running base" , running_base_b, key = "base")
 
     if st.sidebar.button("Set Global Parameters"):
-        register_group = requests.post(f"{BASE_API_URL}/wilson/register_group", json = {"group" : group, "model" : st.session_state.selected_model})
-        set_q_match = requests.post(f"{BASE_API_URL}/wilson/set_matching_scale", json={"model" : st.session_state.selected_model, "group" : group, "scale": matching_scale, "qcd_order" : qcd_order})
-        set_group_scale = requests.post(f"{BASE_API_URL}/wilson/set_group_scale", json={"model" : st.session_state.selected_model, "group" : group, "scale": q_value, "qcd_order" : qcd_order})
+        register_group = requests.post(f"{BASE_API_URL}/wilson/register_group", json = {"group" : st.session_state.group, "model" : st.session_state.selected_model})
+        set_q_match = requests.post(f"{BASE_API_URL}/wilson/set_matching_scale", json={"model" : st.session_state.selected_model, "group" : st.session_state.group, "scale": matching_scale, "qcd_order" : qcd_order})
+        set_group_scale = requests.post(f"{BASE_API_URL}/wilson/set_group_scale", json={"model" : st.session_state.selected_model, "group" : st.session_state.group, "scale": q_value, "qcd_order" : qcd_order})
 
         if set_q_match.status_code == 200 and set_group_scale.status_code == 200:
             st.sidebar.success("Global parameters configured!")

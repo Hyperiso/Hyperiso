@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Query
 from Python.Phyperiso import WilsonManager, Model, ParameterType
-from Python.Phyperiso import BCoefficientGroup
+from Python.Phyperiso import BCoefficientGroup, BScalarCoefficientGroup, BPrimeCoefficientGroup
 from API.utils.ParametersCache import MemoryManagerCache, ParametersCache
 from pydantic import BaseModel
 
@@ -17,7 +17,9 @@ mock_coefficients = {
     "C2": {"matching_value": 0.34, "running_value": 0.30},
 }
 
-map_group = {"BCoefficientGroupSM" : BCoefficientGroup()}
+map_group = {"BCoefficientGroupSM" : BCoefficientGroup(),
+             "BScalarCoefficientGroupSM" : BScalarCoefficientGroup(),
+             "BPrimeCoefficientGroupSM" : BPrimeCoefficientGroup()}
 
 class GroupRequest(BaseModel):
     group : str = "BCoefficientGroup"
