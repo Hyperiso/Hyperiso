@@ -150,18 +150,15 @@ def app():
             else:
                 st.error(response.json().get("detail", "Failed to retrieve parameter value"))
 
-        print("center info", block, code)
         st.session_state.show_pie = True
         if st.button("Show Block Distribution"):
             st.session_state.show_pie = True
 
         if st.session_state.show_pie:
             response_blocks = requests.get(f"{BASE_API_URL}/blocks_list", params={"param_type" : st.session_state.param_type})
-            print("param_type", st.session_state.param_type)
             if response_blocks.status_code == 200:
                 blocks = response_blocks.json().get("blocks", [])
                 sizes = []
-                print("param_type", st.session_state.param_type)
                 for block in blocks:
                     response_info = requests.get(f"{BASE_API_URL}/block_info", params={"block": block, "param_type" : st.session_state.param_type})
                     if response_info.status_code == 200:

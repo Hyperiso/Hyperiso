@@ -61,7 +61,7 @@ def apply_custom_css():
         """
         <style>
         /* Restreindre la largeur des selectbox dans une colonne */
-        .stSelectbox, .stTextInput, .stNumberInput {
+        .stSelectbox, .stTextInput, .stNumberInput, .stButton {
             width: 100%; /* Limite la largeur à 100% de la colonne */
             padding: 30px;
             float: left;

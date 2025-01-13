@@ -1,9 +1,14 @@
 import streamlit as st
 import requests
+from Streamlit.Utils.common_elements import add_header, add_footer, apply_custom_background, apply_sidebar_style, apply_file_management_style
+from Streamlit.Utils.common_elements import apply_custom_css
 
 def app():
     st.title("Login")
-
+    apply_custom_background()
+    add_header()
+    apply_file_management_style()
+    apply_custom_css()
     username = st.text_input("Username")
     password = st.text_input("Password", type="password")
     if st.button("Login"):
@@ -16,3 +21,5 @@ def app():
             st.success("Logged in successfully")
         else:
             st.error("Invalid credentials")
+            
+    add_footer()
