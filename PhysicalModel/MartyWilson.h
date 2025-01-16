@@ -7,6 +7,7 @@
 #include "MartyInterface.h"
 #include "config.hpp"
 #include <iostream>
+#include <math.h>
 
 class MartyWilson : public WilsonCoefficient {
 public:
@@ -47,6 +48,10 @@ public:
                 std::cout << this->get_name() << " waw" << std::endl;
                 for (auto& _ : this->df.getColumnNames()) {
                     if (this->get_name()+"_real" == _) {
+                        if (isnan(df.iat<double>(i, this->get_name()+"_real")) && isnan(df.iat<double>(i, this->get_name()+"_img"))) {
+                            break;
+                        }
+                        std::cout << df.iat<double>(i, this->get_name()+"_real") << " BUTE" << std::endl;
                         this->set_CoefficientMatchingValue("LO", {df.iat<double>(i, this->get_name()+"_real"), df.iat<double>(i, this->get_name()+"_img")});
                         return {df.iat<double>(i, this->get_name()+"_real"), df.iat<double>(i, this->get_name()+"_img")};
                     }
