@@ -59,6 +59,7 @@ def truc():
 
 def app():
     apply_custom_background()
+    apply_sidebar_style()
     add_header()
     apply_file_management_style()
     apply_custom_css()

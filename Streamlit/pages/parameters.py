@@ -170,8 +170,15 @@ def app():
             else:
                 st.error("Failed to retrieve blocks information.")
         st.write("### Deuxième graphique circulaire")
+        if (not st.session_state.has_wilson) and (st.session_state.selected_model == "SM"):
+            options = ["FLAVOR", "FF"]
+        elif (not st.session_state.has_wilson) and (st.session_state.selected_model != "SM"):
+            options = ["MODEL", "FLAVOR", "FF"]
+        elif st.session_state.has_wilson and (st.session_state.selected_model == "SM"):
+            options = ["FLAVOR", "FF", "WILSON"]
+        else:
+            options = ["MODEL", "FLAVOR", "FF", "WILSON"]
 
-        options = ["MODEL", "FLAVOR", "FF", "WILSON"]
         selected_option = st.selectbox("Choisissez une option", options)
 
         if st.button("Générer le diagramme"):

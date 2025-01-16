@@ -1,6 +1,7 @@
 #if !defined(HYPERISO_WILSON_THDM_H)
 #define HYPERISO_WILSON_THDM_H
 #include "Wilsonv2.h"
+#include "WilsonGroup.h"
 #include "thdm_parameters.h"
 #include "Math_THDM.h"
 

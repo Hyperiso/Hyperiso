@@ -32,9 +32,6 @@ class WilsonInterface {
         {"BCoefficients_Prime_SUSY", std::make_shared<BPrimeCoefficientGroup_susy>()},
         {"BCoefficients_Scalar_SUSY", std::make_shared<BScalarCoefficientGroup_susy>()},
         #endif
-        {"BScalarCoefficients_Marty", std::make_shared<BCoefficientGroupMarty>()},
-        {"BCoefficients_Prime_Marty", std::make_shared<BPrimeCoefficientGroupMarty>()},
-        {"BCoefficients_Scalar_Marty", std::make_shared<BScalarCoefficientGroupMarty>()}
         };
     // };
 

@@ -5,6 +5,7 @@
 #include <string>
 #include <stdexcept>
 #include "Wilsonv2.h"
+#include "WilsonGroup.h"
 #include "MemoryManager.h"
 #include "QCDHelper.h"
 #include <set>
