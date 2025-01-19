@@ -68,6 +68,20 @@ def check_model_lha(lha : str, model : str) -> bool:
     else:
         return True
     
+def check_wilson_lha(lha : str) -> bool:
+    with open(lha, "r") as f:
+        data = f.readlines()
+    mandatory = ["FWCOEFF", "IMFWCOEFF"]
+    is_okay = [False,False]
+    for line in data:
+        for i, elem in enumerate(mandatory):
+            if elem in line:
+                is_okay[i] = True
+    
+    if False in is_okay:
+        return False
+    else:
+        return True    
 
 @router.post("/upload")
 async def upload_lha(file: UploadFile = File(...)):

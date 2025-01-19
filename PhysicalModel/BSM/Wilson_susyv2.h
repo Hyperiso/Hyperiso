@@ -1,6 +1,7 @@
 #if !defined(HYPERISO_WILSON_SUSY_H)
 #define HYPERISO_WILSON_SUSY_H
 #include "Wilsonv2.h"
+#include "WilsonGroup.h"
 #include "susy_parameters.h"
 #include "Math_THDM.h"
 

@@ -110,8 +110,6 @@ bool Parameters::exist(const std::string& block, int pdgCode) {
 
 void SMModelStrategy::initializeParameters(Parameters& params) {
 
-    LOG_INFO("Hi");
-
     LhaReader* lha = MemoryManager::GetInstance()->getReader();
 
     // SMINPUTS
@@ -122,7 +120,7 @@ void SMModelStrategy::initializeParameters(Parameters& params) {
     for (size_t i = 0; i < 7; i++) {
         params.setBlockValue("SMINPUTS", i + 1, *sm_inputs[i]);
     }
-
+    params.setBlockValue("SMINPUTS", 10, 0.313);
     // VCKMIN 
     params.addBlock("RECKM", std::make_shared<RECKMBlock>());
     params.addBlock("IMCKM", std::make_shared<IMCKMBlock>());

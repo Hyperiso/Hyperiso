@@ -59,7 +59,8 @@ public:
     inline std::filesystem::path getObservableCovariancePath()  { check_if_ready(); return cache.obs_cov_path; }
     inline std::vector<ParameterType> getParameterTypes() { check_if_ready(); return cache.parameter_types; };
     inline Model getModel() { check_if_ready(); return cache.model; };
-
+    inline bool getUseMarty() {check_if_ready(); return cache.use_marty;}
+    
     void init(const std::string& lhaFile, Model model = Model::SM, bool use_marty = false, bool is_spectrum=false, bool has_wilsons=false, bool has_obs=false);
 
     void switch_lha(const std::string& lhaFile, Model model = Model::SM, bool use_marty = false, bool is_spectrum = false, bool has_wilson = false, bool has_obs = false);

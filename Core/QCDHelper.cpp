@@ -8,7 +8,6 @@ void QCDHelper::Init(double alpha_s_mZ, double m_Z, double mt_pole, double mb_mb
     param_cache.mt_pole = mt_pole;
     param_cache.light_masses[0] = m_d;
     param_cache.light_masses[1] = m_u;
-    LOG_INFO("WOUW", m_s);
     param_cache.light_masses[2] = m_s;
     param_cache.light_masses[3] = m_c;
 
