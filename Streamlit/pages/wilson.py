@@ -170,15 +170,66 @@ def app():
 
     with col2:
         st.subheader("Running Analysis")
-        if st.button("Retrieve Coefficients by Q"):
+        # group = st.selectbox("Select Group", ["Group1", "Group2", "Group3"])
+        # coeff_name = st.selectbox("Select Coefficient", coeff_by_group[st.session_state.group]+["all"], key="coeff_name")
+        # coeff_name = st.text_input("Coefficient Name")
+        # coeff_order = st.selectbox("Order", ["LO", "NLO", "NNLO"])
+        if st.button("Retrieve running Coefficient"):
+            if coeff_name == "all":
+                st.write(f"Group: {group}")
+                for coef in coeff_by_group[st.session_state.group]:
+                    response = requests.get(
+                        f"{BASE_API_URL}/wilson/get_run_coefficient",
+                        params={"model" : st.session_state.selected_model, "group": st.session_state.group, "name": coef, "order": st.session_state.order},
+                    )
+                    if response.status_code == 200:
+                        data = response.json()
+                        st.write(f"Coefficient: {coef}")
+                        st.write(f"Value: {round(data['coeff_real'],5)} + i{round(data['coeff_img'], 5)}")
+                    else:
+                        st.error("Failed to retrieve coefficient")
+
+            elif coeff_name != "all":
+                response = requests.get(
+                    f"{BASE_API_URL}/wilson/get_run_coefficient",
+                    params={"model" : st.session_state.selected_model, "group": st.session_state.group, "name": st.session_state.coeff_name, "order": st.session_state.order},
+                )
+                if response.status_code == 200:
+                    data = response.json()
+                    st.write(f"Group: {group}")
+                    st.write(f"Coefficient: {coeff_name}")
+                    st.write(f"Value: {round(data['coeff_real'],5)} + i{round(data['coeff_img'], 5)}")
+                else:
+                    st.error("Failed to retrieve coefficient")
+
+        st.subheader("Coefficient Variation")
+        param_block = st.text_input("Parameter Block")
+        param_pdgcode = st.number_input("Parameter pdgCode", step =1)
+        param_min = st.number_input("Min Value", step=0.1)
+        param_max = st.number_input("Max Value", step=0.1)
+        param_steps = st.number_input("Number of point", min_value=2, step=1, value=10)
+        if st.button("Plot Parameter Variation"):
             response = requests.get(
-                f"{BASE_API_URL}/calculate_coefficient",
-                params={"group": group, "name": coeff_name, "order": coeff_order},
+                f"{BASE_API_URL}/wilson/plot_coefficients",
+                json={
+                    "group": st.session_state.group,
+                    "name": st.session_state.coeff_name,
+                    "order": st.session_state.order,
+                    "matching_scale" : st.session_state.matching_scale,
+                    "param_block": param_block,
+                    "param_pdgcode" : param_pdgcode,
+                    "min_value": param_min,
+                    "max_value": param_max,
+                    "steps": param_steps,
+                },
             )
             if response.status_code == 200:
-                st.write(f"Value at Q={q_value}: {response.json()['value']}")
+                plot_data = response.json()
+                fig, ax = plt.subplots()
+                plt.plot(np.linspace(param_min, param_max, param_steps), [val["coefficient"] for val in plot_data["values"]])
+                st.pyplot(fig)
             else:
-                st.error("Failed to retrieve coefficient")
+                st.error("Failed to generate plot")
 
     with col3:
         st.subheader("Analyze All LHAs")

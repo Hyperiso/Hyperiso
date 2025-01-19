@@ -73,6 +73,17 @@ def get_coefficient(model : str, group : str, name: str, order : str):
         return {"error": f"Coefficient {name} not found"}
     return mock_coefficients[name]
 
+@router.get("/get_run_coefficient")
+def get_coefficient(model : str, group : str, name: str, order : str):
+    """Retrieve coefficient value."""
+    print("I was here")
+    value = wilson_managers[model].get_run_coefficient(group, name, order)
+    return {"coeff_real" : value.real, "coeff_img" : value.imag}
+
+    if name not in mock_coefficients:
+        return {"error": f"Coefficient {name} not found"}
+    return mock_coefficients[name]
+
 @router.get("/plot_variation")
 def plot_coefficient_variation(
     param_name: str,
