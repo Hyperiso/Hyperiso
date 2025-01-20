@@ -1,9 +1,17 @@
 import streamlit as st
 import requests
 
+from Streamlit.Utils.common_elements import add_header, add_footer, apply_custom_background, apply_sidebar_style, apply_file_management_style
+from Streamlit.Utils.common_elements import apply_custom_css
+
 BASE_API_URL = "http://127.0.0.1:8000"
 
 def app():
+    apply_custom_background()
+    add_header()
+    apply_file_management_style()
+    apply_custom_css()
+    apply_sidebar_style()
     st.title("Observable Calculations")
 
     st.subheader("Calculate an Observable")
@@ -39,6 +47,6 @@ def app():
             st.write(f"Chi2 Value: {chi2_value}")
         else:
             st.error("Failed to calculate Chi2")
-
+    add_footer()
 if __name__ == "__main__":
     app()

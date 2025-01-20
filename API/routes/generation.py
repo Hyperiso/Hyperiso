@@ -25,18 +25,46 @@ def generate_slha_files(template: str, parameters: list[ParameterConfig]):
     generated_files = []
 
     def replace_parameter(template_lines, block, number, value):
+        """
+        Remplace un paramètre dans un fichier SLHA.
+
+        Args:
+            template_lines (list): Contenu du fichier SLHA sous forme de liste de lignes.
+            block (str): Nom du bloc où effectuer la recherche (ex : "MODSEL").
+            number (int): Numéro du paramètre à modifier.
+            value (float): Nouvelle valeur à assigner.
+
+        Returns:
+            list: Les lignes mises à jour.
+        """
         updated_lines = []
+        inside_block = False
+
         for line in template_lines:
-            if line.strip().startswith(block):
-                parts = line.split()
-                if len(parts) > 1 and parts[1].isdigit() and int(parts[1]) == number:
-                    parts[-1] = str(value)
-                    updated_lines.append(" ".join(parts))
-                else:
-                    updated_lines.append(line)
-            else:
+            stripped_line = line.strip()
+
+            if stripped_line.upper().startswith(f"BLOCK {block.upper()}"):
+                inside_block = True
                 updated_lines.append(line)
+                continue
+
+            if inside_block:
+                if stripped_line == "" or stripped_line.startswith("#"):
+                    updated_lines.append(line)
+                    continue
+
+                parts = stripped_line.split()
+                if len(parts) >= 2 and parts[0].isdigit() and int(parts[0]) == number:
+                    parts[1] = f"{value:.8e}"
+                    updated_line = "    " + "    ".join(parts)
+                    updated_lines.append(updated_line)
+                    inside_block = False
+                    continue
+
+            updated_lines.append(line)
+
         return updated_lines
+
 
     template_lines = template.splitlines()
 

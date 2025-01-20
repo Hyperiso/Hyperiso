@@ -99,6 +99,7 @@ def app():
     add_header()
     apply_file_management_style()
     apply_custom_css()
+    apply_sidebar_style()
     st.title("SLHA File Manager and Visualizer")
 
     st.sidebar.header("File Management")

@@ -9,6 +9,15 @@ def app():
     add_header()
     apply_file_management_style()
     apply_custom_css()
+    apply_sidebar_style()
+    
+    if "authenticated" not in st.session_state:
+        st.session_state["authenticated"] = False
+    
+    if st.session_state["authenticated"]:
+        st.success("Vous êtes déjà connecté.")
+        st.stop()
+    
     username = st.text_input("Username")
     password = st.text_input("Password", type="password")
     if st.button("Login"):
@@ -17,9 +26,13 @@ def app():
             data={"username": username, "password": password},
         )
         if response.status_code == 200:
+            st.session_state["authenticated"] = True
             st.session_state["token"] = response.json()["access_token"]
             st.success("Logged in successfully")
         else:
             st.error("Invalid credentials")
-            
+    
     add_footer()
+
+if __name__ == "__main__":
+    app()

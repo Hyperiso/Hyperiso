@@ -49,9 +49,14 @@ def apply_sidebar_style():
         /* Adjust the sidebar width */
         [data-testid="stSidebar"] {
             width: 350px;  /* Set the desired width */
+            background-color: #e3f2fd;
             padding: 5px; /* Add padding for better spacing */
         }
 
+        [data-testid="stSidebar"] h1, [data-testid="stSidebar"] h2, [data-testid="stSidebar"] h3 {
+            color: #0d47a1; /* Dark blue text for headings */
+        }
+        
         /* Style messages inside the sidebar */
         [data-testid="stSidebar"] .stAlert {
             padding-right: 30px;      /* Add padding for alerts */
