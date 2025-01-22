@@ -27,3 +27,5 @@ DataBase/MartyWilson
 */__pycache__
 logs/
 trash/
+DataBase/lha/*
+DataBase/Params/*

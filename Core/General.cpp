@@ -164,10 +164,7 @@ const std::map<WilsonGroups, std::string> GroupMapper::mapping = {
     {WilsonGroups::BScalarCoefficients_THDM, "BScalarCoefficients_THDM"},
     {WilsonGroups::BCoefficients_SUSY, "BCoefficients_SUSY"},
     {WilsonGroups::BPrimeCoefficients_SUSY, "BPrimeCoefficients_SUSY"},
-    {WilsonGroups::BScalarCoefficients_SUSY, "BScalarCoefficients_SUSY"},
-    {WilsonGroups::BCoefficients_MARTY, "BCoefficients_MARTY"},
-    {WilsonGroups::BPrimeCoefficients_MARTY, "BPrimeCoefficients_MARTY"},
-    {WilsonGroups::BScalarCoefficients_MARTY, "BScalarCoefficients_MARTY"},
+    {WilsonGroups::BScalarCoefficients_SUSY, "BScalarCoefficients_SUSY"}
 }; 
 
 const std::map<std::string, WilsonGroups> GroupMapper::inverse_mapping = {
@@ -179,10 +176,7 @@ const std::map<std::string, WilsonGroups> GroupMapper::inverse_mapping = {
     {"BScalarCoefficients_THDM", WilsonGroups::BScalarCoefficients_THDM},
     {"BCoefficients_SUSY", WilsonGroups::BCoefficients_SUSY},
     {"BPrimeCoefficients_SUSY", WilsonGroups::BPrimeCoefficients_SUSY},
-    {"BScalarCoefficients_SUSY", WilsonGroups::BScalarCoefficients_SUSY},
-    {"BCoefficients_MARTY", WilsonGroups::BCoefficients_MARTY},
-    {"BPrimeCoefficients_MARTY", WilsonGroups::BPrimeCoefficients_MARTY},
-    {"BScalarCoefficients_MARTY", WilsonGroups::BScalarCoefficients_MARTY},
+    {"BScalarCoefficients_SUSY", WilsonGroups::BScalarCoefficients_SUSY}
 }; 
 
 const std::map<Observables, std::string> ObservableMapper::mapping = {
