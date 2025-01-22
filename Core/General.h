@@ -13,8 +13,8 @@ enum class Observables {
     BR_BS_MUMU,
     BR_BS_MUMU_UNTAG,
     BR_BD_MUMU,
-    BR_BU_TAUNU,
-    ISOSPIN_ASYMMETRY_B_KSTAR_GAMMA
+    ISOSPIN_ASYMMETRY_B_KSTAR_GAMMA,
+    BR_B_XS_GAMMA
 };
 
 class ObservableMapper {

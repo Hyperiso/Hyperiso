@@ -10,7 +10,7 @@ class BKstarDecay : public DecayParent {
 protected:
     double alpha_s(double mu);
     double beta_0(double mu);
-    double sc(double m_c_m_c, double m_b_m_b);
+    double sc(double mb_mu_b);
     double run(double initial_value, double eta, double gamma, double beta);
     double a_n_perp(int n, double a_1_gev, double beta_0, double eta);
     double a_n_par(int n, double a_1_gev, double beta_0, double eta);

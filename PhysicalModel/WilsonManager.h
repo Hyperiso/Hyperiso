@@ -253,16 +253,78 @@ public:
         return ensureGroupState(groupName)->getMatchingCoefficient(this, groupName, coeffName, order);
     }
 
+    std::complex<double> getMatchingCoefficient(WilsonGroups groupName, BWilsonCoefficients coeffName, QCDOrder order) {
+        return getMatchingCoefficient(GroupMapper::str(groupName), WCoefMapper::str(coeffName), OrderMapper::str(order));
+    }
+
     std::complex<double> getFullMatchingCoefficient(const std::string& groupName, const std::string& coeffName, const std::string& order) {
         return ensureGroupState(groupName)->getFullMatchingCoefficient(this, groupName, coeffName, order);
+    }
+
+    std::complex<double> getFullMatchingCoefficient(WilsonGroups groupName, BWilsonCoefficients coeffName, QCDOrder order) {
+        return getFullMatchingCoefficient(GroupMapper::str(groupName), WCoefMapper::str(coeffName), OrderMapper::str(order));
+    }
+
+    std::array<std::complex<double>, 3> getMatchingCoefficientSepOrders(WilsonGroups groupName, BWilsonCoefficients coeffName) {
+        auto C_0 = getMatchingCoefficient(groupName, coeffName, QCDOrder::LO);
+        auto C_1 = getMatchingCoefficient(groupName, coeffName, QCDOrder::NLO);
+        auto C_2 = getMatchingCoefficient(groupName, coeffName, QCDOrder::NNLO);
+        return {C_0, C_1, C_2};
+    }
+
+    std::vector<std::complex<double>> getAllFullMatchingCoefficients(WilsonGroups groupName, QCDOrder order) {
+        std::vector<complex_t> C;
+        for (auto c_id : WCoefMapper::get_group(groupName)) {
+            C.emplace_back(getFullMatchingCoefficient(groupName, c_id, order));
+        }
+        return C;
+    }
+
+    std::vector<std::complex<double>> getAllMatchingCoefficients(WilsonGroups groupName, QCDOrder order) {
+        std::vector<complex_t> C;
+        for (auto c_id : WCoefMapper::get_group(groupName)) {
+            C.emplace_back(getMatchingCoefficient(groupName, c_id, order));
+        }
+        return C;
     }
 
     std::complex<double> getRunCoefficient(const std::string& groupName, const std::string& coeffName, const std::string& order) {
         return ensureGroupState(groupName)->getRunCoefficient(this, groupName, coeffName, order);
     }
 
+    std::complex<double> getRunCoefficient(WilsonGroups groupName, BWilsonCoefficients coeffName, QCDOrder order) {
+        return getRunCoefficient(GroupMapper::str(groupName), WCoefMapper::str(coeffName), OrderMapper::str(order));
+    }
+
     std::complex<double> getFullRunCoefficient(const std::string& groupName, const std::string& coeffName, const std::string& order) {
         return ensureGroupState(groupName)->getFullRunCoefficient(this, groupName, coeffName, order);
+    }
+
+    std::complex<double> getFullRunCoefficient(WilsonGroups groupName, BWilsonCoefficients coeffName, QCDOrder order) {
+        return getFullRunCoefficient(GroupMapper::str(groupName), WCoefMapper::str(coeffName), OrderMapper::str(order));
+    }
+
+    std::array<std::complex<double>, 3> getRunCoefficientSepOrders(WilsonGroups groupName, BWilsonCoefficients coeffName) {
+        auto C_0 = getRunCoefficient(groupName, coeffName, QCDOrder::LO);
+        auto C_1 = getRunCoefficient(groupName, coeffName, QCDOrder::NLO);
+        auto C_2 = getRunCoefficient(groupName, coeffName, QCDOrder::NNLO);
+        return {C_0, C_1, C_2};
+    }
+
+    std::vector<std::complex<double>> getAllFullRunCoefficients(WilsonGroups groupName, QCDOrder order) {
+        std::vector<complex_t> C;
+        for (auto c_id : WCoefMapper::get_group(groupName)) {
+            C.emplace_back(getFullRunCoefficient(groupName, c_id, order));
+        }
+        return C;
+    }
+
+    std::vector<std::complex<double>> getAllRunCoefficients(WilsonGroups groupName, QCDOrder order) {
+        std::vector<complex_t> C;
+        for (auto c_id : WCoefMapper::get_group(groupName)) {
+            C.emplace_back(getRunCoefficient(groupName, c_id, order));
+        }
+        return C;
     }
 
     double getAlphaS(const std::string& groupName) {

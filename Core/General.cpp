@@ -189,7 +189,7 @@ const std::map<Observables, std::string> ObservableMapper::mapping = {
     {Observables::BR_BS_MUMU, "BR_Bs__mu_mu"},
     {Observables::BR_BS_MUMU_UNTAG, "BRuntag_Bs__mu_mu"},
     {Observables::BR_BD_MUMU, "BR_Bd__mu_mu"},
-    {Observables::BR_BU_TAUNU, "BR_Bu__tau_nu"},
+    // {Observables::BR_BU_TAUNU, "BR_Bu__tau_nu"},
     {Observables::ISOSPIN_ASYMMETRY_B_KSTAR_GAMMA, "IA_B_K*__gamma"}
 };
 
@@ -197,7 +197,7 @@ const std::map<std::string, Observables> ObservableMapper::inverse_mapping = {
     {"BR_Bs__mu_mu", Observables::BR_BS_MUMU},
     {"BRuntag_Bs__mu_mu", Observables::BR_BS_MUMU_UNTAG},
     {"BR_Bd__mu_mu", Observables::BR_BD_MUMU},
-    {"BR_Bu__tau_nu", Observables::BR_BU_TAUNU},
+    // {"BR_Bu__tau_nu", Observables::BR_BU_TAUNU},
     {"IA_B_K*__gamma", Observables::ISOSPIN_ASYMMETRY_B_KSTAR_GAMMA}
 };
 
