@@ -60,6 +60,7 @@ ParameterType Parameters::GetType(const std::string &block, int pdgCode) {
 }
 
 double Parameters::Get(ParameterType type, const std::string& block, int code) {
+    LOG_DEBUG("Attempting to retrieve parameter from instance", (int)type, "with id (", block, ",", code, ")");
     return (*GetInstance(type))(block, code);
 }
 
@@ -563,24 +564,36 @@ void WilsonInputStrategy::initializeParameters(Parameters &params) {
 
 void FormFactorStrategy::initializeParameters(Parameters &params) {
     auto bksblock = std::make_shared<BKsBlock>();
-    bksblock->setValue(1, 0.04); // a_1_perp (1 GeV)
-    bksblock->setValue(2, 0.10); // a_2_perp (1 GeV)
-    bksblock->setValue(3, 0.06); // a_1_par (1 GeV)
-    bksblock->setValue(4, 0.16); // a_2_par (1 GeV)
-    bksblock->setValue(5, 0.013); // zeta_3_A (1 GeV)
-    bksblock->setValue(6, 0.032); // zeta_3_V (1 GeV)
-    bksblock->setValue(7, -2.1); // omega_10_A (1 GeV)
-    bksblock->setValue(8, 0.16); // delta_tilde_+ (1 GeV) 
-    bksblock->setValue(9, -0.16); // delta_tilde_- (1 GeV)
-    bksblock->setValue(10, 0.46); // lambda_B (1 GeV) [GeV]
-    bksblock->setValue(11, 0.312); // T1_B_Kstar (1 GeV) [hep-ph/0106067]
-    bksblock->setValue(12, 0.5); // Lambda_h (spectator scale) [GeV]
-    bksblock->setValue(13, -1); // mu_0 (remainder scale) [GeV]
+    bksblock->setValue(1, 0.04);    // a_1_perp (1 GeV)
+    bksblock->setValue(2, 0.10);    // a_2_perp (1 GeV)
+    bksblock->setValue(3, 0.06);    // a_1_par (1 GeV)
+    bksblock->setValue(4, 0.16);    // a_2_par (1 GeV)
+    bksblock->setValue(5, 0.013);   // zeta_3_A (1 GeV)
+    bksblock->setValue(6, 0.032);   // zeta_3_V (1 GeV)
+    bksblock->setValue(7, -2.1);    // omega_10_A (1 GeV)
+    bksblock->setValue(8, 0.16);    // delta_tilde_+ (1 GeV) 
+    bksblock->setValue(9, -0.16);   // delta_tilde_- (1 GeV)
+    bksblock->setValue(10, 0.46);   // lambda_B (1 GeV) [GeV]
+    bksblock->setValue(11, 0.312);  // T1_B_Kstar (1 GeV) [hep-ph/0106067]
+    bksblock->setValue(12, 0.5);    // Lambda_h (spectator scale) [GeV]
+    bksblock->setValue(13, -1);     // mu_0 (remainder scale) [GeV]
     params.addBlock("B_Ks", std::move(bksblock));
 
     auto bllblock = std::make_shared<BllBlock>();
     bllblock->setValue(1, 0.088); // y_s
     params.addBlock("B_ll", std::move(bllblock));
+
+    auto bxsblock = std::make_shared<BXsBlock>();
+    bxsblock->setValue(1, 1.6);     // E_0 photon cut energy
+    bxsblock->setValue(2, 0.1065);  // BR(Bbar > Xc e nu)_exp
+    bxsblock->setValue(3, 0.336);   // mu_G^2
+    bxsblock->setValue(4, 0.153);   // rho_D^3
+    bxsblock->setValue(5, -0.145);  // rho_LS^3
+    bxsblock->setValue(6, 0.12);    // lambda_2 = (m_B*^2 - m_B^2) / 4
+    bxsblock->setValue(7, 2);       // mu_c
+    bxsblock->setValue(8, 1e10);    // z_0 for matching of the P_22_rem contribution
+    bxsblock->setValue(9, 1e20);    // z_1 for matching of the P_22_rem contribution
+    params.addBlock("B_Xs", std::move(bxsblock));
 }
 
 void Parameters::changeParameterMode(const ParamId &param_id,

@@ -33,5 +33,6 @@ std::shared_ptr<CoefficientManager> DecayParent::get_wilsons(bool force_update) 
 }
 
 scalar_t DecayParent::compute_observable(Observables obs) {
+    roots.at(obs);
     return roots.at(obs)->calculate();
 }

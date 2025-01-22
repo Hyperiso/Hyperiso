@@ -1262,15 +1262,15 @@ double Li2(double x) {
 const double zeta3 = 1.202056903159594; // Apery's constant
 
 double Li3(double x) {
-    const double pisq6 = 16.0 * M_PI * M_PI / 6.0;
+    const double pisq6 = M_PI * M_PI / 6.0;
     const double x_0 = -1.0;
     const double x_1 = -0.85;
     const double x_2 = 0.25;
     const double x_3 = 0.63;
     const double x_4 = 1.0;
 
-    if (x == 1.0) return zeta3;
-    if (x == -1.0) return -0.75 * zeta3;
+    if (fpeq(x, 1.0)) return zeta3;
+    if (fpeq(x, -1.0)) return -0.75 * zeta3;
 
     if (x <= x_0) {
         double lnx = log(-x);

@@ -161,6 +161,42 @@
         "central_value": 0.088,
         "stat_error": 0.014,
         "syst_error": 0
+      },
+      {
+        "name": "B_Xs|1",
+        "central_value": 1.6,
+        "stat_error": 0,
+        "syst_error": 0
+      },
+      {
+        "name": "B_Xs|2",
+        "central_value": 0.1065,
+        "stat_error": 0.0016,
+        "syst_error": 0
+      },
+      {
+        "name": "B_Xs|3",
+        "central_value": 0.336,
+        "stat_error": 0.064,
+        "syst_error": 0
+      },
+      {
+        "name": "B_Xs|4",
+        "central_value": 0.153,
+        "stat_error": 0.45,
+        "syst_error": 0
+      },
+      {
+        "name": "B_Xs|5",
+        "central_value": -0.145,
+        "stat_error": 0.098,
+        "syst_error": 0
+      },
+      {
+        "name": "B_Xs|6",
+        "central_value": 0.12,
+        "stat_error": 0,
+        "syst_error": 0
       }
     ],
     "correlations": [

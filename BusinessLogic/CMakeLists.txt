@@ -31,6 +31,7 @@ endif()
 add_library(BusinessLogicLib STATIC 
     BKstarDecay.cpp
     BllDecay.cpp
+    BXsDecay.cpp
     Compound.cpp
     DecayParent.cpp
     Node.cpp
@@ -38,7 +39,7 @@ add_library(BusinessLogicLib STATIC
 )
 set_target_properties(BusinessLogicLib PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
-set_target_properties(BusinessLogicLib PROPERTIES PUBLIC_HEADER "BKstarDecay.h;BllDecay.h;Compound.h;DecayParent.h;Node.h;Observable.h;ModelEvaluator.h")
+set_target_properties(BusinessLogicLib PROPERTIES PUBLIC_HEADER "BKstarDecay.h;BllDecay.h;BXsDecay.h;Compound.h;DecayParent.h;Node.h;Observable.h;ModelEvaluator.h")
 
 target_include_directories(BusinessLogicLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_include_directories(BusinessLogicLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/Observables)

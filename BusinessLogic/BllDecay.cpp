@@ -76,9 +76,16 @@ void BllDecay::build_op_tree() {
     // SM Parameters
     auto inv_alpha_em = std::make_shared<ParameterNode>(ParamId(ParameterType::SM, "SMINPUTS", 1));
     auto G_F = std::make_shared<ParameterNode>(ParamId(ParameterType::SM, "SMINPUTS", 2));
+    auto alpha_s_MZ = std::make_shared<ParameterNode>(ParamId(ParameterType::SM, "SMINPUTS", 3));
+    auto M_Z = std::make_shared<ParameterNode>(ParamId(ParameterType::SM, "SMINPUTS", 4));
+    auto mt_pole = std::make_shared<ParameterNode>(ParamId(ParameterType::SM, "SMINPUTS", 6));
+    auto mb_mb = std::make_shared<ParameterNode>(ParamId(ParameterType::SM, "SMINPUTS", 5));
+
     auto m_mu = std::make_shared<ParameterNode>(ParamId(ParameterType::SM, "MASS", 13));
-    auto m_s = std::make_shared<ParameterNode>(ParamId(ParameterType::SM, "MASS", 3));
     auto m_d = std::make_shared<ParameterNode>(ParamId(ParameterType::SM, "MASS", 1));
+    auto m_u = std::make_shared<ParameterNode>(ParamId(ParameterType::SM, "MASS", 2));
+    auto m_s = std::make_shared<ParameterNode>(ParamId(ParameterType::SM, "MASS", 3));
+    auto m_c = std::make_shared<ParameterNode>(ParamId(ParameterType::SM, "MASS", 4));
     auto V_tb_r = std::make_shared<ParameterNode>(ParamId(ParameterType::SM, "RECKM", 22));
     auto V_tb_i = std::make_shared<ParameterNode>(ParamId(ParameterType::SM, "IMCKM", 22));
     auto V_ts_r = std::make_shared<ParameterNode>(ParamId(ParameterType::SM, "RECKM", 21));
@@ -101,6 +108,7 @@ void BllDecay::build_op_tree() {
     auto xs = std::make_shared<OperatorNode>("xs", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return values[0] / values[1]; });
     xs->addChildren({m_mu, m_Bs});
     auto m_b_pole = std::make_shared<OperatorNode>("m_b_pole", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return QCDHelper::mass_b_pole(); });
+    m_b_pole->addChildren({alpha_s_MZ, M_Z, mt_pole, mb_mb, m_d, m_u, m_s, m_c});
     auto rs = std::make_shared<OperatorNode>("rs", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return values[0] / (values[1] + values[2]); });
     rs->addChildren({m_Bs, m_b_pole, m_s});
     auto w1s = std::make_shared<OperatorNode>("W1s", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->W1(values[0], true); });

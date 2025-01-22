@@ -111,8 +111,8 @@ public:
     MassBlock() {this->blockname = "MASSBlock";}
 
     double getValue(int pdgCode) const override {
-        if (pdgCode < 7) {
-            // LOG_WARN("Accessing quark masses through Parameters is deprecated. Use QCDHelper instead.");
+        if (pdgCode == 5 || pdgCode == 6) {
+            LOG_WARN("Accessing heavy quark masses through Parameters is deprecated. Use QCDHelper instead.");
         }
         return MapBlock::getValue(pdgCode);
     }
@@ -313,4 +313,9 @@ public:
 class BllBlock : public MapBlock {
 public:
     BllBlock() {this->blockname = "BllBlock";}
+};
+
+class BXsBlock : public MapBlock {
+public:
+    BXsBlock() {this->blockname = "BXsBlock";}
 };
