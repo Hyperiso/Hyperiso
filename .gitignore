@@ -25,3 +25,5 @@ test.py
 superiso_v4.1.zip
 DataBase/MartyWilson
 */__pycache__
+logs/
+trash/

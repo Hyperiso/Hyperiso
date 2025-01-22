@@ -20,6 +20,11 @@ void MatchingSetState::setGroupScale(CoefficientManager* manager, const std::str
         manager->setState(groupName, std::make_shared<QSetState>(OrderMapper::str(this->currentOrder)));
 }
 
+void MatchingSetState::setQMatch(CoefficientManager* manager, const std::string& groupName, double Q_match) {
+        CoefficientGroup* group = manager->getCoefficientGroup(groupName);
+        group->set_Q_match(Q_match);
+        manager->setState(groupName, std::make_shared<QMatchSetState>(OrderMapper::str(this->currentOrder)));
+}
 
 void QMatchSetState::setMatchingCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& order) {
         CoefficientGroup* group = manager->getCoefficientGroup(groupName);
@@ -27,7 +32,7 @@ void QMatchSetState::setMatchingCoefficient(CoefficientManager* manager, const s
                                     order == "NLO" ? QCDOrder::NLO :
                                     QCDOrder::NNLO;
 
-        if (newOrder <= currentOrder) {
+        if (newOrder < currentOrder) {
             throw std::runtime_error("Cannot set matching coefficient: Lower or same order already calculated.");
         }
 

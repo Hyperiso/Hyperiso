@@ -42,18 +42,56 @@ def add_header():
             )
 
 def apply_sidebar_style():
-    """Adjust the width of the sidebar to fit larger widgets."""
+    """Adjust the width of the sidebar and style its components."""
     st.markdown(
         """
         <style>
         /* Adjust the sidebar width */
         [data-testid="stSidebar"] {
             width: 350px;  /* Set the desired width */
-            padding: 10px; /* Add padding for better spacing */
+            background-color: #e3f2fd;
+            padding: 5px; /* Add padding for better spacing */
+        }
+
+        [data-testid="stSidebar"] h1, [data-testid="stSidebar"] h2, [data-testid="stSidebar"] h3 {
+            color: #0d47a1; /* Dark blue text for headings */
+        }
+        
+        /* Style messages inside the sidebar */
+        [data-testid="stSidebar"] .stAlert {
+            padding-right: 30px;      /* Add padding for alerts */
+            border-radius: 5px; /* Add rounded corners */
+        }
+
+        /* Optional: Customize specific alert types if desired */
+        .stSuccess {
+            padding-right: 400px;      /* Add padding for alerts */
+            float: left;
+            background-color: #d4edda; /* Light green for success */
+            border-color: #c3e6cb;     /* Border color for success */
+        }
+
+        [data-testid="stSidebar"] .stError {
+            background-color: #f8d7da; /* Light red for error */
+            border-color: #f5c6cb;     /* Border color for error */
         }
         </style>
         """,
         unsafe_allow_html=True,
+    )
+
+def apply_custom_css():
+    st.markdown(
+        """
+        <style>
+        .stSelectbox, .stTextInput, .stNumberInput, .stButton, .success, .stAlert {
+            width: 100%;
+            padding: 30px;
+            float: left;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True
     )
 
 def apply_file_management_style():
@@ -61,13 +99,11 @@ def apply_file_management_style():
     st.markdown(
         """
         <style>
-        /* Adjust the width of the File Management section */
         .sidebar-section {
-            width: 100%;  /* Ensure the section takes the full width of the sidebar */
+            width: 100%;
             padding: 1px;
         }
 
-        /* Adjust the file uploader widget to align properly */
         [data-testid="stFileUploader"] {
             float: left;
             padding: 0;

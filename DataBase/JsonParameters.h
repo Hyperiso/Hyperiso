@@ -19,7 +19,7 @@ public:
             return it->second;
         } else {
             std::cout << pdgCode << std::endl;
-            throw std::runtime_error("pdgCode non trouvé dans le block.");
+            throw std::runtime_error("pdgCode non trouvé dans le block: " + std::to_string(pdgCode));
         }
     }
 
@@ -40,6 +40,7 @@ public:
     double getElement(const std::string& blockName, int pdgCode) const {
         auto it = blocks.find(blockName);
         if (it != blocks.end()) {
+            std::cout << "ww: " << blockName << std::endl;
             return it->second.getValue(pdgCode);
         } else {
             throw std::runtime_error("Block " + blockName + " not found.");

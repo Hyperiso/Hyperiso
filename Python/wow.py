@@ -2,10 +2,10 @@ from Python.Phyperiso import MemoryManager
 from Python.Phyperiso import Parameters
 from Python.Phyperiso import WilsonManager
 from Python.Phyperiso import Model
-from Python.Phyperiso import BCoefficientGroup
+from Python.Phyperiso import BCoefficientGroup, BPrimeCoefficientGroup
 from Python.Phyperiso import ObservableInterface
 from Python.Phyperiso import Observables
-
+from Python.Phyperiso import ParameterType
 import os
 
 mm = MemoryManager()
@@ -16,11 +16,11 @@ mm.init("Test/InputFiles/testInput.flha")
 
 pa = Parameters()
 print("MASS TEST FOR TOP MASS", pa("MASS", 6))
-print("ALPHA_S at 33 GeV", pa.alpha_s(33))
-print("Runinng mass test", pa.running_mass(4.18, 4.18, 33))
+# print("ALPHA_S at 33 GeV", pa.alpha_s(33))
+# print("Runinng mass test", pa.running_mass(4.18, 4.18, 33))
 print("check existence of value (bottom mass)", pa.exists("MASS", 5))
-print("try getting mt_mt", pa.get_qcd_mass("mt_mt"))
-pa.set_block_value("MASS", 3, 42)
+# print("try getting mt_mt", pa.get_qcd_mass("mt_mt"))
+# pa.set_block_value("MASS", 3, 42)
 print("setting charm mass to 42, after changes: ", pa("MASS", 3))
 
 wilManag = WilsonManager()
@@ -73,5 +73,19 @@ pa = Parameters()
 print(pa("MASS", 5))
 
 print(pa.exists("MASS", 5))
+print(mm.switch_model(Model.SUSY))
+print(mm.get_blocks_list(ParameterType.SUSY))
 
-print(mm.get_blocks_list())
+coeffprimegroup = BPrimeCoefficientGroup()
+
+print("register a prime group in the manager")
+wilManag.register_coefficient_group("BPrimeCoefficientGroup", coeffprimegroup)
+wilManag.set_q_match("BPrimeCoefficientGroup", 81)
+wilManag.set_matching_coefficient("BPrimeCoefficientGroup", "LO")
+wilManag.set_group_scale("BPrimeCoefficientGroup", 81)
+wilManag.set_run_coefficient("BPrimeCoefficientGroup", "LO")
+print(wilManag.get_matching_coefficient("BPrimeCoefficientGroup", "CP1", "LO"))
+wilManag.set_q_match("BPrimeCoefficientGroup", 81)
+wilManag.set_matching_coefficient("BPrimeCoefficientGroup", "LO")
+print(wilManag.get_matching_coefficient("BPrimeCoefficientGroup", "CP1", "LO"))
+# print(wilManag.get_state())

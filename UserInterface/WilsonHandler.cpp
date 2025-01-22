@@ -90,11 +90,11 @@ int handleWilsonOptions(int argc, char* argv[]) {
         }
         std::cout << group_name << std::endl;
         if (group_name == "BCoefficientGroup" || group_name == "BCoefficientGroupMarty") {
-            manager->registerCoefficientGroup(group_name, use_marty ? std::make_shared<BCoefficientGroupMarty>() : std::make_shared<BCoefficientGroup>());
+            manager->registerCoefficientGroup(group_name, std::make_shared<BCoefficientGroup>());
         } else if (group_name == "BPrimeCoefficientGroup" || group_name == "BPrimeCoefficientGroupMarty") {
-            manager->registerCoefficientGroup(group_name, use_marty ? std::make_shared<BPrimeCoefficientGroupMarty>() : std::make_shared<BPrimeCoefficientGroup>());
+            manager->registerCoefficientGroup(group_name, std::make_shared<BPrimeCoefficientGroup>());
         } else if (group_name == "BScalarCoefficientGroup" || group_name == "BScalarCoefficientGroupMarty") {
-            manager->registerCoefficientGroup(group_name, use_marty ? std::make_shared<BScalarCoefficientGroupMarty>() : std::make_shared<BScalarCoefficientGroup>());
+            manager->registerCoefficientGroup(group_name, std::make_shared<BScalarCoefficientGroup>());
         } else {
             throw std::invalid_argument("Invalid group name specified.");
         }

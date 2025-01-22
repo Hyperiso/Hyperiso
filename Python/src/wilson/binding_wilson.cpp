@@ -5,7 +5,8 @@
 #include "WilsonManager.h"
 #include "MartyWilson.h"
 #include "WilsonInterface.h"
-
+#include "Wilson_susyv2.h"
+#include "Wilson_THDMv2.h"
 namespace py = pybind11;
 
 // Initialisation des groupes de coefficients
@@ -19,19 +20,37 @@ void init_coefficient_groups(py::module &m) {
     py::class_<BCoefficientGroup, CoefficientGroup, std::shared_ptr<BCoefficientGroup>>(m, "BCoefficientGroup")
         .def(py::init<>());
 
-    py::class_<BCoefficientGroupMarty, CoefficientGroup, std::shared_ptr<BCoefficientGroupMarty>>(m, "BCoefficientGroupMarty")
-        .def(py::init<>());
+    // py::class_<BCoefficientGroupMarty, CoefficientGroup, std::shared_ptr<BCoefficientGroupMarty>>(m, "BCoefficientGroupMarty")
+    //     .def(py::init<>());
 
     py::class_<BPrimeCoefficientGroup, CoefficientGroup, std::shared_ptr<BPrimeCoefficientGroup>>(m, "BPrimeCoefficientGroup")
         .def(py::init<>());
 
-    py::class_<BPrimeCoefficientGroupMarty, CoefficientGroup, std::shared_ptr<BPrimeCoefficientGroupMarty>>(m, "BPrimeCoefficientGroupMarty")
-        .def(py::init<>());
+    // py::class_<BPrimeCoefficientGroupMarty, CoefficientGroup, std::shared_ptr<BPrimeCoefficientGroupMarty>>(m, "BPrimeCoefficientGroupMarty")
+    //     .def(py::init<>());
 
     py::class_<BScalarCoefficientGroup, CoefficientGroup, std::shared_ptr<BScalarCoefficientGroup>>(m, "BScalarCoefficientGroup")
         .def(py::init<>());
 
-    py::class_<BScalarCoefficientGroupMarty, CoefficientGroup, std::shared_ptr<BScalarCoefficientGroupMarty>>(m, "BScalarCoefficientGroupMarty")
+    // py::class_<BScalarCoefficientGroupMarty, CoefficientGroup, std::shared_ptr<BScalarCoefficientGroupMarty>>(m, "BScalarCoefficientGroupMarty")
+    //     .def(py::init<>());
+
+    py::class_<BCoefficientGroup_susy, CoefficientGroup, std::shared_ptr<BCoefficientGroup_susy>>(m, "BCoefficientGroup_susy")
+        .def(py::init<>());
+
+    py::class_<BCoefficientGroup_THDM, CoefficientGroup, std::shared_ptr<BCoefficientGroup_THDM>>(m, "BCoefficientGroup_THDM")
+        .def(py::init<>());
+
+    py::class_<BPrimeCoefficientGroup_susy, CoefficientGroup, std::shared_ptr<BPrimeCoefficientGroup_susy>>(m, "BPrimeCoefficientGroup_susy")
+        .def(py::init<>());
+
+    py::class_<BPrimeCoefficientGroup_THDM, CoefficientGroup, std::shared_ptr<BPrimeCoefficientGroup_THDM>>(m, "BPrimeCoefficientGroup_THDM")
+        .def(py::init<>());
+
+    py::class_<BScalarCoefficientGroup_susy, CoefficientGroup, std::shared_ptr<BScalarCoefficientGroup_susy>>(m, "BScalarCoefficientGroup_susy")
+        .def(py::init<>());
+
+    py::class_<BScalarCoefficientGroup_THDM, CoefficientGroup, std::shared_ptr<BScalarCoefficientGroup_THDM>>(m, "BScalarCoefficientGroup_THDM")
         .def(py::init<>());
 }
 

@@ -154,6 +154,39 @@ class BCoefficientGroup:
     def __init__(self):
         self.group = wilson.coefficient_groups.BCoefficientGroup()
 
+class BPrimeCoefficientGroup:
+    def __init__(self):
+        self.group = wilson.coefficient_groups.BPrimeCoefficientGroup()
+
+class BScalarCoefficientGroup:
+    def __init__(self):
+        self.group = wilson.coefficient_groups.BScalarCoefficientGroup()
+
+class BCoefficientSUSY:
+    def __init__(self):
+        self.group = wilson.coefficient_groups.BCoefficientGroup_susy()
+
+class BCoefficientTHDM:
+    def __init__(self):
+        self.group = wilson.coefficient_groups.BCoefficientGroup_THDM()
+
+class BPrimeCoefficientSUSY:
+    def __init__(self):
+        self.group = wilson.coefficient_groups.BPrimeCoefficientGroup_susy()
+
+class BPrimeCoefficientTHDM:
+    def __init__(self):
+        self.group = wilson.coefficient_groups.BPrimeCoefficientGroup_THDM()
+
+class BScalarCoefficientSUSY:
+    def __init__(self):
+        self.group = wilson.coefficient_groups.BScalarCoefficientGroup_susy()
+
+class BScalarCoefficientTHDM:
+    def __init__(self):
+        self.group = wilson.coefficient_groups.BScalarCoefficientGroup_THDM()
+
+
 class WilsonManager:
     """Interface for managing Wilson coefficients."""
 
@@ -178,20 +211,20 @@ class WilsonManager:
 
     def get_state(self) -> str:
         """Get the current state of the Wilson coefficient manager."""
-        return self._manager.get_state()
+        return self._manager.get_state("BPrimeCoefficientGroup")
 
     def set_q_match(self, groupName : str, value: float) -> None:
         """Set the matching scale."""
         self._manager.set_q_match(groupName, value)
 
-    def set_params(self, block : str, pdgcode : int, value : float) -> None:
+    def set_params(self, group : str, block : str, pdgcode : int, value : float) -> None:
         """
             Set a params (SM only) 
             :block: lhablock for the element the user want to change
             :pdgcode: pdgcode of the element the user want to change
             :value: value of the element after the change
         """
-        self._manager.set_params(block, pdgcode, value)
+        self._manager.set_params(group, block, pdgcode, value)
 
     def get_params(self, block : str, pdgcode : int):
         """

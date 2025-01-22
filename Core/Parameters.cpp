@@ -110,6 +110,7 @@ bool Parameters::exist(const std::string& block, int pdgCode) {
 // }
 
 void SMModelStrategy::initializeParameters(Parameters& params) {
+
     LhaReader* lha = MemoryManager::GetInstance()->getReader();
 
     // SMINPUTS
@@ -120,7 +121,7 @@ void SMModelStrategy::initializeParameters(Parameters& params) {
     for (size_t i = 0; i < 7; i++) {
         params.setBlockValue("SMINPUTS", i + 1, *sm_inputs[i]);
     }
-
+    params.setBlockValue("SMINPUTS", 10, 0.313);
     // VCKMIN 
     params.addBlock("RECKM", std::make_shared<RECKMBlock>());
     params.addBlock("IMCKM", std::make_shared<IMCKMBlock>());
@@ -608,7 +609,6 @@ std::shared_ptr<Parameters> ParametersFactory::GetParameters(ParameterType id) {
     if (instances.find(id) == instances.end()) {
         std::shared_ptr<ModelStrategy> strategy = createStrategy(id);
         instances[id] = std::make_shared<Parameters>(Parameters(strategy));
-        LOG_INFO("creating instance", (int)id);
     }
     return instances[id];
 }
@@ -617,7 +617,7 @@ void ParametersFactory::removeParameters(ParameterType id) {
     if (instances.find(id) == instances.end()) {
         LOG_ERROR("OutOfRange", "Cannot remove parameters if it doesn't exist");
     }
-    LOG_INFO("erasing ; ", (int)id);
+    LOG_DEBUG("erasing ; ", (int)id);
     std::shared_ptr<Parameters> _ = instances[id];
     instances.erase(id);
 }

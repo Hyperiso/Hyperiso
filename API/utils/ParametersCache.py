@@ -4,15 +4,30 @@ class MemoryManagerCache:
     def __init__(self, lha_input, model, use_marty = False, is_spectrum = False, has_wilson = False, has_obs = False):
         self.mm = MemoryManager()
         self.mm.init(lha_input, model, use_marty, is_spectrum, has_wilson, has_obs)
-        self.lha = lha_input
+        # self.lha = lha_input
+        # self.model = model
+        # self.use_marty = use_marty
+        # self.is_spectrum = is_spectrum
+        # self.has_wilson = has_wilson
+        # self.has_obs = has_obs
+        self.infos = {"lha" : lha_input, "model" : model, "use_marty" : use_marty, "is_spectrum" : is_spectrum, "has_wilson" : has_wilson,
+                      "has_obs" : has_obs}
+        self.model_available = {"SM"}
+    def switch_info(self, inputs):
+        new_infos = {}
+        for elem in ["lha", "model", "use_marty", "is_spectrum", "has_wilson", "has_obs"]:
+            if inputs[elem] is not None:
+                new_infos[elem] = inputs[elem]
+            else:
+                new_infos[elem] = self.infos[elem]
 
-    def switch_lha(self, lha_input, model = False, use_marty = False, is_spectrum = False, has_wilsons = False, has_obs = False):
-        self.lha = lha_input
-        self.mm.switch_lha(lha_input, model, use_marty, is_spectrum, has_wilsons, has_obs)
+        self.mm.switch_lha(new_infos["lha"], new_infos["model"], new_infos["use_marty"], new_infos["is_spectrum"],
+                            new_infos["has_wilson"], new_infos["has_obs"])
+        self.infos = new_infos.copy()
         print("I was here")
 
     def get_lha(self):
-        with open(self.lha, 'r') as f:
+        with open(self.infos["lha"], 'r') as f:
             data = f.read()
         return data
     
