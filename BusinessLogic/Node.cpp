@@ -61,7 +61,7 @@ bool OperatorNode::updateCacheFlag() {
 }
 
 scalar_t OperatorNode::getValue() {
-    LOG_DEBUG("OperatorNode::getValue() [", name, "]");
+    LOG_INFO("OperatorNode::getValue() [", name, "]");
     if (!cacheValid) {
         std::vector<scalar_t> childValues;
         for (const auto& child : children) {

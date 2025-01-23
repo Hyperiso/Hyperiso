@@ -25,7 +25,7 @@ public:
         winfo.model = MemoryManager::GetInstance()->getModel();
         winfo.order = order;
         winfo.basis = BWilsonBasis::STANDARD;
-        winfo.wgroups = {WilsonGroups::BCoefficients, WilsonGroups::BPrimeCoefficients, WilsonGroups::BScalarCoefficients};
+        winfo.wgroups = {WGroup::B, WGroup::BPrime, WGroup::BScalar};
 
         build_op_tree();
     }

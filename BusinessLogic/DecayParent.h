@@ -4,7 +4,7 @@
 #include <map>
 #include <string>
 #include "General.h"
-#include "WilsonManager.h"
+#include "WilsonInterface.h"
 #include "Node.h"
 #include "QCDHelper.h"
 
@@ -14,7 +14,7 @@ struct WilsonInfo {
     Model model;
     QCDOrder order;
     BWilsonBasis basis;
-    std::vector<WilsonGroups> wgroups;
+    std::vector<WGroup> wgroups;
 };
 
 class DecayParent {
@@ -22,12 +22,12 @@ class DecayParent {
 protected:
     std::map<Observables, std::shared_ptr<OperatorNode>> roots;
     WilsonInfo winfo;
-    std::shared_ptr<CoefficientManager> manager;
+    std::shared_ptr<WilsonInterface> wilson;
 
 public:
     explicit DecayParent() = default;
 
-    std::shared_ptr<CoefficientManager> get_wilsons(bool force_update=false);
+    std::shared_ptr<WilsonInterface> get_wilsons(bool force_update=false);
 
     scalar_t compute_observable(Observables obs);
 

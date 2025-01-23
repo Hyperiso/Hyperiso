@@ -12,9 +12,9 @@ int main() {
     mm->init("Test/InputFiles/testInput.flha", Model::SM);
 
     std::cout << "mm okay" << std::endl;
-    auto inter = WilsonInterface("SM");
+    auto inter = WilsonInterface();
     std::cout << "initialized" << std::endl;
-    inter.AddWilsonGroup(WilsonGroups::BCoefficients);
+    inter.addWilsonGroup(WGroup::B);
 
     // auto sm = Parameters::GetInstance(0);
     // std::cout << "mdfksmdlkfsmdlf" << std::endl;

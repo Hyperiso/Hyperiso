@@ -188,7 +188,7 @@ std::complex<double> CP8::LO_calculation() {
 bool WilsonCoefficient::fill_from_flha() {
     if (!from_lha && MemoryManager::GetInstance()->hasWilsons()) {
         auto wc = Parameters::GetInstance(ParameterType::WILSON);
-        BWilsonCoefficients id = WCoefMapper::enum_elt(this->get_name());
+        WCoef id = WCoefMapper::enum_elt(this->get_name());
         Model m = MemoryManager::GetInstance()->getModel();
         int w_type = (*wc)("REWCOEF", -2);
         if (m != Model::SM && w_type == 0) {

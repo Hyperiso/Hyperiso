@@ -55,20 +55,14 @@ private:
     static const std::map<std::string, QCDOrder> inverse_mapping; 
 };
 
-enum class BWilsonCoefficients {
+enum class WCoef {
     C1, C2, C3, C4, C5, C6, C7, C8, C9, C10, CQ1, CQ2, CP1, CP2, CP3, CP4, CP5, CP6, CP7, CP8, CP9, CP10, CPQ1, CPQ2
 };
 
-enum class WilsonGroups {
-    BCoefficients, 
-    BPrimeCoefficients, 
-    BScalarCoefficients,
-    BCoefficients_THDM, 
-    BPrimeCoefficients_THDM, 
-    BScalarCoefficients_THDM,
-    BCoefficients_SUSY, 
-    BPrimeCoefficients_SUSY, 
-    BScalarCoefficients_SUSY
+enum class WGroup {
+    B, 
+    BPrime, 
+    BScalar
 };
 
 enum class BWilsonBasis {
@@ -78,48 +72,48 @@ enum class BWilsonBasis {
 
 class GroupMapper {
 public:
-    static std::string str(WilsonGroups group) {
+    static std::string str(WGroup group) {
         return GroupMapper::mapping.at(group);
     };
 
-    static WilsonGroups enum_elt(std::string group) {
+    static WGroup enum_elt(std::string group) {
         return GroupMapper::inverse_mapping.at(group);
     };
 
 private:
-    static const std::map<WilsonGroups, std::string> mapping; 
-    static const std::map<std::string, WilsonGroups> inverse_mapping; 
+    static const std::map<WGroup, std::string> mapping; 
+    static const std::map<std::string, WGroup> inverse_mapping; 
 };
 
 class WCoefMapper {
 
 public:
-    static std::string str(BWilsonCoefficients coef) {
+    static std::string str(WCoef coef) {
         return WCoefMapper::mapping.at(coef);
     };
 
-    static BWilsonCoefficients enum_elt(std::string coef) {
+    static WCoef enum_elt(std::string coef) {
         return WCoefMapper::inverse_mapping.at(coef);
     };
 
-    static std::string flha(BWilsonCoefficients coef) {
+    static std::string flha(WCoef coef) {
         return WCoefMapper::flha_mapping.at(coef);
     };
 
-    static BWilsonCoefficients from_flha(std::string flha_id) {
+    static WCoef from_flha(std::string flha_id) {
         if (WCoefMapper::inverse_flha_mapping.contains(flha_id)) {
             return WCoefMapper::inverse_flha_mapping.at(flha_id);
         }
         LOG_ERROR("General", "Wilson coefficient with ID", flha_id, "is not supported");
     };
 
-    static std::vector<BWilsonCoefficients> get_group(WilsonGroups group) {
+    static std::vector<WCoef> get_group(WGroup group) {
         switch (group) {
-            case WilsonGroups::BCoefficients:
+            case WGroup::B:
                 return B_group;
-            case WilsonGroups::BPrimeCoefficients:
+            case WGroup::BPrime:
                 return B_prime_group;
-            case WilsonGroups::BScalarCoefficients:
+            case WGroup::BScalar:
                 return B_scalar_group;
         }
     }
@@ -129,13 +123,13 @@ public:
     }
 
 private:
-    static const std::vector<BWilsonCoefficients> B_group;
-    static const std::vector<BWilsonCoefficients> B_prime_group;
-    static const std::vector<BWilsonCoefficients> B_scalar_group;
-    static const std::map<BWilsonCoefficients, std::string> mapping; 
-    static const std::map<std::string, BWilsonCoefficients> inverse_mapping; 
-    static const std::map<BWilsonCoefficients, std::string> flha_mapping; 
-    static const std::map<std::string, BWilsonCoefficients> inverse_flha_mapping; 
+    static const std::vector<WCoef> B_group;
+    static const std::vector<WCoef> B_prime_group;
+    static const std::vector<WCoef> B_scalar_group;
+    static const std::map<WCoef, std::string> mapping; 
+    static const std::map<std::string, WCoef> inverse_mapping; 
+    static const std::map<WCoef, std::string> flha_mapping; 
+    static const std::map<std::string, WCoef> inverse_flha_mapping; 
 };
 
 /* !!!! Do not change the order of the first 4 entries !!!! */
