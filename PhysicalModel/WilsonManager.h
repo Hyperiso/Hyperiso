@@ -246,10 +246,8 @@ public:
     }
 
     void setQMatch(const std::string& groupName, double Q_match) {
-        LOG_INFO("In setQMatch");
         ensureGroupState(groupName)->setQMatch(this, groupName, Q_match);
         if (has_bsm) {
-            LOG_INFO("In setQMatch and has_bsm, group name is", groupName + bsm_suffix);
             ensureGroupState(groupName + bsm_suffix)->setQMatch(this, groupName + bsm_suffix, Q_match);
         }
     }
@@ -364,22 +362,17 @@ public:
         manager->bsm_suffix = manager->has_bsm ? "_" + model : "";
 
         for (auto& group : groups) {
-            LOG_INFO("Registering", group.first);
+            LOG_DEBUG("(CoefficientManager) Registering coefficient group", group.first);
             manager->registerCoefficientGroup(group.first, group.second);
         }
 
         for (auto& group: groups) {
             if (manager->has_bsm && group.first.ends_with(manager->bsm_suffix)) continue;
 
-            LOG_INFO("Setting matching scale of", group.first);
             manager->setQMatch(group.first, Q_match);
-            LOG_INFO("Matching coefficients of", group.first);
             manager->setMatchingCoefficient(group.first, order);
-            LOG_INFO("Setting hadronic scale of", group.first);
             manager->setGroupScale(group.first, Q);
-            LOG_INFO("Running coefficients of", group.first);
             manager->setRunCoefficient(group.first, order);
-            LOG_INFO("Coefficient group", group.first, "ready.");
         }
         
 

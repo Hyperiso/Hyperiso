@@ -15,7 +15,7 @@ int main() {
     Logger::getInstance()->setLevel(Logger::LogLevel::INFO);
 
     auto mm = MemoryManager::GetInstance();  // Initialize program manager with LHA file containing SMINPUTS block
-    mm->init("Test/InputFiles/testinput_thdm.lha", Model::THDM);  // Initialize parameters from given LHA file
+    mm->init("Test/InputFiles/testInput.flha", Model::SM);  // Initialize parameters from given LHA file
 
     auto sm_p = Parameters::GetInstance(ParameterType::SM);
     auto flavp = Parameters::GetInstance(ParameterType::FLAVOR);

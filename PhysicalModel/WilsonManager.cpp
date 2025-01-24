@@ -9,11 +9,8 @@ InitialState::~InitialState() {
 }
 
 void InitialState::setQMatch(CoefficientManager* manager, const std::string& groupName, double Q_match) {
-        LOG_INFO("Retrieving coefficient group", groupName);
         CoefficientGroup* group = manager->getCoefficientGroup(groupName);
-        LOG_INFO("Found address", group, ". Setting Q_match");
         group->set_Q_match(Q_match);
-        LOG_INFO("Changing state to QMatchSetState");
         manager->setState(groupName, std::make_shared<QMatchSetState>(OrderMapper::str(this->currentOrder)));
 }
 

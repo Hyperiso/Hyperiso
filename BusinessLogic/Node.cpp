@@ -61,7 +61,7 @@ bool OperatorNode::updateCacheFlag() {
 }
 
 scalar_t OperatorNode::getValue() {
-    LOG_INFO("OperatorNode::getValue() [", name, "]");
+    LOG_DEBUG("OperatorNode::getValue() [", name, "]");
     if (!cacheValid) {
         std::vector<scalar_t> childValues;
         for (const auto& child : children) {
@@ -69,7 +69,7 @@ scalar_t OperatorNode::getValue() {
         }
         cachedValue = computeFunc(childValues);
         cacheValid = true;
-        LOG_INFO("Call to OperatorNode::computeFunc [", name, "] (", cachedValue, ")");
+        LOG_DEBUG("Call to OperatorNode::computeFunc [", name, "] (", cachedValue, ")");
     }
     return cachedValue;
 }

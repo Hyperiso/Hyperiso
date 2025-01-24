@@ -48,7 +48,7 @@ public:
     }
 
     void addWilsonGroup(WGroup group_name) {
-        this->wm->registerCoefficientGroup(GroupMapper::str(group_name), this->group_ptrs[GroupMapper::str(group_name)]);
+        this->wm->registerCoefficientGroup(GroupMapper::str(group_name), this->group_ptrs.at(GroupMapper::str(group_name)));
     }
 
     void setQMatch(WGroup group_name, double Q_match) {
@@ -197,26 +197,12 @@ public:
         std::map<std::string, std::shared_ptr<CoefficientGroup>> groups;
         auto model = MemoryManager::GetInstance()->getModel();
         for (auto& gn : group_names) {
-            groups[GroupMapper::str(gn)] = group_ptrs[GroupMapper::str(gn)];
+            std::string gn_str = GroupMapper::str(gn);
+            groups.emplace(gn_str, group_ptrs.at(gn_str));
             if (model == Model::THDM || model == Model::SUSY) {
-                LOG_INFO(GroupMapper::str(gn) + "_" + ModelMapper::str(model));
-                #ifdef defined(BUILD_WITH_2HDMC)
-                    std::cout << "BUILD_WITH_2HDMC is defined!" << std::endl;
-                #else
-                    std::cout << "BUILD_WITH_2HDMC is NOT defined!" << std::endl;
-                #endif
-                if (group_ptrs.find(GroupMapper::str(gn) + "_" + ModelMapper::str(model)) == group_ptrs.end()) {
-                    std::cout << "not found " << std::endl;
-                } else {
-                    std::cout << "find" << std::endl;
-                }
-                std::cout << group_ptrs[GroupMapper::str(gn) + "_" + ModelMapper::str(model)] << std::endl;
-                groups[GroupMapper::str(gn) + "_" + ModelMapper::str(model)] = group_ptrs[GroupMapper::str(gn) + "_" + ModelMapper::str(model)];
+                std::string gn_bsm_str = gn_str + "_" + ModelMapper::str(model);
+                groups.emplace(gn_bsm_str, group_ptrs.at(gn_bsm_str));
             }
-        }
-        std::cout << "Model : " << ModelMapper::str(model) << std::endl; 
-        for (auto truc : groups) {
-            std::cout << truc.first << " and " << truc.second << std::endl;
         }
         this->wm = CoefficientManager::Builder(ModelMapper::str(model), groups, Q_match, Q, OrderMapper::str(order));
     }

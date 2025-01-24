@@ -2,11 +2,8 @@
 
 
 complex_t BllDecay::W1(double r, bool prime) {
-    LOG_INFO("Computing Wilsons.");
     auto wilson = get_wilsons();
-    LOG_INFO("Wilsons computed. Retrieving data...");
     complex_t cq1 = wilson->getFR(WGroup::BScalar, WCoef::CQ1, QCDOrder::NLO);
-    LOG_INFO("Data retrieved.");
     complex_t cpq1 = prime ? wilson->getFR(WGroup::BPrime, WCoef::CPQ1, QCDOrder::NLO) : 0;
     return r * (cq1 - cpq1);
 }
