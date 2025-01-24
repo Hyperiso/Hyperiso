@@ -12,6 +12,15 @@ if (NOT DEFINED BUILD_WITH_2HDMC)
     option(BUILD_WITH_2HDMC "Build project with 2HDMC support" OFF)
 endif()
 
+if (BUILD_WITH_2HDMC)
+    message(STATUS "wow")
+    add_compile_definitions(BUILD_WITH_2HDMC)
+endif()
+
+if (BUILD_WITH_SOFTSUSY)
+    add_definitions(-BUILD_WITH_SOFTSUSY)
+endif()
+
 if (NOT TARGET CommonLib)
     add_subdirectory(../Common CommonLib)
 endif()

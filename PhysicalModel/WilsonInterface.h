@@ -200,8 +200,23 @@ public:
             groups[GroupMapper::str(gn)] = group_ptrs[GroupMapper::str(gn)];
             if (model == Model::THDM || model == Model::SUSY) {
                 LOG_INFO(GroupMapper::str(gn) + "_" + ModelMapper::str(model));
+                #ifdef defined(BUILD_WITH_2HDMC)
+                    std::cout << "BUILD_WITH_2HDMC is defined!" << std::endl;
+                #else
+                    std::cout << "BUILD_WITH_2HDMC is NOT defined!" << std::endl;
+                #endif
+                if (group_ptrs.find(GroupMapper::str(gn) + "_" + ModelMapper::str(model)) == group_ptrs.end()) {
+                    std::cout << "not found " << std::endl;
+                } else {
+                    std::cout << "find" << std::endl;
+                }
+                std::cout << group_ptrs[GroupMapper::str(gn) + "_" + ModelMapper::str(model)] << std::endl;
                 groups[GroupMapper::str(gn) + "_" + ModelMapper::str(model)] = group_ptrs[GroupMapper::str(gn) + "_" + ModelMapper::str(model)];
             }
+        }
+        std::cout << "Model : " << ModelMapper::str(model) << std::endl; 
+        for (auto truc : groups) {
+            std::cout << truc.first << " and " << truc.second << std::endl;
         }
         this->wm = CoefficientManager::Builder(ModelMapper::str(model), groups, Q_match, Q, OrderMapper::str(order));
     }

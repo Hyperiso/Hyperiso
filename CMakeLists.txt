@@ -30,6 +30,14 @@ if (NOT DEFINED BUILD_WITH_MARTY)
     option(BUILD_WITH_MARTY "Build project with MARTY support" OFF)
 endif()
 
+if (BUILD_WITH_2HDMC)
+    add_compile_definitions(BUILD_WITH_2HDMC)
+endif()
+
+if (BUILD_WITH_SOFTSUSY)
+    add_compile_definitions(BUILD_WITH_SOFTSUSY)
+endif()
+
 if (BUILD_WITH_SOFTSUSY)
     if(CMAKE_CXX_STANDARD LESS 14)
         message(FATAL_ERROR "SOFTSUSY requires at least C++14 support.")
