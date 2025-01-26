@@ -2,23 +2,23 @@
 
 
 complex_t BllDecay::W1(double r, bool prime) {
-    auto manager = get_wilsons();
-    complex_t cq1 = manager->getFullRunCoefficient(GroupMapper::str(WilsonGroups::BScalarCoefficients), "CQ1", "NLO");
-    complex_t cpq1 = prime ? manager->getFullRunCoefficient(GroupMapper::str(WilsonGroups::BPrimeCoefficients), "CPQ1",  "NLO") : 0;
+    auto wilson = get_wilsons();
+    complex_t cq1 = wilson->getFR(WGroup::BScalar, WCoef::CQ1, QCDOrder::NLO);
+    complex_t cpq1 = prime ? wilson->getFR(WGroup::BPrime, WCoef::CPQ1, QCDOrder::NLO) : 0;
     return r * (cq1 - cpq1);
 }
 
 complex_t BllDecay::W2Q(double r, bool prime) {
-    auto manager = get_wilsons();
-    complex_t cq2 = manager->getFullRunCoefficient(GroupMapper::str(WilsonGroups::BScalarCoefficients), "CQ2", "NLO");
-    complex_t cpq2 = prime ? manager->getFullRunCoefficient(GroupMapper::str(WilsonGroups::BPrimeCoefficients), "CPQ2",  "NLO") : 0;
+    auto wilson = get_wilsons();
+    complex_t cq2 = wilson->getFR(WGroup::BScalar, WCoef::CQ2, QCDOrder::NLO);
+    complex_t cpq2 = prime ? wilson->getFR(WGroup::BPrime, WCoef::CPQ2, QCDOrder::NLO) : 0;
     return r * (cq2 - cpq2);
 }
 
 complex_t BllDecay::W210(double x, bool prime) {
-    auto manager = get_wilsons();
-    complex_t c10 = manager->getFullRunCoefficient(GroupMapper::str(WilsonGroups::BCoefficients), "C10", "NNLO");
-    complex_t cp10 = prime ? manager->getFullRunCoefficient(GroupMapper::str(WilsonGroups::BPrimeCoefficients), "CP10",  "NLO") : 0;
+    auto wilson = get_wilsons();
+    complex_t c10 = wilson->getFR(WGroup::B, WCoef::C10, QCDOrder::NNLO);
+    complex_t cp10 = prime ? wilson->getFR(WGroup::BPrime, WCoef::CP10, QCDOrder::NLO) : 0;
     return 2. * (c10 - cp10) * x;
 }
 
@@ -45,18 +45,14 @@ double BllDecay::BR_avg_Bq_mumu(complex_t w1,
 }
 
 double BllDecay::A_DG(double x, double r) {
-    auto manager = get_wilsons();
-    complex_t cq1 = manager->getFullRunCoefficient(GroupMapper::str(WilsonGroups::BScalarCoefficients), "CQ1", "NLO");
-    complex_t cpq1 = manager->getFullRunCoefficient(GroupMapper::str(WilsonGroups::BPrimeCoefficients), "CPQ1", "LO");
-    complex_t cq2 = manager->getFullRunCoefficient(GroupMapper::str(WilsonGroups::BScalarCoefficients), "CQ2", "NLO");
-    complex_t cpq2 = manager->getFullRunCoefficient(GroupMapper::str(WilsonGroups::BPrimeCoefficients), "CPQ2", "LO");
-    complex_t c10 = manager->getFullRunCoefficient(GroupMapper::str(WilsonGroups::BCoefficients), "C10", "NNLO");
-    complex_t cp10 = manager->getFullRunCoefficient(GroupMapper::str(WilsonGroups::BPrimeCoefficients), "CP10",  "NLO");
-    winfo.model = Model::SM;
-    manager = get_wilsons(true);
-    complex_t c10sm = manager->getFullRunCoefficient(GroupMapper::str(WilsonGroups::BCoefficients), "C10", "NNLO");
-    winfo.model = MemoryManager::GetInstance()->getModel();
-    get_wilsons(true);
+    auto wilson = get_wilsons();
+    complex_t cq1 = wilson->getFR(WGroup::BScalar, WCoef::CQ1, QCDOrder::NLO);
+    complex_t cpq1 = wilson->getFR(WGroup::BPrime, WCoef::CPQ1, QCDOrder::LO);
+    complex_t cq2 = wilson->getFR(WGroup::BScalar, WCoef::CQ2, QCDOrder::NLO);
+    complex_t cpq2 = wilson->getFR(WGroup::BPrime, WCoef::CPQ2, QCDOrder::LO);
+    complex_t c10 = wilson->getFR(WGroup::B, WCoef::C10, QCDOrder::NNLO);
+    complex_t cp10 = wilson->getFR(WGroup::BPrime, WCoef::CP10, QCDOrder::LO);
+    complex_t c10sm = wilson->getFR(WGroup::B, WCoef::C10, QCDOrder::NNLO, true);
 
     complex_t S = x * std::sqrt(1 - 4 * x * x) * r * (cq1 - cpq1) / (2. * c10sm);
     complex_t P = (c10 - cp10) / c10sm + x * r * (cq2 - cpq2) / (2. * c10sm);

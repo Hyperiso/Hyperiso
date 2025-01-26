@@ -297,34 +297,34 @@ double BXsDecay::x5(double P0, double K77_rem) {
 }
 
 double BXsDecay::P0() {
-    auto manager = get_wilsons();
-    complex_t C70 = manager->getRunCoefficient(WilsonGroups::BCoefficients, BWilsonCoefficients::C7, QCDOrder::LO);
-    complex_t C70p = manager->getRunCoefficient(WilsonGroups::BPrimeCoefficients, BWilsonCoefficients::CP7, QCDOrder::LO);
+    auto wilson = get_wilsons();
+    complex_t C70 = wilson->getR(WGroup::B, WCoef::C7, QCDOrder::LO);
+    complex_t C70p = wilson->getR(WGroup::BPrime, WCoef::CP7, QCDOrder::LO);
     return std::pow(std::abs(C70), 2) + std::pow(std::abs(C70p), 2);
 }
 
 double BXsDecay::P11() {
-    auto C7 = get_wilsons()->getRunCoefficientSepOrders(WilsonGroups::BCoefficients, BWilsonCoefficients::C7);
-    return 2 * std::real(C7[0] * std::conj(C7[1]));
+    auto C7 = get_wilsons()->getSR(WGroup::B, WCoef::C7);
+    return 2 * std::real(C7[QCDOrder::LO] * std::conj(C7[QCDOrder::NLO]));
 }
 
 double BXsDecay::P12() {
-    auto C7 = get_wilsons()->getRunCoefficientSepOrders(WilsonGroups::BCoefficients, BWilsonCoefficients::C7);
-    return std::pow(std::abs(C7[1]), 2) + 2 * std::real(C7[0] * std::conj(C7[2]));
+    auto C7 = get_wilsons()->getSR(WGroup::B, WCoef::C7);
+    return std::pow(std::abs(C7[QCDOrder::NLO]), 2) + 2 * std::real(C7[QCDOrder::LO] * std::conj(C7[QCDOrder::NNLO]));
 }
 
 template<std::size_t size>
 double BXsDecay::gen_P00(const std::vector<scalar_t>& flat_K, const std::array<std::pair<int, int>, size>& indices) {
-    auto manager = get_wilsons();
-    auto C = manager->getAllRunCoefficients(WilsonGroups::BCoefficients, QCDOrder::LO);
-    auto Cp = manager->getAllRunCoefficients(WilsonGroups::BPrimeCoefficients, QCDOrder::LO); 
+    auto wilson = get_wilsons();
+    auto C = wilson->getAR(WGroup::B, QCDOrder::LO);
+    auto Cp = wilson->getAR(WGroup::BPrime, QCDOrder::LO); 
 
     auto K = fill_K(flat_K, indices);
     double P {0};
     for (size_t i = 0; i < 8; i++) {
         for (size_t j = 0; j < 8; j++){
-            P += std::real(C[i] * K[i][j] * std::conj(C[j]));
-            P += std::real(Cp[i] * K[i][j] * std::conj(Cp[j]));
+            P += std::real(C[static_cast<WCoef>(i)] * K[i][j] * std::conj(C[static_cast<WCoef>(j)]));
+            P += std::real(Cp[static_cast<WCoef>(i + 12)] * K[i][j] * std::conj(Cp[static_cast<WCoef>(j + 12)]));
         }
     }
     
@@ -333,15 +333,15 @@ double BXsDecay::gen_P00(const std::vector<scalar_t>& flat_K, const std::array<s
 
 template<std::size_t size>
 double BXsDecay::gen_P01(const std::vector<scalar_t>& flat_K, const std::array<std::pair<int, int>, size>& indices) {
-    auto manager = get_wilsons();
-    auto C0 = manager->getAllRunCoefficients(WilsonGroups::BCoefficients, QCDOrder::LO);
-    auto C1 = manager->getAllRunCoefficients(WilsonGroups::BCoefficients, QCDOrder::NLO);
+    auto wilson = get_wilsons();
+    auto C0 = wilson->getAR(WGroup::B, QCDOrder::LO);
+    auto C1 = wilson->getAR(WGroup::B, QCDOrder::NLO);
 
     auto K = fill_K(flat_K, indices);
     double P {0};
     for (size_t i = 0; i < 8; i++) {
         for (size_t j = 0; j < 8; j++){
-            P += std::real(C0[i] * K[i][j] * std::conj(C1[j]));
+            P += std::real(C0[static_cast<WCoef>(i)] * K[i][j] * std::conj(C1[static_cast<WCoef>(j)]));
         }
     }
     
@@ -390,9 +390,9 @@ double BXsDecay::Kc(double eta) {
 double BXsDecay::Kt(double eta) {
     double f = std::pow(eta, 2. / 23);
     double f2 = f * f;
-    auto manager = get_wilsons();
-    double C7 = std::real(manager->getMatchingCoefficient(WilsonGroups::BCoefficients, BWilsonCoefficients::C7, QCDOrder::LO));
-    double C8 = std::real(manager->getMatchingCoefficient(WilsonGroups::BCoefficients, BWilsonCoefficients::C8, QCDOrder::LO));
+    auto wilson = get_wilsons();
+    double C7 = std::real(wilson->getM(WGroup::B, WCoef::C7, QCDOrder::LO));
+    double C8 = std::real(wilson->getM(WGroup::B, WCoef::C8, QCDOrder::LO));
     return (C7 + 23. / 36) * f2 - 8 * (C8 + 1. / 3) * (f2 - f) / 3;
 }
 
@@ -430,14 +430,14 @@ double BXsDecay::C8_em(double eta) {
 }
 
 complex_t BXsDecay::C7_em(double eta, double C8_em, double C2_em) {
-    auto manager = get_wilsons();
-    complex_t C7 = manager->getMatchingCoefficient(WilsonGroups::BCoefficients, BWilsonCoefficients::C7, QCDOrder::LO);
-    complex_t C8 = manager->getMatchingCoefficient(WilsonGroups::BCoefficients, BWilsonCoefficients::C8, QCDOrder::LO);
+    auto wilson = get_wilsons();
+    complex_t C7 = wilson->getM(WGroup::B, WCoef::C7, QCDOrder::LO);
+    complex_t C8 = wilson->getM(WGroup::B, WCoef::C8, QCDOrder::LO);
     return (32 * std::pow(eta, -9. / 23) / 75 - 40 * std::pow(eta, -7. / 23) / 69 + 88 * std::pow(eta, 16. / 23) / 575) * C7 + C8_em * C8 + C2_em;
 }
 
 double BXsDecay::epsilon_em(double inv_alpha_em, double alpha_mub, double C7_em, double k) {
-    complex_t C7 = get_wilsons()->getRunCoefficient(WilsonGroups::BCoefficients, BWilsonCoefficients::C7, QCDOrder::LO);
+    complex_t C7 = get_wilsons()->getR(WGroup::B, WCoef::C7, QCDOrder::LO);
     return (2 * std::real(C7_em * std::conj(C7)) - k * std::pow(std::abs(C7), 2)) / (inv_alpha_em * alpha_mub);
 }
 
@@ -619,27 +619,28 @@ double BXsDecay::target(double p_22, double x1, double x2, double x5, double z) 
 }
 
 double BXsDecay::x1() {
-    auto manager = get_wilsons();
-    auto C = manager->getAllRunCoefficients(WilsonGroups::BCoefficients, QCDOrder::LO);
-    auto CP = manager->getAllRunCoefficients(WilsonGroups::BPrimeCoefficients, QCDOrder::LO);
+    auto wilson = get_wilsons();
+    auto C = wilson->getAR(WGroup::B, QCDOrder::LO);
+    auto CP = wilson->getAR(WGroup::BPrime, QCDOrder::LO);
 
     auto f = [] (complex_t c1, complex_t c2) { 
         return std::pow(std::abs(c1), 2) / 36 + std::pow(std::abs(c2), 2) - std::real(c1 * std::conj(c2)) / 3; 
     };
 
-    return f(C[0], C[1]) + f(CP[0], CP[1]);
+    return f(C[WCoef::C1], C[WCoef::C2]) + f(CP[WCoef::CP1], CP[WCoef::CP2]);
 }
 
 double BXsDecay::x2() {
-    auto manager = get_wilsons();
-    auto C = manager->getAllRunCoefficients(WilsonGroups::BCoefficients, QCDOrder::LO);
-    auto CP = manager->getAllRunCoefficients(WilsonGroups::BPrimeCoefficients, QCDOrder::LO);
+    auto wilson = get_wilsons();
+    auto C = wilson->getAllRunCoefficients(WGroup::B, QCDOrder::LO);
+    auto CP = wilson->getAllRunCoefficients(WGroup::BPrime, QCDOrder::LO);
 
     auto f = [] (complex_t c1, complex_t c2, complex_t c7, complex_t c8) { 
         return std::real(c7 * std::conj(4019. * c1 / 486. - 1184. * c2 / 81. - 4. * c7 + 4. * c8 / 3.)); 
     };
 
-    return f(C[0], C[1], C[6], C[7]) + f(CP[0], CP[1], CP[6], CP[7]);
+    return f(C[WCoef::C1], C[WCoef::C2], C[WCoef::C7], C[WCoef::C8]) 
+            + f(CP[WCoef::CP1], CP[WCoef::CP2], CP[WCoef::CP7], CP[WCoef::CP8]);
 }
 
 double BXsDecay::x3(double P22_z0, double P22_z1, double c_z0, double c_z1) {

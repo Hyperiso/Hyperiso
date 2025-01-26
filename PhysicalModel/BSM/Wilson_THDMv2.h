@@ -24,9 +24,9 @@ public:
 
     }
 
-    std::complex<double> LO_calculation() { this->set_CoefficientMatchingValue("LO", {0.,0.}); std::cout << "coefficient C1 " << this->get_CoefficientMatchingValue("LO") << std::endl; return {0,0};} 
-    std::complex<double> NLO_calculation() { this->set_CoefficientMatchingValue("NLO", {0.,0.}); std::cout << "coefficient C1 NLO " << this->get_CoefficientMatchingValue("NLO") << std::endl;return {0,0};} 
-    std::complex<double> NNLO_calculation() { this->set_CoefficientMatchingValue("NNLO", {0.,0.}); std::cout << "coefficient C1 NNLO " << this->get_CoefficientMatchingValue("NNLO") << std::endl;return {0,0};} 
+    std::complex<double> LO_calculation() { this->set_CoefficientMatchingValue("LO", {0.,0.}); return {0,0};} 
+    std::complex<double> NLO_calculation() { this->set_CoefficientMatchingValue("NLO", {0.,0.}); return {0,0};} 
+    std::complex<double> NNLO_calculation() { this->set_CoefficientMatchingValue("NNLO", {0.,0.}); return {0,0};} 
 
 };
 

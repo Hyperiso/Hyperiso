@@ -269,7 +269,7 @@ public:
         }
 
         int order = pdgCode % 10; 
-        BWilsonCoefficients id = static_cast<BWilsonCoefficients>((pdgCode - order) / 10); 
+        WCoef id = static_cast<WCoef>((pdgCode - order) / 10); 
 
         return values.at(id)[order];
     }
@@ -282,7 +282,7 @@ public:
         }
 
         int order = pdgCode % 10; 
-        BWilsonCoefficients id = static_cast<BWilsonCoefficients>((pdgCode - order) / 10); 
+        WCoef id = static_cast<WCoef>((pdgCode - order) / 10); 
         if (!values.contains(id)) {
             values.emplace(std::make_pair(id, std::array<double, 3>()));
         }
@@ -296,7 +296,7 @@ public:
     }
 protected:
     // Index is QCD order
-    std::map<BWilsonCoefficients, std::array<double, 3>> values; 
+    std::map<WCoef, std::array<double, 3>> values; 
     double scale;
     int type;
 

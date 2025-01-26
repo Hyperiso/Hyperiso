@@ -28,9 +28,7 @@ void MatchingSetState::setQMatch(CoefficientManager* manager, const std::string&
 
 void QMatchSetState::setMatchingCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& order) {
         CoefficientGroup* group = manager->getCoefficientGroup(groupName);
-        QCDOrder newOrder = order == "LO" ? QCDOrder::LO :
-                                    order == "NLO" ? QCDOrder::NLO :
-                                    QCDOrder::NNLO;
+        QCDOrder newOrder = OrderMapper::enum_elt(order);
 
         if (newOrder < currentOrder) {
             throw std::runtime_error("Cannot set matching coefficient: Lower or same order already calculated.");
@@ -55,10 +53,8 @@ void QMatchSetState::setMatchingCoefficient(CoefficientManager* manager, const s
 
 void MatchingSetState::setMatchingCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& order) {
         CoefficientGroup* group = manager->getCoefficientGroup(groupName);
-        QCDOrder newOrder = order == "LO" ? QCDOrder::LO :
-                                    order == "NLO" ? QCDOrder::NLO :
-                                    QCDOrder::NNLO;
-        // Wilson_parameters::GetInstance()->SetMuW(manager->getCoefficientGroup(groupName)->get_Q_match());
+        QCDOrder newOrder = OrderMapper::enum_elt(order);
+
         for (auto& it : *group) {
             if (order == "LO") {
                 it.second->LO_calculation();
@@ -121,12 +117,17 @@ double QMatchSetState::getAlphaS(CoefficientManager* manager, const std::string&
 void RunSetState::setGroupScale(CoefficientManager* manager, const std::string& groupName, double Q) {
     CoefficientGroup* group = manager->getCoefficientGroup(groupName);
     group->set_Q_run(Q);
-    if (OrderMapper::str(currentOrder) == "LO") {
-        group->set_base_1_LO();
-    } else if (OrderMapper::str(currentOrder) == "NLO") {
-        group->set_base_1_NLO();
-    } else if (OrderMapper::str(currentOrder) == "NNLO") {
-        group->set_base_1_NNLO();
+    
+    switch(currentOrder) {
+        case QCDOrder::LO:
+            group->set_base_1_LO();
+            break;
+        case QCDOrder::NLO:
+            group->set_base_1_NLO();
+            break;
+        case QCDOrder::NNLO:
+            group->set_base_1_NNLO();
+            break;
     }
 }
 
@@ -185,4 +186,4 @@ std::complex<double> RunSetState::getRunCoefficient(CoefficientManager* manager,
     return group->getRun(coeffName, order);
 }
 
-std::map<std::string, std::shared_ptr<CoefficientManager>> CoefficientManager::instances;
+std::shared_ptr<CoefficientManager> CoefficientManager::instance;

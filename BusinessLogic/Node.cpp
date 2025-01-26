@@ -69,7 +69,7 @@ scalar_t OperatorNode::getValue() {
         }
         cachedValue = computeFunc(childValues);
         cacheValid = true;
-        LOG_INFO("Call to OperatorNode::computeFunc [", name, "] (", cachedValue, ")");
+        LOG_DEBUG("Call to OperatorNode::computeFunc [", name, "] (", cachedValue, ")");
     }
     return cachedValue;
 }

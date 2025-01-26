@@ -142,7 +142,7 @@ public:
         winfo.model = MemoryManager::GetInstance()->getModel();
         winfo.order = order;
         winfo.basis = BWilsonBasis::STANDARD;
-        winfo.wgroups = {WilsonGroups::BCoefficients, WilsonGroups::BPrimeCoefficients};
+        winfo.wgroups = {WGroup::B, WGroup::BPrime};
 
         build_op_tree();
     }

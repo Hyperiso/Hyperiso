@@ -122,7 +122,6 @@ void LhaReader::readAll() {
     std::ifstream file(this->lhaFile.string());
     std::stringstream buffer;
     buffer << file.rdbuf();
-    std::cout << this->lhaFile.string();
     Parser parser {buffer.str(), this};
     parser.parse();
     auto blocks = parser.getBlocks();

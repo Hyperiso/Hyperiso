@@ -87,7 +87,6 @@ public:
         throw std::runtime_error("Invalid state: Cannot get alpha_s in current state.");
     }
     
-
     bool isOrderCalculated(const std::string& order) {
         if (order == "LO" && currentOrder >= QCDOrder::LO) {
             return true;
@@ -177,22 +176,21 @@ public:
 
 class CoefficientManager {
 private:
-    static std::map<std::string, std::shared_ptr<CoefficientManager>> instances;
+    static std::shared_ptr<CoefficientManager> instance;
     std::map<std::string, std::shared_ptr<CoefficientGroup>> coefficientGroups;
     std::map<std::string, std::shared_ptr<State>> groupStates;
-    std::string model{};
+
+    bool has_bsm;
+    std::string bsm_suffix;
+
     CoefficientManager() = default;
-    CoefficientManager(std::string model) {this->model = model;}
 
 public:
-    // Singleton accessor
-    static std::shared_ptr<CoefficientManager> GetInstance(const std::string& modelName) {
-        auto it = instances.find(modelName);
-        if (it == instances.end()) {
-            instances[modelName] = std::shared_ptr<CoefficientManager>(new CoefficientManager(modelName));
-            return instances[modelName];
+    static std::shared_ptr<CoefficientManager> GetInstance() {
+        if (!instance) {
+            instance = std::shared_ptr<CoefficientManager>(new CoefficientManager());
         }
-        return it->second;
+        return instance;
     }
 
     static void initialize(const std::string& lhaFile, Model model = Model::SM, bool use_marty = false, bool is_spectrum = false, bool has_wilsons = false, bool has_obs = false) {
@@ -201,11 +199,13 @@ public:
     }
 
     std::string getModel() {
-        return this->model;
+        return ModelMapper::str(MemoryManager::GetInstance()->getModel());
     }
+
     double get_params(const std::string& block, int pdgCode) {
         return (*Parameters::GetInstance())(block, pdgCode);
     }
+
     StateName get_state(const std::string& groupName) {
         return ensureGroupState(groupName)->get_state();
     }
@@ -215,129 +215,104 @@ public:
     }
 
     void setState(const std::string& groupName, StateName state_name) {
+        std::shared_ptr<State> new_state;
+        [[maybe_unused]] auto order = groupStates[groupName]->getCurrentOrder();
         switch(state_name) {
             case StateName::InitialState:
-                groupStates[groupName] = std::make_shared<InitialState>();
+                new_state = std::make_shared<InitialState>();
                 break;
             case StateName::QMatchSetState:
-                groupStates[groupName] = std::make_shared<QMatchSetState>(groupStates[groupName]->getCurrentOrder());
+                new_state = std::make_shared<QMatchSetState>(order);
                 break;
             case StateName::MatchinSetState:
-                groupStates[groupName] = std::make_shared<MatchingSetState>(groupStates[groupName]->getCurrentOrder());
+                new_state = std::make_shared<MatchingSetState>(order);
                 break;
             case StateName::QSetState:
-                groupStates[groupName] = std::make_shared<QSetState>(groupStates[groupName]->getCurrentOrder());
+                new_state = std::make_shared<QSetState>(order);
                 break;
             case StateName::RunSetState:
-                groupStates[groupName] = std::make_shared<RunSetState>(groupStates[groupName]->getCurrentOrder());
+                new_state = std::make_shared<RunSetState>(order);
                 break;
         }
+
+        setState(groupName, new_state);
     }
 
     void setGroupScale(const std::string& groupName, double Q) {
         ensureGroupState(groupName)->setGroupScale(this, groupName, Q);
+        if (has_bsm) {
+            ensureGroupState(groupName + bsm_suffix)->setGroupScale(this, groupName + bsm_suffix, Q);
+        }
     }
 
     void setQMatch(const std::string& groupName, double Q_match) {
         ensureGroupState(groupName)->setQMatch(this, groupName, Q_match);
+        if (has_bsm) {
+            ensureGroupState(groupName + bsm_suffix)->setQMatch(this, groupName + bsm_suffix, Q_match);
+        }
     }
 
     void setParams(const std::string& groupName, const std::string& block, int pdgCode, double value) {
         ensureGroupState(groupName)->setParams(block, pdgCode, value);
     }
+
     void setMatchingCoefficient(const std::string& groupName, const std::string& order) {
         ensureGroupState(groupName)->setMatchingCoefficient(this, groupName, order);
+        if (has_bsm) {
+            ensureGroupState(groupName + bsm_suffix)->setMatchingCoefficient(this, groupName + bsm_suffix, order);
+        }
     }
 
     void setRunCoefficient(const std::string& groupName, const std::string& order) {
         ensureGroupState(groupName)->setRunCoefficient(this, groupName, order);
+        if (has_bsm) {
+            ensureGroupState(groupName + bsm_suffix)->setRunCoefficient(this, groupName + bsm_suffix, order);
+        }
     }
 
     void switchbasis(const std::string& groupName) {
         ensureGroupState(groupName)->switchbasis(this, groupName);
+        if (has_bsm) {
+            ensureGroupState(groupName + bsm_suffix)->switchbasis(this, groupName + bsm_suffix);
+        }
     }
     
-    std::complex<double> getMatchingCoefficient(const std::string& groupName, const std::string& coeffName, const std::string& order) {
-        return ensureGroupState(groupName)->getMatchingCoefficient(this, groupName, coeffName, order);
-    }
-
-    std::complex<double> getMatchingCoefficient(WilsonGroups groupName, BWilsonCoefficients coeffName, QCDOrder order) {
-        return getMatchingCoefficient(GroupMapper::str(groupName), WCoefMapper::str(coeffName), OrderMapper::str(order));
-    }
-
-    std::complex<double> getFullMatchingCoefficient(const std::string& groupName, const std::string& coeffName, const std::string& order) {
-        return ensureGroupState(groupName)->getFullMatchingCoefficient(this, groupName, coeffName, order);
-    }
-
-    std::complex<double> getFullMatchingCoefficient(WilsonGroups groupName, BWilsonCoefficients coeffName, QCDOrder order) {
-        return getFullMatchingCoefficient(GroupMapper::str(groupName), WCoefMapper::str(coeffName), OrderMapper::str(order));
-    }
-
-    std::array<std::complex<double>, 3> getMatchingCoefficientSepOrders(WilsonGroups groupName, BWilsonCoefficients coeffName) {
-        auto C_0 = getMatchingCoefficient(groupName, coeffName, QCDOrder::LO);
-        auto C_1 = getMatchingCoefficient(groupName, coeffName, QCDOrder::NLO);
-        auto C_2 = getMatchingCoefficient(groupName, coeffName, QCDOrder::NNLO);
-        return {C_0, C_1, C_2};
-    }
-
-    std::vector<std::complex<double>> getAllFullMatchingCoefficients(WilsonGroups groupName, QCDOrder order) {
-        std::vector<complex_t> C;
-        for (auto c_id : WCoefMapper::get_group(groupName)) {
-            C.emplace_back(getFullMatchingCoefficient(groupName, c_id, order));
+    std::complex<double> getMatchingCoefficient(const std::string& groupName, const std::string& coeffName, const std::string& order, bool sm_only=false) {
+        complex_t c = ensureGroupState(groupName)->getMatchingCoefficient(this, groupName, coeffName, order);
+        if (has_bsm && !sm_only) {
+            c += ensureGroupState(groupName + bsm_suffix)->getMatchingCoefficient(this, groupName + bsm_suffix, coeffName, order);
         }
-        return C;
+        return c;
     }
 
-    std::vector<std::complex<double>> getAllMatchingCoefficients(WilsonGroups groupName, QCDOrder order) {
-        std::vector<complex_t> C;
-        for (auto c_id : WCoefMapper::get_group(groupName)) {
-            C.emplace_back(getMatchingCoefficient(groupName, c_id, order));
+    std::complex<double> getFullMatchingCoefficient(const std::string& groupName, const std::string& coeffName, const std::string& order, bool sm_only=false) {
+        complex_t c = ensureGroupState(groupName)->getFullMatchingCoefficient(this, groupName, coeffName, order);
+        if (has_bsm && !sm_only) {
+            c += ensureGroupState(groupName + bsm_suffix)->getFullMatchingCoefficient(this, groupName + bsm_suffix, coeffName, order);
         }
-        return C;
+        return c;
     }
 
-    std::complex<double> getRunCoefficient(const std::string& groupName, const std::string& coeffName, const std::string& order) {
-        return ensureGroupState(groupName)->getRunCoefficient(this, groupName, coeffName, order);
-    }
-
-    std::complex<double> getRunCoefficient(WilsonGroups groupName, BWilsonCoefficients coeffName, QCDOrder order) {
-        return getRunCoefficient(GroupMapper::str(groupName), WCoefMapper::str(coeffName), OrderMapper::str(order));
-    }
-
-    std::complex<double> getFullRunCoefficient(const std::string& groupName, const std::string& coeffName, const std::string& order) {
-        return ensureGroupState(groupName)->getFullRunCoefficient(this, groupName, coeffName, order);
-    }
-
-    std::complex<double> getFullRunCoefficient(WilsonGroups groupName, BWilsonCoefficients coeffName, QCDOrder order) {
-        return getFullRunCoefficient(GroupMapper::str(groupName), WCoefMapper::str(coeffName), OrderMapper::str(order));
-    }
-
-    std::array<std::complex<double>, 3> getRunCoefficientSepOrders(WilsonGroups groupName, BWilsonCoefficients coeffName) {
-        auto C_0 = getRunCoefficient(groupName, coeffName, QCDOrder::LO);
-        auto C_1 = getRunCoefficient(groupName, coeffName, QCDOrder::NLO);
-        auto C_2 = getRunCoefficient(groupName, coeffName, QCDOrder::NNLO);
-        return {C_0, C_1, C_2};
-    }
-
-    std::vector<std::complex<double>> getAllFullRunCoefficients(WilsonGroups groupName, QCDOrder order) {
-        std::vector<complex_t> C;
-        for (auto c_id : WCoefMapper::get_group(groupName)) {
-            C.emplace_back(getFullRunCoefficient(groupName, c_id, order));
+    std::complex<double> getRunCoefficient(const std::string& groupName, const std::string& coeffName, const std::string& order, bool sm_only=false) {
+        complex_t c = ensureGroupState(groupName)->getRunCoefficient(this, groupName, coeffName, order);
+        if (has_bsm && !sm_only) {
+            c += ensureGroupState(groupName + bsm_suffix)->getRunCoefficient(this, groupName + bsm_suffix, coeffName, order);
         }
-        return C;
+        return c;
     }
 
-    std::vector<std::complex<double>> getAllRunCoefficients(WilsonGroups groupName, QCDOrder order) {
-        std::vector<complex_t> C;
-        for (auto c_id : WCoefMapper::get_group(groupName)) {
-            C.emplace_back(getRunCoefficient(groupName, c_id, order));
+    std::complex<double> getFullRunCoefficient(const std::string& groupName, const std::string& coeffName, const std::string& order, bool sm_only=false) {
+        complex_t c = ensureGroupState(groupName)->getFullRunCoefficient(this, groupName, coeffName, order);
+        if (has_bsm && !sm_only) {
+            c += ensureGroupState(groupName + bsm_suffix)->getFullRunCoefficient(this, groupName + bsm_suffix, coeffName, order);
         }
-        return C;
+        return c;
     }
 
     double getAlphaS(const std::string& groupName) {
         return ensureGroupState(groupName)->getAlphaS(this, groupName);
     }
+    
     void registerCoefficientGroup(const std::string& groupName, std::shared_ptr<CoefficientGroup> group) {
         coefficientGroups[groupName] = group;
         groupStates[groupName] = std::make_shared<InitialState>();
@@ -356,7 +331,7 @@ public:
     }
 
     static void Cleanup() {
-        instances.clear();
+        instance.reset();
     }
 
     void printGroupCoefficients(const std::string& groupName) const {
@@ -365,94 +340,46 @@ public:
     }
 
     void update(std::string group, double Q_match=0, double Q=0) {
+        auto apply_update = [this, Q_match, Q] (std::string wg) { 
+            auto order = ensureGroupState(wg)->getCurrentOrder();
+            this->setQMatch(wg, Q_match);
+            this->setMatchingCoefficient(wg, order);
+            this->setGroupScale(wg, Q);
+            this->setRunCoefficient(wg, order);
+        };
+
         Q_match = fpeq(Q_match, 0.) ? coefficientGroups[group]->get_Q_match() : Q_match; 
-        Q = fpeq(Q, 0.) ? coefficientGroups[group]->get_Q_run() : Q; 
-        auto order = ensureGroupState(group)->getCurrentOrder();
-
-        this->setQMatch(group, Q_match);
-        this->setMatchingCoefficient(group, order);
-        this->setGroupScale(group, Q);
-        this->setRunCoefficient(group, order);
-    }
-
-    static bool compatible_concat(std::shared_ptr<CoefficientManager> manager1, std::shared_ptr<CoefficientManager> manager2) {
-        haveSameKeys(manager1->getGroups(), manager2->getGroups());
-        for (auto& group : manager1->getGroups()) {
-            if (manager1->get_state(group.first) != manager2->get_state(group.first)) {
-                return false;
-            }
-            if (std::abs(group.second->get_Q_match() -group.second->get_Q_match()) > PRECISION) {
-                return false;
-            }
-            if (std::abs(group.second->get_Q_run() - group.second->get_Q_run()) > PRECISION) {
-                return false;
-            }
+        Q = fpeq(Q, 0.) ? coefficientGroups[group]->get_Q_run() : Q;
+        apply_update(group);
+        if (has_bsm) {
+            apply_update(group + bsm_suffix);
         }
-        return true;
-    }
-
-    static std::shared_ptr<CoefficientManager> Concat(std::shared_ptr<CoefficientManager> manager1, std::shared_ptr<CoefficientManager> manager2) {
-        std::shared_ptr<CoefficientManager> newmanager = CoefficientManager::GetInstance(manager1->getModel() + "_" + manager2->getModel());
-        if (!compatible_concat(manager1, manager2)) {
-            LOG_ERROR("INVALID OPERATION", "impossible to concatenate", manager1->getModel(), "and", manager2->getModel());
-        }
-        
-        for (auto& group : manager1->getGroups()) {
-            std::shared_ptr<CoefficientGroup> newgroup = group.second->clone();
-            for (auto& coeff : *group.second) {
-                *(*newgroup)[coeff.first] += *(*manager2->getCoefficientGroup(group.first))[coeff.first];
-            }
-            newmanager->registerCoefficientGroup(group.first, newgroup);
-            newmanager->setState(group.first, StateName::RunSetState);
-        }
-
-        return newmanager;
     }
     
-    static std::shared_ptr<CoefficientManager> Builder(std::string instance, std::map<std::string, std::shared_ptr<CoefficientGroup>> groups, double Q_match, double Q, std::string order) {
-        std::shared_ptr<CoefficientManager> manager = CoefficientManager::GetInstance(instance);
-        for (auto& group : groups) {
-            manager->registerCoefficientGroup(group.first, group.second);
-            manager->setQMatch(group.first, Q_match);
-            manager->setMatchingCoefficient(group.first, order);
-            manager->setGroupScale(group.first, Q);
-            manager->setRunCoefficient(group.first, order);
-        }
-        return manager;
-    }
+    static std::shared_ptr<CoefficientManager> Builder(std::string model, std::map<std::string, std::shared_ptr<CoefficientGroup>> groups, double Q_match, double Q, std::string order) {
+        std::shared_ptr<CoefficientManager> manager = CoefficientManager::GetInstance();
+        manager->has_bsm = model == ModelMapper::str(Model::THDM) || model == ModelMapper::str(Model::SUSY);
+        manager->bsm_suffix = manager->has_bsm ? "_" + model : "";
 
-    static std::shared_ptr<CoefficientManager> Builder(std::string instance, std::vector<WilsonGroups> groups, double Q_match, double Q, std::string order) {
-        std::shared_ptr<CoefficientManager> manager = CoefficientManager::GetInstance(instance);
-        auto group_ptrs = BuildGroupPtrs(groups);
-        for (auto& group : group_ptrs) {
+        for (auto& group : groups) {
+            LOG_DEBUG("(CoefficientManager) Registering coefficient group", group.first);
             manager->registerCoefficientGroup(group.first, group.second);
+        }
+
+        for (auto& group: groups) {
+            if (manager->has_bsm && group.first.ends_with(manager->bsm_suffix)) continue;
+
             manager->setQMatch(group.first, Q_match);
             manager->setMatchingCoefficient(group.first, order);
             manager->setGroupScale(group.first, Q);
             manager->setRunCoefficient(group.first, order);
         }
+        
+
         return manager;
     }
 
 private:
-    static std::map<std::string, std::shared_ptr<CoefficientGroup>> BuildGroupPtrs(std::vector<WilsonGroups> group_ids) {
-        std::map<std::string,std::shared_ptr<CoefficientGroup>> groups;
-        for (auto g : group_ids) {
-            switch (g) {
-            case WilsonGroups::BCoefficients:
-                groups.emplace(GroupMapper::str(g), std::make_shared<BCoefficientGroup>());
-                break;
-            case WilsonGroups::BPrimeCoefficients:
-                groups.emplace(GroupMapper::str(g), std::make_shared<BPrimeCoefficientGroup>());
-                break;
-            case WilsonGroups::BScalarCoefficients:
-                groups.emplace(GroupMapper::str(g), std::make_shared<BScalarCoefficientGroup>());
-                break;
-            }
-        }
-        return groups;
-    }
-
     State* ensureGroupState(const std::string& groupName) {
         auto it = groupStates.find(groupName);
         if (it != groupStates.end()) {
