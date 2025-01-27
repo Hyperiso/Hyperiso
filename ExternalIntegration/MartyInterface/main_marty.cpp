@@ -13,7 +13,7 @@
 int main() {
     MemoryManager* mm = MemoryManager::GetInstance();
     std::string base_path = project_root.data();
-    mm->init(base_path+"/Test/testinput_thdm.lha", Model::SM);
+    mm->init(base_path+"/Test/InputFiles/testinput_thdm.lha", Model::SM);
     // auto truc = FileNameManager::getInstance("C7", "SM");
 
     // std::cout << truc->getGeneratedFileName() << std::endl;
@@ -42,10 +42,11 @@ int main() {
 
 
     // MartyInterface.calculate("C2", "SM", 81);
-    MartyInterface.calculate("C9", "ZPrime", 81);
-    MartyInterface.calculate("C10", "ZPrime", 81);
-    MartyInterface.calculate("C2", "ZPrime", 81);
-    MartyInterface.calculate("C7", "ZPrime", 81);
+
+    // MartyInterface.calculate("C9", "ZPrime", 81);
+    // MartyInterface.calculate("C10", "ZPrime", 81);
+    // MartyInterface.calculate("C2", "ZPrime", 81);
+    MartyInterface.calculate("C7", "SM", 81);
     // MartyInterface.calculate("C5", "SM", 81);
     // MartyInterface.calculate("C7", "THDM", 81);
     // MartyInterface.calculate("C7", "SM", 160);

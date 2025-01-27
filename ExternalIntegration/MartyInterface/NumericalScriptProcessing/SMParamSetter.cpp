@@ -6,12 +6,28 @@
 void SMParamSetter::setParam(const std::string& name, const Interpreter::InterpretedParam& interpretedParam) {
     double value = calculateValue(name, interpretedParam);
 
-    std::set<std::string> special = {"KIN", "WEIN", "Finite", "S2_THETAW", "REGPROP"};
-
-    if (special.find(interpretedParam.block) != special.end()) {
-        params[name] = value;
+    if (interpretedParam.complex == true) {
+        std::cout << "complex here ! " << name;
+        params[name+"_img"] = value;
+        params[name+"_rel"] = value;
+        // if (interpretedParam.block.starts_with("IM")) {
+        //     params["RE" + name.substr(2, name.size())] = value;
+        //     params[name] = value;
+        // } else if (interpretedParam.block.starts_with("RE")) {
+        //     params[name] = value;
+        //     params[name.substr(2, name.size())] = value;
+        // } else {
+        //     LOG_ERROR("complex param error in SMParamSetter", "could match complex block");
+        // }
     } else {
-        params[name] = jsonparser->getElement(interpretedParam.block, interpretedParam.code);
+        std::set<std::string> special = {"KIN", "WEIN", "Finite", "S2_THETAW", "REGPROP"};
+
+        if (special.find(interpretedParam.block) != special.end()) {
+            params[name] = value;
+        } else {
+            std::cout << "mmh" << name << " " << interpretedParam.block << std::endl;
+            params[name] = jsonparser->getElement(interpretedParam.block, interpretedParam.code);
+        }
     }
 }
 

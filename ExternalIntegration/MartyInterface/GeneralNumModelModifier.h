@@ -12,6 +12,7 @@
 #include "IncludeManager.h"
 #include "LineProcessor.h"
 #include "ModelWriter.h"
+#include "FileWriter.h"
 #include "FileNameManager.h"
 
 class GeneralNumModelModifier {
@@ -27,20 +28,25 @@ private:
     Interpreter interpreter;
     SMParamSetter paramSetter;
     ParamWriter paramWriter;
+    FileWriter fileWriter;
     IncludeManager includeManager;
     LineProcessor lineProcessor;
     ModelWriter modelWriter;
 
 public:
     GeneralNumModelModifier(const std::string& wilson, const std::string& model, bool force = false)
-        : wilson(wilson), model(model), forceMode(force), interpreter(model), paramSetter(params, model), paramWriter(params, wilson, model), 
-          lineProcessor(paramWriter, includeManager, force), modelWriter(lineProcessor) {
+        : wilson(wilson), model(model), forceMode(force), interpreter(model), paramSetter(params, model), fileWriter(wilson, model), paramWriter(params, wilson, model), 
+          lineProcessor(includeManager, fileWriter, force), modelWriter(lineProcessor, paramWriter) {
         
         initializeParams();
     }
 
     void modify(std::ifstream& inputFile, std::ofstream& outputFile) {
         modelWriter.writeModel(inputFile, outputFile);
+    }
+
+    void createparamfile(std::ofstream& paramFile) {
+        modelWriter.writeParam(paramFile);
     }
 
 private:

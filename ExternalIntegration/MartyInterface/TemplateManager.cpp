@@ -49,6 +49,9 @@ void NumericTemplateManager::generateTemplateImpl(const std::string& templateNam
     std::cout << outputPath << std::endl;
     std::cout << tempFilePath << std::endl;
     numModifier->modify(templateFile, outputFile);
+    std::string paramPath = FileNameManager::getInstance(wilson, model)->getParamFileName();
+    std::ofstream paramFile(paramPath);
+    numModifier->createparamfile(paramFile);
     // modelModifier.modify(templateFile, outputFile);
 
     templateFile.close();

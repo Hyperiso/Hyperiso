@@ -1,17 +1,19 @@
 #pragma once
 #include "ParamWriter.h"
 #include "IncludeManager.h"
+#include "FileWriter.h"
 
 class LineProcessor {
 private:
-    ParamWriter paramWriter;
+    // ParamWriter paramWriter;
     IncludeManager includeManager;
+    FileWriter fileWriter;
     bool done = false;
     bool forceMode;
 
 public:
-    LineProcessor(ParamWriter& paramWriter, IncludeManager& includeManager, bool forceMode)
-        : paramWriter(paramWriter), includeManager(includeManager), forceMode(forceMode) {}
+    LineProcessor(IncludeManager& includeManager, FileWriter& filewriter, bool forceMode)
+        : includeManager(includeManager),fileWriter(filewriter), forceMode(forceMode) {}
 
     void processLine(std::ofstream& outputFile, const std::string& currentLine) {
         if (currentLine.find("//42") != std::string::npos && !forceMode) {
@@ -21,21 +23,24 @@ public:
         if (done && !forceMode) {
             outputFile << currentLine << "\n";
             return;
-        }
-        if (currentLine.find("param.") != std::string::npos) {
-            std::string paramName = extractParamName(currentLine);
-            double paramValue = std::stod(extractParamValue(currentLine));
+        // }
+        // if (currentLine.find("param.") != std::string::npos) {
+        //     std::string paramName = extractParamName(currentLine);
+        //     double paramValue = std::stod(extractParamValue(currentLine));
 
-            if (paramWriter.getParams().find(paramName) != paramWriter.getParams().end()) {
-                paramWriter.writeSingleParam(outputFile, paramName, paramValue);
-                paramWriter.getParams().erase(paramName);
-            } else {
-                outputFile << currentLine << "\n";
-            }
+        //     if (paramWriter.getParams().find(paramName) != paramWriter.getParams().end()) {
+        //         paramWriter.writeSingleParam(outputFile, paramName, paramValue);
+        //         paramWriter.getParams().erase(paramName);
+        //     } else {
+        //         outputFile << currentLine << "\n";
+            // }
         } else if (currentLine.find("int main") != std::string::npos) {
             outputFile << "int main(int argc, char** argv) {\n";
-        } else if (currentLine.find("return 0;") != std::string::npos) {
-            paramWriter.writeParams(outputFile);
+        } 
+        else if (currentLine.find("return 0;") != std::string::npos) {
+            fileWriter.add_input_reader(outputFile);
+            fileWriter.add_argpars(outputFile);
+            fileWriter.add_output_writer(outputFile);
             outputFile << currentLine << "\n";
         } else if (currentLine.find("using namespace") != std::string::npos) {
             includeManager.addIncludes(outputFile);
@@ -43,6 +48,10 @@ public:
         } else {
             outputFile << currentLine << "\n";
         }
+    }
+
+    void processParamLine(std::ofstream& paramFile, const std::string& currentLine) {
+        paramFile << "coucou" << "\n";
     }
 
 private:

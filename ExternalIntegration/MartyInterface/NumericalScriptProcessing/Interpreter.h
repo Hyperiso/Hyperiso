@@ -10,6 +10,7 @@ class Interpreter {
 public:
     struct InterpretedParam {
         std::string block;
+        bool complex;
         int code;
     };
     Interpreter(const std::string& model = "SM");
