@@ -127,7 +127,7 @@ public:
 // Concrete block for sminputs parameters
 class SMInputBlock : public MapBlock {
 public:
-    SMInputBlock() {this->blockname = "SMINPUTBlock";}
+    SMInputBlock() {this->blockname = "SMINPUTSBlock";}
 };
 
 // Concrete block for sminputs parameters

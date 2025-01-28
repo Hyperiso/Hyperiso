@@ -144,6 +144,21 @@ enum class ParameterType {
     FF
 };
 
+class ParameterTypeMapper {
+public:
+    static std::string str(ParameterType type) {
+        return ParameterTypeMapper::mapping.at(type);
+    };
+
+    static ParameterType enum_elt(std::string type) {
+        return ParameterTypeMapper::inverse_mapping.at(type);
+    };
+
+private:
+    static const std::map<ParameterType, std::string> mapping; 
+    static const std::map<std::string, ParameterType> inverse_mapping; 
+};
+
 enum class Model {
     SM,
     SUSY,

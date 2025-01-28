@@ -20,8 +20,8 @@
     "s_12": {"block": "KIN", "pdgCode": 4},
     "s_13": {"block": "KIN", "pdgCode": 7},
     "s_34": {"block": "KIN", "pdgCode": 34},
-    "G_F": {"block": "SMINPUT", "pdgCode": 2},
-    "e_em": {"block": "SMINPUT", "pdgCode": 10},
+    "G_F": {"block": "SMINPUTS", "pdgCode": 2},
+    "e_em": {"block": "SMINPUTS", "pdgCode": 10},
     "s2_thetaW": {"block": "S2_THETAW", "pdgCode": 0},
     "reg_prop": {"block": "REGPROP", "pdgCode": 0},
     "Finite": {"block": "Finite", "pdgCode": -1}

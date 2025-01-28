@@ -12,6 +12,7 @@ public:
         std::string block;
         bool complex;
         int code;
+        bool is_bsm;
     };
     Interpreter(const std::string& model = "SM");
     std::unordered_map<std::string, InterpretedParam> interpret(std::vector<Extractor::Parameter>& params);

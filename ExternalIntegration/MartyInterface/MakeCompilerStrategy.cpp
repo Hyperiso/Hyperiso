@@ -8,13 +8,7 @@ void MakeCompilerStrategy::compile_run(const std::string& sourceFile, const std:
     if (!this->check_if_compile(outputBinary)) {
         this->compile(sourceFile, outputBinary);
     }
-    MartyMassRunner mrun = MartyMassRunner(this->Q_match);
-    std::string command_run =  outputBinary + " -Q " + std::to_string(this->Q_match)
-                                            + " -mt " + std::to_string(mrun.get_mt())
-                                            + " -mb " + std::to_string(mrun.get_mb())
-                                            + " -mc " + std::to_string(mrun.get_mc());
-    std::cout << "------------------------------" << std::endl;
-    std::cout << command_run << std::endl;
+    std::string command_run =  outputBinary + " -Q " + std::to_string(this->Q_match);
     system(command_run.c_str());
 }
 

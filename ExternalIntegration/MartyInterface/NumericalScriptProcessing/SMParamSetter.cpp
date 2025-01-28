@@ -8,25 +8,27 @@ void SMParamSetter::setParam(const std::string& name, const Interpreter::Interpr
 
     if (interpretedParam.complex == true) {
         std::cout << "complex here ! " << name;
-        params[name+"_img"] = value;
-        params[name+"_rel"] = value;
-        // if (interpretedParam.block.starts_with("IM")) {
-        //     params["RE" + name.substr(2, name.size())] = value;
-        //     params[name] = value;
-        // } else if (interpretedParam.block.starts_with("RE")) {
-        //     params[name] = value;
-        //     params[name.substr(2, name.size())] = value;
-        // } else {
-        //     LOG_ERROR("complex param error in SMParamSetter", "could match complex block");
-        // }
+        if (interpretedParam.is_bsm) {
+            ParameterType type = ParameterTypeMapper::enum_elt(ModelMapper::str(MemoryManager::GetInstance()->getModel()));
+            params[name+"_img"] = (*Parameters::GetInstance(type))(interpretedParam.block, interpretedParam.code);
+            params[name+"_rel"] = (*Parameters::GetInstance(type))(interpretedParam.block, interpretedParam.code);
+        } else {
+            params[name+"_img"] = (*Parameters::GetInstance())(interpretedParam.block, interpretedParam.code);
+            params[name+"_rel"] = (*Parameters::GetInstance())(interpretedParam.block, interpretedParam.code);
+        }
     } else {
         std::set<std::string> special = {"KIN", "WEIN", "Finite", "S2_THETAW", "REGPROP"};
 
         if (special.find(interpretedParam.block) != special.end()) {
             params[name] = value;
         } else {
-            std::cout << "mmh" << name << " " << interpretedParam.block << std::endl;
-            params[name] = jsonparser->getElement(interpretedParam.block, interpretedParam.code);
+            if (interpretedParam.is_bsm) {
+                ParameterType type = ParameterTypeMapper::enum_elt(ModelMapper::str(MemoryManager::GetInstance()->getModel()));
+                params[name] = (*Parameters::GetInstance(type))(interpretedParam.block, interpretedParam.code);
+            } else {
+                params[name] = (*Parameters::GetInstance())(interpretedParam.block, interpretedParam.code);
+            }
+            // params[name] = jsonparser->getElement(interpretedParam.block, interpretedParam.code);
         }
     }
 }

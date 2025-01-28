@@ -5,7 +5,6 @@
 
 class LineProcessor {
 private:
-    // ParamWriter paramWriter;
     IncludeManager includeManager;
     FileWriter fileWriter;
     bool done = false;
@@ -23,17 +22,6 @@ public:
         if (done && !forceMode) {
             outputFile << currentLine << "\n";
             return;
-        // }
-        // if (currentLine.find("param.") != std::string::npos) {
-        //     std::string paramName = extractParamName(currentLine);
-        //     double paramValue = std::stod(extractParamValue(currentLine));
-
-        //     if (paramWriter.getParams().find(paramName) != paramWriter.getParams().end()) {
-        //         paramWriter.writeSingleParam(outputFile, paramName, paramValue);
-        //         paramWriter.getParams().erase(paramName);
-        //     } else {
-        //         outputFile << currentLine << "\n";
-            // }
         } else if (currentLine.find("int main") != std::string::npos) {
             outputFile << "int main(int argc, char** argv) {\n";
         } 
