@@ -7,6 +7,7 @@
 #include "General.h"
 #include "MemoryManager.h"
 #include "Parameters.h"
+#include "QCDHelper.h"
 
 #include <iostream>
 #include <cmath>

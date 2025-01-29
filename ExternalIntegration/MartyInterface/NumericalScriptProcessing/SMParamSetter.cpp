@@ -38,7 +38,7 @@ double SMParamSetter::calculateValue(const std::string& name, const Interpreter:
         if (interpretedParam.code == 34) {
             return -std::pow((*Parameters::GetInstance())("MASS", 13),2.);
         }
-        return (std::pow((*Parameters::GetInstance())("MASS", 5),2.) + std::pow((*Parameters::GetInstance())("MASS", 3), 2.))/2;
+        return (std::pow(QCDHelper::mass_b_msbar(),2.) + std::pow((*Parameters::GetInstance())("MASS", 3), 2.))/2;
     }
     if (interpretedParam.block == "WEIN") {
         return 0.5;
