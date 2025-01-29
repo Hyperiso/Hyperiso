@@ -46,6 +46,9 @@ add_library(MartyInterfaceLib STATIC
     NumericalScriptProcessing/SMParamSetter.cpp
     FileNameManager.cpp
     GeneralModelModifier.cpp
+    GeneralNumModelModifier.cpp
+    CompilerStrategy.cpp
+    CinematicExtractor.cpp
     )
 
 set_target_properties(MartyInterfaceLib PROPERTIES POSITION_INDEPENDENT_CODE ON)

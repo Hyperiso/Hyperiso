@@ -9,10 +9,10 @@ void MakeCompilerStrategy::compile_run(const std::string& sourceFile, const std:
         this->compile(sourceFile, outputBinary);
     }
     std::string command_run =  outputBinary + " -Q " + std::to_string(this->Q_match);
-    system(command_run.c_str());
+    executeCommand(command_run);
 }
 
 void MakeCompilerStrategy::compile(const std::string& sourceFile, const std::string& outputBinary) {
     std::string command = "cd " + sourceFile + " && make";
-    system(command.c_str());
+    executeCommand(command);
 }

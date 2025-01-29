@@ -40,7 +40,6 @@ public:
     double getElement(const std::string& blockName, int pdgCode) const {
         auto it = blocks.find(blockName);
         if (it != blocks.end()) {
-            std::cout << "ww: " << blockName << std::endl;
             return it->second.getValue(pdgCode);
         } else {
             throw std::runtime_error("Block " + blockName + " not found.");

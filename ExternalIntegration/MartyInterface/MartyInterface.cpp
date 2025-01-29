@@ -1,11 +1,4 @@
 #include "MartyInterface.h"
-#include <memory>
-#include <filesystem>
-#include <iostream>
-#include "config.hpp"
-#include <algorithm>
-#include "FileNameManager.h"
-#include "GeneralModelModifier.h"
 
 namespace fs = std::filesystem;
 
@@ -56,6 +49,29 @@ void MartyInterface::compile_run_libs(std::string wilson, std::string model, dou
     compiler.set_Q_match(Q_match);
     compiler.compile_run(FileNameManager::getInstance(wilson, model)->getLibDir(), FileNameManager::getInstance(wilson,model)->getNumExecutableFileName());
 }
+
+void MartyInterface::calculate(std::string wilson, std::string model, double Q_match, bool new_params) {
+    generate(wilson, model);
+    compile_run(wilson, model);
+    generate_numlib(wilson, model, Q_match);
+    compile_run_libs(wilson, model, Q_match);
+}
+
+bool MartyInterface::already_run(std::string&& outputBinary) {
+    struct stat buffer;
+    if (stat(outputBinary.c_str(), &buffer) != 0) {
+        return false;
+    }
+    if (buffer.st_size == 0) {
+        return false;
+    }
+    std::cout << "Already run !" << std::endl;
+    return true;
+}
+
+std::string MartyInterface::output_binary_name(std::string& wilson, std::string& model) {
+        return "generated_" + wilson+"_" + model + ".cpp";
+    }
 
 std::string to_lowercase(const std::string& str) {
     std::string result = str;

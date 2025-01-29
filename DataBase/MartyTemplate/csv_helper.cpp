@@ -126,10 +126,8 @@ void readParams(std::ifstream& inputFile,
         double value;
 
         if (std::getline(iss, key, ',') && iss >> value) {
-            std::cout << "eheheheheh " << key << " " << value << std::endl;
             if (key.size() > 4 && (key.substr(key.size() - 4) == "_rel" || key.substr(key.size() - 4) == "_img")) {
                 std::string baseKey = key.substr(0, key.size() - 4);
-                std::cout << "hzo " << baseKey << std::endl;
                 if (complex.find(baseKey) != complex.end()) {
                     if (key.substr(key.size() - 4) == "_rel") {
                         if (complex_.find(baseKey) != complex_.end()) {
@@ -151,9 +149,8 @@ void readParams(std::ifstream& inputFile,
                 }
 
             } else {
-                // Insert into real map
                 if (real.find(key) != real.end()) {
-                    *real[key] = value; // Use initialize instead of set
+                    *real[key] = value;
                 } else {
                     std::cerr << "Warning: Real parameter " << key << " not found in the map." << std::endl;
                 }

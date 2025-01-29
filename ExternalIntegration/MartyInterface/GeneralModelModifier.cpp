@@ -1,10 +1,16 @@
 #include "GeneralModelModifier.h"
-#include "ModelFileChecker.h"
+
+GeneralModelModifier::GeneralModelModifier(std::string wilson, std::string model) {this->wilson = wilson;
+        this->model = model;
+        std::string model_l = this->model;
+        std::transform(model_l.begin(), model_l.end(), model_l.begin(), 
+        [](unsigned char c){return std::tolower(c);});
+        this->model_path = project_root.data() +std::string()+ "/ExternalIntegration/MARTY/MARTY_INSTALL/include/marty/models/" + model_l +".h";
+    }
 
 void GeneralModelModifier::modifyLine(std::string& line) {
     if (line.find("SM_Model sm;") != std::string::npos) {
         bool is_template = ModelFileChecker(this->model_path).isAnyModelTemplate();
-        std::cout << this->model_path << std::endl;
         if (is_template) {
             int model_num = 1;
             if(this->model == "THDM"){
@@ -15,7 +21,6 @@ void GeneralModelModifier::modifyLine(std::string& line) {
         } else {
             line.replace(line.find("SM"), 2, this->model);
         }
-        std::cout << line << std::endl;
     }
     else if (line.find("_SM") != std::string::npos) {
         line.replace(line.find("SM"), 2, this->model);
