@@ -8,7 +8,9 @@
 #include "MemoryManager.h"
 #include "Parameters.h"
 #include "QCDHelper.h"
-
+#include <cmath>
+#include <set>
+#include <string>
 #include <iostream>
 #include <cmath>
 class SMParamSetter : public IParamSetter {

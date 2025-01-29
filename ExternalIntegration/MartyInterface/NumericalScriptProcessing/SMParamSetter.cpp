@@ -1,7 +1,4 @@
 #include "SMParamSetter.h"
-#include <cmath>
-#include <set>
-#include <string>
 
 void SMParamSetter::setParam(const std::string& name, const Interpreter::InterpretedParam& interpretedParam) {
     double value = calculateValue(name, interpretedParam);
@@ -21,6 +18,12 @@ void SMParamSetter::setParam(const std::string& name, const Interpreter::Interpr
 
         if (special.find(interpretedParam.block) != special.end()) {
             params[name] = value;
+        } else if (interpretedParam.block == "MASS" && (interpretedParam.code == 5 || interpretedParam.code == 6)){
+            if (interpretedParam.code == 5) {
+                params[name] = QCDHelper::mass_b_msbar();
+            } else {
+                params[name] = QCDHelper::mass_t_msbar();
+            }
         } else {
             if (interpretedParam.is_bsm) {
                 ParameterType type = ParameterTypeMapper::enum_elt(ModelMapper::str(MemoryManager::GetInstance()->getModel()));
