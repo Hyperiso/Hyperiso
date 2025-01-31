@@ -434,6 +434,30 @@ public:
     int gen{2};
 };
 
+class C_Blnu_A : public WilsonCoefficient {
+public:
+    C_Blnu_A(double Q_match) : WilsonCoefficient(Q_match) {this->set_name("C_Blnu_A");}
+    C_Blnu_A() : WilsonCoefficient() {this->set_name("C_Blnu_A");}
+
+    std::complex<double> LO_calculation() { return double_to_complex_save("LO", 1.); }; 
+    std::complex<double> NLO_calculation() {return {0,0};} 
+    std::complex<double> NNLO_calculation() {return {0,0};} 
+
+    std::shared_ptr<Parameters> sm = Parameters::GetInstance();
+};
+
+class C_Blnu_P : public WilsonCoefficient {
+public:
+    C_Blnu_P(double Q_match) : WilsonCoefficient(Q_match) {this->set_name("C_Blnu_P");}
+    C_Blnu_P() : WilsonCoefficient() {this->set_name("C_Blnu_P");}
+
+    std::complex<double> LO_calculation() {return {0,0};}; 
+    std::complex<double> NLO_calculation() {return {0,0};} 
+    std::complex<double> NNLO_calculation() {return {0,0};} 
+
+    std::shared_ptr<Parameters> sm = Parameters::GetInstance();
+};
+
 inline std::ostream& operator<<(std::ostream& os, WilsonCoefficient& coeff) {
     os << "WilsonCoefficient " << coeff.get_name() << "has matching value (" << coeff.get_Q_match() << " GeV) : " << coeff.get_CoefficientMatchingValue("LO") << " at LO" << std::endl;
     os<< ", " << coeff.get_CoefficientMatchingValue("NLO") << " at NLO, " << coeff.get_CoefficientMatchingValue("NNLO") << "at NNLO" << std::endl;

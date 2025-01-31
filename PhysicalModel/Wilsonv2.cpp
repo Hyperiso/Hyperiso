@@ -69,7 +69,7 @@ std::complex<double> C7::NLO_calculation() {
 std::complex<double> C7::NNLO_calculation() {
 
     double xtW=pow(QCDHelper::msbar_mass(6, (*sm)("MASS",24))/(*sm)("MASS", 24), 2); // mass top at pole for mtot param
-	double xtt=pow((*sm)("MASS",6)/(*sm)("MASS",24),2.); // 24 -> W
+	double xtt=pow(QCDHelper::mass_t_msbar()/(*sm)("MASS",24),2.); // 24 -> W
 
     double coeff_temp = (C7t2mt(xtt)+log(this->get_Q_match()*this->get_Q_match()/W_param->mass_top_muW/W_param->mass_top_muW)*((-592.*pow(W_param->xt,5.)-22.*pow(W_param->xt,4.)+12814.*pow(W_param->xt,3.)-6376.*W_param->xt*W_param->xt+512.*W_param->xt)/27./pow(W_param->xt-1.,5.)*Li2(1.-1./W_param->xt)
 	+(-26838.*pow(W_param->xt,5.)+25938.*pow(W_param->xt,4.)+627367.*pow(W_param->xt,3.)-331956.*W_param->xt*W_param->xt+16989.*W_param->xt-460.)/729./pow(W_param->xt-1.,6.)*log(W_param->xt)
@@ -95,7 +95,7 @@ std::complex<double> C8::NLO_calculation() {
 std::complex<double> C8::NNLO_calculation() {
 
     double xtW=pow(QCDHelper::msbar_mass(6, (*sm)("MASS",24))/(*sm)("MASS", 24), 2); // mass top at pole for mtot param
-	double xtt=pow((*sm)("MASS",6)/(*sm)("MASS",24),2.); // 24 -> W
+	double xtt=pow(QCDHelper::mass_t_msbar()/(*sm)("MASS",24),2.); // 24 -> W
 
     double coeff_temp = (C8t2mt(xtt)+log(this->get_Q_match()*this->get_Q_match()/W_param->mass_top_muW/W_param->mass_top_muW)*((-148.*pow(W_param->xt,5.)+1052.*pow(W_param->xt,4.)-4811.*pow(W_param->xt,3.)-3520.*W_param->xt*W_param->xt-61.*W_param->xt)/18./pow(W_param->xt-1.,5.)*Li2(1.-1./W_param->xt)
 	+(-15984.*pow(W_param->xt,5.)+152379.*pow(W_param->xt,4.)-1358060.*pow(W_param->xt,3.)-1201653.*W_param->xt*W_param->xt-74190.*W_param->xt+9188.)/1944./pow(W_param->xt-1.,6.)*log(W_param->xt)
@@ -145,7 +145,7 @@ std::complex<double> C10::NLO_calculation() {
  
 std::complex<double> C10::NNLO_calculation() {
     double xtW=pow(QCDHelper::msbar_mass(6, (*sm)("MASS",24)) / (*sm)("MASS", 24), 2); // mass top at pole for mtot param
-	double xtt=pow((*sm)("MASS",6)/(*sm)("MASS",24),2.); // 24 -> W
+	double xtt=pow(QCDHelper::mass_t_msbar()/(*sm)("MASS",24),2.); // 24 -> W
     double coeff_temp = ((C10Wt2mt(xtt)+log(this->get_Q_match()*this->get_Q_match()/W_param->mass_top_muW/W_param->mass_top_muW)*((69.+1292.*W_param->xt-209.*W_param->xt*W_param->xt)/18./pow(W_param->xt-1.,3.)
 	-(521.*W_param->xt+105.*W_param->xt*W_param->xt-50.*pow(W_param->xt,3.))/9./pow(W_param->xt-1.,4.)*log(W_param->xt)
 	-(47.*W_param->xt+W_param->xt*W_param->xt)/3./pow(W_param->xt-1.,3.)*Li2(1.-1./W_param->xt)
