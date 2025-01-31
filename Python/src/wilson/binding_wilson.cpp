@@ -75,8 +75,8 @@ void init_coefficient_manager(py::module &m) {
     // .export_values();
 
     py::class_<CoefficientManager, std::shared_ptr<CoefficientManager>>(m, "CoefficientManager")
-        .def_static("get_instance", [](const std::string &modelName) {
-            return CoefficientManager::GetInstance(modelName);
+        .def_static("get_instance", []() {
+            return CoefficientManager::GetInstance();
         }, py::return_value_policy::reference)
 
         .def_static("initialize", &CoefficientManager::initialize, py::arg("lhaFile"), py::arg_v("model",Model::SM),
@@ -109,56 +109,56 @@ void init_wilson_parameters(py::module &m) {
 }
 
 void init_wilson_interface(py::module &m) {
-    py::enum_<WCoef>(m, "WCoef")
-        .value("C1", WCoef::C1)
-        .value("C2", WCoef::C2)
-        .value("C3", WCoef::C3)
-        .value("C4", WCoef::C4)
-        .value("C5", WCoef::C5)
-        .value("C6", WCoef::C6)
-        .value("C7", WCoef::C7)
-        .value("C8", WCoef::C8)
-        .value("C9", WCoef::C9)
-        .value("C10", WCoef::C10)
-        .value("CQ1", WCoef::CQ1)
-        .value("CQ2", WCoef::CQ2)
-        .value("CP1", WCoef::CP1)
-        .value("CP2", WCoef::CP2)
-        .value("CP3", WCoef::CP3)
-        .value("CP4", WCoef::CP4)
-        .value("CP5", WCoef::CP5)
-        .value("CP6", WCoef::CP6)
-        .value("CP7", WCoef::CP7)
-        .value("CP8", WCoef::CP8)
-        .value("CP9", WCoef::C9)
-        .value("CP10", WCoef::C10)
-        .value("CPQ1", WCoef::CPQ1)
-        .value("CPQ2", WCoef::CPQ2)
-        .export_values();
+    // py::enum_<WCoef>(m, "WCoef")
+    //     .value("C1", WCoef::C1)
+    //     .value("C2", WCoef::C2)
+    //     .value("C3", WCoef::C3)
+    //     .value("C4", WCoef::C4)
+    //     .value("C5", WCoef::C5)
+    //     .value("C6", WCoef::C6)
+    //     .value("C7", WCoef::C7)
+    //     .value("C8", WCoef::C8)
+    //     .value("C9", WCoef::C9)
+    //     .value("C10", WCoef::C10)
+    //     .value("CQ1", WCoef::CQ1)
+    //     .value("CQ2", WCoef::CQ2)
+    //     .value("CP1", WCoef::CP1)
+    //     .value("CP2", WCoef::CP2)
+    //     .value("CP3", WCoef::CP3)
+    //     .value("CP4", WCoef::CP4)
+    //     .value("CP5", WCoef::CP5)
+    //     .value("CP6", WCoef::CP6)
+    //     .value("CP7", WCoef::CP7)
+    //     .value("CP8", WCoef::CP8)
+    //     .value("CP9", WCoef::C9)
+    //     .value("CP10", WCoef::C10)
+    //     .value("CPQ1", WCoef::CPQ1)
+    //     .value("CPQ2", WCoef::CPQ2)
+    //     .export_values();
 
-    py::enum_<WGroup>(m, "WilsonGroups")
-        .value("B", WilsonGroups::B)
-        .value("BPrimeCoefficients", WilsonGroups::BPrimeCoefficients)
-        .value("BScalarCoefficients", WilsonGroups::BScalarCoefficients)
-        .value("BCoefficients_THDM", WilsonGroups::BCoefficients_THDM)
-        .value("BPrimeCoefficients_THDM", WilsonGroups::BPrimeCoefficients_THDM)
-        .value("BScalarCoefficients_THDM", WilsonGroups::BScalarCoefficients_THDM)
-        .value("BCoefficients_SUSY", WilsonGroups::BCoefficients_SUSY)
-        .value("BPrimeCoefficients_SUSY", WilsonGroups::BPrimeCoefficients_SUSY)
-        .value("BScalarCoefficients_SUSY", WilsonGroups::BScalarCoefficients_SUSY)
-        .value("BCoefficients_MARTY", WilsonGroups::BCoefficients_MARTY)
-        .value("BPrimeCoefficients_MARTY", WilsonGroups::BPrimeCoefficients_MARTY)
-        .value("BScalarCoefficients_MARTY", WilsonGroups::BScalarCoefficients_MARTY)
-        .export_values();
+    // py::enum_<WGroup>(m, "WilsonGroups")
+    //     .value("B", WilsonGroups::B)
+    //     .value("BPrimeCoefficients", WilsonGroups::BPrimeCoefficients)
+    //     .value("BScalarCoefficients", WilsonGroups::BScalarCoefficients)
+    //     .value("BCoefficients_THDM", WilsonGroups::BCoefficients_THDM)
+    //     .value("BPrimeCoefficients_THDM", WilsonGroups::BPrimeCoefficients_THDM)
+    //     .value("BScalarCoefficients_THDM", WilsonGroups::BScalarCoefficients_THDM)
+    //     .value("BCoefficients_SUSY", WilsonGroups::BCoefficients_SUSY)
+    //     .value("BPrimeCoefficients_SUSY", WilsonGroups::BPrimeCoefficients_SUSY)
+    //     .value("BScalarCoefficients_SUSY", WilsonGroups::BScalarCoefficients_SUSY)
+    //     .value("BCoefficients_MARTY", WilsonGroups::BCoefficients_MARTY)
+    //     .value("BPrimeCoefficients_MARTY", WilsonGroups::BPrimeCoefficients_MARTY)
+    //     .value("BScalarCoefficients_MARTY", WilsonGroups::BScalarCoefficients_MARTY)
+    //     .export_values();
 
-    py::enum_<BWilsonBasis>(m, "BWilsonBasis")
-        .value("STANDARD", BWilsonBasis::STANDARD)
-        .value("TRADITIONAL", BWilsonBasis::TRADITIONAL)
-        .export_values();
+    // py::enum_<BWilsonBasis>(m, "BWilsonBasis")
+    //     .value("STANDARD", BWilsonBasis::STANDARD)
+    //     .value("TRADITIONAL", BWilsonBasis::TRADITIONAL)
+    //     .export_values();
 
     py::class_<WilsonInterface, std::shared_ptr<WilsonInterface>>(m, "WilsonInterface")
         .def(py::init<const std::string &>())
-        .def("add_wilson_group", &WilsonInterface::AddWilsonGroup)
+        .def("add_wilson_group", &WilsonInterface::addWilsonGroup)
         .def("set_q_match", &WilsonInterface::setQMatch)
         .def("set_params", &WilsonInterface::setParams)
         .def("set_matching_coefficient", &WilsonInterface::setMatchingCoefficient)
@@ -167,7 +167,7 @@ void init_wilson_interface(py::module &m) {
         .def("switch_basis", &WilsonInterface::switchbasis)
         .def("get_alpha_s", &WilsonInterface::getAlphaS)
         .def("get_matching_coefficient", &WilsonInterface::getMatchingCoefficient)
-        .def("builder", &WilsonInterface::Builder);
+        .def("build", &WilsonInterface::build);
 }
 
 // Fonction principale d'initialisation pour le module Wilson
