@@ -62,13 +62,13 @@ print("Running C8", wilManag.get_run_coefficient("BCoefficientGroup", "C8", "LO"
 
 print(pa("MASS", 5))
 
-mm.switch_lha("DataBase/lha/testInputv2.slha", Model.SM)
+mm.switch_lha("Test/InputFiles/testinput_thdm.lha", Model.SM)
 print(pa.exists("MASS", 5))
 pa = Parameters()
 
 print(pa("MASS",5))
 
-mm.switch_lha("DataBase/lha/testInputv3.slha", Model.SM)
+mm.switch_lha("Test/InputFiles/testInput.slha", Model.SM)
 pa = Parameters()
 print(pa("MASS", 5))
 

@@ -2,7 +2,12 @@ from enum import Enum
 from phyperiso.pyhyperiso import core, wilson, observable
 from phyperiso.pyhyperiso.core import Model as _CppModel
 from phyperiso.pyhyperiso.core import ParameterType as _CppParameterType
-from phyperiso.pyhyperiso.observable import Observables as _CppObservables
+from phyperiso.pyhyperiso.core import Observables as _CppObservables
+from phyperiso.pyhyperiso.core import QCDOrder as _CppQCDOrder
+from phyperiso.pyhyperiso.core import WGroup as _CppWGroup
+from phyperiso.pyhyperiso.core import BWilsonBasis as _CppBWilsonBasis
+from phyperiso.pyhyperiso.core import WCoef as _CppWCoef
+
 class Model(Enum):
     SM = _CppModel.SM
     SUSY = _CppModel.SUSY
@@ -19,12 +24,56 @@ class ParameterType(Enum):
     WILSON = _CppParameterType.WILSON
     FF = _CppParameterType.FF
 
+class QCDOrder(Enum):
+    NONE = _CppQCDOrder.NONE
+    LO = _CppQCDOrder.LO
+    NLO = _CppQCDOrder.NLO
+    NNLO = _CppQCDOrder.NNLO
+
+
+class WCoeff(Enum):
+    C1 = _CppWCoef.C1
+    C2 = _CppWCoef.C2
+    C3 = _CppWCoef.C3
+    C4 = _CppWCoef.C4
+    C5 = _CppWCoef.C5
+    C6 = _CppWCoef.C6
+    C7 = _CppWCoef.C7
+    C8 = _CppWCoef.C8
+    C9 = _CppWCoef.C9
+    C10 = _CppWCoef.C10
+    CQ1 = _CppWCoef.CQ1
+    CQ2 = _CppWCoef.CQ2
+    CP1 = _CppWCoef.CP1
+    CP2 = _CppWCoef.CP2
+    CP3 = _CppWCoef.CP3
+    CP4 = _CppWCoef.CP4
+    CP5 = _CppWCoef.CP5
+    CP6 = _CppWCoef.CP6
+    CP7 = _CppWCoef.CP7
+    CP8 = _CppWCoef.CP8
+    CP9 = _CppWCoef.CP9
+    CP10 = _CppWCoef.CP10
+    CPQ1 = _CppWCoef.CPQ1
+    CPQ2 = _CppWCoef.CPQ2
+
+
+
+class WGroup(Enum):
+    B = _CppWGroup.B
+    BPrime = _CppWGroup.BPrime
+    BScalar = _CppWGroup.BScalar
+    
+class BWilsonBasis(Enum):
+    STANDARD = _CppBWilsonBasis.STANDARD
+    TRADITIONAL = _CppBWilsonBasis.TRADITIONAL
+
 
 class Observables(Enum):
     BR_BS_MUMU = _CppObservables.BR_BS_MUMU
     BR_BS_MUMU_UNTAG = _CppObservables.BR_BS_MUMU_UNTAG
     BR_BD_MUMU = _CppObservables.BR_BD_MUMU
-    BR_BU_TAUNU = _CppObservables.BR_BU_TAUNU
+    BR_B_XS_GAMMA = _CppObservables.BR_B_XS_GAMMA
     ISOSPIN_ASYMMETRY_B_KSTAR_GAMMA = _CppObservables.ISOSPIN_ASYMMETRY_B_KSTAR_GAMMA
 
 
@@ -191,7 +240,7 @@ class WilsonManager:
     """Interface for managing Wilson coefficients."""
 
     def __init__(self, model_name: str = "SM"):
-        self._manager = wilson.coefficient_manager.CoefficientManager.get_instance(model_name)
+        self._manager = wilson.coefficient_manager.CoefficientManager.get_instance()
 
     def initialize(self, lha_file: str, model: Model = Model.SM, use_marty : bool = False, is_spectrum : bool = False, has_wilsons : bool = False, has_obs : bool = False):
         """
@@ -250,10 +299,10 @@ class WilsonManager:
         self._manager.set_run_coefficient(groupName, QCDorder)
 
     def get_matching_coefficient(self, groupName : str, coeffName : str, QCDorder : str):
-        return self._manager.get_matching_coefficient(groupName, coeffName, QCDorder)
+        return self._manager.get_matching_coefficient(groupName, coeffName, QCDorder, False)
     
     def get_run_coefficient(self, groupName : str, coeffName : str, QCDorder : str):
-        return self._manager.get_run_coefficient(groupName, coeffName, QCDorder)
+        return self._manager.get_run_coefficient(groupName, coeffName, QCDorder, False)
     
     def get_coefficient_group(self, groupname : str):
         return self._manager.get_coefficient_group(groupname)
