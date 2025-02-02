@@ -96,7 +96,10 @@ void init_coefficient_manager(py::module &m) {
         .def("set_run_coefficient", &CoefficientManager::setRunCoefficient)
         .def("get_matching_coefficient", &CoefficientManager::getMatchingCoefficient)
         .def("get_run_coefficient", &CoefficientManager::getRunCoefficient)
-        .def("get_coefficient_group", &CoefficientManager::getCoefficientGroup, py::return_value_policy::reference);
+        .def("get_coefficient_group", &CoefficientManager::getCoefficientGroup, py::return_value_policy::reference)
+        .def("get_full_matching_coefficient", &CoefficientManager::getFullMatchingCoefficient)
+        .def("get_full_run_coefficient", &CoefficientManager::getFullRunCoefficient)
+        .def("update", &CoefficientManager::update);
 }
 
 // Initialisation des paramètres Wilson
@@ -122,6 +125,14 @@ void init_wilson_interface(py::module &m) {
         .def("switch_basis", &WilsonInterface::switchbasis)
         .def("get_alpha_s", &WilsonInterface::getAlphaS)
         .def("get_matching_coefficient", &WilsonInterface::getMatchingCoefficient)
+        .def("get_full_matching_coefficient", &WilsonInterface::getFullMatchingCoefficient)
+        .def("get_full_run_coefficient", &WilsonInterface::getFullRunCoefficient)
+        .def("get_sep_order_matching_coefficient", &WilsonInterface::getSepOrderMatchingCoefficient)
+        .def("get_sep_order_run_coefficient", &WilsonInterface::getSepOrderRunCoefficient)
+        .def("get_all_matching_coefficient", &WilsonInterface::getAllMatchingCoefficients)
+        .def("get_all_run_coefficient", &WilsonInterface::getAllRunCoefficients)
+        .def("get_all_full_matching_coefficient", &WilsonInterface::getAllFullMatchingCoefficients)
+        .def("get_all_full_run_coefficient", &WilsonInterface::getAllFullRunCoefficients)
         .def("build", &WilsonInterface::build);
 }
 

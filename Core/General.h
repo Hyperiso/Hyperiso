@@ -160,6 +160,8 @@ public:
                 return B_prime_group;
             case WGroup::BScalar:
                 return B_scalar_group;
+            default:
+                LOG_ERROR("Invalid WGroup", "get_group function couldn't find your group");
         }
     }
 
