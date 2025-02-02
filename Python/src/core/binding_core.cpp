@@ -153,7 +153,12 @@ void init_core(py::module &m) {
         )
         .def_static(
             "get_enum",
-            &WCoefMapper::get_enum);
+            &WCoefMapper::get_enum)
+        .def_static(
+            "get_group",
+            &WCoefMapper::get_group,
+            py::arg("group")
+        );
 
     py::class_<ParameterTypeMapper, std::shared_ptr<ParameterTypeMapper>>(m, "ParameterTypeMapper")
         .def_static(
@@ -174,6 +179,24 @@ void init_core(py::module &m) {
             "get_enum",
             &ParameterTypeMapper::get_enum);
     
+    py::class_<ModelMapper, std::shared_ptr<ModelMapper>>(m, "ModelMapper")
+        .def_static(
+            "str",
+            &ModelMapper::str,
+            py::arg("type")
+        )
+        .def_static(
+            "enum_elt",
+            &ModelMapper::enum_elt,
+            py::arg("type")
+        )
+        .def_static(
+            "get_str",
+            &ModelMapper::get_str
+        )
+        .def_static(
+            "get_enum",
+            &ModelMapper::get_enum);
 
     py::class_<MemoryManager, std::shared_ptr<MemoryManager>>(m, "MemoryManager")
         .def_static("get_instance", &MemoryManager::GetInstance, py::return_value_policy::reference)

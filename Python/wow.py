@@ -5,7 +5,8 @@ from Python.Phyperiso import Model
 from Python.Phyperiso import BCoefficientGroup, BPrimeCoefficientGroup
 from Python.Phyperiso import ObservableInterface
 from Python.Phyperiso import Observables
-from Python.Phyperiso import ParameterType
+from Python.Phyperiso import ParameterType, WCoeff, WGroup
+from Python.Phyperiso import ModelMapper, WCoefMapper
 import os
 
 mm = MemoryManager()
@@ -89,3 +90,23 @@ wilManag.set_q_match("BPrimeCoefficientGroup", 81)
 wilManag.set_matching_coefficient("BPrimeCoefficientGroup", "LO")
 print(wilManag.get_matching_coefficient("BPrimeCoefficientGroup", "CP1", "LO"))
 # print(wilManag.get_state())
+
+
+print("Model list", ModelMapper.get_model_str_list())
+
+print("Model enum list", ModelMapper.get_model_enum_list())
+
+print("Model str example ", ModelMapper.to_str(Model.SM))
+
+print("Model enum example", ModelMapper.enum_elt("SUSY"))
+
+
+print("Model list", WCoefMapper.get_model_str_list())
+
+print("Model enum list", WCoefMapper.get_model_enum_list())
+
+print("Model str example ", WCoefMapper.to_str(WCoeff.C7))
+
+print("Model enum example", WCoefMapper.enum_elt("C8"))
+
+print("getting Bgroup", WCoefMapper.get_group(WGroup.B))

@@ -12,10 +12,7 @@ wilson_managers = {"SM" : WilsonManager("SM"), "SUSY" : WilsonManager("SUSY"),
                    "THDM" : WilsonManager("THDM"), "CUSTOM" : WilsonManager("CUSTOM")}
 wilson_manager = WilsonManager("SM")
 parameters = ParametersCache(ParameterType.SM)
-mock_coefficients = {
-    "C1": {"matching_value": 0.12, "running_value": 0.15},
-    "C2": {"matching_value": 0.34, "running_value": 0.30},
-}
+
 
 map_group = {"BCoefficientGroupSM" : BCoefficientGroup(),
              "BScalarCoefficientGroupSM" : BScalarCoefficientGroup(),
@@ -69,9 +66,6 @@ def get_coefficient(model : str, group : str, name: str, order : str):
     value = wilson_managers[model].get_matching_coefficient(group, name, order)
     return {"coeff_real" : value.real, "coeff_img" : value.imag}
 
-    if name not in mock_coefficients:
-        return {"error": f"Coefficient {name} not found"}
-    return mock_coefficients[name]
 
 @router.get("/get_run_coefficient")
 def get_coefficient(model : str, group : str, name: str, order : str):
@@ -80,9 +74,6 @@ def get_coefficient(model : str, group : str, name: str, order : str):
     value = wilson_managers[model].get_run_coefficient(group, name, order)
     return {"coeff_real" : value.real, "coeff_img" : value.imag}
 
-    if name not in mock_coefficients:
-        return {"error": f"Coefficient {name} not found"}
-    return mock_coefficients[name]
 
 @router.get("/plot_variation")
 def plot_coefficient_variation(

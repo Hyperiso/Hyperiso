@@ -7,6 +7,13 @@ from phyperiso.pyhyperiso.core import QCDOrder as _CppQCDOrder
 from phyperiso.pyhyperiso.core import WGroup as _CppWGroup
 from phyperiso.pyhyperiso.core import BWilsonBasis as _CppBWilsonBasis
 from phyperiso.pyhyperiso.core import WCoef as _CppWCoef
+from phyperiso.pyhyperiso.core import ModelMapper as _CppModelMapper
+from phyperiso.pyhyperiso.core import ParameterTypeMapper as _CppParameterTypeMapper
+from phyperiso.pyhyperiso.core import WCoefMapper as _CppWCoefMapper
+from phyperiso.pyhyperiso.core import GroupMapper as _CppGroupMapper
+from phyperiso.pyhyperiso.core import OrderMapper as _CppOrderMapper
+from phyperiso.pyhyperiso.core import ObservableMapper as _CppObservableMapper
+
 
 class Model(Enum):
     SM = _CppModel.SM
@@ -76,7 +83,112 @@ class Observables(Enum):
     BR_B_XS_GAMMA = _CppObservables.BR_B_XS_GAMMA
     ISOSPIN_ASYMMETRY_B_KSTAR_GAMMA = _CppObservables.ISOSPIN_ASYMMETRY_B_KSTAR_GAMMA
 
-
+class ModelMapper:
+    @staticmethod
+    def get_model_str_list():
+        return _CppModelMapper.get_str()
+    
+    @staticmethod
+    def get_model_enum_list():
+        return _CppModelMapper.get_enum()
+    
+    @staticmethod
+    def to_str(model : Model):
+        return _CppModelMapper.str(model.value)
+    
+    @staticmethod
+    def enum_elt(model : str):
+        return _CppModelMapper.enum_elt(model)
+    
+class ParameterTypeMapper:
+    @staticmethod
+    def get_model_str_list():
+        return _CppParameterTypeMapper.get_str()
+    
+    @staticmethod
+    def get_model_enum_list():
+        return _CppParameterTypeMapper.get_enum()
+    
+    @staticmethod
+    def to_str(model : ParameterType):
+        return _CppParameterTypeMapper.str(model.value)
+    
+    @staticmethod
+    def enum_elt(model : str):
+        return _CppParameterTypeMapper.enum_elt(model)
+    
+class WCoefMapper:
+    @staticmethod
+    def get_model_str_list():
+        return _CppWCoefMapper.get_str()
+    
+    @staticmethod
+    def get_model_enum_list():
+        return _CppWCoefMapper.get_enum()
+    
+    @staticmethod
+    def to_str(model : WCoeff):
+        return _CppWCoefMapper.str(model.value)
+    
+    @staticmethod
+    def enum_elt(model : str):
+        return _CppWCoefMapper.enum_elt(model)
+    
+    @staticmethod
+    def get_group(group : WGroup):
+        return _CppWCoefMapper.get_group(group.value)
+    
+class GroupMapper:
+    @staticmethod
+    def get_model_str_list():
+        return _CppGroupMapper.get_str()
+    
+    @staticmethod
+    def get_model_enum_list():
+        return _CppGroupMapper.get_enum()
+    
+    @staticmethod
+    def to_str(model : WGroup):
+        return _CppGroupMapper.str(model.value)
+    
+    @staticmethod
+    def enum_elt(model : str):
+        return _CppGroupMapper.enum_elt(model)
+    
+class OrderMapper:
+    @staticmethod
+    def get_model_str_list():
+        return _CppOrderMapper.get_str()
+    
+    @staticmethod
+    def get_model_enum_list():
+        return _CppOrderMapper.get_enum()
+    
+    @staticmethod
+    def to_str(model : QCDOrder):
+        return _CppOrderMapper.str(model.value)
+    
+    @staticmethod
+    def enum_elt(model : str):
+        return _CppOrderMapper.enum_elt(model)
+    
+class ObservableMapper:
+    @staticmethod
+    def get_model_str_list():
+        return _CppObservableMapper.get_str()
+    
+    @staticmethod
+    def get_model_enum_list():
+        return _CppObservableMapper.get_enum()
+    
+    @staticmethod
+    def to_str(model : Observables):
+        return _CppObservableMapper.str(model.value)
+    
+    @staticmethod
+    def enum_elt(model : str):
+        return _CppObservableMapper.enum_elt(model)
+    
 class MemoryManager:
     """Interface for managing memory and caching."""
 
