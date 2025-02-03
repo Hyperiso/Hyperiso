@@ -34,6 +34,7 @@ class PlotWilsonRequest(BaseModel):
     name : str = "C1"
     order : str = "LO"
     matching_scale : float = 81
+    running_scale : float = 42
     param_block : str = "MASS"
     param_code : int = 6
     min_value : float = 0
@@ -116,5 +117,23 @@ def plot_coefficients(request : PlotWilsonRequest):
         wilson_managers[request.model].set_q_match(request.group, request.matching_scale)
         wilson_managers[request.model].set_matching_coefficient(request.group, request.order)
         coefficient = wilson_managers[request.model].get_matching_coefficient(request.group, request.name, request.order)
+        values.append({"param": value, "coefficient": coefficient.real, "coefficient_imag" : coefficient.imag})
+    return {"param_name": request.param_block+"_"+str(request.param_code), "values": values}
+
+@router.get("/plot_run_coefficients")
+def plot_coefficients(request : PlotWilsonRequest):
+    """Plot coefficient variation."""
+    values = []
+    for step in range(request.steps):
+        value = request.min_value + step * (request.max_value - request.min_value) / (request.steps - 1)
+        wilson_managers[request.model].set_params(request.group, request.param_block, request.param_code, value)
+        parameters.set_block_value(request.param_block, request.param_code, value)
+        print(parameters(request.param_block, request.param_code))
+        print("v2: ",wilson_managers[request.model].get_params(request.param_block, request.param_code))
+        wilson_managers[request.model].set_q_match(request.group, request.matching_scale)
+        wilson_managers[request.model].set_matching_coefficient(request.group, request.order)
+        wilson_managers[request.model].set_group_scale(request.group, request.running_scale)
+        wilson_managers[request.model].set_run_coefficient(request.group, request.order)
+        coefficient = wilson_managers[request.model].get_run_coefficient(request.group, request.name, request.order)
         values.append({"param": value, "coefficient": coefficient.real, "coefficient_imag" : coefficient.imag})
     return {"param_name": request.param_block+"_"+str(request.param_code), "values": values}
