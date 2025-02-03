@@ -121,7 +121,7 @@ def app():
                 elif coeff_name != "all":
                     response = requests.get(
                         f"{BASE_API_URL}/wilson/get_coefficient",
-                        params={"model" : st.session_state.selected_model, "group": st.session_state.group, "name": st.session_state.coeff_name, "order": st.session_state.qcd_order},
+                        json={"model" : st.session_state.selected_model, "group": st.session_state.group, "name": st.session_state.coeff_name, "qcd_order": st.session_state.qcd_order, "scale" : st.session_state.matching_scale},
                     )
                     if response.status_code == 200:
                         data = response.json()
@@ -165,6 +165,15 @@ def app():
                     st.pyplot(fig)
                 else:
                     st.error("Failed to generate plot")
+                
+                response = requests.post(
+                    f"{BASE_API_URL}/parameters/set_memory_manager",
+                    json={
+                        "lha_file": os.path.join("DataBase/lha", st.session_state.selected_file),
+                        "model": st.session_state.selected_model,
+                        "use_marty": st.session_state.use_marty,
+                    },
+                )
 
         with col2:
             st.subheader("Running Analysis")
@@ -236,36 +245,43 @@ def app():
                     st.pyplot(fig)
                 else:
                     st.error("Failed to generate plot")
-
+                response = requests.post(
+                        f"{BASE_API_URL}/parameters/set_memory_manager",
+                        json={
+                            "lha_file": os.path.join("DataBase/lha", st.session_state.selected_file),
+                            "model": st.session_state.selected_model,
+                            "use_marty": st.session_state.use_marty,
+                        },
+                    )
             st.subheader("Coefficient Variation given running scale")
 
             Q_min = st.number_input("Min Q Value", step=0.1, key="min_Q_run")
             Q_max = st.number_input("Max Q Value", step=0.1, key="max_Q_run")
             Q_step = st.number_input("Number of point", min_value = 2, step=1, value=10, key = "step_Q_run")
     
-            if st.button("Plot Running wilson coefficient Variation"):
+            if st.button("Plot Running wilson coefficient Variation with Q"):
                 response = requests.get(
-                    f"{BASE_API_URL}/wilson/plot_coefficients_Q",
+                    f"{BASE_API_URL}/wilson/plot_run_coefficients_Q",
                     json={
                         "group": st.session_state.group,
                         "name": st.session_state.coeff_name,
                         "order": st.session_state.qcd_order,
                         "matching_scale" : st.session_state.matching_scale,
-                        "min_value": param_min,
-                        "max_value": param_max,
-                        "steps": param_steps,
+                        "min_value": Q_min,
+                        "max_value": Q_max,
+                        "steps": Q_step,
                     },
                 )
                 if response.status_code == 200:
                     plot_data = response.json()
                     fig, ax = plt.subplots()
-                    plt.plot(np.linspace(param_min, param_max, param_steps), [val["coefficient"] for val in plot_data["values"]], color = "red")
+                    plt.plot(np.linspace(Q_min, Q_max, Q_step), [val["coefficient"] for val in plot_data["values"]], color = "red")
                     plt.grid(True)
                     plt.tick_params("both", which = "major", direction="in", length = 5)
                     plt.tick_params("both", which = "minor", direction="in", length = 2.5)
                     plt.xlabel(f"Q [GeV]")
                     plt.ylabel(coef_name_transformation(st.session_state.coeff_name))
-                    plt.xlim(param_min, param_max)
+                    plt.xlim(Q_min, Q_max)
                     st.pyplot(fig)
                 else:
                     st.error("Failed to generate plot")
@@ -274,12 +290,12 @@ def app():
             st.subheader("Analyze All LHAs")
             if st.button("Compute for All LHAs"):
                 response = requests.get(
-                    f"{BASE_API_URL}/calculate_all_lhas",
-                    params={"group": group, "name": coeff_name, "order": st.session_state.qcd_order},
+                    f"{BASE_API_URL}/wilson/calculate_all_lhas",
+                    params={"group": group, "name": coeff_name, "order": st.session_state.qcd_order, "scale" : st.session_state.matching_scale},
                 )
                 if response.status_code == 200:
                     lha_data = response.json()["results"]
-                    st.bar_chart([result["valuse"] for result in lha_data])
+                    st.bar_chart([result["value"] for result in lha_data])
                 else:
                     st.error("Failed to compute for all LHAs")
     add_footer()
