@@ -1,5 +1,13 @@
 #include "General.h"
 
+const std::map<Decays, std::vector<Observables>> DecayMapper::obs_mapping = {
+    {Decays::B__D_l_nu, {Observables::BR_B__D_TAU_NU, Observables::XI__D_L_NU}},
+    {Decays::B__Kstar,  {Observables::ISOSPIN_ASYMMETRY_B_KSTAR_GAMMA}},
+    {Decays::B__l_l,    {Observables::BR_BS_MUMU, Observables::BR_BD_MUMU, Observables::BR_BS_MUMU_UNTAG}},
+    {Decays::B__l_nu,   {Observables::BR_BU_TAU_NU, Observables::R_TAU_NU}},
+    {Decays::B__Xs,     {Observables::BR_B_XS_GAMMA}},
+};
+
 const std::map<QCDOrder, std::string> OrderMapper::mapping = {
     {QCDOrder::NONE, "None"}, 
     {QCDOrder::LO, "LO"}, 

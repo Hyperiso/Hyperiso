@@ -24,9 +24,12 @@ public:
     ModelEvaluator();
     ModelEvaluator(const std::vector<std::shared_ptr<Observable>>& observables);
 
+    bool has_observable(Observables id);
+    void add_observable(std::shared_ptr<Observable> obs);
+    void remove_observable(Observables id);
     std::shared_ptr<Observable> find_from_id(Observables id);
-    SparseMatrix<Observables> get_covariance() const;
-    double chi2() const;
+    SparseMatrix<Observables> get_covariance();
+    double chi2();
 
 };
 

@@ -89,11 +89,11 @@ public:
 
     std::map<int, double> getAllValues() override {
         std::map<int, double> map_values;
-        int i,j=0;
+        size_t i{0}, j{0};
         for (auto& value : values) {
             for (auto& valu : value) {
-                std::cout << i/10 +j%10 << " " << valu.get_val() << std::endl;
-                map_values[i/10 + j++%10] = valu.get_val();
+                // std::cout << i * 10 + j << " " << valu.get_val() << std::endl;
+                map_values[i * 10 + j++%3] = valu.get_val();
             }
             ++i;
         }

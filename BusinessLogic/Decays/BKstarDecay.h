@@ -48,6 +48,8 @@ public:
         winfo.basis = BWilsonBasis::TRADITIONAL;
         winfo.wgroups = {WGroup::B, WGroup::BPrime};
 
+        max_order = QCDOrder::NNLO;
+
         build_op_tree();
     }
 

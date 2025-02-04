@@ -51,10 +51,12 @@ ParameterType Parameters::GetType(const std::string &block, int pdgCode) {
     auto allowed_types = MemoryManager::GetInstance()->getParameterTypes();
     for (ParameterType tp : allowed_types) {
         auto p = Parameters::GetInstance(tp);
-        try {
-            (*p)(block, pdgCode);
-            return tp;
-        } catch(const std::invalid_argument& e) { continue; }
+        for (auto &b : p->get_blocks_list()) {
+            if (b == block) {
+                if (p->get_block_infos(b).contains(pdgCode))
+                    return tp;
+            }
+        }
     }
     LOG_ERROR("Invalid Parameter", "Parameter", block, ",", pdgCode, "is undefined.");
 }
@@ -81,33 +83,6 @@ double Parameters::operator()(const std::string& block, int pdgCode) {
 bool Parameters::exist(const std::string& block, int pdgCode) {
     return blockAccessor.exist(block, pdgCode);
 }
-// double Parameters::alpha_s(double Q) {
-//     return this->QCDRunner.runningAlphasCalculation(Q);
-// }
-
-// double Parameters::running_mass(double quarkmass, double Q_init, double Q_end,  std::string option_massb, std::string option_masst) {
-//     return this->QCDRunner.running_mass(quarkmass, Q_init, Q_end, option_massb, option_masst);
-// }
-
-// double Parameters::get_QCD_masse(std::string masstype) {
-//     if (masstype == "mt_mt"){
-//         return this->QCDRunner.get_mt_mt();
-//     }
-//     if (masstype == "mb_pole") {
-//         return this->QCDRunner.get_mb_pole();
-//     }
-//     if (masstype == "mt_pole") {
-//         return this->QCDRunner.get_mt_pole();
-//     }
-//     if (masstype == "mb_mb") {
-//         return this->QCDRunner.get_mb_mb();
-//     }
-//     if (masstype == "mb_1S") {
-//         return this->QCDRunner.mb_1S();
-//     }
-//     LOG_ERROR("InvalidInput", "invalid masse for get_QCD_masse", masstype);
-//     return 0.;
-// }
 
 void SMModelStrategy::initializeParameters(Parameters& params) {
 

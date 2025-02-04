@@ -16,20 +16,6 @@ void MemoryManager::check_if_ready() {
     }
 }
 
-// template<typename T>
-// std::unique_ptr<T, void(*)(void*)> MemoryManager::makeUniquePtr(T* ptr) {
-//     return std::unique_ptr<T, void(*)(void*)>(ptr, [](void* p) { std::free(p); });
-// }
-
-// template<typename T>
-// std::unique_ptr<T, void(*)(void*)> MemoryManager::allocate() {
-//     T* ptr = static_cast<T*>(std::malloc(sizeof(T)));
-//     if (!ptr) {
-//         throw std::bad_alloc();
-//     }
-//     return makeUniquePtr(ptr);
-// }
-
 /**
  * @brief Search for the nearest directory containing "hyperiso" in its name.
  * 

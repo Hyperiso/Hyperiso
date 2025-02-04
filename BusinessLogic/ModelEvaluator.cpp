@@ -14,6 +14,26 @@ ModelEvaluator::ModelEvaluator(const std::vector<std::shared_ptr<Observable>>& o
     printMatrix(th_cov_mtx, getDiagonalElements(th_cov_mtx));
 }
 
+bool ModelEvaluator::has_observable(Observables id) {
+    return static_cast<bool>(find_from_id(id));
+}
+
+void ModelEvaluator::add_observable(std::shared_ptr<Observable> obs) {
+    if (!has_observable(obs->getId())) {
+        observables.emplace_back(obs);
+    } else {
+        LOG_WARN("ModelEvaluator already takes observable", ObservableMapper::str(obs->getId()), "into account.");
+    }
+}
+
+void ModelEvaluator::remove_observable(Observables id) {
+    if (has_observable(id)) {
+        observables.erase(std::find(observables.begin(), observables.end(), find_from_id(id)));
+    } else {
+        LOG_WARN("ModelEvaluator doesn't take observable", ObservableMapper::str(id), "into account.");
+    }
+}
+
 std::shared_ptr<Observable> ModelEvaluator::find_from_id(Observables id) {
     for (auto o : observables) {
         if (o->getId() == id)
@@ -76,7 +96,10 @@ void ModelEvaluator::update_exp_data() {
     }
 }
 
-SparseMatrix<Observables> ModelEvaluator::get_covariance() const {
+SparseMatrix<Observables> ModelEvaluator::get_covariance() {
+    update_exp_data();
+    update_th_covariance();
+
     SparseMatrix<Observables> cov = th_cov_mtx;
     LOG_INFO("Theoretical covariance matrix size", cov.size());
     for (auto &&p : exp_cov_mtx) {
@@ -89,7 +112,7 @@ SparseMatrix<Observables> ModelEvaluator::get_covariance() const {
     return cov;
 }
 
-double ModelEvaluator::chi2() const {
+double ModelEvaluator::chi2() {
 
     SparseMatrix<Observables> covariance_mtx = get_covariance();
     SparseMatrix<Observables> precision_mtx = invertMatrix(covariance_mtx, getDiagonalElements(covariance_mtx));

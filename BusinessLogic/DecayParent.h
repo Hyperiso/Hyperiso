@@ -23,11 +23,13 @@ protected:
     std::map<Observables, std::shared_ptr<OperatorNode>> roots;
     WilsonInfo winfo;
     std::shared_ptr<WilsonInterface> wilson;
+    QCDOrder max_order;
 
 public:
     explicit DecayParent() = default;
 
     std::shared_ptr<WilsonInterface> get_wilsons(bool force_update=false);
+    void set_order(QCDOrder new_order);
 
     scalar_t compute_observable(Observables obs);
 

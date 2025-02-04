@@ -144,6 +144,8 @@ public:
         winfo.basis = BWilsonBasis::STANDARD;
         winfo.wgroups = {WGroup::B, WGroup::BPrime};
 
+        max_order = QCDOrder::NNLO;
+
         build_op_tree();
     }
 
