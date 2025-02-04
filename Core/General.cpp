@@ -39,6 +39,8 @@ const std::map<WCoef, std::string> WCoefMapper::mapping = {
     {WCoef::CQ2, "CQ2"},
     {WCoef::CPQ1, "CPQ1"},
     {WCoef::CPQ2, "CPQ2"}, 
+    {WCoef::CBlnu_A, "C_Blnu_A"}, 
+    {WCoef::CBlnu_P, "C_Blnu_P"}, 
 };
 
 const std::map<WCoef, std::string> WCoefMapper::flha_mapping = {
@@ -119,7 +121,9 @@ const std::map<std::string, WCoef> WCoefMapper::inverse_mapping = {
     {"CQ1", WCoef::CQ1},
     {"CQ2", WCoef::CQ2},
     {"CPQ1", WCoef::CPQ1},
-    {"CPQ2", WCoef::CPQ2} 
+    {"CPQ2", WCoef::CPQ2},
+    {"C_Blnu_A", WCoef::CBlnu_A}, 
+    {"C_Blnu_P", WCoef::CBlnu_P}, 
 };
 
 const std::vector<WCoef> WCoefMapper::B_group = {
@@ -155,32 +159,43 @@ const std::vector<WCoef> WCoefMapper::B_scalar_group = {
     WCoef::CQ2 
 };
 
+const std::vector<WCoef> WCoefMapper::B_lnu_group = {
+    WCoef::CBlnu_A, 
+    WCoef::CBlnu_P 
+};
+
 const std::map<WGroup, std::string> GroupMapper::mapping = {
     {WGroup::B, "BCoefficients"},
     {WGroup::BPrime, "BPrimeCoefficients"},
     {WGroup::BScalar, "BScalarCoefficients"},
+    {WGroup::Blnu, "BlnuCoefficients"},
 }; 
 
 const std::map<std::string, WGroup> GroupMapper::inverse_mapping = {
     {"BCoefficients", WGroup::B},
     {"BPrimeCoefficients", WGroup::BPrime},
     {"BScalarCoefficients", WGroup::BScalar},
+    {"BlnuCoefficients", WGroup::Blnu},
 }; 
 
 const std::map<Observables, std::string> ObservableMapper::mapping = {
     {Observables::BR_BS_MUMU, "BR_Bs__mu_mu"},
     {Observables::BR_BS_MUMU_UNTAG, "BRuntag_Bs__mu_mu"},
     {Observables::BR_BD_MUMU, "BR_Bd__mu_mu"},
-    // {Observables::BR_BU_TAUNU, "BR_Bu__tau_nu"},
-    {Observables::ISOSPIN_ASYMMETRY_B_KSTAR_GAMMA, "IA_B_K*__gamma"}
+    {Observables::BR_BU_TAU_NU, "BR_Bu__tau_nu"},
+    {Observables::R_TAU_NU, "R_tau_nu"},
+    {Observables::ISOSPIN_ASYMMETRY_B_KSTAR_GAMMA, "IA_B_K*__gamma"},
+    {Observables::BR_B_XS_GAMMA, "BR_B__Xs_gamma"},
 };
 
 const std::map<std::string, Observables> ObservableMapper::inverse_mapping = {
     {"BR_Bs__mu_mu", Observables::BR_BS_MUMU},
     {"BRuntag_Bs__mu_mu", Observables::BR_BS_MUMU_UNTAG},
     {"BR_Bd__mu_mu", Observables::BR_BD_MUMU},
-    // {"BR_Bu__tau_nu", Observables::BR_BU_TAUNU},
-    {"IA_B_K*__gamma", Observables::ISOSPIN_ASYMMETRY_B_KSTAR_GAMMA}
+    {"BR_Bu__tau_nu", Observables::BR_BU_TAU_NU},
+    {"R_tau_nu", Observables::R_TAU_NU},
+    {"IA_B_K*__gamma", Observables::ISOSPIN_ASYMMETRY_B_KSTAR_GAMMA},
+    {"BR_B__Xs_gamma", Observables::BR_B_XS_GAMMA}
 };
 
 const std::map<Model, std::string> ModelMapper::mapping = {

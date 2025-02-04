@@ -319,6 +319,30 @@ public:
 
 };
 
+class C_Blnu_A_SUSY : public C_Blnu_A, public WilsonCoefficient_susy {
+public:
+    C_Blnu_A_SUSY(double Q_match) : C_Blnu_A(Q_match), WilsonCoefficient_susy(Q_match) {}
+    C_Blnu_A_SUSY() : C_Blnu_A(), WilsonCoefficient_susy(81) {}
+
+    std::complex<double> LO_calculation() {return {0,0};}
+    std::complex<double> NLO_calculation() {return {0,0};} 
+    std::complex<double> NNLO_calculation() {return {0,0};} 
+
+    std::shared_ptr<Parameters> sm = Parameters::GetInstance();
+};
+
+class C_Blnu_P_SUSY : public C_Blnu_P, public WilsonCoefficient_susy {
+public:
+    C_Blnu_P_SUSY(double Q_match) : C_Blnu_P(Q_match), WilsonCoefficient_susy(Q_match) {}
+    C_Blnu_P_SUSY() : C_Blnu_P(), WilsonCoefficient_susy(81) {}
+
+    std::complex<double> LO_calculation();
+    std::complex<double> NLO_calculation() {return {0,0};} 
+    std::complex<double> NNLO_calculation() {return {0,0};} 
+
+    std::shared_ptr<Parameters> sm = Parameters::GetInstance();
+};
+
 class BCoefficientGroup_susy : public BCoefficientGroup {
 
 public:
@@ -334,12 +358,6 @@ public:
         this->insert(std::make_pair("C7", std::make_shared<C7_susy>(Q_match)));  this->insert(std::make_pair("C8", std::make_shared<C8_susy>(Q_match)));  this->insert(std::make_pair("C9", std::make_shared<C9_susy>(Q_match))); 
         this->insert(std::make_pair("C10", std::make_shared<C10_susy>(Q_match)));
     }
-    // BCoefficientGroup_susy(double Q_match, int gen) {
-    //     this->insert(std::make_pair("C1", std::make_shared<C1_susy>(Q_match, gen))); this->insert(std::make_pair("C2", std::make_shared<C2_susy>(Q_match, gen))); this->insert(std::make_pair("C3", std::make_shared<C3_susy>(Q_match, gen)));
-    //     this->insert(std::make_pair("C4", std::make_shared<C4_susy>(Q_match, gen)));  this->insert(std::make_pair("C5", std::make_shared<C5_susy>(Q_match, gen))); this->insert(std::make_pair("C6", std::make_shared<C6_susy>(Q_match, gen))); 
-    //     this->insert(std::make_pair("C7", std::make_shared<C7_susy>(Q_match, gen)));  this->insert(std::make_pair("C8", std::make_shared<C8_susy>(Q_match, gen)));  this->insert(std::make_pair("C9", std::make_shared<C9_susy>(Q_match, gen))); 
-    //     this->insert(std::make_pair("C10", std::make_shared<C10_susy>(Q_match, gen)));
-    // }
 
 };
 
@@ -378,6 +396,18 @@ private:
     std::shared_ptr<Parameters> sm = Parameters::GetInstance(ParameterType::SM);
     std::shared_ptr<Parameters> susy = Parameters::GetInstance(ParameterType::SUSY);
     susy_parameters* sus_param;
+};
+
+class BlnuCoefficientGroup_SUSY : public BlnuCoefficientGroup {
+public:
+    BlnuCoefficientGroup_SUSY() { this->clear();
+        this->insert(std::make_pair("C_Blnu_A", std::make_shared<C_Blnu_A_SUSY>())); 
+        this->insert(std::make_pair("C_Blnu_P", std::make_shared<C_Blnu_P_SUSY>()));
+    }
+    BlnuCoefficientGroup_SUSY(double Q_match) { this->clear();
+        this->insert(std::make_pair("C_Blnu_A", std::make_shared<C_Blnu_A_SUSY>(Q_match))); 
+        this->insert(std::make_pair("C_Blnu_P", std::make_shared<C_Blnu_P_SUSY>(Q_match)));
+    }
 };
 
 #endif

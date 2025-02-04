@@ -246,6 +246,42 @@ protected:
     Wilson_parameters* W_param = Wilson_parameters::GetInstance();
 };
 
+class BlnuCoefficientGroup : public CoefficientGroup {
+public:
+    BlnuCoefficientGroup() {
+        if (MemoryManager::GetInstance()->getUseMarty()) {
+            for (auto&& coeff : {"C_Blnu_A", "C_Blnu_P"}) {
+                this->insert(std::make_pair(coeff, std::make_shared<MartyWilson>(coeff)));
+            }
+            return;
+        }
+        this->insert(std::make_pair("C_Blnu_A", std::make_shared<C_Blnu_A>()));
+        this->insert(std::make_pair("C_Blnu_P", std::make_shared<C_Blnu_P>()));
+    }
+
+    BlnuCoefficientGroup(double Q_match) {
+        if (MemoryManager::GetInstance()->getUseMarty()) {
+            for (auto&& coeff : {"C_Blnu_A", "C_Blnu_P"}) {
+                this->insert(std::make_pair(coeff, std::make_shared<MartyWilson>(Q_match, coeff)));
+            }
+            return;
+        }
+        this->insert(std::make_pair("C_Blnu_A", std::make_shared<C_Blnu_A>(Q_match)));
+        this->insert(std::make_pair("C_Blnu_P", std::make_shared<C_Blnu_P>(Q_match)));
+    }
+
+    void set_base_1_LO() {}
+    void set_base_1_NLO() {}
+    void set_base_1_NNLO() {}
+
+    std::shared_ptr<CoefficientGroup> clone() const override {
+        return std::make_shared<BlnuCoefficientGroup>(*this);
+    }
+
+protected:
+    Wilson_parameters* W_param = Wilson_parameters::GetInstance();
+};
+
 inline std::ostream& operator<<(std::ostream& os, BCoefficientGroup& coeffs) {
     for(auto& coeff : coeffs) {
         os << coeff.second->get_name() << " --------------------------------" << std::endl;
@@ -271,4 +307,5 @@ inline std::ostream& operator<<(std::ostream& os, std::shared_ptr<CoefficientGro
     }
     return os;
 }
+
 #endif

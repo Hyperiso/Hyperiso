@@ -22,15 +22,18 @@ private:
         {"BCoefficients", std::make_shared<BCoefficientGroup>()},
         {"BPrimeCoefficients", std::make_shared<BPrimeCoefficientGroup>()},
         {"BScalarCoefficients", std::make_shared<BScalarCoefficientGroup>()},
+        {"BlnuCoefficients", std::make_shared<BlnuCoefficientGroup>()},
         #ifdef BUILD_WITH_2HDMC
         {"BCoefficients_THDM", std::make_shared<BCoefficientGroup_THDM>()},
         {"BPrimeCoefficients_THDM", std::make_shared<BPrimeCoefficientGroup_THDM>()},
         {"BScalarCoefficients_THDM", std::make_shared<BScalarCoefficientGroup_THDM>()},
+        {"BlnuCoefficients_THDM", std::make_shared<BlnuCoefficientGroup_THDM>()},
         #endif
         #ifdef BUILD_WITH_SOFTSUSY
         {"BCoefficients_SUSY", std::make_shared<BCoefficientGroup_susy>()},
         {"BPrimeCoefficients_SUSY", std::make_shared<BPrimeCoefficientGroup_susy>()},
         {"BScalarCoefficients_SUSY", std::make_shared<BScalarCoefficientGroup_susy>()},
+        {"BlnuCoefficients_SUSY", std::make_shared<BlnuCoefficientGroup_SUSY>()},
         #endif
     };
 

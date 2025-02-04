@@ -354,6 +354,30 @@ public:
 
 };
 
+class C_Blnu_A_THDM : public C_Blnu_A, public WilsonCoefficient_THDM {
+public:
+    C_Blnu_A_THDM(double Q_match) : C_Blnu_A(Q_match), WilsonCoefficient_THDM(Q_match) {}
+    C_Blnu_A_THDM() : C_Blnu_A() {}
+
+    std::complex<double> LO_calculation() {return {0,0};}
+    std::complex<double> NLO_calculation() {return {0,0};} 
+    std::complex<double> NNLO_calculation() {return {0,0};} 
+
+    std::shared_ptr<Parameters> sm = Parameters::GetInstance();
+};
+
+class C_Blnu_P_THDM : public C_Blnu_P, public WilsonCoefficient_THDM {
+public:
+    C_Blnu_P_THDM(double Q_match) : C_Blnu_P(Q_match), WilsonCoefficient_THDM(Q_match) {}
+    C_Blnu_P_THDM() : C_Blnu_P() {}
+
+    std::complex<double> LO_calculation();
+    std::complex<double> NLO_calculation() {return {0,0};} 
+    std::complex<double> NNLO_calculation() {return {0,0};} 
+
+    std::shared_ptr<Parameters> sm = Parameters::GetInstance();
+};
+
 class BCoefficientGroup_THDM : public BCoefficientGroup {
 
 public:
@@ -412,5 +436,17 @@ public:
 
 };
 
+class BlnuCoefficientGroup_THDM : public BlnuCoefficientGroup {
+public:
+    BlnuCoefficientGroup_THDM() { this->clear();
+        this->insert(std::make_pair("C_Blnu_A", std::make_shared<C_Blnu_A_THDM>())); this->insert(std::make_pair("C_Blnu_P", std::make_shared<C_Blnu_P_THDM>()));
+    }
+    BlnuCoefficientGroup_THDM(double Q_match) { this->clear();
+        this->insert(std::make_pair("C_Blnu_A", std::make_shared<C_Blnu_A_THDM>(Q_match))); this->insert(std::make_pair("C_Blnu_P", std::make_shared<C_Blnu_P_THDM>(Q_match)));
+    }
+
+    void set_base_1() {}
+    void set_base_2() {}
+};
 
 #endif

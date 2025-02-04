@@ -594,6 +594,12 @@ void FormFactorStrategy::initializeParameters(Parameters &params) {
     bxsblock->setValue(8, 1e10);    // z_0 for matching of the P_22_rem contribution
     bxsblock->setValue(9, 1e20);    // z_1 for matching of the P_22_rem contribution
     params.addBlock("B_Xs", std::move(bxsblock));
+
+    auto bdlnublock = std::make_shared<BDlnuBlock>();
+    bdlnublock->setValue(1, 1.026); // G(1)
+    bdlnublock->setValue(2, 1.17);  // rho^2
+    bdlnublock->setValue(3, 0.46);  // Delta(w)
+    params.addBlock("B_Dlnu", std::move(bdlnublock));
 }
 
 void Parameters::changeParameterMode(const ParamId &param_id,

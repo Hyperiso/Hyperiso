@@ -13,8 +13,12 @@ enum class Observables {
     BR_BS_MUMU,
     BR_BS_MUMU_UNTAG,
     BR_BD_MUMU,
+    R_TAU_NU,
+    BR_BU_TAU_NU,
     ISOSPIN_ASYMMETRY_B_KSTAR_GAMMA,
-    BR_B_XS_GAMMA
+    BR_B_XS_GAMMA,
+    BR_B__D_TAU_NU,
+    XI__D_L_NU,
 };
 
 class ObservableMapper {
@@ -86,13 +90,14 @@ private:
 };
 
 enum class WCoef {
-    C1, C2, C3, C4, C5, C6, C7, C8, C9, C10, CQ1, CQ2, CP1, CP2, CP3, CP4, CP5, CP6, CP7, CP8, CP9, CP10, CPQ1, CPQ2
+    C1, C2, C3, C4, C5, C6, C7, C8, C9, C10, CQ1, CQ2, CP1, CP2, CP3, CP4, CP5, CP6, CP7, CP8, CP9, CP10, CPQ1, CPQ2, CBlnu_A, CBlnu_P
 };
 
 enum class WGroup {
     B, 
     BPrime, 
-    BScalar
+    BScalar,
+    Blnu
 };
 
 enum class BWilsonBasis {
@@ -160,9 +165,10 @@ public:
                 return B_prime_group;
             case WGroup::BScalar:
                 return B_scalar_group;
+            case WGroup::Blnu:
+                return B_lnu_group;
             default:
                 LOG_ERROR("Invalid WGroup", "get_group function couldn't find your group");
-        }
     }
 
     static size_t n_wilsons() {
@@ -188,6 +194,7 @@ private:
     static const std::vector<WCoef> B_group;
     static const std::vector<WCoef> B_prime_group;
     static const std::vector<WCoef> B_scalar_group;
+    static const std::vector<WCoef> B_lnu_group;
     static const std::map<WCoef, std::string> mapping; 
     static const std::map<std::string, WCoef> inverse_mapping; 
     static const std::map<WCoef, std::string> flha_mapping; 
