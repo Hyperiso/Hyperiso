@@ -7,7 +7,7 @@
 
 class ParamWriter {
 private:
-    std::unordered_map<std::string, double>& params;  // Référence vers les paramètres
+    std::unordered_map<std::string, double>& params;
     std::string wilson;
     std::string model;
     bool top, bottom, charm = false;
@@ -17,37 +17,11 @@ public:
         : params(params), wilson(wilson), model(model) {}
 
     void writeParams(std::ofstream& outputFile) {
-        outputFile << "\tstd::string path = \"" << FileNameManager::getInstance(this->wilson, this->model)->getCsvWilsonFileName() <<"\";\n";
 
-
-        outputFile << "\tparam_t param;\n";
-        
         for (const auto& [name, value] : params) {
-            std::cout << "--..--..--..--..--..--.." << std::endl;
-            std::cout << name << " " << value << std::endl;
-
             std::string real_name = name;
-            if (name.find("_im") != std::string::npos) {
-                real_name = name.substr(0, name.size() - 3);
-                outputFile << "\tparam." << real_name << " = {"
-                           << params[real_name + "_re"] << ", " << value << "};\n";
-            } else if (name.find("_re") != std::string::npos) {
-                continue;
-            } else if (name.find("m_c") != std::string::npos) {
-                this->charm = true;
-            } else if (name.find("m_b") != std::string::npos) {
-                this->bottom = true;
-            } else if (name.find("m_t") != std::string::npos) {
-                this->top = true;
-            } else {
-                outputFile << "\tparam." << real_name << " = " << value << ";\n";
-            }
+            outputFile << real_name << "," << value << "\n";
         }
-        add_argpars(outputFile);
-        quark_special_case(outputFile);
-        outputFile << "\tsetMu(Q_match);\n";
-        outputFile << "\twriteWilsonCoefficients(\"" + wilson + "\", " + wilson + "(param), Q_match, path);\n";
-
     }
 
     void add_argpars(std::ofstream& outputFile) {

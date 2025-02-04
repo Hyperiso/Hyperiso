@@ -103,7 +103,7 @@ def app():
     st.title("SLHA File Manager and Visualizer")
 
     st.sidebar.header("File Management")
-    uploaded_file = st.sidebar.file_uploader("Upload SLHA File", type=["slha", "lha"],)
+    uploaded_file = st.sidebar.file_uploader("Upload SLHA File", type=["slha", "lha", "flha"],)
     if uploaded_file:
         response = requests.post(
             f"{BASE_API_URL}/upload",

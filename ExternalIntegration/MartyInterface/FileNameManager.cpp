@@ -94,3 +94,7 @@ std::string FileNameManager::getCsvWilsonFileName() const {
 std::string FileNameManager::getjsondbmodel() const {
     return this->root_dir + "/DataBase/Models/" + this->model_ + "/" + toLowercase(this->model_) + ".json";
 }
+
+std::string FileNameManager::getParamFileName() const {
+    return this->getLibDir() + "bin/paramlist.csv";
+}

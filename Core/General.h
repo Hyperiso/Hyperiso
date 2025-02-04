@@ -31,6 +31,21 @@ public:
         return ObservableMapper::inverse_mapping.at(name);
     };
 
+    static std::vector<std::string> get_str() {
+        std::vector<std::string> _;
+        for (auto&& elem : ObservableMapper::mapping) {
+            _.push_back(elem.second);
+        }
+        return _;
+    }
+
+    static std::vector<Observables> get_enum() {
+        std::vector<Observables> _;
+        for (auto&& elem : ObservableMapper::mapping) {
+            _.push_back(elem.first);
+        }
+        return _;
+    }
 private:
     static const std::map<Observables, std::string> mapping; 
     static const std::map<std::string, Observables> inverse_mapping; 
@@ -54,6 +69,21 @@ public:
         return OrderMapper::inverse_mapping.at(order);
     };
 
+    static std::vector<std::string> get_str() {
+        std::vector<std::string> _;
+        for (auto&& elem : OrderMapper::mapping) {
+            _.push_back(elem.second);
+        }
+        return _;
+    }
+
+    static std::vector<QCDOrder> get_enum() {
+        std::vector<QCDOrder> _;
+        for (auto&& elem : OrderMapper::mapping) {
+            _.push_back(elem.first);
+        }
+        return _;
+    }
 private:
     static const std::map<QCDOrder, std::string> mapping; 
     static const std::map<std::string, QCDOrder> inverse_mapping; 
@@ -85,6 +115,21 @@ public:
         return GroupMapper::inverse_mapping.at(group);
     };
 
+    static std::vector<std::string> get_str() {
+        std::vector<std::string> _;
+        for (auto&& elem : GroupMapper::mapping) {
+            _.push_back(elem.second);
+        }
+        return _;
+    }
+
+    static std::vector<WGroup> get_enum() {
+        std::vector<WGroup> _;
+        for (auto&& elem : GroupMapper::mapping) {
+            _.push_back(elem.first);
+        }
+        return _;
+    }
 private:
     static const std::map<WGroup, std::string> mapping; 
     static const std::map<std::string, WGroup> inverse_mapping; 
@@ -122,13 +167,29 @@ public:
                 return B_scalar_group;
             case WGroup::Blnu:
                 return B_lnu_group;
-        }
+            default:
+                LOG_ERROR("Invalid WGroup", "get_group function couldn't find your group");
     }
 
     static size_t n_wilsons() {
         return WCoefMapper::mapping.size();
     }
 
+    static std::vector<std::string> get_str() {
+        std::vector<std::string> _;
+        for (auto&& elem : WCoefMapper::mapping) {
+            _.push_back(elem.second);
+        }
+        return _;
+    }
+
+    static std::vector<WCoef> get_enum() {
+        std::vector<WCoef> _;
+        for (auto&& elem : WCoefMapper::mapping) {
+            _.push_back(elem.first);
+        }
+        return _;
+    }
 private:
     static const std::vector<WCoef> B_group;
     static const std::vector<WCoef> B_prime_group;
@@ -152,6 +213,37 @@ enum class ParameterType {
     FF
 };
 
+class ParameterTypeMapper {
+public:
+    static std::string str(ParameterType type) {
+        return ParameterTypeMapper::mapping.at(type);
+    };
+
+    static ParameterType enum_elt(std::string type) {
+        return ParameterTypeMapper::inverse_mapping.at(type);
+    };
+
+    static std::vector<std::string> get_str() {
+        std::vector<std::string> _;
+        for (auto&& elem : ParameterTypeMapper::mapping) {
+            _.push_back(elem.second);
+        }
+        return _;
+    }
+
+    static std::vector<ParameterType> get_enum() {
+        std::vector<ParameterType> _;
+        for (auto&& elem : ParameterTypeMapper::mapping) {
+            _.push_back(elem.first);
+        }
+        return _;
+    }
+
+private:
+    static const std::map<ParameterType, std::string> mapping; 
+    static const std::map<std::string, ParameterType> inverse_mapping; 
+};
+
 enum class Model {
     SM,
     SUSY,
@@ -168,6 +260,22 @@ public:
     static Model enum_elt(std::string model) {
         return ModelMapper::inverse_mapping.at(model);
     };
+
+    static std::vector<std::string> get_str() {
+        std::vector<std::string> _;
+        for (auto&& elem : ModelMapper::mapping) {
+            _.push_back(elem.second);
+        }
+        return _;
+    }
+
+    static std::vector<Model> get_enum() {
+        std::vector<Model> _;
+        for (auto&& elem : ModelMapper::mapping) {
+            _.push_back(elem.first);
+        }
+        return _;
+    }
 
 private:
     static const std::map<Model, std::string> mapping; 

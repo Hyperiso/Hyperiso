@@ -31,6 +31,10 @@ void NumericTemplateManager::generateTemplateImpl(const std::string& templateNam
     std::string templatePath = FileNameManager::getInstance(this->wilson, this->model)->getNumGeneratedFileName();
     std::ifstream templateFile(templatePath);
 
+    std::string paramPath = FileNameManager::getInstance(wilson, model)->getParamFileName();
+    std::ofstream paramFile(paramPath);
+    numModifier->createparamfile(paramFile);
+
     if (this->already_generated(outputPath)) {
         return;
     }
@@ -41,15 +45,9 @@ void NumericTemplateManager::generateTemplateImpl(const std::string& templateNam
         return;
     }
 
-    // std::string wilson = "C7";
-    // bool forceMode = false;
-    // GeneralNumModelModifier modelModifier(wilson, model, forceMode);
 
     outputFile << "//42" << "\n";
-    std::cout << outputPath << std::endl;
-    std::cout << tempFilePath << std::endl;
     numModifier->modify(templateFile, outputFile);
-    // modelModifier.modify(templateFile, outputFile);
 
     templateFile.close();
     outputFile.close();
@@ -89,4 +87,21 @@ void NonNumericTemplateManager::generateTemplateImpl(const std::string& template
             outputFile << line << "\n";
         }
     }
+}
+
+bool TemplateManagerBase::already_generated(const std::string& path) {
+    std::ifstream file(path);
+
+    if (!file.is_open()) {
+        return false;
+    }
+
+    std::string firstLine;
+    if (std::getline(file, firstLine)) {
+        if (firstLine.find("//42") != std::string::npos) {
+            return true;
+        }
+    }
+
+    return false;
 }

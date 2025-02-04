@@ -5,6 +5,11 @@
 #include <fstream>
 #include <sys/stat.h>
 #include <iostream>
+#include <cstdio>
+#include <memory>
+#include <array>
+
+bool executeCommand(const std::string& command);
 
 class CompilerStrategy {
 public:
@@ -12,17 +17,7 @@ public:
     virtual ~CompilerStrategy() = default;
     virtual void compile_run(const std::string& sourceFile, const std::string& outputBinary) = 0;
     virtual void compile(const std::string& sourceFile, const std::string& outputBinary) = 0;
-    virtual bool check_if_compile(const std::string& outputBinary) {
-    struct stat buffer;
-    if (stat(outputBinary.c_str(), &buffer) != 0) {
-        return false;
-    }
-    if (buffer.st_size == 0) {
-        return false;
-    }
-    std::cout << "Already compiled !" << std::endl;
-    return true;
-}
+    virtual bool check_if_compile(const std::string& outputBinary);
 
 protected:
     std::string wilson{};

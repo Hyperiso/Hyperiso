@@ -27,6 +27,8 @@ public:
     std::string getBaseHelperFileName(const std::string &extension) const;
     std::string getCsvWilsonFileName() const;
     std::string getjsondbmodel() const;
+
+    std::string getParamFileName() const;
     
 private:
     FileNameManager(const std::string& wilson, const std::string& model);

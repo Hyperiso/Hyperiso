@@ -12,17 +12,15 @@ public:
     TemplateManagerBase(const std::string& templatesDir) : templatesDir(templatesDir) {}
     virtual ~TemplateManagerBase() = default;
 
-    virtual void generateTemplate(const std::string& templateName, const std::string& outputPath) = 0;
-
-    void setModelModifier(std::unique_ptr<ModelModifier> modifier) {
-        modelModifier = std::move(modifier);
+    void generateTemplate(const std::string& templateName, const std::string& outputPath) {
+        generateTemplateImpl(templateName, outputPath);
     }
 
-    void setNumModelModifier(std::unique_ptr<GeneralNumModelModifier> modifier) {
-        numModifier = std::move(modifier);
-    }
+    void setModelModifier(std::unique_ptr<ModelModifier> modifier) { modelModifier = std::move(modifier); }
 
-    void setModelAndWilson(std::string model, std::string wilson) {this->model = model; this->wilson = wilson;}
+    void setNumModelModifier(std::unique_ptr<GeneralNumModelModifier> modifier) { numModifier = std::move(modifier); }
+
+    void setModelAndWilson(std::string model, std::string wilson) { this->model = model; this->wilson = wilson; }
 
 protected:
     std::string templatesDir;
@@ -30,22 +28,9 @@ protected:
     std::string model;
     std::unique_ptr<ModelModifier> modelModifier;
     std::unique_ptr<GeneralNumModelModifier> numModifier;
-    bool already_generated(const std::string& path) {
-        std::ifstream file(path);
 
-        if (!file.is_open()) {
-            return false;
-        }
-
-        std::string firstLine;
-        if (std::getline(file, firstLine)) {
-            if (firstLine.find("//42") != std::string::npos) {
-                return true;
-            }
-        }
-
-        return false;
-    }
+    virtual void generateTemplateImpl(const std::string& templateName, const std::string& outputPath) = 0;
+    bool already_generated(const std::string& path);
 };
 
 
@@ -53,23 +38,17 @@ protected:
 class NumericTemplateManager : public TemplateManagerBase {
 public:
     NumericTemplateManager(const std::string& templatesDir) : TemplateManagerBase(templatesDir)  {}
-    void generateTemplate(const std::string& templateName, const std::string& outputPath) override {
-        generateTemplateImpl(templateName, outputPath);
-    }
 
 private:
-    void generateTemplateImpl(const std::string& templateName, const std::string& outputPath);
+    void generateTemplateImpl(const std::string& templateName, const std::string& outputPath) override;
 };
 
 class NonNumericTemplateManager : public TemplateManagerBase {
 public:
     NonNumericTemplateManager(const std::string& templatesDir) : TemplateManagerBase(templatesDir)  {}
-    void generateTemplate(const std::string& templateName, const std::string& outputPath) override {
-        generateTemplateImpl(templateName, outputPath);
-    }
 
 private:
-    void generateTemplateImpl(const std::string& templateName, const std::string& outputPath);
+    void generateTemplateImpl(const std::string& templateName, const std::string& outputPath) override;
 };
 
 
