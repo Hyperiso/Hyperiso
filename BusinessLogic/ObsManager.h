@@ -26,6 +26,7 @@ public:
     std::map<Observables, double> get_all_uncertainties();
     std::map<ParamId, double> get_leading_uncertainties(Observables id, size_t n);
     double get_chi2();
+    std::vector<Observables> get_current_obss();
 
 private:
     ObsManager();

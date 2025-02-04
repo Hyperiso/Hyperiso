@@ -69,4 +69,7 @@ public:
         return Parameters::GetInstance(type)->operator()(block, code);
     }
 
+    std::vector<Observables> get_current_obss() {
+        return manager->get_current_obss();
+    }
 };
