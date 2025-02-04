@@ -28,7 +28,7 @@ protected:
 public:
     explicit DecayParent() = default;
 
-    std::shared_ptr<WilsonInterface> get_wilsons(bool force_update=false);
+    std::shared_ptr<WilsonInterface> get_wilsons(bool force_update=true);
     void set_order(QCDOrder new_order);
 
     scalar_t compute_observable(Observables obs);

@@ -682,6 +682,8 @@ void BXsDecay::build_op_tree() {
     auto m_s            = std::make_shared<ParameterNode>(ParamId(ParameterType::SM, "MASS", 3));
     auto m_c            = std::make_shared<ParameterNode>(ParamId(ParameterType::SM, "MASS", 4));
 
+    auto dummy          = std::make_shared<ParameterNode>(ParamId(ParameterType::FLAVOR, "FMASS", 511));
+
     auto qcd            = std::make_shared<OperatorNode>("qcd", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return 0; });
     qcd->addChildren({alpha_s_MZ, M_Z, mt_pole, mb_mb, m_d, m_u, m_s, m_c});
     auto alpha_s_mu_b   = std::make_shared<OperatorNode>("alpha_s_mu_b", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->alpha_s_mub(); });
@@ -695,15 +697,15 @@ void BXsDecay::build_op_tree() {
     auto c8_em          = std::make_shared<OperatorNode>("C8_em", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->C8_em(values[0]); });
     c8_em->addChild(eta);
     auto c7_em          = std::make_shared<OperatorNode>("C7_em", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->C7_em(values[0], values[1], values[2]); });
-    c7_em->addChildren({eta, c8_em, c2_em});
+    c7_em->addChildren({eta, c8_em, c2_em, dummy});
     auto k_sl           = std::make_shared<OperatorNode>("k_SL", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->k_SL(values[0]); });
     k_sl->addChildren({alpha_s_mu_b});
     auto eps_em         = std::make_shared<OperatorNode>("eps_em", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->epsilon_em(values[0], values[1], values[2], values[3]); });
-    eps_em->addChildren({inv_alpha_em, alpha_s_mu_b, c7_em, k_sl}); 
+    eps_em->addChildren({inv_alpha_em, alpha_s_mu_b, c7_em, k_sl, dummy}); 
     auto k_c            = std::make_shared<OperatorNode>("K_c", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->Kc(values[0]); });
     k_c->addChildren({eta}); 
     auto k_t            = std::make_shared<OperatorNode>("K_t", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->Kt(values[0]); });
-    k_t->addChildren({eta}); 
+    k_t->addChildren({eta, dummy}); 
     auto f_N            = std::make_shared<OperatorNode>("f_N", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->N_eta_factor(values[0]); });
     f_N->addChildren({eta}); 
     auto r              = std::make_shared<OperatorNode>("r", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->r(values[0]); });
@@ -712,8 +714,11 @@ void BXsDecay::build_op_tree() {
     N->addChildren({k_c, k_t, r, f_N, lambda_2, m_c}); 
 
     auto p_0            = std::make_shared<OperatorNode>("P_0", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->P0(); });
+    p_0->addChildren({dummy});
     auto p_11           = std::make_shared<OperatorNode>("P_11", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->P11(); });
+    p_11->addChildren({dummy});
     auto p_12           = std::make_shared<OperatorNode>("P_12", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->P12(); });
+    p_12->addChildren({dummy});
     auto lb             = std::make_shared<OperatorNode>("L_b", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->Lb(values[0]); });
     lb->addChildren({mb_1S}); 
     auto mc_muc         = std::make_shared<OperatorNode>("m_c(mu_c)", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->mc_muc(values[0]); });
@@ -792,9 +797,9 @@ void BXsDecay::build_op_tree() {
     auto k_88           = std::make_shared<OperatorNode>("K_88", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->K_ij(8, 8, values[0]); });
     k_88->addChildren({phi_88});
     auto p_21           = std::make_shared<OperatorNode>("P_21", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->gen_P00(values, nonzero_K1); });
-    p_21->addChildren({k_11, k_12, k_17, k_18, k_22, k_27, k_28, k_37, k_47, k_48, k_57, k_67, k_77, k_78, k_88});
+    p_21->addChildren({k_11, k_12, k_17, k_18, k_22, k_27, k_28, k_37, k_47, k_48, k_57, k_67, k_77, k_78, k_88, dummy});
     auto p_32           = std::make_shared<OperatorNode>("P_32", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->gen_P01(values, nonzero_K1); });
-    p_32->addChildren({k_11, k_12, k_17, k_18, k_22, k_27, k_28, k_37, k_47, k_48, k_57, k_67, k_77, k_78, k_88});
+    p_32->addChildren({k_11, k_12, k_17, k_18, k_22, k_27, k_28, k_37, k_47, k_48, k_57, k_67, k_77, k_78, k_88, dummy});
     auto h_22           = std::make_shared<OperatorNode>("h_22", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->h22(values[0], values[1]); });
     h_22->addChildren({z, delta});
     auto h_27           = std::make_shared<OperatorNode>("h_27", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->h27(values[0], values[1]); });
@@ -846,10 +851,12 @@ void BXsDecay::build_op_tree() {
     auto k_88_b0        = std::make_shared<OperatorNode>("K_88_b0", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->K_ij(8, 8, values[0]); });
     k_88_b0->addChildren({phi_88_b0});
     auto p_22_b0        = std::make_shared<OperatorNode>("P_22_b0", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->gen_P00(values, nonzero_K2); });
-    p_22_b0->addChildren({k_11_b0, k_12_b0, k_17_b0, k_18_b0, k_22_b0, k_27_b0, k_28_b0, k_77_b0, k_78_b0, k_88_b0}); 
+    p_22_b0->addChildren({k_11_b0, k_12_b0, k_17_b0, k_18_b0, k_22_b0, k_27_b0, k_28_b0, k_77_b0, k_78_b0, k_88_b0, dummy}); 
 
     auto x_1            = std::make_shared<OperatorNode>("x_1", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->x1(); });
+    x_1->addChildren({dummy});
     auto x_2            = std::make_shared<OperatorNode>("x_2", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->x2(); });
+    x_2->addChildren({dummy});
     auto ld             = std::make_shared<OperatorNode>("LD", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->LD(values[0], values[1]); });
     ld->addChildren({lb, z});
     auto ld_z0          = std::make_shared<OperatorNode>("LD_z0", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->LD(values[0], values[1]); });
@@ -892,7 +899,7 @@ void BXsDecay::build_op_tree() {
     auto k_88_rem_z0     = std::make_shared<OperatorNode>("K_88_rem_z0", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->K_88_rem(values[0], values[1]); });
     k_88_rem_z0->addChildren({k_88, ld_z0});
     auto p_22_rem_z0     = std::make_shared<OperatorNode>("p_22_rem_z0", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->gen_P00(values, nonzero_K2); });
-    p_22_rem_z0->addChildren({k_11_rem_z0, k_12_rem_z0, k_17_rem_z0, k_18_rem_z0, k_22_rem_z0, k_27_rem_z0, k_28_rem_z0, k_77_rem_z0, k_78_rem_z0, k_88_rem_z0});
+    p_22_rem_z0->addChildren({k_11_rem_z0, k_12_rem_z0, k_17_rem_z0, k_18_rem_z0, k_22_rem_z0, k_27_rem_z0, k_28_rem_z0, k_77_rem_z0, k_78_rem_z0, k_88_rem_z0, dummy});
     auto target_z0      = std::make_shared<OperatorNode>("target_z0", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->target(values[0], values[1], values[2], values[3], values[4]); });
     target_z0->addChildren({p_22_rem_z0, x_1, x_2, x_5, z0});
 
@@ -919,7 +926,7 @@ void BXsDecay::build_op_tree() {
     auto k_88_rem_z1     = std::make_shared<OperatorNode>("K_88_rem_z1", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->K_88_rem(values[0], values[1]); });
     k_88_rem_z1->addChildren({k_88, ld_z1});
     auto p_22_rem_z1     = std::make_shared<OperatorNode>("p_22_rem_z1", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->gen_P00(values, nonzero_K2); });
-    p_22_rem_z1->addChildren({k_11_rem_z1, k_12_rem_z1, k_17_rem_z1, k_18_rem_z1, k_22_rem_z1, k_27_rem_z1, k_28_rem_z1, k_77_rem_z1, k_78_rem_z1, k_88_rem_z1});
+    p_22_rem_z1->addChildren({k_11_rem_z1, k_12_rem_z1, k_17_rem_z1, k_18_rem_z1, k_22_rem_z1, k_27_rem_z1, k_28_rem_z1, k_77_rem_z1, k_78_rem_z1, k_88_rem_z1, dummy});
     auto target_z1      = std::make_shared<OperatorNode>("target_z1", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->target(values[0], values[1], values[2], values[3], values[4]); });
     target_z1->addChildren({p_22_rem_z1, x_1, x_2, x_5, z1});
 

@@ -2,6 +2,7 @@
 #include <cmath>
 
 Wilson_parameters::Wilson_parameters() {
+	LOG_DEBUG("WilsonParameters creation");
     sm = Parameters::GetInstance(ParameterType::SM);
 	alphas_muW=QCDHelper::alpha_s(81);
 
