@@ -80,8 +80,20 @@ class Observables(Enum):
     BR_BS_MUMU = _CppObservables.BR_BS_MUMU
     BR_BS_MUMU_UNTAG = _CppObservables.BR_BS_MUMU_UNTAG
     BR_BD_MUMU = _CppObservables.BR_BD_MUMU
-    BR_B_XS_GAMMA = _CppObservables.BR_B_XS_GAMMA
+    R_TAU_NU = _CppObservables.R_TAU_NU
+    BR_BU_TAU_NU = _CppObservables.BR_BU_TAU_NU
     ISOSPIN_ASYMMETRY_B_KSTAR_GAMMA = _CppObservables.ISOSPIN_ASYMMETRY_B_KSTAR_GAMMA
+    BR_B_XS_GAMMA = _CppObservables.BR_B_XS_GAMMA
+    BR_B__D_TAU_NU = _CppObservables.BR_B__D_TAU_NU
+    XI__D_L_NU = _CppObservables.XI__D_L_NU
+
+class ParamId:
+    def __init__(self, type : ParameterType, block : str, code : int):
+        self.Paramid = core.ParamId(type.value, block, code)
+        # self.Paramid.type = type
+        # self.Paramid.block = block
+        # self.Paramid.type = type
+ 
 
 class ModelMapper:
     @staticmethod
@@ -446,6 +458,18 @@ class ObservableInterface:
     def __init__(self):
         self._interface = observable.ObservableInterface()
 
+    def add_observable(self, obs : Observables, qcd_order : QCDOrder) -> None:
+        self._interface.add_observable(obs.value, qcd_order.value)
+    
+    def add_observables(self, obss : list) -> None:
+        self._interface.add_observables(obss)
+
+    def add_observable_parameter(self, obs : Observables, pid) -> None:
+        self._interface.add_observable_parameter(obs.value, pid)
+
+    def add_observable_parameters(self, obs : Observables, pids : list) -> None:
+        self._interface.add_observable_parameters(obs.value, pids)
+
     def compute_observable(self, observable: Observables) -> float:
         """
         Compute the value of a given observable.
@@ -455,6 +479,21 @@ class ObservableInterface:
         """
         return self._interface.compute_observable(observable.value)
 
+    def compute_all_observables(self) -> dict:
+        return self._interface.compute_all_observables()
+    
+    def compute_uncertainty(self, obs : Observables) -> float:
+        return self._interface.compute_uncertainty(obs.value)
+    
+    def compute_leading_uncertainties(self,obs : Observables, n : int) -> dict:
+        return self._interface.compute_leading_uncertainties(obs.value, n)
+    
+    def compute_all_uncertainties(self):
+        return self._interface.compute_all_uncertainties()
+    
+    def compute_chi2(self):
+        return self._interface.compute_chi2()
+    
     def set_param(self, block: str, code: int, value: float, param_type: ParameterType):
         """
         Set a parameter value.
@@ -465,3 +504,7 @@ class ObservableInterface:
         :param param_type: The parameter type.
         """
         self._interface.set_param(block, code, value, param_type.value)
+
+    def get_param(self, block : str, code : int) -> float:
+        return self._interface.get_param(block, code)
+    

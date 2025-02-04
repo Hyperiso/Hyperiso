@@ -5,7 +5,7 @@ from Python.Phyperiso import Model
 from Python.Phyperiso import BCoefficientGroup, BPrimeCoefficientGroup
 from Python.Phyperiso import ObservableInterface
 from Python.Phyperiso import Observables
-from Python.Phyperiso import ParameterType, WCoeff, WGroup
+from Python.Phyperiso import ParameterType, WCoeff, WGroup, QCDOrder, ParamId
 from Python.Phyperiso import ModelMapper, WCoefMapper
 import os
 
@@ -110,3 +110,24 @@ print("Model str example ", WCoefMapper.to_str(WCoeff.C7))
 print("Model enum example", WCoefMapper.enum_elt("C8"))
 
 print("getting Bgroup", WCoefMapper.get_group(WGroup.B))
+
+obs = ObservableInterface()
+
+obs.add_observable(Observables.BR_BS_MUMU, QCDOrder.NNLO)
+obs.add_observable(Observables.BR_BU_TAU_NU, QCDOrder.LO)
+obs.add_observable_parameter(Observables.BR_BU_TAU_NU, ParamId(ParameterType.FLAVOR, "FMASS", 521).Paramid)
+
+obs.add_observable_parameters(Observables.BR_BU_TAU_NU,
+                              list([ParamId(ParameterType.SM, "MASS", 15).Paramid,
+                               ParamId(ParameterType.FLAVOR, "FMASS", 521).Paramid,
+                               ParamId(ParameterType.FLAVOR, "FCONST", 52101).Paramid]))
+
+obs.add_observable_parameters(Observables.BR_BS_MUMU,
+                              [ParamId(ParameterType.SM, "MASS", 13).Paramid,
+                               ParamId(ParameterType.FLAVOR, "FMASS", 531).Paramid,
+                               ParamId(ParameterType.FLAVOR, "FCONST", 53101).Paramid])
+
+print(obs.compute_observable(Observables.BR_BU_TAU_NU))
+print(obs.compute_observable(Observables.BR_BS_MUMU))
+
+print(obs.compute_chi2)
