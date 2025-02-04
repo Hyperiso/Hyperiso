@@ -111,13 +111,14 @@ print("Model enum example", WCoefMapper.enum_elt("C8"))
 
 print("getting Bgroup", WCoefMapper.get_group(WGroup.B))
 
+mm.switch_lha("Test/InputFiles/testInput.flha", Model.SM)
 obs = ObservableInterface()
 print(obs.get_current_obss())
 obs.add_observable(Observables.BR_BS_MUMU, QCDOrder.NNLO)
 print(obs.get_current_obss())
 obs.add_observable(Observables.BR_BU_TAU_NU, QCDOrder.LO)
 print(obs.get_current_obss())
-obs.add_observable_parameter(Observables.BR_BU_TAU_NU, ParamId(ParameterType.FLAVOR, "FMASS", 521).Paramid)
+# obs.add_observable_parameter(Observables.BR_BU_TAU_NU, ParamId(ParameterType.FLAVOR, "FMASS", 521).Paramid)
 
 obs.add_observable_parameters(Observables.BR_BU_TAU_NU,
                               list([ParamId(ParameterType.SM, "MASS", 15).Paramid,
