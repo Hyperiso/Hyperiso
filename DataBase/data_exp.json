@@ -7,7 +7,7 @@
         "syst_error": 0.05
       },
       {
-        "name": "IA_B_K*__gamma",
+        "name": "IA_B__K*_gamma",
         "central_value": 2.65e-09,
         "stat_error": 0.045,
         "syst_error": 0.05
@@ -26,8 +26,14 @@
       },
       {
         "name": "BR_Bu__tau_nu",
-        "central_value": 1.09e-4,
-        "stat_error": 2.4e-5,
+        "central_value": 1.64e-4,
+        "stat_error": 3.4e-5,
+        "syst_error": 0.0
+      },
+      {
+        "name": "BR_B__Xs_gamma",
+        "central_value": 3.43e-4,
+        "stat_error": 2.8e-5,
         "syst_error": 0.0
       }
     ],

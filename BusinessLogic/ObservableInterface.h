@@ -18,14 +18,14 @@ private:
 public:
     ObservableInterface() : manager(ObsManager::GetInstance()) {}
 
-    ObservableInterface add_observable(Observables obs, QCDOrder order) {  
-        manager->add_obs(obs, order);
+    ObservableInterface add_observable(Observables obs, QCDOrder order, bool add_dependencies=false) {  
+        manager->add_obs(obs, order, add_dependencies);
         return *this;
     }
 
-    void add_observables(std::map<Observables, QCDOrder> obss) {  
+    void add_observables(std::map<Observables, QCDOrder> obss, bool add_dependencies=false) {  
         for (auto &[k, v] : obss) {
-            add_observable(k, v);
+            add_observable(k, v, add_dependencies);
         }
     }
 

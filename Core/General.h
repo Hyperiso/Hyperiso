@@ -326,4 +326,13 @@ struct ParamId {
     }
 };
 
+class DependenciesHelper {
+public:
+    static std::vector<ParamId> get_allowed_parameters(Observables id);
+    static bool is_param_allowed(Observables id, ParamId pid);
+
+private:
+    static const std::map<Observables, std::vector<ParamId>> dep_lists;
+};
+
 #endif // __GENERAL_H__
