@@ -42,6 +42,9 @@ std::shared_ptr<ObsManager> ObsManager::remove_obs(Observables id) {
 }
 
 double ObsManager::evaluate(Observables id) {
+    LOG_INFO("In ObsManager::evaluate()");
+    obss.at(ensure_present(id));
+    LOG_INFO("In ObsManager::evaluate() after at()");
     return obss.at(ensure_present(id))->eval();
 }
 
