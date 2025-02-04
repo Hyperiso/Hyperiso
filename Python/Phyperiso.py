@@ -323,6 +323,12 @@ class Parameters:
         """
         return self._parameters(block, code)
 
+class QCDHelper:
+    @staticmethod
+    def mass_b_1S():
+        return core.QCDHelper.mass_b_1S()
+    
+
 class BCoefficientGroup:
     def __init__(self):
         self.group = wilson.coefficient_groups.BCoefficientGroup()
@@ -432,8 +438,8 @@ class WilsonManager:
         return self._manager.get_coefficient_group(groupname)
     
 class WilsonInterface:
-    def __init__(self, model : str):
-        self._wilsoninterface = wilson.wilson_interface.WilsonInterface(model)
+    def __init__(self):
+        self._wilsoninterface = wilson.wilson_interface.WilsonInterface()
 
     def set_q_match(self):
         self._wilsoninterface.set_q_match()
@@ -448,7 +454,16 @@ class WilsonInterface:
         self._wilsoninterface.set_run_coefficient()
 
     def get_matching_coefficient(self):
-        return self._wilsoninterface.get_matching_coefficient
+        return self._wilsoninterface.get_matching_coefficient()
+    
+    def get_full_matching_coefficient(self, group : WGroup, coeff : WCoeff, order : QCDOrder):
+        return self._wilsoninterface.get_full_matching_coefficient(group.value, coeff.value, order.value, False)
+    
+    def get_full_run_coefficient(self, group : WGroup, coeff : WCoeff, order : QCDOrder):
+        return self._wilsoninterface.get_full_run_coefficient(group.value, coeff.value, order.value, False)
+    
+    def build(self, group : list, Q_match : float, Q : float, order : QCDOrder):
+        self._wilsoninterface.build(group, Q_match, Q, order.value)
 
 
 

@@ -115,7 +115,7 @@ void init_wilson_interface(py::module &m) {
 
 
     py::class_<WilsonInterface, std::shared_ptr<WilsonInterface>>(m, "WilsonInterface")
-        // .def(py::init<const std::string &>())
+        .def(py::init<>())
         .def("add_wilson_group", &WilsonInterface::addWilsonGroup)
         .def("set_q_match", &WilsonInterface::setQMatch)
         .def("set_params", &WilsonInterface::setParams)

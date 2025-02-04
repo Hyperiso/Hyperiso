@@ -208,6 +208,11 @@ void init_core(py::module &m) {
             "get_enum",
             &ModelMapper::get_enum);
 
+    py::class_<QCDHelper, std::shared_ptr<QCDHelper>>(m, "QCDHelper")
+        .def_static(
+            "mass_b_1S", &QCDHelper::mass_b_1S
+        );
+
     py::class_<MemoryManager, std::shared_ptr<MemoryManager>>(m, "MemoryManager")
         .def_static("get_instance", &MemoryManager::GetInstance, py::return_value_policy::reference)
         .def("init", &MemoryManager::init,
