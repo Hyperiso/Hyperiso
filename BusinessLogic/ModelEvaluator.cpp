@@ -62,14 +62,12 @@ void ModelEvaluator::update_exp_data() {
     std::vector<Value> values;
     std::string root = project_root.data();
     read_json(root + "/DataBase/data_exp.json", values, correlations);
-
-    
-    LOG_INFO("JSON input file read");
+    LOG_DEBUG("JSON input file read");
 
     // Read central values for the stored observable and fill diagonal elements of cov matrix with exp. variance 
     std::map<Observables, double> stds; 
     for (const auto& val : values) {
-        LOG_INFO("Found observable", val.name);
+        LOG_DEBUG("Found observable", val.name);
 
         Observables id = ObservableMapper::enum_elt(val.name);
         auto obs = find_from_id(id);
@@ -103,13 +101,12 @@ void ModelEvaluator::update_exp_data() {
 
 SparseMatrix<Observables> ModelEvaluator::get_covariance() {
     update_exp_data();
-    LOG_INFO("Exp values retrieved");
+    LOG_DEBUG("Experimental values retrieved");
     update_th_covariance();
-    
-    LOG_INFO("Th cov calculated");
+    LOG_DEBUG("Theoretical covariance matrix calculated");
 
     SparseMatrix<Observables> cov = th_cov_mtx;
-    LOG_INFO("Theoretical covariance matrix size", cov.size());
+    LOG_DEBUG("Theoretical covariance matrix size", cov.size());
     for (auto &&p : exp_cov_mtx) {
         if (cov.contains(p.first)) {
             cov.at(p.first) += p.second;
@@ -121,14 +118,10 @@ SparseMatrix<Observables> ModelEvaluator::get_covariance() {
 }
 
 double ModelEvaluator::chi2() {
-
-    LOG_INFO("In ModelEvaluator::chi2()");
-
     SparseMatrix<Observables> covariance_mtx = get_covariance();
-    LOG_INFO("Covariance calculated");
+    LOG_DEBUG("Covariance calculated");
     SparseMatrix<Observables> precision_mtx = invertMatrix(covariance_mtx, getDiagonalElements(covariance_mtx));
-
-    LOG_INFO("Precision matrix calculated");
+    LOG_DEBUG("Precision matrix calculated");
 
     double chi2 {0};
     for (auto &&o_i : observables) {
