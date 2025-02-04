@@ -1,18 +1,6 @@
 {
     "values": [
       {
-        "name": "MASS|5",
-        "central_value": 4.18,
-        "stat_error": 0.03,
-        "syst_error": 0
-      },
-      {
-        "name": "MASS|6",
-        "central_value": 173.34,
-        "stat_error": 0.98,
-        "syst_error": 0
-      },
-      {
         "name": "MASS|3",
         "central_value": 0.0935,
         "stat_error": 0.0008,
@@ -31,9 +19,45 @@
         "syst_error": 0
       },
       {
+        "name": "MASS|4",
+        "central_value": 1.275,
+        "stat_error": 0.025,
+        "syst_error": 0
+      },
+      {
+        "name": "SMINPUTS|1",
+        "central_value": 137.035999710,
+        "stat_error": 96e-8,
+        "syst_error": 0
+      },
+      {
+        "name": "SMINPUTS|2",
+        "central_value": 1.1663787e-5,
+        "stat_error": 6e-12,
+        "syst_error": 0
+      },
+      {
         "name": "SMINPUTS|3",
         "central_value": 0.1184,
         "stat_error": 0.0008,
+        "syst_error": 0
+      },
+      {
+        "name": "SMINPUTS|4",
+        "central_value": 91.1876,
+        "stat_error": 0.0021,
+        "syst_error": 0
+      },
+      {
+        "name": "SMINPUTS|5",
+        "central_value": 4.18,
+        "stat_error": 0.03,
+        "syst_error": 0
+      },
+      {
+        "name": "SMINPUTS|6",
+        "central_value": 173.34,
+        "stat_error": 0.98,
         "syst_error": 0
       },
       {
@@ -103,6 +127,12 @@
         "syst_error": 0
       },
       {
+        "name": "RECKM|12",
+        "central_value": 4.13e-2,
+        "stat_error": 1.1e-3,
+        "syst_error": 0
+      },
+      {
         "name": "RECKM|21",
         "central_value": 4.05e-2,
         "stat_error": 1.1e-3,
@@ -111,7 +141,7 @@
       {
         "name": "RECKM|22",
         "central_value": 0.999139,
-        "stat_error": 0.000045,
+        "stat_error": 4.5e-5,
         "syst_error": 0
       },
       {
@@ -195,6 +225,24 @@
       {
         "name": "B_Xs|6",
         "central_value": 0.12,
+        "stat_error": 0,
+        "syst_error": 0
+      },
+      {
+        "name": "B_Xs|7",
+        "central_value": 0,
+        "stat_error": 0,
+        "syst_error": 0
+      },
+      {
+        "name": "B_Xs|8",
+        "central_value": 0,
+        "stat_error": 0,
+        "syst_error": 0
+      },
+      {
+        "name": "B_Xs|9",
+        "central_value": 0,
         "stat_error": 0,
         "syst_error": 0
       },

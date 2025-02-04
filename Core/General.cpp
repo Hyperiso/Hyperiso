@@ -192,7 +192,7 @@ const std::map<Observables, std::string> ObservableMapper::mapping = {
     {Observables::BR_BD_MUMU, "BR_Bd__mu_mu"},
     {Observables::BR_BU_TAU_NU, "BR_Bu__tau_nu"},
     {Observables::R_TAU_NU, "R_tau_nu"},
-    {Observables::ISOSPIN_ASYMMETRY_B_KSTAR_GAMMA, "IA_B_K*__gamma"},
+    {Observables::ISOSPIN_ASYMMETRY_B_KSTAR_GAMMA, "IA_B__K*_gamma"},
     {Observables::BR_B_XS_GAMMA, "BR_B__Xs_gamma"},
 };
 
@@ -202,7 +202,7 @@ const std::map<std::string, Observables> ObservableMapper::inverse_mapping = {
     {"BR_Bd__mu_mu", Observables::BR_BD_MUMU},
     {"BR_Bu__tau_nu", Observables::BR_BU_TAU_NU},
     {"R_tau_nu", Observables::R_TAU_NU},
-    {"IA_B_K*__gamma", Observables::ISOSPIN_ASYMMETRY_B_KSTAR_GAMMA},
+    {"IA_B__K*_gamma", Observables::ISOSPIN_ASYMMETRY_B_KSTAR_GAMMA},
     {"BR_B__Xs_gamma", Observables::BR_B_XS_GAMMA}
 };
 
@@ -379,11 +379,11 @@ const std::map<Observables, std::vector<ParamId>> DependenciesHelper::dep_lists 
         ParamId{ParameterType::SM, "MASS", 3},
         ParamId{ParameterType::SM, "MASS", 4},
         ParamId{ParameterType::SM, "RECKM", 12},
-        ParamId{ParameterType::SM, "IMCKM", 12},
+        // ParamId{ParameterType::SM, "IMCKM", 12},
         ParamId{ParameterType::SM, "RECKM", 21},
-        ParamId{ParameterType::SM, "IMCKM", 21},
+        // ParamId{ParameterType::SM, "IMCKM", 21},
         ParamId{ParameterType::SM, "RECKM", 22},
-        ParamId{ParameterType::SM, "IMCKM", 22},
+        // ParamId{ParameterType::SM, "IMCKM", 22},
         ParamId{ParameterType::FF, "B_Xs", 1},
         ParamId{ParameterType::FF, "B_Xs", 2},
         ParamId{ParameterType::FF, "B_Xs", 3},
