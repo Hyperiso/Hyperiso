@@ -45,10 +45,9 @@ void Compound::read_param_covariance() {
     }
 }
 
-double Compound::compute_pdv(const ParamId &param_id) const
-{
+double Compound::compute_pdv(const ParamId &param_id) const {
     auto p = Parameters::GetInstance(param_id.type);
-    double h = (*p)(param_id.block, param_id.code) * 1e-5;
+    double h = Parameters::Get(param_id) * 1e-5;
     if (h == 0)
         h = 1e-8;
     p->changeParameterMode(param_id, ParameterMode::SHIFTABLE);
@@ -56,7 +55,7 @@ double Compound::compute_pdv(const ParamId &param_id) const
     double f_p = eval();
     p->shiftParameter(param_id, -2 * h);
     double f_m = eval();
-    p->changeParameterMode(param_id, ParameterMode::SHIFTABLE);
+    p->changeParameterMode(param_id, ParameterMode::FIXED);
     return (f_p - f_m) / (2 * h);
 }
 
@@ -82,8 +81,11 @@ void Compound::add_dependence(const ParamId &param_name) {
 }
 
 void Compound::add_dependences(const std::vector<ParamId> &param_names) {
-    for (auto &&p : param_names) 
-        add_dependence(p);
+    for (auto &&p : param_names) {
+        dependences.emplace_back(p);
+        gradient.emplace(p, compute_pdv(p));
+    }
+    read_param_covariance();
 }
 
 const std::vector<ParamId> &Compound::get_dependences() const {

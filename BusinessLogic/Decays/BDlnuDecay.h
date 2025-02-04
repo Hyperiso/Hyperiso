@@ -39,6 +39,8 @@ public:
         winfo.basis = BWilsonBasis::STANDARD;
         winfo.wgroups = {WGroup::Blnu};
 
+        max_order = QCDOrder::LO;
+
         build_op_tree();
     }
 

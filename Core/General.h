@@ -51,6 +51,33 @@ private:
     static const std::map<std::string, Observables> inverse_mapping; 
 };
 
+enum class Decays {
+    B__D_l_nu,
+    B__Kstar,
+    B__l_l,
+    B__l_nu,
+    B__Xs,
+};
+
+class DecayMapper {
+public:
+    static std::vector<Observables> get_observables(Decays decay) {
+        return DecayMapper::obs_mapping.at(decay);
+    }
+
+    static Decays get_decay(Observables obs) {
+        for (auto &[k, v] : DecayMapper::obs_mapping) {
+            if (std::find(v.begin(), v.end(), obs) != v.end()) {
+                return k;
+            }
+        }
+        LOG_ERROR("ValueError", "Observable belongs to none of the implemented decays.");
+    }
+
+private:
+    static const std::map<Decays, std::vector<Observables>> obs_mapping;
+};
+
 enum class QCDOrder {
     NONE,
     LO,
@@ -169,6 +196,7 @@ public:
                 return B_lnu_group;
             default:
                 LOG_ERROR("Invalid WGroup", "get_group function couldn't find your group");
+        }
     }
 
     static size_t n_wilsons() {

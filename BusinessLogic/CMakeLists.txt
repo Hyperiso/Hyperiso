@@ -29,22 +29,23 @@ if (NOT TARGET CoreLib)
 endif()
 
 add_library(BusinessLogicLib STATIC 
-    BKstarDecay.cpp
-    BllDecay.cpp
-    BXsDecay.cpp
-    BlnuDecay.cpp
-    BDlnuDecay.cpp
+    Decays/BKstarDecay.cpp
+    Decays/BllDecay.cpp
+    Decays/BXsDecay.cpp
+    Decays/BlnuDecay.cpp
+    Decays/BDlnuDecay.cpp
     Compound.cpp
     DecayParent.cpp
     Node.cpp
     ModelEvaluator.cpp
+    ObsManager.cpp
 )
 set_target_properties(BusinessLogicLib PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
-set_target_properties(BusinessLogicLib PROPERTIES PUBLIC_HEADER "BKstarDecay.h;BllDecay.h;BXsDecay.h;BlnuDecay.h;BDlnuDecay.h;Compound.h;DecayParent.h;Node.h;Observable.h;ModelEvaluator.h")
+set_target_properties(BusinessLogicLib PROPERTIES PUBLIC_HEADER "Decays.h;Compound.h;DecayParent.h;Node.h;Observable.h;ModelEvaluator.h;ObsManager.h;ObservableInterface.h;")
 
 target_include_directories(BusinessLogicLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_include_directories(BusinessLogicLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/Observables)
+target_include_directories(BusinessLogicLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/Decays)
 
 target_link_libraries(BusinessLogicLib PUBLIC PhysicalModelLib CoreLib CommonLib ConfiguredModule MathLib)
 

@@ -27,6 +27,8 @@ public:
         winfo.basis = BWilsonBasis::STANDARD;
         winfo.wgroups = {WGroup::B, WGroup::BPrime, WGroup::BScalar};
 
+        max_order = QCDOrder::NNLO;
+
         build_op_tree();
     }
 
