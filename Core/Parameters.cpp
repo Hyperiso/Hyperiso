@@ -323,7 +323,6 @@ void THDMModelStrategy::initializeParameters(Parameters& params) {
     auto yeblock = std::make_shared<YUBlock>();
 
     yublock->setValue(22, cot_beta);
-
     
     switch (type) {
         case 1:
@@ -335,7 +334,7 @@ void THDMModelStrategy::initializeParameters(Parameters& params) {
         case 2:
             ydblock->setValue(22, -tan_beta);
             yeblock->setValue(22, -tan_beta);
-            yeblock->setValue(00, -tan_beta);
+            yeblock->setValue(11, -tan_beta);
             yeblock->setValue(00, -tan_beta);
             break;
         case 3:

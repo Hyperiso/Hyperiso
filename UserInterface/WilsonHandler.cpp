@@ -88,7 +88,7 @@ int handleWilsonOptions(int argc, char* argv[]) {
         if (use_marty) {
             group_name += "Marty";
         }
-        std::cout << group_name << std::endl;
+        
         if (group_name == "BCoefficientGroup" || group_name == "BCoefficientGroupMarty") {
             manager->registerCoefficientGroup(group_name, std::make_shared<BCoefficientGroup>());
         } else if (group_name == "BPrimeCoefficientGroup" || group_name == "BPrimeCoefficientGroupMarty") {

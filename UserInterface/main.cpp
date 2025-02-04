@@ -13,6 +13,10 @@ void print_usage() {
 }
 
 int main(int argc, char* argv[]) {
+
+    Logger* logger = Logger::getInstance();
+    logger->setEnabled(false);
+
     if (argc < 2) {
         print_usage();
         return 1;

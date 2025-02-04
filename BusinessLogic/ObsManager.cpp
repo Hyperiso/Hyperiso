@@ -42,9 +42,6 @@ std::shared_ptr<ObsManager> ObsManager::remove_obs(Observables id) {
 }
 
 double ObsManager::evaluate(Observables id) {
-    LOG_INFO("In ObsManager::evaluate()");
-    obss.at(ensure_present(id));
-    LOG_INFO("In ObsManager::evaluate() after at()");
     return obss.at(ensure_present(id))->eval();
 }
 
@@ -103,12 +100,4 @@ Observables ObsManager::ensure_present(Observables id) {
         LOG_ERROR("KeyError", "Observable manager doesn't contain observable", ObservableMapper::str(id));
     }
     return id;
-}
-
-std::vector<Observables> ObsManager::get_current_obss() {
-    std::vector<Observables> _;
-    for (auto& obs : obss) {
-        _.push_back(obs.first);
-    }
-    return _;
 }

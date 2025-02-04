@@ -25,6 +25,12 @@
         "syst_error": 0
       },
       {
+        "name": "MASS|15",
+        "central_value": 1.77693,
+        "stat_error": 0.00009,
+        "syst_error": 0
+      },
+      {
         "name": "SMINPUTS|1",
         "central_value": 137.035999710,
         "stat_error": 96e-8,
@@ -124,6 +130,12 @@
         "name": "FCONST|32302",
         "central_value": 0.185,
         "stat_error": 0.009,
+        "syst_error": 0
+      },
+      {
+        "name": "RECKM|02",
+        "central_value": 3.55e-3,
+        "stat_error": 2e-5,
         "syst_error": 0
       },
       {

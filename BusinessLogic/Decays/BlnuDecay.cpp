@@ -50,13 +50,15 @@ void BlnuDecay::build_op_tree() {
     auto life_B = std::make_shared<ParameterNode>(ParamId(ParameterType::FLAVOR, "FLIFE", 521));
     auto f_B = std::make_shared<ParameterNode>(ParamId(ParameterType::FLAVOR, "FCONST", 52101));
 
+    auto dummy = std::make_shared<ParameterNode>(ParamId(ParameterType::FLAVOR, "FMASS", 511));
+
     // Operator nodes
     auto qcd = std::make_shared<OperatorNode>("qcd", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return 0; });
     qcd->addChildren({alpha_s_MZ, M_Z, mt_pole, mb_mb, m_u, m_d, m_s, m_c});
     auto m_b = std::make_shared<OperatorNode>("m_b", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return QCDHelper::mass_b_msbar(); });
     m_b->addChildren({qcd});
     auto R_tau_nu = std::make_shared<OperatorNode>("R_tau_nu", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->R(values[0], values[1], values[2]); });
-    R_tau_nu->addChildren({m_B, m_b, m_tau});
+    R_tau_nu->addChildren({m_B, m_b, m_tau, dummy});
     roots.emplace(Observables::R_TAU_NU, R_tau_nu);
     auto ckm = std::make_shared<OperatorNode>("ckm", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->ckm(values[0], values[1]); });
     ckm->addChildren({V_ub_r, V_ub_i});
