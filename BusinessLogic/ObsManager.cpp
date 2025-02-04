@@ -101,3 +101,11 @@ Observables ObsManager::ensure_present(Observables id) {
     }
     return id;
 }
+
+std::vector<Observables> ObsManager::get_current_obss() {
+    std::vector<Observables> _;
+    for (auto& obs : obss) {
+        _.push_back(obs.first);
+    }
+    return _;
+}

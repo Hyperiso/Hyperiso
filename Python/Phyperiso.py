@@ -459,10 +459,10 @@ class ObservableInterface:
         self._interface = observable.ObservableInterface()
 
     def add_observable(self, obs : Observables, qcd_order : QCDOrder) -> None:
-        self._interface.add_observable(obs.value, qcd_order.value)
+        self._interface.add_observable(obs.value, qcd_order.value, False)
     
     def add_observables(self, obss : list) -> None:
-        self._interface.add_observables(obss)
+        self._interface.add_observables(obss, False)
 
     def add_observable_parameter(self, obs : Observables, pid) -> None:
         self._interface.add_observable_parameter(obs.value, pid)
@@ -508,3 +508,5 @@ class ObservableInterface:
     def get_param(self, block : str, code : int) -> float:
         return self._interface.get_param(block, code)
     
+    def get_current_obss(self) -> list:
+        return self._interface.get_current_obss()
