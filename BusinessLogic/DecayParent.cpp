@@ -38,6 +38,5 @@ void DecayParent::set_order(QCDOrder new_order) {
 }
 
 scalar_t DecayParent::compute_observable(Observables obs) {
-    roots.at(obs);
     return roots.at(obs)->calculate();
 }

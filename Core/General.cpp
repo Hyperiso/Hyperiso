@@ -318,7 +318,7 @@ const std::map<Observables, std::vector<ParamId>> DependenciesHelper::dep_lists 
         ParamId{ParameterType::SM, "IMCKM", 02},
         ParamId{ParameterType::FLAVOR, "FMASS", 521},
         ParamId{ParameterType::FLAVOR, "FLIFE", 521},
-        ParamId{ParameterType::FLAVOR, "FCONST", 51101}
+        ParamId{ParameterType::FLAVOR, "FCONST", 52101}
     }},
     {Observables::R_TAU_NU, {
         ParamId{ParameterType::SM, "SMINPUTS", 3},
