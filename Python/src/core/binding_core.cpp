@@ -30,8 +30,12 @@ void init_core(py::module &m) {
         .value("BR_BS_MUMU", Observables::BR_BS_MUMU)
         .value("BR_BS_MUMU_UNTAG", Observables::BR_BS_MUMU_UNTAG)
         .value("BR_BD_MUMU", Observables::BR_BD_MUMU)
+        .value("R_TAU_NU", Observables::R_TAU_NU)
+        .value("BR_BU_TAU_NU", Observables::BR_BU_TAU_NU)
         .value("ISOSPIN_ASYMMETRY_B_KSTAR_GAMMA", Observables::ISOSPIN_ASYMMETRY_B_KSTAR_GAMMA)
         .value("BR_B_XS_GAMMA", Observables::BR_B_XS_GAMMA)
+        .value("BR_B__D_TAU_NU", Observables::BR_B__D_TAU_NU)
+        .value("XI__D_L_NU", Observables::XI__D_L_NU)
         .export_values();
 
     py::enum_<QCDOrder>(m, "QCDOrder")
@@ -78,6 +82,12 @@ void init_core(py::module &m) {
         .value("STANDARD", BWilsonBasis::STANDARD)
         .value("TRADITIONAL", BWilsonBasis::TRADITIONAL)
         .export_values();
+
+    py::class_<ParamId>(m, "ParamId")
+        .def(py::init<ParameterType, std::string, int>())
+        .def_readwrite("type", &ParamId::type)
+        .def_readwrite("block", &ParamId::block)
+        .def_readwrite("code", &ParamId::code);
 
     py::class_<ObservableMapper, std::shared_ptr<ObservableMapper>>(m, "ObservableMapper")
         .def_static(
