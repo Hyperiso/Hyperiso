@@ -1,8 +1,18 @@
 import streamlit as st
-from st_pages import get_nav_from_toml
+import streamlit as st
+
+from Streamlit.Utils.common_elements import upper_option_streamlit_custom, vertical_space_reduction, add_header, reduce_margin
+from Streamlit.Utils.common_elements import reduce_title_space
+
 if "wide_mode" not in st.session_state:
     st.set_page_config(layout="wide", page_title="Hyperiso", page_icon="📊")
     st.session_state["wide_mode"] = True
+add_header()
+upper_option_streamlit_custom()
+vertical_space_reduction()
+reduce_margin()
+reduce_title_space()
+from st_pages import get_nav_from_toml
     
 from Streamlit.Utils.common_elements import apply_sidebar_style, apply_custom_background
 apply_sidebar_style(True)

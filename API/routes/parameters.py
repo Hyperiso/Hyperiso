@@ -3,7 +3,7 @@ import shutil
 from pathlib import Path
 import sys, os
 sys.path.append(os.path.join(os.getcwd(), "Python"))
-from Python.Phyperiso import Parameters, ParameterType, Model, MemoryManager
+from Python.Phyperiso import Parameters, ParameterType, Model, MemoryManager, ParameterTypeMapper
 from API.utils.ParametersCache import MemoryManagerCache, ParametersCache
 from pydantic import BaseModel
 
@@ -113,6 +113,15 @@ def get_blocks(param_type : str):
         if param_type not in model_available:
             return {"blocks" : []}
     return {"blocks" : mem_cache.get_blocks_list(map_paramtype[param_type])}
+
+@router.get("/all_blocks_list")
+def get_blocks():
+    blocks = mem_cache.get_parameters_types()
+    liste = {"SM"}
+    for block in blocks:
+        liste = liste.union(set(mem_cache.get_blocks_list(ParameterType(block))))
+
+    return {"blocks" : list(liste)}
 
 @router.get("/block_info")
 def get_block_info(block : str, param_type : str):

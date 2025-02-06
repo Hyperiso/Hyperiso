@@ -9,7 +9,7 @@ if "wide_mode" not in st.session_state:
 def app():
 
     apply_custom_background()
-    add_header()
+    # add_header()
     apply_file_management_style()
     apply_custom_css()
     apply_sidebar_style()

@@ -2,44 +2,81 @@ import streamlit as st
 import os
 def add_header():
     """Add a more polished header using Streamlit native components."""
+    st.markdown(
+        """
+        <style>
+        /* Déplacer le header en haut */
+        .custom-header {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: #ffffff;  /* Fond blanc */
+            padding: 10px 20px;
+            z-index: 999; /* Toujours visible au-dessus */
+            border-bottom: 2px solid #4CAF50; /* Ligne sous le header */
+        }
+
+        /* Décaler le contenu de Streamlit vers le bas pour éviter le chevauchement */
+        header[data-testid="stHeader"] {
+            padding-top: 80px; /* Ajuster si nécessaire */
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    # Organisation du header en colonnes pour aligner les logos et le titre
     with st.container():
-        col1, col2, col3, col4 = st.columns([5, 1, 1, 1])  # Split header into two parts
+        col1, col2, col3, col4 = st.columns([6, 1, 1, 1])  # Ajustement des proportions
 
         with col1:
             st.markdown(
                 """
                 <style>
-                .header-title {
-                    font-size: 28px;
-                    font-weight: bold;
-                    color: #4CAF50;
-                    margin-bottom: 0;
+                .title {
+                    margin-top: -20px !important;
+                    margin-bottom: 0px !important; /* Supprime l'espace sous le titre */
                 }
+                .subtitle {
+                    font-style: italic;  /* Met en italique */
+                    margin-top: -5px !important;  /* Rapproche du titre */
+                    color: gray;  /* Optionnel : Mettre en gris */
+                }
+                
                 </style>
-                <div class="header-title">Hyperiso</div>
                 """,
                 unsafe_allow_html=True,
             )
-            st.write("A software for modern BSM Observable calculation. Much fun.")
+
+            st.markdown('<h3 class="title">🌈 Hyperiso</h3>', unsafe_allow_html=True)
+            st.markdown('<p class="subtitle">A modern BSM flavor calculator.</p>', unsafe_allow_html=True)
+
+            # st.write("\x1B[3mA modern BSM flavor calculator.\x1B[0m")
 
         with col2:
-            # Display logos in a row
-            st.image(os.getcwd() + "/Streamlit/img/cnrs.png",
-                width=100,
-                use_container_width="auto",
-            )
+            st.image(os.path.join("Streamlit/img/cnrs.png"), width=80)
+
         with col3:
-            st.image(os.getcwd() +"/Streamlit/img/ip2i.png",
-                width=100,
-                use_container_width="auto",
-            )
+            st.image(os.path.join("Streamlit/img/ip2i.png"), width=80)
 
         with col4:
-            st.image(os.getcwd() + "/Streamlit/img/mlg.jpg"
-                ,
-                width=100,
-                use_container_width="auto",
-            )
+            st.image(os.path.join("Streamlit/img/mlg.jpg"), width=80)
+            
+    st.markdown(
+        """
+        <style>
+        .title-line {
+            border-top: 3px solid #e67f19; /* Ligne épaisse et verte */
+            margin-top: 5px;
+            border-radius: 5px;
+            width: 98%;
+        }
+        </style>
+        <div class="title-line"></div>
+        """,
+        unsafe_allow_html=True,
+    )
 
 def apply_sidebar_style(with_span = False):
     """Adjust the width of the sidebar and style its components."""
@@ -205,10 +242,131 @@ def apply_custom_background():
         /* Specific style for columns to keep them white */
         .stVerticalBlock {
             background-color: white;  /* White background for columns */
-            padding: 15px;
+            padding: 10px;
             border-radius: 8px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);  /* Add shadow for columns */
-            margin-bottom: 20px;  /* Add space between columns */
+            # box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);  /* Add shadow for columns */
+            # margin-bottom: 20px;  /* Add space between columns */
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
+def upper_option_streamlit_custom():
+    st.markdown(
+        """
+        <style>
+        /* Modifier la toolbar de Streamlit */
+        header[data-testid="stHeader"] {
+            background: rgba(0, 0, 0, 0) !important; /* Fond semi-transparent noir */
+            # backdrop-filter: blur(5px); /* Flou pour un effet plus moderne */
+            # height: 40px !important; /* Réduire la hauteur */
+            transition: all 0.3s ease-in-out;
+        }
+
+        /* Réduire la taille du texte et icônes */
+        header[data-testid="stHeader"] * {
+            font-size: 12px !important;
+            color: white !important; /* Texte blanc */
+        }
+
+        /* Effet au survol pour la rendre plus visible */
+        header[data-testid="stHeader"]:hover {
+            background: rgba(0, 0, 0, 0.7) !important;
+            backdrop-filter: blur(8px);
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+    
+    
+def vertical_space_reduction():
+    st.markdown(
+        """
+        <style>
+        /* Réduire l'espacement entre les inputs */
+        div[data-testid="stVerticalBlock"] {
+            margin-bottom: 0px !important;  /* Enlève l'espace en bas */
+            padding-bottom: 0px !important;
+        }
+
+        /* Réduire les marges entre les widgets */
+        section[data-testid="stSidebar"] div[data-testid="stVerticalBlock"] {
+            margin-bottom: 5px !important;  /* Met seulement un petit espace */
+        }
+
+        /* Réduire la marge des sliders */
+        div[data-baseweb="slider"] {
+            margin-top: -10px !important;
+            margin-bottom: -10px !important;
+        }
+
+        /* Ajuster l'espacement des labels */
+        label {
+            margin-bottom: -5px !important;
+            margin-top: -60px !important;
+            font-size: 14px !important;  /* Réduire la taille si nécessaire */
+        }
+
+        h1 {
+            margin-bottom: 40px !important; /* Augmente l'espace sous les headers */
+        }
+
+        h2 {
+            margin-bottom: 30px !important; /* Augmente l'espace sous les subheaders */
+        }
+
+        h3 {
+            margin-bottom: 20px !important; /* Augmente l'espace sous les petits titres */
+        }
+    
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+    
+    
+def reduce_margin():
+    st.markdown(
+        """
+        <style>
+        /* Étendre la largeur de la page encore plus */
+        .appview-container {
+            max-width: 100% !important;  /* Étend le contenu à toute la largeur de l'écran */
+            # padding-left: 10px !important;
+            # padding-right: 10px !important;
+        }
+
+
+        /* Supprimer la marge du conteneur principal */
+        .block-container {
+            padding-left: 20px !important;
+            padding-right: 20px !important;
+            max-width: 100% !important;
+        }
+
+        .main {
+            padding-left: 100px !important;
+            padding-right: 100px !important;
+        }
+    
+        /* Étendre les colonnes au maximum */
+        div[data-testid="column"] {
+            width: 90% !important;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+    
+def reduce_title_space():
+    st.markdown(
+        """
+        <style>
+        /* Réduire la marge en haut des titres */
+        h1 {
+            margin-top: -150px !important; /* Ajuste l'espace en haut */
         }
         </style>
         """,

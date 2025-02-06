@@ -20,7 +20,7 @@ void init_observable(py::module &m) {
         .def("compute_all_uncertainties", &ObservableInterface::compute_all_uncertainties)
         .def("compute_chi2", &ObservableInterface::compute_chi2)
         .def("set_param", &ObservableInterface::set_param)
-        .def("get_param", &ObservableInterface::get_param)
-        .def("get_current_obss", &ObservableInterface::get_current_obss);
+        .def("get_param", &ObservableInterface::get_param);
+        // .def("get_current_obss", &ObservableInterface::get_current_obss);
 
 }

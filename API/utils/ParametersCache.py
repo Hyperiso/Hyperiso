@@ -37,6 +37,8 @@ class MemoryManagerCache:
     def get_block_infos(self, block, param_type = ParameterType.SM):
         return self.mm.get_block_infos(block, param_type)
     
+    def get_parameters_types(self):
+        return self.mm.get_parameters_types()
 
 class ParametersCache:
     def __init__(self, param_type):

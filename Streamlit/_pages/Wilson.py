@@ -30,6 +30,9 @@ if "is_configured" not in st.session_state:
 if "global_params_set" not in st.session_state:
     st.session_state.global_params_set = False
 
+if "paramtype_options" not in st.session_state:
+    st.session_state.paramtype_options = None
+
 groups = ["BCoefficientGroup", "BPrimeCoefficientGroup", "BScalarCoefficientGroup"]
 
 coeff_by_group = {
@@ -43,7 +46,7 @@ running_base_b = ["base1", "base2"]
 def app():
     apply_custom_background()
     apply_sidebar_style(with_span = False)
-    add_header()
+    # add_header()
     apply_file_management_style()
     apply_custom_css()
     apply_custom_css_normal()
@@ -55,6 +58,13 @@ def app():
     lha_file = st.sidebar.selectbox("Select LHA File", lha_files, key="selected_file")
     use_marty = st.sidebar.checkbox("Use Marty (forces LO Order)", key="use_marty")
 
+    if not st.session_state.paramtype_options:
+        response = requests.get(
+                f"{BASE_API_URL}/parameters/all_blocks_list")
+        data = response.json()
+        st.session_state.paramtype_options = data["blocks"]
+        
+        print(st.session_state.paramtype_options)
     if st.sidebar.button("Set LHA and Model"):
         if st.session_state.selected_file:
             response = requests.post(
@@ -65,6 +75,8 @@ def app():
                     "use_marty": st.session_state.use_marty,
                 },
             )
+            st.session_state.paramtype_options = None
+            
             if response.status_code == 200:
                 st.sidebar.success("LHA and Model configured!")
                 st.session_state.is_configured = True

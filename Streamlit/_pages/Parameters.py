@@ -99,7 +99,7 @@ def on_new_model():
 def app():
 
     apply_custom_background()
-    add_header()
+    # add_header()
     apply_file_management_style()
     apply_custom_css()
     apply_sidebar_style()
