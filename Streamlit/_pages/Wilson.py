@@ -1,10 +1,14 @@
 import streamlit as st
 import requests
 from Streamlit.Utils.common_elements import add_header, add_footer, apply_custom_background, apply_sidebar_style, apply_file_management_style
-from Streamlit.Utils.common_elements import apply_custom_css
+from Streamlit.Utils.common_elements import apply_custom_css, apply_custom_css_normal
 import os
 import matplotlib.pyplot as plt
 import numpy as np
+
+if "wide_mode" not in st.session_state:
+    st.set_page_config(layout="wide", page_title="Hyperiso", page_icon="📊")
+    st.session_state["wide_mode"] = True
 
 BASE_API_URL = "http://127.0.0.1:8000"
 
@@ -38,10 +42,11 @@ running_base_b = ["base1", "base2"]
 
 def app():
     apply_custom_background()
-    apply_sidebar_style()
+    apply_sidebar_style(with_span = False)
     add_header()
     apply_file_management_style()
     apply_custom_css()
+    apply_custom_css_normal()
     st.title("Wilson Coefficients")
 
     st.sidebar.header("Configuration")
@@ -300,5 +305,5 @@ def app():
                     st.error("Failed to compute for all LHAs")
     add_footer()
 
-if __name__ == "__main__":
-    app()
+
+app()

@@ -4,6 +4,10 @@ import requests
 from Streamlit.Utils.common_elements import add_header, add_footer, apply_custom_background, apply_sidebar_style, apply_file_management_style
 from Streamlit.Utils.common_elements import apply_custom_css
 
+if "wide_mode" not in st.session_state:
+    st.set_page_config(layout="wide", page_title="Hyperiso", page_icon="📊")
+    st.session_state["wide_mode"] = True
+    
 BASE_API_URL = "http://127.0.0.1:8000"
 
 def app():
@@ -48,5 +52,5 @@ def app():
         else:
             st.error("Failed to calculate Chi2")
     add_footer()
-if __name__ == "__main__":
-    app()
+
+app()

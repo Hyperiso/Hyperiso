@@ -1,0 +1,34 @@
+[[pages]]
+path = "_pages/login.py"
+name = "Home"
+icon = "🏠"
+
+[[pages]]
+path = "_pages/Generation.py"
+name = "Generation"
+icon = "🧫"
+
+[[pages]]
+path = "_pages/Parameters.py"
+name = "Parameters"
+icon = "⚙️"
+
+[[pages]]
+path = "_pages/Wilson.py"
+name = "Wilson"
+icon = "🪛"
+
+[[pages]]
+path = "_pages/Observables.py"
+name = "Observables"
+icon = "🔎"
+
+[[pages]]
+path = "_pages/Last_update.py"
+name = "Last updates"
+icon = "🚀"
+
+[[pages]]
+path = "_pages/References.py"
+name = "References"
+icon = ":book:"

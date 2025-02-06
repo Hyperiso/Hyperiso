@@ -3,13 +3,17 @@ import requests
 from Streamlit.Utils.common_elements import add_header, add_footer, apply_custom_background, apply_sidebar_style, apply_file_management_style
 from Streamlit.Utils.common_elements import apply_custom_css
 
+if "wide_mode" not in st.session_state:
+    st.set_page_config(layout="wide", page_title="Hyperiso", page_icon="📊")
+    st.session_state["wide_mode"] = True
+    
 def app():
     st.title("Login")
     apply_custom_background()
     add_header()
     apply_file_management_style()
     apply_custom_css()
-    apply_sidebar_style()
+    # apply_sidebar_style()
     
     if "authenticated" not in st.session_state:
         st.session_state["authenticated"] = False
@@ -34,5 +38,4 @@ def app():
     
     add_footer()
 
-if __name__ == "__main__":
-    app()
+app()

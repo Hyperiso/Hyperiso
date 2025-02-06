@@ -1,2 +1,3 @@
-passlib
-python-jose
+pandas
+numpy
+matplotlib

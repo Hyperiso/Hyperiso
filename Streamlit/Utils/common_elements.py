@@ -41,20 +41,61 @@ def add_header():
                 use_container_width="auto",
             )
 
-def apply_sidebar_style():
+def apply_sidebar_style(with_span = False):
     """Adjust the width of the sidebar and style its components."""
+    
+    # if with_span:
+    #     st.markdown("""<style>
+    #                 [data-testid="stSidebar"] p, 
+    #     [data-testid="stSidebar"] span, 
+    #     [data-testid="stSidebar"] label {
+    #         color: white !important;
+    #     }</style>
+    #                 """, unsafe_allow_html=True,)
+    # else:
+    #     st.markdown("""<style>
+                   
+    #     }</style>
+    #                 """, unsafe_allow_html=True,)
     st.markdown(
         """
         <style>
         /* Adjust the sidebar width */
         [data-testid="stSidebar"] {
             width: 350px;  /* Set the desired width */
-            background-color: #e3f2fd;
+            background-color: #213f77;
             padding: 5px; /* Add padding for better spacing */
         }
+        
+         [data-testid="stSidebarNav"] a {
+            color: white !important;  /* Texte en blanc */
+        }
 
-        [data-testid="stSidebar"] h1, [data-testid="stSidebar"] h2, [data-testid="stSidebar"] h3 {
-            color: #0d47a1; /* Dark blue text for headings */
+        /* Modifier la couleur des liens lorsqu'on passe la souris */
+        [data-testid="stSidebarNav"] a:hover {
+            color: #FFFFFF !important;  /* Jaune au survol */
+            border-radius: 5px;
+            padding: 5px;
+            color: white !important;
+        }
+        
+        [data-testid="stSidebarNav"] span {
+            color: white;
+        }
+        [data-testid="stSidebarNav"] {
+            border-radius: 8px;
+            padding: 10px;
+        }
+
+        /* Modifier la couleur du texte des options du radio */
+        [data-testid="stSidebarNav"] label {
+            color: white !important;  /* Texte en blanc */
+            font-weight: bold !important;
+        }
+
+        /* Modifier la couleur de fond du radio sélectionné */
+        [data-testid="stSidebarNav"] label[data-selected="true"] {
+            color: #ffcc00 !important;  /* Jaune si sélectionné */
         }
         
         /* Style messages inside the sidebar */
@@ -94,6 +135,21 @@ def apply_custom_css():
         unsafe_allow_html=True
     )
 
+def apply_custom_css_normal():
+    st.markdown(
+        """
+        <style>
+        .Selectbox, .TextInput, .NumberInput, .Button, .success, .Alert {
+            width: 100%;
+            padding: 30px;
+            float: left;
+            color: #FDF7EF;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
+    
 def apply_file_management_style():
     """Style adjustments specifically for the File Management section."""
     st.markdown(
@@ -142,7 +198,7 @@ def apply_custom_background():
         <style>
         /* Global background for the entire app */
         .stApp {
-            background-color: #f2f2f2;  /* Light gray background */
+            background-color: #e4e8ff !important;  /* Light gray background */
             padding: 20px;
         }
 
