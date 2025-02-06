@@ -98,11 +98,13 @@ def app():
 
     if st.session_state.global_params_set:
         st.subheader("Coefficient Selection")
+        
+        wilson_type = st.selectbox("What kind of analysis you want ?", ["Matching analysis", "Running analysis", "Cross LHA analysis"], key = "wilson_type")
         coeff_name = st.selectbox("Select Coefficient", coeff_by_group[st.session_state.group] + ["all"], key="coeff_name")
 
-        col1, col2, col3 = st.columns(3)
+        # col1, col2 = st.columns(2)
 
-        with col1:
+        if wilson_type == "Matching analysis":
             st.subheader("Matching Analysis")
             # group = st.selectbox("Select Group", ["Group1", "Group2", "Group3"])
             # coeff_name = st.selectbox("Select Coefficient", coeff_by_group[st.session_state.group]+["all"], key="coeff_name")
@@ -139,9 +141,14 @@ def app():
             st.subheader("Coefficient Variation")
             param_block = st.text_input("Parameter Block")
             param_pdgcode = st.number_input("Parameter pdgCode", step =1)
-            param_min = st.number_input("Min Value", step=0.1)
-            param_max = st.number_input("Max Value", step=0.1)
-            param_steps = st.number_input("Number of point", min_value=2, step=1, value=10)
+            
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                param_min = st.number_input("Min Value", step=0.1)
+            with col2:
+                param_max = st.number_input("Max Value", step=0.1)
+            with col3:
+                param_steps = st.number_input("Number of point", min_value=2, step=1, value=10)
             if st.button("Plot Parameter Variation"):
                 response = requests.get(
                     f"{BASE_API_URL}/wilson/plot_coefficients",
@@ -179,8 +186,7 @@ def app():
                         "use_marty": st.session_state.use_marty,
                     },
                 )
-
-        with col2:
+        elif wilson_type == "Running analysis":
             st.subheader("Running Analysis")
             # group = st.selectbox("Select Group", ["Group1", "Group2", "Group3"])
             # coeff_name = st.selectbox("Select Coefficient", coeff_by_group[st.session_state.group]+["all"], key="coeff_name")
@@ -290,9 +296,8 @@ def app():
                     st.pyplot(fig)
                 else:
                     st.error("Failed to generate plot")
-
-        with col3:
-            st.subheader("Analyze All LHAs")
+        else:
+            st.subheader("Cross LHA analysis")
             if st.button("Compute for All LHAs"):
                 response = requests.get(
                     f"{BASE_API_URL}/wilson/calculate_all_lhas",
