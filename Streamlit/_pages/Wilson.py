@@ -17,6 +17,11 @@ def coef_name_transformation(coeff_name : str) -> str:
         if coeff_name[i:].isdigit():
             return rf"${coeff_name[0:i]}_{coeff_name[i:]}$"
 
+def get_param_code_list():
+    response = requests.get(
+            f"{BASE_API_URL}/parameters/block_info")
+    data = response.json()
+    st.session_state.paramtype_options = data["blocks"]
 # Initialisation des états de session
 if "selected_file" not in st.session_state:
     st.session_state.selected_file = None
@@ -46,7 +51,6 @@ running_base_b = ["base1", "base2"]
 def app():
     apply_custom_background()
     apply_sidebar_style(with_span = False)
-    # add_header()
     apply_file_management_style()
     apply_custom_css()
     apply_custom_css_normal()
@@ -64,7 +68,6 @@ def app():
         data = response.json()
         st.session_state.paramtype_options = data["blocks"]
         
-        print(st.session_state.paramtype_options)
     if st.sidebar.button("Set LHA and Model"):
         if st.session_state.selected_file:
             response = requests.post(
@@ -151,7 +154,8 @@ def app():
                         st.error("Failed to retrieve coefficient")
 
             st.subheader("Coefficient Variation")
-            param_block = st.text_input("Parameter Block")
+            param_block = st.selectbox("Parameter Block", st.session_state.paramtype_options, on_change=get_param_code_list)
+            # param_block = st.text_input("Parameter Block")
             param_pdgcode = st.number_input("Parameter pdgCode", step =1)
             
             col1, col2, col3 = st.columns(3)

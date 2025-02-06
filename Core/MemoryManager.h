@@ -72,7 +72,7 @@ public:
     std::vector<std::string> get_blocks_list(ParameterType param_type = ParameterType::SM);
 
     std::map<int, double> get_block_infos(const std::string& block, ParameterType param_type = ParameterType::SM);
-
+    std::vector<ParameterType> get_type_of_block(const std::string& block);
     MemoryManager(const MemoryManager&) = delete;
     MemoryManager& operator=(const MemoryManager&) = delete;
     MemoryManager(MemoryManager&&) noexcept = default;

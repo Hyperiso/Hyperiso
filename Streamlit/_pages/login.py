@@ -8,12 +8,10 @@ if "wide_mode" not in st.session_state:
     st.session_state["wide_mode"] = True
     
 def app():
-    st.title("Login")
     apply_custom_background()
-    # add_header()
     apply_file_management_style()
     apply_custom_css()
-    # apply_sidebar_style()
+    st.title("Login")
     
     if "authenticated" not in st.session_state:
         st.session_state["authenticated"] = False

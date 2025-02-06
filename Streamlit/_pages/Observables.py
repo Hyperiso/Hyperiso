@@ -12,7 +12,6 @@ BASE_API_URL = "http://127.0.0.1:8000"
 
 def app():
     apply_custom_background()
-    # add_header()
     apply_file_management_style()
     apply_custom_css()
     apply_sidebar_style()

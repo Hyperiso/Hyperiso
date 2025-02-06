@@ -138,3 +138,16 @@ std::map<int, double> MemoryManager::get_block_infos(const std::string& block, P
 std::vector<std::string> MemoryManager::get_blocks_list(ParameterType param_type) {
         return Parameters::GetInstance(param_type)->get_blocks_list();
     }
+
+std::vector<ParameterType> MemoryManager::get_type_of_block(const std::string& block) {
+    std::vector<ParameterType> param_type;
+    for (auto& elem : cache.parameter_types) {
+        for (auto& block_ : get_blocks_list(elem)) {
+            if (block == block_) {
+                param_type.push_back(elem);
+                break;
+            }
+        }
+    }
+    return param_type;
+}

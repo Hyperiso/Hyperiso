@@ -200,6 +200,8 @@ def apply_file_management_style():
         [data-testid="stFileUploader"] {
             float: left;
             padding: 0;
+            margin-top:20px !important;
+            margin-bottom:5px !important;
         }
         </style>
         """,

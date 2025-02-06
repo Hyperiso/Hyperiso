@@ -33,7 +33,6 @@ def check_parameter(block, number, start, stop, step):
 
 def app():
     apply_custom_background()
-    # add_header()
     apply_file_management_style()
     apply_custom_css()
     apply_sidebar_style()

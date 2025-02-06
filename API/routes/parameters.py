@@ -125,6 +125,12 @@ def get_blocks():
 
 @router.get("/block_info")
 def get_block_info(block : str, param_type : str):
+    if param_type == "":
+        codes = set()
+        possible_param_type = mem_cache.get_type_of_block(block)
+        for pt in possible_param_type:
+            codes = codes.union(set(mem_cache.get_block_infos(block, map_paramtype[pt])))
+        return {block : list(codes)}
     if not block in mem_cache.get_blocks_list(map_paramtype[param_type]):
         raise HTTPException(status_code=404, detail = f"Block {block} not found")
     return {block : mem_cache.get_block_infos(block, map_paramtype[param_type])}
