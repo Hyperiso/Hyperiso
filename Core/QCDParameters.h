@@ -8,9 +8,12 @@
 
 class QCDParameters {
 public:
+
+    static constexpr int Nc = 3;
+    static constexpr double C_F = (Nc * Nc - 1.) / (2. * Nc);
+    static constexpr inline double C_A = Nc;
     
-    
-    QCDParameters() { Lambda5 = 0.2; }
+    QCDParameters() { Lambda5 = 0.2; LOG_DEBUG("QCDParameters created at address: ", this); }
     QCDParameters(double alpha_Z, double m_Z, double masst_pole, double massb_b, double mass_u, double mass_d, double mass_s, double mass_c);
     QCDParameters& operator=(const QCDParameters& other) {
         if (this != &other) {
@@ -43,6 +46,16 @@ public:
     double get_mb_mb() {return this->mass_b_b;}
     double get_mb_pole() {return this->mass_b_pole;}
 
+    void set_mt_pole(double mt) {this->mass_t_pole = mt; this->mt_mt();}
+    void set_mb_mb(double mb) {this->mass_b_b = mb; this->mb_pole();}
+
+    int getNf(double Q);
+    std::tuple<double, double, double> getBetas(int nf) const;
+
+    ~QCDParameters() {
+        LOG_DEBUG("QCDParameters destroyed at address: ", this);
+    }
+
 private:
     double Lambda5;
     double mass_u;
@@ -54,8 +67,8 @@ private:
     double mass_b_b;
     double mass_t_t;
 
-    std::string m_b_type;
-    std::string m_t_type;
+    std::string m_b_type{"pole"};
+    std::string m_t_type{"pole"};
 
     double alphasRunning(double Q, double Lambda, int nf) const;
     double matchLambda(double target_alpha, double Q, int nf);
@@ -63,8 +76,6 @@ private:
     void setMassTypes(std::string m_b_type, std::string m_t_type);
     std::vector<double> getOrderedMasses();
     double runMass(double mass, double Q_i, double Q_f, int nf);
-    int getNf(double Q);
-    std::tuple<double, double, double> getBetas(int nf) const;
     std::tuple<double, double, double> getGammas(int nf) const;
     double R(double alpha, int nf) const;
 };

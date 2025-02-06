@@ -59,13 +59,13 @@ void Parser::parse(bool comments) {
         if (newBlock) {
             auto prototype = reader->findPrototype(t.value);
             if (prototype.blockName != "") {
-                LOG_INFO("LHA reader: Block " + prototype.blockName + " found.");
+                LOG_DEBUG("LHA reader: Block " + prototype.blockName + " found.");
                 this->rawBlocks[t.value] = std::vector<std::vector<std::string>> {};
                 cBlock = t.value;
                 hasGlobalScale = prototype.globalScale;
                 skipBlock = false;
             } else if (decay) {
-                LOG_INFO("LHA reader: Decay block found. Skipping.");
+                LOG_DEBUG("LHA reader: Decay block found. Skipping.");
                 skipBlock = true;
                 decay = false;
             } else {
@@ -102,7 +102,8 @@ void Parser::parse(bool comments) {
 }
 
 void LhaReader::addBlock(const std::string& id, const std::vector<std::vector<std::string>>& lines) {
-    auto block = std::make_unique<LhaBlock>(findPrototype(id));
+    auto block = std::make_shared<LhaBlock>(findPrototype(id));
+    LOG_DEBUG(id);
     block->readData(lines);
     std::string id_ci = id;
     std::transform(id_ci.begin(), id_ci.end(), id_ci.begin(), ::toupper);
@@ -129,6 +130,7 @@ void LhaReader::readAll() {
         addBlock(p.first, p.second);
     }
           
+    LOG_DEBUG("LHA file parsed.");
 }
 
 Prototype LhaReader::findPrototype(std::string name) const {

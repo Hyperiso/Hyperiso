@@ -338,4 +338,4 @@ double Parameters::getFlavorParam(FlavorParamType type, const std::string& id) {
     }
 }
 
-Parameters* Parameters::instance[4] = {nullptr, nullptr, nullptr, nullptr};
+std::shared_ptr<Parameters> Parameters::instance[4] = {nullptr, nullptr, nullptr, nullptr};

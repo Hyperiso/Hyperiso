@@ -6,31 +6,11 @@
 #include "WilsonManager.h"
 
 int main() {
-    MemoryManager::GetInstance("Test/InputFiles/testinput_thdm.lha", {0})->init();
+    MemoryManager::GetInstance()->init("Test/InputFiles/testinput_thdm.lha", Model::SM,  true);
     std::string csv_path = "../../DataBase/MartyWilson/SM_wilson.csv";
 
-    std::string coefficient_name = "C7";
-    double Q_match_value = 201.0;
+    std::shared_ptr<CoefficientGroup> b_coeff = std::make_shared<BCoefficientGroup>(BCoefficientGroup(160.));
 
-    try {
-        MartyWilson marty_coefficient(Q_match_value, coefficient_name, csv_path);
-        std::complex<double> result = marty_coefficient.LO_calculation();
-        std::cout << "Coefficient " << coefficient_name << " at Q_match = " << Q_match_value << ": "
-                  << result.real() << " + " << result.imag() << "i" << std::endl;
-    } catch (const std::exception& ex) {
-        std::cerr << "An error occurred: " << ex.what() << std::endl;
-    }
-
-    CoefficientManager* wm = CoefficientManager::GetInstance("SM");
-
-    wm->registerCoefficientGroup("BCoefficient", std::make_shared<BCoefficientGroupMarty>());
-
-    wm->setQMatch("BCoefficient", 81);
-    wm->setMatchingCoefficient("BCoefficient", "LO");
-    auto group = wm->getCoefficientGroup("BCoefficient");
-    for (auto& elem : *group) {
-        std::cout << elem.first << std::endl;
-        std::cout << elem.second->get_CoefficientMatchingValue("LO")<< std::endl;
-    }
-    return 0;
+    b_coeff->init_LO();
+    std::cout << b_coeff << std::endl;
 }

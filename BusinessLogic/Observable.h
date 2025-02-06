@@ -1,37 +1,24 @@
 #if !defined(HYPERISO_OBSERVABLE_H) 
 #define HYPERISO_OBSERVABLE_H
 
-#include "Observables.h"
-#include <complex>
-#include <iostream>
+#include "General.h"
+#include "Compound.h"
+#include "BKstarDecay.h"
 
-typedef std::complex<double> complex_t;
+class Observable : public Compound {
 
-class Observable {
-private:
-    Observables id;
-    int order;
-    int model;
-    double scale;
-    int wilson_basis;
-    complex_t value;
-    bool evaluated;
-
-    void evaluate();  // Evaluates the observable at a given scale and sets its value, sets evaluated to false if evaluation fails
+protected:
+    const Observables id;
+    double exp_val;
+    std::shared_ptr<DecayParent> decay_parent;
 
 public:
-    Observable(Observables id, double scale, int order, int model, int wilson_basis=1) : id(id), scale(scale), order(order), model(model), wilson_basis(wilson_basis) {
-        std::cout << "Evaluating observable ID: " << static_cast<int>(id) << std::endl;
-        this->evaluate();
-        std::cout << "Evaluated observable ID: " << static_cast<int>(id) << std::endl;
-    }
+    Observable(Observables id, std::shared_ptr<DecayParent> decay_parent, double exp_val = 0.0) : id(id), decay_parent(decay_parent), exp_val(exp_val) {}
 
-    complex_t getValue() const;  
-    inline double getScale() const { return this->scale; }   
-    inline Observables getId() const { return this->id; }   
-    inline int getModel() const { return this->model; }   
-    inline int getOrder() const { return this->order; }   
-    inline int getWilsonBasis() const { return this->wilson_basis; }   
+    Observables getId() const { return id; }
+    double get_exp_val() const { return exp_val; }
+    void set_exp_val(double value) { exp_val = value; }
+    double eval() const override { return decay_parent->compute_observable(id); };
 }; 
 
 

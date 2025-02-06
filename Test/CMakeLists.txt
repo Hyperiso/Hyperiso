@@ -30,8 +30,14 @@ set(CTEST_ENVIRONMENT_VARIABLE "CTEST_RUN")
 # add_executable(testWilson testWilson.cpp)
 # target_link_libraries(testWilson PhysicalModelLib)
 
-# add_executable(testObservable testObservable.cpp)
-# target_link_libraries(testObservable BusinessLogicLib)
+add_executable(testObservable BusinessLogic/testObservable.cpp)
+target_link_libraries(testObservable BusinessLogicLib)
+
+add_executable(testStat BusinessLogic/testChi2.cpp)
+target_link_libraries(testStat BusinessLogicLib)
+
+add_executable(testCustomWilsons BusinessLogic/testCustomWilson.cpp)
+target_link_libraries(testCustomWilsons BusinessLogicLib)
 
 # add_executable(testParams testParams.cpp)
 # target_link_libraries(testParams CoreLib)
@@ -66,11 +72,14 @@ target_link_libraries(testReader DataBaseLib ConfiguredModule)
 add_executable(testjsonreader DataBase/testJsonReader.cpp)
 target_link_libraries(testjsonreader DataBaseLib ConfiguredModule)
 
+add_executable(testmappingjson DataBase/testMapping.cpp)
+target_link_libraries(testmappingjson DataBaseLib ConfiguredModule)
+
+add_executable(teststatjson DataBase/testJsonStatParser.cpp)
+target_link_libraries(teststatjson DataBaseLib ConfiguredModule)
 
 add_executable(testSMparams Core/testSMParameters.cpp)
 target_link_libraries(testSMparams CoreLib)
-
-
 
 add_executable(testSMWilson Wilson/testSMWilson.cpp)
 target_link_libraries(testSMWilson PhysicalModelLib UtilsLib)
@@ -112,6 +121,12 @@ set_tests_properties(TestLHAReader PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LAB
 
 add_test(NAME TestJsonReader COMMAND testjsonreader)
 set_tests_properties(TestJsonReader PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "database")
+
+add_test(NAME TestMappingJson COMMAND testmappingjson)
+set_tests_properties(TestMappingJson PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "database")
+
+add_test(NAME TestStatJson COMMAND teststatjson)
+set_tests_properties(TestStatJson PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "database")
 
 
 add_test(NAME TestSMParameters COMMAND testSMparams)

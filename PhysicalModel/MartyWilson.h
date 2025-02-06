@@ -7,6 +7,7 @@
 #include "MartyInterface.h"
 #include "config.hpp"
 #include <iostream>
+#include <math.h>
 
 class MartyWilson : public WilsonCoefficient {
 public:
@@ -20,6 +21,13 @@ public:
 
     MartyWilson(double Q_match, const std::string& coeff_name)
         : WilsonCoefficient(Q_match) {
+        this->set_name(coeff_name);
+        df = csv_reader.read_csv(this->csv_path);
+        df.setIndex(df.getColumn<double>("Q_match").to_string_vec());
+    }
+
+    MartyWilson(const std::string& coeff_name)
+        : WilsonCoefficient() {
         this->set_name(coeff_name);
         df = csv_reader.read_csv(this->csv_path);
         df.setIndex(df.getColumn<double>("Q_match").to_string_vec());
@@ -40,6 +48,10 @@ public:
                 std::cout << this->get_name() << " waw" << std::endl;
                 for (auto& _ : this->df.getColumnNames()) {
                     if (this->get_name()+"_real" == _) {
+                        if (isnan(df.iat<double>(i, this->get_name()+"_real")) && isnan(df.iat<double>(i, this->get_name()+"_img"))) {
+                            break;
+                        }
+                        std::cout << df.iat<double>(i, this->get_name()+"_real") << " BUTE" << std::endl;
                         this->set_CoefficientMatchingValue("LO", {df.iat<double>(i, this->get_name()+"_real"), df.iat<double>(i, this->get_name()+"_img")});
                         return {df.iat<double>(i, this->get_name()+"_real"), df.iat<double>(i, this->get_name()+"_img")};
                     }
@@ -63,8 +75,8 @@ public:
         return {0., 0.};
     }
 
-    std::complex<double> NLO_calculation() override {}
-    std::complex<double> NNLO_calculation() override {}
+    std::complex<double> NLO_calculation() override {return {0., 0.};}
+    std::complex<double> NNLO_calculation() override {return {0., 0.};}
 
 private:
     CSVReader csv_reader;
@@ -94,19 +106,53 @@ private:
     }
 };
 
-class BCoefficientGroupMarty : public BCoefficientGroup {
-public:
-    BCoefficientGroupMarty(double Q_match) { this->clear();
-        this->insert(std::make_pair("C1", std::make_shared<MartyWilson>(Q_match, "C1"))); this->insert(std::make_pair("C2", std::make_shared<MartyWilson>(Q_match, "C2"))); this->insert(std::make_pair("C3", std::make_shared<MartyWilson>(Q_match, "C3")));
-        this->insert(std::make_pair("C4", std::make_shared<MartyWilson>(Q_match, "C4")));  this->insert(std::make_pair("C5", std::make_shared<MartyWilson>(Q_match, "C5"))); this->insert(std::make_pair("C6", std::make_shared<MartyWilson>(Q_match, "C6"))); 
-        this->insert(std::make_pair("C7", std::make_shared<MartyWilson>(Q_match, "C7")));  this->insert(std::make_pair("C8", std::make_shared<MartyWilson>(Q_match, "C8")));  this->insert(std::make_pair("C9", std::make_shared<MartyWilson>(Q_match, "C7"))); 
-        this->insert(std::make_pair("C10", std::make_shared<MartyWilson>(Q_match, "C10")));
-    }
+// class BCoefficientGroupMarty : public BCoefficientGroup {
+// public:
+//     BCoefficientGroupMarty(double Q_match) { this->clear();
+//         this->insert(std::make_pair("C1", std::make_shared<MartyWilson>(Q_match, "C1"))); this->insert(std::make_pair("C2", std::make_shared<MartyWilson>(Q_match, "C2"))); this->insert(std::make_pair("C3", std::make_shared<MartyWilson>(Q_match, "C3")));
+//         this->insert(std::make_pair("C4", std::make_shared<MartyWilson>(Q_match, "C4")));  this->insert(std::make_pair("C5", std::make_shared<MartyWilson>(Q_match, "C5"))); this->insert(std::make_pair("C6", std::make_shared<MartyWilson>(Q_match, "C6"))); 
+//         this->insert(std::make_pair("C7", std::make_shared<MartyWilson>(Q_match, "C7")));  this->insert(std::make_pair("C8", std::make_shared<MartyWilson>(Q_match, "C8")));  this->insert(std::make_pair("C9", std::make_shared<MartyWilson>(Q_match, "C7"))); 
+//         this->insert(std::make_pair("C10", std::make_shared<MartyWilson>(Q_match, "C10")));
+//     }
 
-    BCoefficientGroupMarty() { this->clear();
-        this->insert(std::make_pair("C1", std::make_shared<MartyWilson>(81, "C1"))); this->insert(std::make_pair("C2", std::make_shared<MartyWilson>(81, "C2"))); this->insert(std::make_pair("C3", std::make_shared<MartyWilson>(81, "C3")));
-        this->insert(std::make_pair("C4", std::make_shared<MartyWilson>(81, "C4")));  this->insert(std::make_pair("C5", std::make_shared<MartyWilson>(81, "C5"))); this->insert(std::make_pair("C6", std::make_shared<MartyWilson>(81, "C6"))); 
-        this->insert(std::make_pair("C7", std::make_shared<MartyWilson>(81, "C7")));  this->insert(std::make_pair("C8", std::make_shared<MartyWilson>(81, "C8")));  this->insert(std::make_pair("C9", std::make_shared<MartyWilson>(81, "C7"))); 
-        this->insert(std::make_pair("C10", std::make_shared<MartyWilson>(81, "C10")));
-    }
-};
+//     BCoefficientGroupMarty() { this->clear();
+//         this->insert(std::make_pair("C1", std::make_shared<MartyWilson>(81, "C1"))); this->insert(std::make_pair("C2", std::make_shared<MartyWilson>(81, "C2"))); this->insert(std::make_pair("C3", std::make_shared<MartyWilson>(81, "C3")));
+//         this->insert(std::make_pair("C4", std::make_shared<MartyWilson>(81, "C4")));  this->insert(std::make_pair("C5", std::make_shared<MartyWilson>(81, "C5"))); this->insert(std::make_pair("C6", std::make_shared<MartyWilson>(81, "C6"))); 
+//         this->insert(std::make_pair("C7", std::make_shared<MartyWilson>(81, "C7")));  this->insert(std::make_pair("C8", std::make_shared<MartyWilson>(81, "C8")));  this->insert(std::make_pair("C9", std::make_shared<MartyWilson>(81, "C7"))); 
+//         this->insert(std::make_pair("C10", std::make_shared<MartyWilson>(81, "C10")));
+//     }
+// };
+
+// class BPrimeCoefficientGroupMarty : public BPrimeCoefficientGroup {
+// public:
+//     BPrimeCoefficientGroupMarty(double Q_match) { this->clear();
+//         this->insert(std::make_pair("C1", std::make_shared<MartyWilson>(Q_match, "C1"))); this->insert(std::make_pair("C2", std::make_shared<MartyWilson>(Q_match, "C2"))); this->insert(std::make_pair("C3", std::make_shared<MartyWilson>(Q_match, "C3")));
+//         this->insert(std::make_pair("C4", std::make_shared<MartyWilson>(Q_match, "C4")));  this->insert(std::make_pair("C5", std::make_shared<MartyWilson>(Q_match, "C5"))); this->insert(std::make_pair("C6", std::make_shared<MartyWilson>(Q_match, "C6"))); 
+//         this->insert(std::make_pair("C7", std::make_shared<MartyWilson>(Q_match, "C7")));  this->insert(std::make_pair("C8", std::make_shared<MartyWilson>(Q_match, "C8")));  this->insert(std::make_pair("C9", std::make_shared<MartyWilson>(Q_match, "C7"))); 
+//         this->insert(std::make_pair("C10", std::make_shared<MartyWilson>(Q_match, "C10")));
+//     }
+
+//     BPrimeCoefficientGroupMarty() { this->clear();
+//         this->insert(std::make_pair("C1", std::make_shared<MartyWilson>(81, "C1"))); this->insert(std::make_pair("C2", std::make_shared<MartyWilson>(81, "C2"))); this->insert(std::make_pair("C3", std::make_shared<MartyWilson>(81, "C3")));
+//         this->insert(std::make_pair("C4", std::make_shared<MartyWilson>(81, "C4")));  this->insert(std::make_pair("C5", std::make_shared<MartyWilson>(81, "C5"))); this->insert(std::make_pair("C6", std::make_shared<MartyWilson>(81, "C6"))); 
+//         this->insert(std::make_pair("C7", std::make_shared<MartyWilson>(81, "C7")));  this->insert(std::make_pair("C8", std::make_shared<MartyWilson>(81, "C8")));  this->insert(std::make_pair("C9", std::make_shared<MartyWilson>(81, "C7"))); 
+//         this->insert(std::make_pair("C10", std::make_shared<MartyWilson>(81, "C10")));
+//     }
+// };
+
+// class BScalarCoefficientGroupMarty : public BScalarCoefficientGroup {
+// public:
+//     BScalarCoefficientGroupMarty(double Q_match) { this->clear();
+//         this->insert(std::make_pair("C1", std::make_shared<MartyWilson>(Q_match, "C1"))); this->insert(std::make_pair("C2", std::make_shared<MartyWilson>(Q_match, "C2"))); this->insert(std::make_pair("C3", std::make_shared<MartyWilson>(Q_match, "C3")));
+//         this->insert(std::make_pair("C4", std::make_shared<MartyWilson>(Q_match, "C4")));  this->insert(std::make_pair("C5", std::make_shared<MartyWilson>(Q_match, "C5"))); this->insert(std::make_pair("C6", std::make_shared<MartyWilson>(Q_match, "C6"))); 
+//         this->insert(std::make_pair("C7", std::make_shared<MartyWilson>(Q_match, "C7")));  this->insert(std::make_pair("C8", std::make_shared<MartyWilson>(Q_match, "C8")));  this->insert(std::make_pair("C9", std::make_shared<MartyWilson>(Q_match, "C7"))); 
+//         this->insert(std::make_pair("C10", std::make_shared<MartyWilson>(Q_match, "C10")));
+//     }
+
+//     BScalarCoefficientGroupMarty() { this->clear();
+//         this->insert(std::make_pair("C1", std::make_shared<MartyWilson>(81, "C1"))); this->insert(std::make_pair("C2", std::make_shared<MartyWilson>(81, "C2"))); this->insert(std::make_pair("C3", std::make_shared<MartyWilson>(81, "C3")));
+//         this->insert(std::make_pair("C4", std::make_shared<MartyWilson>(81, "C4")));  this->insert(std::make_pair("C5", std::make_shared<MartyWilson>(81, "C5"))); this->insert(std::make_pair("C6", std::make_shared<MartyWilson>(81, "C6"))); 
+//         this->insert(std::make_pair("C7", std::make_shared<MartyWilson>(81, "C7")));  this->insert(std::make_pair("C8", std::make_shared<MartyWilson>(81, "C8")));  this->insert(std::make_pair("C9", std::make_shared<MartyWilson>(81, "C7"))); 
+//         this->insert(std::make_pair("C10", std::make_shared<MartyWilson>(81, "C10")));
+//     }
+// };

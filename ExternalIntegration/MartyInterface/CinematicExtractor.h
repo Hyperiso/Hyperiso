@@ -1,3 +1,11 @@
+/**
+ * @file CinematicExtractor.h
+ * @brief Definition of the CinematicExtractor class and the utility function countMatchInRegex.
+ * 
+ * Here we defines a class that extracts the cinematic of a given process in Marty (for wilson calculation).
+ * It also includes a utility function to count occurrences of a regex pattern in a string.
+ */
+
 #ifndef CINEMATIC_EXTRACTOR_H
 #define CINEMATIC_EXTRACTOR_H
 
@@ -6,27 +14,31 @@
 #include <regex>
 #include <fstream>
 
-int countMatchInRegex(std::string s, std::string re) {
-    std::regex words_regex(re);
-    auto words_begin = std::sregex_iterator(s.begin(), s.end(), words_regex);
-    auto words_end = std::sregex_iterator();
+/**
+ * @brief Counts the number of occurrences of a regex pattern in a given string.
+ * 
+ * @param s The string in which to search.
+ * @param re The regex pattern as a string.
+ * @return The number of matches found in the string.
+ */
+int countMatchInRegex(std::string s, std::string re);
 
-    return std::distance(words_begin, words_end);
-}
-
+/**
+ * @class CinematicExtractor
+ * @brief A class to extract cinematic information of a given process
+ * 
+ * This class analyzes a text file and counts the occurrences of the keywords "Incoming" and "Outgoing".
+ */
 class CinematicExtractor {
 public:
 
-    std::pair<int, int> extract(const std::string& filename) {
-        std::pair<int,int> cinematic{};
-
-        std::ifstream file(filename);
-        std::string line;
-        while (std::getline(file, line)) {
-            cinematic.first += countMatchInRegex(line, "Incoming");
-            cinematic.second += countMatchInRegex(line, "Outgoing");
-        }
-        return cinematic;
-    }
+    /**
+     * @brief Extracts and counts occurrences of the keywords "Incoming" and "Outgoing" in a file.
+     * 
+     * @param filename The path to the file to analyze.
+     * @return A pair of integers containing the number of occurrences of "Incoming" (first element)
+     * and "Outgoing" (second element).
+     */
+    std::pair<int, int> extract(const std::string& filename);
 };
 #endif // CINEMATIC_EXTRACTOR_H

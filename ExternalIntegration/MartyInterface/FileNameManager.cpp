@@ -86,3 +86,15 @@ std::string FileNameManager::getTemplateDir() const {
 std::string FileNameManager::getLibDir() const {
     return this->root_dir + this->templateDir_ + "libs/"+this->wilson_ + "_" + this->model_ + "/";
 }
+
+std::string FileNameManager::getCsvWilsonFileName() const {
+    return this->root_dir + this->templateDir_ + this->model_ + "_wilson.csv";
+}
+
+std::string FileNameManager::getjsondbmodel() const {
+    return this->root_dir + "/DataBase/Models/" + this->model_ + "/" + toLowercase(this->model_) + ".json";
+}
+
+std::string FileNameManager::getParamFileName() const {
+    return this->getLibDir() + "bin/paramlist.csv";
+}

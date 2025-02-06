@@ -1,11 +1,4 @@
 #include "MartyInterface.h"
-#include <memory>
-#include <filesystem>
-#include <iostream>
-#include "config.hpp"
-#include <algorithm>
-#include "FileNameManager.h"
-#include "GeneralModelModifier.h"
 
 namespace fs = std::filesystem;
 
@@ -15,7 +8,7 @@ void MartyInterface::compile_run(std::string wilson, std::string model) {
     
 
     GppCompilerStrategy compiler(model, wilson);
-    if (!this->already_run(FileNameManager::getInstance(wilson, model)->getNumExecutableFileName())){
+    if (!this->already_run(FileNameManager::getInstance(wilson, model)->getNumGeneratedFileName())){
         compiler.compile_run(FileNameManager::getInstance(wilson, model)->getGeneratedFileName(), FileNameManager::getInstance(wilson, model)->getExecutableFileName());
     }
 }
@@ -23,13 +16,7 @@ void MartyInterface::compile_run(std::string wilson, std::string model) {
 void MartyInterface::generate(std::string wilson, std::string model) {
 
     std::unique_ptr<ModelModifier> smModifier;
-
-    if (model == "SM") {
-        smModifier = std::make_unique<SMModelModifier>(wilson);
-    }
-    else {
-        smModifier = std::make_unique<GeneralModelModifier>(wilson, model);
-    }
+    smModifier = std::make_unique<GeneralModelModifier>(wilson, model);
 
     std::string root_path = project_root.data();
     std::unique_ptr<TemplateManagerBase> templateManager = std::make_unique<NonNumericTemplateManager>(FileNameManager::getInstance(wilson, model)->getTemplateDir());
@@ -41,21 +28,18 @@ void MartyInterface::generate(std::string wilson, std::string model) {
     codeGenerator.generate(wilson, FileNameManager::getInstance(wilson, model)->getGeneratedFileName());
 }
 
-void MartyInterface::generate_numlib(std::string wilson, std::string model) {
-    std::unique_ptr<ModelModifier> smModifier;
-
-    if (model == "SM") {
-        smModifier = std::make_unique<NumModelModifier>(wilson);
-    }
+void MartyInterface::generate_numlib(std::string wilson, std::string model, double Q_match) {
+    bool forceMode = false;
+    std::unique_ptr<GeneralNumModelModifier> ModelModifier = std::make_unique<GeneralNumModelModifier>(wilson, model, forceMode);
     
     
     std::unique_ptr<TemplateManagerBase> templateManager = std::make_unique<NumericTemplateManager>(FileNameManager::getInstance(wilson, model)->getLibDir());
     templateManager->setModelAndWilson(model, wilson);
-    templateManager->setModelModifier(std::move(smModifier));
-    std::string file_path = FileNameManager::getInstance(wilson, model)->getNumGeneratedFileName();
+    templateManager->setNumModelModifier(std::move(ModelModifier));
 
     CodeGenerator codeGenerator(std::move(templateManager));
 
+    std::string file_path = FileNameManager::getInstance(wilson, model)->getNumGeneratedFileName();
     codeGenerator.generate(file_path, file_path);
 }
 
@@ -65,6 +49,29 @@ void MartyInterface::compile_run_libs(std::string wilson, std::string model, dou
     compiler.set_Q_match(Q_match);
     compiler.compile_run(FileNameManager::getInstance(wilson, model)->getLibDir(), FileNameManager::getInstance(wilson,model)->getNumExecutableFileName());
 }
+
+void MartyInterface::calculate(std::string wilson, std::string model, double Q_match, bool new_params) {
+    generate(wilson, model);
+    compile_run(wilson, model);
+    generate_numlib(wilson, model, Q_match);
+    compile_run_libs(wilson, model, Q_match);
+}
+
+bool MartyInterface::already_run(std::string&& outputBinary) {
+    struct stat buffer;
+    if (stat(outputBinary.c_str(), &buffer) != 0) {
+        return false;
+    }
+    if (buffer.st_size == 0) {
+        return false;
+    }
+    std::cout << "Already run !" << std::endl;
+    return true;
+}
+
+std::string MartyInterface::output_binary_name(std::string& wilson, std::string& model) {
+        return "generated_" + wilson+"_" + model + ".cpp";
+    }
 
 std::string to_lowercase(const std::string& str) {
     std::string result = str;

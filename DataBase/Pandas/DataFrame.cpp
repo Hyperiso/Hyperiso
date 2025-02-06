@@ -112,7 +112,7 @@ DataFrame DataFrame::tail(size_t n) const {
 }
 
 void DataFrame::describe() const {
-    std::cout << "Description des colonnes numériques :" << std::endl;
+    std::cout << "Description of numerical columns :" << std::endl;
     
     for (const auto& colName : columns) {
 
@@ -121,7 +121,7 @@ void DataFrame::describe() const {
         } else if (csvOptions.columnTypes.at(colName) == typeid(double)) {
             describeColumn<double>(colName);
         } else {
-            std::cout << "La colonne '" << colName << "' n'est pas numérique, donc elle est ignorée." << std::endl;
+            std::cout << "Column '" << colName << "' is not numerical, then ignored." << std::endl;
         }
     }
 }

@@ -1,0 +1,10 @@
+{
+    "param1": {
+        "block": "BlockA",
+        "pdgCode": 1234
+    },
+    "param2": {
+        "block": "BlockB",
+        "pdgCode": 5678
+    }
+}

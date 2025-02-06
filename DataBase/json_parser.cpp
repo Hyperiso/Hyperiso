@@ -1,4 +1,5 @@
 #include "json_parser.h"
+#include "Logger.h"
 
 std::string trim(const std::string& str) {
     if (str.empty()) {
@@ -6,7 +7,7 @@ std::string trim(const std::string& str) {
     }
     size_t first = str.find_first_not_of(' ');
     if (first == std::string::npos) {
-        return ""; // la chaîne ne contient que des espaces
+        return "";
     }
     size_t last = str.find_last_not_of(' ');
     return str.substr(first, (last - first + 1));
@@ -63,46 +64,42 @@ void read_json(const std::string& filename, std::vector<Value>& values, std::vec
                 Value val;
                 std::vector<std::string> parts;
                 
-                // Lire le champ "name"
                 parts = split(line, ':');
                 if (parts.size() > 1) {
                     val.name = remove_quotes(parts[1]);
-                    std::cout << "Name: " << val.name << std::endl;
+                    LOG_DEBUG("Name: ", val.name);
                 } else {
                     std::cerr << "Error parsing name in values section" << std::endl;
                     continue;
                 }
 
-                // Lire le champ "central_value"
                 if (std::getline(file, line)) {
                     parts = split(line, ':');
                     if (parts.size() > 1) {
                         val.central_value = std::stod(parts[1]);
-                        std::cout << "Central Value: " << val.central_value << std::endl;
+                        LOG_DEBUG("Central value: ", val.central_value);
                     } else {
                         std::cerr << "Error parsing central_value in values section" << std::endl;
                         continue;
                     }
                 }
 
-                // Lire le champ "stat_error"
                 if (std::getline(file, line)) {
                     parts = split(line, ':');
                     if (parts.size() > 1) {
                         val.stat_error = std::stod(parts[1]);
-                        std::cout << "Stat Error: " << val.stat_error << std::endl;
+                        LOG_DEBUG("Stat error: ", val.stat_error);
                     } else {
                         std::cerr << "Error parsing stat_error in values section" << std::endl;
                         continue;
                     }
                 }
 
-                // Lire le champ "syst_error"
                 if (std::getline(file, line)) {
                     parts = split(line, ':');
                     if (parts.size() > 1) {
                         val.syst_error = std::stod(parts[1]);
-                        std::cout << "Syst Error: " << val.syst_error << std::endl;
+                        LOG_DEBUG("Syst error: ", val.syst_error);
                     } else {
                         std::cerr << "Error parsing syst_error in values section" << std::endl;
                         continue;
@@ -111,7 +108,6 @@ void read_json(const std::string& filename, std::vector<Value>& values, std::vec
 
                 values.push_back(val);
 
-                // Lire la ligne de fermeture
                 if (std::getline(file, line)) {
                     continue;
                 }
@@ -123,34 +119,31 @@ void read_json(const std::string& filename, std::vector<Value>& values, std::vec
                 Correlation corr;
                 std::vector<std::string> parts;
                 
-                // Lire le champ "name1"
                 parts = split(line, ':');
                 if (parts.size() > 1) {
                     corr.name1 = remove_quotes(parts[1]);
-                    std::cout << "Name1: " << corr.name1 << std::endl;
+                    LOG_DEBUG("Name 1: ", corr.name1);
                 } else {
                     std::cerr << "Error parsing name1 in correlations section" << std::endl;
                     continue;
                 }
 
-                // Lire le champ "name2"
                 if (std::getline(file, line)) {
                     parts = split(line, ':');
                     if (parts.size() > 1) {
                         corr.name2 = remove_quotes(parts[1]);
-                        std::cout << "Name2: " << corr.name2 << std::endl;
+                        LOG_DEBUG("Name 2: ", corr.name2);
                     } else {
                         std::cerr << "Error parsing name2 in correlations section" << std::endl;
                         continue;
                     }
                 }
 
-                // Lire le champ "value"
                 if (std::getline(file, line)) {
                     parts = split(line, ':');
                     if (parts.size() > 1) {
                         corr.value = std::stod(parts[1]);
-                        std::cout << "Value: " << corr.value << std::endl;
+                        LOG_DEBUG("Correlation: ", corr.value);
                     } else {
                         std::cerr << "Error parsing value in correlations section" << std::endl;
                         continue;
@@ -159,7 +152,6 @@ void read_json(const std::string& filename, std::vector<Value>& values, std::vec
 
                 correlations.push_back(corr);
 
-                // Lire la ligne de fermeture
                 if (std::getline(file, line)) {
                     continue;
                 }

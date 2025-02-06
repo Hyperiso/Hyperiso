@@ -1,15 +1,16 @@
 #pragma once
 
-#include "QCDParameters.h"
+// #include "QCDParameters.h"
 #include "BlockAccessor.h"
 #include "MemoryManager.h"
 #include "Interface.h"
 #include "JsonParameters.h"
-
+#include "QCDHelper.h"
 #include <memory>
+
 typedef std::complex<double> complex_t; 
 
-
+constexpr int N_PARAM_INSTANCES = 6;
 
 class ModelStrategy {
 public:
@@ -32,7 +33,7 @@ public:
     void initializeParameters(class Parameters& params) override;
 };
 
-class FlAVORModelStrategy : public ModelStrategy {
+class FlavorStrategy : public ModelStrategy {
 public:
     void initializeParameters(class Parameters& params) override;
 };
@@ -42,58 +43,101 @@ public:
     void initializeParameters(class Parameters& params) override;
 };
 
+class WilsonInputStrategy : public ModelStrategy {
+public:
+    void initializeParameters(class Parameters& params) override;
+};
+
+class FormFactorStrategy : public ModelStrategy {
+public:
+    void initializeParameters(class Parameters& params) override;
+};
+
 class Parameters {
 public:
-    static Parameters* GetInstance(int modelId = 0);
+    static std::shared_ptr<Parameters> GetInstance(ParameterType id = ParameterType::SM);
+    void CleanupInstance(ParameterType id = ParameterType::SM);
+    static ParameterType GetType(const std::string& block, int pdgCode);
+    static double Get(ParameterType type, const std::string& block, int code);
+    static double Get(ParamId id);
 
+    bool exist(const std::string& block, int pdgCode);
+    
     double operator()(const std::string& block, int pdgCode);
 
-    double alpha_s(double Q);
-    double running_mass(double quarkmass, double Q_init, double Q_end, std::string option_massb = "running", std::string option_masst = "pole");
+    // double alpha_s(double Q);
+    // double running_mass(double quarkmass, double Q_init, double Q_end, std::string option_massb = "running", std::string option_masst = "pole");
 
-    // Method to allow ModelStrategy to add blocks
-    void addBlock(const std::string& name, std::unique_ptr<Block> block) {
-        blockAccessor.addBlock(name, std::move(block));
-    }
-    void addFlavorBlock(FlavorParamType name, std::unique_ptr<FlavorBlock> block) {
-        flavorblockAccessor.addBlock(name, std::move(block));
-    }
-    void setBlockValue(const std::string& name, int pdgCode, double value) {
-        // jsonparser.addElement(name, pdgCode, value);
-        blockAccessor.setValue(name, pdgCode, value);
+    void addBlock(const std::string& name, std::shared_ptr<Block> block) {
+        blockAccessor.addBlock(name, block);
     }
 
-    void setQCDParameters(const QCDParameters&& qcdparams) {QCDRunner = qcdparams;}
+    void setBlockValue(const std::string& name, int pdgCode, double value, bool force = false) {
+        // if (force && (name == "SMINPUTS")) {
+        //     if(pdgCode ==6) {
+        //         QCDRunner.set_mt_pole(value);
+        //         blockAccessor.setValue(name, pdgCode, this->get_QCD_masse("mt_mt"), force);
+        //         return;
+            
+        //     } else if (pdgCode ==5) {
+        //         QCDRunner.set_mb_mb(value);
+        //         blockAccessor.setValue(name, pdgCode, value, force);
+        //         return;
+        //     }
+        // }
+        blockAccessor.setValue(name, pdgCode, value, force);
+    }
 
-    double get_QCD_masse(std::string masstype);
-    double getFlavorParam(FlavorParamType type, const std::string& id);
+    std::map<int, double> get_block_infos(std::string blockName) {
+        return blockAccessor.getAllValues(blockName);
+    }
 
-    void changeParameterValue(const std::string& block, int pdgCode, double newValue);
-    void reset();
 
+    std::vector<std::string> get_blocks_list() {
+        return blockAccessor.get_blocks();
+    }
+
+    // void setQCDParameters(const QCDParameters&& qcdparams) {QCDRunner = qcdparams;}
+
+
+    // double get_QCD_masse(std::string masstype);
+
+    void changeParameterMode(const ParamId& param_id, ParameterMode new_mode);
+    void shiftParameter(const ParamId& param_id, double shift_value);
+
+    static complex_t get_c_CKM_entry(int idx) {
+        auto p = Parameters::GetInstance();
+        return complex_t((*p)("RECKM", idx), (*p)("IMCKM", idx));
+    }
+
+    // QCDParameters* QCDaddress() {
+    //     return &this->QCDRunner;
+    // }
+  
+    ~Parameters() { LOG_DEBUG("Parameters at ", this); }
 
 private:
-    explicit Parameters(ModelStrategy* modelStrategy);
-    static std::map<int, Parameters*> instances;
+    explicit Parameters(std::shared_ptr<ModelStrategy> modelStrategy);
+    static std::map<ParameterType, std::shared_ptr<Parameters>> instances;
     std::map<std::pair<std::string, int>, double> originalValuesCache;
 
-    QCDParameters QCDRunner;
-    BlockAccessor blockAccessor;
-    FlavorBlockAccessor flavorblockAccessor;
-    
 
-    ModelStrategy* strategy;
+    // QCDParameters QCDRunner;
+    BlockAccessor blockAccessor;
+
+    std::shared_ptr<ModelStrategy> strategy;
 
     friend class ParametersFactory;
 };
 
 class ParametersFactory {
 public:
-    static Parameters* GetParameters(int modelId);
+    static std::shared_ptr<Parameters> GetParameters(ParameterType id);
+    static void removeParameters(ParameterType id);
 private:
-    static std::map<int, Parameters*> instances;
+    static std::map<ParameterType, std::shared_ptr<Parameters>> instances;
 
-    static ModelStrategy* createStrategy(int modelId);
+    static std::shared_ptr<ModelStrategy> createStrategy(ParameterType id);
 };
 
 std::string doubleToString(double value, int precision);

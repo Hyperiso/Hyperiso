@@ -1,6 +1,7 @@
 #if !defined(HYPERISO_WILSON_THDM_H)
 #define HYPERISO_WILSON_THDM_H
 #include "Wilsonv2.h"
+#include "WilsonGroup.h"
 #include "thdm_parameters.h"
 #include "Math_THDM.h"
 
@@ -8,10 +9,10 @@ class WilsonCoefficient_THDM {
 protected:
     WilsonCoefficient_THDM(double Q_match) {thdm_params->set_params(Q_match);}
     WilsonCoefficient_THDM() {thdm_params->set_params(81.);}
-    void set_mod_parameters(Parameters* new_mod) {this->mod = new_mod;};
+    void set_mod_parameters(std::shared_ptr<Parameters> new_mod) {this->mod = new_mod;};
     
 
-    Parameters* mod = Parameters::GetInstance(2);
+    std::shared_ptr<Parameters> mod = Parameters::GetInstance(ParameterType::THDM);
 
     thdm_parameters *thdm_params = thdm_parameters::GetInstance();
 };
@@ -23,9 +24,9 @@ public:
 
     }
 
-    std::complex<double> LO_calculation() { this->set_CoefficientMatchingValue("LO", {0.,0.}); std::cout << "coefficient C1 " << this->get_CoefficientMatchingValue("LO") << std::endl; return {0,0};} 
-    std::complex<double> NLO_calculation() { this->set_CoefficientMatchingValue("NLO", {0.,0.}); std::cout << "coefficient C1 NLO " << this->get_CoefficientMatchingValue("NLO") << std::endl;return {0,0};} 
-    std::complex<double> NNLO_calculation() { this->set_CoefficientMatchingValue("NNLO", {0.,0.}); std::cout << "coefficient C1 NNLO " << this->get_CoefficientMatchingValue("NNLO") << std::endl;return {0,0};} 
+    std::complex<double> LO_calculation() { this->set_CoefficientMatchingValue("LO", {0.,0.}); return {0,0};} 
+    std::complex<double> NLO_calculation() { this->set_CoefficientMatchingValue("NLO", {0.,0.}); return {0,0};} 
+    std::complex<double> NNLO_calculation() { this->set_CoefficientMatchingValue("NNLO", {0.,0.}); return {0,0};} 
 
 };
 
@@ -353,6 +354,30 @@ public:
 
 };
 
+class C_Blnu_A_THDM : public C_Blnu_A, public WilsonCoefficient_THDM {
+public:
+    C_Blnu_A_THDM(double Q_match) : C_Blnu_A(Q_match), WilsonCoefficient_THDM(Q_match) {}
+    C_Blnu_A_THDM() : C_Blnu_A() {}
+
+    std::complex<double> LO_calculation() {return {0,0};}
+    std::complex<double> NLO_calculation() {return {0,0};} 
+    std::complex<double> NNLO_calculation() {return {0,0};} 
+
+    std::shared_ptr<Parameters> sm = Parameters::GetInstance();
+};
+
+class C_Blnu_P_THDM : public C_Blnu_P, public WilsonCoefficient_THDM {
+public:
+    C_Blnu_P_THDM(double Q_match) : C_Blnu_P(Q_match), WilsonCoefficient_THDM(Q_match) {}
+    C_Blnu_P_THDM() : C_Blnu_P() {}
+
+    std::complex<double> LO_calculation();
+    std::complex<double> NLO_calculation() {return {0,0};} 
+    std::complex<double> NNLO_calculation() {return {0,0};} 
+
+    std::shared_ptr<Parameters> sm = Parameters::GetInstance();
+};
+
 class BCoefficientGroup_THDM : public BCoefficientGroup {
 
 public:
@@ -411,5 +436,17 @@ public:
 
 };
 
+class BlnuCoefficientGroup_THDM : public BlnuCoefficientGroup {
+public:
+    BlnuCoefficientGroup_THDM() { this->clear();
+        this->insert(std::make_pair("C_Blnu_A", std::make_shared<C_Blnu_A_THDM>())); this->insert(std::make_pair("C_Blnu_P", std::make_shared<C_Blnu_P_THDM>()));
+    }
+    BlnuCoefficientGroup_THDM(double Q_match) { this->clear();
+        this->insert(std::make_pair("C_Blnu_A", std::make_shared<C_Blnu_A_THDM>(Q_match))); this->insert(std::make_pair("C_Blnu_P", std::make_shared<C_Blnu_P_THDM>(Q_match)));
+    }
+
+    void set_base_1() {}
+    void set_base_2() {}
+};
 
 #endif

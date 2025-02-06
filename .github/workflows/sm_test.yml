@@ -13,11 +13,16 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake make build-essential libgsl-dev
+          
       - name: Configure Cmake
         run: cmake -S. -B build -DENABLE_TESTS=ON
 
       - name: Build Project
-        run: cmake --build build --target testSMWilson testSMCQPrimeWilson
+        run: cmake --build build --target testSMWilson testSMCQPrimeWilson testBase1Wilson testBase2Wilson
 
       - name: Run Common Tests
         run: ctest --test-dir build -L wilson --output-on-failure

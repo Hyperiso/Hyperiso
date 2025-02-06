@@ -1,7 +1,7 @@
 #include "WilsonManager.h"
 
 InitialState::InitialState() {
-    this->state = "InitialState";
+    this->state = StateName::InitialState;
 }
 
 InitialState::~InitialState() {
@@ -11,24 +11,26 @@ InitialState::~InitialState() {
 void InitialState::setQMatch(CoefficientManager* manager, const std::string& groupName, double Q_match) {
         CoefficientGroup* group = manager->getCoefficientGroup(groupName);
         group->set_Q_match(Q_match);
-        manager->setState(groupName, std::make_unique<QMatchSetState>(this->EnumToString(this->currentOrder)));
+        manager->setState(groupName, std::make_shared<QMatchSetState>(OrderMapper::str(this->currentOrder)));
 }
 
 void MatchingSetState::setGroupScale(CoefficientManager* manager, const std::string& groupName, double Q) {
         CoefficientGroup* group = manager->getCoefficientGroup(groupName);
         group->set_Q_run(Q);
-        manager->setState(groupName, std::make_unique<QSetState>(this->EnumToString(this->currentOrder)));
+        manager->setState(groupName, std::make_shared<QSetState>(OrderMapper::str(this->currentOrder)));
 }
 
-
+void MatchingSetState::setQMatch(CoefficientManager* manager, const std::string& groupName, double Q_match) {
+        CoefficientGroup* group = manager->getCoefficientGroup(groupName);
+        group->set_Q_match(Q_match);
+        manager->setState(groupName, std::make_shared<QMatchSetState>(OrderMapper::str(this->currentOrder)));
+}
 
 void QMatchSetState::setMatchingCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& order) {
         CoefficientGroup* group = manager->getCoefficientGroup(groupName);
-        CoefficientOrder newOrder = order == "LO" ? CoefficientOrder::LO :
-                                    order == "NLO" ? CoefficientOrder::NLO :
-                                    CoefficientOrder::NNLO;
+        QCDOrder newOrder = OrderMapper::enum_elt(order);
 
-        if (newOrder <= currentOrder) {
+        if (newOrder < currentOrder) {
             throw std::runtime_error("Cannot set matching coefficient: Lower or same order already calculated.");
         }
 
@@ -46,7 +48,28 @@ void QMatchSetState::setMatchingCoefficient(CoefficientManager* manager, const s
         }
 
         currentOrder = newOrder;
-        manager->setState(groupName, std::make_unique<MatchingSetState>(order));
+        manager->setState(groupName, std::make_shared<MatchingSetState>(order));
+}
+
+void MatchingSetState::setMatchingCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& order) {
+        CoefficientGroup* group = manager->getCoefficientGroup(groupName);
+        QCDOrder newOrder = OrderMapper::enum_elt(order);
+
+        for (auto& it : *group) {
+            if (order == "LO") {
+                it.second->LO_calculation();
+            } else if (order == "NLO") {
+                it.second->LO_calculation();
+                it.second->NLO_calculation();
+            } else if (order == "NNLO") {
+                it.second->LO_calculation();
+                it.second->NLO_calculation();
+                it.second->NNLO_calculation();
+            }
+        }
+
+        currentOrder = newOrder;
+        manager->setState(groupName, std::make_shared<MatchingSetState>(order));
 }
 
 void QSetState::setRunCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& order) {
@@ -58,12 +81,15 @@ void QSetState::setRunCoefficient(CoefficientManager* manager, const std::string
     if (order == "LO") {
         group->set_base_1_LO();
     } else if (order == "NLO") {
+        group->set_base_1_LO();
         group->set_base_1_NLO();
     } else if (order == "NNLO") {
+        group->set_base_1_LO();
+        group->set_base_1_NLO();
         group->set_base_1_NNLO();
     }
 
-    manager->setState(groupName, std::make_unique<RunSetState>(this->EnumToString(this->currentOrder)));
+    manager->setState(groupName, std::make_unique<RunSetState>(OrderMapper::str(this->currentOrder)));
 }
 
 std::complex<double> MatchingSetState::getMatchingCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) {
@@ -80,16 +106,37 @@ std::complex<double> MatchingSetState::getFullMatchingCoefficient(CoefficientMan
     return group->getfullMatching(coeffName, order);
 }
 
+double MatchingSetState::getAlphaS(CoefficientManager* manager, const std::string& groupName) {
+    return QCDHelper::alpha_s(manager->getCoefficientGroup(groupName)->get_Q_match());
+}
+
+double QMatchSetState::getAlphaS(CoefficientManager* manager, const std::string& groupName) {
+    return QCDHelper::alpha_s(manager->getCoefficientGroup(groupName)->get_Q_match());
+}
+
 void RunSetState::setGroupScale(CoefficientManager* manager, const std::string& groupName, double Q) {
     CoefficientGroup* group = manager->getCoefficientGroup(groupName);
     group->set_Q_run(Q);
-    if (this->EnumToString(currentOrder) == "LO") {
-        group->set_base_1_LO();
-    } else if (this->EnumToString(currentOrder) == "NLO") {
-        group->set_base_1_NLO();
-    } else if (this->EnumToString(currentOrder) == "NNLO") {
-        group->set_base_1_NNLO();
+    
+    switch(currentOrder) {
+        case QCDOrder::LO:
+            group->set_base_1_LO();
+            break;
+        case QCDOrder::NLO:
+            group->set_base_1_NLO();
+            break;
+        case QCDOrder::NNLO:
+            group->set_base_1_NNLO();
+            break;
     }
+}
+
+void RunSetState::setQMatch(CoefficientManager *manager,
+                            const std::string &groupName,
+                            double Q_match) {
+    CoefficientGroup* group = manager->getCoefficientGroup(groupName);
+    group->set_Q_match(Q_match);
+    manager->setState(groupName, std::make_shared<QMatchSetState>(OrderMapper::str(this->currentOrder)));
 }
 
 std::complex<double> RunSetState::getFullMatchingCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) {
@@ -139,4 +186,4 @@ std::complex<double> RunSetState::getRunCoefficient(CoefficientManager* manager,
     return group->getRun(coeffName, order);
 }
 
-std::map<std::string, std::unique_ptr<CoefficientManager>> CoefficientManager::instances;
+std::shared_ptr<CoefficientManager> CoefficientManager::instance;

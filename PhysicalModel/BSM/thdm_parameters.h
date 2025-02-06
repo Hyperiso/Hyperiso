@@ -3,6 +3,7 @@
 #include <functional>
 #include "Parameters.h"
 #include "Logger.h"
+#include <iostream>
 
 class thdm_parameters {
 
@@ -15,8 +16,8 @@ class thdm_parameters {
     void operator=(const thdm_parameters&) = delete;
 
 
-	Parameters* mod = Parameters::GetInstance(2);
-    Parameters* sm = Parameters::GetInstance();
+	std::shared_ptr<Parameters> mod = Parameters::GetInstance(ParameterType::THDM);
+    std::shared_ptr<Parameters> sm = Parameters::GetInstance(ParameterType::SM);
 public:
     static thdm_parameters* GetInstance() {
         if (!thdm_parameters::instance) {
@@ -27,12 +28,12 @@ public:
     void set_lu(double lu) {this->lu = lu;}
     void set_ld(double ld) {this->ld = ld;}
 
-    void set_sm_parameters(Parameters* sm) {this->sm = sm;}
-    void set_mod_parameters(Parameters* sm) {this->mod = mod;}
+    void set_sm_parameters(std::shared_ptr<Parameters> sm) {this->sm = sm;}
+    void set_mod_parameters(std::shared_ptr<Parameters> sm) {this->mod = mod;}
     void set_params(double Q_match);
 
-    double mass_top_muW=(*sm).running_mass((*sm)("MASS",6), (*sm)("MASS",6),scale, "running", "pole");
-	double mass_b_muW=(*sm).running_mass((*sm)("MASS",5), (*sm)("MASS",5), scale);
+    double mass_top_muW = QCDHelper::msbar_mass(6, scale, "running", "pole");
+	double mass_b_muW = QCDHelper::msbar_mass(5, scale);
 
     double sw2=pow(sin(atan((*sm)("GAUGE",1)/(*sm)("GAUGE",2))),2.); //1 = param-> gp and 2 = param->g2
     double xt= pow(mass_top_muW/(*sm)("MASS",24),2.); // W boson mass (24)
@@ -50,7 +51,8 @@ public:
 	double xH0=pow((*mod)("MASS",35)/(*sm)("MASS",24),2.);
 	double xA=pow((*mod)("MASS",36)/(*sm)("MASS",24),2.);
 
-    double lu = (*mod)("YU", 22);;
+    
+    double lu = (*mod)("YU", 22);
 	double ld = (*mod)("YD", 22);
     
 };

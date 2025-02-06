@@ -68,7 +68,7 @@ std::map<std::string, WilsonManager*> WilsonManager::instances = {};
 
 void SM_LO_Strategy::init(double scale, WilsonSet& C_match) {
 
-    Parameters* sm = Parameters::GetInstance();
+    std::shared_ptr<Parameters> sm = Parameters::GetInstance();
     Wilson_parameters *W_param = Wilson_parameters::GetInstance();
     W_param->SetMuW(scale);
 
@@ -106,7 +106,7 @@ void SM_LO_Strategy::init(double scale, WilsonSet& C_match) {
 
 void SM_LO_Strategy::set_base1(WilsonSet& C, WilsonSet& C_match, double Q, const double Q_match) {
 
-	Parameters* sm = Parameters::GetInstance();
+	std::shared_ptr<Parameters> sm = Parameters::GetInstance();
     Wilson_parameters *W_param = Wilson_parameters::GetInstance();
     W_param->SetMu(Q);
 
@@ -164,7 +164,7 @@ void SM_LO_Strategy::set_base1(WilsonSet& C, WilsonSet& C_match, double Q, const
 
 void SM_LO_Strategy::set_base2(WilsonSet& C, WilsonSet& C_match, double Q, const double Q_match) {
 
-	Parameters* sm = Parameters::GetInstance();
+	std::shared_ptr<Parameters> sm = Parameters::GetInstance();
     Wilson_parameters *W_param = Wilson_parameters::GetInstance();
     W_param->SetMu(Q);
 
@@ -203,7 +203,7 @@ void SM_LO_Strategy::set_base2(WilsonSet& C, WilsonSet& C_match, double Q, const
 
 void SM_NLO_Strategy::init(double scale, WilsonSet& C_match) {
 
-    Parameters* sm = Parameters::GetInstance();
+    std::shared_ptr<Parameters> sm = Parameters::GetInstance();
     Wilson_parameters *W_param = Wilson_parameters::GetInstance();
     W_param->SetMuW(scale);
 
@@ -248,7 +248,7 @@ void SM_NLO_Strategy::init(double scale, WilsonSet& C_match) {
 
 void SM_NLO_Strategy::set_base1(WilsonSet& C, WilsonSet& C_match, double Q, const double Q_match) {
 
-	Parameters* sm = Parameters::GetInstance();
+	std::shared_ptr<Parameters> sm = Parameters::GetInstance();
     Wilson_parameters *W_param = Wilson_parameters::GetInstance();
     W_param->SetMu(Q);
     
@@ -310,7 +310,7 @@ void SM_NLO_Strategy::set_base1(WilsonSet& C, WilsonSet& C_match, double Q, cons
 
 void SM_NLO_Strategy::set_base2(WilsonSet& C, WilsonSet& C_match, double Q, const double Q_match) {
 
-	Parameters* sm = Parameters::GetInstance();
+	std::shared_ptr<Parameters> sm = Parameters::GetInstance();
     Wilson_parameters *W_param = Wilson_parameters::GetInstance();
     W_param->SetMu(Q);
 
@@ -386,7 +386,7 @@ void SM_NLO_Strategy::set_base2(WilsonSet& C, WilsonSet& C_match, double Q, cons
 
 void SM_NNLO_Strategy::init(double scale, WilsonSet& C_match) {
 
-    Parameters* sm = Parameters::GetInstance();
+    std::shared_ptr<Parameters> sm = Parameters::GetInstance();
     Wilson_parameters *W_param = Wilson_parameters::GetInstance();
     W_param->SetMuW(scale);
 
@@ -474,7 +474,7 @@ void SM_NNLO_Strategy::init(double scale, WilsonSet& C_match) {
 
 void SM_NNLO_Strategy::set_base1(WilsonSet& C, WilsonSet& C_match, double Q, const double Q_match) {
 
-	Parameters* sm = Parameters::GetInstance();
+	std::shared_ptr<Parameters> sm = Parameters::GetInstance();
     Wilson_parameters *W_param = Wilson_parameters::GetInstance();
     W_param->SetMu(Q);
 
@@ -527,7 +527,7 @@ void SM_NNLO_Strategy::set_base1(WilsonSet& C, WilsonSet& C_match, double Q, con
 
 void SM_LO_Strategy::init_prime(double Q_match, double Q,int gen, WilsonSet& C) {
 
-	Parameters* sm = Parameters::GetInstance();
+	std::shared_ptr<Parameters> sm = Parameters::GetInstance();
     Wilson_parameters *W_param = Wilson_parameters::GetInstance();
     W_param->SetMuW(Q_match);
     W_param->SetMu(Q);
@@ -552,7 +552,7 @@ void SM_LO_Strategy::init_prime(double Q_match, double Q,int gen, WilsonSet& C) 
 
 void SM_LO_Strategy::init_scalar(double Q_match, double Q,int gen, WilsonSet& C) {
 
-    Parameters* sm = Parameters::GetInstance(0);
+    std::shared_ptr<Parameters> sm = Parameters::GetInstance(0);
     Wilson_parameters *W_param = Wilson_parameters::GetInstance();
     W_param->SetMuW(Q_match);
     W_param->SetMu(Q);

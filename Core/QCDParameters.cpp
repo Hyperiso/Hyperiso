@@ -25,7 +25,7 @@ QCDParameters::QCDParameters(double alpha_Z, double m_Z, double masst_pole, doub
     this->mb_pole();
     this->setMassTypes("pole", "pole");
 
-    LOG_INFO("In QCDParameters constructor mb(81 GeV) = " + std::to_string(this->running_mass(4.25, 4.25, 81, "running")));
+    LOG_DEBUG("In QCDParameters constructor mb(81 GeV) = " + std::to_string(this->running_mass(4.25, 4.25, 81, "running")));
 }
 
 /**
@@ -40,28 +40,25 @@ double QCDParameters::runningAlphasCalculation(double Q, std::string option_mass
     this->setMassTypes(option_massb, option_masst);
     int n_i = 5;
     int n_f = this->getNf(Q);
-
     if (n_f < 4) {
-        LOG_WARN("Scale for alpha_s calculation is below charm mass.");
+        // LOG_WARN("Scale for alpha_s calculation is below charm mass.");
     }
 
     double L = this->Lambda5;
     auto Q_bounds = this->getOrderedMasses();
 
     while (n_i > n_f) {
-        // LOG_INFO("DOWN");
         double alpha_match = this->alphasRunning(Q_bounds.at(n_i - 1), L, n_i);
         L = this->matchLambda(alpha_match, Q_bounds.at(n_i - 1), n_i - 1);
         --n_i;
     }
 
     while (n_i < n_f) {
-        // LOG_INFO("UP");
         double alpha_match = this->alphasRunning(Q_bounds.at(n_i), L, n_i);
         L = this->matchLambda(alpha_match, Q_bounds.at(n_i), n_i + 1);
         ++n_i;
     }
-
+    
     return this->alphasRunning(Q, L, n_f);
 }
 
@@ -223,7 +220,7 @@ double QCDParameters::matchLambda(double target_alpha, double Q, int nf){
         L_moy = (L_min + L_max) / 2;
         alphas_moy = alphasRunning(Q, L_moy, nf);
 
-        (target_alpha >= alphas_min && target_alpha<=alphas_moy)? L_max = L_moy : L_min = L_moy;
+        (target_alpha >= alphas_min && target_alpha <= alphas_moy) ? L_max = L_moy : L_min = L_moy;
     }
 
     if (std::abs(1-L_min/L_max) <= 1e-5) {
@@ -277,7 +274,6 @@ double QCDParameters::mb_1S() {
  */
 double QCDParameters::mt_mt() {
 	double alpha = runningAlphasCalculation(this->mass_t_pole, "running");
-    std::cout << std::fixed << std::setprecision(20) << alpha;
     double a = 307. / 32. + PI2 / 3. + PI2 / 9. * log(2.) - 1. / 6 * ZETA3 - 71. / 144. * 5.;
     this->mass_t_t = this->mass_t_pole / (1. + alpha / PI * (4. / 3 + alpha / PI * a));
     alpha = runningAlphasCalculation(this->mass_t_t, "running", "running");

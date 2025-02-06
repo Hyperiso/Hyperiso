@@ -2,14 +2,15 @@
 #ifndef EPSILONCALCULATOR_H
 #define EPSILONCALCULATOR_H
 #include "Parameters.h"
+#include "QCDHelper.h"
 #include <cmath>
 #include <vector>
 #include <map>
 
 class EpsilonCalculator {
 protected:
-    Parameters* sm = Parameters::GetInstance();
-    Parameters* susy = Parameters::GetInstance(1);
+    std::shared_ptr<Parameters> sm = Parameters::GetInstance(ParameterType::SM);
+    std::shared_ptr<Parameters> susy = Parameters::GetInstance(ParameterType::SUSY);
 
     double mu_Q = (*susy)("HMIX",1);
     std::map<int,int> neutralino = {{0, 1000022},{1, 1000023},{2, 1000025},{3, 1000035}};

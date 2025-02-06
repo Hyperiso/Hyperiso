@@ -111,6 +111,57 @@ void writeWilsonCoefficients(const std::string& coefficientName,
     outFile.close();
 }
 
+namespace c7_sm {
+
+void readParams(std::ifstream& inputFile, 
+                std::map<std::string, csl::InitSanitizer<real_t>*>& real, 
+                std::map<std::string, csl::InitSanitizer<complex_t>*>& complex) {
+
+    std::string line;
+    std::map<std::string, std::complex<double>> complex_;
+
+    while (std::getline(inputFile, line)) {
+        std::istringstream iss(line);
+        std::string key;
+        double value;
+
+        if (std::getline(iss, key, ',') && iss >> value) {
+            if (key.size() > 4 && (key.substr(key.size() - 4) == "_rel" || key.substr(key.size() - 4) == "_img")) {
+                std::string baseKey = key.substr(0, key.size() - 4);
+                if (complex.find(baseKey) != complex.end()) {
+                    if (key.substr(key.size() - 4) == "_rel") {
+                        if (complex_.find(baseKey) != complex_.end()) {
+                            complex_[baseKey] += std::complex<double>(value, 0);
+                            *complex[baseKey] = complex_[baseKey];
+                        } else {
+                            complex_[baseKey] = std::complex<double>(value, 0);
+                        }
+                    } else if (key.substr(key.size() - 4) == "_img") {
+                        if (complex_.find(baseKey) != complex_.end()) {
+                            complex_[baseKey] += std::complex<double>(0, value);
+                            *complex[baseKey] = complex_[baseKey];
+                        } else {
+                            complex_[baseKey] = std::complex<double>(0, value);
+                        }
+                    }
+                } else {
+                    std::cerr << "Warning: Complex parameter " << baseKey << " not found in the map." << std::endl;
+                }
+
+            } else {
+                if (real.find(key) != real.end()) {
+                    *real[key] = value;
+                } else {
+                    std::cerr << "Warning: Real parameter " << key << " not found in the map." << std::endl;
+                }
+            }
+        }
+    }
+}
+
+
+
+}
 
 // int main() {
 //     std::string C1 = "C1";

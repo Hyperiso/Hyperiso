@@ -1340,10 +1340,10 @@ std::complex<double> CQ2_susy::LO_calculation() {
 		if((*susy)("MASS",36)>this->get_Q_match()) coeff_temp+=-v_deltam_s/2.*(*sus_param).mass_b_muW/(*sus_param).sw2*W_param->ml*CA/(*susy)("MASS",36)/(*susy)("MASS",36);
 
 		
-		if(((*susy)("MASS",36)>(*sm).get_QCD_masse("mb_pole"))&&((*susy)("MASS",36)<this->get_Q_match() ))
+		if(((*susy)("MASS",36)>QCDHelper::mass_b_pole())&&((*susy)("MASS",36)<this->get_Q_match() ))
 		{	
-			double alphas_Ma1=(*sm).alpha_s((*susy)("MASS",36));	
-			double mass_b_ma1=(*sm).running_mass((*sm)("MASS", 5),(*sm)("MASS", 5),(*susy)("MASS",36));
+			double alphas_Ma1  = QCDHelper::alpha_s((*susy)("MASS",36));	
+			double mass_b_ma1=QCDHelper::msbar_mass(5, (*susy)("MASS",36));
 			coeff_temp+=-v_deltam_s/2.*mass_b_ma1/(*sus_param).sw2*W_param->ml*CA/(*susy)("MASS",36)/(*susy)("MASS",36) *pow(alphas_Ma1/W_param->alphas_mu,-4./W_param->beta0);
 		}
 		
@@ -1491,7 +1491,7 @@ void BScalarCoefficientGroup_susy::set_base_1_LO() {
     
     
     if((*susy)("MASS",46)!=0.||(*susy)("MASS",45)!=0.) {
-        if((*susy)("MASS",36)<(*sm).get_QCD_masse("mb_pole")) {	
+        if((*susy)("MASS",36) < QCDHelper::mass_b_pole()) {	
             double lambdaNMSSM = 1;
             double lambdaSNMSSM = 1;
             double AlambdaNSSM = 1;
@@ -1546,10 +1546,16 @@ void BScalarCoefficientGroup_susy::set_base_1_LO() {
 		    }
             complex_t CA=CAH+CAc;
             double width_A0=1.e-6;
-            coeff_temp2+=std::complex<double>{v_deltam_s/2.*(*sm)("MASS", 5)/(*sus_param).sw2*W_param->ml*CA/(m_Bs*m_Bs-(*susy)("MASS",36)*(*susy)("MASS",36),(*susy)("MASS",36)*width_A0)};
+            coeff_temp2+=std::complex<double>{v_deltam_s/2.*QCDHelper::mass_b_msbar()/(*sus_param).sw2*W_param->ml*CA/(m_Bs*m_Bs-(*susy)("MASS",36)*(*susy)("MASS",36),(*susy)("MASS",36)*width_A0)};
         }
     }
     this->at("CQ2")->set_WilsonCoeffRun("LO", coeff_temp2);
 
 }
 
+std::complex<double> C_Blnu_P_SUSY::LO_calculation() {
+	double m_b = QCDHelper::mass_b_msbar();
+    double m_tau = (*sm)("MASS", 15);
+	double tanb = (*susy)("HMIX", 2);
+    return this->double_to_complex_save("LO", m_b * m_tau * tanb * tanb / (1 + sus_param->epsilon0 * tanb));
+}

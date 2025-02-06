@@ -6,12 +6,15 @@
 #include <stdexcept>
 #include <array>
 #include "JsonParameters.h"
+#include "Parameter.h"
 
 // Abstract base class for all blocks
 class Block {
 public:
     virtual double getValue(int pdgCode) const = 0;
-    virtual void setValue(int pdgCode, double value) = 0;
+    virtual void setValue(int pdgCode, double value, bool force = false) = 0;
+    virtual void setMode(int pdgCode, ParameterMode mode) = 0;
+    virtual std::map<int, double> getAllValues() = 0;
     virtual ~Block() = default;
     std::string blockname{};
 };
@@ -21,20 +24,36 @@ public:
     double getValue(int pdgCode) const override {
         auto it = values.find(pdgCode);
         if (it != values.end()) {
-            return it->second;
+            return it->second.get_val();
         }
-        std::cout << "pdg code is : " << std::endl;
-        std::cout << pdgCode << std::endl;
-        throw std::out_of_range("PDG code not found in " + this->blockname);
+        throw std::invalid_argument("PDG code not found in " + this->blockname);
     }
 
-    void setValue(int pdgCode, double value) override {
+    void setValue(int pdgCode, double value, bool force = false) override {
         JSONParser::getInstance(0)->addElement(this->blockname.substr(0, this->blockname.size()-5), pdgCode, value);
-        values[pdgCode] = value;
+        Parameter param (ParamId {ParameterType::CUSTOM, this->blockname.substr(0, this->blockname.size()-5), pdgCode}, value, 0);
+        if (force) {
+            values[pdgCode] = param;
+        } else {
+            // values.emplace(std::make_pair(pdgCode, param));
+            values[pdgCode] = param;
+        }
+    }
+
+    void setMode(int pdgCode, ParameterMode mode) override {
+        values.at(pdgCode).set_mode(mode);
+    }
+
+    std::map<int, double> getAllValues() override {
+        std::map<int, double> map_values;
+        for (auto& value : values) {
+            map_values[value.first] = value.second.get_val();
+        }
+        return map_values;
     }
 
 protected:
-    std::map<int, double> values;
+    std::map<int, Parameter> values;
 
 };
 
@@ -42,26 +61,61 @@ template<std::size_t index, std::size_t column>
 class ArrayBlock : public Block {
 public:
     double getValue(int pdgCode) const override {
-        return values[pdgCode/10][pdgCode%10];
+        return values[pdgCode / 10][pdgCode % 10].get_val();
     }
 
-    void setValue(int pdgCode, double value) override {
+    void setValue(int pdgCode, double value, bool force = false) override {
         JSONParser::getInstance(0)->addElement(this->blockname.substr(0, this->blockname.size()-5), pdgCode, value);
-        values[pdgCode/10][pdgCode%10] = value;
+        auto p = Parameter(ParamId {ParameterType::CUSTOM, this->blockname.substr(0, this->blockname.size()-5), pdgCode}, value, 0);
+        values[pdgCode / 10][pdgCode % 10] = p;
     }
-    ArrayBlock& operator=(const std::array<std::array<double, column>, index> block) {
+
+    void setValues(const std::array<std::array<double, column>, index>& values) {
+        for (size_t i = 0; i < index; i++) {
+            for (size_t j = 0; j < column; j++) {
+                setValue(i * 10 + j, values[i][j]);       
+            }
+        }
+    }
+
+    void setMode(int pdgCode, ParameterMode mode) override {
+        values.at(pdgCode/10).at(pdgCode%10).set_mode(mode);
+    }
+
+    ArrayBlock& operator=(const std::array<std::array<Parameter, column>, index> block) {
         values = block;
         return *this;
     }
+
+    std::map<int, double> getAllValues() override {
+        std::map<int, double> map_values;
+        size_t i{0}, j{0};
+        for (auto& value : values) {
+            for (auto& valu : value) {
+                // std::cout << i * 10 + j << " " << valu.get_val() << std::endl;
+                map_values[i * 10 + j++%3] = valu.get_val();
+            }
+            ++i;
+        }
+        return map_values;
+    }
+
 protected:
-    std::array<std::array<double, column>, index> values;
+    std::array<std::array<Parameter, column>, index> values;
 };
 
 
 // Concrete block for masses
-class MassBlock : public MapBlock{
+class MassBlock : public MapBlock {
 public:
     MassBlock() {this->blockname = "MASSBlock";}
+
+    double getValue(int pdgCode) const override {
+        if (pdgCode == 5 || pdgCode == 6) {
+            LOG_WARN("Accessing heavy quark masses through Parameters is deprecated. Use QCDHelper instead.");
+        }
+        return MapBlock::getValue(pdgCode);
+    }
 };
 
 // Concrete block for gauge parameters
@@ -73,7 +127,7 @@ public:
 // Concrete block for sminputs parameters
 class SMInputBlock : public MapBlock {
 public:
-    SMInputBlock() {this->blockname = "SMINPUTBlock";}
+    SMInputBlock() {this->blockname = "SMINPUTSBlock";}
 };
 
 // Concrete block for sminputs parameters
@@ -179,37 +233,94 @@ THDM BLOCKS*/
 /* ------------------------------------------------------------------------------------------------
 Flavor BLOCKS*/
 
-class FlavorBlock {
-public:
-    double getValue(std::string pdgCode) const {
-        auto it = values.find(pdgCode);
-        if (it != values.end()) {
-            return it->second;
-        }
-        throw std::out_of_range("PDG code not found in " + this->blockname);
-    }
-
-    void setValue(std::string pdgCode, double value) {
-        values[pdgCode] = value;
-    }
-
-protected:
-    std::map<std::string, double> values;
-    std::string blockname{};
-
-};
-
-class LifeTimeBlock : public FlavorBlock {
-public:
-    LifeTimeBlock() {this->blockname = "LifeTimeBlock";}
-};
-
-class FConstBlock : public FlavorBlock {
+class FConstBlock : public MapBlock {
 public:
     FConstBlock() {this->blockname = "FConstBlock";}
+};
+
+class FConstRatioBlock : public MapBlock {
+public:
+    FConstRatioBlock() {this->blockname = "FConstRatioBlock";}
+};
+
+class FBag : public MapBlock {
+public:
+    FBag() {this->blockname = "FBagBlock";}
 };
 
 class FLifeBlock : public MapBlock {
 public:
     FLifeBlock() {this->blockname = "FLifeBlock";}
+};
+
+/* ------------------------------------------------------------------------------------------------
+Wilson Input BLOCKS*/
+
+class WilsonBlock : public Block {
+    // pdgCode is NNO with NN = integer ID of the coefficient as in BWilsonCoefficients enum, O is QCD order
+    // pdgCode -1 is reserved to access the scale of the coefficients
+    // pdgCode -2 is reserved to access the type of the coefficients
+public:
+    double getValue(int pdgCode) const override {
+        if (pdgCode == -1) {
+            return scale;
+        } else if (pdgCode == -2) {
+            return type;
+        }
+
+        int order = pdgCode % 10; 
+        WCoef id = static_cast<WCoef>((pdgCode - order) / 10); 
+
+        return values.at(id)[order];
+    }
+
+    void setValue(int pdgCode, double value, bool force = false) {
+        if (pdgCode == -1) {
+            scale = value;
+        } else if (pdgCode == -2) {
+            type = (int)value;
+        }
+
+        int order = pdgCode % 10; 
+        WCoef id = static_cast<WCoef>((pdgCode - order) / 10); 
+        if (!values.contains(id)) {
+            values.emplace(std::make_pair(id, std::array<double, 3>()));
+        }
+        values.at(id)[order] = value;
+    }
+
+    void setMode(int pdgCode, ParameterMode mode) {}
+
+    std::map<int, double> getAllValues() override {
+        return {};
+    }
+protected:
+    // Index is QCD order
+    std::map<WCoef, std::array<double, 3>> values; 
+    double scale;
+    int type;
+
+};
+
+/* ------------------------------------------------------------------------------------------------
+Form Factors BLOCKS*/
+
+class BKsBlock : public MapBlock {
+public:
+    BKsBlock() {this->blockname = "BKsBlock";}
+};
+
+class BllBlock : public MapBlock {
+public:
+    BllBlock() {this->blockname = "BllBlock";}
+};
+
+class BXsBlock : public MapBlock {
+public:
+    BXsBlock() {this->blockname = "BXsBlock";}
+};
+
+class BDlnuBlock : public MapBlock {
+public:
+    BDlnuBlock() {this->blockname = "BDlnuBlock";}
 };

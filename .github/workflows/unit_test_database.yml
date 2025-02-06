@@ -18,13 +18,13 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y cmake make build-essential
+        sudo apt-get install -y cmake make build-essential libgsl-dev
 
     - name: Configure CMake (Tests)
-      run: cmake -S tests -B build
+      run: cmake -S. -B build -DENABLE_TESTS=ON 
 
     - name: Build testReader
-      run: cmake --build build/ --target testReader
+      run: cmake --build build
 
-    - name: Run testReader
-      run: ./build/testReader
+    - name: Run dbtest
+      run: ctest --test-dir build -L database --output-on-failure

@@ -13,31 +13,31 @@ void writeCoefficientsToFile(const std::string& strat_name, const std::string& f
     }
     file << "\n";
 
-    CoefficientManager* wm = CoefficientManager::GetInstance(model);
+    auto wm = CoefficientManager::GetInstance();
 
     if (model == "SM") {
-        MemoryManager::GetInstance("Test/InputFiles/testinput_thdm.lha", {0})->init();
+        MemoryManager::GetInstance()->init("Test/InputFiles/testinput_thdm.lha", Model::SM);
         wm->registerCoefficientGroup("BCoefficient", std::make_shared<BCoefficientGroup>());
     }
     else if (model == "THDM") {
-        MemoryManager::GetInstance("Test/InputFiles/testinput_thdm.lha", {0,2})->init();
+        MemoryManager::GetInstance()->init("Test/InputFiles/testinput_thdm.lha", Model::THDM);
         wm->registerCoefficientGroup("BCoefficient", std::make_shared<BCoefficientGroup_THDM>());
     }
     else if (model == "SUSY") {
-        MemoryManager::GetInstance("Test/InputFiles/testInput.slha", {0,1})->init();
+        MemoryManager::GetInstance()->init("Test/InputFiles/testInput.slha", Model::SUSY);
         wm->registerCoefficientGroup("BCoefficient", std::make_shared<BCoefficientGroup_susy>());
     }
     else {
         LOG_ERROR("ModelError", "MODEL not known");
     }
-    Parameters* sm = Parameters::GetInstance();
+    std::shared_ptr<Parameters> sm = Parameters::GetInstance();
     // WilsonManager* wm = WilsonManager::GetInstance(strat_name, 81.0, strategy);
     
 
     
     wm->setQMatch("BCoefficient", Q_match);
     wm->setMatchingCoefficient("BCoefficient", strat_name);
-    double alpha_s = (*sm).alpha_s(Q_match);
+    double alpha_s = QCDHelper::alpha_s(Q_match);
 
     file << Q_match << "," << alpha_s;
     std::vector<std::string> name {"C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9", "C10"};
@@ -66,27 +66,27 @@ void writeCoefficientsPrimeCQToFile(const std::string& strat_name, const std::st
     }
     file << "\n";
 
-    CoefficientManager* wm = CoefficientManager::GetInstance(model);
+    auto wm = CoefficientManager::GetInstance();
 
     if (model == "SM") {
-        MemoryManager::GetInstance("Test/InputFiles/testinput_thdm.lha", {0})->init();
+        MemoryManager::GetInstance()->init("Test/InputFiles/testinput_thdm.lha", Model::SM);
         wm->registerCoefficientGroup("BPrimeCoefficient", std::make_shared<BPrimeCoefficientGroup>());
         wm->registerCoefficientGroup("BScalarCoefficient", std::make_shared<BScalarCoefficientGroup>());    
     }
     else if (model == "THDM") {
-        MemoryManager::GetInstance("Test/InputFiles/testinput_thdm.lha", {0,2})->init();
+        MemoryManager::GetInstance()->init("Test/InputFiles/testinput_thdm.lha", Model::THDM);
         wm->registerCoefficientGroup("BPrimeCoefficient", std::make_shared<BPrimeCoefficientGroup_THDM>());
         wm->registerCoefficientGroup("BScalarCoefficient", std::make_shared<BScalarCoefficientGroup_THDM>());
     }
     else if (model == "SUSY") {
-        MemoryManager::GetInstance("Test/InputFiles/testInput.slha", {0,1})->init();
+        MemoryManager::GetInstance()->init("Test/InputFiles/testInput.slha", Model::SUSY);
         wm->registerCoefficientGroup("BPrimeCoefficient", std::make_shared<BPrimeCoefficientGroup_susy>());
         wm->registerCoefficientGroup("BScalarCoefficient", std::make_shared<BScalarCoefficientGroup_susy>());
     }
     else {
         LOG_ERROR("ModelError", "MODEL not known");
     }
-    Parameters* sm = Parameters::GetInstance();
+    std::shared_ptr<Parameters> sm = Parameters::GetInstance();
     // WilsonManager* wm = WilsonManager::GetInstance(strat_name, 81.0, strategy);
     
     wm->setQMatch("BPrimeCoefficient", Q_match);
@@ -100,7 +100,7 @@ void writeCoefficientsPrimeCQToFile(const std::string& strat_name, const std::st
     wm->setRunCoefficient("BScalarCoefficient", strat_name);
     // wm->setScale(answer);
 
-    double alpha_s = (*sm).alpha_s(answer);
+    double alpha_s = QCDHelper::alpha_s(answer);
 
     file << answer << "," << alpha_s;
 
@@ -134,22 +134,24 @@ void writeRunCoefficientsToFile(const std::string& strat_name, const std::string
     }
     file << "\n";
 
-    CoefficientManager* wm;
-
+    std::shared_ptr<CoefficientManager> wm;
+    std::cout << "wtf " << std::endl;
     if (model == "SM") {
-        MemoryManager::GetInstance("Test/InputFiles/testinput_thdm.lha", {0})->init();
+        std::cout << "WHAT THE FUCK before" << std::endl;
+        MemoryManager::GetInstance()->init("Test/InputFiles/testinput_thdm.lha", Model::SM);
+        std::cout << "WHAT THE FUCK" << std::endl;
         std::map<std::string, std::shared_ptr<CoefficientGroup>> temp_map;
         temp_map["BCoefficient"] = std::make_shared<BCoefficientGroup>();
         wm = CoefficientManager::Builder(model, temp_map, Q_match, Q, strat_name);
     }
     else if (model == "THDM") {
-        MemoryManager::GetInstance("Test/InputFiles/testinput_thdm.lha", {0,2})->init();
+        MemoryManager::GetInstance()->init("Test/InputFiles/testinput_thdm.lha", Model::THDM);
         std::map<std::string, std::shared_ptr<CoefficientGroup>> temp_map;
         temp_map["BCoefficient"] = std::make_shared<BCoefficientGroup_THDM>();
         wm = CoefficientManager::Builder(model, temp_map, Q_match, Q, strat_name);
     }
     else if (model == "SUSY") {
-        MemoryManager::GetInstance("Test/InputFiles/testInput.slha", {0,1})->init();
+        MemoryManager::GetInstance()->init("Test/InputFiles/testInput.slha", Model::SUSY);
         std::map<std::string, std::shared_ptr<CoefficientGroup>> temp_map;
         temp_map["BCoefficient"] = std::make_shared<BCoefficientGroup_susy>();
         wm = CoefficientManager::Builder(model, temp_map, Q_match, Q, strat_name);
@@ -157,7 +159,7 @@ void writeRunCoefficientsToFile(const std::string& strat_name, const std::string
     else {
         LOG_ERROR("ModelError", "MODEL not known");
     }
-    Parameters* sm = Parameters::GetInstance();
+    std::shared_ptr<Parameters> sm = Parameters::GetInstance();
     // WilsonManager* wm = WilsonManager::GetInstance(strat_name, 81.0, strategy);
 
     if (base==2){
@@ -165,7 +167,7 @@ void writeRunCoefficientsToFile(const std::string& strat_name, const std::string
         wm->switchbasis("BCoefficient");
     }
     
-    double alpha_s = (*sm).alpha_s(Q_match);
+    double alpha_s = QCDHelper::alpha_s(Q_match);
 
     file << Q << "," << alpha_s;
     std::vector<std::string> name {"C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9", "C10"};

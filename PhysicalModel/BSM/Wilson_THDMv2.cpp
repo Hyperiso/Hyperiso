@@ -31,7 +31,11 @@ std::complex<double> C6_THDM::NNLO_calculation() {
 }
 
 std::complex<double> C7_THDM::LO_calculation() {
+    // std::cout << "YUUU" <<  (*mod)("YU", 22) << std::endl;
     double coeff_temp = 1./3.*thdm_params->lu*thdm_params->lu*F7_1(thdm_params->yt) - thdm_params->lu*thdm_params->ld*F7_2(thdm_params->yt);
+    // std::cout << "lu : " << thdm_params->lu << std::endl;
+    // std::cout << "yt : " << thdm_params->yt << std::endl;
+    // std::cout << "ld : " << thdm_params->ld << std::endl;
     return this->double_to_complex_save("LO", coeff_temp);
 }
 
@@ -106,4 +110,11 @@ std::complex<double> CQ2_THDM::LO_calculation() {
     double coeff_temp=CPc_2HDM(thdm_params->xH,thdm_params->xt,thdm_params->lu,thdm_params->ld,le,thdm_params->sw2)+CPn_2HDM;
     coeff_temp*=(W_param->ml*thdm_params->mass_b_muW/(*sm)("MASS",24)/(*sm)("MASS",24))/thdm_params->sw2;
     return this->double_to_complex_save("LO", coeff_temp);
+}
+
+std::complex<double> C_Blnu_P_THDM::LO_calculation() {
+    double m_b = QCDHelper::mass_b_msbar();
+    double m_tau = (*sm)("MASS", 15);
+    double l_tau = (*mod)("YL", 22);
+    return this->double_to_complex_save("LO", -m_b * m_tau * thdm_params->ld * l_tau / std::pow(thdm_params->m_H, 2));
 }

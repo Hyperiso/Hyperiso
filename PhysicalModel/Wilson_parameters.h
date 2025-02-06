@@ -1,6 +1,8 @@
 #pragma once
 #include <array>
 #include "Parameters.h"
+#include "QCDHelper.h"
+
 class Wilson_parameters {
 
     
@@ -13,7 +15,7 @@ class Wilson_parameters {
 public:
     static constexpr int arraySize {10};
 
-    Parameters* sm = Parameters::GetInstance();
+    std::shared_ptr<Parameters> sm;
     double alphas_muW;
     double alphas_mu;
     double eta_mu;

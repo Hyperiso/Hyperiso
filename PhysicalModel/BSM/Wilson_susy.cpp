@@ -11,8 +11,8 @@ void SUSY_LO_Strategy::init(double scale, WilsonSet& C_match) {
 
 	EpsilonCalculator* epsi = EpsilonCalculator::GetInstance();
 
-	Parameters* sm = Parameters::GetInstance();
-	Parameters* susy = Parameters::GetInstance(1);
+	std::shared_ptr<Parameters> sm = Parameters::GetInstance();
+	std::shared_ptr<Parameters> susy = Parameters::GetInstance(1);
 	
 	susy_parameters* sus_param = susy_parameters::GetInstance(scale);
 
@@ -145,7 +145,7 @@ void SUSY_LO_Strategy::init(double scale, WilsonSet& C_match) {
 void SUSY_NLO_Strategy::init(double scale, WilsonSet& C_match) {
 
 	auto* epsi = EpsilonCalculator::GetInstance();
-	Parameters* sm = Parameters::GetInstance();
+	std::shared_ptr<Parameters> sm = Parameters::GetInstance();
 	auto* susy = Parameters::GetInstance(1);
 
 	auto* sus_param = susy_parameters::GetInstance(scale);
@@ -510,8 +510,8 @@ void SUSY_NNLO_Strategy::init(double scale, WilsonSet& C_match) {
 
 void SUSY_LO_Strategy::init_prime(double Q_match,double Q,int gen, WilsonSet& C) {
 	
-	Parameters* sm = Parameters::GetInstance();
-	Parameters* susy = Parameters::GetInstance(1);
+	std::shared_ptr<Parameters> sm = Parameters::GetInstance();
+	std::shared_ptr<Parameters> susy = Parameters::GetInstance(1);
 	EpsilonCalculator* epsi = EpsilonCalculator::GetInstance();
 	susy_parameters* sus_param = susy_parameters::GetInstance(Q_match);
 	sus_param->reset_PrimeCQG(Q_match);
@@ -695,8 +695,8 @@ void SUSY_LO_Strategy::init_prime(double Q_match,double Q,int gen, WilsonSet& C)
 
 void SUSY_LO_Strategy::init_scalar(double Q_match,double Q,int gen, WilsonSet& C) {
 
-	Parameters* sm = Parameters::GetInstance();
-	Parameters* susy = Parameters::GetInstance(1);
+	std::shared_ptr<Parameters> sm = Parameters::GetInstance();
+	std::shared_ptr<Parameters> susy = Parameters::GetInstance(1);
 	EpsilonCalculator* epsi = EpsilonCalculator::GetInstance();
 	susy_parameters* sus_param = susy_parameters::GetInstance(Q_match);
 	sus_param->reset_PrimeCQG(Q_match);
@@ -803,8 +803,8 @@ void SUSY_NLO_Strategy::init_scalar(double Q_match,double Q,int gen, WilsonSet& 
 
 	SUSY_LO_Strategy::init_scalar(Q_match, Q, gen, C);
 
-	Parameters* sm = Parameters::GetInstance();
-	Parameters* susy = Parameters::GetInstance(1);
+	std::shared_ptr<Parameters> sm = Parameters::GetInstance();
+	std::shared_ptr<Parameters> susy = Parameters::GetInstance(1);
 	EpsilonCalculator* epsi = EpsilonCalculator::GetInstance();
 	susy_parameters* sus_param = susy_parameters::GetInstance(Q_match);
 

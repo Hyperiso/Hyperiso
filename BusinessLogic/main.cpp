@@ -1,26 +1,22 @@
-
-#include <iostream>
-#include "Chi2Theo.h"
-#include "Chi2Exp.h"
 #include "MemoryManager.h"
-#include "chi2.h"
+#include "Logger.h"
+#include <functional>
+#include <iostream>
+#include <cassert>
+#include "ObservableInterface.h"
+
 int main() {
-    // Charger les paramètres et les observables depuis un fichier JSON
-    auto mm = MemoryManager::GetInstance("Test/testInput.flha", {0, 3});
-    mm->init(); 
-    Chi2Theo *manager = Chi2Theo::GetInstance("../../DataBase/data_theo.json");
-    // Chi2Exp *manager_exp = Chi2Exp::GetInstance("../../DataBase/data_exp.json");
 
-    manager->print_observables();
-    // manager_exp->print_observables();
-    // manager_exp->print_correlations();
-    // manager_exp->print_correlations_matrix();
+    Logger::getInstance()->setLevel(Logger::LogLevel::INFO);
 
-    Chi2Manager bite(0,0,81., 0);
+    auto mm = MemoryManager::GetInstance();  // Initialize program manager with LHA file containing SMINPUTS block
+    mm->init("Test/InputFiles/testinput_thdm.lha", Model::THDM);  // Initialize parameters from given LHA file
 
-    // bite.print_inv_cov();
+    auto interface = ObservableInterface();
+    interface.add_observable(Observables::BR_B_XS_GAMMA, QCDOrder::NNLO, false);
+    LOG_INFO("Observable added to manager");
 
-    std::cout << "chi2 : " <<bite.get_chi2() << std::endl;
-    return 0;
+    LOG_INFO(interface.compute_observable(Observables::BR_B_XS_GAMMA)/*, "+-", interface.compute_uncertainty(Observables::BR_B_XS_GAMMA)*/);
+    LOG_INFO(interface.compute_chi2());
 
 }

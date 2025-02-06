@@ -12,6 +12,15 @@ if (NOT DEFINED BUILD_WITH_2HDMC)
     option(BUILD_WITH_2HDMC "Build project with 2HDMC support" OFF)
 endif()
 
+if (BUILD_WITH_2HDMC)
+    message(STATUS "wow")
+    add_compile_definitions(BUILD_WITH_2HDMC)
+endif()
+
+if (BUILD_WITH_SOFTSUSY)
+    add_definitions(-BUILD_WITH_SOFTSUSY)
+endif()
+
 if (NOT TARGET CommonLib)
     add_subdirectory(../Common CommonLib)
 endif()
@@ -33,6 +42,7 @@ endif()
 add_library(PhysicalModelLib STATIC 
     Wilson_parameters.cpp
     Wilsonv2.cpp
+    WilsonGroup.cpp
     WilsonManager.cpp
     BSM/epsilon_calculator.cpp
     BSM/susy_parameters.cpp
@@ -40,7 +50,8 @@ add_library(PhysicalModelLib STATIC
     BSM/Wilson_susyv2.cpp
     BSM/Wilson_THDMv2.cpp)
 
-set_target_properties(PhysicalModelLib PROPERTIES PUBLIC_HEADER "Interpolator.h;Wilsonv2.h;MartyWilson.h;Wilson_parameters.h;epsilon_calculator.h;susy_parameters.h;thdm_parameters;Wilson_susyv2.h;Wilson_THDMv2.h;WilsonManager.h")
+set_target_properties(PhysicalModelLib PROPERTIES POSITION_INDEPENDENT_CODE ON)
+set_target_properties(PhysicalModelLib PROPERTIES PUBLIC_HEADER "Interpolator.h;WilsonManager.h;Wilsonv2.h;WilsonGroup.h;MartyWilson.h;Wilson_parameters.h;epsilon_calculator.h;susy_parameters.h;thdm_parameters;Wilson_susyv2.h;Wilson_THDMv2.h;WilsonManager.h")
 
 target_include_directories(PhysicalModelLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/BSM)
 

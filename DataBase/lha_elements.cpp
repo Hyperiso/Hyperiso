@@ -2,6 +2,7 @@
 #include "lha_blocks.h"
 #include <sstream>
 #include <iostream>
+#include <limits>
 
 template <typename U>
 struct StringConverter {
@@ -13,7 +14,11 @@ struct StringConverter {
 template <>
 struct StringConverter<double> {
     static double convert(const std::string& str) {
-        return std::stod(str);
+        try {
+            return std::stod(str);
+        } catch(...) {
+            return std::numeric_limits<double>::max(); //small patch
+        }
     }
 };
 
@@ -72,10 +77,10 @@ std::string LhaElement<T>::toString() const {
     return stream.str();
 }
 
-std::unique_ptr<AbstractElement> LhaElementFactory::createElement(LhaBlock* block, const std::vector<std::string>& line) {
+std::shared_ptr<AbstractElement> LhaElementFactory::createElement(LhaBlock* block, const std::vector<std::string>& line) {
     if (block->getPrototype().blockName == "FCINFO" || block->getPrototype().blockName == "FMODSEL" || block->getPrototype().blockName == "SPINFO") {
-        return std::make_unique<LhaElement<std::string>>(block, line);
+        return std::make_shared<LhaElement<std::string>>(block, line);
     } else {
-        return std::make_unique<LhaElement<double>>(block, line);
+        return std::make_shared<LhaElement<double>>(block, line);
     }
 }

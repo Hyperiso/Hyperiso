@@ -1,17 +1,15 @@
-#include <sstream>
-#include <algorithm>
 #include "lha_blocks.h"
 
 AbstractElement* LhaBlock::get(const std::string& id) const
 {
-    auto p = [id](const std::unique_ptr<AbstractElement>& e) { 
+    auto p = [id](const std::shared_ptr<AbstractElement>& e) { 
         return e->getId() == id; 
     };
     auto element = std::find_if(entries.begin(), entries.end(), p);
     return element != entries.end() ? (*element).get() : nullptr;
 }
 
-const std::vector<std::unique_ptr<AbstractElement>>* LhaBlock::getEntries() const {
+const std::vector<std::shared_ptr<AbstractElement>>* LhaBlock::getEntries() const {
     return &(this->entries);
 }
 

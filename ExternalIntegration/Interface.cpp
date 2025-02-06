@@ -9,17 +9,17 @@
 #endif
 #include "Logger.h"
 
-std::unique_ptr<ICalculator> GeneralCalculatorFactory::createCalculator(CalculatorType type) {
+std::shared_ptr<ICalculator> GeneralCalculatorFactory::createCalculator(CalculatorType type) {
     switch(type) {
         case CalculatorType::Softsusy:
             #ifdef BUILD_WITH_SOFTSUSY
-            return std::make_unique<SoftsusyCalculator>();
+            return std::make_shared<SoftsusyCalculator>();
             #else
             // throw std::runtime_error("SOFTSUSY support not enabled.");
             #endif
         case CalculatorType::TwoHDM:
             #ifdef BUILD_WITH_2HDMC
-            return std::make_unique<TwoHDMCalculator>();
+            return std::make_shared<TwoHDMCalculator>();
             #else
             // throw std::runtime_error("TwoHDM support not enabled.");
             #endif

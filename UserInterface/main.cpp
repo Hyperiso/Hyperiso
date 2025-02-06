@@ -1,29 +1,38 @@
 #include <iostream>
-// #include "ModelManager.h"
+#include <string>
+#include "WilsonHandler.h"
+#include "ObservableHandler.h"
 
-int main() {
-    // ModelManager modelManager;
+void print_usage() {
+    std::cout << "Usage: ./main <command> [options]\n"
+              << "\nCommands:\n"
+              << "  wilson      : Manage Wilson coefficients\n"
+              << "  observable      : Manage Observables and Chi2 calculations\n"
+              << "  other_cmd   : Other commands for the program\n"
+              << "\nUse './main <command> --help' for more information on a specific command.\n";
+}
 
-    // std::string modelName;
-    std::cout << "Good Moooooorning";
+int main(int argc, char* argv[]) {
 
-    int x[2];
-    x[2] = 1337;
+    Logger* logger = Logger::getInstance();
+    logger->setEnabled(false);
 
-    int a;
+    if (argc < 2) {
+        print_usage();
+        return 1;
+    }
 
-    int b = a+1;
-    // std::cin >> modelName;
+    std::string command = argv[1];
 
-    // modelManager.setModel(modelName);
-
-    // // Choix des paramètres
-    // ModelParameters params(/* ... */);
-    // modelManager.configureModelParameters(params);
-
-    // // Calculs prédictions
-    // ModelOutput output = modelManager.calculateModelPredictions();
-    // std::cout << "Résultats du modèle : " << output.toString() << std::endl;
+    if (command == "wilson") {
+        return handleWilsonOptions(argc - 1, argv + 1);
+    } else if (command == "observable"){
+        return handleObservableOptions(argc - 1, argv +1);
+    } else {
+        std::cerr << "Unknown command: " << command << std::endl;
+        print_usage();
+        return 1;
+    }
 
     return 0;
 }

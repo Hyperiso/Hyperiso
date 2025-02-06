@@ -20,6 +20,11 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake make build-essential libgsl-dev
+
       - name: Configure Cmake
         run: cmake -S. -B build -DENABLE_TESTS=ON
 
@@ -35,6 +40,11 @@ jobs:
     name: Run PhysicalModel(SM) Tests 
     steps:
       - uses: actions/checkout@v2
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake make build-essential libgsl-dev
 
       - name: Configure Cmake
         run: cmake -S. -B build -DENABLE_TESTS=ON
@@ -53,7 +63,7 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Installation dependancies
-        run: sudo apt-get install textlive-latex-base texlive-fonts-recommended texlive-fonts-extra textlive-latex-extra
+        run: sudo apt-get install textlive-latex-base texlive-fonts-recommended texlive-fonts-extra textlive-latex-extra libgsl-dev
 
       - name: Configure Cmake
         run: cmake -S. -B build -DENABLE_TESTS=ON -DBUILD_WITH_SOFTSUSY=ON
@@ -71,6 +81,10 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake make build-essential libgsl-dev
       - name: Configure Cmake
         run: cmake -S. -B build -DENABLE_TESTS=ON -DBUILD_WITH_2HDMC=ON
 
