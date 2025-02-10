@@ -9,7 +9,9 @@ if "wide_mode" not in st.session_state:
 
 from Streamlit.Utils.common_elements import add_header, add_footer, apply_custom_background, apply_sidebar_style, apply_file_management_style
 from Streamlit.Utils.common_elements import apply_custom_css
-BASE_API_URL = "http://127.0.0.1:8000/parameters"
+from Streamlit.Utils.API_utils import get_param_code_list, get_param_code_list_hist
+
+BASE_API_URL = "http://127.0.0.1:8000"
 
 models = {"SM", "SUSY", "THDM", "CUSTOM"}
 
@@ -34,6 +36,14 @@ if "has_wilson" not in st.session_state:
 if "has_obs" not in st.session_state:
     st.session_state.has_obs = False
 
+if "paramtype_options" not in st.session_state:
+    st.session_state.paramtype_options = None
+
+if "hist_code_list" not in st.session_state:
+    st.session_state.hist_code_list = None
+
+if "pdg_code_list" not in st.session_state:
+    st.session_state.pdg_code_list = None
 
 def list_lha_files(directory="DataBase/lha/"):
     if not os.path.exists(directory):
@@ -44,7 +54,7 @@ def on_new_infos():
     if st.session_state.selected_file == None:
         return
     response = requests.post(
-        f"{BASE_API_URL}/set_memory_manager",
+        f"{BASE_API_URL}/parameters/set_memory_manager",
         json={"lha_file": os.path.join("DataBase/lha",st.session_state.selected_file), "model": st.session_state.selected_model,
               "use_marty": st.session_state.use_marty,
         "is_spectrum": st.session_state.is_spectrum,
@@ -67,7 +77,7 @@ def on_new_slha():
     if not os.path.exists("DataBase/lha",selected_file):
         return
     response = requests.post(
-        f"{BASE_API_URL}/set_memory_manager",
+        f"{BASE_API_URL}/parameters/set_memory_manager",
         json={"lha_file": os.path.join("DataBase/lha",selected_file), "model": model, "use_marty": False,
         "is_spectrum": False,
         "has_wilsons": False,
@@ -89,7 +99,7 @@ def on_new_model():
     selected_file = st.session_state.selected_file
     model = st.session_state.selected_model
     response = requests.post(
-        f"{BASE_API_URL}/set_lha_model",
+        f"{BASE_API_URL}/parameters/set_lha_model",
         json={"lha_file": os.path.join("DataBase/lha",selected_file), "model": model, "use_marty": False,
         "is_spectrum": False,
         "has_wilsons": False,
@@ -108,7 +118,7 @@ def app():
     uploaded_file = st.sidebar.file_uploader("Upload SLHA File", type=["slha", "lha", "flha"],)
     if uploaded_file:
         response = requests.post(
-            f"{BASE_API_URL}/upload",
+            f"{BASE_API_URL}/parameters/upload",
             files={"file": (uploaded_file.name, uploaded_file.getvalue())}
         )
         if response.status_code == 200:
@@ -121,6 +131,14 @@ def app():
         for f in lha_files:
             os.remove(os.path.join("DataBase/lha/", f))
         st.sidebar.success("Directory cleaned!")
+
+    if not st.session_state.paramtype_options:
+        response = requests.get(
+                f"{BASE_API_URL}/parameters/all_blocks_list")
+        data = response.json()
+        print(data)
+        bl = data['blocks']
+        st.session_state.paramtype_options = bl
 
     col_left, col_center, col_right = st.columns([2.5, 2, 2])
 
@@ -140,16 +158,18 @@ def app():
 
     with col_center:
         st.subheader("Single File Analysis")
-        block = st.text_input("Block Name", placeholder="Enter block name (e.g., MASS)")
-        code = st.number_input("Parameter Code", step=1, min_value=0)
-        if st.button("Get Parameter Value") and block and code:
-            response = requests.get(f"{BASE_API_URL}/value", params={"block": block, "code": code})
+        # block = st.text_input("Block Name", placeholder="Enter block name (e.g., MASS)")
+        param_block = st.selectbox("Parameter Block", st.session_state.paramtype_options, on_change=get_param_code_list, key = "param_block")
+        code = st.selectbox("Parameters Code", st.session_state.pdg_code_list, key = "code")
+        # code = st.number_input("Parameter Code", step=1, min_value=0)
+        if st.button("Get Parameter Value") and param_block and code:
+            response = requests.get(f"{BASE_API_URL}/parameters/value", params={"block": param_block, "code": code})
             if response.status_code == 200:
                 value = response.json().get("value")
                 if value != "":
-                    st.write(f"Value for block `{block}` and code `{code}`: {value}")
+                    st.write(f"Value for block `{param_block}` and code `{code}`: {value}")
                 else:
-                    st.write(f"No value for block {block} and pdgcode {code}")
+                    st.write(f"No value for block {param_block} and pdgcode {code}")
             else:
                 st.error(response.json().get("detail", "Failed to retrieve parameter value"))
 
@@ -158,12 +178,12 @@ def app():
             st.session_state.show_pie = True
 
         if st.session_state.show_pie:
-            response_blocks = requests.get(f"{BASE_API_URL}/blocks_list", params={"param_type" : st.session_state.param_type})
+            response_blocks = requests.get(f"{BASE_API_URL}/parameters/blocks_list", params={"param_type" : st.session_state.param_type})
             if response_blocks.status_code == 200:
                 blocks = response_blocks.json().get("blocks", [])
                 sizes = []
                 for block in blocks:
-                    response_info = requests.get(f"{BASE_API_URL}/block_info", params={"block": block, "param_type" : st.session_state.param_type})
+                    response_info = requests.get(f"{BASE_API_URL}/parameters/block_info", params={"block": block, "param_type" : st.session_state.param_type})
                     if response_info.status_code == 200:
                         sizes.append(len(response_info.json().get(block, {})))
                 fig, ax = plt.subplots()
@@ -197,12 +217,12 @@ def app():
                     param_type = "WILSON"
 
                 if param_type:
-                    response_blocks = requests.get(f"{BASE_API_URL}/blocks_list", params={"param_type": param_type})
+                    response_blocks = requests.get(f"{BASE_API_URL}/parameters/blocks_list", params={"param_type": param_type})
                     if response_blocks.status_code == 200:
                         blocks = response_blocks.json().get("blocks", [])
                         sizes = []
                         for block in blocks:
-                            response_info = requests.get(f"{BASE_API_URL}/block_info", params={"block": block, "param_type": param_type})
+                            response_info = requests.get(f"{BASE_API_URL}/parameters/block_info", params={"block": block, "param_type": param_type})
                             if response_info.status_code == 200:
                                 sizes.append(len(response_info.json().get(block, {})))
 
@@ -224,8 +244,11 @@ def app():
             st.session_state.show_histogram = True
             
         if st.session_state.show_histogram:
-            selected_block = st.text_input("Histogram Block Name", placeholder="Enter block name (e.g., MASS)")
-            selected_code = st.number_input("Histogram Parameter Code", step=1, min_value=0)
+            # selected_block = st.text_input("Histogram Block Name", placeholder="Enter block name (e.g., MASS)")
+            # selected_code = st.number_input("Histogram Parameter Code", step=1, min_value=0)
+
+            selected_block = st.selectbox("Parameter Block", st.session_state.paramtype_options, on_change=get_param_code_list_hist, key = "selected_block")
+            selected_code = st.selectbox("Parameters Code", st.session_state.hist_code_list, key = "selected_code")
             values = []
             old_value = st.session_state.selected_file
 
@@ -234,7 +257,7 @@ def app():
                 if not selected_block or not selected_code:
                     continue
                 response = requests.post(
-                    f"{BASE_API_URL}/set_memory_manager",
+                    f"{BASE_API_URL}/parameters/set_memory_manager",
                     json={"lha_file": os.path.join("DataBase/lha",lha_file), "model": model, "use_marty": False,
                     "is_spectrum": False,
                     "has_wilsons": False,
@@ -243,7 +266,7 @@ def app():
                 if response.status_code != 200:
                     print("Error.")
                 response = requests.get(
-                    f"{BASE_API_URL}/value",
+                    f"{BASE_API_URL}/parameters/value",
                     params={"block": selected_block, "code": selected_code}
                 )
                 if response.status_code == 200:

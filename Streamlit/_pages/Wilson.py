@@ -2,6 +2,7 @@ import streamlit as st
 import requests
 from Streamlit.Utils.common_elements import add_header, add_footer, apply_custom_background, apply_sidebar_style, apply_file_management_style
 from Streamlit.Utils.common_elements import apply_custom_css, apply_custom_css_normal
+from Streamlit.Utils.API_utils import get_param_code_list, get_param_run_code_list
 import os
 import matplotlib.pyplot as plt
 import numpy as np
@@ -17,12 +18,7 @@ def coef_name_transformation(coeff_name : str) -> str:
         if coeff_name[i:].isdigit():
             return rf"${coeff_name[0:i]}_{coeff_name[i:]}$"
 
-def get_param_code_list():
-    response = requests.get(
-            f"{BASE_API_URL}/parameters/block_info")
-    data = response.json()
-    st.session_state.paramtype_options = data["blocks"]
-# Initialisation des états de session
+
 if "selected_file" not in st.session_state:
     st.session_state.selected_file = None
 
@@ -37,6 +33,9 @@ if "global_params_set" not in st.session_state:
 
 if "paramtype_options" not in st.session_state:
     st.session_state.paramtype_options = None
+
+if "pdg_code_list" not in st.session_state:
+    st.session_state.pdg_code_list = None
 
 groups = ["BCoefficientGroup", "BPrimeCoefficientGroup", "BScalarCoefficientGroup"]
 
@@ -154,10 +153,10 @@ def app():
                         st.error("Failed to retrieve coefficient")
 
             st.subheader("Coefficient Variation")
-            param_block = st.selectbox("Parameter Block", st.session_state.paramtype_options, on_change=get_param_code_list)
+            param_block = st.selectbox("Parameter Block", st.session_state.paramtype_options, on_change=get_param_code_list, key = "param_block")
             # param_block = st.text_input("Parameter Block")
-            param_pdgcode = st.number_input("Parameter pdgCode", step =1)
-            
+            # param_pdgcode = st.number_input("Parameter pdgCode", step =1)
+            param_pdgcode = st.selectbox("Parameters Code", st.session_state.pdg_code_list, key = "param_pdgcode")
             col1, col2, col3 = st.columns(3)
             with col1:
                 param_min = st.number_input("Min Value", step=0.1)
@@ -237,11 +236,19 @@ def app():
                         st.error("Failed to retrieve coefficient")
 
             st.subheader("Coefficient Variation given a Parameters")
-            param_block = st.text_input("Parameter Block", key="param_block_run")
-            param_pdgcode = st.number_input("Parameter pdgCode", step =1, key="param_pdgcode_run")
-            param_min = st.number_input("Min Value", step=0.1, key="min_value_run")
-            param_max = st.number_input("Max Value", step=0.1, key="max_value_run")
-            param_steps = st.number_input("Number of point", min_value = 2, step=1, value=10, key = "step_value_run")
+            # param_block = st.text_input("Parameter Block", key="param_block_run")
+            # param_pdgcode = st.number_input("Parameter pdgCode", step =1, key="param_pdgcode_run")
+            param_block = st.selectbox("Parameter Block", st.session_state.paramtype_options, on_change=get_param_run_code_list, key = "param_block_run")
+            # param_block = st.text_input("Parameter Block")
+            # param_pdgcode = st.number_input("Parameter pdgCode", step =1)
+            param_pdgcode = st.selectbox("Parameters Code", st.session_state.pdg_code_list, key = "param_pdgcode_run")
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                param_min = st.number_input("Min Value", step=0.1)
+            with col2:
+                param_max = st.number_input("Max Value", step=0.1)
+            with col3:
+                param_steps = st.number_input("Number of point", min_value=2, step=1, value=10)
     
             if st.button("Plot Running wilson coefficient Variation"):
                 response = requests.get(
@@ -282,9 +289,17 @@ def app():
                     )
             st.subheader("Coefficient Variation given running scale")
 
-            Q_min = st.number_input("Min Q Value", step=0.1, key="min_Q_run")
-            Q_max = st.number_input("Max Q Value", step=0.1, key="max_Q_run")
-            Q_step = st.number_input("Number of point", min_value = 2, step=1, value=10, key = "step_Q_run")
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                Q_min = st.number_input("Min Q Value", step=0.1, key="min_Q_run")
+            with col2:
+                Q_max = st.number_input("Max Q Value", step=0.1, key="max_Q_run")
+            with col3:
+                Q_step = st.number_input("Number of point", min_value = 2, step=1, value=10, key = "step_Q_run")
+                
+            # Q_min = st.number_input("Min Q Value", step=0.1, key="min_Q_run")
+            # Q_max = st.number_input("Max Q Value", step=0.1, key="max_Q_run")
+            # Q_step = st.number_input("Number of point", min_value = 2, step=1, value=10, key = "step_Q_run")
     
             if st.button("Plot Running wilson coefficient Variation with Q"):
                 response = requests.get(
