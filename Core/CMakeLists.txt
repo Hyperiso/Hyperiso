@@ -34,6 +34,8 @@ add_library(CoreLib STATIC
     Parameters.cpp
     General.cpp
     Parameter.cpp
+    Block.cpp
+    BlockAccessor.cpp
     # QCDParameters.cpp
     QCDHelper.cpp)
 set_target_properties(CoreLib PROPERTIES POSITION_INDEPENDENT_CODE ON)

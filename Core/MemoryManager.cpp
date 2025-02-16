@@ -16,35 +16,6 @@ void MemoryManager::check_if_ready() {
     }
 }
 
-/**
- * @brief Search for the nearest directory containing "hyperiso" in its name.
- * 
- * This function searches for the nearest directory containing "hyperiso" in its name
- * starting from the current directory and moving upwards in the directory tree.
- * It returns the absolute path of the found directory if one is found, otherwise an empty string.
- * 
- * @return The absolute path of the nearest directory containing "hyperiso" in its name.
- */
-std::string MemoryManager::findNearestHyperisoDirectory() {
-    fs::path currentDir = fs::current_path();
-
-    std::cout << "Looking for project root..." << std::endl;
-
-    // Iterate through parent directories until "hyperiso" is found or root directory is reached
-    while (!currentDir.empty()) {
-        for (const auto& entry : fs::directory_iterator(currentDir)) {
-            if (entry.is_directory() && entry.path().filename().string().find("Hyperiso") != std::string::npos) {
-                LOG_INFO("Project root folder is " +entry.path().string());
-                return entry.path().string() + "/";
-            }
-        }
-        currentDir = currentDir.parent_path(); // Move to the parent directory
-    }
-
-    // If "hyperiso" directory is not found in any parent directory
-    LOG_ERROR("OldError", "Error: Nearest directory containing 'hyperiso' not found.");
-    return "";
-}
 
 MemoryManager* MemoryManager::GetInstance() {
     if (!MemoryManager::instance) {

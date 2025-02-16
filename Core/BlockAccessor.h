@@ -1,4 +1,12 @@
-#pragma once
+/**
+ * @file BlockAccessor.h
+ * @brief Provides an accessor for multiple parameter blocks.
+ * 
+ * This file defines the BlockAccessor class, which manages multiple blocks
+ * and provides a unified interface for accessing and modifying parameters.
+ */
+#if !defined(BLOCK_ACCESSOR_H)
+#define BLOCK_ACCESSOR_H
 
 #include <map>
 #include <string>
@@ -6,85 +14,112 @@
 #include <stdexcept>
 #include "Block.h"
 
+/**
+ * @enum FlavorParamType
+ * @brief Enumeration for different flavor parameter types.
+ */
 enum class FlavorParamType {
-    LIFETIME,
-    DECAY_CONSTANT,
-    DECAY_CONSTANT_RATIO
+    LIFETIME,               ///< Lifetime parameter
+    DECAY_CONSTANT,         ///< Decay constant parameter
+    DECAY_CONSTANT_RATIO    ///< Ratio of decay constants
 };
 
+/**
+ * @class BlockAccessor
+ * @brief A class that manages multiple parameter blocks, for the Parameters class.
+ * 
+ * This class allows adding, retrieving, and modifying values in multiple parameter blocks.
+ */
 class BlockAccessor : public Block {
 public:
-    void addBlock(const std::string& name, std::shared_ptr<Block> block) {
-        blocks[name] = std::move(block);
-    }
-
-    double getValue(const std::string& blockName, int pdgCode) const {
-        auto it = blocks.find(blockName);
-        if (it != blocks.end()) {
-            return it->second->getValue(pdgCode);
-        }
-        throw std::invalid_argument("Block " + blockName + " not found with pdg code : " + std::to_string(pdgCode));
-    }
+    /**
+     * @brief Adds a new block to the accessor.
+     * @param name The name of the block.
+     * @param block A shared pointer to the block.
+     */
+    void addBlock(const std::string& name, std::shared_ptr<Block> block);
     
-    bool exist(const std::string blockName, int pdgCode) const {
-        auto it = blocks.find(blockName);
-        if (it != blocks.end()) {
-            return true;
-        }
-        throw false;
-    }
+    /**
+     * @brief Checks if a block exists with a given parameter.
+     * @param blockName The name of the block.
+     * @param pdgCode The PDG code of the parameter.
+     * @return True if the block exists, false otherwise.
+     */
+    bool exist(const std::string blockName, int pdgCode) const;
 
-    void setValue(const std::string& blockName, int pdgCode, double value, bool force = false) {
-        auto it = blocks.find(blockName);
-        if (it != blocks.end()) {
-            it->second->setValue(pdgCode, value, force);
-        } else {
-            throw std::invalid_argument("Block not found");
-        }
-    }
+    /**
+     * @brief Sets the value of a parameter in a specified block.
+     * @param blockName The name of the block.
+     * @param pdgCode The PDG code of the parameter.
+     * @param value The new value to set.
+     * @param force If true, forces the update.
+     */
+    void setValue(const std::string& blockName, int pdgCode, double value, bool force = false);
 
-    void setMode(const std::string& blockName, int pdgCode, ParameterMode mode) {
-        auto it = blocks.find(blockName);
-        if (it != blocks.end()) {
-            it->second->setMode(pdgCode, mode);
-        } else {
-            throw std::invalid_argument("Block not found");
-        }
-    }
+    /**
+     * @brief Sets the mode of a parameter in a specified block.
+     * @param blockName The name of the block.
+     * @param pdgCode The PDG code of the parameter.
+     * @param mode The mode to set.
+     */
+    void setMode(const std::string& blockName, int pdgCode, ParameterMode mode);
 
-    std::map<int, double> getAllValues(std::string blockName) {
-        auto it = blocks.find(blockName);
-        if (it != blocks.end()) {
-            return it->second->getAllValues();
-        } else {
-            throw std::invalid_argument("Block not found");
-        }
-    }
+    /**
+     * @brief Retrieves the value of a parameter from a specified block.
+     * @param blockName The name of the block.
+     * @param pdgCode The PDG code of the parameter.
+     * @return The parameter value.
+     */
+    double getValue(const std::string& blockName, int pdgCode) const;
 
-    std::vector<std::string> get_blocks() {
-        std::vector<std::string> keys;
-        for (auto key : blocks){
-            keys.push_back(key.first);
-        }
-        return keys;
-    }
-    std::map<int, double> getAllValues() override {
+    /**
+     * @brief Retrieves all values from a specified block.
+     * @param blockName The name of the block.
+     * @return A map of PDG codes to parameter values.
+     */
+    std::map<int, double> getAllValues(std::string blockName);
+
+    /**
+     * @brief Retrieves a list of all block names.
+     * @return A vector of block names.
+     */
+    std::vector<std::string> get_blocks();
+
+    /**
+     * @brief Override to prevent direct access to all values.
+     * @throws std::logic_error Always throws an error.
+     */
+    std::map<int, double> getAllValues() override{
         throw std::logic_error("Use getValue with block name for BlockAccessor");
     }
 
-    // These methods are to satisfy the Block interface, but can be unused directly
+    /**
+     * @brief Override to prevent direct access to parameter values.
+     * @throws std::logic_error Always throws an error.
+     */
     double getValue(int pdgCode) const override {
         throw std::logic_error("Use getValue with block name for BlockAccessor");
     }
 
+    /**
+     * @brief Override to prevent direct setting of parameter values.
+     * @throws std::logic_error Always throws an error.
+     */
     void setValue(int pdgCode, double value, bool force = false) override {
         throw std::logic_error("Use setValue with block name for BlockAccessor");
     }
 
+    /**
+     * @brief Override to prevent direct setting of parameter modes.
+     * @throws std::logic_error Always throws an error.
+     */
     void setMode(int pdgCode, ParameterMode mode) override {
         throw std::logic_error("Use setMode with block name for BlockAccessor");
     }
 
 private:
+    /// A map of block names to their corresponding shared pointers.
     std::map<std::string, std::shared_ptr<Block>> blocks;
 };
+
+#endif
