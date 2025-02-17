@@ -84,6 +84,28 @@ bool Parameters::exist(const std::string& block, int pdgCode) {
     return blockAccessor.exist(block, pdgCode);
 }
 
+void Parameters::addBlock(const std::string& name, std::shared_ptr<Block> block) {
+    blockAccessor.addBlock(name, block);
+}
+
+void Parameters::setBlockValue(const std::string& name, int pdgCode, double value, bool force) {
+    blockAccessor.setValue(name, pdgCode, value, force);
+}
+
+std::map<int, double> Parameters::get_block_infos(std::string blockName) {
+    return blockAccessor.getAllValues(blockName);
+}
+
+
+std::vector<std::string> Parameters::get_blocks_list() {
+    return blockAccessor.get_blocks();
+}
+
+complex_t Parameters::get_c_CKM_entry(int idx) {
+    auto p = Parameters::GetInstance();
+    return complex_t((*p)("RECKM", idx), (*p)("IMCKM", idx));
+}
+
 void SMModelStrategy::initializeParameters(Parameters& params) {
 
     LhaReader* lha = MemoryManager::GetInstance()->getReader();
