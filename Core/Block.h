@@ -359,7 +359,10 @@ public:
     BDlnuBlock() {this->blockname = "BDlnuBlock";}
 };
 
+/** @class BDslnuBlock @brief Block for BDslnuBlock in the form factor part */
 class BDslnuBlock : public MapBlock {
 public:
     BDslnuBlock() {this->blockname = "BDslnuBlock";}
 };
+
+#endif
