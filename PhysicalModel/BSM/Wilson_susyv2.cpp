@@ -1557,5 +1557,19 @@ std::complex<double> C_Blnu_P_SUSY::LO_calculation() {
 	double m_b = QCDHelper::mass_b_msbar();
     double m_tau = (*sm)("MASS", 15);
 	double tanb = (*susy)("HMIX", 2);
-    return this->double_to_complex_save("LO", m_b * m_tau * tanb * tanb / (1 + sus_param->epsilon0 * tanb));
+    return this->double_to_complex_save("LO", m_b * m_tau * std::pow(tanb / sus_param->m_H, 2) / (1 + sus_param->epsilon0 * tanb));
+}
+
+std::complex<double> C_S1_SUSY::LO_calculation() {
+    double m_b = QCDHelper::mass_b_msbar();
+    double m_tau = (*sm)("MASS", 15);
+	double tanb = (*susy)("HMIX", 2);
+    return this->double_to_complex_save("LO", m_b * m_tau * std::pow(tanb / sus_param->m_H, 2) / (1 + sus_param->epsilon0 * tanb));
+}
+
+std::complex<double> C_S2_SUSY::LO_calculation() {
+    double m_c = (*sm)("MASS", 4);
+    double m_tau = (*sm)("MASS", 15);
+	double tanb = (*susy)("HMIX", 2);
+    return this->double_to_complex_save("LO", m_c * m_tau * std::pow(tanb / sus_param->m_H, 2) / (1 + sus_param->epsilon0 * tanb));
 }

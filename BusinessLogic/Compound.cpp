@@ -5,6 +5,7 @@
 #include <algorithm>
 
 void Compound::read_param_covariance() {
+    LOG_DEBUG("Extracting parameter covariance from input files.");
     std::vector<Correlation> correlations;
     std::vector<Value> values;
     std::string root = project_root.data();
@@ -46,22 +47,23 @@ void Compound::read_param_covariance() {
 }
 
 double Compound::compute_pdv(const ParamId &param_id) const {
+    LOG_DEBUG("Computing pdv wrt", param_id);
     auto p = Parameters::GetInstance(param_id.type);
     double h = Parameters::Get(param_id) * 1e-5;
-    if (h == 0)
-        h = 1e-8;
+    h = fpeq(h, 0.) ? 1e-8 : h;
     p->changeParameterMode(param_id, ParameterMode::SHIFTABLE);
     p->shiftParameter(param_id, h);
     double f_p = eval();
-    p->shiftParameter(param_id, -2 * h);
-    double f_m = eval();
+    p->shiftParameter(param_id, -h);
     p->changeParameterMode(param_id, ParameterMode::FIXED);
-    return (f_p - f_m) / (2 * h);
+    return (f_p - central_value) / h;
 }
 
 void Compound::update_gradient() {
+    LOG_DEBUG("Updating gradient");
+    central_value = eval();
     for (auto &&p : dependences) {
-        gradient.emplace(p, compute_pdv(p));
+        gradient.insert_or_assign(p, compute_pdv(p));
     }
 }
 
@@ -76,15 +78,19 @@ std::vector<ParamId> Compound::get_common_dependences_with(const Compound &other
 
 void Compound::add_dependence(const ParamId &param_name) {
     dependences.emplace_back(param_name);
+    if (central_value == NAN) {
+        central_value = eval();
+    }
     gradient.emplace(param_name, compute_pdv(param_name));
     read_param_covariance();
 }
 
 void Compound::add_dependences(const std::vector<ParamId> &param_names) {
+    LOG_DEBUG("Adding parameter list to compound");
     for (auto &&p : param_names) {
         dependences.emplace_back(p);
-        gradient.emplace(p, compute_pdv(p));
     }
+    update_gradient();
     read_param_covariance();
 }
 
@@ -96,11 +102,12 @@ const std::map<ParamId, double> &Compound::get_gradient() const {
     return gradient;
 }
 
-double Compound::variance() const {
+double Compound::variance() {
     double var = 0;
     for (auto &&pp : param_corr) {
         var += pp.second * gradient.at(pp.first.first) * gradient.at(pp.first.second);
     }
+    LOG_DEBUG("Computing compound variance =", var);
     return var;
 }
 

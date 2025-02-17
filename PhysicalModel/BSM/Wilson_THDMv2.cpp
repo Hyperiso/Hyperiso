@@ -118,3 +118,17 @@ std::complex<double> C_Blnu_P_THDM::LO_calculation() {
     double l_tau = (*mod)("YL", 22);
     return this->double_to_complex_save("LO", -m_b * m_tau * thdm_params->ld * l_tau / std::pow(thdm_params->m_H, 2));
 }
+
+std::complex<double> C_S1_THDM::LO_calculation() {
+    double m_b = QCDHelper::mass_b_msbar();
+    double m_tau = (*sm)("MASS", 15);
+    double l_tau = (*mod)("YL", 22);
+    return this->double_to_complex_save("LO", -m_b * m_tau * thdm_params->ld * l_tau / std::pow(thdm_params->m_H, 2));
+}
+
+std::complex<double> C_S2_THDM::LO_calculation() {
+    double m_c = (*sm)("MASS", 4);
+    double m_tau = (*sm)("MASS", 15);
+    double l_tau = (*mod)("YL", 22);
+    return this->double_to_complex_save("LO", -m_c * m_tau * thdm_params->lu * l_tau / std::pow(thdm_params->m_H, 2));
+}

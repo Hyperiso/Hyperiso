@@ -282,6 +282,48 @@ protected:
     Wilson_parameters* W_param = Wilson_parameters::GetInstance();
 };
 
+class BclnuCoefficientGroup : public CoefficientGroup {
+    public:
+        BclnuCoefficientGroup() {
+            if (MemoryManager::GetInstance()->getUseMarty()) {
+                for (auto&& coeff : {"C_V1", "C_V2", "C_S1", "C_S2", "C_T"}) {
+                    this->insert(std::make_pair(coeff, std::make_shared<MartyWilson>(coeff)));
+                }
+                return;
+            }
+            this->insert(std::make_pair("C_V1", std::make_shared<C_V1>()));
+            this->insert(std::make_pair("C_V2", std::make_shared<C_V2>()));
+            this->insert(std::make_pair("C_S1", std::make_shared<C_S1>()));
+            this->insert(std::make_pair("C_S2", std::make_shared<C_S2>()));
+            this->insert(std::make_pair("C_T", std::make_shared<C_T>()));
+        }
+    
+        BclnuCoefficientGroup(double Q_match) {
+            if (MemoryManager::GetInstance()->getUseMarty()) {
+                for (auto&& coeff : {"C_V1", "C_V2", "C_S1", "C_S2", "C_T"}) {
+                    this->insert(std::make_pair(coeff, std::make_shared<MartyWilson>(Q_match, coeff)));
+                }
+                return;
+            }
+            this->insert(std::make_pair("C_V1", std::make_shared<C_V1>(Q_match)));
+            this->insert(std::make_pair("C_V2", std::make_shared<C_V2>(Q_match)));
+            this->insert(std::make_pair("C_S1", std::make_shared<C_S1>(Q_match)));
+            this->insert(std::make_pair("C_S2", std::make_shared<C_S2>(Q_match)));
+            this->insert(std::make_pair("C_T", std::make_shared<C_T>(Q_match)));
+        }
+    
+        void set_base_1_LO() {}
+        void set_base_1_NLO() {}
+        void set_base_1_NNLO() {}
+    
+        std::shared_ptr<CoefficientGroup> clone() const override {
+            return std::make_shared<BclnuCoefficientGroup>(*this);
+        }
+    
+    protected:
+        Wilson_parameters* W_param = Wilson_parameters::GetInstance();
+    };
+
 inline std::ostream& operator<<(std::ostream& os, BCoefficientGroup& coeffs) {
     for(auto& coeff : coeffs) {
         os << coeff.second->get_name() << " --------------------------------" << std::endl;

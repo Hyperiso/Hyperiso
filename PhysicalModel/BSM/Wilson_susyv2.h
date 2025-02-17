@@ -343,6 +343,66 @@ public:
     std::shared_ptr<Parameters> sm = Parameters::GetInstance();
 };
 
+class C_V1_SUSY : public C_V1, public WilsonCoefficient_susy {
+public:
+    C_V1_SUSY(double Q_match) : C_V1(Q_match), WilsonCoefficient_susy(Q_match) {}
+    C_V1_SUSY() : C_V1(), WilsonCoefficient_susy(81) {}
+
+    std::complex<double> LO_calculation() {return {0,0};} 
+    std::complex<double> NLO_calculation() {return {0,0};} 
+    std::complex<double> NNLO_calculation() {return {0,0};} 
+
+    std::shared_ptr<Parameters> sm = Parameters::GetInstance();
+};
+
+class C_V2_SUSY : public C_V2, public WilsonCoefficient_susy {
+public:
+    C_V2_SUSY(double Q_match) : C_V2(Q_match), WilsonCoefficient_susy(Q_match) {}
+    C_V2_SUSY() : C_V2(), WilsonCoefficient_susy(81) {}
+
+    std::complex<double> LO_calculation() {return {0,0};} 
+    std::complex<double> NLO_calculation() {return {0,0};} 
+    std::complex<double> NNLO_calculation() {return {0,0};} 
+
+    std::shared_ptr<Parameters> sm = Parameters::GetInstance();
+};
+
+class C_S1_SUSY : public C_S1, public WilsonCoefficient_susy {
+public:
+    C_S1_SUSY(double Q_match) : C_S1(Q_match), WilsonCoefficient_susy(Q_match) {}
+    C_S1_SUSY() : C_S1(), WilsonCoefficient_susy(81) {}
+
+    std::complex<double> LO_calculation();
+    std::complex<double> NLO_calculation() {return {0,0};} 
+    std::complex<double> NNLO_calculation() {return {0,0};} 
+
+    std::shared_ptr<Parameters> sm = Parameters::GetInstance();
+};
+
+class C_S2_SUSY : public C_S2, public WilsonCoefficient_susy {
+public:
+    C_S2_SUSY(double Q_match) : C_S2(Q_match), WilsonCoefficient_susy(Q_match) {}
+    C_S2_SUSY() : C_S2(), WilsonCoefficient_susy(81) {}
+
+    std::complex<double> LO_calculation();
+    std::complex<double> NLO_calculation() {return {0,0};} 
+    std::complex<double> NNLO_calculation() {return {0,0};} 
+
+    std::shared_ptr<Parameters> sm = Parameters::GetInstance();
+};
+
+class C_T_SUSY : public C_T, public WilsonCoefficient_susy {
+public:
+    C_T_SUSY(double Q_match) : C_T(Q_match), WilsonCoefficient_susy(Q_match) {}
+    C_T_SUSY() : C_T(), WilsonCoefficient_susy(81) {}
+
+    std::complex<double> LO_calculation() {return {0,0};} 
+    std::complex<double> NLO_calculation() {return {0,0};} 
+    std::complex<double> NNLO_calculation() {return {0,0};} 
+
+    std::shared_ptr<Parameters> sm = Parameters::GetInstance();
+};
+
 class BCoefficientGroup_susy : public BCoefficientGroup {
 
 public:
@@ -408,6 +468,28 @@ public:
         this->insert(std::make_pair("C_Blnu_A", std::make_shared<C_Blnu_A_SUSY>(Q_match))); 
         this->insert(std::make_pair("C_Blnu_P", std::make_shared<C_Blnu_P_SUSY>(Q_match)));
     }
+};
+
+class BclnuCoefficientGroup_SUSY : public BclnuCoefficientGroup {
+public:
+    BclnuCoefficientGroup_SUSY() { this->clear();
+        this->insert(std::make_pair("C_V1", std::make_shared<C_V1_SUSY>()));
+        this->insert(std::make_pair("C_V2", std::make_shared<C_V2_SUSY>()));
+        this->insert(std::make_pair("C_S1", std::make_shared<C_S1_SUSY>()));
+        this->insert(std::make_pair("C_S2", std::make_shared<C_S2_SUSY>()));
+        this->insert(std::make_pair("C_T", std::make_shared<C_T_SUSY>()));
+    }
+
+    BclnuCoefficientGroup_SUSY(double Q_match) { this->clear();
+        this->insert(std::make_pair("C_V1", std::make_shared<C_V1_SUSY>(Q_match)));
+        this->insert(std::make_pair("C_V2", std::make_shared<C_V2_SUSY>(Q_match)));
+        this->insert(std::make_pair("C_S1", std::make_shared<C_S1_SUSY>(Q_match)));
+        this->insert(std::make_pair("C_S2", std::make_shared<C_S2_SUSY>(Q_match)));
+        this->insert(std::make_pair("C_T", std::make_shared<C_T_SUSY>(Q_match)));
+    }
+
+    void set_base_1() {}
+    void set_base_2() {}
 };
 
 #endif

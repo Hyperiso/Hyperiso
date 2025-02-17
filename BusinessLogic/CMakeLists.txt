@@ -34,6 +34,7 @@ add_library(BusinessLogicLib STATIC
     Decays/BXsDecay.cpp
     Decays/BlnuDecay.cpp
     Decays/BDlnuDecay.cpp
+    Decays/BDstarlnuDecay.cpp
     Compound.cpp
     DecayParent.cpp
     Node.cpp

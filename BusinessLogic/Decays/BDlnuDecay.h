@@ -5,30 +5,57 @@
 #include "General.h"
 
 /**
- * @brief Decay parent for the B > D l nu_l decays. Currently implements the B > D0 tau nu_tau branching ratio and the xi_Dlnu = BR(B > D0 tau nu_tau) / BR(B > D0 e nu_e) ratio.
+ * @brief Decay parent for the B > D l nu_l decays [1309:0301]. Currently implements :
+ *     - BR(B > D0 tau nu_tau)
+ *     - R_D = Γ(B > D0 tau nu_tau) / Γ(B > D0 e nu_e)
+ *     - Forward-Backward asymmetry 
+ *     - P_tau = (Γ(s_tau = +1/2) - Γ(s_tau = -1/2)) / Γ
  */
 class BDlnuDecay : public DecayParent {
 
 protected:
     double ckm(double V_cb_r, double V_cb_i);
-    double pref(double G_F, double tau_B, double m_B, double m_D, double G1);
+    double pref(double G_F, double tau_B, double m_B, double m_D, double V_11);
+
     double t(double rD, double w);
-    double G(double rho2, double w);
-    double f_1(double rD, double rl, double rho2, double w);
-    double f_2(double rD, double rl, double rho2, double w);
-    double f_3(double rD, double rl, double rho2, double w);
-    double f_4(double rD, double rl, double rho2, double w);
-    double w_max(double rD, double rl);
-    double I1(double rD, double rl, double rho2, double w_u);
-    double I2(double rD, double rl, double rho2, double w_u);
-    double I3(double rD, double rl, double rho2, double w_u);
-    double I4(double rD, double rl, double rho2, double w_u);
-    double W1(double I1);
-    double W2(double I2, double Delta2, double rl);
-    double W3(double I3, double Delta2, double m_l, double m_bc);
-    double W4(double I4, double Delta2, double m_B, double m_bc);
-    double W(double W1, double W2, double W3, double W4);
-    double BR_B_Dlnu(double pref, double ckm, double W);
+    double lambda_D(double rD, double w);
+    double x_l(double rtau, double rD, double w);
+    double phi(double rtau, double rD, double w);
+    double w_max(double rD, double rtau);
+
+    double V_1(double w, double rho_D2);
+    double S_1(double w, double rho_D2, double Delta);
+
+    double H_V0 (double w, double rD, double rho_D2);
+    double H_Vt (double w, double rD, double rho_D2, double Delta);
+    double H_S  (double w, double rD, double rqm, double rho_D2, double Delta);
+    double H_T  (double w, double rD, double rqp, double rho_D2, double Delta);
+
+    double F_V0_1  (double rD, double rtau, double rho_D2, double w_m, bool flag);
+    double F_V0_2  (double rD, double rtau, double rho_D2, double w_m, bool flag);
+    double F_Vt    (double rD, double rtau, double rho_D2, double Delta, double w_m, bool flag);
+    double F_S     (double rD, double rtau, double rqm, double rho_D2, double Delta, double w_m, bool flag);
+    double F_T_1   (double rD, double rtau, double rqp, double rho_D2, double Delta, double w_m, bool flag);
+    double F_T_2   (double rD, double rtau, double rqp, double rho_D2, double Delta, double w_m, bool flag);
+    double G_V0_Vt (double rD, double rtau, double rho_D2, double Delta, double w_m, bool flag);
+    double G_V0_S  (double rD, double rtau, double rqm, double rho_D2, double Delta, double w_m, bool flag);
+    double G_V0_T  (double rD, double rtau, double rqp, double rho_D2, double Delta, double w_m, bool flag);
+    double G_Vt_S  (double rD, double rtau, double rqm, double rho_D2, double Delta, double w_m, bool flag);
+    double G_Vt_T  (double rD, double rtau, double rqp, double rho_D2, double Delta, double w_m, bool flag);
+    double G_S_T   (double rD, double rtau, double rqp, double rqm, double rho_D2, double Delta, double w_m, bool flag);
+
+    complex_t C_V();
+    complex_t C_S();
+    complex_t C_T();
+
+    double c_flag(complex_t C);
+
+    double Gamma_m(double F_V0_1, double F_T_2, double G_V0_T, complex_t C_V, complex_t C_T);
+    double Gamma_p(double F_V0_2, double F_Vt, double F_S, double F_T_1, double G_Vt_S, double G_V0_T, complex_t C_V, complex_t C_S, complex_t C_T);
+    double Gamma(double gamma_p, double gamma_m);
+    double B_theta(double G_V0_Vt, double G_V0_S, double G_Vt_T, double G_S_T, complex_t C_V, complex_t C_S, complex_t C_T);
+
+    double BR_B_Dtaunu(double pref, double ckm, double width);
 
 public:
     BDlnuDecay(QCDOrder order, double matching_scale, double hadronic_scale) {
@@ -37,7 +64,7 @@ public:
         winfo.model = MemoryManager::GetInstance()->getModel();
         winfo.order = order;
         winfo.basis = BWilsonBasis::STANDARD;
-        winfo.wgroups = {WGroup::Blnu};
+        winfo.wgroups = {WGroup::BCLNU};
 
         max_order = QCDOrder::LO;
 

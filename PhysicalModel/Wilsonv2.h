@@ -458,6 +458,66 @@ public:
     std::shared_ptr<Parameters> sm = Parameters::GetInstance();
 };
 
+class C_V1 : public WilsonCoefficient {
+public:
+    C_V1(double Q_match) : WilsonCoefficient(Q_match) {this->set_name("C_V1");}
+    C_V1() : WilsonCoefficient() {this->set_name("C_V1");}
+
+    std::complex<double> LO_calculation() { return double_to_complex_save("LO", 1.); }; 
+    std::complex<double> NLO_calculation() {return {0,0};} 
+    std::complex<double> NNLO_calculation() {return {0,0};} 
+
+    std::shared_ptr<Parameters> sm = Parameters::GetInstance();
+};
+
+class C_V2 : public WilsonCoefficient {
+public:
+    C_V2(double Q_match) : WilsonCoefficient(Q_match) {this->set_name("C_V2");}
+    C_V2() : WilsonCoefficient() {this->set_name("C_V2");}
+
+    std::complex<double> LO_calculation() {return {0,0};}; 
+    std::complex<double> NLO_calculation() {return {0,0};} 
+    std::complex<double> NNLO_calculation() {return {0,0};} 
+
+    std::shared_ptr<Parameters> sm = Parameters::GetInstance();
+};
+
+class C_S1 : public WilsonCoefficient {
+public:
+    C_S1(double Q_match) : WilsonCoefficient(Q_match) {this->set_name("C_S1");}
+    C_S1() : WilsonCoefficient() {this->set_name("C_S1");}
+
+    std::complex<double> LO_calculation() {return {0,0};}; 
+    std::complex<double> NLO_calculation() {return {0,0};} 
+    std::complex<double> NNLO_calculation() {return {0,0};} 
+
+    std::shared_ptr<Parameters> sm = Parameters::GetInstance();
+};
+
+class C_S2 : public WilsonCoefficient {
+public:
+    C_S2(double Q_match) : WilsonCoefficient(Q_match) {this->set_name("C_S2");}
+    C_S2() : WilsonCoefficient() {this->set_name("C_S2");}
+
+    std::complex<double> LO_calculation() {return {0,0};}; 
+    std::complex<double> NLO_calculation() {return {0,0};} 
+    std::complex<double> NNLO_calculation() {return {0,0};} 
+
+    std::shared_ptr<Parameters> sm = Parameters::GetInstance();
+};
+
+class C_T : public WilsonCoefficient {
+public:
+    C_T(double Q_match) : WilsonCoefficient(Q_match) {this->set_name("C_T");}
+    C_T() : WilsonCoefficient() {this->set_name("C_T");}
+
+    std::complex<double> LO_calculation() {return {0,0};}; 
+    std::complex<double> NLO_calculation() {return {0,0};} 
+    std::complex<double> NNLO_calculation() {return {0,0};} 
+
+    std::shared_ptr<Parameters> sm = Parameters::GetInstance();
+};
+
 inline std::ostream& operator<<(std::ostream& os, WilsonCoefficient& coeff) {
     os << "WilsonCoefficient " << coeff.get_name() << "has matching value (" << coeff.get_Q_match() << " GeV) : " << coeff.get_CoefficientMatchingValue("LO") << " at LO" << std::endl;
     os<< ", " << coeff.get_CoefficientMatchingValue("NLO") << " at NLO, " << coeff.get_CoefficientMatchingValue("NNLO") << "at NNLO" << std::endl;

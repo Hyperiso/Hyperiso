@@ -378,6 +378,66 @@ public:
     std::shared_ptr<Parameters> sm = Parameters::GetInstance();
 };
 
+class C_V1_THDM : public C_V1, public WilsonCoefficient_THDM {
+public:
+    C_V1_THDM(double Q_match) : C_V1(Q_match), WilsonCoefficient_THDM(Q_match) {}
+    C_V1_THDM() : C_V1() {}
+
+    std::complex<double> LO_calculation() {return {0,0};} 
+    std::complex<double> NLO_calculation() {return {0,0};} 
+    std::complex<double> NNLO_calculation() {return {0,0};} 
+
+    std::shared_ptr<Parameters> sm = Parameters::GetInstance();
+};
+
+class C_V2_THDM : public C_V2, public WilsonCoefficient_THDM {
+public:
+    C_V2_THDM(double Q_match) : C_V2(Q_match), WilsonCoefficient_THDM(Q_match) {}
+    C_V2_THDM() : C_V2() {}
+
+    std::complex<double> LO_calculation() {return {0,0};} 
+    std::complex<double> NLO_calculation() {return {0,0};} 
+    std::complex<double> NNLO_calculation() {return {0,0};} 
+
+    std::shared_ptr<Parameters> sm = Parameters::GetInstance();
+};
+
+class C_S1_THDM : public C_S1, public WilsonCoefficient_THDM {
+public:
+    C_S1_THDM(double Q_match) : C_S1(Q_match), WilsonCoefficient_THDM(Q_match) {}
+    C_S1_THDM() : C_S1() {}
+
+    std::complex<double> LO_calculation();
+    std::complex<double> NLO_calculation() {return {0,0};} 
+    std::complex<double> NNLO_calculation() {return {0,0};} 
+
+    std::shared_ptr<Parameters> sm = Parameters::GetInstance();
+};
+
+class C_S2_THDM : public C_S2, public WilsonCoefficient_THDM {
+public:
+    C_S2_THDM(double Q_match) : C_S2(Q_match), WilsonCoefficient_THDM(Q_match) {}
+    C_S2_THDM() : C_S2() {}
+
+    std::complex<double> LO_calculation();
+    std::complex<double> NLO_calculation() {return {0,0};} 
+    std::complex<double> NNLO_calculation() {return {0,0};} 
+
+    std::shared_ptr<Parameters> sm = Parameters::GetInstance();
+};
+
+class C_T_THDM : public C_T, public WilsonCoefficient_THDM {
+public:
+    C_T_THDM(double Q_match) : C_T(Q_match), WilsonCoefficient_THDM(Q_match) {}
+    C_T_THDM() : C_T() {}
+
+    std::complex<double> LO_calculation() {return {0,0};} 
+    std::complex<double> NLO_calculation() {return {0,0};} 
+    std::complex<double> NNLO_calculation() {return {0,0};} 
+
+    std::shared_ptr<Parameters> sm = Parameters::GetInstance();
+};
+
 class BCoefficientGroup_THDM : public BCoefficientGroup {
 
 public:
@@ -439,10 +499,35 @@ public:
 class BlnuCoefficientGroup_THDM : public BlnuCoefficientGroup {
 public:
     BlnuCoefficientGroup_THDM() { this->clear();
-        this->insert(std::make_pair("C_Blnu_A", std::make_shared<C_Blnu_A_THDM>())); this->insert(std::make_pair("C_Blnu_P", std::make_shared<C_Blnu_P_THDM>()));
+        this->insert(std::make_pair("C_Blnu_A", std::make_shared<C_Blnu_A_THDM>())); 
+        this->insert(std::make_pair("C_Blnu_P", std::make_shared<C_Blnu_P_THDM>()));
     }
     BlnuCoefficientGroup_THDM(double Q_match) { this->clear();
-        this->insert(std::make_pair("C_Blnu_A", std::make_shared<C_Blnu_A_THDM>(Q_match))); this->insert(std::make_pair("C_Blnu_P", std::make_shared<C_Blnu_P_THDM>(Q_match)));
+        this->insert(std::make_pair("C_Blnu_A", std::make_shared<C_Blnu_A_THDM>(Q_match))); 
+        this->insert(std::make_pair("C_Blnu_P", std::make_shared<C_Blnu_P_THDM>(Q_match)));
+    }
+
+    void set_base_1() {}
+    void set_base_2() {}
+};
+
+
+class BclnuCoefficientGroup_THDM : public BclnuCoefficientGroup {
+public:
+    BclnuCoefficientGroup_THDM() { this->clear();
+        this->insert(std::make_pair("C_V1", std::make_shared<C_V1_THDM>()));
+        this->insert(std::make_pair("C_V2", std::make_shared<C_V2_THDM>()));
+        this->insert(std::make_pair("C_S1", std::make_shared<C_S1_THDM>()));
+        this->insert(std::make_pair("C_S2", std::make_shared<C_S2_THDM>()));
+        this->insert(std::make_pair("C_T", std::make_shared<C_T_THDM>()));
+    }
+
+    BclnuCoefficientGroup_THDM(double Q_match) { this->clear();
+        this->insert(std::make_pair("C_V1", std::make_shared<C_V1_THDM>(Q_match)));
+        this->insert(std::make_pair("C_V2", std::make_shared<C_V2_THDM>(Q_match)));
+        this->insert(std::make_pair("C_S1", std::make_shared<C_S1_THDM>(Q_match)));
+        this->insert(std::make_pair("C_S2", std::make_shared<C_S2_THDM>(Q_match)));
+        this->insert(std::make_pair("C_T", std::make_shared<C_T_THDM>(Q_match)));
     }
 
     void set_base_1() {}

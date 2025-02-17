@@ -35,7 +35,7 @@ def add_header():
             )
 
         with col4:
-            st.image(os.getcwd() + "/Streamlit/img/mlg.jpg"
+            st.image(os.getcwd() + "/Streamlit/img/mlg.png"
                 ,
                 width=100,
                 use_container_width="auto",

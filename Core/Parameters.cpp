@@ -372,6 +372,7 @@ void FlavorStrategy::initializeParameters(Parameters& params) {
         massblock->setValue(321, lha->getValue<double>("FMASS", "321")); // K
         massblock->setValue(323, lha->getValue<double>("FMASS", "323")); // K*
         massblock->setValue(421, lha->getValue<double>("FMASS", "421")); // D0
+        massblock->setValue(423, lha->getValue<double>("FMASS", "423")); // D0_star
         massblock->setValue(411, lha->getValue<double>("FMASS", "411")); // D
         massblock->setValue(431, lha->getValue<double>("FMASS", "431")); // Ds
         massblock->setValue(511, lha->getValue<double>("FMASS", "511")); // Bu
@@ -382,6 +383,7 @@ void FlavorStrategy::initializeParameters(Parameters& params) {
         massblock->setValue(321, 0.49); // K
         massblock->setValue(323, 0.90); // K*
         massblock->setValue(421, 1.86); // D0
+        massblock->setValue(423, 2.01); // D0_star
         massblock->setValue(411, 1.87); // D
         massblock->setValue(431, 1.97); // Ds
         massblock->setValue(511, 5.28); // Bu
@@ -570,10 +572,17 @@ void FormFactorStrategy::initializeParameters(Parameters &params) {
     params.addBlock("B_Xs", std::move(bxsblock));
 
     auto bdlnublock = std::make_shared<BDlnuBlock>();
-    bdlnublock->setValue(1, 1.026); // G(1)
-    bdlnublock->setValue(2, 1.17);  // rho^2
-    bdlnublock->setValue(3, 0.46);  // Delta(w)
+    bdlnublock->setValue(1, 1.074); // V_1(1)
+    bdlnublock->setValue(2, 1.186);  // rho_D^2
+    bdlnublock->setValue(3, 1);  // Delta
     params.addBlock("B_Dlnu", std::move(bdlnublock));
+
+    auto bdslnublock = std::make_shared<BDslnuBlock>();
+    bdslnublock->setValue(1, 0.908); // h_A1(1)
+    bdslnublock->setValue(2, 1.207);  // rho_Ds^2
+    bdslnublock->setValue(3, 1.403);  // R_1(1)
+    bdslnublock->setValue(4, 0.854);  // R_2(1)
+    params.addBlock("B_Dslnu", std::move(bdslnublock));
 }
 
 void Parameters::changeParameterMode(const ParamId &param_id,
