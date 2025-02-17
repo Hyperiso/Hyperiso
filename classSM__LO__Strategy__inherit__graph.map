@@ -1,0 +1,12 @@
+<map id="SM_LO_Strategy" name="SM_LO_Strategy">
+<area shape="rect" id="node1" title=" " alt="" coords="190,80,318,107"/>
+<area shape="rect" id="node3" href="$classSM__NLO__Strategy.html" title=" " alt="" coords="15,155,154,181"/>
+<area shape="rect" id="node5" href="$classSUSY__LO__Strategy.html" title=" " alt="" coords="183,155,325,181"/>
+<area shape="rect" id="node8" href="$classTHDM__LO__Strategy.html" title=" " alt="" coords="356,155,504,181"/>
+<area shape="rect" id="node2" href="$classInitializationStrategy.html" title=" " alt="" coords="175,5,333,32"/>
+<area shape="rect" id="node4" href="$classSM__NNLO__Strategy.html" title=" " alt="" coords="5,229,153,256"/>
+<area shape="rect" id="node6" href="$classSUSY__NLO__Strategy.html" title=" " alt="" coords="178,229,330,256"/>
+<area shape="rect" id="node7" href="$classSUSY__NNLO__Strategy.html" title=" " alt="" coords="170,304,333,331"/>
+<area shape="rect" id="node9" href="$classTHDM__NLO__Strategy.html" title=" " alt="" coords="359,229,517,256"/>
+<area shape="rect" id="node10" href="$classTHDM__NNLO__Strategy.html" title=" " alt="" coords="357,304,525,331"/>
+</map>

@@ -1,0 +1,12 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="node1" href="$classInitializationStrategy.html" title=" " alt="" coords="5,56,164,83"/>
+<area shape="rect" id="node2" href="$classSM__LO__Strategy.html" title=" " alt="" coords="212,56,340,83"/>
+<area shape="rect" id="node3" href="$classSM__NLO__Strategy.html" title=" " alt="" coords="393,5,531,32"/>
+<area shape="rect" id="node5" href="$classSUSY__LO__Strategy.html" title=" " alt="" coords="391,56,533,83"/>
+<area shape="rect" id="node8" href="$classTHDM__LO__Strategy.html" title=" " alt="" coords="388,107,536,133"/>
+<area shape="rect" id="node4" href="$classSM__NNLO__Strategy.html" title=" " alt="" coords="589,5,737,32"/>
+<area shape="rect" id="node6" href="$classSUSY__NLO__Strategy.html" title=" " alt="" coords="587,56,739,83"/>
+<area shape="rect" id="node7" href="$classSUSY__NNLO__Strategy.html" title=" " alt="" coords="793,56,956,83"/>
+<area shape="rect" id="node9" href="$classTHDM__NLO__Strategy.html" title=" " alt="" coords="584,107,743,133"/>
+<area shape="rect" id="node10" href="$classTHDM__NNLO__Strategy.html" title=" " alt="" coords="791,107,959,133"/>
+</map>

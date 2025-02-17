@@ -1,0 +1,5 @@
+<map id="GaugeBlock" name="GaugeBlock">
+<area shape="rect" id="node1" title=" " alt="" coords="5,155,105,181"/>
+<area shape="rect" id="node2" href="$classMapBlock.html" title="A class for storing blocks that have only 1 id." alt="" coords="12,80,99,107"/>
+<area shape="rect" id="node3" href="$classBlock.html" title="Abstract base class for parameter blocks." alt="" coords="26,5,85,32"/>
+</map>

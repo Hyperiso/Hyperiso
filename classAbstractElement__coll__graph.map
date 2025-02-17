@@ -1,0 +1,4 @@
+<map id="AbstractElement" name="AbstractElement">
+<area shape="rect" id="node1" title="Abstract base class for elements within an LHA block." alt="" coords="5,95,136,121"/>
+<area shape="rect" id="node2" href="$classLhaBlock.html" title="Represents an LHA block with multiple elements, based on a given prototype." alt="" coords="30,5,111,32"/>
+</map>

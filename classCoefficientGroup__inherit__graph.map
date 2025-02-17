@@ -1,0 +1,19 @@
+<map id="CoefficientGroup" name="CoefficientGroup">
+<area shape="rect" id="node1" title=" " alt="" coords="336,233,467,260"/>
+<area shape="rect" id="node3" href="$classBCoefficientGroup.html" title=" " alt="" coords="535,56,675,83"/>
+<area shape="rect" id="node6" href="$classBPrimeCoefficientGroup.html" title=" " alt="" coords="515,157,694,184"/>
+<area shape="rect" id="node9" href="$classBScalarCoefficientGroup.html" title=" " alt="" coords="515,233,695,260"/>
+<area shape="rect" id="node12" href="$classBclnuCoefficientGroup.html" title=" " alt="" coords="521,309,688,336"/>
+<area shape="rect" id="node15" href="$classBlnuCoefficientGroup.html" title=" " alt="" coords="525,411,685,437"/>
+<area shape="rect" id="node2" title=" " alt="" coords="5,226,288,267"/>
+<area shape="rect" id="node4" href="$classBCoefficientGroup__THDM.html" title=" " alt="" coords="763,5,949,32"/>
+<area shape="rect" id="node5" href="$classBCoefficientGroup__susy.html" title=" " alt="" coords="767,56,945,83"/>
+<area shape="rect" id="node7" href="$classBPrimeCoefficientGroup__THDM.html" title=" " alt="" coords="743,107,969,133"/>
+<area shape="rect" id="node8" href="$classBPrimeCoefficientGroup__susy.html" title=" " alt="" coords="749,157,963,184"/>
+<area shape="rect" id="node10" href="$classBScalarCoefficientGroup__THDM.html" title=" " alt="" coords="743,208,969,235"/>
+<area shape="rect" id="node11" href="$classBScalarCoefficientGroup__susy.html" title=" " alt="" coords="747,259,965,285"/>
+<area shape="rect" id="node13" href="$classBclnuCoefficientGroup__SUSY.html" title=" " alt="" coords="752,309,960,336"/>
+<area shape="rect" id="node14" href="$classBclnuCoefficientGroup__THDM.html" title=" " alt="" coords="749,360,963,387"/>
+<area shape="rect" id="node16" href="$classBlnuCoefficientGroup__SUSY.html" title=" " alt="" coords="755,411,957,437"/>
+<area shape="rect" id="node17" href="$classBlnuCoefficientGroup__THDM.html" title=" " alt="" coords="753,461,959,488"/>
+</map>

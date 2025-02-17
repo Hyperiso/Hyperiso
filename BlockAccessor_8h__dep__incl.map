@@ -1,0 +1,39 @@
+<map id="/data/Hyperiso/Core/BlockAccessor.h" name="/data/Hyperiso/Core/BlockAccessor.h">
+<area shape="rect" id="node1" title="Provides an accessor for multiple parameter blocks." alt="" coords="793,5,944,47"/>
+<area shape="rect" id="node2" href="$BlockAccessor_8cpp.html" title=" " alt="" coords="707,95,857,136"/>
+<area shape="rect" id="node3" href="$Parameters_8h.html" title="Defines strategies for different physics models and parameter management." alt="" coords="881,95,1032,136"/>
+<area shape="rect" id="node4" href="$main__core_8cpp.html" title=" " alt="" coords="5,184,156,225"/>
+<area shape="rect" id="node5" href="$MemoryManager_8cpp.html" title=" " alt="" coords="181,184,343,225"/>
+<area shape="rect" id="node6" href="$Parameters_8cpp.html" title=" " alt="" coords="368,184,519,225"/>
+<area shape="rect" id="node7" href="$Parametersold_8cpp.html" title=" " alt="" coords="543,184,693,225"/>
+<area shape="rect" id="node8" href="$QCDHelper_8h.html" title=" " alt="" coords="717,184,868,225"/>
+<area shape="rect" id="node10" href="$Wilson__parameters_8h.html" title=" " alt="" coords="704,273,919,315"/>
+<area shape="rect" id="node11" href="$Wilson_8h.html" title=" " alt="" coords="1096,363,1311,404"/>
+<area shape="rect" id="node13" href="$Wilson__susy_8h.html" title=" " alt="" coords="1488,541,1703,583"/>
+<area shape="rect" id="node15" href="$Wilson__THDM_8h.html" title=" " alt="" coords="1387,452,1601,493"/>
+<area shape="rect" id="node18" href="$Wilsonv2_8h.html" title=" " alt="" coords="704,363,919,404"/>
+<area shape="rect" id="node25" href="$main__phymod_8cpp.html" title=" " alt="" coords="1104,809,1319,851"/>
+<area shape="rect" id="node32" href="$epsilon__calculator_8h.html" title=" " alt="" coords="1387,273,1601,315"/>
+<area shape="rect" id="node34" href="$susy__parameters_8h.html" title=" " alt="" coords="1728,363,1943,404"/>
+<area shape="rect" id="node36" href="$thdm__parameters_8h.html" title=" " alt="" coords="1045,184,1260,225"/>
+<area shape="rect" id="node9" href="$QCDHelper_8cpp.html" title=" " alt="" coords="529,273,680,315"/>
+<area shape="rect" id="node23" href="$WilsonManager_8h.html" title=" " alt="" coords="473,631,688,672"/>
+<area shape="rect" id="node17" href="$Wilson__parameters_8cpp.html" title=" " alt="" coords="465,363,680,404"/>
+<area shape="rect" id="node12" href="$Wilson_8cpp.html" title=" " alt="" coords="1096,452,1311,493"/>
+<area shape="rect" id="node14" href="$Wilson__susy_8cpp.html" title=" " alt="" coords="1659,631,1873,672"/>
+<area shape="rect" id="node16" href="$Wilson__THDM_8cpp.html" title=" " alt="" coords="1249,541,1464,583"/>
+<area shape="rect" id="node19" href="$MartyWilson_8h.html" title=" " alt="" coords="363,452,577,493"/>
+<area shape="rect" id="node21" href="$WilsonGroup_8h.html" title=" " alt="" coords="679,541,893,583"/>
+<area shape="rect" id="node27" href="$Wilson__susyv2_8h.html" title=" " alt="" coords="1189,631,1404,672"/>
+<area shape="rect" id="node29" href="$Wilson__THDMv2_8h.html" title=" " alt="" coords="951,631,1165,672"/>
+<area shape="rect" id="node31" href="$Wilsonv2_8cpp.html" title=" " alt="" coords="704,452,919,493"/>
+<area shape="rect" id="node20" href="$main_8cpp.html" title=" " alt="" coords="473,720,688,761"/>
+<area shape="rect" id="node24" href="$WilsonInterface_8h.html" title=" " alt="" coords="235,720,449,761"/>
+<area shape="rect" id="node22" href="$WilsonGroup_8cpp.html" title=" " alt="" coords="712,631,927,672"/>
+<area shape="rect" id="node26" href="$WilsonManager_8cpp.html" title=" " alt="" coords="712,720,927,761"/>
+<area shape="rect" id="node28" href="$Wilson__susyv2_8cpp.html" title=" " alt="" coords="1189,720,1404,761"/>
+<area shape="rect" id="node30" href="$Wilson__THDMv2_8cpp.html" title=" " alt="" coords="951,720,1165,761"/>
+<area shape="rect" id="node33" href="$epsilon__calculator_8cpp.html" title=" " alt="" coords="1387,363,1601,404"/>
+<area shape="rect" id="node35" href="$susy__parameters_8cpp.html" title=" " alt="" coords="1779,452,1993,493"/>
+<area shape="rect" id="node37" href="$thdm__parameters_8cpp.html" title=" " alt="" coords="1096,273,1311,315"/>
+</map>

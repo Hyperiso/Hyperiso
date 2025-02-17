@@ -1,0 +1,28 @@
+var searchData=
+[
+  ['r_5fd_877',['R_D',['../General_8h.html#a2043130e9f7df47f3df15da1850245ada26f996c53f99c3b39f3a2906a7837a06',1,'General.h']]],
+  ['r_5fdstar_878',['R_DSTAR',['../General_8h.html#a2043130e9f7df47f3df15da1850245ada3eaf0b928a7b9e0728e2b82b2f921146',1,'General.h']]],
+  ['r_5ftau_5fnu_879',['R_TAU_NU',['../General_8h.html#a2043130e9f7df47f3df15da1850245ada49fcd38699ed8bde50a0be1f21005dc1',1,'General.h']]],
+  ['read_5fjson_880',['read_json',['../json__parser_8cpp.html#a0984237edf8b31558fbf671bff4feea1',1,'read_json(const std::string &amp;filename, std::vector&lt; Value &gt; &amp;values, std::vector&lt; Correlation &gt; &amp;correlations):&#160;json_parser.cpp'],['../json__parser_8h.html#a0984237edf8b31558fbf671bff4feea1',1,'read_json(const std::string &amp;filename, std::vector&lt; Value &gt; &amp;values, std::vector&lt; Correlation &gt; &amp;correlations):&#160;json_parser.cpp']]],
+  ['readall_881',['readAll',['../classLhaReader.html#af9931184b99063fdeb060cf5148034a0',1,'LhaReader']]],
+  ['readdata_882',['readData',['../classLhaBlock.html#ab4d25ef82c437c042f3d49f0b14093a3',1,'LhaBlock']]],
+  ['reader_883',['reader',['../structMemoryCache.html#a851b33d7d8e9058f3179f2bb8edf35ca',1,'MemoryCache']]],
+  ['readfromfile_884',['readFromFile',['../classParser.html#a9dc09dd84b24216d08d9cc9b9b2c37a5',1,'Parser::readFromFile()'],['../classJSONParser.html#ab450b869930f90c0d50da70a1b4a2b1f',1,'JSONParser::readFromFile()'],['../classYAMLParser.html#af863a07a08698b590676da34eafa3ee1',1,'YAMLParser::readFromFile()']]],
+  ['readmatrix_885',['readMatrix',['../Parameters_8cpp.html#acfdfcf0680fbb561f1f5c7d5cccba0f1',1,'readMatrix(std::array&lt; std::array&lt; double, SIZE &gt;, SIZE &gt; &amp;matrix, std::string blockName, LhaReader *lha):&#160;Parameters.cpp'],['../Parametersold_8cpp.html#acfdfcf0680fbb561f1f5c7d5cccba0f1',1,'readMatrix(std::array&lt; std::array&lt; double, SIZE &gt;, SIZE &gt; &amp;matrix, std::string blockName, LhaReader *lha):&#160;Parametersold.cpp']]],
+  ['reckmblock_886',['RECKMBlock',['../classRECKMBlock.html',1,'RECKMBlock'],['../classRECKMBlock.html#a7ad2118d2c6a9057b4ec9e4f239568d9',1,'RECKMBlock::RECKMBlock()']]],
+  ['registercoefficientgroup_887',['registerCoefficientGroup',['../classCoefficientManager.html#afd9f578b19086379ee53175c8a3182a4',1,'CoefficientManager']]],
+  ['remove_5fquotes_888',['remove_quotes',['../json__parser_8h.html#abd9956c57d7d74302e11e568d5232ce8',1,'remove_quotes(const std::string &amp;str):&#160;json_parser.cpp'],['../json__parser_8cpp.html#abd9956c57d7d74302e11e568d5232ce8',1,'remove_quotes(const std::string &amp;str):&#160;json_parser.cpp']]],
+  ['removeinstance_889',['removeInstance',['../classJSONParser.html#a17ee1e10303977a941a8ac2abd7c5f6a',1,'JSONParser']]],
+  ['removeparameters_890',['removeParameters',['../classParametersFactory.html#afc7b18b0c7aff96b2a350800d2b907ca',1,'ParametersFactory']]],
+  ['renormalizationscheme_891',['RenormalizationScheme',['../lha__elements_8h.html#acd2359438fa91bcaa33ddb95e1eea9b9',1,'lha_elements.h']]],
+  ['reset_5fg_892',['reset_G',['../classsusy__parameters.html#af86c42651e4857caa80367a0ebec5e58',1,'susy_parameters']]],
+  ['reset_5fprimecqg_893',['reset_PrimeCQG',['../classsusy__parameters.html#a52c6821227545b68feddb56971da3314',1,'susy_parameters']]],
+  ['restore_5fparam_894',['restore_param',['../classParameters.html#ae93f1cf4394200c1fd8d1b5af0e422c7',1,'Parameters']]],
+  ['return_5fif_5fdefined_895',['return_if_defined',['../Parametersold_8cpp.html#a6de94b03101643b9ad57365e2eeb6bb1',1,'Parametersold.cpp']]],
+  ['rgidx_896',['rgIdx',['../structPrototype.html#ac0e9555af5b46f257b3cf234dbd35023',1,'Prototype']]],
+  ['row_897',['row',['../structToken.html#a5810df78e4f668f43ec4e412ec1fa731',1,'Token']]],
+  ['rt2_898',['RT2',['../Math_8h.html#acf8be196fbb0eb2451e32e8121f853ba',1,'Math.h']]],
+  ['running_5fmass_899',['running_mass',['../classQCDParameters.html#a94135c219355bd5b9eed47d6d14c4d8a',1,'QCDParameters::running_mass()'],['../classParameters.html#a898b209bff43daeb172be2a720ba6132',1,'Parameters::running_mass()']]],
+  ['runningalphascalculation_900',['runningAlphasCalculation',['../classQCDParameters.html#aca2c8c790bbeed16c6dd955be94f8e23',1,'QCDParameters']]],
+  ['runsetstate_901',['RunSetState',['../WilsonManager_8h.html#ac99446a312a3e7b8497ac6ec1f3ae080a5208c8b8350eb40fef8e8a900ea1a761',1,'RunSetState():&#160;WilsonManager.h'],['../classRunSetState.html#acf015f3a719cd52143a63c7c6cfbec85',1,'RunSetState::RunSetState()'],['../classRunSetState.html',1,'RunSetState']]]
+];

@@ -1,0 +1,42 @@
+<map id="/data/Hyperiso/Core/Block.h" name="/data/Hyperiso/Core/Block.h">
+<area shape="rect" id="node1" title=" " alt="" coords="1161,5,1311,47"/>
+<area shape="rect" id="node2" href="$Block_8cpp.html" title=" " alt="" coords="986,95,1137,136"/>
+<area shape="rect" id="node3" href="$BlockAccessor_8h.html" title="Provides an accessor for multiple parameter blocks." alt="" coords="1161,95,1311,136"/>
+<area shape="rect" id="node40" href="$MemoryManager_8h.html" title="Manages memory caching and parameter storage." alt="" coords="1851,95,2002,136"/>
+<area shape="rect" id="node4" href="$BlockAccessor_8cpp.html" title=" " alt="" coords="986,184,1137,225"/>
+<area shape="rect" id="node5" href="$Parameters_8h.html" title="Defines strategies for different physics models and parameter management." alt="" coords="1161,184,1311,225"/>
+<area shape="rect" id="node6" href="$main__core_8cpp.html" title=" " alt="" coords="155,273,306,315"/>
+<area shape="rect" id="node7" href="$MemoryManager_8cpp.html" title=" " alt="" coords="1664,273,1827,315"/>
+<area shape="rect" id="node8" href="$Parameters_8cpp.html" title=" " alt="" coords="1387,273,1538,315"/>
+<area shape="rect" id="node9" href="$Parametersold_8cpp.html" title=" " alt="" coords="1851,273,2002,315"/>
+<area shape="rect" id="node10" href="$QCDHelper_8h.html" title=" " alt="" coords="1161,273,1311,315"/>
+<area shape="rect" id="node12" href="$Wilson__parameters_8h.html" title=" " alt="" coords="1386,363,1601,404"/>
+<area shape="rect" id="node13" href="$Wilson_8h.html" title=" " alt="" coords="655,452,870,493"/>
+<area shape="rect" id="node15" href="$Wilson__susy_8h.html" title=" " alt="" coords="315,631,530,672"/>
+<area shape="rect" id="node17" href="$Wilson__THDM_8h.html" title=" " alt="" coords="706,541,921,583"/>
+<area shape="rect" id="node20" href="$Wilsonv2_8h.html" title=" " alt="" coords="1386,452,1601,493"/>
+<area shape="rect" id="node27" href="$main__phymod_8cpp.html" title=" " alt="" coords="2017,899,2231,940"/>
+<area shape="rect" id="node34" href="$epsilon__calculator_8h.html" title=" " alt="" coords="417,363,631,404"/>
+<area shape="rect" id="node36" href="$susy__parameters_8h.html" title=" " alt="" coords="25,452,239,493"/>
+<area shape="rect" id="node38" href="$thdm__parameters_8h.html" title=" " alt="" coords="922,273,1137,315"/>
+<area shape="rect" id="node11" href="$QCDHelper_8cpp.html" title=" " alt="" coords="1211,363,1362,404"/>
+<area shape="rect" id="node25" href="$WilsonManager_8h.html" title=" " alt="" coords="1583,720,1798,761"/>
+<area shape="rect" id="node19" href="$Wilson__parameters_8cpp.html" title=" " alt="" coords="1147,452,1362,493"/>
+<area shape="rect" id="node14" href="$Wilson_8cpp.html" title=" " alt="" coords="467,541,682,583"/>
+<area shape="rect" id="node16" href="$Wilson__susy_8cpp.html" title=" " alt="" coords="98,720,313,761"/>
+<area shape="rect" id="node18" href="$Wilson__THDM_8cpp.html" title=" " alt="" coords="706,631,921,672"/>
+<area shape="rect" id="node21" href="$MartyWilson_8h.html" title=" " alt="" coords="1387,541,1602,583"/>
+<area shape="rect" id="node23" href="$WilsonGroup_8h.html" title=" " alt="" coords="1145,631,1359,672"/>
+<area shape="rect" id="node29" href="$Wilson__susyv2_8h.html" title=" " alt="" coords="714,720,929,761"/>
+<area shape="rect" id="node31" href="$Wilson__THDMv2_8h.html" title=" " alt="" coords="953,720,1167,761"/>
+<area shape="rect" id="node33" href="$Wilsonv2_8cpp.html" title=" " alt="" coords="1149,541,1363,583"/>
+<area shape="rect" id="node22" href="$main_8cpp.html" title=" " alt="" coords="1387,809,1602,851"/>
+<area shape="rect" id="node26" href="$WilsonInterface_8h.html" title=" " alt="" coords="1626,809,1841,851"/>
+<area shape="rect" id="node24" href="$WilsonGroup_8cpp.html" title=" " alt="" coords="1191,720,1406,761"/>
+<area shape="rect" id="node28" href="$WilsonManager_8cpp.html" title=" " alt="" coords="1865,809,2079,851"/>
+<area shape="rect" id="node30" href="$Wilson__susyv2_8cpp.html" title=" " alt="" coords="714,809,929,851"/>
+<area shape="rect" id="node32" href="$Wilson__THDMv2_8cpp.html" title=" " alt="" coords="953,809,1167,851"/>
+<area shape="rect" id="node35" href="$epsilon__calculator_8cpp.html" title=" " alt="" coords="417,452,631,493"/>
+<area shape="rect" id="node37" href="$susy__parameters_8cpp.html" title=" " alt="" coords="25,541,239,583"/>
+<area shape="rect" id="node39" href="$thdm__parameters_8cpp.html" title=" " alt="" coords="973,363,1187,404"/>
+</map>

@@ -1,0 +1,4 @@
+<map id="ICommand" name="ICommand">
+<area shape="rect" id="node1" title=" " alt="" coords="65,5,158,32"/>
+<area shape="rect" id="node2" href="$classCalculateSpectrumCommand.html" title="Command to calculate the spectrum using a given calculator." alt="" coords="5,80,217,107"/>
+</map>

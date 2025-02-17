@@ -1,0 +1,42 @@
+<map id="Block" name="Block">
+<area shape="rect" id="node1" title="Abstract base class for parameter blocks." alt="" coords="5,643,64,669"/>
+<area shape="rect" id="node2" href="$classArrayBlock.html" title=" " alt="" coords="113,132,259,159"/>
+<area shape="rect" id="node8" href="$classArrayBlock.html" title=" " alt="" coords="113,309,259,336"/>
+<area shape="rect" id="node10" href="$classArrayBlock.html" title=" " alt="" coords="113,385,259,412"/>
+<area shape="rect" id="node14" href="$classArrayBlock.html" title=" " alt="" coords="113,613,259,640"/>
+<area shape="rect" id="node23" href="$classArrayBlock.html" title="A block storing parameters in a 2D array (for matrix)." alt="" coords="112,665,260,706"/>
+<area shape="rect" id="node24" href="$classBlockAccessor.html" title="A class that manages multiple parameter blocks, for the Parameters class." alt="" coords="128,731,244,757"/>
+<area shape="rect" id="node25" href="$classMapBlock.html" title="A class for storing blocks that have only 1 id." alt="" coords="143,1145,229,1172"/>
+<area shape="rect" id="node40" href="$classWilsonBlock.html" title="Special block for Wilson coefficients." alt="" coords="135,1196,237,1223"/>
+<area shape="rect" id="node3" href="$classSbotMixBlock.html" title=" " alt="" coords="321,5,432,32"/>
+<area shape="rect" id="node4" href="$classStauMixBlock.html" title=" " alt="" coords="321,56,432,83"/>
+<area shape="rect" id="node5" href="$classStopMixBlock.html" title=" " alt="" coords="321,107,432,133"/>
+<area shape="rect" id="node6" href="$classUMIXBlock.html" title=" " alt="" coords="330,157,423,184"/>
+<area shape="rect" id="node7" href="$classVMIXBlock.html" title=" " alt="" coords="331,208,423,235"/>
+<area shape="rect" id="node9" href="$classAlphaBlock.html" title=" " alt="" coords="329,259,424,285"/>
+<area shape="rect" id="node11" href="$classA0mixBlock.html" title=" " alt="" coords="327,309,427,336"/>
+<area shape="rect" id="node12" href="$classH0mixBlock.html" title=" " alt="" coords="326,360,427,387"/>
+<area shape="rect" id="node13" href="$classNMIXBlock.html" title=" " alt="" coords="330,411,423,437"/>
+<area shape="rect" id="node15" href="$classADBlock.html" title=" " alt="" coords="338,461,415,488"/>
+<area shape="rect" id="node16" href="$classAEBlock.html" title=" " alt="" coords="339,512,414,539"/>
+<area shape="rect" id="node17" href="$classAUBlock.html" title=" " alt="" coords="338,563,415,589"/>
+<area shape="rect" id="node18" href="$classIMCKMBlock.html" title=" " alt="" coords="325,613,429,640"/>
+<area shape="rect" id="node19" href="$classRECKMBlock.html" title=" " alt="" coords="324,664,429,691"/>
+<area shape="rect" id="node20" href="$classYDBlock.html" title=" " alt="" coords="339,715,415,741"/>
+<area shape="rect" id="node21" href="$classYEBlock.html" title=" " alt="" coords="339,765,414,792"/>
+<area shape="rect" id="node22" href="$classYUBlock.html" title=" " alt="" coords="339,816,415,843"/>
+<area shape="rect" id="node26" href="$classBDlnuBlock.html" title=" " alt="" coords="328,867,425,893"/>
+<area shape="rect" id="node27" href="$classBDslnuBlock.html" title=" " alt="" coords="325,917,429,944"/>
+<area shape="rect" id="node28" href="$classBKsBlock.html" title=" " alt="" coords="335,968,418,995"/>
+<area shape="rect" id="node29" href="$classBXsBlock.html" title=" " alt="" coords="335,1019,418,1045"/>
+<area shape="rect" id="node30" href="$classBllBlock.html" title=" " alt="" coords="339,1069,414,1096"/>
+<area shape="rect" id="node31" href="$classFBag.html" title=" " alt="" coords="349,1120,404,1147"/>
+<area shape="rect" id="node32" href="$classFConstBlock.html" title=" " alt="" coords="325,1171,428,1197"/>
+<area shape="rect" id="node33" href="$classFConstRatioBlock.html" title=" " alt="" coords="308,1221,445,1248"/>
+<area shape="rect" id="node34" href="$classFLifeBlock.html" title=" " alt="" coords="331,1272,422,1299"/>
+<area shape="rect" id="node35" href="$classGaugeBlock.html" title=" " alt="" coords="327,1323,427,1349"/>
+<area shape="rect" id="node36" href="$classHMIXBlock.html" title=" " alt="" coords="330,1373,423,1400"/>
+<area shape="rect" id="node37" href="$classMSOFTBlock.html" title=" " alt="" coords="325,1424,428,1451"/>
+<area shape="rect" id="node38" href="$classMassBlock.html" title=" " alt="" coords="331,1475,423,1501"/>
+<area shape="rect" id="node39" href="$classSMInputBlock.html" title=" " alt="" coords="321,1525,432,1552"/>
+</map>

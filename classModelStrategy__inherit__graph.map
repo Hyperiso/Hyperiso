@@ -1,0 +1,10 @@
+<map id="ModelStrategy" name="ModelStrategy">
+<area shape="rect" id="node1" title="Abstract base class for model&#45;specific strategies." alt="" coords="5,157,123,184"/>
+<area shape="rect" id="node2" href="$classFlavorStrategy.html" title=" " alt="" coords="195,5,314,32"/>
+<area shape="rect" id="node3" href="$classFormFactorStrategy.html" title=" " alt="" coords="180,56,329,83"/>
+<area shape="rect" id="node4" href="$classGeneralModelStrategy.html" title=" " alt="" coords="171,107,339,133"/>
+<area shape="rect" id="node5" href="$classSMModelStrategy.html" title=" " alt="" coords="186,157,323,184"/>
+<area shape="rect" id="node6" href="$classSUSYModelStrategy.html" title=" " alt="" coords="179,208,330,235"/>
+<area shape="rect" id="node7" href="$classTHDMModelStrategy.html" title=" " alt="" coords="176,259,333,285"/>
+<area shape="rect" id="node8" href="$classWilsonInputStrategy.html" title=" " alt="" coords="177,309,332,336"/>
+</map>
