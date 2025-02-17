@@ -10,48 +10,82 @@ int main() {
     Logger::getInstance()->setLevel(Logger::LogLevel::INFO);
 
     auto mm = MemoryManager::GetInstance();  // Initialize program manager with LHA file containing SMINPUTS block
-    mm->init("Test/InputFiles/testInput.lha", Model::THDM);  // Initialize parameters from given LHA file
+    mm->init("Test/InputFiles/testInput.flha", Model::SM);  // Initialize parameters from given LHA file
 
     auto interface = ObservableInterface();
-    interface.add_observable(Observables::BR_BU_TAU_NU, QCDOrder::LO, true);
 
-    const size_t n = 100;
-    double tanb_min = 1;
-    double tanb_max = 100;
-    double dtanb = (tanb_max - tanb_min) / n;
-    double m_Hp = 50;
-    double m_Hp_max = 1000;
-    double dmHp = (m_Hp_max - m_Hp) / n;
+    interface.add_observable(Observables::BR_B__D_TAU_NU, QCDOrder::LO)
+    .add_observable_parameters(Observables::BR_B__D_TAU_NU, {
+        ParamId{ParameterType::SM, "RECKM", 12},
+        ParamId{ParameterType::FF, "B_Dlnu", 1},
+        ParamId{ParameterType::FF, "B_Dlnu", 2},
+        ParamId{ParameterType::FF, "B_Dlnu", 3},
+    });
 
-    std::ofstream fs {"./BR_B_Xs_gamma.csv"};
+    interface.add_observable(Observables::A_FB_B__D_TAU_NU, QCDOrder::LO)
+    .add_observable_parameters(Observables::A_FB_B__D_TAU_NU, {
+        ParamId{ParameterType::FF, "B_Dlnu", 2},
+        ParamId{ParameterType::FF, "B_Dlnu", 3},
+    });
 
-    fs << "tan_beta,m_Hp,BR,uncert,chi2\n";
+    interface.add_observable(Observables::P_TAU_B__D_TAU_NU, QCDOrder::LO)
+    .add_observable_parameters(Observables::P_TAU_B__D_TAU_NU, {
+        ParamId{ParameterType::FF, "B_Dlnu", 2},
+        ParamId{ParameterType::FF, "B_Dlnu", 3},
+    });
 
-    for (size_t i = 0; i < n; i++) {
-        double tanb = tanb_min;
-        for (size_t j = 0; j < n; j++) {
-            Parameters::GetInstance(ParameterType::THDM)->setBlockValue("YU", 22, 1 / tanb, true);
-            Parameters::GetInstance(ParameterType::THDM)->setBlockValue("YD", 22, -tanb, true);
-            Parameters::GetInstance(ParameterType::THDM)->setBlockValue("YL", 00, -tanb, true);
-            Parameters::GetInstance(ParameterType::THDM)->setBlockValue("YL", 11, -tanb, true);
-            Parameters::GetInstance(ParameterType::THDM)->setBlockValue("YL", 22, -tanb, true);
-            Parameters::GetInstance(ParameterType::THDM)->setBlockValue("MASS", 37, m_Hp, true);
-            Parameters::GetInstance(ParameterType::FLAVOR)->setBlockValue("FMASS", 511, i + j, true);
-            
-            fs << tanb << ","
-               << m_Hp << ","
-               << interface.compute_observable(Observables::BR_BU_TAU_NU) << ","
-               << interface.compute_uncertainty(Observables::BR_BU_TAU_NU) << ","
-               << interface.compute_chi2() << "\n"; 
+    interface.add_observable(Observables::R_D, QCDOrder::LO)
+    .add_observable_parameters(Observables::R_D, {
+        ParamId{ParameterType::FF, "B_Dlnu", 2},
+        ParamId{ParameterType::FF, "B_Dlnu", 3},
+    });
 
-            tanb += dtanb;
-        }
-        m_Hp += dmHp;
-    }
+    interface.add_observable(Observables::BR_B__DSTAR_TAU_NU, QCDOrder::LO)
+    .add_observable_parameters(Observables::BR_B__DSTAR_TAU_NU, {
+        ParamId{ParameterType::SM, "RECKM", 12},
+        ParamId{ParameterType::FF, "B_Dslnu", 1},
+        ParamId{ParameterType::FF, "B_Dslnu", 2},
+        ParamId{ParameterType::FF, "B_Dslnu", 3},
+        ParamId{ParameterType::FF, "B_Dslnu", 4},
+    });
 
-    fs.close();
+    interface.add_observable(Observables::A_FB_B__DSTAR_TAU_NU, QCDOrder::LO)
+    .add_observable_parameters(Observables::A_FB_B__DSTAR_TAU_NU, {
+        ParamId{ParameterType::FF, "B_Dslnu", 2},
+        ParamId{ParameterType::FF, "B_Dslnu", 3},
+        ParamId{ParameterType::FF, "B_Dslnu", 4},
+    });
 
-    // LOG_INFO(interface.compute_observable(Observables::BR_B_XS_GAMMA), "+-", interface.compute_uncertainty(Observables::BR_B_XS_GAMMA));
-    // LOG_INFO(interface.compute_chi2());
+    interface.add_observable(Observables::P_TAU_B__DSTAR_TAU_NU, QCDOrder::LO)
+    .add_observable_parameters(Observables::P_TAU_B__DSTAR_TAU_NU, {
+        ParamId{ParameterType::FF, "B_Dslnu", 2},
+        ParamId{ParameterType::FF, "B_Dslnu", 3},
+        ParamId{ParameterType::FF, "B_Dslnu", 4},
+    });
+
+    interface.add_observable(Observables::P_D_B__DSTAR_TAU_NU, QCDOrder::LO)
+    .add_observable_parameters(Observables::P_D_B__DSTAR_TAU_NU, {
+        ParamId{ParameterType::FF, "B_Dslnu", 2},
+        ParamId{ParameterType::FF, "B_Dslnu", 3},
+        ParamId{ParameterType::FF, "B_Dslnu", 4},
+    });
+
+    interface.add_observable(Observables::R_DSTAR, QCDOrder::LO)
+    .add_observable_parameters(Observables::R_DSTAR, {
+        ParamId{ParameterType::FF, "B_Dslnu", 2},
+        ParamId{ParameterType::FF, "B_Dslnu", 3},
+        ParamId{ParameterType::FF, "B_Dslnu", 4},
+    });
+
+    LOG_INFO("BR(B > D tau nu)\t\t",    interface.compute_observable(Observables::BR_B__D_TAU_NU),    "\t+-", interface.compute_uncertainty(Observables::BR_B__D_TAU_NU));
+    LOG_INFO("R(D)\t\t\t",              interface.compute_observable(Observables::R_D),               "\t+-", interface.compute_uncertainty(Observables::R_D));
+    LOG_INFO("A_FB(B > D tau nu)\t",    interface.compute_observable(Observables::A_FB_B__D_TAU_NU),  "\t+-", interface.compute_uncertainty(Observables::A_FB_B__D_TAU_NU));
+    LOG_INFO("P_tau(B > D tau nu)\t",   interface.compute_observable(Observables::P_TAU_B__D_TAU_NU), "\t+-", interface.compute_uncertainty(Observables::P_TAU_B__D_TAU_NU));
+
+    LOG_INFO("BR(B > D* tau nu)\t",     interface.compute_observable(Observables::BR_B__DSTAR_TAU_NU),      "\t+-", interface.compute_uncertainty(Observables::BR_B__DSTAR_TAU_NU));
+    LOG_INFO("R(D*)\t\t\t",             interface.compute_observable(Observables::R_DSTAR),                 "\t+-", interface.compute_uncertainty(Observables::R_DSTAR));
+    LOG_INFO("A_FB(B > D* tau nu)\t",   interface.compute_observable(Observables::A_FB_B__DSTAR_TAU_NU),    "\t+-", interface.compute_uncertainty(Observables::A_FB_B__DSTAR_TAU_NU));
+    LOG_INFO("P_tau(B > D* tau nu)\t",  interface.compute_observable(Observables::P_TAU_B__DSTAR_TAU_NU),   "\t+-", interface.compute_uncertainty(Observables::P_TAU_B__DSTAR_TAU_NU));
+    LOG_INFO("P_D(B > D* tau nu)\t",    interface.compute_observable(Observables::P_D_B__DSTAR_TAU_NU),     "\t+-", interface.compute_uncertainty(Observables::P_D_B__DSTAR_TAU_NU));
 
 }

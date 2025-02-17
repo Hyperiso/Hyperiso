@@ -99,6 +99,8 @@ void BllDecay::build_op_tree() {
 
     // Misc experimental input
     auto y_s = std::make_shared<ParameterNode>(ParamId(ParameterType::FF, "B_ll", 1)); // y_s = life_Bs * Delta(Gamma_s) / 2
+
+    auto dummy = std::make_shared<ParameterNode>(ParamId(ParameterType::FLAVOR, "FMASS", 511));
     
     // Operator nodes
     auto xs = std::make_shared<OperatorNode>("xs", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return values[0] / values[1]; });
@@ -108,11 +110,11 @@ void BllDecay::build_op_tree() {
     auto rs = std::make_shared<OperatorNode>("rs", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return values[0] / (values[1] + values[2]); });
     rs->addChildren({m_Bs, m_b_pole, m_s});
     auto w1s = std::make_shared<OperatorNode>("W1s", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->W1(values[0], true); });
-    w1s->addChild(rs);
+    w1s->addChildren({rs, dummy});
     auto w2qs = std::make_shared<OperatorNode>("W2Qs", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->W2Q(values[0], true); });
-    w2qs->addChild(rs);
+    w2qs->addChildren({rs, dummy});
     auto w210s = std::make_shared<OperatorNode>("W210s", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->W210(values[0], true); });
-    w210s->addChild(xs);
+    w210s->addChildren({xs, dummy});
     auto ckm_s = std::make_shared<OperatorNode>("CKM_s", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->ckm(values[0], values[1], values[2], values[3]); });
     ckm_s->addChildren({V_tb_r, V_tb_i, V_ts_r, V_ts_i});
     auto br_avg_Bs_mumu = std::make_shared<OperatorNode>("BR_Bs__mu_mu", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->BR_avg_Bq_mumu(values[0], values[1], values[2], values[3], values[4], values[5], values[6], values[7], values[8], values[9]); });

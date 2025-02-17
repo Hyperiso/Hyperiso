@@ -2,6 +2,7 @@
 #define __DECAYS_H__
 
 #include "BDlnuDecay.h"
+#include "BDstarlnuDecay.h"
 #include "BKstarDecay.h"
 #include "BllDecay.h"
 #include "BlnuDecay.h"

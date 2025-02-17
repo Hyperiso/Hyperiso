@@ -1,7 +1,7 @@
 #include "DecayParent.h"
 
 std::shared_ptr<WilsonInterface> DecayParent::get_wilsons(bool force_update) {
-    if (!wilson || force_update) {
+    if (!wilson || force_update || true) {
         wilson = std::make_shared<WilsonInterface>();
         wilson->build(winfo.wgroups, winfo.matching_scale, winfo.hadronic_scale, winfo.order);
         
@@ -25,6 +25,11 @@ void DecayParent::set_order(QCDOrder new_order) {
         LOG_WARN("Using MARTY defaults all calculations to LO in QCD.");
         new_order = QCDOrder::LO;
     }
+
+    if (winfo.order == new_order) {
+        return;
+    }
+    
     if (winfo.order == QCDOrder::NONE) {
         if (new_order <= max_order && new_order != QCDOrder::NONE) {
             winfo.order = new_order;
@@ -39,4 +44,8 @@ void DecayParent::set_order(QCDOrder new_order) {
 
 scalar_t DecayParent::compute_observable(Observables obs) {
     return roots.at(obs)->calculate();
+}
+
+size_t DecayParent::get_n_evals(Observables obs) {
+    return roots.at(obs)->get_n_evals();
 }

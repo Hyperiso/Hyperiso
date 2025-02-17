@@ -1,11 +1,12 @@
 #include "General.h"
 
 const std::map<Decays, std::vector<Observables>> DecayMapper::obs_mapping = {
-    {Decays::B__D_l_nu, {Observables::BR_B__D_TAU_NU, Observables::XI__D_L_NU}},
-    {Decays::B__Kstar,  {Observables::ISOSPIN_ASYMMETRY_B_KSTAR_GAMMA}},
-    {Decays::B__l_l,    {Observables::BR_BS_MUMU, Observables::BR_BD_MUMU, Observables::BR_BS_MUMU_UNTAG}},
-    {Decays::B__l_nu,   {Observables::BR_BU_TAU_NU, Observables::R_TAU_NU}},
-    {Decays::B__Xs,     {Observables::BR_B_XS_GAMMA}},
+    {Decays::B__D_l_nu,     {Observables::BR_B__D_TAU_NU, Observables::A_FB_B__D_TAU_NU, Observables::P_TAU_B__D_TAU_NU, Observables::R_D}},
+    {Decays::B__Dstar_l_nu, {Observables::BR_B__DSTAR_TAU_NU, Observables::A_FB_B__DSTAR_TAU_NU, Observables::P_TAU_B__DSTAR_TAU_NU, Observables::P_D_B__DSTAR_TAU_NU, Observables::R_DSTAR}},
+    {Decays::B__Kstar,      {Observables::ISOSPIN_ASYMMETRY_B_KSTAR_GAMMA}},
+    {Decays::B__l_l,        {Observables::BR_BS_MUMU, Observables::BR_BD_MUMU, Observables::BR_BS_MUMU_UNTAG}},
+    {Decays::B__l_nu,       {Observables::BR_BU_TAU_NU, Observables::R_TAU_NU}},
+    {Decays::B__Xs,         {Observables::BR_B_XS_GAMMA}},
 };
 
 const std::map<QCDOrder, std::string> OrderMapper::mapping = {
@@ -49,6 +50,11 @@ const std::map<WCoef, std::string> WCoefMapper::mapping = {
     {WCoef::CPQ2, "CPQ2"}, 
     {WCoef::CBlnu_A, "C_Blnu_A"}, 
     {WCoef::CBlnu_P, "C_Blnu_P"}, 
+    {WCoef::C_V1, "C_V1"}, 
+    {WCoef::C_V2, "C_V2"}, 
+    {WCoef::C_S1, "C_S1"}, 
+    {WCoef::C_S2, "C_S2"}, 
+    {WCoef::C_T, "C_T"}, 
 };
 
 const std::map<WCoef, std::string> WCoefMapper::flha_mapping = {
@@ -132,6 +138,11 @@ const std::map<std::string, WCoef> WCoefMapper::inverse_mapping = {
     {"CPQ2", WCoef::CPQ2},
     {"C_Blnu_A", WCoef::CBlnu_A}, 
     {"C_Blnu_P", WCoef::CBlnu_P}, 
+    {"C_V1", WCoef::C_V1}, 
+    {"C_V2", WCoef::C_V2}, 
+    {"C_S1", WCoef::C_S1}, 
+    {"C_S2", WCoef::C_S2}, 
+    {"C_T", WCoef::C_T}, 
 };
 
 const std::vector<WCoef> WCoefMapper::B_group = {
@@ -172,11 +183,20 @@ const std::vector<WCoef> WCoefMapper::B_lnu_group = {
     WCoef::CBlnu_P 
 };
 
+const std::vector<WCoef> WCoefMapper::b_clnu_group = {
+    WCoef::C_V1, 
+    WCoef::C_V2,
+    WCoef::C_S1,
+    WCoef::C_S2,
+    WCoef::C_T
+};
+
 const std::map<WGroup, std::string> GroupMapper::mapping = {
     {WGroup::B, "BCoefficients"},
     {WGroup::BPrime, "BPrimeCoefficients"},
     {WGroup::BScalar, "BScalarCoefficients"},
     {WGroup::Blnu, "BlnuCoefficients"},
+    {WGroup::BCLNU, "BclnuCoefficients"},
 }; 
 
 const std::map<std::string, WGroup> GroupMapper::inverse_mapping = {
@@ -184,6 +204,7 @@ const std::map<std::string, WGroup> GroupMapper::inverse_mapping = {
     {"BPrimeCoefficients", WGroup::BPrime},
     {"BScalarCoefficients", WGroup::BScalar},
     {"BlnuCoefficients", WGroup::Blnu},
+    {"BclnuCoefficients", WGroup::BCLNU},
 }; 
 
 const std::map<Observables, std::string> ObservableMapper::mapping = {
@@ -194,6 +215,15 @@ const std::map<Observables, std::string> ObservableMapper::mapping = {
     {Observables::R_TAU_NU, "R_tau_nu"},
     {Observables::ISOSPIN_ASYMMETRY_B_KSTAR_GAMMA, "IA_B__K*_gamma"},
     {Observables::BR_B_XS_GAMMA, "BR_B__Xs_gamma"},
+    {Observables::BR_B__D_TAU_NU, "BR_B__D_tau_nu"},
+    {Observables::A_FB_B__D_TAU_NU, "A_FB_B__D_tau_nu"},
+    {Observables::P_TAU_B__D_TAU_NU, "P_tau_B__D_tau_nu"},
+    {Observables::R_D, "R_D"},
+    {Observables::BR_B__DSTAR_TAU_NU, "BR_B__D*_tau_nu"},
+    {Observables::A_FB_B__DSTAR_TAU_NU, "A_FB_B__D*_tau_nu"},
+    {Observables::P_TAU_B__DSTAR_TAU_NU, "P_tau_B__D*_tau_nu"},
+    {Observables::P_D_B__DSTAR_TAU_NU, "P_D*_B__D*_tau_nu"},
+    {Observables::R_DSTAR, "R_D*"},
 };
 
 const std::map<std::string, Observables> ObservableMapper::inverse_mapping = {
@@ -203,7 +233,16 @@ const std::map<std::string, Observables> ObservableMapper::inverse_mapping = {
     {"BR_Bu__tau_nu", Observables::BR_BU_TAU_NU},
     {"R_tau_nu", Observables::R_TAU_NU},
     {"IA_B__K*_gamma", Observables::ISOSPIN_ASYMMETRY_B_KSTAR_GAMMA},
-    {"BR_B__Xs_gamma", Observables::BR_B_XS_GAMMA}
+    {"BR_B__Xs_gamma", Observables::BR_B_XS_GAMMA},
+    {"BR_B__D_tau_nu", Observables::BR_B__D_TAU_NU},
+    {"A_FB_B__D_tau_nu", Observables::A_FB_B__D_TAU_NU},
+    {"P_tau_B__D_tau_nu", Observables::P_TAU_B__D_TAU_NU},
+    {"R_D", Observables::R_D},
+    {"BR_B__D*_tau_nu", Observables::BR_B__DSTAR_TAU_NU},
+    {"A_FB_B__D*_tau_nu", Observables::A_FB_B__DSTAR_TAU_NU},
+    {"P_tau_B__D*_tau_nu", Observables::P_TAU_B__DSTAR_TAU_NU},
+    {"P_D_B__D*_tau_nu", Observables::P_D_B__DSTAR_TAU_NU},
+    {"R_D*", Observables::R_DSTAR},
 };
 
 const std::map<Model, std::string> ModelMapper::mapping = {
@@ -414,7 +453,7 @@ const std::map<Observables, std::vector<ParamId>> DependenciesHelper::dep_lists 
         ParamId{ParameterType::FF, "B_Dlnu", 2},
         ParamId{ParameterType::FF, "B_Dlnu", 3},
     }},
-    {Observables::XI__D_L_NU, {
+    {Observables::A_FB_B__D_TAU_NU, {
         ParamId{ParameterType::SM, "SMINPUTS", 2},
         ParamId{ParameterType::SM, "SMINPUTS", 3},
         ParamId{ParameterType::SM, "SMINPUTS", 4},
@@ -424,17 +463,140 @@ const std::map<Observables, std::vector<ParamId>> DependenciesHelper::dep_lists 
         ParamId{ParameterType::SM, "MASS", 2},
         ParamId{ParameterType::SM, "MASS", 3},
         ParamId{ParameterType::SM, "MASS", 4},
-        ParamId{ParameterType::SM, "MASS", 11},
+        ParamId{ParameterType::SM, "MASS", 15},
+        ParamId{ParameterType::FLAVOR, "FMASS", 521},
+        ParamId{ParameterType::FLAVOR, "FMASS", 421},
+        ParamId{ParameterType::FLAVOR, "FLIFE", 521},
+        ParamId{ParameterType::FF, "B_Dlnu", 2},
+        ParamId{ParameterType::FF, "B_Dlnu", 3},
+    }},
+    {Observables::P_TAU_B__D_TAU_NU, {
+        ParamId{ParameterType::SM, "SMINPUTS", 2},
+        ParamId{ParameterType::SM, "SMINPUTS", 3},
+        ParamId{ParameterType::SM, "SMINPUTS", 4},
+        ParamId{ParameterType::SM, "SMINPUTS", 5},
+        ParamId{ParameterType::SM, "SMINPUTS", 6},
+        ParamId{ParameterType::SM, "MASS", 1},
+        ParamId{ParameterType::SM, "MASS", 2},
+        ParamId{ParameterType::SM, "MASS", 3},
+        ParamId{ParameterType::SM, "MASS", 4},
+        ParamId{ParameterType::SM, "MASS", 15},
+        ParamId{ParameterType::FLAVOR, "FMASS", 521},
+        ParamId{ParameterType::FLAVOR, "FMASS", 421},
+        ParamId{ParameterType::FLAVOR, "FLIFE", 521},
+        ParamId{ParameterType::FF, "B_Dlnu", 2},
+        ParamId{ParameterType::FF, "B_Dlnu", 3},
+    }},
+    {Observables::R_D, {
+        ParamId{ParameterType::SM, "SMINPUTS", 2},
+        ParamId{ParameterType::SM, "SMINPUTS", 3},
+        ParamId{ParameterType::SM, "SMINPUTS", 4},
+        ParamId{ParameterType::SM, "SMINPUTS", 5},
+        ParamId{ParameterType::SM, "SMINPUTS", 6},
+        ParamId{ParameterType::SM, "MASS", 1},
+        ParamId{ParameterType::SM, "MASS", 2},
+        ParamId{ParameterType::SM, "MASS", 3},
+        ParamId{ParameterType::SM, "MASS", 4},
+        ParamId{ParameterType::SM, "MASS", 15},
+        ParamId{ParameterType::FLAVOR, "FMASS", 521},
+        ParamId{ParameterType::FLAVOR, "FMASS", 421},
+        ParamId{ParameterType::FLAVOR, "FLIFE", 521},
+        ParamId{ParameterType::FF, "B_Dlnu", 2},
+        ParamId{ParameterType::FF, "B_Dlnu", 3},
+    }},
+    {Observables::BR_B__DSTAR_TAU_NU, {
+        ParamId{ParameterType::SM, "SMINPUTS", 2},
+        ParamId{ParameterType::SM, "SMINPUTS", 3},
+        ParamId{ParameterType::SM, "SMINPUTS", 4},
+        ParamId{ParameterType::SM, "SMINPUTS", 5},
+        ParamId{ParameterType::SM, "SMINPUTS", 6},
+        ParamId{ParameterType::SM, "MASS", 1},
+        ParamId{ParameterType::SM, "MASS", 2},
+        ParamId{ParameterType::SM, "MASS", 3},
+        ParamId{ParameterType::SM, "MASS", 4},
         ParamId{ParameterType::SM, "MASS", 15},
         ParamId{ParameterType::SM, "RECKM", 12},
         ParamId{ParameterType::SM, "IMCKM", 12},
         ParamId{ParameterType::FLAVOR, "FMASS", 521},
         ParamId{ParameterType::FLAVOR, "FMASS", 421},
-        ParamId{ParameterType::FLAVOR, "FLIFE", 521},
-        ParamId{ParameterType::FF, "B_Dlnu", 1},
-        ParamId{ParameterType::FF, "B_Dlnu", 2},
-        ParamId{ParameterType::FF, "B_Dlnu", 3},
+        ParamId{ParameterType::FLAVOR, "FLIFE", 523},
+        ParamId{ParameterType::FF, "B_Dslnu", 1},
+        ParamId{ParameterType::FF, "B_Dslnu", 2},
+        ParamId{ParameterType::FF, "B_Dslnu", 3},
+        ParamId{ParameterType::FF, "B_Dslnu", 4},
     }},
+    {Observables::A_FB_B__DSTAR_TAU_NU, {
+        ParamId{ParameterType::SM, "SMINPUTS", 2},
+        ParamId{ParameterType::SM, "SMINPUTS", 3},
+        ParamId{ParameterType::SM, "SMINPUTS", 4},
+        ParamId{ParameterType::SM, "SMINPUTS", 5},
+        ParamId{ParameterType::SM, "SMINPUTS", 6},
+        ParamId{ParameterType::SM, "MASS", 1},
+        ParamId{ParameterType::SM, "MASS", 2},
+        ParamId{ParameterType::SM, "MASS", 3},
+        ParamId{ParameterType::SM, "MASS", 4},
+        ParamId{ParameterType::SM, "MASS", 15},
+        ParamId{ParameterType::FLAVOR, "FMASS", 521},
+        ParamId{ParameterType::FLAVOR, "FMASS", 421},
+        ParamId{ParameterType::FLAVOR, "FLIFE", 523},
+        ParamId{ParameterType::FF, "B_Dslnu", 2},
+        ParamId{ParameterType::FF, "B_Dslnu", 3},
+        ParamId{ParameterType::FF, "B_Dslnu", 4},
+    }},
+    {Observables::P_TAU_B__DSTAR_TAU_NU, {
+        ParamId{ParameterType::SM, "SMINPUTS", 2},
+        ParamId{ParameterType::SM, "SMINPUTS", 3},
+        ParamId{ParameterType::SM, "SMINPUTS", 4},
+        ParamId{ParameterType::SM, "SMINPUTS", 5},
+        ParamId{ParameterType::SM, "SMINPUTS", 6},
+        ParamId{ParameterType::SM, "MASS", 1},
+        ParamId{ParameterType::SM, "MASS", 2},
+        ParamId{ParameterType::SM, "MASS", 3},
+        ParamId{ParameterType::SM, "MASS", 4},
+        ParamId{ParameterType::SM, "MASS", 15},
+        ParamId{ParameterType::FLAVOR, "FMASS", 521},
+        ParamId{ParameterType::FLAVOR, "FMASS", 421},
+        ParamId{ParameterType::FLAVOR, "FLIFE", 523},
+        ParamId{ParameterType::FF, "B_Dslnu", 2},
+        ParamId{ParameterType::FF, "B_Dslnu", 3},
+        ParamId{ParameterType::FF, "B_Dslnu", 4},
+    }},
+    {Observables::P_D_B__DSTAR_TAU_NU, {
+        ParamId{ParameterType::SM, "SMINPUTS", 2},
+        ParamId{ParameterType::SM, "SMINPUTS", 3},
+        ParamId{ParameterType::SM, "SMINPUTS", 4},
+        ParamId{ParameterType::SM, "SMINPUTS", 5},
+        ParamId{ParameterType::SM, "SMINPUTS", 6},
+        ParamId{ParameterType::SM, "MASS", 1},
+        ParamId{ParameterType::SM, "MASS", 2},
+        ParamId{ParameterType::SM, "MASS", 3},
+        ParamId{ParameterType::SM, "MASS", 4},
+        ParamId{ParameterType::SM, "MASS", 15},
+        ParamId{ParameterType::FLAVOR, "FMASS", 521},
+        ParamId{ParameterType::FLAVOR, "FMASS", 421},
+        ParamId{ParameterType::FLAVOR, "FLIFE", 523},
+        ParamId{ParameterType::FF, "B_Dslnu", 2},
+        ParamId{ParameterType::FF, "B_Dslnu", 3},
+        ParamId{ParameterType::FF, "B_Dslnu", 4},
+    }},
+    {Observables::R_DSTAR, {
+        ParamId{ParameterType::SM, "SMINPUTS", 2},
+        ParamId{ParameterType::SM, "SMINPUTS", 3},
+        ParamId{ParameterType::SM, "SMINPUTS", 4},
+        ParamId{ParameterType::SM, "SMINPUTS", 5},
+        ParamId{ParameterType::SM, "SMINPUTS", 6},
+        ParamId{ParameterType::SM, "MASS", 1},
+        ParamId{ParameterType::SM, "MASS", 2},
+        ParamId{ParameterType::SM, "MASS", 3},
+        ParamId{ParameterType::SM, "MASS", 4},
+        ParamId{ParameterType::SM, "MASS", 15},
+        ParamId{ParameterType::FLAVOR, "FMASS", 521},
+        ParamId{ParameterType::FLAVOR, "FMASS", 421},
+        ParamId{ParameterType::FLAVOR, "FLIFE", 523},
+        ParamId{ParameterType::FF, "B_Dslnu", 2},
+        ParamId{ParameterType::FF, "B_Dslnu", 3},
+        ParamId{ParameterType::FF, "B_Dslnu", 4},
+    }}
 };
 
 std::vector<ParamId> DependenciesHelper::get_allowed_parameters(Observables id) {

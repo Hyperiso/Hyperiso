@@ -27,6 +27,8 @@ public:
     std::map<ParamId, double> get_leading_uncertainties(Observables id, size_t n);
     double get_chi2();
     std::vector<Observables> get_current_obss();
+    size_t get_obs_evals(Observables id);
+    void update_gradient(Observables id);
 
 private:
     ObsManager();

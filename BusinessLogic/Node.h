@@ -78,11 +78,12 @@ private:
     scalar_t cachedValue;
     bool cacheValid;
     bool visited;
+    size_t n_evals;
 
 public:
     template <typename Callable>
     OperatorNode(std::string name, Callable&& func)
-        : name(std::move(name)), computeFunc(std::forward<Callable>(func)), cachedValue(0.0), cacheValid(false), visited(false) {}
+        : name(std::move(name)), computeFunc(std::forward<Callable>(func)), cachedValue(0.0), cacheValid(false), visited(false), n_evals(0) {}
 
     // inline OperatorNode(std::string name, std::function<scalar_t(const std::vector<scalar_t>&)> func)
     //     : name(name), computeFunc(std::move(func)), cachedValue(0.0), cacheValid(false), visited(false) {}
@@ -102,6 +103,8 @@ public:
     scalar_t calculate();
 
     std::string getName();
+
+    size_t get_n_evals() { return n_evals; }
 
     void accept(Visitor& visitor) override;
 };

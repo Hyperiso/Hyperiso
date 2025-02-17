@@ -69,7 +69,15 @@ public:
         return Parameters::GetInstance(type)->operator()(block, code);
     }
 
+    double get_observable_evaluations(Observables obs) {
+        return manager->get_obs_evals(obs);
+    }
+
     std::vector<Observables> get_current_obss() {
         return manager->get_current_obss();
+    }
+
+    void update_gradient(Observables obs) {
+        return manager->update_gradient(obs);
     }
 };

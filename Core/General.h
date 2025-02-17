@@ -19,7 +19,13 @@ enum class Observables {
     ISOSPIN_ASYMMETRY_B_KSTAR_GAMMA,
     BR_B_XS_GAMMA,
     BR_B__D_TAU_NU,
-    XI__D_L_NU,
+    A_FB_B__D_TAU_NU,
+    P_TAU_B__D_TAU_NU,
+    R_D,BR_B__DSTAR_TAU_NU,
+    A_FB_B__DSTAR_TAU_NU,
+    P_TAU_B__DSTAR_TAU_NU,
+    P_D_B__DSTAR_TAU_NU,
+    R_DSTAR,
 };
 
 class ObservableMapper {
@@ -54,6 +60,7 @@ private:
 
 enum class Decays {
     B__D_l_nu,
+    B__Dstar_l_nu,
     B__Kstar,
     B__l_l,
     B__l_nu,
@@ -118,14 +125,15 @@ private:
 };
 
 enum class WCoef {
-    C1, C2, C3, C4, C5, C6, C7, C8, C9, C10, CQ1, CQ2, CP1, CP2, CP3, CP4, CP5, CP6, CP7, CP8, CP9, CP10, CPQ1, CPQ2, CBlnu_A, CBlnu_P
+    C1, C2, C3, C4, C5, C6, C7, C8, C9, C10, CQ1, CQ2, CP1, CP2, CP3, CP4, CP5, CP6, CP7, CP8, CP9, CP10, CPQ1, CPQ2, CBlnu_A, CBlnu_P, C_V1, C_V2, C_S1, C_S2, C_T
 };
 
 enum class WGroup {
     B, 
     BPrime, 
     BScalar,
-    Blnu
+    Blnu,
+    BCLNU,
 };
 
 enum class BWilsonBasis {
@@ -195,6 +203,8 @@ public:
                 return B_scalar_group;
             case WGroup::Blnu:
                 return B_lnu_group;
+            case WGroup::BCLNU:
+                return b_clnu_group;
             default:
                 LOG_ERROR("Invalid WGroup", "get_group function couldn't find your group");
         }
@@ -224,6 +234,7 @@ private:
     static const std::vector<WCoef> B_prime_group;
     static const std::vector<WCoef> B_scalar_group;
     static const std::vector<WCoef> B_lnu_group;
+    static const std::vector<WCoef> b_clnu_group;
     static const std::map<WCoef, std::string> mapping; 
     static const std::map<std::string, WCoef> inverse_mapping; 
     static const std::map<WCoef, std::string> flha_mapping; 
@@ -325,6 +336,11 @@ struct ParamId {
         if (block != other.block) return block < other.block;
         return code < other.code;
     }
+};
+
+inline std::ostream& operator<<(std::ostream& os, ParamId& pid) {
+    os << pid.block << ":" << pid.code;
+    return os;
 };
 
 class DependenciesHelper {

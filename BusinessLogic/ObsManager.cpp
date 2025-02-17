@@ -5,6 +5,7 @@ std::shared_ptr<ObsManager> ObsManager::instance = nullptr;
 ObsManager::ObsManager() {
     this->decays = {
         {Decays::B__D_l_nu, std::make_shared<BDlnuDecay>(QCDOrder::NONE, 81, Parameters::Get(ParameterType::FLAVOR, "FMASS", 521))},
+        {Decays::B__Dstar_l_nu, std::make_shared<BDstarlnuDecay>(QCDOrder::NONE, 81, Parameters::Get(ParameterType::FLAVOR, "FMASS", 521))},
         {Decays::B__Kstar,  std::make_shared<BKstarDecay>(QCDOrder::NONE, 81, Parameters::Get(ParameterType::FLAVOR, "FMASS", 511))},
         {Decays::B__l_l,    std::make_shared<BllDecay>(QCDOrder::NONE, 81, Parameters::Get(ParameterType::FLAVOR, "FMASS", 531))},
         {Decays::B__l_nu,   std::make_shared<BlnuDecay>(QCDOrder::NONE, 81, Parameters::Get(ParameterType::FLAVOR, "FMASS", 511))},
@@ -93,6 +94,14 @@ std::map<ParamId, double> ObsManager::get_leading_uncertainties(Observables id, 
 
 double ObsManager::get_chi2() {
     return me.chi2();
+}
+
+size_t ObsManager::get_obs_evals(Observables id) {
+    return obss.at(ensure_present(id))->get_n_evals();
+}
+
+void ObsManager::update_gradient(Observables id) {
+    obss.at(ensure_present(id))->update_gradient();
 }
 
 Observables ObsManager::ensure_present(Observables id) {

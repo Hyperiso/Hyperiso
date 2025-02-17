@@ -359,4 +359,7 @@ public:
     BDlnuBlock() {this->blockname = "BDlnuBlock";}
 };
 
-#endif
+class BDslnuBlock : public MapBlock {
+public:
+    BDslnuBlock() {this->blockname = "BDslnuBlock";}
+};

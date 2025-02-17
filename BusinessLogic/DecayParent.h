@@ -32,6 +32,7 @@ public:
     void set_order(QCDOrder new_order);
 
     scalar_t compute_observable(Observables obs);
+    size_t get_n_evals(Observables obs);
 
     virtual void build_op_tree() = 0;
 

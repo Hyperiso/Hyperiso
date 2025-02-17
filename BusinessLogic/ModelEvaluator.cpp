@@ -45,13 +45,14 @@ std::shared_ptr<Observable> ModelEvaluator::find_from_id(Observables id) {
 void ModelEvaluator::update_th_covariance() {
     for (size_t i = 0; i < observables.size(); i++) {
         for (size_t j = i; j < observables.size(); j++) {
+            auto id_i = observables.at(i)->getId();
+            auto id_j = observables.at(j)->getId();
             if (i == j) {
-                th_cov_mtx.insert(std::make_pair(std::make_pair(observables.at(i)->getId(), observables.at(i)->getId()), 
-                                                 observables.at(i)->variance()));
+                th_cov_mtx.insert_or_assign(std::make_pair(id_i, id_j), observables.at(i)->variance());
             } else {
                 double corr = observables.at(i)->correlation_with(*observables.at(j));
-                th_cov_mtx.insert(std::make_pair(std::make_pair(observables.at(i)->getId(), observables.at(j)->getId()), corr));
-                th_cov_mtx.insert(std::make_pair(std::make_pair(observables.at(j)->getId(), observables.at(i)->getId()), corr));
+                th_cov_mtx.insert_or_assign(std::make_pair(id_i, id_j), corr);
+                th_cov_mtx.insert_or_assign(std::make_pair(id_j, id_i), corr);
             }
         }
     }

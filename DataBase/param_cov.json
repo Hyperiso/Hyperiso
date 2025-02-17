@@ -140,8 +140,8 @@
       },
       {
         "name": "RECKM|12",
-        "central_value": 4.13e-2,
-        "stat_error": 1.1e-3,
+        "central_value": 4.11e-2,
+        "stat_error": 1.2e-3,
         "syst_error": 0
       },
       {
@@ -260,20 +260,44 @@
       },
       {
         "name": "B_Dlnu|1",
-        "central_value": 1.026,
-        "stat_error": 0.017,
+        "central_value": 1.074,
+        "stat_error": 0.024,
         "syst_error": 0
       },
       {
         "name": "B_Dlnu|2",
-        "central_value": 1.17,
-        "stat_error": 0.18,
+        "central_value": 1.186,
+        "stat_error": 0.054,
         "syst_error": 0
       },
       {
         "name": "B_Dlnu|3",
-        "central_value": 0.46,
-        "stat_error": 0.02,
+        "central_value": 1,
+        "stat_error": 1,
+        "syst_error": 0
+      },
+      {
+        "name": "B_Dslnu|1",
+        "central_value": 0.908,
+        "stat_error": 0.017,
+        "syst_error": 0
+      },
+      {
+        "name": "B_Dslnu|2",
+        "central_value": 1.207,
+        "stat_error": 0.026,
+        "syst_error": 0
+      },
+      {
+        "name": "B_Dslnu|3",
+        "central_value": 1.403,
+        "stat_error": 0.033,
+        "syst_error": 0
+      },
+      {
+        "name": "B_Dslnu|4",
+        "central_value": 0.854,
+        "stat_error": 0.020,
         "syst_error": 0
       }
     ],
