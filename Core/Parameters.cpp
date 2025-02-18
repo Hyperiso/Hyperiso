@@ -34,6 +34,17 @@ void readMatrix(std::array<std::array<double, SIZE>, SIZE>& matrix, std::string 
     } 
 }
 
+void populate_from_json(std::shared_ptr<MapBlock> block, std::vector<Value> json_vals) {
+    for (const auto& val : json_vals) {
+        if (val.name.starts_with(block->blockname)) {
+            std::string del = "|";
+            auto split = val.name.find(del);
+            int pdg = std::stoi(val.name.substr(split + 1, val.name.size() - split));
+            block->setValue(pdg, val.central_value);
+        }
+    }
+}
+
 std::map<ParameterType, std::shared_ptr<Parameters>> Parameters::instances;
 std::map<ParameterType, std::shared_ptr<Parameters>> ParametersFactory::instances;
 
@@ -43,6 +54,7 @@ std::shared_ptr<Parameters> Parameters::GetInstance(ParameterType id) {
         LOG_ERROR("OutOfRange", "Parameter type undefined");
     return ParametersFactory::GetParameters(id);
 }
+
 void Parameters::CleanupInstance(ParameterType id) {
     ParametersFactory::removeParameters(id);
 }
@@ -62,7 +74,7 @@ ParameterType Parameters::GetType(const std::string &block, int pdgCode) {
 }
 
 double Parameters::Get(ParameterType type, const std::string& block, int code) {
-    LOG_DEBUG("Attempting to retrieve parameter from instance", (int)type, "with id (", block, ",", code, ")");
+    LOG_VERBOSE("Attempting to retrieve parameter from instance", (int)type, "with id (", block, ",", code, ")");
     return (*GetInstance(type))(block, code);
 }
 
@@ -72,7 +84,7 @@ double Parameters::Get(ParamId id) {
 
 Parameters::Parameters(std::shared_ptr<ModelStrategy> modelStrategy)
     : strategy(modelStrategy) { 
-    LOG_DEBUG("Param creation at", this);
+    LOG_VERBOSE("Param creation at", this);
     strategy->initializeParameters(*this);
 }
 
@@ -119,6 +131,7 @@ void SMModelStrategy::initializeParameters(Parameters& params) {
         params.setBlockValue("SMINPUTS", i + 1, *sm_inputs[i]);
     }
     params.setBlockValue("SMINPUTS", 10, 0.313);
+
     // VCKMIN 
     params.addBlock("RECKM", std::make_shared<RECKMBlock>());
     params.addBlock("IMCKM", std::make_shared<IMCKMBlock>());
@@ -153,7 +166,6 @@ void SMModelStrategy::initializeParameters(Parameters& params) {
     params.setBlockValue("IMCKM", 22, std::imag(1));
 
     double m_W = std::sqrt(std::pow(m_Z_pole, 2) / 2 + std::sqrt(std::pow(m_Z_pole, 4) / 4 - M_PI * std::pow(m_Z_pole, 2) / inv_alpha_em / G_F / std::sqrt(2)));
-    // double m_W = 79.829;
     
     //Masses (from PDG 2023)
     params.addBlock("MASS", std::make_shared<MassBlock>());
@@ -386,9 +398,16 @@ void THDMModelStrategy::initializeParameters(Parameters& params) {
 
 // FlAVORModelStrategy implementation
 void FlavorStrategy::initializeParameters(Parameters& params) {
-    LhaReader* lha = MemoryManager::GetInstance()->getReader();
-    auto massblock = std::make_shared<MassBlock>();
+    auto mm = MemoryManager::GetInstance();
+    LhaReader* lha = mm->getReader();
     std::vector<std::string> blocks = lha->getBlocksNames();
+    std::vector<Correlation> _;
+    std::vector<Value> values;
+    read_json(mm->getParameterCovariancePath().string(), values, _);
+
+    auto massblock = std::make_shared<FMassBlock>();
+    populate_from_json(massblock, values);
+
     if (std::find(blocks.begin(), blocks.end(), "FMASS") != blocks.end()) {
         massblock->setValue(211, lha->getValue<double>("FMASS", "211")); // pi
         massblock->setValue(321, lha->getValue<double>("FMASS", "321")); // K
@@ -400,20 +419,11 @@ void FlavorStrategy::initializeParameters(Parameters& params) {
         massblock->setValue(511, lha->getValue<double>("FMASS", "511")); // Bu
         massblock->setValue(521, lha->getValue<double>("FMASS", "521")); // Bd
         massblock->setValue(531, lha->getValue<double>("FMASS", "531")); // Bs
-    } else {
-        massblock->setValue(211, 0.14); // pi
-        massblock->setValue(321, 0.49); // K
-        massblock->setValue(323, 0.90); // K*
-        massblock->setValue(421, 1.86); // D0
-        massblock->setValue(423, 2.01); // D0_star
-        massblock->setValue(411, 1.87); // D
-        massblock->setValue(431, 1.97); // Ds
-        massblock->setValue(511, 5.28); // Bu
-        massblock->setValue(521, 5.28); // Bd
-        massblock->setValue(531, 5.37); // Bs
     }
     params.addBlock("FMASS", std::move(massblock));
+
     auto lifetimeblock = std::make_shared<FLifeBlock>();
+    populate_from_json(lifetimeblock, values);
 
     if (std::find(blocks.begin(), blocks.end(), "FLIFE") != blocks.end()) {
         lifetimeblock->setValue(211, lha->getValue<double>("FLIFE", "211")); // pi
@@ -425,33 +435,26 @@ void FlavorStrategy::initializeParameters(Parameters& params) {
         lifetimeblock->setValue(511, lha->getValue<double>("FLIFE", "511")); // Bu
         lifetimeblock->setValue(521, lha->getValue<double>("FLIFE", "521")); // Bd
         lifetimeblock->setValue(531, lha->getValue<double>("FLIFE", "531")); // Bs
-    } else {
-        lifetimeblock->setValue(211, 2.6e-8); // pi
-        lifetimeblock->setValue(321, 1.24e-8); // K
-        lifetimeblock->setValue(323, 1.42e-23); // K*
-        lifetimeblock->setValue(421, 4.10e-13); // D0
-        lifetimeblock->setValue(411, 1.03e-12); // D
-        lifetimeblock->setValue(431, 5.01e-13); // Ds
-        lifetimeblock->setValue(511, 1.64e-12); // Bu
-        lifetimeblock->setValue(521, 1.52e-12); // Bd
-        lifetimeblock->setValue(531, 1.53e-12); // Bs
     }
     params.addBlock("FLIFE", std::move(lifetimeblock));
-    auto fconstblock = std::make_shared<FConstBlock>();
 
+    auto fconstblock = std::make_shared<FConstBlock>();
+    for (const auto& val : values) {
+        if (val.name.starts_with("FCONST")) {
+            std::string del = "|";
+            auto split = val.name.find(del);
+            std::string pdg_str = val.name.substr(split + 1, val.name.size() - split);
+            split = pdg_str.find(del);
+            int pdg = 100 * std::stoi(pdg_str.substr(0, split)) + std::stoi(pdg_str.substr(split + 1, pdg_str.size() - split));
+            fconstblock->setValue(pdg, val.central_value);
+        }
+    }
     if (std::find(blocks.begin(), blocks.end(), "FCONST") != blocks.end()) {
         fconstblock->setValue(51101, lha->getValue<double>("FCONST", "511|1")); // f_B
         fconstblock->setValue(52101, lha->getValue<double>("FCONST", "521|1")); // f_B0
         fconstblock->setValue(53101, lha->getValue<double>("FCONST", "531|1")); // f_Bs
         fconstblock->setValue(32301, lha->getValue<double>("FCONST", "323|1")); // f_K*_par
         fconstblock->setValue(32302, lha->getValue<double>("FCONST", "323|2")); // f_K*_perp
-
-    } else {
-        fconstblock->setValue(51101, 0.194); // f_B
-        fconstblock->setValue(52101, 0.194); // f_B0
-        fconstblock->setValue(53101, 0.234); // f_Bs
-        fconstblock->setValue(32301, 0.220); // f_K*_par
-        fconstblock->setValue(32302, 0.185); // f_K*_perp
     }
     params.addBlock("FCONST", std::move(fconstblock));
 }   
@@ -488,7 +491,6 @@ void GeneralModelStrategy::initializeParameters(Parameters& params) {
     std::string root_path = project_root.data();
     JSONParser::getInstance(0)->saveToFile(root_path+ "/DataBase/Params/data_GENERAL.json");
 }
-
 
 void WilsonInputStrategy::initializeParameters(Parameters &params) {
     auto fill_wilson_block = [] (const std::string& block_name, const std::string& flha_name, double scale, int type, Parameters& params, std::vector<int>& nonzero) -> std::pair<double, int> {
@@ -561,54 +563,25 @@ void WilsonInputStrategy::initializeParameters(Parameters &params) {
 }
 
 void FormFactorStrategy::initializeParameters(Parameters &params) {
-    auto bksblock = std::make_shared<BKsBlock>();
-    bksblock->setValue(1, 0.04);    // a_1_perp (1 GeV)
-    bksblock->setValue(2, 0.10);    // a_2_perp (1 GeV)
-    bksblock->setValue(3, 0.06);    // a_1_par (1 GeV)
-    bksblock->setValue(4, 0.16);    // a_2_par (1 GeV)
-    bksblock->setValue(5, 0.013);   // zeta_3_A (1 GeV)
-    bksblock->setValue(6, 0.032);   // zeta_3_V (1 GeV)
-    bksblock->setValue(7, -2.1);    // omega_10_A (1 GeV)
-    bksblock->setValue(8, 0.16);    // delta_tilde_+ (1 GeV) 
-    bksblock->setValue(9, -0.16);   // delta_tilde_- (1 GeV)
-    bksblock->setValue(10, 0.46);   // lambda_B (1 GeV) [GeV]
-    bksblock->setValue(11, 0.312);  // T1_B_Kstar (1 GeV) [hep-ph/0106067]
-    bksblock->setValue(12, 0.5);    // Lambda_h (spectator scale) [GeV]
-    bksblock->setValue(13, -1);     // mu_0 (remainder scale) [GeV]
-    params.addBlock("B_Ks", std::move(bksblock));
+    std::vector<Correlation> _;
+    std::vector<Value> values;
+    read_json(MemoryManager::GetInstance()->getParameterCovariancePath().string(), values, _);
 
-    auto bllblock = std::make_shared<BllBlock>();
-    bllblock->setValue(1, 0.088); // y_s
-    params.addBlock("B_ll", std::move(bllblock));
+    std::vector<std::shared_ptr<MapBlock>> ff_blocks = {
+        std::make_shared<BKsBlock>(),
+        std::make_shared<BllBlock>(),
+        std::make_shared<BXsBlock>(),
+        std::make_shared<BDlnuBlock>(),
+        std::make_shared<BDslnuBlock>(),
+    };
 
-    auto bxsblock = std::make_shared<BXsBlock>();
-    bxsblock->setValue(1, 1.6);     // E_0 photon cut energy
-    bxsblock->setValue(2, 0.1065);  // BR(Bbar > Xc e nu)_exp
-    bxsblock->setValue(3, 0.336);   // mu_G^2
-    bxsblock->setValue(4, 0.153);   // rho_D^3
-    bxsblock->setValue(5, -0.145);  // rho_LS^3
-    bxsblock->setValue(6, 0.12);    // lambda_2 = (m_B*^2 - m_B^2) / 4
-    bxsblock->setValue(7, 2);       // mu_c
-    bxsblock->setValue(8, 1e10);    // z_0 for matching of the P_22_rem contribution
-    bxsblock->setValue(9, 1e20);    // z_1 for matching of the P_22_rem contribution
-    params.addBlock("B_Xs", std::move(bxsblock));
-
-    auto bdlnublock = std::make_shared<BDlnuBlock>();
-    bdlnublock->setValue(1, 1.074); // V_1(1)
-    bdlnublock->setValue(2, 1.186);  // rho_D^2
-    bdlnublock->setValue(3, 1);  // Delta
-    params.addBlock("B_Dlnu", std::move(bdlnublock));
-
-    auto bdslnublock = std::make_shared<BDslnuBlock>();
-    bdslnublock->setValue(1, 0.908); // h_A1(1)
-    bdslnublock->setValue(2, 1.207);  // rho_Ds^2
-    bdslnublock->setValue(3, 1.403);  // R_1(1)
-    bdslnublock->setValue(4, 0.854);  // R_2(1)
-    params.addBlock("B_Dslnu", std::move(bdslnublock));
+    for (auto b : ff_blocks) {
+        populate_from_json(b, values);
+        params.addBlock(b->blockname, b);
+    }
 }
 
-void Parameters::changeParameterMode(const ParamId &param_id,
-                                     ParameterMode new_mode) {
+void Parameters::changeParameterMode(const ParamId &param_id, ParameterMode new_mode) {
     blockAccessor.setMode(param_id.block, param_id.code, new_mode);
 }
 
@@ -632,6 +605,7 @@ void ParametersFactory::removeParameters(ParameterType id) {
     std::shared_ptr<Parameters> _ = instances[id];
     instances.erase(id);
 }
+
 std::shared_ptr<ModelStrategy> ParametersFactory::createStrategy(ParameterType id) {
     switch (id) {
         case ParameterType::SM:

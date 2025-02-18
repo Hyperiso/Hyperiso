@@ -6,45 +6,26 @@
 
 #include "lha_reader.h"
 #include "Logger.h"
+#include "lha_parser.h"
 
-void Parser::tokenize() {
-    int cLine = 0;
-    int cCol = 0;
+void LhaReader::addBlock(const std::string& id, const std::vector<std::vector<std::string>>& lines) {
+    auto block = std::make_shared<LhaBlock>(findPrototype(id));
+    LOG_DEBUG(id);
+    block->readData(lines);
+    std::string id_ci = id;
+    std::transform(id_ci.begin(), id_ci.end(), id_ci.begin(), ::toupper);
+    this->blocks.insert(std::pair(id_ci, std::move(block)));
+}
 
-    auto rit = std::sregex_iterator(src.begin(), src.end(), analyzer_rx);
-    auto rend = std::sregex_iterator();
-
-    while (rit != rend) {
-        std::smatch m = *rit;
-        size_t group_index = m.size();
-
-        // Don't touch, it works.
-        for (size_t idx = 1; idx < m.size(); ++idx) {
-            if (m[idx].matched) {
-                // if (idx == 1)  
-                //     ++idx;
-                group_index = idx - 1;
-                break;
-            }
-        }
-
-        auto tokenType = static_cast<TokenType>(group_index);
-        auto value = m[group_index + 1].str();
-
-        if (tokenType == TokenType::NEWLINE) {
-            ++cLine;
-            cCol = 0;
-        } else if (tokenType != TokenType::SKIP && value != "") {
-            this->tokens.emplace_back(Token{tokenType, value, cLine, cCol});
-            ++cCol;
-        }
-
-        ++rit;
+LhaReader::LhaReader(std::string_view path) : lhaFile(std::filesystem::path(path)) {
+    isFLHA = this->lhaFile.extension().string() == ".flha"; 
+    blockPrototypes = SLHA_BLOCKS;
+    if (isFLHA) {
+        blockPrototypes.insert(blockPrototypes.end(), FLHA_BLOCKS.begin(), FLHA_BLOCKS.end());
     }
 }
 
-void Parser::parse(bool comments) {
-    this->tokenize();
+void LhaReader::parse_tokens(std::vector<Token> tokens, bool comments) {
     bool newBlock = false;
     bool hasGlobalScale = false;
     bool isQ = false;
@@ -55,9 +36,9 @@ void Parser::parse(bool comments) {
 
     int cCol = INT_MAX;
 
-    for (const Token& t : this->tokens) {
+    for (const Token& t : tokens) {
         if (newBlock) {
-            auto prototype = reader->findPrototype(t.value);
+            auto prototype = this->findPrototype(t.value);
             if (prototype.blockName != "") {
                 LOG_DEBUG("LHA reader: Block " + prototype.blockName + " found.");
                 this->rawBlocks[t.value] = std::vector<std::vector<std::string>> {};
@@ -88,7 +69,7 @@ void Parser::parse(bool comments) {
                 isQ = false;
             }
             else {
-                // std::cout << "Token : [" << (int)t.type << ", " << t.value  << "]" << std::endl;
+                LOG_VERBOSE("Token : [", (int)t.type, ", ", t.value, "]");
                 if (t.col <= cCol) {   
                     this->rawBlocks[cBlock].emplace_back(std::vector<std::string> {});
                     if(hasGlobalScale)
@@ -101,33 +82,16 @@ void Parser::parse(bool comments) {
     }
 }
 
-void LhaReader::addBlock(const std::string& id, const std::vector<std::vector<std::string>>& lines) {
-    auto block = std::make_shared<LhaBlock>(findPrototype(id));
-    LOG_DEBUG(id);
-    block->readData(lines);
-    std::string id_ci = id;
-    std::transform(id_ci.begin(), id_ci.end(), id_ci.begin(), ::toupper);
-    this->blocks.insert(std::pair(id_ci, std::move(block)));
-}
-
-LhaReader::LhaReader(std::string_view path) : lhaFile(std::filesystem::path(path)) {
-    isFLHA = this->lhaFile.extension().string() == ".flha"; 
-    blockPrototypes = SLHA_BLOCKS;
-    if (isFLHA) {
-        blockPrototypes.insert(blockPrototypes.end(), FLHA_BLOCKS.begin(), FLHA_BLOCKS.end());
-    }
-}
-
 void LhaReader::readAll() {
     std::ifstream file(this->lhaFile.string());
     std::stringstream buffer;
     buffer << file.rdbuf();
-    Parser parser {buffer.str(), this};
-    parser.parse();
-    auto blocks = parser.getBlocks();
+    Parser parser {buffer.str()};
+    parser.tokenize();
+    this->parse_tokens(parser.getTokens());
     
-    for (auto p : blocks) {
-        addBlock(p.first, p.second);
+    for (auto &[id, lines] : this->rawBlocks) {
+        addBlock(id, lines);
     }
           
     LOG_DEBUG("LHA file parsed.");
@@ -147,7 +111,7 @@ std::string LhaReader::getLhaPath() const {
 }
 
 void LhaReader::update(std::string_view newLha) {
-    LOG_INFO("Updating LHA blocks...");
+    LOG_DEBUG("Updating LHA blocks...");
     this->lhaFile = std::filesystem::path(newLha);
     isFLHA = lhaFile.extension().string() == ".flha";
     
