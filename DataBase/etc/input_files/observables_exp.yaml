@@ -1,0 +1,8 @@
+# Example yaml entry for block FMASS
+# 
+# FMASS:
+#   - 511:  # B+ 
+#       central_value: 5.27
+#       stat_error: 0.005
+#       syst_error: 0.004
+# 
