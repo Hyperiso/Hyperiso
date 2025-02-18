@@ -5,92 +5,10 @@
 #include <map>
 #include <memory>
 #include <filesystem>
-#include <regex>
 #include <climits>
 #include "lha_blocks.h"
 #include "lha_elements.h"
-
-/**
- * @enum TokenType
- * @brief Enumeration of token types used in parsing LHA files.
- */
-enum class TokenType {
-    FLOAT,  /**< Floating point number. */
-    INTEGER,/**< Integer number. */
-    BLOCK,  /**< Block keyword. */
-    DECAY,  /**< Decay keyword. */
-    NEWLINE,/**< Newline character. */
-    SKIP,   /**< Whitespace character. */
-    COMMENT,/**< Comment line. */
-    WORD,   /**< Word token. */
-    OTHER   /**< Other types of tokens. */
-};
-
-/**
- * @var analyzer_rx
- * @brief Regular expression for tokenizing LHA file content.
- */
-const std::regex analyzer_rx(
-    R"x(((?:[+-])?(?:\d+\.\d*|\.\d+)(?:[eEdD][+-]\d+)?|(\d+(?:[eEdD][+-]\d+)?))|(?:[+-]?\d+(?!\.))|(block)|(decay)|(\n)|([ \t]+)|(#.*)|([\w\=\.]+)|([^#]*))x",
-    std::regex_constants::icase
-); 
-
-/**
- * @struct Token
- * @brief Represents a parsed token from the LHA file.
- */
-struct Token {
-    TokenType type;     /**< Type of the token. */
-    std::string value;  /**< Text value of the token. */
-    int row;            /**< Row number where the token is located. */
-    int col;            /**< Column number where the token is located. */
-};
-
-class LhaReader;
-
-/**
- * @class Parser
- * @brief Parses LHA files and extracts blocks of data.
- */
-class Parser {
-    public:
-        /**
-         * @brief Constructs a Parser with the given source and reader.
-         * @param src Source string to be parsed.
-         * @param reader Pointer to the `LhaReader` instance managing this parser.
-         */
-        inline explicit Parser(std::string src, LhaReader* reader) : src(std::move(src)), reader(reader) {}
-        
-        /**
-         * @brief Parses the source string into blocks, optionally including comments.
-         * @param comments If `true`, includes comments in the parsing process.
-         */
-        void parse(bool comments = false);
-
-        /**
-         * @brief Retrieves a specific block by name.
-         * @param blockName Name of the block.
-         * @return Vector of string vectors representing lines in the block.
-         */
-        inline std::vector<std::vector<std::string>> getBlock(const std::string& blockName) { return this->rawBlocks[blockName]; }
-        
-        /**
-         * @brief Retrieves all parsed blocks.
-         * @return Map of block names to vectors of lines in each block.
-         */
-        inline std::map<std::string, std::vector<std::vector<std::string>>> getBlocks() { return this->rawBlocks; }
-
-    private:
-        const std::string src;                                                  /**< Source string to be parsed. */
-        const LhaReader* reader;                                                /**< Pointer to the LhaReader managing this parser. */
-        std::vector<Token> tokens;                                              /**< Tokens parsed from the source string. */
-        std::map<std::string, std::vector<std::vector<std::string>>> rawBlocks; /**< Map of parsed blocks. */
-
-        /**
-         * @brief Tokenizes the source string into individual tokens.
-         */
-        void tokenize();
-};
+#include "lha_parser.h"
 
 /**
  * @class LhaReader
@@ -100,8 +18,15 @@ class LhaReader {
 private:
     std::vector<Prototype> blockPrototypes;                     /**< List of block prototypes used for parsing. */
     std::map<std::string, std::shared_ptr<LhaBlock>> blocks;    /**< Map of block names to LhaBlock instances. */
+    std::map<std::string, std::vector<std::vector<std::string>>> rawBlocks;
     bool isFLHA = false;                                        /**< Flag indicating if the file is in FLHA format. */
     std::filesystem::path lhaFile;                              /**< Path to the LHA file being read. */
+
+    /**
+     * @brief Parses the source string into blocks, optionally including comments.
+     * @param comments If `true`, includes comments in the parsing process.
+     */
+    void parse_tokens(std::vector<Token> tokens, bool comments = false);
 
     /**
      * @brief Adds a new block to the reader from parsed lines.
