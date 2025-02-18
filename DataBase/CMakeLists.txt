@@ -17,10 +17,13 @@ add_library(DataBaseLib STATIC
     Entity/lha_blocks.cpp
     Entity/lha_elements.cpp
     Entity/JsonParameters.cpp
+    Entity/DBNode.cpp
     Service/lha_reader.cpp
     Service/MappingDataBase.cpp
     Parser/json_parser.cpp
-    Parser/lha_parser.cpp)
+    Parser/lha_parser.cpp
+    Parser/Parser.cpp
+    )
 
 set_target_properties(DataBaseLib PROPERTIES POSITION_INDEPENDENT_CODE ON)
 # set_target_properties(DataBaseLib PROPERTIES PUBLIC_HEADER "Entity/JsonParameters.h;Service/MappingDataBase.h;Entity/lha_elements.h;Entity/lha_blocks.h;Service/lha_reader.h;Parser/json_parser.h;Parser/lha_parser.h")
