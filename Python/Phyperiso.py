@@ -240,6 +240,12 @@ class MemoryManager:
     def get_block_infos(self, block :str, paramtype : ParameterType = ParameterType.SM):
         return self._manager.get_block_infos(block, paramtype.value)
     
+    def get_type_of_block(self, block : str) ->list:
+        return self._manager.get_type_of_block(block)
+    
+    def get_parameters_types(self):
+        return self._manager.get_parameters_types()
+    
 class Parameters:
     """Interface for handling parameters."""
 

@@ -29,3 +29,5 @@ logs/
 trash/
 DataBase/lha/*
 DataBase/Params/*
+__pycache__/
+Python/phyperiso/

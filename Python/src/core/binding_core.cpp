@@ -226,7 +226,9 @@ void init_core(py::module &m) {
         .def("get_data", &MemoryManager::getReader)
         .def("switch_model", &MemoryManager::switch_model)
         .def("switch_lha", &MemoryManager::switch_lha)
+        .def("get_parameters_types", &MemoryManager::getParameterTypes)
         .def("get_blocks_list", &MemoryManager::get_blocks_list)
+        .def("get_type_of_block", &MemoryManager::get_type_of_block)
         .def("get_block_infos", &MemoryManager::get_block_infos);
 
     py::class_<Parameters, std::shared_ptr<Parameters>>(m, "Parameters")

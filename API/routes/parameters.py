@@ -3,10 +3,10 @@ import shutil
 from pathlib import Path
 import sys, os
 sys.path.append(os.path.join(os.getcwd(), "Python"))
-from Python.Phyperiso import Parameters, ParameterType, Model, MemoryManager
+from Python.Phyperiso import Parameters, ParameterType, Model, MemoryManager, ParameterTypeMapper
 from API.utils.ParametersCache import MemoryManagerCache, ParametersCache
 from pydantic import BaseModel
-
+from Python.Phyperiso import WCoeff, WCoefMapper, GroupMapper
 # mmCache = MemoryManagerCache("Test/InputFiles/testInput.flha", model=Model.SM)
 
 router = APIRouter()
@@ -94,8 +94,8 @@ async def upload_lha(file: UploadFile = File(...)):
 @router.get("/value")
 def get_parameter_value(block: str, code: int):
     """Retrieve parameters value."""
-    print("BLLOOOOOOK", block, code)
-
+    print("checking", WCoefMapper.get_model_str_list())
+    print("checkingv2", GroupMapper.get_model_str_list())
     if not param_cache.exists(block, code):
         return {"block" : block, "pdgcode" : code, "value" : ""}
         raise HTTPException(status_code=404, detail=f"Parameter {block}/{code} not found")
@@ -114,8 +114,26 @@ def get_blocks(param_type : str):
             return {"blocks" : []}
     return {"blocks" : mem_cache.get_blocks_list(map_paramtype[param_type])}
 
+@router.get("/all_blocks_list")
+def get_blocks():
+    blocks = mem_cache.get_parameters_types()
+    liste = {"MASS"}
+    for block in blocks:
+        liste = liste.union(set(mem_cache.get_blocks_list(ParameterType(block))))
+
+    return {"blocks" : list(liste)}
+
 @router.get("/block_info")
 def get_block_info(block : str, param_type : str):
+    if param_type == "":
+        print("aAAAAH")
+        codes = set()
+        possible_param_type = mem_cache.get_type_of_block(block)
+        print(possible_param_type)
+        for pt in possible_param_type:
+            print(pt)
+            codes = codes.union(set(mem_cache.get_block_infos(block, ParameterType(pt))))
+        return {block : list(codes)}
     if not block in mem_cache.get_blocks_list(map_paramtype[param_type]):
         raise HTTPException(status_code=404, detail = f"Block {block} not found")
     return {block : mem_cache.get_block_infos(block, map_paramtype[param_type])}
@@ -148,3 +166,4 @@ def set_parameter(block: str, code: int, value: float):
     """Set a parameter value in a specific block."""
     param_cache.set_block_value(block, code, value, force=True)
     return {"message": f"Parameter set: {block}[{code}] = {value}"}
+
