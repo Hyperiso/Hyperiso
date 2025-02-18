@@ -8,8 +8,8 @@ void Compound::read_param_covariance() {
     LOG_DEBUG("Extracting parameter covariance from input files.");
     std::vector<Correlation> correlations;
     std::vector<Value> values;
-    std::string root = project_root.data();
-    read_json(root + "/DataBase/param_cov.json", values, correlations);
+    std::string exp_path = MemoryManager::GetInstance()->getParameterCovariancePath().string();
+    read_json(exp_path, values, correlations);
 
     std::map<ParamId, double> stds;
 

@@ -61,8 +61,8 @@ void ModelEvaluator::update_th_covariance() {
 void ModelEvaluator::update_exp_data() {
     std::vector<Correlation> correlations;
     std::vector<Value> values;
-    std::string root = project_root.data();
-    read_json(root + "/DataBase/data_exp.json", values, correlations);
+    std::string exp_path = MemoryManager::GetInstance()->getObservableCovariancePath().string();
+    read_json(exp_path, values, correlations);
     LOG_DEBUG("JSON input file read");
 
     // Read central values for the stored observable and fill diagonal elements of cov matrix with exp. variance 

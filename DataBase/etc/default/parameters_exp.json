@@ -67,9 +67,111 @@
         "syst_error": 0
       },
       {
+        "name": "FMASS|211",
+        "central_value": 139.57039e-3,
+        "stat_error": 0.00018e-3,
+        "syst_error": 0
+      },
+      {
+        "name": "FMASS|321",
+        "central_value": 493.677e-3,
+        "stat_error": 0.015e-3,
+        "syst_error": 0
+      },
+      {
+        "name": "FMASS|323",
+        "central_value": 891.67e-3,
+        "stat_error": 0.26e-3,
+        "syst_error": 0
+      },
+      {
+        "name": "FMASS|411",
+        "central_value": 1.86966,
+        "stat_error": 0.00005,
+        "syst_error": 0
+      },
+      {
+        "name": "FMASS|421",
+        "central_value": 1.86484,
+        "stat_error": 0.00005,
+        "syst_error": 0
+      },
+      {
+        "name": "FMASS|423",
+        "central_value": 2.00685,
+        "stat_error": 0.00005,
+        "syst_error": 0
+      },
+      {
+        "name": "FMASS|431",
+        "central_value": 1.96835,
+        "stat_error": 0.00007,
+        "syst_error": 0
+      },
+      {
+        "name": "FMASS|511",
+        "central_value": 5.27972,
+        "stat_error": 0.00008,
+        "syst_error": 0
+      },
+      {
+        "name": "FMASS|521",
+        "central_value": 5.27941,
+        "stat_error": 0.00007,
+        "syst_error": 0
+      },
+      {
         "name": "FMASS|531",
         "central_value": 5.36693,
         "stat_error": 0.0001,
+        "syst_error": 0
+      },
+      {
+        "name": "FLIFE|211",
+        "central_value": 2.6033e-8,
+        "stat_error": 0.0005e-8,
+        "syst_error": 0
+      },
+      {
+        "name": "FLIFE|321",
+        "central_value": 1.2380e-8,
+        "stat_error": 0.0020e-8,
+        "syst_error": 0
+      },
+      {
+        "name": "FLIFE|323",
+        "central_value": 1.280e-23,
+        "stat_error": 0.002e-23,
+        "syst_error": 0
+      },
+      {
+        "name": "FLIFE|411",
+        "central_value": 1.033e-12,
+        "stat_error": 0.005e-12,
+        "syst_error": 0
+      },
+      {
+        "name": "FLIFE|421",
+        "central_value": 4.103e-13,
+        "stat_error": 0.010e-13,
+        "syst_error": 0
+      },
+      {
+        "name": "FLIFE|431",
+        "central_value": 5.012e-13,
+        "stat_error": 0.022e-13,
+        "syst_error": 0
+      },
+      {
+        "name": "FLIFE|511",
+        "central_value": 1.517e-12,
+        "stat_error": 4e-15,
+        "syst_error": 0
+      },
+      {
+        "name": "FLIFE|521",
+        "central_value": 1.638e-12,
+        "stat_error": 4e-15,
         "syst_error": 0
       },
       {
@@ -85,33 +187,9 @@
         "syst_error": 0
       },
       {
-        "name": "FMASS|511",
-        "central_value": 5.27972,
-        "stat_error": 0.00008,
-        "syst_error": 0
-      },
-      {
-        "name": "FLIFE|511",
-        "central_value": 1.517e-12,
-        "stat_error": 4e-15,
-        "syst_error": 0
-      },
-      {
         "name": "FCONST|51101",
         "central_value": 0.194,
         "stat_error": 0.010,
-        "syst_error": 0
-      },
-      {
-        "name": "FMASS|521",
-        "central_value": 5.27941,
-        "stat_error": 0.00007,
-        "syst_error": 0
-      },
-      {
-        "name": "FLIFE|521",
-        "central_value": 1.638e-12,
-        "stat_error": 4e-15,
         "syst_error": 0
       },
       {
@@ -181,6 +259,36 @@
         "syst_error": 0
       },
       {
+        "name": "B_Ks|5",
+        "central_value": 0.013,
+        "stat_error": 0,
+        "syst_error": 0
+      },
+      {
+        "name": "B_Ks|6",
+        "central_value": 0.032,
+        "stat_error": 0,
+        "syst_error": 0
+      },
+      {
+        "name": "B_Ks|7",
+        "central_value": -2.1,
+        "stat_error": 0,
+        "syst_error": 0
+      },
+      {
+        "name": "B_Ks|8",
+        "central_value": 0.16,
+        "stat_error": 0,
+        "syst_error": 0
+      },
+      {
+        "name": "B_Ks|9",
+        "central_value": -0.16,
+        "stat_error": 0,
+        "syst_error": 0
+      },
+      {
         "name": "B_Ks|10",
         "central_value": 0.460,
         "stat_error": 0.110,
@@ -188,7 +296,7 @@
       },
       {
         "name": "B_Ks|11",
-        "central_value": 0.268,
+        "central_value": 0.312,
         "stat_error": 0.032,
         "syst_error": 0
       },
@@ -196,6 +304,12 @@
         "name": "B_Ks|12",
         "central_value": 0.5,
         "stat_error": 0.1,
+        "syst_error": 0
+      },
+      {
+        "name": "B_Ks|13",
+        "central_value": -1,
+        "stat_error": 0,
         "syst_error": 0
       },
       {
@@ -242,19 +356,19 @@
       },
       {
         "name": "B_Xs|7",
-        "central_value": 0,
+        "central_value": 2,
         "stat_error": 0,
         "syst_error": 0
       },
       {
         "name": "B_Xs|8",
-        "central_value": 0,
+        "central_value": 1e10,
         "stat_error": 0,
         "syst_error": 0
       },
       {
         "name": "B_Xs|9",
-        "central_value": 0,
+        "central_value": 1e20,
         "stat_error": 0,
         "syst_error": 0
       },

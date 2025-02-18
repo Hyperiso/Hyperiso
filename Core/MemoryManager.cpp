@@ -53,8 +53,8 @@ void MemoryManager::init(const std::string& lhaFile, Model model, bool use_marty
     cache.reader = std::make_shared<LhaReader>(LhaReader(ss.str()));
     cache.reader->readAll();
     cache.lha_path = std::filesystem::u8path(ss.str());
-    cache.obs_cov_path = std::filesystem::u8path(project_root.data() + std::string("/DataBase/Exp/observable_covariance.json"));
-    cache.param_cov_path = std::filesystem::u8path(project_root.data() + std::string("/DataBase/Exp/parameter_covariance.json"));
+    cache.obs_cov_path = std::filesystem::u8path(project_root.data() + std::string("/DataBase/etc/default/observables_exp.json"));
+    cache.param_cov_path = std::filesystem::u8path(project_root.data() + std::string("/DataBase/etc/default/parameters_exp.json"));
     cache.model = model;
     cache.is_spectrum = is_spectrum;
     cache.has_wilsons = has_wilsons;

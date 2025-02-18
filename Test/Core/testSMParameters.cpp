@@ -6,7 +6,7 @@
 
 int main() {
 
-    Logger::getInstance()->setLevel(Logger::LogLevel::INFO);
+    Logger::getInstance()->setLevel(Logger::LogLevel::DEBUG);
 
     auto mm = MemoryManager::GetInstance();  // Initialize program manager with LHA file containing SMINPUTS block
     mm->init("Test/InputFiles/testInput.flha", Model::SM);  // Initialize parameters from given LHA file

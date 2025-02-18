@@ -277,27 +277,33 @@ THDM BLOCKS*/
 Flavor BLOCKS*/
 
 /** @class FConstBlock @brief Block for Fconst in the flavor part */
+class FMassBlock : public MapBlock {
+    public:
+        FMassBlock() {this->blockname = "FMASS";}
+    };
+
+/** @class FConstBlock @brief Block for Fconst in the flavor part */
 class FConstBlock : public MapBlock {
 public:
-    FConstBlock() {this->blockname = "FConstBlock";}
+    FConstBlock() {this->blockname = "FCONST";}
 };
 
 /** @class FConstRatioBlock @brief Block for Fconstratio in the flavor part */
 class FConstRatioBlock : public MapBlock {
 public:
-    FConstRatioBlock() {this->blockname = "FConstRatioBlock";}
+    FConstRatioBlock() {this->blockname = "FCONSTRATIO";}
 };
 
 /** @class FBag @brief Block for Fbag in the flavor part */
 class FBag : public MapBlock {
 public:
-    FBag() {this->blockname = "FBagBlock";}
+    FBag() {this->blockname = "FBAG";}
 };
 
 /** @class FLifeBlock @brief Block for Flife in the flavor part */
 class FLifeBlock : public MapBlock {
 public:
-    FLifeBlock() {this->blockname = "FLifeBlock";}
+    FLifeBlock() {this->blockname = "FLIFE";}
 };
 
 /* ------------------------------------------------------------------------------------------------
@@ -338,31 +344,31 @@ Form Factors BLOCKS*/
 /** @class BKsBlock @brief Block for BKsBlock in the form factor part */
 class BKsBlock : public MapBlock {
 public:
-    BKsBlock() {this->blockname = "BKsBlock";}
+    BKsBlock() {this->blockname = "B_Ks";}
 };
 
 /** @class BllBlock @brief Block for BllBlock in the form factor part */
 class BllBlock : public MapBlock {
 public:
-    BllBlock() {this->blockname = "BllBlock";}
+    BllBlock() {this->blockname = "B_ll";}
 };
 
 /** @class BXsBlock @brief Block for BXsBlock in the form factor part */
 class BXsBlock : public MapBlock {
 public:
-    BXsBlock() {this->blockname = "BXsBlock";}
+    BXsBlock() {this->blockname = "B_Xs";}
 };
 
 /** @class BDlnuBlock @brief Block for BDlnuBlock in the form factor part */
 class BDlnuBlock : public MapBlock {
 public:
-    BDlnuBlock() {this->blockname = "BDlnuBlock";}
+    BDlnuBlock() {this->blockname = "B_Dlnu";}
 };
 
 /** @class BDslnuBlock @brief Block for BDslnuBlock in the form factor part */
 class BDslnuBlock : public MapBlock {
 public:
-    BDslnuBlock() {this->blockname = "BDslnuBlock";}
+    BDslnuBlock() {this->blockname = "B_Dslnu";}
 };
 
 #endif

@@ -4,6 +4,7 @@
 #include <iostream>
 #include <cassert>
 #include "ObservableInterface.h"
+#include "json_parser.h"
 
 int main() {
 

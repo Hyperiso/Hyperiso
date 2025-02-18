@@ -12,13 +12,11 @@
 #include "BlockAccessor.h"
 #include "MemoryManager.h"
 #include "Interface.h"
-#include "JsonParameters.h"
+#include "json_parser.h"
 #include "QCDHelper.h"
 #include <memory>
 
 typedef std::complex<double> complex_t; 
-
-constexpr int N_PARAM_INSTANCES = 6;
 
 /**
  * @class ModelStrategy
