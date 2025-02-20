@@ -20,7 +20,7 @@ def app():
     st.subheader("Calculate an Observable")
     observable_name = st.text_input("Observable Name")
     if st.button("Calculate Observable"):
-        response = requests.get(f"{BASE_API_URL}/observables/calculate", params={"name": observable_name})
+        response = requests.get(f"{BASE_API_URL}/observables/compute_observable", params={"name": observable_name})
         if response.status_code == 200:
             result = response.json().get("value")
             st.write(f"Value of `{observable_name}`: {result}")
