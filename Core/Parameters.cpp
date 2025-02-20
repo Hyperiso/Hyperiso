@@ -10,13 +10,11 @@ std::string doubleToString(double value, int precision) {
 
 typedef std::complex<double> complex_t; 
 
-std::vector<std::string> matrixIds(int size) {
-    std::vector<std::string> ids;
+std::vector<LhaID> matrixIds(int size) {
+    std::vector<LhaID> ids;
     for (int i = 1; i <= size; ++i) {
         for (int j = 1; j <= size; ++j) {
-            std::stringstream ss;
-            ss << i << "|" << j;
-            ids.emplace_back(ss.str());
+            ids.emplace_back(LhaID({i, j}));
         }
     }
     return ids;
@@ -25,11 +23,11 @@ std::vector<std::string> matrixIds(int size) {
 template<std::size_t SIZE>
 void readMatrix(std::array<std::array<double, SIZE>, SIZE>& matrix, std::string blockName, LhaReader* lha) {
     if (lha->hasBlock(blockName)) {
-        std::vector<std::string> ids = matrixIds(SIZE);
+        auto ids = matrixIds(SIZE);
         std::vector<double> values (SIZE * SIZE);
         lha->extractFromBlock(blockName, values, ids);
         for (size_t i=0; i!=values.size(); ++i) {
-            matrix[ids[i][0] - 49][ids[i][2] - 49] = values[i];
+            matrix[ids[i].parts[0] - 49][ids[i].parts[1] - 49] = values[i];
         }
     } 
 }
@@ -41,6 +39,18 @@ void populate_from_json(std::shared_ptr<MapBlock> block, std::vector<Value> json
             auto split = val.name.find(del);
             int pdg = std::stoi(val.name.substr(split + 1, val.name.size() - split));
             block->setValue(pdg, val.central_value);
+        }
+    }
+}
+
+void overwrite_from_lha(std::shared_ptr<MapBlock> block, LhaReader* reader) {
+    if (!reader->hasBlock(block->blockname)) 
+        return;
+
+    for (const std::vector<int> sub_ids : LhaParamsHelper::get_minimal_content(block->blockname)) {
+        LhaID id {sub_ids};
+        if (reader->hasElement(block->blockname, id)) {
+            block->setValue(id, reader->getValue<double>(block->blockname, id));
         }
     }
 }
@@ -265,11 +275,11 @@ void SUSYModelStrategy::initializeParameters(Parameters& params) {
     }
 
     auto alphablock = std::make_shared<AlphaBlock>();
-    alphablock->setValue(0, lha->getValue<double>("ALPHA", ""));
+    alphablock->setValue(0, lha->getValue<double>("ALPHA", 0));
     params.addBlock("ALPHA", std::move(alphablock));
 
     auto hmixblock = std::make_shared<HMIXBlock>();
-    hmixblock->setValue(0, static_cast<LhaElement<double>*>(lha->getBlock("HMIX")->get("1"))->getScale());
+    hmixblock->setValue(0, static_cast<LhaElement<double>*>(lha->getBlock("HMIX")->get(1))->getScale());
     std::vector<double> values (4);
     lha->extractFromBlock("HMIX", values);
     for (size_t i=0; i!=values.size(); ++i) {
@@ -289,7 +299,7 @@ void SUSYModelStrategy::initializeParameters(Parameters& params) {
     auto elts = lha->getBlock("MSOFT")->getEntries();
     for (size_t i = 0; i < elts->size(); ++i) {
         auto e = static_cast<LhaElement<double>*>(elts->at(i).get());
-        msoftblock->setValue(std::stoi(e->getId()), e->getValue());
+        msoftblock->setValue(e->getId(), e->getValue());
     }
     params.addBlock("MSOFT", std::move(msoftblock));
 
@@ -300,7 +310,7 @@ void SUSYModelStrategy::initializeParameters(Parameters& params) {
     massblock->setValue(46, 0.);
     for (size_t i = 0; i < elts->size(); ++i) {
         auto e = static_cast<LhaElement<double>*>(elts->at(i).get());
-        massblock->setValue(std::stoi(e->getId()), e->getValue());
+        massblock->setValue(e->getId(), e->getValue());
     }
     params.addBlock("MASS", std::move(massblock));
 
@@ -330,23 +340,23 @@ void THDMModelStrategy::initializeParameters(Parameters& params) {
     auto elts = lha->getBlock("MASS")->getEntries();
     for (size_t i = 0; i < elts->size(); ++i) {
         auto e = static_cast<LhaElement<double>*>(elts->at(i).get());
-        massblock->setValue(std::stoi(e->getId()), e->getValue());
+        massblock->setValue(e->getId(), e->getValue());
         // this->masses[std::stoi(e->getId())] = e->getValue();
     }
     params.addBlock("MASS", std::move(massblock));
 
     auto alphablock = std::make_shared<AlphaBlock>();
-    alphablock->setValue(0, lha->getValue<double>("ALPHA", ""));
+    alphablock->setValue(0, lha->getValue<double>("ALPHA", 0));
     params.addBlock("ALPHA", std::move(alphablock));
     auto hmixblock = std::make_shared<HMIXBlock>();
-    double tan_beta = lha->getValue<double>("MINPAR", "3");
+    double tan_beta = lha->getValue<double>("MINPAR", 3);
     hmixblock->setValue(2, tan_beta);
     params.addBlock("HMIX", std::move(hmixblock));
     // std::cout << "dd : " << lha->getValue<int>("MINPAR", "24") << std::endl;
      //small patch
      int type;
      try {
-        type = static_cast<int>(lha->getValue<double>("MINPAR", "24"));
+        type = static_cast<int>(lha->getValue<double>("MINPAR", 24));
      } catch(...) {
         type = 4;
      }
@@ -407,35 +417,12 @@ void FlavorStrategy::initializeParameters(Parameters& params) {
 
     auto massblock = std::make_shared<FMassBlock>();
     populate_from_json(massblock, values);
-
-    if (std::find(blocks.begin(), blocks.end(), "FMASS") != blocks.end()) {
-        massblock->setValue(211, lha->getValue<double>("FMASS", "211")); // pi
-        massblock->setValue(321, lha->getValue<double>("FMASS", "321")); // K
-        massblock->setValue(323, lha->getValue<double>("FMASS", "323")); // K*
-        massblock->setValue(421, lha->getValue<double>("FMASS", "421")); // D0
-        massblock->setValue(423, lha->getValue<double>("FMASS", "423")); // D0_star
-        massblock->setValue(411, lha->getValue<double>("FMASS", "411")); // D
-        massblock->setValue(431, lha->getValue<double>("FMASS", "431")); // Ds
-        massblock->setValue(511, lha->getValue<double>("FMASS", "511")); // Bu
-        massblock->setValue(521, lha->getValue<double>("FMASS", "521")); // Bd
-        massblock->setValue(531, lha->getValue<double>("FMASS", "531")); // Bs
-    }
+    overwrite_from_lha(massblock, lha);
     params.addBlock("FMASS", std::move(massblock));
 
     auto lifetimeblock = std::make_shared<FLifeBlock>();
     populate_from_json(lifetimeblock, values);
-
-    if (std::find(blocks.begin(), blocks.end(), "FLIFE") != blocks.end()) {
-        lifetimeblock->setValue(211, lha->getValue<double>("FLIFE", "211")); // pi
-        lifetimeblock->setValue(321, lha->getValue<double>("FLIFE", "321")); // K
-        lifetimeblock->setValue(323, lha->getValue<double>("FLIFE", "323")); // K*
-        lifetimeblock->setValue(421, lha->getValue<double>("FLIFE", "421")); // D0
-        lifetimeblock->setValue(411, lha->getValue<double>("FLIFE", "411")); // D
-        lifetimeblock->setValue(431, lha->getValue<double>("FLIFE", "431")); // Ds
-        lifetimeblock->setValue(511, lha->getValue<double>("FLIFE", "511")); // Bu
-        lifetimeblock->setValue(521, lha->getValue<double>("FLIFE", "521")); // Bd
-        lifetimeblock->setValue(531, lha->getValue<double>("FLIFE", "531")); // Bs
-    }
+    overwrite_from_lha(lifetimeblock, lha);
     params.addBlock("FLIFE", std::move(lifetimeblock));
 
     auto fconstblock = std::make_shared<FConstBlock>();
@@ -450,11 +437,11 @@ void FlavorStrategy::initializeParameters(Parameters& params) {
         }
     }
     if (std::find(blocks.begin(), blocks.end(), "FCONST") != blocks.end()) {
-        fconstblock->setValue(51101, lha->getValue<double>("FCONST", "511|1")); // f_B
-        fconstblock->setValue(52101, lha->getValue<double>("FCONST", "521|1")); // f_B0
-        fconstblock->setValue(53101, lha->getValue<double>("FCONST", "531|1")); // f_Bs
-        fconstblock->setValue(32301, lha->getValue<double>("FCONST", "323|1")); // f_K*_par
-        fconstblock->setValue(32302, lha->getValue<double>("FCONST", "323|2")); // f_K*_perp
+        fconstblock->setValue(51101, lha->getValue<double>("FCONST", {511, 1})); // f_B
+        fconstblock->setValue(52101, lha->getValue<double>("FCONST", {521, 1})); // f_B0
+        fconstblock->setValue(53101, lha->getValue<double>("FCONST", {531, 1})); // f_Bs
+        fconstblock->setValue(32301, lha->getValue<double>("FCONST", {323, 1})); // f_K*_par
+        fconstblock->setValue(32302, lha->getValue<double>("FCONST", {323, 2})); // f_K*_perp
     }
     params.addBlock("FCONST", std::move(fconstblock));
 }   
@@ -475,7 +462,7 @@ void GeneralModelStrategy::initializeParameters(Parameters& params) {
             auto elts = lha->getBlock(elem)->getEntries();
             for (size_t i = 0; i < elts->size(); ++i) {
                 auto e = static_cast<LhaElement<double>*>(elts->at(i).get());
-                generalblock->setValue(std::stoi(e->getId()), e->getValue());
+                generalblock->setValue(e->getId(), e->getValue());
             }
             params.addBlock(elem, std::move(generalblock));
             continue;
@@ -503,14 +490,9 @@ void WilsonInputStrategy::initializeParameters(Parameters &params) {
             return {scale, type};
         }
         for (auto &e : *(block->getEntries())) {
-            size_t pos = e->getId().find('|', 0); 
-            pos = e->getId().find('|', pos + 1); // Skip first '|'
-            std::string id = e->getId().substr(0, pos);
-            int order = std::stoi(e->getId().substr(pos + 2, 2));
-
-            if (id.size() < 13) {
-                id.insert(0, 13 - id.size(), '0');
-            }
+            int content = e->getId().parts[0];
+            int structure = e->getId().parts[1];
+            int order = e->getId().parts[2];
 
             if (order >= 10) {
                 LOG_WARN("Found QED corrections to Wilson coefficient, skipping");
@@ -525,13 +507,13 @@ void WilsonInputStrategy::initializeParameters(Parameters &params) {
             }
 
             if (type == -1)
-                type = std::stoi(e->getId().substr(pos + 4, 1));
-            else if (type != std::stoi(e->getId().substr(pos + 4, 1))) {
+                type = e->getId().parts[3];
+            else if (type != e->getId().parts[3]) {
                 LOG_ERROR("Parameters", "All Wilson coefficients must be of the same type.");
             }
 
-            params.setBlockValue(block_name, 10 * (int)WCoefMapper::from_flha(id) + order, c->getValue());
-            nonzero.push_back((int)WCoefMapper::from_flha(id));
+            params.setBlockValue(block_name, 10 * (int)WCoefMapper::from_flha(content, structure) + order, c->getValue());
+            nonzero.push_back((int)WCoefMapper::from_flha(content, structure));
         }
 
         params.setBlockValue(block_name, -1, scale);

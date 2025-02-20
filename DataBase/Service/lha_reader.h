@@ -50,6 +50,16 @@ public:
     bool hasBlock(const std::string& id) const;
 
     /**
+     * @brief Checks if an element exists in the reader.
+     * @param block_id Block identifier.
+     * @param elt_id Block identifier.
+     * @return `true` if the block exists, otherwise `false`.
+     */
+    bool hasElement(const std::string& block_id, const LhaID& elt_id) const;
+
+    bool hasElement(const std::string& block_id, const std::vector<int>& elt_id) const { return hasElement(block_id, LhaID(elt_id)); }
+
+    /**
      * @brief Reads all blocks from the LHA file.
      */
     void readAll();
@@ -93,7 +103,8 @@ public:
         LhaBlock* block = this->getBlock(blockName);
         if (block) {
             for (size_t id=0; id!=vars.size(); ++id) {
-                *(vars.at(id)) = static_cast<LhaElement<T>*>(block->get(std::to_string(id + 1)))->getValue();
+                auto e = block->get(id + 1);
+                *(vars.at(id)) = e ? static_cast<LhaElement<T>*>(e)->getValue() : T {};
             }
         }
     }
@@ -103,7 +114,8 @@ public:
         LhaBlock* block = this->getBlock(blockName);
         if (block) {
             for (size_t id=0; id < vars.size(); ++id) {
-                vars.at(id) = static_cast<LhaElement<T>*>(block->get(std::to_string(id + 1)))->getValue();
+                auto e = block->get(id + 1);
+                vars.at(id) = e ? static_cast<LhaElement<T>*>(e)->getValue() : T {};
             }
         }
     }
@@ -113,18 +125,18 @@ public:
         LhaBlock* block = this->getBlock(blockName);
         if (block) {
             for (size_t i=0; i < vars.size(); ++i) {
-                auto e = block->get(std::to_string(ids.at(i)));
+                auto e = block->get(ids.at(i));
                 vars.at(i) = e ? static_cast<LhaElement<T>*>(e)->getValue() : T {};
             }
         }
     }
 
     template <typename T>
-    inline void extractFromBlock(std::string blockName, std::vector<T>& vars, std::vector<std::string>& ids) {
+    inline void extractFromBlock(std::string blockName, std::vector<T>& vars, std::vector<LhaID>& ids) {
         LhaBlock* block = this->getBlock(blockName);
         if (block) {
             for (size_t i=0; i < vars.size(); ++i) {
-                auto e = block->get(ids[i]);
+                auto e = block->get(ids.at(i));
                 vars[i] = e ? static_cast<LhaElement<T>*>(e)->getValue() : T {};
             }
         }
@@ -148,13 +160,24 @@ public:
      * @return Value of the specified type.
      */
     template <typename T>
-    inline T getValue(const std::string& blockName, const std::string& eltId) {
-        auto elt = this->getBlock(blockName)->get(eltId);
-        if (elt) {
-            return static_cast<LhaElement<T>*>(elt)->getValue();
+    inline T getValue(const std::string& blockName, const LhaID& eltId) {
+        auto block = this->getBlock(blockName);
+        if (block) {
+            auto elt = block->get(eltId);
+            if (elt) {
+                return static_cast<LhaElement<T>*>(elt)->getValue();
+            } else {
+                LOG_ERROR("LHAReader", "Trying to access undefined element", eltId, "in block", blockName); 
+            }   
         } else {
-            LOG_ERROR("LHAReaderError", "Trying to access undefined element", eltId, "in block", blockName); 
-        }   
+            LOG_ERROR("LHAReader", "Trying to access undefined block", blockName); 
+        }
+        
+    }
+
+    template <typename T>
+    inline T getValue(const std::string& blockName, const std::vector<int>& eltId) {
+        return getValue<T>(blockName, LhaID(eltId));
     }
 
     /**

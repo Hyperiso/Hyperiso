@@ -9,19 +9,6 @@
 
 #include "lha_elements.h"
 
-/**
- * @struct Prototype
- * @brief Represents the structure of an LHA block, specifying columns for values, scales, and renormalization groups.
- */
-struct Prototype {
-    std::string blockName;      /**< Block name, case insensitive. */
-    int itemCount {2};          /**< Number of columns in the block. */
-    int valueIdx {1};           /**< Column index for value. */
-    int scaleIdx {-1};          /**< Column index for scale, -1 if scale-independent. */
-    int rgIdx {-1};             /**< Column index for renormalization group, -1 if irrelevant. */
-    bool globalScale {false};   /**< Indicates if the block uses a global scale (Q= in header). */
-};
-
 // SLHA Block prototypes
 const Prototype MODSEL = Prototype{"MODSEL"};
 const Prototype SMINPUTS = Prototype{"SMINPUTS"};
@@ -91,11 +78,32 @@ public:
     void readData(const std::vector<std::vector<std::string>>& lines);
 
     /**
+     * @brief Checks whether an element is present in the block.
+     * @param id Identifier of the element.
+     * @return `true` if the given element is present in the block, `false` otherwise.
+     */
+    bool hasElement(const LhaID& id) const;
+
+    /**
+     * @brief Checks whether an element is present in the block.
+     * @param id Parts of the identifier of the element.
+     * @return `true` if the given element is present in the block, `false` otherwise.
+     */
+    bool hasElement(const std::vector<int>& id) const { return hasElement(LhaID(id)); };
+
+    /**
      * @brief Retrieves an element by its identifier.
      * @param id Identifier of the element.
      * @return Pointer to the `AbstractElement` if found; otherwise, `nullptr`.
      */
-    AbstractElement* get(const std::string& id) const;
+    AbstractElement* get(const LhaID& id) const;
+
+    /**
+     * @brief Retrieves an element by its identifier.
+     * @param id Parts of the identifier of the element.
+     * @return Pointer to the `AbstractElement` if found; otherwise, `nullptr`.
+     */
+    AbstractElement* get(const std::vector<int>& id) const { return get(LhaID(id)); }
 
     /**
      * @brief Retrieves all entries in the block.
@@ -126,5 +134,26 @@ public:
      */
     inline ~LhaBlock() {entries.clear();}
 };
+
+/**
+ * @class LhaElementFactory
+ * @brief Factory class for creating LHA elements.
+ * 
+ * Provides a static method for creating elements of the appropriate type based on the block and data line.
+ */
+class LhaElementFactory {
+    public:
+        /**
+         * @brief Creates an LHA element based on the block and line data.
+         * 
+         * Determines the element type (e.g., `double` or `std::string`) based on the block name
+         * and creates an appropriate instance.
+         * 
+         * @param block Pointer to the LhaBlock that will contain the new element.
+         * @param line Vector of strings representing the line data.
+         * @return Unique pointer to the created `AbstractElement`.
+         */
+        static std::shared_ptr<AbstractElement> createElement(LhaBlock* block, const std::vector<std::string>& line);
+    };
 
 #endif // HYPERISO_LHA_BLOCKS_H

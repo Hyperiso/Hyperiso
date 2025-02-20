@@ -1,7 +1,6 @@
 #include "lha_blocks.h"
 
-AbstractElement* LhaBlock::get(const std::string& id) const
-{
+AbstractElement* LhaBlock::get(const LhaID& id) const {
     auto p = [id](const std::shared_ptr<AbstractElement>& e) { 
         return e->getId() == id; 
     };
@@ -19,6 +18,7 @@ std::string LhaBlock::toString() const {
     for (const auto& entry: entries) {
         stream << entry->toString();
     }
+
     return stream.str();
 }
 
@@ -33,4 +33,11 @@ void LhaBlock::readData(const std::vector<std::vector<std::string>> &lines) {
             this->addElement(line);
         }
     }
+}
+
+bool LhaBlock::hasElement(const LhaID& id) const {
+    for (const auto& e : this->entries) {
+        if (e->getId() == id) return true;
+    }
+    return false;
 }

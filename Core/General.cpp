@@ -57,58 +57,58 @@ const std::map<WCoef, std::string> WCoefMapper::mapping = {
     {WCoef::C_T, "C_T"}, 
 };
 
-const std::map<WCoef, std::string> WCoefMapper::flha_mapping = {
-    {WCoef::C1, "03040405|6161"},
-    {WCoef::C2, "03040405|4141"},
-    {WCoef::C3, "03050707|4133"},
-    {WCoef::C4, "03050707|6153"},
-    {WCoef::C5, "03050707|4536"},
-    {WCoef::C6, "03050707|6556"},
-    {WCoef::C7, "00000305|4422"},
-    {WCoef::C8, "00000305|6421"},
-    {WCoef::C9, "03051313|4133"},
-    {WCoef::C10, "03051313|4137"},
-    {WCoef::CP1, "03040405|6262"},
-    {WCoef::CP2, "03040405|4242"},
-    {WCoef::CP3, "03050707|4233"},
-    {WCoef::CP4, "03050707|6253"},
-    {WCoef::CP5, "03050707|4636"},
-    {WCoef::CP6, "03050707|6656"},
-    {WCoef::CP7, "00000305|4322"},
-    {WCoef::CP8, "00000305|4321"},
-    {WCoef::CP9, "03051313|4233"},
-    {WCoef::CP10, "03051313|4234"},
-    {WCoef::CQ1, "03051313|3230"},
-    {WCoef::CQ2, "03051313|3233"},
-    {WCoef::CPQ1, "03051313|3130"},
-    {WCoef::CPQ2, "03051313|3133"}, 
+const std::map<WCoef, std::pair<int, int>> WCoefMapper::flha_mapping = {
+    {WCoef::C1, {03040405, 6161}},
+    {WCoef::C2, {03040405, 4141}},
+    {WCoef::C3, {03050707, 4133}},
+    {WCoef::C4, {03050707, 6153}},
+    {WCoef::C5, {03050707, 4536}},
+    {WCoef::C6, {03050707, 6556}},
+    {WCoef::C7, {00000305, 4422}},
+    {WCoef::C8, {00000305, 6421}},
+    {WCoef::C9, {03051313, 4133}},
+    {WCoef::C10, {03051313, 4137}},
+    {WCoef::CP1, {03040405, 6262}},
+    {WCoef::CP2, {03040405, 4242}},
+    {WCoef::CP3, {03050707, 4233}},
+    {WCoef::CP4, {03050707, 6253}},
+    {WCoef::CP5, {03050707, 4636}},
+    {WCoef::CP6, {03050707, 6656}},
+    {WCoef::CP7, {00000305, 4322}},
+    {WCoef::CP8, {00000305, 4321}},
+    {WCoef::CP9, {03051313, 4233}},
+    {WCoef::CP10, {03051313, 4234}},
+    {WCoef::CQ1, {03051313, 3230}},
+    {WCoef::CQ2, {03051313, 3233}},
+    {WCoef::CPQ1, {03051313, 3130}},
+    {WCoef::CPQ2, {03051313, 3133}}, 
 };
 
-const std::map<std::string, WCoef> WCoefMapper::inverse_flha_mapping = {
-    {"03040405|6161", WCoef::C1},
-    {"03040405|4141", WCoef::C2},
-    {"03050707|4133", WCoef::C3},
-    {"03050707|6153", WCoef::C4},
-    {"03050707|4536", WCoef::C5},
-    {"03050707|6556", WCoef::C6},
-    {"00000305|4422", WCoef::C7},
-    {"00000305|6421", WCoef::C8},
-    {"03051313|4133", WCoef::C9},
-    {"03051313|4137", WCoef::C10},
-    {"03040405|6262", WCoef::CP1},
-    {"03040405|4242", WCoef::CP2},
-    {"03050707|4233", WCoef::CP3},
-    {"03050707|6253", WCoef::CP4},
-    {"03050707|4636", WCoef::CP5},
-    {"03050707|6656", WCoef::CP6},
-    {"00000305|4322", WCoef::CP7},
-    {"00000305|4321", WCoef::CP8},
-    {"03051313|4233", WCoef::CP9},
-    {"03051313|4234", WCoef::CP10},
-    {"03051313|3230", WCoef::CQ1},
-    {"03051313|3233", WCoef::CQ2},
-    {"03051313|3130", WCoef::CPQ1},
-    {"03051313|3133", WCoef::CPQ2}, 
+const std::map<std::pair<int, int>, WCoef> WCoefMapper::inverse_flha_mapping = {
+    {{03040405, 6161}, WCoef::C1},
+    {{03040405, 4141}, WCoef::C2},
+    {{03050707, 4133}, WCoef::C3},
+    {{03050707, 6153}, WCoef::C4},
+    {{03050707, 4536}, WCoef::C5},
+    {{03050707, 6556}, WCoef::C6},
+    {{00000305, 4422}, WCoef::C7},
+    {{00000305, 6421}, WCoef::C8},
+    {{03051313, 4133}, WCoef::C9},
+    {{03051313, 4137}, WCoef::C10},
+    {{03040405, 6262}, WCoef::CP1},
+    {{03040405, 4242}, WCoef::CP2},
+    {{03050707, 4233}, WCoef::CP3},
+    {{03050707, 6253}, WCoef::CP4},
+    {{03050707, 4636}, WCoef::CP5},
+    {{03050707, 6656}, WCoef::CP6},
+    {{00000305, 4322}, WCoef::CP7},
+    {{00000305, 4321}, WCoef::CP8},
+    {{03051313, 4233}, WCoef::CP9},
+    {{03051313, 4234}, WCoef::CP10},
+    {{03051313, 3230}, WCoef::CQ1},
+    {{03051313, 3233}, WCoef::CQ2},
+    {{03051313, 3130}, WCoef::CPQ1},
+    {{03051313, 3133}, WCoef::CPQ2}, 
 };
 
 const std::map<std::string, WCoef> WCoefMapper::inverse_mapping = {
@@ -606,4 +606,17 @@ std::vector<ParamId> DependenciesHelper::get_allowed_parameters(Observables id) 
 bool DependenciesHelper::is_param_allowed(Observables id, ParamId pid) {
     auto allowed = dep_lists.at(id);
     return std::find(allowed.begin(), allowed.end(), pid) != allowed.end();
+}
+
+const std::map<std::string, std::vector<std::vector<int>>> LhaParamsHelper::minimal_blocks = {
+    {"FMASS", {{211}, {321}, {323}, {411}, {421}, {423}, {431}, {511}, {521}, {531}}},
+    {"FLIFE", {{211}, {321}, {323}, {411}, {421}, {431}, {511}, {521}, {531}}},
+    {"FCONST", {{511, 1}, {521, 1}, {531, 1}, {323, 1}, {323, 2}}},
+};
+
+std::vector<std::vector<int>> LhaParamsHelper::get_minimal_content(const std::string &block_name) {
+    if (LhaParamsHelper::minimal_blocks.contains(block_name)) {
+        return LhaParamsHelper::minimal_blocks.at(block_name);
+    }
+    LOG_ERROR("LhaParamsHelper", "Unknown block", block_name);
 }
