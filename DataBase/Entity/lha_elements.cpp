@@ -30,37 +30,31 @@ struct StringConverter<std::string> {
 };
 
 template<typename T>
-LhaElement<T>::LhaElement(LhaBlock* block, const std::vector<std::string>& line) 
-        : AbstractElement(block, encodeId(block, line)) {
-    if (block->getPrototype().scaleIdx != -1) {
-        this->Q.emplace(std::stod(line.at(block->getPrototype().scaleIdx)));
-        if (block->getPrototype().rgIdx != -1) {
+LhaElement<T>::LhaElement(const Prototype& prototype, const std::vector<std::string>& line) 
+        : AbstractElement(encodeId(prototype, line)) {
+    if (prototype.scaleIdx != -1) {
+        this->Q.emplace(std::stod(line.at(prototype.scaleIdx)));
+        if (prototype.rgIdx != -1) {
             // WRONG !!! To be corrected.
-            this->rScheme.emplace(static_cast<RenormalizationScheme>(stoi(line.at(block->getPrototype().rgIdx))));
+            this->rScheme.emplace(static_cast<RenormalizationScheme>(stoi(line.at(prototype.rgIdx))));
         }
-    } else if (block->getPrototype().globalScale) {
+    } else if (prototype.globalScale) {
         this->Q.emplace(std::stod(line.at(0)));
     }
-    this->value = StringConverter<T>::convert(line.at(block->getPrototype().valueIdx));
+
+    this->value = StringConverter<T>::convert(line.at(prototype.valueIdx));
 }
 
 template <typename T>
-std::string LhaElement<T>::encodeId(LhaBlock* block, const std::vector<std::string>& line) {
-    std::stringstream stream;
-
-    Prototype p = block->getPrototype();
+LhaID LhaElement<T>::encodeId(const Prototype& prototype, const std::vector<std::string>& line) {
+    std::vector<int> sub_ids;
     for (size_t i=0; i!=line.size(); ++i) {
-        if (i != p.valueIdx && i != p.scaleIdx && i != p.rgIdx) {
-            if (p.globalScale && i == 0) continue;
-            stream << line.at(i) << "|";
+        if (i != prototype.valueIdx && i != prototype.scaleIdx && i != prototype.rgIdx) {
+            if (prototype.globalScale && i == 0) continue;
+            sub_ids.emplace_back(std::stoi(line.at(i)));
         }
     }
-
-    auto id = stream.str();
-    if (id.length() > 0) {
-        id.erase(id.length() - 1);
-    }
-    return id;
+    return LhaID(sub_ids);
 }
 
 template <typename T>
@@ -79,8 +73,20 @@ std::string LhaElement<T>::toString() const {
 
 std::shared_ptr<AbstractElement> LhaElementFactory::createElement(LhaBlock* block, const std::vector<std::string>& line) {
     if (block->getPrototype().blockName == "FCINFO" || block->getPrototype().blockName == "FMODSEL" || block->getPrototype().blockName == "SPINFO") {
-        return std::make_shared<LhaElement<std::string>>(block, line);
+        return std::make_shared<LhaElement<std::string>>(block->getPrototype(), line);
     } else {
-        return std::make_shared<LhaElement<double>>(block, line);
+        return std::make_shared<LhaElement<double>>(block->getPrototype(), line);
     }
+}
+
+std::ostream &operator<<(std::ostream &os, const LhaID &id)
+{
+    if (!id.parts.empty()) {
+        os << id.parts.at(0);
+        for (size_t i = 1; i < id.parts.size(); i++) {
+            os << '|' << id.parts.at(i);
+        }
+    }
+
+    return os;
 }

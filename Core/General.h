@@ -182,15 +182,15 @@ public:
         return WCoefMapper::inverse_mapping.at(coef);
     };
 
-    static std::string flha(WCoef coef) {
+    static std::pair<int, int> flha(WCoef coef) {
         return WCoefMapper::flha_mapping.at(coef);
     };
 
-    static WCoef from_flha(std::string flha_id) {
-        if (WCoefMapper::inverse_flha_mapping.contains(flha_id)) {
-            return WCoefMapper::inverse_flha_mapping.at(flha_id);
+    static WCoef from_flha(int content, int structure) {
+        if (WCoefMapper::inverse_flha_mapping.contains({content, structure})) {
+            return WCoefMapper::inverse_flha_mapping.at({content, structure});
         }
-        LOG_ERROR("General", "Wilson coefficient with ID", flha_id, "is not supported");
+        LOG_ERROR("General", "Wilson coefficient with ID", content, structure, "is not supported");
     };
 
     static std::vector<WCoef> get_group(WGroup group) {
@@ -237,8 +237,8 @@ private:
     static const std::vector<WCoef> b_clnu_group;
     static const std::map<WCoef, std::string> mapping; 
     static const std::map<std::string, WCoef> inverse_mapping; 
-    static const std::map<WCoef, std::string> flha_mapping; 
-    static const std::map<std::string, WCoef> inverse_flha_mapping; 
+    static const std::map<WCoef, std::pair<int, int>> flha_mapping; 
+    static const std::map<std::pair<int, int>, WCoef> inverse_flha_mapping; 
 };
 
 /* !!!! Do not change the order of the first 4 entries !!!! */
@@ -350,6 +350,14 @@ public:
 
 private:
     static const std::map<Observables, std::vector<ParamId>> dep_lists;
+};
+
+class LhaParamsHelper {
+public:
+    static std::vector<std::vector<int>> get_minimal_content(const std::string& block_name);
+
+private:
+    static const std::map<std::string, std::vector<std::vector<int>>> minimal_blocks;
 };
 
 #endif // __GENERAL_H__

@@ -82,6 +82,10 @@ void LhaReader::parse_tokens(std::vector<Token> tokens, bool comments) {
     }
 }
 
+bool LhaReader::hasElement(const std::string &block_id, const LhaID &elt_id) const {
+    return this->hasBlock(block_id) && this->getBlock(block_id)->hasElement(elt_id);
+}
+
 void LhaReader::readAll() {
     std::ifstream file(this->lhaFile.string());
     std::stringstream buffer;
