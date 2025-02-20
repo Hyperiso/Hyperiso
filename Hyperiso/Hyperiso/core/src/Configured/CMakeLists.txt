@@ -10,11 +10,11 @@ if (NOT DEFINED PROJECT_ROOT)
 endif()
 
 if (NOT DEFINED PROJECT_ASSETS_ROOT)
-    set(PROJECT_ASSETS_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/../../../../Assets/)
+    set(PROJECT_ASSETS_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/../../../../../Assets/)
 endif()
 
 if (NOT DEFINED PROJECT_TP_ROOT)
-    set(PROJECT_TP_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/../../../../Third_party/)
+    set(PROJECT_TP_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/../../../../../Third_party/)
 endif()
 
 add_library(ConfiguredModule STATIC dummy.cpp)

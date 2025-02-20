@@ -2,10 +2,13 @@
 #include <fstream>
 #include "MemoryManager.h"
 #include "Logger.h"
+#include "config.hpp"
 #include "CompareCsv.h"
 
 void writeCoefficientsToFile(const std::string& strat_name, const std::string& fileName, double Q_match, const std::string& model) {
     std::ofstream file(fileName);
+
+    std::string root_file = project_root.data();
 
     file << "Q,alpha_s";
     for (int i = 1; i <= 10; ++i) {
@@ -16,15 +19,15 @@ void writeCoefficientsToFile(const std::string& strat_name, const std::string& f
     auto wm = CoefficientManager::GetInstance();
 
     if (model == "SM") {
-        MemoryManager::GetInstance()->init("Test/InputFiles/testinput_thdm.lha", Model::SM);
+        MemoryManager::GetInstance()->init(root_file + "Test/InputFiles/testinput_thdm.lha", Model::SM);
         wm->registerCoefficientGroup("BCoefficient", std::make_shared<BCoefficientGroup>());
     }
     else if (model == "THDM") {
-        MemoryManager::GetInstance()->init("Test/InputFiles/testinput_thdm.lha", Model::THDM);
+        MemoryManager::GetInstance()->init(root_file + "Test/InputFiles/testinput_thdm.lha", Model::THDM);
         wm->registerCoefficientGroup("BCoefficient", std::make_shared<BCoefficientGroup_THDM>());
     }
     else if (model == "SUSY") {
-        MemoryManager::GetInstance()->init("Test/InputFiles/testInput.slha", Model::SUSY);
+        MemoryManager::GetInstance()->init(root_file + "Test/InputFiles/testInput.slha", Model::SUSY);
         wm->registerCoefficientGroup("BCoefficient", std::make_shared<BCoefficientGroup_susy>());
     }
     else {
@@ -58,6 +61,8 @@ void writeCoefficientsToFile(const std::string& strat_name, const std::string& f
 void writeCoefficientsPrimeCQToFile(const std::string& strat_name, const std::string& fileName, double Q_match, const std::string& model) {
     std::ofstream file(fileName);
 
+    std::string root_file = project_root.data();
+
     std::vector<std::string> name {"C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9", "C10", "CQ1", "CQ2", "CP1", "CP2", "CP3", "CP4", "CP5", "CP6", "CP7", "CP8", "CP9", "CP10", "CPQ1", "CPQ2"};
 
     file << "Q,alpha_s";
@@ -69,17 +74,17 @@ void writeCoefficientsPrimeCQToFile(const std::string& strat_name, const std::st
     auto wm = CoefficientManager::GetInstance();
 
     if (model == "SM") {
-        MemoryManager::GetInstance()->init("Test/InputFiles/testinput_thdm.lha", Model::SM);
+        MemoryManager::GetInstance()->init(root_file + "Test/InputFiles/testinput_thdm.lha", Model::SM);
         wm->registerCoefficientGroup("BPrimeCoefficient", std::make_shared<BPrimeCoefficientGroup>());
         wm->registerCoefficientGroup("BScalarCoefficient", std::make_shared<BScalarCoefficientGroup>());    
     }
     else if (model == "THDM") {
-        MemoryManager::GetInstance()->init("Test/InputFiles/testinput_thdm.lha", Model::THDM);
+        MemoryManager::GetInstance()->init(root_file + "Test/InputFiles/testinput_thdm.lha", Model::THDM);
         wm->registerCoefficientGroup("BPrimeCoefficient", std::make_shared<BPrimeCoefficientGroup_THDM>());
         wm->registerCoefficientGroup("BScalarCoefficient", std::make_shared<BScalarCoefficientGroup_THDM>());
     }
     else if (model == "SUSY") {
-        MemoryManager::GetInstance()->init("Test/InputFiles/testInput.slha", Model::SUSY);
+        MemoryManager::GetInstance()->init(root_file + "Test/InputFiles/testInput.slha", Model::SUSY);
         wm->registerCoefficientGroup("BPrimeCoefficient", std::make_shared<BPrimeCoefficientGroup_susy>());
         wm->registerCoefficientGroup("BScalarCoefficient", std::make_shared<BScalarCoefficientGroup_susy>());
     }
@@ -128,6 +133,8 @@ void writeCoefficientsPrimeCQToFile(const std::string& strat_name, const std::st
 void writeRunCoefficientsToFile(const std::string& strat_name, const std::string& fileName, double Q_match, double Q, const std::string& model, int base) {
     std::ofstream file(fileName);
 
+    std::string root_file = project_root.data();
+
     file << "Q,alpha_s";
     for (int i = 1; i <= 10; ++i) {
         file << ",C" << i << "_real,C" << i << "_imag";
@@ -138,20 +145,20 @@ void writeRunCoefficientsToFile(const std::string& strat_name, const std::string
     std::cout << "wtf " << std::endl;
     if (model == "SM") {
         std::cout << "WHAT THE FUCK before" << std::endl;
-        MemoryManager::GetInstance()->init("Test/InputFiles/testinput_thdm.lha", Model::SM);
+        MemoryManager::GetInstance()->init(root_file + "Test/InputFiles/testinput_thdm.lha", Model::SM);
         std::cout << "WHAT THE FUCK" << std::endl;
         std::map<std::string, std::shared_ptr<CoefficientGroup>> temp_map;
         temp_map["BCoefficient"] = std::make_shared<BCoefficientGroup>();
         wm = CoefficientManager::Builder(model, temp_map, Q_match, Q, strat_name);
     }
     else if (model == "THDM") {
-        MemoryManager::GetInstance()->init("Test/InputFiles/testinput_thdm.lha", Model::THDM);
+        MemoryManager::GetInstance()->init(root_file + "Test/InputFiles/testinput_thdm.lha", Model::THDM);
         std::map<std::string, std::shared_ptr<CoefficientGroup>> temp_map;
         temp_map["BCoefficient"] = std::make_shared<BCoefficientGroup_THDM>();
         wm = CoefficientManager::Builder(model, temp_map, Q_match, Q, strat_name);
     }
     else if (model == "SUSY") {
-        MemoryManager::GetInstance()->init("Test/InputFiles/testInput.slha", Model::SUSY);
+        MemoryManager::GetInstance()->init(root_file + "Test/InputFiles/testInput.slha", Model::SUSY);
         std::map<std::string, std::shared_ptr<CoefficientGroup>> temp_map;
         temp_map["BCoefficient"] = std::make_shared<BCoefficientGroup_susy>();
         wm = CoefficientManager::Builder(model, temp_map, Q_match, Q, strat_name);

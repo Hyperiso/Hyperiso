@@ -1,6 +1,7 @@
 #include "MemoryManager.h"
 #include "Parameters.h"
 #include "Logger.h"
+#include "config.hpp"
 #include <iostream>
 #include <cassert>
 
@@ -8,8 +9,10 @@ int main() {
 
     Logger::getInstance()->setLevel(Logger::LogLevel::INFO);
 
+    std::string root_file = project_root.data();
+
     auto mm = MemoryManager::GetInstance();  // Initialize program manager with LHA file containing SMINPUTS block
-    mm->init("Test/InputFiles/testInput.flha", Model::THDM);  // Initialize parameters from given LHA file
+    mm->init(root_file + "Test/InputFiles/testInput.flha", Model::THDM);  // Initialize parameters from given LHA file
 
     auto sm_params = Parameters::GetInstance(ParameterType::THDM); 
     double alpha_s_MZ = std::pow((*sm_params)("GAUGE", 3), 2) / (4 * M_PI);
