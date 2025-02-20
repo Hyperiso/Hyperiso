@@ -75,7 +75,6 @@ class BWilsonBasis(Enum):
     STANDARD = _CppBWilsonBasis.STANDARD
     TRADITIONAL = _CppBWilsonBasis.TRADITIONAL
 
-
 class Observables(Enum):
     BR_BS_MUMU = _CppObservables.BR_BS_MUMU
     BR_BS_MUMU_UNTAG = _CppObservables.BR_BS_MUMU_UNTAG
@@ -85,7 +84,14 @@ class Observables(Enum):
     ISOSPIN_ASYMMETRY_B_KSTAR_GAMMA = _CppObservables.ISOSPIN_ASYMMETRY_B_KSTAR_GAMMA
     BR_B_XS_GAMMA = _CppObservables.BR_B_XS_GAMMA
     BR_B__D_TAU_NU = _CppObservables.BR_B__D_TAU_NU
-    XI__D_L_NU = _CppObservables.XI__D_L_NU
+    A_FB_B__D_TAU_NU = _CppObservables.A_FB_B__D_TAU_NU
+    P_TAU_B__D_TAU_NU = _CppObservables.P_TAU_B__D_TAU_NU
+    R_D = _CppObservables.R_D
+    BR_B__DSTAR_TAU_NU = _CppObservables.BR_B__DSTAR_TAU_NU
+    A_FB_B__DSTAR_TAU_NU = _CppObservables.A_FB_B__DSTAR_TAU_NU
+    P_TAU_B__DSTAR_TAU_NU = _CppObservables.P_TAU_B__DSTAR_TAU_NU
+    P_D_B__DSTAR_TAU_NU = _CppObservables.P_D_B__DSTAR_TAU_NU
+    R_DSTAR = _CppObservables.R_DSTAR
 
 class ParamId:
     def __init__(self, type : ParameterType, block : str, code : int):

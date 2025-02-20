@@ -25,6 +25,7 @@ void init_core(py::module &m) {
         .value("FF", ParameterType::FF)
         .export_values();
         
+    
 
     py::enum_<Observables>(m, "Observables")
         .value("BR_BS_MUMU", Observables::BR_BS_MUMU)
@@ -35,7 +36,14 @@ void init_core(py::module &m) {
         .value("ISOSPIN_ASYMMETRY_B_KSTAR_GAMMA", Observables::ISOSPIN_ASYMMETRY_B_KSTAR_GAMMA)
         .value("BR_B_XS_GAMMA", Observables::BR_B_XS_GAMMA)
         .value("BR_B__D_TAU_NU", Observables::BR_B__D_TAU_NU)
-        .value("XI__D_L_NU", Observables::XI__D_L_NU)
+        .value("A_FB_B__D_TAU_NU", Observables::A_FB_B__D_TAU_NU)
+        .value("P_TAU_B__D_TAU_NU", Observables::P_TAU_B__D_TAU_NU)
+        .value("R_D", Observables::R_D)
+        .value("BR_B__DSTAR_TAU_NU", Observables::BR_B__DSTAR_TAU_NU)
+        .value("A_FB_B__DSTAR_TAU_NU", Observables::A_FB_B__DSTAR_TAU_NU)
+        .value("P_TAU_B__DSTAR_TAU_NU", Observables::P_TAU_B__DSTAR_TAU_NU)
+        .value("P_D_B__DSTAR_TAU_NU", Observables::P_D_B__DSTAR_TAU_NU)
+        .value("R_DSTAR", Observables::R_DSTAR)
         .export_values();
 
     py::enum_<QCDOrder>(m, "QCDOrder")
