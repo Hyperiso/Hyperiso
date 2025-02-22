@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from API.routes import download, auth, generation, parameters, wilson, observables
+from Hyperiso.API.routes import download, auth, generation, parameters, wilson, observables
 
 app = FastAPI(title="HyperISO API")
 

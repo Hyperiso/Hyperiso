@@ -3,20 +3,22 @@ import shutil
 from pathlib import Path
 import sys, os
 sys.path.append(os.path.join(os.getcwd(), "Python"))
-from Python.Phyperiso import Parameters, ParameterType, Model, MemoryManager, ParameterTypeMapper
-from API.utils.ParametersCache import MemoryManagerCache, ParametersCache
+from Hyperiso.Phyperiso import Parameters, ParameterType, Model, MemoryManager, ParameterTypeMapper
+from Hyperiso.API.utils.ParametersCache import MemoryManagerCache, ParametersCache
+from Hyperiso.API.utils.infos import db_path
 from pydantic import BaseModel
-from Python.Phyperiso import WCoeff, WCoefMapper, GroupMapper
+from Hyperiso.Phyperiso import WCoeff, WCoefMapper, GroupMapper
 # mmCache = MemoryManagerCache("Test/InputFiles/testInput.flha", model=Model.SM)
 
 router = APIRouter()
 
+print(db_path)
 LHA_DIR = Path("DataBase/lha/")
 LHA_DIR.mkdir(parents=True, exist_ok=True)
 model = Model.SM
 param_type = ParameterType.SM
 
-mem_cache = MemoryManagerCache("Test/InputFiles/testInput.flha", model)
+mem_cache = MemoryManagerCache("Assets/default/lha/testInput.flha", model)
 
 param_cache = ParametersCache(param_type)
 
@@ -126,7 +128,6 @@ def get_blocks():
 @router.get("/block_info")
 def get_block_info(block : str, param_type : str):
     if param_type == "":
-        print("aAAAAH")
         codes = set()
         possible_param_type = mem_cache.get_type_of_block(block)
         print(possible_param_type)

@@ -1,18 +1,18 @@
 from enum import Enum
-from phyperiso.pyhyperiso import core, wilson, observable
-from phyperiso.pyhyperiso.core import Model as _CppModel
-from phyperiso.pyhyperiso.core import ParameterType as _CppParameterType
-from phyperiso.pyhyperiso.core import Observables as _CppObservables
-from phyperiso.pyhyperiso.core import QCDOrder as _CppQCDOrder
-from phyperiso.pyhyperiso.core import WGroup as _CppWGroup
-from phyperiso.pyhyperiso.core import BWilsonBasis as _CppBWilsonBasis
-from phyperiso.pyhyperiso.core import WCoef as _CppWCoef
-from phyperiso.pyhyperiso.core import ModelMapper as _CppModelMapper
-from phyperiso.pyhyperiso.core import ParameterTypeMapper as _CppParameterTypeMapper
-from phyperiso.pyhyperiso.core import WCoefMapper as _CppWCoefMapper
-from phyperiso.pyhyperiso.core import GroupMapper as _CppGroupMapper
-from phyperiso.pyhyperiso.core import OrderMapper as _CppOrderMapper
-from phyperiso.pyhyperiso.core import ObservableMapper as _CppObservableMapper
+from Hyperiso.Hyperiso.Python.phyperiso.pyhyperiso import core, wilson, observable
+from Hyperiso.Hyperiso.Python.phyperiso.pyhyperiso.core import Model as _CppModel
+from Hyperiso.Hyperiso.Python.phyperiso.pyhyperiso.core import ParameterType as _CppParameterType
+from Hyperiso.Hyperiso.Python.phyperiso.pyhyperiso.core import Observables as _CppObservables
+from Hyperiso.Hyperiso.Python.phyperiso.pyhyperiso.core import QCDOrder as _CppQCDOrder
+from Hyperiso.Hyperiso.Python.phyperiso.pyhyperiso.core import WGroup as _CppWGroup
+from Hyperiso.Hyperiso.Python.phyperiso.pyhyperiso.core import BWilsonBasis as _CppBWilsonBasis
+from Hyperiso.Hyperiso.Python.phyperiso.pyhyperiso.core import WCoef as _CppWCoef
+from Hyperiso.Hyperiso.Python.phyperiso.pyhyperiso.core import ModelMapper as _CppModelMapper
+from Hyperiso.Hyperiso.Python.phyperiso.pyhyperiso.core import ParameterTypeMapper as _CppParameterTypeMapper
+from Hyperiso.Hyperiso.Python.phyperiso.pyhyperiso.core import WCoefMapper as _CppWCoefMapper
+from Hyperiso.Hyperiso.Python.phyperiso.pyhyperiso.core import GroupMapper as _CppGroupMapper
+from Hyperiso.Hyperiso.Python.phyperiso.pyhyperiso.core import OrderMapper as _CppOrderMapper
+from Hyperiso.Hyperiso.Python.phyperiso.pyhyperiso.core import ObservableMapper as _CppObservableMapper
 
 
 class Model(Enum):

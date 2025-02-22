@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Query
-from Python.Phyperiso import ObservableInterface, ObservableMapper, OrderMapper
+from Hyperiso.Phyperiso import ObservableInterface, ObservableMapper, OrderMapper
 router = APIRouter()
 
 mock_observables = {
