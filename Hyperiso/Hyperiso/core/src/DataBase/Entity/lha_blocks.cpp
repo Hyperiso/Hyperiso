@@ -1,6 +1,7 @@
 #include "lha_blocks.h"
 
 AbstractElement* LhaBlock::get(const LhaID& id) const {
+    LOG_DEBUG("Trying to retrieve element", id, "within block", this->prototype.blockName);
     auto p = [id](const std::shared_ptr<AbstractElement>& e) { 
         return e->getId() == id; 
     };

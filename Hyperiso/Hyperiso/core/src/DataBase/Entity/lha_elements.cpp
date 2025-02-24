@@ -47,11 +47,11 @@ LhaElement<T>::LhaElement(const Prototype& prototype, const std::vector<std::str
 
 template <typename T>
 LhaID LhaElement<T>::encodeId(const Prototype& prototype, const std::vector<std::string>& line) {
-    std::vector<int> sub_ids;
+    std::vector<long> sub_ids;
     for (size_t i=0; i!=line.size(); ++i) {
         if (i != prototype.valueIdx && i != prototype.scaleIdx && i != prototype.rgIdx) {
             if (prototype.globalScale && i == 0) continue;
-            sub_ids.emplace_back(std::stoi(line.at(i)));
+            sub_ids.emplace_back(std::stol(line.at(i)));
         }
     }
     return LhaID(sub_ids);

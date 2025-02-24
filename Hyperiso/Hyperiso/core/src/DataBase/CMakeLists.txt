@@ -23,10 +23,10 @@ add_library(DataBaseLib STATIC
     Parser/json_parser.cpp
     Parser/lha_parser.cpp
     Parser/Parser.cpp
-    )
+)
 
 set_target_properties(DataBaseLib PROPERTIES POSITION_INDEPENDENT_CODE ON)
-# set_target_properties(DataBaseLib PROPERTIES PUBLIC_HEADER "Entity/JsonParameters.h;Service/MappingDataBase.h;Entity/lha_elements.h;Entity/lha_blocks.h;Service/lha_reader.h;Parser/json_parser.h;Parser/lha_parser.h")
+set_target_properties(DataBaseLib PROPERTIES PUBLIC_HEADER "Service/lha_reader.h")
 
 target_include_directories(DataBaseLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_include_directories(DataBaseLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/Entity)

@@ -354,10 +354,10 @@ private:
 
 class LhaParamsHelper {
 public:
-    static std::vector<std::vector<int>> get_minimal_content(const std::string& block_name);
+    static std::vector<std::vector<long>> get_minimal_content(const std::string& block_name);
 
 private:
-    static const std::map<std::string, std::vector<std::vector<int>>> minimal_blocks;
+    static const std::map<std::string, std::vector<std::vector<long>>> minimal_blocks;
 };
 
 #endif // __GENERAL_H__
