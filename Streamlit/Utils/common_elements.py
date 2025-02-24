@@ -162,7 +162,7 @@ def apply_custom_css():
     st.markdown(
         """
         <style>
-        .stSelectbox, .stTextInput, .stNumberInput, .stButton, .success, .stAlert {
+        .stSelectbox, .stTextInput, .stNumberInput, .stButton, .success, .stAlert .stMultiselect {
             width: 100%;
             padding: 30px;
             float: left;
@@ -176,7 +176,7 @@ def apply_custom_css_normal():
     st.markdown(
         """
         <style>
-        .Selectbox, .TextInput, .NumberInput, .Button, .success, .Alert {
+        .Selectbox, .TextInput, .NumberInput, .Button, .success, .Alert .stMultiselect {
             width: 100%;
             padding: 30px;
             float: left;

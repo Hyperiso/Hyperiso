@@ -13,7 +13,7 @@ from Hyperiso.Phyperiso import WCoeff, WCoefMapper, GroupMapper
 router = APIRouter()
 
 print(db_path)
-LHA_DIR = Path("DataBase/lha/")
+LHA_DIR = Path("Assets/lha/")
 LHA_DIR.mkdir(parents=True, exist_ok=True)
 model = Model.SM
 param_type = ParameterType.SM

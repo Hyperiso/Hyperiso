@@ -45,7 +45,7 @@ if "hist_code_list" not in st.session_state:
 if "pdg_code_list" not in st.session_state:
     st.session_state.pdg_code_list = None
 
-def list_lha_files(directory="DataBase/lha/"):
+def list_lha_files(directory="Assets/lha/"):
     if not os.path.exists(directory):
         return []
     return [f for f in os.listdir(directory) if os.path.isfile(os.path.join(directory, f))]
@@ -55,7 +55,7 @@ def on_new_infos():
         return
     response = requests.post(
         f"{BASE_API_URL}/parameters/set_memory_manager",
-        json={"lha_file": os.path.join("DataBase/lha",st.session_state.selected_file), "model": st.session_state.selected_model,
+        json={"lha_file": os.path.join("Assets/lha",st.session_state.selected_file), "model": st.session_state.selected_model,
               "use_marty": st.session_state.use_marty,
         "is_spectrum": st.session_state.is_spectrum,
         "has_wilsons": st.session_state.has_wilson,
@@ -73,12 +73,12 @@ def on_new_slha():
     selected_file = st.session_state.selected_file
     model = st.session_state.selected_model
     print(os.getcwd())
-    print(os.path.join("DataBase/lha", selected_file))
-    if not os.path.exists("DataBase/lha",selected_file):
+    print(os.path.join("Assets/lha", selected_file))
+    if not os.path.exists("Assets/lha",selected_file):
         return
     response = requests.post(
         f"{BASE_API_URL}/parameters/set_memory_manager",
-        json={"lha_file": os.path.join("DataBase/lha",selected_file), "model": model, "use_marty": False,
+        json={"lha_file": os.path.join("Assets/lha",selected_file), "model": model, "use_marty": False,
         "is_spectrum": False,
         "has_wilsons": False,
         "has_obs": False}
@@ -100,7 +100,7 @@ def on_new_model():
     model = st.session_state.selected_model
     response = requests.post(
         f"{BASE_API_URL}/parameters/set_lha_model",
-        json={"lha_file": os.path.join("DataBase/lha",selected_file), "model": model, "use_marty": False,
+        json={"lha_file": os.path.join("Assets/lha",selected_file), "model": model, "use_marty": False,
         "is_spectrum": False,
         "has_wilsons": False,
         "has_obs": False}
@@ -129,7 +129,7 @@ def app():
     if st.sidebar.button("Clean Directory"):
         lha_files = list_lha_files()
         for f in lha_files:
-            os.remove(os.path.join("DataBase/lha/", f))
+            os.remove(os.path.join("Assets/lha/", f))
         st.sidebar.success("Directory cleaned!")
 
     if not st.session_state.paramtype_options:
@@ -151,7 +151,7 @@ def app():
         if selected_model:
             st.text(f"Current model : {selected_model}")
         if selected_file:
-            file_path = os.path.join("DataBase/lha/", selected_file)
+            file_path = os.path.join("Assets/lha/", selected_file)
             st.text(f"Contents of {selected_file}:")
             with open(file_path, "r") as f:
                 st.code(f.read(), language="plaintext")
@@ -258,7 +258,7 @@ def app():
                     continue
                 response = requests.post(
                     f"{BASE_API_URL}/parameters/set_memory_manager",
-                    json={"lha_file": os.path.join("DataBase/lha",lha_file), "model": model, "use_marty": False,
+                    json={"lha_file": os.path.join("Assets/lha",lha_file), "model": model, "use_marty": False,
                     "is_spectrum": False,
                     "has_wilsons": False,
                     "has_obs": False}
