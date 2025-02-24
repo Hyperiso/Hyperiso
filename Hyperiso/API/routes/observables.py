@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Query
-from Python.Phyperiso import ObservableInterface, ObservableMapper, OrderMapper
+from Hyperiso.Phyperiso import ObservableInterface, ObservableMapper, OrderMapper, Observables
 router = APIRouter()
 
 mock_observables = {
@@ -14,13 +14,18 @@ def calculate_observable(name: str):
     """Observable calculation."""
     if name not in ObservableMapper.get_model_str_list():
         return {"error": f"Observable {name} not found"}
-    return {"name": name, "value": obs_interface.compute_observable(ObservableMapper.enum_elt(name))}
+    return {"name": name, "value": obs_interface.compute_observable(Observables(ObservableMapper.enum_elt(name)))}
+
+@router.get("/get_obs_names")
+def get_obs_names():
+    return {"obs_names" : ObservableMapper.get_model_str_list()}
 
 @router.post("/add_observable")
 def add_observable(obs : str, order : str):
     obs_enum = ObservableMapper.enum_elt(obs)
     order_enum = OrderMapper.enum_elt(order)
-
+    print(obs, order)
+    print(obs_enum, order_enum)
     obs_interface.add_observable(obs_enum, order_enum)
     return {"message": f"Observable {obs} added in ObservableInterface with order {order}"}
 

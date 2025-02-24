@@ -134,3 +134,11 @@ if (ENABLE_TESTS)
     enable_testing()
     add_subdirectory(Test)
 endif()
+
+if (NOT DEFINED BUILD_WITH_PYTHON)
+    option(BUILD_WITH_PYTHON "Build project with PYTHON support" OFF)
+endif()
+
+if (BUILD_WITH_PYTHON)
+    add_subdirectory(src/Python pyhyperiso)
+endif()

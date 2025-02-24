@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Query
-from Python.Phyperiso import WilsonManager, Model, ParameterType
-from Python.Phyperiso import BCoefficientGroup, BScalarCoefficientGroup, BPrimeCoefficientGroup
-from API.utils.ParametersCache import MemoryManagerCache, ParametersCache
+from Hyperiso.Phyperiso import WilsonManager, Model, ParameterType
+from Hyperiso.Phyperiso import BCoefficientGroup, BScalarCoefficientGroup, BPrimeCoefficientGroup
+from Hyperiso.API.utils.ParametersCache import MemoryManagerCache, ParametersCache
 from pydantic import BaseModel
 
 router = APIRouter()
