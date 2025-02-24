@@ -89,7 +89,7 @@ public:
      * @param id Parts of the identifier of the element.
      * @return `true` if the given element is present in the block, `false` otherwise.
      */
-    bool hasElement(const std::vector<int>& id) const { return hasElement(LhaID(id)); };
+    bool hasElement(const std::vector<long>& id) const { return hasElement(LhaID(id)); };
 
     /**
      * @brief Retrieves an element by its identifier.
@@ -103,7 +103,7 @@ public:
      * @param id Parts of the identifier of the element.
      * @return Pointer to the `AbstractElement` if found; otherwise, `nullptr`.
      */
-    AbstractElement* get(const std::vector<int>& id) const { return get(LhaID(id)); }
+    AbstractElement* get(const std::vector<long>& id) const { return get(LhaID(id)); }
 
     /**
      * @brief Retrieves all entries in the block.

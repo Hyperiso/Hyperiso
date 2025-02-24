@@ -26,25 +26,25 @@ struct Prototype {
  * @brief Represents an identifier of a LHA element, possibly containing several sub-ids 
  */
 struct LhaID {
-    std::vector<int> parts;     /**< Collection of sub-ids. */
+    std::vector<long> parts;     /**< Collection of sub-ids. */
 
     /**
      * @brief Constructs a LhaID with specified sub-ids
      * @param parts List of sub-ids of the element
      */
-    LhaID(const std::vector<int>& parts) : parts(std::move(parts)) {}
+    LhaID(const std::vector<long>& parts) : parts(std::move(parts)) {}
 
     /**
      * @brief Constructs a LhaID with a single identifier
      * @param id Identifier of the element
      */
-    LhaID(int id) : parts({id}) {}
+    LhaID(long id) : parts({id}) {}
 
     
     /**
      * @brief Allows for implicit conversion of a trivial LhaID to an integer 
      */
-    operator int() const {
+    operator long() const {
         if (this->parts.size() > 1) {
             LOG_WARN("Casting nontrivial LhaID to int discards information.");
         }

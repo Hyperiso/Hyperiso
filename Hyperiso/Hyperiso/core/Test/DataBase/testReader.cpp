@@ -7,7 +7,6 @@ int main() {
     Logger* logger = Logger::getInstance();
     logger->setLevel(Logger::LogLevel::DEBUG);
 
-    LOG_WARN("Warning message with multiple", "arguments", 123, 45.6);
     std::string root_path = project_root.data();
     LhaReader reader(root_path + "Test/InputFiles/testInput.flha");
     reader.addBlockType("testadd", 2, 1);
@@ -17,7 +16,8 @@ int main() {
     assert(reader.getBlockCount() == 13);
     
     // Check complex ID and global scale parsing
-    auto wilsonC1 = static_cast<LhaElement<double>*>(reader.getBlock("FWCOEF")->get({03040405, 6161, 00, 2}));
+    auto wilsonC1 = static_cast<LhaElement<double>*>(reader.getBlock("FWCOEF")->get({3040405L, 6161, 00, 2}));
+    LOG_INFO(wilsonC1);
     assert(wilsonC1->getValue() == 0.);
     assert(wilsonC1->getScale() == 1.60846e+02);
 

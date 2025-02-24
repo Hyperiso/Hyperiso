@@ -1,6 +1,4 @@
 #include "Parameters.h"
-#include <ranges>
-#include <algorithm>
 
 std::string doubleToString(double value, int precision) {
 	std::ostringstream out;
@@ -47,7 +45,7 @@ void overwrite_from_lha(std::shared_ptr<MapBlock> block, LhaReader* reader) {
     if (!reader->hasBlock(block->blockname)) 
         return;
 
-    for (const std::vector<int> sub_ids : LhaParamsHelper::get_minimal_content(block->blockname)) {
+    for (const std::vector<long> sub_ids : LhaParamsHelper::get_minimal_content(block->blockname)) {
         LhaID id {sub_ids};
         if (reader->hasElement(block->blockname, id)) {
             block->setValue(id, reader->getValue<double>(block->blockname, id));
@@ -204,7 +202,7 @@ void SMModelStrategy::initializeParameters(Parameters& params) {
     params.setBlockValue("GAUGE", 3, std::sqrt(4 * M_PI * alpha_s_MZ)); // gs_MZ
     params.setBlockValue("GAUGE", 4, std::sqrt(4 * M_PI / inv_alpha_em)); // e_em
 
-    std::string assets_path = project_assets_root.data();;
+    std::string assets_path = project_assets_root.data();
     JSONParser::getInstance(0)->saveToFile(assets_path + "savestate/parameters_SM.json");
 }
 

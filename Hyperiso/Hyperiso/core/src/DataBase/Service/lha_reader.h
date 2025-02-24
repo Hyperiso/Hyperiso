@@ -57,7 +57,7 @@ public:
      */
     bool hasElement(const std::string& block_id, const LhaID& elt_id) const;
 
-    bool hasElement(const std::string& block_id, const std::vector<int>& elt_id) const { return hasElement(block_id, LhaID(elt_id)); }
+    bool hasElement(const std::string& block_id, const std::vector<long>& elt_id) const { return hasElement(block_id, LhaID(elt_id)); }
 
     /**
      * @brief Reads all blocks from the LHA file.
@@ -121,7 +121,7 @@ public:
     }
 
     template <typename T>
-    inline void extractFromBlock(std::string blockName, std::vector<T>& vars, const std::vector<int>& ids) {
+    inline void extractFromBlock(std::string blockName, std::vector<T>& vars, const std::vector<long>& ids) {
         LhaBlock* block = this->getBlock(blockName);
         if (block) {
             for (size_t i=0; i < vars.size(); ++i) {
@@ -176,7 +176,7 @@ public:
     }
 
     template <typename T>
-    inline T getValue(const std::string& blockName, const std::vector<int>& eltId) {
+    inline T getValue(const std::string& blockName, const std::vector<long>& eltId) {
         return getValue<T>(blockName, LhaID(eltId));
     }
 

@@ -19,7 +19,7 @@ const std::map<QCDOrder, std::string> OrderMapper::mapping = {
 const std::map<std::string, QCDOrder> OrderMapper::inverse_mapping = {
     {"None", QCDOrder::NONE}, 
     {"LO", QCDOrder::LO}, 
-    {"NLO", QCDOrder::NLO}, 
+    {"NLO", QCDOrder::NLO},
     {"NNLO", QCDOrder::NNLO}
 };
 
@@ -58,57 +58,57 @@ const std::map<WCoef, std::string> WCoefMapper::mapping = {
 };
 
 const std::map<WCoef, std::pair<int, int>> WCoefMapper::flha_mapping = {
-    {WCoef::C1, {03040405, 6161}},
-    {WCoef::C2, {03040405, 4141}},
-    {WCoef::C3, {03050707, 4133}},
-    {WCoef::C4, {03050707, 6153}},
-    {WCoef::C5, {03050707, 4536}},
-    {WCoef::C6, {03050707, 6556}},
-    {WCoef::C7, {00000305, 4422}},
-    {WCoef::C8, {00000305, 6421}},
-    {WCoef::C9, {03051313, 4133}},
-    {WCoef::C10, {03051313, 4137}},
-    {WCoef::CP1, {03040405, 6262}},
-    {WCoef::CP2, {03040405, 4242}},
-    {WCoef::CP3, {03050707, 4233}},
-    {WCoef::CP4, {03050707, 6253}},
-    {WCoef::CP5, {03050707, 4636}},
-    {WCoef::CP6, {03050707, 6656}},
-    {WCoef::CP7, {00000305, 4322}},
-    {WCoef::CP8, {00000305, 4321}},
-    {WCoef::CP9, {03051313, 4233}},
-    {WCoef::CP10, {03051313, 4234}},
-    {WCoef::CQ1, {03051313, 3230}},
-    {WCoef::CQ2, {03051313, 3233}},
-    {WCoef::CPQ1, {03051313, 3130}},
-    {WCoef::CPQ2, {03051313, 3133}}, 
+    {WCoef::C1, {3040405, 6161}},
+    {WCoef::C2, {3040405, 4141}},
+    {WCoef::C3, {3050707, 4133}},
+    {WCoef::C4, {3050707, 6153}},
+    {WCoef::C5, {3050707, 4536}},
+    {WCoef::C6, {3050707, 6556}},
+    {WCoef::C7, {305, 4422}},
+    {WCoef::C8, {305, 6421}},
+    {WCoef::C9, {3051313, 4133}},
+    {WCoef::C10, {3051313, 4137}},
+    {WCoef::CP1, {3040405, 6262}},
+    {WCoef::CP2, {3040405, 4242}},
+    {WCoef::CP3, {3050707, 4233}},
+    {WCoef::CP4, {3050707, 6253}},
+    {WCoef::CP5, {3050707, 4636}},
+    {WCoef::CP6, {3050707, 6656}},
+    {WCoef::CP7, {305, 4322}},
+    {WCoef::CP8, {305, 4321}},
+    {WCoef::CP9, {3051313, 4233}},
+    {WCoef::CP10, {3051313, 4234}},
+    {WCoef::CQ1, {3051313, 3230}},
+    {WCoef::CQ2, {3051313, 3233}},
+    {WCoef::CPQ1, {3051313, 3130}},
+    {WCoef::CPQ2, {3051313, 3133}}, 
 };
 
 const std::map<std::pair<int, int>, WCoef> WCoefMapper::inverse_flha_mapping = {
-    {{03040405, 6161}, WCoef::C1},
-    {{03040405, 4141}, WCoef::C2},
-    {{03050707, 4133}, WCoef::C3},
-    {{03050707, 6153}, WCoef::C4},
-    {{03050707, 4536}, WCoef::C5},
-    {{03050707, 6556}, WCoef::C6},
-    {{00000305, 4422}, WCoef::C7},
-    {{00000305, 6421}, WCoef::C8},
-    {{03051313, 4133}, WCoef::C9},
-    {{03051313, 4137}, WCoef::C10},
-    {{03040405, 6262}, WCoef::CP1},
-    {{03040405, 4242}, WCoef::CP2},
-    {{03050707, 4233}, WCoef::CP3},
-    {{03050707, 6253}, WCoef::CP4},
-    {{03050707, 4636}, WCoef::CP5},
-    {{03050707, 6656}, WCoef::CP6},
-    {{00000305, 4322}, WCoef::CP7},
-    {{00000305, 4321}, WCoef::CP8},
-    {{03051313, 4233}, WCoef::CP9},
-    {{03051313, 4234}, WCoef::CP10},
-    {{03051313, 3230}, WCoef::CQ1},
-    {{03051313, 3233}, WCoef::CQ2},
-    {{03051313, 3130}, WCoef::CPQ1},
-    {{03051313, 3133}, WCoef::CPQ2}, 
+    {{3040405, 6161}, WCoef::C1},
+    {{3040405, 4141}, WCoef::C2},
+    {{3050707, 4133}, WCoef::C3},
+    {{3050707, 6153}, WCoef::C4},
+    {{3050707, 4536}, WCoef::C5},
+    {{3050707, 6556}, WCoef::C6},
+    {{305, 4422}, WCoef::C7},
+    {{305, 6421}, WCoef::C8},
+    {{3051313, 4133}, WCoef::C9},
+    {{3051313, 4137}, WCoef::C10},
+    {{3040405, 6262}, WCoef::CP1},
+    {{3040405, 4242}, WCoef::CP2},
+    {{3050707, 4233}, WCoef::CP3},
+    {{3050707, 6253}, WCoef::CP4},
+    {{3050707, 4636}, WCoef::CP5},
+    {{3050707, 6656}, WCoef::CP6},
+    {{305, 4322}, WCoef::CP7},
+    {{305, 4321}, WCoef::CP8},
+    {{3051313, 4233}, WCoef::CP9},
+    {{3051313, 4234}, WCoef::CP10},
+    {{3051313, 3230}, WCoef::CQ1},
+    {{3051313, 3233}, WCoef::CQ2},
+    {{3051313, 3130}, WCoef::CPQ1},
+    {{3051313, 3133}, WCoef::CPQ2}, 
 };
 
 const std::map<std::string, WCoef> WCoefMapper::inverse_mapping = {
@@ -608,13 +608,13 @@ bool DependenciesHelper::is_param_allowed(Observables id, ParamId pid) {
     return std::find(allowed.begin(), allowed.end(), pid) != allowed.end();
 }
 
-const std::map<std::string, std::vector<std::vector<int>>> LhaParamsHelper::minimal_blocks = {
+const std::map<std::string, std::vector<std::vector<long>>> LhaParamsHelper::minimal_blocks = {
     {"FMASS", {{211}, {321}, {323}, {411}, {421}, {423}, {431}, {511}, {521}, {531}}},
     {"FLIFE", {{211}, {321}, {323}, {411}, {421}, {431}, {511}, {521}, {531}}},
     {"FCONST", {{511, 1}, {521, 1}, {531, 1}, {323, 1}, {323, 2}}},
 };
 
-std::vector<std::vector<int>> LhaParamsHelper::get_minimal_content(const std::string &block_name) {
+std::vector<std::vector<long>> LhaParamsHelper::get_minimal_content(const std::string &block_name) {
     if (LhaParamsHelper::minimal_blocks.contains(block_name)) {
         return LhaParamsHelper::minimal_blocks.at(block_name);
     }

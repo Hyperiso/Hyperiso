@@ -11,10 +11,14 @@
 
 #include "BlockAccessor.h"
 #include "MemoryManager.h"
+#include "lha_reader.h"
 #include "Interface.h"
 #include "json_parser.h"
 #include "QCDHelper.h"
+#include "config.hpp"
 #include <memory>
+#include <ranges>
+#include <algorithm>
 
 typedef std::complex<double> complex_t; 
 
