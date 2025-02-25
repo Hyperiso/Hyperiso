@@ -1,6 +1,8 @@
 #include "MemoryManager.h"
 #include "Parameters.h"
+#include "Parser.h"
 #include <filesystem>
+#include "BlocksCreator.h"
 
 namespace fs = std::filesystem;
 
@@ -16,7 +18,6 @@ void MemoryManager::check_if_ready() {
     }
 }
 
-
 MemoryManager* MemoryManager::GetInstance() {
     if (!MemoryManager::instance) {
         MemoryManager::instance = new MemoryManager();
@@ -24,37 +25,54 @@ MemoryManager* MemoryManager::GetInstance() {
     return MemoryManager::instance;
 }
 
-LhaReader* MemoryManager::getReader() {
-    check_if_ready();
-    return cache.reader.get();
-}
-
 void MemoryManager::init(const std::string& lhaFile, Model model, bool use_marty, bool is_spectrum, bool has_wilsons, bool has_obs) {
     if (cache.is_ready) {
         LOG_WARN("MemoryManager has already been initialized.");
         return;
     }
-    const std::filesystem::path path(lhaFile);
-    const std::filesystem::path dir_path(project_assets_root.data());
-    std::filesystem::path full_path;
-    if (path.is_relative()) {
-        full_path = dir_path/path;
-    } else if (path.is_absolute()) {
-        full_path = path;
-    } else {
-        LOG_ERROR("PathError", "File not relative or absolute");
+
+    /* Default input */
+
+    auto json_parser = ParserFactory::createParser(ParserFactory::Type::JSON);
+    auto default_param_values_root = json_parser->readFromFile(FilePaths::default_param_values_path.string());
+    // TODO : insert file check here
+    auto param_values_ba = BlocksCreator::from_db_node(default_param_values_root); 
+    // DBMemento::Snapshot(param_values_ba, "DEFAULT");
+
+    std::cout << param_values_ba;
+
+    // TODO : read default correlations between params
+    // TODO : read default observable values and correlations
+
+    /* User input */
+
+    auto yaml_parser = ParserFactory::createParser(ParserFactory::Type::YAML);
+    fs::path ui_paths[3] = {FilePaths::user_sm_params_path, FilePaths::user_flavor_params_path, FilePaths::user_decay_params_path};
+    for (auto& path : ui_paths) {
+        auto ui_root = json_parser->readFromFile(path.string());
+        auto ui_ba = BlocksCreator::from_db_node(ui_root); 
+        param_values_ba = ui_ba >> param_values_ba;
     }
-    if (!std::filesystem::exists(full_path)) {
-        LOG_ERROR("PathError", "Invalid lha path :", full_path.string());
-    }
-    LOG_INFO("lha path", full_path);
-    std::stringstream ss;
-    ss << full_path.string();
-    cache.reader = std::make_shared<LhaReader>(LhaReader(ss.str()));
-    cache.reader->readAll();
-    cache.lha_path = std::filesystem::u8path(ss.str());
-    cache.obs_cov_path = std::filesystem::u8path(project_assets_root.data() + std::string("default/observables_exp.json"));
-    cache.param_cov_path = std::filesystem::u8path(project_assets_root.data() + std::string("default/parameters_exp.json"));
+    // DBMemento::Snapshot(param_values_ba, "USER_INPUT");
+
+    std::cout << param_values_ba;
+
+    // TODO : read user correlations between params
+    // TODO : read user observable values and correlations
+
+    /* LHA input */
+
+    fs::path lha_path = format_lha_path(lhaFile);
+    auto lha_reader = std::make_shared<LhaReader>(LhaReader(lha_path.string()));
+    lha_reader->readAll();
+
+    auto lha_param_ba = BlocksCreator::from_lha_reader(lha_reader);
+    param_values_ba = lha_param_ba >> param_values_ba;
+    // DBMemento::Snapshot(param_values_ba, "LHA");
+
+    std::cout << param_values_ba;
+
+    cache.lha_path = lha_path;
     cache.model = model;
     cache.is_spectrum = is_spectrum;
     cache.has_wilsons = has_wilsons;
@@ -83,7 +101,26 @@ void MemoryManager::switch_lha(const std::string& lhaFile, Model model, bool use
     this->cache.is_ready = false;
     this->init(lhaFile, model, use_marty, is_spectrum, has_wilsons, has_obs);
     this->cache.param_cache_okay = false;
+}
 
+fs::path MemoryManager::format_lha_path(const std::string &path) {
+    const fs::path input_path(path);
+    const fs::path assets_dir(project_assets_root.data());
+    fs::path full_path;
+    if (input_path.is_relative()) { // Path is specified relative to Assets/
+        full_path = assets_dir/path;
+    } else if (input_path.is_absolute()) {
+        full_path = path;
+    } else {
+        LOG_ERROR("MemoryManager", "LHA File path is undefined:", path);
+    }
+
+    if (!std::filesystem::exists(full_path)) {
+        LOG_ERROR("MemoryManager", "Cannot find LHA File:", full_path.string());
+    }
+
+    LOG_DEBUG("LHA File path:", full_path);
+    return full_path;
 }
 
 void MemoryManager::switch_model(Model model, bool use_marty) {
@@ -92,14 +129,6 @@ void MemoryManager::switch_model(Model model, bool use_marty) {
     this->cache.parameter_types.push_back(static_cast<ParameterType>(static_cast<int>(model)));
     Parameters::GetInstance(static_cast<ParameterType>(static_cast<int>(model)));
     this->cache.param_cache_okay = false;
-}
-
-void MemoryManager::set_observable_covariance_input_file(const std::string &path) {
-    cache.obs_cov_path = path;
-}
-
-void MemoryManager::set_parameter_covariance_input_file(const std::string &path) {
-    cache.param_cov_path = path;
 }
 
 std::map<int, double> MemoryManager::get_block_infos(const std::string& block, ParameterType param_type) {

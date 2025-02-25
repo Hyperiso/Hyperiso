@@ -2,6 +2,13 @@
 
 Node::Node() = default;
 
+std::vector<std::string> Node::get_keys() {
+    std::vector<std::string> keys;
+    for (auto& [k, _] : this->data_)
+        keys.emplace_back(k);
+    return keys;
+}
+
 template <typename... Keys>
 Node::Value Node::get(Keys&&... keys) const {
     return getRecursive(data_, std::forward<Keys>(keys)...);

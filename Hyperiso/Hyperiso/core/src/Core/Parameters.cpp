@@ -118,7 +118,7 @@ std::map<int, double> Parameters::get_block_infos(std::string blockName) {
 
 
 std::vector<std::string> Parameters::get_blocks_list() {
-    return blockAccessor.get_blocks();
+    return blockAccessor.get_block_names();
 }
 
 complex_t Parameters::get_c_CKM_entry(int idx) {
