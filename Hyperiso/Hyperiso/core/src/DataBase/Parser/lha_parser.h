@@ -50,13 +50,13 @@ struct Token {
  * @class Parser
  * @brief Parses LHA files and extracts blocks of data.
  */
-class Parser {
+class LhaParser {
     public:
         /**
          * @brief Constructs a Parser with the given source and reader.
          * @param src Source string to be parsed.
          */
-        inline explicit Parser(std::string src) : src(std::move(src)) {}
+        inline explicit LhaParser(std::string src) : src(std::move(src)) {}
 
         /**
          * @brief Retrieves parsed tokens.

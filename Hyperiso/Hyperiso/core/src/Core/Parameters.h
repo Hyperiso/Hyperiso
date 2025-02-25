@@ -204,11 +204,10 @@ private:
     /** @brief Cache for storing original parameter values before modifications. */
     std::map<std::pair<std::string, int>, double> originalValuesCache;
 
-    /** @brief Block accessor for managing parameter blocks. */
-    BlockAccessor blockAccessor;
-
     /** @brief Strategy used for parameter management. */
     std::shared_ptr<ModelStrategy> strategy;
+
+    BlockAccessor blockAccessor;
 
     /** @brief Factory friend. */
     friend class ParametersFactory;

@@ -9,7 +9,7 @@ double MapBlock::getValue(LhaID id) const {
 }
 
 void MapBlock::setValue(LhaID id, double value, bool force) {
-    JSONParser::getInstance(0)->addElement(this->blockname.substr(0, this->blockname.size()-5), id, value);
+    // JSONParser::getInstance(0)->addElement(this->blockname.substr(0, this->blockname.size()-5), id, value);
     Parameter param (ParamId {ParameterType::CUSTOM, this->blockname.substr(0, this->blockname.size()-5), id}, value, 0, 0);
     if (force) {
         values[id] = param;
@@ -19,7 +19,7 @@ void MapBlock::setValue(LhaID id, double value, bool force) {
 }
 
 void MapBlock::setDeviation(LhaID id, double std_stat, double std_syst, bool force) {
-    JSONParser::getInstance(0)->addElement(this->blockname.substr(0, this->blockname.size()-5), id, std_stat);
+    // JSONParser::getInstance(0)->addElement(this->blockname.substr(0, this->blockname.size()-5), id, std_stat);
     values[id].set_std(std_stat, std_syst);
 }
 

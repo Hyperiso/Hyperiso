@@ -1,6 +1,6 @@
 #include "lha_parser.h"
 
-void Parser::tokenize() {
+void LhaParser::tokenize() {
     int cLine = 0;
     int cCol = 0;
 

@@ -73,10 +73,27 @@ std::shared_ptr<Node> JSONParser::parseArray(const std::string& input, size_t& i
 
 double JSONParser::parseNumber(const std::string& input, size_t& index) const {
     std::string num;
-    while (index < input.size() && (isdigit(input[index]) || input[index] == '.')) {
+    bool hasDecimal = false;
+    bool hasExponent = false;
+
+    while (index < input.size() && (isdigit(input[index]) || input[index] == '.' || input[index] == 'e' || input[index] == 'E' || input[index] == '-' || input[index] == '+')) {
+        if (input[index] == '.') {
+            if (hasDecimal || hasExponent) break;
+            hasDecimal = true;
+        } else if (input[index] == 'e' || input[index] == 'E') {
+            if (hasExponent) break;
+            hasExponent = true;
+            if (index + 1 < input.size() && (input[index + 1] == '-' || input[index + 1] == '+')) {
+                num += input[index++];
+            }
+        }
         num += input[index++];
     }
-    return std::stod(num);
+    try {
+        return std::stod(num);
+    } catch (...) {
+        throw std::runtime_error("Invalid number format in JSON");
+    }
 }
 
 void JSONParser::skipWhitespace(const std::string& input, size_t& index) const {
@@ -95,6 +112,7 @@ void JSONParser::writeToFile(const std::string& filename, const std::shared_ptr<
 
 std::shared_ptr<Node> JSONParser::readFromFile(const std::string& filename) const {
     std::ifstream file(filename);
+    LOG_INFO("File path:", filename);
     if (!file.is_open()) throw std::runtime_error("Unable to open file for reading");
 
     std::ostringstream oss;

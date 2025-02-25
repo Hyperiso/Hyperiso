@@ -32,15 +32,14 @@ endif()
 add_library(CoreLib STATIC 
     MemoryManager.cpp
     Parameters.cpp
-    General.cpp
     Parameter.cpp
     Block.cpp
     BlockAccessor.cpp
-    # QCDParameters.cpp
+    BlocksCreator.cpp
     QCDHelper.cpp)
 set_target_properties(CoreLib PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
-set_target_properties(CoreLib PROPERTIES PUBLIC_HEADER "MemoryManager.h;Parameters.h;Parameter.h;QCDHelper.h")
+set_target_properties(CoreLib PROPERTIES PUBLIC_HEADER "MemoryManager.h;Parameters.h;Parameter.h;QCDHelper.h;BlocksCreator.h;BlockAccessor.h")
 
 target_include_directories(CoreLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 

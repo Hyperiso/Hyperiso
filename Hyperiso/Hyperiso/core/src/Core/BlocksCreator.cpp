@@ -19,12 +19,20 @@ std::shared_ptr<BlockAccessor> BlocksCreator::from_db_node(std::shared_ptr<Node>
         auto block = std::make_shared<MapBlock>();
         block->blockname = bk;
         for (auto &vk : root->getGroup({bk})) {
-            auto value = std::get<std::shared_ptr<Node>>(vk.second)->get("central_value");
+            auto node = std::get<std::shared_ptr<Node>>(vk.second);
+            if (!node->contains("central_value") || !node->contains("stat_error")) {
+                LOG_ERROR("BlocksCreator", "Node doesn't have all necessary keys.");
+            }
+
+            auto value = node->get("central_value");
             block->setValue(std::stol(vk.first), std::get<double>(value));
-            auto stat = std::get<std::shared_ptr<Node>>(vk.second)->get("stat_error");
-            auto syst = std::get<std::shared_ptr<Node>>(vk.second)->get("syst_error");
+            auto stat = node->get("stat_error");
+
+            auto syst = node->contains("syst_error") ? node->get("syst_error") : 0;
             block->setDeviation(std::stol(vk.first), std::get<double>(stat), std::get<double>(syst));
         }
+
+        ba->addBlock(bk, block);
     }
 
     return ba;
