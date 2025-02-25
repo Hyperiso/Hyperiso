@@ -20,15 +20,27 @@
 #include "General.h"
 #include "Block.h"
 
+namespace fs = std::filesystem;
+
+struct FilePaths {
+    static inline const fs::path default_obs_values_path   = project_assets_root.data() + std::string("default/observables.json");  ///< Path to observable covariance file
+    static inline const fs::path default_obs_corr_path     = project_assets_root.data() + std::string("default/observables_corr.json");  ///< Path to observable covariance file
+    static inline const fs::path default_param_values_path = project_assets_root.data() + std::string("default/parameters.json");
+    static inline const fs::path default_param_corr_path   = project_assets_root.data() + std::string("default/parameters_corr.json");           ///< Path to parameter covariance file
+    static inline const fs::path user_obs_values_path      = project_assets_root.data() + std::string("input_files/observables/observables.yaml");
+    static inline const fs::path user_obs_corr_path        = project_assets_root.data() + std::string("input_files/observables/correlations.yaml");
+    static inline const fs::path user_sm_params_path       = project_assets_root.data() + std::string("input_files/parameters/sm.yaml");
+    static inline const fs::path user_flavor_params_path   = project_assets_root.data() + std::string("input_files/parameters/flavor.yaml");
+    static inline const fs::path user_decay_params_path    = project_assets_root.data() + std::string("input_files/parameters/decay.yaml");
+    static inline const fs::path user_param_corr_path      = project_assets_root.data() + std::string("input_files/parameters/correlations.yaml");
+};
+
 /**
  * @struct MemoryCache
  * @brief Stores memory cache details for parameter management.
  */
 struct MemoryCache {
-    std::shared_ptr<LhaReader> reader;              ///< Shared pointer to LhaReader instance
-    std::filesystem::path lha_path;                 ///< Path to LHA file
-    std::filesystem::path obs_cov_path;             ///< Path to observable covariance file
-    std::filesystem::path param_cov_path;           ///< Path to parameter covariance file
+    fs::path lha_path;                 ///< Path to LHA file
     std::vector<ParameterType> parameter_types;     ///< List of parameter types available
     std::thread::id thread_id;                      ///< ID of the thread using the cache
     Model model;                                    ///< Model type (current model)
@@ -68,20 +80,12 @@ public:
      */
     static MemoryManager* GetInstance();
 
-    /**
-     * @brief Retrieves the LhaReader instance.
-     * @return Pointer to LhaReader instance.
-     */
-    LhaReader* getReader();
-
     inline bool isSpectrum() { check_if_ready(); return cache.is_spectrum; }
     inline bool hasWilsons() { check_if_ready(); return cache.has_wilsons; }
     inline bool hasObservables() { check_if_ready(); return cache.has_obs; }
     inline bool useMarty() { check_if_ready(); return cache.use_marty; }
     inline bool paramCacheOkay() { check_if_ready(); return cache.param_cache_okay; }
-    inline std::filesystem::path getInputLhaPath() { check_if_ready(); return cache.lha_path; }
-    inline std::filesystem::path getParameterCovariancePath() { check_if_ready(); return cache.param_cov_path; }
-    inline std::filesystem::path getObservableCovariancePath()  { check_if_ready(); return cache.obs_cov_path; }
+    inline fs::path getInputLhaPath() { check_if_ready(); return cache.lha_path; }
     inline std::vector<ParameterType> getParameterTypes() { check_if_ready(); return cache.parameter_types; };
     inline Model getModel() { check_if_ready(); return cache.model; };
     inline bool getUseMarty() {check_if_ready(); return cache.use_marty;}
@@ -97,19 +101,14 @@ public:
     void switch_lha(const std::string& lhaFile, Model model = Model::SM, bool use_marty = false, bool is_spectrum = false, bool has_wilson = false, bool has_obs = false);
     
     /**
+     * @brief Ensures the LHA path is correct.
+     */
+    fs::path format_lha_path(const std::string& path);
+
+    /**
      * @brief Switches the model being used. Need to be compatible with the LHA.
      */
     void switch_model(Model model = Model::SM, bool use_marty = false);
-
-    /**
-     * @brief Sets the observable covariance file path.
-     */
-    void set_observable_covariance_input_file(const std::string& path);
-
-    /**
-     * @brief Sets the parameter covariance file path.
-     */
-    void set_parameter_covariance_input_file(const std::string& path);
 
     /**
      * @brief Retrieves a list of parameter blocks.

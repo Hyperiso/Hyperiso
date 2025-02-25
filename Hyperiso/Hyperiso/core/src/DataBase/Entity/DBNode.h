@@ -36,6 +36,12 @@ public:
     Value get(Keys&&... keys) const;
 
     /**
+     * @brief Retrieves all the stored keys below the current node.
+     * @return A vector of all the stored keys below the current node.
+     */
+    std::vector<std::string> get_keys();
+
+    /**
      * @brief Sets a value in the node using a series of keys.
      * @tparam T The type of the value.
      * @tparam Key The type of the first key.

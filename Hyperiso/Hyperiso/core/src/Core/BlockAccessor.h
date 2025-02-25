@@ -15,16 +15,6 @@
 #include "Block.h"
 
 /**
- * @enum FlavorParamType
- * @brief Enumeration for different flavor parameter types.
- */
-enum class FlavorParamType {
-    LIFETIME,               ///< Lifetime parameter
-    DECAY_CONSTANT,         ///< Decay constant parameter
-    DECAY_CONSTANT_RATIO    ///< Ratio of decay constants
-};
-
-/**
  * @class BlockAccessor
  * @brief A class that manages multiple parameter blocks, for the Parameters class.
  * 
@@ -45,7 +35,14 @@ public:
      * @param pdgCode The PDG code of the parameter.
      * @return True if the block exists, false otherwise.
      */
-    bool exist(const std::string blockName, int pdgCode) const;
+    bool exist(const std::string blockName, LhaID pdgCode) const;
+
+    /**
+     * @brief Checks if a block exists.
+     * @param blockName The name of the block.
+     * @return True if the block exists, false otherwise.
+     */
+    bool has_block(const std::string blockName) const;
 
     /**
      * @brief Sets the value of a parameter in a specified block.
@@ -54,7 +51,7 @@ public:
      * @param value The new value to set.
      * @param force If true, forces the update.
      */
-    void setValue(const std::string& blockName, int pdgCode, double value, bool force = false);
+    void setValue(const std::string& blockName, LhaID pdgCode, double value, bool force = false);
 
     /**
      * @brief Sets the mode of a parameter in a specified block.
@@ -62,7 +59,7 @@ public:
      * @param pdgCode The PDG code of the parameter.
      * @param mode The mode to set.
      */
-    void setMode(const std::string& blockName, int pdgCode, ParameterMode mode);
+    void setMode(const std::string& blockName, LhaID pdgCode, ParameterMode mode);
 
     /**
      * @brief Retrieves the value of a parameter from a specified block.
@@ -70,26 +67,32 @@ public:
      * @param pdgCode The PDG code of the parameter.
      * @return The parameter value.
      */
-    double getValue(const std::string& blockName, int pdgCode) const;
+    double getValue(const std::string& blockName, LhaID pdgCode) const;
 
     /**
      * @brief Retrieves all values from a specified block.
      * @param blockName The name of the block.
      * @return A map of PDG codes to parameter values.
      */
-    std::map<int, double> getAllValues(std::string blockName);
+    std::map<LhaID, double> getAllValues(std::string blockName);
 
     /**
      * @brief Retrieves a list of all block names.
      * @return A vector of block names.
      */
-    std::vector<std::string> get_blocks();
+    std::vector<std::string> get_block_names();
+
+    /**
+     * @brief Retrieves a block from the stored blocks.
+     * @return A shared_ptr to the given block.
+     */
+    std::shared_ptr<Block> get_block(const std::string& block_name);
 
     /**
      * @brief Override to prevent direct access to all values.
      * @throws std::logic_error Always throws an error.
      */
-    std::map<int, double> getAllValues() override{
+    std::map<LhaID, double> getAllValues() override{
         throw std::logic_error("Use getValue with block name for BlockAccessor");
     }
 
@@ -97,7 +100,7 @@ public:
      * @brief Override to prevent direct access to parameter values.
      * @throws std::logic_error Always throws an error.
      */
-    double getValue(int pdgCode) const override {
+    double getValue(LhaID pdgCode) const override {
         throw std::logic_error("Use getValue with block name for BlockAccessor");
     }
 
@@ -105,7 +108,7 @@ public:
      * @brief Override to prevent direct setting of parameter values.
      * @throws std::logic_error Always throws an error.
      */
-    void setValue(int pdgCode, double value, bool force = false) override {
+    void setValue(LhaID pdgCode, double value, bool force = false) override {
         throw std::logic_error("Use setValue with block name for BlockAccessor");
     }
 
@@ -113,9 +116,28 @@ public:
      * @brief Override to prevent direct setting of parameter modes.
      * @throws std::logic_error Always throws an error.
      */
-    void setMode(int pdgCode, ParameterMode mode) override {
+    void setMode(LhaID pdgCode, ParameterMode mode) override {
         throw std::logic_error("Use setMode with block name for BlockAccessor");
     }
+
+
+    /**
+     * @brief Merges two distinct BlockAccessor instances without priority. Throws an error if both have blocks in common.  
+     * @param lhs First BlockAccessor instance.
+     * @param rhs Second BlockAccessor instance.
+     * @return A new `BlockAccessor` instance storing all the blocks from `rhs` and `lhs`. 
+     */
+    friend std::shared_ptr<BlockAccessor> operator+(std::shared_ptr<BlockAccessor> lhs, std::shared_ptr<BlockAccessor> rhs);
+
+    /**
+     * @brief Merges two overlapping BlockAccessor instances with left-priority. If rhs has elements in common with lhs, they will be overwritten.
+     * @param lhs First BlockAccessor instance.
+     * @param rhs Second BlockAccessor instance.
+     * @return A new `BlockAccessor` instance storing all the blocks from `rhs` and `lhs`.   
+     */
+    friend std::shared_ptr<BlockAccessor> operator>>(std::shared_ptr<BlockAccessor> lhs, std::shared_ptr<BlockAccessor> rhs);
+
+    friend std::ostream& operator<<(std::ostream&, std::shared_ptr<BlockAccessor>);
 
 private:
     /// A map of block names to their corresponding shared pointers.

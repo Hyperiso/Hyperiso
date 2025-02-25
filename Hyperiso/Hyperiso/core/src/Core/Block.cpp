@@ -1,46 +1,55 @@
 #include "Block.h"
 
-double MapBlock::getValue(int pdgCode) const {
-    auto it = values.find(pdgCode);
+double MapBlock::getValue(LhaID id) const {
+    auto it = values.find(id);
     if (it != values.end()) {
         return it->second.get_val();
     }
     throw std::invalid_argument("PDG code not found in " + this->blockname);
 }
 
-void MapBlock::setValue(int pdgCode, double value, bool force) {
-    JSONParser::getInstance(0)->addElement(this->blockname.substr(0, this->blockname.size()-5), pdgCode, value);
-    Parameter param (ParamId {ParameterType::CUSTOM, this->blockname.substr(0, this->blockname.size()-5), pdgCode}, value, 0);
+void MapBlock::setValue(LhaID id, double value, bool force) {
+    JSONParser::getInstance(0)->addElement(this->blockname.substr(0, this->blockname.size()-5), id, value);
+    Parameter param (ParamId {ParameterType::CUSTOM, this->blockname.substr(0, this->blockname.size()-5), id}, value, 0, 0);
     if (force) {
-        values[pdgCode] = param;
+        values[id] = param;
     } else {
-        values[pdgCode] = param;
+        values[id] = param;
     }
 }
 
-void MapBlock::setMode(int pdgCode, ParameterMode mode) {
-    values.at(pdgCode).set_mode(mode);
+void MapBlock::setDeviation(LhaID id, double std_stat, double std_syst, bool force) {
+    JSONParser::getInstance(0)->addElement(this->blockname.substr(0, this->blockname.size()-5), id, std_stat);
+    values[id].set_std(std_stat, std_syst);
 }
 
-std::map<int, double> MapBlock::getAllValues() {
-    std::map<int, double> map_values;
+void MapBlock::setMode(LhaID id, ParameterMode mode) {
+    values.at(id).set_mode(mode);
+}
+
+std::map<LhaID, double> MapBlock::getAllValues() {
+    std::map<LhaID, double> map_values;
     for (auto& value : values) {
         map_values[value.first] = value.second.get_val();
     }
     return map_values;
 }
 
-double MassBlock::getValue(int pdgCode) const {
-    if (pdgCode == 5 || pdgCode == 6) {
-        LOG_WARN("Accessing heavy quark masses through Parameters is deprecated. Use QCDHelper instead.");
-    }
-    return MapBlock::getValue(pdgCode);
+std::vector<LhaID> MapBlock::getAllIDs() {
+    std::vector<LhaID> ids;
+    for (auto& [k, _] : values) 
+        ids.emplace_back(k);
+    return ids;
 }
 
-double WilsonBlock::getValue(int pdgCode) const {
-    if (pdgCode == -1) {
+bool MapBlock::hasID(LhaID id) {
+    return values.contains(id);
+}
+
+double WilsonBlock::getValue(LhaID pdgCode) const {
+    if ((long)pdgCode == -1) {
         return scale;
-    } else if (pdgCode == -2) {
+    } else if ((long)pdgCode == -2) {
         return type;
     }
 
@@ -50,10 +59,10 @@ double WilsonBlock::getValue(int pdgCode) const {
     return values.at(id)[order];
 }
 
-void WilsonBlock::setValue(int pdgCode, double value, bool force) {
-    if (pdgCode == -1) {
+void WilsonBlock::setValue(LhaID pdgCode, double value, bool force) {
+    if ((long)pdgCode == -1) {
         scale = value;
-    } else if (pdgCode == -2) {
+    } else if ((long)pdgCode == -2) {
         type = (int)value;
     }
 

@@ -2,6 +2,13 @@
 
 Node::Node() = default;
 
+std::vector<std::string> Node::get_keys() {
+    std::vector<std::string> keys;
+    for (auto& [k, _] : this->data_)
+        keys.emplace_back(k);
+    return keys;
+}
+
 
 std::map<std::string, Node::Value> Node::getGroup(const std::vector<std::string>& keys) const {
     const Node* currentNode = this;
