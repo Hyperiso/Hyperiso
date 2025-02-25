@@ -11,6 +11,7 @@
 #include <variant>
 #include <initializer_list>
 #include <stdexcept>
+#include <algorithm>
 
 /**
  * @brief A hierarchical data structure with JSON and YAML serialization capabilities.
@@ -86,6 +87,9 @@ public:
      */
     void printYAML(int level = 0) const;
 
+    bool contains(const std::string& key) const;
+
+    int countChildren() const;
 private:
     std::map<std::string, Value> data_;
 
@@ -95,6 +99,9 @@ private:
     void printValue(const Value& value, int level) const;
     void printValueToStream(std::ostream& os, const Value& value, int level) const;
     void printScalarYAML(const Value& value) const;
+    bool isListNode(const std::shared_ptr<Node>& node) const;
 };
+
+#include "DBNode.tpp"
 
 #endif

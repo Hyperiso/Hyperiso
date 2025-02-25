@@ -3,6 +3,10 @@
 
 #include <memory>
 #include <string>
+#include <cctype>
+#include <stdexcept>
+#include <algorithm>
+#include <stack>
 #include "DBNode.h"
 
 /**
@@ -42,6 +46,19 @@ public:
     std::shared_ptr<Node> parse(const std::string& input) const override;
     void writeToFile(const std::string& filename, const std::shared_ptr<Node>& root) const override;
     std::shared_ptr<Node> readFromFile(const std::string& filename) const override;
+
+    std::shared_ptr<Node> parseObject(const std::string& input, size_t& index) const;
+
+    std::string parseString(const std::string& input, size_t& index) const;
+
+    Node::Value parseValue(const std::string& input, size_t& index) const;
+
+    double parseNumber(const std::string& input, size_t& index) const;
+
+    void skipWhitespace(const std::string& input, size_t& index) const;
+
+    std::shared_ptr<Node> parseArray(const std::string& input, size_t& index) const;
+
 };
 
 /**
@@ -52,6 +69,13 @@ public:
     std::shared_ptr<Node> parse(const std::string& input) const override;
     void writeToFile(const std::string& filename, const std::shared_ptr<Node>& root) const override;
     std::shared_ptr<Node> readFromFile(const std::string& filename) const override;
+
+private:
+    size_t countLeadingSpaces(const std::string& line) const;
+    bool parseLine(const std::string& line, std::string& key, std::string& value) const;
+    void adjustIndentation(size_t indent, std::vector<std::shared_ptr<Node>>& nodeStack, std::vector<int>& indentStack) const;
+    void trim(std::string& str) const;
+    Node::Value parseValue(const std::string& value) const;
 };
 
 /**
