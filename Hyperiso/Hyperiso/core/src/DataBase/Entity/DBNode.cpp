@@ -2,24 +2,6 @@
 
 Node::Node() = default;
 
-template <typename... Keys>
-Node::Value Node::get(Keys&&... keys) const {
-    return getRecursive(data_, std::forward<Keys>(keys)...);
-}
-
-template <typename T, typename Key, typename... Rest>
-void Node::set(T value, Key&& key, Rest&&... rest) {
-    if constexpr (sizeof...(rest) == 0) {
-        data_[std::string(std::forward<Key>(key))] = std::forward<T>(value);
-    } else {
-        auto& node = data_[std::string(std::forward<Key>(key))];
-        if (!std::holds_alternative<std::shared_ptr<Node>>(node)) {
-            node = std::make_shared<Node>();
-        }
-        auto& childNode = std::get<std::shared_ptr<Node>>(node);
-        childNode->set(std::forward<T>(value), std::forward<Rest>(rest)...);
-    }
-}
 
 std::map<std::string, Node::Value> Node::getGroup(const std::vector<std::string>& keys) const {
     const Node* currentNode = this;
@@ -75,31 +57,39 @@ void Node::printJSONToStream(std::ostream& os, int level) const {
 
 void Node::printYAML(int level) const {
     for (const auto& [key, value] : data_) {
-        std::cout << std::string(level, ' ') << key << ": ";
-        if (std::holds_alternative<std::string>(value) || std::holds_alternative<int>(value) ||
-            std::holds_alternative<double>(value) || std::holds_alternative<bool>(value)) {
+        if (std::holds_alternative<std::shared_ptr<Node>>(value)) {
+            auto node = std::get<std::shared_ptr<Node>>(value);
+
+            if (isListNode(node)) {
+                std::cout << std::string(level, ' ') << key << ":\n";
+                for (int i = 0; i < node->countChildren(); ++i) {
+                    std::cout << std::string(level + 2, ' ') << "- ";
+                    printScalarYAML(node->get(std::to_string(i)));
+                    std::cout << "\n";
+                }
+            } else {
+                std::cout << std::string(level, ' ') << key << ":\n";
+                node->printYAML(level + 2);
+            }
+        } else {
+            std::cout << std::string(level, ' ') << key << ": ";
             printScalarYAML(value);
             std::cout << "\n";
-        } else if (std::holds_alternative<std::shared_ptr<Node>>(value)) {
-            std::cout << "\n";
-            std::get<std::shared_ptr<Node>>(value)->printYAML(level + 2);
         }
     }
 }
 
-template <typename Key, typename... Rest>
-Node::Value Node::getRecursive(const std::map<std::string, Value>& map, Key&& key, Rest&&... rest) {
-    auto it = map.find(std::forward<Key>(key));
-    if (it == map.end()) {
-        throw std::runtime_error("Key not found");
+
+bool Node::isListNode(const std::shared_ptr<Node>& node) const {
+    for (const auto& [key, _] : node->data_) {
+        if (!std::all_of(key.begin(), key.end(), ::isdigit)) {
+            return false;
+        }
     }
-    if constexpr (sizeof...(rest) == 0) {
-        return it->second;
-    } else {
-        auto node = std::get<std::shared_ptr<Node>>(it->second);
-        return node->get(std::forward<Rest>(rest)...);
-    }
+    return true;
 }
+
+
 
 void Node::printValue(const Value& value, int level) const {
     if (std::holds_alternative<std::string>(value)) {
@@ -139,4 +129,12 @@ void Node::printScalarYAML(const Value& value) const {
     } else if (std::holds_alternative<bool>(value)) {
         std::cout << (std::get<bool>(value) ? "true" : "false");
     }
+}
+
+bool Node::contains(const std::string& key) const {
+    return data_.find(key) != data_.end();
+}
+
+int Node::countChildren() const {
+    return data_.size();
 }
