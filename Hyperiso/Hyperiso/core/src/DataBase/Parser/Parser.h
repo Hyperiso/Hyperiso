@@ -76,6 +76,8 @@ private:
     bool parseLine(const std::string& line, std::string& key, std::string& value) const;
     void adjustIndentation(size_t indent, std::vector<std::shared_ptr<Node>>& nodeStack, std::vector<int>& indentStack) const;
     void trim(std::string& str) const;
+    bool isListNode(const std::shared_ptr<Node>& node) const;
+    double parseNumber(const std::string& value) const;
     Node::Value parseValue(const std::string& value) const;
 };
 
