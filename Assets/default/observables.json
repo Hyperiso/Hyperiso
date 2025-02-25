@@ -1,0 +1,47 @@
+{
+    "values": [
+      {
+        "name": "BRuntag_Bs__mu_mu",
+        "central_value": 2.65e-09,
+        "stat_error": 0.045,
+        "syst_error": 0.05
+      },
+      {
+        "name": "IA_B__K*_gamma",
+        "central_value": 2.65e-09,
+        "stat_error": 0.045,
+        "syst_error": 0.05
+      },
+      {
+        "name": "BR_Bd__mu_mu",
+        "central_value": 3.6e-10,
+        "stat_error": 1.6e-10,
+        "syst_error": 0.0
+      },
+      {
+        "name": "BR_Bs__mu_mu",
+        "central_value": 2.9e-9,
+        "stat_error": 7e-10,
+        "syst_error": 0.0
+      },
+      {
+        "name": "BR_Bu__tau_nu",
+        "central_value": 1.64e-4,
+        "stat_error": 3.4e-5,
+        "syst_error": 0.0
+      },
+      {
+        "name": "BR_B__Xs_gamma",
+        "central_value": 3.43e-4,
+        "stat_error": 2.8e-5,
+        "syst_error": 0.0
+      }
+    ],
+    "correlations": [
+      {
+        "name1": "BRuntag_Bs__mu_mu",
+        "name2": "BR_Bd__mu_mu",
+        "value": -0.2
+      }
+    ]
+}
