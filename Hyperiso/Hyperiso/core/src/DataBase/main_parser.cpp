@@ -15,11 +15,12 @@ age: 25
 15: 
   truc: 5
   machin: 1.5
+  bidule: 1.8e-3
 location:
   city: London
   country: UK
 skills:
-  - JavaScript
+  - JavaScript 
   - Rust
   - Go
 )";
