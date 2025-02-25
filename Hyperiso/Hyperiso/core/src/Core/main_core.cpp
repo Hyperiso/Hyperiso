@@ -1,7 +1,6 @@
 #include "Parameters.h"
 
 int main() {
-    MemoryManager::GetInstance()->init("Test/InputFiles/testinput_thdm.lha", Model::CUSTOM);
-    Parameters::GetInstance(ParameterType::CUSTOM);
+    MemoryManager::GetInstance()->init("lha/testInput.flha", Model::SM);
     return 0;
 }

@@ -16,7 +16,7 @@ endif()
 add_library(DataBaseLib STATIC
     Entity/lha_blocks.cpp
     Entity/lha_elements.cpp
-    Entity/JsonParameters.cpp
+    # Entity/JsonParameters.cpp
     Entity/DBNode.cpp
     Service/lha_reader.cpp
     Service/MappingDataBase.cpp

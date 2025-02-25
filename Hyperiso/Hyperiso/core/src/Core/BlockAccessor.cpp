@@ -68,7 +68,7 @@ std::shared_ptr<Block> BlockAccessor::get_block(const std::string &block_name) {
 }
 
 std::shared_ptr<BlockAccessor> operator+(std::shared_ptr<BlockAccessor> lhs, std::shared_ptr<BlockAccessor> rhs) {
-    auto res = std::shared_ptr<BlockAccessor>();
+    auto res = std::make_shared<BlockAccessor>();
     for (const auto &b : lhs->get_block_names()) {
         res->addBlock(b, lhs->get_block(b));
     }
@@ -84,7 +84,7 @@ std::shared_ptr<BlockAccessor> operator+(std::shared_ptr<BlockAccessor> lhs, std
 }
 
 std::shared_ptr<BlockAccessor> operator>>(std::shared_ptr<BlockAccessor> lhs, std::shared_ptr<BlockAccessor> rhs) {
-    auto res = std::shared_ptr<BlockAccessor>();
+    auto res = std::make_shared<BlockAccessor>();
     for (const auto &b : rhs->get_block_names()) {
         res->addBlock(b, rhs->get_block(b));
     }

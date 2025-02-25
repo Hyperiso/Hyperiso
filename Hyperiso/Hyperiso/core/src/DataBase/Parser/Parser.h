@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <stack>
 #include "DBNode.h"
+#include "Logger.h"
 
 /**
  * @brief Abstract base class for data parsers.

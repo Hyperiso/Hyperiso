@@ -12,6 +12,9 @@ int main_YAML() {
     std::string yamlInput = R"(
 name: Bob
 age: 25
+15: 
+  truc: 5
+  machin: 1.5
 location:
   city: London
   country: UK
@@ -114,7 +117,7 @@ int main() {
 
     std::string jsonInput = R"({
         "name": "Alice",
-        "age": 30,
+        "age": 1.2e-1,
         "details": {
             "city": "Paris",
             "skills": ["C++", "Python", "YAML"]
@@ -141,7 +144,7 @@ details:
     std::cout << "\n🔹 Testing Node Manipulations:\n";
     auto root = std::make_shared<Node>();
     root->set("Alice", "name");
-    root->set(30, "age");
+    root->set(1.5e-2, "age");
     root->set(true, "isAdmin");
     root->set("Paris", "address", "city");
     root->set(75001, "address", "zip");

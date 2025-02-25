@@ -34,8 +34,10 @@ void MemoryManager::init(const std::string& lhaFile, Model model, bool use_marty
     /* Default input */
 
     auto json_parser = ParserFactory::createParser(ParserFactory::Type::JSON);
+    LOG_INFO("Read default param values");
     auto default_param_values_root = json_parser->readFromFile(FilePaths::default_param_values_path.string());
     // TODO : insert file check here
+    LOG_INFO("Store in BlockAccessor");
     auto param_values_ba = BlocksCreator::from_db_node(default_param_values_root); 
     // DBMemento::Snapshot(param_values_ba, "DEFAULT");
 
@@ -48,9 +50,13 @@ void MemoryManager::init(const std::string& lhaFile, Model model, bool use_marty
 
     auto yaml_parser = ParserFactory::createParser(ParserFactory::Type::YAML);
     fs::path ui_paths[3] = {FilePaths::user_sm_params_path, FilePaths::user_flavor_params_path, FilePaths::user_decay_params_path};
+    LOG_INFO("Read user input param values");
     for (auto& path : ui_paths) {
-        auto ui_root = json_parser->readFromFile(path.string());
+        LOG_INFO("Read from file");
+        auto ui_root = yaml_parser->readFromFile(path.string());
+        LOG_INFO("Store in blockAccessor");
         auto ui_ba = BlocksCreator::from_db_node(ui_root); 
+        LOG_INFO("Merge blockAccessors");
         param_values_ba = ui_ba >> param_values_ba;
     }
     // DBMemento::Snapshot(param_values_ba, "USER_INPUT");
@@ -62,6 +68,7 @@ void MemoryManager::init(const std::string& lhaFile, Model model, bool use_marty
 
     /* LHA input */
 
+    LOG_INFO("Read LHA");
     fs::path lha_path = format_lha_path(lhaFile);
     auto lha_reader = std::make_shared<LhaReader>(LhaReader(lha_path.string()));
     lha_reader->readAll();

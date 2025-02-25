@@ -90,7 +90,7 @@ void LhaReader::readAll() {
     std::ifstream file(this->lhaFile.string());
     std::stringstream buffer;
     buffer << file.rdbuf();
-    Parser parser {buffer.str()};
+    LhaParser parser {buffer.str()};
     parser.tokenize();
     this->parse_tokens(parser.getTokens());
     

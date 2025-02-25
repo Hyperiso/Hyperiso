@@ -112,12 +112,36 @@ public:
         throw std::logic_error("Use setValue with block name for BlockAccessor");
     }
 
+     /**
+     * @brief Override to prevent direct setting of parameter modes.
+     * @throws std::logic_error Always throws an error.
+     */
+    void setDeviation(LhaID id, double std_stat, double std_syst, bool force = false) {
+        throw std::logic_error("Use setDeviation with block name for BlockAccessor");
+    }
+
     /**
      * @brief Override to prevent direct setting of parameter modes.
      * @throws std::logic_error Always throws an error.
      */
     void setMode(LhaID pdgCode, ParameterMode mode) override {
         throw std::logic_error("Use setMode with block name for BlockAccessor");
+    }
+
+    /**
+     * @brief Override to prevent direct access to parameters.
+     * @throws std::logic_error Always throws an error.
+     */
+    std::vector<LhaID> getAllIDs() {
+        throw std::logic_error("Use getAllIDs with block name for BlockAccessor");
+    }
+
+    /**
+     * @brief Retrieves all parameter ids.
+     * @return A vector of LhaIDs of stored parameters.
+     */
+    bool hasID(LhaID id) {
+        throw std::logic_error("Use exists with block name for BlockAccessor");
     }
 
 
