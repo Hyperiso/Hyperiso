@@ -6,6 +6,7 @@
 #include "CSVReader.h"
 #include "MartyInterface.h"
 #include "config.hpp"
+#include "Utils.h"
 #include <iostream>
 #include <math.h>
 
@@ -40,7 +41,7 @@ public:
         this->model = model;
     }
 
-    std::complex<double> LO_calculation() override {
+    complex_t LO_calculation() override {
         double epsi = 1e-4;
         for (size_t i = 0; i < df.getRowCount(); ++i) {
             double Q_match = df.iat<double>(i, "Q_match");
@@ -75,8 +76,8 @@ public:
         return {0., 0.};
     }
 
-    std::complex<double> NLO_calculation() override {return {0., 0.};}
-    std::complex<double> NNLO_calculation() override {return {0., 0.};}
+    complex_t NLO_calculation() override {return {0., 0.};}
+    complex_t NNLO_calculation() override {return {0., 0.};}
 
 private:
     CSVReader csv_reader;

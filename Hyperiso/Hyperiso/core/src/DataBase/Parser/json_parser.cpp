@@ -20,16 +20,6 @@ std::string remove_quotes(const std::string& str) {
     return result;
 }
 
-std::vector<std::string> split(const std::string& str, char delimiter) {
-    std::vector<std::string> tokens;
-    std::string token;
-    std::istringstream tokenStream(str);
-    while (std::getline(tokenStream, token, delimiter)) {
-        tokens.push_back(trim(token));
-    }
-    return tokens;
-}
-
 
 void read_json(const std::string& filename, std::vector<Value>& values, std::vector<Correlation>& correlations) {
     std::ifstream file(filename);

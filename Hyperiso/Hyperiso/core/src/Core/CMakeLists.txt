@@ -31,6 +31,7 @@ endif()
 
 add_library(CoreLib STATIC 
     MemoryManager.cpp
+    DBMemento.cpp
     Parameters.cpp
     Parameter.cpp
     Block.cpp

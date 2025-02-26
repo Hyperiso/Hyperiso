@@ -262,19 +262,19 @@ double BKstarDecay::X_perp(double a1, double a2, double m_B, double Lambda_h) {
 
 void BKstarDecay::build_op_tree() {
     // Formfactors and decay-specific parameters
-    auto a_1_perp   = std::make_shared<ParameterNode>(ParamId(ParameterType::FF, "B_Ks", 1));
-    auto a_2_perp   = std::make_shared<ParameterNode>(ParamId(ParameterType::FF, "B_Ks", 2));
-    auto a_1_par    = std::make_shared<ParameterNode>(ParamId(ParameterType::FF, "B_Ks", 3));
-    auto a_2_par    = std::make_shared<ParameterNode>(ParamId(ParameterType::FF, "B_Ks", 4));
-    auto zeta_3_A   = std::make_shared<ParameterNode>(ParamId(ParameterType::FF, "B_Ks", 5));
-    auto zeta_3_V   = std::make_shared<ParameterNode>(ParamId(ParameterType::FF, "B_Ks", 6));
-    auto w_10_A     = std::make_shared<ParameterNode>(ParamId(ParameterType::FF, "B_Ks", 7));
-    auto delta_t_p  = std::make_shared<ParameterNode>(ParamId(ParameterType::FF, "B_Ks", 8));
-    auto delta_t_m  = std::make_shared<ParameterNode>(ParamId(ParameterType::FF, "B_Ks", 9));
-    auto lambda_B   = std::make_shared<ParameterNode>(ParamId(ParameterType::FF, "B_Ks", 10));
-    auto T1_B_Ks    = std::make_shared<ParameterNode>(ParamId(ParameterType::FF, "B_Ks", 11));
-    auto Lambda_h   = std::make_shared<ParameterNode>(ParamId(ParameterType::FF, "B_Ks", 12));
-    auto mu_0       = std::make_shared<ParameterNode>(ParamId(ParameterType::FF, "B_Ks", 13));
+    auto a_1_perp   = std::make_shared<ParameterNode>(ParamId(ParameterType::DECAY, "B_Ks", 1));
+    auto a_2_perp   = std::make_shared<ParameterNode>(ParamId(ParameterType::DECAY, "B_Ks", 2));
+    auto a_1_par    = std::make_shared<ParameterNode>(ParamId(ParameterType::DECAY, "B_Ks", 3));
+    auto a_2_par    = std::make_shared<ParameterNode>(ParamId(ParameterType::DECAY, "B_Ks", 4));
+    auto zeta_3_A   = std::make_shared<ParameterNode>(ParamId(ParameterType::DECAY, "B_Ks", 5));
+    auto zeta_3_V   = std::make_shared<ParameterNode>(ParamId(ParameterType::DECAY, "B_Ks", 6));
+    auto w_10_A     = std::make_shared<ParameterNode>(ParamId(ParameterType::DECAY, "B_Ks", 7));
+    auto delta_t_p  = std::make_shared<ParameterNode>(ParamId(ParameterType::DECAY, "B_Ks", 8));
+    auto delta_t_m  = std::make_shared<ParameterNode>(ParamId(ParameterType::DECAY, "B_Ks", 9));
+    auto lambda_B   = std::make_shared<ParameterNode>(ParamId(ParameterType::DECAY, "B_Ks", 10));
+    auto T1_B_Ks    = std::make_shared<ParameterNode>(ParamId(ParameterType::DECAY, "B_Ks", 11));
+    auto Lambda_h   = std::make_shared<ParameterNode>(ParamId(ParameterType::DECAY, "B_Ks", 12));
+    auto mu_0       = std::make_shared<ParameterNode>(ParamId(ParameterType::DECAY, "B_Ks", 13));
   
     // Flavor parameters
     auto f_Ks_par   = std::make_shared<ParameterNode>(ParamId(ParameterType::FLAVOR, "FCONST", 32301));

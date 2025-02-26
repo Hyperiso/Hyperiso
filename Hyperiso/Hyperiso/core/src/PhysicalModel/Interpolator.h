@@ -1,9 +1,8 @@
-#include <complex>
+#include "Utils.h"
 
 class Interpolator {
 public:
-    static std::complex<double> linearInterpolation(double Q1, double Q2, double Q_target, 
-                                                std::complex<double> C1, std::complex<double> C2) {
+    static complex_t linearInterpolation(double Q1, double Q2, double Q_target, complex_t C1, complex_t C2) {
     if (Q1 == Q2) {
         std::cout << "Exact match found: Q1 == Q2 == " << Q1 << ". Returning C1." << std::endl;
         return C1;

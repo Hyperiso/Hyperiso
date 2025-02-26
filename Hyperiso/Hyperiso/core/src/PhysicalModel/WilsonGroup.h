@@ -3,8 +3,8 @@
 
 #include <map>
 #include <string>
-#include <complex>
 #include <vector>
+#include "Utils.h"
 #include "Wilson.h"
 #include "MartyWilson.h"
 
@@ -55,11 +55,11 @@ public:
 
     double get_Q_match() {return this->Q_match;}
     double get_Q_run() {return this->Q_run;}
-    std::complex<double> getfullMatching(std::string coeff, std::string order) {return this->at(coeff)->get_CoefficientFullMatchingValue(order);}
-    std::complex<double> getfullRun(std::string coeff, std::string order) {return this->at(coeff)->get_CoefficientFullRunValue(order);}
+    complex_t getfullMatching(std::string coeff, std::string order) {return this->at(coeff)->get_CoefficientFullMatchingValue(order);}
+    complex_t getfullRun(std::string coeff, std::string order) {return this->at(coeff)->get_CoefficientFullRunValue(order);}
 
-    std::complex<double> getMatching(std::string coeff, std::string order) {return this->at(coeff)->get_CoefficientMatchingValue(order);}
-    std::complex<double> getRun(std::string coeff, std::string order) {return this->at(coeff)->get_CoefficientRunValue(order);}
+    complex_t getMatching(std::string coeff, std::string order) {return this->at(coeff)->get_CoefficientMatchingValue(order);}
+    complex_t getRun(std::string coeff, std::string order) {return this->at(coeff)->get_CoefficientRunValue(order);}
 
     void setExternalMatchingCoefficient(const std::string& coeff, std::string& order, complex_t value) {
         if (std::shared_ptr<WilsonCoefficient> search = this->find(coeff)->second; search !=this->end()->second) {

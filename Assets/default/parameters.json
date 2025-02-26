@@ -185,195 +185,195 @@
   },
 
   "FCONST": {
-    "53101": {
+    "531_1": {
       "central_value": 0.234,
       "stat_error": 0.010,
       "syst_error": 0
     },
-    "51101": {
+    "511_1": {
       "central_value": 0.194,
       "stat_error": 0.010,
       "syst_error": 0
     },
-    "52101": {
+    "521_1": {
       "central_value": 0.194,
       "stat_error": 0.010,
       "syst_error": 0
     },
-    "32301": {
+    "323_1": {
       "central_value": 0.220,
       "stat_error": 0.005,
       "syst_error": 0
     },
-    "32302": {
+    "323_2": {
       "central_value": 0.185,
       "stat_error": 0.009,
       "syst_error": 0
     }
   },
       
-  "B_Ks": [
-    {
+  "B_Ks": {
+    "1": {
       "central_value": 0.10,
       "stat_error": 0.07,
       "syst_error": 0
     },
-    {
+    "2": {
       "central_value": 0.13,
       "stat_error": 0.08,
       "syst_error": 0
     },
-    {
+    "3": {
       "central_value": 0.10,
       "stat_error": 0.07,
       "syst_error": 0
     },
-    {
+    "4": {
       "central_value": 0.09,
       "stat_error": 0.05,
       "syst_error": 0
     },
-    {
+    "5": {
       "central_value": 0.013,
       "stat_error": 0,
       "syst_error": 0
     },
-    {
+    "6": {
       "central_value": 0.032,
       "stat_error": 0,
       "syst_error": 0
     },
-    {
+    "7": {
       "central_value": -2.1,
       "stat_error": 0,
       "syst_error": 0
     },
-    {
+    "8": {
       "central_value": 0.16,
       "stat_error": 0,
       "syst_error": 0
     },
-    {
+    "9": {
       "central_value": -0.16,
       "stat_error": 0,
       "syst_error": 0
     },
-    {
+    "10": {
       "central_value": 0.460,
       "stat_error": 0.110,
       "syst_error": 0
     },
-    {
+    "11": {
       "central_value": 0.312,
       "stat_error": 0.032,
       "syst_error": 0
     },
-    {
+    "12": {
       "central_value": 0.5,
       "stat_error": 0.1,
       "syst_error": 0
     },
-    {
+    "13": {
       "central_value": -1,
       "stat_error": 0,
       "syst_error": 0
     }
-  ],
+  },
       
-  "B_ll": [
-    {
+  "B_ll": {
+    "1": {
       "central_value": 0.088,
       "stat_error": 0.014,
       "syst_error": 0
     }
-  ],
+  },
 
-  "B_Xs": [
-    {
+  "B_Xs": {
+    "1": {
       "central_value": 1.6,
       "stat_error": 0,
       "syst_error": 0
     },
-    {
+    "2": {
       "central_value": 0.1065,
       "stat_error": 0.0016,
       "syst_error": 0
     },
-    {
+    "3": {
       "central_value": 0.336,
       "stat_error": 0.064,
       "syst_error": 0
     },
-    {
+    "4": {
       "central_value": 0.153,
       "stat_error": 0.45,
       "syst_error": 0
     },
-    {
+    "5": {
       "central_value": -0.145,
       "stat_error": 0.098,
       "syst_error": 0
     },
-    {
+    "6": {
       "central_value": 0.12,
       "stat_error": 0,
       "syst_error": 0
     },
-    {
+    "7": {
       "central_value": 2,
       "stat_error": 0,
       "syst_error": 0
     },
-    {
+    "8": {
       "central_value": 1e10,
       "stat_error": 0,
       "syst_error": 0
     },
-    {
+    "9": {
       "central_value": 1e20,
       "stat_error": 0,
       "syst_error": 0
     }
-  ],
+  },
       
-  "B_Dlnu": [
-    {
+  "B_Dlnu": {
+    "1": {
       "central_value": 1.074,
       "stat_error": 0.024,
       "syst_error": 0
     },
-    {
+    "2": {
       "central_value": 1.186,
       "stat_error": 0.054,
       "syst_error": 0
     },
-    {
+    "3": {
       "central_value": 1,
       "stat_error": 1,
       "syst_error": 0
     }
-  ],  
+  },  
   
-  "B_Dslnu": [
-    {
+  "B_Dslnu": {
+    "1": {
       "central_value": 0.908,
       "stat_error": 0.017,
       "syst_error": 0
     },
-    {
+    "2": {
       "central_value": 1.207,
       "stat_error": 0.026,
       "syst_error": 0
     },
-    {
+    "3": {
       "central_value": 1.403,
       "stat_error": 0.033,
       "syst_error": 0
     },
-    {
+    "4": {
       "central_value": 0.854,
       "stat_error": 0.020,
       "syst_error": 0
     }
-  ]
+  }
 }

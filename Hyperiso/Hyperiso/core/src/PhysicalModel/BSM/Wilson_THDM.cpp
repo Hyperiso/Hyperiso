@@ -1,28 +1,28 @@
 #include "Wilson_THDM.h"
 
-std::complex<double> C3_THDM::NNLO_calculation() {
+complex_t C3_THDM::NNLO_calculation() {
     double coeff_temp = G3H(thdm_params->yt,thdm_params->lu)+Delta3H(thdm_params->yt,thdm_params->lu)*log(pow(this->get_Q_match()/(*mod)("MASS",37),2.));
     return this->double_to_complex_save("NNLO", coeff_temp);
 }
 
-std::complex<double> C4_THDM::NLO_calculation() {
+complex_t C4_THDM::NLO_calculation() {
     double coeff_temp = EH(thdm_params->yt,thdm_params->lu);
     return this->double_to_complex_save("NLO", coeff_temp);
 }
 
-std::complex<double> C4_THDM::NNLO_calculation() {
+complex_t C4_THDM::NNLO_calculation() {
     double coeff_temp=G4H(thdm_params->yt,thdm_params->lu)+Delta4H(thdm_params->yt,thdm_params->lu)*log(pow(this->get_Q_match()/(*mod)("MASS",37),2.));
     return this->double_to_complex_save("NNLO", coeff_temp);
 }
 
-std::complex<double> C5_THDM::NNLO_calculation() {
+complex_t C5_THDM::NNLO_calculation() {
     double C4H_1=EH(thdm_params->yt,thdm_params->lu);
     double C3H_2=G3H(thdm_params->yt,thdm_params->lu)+Delta3H(thdm_params->yt,thdm_params->lu)*log(pow(this->get_Q_match()/(*mod)("MASS",37),2.));
 	double coeff_temp=-C3H_2/10.+2./15.*C4H_1;
     return this->double_to_complex_save("NNLO", coeff_temp);
 }
 
-std::complex<double> C6_THDM::NNLO_calculation() {
+complex_t C6_THDM::NNLO_calculation() {
     double C4H_1=EH(thdm_params->yt,thdm_params->lu);
     double C3H_2=G3H(thdm_params->yt,thdm_params->lu)+Delta3H(thdm_params->yt,thdm_params->lu)*log(pow(this->get_Q_match()/(*mod)("MASS",37),2.));
 	double coeff_temp=-3./16.*C3H_2+1./4.*C4H_1;
@@ -30,7 +30,7 @@ std::complex<double> C6_THDM::NNLO_calculation() {
     return this->double_to_complex_save("NNLO", coeff_temp);
 }
 
-std::complex<double> C7_THDM::LO_calculation() {
+complex_t C7_THDM::LO_calculation() {
     // std::cout << "YUUU" <<  (*mod)("YU", 22) << std::endl;
     double coeff_temp = 1./3.*thdm_params->lu*thdm_params->lu*F7_1(thdm_params->yt) - thdm_params->lu*thdm_params->ld*F7_2(thdm_params->yt);
     // std::cout << "lu : " << thdm_params->lu << std::endl;
@@ -39,55 +39,55 @@ std::complex<double> C7_THDM::LO_calculation() {
     return this->double_to_complex_save("LO", coeff_temp);
 }
 
-std::complex<double> C7_THDM::NLO_calculation() {
+complex_t C7_THDM::NLO_calculation() {
     double coeff_temp = G7H(thdm_params->yt,thdm_params->lu,thdm_params->ld)+Delta7H(thdm_params->yt,thdm_params->lu,thdm_params->ld)*log(pow(this->get_Q_match()/thdm_params->m_H,2.))
     -4./9.*EH(thdm_params->yt,thdm_params->lu);
     return this->double_to_complex_save("NLO", coeff_temp);
 }
 
-std::complex<double> C7_THDM::NNLO_calculation() {
+complex_t C7_THDM::NNLO_calculation() {
 	double coeff_temp =C7H2(thdm_params->yt,thdm_params->lu,thdm_params->ld,log(pow(this->get_Q_match()/thdm_params->mass_top_muW, 2.)));
     return this->double_to_complex_save("NNLO", coeff_temp);
 }
 
-std::complex<double> C8_THDM::LO_calculation() {
+complex_t C8_THDM::LO_calculation() {
     double coeff_temp = 1./3.*thdm_params->lu*thdm_params->lu*F8_1(thdm_params->yt) - thdm_params->lu*thdm_params->ld*F8_2(thdm_params->yt);
     return this->double_to_complex_save("LO", coeff_temp);
 }
 
-std::complex<double> C8_THDM::NLO_calculation() {
+complex_t C8_THDM::NLO_calculation() {
     double coeff_temp = G8H(thdm_params->yt,thdm_params->lu,thdm_params->ld)+Delta8H(thdm_params->yt,thdm_params->lu,thdm_params->ld)*log(pow(this->get_Q_match()/thdm_params->m_H,2.))
     -1./6.*EH(thdm_params->yt,thdm_params->lu);
     return this->double_to_complex_save("NLO", coeff_temp);
 }
 
-std::complex<double> C8_THDM::NNLO_calculation() {
+complex_t C8_THDM::NNLO_calculation() {
 	double coeff_temp =C8H2(thdm_params->yt,thdm_params->lu,thdm_params->ld,log(pow(this->get_Q_match()/thdm_params->mass_top_muW, 2.)));
     return this->double_to_complex_save("NNLO", coeff_temp);
 }
 
-std::complex<double> C9_THDM::LO_calculation() {
+complex_t C9_THDM::LO_calculation() {
     double coeff_temp = (1.-4.*thdm_params->sw2)/thdm_params->sw2*C9llH0(thdm_params->xt,thdm_params->yt,thdm_params->lu)-D9H0(thdm_params->yt,thdm_params->lu);
     return this->double_to_complex_save("LO", coeff_temp);
 }
 
-std::complex<double> C9_THDM::NLO_calculation() {
+complex_t C9_THDM::NLO_calculation() {
     double coeff_temp = (1.-4.*thdm_params->sw2)/thdm_params->sw2*C9llH1(thdm_params->xt,thdm_params->yt,thdm_params->lu,log(pow(this->get_Q_match()/thdm_params->m_H,2.)))
     -D9H1(thdm_params->yt,thdm_params->lu,log(pow(this->get_Q_match()/thdm_params->m_H,2.)));
     return this->double_to_complex_save("NLO", coeff_temp);
 }
 
-std::complex<double> C10_THDM::LO_calculation() {
+complex_t C10_THDM::LO_calculation() {
     double coeff_temp = -C9llH0(thdm_params->xt,thdm_params->yt,thdm_params->lu)/thdm_params->sw2;
     return this->double_to_complex_save("LO", coeff_temp);
 }
 
-std::complex<double> C10_THDM::NLO_calculation() {
+complex_t C10_THDM::NLO_calculation() {
     double coeff_temp = -C9llH1(thdm_params->xt,thdm_params->yt,thdm_params->lu,log(pow(this->get_Q_match()/thdm_params->m_H,2.)))/thdm_params->sw2;
     return this->double_to_complex_save("NLO", coeff_temp);
 }
 
-std::complex<double> CQ1_THDM::LO_calculation() {
+complex_t CQ1_THDM::LO_calculation() {
     double le = (*mod)("YL",10*(gen-1)+gen-1);
 	double G1=-3./4.+thdm_params->ld*thdm_params->lu*F4SP(thdm_params->xt,thdm_params->xH)+thdm_params->lu*thdm_params->lu*F5SP(thdm_params->xt,thdm_params->xH);
 	double G2=thdm_params->ld*(thdm_params->ld*thdm_params->lu+1.)*F6SP(thdm_params->xt,thdm_params->xH)-thdm_params->ld*thdm_params->lu*thdm_params->lu*F7SP(thdm_params->xt,thdm_params->xH)
@@ -101,7 +101,7 @@ std::complex<double> CQ1_THDM::LO_calculation() {
 	return this->double_to_complex_save("LO", coeff_temp);
 }
 
-std::complex<double> CQ2_THDM::LO_calculation() {
+complex_t CQ2_THDM::LO_calculation() {
     double le = (*mod)("YL",10*(gen-1)+gen-1);
     double G3=thdm_params->ld*(thdm_params->ld*thdm_params->lu+1.)*F6SP(thdm_params->xt,thdm_params->xH)+thdm_params->ld*thdm_params->lu*thdm_params->lu*F7SP(thdm_params->xt,thdm_params->xH)
 	+thdm_params->lu*thdm_params->lu*(thdm_params->ld*F8SP(thdm_params->xt,thdm_params->xH)+thdm_params->lu*F9SP(thdm_params->xt,thdm_params->xH)+thdm_params->lu*F10SP(thdm_params->xt,thdm_params->xH))+thdm_params->lu*F11SP(thdm_params->xt,thdm_params->xH)+thdm_params->lu*F12SP(thdm_params->xt,thdm_params->xH);
@@ -112,21 +112,21 @@ std::complex<double> CQ2_THDM::LO_calculation() {
     return this->double_to_complex_save("LO", coeff_temp);
 }
 
-std::complex<double> C_Blnu_P_THDM::LO_calculation() {
+complex_t C_Blnu_P_THDM::LO_calculation() {
     double m_b = QCDHelper::mass_b_msbar();
     double m_tau = (*sm)("MASS", 15);
     double l_tau = (*mod)("YL", 22);
     return this->double_to_complex_save("LO", -m_b * m_tau * thdm_params->ld * l_tau / std::pow(thdm_params->m_H, 2));
 }
 
-std::complex<double> C_S1_THDM::LO_calculation() {
+complex_t C_S1_THDM::LO_calculation() {
     double m_b = QCDHelper::mass_b_msbar();
     double m_tau = (*sm)("MASS", 15);
     double l_tau = (*mod)("YL", 22);
     return this->double_to_complex_save("LO", -m_b * m_tau * thdm_params->ld * l_tau / std::pow(thdm_params->m_H, 2));
 }
 
-std::complex<double> C_S2_THDM::LO_calculation() {
+complex_t C_S2_THDM::LO_calculation() {
     double m_c = (*sm)("MASS", 4);
     double m_tau = (*sm)("MASS", 15);
     double l_tau = (*mod)("YL", 22);

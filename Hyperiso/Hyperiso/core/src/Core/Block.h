@@ -30,12 +30,26 @@ public:
     virtual double getValue(LhaID id) const = 0;
 
     /**
+     * @brief Retrieves the value associated with a given PDG code (int).
+     * @param id The PDG code of the parameter.
+     * @return The parameter.
+     */
+    virtual Parameter getParameter(LhaID id) const = 0;
+
+    /**
      * @brief Sets the value of a parameter.
      * @param id The PDG code of the parameter.
      * @param value The new value to set.
      * @param force If true, forces the update.
      */
     virtual void setValue(LhaID id, double value, bool force = false) = 0;
+
+    /**
+     * @brief Sets the value of a parameter.
+     * @param id The PDG code of the parameter.
+     * @param source The source parameter to set.
+     */
+    virtual void setParameter(LhaID id, const Parameter& source) = 0;
 
     /**
      * @brief Sets the value of a parameter.
@@ -66,10 +80,28 @@ public:
     virtual std::vector<LhaID> getAllIDs() = 0;
 
     /**
+     * @brief Retrieves all parameters with their ids.
+     * @return A map of LhaIDs and Parameters.
+     */
+    virtual const std::map<LhaID, Parameter>& getItems() = 0;
+
+    /**
      * @brief Retrieves all parameter ids.
      * @return A vector of LhaIDs of stored parameters.
      */
     virtual bool hasID(LhaID id) = 0;
+
+    /**
+     * @brief Removes parameter from block.
+     * @param id Id of the parameter to remove.
+     */
+    virtual void remove_parameter(LhaID id) = 0;
+
+    Block() = default;
+
+    Block(std::shared_ptr<Block> other) { this->copy(other); };
+
+    virtual void copy(std::shared_ptr<Block> other) = 0;
 
     /**
      * @brief Virtual destructor.
@@ -86,6 +118,8 @@ public:
  */
 class MapBlock : public Block {
 public:
+
+    MapBlock(std::shared_ptr<Block> other);
     
     double getValue(LhaID id) const override;
     void setValue(LhaID id, double value, bool force = false) override;
@@ -94,6 +128,11 @@ public:
     std::map<LhaID, double> getAllValues() override;
     std::vector<LhaID> getAllIDs() override;
     bool hasID(LhaID id) override;
+    void copy(std::shared_ptr<Block> other) override;
+    const std::map<LhaID, Parameter>& getItems() override { return this->values; };
+    Parameter getParameter(LhaID id) const override;
+    void setParameter(LhaID id, const Parameter& source) override;
+    void remove_parameter(LhaID id) override;
 
 protected:
     /// Map of PDG codes to parameters

@@ -70,6 +70,22 @@ public:
     double getValue(const std::string& blockName, LhaID pdgCode) const;
 
     /**
+     * @brief Retrieves the parameter from a specified block.
+     * @param blockName The name of the block.
+     * @param id The LHA ID of the parameter.
+     * @return The parameter.
+     */
+    Parameter getParameter(const std::string& blockName, LhaID id) const;
+
+    /**
+     * @brief Retrieves the parameter from a specified block.
+     * @param blockName The name of the block.
+     * @param id The LHA ID of the parameter.
+     * @param source The source parameter.
+     */
+    void setParameter(const std::string& blockName, LhaID id, const Parameter& source);
+
+    /**
      * @brief Retrieves all values from a specified block.
      * @param blockName The name of the block.
      * @return A map of PDG codes to parameter values.
@@ -137,6 +153,38 @@ public:
     }
 
     /**
+     * @brief Override to prevent direct access to parameters.
+     * @throws std::logic_error Always throws an error.
+     */
+    const std::map<LhaID, Parameter>& getItems() {
+        throw std::logic_error("Use getItems from Block");
+    }
+
+    /**
+     * @brief Override to prevent direct access to parameters.
+     * @throws std::logic_error Always throws an error.
+     */
+    Parameter getParameter(LhaID id) const {
+        throw std::logic_error("Use getParameter with block name for BlockAccessor");
+    }
+
+    /**
+     * @brief Override to prevent direct access to parameters.
+     * @throws std::logic_error Always throws an error.
+     */
+    void setParameter(LhaID id, const Parameter& source) {
+        throw std::logic_error("Use setParameter with block name for BlockAccessor");
+    }
+
+    /**
+     * @brief Override to prevent direct access to parameters.
+     * @throws std::logic_error Always throws an error.
+     */
+    void remove_parameter(LhaID id) {
+        throw std::logic_error("Use removeParameter with block name for BlockAccessor");
+    }
+
+    /**
      * @brief Retrieves all parameter ids.
      * @return A vector of LhaIDs of stored parameters.
      */
@@ -144,6 +192,17 @@ public:
         throw std::logic_error("Use exists with block name for BlockAccessor");
     }
 
+    /**
+     * @brief Retrieves all parameter ids.
+     * @return A vector of LhaIDs of stored parameters.
+     */
+    void copy(std::shared_ptr<Block> other) {
+        throw std::logic_error("Copy blocks only");
+    }
+
+    void remove_block(const std::string& block_name);
+
+    void remove_item(const std::string& block_name, LhaID id);
 
     /**
      * @brief Merges two distinct BlockAccessor instances without priority. Throws an error if both have blocks in common.  
@@ -160,6 +219,13 @@ public:
      * @return A new `BlockAccessor` instance storing all the blocks from `rhs` and `lhs`.   
      */
     friend std::shared_ptr<BlockAccessor> operator>>(std::shared_ptr<BlockAccessor> lhs, std::shared_ptr<BlockAccessor> rhs);
+
+    /**
+     * @brief Retrieves given blocks from stored blocks if they exist.
+     * @param block_names List of block names to retrieve.
+     * @return A new `BlockAccessor` instance storing all the given blocks.   
+     */
+    std::shared_ptr<BlockAccessor> operator[](std::vector<std::string> block_names);
 
     friend std::ostream& operator<<(std::ostream&, std::shared_ptr<BlockAccessor>);
 

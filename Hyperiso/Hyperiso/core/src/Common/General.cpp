@@ -267,7 +267,7 @@ const std::map<ParameterType, std::string> ParameterTypeMapper::mapping = {
     {ParameterType::CUSTOM, "CUSTOM"},
     {ParameterType::FLAVOR, "FLAVOR"},
     {ParameterType::WILSON, "WILSON"},
-    {ParameterType::FF, "FF"},
+    {ParameterType::DECAY, "DECAY"},
 };
 
 const std::map<std::string, ParameterType> ParameterTypeMapper::inverse_mapping = {
@@ -277,7 +277,7 @@ const std::map<std::string, ParameterType> ParameterTypeMapper::inverse_mapping 
     {"CUSTOM", ParameterType::CUSTOM},
     {"FLAVOR", ParameterType::FLAVOR},
     {"WILSON", ParameterType::WILSON},
-    {"FF", ParameterType::FF},
+    {"DECAY", ParameterType::DECAY},
 };
 
 const std::map<Observables, std::vector<ParamId>> DependenciesHelper::dep_lists = {
@@ -320,7 +320,7 @@ const std::map<Observables, std::vector<ParamId>> DependenciesHelper::dep_lists 
         ParamId{ParameterType::FLAVOR, "FMASS", 531},
         ParamId{ParameterType::FLAVOR, "FLIFE", 531},
         ParamId{ParameterType::FLAVOR, "FCONST", 53101},
-        ParamId{ParameterType::FF, "B_ll", 1}
+        ParamId{ParameterType::DECAY, "B_ll", 1}
     }},
     {Observables::BR_BD_MUMU, {
         ParamId{ParameterType::SM, "SMINPUTS", 1},
@@ -393,19 +393,19 @@ const std::map<Observables, std::vector<ParamId>> DependenciesHelper::dep_lists 
         ParamId{ParameterType::FLAVOR, "FCONST", 52101},
         ParamId{ParameterType::FLAVOR, "FCONST", 32301},
         ParamId{ParameterType::FLAVOR, "FCONST", 32302},
-        ParamId{ParameterType::FF, "B_Ks", 1},
-        ParamId{ParameterType::FF, "B_Ks", 2},
-        ParamId{ParameterType::FF, "B_Ks", 3},
-        ParamId{ParameterType::FF, "B_Ks", 4},
-        ParamId{ParameterType::FF, "B_Ks", 5},
-        ParamId{ParameterType::FF, "B_Ks", 6},
-        ParamId{ParameterType::FF, "B_Ks", 7},
-        ParamId{ParameterType::FF, "B_Ks", 8},
-        ParamId{ParameterType::FF, "B_Ks", 9},
-        ParamId{ParameterType::FF, "B_Ks", 10},
-        ParamId{ParameterType::FF, "B_Ks", 11},
-        ParamId{ParameterType::FF, "B_Ks", 12},
-        ParamId{ParameterType::FF, "B_Ks", 13}
+        ParamId{ParameterType::DECAY, "B_Ks", 1},
+        ParamId{ParameterType::DECAY, "B_Ks", 2},
+        ParamId{ParameterType::DECAY, "B_Ks", 3},
+        ParamId{ParameterType::DECAY, "B_Ks", 4},
+        ParamId{ParameterType::DECAY, "B_Ks", 5},
+        ParamId{ParameterType::DECAY, "B_Ks", 6},
+        ParamId{ParameterType::DECAY, "B_Ks", 7},
+        ParamId{ParameterType::DECAY, "B_Ks", 8},
+        ParamId{ParameterType::DECAY, "B_Ks", 9},
+        ParamId{ParameterType::DECAY, "B_Ks", 10},
+        ParamId{ParameterType::DECAY, "B_Ks", 11},
+        ParamId{ParameterType::DECAY, "B_Ks", 12},
+        ParamId{ParameterType::DECAY, "B_Ks", 13}
     }},
     {Observables::BR_B_XS_GAMMA, {
         ParamId{ParameterType::SM, "SMINPUTS", 1},
@@ -423,15 +423,15 @@ const std::map<Observables, std::vector<ParamId>> DependenciesHelper::dep_lists 
         // ParamId{ParameterType::SM, "IMCKM", 21},
         ParamId{ParameterType::SM, "RECKM", 22},
         // ParamId{ParameterType::SM, "IMCKM", 22},
-        ParamId{ParameterType::FF, "B_Xs", 1},
-        ParamId{ParameterType::FF, "B_Xs", 2},
-        ParamId{ParameterType::FF, "B_Xs", 3},
-        ParamId{ParameterType::FF, "B_Xs", 4},
-        ParamId{ParameterType::FF, "B_Xs", 5},
-        ParamId{ParameterType::FF, "B_Xs", 6},
-        ParamId{ParameterType::FF, "B_Xs", 7},
-        ParamId{ParameterType::FF, "B_Xs", 8},
-        ParamId{ParameterType::FF, "B_Xs", 9},
+        ParamId{ParameterType::DECAY, "B_Xs", 1},
+        ParamId{ParameterType::DECAY, "B_Xs", 2},
+        ParamId{ParameterType::DECAY, "B_Xs", 3},
+        ParamId{ParameterType::DECAY, "B_Xs", 4},
+        ParamId{ParameterType::DECAY, "B_Xs", 5},
+        ParamId{ParameterType::DECAY, "B_Xs", 6},
+        ParamId{ParameterType::DECAY, "B_Xs", 7},
+        ParamId{ParameterType::DECAY, "B_Xs", 8},
+        ParamId{ParameterType::DECAY, "B_Xs", 9},
     }},
     {Observables::BR_B__D_TAU_NU, {
         ParamId{ParameterType::SM, "SMINPUTS", 2},
@@ -449,9 +449,9 @@ const std::map<Observables, std::vector<ParamId>> DependenciesHelper::dep_lists 
         ParamId{ParameterType::FLAVOR, "FMASS", 521},
         ParamId{ParameterType::FLAVOR, "FMASS", 421},
         ParamId{ParameterType::FLAVOR, "FLIFE", 521},
-        ParamId{ParameterType::FF, "B_Dlnu", 1},
-        ParamId{ParameterType::FF, "B_Dlnu", 2},
-        ParamId{ParameterType::FF, "B_Dlnu", 3},
+        ParamId{ParameterType::DECAY, "B_Dlnu", 1},
+        ParamId{ParameterType::DECAY, "B_Dlnu", 2},
+        ParamId{ParameterType::DECAY, "B_Dlnu", 3},
     }},
     {Observables::A_FB_B__D_TAU_NU, {
         ParamId{ParameterType::SM, "SMINPUTS", 2},
@@ -467,8 +467,8 @@ const std::map<Observables, std::vector<ParamId>> DependenciesHelper::dep_lists 
         ParamId{ParameterType::FLAVOR, "FMASS", 521},
         ParamId{ParameterType::FLAVOR, "FMASS", 421},
         ParamId{ParameterType::FLAVOR, "FLIFE", 521},
-        ParamId{ParameterType::FF, "B_Dlnu", 2},
-        ParamId{ParameterType::FF, "B_Dlnu", 3},
+        ParamId{ParameterType::DECAY, "B_Dlnu", 2},
+        ParamId{ParameterType::DECAY, "B_Dlnu", 3},
     }},
     {Observables::P_TAU_B__D_TAU_NU, {
         ParamId{ParameterType::SM, "SMINPUTS", 2},
@@ -484,8 +484,8 @@ const std::map<Observables, std::vector<ParamId>> DependenciesHelper::dep_lists 
         ParamId{ParameterType::FLAVOR, "FMASS", 521},
         ParamId{ParameterType::FLAVOR, "FMASS", 421},
         ParamId{ParameterType::FLAVOR, "FLIFE", 521},
-        ParamId{ParameterType::FF, "B_Dlnu", 2},
-        ParamId{ParameterType::FF, "B_Dlnu", 3},
+        ParamId{ParameterType::DECAY, "B_Dlnu", 2},
+        ParamId{ParameterType::DECAY, "B_Dlnu", 3},
     }},
     {Observables::R_D, {
         ParamId{ParameterType::SM, "SMINPUTS", 2},
@@ -501,8 +501,8 @@ const std::map<Observables, std::vector<ParamId>> DependenciesHelper::dep_lists 
         ParamId{ParameterType::FLAVOR, "FMASS", 521},
         ParamId{ParameterType::FLAVOR, "FMASS", 421},
         ParamId{ParameterType::FLAVOR, "FLIFE", 521},
-        ParamId{ParameterType::FF, "B_Dlnu", 2},
-        ParamId{ParameterType::FF, "B_Dlnu", 3},
+        ParamId{ParameterType::DECAY, "B_Dlnu", 2},
+        ParamId{ParameterType::DECAY, "B_Dlnu", 3},
     }},
     {Observables::BR_B__DSTAR_TAU_NU, {
         ParamId{ParameterType::SM, "SMINPUTS", 2},
@@ -520,10 +520,10 @@ const std::map<Observables, std::vector<ParamId>> DependenciesHelper::dep_lists 
         ParamId{ParameterType::FLAVOR, "FMASS", 521},
         ParamId{ParameterType::FLAVOR, "FMASS", 421},
         ParamId{ParameterType::FLAVOR, "FLIFE", 523},
-        ParamId{ParameterType::FF, "B_Dslnu", 1},
-        ParamId{ParameterType::FF, "B_Dslnu", 2},
-        ParamId{ParameterType::FF, "B_Dslnu", 3},
-        ParamId{ParameterType::FF, "B_Dslnu", 4},
+        ParamId{ParameterType::DECAY, "B_Dslnu", 1},
+        ParamId{ParameterType::DECAY, "B_Dslnu", 2},
+        ParamId{ParameterType::DECAY, "B_Dslnu", 3},
+        ParamId{ParameterType::DECAY, "B_Dslnu", 4},
     }},
     {Observables::A_FB_B__DSTAR_TAU_NU, {
         ParamId{ParameterType::SM, "SMINPUTS", 2},
@@ -539,9 +539,9 @@ const std::map<Observables, std::vector<ParamId>> DependenciesHelper::dep_lists 
         ParamId{ParameterType::FLAVOR, "FMASS", 521},
         ParamId{ParameterType::FLAVOR, "FMASS", 421},
         ParamId{ParameterType::FLAVOR, "FLIFE", 523},
-        ParamId{ParameterType::FF, "B_Dslnu", 2},
-        ParamId{ParameterType::FF, "B_Dslnu", 3},
-        ParamId{ParameterType::FF, "B_Dslnu", 4},
+        ParamId{ParameterType::DECAY, "B_Dslnu", 2},
+        ParamId{ParameterType::DECAY, "B_Dslnu", 3},
+        ParamId{ParameterType::DECAY, "B_Dslnu", 4},
     }},
     {Observables::P_TAU_B__DSTAR_TAU_NU, {
         ParamId{ParameterType::SM, "SMINPUTS", 2},
@@ -557,9 +557,9 @@ const std::map<Observables, std::vector<ParamId>> DependenciesHelper::dep_lists 
         ParamId{ParameterType::FLAVOR, "FMASS", 521},
         ParamId{ParameterType::FLAVOR, "FMASS", 421},
         ParamId{ParameterType::FLAVOR, "FLIFE", 523},
-        ParamId{ParameterType::FF, "B_Dslnu", 2},
-        ParamId{ParameterType::FF, "B_Dslnu", 3},
-        ParamId{ParameterType::FF, "B_Dslnu", 4},
+        ParamId{ParameterType::DECAY, "B_Dslnu", 2},
+        ParamId{ParameterType::DECAY, "B_Dslnu", 3},
+        ParamId{ParameterType::DECAY, "B_Dslnu", 4},
     }},
     {Observables::P_D_B__DSTAR_TAU_NU, {
         ParamId{ParameterType::SM, "SMINPUTS", 2},
@@ -575,9 +575,9 @@ const std::map<Observables, std::vector<ParamId>> DependenciesHelper::dep_lists 
         ParamId{ParameterType::FLAVOR, "FMASS", 521},
         ParamId{ParameterType::FLAVOR, "FMASS", 421},
         ParamId{ParameterType::FLAVOR, "FLIFE", 523},
-        ParamId{ParameterType::FF, "B_Dslnu", 2},
-        ParamId{ParameterType::FF, "B_Dslnu", 3},
-        ParamId{ParameterType::FF, "B_Dslnu", 4},
+        ParamId{ParameterType::DECAY, "B_Dslnu", 2},
+        ParamId{ParameterType::DECAY, "B_Dslnu", 3},
+        ParamId{ParameterType::DECAY, "B_Dslnu", 4},
     }},
     {Observables::R_DSTAR, {
         ParamId{ParameterType::SM, "SMINPUTS", 2},
@@ -593,9 +593,9 @@ const std::map<Observables, std::vector<ParamId>> DependenciesHelper::dep_lists 
         ParamId{ParameterType::FLAVOR, "FMASS", 521},
         ParamId{ParameterType::FLAVOR, "FMASS", 421},
         ParamId{ParameterType::FLAVOR, "FLIFE", 523},
-        ParamId{ParameterType::FF, "B_Dslnu", 2},
-        ParamId{ParameterType::FF, "B_Dslnu", 3},
-        ParamId{ParameterType::FF, "B_Dslnu", 4},
+        ParamId{ParameterType::DECAY, "B_Dslnu", 2},
+        ParamId{ParameterType::DECAY, "B_Dslnu", 3},
+        ParamId{ParameterType::DECAY, "B_Dslnu", 4},
     }}
 };
 
@@ -619,4 +619,22 @@ std::vector<std::vector<long>> LhaParamsHelper::get_minimal_content(const std::s
         return LhaParamsHelper::minimal_blocks.at(block_name);
     }
     LOG_ERROR("LhaParamsHelper", "Unknown block", block_name);
+}
+
+std::ostream &operator<<(std::ostream &os, const LhaID &id)
+{
+    if (!id.parts.empty()) {
+        os << id.parts.at(0);
+        for (size_t i = 1; i < id.parts.size(); i++) {
+            os << '_' << id.parts.at(i);
+        }
+    }
+
+    return os;
+}
+
+LhaID::LhaID(const std::string &str_id) {
+    for (const auto &num : split(str_id, '_')) {
+        parts.emplace_back(std::stol(num));
+    }
 }

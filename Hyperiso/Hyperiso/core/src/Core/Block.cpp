@@ -1,6 +1,11 @@
 #include "Block.h"
 
-double MapBlock::getValue(LhaID id) const {
+MapBlock::MapBlock(std::shared_ptr<Block> other) {
+    this->copy(other);
+}
+
+double MapBlock::getValue(LhaID id) const
+{
     auto it = values.find(id);
     if (it != values.end()) {
         return it->second.get_val();
@@ -44,6 +49,28 @@ std::vector<LhaID> MapBlock::getAllIDs() {
 
 bool MapBlock::hasID(LhaID id) {
     return values.contains(id);
+}
+
+void MapBlock::copy(std::shared_ptr<Block> other) {
+    this->values = other->getItems();
+}
+
+Parameter MapBlock::getParameter(LhaID id) const {
+    if (!values.contains(id)) {
+        LOG_ERROR("MapBlock", "Unknown parameter", id, "in block", blockname);
+    }
+    return this->values.at(id);
+}
+
+void MapBlock::setParameter(LhaID id, const Parameter &source) {
+    this->values.insert_or_assign(id, source);
+}
+
+void MapBlock::remove_parameter(LhaID id) {
+    if (!values.contains(id)) {
+        LOG_ERROR("Cannot remove non-existing parameter", id, "in block", blockname);
+    }
+    this->values.erase(id);
 }
 
 double WilsonBlock::getValue(LhaID pdgCode) const {

@@ -98,7 +98,7 @@ void BllDecay::build_op_tree() {
     auto f_Bd = std::make_shared<ParameterNode>(ParamId(ParameterType::FLAVOR, "FCONST", 51101));
 
     // Misc experimental input
-    auto y_s = std::make_shared<ParameterNode>(ParamId(ParameterType::FF, "B_ll", 1)); // y_s = life_Bs * Delta(Gamma_s) / 2
+    auto y_s = std::make_shared<ParameterNode>(ParamId(ParameterType::DECAY, "B_ll", 1)); // y_s = life_Bs * Delta(Gamma_s) / 2
 
     auto dummy = std::make_shared<ParameterNode>(ParamId(ParameterType::FLAVOR, "FMASS", 511));
     

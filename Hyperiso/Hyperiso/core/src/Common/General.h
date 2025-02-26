@@ -8,7 +8,10 @@
 #include <iostream>
 #include <map>
 #include <vector>
+#include <ranges>
+#include <concepts>
 #include "Logger.h"
+#include "Utils.h"
 
 enum class Observables {
     BR_BS_MUMU,
@@ -250,7 +253,9 @@ enum class ParameterType {
     CUSTOM,
     FLAVOR,
     WILSON,
-    FF
+    DECAY,
+    PASSTHROUGH,
+    OBSERVABLE,
 };
 
 class ParameterTypeMapper {
@@ -322,10 +327,61 @@ private:
     static const std::map<std::string, Model> inverse_mapping; 
 };
 
+/**
+ * @struct LhaID
+ * @brief Represents an identifier of a LHA element, possibly containing several sub-ids 
+ */
+struct LhaID {
+    std::vector<long> parts;     /**< Collection of sub-ids. */
+
+    /**
+     * @brief Constructs a LhaID with specified sub-ids
+     * @param parts List of sub-ids of the element
+     */
+    template<typename... Args>
+    requires (std::convertible_to<Args, long> && ...)
+    LhaID(Args... sub_ids) : parts({static_cast<long>(sub_ids)...}) {}
+
+    /**
+     * @brief Constructs a LhaID from a string of _-separated integer values
+     * @param parts String of sub-ids of the element separated by an _
+     */
+    LhaID(const std::string& parts);
+
+    /**
+     * @brief Constructs a LhaID with a single identifier
+     * @param sub_ids Sub-identifiers of the element
+     */
+    LhaID(const std::vector<long>& sub_ids) : parts(std::move(sub_ids)) {}
+
+    /**
+     * @brief Constructs a LhaID with a single identifier
+     * @param id Identifier of the element
+     */
+    LhaID(long id) : parts({id}) {}
+
+    
+    /**
+     * @brief Allows for implicit conversion of a trivial LhaID to an integer 
+     */
+    operator long() const {
+        if (this->parts.size() > 1) {
+            LOG_WARN("Casting nontrivial LhaID to int discards information.");
+        }
+        return this->parts.at(0);
+    };
+
+    inline friend bool operator==(const LhaID& lhs, const LhaID& rhs) { return lhs.parts == rhs.parts; };
+    inline friend bool operator!=(const LhaID& lhs, const LhaID& rhs) { return !(lhs == rhs); };
+    inline friend bool operator<(const LhaID& lhs, const LhaID& rhs) { return (lhs.parts <=> rhs.parts) == std::weak_ordering::less; };
+
+    friend std::ostream& operator<<(std::ostream&, const LhaID&);
+};
+
 struct ParamId {
     ParameterType type;
     std::string block;
-    int code;
+    LhaID code;
 
     bool operator==(const ParamId other) const {
         return type == other.type && block == other.block && code == other.code;
@@ -358,42 +414,6 @@ public:
 
 private:
     static const std::map<std::string, std::vector<std::vector<long>>> minimal_blocks;
-};
-
-/**
- * @struct LhaID
- * @brief Represents an identifier of a LHA element, possibly containing several sub-ids 
- */
-struct LhaID {
-    std::vector<long> parts;     /**< Collection of sub-ids. */
-
-    /**
-     * @brief Constructs a LhaID with specified sub-ids
-     * @param parts List of sub-ids of the element
-     */
-    LhaID(const std::vector<long>& parts) : parts(std::move(parts)) {}
-
-    /**
-     * @brief Constructs a LhaID with a single identifier
-     * @param id Identifier of the element
-     */
-    LhaID(long id) : parts({id}) {}
-
-    
-    /**
-     * @brief Allows for implicit conversion of a trivial LhaID to an integer 
-     */
-    operator long() const {
-        if (this->parts.size() > 1) {
-            LOG_WARN("Casting nontrivial LhaID to int discards information.");
-        }
-        return this->parts.at(0);
-    };
-
-    inline friend bool operator==(const LhaID& lhs, const LhaID& rhs) { return lhs.parts == rhs.parts; };
-    inline friend bool operator!=(const LhaID& lhs, const LhaID& rhs) { return !(lhs == rhs); };
-
-    friend std::ostream& operator<<(std::ostream&, const LhaID&);
 };
 
 #endif // __GENERAL_H__

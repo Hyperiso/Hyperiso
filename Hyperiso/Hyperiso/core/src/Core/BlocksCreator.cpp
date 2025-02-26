@@ -8,6 +8,7 @@ std::shared_ptr<BlockAccessor> BlocksCreator::from_lha_reader(std::shared_ptr<Lh
         for (auto &vk : *reader->getBlock(bk)->getEntries()) {
             block->setValue(vk->getId(), reader->getValue<double>(bk, vk->getId()));
         }
+        ba->addBlock(bk, block);
     }
 
     return ba;
@@ -25,11 +26,11 @@ std::shared_ptr<BlockAccessor> BlocksCreator::from_db_node(std::shared_ptr<Node>
             }
 
             auto value = node->get("central_value");
-            block->setValue(std::stol(vk.first), std::get<double>(value));
-            auto stat = node->get("stat_error");
+            block->setValue(LhaID(vk.first), std::get<double>(value));
 
+            auto stat = node->get("stat_error");
             auto syst = node->contains("syst_error") ? node->get("syst_error") : 0;
-            block->setDeviation(std::stol(vk.first), std::get<double>(stat), std::get<double>(syst));
+            block->setDeviation(LhaID(vk.first), std::get<double>(stat), std::get<double>(syst));
         }
 
         ba->addBlock(bk, block);

@@ -1,8 +1,4 @@
 #include "MemoryManager.h"
-#include "Parameters.h"
-#include "Parser.h"
-#include <filesystem>
-#include "BlocksCreator.h"
 
 namespace fs = std::filesystem;
 
@@ -18,30 +14,19 @@ void MemoryManager::check_if_ready() {
     }
 }
 
-MemoryManager* MemoryManager::GetInstance() {
-    if (!MemoryManager::instance) {
-        MemoryManager::instance = new MemoryManager();
-    }
-    return MemoryManager::instance;
+std::shared_ptr<BlockAccessor> MemoryManager::get_blocks(std::vector<std::string> block_names) {
+    return (*input_cache)[block_names];
 }
 
-void MemoryManager::init(const std::string& lhaFile, Model model, bool use_marty, bool is_spectrum, bool has_wilsons, bool has_obs) {
-    if (cache.is_ready) {
-        LOG_WARN("MemoryManager has already been initialized.");
-        return;
-    }
-
+std::shared_ptr<BlockAccessor> MemoryManager::read_params(fs::path lha_path) {
     /* Default input */
 
     auto json_parser = ParserFactory::createParser(ParserFactory::Type::JSON);
-    LOG_INFO("Read default param values");
     auto default_param_values_root = json_parser->readFromFile(FilePaths::default_param_values_path.string());
     // TODO : insert file check here
-    LOG_INFO("Store in BlockAccessor");
     auto param_values_ba = BlocksCreator::from_db_node(default_param_values_root); 
-    // DBMemento::Snapshot(param_values_ba, "DEFAULT");
-
-    std::cout << param_values_ba;
+    DBMemento memento;
+    memento.takeSnapshot(param_values_ba);
 
     // TODO : read default correlations between params
     // TODO : read default observable values and correlations
@@ -50,49 +35,57 @@ void MemoryManager::init(const std::string& lhaFile, Model model, bool use_marty
 
     auto yaml_parser = ParserFactory::createParser(ParserFactory::Type::YAML);
     fs::path ui_paths[3] = {FilePaths::user_sm_params_path, FilePaths::user_flavor_params_path, FilePaths::user_decay_params_path};
-    LOG_INFO("Read user input param values");
     for (auto& path : ui_paths) {
-        LOG_INFO("Read from file");
         auto ui_root = yaml_parser->readFromFile(path.string());
-        LOG_INFO("Store in blockAccessor");
         auto ui_ba = BlocksCreator::from_db_node(ui_root); 
-        LOG_INFO("Merge blockAccessors");
         param_values_ba = ui_ba >> param_values_ba;
     }
-    // DBMemento::Snapshot(param_values_ba, "USER_INPUT");
-
-    std::cout << param_values_ba;
+    memento.takeSnapshot(param_values_ba);
 
     // TODO : read user correlations between params
     // TODO : read user observable values and correlations
 
     /* LHA input */
-
-    LOG_INFO("Read LHA");
-    fs::path lha_path = format_lha_path(lhaFile);
     auto lha_reader = std::make_shared<LhaReader>(LhaReader(lha_path.string()));
     lha_reader->readAll();
 
     auto lha_param_ba = BlocksCreator::from_lha_reader(lha_reader);
     param_values_ba = lha_param_ba >> param_values_ba;
-    // DBMemento::Snapshot(param_values_ba, "LHA");
+    memento.takeSnapshot(param_values_ba);
 
-    std::cout << param_values_ba;
+    return param_values_ba;
+}
+
+MemoryManager* MemoryManager::GetInstance() {
+    if (!MemoryManager::instance) {
+        MemoryManager::instance = new MemoryManager();
+    }
+    return MemoryManager::instance;
+}
+
+void MemoryManager::init(const std::string& lhaFile, const Config& config) {
+    if (cache.is_ready) {
+        LOG_WARN("MemoryManager has already been initialized.");
+        return;
+    }
+
+    fs::path lha_path = format_lha_path(lhaFile);
+    fs::path spectrum_path = lha_path;
+
+    if (!config.use_marty && (config.model == Model::THDM || config.model == Model::SUSY) && !config.is_spectrum) {
+        spectrum_path = DirPaths::spectrum_dir_path/lha_path.filename();
+        LOG_DEBUG("Starting spectrum calculation...");
+        CalculatorType calculatorType = config.model == Model::THDM ? CalculatorType::TwoHDM : CalculatorType::Softsusy;
+        GeneralCalculatorFactory::executeCommand(calculatorType, "calculateSpectrum", lha_path, spectrum_path.string());
+        LOG_DEBUG("Spectrum calculation ran sucessfully");
+    }
+
+    auto block_accessor = read_params(spectrum_path);
 
     cache.lha_path = lha_path;
-    cache.model = model;
-    cache.is_spectrum = is_spectrum;
-    cache.has_wilsons = has_wilsons;
-    cache.has_obs = has_obs;
-    cache.use_marty = use_marty;
+    cache.config = config;
     cache.thread_id = std::this_thread::get_id();
-    
-    cache.parameter_types = {ParameterType::SM, ParameterType::FLAVOR, ParameterType::FF};
-    if (model != Model::SM)
-        cache.parameter_types.push_back(static_cast<ParameterType>(static_cast<int>(model)));
-    if (has_wilsons)
-        cache.parameter_types.push_back(ParameterType::WILSON);
-
+    deduce_parameter_types(config);
     cache.is_ready = true;
 
     for (auto &&m : cache.parameter_types) {
@@ -101,12 +94,22 @@ void MemoryManager::init(const std::string& lhaFile, Model model, bool use_marty
     }
 }
 
-void MemoryManager::switch_lha(const std::string& lhaFile, Model model, bool use_marty, bool is_spectrum, bool has_wilsons, bool has_obs) {
+void MemoryManager::deduce_parameter_types(const Config &config) {
+    cache.parameter_types = {ParameterType::SM,
+                             ParameterType::FLAVOR,
+                             ParameterType::DECAY};
+    if (config.model != Model::SM)
+        cache.parameter_types.push_back(static_cast<ParameterType>(static_cast<int>(config.model)));
+    if (config.has_wilsons)
+        cache.parameter_types.push_back(ParameterType::WILSON);
+}
+
+void MemoryManager::switch_lha(const std::string& lhaFile, Config config) {
     for (auto& param : cache.parameter_types) {
         Parameters::GetInstance(param)->CleanupInstance(param);
     }
     this->cache.is_ready = false;
-    this->init(lhaFile, model, use_marty, is_spectrum, has_wilsons, has_obs);
+    this->init(lhaFile, config);
     this->cache.param_cache_okay = false;
 }
 
@@ -131,20 +134,24 @@ fs::path MemoryManager::format_lha_path(const std::string &path) {
 }
 
 void MemoryManager::switch_model(Model model, bool use_marty) {
-    this->cache.model = model;
-    this->cache.use_marty = use_marty;
+    this->cache.config.model = model;
+    this->cache.config.use_marty = use_marty;
     this->cache.parameter_types.push_back(static_cast<ParameterType>(static_cast<int>(model)));
     Parameters::GetInstance(static_cast<ParameterType>(static_cast<int>(model)));
     this->cache.param_cache_okay = false;
 }
 
-std::map<int, double> MemoryManager::get_block_infos(const std::string& block, ParameterType param_type) {
+std::map<LhaID, double> MemoryManager::get_block_infos(const std::string& block, ParameterType param_type) {
     return Parameters::GetInstance(param_type)->get_block_infos(block);
 }
 
 std::vector<std::string> MemoryManager::get_blocks_list(ParameterType param_type) {
-        return Parameters::GetInstance(param_type)->get_blocks_list();
-    }
+    return Parameters::GetInstance(param_type)->get_blocks_list();
+}
+
+std::vector<std::string> MemoryManager::get_all_blocks() {
+    return this->input_cache->get_block_names();
+}
 
 std::vector<ParameterType> MemoryManager::get_type_of_block(const std::string& block) {
     std::vector<ParameterType> param_type;

@@ -7,6 +7,7 @@
 #include <vector>
 #include <string>
 #include <algorithm>
+#include "Utils.h"
 
 /**
  * @struct Value
@@ -43,14 +44,6 @@ std::string trim(const std::string& str);
  * @return A new string without surrounding quotes.
  */
 std::string remove_quotes(const std::string& str);
-
-/**
- * @brief Splits a string into a vector of substrings based on a delimiter.
- * @param str The string to split.
- * @param delimiter The character to split the string on.
- * @return A vector of substrings resulting from the split.
- */
-std::vector<std::string> split(const std::string& str, char delimiter);
 
 /**
  * @brief Reads a JSON file and extracts values and correlations.

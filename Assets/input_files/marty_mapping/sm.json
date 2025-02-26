@@ -6,7 +6,7 @@
     "m_t": {"block": "MASS", "pdgCode": 6},
     "m_b": {"block": "MASS", "pdgCode": 5},
     "M_W": {"block": "MASS", "pdgCode": 24},
-    "M_Z": {"block": "MASS", "pdgCode": 23},
+    "M_Z": {"block": "SMINPUTS", "pdgCode": 4},
     "m_mu": {"block": "MASS", "pdgCode": 13},
     "g_s": {"block": "GAUGE", "pdgCode": 3},
     "V_tb": {"block": "RECKM", "pdgCode": 22},

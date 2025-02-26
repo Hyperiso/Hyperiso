@@ -655,15 +655,15 @@ double BXsDecay::x4(double P22_z0, double P22_z1, double c_z0, double c_z1) {
 void BXsDecay::build_op_tree() {
 
     // Formfactors and decay-specific parameters
-    auto E0             = std::make_shared<ParameterNode>(ParamId(ParameterType::FF, "B_Xs", 1));
-    auto BR_B__Xc_e_nu  = std::make_shared<ParameterNode>(ParamId(ParameterType::FF, "B_Xs", 2));
-    auto mu_G2          = std::make_shared<ParameterNode>(ParamId(ParameterType::FF, "B_Xs", 3));
-    auto rho_D3         = std::make_shared<ParameterNode>(ParamId(ParameterType::FF, "B_Xs", 4));
-    auto rho_LS3        = std::make_shared<ParameterNode>(ParamId(ParameterType::FF, "B_Xs", 5));
-    auto lambda_2       = std::make_shared<ParameterNode>(ParamId(ParameterType::FF, "B_Xs", 6));
-    auto mu_c           = std::make_shared<ParameterNode>(ParamId(ParameterType::FF, "B_Xs", 7));
-    auto z0             = std::make_shared<ParameterNode>(ParamId(ParameterType::FF, "B_Xs", 8));
-    auto z1             = std::make_shared<ParameterNode>(ParamId(ParameterType::FF, "B_Xs", 9));
+    auto E0             = std::make_shared<ParameterNode>(ParamId(ParameterType::DECAY, "B_Xs", 1));
+    auto BR_B__Xc_e_nu  = std::make_shared<ParameterNode>(ParamId(ParameterType::DECAY, "B_Xs", 2));
+    auto mu_G2          = std::make_shared<ParameterNode>(ParamId(ParameterType::DECAY, "B_Xs", 3));
+    auto rho_D3         = std::make_shared<ParameterNode>(ParamId(ParameterType::DECAY, "B_Xs", 4));
+    auto rho_LS3        = std::make_shared<ParameterNode>(ParamId(ParameterType::DECAY, "B_Xs", 5));
+    auto lambda_2       = std::make_shared<ParameterNode>(ParamId(ParameterType::DECAY, "B_Xs", 6));
+    auto mu_c           = std::make_shared<ParameterNode>(ParamId(ParameterType::DECAY, "B_Xs", 7));
+    auto z0             = std::make_shared<ParameterNode>(ParamId(ParameterType::DECAY, "B_Xs", 8));
+    auto z1             = std::make_shared<ParameterNode>(ParamId(ParameterType::DECAY, "B_Xs", 9));
 
     // SM parameters
     auto inv_alpha_em   = std::make_shared<ParameterNode>(ParamId(ParameterType::SM, "SMINPUTS", 1));

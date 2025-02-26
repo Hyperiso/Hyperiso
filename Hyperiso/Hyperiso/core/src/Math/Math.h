@@ -1,7 +1,6 @@
 #pragma once
 #include <cmath>
 #include <complex>
-#include "Formfactors.h"
 #include <map>
 #include <vector>
 #include <functional>
@@ -9,8 +8,8 @@
 #include <cstddef>
 #include <limits>
 #include <type_traits>
+#include "Utils.h"
 
-typedef std::complex<double> complex_t;
 using Integrand = std::function<double(double)>;
 using cIntegrand = std::function<complex_t(double)>;
 
@@ -36,7 +35,7 @@ constexpr double M_N =   0.9395654;  // Gev
 
 constexpr double EPSILON = 1e-5;
 
-constexpr std::complex<double> I = std::complex<double>(0, 1);
+constexpr complex_t I = complex_t(0, 1);
 
 /* Functions */
 

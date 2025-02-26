@@ -78,15 +78,3 @@ std::shared_ptr<AbstractElement> LhaElementFactory::createElement(LhaBlock* bloc
         return std::make_shared<LhaElement<double>>(block->getPrototype(), line);
     }
 }
-
-std::ostream &operator<<(std::ostream &os, const LhaID &id)
-{
-    if (!id.parts.empty()) {
-        os << id.parts.at(0);
-        for (size_t i = 1; i < id.parts.size(); i++) {
-            os << '|' << id.parts.at(i);
-        }
-    }
-
-    return os;
-}

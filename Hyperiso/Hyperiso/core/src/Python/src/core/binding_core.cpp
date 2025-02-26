@@ -22,7 +22,7 @@ void init_core(py::module &m) {
         .value("CUSTOM", ParameterType::CUSTOM)
         .value("FLAVOR", ParameterType::FLAVOR)
         .value("WILSON", ParameterType::WILSON)
-        .value("FF", ParameterType::FF)
+        .value("DECAY", ParameterType::DECAY)
         .export_values();
         
     

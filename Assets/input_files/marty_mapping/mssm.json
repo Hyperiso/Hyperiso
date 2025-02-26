@@ -1,5 +1,5 @@
 {
-    "m_Hp": {"block": "MASS", "pdgCode": 4},
+    "m_Hp": {"block": "MASS", "pdgCode": 37},
     "m_N_1": {"block": "MASS", "pdgCode": 1000022},
     "m_N_2": {"block": "MASS", "pdgCode": 1000023},
     "m_N_3": {"block": "MASS", "pdgCode": 1000025},

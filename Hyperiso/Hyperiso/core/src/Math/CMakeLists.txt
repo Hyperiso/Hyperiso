@@ -5,6 +5,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 project(Math)
 
+if (NOT TARGET CommonLib)
+    add_subdirectory(../Common CommonLib)
+endif()
+
 add_library(MathLib STATIC 
     bessel_function.cpp
     exponential_integral.cpp
@@ -22,4 +26,4 @@ set_target_properties(MathLib PROPERTIES PUBLIC_HEADER "Math.h;Math_SUSY.h;Math_
 target_include_directories(MathLib PRIVATE ${GSL_INCLUDE_DIRS})
 target_include_directories(MathLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/MathBSM)
 
-target_link_libraries(MathLib PRIVATE ${GSL_LIBRARIES})
+target_link_libraries(MathLib PRIVATE CommonLib ${GSL_LIBRARIES})

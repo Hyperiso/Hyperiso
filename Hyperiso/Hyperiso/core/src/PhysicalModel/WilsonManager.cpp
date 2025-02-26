@@ -92,7 +92,7 @@ void QSetState::setRunCoefficient(CoefficientManager* manager, const std::string
     manager->setState(groupName, std::make_unique<RunSetState>(OrderMapper::str(this->currentOrder)));
 }
 
-std::complex<double> MatchingSetState::getMatchingCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) {
+complex_t MatchingSetState::getMatchingCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) {
     if (!isOrderCalculated(order)) {
         throw std::runtime_error("Matching coefficient of the requested order has not been set.");
     }
@@ -101,7 +101,7 @@ std::complex<double> MatchingSetState::getMatchingCoefficient(CoefficientManager
     return group->getMatching(coeffName, order);
 }
 
-std::complex<double> MatchingSetState::getFullMatchingCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) {
+complex_t MatchingSetState::getFullMatchingCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) {
     CoefficientGroup* group = manager->getCoefficientGroup(groupName);
     return group->getfullMatching(coeffName, order);
 }
@@ -139,12 +139,12 @@ void RunSetState::setQMatch(CoefficientManager *manager,
     manager->setState(groupName, std::make_shared<QMatchSetState>(OrderMapper::str(this->currentOrder)));
 }
 
-std::complex<double> RunSetState::getFullMatchingCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) {
+complex_t RunSetState::getFullMatchingCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) {
     CoefficientGroup* group = manager->getCoefficientGroup(groupName);
     return group->getfullMatching(coeffName, order);
 }
 
-std::complex<double> QSetState::getFullMatchingCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) {
+complex_t QSetState::getFullMatchingCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) {
     CoefficientGroup* group = manager->getCoefficientGroup(groupName);
     return group->getfullMatching(coeffName, order);
 }
@@ -153,12 +153,12 @@ void RunSetState::switchbasis(CoefficientManager* manager, const std::string& gr
     CoefficientGroup* group = manager->getCoefficientGroup(groupName);
     group->switch_base();
 }
-std::complex<double> RunSetState::getFullRunCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) {
+complex_t RunSetState::getFullRunCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) {
     CoefficientGroup* group = manager->getCoefficientGroup(groupName);
     return group->getfullRun(coeffName, order);
 }
 
-std::complex<double> RunSetState::getMatchingCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) {
+complex_t RunSetState::getMatchingCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) {
     if (!isOrderCalculated(order)) {
         throw std::runtime_error("Matching coefficient of the requested order has not been set.");
     }
@@ -167,7 +167,7 @@ std::complex<double> RunSetState::getMatchingCoefficient(CoefficientManager* man
 
 }
 
-std::complex<double> QSetState::getMatchingCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) {
+complex_t QSetState::getMatchingCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) {
     if (!isOrderCalculated(order)) {
         throw std::runtime_error("Matching coefficient of the requested order has not been set.");
     }
@@ -176,7 +176,7 @@ std::complex<double> QSetState::getMatchingCoefficient(CoefficientManager* manag
 
 }
 
-std::complex<double> RunSetState::getRunCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) {
+complex_t RunSetState::getRunCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) {
     
     if (!isOrderCalculated(order)) {
         throw std::runtime_error("Run coefficient of the requested order has not been set.");

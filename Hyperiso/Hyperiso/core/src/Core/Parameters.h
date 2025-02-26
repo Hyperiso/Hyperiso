@@ -19,8 +19,42 @@
 #include <memory>
 #include <ranges>
 #include <algorithm>
+#include <unordered_set>
 
-typedef std::complex<double> complex_t; 
+struct ParameterBlockRepartition {
+    static inline const std::map<ParameterType, std::vector<std::string>> BLOCKS {
+        {ParameterType::SM, {"SMINPUTS", "MASS", "VCKMIN", "UPMNSIN", "GAUGE"}},
+        {ParameterType::SUSY, {"MASS", "HMIX", "ALPHA", "MSOFT", "NMIX", "UMIX", "VMIX", "A0MIX", "H0MIX", "STOPMIX", "SBOTMIX", "STAUMIX", "AU", "AD", "AE", "YU", "YD", "YE"}},
+        {ParameterType::THDM, {"MASS", "ALPHA", "LUCOUP", "DCOUPL", "LCOUPL"}},
+        {ParameterType::FLAVOR, {"FMASS", "FLIFE", "FCONST", "FCONSTRATIO", "FBAG", "FPARAM"}},
+        {ParameterType::WILSON, {"FWCOEF", "IMFWCOEF"}},
+        {ParameterType::DECAY, {"B_Ks", "B_ll", "B_Xs", "B_Dlnu", "B_Dslnu"}},
+        {ParameterType::OBSERVABLE, {"FOBS", "FOBSERR", "FOBSSM", "FDIPOLE"}},
+        {ParameterType::PASSTHROUGH, {"MODSEL", "SPINFO", "FMODSEL", "FCINFO", "MINPAR", "EXTPAR"}}
+    };
+
+    static std::vector<std::string> filter_custom_blocks(const std::vector<std::string>& source);
+};
+
+struct ParametersAccessRights {
+    static inline const std::map<std::string, std::unordered_set<int>> SM_RIGHTS {
+        {"MASS", {1, 2, 3, 4, 11, 12, 13, 14, 15, 16, 21, 22, 24, 25}}, 
+        {"GAUGE", {1, 2, 3}},
+    };
+
+    static inline const std::map<std::string, std::unordered_set<int>> THDM_RIGHTS {
+        {"MASS", {25, 35, 36, 37}}, 
+        {"GAUGE", {}},
+    };
+
+    static inline const std::map<std::string, std::unordered_set<int>> SUSY_RIGHTS {
+        {"MASS", {25, 35, 36, 37, 
+                  1000001, 1000002, 1000003, 1000004, 1000005, 1000006, 1000011, 1000012, 1000013, 1000014, 1000015, 1000016, 
+                  2000001, 2000002, 2000003, 2000004, 2000005, 2000006, 2000011, 2000013, 2000015, 
+                  1000021, 1000022, 1000023, 1000024, 1000025, 1000035, 1000037, 1000039}}, 
+        {"GAUGE", {}},
+    };
+};
 
 /**
  * @class ModelStrategy
@@ -105,7 +139,7 @@ public:
      * @param pdgCode The PDG code associated with the parameter.
      * @return The corresponding ParameterType.
      */
-    static ParameterType GetType(const std::string& block, int pdgCode);
+    static ParameterType GetType(const std::string& block, LhaID pdgCode);
 
     /**
      * @brief Retrieves a parameter value given its type, block, and code.
@@ -114,7 +148,7 @@ public:
      * @param code The parameter code.
      * @return The retrieved parameter value.
      */
-    static double Get(ParameterType type, const std::string& block, int code);
+    static double Get(ParameterType type, const std::string& block, LhaID code);
 
     /**
      * @brief Retrieves a parameter value given its unique identifier.
@@ -129,7 +163,7 @@ public:
      * @param pdgCode The PDG code to check.
      * @return True if the parameter exists, false otherwise.
      */
-    bool exist(const std::string& block, int pdgCode);
+    bool exist(const std::string& block, LhaID pdgCode);
     
     /**
      * @brief Retrieves a parameter value using function call syntax.
@@ -137,7 +171,7 @@ public:
      * @param pdgCode The PDG code.
      * @return The corresponding parameter value.
      */
-    double operator()(const std::string& block, int pdgCode);
+    double operator()(const std::string& block, LhaID pdgCode);
 
     /**
      * @brief Adds a new block of parameters to the collection.
@@ -153,14 +187,14 @@ public:
      * @param value The new value to assign.
      * @param force If true, forces the update.
      */
-    void setBlockValue(const std::string& name, int pdgCode, double value, bool force = false);
+    void setBlockValue(const std::string& name, LhaID pdgCode, double value, bool force = false);
 
     /**
      * @brief Retrieves all parameter values from a specified block.
      * @param blockName The name of the block.
      * @return A map of PDG codes to parameter values.
      */
-    std::map<int, double> get_block_infos(std::string blockName);
+    std::map<LhaID, double> get_block_infos(std::string blockName);
 
     /**
      * @brief Retrieves a list of all available parameter blocks.
@@ -187,7 +221,9 @@ public:
      * @param idx The index of the matrix entry.
      * @return The corresponding complex CKM entry.
      */
-    static complex_t get_c_CKM_entry(int idx);
+    static complex_t get_c_CKM_entry(LhaID idx);
+
+    void init_blocks(ParameterType type);
 
     /**
      * @brief Destructor that logs the destruction of a Parameters instance.
@@ -201,13 +237,10 @@ private:
     /** @brief Map of model types to their corresponding Parameters instances. */
     static std::map<ParameterType, std::shared_ptr<Parameters>> instances;
 
-    /** @brief Cache for storing original parameter values before modifications. */
-    std::map<std::pair<std::string, int>, double> originalValuesCache;
-
     /** @brief Strategy used for parameter management. */
     std::shared_ptr<ModelStrategy> strategy;
 
-    BlockAccessor blockAccessor;
+    std::shared_ptr<BlockAccessor> blockAccessor;
 
     /** @brief Factory friend. */
     friend class ParametersFactory;
@@ -248,13 +281,5 @@ private:
      */
     static std::shared_ptr<ModelStrategy> createStrategy(ParameterType id);
 };
-
-/**
- * @brief Converts a double to a string with given precision.
- * @param value The double value to convert.
- * @param precision Number of decimal places.
- * @return The formatted string representation of the double.
- */
-std::string doubleToString(double value, int precision);
 
 #endif

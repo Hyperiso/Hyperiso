@@ -256,9 +256,9 @@ void BDlnuDecay::build_op_tree() {
     auto m_D = std::make_shared<ParameterNode>(ParamId(ParameterType::FLAVOR, "FMASS", 421));
 
     // Formfactor parameters
-    auto V11 = std::make_shared<ParameterNode>(ParamId(ParameterType::FF, "B_Dlnu", 1));
-    auto rho_D2 = std::make_shared<ParameterNode>(ParamId(ParameterType::FF, "B_Dlnu", 2));
-    auto Delta = std::make_shared<ParameterNode>(ParamId(ParameterType::FF, "B_Dlnu", 3));
+    auto V11 = std::make_shared<ParameterNode>(ParamId(ParameterType::DECAY, "B_Dlnu", 1));
+    auto rho_D2 = std::make_shared<ParameterNode>(ParamId(ParameterType::DECAY, "B_Dlnu", 2));
+    auto Delta = std::make_shared<ParameterNode>(ParamId(ParameterType::DECAY, "B_Dlnu", 3));
 
     // Operator nodes
     auto qcd = std::make_shared<OperatorNode>("qcd", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return 0; });

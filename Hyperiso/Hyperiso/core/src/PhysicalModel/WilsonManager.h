@@ -8,6 +8,7 @@
 #include "WilsonGroup.h"
 #include "MemoryManager.h"
 #include "QCDHelper.h"
+#include "Utils.h"
 #include <set>
 #define PRECISION 1e-5
 
@@ -67,19 +68,19 @@ public:
         throw std::runtime_error("Invalid state: Cannot switch basis if not already calculated");
     }
 
-    virtual std::complex<double> getMatchingCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) {
+    virtual complex_t getMatchingCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) {
         throw std::runtime_error("Invalid state: Cannot get matching coefficients in current state.");
     }
 
-    virtual std::complex<double> getFullMatchingCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) {
+    virtual complex_t getFullMatchingCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) {
         throw std::runtime_error("Invalid state: Cannot get full matching coefficients in current state.");
     }
 
-    virtual std::complex<double> getRunCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) {
+    virtual complex_t getRunCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) {
         throw std::runtime_error("Invalid state: Cannot get run coefficients in current state.");
     }
 
-    virtual std::complex<double> getFullRunCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) {
+    virtual complex_t getFullRunCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) {
         throw std::runtime_error("Invalid state: Cannot get full run coefficients in current state.");
     }
 
@@ -142,8 +143,8 @@ public:
         Parameters::GetInstance()->setBlockValue(block, pdgCode, value, true);
     }
     double getAlphaS(CoefficientManager* manager, const std::string& groupName);
-    std::complex<double> getMatchingCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) override;
-    std::complex<double> getFullMatchingCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) override;
+    complex_t getMatchingCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) override;
+    complex_t getFullMatchingCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) override;
 };
 
 class QSetState : public State {
@@ -153,8 +154,8 @@ public:
     void setParams(const std::string& block, int pdgCode, double value) {
         Parameters::GetInstance()->setBlockValue(block, pdgCode, value, true);
     }
-    std::complex<double> getMatchingCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) override;
-    std::complex<double> getFullMatchingCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) override;
+    complex_t getMatchingCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) override;
+    complex_t getFullMatchingCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) override;
 };
 
 class RunSetState : public State {
@@ -166,10 +167,10 @@ public:
     }
     void setGroupScale(CoefficientManager* manager, const std::string& groupName, double Q) override;
     void setQMatch(CoefficientManager* manager, const std::string& groupName, double Q_match) override;
-    std::complex<double> getMatchingCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) override;
-    std::complex<double> getFullMatchingCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) override;
-    std::complex<double> getFullRunCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) override;
-    std::complex<double> getRunCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) override;
+    complex_t getMatchingCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) override;
+    complex_t getFullMatchingCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) override;
+    complex_t getFullRunCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) override;
+    complex_t getRunCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) override;
 };
 
 
@@ -277,7 +278,7 @@ public:
         }
     }
     
-    std::complex<double> getMatchingCoefficient(const std::string& groupName, const std::string& coeffName, const std::string& order, bool sm_only=false) {
+    complex_t getMatchingCoefficient(const std::string& groupName, const std::string& coeffName, const std::string& order, bool sm_only=false) {
         complex_t c = ensureGroupState(groupName)->getMatchingCoefficient(this, groupName, coeffName, order);
         if (has_bsm && !sm_only) {
             c += ensureGroupState(groupName + bsm_suffix)->getMatchingCoefficient(this, groupName + bsm_suffix, coeffName, order);
@@ -285,7 +286,7 @@ public:
         return c;
     }
 
-    std::complex<double> getFullMatchingCoefficient(const std::string& groupName, const std::string& coeffName, const std::string& order, bool sm_only=false) {
+    complex_t getFullMatchingCoefficient(const std::string& groupName, const std::string& coeffName, const std::string& order, bool sm_only=false) {
         complex_t c = ensureGroupState(groupName)->getFullMatchingCoefficient(this, groupName, coeffName, order);
         if (has_bsm && !sm_only) {
             c += ensureGroupState(groupName + bsm_suffix)->getFullMatchingCoefficient(this, groupName + bsm_suffix, coeffName, order);
@@ -293,7 +294,7 @@ public:
         return c;
     }
 
-    std::complex<double> getRunCoefficient(const std::string& groupName, const std::string& coeffName, const std::string& order, bool sm_only=false) {
+    complex_t getRunCoefficient(const std::string& groupName, const std::string& coeffName, const std::string& order, bool sm_only=false) {
         complex_t c = ensureGroupState(groupName)->getRunCoefficient(this, groupName, coeffName, order);
         if (has_bsm && !sm_only) {
             c += ensureGroupState(groupName + bsm_suffix)->getRunCoefficient(this, groupName + bsm_suffix, coeffName, order);
@@ -301,7 +302,7 @@ public:
         return c;
     }
 
-    std::complex<double> getFullRunCoefficient(const std::string& groupName, const std::string& coeffName, const std::string& order, bool sm_only=false) {
+    complex_t getFullRunCoefficient(const std::string& groupName, const std::string& coeffName, const std::string& order, bool sm_only=false) {
         complex_t c = ensureGroupState(groupName)->getFullRunCoefficient(this, groupName, coeffName, order);
         if (has_bsm && !sm_only) {
             c += ensureGroupState(groupName + bsm_suffix)->getFullRunCoefficient(this, groupName + bsm_suffix, coeffName, order);

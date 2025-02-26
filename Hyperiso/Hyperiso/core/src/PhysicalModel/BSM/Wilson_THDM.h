@@ -4,6 +4,7 @@
 #include "WilsonGroup.h"
 #include "thdm_parameters.h"
 #include "Math_THDM.h"
+#include "Utils.h"
 
 class WilsonCoefficient_THDM {
 protected:
@@ -24,9 +25,9 @@ public:
 
     }
 
-    std::complex<double> LO_calculation() { this->set_CoefficientMatchingValue("LO", {0.,0.}); return {0,0};} 
-    std::complex<double> NLO_calculation() { this->set_CoefficientMatchingValue("NLO", {0.,0.}); return {0,0};} 
-    std::complex<double> NNLO_calculation() { this->set_CoefficientMatchingValue("NNLO", {0.,0.}); return {0,0};} 
+    complex_t LO_calculation() { this->set_CoefficientMatchingValue("LO", {0.,0.}); return {0,0};} 
+    complex_t NLO_calculation() { this->set_CoefficientMatchingValue("NLO", {0.,0.}); return {0,0};} 
+    complex_t NNLO_calculation() { this->set_CoefficientMatchingValue("NNLO", {0.,0.}); return {0,0};} 
 
 };
 
@@ -39,9 +40,9 @@ public:
 
     }
 
-    std::complex<double> LO_calculation() {this->set_CoefficientMatchingValue("LO", {0.,0.}); return {0,0};} 
-    std::complex<double> NLO_calculation() {this->set_CoefficientMatchingValue("NLO", {0.,0.}); return {0,0};} 
-    std::complex<double> NNLO_calculation() {this->set_CoefficientMatchingValue("NNLO", {0.,0.}); return {0,0};} 
+    complex_t LO_calculation() {this->set_CoefficientMatchingValue("LO", {0.,0.}); return {0,0};} 
+    complex_t NLO_calculation() {this->set_CoefficientMatchingValue("NLO", {0.,0.}); return {0,0};} 
+    complex_t NNLO_calculation() {this->set_CoefficientMatchingValue("NNLO", {0.,0.}); return {0,0};} 
 
 };
 
@@ -54,9 +55,9 @@ public:
 
     }
 
-    std::complex<double> LO_calculation() {this->set_CoefficientMatchingValue("LO", {0.,0.}); return {0,0};} 
-    std::complex<double> NLO_calculation()  {this->set_CoefficientMatchingValue("NLO", {0.,0.}); return {0,0};} 
-    std::complex<double> NNLO_calculation();
+    complex_t LO_calculation() {this->set_CoefficientMatchingValue("LO", {0.,0.}); return {0,0};} 
+    complex_t NLO_calculation()  {this->set_CoefficientMatchingValue("NLO", {0.,0.}); return {0,0};} 
+    complex_t NNLO_calculation();
 
 };
 
@@ -68,9 +69,9 @@ public:
 
     }
 
-    std::complex<double> LO_calculation() {this->set_CoefficientMatchingValue("LO", {0.,0.}); return {0,0};} 
-    std::complex<double> NLO_calculation();
-    std::complex<double> NNLO_calculation();
+    complex_t LO_calculation() {this->set_CoefficientMatchingValue("LO", {0.,0.}); return {0,0};} 
+    complex_t NLO_calculation();
+    complex_t NNLO_calculation();
 
 };
 
@@ -82,9 +83,9 @@ public:
 
     }
 
-    std::complex<double> LO_calculation() {this->set_CoefficientMatchingValue("LO", {0.,0.}); return {0,0};} 
-    std::complex<double> NLO_calculation() {this->set_CoefficientMatchingValue("NLO", {0.,0.}); return {0,0};} 
-    std::complex<double> NNLO_calculation();
+    complex_t LO_calculation() {this->set_CoefficientMatchingValue("LO", {0.,0.}); return {0,0};} 
+    complex_t NLO_calculation() {this->set_CoefficientMatchingValue("NLO", {0.,0.}); return {0,0};} 
+    complex_t NNLO_calculation();
 
 };
 
@@ -96,9 +97,9 @@ public:
 
     }
 
-    std::complex<double> LO_calculation() {this->set_CoefficientMatchingValue("LO", {0.,0.}); return {0,0};} 
-    std::complex<double> NLO_calculation() {this->set_CoefficientMatchingValue("NLO", {0.,0.}); return {0,0};} 
-    std::complex<double> NNLO_calculation();
+    complex_t LO_calculation() {this->set_CoefficientMatchingValue("LO", {0.,0.}); return {0,0};} 
+    complex_t NLO_calculation() {this->set_CoefficientMatchingValue("NLO", {0.,0.}); return {0,0};} 
+    complex_t NNLO_calculation();
 
 };
 
@@ -110,9 +111,9 @@ public:
 
     }
 
-    std::complex<double> LO_calculation();
-    std::complex<double> NLO_calculation();
-    std::complex<double> NNLO_calculation();
+    complex_t LO_calculation();
+    complex_t NLO_calculation();
+    complex_t NNLO_calculation();
 
 };
 
@@ -124,9 +125,9 @@ public:
 
     }
 
-    std::complex<double> LO_calculation();
-    std::complex<double> NLO_calculation();
-    std::complex<double> NNLO_calculation();
+    complex_t LO_calculation();
+    complex_t NLO_calculation();
+    complex_t NNLO_calculation();
 
 };
 
@@ -138,9 +139,9 @@ public:
 
     }
 
-    std::complex<double> LO_calculation();
-    std::complex<double> NLO_calculation();
-    std::complex<double> NNLO_calculation() {this->set_CoefficientMatchingValue("NNLO", {0.,0.}); return {0,0};} 
+    complex_t LO_calculation();
+    complex_t NLO_calculation();
+    complex_t NNLO_calculation() {this->set_CoefficientMatchingValue("NNLO", {0.,0.}); return {0,0};} 
 
 };
 
@@ -152,9 +153,9 @@ public:
 
     }
 
-    std::complex<double> LO_calculation();
-    std::complex<double> NLO_calculation();
-    std::complex<double> NNLO_calculation() {this->set_CoefficientMatchingValue("NNLO", {0.,0.}); return {0,0};} 
+    complex_t LO_calculation();
+    complex_t NLO_calculation();
+    complex_t NNLO_calculation() {this->set_CoefficientMatchingValue("NNLO", {0.,0.}); return {0,0};} 
 
 };
 
@@ -166,9 +167,9 @@ public:
 
     }
 
-    std::complex<double> LO_calculation();
-    std::complex<double> NLO_calculation() {this->set_CoefficientMatchingValue("NLO", {0.,0.}); return {0,0};}
-    std::complex<double> NNLO_calculation() {this->set_CoefficientMatchingValue("NNLO", {0.,0.}); return {0,0};} 
+    complex_t LO_calculation();
+    complex_t NLO_calculation() {this->set_CoefficientMatchingValue("NLO", {0.,0.}); return {0,0};}
+    complex_t NNLO_calculation() {this->set_CoefficientMatchingValue("NNLO", {0.,0.}); return {0,0};} 
 
 };
 
@@ -180,9 +181,9 @@ public:
 
     }
 
-    std::complex<double> LO_calculation();
-    std::complex<double> NLO_calculation() {this->set_CoefficientMatchingValue("NLO", {0.,0.}); return {0,0};}
-    std::complex<double> NNLO_calculation() {this->set_CoefficientMatchingValue("NNLO", {0.,0.}); return {0,0};} 
+    complex_t LO_calculation();
+    complex_t NLO_calculation() {this->set_CoefficientMatchingValue("NLO", {0.,0.}); return {0,0};}
+    complex_t NNLO_calculation() {this->set_CoefficientMatchingValue("NNLO", {0.,0.}); return {0,0};} 
 
 };
 
@@ -194,9 +195,9 @@ public:
 
     }
 
-    std::complex<double> LO_calculation() {this->set_CoefficientMatchingValue("LO", {0.,0.}); return {0,0};} 
-    std::complex<double> NLO_calculation() {this->set_CoefficientMatchingValue("NLO", {0.,0.}); return {0,0};}
-    std::complex<double> NNLO_calculation() {this->set_CoefficientMatchingValue("NNLO", {0.,0.}); return {0,0};} 
+    complex_t LO_calculation() {this->set_CoefficientMatchingValue("LO", {0.,0.}); return {0,0};} 
+    complex_t NLO_calculation() {this->set_CoefficientMatchingValue("NLO", {0.,0.}); return {0,0};}
+    complex_t NNLO_calculation() {this->set_CoefficientMatchingValue("NNLO", {0.,0.}); return {0,0};} 
 
 };
 
@@ -208,9 +209,9 @@ public:
 
     }
 
-    std::complex<double> LO_calculation() {this->set_CoefficientMatchingValue("LO", {0.,0.}); return {0,0};} 
-    std::complex<double> NLO_calculation() {this->set_CoefficientMatchingValue("NLO", {0.,0.}); return {0,0};}
-    std::complex<double> NNLO_calculation() {this->set_CoefficientMatchingValue("NNLO", {0.,0.}); return {0,0};} 
+    complex_t LO_calculation() {this->set_CoefficientMatchingValue("LO", {0.,0.}); return {0,0};} 
+    complex_t NLO_calculation() {this->set_CoefficientMatchingValue("NLO", {0.,0.}); return {0,0};}
+    complex_t NNLO_calculation() {this->set_CoefficientMatchingValue("NNLO", {0.,0.}); return {0,0};} 
 
 };
 
@@ -222,9 +223,9 @@ public:
 
     }
 
-    std::complex<double> LO_calculation() {this->set_CoefficientMatchingValue("LO", {0.,0.}); return {0,0};} 
-    std::complex<double> NLO_calculation() {this->set_CoefficientMatchingValue("NLO", {0.,0.}); return {0,0};}
-    std::complex<double> NNLO_calculation() {this->set_CoefficientMatchingValue("NNLO", {0.,0.}); return {0,0};} 
+    complex_t LO_calculation() {this->set_CoefficientMatchingValue("LO", {0.,0.}); return {0,0};} 
+    complex_t NLO_calculation() {this->set_CoefficientMatchingValue("NLO", {0.,0.}); return {0,0};}
+    complex_t NNLO_calculation() {this->set_CoefficientMatchingValue("NNLO", {0.,0.}); return {0,0};} 
 
 };
 
@@ -236,9 +237,9 @@ public:
 
     }
 
-    std::complex<double> LO_calculation() {this->set_CoefficientMatchingValue("LO", {0.,0.}); return {0,0};} 
-    std::complex<double> NLO_calculation() {this->set_CoefficientMatchingValue("NLO", {0.,0.}); return {0,0};}
-    std::complex<double> NNLO_calculation() {this->set_CoefficientMatchingValue("NNLO", {0.,0.}); return {0,0};} 
+    complex_t LO_calculation() {this->set_CoefficientMatchingValue("LO", {0.,0.}); return {0,0};} 
+    complex_t NLO_calculation() {this->set_CoefficientMatchingValue("NLO", {0.,0.}); return {0,0};}
+    complex_t NNLO_calculation() {this->set_CoefficientMatchingValue("NNLO", {0.,0.}); return {0,0};} 
 
 };
 
@@ -250,9 +251,9 @@ public:
 
     }
 
-    std::complex<double> LO_calculation() {this->set_CoefficientMatchingValue("LO", {0.,0.}); return {0,0};} 
-    std::complex<double> NLO_calculation() {this->set_CoefficientMatchingValue("NLO", {0.,0.}); return {0,0};}
-    std::complex<double> NNLO_calculation() {this->set_CoefficientMatchingValue("NNLO", {0.,0.}); return {0,0};} 
+    complex_t LO_calculation() {this->set_CoefficientMatchingValue("LO", {0.,0.}); return {0,0};} 
+    complex_t NLO_calculation() {this->set_CoefficientMatchingValue("NLO", {0.,0.}); return {0,0};}
+    complex_t NNLO_calculation() {this->set_CoefficientMatchingValue("NNLO", {0.,0.}); return {0,0};} 
 
 };
 
@@ -264,9 +265,9 @@ public:
 
     }
 
-    std::complex<double> LO_calculation() {this->set_CoefficientMatchingValue("LO", {0.,0.}); return {0,0};} 
-    std::complex<double> NLO_calculation() {this->set_CoefficientMatchingValue("NLO", {0.,0.}); return {0,0};}
-    std::complex<double> NNLO_calculation() {this->set_CoefficientMatchingValue("NNLO", {0.,0.}); return {0,0};} 
+    complex_t LO_calculation() {this->set_CoefficientMatchingValue("LO", {0.,0.}); return {0,0};} 
+    complex_t NLO_calculation() {this->set_CoefficientMatchingValue("NLO", {0.,0.}); return {0,0};}
+    complex_t NNLO_calculation() {this->set_CoefficientMatchingValue("NNLO", {0.,0.}); return {0,0};} 
 
 };
 
@@ -278,9 +279,9 @@ public:
 
     }
 
-    std::complex<double> LO_calculation() {this->set_CoefficientMatchingValue("LO", {0.,0.}); return {0,0};} 
-    std::complex<double> NLO_calculation() {this->set_CoefficientMatchingValue("NLO", {0.,0.}); return {0,0};}
-    std::complex<double> NNLO_calculation() {this->set_CoefficientMatchingValue("NNLO", {0.,0.}); return {0,0};} 
+    complex_t LO_calculation() {this->set_CoefficientMatchingValue("LO", {0.,0.}); return {0,0};} 
+    complex_t NLO_calculation() {this->set_CoefficientMatchingValue("NLO", {0.,0.}); return {0,0};}
+    complex_t NNLO_calculation() {this->set_CoefficientMatchingValue("NNLO", {0.,0.}); return {0,0};} 
 
 };
 
@@ -292,9 +293,9 @@ public:
 
     }
 
-    std::complex<double> LO_calculation() {this->set_CoefficientMatchingValue("LO", {0.,0.}); return {0,0};} 
-    std::complex<double> NLO_calculation() {this->set_CoefficientMatchingValue("NLO", {0.,0.}); return {0,0};}
-    std::complex<double> NNLO_calculation() {this->set_CoefficientMatchingValue("NNLO", {0.,0.}); return {0,0};} 
+    complex_t LO_calculation() {this->set_CoefficientMatchingValue("LO", {0.,0.}); return {0,0};} 
+    complex_t NLO_calculation() {this->set_CoefficientMatchingValue("NLO", {0.,0.}); return {0,0};}
+    complex_t NNLO_calculation() {this->set_CoefficientMatchingValue("NNLO", {0.,0.}); return {0,0};} 
 
 };
 
@@ -306,9 +307,9 @@ public:
 
     }
 
-    std::complex<double> LO_calculation() {this->set_CoefficientMatchingValue("LO", {0.,0.}); return {0,0};} 
-    std::complex<double> NLO_calculation() {this->set_CoefficientMatchingValue("NLO", {0.,0.}); return {0,0};}
-    std::complex<double> NNLO_calculation() {this->set_CoefficientMatchingValue("NNLO", {0.,0.}); return {0,0};} 
+    complex_t LO_calculation() {this->set_CoefficientMatchingValue("LO", {0.,0.}); return {0,0};} 
+    complex_t NLO_calculation() {this->set_CoefficientMatchingValue("NLO", {0.,0.}); return {0,0};}
+    complex_t NNLO_calculation() {this->set_CoefficientMatchingValue("NNLO", {0.,0.}); return {0,0};} 
 
 };
 
@@ -320,9 +321,9 @@ public:
 
     }
 
-    std::complex<double> LO_calculation() {this->set_CoefficientMatchingValue("LO", {0.,0.}); return {0,0};} 
-    std::complex<double> NLO_calculation() {this->set_CoefficientMatchingValue("NLO", {0.,0.}); return {0,0};}
-    std::complex<double> NNLO_calculation() {this->set_CoefficientMatchingValue("NLO", {0.,0.}); return {0,0};} 
+    complex_t LO_calculation() {this->set_CoefficientMatchingValue("LO", {0.,0.}); return {0,0};} 
+    complex_t NLO_calculation() {this->set_CoefficientMatchingValue("NLO", {0.,0.}); return {0,0};}
+    complex_t NNLO_calculation() {this->set_CoefficientMatchingValue("NLO", {0.,0.}); return {0,0};} 
 
 };
 
@@ -334,9 +335,9 @@ public:
 
     }
 
-    std::complex<double> LO_calculation() {this->set_CoefficientMatchingValue("LO", {0.,0.}); return {0,0};} 
-    std::complex<double> NLO_calculation() {this->set_CoefficientMatchingValue("NLO", {0.,0.}); return {0,0};}
-    std::complex<double> NNLO_calculation() {this->set_CoefficientMatchingValue("NNLO", {0.,0.}); return {0,0};} 
+    complex_t LO_calculation() {this->set_CoefficientMatchingValue("LO", {0.,0.}); return {0,0};} 
+    complex_t NLO_calculation() {this->set_CoefficientMatchingValue("NLO", {0.,0.}); return {0,0};}
+    complex_t NNLO_calculation() {this->set_CoefficientMatchingValue("NNLO", {0.,0.}); return {0,0};} 
 
 };
 
@@ -348,9 +349,9 @@ public:
 
     }
 
-    std::complex<double> LO_calculation() {this->set_CoefficientMatchingValue("LO", {0.,0.}); return {0,0};} 
-    std::complex<double> NLO_calculation() {this->set_CoefficientMatchingValue("NLO", {0.,0.}); return {0,0};}
-    std::complex<double> NNLO_calculation() {this->set_CoefficientMatchingValue("NNLO", {0.,0.}); return {0,0};} 
+    complex_t LO_calculation() {this->set_CoefficientMatchingValue("LO", {0.,0.}); return {0,0};} 
+    complex_t NLO_calculation() {this->set_CoefficientMatchingValue("NLO", {0.,0.}); return {0,0};}
+    complex_t NNLO_calculation() {this->set_CoefficientMatchingValue("NNLO", {0.,0.}); return {0,0};} 
 
 };
 
@@ -359,9 +360,9 @@ public:
     C_Blnu_A_THDM(double Q_match) : C_Blnu_A(Q_match), WilsonCoefficient_THDM(Q_match) {}
     C_Blnu_A_THDM() : C_Blnu_A() {}
 
-    std::complex<double> LO_calculation() {return {0,0};}
-    std::complex<double> NLO_calculation() {return {0,0};} 
-    std::complex<double> NNLO_calculation() {return {0,0};} 
+    complex_t LO_calculation() {return {0,0};}
+    complex_t NLO_calculation() {return {0,0};} 
+    complex_t NNLO_calculation() {return {0,0};} 
 
     std::shared_ptr<Parameters> sm = Parameters::GetInstance();
 };
@@ -371,9 +372,9 @@ public:
     C_Blnu_P_THDM(double Q_match) : C_Blnu_P(Q_match), WilsonCoefficient_THDM(Q_match) {}
     C_Blnu_P_THDM() : C_Blnu_P() {}
 
-    std::complex<double> LO_calculation();
-    std::complex<double> NLO_calculation() {return {0,0};} 
-    std::complex<double> NNLO_calculation() {return {0,0};} 
+    complex_t LO_calculation();
+    complex_t NLO_calculation() {return {0,0};} 
+    complex_t NNLO_calculation() {return {0,0};} 
 
     std::shared_ptr<Parameters> sm = Parameters::GetInstance();
 };
@@ -383,9 +384,9 @@ public:
     C_V1_THDM(double Q_match) : C_V1(Q_match), WilsonCoefficient_THDM(Q_match) {}
     C_V1_THDM() : C_V1() {}
 
-    std::complex<double> LO_calculation() {return {0,0};} 
-    std::complex<double> NLO_calculation() {return {0,0};} 
-    std::complex<double> NNLO_calculation() {return {0,0};} 
+    complex_t LO_calculation() {return {0,0};} 
+    complex_t NLO_calculation() {return {0,0};} 
+    complex_t NNLO_calculation() {return {0,0};} 
 
     std::shared_ptr<Parameters> sm = Parameters::GetInstance();
 };
@@ -395,9 +396,9 @@ public:
     C_V2_THDM(double Q_match) : C_V2(Q_match), WilsonCoefficient_THDM(Q_match) {}
     C_V2_THDM() : C_V2() {}
 
-    std::complex<double> LO_calculation() {return {0,0};} 
-    std::complex<double> NLO_calculation() {return {0,0};} 
-    std::complex<double> NNLO_calculation() {return {0,0};} 
+    complex_t LO_calculation() {return {0,0};} 
+    complex_t NLO_calculation() {return {0,0};} 
+    complex_t NNLO_calculation() {return {0,0};} 
 
     std::shared_ptr<Parameters> sm = Parameters::GetInstance();
 };
@@ -407,9 +408,9 @@ public:
     C_S1_THDM(double Q_match) : C_S1(Q_match), WilsonCoefficient_THDM(Q_match) {}
     C_S1_THDM() : C_S1() {}
 
-    std::complex<double> LO_calculation();
-    std::complex<double> NLO_calculation() {return {0,0};} 
-    std::complex<double> NNLO_calculation() {return {0,0};} 
+    complex_t LO_calculation();
+    complex_t NLO_calculation() {return {0,0};} 
+    complex_t NNLO_calculation() {return {0,0};} 
 
     std::shared_ptr<Parameters> sm = Parameters::GetInstance();
 };
@@ -419,9 +420,9 @@ public:
     C_S2_THDM(double Q_match) : C_S2(Q_match), WilsonCoefficient_THDM(Q_match) {}
     C_S2_THDM() : C_S2() {}
 
-    std::complex<double> LO_calculation();
-    std::complex<double> NLO_calculation() {return {0,0};} 
-    std::complex<double> NNLO_calculation() {return {0,0};} 
+    complex_t LO_calculation();
+    complex_t NLO_calculation() {return {0,0};} 
+    complex_t NNLO_calculation() {return {0,0};} 
 
     std::shared_ptr<Parameters> sm = Parameters::GetInstance();
 };
@@ -431,9 +432,9 @@ public:
     C_T_THDM(double Q_match) : C_T(Q_match), WilsonCoefficient_THDM(Q_match) {}
     C_T_THDM() : C_T() {}
 
-    std::complex<double> LO_calculation() {return {0,0};} 
-    std::complex<double> NLO_calculation() {return {0,0};} 
-    std::complex<double> NNLO_calculation() {return {0,0};} 
+    complex_t LO_calculation() {return {0,0};} 
+    complex_t NLO_calculation() {return {0,0};} 
+    complex_t NNLO_calculation() {return {0,0};} 
 
     std::shared_ptr<Parameters> sm = Parameters::GetInstance();
 };
