@@ -55,6 +55,10 @@ void Parameters::addBlock(const std::string& name, std::shared_ptr<Block> block)
     blockAccessor->addBlock(name, block);
 }
 
+void Parameters::addDependantBlock(const std::string& name, std::shared_ptr<DependentBlock>& block, const std::string& source_block) {
+    blockAccessor->addDependentBlock(name, block, source_block);
+}
+
 void Parameters::setBlockValue(const std::string& name, LhaID id, double value, bool force) {
     blockAccessor->setValue(name, id, value, force);
 }
@@ -72,21 +76,31 @@ complex_t Parameters::get_c_CKM_entry(LhaID id) {
     return complex_t((*p)("RECKM", id), (*p)("IMCKM", id));
 }
 
-void Parameters::init_blocks(ParameterType type) {
+void Parameters::init_blocks(ParameterType type, std::unordered_set<std::string> excluded_dependant) {
     if (type == ParameterType::CUSTOM) {
         auto block_names = MemoryManager::GetInstance()->get_all_blocks();
         this->blockAccessor = MemoryManager::GetInstance()->get_blocks(ParameterBlockRepartition::filter_custom_blocks(block_names));
     } else {
-        this->blockAccessor = MemoryManager::GetInstance()->get_blocks(ParameterBlockRepartition::BLOCKS.at(type));
+        std::vector<std::string> blocks = ParameterBlockRepartition::BLOCKS.at(type);
+
+        auto it = std::ranges::remove_if(blocks, [&](const std::string& s) {
+            return excluded_dependant.contains(s);
+        });
+        blocks.erase(it.begin(), it.end());
+        this->blockAccessor = MemoryManager::GetInstance()->get_blocks(blocks);
     }
 }
 
 void SMModelStrategy::initializeParameters(Parameters& params) {
     
-    params.init_blocks(ParameterType::SM);
+    params.init_blocks(ParameterType::SM, {"GAUGE"});
     QCDHelper::Init(params("SMINPUTS", 3), params("SMINPUTS", 4), params("SMINPUTS", 6), params("SMINPUTS", 5),  
                     params("MASS", 4), params("MASS", 3), params("MASS", 2), params("MASS", 1));
 
+    std::shared_ptr<DependentBlock> gauge_block = nullptr;
+    params.addDependantBlock("GAUGE", gauge_block, "SMINPUTS");
+
+    params.setBlockValue("SMINPUTS", 1, 10, true);
     // TODO : Initialize derived blocks RE/IMCKM, RE/IMUPMNS
     // TODO : Initialize block GAUGE from SMINPUTS if not already present
     // TODO : Calculate W mass and store it somewhere

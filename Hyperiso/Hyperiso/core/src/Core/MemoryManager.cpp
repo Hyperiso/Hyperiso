@@ -68,10 +68,8 @@ void MemoryManager::init(const std::string& lhaFile, const Config& config) {
         LOG_WARN("MemoryManager has already been initialized.");
         return;
     }
-
     fs::path lha_path = format_lha_path(lhaFile);
     fs::path spectrum_path = lha_path;
-
     if (!config.use_marty && (config.model == Model::THDM || config.model == Model::SUSY) && !config.is_spectrum) {
         spectrum_path = DirPaths::spectrum_dir_path/lha_path.filename();
         LOG_DEBUG("Starting spectrum calculation...");
@@ -79,19 +77,18 @@ void MemoryManager::init(const std::string& lhaFile, const Config& config) {
         GeneralCalculatorFactory::executeCommand(calculatorType, "calculateSpectrum", lha_path, spectrum_path.string());
         LOG_DEBUG("Spectrum calculation ran sucessfully");
     }
-
     auto block_accessor = read_params(spectrum_path);
+    input_cache = block_accessor;
 
     cache.lha_path = lha_path;
     cache.config = config;
     cache.thread_id = std::this_thread::get_id();
     deduce_parameter_types(config);
     cache.is_ready = true;
-
-    for (auto &&m : cache.parameter_types) {
-        LOG_DEBUG("Initializing parameters ", (int)m);
-        Parameters::GetInstance(m);
-    }
+    // for (auto &&m : cache.parameter_types) {
+    //     LOG_DEBUG("Initializing parameters ", (int)m);
+    //     Parameters::GetInstance(m);
+    // }
 }
 
 void MemoryManager::deduce_parameter_types(const Config &config) {

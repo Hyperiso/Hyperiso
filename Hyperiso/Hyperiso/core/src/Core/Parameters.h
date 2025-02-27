@@ -181,6 +181,14 @@ public:
     void addBlock(const std::string& name, std::shared_ptr<Block> block);
 
     /**
+     * @brief Adds a new block dependant from another of parameters to the collection.
+     * @param name The name of the new block.
+     * @param block A shared pointer to the block.
+     * @param source_block The name of the block this one depend one.
+     */
+    void addDependantBlock(const std::string& name, std::shared_ptr<DependentBlock>& block,const std::string& source_block);
+
+    /**
      * @brief Sets a parameter value within a specified block.
      * @param name The name of the block.
      * @param pdgCode The PDG code of the parameter.
@@ -223,7 +231,7 @@ public:
      */
     static complex_t get_c_CKM_entry(LhaID idx);
 
-    void init_blocks(ParameterType type);
+    void init_blocks(ParameterType type, std::unordered_set<std::string> excluded_dependant = {});
 
     /**
      * @brief Destructor that logs the destruction of a Parameters instance.

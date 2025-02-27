@@ -13,7 +13,7 @@ public:
 private:
     static void Overwrite(std::shared_ptr<BlockAccessor>& reciever, std::shared_ptr<BlockAccessor> source);
 
-    static std::stack<std::shared_ptr<BlockAccessor>> snapshots;
+    inline static std::stack<std::shared_ptr<BlockAccessor>> snapshots;
 };
 
 

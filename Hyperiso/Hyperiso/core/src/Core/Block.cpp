@@ -21,15 +21,18 @@ void MapBlock::setValue(LhaID id, double value, bool force) {
     } else {
         values[id] = param;
     }
+    notifyObservers();
 }
 
 void MapBlock::setDeviation(LhaID id, double std_stat, double std_syst, bool force) {
     // JSONParser::getInstance(0)->addElement(this->blockname.substr(0, this->blockname.size()-5), id, std_stat);
     values[id].set_std(std_stat, std_syst);
+    notifyObservers();
 }
 
 void MapBlock::setMode(LhaID id, ParameterMode mode) {
     values.at(id).set_mode(mode);
+    notifyObservers();
 }
 
 std::map<LhaID, double> MapBlock::getAllValues() {
@@ -64,6 +67,7 @@ Parameter MapBlock::getParameter(LhaID id) const {
 
 void MapBlock::setParameter(LhaID id, const Parameter &source) {
     this->values.insert_or_assign(id, source);
+    notifyObservers();
 }
 
 void MapBlock::remove_parameter(LhaID id) {
@@ -99,4 +103,5 @@ void WilsonBlock::setValue(LhaID pdgCode, double value, bool force) {
         values.emplace(std::make_pair(id, std::array<double, 3>()));
     }
     values.at(id)[order] = value;
+    notifyObservers();
 }

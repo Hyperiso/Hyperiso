@@ -103,11 +103,12 @@ void BlockAccessor::remove_item(const std::string &block_name, LhaID id) {
 
 std::shared_ptr<BlockAccessor> BlockAccessor::operator[](std::vector<std::string> block_names) {
     auto sub_block_accessor = std::make_shared<BlockAccessor>();
+
     for (const auto& block_name : block_names) {
         if (!this->has_block(block_name)) {
             LOG_ERROR("BlockAccessor", "Block", block_name, "doesn't exist. Cannot extract.");
         }
-        sub_block_accessor->addBlock(block_name, std::move(this->get_block(block_name)));
+        sub_block_accessor->addBlock(block_name, this->get_block(block_name));
     }
 
     return sub_block_accessor;
@@ -116,14 +117,14 @@ std::shared_ptr<BlockAccessor> BlockAccessor::operator[](std::vector<std::string
 std::shared_ptr<BlockAccessor> operator+(std::shared_ptr<BlockAccessor> lhs, std::shared_ptr<BlockAccessor> rhs) {
     auto res = std::make_shared<BlockAccessor>();
     for (const auto &b : lhs->get_block_names()) {
-        res->addBlock(b, std::make_shared<Block>(lhs->get_block(b)));
+        res->addBlock(b, std::make_shared<MapBlock>(lhs->get_block(b)));
     }
 
     for (const auto &b : rhs->get_block_names()) {
         if (res->has_block(b)) {
             LOG_ERROR("BlockAccessor", "Cannot merge blocks with common blocks using no-priority operator +. Use >> for priority-merge.");
         }
-        res->addBlock(b, std::make_shared<Block>(rhs->get_block(b)));
+        res->addBlock(b, std::make_shared<MapBlock>(rhs->get_block(b)));
     }
 
     return res;
@@ -132,7 +133,7 @@ std::shared_ptr<BlockAccessor> operator+(std::shared_ptr<BlockAccessor> lhs, std
 std::shared_ptr<BlockAccessor> operator>>(std::shared_ptr<BlockAccessor> lhs, std::shared_ptr<BlockAccessor> rhs) {
     auto res = std::make_shared<BlockAccessor>();
     for (const auto &b : rhs->get_block_names()) {
-        res->addBlock(b, std::make_shared<Block>(rhs->get_block(b)));
+        res->addBlock(b, std::make_shared<MapBlock>(rhs->get_block(b)));
     }
 
     for (const auto &b : lhs->get_block_names()) {
@@ -141,7 +142,7 @@ std::shared_ptr<BlockAccessor> operator>>(std::shared_ptr<BlockAccessor> lhs, st
                 res->setValue(b, id, lhs->getValue(b, id), true);
             }
         } else {
-            res->addBlock(b, std::make_shared<Block>(lhs->get_block(b)));
+            res->addBlock(b, std::make_shared<MapBlock>(lhs->get_block(b)));
         }
     }
 
@@ -157,4 +158,16 @@ std::ostream &operator<<(std::ostream &os, std::shared_ptr<BlockAccessor> ba) {
         os << '\n';
     }
     return os;
+}
+
+void BlockAccessor::addDependentBlock(const std::string& name, std::shared_ptr<DependentBlock>& dependant_block, const std::string& sourceName) {
+    auto sourceBlock = get_block(sourceName);
+    if (!sourceBlock) {
+        throw std::invalid_argument("Source block not found");
+    }
+
+    dependant_block = std::make_shared<DependentBlock>(sourceBlock);
+    dependant_block->blockname = name;
+    dependant_block->init();
+    blocks[name] = dependant_block;
 }

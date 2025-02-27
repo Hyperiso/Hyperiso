@@ -29,6 +29,8 @@ public:
      */
     void addBlock(const std::string& name, std::shared_ptr<Block> block);
     
+    void addDependentBlock(const std::string& name, std::shared_ptr<DependentBlock>& dependant_block, const std::string& sourceName);
+
     /**
      * @brief Checks if a block exists with a given parameter.
      * @param blockName The name of the block.
@@ -192,6 +194,13 @@ public:
         throw std::logic_error("Use exists with block name for BlockAccessor");
     }
 
+    /**
+     * @brief Override to prevent direct access to parameters.
+     * @throws std::logic_error Always throws an error.
+     */
+    virtual void update() {
+        throw std::logic_error("No use for block_accessor");
+    }
     /**
      * @brief Retrieves all parameter ids.
      * @return A vector of LhaIDs of stored parameters.
