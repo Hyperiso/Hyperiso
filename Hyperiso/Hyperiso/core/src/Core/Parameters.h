@@ -197,8 +197,9 @@ public:
      * @param name The name of the new block.
      * @param block A shared pointer to the block.
      * @param source_block The name of the block this one depend one.
+     * @param recalculateFunc The function that describe the dependancy.
      */
-    void addDependantBlock(const std::string& name, std::shared_ptr<DependentBlock>& block,const std::string& source_block);
+    void addDependantBlock(const std::string& name, std::shared_ptr<DependentBlock>& block,const std::string& source_block, std::function<void(std::shared_ptr<Block>, std::shared_ptr<DependentBlock>)> recalculateFunc);
 
     /**
      * @brief Sets a parameter value within a specified block.

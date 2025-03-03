@@ -160,13 +160,13 @@ std::ostream &operator<<(std::ostream &os, std::shared_ptr<BlockAccessor> ba) {
     return os;
 }
 
-void BlockAccessor::addDependentBlock(const std::string& name, std::shared_ptr<DependentBlock>& dependant_block, const std::string& sourceName) {
+void BlockAccessor::addDependentBlock(const std::string& name, std::shared_ptr<DependentBlock>& dependant_block, const std::string& sourceName, std::function<void(std::shared_ptr<Block>, std::shared_ptr<DependentBlock>)> recalculateFunc) {
     auto sourceBlock = get_block(sourceName);
     if (!sourceBlock) {
         throw std::invalid_argument("Source block not found");
     }
 
-    dependant_block = std::make_shared<DependentBlock>(sourceBlock);
+    dependant_block = std::make_shared<DependentBlock>(sourceBlock, recalculateFunc);
     dependant_block->blockname = name;
     dependant_block->init();
     blocks[name] = dependant_block;

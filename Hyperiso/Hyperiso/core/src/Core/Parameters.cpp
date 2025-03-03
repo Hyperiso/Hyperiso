@@ -55,8 +55,8 @@ void Parameters::addBlock(const std::string& name, std::shared_ptr<Block> block)
     blockAccessor->addBlock(name, block);
 }
 
-void Parameters::addDependantBlock(const std::string& name, std::shared_ptr<DependentBlock>& block, const std::string& source_block) {
-    blockAccessor->addDependentBlock(name, block, source_block);
+void Parameters::addDependantBlock(const std::string& name, std::shared_ptr<DependentBlock>& block, const std::string& source_block, std::function<void(std::shared_ptr<Block>, std::shared_ptr<DependentBlock>)> recalculateFunc) {
+    blockAccessor->addDependentBlock(name, block, source_block, recalculateFunc);
 }
 
 void Parameters::setBlockValue(const std::string& name, LhaID id, double value, bool force) {
@@ -99,10 +99,15 @@ void SMModelStrategy::initializeParameters(Parameters& params) {
     QCDHelper::Init(params("SMINPUTS", 3), params("SMINPUTS", 4), params("SMINPUTS", 6), params("SMINPUTS", 5),  
                     params("MASS", 4), params("MASS", 3), params("MASS", 2), params("MASS", 1));
 
-    // if (absent_blocks.contains("GAUGE")) {
-    //     std::shared_ptr<GaugeBlock> gauge_block = nullptr;
-    //     params.addDependantBlock("GAUGE", gauge_block, "SMINPUTS");
-    // }
+    std::cout << "mmh" << std::endl;
+    auto recalculateFunc = [](std::shared_ptr<Block> src, std::shared_ptr<DependentBlock> dep_block) {
+        std::cout << "Updating fcking block based on " << src->blockname << std::endl;
+        double newVal = src->getValue(1) * 2;
+        dep_block->setValue(1, newVal, true);
+    };
+
+    std::shared_ptr<DependentBlock> gauge_block = nullptr;
+    params.addDependantBlock("GAUGE", gauge_block, "SMINPUTS", recalculateFunc);
 
     // if (absent_blocks.contains("RECKM")) {
     //     std::shared_ptr<ReCKMBlock> reckm_block = nullptr;
