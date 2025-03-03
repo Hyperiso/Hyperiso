@@ -9,6 +9,7 @@
 #include <limits>
 #include <type_traits>
 #include "Utils.h"
+#include "Matrix.h"
 
 using Integrand = std::function<double(double)>;
 using cIntegrand = std::function<complex_t(double)>;

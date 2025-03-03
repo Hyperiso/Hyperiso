@@ -99,7 +99,7 @@ public:
      * @brief Retrieves a list of all block names.
      * @return A vector of block names.
      */
-    std::vector<std::string> get_block_names();
+    std::unordered_set<std::string> get_block_names();
 
     /**
      * @brief Retrieves a block from the stored blocks.
@@ -235,7 +235,7 @@ public:
      * @param block_names List of block names to retrieve.
      * @return A new `BlockAccessor` instance storing all the given blocks.   
      */
-    std::shared_ptr<BlockAccessor> operator[](std::vector<std::string> block_names);
+    std::shared_ptr<BlockAccessor> operator[](std::unordered_set<std::string> block_names);
 
     friend std::ostream& operator<<(std::ostream&, std::shared_ptr<BlockAccessor>);
 

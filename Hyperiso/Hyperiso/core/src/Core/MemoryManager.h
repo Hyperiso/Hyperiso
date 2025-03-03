@@ -134,12 +134,12 @@ public:
     /**
      * @brief Retrieves a list of parameter blocks.
      */
-    std::vector<std::string> get_blocks_list(ParameterType param_type = ParameterType::SM);
+    std::unordered_set<std::string> get_blocks_list(ParameterType param_type = ParameterType::SM);
 
     /**
      * @brief Retrieves the list of all parameter blocks stored.
      */
-    std::vector<std::string> get_all_blocks();
+    std::unordered_set<std::string> get_all_blocks();
 
     /**
      * @brief Retrieves block information for a given block.
@@ -151,7 +151,7 @@ public:
      */
     std::vector<ParameterType> get_type_of_block(const std::string& block);
 
-    std::shared_ptr<BlockAccessor> get_blocks(std::vector<std::string> block_names);
+    std::shared_ptr<BlockAccessor> get_blocks(std::unordered_set<std::string> block_names);
     
     void save_input_cache();
 

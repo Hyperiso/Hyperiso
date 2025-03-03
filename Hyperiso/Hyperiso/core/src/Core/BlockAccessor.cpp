@@ -70,12 +70,8 @@ std::map<LhaID, double> BlockAccessor::getAllValues(std::string blockName)
     }
 }
 
-std::vector<std::string> BlockAccessor::get_block_names() {
-    std::vector<std::string> keys;
-    for (auto key : blocks){
-        keys.push_back(key.first);
-    }
-    return keys;
+std::unordered_set<std::string> BlockAccessor::get_block_names() {
+    return get_keys(blocks);
 }
 
 std::shared_ptr<Block> BlockAccessor::get_block(const std::string &block_name) {
@@ -101,7 +97,7 @@ void BlockAccessor::remove_item(const std::string &block_name, LhaID id) {
     }
 }
 
-std::shared_ptr<BlockAccessor> BlockAccessor::operator[](std::vector<std::string> block_names) {
+std::shared_ptr<BlockAccessor> BlockAccessor::operator[](std::unordered_set<std::string> block_names) {
     auto sub_block_accessor = std::make_shared<BlockAccessor>();
 
     for (const auto& block_name : block_names) {

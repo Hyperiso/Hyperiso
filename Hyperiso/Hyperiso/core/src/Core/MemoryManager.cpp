@@ -1,4 +1,6 @@
 #include "MemoryManager.h"
+#include "CorrelationRepo.h"
+#include "CorrelationCreator.h"
 
 namespace fs = std::filesystem;
 
@@ -14,7 +16,7 @@ void MemoryManager::check_if_ready() {
     }
 }
 
-std::shared_ptr<BlockAccessor> MemoryManager::get_blocks(std::vector<std::string> block_names) {
+std::shared_ptr<BlockAccessor> MemoryManager::get_blocks(std::unordered_set<std::string> block_names) {
     return (*input_cache)[block_names];
 }
 
@@ -35,7 +37,15 @@ std::shared_ptr<BlockAccessor> MemoryManager::read_input_files(fs::path lha_path
     DBMemento memento;
     memento.takeSnapshot(input_blocks);
 
-    // TODO : read default correlations between params and observables
+    auto default_param_corr_root = json_parser->readFromFile(FilePaths::default_param_corr_path.string());
+    auto default_obs_corr_root = json_parser->readFromFile(FilePaths::default_obs_corr_path.string());
+    CorrelationMatrixPair default_param_corr = CorrelationCreator::from_db_node<ParamId>(default_param_corr_root);
+    CorrelationMatrixPair default_obs_corr = CorrelationCreator::from_db_node<Observables>(default_obs_corr_root);
+    CorrelationRepository cr;
+    cr.set_correlation_matrix(std::move(default_param_corr.stat), CorrelationRepository::CorrelationType::STAT);
+    cr.set_correlation_matrix(std::move(default_param_corr.syst), CorrelationRepository::CorrelationType::SYST);
+    cr.set_correlation_matrix(std::move(default_obs_corr.stat), CorrelationRepository::CorrelationType::STAT);
+    cr.set_correlation_matrix(std::move(default_obs_corr.syst), CorrelationRepository::CorrelationType::SYST);
 
     /* User input */
 
@@ -48,7 +58,14 @@ std::shared_ptr<BlockAccessor> MemoryManager::read_input_files(fs::path lha_path
     }
     memento.takeSnapshot(input_blocks);
 
-    // TODO : read user correlations between params and observables
+    auto user_param_corr_root = yaml_parser->readFromFile(FilePaths::user_param_corr_path.string());
+    auto user_obs_corr_root = yaml_parser->readFromFile(FilePaths::user_obs_corr_path.string());
+    CorrelationMatrixPair user_param_corr = CorrelationCreator::from_db_node<ParamId>(user_param_corr_root);
+    CorrelationMatrixPair user_obs_corr = CorrelationCreator::from_db_node<Observables>(user_obs_corr_root);
+    cr.merge_correlation_matrix(std::move(user_param_corr.stat), CorrelationRepository::CorrelationType::STAT);
+    cr.merge_correlation_matrix(std::move(user_param_corr.syst), CorrelationRepository::CorrelationType::SYST);
+    cr.merge_correlation_matrix(std::move(user_obs_corr.stat), CorrelationRepository::CorrelationType::STAT);
+    cr.merge_correlation_matrix(std::move(user_obs_corr.syst), CorrelationRepository::CorrelationType::SYST);
 
     /* LHA input */
     auto lha_reader = std::make_shared<LhaReader>(LhaReader(lha_path.string()));
@@ -148,11 +165,11 @@ std::map<LhaID, double> MemoryManager::get_block_infos(const std::string& block,
     return Parameters::GetInstance(param_type)->get_block_infos(block);
 }
 
-std::vector<std::string> MemoryManager::get_blocks_list(ParameterType param_type) {
+std::unordered_set<std::string> MemoryManager::get_blocks_list(ParameterType param_type) {
     return Parameters::GetInstance(param_type)->get_blocks_list();
 }
 
-std::vector<std::string> MemoryManager::get_all_blocks() {
+std::unordered_set<std::string> MemoryManager::get_all_blocks() {
     return this->input_cache->get_block_names();
 }
 

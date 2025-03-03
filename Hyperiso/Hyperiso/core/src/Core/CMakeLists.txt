@@ -37,7 +37,11 @@ add_library(CoreLib STATIC
     Block.cpp
     BlockAccessor.cpp
     BlocksCreator.cpp
-    QCDHelper.cpp)
+    QCDHelper.cpp
+    CorrelationCreator.cpp
+    CorrelationRepo.cpp
+    ParameterRouter.cpp
+    )
 set_target_properties(CoreLib PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
 set_target_properties(CoreLib PROPERTIES PUBLIC_HEADER "MemoryManager.h;Parameters.h;Parameter.h;QCDHelper.h;BlocksCreator.h;BlockAccessor.h")

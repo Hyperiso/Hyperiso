@@ -14,20 +14,6 @@ void Parameters::CleanupInstance(ParameterType id) {
     ParametersFactory::removeParameters(id);
 }
 
-ParameterType Parameters::GetType(const std::string &block, LhaID pdgCode) {
-    auto allowed_types = MemoryManager::GetInstance()->getParameterTypes();
-    for (ParameterType tp : allowed_types) {
-        auto p = Parameters::GetInstance(tp);
-        for (auto &b : p->get_blocks_list()) {
-            if (b == block) {
-                if (p->get_block_infos(b).contains(pdgCode))
-                    return tp;
-            }
-        }
-    }
-    LOG_ERROR("Invalid Parameter", "Parameter", block, ",", pdgCode, "is undefined.");
-}
-
 double Parameters::Get(ParameterType type, const std::string& block, LhaID id) {
     LOG_VERBOSE("Attempting to retrieve parameter from instance", (int)type, "with id (", block, ",", id, ")");
     return (*GetInstance(type))(block, id);
@@ -67,7 +53,7 @@ std::map<LhaID, double> Parameters::get_block_infos(std::string blockName) {
     return blockAccessor->getAllValues(blockName);
 }
 
-std::vector<std::string> Parameters::get_blocks_list() {
+std::unordered_set<std::string> Parameters::get_blocks_list() {
     return blockAccessor->get_block_names();
 }
 
@@ -79,17 +65,20 @@ complex_t Parameters::get_c_CKM_entry(LhaID id) {
 std::unordered_set<std::string> Parameters::init_blocks(ParameterType type) {
     if (type == ParameterType::CUSTOM) {
         auto block_names = MemoryManager::GetInstance()->get_all_blocks();
-        this->blockAccessor = MemoryManager::GetInstance()->get_blocks(ParameterBlockRepartition::filter_custom_blocks(block_names));
+        this->blockAccessor = MemoryManager::GetInstance()->get_blocks(ParamRouter::GetOwnedBlocks(type));
     } else {
-        std::vector<std::string> blocks = ParameterBlockRepartition::BLOCKS.at(type);
-        auto input_blocks = MemoryManager::GetInstance()->get_all_blocks();
-        auto it = std::ranges::remove_if(blocks, [&](const std::string& s) {
-            return std::find(input_blocks.begin(), input_blocks.end(), s) == input_blocks.end();
-        });
-        blocks.erase(it.begin(), it.end());
-        this->blockAccessor = MemoryManager::GetInstance()->get_blocks(blocks);
+        std::unordered_set<std::string> existing, missing;
+        std::ranges::partition_copy(
+            ParameterBlockRepartition::BLOCKS.at(type),
+            std::inserter(existing, existing.end()),
+            std::inserter(missing, missing.end()),
+            [&](const std::string& s) {
+                return MemoryManager::GetInstance()->get_all_blocks().contains(s);
+            }
+        );
         
-        return std::unordered_set(it.begin(), it.end());
+        this->blockAccessor = MemoryManager::GetInstance()->get_blocks(existing);
+        return missing;
     }
 }
 
@@ -99,15 +88,35 @@ void SMModelStrategy::initializeParameters(Parameters& params) {
     QCDHelper::Init(params("SMINPUTS", 3), params("SMINPUTS", 4), params("SMINPUTS", 6), params("SMINPUTS", 5),  
                     params("MASS", 4), params("MASS", 3), params("MASS", 2), params("MASS", 1));
 
-    std::cout << "mmh" << std::endl;
-    auto recalculateFunc = [](std::shared_ptr<Block> src, std::shared_ptr<DependentBlock> dep_block) {
-        std::cout << "Updating fcking block based on " << src->blockname << std::endl;
-        double newVal = src->getValue(1) * 2;
-        dep_block->setValue(1, newVal, true);
+    std::shared_ptr<DependentBlock> gauge_block = nullptr;
+
+    auto gauge_update_func = [](std::shared_ptr<Block> src, std::shared_ptr<DependentBlock> dep_block) {
+        double e_em = std::sqrt(4 * PI / src->getValue(1));
+        double g_3 = std::sqrt(4 * PI * src->getValue(3));
+        // Add loop corrections to theta_w
+        double theta_w = 0.5 * std::asin(std::sqrt(4 * PI * INV_RT2 / (src->getValue(1) * src->getValue(2))) / src->getValue(4));
+        dep_block->setValue(1, e_em / std::sin(theta_w), true);
+        dep_block->setValue(2, e_em / std::cos(theta_w), true);
+        dep_block->setValue(3, std::sqrt(4 * PI * src->getValue(3)));
+        dep_block->setValue(4, e_em);
     };
 
-    std::shared_ptr<DependentBlock> gauge_block = nullptr;
-    params.addDependantBlock("GAUGE", gauge_block, "SMINPUTS", recalculateFunc);
+    params.addDependantBlock("GAUGE", gauge_block, "SMINPUTS", gauge_update_func);
+
+    // std::shared_ptr<DependentBlock> gauge_block = nullptr;
+
+    // auto gauge_update_func = [](std::shared_ptr<Block> src, std::shared_ptr<DependentBlock> dep_block) {
+    //     double e_em = std::sqrt(4 * PI / src->getValue(1));
+    //     double g_3 = std::sqrt(4 * PI * src->getValue(3));
+    //     // Add loop corrections to theta_w
+    //     double theta_w = 0.5 * std::asin(std::sqrt(4 * PI * INV_RT2 / (src->getValue(1) * src->getValue(2))) / src->getValue(4));
+    //     dep_block->setValue(1, e_em / std::sin(theta_w), true);
+    //     dep_block->setValue(2, e_em / std::cos(theta_w), true);
+    //     dep_block->setValue(3, std::sqrt(4 * PI * src->getValue(3)));
+    //     dep_block->setValue(4, e_em);
+    // };
+
+    // params.addDependantBlock("GAUGE", gauge_block, "SMINPUTS", gauge_update_func);
 
     // if (absent_blocks.contains("RECKM")) {
     //     std::shared_ptr<ReCKMBlock> reckm_block = nullptr;
@@ -281,23 +290,4 @@ std::shared_ptr<ModelStrategy> ParametersFactory::createStrategy(ParameterType i
         default:
             throw std::invalid_argument("Unknown parameters instance ID");
     }
-}
-
-std::vector<std::string> ParameterBlockRepartition::filter_custom_blocks(const std::vector<std::string> &source) {
-    std::vector<std::string> custom_blocks {};
-
-    for (const auto& block : source) {
-        if (to_lowercase(block) == "mass" || to_lowercase(block) == "gauge") {
-            custom_blocks.emplace_back(block);
-            continue;
-        }
-
-        for (const auto& [_, known_blocks]: ParameterBlockRepartition::BLOCKS) {
-            if (std::find(known_blocks.begin(), known_blocks.end(), block) == known_blocks.end()) {
-                custom_blocks.emplace_back(block);
-            }
-        }
-    }
-
-    return custom_blocks;
 }

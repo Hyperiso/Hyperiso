@@ -20,41 +20,7 @@
 #include <ranges>
 #include <algorithm>
 #include <unordered_set>
-
-struct ParameterBlockRepartition {
-    static inline const std::map<ParameterType, std::vector<std::string>> BLOCKS {
-        {ParameterType::SM, {"SMINPUTS", "MASS", "VCKMIN", "UPMNSIN", "GAUGE", "RECKM", "IMCKM", "REUPMNS", "IMUPMNS"}},
-        {ParameterType::SUSY, {"MASS", "HMIX", "ALPHA", "MSOFT", "NMIX", "UMIX", "VMIX", "A0MIX", "H0MIX", "STOPMIX", "SBOTMIX", "STAUMIX", "AU", "AD", "AE", "YU", "YD", "YE"}},
-        {ParameterType::THDM, {"MASS", "ALPHA", "UCOUPL", "DCOUPL", "LCOUPL"}},
-        {ParameterType::FLAVOR, {"FMASS", "FLIFE", "FCONST", "FCONSTRATIO", "FBAG", "FPARAM"}},
-        {ParameterType::WILSON, {"FWCOEF", "IMFWCOEF"}},
-        {ParameterType::DECAY, {"B_Ks", "B_ll", "B_Xs", "B_Dlnu", "B_Dslnu"}},
-        {ParameterType::OBSERVABLE, {"FOBS", "FOBSERR", "FOBSSM", "FOBSSMERR", "FDIPOLE"}},
-        {ParameterType::PASSTHROUGH, {"MODSEL", "SPINFO", "FMODSEL", "FCINFO", "MINPAR", "EXTPAR"}}
-    };
-
-    static std::vector<std::string> filter_custom_blocks(const std::vector<std::string>& source);
-};
-
-struct ParametersAccessRights {
-    static inline const std::map<std::string, std::unordered_set<int>> SM_RIGHTS {
-        {"MASS", {1, 2, 3, 4, 11, 12, 13, 14, 15, 16, 21, 22, 24, 25}}, 
-        {"GAUGE", {1, 2, 3}},
-    };
-
-    static inline const std::map<std::string, std::unordered_set<int>> THDM_RIGHTS {
-        {"MASS", {25, 35, 36, 37}}, 
-        {"GAUGE", {}},
-    };
-
-    static inline const std::map<std::string, std::unordered_set<int>> SUSY_RIGHTS {
-        {"MASS", {25, 35, 36, 37, 
-                  1000001, 1000002, 1000003, 1000004, 1000005, 1000006, 1000011, 1000012, 1000013, 1000014, 1000015, 1000016, 
-                  2000001, 2000002, 2000003, 2000004, 2000005, 2000006, 2000011, 2000013, 2000015, 
-                  1000021, 1000022, 1000023, 1000024, 1000025, 1000035, 1000037, 1000039}}, 
-        {"GAUGE", {}},
-    };
-};
+#include "ParameterRouter.h"
 
 /**
  * @class ModelStrategy
@@ -146,14 +112,6 @@ public:
     void CleanupInstance(ParameterType id = ParameterType::SM);
 
     /**
-     * @brief Determines the parameter type based on a block and PDG code.
-     * @param block The name of the parameter block.
-     * @param pdgCode The PDG code associated with the parameter.
-     * @return The corresponding ParameterType.
-     */
-    static ParameterType GetType(const std::string& block, LhaID pdgCode);
-
-    /**
      * @brief Retrieves a parameter value given its type, block, and code.
      * @param type The parameter type.
      * @param block The name of the block containing the parameter.
@@ -219,9 +177,9 @@ public:
 
     /**
      * @brief Retrieves a list of all available parameter blocks.
-     * @return A vector of block names.
+     * @return A set of block names.
      */
-    std::vector<std::string> get_blocks_list();
+    std::unordered_set<std::string> get_blocks_list();
 
     /**
      * @brief Changes the operational mode of a specified parameter.
