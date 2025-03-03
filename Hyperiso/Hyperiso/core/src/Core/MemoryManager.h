@@ -91,7 +91,7 @@ private:
      */
     void check_if_ready();
 
-    std::shared_ptr<BlockAccessor> read_params(fs::path lha_path);
+    std::shared_ptr<BlockAccessor> read_input_files(fs::path lha_path);
 
 public:
     /**
@@ -153,10 +153,14 @@ public:
 
     std::shared_ptr<BlockAccessor> get_blocks(std::vector<std::string> block_names);
     
+    void save_input_cache();
+
     MemoryManager(const MemoryManager&) = delete;
     MemoryManager& operator=(const MemoryManager&) = delete;
     MemoryManager(MemoryManager&&) noexcept = default;
     MemoryManager& operator=(MemoryManager&&) noexcept = default;
+
+    friend class Parameters;
 };
 
 

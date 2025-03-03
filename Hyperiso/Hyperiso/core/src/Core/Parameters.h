@@ -23,13 +23,13 @@
 
 struct ParameterBlockRepartition {
     static inline const std::map<ParameterType, std::vector<std::string>> BLOCKS {
-        {ParameterType::SM, {"SMINPUTS", "MASS", "VCKMIN", "UPMNSIN", "GAUGE"}},
+        {ParameterType::SM, {"SMINPUTS", "MASS", "VCKMIN", "UPMNSIN", "GAUGE", "RECKM", "IMCKM", "REUPMNS", "IMUPMNS"}},
         {ParameterType::SUSY, {"MASS", "HMIX", "ALPHA", "MSOFT", "NMIX", "UMIX", "VMIX", "A0MIX", "H0MIX", "STOPMIX", "SBOTMIX", "STAUMIX", "AU", "AD", "AE", "YU", "YD", "YE"}},
-        {ParameterType::THDM, {"MASS", "ALPHA", "LUCOUP", "DCOUPL", "LCOUPL"}},
+        {ParameterType::THDM, {"MASS", "ALPHA", "UCOUPL", "DCOUPL", "LCOUPL"}},
         {ParameterType::FLAVOR, {"FMASS", "FLIFE", "FCONST", "FCONSTRATIO", "FBAG", "FPARAM"}},
         {ParameterType::WILSON, {"FWCOEF", "IMFWCOEF"}},
         {ParameterType::DECAY, {"B_Ks", "B_ll", "B_Xs", "B_Dlnu", "B_Dslnu"}},
-        {ParameterType::OBSERVABLE, {"FOBS", "FOBSERR", "FOBSSM", "FDIPOLE"}},
+        {ParameterType::OBSERVABLE, {"FOBS", "FOBSERR", "FOBSSM", "FOBSSMERR", "FDIPOLE"}},
         {ParameterType::PASSTHROUGH, {"MODSEL", "SPINFO", "FMODSEL", "FCINFO", "MINPAR", "EXTPAR"}}
     };
 
@@ -107,8 +107,20 @@ public:
     void initializeParameters(class Parameters& params) override;
 };
 
-/** @class FormFactorStrategy @brief Strategy for form factor parameters. */
-class FormFactorStrategy : public ModelStrategy {
+/** @class DecayStrategy @brief Strategy for decay parameters (incl. formfactors). */
+class DecayStrategy : public ModelStrategy {
+public:
+    void initializeParameters(class Parameters& params) override;
+};
+
+/** @class ObservableStrategy @brief Strategy for observable inputs (exp. values). */
+class ObservableStrategy : public ModelStrategy {
+public:
+    void initializeParameters(class Parameters& params) override;
+};
+
+    /** @class PassthroughStrategy @brief Strategy for passthrough parameters (not needed at runtime but must be in the output). */
+class PassthroughStrategy : public ModelStrategy {
 public:
     void initializeParameters(class Parameters& params) override;
 };
@@ -231,7 +243,7 @@ public:
      */
     static complex_t get_c_CKM_entry(LhaID idx);
 
-    void init_blocks(ParameterType type, std::unordered_set<std::string> excluded_dependant = {});
+    std::unordered_set<std::string> init_blocks(ParameterType type);
 
     /**
      * @brief Destructor that logs the destruction of a Parameters instance.

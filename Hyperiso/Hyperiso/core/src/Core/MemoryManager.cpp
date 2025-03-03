@@ -18,42 +18,47 @@ std::shared_ptr<BlockAccessor> MemoryManager::get_blocks(std::vector<std::string
     return (*input_cache)[block_names];
 }
 
-std::shared_ptr<BlockAccessor> MemoryManager::read_params(fs::path lha_path) {
+void MemoryManager::save_input_cache() {
+    DBMemento().takeSnapshot(input_cache);
+}
+
+std::shared_ptr<BlockAccessor> MemoryManager::read_input_files(fs::path lha_path) {
     /* Default input */
 
     auto json_parser = ParserFactory::createParser(ParserFactory::Type::JSON);
     auto default_param_values_root = json_parser->readFromFile(FilePaths::default_param_values_path.string());
-    // TODO : insert file check here
-    auto param_values_ba = BlocksCreator::from_db_node(default_param_values_root); 
-    DBMemento memento;
-    memento.takeSnapshot(param_values_ba);
+    auto default_obs_values_root = json_parser->readFromFile(FilePaths::default_param_values_path.string());
 
-    // TODO : read default correlations between params
-    // TODO : read default observable values and correlations
+    // TODO : insert file check here
+    auto input_blocks = BlocksCreator::from_db_node(default_param_values_root); 
+    input_blocks = input_blocks + BlocksCreator::from_db_node(default_obs_values_root); 
+    DBMemento memento;
+    memento.takeSnapshot(input_blocks);
+
+    // TODO : read default correlations between params and observables
 
     /* User input */
 
     auto yaml_parser = ParserFactory::createParser(ParserFactory::Type::YAML);
-    fs::path ui_paths[3] = {FilePaths::user_sm_params_path, FilePaths::user_flavor_params_path, FilePaths::user_decay_params_path};
+    fs::path ui_paths[4] = {FilePaths::user_sm_params_path, FilePaths::user_flavor_params_path, FilePaths::user_decay_params_path, FilePaths::user_obs_values_path};
     for (auto& path : ui_paths) {
         auto ui_root = yaml_parser->readFromFile(path.string());
         auto ui_ba = BlocksCreator::from_db_node(ui_root); 
-        param_values_ba = ui_ba >> param_values_ba;
+        input_blocks = ui_ba >> input_blocks;
     }
-    memento.takeSnapshot(param_values_ba);
+    memento.takeSnapshot(input_blocks);
 
-    // TODO : read user correlations between params
-    // TODO : read user observable values and correlations
+    // TODO : read user correlations between params and observables
 
     /* LHA input */
     auto lha_reader = std::make_shared<LhaReader>(LhaReader(lha_path.string()));
     lha_reader->readAll();
 
     auto lha_param_ba = BlocksCreator::from_lha_reader(lha_reader);
-    param_values_ba = lha_param_ba >> param_values_ba;
-    memento.takeSnapshot(param_values_ba);
+    input_blocks = lha_param_ba >> input_blocks;
+    memento.takeSnapshot(input_blocks);
 
-    return param_values_ba;
+    return input_blocks;
 }
 
 MemoryManager* MemoryManager::GetInstance() {
@@ -77,7 +82,7 @@ void MemoryManager::init(const std::string& lhaFile, const Config& config) {
         GeneralCalculatorFactory::executeCommand(calculatorType, "calculateSpectrum", lha_path, spectrum_path.string());
         LOG_DEBUG("Spectrum calculation ran sucessfully");
     }
-    auto block_accessor = read_params(spectrum_path);
+    auto block_accessor = read_input_files(spectrum_path);
     input_cache = block_accessor;
 
     cache.lha_path = lha_path;
@@ -85,10 +90,11 @@ void MemoryManager::init(const std::string& lhaFile, const Config& config) {
     cache.thread_id = std::this_thread::get_id();
     deduce_parameter_types(config);
     cache.is_ready = true;
-    // for (auto &&m : cache.parameter_types) {
-    //     LOG_DEBUG("Initializing parameters ", (int)m);
-    //     Parameters::GetInstance(m);
-    // }
+
+    for (auto &&m : cache.parameter_types) {
+        LOG_DEBUG("Initializing parameters ", (int)m);
+        Parameters::GetInstance(m);
+    }
 }
 
 void MemoryManager::deduce_parameter_types(const Config &config) {

@@ -76,33 +76,45 @@ complex_t Parameters::get_c_CKM_entry(LhaID id) {
     return complex_t((*p)("RECKM", id), (*p)("IMCKM", id));
 }
 
-void Parameters::init_blocks(ParameterType type, std::unordered_set<std::string> excluded_dependant) {
+std::unordered_set<std::string> Parameters::init_blocks(ParameterType type) {
     if (type == ParameterType::CUSTOM) {
         auto block_names = MemoryManager::GetInstance()->get_all_blocks();
         this->blockAccessor = MemoryManager::GetInstance()->get_blocks(ParameterBlockRepartition::filter_custom_blocks(block_names));
     } else {
         std::vector<std::string> blocks = ParameterBlockRepartition::BLOCKS.at(type);
-
+        auto input_blocks = MemoryManager::GetInstance()->get_all_blocks();
         auto it = std::ranges::remove_if(blocks, [&](const std::string& s) {
-            return excluded_dependant.contains(s);
+            return std::find(input_blocks.begin(), input_blocks.end(), s) == input_blocks.end();
         });
         blocks.erase(it.begin(), it.end());
         this->blockAccessor = MemoryManager::GetInstance()->get_blocks(blocks);
+        
+        return std::unordered_set(it.begin(), it.end());
     }
 }
 
 void SMModelStrategy::initializeParameters(Parameters& params) {
     
-    params.init_blocks(ParameterType::SM, {"GAUGE"});
+    auto absent_blocks = params.init_blocks(ParameterType::SM);
     QCDHelper::Init(params("SMINPUTS", 3), params("SMINPUTS", 4), params("SMINPUTS", 6), params("SMINPUTS", 5),  
                     params("MASS", 4), params("MASS", 3), params("MASS", 2), params("MASS", 1));
 
-    std::shared_ptr<DependentBlock> gauge_block = nullptr;
-    params.addDependantBlock("GAUGE", gauge_block, "SMINPUTS");
+    // if (absent_blocks.contains("GAUGE")) {
+    //     std::shared_ptr<GaugeBlock> gauge_block = nullptr;
+    //     params.addDependantBlock("GAUGE", gauge_block, "SMINPUTS");
+    // }
 
-    params.setBlockValue("SMINPUTS", 1, 10, true);
-    // TODO : Initialize derived blocks RE/IMCKM, RE/IMUPMNS
-    // TODO : Initialize block GAUGE from SMINPUTS if not already present
+    // if (absent_blocks.contains("RECKM")) {
+    //     std::shared_ptr<ReCKMBlock> reckm_block = nullptr;
+    //     params.addDependantBlock("RECKM", reckm_block, "SMINPUTS");
+    // }
+
+    // if (absent_blocks.contains("IMCKM")) {
+    //     std::shared_ptr<ImCKMBlock> imckm_block = nullptr;
+    //     params.addDependantBlock("IMCKM", imckm_block, "SMINPUTS");
+    // }
+
+    // TODO : Initialize derived blocks RE/IMUPMNS
     // TODO : Calculate W mass and store it somewhere
     // TODO : Export savestate to JSON
 }
@@ -201,11 +213,20 @@ void WilsonInputStrategy::initializeParameters(Parameters &params) {
     // }   
 }
 
-void FormFactorStrategy::initializeParameters(Parameters &params) {
+void DecayStrategy::initializeParameters(Parameters &params) {
     params.init_blocks(ParameterType::DECAY);
 
     // TODO : Export savestate to JSON
 }
+
+void ObservableStrategy::initializeParameters(Parameters &params) {
+    params.init_blocks(ParameterType::OBSERVABLE);
+}
+
+void PassthroughStrategy::initializeParameters(Parameters &params) {
+    params.init_blocks(ParameterType::PASSTHROUGH);
+}
+
 
 void Parameters::changeParameterMode(const ParamId &param_id, ParameterMode new_mode) {
     blockAccessor->setMode(param_id.block, param_id.code, new_mode);
@@ -247,7 +268,11 @@ std::shared_ptr<ModelStrategy> ParametersFactory::createStrategy(ParameterType i
         case ParameterType::WILSON:
             return std::make_shared<WilsonInputStrategy>(WilsonInputStrategy());
         case ParameterType::DECAY:
-            return std::make_shared<FormFactorStrategy>(FormFactorStrategy());
+            return std::make_shared<DecayStrategy>(DecayStrategy());
+        case ParameterType::OBSERVABLE:
+            return std::make_shared<DecayStrategy>(DecayStrategy());
+        case ParameterType::PASSTHROUGH:
+            return std::make_shared<DecayStrategy>(DecayStrategy());
         default:
             throw std::invalid_argument("Unknown parameters instance ID");
     }

@@ -101,15 +101,10 @@ public:
 
     Block(std::shared_ptr<Block> other) { this->copy(other); };
 
-    void addObserver(std::shared_ptr<Block> observer) {
-        observers.push_back(observer);
-    }
+    void addObserver(std::shared_ptr<Block> observer);
 
-    void notifyObservers() {
-        for (auto& observer : observers) {
-            observer->update();
-        }
-    }
+    void notifyObservers();
+
     virtual void copy(std::shared_ptr<Block> other) = 0;
 
     virtual void update() = 0;
@@ -151,6 +146,7 @@ public:
         recalculate();
     }
 
+    ~MapBlock() { notifyObservers(); }
 
 protected:
     /// Map of PDG codes to parameters
@@ -167,34 +163,30 @@ public:
     explicit DependentBlock(std::shared_ptr<Block> source) 
         : sourceBlock(source) {}
 
-    void init() {
-        if (auto self = shared_from_this()) {
-            sourceBlock->addObserver(self);
-        } else {
-            std::cerr << "Error: DependentBlock must be created with std::make_shared!" << std::endl;
-        }
-    }
+    void init();
 
-    void update() override {
-        recalculate();
-    }
+    void update();
 
-private:
+protected:
     std::shared_ptr<Block> sourceBlock;
 
-    void recalculate() {
-        std::cout << "Updating dependent block: " << blockname << " based on " 
-                  << sourceBlock->blockname << std::endl;
-
-        if (sourceBlock) {
-            double newVal = sourceBlock->getValue(1) * 2;
-            setValue(1, newVal, true);
-        }
-    }
+    virtual void recalculate();
 };
 
+class GaugeBlock: public DependentBlock {
+protected:
+    void recalculate() override;
+};
 
+class ReCKMBlock: public DependentBlock {
+protected:
+    void recalculate() override;
+};
 
+class ImCKMBlock: public DependentBlock {
+protected:
+    void recalculate() override;
+};
 
 /* ------------------------------------------------------------------------------------------------
 Wilson Input BLOCKS*/

@@ -11,5 +11,11 @@ int main() {
     MemoryManager::GetInstance()->init("lha/testInput.flha", config);
 
     Parameters::GetInstance();
+
+    DBMemento memento;
+    for (size_t i = 0; i < memento.stack_size(); i++){
+        memento.print_snapshot_content(i);
+    }
+
     return 0;
 }
