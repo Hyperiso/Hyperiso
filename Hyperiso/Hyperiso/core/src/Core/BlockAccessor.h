@@ -13,6 +13,7 @@
 #include <memory>
 #include <stdexcept>
 #include "Block.h"
+#include <functional>
 
 /**
  * @class BlockAccessor
@@ -29,7 +30,7 @@ public:
      */
     void addBlock(const std::string& name, std::shared_ptr<Block> block);
     
-    void addDependentBlock(const std::string& name, std::shared_ptr<DependentBlock>& dependant_block, const std::string& sourceName);
+    void addDependentBlock(const std::string& name, std::shared_ptr<DependentBlock>& dependant_block, const std::string& sourceName, std::function<void(std::shared_ptr<Block>, std::shared_ptr<DependentBlock>)> recalculateFunc);
 
     /**
      * @brief Checks if a block exists with a given parameter.

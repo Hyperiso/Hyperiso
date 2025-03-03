@@ -15,6 +15,7 @@
 #include <array>
 // #include "JsonParameters.h"
 #include "Parameter.h"
+#include <functional>
 
 /**
  * @class Block
@@ -148,7 +149,7 @@ public:
     void remove_parameter(LhaID id) override;
 
     void update() override {
-        recalculate();
+        // recalculate();
     }
 
 
@@ -156,16 +157,16 @@ protected:
     /// Map of PDG codes to parameters
     std::map<LhaID, Parameter> values;
 
-    void recalculate() {
-        std::cout << "Error map block cannot do that" << std::endl;
-    }
+    // void recalculate() {
+    //     std::cout << "Error map block cannot do that" << std::endl;
+    // }
 
 };
 
 class DependentBlock : public MapBlock, public std::enable_shared_from_this<DependentBlock> {
 public:
-    explicit DependentBlock(std::shared_ptr<Block> source) 
-        : sourceBlock(source) {}
+    explicit DependentBlock(std::shared_ptr<Block> source, std::function<void(std::shared_ptr<Block>, std::shared_ptr<DependentBlock>)> recalculateFunc) 
+        : sourceBlock(source), recalculateLambda(std::move(recalculateFunc)) {}
 
     void init() {
         if (auto self = shared_from_this()) {
@@ -176,21 +177,19 @@ public:
     }
 
     void update() override {
-        recalculate();
+        std::cout << "AHAH" << std::endl;
+        if (recalculateLambda && sourceBlock) {
+            if (auto self = shared_from_this()) { 
+                recalculateLambda(sourceBlock, self);
+            } else {
+                std::cerr << "Error: shared_from_this() failed in update()" << std::endl;
+            }
+        }
     }
 
 private:
     std::shared_ptr<Block> sourceBlock;
-
-    void recalculate() {
-        std::cout << "Updating dependent block: " << blockname << " based on " 
-                  << sourceBlock->blockname << std::endl;
-
-        if (sourceBlock) {
-            double newVal = sourceBlock->getValue(1) * 2;
-            setValue(1, newVal, true);
-        }
-    }
+    std::function<void(std::shared_ptr<Block>, std::shared_ptr<DependentBlock>)> recalculateLambda;
 };
 
 
