@@ -1,50 +1,4 @@
 #include "Compound.h"
-#include "Parameter.h"
-#include "Parameters.h"
-#include "json_parser.h"
-#include <algorithm>
-
-void Compound::read_param_covariance() {
-    LOG_DEBUG("Extracting parameter covariance from input files.");
-    std::vector<Correlation> correlations;
-    std::vector<Value> values;
-    std::string exp_path = MemoryManager::GetInstance()->getParameterCovariancePath().string();
-    read_json(exp_path, values, correlations);
-
-    std::map<ParamId, double> stds;
-
-    // Fill diagonal elements with exp. variance for each parameter
-    for (const auto& val : values) {
-        std::string del = "|";
-        auto split = val.name.find(del);
-        std::string block = val.name.substr(0, split);
-        int pdg = std::stoi(val.name.substr(split + 1, val.name.size() - split));
-        ParameterType type = Parameters::GetType(block, pdg);
-        ParamId id {type, block, pdg};
-        if (std::find(dependences.begin(), dependences.end(), id) != dependences.end()) {
-            param_corr.insert(std::make_pair(std::make_pair(id, id), std::pow(val.stat_error, 2)));
-            stds.emplace(std::make_pair(id, val.stat_error));
-        }
-    }
-
-    // Read any nonzero correlation between parameter pairs from data file and add it to the matrix
-    for (const auto& corr : correlations) {
-        std::string del = "|";
-        auto split = corr.name1.find(del);
-        std::string block = corr.name1.substr(0, split);
-        int pdg = std::stoi(corr.name1.substr(split + 1, corr.name1.size() - split));
-        ParameterType type = Parameters::GetType(block, pdg);
-        ParamId id_1 = {type, block, pdg};
-        split = corr.name2.find(del);
-        block = corr.name2.substr(0, split);
-        pdg = std::stoi(corr.name2.substr(split + 1, corr.name2.size() - split));
-        type = Parameters::GetType(block, pdg);
-        ParamId id_2 = {type, block, pdg};
-        auto cov = corr.value * stds.at(id_1) * stds.at(id_2);
-        param_corr.insert(std::make_pair(std::make_pair(id_1, id_2), cov));
-        param_corr.insert(std::make_pair(std::make_pair(id_2, id_1), cov));
-    }
-}
 
 double Compound::compute_pdv(const ParamId &param_id) const {
     LOG_DEBUG("Computing pdv wrt", param_id);
@@ -82,7 +36,6 @@ void Compound::add_dependence(const ParamId &param_name) {
         central_value = eval();
     }
     gradient.emplace(param_name, compute_pdv(param_name));
-    read_param_covariance();
 }
 
 void Compound::add_dependences(const std::vector<ParamId> &param_names) {
@@ -91,7 +44,6 @@ void Compound::add_dependences(const std::vector<ParamId> &param_names) {
         dependences.emplace_back(p);
     }
     update_gradient();
-    read_param_covariance();
 }
 
 const std::vector<ParamId> &Compound::get_dependences() const {
@@ -104,8 +56,15 @@ const std::map<ParamId, double> &Compound::get_gradient() const {
 
 double Compound::variance() {
     double var = 0;
-    for (auto &&pp : param_corr) {
-        var += pp.second * gradient.at(pp.first.first) * gradient.at(pp.first.second);
+    CorrelationRepository cr;
+    for (const auto &pid_1 : dependences) {
+        for (const auto &pid_2 : dependences) {
+            if (pid_1 == pid_2) {
+                var += std::pow(pid_1.std * gradient.at(pid_1), 2);
+            } else {
+                var += cr.get_combined_correlation(pid_1, pid_2) * pid_1.std * pid_2.std * gradient.at(pid_1) * gradient.at(pid_2);
+            }
+        }
     }
     LOG_DEBUG("Computing compound variance =", var);
     return var;
@@ -129,11 +88,10 @@ const std::map<ParamId, double> Compound::get_leading_uncertainties(size_t n) co
 
 const std::map<ParamId, double> Compound::get_uncertainties() const {
     std::map<ParamId, double> uncertainties;
+    CorrelationRepository cr;
     for (auto p : dependences) {
-        if (param_corr.contains({p, p})) {
-            std::pair<ParamId, double> u = {p, std::sqrt(param_corr.at({p, p})) * std::abs(gradient.at(p))};
-            uncertainties.emplace(u);
-        }
+        double u = std::sqrt(cr.get_combined_correlation(p, p)) * p.std * std::abs(gradient.at(p));
+        uncertainties.emplace(p, u);
     }
 
     return uncertainties;
@@ -142,10 +100,10 @@ const std::map<ParamId, double> Compound::get_uncertainties() const {
 double Compound::correlation_with(const Compound &other) const {
     double corr = 0;
     auto common_dep = get_common_dependences_with(other);
+    CorrelationRepository cr;
     for (auto &&p_1 : common_dep) {
         for (auto &&p_2 : common_dep) {
-            if (param_corr.contains({p_1, p_2}))
-                corr += param_corr.at({p_1, p_2}) * gradient.at(p_1) * other.get_gradient().at(p_2);
+                corr += cr.get_combined_correlation(p_1, p_2) * p_1.std * p_2.std * gradient.at(p_1) * other.get_gradient().at(p_2);
         }
     }
     return corr;

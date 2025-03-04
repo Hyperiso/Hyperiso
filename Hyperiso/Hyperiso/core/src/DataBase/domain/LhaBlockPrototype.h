@@ -1,0 +1,70 @@
+#ifndef __LHABLOCKPROTOTYPE_H__
+#define __LHABLOCKPROTOTYPE_H__
+
+#include <string>
+#include <unordered_set>
+
+/**
+ * @struct Prototype
+ * @brief Represents the structure of an LHA block, specifying columns for values, scales, and renormalization groups.
+ */
+struct Prototype {
+    std::string blockName;      /**< Block name, case insensitive. */
+    int itemCount {2};          /**< Number of columns in the block. */
+    int valueIdx {1};           /**< Column index for value. */
+    int scaleIdx {-1};          /**< Column index for scale, -1 if scale-independent. */
+    int rgIdx {-1};             /**< Column index for renormalization group, -1 if irrelevant. */
+    bool globalScale {false};   /**< Indicates if the block uses a global scale (Q= in header). */
+};
+
+// SLHA Block prototypes
+const Prototype MODSEL = Prototype{"MODSEL"};
+const Prototype SMINPUTS = Prototype{"SMINPUTS"};
+const Prototype VCKMIN = Prototype{"VCKMIN"};   /**< SLHA2 */
+const Prototype UPMNSIN = Prototype{"UPMNSIN"}; /**< SLHA2 */
+const Prototype MINPAR = Prototype{"MINPAR"};
+const Prototype EXTPAR = Prototype{"EXTPAR"};
+const Prototype MASS = Prototype{"MASS"};
+const Prototype NMIX = Prototype{"NMIX", 3, 2};
+const Prototype UMIX = Prototype{"UMIX", 3, 2};
+const Prototype VMIX = Prototype{"VMIX", 3, 2};
+const Prototype A0MIX = Prototype{"A0MIX", 3, 2};
+const Prototype H0MIX = Prototype{"H0MIX", 3, 2};
+const Prototype STOPMIX = Prototype{"STOPMIX", 3, 2};
+const Prototype SBOTMIX = Prototype{"SBOTMIX", 3, 2};
+const Prototype STAUMIX = Prototype{"STAUMIX", 3, 2};
+const Prototype ALPHA = Prototype{"ALPHA", 1, 0};
+const Prototype HMIX = Prototype{"HMIX", 3, 2, -1, -1, true};
+const Prototype GAUGE = Prototype{"GAUGE", 3, 2, -1, -1, true};
+const Prototype MSOFT = Prototype{"MSOFT", 3, 2, -1, -1, true};
+const Prototype AU = Prototype{"AU", 4, 3, -1, -1, true};
+const Prototype AD = Prototype{"AD", 4, 3, -1, -1, true};
+const Prototype AE = Prototype{"AE", 4, 3, -1, -1, true};
+const Prototype YU = Prototype{"YU", 4, 3, -1, -1, true};
+const Prototype YD = Prototype{"YD", 4, 3, -1, -1, true};
+const Prototype YE = Prototype{"YE", 4, 3, -1, -1, true};
+const Prototype SPINFO = Prototype{"SPINFO"};
+
+const std::unordered_set<Prototype> LHA_BLOCKS = {MODSEL, SMINPUTS, VCKMIN, UPMNSIN, MASS, GAUGE};
+const std::unordered_set<Prototype> SLHA_BLOCKS = {MINPAR, EXTPAR, NMIX, UMIX, VMIX, STOPMIX, SBOTMIX, STAUMIX, ALPHA, HMIX, MSOFT, AU, AD, AE, YU, YD, YE, SPINFO};
+
+// FLHA Block prototypes
+const Prototype FCINFO = Prototype{"FCINFO"};
+const Prototype FMODSEL = Prototype{"FMODSEL"};
+const Prototype FMASS = Prototype{"FMASS", 4, 1, 2, 3};
+const Prototype FLIFE = Prototype{"FLIFE"};
+const Prototype FCONST = Prototype{"FCONST", 5, 2, 3, 4};
+const Prototype FCONSTRATIO = Prototype{"FCONSTRATIO", 7, 4, 5, 6};
+const Prototype FBAG = Prototype{"FBAG", 5, 2, 3, 4};
+const Prototype FWCOEF = Prototype{"FWCOEF", 6, 5, -1, -1, true};
+const Prototype IMFWCOEF = Prototype{"IMFWCOEF", 6, 5, -1, -1, true};
+const Prototype FOBS = Prototype{"FOBS", 9, 2, 3};
+const Prototype FOBSERR = Prototype{"FOBSERR", 9, 2, 3};
+const Prototype FOBSSM = Prototype{"FOBSSM", 9, 2, 3};
+const Prototype FDIPOLE = Prototype{"FDIPOLE", 4, 3};
+const Prototype FPARAM = Prototype{"FPARAM", 9, 2, 3};
+
+const std::unordered_set<Prototype> FLHA_BLOCKS = {FCINFO, FMODSEL, FMASS, FLIFE, FCONST, FCONSTRATIO, FBAG, FWCOEF, IMFWCOEF, FOBS, FOBSERR, FOBSSM, FDIPOLE, FPARAM};
+
+
+#endif // __LHABLOCKPROTOTYPE_H__

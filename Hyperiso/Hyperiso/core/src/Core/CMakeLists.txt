@@ -30,23 +30,27 @@ endif()
 
 
 add_library(CoreLib STATIC 
-    MemoryManager.cpp
-    DBMemento.cpp
-    Parameters.cpp
-    Parameter.cpp
-    Block.cpp
-    BlockAccessor.cpp
-    BlocksCreator.cpp
-    QCDHelper.cpp
-    CorrelationCreator.cpp
-    CorrelationRepo.cpp
-    ParameterRouter.cpp
+    domain/MemoryManager.cpp
+    adapters/DBMemento.cpp
+    domain/Parameters.cpp
+    domain/Parameter.cpp
+    domain/Block.cpp
+    domain/BlockAccessor.cpp
+    adapters/ParamBlockAdapter.cpp
+    infrastructure/QCDHelper.cpp
+    adapters/CorrelationAdapter.cpp
+    domain/CorrelationRepo.cpp
+    domain/ParameterRouter.cpp
     )
 set_target_properties(CoreLib PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
-set_target_properties(CoreLib PROPERTIES PUBLIC_HEADER "MemoryManager.h;Parameters.h;Parameter.h;QCDHelper.h;BlocksCreator.h;BlockAccessor.h")
+# set_target_properties(CoreLib PROPERTIES PUBLIC_HEADER "MemoryManager.h;Parameters.h;Parameter.h;QCDHelper.h;BlocksCreator.h;BlockAccessor.h;CorrelationRepo.h;CorrelationCreator.h;ParameterRouter.h;")
 
 target_include_directories(CoreLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(DataBaseLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/adapter)
+target_include_directories(DataBaseLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/domain)
+target_include_directories(DataBaseLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/infrastructure)
+target_include_directories(DataBaseLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/ports)
 
 target_link_libraries(CoreLib PUBLIC CommonLib DataBaseLib ConfiguredModule ExternalIntegrationLib MathLib)
 
@@ -56,7 +60,7 @@ if (${ENABLE_WARNINGS})
                         ${ENABLE_WARNINGS_AS_ERRORS})
 endif()
 
-add_executable(TEST_CORE main_core.cpp)
+add_executable(TEST_CORE app/main_core.cpp)
 target_link_libraries(TEST_CORE CoreLib)
 
 # add_executable(TEST main_parameters.cpp)

@@ -1,0 +1,10 @@
+{
+    "correlations": [
+        {
+            "id_1": "511_1_2_13_-13",
+            "id_2": "531_1_2_13_-13",
+            "stat_correlation": -0.3,
+            "syst_correlation": 0.05
+        }   
+    ]
+    }

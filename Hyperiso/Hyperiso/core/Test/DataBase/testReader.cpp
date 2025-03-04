@@ -8,7 +8,7 @@ int main() {
     logger->setLevel(Logger::LogLevel::DEBUG);
 
     std::string root_path = project_root.data();
-    LhaReader reader(root_path + "Test/InputFiles/testInput.flha");
+    LhaParser reader(root_path + "Test/InputFiles/testInput.flha");
     reader.addBlockType("testadd", 2, 1);
     reader.readAll();
 

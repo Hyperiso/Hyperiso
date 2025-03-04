@@ -1,0 +1,13 @@
+#ifndef __BLOCKSCREATOR_H__
+#define __BLOCKSCREATOR_H__
+
+#include <memory>
+#include "BlockAccessor.h"
+#include "DBNode.h"
+
+class ParamBlockAdapter {
+public:
+    static std::shared_ptr<BlockAccessor> from_db_node(std::shared_ptr<Node> root);
+};
+
+#endif // __BLOCKSCREATOR_H__

@@ -621,15 +621,8 @@ std::vector<std::vector<long>> LhaParamsHelper::get_minimal_content(const std::s
     LOG_ERROR("LhaParamsHelper", "Unknown block", block_name);
 }
 
-std::ostream &operator<<(std::ostream &os, const LhaID &id)
-{
-    if (!id.parts.empty()) {
-        os << id.parts.at(0);
-        for (size_t i = 1; i < id.parts.size(); i++) {
-            os << '_' << id.parts.at(i);
-        }
-    }
-
+std::ostream &operator<<(std::ostream &os, const LhaID &id) {
+    os << id.to_string();
     return os;
 }
 
@@ -637,4 +630,15 @@ LhaID::LhaID(const std::string &str_id) {
     for (const auto &num : split(str_id, '_')) {
         parts.emplace_back(std::stol(num));
     }
+}
+
+std::string LhaID::to_string() const {
+    std::stringstream ss;
+    if (!this->parts.empty()) {
+        ss << this->parts.at(0);
+        for (size_t i = 1; i < this->parts.size(); i++) {
+            ss << '_' << this->parts.at(i);
+        }
+    }
+    return ss.str();
 }

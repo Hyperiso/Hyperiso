@@ -5,18 +5,18 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <algorithm>
 #include "Parameter.h"
-#include "Matrix.h"
+#include "CorrelationRepo.h"
+#include "Parameters.h"
 
 class Compound {
 
 protected:
     std::vector<ParamId> dependences;
-    SparseMatrix<ParamId> param_corr;
     std::map<ParamId, double> gradient;
     double central_value {NAN};
 
-    void read_param_covariance();
     double compute_pdv(const ParamId& param_name) const;
     std::vector<ParamId> get_common_dependences_with(const Compound& other) const;
 

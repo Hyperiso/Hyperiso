@@ -361,6 +361,7 @@ struct LhaID {
      */
     LhaID(long id) : parts({id}) {}
 
+    std::string to_string() const;
     
     /**
      * @brief Allows for implicit conversion of a trivial LhaID to an integer 
@@ -395,8 +396,13 @@ struct ParamId {
     }
 };
 
-inline std::ostream& operator<<(std::ostream& os, ParamId& pid) {
+inline std::ostream& operator<<(std::ostream& os, const ParamId& pid) {
     os << pid.block << ":" << pid.code;
+    return os;
+};
+
+inline std::ostream& operator<<(std::ostream& os, const Observables& oid) {
+    os << ObservableMapper::str(oid);
     return os;
 };
 
