@@ -14,24 +14,25 @@ if (NOT TARGET PandasLib)
 endif()
 
 add_library(DataBaseLib STATIC
-    Entity/lha_blocks.cpp
-    Entity/lha_elements.cpp
+    domain/lha_blocks.cpp
+    domain/lha_elements.cpp
     # Entity/JsonParameters.cpp
-    Entity/DBNode.cpp
-    Service/lha_reader.cpp
+    domain/DBNode.cpp
+    domain/DBManager.cpp
+    # domain/lha_reader.cpp
     Service/MappingDataBase.cpp
-    Parser/json_parser.cpp
-    Parser/lha_parser.cpp
-    Parser/Parser.cpp
+    adapters/JsonParser.cpp
+    adapters/LhaParser.cpp
+    adapters/YamlParser.cpp
 )
 
 set_target_properties(DataBaseLib PROPERTIES POSITION_INDEPENDENT_CODE ON)
 set_target_properties(DataBaseLib PROPERTIES PUBLIC_HEADER "Service/lha_reader.h")
 
-target_include_directories(DataBaseLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_include_directories(DataBaseLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/Entity)
+target_include_directories(DataBaseLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/adapters)
+target_include_directories(DataBaseLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/domain)
+target_include_directories(DataBaseLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/ports)
 target_include_directories(DataBaseLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/Service)
-target_include_directories(DataBaseLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/Parser)
 
 target_link_libraries(DataBaseLib PUBLIC PandasLib CommonLib)
 

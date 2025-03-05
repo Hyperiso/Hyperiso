@@ -109,6 +109,56 @@ void Node::printValue(const Value& value, int level) const {
         std::cout << (std::get<bool>(value) ? "true" : "false");
     } else if (std::holds_alternative<std::shared_ptr<Node>>(value)) {
         std::get<std::shared_ptr<Node>>(value)->printJSON(level + 2);
+    } else if (std::holds_alternative<std::vector<int>>(value)) {
+        std::cout << "[ ";
+        const auto& vec = std::get<std::vector<int>>(value);
+        for (size_t i = 0; i < vec.size(); ++i) {
+            printValue(vec[i], level);
+            if (i < vec.size() - 1) {
+                std::cout << ", ";
+            }
+        }
+        std::cout << " ]";
+    } else if (std::holds_alternative<std::vector<double>>(value)) {
+        std::cout << "[ ";
+        const auto& vec = std::get<std::vector<double>>(value);
+        for (size_t i = 0; i < vec.size(); ++i) {
+            printValue(vec[i], level);
+            if (i < vec.size() - 1) {
+                std::cout << ", ";
+            }
+        }
+        std::cout << " ]";
+    } else if (std::holds_alternative<std::vector<bool>>(value)) {
+        std::cout << "[ ";
+        const auto& vec = std::get<std::vector<bool>>(value);
+        for (size_t i = 0; i < vec.size(); ++i) {
+            printValue(vec[i], level);
+            if (i < vec.size() - 1) {
+                std::cout << ", ";
+            }
+        }
+        std::cout << " ]";
+    } else if (std::holds_alternative<std::vector<std::string>>(value)) {
+        std::cout << "[ ";
+        const auto& vec = std::get<std::vector<std::string>>(value);
+        for (size_t i = 0; i < vec.size(); ++i) {
+            printValue(vec[i], level);
+            if (i < vec.size() - 1) {
+                std::cout << ", ";
+            }
+        }
+        std::cout << " ]";
+    } else if (std::holds_alternative<std::vector<int>>(value)) {
+        std::cout << "[ ";
+        const auto& vec = std::get<std::vector<int>>(value);
+        for (size_t i = 0; i < vec.size(); ++i) {
+            printValue(vec[i], level);
+            if (i < vec.size() - 1) {
+                std::cout << ", ";
+            }
+        }
+        std::cout << " ]";
     }
 }
 

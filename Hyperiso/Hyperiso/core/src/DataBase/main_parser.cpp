@@ -1,4 +1,5 @@
-#include "Parser.h"
+#include "JsonParser.h"
+#include "YamlParser.h"
 #include "DBNode.h"
 #include <memory>
 #include <string>
@@ -149,7 +150,7 @@ details:
     root->set(true, "isAdmin");
     root->set("Paris", "address", "city");
     root->set(75001, "address", "zip");
-
+    root->set(std::vector<std::string>({"mmh", "mmh2"}), "truc");
     auto listNode = std::make_shared<Node>();
     listNode->set("C++", "0");
     listNode->set("Python", "1");
@@ -217,18 +218,18 @@ details:
         std::cerr << "❌ Error writing file.\n";
     }
 
-    std::cout << "\n🔹 Reading from file...\n";
-    std::ifstream fileRead("test_output.json");
-    if (fileRead.is_open()) {
-        std::ostringstream oss;
-        oss << fileRead.rdbuf();
-        auto parsedFileNode = jsonParser.parse(oss.str());
-        std::cout << "✅ File read successfully:\n";
-        parsedFileNode->printJSON();
-        fileRead.close();
-    } else {
-        std::cerr << "❌ Error reading file.\n";
-    }
+    // std::cout << "\n🔹 Reading from file...\n";
+    // std::ifstream fileRead("test_output.json");
+    // if (fileRead.is_open()) {
+    //     std::ostringstream oss;
+    //     oss << fileRead.rdbuf();
+    //     auto parsedFileNode = jsonParser.parse(oss.str());
+    //     std::cout << "✅ File read successfully:\n";
+    //     parsedFileNode->printJSON();
+    //     fileRead.close();
+    // } else {
+    //     std::cerr << "❌ Error reading file.\n";
+    // }
 
 
 

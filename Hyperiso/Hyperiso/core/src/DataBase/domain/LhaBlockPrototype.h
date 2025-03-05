@@ -15,7 +15,32 @@ struct Prototype {
     int scaleIdx {-1};          /**< Column index for scale, -1 if scale-independent. */
     int rgIdx {-1};             /**< Column index for renormalization group, -1 if irrelevant. */
     bool globalScale {false};   /**< Indicates if the block uses a global scale (Q= in header). */
+
+    bool operator==(const Prototype& other) const {
+        return blockName == other.blockName &&
+               itemCount == other.itemCount &&
+               valueIdx == other.valueIdx &&
+               scaleIdx == other.scaleIdx &&
+               rgIdx == other.rgIdx &&
+               globalScale == other.globalScale;
+    }
 };
+
+namespace std {
+    template <>
+    struct hash<Prototype> {
+        std::size_t operator()(const Prototype& p) const noexcept {
+            std::size_t h1 = std::hash<std::string>{}(p.blockName);
+            std::size_t h2 = std::hash<int>{}(p.itemCount);
+            std::size_t h3 = std::hash<int>{}(p.valueIdx);
+            std::size_t h4 = std::hash<int>{}(p.scaleIdx);
+            std::size_t h5 = std::hash<int>{}(p.rgIdx);
+            std::size_t h6 = std::hash<bool>{}(p.globalScale);
+
+            return h1 ^ (h2 << 1) ^ (h3 << 2) ^ (h4 << 3) ^ (h5 << 4) ^ (h6 << 5);
+        }
+    };
+}
 
 // SLHA Block prototypes
 const Prototype MODSEL = Prototype{"MODSEL"};

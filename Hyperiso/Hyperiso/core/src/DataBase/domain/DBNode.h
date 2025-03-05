@@ -18,7 +18,7 @@
  */
 class Node {
 public:
-    using Value = std::variant<std::string, int, double, bool, std::shared_ptr<Node>>;
+    using Value = std::variant<std::string, int, double, bool, std::shared_ptr<Node>, std::vector<std::string>, std::vector<int> ,std::vector<double>, std::vector<bool>>;
 
     /**
      * @brief Default constructor for Node.
@@ -90,6 +90,11 @@ public:
     bool contains(const std::string& key) const;
 
     int countChildren() const;
+
+    /**
+     * @brief Determines if a node is a list.
+     */
+    bool isList() const;
 private:
     std::map<std::string, Value> data_;
 

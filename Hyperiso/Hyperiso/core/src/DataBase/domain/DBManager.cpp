@@ -27,7 +27,7 @@ std::shared_ptr<Node> DBManager::read_from_file(fs::path file_path) {
     auto parser = ParserFactory::createParser(parser_type);
     if (parser_type == ParserFactory::Type::LHA) {
         add_default_lha_prototypes(file_path);
-        static_cast<std::shared_ptr<LhaParser>>(parser)->setPrototypes(lha_prototypes);
+        std::dynamic_pointer_cast<LhaParser>(parser)->set_prototypes(); // TODO, NIELS
     }
     auto root = parser->readFromFile(file_path);
     // sanitize_tree(root);
@@ -42,7 +42,7 @@ void DBManager::write_to_file(fs::path file_path, std::shared_ptr<Node> root) {
     // sanitize_file(file_path);  // basic checks (empty file, wrong encoding...)
 }
 
-void DBManager::add_lha_prototype(std::string blockName, int itemCount=2, int valueIdx=1, int scaleIdx=-1, int rgIdx=-1, bool globalScale=false) {
+void DBManager::add_lha_prototype(std::string blockName, int itemCount, int valueIdx, int scaleIdx, int rgIdx, bool globalScale) {
     std::transform(blockName.begin(), blockName.end(), blockName.begin(), ::toupper);  // Make sure block name is uppercase 
     this->lha_prototypes.emplace(Prototype{blockName, itemCount, valueIdx, scaleIdx, rgIdx, globalScale});
 }
