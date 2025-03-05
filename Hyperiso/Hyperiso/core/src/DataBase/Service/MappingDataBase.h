@@ -5,6 +5,8 @@
 #include <string>
 #include <memory>
 
+#include "IParser.h"
+
 /**
  * @struct InterpretedParam
  * @brief Represents a parameter with a block name and a PDG code.
@@ -16,7 +18,6 @@ struct InterpretedParam {
 
 /**
  * @class MappingDatabase
- * @brief Singleton class for managing a database of interpreted parameters loaded from a JSON file.
  */
 class MappingDatabase {
 public:

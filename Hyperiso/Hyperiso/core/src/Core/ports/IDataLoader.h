@@ -7,10 +7,10 @@
 #include <any>
 #include <typeindex>
 
+template<typename T>
 class IDataLoader {
 public:
-    virtual std::shared_ptr<BlockAccessor> load_param_blocks() = 0;
-    virtual std::any load_correlations(std::type_index type) = 0;
+    virtual void load(T* dest, shared_ptr<Node> src) = 0;
 
     virtual ~IDataLoader() = default;
 };

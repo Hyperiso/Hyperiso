@@ -22,27 +22,42 @@ void DBManager::add_default_lha_prototypes(fs::path file_path) {
 }   
 
 std::shared_ptr<Node> DBManager::read_from_file(fs::path file_path) {
+    // sanitize_file(file_path);  // TODO basic checks (empty file, wrong encoding...)
     ParserFactory::Type parser_type = deduce_parser_type(file_path);
-    // sanitize_file(file_path);  // basic checks (empty file, wrong encoding...)
     auto parser = ParserFactory::createParser(parser_type);
     if (parser_type == ParserFactory::Type::LHA) {
         add_default_lha_prototypes(file_path);
-        std::dynamic_pointer_cast<LhaParser>(parser)->set_prototypes(); // TODO, NIELS
+        std::dynamic_pointer_cast<LhaParser>(parser)->set_prototypes(this->lha_prototypes);
     }
     auto root = parser->readFromFile(file_path);
-    // sanitize_tree(root);
+    // sanitize_tree(root); // TODO
     return root;
 }
 
 void DBManager::write_to_file(fs::path file_path, std::shared_ptr<Node> root) {
-    // sanitize_tree(root);
+    // sanitize_tree(root); // TODO
     ParserFactory::Type parser_type = deduce_parser_type(file_path);
     auto parser = ParserFactory::createParser(parser_type);
     parser->writeToFile(file_path, root);
-    // sanitize_file(file_path);  // basic checks (empty file, wrong encoding...)
+    // sanitize_file(file_path);  // TODO: basic checks (empty file, wrong encoding...)
 }
 
-void DBManager::add_lha_prototype(std::string blockName, int itemCount, int valueIdx, int scaleIdx, int rgIdx, bool globalScale) {
+void DBManager::add_lha_prototype(std::string blockName, size_t itemCount, size_t valueIdx, int scaleIdx, int rgIdx, bool globalScale) {
     std::transform(blockName.begin(), blockName.end(), blockName.begin(), ::toupper);  // Make sure block name is uppercase 
-    this->lha_prototypes.emplace(Prototype{blockName, itemCount, valueIdx, scaleIdx, rgIdx, globalScale});
+    Prototype new_prototype = Prototype{blockName, itemCount, valueIdx, scaleIdx, rgIdx, globalScale};
+
+    auto it = std::find_if(DBManager::lha_prototypes.begin(), 
+                           DBManager::lha_prototypes.end(), 
+                           [blockName] (const Prototype& p) { return p.blockName == blockName; });
+
+    if (it != DBManager::lha_prototypes.end())  {
+        if (*it == new_prototype) {
+            LOG_WARN("Trying to add an already existing prototype for block", blockName);
+            return;
+        } else {
+            LOG_ERROR("ValueError", "Cannot add different prototype for existing block", blockName);
+        }
+    }
+
+    DBManager::lha_prototypes.emplace(new_prototype);
 }

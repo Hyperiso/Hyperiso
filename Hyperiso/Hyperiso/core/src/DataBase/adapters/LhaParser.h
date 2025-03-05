@@ -11,6 +11,7 @@
 #include <sstream>
 #include <vector>
 #include <algorithm>
+#include <unordered_set>
 #include "IParser.h"
 #include "lha_blocks.h"
 #include "lha_elements.h"
@@ -58,7 +59,7 @@ struct Token {
  */
 class LhaParser : public IParser {
 private:
-    std::vector<Prototype> blockPrototypes;                     /**< List of block prototypes used for parsing. */
+    std::unordered_set<Prototype> blockPrototypes;                     /**< List of block prototypes used for parsing. */
 
     void fill_prototypes(std::string_view lha_path);
 
@@ -111,7 +112,7 @@ public:
      */
     void writeToFile(const std::string& filename, const std::shared_ptr<Node>& root) const;
 
-    void set_prototypes();
+    void set_prototypes(const std::unordered_set<Prototype>& prototypes);
 };
 
 #endif // HYPERISO_LHA_READER_H

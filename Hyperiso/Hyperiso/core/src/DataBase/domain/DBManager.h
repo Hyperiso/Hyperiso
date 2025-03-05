@@ -17,7 +17,7 @@ private:
         {ParserFactory::Type::LHA, {".lha", ".slha", ".flha"}},
     }; 
 
-    std::unordered_set<Prototype> lha_prototypes;
+    static inline std::unordered_set<Prototype> lha_prototypes {};
 
     ParserFactory::Type deduce_parser_type(fs::path file_path);
 
@@ -25,6 +25,7 @@ private:
 
 public:
     std::shared_ptr<Node> read_from_file(fs::path file_path);
+    std::shared_ptr<Node> read_from_cache(fs::path file_path);
     void write_to_file(fs::path file_path, std::shared_ptr<Node> root);
 
     /**
@@ -36,7 +37,7 @@ public:
      * @param rgIdx Index of the renormalization group column.
      * @param globalScale Flag indicating if the block uses a global scale.
      */
-    void add_lha_prototype(std::string blockName, int itemCount=2, int valueIdx=1, int scaleIdx=-1, int rgIdx=-1, bool globalScale=false);
+    void add_lha_prototype(std::string blockName, size_t itemCount=2, size_t valueIdx=1, int scaleIdx=-1, int rgIdx=-1, bool globalScale=false);
 };
 
 
