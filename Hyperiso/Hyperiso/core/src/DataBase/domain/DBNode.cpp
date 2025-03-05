@@ -38,8 +38,42 @@ void Node::printJSON(int level) const {
     std::cout << "{\n";
     for (auto it = data_.begin(); it != data_.end(); ++it) {
         const auto& [key, value] = *it;
+        
         std::cout << std::string(level + 2, ' ') << "\"" << key << "\": ";
-        printValue(value, level);
+
+        if (std::holds_alternative<std::vector<std::shared_ptr<Node>>>(value)) {
+            const auto& list = std::get<std::vector<std::shared_ptr<Node>>>(value);
+
+            bool isFinalList = true;
+            for (const auto& node : list) {
+                if (!node->contains("")) {
+                    isFinalList = false;
+                    break;
+                }
+            }
+
+            if (isFinalList) {
+                std::cout << "[ ";
+                for (size_t i = 0; i < list.size(); ++i) {
+                    list[i]->printValue(list[i]->get(""), level + 4);
+                    if (i < list.size() - 1) std::cout << ", ";
+                }
+                std::cout << " ]";
+            }
+            else {
+                std::cout << "[\n";
+                for (size_t i = 0; i < list.size(); ++i) {
+                    std::cout << std::string(level + 4, ' ');
+                    list[i]->printJSON(level + 4);
+                    if (i < list.size() - 1) std::cout << ",";
+                    std::cout << "\n";
+                }
+                std::cout << std::string(level + 2, ' ') << "]";
+            }
+        } else {
+            printValue(value, level);
+        }
+
         if (std::next(it) != data_.end()) {
             std::cout << ",";
         }
@@ -47,6 +81,8 @@ void Node::printJSON(int level) const {
     }
     std::cout << std::string(level, ' ') << "}";
 }
+
+
 
 void Node::printJSONToStream(std::ostream& os, int level) const {
     os << "{\n";
@@ -64,19 +100,12 @@ void Node::printJSONToStream(std::ostream& os, int level) const {
 
 void Node::printYAML(int level) const {
     for (const auto& [key, value] : data_) {
-        if (std::holds_alternative<std::shared_ptr<Node>>(value)) {
-            auto node = std::get<std::shared_ptr<Node>>(value);
-
-            if (isListNode(node)) {
-                std::cout << std::string(level, ' ') << key << ":\n";
-                for (int i = 0; i < node->countChildren(); ++i) {
-                    std::cout << std::string(level + 2, ' ') << "- ";
-                    printScalarYAML(node->get(std::to_string(i)));
-                    std::cout << "\n";
-                }
-            } else {
-                std::cout << std::string(level, ' ') << key << ":\n";
+        if (std::holds_alternative<std::vector<std::shared_ptr<Node>>>(value)) {
+            std::cout << std::string(level, ' ') << key << ":\n";
+            for (const auto& node : std::get<std::vector<std::shared_ptr<Node>>>(value)) {
+                std::cout << std::string(level + 2, ' ') << "- ";
                 node->printYAML(level + 2);
+                std::cout << "\n";
             }
         } else {
             std::cout << std::string(level, ' ') << key << ": ";
@@ -87,14 +116,18 @@ void Node::printYAML(int level) const {
 }
 
 
+// bool Node::isListNode(const std::shared_ptr<Node>& node) const {
+//     for (const auto& [key, _] : node->data_) {
+//         if (!std::all_of(key.begin(), key.end(), ::isdigit)) {
+//             return false;
+//         }
+//     }
+//     return true;
+// }
 bool Node::isListNode(const std::shared_ptr<Node>& node) const {
-    for (const auto& [key, _] : node->data_) {
-        if (!std::all_of(key.begin(), key.end(), ::isdigit)) {
-            return false;
-        }
-    }
-    return true;
+    return std::holds_alternative<std::vector<std::shared_ptr<Node>>>(node->data_.begin()->second);
 }
+
 
 
 
@@ -109,58 +142,19 @@ void Node::printValue(const Value& value, int level) const {
         std::cout << (std::get<bool>(value) ? "true" : "false");
     } else if (std::holds_alternative<std::shared_ptr<Node>>(value)) {
         std::get<std::shared_ptr<Node>>(value)->printJSON(level + 2);
-    } else if (std::holds_alternative<std::vector<int>>(value)) {
-        std::cout << "[ ";
-        const auto& vec = std::get<std::vector<int>>(value);
-        for (size_t i = 0; i < vec.size(); ++i) {
-            printValue(vec[i], level);
-            if (i < vec.size() - 1) {
-                std::cout << ", ";
-            }
+    } else if (std::holds_alternative<std::vector<std::shared_ptr<Node>>>(value)) {
+        const auto& list = std::get<std::vector<std::shared_ptr<Node>>>(value);
+        std::cout << "[\n";
+        for (size_t i = 0; i < list.size(); ++i) {
+            std::cout << std::string(level + 2, ' ');
+            list[i]->printJSON(level + 2);
+            if (i < list.size() - 1) std::cout << ",";
+            std::cout << "\n";
         }
-        std::cout << " ]";
-    } else if (std::holds_alternative<std::vector<double>>(value)) {
-        std::cout << "[ ";
-        const auto& vec = std::get<std::vector<double>>(value);
-        for (size_t i = 0; i < vec.size(); ++i) {
-            printValue(vec[i], level);
-            if (i < vec.size() - 1) {
-                std::cout << ", ";
-            }
-        }
-        std::cout << " ]";
-    } else if (std::holds_alternative<std::vector<bool>>(value)) {
-        std::cout << "[ ";
-        const auto& vec = std::get<std::vector<bool>>(value);
-        for (size_t i = 0; i < vec.size(); ++i) {
-            printValue(vec[i], level);
-            if (i < vec.size() - 1) {
-                std::cout << ", ";
-            }
-        }
-        std::cout << " ]";
-    } else if (std::holds_alternative<std::vector<std::string>>(value)) {
-        std::cout << "[ ";
-        const auto& vec = std::get<std::vector<std::string>>(value);
-        for (size_t i = 0; i < vec.size(); ++i) {
-            printValue(vec[i], level);
-            if (i < vec.size() - 1) {
-                std::cout << ", ";
-            }
-        }
-        std::cout << " ]";
-    } else if (std::holds_alternative<std::vector<int>>(value)) {
-        std::cout << "[ ";
-        const auto& vec = std::get<std::vector<int>>(value);
-        for (size_t i = 0; i < vec.size(); ++i) {
-            printValue(vec[i], level);
-            if (i < vec.size() - 1) {
-                std::cout << ", ";
-            }
-        }
-        std::cout << " ]";
+        std::cout << std::string(level, ' ') << "]";
     }
 }
+
 
 void Node::printValueToStream(std::ostream& os, const Value& value, int level) const {
     if (std::holds_alternative<std::string>(value)) {

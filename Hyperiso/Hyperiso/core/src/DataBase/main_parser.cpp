@@ -150,7 +150,7 @@ details:
     root->set(true, "isAdmin");
     root->set("Paris", "address", "city");
     root->set(75001, "address", "zip");
-    root->set(std::vector<std::string>({"mmh", "mmh2"}), "truc");
+    // root->set(std::vector<std::string>({"mmh", "mmh2"}), "truc");
     auto listNode = std::make_shared<Node>();
     listNode->set("C++", "0");
     listNode->set("Python", "1");

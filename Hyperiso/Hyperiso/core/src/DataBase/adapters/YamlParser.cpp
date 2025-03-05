@@ -28,12 +28,9 @@ std::shared_ptr<Node> YAMLParser::parse(const std::string& input) const {
     std::string line;
     std::string lastKey;
     int lastIndent = 0;
-    bool expectingList = false;
-
-    std::vector<std::string> tempStringList;
-    std::vector<int> tempIntList;
-    std::vector<double> tempDoubleList;
-    std::vector<bool> tempBoolList;
+    
+    std::vector<std::shared_ptr<Node>> tempList;
+    bool inList = false;
 
     while (std::getline(stream, line)) {
         size_t indent = countLeadingSpaces(line);
@@ -42,27 +39,26 @@ std::shared_ptr<Node> YAMLParser::parse(const std::string& input) const {
         if (line.empty() || line[0] == '#') continue;
 
         while (!indentationMap.empty() && indent < lastIndent) {
+            if (inList) {
+                if (!tempList.empty()) {
+                    indentationMap[lastIndent - 2]->set(tempList, lastKey);
+                    tempList.clear();
+                }
+                inList = false;
+            }
             indentationMap.erase(lastIndent);
             lastIndent -= 2;
         }
 
-        if (indentationMap.find(indent) == indentationMap.end()) {
-            indentationMap[indent] = root;
-        }
         auto currentNode = indentationMap[indent];
 
         if (line.find(":") != std::string::npos) {
-            if (expectingList) {
-                if (!tempStringList.empty()) currentNode->set(tempStringList, lastKey);
-                else if (!tempIntList.empty()) currentNode->set(tempIntList, lastKey);
-                else if (!tempDoubleList.empty()) currentNode->set(tempDoubleList, lastKey);
-                else if (!tempBoolList.empty()) currentNode->set(tempBoolList, lastKey);
-
-                tempStringList.clear();
-                tempIntList.clear();
-                tempDoubleList.clear();
-                tempBoolList.clear();
-                expectingList = false;
+            if (inList) {
+                if (!tempList.empty()) {
+                    indentationMap[lastIndent]->set(tempList, lastKey);
+                    tempList.clear();
+                }
+                inList = false;
             }
 
             size_t pos = line.find(":");
@@ -73,15 +69,12 @@ std::shared_ptr<Node> YAMLParser::parse(const std::string& input) const {
 
             lastKey = key;
 
-            if (value.empty()) {
-                expectingList = true;
+            if (value.empty()) { 
+                auto newNode = std::make_shared<Node>();
+                currentNode->set(newNode, key);
+                indentationMap[indent + 2] = newNode;
             } else {
                 currentNode->set(parseValue(value), key);
-            }
-
-            if (value.empty()) {
-                indentationMap[indent + 2] = std::make_shared<Node>();
-                currentNode->set(indentationMap[indent + 2], key);
             }
         }
         else if (line.find("- ") == 0) {
@@ -89,31 +82,32 @@ std::shared_ptr<Node> YAMLParser::parse(const std::string& input) const {
             trim(value);
 
             if (lastKey.empty()) {
-                throw std::runtime_error("Liste sans clé principale détectée.");
+                throw std::runtime_error("List without main key.");
             }
 
-            if (!expectingList) {
-                throw std::runtime_error("Liste inattendue sans clé précédente.");
+            inList = true;
+
+            auto newNode = std::make_shared<Node>();
+            if (!value.empty()) {
+                newNode->set(parseValue(value), "");
             }
 
-            if (isInteger(value)) tempIntList.push_back(std::stoi(value));
-            else if (isDouble(value)) tempDoubleList.push_back(std::stod(value));
-            else if (isBoolean(value)) tempBoolList.push_back(parseBool(value));
-            else tempStringList.push_back(value);
+            tempList.push_back(newNode);
         }
+
+        lastIndent = indent;
     }
 
-    if (expectingList && indentationMap.find(lastIndent) != indentationMap.end()) {
-        auto lastNode = indentationMap[lastIndent];
-
-        if (!tempStringList.empty()) lastNode->set(tempStringList, lastKey);
-        else if (!tempIntList.empty()) lastNode->set(tempIntList, lastKey);
-        else if (!tempDoubleList.empty()) lastNode->set(tempDoubleList, lastKey);
-        else if (!tempBoolList.empty()) lastNode->set(tempBoolList, lastKey);
+    if (inList && !tempList.empty()) {
+        indentationMap[lastIndent - 2]->set(tempList, lastKey);
     }
 
     return root;
 }
+
+
+
+
 
 
 
