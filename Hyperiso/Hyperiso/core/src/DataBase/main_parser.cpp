@@ -135,7 +135,9 @@ age: 30
 details:
   city: Paris
   skills:
-    - C++
+    - C++:
+      a: 2
+      b:3
     - Python
     - YAML
 )";
