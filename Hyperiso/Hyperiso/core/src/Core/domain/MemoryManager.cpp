@@ -23,8 +23,8 @@ void MemoryManager::save_input_cache() {
 }
 
 std::shared_ptr<BlockAccessor> MemoryManager::read_input_files(fs::path lha_path) {
+    
     /* Default input */
-
     DBManager manager;
     auto default_param_values_root = manager.read_from_file(FilePaths::default_param_values_path);
     auto default_obs_values_root = manager.read_from_file(FilePaths::default_obs_values_path);

@@ -16,34 +16,32 @@ endif()
 add_library(DataBaseLib STATIC
     domain/lha_blocks.cpp
     domain/lha_elements.cpp
-    # Entity/JsonParameters.cpp
     domain/DBNode.cpp
     domain/DBManager.cpp
-    # domain/lha_reader.cpp
-    Service/MappingDataBase.cpp
+    # Service/MappingDataBase.cpp
     adapters/JsonParser.cpp
     adapters/LhaParser.cpp
     adapters/YamlParser.cpp
+    adapters/DictNodeProvider.cpp
+    adapters/LhaNodeProvider.cpp
 )
 
 set_target_properties(DataBaseLib PROPERTIES POSITION_INDEPENDENT_CODE ON)
-set_target_properties(DataBaseLib PROPERTIES PUBLIC_HEADER "Service/lha_reader.h")
 
 target_include_directories(DataBaseLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/adapters)
 target_include_directories(DataBaseLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/domain)
 target_include_directories(DataBaseLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/ports)
-target_include_directories(DataBaseLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/Service)
 
 target_link_libraries(DataBaseLib PUBLIC PandasLib CommonLib)
 
-add_executable(TEST_DB main_db.cpp)
+add_executable(TEST_DB app/main_db.cpp)
 
 target_link_libraries(TEST_DB DataBaseLib)
 
-add_executable(TEST_json main_json.cpp)
+add_executable(TEST_json app/main_json.cpp)
 
 target_link_libraries(TEST_json DataBaseLib)
 
-add_executable(TEST_PARSER main_parser.cpp)
+add_executable(TEST_PARSER app/main_parser.cpp)
 
 target_link_libraries(TEST_PARSER DataBaseLib)

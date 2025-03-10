@@ -10,8 +10,8 @@
  */
 struct Prototype {
     std::string blockName;      /**< Block name, case insensitive. */
-    int itemCount {2};          /**< Number of columns in the block. */
-    int valueIdx {1};           /**< Column index for value. */
+    size_t itemCount {2};       /**< Number of columns in the block. */
+    size_t valueIdx {1};        /**< Column index for value. */
     int scaleIdx {-1};          /**< Column index for scale, -1 if scale-independent. */
     int rgIdx {-1};             /**< Column index for renormalization group, -1 if irrelevant. */
     bool globalScale {false};   /**< Indicates if the block uses a global scale (Q= in header). */

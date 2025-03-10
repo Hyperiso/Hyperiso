@@ -9,14 +9,6 @@ void LhaParser::addBlock(std::map<std::string, std::shared_ptr<LhaBlock>>& block
     blocks.insert(std::pair(id_ci, std::move(block)));
 }
 
-void LhaParser::fill_prototypes(std::string_view lha_path) {
-    bool is_flha = std::filesystem::path(lha_path).extension().string() == ".flha"; 
-    blockPrototypes.insert(blockPrototypes.end(), SLHA_BLOCKS.begin(), SLHA_BLOCKS.end());
-    if (is_flha) {
-        blockPrototypes.insert(blockPrototypes.end(), FLHA_BLOCKS.begin(), FLHA_BLOCKS.end());
-    }
-}
-
 std::vector<Token> LhaParser::tokenize(const std::string &src) const {
     int cLine = 0;
     int cCol = 0;
@@ -113,7 +105,7 @@ std::map<std::string, std::vector<std::vector<std::string>>> &LhaParser::parse_t
 }
 
 Prototype LhaParser::findPrototype(std::string name) const {
-    for (auto p : blockPrototypes) {
+    for (const auto& p : blockPrototypes) {
         std::transform(name.begin(), name.end(), name.begin(), ::toupper);
         if (p.blockName == name) 
             return p;
@@ -136,6 +128,10 @@ std::shared_ptr<Node> LhaParser::parse(const std::string &src) const {
     }     
     LOG_DEBUG("LHA file parsed.");
     return this->toDBNode(blocks);
+}
+
+void LhaParser::set_prototypes(const std::unordered_set<Prototype> &prototypes) {
+    this->blockPrototypes = prototypes;
 }
 
 std::shared_ptr<Node> LhaParser::toDBNode(std::map<std::string, std::shared_ptr<LhaBlock>> blocks) const {
