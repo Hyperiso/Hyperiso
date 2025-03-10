@@ -20,101 +20,138 @@ bool parseBool(const std::string& s) {
 
 std::shared_ptr<Node> YAMLParser::parse(const std::string& input) const {
     std::istringstream stream(input);
-    auto root = std::make_shared<Node>();
-
-    std::map<int, std::shared_ptr<Node>> indentationMap;
-    indentationMap[0] = root;
-
-    std::string line;
-    std::string lastKey;
-    int lastIndent = 0;
-    bool expectingList = false;
-
-    std::vector<std::string> tempStringList;
-    std::vector<int> tempIntList;
-    std::vector<double> tempDoubleList;
-    std::vector<bool> tempBoolList;
-
-    while (std::getline(stream, line)) {
-        size_t indent = countLeadingSpaces(line);
-        trim(line);
-
-        if (line.empty() || line[0] == '#') continue;
-
-        while (!indentationMap.empty() && indent < lastIndent) {
-            indentationMap.erase(lastIndent);
-            lastIndent -= 2;
-        }
-
-        if (indentationMap.find(indent) == indentationMap.end()) {
-            indentationMap[indent] = root;
-        }
-        auto currentNode = indentationMap[indent];
-
-        if (line.find(":") != std::string::npos) {
-            if (expectingList) {
-                if (!tempStringList.empty()) currentNode->set(tempStringList, lastKey);
-                else if (!tempIntList.empty()) currentNode->set(tempIntList, lastKey);
-                else if (!tempDoubleList.empty()) currentNode->set(tempDoubleList, lastKey);
-                else if (!tempBoolList.empty()) currentNode->set(tempBoolList, lastKey);
-
-                tempStringList.clear();
-                tempIntList.clear();
-                tempDoubleList.clear();
-                tempBoolList.clear();
-                expectingList = false;
-            }
-
-            size_t pos = line.find(":");
-            std::string key = line.substr(0, pos);
-            trim(key);
-            std::string value = line.substr(pos + 1);
-            trim(value);
-
-            lastKey = key;
-
-            if (value.empty()) {
-                expectingList = true;
-            } else {
-                currentNode->set(parseValue(value), key);
-            }
-
-            if (value.empty()) {
-                indentationMap[indent + 2] = std::make_shared<Node>();
-                currentNode->set(indentationMap[indent + 2], key);
-            }
-        }
-        else if (line.find("- ") == 0) {
-            std::string value = line.substr(2);
-            trim(value);
-
-            if (lastKey.empty()) {
-                throw std::runtime_error("Liste sans clé principale détectée.");
-            }
-
-            if (!expectingList) {
-                throw std::runtime_error("Liste inattendue sans clé précédente.");
-            }
-
-            if (isInteger(value)) tempIntList.push_back(std::stoi(value));
-            else if (isDouble(value)) tempDoubleList.push_back(std::stod(value));
-            else if (isBoolean(value)) tempBoolList.push_back(parseBool(value));
-            else tempStringList.push_back(value);
-        }
-    }
-
-    if (expectingList && indentationMap.find(lastIndent) != indentationMap.end()) {
-        auto lastNode = indentationMap[lastIndent];
-
-        if (!tempStringList.empty()) lastNode->set(tempStringList, lastKey);
-        else if (!tempIntList.empty()) lastNode->set(tempIntList, lastKey);
-        else if (!tempDoubleList.empty()) lastNode->set(tempDoubleList, lastKey);
-        else if (!tempBoolList.empty()) lastNode->set(tempBoolList, lastKey);
-    }
-
-    return root;
+    return parseYAMLNode(stream, 0);
 }
 
+std::shared_ptr<Node> YAMLParser::parseYAMLNode(std::istringstream& stream, int indentLevel) {
+    auto node = std::make_shared<Node>();
+    std::string line;
+
+    while (std::getline(stream, line)) {
+        if(line == ""){
+            continue;
+        }
+        int currentIndent = countLeadingSpaces(line);
+        if (currentIndent < indentLevel) {
+            stream.seekg(-static_cast<int>(line.size()) - 1, std::ios_base::cur);
+            return node;
+        }
+
+        line = trim(line);
+        if (line.empty() || line[0] == '#') continue;
+
+        if (line[0] == '-') {
+            processList(node, stream, currentIndent, line);
+        } else if (line.find(":") != std::string::npos) {
+            processKeyValue(line, node, stream, currentIndent + 2);
+        }
+    }
+    return node;
+}
+
+void YAMLParser::processKeyValue(const std::string& line, std::shared_ptr<Node>& node, std::istringstream& stream, int indentLevel) {
+    size_t colonPos = line.find(":");
+    std::string key = trim(line.substr(0, colonPos));
+    std::string value = trim(line.substr(colonPos + 1));
+    if (value.empty()) {
+        auto childNode = parseYAMLNode(stream, indentLevel);
+        node->set(childNode, key);
+    } else {
+        node->set(parseScalar(value), key);
+    }
+}
+
+void YAMLParser::processList(std::shared_ptr<Node>& node, std::istringstream& stream, int indentLevel, std::string firstLine) {
+    std::map<std::string, Node::Value> listData;
+    size_t index = 0;
+    std::string line;
+    
+    
+    if (!firstLine.empty()) {
+        size_t colonPos = firstLine.find(":");
+        if (colonPos != std::string::npos) {
+            std::string key = trim(firstLine.substr(1, colonPos - 1));
+            std::string value = trim(firstLine.substr(colonPos + 1));
+            auto listItemNode = std::make_shared<Node>();
+            if (value.empty()) {
+                auto childNode = parseYAMLNode(stream, indentLevel + 2);
+                listItemNode->set(childNode, key);
+            } else {
+                listItemNode->set(parseScalar(value), key);
+            }
+            listData[std::to_string(index++)] = listItemNode;
+        }
+    }
+    
+    while (std::getline(stream, line)) {
+        int currentIndent = countLeadingSpaces(line);
+        if (currentIndent < indentLevel) {
+            stream.seekg(-static_cast<int>(line.size()) - 1, std::ios_base::cur);
+            break;
+        }
+
+        line = trim(line);
+        if (line[0] == '-') {
+            line = trim(line.substr(1));
+        }
+
+        size_t colonPos = line.find(":");
+        
+        if (colonPos != std::string::npos) {
+            std::string key = trim(line.substr(0, colonPos));
+            std::string value = trim(line.substr(colonPos + 1));
+            auto listItemNode = std::make_shared<Node>();
+            if (value.empty()) {
+                auto childNode = parseYAMLNode(stream, indentLevel + 2);
+                listItemNode->set(childNode, key);
+            } else {
+                listItemNode->set(parseScalar(value), key);
+            }
+            listData[std::to_string(index)] = listItemNode;
+        } else {
+            listData[std::to_string(index)] = parseScalar(trim(line));
+        }
+
+        index++;
+    }
+
+    node->setGroup({}, listData);
+}
+
+
+
+Node::Value YAMLParser::parseScalar(const std::string& value) {
+    if (isInteger(value)) {
+        return std::stoi(value);
+    } else if (isDouble(value)) {
+        return std::stod(value);
+    } else if (value == "true" || value == "false") {
+        return value == "true";
+    }
+    return value;
+}
+
+
+int YAMLParser::countLeadingSpaces(const std::string& str) {
+    return str.find_first_not_of(' ');
+}
+
+std::string YAMLParser::trim(const std::string& str) {
+    size_t first = str.find_first_not_of(" \t");
+    if (first == std::string::npos) return "";
+    size_t last = str.find_last_not_of(" \t");
+    return str.substr(first, last - first + 1);
+}
+
+bool YAMLParser::isInteger(const std::string& str) {
+    return !str.empty() && std::all_of(str.begin(), str.end(), ::isdigit);
+}
+
+bool YAMLParser::isDouble(const std::string& str) {
+    char* end = nullptr;
+    std::strtod(str.c_str(), &end);
+    return end != str.c_str() && *end == '\0';
+}
 
 
 bool YAMLParser::isListNode(const std::shared_ptr<Node>& node) const {
@@ -126,16 +163,16 @@ bool YAMLParser::isListNode(const std::shared_ptr<Node>& node) const {
     return true;
 }
 
-size_t YAMLParser::countLeadingSpaces(const std::string& line) const {
-    size_t count = 0;
-    while (count < line.size() && isspace(line[count])) count++;
-    return count;
-}
+// size_t YAMLParser::countLeadingSpaces(const std::string& line) const {
+//     size_t count = 0;
+//     while (count < line.size() && isspace(line[count])) count++;
+//     return count;
+// }
 
-void YAMLParser::trim(std::string& str) const {
-    while (!str.empty() && isspace(str.front())) str.erase(str.begin());
-    while (!str.empty() && isspace(str.back())) str.pop_back();
-}
+// void YAMLParser::trim(std::string& str) const {
+//     while (!str.empty() && isspace(str.front())) str.erase(str.begin());
+//     while (!str.empty() && isspace(str.back())) str.pop_back();
+// }
 
 Node::Value YAMLParser::parseValue(const std::string& value) const {
     if (value.empty()) return "";  

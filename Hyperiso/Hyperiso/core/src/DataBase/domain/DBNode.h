@@ -18,7 +18,8 @@
  */
 class Node {
 public:
-    using Value = std::variant<std::string, int, double, bool, std::shared_ptr<Node>, std::vector<std::string>, std::vector<int> ,std::vector<double>, std::vector<bool>>;
+    using Value = std::variant<std::string, int, double, bool, std::shared_ptr<Node>, std::vector<std::shared_ptr<Node>>>;
+
 
     /**
      * @brief Default constructor for Node.
