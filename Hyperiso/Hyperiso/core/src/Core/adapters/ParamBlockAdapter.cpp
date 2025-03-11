@@ -1,14 +1,16 @@
 #include "ParamBlockAdapter.h"
 
-std::shared_ptr<BlockAccessor> ParamBlockAdapter::from_db_node(std::shared_ptr<Node> root) {
-    auto ba = std::make_shared<BlockAccessor>();
-    for (auto &bk : root->get_keys()) {
+void ParamBlockLoader::load(std::shared_ptr<BlockAccessor> dest, fs::path src_file) {
+    auto np = NodeProviderFactory::createNodeProvider(src_file);
+    auto src = np->provide_db_as_node();
+
+    for (auto &bk : src->get_keys()) {
         auto block = std::make_shared<MapBlock>();
         block->blockname = bk;
-        for (auto &vk : root->getGroup({bk})) {
+        for (auto &vk : src->getGroup({bk})) {
             auto node = std::get<std::shared_ptr<Node>>(vk.second);
             if (!node->contains("central_value")) {
-                LOG_ERROR("ParamBlockAdapter", "Node doesn't have all necessary keys.");
+                LOG_ERROR("ParamBlockLoader", "Node doesn't have all necessary keys.");
             }
 
             auto value = node->get("central_value");
@@ -19,8 +21,6 @@ std::shared_ptr<BlockAccessor> ParamBlockAdapter::from_db_node(std::shared_ptr<N
             block->setDeviation(LhaID(vk.first), std::get<double>(stat), std::get<double>(syst));
         }
 
-        ba->addBlock(bk, block);
+        dest->addBlock(bk, block);
     }
-
-    return ba;
 }

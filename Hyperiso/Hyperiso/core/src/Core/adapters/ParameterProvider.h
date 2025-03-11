@@ -5,7 +5,7 @@
 #include "IMonitor.h"
 #include "General.h"
 
-class ParameterProvider : public IDataProvider<ParameterProvider>, public IMonitor {
+class ParameterProvider : public IDataProvider<ParameterProvider> {
 private:
     ParameterType* p_type {nullptr};
 
@@ -15,8 +15,8 @@ public:
     ParameterProvider() = default;
     inline ParameterProvider(ParameterType p_type) : p_type(&p_type) {}
 
-    double operator()(const ParamId& pid, DataType type=DataType::VALUE);
-    double operator()(const std::string& block, const LhaID& id, DataType type=DataType::VALUE);
+    double operator()(const ParamId& pid, DataType d_type=DataType::VALUE);
+    double operator()(const std::string& block, const LhaID& id, DataType d_type=DataType::VALUE);
 };
 
 

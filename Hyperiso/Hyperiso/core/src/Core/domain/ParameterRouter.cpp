@@ -52,6 +52,16 @@ ParameterType ParamRouter::GetType(std::string block, LhaID id) {
     LOG_ERROR("Invalid Parameter", "Parameter", block, ",", id, "is undefined.");
 }
 
+std::vector<ParameterType> ParamRouter::GetType(std::string block) {
+    std::vector<ParameterType> param_types;
+    for (auto& [type, owned_blocks] : ParameterBlockRepartition::BLOCKS) {
+        if (owned_blocks.contains(block)) {
+            param_types.emplace_back(type);
+        }
+    }
+    return param_types;
+}
+
 std::unordered_set<std::string> ParamRouter::GetOwnedBlocks(ParameterType ptype) {
     return ParameterBlockRepartition::BLOCKS.at(ptype);
 }

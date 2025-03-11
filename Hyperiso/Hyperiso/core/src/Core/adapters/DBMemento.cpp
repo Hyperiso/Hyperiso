@@ -1,43 +1,43 @@
 #include "DBMemento.h"
 
 void DBMemento::takeSnapshot(std::shared_ptr<BlockAccessor> blocks) {
-    DBMemento::snapshots.push(blocks);
+    snapshots.push(blocks);
 }
 
 void DBMemento::restore(size_t n) {
-    auto head = DBMemento::snapshots.top();
-    DBMemento::snapshots.pop();
+    auto head = snapshots.top();
+    snapshots.pop();
 
     for (size_t i = 0; i < n - 1; i++)
-        DBMemento::snapshots.pop();
+        snapshots.pop();
 
-    auto source = DBMemento::snapshots.top();
-    DBMemento::snapshots.pop();
+    auto source = snapshots.top();
+    snapshots.pop();
     DBMemento::Overwrite(head, source);
-    DBMemento::snapshots.push(head);
+    snapshots.push(head);
 }
 
 void DBMemento::print_snapshot_content(size_t n) {
-    if (n > this->snapshots.size() - 1) {
-        LOG_ERROR("LogicError", "Please specify an existing snapshot (only", this->snapshots.size(), "stored, asked", n);
+    if (n > snapshots.size() - 1) {
+        LOG_ERROR("LogicError", "Please specify an existing snapshot (only", snapshots.size(), "stored, asked", n);
     }
 
     std::stack<std::shared_ptr<BlockAccessor>> temp;
     for (size_t i = 0; i < n; i++) {
-        temp.push(this->snapshots.top());
-        this->snapshots.pop();
+        temp.push(snapshots.top());
+        snapshots.pop();
     }
 
-    LOG_INFO(this->snapshots.top());
+    LOG_INFO(snapshots.top());
 
     for (size_t i = 0; i < n; i++) {
-        this->snapshots.push(temp.top());
+        snapshots.push(temp.top());
         temp.pop();
     }
 }
 
 size_t DBMemento::stack_size() {
-    return this->snapshots.size();
+    return snapshots.size();
 }
 
 void DBMemento::Overwrite(std::shared_ptr<BlockAccessor> &reciever, std::shared_ptr<BlockAccessor> source) {

@@ -47,6 +47,7 @@ struct ParametersAccessRights {
 class ParamRouter {
 public:
     static ParameterType GetType(std::string block, LhaID id);
+    static std::vector<ParameterType> GetType(std::string block);
     static std::unordered_set<std::string> GetOwnedBlocks(ParameterType ptype);
    
 };

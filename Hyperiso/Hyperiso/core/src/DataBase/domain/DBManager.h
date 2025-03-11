@@ -25,7 +25,6 @@ private:
 
 public:
     std::shared_ptr<Node> read_from_file(fs::path file_path);
-    std::shared_ptr<Node> read_from_cache(fs::path file_path);
     void write_to_file(fs::path file_path, std::shared_ptr<Node> root);
 
     /**
@@ -38,6 +37,8 @@ public:
      * @param globalScale Flag indicating if the block uses a global scale.
      */
     void add_lha_prototype(std::string blockName, size_t itemCount=2, size_t valueIdx=1, int scaleIdx=-1, int rgIdx=-1, bool globalScale=false);
+
+    friend class NodeProviderFactory;
 };
 
 

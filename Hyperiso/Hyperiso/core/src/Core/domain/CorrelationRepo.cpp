@@ -1,16 +1,16 @@
 #include "CorrelationRepo.h"
 
-CorrelationMatrixPair<ParamId> CorrelationRepository::parameter_correlations;
-CorrelationMatrixPair<Observables> CorrelationRepository::observable_correlations;
+std::shared_ptr<CorrelationMatrixPair<ParamId>> CorrelationRepository::parameter_correlations;
+std::shared_ptr<CorrelationMatrixPair<Observables>> CorrelationRepository::observable_correlations;
 
 std::pair<double, double> CorrelationRepository::get_correlation(ParamId id1, ParamId id2) {
     auto key = std::make_pair(id1, id2);
-    return parameter_correlations.at(key);
+    return parameter_correlations->at(key);
 }
 
 std::pair<double, double> CorrelationRepository::get_correlation(Observables id1, Observables id2) {
     auto key = std::make_pair(id1, id2);
-    return observable_correlations.at(key);
+    return observable_correlations->at(key);
 }
 
 template<typename T>
@@ -19,31 +19,31 @@ double CorrelationRepository::get_combined_correlation(T id1, T id2) {
     return std::hypot(corr.first, corr.second);
 }
 
-void CorrelationRepository::set_correlation_matrix(const CorrelationMatrixPair<ParamId> &&correlation_matrices) {
+void CorrelationRepository::set_correlation_matrix(std::shared_ptr<CorrelationMatrixPair<ParamId>> correlation_matrices) {
     parameter_correlations = correlation_matrices;
 }
 
-void CorrelationRepository::set_correlation_matrix(const CorrelationMatrixPair<Observables> &&correlation_matrices) {
+void CorrelationRepository::set_correlation_matrix(std::shared_ptr<CorrelationMatrixPair<Observables>> correlation_matrices) {
     observable_correlations = correlation_matrices;
 }
 
-void CorrelationRepository::merge_correlation_matrix(const CorrelationMatrixPair<ParamId> &&correlation_matrices) {
-    for (const auto &corr: correlation_matrices.stat) {
-        parameter_correlations.stat.insert_or_assign(corr.first, corr.second);
+void CorrelationRepository::merge_correlation_matrix(std::shared_ptr<CorrelationMatrixPair<ParamId>> correlation_matrices) {
+    for (const auto &corr: correlation_matrices->stat) {
+        parameter_correlations->stat.insert_or_assign(corr.first, corr.second);
     }
 
-    for (const auto &corr: correlation_matrices.syst) {
-        parameter_correlations.syst.insert_or_assign(corr.first, corr.second);
+    for (const auto &corr: correlation_matrices->syst) {
+        parameter_correlations->syst.insert_or_assign(corr.first, corr.second);
     }
 }
 
-void CorrelationRepository::merge_correlation_matrix(const CorrelationMatrixPair<Observables> &&correlation_matrices) {
-    for (const auto &corr: correlation_matrices.stat) {
-        observable_correlations.stat.insert_or_assign(corr.first, corr.second);
+void CorrelationRepository::merge_correlation_matrix(std::shared_ptr<CorrelationMatrixPair<Observables>> correlation_matrices) {
+    for (const auto &corr: correlation_matrices->stat) {
+        observable_correlations->stat.insert_or_assign(corr.first, corr.second);
     }
 
-    for (const auto &corr: correlation_matrices.syst) {
-        observable_correlations.syst.insert_or_assign(corr.first, corr.second);
+    for (const auto &corr: correlation_matrices->syst) {
+        observable_correlations->syst.insert_or_assign(corr.first, corr.second);
     }
 }
 

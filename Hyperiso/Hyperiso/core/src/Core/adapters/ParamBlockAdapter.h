@@ -2,12 +2,13 @@
 #define __BLOCKSCREATOR_H__
 
 #include <memory>
+#include "IDataLoader.h"
 #include "BlockAccessor.h"
-#include "DBNode.h"
+#include "NodeProviderFactory.h"
 
-class ParamBlockAdapter {
+class ParamBlockLoader : public IDataLoader<BlockAccessor> {
 public:
-    static std::shared_ptr<BlockAccessor> from_db_node(std::shared_ptr<Node> root);
+    void load(std::shared_ptr<BlockAccessor> dest, fs::path src_file) override;
 };
 
 #endif // __BLOCKSCREATOR_H__

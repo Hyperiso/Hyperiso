@@ -56,7 +56,7 @@ std::unordered_set<std::string> Parameters::get_blocks_list() {
 std::unordered_set<std::string> Parameters::init_blocks(ParameterType type) {
     if (type == ParameterType::CUSTOM) {
         auto block_names = MemoryManager::GetInstance()->get_all_blocks();
-        this->blockAccessor = MemoryManager::GetInstance()->get_blocks(ParamRouter::GetOwnedBlocks(type));
+        this->blockAccessor = MemoryManager::GetInstance()->extract_blocks(ParamRouter::GetOwnedBlocks(type));
     } else {
         std::unordered_set<std::string> existing, missing;
         std::ranges::partition_copy(
@@ -68,7 +68,7 @@ std::unordered_set<std::string> Parameters::init_blocks(ParameterType type) {
             }
         );
         
-        this->blockAccessor = MemoryManager::GetInstance()->get_blocks(existing);
+        this->blockAccessor = MemoryManager::GetInstance()->extract_blocks(existing);
         return missing;
     }
 }

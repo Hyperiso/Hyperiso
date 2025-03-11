@@ -34,16 +34,16 @@ public:
     template<typename T>
     double get_combined_correlation(T p1, T p2);
     
-    void set_correlation_matrix(const CorrelationMatrixPair<ParamId>&& correlation_matrices);
-    void set_correlation_matrix(const CorrelationMatrixPair<Observables>&& correlation_matrix);
-    void merge_correlation_matrix(const CorrelationMatrixPair<ParamId>&& correlation_matrix);
-    void merge_correlation_matrix(const CorrelationMatrixPair<Observables>&& correlation_matrix);
+    void set_correlation_matrix(std::shared_ptr<CorrelationMatrixPair<ParamId>> correlation_matrices);
+    void set_correlation_matrix(std::shared_ptr<CorrelationMatrixPair<Observables>> correlation_matrix);
+    void merge_correlation_matrix(std::shared_ptr<CorrelationMatrixPair<ParamId>> correlation_matrix);
+    void merge_correlation_matrix(std::shared_ptr<CorrelationMatrixPair<Observables>> correlation_matrix);
 
     void print_content();
 
 private:
-    static CorrelationMatrixPair<ParamId> parameter_correlations;
-    static CorrelationMatrixPair<Observables> observable_correlations;
+    std::shared_ptr<CorrelationMatrixPair<ParamId>> parameter_correlations;
+    std::shared_ptr<CorrelationMatrixPair<Observables>> observable_correlations;
 };
 
 #endif // __CORRELATIONREPO_H__

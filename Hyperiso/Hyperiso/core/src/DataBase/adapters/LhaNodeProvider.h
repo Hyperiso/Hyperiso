@@ -7,7 +7,9 @@
 
 class LhaNodeProvider : public INodeProvider {
 public:
-    std::shared_ptr<Node> provide_db_as_node(const std::string& file_path) override;
+    LhaNodeProvider(fs::path src_path) : INodeProvider(src_path) {}
+
+    std::shared_ptr<Node> provide_db_as_node() override;
 
     /**
      * @brief Adds a new block type prototype to the reader.

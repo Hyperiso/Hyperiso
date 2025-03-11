@@ -6,7 +6,9 @@
 
 class DictNodeProvider : public INodeProvider {
 public:
-    std::shared_ptr<Node> provide_db_as_node(const std::string& file_path) override;
+    DictNodeProvider(fs::path src_path) : INodeProvider(src_path) {}
+
+    std::shared_ptr<Node> provide_db_as_node() override;
 };
 
 #endif // __DICTNODEPROVIDER_H__

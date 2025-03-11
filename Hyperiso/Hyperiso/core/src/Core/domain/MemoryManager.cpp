@@ -4,7 +4,7 @@ namespace fs = std::filesystem;
 
 MemoryManager* MemoryManager::instance = nullptr;
 
-MemoryManager::MemoryManager() {
+MemoryManager::MemoryManager() : memento(DBMemento()) {
     this->cache.is_ready = false;
 }
 
@@ -14,7 +14,7 @@ void MemoryManager::check_if_ready() {
     }
 }
 
-std::shared_ptr<BlockAccessor> MemoryManager::get_blocks(std::unordered_set<std::string> block_names) {
+std::shared_ptr<BlockAccessor> MemoryManager::extract_blocks(std::unordered_set<std::string> block_names) {
     return (*input_cache)[block_names];
 }
 
@@ -23,51 +23,67 @@ void MemoryManager::save_input_cache() {
 }
 
 std::shared_ptr<BlockAccessor> MemoryManager::read_input_files(fs::path lha_path) {
+    auto input_blocks = std::make_shared<BlockAccessor>();
     
-    /* Default input */
-    DBManager manager;
-    auto default_param_values_root = manager.read_from_file(FilePaths::default_param_values_path);
-    auto default_obs_values_root = manager.read_from_file(FilePaths::default_obs_values_path);
-
-    // TODO : insert file check here
-    auto input_blocks = ParamBlockAdapter::from_db_node(default_param_values_root); 
-    input_blocks = input_blocks + ParamBlockAdapter::from_db_node(default_obs_values_root); 
-    DBMemento memento;
-    memento.takeSnapshot(input_blocks);
-
-    // auto default_param_corr_root = json_parser->readFromFile(FilePaths::default_param_corr_path.string());
-    // auto default_obs_corr_root = json_parser->readFromFile(FilePaths::default_obs_corr_path.string());
-    // CorrelationMatrixPair default_param_corr = CorrelationAdapter::from_db_node<ParamId>(default_param_corr_root);
-    // CorrelationMatrixPair default_obs_corr = CorrelationAdapter::from_db_node<Observables>(default_obs_corr_root);
-    // CorrelationRepository cr;
-    // cr.set_correlation_matrix(std::move(default_param_corr));
-    // cr.set_correlation_matrix(std::move(default_obs_corr));
-
-    /* User input */
-
-    fs::path ui_paths[4] = {FilePaths::user_sm_params_path, FilePaths::user_flavor_params_path, FilePaths::user_decay_params_path, FilePaths::user_obs_values_path};
-    for (auto& path : ui_paths) {
-        auto ui_root = manager.read_from_file(path);
-        auto ui_ba = ParamBlockAdapter::from_db_node(ui_root); 
-        input_blocks = ui_ba >> input_blocks;
-    }
-    memento.takeSnapshot(input_blocks);
-
-    // auto user_param_corr_root = yaml_parser->readFromFile(FilePaths::user_param_corr_path.string());
-    // auto user_obs_corr_root = yaml_parser->readFromFile(FilePaths::user_obs_corr_path.string());
-    // CorrelationMatrixPair user_param_corr = CorrelationAdapter::from_db_node<ParamId>(user_param_corr_root);
-    // CorrelationMatrixPair user_obs_corr = CorrelationAdapter::from_db_node<Observables>(user_obs_corr_root);
-    // cr.merge_correlation_matrix(std::move(user_param_corr));
-    // cr.merge_correlation_matrix(std::move(user_obs_corr));
-
-    /* LHA input */
-    auto lha_root = manager.read_from_file(lha_path);
-
-    auto lha_param_ba = ParamBlockAdapter::from_db_node(lha_root);
-    input_blocks = lha_param_ba >> input_blocks;
-    memento.takeSnapshot(input_blocks);
 
     return input_blocks;
+}
+
+void MemoryManager::read_default_input() {
+    // TODO : insert file check here
+    ParamBlockLoader p_loader;
+    p_loader.load(input_cache, FilePaths::default_param_values_path); 
+    auto obs_blocks = std::make_shared<BlockAccessor>();
+    p_loader.load(obs_blocks, FilePaths::default_obs_values_path); 
+    input_cache = input_cache + obs_blocks; 
+    memento.takeSnapshot(input_cache);
+
+    auto default_param_corr = std::make_shared<CorrelationMatrixPair<ParamId>>();
+    CorrelationLoader<ParamId>().load(default_param_corr, FilePaths::default_param_corr_path.string());
+    auto default_obs_corr = std::make_shared<CorrelationMatrixPair<Observables>>();
+    CorrelationLoader<Observables>().load(default_obs_corr, FilePaths::default_obs_corr_path.string());
+    correlation_repository.set_correlation_matrix(default_param_corr);
+    correlation_repository.set_correlation_matrix(default_obs_corr);
+}
+
+void MemoryManager::read_user_input() {
+    ParamBlockLoader p_loader;
+    fs::path ui_paths[4] = {FilePaths::user_sm_params_path, FilePaths::user_flavor_params_path, FilePaths::user_decay_params_path, FilePaths::user_obs_values_path};
+    for (auto& path : ui_paths) {
+        auto ui_ba = std::shared_ptr<BlockAccessor>();
+        p_loader.load(ui_ba, path); 
+        input_cache = ui_ba >> input_cache;
+    }
+    memento.takeSnapshot(input_cache);
+
+    auto user_param_corr = std::make_shared<CorrelationMatrixPair<ParamId>>();
+    CorrelationLoader<ParamId>().load(user_param_corr, FilePaths::user_param_corr_path.string());
+    auto user_obs_corr = std::make_shared<CorrelationMatrixPair<Observables>>();
+    CorrelationLoader<Observables>().load(user_obs_corr, FilePaths::user_obs_corr_path.string());
+    correlation_repository.merge_correlation_matrix(user_param_corr);
+    correlation_repository.merge_correlation_matrix(user_obs_corr);
+}
+
+void MemoryManager::read_lha_input(const std::string& lhaFile, const Config& config) {
+    fs::path lha_path = this->format_lha_path(lhaFile);
+    fs::path spectrum_path = calculate_spectrum(lha_path, config);
+
+    ParamBlockLoader p_loader;
+    auto lha_ba = std::shared_ptr<BlockAccessor>();
+    p_loader.load(lha_ba, lha_path);
+    input_cache = lha_ba >> input_cache;
+    memento.takeSnapshot(input_cache);
+}
+
+fs::path MemoryManager::calculate_spectrum(fs::path input_lha_path, const Config &config) {
+    if (config.flags.at(ExternalFlag::USE_MARTY) || !(config.model == Model::THDM || config.model == Model::SUSY)) {
+        return input_lha_path;
+    }
+
+    fs::path spectrum_path = DirPaths::spectrum_dir_path/input_lha_path.filename();
+    SpectrumCalculator sc;
+    sc.calculate_spectrum(input_lha_path, spectrum_path, config.model);
+    return spectrum_path;
 }
 
 MemoryManager* MemoryManager::GetInstance() {
@@ -77,33 +93,22 @@ MemoryManager* MemoryManager::GetInstance() {
     return MemoryManager::instance;
 }
 
-void MemoryManager::init(const std::string& lhaFile, const Config& config) {
+void MemoryManager::init(const std::string& lhaFile, Config config) {
     if (cache.is_ready) {
         LOG_WARN("MemoryManager has already been initialized.");
         return;
     }
-    fs::path lha_path = format_lha_path(lhaFile);
-    fs::path spectrum_path = lha_path;
-    if (!config.use_marty && (config.model == Model::THDM || config.model == Model::SUSY) && !config.is_spectrum) {
-        spectrum_path = DirPaths::spectrum_dir_path/lha_path.filename();
-        LOG_DEBUG("Starting spectrum calculation...");
-        CalculatorType calculatorType = config.model == Model::THDM ? CalculatorType::TwoHDM : CalculatorType::Softsusy;
-        GeneralCalculatorFactory::executeCommand(calculatorType, "calculateSpectrum", lha_path, spectrum_path.string());
-        LOG_DEBUG("Spectrum calculation ran sucessfully");
-    }
-    auto block_accessor = read_input_files(spectrum_path);
-    input_cache = block_accessor;
 
-    cache.lha_path = lha_path;
+    auto input_cache = std::make_shared<BlockAccessor>();
+    this->read_default_input();
+    this->read_user_input();
+    this->read_lha_input(lhaFile, config);
+
+    cache.lha_path = lhaFile;
     cache.config = config;
     cache.thread_id = std::this_thread::get_id();
-    deduce_parameter_types(config);
+    this->deduce_parameter_types(config);
     cache.is_ready = true;
-
-    for (auto &&m : cache.parameter_types) {
-        LOG_DEBUG("Initializing parameters ", (int)m);
-        Parameters::GetInstance(m);
-    }
 }
 
 void MemoryManager::deduce_parameter_types(const Config &config) {
@@ -112,17 +117,27 @@ void MemoryManager::deduce_parameter_types(const Config &config) {
                              ParameterType::DECAY};
     if (config.model != Model::SM)
         cache.parameter_types.push_back(static_cast<ParameterType>(static_cast<int>(config.model)));
-    if (config.has_wilsons)
+    if (config.flags.at(ExternalFlag::HAS_WILSON_INPUT))
         cache.parameter_types.push_back(ParameterType::WILSON);
 }
 
 void MemoryManager::switch_lha(const std::string& lhaFile, Config config) {
-    for (auto& param : cache.parameter_types) {
-        Parameters::GetInstance(param)->CleanupInstance(param);
-    }
     this->cache.is_ready = false;
-    this->init(lhaFile, config);
-    this->cache.param_cache_okay = false;
+    memento.restore();
+    this->read_lha_input(lhaFile, config);
+    this->cache.flags.at(InternalFlag::PARAMS_CHANGED) = true;
+}
+
+void MemoryManager::reload_user_input(Config config) {
+    reload_user_input(cache.lha_path, config);
+}
+
+void MemoryManager::reload_user_input(const std::string &lhaFile, Config config) {
+    this->cache.is_ready = false;
+    memento.restore(2);
+    this->read_user_input();
+    this->read_lha_input(lhaFile, config);
+    this->cache.flags.at(InternalFlag::PARAMS_CHANGED) = true;
 }
 
 fs::path MemoryManager::format_lha_path(const std::string &path) {
@@ -146,34 +161,9 @@ fs::path MemoryManager::format_lha_path(const std::string &path) {
 }
 
 void MemoryManager::switch_model(Model model, bool use_marty) {
-    this->cache.config.model = model;
-    this->cache.config.use_marty = use_marty;
+    this->cache.config.flags.at(ExternalFlag::USE_MARTY) = use_marty;
+    this->cache.parameter_types.erase(std::find(this->cache.parameter_types.begin(), this->cache.parameter_types.end(), static_cast<ParameterType>(static_cast<int>(cache.config.model))));
     this->cache.parameter_types.push_back(static_cast<ParameterType>(static_cast<int>(model)));
-    Parameters::GetInstance(static_cast<ParameterType>(static_cast<int>(model)));
-    this->cache.param_cache_okay = false;
-}
-
-std::map<LhaID, double> MemoryManager::get_block_infos(const std::string& block, ParameterType param_type) {
-    return Parameters::GetInstance(param_type)->get_block_infos(block);
-}
-
-std::unordered_set<std::string> MemoryManager::get_blocks_list(ParameterType param_type) {
-    return Parameters::GetInstance(param_type)->get_blocks_list();
-}
-
-std::unordered_set<std::string> MemoryManager::get_all_blocks() {
-    return this->input_cache->get_block_names();
-}
-
-std::vector<ParameterType> MemoryManager::get_type_of_block(const std::string& block) {
-    std::vector<ParameterType> param_type;
-    for (auto& elem : cache.parameter_types) {
-        for (auto& block_ : get_blocks_list(elem)) {
-            if (block == block_) {
-                param_type.push_back(elem);
-                break;
-            }
-        }
-    }
-    return param_type;
+    this->cache.config.model = model;
+    this->cache.flags.at(InternalFlag::PARAMS_CHANGED) = true;
 }
