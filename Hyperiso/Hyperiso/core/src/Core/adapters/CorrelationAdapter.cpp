@@ -1,18 +1,30 @@
 #include "CorrelationAdapter.h"
 
+template void CorrelationLoader<ParamId>::load(std::shared_ptr<CorrelationMatrixPair<ParamId>>, fs::path);
+template void CorrelationLoader<Observables>::load(std::shared_ptr<CorrelationMatrixPair<Observables>>, fs::path);
+
 template <typename T>
 void CorrelationLoader<T>::load(std::shared_ptr<CorrelationMatrixPair<T>> dest, fs::path src_file) { 
     auto np = NodeProviderFactory::createNodeProvider(src_file);
     auto src = np->provide_db_as_node();
+
+    // src->printJSON();
 
     for (auto &list_item : src->getGroup({"correlations"})) {
         emplace_correlation(dest, std::get<std::shared_ptr<Node>>(list_item.second));
     }
 }
 
+template<>
 void CorrelationLoader<ParamId>::emplace_correlation(std::shared_ptr<CorrelationMatrixPair<ParamId>> corr_matrices, std::shared_ptr<Node> leaf) {
     auto parse_pid = [leaf] (size_t i) { 
-        LhaID id {std::get<std::string>(leaf->get("id_" + std::to_string(i)))};
+        Node::Value id_value = leaf->get("id_" + std::to_string(i));
+        LhaID id;
+        if (std::holds_alternative<int>(id_value)) {
+            id = LhaID{std::get<int>(id_value)};
+        } else {
+            id = LhaID{std::get<std::string>(id_value)};
+        }
         auto block = std::get<std::string>(leaf->get("block_" + std::to_string(i)));
         return ParamId {ParamRouter::GetType(block, id), block, id};
     };
@@ -30,6 +42,7 @@ void CorrelationLoader<ParamId>::emplace_correlation(std::shared_ptr<Correlation
     corr_matrices->emplace(std::make_pair(pid_1, pid_2), stat_value, syst_value);
 }
 
+template<>
 void CorrelationLoader<Observables>::emplace_correlation(std::shared_ptr<CorrelationMatrixPair<Observables>> corr_matrices, std::shared_ptr<Node> leaf) {
     if (!leaf->contains("id_1") || !leaf->contains("id_2") || !leaf->contains("stat_correlation")) {
         LOG_ERROR("CorrelationLoader", "Node doesn't have all necessary keys for observable correlation.");

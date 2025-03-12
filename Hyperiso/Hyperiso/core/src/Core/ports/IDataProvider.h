@@ -6,28 +6,29 @@
 #include <concepts>
 #include <type_traits>
 #include "General.h"
+#include <utility>
 
-template<typename T, typename... Args>
-concept HasCallableOperator = requires(T t, Args... args) {
-    { t(args...) } -> std::convertible_to<double>;
-};
+template <typename, typename = std::void_t<>>
+struct has_callable_operator : std::false_type {};
+
+template <typename T>
+struct has_callable_operator<T, std::void_t<decltype(std::declval<T>()(std::declval<int>()))>>
+    : std::is_convertible<decltype(std::declval<T>()(std::declval<int>())), double> {};
+
+template <typename T>
+concept HasCallableOperator = has_callable_operator<T>::value;
 
 template<typename T>
-requires HasCallableOperator<T>
 class IDataProvider {
 public:
     virtual ~IDataProvider() = default;
 
     template<typename... Args>
-    double operator()(Args... args) {
-        return static_cast<T*>(this)->operator()(args...);
+    requires HasCallableOperator<T>
+    double operator()(Args&&... args) {
+        return static_cast<T*>(this)->operator()(std::forward<Args>(args)...);
     }
 };
-
-
-// virtual std::unordered_set<std::string> get_block_list() = 0;
-// virtual std::map<LhaID, double> get_block_values(const std::string&) = 0;
-// virtual std::map<LhaID, Parameter> get_block_parameters(const std::string&) = 0;
 
 
 #endif // __IPARAMETERPROVIDER_H__

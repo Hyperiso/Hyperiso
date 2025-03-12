@@ -30,27 +30,33 @@ endif()
 
 
 add_library(CoreLib STATIC 
-    domain/MemoryManager.cpp
     adapters/DBMemento.cpp
-    domain/Parameters.cpp
-    domain/Parameter.cpp
-    domain/Block.cpp
-    domain/BlockAccessor.cpp
     adapters/ParamBlockAdapter.cpp
-    infrastructure/QCDHelper.cpp
+    adapters/APIAdapter.cpp
+    adapters/MartyAdapter.cpp
+    adapters/HyperisoMaster.cpp
+    adapters/CorrelationProvider.cpp
+    adapters/ParameterProvider.cpp
+    adapters/SpectrumCalculator.cpp
     adapters/CorrelationAdapter.cpp
     domain/CorrelationRepo.cpp
     domain/ParameterRouter.cpp
+    domain/Parameters.cpp
+    domain/Parameter.cpp
+    domain/MemoryManager.cpp
+    domain/Block.cpp
+    domain/BlockAccessor.cpp
+    infrastructure/QCDHelper.cpp
     )
 set_target_properties(CoreLib PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
 # set_target_properties(CoreLib PROPERTIES PUBLIC_HEADER "MemoryManager.h;Parameters.h;Parameter.h;QCDHelper.h;BlocksCreator.h;BlockAccessor.h;CorrelationRepo.h;CorrelationCreator.h;ParameterRouter.h;")
 
 target_include_directories(CoreLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_include_directories(DataBaseLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/adapter)
-target_include_directories(DataBaseLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/domain)
-target_include_directories(DataBaseLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/infrastructure)
-target_include_directories(DataBaseLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/ports)
+target_include_directories(CoreLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/adapters)
+target_include_directories(CoreLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/domain)
+target_include_directories(CoreLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/infrastructure)
+target_include_directories(CoreLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/ports)
 
 target_link_libraries(CoreLib PUBLIC CommonLib DataBaseLib ConfiguredModule ExternalIntegrationLib MathLib)
 

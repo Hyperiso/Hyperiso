@@ -5,6 +5,7 @@ double ParameterProvider::operator()(const ParamId &pid, DataType type) {
         LOG_WARN("LogicError", "This ParameterProvider already has a type.");
     }
 
+    return (*Parameters::GetInstance(pid.type))(pid.block, pid.code);
 }
 
 double ParameterProvider::operator()(const std::string &block, const LhaID &id, DataType type) {
@@ -12,5 +13,5 @@ double ParameterProvider::operator()(const std::string &block, const LhaID &id, 
         LOG_ERROR("LogicError", "Please specify a parameter type for the ParameterProvider.");
     }
 
-    return 0.0;
+    return (*Parameters::GetInstance(*(this->p_type)))(block, id);
 }

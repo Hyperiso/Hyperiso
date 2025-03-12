@@ -45,7 +45,7 @@ std::vector<Token> LhaParser::tokenize(const std::string &src) const {
     return tokens;
 }
 
-std::map<std::string, std::vector<std::vector<std::string>>> &LhaParser::parse_tokens(std::vector<Token> tokens, bool comments) const {
+std::map<std::string, std::vector<std::vector<std::string>>> LhaParser::parse_tokens(std::vector<Token> tokens, bool comments) const {
     bool newBlock = false;
     bool hasGlobalScale = false;
     bool isQ = false;
@@ -102,6 +102,8 @@ std::map<std::string, std::vector<std::vector<std::string>>> &LhaParser::parse_t
             }
         }
     }
+
+    return rawBlocks;
 }
 
 Prototype LhaParser::findPrototype(std::string name) const {
@@ -130,7 +132,13 @@ std::shared_ptr<Node> LhaParser::parse(const std::string &src) const {
     return this->toDBNode(blocks);
 }
 
-void LhaParser::set_prototypes(const std::unordered_set<Prototype> &prototypes) {
+void LhaParser::writeToFile(const std::string &filename,
+                            const std::shared_ptr<Node> &root) const {
+                                
+}
+
+void LhaParser::set_prototypes(const std::unordered_set<Prototype> &prototypes)
+{
     this->blockPrototypes = prototypes;
 }
 

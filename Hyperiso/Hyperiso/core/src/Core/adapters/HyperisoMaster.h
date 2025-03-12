@@ -1,16 +1,13 @@
-#ifndef __HYPERISOMASTER_H__
-#define __HYPERISOMASTER_H__
+#ifndef __CONFIGPROVIDER_H__
+#define __CONFIGPROVIDER_H__
 
-#include "MemoryManager.h"
 #include "IMonitor.h"
 
-class HyperisoMaster : public IMonitor {
-private:
-
+class HyperisoMaster : public IMonitor<ExternalFlag> {
 public:
-    void init();
-    Config getConfig();
+    void init(const std::string &lhaFile, Config config);
+    bool check_flag(ExternalFlag flag);
+    Model get_model();
 };
 
-
-#endif // __HYPERISOMASTER_H__
+#endif // __CONFIGPROVIDER_H__

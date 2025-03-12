@@ -24,6 +24,7 @@ add_library(DataBaseLib STATIC
     adapters/YamlParser.cpp
     adapters/DictNodeProvider.cpp
     adapters/LhaNodeProvider.cpp
+    adapters/NodeProviderFactory.cpp
 )
 
 set_target_properties(DataBaseLib PROPERTIES POSITION_INDEPENDENT_CODE ON)
@@ -34,9 +35,8 @@ target_include_directories(DataBaseLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/ports)
 
 target_link_libraries(DataBaseLib PUBLIC PandasLib CommonLib)
 
-add_executable(TEST_DB app/main_db.cpp)
-
-target_link_libraries(TEST_DB DataBaseLib)
+# add_executable(TEST_DB app/main_db.cpp)
+# target_link_libraries(TEST_DB DataBaseLib)
 
 add_executable(TEST_json app/main_json.cpp)
 

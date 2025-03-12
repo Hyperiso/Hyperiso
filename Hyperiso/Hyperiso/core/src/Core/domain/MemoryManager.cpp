@@ -44,13 +44,15 @@ void MemoryManager::read_default_input() {
     CorrelationLoader<Observables>().load(default_obs_corr, FilePaths::default_obs_corr_path.string());
     correlation_repository.set_correlation_matrix(default_param_corr);
     correlation_repository.set_correlation_matrix(default_obs_corr);
+
+    LOG_DEBUG("Default files loaded");
 }
 
 void MemoryManager::read_user_input() {
     ParamBlockLoader p_loader;
     fs::path ui_paths[4] = {FilePaths::user_sm_params_path, FilePaths::user_flavor_params_path, FilePaths::user_decay_params_path, FilePaths::user_obs_values_path};
     for (auto& path : ui_paths) {
-        auto ui_ba = std::shared_ptr<BlockAccessor>();
+        auto ui_ba = std::make_shared<BlockAccessor>();
         p_loader.load(ui_ba, path); 
         input_cache = ui_ba >> input_cache;
     }
@@ -62,6 +64,8 @@ void MemoryManager::read_user_input() {
     CorrelationLoader<Observables>().load(user_obs_corr, FilePaths::user_obs_corr_path.string());
     correlation_repository.merge_correlation_matrix(user_param_corr);
     correlation_repository.merge_correlation_matrix(user_obs_corr);
+
+    LOG_DEBUG("User input files loaded");
 }
 
 void MemoryManager::read_lha_input(const std::string& lhaFile, const Config& config) {
@@ -73,6 +77,8 @@ void MemoryManager::read_lha_input(const std::string& lhaFile, const Config& con
     p_loader.load(lha_ba, lha_path);
     input_cache = lha_ba >> input_cache;
     memento.takeSnapshot(input_cache);
+
+    LOG_DEBUG("LHA file loaded");
 }
 
 fs::path MemoryManager::calculate_spectrum(fs::path input_lha_path, const Config &config) {
@@ -99,7 +105,7 @@ void MemoryManager::init(const std::string& lhaFile, Config config) {
         return;
     }
 
-    auto input_cache = std::make_shared<BlockAccessor>();
+    input_cache = std::make_shared<BlockAccessor>();
     this->read_default_input();
     this->read_user_input();
     this->read_lha_input(lhaFile, config);

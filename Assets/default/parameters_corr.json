@@ -2,9 +2,9 @@
 "correlations": [
     {
         "block_1": "FCONST",
-        "id_1": 211,
+        "id_1": "211",
         "block_2": "FCONST",
-        "id_2": 321,
+        "id_2": "321",
         "stat_correlation": -0.2,
         "syst_correlation": 0.05
     }   

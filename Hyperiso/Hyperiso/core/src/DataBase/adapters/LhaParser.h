@@ -72,7 +72,7 @@ private:
      * @brief Parses the source string into blocks, optionally including comments.
      * @param comments If `true`, includes comments in the parsing process.
      */
-    std::map<std::string, std::vector<std::vector<std::string>>>& parse_tokens(std::vector<Token> tokens, bool comments = false) const;
+    std::map<std::string, std::vector<std::vector<std::string>>> parse_tokens(std::vector<Token> tokens, bool comments = false) const;
 
     /**
      * @brief Adds a new block to the reader from parsed lines.

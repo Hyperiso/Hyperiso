@@ -22,7 +22,7 @@ public:
     static std::shared_ptr<IParser> createParser(Type type);
 };
 
-std::shared_ptr<IParser> ParserFactory::createParser(Type type) {
+inline std::shared_ptr<IParser> ParserFactory::createParser(Type type) {
     switch (type) {
     case Type::JSON:
         return std::make_shared<JSONParser>();

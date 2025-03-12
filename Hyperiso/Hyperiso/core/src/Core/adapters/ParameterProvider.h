@@ -4,6 +4,7 @@
 #include "IDataProvider.h"
 #include "IMonitor.h"
 #include "General.h"
+#include "Parameters.h"
 
 class ParameterProvider : public IDataProvider<ParameterProvider> {
 private:

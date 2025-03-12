@@ -23,7 +23,7 @@ ParameterType ParamRouter::GetType(std::string block, LhaID id) {
     auto conflict_blocks = get_keys<std::string, std::unordered_set<long>>(ParametersAccessRights::SM_RIGHTS);
 
     if (conflict_blocks.contains(block)) {
-        switch (MemoryManager::GetInstance()->getModel()) {
+        switch (MemoryManager::GetInstance()->getMemoryCache().config.model) {
         case Model::THDM:
             if (ParametersAccessRights::THDM_RIGHTS.at(block).contains(id))
                 return ParameterType::THDM;

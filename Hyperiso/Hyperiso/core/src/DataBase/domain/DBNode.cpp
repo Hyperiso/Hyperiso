@@ -15,7 +15,9 @@ std::map<std::string, Node::Value> Node::getGroup(const std::vector<std::string>
     for (const auto& key : keys) {
         auto it = currentNode->data_.find(key);
         if (it == currentNode->data_.end() || !std::holds_alternative<std::shared_ptr<Node>>(it->second)) {
-            throw std::runtime_error("Key path not found");
+            std::stringstream path;
+            for(auto& k : keys) path << k << " ";
+            throw std::runtime_error("Key path not found: " + path.str());
         }
         currentNode = std::get<std::shared_ptr<Node>>(it->second).get();
     }

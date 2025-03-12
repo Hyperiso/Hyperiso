@@ -1,8 +1,5 @@
 #include "CorrelationRepo.h"
 
-std::shared_ptr<CorrelationMatrixPair<ParamId>> CorrelationRepository::parameter_correlations;
-std::shared_ptr<CorrelationMatrixPair<Observables>> CorrelationRepository::observable_correlations;
-
 std::pair<double, double> CorrelationRepository::get_correlation(ParamId id1, ParamId id2) {
     auto key = std::make_pair(id1, id2);
     return parameter_correlations->at(key);

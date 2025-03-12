@@ -4,6 +4,7 @@
 #include "IMonitor.h"
 #include "IPathProvider.h"
 #include "IDataMonitor.h"
+#include "MemoryManager.h"
 
 enum class APIPath {
     LHA_PATH,

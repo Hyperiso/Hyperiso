@@ -64,34 +64,41 @@ void YAMLParser::processKeyValue(const std::string& line, std::shared_ptr<Node>&
 void YAMLParser::processList(std::shared_ptr<Node>& node, std::istringstream& stream, int indentLevel, std::string firstLine) {
     std::map<std::string, Node::Value> listData;
     size_t index = 0;
-    std::string line;
-    
-    
-    if (!firstLine.empty()) {
-        size_t colonPos = firstLine.find(":");
-        if (colonPos != std::string::npos) {
-            std::string key = trim(firstLine.substr(1, colonPos - 1));
-            std::string value = trim(firstLine.substr(colonPos + 1));
-            auto listItemNode = std::make_shared<Node>();
-            if (value.empty()) {
-                auto childNode = parseYAMLNode(stream, indentLevel + 2);
-                listItemNode->set(childNode, key);
-            } else {
-                listItemNode->set(parseScalar(value), key);
-            }
-            listData[std::to_string(index++)] = listItemNode;
+    std::string line = firstLine;
+    bool first {true};
+
+    Node::Value currentNode;
+    auto tempNode = std::make_shared<Node>();
+
+    while (true) {
+        if (!first && !std::getline(stream, line)){
+            listData[std::to_string(index)] = tempNode->countChildren() != 0 ? tempNode : currentNode;
+            break;
         }
-    }
-    
-    while (std::getline(stream, line)) {
-        int currentIndent = countLeadingSpaces(line);
-        if (currentIndent < indentLevel) {
+
+        if(trim(line) == ""){
+            continue;
+        }
+
+        if (!first && countLeadingSpaces(line) < indentLevel) {
             stream.seekg(-static_cast<int>(line.size()) - 1, std::ios_base::cur);
+            listData[std::to_string(index)] = tempNode->countChildren() != 0 ? tempNode : currentNode;
             break;
         }
 
         line = trim(line);
         if (line[0] == '-') {
+            if (!first) {
+                if (tempNode->countChildren() != 0) {
+                    currentNode = tempNode;
+                    tempNode = std::make_shared<Node>();
+                }
+                listData[std::to_string(index)] = currentNode;
+                currentNode = Node::Value();
+                index++;
+            } else {
+                first = false;
+            }
             line = trim(line.substr(1));
         }
 
@@ -100,19 +107,15 @@ void YAMLParser::processList(std::shared_ptr<Node>& node, std::istringstream& st
         if (colonPos != std::string::npos) {
             std::string key = trim(line.substr(0, colonPos));
             std::string value = trim(line.substr(colonPos + 1));
-            auto listItemNode = std::make_shared<Node>();
             if (value.empty()) {
                 auto childNode = parseYAMLNode(stream, indentLevel + 2);
-                listItemNode->set(childNode, key);
+                tempNode->set(childNode, key);
             } else {
-                listItemNode->set(parseScalar(value), key);
+                tempNode->set(parseScalar(value), key);
             }
-            listData[std::to_string(index)] = listItemNode;
         } else {
-            listData[std::to_string(index)] = parseScalar(trim(line));
+            currentNode = parseScalar(trim(line));
         }
-
-        index++;
     }
 
     node->setGroup({}, listData);

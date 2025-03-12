@@ -4,7 +4,7 @@ std::map<ParameterType, std::shared_ptr<Parameters>> Parameters::instances;
 std::map<ParameterType, std::shared_ptr<Parameters>> ParametersFactory::instances;
 
 std::shared_ptr<Parameters> Parameters::GetInstance(ParameterType id) {
-    auto allowed = MemoryManager::GetInstance()->getParameterTypes();
+    auto allowed = MemoryManager::GetInstance()->getMemoryCache().parameter_types;
     if (std::find(allowed.begin(), allowed.end(), id) == allowed.end())
         LOG_ERROR("OutOfRange", "Parameter type undefined");
     return ParametersFactory::GetParameters(id);
@@ -55,7 +55,7 @@ std::unordered_set<std::string> Parameters::get_blocks_list() {
 
 std::unordered_set<std::string> Parameters::init_blocks(ParameterType type) {
     if (type == ParameterType::CUSTOM) {
-        auto block_names = MemoryManager::GetInstance()->get_all_blocks();
+        auto block_names = MemoryManager::GetInstance()->input_cache->get_block_names();
         this->blockAccessor = MemoryManager::GetInstance()->extract_blocks(ParamRouter::GetOwnedBlocks(type));
     } else {
         std::unordered_set<std::string> existing, missing;
@@ -64,7 +64,7 @@ std::unordered_set<std::string> Parameters::init_blocks(ParameterType type) {
             std::inserter(existing, existing.end()),
             std::inserter(missing, missing.end()),
             [&](const std::string& s) {
-                return MemoryManager::GetInstance()->get_all_blocks().contains(s);
+                return MemoryManager::GetInstance()->input_cache->get_block_names().contains(s);
             }
         );
         

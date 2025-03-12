@@ -5,10 +5,10 @@ correlations:
     id_2: 321
     stat_correlation: -0.1
     syst_correlation: -0.1
-
+    
   - block_1: FCONST
-    id_1: 211
+    id_1: 323|1
     block_2: FCONST
-    id_2: 321
+    id_2: 323|2
     stat_correlation: -0.1
     syst_correlation: -0.1

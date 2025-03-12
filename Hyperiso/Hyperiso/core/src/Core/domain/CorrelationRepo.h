@@ -15,11 +15,11 @@ struct CorrelationMatrixPair {
         return std::make_pair(statv, systv);
     };
 
-    void emplace(const std::pair<T, T>& key, double stat_val, double syst_val) const {
+    void emplace(std::pair<T, T>&& key, double stat_val, double syst_val) {
         stat.emplace(key, stat_val);
-        stat.emplace(key.swap({key.second, key.first}), stat_val);
         syst.emplace(key, syst_val);
-        syst.emplace(key.swap({key.second, key.first}), syst_val);
+        stat.emplace(std::make_pair(key.second, key.first), stat_val);
+        syst.emplace(std::make_pair(key.second, key.first), syst_val);
     };
 
     template<typename U>
