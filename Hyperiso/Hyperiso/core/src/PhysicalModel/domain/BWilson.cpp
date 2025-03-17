@@ -1,6 +1,4 @@
-#include "Wilson.h"
-
-
+#include "BWilson.h"
 
 complex_t C1::NLO_calculation() {
     double L=log(this->get_Q_match()*this->get_Q_match()/(*sm)("MASS",24)/(*sm)("MASS",24));
@@ -182,26 +180,4 @@ complex_t CP7::LO_calculation() {
 complex_t CP8::LO_calculation() {
     double coeff_temp = (*sm)("MASS", 3) / W_param->mass_b_muW * (-0.5 * F0t(W_param->xt) - 1. / 3.);
     return this->double_to_complex_save("LO", coeff_temp);
-}
-
-
-bool WilsonCoefficient::fill_from_flha() {
-    if (!from_lha && MemoryManager::GetInstance()->hasWilsons()) {
-        auto wc = Parameters::GetInstance(ParameterType::WILSON);
-        WCoef id = WCoefMapper::enum_elt(this->get_name());
-        Model m = MemoryManager::GetInstance()->getModel();
-        int w_type = (*wc)("REWCOEF", -2);
-        if (m != Model::SM && w_type == 0) {
-            LOG_ERROR("Value", "SM Wilsons coefficients were given, but the selected model is not SM.");
-        }
-
-        this->set_CoefficientMatchingValue("LO", complex_t((*wc)("REWCOEF", (int)id * 10 + (int)QCDOrder::LO-1), 
-                                                            (*wc)("IMWCOEF", (int)id * 10 + (int)QCDOrder::LO-1)));
-        this->set_CoefficientMatchingValue("NLO", complex_t((*wc)("REWCOEF", (int)id * 10 + (int)QCDOrder::NLO-1), 
-                                                             (*wc)("IMWCOEF", (int)id * 10 + (int)QCDOrder::NLO-1)));
-        this->set_CoefficientMatchingValue("NNLO", complex_t((*wc)("REWCOEF", (int)id * 10 + (int)QCDOrder::NNLO-1), 
-                                                              (*wc)("IMWCOEF", (int)id * 10 + (int)QCDOrder::NNLO-1)));         
-        from_lha = true;
-    }
-    return from_lha;
 }
