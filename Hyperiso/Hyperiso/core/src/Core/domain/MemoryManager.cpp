@@ -1,7 +1,5 @@
 #include "MemoryManager.h"
 
-namespace fs = std::filesystem;
-
 MemoryManager* MemoryManager::instance = nullptr;
 
 MemoryManager::MemoryManager() : memento(DBMemento()) {
@@ -19,14 +17,7 @@ std::shared_ptr<BlockAccessor> MemoryManager::extract_blocks(std::unordered_set<
 }
 
 void MemoryManager::save_input_cache() {
-    DBMemento().takeSnapshot(input_cache);
-}
-
-std::shared_ptr<BlockAccessor> MemoryManager::read_input_files(fs::path lha_path) {
-    auto input_blocks = std::make_shared<BlockAccessor>();
-    
-
-    return input_blocks;
+    memento.takeSnapshot(input_cache);
 }
 
 void MemoryManager::read_default_input() {
@@ -36,7 +27,7 @@ void MemoryManager::read_default_input() {
     auto obs_blocks = std::make_shared<BlockAccessor>();
     p_loader.load(obs_blocks, FilePaths::default_obs_values_path); 
     input_cache = input_cache + obs_blocks; 
-    memento.takeSnapshot(input_cache);
+    save_input_cache();
 
     auto default_param_corr = std::make_shared<CorrelationMatrixPair<ParamId>>();
     CorrelationLoader<ParamId>().load(default_param_corr, FilePaths::default_param_corr_path.string());
@@ -56,7 +47,7 @@ void MemoryManager::read_user_input() {
         p_loader.load(ui_ba, path); 
         input_cache = ui_ba >> input_cache;
     }
-    memento.takeSnapshot(input_cache);
+    save_input_cache();
 
     auto user_param_corr = std::make_shared<CorrelationMatrixPair<ParamId>>();
     CorrelationLoader<ParamId>().load(user_param_corr, FilePaths::user_param_corr_path.string());
@@ -73,10 +64,10 @@ void MemoryManager::read_lha_input(const std::string& lhaFile, const Config& con
     fs::path spectrum_path = calculate_spectrum(lha_path, config);
 
     ParamBlockLoader p_loader;
-    auto lha_ba = std::shared_ptr<BlockAccessor>();
+    auto lha_ba = std::make_shared<BlockAccessor>();
     p_loader.load(lha_ba, lha_path);
     input_cache = lha_ba >> input_cache;
-    memento.takeSnapshot(input_cache);
+    save_input_cache();
 
     LOG_DEBUG("LHA file loaded");
 }
@@ -115,12 +106,16 @@ void MemoryManager::init(const std::string& lhaFile, Config config) {
     cache.thread_id = std::this_thread::get_id();
     this->deduce_parameter_types(config);
     cache.is_ready = true;
+
+    LOG_DEBUG("Hyperiso successfully initialized !");
 }
 
 void MemoryManager::deduce_parameter_types(const Config &config) {
     cache.parameter_types = {ParameterType::SM,
                              ParameterType::FLAVOR,
-                             ParameterType::DECAY};
+                             ParameterType::DECAY,
+                             ParameterType::OBSERVABLE,
+                             ParameterType::PASSTHROUGH};
     if (config.model != Model::SM)
         cache.parameter_types.push_back(static_cast<ParameterType>(static_cast<int>(config.model)));
     if (config.flags.at(ExternalFlag::HAS_WILSON_INPUT))

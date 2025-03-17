@@ -112,7 +112,7 @@ void JSONParser::writeToFile(const std::string& filename, const std::shared_ptr<
 
 std::shared_ptr<Node> JSONParser::readFromFile(const std::string& filename) const {
     std::ifstream file(filename);
-    LOG_INFO("File path:", filename);
+    LOG_DEBUG("File path:", filename);
     if (!file.is_open()) throw std::runtime_error("Unable to open file for reading");
 
     std::ostringstream oss;

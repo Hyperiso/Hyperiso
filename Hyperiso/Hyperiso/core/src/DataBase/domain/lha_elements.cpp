@@ -70,12 +70,12 @@ std::string LhaElement<T>::toString() const {
 template <typename T>
 std::shared_ptr<Node> LhaElement<T>::toDBNode() const {
     Node node;
-    node.set(this->getValue(), this->getId().to_string(), "central_value");
+    node.set(this->getValue(), "central_value");
     if (Q.has_value()) {
-        node.set(this->getScale(), this->getId().to_string(), "scale");
+        node.set(this->getScale(), "scale");
     }   
     if (rScheme.has_value()) {
-        node.set(static_cast<int>(this->getScheme()), this->getId().to_string(), "renormalization_scheme");
+        node.set(static_cast<int>(this->getScheme()), "renormalization_scheme");
     }
     return std::make_shared<Node>(node);
 }

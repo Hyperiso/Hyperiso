@@ -14,6 +14,8 @@
 #include "Logger.h"
 #include "Utils.h"
 
+namespace fs = std::filesystem;
+
 enum class Observables {
     BR_BS_MUMU,
     BR_BS_MUMU_UNTAG,

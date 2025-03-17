@@ -6,6 +6,7 @@
 class HyperisoMaster : public IMonitor<ExternalFlag> {
 public:
     void init(const std::string &lhaFile, Config config);
+    void init(const std::string &lhaFile);
     bool check_flag(ExternalFlag flag);
     Model get_model();
 };

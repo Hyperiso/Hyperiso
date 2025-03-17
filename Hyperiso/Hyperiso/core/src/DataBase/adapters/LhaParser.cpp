@@ -145,7 +145,8 @@ void LhaParser::set_prototypes(const std::unordered_set<Prototype> &prototypes)
 std::shared_ptr<Node> LhaParser::toDBNode(std::map<std::string, std::shared_ptr<LhaBlock>> blocks) const {
     Node node;
     for (const auto& block : blocks) {
-        node.set(block.second->toDBNode(), "lha_root");
+        auto block_node = block.second->toDBNode();
+        node.set(block_node->get(block_node->get_keys().at(0)), block_node->get_keys().at(0));
     }
     return std::make_shared<Node>(node);
 }

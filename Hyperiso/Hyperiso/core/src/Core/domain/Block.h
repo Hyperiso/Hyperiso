@@ -8,158 +8,47 @@
 #if !defined(BLOCK_H)
 #define BLOCK_H
 
-#include <map>
-#include <string>
-#include <memory>
-#include <stdexcept>
 #include <array>
-// #include "JsonParameters.h"
-#include "Parameter.h"
 #include <functional>
+#include "Include.h"
+#include "Parameter.h"
+#include "IStorage.h"
 
 /**
  * @class Block
- * @brief Abstract base class for parameter blocks.
+ * @brief A class for storing parameter blocks.
  */
-class Block {
+class Block : public IStorage<LhaID, Parameter> {
 public:
-    /**
-     * @brief Retrieves the value associated with a given PDG code (int).
-     * @param id The PDG code of the parameter.
-     * @return The parameter value.
-     */
-    virtual double getValue(LhaID id) const = 0;
-
-    /**
-     * @brief Retrieves the value associated with a given PDG code (int).
-     * @param id The PDG code of the parameter.
-     * @return The parameter.
-     */
-    virtual Parameter getParameter(LhaID id) const = 0;
-
-    /**
-     * @brief Sets the value of a parameter.
-     * @param id The PDG code of the parameter.
-     * @param value The new value to set.
-     * @param force If true, forces the update.
-     */
-    virtual void setValue(LhaID id, double value, bool force = false) = 0;
-
-    /**
-     * @brief Sets the value of a parameter.
-     * @param id The PDG code of the parameter.
-     * @param source The source parameter to set.
-     */
-    virtual void setParameter(LhaID id, const Parameter& source) = 0;
-
-    /**
-     * @brief Sets the value of a parameter.
-     * @param id The PDG code of the parameter.
-     * @param std_stat The new deviation to set.
-     * @param std_syst The new deviation to set.
-     * @param force If true, forces the update.
-     */
-    virtual void setDeviation(LhaID id, double std_stat, double std_syst, bool force = false) = 0;
-
-    /**
-     * @brief Sets the mode of a parameter.
-     * @param id The PDG code of the parameter.
-     * @param mode The mode to set.
-     */
-    virtual void setMode(LhaID id, ParameterMode mode) = 0;
-
-    /**
-     * @brief Retrieves all parameter values.
-     * @return A map of PDG codes to parameter values.
-     */
-    virtual std::map<LhaID, double> getAllValues() = 0;
-
-    /**
-     * @brief Retrieves all parameter ids.
-     * @return A vector of LhaIDs of stored parameters.
-     */
-    virtual std::vector<LhaID> getAllIDs() = 0;
-
-    /**
-     * @brief Retrieves all parameters with their ids.
-     * @return A map of LhaIDs and Parameters.
-     */
-    virtual const std::map<LhaID, Parameter>& getItems() = 0;
-
-    /**
-     * @brief Retrieves all parameter ids.
-     * @return A vector of LhaIDs of stored parameters.
-     */
-    virtual bool hasID(LhaID id) = 0;
-
-    /**
-     * @brief Removes parameter from block.
-     * @param id Id of the parameter to remove.
-     */
-    virtual void remove_parameter(LhaID id) = 0;
+    std::string blockname {""};
 
     Block() = default;
+    Block(std::shared_ptr<Block> other);
 
-    Block(std::shared_ptr<Block> other) { this->copy(other); };
+    // Interface methods
+    const Parameter& retrieve(const LhaID& id) const override;
+    void store(const LhaID& id, Parameter&& param) override;
+    void remove(const LhaID& key) override;
+    bool contains(const LhaID& key) const override;
+    void update(const LhaID& key, Parameter&& param) override;
+
+    std::unordered_set<LhaID> getAllIDs();
+    const std::map<LhaID, Parameter>& getItems() { return this->items; };
 
     void addObserver(std::shared_ptr<Block> observer);
-
     void notifyObservers();
+    virtual void update() {}
 
-    virtual void copy(std::shared_ptr<Block> other) = 0;
+    void copy(std::shared_ptr<Block> other);
 
-    virtual void update() = 0;
-    /**
-     * @brief Virtual destructor.
-     */
-    virtual ~Block() = default;
+    ~Block() { notifyObservers(); }
 
-    /// Name of the block
-    std::string blockname{};
 protected:
     std::vector<std::shared_ptr<Block>> observers;
+    std::map<LhaID, Parameter> items;
 };
 
-/**
- * @class MapBlock
- * @brief A class for  storing blocks that have only 1 id.
- */
-class MapBlock : public Block {
-public:
-
-    MapBlock() = default;
-    MapBlock(std::shared_ptr<Block> other);
-    
-    double getValue(LhaID id) const override;
-    void setValue(LhaID id, double value, bool force = false) override;
-    void setDeviation(LhaID id, double std_stat, double std_syst, bool force = false) override;
-    void setMode(LhaID id, ParameterMode mode) override;
-    std::map<LhaID, double> getAllValues() override;
-    std::vector<LhaID> getAllIDs() override;
-    bool hasID(LhaID id) override;
-    void copy(std::shared_ptr<Block> other) override;
-    const std::map<LhaID, Parameter>& getItems() override { return this->values; };
-    Parameter getParameter(LhaID id) const override;
-    void setParameter(LhaID id, const Parameter& source) override;
-    void remove_parameter(LhaID id) override;
-
-    void update() override {
-        // recalculate();
-    }
-
-    ~MapBlock() { notifyObservers(); }
-
-protected:
-    /// Map of PDG codes to parameters
-    std::map<LhaID, Parameter> values;
-
-    // void recalculate() {
-    //     std::cout << "Error map block cannot do that" << std::endl;
-    // }
-
-};
-
-class DependentBlock : public MapBlock, public std::enable_shared_from_this<DependentBlock> {
+class DependentBlock : public Block, public std::enable_shared_from_this<DependentBlock> {
 public:
     explicit DependentBlock(std::shared_ptr<Block> source, std::function<void(std::shared_ptr<Block>, std::shared_ptr<DependentBlock>)> recalculateFunc) 
         : sourceBlock(source), recalculateLambda(std::move(recalculateFunc)) {}
@@ -173,7 +62,6 @@ public:
     }
 
     void update() override {
-        std::cout << "AHAH" << std::endl;
         if (recalculateLambda && sourceBlock) {
             if (auto self = shared_from_this()) { 
                 recalculateLambda(sourceBlock, self);
@@ -205,15 +93,8 @@ class WilsonBlock : public Block {
     // pdgCode -1 is reserved to access the scale of the coefficients
     // pdgCode -2 is reserved to access the type of the coefficients
 public:
-    double getValue(LhaID pdgCode) const override;
-
+    double getValue(LhaID pdgCode) const;
     void setValue(LhaID pdgCode, double value, bool force = false);
-
-    void setMode(LhaID pdgCode, ParameterMode mode) {}
-
-    std::map<LhaID, double> getAllValues() override {
-        return {};
-    }
 
 protected:
     // Index is QCD order

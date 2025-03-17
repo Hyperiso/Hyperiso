@@ -4,6 +4,7 @@ std::map<ParameterType, std::shared_ptr<Parameters>> Parameters::instances;
 std::map<ParameterType, std::shared_ptr<Parameters>> ParametersFactory::instances;
 
 std::shared_ptr<Parameters> Parameters::GetInstance(ParameterType id) {
+    LOG_DEBUG("Trying to access Parameters instance of type", static_cast<int>(id));
     auto allowed = MemoryManager::GetInstance()->getMemoryCache().parameter_types;
     if (std::find(allowed.begin(), allowed.end(), id) == allowed.end())
         LOG_ERROR("OutOfRange", "Parameter type undefined");

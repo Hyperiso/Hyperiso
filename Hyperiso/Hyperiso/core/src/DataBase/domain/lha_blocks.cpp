@@ -25,9 +25,12 @@ std::string LhaBlock::toString() const {
 
 std::shared_ptr<Node> LhaBlock::toDBNode() const {
     Node node;
+    std::map<std::string, Node::Value> elts_as_nodes;
     for (const auto& elt : this->entries) {
-        node.set(elt->toDBNode(), this->prototype.blockName);
+        elts_as_nodes.emplace(elt->getId().to_string(), elt->toDBNode());
+        
     }
+    node.setGroup({this->prototype.blockName}, elts_as_nodes);
     return std::make_shared<Node>(node);
 }
 

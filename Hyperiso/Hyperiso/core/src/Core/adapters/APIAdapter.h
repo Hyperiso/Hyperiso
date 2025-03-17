@@ -1,10 +1,13 @@
 #ifndef __APIADAPTER_H__
 #define __APIADAPTER_H__
 
+#include <unordered_set>
+#include "Include.h"
 #include "IMonitor.h"
 #include "IPathProvider.h"
 #include "IDataMonitor.h"
 #include "MemoryManager.h"
+#include "Parameters.h"
 
 enum class APIPath {
     LHA_PATH,

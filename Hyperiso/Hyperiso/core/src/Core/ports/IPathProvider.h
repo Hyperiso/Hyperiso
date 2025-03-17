@@ -10,7 +10,7 @@ class IPathProvider {
 public:
     virtual ~IPathProvider() = default;
 
-    virtual fs::path get_path(EnumType);
+    virtual fs::path get_path(EnumType) = 0;
 };
 
 

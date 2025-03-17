@@ -8,10 +8,7 @@
 #if !defined(BLOCK_ACCESSOR_H)
 #define BLOCK_ACCESSOR_H
 
-#include <map>
-#include <string>
-#include <memory>
-#include <stdexcept>
+#include "Include.h"
 #include "Block.h"
 #include <functional>
 
@@ -21,15 +18,8 @@
  * 
  * This class allows adding, retrieving, and modifying values in multiple parameter blocks.
  */
-class BlockAccessor : public Block {
+class BlockAccessor : public std::map<std::string, std::shared_ptr<Block>> {
 public:
-    /**
-     * @brief Adds a new block to the accessor.
-     * @param name The name of the block.
-     * @param block A shared pointer to the block.
-     */
-    void addBlock(const std::string& name, std::shared_ptr<Block> block);
-    
     void addDependentBlock(const std::string& name, std::shared_ptr<DependentBlock>& dependant_block, const std::string& sourceName, std::function<void(std::shared_ptr<Block>, std::shared_ptr<DependentBlock>)> recalculateFunc);
 
     /**
@@ -39,13 +29,6 @@ public:
      * @return True if the block exists, false otherwise.
      */
     bool exist(const std::string blockName, LhaID pdgCode) const;
-
-    /**
-     * @brief Checks if a block exists.
-     * @param blockName The name of the block.
-     * @return True if the block exists, false otherwise.
-     */
-    bool has_block(const std::string blockName) const;
 
     /**
      * @brief Sets the value of a parameter in a specified block.
@@ -101,117 +84,6 @@ public:
      */
     std::unordered_set<std::string> get_block_names();
 
-    /**
-     * @brief Retrieves a block from the stored blocks.
-     * @return A shared_ptr to the given block.
-     */
-    std::shared_ptr<Block> get_block(const std::string& block_name);
-
-    /**
-     * @brief Override to prevent direct access to all values.
-     * @throws std::logic_error Always throws an error.
-     */
-    std::map<LhaID, double> getAllValues() override{
-        throw std::logic_error("Use getValue with block name for BlockAccessor");
-    }
-
-    /**
-     * @brief Override to prevent direct access to parameter values.
-     * @throws std::logic_error Always throws an error.
-     */
-    double getValue(LhaID pdgCode) const override {
-        throw std::logic_error("Use getValue with block name for BlockAccessor");
-    }
-
-    /**
-     * @brief Override to prevent direct setting of parameter values.
-     * @throws std::logic_error Always throws an error.
-     */
-    void setValue(LhaID pdgCode, double value, bool force = false) override {
-        throw std::logic_error("Use setValue with block name for BlockAccessor");
-    }
-
-     /**
-     * @brief Override to prevent direct setting of parameter modes.
-     * @throws std::logic_error Always throws an error.
-     */
-    void setDeviation(LhaID id, double std_stat, double std_syst, bool force = false) {
-        throw std::logic_error("Use setDeviation with block name for BlockAccessor");
-    }
-
-    /**
-     * @brief Override to prevent direct setting of parameter modes.
-     * @throws std::logic_error Always throws an error.
-     */
-    void setMode(LhaID pdgCode, ParameterMode mode) override {
-        throw std::logic_error("Use setMode with block name for BlockAccessor");
-    }
-
-    /**
-     * @brief Override to prevent direct access to parameters.
-     * @throws std::logic_error Always throws an error.
-     */
-    std::vector<LhaID> getAllIDs() {
-        throw std::logic_error("Use getAllIDs with block name for BlockAccessor");
-    }
-
-    /**
-     * @brief Override to prevent direct access to parameters.
-     * @throws std::logic_error Always throws an error.
-     */
-    const std::map<LhaID, Parameter>& getItems() {
-        throw std::logic_error("Use getItems from Block");
-    }
-
-    /**
-     * @brief Override to prevent direct access to parameters.
-     * @throws std::logic_error Always throws an error.
-     */
-    Parameter getParameter(LhaID id) const {
-        throw std::logic_error("Use getParameter with block name for BlockAccessor");
-    }
-
-    /**
-     * @brief Override to prevent direct access to parameters.
-     * @throws std::logic_error Always throws an error.
-     */
-    void setParameter(LhaID id, const Parameter& source) {
-        throw std::logic_error("Use setParameter with block name for BlockAccessor");
-    }
-
-    /**
-     * @brief Override to prevent direct access to parameters.
-     * @throws std::logic_error Always throws an error.
-     */
-    void remove_parameter(LhaID id) {
-        throw std::logic_error("Use removeParameter with block name for BlockAccessor");
-    }
-
-    /**
-     * @brief Retrieves all parameter ids.
-     * @return A vector of LhaIDs of stored parameters.
-     */
-    bool hasID(LhaID id) {
-        throw std::logic_error("Use exists with block name for BlockAccessor");
-    }
-
-    /**
-     * @brief Override to prevent direct access to parameters.
-     * @throws std::logic_error Always throws an error.
-     */
-    virtual void update() {
-        throw std::logic_error("No use for block_accessor");
-    }
-    /**
-     * @brief Retrieves all parameter ids.
-     * @return A vector of LhaIDs of stored parameters.
-     */
-    void copy(std::shared_ptr<Block> other) {
-        throw std::logic_error("Copy blocks only");
-    }
-
-    void remove_block(const std::string& block_name);
-
     void remove_item(const std::string& block_name, LhaID id);
 
     /**
@@ -238,10 +110,6 @@ public:
     std::shared_ptr<BlockAccessor> operator[](std::unordered_set<std::string> block_names);
 
     friend std::ostream& operator<<(std::ostream&, std::shared_ptr<BlockAccessor>);
-
-private:
-    /// A map of block names to their corresponding shared pointers.
-    std::map<std::string, std::shared_ptr<Block>> blocks;
 };
 
 #endif
