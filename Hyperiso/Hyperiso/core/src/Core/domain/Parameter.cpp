@@ -30,6 +30,10 @@ ParamId Parameter::get_id() const {
     return id;
 }
 
+void Parameter::set_owner(ParameterType type) {
+    id.set_parameter_type(type);
+}
+
 void Parameter::shift(double shift) {
     if (mode == ParameterMode::SHIFTABLE) {
         value = expected + shift;

@@ -18,7 +18,7 @@ Block::Block(std::shared_ptr<Block> other) {
     this->copy(other);
 }
 
-const Parameter& Block::retrieve(const LhaID& id) const {
+Parameter& Block::retrieve(const LhaID& id) {
     if (!this->contains(id)) {
         LOG_ERROR("KeyError", "Block", this->blockname, "doesn't contain parameter", id.to_string());
     }
@@ -36,6 +36,12 @@ void Block::store(const LhaID& id, Parameter&& param) {
 
 std::unordered_set<LhaID> Block::getAllIDs() {
     return get_keys(this->items);
+}
+
+void Block::set_owner(ParameterType type) {
+    for (auto& [_, param] : items) {
+        param.set_owner(type);
+    }
 }
 
 bool Block::contains(const LhaID& id) const {

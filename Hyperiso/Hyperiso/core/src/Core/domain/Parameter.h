@@ -73,6 +73,11 @@ public:
     ParamId get_id() const;
 
     /**
+     * @brief Retrieves the ID of the parameter.
+     */
+    void set_owner(ParameterType type);
+
+    /**
      * @brief Shifts the parameter value if it is shiftable.
      * @throws std::runtime_error If the parameter is fixed.
      */

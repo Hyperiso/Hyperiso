@@ -15,8 +15,15 @@ void Parameters::CleanupInstance(ParameterType id) {
     ParametersFactory::removeParameters(id);
 }
 
+void Parameters::claim_parameters(ParameterType type) {
+    for (auto& [_, block] : *blockAccessor) {
+        block->set_owner(type);
+    }
+}
+
 Parameters::Parameters(std::shared_ptr<ModelStrategy> modelStrategy)
-    : strategy(modelStrategy) { 
+    : strategy(modelStrategy)
+{
     LOG_VERBOSE("Param creation at", this);
     strategy->initializeParameters(*this);
 }
@@ -42,11 +49,11 @@ std::unordered_set<std::string> Parameters::get_blocks_list() {
 }
 
 std::unordered_set<std::string> Parameters::init_blocks(ParameterType type) {
+    std::unordered_set<std::string> existing, missing;
     if (type == ParameterType::CUSTOM) {
         auto block_names = MemoryManager::GetInstance()->input_cache->get_block_names();
         this->blockAccessor = MemoryManager::GetInstance()->extract_blocks(ParamRouter::GetOwnedBlocks(type));
     } else {
-        std::unordered_set<std::string> existing, missing;
         std::ranges::partition_copy(
             ParameterBlockRepartition::BLOCKS.at(type),
             std::inserter(existing, existing.end()),
@@ -57,8 +64,9 @@ std::unordered_set<std::string> Parameters::init_blocks(ParameterType type) {
         );
         
         this->blockAccessor = MemoryManager::GetInstance()->extract_blocks(existing);
-        return missing;
     }
+    claim_parameters(type);
+    return missing;
 }
 
 void SMModelStrategy::initializeParameters(Parameters& params) {
@@ -101,31 +109,26 @@ void SMModelStrategy::initializeParameters(Parameters& params) {
 
 void SUSYModelStrategy::initializeParameters(Parameters& params) {
     params.init_blocks(ParameterType::SUSY);
-
     // TODO : Export savestate to JSON
 }
 
 void THDMModelStrategy::initializeParameters(Parameters& params) {
     params.init_blocks(ParameterType::THDM);
-
     // TODO : Export savestate to JSON
 }
 
 void FlavorStrategy::initializeParameters(Parameters& params) {
     params.init_blocks(ParameterType::FLAVOR);
-
     // TODO : Export savestate to JSON
 }   
 
 void GeneralModelStrategy::initializeParameters(Parameters& params) {
     params.init_blocks(ParameterType::CUSTOM);
-
     // TODO : Export savestate to JSON
 }
 
 void WilsonInputStrategy::initializeParameters(Parameters &params) {
     params.init_blocks(ParameterType::WILSON);
-
     // TODO : Export savestate to JSON
 
     // TODO : Adapt WilsonBlock to MapBlock and rework the following code
@@ -195,7 +198,6 @@ void WilsonInputStrategy::initializeParameters(Parameters &params) {
 
 void DecayStrategy::initializeParameters(Parameters &params) {
     params.init_blocks(ParameterType::DECAY);
-
     // TODO : Export savestate to JSON
 }
 

@@ -169,6 +169,8 @@ public:
     ~Parameters() { LOG_DEBUG("Parameters at ", this); }
 
 private:
+    void claim_parameters(ParameterType type);
+    
     /** @brief Private constructor for singleton pattern. */
     explicit Parameters(std::shared_ptr<ModelStrategy> modelStrategy);
 
