@@ -15,15 +15,6 @@ void Parameters::CleanupInstance(ParameterType id) {
     ParametersFactory::removeParameters(id);
 }
 
-double Parameters::Get(ParameterType type, const std::string& block, LhaID id) {
-    LOG_VERBOSE("Attempting to retrieve parameter from instance", (int)type, "with id (", block, ",", id, ")");
-    return (*GetInstance(type))(block, id);
-}
-
-double Parameters::Get(ParamId id) {
-    return Get(id.type, id.block, id.code);
-}
-
 Parameters::Parameters(std::shared_ptr<ModelStrategy> modelStrategy)
     : strategy(modelStrategy) { 
     LOG_VERBOSE("Param creation at", this);
@@ -35,11 +26,7 @@ double Parameters::operator()(const std::string& block, LhaID id) {
 }
 
 bool Parameters::exist(const std::string& block, LhaID id) {
-    return blockAccessor->exist(block, id);
-}
-
-void Parameters::addDependantBlock(const std::string& name, std::shared_ptr<DependentBlock>& block, const std::string& source_block, std::function<void(std::shared_ptr<Block>, std::shared_ptr<DependentBlock>)> recalculateFunc) {
-    blockAccessor->addDependentBlock(name, block, source_block, recalculateFunc);
+    return blockAccessor->has_param(block, id);
 }
 
 void Parameters::setBlockValue(const std::string& name, LhaID id, double value, bool force) {
@@ -80,20 +67,7 @@ void SMModelStrategy::initializeParameters(Parameters& params) {
     QCDHelper::Init(params("SMINPUTS", 3), params("SMINPUTS", 4), params("SMINPUTS", 6), params("SMINPUTS", 5),  
                     params("MASS", 4), params("MASS", 3), params("MASS", 2), params("MASS", 1));
 
-    std::shared_ptr<DependentBlock> gauge_block = nullptr;
-
-    auto gauge_update_func = [](std::shared_ptr<Block> src, std::shared_ptr<DependentBlock> dep_block) {
-        double e_em = std::sqrt(4 * PI / src->getValue(1));
-        double g_3 = std::sqrt(4 * PI * src->getValue(3));
-        // Add loop corrections to theta_w
-        double theta_w = 0.5 * std::asin(std::sqrt(4 * PI * INV_RT2 / (src->getValue(1) * src->getValue(2))) / src->getValue(4));
-        dep_block->setValue(1, e_em / std::sin(theta_w), true);
-        dep_block->setValue(2, e_em / std::cos(theta_w), true);
-        dep_block->setValue(3, std::sqrt(4 * PI * src->getValue(3)));
-        dep_block->setValue(4, e_em);
-    };
-
-    params.addDependantBlock("GAUGE", gauge_block, "SMINPUTS", gauge_update_func);
+    // std::shared_psger::addDependentBlock("GAUGE", gauge_block, {"SMINPUTS"}, gauge_update_func);
 
     // std::shared_ptr<DependentBlock> gauge_block = nullptr;
 
@@ -150,7 +124,7 @@ void GeneralModelStrategy::initializeParameters(Parameters& params) {
 }
 
 void WilsonInputStrategy::initializeParameters(Parameters &params) {
-    params.init_blocks(ParameterType::CUSTOM);
+    params.init_blocks(ParameterType::WILSON);
 
     // TODO : Export savestate to JSON
 
@@ -235,7 +209,7 @@ void PassthroughStrategy::initializeParameters(Parameters &params) {
 
 
 void Parameters::changeParameterMode(const ParamId &param_id, ParameterMode new_mode) {
-    blockAccessor->setMode(param_id.block, param_id.code, new_mode);
+    // blockAccessor->setMode(param_id.block, param_id.code, new_mode);
 }
 
 void Parameters::shiftParameter(const ParamId &param_id, double shift_value) {

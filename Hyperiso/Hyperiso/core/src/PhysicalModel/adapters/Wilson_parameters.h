@@ -13,7 +13,6 @@ class Wilson_parameters {
     double mu;
 
 public:
-    static constexpr int arraySize {10};
 
     std::shared_ptr<Parameters> sm;
     double alphas_muW;
@@ -37,22 +36,7 @@ public:
 	double xt4;
 	double xh;
 
-    std::array<std::array<std::array<double, 10>, 10>, 10> m00;
-    std::array<std::array<std::array<double, 10>, 10>, 10> m10;
-    std::array<std::array<std::array<double, 10>, 10>, 10> m11;
-    std::array<std::array<std::array<double, 10>, 10>, 10> m20;
-    std::array<std::array<std::array<double, 10>, 10>, 10> m21;
-    std::array<std::array<std::array<double, 10>, 10>, 10> m22;
-
-    std::array<std::array<std::array<double, 10>, 10>, 10> l00;
-    std::array<std::array<std::array<double, 10>, 10>, 10> l01;
-    std::array<std::array<std::array<double, 10>, 10>, 10> l10;
-    std::array<std::array<std::array<double, 10>, 10>, 10> l11;
-
-
-
-    std::array<double, arraySize> ai = {14.0 / 23.0, 16.0 / 23.0, 6.0 / 23.0, -12.0 / 23.0, 0.408619, -0.422989, -0.899395, 0.145649, -1.0, -1.0};
-    std::array<double, arraySize> ai2 = {6./23., -12./23., 0.4086, -0.4230, -0.8994, 0.1456, 16./23., 14./23., 11./23., 29./23.}; 
+    
     std::array<std::array<double, arraySize>, arraySize> U0 = {};
     std::array<std::array<double, arraySize>, arraySize> U1 = {};
     std::array<std::array<double, arraySize>, arraySize> U2 = {};

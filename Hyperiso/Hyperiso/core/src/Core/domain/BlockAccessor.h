@@ -11,6 +11,7 @@
 #include "Include.h"
 #include "Block.h"
 #include <functional>
+#include <unordered_map>
 
 /**
  * @class BlockAccessor
@@ -18,17 +19,15 @@
  * 
  * This class allows adding, retrieving, and modifying values in multiple parameter blocks.
  */
-class BlockAccessor : public std::map<std::string, std::shared_ptr<Block>> {
+class BlockAccessor : public std::unordered_map<std::string, std::shared_ptr<Block>> {
 public:
-    void addDependentBlock(const std::string& name, std::shared_ptr<DependentBlock>& dependant_block, const std::string& sourceName, std::function<void(std::shared_ptr<Block>, std::shared_ptr<DependentBlock>)> recalculateFunc);
-
     /**
      * @brief Checks if a block exists with a given parameter.
      * @param blockName The name of the block.
      * @param pdgCode The PDG code of the parameter.
      * @return True if the block exists, false otherwise.
      */
-    bool exist(const std::string blockName, LhaID pdgCode) const;
+    bool has_param(const std::string blockName, LhaID pdgCode) const;
 
     /**
      * @brief Sets the value of a parameter in a specified block.
@@ -39,13 +38,13 @@ public:
      */
     void setValue(const std::string& blockName, LhaID pdgCode, double value, bool force = false);
 
-    /**
-     * @brief Sets the mode of a parameter in a specified block.
-     * @param blockName The name of the block.
-     * @param pdgCode The PDG code of the parameter.
-     * @param mode The mode to set.
-     */
-    void setMode(const std::string& blockName, LhaID pdgCode, ParameterMode mode);
+    // /**
+    //  * @brief Sets the mode of a parameter in a specified block.
+    //  * @param blockName The name of the block.
+    //  * @param pdgCode The PDG code of the parameter.
+    //  * @param mode The mode to set.
+    //  */
+    // void setMode(const std::string& blockName, LhaID pdgCode, ParameterMode mode);
 
     /**
      * @brief Retrieves the value of a parameter from a specified block.
@@ -69,7 +68,7 @@ public:
      * @param id The LHA ID of the parameter.
      * @param source The source parameter.
      */
-    void setParameter(const std::string& blockName, LhaID id, const Parameter& source);
+    void setParameter(const std::string& blockName, LhaID id, Parameter&& source);
 
     /**
      * @brief Retrieves all values from a specified block.

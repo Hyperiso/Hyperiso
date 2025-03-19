@@ -5,7 +5,11 @@ double ParameterProvider::operator()(const ParamId &pid, DataType d_type) {
         LOG_WARN("LogicError", "This ParameterProvider already has a type.");
     }
 
-    return (*Parameters::GetInstance(pid.type))(pid.block, pid.code);
+    if (!pid.type.has_value()) {
+        LOG_WARN("LogicError", "Use of untyped ParamId in ParameterProvider.");
+    }
+
+    return (*Parameters::GetInstance(pid.type.value()))(pid.block, pid.code);
 }
 
 double ParameterProvider::operator()(const std::string &block, const LhaID &id, DataType d_type) {

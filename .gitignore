@@ -18,7 +18,6 @@ cmake_install.cmake
 output.slha
 test
 hyperiso
-app
 Docs/html
 Docs/latex
 test.py

@@ -110,22 +110,6 @@ public:
     void CleanupInstance(ParameterType id = ParameterType::SM);
 
     /**
-     * @brief Retrieves a parameter value given its type, block, and code.
-     * @param type The parameter type.
-     * @param block The name of the block containing the parameter.
-     * @param code The parameter code.
-     * @return The retrieved parameter value.
-     */
-    static double Get(ParameterType type, const std::string& block, LhaID code);
-
-    /**
-     * @brief Retrieves a parameter value given its unique identifier.
-     * @param id The unique identifier of the parameter.
-     * @return The parameter value.
-     */
-    static double Get(ParamId id);
-
-    /**
      * @brief Checks if a parameter exists within a specified block.
      * @param block The name of the block.
      * @param pdgCode The PDG code to check.
@@ -140,15 +124,6 @@ public:
      * @return The corresponding parameter value.
      */
     double operator()(const std::string& block, LhaID pdgCode);
-
-    /**
-     * @brief Adds a new block dependant from another of parameters to the collection.
-     * @param name The name of the new block.
-     * @param block A shared pointer to the block.
-     * @param source_block The name of the block this one depend one.
-     * @param recalculateFunc The function that describe the dependancy.
-     */
-    void addDependantBlock(const std::string& name, std::shared_ptr<DependentBlock>& block, const std::string& source_block, std::function<void(std::shared_ptr<Block>, std::shared_ptr<DependentBlock>)> recalculateFunc);
 
     /**
      * @brief Sets a parameter value within a specified block.
@@ -207,6 +182,7 @@ private:
 
     /** @brief Factory friend. */
     friend class ParametersFactory;
+    friend class DependentBlockManager;
 };
 
 /**

@@ -4,6 +4,10 @@ void Block::addObserver(std::shared_ptr<Block> observer) {
     observers.push_back(observer);
 }
 
+void Block::removeObserver(std::shared_ptr<Block> observer) {
+    observers.erase(std::find(observers.begin(), observers.end(), observer));
+}
+
 void Block::notifyObservers() {
     for (auto& observer : observers) {
         observer->update();

@@ -39,6 +39,8 @@ add_library(CoreLib STATIC
     adapters/ParameterProvider.cpp
     adapters/SpectrumCalculator.cpp
     adapters/CorrelationAdapter.cpp
+    adapters/CompositeParamCreator.cpp
+    adapters/QCDProvider.cpp
     domain/CorrelationRepo.cpp
     domain/ParameterRouter.cpp
     domain/Parameters.cpp
@@ -46,6 +48,7 @@ add_library(CoreLib STATIC
     domain/MemoryManager.cpp
     domain/Block.cpp
     domain/BlockAccessor.cpp
+    domain/DependentBlockManager.cpp
     infrastructure/QCDHelper.cpp
     )
 set_target_properties(CoreLib PROPERTIES POSITION_INDEPENDENT_CODE ON)

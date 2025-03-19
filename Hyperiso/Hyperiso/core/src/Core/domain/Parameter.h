@@ -98,7 +98,6 @@ public:
         os << "Parameter " << p.id.block << "," << p.id.code << "=" << p.expected << "+-" << p.deviation_syst << "+-" << p.deviation_stat << std::endl;
         return os;
     }
-
 };
 
 

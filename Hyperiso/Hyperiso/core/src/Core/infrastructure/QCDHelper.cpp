@@ -40,7 +40,7 @@ void QCDHelper::Update() {
     );
 }
 
-double QCDHelper::alpha_s(double mu, const std::string& mass_b_type, const std::string& mass_t_type) {
+double QCDHelper::alpha_s(double mu, MassType mass_b_type, MassType mass_t_type) {
     if (mu < param_cache.light_masses[2]) {
         LOG_ERROR("Scale Error", "Renormalisation scale for alpha_s calculation is below strange mass(", param_cache.light_masses[2] , ").");
     }
@@ -49,7 +49,7 @@ double QCDHelper::alpha_s(double mu, const std::string& mass_b_type, const std::
     return alpha_s_explicit(mu, get_lambda(mu), get_nf(mu));
 }
 
-double QCDHelper::msbar_mass(int pdg_code, double mu, const std::string &mass_b_type, const std::string &mass_t_type) {
+double QCDHelper::msbar_mass(int pdg_code, double mu, MassType mass_b_type, MassType mass_t_type) {
     if (pdg_code > 6 || pdg_code < 1) {
         LOG_ERROR("ValueError", "PDG code", pdg_code, "is not a quark");
     }
@@ -112,14 +112,14 @@ double QCDHelper::mass_t_pole() {
 
 double QCDHelper::calc_mc_pole() {
     double alphas_mc = alpha_s_explicit(param_cache.light_masses[3], lambda4_mb_pole, 4);	
- 	return param_cache.light_masses[3] * (1 + alphas_mc / PI * (C_F + alphas_mc / PI * ((13.4434 - 1.0414 * 3 
-            + 1.0414 * C_F * ((param_cache.light_masses[0] + param_cache.light_masses[1] + param_cache.light_masses[2]) / param_cache.light_masses[3])))));
+ 	return param_cache.light_masses[3] * (1 + alphas_mc / PI * (constants->C_F + alphas_mc / PI * ((13.4434 - 1.0414 * 3 
+            + 1.0414 * constants->C_F * ((param_cache.light_masses[0] + param_cache.light_masses[1] + param_cache.light_masses[2]) / param_cache.light_masses[3])))));
 }
 
 double QCDHelper::calc_mb_pole() {
     double alphas_mb = alpha_s_explicit(param_cache.mb_mb, lambdas_running[4], 5);	
-    return param_cache.mb_mb * (1. + alphas_mb / PI * (C_F 
-            + alphas_mb / PI * ((13.4434 - 1.0414 * 4. + 1.0414 * C_F * ((param_cache.light_masses[0] + param_cache.light_masses[1] + param_cache.light_masses[2] + param_cache.light_masses[3]) / param_cache.mb_mb)))));
+    return param_cache.mb_mb * (1. + alphas_mb / PI * (constants->C_F
+            + alphas_mb / PI * ((13.4434 - 1.0414 * 4. + 1.0414 * constants->C_F * ((param_cache.light_masses[0] + param_cache.light_masses[1] + param_cache.light_masses[2] + param_cache.light_masses[3]) / param_cache.mb_mb)))));
 }
 
 double QCDHelper::calc_mb_1S() {
@@ -159,16 +159,16 @@ int QCDHelper::get_nf(double Q) {
 
 double QCDHelper::get_lambda(double mu) {
     int nf = get_nf(mu);
-    if (nf == 4 && m_b_type == "pole")
+    if (nf == 4 && m_b_type == MassType::POLE)
         return lambda4_mb_pole;
-    if (nf == 6 && m_t_type == "pole")
+    if (nf == 6 && m_t_type == MassType::POLE)
         return lambda6_mt_pole;
     return lambdas_running[nf - 1];
 }
 
 std::vector<double> QCDHelper::getOrderedMasses() {
-    double m_b = m_b_type == "running" ? param_cache.mb_mb : special_masses.mb_pole;
-    double m_t = m_t_type == "running" ? special_masses.mt_mt : param_cache.mt_pole;
+    double m_b = m_b_type == MassType::MSBAR ? param_cache.mb_mb : special_masses.mb_pole;
+    double m_t = m_t_type == MassType::MSBAR ? special_masses.mt_mt : param_cache.mt_pole;
     return {param_cache.light_masses[0], param_cache.light_masses[1], param_cache.light_masses[2], param_cache.light_masses[3], m_b, m_t};
 }
 
@@ -203,7 +203,7 @@ double QCDHelper::alpha_s_explicit(double mu, double lambda, int nf) {
     double r = std::pow(mu / lambda, 2);
     double L = std::log(r);
     double LL = std::log(L);
-    auto [b0, b1, b2] = beta[nf - 1];
+    auto [b0, b1, b2] = constants->beta[nf - 1];
     double b02 = b0 * b0;
     double b12 = b1 * b1;
     return 4 * PI * (1 - 2 * b1 * LL / (b02 * L) + 4 * b12 * (std::pow(LL - .5, 2) + b2 * b0 / 8 / b12 - 1.25) / std::pow(b02 * L, 2)) / (b0 * L);
@@ -214,10 +214,10 @@ double QCDHelper::alpha_s_explicit(double mu, double lambda, int nf) {
  * @param m_b_type Toggle for b mass
  * @param m_t_type Toggle for t mass
  */
-void QCDHelper::set_mass_types(std::string m_b_type, std::string m_t_type) {
+void QCDHelper::set_mass_types(MassType m_b_type, MassType m_t_type) {
     if (m_b_type != QCDHelper::m_b_type)
         QCDHelper::m_b_type = m_b_type;
-    if (m_t_type != "")
+    if (m_t_type != QCDHelper::m_t_type)
         QCDHelper::m_t_type = m_t_type;
 }
 
@@ -227,8 +227,8 @@ double QCDHelper::runMass(double mass, double Q_i, double Q_f, int nf) {
 }
 
 double QCDHelper::R(double alpha, int nf) {
-    auto [b0, b1, b2] = beta[nf - 1];
-    auto [g0, g1, g2] = gamma[nf - 1];
+    auto [b0, b1, b2] = constants->beta[nf - 1];
+    auto [g0, g1, g2] = constants->gamma[nf - 1];
     double b02 = b0 * b0;
     double a = std::pow(b0 * alpha / (2 * PI), 2 * g0 / b0);
     double b = (2 * g1 / b0 - b1 * g0 / b02) * alpha / PI;
@@ -239,13 +239,14 @@ double QCDHelper::R(double alpha, int nf) {
 }
 
 bool QCDParamCache::cache_valid() {
-    bool valid = fpeq(alphas_mZ, Parameters::Get(ParameterType::SM, "SMINPUTS", 3)) 
-                    && fpeq(m_Z, Parameters::Get(ParameterType::SM, "SMINPUTS", 4)) 
-                    && fpeq(mb_mb, Parameters::Get(ParameterType::SM, "SMINPUTS", 5))
-                    && fpeq(mt_pole, Parameters::Get(ParameterType::SM, "SMINPUTS", 6));
+    auto p = Parameters::GetInstance(ParameterType::SM);
+    bool valid = fpeq(alphas_mZ, (*p)("SMINPUTS", 3)) 
+                    && fpeq(m_Z, (*p)("SMINPUTS", 4)) 
+                    && fpeq(mb_mb, (*p)("SMINPUTS", 5))
+                    && fpeq(mt_pole, (*p)("SMINPUTS", 6));
 
     for (size_t i = 0; i < 4; i++) {
-        valid &= fpeq(light_masses[i], Parameters::Get(ParameterType::SM, "MASS", i + 1));
+        valid &= fpeq(light_masses[i], (*p)("MASS", i + 1));
     }
     
     return valid;

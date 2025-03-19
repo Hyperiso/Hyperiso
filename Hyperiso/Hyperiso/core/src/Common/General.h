@@ -4,7 +4,6 @@
 #include <string>
 #include <stdexcept>
 #include <algorithm>
-#include <unordered_map>
 #include <iostream>
 #include <map>
 #include <vector>
@@ -382,10 +381,25 @@ struct LhaID {
     friend std::ostream& operator<<(std::ostream&, const LhaID&);
 };
 
+namespace std {
+    template <>
+    struct hash<LhaID> {
+        std::size_t operator()(const LhaID& p) const noexcept {
+            return std::hash<std::string>{}(p.to_string());
+        }
+    };
+}
+
+
 struct ParamId {
-    ParameterType type;
+    std::optional<ParameterType> type;
     std::string block;
     LhaID code;
+
+    ParamId(const std::string& block, const LhaID& code) : block(block), code(code) {}
+    ParamId(ParameterType type, const std::string& block, const LhaID& code) : type(type), block(block), code(code) {}
+
+    void set_parameter_type(ParameterType type) { this->type = type; }
 
     bool operator==(const ParamId other) const {
         return type == other.type && block == other.block && code == other.code;

@@ -36,6 +36,7 @@ public:
     const std::map<LhaID, Parameter>& getItems() { return this->items; };
 
     void addObserver(std::shared_ptr<Block> observer);
+    void removeObserver(std::shared_ptr<Block> observer);
     void notifyObservers();
     virtual void update() {}
 
@@ -50,30 +51,50 @@ protected:
 
 class DependentBlock : public Block, public std::enable_shared_from_this<DependentBlock> {
 public:
-    explicit DependentBlock(std::shared_ptr<Block> source, std::function<void(std::shared_ptr<Block>, std::shared_ptr<DependentBlock>)> recalculateFunc) 
-        : sourceBlock(source), recalculateLambda(std::move(recalculateFunc)) {}
+    explicit DependentBlock(std::unordered_map<std::string, std::shared_ptr<Block>> sources, std::function<void(std::unordered_map<std::string, std::shared_ptr<Block>>, std::shared_ptr<DependentBlock>)> recalculateFunc) 
+        : sourceBlocks(sourceBlocks), recalculateLambda(std::move(recalculateFunc)) {}
+
+    bool dependsOn(const std::string& blockName) {
+        return sourceBlocks.contains(blockName);
+    }
 
     void init() {
-        if (auto self = shared_from_this()) {
-            sourceBlock->addObserver(self);
+        self = shared_from_this();
+        if (self) {
+            for (auto src : sourceBlocks){
+                src.second->addObserver(self);   
+            }
         } else {
             std::cerr << "Error: DependentBlock must be created with std::make_shared!" << std::endl;
         }
     }
 
     void update() override {
-        if (recalculateLambda && sourceBlock) {
+        if (recalculateLambda 
+            && std::all_of(sourceBlocks.begin(), sourceBlocks.end(), 
+                           [](std::pair<std::string, std::shared_ptr<Block>> block) { return block.second; })) 
+        {
             if (auto self = shared_from_this()) { 
-                recalculateLambda(sourceBlock, self);
+                recalculateLambda(sourceBlocks, self);
             } else {
                 std::cerr << "Error: shared_from_this() failed in update()" << std::endl;
             }
         }
     }
 
+    ~DependentBlock() {
+        LOG_INFO("Destruct dependentBlock at", self.get());
+        if (self) {
+            for (auto src : sourceBlocks){
+                src.second->removeObserver(self);   
+            }
+        }
+    }
+
 private:
-    std::shared_ptr<Block> sourceBlock;
-    std::function<void(std::shared_ptr<Block>, std::shared_ptr<DependentBlock>)> recalculateLambda;
+    std::shared_ptr<DependentBlock> self;
+    std::unordered_map<std::string, std::shared_ptr<Block>> sourceBlocks;
+    std::function<void(std::unordered_map<std::string, std::shared_ptr<Block>>, std::shared_ptr<DependentBlock>)> recalculateLambda;
 };
 
 

@@ -5,7 +5,7 @@ void ParamBlockLoader::load(std::shared_ptr<BlockAccessor> dest, fs::path src_fi
     auto src = np->provide_db_as_node();
     
     for (auto &bk : src->get_keys()) {
-        auto block = std::make_shared<MapBlock>();
+        auto block = std::make_shared<Block>();
         block->blockname = bk;
         for (auto &vk : src->getGroup({bk})) {
             auto node = std::get<std::shared_ptr<Node>>(vk.second);
@@ -18,13 +18,13 @@ void ParamBlockLoader::load(std::shared_ptr<BlockAccessor> dest, fs::path src_fi
             if (std::holds_alternative<std::string>(value)) {
                 continue;
             } else {
-                block->setValue(LhaID(vk.first), std::get<double>(value));
+                auto val = std::get<double>(value);
                 auto stat = node->contains("stat_error") ? node->get("stat_error") : 0.;
                 auto syst = node->contains("syst_error") ? node->get("syst_error") : 0.;
-                block->setDeviation(LhaID(vk.first), std::get<double>(stat), std::get<double>(syst));  
+                block->store(LhaID(vk.first), Parameter(ParamId(bk, vk.first), val, std::get<double>(stat), std::get<double>(syst)));  
             }
         }
 
-        dest->addBlock(bk, block);
+        dest->emplace(bk, block);
     }
 }
