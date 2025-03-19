@@ -53,7 +53,7 @@ protected:
 class DependentBlock : public Block, public std::enable_shared_from_this<DependentBlock> {
 public:
     explicit DependentBlock(std::unordered_map<std::string, std::shared_ptr<Block>> sources, std::function<void(std::unordered_map<std::string, std::shared_ptr<Block>>, std::shared_ptr<DependentBlock>)> recalculateFunc) 
-        : sourceBlocks(sourceBlocks), recalculateLambda(std::move(recalculateFunc)) {}
+        : sourceBlocks(std::move(sources)), recalculateLambda(std::move(recalculateFunc)) {}
 
     bool dependsOn(const std::string& blockName) {
         return sourceBlocks.contains(blockName);

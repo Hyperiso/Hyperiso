@@ -6,7 +6,9 @@ void DependentBlockManager::addDependentBlock(
     ParameterType dest,
     std::function<void(const std::unordered_map<std::string, std::shared_ptr<Block>>&, std::shared_ptr<DependentBlock>)> recalculateFunc
 ) {
+
     std::unordered_map<std::string, std::shared_ptr<Block>> sources;
+    
     for (const auto& [k, v] : source_names) {
         for (const auto& src_name : v) {
             sources.emplace(src_name, Parameters::GetInstance(k)->blockAccessor->at(src_name));
@@ -15,7 +17,7 @@ void DependentBlockManager::addDependentBlock(
 
     auto dependentBlock = std::make_shared<DependentBlock>(sources, recalculateFunc);
     dependentBlock->init();
-
+    dependentBlock->update();
     Parameters::GetInstance(dest)->blockAccessor->emplace(name, dependentBlock);
 }
 

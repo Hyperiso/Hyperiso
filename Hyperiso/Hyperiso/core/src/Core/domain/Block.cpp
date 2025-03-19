@@ -19,6 +19,7 @@ Block::Block(std::shared_ptr<Block> other) {
 }
 
 Parameter& Block::retrieve(const LhaID& id) {
+
     if (!this->contains(id)) {
         LOG_ERROR("KeyError", "Block", this->blockname, "doesn't contain parameter", id.to_string());
     }

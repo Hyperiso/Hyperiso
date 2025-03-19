@@ -115,7 +115,8 @@ void MemoryManager::deduce_parameter_types(const Config &config) {
                              ParameterType::FLAVOR,
                              ParameterType::DECAY,
                              ParameterType::OBSERVABLE,
-                             ParameterType::PASSTHROUGH};
+                             ParameterType::PASSTHROUGH,
+                             ParameterType::WILSON};
     if (config.model != Model::SM)
         cache.parameter_types.push_back(static_cast<ParameterType>(static_cast<int>(config.model)));
     if (config.flags.at(ExternalFlag::HAS_WILSON_INPUT))
