@@ -27,7 +27,11 @@ bool BlockAccessor::has_param(const std::string blockName, LhaID id) const {
 void BlockAccessor::setValue(const std::string& blockName, LhaID id, double value, bool force) {
     auto it = this->find(blockName);
     if (it != this->end()) {
-        it->second->update();
+        if (it->second->contains(id)) {
+            it->second->retrieve(id).set_expected(value);
+        } else {
+            it->second->store(id, Parameter(ParamId(blockName, id), value, 0., 0.));
+        }
     } else {
         throw std::invalid_argument("Block not found");
     }

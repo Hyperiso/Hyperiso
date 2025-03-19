@@ -63,6 +63,11 @@ public:
     double get_val() const;
 
     /**
+     * @brief Sets the standard deviation of the parameter.
+     */
+    void set_expected(double val);
+
+    /**
      * @brief Retrieves the standard deviation of the parameter.
      */
     double get_std() const;

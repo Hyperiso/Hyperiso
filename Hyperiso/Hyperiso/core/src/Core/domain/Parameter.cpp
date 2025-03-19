@@ -22,6 +22,10 @@ double Parameter::get_val() const {
     return value;
 }
 
+void Parameter::set_expected(double val) {
+    this->expected = val;
+}
+
 double Parameter::get_std() const {
     return std::hypot(deviation_stat, deviation_syst);
 }
