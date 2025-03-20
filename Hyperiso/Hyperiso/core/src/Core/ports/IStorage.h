@@ -10,7 +10,7 @@ public:
     virtual void remove(const Key& key) = 0;
     virtual Data& retrieve(const Key& key) = 0;
     virtual bool contains(const Key& key) const = 0;
-    virtual void update(const Key& key, Parameter&& param) = 0;
+    virtual void set(const Key& key, Parameter&& param) = 0;
 };
 
 

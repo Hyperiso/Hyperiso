@@ -24,7 +24,9 @@ public:
         std::function<void(const std::unordered_map<std::string, std::shared_ptr<Block>>&, std::shared_ptr<DependentBlock>)> recalculateFunc
     );
 
-    static void removeDependentBlock(const std::string& name,ParameterType src);
+    static void removeDependentBlock(const std::string& name, ParameterType src);
+
+    static void update(const std::string& name, ParameterType src);
 
 private:
     DependentBlockManager() = default;

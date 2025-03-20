@@ -1,17 +1,19 @@
 #ifndef MODEL_PARAM_ADAPTER_H
 #define MODEL_PARAM_ADAPTER_H
 
-#include <string>
 #include "IParamAdapter.h"
 #include "ParameterProvider.h"
 #include "HyperisoMaster.h"
-#include "General.h"
+#include "Include.h"
 
-class ModelParamAdapter : public IParamAdapter<std::string, int> {
+class ParameterProxy : public IParameterProxy<std::string, LhaID> {
 public:
-        double operator()(std::string block, int code) override;
+    ParameterProxy(ParameterType type);
+    double operator()(const std::string& block, const LhaID& id) override;
+    
 private:
-    ParameterProvider pp{ParameterTypeMapper::enum_elt(ModelMapper::str(HyperisoMaster().get_model()))};
+    ParameterProvider pp;
+    static inline const std::unordered_set<ParameterType> ALLOWED {ParameterType::SM, ParameterType::THDM, ParameterType::SUSY, ParameterType::WILSON};
 };
 
 #endif 

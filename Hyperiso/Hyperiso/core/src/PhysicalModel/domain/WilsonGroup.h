@@ -136,7 +136,7 @@ public:
     void set_base_1_NNLO();
     void set_base_2_NNLO();
 
-    void set_W_params(Wilson_parameters* new_W_param) {this->W_param = new_W_param; for(auto& coeff : *this) {coeff.second->set_Wilson_Parameters(new_W_param);}}
+    void set_W_params(WilsonParameters* new_W_param) {this->W_param = new_W_param; for(auto& coeff : *this) {coeff.second->set_Wilson_Parameters(new_W_param);}}
     void set_gen(int new_gen) {this->W_param->set_gen(new_gen);}
 
     void switch_base() override {
@@ -165,7 +165,7 @@ public:
     }
 
 protected:
-    Wilson_parameters* W_param = Wilson_parameters::GetInstance();
+    WilsonParameters* W_param = WilsonParameters::GetInstance();
     bool double_base = true;
     std::map<std::string, int> base = {{"LO",0}, {"NLO",0}, {"NNLO",0}};
 
@@ -210,7 +210,7 @@ public:
     }
 
 protected:
-    Wilson_parameters* W_param = Wilson_parameters::GetInstance();
+    WilsonParameters* W_param = WilsonParameters::GetInstance();
 };
 
 class BScalarCoefficientGroup : public CoefficientGroup {
@@ -243,7 +243,7 @@ public:
     }
 
 protected:
-    Wilson_parameters* W_param = Wilson_parameters::GetInstance();
+    WilsonParameters* W_param = WilsonParameters::GetInstance();
 };
 
 class BlnuCoefficientGroup : public CoefficientGroup {
@@ -279,7 +279,7 @@ public:
     }
 
 protected:
-    Wilson_parameters* W_param = Wilson_parameters::GetInstance();
+    WilsonParameters* W_param = WilsonParameters::GetInstance();
 };
 
 class BclnuCoefficientGroup : public CoefficientGroup {
@@ -321,7 +321,7 @@ class BclnuCoefficientGroup : public CoefficientGroup {
         }
     
     protected:
-        Wilson_parameters* W_param = Wilson_parameters::GetInstance();
+        WilsonParameters* W_param = WilsonParameters::GetInstance();
     };
 
 inline std::ostream& operator<<(std::ostream& os, BCoefficientGroup& coeffs) {

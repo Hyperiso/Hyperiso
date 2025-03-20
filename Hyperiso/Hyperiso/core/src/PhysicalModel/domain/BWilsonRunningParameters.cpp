@@ -1,6 +1,6 @@
 #include "BWilsonRunningParameters.h"
 
-const std::array<std::array<std::array<double, BWilsonRunningParameters::arraySize>, BWilsonRunningParameters::arraySize>, BWilsonRunningParameters::arraySize> BWilsonRunningParameters::m00 = {{ 
+const std::array<std::array<std::array<double, BWilsonRunningParameters::array_size>, BWilsonRunningParameters::array_size>, BWilsonRunningParameters::array_size> BWilsonRunningParameters::m00 = {{ 
 	/*m001[10][10]*/{{
 		{0 , 0 , 0.333333 , 0.666667 , 0 , 0 , 0 , 0 , 0 , 0}, 
 		{0 , 0 , 1. , -1. , 0 , 0 , 0 , 0 , 0 , 0 },
@@ -127,7 +127,7 @@ const std::array<std::array<std::array<double, BWilsonRunningParameters::arraySi
 
 /*----------------------------------------*/
 
-const std::array<std::array<std::array<double, BWilsonRunningParameters::arraySize>, BWilsonRunningParameters::arraySize>, BWilsonRunningParameters::arraySize> BWilsonRunningParameters::m10= {{
+const std::array<std::array<std::array<double, BWilsonRunningParameters::array_size>, BWilsonRunningParameters::array_size>, BWilsonRunningParameters::array_size> BWilsonRunningParameters::m10= {{
 	/*m101[10][10]*/{{
 		{0 , 0 , -1.98687 , 0.730099 , 0 , 0 , 0 , 0 , 0 , 0 },
 		{0 , 0 , -2.96062 , -4.09515 , 0 , 0 , 0 , 0 , 0 , 0 },
@@ -261,7 +261,7 @@ const std::array<std::array<std::array<double, BWilsonRunningParameters::arraySi
 	
 /*------------------*/
 
-const std::array<std::array<std::array<double, BWilsonRunningParameters::arraySize>, BWilsonRunningParameters::arraySize>, BWilsonRunningParameters::arraySize> BWilsonRunningParameters::m11={{
+const std::array<std::array<std::array<double, BWilsonRunningParameters::array_size>, BWilsonRunningParameters::array_size>, BWilsonRunningParameters::array_size> BWilsonRunningParameters::m11={{
 	/*m111[10][10]*/{{
 		{0 , 0 , 1.98687 , -0.730099 , 0 , 0 , 0 , 0 , 0 , 0 },
 		{0 , 0 , 5.96062 , 1.09515 , 0 , 0 , 0 , 0 , 0 , 0 },
@@ -395,7 +395,7 @@ const std::array<std::array<std::array<double, BWilsonRunningParameters::arraySi
 	    
 /*-----------------------------*/
 
-const std::array<std::array<std::array<double, BWilsonRunningParameters::arraySize>, BWilsonRunningParameters::arraySize>, BWilsonRunningParameters::arraySize> BWilsonRunningParameters::m20={{ 
+const std::array<std::array<std::array<double, BWilsonRunningParameters::array_size>, BWilsonRunningParameters::array_size>, BWilsonRunningParameters::array_size> BWilsonRunningParameters::m20={{ 
 	/*m201[10][10]*/{{
 		{0 , 0 , -6.98112 , 15.6429 , 0 , 0 , 0 , 0 , 0 , 0 },
 		{0 , 0 , -13.4086 , -52.1664 , 0 , 0 , 0 , 0 , 0 , 0 },
@@ -529,7 +529,7 @@ const std::array<std::array<std::array<double, BWilsonRunningParameters::arraySi
 	
 /*------------------------*/
 
-const std::array<std::array<std::array<double, BWilsonRunningParameters::arraySize>, BWilsonRunningParameters::arraySize>, BWilsonRunningParameters::arraySize> BWilsonRunningParameters::m21={{
+const std::array<std::array<std::array<double, BWilsonRunningParameters::array_size>, BWilsonRunningParameters::array_size>, BWilsonRunningParameters::array_size> BWilsonRunningParameters::m21={{
 	/*m211[10][10]*/{{
 		{0 , 0 , -11.843 , -0.799566 , 0 , 0 , 0 , 0 , 0 , 0 },
 		{0 , 0 , -17.6471 , 4.48479 , 0 , 0 , 0 , 0 , 0 , 0 },
@@ -663,7 +663,7 @@ const std::array<std::array<std::array<double, BWilsonRunningParameters::arraySi
 	
 /*--------------------------*/
 
-const std::array<std::array<std::array<double, BWilsonRunningParameters::arraySize>, BWilsonRunningParameters::arraySize>, BWilsonRunningParameters::arraySize> BWilsonRunningParameters::m22 ={{ 
+const std::array<std::array<std::array<double, BWilsonRunningParameters::array_size>, BWilsonRunningParameters::array_size>, BWilsonRunningParameters::array_size> BWilsonRunningParameters::m22 ={{ 
 	/*m221[10][10]*/{{
 		{0 , 0 , 18.8241 , -14.8433 , 0 , 0 , 0 , 0 , 0 , 0 },
 		{0 , 0 , 56.4723 , 22.265 , 0 , 0 , 0 , 0 , 0 , 0 },
@@ -795,7 +795,7 @@ const std::array<std::array<std::array<double, BWilsonRunningParameters::arraySi
 	}}
     }};
 
-	const std::array<std::array<std::array<double, BWilsonRunningParameters::arraySize>, BWilsonRunningParameters::arraySize>, BWilsonRunningParameters::arraySize> BWilsonRunningParameters::l00={{ 
+	const std::array<std::array<std::array<double, BWilsonRunningParameters::array_size>, BWilsonRunningParameters::array_size>, BWilsonRunningParameters::array_size> BWilsonRunningParameters::l00={{ 
 	/*l001[10][10]*/{{
 		{0, 0, 0.5, 0.5, 0, 0, 0, 0, 0, 0},
 		{0, 0, 0.5, -0.5, 0, 0, 0, 0, 0, 0},
@@ -929,7 +929,7 @@ const std::array<std::array<std::array<double, BWilsonRunningParameters::arraySi
 
 /*----------------------------------------*/
 
-const std::array<std::array<std::array<double, BWilsonRunningParameters::arraySize>, BWilsonRunningParameters::arraySize>, BWilsonRunningParameters::arraySize> BWilsonRunningParameters::l10={{
+const std::array<std::array<std::array<double, BWilsonRunningParameters::array_size>, BWilsonRunningParameters::array_size>, BWilsonRunningParameters::array_size> BWilsonRunningParameters::l10={{
 	/*l101[10][10]*/{{
 		{0, 0, -0.813642, 0.714241, 0, 0, 0, 0, 0, 0},
 		{0, 0, -0.813642, -0.714241, 0, 0, 0, 0, 0, 0},
@@ -1063,7 +1063,7 @@ const std::array<std::array<std::array<double, BWilsonRunningParameters::arraySi
 
 /*------------------*/
 
-const std::array<std::array<std::array<double, BWilsonRunningParameters::arraySize>, BWilsonRunningParameters::arraySize>, BWilsonRunningParameters::arraySize> BWilsonRunningParameters::l11={{
+const std::array<std::array<std::array<double, BWilsonRunningParameters::array_size>, BWilsonRunningParameters::array_size>, BWilsonRunningParameters::array_size> BWilsonRunningParameters::l11={{
 	/*l111[10][10]*/{{
 		{0, 0, 0.813642, -0.714241, 0, 0, 0, 0, 0, 0},
 		{0, 0, 0.813642, 0.714241, 0, 0, 0, 0, 0, 0},

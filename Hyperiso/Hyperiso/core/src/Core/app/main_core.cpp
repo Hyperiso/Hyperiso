@@ -17,7 +17,7 @@ int main() {
     
     ParamId xt_pid {ParameterType::WILSON, "WPARAM", 1};
 
-    CompositeParamCreator cpc;
+    CompositeParamAdapter cpc;
     std::unordered_map<ParameterType, std::vector<std::string>> src = {{ParameterType::SM, {"SMINPUTS", "MASS"}}};
     auto func = [xt_pid] (const std::unordered_map<std::string, std::shared_ptr<Block>>& src, std::shared_ptr<DependentBlock> dep_block) {
         QCDProvider qcd;
@@ -27,6 +27,8 @@ int main() {
     };
     cpc.add_dependency("WPARAM", src, ParameterType::WILSON, func);
     LOG_INFO(wparam_provider(xt_pid));
+
+
 
     return 0;
 }

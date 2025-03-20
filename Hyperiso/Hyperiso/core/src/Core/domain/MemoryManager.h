@@ -13,7 +13,7 @@
 #include <thread>
 #include "Include.h"
 #include "BlockAccessor.h"
-#include "ParamBlockAdapter.h"
+#include "ParamBlockLoader.h"
 #include "DBMemento.h"
 #include "CorrelationRepo.h"
 #include "CorrelationAdapter.h"

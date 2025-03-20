@@ -14,6 +14,10 @@
 #include "Parameter.h"
 #include "IStorage.h"
 
+class Block;
+class DependentBlock;
+typedef std::function<void(const std::unordered_map<std::string, std::shared_ptr<Block>>&, std::shared_ptr<DependentBlock>)> DepUpdateFunc;
+
 /**
  * @class Block
  * @brief A class for storing parameter blocks.
@@ -30,7 +34,7 @@ public:
     void store(const LhaID& id, Parameter&& param) override;
     void remove(const LhaID& key) override;
     bool contains(const LhaID& key) const override;
-    void update(const LhaID& key, Parameter&& param) override;
+    void set(const LhaID& key, Parameter&& param) override;
 
     std::unordered_set<LhaID> getAllIDs();
     const std::map<LhaID, Parameter>& getItems() { return this->items; };
@@ -52,7 +56,7 @@ protected:
 
 class DependentBlock : public Block, public std::enable_shared_from_this<DependentBlock> {
 public:
-    explicit DependentBlock(std::unordered_map<std::string, std::shared_ptr<Block>> sources, std::function<void(std::unordered_map<std::string, std::shared_ptr<Block>>, std::shared_ptr<DependentBlock>)> recalculateFunc) 
+    explicit DependentBlock(std::unordered_map<std::string, std::shared_ptr<Block>> sources, DepUpdateFunc recalculateFunc) 
         : sourceBlocks(std::move(sources)), recalculateLambda(std::move(recalculateFunc)) {}
 
     bool dependsOn(const std::string& blockName) {
@@ -95,7 +99,7 @@ public:
 private:
     std::shared_ptr<DependentBlock> self;
     std::unordered_map<std::string, std::shared_ptr<Block>> sourceBlocks;
-    std::function<void(std::unordered_map<std::string, std::shared_ptr<Block>>, std::shared_ptr<DependentBlock>)> recalculateLambda;
+    DepUpdateFunc recalculateLambda;
 };
 
 

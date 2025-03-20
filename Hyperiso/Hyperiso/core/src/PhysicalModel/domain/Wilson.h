@@ -25,7 +25,7 @@ protected:
     }
 
     std::string CoeffName{};
-    Wilson_parameters* W_param = Wilson_parameters::GetInstance();
+    WilsonParameters* W_param = WilsonParameters::GetInstance();
 public:
     void set_CoefficientMatchingValue(std::string order, complex_t CoefficientMatchingValue) {
         this->is_now_calculated(order);
@@ -37,7 +37,7 @@ public:
         this->W_param->SetMuW(Q_match);}
     void set_Q(double Q) {this->Q = Q; this->W_param->SetMu(Q);}
     void set_name(std::string name) {this->CoeffName = name;}
-    void set_Wilson_Parameters(Wilson_parameters* W_param) {this->W_param = W_param;}
+    void set_Wilson_Parameters(WilsonParameters* W_param) {this->W_param = W_param;}
     void set_WilsonCoeffRun(std::string order, complex_t value) {this->CoefficientRunValue[order] = value;}
     void set_WilsonCoeffMatching(std::string order ,complex_t value) {this->CoefficientMatchingValue[order] = value;}
 
@@ -80,7 +80,7 @@ public:
 
     double get_Q_match() const {return this->Q_match;}
     double get_Q() const {return this->Q;}
-    Wilson_parameters* get_W_params() const {return this->W_param;}
+    WilsonParameters* get_W_params() const {return this->W_param;}
     std::string get_name() const {return this->CoeffName;}
 
     virtual complex_t LO_calculation() =0;

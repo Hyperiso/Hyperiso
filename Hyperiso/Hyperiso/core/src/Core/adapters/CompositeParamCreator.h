@@ -4,7 +4,7 @@
 #include "IDependency.h"
 #include "DependentBlockManager.h"
 
-class CompositeParamCreator : public IDependency {
+class CompositeParamAdapter : public IDependency {
 private:
     /* data */
 public:
@@ -12,10 +12,12 @@ public:
         const std::string& name,
         const std::unordered_map<ParameterType, std::vector<std::string>>& source_names,
         ParameterType dest,
-        std::function<void(const std::unordered_map<std::string, std::shared_ptr<Block>>&, std::shared_ptr<DependentBlock>)> recalculateFunc
+        DepUpdateFunc recalculateFunc
     ) override;
 
     void remove_dependency(const std::string& name, ParameterType src) override;
+
+    void update_dependency(const std::string& name, ParameterType src) override;
 
 };
 

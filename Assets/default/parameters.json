@@ -57,6 +57,11 @@
       "central_value": 1.77693,
       "stat_error": 0.00009,
       "syst_error": 0
+    },
+    "24": {
+      "central_value": 80.3692,
+      "stat_error": 0.0133,
+      "syst_error": 0
     }
   },
 

@@ -24,3 +24,7 @@ void DependentBlockManager::addDependentBlock(
 void DependentBlockManager::removeDependentBlock(const std::string &name, ParameterType src){
     Parameters::GetInstance(src)->blockAccessor->erase(name);
 }
+
+void DependentBlockManager::update(const std::string &name, ParameterType src) {
+    Parameters::GetInstance(src)->blockAccessor->at(name)->update();
+}

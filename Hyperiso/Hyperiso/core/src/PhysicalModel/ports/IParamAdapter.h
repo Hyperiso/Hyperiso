@@ -2,9 +2,9 @@
 #define IPARAM_ADAPTER_H
 
 template<typename T, typename V>
-class IParamAdapter {
+class IParameterProxy {
 public:
-    virtual double operator()(T x, V y) = 0;
+    virtual double operator()(const T& x, const V& y) = 0;
 };
 
 #endif
