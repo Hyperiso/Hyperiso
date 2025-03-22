@@ -13,9 +13,6 @@ public:
     complex_t NNLO_calculation();
 
 
-    void set_sm_parameters(std::shared_ptr<Parameters> sm) {this->sm = sm;}
-
-    std::shared_ptr<Parameters> sm = Parameters::GetInstance();
 };
 
 class C2 : public WilsonCoefficient {
@@ -27,8 +24,6 @@ public:
     complex_t NLO_calculation() {return {0.,0.};}
     complex_t NNLO_calculation();
 
-
-    std::shared_ptr<Parameters> sm = Parameters::GetInstance();
 };
 
 class C3 : public WilsonCoefficient {
@@ -40,8 +35,6 @@ public:
     complex_t NLO_calculation() {return {0,0};} 
     complex_t NNLO_calculation();
 
-
-    std::shared_ptr<Parameters> sm = Parameters::GetInstance();
 };
 
 class C4 : public WilsonCoefficient {
@@ -53,8 +46,6 @@ public:
     complex_t NLO_calculation();
     complex_t NNLO_calculation();
 
-
-    std::shared_ptr<Parameters> sm = Parameters::GetInstance();
 };
 
 class C5 : public WilsonCoefficient {
@@ -66,8 +57,6 @@ public:
     complex_t NLO_calculation() {return {0,0};} 
     complex_t NNLO_calculation();
 
-
-    std::shared_ptr<Parameters> sm = Parameters::GetInstance();
 };
 
 class C6 : public WilsonCoefficient {
@@ -79,8 +68,6 @@ public:
     complex_t NLO_calculation() {return {0,0};} 
     complex_t NNLO_calculation();
 
-
-    std::shared_ptr<Parameters> sm = Parameters::GetInstance();
 };
 
 class C7 : public WilsonCoefficient {
@@ -92,7 +79,6 @@ public:
     complex_t NLO_calculation();
     complex_t NNLO_calculation();
 
-    std::shared_ptr<Parameters> sm = Parameters::GetInstance();
 };
 
 class C8 : public WilsonCoefficient {
@@ -104,7 +90,6 @@ public:
     complex_t NLO_calculation();
     complex_t NNLO_calculation();
 
-    std::shared_ptr<Parameters> sm = Parameters::GetInstance();
 };
 
 class C9 : public WilsonCoefficient {
@@ -116,7 +101,6 @@ public:
     complex_t NLO_calculation();
     complex_t NNLO_calculation();
 
-    std::shared_ptr<Parameters> sm = Parameters::GetInstance();
 };
 
 class C10 : public WilsonCoefficient {
@@ -128,7 +112,6 @@ public:
     complex_t NLO_calculation();
     complex_t NNLO_calculation();
 
-    std::shared_ptr<Parameters> sm = Parameters::GetInstance();
 };
 
 
@@ -141,7 +124,6 @@ public:
     complex_t NLO_calculation() {return {0,0};} 
     complex_t NNLO_calculation() {return {0,0};} 
 
-    std::shared_ptr<Parameters> sm = Parameters::GetInstance();
     int gen{2};
 };
 
@@ -154,7 +136,6 @@ public:
     complex_t NLO_calculation() {return {0,0};} 
     complex_t NNLO_calculation() {return {0,0};} 
 
-    std::shared_ptr<Parameters> sm = Parameters::GetInstance();
     int gen{2};
 };
 
@@ -167,7 +148,6 @@ public:
     complex_t NLO_calculation() {return {0,0};} 
     complex_t NNLO_calculation() {return {0,0};} 
 
-    std::shared_ptr<Parameters> sm = Parameters::GetInstance();
     int gen{2};
 };
 
@@ -180,7 +160,6 @@ public:
     complex_t NLO_calculation() {return {0,0};} 
     complex_t NNLO_calculation() {return {0,0};} 
 
-    std::shared_ptr<Parameters> sm = Parameters::GetInstance();
     int gen{2};
 };
 
@@ -193,7 +172,6 @@ public:
     complex_t NLO_calculation() {return {0,0};} 
     complex_t NNLO_calculation() {return {0,0};} 
 
-    std::shared_ptr<Parameters> sm = Parameters::GetInstance();
     int gen{2};
 };
 
@@ -206,7 +184,6 @@ public:
     complex_t NLO_calculation() {return {0,0};} 
     complex_t NNLO_calculation() {return {0,0};} 
 
-    std::shared_ptr<Parameters> sm = Parameters::GetInstance();
     int gen{2};
 };
 
@@ -219,7 +196,6 @@ public:
     complex_t NLO_calculation() {return {0,0};} 
     complex_t NNLO_calculation() {return {0,0};} 
 
-    std::shared_ptr<Parameters> sm = Parameters::GetInstance();
     int gen{2};
 };
 
@@ -232,7 +208,6 @@ public:
     complex_t NLO_calculation() {return {0,0};} 
     complex_t NNLO_calculation() {return {0,0};} 
 
-    std::shared_ptr<Parameters> sm = Parameters::GetInstance();
     int gen{2};
 };
 
@@ -245,7 +220,6 @@ public:
     complex_t NLO_calculation() {return {0,0};} 
     complex_t NNLO_calculation() {return {0,0};} 
 
-    std::shared_ptr<Parameters> sm = Parameters::GetInstance();
     int gen{2};
 };
 
@@ -258,7 +232,6 @@ public:
     complex_t NLO_calculation() {return {0,0};} 
     complex_t NNLO_calculation() {return {0,0};} 
 
-    std::shared_ptr<Parameters> sm = Parameters::GetInstance();
     int gen{2};
 };
 
@@ -271,7 +244,6 @@ public:
     complex_t NLO_calculation() {return {0,0};} 
     complex_t NNLO_calculation() {return {0,0};} 
 
-    std::shared_ptr<Parameters> sm = Parameters::GetInstance();
     int gen{2};
 };
 
@@ -284,7 +256,6 @@ public:
     complex_t NLO_calculation() {return {0,0};} 
     complex_t NNLO_calculation() {return {0,0};} 
 
-    std::shared_ptr<Parameters> sm = Parameters::GetInstance();
     int gen{2};
 };
 
@@ -297,7 +268,6 @@ public:
     complex_t NLO_calculation() {return {0,0};} 
     complex_t NNLO_calculation() {return {0,0};} 
 
-    std::shared_ptr<Parameters> sm = Parameters::GetInstance();
     int gen{2};
 };
 
@@ -310,7 +280,6 @@ public:
     complex_t NLO_calculation() {return {0,0};} 
     complex_t NNLO_calculation() {return {0,0};} 
 
-    std::shared_ptr<Parameters> sm = Parameters::GetInstance();
     int gen{2};
 };
 

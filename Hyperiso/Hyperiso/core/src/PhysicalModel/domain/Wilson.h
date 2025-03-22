@@ -9,11 +9,13 @@
 #include "Parameters.h"
 #include "Logger.h"
 #include "Wilson_parameters.h"
-
+#include "ModelAPI.h"
+#include "HasWilsonAPI.h"
+#include "ModelParamAdapter.h"
 
 class WilsonCoefficient {
 protected:
-    WilsonCoefficient() {this->set_Q_match(81.);}
+    WilsonCoefficient() {this->set_Q_match(81.); this->set_Q(81.); W_param = std::make_shared<WilsonParameters>(81, 81, 2);}
     WilsonCoefficient(double Q_match) {this->set_Q_match(Q_match);}
 
 
@@ -25,7 +27,7 @@ protected:
     }
 
     std::string CoeffName{};
-    WilsonParameters* W_param = WilsonParameters::GetInstance();
+    std::shared_ptr<WilsonParameters> W_param;
 public:
     void set_CoefficientMatchingValue(std::string order, complex_t CoefficientMatchingValue) {
         this->is_now_calculated(order);
@@ -34,10 +36,10 @@ public:
 
     void set_Q_match(double Q_match) {
         this->Q_match = Q_match;
-        this->W_param->SetMuW(Q_match);}
-    void set_Q(double Q) {this->Q = Q; this->W_param->SetMu(Q);}
+        this->W_param->set_mu_W(Q_match);}
+    void set_Q(double Q) {this->Q = Q; this->W_param->set_mu(Q);}
     void set_name(std::string name) {this->CoeffName = name;}
-    void set_Wilson_Parameters(WilsonParameters* W_param) {this->W_param = W_param;}
+    void set_Wilson_Parameters(std::shared_ptr<WilsonParameters> W_param) {this->W_param = W_param;}
     void set_WilsonCoeffRun(std::string order, complex_t value) {this->CoefficientRunValue[order] = value;}
     void set_WilsonCoeffMatching(std::string order ,complex_t value) {this->CoefficientMatchingValue[order] = value;}
 
@@ -80,7 +82,7 @@ public:
 
     double get_Q_match() const {return this->Q_match;}
     double get_Q() const {return this->Q;}
-    WilsonParameters* get_W_params() const {return this->W_param;}
+    std::shared_ptr<WilsonParameters> get_W_params() const {return this->W_param;}
     std::string get_name() const {return this->CoeffName;}
 
     virtual complex_t LO_calculation() =0;
@@ -120,6 +122,9 @@ private:
 
     std::map<std::string, bool> is_calculated{{"LO", false}, {"NLO", false}, {"NNLO", false}};
 
+protected:
+    ParameterProxy sm {ParameterType::SM};
+    ParameterProxy wilson_p {ParameterType::WILSON};
     
 };
 
@@ -134,7 +139,6 @@ public:
     complex_t NLO_calculation() {return {0,0};} 
     complex_t NNLO_calculation() {return {0,0};} 
 
-    std::shared_ptr<Parameters> sm = Parameters::GetInstance();
 };
 
 class C_Blnu_P : public WilsonCoefficient {
@@ -146,7 +150,6 @@ public:
     complex_t NLO_calculation() {return {0,0};} 
     complex_t NNLO_calculation() {return {0,0};} 
 
-    std::shared_ptr<Parameters> sm = Parameters::GetInstance();
 };
 
 class C_V1 : public WilsonCoefficient {
@@ -158,7 +161,6 @@ public:
     complex_t NLO_calculation() {return {0,0};} 
     complex_t NNLO_calculation() {return {0,0};} 
 
-    std::shared_ptr<Parameters> sm = Parameters::GetInstance();
 };
 
 class C_V2 : public WilsonCoefficient {
@@ -170,7 +172,6 @@ public:
     complex_t NLO_calculation() {return {0,0};} 
     complex_t NNLO_calculation() {return {0,0};} 
 
-    std::shared_ptr<Parameters> sm = Parameters::GetInstance();
 };
 
 class C_S1 : public WilsonCoefficient {
@@ -182,7 +183,6 @@ public:
     complex_t NLO_calculation() {return {0,0};} 
     complex_t NNLO_calculation() {return {0,0};} 
 
-    std::shared_ptr<Parameters> sm = Parameters::GetInstance();
 };
 
 class C_S2 : public WilsonCoefficient {
@@ -194,7 +194,6 @@ public:
     complex_t NLO_calculation() {return {0,0};} 
     complex_t NNLO_calculation() {return {0,0};} 
 
-    std::shared_ptr<Parameters> sm = Parameters::GetInstance();
 };
 
 class C_T : public WilsonCoefficient {
@@ -206,7 +205,6 @@ public:
     complex_t NLO_calculation() {return {0,0};} 
     complex_t NNLO_calculation() {return {0,0};} 
 
-    std::shared_ptr<Parameters> sm = Parameters::GetInstance();
 };
 
 inline std::ostream& operator<<(std::ostream& os, WilsonCoefficient& coeff) {

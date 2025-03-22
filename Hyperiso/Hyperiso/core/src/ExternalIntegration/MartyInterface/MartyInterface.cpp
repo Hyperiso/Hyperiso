@@ -2,7 +2,7 @@
 
 namespace fs = std::filesystem;
 
-std::string to_lowercase(const std::string& str);
+// std::string to_lowercase(const std::string& str);
 
 void MartyInterface::compile_run(std::string wilson, std::string model) {
     
@@ -72,8 +72,8 @@ std::string MartyInterface::output_binary_name(std::string& wilson, std::string&
         return "generated_" + wilson+"_" + model + ".cpp";
     }
 
-std::string to_lowercase(const std::string& str) {
-    std::string result = str;
-    std::transform(result.begin(), result.end(), result.begin(), [](unsigned char c){return std::tolower(c);});
-    return result;
-}
+// std::string to_lowercase(const std::string& str) {
+//     std::string result = str;
+//     std::transform(result.begin(), result.end(), result.begin(), [](unsigned char c){return std::tolower(c);});
+//     return result;
+// }

@@ -2,10 +2,10 @@
 
 
 bool WilsonCoefficient::fill_from_flha() {
-    if (!from_lha && MemoryManager::GetInstance()->hasWilsons()) {
+    if (!from_lha && HAS_WILSON_API().get()) {
         auto wc = Parameters::GetInstance(ParameterType::WILSON);
         WCoef id = WCoefMapper::enum_elt(this->get_name());
-        Model m = MemoryManager::GetInstance()->getModel();
+        Model m = ModelAPI().get();
         int w_type = (*wc)("REWCOEF", -2);
         if (m != Model::SM && w_type == 0) {
             LOG_ERROR("Value", "SM Wilsons coefficients were given, but the selected model is not SM.");

@@ -2,11 +2,10 @@
 #define SMPARAMSETTER_H
 
 #include "IParamSetter.h"
-#include "JsonParameters.h"
 #include "config.hpp"
 #include "General.h"
-#include "MemoryManager.h"
 #include "Parameters.h"
+#include "ModelAPI.h"
 #include "QCDHelper.h"
 #include <cmath>
 #include <set>
@@ -27,13 +26,13 @@ public:
         } else {
             this->model_type = Model::CUSTOM;
         }
-        if (model == "MSSM" || model == "NMSSM") {
-            jsonparser->loadFromFile(root_path + "savestate/parameters_SUSY.json");
-        } else if (model == "SM" || model == "THDM") {
-            jsonparser->loadFromFile(root_path + "savestate/parameters_" + model + ".json");
-        } else {
-            jsonparser->loadFromFile(root_path + "savestate/parameters_GENERAL.json");
-        }
+        // if (model == "MSSM" || model == "NMSSM") {
+        //     jsonparser->loadFromFile(root_path + "savestate/parameters_SUSY.json");
+        // } else if (model == "SM" || model == "THDM") {
+        //     jsonparser->loadFromFile(root_path + "savestate/parameters_" + model + ".json");
+        // } else {
+        //     jsonparser->loadFromFile(root_path + "savestate/parameters_GENERAL.json");
+        // }
     }
 
     void setParam(const std::string& name, const Interpreter::InterpretedParam& interpretedParam) override;
@@ -43,7 +42,7 @@ private:
 
     double calculateValue(const std::string& name, const Interpreter::InterpretedParam& interpretedParam);
 
-    JSONParser *jsonparser = JSONParser::getInstance(0);
+    // JSONParser *jsonparser = JSONParser::getInstance(0);
     Model model_type;
 };
 

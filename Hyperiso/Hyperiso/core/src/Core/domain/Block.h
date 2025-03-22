@@ -44,7 +44,7 @@ public:
     void removeObserver(std::shared_ptr<Block> observer);
     void notifyObservers();
     virtual void update() {}
-
+    void update(const LhaID &id, Parameter&& param); // TODO : Niels ?
     void copy(std::shared_ptr<Block> other);
 
     ~Block() { notifyObservers(); }

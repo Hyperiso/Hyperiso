@@ -6,7 +6,7 @@ void SMParamSetter::setParam(const std::string& name, const Interpreter::Interpr
     if (interpretedParam.complex == true) {
         std::string im_block = "IM" + interpretedParam.block.substr(2, interpretedParam.block.size());
         if (interpretedParam.is_bsm) {
-            ParameterType type = ParameterTypeMapper::enum_elt(ModelMapper::str(MemoryManager::GetInstance()->getModel()));
+            ParameterType type = ParameterTypeMapper::enum_elt(ModelMapper::str(ModelAPI().get()));
             params[name+"_img"] = (*Parameters::GetInstance(type))(interpretedParam.block, interpretedParam.code);
             params[name+"_rel"] = (*Parameters::GetInstance(type))(im_block, interpretedParam.code);
         } else {
@@ -26,7 +26,7 @@ void SMParamSetter::setParam(const std::string& name, const Interpreter::Interpr
             }
         } else {
             if (interpretedParam.is_bsm) {
-                ParameterType type = ParameterTypeMapper::enum_elt(ModelMapper::str(MemoryManager::GetInstance()->getModel()));
+                ParameterType type = ParameterTypeMapper::enum_elt(ModelMapper::str(ModelAPI().get()));
                 params[name] = (*Parameters::GetInstance(type))(interpretedParam.block, interpretedParam.code);
             } else {
                 params[name] = (*Parameters::GetInstance())(interpretedParam.block, interpretedParam.code);

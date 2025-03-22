@@ -364,7 +364,6 @@ public:
     complex_t NLO_calculation() {return {0,0};} 
     complex_t NNLO_calculation() {return {0,0};} 
 
-    std::shared_ptr<Parameters> sm = Parameters::GetInstance();
 };
 
 class C_Blnu_P_THDM : public C_Blnu_P, public WilsonCoefficient_THDM {
@@ -376,7 +375,6 @@ public:
     complex_t NLO_calculation() {return {0,0};} 
     complex_t NNLO_calculation() {return {0,0};} 
 
-    std::shared_ptr<Parameters> sm = Parameters::GetInstance();
 };
 
 class C_V1_THDM : public C_V1, public WilsonCoefficient_THDM {
@@ -388,7 +386,6 @@ public:
     complex_t NLO_calculation() {return {0,0};} 
     complex_t NNLO_calculation() {return {0,0};} 
 
-    std::shared_ptr<Parameters> sm = Parameters::GetInstance();
 };
 
 class C_V2_THDM : public C_V2, public WilsonCoefficient_THDM {
@@ -400,7 +397,6 @@ public:
     complex_t NLO_calculation() {return {0,0};} 
     complex_t NNLO_calculation() {return {0,0};} 
 
-    std::shared_ptr<Parameters> sm = Parameters::GetInstance();
 };
 
 class C_S1_THDM : public C_S1, public WilsonCoefficient_THDM {
@@ -412,7 +408,6 @@ public:
     complex_t NLO_calculation() {return {0,0};} 
     complex_t NNLO_calculation() {return {0,0};} 
 
-    std::shared_ptr<Parameters> sm = Parameters::GetInstance();
 };
 
 class C_S2_THDM : public C_S2, public WilsonCoefficient_THDM {
@@ -424,7 +419,6 @@ public:
     complex_t NLO_calculation() {return {0,0};} 
     complex_t NNLO_calculation() {return {0,0};} 
 
-    std::shared_ptr<Parameters> sm = Parameters::GetInstance();
 };
 
 class C_T_THDM : public C_T, public WilsonCoefficient_THDM {
@@ -436,7 +430,6 @@ public:
     complex_t NLO_calculation() {return {0,0};} 
     complex_t NNLO_calculation() {return {0,0};} 
 
-    std::shared_ptr<Parameters> sm = Parameters::GetInstance();
 };
 
 class BCoefficientGroup_THDM : public BCoefficientGroup {

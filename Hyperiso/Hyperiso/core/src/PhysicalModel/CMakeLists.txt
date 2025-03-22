@@ -40,10 +40,14 @@ endif()
 
 
 add_library(PhysicalModelLib STATIC 
-    Wilson_parameters.cpp
-    Wilson.cpp
-    WilsonGroup.cpp
-    WilsonManager.cpp
+    domain/BWilsonRunningParameters.cpp
+    domain/Wilson_parameters.cpp
+    domain/Wilson.cpp
+    domain/BWilson.cpp
+    domain/WilsonGroup.cpp
+    domain/WilsonManager.cpp
+    adapters/ModelParamAdapter.cpp
+    adapters/WilsonParamComposer.cpp
     BSM/epsilon_calculator.cpp
     BSM/susy_parameters.cpp
     BSM/thdm_parameters.cpp
@@ -53,12 +57,18 @@ add_library(PhysicalModelLib STATIC
 set_target_properties(PhysicalModelLib PROPERTIES POSITION_INDEPENDENT_CODE ON)
 set_target_properties(PhysicalModelLib PROPERTIES PUBLIC_HEADER "Interpolator.h;WilsonManager.h;Wilson.h;WilsonGroup.h;MartyWilson.h;Wilson_parameters.h;epsilon_calculator.h;susy_parameters.h;thdm_parameters;Wilson_susy.h;Wilson_THDM.h;WilsonManager.h")
 
+target_include_directories(PhysicalModelLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/adapters)
+target_include_directories(PhysicalModelLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/ports)
+target_include_directories(PhysicalModelLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/domain)
 target_include_directories(PhysicalModelLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/BSM)
 
 target_link_libraries(PhysicalModelLib PUBLIC MartyInterfaceLib CoreLib CommonLib ConfiguredModule MathLib)
 
-add_executable(test_wilson main_phymod.cpp)
+add_executable(test_wilson app/main_PM.cpp)
 target_link_libraries(test_wilson PhysicalModelLib)
 
-add_executable(test_martywilson main.cpp)
-target_link_libraries(test_martywilson PhysicalModelLib MartyInterfaceLib)
+# add_executable(test_wilson main_phymod.cpp)
+# target_link_libraries(test_wilson PhysicalModelLib)
+
+# add_executable(test_martywilson main.cpp)
+# target_link_libraries(test_martywilson PhysicalModelLib MartyInterfaceLib)

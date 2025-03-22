@@ -6,8 +6,9 @@
 #include <vector>
 #include "Utils.h"
 #include "Wilson.h"
+#include <BWilson.h>
 #include "MartyWilson.h"
-
+#include "UseMarty.h"
 
 class CoefficientGroup : public std::map<std::string, std::shared_ptr<WilsonCoefficient>> {
 public:
@@ -95,6 +96,9 @@ public:
 
     bool double_base = false;
 
+    ParameterProxy sm {ParameterType::SM};
+    ParameterProxy wilson_p {ParameterType::WILSON};
+
 };
 
 
@@ -103,7 +107,7 @@ class BCoefficientGroup : public CoefficientGroup {
 
 public:
     BCoefficientGroup() {
-        if (MemoryManager::GetInstance()->getUseMarty()) {
+        if (UseMarty().get()) {
             for (auto&& coeff : {"C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9", "C10"}) {
                 this->insert(std::make_pair(coeff, std::make_shared<MartyWilson>(coeff)));
             }
@@ -115,7 +119,7 @@ public:
         this->insert(std::make_pair("C10", std::make_shared<C10>())); 
     }
     BCoefficientGroup(double Q_match) {
-        if (MemoryManager::GetInstance()->getUseMarty()) {
+        if (UseMarty().get()) {
             for (auto&& coeff : {"C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9", "C10"}) {
                 this->insert(std::make_pair(coeff, std::make_shared<MartyWilson>(Q_match, coeff)));
             }
@@ -136,7 +140,7 @@ public:
     void set_base_1_NNLO();
     void set_base_2_NNLO();
 
-    void set_W_params(WilsonParameters* new_W_param) {this->W_param = new_W_param; for(auto& coeff : *this) {coeff.second->set_Wilson_Parameters(new_W_param);}}
+    void set_W_params(std::shared_ptr<WilsonParameters> new_W_param) {this->W_param = new_W_param; for(auto& coeff : *this) {coeff.second->set_Wilson_Parameters(new_W_param);}}
     void set_gen(int new_gen) {this->W_param->set_gen(new_gen);}
 
     void switch_base() override {
@@ -165,7 +169,7 @@ public:
     }
 
 protected:
-    WilsonParameters* W_param = WilsonParameters::GetInstance();
+    std::shared_ptr<WilsonParameters> W_param;
     bool double_base = true;
     std::map<std::string, int> base = {{"LO",0}, {"NLO",0}, {"NNLO",0}};
 
@@ -175,7 +179,7 @@ protected:
 class BPrimeCoefficientGroup : public CoefficientGroup {
 public:
     BPrimeCoefficientGroup() {
-        if (MemoryManager::GetInstance()->getUseMarty()) {
+        if (UseMarty().get()) {
             for (auto&& coeff : {"CP1", "CP2", "CP3", "CP4", "CP5", "CP6", "CP7", "CP8", "CP9", "CP10", "CPQ1", "CPQ2"}) {
                 this->insert(std::make_pair(coeff, std::make_shared<MartyWilson>(coeff)));
             }
@@ -187,7 +191,7 @@ public:
         this->insert(std::make_pair("CP10", std::make_shared<CP10>())); this->insert(std::make_pair("CPQ1", std::make_shared<CPQ1>())); this->insert(std::make_pair("CPQ2", std::make_shared<CPQ2>())); 
     }
     BPrimeCoefficientGroup(double Q_match) {
-        if (MemoryManager::GetInstance()->getUseMarty()) {
+        if (UseMarty().get()) {
             for (auto&& coeff : {"CP1", "CP2", "CP3", "CP4", "CP5", "CP6", "CP7", "CP8", "CP9", "CP10", "CPQ1", "CPQ2"}) {
                 this->insert(std::make_pair(coeff, std::make_shared<MartyWilson>(Q_match, coeff)));
             }
@@ -210,13 +214,13 @@ public:
     }
 
 protected:
-    WilsonParameters* W_param = WilsonParameters::GetInstance();
+    std::shared_ptr<WilsonParameters> W_param;
 };
 
 class BScalarCoefficientGroup : public CoefficientGroup {
 public:
     BScalarCoefficientGroup() {
-        if (MemoryManager::GetInstance()->getUseMarty()) {
+        if (UseMarty().get()) {
             for (auto&& coeff : {"CQ1", "CQ2"}) {
                 this->insert(std::make_pair(coeff, std::make_shared<MartyWilson>(coeff)));
             }
@@ -225,7 +229,7 @@ public:
         this->insert(std::make_pair("CQ1", std::make_shared<CQ1>())); this->insert(std::make_pair("CQ2", std::make_shared<CQ2>()));
     }
     BScalarCoefficientGroup(double Q_match) {
-        if (MemoryManager::GetInstance()->getUseMarty()) {
+        if (UseMarty().get()) {
             for (auto&& coeff : {"CQ1", "CQ2"}) {
                 this->insert(std::make_pair(coeff, std::make_shared<MartyWilson>(Q_match, coeff)));
             }
@@ -243,13 +247,13 @@ public:
     }
 
 protected:
-    WilsonParameters* W_param = WilsonParameters::GetInstance();
+    std::shared_ptr<WilsonParameters> W_param;
 };
 
 class BlnuCoefficientGroup : public CoefficientGroup {
 public:
     BlnuCoefficientGroup() {
-        if (MemoryManager::GetInstance()->getUseMarty()) {
+        if (UseMarty().get()) {
             for (auto&& coeff : {"C_Blnu_A", "C_Blnu_P"}) {
                 this->insert(std::make_pair(coeff, std::make_shared<MartyWilson>(coeff)));
             }
@@ -260,7 +264,7 @@ public:
     }
 
     BlnuCoefficientGroup(double Q_match) {
-        if (MemoryManager::GetInstance()->getUseMarty()) {
+        if (UseMarty().get()) {
             for (auto&& coeff : {"C_Blnu_A", "C_Blnu_P"}) {
                 this->insert(std::make_pair(coeff, std::make_shared<MartyWilson>(Q_match, coeff)));
             }
@@ -279,13 +283,13 @@ public:
     }
 
 protected:
-    WilsonParameters* W_param = WilsonParameters::GetInstance();
+    std::shared_ptr<WilsonParameters> W_param;
 };
 
 class BclnuCoefficientGroup : public CoefficientGroup {
     public:
         BclnuCoefficientGroup() {
-            if (MemoryManager::GetInstance()->getUseMarty()) {
+            if (UseMarty().get()) {
                 for (auto&& coeff : {"C_V1", "C_V2", "C_S1", "C_S2", "C_T"}) {
                     this->insert(std::make_pair(coeff, std::make_shared<MartyWilson>(coeff)));
                 }
@@ -299,7 +303,7 @@ class BclnuCoefficientGroup : public CoefficientGroup {
         }
     
         BclnuCoefficientGroup(double Q_match) {
-            if (MemoryManager::GetInstance()->getUseMarty()) {
+            if (UseMarty().get()) {
                 for (auto&& coeff : {"C_V1", "C_V2", "C_S1", "C_S2", "C_T"}) {
                     this->insert(std::make_pair(coeff, std::make_shared<MartyWilson>(Q_match, coeff)));
                 }
@@ -321,7 +325,7 @@ class BclnuCoefficientGroup : public CoefficientGroup {
         }
     
     protected:
-        WilsonParameters* W_param = WilsonParameters::GetInstance();
+        std::shared_ptr<WilsonParameters> W_param;
     };
 
 inline std::ostream& operator<<(std::ostream& os, BCoefficientGroup& coeffs) {

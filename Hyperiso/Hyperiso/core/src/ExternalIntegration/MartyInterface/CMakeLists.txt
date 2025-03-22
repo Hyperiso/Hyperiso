@@ -57,6 +57,8 @@ set_target_properties(MartyInterfaceLib PROPERTIES PUBLIC_HEADER "CinematicExtra
 # target_include_directories(MartyInterfaceLib PRIVATE BSM)
 
 target_include_directories(MartyInterfaceLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(MartyInterfaceLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/ports)
+target_include_directories(MartyInterfaceLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/adapters)
 target_include_directories(MartyInterfaceLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/NumericalScriptProcessing)
 target_link_libraries(MartyInterfaceLib PUBLIC CommonLib DataBaseLib CoreLib)
 target_link_libraries(MartyInterfaceLib PUBLIC ConfiguredModule)

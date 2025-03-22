@@ -7,7 +7,7 @@
 
 class HAS_WILSON_API : public ICoreAPI<bool> {
 public:
-    inline bool get() override {HyperisoMaster().check_flag(ExternalFlag::HAS_WILSON_INPUT);}
+    inline bool get() override {return HyperisoMaster().check_flag(ExternalFlag::HAS_WILSON_INPUT);}
 };
 
 #endif
