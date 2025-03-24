@@ -13,7 +13,9 @@
 int main() {
     MemoryManager* mm = MemoryManager::GetInstance();
     std::string base_path = project_root.data();
-    mm->init(base_path + "Test/InputFiles/testinput_thdm.lha", Model::SM);
+    Config config;
+    config.model = Model::SM;
+    mm->init(base_path + "Test/InputFiles/testinput_thdm.lha", config);
     // auto truc = FileNameManager::getInstance("C7", "SM");
 
     // std::cout << truc->getGeneratedFileName() << std::endl;

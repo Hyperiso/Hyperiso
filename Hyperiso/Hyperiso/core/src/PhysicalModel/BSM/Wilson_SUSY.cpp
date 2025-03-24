@@ -1344,7 +1344,7 @@ complex_t CQ2_susy::LO_calculation() {
 		{	
 			double alphas_Ma1  = QCDHelper::alpha_s((*susy)("MASS",36));	
 			double mass_b_ma1=QCDHelper::msbar_mass(5, (*susy)("MASS",36));
-			coeff_temp+=-v_deltam_s/2.*mass_b_ma1/(*sus_param).sw2*wilson_p("WPARAM_SI_SM", 3)*CA/(*susy)("MASS",36)/(*susy)("MASS",36) *pow(alphas_Ma1/W_param->alphas_mu,-4./W_param->beta0);
+			coeff_temp+=-v_deltam_s/2.*mass_b_ma1/(*sus_param).sw2*wilson_p("WPARAM_SI_SM", 3)*CA/(*susy)("MASS",36)/(*susy)("MASS",36) *pow(alphas_Ma1/wilson_p("WPARAM_RUN_SM", 1),-4./wilson_p("WPARAM_SI_SM", 5));
 		}
 		
 
@@ -1485,9 +1485,9 @@ complex_t CQ2_susy::NLO_calculation() {
 }
 
 void BScalarCoefficientGroup_susy::set_base_1_LO() {
-    complex_t coeff_temp= this->at("CQ1")->get_CoefficientMatchingValue("LO")* pow(W_param->eta_mu,-4./W_param->beta0);
+    complex_t coeff_temp= this->at("CQ1")->get_CoefficientMatchingValue("LO")* pow(wilson_p("WPARAM_RUN_SM", 2),-4./wilson_p("WPARAM_SI_SM", 5));
     this->at("CQ1")->set_WilsonCoeffRun("LO", coeff_temp);
-    complex_t coeff_temp2= this->at("CQ2")->get_CoefficientMatchingValue("LO")* pow(W_param->eta_mu,-4./W_param->beta0);
+    complex_t coeff_temp2= this->at("CQ2")->get_CoefficientMatchingValue("LO")* pow(wilson_p("WPARAM_RUN_SM", 2),-4./wilson_p("WPARAM_SI_SM", 5));
     
     
     if((*susy)("MASS",46)!=0.||(*susy)("MASS",45)!=0.) {

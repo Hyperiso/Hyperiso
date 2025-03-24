@@ -4,6 +4,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <unordered_map>
 #include "Utils.h"
 #include "Wilson.h"
 #include <BWilson.h>

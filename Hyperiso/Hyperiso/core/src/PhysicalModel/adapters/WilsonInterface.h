@@ -1,7 +1,6 @@
 #ifndef __WILSONINTERFACE_H__
 #define __WILSONINTERFACE_H__
 
-#include "MemoryManager.h"
 #include "WilsonManager.h"
 #ifdef BUILD_WITH_SOFTSUSY
 #include "Wilson_SUSY.h"
@@ -41,7 +40,7 @@ private:
     };
 
     QCDOrder ensure_mty_compat(QCDOrder order) {
-        if (MemoryManager::GetInstance()->useMarty() && !(order == QCDOrder::LO)) {
+        if (UseMarty().get() && !(order == QCDOrder::LO)) {
             LOG_WARN("Using MARTY defaults all calculations to LO in QCD.");
             return QCDOrder::LO;
         }
@@ -201,7 +200,7 @@ public:
 
     inline void build(std::vector<WGroup> group_names, double Q_match, double Q, QCDOrder order) {
         std::map<std::string, std::shared_ptr<CoefficientGroup>> groups;
-        auto model = MemoryManager::GetInstance()->getModel();
+        auto model = ModelAPI().get();
         for (auto& gn : group_names) {
             std::string gn_str = GroupMapper::str(gn);
             groups.emplace(gn_str, group_ptrs.at(gn_str));

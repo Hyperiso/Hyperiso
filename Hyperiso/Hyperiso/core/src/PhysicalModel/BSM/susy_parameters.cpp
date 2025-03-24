@@ -36,8 +36,8 @@ susy_parameters::susy_parameters(double scale) {
 	LOG_DEBUG("epsilon0 " + std::to_string(std::real(epsilon0)));
 	LOG_DEBUG("epsilon2 " + std::to_string(std::real(epsilon2)));
 
-    mass_top_muW = QCDHelper::msbar_mass(6, scale, "running", "pole");
-	mass_b_muW = QCDHelper::msbar_mass(5, scale, "running", "pole"); //mass bottom 6 (at pole)
+    mass_top_muW = QCDHelper::msbar_mass(6, scale, MassType::MSBAR, MassType::POLE);
+	mass_b_muW = QCDHelper::msbar_mass(5, scale, MassType::MSBAR, MassType::POLE); //mass bottom 6 (at pole)
 
 	L=log(scale*scale/(*sm)("MASS",24)/(*sm)("MASS",24)); // scale -> mu_W
  	sw2=pow(sin(atan((*sm)("GAUGE",1)/(*sm)("GAUGE",2))),2.); //1 = param-> gp and 2 = (*sm)("GAUGE",2)

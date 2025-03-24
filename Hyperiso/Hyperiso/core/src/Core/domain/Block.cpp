@@ -35,6 +35,12 @@ void Block::store(const LhaID& id, Parameter&& param) {
     }
 }
 
+void Block::set(const LhaID& key, Parameter&& param) {
+    LhaID _ = key;
+    Parameter _2 = param;
+    this->items.emplace(std::make_pair(_, _2));
+
+}
 std::unordered_set<LhaID> Block::getAllIDs() {
     return get_keys(this->items);
 }

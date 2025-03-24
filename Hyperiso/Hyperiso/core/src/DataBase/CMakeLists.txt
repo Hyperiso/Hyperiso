@@ -18,7 +18,7 @@ add_library(DataBaseLib STATIC
     domain/lha_elements.cpp
     domain/DBNode.cpp
     domain/DBManager.cpp
-    # Service/MappingDataBase.cpp
+    Service/MappingDataBase.cpp
     adapters/JsonParser.cpp
     adapters/LhaParser.cpp
     adapters/YamlParser.cpp

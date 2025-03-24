@@ -4,12 +4,13 @@
 #include <memory>
 #include <string>
 #include <stdexcept>
+#include <set>
 #include "Wilson.h"
 #include "WilsonGroup.h"
 #include "MemoryManager.h"
 #include "QCDHelper.h"
 #include "Utils.h"
-#include <set>
+#include "HyperisoMaster.h"
 #define PRECISION 1e-5
 
 inline bool haveSameKeys(const std::map<std::string, std::shared_ptr<CoefficientGroup>>& map1, const std::map<std::string, std::shared_ptr<CoefficientGroup>>& map2) {
@@ -196,11 +197,20 @@ public:
 
     static void initialize(const std::string& lhaFile, Model model = Model::SM, bool use_marty = false, bool is_spectrum = false, bool has_wilsons = false, bool has_obs = false) {
         MemoryManager* mm = MemoryManager::GetInstance();
-        mm->init(lhaFile, model, use_marty, is_spectrum, has_wilsons, has_obs);
+        HyperisoMaster hyp = HyperisoMaster(); //TODO bad coupling
+        Config config;
+        config.flags.at(ExternalFlag::IS_LHA_SPECTRUM) = is_spectrum;
+        config.flags.at(ExternalFlag::USE_MARTY) = use_marty;
+        config.flags.at(ExternalFlag::HAS_WILSON_INPUT) = has_wilsons;
+        config.flags.at(ExternalFlag::HAS_TH_OBSERVABLE_INPUT) = has_obs;
+
+        config.model = model;
+    
+        hyp.init(lhaFile, config);
     }
 
     std::string getModel() {
-        return ModelMapper::str(MemoryManager::GetInstance()->getModel());
+        return ModelMapper::str(ModelAPI().get());
     }
 
     double get_params(const std::string& block, int pdgCode) {

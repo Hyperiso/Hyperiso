@@ -32,7 +32,7 @@ public:
     void set_mod_parameters(std::shared_ptr<Parameters> sm) {this->mod = mod;}
     void set_params(double Q_match);
 
-    double mass_top_muW = QCDHelper::msbar_mass(6, scale, "running", "pole");
+    double mass_top_muW = QCDHelper::msbar_mass(6, scale, MassType::MSBAR, MassType::POLE);
 	double mass_b_muW = QCDHelper::msbar_mass(5, scale);
 
     double sw2=pow(sin(atan((*sm)("GAUGE",1)/(*sm)("GAUGE",2))),2.); //1 = param-> gp and 2 = param->g2

@@ -1,7 +1,7 @@
 #pragma once
 #include <complex>
 #include "Wilson.h"
-#include "Interpolator.h"
+// #include "Interpolator.h"
 #include "DataFrame.h"
 #include "CSVReader.h"
 #include "MartyInterface.h"

@@ -1,42 +1,49 @@
 #include "Wilson_parameters.h"
 
-// void Wilson_parameters::SetMu(double mu) {
-// 	alphas_mu=QCDHelper::alpha_s(mu);	
-// 	eta_mu=alphas_muW/alphas_mu;
+void WilsonParameters::set_mu(double mu) {
+	WilsonParamComposer().update("WPARAM_RUN_SM");
 
-// 	for (int i = 0; i < array_size; ++i) {
-//         (etaMuPowers)[i] = std::pow(eta_mu, (ai)[i]);
-//     }
-// 	for (int i = 0; i < array_size; ++i) {
-//         (etaMuPowers2)[i] = std::pow(eta_mu, (ai2)[i]);
-//     }
+	ParameterProxy wilson_p {ParameterType::WILSON};
+	double alphas_mu = wilson_p("WPARAM_RUN_SM", 1);
+	double eta_mu = wilson_p("WPARAM_RUN_SM", 2);
+
+	for (int i = 0; i < BWilsonRunningParameters::array_size; ++i) {
+        (w_run.etaMuPowers)[i] = std::pow(eta_mu, (BWilsonRunningParameters::ai)[i]);
+    }
+	for (int i = 0; i < BWilsonRunningParameters::array_size; ++i) {
+        (w_run.etaMuPowers2)[i] = std::pow(eta_mu, (BWilsonRunningParameters::ai2)[i]);
+    }
 	
 
-// 	LOG_DEBUG("U0,U1, U2 for a scale of " + std::to_string(mu));
-// 	for (int ke = 0; ke < array_size; ++ke) {
-//         for (int le = 0; le < array_size; ++le) {
-//             (U0)[ke][le] =0;
-//             (U1)[ke][le] = 0;
-//             (U2)[ke][le] = 0;
-// 			V0[ke][le] = 0;
-// 			V1[ke][le] = 0;
-//             for (int ie = 0; ie < array_size; ++ie) {
-//                 (U0)[ke][le] += (m00)[ke][le][ie] * (etaMuPowers)[ie];
-//                 (U1)[ke][le] += (m10)[ke][le][ie] * (etaMuPowers)[ie] + (m11)[ke][le][ie] * (etaMuPowers)[ie] / eta_mu;
-//                 (U2)[ke][le] += (m20)[ke][le][ie] * (etaMuPowers)[ie] + (m21)[ke][le][ie] * (etaMuPowers)[ie] / eta_mu + (m22)[ke][le][ie] * (etaMuPowers[ie]) / (eta_mu * eta_mu);
+	LOG_DEBUG("U0,U1, U2 for a scale of " + std::to_string(mu));
+	for (int ke = 0; ke < BWilsonRunningParameters::array_size; ++ke) {
+        for (int le = 0; le < BWilsonRunningParameters::array_size; ++le) {
+            w_run.U0[ke][le] = 0;
+            w_run.U1[ke][le] = 0;
+            w_run.U2[ke][le] = 0;
+			w_run.V0[ke][le] = 0;
+			w_run.V1[ke][le] = 0;
 
-// 				V0[ke][le]=V0[ke][le] + l00[ke][le][ie]*pow(eta_mu,ai[ie]);
-// 		        V1[ke][le]=V1[ke][le] + l10[ke][le][ie]*pow(eta_mu,ai[ie])+l11[ke][le][ie]*pow(eta_mu,ai[ie]-1.);
-//             }
+            for (int ie = 0; ie < BWilsonRunningParameters::array_size; ++ie) {
+                (w_run.U0)[ke][le] += (BWilsonRunningParameters::m00)[ke][le][ie] * (w_run.etaMuPowers)[ie];
+                (w_run.U1)[ke][le] += (BWilsonRunningParameters::m10)[ke][le][ie] * (w_run.etaMuPowers)[ie] + (BWilsonRunningParameters::m11)[ke][le][ie] * (w_run.etaMuPowers)[ie] / eta_mu;
+                (w_run.U2)[ke][le] += (BWilsonRunningParameters::m20)[ke][le][ie] * (w_run.etaMuPowers)[ie] + (BWilsonRunningParameters::m21)[ke][le][ie] * (w_run.etaMuPowers)[ie] / eta_mu + (BWilsonRunningParameters::m22)[ke][le][ie] * (w_run.etaMuPowers[ie]) / (eta_mu * eta_mu);
+
+				w_run.V0[ke][le]=w_run.V0[ke][le] + BWilsonRunningParameters::l00[ke][le][ie]*pow(eta_mu,BWilsonRunningParameters::ai[ie]);
+		        w_run.V1[ke][le]=w_run.V1[ke][le] + BWilsonRunningParameters::l10[ke][le][ie]*pow(eta_mu,BWilsonRunningParameters::ai[ie])+BWilsonRunningParameters::l11[ke][le][ie]*pow(eta_mu,BWilsonRunningParameters::ai[ie]-1.);
+            }
 			
-//             LOG_DEBUG("U0[" + std::to_string(ke) + "][" + std::to_string(le) + "]: " + std::to_string((U0)[ke][le]));
-//             LOG_DEBUG("U1[" + std::to_string(ke) + "][" + std::to_string(le) + "]: " + std::to_string((U1)[ke][le]));
-//             LOG_DEBUG("U2[" + std::to_string(ke) + "][" + std::to_string(le) + "]: " + std::to_string((U2)[ke][le]));
-//         }
-//     }
+            LOG_DEBUG("U0[" + std::to_string(ke) + "][" + std::to_string(le) + "]: " + std::to_string((w_run.U0)[ke][le]));
+            LOG_DEBUG("U1[" + std::to_string(ke) + "][" + std::to_string(le) + "]: " + std::to_string((w_run.U1)[ke][le]));
+            LOG_DEBUG("U2[" + std::to_string(ke) + "][" + std::to_string(le) + "]: " + std::to_string((w_run.U2)[ke][le]));
+        }
+    }
 
-// }
+}
 
+void WilsonParameters::set_mu_W(double mu_W) {
+	WilsonParamComposer().update("WPARAM_MATCH_SM");
+}
 WilsonParameters::WilsonParameters(double mu_W, double mu_h, int gen) {
 	this->init_scale_independent_block(gen);
 	this->init_matching_block(mu_W);
@@ -48,11 +55,14 @@ void WilsonParameters::init_scale_independent_block(int gen) {
 
     auto func = [gen] (const std::unordered_map<std::string, std::shared_ptr<Block>>& src, std::shared_ptr<DependentBlock> dep_block) {
         auto xh = std::pow(src.at("MASS")->retrieve(25).get_val() / src.at("MASS")->retrieve(24).get_val(), 2);
-
+		
+		int nf = 5;
 		int id = 1;
         dep_block->store(id, Parameter({ParamId{ParameterType::WILSON, "WPARAM_SI_SM", id++}}, xh, 0., 0.));
 		dep_block->store(id, Parameter({ParamId{ParameterType::WILSON, "WPARAM_SI_SM", id++}}, gen, 0., 0.));
 		dep_block->store(id, Parameter({ParamId{ParameterType::WILSON, "WPARAM_SI_SM", id++}}, src.at("MASS")->retrieve(9 + 2 * gen).get_val(), 0., 0.));
+		dep_block->store(id, Parameter({ParamId{ParameterType::WILSON, "WPARAM_SI_SM", id++}}, 0.22305, 0., 0.)); //TODO, sw2
+		dep_block->store(id, Parameter({ParamId{ParameterType::WILSON, "WPARAM_SI_SM", id++}}, 11.-2./3.*nf, 0., 0.)); //TODO, beta0
     };
 
     this->composer.compose("WPARAM_SI_SM", src, func);
@@ -105,6 +115,8 @@ void WilsonParameters::init_running_block(double mu_W, double mu_h) {
 		std::array<std::array<double, BWilsonRunningParameters::array_size>, BWilsonRunningParameters::array_size> V0 = {};
 		std::array<std::array<double, BWilsonRunningParameters::array_size>, BWilsonRunningParameters::array_size> V1 = {};
 		
+		dep_block->store(1, Parameter({ParamId{ParameterType::WILSON, "WPARAM_RUN_SM", 1}}, alphas_mu, 0., 0.));
+		dep_block->store(2, Parameter({ParamId{ParameterType::WILSON, "WPARAM_RUN_SM", 2}}, eta, 0., 0.));
     };
 
     this->composer.compose("WPARAM_RUN_SM", src, func);
