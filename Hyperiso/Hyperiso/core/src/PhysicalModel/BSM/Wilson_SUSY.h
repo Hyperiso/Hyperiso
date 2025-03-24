@@ -329,7 +329,6 @@ public:
     complex_t NLO_calculation() {return {0,0};} 
     complex_t NNLO_calculation() {return {0,0};} 
 
-    std::shared_ptr<Parameters> sm = Parameters::GetInstance();
 };
 
 class C_Blnu_P_SUSY : public C_Blnu_P, public WilsonCoefficient_susy {
@@ -341,7 +340,6 @@ public:
     complex_t NLO_calculation() {return {0,0};} 
     complex_t NNLO_calculation() {return {0,0};} 
 
-    std::shared_ptr<Parameters> sm = Parameters::GetInstance();
 };
 
 class C_V1_SUSY : public C_V1, public WilsonCoefficient_susy {
@@ -353,7 +351,6 @@ public:
     complex_t NLO_calculation() {return {0,0};} 
     complex_t NNLO_calculation() {return {0,0};} 
 
-    std::shared_ptr<Parameters> sm = Parameters::GetInstance();
 };
 
 class C_V2_SUSY : public C_V2, public WilsonCoefficient_susy {
@@ -365,7 +362,6 @@ public:
     complex_t NLO_calculation() {return {0,0};} 
     complex_t NNLO_calculation() {return {0,0};} 
 
-    std::shared_ptr<Parameters> sm = Parameters::GetInstance();
 };
 
 class C_S1_SUSY : public C_S1, public WilsonCoefficient_susy {
@@ -377,7 +373,6 @@ public:
     complex_t NLO_calculation() {return {0,0};} 
     complex_t NNLO_calculation() {return {0,0};} 
 
-    std::shared_ptr<Parameters> sm = Parameters::GetInstance();
 };
 
 class C_S2_SUSY : public C_S2, public WilsonCoefficient_susy {
@@ -389,7 +384,6 @@ public:
     complex_t NLO_calculation() {return {0,0};} 
     complex_t NNLO_calculation() {return {0,0};} 
 
-    std::shared_ptr<Parameters> sm = Parameters::GetInstance();
 };
 
 class C_T_SUSY : public C_T, public WilsonCoefficient_susy {
@@ -401,7 +395,6 @@ public:
     complex_t NLO_calculation() {return {0,0};} 
     complex_t NNLO_calculation() {return {0,0};} 
 
-    std::shared_ptr<Parameters> sm = Parameters::GetInstance();
 };
 
 class BCoefficientGroup_susy : public BCoefficientGroup {

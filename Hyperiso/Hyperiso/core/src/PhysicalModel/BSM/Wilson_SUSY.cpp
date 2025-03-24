@@ -673,7 +673,7 @@ complex_t CP9_susy::LO_calculation() {
 
 	
 	double C10pH = -wilson_p("WPARAM_MATCH_SM", {5,1})*(sm("MASS",3))*((*susy)("HMIX",2)*(*susy)("HMIX",2)/8./sm("MASS",24)/sm("MASS",24)
-	+pow(W_param->ml*(*susy)("HMIX",2)*(*susy)("HMIX",2)/4./sm("MASS",24)/(*susy)("MASS",37),2.))*f20((*sus_param).yt)/(*sus_param).sw2;
+	+pow(wilson_p("WPARAM_SI_SM", 3)*(*susy)("HMIX",2)*(*susy)("HMIX",2)/4./sm("MASS",24)/(*susy)("MASS",37),2.))*f20((*sus_param).yt)/(*sus_param).sw2;
 	
 	double C9pH =(4.*(*sus_param).sw2-1.)*C10pH - sm("MASS",3)*wilson_p("WPARAM_MATCH_SM", {5,1})/(*sus_param).mass_top_muW/(*sus_param).mass_top_muW*D9H0((*sus_param).yt,(*sus_param).ld);
 	
@@ -716,7 +716,7 @@ complex_t CP10_susy::LO_calculation() {
 	C9pc*=-(*sus_param).kappa/8.;
 	
 	double C10pH = -wilson_p("WPARAM_MATCH_SM", {5,1})*(sm("MASS",3))*((*susy)("HMIX",2)*(*susy)("HMIX",2)/8./sm("MASS",24)/sm("MASS",24)
-	+pow(W_param->ml*(*susy)("HMIX",2)*(*susy)("HMIX",2)/4./sm("MASS",24)/(*susy)("MASS",37),2.))*f20((*sus_param).yt)/(*sus_param).sw2;
+	+pow(wilson_p("WPARAM_SI_SM", 3)*(*susy)("HMIX",2)*(*susy)("HMIX",2)/4./sm("MASS",24)/(*susy)("MASS",37),2.))*f20((*sus_param).yt)/(*sus_param).sw2;
 
 	
 	double C10pcharg=(B10pc-C9pc)/(*sus_param).sw2;
@@ -768,16 +768,16 @@ complex_t CPQ1_susy::LO_calculation() {
 	}		
 
 	/* Wilson coefficients CQ1 and CQ2 prime */ 
-	double NQ1pH=-W_param->ml*((*susy)("HMIX",2))*(*susy)("HMIX",2)/4./sm("MASS",24)/sm("MASS",24)*(*sus_param).xt*f30((*sus_param).xt,(*sus_param).z);
+	double NQ1pH=-wilson_p("WPARAM_SI_SM", 3)*((*susy)("HMIX",2))*(*susy)("HMIX",2)/4./sm("MASS",24)/sm("MASS",24)*(*sus_param).xt*f30((*sus_param).xt,(*sus_param).z);
 	
-	double BQ1pH=W_param->ml*((*susy)("HMIX",2))*(*susy)("HMIX",2)/4./sm("MASS",24)/sm("MASS",24)*f70((*sus_param).xt,(*sus_param).z);
+	double BQ1pH=wilson_p("WPARAM_SI_SM", 3)*((*susy)("HMIX",2))*(*susy)("HMIX",2)/4./sm("MASS",24)/sm("MASS",24)*f70((*sus_param).xt,(*sus_param).z);
 	
 	complex_t CQ1pH=(NQ1pH+BQ1pH)*sm("MASS",3)/(*sus_param).sw2;
 	
 
 	double BQ1pc=(BQ1pc1+BQ1pc2)*(*sus_param).kappa*(sm("MASS",24))*sm("MASS",24)/2./sm("GAUGE", 2)/sm("GAUGE", 2)/(*sus_param).sw2;
 
-	NQ1pc*=W_param->ml*((*susy)("HMIX",2))*(*susy)("HMIX",2)/sm("MASS",24)/((*susy)("MASS",37)*(*susy)("MASS",37)-sm("MASS",24)*sm("MASS",24))*(*sus_param).aY*(sm("MASS",3))/(*sus_param).sw2;
+	NQ1pc*=wilson_p("WPARAM_SI_SM", 3)*((*susy)("HMIX",2))*(*susy)("HMIX",2)/sm("MASS",24)/((*susy)("MASS",37)*(*susy)("MASS",37)-sm("MASS",24)*sm("MASS",24))*(*sus_param).aY*(sm("MASS",3))/(*sus_param).sw2;
 
 
 	complex_t CQ1pcharg=NQ1pc+BQ1pc;
@@ -833,9 +833,9 @@ complex_t CPQ2_susy::LO_calculation() {
 	} 		
 
 	/* Wilson coefficients CQ1 and CQ2 prime */ 
-	double NQ1pH=-W_param->ml*((*susy)("HMIX",2))*(*susy)("HMIX",2)/4./sm("MASS",24)/sm("MASS",24)*(*sus_param).xt*f30((*sus_param).xt,(*sus_param).z);
+	double NQ1pH=-wilson_p("WPARAM_SI_SM", 3)*((*susy)("HMIX",2))*(*susy)("HMIX",2)/4./sm("MASS",24)/sm("MASS",24)*(*sus_param).xt*f30((*sus_param).xt,(*sus_param).z);
 	
-	double BQ1pH=W_param->ml*((*susy)("HMIX",2))*(*susy)("HMIX",2)/4./sm("MASS",24)/sm("MASS",24)*f70((*sus_param).xt,(*sus_param).z);
+	double BQ1pH=wilson_p("WPARAM_SI_SM", 3)*((*susy)("HMIX",2))*(*susy)("HMIX",2)/4./sm("MASS",24)/sm("MASS",24)*f70((*sus_param).xt,(*sus_param).z);
 	
 	complex_t CQ1pH=(NQ1pH+BQ1pH)*sm("MASS",3)/(*sus_param).sw2;
 	
@@ -844,7 +844,7 @@ complex_t CPQ2_susy::LO_calculation() {
 	
 	double BQ2pc=(BQ1pc1-BQ1pc2)*(*sus_param).kappa*(sm("MASS",24))*sm("MASS",24)/2./sm("GAUGE", 2)/sm("GAUGE", 2)/(*sus_param).sw2;
 
-	NQ2pc*=W_param->ml*((*susy)("HMIX",2))*(*susy)("HMIX",2)/sm("MASS",24)/((*susy)("MASS",37)*(*susy)("MASS",37)-sm("MASS",24)*sm("MASS",24))*(*sus_param).aY*(sm("MASS",3))/(*sus_param).sw2;
+	NQ2pc*=wilson_p("WPARAM_SI_SM", 3)*((*susy)("HMIX",2))*(*susy)("HMIX",2)/sm("MASS",24)/((*susy)("MASS",37)*(*susy)("MASS",37)-sm("MASS",24)*sm("MASS",24))*(*sus_param).aY*(sm("MASS",3))/(*sus_param).sw2;
 
 
 	complex_t CQ2pcharg=NQ2pc+BQ2pc;
@@ -894,7 +894,7 @@ complex_t CQ1_susy::LO_calculation() {
 	}
 	complex_t BQ10c=(BQ10c1+BQ10c2)*(*sus_param).kappa*sm("MASS",24)*sm("MASS",24)/2./sm("GAUGE",2)/sm("GAUGE",2)/(*sus_param).sw2;
 
-	NQ10c*=W_param->ml*((*susy)("HMIX",2))*(*susy)("HMIX",2)/sm("MASS",24)/((*susy)("MASS",37)*(*susy)("MASS",37)-sm("MASS",24)*sm("MASS",24))*(*sus_param).aY*wilson_p("WPARAM_MATCH_SM", {5,1})/(*sus_param).sw2;
+	NQ10c*=wilson_p("WPARAM_SI_SM", 3)*((*susy)("HMIX",2))*(*susy)("HMIX",2)/sm("MASS",24)/((*susy)("MASS",37)*(*susy)("MASS",37)-sm("MASS",24)*sm("MASS",24))*(*sus_param).aY*wilson_p("WPARAM_MATCH_SM", {5,1})/(*sus_param).sw2;
     double le = -(*susy)("HMIX", 2);
 	double G1=-3./4.+sus_param->ld*sus_param->lu*F4SP(sus_param->xt,sus_param->xH)+sus_param->lu*sus_param->lu*F5SP(sus_param->xt,sus_param->xH);
 	double G2=sus_param->ld*(sus_param->ld*sus_param->lu+1.)*F6SP(sus_param->xt,sus_param->xH)-sus_param->ld*sus_param->lu*sus_param->lu*F7SP(sus_param->xt,sus_param->xH)
@@ -904,7 +904,7 @@ complex_t CQ1_susy::LO_calculation() {
 	+sus_param->xt/2./sus_param->xh*(sin(sus_param->alpha-sus_param->beta)+cos(sus_param->alpha-sus_param->beta)*le)*(sin(sus_param->alpha-sus_param->beta)*G1+cos(sus_param->alpha-sus_param->beta)*G2)
 	+sus_param->xt/2./sus_param->xH0*(cos(sus_param->alpha-sus_param->beta)-sin(sus_param->alpha-sus_param->beta)*le)*(cos(sus_param->alpha-sus_param->beta)*G1-sin(sus_param->alpha-sus_param->beta)*G2);
 	complex_t CQ1H_0=CSc_2HDM(sus_param->xH,sus_param->xt,sus_param->lu,sus_param->ld,le)+CSn_2HDM;
-	CQ1H_0*=(W_param->ml*sus_param->mass_b_muW/sm("MASS",24)/sm("MASS",24))/sus_param->sw2;
+	CQ1H_0*=(wilson_p("WPARAM_SI_SM", 3)*sus_param->mass_b_muW/sm("MASS",24)/sm("MASS",24))/sus_param->sw2;
 
 	complex_t CQ1charg_0=NQ10c+BQ10c;
     complex_t coeff_temp = (CQ1charg_0+CQ1H_0)/sus_param->epsfac;
@@ -1012,14 +1012,14 @@ complex_t CQ1_susy::LO_calculation() {
 				}
 		}
 	
-		CQ1H*=-W_param->ml/4.*(*susy)("HMIX",2)*(*susy)("HMIX",2);
-		CQ2H*=W_param->ml/4.*(*susy)("HMIX",2)*(*susy)("HMIX",2);
+		CQ1H*=-wilson_p("WPARAM_SI_SM", 3)/4.*(*susy)("HMIX",2)*(*susy)("HMIX",2);
+		CQ2H*=wilson_p("WPARAM_SI_SM", 3)/4.*(*susy)("HMIX",2)*(*susy)("HMIX",2);
 		
 		complex_t CAH={0,-lambdaNMSSM*AlambdaNSSM/sm("GAUGE",2)/sm("MASS",24)*(*susy)("HMIX",2)*f30((*susy)("MASS",37)*(*susy)("MASS",37)/(*sus_param).mass_top_muW/(*sus_param).mass_top_muW,sm("MASS",24)*sm("MASS",24)/(*sus_param).mass_top_muW/(*sus_param).mass_top_muW)};
 	
 			
-		CQ1c*=W_param->ml/4.*(*susy)("HMIX",2)*(*susy)("HMIX",2);
-		CQ2c*=-W_param->ml/4.*(*susy)("HMIX",2)*(*susy)("HMIX",2);		
+		CQ1c*=wilson_p("WPARAM_SI_SM", 3)/4.*(*susy)("HMIX",2)*(*susy)("HMIX",2);
+		CQ2c*=-wilson_p("WPARAM_SI_SM", 3)/4.*(*susy)("HMIX",2)*(*susy)("HMIX",2);		
 	
 		coeff_temp = (CQ1H+CQ1c)*wilson_p("WPARAM_MATCH_SM", {5,1})/(*sus_param).sw2/(*sus_param).epsfac;
 
@@ -1032,8 +1032,8 @@ complex_t CQ1_susy::LO_calculation() {
 
 complex_t CQ1_susy::NLO_calculation() {
 	sus_param->reset_PrimeCQG(this->get_Q_match());
-	complex_t NQ11H=-W_param->ml*((*susy)("HMIX",2))*(*susy)("HMIX",2)/4./sm("MASS",24)/sm("MASS",24)*(f141((*sus_param).xt,(*sus_param).z)+8.*(*sus_param).xt*(f30((*sus_param).xt,(*sus_param).z)+(*sus_param).xt*(f30((*sus_param).xt*1.0001,(*sus_param).z)-f30((*sus_param).xt*0.9999,(*sus_param).z))/0.0002)*log(this->get_Q_match()*this->get_Q_match()/(*sus_param).mass_top_muW/(*sus_param).mass_top_muW));
-	complex_t BQ11H=W_param->ml*((*susy)("HMIX",2))*(*susy)("HMIX",2)/4./sm("MASS",24)/sm("MASS",24)*(f111((*sus_param).xt,(*sus_param).z)+8.*(f70((*sus_param).xt*1.0001,(*sus_param).z)-f70((*sus_param).xt*0.9999,(*sus_param).z))/0.0002*log(this->get_Q_match()*this->get_Q_match()/(*sus_param).mass_top_muW/(*sus_param).mass_top_muW));
+	complex_t NQ11H=-wilson_p("WPARAM_SI_SM", 3)*((*susy)("HMIX",2))*(*susy)("HMIX",2)/4./sm("MASS",24)/sm("MASS",24)*(f141((*sus_param).xt,(*sus_param).z)+8.*(*sus_param).xt*(f30((*sus_param).xt,(*sus_param).z)+(*sus_param).xt*(f30((*sus_param).xt*1.0001,(*sus_param).z)-f30((*sus_param).xt*0.9999,(*sus_param).z))/0.0002)*log(this->get_Q_match()*this->get_Q_match()/(*sus_param).mass_top_muW/(*sus_param).mass_top_muW));
+	complex_t BQ11H=wilson_p("WPARAM_SI_SM", 3)*((*susy)("HMIX",2))*(*susy)("HMIX",2)/4./sm("MASS",24)/sm("MASS",24)*(f111((*sus_param).xt,(*sus_param).z)+8.*(f70((*sus_param).xt*1.0001,(*sus_param).z)-f70((*sus_param).xt*0.9999,(*sus_param).z))/0.0002*log(this->get_Q_match()*this->get_Q_match()/(*sus_param).mass_top_muW/(*sus_param).mass_top_muW));
 	complex_t CQ1H_1=(NQ11H+BQ11H)*wilson_p("WPARAM_MATCH_SM", {5,1})/(*sus_param).sw2;
 	complex_t CQ2H_1=-CQ1H_1;
 
@@ -1137,8 +1137,8 @@ complex_t CQ1_susy::NLO_calculation() {
 	complex_t BQ21c=-(BQ11c1-BQ11c2)*(*sus_param).kappa*sm("MASS",24)*sm("MASS",24)/2./sm("GAUGE",2)/sm("GAUGE",2)/(*sus_param).sw2;
 
 
-	NQ11c*=W_param->ml*((*susy)("HMIX",2))*(*susy)("HMIX",2)/sm("MASS",24)/((*susy)("MASS",37)*(*susy)("MASS",37)-sm("MASS",24)*sm("MASS",24))*(*sus_param).aY*wilson_p("WPARAM_MATCH_SM", {5,1})/(*sus_param).sw2;
-	NQ21c*=-W_param->ml*((*susy)("HMIX",2))*(*susy)("HMIX",2)/sm("MASS",24)/((*susy)("MASS",37)*(*susy)("MASS",37)-sm("MASS",24)*sm("MASS",24))*(*sus_param).aY*wilson_p("WPARAM_MATCH_SM", {5,1})/(*sus_param).sw2;
+	NQ11c*=wilson_p("WPARAM_SI_SM", 3)*((*susy)("HMIX",2))*(*susy)("HMIX",2)/sm("MASS",24)/((*susy)("MASS",37)*(*susy)("MASS",37)-sm("MASS",24)*sm("MASS",24))*(*sus_param).aY*wilson_p("WPARAM_MATCH_SM", {5,1})/(*sus_param).sw2;
+	NQ21c*=-wilson_p("WPARAM_SI_SM", 3)*((*susy)("HMIX",2))*(*susy)("HMIX",2)/sm("MASS",24)/((*susy)("MASS",37)*(*susy)("MASS",37)-sm("MASS",24)*sm("MASS",24))*(*sus_param).aY*wilson_p("WPARAM_MATCH_SM", {5,1})/(*sus_param).sw2;
 	
 	complex_t CQ1charg_1=NQ11c+BQ11c;
 	
@@ -1151,9 +1151,9 @@ complex_t CQ1_susy::NLO_calculation() {
 	complex_t BQ21f=-(BQ11f1-BQ11f2)*2./3.*(*sus_param).kappa/sm("GAUGE",2)/sm("GAUGE",2)/(*sus_param).sw2;
 	
 	
-	NQ11f*=-4./3.*W_param->ml*((*susy)("HMIX",2))*(*susy)("HMIX",2)/sm("MASS",24)/sm("MASS",24)/((*susy)("MASS",37)*(*susy)("MASS",37)-sm("MASS",24)*sm("MASS",24))*(*sus_param).aY*wilson_p("WPARAM_MATCH_SM", {5,1})/(*sus_param).sw2;
+	NQ11f*=-4./3.*wilson_p("WPARAM_SI_SM", 3)*((*susy)("HMIX",2))*(*susy)("HMIX",2)/sm("MASS",24)/sm("MASS",24)/((*susy)("MASS",37)*(*susy)("MASS",37)-sm("MASS",24)*sm("MASS",24))*(*sus_param).aY*wilson_p("WPARAM_MATCH_SM", {5,1})/(*sus_param).sw2;
 
-	NQ21f*=4./3.*W_param->ml*((*susy)("HMIX",2))*(*susy)("HMIX",2)/sm("MASS",24)/sm("MASS",24)/((*susy)("MASS",37)*(*susy)("MASS",37)-sm("MASS",24)*sm("MASS",24))*(*sus_param).aY*wilson_p("WPARAM_MATCH_SM", {5,1})/(*sus_param).sw2;
+	NQ21f*=4./3.*wilson_p("WPARAM_SI_SM", 3)*((*susy)("HMIX",2))*(*susy)("HMIX",2)/sm("MASS",24)/sm("MASS",24)/((*susy)("MASS",37)*(*susy)("MASS",37)-sm("MASS",24)*sm("MASS",24))*(*sus_param).aY*wilson_p("WPARAM_MATCH_SM", {5,1})/(*sus_param).sw2;
 
 
 	complex_t CQ1four_1=NQ11f+BQ11f;
@@ -1212,9 +1212,9 @@ complex_t CQ2_susy::LO_calculation() {
     double CPn_2HDM=sus_param->xt*(-le*(sus_param->ld*F1SP(sus_param->xt,sus_param->xH)+sus_param->lu*F2SP(sus_param->xt,sus_param->xH))+le*sus_param->lu*F3SP(sus_param->xt,sus_param->xH))+sus_param->xt/2./sus_param->xA*(le)*G3;
 
     double CQ2H_0=CPc_2HDM(sus_param->xH,sus_param->xt,sus_param->lu,sus_param->ld,le,sus_param->sw2)+CPn_2HDM;
-    CQ2H_0*=(W_param->ml*sus_param->mass_b_muW/sm("MASS",24)/sm("MASS",24))/sus_param->sw2;
+    CQ2H_0*=(wilson_p("WPARAM_SI_SM", 3)*sus_param->mass_b_muW/sm("MASS",24)/sm("MASS",24))/sus_param->sw2;
 
-	NQ20c*=-W_param->ml*((*susy)("HMIX",2))*(*susy)("HMIX",2)/sm("MASS",24)/((*susy)("MASS",37)*(*susy)("MASS",37)-sm("MASS",24)*sm("MASS",24))*(*sus_param).aY*wilson_p("WPARAM_MATCH_SM", {5,1})/(*sus_param).sw2;
+	NQ20c*=-wilson_p("WPARAM_SI_SM", 3)*((*susy)("HMIX",2))*(*susy)("HMIX",2)/sm("MASS",24)/((*susy)("MASS",37)*(*susy)("MASS",37)-sm("MASS",24)*sm("MASS",24))*(*sus_param).aY*wilson_p("WPARAM_MATCH_SM", {5,1})/(*sus_param).sw2;
 
 	complex_t CQ2charg_0=NQ20c+BQ20c;
 
@@ -1324,27 +1324,27 @@ complex_t CQ2_susy::LO_calculation() {
 				}
 		}
 	
-		CQ1H*=-W_param->ml/4.*(*susy)("HMIX",2)*(*susy)("HMIX",2);
-		CQ2H*=W_param->ml/4.*(*susy)("HMIX",2)*(*susy)("HMIX",2);
+		CQ1H*=-wilson_p("WPARAM_SI_SM", 3)/4.*(*susy)("HMIX",2)*(*susy)("HMIX",2);
+		CQ2H*=wilson_p("WPARAM_SI_SM", 3)/4.*(*susy)("HMIX",2)*(*susy)("HMIX",2);
 		
 		complex_t CAH={0,-lambdaNMSSM*AlambdaNSSM/sm("GAUGE",2)/sm("MASS",24)*(*susy)("HMIX",2)*f30((*susy)("MASS",37)*(*susy)("MASS",37)/(*sus_param).mass_top_muW/(*sus_param).mass_top_muW,sm("MASS",24)*sm("MASS",24)/(*sus_param).mass_top_muW/(*sus_param).mass_top_muW)};
 	
 			
-		CQ1c*=W_param->ml/4.*(*susy)("HMIX",2)*(*susy)("HMIX",2);
-		CQ2c*=-W_param->ml/4.*(*susy)("HMIX",2)*(*susy)("HMIX",2);		
+		CQ1c*=wilson_p("WPARAM_SI_SM", 3)/4.*(*susy)("HMIX",2)*(*susy)("HMIX",2);
+		CQ2c*=-wilson_p("WPARAM_SI_SM", 3)/4.*(*susy)("HMIX",2)*(*susy)("HMIX",2);		
 	
 		coeff_temp = (CQ2H+CQ2c)*wilson_p("WPARAM_MATCH_SM", {5,1})/(*sus_param).sw2/(*sus_param).epsfac;
 
 		complex_t CA=CAH+CAc;
 
-		if((*susy)("MASS",36)>this->get_Q_match()) coeff_temp+=-v_deltam_s/2.*wilson_p("WPARAM_MATCH_SM", {5,1})/(*sus_param).sw2*W_param->ml*CA/(*susy)("MASS",36)/(*susy)("MASS",36);
+		if((*susy)("MASS",36)>this->get_Q_match()) coeff_temp+=-v_deltam_s/2.*wilson_p("WPARAM_MATCH_SM", {5,1})/(*sus_param).sw2*wilson_p("WPARAM_SI_SM", 3)*CA/(*susy)("MASS",36)/(*susy)("MASS",36);
 
 		
 		if(((*susy)("MASS",36)>QCDHelper::mass_b_pole())&&((*susy)("MASS",36)<this->get_Q_match() ))
 		{	
 			double alphas_Ma1  = QCDHelper::alpha_s((*susy)("MASS",36));	
 			double mass_b_ma1=QCDHelper::msbar_mass(5, (*susy)("MASS",36));
-			coeff_temp+=-v_deltam_s/2.*mass_b_ma1/(*sus_param).sw2*W_param->ml*CA/(*susy)("MASS",36)/(*susy)("MASS",36) *pow(alphas_Ma1/W_param->alphas_mu,-4./W_param->beta0);
+			coeff_temp+=-v_deltam_s/2.*mass_b_ma1/(*sus_param).sw2*wilson_p("WPARAM_SI_SM", 3)*CA/(*susy)("MASS",36)/(*susy)("MASS",36) *pow(alphas_Ma1/W_param->alphas_mu,-4./W_param->beta0);
 		}
 		
 
@@ -1357,8 +1357,8 @@ complex_t CQ2_susy::LO_calculation() {
 complex_t CQ2_susy::NLO_calculation() {
 	sus_param->reset_PrimeCQG(this->get_Q_match());
 
-	complex_t NQ11H=-W_param->ml*((*susy)("HMIX",2))*(*susy)("HMIX",2)/4./sm("MASS",24)/sm("MASS",24)*(f141((*sus_param).xt,(*sus_param).z)+8.*(*sus_param).xt*(f30((*sus_param).xt,(*sus_param).z)+(*sus_param).xt*(f30((*sus_param).xt*1.0001,(*sus_param).z)-f30((*sus_param).xt*0.9999,(*sus_param).z))/0.0002)*log(this->get_Q_match()*this->get_Q_match()/(*sus_param).mass_top_muW/(*sus_param).mass_top_muW));
-	complex_t BQ11H=W_param->ml*((*susy)("HMIX",2))*(*susy)("HMIX",2)/4./sm("MASS",24)/sm("MASS",24)*(f111((*sus_param).xt,(*sus_param).z)+8.*(f70((*sus_param).xt*1.0001,(*sus_param).z)-f70((*sus_param).xt*0.9999,(*sus_param).z))/0.0002*log(this->get_Q_match()*this->get_Q_match()/(*sus_param).mass_top_muW/(*sus_param).mass_top_muW));
+	complex_t NQ11H=-wilson_p("WPARAM_SI_SM", 3)*((*susy)("HMIX",2))*(*susy)("HMIX",2)/4./sm("MASS",24)/sm("MASS",24)*(f141((*sus_param).xt,(*sus_param).z)+8.*(*sus_param).xt*(f30((*sus_param).xt,(*sus_param).z)+(*sus_param).xt*(f30((*sus_param).xt*1.0001,(*sus_param).z)-f30((*sus_param).xt*0.9999,(*sus_param).z))/0.0002)*log(this->get_Q_match()*this->get_Q_match()/(*sus_param).mass_top_muW/(*sus_param).mass_top_muW));
+	complex_t BQ11H=wilson_p("WPARAM_SI_SM", 3)*((*susy)("HMIX",2))*(*susy)("HMIX",2)/4./sm("MASS",24)/sm("MASS",24)*(f111((*sus_param).xt,(*sus_param).z)+8.*(f70((*sus_param).xt*1.0001,(*sus_param).z)-f70((*sus_param).xt*0.9999,(*sus_param).z))/0.0002*log(this->get_Q_match()*this->get_Q_match()/(*sus_param).mass_top_muW/(*sus_param).mass_top_muW));
 	complex_t CQ1H_1=(NQ11H+BQ11H)*wilson_p("WPARAM_MATCH_SM", {5,1})/(*sus_param).sw2;
 	complex_t CQ2H_1=-CQ1H_1;
 
@@ -1463,8 +1463,8 @@ complex_t CQ2_susy::NLO_calculation() {
 	complex_t BQ21c=-(BQ11c1-BQ11c2)*(*sus_param).kappa*sm("MASS",24)*sm("MASS",24)/2./sm("GAUGE",2)/sm("GAUGE",2)/(*sus_param).sw2;
 
 
-	NQ11c*=W_param->ml*((*susy)("HMIX",2))*(*susy)("HMIX",2)/sm("MASS",24)/((*susy)("MASS",37)*(*susy)("MASS",37)-sm("MASS",24)*sm("MASS",24))*(*sus_param).aY*wilson_p("WPARAM_MATCH_SM", {5,1})/(*sus_param).sw2;
-	NQ21c*=-W_param->ml*((*susy)("HMIX",2))*(*susy)("HMIX",2)/sm("MASS",24)/((*susy)("MASS",37)*(*susy)("MASS",37)-sm("MASS",24)*sm("MASS",24))*(*sus_param).aY*wilson_p("WPARAM_MATCH_SM", {5,1})/(*sus_param).sw2;
+	NQ11c*=wilson_p("WPARAM_SI_SM", 3)*((*susy)("HMIX",2))*(*susy)("HMIX",2)/sm("MASS",24)/((*susy)("MASS",37)*(*susy)("MASS",37)-sm("MASS",24)*sm("MASS",24))*(*sus_param).aY*wilson_p("WPARAM_MATCH_SM", {5,1})/(*sus_param).sw2;
+	NQ21c*=-wilson_p("WPARAM_SI_SM", 3)*((*susy)("HMIX",2))*(*susy)("HMIX",2)/sm("MASS",24)/((*susy)("MASS",37)*(*susy)("MASS",37)-sm("MASS",24)*sm("MASS",24))*(*sus_param).aY*wilson_p("WPARAM_MATCH_SM", {5,1})/(*sus_param).sw2;
 	
 	complex_t CQ2charg_1=NQ21c+BQ21c;
 		
@@ -1472,9 +1472,9 @@ complex_t CQ2_susy::NLO_calculation() {
 	complex_t BQ21f=-(BQ11f1-BQ11f2)*2./3.*(*sus_param).kappa/sm("GAUGE",2)/sm("GAUGE",2)/(*sus_param).sw2;
 	
 	
-	NQ11f*=-4./3.*W_param->ml*((*susy)("HMIX",2))*(*susy)("HMIX",2)/sm("MASS",24)/sm("MASS",24)/((*susy)("MASS",37)*(*susy)("MASS",37)-sm("MASS",24)*sm("MASS",24))*(*sus_param).aY*wilson_p("WPARAM_MATCH_SM", {5,1})/(*sus_param).sw2;
+	NQ11f*=-4./3.*wilson_p("WPARAM_SI_SM", 3)*((*susy)("HMIX",2))*(*susy)("HMIX",2)/sm("MASS",24)/sm("MASS",24)/((*susy)("MASS",37)*(*susy)("MASS",37)-sm("MASS",24)*sm("MASS",24))*(*sus_param).aY*wilson_p("WPARAM_MATCH_SM", {5,1})/(*sus_param).sw2;
 
-	NQ21f*=4./3.*W_param->ml*((*susy)("HMIX",2))*(*susy)("HMIX",2)/sm("MASS",24)/sm("MASS",24)/((*susy)("MASS",37)*(*susy)("MASS",37)-sm("MASS",24)*sm("MASS",24))*(*sus_param).aY*wilson_p("WPARAM_MATCH_SM", {5,1})/(*sus_param).sw2;
+	NQ21f*=4./3.*wilson_p("WPARAM_SI_SM", 3)*((*susy)("HMIX",2))*(*susy)("HMIX",2)/sm("MASS",24)/sm("MASS",24)/((*susy)("MASS",37)*(*susy)("MASS",37)-sm("MASS",24)*sm("MASS",24))*(*sus_param).aY*wilson_p("WPARAM_MATCH_SM", {5,1})/(*sus_param).sw2;
 
 	complex_t CQ2four_1=NQ21f+BQ21f;
 
@@ -1546,7 +1546,7 @@ void BScalarCoefficientGroup_susy::set_base_1_LO() {
 		    }
             complex_t CA=CAH+CAc;
             double width_A0=1.e-6;
-            coeff_temp2+=complex_t{v_deltam_s/2.*QCDHelper::mass_b_msbar()/(*sus_param).sw2*W_param->ml*CA/(m_Bs*m_Bs-(*susy)("MASS",36)*(*susy)("MASS",36),(*susy)("MASS",36)*width_A0)};
+            coeff_temp2+=complex_t{v_deltam_s/2.*QCDHelper::mass_b_msbar()/(*sus_param).sw2*wilson_p("WPARAM_SI_SM", 3)*CA/(m_Bs*m_Bs-(*susy)("MASS",36)*(*susy)("MASS",36),(*susy)("MASS",36)*width_A0)};
         }
     }
     this->at("CQ2")->set_WilsonCoeffRun("LO", coeff_temp2);
