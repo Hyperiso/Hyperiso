@@ -202,6 +202,7 @@ public:
     inline void build(std::vector<WGroup> group_names, double Q_match, double Q, QCDOrder order) {
         std::map<std::string, std::shared_ptr<CoefficientGroup>> groups;
         auto model = ModelAPI().get();
+       
         for (auto& gn : group_names) {
             std::string gn_str = GroupMapper::str(gn);
             groups.emplace(gn_str, group_ptrs.at(gn_str));

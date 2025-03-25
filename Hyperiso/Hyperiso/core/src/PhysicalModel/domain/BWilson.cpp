@@ -1,7 +1,9 @@
 #include "BWilson.h"
 
 complex_t C1::NLO_calculation() {
+    std::cout << "eheh" << std::endl;
     double L = wilson_p("WPARAM_MATCH_SM", 3);
+    std::cout << "ohoh" << std::endl;
     double coeff_temp = 15.+6.*L;
     return this->double_to_complex_save("NLO", coeff_temp);
 }

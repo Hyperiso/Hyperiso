@@ -36,9 +36,9 @@ private:
     static void init_matching_block(double mu_W);
     static void init_running_block(double mu_W, double mu_h);
 
-    static WilsonParamComposer composer;
-    static double current_mu_W;
-    static double current_mu_h;
+    static inline WilsonParamComposer composer = WilsonParamComposer();
+    static inline double current_mu_W{-1};
+    static inline double current_mu_h{-1};
     static inline bool initialized {false};
 };
 

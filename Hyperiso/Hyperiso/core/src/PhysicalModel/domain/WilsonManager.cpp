@@ -10,7 +10,9 @@ InitialState::~InitialState() {
 
 void InitialState::setQMatch(CoefficientManager* manager, const std::string& groupName, double Q_match) {
         CoefficientGroup* group = manager->getCoefficientGroup(groupName);
+        std::cout << "eheh" << std::endl;
         group->set_Q_match(Q_match);
+        std::cout << "eheh2" << std::endl;
         manager->setState(groupName, std::make_shared<QMatchSetState>(OrderMapper::str(this->currentOrder)));
 }
 

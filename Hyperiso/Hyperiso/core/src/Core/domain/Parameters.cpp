@@ -29,6 +29,10 @@ Parameters::Parameters(std::shared_ptr<ModelStrategy> modelStrategy)
 }
 
 double Parameters::operator()(const std::string& block, LhaID id) {
+    if (block == "WPARAM_MATCH_SM" ){
+
+        std::cout << blockAccessor << std::endl;
+    }
     return blockAccessor->getValue(block, id);
 }
 

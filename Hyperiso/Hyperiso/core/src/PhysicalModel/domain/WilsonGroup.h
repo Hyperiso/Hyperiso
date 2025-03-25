@@ -15,8 +15,9 @@ public:
     CoefficientGroup(const CoefficientGroup&) = default;
     CoefficientGroup(CoefficientGroup&&) = default;
 
-    CoefficientGroup() {}
+    CoefficientGroup() {WilsonParameterHelper::init(81, 81, 2);}
     CoefficientGroup(std::map<std::string, std::shared_ptr<WilsonCoefficient>>& coeffs) {
+        WilsonParameterHelper::init(81, 81, 2);
         for (auto& coeff : coeffs) {
             this->insert(std::make_pair(coeff.first, std::move(coeff.second)));
         }
@@ -82,8 +83,10 @@ public:
 
     void set_Q_match(double Q_match) {
         this->Q_match = Q_match;
+        std::cout << "eheh bis" << std::endl;
         for (auto& coeff : *this) {
             coeff.second->set_Q_match(Q_match);
+            std::cout << "ehehbis 2" << std::endl;
         }
     }
     
@@ -112,6 +115,7 @@ public:
     ParameterProxy sm {ParameterType::SM};
     ParameterProxy wilson_p {ParameterType::WILSON};
 
+    
 };
 
 

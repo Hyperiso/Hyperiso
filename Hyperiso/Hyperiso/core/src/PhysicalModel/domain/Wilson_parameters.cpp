@@ -1,7 +1,7 @@
 #include "Wilson_parameters.h"
 
 void WilsonParameterHelper::set_mu(double mu) {
-	if (fpeq(mu, current_mu_h)) {
+	if (fpeq(mu, WilsonParameterHelper::current_mu_h)) {
 		return;
 	}
 
@@ -9,10 +9,10 @@ void WilsonParameterHelper::set_mu(double mu) {
 }
 
 void WilsonParameterHelper::set_mu_W(double mu_W) {
-	if (fpeq(mu_W, current_mu_W)) {
+	if (fpeq(mu_W, WilsonParameterHelper::current_mu_W)) {
 		return;
 	}
-
+	std::cout << "mmh" << std::endl;
     WilsonParamComposer().update("WPARAM_MATCH_SM");
 	WilsonParamComposer().update("WPARAM_RUN_SM");
 }

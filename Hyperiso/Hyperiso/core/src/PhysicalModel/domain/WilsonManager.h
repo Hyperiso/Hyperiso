@@ -257,8 +257,11 @@ public:
     }
 
     void setQMatch(const std::string& groupName, double Q_match) {
+        std::cout << "here 1" << std::endl;
         ensureGroupState(groupName)->setQMatch(this, groupName, Q_match);
+        std::cout << "here 2" << std::endl;
         if (has_bsm) {
+            std::cout << "here 3" << std::endl;
             ensureGroupState(groupName + bsm_suffix)->setQMatch(this, groupName + bsm_suffix, Q_match);
         }
     }
@@ -371,21 +374,24 @@ public:
         std::shared_ptr<CoefficientManager> manager = CoefficientManager::GetInstance();
         manager->has_bsm = model == ModelMapper::str(Model::THDM) || model == ModelMapper::str(Model::SUSY);
         manager->bsm_suffix = manager->has_bsm ? "_" + model : "";
-
+        std::cout << "fuck 1" << std::endl;
         for (auto& group : groups) {
             LOG_DEBUG("(CoefficientManager) Registering coefficient group", group.first);
             manager->registerCoefficientGroup(group.first, group.second);
         }
-
+        std::cout << "fuck 2" << std::endl;
         for (auto& group: groups) {
             if (manager->has_bsm && group.first.ends_with(manager->bsm_suffix)) continue;
 
             manager->setQMatch(group.first, Q_match);
+            std::cout << "fuck 2.5" << std::endl;
             manager->setMatchingCoefficient(group.first, order);
+            std::cout << "fuck 2.8" << std::endl;
             manager->setGroupScale(group.first, Q);
+            std::cout << "fuck 2.9" << std::endl;
             manager->setRunCoefficient(group.first, order);
         }
-        
+        std::cout << "fuck 3" << std::endl;
 
         return manager;
     }
