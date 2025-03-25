@@ -17,7 +17,8 @@ class WilsonInterface {
 private:
     std::shared_ptr<CoefficientManager> wm;
 
-    std::map<std::string, std::shared_ptr<CoefficientGroup>> group_ptrs = {
+    std::map<std::string, std::shared_ptr<CoefficientGroup>> group_ptrs
+     = {
         {"BCoefficients", std::make_shared<BCoefficientGroup>()},
         {"BPrimeCoefficients", std::make_shared<BPrimeCoefficientGroup>()},
         {"BScalarCoefficients", std::make_shared<BScalarCoefficientGroup>()},

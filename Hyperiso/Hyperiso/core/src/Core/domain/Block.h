@@ -30,11 +30,12 @@ public:
     Block(std::shared_ptr<Block> other);
 
     // Interface methods
-    Parameter& retrieve(const LhaID& id) override;
     void store(const LhaID& id, Parameter&& param) override;
-    void remove(const LhaID& key) override;
+    void assign(const LhaID& key, Parameter&& param) override;
+    void store_or_assign(const LhaID& key, Parameter&& param) override;
     bool contains(const LhaID& key) const override;
-    void set(const LhaID& key, Parameter&& param) override;
+    Parameter& retrieve(const LhaID& id) override;
+    void remove(const LhaID& key) override;
 
     std::unordered_set<LhaID> getAllIDs();
     const std::map<LhaID, Parameter>& getItems() { return this->items; };
@@ -44,7 +45,6 @@ public:
     void removeObserver(std::shared_ptr<Block> observer);
     void notifyObservers();
     virtual void update() {}
-    void update(const LhaID &id, Parameter&& param); // TODO : Niels ?
     void copy(std::shared_ptr<Block> other);
 
     ~Block() { notifyObservers(); }

@@ -19,7 +19,6 @@ Block::Block(std::shared_ptr<Block> other) {
 }
 
 Parameter& Block::retrieve(const LhaID& id) {
-
     if (!this->contains(id)) {
         LOG_ERROR("KeyError", "Block", this->blockname, "doesn't contain parameter", id.to_string());
     }
@@ -35,37 +34,24 @@ void Block::store(const LhaID& id, Parameter&& param) {
     }
 }
 
-void Block::set(const LhaID& key, Parameter&& param) {
-    LhaID _ = key;
-    Parameter _2 = param;
-    this->items.emplace(std::make_pair(_, _2));
+void Block::assign(const LhaID& key, Parameter&& param) {
+    if (!this->contains(key)) {
+        LOG_ERROR("KeyError", "Cannot update non-existing parameter", key.to_string(), "in block", this->blockname);
+    }
 
-}
-std::unordered_set<LhaID> Block::getAllIDs() {
-    return get_keys(this->items);
+    this->items.at(key) = param;
 }
 
-void Block::set_owner(ParameterType type) {
-    for (auto& [_, param] : items) {
-        param.set_owner(type);
+void Block::store_or_assign(const LhaID &key, Parameter &&param) {
+    if (this->contains(key)) {
+        this->assign(key, std::move(param));
+    } else {
+        this->store(key, std::move(param));
     }
 }
 
 bool Block::contains(const LhaID& id) const {
     return this->items.contains(id);
-}
-
-void Block::update(const LhaID &id, Parameter&& param) {
-    if (!this->contains(id)) {
-        LOG_ERROR("KeyError", "Cannot update non-existing parameter", id.to_string(), "in block", this->blockname);
-    }
-
-    this->items.at(id) = param;
-}
-
-void Block::copy(std::shared_ptr<Block> other) {
-    this->items = other->getItems();
-    this->blockname = other->blockname;
 }
 
 void Block::remove(const LhaID& id) {
@@ -74,6 +60,21 @@ void Block::remove(const LhaID& id) {
     }
 
     this->items.erase(id);
+}
+
+void Block::set_owner(ParameterType type) {
+    for (auto& [_, param] : items) {
+        param.set_owner(type);
+    }
+}
+
+std::unordered_set<LhaID> Block::getAllIDs() {
+    return get_keys(this->items);
+}
+
+void Block::copy(std::shared_ptr<Block> other) {
+    this->items = other->getItems();
+    this->blockname = other->blockname;
 }
 
 // TODO : Remove WilsonBlock

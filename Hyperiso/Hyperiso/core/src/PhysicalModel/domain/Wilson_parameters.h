@@ -15,22 +15,30 @@ struct WilsonRunningMatrix {
 	std::array<double, BWilsonRunningParameters::array_size> etaMuPowers2 = {};
 };
 
-class WilsonParameters {
+class BWilsonRunningHelper {
 public:
-    WilsonParameters(double mu_W, double mu_h, int gen);
-    void set_mu_W(double mu_W);
-    void set_mu(double mu);
-    void set_gen(int gen);
-
     WilsonRunningMatrix get_matrix() {return this->w_run;}
+    void update();
 
 private:
-    WilsonParamComposer composer;
-
-    void init_scale_independent_block(int gen);
-    void init_matching_block(double mu_W);
-    void init_running_block(double mu_W, double mu_h);
-
     WilsonRunningMatrix w_run;
+};
+
+class WilsonParameterHelper {
+public:
+    static void init(double mu_W, double mu_h, int gen);
+    static void set_mu_W(double mu_W);
+    static void set_mu(double mu);
+    static void set_gen(int gen);
+
+private:
+    static void init_scale_independent_block(int gen);
+    static void init_matching_block(double mu_W);
+    static void init_running_block(double mu_W, double mu_h);
+
+    static WilsonParamComposer composer;
+    static double current_mu_W;
+    static double current_mu_h;
+    static inline bool initialized {false};
 };
 

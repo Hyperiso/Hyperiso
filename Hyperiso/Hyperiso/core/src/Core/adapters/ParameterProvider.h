@@ -14,7 +14,7 @@ public:
     enum class DataType { VALUE, STD_STAT, STD_SYST, STD_COMBINED };
 
     ParameterProvider() = default;
-    inline ParameterProvider(ParameterType p_type) : p_type(p_type) {}
+    inline ParameterProvider(ParameterType p_type) : p_type(p_type) { Parameters::GetInstance(p_type); }
 
     double operator()(const ParamId& pid, DataType d_type=DataType::VALUE);
     double operator()(const std::string& block, const LhaID& id, DataType d_type=DataType::VALUE);

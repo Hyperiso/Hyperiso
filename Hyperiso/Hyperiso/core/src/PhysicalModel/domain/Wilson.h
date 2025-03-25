@@ -1,13 +1,9 @@
 #if !defined(HYPERISO_WILSON_H)
 #define HYPERISO_WILSON_H
-#include <map>
-#include <string>
-#include <vector>
 
+#include "Include.h"
 #include "Math.h"
 #include "Utils.h"
-#include "Parameters.h"
-#include "Logger.h"
 #include "Wilson_parameters.h"
 #include "ModelAPI.h"
 #include "HasWilsonAPI.h"
@@ -15,8 +11,8 @@
 
 class WilsonCoefficient {
 protected:
-    WilsonCoefficient() {this->set_Q_match(81.); this->set_Q(81.); W_param = std::make_shared<WilsonParameters>(81, 81, 2);}
-    WilsonCoefficient(double Q_match) {this->set_Q_match(Q_match);}
+    WilsonCoefficient() : Q_match(81.), Q(42.) {}
+    WilsonCoefficient(double Q_match) : Q_match(Q_match), Q(42.) {}
 
 
     void is_now_calculated(std::string order) {this->is_calculated[order] = true;}
@@ -27,19 +23,25 @@ protected:
     }
 
     std::string CoeffName{};
-    std::shared_ptr<WilsonParameters> W_param;
+    bool is_owned {false};
+
 public:
     void set_CoefficientMatchingValue(std::string order, complex_t CoefficientMatchingValue) {
         this->is_now_calculated(order);
         this->CoefficientMatchingValue[order] = CoefficientMatchingValue;
-        }
+    }
 
     void set_Q_match(double Q_match) {
         this->Q_match = Q_match;
-        this->W_param->set_mu_W(Q_match);}
-    void set_Q(double Q) {this->Q = Q; this->W_param->set_mu(Q);}
+        WilsonParameterHelper::set_mu_W(Q_match);
+    }
+
+    void set_Q(double Q) {
+        this->Q = Q;
+        WilsonParameterHelper::set_mu(Q_match);
+    }
+    
     void set_name(std::string name) {this->CoeffName = name;}
-    void set_Wilson_Parameters(std::shared_ptr<WilsonParameters> W_param) {this->W_param = W_param;}
     void set_WilsonCoeffRun(std::string order, complex_t value) {this->CoefficientRunValue[order] = value;}
     void set_WilsonCoeffMatching(std::string order ,complex_t value) {this->CoefficientMatchingValue[order] = value;}
 
@@ -82,16 +84,17 @@ public:
 
     double get_Q_match() const {return this->Q_match;}
     double get_Q() const {return this->Q;}
-    std::shared_ptr<WilsonParameters> get_W_params() const {return this->W_param;}
     std::string get_name() const {return this->CoeffName;}
 
-    virtual complex_t LO_calculation() =0;
+    virtual complex_t LO_calculation() = 0;
     virtual complex_t NLO_calculation() = 0;
     virtual complex_t NNLO_calculation() = 0;
 
     bool fill_from_flha();
 
     bool is_it_calculated(std::string order) {return this->is_calculated[order];}
+
+    void set_owned(bool owned);
 
     bool operator!=(const WilsonCoefficient& other) {
         return this->CoeffName != other.CoeffName;

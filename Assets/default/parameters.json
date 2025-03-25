@@ -49,8 +49,18 @@
       "syst_error": 0
     },
     "4": {
-      "central_value": 1.275,
-      "stat_error": 0.025,
+      "central_value": 1.273,
+      "stat_error": 0.0046,
+      "syst_error": 0
+    },
+    "11": {
+      "central_value": 0.00051099895000,
+      "stat_error": 0.00000000000023,
+      "syst_error": 0
+    },
+    "13": {
+      "central_value": 0.1056583755,
+      "stat_error": 0.0000000023,
       "syst_error": 0
     },
     "15": {
@@ -61,6 +71,11 @@
     "24": {
       "central_value": 80.3692,
       "stat_error": 0.0133,
+      "syst_error": 0
+    },
+    "25": {
+      "central_value": 125.20,
+      "stat_error": 0.11,
       "syst_error": 0
     }
   },

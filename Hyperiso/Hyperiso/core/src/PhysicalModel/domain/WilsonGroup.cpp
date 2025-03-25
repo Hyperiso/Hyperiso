@@ -9,11 +9,8 @@ void BCoefficientGroup::set_base_1_LO() {
 	complex_t C8_eff= this->at("C8")->get_CoefficientMatchingValue("LO")+this->at("C3")->get_CoefficientMatchingValue("LO")-1./6.*this->at("C4")->get_CoefficientMatchingValue("LO")
     +20.*this->at("C5")->get_CoefficientMatchingValue("LO")-10./3.*this->at("C6")->get_CoefficientMatchingValue("LO"); 
 
-    // std::cout << C7_eff << std::endl;
-    // std::cout << C8_eff << std::endl;
-
     auto calculateC0b = [&](int ie, int je, std::vector<std::string>& coeff_loop) {
-        return (W_param->get_matrix().U0)[ie][je] * (je < 6 ? this->find(coeff_loop[je])->second->get_CoefficientMatchingValue("LO") : (je == 6 ? C7_eff : C8_eff));
+        return (rh.get_matrix().U0)[ie][je] * (je < 6 ? this->find(coeff_loop[je])->second->get_CoefficientMatchingValue("LO") : (je == 6 ? C7_eff : C8_eff));
     };
 
     std::vector<std::string> coeff_loop = {"C1", "C2", "C3", "C4", "C5", "C6","C7","C8"};
@@ -35,7 +32,7 @@ void BCoefficientGroup::set_base_1_LO() {
 
     auto updateC0b = [&](int je, BCoefficientGroup::iterator& iterator) {
         // std::cout << "truc : " << je << " " << this->find(coeff_loop[je])->first << std::endl;
-        return (W_param->get_matrix().U0)[8][je] * this->find(coeff_loop[je])->second->get_CoefficientMatchingValue("LO");
+        return (rh.get_matrix().U0)[8][je] * this->find(coeff_loop[je])->second->get_CoefficientMatchingValue("LO");
     };
     
     {
@@ -46,11 +43,8 @@ void BCoefficientGroup::set_base_1_LO() {
         }
         (++it)->second->set_WilsonCoeffRun("LO", _);
     }
-    // std::cout << "after ++it first : " << it->first << std::endl;
-    // std::cout << "Niels à tord : " << it->first << " " << it->second->get_CoefficientMatchingValue("LO") << std::endl;
-    // std::cout << "end of truc " << this->end()->first << std::endl;
+
     it = this->find("C10");
-    // std::cout << "after second ++it : " << it->first << std::endl;
     it->second->set_WilsonCoeffRun("LO", it->second->get_CoefficientMatchingValue("LO"));
 
 
@@ -136,20 +130,20 @@ void BCoefficientGroup::set_base_2_LO() {
         for (int j=0; j<8;j++) {
             if (j<6)
 		    {
-			    coeffs_b[i] += W_param->get_matrix().V0[i][j]*coeffs_t[j];
+			    coeffs_b[i] += rh.get_matrix().V0[i][j]*coeffs_t[j];
 		    }
 		    if (j==6)
 		    {
-		    	coeffs_b[i] += W_param->get_matrix().V0[i][j]*C0t7;
+		    	coeffs_b[i] += rh.get_matrix().V0[i][j]*C0t7;
 		    }
 		    if (j==7)
 		    {
-			    coeffs_b[i] += W_param->get_matrix().V0[i][j]*C0t8;
+			    coeffs_b[i] += rh.get_matrix().V0[i][j]*C0t8;
 		    }
         }
     }
     for (int j=0; j<8; j++) {
-        coeffs_b[8] += 4.*PI/wilson_p("WPARAM_RUN_SM", 1)*(W_param->get_matrix().V0[9-1][j]*coeffs_t[j]);
+        coeffs_b[8] += 4.*PI/wilson_p("WPARAM_RUN_SM", 1)*(rh.get_matrix().V0[9-1][j]*coeffs_t[j]);
     }
 
     coeffs_b[9] = coeffs_t[9];
@@ -173,8 +167,8 @@ void BCoefficientGroup::set_base_1_NLO() {
     +20.*this->at("C5")->get_CoefficientMatchingValue("LO")-10./3.*this->at("C6")->get_CoefficientMatchingValue("LO"); 
 
     auto calculateC1b = [&](int ie, int je, BCoefficientGroup::iterator& iterator) {
-        complex_t u0_term = (W_param->get_matrix().U0)[ie][je] * (je < 6 ? this->find(coeffs[je])->second->get_CoefficientMatchingValue("NLO") : (je == 6 ? C7_eff : C8_eff));
-        complex_t u1_term = (W_param->get_matrix().U1)[ie][je] * (je < 6 ? this->find(coeffs[je])->second->get_CoefficientMatchingValue("LO") : (je == 6 ? C7_eff_0 : C8_eff_0));
+        complex_t u0_term = (rh.get_matrix().U0)[ie][je] * (je < 6 ? this->find(coeffs[je])->second->get_CoefficientMatchingValue("NLO") : (je == 6 ? C7_eff : C8_eff));
+        complex_t u1_term = (rh.get_matrix().U1)[ie][je] * (je < 6 ? this->find(coeffs[je])->second->get_CoefficientMatchingValue("LO") : (je == 6 ? C7_eff_0 : C8_eff_0));
         return wilson_p("WPARAM_RUN_SM", 2) * (u0_term + u1_term);
     };
 
@@ -192,7 +186,7 @@ void BCoefficientGroup::set_base_1_NLO() {
 	double fourPiOverAlphasMu = 4.0 * PI / wilson_p("WPARAM_RUN_SM", 1);
 
     auto updateC1b = [&](int je, BCoefficientGroup::iterator& iterator) {
-        return wilson_p("WPARAM_RUN_SM", 2) * ((W_param->get_matrix().U0)[8][je] * this->find(coeffs[je])->second->get_CoefficientMatchingValue("NLO") + (W_param->get_matrix().U1)[8][je] * this->find(coeffs[je])->second->get_CoefficientMatchingValue("LO"));
+        return wilson_p("WPARAM_RUN_SM", 2) * ((rh.get_matrix().U0)[8][je] * this->find(coeffs[je])->second->get_CoefficientMatchingValue("NLO") + (rh.get_matrix().U1)[8][je] * this->find(coeffs[je])->second->get_CoefficientMatchingValue("LO"));
     };
 
     BCoefficientGroup::iterator iterator = this->begin();
@@ -203,7 +197,7 @@ void BCoefficientGroup::set_base_1_NLO() {
         iterator++;
     }
 
-    _ += fourPiOverAlphasMu * wilson_p("WPARAM_RUN_SM", 2) * (W_param->get_matrix().U0)[8][8] * this->find("C9")->second->get_CoefficientMatchingValue("LO");
+    _ += fourPiOverAlphasMu * wilson_p("WPARAM_RUN_SM", 2) * (rh.get_matrix().U0)[8][8] * this->find("C9")->second->get_CoefficientMatchingValue("LO");
     this->find("C9")->second->set_WilsonCoeffRun("NLO", _);
     this->find("C10")->second->set_WilsonCoeffRun("NLO", wilson_p("WPARAM_RUN_SM", 2) * this->find("C10")->second->get_CoefficientMatchingValue("NLO"));
     this->base["NLO"] = 1;
@@ -258,24 +252,24 @@ void BCoefficientGroup::set_base_2_NLO() {
         for (int j=0; j<8;j++) {
             if (j<6)
 		    {
-                coeffs_b[i] += wilson_p("WPARAM_RUN_SM", 2)*(W_param->get_matrix().V0[i][j]*coeffs_t[j]+W_param->get_matrix().V1[i][j]*coeffs_t_0[j]);
+                coeffs_b[i] += wilson_p("WPARAM_RUN_SM", 2)*(rh.get_matrix().V0[i][j]*coeffs_t[j]+rh.get_matrix().V1[i][j]*coeffs_t_0[j]);
 		    }
 		    if (j==6)
 		    {
-                coeffs_b[i] += wilson_p("WPARAM_RUN_SM", 2)*(W_param->get_matrix().V0[i][j]*C1t7+W_param->get_matrix().V1[i][j]*C0t7);
+                coeffs_b[i] += wilson_p("WPARAM_RUN_SM", 2)*(rh.get_matrix().V0[i][j]*C1t7+rh.get_matrix().V1[i][j]*C0t7);
 		    }
 		    if (j==7)
 		    {
-                coeffs_b[i] += wilson_p("WPARAM_RUN_SM", 2)*(W_param->get_matrix().V0[i][j]*C1t8+W_param->get_matrix().V1[i][j]*C0t8);
+                coeffs_b[i] += wilson_p("WPARAM_RUN_SM", 2)*(rh.get_matrix().V0[i][j]*C1t8+rh.get_matrix().V1[i][j]*C0t8);
 		    }
         }
     }
 
     for (int j=0; j<8; j++) {
-        coeffs_b[8] += 4.*PI/wilson_p("WPARAM_RUN_SM", 1)*(wilson_p("WPARAM_RUN_SM", 2)*(W_param->get_matrix().V0[9-1][j]*coeffs_t[j]+W_param->get_matrix().V1[9-1][j]*coeffs_t_0[j]));
+        coeffs_b[8] += 4.*PI/wilson_p("WPARAM_RUN_SM", 1)*(wilson_p("WPARAM_RUN_SM", 2)*(rh.get_matrix().V0[9-1][j]*coeffs_t[j]+rh.get_matrix().V1[9-1][j]*coeffs_t_0[j]));
     }
 
-	coeffs_b[8] += 4.*PI/wilson_p("WPARAM_RUN_SM", 1)*(wilson_p("WPARAM_RUN_SM", 2)*(W_param->get_matrix().V0[9-1][9-1]*coeffs_t_0[8]));
+	coeffs_b[8] += 4.*PI/wilson_p("WPARAM_RUN_SM", 1)*(wilson_p("WPARAM_RUN_SM", 2)*(rh.get_matrix().V0[9-1][9-1]*coeffs_t_0[8]));
 
 	coeffs_b[9]=wilson_p("WPARAM_RUN_SM", 2)*coeffs_t[9];
 
@@ -304,9 +298,9 @@ void BCoefficientGroup::set_base_1_NNLO() {
     +20.*this->at("C5")->get_CoefficientMatchingValue("NLO")-10./3.*this->at("C6")->get_CoefficientMatchingValue("NLO"); 
 
     auto calculateC2b = [&](int ie, int je, BCoefficientGroup::iterator& iterator) {
-        complex_t u0_term = (W_param->get_matrix().U0)[ie][je] * (je < 6 ? this->find(coeffs[je])->second->get_CoefficientMatchingValue("NNLO") : (je == 6 ? C7_eff : C8_eff));
-        complex_t u1_term = (W_param->get_matrix().U1)[ie][je] * (je < 6 ? this->find(coeffs[je])->second->get_CoefficientMatchingValue("NLO") : (je == 6 ? C7_eff_1 : C8_eff_1));
-        complex_t u2_term = (W_param->get_matrix().U2)[ie][je] * (je < 6 ? this->find(coeffs[je])->second->get_CoefficientMatchingValue("LO") : (je == 6 ? C7_eff_0 : C8_eff_0));
+        complex_t u0_term = (rh.get_matrix().U0)[ie][je] * (je < 6 ? this->find(coeffs[je])->second->get_CoefficientMatchingValue("NNLO") : (je == 6 ? C7_eff : C8_eff));
+        complex_t u1_term = (rh.get_matrix().U1)[ie][je] * (je < 6 ? this->find(coeffs[je])->second->get_CoefficientMatchingValue("NLO") : (je == 6 ? C7_eff_1 : C8_eff_1));
+        complex_t u2_term = (rh.get_matrix().U2)[ie][je] * (je < 6 ? this->find(coeffs[je])->second->get_CoefficientMatchingValue("LO") : (je == 6 ? C7_eff_0 : C8_eff_0));
         return wilson_p("WPARAM_RUN_SM", 2) * wilson_p("WPARAM_RUN_SM", 2) * (u0_term + u1_term + u2_term);
     };
 
@@ -323,8 +317,8 @@ void BCoefficientGroup::set_base_1_NNLO() {
 	double fourPiOverAlphasMu = 4.0 * PI / wilson_p("WPARAM_RUN_SM", 1);
 
     auto updateC2b = [&](int je, BCoefficientGroup::iterator& iterator) {
-        return wilson_p("WPARAM_RUN_SM", 2) * wilson_p("WPARAM_RUN_SM", 2) * ((W_param->get_matrix().U0)[8][je] * this->find(coeffs[je])->second->get_CoefficientMatchingValue("NNLO") 
-        + (W_param->get_matrix().U1)[8][je] * this->find(coeffs[je])->second->get_CoefficientMatchingValue("NLO") + (W_param->get_matrix().U2)[8][je] * this->find(coeffs[je])->second->get_CoefficientMatchingValue("LO"));
+        return wilson_p("WPARAM_RUN_SM", 2) * wilson_p("WPARAM_RUN_SM", 2) * ((rh.get_matrix().U0)[8][je] * this->find(coeffs[je])->second->get_CoefficientMatchingValue("NNLO") 
+        + (rh.get_matrix().U1)[8][je] * this->find(coeffs[je])->second->get_CoefficientMatchingValue("NLO") + (rh.get_matrix().U2)[8][je] * this->find(coeffs[je])->second->get_CoefficientMatchingValue("LO"));
     };
 
     BCoefficientGroup::iterator iterator = this->begin();
@@ -334,7 +328,7 @@ void BCoefficientGroup::set_base_1_NNLO() {
         iterator++;
     }
 
-    _ += fourPiOverAlphasMu * wilson_p("WPARAM_RUN_SM", 2) * wilson_p("WPARAM_RUN_SM", 2) * ((W_param->get_matrix().U0)[8][8] * this->find("C9")->second->get_CoefficientMatchingValue("NLO") + (W_param->get_matrix().U1)[8][8] * this->find("C9")->second->get_CoefficientMatchingValue("LO"));
+    _ += fourPiOverAlphasMu * wilson_p("WPARAM_RUN_SM", 2) * wilson_p("WPARAM_RUN_SM", 2) * ((rh.get_matrix().U0)[8][8] * this->find("C9")->second->get_CoefficientMatchingValue("NLO") + (rh.get_matrix().U1)[8][8] * this->find("C9")->second->get_CoefficientMatchingValue("LO"));
     this->find("C9")->second->set_WilsonCoeffRun("NNLO", _);
     this->find("C10")->second->set_WilsonCoeffRun("NNLO",wilson_p("WPARAM_RUN_SM", 2) * wilson_p("WPARAM_RUN_SM", 2) * this->find("C10")->second->get_CoefficientMatchingValue("NNLO"));
     this->base["NNLO"] = 1;
@@ -376,4 +370,10 @@ void BPrimeCoefficientGroup::set_base_1_LO() {
     complex_t coeff_temp4= this->at("CPQ2")->get_CoefficientMatchingValue("LO")* pow(wilson_p("WPARAM_RUN_SM", 2),-4./wilson_p("WPARAM_SI_SM", 5));
     this->at("CPQ2")->set_WilsonCoeffRun("LO", coeff_temp4);
 
+}
+
+void CoefficientGroup::claim_coefficients() {
+    for (auto& [_, coeff]: *this) {
+        coeff->set_owned(true);
+    }
 }

@@ -1,13 +1,11 @@
 #ifndef WILSON_GROUP_H
 #define WILSON_GROUP_H
 
-#include <map>
-#include <string>
-#include <vector>
 #include <unordered_map>
+#include "Include.h"
 #include "Utils.h"
 #include "Wilson.h"
-#include <BWilson.h>
+#include "BWilson.h"
 #include "MartyWilson.h"
 #include "UseMarty.h"
 
@@ -22,6 +20,7 @@ public:
         for (auto& coeff : coeffs) {
             this->insert(std::make_pair(coeff.first, std::move(coeff.second)));
         }
+        this->claim_coefficients();
     }
 
     std::map<ParamId, double> param_cache;
@@ -79,8 +78,21 @@ public:
         LOG_ERROR("KeyError", "running coefficient", coeff, "Not found in coefficientgroup");
     }
 
-    void set_Q_match(double Q_match) {this->Q_match = Q_match; for (auto& coeff : *this) {coeff.second->set_Q_match(Q_match);}}
-    void set_Q_run(double Q_run) {this->Q_run = Q_run; for (auto& coeff : *this) {coeff.second->set_Q(Q_run);}}
+    void claim_coefficients();
+
+    void set_Q_match(double Q_match) {
+        this->Q_match = Q_match;
+        for (auto& coeff : *this) {
+            coeff.second->set_Q_match(Q_match);
+        }
+    }
+    
+    void set_Q_run(double Q_run) {
+        this->Q_run = Q_run; 
+        for (auto& coeff : *this) {
+            coeff.second->set_Q(Q_run);
+        }
+    }
 
     virtual void set_base_1_LO() =0;
     void set_base_2_LO() {}
@@ -103,11 +115,11 @@ public:
 };
 
 
-
 class BCoefficientGroup : public CoefficientGroup {
 
 public:
     BCoefficientGroup() {
+        LOG_INFO("In BCoefficientGroup constructor");
         if (UseMarty().get()) {
             for (auto&& coeff : {"C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9", "C10"}) {
                 this->insert(std::make_pair(coeff, std::make_shared<MartyWilson>(coeff)));
@@ -119,6 +131,7 @@ public:
         this->insert(std::make_pair("C7", std::make_shared<C7>()));  this->insert(std::make_pair("C8", std::make_shared<C8>()));  this->insert(std::make_pair("C9", std::make_shared<C9>())); 
         this->insert(std::make_pair("C10", std::make_shared<C10>())); 
     }
+
     BCoefficientGroup(double Q_match) {
         if (UseMarty().get()) {
             for (auto&& coeff : {"C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9", "C10"}) {
@@ -141,8 +154,7 @@ public:
     void set_base_1_NNLO();
     void set_base_2_NNLO();
 
-    void set_W_params(std::shared_ptr<WilsonParameters> new_W_param) {this->W_param = new_W_param; for(auto& coeff : *this) {coeff.second->set_Wilson_Parameters(new_W_param);}}
-    void set_gen(int new_gen) {this->W_param->set_gen(new_gen);}
+    void set_gen(int new_gen) {}
 
     void switch_base() override {
         if (base["LO"] == 1) {
@@ -170,9 +182,11 @@ public:
     }
 
 protected:
-    std::shared_ptr<WilsonParameters> W_param;
     bool double_base = true;
     std::map<std::string, int> base = {{"LO",0}, {"NLO",0}, {"NNLO",0}};
+
+private:
+    BWilsonRunningHelper rh;
 
 };
 
@@ -213,9 +227,6 @@ public:
     std::shared_ptr<CoefficientGroup> clone() const override {
         return std::make_shared<BPrimeCoefficientGroup>(*this);
     }
-
-protected:
-    std::shared_ptr<WilsonParameters> W_param;
 };
 
 class BScalarCoefficientGroup : public CoefficientGroup {
@@ -246,9 +257,6 @@ public:
     std::shared_ptr<CoefficientGroup> clone() const override {
         return std::make_shared<BScalarCoefficientGroup>(*this);
     }
-
-protected:
-    std::shared_ptr<WilsonParameters> W_param;
 };
 
 class BlnuCoefficientGroup : public CoefficientGroup {
@@ -282,9 +290,6 @@ public:
     std::shared_ptr<CoefficientGroup> clone() const override {
         return std::make_shared<BlnuCoefficientGroup>(*this);
     }
-
-protected:
-    std::shared_ptr<WilsonParameters> W_param;
 };
 
 class BclnuCoefficientGroup : public CoefficientGroup {
@@ -324,9 +329,6 @@ class BclnuCoefficientGroup : public CoefficientGroup {
         std::shared_ptr<CoefficientGroup> clone() const override {
             return std::make_shared<BclnuCoefficientGroup>(*this);
         }
-    
-    protected:
-        std::shared_ptr<WilsonParameters> W_param;
     };
 
 inline std::ostream& operator<<(std::ostream& os, BCoefficientGroup& coeffs) {

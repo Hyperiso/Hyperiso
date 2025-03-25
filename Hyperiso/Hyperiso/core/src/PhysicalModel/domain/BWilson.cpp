@@ -1,55 +1,52 @@
 #include "BWilson.h"
 
 complex_t C1::NLO_calculation() {
-    double L=log(this->get_Q_match()*this->get_Q_match()/sm("MASS",24)/sm("MASS",24));
+    double L = wilson_p("WPARAM_MATCH_SM", 3);
     double coeff_temp = 15.+6.*L;
     return this->double_to_complex_save("NLO", coeff_temp);
 }
 
 complex_t C1::NNLO_calculation() {
-    double L=log(this->get_Q_match()*this->get_Q_match()/sm("MASS",24)/sm("MASS",24));
+    double L = wilson_p("WPARAM_MATCH_SM", 3);
     double coeff_temp = -T(wilson_p("WPARAM_MATCH_SM", {2,1}))+7987./72.+17.*PI*PI/3.+475./6.*L+17.*L*L;
     return this->double_to_complex_save("NNLO", coeff_temp);
 }
-
-
 
 complex_t C2::LO_calculation() {
     return this->double_to_complex_save("LO", 1.);
 }
 
-
 complex_t C2::NNLO_calculation() {
-    double L=log(this->get_Q_match()*this->get_Q_match()/sm("MASS",24)/sm("MASS",24));
+    double L = wilson_p("WPARAM_MATCH_SM", 3);
     double coeff_temp = 127./18.+4./3.*PI*PI+46./3.*L+4.*L*L;
     return this->double_to_complex_save("NNLO", coeff_temp);
 }
 
 complex_t C3::NNLO_calculation() {
-    double L=log(this->get_Q_match()*this->get_Q_match()/sm("MASS",24)/sm("MASS",24));
+    double L = wilson_p("WPARAM_MATCH_SM", 3);
     double coeff_temp = G1t(wilson_p("WPARAM_MATCH_SM", {2,1}),log(this->get_Q_match()*this->get_Q_match()/wilson_p("WPARAM_MATCH_SM", 6)/wilson_p("WPARAM_MATCH_SM", 6)))-680./243.-20./81.*PI*PI-68./81.*L-20./27.*L*L;
     return this->double_to_complex_save("NNLO", coeff_temp);
 }
 complex_t C4::NLO_calculation() {
-    double L=log(this->get_Q_match()*this->get_Q_match()/sm("MASS",24)/sm("MASS",24));
+    double L = wilson_p("WPARAM_MATCH_SM", 3);
     double coeff_temp = E0t(wilson_p("WPARAM_MATCH_SM", {2,1}))-7./9.+2./3.*L;
     return this->double_to_complex_save("NLO", coeff_temp);
 }
 
 complex_t C4::NNLO_calculation() {
-    double L=log(this->get_Q_match()*this->get_Q_match()/sm("MASS",24)/sm("MASS",24));
+    double L = wilson_p("WPARAM_MATCH_SM", 3);
     double coeff_temp = E1t(wilson_p("WPARAM_MATCH_SM", {2,1}),log(this->get_Q_match()*this->get_Q_match()/wilson_p("WPARAM_MATCH_SM", 6)/wilson_p("WPARAM_MATCH_SM", 6)))+950./243.+10./81.*PI*PI+124./27.*L+10./27.*L*L;
     return this->double_to_complex_save("NNLO", coeff_temp);
 }
 
 complex_t C5::NNLO_calculation() {
-    double L=log(this->get_Q_match()*this->get_Q_match()/sm("MASS",24)/sm("MASS",24));
+    double L = wilson_p("WPARAM_MATCH_SM", 3);
     double coeff_temp = -G1t(wilson_p("WPARAM_MATCH_SM", {2,1}),log(this->get_Q_match()*this->get_Q_match()/wilson_p("WPARAM_MATCH_SM", 6)/wilson_p("WPARAM_MATCH_SM", 6)))/10.+2./15.*E0t(wilson_p("WPARAM_MATCH_SM", {2,1}))+68./243.+2./81.*PI*PI+14./81.*L+2./27.*L*L;
     return this->double_to_complex_save("NNLO", coeff_temp);
 }
 
 complex_t C6::NNLO_calculation() {
-    double L=log(this->get_Q_match()*this->get_Q_match()/sm("MASS",24)/sm("MASS",24));
+    double L = wilson_p("WPARAM_MATCH_SM", 3);
     double coeff_temp = -3./16.*G1t(wilson_p("WPARAM_MATCH_SM", {2,1}),log(this->get_Q_match()*this->get_Q_match()/wilson_p("WPARAM_MATCH_SM", 6)/wilson_p("WPARAM_MATCH_SM", 6)))+E0t(wilson_p("WPARAM_MATCH_SM", {2,1}))/4.+85./162.+5./108.*PI*PI+35./108.*L+5./36.*L*L;
     return this->double_to_complex_save("NNLO", coeff_temp);
 }
@@ -59,13 +56,12 @@ complex_t C7::LO_calculation() {
 }
 
 complex_t C7::NLO_calculation() {
-    double L=log(this->get_Q_match()*this->get_Q_match()/sm("MASS",24)/sm("MASS",24));
+    double L = wilson_p("WPARAM_MATCH_SM", 3);
     double coeff_temp = -0.5*A1t(wilson_p("WPARAM_MATCH_SM", {2,1}),log(this->get_Q_match()*this->get_Q_match()/wilson_p("WPARAM_MATCH_SM", 6)/wilson_p("WPARAM_MATCH_SM", 6)))+713./243.+4./81.*L-4./9.*(E0t(wilson_p("WPARAM_MATCH_SM", {2,1}))-7./9.+2./3.*L);;
     return this->double_to_complex_save("NLO", coeff_temp);
 }
 
 complex_t C7::NNLO_calculation() {
-
     double xtW=pow(QCDHelper::msbar_mass(6, sm("MASS",24))/sm("MASS", 24), 2); // mass top at pole for mtot param
 	double xtt=pow(QCDHelper::mass_t_msbar()/sm("MASS",24),2.); // 24 -> W
 
@@ -79,13 +75,12 @@ complex_t C7::NNLO_calculation() {
 }
 
 complex_t C8::LO_calculation() {
-
     double coeff_temp = -0.5*F0t(wilson_p("WPARAM_MATCH_SM", {2,1}))-1./3.;
     return this->double_to_complex_save("LO", coeff_temp);
 }
 
 complex_t C8::NLO_calculation() {
-    double L=log(this->get_Q_match()*this->get_Q_match()/sm("MASS",24)/sm("MASS",24));
+    double L = wilson_p("WPARAM_MATCH_SM", 3);
     double coeff_temp = -0.5*F1t(wilson_p("WPARAM_MATCH_SM", {2,1}),log(this->get_Q_match()*this->get_Q_match()/wilson_p("WPARAM_MATCH_SM", 6)/wilson_p("WPARAM_MATCH_SM", 6)))+91./324.-4./27.*L-(E0t(wilson_p("WPARAM_MATCH_SM", {2,1}))-7./9.+2./3.*L)/6.;
     return this->double_to_complex_save("NLO", coeff_temp);
 }
@@ -102,19 +97,16 @@ complex_t C8::NNLO_calculation() {
 	+(1295.*pow(wilson_p("WPARAM_MATCH_SM", {2,1}),5.)-7009.*pow(wilson_p("WPARAM_MATCH_SM", {2,1}),4.)+29495.*pow(wilson_p("WPARAM_MATCH_SM", {2,1}),3.)+64513.*wilson_p("WPARAM_MATCH_SM", {2,1})*wilson_p("WPARAM_MATCH_SM", {2,1})+17458.*wilson_p("WPARAM_MATCH_SM", {2,1})-2072.)/216./pow(wilson_p("WPARAM_MATCH_SM", {2,1})-1.,5.))) )
 	-(C8c2MW(xtW)+16607./5832.*log(this->get_Q_match()*this->get_Q_match()/sm("MASS",24)/sm("MASS",24))+397./486.*pow(log(this->get_Q_match()*this->get_Q_match()/sm("MASS",24)/sm("MASS",24)),2.));
     return this->double_to_complex_save("NNLO", coeff_temp);
-
 }
 
-
 complex_t C9::LO_calculation() {
-
-    double L=log(this->get_Q_match()*this->get_Q_match()/sm("MASS",24)/sm("MASS",24));
+    double L = wilson_p("WPARAM_MATCH_SM", 3);
     double coeff_temp = (1.-4.*wilson_p("WPARAM_SI_SM", 4))/wilson_p("WPARAM_SI_SM", 4)*C0t(wilson_p("WPARAM_MATCH_SM", {2,1}))-B0t(wilson_p("WPARAM_MATCH_SM", {2,1}))/wilson_p("WPARAM_SI_SM", 4)-D0t(wilson_p("WPARAM_MATCH_SM", {2,1})) +1./4./wilson_p("WPARAM_SI_SM", 4)+38./27.-4./9.*L;
     return this->double_to_complex_save("LO", coeff_temp);
 }
 
 complex_t C9::NLO_calculation() {
-    double L=log(this->get_Q_match()*this->get_Q_match()/sm("MASS",24)/sm("MASS",24));
+    double L = wilson_p("WPARAM_MATCH_SM", 3);
     double coeff_temp = (1.-4.*wilson_p("WPARAM_SI_SM", 4))/wilson_p("WPARAM_SI_SM", 4)*C1t(wilson_p("WPARAM_MATCH_SM", {2,1}),log(this->get_Q_match()*this->get_Q_match()/wilson_p("WPARAM_MATCH_SM", 6)/wilson_p("WPARAM_MATCH_SM", 6)))
     -B1t(wilson_p("WPARAM_MATCH_SM", {2,1}),log(this->get_Q_match()*this->get_Q_match()/wilson_p("WPARAM_MATCH_SM", 6)/wilson_p("WPARAM_MATCH_SM", 6)))/wilson_p("WPARAM_SI_SM", 4)
     -D1t(wilson_p("WPARAM_MATCH_SM", {2,1}),log(this->get_Q_match()*this->get_Q_match()/wilson_p("WPARAM_MATCH_SM", 6)/wilson_p("WPARAM_MATCH_SM", 6))) +1./wilson_p("WPARAM_SI_SM", 4)+524./729.-128./243.*PI*PI-16./3.*L-128./81.*L*L;
@@ -122,14 +114,12 @@ complex_t C9::NLO_calculation() {
 }
 
 complex_t C9::NNLO_calculation() {
-
     this->set_CoefficientMatchingValue("LO", 1);
     return 1;
 }
 
 
 complex_t C10::LO_calculation() {
-
     double coeff_temp = (B0t(wilson_p("WPARAM_MATCH_SM", {2,1}))-C0t(wilson_p("WPARAM_MATCH_SM", {2,1})))/wilson_p("WPARAM_SI_SM", 4)-1./4./wilson_p("WPARAM_SI_SM", 4);
     // std::cout << coeff_temp << std::endl;
     return this->double_to_complex_save("LO", coeff_temp);

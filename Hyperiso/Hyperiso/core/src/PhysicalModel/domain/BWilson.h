@@ -12,7 +12,6 @@ public:
     complex_t NLO_calculation();
     complex_t NNLO_calculation();
 
-
 };
 
 class C2 : public WilsonCoefficient {
