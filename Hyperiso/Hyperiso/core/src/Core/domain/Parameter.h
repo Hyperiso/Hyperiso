@@ -11,6 +11,7 @@
 
 #include <string>
 #include <iostream>
+#include <functional>
 #include "Logger.h"
 #include "General.h"
 

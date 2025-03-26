@@ -35,9 +35,9 @@ public:
     C1_susy(double Q_match) : C1(Q_match), WilsonCoefficient_susy(Q_match) {}
 
 
-    complex_t LO_calculation() {return {0,0};} 
-    complex_t NLO_calculation()  {return {0,0};} 
-    complex_t NNLO_calculation();
+    void LO_calculation() {} 
+    void NLO_calculation()  {} 
+    void NNLO_calculation();
 
 };
 
@@ -47,9 +47,9 @@ public:
     C2_susy(double Q_match) : C2(Q_match), WilsonCoefficient_susy(Q_match)  {}
 
 
-    complex_t LO_calculation() {return {0,0};} 
-    complex_t NLO_calculation()  {return {0,0};} 
-    complex_t NNLO_calculation() {return {0,0};} 
+    void LO_calculation() {} 
+    void NLO_calculation()  {} 
+    void NNLO_calculation() {} 
 
 };
 
@@ -59,9 +59,9 @@ public:
     C3_susy(double Q_match) : C3(Q_match), WilsonCoefficient_susy(Q_match)  {}
 
 
-    complex_t LO_calculation() {return {0,0};} 
-    complex_t NLO_calculation() {return {0,0};} 
-    complex_t NNLO_calculation();
+    void LO_calculation() {} 
+    void NLO_calculation() {} 
+    void NNLO_calculation();
 
 };
 
@@ -71,9 +71,9 @@ public:
     C4_susy(double Q_match) : C4(Q_match), WilsonCoefficient_susy(Q_match)  {}
 
 
-    complex_t LO_calculation() {return {0,0};} 
-    complex_t NLO_calculation();
-    complex_t NNLO_calculation(); 
+    void LO_calculation() {} 
+    void NLO_calculation();
+    void NNLO_calculation(); 
 
 };
 
@@ -83,9 +83,9 @@ public:
     C5_susy(double Q_match) : C5(Q_match), WilsonCoefficient_susy(Q_match)  {}
 
 
-    complex_t LO_calculation() {return {0,0};} 
-    complex_t NLO_calculation() {return {0,0};} 
-    complex_t NNLO_calculation();
+    void LO_calculation() {} 
+    void NLO_calculation() {} 
+    void NNLO_calculation();
 
 };
 
@@ -95,9 +95,9 @@ public:
     C6_susy(double Q_match) : C6(Q_match), WilsonCoefficient_susy(Q_match)  {}
 
 
-    complex_t LO_calculation() {return {0,0};} 
-    complex_t NLO_calculation() {return {0,0};} 
-    complex_t NNLO_calculation();
+    void LO_calculation() {} 
+    void NLO_calculation() {} 
+    void NNLO_calculation();
 
 };
 
@@ -106,9 +106,9 @@ public:
     C7_susy() : C7(), WilsonCoefficient_susy(81.) {}
     C7_susy(double Q_match) : C7(Q_match), WilsonCoefficient_susy(Q_match)  {}
 
-    complex_t LO_calculation() override;
-    complex_t NLO_calculation() override;
-    complex_t NNLO_calculation() override;
+    void LO_calculation() override;
+    void NLO_calculation() override;
+    void NNLO_calculation() override;
 
 };
 
@@ -118,9 +118,9 @@ public:
     C8_susy(double Q_match) : C8(Q_match), WilsonCoefficient_susy(Q_match)  {}
 
 
-    complex_t LO_calculation()override;
-    complex_t NLO_calculation() override;
-    complex_t NNLO_calculation() override; 
+    void LO_calculation()override;
+    void NLO_calculation() override;
+    void NNLO_calculation() override; 
 
 };
 
@@ -129,9 +129,9 @@ public:
     C9_susy() : C9(), WilsonCoefficient_susy(81.) {}
     C9_susy(double Q_match) : C9(Q_match), WilsonCoefficient_susy(Q_match)  {}
 
-    complex_t LO_calculation();
-    complex_t NLO_calculation();
-    complex_t NNLO_calculation() {return {0,0};} 
+    void LO_calculation();
+    void NLO_calculation();
+    void NNLO_calculation() {} 
 
 };
 
@@ -141,9 +141,9 @@ public:
     C10_susy(double Q_match) : C10(Q_match), WilsonCoefficient_susy(Q_match)  {}
 
 
-    complex_t LO_calculation();
-    complex_t NLO_calculation();
-    complex_t NNLO_calculation() {return {0,0};} 
+    void LO_calculation();
+    void NLO_calculation();
+    void NNLO_calculation() {} 
 
 };
 
@@ -154,9 +154,9 @@ public:
     CQ1_susy(double Q_match, int gen) : CQ1(Q_match), WilsonCoefficient_susy(Q_match) {}
 
 
-    complex_t LO_calculation();
-    complex_t NLO_calculation();
-    complex_t NNLO_calculation() {return {0,0};} 
+    void LO_calculation();
+    void NLO_calculation();
+    void NNLO_calculation() {} 
 
 };
 
@@ -167,9 +167,9 @@ public:
     CQ2_susy(double Q_match, int gen) : CQ2(Q_match), WilsonCoefficient_susy(Q_match) {}
 
 
-    complex_t LO_calculation();
-    complex_t NLO_calculation();
-    complex_t NNLO_calculation() {return {0,0};} 
+    void LO_calculation();
+    void NLO_calculation();
+    void NNLO_calculation() {} 
 
 };
 
@@ -180,9 +180,9 @@ public:
     CP1_susy(double Q_match, int gen) : CP1(Q_match), WilsonCoefficient_susy(Q_match) {}
 
 
-    complex_t LO_calculation() {return {0,0};} 
-    complex_t NLO_calculation() {return {0,0};} 
-    complex_t NNLO_calculation() {return {0,0};} 
+    void LO_calculation() {} 
+    void NLO_calculation() {} 
+    void NNLO_calculation() {} 
 
 };
 
@@ -192,9 +192,9 @@ public:
     CP2_susy(double Q_match) : CP2(Q_match), WilsonCoefficient_susy(Q_match) {}
     CP2_susy(double Q_match, int gen) : CP2(Q_match), WilsonCoefficient_susy(Q_match) {}
 
-    complex_t LO_calculation() {return {0,0};} 
-    complex_t NLO_calculation() {return {0,0};} 
-    complex_t NNLO_calculation() {return {0,0};} 
+    void LO_calculation() {} 
+    void NLO_calculation() {} 
+    void NNLO_calculation() {} 
 
 };
 
@@ -205,9 +205,9 @@ public:
     CP3_susy(double Q_match, int gen) : CP3(Q_match), WilsonCoefficient_susy(Q_match) {}
 
 
-    complex_t LO_calculation() {return {0,0};} 
-    complex_t NLO_calculation() {return {0,0};} 
-    complex_t NNLO_calculation() {return {0,0};} 
+    void LO_calculation() {} 
+    void NLO_calculation() {} 
+    void NNLO_calculation() {} 
 
 };
 
@@ -218,9 +218,9 @@ public:
     CP4_susy(double Q_match, int gen) : CP4(Q_match), WilsonCoefficient_susy(Q_match) {}
 
 
-    complex_t LO_calculation() {return {0,0};} 
-    complex_t NLO_calculation() {return {0,0};} 
-    complex_t NNLO_calculation() {return {0,0};} 
+    void LO_calculation() {} 
+    void NLO_calculation() {} 
+    void NNLO_calculation() {} 
 
 };
 
@@ -230,9 +230,9 @@ public:
     CP5_susy(double Q_match) : CP5(Q_match), WilsonCoefficient_susy(Q_match) {}
     CP5_susy(double Q_match, int gen) : CP5(Q_match), WilsonCoefficient_susy(Q_match) {}
 
-    complex_t LO_calculation() {return {0,0};} 
-    complex_t NLO_calculation() {return {0,0};} 
-    complex_t NNLO_calculation() {return {0,0};} 
+    void LO_calculation() {} 
+    void NLO_calculation() {} 
+    void NNLO_calculation() {} 
 
 };
 
@@ -242,9 +242,9 @@ public:
     CP6_susy(double Q_match) : CP6(Q_match), WilsonCoefficient_susy(Q_match) {}
     CP6_susy(double Q_match, int gen) : CP6(Q_match), WilsonCoefficient_susy(Q_match) {}
 
-    complex_t LO_calculation() {return {0,0};} 
-    complex_t NLO_calculation() {return {0,0};} 
-    complex_t NNLO_calculation() {return {0,0};} 
+    void LO_calculation() {} 
+    void NLO_calculation() {} 
+    void NNLO_calculation() {} 
 
 };
 
@@ -254,9 +254,9 @@ public:
     CP7_susy(double Q_match) : CP7(Q_match) , WilsonCoefficient_susy(Q_match){}
     CP7_susy(double Q_match, int gen) : CP7(Q_match), WilsonCoefficient_susy(Q_match) {}
 
-    complex_t LO_calculation();
-    complex_t NLO_calculation() {return {0,0};} 
-    complex_t NNLO_calculation() {return {0,0};} 
+    void LO_calculation();
+    void NLO_calculation() {} 
+    void NNLO_calculation() {} 
 
 };
 
@@ -266,9 +266,9 @@ public:
     CP8_susy(double Q_match) : CP8(Q_match), WilsonCoefficient_susy(Q_match) {}
     CP8_susy(double Q_match, int gen) : CP8(Q_match) , WilsonCoefficient_susy(Q_match) {}
 
-    complex_t LO_calculation(); 
-    complex_t NLO_calculation() {return {0,0};} 
-    complex_t NNLO_calculation() {return {0,0};} 
+    void LO_calculation(); 
+    void NLO_calculation() {} 
+    void NNLO_calculation() {} 
 
 };
 
@@ -278,9 +278,9 @@ public:
     CP9_susy(double Q_match) : CP9(Q_match), WilsonCoefficient_susy(Q_match) {}
     CP9_susy(double Q_match, int gen) : CP9(Q_match), WilsonCoefficient_susy(Q_match) {}
 
-    complex_t LO_calculation();
-    complex_t NLO_calculation() {return {0,0};} 
-    complex_t NNLO_calculation() {return {0,0};} 
+    void LO_calculation();
+    void NLO_calculation() {} 
+    void NNLO_calculation() {} 
 
 };
 
@@ -290,9 +290,9 @@ public:
     CP10_susy(double Q_match) : CP10(Q_match), WilsonCoefficient_susy(Q_match) {}
     CP10_susy(double Q_match, int gen) : CP10(Q_match), WilsonCoefficient_susy(Q_match) {}
 
-    complex_t LO_calculation();
-    complex_t NLO_calculation() {return {0,0};} 
-    complex_t NNLO_calculation() {return {0,0};} 
+    void LO_calculation();
+    void NLO_calculation() {} 
+    void NNLO_calculation() {} 
 
 };
 
@@ -302,9 +302,9 @@ public:
     CPQ1_susy(double Q_match) : CPQ1(Q_match), WilsonCoefficient_susy(Q_match) {}
     CPQ1_susy(double Q_match, int gen) : CPQ1(Q_match), WilsonCoefficient_susy(Q_match) {}
 
-    complex_t LO_calculation();
-    complex_t NLO_calculation() {return {0,0};} 
-    complex_t NNLO_calculation() {return {0,0};} 
+    void LO_calculation();
+    void NLO_calculation() {} 
+    void NNLO_calculation() {} 
 
 };
 
@@ -314,9 +314,9 @@ public:
     CPQ2_susy(double Q_match) : CPQ2(Q_match), WilsonCoefficient_susy(Q_match) {}
     CPQ2_susy(double Q_match, int gen) : CPQ2(Q_match), WilsonCoefficient_susy(Q_match) {}
 
-    complex_t LO_calculation();
-    complex_t NLO_calculation() {return {0,0};} 
-    complex_t NNLO_calculation() {return {0,0};} 
+    void LO_calculation();
+    void NLO_calculation() {} 
+    void NNLO_calculation() {} 
 
 };
 
@@ -325,9 +325,9 @@ public:
     C_Blnu_A_SUSY(double Q_match) : C_Blnu_A(Q_match), WilsonCoefficient_susy(Q_match) {}
     C_Blnu_A_SUSY() : C_Blnu_A(), WilsonCoefficient_susy(81) {}
 
-    complex_t LO_calculation() {return {0,0};}
-    complex_t NLO_calculation() {return {0,0};} 
-    complex_t NNLO_calculation() {return {0,0};} 
+    void LO_calculation() {}
+    void NLO_calculation() {} 
+    void NNLO_calculation() {} 
 
 };
 
@@ -336,9 +336,9 @@ public:
     C_Blnu_P_SUSY(double Q_match) : C_Blnu_P(Q_match), WilsonCoefficient_susy(Q_match) {}
     C_Blnu_P_SUSY() : C_Blnu_P(), WilsonCoefficient_susy(81) {}
 
-    complex_t LO_calculation();
-    complex_t NLO_calculation() {return {0,0};} 
-    complex_t NNLO_calculation() {return {0,0};} 
+    void LO_calculation();
+    void NLO_calculation() {} 
+    void NNLO_calculation() {} 
 
 };
 
@@ -347,9 +347,9 @@ public:
     C_V1_SUSY(double Q_match) : C_V1(Q_match), WilsonCoefficient_susy(Q_match) {}
     C_V1_SUSY() : C_V1(), WilsonCoefficient_susy(81) {}
 
-    complex_t LO_calculation() {return {0,0};} 
-    complex_t NLO_calculation() {return {0,0};} 
-    complex_t NNLO_calculation() {return {0,0};} 
+    void LO_calculation() {} 
+    void NLO_calculation() {} 
+    void NNLO_calculation() {} 
 
 };
 
@@ -358,9 +358,9 @@ public:
     C_V2_SUSY(double Q_match) : C_V2(Q_match), WilsonCoefficient_susy(Q_match) {}
     C_V2_SUSY() : C_V2(), WilsonCoefficient_susy(81) {}
 
-    complex_t LO_calculation() {return {0,0};} 
-    complex_t NLO_calculation() {return {0,0};} 
-    complex_t NNLO_calculation() {return {0,0};} 
+    void LO_calculation() {} 
+    void NLO_calculation() {} 
+    void NNLO_calculation() {} 
 
 };
 
@@ -369,9 +369,9 @@ public:
     C_S1_SUSY(double Q_match) : C_S1(Q_match), WilsonCoefficient_susy(Q_match) {}
     C_S1_SUSY() : C_S1(), WilsonCoefficient_susy(81) {}
 
-    complex_t LO_calculation();
-    complex_t NLO_calculation() {return {0,0};} 
-    complex_t NNLO_calculation() {return {0,0};} 
+    void LO_calculation();
+    void NLO_calculation() {} 
+    void NNLO_calculation() {} 
 
 };
 
@@ -380,9 +380,9 @@ public:
     C_S2_SUSY(double Q_match) : C_S2(Q_match), WilsonCoefficient_susy(Q_match) {}
     C_S2_SUSY() : C_S2(), WilsonCoefficient_susy(81) {}
 
-    complex_t LO_calculation();
-    complex_t NLO_calculation() {return {0,0};} 
-    complex_t NNLO_calculation() {return {0,0};} 
+    void LO_calculation();
+    void NLO_calculation() {} 
+    void NNLO_calculation() {} 
 
 };
 
@@ -391,9 +391,9 @@ public:
     C_T_SUSY(double Q_match) : C_T(Q_match), WilsonCoefficient_susy(Q_match) {}
     C_T_SUSY() : C_T(), WilsonCoefficient_susy(81) {}
 
-    complex_t LO_calculation() {return {0,0};} 
-    complex_t NLO_calculation() {return {0,0};} 
-    complex_t NNLO_calculation() {return {0,0};} 
+    void LO_calculation() {} 
+    void NLO_calculation() {} 
+    void NNLO_calculation() {} 
 
 };
 

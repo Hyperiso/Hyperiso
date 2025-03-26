@@ -22,6 +22,7 @@ protected:
     bool bsm {false};
     bool is_owned {false};
     ParameterProxy wilson_p {ParameterType::WILSON};
+    ParameterProxy sm {ParameterType::SM};
 
 public:
     void set_Q_match(double Q_match) {
@@ -36,6 +37,18 @@ public:
     
     void set_name(std::string name) {this->CoeffName = name;}
 
+    void set_CoefficientMatchingValue(const std::string& order, complex_t value) {
+        std::cout << "Wow mais c'est génial ici" << std::endl; //TODO
+    }
+
+    void set_WilsonCoeffMatching(const std::string& order, complex_t value) {
+        std::cout << "Wow mais c'est encore plus génial ici" << std::endl; //TODO
+    }
+
+    void set_WilsonCoeffRun(const std::string& order, complex_t value) {
+        std::cout << "Wow mais c'est vraiment encore plus génial ici" << std::endl; //TODO
+    }
+
     // TODO : Store in parameters instead
     // void set_WilsonCoeffRun(std::string order, complex_t value) {this->CoefficientRunValue[order] = value;}
     // void set_WilsonCoeffMatching(std::string order ,complex_t value) {this->CoefficientMatchingValue[order] = value;}
@@ -45,10 +58,10 @@ public:
         auto order_id = static_cast<long>(OrderMapper::enum_elt(order));
         LhaID code(base_id.first, base_id.second, order_id, static_cast<long>(this->bsm));
         std::string block = "B_MATCH";
-        return wilson_p(block, code);
+        return (complex_t)wilson_p(block, code);
     }
 
-    complex_t get_CoefficientRunValue(std::string order) const {return this->CoefficientRunValue.at(order);}
+    complex_t get_CoefficientRunValue(std::string order) const {return {0,0}; } //TODO
 
     complex_t get_CoefficientFullMatchingValue(std::string order) const {
         double fact = QCDHelper::alpha_s(Q_match) / (4 * M_PI);
@@ -66,6 +79,7 @@ public:
             LOG_ERROR("ValueError", "Order request for wilson getfullmatching is not possible.");
         }
     }
+
 
     complex_t get_CoefficientFullRunValue(std::string order) const {
         double fact = QCDHelper::alpha_s(Q) / (4 * M_PI);
@@ -104,12 +118,13 @@ public:
     WilsonCoefficient& operator+=(const WilsonCoefficient& other) {
 
         if ((this->get_Q_match() == other.get_Q_match()) && (this->get_Q() == other.get_Q())) {
-            this->CoefficientMatchingValue["LO"] += other.get_CoefficientMatchingValue("LO");
-            this->CoefficientMatchingValue["NLO"] += other.get_CoefficientMatchingValue("NLO");
-            this->CoefficientMatchingValue["NNLO"] += other.get_CoefficientMatchingValue("NNLO");
-            this->CoefficientRunValue["LO"] += other.get_CoefficientRunValue("LO");
-            this->CoefficientRunValue["NLO"] += other.get_CoefficientRunValue("NLO");
-            this->CoefficientRunValue["NNLO"] += other.get_CoefficientRunValue("NNLO");
+            //TODO
+            // this->CoefficientMatchingValue["LO"] += other.get_CoefficientMatchingValue("LO");
+            // this->CoefficientMatchingValue["NLO"] += other.get_CoefficientMatchingValue("NLO");
+            // this->CoefficientMatchingValue["NNLO"] += other.get_CoefficientMatchingValue("NNLO");
+            // this->CoefficientRunValue["LO"] += other.get_CoefficientRunValue("LO");
+            // this->CoefficientRunValue["NLO"] += other.get_CoefficientRunValue("NLO");
+            // this->CoefficientRunValue["NNLO"] += other.get_CoefficientRunValue("NNLO");
         }
         else {
             LOG_ERROR("ValueError", "Not the right scale"); 
@@ -127,16 +142,16 @@ private:
     std::map<std::string, bool> is_calculated{{"LO", false}, {"NLO", false}, {"NNLO", false}};
 };
 
-
+//TODO : virtual LO,NLO,NNLO calculation need to be dealed properly
 
 class C_Blnu_A : public WilsonCoefficient {
 public:
     C_Blnu_A(double Q_match) : WilsonCoefficient(Q_match) {this->set_name("C_Blnu_A");}
     C_Blnu_A() : WilsonCoefficient() {this->set_name("C_Blnu_A");}
 
-    // void LO_calculation() { return double_to_complex_save("LO", 1.); }; 
-    // void NLO_calculation() {return {0,0};} 
-    // void NNLO_calculation() {return {0,0};} 
+    void LO_calculation() { }; 
+    void NLO_calculation() {} 
+    void NNLO_calculation() {} 
 
 };
 
@@ -145,9 +160,9 @@ public:
     C_Blnu_P(double Q_match) : WilsonCoefficient(Q_match) {this->set_name("C_Blnu_P");}
     C_Blnu_P() : WilsonCoefficient() {this->set_name("C_Blnu_P");}
 
-    // void LO_calculation() {return {0,0};}; 
-    // void NLO_calculation() {return {0,0};} 
-    // void NNLO_calculation() {return {0,0};} 
+    void LO_calculation() {}
+    void NLO_calculation() {} 
+    void NNLO_calculation() {} 
 
 };
 
@@ -156,9 +171,11 @@ public:
     C_V1(double Q_match) : WilsonCoefficient(Q_match) {this->set_name("C_V1");}
     C_V1() : WilsonCoefficient() {this->set_name("C_V1");}
 
-    // void LO_calculation() { return double_to_complex_save("LO", 1.); }; 
-    // void NLO_calculation() {return {0,0};} 
-    // void NNLO_calculation() {return {0,0};} 
+    void LO_calculation() {
+         //return double_to_complex_save("LO", 1.);  TODO
+        } 
+    void NLO_calculation() {} 
+    void NNLO_calculation() {} 
 
 };
 
@@ -167,9 +184,9 @@ public:
     C_V2(double Q_match) : WilsonCoefficient(Q_match) {this->set_name("C_V2");}
     C_V2() : WilsonCoefficient() {this->set_name("C_V2");}
 
-    // void LO_calculation() {return {0,0};}; 
-    // void NLO_calculation() {return {0,0};} 
-    // void NNLO_calculation() {return {0,0};} 
+    void LO_calculation() {}
+    void NLO_calculation() {} 
+    void NNLO_calculation() {} 
 
 };
 
@@ -178,9 +195,9 @@ public:
     C_S1(double Q_match) : WilsonCoefficient(Q_match) {this->set_name("C_S1");}
     C_S1() : WilsonCoefficient() {this->set_name("C_S1");}
 
-    // void LO_calculation() {return {0,0};}; 
-    // void NLO_calculation() {return {0,0};} 
-    // void NNLO_calculation() {return {0,0};} 
+    void LO_calculation() {}
+    void NLO_calculation() {} 
+    void NNLO_calculation() {} 
 
 };
 
@@ -189,9 +206,9 @@ public:
     C_S2(double Q_match) : WilsonCoefficient(Q_match) {this->set_name("C_S2");}
     C_S2() : WilsonCoefficient() {this->set_name("C_S2");}
 
-    // void LO_calculation() {return {0,0};}; 
-    // void NLO_calculation() {return {0,0};} 
-    // void NNLO_calculation() {return {0,0};} 
+    void LO_calculation() {}
+    void NLO_calculation() {} 
+    void NNLO_calculation() {} 
 
 };
 
@@ -200,9 +217,9 @@ public:
     C_T(double Q_match) : WilsonCoefficient(Q_match) {this->set_name("C_T");}
     C_T() : WilsonCoefficient() {this->set_name("C_T");}
 
-    // void LO_calculation() {return {0,0};}; 
-    // void NLO_calculation() {return {0,0};} 
-    // void NNLO_calculation() {return {0,0};} 
+    void LO_calculation() {}
+    void NLO_calculation() {} 
+    void NNLO_calculation() {} 
 
 };
 

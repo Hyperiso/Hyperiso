@@ -41,7 +41,7 @@ public:
         this->model = model;
     }
 
-    complex_t LO_calculation() override {
+    void LO_calculation() override {
         double epsi = 1e-4;
         for (size_t i = 0; i < df.getRowCount(); ++i) {
             double Q_match = df.iat<double>(i, "Q_match");
@@ -54,7 +54,7 @@ public:
                         }
                         std::cout << df.iat<double>(i, this->get_name()+"_real") << " BUTE" << std::endl;
                         this->set_CoefficientMatchingValue("LO", {df.iat<double>(i, this->get_name()+"_real"), df.iat<double>(i, this->get_name()+"_img")});
-                        return {df.iat<double>(i, this->get_name()+"_real"), df.iat<double>(i, this->get_name()+"_img")};
+                        //return {df.iat<double>(i, this->get_name()+"_real"), df.iat<double>(i, this->get_name()+"_img")}; TODO
                     }
                 } 
             }
@@ -69,15 +69,15 @@ public:
             double Q_match = df.iat<double>(i, "Q_match");
             if (fabs(Q_match-this->get_Q_match()) < epsi) {
                 this->set_CoefficientMatchingValue("LO", {df.iat<double>(i, this->get_name()+"_real"), df.iat<double>(i, this->get_name()+"_img")});
-                return {df.iat<double>(i, this->get_name()+"_real"), df.iat<double>(i, this->get_name()+"_img")};
+                //return {df.iat<double>(i, this->get_name()+"_real"), df.iat<double>(i, this->get_name()+"_img")}; TODO
             }
         }
 
-        return {0., 0.};
+        //return {0., 0.}; TODO
     }
 
-    complex_t NLO_calculation() override {return {0., 0.};}
-    complex_t NNLO_calculation() override {return {0., 0.};}
+    void NLO_calculation() override {} //TODO, at least deal properly
+    void NNLO_calculation() override {} //TODO
 
 private:
     CSVReader csv_reader;

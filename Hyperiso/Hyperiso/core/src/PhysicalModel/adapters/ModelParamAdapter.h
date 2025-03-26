@@ -9,7 +9,7 @@
 class ParameterProxy : public IParameterProxy<std::string, LhaID> {
 public:
     ParameterProxy(ParameterType type);
-    double operator()(const std::string& block, const LhaID& id) override;
+    double operator()(const std::string& block, const LhaID& id) const override;
     
 private:
     ParameterProvider pp;

@@ -123,7 +123,7 @@ public:
      * @param pdgCode The PDG code.
      * @return The corresponding parameter value.
      */
-    double operator()(const std::string& block, LhaID pdgCode);
+    double operator()(const std::string& block, LhaID pdgCode) const;
 
     std::shared_ptr<Parameter> get_parameter(const std::string& block, LhaID pdgCode);
 

@@ -22,8 +22,8 @@ int main() {
     auto func = [xt_pid] (const std::unordered_map<std::string, std::shared_ptr<Block>>& src, std::shared_ptr<DependentBlock> dep_block) {
         QCDProvider qcd;
 
-        auto xt = std::pow(qcd(MassConfig{6, 80, MassType::POLE, MassType::POLE}) / src.at("MASS")->retrieve(24).get_val(), 2);
-        dep_block->store(1, Parameter(xt_pid, xt, 0., 0.));
+        auto xt = std::pow(qcd(MassConfig{6, 80, MassType::POLE, MassType::POLE}) / src.at("MASS")->retrieve(24)->get_val(), 2);
+        dep_block->store(1, std::make_shared<Parameter>(Parameter(xt_pid, xt, 0., 0.)));
     };
     cpc.add_block_dependency("WPARAM", src, ParameterType::WILSON, func);
     LOG_INFO(wparam_provider(xt_pid));

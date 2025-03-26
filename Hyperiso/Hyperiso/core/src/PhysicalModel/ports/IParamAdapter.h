@@ -4,7 +4,7 @@
 template<typename T, typename V>
 class IParameterProxy {
 public:
-    virtual double operator()(const T& x, const V& y) = 0;
+    virtual double operator()(const T& x, const V& y) const = 0 ;
 };
 
 #endif

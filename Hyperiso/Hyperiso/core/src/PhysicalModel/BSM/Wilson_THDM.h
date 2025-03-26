@@ -25,9 +25,9 @@ public:
 
     }
 
-    complex_t LO_calculation() { this->set_CoefficientMatchingValue("LO", {0.,0.}); return {0,0};} 
-    complex_t NLO_calculation() { this->set_CoefficientMatchingValue("NLO", {0.,0.}); return {0,0};} 
-    complex_t NNLO_calculation() { this->set_CoefficientMatchingValue("NNLO", {0.,0.}); return {0,0};} 
+    void LO_calculation() { this->set_CoefficientMatchingValue("LO", {0.,0.});  } 
+    void NLO_calculation() { this->set_CoefficientMatchingValue("NLO", {0.,0.});  } 
+    void NNLO_calculation() { this->set_CoefficientMatchingValue("NNLO", {0.,0.});  } 
 
 };
 
@@ -40,9 +40,9 @@ public:
 
     }
 
-    complex_t LO_calculation() {this->set_CoefficientMatchingValue("LO", {0.,0.}); return {0,0};} 
-    complex_t NLO_calculation() {this->set_CoefficientMatchingValue("NLO", {0.,0.}); return {0,0};} 
-    complex_t NNLO_calculation() {this->set_CoefficientMatchingValue("NNLO", {0.,0.}); return {0,0};} 
+    void LO_calculation() {this->set_CoefficientMatchingValue("LO", {0.,0.});  } 
+    void NLO_calculation() {this->set_CoefficientMatchingValue("NLO", {0.,0.});  } 
+    void NNLO_calculation() {this->set_CoefficientMatchingValue("NNLO", {0.,0.});  } 
 
 };
 
@@ -55,9 +55,9 @@ public:
 
     }
 
-    complex_t LO_calculation() {this->set_CoefficientMatchingValue("LO", {0.,0.}); return {0,0};} 
-    complex_t NLO_calculation()  {this->set_CoefficientMatchingValue("NLO", {0.,0.}); return {0,0};} 
-    complex_t NNLO_calculation();
+    void LO_calculation() {this->set_CoefficientMatchingValue("LO", {0.,0.});  } 
+    void NLO_calculation()  {this->set_CoefficientMatchingValue("NLO", {0.,0.});  } 
+    void NNLO_calculation();
 
 };
 
@@ -69,9 +69,9 @@ public:
 
     }
 
-    complex_t LO_calculation() {this->set_CoefficientMatchingValue("LO", {0.,0.}); return {0,0};} 
-    complex_t NLO_calculation();
-    complex_t NNLO_calculation();
+    void LO_calculation() {this->set_CoefficientMatchingValue("LO", {0.,0.});  } 
+    void NLO_calculation();
+    void NNLO_calculation();
 
 };
 
@@ -83,9 +83,9 @@ public:
 
     }
 
-    complex_t LO_calculation() {this->set_CoefficientMatchingValue("LO", {0.,0.}); return {0,0};} 
-    complex_t NLO_calculation() {this->set_CoefficientMatchingValue("NLO", {0.,0.}); return {0,0};} 
-    complex_t NNLO_calculation();
+    void LO_calculation() {this->set_CoefficientMatchingValue("LO", {0.,0.});  } 
+    void NLO_calculation() {this->set_CoefficientMatchingValue("NLO", {0.,0.});  } 
+    void NNLO_calculation();
 
 };
 
@@ -97,9 +97,9 @@ public:
 
     }
 
-    complex_t LO_calculation() {this->set_CoefficientMatchingValue("LO", {0.,0.}); return {0,0};} 
-    complex_t NLO_calculation() {this->set_CoefficientMatchingValue("NLO", {0.,0.}); return {0,0};} 
-    complex_t NNLO_calculation();
+    void LO_calculation() {this->set_CoefficientMatchingValue("LO", {0.,0.});  } 
+    void NLO_calculation() {this->set_CoefficientMatchingValue("NLO", {0.,0.});  } 
+    void NNLO_calculation();
 
 };
 
@@ -111,9 +111,9 @@ public:
 
     }
 
-    complex_t LO_calculation();
-    complex_t NLO_calculation();
-    complex_t NNLO_calculation();
+    void LO_calculation();
+    void NLO_calculation();
+    void NNLO_calculation();
 
 };
 
@@ -125,9 +125,9 @@ public:
 
     }
 
-    complex_t LO_calculation();
-    complex_t NLO_calculation();
-    complex_t NNLO_calculation();
+    void LO_calculation();
+    void NLO_calculation();
+    void NNLO_calculation();
 
 };
 
@@ -139,9 +139,9 @@ public:
 
     }
 
-    complex_t LO_calculation();
-    complex_t NLO_calculation();
-    complex_t NNLO_calculation() {this->set_CoefficientMatchingValue("NNLO", {0.,0.}); return {0,0};} 
+    void LO_calculation();
+    void NLO_calculation();
+    void NNLO_calculation() {this->set_CoefficientMatchingValue("NNLO", {0.,0.});  } 
 
 };
 
@@ -153,9 +153,9 @@ public:
 
     }
 
-    complex_t LO_calculation();
-    complex_t NLO_calculation();
-    complex_t NNLO_calculation() {this->set_CoefficientMatchingValue("NNLO", {0.,0.}); return {0,0};} 
+    void LO_calculation();
+    void NLO_calculation();
+    void NNLO_calculation() {this->set_CoefficientMatchingValue("NNLO", {0.,0.});  } 
 
 };
 
@@ -167,9 +167,9 @@ public:
 
     }
 
-    complex_t LO_calculation();
-    complex_t NLO_calculation() {this->set_CoefficientMatchingValue("NLO", {0.,0.}); return {0,0};}
-    complex_t NNLO_calculation() {this->set_CoefficientMatchingValue("NNLO", {0.,0.}); return {0,0};} 
+    void LO_calculation();
+    void NLO_calculation() {this->set_CoefficientMatchingValue("NLO", {0.,0.});  }
+    void NNLO_calculation() {this->set_CoefficientMatchingValue("NNLO", {0.,0.});  } 
 
 };
 
@@ -181,9 +181,9 @@ public:
 
     }
 
-    complex_t LO_calculation();
-    complex_t NLO_calculation() {this->set_CoefficientMatchingValue("NLO", {0.,0.}); return {0,0};}
-    complex_t NNLO_calculation() {this->set_CoefficientMatchingValue("NNLO", {0.,0.}); return {0,0};} 
+    void LO_calculation();
+    void NLO_calculation() {this->set_CoefficientMatchingValue("NLO", {0.,0.});  }
+    void NNLO_calculation() {this->set_CoefficientMatchingValue("NNLO", {0.,0.});  } 
 
 };
 
@@ -195,9 +195,9 @@ public:
 
     }
 
-    complex_t LO_calculation() {this->set_CoefficientMatchingValue("LO", {0.,0.}); return {0,0};} 
-    complex_t NLO_calculation() {this->set_CoefficientMatchingValue("NLO", {0.,0.}); return {0,0};}
-    complex_t NNLO_calculation() {this->set_CoefficientMatchingValue("NNLO", {0.,0.}); return {0,0};} 
+    void LO_calculation() {this->set_CoefficientMatchingValue("LO", {0.,0.});  } 
+    void NLO_calculation() {this->set_CoefficientMatchingValue("NLO", {0.,0.});  }
+    void NNLO_calculation() {this->set_CoefficientMatchingValue("NNLO", {0.,0.});  } 
 
 };
 
@@ -209,9 +209,9 @@ public:
 
     }
 
-    complex_t LO_calculation() {this->set_CoefficientMatchingValue("LO", {0.,0.}); return {0,0};} 
-    complex_t NLO_calculation() {this->set_CoefficientMatchingValue("NLO", {0.,0.}); return {0,0};}
-    complex_t NNLO_calculation() {this->set_CoefficientMatchingValue("NNLO", {0.,0.}); return {0,0};} 
+    void LO_calculation() {this->set_CoefficientMatchingValue("LO", {0.,0.});  } 
+    void NLO_calculation() {this->set_CoefficientMatchingValue("NLO", {0.,0.});  }
+    void NNLO_calculation() {this->set_CoefficientMatchingValue("NNLO", {0.,0.});  } 
 
 };
 
@@ -223,9 +223,9 @@ public:
 
     }
 
-    complex_t LO_calculation() {this->set_CoefficientMatchingValue("LO", {0.,0.}); return {0,0};} 
-    complex_t NLO_calculation() {this->set_CoefficientMatchingValue("NLO", {0.,0.}); return {0,0};}
-    complex_t NNLO_calculation() {this->set_CoefficientMatchingValue("NNLO", {0.,0.}); return {0,0};} 
+    void LO_calculation() {this->set_CoefficientMatchingValue("LO", {0.,0.});  } 
+    void NLO_calculation() {this->set_CoefficientMatchingValue("NLO", {0.,0.});  }
+    void NNLO_calculation() {this->set_CoefficientMatchingValue("NNLO", {0.,0.});  } 
 
 };
 
@@ -237,9 +237,9 @@ public:
 
     }
 
-    complex_t LO_calculation() {this->set_CoefficientMatchingValue("LO", {0.,0.}); return {0,0};} 
-    complex_t NLO_calculation() {this->set_CoefficientMatchingValue("NLO", {0.,0.}); return {0,0};}
-    complex_t NNLO_calculation() {this->set_CoefficientMatchingValue("NNLO", {0.,0.}); return {0,0};} 
+    void LO_calculation() {this->set_CoefficientMatchingValue("LO", {0.,0.});  } 
+    void NLO_calculation() {this->set_CoefficientMatchingValue("NLO", {0.,0.});  }
+    void NNLO_calculation() {this->set_CoefficientMatchingValue("NNLO", {0.,0.});  } 
 
 };
 
@@ -251,9 +251,9 @@ public:
 
     }
 
-    complex_t LO_calculation() {this->set_CoefficientMatchingValue("LO", {0.,0.}); return {0,0};} 
-    complex_t NLO_calculation() {this->set_CoefficientMatchingValue("NLO", {0.,0.}); return {0,0};}
-    complex_t NNLO_calculation() {this->set_CoefficientMatchingValue("NNLO", {0.,0.}); return {0,0};} 
+    void LO_calculation() {this->set_CoefficientMatchingValue("LO", {0.,0.});  } 
+    void NLO_calculation() {this->set_CoefficientMatchingValue("NLO", {0.,0.});  }
+    void NNLO_calculation() {this->set_CoefficientMatchingValue("NNLO", {0.,0.});  } 
 
 };
 
@@ -265,9 +265,9 @@ public:
 
     }
 
-    complex_t LO_calculation() {this->set_CoefficientMatchingValue("LO", {0.,0.}); return {0,0};} 
-    complex_t NLO_calculation() {this->set_CoefficientMatchingValue("NLO", {0.,0.}); return {0,0};}
-    complex_t NNLO_calculation() {this->set_CoefficientMatchingValue("NNLO", {0.,0.}); return {0,0};} 
+    void LO_calculation() {this->set_CoefficientMatchingValue("LO", {0.,0.});  } 
+    void NLO_calculation() {this->set_CoefficientMatchingValue("NLO", {0.,0.});  }
+    void NNLO_calculation() {this->set_CoefficientMatchingValue("NNLO", {0.,0.});  } 
 
 };
 
@@ -279,9 +279,9 @@ public:
 
     }
 
-    complex_t LO_calculation() {this->set_CoefficientMatchingValue("LO", {0.,0.}); return {0,0};} 
-    complex_t NLO_calculation() {this->set_CoefficientMatchingValue("NLO", {0.,0.}); return {0,0};}
-    complex_t NNLO_calculation() {this->set_CoefficientMatchingValue("NNLO", {0.,0.}); return {0,0};} 
+    void LO_calculation() {this->set_CoefficientMatchingValue("LO", {0.,0.});  } 
+    void NLO_calculation() {this->set_CoefficientMatchingValue("NLO", {0.,0.});  }
+    void NNLO_calculation() {this->set_CoefficientMatchingValue("NNLO", {0.,0.});  } 
 
 };
 
@@ -293,9 +293,9 @@ public:
 
     }
 
-    complex_t LO_calculation() {this->set_CoefficientMatchingValue("LO", {0.,0.}); return {0,0};} 
-    complex_t NLO_calculation() {this->set_CoefficientMatchingValue("NLO", {0.,0.}); return {0,0};}
-    complex_t NNLO_calculation() {this->set_CoefficientMatchingValue("NNLO", {0.,0.}); return {0,0};} 
+    void LO_calculation() {this->set_CoefficientMatchingValue("LO", {0.,0.});  } 
+    void NLO_calculation() {this->set_CoefficientMatchingValue("NLO", {0.,0.});  }
+    void NNLO_calculation() {this->set_CoefficientMatchingValue("NNLO", {0.,0.});  } 
 
 };
 
@@ -307,9 +307,9 @@ public:
 
     }
 
-    complex_t LO_calculation() {this->set_CoefficientMatchingValue("LO", {0.,0.}); return {0,0};} 
-    complex_t NLO_calculation() {this->set_CoefficientMatchingValue("NLO", {0.,0.}); return {0,0};}
-    complex_t NNLO_calculation() {this->set_CoefficientMatchingValue("NNLO", {0.,0.}); return {0,0};} 
+    void LO_calculation() {this->set_CoefficientMatchingValue("LO", {0.,0.});  } 
+    void NLO_calculation() {this->set_CoefficientMatchingValue("NLO", {0.,0.});  }
+    void NNLO_calculation() {this->set_CoefficientMatchingValue("NNLO", {0.,0.});  } 
 
 };
 
@@ -321,9 +321,9 @@ public:
 
     }
 
-    complex_t LO_calculation() {this->set_CoefficientMatchingValue("LO", {0.,0.}); return {0,0};} 
-    complex_t NLO_calculation() {this->set_CoefficientMatchingValue("NLO", {0.,0.}); return {0,0};}
-    complex_t NNLO_calculation() {this->set_CoefficientMatchingValue("NLO", {0.,0.}); return {0,0};} 
+    void LO_calculation() {this->set_CoefficientMatchingValue("LO", {0.,0.});  } 
+    void NLO_calculation() {this->set_CoefficientMatchingValue("NLO", {0.,0.});  }
+    void NNLO_calculation() {this->set_CoefficientMatchingValue("NLO", {0.,0.});  } 
 
 };
 
@@ -335,9 +335,9 @@ public:
 
     }
 
-    complex_t LO_calculation() {this->set_CoefficientMatchingValue("LO", {0.,0.}); return {0,0};} 
-    complex_t NLO_calculation() {this->set_CoefficientMatchingValue("NLO", {0.,0.}); return {0,0};}
-    complex_t NNLO_calculation() {this->set_CoefficientMatchingValue("NNLO", {0.,0.}); return {0,0};} 
+    void LO_calculation() {this->set_CoefficientMatchingValue("LO", {0.,0.});  } 
+    void NLO_calculation() {this->set_CoefficientMatchingValue("NLO", {0.,0.});  }
+    void NNLO_calculation() {this->set_CoefficientMatchingValue("NNLO", {0.,0.});  } 
 
 };
 
@@ -349,9 +349,9 @@ public:
 
     }
 
-    complex_t LO_calculation() {this->set_CoefficientMatchingValue("LO", {0.,0.}); return {0,0};} 
-    complex_t NLO_calculation() {this->set_CoefficientMatchingValue("NLO", {0.,0.}); return {0,0};}
-    complex_t NNLO_calculation() {this->set_CoefficientMatchingValue("NNLO", {0.,0.}); return {0,0};} 
+    void LO_calculation() {this->set_CoefficientMatchingValue("LO", {0.,0.});  } 
+    void NLO_calculation() {this->set_CoefficientMatchingValue("NLO", {0.,0.});  }
+    void NNLO_calculation() {this->set_CoefficientMatchingValue("NNLO", {0.,0.});  } 
 
 };
 
@@ -360,9 +360,9 @@ public:
     C_Blnu_A_THDM(double Q_match) : C_Blnu_A(Q_match), WilsonCoefficient_THDM(Q_match) {}
     C_Blnu_A_THDM() : C_Blnu_A() {}
 
-    complex_t LO_calculation() {return {0,0};}
-    complex_t NLO_calculation() {return {0,0};} 
-    complex_t NNLO_calculation() {return {0,0};} 
+    void LO_calculation() { }
+    void NLO_calculation() { } 
+    void NNLO_calculation() { } 
 
 };
 
@@ -371,9 +371,9 @@ public:
     C_Blnu_P_THDM(double Q_match) : C_Blnu_P(Q_match), WilsonCoefficient_THDM(Q_match) {}
     C_Blnu_P_THDM() : C_Blnu_P() {}
 
-    complex_t LO_calculation();
-    complex_t NLO_calculation() {return {0,0};} 
-    complex_t NNLO_calculation() {return {0,0};} 
+    void LO_calculation();
+    void NLO_calculation() { } 
+    void NNLO_calculation() { } 
 
 };
 
@@ -382,9 +382,9 @@ public:
     C_V1_THDM(double Q_match) : C_V1(Q_match), WilsonCoefficient_THDM(Q_match) {}
     C_V1_THDM() : C_V1() {}
 
-    complex_t LO_calculation() {return {0,0};} 
-    complex_t NLO_calculation() {return {0,0};} 
-    complex_t NNLO_calculation() {return {0,0};} 
+    void LO_calculation() { } 
+    void NLO_calculation() { } 
+    void NNLO_calculation() { } 
 
 };
 
@@ -393,9 +393,9 @@ public:
     C_V2_THDM(double Q_match) : C_V2(Q_match), WilsonCoefficient_THDM(Q_match) {}
     C_V2_THDM() : C_V2() {}
 
-    complex_t LO_calculation() {return {0,0};} 
-    complex_t NLO_calculation() {return {0,0};} 
-    complex_t NNLO_calculation() {return {0,0};} 
+    void LO_calculation() { } 
+    void NLO_calculation() { } 
+    void NNLO_calculation() { } 
 
 };
 
@@ -404,9 +404,9 @@ public:
     C_S1_THDM(double Q_match) : C_S1(Q_match), WilsonCoefficient_THDM(Q_match) {}
     C_S1_THDM() : C_S1() {}
 
-    complex_t LO_calculation();
-    complex_t NLO_calculation() {return {0,0};} 
-    complex_t NNLO_calculation() {return {0,0};} 
+    void LO_calculation();
+    void NLO_calculation() { } 
+    void NNLO_calculation() { } 
 
 };
 
@@ -415,9 +415,9 @@ public:
     C_S2_THDM(double Q_match) : C_S2(Q_match), WilsonCoefficient_THDM(Q_match) {}
     C_S2_THDM() : C_S2() {}
 
-    complex_t LO_calculation();
-    complex_t NLO_calculation() {return {0,0};} 
-    complex_t NNLO_calculation() {return {0,0};} 
+    void LO_calculation();
+    void NLO_calculation() { } 
+    void NNLO_calculation() { } 
 
 };
 
@@ -426,9 +426,9 @@ public:
     C_T_THDM(double Q_match) : C_T(Q_match), WilsonCoefficient_THDM(Q_match) {}
     C_T_THDM() : C_T() {}
 
-    complex_t LO_calculation() {return {0,0};} 
-    complex_t NLO_calculation() {return {0,0};} 
-    complex_t NNLO_calculation() {return {0,0};} 
+    void LO_calculation() { } 
+    void NLO_calculation() { } 
+    void NNLO_calculation() { } 
 
 };
 

@@ -17,7 +17,7 @@ public:
     inline ParameterProvider(ParameterType p_type) : p_type(p_type) { Parameters::GetInstance(p_type); }
 
     double operator()(const ParamId& pid, DataType d_type=DataType::VALUE);
-    double operator()(const std::string& block, const LhaID& id, DataType d_type=DataType::VALUE);
+    double operator()(const std::string& block, const LhaID& id, DataType d_type=DataType::VALUE) const;
 };
 
 

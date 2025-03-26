@@ -7,6 +7,6 @@ ParameterProxy::ParameterProxy(ParameterType type) {
     this->pp = ParameterProvider(type);
 } 
 
-double ParameterProxy::operator()(const std::string& block, const LhaID& id) { 
+double ParameterProxy::operator()(const std::string& block, const LhaID& id) const { 
     return pp(block, id); 
 };
