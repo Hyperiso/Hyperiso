@@ -24,6 +24,18 @@ public:
         std::function<void(const std::unordered_map<std::string, std::shared_ptr<Block>>&, std::shared_ptr<DependentBlock>)> recalculateFunc
     );
 
+    /**
+     * @brief Ajoute un DependentParameter avec plusieurs sources.
+     * @param name Id du DependentBlock.
+     * @param sources Set des sources.
+     * @param recalculateFunc Fonction de recalcul du paramètre.
+     */
+    static void addDependentParameter(
+        const ParamId &pid,
+        const std::unordered_set<ParamId> &source_pids,
+        DepParamUpdateFunc recalculateFunc
+    );
+
     static void removeDependentBlock(const std::string& name, ParameterType src);
 
     static void update(const std::string& name, ParameterType src);

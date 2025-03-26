@@ -125,6 +125,8 @@ public:
      */
     double operator()(const std::string& block, LhaID pdgCode);
 
+    std::shared_ptr<Parameter> get_parameter(const std::string& block, LhaID pdgCode);
+
     /**
      * @brief Sets a parameter value within a specified block.
      * @param name The name of the block.

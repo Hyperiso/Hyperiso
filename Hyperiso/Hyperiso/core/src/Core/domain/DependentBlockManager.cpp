@@ -22,7 +22,33 @@ void DependentBlockManager::addDependentBlock(
     Parameters::GetInstance(dest)->blockAccessor->emplace(name, dependentBlock);
 }
 
-void DependentBlockManager::removeDependentBlock(const std::string &name, ParameterType src){
+void DependentBlockManager::addDependentParameter(
+    const ParamId &pid,
+    const std::unordered_set<ParamId> &source_pids,
+    DepParamUpdateFunc recalculateFunc)
+{
+    std::unordered_map<ParamId, std::shared_ptr<Parameter>> sources;
+    
+    for (const auto& id : source_pids) {
+        sources.emplace(id, Parameters::GetInstance(id.type.value())->blockAccessor->getParameter(id.block, id.code));
+    }
+    
+    auto dependentParam = std::make_shared<DependentParameter>(sources, recalculateFunc);
+    dependentParam->init();
+    dependentParam->update();
+    auto ba = Parameters::GetInstance(pid.type.value())->blockAccessor;
+
+    if (!ba->contains(pid.block)) {
+        ba->emplace(pid.block, std::make_shared<Block>());
+        ba->at(pid.block)->blockname = pid.block;
+    } 
+    
+    ba->at(pid.block)->store(pid.code, dependentParam);
+}
+
+void DependentBlockManager::removeDependentBlock(const std::string &name,
+                                                 ParameterType src)
+{
     Parameters::GetInstance(src)->blockAccessor->erase(name);
 }
 

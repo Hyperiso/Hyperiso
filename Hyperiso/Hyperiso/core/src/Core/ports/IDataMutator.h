@@ -3,11 +3,11 @@
 
 #include "General.h"
 
-class IParamModifier {
+class IDataMutator {
 public:
-    virtual ~IParamModifier() = default;
+    virtual ~IDataMutator() = default;
 
-    virtual void modify(const ParamId&, double) = 0;
+    virtual void mutate(const ParamId&, double) = 0;
 };
 
 #endif // __IPARAMMODIFIER_H__

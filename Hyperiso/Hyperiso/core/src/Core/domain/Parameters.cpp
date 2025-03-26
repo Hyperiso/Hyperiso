@@ -36,6 +36,11 @@ double Parameters::operator()(const std::string& block, LhaID id) {
     return blockAccessor->getValue(block, id);
 }
 
+std::shared_ptr<Parameter> Parameters::get_parameter(const std::string &block,
+                                                     LhaID pdgCode) {
+    return blockAccessor->at(block)->retrieve(pdgCode);
+}
+
 bool Parameters::exist(const std::string& block, LhaID id) {
     return blockAccessor->has_param(block, id);
 }

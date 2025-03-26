@@ -25,7 +25,7 @@ int main() {
         auto xt = std::pow(qcd(MassConfig{6, 80, MassType::POLE, MassType::POLE}) / src.at("MASS")->retrieve(24).get_val(), 2);
         dep_block->store(1, Parameter(xt_pid, xt, 0., 0.));
     };
-    cpc.add_dependency("WPARAM", src, ParameterType::WILSON, func);
+    cpc.add_block_dependency("WPARAM", src, ParameterType::WILSON, func);
     LOG_INFO(wparam_provider(xt_pid));
 
 

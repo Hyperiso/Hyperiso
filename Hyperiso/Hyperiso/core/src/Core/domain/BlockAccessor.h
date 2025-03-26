@@ -60,7 +60,7 @@ public:
      * @param id The LHA ID of the parameter.
      * @return The parameter.
      */
-    Parameter getParameter(const std::string& blockName, LhaID id) const;
+    std::shared_ptr<Parameter> getParameter(const std::string& blockName, LhaID id) const;
 
     /**
      * @brief Retrieves the parameter from a specified block.
@@ -68,7 +68,7 @@ public:
      * @param id The LHA ID of the parameter.
      * @param source The source parameter.
      */
-    void setParameter(const std::string& blockName, LhaID id, Parameter&& source);
+    void setParameter(const std::string& blockName, LhaID id, std::shared_ptr<Parameter> source);
 
     /**
      * @brief Retrieves all values from a specified block.

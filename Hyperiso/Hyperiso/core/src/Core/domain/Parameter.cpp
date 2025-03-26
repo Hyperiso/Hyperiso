@@ -24,6 +24,7 @@ double Parameter::get_val() const {
 
 void Parameter::set_expected(double val) {
     this->expected = val;
+    notifyObservers();
 }
 
 double Parameter::get_std() const {

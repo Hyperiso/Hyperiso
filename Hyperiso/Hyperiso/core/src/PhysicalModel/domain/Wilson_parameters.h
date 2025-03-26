@@ -3,6 +3,7 @@
 #include "WilsonParamComposer.h"
 #include "BWilsonRunningParameters.h"
 #include "ModelParamAdapter.h"
+#include "Include.h"
 
 struct WilsonRunningMatrix {
     std::array<std::array<double, BWilsonRunningParameters::array_size>, BWilsonRunningParameters::array_size> U0 {};

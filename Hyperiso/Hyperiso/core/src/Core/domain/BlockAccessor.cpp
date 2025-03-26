@@ -3,12 +3,12 @@
 double BlockAccessor::getValue(const std::string& blockName, LhaID id) const {
     auto it = this->find(blockName);
     if (it != this->end()) {
-        return it->second->retrieve(id).get_val();
+        return it->second->retrieve(id)->get_val();
     }
     throw std::invalid_argument("Block " + blockName + " not found with pdg code : " + std::to_string(id));
 }
 
-Parameter BlockAccessor::getParameter(const std::string &blockName, LhaID id) const {
+std::shared_ptr<Parameter> BlockAccessor::getParameter(const std::string &blockName, LhaID id) const {
     auto it = this->find(blockName);
     if (it != this->end()) {
         return it->second->retrieve(id);
@@ -28,9 +28,9 @@ void BlockAccessor::setValue(const std::string& blockName, LhaID id, double valu
     auto it = this->find(blockName);
     if (it != this->end()) {
         if (it->second->contains(id)) {
-            it->second->retrieve(id).set_expected(value);
+            it->second->retrieve(id)->set_expected(value);
         } else {
-            it->second->store(id, Parameter(ParamId(blockName, id), value, 0., 0.));
+            it->second->store(id, std::make_shared<Parameter>(ParamId(blockName, id), value, 0., 0.));
         }
     } else {
         throw std::invalid_argument("Block not found");
@@ -46,10 +46,10 @@ void BlockAccessor::setValue(const std::string& blockName, LhaID id, double valu
 //     }
 // }
 
-void BlockAccessor::setParameter(const std::string &blockName, LhaID id, Parameter &&source) {
+void BlockAccessor::setParameter(const std::string &blockName, LhaID id, std::shared_ptr<Parameter> source) {
     auto it = this->find(blockName);
     if (it != this->end()) {
-        it->second->store(id, std::move(source));
+        it->second->store(id, source);
     } else {
         throw std::invalid_argument("Block not found");
     }
@@ -60,7 +60,7 @@ std::map<LhaID, double> BlockAccessor::getAllValues(std::string blockName) {
     if (it != this->end()) {
         std::map<LhaID, double> values;
         for(auto& [id, p] : it->second->getItems()) {
-            values.emplace(id, p.get_val());
+            values.emplace(id, p->get_val());
         }
         return values;
     } else {

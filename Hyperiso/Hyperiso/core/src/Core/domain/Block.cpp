@@ -14,11 +14,17 @@ void Block::notifyObservers() {
     }
 }
 
+void Block::update() {
+    for (auto& [_, param] : this->items) {
+        param->update();
+    }
+}
+
 Block::Block(std::shared_ptr<Block> other) {
     this->copy(other);
 }
 
-Parameter& Block::retrieve(const LhaID& id) {
+std::shared_ptr<Parameter> Block::retrieve(const LhaID& id) {
     if (!this->contains(id)) {
         LOG_ERROR("KeyError", "Block", this->blockname, "doesn't contain parameter", id.to_string());
     }
@@ -26,7 +32,7 @@ Parameter& Block::retrieve(const LhaID& id) {
     return this->items.at(id);
 }
 
-void Block::store(const LhaID& id, Parameter&& param) {
+void Block::store(const LhaID& id, std::shared_ptr<Parameter> param) {
     if (this->contains(id)) {
         LOG_WARN("Block", blockname, "already contains a parameter with id", id.to_string());
     } else {
@@ -34,19 +40,20 @@ void Block::store(const LhaID& id, Parameter&& param) {
     }
 }
 
-void Block::assign(const LhaID& key, Parameter&& param) {
+void Block::assign(const LhaID& key, std::shared_ptr<Parameter> param) {
     if (!this->contains(key)) {
         LOG_ERROR("KeyError", "Cannot update non-existing parameter", key.to_string(), "in block", this->blockname);
     }
 
     this->items.at(key) = param;
+    notifyObservers();
 }
 
-void Block::store_or_assign(const LhaID &key, Parameter &&param) {
+void Block::store_or_assign(const LhaID &key, std::shared_ptr<Parameter> param) {
     if (this->contains(key)) {
-        this->assign(key, std::move(param));
+        this->assign(key, param);
     } else {
-        this->store(key, std::move(param));
+        this->store(key, param);
     }
 }
 
@@ -64,7 +71,7 @@ void Block::remove(const LhaID& id) {
 
 void Block::set_owner(ParameterType type) {
     for (auto& [_, param] : items) {
-        param.set_owner(type);
+        param->set_owner(type);
     }
 }
 

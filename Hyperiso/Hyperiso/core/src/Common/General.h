@@ -363,6 +363,8 @@ struct LhaID {
     LhaID(long id) : parts({id}) {}
 
     std::string to_string() const;
+
+    std::vector<long> get_parts() const { return parts; }
     
     /**
      * @brief Allows for implicit conversion of a trivial LhaID to an integer 
@@ -390,20 +392,20 @@ namespace std {
     };
 }
 
-
 struct ParamId {
     std::optional<ParameterType> type;
     std::string block;
     LhaID code;
 
+    ParamId() : block("NULL"), code(0) {}
     ParamId(const std::string& block, const LhaID& code) : block(block), code(code) {}
     ParamId(ParameterType type, const std::string& block, const LhaID& code) : type(type), block(block), code(code) {}
 
     void set_parameter_type(ParameterType type) { this->type = type; }
 
-    bool operator==(const ParamId other) const {
-        return type == other.type && block == other.block && code == other.code;
-    }
+    inline friend bool operator==(const ParamId& lhs, const ParamId& rhs) { 
+        return lhs.type == rhs.type && lhs.block == rhs.block && lhs.code == rhs.code;
+    };
 
     bool operator<(const ParamId& other) const {
         if (type != other.type) return type < other.type;
@@ -411,6 +413,15 @@ struct ParamId {
         return code < other.code;
     }
 };
+
+namespace std {
+    template <>
+    struct hash<ParamId> {
+        std::size_t operator()(const ParamId& p) const noexcept {
+            return std::hash<std::string>{}(p.block) ^ std::hash<LhaID>{}(p.code);
+        }
+    };
+}
 
 inline std::ostream& operator<<(std::ostream& os, const ParamId& pid) {
     os << pid.block << ":" << pid.code;

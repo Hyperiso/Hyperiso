@@ -29,12 +29,14 @@ enum class ParameterMode {
  */
 class Parameter {
 private:
-    ParamId id;         ///< Unique identifier for the parameter.
-    double expected;    ///< Expected value of the parameter.
+    ParamId id;              ///< Unique identifier for the parameter.
+    double expected;         ///< Expected value of the parameter.
     double deviation_stat;   ///< Statistical standard deviation of the parameter.
     double deviation_syst;   ///< Systematic standard deviation of the parameter.
-    double value;       ///< Current value of the parameter.
-    ParameterMode mode; ///< Mode of operation.
+    double value;            ///< Current value of the parameter.
+    ParameterMode mode;      ///< Mode of operation.
+
+    std::vector<std::shared_ptr<Parameter>> observers;
 
 public:
     /**
@@ -88,6 +90,15 @@ public:
      */
     void shift(double shift);
 
+    void addObserver(std::shared_ptr<Parameter> observer) { observers.push_back(observer); }
+    void removeObserver(std::shared_ptr<Parameter> observer) { observers.erase(std::find(observers.begin(), observers.end(), observer)); }
+    void notifyObservers() {
+        for (auto& observer : observers) {
+            observer->update();
+        }
+    }
+    virtual void update() {}
+
     /**
      * @brief Assignment operator.
      */
@@ -108,6 +119,57 @@ public:
         os << "Parameter " << p.id.block << "," << p.id.code << "=" << p.expected << "+-" << p.deviation_syst << "+-" << p.deviation_stat << std::endl;
         return os;
     }
+};
+
+class DependentParameter;
+typedef std::function<void(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>&, std::shared_ptr<DependentParameter>)> DepParamUpdateFunc;
+
+class DependentParameter : public Parameter, public std::enable_shared_from_this<DependentParameter> {
+public:
+    explicit DependentParameter(std::unordered_map<ParamId, std::shared_ptr<Parameter>> sources, DepParamUpdateFunc recalculateFunc) 
+    : sources(std::move(sources)), recalculateLambda(std::move(recalculateFunc)) {}
+
+    bool dependsOn(const ParamId& pid) {
+        return sources.contains(pid);
+    }
+
+    void init() {
+        self = shared_from_this();
+        if (self) {
+            for (auto src : sources){
+                src.second->addObserver(self);   
+            }
+        } else {
+            std::cerr << "Error: DependentBlock must be created with std::make_shared!" << std::endl;
+        }
+    }
+
+    void update() override {
+        if (recalculateLambda 
+            && std::all_of(sources.begin(), sources.end(), 
+                        [](std::pair<ParamId, std::shared_ptr<Parameter>> block) { return block.second; })) 
+        {
+            if (auto self = shared_from_this()) { 
+                recalculateLambda(sources, self);
+            } else {
+                std::cerr << "Error: shared_from_this() failed in update()" << std::endl;
+            }
+        }
+    }
+
+    ~DependentParameter() {
+        LOG_INFO("Destruct DependentParameter at", self.get());
+        if (self) {
+            for (auto src : sources){
+                src.second->removeObserver(self);   
+            }
+        }
+    }
+
+private:
+    std::shared_ptr<DependentParameter> self;
+    std::unordered_map<ParamId, std::shared_ptr<Parameter>> sources;
+    DepParamUpdateFunc recalculateLambda;
 };
 
 

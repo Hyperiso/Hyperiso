@@ -30,28 +30,28 @@ public:
     Block(std::shared_ptr<Block> other);
 
     // Interface methods
-    void store(const LhaID& id, Parameter&& param) override;
-    void assign(const LhaID& key, Parameter&& param) override;
-    void store_or_assign(const LhaID& key, Parameter&& param) override;
+    void store(const LhaID& id, std::shared_ptr<Parameter> param) override;
+    void assign(const LhaID& key, std::shared_ptr<Parameter> param) override;
+    void store_or_assign(const LhaID& key, std::shared_ptr<Parameter> param) override;
     bool contains(const LhaID& key) const override;
-    Parameter& retrieve(const LhaID& id) override;
+    std::shared_ptr<Parameter> retrieve(const LhaID& id) override;
     void remove(const LhaID& key) override;
 
     std::unordered_set<LhaID> getAllIDs();
-    const std::map<LhaID, Parameter>& getItems() { return this->items; };
+    const std::map<LhaID, std::shared_ptr<Parameter>>& getItems() { return this->items; };
     void set_owner(ParameterType type);
 
     void addObserver(std::shared_ptr<Block> observer);
     void removeObserver(std::shared_ptr<Block> observer);
     void notifyObservers();
-    virtual void update() {}
+    void update();
     void copy(std::shared_ptr<Block> other);
 
     ~Block() { notifyObservers(); }
 
 protected:
     std::vector<std::shared_ptr<Block>> observers;
-    std::map<LhaID, Parameter> items;
+    std::map<LhaID, std::shared_ptr<Parameter>> items;
 };
 
 class DependentBlock : public Block, public std::enable_shared_from_this<DependentBlock> {
@@ -74,7 +74,7 @@ public:
         }
     }
 
-    void update() override {
+    void update() {
         if (recalculateLambda 
             && std::all_of(sourceBlocks.begin(), sourceBlocks.end(), 
                            [](std::pair<std::string, std::shared_ptr<Block>> block) { return block.second; })) 
