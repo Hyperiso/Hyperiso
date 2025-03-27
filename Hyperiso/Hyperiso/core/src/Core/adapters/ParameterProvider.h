@@ -18,6 +18,11 @@ public:
 
     double operator()(const ParamId& pid, DataType d_type=DataType::VALUE);
     double operator()(const std::string& block, const LhaID& id, DataType d_type=DataType::VALUE) const;
+
+    bool exists(const ParamId& pid) const;
+    bool exists(const std::string& block, const LhaID& id) const;
+
+    ParameterType get_type() const;
 };
 
 

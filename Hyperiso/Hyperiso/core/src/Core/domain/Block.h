@@ -32,6 +32,7 @@ public:
     // Interface methods
     void store(const LhaID& id, std::shared_ptr<Parameter> param) override;
     void assign(const LhaID& key, std::shared_ptr<Parameter> param) override;
+    void assign(const LhaID& key, double value);
     void store_or_assign(const LhaID& key, std::shared_ptr<Parameter> param) override;
     bool contains(const LhaID& key) const override;
     std::shared_ptr<Parameter> retrieve(const LhaID& id) override;
@@ -44,7 +45,7 @@ public:
     void addObserver(std::shared_ptr<Block> observer);
     void removeObserver(std::shared_ptr<Block> observer);
     void notifyObservers();
-    void update();
+    virtual void update();
     void copy(std::shared_ptr<Block> other);
 
     ~Block() { notifyObservers(); }
@@ -56,7 +57,7 @@ protected:
 
 class DependentBlock : public Block, public std::enable_shared_from_this<DependentBlock> {
 public:
-    explicit DependentBlock(std::unordered_map<std::string, std::shared_ptr<Block>> sources, DepUpdateFunc recalculateFunc) 
+    explicit DependentBlock(const std::unordered_map<std::string, std::shared_ptr<Block>>& sources, DepUpdateFunc recalculateFunc) 
         : sourceBlocks(std::move(sources)), recalculateLambda(std::move(recalculateFunc)) {}
 
     bool dependsOn(const std::string& blockName) {
@@ -66,7 +67,9 @@ public:
     void init() {
         self = shared_from_this();
         if (self) {
+            LOG_INFO("Adding observer to", sourceBlocks.size(), "source blocks");
             for (auto src : sourceBlocks){
+                LOG_INFO(src.second->blockname);
                 src.second->addObserver(self);   
             }
         } else {
@@ -74,17 +77,20 @@ public:
         }
     }
 
-    void update() {
+    void update() override {
+        LOG_INFO("In DependentBlock::update");
         if (recalculateLambda 
             && std::all_of(sourceBlocks.begin(), sourceBlocks.end(), 
                            [](std::pair<std::string, std::shared_ptr<Block>> block) { return block.second; })) 
         {
+            LOG_INFO("updating");
             if (auto self = shared_from_this()) { 
                 recalculateLambda(sourceBlocks, self);
             } else {
                 std::cerr << "Error: shared_from_this() failed in update()" << std::endl;
             }
         }
+        notifyObservers();
     }
 
     ~DependentBlock() {

@@ -1,5 +1,6 @@
 #include "HyperisoMaster.h"
 #include "WilsonInterface.h"
+#include "ParameterSetter.h"
 #include <iostream>
 
 int main(){
@@ -20,11 +21,20 @@ int main(){
     );
 
     LOG_INFO("Interface built");
+    
+    ParameterSetter ps;
+    ParameterProxy pa (ParameterType::WILSON);
 
-    std::cout << "C7 matching (LO + NLO + NNLO) : " << wi.getFullMatchingCoefficient(WGroup::B, WCoef::C7, QCDOrder::LO)     << '\n';
-    std::cout << "C7 hadronic (LO + NLO + NNLO) : " << wi.getFullRunCoefficient(WGroup::B, WCoef::C7, QCDOrder::LO)          << '\n';
-    std::cout << "CP7 matching (LO) : "             << wi.getFullMatchingCoefficient(WGroup::BPrime, WCoef::CP7, QCDOrder::LO) << '\n';
-    std::cout << "CP7 hadronic (LO) : "             << wi.getFullRunCoefficient(WGroup::BPrime, WCoef::CP7, QCDOrder::LO)      << '\n';
+    LOG_INFO("Before mutation:", pa("WPARAM_MATCH_SM", LhaID(2, 1)));
+    LOG_INFO("Before mutation:", pa("B_MATCH", LhaID(3051313, 4137, 0, 0)));
+    ps.mutate({ParameterType::SM, "MASS", 24}, 100);
+    LOG_INFO("After mutation:", pa("WPARAM_MATCH_SM", LhaID(2, 1)));
+    LOG_INFO("After mutation:", pa("B_MATCH", LhaID(3051313, 4137, 0, 0)));
+
+    // std::cout << "C7 matching (LO + NLO + NNLO) : " << wi.getFullMatchingCoefficient(WGroup::B, WCoef::C7, QCDOrder::LO)     << '\n';
+    // std::cout << "C7 hadronic (LO + NLO + NNLO) : " << wi.getFullRunCoefficient(WGroup::B, WCoef::C7, QCDOrder::LO)          << '\n';
+    // std::cout << "CP7 matching (LO) : "             << wi.getFullMatchingCoefficient(WGroup::BPrime, WCoef::CP7, QCDOrder::LO) << '\n';
+    // std::cout << "CP7 hadronic (LO) : "             << wi.getFullRunCoefficient(WGroup::BPrime, WCoef::CP7, QCDOrder::LO)      << '\n';
 
     // Retrieve coefficient values
     // std::ofstream fs {"out.txt"};

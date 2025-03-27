@@ -59,7 +59,7 @@ void init_wilson_coefficient(py::module &m) {
     py::class_<WilsonCoefficient, std::shared_ptr<WilsonCoefficient>>(m, "WilsonCoefficient")
         .def("get_coefficient_matching_value", &WilsonCoefficient::get_CoefficientMatchingValue)
         .def("get_coefficient_run_value", &WilsonCoefficient::get_CoefficientRunValue)
-        .def("set_coefficient_matching_value", &WilsonCoefficient::set_CoefficientMatchingValue)
+        .def("set_coefficient_matching_value", &WilsonCoefficient::set_WilsonCoeffMatching)
         .def("set_coefficient_run_value", &WilsonCoefficient::set_WilsonCoeffRun)
         .def("get_q_match", &WilsonCoefficient::get_Q_match)
         .def("get_q", &WilsonCoefficient::get_Q);

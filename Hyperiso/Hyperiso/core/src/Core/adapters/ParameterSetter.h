@@ -6,7 +6,7 @@
 
 class ParameterSetter : public IDataMutator {
 public:
-    void mutate(const ParamId& pid, double value);
+    void mutate(const ParamId& pid, double value) override;
 };
 
 #endif // __PARAMETERMODIFIER_H__

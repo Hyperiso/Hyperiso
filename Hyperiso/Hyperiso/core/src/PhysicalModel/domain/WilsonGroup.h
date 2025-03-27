@@ -34,7 +34,7 @@ public:
     void init_LO() {
         for (auto& coeff : *this) {
             std::cout << "LO : " << coeff.first << std::endl;
-            if (!coeff.second->fill_from_flha())
+            if (!HAS_WILSON_API().get())
                 coeff.second->LO_calculation();
         }
     }
@@ -42,7 +42,7 @@ public:
     void init_NLO() {
         for (auto& coeff : *this) {
             std::cout << "NLO : " << coeff.first << std::endl;
-            if (!coeff.second->fill_from_flha())
+            if (!HAS_WILSON_API().get())
                 coeff.second->NLO_calculation();
         }
     }
@@ -50,7 +50,7 @@ public:
     void init_NNLO() {
         for (auto& coeff : *this) {
             std::cout << "NNLO : " << coeff.first << std::endl;
-            if (!coeff.second->fill_from_flha())
+            if (!HAS_WILSON_API().get())
                 coeff.second->NNLO_calculation();
         }
     }

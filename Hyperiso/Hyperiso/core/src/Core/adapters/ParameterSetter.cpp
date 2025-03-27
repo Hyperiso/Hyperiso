@@ -5,5 +5,5 @@ void ParameterSetter::mutate(const ParamId &pid, double value) {
         LOG_ERROR("LogicError", "Use of incomplete ParamId to mutate parameter. Please specify a ParameterType.");
     }
 
-    Parameters::GetInstance(pid.type.value())->get_parameter(pid.block, pid.code)->set_expected(value);
+    Parameters::GetInstance(pid.type.value())->setBlockValue(pid.block, pid.code, value);
 }

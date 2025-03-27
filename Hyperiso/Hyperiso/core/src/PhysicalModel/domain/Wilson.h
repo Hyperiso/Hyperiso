@@ -18,7 +18,6 @@ protected:
     void is_now_calculated(std::string order) {this->is_calculated[order] = true;}
 
     std::string CoeffName{};
-    WCoef id;
     bool bsm {false};
     bool is_owned {false};
     ParameterProxy wilson_p {ParameterType::WILSON};
@@ -37,10 +36,6 @@ public:
     
     void set_name(std::string name) {this->CoeffName = name;}
 
-    void set_CoefficientMatchingValue(const std::string& order, complex_t value) {
-        std::cout << "Wow mais c'est génial ici" << std::endl; //TODO
-    }
-
     void set_WilsonCoeffMatching(const std::string& order, complex_t value) {
         std::cout << "Wow mais c'est encore plus génial ici" << std::endl; //TODO
     }
@@ -54,11 +49,10 @@ public:
     // void set_WilsonCoeffMatching(std::string order ,complex_t value) {this->CoefficientMatchingValue[order] = value;}
 
     complex_t get_CoefficientMatchingValue(std::string order) const {
-        auto base_id = WCoefMapper::flha(this->id);
+        auto base_id = WCoefMapper::flha(WCoefMapper::enum_elt(this->CoeffName));
         auto order_id = static_cast<long>(OrderMapper::enum_elt(order));
         LhaID code(base_id.first, base_id.second, order_id, static_cast<long>(this->bsm));
-        std::string block = "B_MATCH";
-        return (complex_t)wilson_p(block, code);
+        return complex_t(wilson_p("B_MATCH", code), wilson_p("IMB_MATCH", code));
     }
 
     complex_t get_CoefficientRunValue(std::string order) const {return {0,0}; } //TODO
@@ -105,8 +99,6 @@ public:
     virtual void LO_calculation() = 0;
     virtual void NLO_calculation() = 0;
     virtual void NNLO_calculation() = 0;
-
-    bool fill_from_flha();
 
     bool is_it_calculated(std::string order) {return this->is_calculated[order];}
 

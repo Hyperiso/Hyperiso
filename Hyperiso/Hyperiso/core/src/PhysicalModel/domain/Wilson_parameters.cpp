@@ -11,6 +11,7 @@ void WilsonParameterHelper::set_mu(double mu) {
 
 void WilsonParameterHelper::set_mu_W(double mu_W) {
 	if (fpeq(mu_W, WilsonParameterHelper::current_mu_W)) {
+		std::cout << "WilsonParametersHelper already set a scale " << mu_W << std::endl;
 		return;
 	}
 	std::cout << "mmh" << std::endl;
@@ -24,6 +25,7 @@ void WilsonParameterHelper::init(double mu_W, double mu_h, int gen) {
 		return;
 	}
 
+	std::cout << "Initializing WilsonParameterHelper at scales " << mu_W << " and " << mu_h << std::endl;
 	WilsonParameterHelper::current_mu_W = mu_W;
 	WilsonParameterHelper::current_mu_h = mu_h;
 	WilsonParameterHelper::init_scale_independent_block(gen);
@@ -42,11 +44,11 @@ void WilsonParameterHelper::init_scale_independent_block(int gen) {
 		
 		int nf = 5;
 		int id = 1;
-        dep_block->store_or_assign(id, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_SM", id++}, xh, 0., 0.));
-		dep_block->store_or_assign(id, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_SM", id++}, gen, 0., 0.));
-		dep_block->store_or_assign(id, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_SM", id++}, src.at("MASS")->retrieve(9 + 2 * gen)->get_val(), 0., 0.));
-		dep_block->store_or_assign(id, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_SM", id++}, 0.22305, 0., 0.)); //TODO, sw2
-		dep_block->store_or_assign(id, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_SM", id++}, 11.-2./3.*nf, 0., 0.)); //TODO, beta0
+        dep_block->store_or_assign(id++, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_SM", id}, xh, 0., 0.));
+		dep_block->store_or_assign(id++, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_SM", id}, gen, 0., 0.));
+		dep_block->store_or_assign(id++, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_SM", id}, src.at("MASS")->retrieve(9 + 2 * gen)->get_val(), 0., 0.));
+		dep_block->store_or_assign(id++, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_SM", id}, 0.22305, 0., 0.)); //TODO, sw2
+		dep_block->store_or_assign(id++, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_SM", id}, 11.-2./3.*nf, 0., 0.)); //TODO, beta0
     };
 
     WilsonParameterHelper::composer.compose_block("WPARAM_SI_SM", src, func);
@@ -75,6 +77,8 @@ void WilsonParameterHelper::init_matching_block(double mu_W) {
 		dep_block->store_or_assign(LhaID(5, 1), std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_MATCH_SM", LhaID(5, 1)}, mass_b_muW_mbrun, 0., 0.));
 		dep_block->store_or_assign(LhaID(5, 2), std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_MATCH_SM", LhaID(5, 2)}, mass_b_muW_mbpole, 0., 0.));
 		dep_block->store_or_assign(6, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_MATCH_SM", 6}, mass_top_muW, 0., 0.));
+
+		LOG_INFO("Update matching block");
     };
 
     WilsonParameterHelper::composer.compose_block("WPARAM_MATCH_SM", src, func);

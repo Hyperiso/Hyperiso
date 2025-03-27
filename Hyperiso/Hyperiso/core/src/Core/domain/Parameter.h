@@ -34,7 +34,7 @@ private:
     double expected;         ///< Expected value of the parameter.
     double deviation_stat;   ///< Statistical standard deviation of the parameter.
     double deviation_syst;   ///< Systematic standard deviation of the parameter.
-    double value;            ///< Current value of the parameter.
+    double shift;            ///< Current shift of the parameter.
     ParameterMode mode;      ///< Mode of operation.
 
     std::vector<std::shared_ptr<Parameter>> observers;
@@ -43,7 +43,7 @@ public:
     /**
      * @brief Default constructor initializes a null parameter.
      */
-    inline Parameter() : id({ParameterType::SM, "NullBlock", 0}), expected(0), deviation_stat(0), deviation_syst(0), mode(ParameterMode::FIXED) {}
+    inline Parameter() : id({ParameterType::SM, "NullBlock", 0}), expected(0), deviation_stat(0), deviation_syst(0), shift(0), mode(ParameterMode::FIXED) {}
     
     /**
      * @brief Constructs a Parameter with specified ID, mean value, and standard deviation.
@@ -89,7 +89,7 @@ public:
      * @brief Shifts the parameter value if it is shiftable.
      * @throws std::runtime_error If the parameter is fixed.
      */
-    void shift(double shift);
+    void set_shift(double shift);
 
     void addObserver(std::shared_ptr<Parameter> observer) { observers.push_back(observer); }
     void removeObserver(std::shared_ptr<Parameter> observer) { observers.erase(std::find(observers.begin(), observers.end(), observer)); }
@@ -105,11 +105,11 @@ public:
      */
     Parameter& operator=(const Parameter& other) {
         this->id = other.id;
-        this->expected = other.expected;
+        this->set_expected(other.expected);
         this->deviation_stat = other.deviation_stat;
         this->deviation_syst = other.deviation_syst;
         this->mode = other.mode;
-        this->value = other.value;
+        this->shift = other.shift;
         return *this;
     }
 
@@ -150,6 +150,7 @@ public:
             && std::all_of(sources.begin(), sources.end(), 
                         [](std::pair<ParamId, std::shared_ptr<Parameter>> block) { return block.second; })) 
         {
+            LOG_INFO("Updating dependent parameter value");
             if (auto self = shared_from_this()) { 
                 recalculateLambda(sources, self);
             } else {

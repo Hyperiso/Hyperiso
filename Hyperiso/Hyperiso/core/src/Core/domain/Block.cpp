@@ -10,11 +10,13 @@ void Block::removeObserver(std::shared_ptr<Block> observer) {
 
 void Block::notifyObservers() {
     for (auto& observer : observers) {
+        LOG_INFO(observer->blockname);
         observer->update();
     }
 }
 
 void Block::update() {
+    LOG_INFO("In Block::update");
     for (auto& [_, param] : this->items) {
         param->update();
     }
@@ -45,7 +47,16 @@ void Block::assign(const LhaID& key, std::shared_ptr<Parameter> param) {
         LOG_ERROR("KeyError", "Cannot update non-existing parameter", key.to_string(), "in block", this->blockname);
     }
 
-    this->items.at(key) = param;
+    *(this->items.at(key)) = *param;
+    notifyObservers();
+}
+
+void Block::assign(const LhaID &key, double value) {
+    if (!this->contains(key)) {
+        LOG_ERROR("KeyError", "Cannot update non-existing parameter", key.to_string(), "in block", this->blockname);
+    }
+
+    this->items.at(key)->set_expected(value);
     notifyObservers();
 }
 

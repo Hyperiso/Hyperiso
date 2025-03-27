@@ -8,5 +8,9 @@ ParameterProxy::ParameterProxy(ParameterType type) {
 } 
 
 double ParameterProxy::operator()(const std::string& block, const LhaID& id) const { 
+    if (pp.get_type() == ParameterType::WILSON) {
+        return pp.exists(block, id) ? pp(block, id) : 0.;
+    } 
+
     return pp(block, id); 
 };

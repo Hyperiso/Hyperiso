@@ -23,7 +23,7 @@ void C1_susy::NNLO_calculation() {
 			C1squark_2 += 8.0 * (xsqa - 1.0 / 3.0) * log(xsqa) + 16.0 * xsqa;
 		}
 	}
-    this->set_CoefficientMatchingValue("NNLO", C1squark_2);
+    this->set_WilsonCoeffMatching("NNLO", C1squark_2);
     // return C1squark_2;
 }
 void C3_susy::NNLO_calculation() {
@@ -40,7 +40,7 @@ void C3_susy::NNLO_calculation() {
 
 	C3charg_2 *= (*sus_param).kappa;
 	double C3H_2 = G3H(sus_param->yt,sus_param->lu)+Delta3H(sus_param->yt,sus_param->lu)*log(pow(this->get_Q_match()/(*susy)("MASS",37),2.));
-    this->set_CoefficientMatchingValue("NNLO", C3charg_2 + C3H_2);
+    this->set_WilsonCoeffMatching("NNLO", C3charg_2 + C3H_2);
     // return C3charg_2 + C3H_2;
 }
 
@@ -55,7 +55,7 @@ void C4_susy::NLO_calculation() {
     C4charg_1*=(*sus_param).kappa;
     complex_t C4H_1 = EH(sus_param->yt,sus_param->lu);
     complex_t coeff_temp = C4H_1+C4charg_1;
-    this->set_CoefficientMatchingValue("NLO", coeff_temp);
+    this->set_WilsonCoeffMatching("NLO", coeff_temp);
     // return coeff_temp;
 }
 
@@ -82,7 +82,7 @@ void C4_susy::NNLO_calculation() {
     C4charg_2 *= (*sus_param).kappa;
 	C4four_2 *= (*sus_param).kappa;
 	double C4H_2=G4H(sus_param->yt,sus_param->lu)+Delta4H(sus_param->yt,sus_param->lu)*log(pow(this->get_Q_match()/(*susy)("MASS",37),2.));
-    this->set_CoefficientMatchingValue("NNLO", C4charg_2+C4four_2+C4H_2);
+    this->set_WilsonCoeffMatching("NNLO", C4charg_2+C4four_2+C4H_2);
     // return C4charg_2+C4four_2+C4H_2;
 }
 
@@ -107,7 +107,7 @@ void C5_susy::NNLO_calculation() {
 	double C4H_1=EH(sus_param->yt,sus_param->lu);
     double C3H_2=G3H(sus_param->yt,sus_param->lu)+Delta3H(sus_param->yt,sus_param->lu)*log(pow(this->get_Q_match()/(*susy)("MASS",37),2.));
 	double C5H_2=-C3H_2/10.+2./15.*C4H_1;
-    this->set_CoefficientMatchingValue("NNLO", C5charg_2+C5H_2);
+    this->set_WilsonCoeffMatching("NNLO", C5charg_2+C5H_2);
     // return C5charg_2+C5H_2;
 }
 
@@ -132,7 +132,7 @@ void C6_susy::NNLO_calculation() {
 	complex_t C4H_1=EH(sus_param->yt,sus_param->lu);
     complex_t C3H_2=G3H(sus_param->yt,sus_param->lu)+Delta3H(sus_param->yt,sus_param->lu)*log(pow(this->get_Q_match()/(*susy)("MASS",37),2.));
 	complex_t C6H_2=-3./16.*C3H_2+1./4.*C4H_1;
-    this->set_CoefficientMatchingValue("NNLO", C6charg_2+C6H_2);
+    this->set_WilsonCoeffMatching("NNLO", C6charg_2+C6H_2);
     // return C6charg_2+C6H_2;
 }
 
@@ -174,7 +174,7 @@ void C7_susy::LO_calculation() {
 
     complex_t C7H_0 = 1./3.*sus_param->lu*sus_param->lu*F7_1(sus_param->yt) - sus_param->lu*sus_param->ld*F7_2(sus_param->yt);
 
-    this->set_CoefficientMatchingValue("LO", C7SMeps_0 + C7Heps_0 + C7Heps2_0 + C7charg_0 + C7_chargeps_0+C7H_0);
+    this->set_WilsonCoeffMatching("LO", C7SMeps_0 + C7Heps_0 + C7Heps2_0 + C7charg_0 + C7_chargeps_0+C7H_0);
     // return C7SMeps_0 + C7Heps_0 + C7Heps2_0 + C7charg_0 + C7_chargeps_0 + C7H_0;
 
 }
@@ -208,7 +208,7 @@ void C7_susy::NLO_calculation() {
     complex_t C7H_1 = G7H(sus_param->yt,sus_param->lu,sus_param->ld)+Delta7H(sus_param->yt,sus_param->lu,sus_param->ld)*log(pow(this->get_Q_match()/sus_param->m_H,2.))
     -4./9.*EH(sus_param->yt,sus_param->lu);
 
-    this->set_CoefficientMatchingValue("NLO",C7charg_1+C7four_1+C7H_1);
+    this->set_WilsonCoeffMatching("NLO",C7charg_1+C7four_1+C7H_1);
     // return C7charg_1+C7four_1 + C7H_1;
 
 }
@@ -251,7 +251,7 @@ void C8_susy::LO_calculation() {
 		}
 	}
     complex_t C8H_0 = 1./3.*sus_param->lu*sus_param->lu*F8_1(sus_param->yt) - sus_param->lu*sus_param->ld*F8_2(sus_param->yt);
-    this->set_CoefficientMatchingValue("LO",C8SMeps_0 +  C8Heps_0 + C8Heps2_0 + C8charg_0 + C8_chargeps_0 + C8H_0);
+    this->set_WilsonCoeffMatching("LO",C8SMeps_0 +  C8Heps_0 + C8Heps2_0 + C8charg_0 + C8_chargeps_0 + C8H_0);
     // return C8SMeps_0 +  C8Heps_0 + C8Heps2_0 + C8charg_0 + C8_chargeps_0 + C8H_0;
 }
 
@@ -281,7 +281,7 @@ void C8_susy::NLO_calculation() {
     complex_t C8H_1 = G8H(sus_param->yt,sus_param->lu,sus_param->ld)+Delta8H(sus_param->yt,sus_param->lu,sus_param->ld)*log(pow(this->get_Q_match()/sus_param->m_H,2.))
     -1./6.*EH(sus_param->yt,sus_param->lu);
 
-    this->set_CoefficientMatchingValue("NLO", C8charg_1 + C8four_1+C8H_1);
+    this->set_WilsonCoeffMatching("NLO", C8charg_1 + C8four_1+C8H_1);
     // return C8charg_1 + C8four_1 + C8H_1;
 }
 
@@ -293,7 +293,7 @@ void C8_susy::NNLO_calculation() {
 void C9_susy::LO_calculation() {
     complex_t C9charg_0 = (1.0 - 4.0 * (*sus_param).sw2) / (*sus_param).sw2 * (*sus_param).C90c - (*sus_param).B90c / (*sus_param).sw2 - (*sus_param).D90c;
     double C9H_0 = (1.-4.*sus_param->sw2)/sus_param->sw2*C9llH0(sus_param->xt,sus_param->yt,sus_param->lu)-D9H0(sus_param->yt,sus_param->lu);
-    this->set_CoefficientMatchingValue("LO",C9charg_0+C9H_0);
+    this->set_WilsonCoeffMatching("LO",C9charg_0+C9H_0);
     // return C9charg_0+C9H_0;
 }
 
@@ -450,14 +450,14 @@ void C9_susy::NLO_calculation() {
 	complex_t C9charg_1=(1.-4.*(*sus_param).sw2)/(*sus_param).sw2*C91c-B91c/(*sus_param).sw2-D91c;
     complex_t C9H_1 = (1.-4.*sus_param->sw2)/sus_param->sw2*C9llH1(sus_param->xt,sus_param->yt,sus_param->lu,log(pow(this->get_Q_match()/sus_param->m_H,2.)))
     -D9H1(sus_param->yt,sus_param->lu,log(pow(this->get_Q_match()/sus_param->m_H,2.)));
-    this->set_CoefficientMatchingValue("NLO",C9four_1+C9charg_1 + C9H_1);
+    this->set_WilsonCoeffMatching("NLO",C9four_1+C9charg_1 + C9H_1);
     // return C9four_1+C9charg_1 + C9H_1;
 }
 
 void C10_susy::LO_calculation() {
     complex_t C10charg_0 = ((*sus_param).B100c - (*sus_param).C90c) / (*sus_param).sw2;
     complex_t C10H_0 = -C9llH0(sus_param->xt,sus_param->yt,sus_param->lu)/sus_param->sw2;
-    this->set_CoefficientMatchingValue("LO",C10charg_0+C10H_0);
+    this->set_WilsonCoeffMatching("LO",C10charg_0+C10H_0);
     // return C10charg_0+C10H_0;
 }
 
@@ -596,7 +596,7 @@ void C10_susy::NLO_calculation() {
 
 	complex_t C10charg_1=(B101c-C91c)/(*sus_param).sw2;
     double C10H_1 = -C9llH1(sus_param->xt,sus_param->yt,sus_param->lu,log(pow(this->get_Q_match()/sus_param->m_H,2.)))/sus_param->sw2;
-    this->set_CoefficientMatchingValue("NLO",C10four_1+C10charg_1+C10H_1);
+    this->set_WilsonCoeffMatching("NLO",C10four_1+C10charg_1+C10H_1);
     // return C10four_1+C10charg_1+C10H_1;
 }
 
@@ -784,7 +784,7 @@ void CPQ1_susy::LO_calculation() {
 
 	complex_t CQ1pcharg=NQ1pc+BQ1pc;
 
-    this->set_CoefficientMatchingValue("LO", (CQ1pcharg+CQ1pH)/sus_param->epsfac);
+    this->set_WilsonCoeffMatching("LO", (CQ1pcharg+CQ1pH)/sus_param->epsfac);
     // return (CQ1pcharg+CQ1pH)/sus_param->epsfac;
 }
 
@@ -850,7 +850,7 @@ void CPQ2_susy::LO_calculation() {
 
 
 	complex_t CQ2pcharg=NQ2pc+BQ2pc;
-    this->set_CoefficientMatchingValue("LO", (CQ2pH+CQ2pcharg)/sus_param->epsfac);
+    this->set_WilsonCoeffMatching("LO", (CQ2pH+CQ2pcharg)/sus_param->epsfac);
     // return (CQ2pH+CQ2pcharg)/sus_param->epsfac;
 }
 
@@ -910,7 +910,7 @@ void CQ1_susy::LO_calculation() {
 
 	complex_t CQ1charg_0=NQ10c+BQ10c;
     complex_t coeff_temp = (CQ1charg_0+CQ1H_0)/sus_param->epsfac;
-    this->set_CoefficientMatchingValue("LO", coeff_temp);
+    this->set_WilsonCoeffMatching("LO", coeff_temp);
 
     /* NMSSM */
 
@@ -1025,7 +1025,7 @@ void CQ1_susy::LO_calculation() {
 	
 		coeff_temp = (CQ1H+CQ1c)*wilson_p("WPARAM_MATCH_SM", {5,1})/(*sus_param).sw2/(*sus_param).epsfac;
 
-        this->set_CoefficientMatchingValue("LO", coeff_temp);
+        this->set_WilsonCoeffMatching("LO", coeff_temp);
 	}
 
     // return coeff_temp;
@@ -1161,7 +1161,7 @@ void CQ1_susy::NLO_calculation() {
 	complex_t CQ1four_1=NQ11f+BQ11f;
 	complex_t coeff_temp = (CQ1H_1+CQ1charg_1)/sus_param->epsfac+CQ1four_1;
 
-    this->set_CoefficientMatchingValue("NLO", coeff_temp);
+    this->set_WilsonCoeffMatching("NLO", coeff_temp);
 	// return coeff_temp;
 }
 
@@ -1222,7 +1222,7 @@ void CQ2_susy::LO_calculation() {
 
 
     complex_t coeff_temp = (CQ2charg_0+CQ2H_0)/sus_param->epsfac;
-    this->set_CoefficientMatchingValue("LO", coeff_temp);
+    this->set_WilsonCoeffMatching("LO", coeff_temp);
 
     /* NMSSM */
 
@@ -1481,7 +1481,7 @@ void CQ2_susy::NLO_calculation() {
 	complex_t CQ2four_1=NQ21f+BQ21f;
 
     complex_t coeff_temp = (CQ2H_1+CQ2charg_1)/sus_param->epsfac+CQ2four_1;
-    this->set_CoefficientMatchingValue("NLO", coeff_temp);
+    this->set_WilsonCoeffMatching("NLO", coeff_temp);
 	std::cout << coeff_temp << std::endl;
 	// return coeff_temp;
 }

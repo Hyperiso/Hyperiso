@@ -53,7 +53,7 @@ public:
                             break;
                         }
                         std::cout << df.iat<double>(i, this->get_name()+"_real") << " BUTE" << std::endl;
-                        this->set_CoefficientMatchingValue("LO", {df.iat<double>(i, this->get_name()+"_real"), df.iat<double>(i, this->get_name()+"_img")});
+                        this->set_WilsonCoeffMatching("LO", {df.iat<double>(i, this->get_name()+"_real"), df.iat<double>(i, this->get_name()+"_img")});
                         //return {df.iat<double>(i, this->get_name()+"_real"), df.iat<double>(i, this->get_name()+"_img")}; TODO
                     }
                 } 
@@ -68,7 +68,7 @@ public:
         for (size_t i = 0; i < df.getRowCount(); ++i) {
             double Q_match = df.iat<double>(i, "Q_match");
             if (fabs(Q_match-this->get_Q_match()) < epsi) {
-                this->set_CoefficientMatchingValue("LO", {df.iat<double>(i, this->get_name()+"_real"), df.iat<double>(i, this->get_name()+"_img")});
+                this->set_WilsonCoeffMatching("LO", {df.iat<double>(i, this->get_name()+"_real"), df.iat<double>(i, this->get_name()+"_img")});
                 //return {df.iat<double>(i, this->get_name()+"_real"), df.iat<double>(i, this->get_name()+"_img")}; TODO
             }
         }

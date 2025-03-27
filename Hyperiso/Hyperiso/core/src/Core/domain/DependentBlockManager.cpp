@@ -36,6 +36,9 @@ void DependentBlockManager::addDependentParameter(
     auto dependentParam = std::make_shared<DependentParameter>(sources, recalculateFunc);
     dependentParam->init();
     dependentParam->update();
+
+    LOG_INFO(dependentParam->get_val());
+
     auto ba = Parameters::GetInstance(pid.type.value())->blockAccessor;
 
     if (!ba->contains(pid.block)) {

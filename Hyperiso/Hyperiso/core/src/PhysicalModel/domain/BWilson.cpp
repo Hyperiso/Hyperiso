@@ -2,7 +2,7 @@
 
 void C1::NLO_calculation() {
     std::unordered_set<ParamId> sources {
-        {ParameterType::WILSON, "WPARAM_MATCH_SM", 3}  // L
+        {"WPARAM_MATCH_SM", 3}  // L
     };
 
     auto func = [] (const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src, std::shared_ptr<DependentParameter> dep_param) {
@@ -10,13 +10,13 @@ void C1::NLO_calculation() {
         dep_param->set_expected(15 + 6 * L);
     };
 
-    WilsonParamComposer().compose_parameter(ParamId{ParameterType::WILSON, "B_MATCH", LhaID(3040405, 6161, 0, 0)}, sources, func);
+    WilsonParamComposer().compose_parameter(ParamId{"B_MATCH", LhaID(3040405, 6161, 0, 0)}, sources, func);
 }
 
 void C1::NNLO_calculation() {
     std::unordered_set<ParamId> sources {
-        {ParameterType::WILSON, "WPARAM_MATCH_SM", 3},              // L
-        {ParameterType::WILSON, "WPARAM_MATCH_SM", LhaID(2, 1)}     // x_t
+        {"WPARAM_MATCH_SM", 3},              // L
+        {"WPARAM_MATCH_SM", LhaID(2, 1)}     // x_t
     };
 
     auto func = [] (const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src, std::shared_ptr<DependentParameter> dep_param) {
@@ -25,26 +25,30 @@ void C1::NNLO_calculation() {
         dep_param->set_expected(-T(xt) + 7987./72. + 17. * PI2 / 3. + 475./6. * L + 17. * L * L);
     };
 
-    WilsonParamComposer().compose_parameter(ParamId{ParameterType::WILSON, "B_MATCH", LhaID(3040405, 6161, 1, 0)}, sources, func);
+    WilsonParamComposer().compose_parameter(ParamId{"B_MATCH", LhaID(3040405, 6161, 1, 0)}, sources, func);
 }
 
 void C2::LO_calculation() {
-    // return this->double_to_complex_save("LO", 1.);
-    std::unordered_set<ParamId> sources {
-    };
+    std::unordered_set<ParamId> sources {};
 
     auto func = [] (const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src, std::shared_ptr<DependentParameter> dep_param) {
         dep_param->set_expected(1.);
     };
 
-    WilsonParamComposer().compose_parameter(ParamId{ParameterType::WILSON, "B_MATCH", LhaID(3040405, 4141, 0, 0)}, sources, func);
-
-
+    WilsonParamComposer().compose_parameter(ParamId{"B_MATCH", LhaID(3040405, 4141, 0, 0)}, sources, func);
 }
 
 void C2::NNLO_calculation() {
-    double L = wilson_p("WPARAM_MATCH_SM", 3);
-    double coeff_temp = 127./18.+4./3.*PI*PI+46./3.*L+4.*L*L;
+    std::unordered_set<ParamId> sources {
+        {"WPARAM_MATCH_SM", 3}  // L
+    };
+
+    auto func = [] (const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src, std::shared_ptr<DependentParameter> dep_param) {
+        auto L = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 3})->get_val();
+        dep_param->set_expected(127. / 18. + 4. / 3. * PI2 + 46. / 3. * L + 4. * L * L);
+    };
+
+    WilsonParamComposer().compose_parameter(ParamId{"B_MATCH", LhaID(3040405, 4141, 0, 0)}, sources, func);
 }
 
 void C3::NNLO_calculation() {
@@ -75,7 +79,7 @@ void C6::NNLO_calculation() {
 
 void C7::LO_calculation() {
     std::unordered_set<ParamId> sources {
-        {ParameterType::WILSON, "WPARAM_MATCH_SM", LhaID(2, 1)}  // x_t
+        {"WPARAM_MATCH_SM", LhaID(2, 1)}  // x_t
     };
 
     auto func = [] (const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src, std::shared_ptr<DependentParameter> dep_param) {
@@ -83,7 +87,7 @@ void C7::LO_calculation() {
         dep_param->set_expected(-0.5 * A0t(xt) - 23. / 36.);
     };
 
-    WilsonParamComposer().compose_parameter(ParamId{ParameterType::WILSON, "B_MATCH", LhaID(305, 4422, 0, 0)}, sources, func);
+    WilsonParamComposer().compose_parameter(ParamId{"B_MATCH", LhaID(305, 4422, 0, 0)}, sources, func);
 }
 
 void C7::NLO_calculation() {
@@ -107,7 +111,7 @@ void C7::NNLO_calculation() {
 
 void C8::LO_calculation() {
     std::unordered_set<ParamId> sources {
-        {ParameterType::WILSON, "WPARAM_MATCH_SM", LhaID(2, 1)}  // x_t
+        {"WPARAM_MATCH_SM", LhaID(2, 1)}  // x_t
     };
 
     auto func = [] (const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src, std::shared_ptr<DependentParameter> dep_param) {
@@ -115,7 +119,7 @@ void C8::LO_calculation() {
         dep_param->set_expected(-0.5*F0t(xt)-1./3.);
     };
 
-    WilsonParamComposer().compose_parameter(ParamId{ParameterType::WILSON, "B_MATCH", LhaID(305, 6421, 0, 0)}, sources, func);
+    WilsonParamComposer().compose_parameter(ParamId{"B_MATCH", LhaID(305, 6421, 0, 0)}, sources, func);
 
 
     // double coeff_temp = -0.5*F0t(wilson_p("WPARAM_MATCH_SM", {2,1}))-1./3.;
@@ -144,25 +148,20 @@ void C8::NNLO_calculation() {
 
 void C9::LO_calculation() {
     std::unordered_set<ParamId> sources {
-        {ParameterType::WILSON, "WPARAM_MATCH_SM", LhaID(2, 1)},  // x_t
-        {ParameterType::WILSON, "WPARAM_SI_SM", 4},  // euh TODO
-        {ParameterType::WILSON, "WPARAM_MATCH_SM", 3} //L
+        {"WPARAM_MATCH_SM", LhaID(2, 1)},   // x_t
+        {"WPARAM_MATCH_SM", 3},             // L
+        {"WPARAM_SI_SM", 4},                // sw2
     };
 
     auto func = [] (const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src, std::shared_ptr<DependentParameter> dep_param) {
         double L = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 3})->get_val();
         auto xt = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1}})->get_val();
-        double euh = src.at({ParameterType::WILSON, "WPARAM_SI_SM", 4})->get_val();
-        double coeff_temp = (1.-4.*euh)/euh*C0t(xt)-B0t(xt)/euh-D0t(xt) +1./4./euh+38./27.-4./9.*L;
+        double sw2 = src.at({ParameterType::WILSON, "WPARAM_SI_SM", 4})->get_val();
+        double coeff_temp = (1.-4.*sw2)/sw2*C0t(xt)-B0t(xt)/sw2-D0t(xt) +1./4./sw2+38./27.-4./9.*L;
         dep_param->set_expected(coeff_temp);
     };
 
-    WilsonParamComposer().compose_parameter(ParamId{ParameterType::WILSON, "B_MATCH", LhaID(3051313, 4133, 0, 0)}, sources, func);
-
-
-    // double L = wilson_p("WPARAM_MATCH_SM", 3);
-    // double coeff_temp = (1.-4.*wilson_p("WPARAM_SI_SM", 4))/wilson_p("WPARAM_SI_SM", 4)*C0t(wilson_p("WPARAM_MATCH_SM", {2,1}))-B0t(wilson_p("WPARAM_MATCH_SM", {2,1}))/wilson_p("WPARAM_SI_SM", 4)-D0t(wilson_p("WPARAM_MATCH_SM", {2,1})) +1./4./wilson_p("WPARAM_SI_SM", 4)+38./27.-4./9.*L;
-    // return this->double_to_complex_save("LO", coeff_temp);
+    WilsonParamComposer().compose_parameter(ParamId{"B_MATCH", LhaID(3051313, 4133, 0, 0)}, sources, func);
 }
 
 void C9::NLO_calculation() {
@@ -174,31 +173,25 @@ void C9::NLO_calculation() {
 }
 
 void C9::NNLO_calculation() {
-    this->set_CoefficientMatchingValue("LO", 1);
+    // this->set_WilsonCoeffMatching("LO", 1);
     // return 1;
 }
 
 
 void C10::LO_calculation() {
-
     std::unordered_set<ParamId> sources {
-        {ParameterType::WILSON, "WPARAM_MATCH_SM", LhaID(2, 1)},  // x_t
-        {ParameterType::WILSON, "WPARAM_SI_SM", 4}  // euh TODO
+        {"WPARAM_MATCH_SM", LhaID(2, 1)},   // x_t
+        {"WPARAM_SI_SM", 4}                 // sw2
     };
 
     auto func = [] (const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src, std::shared_ptr<DependentParameter> dep_param) {
         auto xt = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1}})->get_val();
-        double euh = src.at({ParameterType::WILSON, "WPARAM_SI_SM", 4})->get_val();
-        double coeff_temp = (B0t(xt)-C0t(xt))/euh-1./4./euh;
+        double sw2 = src.at({ParameterType::WILSON, "WPARAM_SI_SM", 4})->get_val();
+        double coeff_temp = (B0t(xt) - C0t(xt) - .25) / sw2;
         dep_param->set_expected(coeff_temp);
     };
 
-    WilsonParamComposer().compose_parameter(ParamId{ParameterType::WILSON, "B_MATCH", LhaID(3051313, 4137, 0, 0)}, sources, func);
-
-
-    double coeff_temp = (B0t(wilson_p("WPARAM_MATCH_SM", {2,1}))-C0t(wilson_p("WPARAM_MATCH_SM", {2,1})))/wilson_p("WPARAM_SI_SM", 4)-1./4./wilson_p("WPARAM_SI_SM", 4);
-    // std::cout << coeff_temp << std::endl;
-    // return this->double_to_complex_save("LO", coeff_temp);
+    WilsonParamComposer().compose_parameter(ParamId{"B_MATCH", LhaID(3051313, 4137, 0, 0)}, sources, func);
 }
 
 void C10::NLO_calculation() {

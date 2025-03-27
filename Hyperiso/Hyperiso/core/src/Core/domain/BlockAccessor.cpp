@@ -19,16 +19,17 @@ std::shared_ptr<Parameter> BlockAccessor::getParameter(const std::string &blockN
 bool BlockAccessor::has_param(const std::string blockName, LhaID id) const {
     auto it = this->find(blockName);
     if (it != this->end()) {
-        return true;
+        return it->second->contains(id);
     }
-    throw false;
+    return false;
 }
 
 void BlockAccessor::setValue(const std::string& blockName, LhaID id, double value, bool force) {
     auto it = this->find(blockName);
     if (it != this->end()) {
         if (it->second->contains(id)) {
-            it->second->retrieve(id)->set_expected(value);
+            LOG_INFO("In assign");
+            it->second->assign(id, value);
         } else {
             it->second->store(id, std::make_shared<Parameter>(ParamId(blockName, id), value, 0., 0.));
         }

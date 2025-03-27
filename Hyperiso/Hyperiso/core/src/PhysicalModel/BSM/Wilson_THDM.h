@@ -25,9 +25,9 @@ public:
 
     }
 
-    void LO_calculation() { this->set_CoefficientMatchingValue("LO", {0.,0.});  } 
-    void NLO_calculation() { this->set_CoefficientMatchingValue("NLO", {0.,0.});  } 
-    void NNLO_calculation() { this->set_CoefficientMatchingValue("NNLO", {0.,0.});  } 
+    void LO_calculation() { this->set_WilsonCoeffMatching("LO", {0.,0.});  } 
+    void NLO_calculation() { this->set_WilsonCoeffMatching("NLO", {0.,0.});  } 
+    void NNLO_calculation() { this->set_WilsonCoeffMatching("NNLO", {0.,0.});  } 
 
 };
 
@@ -40,9 +40,9 @@ public:
 
     }
 
-    void LO_calculation() {this->set_CoefficientMatchingValue("LO", {0.,0.});  } 
-    void NLO_calculation() {this->set_CoefficientMatchingValue("NLO", {0.,0.});  } 
-    void NNLO_calculation() {this->set_CoefficientMatchingValue("NNLO", {0.,0.});  } 
+    void LO_calculation() {this->set_WilsonCoeffMatching("LO", {0.,0.});  } 
+    void NLO_calculation() {this->set_WilsonCoeffMatching("NLO", {0.,0.});  } 
+    void NNLO_calculation() {this->set_WilsonCoeffMatching("NNLO", {0.,0.});  } 
 
 };
 
@@ -55,8 +55,8 @@ public:
 
     }
 
-    void LO_calculation() {this->set_CoefficientMatchingValue("LO", {0.,0.});  } 
-    void NLO_calculation()  {this->set_CoefficientMatchingValue("NLO", {0.,0.});  } 
+    void LO_calculation() {this->set_WilsonCoeffMatching("LO", {0.,0.});  } 
+    void NLO_calculation()  {this->set_WilsonCoeffMatching("NLO", {0.,0.});  } 
     void NNLO_calculation();
 
 };
@@ -69,7 +69,7 @@ public:
 
     }
 
-    void LO_calculation() {this->set_CoefficientMatchingValue("LO", {0.,0.});  } 
+    void LO_calculation() {this->set_WilsonCoeffMatching("LO", {0.,0.});  } 
     void NLO_calculation();
     void NNLO_calculation();
 
@@ -83,8 +83,8 @@ public:
 
     }
 
-    void LO_calculation() {this->set_CoefficientMatchingValue("LO", {0.,0.});  } 
-    void NLO_calculation() {this->set_CoefficientMatchingValue("NLO", {0.,0.});  } 
+    void LO_calculation() {this->set_WilsonCoeffMatching("LO", {0.,0.});  } 
+    void NLO_calculation() {this->set_WilsonCoeffMatching("NLO", {0.,0.});  } 
     void NNLO_calculation();
 
 };
@@ -97,8 +97,8 @@ public:
 
     }
 
-    void LO_calculation() {this->set_CoefficientMatchingValue("LO", {0.,0.});  } 
-    void NLO_calculation() {this->set_CoefficientMatchingValue("NLO", {0.,0.});  } 
+    void LO_calculation() {this->set_WilsonCoeffMatching("LO", {0.,0.});  } 
+    void NLO_calculation() {this->set_WilsonCoeffMatching("NLO", {0.,0.});  } 
     void NNLO_calculation();
 
 };
@@ -141,7 +141,7 @@ public:
 
     void LO_calculation();
     void NLO_calculation();
-    void NNLO_calculation() {this->set_CoefficientMatchingValue("NNLO", {0.,0.});  } 
+    void NNLO_calculation() {this->set_WilsonCoeffMatching("NNLO", {0.,0.});  } 
 
 };
 
@@ -155,7 +155,7 @@ public:
 
     void LO_calculation();
     void NLO_calculation();
-    void NNLO_calculation() {this->set_CoefficientMatchingValue("NNLO", {0.,0.});  } 
+    void NNLO_calculation() {this->set_WilsonCoeffMatching("NNLO", {0.,0.});  } 
 
 };
 
@@ -168,8 +168,8 @@ public:
     }
 
     void LO_calculation();
-    void NLO_calculation() {this->set_CoefficientMatchingValue("NLO", {0.,0.});  }
-    void NNLO_calculation() {this->set_CoefficientMatchingValue("NNLO", {0.,0.});  } 
+    void NLO_calculation() {this->set_WilsonCoeffMatching("NLO", {0.,0.});  }
+    void NNLO_calculation() {this->set_WilsonCoeffMatching("NNLO", {0.,0.});  } 
 
 };
 
@@ -182,8 +182,8 @@ public:
     }
 
     void LO_calculation();
-    void NLO_calculation() {this->set_CoefficientMatchingValue("NLO", {0.,0.});  }
-    void NNLO_calculation() {this->set_CoefficientMatchingValue("NNLO", {0.,0.});  } 
+    void NLO_calculation() {this->set_WilsonCoeffMatching("NLO", {0.,0.});  }
+    void NNLO_calculation() {this->set_WilsonCoeffMatching("NNLO", {0.,0.});  } 
 
 };
 
@@ -195,9 +195,9 @@ public:
 
     }
 
-    void LO_calculation() {this->set_CoefficientMatchingValue("LO", {0.,0.});  } 
-    void NLO_calculation() {this->set_CoefficientMatchingValue("NLO", {0.,0.});  }
-    void NNLO_calculation() {this->set_CoefficientMatchingValue("NNLO", {0.,0.});  } 
+    void LO_calculation() {this->set_WilsonCoeffMatching("LO", {0.,0.});  } 
+    void NLO_calculation() {this->set_WilsonCoeffMatching("NLO", {0.,0.});  }
+    void NNLO_calculation() {this->set_WilsonCoeffMatching("NNLO", {0.,0.});  } 
 
 };
 
@@ -209,9 +209,9 @@ public:
 
     }
 
-    void LO_calculation() {this->set_CoefficientMatchingValue("LO", {0.,0.});  } 
-    void NLO_calculation() {this->set_CoefficientMatchingValue("NLO", {0.,0.});  }
-    void NNLO_calculation() {this->set_CoefficientMatchingValue("NNLO", {0.,0.});  } 
+    void LO_calculation() {this->set_WilsonCoeffMatching("LO", {0.,0.});  } 
+    void NLO_calculation() {this->set_WilsonCoeffMatching("NLO", {0.,0.});  }
+    void NNLO_calculation() {this->set_WilsonCoeffMatching("NNLO", {0.,0.});  } 
 
 };
 
@@ -223,9 +223,9 @@ public:
 
     }
 
-    void LO_calculation() {this->set_CoefficientMatchingValue("LO", {0.,0.});  } 
-    void NLO_calculation() {this->set_CoefficientMatchingValue("NLO", {0.,0.});  }
-    void NNLO_calculation() {this->set_CoefficientMatchingValue("NNLO", {0.,0.});  } 
+    void LO_calculation() {this->set_WilsonCoeffMatching("LO", {0.,0.});  } 
+    void NLO_calculation() {this->set_WilsonCoeffMatching("NLO", {0.,0.});  }
+    void NNLO_calculation() {this->set_WilsonCoeffMatching("NNLO", {0.,0.});  } 
 
 };
 
@@ -237,9 +237,9 @@ public:
 
     }
 
-    void LO_calculation() {this->set_CoefficientMatchingValue("LO", {0.,0.});  } 
-    void NLO_calculation() {this->set_CoefficientMatchingValue("NLO", {0.,0.});  }
-    void NNLO_calculation() {this->set_CoefficientMatchingValue("NNLO", {0.,0.});  } 
+    void LO_calculation() {this->set_WilsonCoeffMatching("LO", {0.,0.});  } 
+    void NLO_calculation() {this->set_WilsonCoeffMatching("NLO", {0.,0.});  }
+    void NNLO_calculation() {this->set_WilsonCoeffMatching("NNLO", {0.,0.});  } 
 
 };
 
@@ -251,9 +251,9 @@ public:
 
     }
 
-    void LO_calculation() {this->set_CoefficientMatchingValue("LO", {0.,0.});  } 
-    void NLO_calculation() {this->set_CoefficientMatchingValue("NLO", {0.,0.});  }
-    void NNLO_calculation() {this->set_CoefficientMatchingValue("NNLO", {0.,0.});  } 
+    void LO_calculation() {this->set_WilsonCoeffMatching("LO", {0.,0.});  } 
+    void NLO_calculation() {this->set_WilsonCoeffMatching("NLO", {0.,0.});  }
+    void NNLO_calculation() {this->set_WilsonCoeffMatching("NNLO", {0.,0.});  } 
 
 };
 
@@ -265,9 +265,9 @@ public:
 
     }
 
-    void LO_calculation() {this->set_CoefficientMatchingValue("LO", {0.,0.});  } 
-    void NLO_calculation() {this->set_CoefficientMatchingValue("NLO", {0.,0.});  }
-    void NNLO_calculation() {this->set_CoefficientMatchingValue("NNLO", {0.,0.});  } 
+    void LO_calculation() {this->set_WilsonCoeffMatching("LO", {0.,0.});  } 
+    void NLO_calculation() {this->set_WilsonCoeffMatching("NLO", {0.,0.});  }
+    void NNLO_calculation() {this->set_WilsonCoeffMatching("NNLO", {0.,0.});  } 
 
 };
 
@@ -279,9 +279,9 @@ public:
 
     }
 
-    void LO_calculation() {this->set_CoefficientMatchingValue("LO", {0.,0.});  } 
-    void NLO_calculation() {this->set_CoefficientMatchingValue("NLO", {0.,0.});  }
-    void NNLO_calculation() {this->set_CoefficientMatchingValue("NNLO", {0.,0.});  } 
+    void LO_calculation() {this->set_WilsonCoeffMatching("LO", {0.,0.});  } 
+    void NLO_calculation() {this->set_WilsonCoeffMatching("NLO", {0.,0.});  }
+    void NNLO_calculation() {this->set_WilsonCoeffMatching("NNLO", {0.,0.});  } 
 
 };
 
@@ -293,9 +293,9 @@ public:
 
     }
 
-    void LO_calculation() {this->set_CoefficientMatchingValue("LO", {0.,0.});  } 
-    void NLO_calculation() {this->set_CoefficientMatchingValue("NLO", {0.,0.});  }
-    void NNLO_calculation() {this->set_CoefficientMatchingValue("NNLO", {0.,0.});  } 
+    void LO_calculation() {this->set_WilsonCoeffMatching("LO", {0.,0.});  } 
+    void NLO_calculation() {this->set_WilsonCoeffMatching("NLO", {0.,0.});  }
+    void NNLO_calculation() {this->set_WilsonCoeffMatching("NNLO", {0.,0.});  } 
 
 };
 
@@ -307,9 +307,9 @@ public:
 
     }
 
-    void LO_calculation() {this->set_CoefficientMatchingValue("LO", {0.,0.});  } 
-    void NLO_calculation() {this->set_CoefficientMatchingValue("NLO", {0.,0.});  }
-    void NNLO_calculation() {this->set_CoefficientMatchingValue("NNLO", {0.,0.});  } 
+    void LO_calculation() {this->set_WilsonCoeffMatching("LO", {0.,0.});  } 
+    void NLO_calculation() {this->set_WilsonCoeffMatching("NLO", {0.,0.});  }
+    void NNLO_calculation() {this->set_WilsonCoeffMatching("NNLO", {0.,0.});  } 
 
 };
 
@@ -321,9 +321,9 @@ public:
 
     }
 
-    void LO_calculation() {this->set_CoefficientMatchingValue("LO", {0.,0.});  } 
-    void NLO_calculation() {this->set_CoefficientMatchingValue("NLO", {0.,0.});  }
-    void NNLO_calculation() {this->set_CoefficientMatchingValue("NLO", {0.,0.});  } 
+    void LO_calculation() {this->set_WilsonCoeffMatching("LO", {0.,0.});  } 
+    void NLO_calculation() {this->set_WilsonCoeffMatching("NLO", {0.,0.});  }
+    void NNLO_calculation() {this->set_WilsonCoeffMatching("NLO", {0.,0.});  } 
 
 };
 
@@ -335,9 +335,9 @@ public:
 
     }
 
-    void LO_calculation() {this->set_CoefficientMatchingValue("LO", {0.,0.});  } 
-    void NLO_calculation() {this->set_CoefficientMatchingValue("NLO", {0.,0.});  }
-    void NNLO_calculation() {this->set_CoefficientMatchingValue("NNLO", {0.,0.});  } 
+    void LO_calculation() {this->set_WilsonCoeffMatching("LO", {0.,0.});  } 
+    void NLO_calculation() {this->set_WilsonCoeffMatching("NLO", {0.,0.});  }
+    void NNLO_calculation() {this->set_WilsonCoeffMatching("NNLO", {0.,0.});  } 
 
 };
 
@@ -349,9 +349,9 @@ public:
 
     }
 
-    void LO_calculation() {this->set_CoefficientMatchingValue("LO", {0.,0.});  } 
-    void NLO_calculation() {this->set_CoefficientMatchingValue("NLO", {0.,0.});  }
-    void NNLO_calculation() {this->set_CoefficientMatchingValue("NNLO", {0.,0.});  } 
+    void LO_calculation() {this->set_WilsonCoeffMatching("LO", {0.,0.});  } 
+    void NLO_calculation() {this->set_WilsonCoeffMatching("NLO", {0.,0.});  }
+    void NNLO_calculation() {this->set_WilsonCoeffMatching("NNLO", {0.,0.});  } 
 
 };
 

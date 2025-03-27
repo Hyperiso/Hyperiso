@@ -29,10 +29,10 @@ Parameters::Parameters(std::shared_ptr<ModelStrategy> modelStrategy)
 }
 
 double Parameters::operator()(const std::string& block, LhaID id) const {
-    if (block == "WPARAM_MATCH_SM" ){
+    // if (block == "WPARAM_MATCH_SM" ){
 
-        std::cout << blockAccessor << std::endl;
-    }
+    //     std::cout << blockAccessor << std::endl;
+    // }
     return blockAccessor->getValue(block, id);
 }
 
@@ -71,6 +71,15 @@ std::unordered_set<std::string> Parameters::init_blocks(ParameterType type) {
                 return MemoryManager::GetInstance()->input_cache->get_block_names().contains(s);
             }
         );
+
+        if (type == ParameterType::WILSON && !MemoryManager::GetInstance()->cache.config.flags[ExternalFlag::HAS_WILSON_INPUT]) {
+            existing.erase("FWCOEF");
+            existing.erase("IMFWCOEF");
+        }
+
+        if (type == ParameterType::OBSERVABLE && !MemoryManager::GetInstance()->cache.config.flags[ExternalFlag::HAS_TH_OBSERVABLE_INPUT]) {
+            return missing;
+        }
         
         this->blockAccessor = MemoryManager::GetInstance()->extract_blocks(existing);
     }

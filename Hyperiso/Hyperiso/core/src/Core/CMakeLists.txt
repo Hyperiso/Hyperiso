@@ -41,6 +41,7 @@ add_library(CoreLib STATIC
     adapters/CorrelationAdapter.cpp
     adapters/CompositeParamCreator.cpp
     adapters/QCDProvider.cpp
+    adapters/ParameterSetter.cpp
     domain/CorrelationRepo.cpp
     domain/ParameterRouter.cpp
     domain/Parameters.cpp

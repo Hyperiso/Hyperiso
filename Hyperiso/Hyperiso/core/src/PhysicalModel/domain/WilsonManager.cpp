@@ -38,6 +38,7 @@ void QMatchSetState::setMatchingCoefficient(CoefficientManager* manager, const s
 
         for (auto& it : *group) {
             if (order == "LO") {
+                LOG_INFO("Performing LO calculation of Wilson coefficient");
                 it.second->LO_calculation();
             } else if (order == "NLO") {
                 it.second->LO_calculation();
