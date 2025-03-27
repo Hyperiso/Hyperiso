@@ -12,11 +12,16 @@ void WilsonParamComposer::compose_parameter(const ParamId& pid,
                                             const std::unordered_set<ParamId>& source_pids,
                                             const DepParamUpdateFunc& update_func)
 {
-    ParamId typed_pid {ParameterType::WILSON, pid.block, pid.code};
+    ParamId typed_pid = {ParameterType::WILSON, pid.block, pid.code};
+
     std::unordered_set<ParamId> typed_sources;
 
     for (auto& src_pid : source_pids) {
-        typed_sources.emplace(ParamId{ParameterType::WILSON, src_pid.block, src_pid.code});
+        if (!src_pid.type.has_value()){
+            typed_sources.emplace(ParamId{ParameterType::WILSON, src_pid.block, src_pid.code});
+        } else {
+            typed_sources.emplace(ParamId{src_pid.type.value(), src_pid.block, src_pid.code});
+        }
     }
 
     CompositeParamAdapter().add_param_dependency(typed_pid, typed_sources, update_func);

@@ -5,6 +5,7 @@ double BlockAccessor::getValue(const std::string& blockName, LhaID id) const {
     if (it != this->end()) {
         return it->second->retrieve(id)->get_val();
     }
+
     throw std::invalid_argument("Block " + blockName + " not found with pdg code : " + std::to_string(id));
 }
 
@@ -13,6 +14,7 @@ std::shared_ptr<Parameter> BlockAccessor::getParameter(const std::string &blockN
     if (it != this->end()) {
         return it->second->retrieve(id);
     }
+
     throw std::invalid_argument("Block " + blockName + " not found with pdg code : " + std::to_string(id));
 }
 

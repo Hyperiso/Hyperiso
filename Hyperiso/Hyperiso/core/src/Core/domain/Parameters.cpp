@@ -93,6 +93,9 @@ void SMModelStrategy::initializeParameters(Parameters& params) {
     QCDHelper::Init(params("SMINPUTS", 3), params("SMINPUTS", 4), params("SMINPUTS", 6), params("SMINPUTS", 5),  
                     params("MASS", 4), params("MASS", 3), params("MASS", 2), params("MASS", 1));
 
+    for (auto& elem : params.get_block_infos("MASS")) {
+        std::cout << elem.first << " " << elem.second << std::endl;
+    }
     // std::shared_psger::addDependentBlock("GAUGE", gauge_block, {"SMINPUTS"}, gauge_update_func);
 
     // std::shared_ptr<DependentBlock> gauge_block = nullptr;
