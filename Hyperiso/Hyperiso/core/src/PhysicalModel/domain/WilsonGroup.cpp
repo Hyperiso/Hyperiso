@@ -102,7 +102,8 @@ void BCoefficientGroup::set_base_1_LO() {
         
         // Store
         for (size_t k = 0; k < 10; k++) {
-            dep_block->store_or_assign(1, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "B_HADRONIC", ids[k]}, Ci_run[k], 0., 0.));
+            dep_block->store_or_assign(1, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "B_HADRONIC", ids[k]}, Ci_run[k].real(), 0., 0.));
+            dep_block->store_or_assign(1, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "IMB_HADRONIC", ids[k]}, Ci_run[k].imag(), 0., 0.));
         }
 		
 		LOG_INFO("Update wilson running values");

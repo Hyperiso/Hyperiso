@@ -26,15 +26,15 @@ susy_parameters::susy_parameters(double scale) {
 	LOG_DEBUG("imag c32 " + doubleToString(std::imag(c32), 20));
 	LOG_DEBUG("imag c33 " + doubleToString(std::imag(c33), 20));
 	
-	epsilonbp=(*epsi).epsilon_bp();
-	epsilon0p=(*epsi).epsilon_0p();
-	epsilon0=(*epsi).epsilon_0();
-	epsilon2=(*epsi).epsilon_2();
-	epsilon1p=(*epsi).epsilon_1p();
-	epsilonb=epsilon0+epsilon2;
+	// epsilonbp=(*epsi).epsilon_bp();
+	// epsilon0p=(*epsi).epsilon_0p();
+	// epsilon0=(*epsi).epsilon_0();
+	// epsilon2=(*epsi).epsilon_2();
+	// epsilon1p=(*epsi).epsilon_1p();
+	// epsilonb=epsilon0+epsilon2;
 
-	LOG_DEBUG("epsilon0 " + std::to_string(std::real(epsilon0)));
-	LOG_DEBUG("epsilon2 " + std::to_string(std::real(epsilon2)));
+	// LOG_DEBUG("epsilon0 " + std::to_string(std::real(epsilon0)));
+	// LOG_DEBUG("epsilon2 " + std::to_string(std::real(epsilon2)));
 
     mass_top_muW = QCDHelper::msbar_mass(6, scale, MassType::MSBAR, MassType::POLE);
 	mass_b_muW = QCDHelper::msbar_mass(5, scale, MassType::MSBAR, MassType::POLE); //mass bottom 6 (at pole)

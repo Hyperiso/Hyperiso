@@ -247,7 +247,7 @@ void EpsilonCalculator::init_epsilon_block() {
 
         double term1 =  (ad_22 / tan_beta - mu_Q) / m_gluino *
                 H2(m_bs * m_bs / m_gluino / m_gluino, m_b2s * m_b2s / m_gluino / m_gluino);
-        double term2 = -0.5 * (B(m_gluino, m_bs, (*susy)("HMIX", 0)) + B(m_gluino, m_b2s, (*susy)("HMIX", 0))) / tan_beta;
+        double term2 = -0.5 * (B(m_gluino, m_bs, alphas_MSOFT) + B(m_gluino, m_b2s, alphas_MSOFT)) / tan_beta;
         double term3 = 1.0 / alpha_em / sw2 / 4.0 / M_PI * (mu_Q * M_2) * 
                 (sbot_mix_00 * sbot_mix_00 * H2(M_2 * M_2 / m_bs / m_bs, mu_Q * mu_Q / m_bs / m_bs) / m_bs / m_bs / 2.0 +
                 sbot_mix_01 * sbot_mix_01 * H2(M_2 * M_2 / m_b2s / m_b2s, mu_Q * mu_Q / m_b2s / m_b2s) / m_b2s / m_b2s / 2.0);
@@ -256,14 +256,14 @@ void EpsilonCalculator::init_epsilon_block() {
         double epsilon_0 = factor * (term1 + term2) + term3;
 
 
-        double term1 = yu_22 * yu_22 / 16.0 / M_PI / M_PI * 
+        term1 = yu_22 * yu_22 / 16.0 / M_PI / M_PI * 
                     (mu_Q / tan_beta - au_22) * 
                     ((umix_01 * vmix_01 / m_c1 * 
                         H2(m_ts * m_ts / m_c1 / m_c1, m_t2s * m_t2s / m_c1 / m_c1)) +
                         (umix_11 * vmix_11 / m_c2 * 
                         H2(m_ts * m_ts / m_c2 / m_c2, m_t2s * m_t2s / m_c2 / m_c2)));
         
-        double term2 = 1.0 / alpha_em / sw2 / 4.0 / M_PI * (mu_Q * M_2) * 
+        term2 = 1.0 / alpha_em / sw2 / 4.0 / M_PI * (mu_Q * M_2) * 
                     ((stop_mix_00 * stop_mix_00 * 
                         H2(M_2 * M_2 / m_ts / m_ts, mu_Q * mu_Q / m_ts / m_ts) / m_ts / m_ts) +
                         (stop_mix_01 * stop_mix_01* 
@@ -292,7 +292,7 @@ void EpsilonCalculator::init_epsilon_block() {
 
         for(int ie = 0; ie < nb_neut; ++ie) {
             epsilonbp += yu_22 * yu_22 / 16.0 / M_PI / M_PI * 
-                        src.at("NMIX")->retrieve(ie*10+3)->get_val(); * src.at("NMIX")->retrieve(ie*10+2)->get_val(); * 
+                        src.at("NMIX")->retrieve(ie*10+3)->get_val() * src.at("NMIX")->retrieve(ie*10+2)->get_val() * 
                         (au_22 - mu_Q / tan_beta) / m_neutralino[ie] *
                         (stop_mix_00 * stop_mix_00 * sbot_mix_00 * sbot_mix_00 *
                         H2(m_t2s * m_t2s / m_neutralino[ie] / m_neutralino[ie], m_bs * m_bs / m_neutralino[ie] / m_neutralino[ie]) +
@@ -328,7 +328,7 @@ void EpsilonCalculator::init_epsilon_block() {
 
         for(int ie = 0; ie < nb_neut; ++ie) {
             epsilon0p += yd_22 * yd_22 / 16.0 / M_PI / M_PI * 
-                        (*susy)("NMIX", ie*10+3) * (*susy)("NMIX", ie*10+2) * 
+                        src.at("NMIX")->retrieve(ie*10+3)->get_val() * src.at("NMIX")->retrieve(ie*10+2)->get_val() * 
                         (mu_Q / tan_beta) / m_neutralino[ie] *
                         (stop_mix_00 * stop_mix_00 * sbot_mix_00 * sbot_mix_00 * 
                         H2(m_ts * m_ts / m_neutralino[ie] / m_neutralino[ie], m_b2s * m_b2s / m_neutralino[ie] / m_neutralino[ie]) +
@@ -345,22 +345,25 @@ void EpsilonCalculator::init_epsilon_block() {
 
         //1p
         // Calcul du premier terme en utilisant yub[3], A_b, MqL3_Q, MbR_Q, mu_Q
-        double term1 = 1.0 / 16.0 / M_PI / M_PI * 
+        term1 = 1.0 / 16.0 / M_PI / M_PI * 
         (yd_22 * yd_22 * ad_22 / mu_Q * 
         H2(std::pow(mqL3 / mu_Q, 2), std::pow(mbR / mu_Q, 2))); //MbR_Q
 
         // Calcul du deuxième terme en utilisant g2, M2_Q, MqL3_Q, mu_Q
-        double term2 = -g2 * g2 * M_2 / mu_Q * 
+        term2 = -g2 * g2 * M_2 / mu_Q * 
             H2(std::pow(mqL3 / mu_Q, 2), std::pow(M_2 / mu_Q, 2)) / 16.0 / M_PI / M_PI;
 
         double epsilon_1p = term1 + term2;
+        
+        double epsfac=pow((1.+epsilon_b*tan_beta),2.);
 
         dep_block->store_or_assign({0,1}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", {0,1}}, epsilon_0, 0., 0.));
 		dep_block->store_or_assign({0,2}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", {0,2}}, epsilon0p, 0., 0.));
 		dep_block->store_or_assign(1, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", 1}, epsilon_1p, 0., 0.));
 		dep_block->store_or_assign(2, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", 2}, epsilon_2, 0., 0.));
 		dep_block->store_or_assign(3, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", 3}, epsilon_b, 0., 0.));
-        dep_block->store_or_assign(4, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", 4}, epsilonbp, 0., 0.)); 
+        dep_block->store_or_assign(4, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", 4}, epsilonbp, 0., 0.));
+        dep_block->store_or_assign(5, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", 5}, epsfac, 0., 0.)); 
 
     };
 

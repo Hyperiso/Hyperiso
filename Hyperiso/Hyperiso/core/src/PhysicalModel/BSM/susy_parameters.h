@@ -30,7 +30,7 @@ class susy_parameters {
     susy_parameters(const susy_parameters&) = delete;
     void operator=(const susy_parameters&) = delete;
 
-    EpsilonCalculator* epsi = EpsilonCalculator::GetInstance();
+    // EpsilonCalculator* epsi = EpsilonCalculator::GetInstance();
 
 	std::shared_ptr<Parameters> susy = Parameters::GetInstance(ParameterType::SUSY);
     std::shared_ptr<Parameters> sm = Parameters::GetInstance(ParameterType::SM);
@@ -124,7 +124,7 @@ class susy_parameters {
 	// std::shared_ptr<Parameters> sm = Parameters::GetInstance();
     double epsilonbp,epsilon0p,epsilon0,epsilon2,epsilon1p,epsilonb;
 
-	double epsfac=pow((1.+(*epsi).epsilon_b()*(*susy)("HMIX",2)),2.);
+	// double epsfac=pow((1.+(*epsi).epsilon_b()*(*susy)("HMIX",2)),2.);
 
     double mass_top_muW;
 	double mass_b_muW; //mass bottom 6 (at pole)
