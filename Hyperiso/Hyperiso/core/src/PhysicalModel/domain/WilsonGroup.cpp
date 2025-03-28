@@ -1,110 +1,115 @@
 #include "WilsonGroup.h"
 
 void BCoefficientGroup::set_base_1_LO() {
-    if (this->at("C1")->get_Q() == 0.) {
-        LOG_ERROR("BORDELDESALOPERIEDECODEDEMERDE", "IL FAUT METTRE Q AVANT DE LANCER CETTE *****");
-    }
-    complex_t C7_eff= this->at("C7")->get_CoefficientMatchingValue("LO")-1./3.*this->at("C3")->get_CoefficientMatchingValue("LO")
-    -4./9.*this->at("C4")->get_CoefficientMatchingValue("LO")-20./3.*this->at("C5")->get_CoefficientMatchingValue("LO")-80./9.*this->at("C6")->get_CoefficientMatchingValue("LO"); 
-	complex_t C8_eff= this->at("C8")->get_CoefficientMatchingValue("LO")+this->at("C3")->get_CoefficientMatchingValue("LO")-1./6.*this->at("C4")->get_CoefficientMatchingValue("LO")
-    +20.*this->at("C5")->get_CoefficientMatchingValue("LO")-10./3.*this->at("C6")->get_CoefficientMatchingValue("LO"); 
-
-    auto calculateC0b = [&](int ie, int je, std::vector<std::string>& coeff_loop) {
-        return (rh.get_matrix().U0)[ie][je] * (je < 6 ? this->find(coeff_loop[je])->second->get_CoefficientMatchingValue("LO") : (je == 6 ? C7_eff : C8_eff));
+    std::unordered_map<ParameterType, std::vector<std::string>> src = {
+        {ParameterType::WILSON, {"B_MATCH", "IMB_MATCH", "WPARAM_RUN_SM", "SCALE"}},
+        {ParameterType::SM, {"SMINPUTS", "MASS"}}
     };
 
-    std::vector<std::string> coeff_loop = {"C1", "C2", "C3", "C4", "C5", "C6","C7","C8"};
+    auto func = [this] (const std::unordered_map<std::string, std::shared_ptr<Block>>& src, std::shared_ptr<DependentBlock> dep_block) {
+        std::array<LhaID, 10> ids = {
+            LhaID(3040405, 6161, 0, 0),
+            LhaID(3040405, 4141, 0, 0),
+            LhaID(3050707, 4133, 0, 0),
+            LhaID(3050707, 6153, 0, 0),
+            LhaID(3050707, 4536, 0, 0),
+            LhaID(3050707, 6556, 0, 0),
+            LhaID(305, 4422, 0, 0),
+            LhaID(305, 6421, 0, 0),
+            LhaID(3051313, 4133, 0, 0),
+            LhaID(3051313, 4137, 0, 0)
+        };
 
-    BCoefficientGroup::iterator it = this->begin();
-    for (int ie = 0; ie < 8; ie++) {
-        complex_t _{};
-        it = this->find(coeff_loop[ie]);
-
-        for (int je = 0; je < 8; je++) {
-            _+= calculateC0b(ie, je, coeff_loop);
-
+        std::array<complex_t, 10> Ci_match = {};
+        for (size_t k = 0; k < 10; k++) {
+            Ci_match[k] = src.at("B_MATCH")->retrieve(ids[k])->get_val() + I * src.at("IMB_MATCH")->retrieve(ids[k])->get_val();
         }
-        it->second->set_WilsonCoeffRun("LO", _);
-    }
-    // std::cout << "after first loop : " << it->first << std::endl;
 
-	double fourPiOverAlphasMu = 4.0 * PI / wilson_p("WPARAM_RUN_SM", 1);
+        Ci_match[6] += -1. / 3. * Ci_match[2] - 4. / 9. * Ci_match[3] - 20. / 3. * Ci_match[4] - 80./9. * Ci_match[5]; 
+        Ci_match[7] += Ci_match[2] - 1 / 6. * Ci_match[3] + 20. * Ci_match[4] - 10. / 3. * Ci_match[5];
 
-    auto updateC0b = [&](int je, BCoefficientGroup::iterator& iterator) {
-        // std::cout << "truc : " << je << " " << this->find(coeff_loop[je])->first << std::endl;
-        return (rh.get_matrix().U0)[8][je] * this->find(coeff_loop[je])->second->get_CoefficientMatchingValue("LO");
-    };
-    
-    {
-        complex_t _{};
-        BCoefficientGroup::iterator itera = this->begin(); 
-        for (int je = 0; je < 8; je++) {
-        _ += fourPiOverAlphasMu * updateC0b(je, itera);
+        std::array<complex_t, 10> Ci_run {};
+
+        // C1 - C9
+        for (size_t k = 0; k < 9; k++) {
+            for (size_t l = 0; l < 9; l++) {
+                Ci_run[k] += rh.get_matrix().U0[k][l] * Ci_match[l];
+            }
         }
-        (++it)->second->set_WilsonCoeffRun("LO", _);
-    }
 
-    it = this->find("C10");
-    it->second->set_WilsonCoeffRun("LO", it->second->get_CoefficientMatchingValue("LO"));
+        double fact = 4 * PI / src.at("WPARAM_RUN_SM")->retrieve(1)->get_val();
+        Ci_run[9] *= fact;
 
+        // C10
+        double alpha_ew = 1 / src.at("SMINPUTS")->retrieve(1)->get_val();
+        double m_h = src.at("MASS")->retrieve(25)->get_val();
+        double m_t_muW = src.at("WPARAM_MATCH_SM")->retrieve(6)->get_val();
+        double sw2OS = src.at("SMINPUTS")->retrieve(LhaID(7, 2))->get_val();
+        double mu_h = src.at("SCALE")->retrieve(2)->get_val();
+        double eta = src.at("WPARAM_RUN_SM")->retrieve(2)->get_val();
+        complex_t C1_NLO = src.at("B_MATCH")->retrieve(LhaID(3040405, 6161, 1, 0))->get_val() + src.at("IMB_MATCH")->retrieve(LhaID(3040405, 6161, 1, 0))->get_val();
+        complex_t C4_NLO = src.at("B_MATCH")->retrieve(LhaID(3050707, 6153, 1, 0))->get_val() + src.at("IMB_MATCH")->retrieve(LhaID(3050707, 6153, 1, 0))->get_val();
 
-    double alpha_ew=1./(*Parameters::GetInstance(ParameterType::SM))("SMINPUTS", 1);
-	double MH=125.9;
- 	double sw2OS=0.2231;
+        complex_t C10_02=0.;
+        for(size_t ie = 0; ie < 8; ie++) {
+            C10_02 += BWilsonRunningParameters::b[ie] * pow(eta, BWilsonRunningParameters::a[ie]) * Ci_match[1];
+        } 
+        
+        complex_t C10_12 = -0.11060 * std::log(eta) / eta * Ci_match[1]  + (1 / eta - 1) * (0.26087 * Ci_match[8] + 1.15942 * Ci_match[9]);
+	    for(int ie=0;ie<=7;ie++) {
+            C10_12 += pow(eta, BWilsonRunningParameters::a[ie] + 1.) * (
+                (BWilsonRunningParameters::d_2a[ie] / eta + BWilsonRunningParameters::d_2b[ie]) * Ci_match[1] 
+                + BWilsonRunningParameters::d_1[ie] * C1_NLO
+                + BWilsonRunningParameters::d_4[ie] * C4_NLO);
+        }
+
+        double Delta_alpha = 0.06; 
+        double Delta_rhosw2 = -0.03; 
+        double Delta_rem = 0.01;
+        double Deltar = Delta_alpha + Delta_rhosw2 + Delta_rem; 
 	
-	double a[8]={-2.,-1.,-0.899395,-0.521739,-0.422989,0.145649,0.260870,0.408619};
-	double b[8]={0.00354,0.01223,-0.00977,-0.01070,-0.00572,0.00022,0.01137,-0.00117};
-	double d_2a[8]={0.,0.,0.61602,0.44627,0.57472,0.08573,-0.48807,-0.24089};
-	double d_2b[8]={-1.18162,0.22940,0.06522,-0.04380,-0.02201,-0.00316,-0.03366,-0.00414};
-	double d_1[8]={0.01117,-0.03088,0.00411,0.00713,0.00478,0.00012,0.00379,-0.00023};
-	double d_4[8]={-0.00799,-0.03666,0.06300,0.,-0.01519,-0.00071,0.,-0.00344};
-	double e_1a[8]={0.,0.,-0.25941,-0.29751,-0.48014,0.04647,-0.16269,-0.04728};
-	double e_1b[8]={1.13374,0.09381,-0.03041,0.00781,0.01838,-0.00138,-0.02259,0.00121};
-	double e_4a[8]={0.,0.,-4.03683,0.,1.52565,-0.27461,0.,-0.70642};
-	double e_4b[8]={3.38669,-0.10885,0.16283,0.,0.06697,-0.01681,0.,0.00137,};
-	double e_1[8]={0.01117,-0.03088,0.00411,0.00713,0.00478,0.00012,0.00379,-0.00023};
-	double e_2[8]={0.00354,0.01223,-0.00977,-0.01070,-0.00572,0.00022,0.01137,-0.00117};
-	double e_3[8]={0.02179,-0.12336,0.07870,0.,0.01930,0.00873,0.,-0.00516};
-	double e_4[8]={-0.00799,-0.03666,0.06400,0.,-0.01519,-0.00071,0.,-0.00344};
-	double e_5[8]={0.19550,-0.93249,0.37858,0.,0.39909,0.05921,0.,-0.09989};
-	double e_6[8]={-0.17154,0.39616,0.01201,0.,-0.19423,0.00357,0.,-0.04597};
-    	
-	complex_t C10_02=0.;
-	for(int ie=0;ie<=7;ie++) C10_02+=b[ie]*pow(wilson_p("WPARAM_RUN_SM", 2),a[ie])*this->find("C2")->second->get_CoefficientMatchingValue("LO");
-	
-	complex_t C10_12=-0.11060*log(wilson_p("WPARAM_RUN_SM", 2))/wilson_p("WPARAM_RUN_SM", 2)*this->find("C2")->second->get_CoefficientMatchingValue("LO")
-    +(1./wilson_p("WPARAM_RUN_SM", 2)-1.)*(0.26087*this->find("C9")->second->get_CoefficientMatchingValue("LO")+1.15942*this->find("C10")->second->get_CoefficientMatchingValue("LO"));
-	for(int ie=0;ie<=7;ie++) C10_12+=pow(wilson_p("WPARAM_RUN_SM", 2),a[ie]+1.)*((d_2a[ie]/wilson_p("WPARAM_RUN_SM", 2)+d_2b[ie])*this->find("C2")->second->get_CoefficientMatchingValue("LO")
-    +d_1[ie]*this->find("C1")->second->get_CoefficientMatchingValue("NLO")+d_4[ie]*this->find("C4")->second->get_CoefficientMatchingValue("NLO"));
+	    double Gmu1_Gmu0 = 4 * PI / alpha_ew * Deltar;
+        double L = std::log(mu_h * mu_h);
+        complex_t C1022 = (46.9287715663914 - 3.102350691200236 * L + 0.0992974073578769 * L * L + 0.175877 * (m_t_muW - 163.5) + 0.0173725 * (m_h - 125.9)) / sw2OS;
+        C1022 += -Ci_match[9] * Gmu1_Gmu0;
+
+        complex_t C9_NLO = src.at("B_MATCH")->retrieve(LhaID(3051313, 4133, 1, 0))->get_val() + src.at("IMB_MATCH")->retrieve(LhaID(3051313, 4133, 1, 0))->get_val();
+        complex_t C10_NLO = src.at("B_MATCH")->retrieve(LhaID(3051313, 4137, 1, 0))->get_val() + src.at("IMB_MATCH")->retrieve(LhaID(3051313, 4137, 1, 0))->get_val();
+        
+        complex_t C10_22 = (0.27924 * C1_NLO + 0.33157 * C4_NLO + 2.35917 * Ci_match[8] + 3.29679 * Ci_match[9]) * log(eta) + (1 - eta) * (0.26087 * C9_NLO + 1.15942 * C10_NLO) + C1022;
+        
+        complex_t C1_NNLO = src.at("B_MATCH")->retrieve(LhaID(3040405, 6161, 2, 0))->get_val() + src.at("IMB_MATCH")->retrieve(LhaID(3040405, 6161, 2, 0))->get_val();
+        complex_t C2_NNLO = src.at("B_MATCH")->retrieve(LhaID(3040405, 4141, 2, 0))->get_val() + src.at("IMB_MATCH")->retrieve(LhaID(3040405, 4141, 2, 0))->get_val();
+        complex_t C3_NNLO = src.at("B_MATCH")->retrieve(LhaID(3050707, 4133, 2, 0))->get_val() + src.at("IMB_MATCH")->retrieve(LhaID(3050707, 4133, 2, 0))->get_val();
+        complex_t C4_NNLO = src.at("B_MATCH")->retrieve(LhaID(3050707, 6153, 2, 0))->get_val() + src.at("IMB_MATCH")->retrieve(LhaID(3050707, 6153, 2, 0))->get_val();
+        complex_t C5_NNLO = src.at("B_MATCH")->retrieve(LhaID(3050707, 4536, 2, 0))->get_val() + src.at("IMB_MATCH")->retrieve(LhaID(3050707, 4536, 2, 0))->get_val();
+        complex_t C6_NNLO = src.at("B_MATCH")->retrieve(LhaID(3050707, 6556, 2, 0))->get_val() + src.at("IMB_MATCH")->retrieve(LhaID(3050707, 6556, 2, 0))->get_val();
+
+        for(int ie = 0; ie <= 7; ie++) {
+            C10_22 += pow(eta, BWilsonRunningParameters::a[ie] + 2) * (
+                      (BWilsonRunningParameters::e_1a[ie] / eta + BWilsonRunningParameters::e_1b[ie]) * C1_NLO
+                    + (BWilsonRunningParameters::e_4a[ie] / eta + BWilsonRunningParameters::e_4b[ie]) * C4_NLO
+                    + BWilsonRunningParameters::e_1[ie] *this->find("C1")->second->get_CoefficientMatchingValue("NNLO")
+                    + BWilsonRunningParameters::e_2[ie] *this->find("C2")->second->get_CoefficientMatchingValue("NNLO")
+                    + BWilsonRunningParameters::e_3[ie] *this->find("C3")->second->get_CoefficientMatchingValue("NNLO")
+                    + BWilsonRunningParameters::e_4[ie] *this->find("C4")->second->get_CoefficientMatchingValue("NNLO")
+                    + BWilsonRunningParameters::e_5[ie] *this->find("C5")->second->get_CoefficientMatchingValue("NNLO")
+                    + BWilsonRunningParameters::e_6[ie] *this->find("C6")->second->get_CoefficientMatchingValue("NNLO"));
+        }
+
+        double alpha_s_mu_h = src.at("WPARAM_RUN_SM")->retrieve(1)->get_val();
+        Ci_run[9] = Ci_match[9] + alpha_ew / alpha_s_mu_h * (fact * C10_02 + C10_12) + alpha_ew / (4 * PI) * C10_22;
+        
+        // Store
+        for (size_t k = 0; k < 10; k++) {
+            dep_block->store_or_assign(1, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "B_HADRONIC", ids[k]}, Ci_run[k], 0., 0.));
+        }
 		
-	double Delta_alpha=0.06; 
-	double Delta_rhosw2=-0.03; 
-	double Delta_rem=0.01;
-	double Deltar=Delta_alpha+Delta_rhosw2+Delta_rem; 
-	
-	double Gmu1_Gmu0=4.*PI/alpha_ew*Deltar;
-	
-	complex_t C1022=(46.9287715663914-3.102350691200236*log(this->get_Q_match()*this->get_Q_match())+0.0992974073578769*log(this->get_Q_match()*this->get_Q_match())*log(this->get_Q_match()*this->get_Q_match())+0.175877*(wilson_p("WPARAM_MATCH_SM", 6)-163.5)+0.0173725*(MH-125.9))/sw2OS;
- 	C1022+=-this->find("C10")->second->get_CoefficientMatchingValue("LO")*Gmu1_Gmu0;
- 		
-	complex_t C10_22=(0.27924*this->find("C1")->second->get_CoefficientMatchingValue("NLO")+0.33157*this->find("C4")->second->get_CoefficientMatchingValue("NLO")+2.35917*this->find("C9")->second->get_CoefficientMatchingValue("LO")
-    +3.29679*this->find("C10")->second->get_CoefficientMatchingValue("LO"))*log(wilson_p("WPARAM_RUN_SM", 2))+(1.-wilson_p("WPARAM_RUN_SM", 2))*(0.26087*this->find("C9")->second->get_CoefficientMatchingValue("NLO")+1.15942*this->find("C10")->second->get_CoefficientMatchingValue("NLO"))+C1022;
-	for(int ie=0;ie<=7;ie++) C10_22+=pow(wilson_p("WPARAM_RUN_SM", 2),a[ie]+2.)*((e_1a[ie]/wilson_p("WPARAM_RUN_SM", 2)+e_1b[ie])*this->find("C1")->second->get_CoefficientMatchingValue("NLO")
-    +(e_4a[ie]/wilson_p("WPARAM_RUN_SM", 2)+e_4b[ie])*this->find("C4")->second->get_CoefficientMatchingValue("NLO")	
-    +e_1[ie]*this->find("C1")->second->get_CoefficientMatchingValue("NNLO")
-    +e_2[ie]*this->find("C2")->second->get_CoefficientMatchingValue("NNLO")
-    +e_3[ie]*this->find("C3")->second->get_CoefficientMatchingValue("NNLO")
-    +e_4[ie]*this->find("C4")->second->get_CoefficientMatchingValue("NNLO")
-    +e_5[ie]*this->find("C5")->second->get_CoefficientMatchingValue("NNLO")
-    +e_6[ie]*this->find("C6")->second->get_CoefficientMatchingValue("NNLO"));
+		LOG_INFO("Update wilson running values");
+    };
 
-	// C0b[10]+=alpha_ew/wilson_p("WPARAM_RUN_SM", 1)*(4.*PI/wilson_p("WPARAM_RUN_SM", 1)*C10_02+C10_12)+alpha_ew/4./PI*C10_22;
-
-    it->second->set_WilsonCoeffRun("LO", it->second->get_CoefficientMatchingValue("LO") + 
-    alpha_ew/wilson_p("WPARAM_RUN_SM", 1)*(4.*PI/wilson_p("WPARAM_RUN_SM", 1)*C10_02+C10_12)+alpha_ew/4./PI*C10_22);
-
+    WilsonParamComposer().compose_block("B_HADRONIC", src, func);
     this->base["LO"] = 1;
-
 }
 
 void BCoefficientGroup::set_base_2_LO() {
