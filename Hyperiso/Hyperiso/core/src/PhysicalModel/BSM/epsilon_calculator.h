@@ -3,6 +3,7 @@
 #define EPSILONCALCULATOR_H
 #include "Parameters.h"
 #include "QCDHelper.h"
+#include "WilsonParamComposer.h"
 #include <cmath>
 #include <vector>
 #include <map>
@@ -13,30 +14,25 @@ protected:
     std::shared_ptr<Parameters> susy = Parameters::GetInstance(ParameterType::SUSY);
 
     double mu_Q = (*susy)("HMIX",1);
-    std::map<int,int> neutralino = {{0, 1000022},{1, 1000023},{2, 1000025},{3, 1000035}};
-    static EpsilonCalculator* instance;
-    EpsilonCalculator();
-
-public:
-    // explicit EpsilonCalculator();
     
-    double epsilon_0();
-    double epsilon_2() const;
-    double epsilon_b();
-    double epsilon_bp();
-    double epsilon_0p();
-    double epsilon_1p() const;
+    
+    static inline bool initialized {false};
+    
+    public:
+    
+    // double epsilon_0();
+    // double epsilon_2() const;
+    // double epsilon_b();
+    // double epsilon_bp();
+    // double epsilon_0p();
+    // double epsilon_1p() const;
 
-    EpsilonCalculator(const EpsilonCalculator&) = delete;
-    void operator=(const EpsilonCalculator&) = delete;
+    static void init();
 
-    // Méthode statique pour accéder à l'instance
-    static EpsilonCalculator* GetInstance() {
-        if (!EpsilonCalculator::instance) {
-            EpsilonCalculator::instance = new EpsilonCalculator();
-        }
-        return EpsilonCalculator::instance;
-    }
+    static void init_epsilon_block();
+
+
+    static inline WilsonParamComposer composer = WilsonParamComposer();
 };
 
 

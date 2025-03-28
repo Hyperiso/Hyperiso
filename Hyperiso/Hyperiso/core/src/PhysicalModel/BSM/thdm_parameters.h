@@ -1,58 +1,19 @@
 #include <algorithm>
 #include <array>
 #include <functional>
-#include "Parameters.h"
+#include "WilsonParamComposer.h"
 #include "Logger.h"
 #include <iostream>
 
 class thdm_parameters {
-
-    static thdm_parameters* instance;
-    double scale{81};
-	bool is_PrimeCQG = false;
-
-    explicit thdm_parameters() {}
-    thdm_parameters(const thdm_parameters&) = delete;
-    void operator=(const thdm_parameters&) = delete;
-
-
-	std::shared_ptr<Parameters> mod = Parameters::GetInstance(ParameterType::THDM);
-    std::shared_ptr<Parameters> sm = Parameters::GetInstance(ParameterType::SM);
 public:
-    static thdm_parameters* GetInstance() {
-        if (!thdm_parameters::instance) {
-            thdm_parameters::instance = new thdm_parameters();
-        }
-        return thdm_parameters::instance;
-    }
-    void set_lu(double lu) {this->lu = lu;}
-    void set_ld(double ld) {this->ld = ld;}
 
-    void set_sm_parameters(std::shared_ptr<Parameters> sm) {this->sm = sm;}
-    void set_mod_parameters(std::shared_ptr<Parameters> sm) {this->mod = mod;}
-    void set_params(double Q_match);
+    static void init(double mu_W);
+    static void init_scale_independant_block();
+    static void init_matching_block(double mu_W);
 
-    double mass_top_muW = QCDHelper::msbar_mass(6, scale, MassType::MSBAR, MassType::POLE);
-	double mass_b_muW = QCDHelper::msbar_mass(5, scale);
+    static inline WilsonParamComposer composer = WilsonParamComposer();
+    static inline double current_mu_W{-1};
+    static inline bool initialized {false};
 
-    double sw2=pow(sin(atan((*sm)("GAUGE",1)/(*sm)("GAUGE",2))),2.); //1 = param-> gp and 2 = param->g2
-    double xt= pow(mass_top_muW/(*sm)("MASS",24),2.); // W boson mass (24)
-	double yt= pow(mass_top_muW/(*mod)("MASS",37),2.); // param->mass_H (25)
-    double xh=pow((*mod)("MASS",25)/(*sm)("MASS",24),2.);
-    double alpha=(*mod)("ALPHA", 0);
-	double L; // scale -> mu_W
-	double alphas_muW;
-	double z;
-    double m_H = (*mod)("MASS", 37);
-    
-    double beta=atan((*mod)("HMIX", 2));
-
-	double xH=pow((*mod)("MASS",37)/(*sm)("MASS",24),2.);
-	double xH0=pow((*mod)("MASS",35)/(*sm)("MASS",24),2.);
-	double xA=pow((*mod)("MASS",36)/(*sm)("MASS",24),2.);
-
-    
-    double lu = (*mod)("YU", 22);
-	double ld = (*mod)("YD", 22);
-    
 };
