@@ -376,21 +376,17 @@ void susy_parameters::init_scale_independant_block() {
         double ld = -src.at("HMIX")->retrieve(2)->get_val();
 
 		//TODO : IN progress
-		ME = {(*sm)("MASS",11), (*sm)("MASS",13), (*sm)("MASS",15)}; 
+		Array1D_4 ME = {src.at("MASS")->retrieve(11)->get_val(), src.at("MASS")->retrieve(13)->get_val(), src.at("MASS")->retrieve(15)->get_val()}; 
 
-		Mch = {(*susy)("MASS",1000024), (*susy)("MASS",1000037) };
-		// Array1D_7 MsqU = { 0.0, param->mass_upl, param->mass_chl, param->mass_t1, param->mass_upr, param->mass_chr, param->mass_t2}; // Ajout d'un élément pour compatibilité de taille
-		MsqU = {(*susy)("MASS",1000002), (*susy)("MASS",1000004), (*susy)("MASS",1000006), (*susy)("MASS",2000002), (*susy)("MASS",2000004), (*susy)("MASS",2000006)}; // Ajout d'un élément pour compatibilité de taille
-		
-		MsqD = {
-		(*susy)("MASS",1000001),
-		(*susy)("MASS",1000003),
-		(*susy)("MASS",1000005),
-		(*susy)("MASS",2000001),
-		(*susy)("MASS",2000003),
-		(*susy)("MASS",2000005)};
-		Msn = {(*susy)("MASS",1000012), (*susy)("MASS",1000014), (*susy)("MASS",1000016)};
+		Array1D_3 Mch = {src.at("MASS")->retrieve(1000024)->get_val(), src.at("MASS")->retrieve(1000037)->get_val()};
 
+		Array1D_7 MsqU = {src.at("MASS")->retrieve(1000002)->get_val(), src.at("MASS")->retrieve(1000004)->get_val(), src.at("MASS")->retrieve(1000006)->get_val(), 
+				src.at("MASS")->retrieve(2000002)->get_val(), src.at("MASS")->retrieve(2000004)->get_val(), src.at("MASS")->retrieve(2000006)->get_val()};
+
+		Array1D_7 MsqU = {src.at("MASS")->retrieve(1000001)->get_val(), src.at("MASS")->retrieve(1000003)->get_val(), src.at("MASS")->retrieve(1000005)->get_val(), 
+				src.at("MASS")->retrieve(2000001)->get_val(), src.at("MASS")->retrieve(2000003)->get_val(), src.at("MASS")->retrieve(2000005)->get_val()};
+
+		Array1D_4 Msn = {src.at("MASS")->retrieve(1000012)->get_val(), src.at("MASS")->retrieve(1000014)->get_val(), src.at("MASS")->retrieve(1000016)->get_val()};
 
         int id {1};
         dep_block->store_or_assign(id++, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", id}, z, 0., 0.)); //1
@@ -404,6 +400,11 @@ void susy_parameters::init_scale_independant_block() {
         dep_block->store_or_assign(id++, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", id}, alphas_mg, 0., 0.)); //9
         dep_block->store_or_assign(id++, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", id}, ag, 0., 0.)); //10
 		dep_block->store_or_assign(id++, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", id}, aY, 0., 0.)); //11
+		dep_block->store_or_assign({id, 0}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM",{id, 0}}, ME[0], 0., 0.)); //12
+		dep_block->store_or_assign({id, 1}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", {id, 1}}, ME[1], 0., 0.)); //12
+		dep_block->store_or_assign({id++, 2}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", {id, 2}}, ME[2], 0., 0.)); //12
+		dep_block->store_or_assign({id, 0}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM",{id, 0}}, Mch[0], 0., 0.)); //12
+		dep_block->store_or_assign({id++, 1}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", {id, 1}}, Mch[1], 0., 0.)); //12
     };
 
     susy_parameters::composer.compose_block("WPARAM_SI_BSM", src, func);
@@ -441,21 +442,6 @@ void susy_parameters::update() {
 	mass_H03 = 0.;
 	mass_A02 = 0.; // for testing
 
-
-	ME = {(*sm)("MASS",11), (*sm)("MASS",13), (*sm)("MASS",15)}; 
-
-	Mch = {(*susy)("MASS",1000024), (*susy)("MASS",1000037) };
-	// Array1D_7 MsqU = { 0.0, param->mass_upl, param->mass_chl, param->mass_t1, param->mass_upr, param->mass_chr, param->mass_t2}; // Ajout d'un élément pour compatibilité de taille
-	MsqU = {(*susy)("MASS",1000002), (*susy)("MASS",1000004), (*susy)("MASS",1000006), (*susy)("MASS",2000002), (*susy)("MASS",2000004), (*susy)("MASS",2000006)}; // Ajout d'un élément pour compatibilité de taille
-	
-	MsqD = {
-    (*susy)("MASS",1000001),
-    (*susy)("MASS",1000003),
-    (*susy)("MASS",1000005),
-    (*susy)("MASS",2000001),
-    (*susy)("MASS",2000003),
-    (*susy)("MASS",2000005)};
-	Msn = {(*susy)("MASS",1000012), (*susy)("MASS",1000014), (*susy)("MASS",1000016)};
 
 	bool isNonZeroMix = true;
 	for (size_t i = 0; i < NumSquarks; ++i) {
