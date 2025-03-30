@@ -22,6 +22,18 @@ using Array1D_7 = std::array<double, N_MsqU>;
 using Array2D_4x4_I = std::array<std::array<complex_t, M_NL_NR>, N_NL_NR>;
 
 struct WilsonSusyMatrix {
+	Array2D_7x4 Gamma_UL {};
+	Array2D_7x4 Gamma_UR {};
+	Array2D_4x4 Gamma_NL {};
+	Array2D_4x4 Gamma_NR {};
+	Array2D_7x7 Gamma_U{};
+	Array2D_7x7 I_LR{};
+	Array2D_7x7 P_U{};
+	Array3D_3x7x4 X_UL{};
+	Array3D_3x7x4 X_UR{};
+	Array3D_3x7x4 X_NL{};
+	Array3D_3x7x4 X_NR{};
+	std::array<std::array<std::array<std::array<double, 4>, 4>, 3>, 7> G_aimn;
 
 };
 
@@ -58,19 +70,9 @@ class susy_parameters {
 	void reset_G();
     double kappa, ag, aY, cosb, sinb, st, ct, alphas_mg;
 
-    Array2D_7x4 Gamma_UL = {};
-	Array2D_7x4 Gamma_UR = {};
-	Array2D_4x4 Gamma_NL = {};
-	Array2D_4x4 Gamma_NR = {};
-	Array2D_7x7 Gamma_U{};
-	Array2D_7x7 I_LR{};
-	Array2D_7x7 P_U{};
-	Array3D_3x7x4 X_UL{};
-	Array3D_3x7x4 X_UR{};
-	Array3D_3x7x4 X_NL{};
-	Array3D_3x7x4 X_NR{};
+    
 
-	std::array<std::array<std::array<std::array<double, 4>, 4>, 3>, 7> G_aimn;
+	
 	// Array2D_4x4  VCKM = {{{0.,0.,0.,0.},
 	// 				{param->Vud, param->Vus, -(param->Vts * param->Vtb + param->Vcs * param->Vcb) / param->Vus, 0.0},
 	// 				{param->Vcd, param->Vcs, param->Vcb, 0.0},
@@ -113,54 +115,12 @@ class susy_parameters {
 }};
 	
 
-	const size_t NumSquarks = 6;
 	Array2D_7x7 sU_mix;
-
-    Array1D_4 MU;
-	Array1D_4 MD;
-	Array1D_4 ME;
-
-	Array1D_3 Mch;
-	// Array1D_7 MsqU = { 0.0, param->mass_upl, param->mass_chl, param->mass_t1, param->mass_upr, param->mass_chr, param->mass_t2}; // Ajout d'un élément pour compatibilité de taille
-	Array1D_7 MsqU ;
-	
-	Array1D_7 MsqD;
-	Array1D_4 Msn ;
 
 
     double mass_H03 = (*susy)("MASS",36); // We have H_0^3 = A_0 from pdg numering scheme ?
     double mass_A02 = (*susy)("HMIX",4);
 
-	
-
-	// std::shared_ptr<Parameters> sm = Parameters::GetInstance();
-    double epsilonbp,epsilon0p,epsilon0,epsilon2,epsilon1p,epsilonb;
-
-	// double epsfac=pow((1.+(*epsi).epsilon_b()*(*susy)("HMIX",2)),2.);
-
-    double mass_top_muW;
-	double mass_b_muW; //mass bottom 6 (at pole)
-	
-	double m_H;
-
-	double L; // scale -> mu_W
- 	double sw2; //1 = param-> gp and 2 = (*sm)("COUPLING",2)
-	double alphas_muW;
-
-	double xt; // W boson mass (24)
-	double yt; // param->mass_H (25)
-	double z;
-
-	double alpha=(*susy)("ALPHA", 0);
-	double beta=atan((*susy)("HMIX", 2));
-
-	double xH=pow((*susy)("MASS",37)/(*sm)("MASS",24),2.);
-	double xH0=pow((*susy)("MASS",35)/(*sm)("MASS",24),2.);
-	double xA=pow((*susy)("MASS",36)/(*sm)("MASS",24),2.);
-	double xh=pow((*susy)("MASS",25)/(*sm)("MASS",24),2.);
-
-    double lu;
-	double ld;
 
     double kappaFactor;
     double B0c1 = 0.0, B0c2 = 0.0, B90c = 0.0, B100c = 0.0, C90c = 0.0, D90c = 0.0;
@@ -168,4 +128,6 @@ class susy_parameters {
     
 	static inline WilsonParamComposer composer = WilsonParamComposer();
 	static inline bool initialized {false};
+
+	WilsonSusyMatrix w_susy;
 };

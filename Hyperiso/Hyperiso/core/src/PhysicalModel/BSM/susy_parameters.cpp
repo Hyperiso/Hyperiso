@@ -383,10 +383,24 @@ void susy_parameters::init_scale_independant_block() {
 		Array1D_7 MsqU = {src.at("MASS")->retrieve(1000002)->get_val(), src.at("MASS")->retrieve(1000004)->get_val(), src.at("MASS")->retrieve(1000006)->get_val(), 
 				src.at("MASS")->retrieve(2000002)->get_val(), src.at("MASS")->retrieve(2000004)->get_val(), src.at("MASS")->retrieve(2000006)->get_val()};
 
-		Array1D_7 MsqU = {src.at("MASS")->retrieve(1000001)->get_val(), src.at("MASS")->retrieve(1000003)->get_val(), src.at("MASS")->retrieve(1000005)->get_val(), 
+		Array1D_7 MsqD = {src.at("MASS")->retrieve(1000001)->get_val(), src.at("MASS")->retrieve(1000003)->get_val(), src.at("MASS")->retrieve(1000005)->get_val(), 
 				src.at("MASS")->retrieve(2000001)->get_val(), src.at("MASS")->retrieve(2000003)->get_val(), src.at("MASS")->retrieve(2000005)->get_val()};
 
 		Array1D_4 Msn = {src.at("MASS")->retrieve(1000012)->get_val(), src.at("MASS")->retrieve(1000014)->get_val(), src.at("MASS")->retrieve(1000016)->get_val()};
+		
+		const size_t NumSquarks = 6;
+		Array2D_7x7 sU_mix; //ERROR
+		bool isNonZeroMix = true;
+		for (size_t i = 0; i < NumSquarks; ++i) {
+			double product = 1.0;
+			for (size_t j = 0; j < 6; ++j) {
+				product *= sU_mix[i][j]; //TODO, ISSUE
+			}
+			if (product == 0.0) {
+				isNonZeroMix = false;
+				break;
+			}
+		}
 
         int id {1};
         dep_block->store_or_assign(id++, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", id}, z, 0., 0.)); //1
@@ -403,8 +417,24 @@ void susy_parameters::init_scale_independant_block() {
 		dep_block->store_or_assign({id, 0}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM",{id, 0}}, ME[0], 0., 0.)); //12
 		dep_block->store_or_assign({id, 1}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", {id, 1}}, ME[1], 0., 0.)); //12
 		dep_block->store_or_assign({id++, 2}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", {id, 2}}, ME[2], 0., 0.)); //12
-		dep_block->store_or_assign({id, 0}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM",{id, 0}}, Mch[0], 0., 0.)); //12
-		dep_block->store_or_assign({id++, 1}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", {id, 1}}, Mch[1], 0., 0.)); //12
+		dep_block->store_or_assign({id, 0}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM",{id, 0}}, Mch[0], 0., 0.)); //13
+		dep_block->store_or_assign({id++, 1}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", {id, 1}}, Mch[1], 0., 0.)); //13
+		dep_block->store_or_assign({id, 0}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM",{id, 0}}, MsqU[0], 0., 0.)); //14
+		dep_block->store_or_assign({id, 0}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM",{id, 0}}, MsqU[1], 0., 0.)); //14
+		dep_block->store_or_assign({id, 0}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM",{id, 0}}, MsqU[2], 0., 0.)); //14
+		dep_block->store_or_assign({id, 0}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM",{id, 0}}, MsqU[3], 0., 0.)); //14
+		dep_block->store_or_assign({id, 0}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM",{id, 0}}, MsqU[4], 0., 0.)); //14
+		dep_block->store_or_assign({id++, 1}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", {id, 1}}, MsqU[5], 0., 0.)); //14
+		dep_block->store_or_assign({id, 0}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM",{id, 0}}, MsqD[0], 0., 0.)); //15
+		dep_block->store_or_assign({id, 0}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM",{id, 0}}, MsqD[1], 0., 0.)); //15
+		dep_block->store_or_assign({id, 0}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM",{id, 0}}, MsqD[2], 0., 0.)); //15
+		dep_block->store_or_assign({id, 0}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM",{id, 0}}, MsqD[3], 0., 0.)); //15
+		dep_block->store_or_assign({id, 0}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM",{id, 0}}, MsqD[4], 0., 0.)); //15
+		dep_block->store_or_assign({id++, 1}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", {id, 1}}, MsqD[5], 0., 0.)); //15
+		dep_block->store_or_assign({id, 0}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM",{id, 0}}, Msn[0], 0., 0.)); //16
+		dep_block->store_or_assign({id, 1}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", {id, 1}}, Msn[1], 0., 0.)); //16
+		dep_block->store_or_assign({id++, 2}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", {id, 2}}, Msn[2], 0., 0.)); //16
+		dep_block->store_or_assign(id, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", id}, (double)isNonZeroMix, 0., 0.)); //17
     };
 
     susy_parameters::composer.compose_block("WPARAM_SI_BSM", src, func);
@@ -439,64 +469,56 @@ void susy_parameters::update() {
 	ParameterProxy wilson_p {ParameterType::WILSON};
 	ParameterProxy susy {ParameterType::SUSY};
 	ParameterProxy sm {ParameterType::SM};
-	mass_H03 = 0.;
-	mass_A02 = 0.; // for testing
+	// mass_H03 = 0.;
+	// mass_A02 = 0.; // for testing
+	
+	double mW = sm("MASS", 24);
+	double g2 = sm("GAUGE", 2);
 
-
-	bool isNonZeroMix = true;
-	for (size_t i = 0; i < NumSquarks; ++i) {
-		double product = 1.0;
-		for (size_t j = 0; j < 6; ++j) {
-			product *= sU_mix[i][j];
-		}
-		if (product == 0.0) {
-			isNonZeroMix = false;
-			break;
-		}
-	}
-	if (isNonZeroMix) {
+	if (wilson_p("WPARAM_SI_BSM", 17)) {
 		std::sort(MsqU.begin(), MsqU.end());
 
+		const size_t NumSquarks = 6;
 		for (size_t ae = 0; ae < NumSquarks; ++ae) {
 			for (size_t ie = 0; ie < 3; ++ie) {
-				Gamma_UL[ae][ie] = sU_mix[ae][ie];
-				Gamma_UR[ae][ie] = sU_mix[ae][ie + 3];
+				w_susy.Gamma_UL[ae][ie] = sU_mix[ae][ie];
+				w_susy.Gamma_UR[ae][ie] = sU_mix[ae][ie + 3];
 			}
 		}
 }
 	else {
-		Gamma_UL[0][0] = 1.0; 
-		Gamma_UL[1][1] = 1.0;
-		Gamma_UL[2][2] = ct;
-		Gamma_UL[5][2] = -st;
+		w_susy.Gamma_UL[0][0] = 1.0; 
+		w_susy.Gamma_UL[1][1] = 1.0;
+		w_susy.Gamma_UL[2][2] = ct;
+		w_susy.Gamma_UL[5][2] = -st;
 
-		Gamma_UR[3][0] = 1.0;
-		Gamma_UR[4][1] = 1.0;
-		Gamma_UR[2][2] = st;
-		Gamma_UR[5][2] = ct;
+		w_susy.Gamma_UR[3][0] = 1.0;
+		w_susy.Gamma_UR[4][1] = 1.0;
+		w_susy.Gamma_UR[2][2] = st;
+		w_susy.Gamma_UR[5][2] = ct;
 	}
 
 	for (int ae = 0; ae < 6; ++ae) {
         for (int ie = 0; ie < 3; ++ie) {
-            Gamma_U[ae][ie] = Gamma_UL[ae][ie];
-            Gamma_U[ae][ie+3] = Gamma_UR[ae][ie];
+            w_susy.Gamma_U[ae][ie] = w_susy.Gamma_UL[ae][ie];
+            w_susy.Gamma_U[ae][ie+3] = w_susy.Gamma_UR[ae][ie];
 			if (ae <3 && ae==ie) {
-				Gamma_NL[ae][ie] = 1.;
+				w_susy.Gamma_NL[ae][ie] = 1.;
 			}
         }
     }
 
-    I_LR.fill({});
+    w_susy.I_LR.fill({});
     for (int i = 0; i < 3; ++i) {
-        I_LR[i][i] = 1.;
-        I_LR[i+3][i+3] = -1.;
+        w_susy.I_LR[i][i] = 1.;
+        w_susy.I_LR[i+3][i+3] = -1.;
     }
 
 	for (int ae = 0; ae < 6; ++ae) {
         for (int be = 0; be < 6; ++be) {
             for (int ce = 0; ce < 6; ++ce) {
                 for (int de = 0; de < 6; ++de) {
-                    P_U[ae][be] = Gamma_U[ae][ce] * I_LR[ce][de] * Gamma_U[be][de];
+                    w_susy.P_U[ae][be] = w_susy.Gamma_U[ae][ce] * w_susy.I_LR[ce][de] * w_susy.Gamma_U[be][de];
                 }
             }
         }
@@ -506,33 +528,34 @@ void susy_parameters::update() {
     for (int ie = 0; ie < 2; ++ie) {
 		for (int ae = 0; ae < 6; ++ae) {
 			for (int be = 0; be < 3; ++be) {
-				X_UL[ie][ae][be] = 0.0;
-				X_UR[ie][ae][be] = 0.0;
+				w_susy.X_UL[ie][ae][be] = 0.0;
+				w_susy.X_UR[ie][ae][be] = 0.0;
 
 				for (int ce = 0; ce < 3; ++ce) {
-					X_UL[ie][ae][be] += -(*sm)("GAUGE",2) * (
-						ag * (*susy)("VMIX", ie*10+0) * Gamma_UL[ae][ce] -
-						aY * (*susy)("VMIX", ie*10+1) * Gamma_UR[ae][ce] * MU[ce] / (sqrt(2.0) * (*sm)("MASS", 24) * sinb)
+					w_susy.X_UL[ie][ae][be] += -g2 * (
+						ag * susy("VMIX", ie*10+0) * w_susy.Gamma_UL[ae][ce] -
+						aY * susy("VMIX", ie*10+1) * w_susy.Gamma_UR[ae][ce] * wilson_p("WPARAM_MATCH_BSM", {2,ce}) / (sqrt(2.0) * mW * sinb)
 					) * std::real(VCKM[ce][be]);
-					X_UR[ie][ae][be] += (*sm)("GAUGE",2) * aY * (*susy)(std::string("UMIX"), ie*10+1) * Gamma_UL[ae][ce] * std::real(VCKM[ce][be]) * MD[be] / (sqrt(2.0) * (*sm)("MASS", 24) * cosb);
+					w_susy.X_UR[ie][ae][be] += g2 * aY * susy(std::string("UMIX"), ie*10+1) * w_susy.Gamma_UL[ae][ce] * std::real(VCKM[ce][be]) * wilson_p("WPARAM_MATCH_BSM", {2,be}) / (sqrt(2.0) * mW * cosb);
 
-					G_aimn[ae][ie][be][ce]=0.5/sqrt(2.)*(sqrt(2.)*(*sm)("MASS",24)*(*susy)("VMIX", ie*10+0)*Gamma_UL[ae][ce]*ag-MU[ce]*(*susy)("VMIX", ie*10+1)*Gamma_UR[ae][ce]*aY)*(std::real(VCKM[be][2])*std::real(VCKM[ce][1])/std::real(VCKM[2][2])*std::real(VCKM[2][1]));
+					w_susy.G_aimn[ae][ie][be][ce]=0.5/sqrt(2.)*(sqrt(2.)*mW*susy("VMIX", ie*10+0)*w_susy.Gamma_UL[ae][ce]*ag-wilson_p("WPARAM_MATCH_BSM", {2,ce})*susy("VMIX", ie*10+1)*w_susy.Gamma_UR[ae][ce]*aY)*(std::real(VCKM[be][2])*std::real(VCKM[ce][1])/std::real(VCKM[2][2])*std::real(VCKM[2][1]));
 				}
 
 				if (ae < 3) {
-					X_NL[ie][ae][be] = -(*sm)("GAUGE",2) * (*susy)("VMIX", ie*10+0) * Gamma_NL[ae][be];
-					X_NR[ie][ae][be] = (*sm)("GAUGE",2) * (*susy)("UMIX", ie*10+1) * Gamma_NL[ae][be] * ME[be] / (sqrt(2.0) * (*sm)("MASS", 24) * cosb);
+					w_susy.X_NL[ie][ae][be] = -g2 * susy( "VMIX", ie*10+0) * w_susy.Gamma_NL[ae][be]; 
+
+					w_susy.X_NR[ie][ae][be] = g2 * susy("UMIX", ie*10+1) * w_susy.Gamma_NL[ae][be] * wilson_p("WPARAM_SI_BSM", {12, be}) / (sqrt(2.0) * mW * cosb); //12 -> ME
 				}
 			}
 		}
 	}
-
+	
 	auto computeContributions = [&](int ie, auto func, double additionalFactor = 1.0) {
 		double result = 0.0;
 		for (int ae = 0; ae < 6; ++ae) {
 			double msqOverMchSquared = std::pow(MsqU[ae] / Mch[ie], 2.0);
-			result += (X_UL[ie][ae][0] * X_UL[ie][ae][1] * func(msqOverMchSquared) +
-					Mch[ie] / mass_b_muW * X_UL[ie][ae][0] * X_UR[ie][ae][1] * func(msqOverMchSquared)) * additionalFactor;
+			result += (w_susy.X_UL[ie][ae][0] * w_susy.X_UL[ie][ae][1] * func(msqOverMchSquared) +
+					Mch[ie] / wilson_p("WPARAM_MATCH_SM", {5,1}) * w_susy.X_UL[ie][ae][0] * w_susy.X_UR[ie][ae][1] * func(msqOverMchSquared)) * additionalFactor;
 		}
 		return result;
 	};
@@ -554,14 +577,14 @@ void susy_parameters::update() {
 
 				for (int be = 0; be < 3; ++be) {
 					double msnOverMchSquared = std::pow(Msn[be] / Mch[ie], 2.0);
-					B0c1 += X_UL[je][ae][1] * X_UL[ie][ae][2] / (Mch[ie] * Mch[ie]) * (0.5 * X_NL[ie][be][1] * X_NL[je][be][1] * f50(mchRatioSquared, msqOverMchSquared, msnOverMchSquared));
-					B0c2 += X_UL[je][ae][1] * X_UL[ie][ae][2] / (Mch[ie] * Mch[ie]) * (X_NR[ie][be][1] * X_NR[je][be][1] * std::fabs(Mch[je] / Mch[ie]) * f60(mchRatioSquared, msqOverMchSquared, msnOverMchSquared));	
+					B0c1 += w_susy.X_UL[je][ae][1] * w_susy.X_UL[ie][ae][2] / (Mch[ie] * Mch[ie]) * (0.5 * w_susy.X_NL[ie][be][1] * w_susy.X_NL[je][be][1] * f50(mchRatioSquared, msqOverMchSquared, msnOverMchSquared));
+					B0c2 += w_susy.X_UL[je][ae][1] * w_susy.X_UL[ie][ae][2] / (Mch[ie] * Mch[ie]) * (w_susy.X_NR[ie][be][1] * w_susy.X_NR[je][be][1] * std::fabs(Mch[je] / Mch[ie]) * f60(mchRatioSquared, msqOverMchSquared, msnOverMchSquared));	
 				}
 
-				C90c += X_UL[je][ae][1] * X_UL[ie][ae][2] * (2.0 * std::fabs(Mch[je] / Mch[ie]) * f30(mchRatioSquared, msqOverMchSquared) * (*susy)("UMIX", je*10+0) * (*susy)("UMIX", ie*10+0) - f40(mchRatioSquared, msqOverMchSquared) * (*susy)("VMIX", je*10+0) * (*susy)("VMIX", ie*10+0));
+				C90c += w_susy.X_UL[je][ae][1] * w_susy.X_UL[ie][ae][2] * (2.0 * std::fabs(Mch[je] / Mch[ie]) * f30(mchRatioSquared, msqOverMchSquared) * susy("UMIX", je*10+0) * susy("UMIX", ie*10+0) - f40(mchRatioSquared, msqOverMchSquared) * susy("VMIX", je*10+0) * susy("VMIX", ie*10+0));
 
 				if (ie == je)	{
-					D90c += std::pow((*sm)("MASS", 24) / Mch[ie], 2.0) * X_UL[ie][ae][1] * X_UL[ie][ae][2] * h30(msqOverMchSquared);
+					D90c += std::pow(mW / Mch[ie], 2.0) * w_susy.X_UL[ie][ae][1] * w_susy.X_UL[ie][ae][2] * h30(msqOverMchSquared);
 				}
 			}
 		}
@@ -573,21 +596,19 @@ void susy_parameters::update() {
 				double msqOverMchSquaredAe = std::pow(MsqU[ae] / Mch[ie], 2.0);
 				double msqOverMchSquaredBe = std::pow(MsqU[be] / Mch[ie], 2.0);
 				for (int ce = 0; ce < 3; ++ce) {
-					C90c += X_UL[ie][be][1] * X_UL[ie][ae][2] * f40(msqOverMchSquaredAe, msqOverMchSquaredBe) * Gamma_UL[be][ce] * Gamma_UL[ae][ce];
+					C90c += w_susy.X_UL[ie][be][1] * w_susy.X_UL[ie][ae][2] * f40(msqOverMchSquaredAe, msqOverMchSquaredBe) * w_susy.Gamma_UL[be][ce] * w_susy.Gamma_UL[ae][ce];
 				}
 			}
 		}
 	}
-	m_H = (*susy)("MASS", 37);
-
-	B90c = -(B0c1 - B0c2) * kappa * std::pow((*sm)("MASS", 24), 2.0) / (2.0 * std::pow((*sm)("GAUGE",2), 2.0));
-	B100c = (B0c1 + B0c2) * kappa * std::pow((*sm)("MASS", 24), 2.0) / (2.0 * std::pow((*sm)("GAUGE",2), 2.0));
+	B90c = -(B0c1 - B0c2) * kappa * std::pow(mW, 2.0) / (2.0 * std::pow(g2, 2.0));
+	B100c = (B0c1 + B0c2) * kappa * std::pow(mW, 2.0) / (2.0 * std::pow(g2, 2.0));
 	C90c *= -kappa / 8.0;
 	D90c *= kappa;
 
     test = true;
 	for (int ae = 0; ae < 6; ++ae) {
-		if (!(std::fabs(MsqU[ae]) > (*sm)("MASS", 24) / 2. && std::fabs(MsqD[ae]) > (*sm)("MASS", 24) / 2.)) {
+		if (!(std::fabs(MsqU[ae]) > mW / 2. && std::fabs(MsqD[ae]) > mW / 2.)) {
 			test = false;
 			break;
 		}
