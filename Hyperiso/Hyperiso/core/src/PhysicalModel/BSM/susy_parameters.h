@@ -5,7 +5,8 @@
 #include "epsilon_calculator.h"
 #include "Math_SUSY.h"
 #include "Logger.h"
-
+#include "ModelParamAdapter.h"
+#include "WilsonParamComposer.h"
 
 constexpr double Pi = 3.14159265358979323846;
 
@@ -19,6 +20,10 @@ using Array1D_4 = std::array<double, 4>;
 using Array1D_3 = std::array<double, N_Mch>;
 using Array1D_7 = std::array<double, N_MsqU>;
 using Array2D_4x4_I = std::array<std::array<complex_t, M_NL_NR>, N_NL_NR>;
+
+struct WilsonSusyMatrix {
+
+};
 
 class susy_parameters {
 
@@ -42,6 +47,13 @@ class susy_parameters {
         }
         return susy_parameters::instance;
     }
+
+	void update();
+
+	static void init(double mu_W);
+    static void init_scale_independant_block();
+    static void init_matching_block(double mu_W);
+
 	void reset_PrimeCQG(double Qmatch);
 	void reset_G();
     double kappa, ag, aY, cosb, sinb, st, ct, alphas_mg;
@@ -154,4 +166,6 @@ class susy_parameters {
     double B0c1 = 0.0, B0c2 = 0.0, B90c = 0.0, B100c = 0.0, C90c = 0.0, D90c = 0.0;
     bool test;
     
+	static inline WilsonParamComposer composer = WilsonParamComposer();
+	static inline bool initialized {false};
 };

@@ -341,7 +341,7 @@ void EpsilonCalculator::init_epsilon_block() {
 
         }
 
-        return epsilon0p;
+        // return epsilon0p;
 
         //1p
         // Calcul du premier terme en utilisant yub[3], A_b, MqL3_Q, MbR_Q, mu_Q
