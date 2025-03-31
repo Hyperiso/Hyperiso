@@ -559,9 +559,9 @@ void susy_parameters::update() {
 	auto computeContributions = [&](int ie, auto func, double additionalFactor = 1.0) {
 		double result = 0.0;
 		for (int ae = 0; ae < 6; ++ae) {
-			double msqOverMchSquared = std::pow(MsqU[ae] / Mch[ie], 2.0);
+			double msqOverMchSquared = std::pow(wilson_p("WPARAM_SI_BSM", {14, ae}) / wilson_p("WPARAM_SI_BSM", {13, ie}), 2.0);
 			result += (w_susy.X_UL[ie][ae][0] * w_susy.X_UL[ie][ae][1] * func(msqOverMchSquared) +
-					Mch[ie] / wilson_p("WPARAM_MATCH_SM", {5,1}) * w_susy.X_UL[ie][ae][0] * w_susy.X_UR[ie][ae][1] * func(msqOverMchSquared)) * additionalFactor;
+			wilson_p("WPARAM_SI_BSM", {13, ie}) / wilson_p("WPARAM_MATCH_SM", {5,1}) * w_susy.X_UL[ie][ae][0] * w_susy.X_UR[ie][ae][1] * func(msqOverMchSquared)) * additionalFactor;
 		}
 		return result;
 	};

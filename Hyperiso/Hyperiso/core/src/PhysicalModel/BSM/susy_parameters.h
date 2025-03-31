@@ -66,6 +66,8 @@ class susy_parameters {
     static void init_scale_independant_block();
     static void init_matching_block(double mu_W);
 
+	WilsonSusyMatrix get_matrix() {return this->w_susy;}
+
 	void reset_PrimeCQG(double Qmatch);
 	void reset_G();
 

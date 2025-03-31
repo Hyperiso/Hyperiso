@@ -13,18 +13,21 @@ void C1_susy::NNLO_calculation() {
 
     auto func = [] (const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src, std::shared_ptr<DependentParameter> dep_param) {
         complex_t C1squark_2 = 0.0;
-		if (std::all_of(begin((*sus_param).MsqU), end((*sus_param).MsqU), [&](double m) { return std::abs(m) > sm("MASS", 24) / 2.0; })) {
+		Array1D_7 MsqU = {src.at({ParameterType::SUSY, "MASS", 1000002})->get_val(), src.at({ParameterType::SUSY, "MASS", 1000004})->get_val(), src.at({ParameterType::SUSY, "MASS", 1000006})->get_val(), 
+		src.at({ParameterType::SUSY, "MASS", 2000002})->get_val(), src.at({ParameterType::SUSY, "MASS", 2000004})->get_val(), src.at({ParameterType::SUSY, "MASS", 2000006})->get_val()};
+
+		if (std::all_of(begin(MsqU), end(MsqU), [&](double m) { return std::abs(m) > sm("MASS", 24) / 2.0; })) {
 			
 			C1squark_2 = -208.0 / 3.0;
 			for (int ae = 0; ae < 6; ++ae) {
-				double xsqa = std::pow((*sus_param).MsqU[ae] / sm("MASS", 24), 2.0);
+				double xsqa = std::pow(src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {14, ae}})->get_val() / src.at({ParameterType::SM, "MASS", 24})->get_val(), 2.0);
 				if (4.0 * xsqa > 1.0) {
 					double angle = 2.0 * asin(0.5 / sqrt(xsqa));
 					C1squark_2 += -2.0 * std::pow(4.0 * xsqa - 1.0, 1.5) * Cl2(angle);
 				}
 				C1squark_2 += 8.0 * (xsqa - 1.0 / 3.0) * log(xsqa) + 16.0 * xsqa;
 
-				xsqa = std::pow((*sus_param).MsqD[ae] / sm("MASS", 24), 2.0);
+				xsqa = std::pow(src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {15, ae}})->get_val() / src.at({ParameterType::SM, "MASS", 24})->get_val(), 2.0);
 				if (4.0 * xsqa > 1.0) {
 					double angle = 2.0 * asin(0.5 / sqrt(xsqa));
 					C1squark_2 += -2.0 * std::pow(4.0 * xsqa - 1.0, 1.5) * Cl2(angle);
@@ -37,60 +40,120 @@ void C1_susy::NNLO_calculation() {
 
     WilsonParamComposer().compose_parameter(ParamId{"B_MATCH_BSM", LhaID(3050707, 4133, 2, 0)}, sources, func);
 
-    complex_t C1squark_2 = 0.0;
-	if (std::all_of(begin((*sus_param).MsqU), end((*sus_param).MsqU), [&](double m) { return std::abs(m) > sm("MASS", 24) / 2.0; })) {
+    // complex_t C1squark_2 = 0.0;
+	// if (std::all_of(begin((*sus_param).MsqU), end((*sus_param).MsqU), [&](double m) { return std::abs(m) > sm("MASS", 24) / 2.0; })) {
 		
-		C1squark_2 = -208.0 / 3.0;
-		for (int ae = 0; ae < 6; ++ae) {
-			double xsqa = std::pow((*sus_param).MsqU[ae] / sm("MASS", 24), 2.0);
-			if (4.0 * xsqa > 1.0) {
-				double angle = 2.0 * asin(0.5 / sqrt(xsqa));
-				C1squark_2 += -2.0 * std::pow(4.0 * xsqa - 1.0, 1.5) * Cl2(angle);
-			}
-			C1squark_2 += 8.0 * (xsqa - 1.0 / 3.0) * log(xsqa) + 16.0 * xsqa;
+	// 	C1squark_2 = -208.0 / 3.0;
+	// 	for (int ae = 0; ae < 6; ++ae) {
+	// 		double xsqa = std::pow((*sus_param).MsqU[ae] / sm("MASS", 24), 2.0);
+	// 		if (4.0 * xsqa > 1.0) {
+	// 			double angle = 2.0 * asin(0.5 / sqrt(xsqa));
+	// 			C1squark_2 += -2.0 * std::pow(4.0 * xsqa - 1.0, 1.5) * Cl2(angle);
+	// 		}
+	// 		C1squark_2 += 8.0 * (xsqa - 1.0 / 3.0) * log(xsqa) + 16.0 * xsqa;
 
-			xsqa = std::pow((*sus_param).MsqD[ae] / sm("MASS", 24), 2.0);
-			if (4.0 * xsqa > 1.0) {
-				double angle = 2.0 * asin(0.5 / sqrt(xsqa));
-				C1squark_2 += -2.0 * std::pow(4.0 * xsqa - 1.0, 1.5) * Cl2(angle);
-			}
-			C1squark_2 += 8.0 * (xsqa - 1.0 / 3.0) * log(xsqa) + 16.0 * xsqa;
-		}
-	}
-    this->set_WilsonCoeffMatching("NNLO", C1squark_2);
+	// 		xsqa = std::pow((*sus_param).MsqD[ae] / sm("MASS", 24), 2.0);
+	// 		if (4.0 * xsqa > 1.0) {
+	// 			double angle = 2.0 * asin(0.5 / sqrt(xsqa));
+	// 			C1squark_2 += -2.0 * std::pow(4.0 * xsqa - 1.0, 1.5) * Cl2(angle);
+	// 		}
+	// 		C1squark_2 += 8.0 * (xsqa - 1.0 / 3.0) * log(xsqa) + 16.0 * xsqa;
+	// 	}
+	// }
+    // this->set_WilsonCoeffMatching("NNLO", C1squark_2);
     // return C1squark_2;
 }
 void C3_susy::NNLO_calculation() {
-    complex_t C3charg_2 = 0.0;
 
-	for(int ie = 0; ie < 2; ie++) {
-		for(int ae = 0; ae < 6; ae++) {
-			double ratio_mass_W_Mch = std::pow(sm("MASS",24)/ (*sus_param).Mch[ie], 2.0);
-			double ratio_MsqU_Mch = std::pow((*sus_param).MsqU[ae] / (*sus_param).Mch[ie], 2.0);
-			double log_mu_W_MsqU = std::log(std::pow(this->get_Q_match() / (*sus_param).MsqU[ae], 2.0));
-			C3charg_2 += ratio_mass_W_Mch * (*sus_param).X_UL[ie][ae][1] * (*sus_param).X_UL[ie][ae][2] * h71(ratio_MsqU_Mch, log_mu_W_MsqU);
+	std::unordered_set<ParamId> sources {
+        {"WPARAM_SI_BSM", 7},
+        {"WPARAM_MATCH_BSM", 1},
+        {"SCALE", 1},
+        {ParameterType::THDM, "MASS", 37}
+    };
+
+    auto func = [] (const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src, std::shared_ptr<DependentParameter> dep_param) {
+		complex_t C3charg_2 = 0.0;
+		double Q_match = src.at({ParameterType::WILSON, "SCALE", 1})->get_val();
+		std::shared_ptr<susy_parameters> sus_param;
+		for(int ie = 0; ie < 2; ie++) {
+			for(int ae = 0; ae < 6; ae++) {
+				double ratio_mass_W_Mch = std::pow(src.at({ParameterType::SM, "MASS", 24})->get_val()/ src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, ie}})->get_val(), 2.0);
+				double ratio_MsqU_Mch = std::pow(src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {14, ae}})->get_val() / src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, ie}})->get_val(), 2.0);
+				double log_mu_W_MsqU = std::log(std::pow(Q_match / src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {14, ae}})->get_val(), 2.0));
+
+				C3charg_2 += ratio_mass_W_Mch * (*sus_param).get_matrix().X_UL[ie][ae][1] * (*sus_param).get_matrix().X_UL[ie][ae][2] * h71(ratio_MsqU_Mch, log_mu_W_MsqU);
+			}
 		}
-	}
 
-	C3charg_2 *= (*sus_param).kappa;
-	double C3H_2 = G3H(sus_param->yt,sus_param->lu)+Delta3H(sus_param->yt,sus_param->lu)*log(pow(this->get_Q_match()/(*susy)("MASS",37),2.));
-    this->set_WilsonCoeffMatching("NNLO", C3charg_2 + C3H_2);
-    // return C3charg_2 + C3H_2;
+		C3charg_2 *= src.at({ParameterType::WILSON, "WPARAM_SI_BSM", 6})->get_val(); // 6 -> kappa
+		double C3H_2 = G3H(src.at({ParameterType::WILSON, "WPARAM_MATCH_BSM", 1})->get_val(),src.at({ParameterType::WILSON, "WPARAM_SI_BSM", 7})->get_val())+Delta3H(src.at({ParameterType::WILSON, "WPARAM_MATCH_BSM", 1})->get_val(),src.at({ParameterType::WILSON, "WPARAM_SI_BSM", 7})->get_val()) // 7 -> lu
+						*log(pow(Q_match/src.at({ParameterType::SUSY, "MASS", 37})->get_val(),2.));
+
+        dep_param->set_expected(C3charg_2 + C3H_2);
+    };
+
+    WilsonParamComposer().compose_parameter(ParamId{"B_MATCH_BSM", LhaID(3050707, 4133, 2, 0)}, sources, func);
+
+
+    // complex_t C3charg_2 = 0.0;
+
+	// for(int ie = 0; ie < 2; ie++) {
+	// 	for(int ae = 0; ae < 6; ae++) {
+	// 		double ratio_mass_W_Mch = std::pow(sm("MASS",24)/ (*sus_param).Mch[ie], 2.0);
+	// 		double ratio_MsqU_Mch = std::pow((*sus_param).MsqU[ae] / (*sus_param).Mch[ie], 2.0);
+	// 		double log_mu_W_MsqU = std::log(std::pow(this->get_Q_match() / (*sus_param).MsqU[ae], 2.0));
+	// 		C3charg_2 += ratio_mass_W_Mch * (*sus_param).X_UL[ie][ae][1] * (*sus_param).X_UL[ie][ae][2] * h71(ratio_MsqU_Mch, log_mu_W_MsqU);
+	// 	}
+	// }
+
+	// C3charg_2 *= (*sus_param).kappa;
+	// double C3H_2 = G3H(sus_param->yt,sus_param->lu)+Delta3H(sus_param->yt,sus_param->lu)*log(pow(this->get_Q_match()/(*susy)("MASS",37),2.));
+    // this->set_WilsonCoeffMatching("NNLO", C3charg_2 + C3H_2);
+    // // return C3charg_2 + C3H_2;
 }
 
 void C4_susy::NLO_calculation() {
-    complex_t C4charg_1 = 0.;
-    for (int ie = 0; ie < 2; ie++) {
 
-		for (int ae = 0; ae < 6; ae++) {
-			C4charg_1+= pow(sm("MASS", 24)/(*sus_param).Mch[ie],2.)*((*sus_param).X_UL[ie][ae][1]*(*sus_param).X_UL[ie][ae][2]*h40(pow((*sus_param).MsqU[ae]/(*sus_param).Mch[ie],2.)));
-        }
-    }
-    C4charg_1*=(*sus_param).kappa;
-    complex_t C4H_1 = EH(sus_param->yt,sus_param->lu);
-    complex_t coeff_temp = C4H_1+C4charg_1;
-    this->set_WilsonCoeffMatching("NLO", coeff_temp);
-    // return coeff_temp;
+	std::unordered_set<ParamId> sources {
+        {"WPARAM_SI_BSM", 7},
+        {"WPARAM_MATCH_BSM", 1},
+        {"SCALE", 1},
+        {ParameterType::THDM, "MASS", 37}
+    };
+
+    auto func = [] (const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src, std::shared_ptr<DependentParameter> dep_param) {
+		complex_t C4charg_1 = 0.;
+
+		std::shared_ptr<susy_parameters> sus_param;
+		for (int ie = 0; ie < 2; ie++) {
+
+			for (int ae = 0; ae < 6; ae++) {
+				C4charg_1+= pow(src.at({ParameterType::SM, "MASS", 24})->get_val()/src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, ie}})->get_val(),2.)
+							*((*sus_param).get_matrix().X_UL[ie][ae][1]*(*sus_param).get_matrix().X_UL[ie][ae][2]*h40(pow(src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {14, ae}})->get_val()/src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, ie}})->get_val(),2.)));
+			}
+		}
+		C4charg_1*=src.at({ParameterType::WILSON, "WPARAM_SI_BSM", 6})->get_val(); // 6 -> kappa
+		complex_t C4H_1 = EH(src.at({ParameterType::WILSON, "WPARAM_MATCH_BSM", 1})->get_val(),src.at({ParameterType::WILSON, "WPARAM_SI_BSM", 7})->get_val()); //7 -> lu; 1 -> yt
+		complex_t coeff_temp = C4H_1+C4charg_1;
+
+        dep_param->set_expected(coeff_temp);
+    };
+
+    WilsonParamComposer().compose_parameter(ParamId{"B_MATCH_BSM", LhaID(3050707, 4133, 2, 0)}, sources, func);
+
+    // complex_t C4charg_1 = 0.;
+    // for (int ie = 0; ie < 2; ie++) {
+
+	// 	for (int ae = 0; ae < 6; ae++) {
+	// 		C4charg_1+= pow(sm("MASS", 24)/(*sus_param).Mch[ie],2.)*((*sus_param).X_UL[ie][ae][1]*(*sus_param).X_UL[ie][ae][2]*h40(pow((*sus_param).MsqU[ae]/(*sus_param).Mch[ie],2.)));
+    //     }
+    // }
+    // C4charg_1*=(*sus_param).kappa;
+    // complex_t C4H_1 = EH(sus_param->yt,sus_param->lu);
+    // complex_t coeff_temp = C4H_1+C4charg_1;
+    // this->set_WilsonCoeffMatching("NLO", coeff_temp);
+    // // return coeff_temp;
 }
 
 void C4_susy::NNLO_calculation() {
