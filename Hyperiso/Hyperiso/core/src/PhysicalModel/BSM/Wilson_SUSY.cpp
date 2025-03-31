@@ -3,6 +3,40 @@
 //TODO ALL FUNCTION AND RETURN
 
 void C1_susy::NNLO_calculation() {
+
+	std::unordered_set<ParamId> sources {
+        {"WPARAM_SI_BSM", 7},
+        {"WPARAM_MATCH_BSM", 1},
+        {"SCALE", 1},
+        {ParameterType::THDM, "MASS", 37}
+    };
+
+    auto func = [] (const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src, std::shared_ptr<DependentParameter> dep_param) {
+        complex_t C1squark_2 = 0.0;
+		if (std::all_of(begin((*sus_param).MsqU), end((*sus_param).MsqU), [&](double m) { return std::abs(m) > sm("MASS", 24) / 2.0; })) {
+			
+			C1squark_2 = -208.0 / 3.0;
+			for (int ae = 0; ae < 6; ++ae) {
+				double xsqa = std::pow((*sus_param).MsqU[ae] / sm("MASS", 24), 2.0);
+				if (4.0 * xsqa > 1.0) {
+					double angle = 2.0 * asin(0.5 / sqrt(xsqa));
+					C1squark_2 += -2.0 * std::pow(4.0 * xsqa - 1.0, 1.5) * Cl2(angle);
+				}
+				C1squark_2 += 8.0 * (xsqa - 1.0 / 3.0) * log(xsqa) + 16.0 * xsqa;
+
+				xsqa = std::pow((*sus_param).MsqD[ae] / sm("MASS", 24), 2.0);
+				if (4.0 * xsqa > 1.0) {
+					double angle = 2.0 * asin(0.5 / sqrt(xsqa));
+					C1squark_2 += -2.0 * std::pow(4.0 * xsqa - 1.0, 1.5) * Cl2(angle);
+				}
+				C1squark_2 += 8.0 * (xsqa - 1.0 / 3.0) * log(xsqa) + 16.0 * xsqa;
+			}
+		}
+        dep_param->set_expected(C1squark_2);
+    };
+
+    WilsonParamComposer().compose_parameter(ParamId{"B_MATCH_BSM", LhaID(3050707, 4133, 2, 0)}, sources, func);
+
     complex_t C1squark_2 = 0.0;
 	if (std::all_of(begin((*sus_param).MsqU), end((*sus_param).MsqU), [&](double m) { return std::abs(m) > sm("MASS", 24) / 2.0; })) {
 		

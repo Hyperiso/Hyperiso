@@ -68,7 +68,6 @@ class susy_parameters {
 
 	void reset_PrimeCQG(double Qmatch);
 	void reset_G();
-    double kappa, ag, aY, cosb, sinb, st, ct, alphas_mg;
 
     
 
