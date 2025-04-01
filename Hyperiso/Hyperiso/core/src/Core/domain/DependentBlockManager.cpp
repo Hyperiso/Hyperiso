@@ -6,7 +6,6 @@ void DependentBlockManager::addDependentBlock(
     ParameterType dest,
     std::function<void(const std::unordered_map<std::string, std::shared_ptr<Block>>&, std::shared_ptr<DependentBlock>)> recalculateFunc
 ) {
-
     std::unordered_map<std::string, std::shared_ptr<Block>> sources;
     
     for (const auto& [k, v] : source_names) {

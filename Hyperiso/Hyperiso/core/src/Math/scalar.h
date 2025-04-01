@@ -146,33 +146,39 @@ DEFINE_MATH_FUNCTION(abs)
 DEFINE_MATH_FUNCTION(arg)
 DEFINE_MATH_FUNCTION(norm)
 
-inline scalar_t pow(const scalar_t& base, double exponent) {
-    return std::pow(static_cast<complex_t>(base), exponent);
+// TODO : warnings
+// Define overload for pow(scalar_t, scalar_t)
+inline scalar_t pow(const scalar_t& base, const scalar_t& exp) {
+    return scalar_t(std::pow(static_cast<complex_t>(base), static_cast<complex_t>(exp)));
 }
 
-inline scalar_t pow(const scalar_t& base, int exponent) {
-    return std::pow(static_cast<complex_t>(base), exponent);
+// Define overload for pow(scalar_t, double)
+inline scalar_t pow(const scalar_t& base, double exp) {
+    return scalar_t(std::pow(static_cast<complex_t>(base), exp));
+}
+
+template <typename T>
+requires std::is_integral_v<T>
+inline scalar_t pow(const scalar_t& base, T exp) {
+    return pow(base, static_cast<double>(exp));
 }
 
 // Ensure ADL works by defining functions in the same namespace
-namespace std {
-    using ::sqrt;
-    using ::pow;
-    using ::sin;
-    using ::cos;
-    using ::tan;
-    using ::asin;
-    using ::acos;
-    using ::atan;
-    using ::exp;
-    using ::log;
-    using ::log10;
-    using ::sinh;
-    using ::cosh;
-    using ::tanh;
-    using ::abs;
-    using ::arg;
-    using ::norm;
-}
+using std::sqrt;
+using std::pow;
+using std::sin;
+using std::cos;
+using std::tan;
+using std::asin;
+using std::acos;
+using std::atan;
+using std::exp;
+using std::log;
+using std::sinh;
+using std::cosh;
+using std::tanh;
+using std::abs;
+using std::arg;
+using std::norm;
 
 #endif // __SCALAR_H__

@@ -364,12 +364,12 @@ void susy_parameters::init_scale_independant_block() {
 		double aY = 1.0 + alphas_mg / (4.0 * Pi);
 
 		// TODO : Ask Nazila
-		double kappa = 1.0 / (std::pow(src.at("GAUGE")->retrieve(2)->get_val(), 2.) * 
+		double kappa = 1.0 / (pow(src.at("GAUGE")->retrieve(2)->get_val(), 2.) * 
 						std::real((src.at("RECKM")->retrieve(22)->get_val() + I * src.at("IMCKM")->retrieve(22)->get_val())*(src.at("RECKM")->retrieve(21)->get_val() + I * src.at("IMCKM")->retrieve(21)->get_val()))); //VCKM 33 et 32
 
 		double kappaFactor = -0.5 * kappa;
 		double tanb = src.at("HMIX")->retrieve(2)->get_val();
-		double z = std::pow(src.at("MASS")->retrieve(37)->get_val() / mW, 2.);
+		double z = pow(src.at("MASS")->retrieve(37)->get_val() / mW, 2.);
 		double sinb = std::sin(std::atan(tanb));
 		double cosb = std::cos(std::atan(tanb));
 		double ct = src.at("STOPMIX")->retrieve(11)->get_val();

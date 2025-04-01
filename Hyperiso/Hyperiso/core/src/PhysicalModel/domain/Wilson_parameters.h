@@ -5,26 +5,6 @@
 #include "ModelParamAdapter.h"
 #include "Include.h"
 
-struct WilsonRunningMatrix {
-    std::array<std::array<double, BWilsonRunningParameters::array_size>, BWilsonRunningParameters::array_size> U0 {};
-    std::array<std::array<double, BWilsonRunningParameters::array_size>, BWilsonRunningParameters::array_size> U1 {};
-    std::array<std::array<double, BWilsonRunningParameters::array_size>, BWilsonRunningParameters::array_size> U2 {};
-    std::array<std::array<double, BWilsonRunningParameters::array_size>, BWilsonRunningParameters::array_size> V0 {};
-    std::array<std::array<double, BWilsonRunningParameters::array_size>, BWilsonRunningParameters::array_size> V1 {};
-
-    std::array<double, BWilsonRunningParameters::array_size> etaMuPowers = {};
-	std::array<double, BWilsonRunningParameters::array_size> etaMuPowers2 = {};
-};
-
-class BWilsonRunningHelper {
-public:
-    WilsonRunningMatrix get_matrix() {return this->w_run;}
-    void update();
-
-private:
-    WilsonRunningMatrix w_run;
-};
-
 class WilsonParameterHelper {
 public:
     static void init(double mu_W, double mu_h, int gen);

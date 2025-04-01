@@ -37,17 +37,17 @@ void WilsonParameterHelper::init(double mu_W, double mu_h, int gen) {
 void WilsonParameterHelper::init_scale_independent_block(int gen) {
 	LOG_DEBUG("Init scale-independent wparam block");
 	ParameterProxy(ParameterType::SM);
-	std::unordered_map<ParameterType, std::vector<std::string>> src = {{ParameterType::SM, {"MASS"}}};
+	std::unordered_map<ParameterType, std::vector<std::string>> src = {{ParameterType::SM, {"SMINPUTS", "MASS"}}};
 
     auto func = [gen] (const std::unordered_map<std::string, std::shared_ptr<Block>>& src, std::shared_ptr<DependentBlock> dep_block) {
-        auto xh = std::pow(src.at("MASS")->retrieve(25)->get_val() / src.at("MASS")->retrieve(24)->get_val(), 2);
+        double xh = pow(src.at("MASS")->retrieve(25)->get_val() / src.at("MASS")->retrieve(24)->get_val(), 2);
 		
 		int nf = 5;
 		int id = 1;
         dep_block->store_or_assign(id++, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_SM", id}, xh, 0., 0.));
 		dep_block->store_or_assign(id++, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_SM", id}, gen, 0., 0.));
 		dep_block->store_or_assign(id++, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_SM", id}, src.at("MASS")->retrieve(9 + 2 * gen)->get_val(), 0., 0.));
-		dep_block->store_or_assign(id++, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_SM", id}, 0.22305, 0., 0.)); //TODO, sw2
+		dep_block->store_or_assign(id++, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_SM", id}, src.at("SMINPUTS")->retrieve({7, 1})->get_val(), 0., 0.));
 		dep_block->store_or_assign(id++, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_SM", id}, 11.-2./3.*nf, 0., 0.)); //TODO, beta0
     };
 
@@ -97,58 +97,10 @@ void WilsonParameterHelper::init_running_block(double mu_W, double mu_h) {
     auto func = [mu_W, mu_h] (const std::unordered_map<std::string, std::shared_ptr<Block>>& src, std::shared_ptr<DependentBlock> dep_block) {
         double alphas_mu = QCDHelper::alpha_s(mu_h);	
 		double eta = QCDHelper::alpha_s(mu_W) / alphas_mu;
-
-		std::array<double, BWilsonRunningParameters::array_size> etaMuPowers = {};
-		std::array<double, BWilsonRunningParameters::array_size> etaMuPowers2 = {};
-		for (int i = 0; i < BWilsonRunningParameters::array_size; ++i) {
-			(etaMuPowers)[i] = std::pow(eta, (BWilsonRunningParameters::ai)[i]);
-			(etaMuPowers2)[i] = std::pow(eta, (BWilsonRunningParameters::ai2)[i]);
-		}
-
-		std::array<std::array<double, BWilsonRunningParameters::array_size>, BWilsonRunningParameters::array_size> U0 = {};
-		std::array<std::array<double, BWilsonRunningParameters::array_size>, BWilsonRunningParameters::array_size> U1 = {};
-		std::array<std::array<double, BWilsonRunningParameters::array_size>, BWilsonRunningParameters::array_size> U2 = {};
-		std::array<std::array<double, BWilsonRunningParameters::array_size>, BWilsonRunningParameters::array_size> V0 = {};
-		std::array<std::array<double, BWilsonRunningParameters::array_size>, BWilsonRunningParameters::array_size> V1 = {};
 		
 		dep_block->store_or_assign(1, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_RUN_SM", 1}, alphas_mu, 0., 0.));
 		dep_block->store_or_assign(2, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_RUN_SM", 2}, eta, 0., 0.));
     };
 
     WilsonParameterHelper::composer.compose_block("WPARAM_RUN_SM", src, func);
-}
-
-void BWilsonRunningHelper::update() {
-	ParameterProxy wilson_p {ParameterType::WILSON};
-	double eta_mu = wilson_p("WPARAM_RUN_SM", 2);
-
-	for (int i = 0; i < BWilsonRunningParameters::array_size; ++i) {
-        (w_run.etaMuPowers)[i] = std::pow(eta_mu, (BWilsonRunningParameters::ai)[i]);
-        (w_run.etaMuPowers2)[i] = std::pow(eta_mu, (BWilsonRunningParameters::ai2)[i]);
-    }
-
-	for (int ke = 0; ke < BWilsonRunningParameters::array_size; ++ke) {
-        for (int le = 0; le < BWilsonRunningParameters::array_size; ++le) {
-            w_run.U0[ke][le] = 0;
-            w_run.U1[ke][le] = 0;
-            w_run.U2[ke][le] = 0;
-			w_run.V0[ke][le] = 0;
-			w_run.V1[ke][le] = 0;
-
-            for (int ie = 0; ie < BWilsonRunningParameters::array_size; ++ie) {
-                w_run.U0[ke][le] += BWilsonRunningParameters::m00[ke][le][ie] * w_run.etaMuPowers[ie];
-
-                w_run.U1[ke][le] += BWilsonRunningParameters::m10[ke][le][ie] * w_run.etaMuPowers[ie] 
-										+ BWilsonRunningParameters::m11[ke][le][ie] * w_run.etaMuPowers[ie] / eta_mu;
-
-                w_run.U2[ke][le] += BWilsonRunningParameters::m20[ke][le][ie] * w_run.etaMuPowers[ie] 
-										+ BWilsonRunningParameters::m21[ke][le][ie] * w_run.etaMuPowers[ie] / eta_mu 
-										+ BWilsonRunningParameters::m22[ke][le][ie] * w_run.etaMuPowers[ie] / (eta_mu * eta_mu);
-
-				w_run.V0[ke][le] += BWilsonRunningParameters::l00[ke][le][ie] * pow(eta_mu, BWilsonRunningParameters::ai[ie]);
-		        w_run.V1[ke][le] += BWilsonRunningParameters::l10[ke][le][ie] * pow(eta_mu, BWilsonRunningParameters::ai[ie])
-										+ BWilsonRunningParameters::l11[ke][le][ie] * pow(eta_mu,BWilsonRunningParameters::ai[ie] - 1.);
-            }
-        }
-    }
 }

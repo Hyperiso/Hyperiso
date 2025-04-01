@@ -25,12 +25,13 @@ int main(){
     ParameterSetter ps;
     ParameterProxy pa (ParameterType::WILSON);
 
-    LOG_INFO("Before mutation:", pa("WPARAM_MATCH_SM", LhaID(2, 1)));
-    LOG_INFO("Before mutation:", pa("B_MATCH", LhaID(3051313, 4137, 0, 0)));
-    ps.mutate({ParameterType::SM, "MASS", 24}, 100);
-    LOG_INFO("After mutation:", pa("WPARAM_MATCH_SM", LhaID(2, 1)));
-    LOG_INFO("After mutation:", pa("B_MATCH", LhaID(3051313, 4137, 0, 0)));
+    // LOG_INFO("Before mutation:", pa("WPARAM_MATCH_SM", LhaID(2, 1)));
+    // LOG_INFO("Before mutation:", pa("B_MATCH", LhaID(3051313, 4137, 0, 0)));
+    // ps.mutate({ParameterType::SM, "MASS", 24}, 100);
+    // LOG_INFO("After mutation:", pa("WPARAM_MATCH_SM", LhaID(2, 1)));
+    // LOG_INFO("After mutation:", pa("B_MATCH", LhaID(3051313, 4137, 0, 0)));
 
+    LOG_INFO("Mutating parameter");
     ps.mutate({ParameterType::SM, "MASS", 24}, 80.3);
     LOG_INFO("C10(mu_h) =", pa("B_RUNNING", LhaID(3051313, 4137, 0, 0)));
 

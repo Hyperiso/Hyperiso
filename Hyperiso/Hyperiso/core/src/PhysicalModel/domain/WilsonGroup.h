@@ -83,10 +83,8 @@ public:
 
     void set_Q_match(double Q_match) {
         this->Q_match = Q_match;
-        std::cout << "eheh bis" << std::endl;
         for (auto& coeff : *this) {
             coeff.second->set_Q_match(Q_match);
-            std::cout << "ehehbis 2" << std::endl;
         }
     }
     
@@ -115,7 +113,6 @@ public:
     ParameterProxy sm {ParameterType::SM};
     ParameterProxy wilson_p {ParameterType::WILSON};
 
-    
 };
 
 
@@ -124,6 +121,7 @@ class BCoefficientGroup : public CoefficientGroup {
 public:
     BCoefficientGroup() {
         LOG_INFO("In BCoefficientGroup constructor");
+        init_running_blocks();
         if (UseMarty().get()) {
             for (auto&& coeff : {"C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9", "C10"}) {
                 this->insert(std::make_pair(coeff, std::make_shared<MartyWilson>(coeff)));
@@ -190,8 +188,7 @@ protected:
     std::map<std::string, int> base = {{"LO",0}, {"NLO",0}, {"NNLO",0}};
 
 private:
-    BWilsonRunningHelper rh;
-
+    void init_running_blocks();
 };
 
 

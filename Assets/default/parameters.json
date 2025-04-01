@@ -30,9 +30,14 @@
       "stat_error": 0.98,
       "syst_error": 0
     },
-    "7": {
+    "7_1": {
       "central_value": 0.23116,
       "stat_error": 0.00004,
+      "syst_error": 0
+    },
+    "7_2": {
+      "central_value": 0.22348,
+      "stat_error": 0.00010,
       "syst_error": 0
     }
   },

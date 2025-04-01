@@ -10,7 +10,7 @@ void Block::removeObserver(std::shared_ptr<Block> observer) {
 
 void Block::notifyObservers() {
     for (auto& observer : observers) {
-        LOG_INFO(observer->blockname);
+        LOG_INFO("Notifying observer", observer->blockname, "from source block", blockname);
         observer->update();
     }
 }
@@ -48,6 +48,7 @@ void Block::assign(const LhaID& key, std::shared_ptr<Parameter> param) {
     }
 
     *(this->items.at(key)) = *param;
+    LOG_INFO("Call to notifyObservers from Block::assign(const LhaID&, std::shared_ptr<Parameter>) of", blockname);
     notifyObservers();
 }
 
@@ -57,6 +58,7 @@ void Block::assign(const LhaID &key, double value) {
     }
 
     this->items.at(key)->set_expected(value);
+    LOG_INFO("Call to notifyObservers from Block::assign(const LhaID&, double) of", blockname);
     notifyObservers();
 }
 
@@ -124,4 +126,20 @@ void WilsonBlock::setValue(LhaID pdgCode, double value, bool force) {
     }
     values.at(id)[order] = value;
     notifyObservers();
+}
+
+void DependentBlock::assign(const LhaID &key, std::shared_ptr<Parameter> param) {
+    if (!this->contains(key)) {
+        LOG_ERROR("KeyError", "Cannot update non-existing parameter", key.to_string(), "in block", this->blockname);
+    }
+
+    *(this->items.at(key)) = *param;
+}
+
+void DependentBlock::assign(const LhaID &key, double value) {
+    if (!this->contains(key)) {
+        LOG_ERROR("KeyError", "Cannot update non-existing parameter", key.to_string(), "in block", this->blockname);
+    }
+
+    this->items.at(key)->set_expected(value);
 }

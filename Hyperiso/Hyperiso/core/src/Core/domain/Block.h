@@ -78,18 +78,18 @@ public:
     }
 
     void update() override {
-        LOG_INFO("In DependentBlock::update");
         if (recalculateLambda 
             && std::all_of(sourceBlocks.begin(), sourceBlocks.end(), 
                            [](std::pair<std::string, std::shared_ptr<Block>> block) { return block.second; })) 
         {
-            LOG_INFO("updating");
+            LOG_INFO("Updating dependent block", blockname);
             if (auto self = shared_from_this()) { 
                 recalculateLambda(sourceBlocks, self);
             } else {
                 std::cerr << "Error: shared_from_this() failed in update()" << std::endl;
             }
         }
+        LOG_INFO("Call to notifyObservers from DependentBlock::update() of", blockname);
         notifyObservers();
     }
 
@@ -101,6 +101,9 @@ public:
             }
         }
     }
+
+    void assign(const LhaID& key, std::shared_ptr<Parameter> param);
+    void assign(const LhaID& key, double value);
 
 private:
     std::shared_ptr<DependentBlock> self;

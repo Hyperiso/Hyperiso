@@ -22,7 +22,7 @@ void thdm_parameters::init_scale_independant_block() {
                                                                         {ParameterType::WILSON, {"WPARAM_SI_SM"}}};
 
     auto func = [] (const std::unordered_map<std::string, std::shared_ptr<Block>>& src, std::shared_ptr<DependentBlock> dep_block) {
-        auto xh = std::pow(src.at("MASS")->retrieve(25)->get_val() / src.at("MASS")->retrieve(24)->get_val(), 2);
+        double xh = pow(src.at("MASS")->retrieve(25)->get_val() / src.at("MASS")->retrieve(24)->get_val(), 2);
 
         double alpha = src.at("ALPHA")->retrieve(0)->get_val();
         
