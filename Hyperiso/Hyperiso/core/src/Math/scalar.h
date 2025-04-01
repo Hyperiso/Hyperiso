@@ -123,12 +123,6 @@ public:
         lhs /= rhs;
         return lhs;
     }
-
-    template<typename T>
-    requires std::convertible_to<T, std::complex<double>>
-    friend scalar_t pow(const scalar_t& base, T exponent) {
-        return std::pow(static_cast<complex_t>(base), exponent);
-    }
 };
     
 #define DEFINE_MATH_FUNCTION(func)                          \
@@ -151,6 +145,14 @@ DEFINE_MATH_FUNCTION(tanh)
 DEFINE_MATH_FUNCTION(abs)
 DEFINE_MATH_FUNCTION(arg)
 DEFINE_MATH_FUNCTION(norm)
+
+inline scalar_t pow(const scalar_t& base, double exponent) {
+    return std::pow(static_cast<complex_t>(base), exponent);
+}
+
+inline scalar_t pow(const scalar_t& base, int exponent) {
+    return std::pow(static_cast<complex_t>(base), exponent);
+}
 
 // Ensure ADL works by defining functions in the same namespace
 namespace std {

@@ -27,7 +27,7 @@ void thdm_parameters::init_scale_independant_block() {
         double alpha = src.at("ALPHA")->retrieve(0)->get_val();
         
         double m_H = src.at("MASS")->retrieve(37)->get_val();
-        double beta = atan(static_cast<double>(src.at("HMIX")->retrieve(2)->get_val()));
+        double beta = atan(src.at("HMIX")->retrieve(2)->get_val());
 
         double lu = src.at("YU")->retrieve(22)->get_val();
         double ld = src.at("YD")->retrieve(22)->get_val();
@@ -35,8 +35,8 @@ void thdm_parameters::init_scale_independant_block() {
         double le = src.at("YL")->retrieve(10*(gen-1)+gen-1)->get_val();
         double mW = src.at("MASS")->retrieve(24)->get_val();
         double xH=pow(m_H/mW,2.);
-        double xH0=pow(static_cast<double>(src.at("MASS")->retrieve(35)->get_val()) / mW, 2.);
-        double xA=pow(static_cast<double>(src.at("MASS")->retrieve(36)->get_val()) / mW, 2.);
+        double xH0=pow(src.at("MASS")->retrieve(35)->get_val() / mW, 2.);
+        double xA=pow(src.at("MASS")->retrieve(36)->get_val() / mW, 2.);
 
         int id {1};
         dep_block->store_or_assign(id++, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", id}, xh, 0., 0.));
