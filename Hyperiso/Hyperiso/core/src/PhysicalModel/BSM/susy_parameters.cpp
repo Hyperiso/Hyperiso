@@ -363,19 +363,21 @@ void susy_parameters::init_scale_independant_block() {
 		double ag = 1.0 - 7.0 / (12.0 * Pi) * alphas_mg;
 		double aY = 1.0 + alphas_mg / (4.0 * Pi);
 
-		double kappa = 1.0 / (src.at("GAUGE")->retrieve(2)->get_val() * src.at("GAUGE")->retrieve(2)->get_val() * 
-						std::real((src.at("RECKM")->retrieve(22)->get_val() + src.at("IMCKM")->retrieve(22)->get_val())*(src.at("RECKM")->retrieve(21)->get_val() + src.at("IMCKM")->retrieve(21)->get_val()))); //VCKM 33 et 32
+		// TODO : Ask Nazila
+		double kappa = 1.0 / (std::pow(src.at("GAUGE")->retrieve(2)->get_val(), 2.) * 
+						std::real((src.at("RECKM")->retrieve(22)->get_val() + I * src.at("IMCKM")->retrieve(22)->get_val())*(src.at("RECKM")->retrieve(21)->get_val() + I * src.at("IMCKM")->retrieve(21)->get_val()))); //VCKM 33 et 32
 
 		double kappaFactor = -0.5 * kappa;
-		double z=pow(src.at("MASS")->retrieve(37)->get_val()/mW,2.);
-		double sinb = std::sin(std::atan(src.at("HMIX")->retrieve(2)->get_val()));
-		double cosb = std::cos(std::atan(src.at("HMIX")->retrieve(2)->get_val()));
+		double tanb = src.at("HMIX")->retrieve(2)->get_val();
+		double z = std::pow(src.at("MASS")->retrieve(37)->get_val() / mW, 2.);
+		double sinb = std::sin(std::atan(tanb));
+		double cosb = std::cos(std::atan(tanb));
 		double ct = src.at("STOPMIX")->retrieve(11)->get_val();
 		double st = src.at("STOPMIX")->retrieve(01)->get_val();
 
 
-        double lu = 1./src.at("HMIX")->retrieve(2)->get_val();
-        double ld = -src.at("HMIX")->retrieve(2)->get_val();
+        double lu = 1./tanb;
+        double ld = -tanb;
 
 		//TODO : IN progress
 		Array1D_4 ME = {src.at("MASS")->retrieve(11)->get_val(), src.at("MASS")->retrieve(13)->get_val(), src.at("MASS")->retrieve(15)->get_val()}; 

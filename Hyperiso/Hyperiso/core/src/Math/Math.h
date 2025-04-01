@@ -10,6 +10,8 @@
 #include <type_traits>
 #include "Utils.h"
 #include "Matrix.h"
+#include "Logger.h"
+#include "scalar.h"
 
 using Integrand = std::function<double(double)>;
 using cIntegrand = std::function<complex_t(double)>;
@@ -56,7 +58,7 @@ template <typename T> int sgn(T val) {
 // Checks whether |x - y| is smaller than n * machine_precision 
 template <class T>
 std::enable_if_t<not std::numeric_limits<T>::is_integer, bool>
-fpeq(T x, T y, std::size_t n=10) {
+fpeq(T x, T y, std::size_t n) {
     const T m = std::min(std::fabs(x), std::fabs(y));
     const int exp = m < std::numeric_limits<T>::min()
                   ? std::numeric_limits<T>::min_exponent - 1
@@ -124,3 +126,8 @@ double F0SP(double xt);
 
 double integrate(Integrand f, double l, double u, double prec);
 complex_t c_integrate(cIntegrand f, double l, double u, double prec);
+
+/*
+    Custom types
+*/
+

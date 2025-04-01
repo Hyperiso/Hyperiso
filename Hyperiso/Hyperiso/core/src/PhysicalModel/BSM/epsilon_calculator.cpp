@@ -292,7 +292,7 @@ void EpsilonCalculator::init_epsilon_block() {
 
         for(int ie = 0; ie < nb_neut; ++ie) {
             epsilonbp += yu_22 * yu_22 / 16.0 / M_PI / M_PI * 
-                        src.at("NMIX")->retrieve(ie*10+3)->get_val() * src.at("NMIX")->retrieve(ie*10+2)->get_val() * 
+                        static_cast<double>(src.at("NMIX")->retrieve(ie*10+3)->get_val() * src.at("NMIX")->retrieve(ie*10+2)->get_val()) * 
                         (au_22 - mu_Q / tan_beta) / m_neutralino[ie] *
                         (stop_mix_00 * stop_mix_00 * sbot_mix_00 * sbot_mix_00 *
                         H2(m_t2s * m_t2s / m_neutralino[ie] / m_neutralino[ie], m_bs * m_bs / m_neutralino[ie] / m_neutralino[ie]) +
@@ -328,7 +328,7 @@ void EpsilonCalculator::init_epsilon_block() {
 
         for(int ie = 0; ie < nb_neut; ++ie) {
             epsilon0p += yd_22 * yd_22 / 16.0 / M_PI / M_PI * 
-                        src.at("NMIX")->retrieve(ie*10+3)->get_val() * src.at("NMIX")->retrieve(ie*10+2)->get_val() * 
+                        static_cast<double>(src.at("NMIX")->retrieve(ie*10+3)->get_val() * src.at("NMIX")->retrieve(ie*10+2)->get_val()) * 
                         (mu_Q / tan_beta) / m_neutralino[ie] *
                         (stop_mix_00 * stop_mix_00 * sbot_mix_00 * sbot_mix_00 * 
                         H2(m_ts * m_ts / m_neutralino[ie] / m_neutralino[ie], m_b2s * m_b2s / m_neutralino[ie] / m_neutralino[ie]) +

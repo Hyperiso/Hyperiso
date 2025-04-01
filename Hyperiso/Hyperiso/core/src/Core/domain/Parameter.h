@@ -14,6 +14,7 @@
 #include <functional>
 #include "Logger.h"
 #include "General.h"
+#include "Math.h"
 
 /**
  * @enum ParameterMode
@@ -31,10 +32,10 @@ enum class ParameterMode {
 class Parameter {
 private:
     ParamId id;              ///< Unique identifier for the parameter.
-    double expected;         ///< Expected value of the parameter.
-    double deviation_stat;   ///< Statistical standard deviation of the parameter.
-    double deviation_syst;   ///< Systematic standard deviation of the parameter.
-    double shift;            ///< Current shift of the parameter.
+    scalar_t expected;         ///< Expected value of the parameter.
+    scalar_t deviation_stat;   ///< Statistical standard deviation of the parameter.
+    scalar_t deviation_syst;   ///< Systematic standard deviation of the parameter.
+    scalar_t shift;            ///< Current shift of the parameter.
     ParameterMode mode;      ///< Mode of operation.
 
     std::vector<std::shared_ptr<Parameter>> observers;
@@ -48,7 +49,7 @@ public:
     /**
      * @brief Constructs a Parameter with specified ID, mean value, and standard deviation.
      */
-    Parameter(ParamId id, double mean, double std_stat, double std_syst);
+    Parameter(ParamId id, scalar_t mean, scalar_t std_stat, scalar_t std_syst);
 
     /**
      * @brief Sets the mode of the parameter.
@@ -58,22 +59,22 @@ public:
     /**
      * @brief Sets the standard deviation of the parameter.
      */
-    void set_std(double stat, double syst);
+    void set_std(scalar_t stat, scalar_t syst);
 
     /**
      * @brief Retrieves the current value of the parameter.
      */
-    double get_val() const;
+    scalar_t get_val() const;
 
     /**
      * @brief Sets the standard deviation of the parameter.
      */
-    void set_expected(double val);
+    void set_expected(scalar_t val);
 
     /**
      * @brief Retrieves the standard deviation of the parameter.
      */
-    double get_std() const;
+    scalar_t get_std() const;
 
     /**
      * @brief Retrieves the ID of the parameter.
@@ -89,7 +90,7 @@ public:
      * @brief Shifts the parameter value if it is shiftable.
      * @throws std::runtime_error If the parameter is fixed.
      */
-    void set_shift(double shift);
+    void set_shift(scalar_t shift);
 
     void addObserver(std::shared_ptr<Parameter> observer) { observers.push_back(observer); }
     void removeObserver(std::shared_ptr<Parameter> observer) { observers.erase(std::find(observers.begin(), observers.end(), observer)); }

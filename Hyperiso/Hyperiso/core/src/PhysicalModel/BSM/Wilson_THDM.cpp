@@ -432,7 +432,7 @@ void CQ1_THDM::LO_calculation() {
 
         double xH = src.at({ParameterType::WILSON, "WPARAM_SI_BSM", 2})->get_val();
         double xH0 = src.at({ParameterType::WILSON, "WPARAM_SI_BSM", 3})->get_val();
-        auto xt = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {2,1}})->get_val();
+        double xt = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {2,1}})->get_val();
         double m_W = src.at({ParameterType::WILSON, "MASS", 24})->get_val();
         double ml = src.at({ParameterType::WILSON, "WPARAM_SI_SM", 3})->get_val();
         double mass_top_muW = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 6})->get_val();
@@ -485,7 +485,7 @@ void CQ2_THDM::LO_calculation() {
 
         double xH = src.at({ParameterType::WILSON, "WPARAM_SI_BSM", 2})->get_val();
         double xA = src.at({ParameterType::WILSON, "WPARAM_SI_BSM", 4})->get_val();
-        auto xt = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {2,1}})->get_val();
+        double xt = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {2,1}})->get_val();
         double m_W = src.at({ParameterType::WILSON, "MASS", 24})->get_val();
         double ml = src.at({ParameterType::WILSON, "WPARAM_SI_SM", 3})->get_val();
         double mass_b_muW = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {5,1}})->get_val();

@@ -450,5 +450,4 @@ private:
     static const std::map<std::string, std::vector<std::vector<long>>> minimal_blocks;
 };
 
-
 #endif // __GENERAL_H__

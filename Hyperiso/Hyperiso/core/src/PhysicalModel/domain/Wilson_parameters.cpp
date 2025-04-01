@@ -64,11 +64,12 @@ void WilsonParameterHelper::init_matching_block(double mu_W) {
 		double mass_b_muW_mbrun = QCDHelper::msbar_mass(5, mu_W, MassType::MSBAR);
 		double mass_b_muW_mbpole = QCDHelper::msbar_mass(5, mu_W, MassType::POLE);
 		double mass_c_muW = QCDHelper::msbar_mass(4, mu_W, MassType::POLE);
-		double xt = std::pow(mass_top_muW / src.at("MASS")->retrieve(24)->get_val(), 2);
-		double L = log(std::pow(mu_W / src.at("MASS")->retrieve(24)->get_val(), 2));
 
-		double xtW=pow(QCDHelper::msbar_mass(6, src.at("MASS")->retrieve(24)->get_val())/src.at("MASS")->retrieve(24)->get_val(), 2); // mass top at pole for mtot param
-		double xtt=pow(QCDHelper::mass_t_msbar()/src.at("MASS")->retrieve(24)->get_val(),2.); // 24 -> W
+		double m_W = src.at("MASS")->retrieve(24)->get_val();
+		double xt = pow(mass_top_muW / m_W, 2);
+		double L = log(std::pow(mu_W / m_W, 2));
+		double xtW = pow(QCDHelper::msbar_mass(6, m_W) / m_W, 2); // mass top at pole for mtot param
+		double xtt = pow(QCDHelper::mass_t_msbar() / m_W, 2.); // 24 -> W
 
 		dep_block->store_or_assign(1, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_MATCH_SM", 1}, alphas_muW, 0., 0.));
 		dep_block->store_or_assign(LhaID(2, 1), std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_MATCH_SM", LhaID(2, 1)}, xt, 0., 0.));

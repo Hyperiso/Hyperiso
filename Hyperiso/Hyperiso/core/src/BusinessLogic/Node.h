@@ -8,20 +8,6 @@
 #include "Parameters.h"
 #include "General.h"
 
-class scalar_t : public complex_t {
-public:
-    scalar_t(double re = 0.0, double im = 0.0) : complex_t(re, im) {};
-
-    scalar_t(complex_t z) : complex_t(z) {};
-
-    operator double() const {
-        if (!fpeq(this->imag(), 0.)) {
-            LOG_WARN("Casting complex values to double discards imaginary part.");
-        }
-        return this->real();
-    };
-};
-
 // Node interface, purely virtual
 class AbstractNode {
 

@@ -52,7 +52,8 @@ add_library(PhysicalModelLib STATIC
     BSM/susy_parameters.cpp
     BSM/thdm_parameters.cpp
     BSM/Wilson_SUSY.cpp
-    BSM/Wilson_THDM.cpp)
+    BSM/Wilson_THDM.cpp
+    )
 
 set_target_properties(PhysicalModelLib PROPERTIES POSITION_INDEPENDENT_CODE ON)
 set_target_properties(PhysicalModelLib PROPERTIES PUBLIC_HEADER "Interpolator.h;WilsonManager.h;Wilson.h;WilsonGroup.h;MartyWilson.h;Wilson_parameters.h;epsilon_calculator.h;susy_parameters.h;thdm_parameters;Wilson_susy.h;Wilson_THDM.h;WilsonManager.h")

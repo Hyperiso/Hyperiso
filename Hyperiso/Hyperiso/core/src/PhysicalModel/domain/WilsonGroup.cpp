@@ -2,7 +2,7 @@
 
 void BCoefficientGroup::set_base_1_LO() {
     std::unordered_map<ParameterType, std::vector<std::string>> src = {
-        {ParameterType::WILSON, {"B_MATCH", "IMB_MATCH", "WPARAM_RUN_SM", "SCALE"}},
+        {ParameterType::WILSON, {"B_MATCH", "WPARAM_RUN_SM", "SCALE"}},
         {ParameterType::SM, {"SMINPUTS", "MASS"}}
     };
 
@@ -22,7 +22,7 @@ void BCoefficientGroup::set_base_1_LO() {
 
         std::array<complex_t, 10> Ci_match = {};
         for (size_t k = 0; k < 10; k++) {
-            Ci_match[k] = src.at("B_MATCH")->retrieve(ids[k])->get_val() + I * src.at("IMB_MATCH")->retrieve(ids[k])->get_val();
+            Ci_match[k] = src.at("B_MATCH")->retrieve(ids[k])->get_val();
         }
 
         Ci_match[6] += -1. / 3. * Ci_match[2] - 4. / 9. * Ci_match[3] - 20. / 3. * Ci_match[4] - 80./9. * Ci_match[5]; 
@@ -37,7 +37,8 @@ void BCoefficientGroup::set_base_1_LO() {
             }
         }
 
-        double fact = 4 * PI / src.at("WPARAM_RUN_SM")->retrieve(1)->get_val();
+        // TODO : make it so it uses scalar_t::operator/
+        double fact = 4 * PI / static_cast<double>(src.at("WPARAM_RUN_SM")->retrieve(1)->get_val());
         Ci_run[9] *= fact;
 
         // C10
@@ -47,8 +48,8 @@ void BCoefficientGroup::set_base_1_LO() {
         double sw2OS = src.at("SMINPUTS")->retrieve(LhaID(7, 2))->get_val();
         double mu_h = src.at("SCALE")->retrieve(2)->get_val();
         double eta = src.at("WPARAM_RUN_SM")->retrieve(2)->get_val();
-        complex_t C1_NLO = src.at("B_MATCH")->retrieve(LhaID(3040405, 6161, 1, 0))->get_val() + src.at("IMB_MATCH")->retrieve(LhaID(3040405, 6161, 1, 0))->get_val();
-        complex_t C4_NLO = src.at("B_MATCH")->retrieve(LhaID(3050707, 6153, 1, 0))->get_val() + src.at("IMB_MATCH")->retrieve(LhaID(3050707, 6153, 1, 0))->get_val();
+        complex_t C1_NLO = src.at("B_MATCH")->retrieve(LhaID(3040405, 6161, 1, 0))->get_val();
+        complex_t C4_NLO = src.at("B_MATCH")->retrieve(LhaID(3050707, 6153, 1, 0))->get_val();
 
         complex_t C10_02=0.;
         for(size_t ie = 0; ie < 8; ie++) {
@@ -73,28 +74,28 @@ void BCoefficientGroup::set_base_1_LO() {
         complex_t C1022 = (46.9287715663914 - 3.102350691200236 * L + 0.0992974073578769 * L * L + 0.175877 * (m_t_muW - 163.5) + 0.0173725 * (m_h - 125.9)) / sw2OS;
         C1022 += -Ci_match[9] * Gmu1_Gmu0;
 
-        complex_t C9_NLO = src.at("B_MATCH")->retrieve(LhaID(3051313, 4133, 1, 0))->get_val() + src.at("IMB_MATCH")->retrieve(LhaID(3051313, 4133, 1, 0))->get_val();
-        complex_t C10_NLO = src.at("B_MATCH")->retrieve(LhaID(3051313, 4137, 1, 0))->get_val() + src.at("IMB_MATCH")->retrieve(LhaID(3051313, 4137, 1, 0))->get_val();
+        complex_t C9_NLO = src.at("B_MATCH")->retrieve(LhaID(3051313, 4133, 1, 0))->get_val();
+        complex_t C10_NLO = src.at("B_MATCH")->retrieve(LhaID(3051313, 4137, 1, 0))->get_val();
         
         complex_t C10_22 = (0.27924 * C1_NLO + 0.33157 * C4_NLO + 2.35917 * Ci_match[8] + 3.29679 * Ci_match[9]) * log(eta) + (1 - eta) * (0.26087 * C9_NLO + 1.15942 * C10_NLO) + C1022;
         
-        complex_t C1_NNLO = src.at("B_MATCH")->retrieve(LhaID(3040405, 6161, 2, 0))->get_val() + src.at("IMB_MATCH")->retrieve(LhaID(3040405, 6161, 2, 0))->get_val();
-        complex_t C2_NNLO = src.at("B_MATCH")->retrieve(LhaID(3040405, 4141, 2, 0))->get_val() + src.at("IMB_MATCH")->retrieve(LhaID(3040405, 4141, 2, 0))->get_val();
-        complex_t C3_NNLO = src.at("B_MATCH")->retrieve(LhaID(3050707, 4133, 2, 0))->get_val() + src.at("IMB_MATCH")->retrieve(LhaID(3050707, 4133, 2, 0))->get_val();
-        complex_t C4_NNLO = src.at("B_MATCH")->retrieve(LhaID(3050707, 6153, 2, 0))->get_val() + src.at("IMB_MATCH")->retrieve(LhaID(3050707, 6153, 2, 0))->get_val();
-        complex_t C5_NNLO = src.at("B_MATCH")->retrieve(LhaID(3050707, 4536, 2, 0))->get_val() + src.at("IMB_MATCH")->retrieve(LhaID(3050707, 4536, 2, 0))->get_val();
-        complex_t C6_NNLO = src.at("B_MATCH")->retrieve(LhaID(3050707, 6556, 2, 0))->get_val() + src.at("IMB_MATCH")->retrieve(LhaID(3050707, 6556, 2, 0))->get_val();
+        complex_t C1_NNLO = src.at("B_MATCH")->retrieve(LhaID(3040405, 6161, 2, 0))->get_val();
+        complex_t C2_NNLO = src.at("B_MATCH")->retrieve(LhaID(3040405, 4141, 2, 0))->get_val();
+        complex_t C3_NNLO = src.at("B_MATCH")->retrieve(LhaID(3050707, 4133, 2, 0))->get_val();
+        complex_t C4_NNLO = src.at("B_MATCH")->retrieve(LhaID(3050707, 6153, 2, 0))->get_val();
+        complex_t C5_NNLO = src.at("B_MATCH")->retrieve(LhaID(3050707, 4536, 2, 0))->get_val();
+        complex_t C6_NNLO = src.at("B_MATCH")->retrieve(LhaID(3050707, 6556, 2, 0))->get_val();
 
         for(int ie = 0; ie <= 7; ie++) {
             C10_22 += pow(eta, BWilsonRunningParameters::a[ie] + 2) * (
                       (BWilsonRunningParameters::e_1a[ie] / eta + BWilsonRunningParameters::e_1b[ie]) * C1_NLO
                     + (BWilsonRunningParameters::e_4a[ie] / eta + BWilsonRunningParameters::e_4b[ie]) * C4_NLO
-                    + BWilsonRunningParameters::e_1[ie] *this->find("C1")->second->get_CoefficientMatchingValue("NNLO")
-                    + BWilsonRunningParameters::e_2[ie] *this->find("C2")->second->get_CoefficientMatchingValue("NNLO")
-                    + BWilsonRunningParameters::e_3[ie] *this->find("C3")->second->get_CoefficientMatchingValue("NNLO")
-                    + BWilsonRunningParameters::e_4[ie] *this->find("C4")->second->get_CoefficientMatchingValue("NNLO")
-                    + BWilsonRunningParameters::e_5[ie] *this->find("C5")->second->get_CoefficientMatchingValue("NNLO")
-                    + BWilsonRunningParameters::e_6[ie] *this->find("C6")->second->get_CoefficientMatchingValue("NNLO"));
+                    + BWilsonRunningParameters::e_1[ie] * C1_NNLO
+                    + BWilsonRunningParameters::e_2[ie] * C2_NNLO
+                    + BWilsonRunningParameters::e_3[ie] * C3_NNLO
+                    + BWilsonRunningParameters::e_4[ie] * C4_NNLO
+                    + BWilsonRunningParameters::e_5[ie] * C5_NNLO
+                    + BWilsonRunningParameters::e_6[ie] * C6_NNLO);
         }
 
         double alpha_s_mu_h = src.at("WPARAM_RUN_SM")->retrieve(1)->get_val();
@@ -102,8 +103,7 @@ void BCoefficientGroup::set_base_1_LO() {
         
         // Store
         for (size_t k = 0; k < 10; k++) {
-            dep_block->store_or_assign(1, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "B_HADRONIC", ids[k]}, Ci_run[k].real(), 0., 0.));
-            dep_block->store_or_assign(1, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "IMB_HADRONIC", ids[k]}, Ci_run[k].imag(), 0., 0.));
+            dep_block->store_or_assign(1, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "B_HADRONIC", ids[k]}, Ci_run[k], 0., 0.));
         }
 		
 		LOG_INFO("Update wilson running values");

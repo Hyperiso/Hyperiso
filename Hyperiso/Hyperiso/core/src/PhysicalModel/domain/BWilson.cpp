@@ -61,7 +61,7 @@ void C3::NNLO_calculation() {
     };
 
     auto func = [] (const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src, std::shared_ptr<DependentParameter> dep_param) {
-        auto L = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 3})->get_val();
+        double L = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 3})->get_val();
         double mass_top_muW = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 6})->get_val();
         double xt = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {2,1}})->get_val();
         double Q_match = src.at({ParameterType::WILSON, "SCALE", 1})->get_val();
@@ -82,7 +82,7 @@ void C4::NLO_calculation() {
     };
 
     auto func = [] (const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src, std::shared_ptr<DependentParameter> dep_param) {
-        auto L = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 3})->get_val();
+        double L = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 3})->get_val();
         double xt = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {2,1}})->get_val();
         double coeff_temp = E0t(xt)-7./9.+2./3.*L;
         dep_param->set_expected(coeff_temp);
@@ -104,7 +104,7 @@ void C4::NNLO_calculation() {
     };
 
     auto func = [] (const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src, std::shared_ptr<DependentParameter> dep_param) {
-        auto L = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 3})->get_val();
+        double L = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 3})->get_val();
         double xt = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {2,1}})->get_val();
         double mass_top_muW = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 6})->get_val();
         double Q_match = src.at({ParameterType::WILSON, "SCALE", 1})->get_val();
@@ -128,7 +128,7 @@ void C5::NNLO_calculation() {
     };
 
     auto func = [] (const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src, std::shared_ptr<DependentParameter> dep_param) {
-        auto L = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 3})->get_val();
+        double L = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 3})->get_val();
         double xt = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {2,1}})->get_val();
         double mass_top_muW = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 6})->get_val();
         double Q_match = src.at({ParameterType::WILSON, "SCALE", 1})->get_val();
@@ -153,7 +153,7 @@ void C6::NNLO_calculation() {
     };
 
     auto func = [] (const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src, std::shared_ptr<DependentParameter> dep_param) {
-        auto L = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 3})->get_val();
+        double L = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 3})->get_val();
         double xt = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {2,1}})->get_val();
         double mass_top_muW = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 6})->get_val();
         double Q_match = src.at({ParameterType::WILSON, "SCALE", 1})->get_val();
@@ -175,7 +175,7 @@ void C7::LO_calculation() {
     };
 
     auto func = [] (const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src, std::shared_ptr<DependentParameter> dep_param) {
-        auto xt = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1}})->get_val();
+        double xt = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1}})->get_val();
         dep_param->set_expected(-0.5 * A0t(xt) - 23. / 36.);
     };
 
@@ -192,7 +192,7 @@ void C7::NLO_calculation() {
     };
 
     auto func = [] (const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src, std::shared_ptr<DependentParameter> dep_param) {
-        auto L = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 3})->get_val();
+        double L = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 3})->get_val();
         double xt = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {2,1}})->get_val();
         double mass_top_muW = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 6})->get_val();
         double Q_match = src.at({ParameterType::WILSON, "SCALE", 1})->get_val();
@@ -221,7 +221,7 @@ void C7::NNLO_calculation() {
     };
 
     auto func = [] (const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src, std::shared_ptr<DependentParameter> dep_param) {
-        auto L = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 3})->get_val();
+        double L = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 3})->get_val();
         double xt = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {2,1}})->get_val();
         double mass_top_muW = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 6})->get_val();
         double Q_match = src.at({ParameterType::WILSON, "SCALE", 1})->get_val();
@@ -260,7 +260,7 @@ void C8::LO_calculation() {
     };
 
     auto func = [] (const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src, std::shared_ptr<DependentParameter> dep_param) {
-        auto xt = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1}})->get_val();
+        double xt = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1}})->get_val();
         dep_param->set_expected(-0.5*F0t(xt)-1./3.);
     };
 
@@ -281,7 +281,7 @@ void C8::NLO_calculation() {
     };
 
     auto func = [] (const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src, std::shared_ptr<DependentParameter> dep_param) {
-        auto L = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 3})->get_val();
+        double L = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 3})->get_val();
         double xt = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {2,1}})->get_val();
         double mass_top_muW = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 6})->get_val();
         double Q_match = src.at({ParameterType::WILSON, "SCALE", 1})->get_val();
@@ -311,7 +311,7 @@ void C8::NNLO_calculation() {
     };
 
     auto func = [] (const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src, std::shared_ptr<DependentParameter> dep_param) {
-        auto L = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 3})->get_val();
+        double L = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 3})->get_val();
         double xt = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {2,1}})->get_val();
         double mass_top_muW = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 6})->get_val();
         double Q_match = src.at({ParameterType::WILSON, "SCALE", 1})->get_val();
@@ -352,7 +352,7 @@ void C9::LO_calculation() {
 
     auto func = [] (const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src, std::shared_ptr<DependentParameter> dep_param) {
         double L = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 3})->get_val();
-        auto xt = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1}})->get_val();
+        double xt = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1}})->get_val();
         double sw2 = src.at({ParameterType::WILSON, "WPARAM_SI_SM", 4})->get_val();
         double coeff_temp = (1.-4.*sw2)/sw2*C0t(xt)-B0t(xt)/sw2-D0t(xt) +1./4./sw2+38./27.-4./9.*L;
         dep_param->set_expected(coeff_temp);
@@ -372,7 +372,7 @@ void C9::NLO_calculation() {
     };
 
     auto func = [] (const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src, std::shared_ptr<DependentParameter> dep_param) {
-        auto L = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 3})->get_val();
+        double L = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 3})->get_val();
         double xt = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {2,1}})->get_val();
         double mass_top_muW = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 6})->get_val();
         double Q_match = src.at({ParameterType::WILSON, "SCALE", 1})->get_val();
@@ -407,7 +407,7 @@ void C10::LO_calculation() {
     };
 
     auto func = [] (const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src, std::shared_ptr<DependentParameter> dep_param) {
-        auto xt = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1}})->get_val();
+        double xt = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1}})->get_val();
         double sw2 = src.at({ParameterType::WILSON, "WPARAM_SI_SM", 4})->get_val();
         double coeff_temp = (B0t(xt) - C0t(xt) - .25) / sw2;
         dep_param->set_expected(coeff_temp);
