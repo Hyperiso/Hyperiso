@@ -447,6 +447,8 @@ void susy_parameters::init_scale_independant_block() {
 
     susy_parameters::composer.compose_block("WPARAM_SI_BSM", src, func);
 
+
+
 }
 
 void susy_parameters::init_matching_block(double mu_W) {
@@ -469,6 +471,238 @@ void susy_parameters::init_matching_block(double mu_W) {
     };
 
     susy_parameters::composer.compose_block("WPARAM_MATCH_BSM", src, func);
+
+
+	std::unordered_map<ParameterType, std::vector<std::string>> src_matrix = {{ParameterType::SM, {"MASS"}}};
+
+    auto func_matrix = [] (const std::unordered_map<std::string, std::shared_ptr<Block>>& src, std::shared_ptr<DependentBlock> dep_block) {
+
+		Array2D_7x4 Gamma_UL {};
+		Array2D_7x4 Gamma_UR {};
+		Array2D_4x4 Gamma_NL {};
+		Array2D_4x4 Gamma_NR {};
+		Array2D_7x7 Gamma_U{};
+		Array2D_7x7 I_LR{};
+		Array2D_7x7 P_U{};
+		Array3D_3x7x4 X_UL{};
+		Array3D_3x7x4 X_UR{};
+		Array3D_3x7x4 X_NL{};
+		Array3D_3x7x4 X_NR{};
+		std::array<std::array<std::array<std::array<double, 4>, 4>, 3>, 7> G_aimn;
+
+		
+		complex_t c11 = (*sm)("RECKM", src.at("RECKM")->retrieve(00)->get_val()) + src.at("IMCKM")->retrieve(00)->get_val() * complex_t(0, 1);
+		complex_t c12 = (*sm)("RECKM", src.at("RECKM")->retrieve(01)->get_val()) + src.at("IMCKM")->retrieve(01)->get_val() * complex_t(0, 1);
+		complex_t c13 = (*sm)("RECKM", src.at("RECKM")->retrieve(02)->get_val()) + src.at("IMCKM")->retrieve(02)->get_val() * complex_t(0, 1);
+		complex_t c21 = (*sm)("RECKM", src.at("RECKM")->retrieve(10)->get_val()) + src.at("IMCKM")->retrieve(10)->get_val() * complex_t(0, 1);
+		complex_t c22 = (*sm)("RECKM", src.at("RECKM")->retrieve(11)->get_val()) + src.at("IMCKM")->retrieve(11)->get_val() * complex_t(0, 1);
+		complex_t c23 = (*sm)("RECKM", src.at("RECKM")->retrieve(12)->get_val()) + src.at("IMCKM")->retrieve(12)->get_val() * complex_t(0, 1);
+		complex_t c31 = (*sm)("RECKM", src.at("RECKM")->retrieve(20)->get_val()) + src.at("IMCKM")->retrieve(20)->get_val() * complex_t(0, 1);
+		complex_t c32 = (*sm)("RECKM", src.at("RECKM")->retrieve(21)->get_val()) + src.at("IMCKM")->retrieve(21)->get_val() * complex_t(0, 1);
+		complex_t c33 = (*sm)("RECKM", src.at("RECKM")->retrieve(22)->get_val()) + src.at("IMCKM")->retrieve(22)->get_val() * complex_t(0, 1);
+
+		
+		complex_t complexTerm = -(c32 * c33 + c22 * c23) / c12;
+
+		Array2D_4x4_I VCKM = {{
+			{
+				c11,
+				c12,
+				c13
+			},
+			{
+				c21,
+				c22,
+				c23
+			},
+			{
+				c31,
+				c32,
+				c33
+			}
+		}};
+
+		double B0c1 = 0.0, B0c2 = 0.0, B90c = 0.0, B100c = 0.0, C90c = 0.0, D90c = 0.0;
+    	bool test;
+
+        double mW = src.at("MASS")->retrieve(24)->get_val();
+		double g2 = src.at("GAUGE")->retrieve(2)->get_val();
+
+		if (src.at("WPARAM_SI_BSM")->retrieve(17)->get_val()) {
+			Array2D_7x7 sU_mix;
+			const size_t NumSquarks = 6;
+			for (size_t ae = 0; ae < NumSquarks; ++ae) {
+				for (size_t ie = 0; ie < 3; ++ie) {
+					Gamma_UL[ae][ie] = sU_mix[ae][ie];
+					Gamma_UR[ae][ie] = sU_mix[ae][ie + 3];
+				}
+			}
+	}
+		else {
+			Gamma_UL[0][0] = 1.0; 
+			Gamma_UL[1][1] = 1.0;
+			Gamma_UL[2][2] = src.at("WPARAM_SI_BSM")->retrieve(4)->get_val();
+			Gamma_UL[5][2] = -src.at("WPARAM_SI_BSM")->retrieve(5)->get_val();
+
+			Gamma_UR[3][0] = 1.0;
+			Gamma_UR[4][1] = 1.0;
+			Gamma_UR[2][2] = src.at("WPARAM_SI_BSM")->retrieve(5)->get_val();
+			Gamma_UR[5][2] = src.at("WPARAM_SI_BSM")->retrieve(4)->get_val();
+		}
+
+		for (int ae = 0; ae < 6; ++ae) {
+			for (int ie = 0; ie < 3; ++ie) {
+				Gamma_U[ae][ie] = Gamma_UL[ae][ie];
+				Gamma_U[ae][ie+3] = Gamma_UR[ae][ie];
+				if (ae <3 && ae==ie) {
+					Gamma_NL[ae][ie] = 1.;
+				}
+			}
+		}
+
+		I_LR.fill({});
+		for (int i = 0; i < 3; ++i) {
+			I_LR[i][i] = 1.;
+			I_LR[i+3][i+3] = -1.;
+		}
+
+		for (int ae = 0; ae < 6; ++ae) {
+			for (int be = 0; be < 6; ++be) {
+				for (int ce = 0; ce < 6; ++ce) {
+					for (int de = 0; de < 6; ++de) {
+						P_U[ae][be] = Gamma_U[ae][ce] * I_LR[ce][de] * Gamma_U[be][de];
+					}
+				}
+			}
+		}
+
+		
+		for (int ie = 0; ie < 2; ++ie) {
+			for (int ae = 0; ae < 6; ++ae) {
+				for (int be = 0; be < 3; ++be) {
+					X_UL[ie][ae][be] = 0.0;
+					X_UR[ie][ae][be] = 0.0;
+
+					for (int ce = 0; ce < 3; ++ce) {
+						X_UL[ie][ae][be] += -g2 * (
+							src.at("WPARAM_SI_BSM")->retrieve(10)->get_val() * susy("VMIX", ie*10+0) * Gamma_UL[ae][ce] -
+							src.at("WPARAM_SI_BSM")->retrieve(11)->get_val() * susy("VMIX", ie*10+1) * Gamma_UR[ae][ce] * wilson_p("WPARAM_MATCH_BSM", {2,ce}) / (sqrt(2.0) * mW * src.at("WPARAM_SI_BSM")->retrieve(3)->get_val())
+						) * std::real(VCKM[ce][be]);
+						X_UR[ie][ae][be] += g2 * src.at("WPARAM_SI_BSM")->retrieve(11)->get_val() * susy(std::string("UMIX"), ie*10+1) * Gamma_UL[ae][ce] * std::real(VCKM[ce][be]) * wilson_p("WPARAM_MATCH_BSM", {2,be}) / (sqrt(2.0) * mW * src.at("WPARAM_SI_BSM")->retrieve(2)->get_val());
+
+						G_aimn[ae][ie][be][ce]=0.5/sqrt(2.)*(sqrt(2.)*mW*susy("VMIX", ie*10+0)*Gamma_UL[ae][ce]*src.at("WPARAM_SI_BSM")->retrieve(10)->get_val()-wilson_p("WPARAM_MATCH_BSM", {2,ce})*susy("VMIX", ie*10+1)*Gamma_UR[ae][ce]*src.at("WPARAM_SI_BSM")->retrieve(11)->get_val())*(std::real(VCKM[be][2])*std::real(VCKM[ce][1])/std::real(VCKM[2][2])*std::real(VCKM[2][1]));
+					}
+
+					if (ae < 3) {
+						X_NL[ie][ae][be] = -g2 * susy( "VMIX", ie*10+0) * Gamma_NL[ae][be]; 
+
+						X_NR[ie][ae][be] = g2 * susy("UMIX", ie*10+1) * Gamma_NL[ae][be] * wilson_p("WPARAM_SI_BSM", {12, be}) / (sqrt(2.0) * mW * src.at("WPARAM_SI_BSM")->retrieve(2)->get_val()); //12 -> ME
+					}
+				}
+			}
+		}
+		
+		auto computeContributions = [&](int ie, auto func, double additionalFactor = 1.0) {
+			double result = 0.0;
+			for (int ae = 0; ae < 6; ++ae) {
+				double msqOverMchSquared = std::pow(wilson_p("WPARAM_SI_BSM", {14, ae}) / wilson_p("WPARAM_SI_BSM", {13, ie}), 2.0);
+				result += (X_UL[ie][ae][0] * X_UL[ie][ae][1] * func(msqOverMchSquared) +
+				wilson_p("WPARAM_SI_BSM", {13, ie}) / wilson_p("WPARAM_MATCH_SM", {5,1}) * X_UL[ie][ae][0] * X_UR[ie][ae][1] * func(msqOverMchSquared)) * additionalFactor;
+			}
+			return result;
+		};
+
+
+		auto hFunc10 = [](double x) { return h10(x); };
+		auto hFunc20 = [](double x) { return h20(x); };
+		auto hFunc50 = [](double x) { return h50(x); };
+		auto hFunc60 = [](double x) { return h60(x); };
+
+		double kappaFactor = -0.5 * src.at("WPARAM_SI_BSM")->retrieve(6)->get_val();
+
+		
+		for (int ie = 0; ie < 2; ++ie) {
+			for (int je = 0; je < 2; ++je) {
+				for (int ae = 0; ae < 6; ++ae) {
+					double mchRatioSquared = std::pow(wilson_p("WPARAM_SI_BSM", {13, je}) / wilson_p("WPARAM_SI_BSM", {13, ie}), 2.0); //Mch : WPARAM_SI_BSM 13
+					double msqOverMchSquared = std::pow(wilson_p("WPARAM_SI_BSM", {14, ae}) / wilson_p("WPARAM_SI_BSM", {13, ie}), 2.0);
+
+					for (int be = 0; be < 3; ++be) {
+						double msnOverMchSquared = std::pow(wilson_p("WPARAM_SI_BSM", {16, be}) / wilson_p("WPARAM_SI_BSM", {13, ie}), 2.0);
+						B0c1 += X_UL[je][ae][1] * X_UL[ie][ae][2] / (wilson_p("WPARAM_SI_BSM", {13, ie}) * wilson_p("WPARAM_SI_BSM", {13, ie})) * (0.5 * X_NL[ie][be][1] * X_NL[je][be][1] * f50(mchRatioSquared, msqOverMchSquared, msnOverMchSquared));
+						B0c2 += X_UL[je][ae][1] * X_UL[ie][ae][2] / (wilson_p("WPARAM_SI_BSM", {13, ie}) * wilson_p("WPARAM_SI_BSM", {13, ie})) * (X_NR[ie][be][1] * X_NR[je][be][1] * std::fabs(wilson_p("WPARAM_SI_BSM", {13, je}) / wilson_p("WPARAM_SI_BSM", {13, ie})) * f60(mchRatioSquared, msqOverMchSquared, msnOverMchSquared));	
+					}
+
+					C90c += X_UL[je][ae][1] * X_UL[ie][ae][2] * (2.0 * std::fabs(wilson_p("WPARAM_SI_BSM", {13, je}) / wilson_p("WPARAM_SI_BSM", {13, ie})) * f30(mchRatioSquared, msqOverMchSquared) * susy("UMIX", je*10+0) * susy("UMIX", ie*10+0) - f40(mchRatioSquared, msqOverMchSquared) * susy("VMIX", je*10+0) * susy("VMIX", ie*10+0));
+
+					if (ie == je)	{
+						D90c += std::pow(mW / wilson_p("WPARAM_SI_BSM", {13, ie}), 2.0) * X_UL[ie][ae][1] * X_UL[ie][ae][2] * h30(msqOverMchSquared);
+					}
+				}
+			}
+		}
+
+		for (int ie = 0; ie < 2; ++ie) {
+			for (int ae = 0; ae < 6; ++ae) {
+				for (int be = 0; be < 6; ++be) {
+					double msqOverMchSquaredAe = std::pow(wilson_p("WPARAM_SI_BSM", {14, ae}) / wilson_p("WPARAM_SI_BSM", {13, ie}), 2.0);
+					double msqOverMchSquaredBe = std::pow(wilson_p("WPARAM_SI_BSM", {14, be}) / wilson_p("WPARAM_SI_BSM", {13, ie}), 2.0);
+					for (int ce = 0; ce < 3; ++ce) {
+						C90c += X_UL[ie][be][1] * X_UL[ie][ae][2] * f40(msqOverMchSquaredAe, msqOverMchSquaredBe) * Gamma_UL[be][ce] * Gamma_UL[ae][ce];
+					}
+				}
+			}
+		}
+		B90c = -(B0c1 - B0c2) * src.at("WPARAM_SI_BSM")->retrieve(6)->get_val() * std::pow(mW, 2.0) / (2.0 * std::pow(g2, 2.0));
+		B100c = (B0c1 + B0c2) * src.at("WPARAM_SI_BSM")->retrieve(6)->get_val() * std::pow(mW, 2.0) / (2.0 * std::pow(g2, 2.0));
+		C90c *= -src.at("WPARAM_SI_BSM")->retrieve(6)->get_val() / 8.0;
+		D90c *= src.at("WPARAM_SI_BSM")->retrieve(6)->get_val();
+
+		test = true;
+		for (int ae = 0; ae < 6; ++ae) {
+			if (!(std::fabs(wilson_p("WPARAM_SI_BSM", {14, ae})) > mW / 2. && std::fabs(wilson_p("WPARAM_SI_BSM", {15, ae})) > mW / 2.)) {
+				test = false;
+				break;
+			}
+		}
+
+        int id {1};
+        dep_block->store_or_assign(id++, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", id}, z, 0., 0.)); //1
+		dep_block->store_or_assign(id++, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", id}, cosb, 0., 0.)); //2
+		dep_block->store_or_assign(id++, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", id}, sinb, 0., 0.)); //3
+		dep_block->store_or_assign(id++, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", id}, ct, 0., 0.)); //4
+		dep_block->store_or_assign(id++, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", id}, st, 0., 0.)); //5
+        dep_block->store_or_assign(id++, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", id}, kappa, 0., 0.)); //6
+        dep_block->store_or_assign(id++, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", id}, lu, 0., 0.)); //7
+        dep_block->store_or_assign(id++, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", id}, ld, 0., 0.)); //8
+        dep_block->store_or_assign(id++, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", id}, alphas_mg, 0., 0.)); //9
+        dep_block->store_or_assign(id++, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", id}, ag, 0., 0.)); //10
+		dep_block->store_or_assign(id++, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", id}, aY, 0., 0.)); //11
+		dep_block->store_or_assign({id, 0}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM",{id, 0}}, ME[0], 0., 0.)); //12
+		dep_block->store_or_assign({id, 1}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", {id, 1}}, ME[1], 0., 0.)); //12
+		dep_block->store_or_assign({id++, 2}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", {id, 2}}, ME[2], 0., 0.)); //12
+		dep_block->store_or_assign({id, 0}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM",{id, 0}}, Mch[0], 0., 0.)); //13
+		dep_block->store_or_assign({id++, 1}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", {id, 1}}, Mch[1], 0., 0.)); //13
+		dep_block->store_or_assign({id, 0}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM",{id, 0}}, MsqU[0], 0., 0.)); //14
+		dep_block->store_or_assign({id, 0}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM",{id, 0}}, MsqU[1], 0., 0.)); //14
+		dep_block->store_or_assign({id, 0}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM",{id, 0}}, MsqU[2], 0., 0.)); //14
+		dep_block->store_or_assign({id, 0}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM",{id, 0}}, MsqU[3], 0., 0.)); //14
+		dep_block->store_or_assign({id, 0}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM",{id, 0}}, MsqU[4], 0., 0.)); //14
+		dep_block->store_or_assign({id++, 1}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", {id, 1}}, MsqU[5], 0., 0.)); //14
+		dep_block->store_or_assign({id, 0}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM",{id, 0}}, MsqD[0], 0., 0.)); //15
+		dep_block->store_or_assign({id, 0}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM",{id, 0}}, MsqD[1], 0., 0.)); //15
+		dep_block->store_or_assign({id, 0}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM",{id, 0}}, MsqD[2], 0., 0.)); //15
+		dep_block->store_or_assign({id, 0}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM",{id, 0}}, MsqD[3], 0., 0.)); //15
+		dep_block->store_or_assign({id, 0}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM",{id, 0}}, MsqD[4], 0., 0.)); //15
+		dep_block->store_or_assign({id++, 1}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", {id, 1}}, MsqD[5], 0., 0.)); //15
+		dep_block->store_or_assign({id, 0}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM",{id, 0}}, Msn[0], 0., 0.)); //16
+		dep_block->store_or_assign({id, 1}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", {id, 1}}, Msn[1], 0., 0.)); //16
+		dep_block->store_or_assign({id++, 2}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", {id, 2}}, Msn[2], 0., 0.)); //16
+		dep_block->store_or_assign(id++, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", id}, (double)isNonZeroMix, 0., 0.)); //17
+		dep_block->store_or_assign(id++, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", id}, kappaFactor, 0., 0.)); //18
+    };
+
+    susy_parameters::composer.compose_block("MATRIX_BSM", src_matrix, func_matrix);
 
 }
 
