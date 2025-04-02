@@ -491,15 +491,15 @@ void susy_parameters::init_matching_block(double mu_W) {
 		std::array<std::array<std::array<std::array<double, 4>, 4>, 3>, 7> G_aimn;
 
 		
-		complex_t c11 = (*sm)("RECKM", src.at("RECKM")->retrieve(00)->get_val()) + src.at("IMCKM")->retrieve(00)->get_val() * complex_t(0, 1);
-		complex_t c12 = (*sm)("RECKM", src.at("RECKM")->retrieve(01)->get_val()) + src.at("IMCKM")->retrieve(01)->get_val() * complex_t(0, 1);
-		complex_t c13 = (*sm)("RECKM", src.at("RECKM")->retrieve(02)->get_val()) + src.at("IMCKM")->retrieve(02)->get_val() * complex_t(0, 1);
-		complex_t c21 = (*sm)("RECKM", src.at("RECKM")->retrieve(10)->get_val()) + src.at("IMCKM")->retrieve(10)->get_val() * complex_t(0, 1);
-		complex_t c22 = (*sm)("RECKM", src.at("RECKM")->retrieve(11)->get_val()) + src.at("IMCKM")->retrieve(11)->get_val() * complex_t(0, 1);
-		complex_t c23 = (*sm)("RECKM", src.at("RECKM")->retrieve(12)->get_val()) + src.at("IMCKM")->retrieve(12)->get_val() * complex_t(0, 1);
-		complex_t c31 = (*sm)("RECKM", src.at("RECKM")->retrieve(20)->get_val()) + src.at("IMCKM")->retrieve(20)->get_val() * complex_t(0, 1);
-		complex_t c32 = (*sm)("RECKM", src.at("RECKM")->retrieve(21)->get_val()) + src.at("IMCKM")->retrieve(21)->get_val() * complex_t(0, 1);
-		complex_t c33 = (*sm)("RECKM", src.at("RECKM")->retrieve(22)->get_val()) + src.at("IMCKM")->retrieve(22)->get_val() * complex_t(0, 1);
+		complex_t c11 = src.at("RECKM")->retrieve(00)->get_val() + src.at("IMCKM")->retrieve(00)->get_val() * complex_t(0, 1);
+		complex_t c12 = src.at("RECKM")->retrieve(01)->get_val() + src.at("IMCKM")->retrieve(01)->get_val() * complex_t(0, 1);
+		complex_t c13 = src.at("RECKM")->retrieve(02)->get_val() + src.at("IMCKM")->retrieve(02)->get_val() * complex_t(0, 1);
+		complex_t c21 = src.at("RECKM")->retrieve(10)->get_val() + src.at("IMCKM")->retrieve(10)->get_val() * complex_t(0, 1);
+		complex_t c22 = src.at("RECKM")->retrieve(11)->get_val() + src.at("IMCKM")->retrieve(11)->get_val() * complex_t(0, 1);
+		complex_t c23 = src.at("RECKM")->retrieve(12)->get_val() + src.at("IMCKM")->retrieve(12)->get_val() * complex_t(0, 1);
+		complex_t c31 = src.at("RECKM")->retrieve(20)->get_val() + src.at("IMCKM")->retrieve(20)->get_val() * complex_t(0, 1);
+		complex_t c32 = src.at("RECKM")->retrieve(21)->get_val() + src.at("IMCKM")->retrieve(21)->get_val() * complex_t(0, 1);
+		complex_t c33 = src.at("RECKM")->retrieve(22)->get_val() + src.at("IMCKM")->retrieve(22)->get_val() * complex_t(0, 1);
 
 		
 		complex_t complexTerm = -(c32 * c33 + c22 * c23) / c12;
@@ -575,7 +575,7 @@ void susy_parameters::init_matching_block(double mu_W) {
 				}
 			}
 		}
-
+		
 		
 		for (int ie = 0; ie < 2; ++ie) {
 			for (int ae = 0; ae < 6; ++ae) {
@@ -585,18 +585,18 @@ void susy_parameters::init_matching_block(double mu_W) {
 
 					for (int ce = 0; ce < 3; ++ce) {
 						X_UL[ie][ae][be] += -g2 * (
-							src.at("WPARAM_SI_BSM")->retrieve(10)->get_val() * susy("VMIX", ie*10+0) * Gamma_UL[ae][ce] -
-							src.at("WPARAM_SI_BSM")->retrieve(11)->get_val() * susy("VMIX", ie*10+1) * Gamma_UR[ae][ce] * wilson_p("WPARAM_MATCH_BSM", {2,ce}) / (sqrt(2.0) * mW * src.at("WPARAM_SI_BSM")->retrieve(3)->get_val())
+							src.at("WPARAM_SI_BSM")->retrieve(10)->get_val() * src.at("VMIX")->retrieve(ie*10+0)->get_val() * Gamma_UL[ae][ce] -
+							src.at("WPARAM_SI_BSM")->retrieve(11)->get_val() * src.at("VMIX")->retrieve(ie*10+1)->get_val() * Gamma_UR[ae][ce] * src.at("WPARAM_MATCH_BSM")->retrieve({2,ce})->get_val() / (sqrt(2.0) * mW * src.at("WPARAM_SI_BSM")->retrieve(3)->get_val())
 						) * std::real(VCKM[ce][be]);
-						X_UR[ie][ae][be] += g2 * src.at("WPARAM_SI_BSM")->retrieve(11)->get_val() * susy(std::string("UMIX"), ie*10+1) * Gamma_UL[ae][ce] * std::real(VCKM[ce][be]) * wilson_p("WPARAM_MATCH_BSM", {2,be}) / (sqrt(2.0) * mW * src.at("WPARAM_SI_BSM")->retrieve(2)->get_val());
+						X_UR[ie][ae][be] += g2 * src.at("WPARAM_SI_BSM")->retrieve(11)->get_val() * src.at("UMIX")->retrieve(ie*10+1)->get_val() * Gamma_UL[ae][ce] * std::real(VCKM[ce][be]) * src.at("WPARAM_MATCH_BSM")->retrieve({2,be})->get_val() / (sqrt(2.0) * mW * src.at("WPARAM_SI_BSM")->retrieve(2)->get_val());
 
-						G_aimn[ae][ie][be][ce]=0.5/sqrt(2.)*(sqrt(2.)*mW*susy("VMIX", ie*10+0)*Gamma_UL[ae][ce]*src.at("WPARAM_SI_BSM")->retrieve(10)->get_val()-wilson_p("WPARAM_MATCH_BSM", {2,ce})*susy("VMIX", ie*10+1)*Gamma_UR[ae][ce]*src.at("WPARAM_SI_BSM")->retrieve(11)->get_val())*(std::real(VCKM[be][2])*std::real(VCKM[ce][1])/std::real(VCKM[2][2])*std::real(VCKM[2][1]));
+						G_aimn[ae][ie][be][ce]=0.5/sqrt(2.)*(sqrt(2.)*mW*src.at("VMIX")->retrieve(ie*10+0)->get_val()*Gamma_UL[ae][ce]*src.at("WPARAM_SI_BSM")->retrieve(10)->get_val()-src.at("WPARAM_MATCH_BSM")->retrieve({2,ce})->get_val()*src.at("VMIX")->retrieve(ie*10+1)->get_val()*Gamma_UR[ae][ce]*src.at("WPARAM_SI_BSM")->retrieve(11)->get_val())*(std::real(VCKM[be][2])*std::real(VCKM[ce][1])/std::real(VCKM[2][2])*std::real(VCKM[2][1]));
 					}
 
 					if (ae < 3) {
-						X_NL[ie][ae][be] = -g2 * susy( "VMIX", ie*10+0) * Gamma_NL[ae][be]; 
+						X_NL[ie][ae][be] = -g2 * src.at("VMIX")->retrieve(ie*10+0)->get_val() * Gamma_NL[ae][be]; 
 
-						X_NR[ie][ae][be] = g2 * susy("UMIX", ie*10+1) * Gamma_NL[ae][be] * wilson_p("WPARAM_SI_BSM", {12, be}) / (sqrt(2.0) * mW * src.at("WPARAM_SI_BSM")->retrieve(2)->get_val()); //12 -> ME
+						X_NR[ie][ae][be] = g2 * src.at("UMIX")->retrieve(ie*10+1)->get_val() * Gamma_NL[ae][be] * src.at("WPARAM_SI_BSM")->retrieve({12, be})->get_val() / (sqrt(2.0) * mW * src.at("WPARAM_SI_BSM")->retrieve(2)->get_val()); //12 -> ME
 					}
 				}
 			}
@@ -605,9 +605,9 @@ void susy_parameters::init_matching_block(double mu_W) {
 		auto computeContributions = [&](int ie, auto func, double additionalFactor = 1.0) {
 			double result = 0.0;
 			for (int ae = 0; ae < 6; ++ae) {
-				double msqOverMchSquared = std::pow(wilson_p("WPARAM_SI_BSM", {14, ae}) / wilson_p("WPARAM_SI_BSM", {13, ie}), 2.0);
+				double msqOverMchSquared = std::pow(src.at("WPARAM_SI_BSM")->retrieve({14, ae})->get_val() / src.at("WPARAM_SI_BSM")->retrieve({13, ie})->get_val(), 2.0);
 				result += (X_UL[ie][ae][0] * X_UL[ie][ae][1] * func(msqOverMchSquared) +
-				wilson_p("WPARAM_SI_BSM", {13, ie}) / wilson_p("WPARAM_MATCH_SM", {5,1}) * X_UL[ie][ae][0] * X_UR[ie][ae][1] * func(msqOverMchSquared)) * additionalFactor;
+				src.at("WPARAM_SI_BSM")->retrieve({13, ie})->get_val() / wilson_p("WPARAM_MATCH_SM", {5,1}) * X_UL[ie][ae][0] * X_UR[ie][ae][1] * func(msqOverMchSquared)) * additionalFactor;
 			}
 			return result;
 		};
@@ -624,19 +624,19 @@ void susy_parameters::init_matching_block(double mu_W) {
 		for (int ie = 0; ie < 2; ++ie) {
 			for (int je = 0; je < 2; ++je) {
 				for (int ae = 0; ae < 6; ++ae) {
-					double mchRatioSquared = std::pow(wilson_p("WPARAM_SI_BSM", {13, je}) / wilson_p("WPARAM_SI_BSM", {13, ie}), 2.0); //Mch : WPARAM_SI_BSM 13
-					double msqOverMchSquared = std::pow(wilson_p("WPARAM_SI_BSM", {14, ae}) / wilson_p("WPARAM_SI_BSM", {13, ie}), 2.0);
+					double mchRatioSquared = pow(src.at("WPARAM_SI_BSM")->retrieve({13, je})->get_val() / src.at("WPARAM_SI_BSM")->retrieve({13, ie})->get_val(), 2.0); //Mch : WPARAM_SI_BSM 13
+					double msqOverMchSquared = pow(src.at("WPARAM_SI_BSM")->retrieve({14, ae})->get_val() / src.at("WPARAM_SI_BSM")->retrieve({13, ie})->get_val(), 2.0);
 
 					for (int be = 0; be < 3; ++be) {
-						double msnOverMchSquared = std::pow(wilson_p("WPARAM_SI_BSM", {16, be}) / wilson_p("WPARAM_SI_BSM", {13, ie}), 2.0);
-						B0c1 += X_UL[je][ae][1] * X_UL[ie][ae][2] / (wilson_p("WPARAM_SI_BSM", {13, ie}) * wilson_p("WPARAM_SI_BSM", {13, ie})) * (0.5 * X_NL[ie][be][1] * X_NL[je][be][1] * f50(mchRatioSquared, msqOverMchSquared, msnOverMchSquared));
-						B0c2 += X_UL[je][ae][1] * X_UL[ie][ae][2] / (wilson_p("WPARAM_SI_BSM", {13, ie}) * wilson_p("WPARAM_SI_BSM", {13, ie})) * (X_NR[ie][be][1] * X_NR[je][be][1] * std::fabs(wilson_p("WPARAM_SI_BSM", {13, je}) / wilson_p("WPARAM_SI_BSM", {13, ie})) * f60(mchRatioSquared, msqOverMchSquared, msnOverMchSquared));	
+						double msnOverMchSquared = pow(src.at("WPARAM_SI_BSM")->retrieve({16, be})->get_val() / src.at("WPARAM_SI_BSM")->retrieve({13, ie})->get_val(), 2.0);
+						B0c1 += X_UL[je][ae][1] * X_UL[ie][ae][2] / (src.at("WPARAM_SI_BSM")->retrieve({13, ie})->get_val() * src.at("WPARAM_SI_BSM")->retrieve({13, ie})->get_val()) * (0.5 * X_NL[ie][be][1] * X_NL[je][be][1] * f50(mchRatioSquared, msqOverMchSquared, msnOverMchSquared));
+						B0c2 += X_UL[je][ae][1] * X_UL[ie][ae][2] / (src.at("WPARAM_SI_BSM")->retrieve({13, ie})->get_val() * src.at("WPARAM_SI_BSM")->retrieve({13, ie})->get_val()) * (X_NR[ie][be][1] * X_NR[je][be][1] * std::fabs(src.at("WPARAM_SI_BSM")->retrieve({13, je})->get_val() / src.at("WPARAM_SI_BSM")->retrieve({13, ie})->get_val()) * f60(mchRatioSquared, msqOverMchSquared, msnOverMchSquared));	
 					}
 
-					C90c += X_UL[je][ae][1] * X_UL[ie][ae][2] * (2.0 * std::fabs(wilson_p("WPARAM_SI_BSM", {13, je}) / wilson_p("WPARAM_SI_BSM", {13, ie})) * f30(mchRatioSquared, msqOverMchSquared) * susy("UMIX", je*10+0) * susy("UMIX", ie*10+0) - f40(mchRatioSquared, msqOverMchSquared) * susy("VMIX", je*10+0) * susy("VMIX", ie*10+0));
+					C90c += X_UL[je][ae][1] * X_UL[ie][ae][2] * (2.0 * std::fabs(src.at("WPARAM_SI_BSM")->retrieve({13, je})->get_val() / src.at("WPARAM_SI_BSM")->retrieve({13, ie})->get_val()) * f30(mchRatioSquared, msqOverMchSquared) * src.at("UMIX")->retrieve(je*10+0)->get_val() * src.at("UMIX")->retrieve(ie*10+0)->get_val() - f40(mchRatioSquared, msqOverMchSquared) * src.at("VMIX")->retrieve(je*10+0)->get_val() * src.at("VMIX")->retrieve(ie*10+0)->get_val());
 
 					if (ie == je)	{
-						D90c += std::pow(mW / wilson_p("WPARAM_SI_BSM", {13, ie}), 2.0) * X_UL[ie][ae][1] * X_UL[ie][ae][2] * h30(msqOverMchSquared);
+						D90c += pow(mW / src.at("WPARAM_SI_BSM")->retrieve({13, ie})->get_val(), 2.0) * X_UL[ie][ae][1] * X_UL[ie][ae][2] * h30(msqOverMchSquared);
 					}
 				}
 			}
@@ -645,8 +645,8 @@ void susy_parameters::init_matching_block(double mu_W) {
 		for (int ie = 0; ie < 2; ++ie) {
 			for (int ae = 0; ae < 6; ++ae) {
 				for (int be = 0; be < 6; ++be) {
-					double msqOverMchSquaredAe = std::pow(wilson_p("WPARAM_SI_BSM", {14, ae}) / wilson_p("WPARAM_SI_BSM", {13, ie}), 2.0);
-					double msqOverMchSquaredBe = std::pow(wilson_p("WPARAM_SI_BSM", {14, be}) / wilson_p("WPARAM_SI_BSM", {13, ie}), 2.0);
+					double msqOverMchSquaredAe = pow(src.at("WPARAM_SI_BSM")->retrieve({14, ae})->get_val() / src.at("WPARAM_SI_BSM")->retrieve({13, ie})->get_val(), 2.0);
+					double msqOverMchSquaredBe = pow(src.at("WPARAM_SI_BSM")->retrieve({14, be})->get_val() / src.at("WPARAM_SI_BSM")->retrieve({13, ie})->get_val(), 2.0);
 					for (int ce = 0; ce < 3; ++ce) {
 						C90c += X_UL[ie][be][1] * X_UL[ie][ae][2] * f40(msqOverMchSquaredAe, msqOverMchSquaredBe) * Gamma_UL[be][ce] * Gamma_UL[ae][ce];
 					}
@@ -660,7 +660,7 @@ void susy_parameters::init_matching_block(double mu_W) {
 
 		test = true;
 		for (int ae = 0; ae < 6; ++ae) {
-			if (!(std::fabs(wilson_p("WPARAM_SI_BSM", {14, ae})) > mW / 2. && std::fabs(wilson_p("WPARAM_SI_BSM", {15, ae})) > mW / 2.)) {
+			if (!(std::fabs(src.at("WPARAM_SI_BSM")->retrieve({14, ae})->get_val()) > mW / 2. && std::fabs(src.at("WPARAM_SI_BSM")->retrieve({15, ae})->get_val()) > mW / 2.)) {
 				test = false;
 				break;
 			}
