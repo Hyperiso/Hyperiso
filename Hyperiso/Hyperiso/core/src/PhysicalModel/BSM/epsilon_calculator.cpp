@@ -357,15 +357,15 @@ void EpsilonCalculator::init_epsilon_block() {
         
         double epsfac=pow((1.+epsilon_b*tan_beta),2.);
 
-        dep_block->store_or_assign({0,1}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", {0,1}}, epsilon_0, 0., 0.));
-		dep_block->store_or_assign({0,2}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", {0,2}}, epsilon0p, 0., 0.));
-		dep_block->store_or_assign(1, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", 1}, epsilon_1p, 0., 0.));
-		dep_block->store_or_assign(2, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", 2}, epsilon_2, 0., 0.));
-		dep_block->store_or_assign(3, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", 3}, epsilon_b, 0., 0.));
-        dep_block->store_or_assign(4, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", 4}, epsilonbp, 0., 0.));
-        dep_block->store_or_assign(5, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", 5}, epsfac, 0., 0.)); 
+        dep_block->store_or_assign({0,1}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "EPSILON_SUSY", {0,1}}, epsilon_0, 0., 0.));
+		dep_block->store_or_assign({0,2}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "EPSILON_SUSY", {0,2}}, epsilon0p, 0., 0.));
+		dep_block->store_or_assign(1, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "EPSILON_SUSY", 1}, epsilon_1p, 0., 0.));
+		dep_block->store_or_assign(2, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "EPSILON_SUSY", 2}, epsilon_2, 0., 0.));
+		dep_block->store_or_assign(3, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "EPSILON_SUSY", 3}, epsilon_b, 0., 0.));
+        dep_block->store_or_assign(4, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "EPSILON_SUSY", 4}, epsilonbp, 0., 0.));
+        dep_block->store_or_assign(5, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "EPSILON_SUSY", 5}, epsfac, 0., 0.)); 
 
     };
 
-    EpsilonCalculator::composer.compose_block("WPARAM_SI_BSM", src, func);
+    EpsilonCalculator::composer.compose_block("EPSILON_SUSY", src, func);
 }

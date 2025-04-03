@@ -364,44 +364,119 @@ void C6_susy::NNLO_calculation() {
 
 
 void C7_susy::LO_calculation() {
-    complex_t C7SMeps_0= ((*sus_param).epsilonb-(*sus_param).epsilonbp)/(1.+(*sus_param).epsilonb*(*susy)("HMIX",2))*(*susy)("HMIX",2)*F7_2((*sus_param).xt);
-    complex_t C7Heps_0=(-(*sus_param).epsilon0p-(*sus_param).epsilonb)/(1.+(*sus_param).epsilonb*(*susy)("HMIX",2))*(*susy)("HMIX",2)*F7_2((*sus_param).yt);
 
-    complex_t C7Heps2_0=0.;
+	std::unordered_set<ParamId> sources {
+        {"WPARAM_SI_BSM", 7},
+        {"WPARAM_MATCH_BSM", 1},
+        {"SCALE", 1},
+        {ParameterType::THDM, "MASS", 37}
+    };
 
-    if(((*sus_param).mass_A02==0.)&&((*sus_param).mass_H03==0.)) {
-        C7Heps2_0=-(*sus_param).epsilon2*(*sus_param).epsilon1p*pow((*susy)("HMIX",2),2.)/(1.+(*sus_param).epsilonb*(*susy)("HMIX",2))/(1.+(*sus_param).epsilon0*(*susy)("HMIX",2))*F7_2((*sus_param).yt);
-        C7Heps2_0+=(*sus_param).epsilon2/pow(1.+(*sus_param).epsilonb*(*susy)("HMIX",2),2.)*(1.+pow((*susy)("HMIX",2),2.))/(1.+(*sus_param).epsilon0*(*susy)("HMIX",2))/72.		*((cos((*susy)("ALPHA",0))+sin((*susy)("ALPHA",0))*(*susy)("HMIX",2))*(-sin((*susy)("ALPHA",0))+(*sus_param).epsilonb*cos((*susy)("ALPHA",0)))*pow(wilson_p("WPARAM_MATCH_SM", {5,1})/(*susy)("MASS",25),2.)
-        +(sin((*susy)("ALPHA",0))-cos((*susy)("ALPHA",0))*(*susy)("HMIX",2))*(cos((*susy)("ALPHA",0))+(*sus_param).epsilonb*sin((*susy)("ALPHA",0)))*pow(wilson_p("WPARAM_MATCH_SM", {5,1})/(*susy)("MASS",35),2.)			+(-cos(atan((*susy)("HMIX",2)))-sin(atan((*susy)("HMIX",2)))*(*susy)("HMIX",2))*(sin(atan((*susy)("HMIX",2)))-(*sus_param).epsilonb*cos(atan((*susy)("HMIX",2))))*pow(wilson_p("WPARAM_MATCH_SM", {5,1})/(*susy)("MASS",36),2.));
+    auto func = [] (const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src, std::shared_ptr<DependentParameter> dep_param) {
+		complex_t C4charg_2{};
+		complex_t C4four_2{};
+		double lu = src.at({ParameterType::WILSON, "WPARAM_SI_BSM", 7})->get_val();
+		double ld = src.at({ParameterType::WILSON, "WPARAM_SI_BSM", 8})->get_val();
+		double yt = src.at({ParameterType::WILSON, "WPARAM_MATCH_BSM", 1})->get_val();
+		double Q_match = src.at({ParameterType::WILSON, "SCALES", 1})->get_val();
+		double mW = src.at({ParameterType::SM, "MASS", 24})->get_val();
+		double mH = src.at({ParameterType::SUSY, "MASS", 37})->get_val();
+		double tanb = src.at({ParameterType::SUSY, "HMIX", 2})->get_val();
+		double alpha = src.at({ParameterType::SUSY, "ALPHA", 0})->get_val();
+		double mH0 = src.at({ParameterType::SUSY, "MASS", 35})->get_val();
+		double mh = src.at({ParameterType::SUSY, "MASS", 25})->get_val();
+		double mA0 = src.at({ParameterType::SUSY, "MASS", 36})->get_val();
 
-    }
-	else {		
-		C7Heps2_0=-(*sus_param).epsilon2*(*sus_param).epsilon1p*pow((*susy)("HMIX",2),2.)/(1.+(*sus_param).epsilonb*(*susy)("HMIX",2))/(1.+(*sus_param).epsilon0*(*susy)("HMIX",2))*F7_2((*sus_param).yt);
-		C7Heps2_0+=(*sus_param).epsilon2/pow(1.+(*sus_param).epsilonb*(*susy)("HMIX",2),2.)*(1.+pow((*susy)("HMIX",2),2.))/(1.+(*sus_param).epsilon0*(*susy)("HMIX",2))/72.	*(((*susy)("HMIX", 00)+(*susy)("HMIX", 01)*(*susy)("HMIX",2))*(-(*susy)("HMIX", 01)+(*sus_param).epsilonb*(*susy)("HMIX", 00))*pow(wilson_p("WPARAM_MATCH_SM", {5,1})/(*susy)("MASS",25),2.)
-		+((*susy)("HMIX", 10)+(*susy)("HMIX", 11)*(*susy)("HMIX",2))*(-(*susy)("HMIX", 11)+(*sus_param).epsilonb*(*susy)("HMIX", 10))*pow(wilson_p("WPARAM_MATCH_SM", {5,1})/(*susy)("MASS",35),2.)
-		+((*susy)("HMIX", 20)+(*susy)("HMIX", 21)*(*susy)("HMIX",2))*(-(*susy)("HMIX", 21)+(*sus_param).epsilonb*(*susy)("HMIX", 20))*pow(wilson_p("WPARAM_MATCH_SM", {5,1})/(*sus_param).mass_H03,2.)
+		double mass_b_muW = wilson_p("WPARAM_MATCH_SM", {5,1});
 
-		+((*susy)("AMIX", 00)+(*susy)("AMIX", 01)*(*susy)("HMIX",2))*(-(*susy)("AMIX", 01)+(*sus_param).epsilonb*(*susy)("AMIX", 00))*pow(wilson_p("WPARAM_MATCH_SM", {5,1})/(*susy)("MASS",36),2.) //mass_A0 = 36 ? = HO3 ?
-		+((*susy)("AMIX", 10)+(*susy)("AMIX", 11)*(*susy)("HMIX",2))*(-(*susy)("AMIX", 11)+(*sus_param).epsilonb*(*susy)("AMIX", 10))*pow(wilson_p("WPARAM_MATCH_SM", {5,1})/(*sus_param).mass_A02,2.));
+		double epsilon0 = src.at({ParameterType::WILSON, "EPSILON_SUSY", {0,1}})->get_val();
+		double epsilon0p = src.at({ParameterType::WILSON, "EPSILON_SUSY", {0,2}})->get_val();
+		double epsilon1p = src.at({ParameterType::WILSON, "EPSILON_SUSY", 1})->get_val();
+		double epsilon2 = src.at({ParameterType::WILSON, "EPSILON_SUSY", 2})->get_val();
+		double epsilonb = src.at({ParameterType::WILSON, "EPSILON_SUSY", 3})->get_val();
+		double epsilonbp = src.at({ParameterType::WILSON, "EPSILON_SUSY", 4})->get_val();
 
-    }
+		double H03  = 0.; //TODO, wtf
+		double A02 = 0.; //TODO, WTF
+		complex_t C7SMeps_0= (epsilonb-epsilonbp)/(1.+epsilonb*tanb)*tanb*F7_2((*sus_param).xt);
+		complex_t C7Heps_0=(-epsilon0p-epsilonb)/(1.+epsilonb*tanb)*tanb*F7_2(yt);
 
-    complex_t C7charg_0 = 0.0;
-	complex_t C7_chargeps_0 = 0.0;
+		complex_t C7Heps2_0=0.;
 
-	for (int ie = 0; ie < 2; ++ie) {
-		for (int ae = 0; ae < 6; ++ae) {
-			
-			C7charg_0 += calculateContribution(h10, (*sus_param).X_UL,(*sus_param).X_UL, ie, ae, false) + (*sus_param).Mch[ie]/wilson_p("WPARAM_MATCH_SM", {5,1}) *calculateContribution(h20, (*sus_param).X_UL, (*sus_param).X_UR, ie, ae, false);
-			C7_chargeps_0 += (*sus_param).Mch[ie]/wilson_p("WPARAM_MATCH_SM", {5,1}) *calculateContribution(h20, (*sus_param).X_UL, (*sus_param).X_UR, ie, ae, true);
+		if((A02==0.)&&(H03==0.)) {
+			C7Heps2_0=-epsilon2*epsilon1p*pow(tanb,2.)/(1.+epsilonb*tanb)/(1.+epsilon0*tanb)*F7_2(yt);
+			C7Heps2_0+=epsilon2/pow(1.+epsilonb*tanb,2.)*(1.+pow(tanb,2.))/(1.+epsilon0*tanb)/72.		*((cos(alpha)+sin(alpha)*tanb)*(-sin(alpha)+epsilonb*cos(alpha))*pow(mass_b_muW/mh,2.)
+			+(sin(alpha)-cos(alpha)*tanb)*(cos(alpha)+epsilonb*sin(alpha))*pow(mass_b_muW/mH0,2.)			+(-cos(atan(tanb))-sin(atan(tanb))*tanb)*(sin(atan(tanb))-epsilonb*cos(atan(tanb)))*pow(mass_b_muW/mA0,2.));
 
 		}
-	}
+		else {		
+			C7Heps2_0=-epsilon2*epsilon1p*pow(tanb,2.)/(1.+epsilonb*tanb)/(1.+epsilon0*tanb)*F7_2(yt);
+			C7Heps2_0+=epsilon2/pow(1.+epsilonb*tanb,2.)*(1.+pow(tanb,2.))/(1.+epsilon0*tanb)/72.	*(((*susy)("HMIX", 00)+(*susy)("HMIX", 01)*tanb)*(-(*susy)("HMIX", 01)+epsilonb*(*susy)("HMIX", 00))*pow(mass_b_muW/mh,2.)
+			+((*susy)("HMIX", 10)+(*susy)("HMIX", 11)*tanb)*(-(*susy)("HMIX", 11)+epsilonb*(*susy)("HMIX", 10))*pow(mass_b_muW/mH0,2.)
+			+((*susy)("HMIX", 20)+(*susy)("HMIX", 21)*tanb)*(-(*susy)("HMIX", 21)+epsilonb*(*susy)("HMIX", 20))*pow(mass_b_muW/H03,2.)
 
-    complex_t C7H_0 = 1./3.*sus_param->lu*sus_param->lu*F7_1(sus_param->yt) - sus_param->lu*sus_param->ld*F7_2(sus_param->yt);
+			+((*susy)("AMIX", 00)+(*susy)("AMIX", 01)*tanb)*(-(*susy)("AMIX", 01)+epsilonb*(*susy)("AMIX", 00))*pow(mass_b_muW/mA0,2.) //mass_A0 = 36 ? = HO3 ?
+			+((*susy)("AMIX", 10)+(*susy)("AMIX", 11)*tanb)*(-(*susy)("AMIX", 11)+epsilonb*(*susy)("AMIX", 10))*pow(mass_b_muW/A02,2.));
 
-    this->set_WilsonCoeffMatching("LO", C7SMeps_0 + C7Heps_0 + C7Heps2_0 + C7charg_0 + C7_chargeps_0+C7H_0);
-    // return C7SMeps_0 + C7Heps_0 + C7Heps2_0 + C7charg_0 + C7_chargeps_0 + C7H_0;
+		}
+
+		complex_t C7charg_0 = 0.0;
+		complex_t C7_chargeps_0 = 0.0;
+
+		for (int ie = 0; ie < 2; ++ie) {
+			for (int ae = 0; ae < 6; ++ae) {
+				
+				C7charg_0 += calculateContribution(h10, (*sus_param).X_UL,(*sus_param).X_UL, ie, ae, false) + (*sus_param).Mch[ie]/mass_b_muW *calculateContribution(h20, (*sus_param).X_UL, (*sus_param).X_UR, ie, ae, false);
+				C7_chargeps_0 += (*sus_param).Mch[ie]/mass_b_muW *calculateContribution(h20, (*sus_param).X_UL, (*sus_param).X_UR, ie, ae, true);
+
+			}
+		}
+
+		complex_t C7H_0 = 1./3.*lu*lu*F7_1(yt) - lu*ld*F7_2(yt);
+
+        dep_param->set_expected(C7SMeps_0 + C7Heps_0 + C7Heps2_0 + C7charg_0 + C7_chargeps_0+C7H_0);
+    };
+
+    WilsonParamComposer().compose_parameter(ParamId{"B_MATCH_BSM", LhaID(3050707, 4133, 2, 0)}, sources, func);
+
+    // complex_t C7SMeps_0= ((*sus_param).epsilonb-(*sus_param).epsilonbp)/(1.+(*sus_param).epsilonb*(*susy)("HMIX",2))*(*susy)("HMIX",2)*F7_2((*sus_param).xt);
+    // complex_t C7Heps_0=(-(*sus_param).epsilon0p-(*sus_param).epsilonb)/(1.+(*sus_param).epsilonb*(*susy)("HMIX",2))*(*susy)("HMIX",2)*F7_2((*sus_param).yt);
+
+    // complex_t C7Heps2_0=0.;
+
+    // if(((*sus_param).mass_A02==0.)&&((*sus_param).mass_H03==0.)) {
+    //     C7Heps2_0=-(*sus_param).epsilon2*(*sus_param).epsilon1p*pow((*susy)("HMIX",2),2.)/(1.+(*sus_param).epsilonb*(*susy)("HMIX",2))/(1.+(*sus_param).epsilon0*(*susy)("HMIX",2))*F7_2((*sus_param).yt);
+    //     C7Heps2_0+=(*sus_param).epsilon2/pow(1.+(*sus_param).epsilonb*(*susy)("HMIX",2),2.)*(1.+pow((*susy)("HMIX",2),2.))/(1.+(*sus_param).epsilon0*(*susy)("HMIX",2))/72.		*((cos((*susy)("ALPHA",0))+sin((*susy)("ALPHA",0))*(*susy)("HMIX",2))*(-sin((*susy)("ALPHA",0))+(*sus_param).epsilonb*cos((*susy)("ALPHA",0)))*pow(wilson_p("WPARAM_MATCH_SM", {5,1})/(*susy)("MASS",25),2.)
+    //     +(sin((*susy)("ALPHA",0))-cos((*susy)("ALPHA",0))*(*susy)("HMIX",2))*(cos((*susy)("ALPHA",0))+(*sus_param).epsilonb*sin((*susy)("ALPHA",0)))*pow(wilson_p("WPARAM_MATCH_SM", {5,1})/(*susy)("MASS",35),2.)			+(-cos(atan((*susy)("HMIX",2)))-sin(atan((*susy)("HMIX",2)))*(*susy)("HMIX",2))*(sin(atan((*susy)("HMIX",2)))-(*sus_param).epsilonb*cos(atan((*susy)("HMIX",2))))*pow(wilson_p("WPARAM_MATCH_SM", {5,1})/(*susy)("MASS",36),2.));
+
+    // }
+	// else {		
+	// 	C7Heps2_0=-(*sus_param).epsilon2*(*sus_param).epsilon1p*pow((*susy)("HMIX",2),2.)/(1.+(*sus_param).epsilonb*(*susy)("HMIX",2))/(1.+(*sus_param).epsilon0*(*susy)("HMIX",2))*F7_2((*sus_param).yt);
+	// 	C7Heps2_0+=(*sus_param).epsilon2/pow(1.+(*sus_param).epsilonb*(*susy)("HMIX",2),2.)*(1.+pow((*susy)("HMIX",2),2.))/(1.+(*sus_param).epsilon0*(*susy)("HMIX",2))/72.	*(((*susy)("HMIX", 00)+(*susy)("HMIX", 01)*(*susy)("HMIX",2))*(-(*susy)("HMIX", 01)+(*sus_param).epsilonb*(*susy)("HMIX", 00))*pow(wilson_p("WPARAM_MATCH_SM", {5,1})/(*susy)("MASS",25),2.)
+	// 	+((*susy)("HMIX", 10)+(*susy)("HMIX", 11)*(*susy)("HMIX",2))*(-(*susy)("HMIX", 11)+(*sus_param).epsilonb*(*susy)("HMIX", 10))*pow(wilson_p("WPARAM_MATCH_SM", {5,1})/(*susy)("MASS",35),2.)
+	// 	+((*susy)("HMIX", 20)+(*susy)("HMIX", 21)*(*susy)("HMIX",2))*(-(*susy)("HMIX", 21)+(*sus_param).epsilonb*(*susy)("HMIX", 20))*pow(wilson_p("WPARAM_MATCH_SM", {5,1})/(*sus_param).mass_H03,2.)
+
+	// 	+((*susy)("AMIX", 00)+(*susy)("AMIX", 01)*(*susy)("HMIX",2))*(-(*susy)("AMIX", 01)+(*sus_param).epsilonb*(*susy)("AMIX", 00))*pow(wilson_p("WPARAM_MATCH_SM", {5,1})/(*susy)("MASS",36),2.) //mass_A0 = 36 ? = HO3 ?
+	// 	+((*susy)("AMIX", 10)+(*susy)("AMIX", 11)*(*susy)("HMIX",2))*(-(*susy)("AMIX", 11)+(*sus_param).epsilonb*(*susy)("AMIX", 10))*pow(wilson_p("WPARAM_MATCH_SM", {5,1})/(*sus_param).mass_A02,2.));
+
+    // }
+
+    // complex_t C7charg_0 = 0.0;
+	// complex_t C7_chargeps_0 = 0.0;
+
+	// for (int ie = 0; ie < 2; ++ie) {
+	// 	for (int ae = 0; ae < 6; ++ae) {
+			
+	// 		C7charg_0 += calculateContribution(h10, (*sus_param).X_UL,(*sus_param).X_UL, ie, ae, false) + (*sus_param).Mch[ie]/wilson_p("WPARAM_MATCH_SM", {5,1}) *calculateContribution(h20, (*sus_param).X_UL, (*sus_param).X_UR, ie, ae, false);
+	// 		C7_chargeps_0 += (*sus_param).Mch[ie]/wilson_p("WPARAM_MATCH_SM", {5,1}) *calculateContribution(h20, (*sus_param).X_UL, (*sus_param).X_UR, ie, ae, true);
+
+	// 	}
+	// }
+
+    // complex_t C7H_0 = 1./3.*sus_param->lu*sus_param->lu*F7_1(sus_param->yt) - sus_param->lu*sus_param->ld*F7_2(sus_param->yt);
+
+    // this->set_WilsonCoeffMatching("LO", C7SMeps_0 + C7Heps_0 + C7Heps2_0 + C7charg_0 + C7_chargeps_0+C7H_0);
+    // // return C7SMeps_0 + C7Heps_0 + C7Heps2_0 + C7charg_0 + C7_chargeps_0 + C7H_0;
 
 }
 
