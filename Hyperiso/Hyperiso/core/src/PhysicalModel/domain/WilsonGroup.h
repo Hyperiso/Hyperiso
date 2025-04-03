@@ -9,6 +9,8 @@
 #include "MartyWilson.h"
 #include "UseMarty.h"
 
+using BRP = BWilsonRunningParameters;
+
 class CoefficientGroup : public std::map<std::string, std::shared_ptr<WilsonCoefficient>> {
 public:
 
@@ -89,10 +91,7 @@ public:
     }
     
     void set_Q_run(double Q_run) {
-        this->Q_run = Q_run; 
-        for (auto& coeff : *this) {
-            coeff.second->set_Q(Q_run);
-        }
+        this->Q_run = Q_run;
     }
 
     virtual void set_base_1_LO() =0;

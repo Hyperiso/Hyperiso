@@ -37,6 +37,30 @@ struct BWilsonRunningParameters {
 	static constexpr double e_4[8]={-0.00799,-0.03666,0.06400,0.,-0.01519,-0.00071,0.,-0.00344};
 	static constexpr double e_5[8]={0.19550,-0.93249,0.37858,0.,0.39909,0.05921,0.,-0.09989};
 	static constexpr double e_6[8]={-0.17154,0.39616,0.01201,0.,-0.19423,0.00357,0.,-0.04597};
+
+	static constexpr double y_std[8] = {0, 0, -1./3, -4./9, -20./3, -80./9, 1, 0};
+	static constexpr double z_std[8] = {0, 0, 1, -1./6, 20, -10./3, 0, 1};
+
+	static inline complex_t C7_eff_std(const std::array<complex_t, 10>& Ci) {
+		complex_t C {0};
+            for (size_t k = 0; k < 8; k++) {
+                C += Ci[k] * BWilsonRunningParameters::y_std[k];
+            }
+            return C;
+	}
+
+	static inline complex_t C8_eff_std(const std::array<complex_t, 10>& Ci) {
+		complex_t C {0};
+            for (size_t k = 0; k < 8; k++) {
+                C += Ci[k] * BWilsonRunningParameters::z_std[k];
+            }
+            return C;
+	}
+
+	static const std::array<std::array<double, 8>, 8> std_to_trad_LO;
+	static const std::array<std::array<double, 8>, 8> std_to_trad_NLO;
+
+	static constexpr double exp_prime_running[12] = {0, 0, 0, 0, 0, 0, 16./23, 14./23, 0, 0, -12./23, -12./23};
 };
 
 #endif // __BWILSONRUNNINGPARAMETERS_H__

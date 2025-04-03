@@ -41,7 +41,7 @@ public:
     // void set_WilsonCoeffMatching(std::string order ,complex_t value) {this->CoefficientMatchingValue[order] = value;}
 
     complex_t get_CoefficientMatchingValue(std::string order) const {
-        auto base_id = WCoefMapper::flha(WCoefMapper::enum_elt(this->CoeffName));
+        auto base_id = WCoefMapper::flha_base(WCoefMapper::enum_elt(this->CoeffName));
         auto order_id = static_cast<long>(OrderMapper::enum_elt(order));
         LhaID code(base_id.first, base_id.second, order_id, static_cast<long>(this->bsm));
         return complex_t(wilson_p("B_MATCH", code), wilson_p("IMB_MATCH", code));
