@@ -14,24 +14,16 @@ protected:
     WilsonCoefficient() : Q_match(81.), Q(42.) {}
     WilsonCoefficient(double Q_match) : Q_match(Q_match), Q(42.) {}
 
-
     void is_now_calculated(std::string order) {this->is_calculated[order] = true;}
 
     std::string CoeffName{};
     bool bsm {false};
     bool is_owned {false};
-    ParameterProxy wilson_p {ParameterType::WILSON};
-    ParameterProxy sm {ParameterType::SM};
 
 public:
     void set_Q_match(double Q_match) {
         this->Q_match = Q_match;
         WilsonParameterHelper::set_mu_W(Q_match);
-    }
-
-    void set_Q(double Q) {
-        this->Q = Q;
-        WilsonParameterHelper::set_mu(Q_match);
     }
     
     void set_name(std::string name) {this->CoeffName = name;}

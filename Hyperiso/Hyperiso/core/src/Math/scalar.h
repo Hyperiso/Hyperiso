@@ -20,6 +20,10 @@ public:
         return this->real();
     };
 
+    scalar_t operator-() const {
+        return -static_cast<complex_t>(*this);
+    }
+
     template<typename T>
     requires std::convertible_to<T, std::complex<double>>
     scalar_t& operator+=(const T& rhs) {
