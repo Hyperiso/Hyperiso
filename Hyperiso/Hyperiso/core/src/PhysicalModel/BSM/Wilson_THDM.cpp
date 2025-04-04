@@ -433,7 +433,7 @@ void CQ1_THDM::LO_calculation() {
         double xH = src.at({ParameterType::WILSON, "WPARAM_SI_BSM", 2})->get_val();
         double xH0 = src.at({ParameterType::WILSON, "WPARAM_SI_BSM", 3})->get_val();
         double xt = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {2,1}})->get_val();
-        double m_W = src.at({ParameterType::WILSON, "MASS", 24})->get_val();
+        double m_W = src.at({ParameterType::SM, "MASS", 24})->get_val();
         double ml = src.at({ParameterType::WILSON, "WPARAM_SI_SM", 3})->get_val();
         double mass_top_muW = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 6})->get_val();
         double le = src.at({ParameterType::WILSON, "WPARAM_SI_BSM", 10})->get_val();
@@ -486,7 +486,7 @@ void CQ2_THDM::LO_calculation() {
         double xH = src.at({ParameterType::WILSON, "WPARAM_SI_BSM", 2})->get_val();
         double xA = src.at({ParameterType::WILSON, "WPARAM_SI_BSM", 4})->get_val();
         double xt = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {2,1}})->get_val();
-        double m_W = src.at({ParameterType::WILSON, "MASS", 24})->get_val();
+        double m_W = src.at({ParameterType::SM, "MASS", 24})->get_val();
         double ml = src.at({ParameterType::WILSON, "WPARAM_SI_SM", 3})->get_val();
         double mass_b_muW = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {5,1}})->get_val();
         double le = src.at({ParameterType::WILSON, "WPARAM_SI_BSM", 10})->get_val();
@@ -513,22 +513,110 @@ void CQ2_THDM::LO_calculation() {
 }
 
 void C_Blnu_P_THDM::LO_calculation() {
-    double m_b = QCDHelper::mass_b_msbar();
-    double m_tau = sm("MASS", 15);
-    double l_tau = (*mod)("YL", 22);
-    // return this->double_to_complex_save("LO", -m_b * m_tau * thdm_params->ld * l_tau / std::pow(thdm_params->m_H, 2));
+
+    std::unordered_set<ParamId> sources {
+        {"WPARAM_SI_SM", 4},
+        {"WPARAM_SI_BSM", 4},
+        {"WPARAM_SI_BSM", 6},
+        {"WPARAM_SI_BSM", 7},
+        {"WPARAM_SI_BSM", 8},
+        {"WPARAM_SI_BSM", 10},
+        {"WPARAM_MATCH_SM", {2,1}},
+        {"WPARAM_MATCH_SM", {5,1}},
+        {ParameterType::SM, "MASS", 24}
+    };
+
+
+    auto func = [] (const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src, std::shared_ptr<DependentParameter> dep_param) {
+        double sw2 = src.at({ParameterType::WILSON, "WPARAM_SI_SM", 4})->get_val();
+        double lu = src.at({ParameterType::WILSON, "WPARAM_SI_BSM", 7})->get_val();
+        double ld = src.at({ParameterType::WILSON, "WPARAM_SI_BSM", 8})->get_val();
+        double mH = src.at({ParameterType::SUSY, "MASS", 37})->get_val();
+
+        double m_b = QCDHelper::mass_b_msbar();
+        double m_tau = src.at({ParameterType::SM, "MASS", 15})->get_val();
+        double l_tau = src.at({ParameterType::THDM, "YL", 22})->get_val();
+
+        dep_param->set_expected(-m_b * m_tau * ld * l_tau / std::pow(mH, 2));
+    };
+
+    WilsonParamComposer().compose_parameter(ParamId{"B_MATCH_BSM", LhaID(3051313, 3230, 0, 0)}, sources, func);
+
+    // double m_b = QCDHelper::mass_b_msbar();
+    // double m_tau = sm("MASS", 15);
+    // double l_tau = (*mod)("YL", 22);
+    // // return this->double_to_complex_save("LO", -m_b * m_tau * thdm_params->ld * l_tau / std::pow(thdm_params->m_H, 2));
 }
 
+//TODO : wtf ? all the same ?
 void C_S1_THDM::LO_calculation() {
-    double m_b = QCDHelper::mass_b_msbar();
-    double m_tau = sm("MASS", 15);
-    double l_tau = (*mod)("YL", 22);
-    // return this->double_to_complex_save("LO", -m_b * m_tau * thdm_params->ld * l_tau / std::pow(thdm_params->m_H, 2));
+
+    std::unordered_set<ParamId> sources {
+        {"WPARAM_SI_SM", 4},
+        {"WPARAM_SI_BSM", 4},
+        {"WPARAM_SI_BSM", 6},
+        {"WPARAM_SI_BSM", 7},
+        {"WPARAM_SI_BSM", 8},
+        {"WPARAM_SI_BSM", 10},
+        {"WPARAM_MATCH_SM", {2,1}},
+        {"WPARAM_MATCH_SM", {5,1}},
+        {ParameterType::SM, "MASS", 24}
+    };
+
+
+    auto func = [] (const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src, std::shared_ptr<DependentParameter> dep_param) {
+        double sw2 = src.at({ParameterType::WILSON, "WPARAM_SI_SM", 4})->get_val();
+        double lu = src.at({ParameterType::WILSON, "WPARAM_SI_BSM", 7})->get_val();
+        double ld = src.at({ParameterType::WILSON, "WPARAM_SI_BSM", 8})->get_val();
+        double mH = src.at({ParameterType::SUSY, "MASS", 37})->get_val();
+
+        double m_b = QCDHelper::mass_b_msbar();
+        double m_tau = src.at({ParameterType::SM, "MASS", 15})->get_val();
+        double l_tau = src.at({ParameterType::THDM, "YL", 22})->get_val();
+
+        dep_param->set_expected(-m_b * m_tau * ld * l_tau / std::pow(mH, 2));
+    };
+
+    WilsonParamComposer().compose_parameter(ParamId{"B_MATCH_BSM", LhaID(3051313, 3230, 0, 0)}, sources, func);
+
+    // double m_b = QCDHelper::mass_b_msbar();
+    // double m_tau = sm("MASS", 15);
+    // double l_tau = (*mod)("YL", 22);
+    // // return this->double_to_complex_save("LO", -m_b * m_tau * thdm_params->ld * l_tau / std::pow(thdm_params->m_H, 2));
 }
 
 void C_S2_THDM::LO_calculation() {
-    double m_c = sm("MASS", 4);
-    double m_tau = sm("MASS", 15);
-    double l_tau = (*mod)("YL", 22);
-    // return this->double_to_complex_save("LO", -m_c * m_tau * thdm_params->lu * l_tau / std::pow(thdm_params->m_H, 2));
+
+    std::unordered_set<ParamId> sources {
+        {"WPARAM_SI_SM", 4},
+        {"WPARAM_SI_BSM", 4},
+        {"WPARAM_SI_BSM", 6},
+        {"WPARAM_SI_BSM", 7},
+        {"WPARAM_SI_BSM", 8},
+        {"WPARAM_SI_BSM", 10},
+        {"WPARAM_MATCH_SM", {2,1}},
+        {"WPARAM_MATCH_SM", {5,1}},
+        {ParameterType::SM, "MASS", 24}
+    };
+
+
+    auto func = [] (const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src, std::shared_ptr<DependentParameter> dep_param) {
+        double sw2 = src.at({ParameterType::WILSON, "WPARAM_SI_SM", 4})->get_val();
+        double lu = src.at({ParameterType::WILSON, "WPARAM_SI_BSM", 7})->get_val();
+        double ld = src.at({ParameterType::WILSON, "WPARAM_SI_BSM", 8})->get_val();
+        double mH = src.at({ParameterType::SUSY, "MASS", 37})->get_val();
+
+        double m_c = src.at({ParameterType::SM, "MASS", 4})->get_val(); // mass c does not run ?
+        double m_tau = src.at({ParameterType::SM, "MASS", 15})->get_val();
+        double l_tau = src.at({ParameterType::THDM, "YL", 22})->get_val();
+
+        dep_param->set_expected(-m_c * m_tau * lu * l_tau / std::pow(mH, 2));
+    };
+
+    WilsonParamComposer().compose_parameter(ParamId{"B_MATCH_BSM", LhaID(3051313, 3230, 0, 0)}, sources, func);
+
+    // double m_c = sm("MASS", 4);
+    // double m_tau = sm("MASS", 15);
+    // double l_tau = (*mod)("YL", 22);
+    // // return this->double_to_complex_save("LO", -m_c * m_tau * thdm_params->lu * l_tau / std::pow(thdm_params->m_H, 2));
 }
