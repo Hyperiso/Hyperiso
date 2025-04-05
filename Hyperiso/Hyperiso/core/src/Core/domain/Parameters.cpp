@@ -59,7 +59,8 @@ std::unordered_set<std::string> Parameters::get_blocks_list() {
 
 std::unordered_set<std::string> Parameters::init_blocks(ParameterType type) {
     std::unordered_set<std::string> existing, missing;
-    if (type == ParameterType::CUSTOM) {
+    
+    if (ParameterTypeMapper::str(type) == ModelMapper::str(MemoryManager::GetInstance()->getMemoryCache().config.model)) {
         auto block_names = MemoryManager::GetInstance()->input_cache->get_block_names();
         this->blockAccessor = MemoryManager::GetInstance()->extract_blocks(ParamRouter::GetOwnedBlocks(type));
     } else {
@@ -128,25 +129,30 @@ void SMModelStrategy::initializeParameters(Parameters& params) {
     // TODO : Export savestate to JSON
 }
 
-void SUSYModelStrategy::initializeParameters(Parameters& params) {
-    params.init_blocks(ParameterType::SUSY);
+void BSMModelStrategy::initializeParameters(Parameters& params) {
+    params.init_blocks(ParameterType::BSM);
     // TODO : Export savestate to JSON
 }
 
-void THDMModelStrategy::initializeParameters(Parameters& params) {
-    params.init_blocks(ParameterType::THDM);
-    // TODO : Export savestate to JSON
-}
+// void SUSYModelStrategy::initializeParameters(Parameters& params) {
+//     params.init_blocks(ParameterType::BSM);
+//     // TODO : Export savestate to JSON
+// }
+
+// void THDMModelStrategy::initializeParameters(Parameters& params) {
+//     params.init_blocks(ParameterType::BSM);
+//     // TODO : Export savestate to JSON
+// }
 
 void FlavorStrategy::initializeParameters(Parameters& params) {
     params.init_blocks(ParameterType::FLAVOR);
     // TODO : Export savestate to JSON
 }   
 
-void GeneralModelStrategy::initializeParameters(Parameters& params) {
-    params.init_blocks(ParameterType::CUSTOM);
-    // TODO : Export savestate to JSON
-}
+// void GeneralModelStrategy::initializeParameters(Parameters& params) {
+//     params.init_blocks(ParameterType::BSM);
+//     // TODO : Export savestate to JSON
+// }
 
 void WilsonInputStrategy::initializeParameters(Parameters &params) {
     params.init_blocks(ParameterType::WILSON);
@@ -260,14 +266,10 @@ std::shared_ptr<ModelStrategy> ParametersFactory::createStrategy(ParameterType i
     switch (id) {
         case ParameterType::SM:
             return std::make_shared<SMModelStrategy>(SMModelStrategy());
-        case ParameterType::SUSY:
-            return std::make_shared<SUSYModelStrategy>(SUSYModelStrategy());
-        case ParameterType::THDM:
-            return std::make_shared<THDMModelStrategy>(THDMModelStrategy());
+        case ParameterType::BSM:
+            return std::make_shared<BSMModelStrategy>(BSMModelStrategy());
         case ParameterType::FLAVOR:
             return std::make_shared<FlavorStrategy>(FlavorStrategy());
-        case ParameterType::CUSTOM:
-            return std::make_shared<GeneralModelStrategy>(GeneralModelStrategy());
         case ParameterType::WILSON:
             return std::make_shared<WilsonInputStrategy>(WilsonInputStrategy());
         case ParameterType::DECAY:

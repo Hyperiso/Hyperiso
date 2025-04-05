@@ -262,9 +262,7 @@ const std::map<std::string, Model> ModelMapper::inverse_mapping = {
 
 const std::map<ParameterType, std::string> ParameterTypeMapper::mapping = {
     {ParameterType::SM, "SM"},
-    {ParameterType::SUSY, "SUSY"},
-    {ParameterType::THDM, "THDM"},
-    {ParameterType::CUSTOM, "CUSTOM"},
+    {ParameterType::BSM, "BSM"},
     {ParameterType::FLAVOR, "FLAVOR"},
     {ParameterType::WILSON, "WILSON"},
     {ParameterType::DECAY, "DECAY"},
@@ -272,9 +270,7 @@ const std::map<ParameterType, std::string> ParameterTypeMapper::mapping = {
 
 const std::map<std::string, ParameterType> ParameterTypeMapper::inverse_mapping = {
     {"SM", ParameterType::SM},
-    {"SUSY", ParameterType::SUSY},
-    {"THDM", ParameterType::THDM},
-    {"CUSTOM", ParameterType::CUSTOM},
+    {"BSM", ParameterType::BSM},
     {"FLAVOR", ParameterType::FLAVOR},
     {"WILSON", ParameterType::WILSON},
     {"DECAY", ParameterType::DECAY},

@@ -11,9 +11,10 @@
 
 struct ParameterBlockRepartition {
     static inline const std::map<ParameterType, std::unordered_set<std::string>> BLOCKS {
-        {ParameterType::SM, {"SMINPUTS", "MASS", "VCKMIN", "UPMNSIN", "GAUGE", "RECKM", "IMCKM", "UPMNS", "IMUPMNS"}},
-        {ParameterType::SUSY, {"MASS", "HMIX", "ALPHA", "MSOFT", "NMIX", "UMIX", "VMIX", "A0MIX", "H0MIX", "STOPMIX", "SBOTMIX", "STAUMIX", "AU", "AD", "AE", "YU", "YD", "YE"}},
-        {ParameterType::THDM, {"MASS", "ALPHA", "UCOUPL", "DCOUPL", "LCOUPL"}},
+        {ParameterType::SM, {"SMINPUTS", "MASS", "VCKMIN", "UPMNSIN", "VCKMIN", "UPMNS", "IMUPMNS"}}, //TODO VCKM, GAUGE
+        // {ParameterType::SUSY, {"MASS", "HMIX", "ALPHA", "MSOFT", "NMIX", "UMIX", "VMIX", "A0MIX", "H0MIX", "STOPMIX", "SBOTMIX", "STAUMIX", "AU", "AD", "AE", "YU", "YD", "YE"}},
+        // {ParameterType::THDM, {"MASS", "ALPHA", "UCOUPL", "DCOUPL", "LCOUPL"}},
+        {ParameterType::BSM, {"MASS", "HMIX", "ALPHA", "MSOFT", "NMIX", "UMIX", "VMIX", "A0MIX", "H0MIX", "STOPMIX", "SBOTMIX", "STAUMIX", "AU", "AD", "AE", "YU", "YD", "YE",  "UCOUPL", "DCOUPL", "LCOUPL"}},
         {ParameterType::FLAVOR, {"FMASS", "FLIFE", "FCONST", "FCONSTRATIO", "FBAG", "FPARAM"}},
         {ParameterType::WILSON, {"FWCOEF", "IMFWCOEF", "SCALES"}},
         {ParameterType::DECAY, {"B_Ks", "B_ll", "B_Xs", "B_Dlnu", "B_Dslnu"}},

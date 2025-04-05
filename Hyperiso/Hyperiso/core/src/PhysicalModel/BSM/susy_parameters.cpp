@@ -606,8 +606,8 @@ void susy_parameters::init_matching_block(double mu_W) {
 			double result = 0.0;
 			for (int ae = 0; ae < 6; ++ae) {
 				double msqOverMchSquared = std::pow(src.at("WPARAM_SI_BSM")->retrieve({14, ae})->get_val() / src.at("WPARAM_SI_BSM")->retrieve({13, ie})->get_val(), 2.0);
-				result += (X_UL[ie][ae][0] * X_UL[ie][ae][1] * func(msqOverMchSquared) +
-				src.at("WPARAM_SI_BSM")->retrieve({13, ie})->get_val() / wilson_p("WPARAM_MATCH_SM", {5,1}) * X_UL[ie][ae][0] * X_UR[ie][ae][1] * func(msqOverMchSquared)) * additionalFactor;
+				result += (X_UL[ie][ae][0] * X_UL[ie][ae][1] * func(msqOverMchSquared) + 
+				src.at("WPARAM_SI_BSM")->retrieve({13, ie})->get_val() / src.at("WPARAM_MATCH_SM")->retrieve({5,1})->get_val() * X_UL[ie][ae][0] * X_UR[ie][ae][1] * func(msqOverMchSquared)) * additionalFactor;
 			}
 			return result;
 		};

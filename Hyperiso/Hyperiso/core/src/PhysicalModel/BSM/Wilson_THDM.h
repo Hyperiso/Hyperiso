@@ -13,7 +13,7 @@ protected:
     void set_mod_parameters(std::shared_ptr<Parameters> new_mod) {this->mod = new_mod;};
     
 
-    std::shared_ptr<Parameters> mod = Parameters::GetInstance(ParameterType::THDM);
+    std::shared_ptr<Parameters> mod = Parameters::GetInstance(ParameterType::BSM);
 
 };
 class C1_THDM : public C1, public WilsonCoefficient_THDM {

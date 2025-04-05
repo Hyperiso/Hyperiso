@@ -26,15 +26,15 @@ ParameterType ParamRouter::GetType(std::string block, LhaID id) {
         switch (MemoryManager::GetInstance()->getMemoryCache().config.model) {
         case Model::THDM:
             if (ParametersAccessRights::THDM_RIGHTS.at(block).contains(id))
-                return ParameterType::THDM;
+                return ParameterType::BSM;
             break;
         case Model::SUSY:
             if (ParametersAccessRights::SUSY_RIGHTS.at(block).contains(id))
-                return ParameterType::SUSY;
+                return ParameterType::BSM;
             break;
         case Model::CUSTOM: // Janky
             if (!ParametersAccessRights::SM_RIGHTS.at(block).contains(id))
-                return ParameterType::THDM;
+                return ParameterType::BSM;
             break;
         default:
             break;

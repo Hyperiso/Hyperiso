@@ -41,17 +41,23 @@ public:
     void initializeParameters(class Parameters& params) override;
 };
 
-/** @class SUSYModelStrategy @brief Strategy for SUSY models. */
-class SUSYModelStrategy : public ModelStrategy {
-public:
-    void initializeParameters(class Parameters& params) override;
-};
+/** @class BSMModelStrategy @brief Strategy for BSM models. */
+class BSMModelStrategy : public ModelStrategy {
+    public:
+        void initializeParameters(class Parameters& params) override;
+    };
 
-/** @class THDMModelStrategy @brief Strategy for Two-Higgs-Doublet Models. */
-class THDMModelStrategy : public ModelStrategy {
-public:
-    void initializeParameters(class Parameters& params) override;
-};
+// /** @class SUSYModelStrategy @brief Strategy for SUSY models. */
+// class SUSYModelStrategy : public ModelStrategy {
+// public:
+//     void initializeParameters(class Parameters& params) override;
+// };
+
+// /** @class THDMModelStrategy @brief Strategy for Two-Higgs-Doublet Models. */
+// class THDMModelStrategy : public ModelStrategy {
+// public:
+//     void initializeParameters(class Parameters& params) override;
+// };
 
 /** @class FlavorStrategy @brief Strategy for flavor physics parameters. */
 class FlavorStrategy : public ModelStrategy {

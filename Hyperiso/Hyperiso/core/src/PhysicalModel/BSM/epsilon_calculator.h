@@ -11,7 +11,7 @@
 class EpsilonCalculator {
 protected:
     std::shared_ptr<Parameters> sm = Parameters::GetInstance(ParameterType::SM);
-    std::shared_ptr<Parameters> susy = Parameters::GetInstance(ParameterType::SUSY);
+    std::shared_ptr<Parameters> susy = Parameters::GetInstance(ParameterType::BSM);
 
     double mu_Q = (*susy)("HMIX",1);
     

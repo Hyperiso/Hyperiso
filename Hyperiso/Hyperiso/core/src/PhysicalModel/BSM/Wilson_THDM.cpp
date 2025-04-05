@@ -7,7 +7,7 @@ void C3_THDM::NNLO_calculation() {
         {"WPARAM_SI_BSM", 7},
         {"WPARAM_MATCH_BSM", 1},
         {"SCALE", 1},
-        {ParameterType::THDM, "MASS", 37}
+        {ParameterType::BSM, "MASS", 37}
     };
 
     auto func = [] (const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src, std::shared_ptr<DependentParameter> dep_param) {
@@ -49,7 +49,7 @@ void C4_THDM::NNLO_calculation() {
         {"WPARAM_SI_BSM", 7},
         {"WPARAM_MATCH_BSM", 1},
         {"SCALE", 1},
-        {ParameterType::THDM, "MASS", 37}
+        {ParameterType::BSM, "MASS", 37}
     };
 
     auto func = [] (const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src, std::shared_ptr<DependentParameter> dep_param) {
@@ -74,7 +74,7 @@ void C5_THDM::NNLO_calculation() {
         {"WPARAM_SI_BSM", 7},
         {"WPARAM_MATCH_BSM", 1},
         {"SCALE", 1},
-        {ParameterType::THDM, "MASS", 37}
+        {ParameterType::BSM, "MASS", 37}
     };
 
     auto func = [] (const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src, std::shared_ptr<DependentParameter> dep_param) {
@@ -104,7 +104,7 @@ void C6_THDM::NNLO_calculation() {
         {"WPARAM_SI_BSM", 7},
         {"WPARAM_MATCH_BSM", 1},
         {"SCALE", 1},
-        {ParameterType::THDM, "MASS", 37}
+        {ParameterType::BSM, "MASS", 37}
     };
 
     auto func = [] (const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src, std::shared_ptr<DependentParameter> dep_param) {
@@ -163,7 +163,7 @@ void C7_THDM::NLO_calculation() {
         {"WPARAM_SI_BSM", 8},
         {"WPARAM_MATCH_BSM", 1},
         {"SCALE", 1},
-        {ParameterType::THDM, "MASS", 37}
+        {ParameterType::BSM, "MASS", 37}
     };
 
     auto func = [] (const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src, std::shared_ptr<DependentParameter> dep_param) {
@@ -243,7 +243,7 @@ void C8_THDM::NLO_calculation() {
         {"WPARAM_SI_BSM", 8},
         {"WPARAM_MATCH_BSM", 1},
         {"SCALE", 1},
-        {ParameterType::THDM, "MASS", 37}
+        {ParameterType::BSM, "MASS", 37}
     };
 
     auto func = [] (const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src, std::shared_ptr<DependentParameter> dep_param) {
@@ -274,7 +274,7 @@ void C8_THDM::NNLO_calculation() {
         {"WPARAM_MATCH_BSM", 1},
         {"WPARAM_MATCH_SM", 6},
         {"SCALE", 1},
-        {ParameterType::THDM, "MASS", 37}
+        {ParameterType::BSM, "MASS", 37}
     };
 
     auto func = [] (const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src, std::shared_ptr<DependentParameter> dep_param) {
@@ -329,7 +329,7 @@ void C9_THDM::NLO_calculation() {
         {"WPARAM_MATCH_BSM", 1},
         {"WPARAM_MATCH_SM", {2,1}},
         {"SCALE", 1},
-        {ParameterType::THDM, "MASS", 37}
+        {ParameterType::BSM, "MASS", 37}
     };
 
     auto func = [] (const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src, std::shared_ptr<DependentParameter> dep_param) {
@@ -386,7 +386,7 @@ void C10_THDM::NLO_calculation() {
         {"WPARAM_MATCH_BSM", 1},
         {"WPARAM_MATCH_SM", {2,1}},
         {"SCALE", 1},
-        {ParameterType::THDM, "MASS", 37}
+        {ParameterType::BSM, "MASS", 37}
     };
 
     auto func = [] (const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src, std::shared_ptr<DependentParameter> dep_param) {
@@ -531,11 +531,11 @@ void C_Blnu_P_THDM::LO_calculation() {
         double sw2 = src.at({ParameterType::WILSON, "WPARAM_SI_SM", 4})->get_val();
         double lu = src.at({ParameterType::WILSON, "WPARAM_SI_BSM", 7})->get_val();
         double ld = src.at({ParameterType::WILSON, "WPARAM_SI_BSM", 8})->get_val();
-        double mH = src.at({ParameterType::SUSY, "MASS", 37})->get_val();
+        double mH = src.at({ParameterType::BSM, "MASS", 37})->get_val();
 
         double m_b = QCDHelper::mass_b_msbar();
         double m_tau = src.at({ParameterType::SM, "MASS", 15})->get_val();
-        double l_tau = src.at({ParameterType::THDM, "YL", 22})->get_val();
+        double l_tau = src.at({ParameterType::BSM, "YL", 22})->get_val();
 
         dep_param->set_expected(-m_b * m_tau * ld * l_tau / std::pow(mH, 2));
     };
@@ -568,11 +568,11 @@ void C_S1_THDM::LO_calculation() {
         double sw2 = src.at({ParameterType::WILSON, "WPARAM_SI_SM", 4})->get_val();
         double lu = src.at({ParameterType::WILSON, "WPARAM_SI_BSM", 7})->get_val();
         double ld = src.at({ParameterType::WILSON, "WPARAM_SI_BSM", 8})->get_val();
-        double mH = src.at({ParameterType::SUSY, "MASS", 37})->get_val();
+        double mH = src.at({ParameterType::BSM, "MASS", 37})->get_val();
 
         double m_b = QCDHelper::mass_b_msbar();
         double m_tau = src.at({ParameterType::SM, "MASS", 15})->get_val();
-        double l_tau = src.at({ParameterType::THDM, "YL", 22})->get_val();
+        double l_tau = src.at({ParameterType::BSM, "YL", 22})->get_val();
 
         dep_param->set_expected(-m_b * m_tau * ld * l_tau / std::pow(mH, 2));
     };
@@ -604,11 +604,11 @@ void C_S2_THDM::LO_calculation() {
         double sw2 = src.at({ParameterType::WILSON, "WPARAM_SI_SM", 4})->get_val();
         double lu = src.at({ParameterType::WILSON, "WPARAM_SI_BSM", 7})->get_val();
         double ld = src.at({ParameterType::WILSON, "WPARAM_SI_BSM", 8})->get_val();
-        double mH = src.at({ParameterType::SUSY, "MASS", 37})->get_val();
+        double mH = src.at({ParameterType::BSM, "MASS", 37})->get_val();
 
         double m_c = src.at({ParameterType::SM, "MASS", 4})->get_val(); // mass c does not run ?
         double m_tau = src.at({ParameterType::SM, "MASS", 15})->get_val();
-        double l_tau = src.at({ParameterType::THDM, "YL", 22})->get_val();
+        double l_tau = src.at({ParameterType::BSM, "YL", 22})->get_val();
 
         dep_param->set_expected(-m_c * m_tau * lu * l_tau / std::pow(mH, 2));
     };

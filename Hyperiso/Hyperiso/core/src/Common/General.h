@@ -318,9 +318,7 @@ private:
 
 enum class ParameterType {
     SM,
-    SUSY,
-    THDM,
-    CUSTOM,
+    BSM,
     FLAVOR,
     WILSON,
     DECAY,

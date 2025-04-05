@@ -49,7 +49,7 @@ class susy_parameters {
 
     // EpsilonCalculator* epsi = EpsilonCalculator::GetInstance();
 
-	std::shared_ptr<Parameters> susy = Parameters::GetInstance(ParameterType::SUSY);
+	std::shared_ptr<Parameters> susy = Parameters::GetInstance(ParameterType::BSM);
     std::shared_ptr<Parameters> sm = Parameters::GetInstance(ParameterType::SM);
 
     public:

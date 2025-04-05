@@ -2,6 +2,7 @@
 #define __BWILSONRUNNINGPARAMETERS_H__
 
 #include <array>
+#include "Utils.h"
 
 struct BWilsonRunningParameters {
     static constexpr int array_size {10};
