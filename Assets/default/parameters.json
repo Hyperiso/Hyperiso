@@ -112,7 +112,60 @@
       "syst_error": 0
     }
   },
-
+  "UPMNS": {
+    "0": {
+      "central_value": 1,
+      "stat_error": 0,
+      "syst_error": 0
+    },
+    "1": {
+      "central_value": 0,
+      "stat_error": 0,
+      "syst_error": 0
+    },
+    "2": {
+      "central_value": 0,
+      "stat_error": 0,
+      "syst_error": 0
+    },
+    "10": {
+      "central_value": 0,
+      "stat_error": 0,
+      "syst_error": 0
+    },
+    "11": {
+      "central_value": 1,
+      "stat_error": 0,
+      "syst_error": 0
+    }
+  },
+  "IMUPMNS": {
+    "0": {
+      "central_value": 0,
+      "stat_error": 0,
+      "syst_error": 0
+    },
+    "1": {
+      "central_value": 0,
+      "stat_error": 0,
+      "syst_error": 0
+    },
+    "2": {
+      "central_value": 0,
+      "stat_error": 0,
+      "syst_error": 0
+    },
+    "10": {
+      "central_value": 0,
+      "stat_error": 0,
+      "syst_error": 0
+    },
+    "11": {
+      "central_value": 0,
+      "stat_error": 0,
+      "syst_error": 0
+    }
+  },
   "SCALES": {
     "1": {
       "central_value": 80,
