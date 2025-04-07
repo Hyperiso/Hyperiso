@@ -447,7 +447,7 @@ public:
     void set_base_1_LO();
 
 private:
-    std::shared_ptr<Parameters> susy = Parameters::GetInstance(ParameterType::BSM);
+    // std::shared_ptr<Parameters> susy = Parameters::GetInstance(ParameterType::BSM);
     susy_parameters* sus_param;
 };
 

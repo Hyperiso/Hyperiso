@@ -1,7 +1,6 @@
 #include <algorithm>
 #include <array>
 #include <functional>
-#include "Parameters.h"
 #include "epsilon_calculator.h"
 #include "Math_SUSY.h"
 #include "Logger.h"
@@ -21,21 +20,21 @@ using Array1D_3 = std::array<double, N_Mch>;
 using Array1D_7 = std::array<double, N_MsqU>;
 using Array2D_4x4_I = std::array<std::array<complex_t, M_NL_NR>, N_NL_NR>;
 
-struct WilsonSusyMatrix {
-	Array2D_7x4 Gamma_UL {};
-	Array2D_7x4 Gamma_UR {};
-	Array2D_4x4 Gamma_NL {};
-	Array2D_4x4 Gamma_NR {};
-	Array2D_7x7 Gamma_U{};
-	Array2D_7x7 I_LR{};
-	Array2D_7x7 P_U{};
-	Array3D_3x7x4 X_UL{};
-	Array3D_3x7x4 X_UR{};
-	Array3D_3x7x4 X_NL{};
-	Array3D_3x7x4 X_NR{};
-	std::array<std::array<std::array<std::array<double, 4>, 4>, 3>, 7> G_aimn;
+// struct WilsonSusyMatrix {
+// 	Array2D_7x4 Gamma_UL {};
+// 	Array2D_7x4 Gamma_UR {};
+// 	Array2D_4x4 Gamma_NL {};
+// 	Array2D_4x4 Gamma_NR {};
+// 	Array2D_7x7 Gamma_U{};
+// 	Array2D_7x7 I_LR{};
+// 	Array2D_7x7 P_U{};
+// 	Array3D_3x7x4 X_UL{};
+// 	Array3D_3x7x4 X_UR{};
+// 	Array3D_3x7x4 X_NL{};
+// 	Array3D_3x7x4 X_NR{};
+// 	std::array<std::array<std::array<std::array<double, 4>, 4>, 3>, 7> G_aimn;
 
-};
+// };
 
 class susy_parameters {
 
@@ -118,16 +117,16 @@ class susy_parameters {
 	Array2D_7x7 sU_mix;
 
 
-    double mass_H03 = (*susy)("MASS",36); // We have H_0^3 = A_0 from pdg numering scheme ?
-    double mass_A02 = (*susy)("HMIX",4);
+    // double mass_H03 = (*susy)("MASS",36); // We have H_0^3 = A_0 from pdg numering scheme ?
+    // double mass_A02 = (*susy)("HMIX",4);
 
 
-    double kappaFactor;
-    double B0c1 = 0.0, B0c2 = 0.0, B90c = 0.0, B100c = 0.0, C90c = 0.0, D90c = 0.0;
-    bool test;
+    // double kappaFactor;
+    // double B0c1 = 0.0, B0c2 = 0.0, B90c = 0.0, B100c = 0.0, C90c = 0.0, D90c = 0.0;
+    // bool test;
     
 	static inline WilsonParamComposer composer = WilsonParamComposer();
 	static inline bool initialized {false};
 
-	WilsonSusyMatrix w_susy;
+	// WilsonSusyMatrix w_susy;
 };

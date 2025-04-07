@@ -1,7 +1,6 @@
 // EpsilonCalculator.h
 #ifndef EPSILONCALCULATOR_H
 #define EPSILONCALCULATOR_H
-#include "Parameters.h"
 #include "QCDHelper.h"
 #include "WilsonParamComposer.h"
 #include <cmath>
@@ -13,7 +12,7 @@ protected:
     std::shared_ptr<Parameters> sm = Parameters::GetInstance(ParameterType::SM);
     std::shared_ptr<Parameters> susy = Parameters::GetInstance(ParameterType::BSM);
 
-    double mu_Q = (*susy)("HMIX",1);
+    // double mu_Q = (*susy)("HMIX",1);
     
     
     static inline bool initialized {false};

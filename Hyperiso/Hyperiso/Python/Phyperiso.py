@@ -24,9 +24,7 @@ class Model(Enum):
 
 class ParameterType(Enum):
     SM = _CppParameterType.SM
-    SUSY = _CppParameterType.SUSY
-    THDM = _CppParameterType.THDM
-    CUSTOM = _CppParameterType.CUSTOM
+    BSM = _CppParameterType.BSM
     FLAVOR = _CppParameterType.FLAVOR
     WILSON = _CppParameterType.WILSON
     FF = _CppParameterType.FF
