@@ -525,7 +525,7 @@ void CQ1::LO_calculation() {
         dep_param->set_expected(coeff_temp);
         };
 
-    WilsonParamComposer().compose_parameter(ParamId{"B_MATCH", LhaID(3051313, 3230, 0, 0)}, sources, func);
+    WilsonParamComposer().compose_parameter(ParamId{"B_SCALAR_MATCH", LhaID(3051313, 3230, 0, 0)}, sources, func);
 
     // double CSc_SM=-wilson_p("WPARAM_MATCH_SM", {2,1})*(wilson_p("WPARAM_MATCH_SM", {2,1})-2.)/12./(wilson_p("WPARAM_MATCH_SM", {2,1})-1.)/(wilson_p("WPARAM_MATCH_SM", {2,1})-1.)+(wilson_p("WPARAM_MATCH_SM", {2,1})-2.)*(3.*wilson_p("WPARAM_MATCH_SM", {2,1})-1.)/24./pow(wilson_p("WPARAM_MATCH_SM", {2,1})-1.,3.)*log(wilson_p("WPARAM_MATCH_SM", {2,1}));
     // double CSn_SMonly=-3.*wilson_p("WPARAM_MATCH_SM", {2,1})/8./wilson_p("WPARAM_SI_SM", 1)+wilson_p("WPARAM_MATCH_SM", {2,1})*F0SP(wilson_p("WPARAM_MATCH_SM", {2,1}));
@@ -564,7 +564,7 @@ void CQ2::LO_calculation() {
         dep_param->set_expected(coeff_temp);
         };
 
-    WilsonParamComposer().compose_parameter(ParamId{"B_MATCH", LhaID(3051313, 3233, 0, 0)}, sources, func);
+    WilsonParamComposer().compose_parameter(ParamId{"B_SCALAR_MATCH", LhaID(3051313, 3233, 0, 0)}, sources, func);
 
     // double CPc_SM=1./24.*(wilson_p("WPARAM_MATCH_SM", {2,1})*(36.*wilson_p("WPARAM_MATCH_SM", {2,3})-203.*wilson_p("WPARAM_MATCH_SM", {2,2})+352.*wilson_p("WPARAM_MATCH_SM", {2,1})-209.)/6./pow(wilson_p("WPARAM_MATCH_SM", {2,1})-1.,3.)+(17.*wilson_p("WPARAM_MATCH_SM", {2,4})-34.*wilson_p("WPARAM_MATCH_SM", {2,3})+4.*wilson_p("WPARAM_MATCH_SM", {2,2})+23.*wilson_p("WPARAM_MATCH_SM", {2,1})-6.)/pow(wilson_p("WPARAM_MATCH_SM", {2,1})-1.,4.)*log(wilson_p("WPARAM_MATCH_SM", {2,1})))
 	// -wilson_p("WPARAM_SI_SM", 4)/36.*(wilson_p("WPARAM_MATCH_SM", {2,1})*(18.*wilson_p("WPARAM_MATCH_SM", {2,3})-139.*wilson_p("WPARAM_MATCH_SM", {2,2})+274.*wilson_p("WPARAM_MATCH_SM", {2,1})-129.)/2./pow(wilson_p("WPARAM_MATCH_SM", {2,1})-1.,3.)+(24.*wilson_p("WPARAM_MATCH_SM", {2,4})-33.*wilson_p("WPARAM_MATCH_SM", {2,3})-45.*wilson_p("WPARAM_MATCH_SM", {2,2})+50.*wilson_p("WPARAM_MATCH_SM", {2,1})-8.)/pow(wilson_p("WPARAM_MATCH_SM", {2,1})-1.,4.)*log(wilson_p("WPARAM_MATCH_SM", {2,1})));
@@ -591,7 +591,7 @@ void CP7::LO_calculation() {
         dep_param->set_expected(coeff_temp);
         };
 
-    WilsonParamComposer().compose_parameter(ParamId{"B_MATCH", LhaID(305, 4322, 0, 0)}, sources, func);
+    WilsonParamComposer().compose_parameter(ParamId{"B_PRIME_MATCH", LhaID(305, 4322, 0, 0)}, sources, func);
 
     // double coeff_temp = sm("MASS", 3) / wilson_p("WPARAM_MATCH_SM", {5,2}) * (-0.5 * A0t(wilson_p("WPARAM_MATCH_SM", {2,1})) - 23. / 36.);
     // // return this->double_to_complex_save("LO", coeff_temp);
@@ -616,7 +616,7 @@ void CP8::LO_calculation() {
         dep_param->set_expected(coeff_temp);
         };
 
-    WilsonParamComposer().compose_parameter(ParamId{"B_MATCH", LhaID(305, 4321, 0, 0)}, sources, func);
+    WilsonParamComposer().compose_parameter(ParamId{"B_PRIME_MATCH", LhaID(305, 4321, 0, 0)}, sources, func);
 
     // double coeff_temp = sm("MASS", 3) / wilson_p("WPARAM_MATCH_SM", {5,2}) * (-0.5 * F0t(wilson_p("WPARAM_MATCH_SM", {2,1})) - 1. / 3.);
     // // return this->double_to_complex_save("LO", coeff_temp);

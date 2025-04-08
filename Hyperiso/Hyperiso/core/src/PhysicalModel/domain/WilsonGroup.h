@@ -17,9 +17,9 @@ public:
     CoefficientGroup(const CoefficientGroup&) = default;
     CoefficientGroup(CoefficientGroup&&) = default;
 
-    CoefficientGroup() {WilsonParameterHelper::init(81, 81, 2);}
+    CoefficientGroup() {WilsonParameterHelper::init(2);}
     CoefficientGroup(std::map<std::string, std::shared_ptr<WilsonCoefficient>>& coeffs) {
-        WilsonParameterHelper::init(81, 81, 2);
+        WilsonParameterHelper::init(2);
         for (auto& coeff : coeffs) {
             this->insert(std::make_pair(coeff.first, std::move(coeff.second)));
         }
@@ -29,9 +29,8 @@ public:
     std::map<ParamId, double> param_cache;
 
     bool is_double_base() {return this->double_base;}
-    virtual void switch_base() {LOG_ERROR("ValueError", "error");}
+    virtual void switch_basis() {LOG_ERROR("ValueError", "error");}
     virtual ~CoefficientGroup() = default;
-
 
     void init_LO() {
         for (auto& coeff : *this) {
@@ -57,8 +56,6 @@ public:
         }
     }
 
-    double get_Q_match() {return this->Q_match;}
-    double get_Q_run() {return this->Q_run;}
     complex_t getfullMatching(std::string coeff, std::string order) {return this->at(coeff)->get_CoefficientFullMatchingValue(order);}
     complex_t getfullRun(std::string coeff, std::string order) {return this->at(coeff)->get_CoefficientFullRunValue(order);}
 
@@ -83,35 +80,14 @@ public:
 
     void claim_coefficients();
 
-    void set_Q_match(double Q_match) {
-        this->Q_match = Q_match;
-        for (auto& coeff : *this) {
-            coeff.second->set_Q_match(Q_match);
-        }
-    }
-    
-    void set_Q_run(double Q_run) {
-        this->Q_run = Q_run;
-    }
-
-    virtual void set_base_1_LO() =0;
-    void set_base_2_LO() {}
-
-    virtual void set_base_1_NLO() =0;
-    void set_base_2_NLO() {}
-
-    virtual void set_base_1_NNLO() =0;
-    void set_base_2_NNLO() {}
+    virtual void init_running_block(QCDOrder order, BWilsonBasis basis = BWilsonBasis::STANDARD) = 0;
 
     virtual std::shared_ptr<CoefficientGroup> clone() const = 0;
-    double Q_match{81};
-    double Q_run{81};
 
     bool double_base = false;
 
     ParameterProxy sm {ParameterType::SM};
     ParameterProxy wilson_p {ParameterType::WILSON};
-
 };
 
 
@@ -120,7 +96,7 @@ class BCoefficientGroup : public CoefficientGroup {
 public:
     BCoefficientGroup() {
         LOG_INFO("In BCoefficientGroup constructor");
-        init_running_blocks();
+        init_running_parameter_blocks();
         if (UseMarty().get()) {
             for (auto&& coeff : {"C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9", "C10"}) {
                 this->insert(std::make_pair(coeff, std::make_shared<MartyWilson>(coeff)));
@@ -133,50 +109,17 @@ public:
         this->insert(std::make_pair("C10", std::make_shared<C10>())); 
     }
 
-    BCoefficientGroup(double Q_match) {
-        if (UseMarty().get()) {
-            for (auto&& coeff : {"C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9", "C10"}) {
-                this->insert(std::make_pair(coeff, std::make_shared<MartyWilson>(Q_match, coeff)));
-            }
-            return;
-        }
-        this->insert(std::make_pair("C1", std::make_shared<C1>(Q_match))); this->insert(std::make_pair("C2", std::make_shared<C2>(Q_match))); this->insert(std::make_pair("C3", std::make_shared<C3>(Q_match)));
-        this->insert(std::make_pair("C4", std::make_shared<C4>(Q_match)));  this->insert(std::make_pair("C5", std::make_shared<C5>(Q_match))); this->insert(std::make_pair("C6", std::make_shared<C6>(Q_match))); 
-        this->insert(std::make_pair("C7", std::make_shared<C7>(Q_match)));  this->insert(std::make_pair("C8", std::make_shared<C8>(Q_match)));  this->insert(std::make_pair("C9", std::make_shared<C9>(Q_match))); 
-        this->insert(std::make_pair("C10", std::make_shared<C10>(Q_match)));
-    }
+    static void base_1_LO_calculation(const std::unordered_map<std::string, std::shared_ptr<Block>>&, std::shared_ptr<DependentBlock>);
+    static void base_2_LO_calculation(const std::unordered_map<std::string, std::shared_ptr<Block>>&, std::shared_ptr<DependentBlock>);
+    static void base_1_NLO_calculation(const std::unordered_map<std::string, std::shared_ptr<Block>>&, std::shared_ptr<DependentBlock>);
+    static void base_2_NLO_calculation(const std::unordered_map<std::string, std::shared_ptr<Block>>&, std::shared_ptr<DependentBlock>);
+    static void base_1_NNLO_calculation(const std::unordered_map<std::string, std::shared_ptr<Block>>&, std::shared_ptr<DependentBlock>);
 
-    void set_base_1_LO();
-    void set_base_2_LO();
-
-    void set_base_1_NLO();
-    void set_base_2_NLO();
-
-    void set_base_1_NNLO();
-    void set_base_2_NNLO();
+    void init_running_block(QCDOrder order, BWilsonBasis basis) override;
 
     void set_gen(int new_gen) {}
 
-    void switch_base() override {
-        if (base["LO"] == 1) {
-            set_base_2_LO();
-        }
-        else if (base["LO"] == 2) {
-            set_base_1_LO();
-        }
-        if (base["NLO"] == 1) {
-            set_base_2_NLO();
-        }
-        else if (base["NLO"] == 2) {
-            set_base_1_NLO();
-        }
-        if (base["NNLO"] == 1) {
-            set_base_2_NNLO();
-        }
-        else if (base["NNLO"] == 2) {
-            set_base_1_NNLO();
-        }
-    }
+    void switch_basis() override;
 
     std::shared_ptr<CoefficientGroup> clone() const override {
         return std::make_shared<BCoefficientGroup>(*this);
@@ -184,10 +127,11 @@ public:
 
 protected:
     bool double_base = true;
-    std::map<std::string, int> base = {{"LO",0}, {"NLO",0}, {"NNLO",0}};
+    QCDOrder current_order = QCDOrder::NONE;
+    BWilsonBasis basis = BWilsonBasis::STANDARD;
 
 private:
-    void init_running_blocks();
+    void init_running_parameter_blocks();
 };
 
 
@@ -205,21 +149,7 @@ public:
         this->insert(std::make_pair("CP7", std::make_shared<CP7>()));  this->insert(std::make_pair("CP8", std::make_shared<CP8>()));  this->insert(std::make_pair("CP9", std::make_shared<CP9>())); 
         this->insert(std::make_pair("CP10", std::make_shared<CP10>())); this->insert(std::make_pair("CPQ1", std::make_shared<CPQ1>())); this->insert(std::make_pair("CPQ2", std::make_shared<CPQ2>())); 
     }
-    BPrimeCoefficientGroup(double Q_match) {
-        if (UseMarty().get()) {
-            for (auto&& coeff : {"CP1", "CP2", "CP3", "CP4", "CP5", "CP6", "CP7", "CP8", "CP9", "CP10", "CPQ1", "CPQ2"}) {
-                this->insert(std::make_pair(coeff, std::make_shared<MartyWilson>(Q_match, coeff)));
-            }
-            return;
-        }
-        this->insert(std::make_pair("CP1", std::make_shared<CP1>(Q_match))); this->insert(std::make_pair("CP2", std::make_shared<CP2>(Q_match))); this->insert(std::make_pair("CP3", std::make_shared<CP3>(Q_match)));
-        this->insert(std::make_pair("CP4", std::make_shared<CP4>(Q_match)));  this->insert(std::make_pair("CP5", std::make_shared<CP5>(Q_match))); this->insert(std::make_pair("CP6", std::make_shared<CP6>(Q_match))); 
-        this->insert(std::make_pair("CP7", std::make_shared<CP7>(Q_match)));  this->insert(std::make_pair("CP8", std::make_shared<CP8>(Q_match)));  this->insert(std::make_pair("CP9", std::make_shared<CP9>(Q_match))); 
-        this->insert(std::make_pair("CP10", std::make_shared<CP10>(Q_match))); this->insert(std::make_pair("CPQ1", std::make_shared<CPQ1>(Q_match))); this->insert(std::make_pair("CPQ2", std::make_shared<CPQ2>(Q_match)));
-    }
-
     
-
     void set_base_1_LO();
     void set_base_1_NLO() {}
     void set_base_1_NNLO() {}
@@ -239,15 +169,6 @@ public:
             return;
         }
         this->insert(std::make_pair("CQ1", std::make_shared<CQ1>())); this->insert(std::make_pair("CQ2", std::make_shared<CQ2>()));
-    }
-    BScalarCoefficientGroup(double Q_match) {
-        if (UseMarty().get()) {
-            for (auto&& coeff : {"CQ1", "CQ2"}) {
-                this->insert(std::make_pair(coeff, std::make_shared<MartyWilson>(Q_match, coeff)));
-            }
-            return;
-        }
-        this->insert(std::make_pair("CQ1", std::make_shared<CQ1>(Q_match))); this->insert(std::make_pair("CQ2", std::make_shared<CQ2>(Q_match)));
     }
 
     void set_base_1_LO();
@@ -270,17 +191,6 @@ public:
         }
         this->insert(std::make_pair("C_Blnu_A", std::make_shared<C_Blnu_A>()));
         this->insert(std::make_pair("C_Blnu_P", std::make_shared<C_Blnu_P>()));
-    }
-
-    BlnuCoefficientGroup(double Q_match) {
-        if (UseMarty().get()) {
-            for (auto&& coeff : {"C_Blnu_A", "C_Blnu_P"}) {
-                this->insert(std::make_pair(coeff, std::make_shared<MartyWilson>(Q_match, coeff)));
-            }
-            return;
-        }
-        this->insert(std::make_pair("C_Blnu_A", std::make_shared<C_Blnu_A>(Q_match)));
-        this->insert(std::make_pair("C_Blnu_P", std::make_shared<C_Blnu_P>(Q_match)));
     }
 
     void set_base_1_LO() {}
@@ -308,20 +218,6 @@ class BclnuCoefficientGroup : public CoefficientGroup {
             this->insert(std::make_pair("C_T", std::make_shared<C_T>()));
         }
     
-        BclnuCoefficientGroup(double Q_match) {
-            if (UseMarty().get()) {
-                for (auto&& coeff : {"C_V1", "C_V2", "C_S1", "C_S2", "C_T"}) {
-                    this->insert(std::make_pair(coeff, std::make_shared<MartyWilson>(Q_match, coeff)));
-                }
-                return;
-            }
-            this->insert(std::make_pair("C_V1", std::make_shared<C_V1>(Q_match)));
-            this->insert(std::make_pair("C_V2", std::make_shared<C_V2>(Q_match)));
-            this->insert(std::make_pair("C_S1", std::make_shared<C_S1>(Q_match)));
-            this->insert(std::make_pair("C_S2", std::make_shared<C_S2>(Q_match)));
-            this->insert(std::make_pair("C_T", std::make_shared<C_T>(Q_match)));
-        }
-    
         void set_base_1_LO() {}
         void set_base_1_NLO() {}
         void set_base_1_NNLO() {}
@@ -331,30 +227,21 @@ class BclnuCoefficientGroup : public CoefficientGroup {
         }
     };
 
-inline std::ostream& operator<<(std::ostream& os, BCoefficientGroup& coeffs) {
+inline std::ostream& operator<<(std::ostream& os, const CoefficientGroup& coeffs) {
     for(auto& coeff : coeffs) {
         os << coeff.second->get_name() << " --------------------------------" << std::endl;
-        os << "Matching value at LO (" << coeff.second->get_Q_match() << " GeV) : " << coeff.second->get_CoefficientMatchingValue("LO") << std::endl;
-        os << "Running value at LO (" << coeff.second->get_Q() << " GeV) : " << coeff.second->get_CoefficientRunValue("LO") << std::endl;
-        os << "Matching value at NLO (" << coeff.second->get_Q_match() << " GeV) : " << coeff.second->get_CoefficientMatchingValue("NLO") << std::endl;
-        os << "Running value at NLO (" << coeff.second->get_Q() << " GeV) : " << coeff.second->get_CoefficientRunValue("NLO") << std::endl;
-        os << "Matching value at NNLO (" << coeff.second->get_Q_match() << " GeV) : " << coeff.second->get_CoefficientMatchingValue("NNLO") << std::endl;
-        os << "Running value at NNLO (" << coeff.second->get_Q() << " GeV) : " << coeff.second->get_CoefficientRunValue("NNLO") << std::endl;
+        os << "Matching value at LO: " << coeff.second->get_CoefficientMatchingValue("LO") << std::endl;
+        os << "Running value at LO: " << coeff.second->get_CoefficientRunValue("LO") << std::endl;
+        os << "Matching value at NLO: " << coeff.second->get_CoefficientMatchingValue("NLO") << std::endl;
+        os << "Running value at NLO: " << coeff.second->get_CoefficientRunValue("NLO") << std::endl;
+        os << "Matching value at NNLO: " << coeff.second->get_CoefficientMatchingValue("NNLO") << std::endl;
+        os << "Running value at NNLO: " << coeff.second->get_CoefficientRunValue("NNLO") << std::endl;
     }
     return os;
 }
 
 inline std::ostream& operator<<(std::ostream& os, std::shared_ptr<CoefficientGroup>& coeffs) {
-    for(auto& coeff : *coeffs) {
-        os << coeff.second->get_name() << " --------------------------------" << std::endl;
-        os << "Matching value at LO (" << coeff.second->get_Q_match() << " GeV) : " << coeff.second->get_CoefficientMatchingValue("LO") << std::endl;
-        os << "Running value at LO (" << coeff.second->get_Q() << " GeV) : " << coeff.second->get_CoefficientRunValue("LO") << std::endl;
-        os << "Matching value at NLO (" << coeff.second->get_Q_match() << " GeV) : " << coeff.second->get_CoefficientMatchingValue("NLO") << std::endl;
-        os << "Running value at NLO (" << coeff.second->get_Q() << " GeV) : " << coeff.second->get_CoefficientRunValue("NLO") << std::endl;
-        os << "Matching value at NNLO (" << coeff.second->get_Q_match() << " GeV) : " << coeff.second->get_CoefficientMatchingValue("NNLO") << std::endl;
-        os << "Running value at NNLO (" << coeff.second->get_Q() << " GeV) : " << coeff.second->get_CoefficientRunValue("NNLO") << std::endl;
-    }
-    return os;
+    return os << *coeffs;
 }
 
 #endif

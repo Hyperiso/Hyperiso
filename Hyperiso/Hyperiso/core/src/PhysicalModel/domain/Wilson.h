@@ -11,8 +11,7 @@
 
 class WilsonCoefficient {
 protected:
-    WilsonCoefficient() : Q_match(81.), Q(42.) {}
-    WilsonCoefficient(double Q_match) : Q_match(Q_match), Q(42.) {}
+    WilsonCoefficient() {}
 
     void is_now_calculated(std::string order) {this->is_calculated[order] = true;}
 
@@ -21,11 +20,6 @@ protected:
     bool is_owned {false};
 
 public:
-    void set_Q_match(double Q_match) {
-        this->Q_match = Q_match;
-        WilsonParameterHelper::set_mu_W(Q_match);
-    }
-    
     void set_name(std::string name) {this->CoeffName = name;}
 
     void set_WilsonCoeffMatching(const std::string& order, complex_t value) {
@@ -51,42 +45,40 @@ public:
     complex_t get_CoefficientRunValue(std::string order) const {return {0,0}; } //TODO
 
     complex_t get_CoefficientFullMatchingValue(std::string order) const {
-        double fact = QCDHelper::alpha_s(Q_match) / (4 * M_PI);
+        // double fact = QCDHelper::alpha_s(Q_match) / (4 * M_PI);
 
-        if (order == "LO") {
-            return this->get_CoefficientMatchingValue("LO");
-        }
-        else if (order == "NLO") {
-            return this->get_CoefficientMatchingValue("LO") + fact *  this->get_CoefficientMatchingValue("NLO");
-        }
-        else if (order == "NNLO") {
-            return this->get_CoefficientMatchingValue("LO") + fact * this->get_CoefficientMatchingValue("NLO") + fact * fact * this->get_CoefficientMatchingValue("NNLO");
-        }
-        else {
-            LOG_ERROR("ValueError", "Order request for wilson getfullmatching is not possible.");
-        }
+        // if (order == "LO") {
+        //     return this->get_CoefficientMatchingValue("LO");
+        // }
+        // else if (order == "NLO") {
+        //     return this->get_CoefficientMatchingValue("LO") + fact *  this->get_CoefficientMatchingValue("NLO");
+        // }
+        // else if (order == "NNLO") {
+        //     return this->get_CoefficientMatchingValue("LO") + fact * this->get_CoefficientMatchingValue("NLO") + fact * fact * this->get_CoefficientMatchingValue("NNLO");
+        // }
+        // else {
+        //     LOG_ERROR("ValueError", "Order request for wilson getfullmatching is not possible.");
+        // }
     }
 
 
     complex_t get_CoefficientFullRunValue(std::string order) const {
-        double fact = QCDHelper::alpha_s(Q) / (4 * M_PI);
+        // double fact = QCDHelper::alpha_s(Q) / (4 * M_PI);
 
-        if (order == "LO") {
-            return this->get_CoefficientRunValue("LO");
-        }
-        else if (order == "NLO") {
-            return this->get_CoefficientRunValue("LO") + fact * this->get_CoefficientRunValue("NLO");
-        }
-        else if (order == "NNLO") {
-            return this->get_CoefficientRunValue("LO") + fact *  this->get_CoefficientRunValue("NLO") + fact * fact * this->get_CoefficientRunValue("NNLO");
-        }
-        else {
-            LOG_ERROR("ValueError", "Order request for wilson getfullrun is not possible.");
-        }
+        // if (order == "LO") {
+        //     return this->get_CoefficientRunValue("LO");
+        // }
+        // else if (order == "NLO") {
+        //     return this->get_CoefficientRunValue("LO") + fact * this->get_CoefficientRunValue("NLO");
+        // }
+        // else if (order == "NNLO") {
+        //     return this->get_CoefficientRunValue("LO") + fact *  this->get_CoefficientRunValue("NLO") + fact * fact * this->get_CoefficientRunValue("NNLO");
+        // }
+        // else {
+        //     LOG_ERROR("ValueError", "Order request for wilson getfullrun is not possible.");
+        // }
     }
 
-    double get_Q_match() const {return this->Q_match;}
-    double get_Q() const {return this->Q;}
     std::string get_name() const {return this->CoeffName;}
 
     virtual void LO_calculation() = 0;
@@ -102,7 +94,7 @@ public:
     }
     WilsonCoefficient& operator+=(const WilsonCoefficient& other) {
 
-        if ((this->get_Q_match() == other.get_Q_match()) && (this->get_Q() == other.get_Q())) {
+        // if ((this->get_Q_match() == other.get_Q_match()) && (this->get_Q() == other.get_Q())) {
             //TODO
             // this->CoefficientMatchingValue["LO"] += other.get_CoefficientMatchingValue("LO");
             // this->CoefficientMatchingValue["NLO"] += other.get_CoefficientMatchingValue("NLO");
@@ -110,20 +102,17 @@ public:
             // this->CoefficientRunValue["LO"] += other.get_CoefficientRunValue("LO");
             // this->CoefficientRunValue["NLO"] += other.get_CoefficientRunValue("NLO");
             // this->CoefficientRunValue["NNLO"] += other.get_CoefficientRunValue("NNLO");
-        }
-        else {
-            LOG_ERROR("ValueError", "Not the right scale"); 
-        }
+        // }
+        // else {
+        //     LOG_ERROR("ValueError", "Not the right scale"); 
+        // }
         return *this;
     }
 
     virtual ~WilsonCoefficient() = default;
 
 private:
-    double Q_match{81};
-    double Q{81};
     bool from_lha {false};
-
     std::map<std::string, bool> is_calculated{{"LO", false}, {"NLO", false}, {"NNLO", false}};
 };
 
@@ -131,7 +120,6 @@ private:
 
 class C_Blnu_A : public WilsonCoefficient {
 public:
-    C_Blnu_A(double Q_match) : WilsonCoefficient(Q_match) {this->set_name("C_Blnu_A");}
     C_Blnu_A() : WilsonCoefficient() {this->set_name("C_Blnu_A");}
 
     void LO_calculation() { }; 
@@ -142,7 +130,6 @@ public:
 
 class C_Blnu_P : public WilsonCoefficient {
 public:
-    C_Blnu_P(double Q_match) : WilsonCoefficient(Q_match) {this->set_name("C_Blnu_P");}
     C_Blnu_P() : WilsonCoefficient() {this->set_name("C_Blnu_P");}
 
     void LO_calculation() {}
@@ -153,7 +140,6 @@ public:
 
 class C_V1 : public WilsonCoefficient {
 public:
-    C_V1(double Q_match) : WilsonCoefficient(Q_match) {this->set_name("C_V1");}
     C_V1() : WilsonCoefficient() {this->set_name("C_V1");}
 
     void LO_calculation() {
@@ -166,7 +152,6 @@ public:
 
 class C_V2 : public WilsonCoefficient {
 public:
-    C_V2(double Q_match) : WilsonCoefficient(Q_match) {this->set_name("C_V2");}
     C_V2() : WilsonCoefficient() {this->set_name("C_V2");}
 
     void LO_calculation() {}
@@ -177,7 +162,6 @@ public:
 
 class C_S1 : public WilsonCoefficient {
 public:
-    C_S1(double Q_match) : WilsonCoefficient(Q_match) {this->set_name("C_S1");}
     C_S1() : WilsonCoefficient() {this->set_name("C_S1");}
 
     void LO_calculation() {}
@@ -188,7 +172,6 @@ public:
 
 class C_S2 : public WilsonCoefficient {
 public:
-    C_S2(double Q_match) : WilsonCoefficient(Q_match) {this->set_name("C_S2");}
     C_S2() : WilsonCoefficient() {this->set_name("C_S2");}
 
     void LO_calculation() {}
@@ -199,7 +182,6 @@ public:
 
 class C_T : public WilsonCoefficient {
 public:
-    C_T(double Q_match) : WilsonCoefficient(Q_match) {this->set_name("C_T");}
     C_T() : WilsonCoefficient() {this->set_name("C_T");}
 
     void LO_calculation() {}
@@ -209,9 +191,9 @@ public:
 };
 
 inline std::ostream& operator<<(std::ostream& os, WilsonCoefficient& coeff) {
-    os << "WilsonCoefficient " << coeff.get_name() << "has matching value (" << coeff.get_Q_match() << " GeV) : " << coeff.get_CoefficientMatchingValue("LO") << " at LO" << std::endl;
+    os << "WilsonCoefficient " << coeff.get_name() << "has matching value: " << coeff.get_CoefficientMatchingValue("LO") << " at LO" << std::endl;
     os<< ", " << coeff.get_CoefficientMatchingValue("NLO") << " at NLO, " << coeff.get_CoefficientMatchingValue("NNLO") << "at NNLO" << std::endl;
-    os << "and " << "has run value (" << coeff.get_Q() << " GeV) : " << coeff.get_CoefficientRunValue("LO") << " at LO" << std::endl;
+    os << "and " << "has run value: " << coeff.get_CoefficientRunValue("LO") << " at LO" << std::endl;
     os<< ", " << coeff.get_CoefficientRunValue("NLO") << " at NLO, " << coeff.get_CoefficientRunValue("NNLO") << "at NNLO" << std::endl;
     return os;
 }

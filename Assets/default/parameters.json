@@ -166,14 +166,16 @@
       "syst_error": 0
     }
   },
-  "SCALES": {
+  "EW_SCALE": {
     "1": {
       "central_value": 80,
       "stat_error": 0,
       "syst_error": 0
-    },
-    "2": {
-      "central_value": 4.5,
+    }
+  },
+  "B_SCALE": {
+    "1": {
+      "central_value": 4.3,
       "stat_error": 0,
       "syst_error": 0
     }

@@ -26,6 +26,10 @@ void WilsonParamComposer::compose_parameter(const ParamId& pid,
     CompositeParamAdapter().add_param_dependency(typed_pid, typed_sources, update_func);
 }
 
+void WilsonParamComposer::remove_block(const std::string &block_name) {
+    CompositeParamAdapter().remove_dependency(block_name, ParameterType::WILSON);
+}
+
 void WilsonParamComposer::update(const std::string &block_name) {
     CompositeParamAdapter().update_dependency(block_name, ParameterType::WILSON);
 }

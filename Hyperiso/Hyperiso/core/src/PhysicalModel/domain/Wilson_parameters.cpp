@@ -1,36 +1,14 @@
 #include "Wilson_parameters.h"
 
-void WilsonParameterHelper::set_mu(double mu) {
-	if (fpeq(mu, WilsonParameterHelper::current_mu_h)) {
-		return;
-	}
-
-	WilsonParamComposer().update("WPARAM_RUN_SM");
-	WilsonParameterHelper::current_mu_h = mu;
-}
-
-void WilsonParameterHelper::set_mu_W(double mu_W) {
-	if (fpeq(mu_W, WilsonParameterHelper::current_mu_W)) {
-		std::cout << "WilsonParametersHelper already set a scale " << mu_W << std::endl;
-		return;
-	}
-	std::cout << "mmh" << std::endl;
-    WilsonParamComposer().update("WPARAM_MATCH_SM");
-	WilsonParamComposer().update("WPARAM_RUN_SM");
-	WilsonParameterHelper::current_mu_W = mu_W;
-}
-
-void WilsonParameterHelper::init(double mu_W, double mu_h, int gen) {
+void WilsonParameterHelper::init(int gen) {
 	if (WilsonParameterHelper::initialized) {
 		return;
 	}
 
-	std::cout << "Initializing WilsonParameterHelper at scales " << mu_W << " and " << mu_h << std::endl;
-	WilsonParameterHelper::current_mu_W = mu_W;
-	WilsonParameterHelper::current_mu_h = mu_h;
+	std::cout << "Initializing WilsonParameterHelper" << std::endl;
 	WilsonParameterHelper::init_scale_independent_block(gen);
-	WilsonParameterHelper::init_matching_block(mu_W);
-	WilsonParameterHelper::init_running_block(mu_W, mu_h);
+	WilsonParameterHelper::init_matching_block();
+	WilsonParameterHelper::init_running_block();
 	WilsonParameterHelper::initialized = true;
 }
 
@@ -54,11 +32,12 @@ void WilsonParameterHelper::init_scale_independent_block(int gen) {
     WilsonParameterHelper::composer.compose_block("WPARAM_SI_SM", src, func);
 }
 
-void WilsonParameterHelper::init_matching_block(double mu_W) {
-	LOG_DEBUG("Init matching scale dependent wparam block at mu_W =", mu_W);
-	std::unordered_map<ParameterType, std::vector<std::string>> src = {{ParameterType::SM, {"MASS" /*, "QCD"*/}}};
+void WilsonParameterHelper::init_matching_block() {
+	LOG_DEBUG("Init matching scale dependent wparam block");
+	std::unordered_map<ParameterType, std::vector<std::string>> src = {{ParameterType::SM, {"MASS" /*, "QCD"*/}}, {ParameterType::WILSON, {"EW_SCALE"}}};
 
-    auto func = [mu_W] (const std::unordered_map<std::string, std::shared_ptr<Block>>& src, std::shared_ptr<DependentBlock> dep_block) {
+    auto func = [] (const std::unordered_map<std::string, std::shared_ptr<Block>>& src, std::shared_ptr<DependentBlock> dep_block) {
+		double mu_W = src.at("EW_SCALE")->retrieve(1)->get_val();
         double alphas_muW = QCDHelper::alpha_s(mu_W);
 		double mass_top_muW = QCDHelper::msbar_mass(6, mu_W, MassType::MSBAR);
 		double mass_b_muW_mbrun = QCDHelper::msbar_mass(5, mu_W, MassType::MSBAR);
@@ -90,11 +69,16 @@ void WilsonParameterHelper::init_matching_block(double mu_W) {
     WilsonParameterHelper::composer.compose_block("WPARAM_MATCH_SM", src, func);
 }
 
-void WilsonParameterHelper::init_running_block(double mu_W, double mu_h) {
-	LOG_DEBUG("Init running scale dependent wparam block at mu_W =", mu_W, "and mu_h = ", mu_h);
-	std::unordered_map<ParameterType, std::vector<std::string>> src = {{ParameterType::SM, {"MASS"/*, "QCD" */}}};
+void WilsonParameterHelper::init_running_block() {
+	LOG_DEBUG("Init running scale dependent wparam block");
+	std::unordered_map<ParameterType, std::vector<std::string>> src = {
+		{ParameterType::SM, {"MASS"/*, "QCD" */}}, 
+		{ParameterType::WILSON, {"EW_SCALE", "B_SCALE"}}
+	};
 
-    auto func = [mu_W, mu_h] (const std::unordered_map<std::string, std::shared_ptr<Block>>& src, std::shared_ptr<DependentBlock> dep_block) {
+    auto func = [] (const std::unordered_map<std::string, std::shared_ptr<Block>>& src, std::shared_ptr<DependentBlock> dep_block) {
+		double mu_W = src.at("EW_SCALE")->retrieve(1)->get_val();
+		double mu_h = src.at("B_SCALE")->retrieve(1)->get_val();
         double alphas_mu = QCDHelper::alpha_s(mu_h);	
 		double eta = QCDHelper::alpha_s(mu_W) / alphas_mu;
 		

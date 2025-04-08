@@ -154,7 +154,7 @@ complex_t QSetState::getFullMatchingCoefficient(CoefficientManager* manager, con
 
 void RunSetState::switchbasis(CoefficientManager* manager, const std::string& groupName) {
     CoefficientGroup* group = manager->getCoefficientGroup(groupName);
-    group->switch_base();
+    group->switch_basis();
 }
 complex_t RunSetState::getFullRunCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) {
     CoefficientGroup* group = manager->getCoefficientGroup(groupName);
