@@ -6,7 +6,7 @@ void C3_THDM::NNLO_calculation() {
     std::unordered_set<ParamId> sources {
         {"WPARAM_SI_BSM", 7},
         {"WPARAM_MATCH_BSM", 1},
-        {"SCALE", 1},
+        {"EW_SCALE", 1},
         {ParameterType::BSM, "MASS", 37}
     };
 
@@ -14,7 +14,7 @@ void C3_THDM::NNLO_calculation() {
         double lu = src.at({ParameterType::WILSON, "WPARAM_SI_BSM", 7})->get_val();
         auto yt = src.at({ParameterType::WILSON, "WPARAM_MATCH_BSM", 1})->get_val();
         double m_H = src.at({ParameterType::WILSON, "MASS", 37})->get_val();
-        double Q_match = src.at({ParameterType::WILSON, "SCALE", 1})->get_val();
+        double Q_match = src.at({ParameterType::WILSON, "EW_SCALE", 1})->get_val();
         double coeff_temp = G3H(yt,lu)+Delta3H(yt,lu)*log(pow(Q_match/m_H,2.));
         dep_param->set_expected(coeff_temp);
     };
@@ -48,7 +48,7 @@ void C4_THDM::NNLO_calculation() {
     std::unordered_set<ParamId> sources {
         {"WPARAM_SI_BSM", 7},
         {"WPARAM_MATCH_BSM", 1},
-        {"SCALE", 1},
+        {"EW_SCALE", 1},
         {ParameterType::BSM, "MASS", 37}
     };
 
@@ -56,7 +56,7 @@ void C4_THDM::NNLO_calculation() {
         double lu = src.at({ParameterType::WILSON, "WPARAM_SI_BSM", 7})->get_val();
         auto yt = src.at({ParameterType::WILSON, "WPARAM_MATCH_BSM", 1})->get_val();
         double m_H = src.at({ParameterType::WILSON, "MASS", 37})->get_val();
-        double Q_match = src.at({ParameterType::WILSON, "SCALE", 1})->get_val();
+        double Q_match = src.at({ParameterType::WILSON, "EW_SCALE", 1})->get_val();
 
         double coeff_temp=G4H(yt,lu)+Delta4H(yt,lu)*log(pow(Q_match/m_H,2.));
         dep_param->set_expected(coeff_temp);
@@ -73,7 +73,7 @@ void C5_THDM::NNLO_calculation() {
     std::unordered_set<ParamId> sources {
         {"WPARAM_SI_BSM", 7},
         {"WPARAM_MATCH_BSM", 1},
-        {"SCALE", 1},
+        {"EW_SCALE", 1},
         {ParameterType::BSM, "MASS", 37}
     };
 
@@ -81,7 +81,7 @@ void C5_THDM::NNLO_calculation() {
         double lu = src.at({ParameterType::WILSON, "WPARAM_SI_BSM", 7})->get_val();
         auto yt = src.at({ParameterType::WILSON, "WPARAM_MATCH_BSM", 1})->get_val();
         double m_H = src.at({ParameterType::WILSON, "MASS", 37})->get_val();
-        double Q_match = src.at({ParameterType::WILSON, "SCALE", 1})->get_val();
+        double Q_match = src.at({ParameterType::WILSON, "EW_SCALE", 1})->get_val();
 
         double C4H_1=EH(yt,lu);
         double C3H_2=G3H(yt,lu)+Delta3H(yt,lu)*log(pow(Q_match/m_H,2.));
@@ -103,7 +103,7 @@ void C6_THDM::NNLO_calculation() {
     std::unordered_set<ParamId> sources {
         {"WPARAM_SI_BSM", 7},
         {"WPARAM_MATCH_BSM", 1},
-        {"SCALE", 1},
+        {"EW_SCALE", 1},
         {ParameterType::BSM, "MASS", 37}
     };
 
@@ -111,7 +111,7 @@ void C6_THDM::NNLO_calculation() {
         double lu = src.at({ParameterType::WILSON, "WPARAM_SI_BSM", 7})->get_val();
         auto yt = src.at({ParameterType::WILSON, "WPARAM_MATCH_BSM", 1})->get_val();
         double m_H = src.at({ParameterType::WILSON, "MASS", 37})->get_val();
-        double Q_match = src.at({ParameterType::WILSON, "SCALE", 1})->get_val();
+        double Q_match = src.at({ParameterType::WILSON, "EW_SCALE", 1})->get_val();
 
         double C4H_1=EH(yt,lu);
         double C3H_2=G3H(yt,lu)+Delta3H(yt,lu)*log(pow(Q_match/m_H,2.));
@@ -162,7 +162,7 @@ void C7_THDM::NLO_calculation() {
         {"WPARAM_SI_BSM", 7},
         {"WPARAM_SI_BSM", 8},
         {"WPARAM_MATCH_BSM", 1},
-        {"SCALE", 1},
+        {"EW_SCALE", 1},
         {ParameterType::BSM, "MASS", 37}
     };
 
@@ -171,7 +171,7 @@ void C7_THDM::NLO_calculation() {
         double ld = src.at({ParameterType::WILSON, "WPARAM_SI_BSM", 8})->get_val();
         auto yt = src.at({ParameterType::WILSON, "WPARAM_MATCH_BSM", 1})->get_val();
         double m_H = src.at({ParameterType::WILSON, "MASS", 37})->get_val();
-        double Q_match = src.at({ParameterType::WILSON, "SCALE", 1})->get_val();
+        double Q_match = src.at({ParameterType::WILSON, "EW_SCALE", 1})->get_val();
 
         double coeff_temp = G7H(yt,lu,ld)+Delta7H(yt,lu,ld)*log(pow(Q_match/m_H,2.))
             -4./9.*EH(yt,lu);
@@ -193,7 +193,7 @@ void C7_THDM::NNLO_calculation() {
         {"WPARAM_SI_BSM", 8},
         {"WPARAM_MATCH_BSM", 1},
         {"WPARAM_MATCH_SM", 6},
-        {"SCALE", 1}
+        {"EW_SCALE", 1}
     };
 
     auto func = [] (const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src, std::shared_ptr<DependentParameter> dep_param) {
@@ -201,7 +201,7 @@ void C7_THDM::NNLO_calculation() {
         double ld = src.at({ParameterType::WILSON, "WPARAM_SI_BSM", 8})->get_val();
         auto yt = src.at({ParameterType::WILSON, "WPARAM_MATCH_BSM", 1})->get_val();
         double mass_top_muW = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 6})->get_val();
-        double Q_match = src.at({ParameterType::WILSON, "SCALE", 1})->get_val();
+        double Q_match = src.at({ParameterType::WILSON, "EW_SCALE", 1})->get_val();
 
         double coeff_temp =C7H2(yt,lu,ld,log(pow(Q_match/mass_top_muW, 2.)));
         dep_param->set_expected(coeff_temp);
@@ -242,7 +242,7 @@ void C8_THDM::NLO_calculation() {
         {"WPARAM_SI_BSM", 7},
         {"WPARAM_SI_BSM", 8},
         {"WPARAM_MATCH_BSM", 1},
-        {"SCALE", 1},
+        {"EW_SCALE", 1},
         {ParameterType::BSM, "MASS", 37}
     };
 
@@ -251,7 +251,7 @@ void C8_THDM::NLO_calculation() {
         double ld = src.at({ParameterType::WILSON, "WPARAM_SI_BSM", 8})->get_val();
         auto yt = src.at({ParameterType::WILSON, "WPARAM_MATCH_BSM", 1})->get_val();
         double m_H = src.at({ParameterType::WILSON, "MASS", 37})->get_val();
-        double Q_match = src.at({ParameterType::WILSON, "SCALE", 1})->get_val();
+        double Q_match = src.at({ParameterType::WILSON, "EW_SCALE", 1})->get_val();
 
         double coeff_temp = G8H(yt,lu,ld)+Delta8H(yt,lu,ld)*log(pow(Q_match/m_H,2.))
             -1./6.*EH(yt,lu);
@@ -273,7 +273,7 @@ void C8_THDM::NNLO_calculation() {
         {"WPARAM_SI_BSM", 8},
         {"WPARAM_MATCH_BSM", 1},
         {"WPARAM_MATCH_SM", 6},
-        {"SCALE", 1},
+        {"EW_SCALE", 1},
         {ParameterType::BSM, "MASS", 37}
     };
 
@@ -282,7 +282,7 @@ void C8_THDM::NNLO_calculation() {
         double ld = src.at({ParameterType::WILSON, "WPARAM_SI_BSM", 8})->get_val();
         auto yt = src.at({ParameterType::WILSON, "WPARAM_MATCH_BSM", 1})->get_val();
         double mass_top_muW = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 6})->get_val();
-        double Q_match = src.at({ParameterType::WILSON, "SCALE", 1})->get_val();
+        double Q_match = src.at({ParameterType::WILSON, "EW_SCALE", 1})->get_val();
 
         double coeff_temp =C8H2(yt,lu,ld,log(pow(Q_match/mass_top_muW, 2.)));
         dep_param->set_expected(coeff_temp);
@@ -328,7 +328,7 @@ void C9_THDM::NLO_calculation() {
         {"WPARAM_SI_BSM", 7},
         {"WPARAM_MATCH_BSM", 1},
         {"WPARAM_MATCH_SM", {2,1}},
-        {"SCALE", 1},
+        {"EW_SCALE", 1},
         {ParameterType::BSM, "MASS", 37}
     };
 
@@ -337,7 +337,7 @@ void C9_THDM::NLO_calculation() {
         double lu = src.at({ParameterType::WILSON, "WPARAM_SI_BSM", 7})->get_val();
         auto yt = src.at({ParameterType::WILSON, "WPARAM_MATCH_BSM", 1})->get_val();
         auto xt = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {2,1}})->get_val();
-        double Q_match = src.at({ParameterType::WILSON, "SCALE", 1})->get_val();
+        double Q_match = src.at({ParameterType::WILSON, "EW_SCALE", 1})->get_val();
         double m_H = src.at({ParameterType::WILSON, "MASS", 37})->get_val();
 
         double coeff_temp = (1.-4.*sw2)/sw2*C9llH1(xt,yt,lu,log(pow(Q_match/m_H,2.)))
@@ -385,7 +385,7 @@ void C10_THDM::NLO_calculation() {
         {"WPARAM_SI_BSM", 7},
         {"WPARAM_MATCH_BSM", 1},
         {"WPARAM_MATCH_SM", {2,1}},
-        {"SCALE", 1},
+        {"EW_SCALE", 1},
         {ParameterType::BSM, "MASS", 37}
     };
 
@@ -394,7 +394,7 @@ void C10_THDM::NLO_calculation() {
         double lu = src.at({ParameterType::WILSON, "WPARAM_SI_BSM", 7})->get_val();
         auto yt = src.at({ParameterType::WILSON, "WPARAM_MATCH_BSM", 1})->get_val();
         auto xt = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {2,1}})->get_val();
-        double Q_match = src.at({ParameterType::WILSON, "SCALE", 1})->get_val();
+        double Q_match = src.at({ParameterType::WILSON, "EW_SCALE", 1})->get_val();
         double m_H = src.at({ParameterType::WILSON, "MASS", 37})->get_val();
 
         double coeff_temp = -C9llH1(xt,yt,lu,log(pow(Q_match/m_H,2.)))/sw2;
@@ -619,4 +619,12 @@ void C_S2_THDM::LO_calculation() {
     // double m_tau = sm("MASS", 15);
     // double l_tau = (*mod)("YL", 22);
     // // return this->double_to_complex_save("LO", -m_c * m_tau * thdm_params->lu * l_tau / std::pow(thdm_params->m_H, 2));
+}
+
+void WilsonCoefficient_THDM::init(QCDOrder order) {
+    if (!is_owned) {
+        thdm_parameters::init();
+    }
+
+    WilsonCoefficient::init(order);
 }

@@ -5,7 +5,7 @@
 
 class C1 : public WilsonCoefficient {
 public:
-    C1() : WilsonCoefficient() {this->set_name("C1");}
+    C1() : WilsonCoefficient("C1", "B_MATCH") {}
 
     void LO_calculation() {}
     void NLO_calculation();

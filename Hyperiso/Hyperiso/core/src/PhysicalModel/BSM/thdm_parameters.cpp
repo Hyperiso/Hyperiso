@@ -1,15 +1,15 @@
 #include "thdm_parameters.h"
 
 
-void thdm_parameters::init(double muW) {
+void thdm_parameters::init() {
     if (thdm_parameters::initialized) {
 		return;
 	}
 
-	std::cout << "Initializing thdm_parameters at scale " << muW << std::endl;
+	std::cout << "Initializing thdm_parameters" << std::endl;
 
     init_scale_independant_block();
-    init_matching_block(muW);
+    init_matching_block();
 }
 
 void thdm_parameters::init_scale_independant_block() {
@@ -55,13 +55,15 @@ void thdm_parameters::init_scale_independant_block() {
 
 }
 
-void thdm_parameters::init_matching_block(double mu_W) {
+void thdm_parameters::init_matching_block() {
 
-    std::unordered_map<ParameterType, std::vector<std::string>> src = {{ParameterType::SM, {"MASS" /*, "QCD"*/}}, {ParameterType::WILSON, {"WPARAM_MATCH_SM"}}};
+    std::unordered_map<ParameterType, std::vector<std::string>> src = {
+        {ParameterType::SM, {"MASS" /*, "QCD"*/}}, 
+        {ParameterType::WILSON, {"WPARAM_MATCH_SM"}}
+    };
 
-    auto func = [mu_W] (const std::unordered_map<std::string, std::shared_ptr<Block>>& src, std::shared_ptr<DependentBlock> dep_block) {
-        double yt= pow(src.at("WPARAM_MATCH_SM")->retrieve(6)->get_val()/src.at("MASS")->retrieve(37)->get_val(),2.); // param->mass_H (25)
-
+    auto func = [] (const std::unordered_map<std::string, std::shared_ptr<Block>>& src, std::shared_ptr<DependentBlock> dep_block) {
+        double yt = pow(src.at("WPARAM_MATCH_SM")->retrieve(6)->get_val()/src.at("MASS")->retrieve(37)->get_val(),2.); // param->mass_H (25)
 		dep_block->store_or_assign(1, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_MATCH_BSM", 1}, yt, 0., 0.));
 
 		LOG_INFO("Update bsm matching block");

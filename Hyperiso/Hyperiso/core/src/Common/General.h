@@ -209,6 +209,13 @@ enum class BWilsonBasis {
     TRADITIONAL
 };
 
+enum class ContributionType {
+    SM, 
+    BSM,
+    TOTAL
+};
+
+
 class GroupMapper {
 public:
     static std::string str(WGroup group) {
@@ -254,9 +261,9 @@ public:
         return WCoefMapper::flha_mapping.at(coef);
     };
 
-    static LhaID flha_full(WCoef coef, QCDOrder order, bool bsm) {
+    static LhaID flha_full(WCoef coef, QCDOrder order, ContributionType type) {
         auto base_id = WCoefMapper::flha_mapping.at(coef);
-        return LhaID{base_id.first, base_id.second, static_cast<int>(order) - 1, static_cast<int>(bsm)};
+        return LhaID{base_id.first, base_id.second, static_cast<int>(order) - 1, static_cast<int>(type)};
     };
 
     static WCoef from_flha(int content, int structure) {

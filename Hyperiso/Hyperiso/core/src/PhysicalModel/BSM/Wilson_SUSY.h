@@ -6,46 +6,27 @@
 #include "Math_THDM.h"
 #include "Utils.h"
 
-class WilsonCoefficient_susy {
+class WilsonCoefficient_susy : public WilsonCoefficient {
 protected:
-    // void set_mod_parameters(std::shared_ptr<Parameters> new_mod) {this->mod = new_mod;};
-
-    WilsonCoefficient_susy (double Q_match) {this->Q_match = Q_match; sus_param = susy_parameters::GetInstance(this->Q_match);
-    // calculateContribution = [&](auto hFunc, const Array3D_3x7x4& X, const Array3D_3x7x4& X2, int ie, int ae, bool isChargeps) -> double {
-    //         double ratio = std::pow((*Parameters::GetInstance(ParameterType::SM))("MASS", 24) / (*sus_param).Mch[ie], 2);
-    //         double msqOverMchSquared = std::pow((*sus_param).MsqU[ae] / (*sus_param).Mch[ie], 2.0);
-    //         double factor = isChargeps ? (-(*sus_param).epsilonb / (1.0 + (*sus_param).epsilonb * (*susy)("HMIX",2)) * (*susy)("HMIX",2)) : 1.0;
-    //         return ratio * (
-    //             X[ie][ae][1] * X2[ie][ae][2] * hFunc(msqOverMchSquared)) * (*sus_param).kappaFactor * factor;
-    //     };
-    }
-    
-    // std::shared_ptr<Parameters> mod = Parameters::GetInstance(2);
+    WilsonCoefficient_susy() = default;
     int gen{3};
-    double Q_match;
-    
-    std::shared_ptr<Parameters> susy = Parameters::GetInstance(ParameterType::BSM);
-	std::function<double(std::function<double(double)>, const Array3D_3x7x4&, const Array3D_3x7x4&, int, int, bool)> calculateContribution;
 
-	susy_parameters* sus_param;
-};
-class C1_susy : public C1, public WilsonCoefficient_susy {
 public:
-    C1_susy() : C1(), WilsonCoefficient_susy(81.) {}
-    C1_susy(double Q_match) : C1(Q_match), WilsonCoefficient_susy(Q_match) {}
+    void init(QCDOrder order);
+};
 
+class C1_susy : public WilsonCoefficient_susy {
+public:
+    C1_susy() : WilsonCoefficient_susy() { this->set_name("C1_SUSY"); }
 
     void LO_calculation() {} 
     void NLO_calculation()  {} 
     void NNLO_calculation();
-
 };
 
-class C2_susy : public C2, public WilsonCoefficient_susy {
+class C2_susy : public WilsonCoefficient_susy {
 public:
-    C2_susy() : C2(), WilsonCoefficient_susy(81.) {}
-    C2_susy(double Q_match) : C2(Q_match), WilsonCoefficient_susy(Q_match)  {}
-
+    C2_susy() : WilsonCoefficient_susy() { this->set_name("C2_SUSY"); }
 
     void LO_calculation() {} 
     void NLO_calculation()  {} 
@@ -53,11 +34,9 @@ public:
 
 };
 
-class C3_susy : public C3, public WilsonCoefficient_susy {
+class C3_susy : public WilsonCoefficient_susy {
 public:
-    C3_susy() : C3(), WilsonCoefficient_susy(81.) {}
-    C3_susy(double Q_match) : C3(Q_match), WilsonCoefficient_susy(Q_match)  {}
-
+    C3_susy() : WilsonCoefficient_susy() { this->set_name("C3_SUSY"); }
 
     void LO_calculation() {} 
     void NLO_calculation() {} 
@@ -65,23 +44,27 @@ public:
 
 };
 
-class C4_susy : public C4, public WilsonCoefficient_susy {
+class C4_susy : public WilsonCoefficient_susy {
 public:
-    C4_susy() : C4(), WilsonCoefficient_susy(81.) {}
-    C4_susy(double Q_match) : C4(Q_match), WilsonCoefficient_susy(Q_match)  {}
-
+    C4_susy() : WilsonCoefficient_susy() { this->set_name("C4_SUSY"); }
 
     void LO_calculation() {} 
     void NLO_calculation();
     void NNLO_calculation(); 
-
 };
 
-class C5_susy : public C5, public WilsonCoefficient_susy {
+class C5_susy : public WilsonCoefficient_susy {
 public:
-    C5_susy() : C5(), WilsonCoefficient_susy(81.) {}
-    C5_susy(double Q_match) : C5(Q_match), WilsonCoefficient_susy(Q_match)  {}
+    C5_susy() : WilsonCoefficient_susy() { this->set_name("C5_SUSY"); }
+    
+    void LO_calculation() {} 
+    void NLO_calculation() {} 
+    void NNLO_calculation();
+};
 
+class C6_susy : public WilsonCoefficient_susy {
+public:
+    C6_susy() : WilsonCoefficient_susy() { this->set_name("C6_SUSY"); }
 
     void LO_calculation() {} 
     void NLO_calculation() {} 
@@ -89,22 +72,9 @@ public:
 
 };
 
-class C6_susy : public C6, public WilsonCoefficient_susy {
+class C7_susy : public WilsonCoefficient_susy {
 public:
-    C6_susy() : C6(), WilsonCoefficient_susy(81.) {}
-    C6_susy(double Q_match) : C6(Q_match), WilsonCoefficient_susy(Q_match)  {}
-
-
-    void LO_calculation() {} 
-    void NLO_calculation() {} 
-    void NNLO_calculation();
-
-};
-
-class C7_susy : public C7, public WilsonCoefficient_susy {
-public:
-    C7_susy() : C7(), WilsonCoefficient_susy(81.) {}
-    C7_susy(double Q_match) : C7(Q_match), WilsonCoefficient_susy(Q_match)  {}
+    C7_susy() : WilsonCoefficient_susy() { this->set_name("C7_SUSY"); }
 
     void LO_calculation() override;
     void NLO_calculation() override;
@@ -112,11 +82,9 @@ public:
 
 };
 
-class C8_susy : public C8, public WilsonCoefficient_susy {
+class C8_susy : public WilsonCoefficient_susy {
 public:
-    C8_susy() : C8(), WilsonCoefficient_susy(81.) {}
-    C8_susy(double Q_match) : C8(Q_match), WilsonCoefficient_susy(Q_match)  {}
-
+    C8_susy() : WilsonCoefficient_susy() { this->set_name("C8_SUSY"); }
 
     void LO_calculation()override;
     void NLO_calculation() override;
@@ -124,10 +92,9 @@ public:
 
 };
 
-class C9_susy : public C9, public WilsonCoefficient_susy {
+class C9_susy : public WilsonCoefficient_susy {
 public:
-    C9_susy() : C9(), WilsonCoefficient_susy(81.) {}
-    C9_susy(double Q_match) : C9(Q_match), WilsonCoefficient_susy(Q_match)  {}
+    C9_susy() : WilsonCoefficient_susy() { this->set_name("C9_SUSY"); }
 
     void LO_calculation();
     void NLO_calculation();
@@ -135,11 +102,9 @@ public:
 
 };
 
-class C10_susy : public C10, public WilsonCoefficient_susy {
+class C10_susy : public WilsonCoefficient_susy {
 public:
-    C10_susy() : C10(), WilsonCoefficient_susy(81.) {}
-    C10_susy(double Q_match) : C10(Q_match), WilsonCoefficient_susy(Q_match)  {}
-
+    C10_susy() : WilsonCoefficient_susy() { this->set_name("C10_SUSY"); }
 
     void LO_calculation();
     void NLO_calculation();
@@ -147,38 +112,27 @@ public:
 
 };
 
-class CQ1_susy : public CQ1, public WilsonCoefficient_susy {
+class CQ1_susy : public WilsonCoefficient_susy {
 public:
-    CQ1_susy() : CQ1(), WilsonCoefficient_susy(81.) {}
-    CQ1_susy(double Q_match) : CQ1(Q_match), WilsonCoefficient_susy(Q_match) {}
-    CQ1_susy(double Q_match, int gen) : CQ1(Q_match), WilsonCoefficient_susy(Q_match) {}
-
+    CQ1_susy() : WilsonCoefficient_susy() { this->set_name("CQ1_SUSY"); }
 
     void LO_calculation();
     void NLO_calculation();
     void NNLO_calculation() {} 
-
 };
 
-class CQ2_susy : public CQ2, public WilsonCoefficient_susy {
+class CQ2_susy : public WilsonCoefficient_susy {
 public:
-    CQ2_susy() : CQ2(), WilsonCoefficient_susy(81.) {}
-    CQ2_susy(double Q_match) : CQ2(Q_match), WilsonCoefficient_susy(Q_match) {}
-    CQ2_susy(double Q_match, int gen) : CQ2(Q_match), WilsonCoefficient_susy(Q_match) {}
-
+    CQ2_susy() : WilsonCoefficient_susy() { this->set_name("CQ2_SUSY"); }
 
     void LO_calculation();
     void NLO_calculation();
     void NNLO_calculation() {} 
-
 };
 
-class CP1_susy : public CP1, public WilsonCoefficient_susy {
+class CP1_susy : public WilsonCoefficient_susy {
 public:
-    CP1_susy() : CP1(), WilsonCoefficient_susy(81.) {std::cout << "333" << std::endl;}
-    CP1_susy(double Q_match) : CP1(Q_match), WilsonCoefficient_susy(Q_match) {}
-    CP1_susy(double Q_match, int gen) : CP1(Q_match), WilsonCoefficient_susy(Q_match) {}
-
+    CP1_susy() : WilsonCoefficient_susy() { this->set_name("CP1_SUSY"); }
 
     void LO_calculation() {} 
     void NLO_calculation() {} 
@@ -186,11 +140,18 @@ public:
 
 };
 
-class CP2_susy : public CP2, public WilsonCoefficient_susy {
+class CP2_susy : public WilsonCoefficient_susy {
 public:
-    CP2_susy() : CP2(), WilsonCoefficient_susy(81.) {}
-    CP2_susy(double Q_match) : CP2(Q_match), WilsonCoefficient_susy(Q_match) {}
-    CP2_susy(double Q_match, int gen) : CP2(Q_match), WilsonCoefficient_susy(Q_match) {}
+    CP2_susy() : WilsonCoefficient_susy() { this->set_name("CP2_SUSY"); }
+
+    void LO_calculation() {} 
+    void NLO_calculation() {} 
+    void NNLO_calculation() {} 
+};
+
+class CP3_susy : public WilsonCoefficient_susy {
+public:
+    CP3_susy() : WilsonCoefficient_susy() { this->set_name("CP3_SUSY"); }
 
     void LO_calculation() {} 
     void NLO_calculation() {} 
@@ -198,12 +159,9 @@ public:
 
 };
 
-class CP3_susy : public CP3, public WilsonCoefficient_susy {
+class CP4_susy : public WilsonCoefficient_susy {
 public:
-    CP3_susy() : CP3(), WilsonCoefficient_susy(81.) {}
-    CP3_susy(double Q_match) : CP3(Q_match), WilsonCoefficient_susy(Q_match) {}
-    CP3_susy(double Q_match, int gen) : CP3(Q_match), WilsonCoefficient_susy(Q_match) {}
-
+    CP4_susy() : WilsonCoefficient_susy() { this->set_name("CP4_SUSY"); }
 
     void LO_calculation() {} 
     void NLO_calculation() {} 
@@ -211,12 +169,9 @@ public:
 
 };
 
-class CP4_susy : public CP4, public WilsonCoefficient_susy {
+class CP5_susy : public WilsonCoefficient_susy {
 public:
-    CP4_susy() : CP4(), WilsonCoefficient_susy(81.) {}
-    CP4_susy(double Q_match) : CP4(Q_match), WilsonCoefficient_susy(Q_match) {}
-    CP4_susy(double Q_match, int gen) : CP4(Q_match), WilsonCoefficient_susy(Q_match) {}
-
+    CP5_susy() : WilsonCoefficient_susy() { this->set_name("CP5_SUSY"); }
 
     void LO_calculation() {} 
     void NLO_calculation() {} 
@@ -224,11 +179,9 @@ public:
 
 };
 
-class CP5_susy : public CP5, public WilsonCoefficient_susy {
+class CP6_susy : public WilsonCoefficient_susy {
 public:
-    CP5_susy() : CP5(), WilsonCoefficient_susy(81.) {}
-    CP5_susy(double Q_match) : CP5(Q_match), WilsonCoefficient_susy(Q_match) {}
-    CP5_susy(double Q_match, int gen) : CP5(Q_match), WilsonCoefficient_susy(Q_match) {}
+    CP6_susy() : WilsonCoefficient_susy() { this->set_name("CP6_SUSY"); }
 
     void LO_calculation() {} 
     void NLO_calculation() {} 
@@ -236,23 +189,9 @@ public:
 
 };
 
-class CP6_susy : public CP6, public WilsonCoefficient_susy {
+class CP7_susy : public WilsonCoefficient_susy {
 public:
-    CP6_susy() : CP6(), WilsonCoefficient_susy(81.) {}
-    CP6_susy(double Q_match) : CP6(Q_match), WilsonCoefficient_susy(Q_match) {}
-    CP6_susy(double Q_match, int gen) : CP6(Q_match), WilsonCoefficient_susy(Q_match) {}
-
-    void LO_calculation() {} 
-    void NLO_calculation() {} 
-    void NNLO_calculation() {} 
-
-};
-
-class CP7_susy : public CP7, public WilsonCoefficient_susy {
-public:
-    CP7_susy() : CP7(), WilsonCoefficient_susy(81.) {}
-    CP7_susy(double Q_match) : CP7(Q_match) , WilsonCoefficient_susy(Q_match){}
-    CP7_susy(double Q_match, int gen) : CP7(Q_match), WilsonCoefficient_susy(Q_match) {}
+    CP7_susy() : WilsonCoefficient_susy() { this->set_name("CP7_SUSY"); }
 
     void LO_calculation();
     void NLO_calculation() {} 
@@ -260,11 +199,9 @@ public:
 
 };
 
-class CP8_susy : public CP8, public WilsonCoefficient_susy {
+class CP8_susy : public WilsonCoefficient_susy {
 public:
-    CP8_susy() : CP8(), WilsonCoefficient_susy(81.) {}
-    CP8_susy(double Q_match) : CP8(Q_match), WilsonCoefficient_susy(Q_match) {}
-    CP8_susy(double Q_match, int gen) : CP8(Q_match) , WilsonCoefficient_susy(Q_match) {}
+    CP8_susy() : WilsonCoefficient_susy() { this->set_name("CP8_SUSY"); }
 
     void LO_calculation(); 
     void NLO_calculation() {} 
@@ -272,11 +209,9 @@ public:
 
 };
 
-class CP9_susy : public CP9, public WilsonCoefficient_susy {
+class CP9_susy : public WilsonCoefficient_susy {
 public:
-    CP9_susy() : CP9(), WilsonCoefficient_susy(81.) {}
-    CP9_susy(double Q_match) : CP9(Q_match), WilsonCoefficient_susy(Q_match) {}
-    CP9_susy(double Q_match, int gen) : CP9(Q_match), WilsonCoefficient_susy(Q_match) {}
+    CP9_susy() : WilsonCoefficient_susy() { this->set_name("CP9_SUSY"); }
 
     void LO_calculation();
     void NLO_calculation() {} 
@@ -284,11 +219,9 @@ public:
 
 };
 
-class CP10_susy : public CP10, public WilsonCoefficient_susy {
+class CP10_susy : public WilsonCoefficient_susy {
 public:
-    CP10_susy() : CP10(), WilsonCoefficient_susy(81.) {}
-    CP10_susy(double Q_match) : CP10(Q_match), WilsonCoefficient_susy(Q_match) {}
-    CP10_susy(double Q_match, int gen) : CP10(Q_match), WilsonCoefficient_susy(Q_match) {}
+    CP10_susy() : WilsonCoefficient_susy() { this->set_name("CP10_SUSY"); }
 
     void LO_calculation();
     void NLO_calculation() {} 
@@ -296,11 +229,9 @@ public:
 
 };
 
-class CPQ1_susy : public CPQ1, public WilsonCoefficient_susy {
+class CPQ1_susy : public WilsonCoefficient_susy {
 public:
-    CPQ1_susy() : CPQ1(), WilsonCoefficient_susy(81.) {}
-    CPQ1_susy(double Q_match) : CPQ1(Q_match), WilsonCoefficient_susy(Q_match) {}
-    CPQ1_susy(double Q_match, int gen) : CPQ1(Q_match), WilsonCoefficient_susy(Q_match) {}
+    CPQ1_susy() : WilsonCoefficient_susy() { this->set_name("CPQ1_SUSY"); }
 
     void LO_calculation();
     void NLO_calculation() {} 
@@ -308,22 +239,18 @@ public:
 
 };
 
-class CPQ2_susy : public CPQ2, public WilsonCoefficient_susy {
+class CPQ2_susy : public WilsonCoefficient_susy {
 public:
-    CPQ2_susy() : CPQ2(), WilsonCoefficient_susy(81.) {}
-    CPQ2_susy(double Q_match) : CPQ2(Q_match), WilsonCoefficient_susy(Q_match) {}
-    CPQ2_susy(double Q_match, int gen) : CPQ2(Q_match), WilsonCoefficient_susy(Q_match) {}
+    CPQ2_susy() : WilsonCoefficient_susy() { this->set_name("CPQ2_SUSY"); }
 
     void LO_calculation();
     void NLO_calculation() {} 
     void NNLO_calculation() {} 
-
 };
 
-class C_Blnu_A_SUSY : public C_Blnu_A, public WilsonCoefficient_susy {
+class C_Blnu_A_SUSY : public WilsonCoefficient_susy {
 public:
-    C_Blnu_A_SUSY(double Q_match) : C_Blnu_A(Q_match), WilsonCoefficient_susy(Q_match) {}
-    C_Blnu_A_SUSY() : C_Blnu_A(), WilsonCoefficient_susy(81) {}
+    C_Blnu_A_SUSY() : WilsonCoefficient_susy() { this->set_name("C_Blnu_A_SUSY"); }
 
     void LO_calculation() {}
     void NLO_calculation() {} 
@@ -331,10 +258,9 @@ public:
 
 };
 
-class C_Blnu_P_SUSY : public C_Blnu_P, public WilsonCoefficient_susy {
+class C_Blnu_P_SUSY : public WilsonCoefficient_susy {
 public:
-    C_Blnu_P_SUSY(double Q_match) : C_Blnu_P(Q_match), WilsonCoefficient_susy(Q_match) {}
-    C_Blnu_P_SUSY() : C_Blnu_P(), WilsonCoefficient_susy(81) {}
+    C_Blnu_P_SUSY() : WilsonCoefficient_susy() { this->set_name("C_Blnu_P_SUSY"); }
 
     void LO_calculation();
     void NLO_calculation() {} 
@@ -342,10 +268,9 @@ public:
 
 };
 
-class C_V1_SUSY : public C_V1, public WilsonCoefficient_susy {
+class C_V1_SUSY : public WilsonCoefficient_susy {
 public:
-    C_V1_SUSY(double Q_match) : C_V1(Q_match), WilsonCoefficient_susy(Q_match) {}
-    C_V1_SUSY() : C_V1(), WilsonCoefficient_susy(81) {}
+    C_V1_SUSY() : WilsonCoefficient_susy() { this->set_name("C_V1_SUSY"); }
 
     void LO_calculation() {} 
     void NLO_calculation() {} 
@@ -353,10 +278,9 @@ public:
 
 };
 
-class C_V2_SUSY : public C_V2, public WilsonCoefficient_susy {
+class C_V2_SUSY : public WilsonCoefficient_susy {
 public:
-    C_V2_SUSY(double Q_match) : C_V2(Q_match), WilsonCoefficient_susy(Q_match) {}
-    C_V2_SUSY() : C_V2(), WilsonCoefficient_susy(81) {}
+    C_V2_SUSY() : WilsonCoefficient_susy() { this->set_name("C_V2_SUSY"); }
 
     void LO_calculation() {} 
     void NLO_calculation() {} 
@@ -364,10 +288,9 @@ public:
 
 };
 
-class C_S1_SUSY : public C_S1, public WilsonCoefficient_susy {
+class C_S1_SUSY : public WilsonCoefficient_susy {
 public:
-    C_S1_SUSY(double Q_match) : C_S1(Q_match), WilsonCoefficient_susy(Q_match) {}
-    C_S1_SUSY() : C_S1(), WilsonCoefficient_susy(81) {}
+    C_S1_SUSY() : WilsonCoefficient_susy() { this->set_name("C_S1_SUSY"); }
 
     void LO_calculation();
     void NLO_calculation() {} 
@@ -375,10 +298,9 @@ public:
 
 };
 
-class C_S2_SUSY : public C_S2, public WilsonCoefficient_susy {
+class C_S2_SUSY : public WilsonCoefficient_susy {
 public:
-    C_S2_SUSY(double Q_match) : C_S2(Q_match), WilsonCoefficient_susy(Q_match) {}
-    C_S2_SUSY() : C_S2(), WilsonCoefficient_susy(81) {}
+    C_S2_SUSY() : WilsonCoefficient_susy() { this->set_name("C_S2_SUSY"); }
 
     void LO_calculation();
     void NLO_calculation() {} 
@@ -386,10 +308,9 @@ public:
 
 };
 
-class C_T_SUSY : public C_T, public WilsonCoefficient_susy {
+class C_T_SUSY : public WilsonCoefficient_susy {
 public:
-    C_T_SUSY(double Q_match) : C_T(Q_match), WilsonCoefficient_susy(Q_match) {}
-    C_T_SUSY() : C_T(), WilsonCoefficient_susy(81) {}
+    C_T_SUSY() : WilsonCoefficient_susy() { this->set_name("C_T_SUSY"); }
 
     void LO_calculation() {} 
     void NLO_calculation() {} 
@@ -406,13 +327,6 @@ public:
         this->insert(std::make_pair("C7", std::make_shared<C7_susy>()));  this->insert(std::make_pair("C8", std::make_shared<C8_susy>()));  this->insert(std::make_pair("C9", std::make_shared<C9_susy>())); 
         this->insert(std::make_pair("C10", std::make_shared<C10_susy>())); 
     }
-    BCoefficientGroup_susy(double Q_match) { this->clear();
-        this->insert(std::make_pair("C1", std::make_shared<C1_susy>(Q_match))); this->insert(std::make_pair("C2", std::make_shared<C2_susy>(Q_match))); this->insert(std::make_pair("C3", std::make_shared<C3_susy>(Q_match)));
-        this->insert(std::make_pair("C4", std::make_shared<C4_susy>(Q_match)));  this->insert(std::make_pair("C5", std::make_shared<C5_susy>(Q_match))); this->insert(std::make_pair("C6", std::make_shared<C6_susy>(Q_match))); 
-        this->insert(std::make_pair("C7", std::make_shared<C7_susy>(Q_match)));  this->insert(std::make_pair("C8", std::make_shared<C8_susy>(Q_match)));  this->insert(std::make_pair("C9", std::make_shared<C9_susy>(Q_match))); 
-        this->insert(std::make_pair("C10", std::make_shared<C10_susy>(Q_match)));
-    }
-
 };
 
 class BPrimeCoefficientGroup_susy : public BPrimeCoefficientGroup {
@@ -423,25 +337,12 @@ public:
         this->insert(std::make_pair("CP7", std::make_shared<CP7_susy>()));  this->insert(std::make_pair("CP8", std::make_shared<CP8_susy>()));  this->insert(std::make_pair("CP9", std::make_shared<CP9_susy>())); 
         this->insert(std::make_pair("CP10", std::make_shared<CP10_susy>())); this->insert(std::make_pair("CPQ1", std::make_shared<CPQ1_susy>())); this->insert(std::make_pair("CPQ2", std::make_shared<CPQ2_susy>())); 
     }
-    BPrimeCoefficientGroup_susy(double Q_match) { this->clear();
-        this->insert(std::make_pair("CP1", std::make_shared<CP1_susy>(Q_match))); this->insert(std::make_pair("CP2", std::make_shared<CP2_susy>(Q_match))); this->insert(std::make_pair("CP3", std::make_shared<CP3_susy>(Q_match)));
-        this->insert(std::make_pair("CP4", std::make_shared<CP4_susy>(Q_match)));  this->insert(std::make_pair("CP5", std::make_shared<CP5_susy>(Q_match))); this->insert(std::make_pair("CP6", std::make_shared<CP6_susy>(Q_match))); 
-        this->insert(std::make_pair("CP7", std::make_shared<CP7_susy>(Q_match)));  this->insert(std::make_pair("CP8", std::make_shared<CP8_susy>(Q_match)));  this->insert(std::make_pair("CP9", std::make_shared<CP9_susy>(Q_match))); 
-        this->insert(std::make_pair("CP10", std::make_shared<CP10_susy>(Q_match))); this->insert(std::make_pair("CPQ1", std::make_shared<CPQ1_susy>(Q_match))); this->insert(std::make_pair("CPQ2", std::make_shared<CPQ2_susy>(Q_match)));
-    }
-
-
 };
 
 class BScalarCoefficientGroup_susy : public BScalarCoefficientGroup {
 public:
     BScalarCoefficientGroup_susy() : BScalarCoefficientGroup() { this->clear();
-        sus_param = susy_parameters::GetInstance(this->Q_match);
         this->insert(std::make_pair("CQ1", std::make_shared<CQ1_susy>())); this->insert(std::make_pair("CQ2", std::make_shared<CQ2_susy>()));
-    }
-    BScalarCoefficientGroup_susy(double Q_match) : BScalarCoefficientGroup(Q_match) { this->clear();
-        sus_param = susy_parameters::GetInstance(this->Q_match);
-        this->insert(std::make_pair("CQ1", std::make_shared<CQ1_susy>(Q_match))); this->insert(std::make_pair("CQ2", std::make_shared<CQ2_susy>(Q_match)));
     }
 
     void set_base_1_LO();
@@ -457,10 +358,6 @@ public:
         this->insert(std::make_pair("C_Blnu_A", std::make_shared<C_Blnu_A_SUSY>())); 
         this->insert(std::make_pair("C_Blnu_P", std::make_shared<C_Blnu_P_SUSY>()));
     }
-    BlnuCoefficientGroup_SUSY(double Q_match) { this->clear();
-        this->insert(std::make_pair("C_Blnu_A", std::make_shared<C_Blnu_A_SUSY>(Q_match))); 
-        this->insert(std::make_pair("C_Blnu_P", std::make_shared<C_Blnu_P_SUSY>(Q_match)));
-    }
 };
 
 class BclnuCoefficientGroup_SUSY : public BclnuCoefficientGroup {
@@ -471,14 +368,6 @@ public:
         this->insert(std::make_pair("C_S1", std::make_shared<C_S1_SUSY>()));
         this->insert(std::make_pair("C_S2", std::make_shared<C_S2_SUSY>()));
         this->insert(std::make_pair("C_T", std::make_shared<C_T_SUSY>()));
-    }
-
-    BclnuCoefficientGroup_SUSY(double Q_match) { this->clear();
-        this->insert(std::make_pair("C_V1", std::make_shared<C_V1_SUSY>(Q_match)));
-        this->insert(std::make_pair("C_V2", std::make_shared<C_V2_SUSY>(Q_match)));
-        this->insert(std::make_pair("C_S1", std::make_shared<C_S1_SUSY>(Q_match)));
-        this->insert(std::make_pair("C_S2", std::make_shared<C_S2_SUSY>(Q_match)));
-        this->insert(std::make_pair("C_T", std::make_shared<C_T_SUSY>(Q_match)));
     }
 
     void set_base_1() {}

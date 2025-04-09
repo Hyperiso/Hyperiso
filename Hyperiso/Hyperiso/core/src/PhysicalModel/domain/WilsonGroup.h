@@ -13,70 +13,32 @@ using BRP = BWilsonRunningParameters;
 
 class CoefficientGroup : public std::map<std::string, std::shared_ptr<WilsonCoefficient>> {
 public:
-
+    CoefficientGroup() = default;
     CoefficientGroup(const CoefficientGroup&) = default;
     CoefficientGroup(CoefficientGroup&&) = default;
 
-    CoefficientGroup() {WilsonParameterHelper::init(2);}
     CoefficientGroup(std::map<std::string, std::shared_ptr<WilsonCoefficient>>& coeffs) {
-        WilsonParameterHelper::init(2);
         for (auto& coeff : coeffs) {
             this->insert(std::make_pair(coeff.first, std::move(coeff.second)));
         }
-        this->claim_coefficients();
+        // TODO : retrieve max order of given coeffs and init at this order.
     }
 
     std::map<ParamId, double> param_cache;
 
-    bool is_double_base() {return this->double_base;}
-    virtual void switch_basis() {LOG_ERROR("ValueError", "error");}
+    bool is_double_base() { return this->double_base; }
+    virtual void switch_basis() {}
     virtual ~CoefficientGroup() = default;
 
-    void init_LO() {
+    void init(QCDOrder order) {
+        this->claim_coefficients();
         for (auto& coeff : *this) {
-            std::cout << "LO : " << coeff.first << std::endl;
-            if (!HAS_WILSON_API().get())
-                coeff.second->LO_calculation();
+                coeff.second->init(order);
         }
     }
 
-    void init_NLO() {
-        for (auto& coeff : *this) {
-            std::cout << "NLO : " << coeff.first << std::endl;
-            if (!HAS_WILSON_API().get())
-                coeff.second->NLO_calculation();
-        }
-    }
-
-    void init_NNLO() {
-        for (auto& coeff : *this) {
-            std::cout << "NNLO : " << coeff.first << std::endl;
-            if (!HAS_WILSON_API().get())
-                coeff.second->NNLO_calculation();
-        }
-    }
-
-    complex_t getfullMatching(std::string coeff, std::string order) {return this->at(coeff)->get_CoefficientFullMatchingValue(order);}
-    complex_t getfullRun(std::string coeff, std::string order) {return this->at(coeff)->get_CoefficientFullRunValue(order);}
-
-    complex_t getMatching(std::string coeff, std::string order) {return this->at(coeff)->get_CoefficientMatchingValue(order);}
-    complex_t getRun(std::string coeff, std::string order) {return this->at(coeff)->get_CoefficientRunValue(order);}
-
-    void setExternalMatchingCoefficient(const std::string& coeff, std::string& order, complex_t value) {
-        if (std::shared_ptr<WilsonCoefficient> search = this->find(coeff)->second; search !=this->end()->second) {
-            search->set_WilsonCoeffMatching(order, value);
-            return;
-        }
-        LOG_ERROR("KeyError", "matching coefficient", coeff, "Not found in coefficientgroup");
-    }
-
-    void setExternalRunningCoefficient(const std::string& coeff, std::string& order, complex_t value) {
-        if (std::shared_ptr<WilsonCoefficient> search = this->find(coeff)->second; search !=this->end()->second) {
-            search->set_WilsonCoeffRun(order, value);
-            return;
-        }
-        LOG_ERROR("KeyError", "running coefficient", coeff, "Not found in coefficientgroup");
-    }
+    complex_t getMatching(std::string coeff, std::string order) { return this->at(coeff)->get_CoefficientMatchingValue(order); }
+    complex_t getRun(std::string coeff, std::string order) { /* TODO */ }
 
     void claim_coefficients();
 
@@ -84,10 +46,8 @@ public:
 
     virtual std::shared_ptr<CoefficientGroup> clone() const = 0;
 
+protected:
     bool double_base = false;
-
-    ParameterProxy sm {ParameterType::SM};
-    ParameterProxy wilson_p {ParameterType::WILSON};
 };
 
 
@@ -97,12 +57,14 @@ public:
     BCoefficientGroup() {
         LOG_INFO("In BCoefficientGroup constructor");
         init_running_parameter_blocks();
+        
         if (UseMarty().get()) {
             for (auto&& coeff : {"C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9", "C10"}) {
                 this->insert(std::make_pair(coeff, std::make_shared<MartyWilson>(coeff)));
             }
             return;
         }
+
         this->insert(std::make_pair("C1", std::make_shared<C1>())); this->insert(std::make_pair("C2", std::make_shared<C2>())); this->insert(std::make_pair("C3", std::make_shared<C3>()));
         this->insert(std::make_pair("C4", std::make_shared<C4>()));  this->insert(std::make_pair("C5", std::make_shared<C5>())); this->insert(std::make_pair("C6", std::make_shared<C6>())); 
         this->insert(std::make_pair("C7", std::make_shared<C7>()));  this->insert(std::make_pair("C8", std::make_shared<C8>()));  this->insert(std::make_pair("C9", std::make_shared<C9>())); 
@@ -150,9 +112,9 @@ public:
         this->insert(std::make_pair("CP10", std::make_shared<CP10>())); this->insert(std::make_pair("CPQ1", std::make_shared<CPQ1>())); this->insert(std::make_pair("CPQ2", std::make_shared<CPQ2>())); 
     }
     
-    void set_base_1_LO();
-    void set_base_1_NLO() {}
-    void set_base_1_NNLO() {}
+    static void base_1_LO_calculation(const std::unordered_map<std::string, std::shared_ptr<Block>>&, std::shared_ptr<DependentBlock>);
+
+    void init_running_block(QCDOrder order, BWilsonBasis basis) override;
 
     std::shared_ptr<CoefficientGroup> clone() const override {
         return std::make_shared<BPrimeCoefficientGroup>(*this);
@@ -171,9 +133,10 @@ public:
         this->insert(std::make_pair("CQ1", std::make_shared<CQ1>())); this->insert(std::make_pair("CQ2", std::make_shared<CQ2>()));
     }
 
-    void set_base_1_LO();
-    void set_base_1_NLO();
-    void set_base_1_NNLO() {}
+    static void base_1_LO_calculation(const std::unordered_map<std::string, std::shared_ptr<Block>>&, std::shared_ptr<DependentBlock>);
+    static void base_1_NLO_calculation(const std::unordered_map<std::string, std::shared_ptr<Block>>&, std::shared_ptr<DependentBlock>);
+
+    void init_running_block(QCDOrder order, BWilsonBasis basis) override;
 
     std::shared_ptr<CoefficientGroup> clone() const override {
         return std::make_shared<BScalarCoefficientGroup>(*this);
@@ -193,9 +156,7 @@ public:
         this->insert(std::make_pair("C_Blnu_P", std::make_shared<C_Blnu_P>()));
     }
 
-    void set_base_1_LO() {}
-    void set_base_1_NLO() {}
-    void set_base_1_NNLO() {}
+    void init_running_block(QCDOrder order, BWilsonBasis basis = BWilsonBasis::STANDARD) {}
 
     std::shared_ptr<CoefficientGroup> clone() const override {
         return std::make_shared<BlnuCoefficientGroup>(*this);
@@ -217,10 +178,8 @@ class BclnuCoefficientGroup : public CoefficientGroup {
             this->insert(std::make_pair("C_S2", std::make_shared<C_S2>()));
             this->insert(std::make_pair("C_T", std::make_shared<C_T>()));
         }
-    
-        void set_base_1_LO() {}
-        void set_base_1_NLO() {}
-        void set_base_1_NNLO() {}
+
+        void init_running_block(QCDOrder order, BWilsonBasis basis = BWilsonBasis::STANDARD) {}
     
         std::shared_ptr<CoefficientGroup> clone() const override {
             return std::make_shared<BclnuCoefficientGroup>(*this);

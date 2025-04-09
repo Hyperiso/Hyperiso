@@ -6,358 +6,237 @@
 #include "Math_THDM.h"
 #include "Utils.h"
 
-class WilsonCoefficient_THDM {
+class WilsonCoefficient_THDM : public WilsonCoefficient {
 protected:
-    WilsonCoefficient_THDM(double Q_match) {thdm_parameters::init(Q_match);}
-    WilsonCoefficient_THDM() {thdm_parameters::init(81.);}
-    // void set_mod_parameters(std::shared_ptr<Parameters> new_mod) {this->mod = new_mod;};
-    
+    WilsonCoefficient_THDM() = default;
 
-    // std::shared_ptr<Parameters> mod = Parameters::GetInstance(ParameterType::BSM);
-
-};
-class C1_THDM : public C1, public WilsonCoefficient_THDM {
 public:
-    C1_THDM(double Q_match) : C1(Q_match) {this->set_name("C1_THDM");}
-    C1_THDM(double Q_match, int gen) : C1(Q_match) {}
-    C1_THDM() : C1() {this->set_name("C1_THDM");
-
-    }
-
-    void LO_calculation() { this->set_WilsonCoeffMatching("LO", {0.,0.});  } 
-    void NLO_calculation() { this->set_WilsonCoeffMatching("NLO", {0.,0.});  } 
-    void NNLO_calculation() { this->set_WilsonCoeffMatching("NNLO", {0.,0.});  } 
-
+    void init(QCDOrder order);
 };
 
-class C2_THDM : public C2, public WilsonCoefficient_THDM {
+class C1_THDM : public WilsonCoefficient_THDM {
 public:
-    C2_THDM(double Q_match) : C2(Q_match), WilsonCoefficient_THDM(Q_match){}
-    C2_THDM(double Q_match, int gen) : C2(Q_match), WilsonCoefficient_THDM(Q_match) {}
-    
-    C2_THDM() : C2() {
+    C1_THDM() : WilsonCoefficient_THDM() { this->set_name("C1_THDM"); }
 
-    }
-
-    void LO_calculation() {this->set_WilsonCoeffMatching("LO", {0.,0.});  } 
-    void NLO_calculation() {this->set_WilsonCoeffMatching("NLO", {0.,0.});  } 
-    void NNLO_calculation() {this->set_WilsonCoeffMatching("NNLO", {0.,0.});  } 
-
+    void LO_calculation() {} 
+    void NLO_calculation() {} 
+    void NNLO_calculation() {} 
 };
 
-class C3_THDM : public C3, public WilsonCoefficient_THDM {
+class C2_THDM : public WilsonCoefficient_THDM {
 public:
-    C3_THDM(double Q_match) : C3(Q_match), WilsonCoefficient_THDM(Q_match) {}
-    C3_THDM(double Q_match, int gen) : C3(Q_match), WilsonCoefficient_THDM(Q_match) {}
-    
-    C3_THDM() : C3() {
+    C2_THDM() : WilsonCoefficient_THDM() { this->set_name("C2_THDM"); }
 
-    }
+    void LO_calculation() {} 
+    void NLO_calculation() {} 
+    void NNLO_calculation() {} 
+};
 
-    void LO_calculation() {this->set_WilsonCoeffMatching("LO", {0.,0.});  } 
-    void NLO_calculation()  {this->set_WilsonCoeffMatching("NLO", {0.,0.});  } 
+class C3_THDM : public WilsonCoefficient_THDM {
+public:
+    C3_THDM() : WilsonCoefficient_THDM() { this->set_name("C3_THDM"); }
+
+    void LO_calculation() {} 
+    void NLO_calculation()  {} 
     void NNLO_calculation();
 
 };
 
-class C4_THDM : public C4, public WilsonCoefficient_THDM {
+class C4_THDM : public WilsonCoefficient_THDM {
 public:
-    C4_THDM(double Q_match) : C4(Q_match), WilsonCoefficient_THDM(Q_match) {}
-    C4_THDM(double Q_match, int gen) : C4(Q_match), WilsonCoefficient_THDM(Q_match) {}
-    C4_THDM() : C4() {
+    C4_THDM() : WilsonCoefficient_THDM() { this->set_name("C4_THDM"); }
 
-    }
-
-    void LO_calculation() {this->set_WilsonCoeffMatching("LO", {0.,0.});  } 
+    void LO_calculation() {} 
     void NLO_calculation();
     void NNLO_calculation();
 
 };
 
-class C5_THDM : public C5, public WilsonCoefficient_THDM {
+class C5_THDM : public WilsonCoefficient_THDM {
 public:
-    C5_THDM(double Q_match) : C5(Q_match), WilsonCoefficient_THDM(Q_match) {}
-    C5_THDM(double Q_match, int gen) : C5(Q_match), WilsonCoefficient_THDM(Q_match) {}
-    C5_THDM() : C5() {
+    C5_THDM() :  WilsonCoefficient_THDM() { this->set_name("C5_THDM"); }
 
-    }
-
-    void LO_calculation() {this->set_WilsonCoeffMatching("LO", {0.,0.});  } 
-    void NLO_calculation() {this->set_WilsonCoeffMatching("NLO", {0.,0.});  } 
+    void LO_calculation() {} 
+    void NLO_calculation() {} 
     void NNLO_calculation();
 
 };
 
-class C6_THDM : public C6, public WilsonCoefficient_THDM {
+class C6_THDM : public WilsonCoefficient_THDM {
 public:
-    C6_THDM(double Q_match) : C6(Q_match), WilsonCoefficient_THDM(Q_match) {}
-    C6_THDM(double Q_match, int gen) : C6(Q_match), WilsonCoefficient_THDM(Q_match) {}
-    C6_THDM() : C6() {
+    C6_THDM() : WilsonCoefficient_THDM() { this->set_name("C6_THDM"); }
 
-    }
-
-    void LO_calculation() {this->set_WilsonCoeffMatching("LO", {0.,0.});  } 
-    void NLO_calculation() {this->set_WilsonCoeffMatching("NLO", {0.,0.});  } 
+    void LO_calculation() {} 
+    void NLO_calculation() {} 
     void NNLO_calculation();
 
 };
 
-class C7_THDM : public C7, public WilsonCoefficient_THDM {
+class C7_THDM : public WilsonCoefficient_THDM {
 public:
-    C7_THDM(double Q_match) : C7(Q_match), WilsonCoefficient_THDM(Q_match) {}
-    C7_THDM(double Q_match, int gen) : C7(Q_match), WilsonCoefficient_THDM(Q_match) {}
-    C7_THDM() : C7() {
-
-    }
+    C7_THDM() : WilsonCoefficient_THDM() { this->set_name("C7_THDM"); }
 
     void LO_calculation();
     void NLO_calculation();
     void NNLO_calculation();
-
 };
 
-class C8_THDM : public C8, public WilsonCoefficient_THDM {
+class C8_THDM : public WilsonCoefficient_THDM {
 public:
-    C8_THDM(double Q_match) : C8(Q_match), WilsonCoefficient_THDM(Q_match) {}
-    C8_THDM(double Q_match, int gen) : C8(Q_match), WilsonCoefficient_THDM(Q_match) {}
-    C8_THDM() : C8() {
-
-    }
+    C8_THDM() : WilsonCoefficient_THDM() { this->set_name("C8_THDM"); }
 
     void LO_calculation();
     void NLO_calculation();
     void NNLO_calculation();
-
 };
 
-class C9_THDM : public C9, public WilsonCoefficient_THDM {
+class C9_THDM : public WilsonCoefficient_THDM {
 public:
-    C9_THDM(double Q_match) : C9(Q_match), WilsonCoefficient_THDM(Q_match) {}
-    C9_THDM(double Q_match, int gen) : C9(Q_match), WilsonCoefficient_THDM(Q_match) {}
-    C9_THDM() : C9() {
-
-    }
+    C9_THDM() : WilsonCoefficient_THDM() { this->set_name("C9_THDM"); }
 
     void LO_calculation();
     void NLO_calculation();
-    void NNLO_calculation() {this->set_WilsonCoeffMatching("NNLO", {0.,0.});  } 
-
+    void NNLO_calculation() {} 
 };
 
-class C10_THDM : public C10, public WilsonCoefficient_THDM {
+class C10_THDM : public WilsonCoefficient_THDM {
 public:
-    C10_THDM(double Q_match) : C10(Q_match), WilsonCoefficient_THDM(Q_match) {}
-    C10_THDM(double Q_match, int gen) : C10(Q_match), WilsonCoefficient_THDM(Q_match) {}
-    C10_THDM() : C10() {
-
-    }
+    C10_THDM() : WilsonCoefficient_THDM() { this->set_name("C10_THDM"); }
 
     void LO_calculation();
     void NLO_calculation();
-    void NNLO_calculation() {this->set_WilsonCoeffMatching("NNLO", {0.,0.});  } 
-
+    void NNLO_calculation() {} 
 };
 
-class CQ1_THDM : public CQ1, public WilsonCoefficient_THDM {
+class CQ1_THDM : public WilsonCoefficient_THDM {
 public:
-    CQ1_THDM(double Q_match) : CQ1(Q_match), WilsonCoefficient_THDM(Q_match) {}
-    CQ1_THDM(double Q_match, int gen) : CQ1(Q_match), WilsonCoefficient_THDM(Q_match) {}
-    CQ1_THDM() : CQ1() {
-
-    }
+    CQ1_THDM() : WilsonCoefficient_THDM() { this->set_name("CQ1_THDM"); }
 
     void LO_calculation();
-    void NLO_calculation() {this->set_WilsonCoeffMatching("NLO", {0.,0.});  }
-    void NNLO_calculation() {this->set_WilsonCoeffMatching("NNLO", {0.,0.});  } 
-
+    void NLO_calculation() {}
+    void NNLO_calculation() {} 
 };
 
-class CQ2_THDM : public CQ2, public WilsonCoefficient_THDM {
+class CQ2_THDM : public WilsonCoefficient_THDM {
 public:
-    CQ2_THDM(double Q_match) : CQ2(Q_match), WilsonCoefficient_THDM(Q_match) {}
-    CQ2_THDM(double Q_match, int gen) : CQ2(Q_match), WilsonCoefficient_THDM(Q_match) {}
-    CQ2_THDM() : CQ2() {
-
-    }
+    CQ2_THDM() : WilsonCoefficient_THDM() { this->set_name("CQ2_THDM"); }
 
     void LO_calculation();
-    void NLO_calculation() {this->set_WilsonCoeffMatching("NLO", {0.,0.});  }
-    void NNLO_calculation() {this->set_WilsonCoeffMatching("NNLO", {0.,0.});  } 
-
+    void NLO_calculation() {}
+    void NNLO_calculation() {} 
 };
 
-class CP1_THDM : public CP1, public WilsonCoefficient_THDM {
+class CP1_THDM : public WilsonCoefficient_THDM {
 public:
-    CP1_THDM(double Q_match) : CP1(Q_match), WilsonCoefficient_THDM(Q_match) {}
-    CP1_THDM(double Q_match, int gen) : CP1(Q_match), WilsonCoefficient_THDM(Q_match) {}
-    CP1_THDM() : CP1() {
+    CP1_THDM() : WilsonCoefficient_THDM() { this->set_name("CP1_THDM"); }
 
-    }
-
-    void LO_calculation() {this->set_WilsonCoeffMatching("LO", {0.,0.});  } 
-    void NLO_calculation() {this->set_WilsonCoeffMatching("NLO", {0.,0.});  }
-    void NNLO_calculation() {this->set_WilsonCoeffMatching("NNLO", {0.,0.});  } 
-
+    void LO_calculation() {} 
+    void NLO_calculation() {}
+    void NNLO_calculation() {} 
 };
 
-class CP2_THDM : public CP2, public WilsonCoefficient_THDM {
+class CP2_THDM : public WilsonCoefficient_THDM {
 public:
-    CP2_THDM(double Q_match) : CP2(Q_match), WilsonCoefficient_THDM(Q_match) {}
-    CP2_THDM(double Q_match, int gen) : CP2(Q_match), WilsonCoefficient_THDM(Q_match) {}
-    CP2_THDM() : CP2() {
+    CP2_THDM() : WilsonCoefficient_THDM() { this->set_name("CP2_THDM"); }
 
-    }
-
-    void LO_calculation() {this->set_WilsonCoeffMatching("LO", {0.,0.});  } 
-    void NLO_calculation() {this->set_WilsonCoeffMatching("NLO", {0.,0.});  }
-    void NNLO_calculation() {this->set_WilsonCoeffMatching("NNLO", {0.,0.});  } 
-
+    void LO_calculation() {} 
+    void NLO_calculation() {}
+    void NNLO_calculation() {} 
 };
 
-class CP3_THDM : public CP3, public WilsonCoefficient_THDM {
+class CP3_THDM : public WilsonCoefficient_THDM {
 public:
-    CP3_THDM(double Q_match) : CP3(Q_match), WilsonCoefficient_THDM(Q_match) {}
-    CP3_THDM(double Q_match, int gen) : CP3(Q_match), WilsonCoefficient_THDM(Q_match) {}
-    CP3_THDM() : CP3() {
+    CP3_THDM() : WilsonCoefficient_THDM() { this->set_name("CP3_THDM"); }
 
-    }
-
-    void LO_calculation() {this->set_WilsonCoeffMatching("LO", {0.,0.});  } 
-    void NLO_calculation() {this->set_WilsonCoeffMatching("NLO", {0.,0.});  }
-    void NNLO_calculation() {this->set_WilsonCoeffMatching("NNLO", {0.,0.});  } 
-
+    void LO_calculation() {} 
+    void NLO_calculation() {}
+    void NNLO_calculation() {} 
 };
 
-class CP4_THDM : public CP4, public WilsonCoefficient_THDM {
+class CP4_THDM : public WilsonCoefficient_THDM {
 public:
-    CP4_THDM(double Q_match) : CP4(Q_match), WilsonCoefficient_THDM(Q_match) {}
-    CP4_THDM(double Q_match, int gen) : CP4(Q_match), WilsonCoefficient_THDM(Q_match) {}
-    CP4_THDM() : CP4() {
+    CP4_THDM() : WilsonCoefficient_THDM() { this->set_name("CP4_THDM"); }
 
-    }
-
-    void LO_calculation() {this->set_WilsonCoeffMatching("LO", {0.,0.});  } 
-    void NLO_calculation() {this->set_WilsonCoeffMatching("NLO", {0.,0.});  }
-    void NNLO_calculation() {this->set_WilsonCoeffMatching("NNLO", {0.,0.});  } 
-
+    void LO_calculation() {} 
+    void NLO_calculation() {}
+    void NNLO_calculation() {} 
 };
 
-class CP5_THDM : public CP5, public WilsonCoefficient_THDM {
+class CP5_THDM : public WilsonCoefficient_THDM {
 public:
-    CP5_THDM(double Q_match) : CP5(Q_match), WilsonCoefficient_THDM(Q_match) {}
-    CP5_THDM(double Q_match, int gen) : CP5(Q_match), WilsonCoefficient_THDM(Q_match) {}
-    CP5_THDM() : CP5() {
+    CP5_THDM() : WilsonCoefficient_THDM() { this->set_name("CP5_THDM"); }
 
-    }
-
-    void LO_calculation() {this->set_WilsonCoeffMatching("LO", {0.,0.});  } 
-    void NLO_calculation() {this->set_WilsonCoeffMatching("NLO", {0.,0.});  }
-    void NNLO_calculation() {this->set_WilsonCoeffMatching("NNLO", {0.,0.});  } 
-
+    void LO_calculation() {} 
+    void NLO_calculation() {}
+    void NNLO_calculation() {} 
 };
 
-class CP6_THDM : public CP6, public WilsonCoefficient_THDM {
+class CP6_THDM : public WilsonCoefficient_THDM {
 public:
-    CP6_THDM(double Q_match) : CP6(Q_match), WilsonCoefficient_THDM(Q_match) {}
-    CP6_THDM(double Q_match, int gen) : CP6(Q_match), WilsonCoefficient_THDM(Q_match) {}
-    CP6_THDM() : CP6() {
+    CP6_THDM() : WilsonCoefficient_THDM() { this->set_name("CP6_THDM"); }
 
-    }
-
-    void LO_calculation() {this->set_WilsonCoeffMatching("LO", {0.,0.});  } 
-    void NLO_calculation() {this->set_WilsonCoeffMatching("NLO", {0.,0.});  }
-    void NNLO_calculation() {this->set_WilsonCoeffMatching("NNLO", {0.,0.});  } 
-
+    void LO_calculation() {} 
+    void NLO_calculation() {}
+    void NNLO_calculation() {} 
 };
 
-class CP7_THDM : public CP7, public WilsonCoefficient_THDM {
+class CP7_THDM : public WilsonCoefficient_THDM {
 public:
-    CP7_THDM(double Q_match) : CP7(Q_match) , WilsonCoefficient_THDM(Q_match){}
-    CP7_THDM(double Q_match, int gen) : CP7(Q_match), WilsonCoefficient_THDM(Q_match) {}
-    CP7_THDM() : CP7() {
+    CP7_THDM() : WilsonCoefficient_THDM() { this->set_name("CP7_THDM"); }
 
-    }
-
-    void LO_calculation() {this->set_WilsonCoeffMatching("LO", {0.,0.});  } 
-    void NLO_calculation() {this->set_WilsonCoeffMatching("NLO", {0.,0.});  }
-    void NNLO_calculation() {this->set_WilsonCoeffMatching("NNLO", {0.,0.});  } 
-
+    void LO_calculation() {} 
+    void NLO_calculation() {}
+    void NNLO_calculation() {} 
 };
 
-class CP8_THDM : public CP8, public WilsonCoefficient_THDM {
+class CP8_THDM : public WilsonCoefficient_THDM {
 public:
-    CP8_THDM(double Q_match) : CP8(Q_match), WilsonCoefficient_THDM(Q_match) {}
-    CP8_THDM(double Q_match, int gen) : CP8(Q_match) , WilsonCoefficient_THDM(Q_match) {}
-    CP8_THDM() : CP8() {
+    CP8_THDM() : WilsonCoefficient_THDM() { this->set_name("CP8_THDM"); }
 
-    }
-
-    void LO_calculation() {this->set_WilsonCoeffMatching("LO", {0.,0.});  } 
-    void NLO_calculation() {this->set_WilsonCoeffMatching("NLO", {0.,0.});  }
-    void NNLO_calculation() {this->set_WilsonCoeffMatching("NNLO", {0.,0.});  } 
-
+    void LO_calculation() {} 
+    void NLO_calculation() {}
+    void NNLO_calculation() {} 
 };
 
-class CP9_THDM : public CP9, public WilsonCoefficient_THDM {
+class CP9_THDM : public WilsonCoefficient_THDM {
 public:
-    CP9_THDM(double Q_match) : CP9(Q_match), WilsonCoefficient_THDM(Q_match) {}
-    CP9_THDM(double Q_match, int gen) : CP9(Q_match), WilsonCoefficient_THDM(Q_match) {}
-    CP9_THDM() : CP9() {
+    CP9_THDM() : WilsonCoefficient_THDM() { this->set_name("CP9_THDM"); }
 
-    }
-
-    void LO_calculation() {this->set_WilsonCoeffMatching("LO", {0.,0.});  } 
-    void NLO_calculation() {this->set_WilsonCoeffMatching("NLO", {0.,0.});  }
-    void NNLO_calculation() {this->set_WilsonCoeffMatching("NNLO", {0.,0.});  } 
-
+    void LO_calculation() {} 
+    void NLO_calculation() {}
+    void NNLO_calculation() {} 
 };
 
-class CP10_THDM : public CP10, public WilsonCoefficient_THDM {
+class CP10_THDM : public WilsonCoefficient_THDM {
 public:
-    CP10_THDM(double Q_match) : CP10(Q_match), WilsonCoefficient_THDM(Q_match) {}
-    CP10_THDM(double Q_match, int gen) : CP10(Q_match), WilsonCoefficient_THDM(Q_match) {}
-    CP10_THDM() : CP10() {
+    CP10_THDM() : WilsonCoefficient_THDM() { this->set_name("CP10_THDM"); }
 
-    }
-
-    void LO_calculation() {this->set_WilsonCoeffMatching("LO", {0.,0.});  } 
-    void NLO_calculation() {this->set_WilsonCoeffMatching("NLO", {0.,0.});  }
-    void NNLO_calculation() {this->set_WilsonCoeffMatching("NLO", {0.,0.});  } 
-
+    void LO_calculation() {} 
+    void NLO_calculation() {}
+    void NNLO_calculation() {} 
 };
 
-class CPQ1_THDM : public CPQ1, public WilsonCoefficient_THDM {
+class CPQ1_THDM : public WilsonCoefficient_THDM {
 public:
-    CPQ1_THDM(double Q_match) : CPQ1(Q_match), WilsonCoefficient_THDM(Q_match) {}
-    CPQ1_THDM(double Q_match, int gen) : CPQ1(Q_match), WilsonCoefficient_THDM(Q_match) {}
-    CPQ1_THDM() : CPQ1() {
+    CPQ1_THDM() : WilsonCoefficient_THDM() { this->set_name("CPQ1_THDM"); }
 
-    }
-
-    void LO_calculation() {this->set_WilsonCoeffMatching("LO", {0.,0.});  } 
-    void NLO_calculation() {this->set_WilsonCoeffMatching("NLO", {0.,0.});  }
-    void NNLO_calculation() {this->set_WilsonCoeffMatching("NNLO", {0.,0.});  } 
-
+    void LO_calculation() {} 
+    void NLO_calculation() {}
+    void NNLO_calculation() {} 
 };
 
-class CPQ2_THDM : public CPQ2, public WilsonCoefficient_THDM {
+class CPQ2_THDM : public WilsonCoefficient_THDM {
 public:
-    CPQ2_THDM(double Q_match) : CPQ2(Q_match), WilsonCoefficient_THDM(Q_match) {}
-    CPQ2_THDM(double Q_match, int gen) : CPQ2(Q_match), WilsonCoefficient_THDM(Q_match) {}
-    CPQ2_THDM() : CPQ2() {
+    CPQ2_THDM() : WilsonCoefficient_THDM() { this->set_name("CPQ2_THDM"); }
 
-    }
-
-    void LO_calculation() {this->set_WilsonCoeffMatching("LO", {0.,0.});  } 
-    void NLO_calculation() {this->set_WilsonCoeffMatching("NLO", {0.,0.});  }
-    void NNLO_calculation() {this->set_WilsonCoeffMatching("NNLO", {0.,0.});  } 
-
+    void LO_calculation() {} 
+    void NLO_calculation() {}
+    void NNLO_calculation() {} 
 };
 
-class C_Blnu_A_THDM : public C_Blnu_A, public WilsonCoefficient_THDM {
+class C_Blnu_A_THDM : public WilsonCoefficient_THDM {
 public:
-    C_Blnu_A_THDM(double Q_match) : C_Blnu_A(Q_match), WilsonCoefficient_THDM(Q_match) {}
-    C_Blnu_A_THDM() : C_Blnu_A() {}
+    C_Blnu_A_THDM() : WilsonCoefficient_THDM() { this->set_name("C_Blnu_A_THDM"); }
 
     void LO_calculation() { }
     void NLO_calculation() { } 
@@ -365,10 +244,9 @@ public:
 
 };
 
-class C_Blnu_P_THDM : public C_Blnu_P, public WilsonCoefficient_THDM {
+class C_Blnu_P_THDM : public WilsonCoefficient_THDM {
 public:
-    C_Blnu_P_THDM(double Q_match) : C_Blnu_P(Q_match), WilsonCoefficient_THDM(Q_match) {}
-    C_Blnu_P_THDM() : C_Blnu_P() {}
+    C_Blnu_P_THDM() : WilsonCoefficient_THDM() { this->set_name("C_Blnu_P_THDM"); }
 
     void LO_calculation();
     void NLO_calculation() { } 
@@ -376,10 +254,9 @@ public:
 
 };
 
-class C_V1_THDM : public C_V1, public WilsonCoefficient_THDM {
+class C_V1_THDM : public WilsonCoefficient_THDM {
 public:
-    C_V1_THDM(double Q_match) : C_V1(Q_match), WilsonCoefficient_THDM(Q_match) {}
-    C_V1_THDM() : C_V1() {}
+    C_V1_THDM() : WilsonCoefficient_THDM() { this->set_name("C_V1_THDM"); }
 
     void LO_calculation() { } 
     void NLO_calculation() { } 
@@ -387,10 +264,9 @@ public:
 
 };
 
-class C_V2_THDM : public C_V2, public WilsonCoefficient_THDM {
+class C_V2_THDM : public WilsonCoefficient_THDM {
 public:
-    C_V2_THDM(double Q_match) : C_V2(Q_match), WilsonCoefficient_THDM(Q_match) {}
-    C_V2_THDM() : C_V2() {}
+    C_V2_THDM() : WilsonCoefficient_THDM() { this->set_name("C_V2_THDM"); }
 
     void LO_calculation() { } 
     void NLO_calculation() { } 
@@ -398,10 +274,9 @@ public:
 
 };
 
-class C_S1_THDM : public C_S1, public WilsonCoefficient_THDM {
+class C_S1_THDM : public WilsonCoefficient_THDM {
 public:
-    C_S1_THDM(double Q_match) : C_S1(Q_match), WilsonCoefficient_THDM(Q_match) {}
-    C_S1_THDM() : C_S1() {}
+    C_S1_THDM() : WilsonCoefficient_THDM() { this->set_name("C_S1_THDM"); }
 
     void LO_calculation();
     void NLO_calculation() { } 
@@ -409,10 +284,9 @@ public:
 
 };
 
-class C_S2_THDM : public C_S2, public WilsonCoefficient_THDM {
+class C_S2_THDM : public WilsonCoefficient_THDM {
 public:
-    C_S2_THDM(double Q_match) : C_S2(Q_match), WilsonCoefficient_THDM(Q_match) {}
-    C_S2_THDM() : C_S2() {}
+    C_S2_THDM() : WilsonCoefficient_THDM() { this->set_name("C_S2_THDM"); }
 
     void LO_calculation();
     void NLO_calculation() { } 
@@ -420,10 +294,9 @@ public:
 
 };
 
-class C_T_THDM : public C_T, public WilsonCoefficient_THDM {
+class C_T_THDM : public WilsonCoefficient_THDM {
 public:
-    C_T_THDM(double Q_match) : C_T(Q_match), WilsonCoefficient_THDM(Q_match) {}
-    C_T_THDM() : C_T() {}
+    C_T_THDM() : WilsonCoefficient_THDM() { this->set_name("C_T_THDM"); }
 
     void LO_calculation() { } 
     void NLO_calculation() { } 
@@ -440,19 +313,6 @@ public:
         this->insert(std::make_pair("C7", std::make_shared<C7_THDM>()));  this->insert(std::make_pair("C8", std::make_shared<C8_THDM>()));  this->insert(std::make_pair("C9", std::make_shared<C9_THDM>())); 
         this->insert(std::make_pair("C10", std::make_shared<C10_THDM>())); 
     }
-    BCoefficientGroup_THDM(double Q_match) {this->clear();
-        this->insert(std::make_pair("C1", std::make_shared<C1_THDM>(Q_match))); this->insert(std::make_pair("C2", std::make_shared<C2_THDM>(Q_match))); this->insert(std::make_pair("C3", std::make_shared<C3_THDM>(Q_match)));
-        this->insert(std::make_pair("C4", std::make_shared<C4_THDM>(Q_match)));  this->insert(std::make_pair("C5", std::make_shared<C5_THDM>(Q_match))); this->insert(std::make_pair("C6", std::make_shared<C6_THDM>(Q_match))); 
-        this->insert(std::make_pair("C7", std::make_shared<C7_THDM>(Q_match)));  this->insert(std::make_pair("C8", std::make_shared<C8_THDM>(Q_match)));  this->insert(std::make_pair("C9", std::make_shared<C9_THDM>(Q_match))); 
-        this->insert(std::make_pair("C10", std::make_shared<C10_THDM>(Q_match)));
-    }
-    BCoefficientGroup_THDM(double Q_match, int gen) {
-        this->insert(std::make_pair("C1", std::make_shared<C1_THDM>(Q_match, gen))); this->insert(std::make_pair("C2", std::make_shared<C2_THDM>(Q_match, gen))); this->insert(std::make_pair("C3", std::make_shared<C3_THDM>(Q_match, gen)));
-        this->insert(std::make_pair("C4", std::make_shared<C4_THDM>(Q_match, gen)));  this->insert(std::make_pair("C5", std::make_shared<C5_THDM>(Q_match, gen))); this->insert(std::make_pair("C6", std::make_shared<C6_THDM>(Q_match, gen))); 
-        this->insert(std::make_pair("C7", std::make_shared<C7_THDM>(Q_match, gen)));  this->insert(std::make_pair("C8", std::make_shared<C8_THDM>(Q_match, gen)));  this->insert(std::make_pair("C9", std::make_shared<C9_THDM>(Q_match, gen))); 
-        this->insert(std::make_pair("C10", std::make_shared<C10_THDM>(Q_match, gen)));
-    }
-
 };
 
 class BPrimeCoefficientGroup_THDM : public BPrimeCoefficientGroup {
@@ -463,16 +323,9 @@ public:
         this->insert(std::make_pair("CP7", std::make_shared<CP7_THDM>()));  this->insert(std::make_pair("CP8", std::make_shared<CP8_THDM>()));  this->insert(std::make_pair("CP9", std::make_shared<CP9_THDM>())); 
         this->insert(std::make_pair("CP10", std::make_shared<CP10_THDM>())); this->insert(std::make_pair("CPQ1", std::make_shared<CPQ1_THDM>())); this->insert(std::make_pair("CPQ2", std::make_shared<CPQ2_THDM>())); 
     }
-    BPrimeCoefficientGroup_THDM(double Q_match) { this->clear();
-        this->insert(std::make_pair("CP1", std::make_shared<CP1_THDM>(Q_match))); this->insert(std::make_pair("CP2", std::make_shared<CP2_THDM>(Q_match))); this->insert(std::make_pair("CP3", std::make_shared<CP3_THDM>(Q_match)));
-        this->insert(std::make_pair("CP4", std::make_shared<CP4_THDM>(Q_match)));  this->insert(std::make_pair("CP5", std::make_shared<CP5_THDM>(Q_match))); this->insert(std::make_pair("CP6", std::make_shared<CP6_THDM>(Q_match))); 
-        this->insert(std::make_pair("CP7", std::make_shared<CP7_THDM>(Q_match)));  this->insert(std::make_pair("CP8", std::make_shared<CP8_THDM>(Q_match)));  this->insert(std::make_pair("CP9", std::make_shared<CP9_THDM>(Q_match))); 
-        this->insert(std::make_pair("CP10", std::make_shared<CP10_THDM>(Q_match))); this->insert(std::make_pair("CPQ1", std::make_shared<CPQ1_THDM>(Q_match))); this->insert(std::make_pair("CPQ2", std::make_shared<CPQ2_THDM>(Q_match)));
-    }
 
     void set_base_1();
     void set_base_2();
-
 };
 
 class BScalarCoefficientGroup_THDM : public BScalarCoefficientGroup {
@@ -480,13 +333,9 @@ public:
     BScalarCoefficientGroup_THDM() { this->clear();
         this->insert(std::make_pair("CQ1", std::make_shared<CQ1_THDM>())); this->insert(std::make_pair("CQ2", std::make_shared<CQ2_THDM>()));
     }
-    BScalarCoefficientGroup_THDM(double Q_match) { this->clear();
-        this->insert(std::make_pair("CQ1", std::make_shared<CQ1_THDM>(Q_match))); this->insert(std::make_pair("CQ2", std::make_shared<CQ2_THDM>(Q_match)));
-    }
 
     void set_base_1();
     void set_base_2();
-
 };
 
 class BlnuCoefficientGroup_THDM : public BlnuCoefficientGroup {
@@ -495,15 +344,10 @@ public:
         this->insert(std::make_pair("C_Blnu_A", std::make_shared<C_Blnu_A_THDM>())); 
         this->insert(std::make_pair("C_Blnu_P", std::make_shared<C_Blnu_P_THDM>()));
     }
-    BlnuCoefficientGroup_THDM(double Q_match) { this->clear();
-        this->insert(std::make_pair("C_Blnu_A", std::make_shared<C_Blnu_A_THDM>(Q_match))); 
-        this->insert(std::make_pair("C_Blnu_P", std::make_shared<C_Blnu_P_THDM>(Q_match)));
-    }
 
     void set_base_1() {}
     void set_base_2() {}
 };
-
 
 class BclnuCoefficientGroup_THDM : public BclnuCoefficientGroup {
 public:
@@ -513,14 +357,6 @@ public:
         this->insert(std::make_pair("C_S1", std::make_shared<C_S1_THDM>()));
         this->insert(std::make_pair("C_S2", std::make_shared<C_S2_THDM>()));
         this->insert(std::make_pair("C_T", std::make_shared<C_T_THDM>()));
-    }
-
-    BclnuCoefficientGroup_THDM(double Q_match) { this->clear();
-        this->insert(std::make_pair("C_V1", std::make_shared<C_V1_THDM>(Q_match)));
-        this->insert(std::make_pair("C_V2", std::make_shared<C_V2_THDM>(Q_match)));
-        this->insert(std::make_pair("C_S1", std::make_shared<C_S1_THDM>(Q_match)));
-        this->insert(std::make_pair("C_S2", std::make_shared<C_S2_THDM>(Q_match)));
-        this->insert(std::make_pair("C_T", std::make_shared<C_T_THDM>(Q_match)));
     }
 
     void set_base_1() {}

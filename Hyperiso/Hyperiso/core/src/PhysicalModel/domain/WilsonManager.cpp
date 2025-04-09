@@ -11,20 +11,20 @@ InitialState::~InitialState() {
 void InitialState::setQMatch(CoefficientManager* manager, const std::string& groupName, double Q_match) {
         CoefficientGroup* group = manager->getCoefficientGroup(groupName);
         std::cout << "eheh" << std::endl;
-        group->set_Q_match(Q_match);
+        // group->set_Q_match(Q_match);
         std::cout << "eheh2" << std::endl;
         manager->setState(groupName, std::make_shared<QMatchSetState>(OrderMapper::str(this->currentOrder)));
 }
 
 void MatchingSetState::setGroupScale(CoefficientManager* manager, const std::string& groupName, double Q) {
         CoefficientGroup* group = manager->getCoefficientGroup(groupName);
-        group->set_Q_run(Q);
+        // group->set_Q_run(Q);
         manager->setState(groupName, std::make_shared<QSetState>(OrderMapper::str(this->currentOrder)));
 }
 
 void MatchingSetState::setQMatch(CoefficientManager* manager, const std::string& groupName, double Q_match) {
         CoefficientGroup* group = manager->getCoefficientGroup(groupName);
-        group->set_Q_match(Q_match);
+        // group->set_Q_match(Q_match);
         manager->setState(groupName, std::make_shared<QMatchSetState>(OrderMapper::str(this->currentOrder)));
 }
 
@@ -81,16 +81,16 @@ void QSetState::setRunCoefficient(CoefficientManager* manager, const std::string
     }
 
     CoefficientGroup* group = manager->getCoefficientGroup(groupName);
-    if (order == "LO") {
-        group->set_base_1_LO();
-    } else if (order == "NLO") {
-        group->set_base_1_LO();
-        group->set_base_1_NLO();
-    } else if (order == "NNLO") {
-        group->set_base_1_LO();
-        group->set_base_1_NLO();
-        group->set_base_1_NNLO();
-    }
+    // if (order == "LO") {
+    //     group->set_base_1_LO();
+    // } else if (order == "NLO") {
+    //     group->set_base_1_LO();
+    //     group->set_base_1_NLO();
+    // } else if (order == "NNLO") {
+    //     group->set_base_1_LO();
+    //     group->set_base_1_NLO();
+    //     group->set_base_1_NNLO();
+    // }
 
     manager->setState(groupName, std::make_unique<RunSetState>(OrderMapper::str(this->currentOrder)));
 }
@@ -110,26 +110,26 @@ complex_t MatchingSetState::getFullMatchingCoefficient(CoefficientManager* manag
 }
 
 double MatchingSetState::getAlphaS(CoefficientManager* manager, const std::string& groupName) {
-    return QCDHelper::alpha_s(manager->getCoefficientGroup(groupName)->get_Q_match());
+    // return QCDHelper::alpha_s(manager->getCoefficientGroup(groupName)->get_Q_match());
 }
 
 double QMatchSetState::getAlphaS(CoefficientManager* manager, const std::string& groupName) {
-    return QCDHelper::alpha_s(manager->getCoefficientGroup(groupName)->get_Q_match());
+    // return QCDHelper::alpha_s(manager->getCoefficientGroup(groupName)->get_Q_match());
 }
 
 void RunSetState::setGroupScale(CoefficientManager* manager, const std::string& groupName, double Q) {
     CoefficientGroup* group = manager->getCoefficientGroup(groupName);
-    group->set_Q_run(Q);
+    // group->set_Q_run(Q);
     
     switch(currentOrder) {
         case QCDOrder::LO:
-            group->set_base_1_LO();
+            // group->set_base_1_LO();
             break;
         case QCDOrder::NLO:
-            group->set_base_1_NLO();
+            // group->set_base_1_NLO();
             break;
         case QCDOrder::NNLO:
-            group->set_base_1_NNLO();
+            // group->set_base_1_NNLO();
             break;
     }
 }
@@ -138,7 +138,7 @@ void RunSetState::setQMatch(CoefficientManager *manager,
                             const std::string &groupName,
                             double Q_match) {
     CoefficientGroup* group = manager->getCoefficientGroup(groupName);
-    group->set_Q_match(Q_match);
+    // group->set_Q_match(Q_match);
     manager->setState(groupName, std::make_shared<QMatchSetState>(OrderMapper::str(this->currentOrder)));
 }
 

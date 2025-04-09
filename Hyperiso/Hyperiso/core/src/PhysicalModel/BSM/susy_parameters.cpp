@@ -341,16 +341,15 @@
 // 	}
 // }
 
-susy_parameters* susy_parameters::instance = nullptr;
 
-void susy_parameters::init(double mu_W) {
+void susy_parameters::init() {
 
 	if (susy_parameters::initialized) {
 		return;
 	}
 
 	init_scale_independant_block();
-	init_matching_block(mu_W);
+	init_matching_block();
 }
 
 void susy_parameters::init_scale_independant_block() {
@@ -451,7 +450,7 @@ void susy_parameters::init_scale_independant_block() {
 
 }
 
-void susy_parameters::init_matching_block(double mu_W) {
+void susy_parameters::init_matching_block() {
 
 	std::unordered_map<ParameterType, std::vector<std::string>> src = {{ParameterType::SM, {"MASS"}}};
 
@@ -710,10 +709,10 @@ void susy_parameters::init_matching_block(double mu_W) {
 			}
 		}
 
-        dep_block->store_or_assign(13, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", 13}, B90c, 0., 0.)); //13
-		dep_block->store_or_assign(14, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", 14}, C90c, 0., 0.)); //14
-		dep_block->store_or_assign(15, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", 15}, D90c, 0., 0.)); //15
-		dep_block->store_or_assign(16, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", 16}, B100c, 0., 0.)); //16
+        dep_block->store_or_assign(13, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "MATRIX_BSM", 13}, B90c, 0., 0.)); //13
+		dep_block->store_or_assign(14, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "MATRIX_BSM", 14}, C90c, 0., 0.)); //14
+		dep_block->store_or_assign(15, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "MATRIX_BSM", 15}, D90c, 0., 0.)); //15
+		dep_block->store_or_assign(16, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "MATRIX_BSM", 16}, B100c, 0., 0.)); //16
     };
 
     susy_parameters::composer.compose_block("MATRIX_BSM", src_matrix, func_matrix);

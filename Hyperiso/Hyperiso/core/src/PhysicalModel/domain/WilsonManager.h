@@ -362,8 +362,6 @@ public:
             this->setRunCoefficient(wg, order);
         };
 
-        Q_match = fpeq(Q_match, 0.) ? coefficientGroups[group]->get_Q_match() : Q_match; 
-        Q = fpeq(Q, 0.) ? coefficientGroups[group]->get_Q_run() : Q;
         apply_update(group);
         if (has_bsm) {
             apply_update(group + bsm_suffix);

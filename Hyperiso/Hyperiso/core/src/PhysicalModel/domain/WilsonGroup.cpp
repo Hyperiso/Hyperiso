@@ -13,7 +13,7 @@ void BCoefficientGroup::init_running_block(QCDOrder order, BWilsonBasis basis) {
         src.at(ParameterType::WILSON).push_back("U_MATRIX");
         src.emplace(std::make_pair<ParameterType, std::vector<std::string>>(ParameterType::SM, {"SMINPUTS", "MASS"}));
 
-        auto func = [this, order] (const std::unordered_map<std::string, std::shared_ptr<Block>>& src, std::shared_ptr<DependentBlock> dep_block) {
+        auto func = [order] (const std::unordered_map<std::string, std::shared_ptr<Block>>& src, std::shared_ptr<DependentBlock> dep_block) {
             switch (order) {
             case QCDOrder::NNLO:
                 BCoefficientGroup::base_1_NNLO_calculation(src, dep_block);
@@ -28,7 +28,7 @@ void BCoefficientGroup::init_running_block(QCDOrder order, BWilsonBasis basis) {
     } else {
         src.at(ParameterType::WILSON).push_back("V_MATRIX");
 
-        auto func = [this, order] (const std::unordered_map<std::string, std::shared_ptr<Block>>& src, std::shared_ptr<DependentBlock> dep_block) {
+        auto func = [order] (const std::unordered_map<std::string, std::shared_ptr<Block>>& src, std::shared_ptr<DependentBlock> dep_block) {
             switch (order) {
             case QCDOrder::NNLO:
                 LOG_WARN("NNLO running is undefined in teh traditional basis of B Wilson coefficients.");
@@ -431,96 +431,114 @@ void BCoefficientGroup::init_running_parameter_blocks() {
     LOG_INFO("Running matrices updated");
 }
 
-void BScalarCoefficientGroup::set_base_1_LO() {
-    LOG_INFO("In BScalarCoefficientGroup::set_base_1_LO");
+void BScalarCoefficientGroup::base_1_LO_calculation(
+    const std::unordered_map<std::string, std::shared_ptr<Block>> &src,
+    std::shared_ptr<DependentBlock> dep_block)
+{
+    auto ensure_coef = [src] (const LhaID& id) -> complex_t {
+        return src.at("B_SCALAR_MATCH")->contains(id) ? src.at("B_SCALAR_MATCH")->retrieve(id)->get_val() : complex_t(0);
+    };
+
+    std::array<complex_t, 10> CQi_match = {};
+    auto ids = WCoefMapper::get_group(WGroup::BScalar);
+    for (size_t k = 0; k < ids.size(); k++) {
+        CQi_match[k] = ensure_coef(WCoefMapper::flha_full(ids[k], QCDOrder::LO, false));
+    }
+
+    double eta = src.at("WPARAM_RUN_SM")->retrieve(2)->get_val();
+    double beta_0 = src.at("WPARAM_SI_SM")->retrieve(5)->get_val(); // TODO : change to QCD params
+    double fact = pow(eta, -4 / beta_0);
+    
+    // Store
+    for (size_t k = 0; k < ids.size(); k++) {
+        ParamId pid {ParameterType::WILSON, "B_SCALAR_HADRONIC", WCoefMapper::flha_full(ids[k], QCDOrder::LO, false)};
+        dep_block->store_or_assign(pid.code, std::make_shared<Parameter>(pid, fact * CQi_match[k], 0., 0.));;
+    }
+}
+
+void BScalarCoefficientGroup::base_1_NLO_calculation(
+    const std::unordered_map<std::string, std::shared_ptr<Block>> &src,
+    std::shared_ptr<DependentBlock> dep_block)
+{
+    auto ensure_coef = [src] (const LhaID& id) -> complex_t {
+        return src.at("B_SCALAR_MATCH")->contains(id) ? src.at("B_SCALAR_MATCH")->retrieve(id)->get_val() : complex_t(0);
+    };
+
+    auto ids = WCoefMapper::get_group(WGroup::BScalar);
+    std::array<complex_t, 2> CQi_match = {};
+    for (size_t k = 0; k < ids.size(); k++) {
+        CQi_match[k] = ensure_coef(WCoefMapper::flha_full(ids[k], QCDOrder::NLO, false));
+    }
+
+    double eta = src.at("WPARAM_RUN_SM")->retrieve(2)->get_val();
+    double beta_0 = src.at("WPARAM_SI_SM")->retrieve(5)->get_val(); // TODO : change to QCD params
+    double fact = pow(eta, 1 - 4 / beta_0);
+    
+    // Store
+    for (size_t k = 0; k < ids.size(); k++) {
+        ParamId pid {ParameterType::WILSON, "B_SCALAR_HADRONIC", WCoefMapper::flha_full(ids[k], QCDOrder::NLO, false)};
+        dep_block->store_or_assign(pid.code, std::make_shared<Parameter>(pid, fact * CQi_match[k], 0., 0.));;
+    }
+}
+
+void BScalarCoefficientGroup::init_running_block(QCDOrder order, BWilsonBasis basis) {
+    LOG_INFO("In BScalarCoefficientGroup::init_running_block");
 
     std::unordered_map<ParameterType, std::vector<std::string>> src = {
         {ParameterType::WILSON, {"B_SCALAR_MATCH", "WPARAM_RUN_SM", "WPARAM_SI_SM"}},
     };
 
-    auto func = [] (const std::unordered_map<std::string, std::shared_ptr<Block>>& src, std::shared_ptr<DependentBlock> dep_block) {
-        auto ensure_coef = [src] (const LhaID& id) -> complex_t {
-            return src.at("B_SCALAR_MATCH")->contains(id) ? src.at("B_SCALAR_MATCH")->retrieve(id)->get_val() : complex_t(0);
-        };
-
-        std::array<complex_t, 10> CQi_match = {};
-        auto ids = WCoefMapper::get_group(WGroup::BScalar);
-        for (size_t k = 0; k < ids.size(); k++) {
-            CQi_match[k] = ensure_coef(WCoefMapper::flha_full(ids[k], QCDOrder::LO, false));
-        }
-
-        double eta = src.at("WPARAM_RUN_SM")->retrieve(2)->get_val();
-        double beta_0 = src.at("WPARAM_SI_SM")->retrieve(5)->get_val(); // TODO : change to QCD params
-        double fact = pow(eta, -4 / beta_0);
-        
-        // Store
-        for (size_t k = 0; k < ids.size(); k++) {
-            ParamId pid {ParameterType::WILSON, "B_SCALAR_HADRONIC", WCoefMapper::flha_full(ids[k], QCDOrder::LO, false)};
-            dep_block->store_or_assign(pid.code, std::make_shared<Parameter>(pid, fact * CQi_match[k], 0., 0.));;
+    auto func = [order] (const std::unordered_map<std::string, std::shared_ptr<Block>>& src, std::shared_ptr<DependentBlock> dep_block) {
+        switch (order) {
+        case QCDOrder::NNLO:
+            LOG_WARN("Scalar B Coefficients are not defined at NNLO.");
+        case QCDOrder::NLO:
+            BCoefficientGroup::base_1_NLO_calculation(src, dep_block);
+        case QCDOrder::LO:
+            BCoefficientGroup::base_1_LO_calculation(src, dep_block);
         }
     };
 
     WilsonParamComposer().compose_block("B_SCALAR_HADRONIC", src, func);
 }
 
-void BScalarCoefficientGroup::set_base_1_NLO() {
-    LOG_INFO("In BScalarCoefficientGroup::set_base_1_NLO");
-
-    std::unordered_map<ParameterType, std::vector<std::string>> src = {
-        {ParameterType::WILSON, {"B_SCALAR_MATCH", "WPARAM_RUN_SM", "WPARAM_SI_SM"}},
+void BPrimeCoefficientGroup::base_1_LO_calculation(
+    const std::unordered_map<std::string, std::shared_ptr<Block>> &src,
+    std::shared_ptr<DependentBlock> dep_block)
+{
+    auto ensure_coef = [src] (const LhaID& id) -> complex_t {
+        return src.at("B_PRIME_MATCH")->contains(id) ? src.at("B_PRIME_MATCH")->retrieve(id)->get_val() : complex_t(0);
     };
 
-    auto func = [] (const std::unordered_map<std::string, std::shared_ptr<Block>>& src, std::shared_ptr<DependentBlock> dep_block) {
-        auto ensure_coef = [src] (const LhaID& id) -> complex_t {
-            return src.at("B_SCALAR_MATCH")->contains(id) ? src.at("B_SCALAR_MATCH")->retrieve(id)->get_val() : complex_t(0);
-        };
+    std::array<complex_t, 12> CPi_match = {};
+    auto ids = WCoefMapper::get_group(WGroup::BPrime);
+    for (size_t k = 0; k < ids.size(); k++) {
+        CPi_match[k] = ensure_coef(WCoefMapper::flha_full(ids[k], QCDOrder::LO, false));
+    }
 
-        auto ids = WCoefMapper::get_group(WGroup::BScalar);
-        std::array<complex_t, 2> CQi_match = {};
-        for (size_t k = 0; k < ids.size(); k++) {
-            CQi_match[k] = ensure_coef(WCoefMapper::flha_full(ids[k], QCDOrder::NLO, false));
-        }
-
-        double eta = src.at("WPARAM_RUN_SM")->retrieve(2)->get_val();
-        double beta_0 = src.at("WPARAM_SI_SM")->retrieve(5)->get_val(); // TODO : change to QCD params
-        double fact = pow(eta, 1 - 4 / beta_0);
-        
-        // Store
-        for (size_t k = 0; k < ids.size(); k++) {
-            ParamId pid {ParameterType::WILSON, "B_SCALAR_HADRONIC", WCoefMapper::flha_full(ids[k], QCDOrder::NLO, false)};
-            dep_block->store_or_assign(pid.code, std::make_shared<Parameter>(pid, fact * CQi_match[k], 0., 0.));;
-        }
-    };
-
-    WilsonParamComposer().compose_block("B_SCALAR_HADRONIC", src, func);
+    double eta = src.at("WPARAM_RUN_SM")->retrieve(2)->get_val();
+    
+    // Store
+    for (size_t k = 0; k < ids.size(); k++) {
+        ParamId pid {ParameterType::WILSON, "B_PRIME_HADRONIC", WCoefMapper::flha_full(ids[k], QCDOrder::LO, false)};
+        complex_t CPk_run = pow(eta, BRP::exp_prime_running[k]) * CPi_match[k]; 
+        dep_block->store_or_assign(pid.code, std::make_shared<Parameter>(pid, CPk_run, 0., 0.));;
+    }
 }
 
-void BPrimeCoefficientGroup::set_base_1_LO() {
-    LOG_INFO("In BPrimeCoefficientGroup::set_base_1_LO");
+void BPrimeCoefficientGroup::init_running_block(QCDOrder order, BWilsonBasis basis) {
+    LOG_INFO("In BPrimeCoefficientGroup::init_running_block");
+
+    if (order > QCDOrder::LO) {
+        LOG_WARN("Primed coefficients are only defined at leading order, defaulting to LO.");
+    }
 
     std::unordered_map<ParameterType, std::vector<std::string>> src = {
         {ParameterType::WILSON, {"B_PRIME_MATCH", "WPARAM_RUN_SM", "WPARAM_SI_SM"}},
     };
 
     auto func = [] (const std::unordered_map<std::string, std::shared_ptr<Block>>& src, std::shared_ptr<DependentBlock> dep_block) {
-        auto ensure_coef = [src] (const LhaID& id) -> complex_t {
-            return src.at("B_PRIME_MATCH")->contains(id) ? src.at("B_PRIME_MATCH")->retrieve(id)->get_val() : complex_t(0);
-        };
-
-        std::array<complex_t, 12> CPi_match = {};
-        auto ids = WCoefMapper::get_group(WGroup::BPrime);
-        for (size_t k = 0; k < ids.size(); k++) {
-            CPi_match[k] = ensure_coef(WCoefMapper::flha_full(ids[k], QCDOrder::LO, false));
-        }
-
-        double eta = src.at("WPARAM_RUN_SM")->retrieve(2)->get_val();
-        
-        // Store
-        for (size_t k = 0; k < ids.size(); k++) {
-            ParamId pid {ParameterType::WILSON, "B_PRIME_HADRONIC", WCoefMapper::flha_full(ids[k], QCDOrder::LO, false)};
-            complex_t CPk_run = pow(eta, BRP::exp_prime_running[k]) * CPi_match[k]; 
-            dep_block->store_or_assign(pid.code, std::make_shared<Parameter>(pid, CPk_run, 0., 0.));;
-        }
+        BPrimeCoefficientGroup::base_1_LO_calculation(src, dep_block);
     };
 
     WilsonParamComposer().compose_block("B_PRIME_HADRONIC", src, func);

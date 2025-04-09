@@ -17,7 +17,7 @@ int main(){
         {WGroup::B, WGroup::BPrime},                            // Coefficient groups
         81,     // Matching scale
         42,                             // Hadronic scale
-        QCDOrder::LO                                          // QCD Order
+        QCDOrder::NNLO                                          // QCD Order
     );
 
     LOG_INFO("Interface built");
@@ -33,7 +33,7 @@ int main(){
 
     // LOG_INFO("Mutating parameter");
     // ps.mutate({ParameterType::SM, "MASS", 24}, 80.3);
-    LOG_INFO("C7(mu_h) =", pa("B_HADRONIC", LhaID(305, 4422, 0, 0)));
+    LOG_INFO("C7(mu_h) =", pa("B_HADRONIC", LhaID(305, 4422, 2, 0)));
 
 
 
