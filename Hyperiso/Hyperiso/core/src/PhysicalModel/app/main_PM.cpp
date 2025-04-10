@@ -16,7 +16,7 @@ int main(){
     wi.build(
         {WGroup::B, WGroup::BPrime},                            // Coefficient groups
         81,     // Matching scale
-        42,                             // Hadronic scale
+        4.7,                             // Hadronic scale
         QCDOrder::NNLO                                          // QCD Order
     );
 
@@ -33,7 +33,18 @@ int main(){
 
     // LOG_INFO("Mutating parameter");
     // ps.mutate({ParameterType::SM, "MASS", 24}, 80.3);
-    LOG_INFO("C7(mu_h) =", pa("B_HADRONIC", LhaID(305, 4422, 2, 0)));
+    
+    LOG_INFO("C7(mu_h) at LO =", wi.getR(WGroup::B, WCoef::C7, QCDOrder::LO));
+    LOG_INFO("C7(mu_h) at NLO =", wi.getR(WGroup::B, WCoef::C7, QCDOrder::NLO));
+    LOG_INFO("C7(mu_h) at NNLO =", wi.getR(WGroup::B, WCoef::C7, QCDOrder::NNLO));
+
+    LOG_INFO("C7(mu_h) full =", wi.getFR(WGroup::B, WCoef::C7, QCDOrder::NNLO));
+
+    LOG_INFO("C7(mu_W) at LO =", wi.getM(WGroup::B, WCoef::C7, QCDOrder::LO));
+    LOG_INFO("C7(mu_W) at NLO =", wi.getM(WGroup::B, WCoef::C7, QCDOrder::NLO));
+    LOG_INFO("C7(mu_W) at NNLO =", wi.getM(WGroup::B, WCoef::C7, QCDOrder::NNLO));
+
+    LOG_INFO("C7(mu_W) full =", wi.getFM(WGroup::B, WCoef::C7, QCDOrder::NNLO));
 
 
 

@@ -35,38 +35,36 @@ public:
     }
 
     void LO_calculation() override {
-        double epsi = 1e-4;
-        for (size_t i = 0; i < df.getRowCount(); ++i) {
-            double Q_match = df.iat<double>(i, "Q_match");
-            if (fabs(Q_match - /*TODO this->get_Q_match()*/ 0.) < epsi) {
-                std::cout << this->get_name() << " waw" << std::endl;
-                for (auto& _ : this->df.getColumnNames()) {
-                    if (this->get_name()+"_real" == _) {
-                        if (isnan(df.iat<double>(i, this->get_name()+"_real")) && isnan(df.iat<double>(i, this->get_name()+"_img"))) {
-                            break;
-                        }
-                        std::cout << df.iat<double>(i, this->get_name()+"_real") << " BUTE" << std::endl;
-                        this->set_WilsonCoeffMatching("LO", {df.iat<double>(i, this->get_name()+"_real"), df.iat<double>(i, this->get_name()+"_img")});
-                        //return {df.iat<double>(i, this->get_name()+"_real"), df.iat<double>(i, this->get_name()+"_img")}; TODO
-                    }
-                } 
-            }
-        }
-        MartyInterface MartyInterface;
-        MartyInterface.calculate(this->get_name(), this->get_model(), /*TODO this->get_Q_match()*/ 81);
-        df = csv_reader.read_csv(this->csv_path);
-        df.setIndex(df.getColumn<double>("Q_match").to_string_vec());
+        // double epsi = 1e-4;
+        // for (size_t i = 0; i < df.getRowCount(); ++i) {
+        //     double Q_match = df.iat<double>(i, "Q_match");
+        //     if (fabs(Q_match - /*TODO this->get_Q_match()*/ 0.) < epsi) {
+        //         std::cout << this->get_name() << " waw" << std::endl;
+        //         for (auto& _ : this->df.getColumnNames()) {
+        //             if (this->get_name()+"_real" == _) {
+        //                 if (isnan(df.iat<double>(i, this->get_name()+"_real")) && isnan(df.iat<double>(i, this->get_name()+"_img"))) {
+        //                     break;
+        //                 }
+        //                 std::cout << df.iat<double>(i, this->get_name()+"_real") << " BUTE" << std::endl;
+        //                 this->set_WilsonCoeffMatching("LO", {df.iat<double>(i, this->get_name()+"_real"), df.iat<double>(i, this->get_name()+"_img")});
+        //                 //return {df.iat<double>(i, this->get_name()+"_real"), df.iat<double>(i, this->get_name()+"_img")}; TODO
+        //             }
+        //         } 
+        //     }
+        // }
+        // MartyInterface MartyInterface;
+        // MartyInterface.calculate(this->get_name(), this->get_model(), /*TODO this->get_Q_match()*/ 81);
+        // df = csv_reader.read_csv(this->csv_path);
+        // df.setIndex(df.getColumn<double>("Q_match").to_string_vec());
 
 
-        for (size_t i = 0; i < df.getRowCount(); ++i) {
-            double Q_match = df.iat<double>(i, "Q_match");
-            if (fabs(Q_match-/*TODO this->get_Q_match()*/ 0.) < epsi) {
-                this->set_WilsonCoeffMatching("LO", {df.iat<double>(i, this->get_name()+"_real"), df.iat<double>(i, this->get_name()+"_img")});
-                //return {df.iat<double>(i, this->get_name()+"_real"), df.iat<double>(i, this->get_name()+"_img")}; TODO
-            }
-        }
-
-        //return {0., 0.}; TODO
+        // for (size_t i = 0; i < df.getRowCount(); ++i) {
+        //     double Q_match = df.iat<double>(i, "Q_match");
+        //     if (fabs(Q_match-/*TODO this->get_Q_match()*/ 0.) < epsi) {
+        //         this->set_WilsonCoeffMatching("LO", {df.iat<double>(i, this->get_name()+"_real"), df.iat<double>(i, this->get_name()+"_img")});
+        //         //return {df.iat<double>(i, this->get_name()+"_real"), df.iat<double>(i, this->get_name()+"_img")}; TODO
+        //     }
+        // }
     }
 
     void NLO_calculation() override {} //TODO, at least deal properly

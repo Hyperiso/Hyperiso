@@ -48,6 +48,7 @@ add_library(PhysicalModelLib STATIC
     domain/WilsonManager.cpp
     adapters/ModelParamAdapter.cpp
     adapters/WilsonParamComposer.cpp
+    adapters/ScaleSetter.cpp
     BSM/epsilon_calculator.cpp
     BSM/susy_parameters.cpp
     BSM/thdm_parameters.cpp

@@ -131,8 +131,8 @@ complex_t BKstarDecay::a7c_h(double mu_h,
                              complex_t h2,
                              complex_t h8) {
     auto wilson = get_wilsons();
-    wilson->setGroupScale(WGroup::B, mu_h);
-    wilson->setGroupScale(WGroup::BPrime, mu_h);
+    wilson->set_hadronic_scale(WGroup::B, mu_h);
+    wilson->set_hadronic_scale(WGroup::BPrime, mu_h);
     wilson->switchbasis(WGroup::B);
     complex_t C2_h = wilson->getFR(WGroup::B, WCoef::C2, QCDOrder::NNLO) + wilson->getFullRunCoefficient(WGroup::BPrime, WCoef::CP2, QCDOrder::LO);
     complex_t C8_h = wilson->getFR(WGroup::B, WCoef::C8, QCDOrder::NNLO) + wilson->getFullRunCoefficient(WGroup::BPrime, WCoef::CP8, QCDOrder::LO);

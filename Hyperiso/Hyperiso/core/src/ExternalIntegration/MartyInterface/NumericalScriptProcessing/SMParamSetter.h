@@ -1,18 +1,19 @@
 #ifndef SMPARAMSETTER_H
 #define SMPARAMSETTER_H
 
-#include "IParamSetter.h"
 #include "config.hpp"
 #include "General.h"
 #include "Parameters.h"
 #include "ModelAPI.h"
 #include "QCDHelper.h"
+#include "Interpreter.h"
 #include <cmath>
 #include <set>
 #include <string>
 #include <iostream>
 #include <cmath>
-class SMParamSetter : public IParamSetter {
+
+class SMParamSetter {
 public:
     SMParamSetter(std::unordered_map<std::string, double>& params, const std::string& model) : params(params) {
         std::string root_path = project_assets_root.data();
@@ -35,7 +36,7 @@ public:
         // }
     }
 
-    void setParam(const std::string& name, const Interpreter::InterpretedParam& interpretedParam) override;
+    void setParam(const std::string& name, const Interpreter::InterpretedParam& interpretedParam);
 
 private:
     std::unordered_map<std::string, double>& params;

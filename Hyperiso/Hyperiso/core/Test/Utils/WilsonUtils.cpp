@@ -38,8 +38,8 @@ void writeCoefficientsToFile(const std::string& strat_name, const std::string& f
     
 
     
-    wm->setQMatch("BCoefficient", Q_match);
-    wm->setMatchingCoefficient("BCoefficient", strat_name);
+    wm->set_matching_scale("BCoefficient", Q_match);
+    wm->init_group("BCoefficient", strat_name);
     double alpha_s = QCDHelper::alpha_s(Q_match);
 
     file << Q_match << "," << alpha_s;
@@ -94,13 +94,13 @@ void writeCoefficientsPrimeCQToFile(const std::string& strat_name, const std::st
     std::shared_ptr<Parameters> sm = Parameters::GetInstance();
     // WilsonManager* wm = WilsonManager::GetInstance(strat_name, 81.0, strategy);
     
-    wm->setQMatch("BPrimeCoefficient", Q_match);
-    wm->setMatchingCoefficient("BPrimeCoefficient", strat_name);
-    wm->setQMatch("BScalarCoefficient", Q_match);
-    wm->setMatchingCoefficient("BScalarCoefficient", strat_name);
+    wm->set_matching_scale("BPrimeCoefficient", Q_match);
+    wm->init_group("BPrimeCoefficient", strat_name);
+    wm->set_matching_scale("BScalarCoefficient", Q_match);
+    wm->init_group("BScalarCoefficient", strat_name);
     double answer = 42.;
-    wm->setGroupScale("BPrimeCoefficient", answer);
-    wm->setGroupScale("BScalarCoefficient", answer);
+    wm->set_hadronic_scale("BPrimeCoefficient", answer);
+    wm->set_hadronic_scale("BScalarCoefficient", answer);
     wm->setRunCoefficient("BPrimeCoefficient", strat_name);
     wm->setRunCoefficient("BScalarCoefficient", strat_name);
     // wm->setScale(answer);

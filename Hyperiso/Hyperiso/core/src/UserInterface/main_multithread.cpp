@@ -7,8 +7,8 @@ void ProcessFile(HyperisoInterface& instance, const std::string& lhaFile) {
     mm->init(lhaFile, {0});
     wi->addWilsonGroup(WGroup::B);
     std::cout << "Processing file: " << lhaFile << std::endl;
-    wi->setQMatch(WGroup::B, 81.);
-    wi->setMatchingCoefficient(WGroup::B, CoefficientOrder::LO);
+    wi->set_matching_scale(WGroup::B, 81.);
+    wi->init_group(WGroup::B, CoefficientOrder::LO);
 
     std::cout << "C7 in SM : " << wi->getMatchingCoefficient(WGroup::B, WilsonCoefficientList::C7, CoefficientOrder::LO) << std::endl;
 }

@@ -1,192 +1,128 @@
 #include "WilsonManager.h"
 
-InitialState::InitialState() {
-    this->state = StateName::InitialState;
+void CoefficientManager::initialize(const std::string& lhaFile, Model model, bool use_marty, bool is_spectrum, bool has_wilsons, bool has_obs) {
+    MemoryManager* mm = MemoryManager::GetInstance();
+    HyperisoMaster hyp = HyperisoMaster(); //TODO bad coupling
+    Config config;
+    config.flags.at(ExternalFlag::IS_LHA_SPECTRUM) = is_spectrum;
+    config.flags.at(ExternalFlag::USE_MARTY) = use_marty;
+    config.flags.at(ExternalFlag::HAS_WILSON_INPUT) = has_wilsons;
+    config.flags.at(ExternalFlag::HAS_TH_OBSERVABLE_INPUT) = has_obs;
+    config.model = model;
+
+    hyp.init(lhaFile, config);
 }
 
-InitialState::~InitialState() {
-
+std::string CoefficientManager::getModel() {
+    return ModelMapper::str(ModelAPI().get());
 }
 
-void InitialState::setQMatch(CoefficientManager* manager, const std::string& groupName, double Q_match) {
-        CoefficientGroup* group = manager->getCoefficientGroup(groupName);
-        std::cout << "eheh" << std::endl;
-        // group->set_Q_match(Q_match);
-        std::cout << "eheh2" << std::endl;
-        manager->setState(groupName, std::make_shared<QMatchSetState>(OrderMapper::str(this->currentOrder)));
-}
-
-void MatchingSetState::setGroupScale(CoefficientManager* manager, const std::string& groupName, double Q) {
-        CoefficientGroup* group = manager->getCoefficientGroup(groupName);
-        // group->set_Q_run(Q);
-        manager->setState(groupName, std::make_shared<QSetState>(OrderMapper::str(this->currentOrder)));
-}
-
-void MatchingSetState::setQMatch(CoefficientManager* manager, const std::string& groupName, double Q_match) {
-        CoefficientGroup* group = manager->getCoefficientGroup(groupName);
-        // group->set_Q_match(Q_match);
-        manager->setState(groupName, std::make_shared<QMatchSetState>(OrderMapper::str(this->currentOrder)));
-}
-
-void QMatchSetState::setMatchingCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& order) {
-        CoefficientGroup* group = manager->getCoefficientGroup(groupName);
-        QCDOrder newOrder = OrderMapper::enum_elt(order);
-
-        if (newOrder < currentOrder) {
-            throw std::runtime_error("Cannot set matching coefficient: Lower or same order already calculated.");
-        }
-
-        for (auto& it : *group) {
-            if (order == "LO") {
-                LOG_INFO("Performing LO calculation of Wilson coefficient");
-                it.second->LO_calculation();
-            } else if (order == "NLO") {
-                it.second->LO_calculation();
-                it.second->NLO_calculation();
-            } else if (order == "NNLO") {
-                it.second->LO_calculation();
-                it.second->NLO_calculation();
-                it.second->NNLO_calculation();
-            }
-        }
-
-        currentOrder = newOrder;
-        manager->setState(groupName, std::make_shared<MatchingSetState>(order));
-}
-
-void MatchingSetState::setMatchingCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& order) {
-        CoefficientGroup* group = manager->getCoefficientGroup(groupName);
-        QCDOrder newOrder = OrderMapper::enum_elt(order);
-
-        for (auto& it : *group) {
-            if (order == "LO") {
-                it.second->LO_calculation();
-            } else if (order == "NLO") {
-                it.second->LO_calculation();
-                it.second->NLO_calculation();
-            } else if (order == "NNLO") {
-                it.second->LO_calculation();
-                it.second->NLO_calculation();
-                it.second->NNLO_calculation();
-            }
-        }
-
-        currentOrder = newOrder;
-        manager->setState(groupName, std::make_shared<MatchingSetState>(order));
-}
-
-void QSetState::setRunCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& order) {
-    if (!isOrderCalculated(order)) {
-        throw std::runtime_error("Matching coefficient of the requested order has not been set.");
-    }
-
-    CoefficientGroup* group = manager->getCoefficientGroup(groupName);
-    // if (order == "LO") {
-    //     group->set_base_1_LO();
-    // } else if (order == "NLO") {
-    //     group->set_base_1_LO();
-    //     group->set_base_1_NLO();
-    // } else if (order == "NNLO") {
-    //     group->set_base_1_LO();
-    //     group->set_base_1_NLO();
-    //     group->set_base_1_NNLO();
-    // }
-
-    manager->setState(groupName, std::make_unique<RunSetState>(OrderMapper::str(this->currentOrder)));
-}
-
-complex_t MatchingSetState::getMatchingCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) {
-    if (!isOrderCalculated(order)) {
-        throw std::runtime_error("Matching coefficient of the requested order has not been set.");
-    }
-
-    CoefficientGroup* group = manager->getCoefficientGroup(groupName);
-    return group->get_matching_coefficient(coeffName, order);
-}
-
-complex_t MatchingSetState::getFullMatchingCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) {
-    CoefficientGroup* group = manager->getCoefficientGroup(groupName);
-    return group->getfullMatching(coeffName, order);
-}
-
-double MatchingSetState::getAlphaS(CoefficientManager* manager, const std::string& groupName) {
-    // return QCDHelper::alpha_s(manager->getCoefficientGroup(groupName)->get_Q_match());
-}
-
-double QMatchSetState::getAlphaS(CoefficientManager* manager, const std::string& groupName) {
-    // return QCDHelper::alpha_s(manager->getCoefficientGroup(groupName)->get_Q_match());
-}
-
-void RunSetState::setGroupScale(CoefficientManager* manager, const std::string& groupName, double Q) {
-    CoefficientGroup* group = manager->getCoefficientGroup(groupName);
-    // group->set_Q_run(Q);
-    
-    switch(currentOrder) {
-        case QCDOrder::LO:
-            // group->set_base_1_LO();
-            break;
-        case QCDOrder::NLO:
-            // group->set_base_1_NLO();
-            break;
-        case QCDOrder::NNLO:
-            // group->set_base_1_NNLO();
-            break;
+void CoefficientManager::init_group_matching(const std::string& groupName, const std::string& order) {
+    this->coefficientGroups.at(groupName)->init(OrderMapper::enum_elt(order));
+    if (has_bsm) {
+        this->coefficientGroups.at(groupName + bsm_suffix)->init(OrderMapper::enum_elt(order));
     }
 }
 
-void RunSetState::setQMatch(CoefficientManager *manager,
-                            const std::string &groupName,
-                            double Q_match) {
-    CoefficientGroup* group = manager->getCoefficientGroup(groupName);
-    // group->set_Q_match(Q_match);
-    manager->setState(groupName, std::make_shared<QMatchSetState>(OrderMapper::str(this->currentOrder)));
-}
-
-complex_t RunSetState::getFullMatchingCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) {
-    CoefficientGroup* group = manager->getCoefficientGroup(groupName);
-    return group->getfullMatching(coeffName, order);
-}
-
-complex_t QSetState::getFullMatchingCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) {
-    CoefficientGroup* group = manager->getCoefficientGroup(groupName);
-    return group->getfullMatching(coeffName, order);
-}
-
-void RunSetState::switchbasis(CoefficientManager* manager, const std::string& groupName) {
-    CoefficientGroup* group = manager->getCoefficientGroup(groupName);
-    group->switch_basis();
-}
-complex_t RunSetState::getFullRunCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) {
-    CoefficientGroup* group = manager->getCoefficientGroup(groupName);
-    return group->getfullRun(coeffName, order);
-}
-
-complex_t RunSetState::getMatchingCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) {
-    if (!isOrderCalculated(order)) {
-        throw std::runtime_error("Matching coefficient of the requested order has not been set.");
+void CoefficientManager::init_group_hadronic(const std::string& groupName, const std::string& order) {
+    this->coefficientGroups.at(groupName)->init_running_block(OrderMapper::enum_elt(order));
+    if (has_bsm) {
+        this->coefficientGroups.at(groupName + bsm_suffix)->init_running_block(OrderMapper::enum_elt(order));
     }
-    CoefficientGroup* group = manager->getCoefficientGroup(groupName);
-    return group->get_matching_coefficient(coeffName, order);
-
 }
 
-complex_t QSetState::getMatchingCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) {
-    if (!isOrderCalculated(order)) {
-        throw std::runtime_error("Matching coefficient of the requested order has not been set.");
+void CoefficientManager::switchbasis(const std::string& groupName) {
+    this->coefficientGroups.at(groupName)->switch_basis();
+    if (has_bsm) {
+        this->coefficientGroups.at(groupName + bsm_suffix)->switch_basis();
     }
-    CoefficientGroup* group = manager->getCoefficientGroup(groupName);
-    return group->get_matching_coefficient(coeffName, order);
-
 }
 
-complex_t RunSetState::getRunCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) {
-    
-    if (!isOrderCalculated(order)) {
-        throw std::runtime_error("Run coefficient of the requested order has not been set.");
+complex_t CoefficientManager::getMatchingCoefficient(const std::string& groupName, const std::string& coeffName, const std::string& order, bool sm_only) {
+    complex_t c = this->coefficientGroups.at(groupName)->get_matching_coefficient(coeffName, order);
+    if (has_bsm && !sm_only) {
+        c += this->coefficientGroups.at(groupName + bsm_suffix)->get_matching_coefficient(coeffName, order);
     }
-
-    CoefficientGroup* group = manager->getCoefficientGroup(groupName);
-    return group->get_running_coefficient(coeffName, order);
+    return c;
 }
 
-std::shared_ptr<CoefficientManager> CoefficientManager::instance;
+complex_t CoefficientManager::getFullMatchingCoefficient(const std::string& groupName, const std::string& coeffName, const std::string& order, bool sm_only) {
+    double fact = wilson_p("WPARAM_MATCH_SM", 1) / (4 * PI);
+    int max_order = static_cast<int>(OrderMapper::enum_elt(order));
+    complex_t c {0};
+    for (size_t o = 1; o <= max_order; o++) {
+        c += this->getMatchingCoefficient(groupName, coeffName, OrderMapper::str(static_cast<QCDOrder>(o)), sm_only) * std::pow(fact, o - 1);
+    }
+    return c;
+}
+
+complex_t CoefficientManager::getRunCoefficient(const std::string& groupName, const std::string& coeffName, const std::string& order, bool sm_only) {
+    complex_t c = this->coefficientGroups.at(groupName)->get_running_coefficient(coeffName, order);
+    if (has_bsm && !sm_only) {
+        c += this->coefficientGroups.at(groupName + bsm_suffix)->get_running_coefficient(coeffName, order);
+    }
+    return c;
+}
+
+complex_t CoefficientManager::getFullRunCoefficient(const std::string& groupName, const std::string& coeffName, const std::string& order, bool sm_only) {
+    double fact = wilson_p("WPARAM_RUN_SM", 1) / (4 * PI);
+    int max_order = static_cast<int>(OrderMapper::enum_elt(order));
+    complex_t c {0};
+    for (size_t o = 1; o <= max_order; o++) {
+        c += this->getMatchingCoefficient(groupName, coeffName, OrderMapper::str(static_cast<QCDOrder>(o)), sm_only) * std::pow(fact, o - 1);
+    }
+    return c;
+}
+
+void CoefficientManager::registerCoefficientGroup(const std::string& groupName, std::shared_ptr<CoefficientGroup> group) {
+    coefficientGroups[groupName] = group;
+}
+
+std::shared_ptr<CoefficientGroup> CoefficientManager::getCoefficientGroup(const std::string& groupName) const {
+    auto it = coefficientGroups.find(groupName);
+    if (it != coefficientGroups.end()) {
+        return it->second;
+    }
+    throw std::invalid_argument("CoefficientGroup not found.");
+}
+
+std::map<std::string, std::shared_ptr<CoefficientGroup>> CoefficientManager::getGroups() {
+    return this->coefficientGroups;
+}
+
+void CoefficientManager::printGroupCoefficients(const std::string& groupName) const {
+    std::shared_ptr<CoefficientGroup> group = getCoefficientGroup(groupName);
+    std::cout << group;
+}
+
+void CoefficientManager::update(std::string group, double mu_W, double mu_h) {
+    this->set_matching_scale(mu_W);
+    this->set_hadronic_scale(mu_h);
+}
+
+CoefficientManager CoefficientManager::Builder(std::string model, std::map<std::string, std::shared_ptr<CoefficientGroup>> groups, double mu_W, double mu_h, std::string order) {
+    WilsonParameterHelper().init(2);
+    CoefficientManager manager;
+    manager.has_bsm = model == ModelMapper::str(Model::THDM) || model == ModelMapper::str(Model::SUSY);
+    manager.bsm_suffix = manager.has_bsm ? "_" + model : "";
+    for (auto& group : groups) {
+        LOG_DEBUG("(CoefficientManager) Registering coefficient group", group.first);
+        manager.registerCoefficientGroup(group.first, group.second);
+    }
+    manager.set_matching_scale(mu_W);
+    manager.set_hadronic_scale(mu_h);
+    for (auto& group: groups) {
+        if (manager.has_bsm && group.first.ends_with(manager.bsm_suffix)) continue;
+        manager.init_group_matching(group.first, order);
+        manager.init_group_hadronic(group.first, order);
+    }
+    return manager;
+}
+
+void CoefficientManager::set_hadronic_scale(double mu_h) {
+    this->hss.set(mu_h);
+}
+
+void CoefficientManager::set_matching_scale(double mu_W) {
+    this->mss.set(mu_W);
+}

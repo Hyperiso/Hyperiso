@@ -21,10 +21,12 @@ public:
     CoefficientGroup(std::map<std::string, std::shared_ptr<WilsonCoefficient>>& coeffs);
 
     void init(QCDOrder order);
+    virtual void init_running_block(QCDOrder order, BWilsonBasis basis = BWilsonBasis::STANDARD) = 0;
 
     // Getters
     complex_t get_matching_coefficient(std::string coeff, std::string order) const;
     complex_t get_running_coefficient(std::string coeff, std::string order) const;
+    QCDOrder get_order();
     bool is_double_basis() const;
 
     // Interface methods
@@ -34,11 +36,11 @@ public:
     virtual ~CoefficientGroup() = default;
 
 protected:
-    virtual void init_running_block(QCDOrder order, BWilsonBasis basis = BWilsonBasis::STANDARD) = 0;
     void claim_coefficients();
 
     std::optional<BWilsonBasis> basis;
     std::string storage_block;
+    QCDOrder current_order = QCDOrder::NONE;
 };
 
 
@@ -46,13 +48,10 @@ class BCoefficientGroup : public CoefficientGroup {
 public:
     BCoefficientGroup();
 
+    void init_running_block(QCDOrder order, BWilsonBasis basis) override;
     void set_gen(int new_gen) {}
     void switch_basis() override;
     std::shared_ptr<CoefficientGroup> clone() const override;
-
-protected:
-    void init_running_block(QCDOrder order, BWilsonBasis basis) override;
-    QCDOrder current_order = QCDOrder::NONE;
 
 private:
     static void base_1_LO_calculation   (const std::unordered_map<std::string, std::shared_ptr<Block>>&, std::shared_ptr<DependentBlock>);
@@ -69,20 +68,17 @@ class BPrimeCoefficientGroup : public CoefficientGroup {
 public:
     BPrimeCoefficientGroup();
     std::shared_ptr<CoefficientGroup> clone() const override;
-
-protected:
     void init_running_block(QCDOrder order, BWilsonBasis basis) override;
 
 private:
     static void base_1_LO_calculation(const std::unordered_map<std::string, std::shared_ptr<Block>>&, std::shared_ptr<DependentBlock>);
 };
 
+
 class BScalarCoefficientGroup : public CoefficientGroup {
 public:
     BScalarCoefficientGroup();
     std::shared_ptr<CoefficientGroup> clone() const override;
-
-protected:
     void init_running_block(QCDOrder order, BWilsonBasis basis) override;
 
 private:
@@ -90,23 +86,22 @@ private:
     static void base_1_NLO_calculation(const std::unordered_map<std::string, std::shared_ptr<Block>>&, std::shared_ptr<DependentBlock>);
 };
 
+
 class BlnuCoefficientGroup : public CoefficientGroup {
 public:
     BlnuCoefficientGroup();
     std::shared_ptr<CoefficientGroup> clone() const override;
-
-protected:
     void init_running_block(QCDOrder order, BWilsonBasis basis = BWilsonBasis::STANDARD) {}
 };
+
 
 class BclnuCoefficientGroup : public CoefficientGroup {
 public:
     BclnuCoefficientGroup();
     std::shared_ptr<CoefficientGroup> clone() const override;
-
-protected:
     void init_running_block(QCDOrder order, BWilsonBasis basis = BWilsonBasis::STANDARD) {}
 };
+
 
 std::ostream& operator<<(std::ostream& os, const CoefficientGroup& coeffs);
 std::ostream& operator<<(std::ostream& os, std::shared_ptr<CoefficientGroup>& coeffs);

@@ -1,11 +1,18 @@
 #include "WilsonGroup.h"
 
 CoefficientGroup::CoefficientGroup(std::map<std::string, std::shared_ptr<WilsonCoefficient>>& coeffs) {
-    for (auto& coeff : coeffs) {
-        this->insert(std::make_pair(coeff.first, std::move(coeff.second)));
+    this->insert(coeffs.begin(), coeffs.end());
+    
+    QCDOrder max_order = QCDOrder::NONE;
+    for (const auto& [_, wil] : coeffs) {
+        if (wil->get_max_order() > max_order) {
+            max_order = wil->get_max_order();
+        }
+
+        if (max_order == QCDOrder::NNLO) break; 
     }
 
-    // TODO : retrieve max order of given coeffs and init at this order.
+    this->init(max_order == QCDOrder::NONE ? QCDOrder::LO : max_order);
 }
 
 void CoefficientGroup::init(QCDOrder order) {
@@ -13,6 +20,7 @@ void CoefficientGroup::init(QCDOrder order) {
     for (auto& coeff : *this) {
             coeff.second->init(order);
     }
+    this->current_order = order;
 }
 
 complex_t CoefficientGroup::get_matching_coefficient(std::string coeff, std::string order) const { 
@@ -25,34 +33,38 @@ complex_t CoefficientGroup::get_running_coefficient(std::string coeff, std::stri
     return complex_t(wilson_p(this->storage_block, coef->id(OrderMapper::enum_elt(order))));
 }
 
+QCDOrder CoefficientGroup::get_order(){
+    return this->current_order;
+}
+
 bool CoefficientGroup::is_double_basis() const {
     return this->basis.has_value();
 }
 
 BCoefficientGroup::BCoefficientGroup() {
     LOG_INFO("In BCoefficientGroup constructor");
-        init_running_parameter_blocks();
-        
-        if (UseMarty().get()) {
-            for (auto&& coeff : {"C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9", "C10"}) {
-                this->insert(std::make_pair(coeff, std::make_shared<MartyWilson>(coeff)));
-            }
-            return;
+    init_running_parameter_blocks();
+    
+    if (UseMarty().get()) {
+        for (auto&& coeff : {"C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9", "C10"}) {
+            this->insert(std::make_pair(coeff, std::make_shared<MartyWilson>(coeff)));
         }
+        return;
+    }
 
-        this->insert(std::make_pair("C1", std::make_shared<C1>())); 
-        this->insert(std::make_pair("C2", std::make_shared<C2>())); 
-        this->insert(std::make_pair("C3", std::make_shared<C3>()));
-        this->insert(std::make_pair("C4", std::make_shared<C4>()));  
-        this->insert(std::make_pair("C5", std::make_shared<C5>())); 
-        this->insert(std::make_pair("C6", std::make_shared<C6>())); 
-        this->insert(std::make_pair("C7", std::make_shared<C7>()));  
-        this->insert(std::make_pair("C8", std::make_shared<C8>()));  
-        this->insert(std::make_pair("C9", std::make_shared<C9>())); 
-        this->insert(std::make_pair("C10", std::make_shared<C10>())); 
+    this->insert(std::make_pair("C1", std::make_shared<C1>())); 
+    this->insert(std::make_pair("C2", std::make_shared<C2>())); 
+    this->insert(std::make_pair("C3", std::make_shared<C3>()));
+    this->insert(std::make_pair("C4", std::make_shared<C4>()));  
+    this->insert(std::make_pair("C5", std::make_shared<C5>())); 
+    this->insert(std::make_pair("C6", std::make_shared<C6>())); 
+    this->insert(std::make_pair("C7", std::make_shared<C7>()));  
+    this->insert(std::make_pair("C8", std::make_shared<C8>()));  
+    this->insert(std::make_pair("C9", std::make_shared<C9>())); 
+    this->insert(std::make_pair("C10", std::make_shared<C10>())); 
 
-        this->basis = BWilsonBasis::STANDARD;
-        this->storage_block = "B_HADRONIC";
+    this->basis = BWilsonBasis::STANDARD;
+    this->storage_block = "B_HADRONIC";
 }
 
 std::shared_ptr<CoefficientGroup> BCoefficientGroup::clone() const {
@@ -111,6 +123,8 @@ void BCoefficientGroup::base_1_LO_calculation(
     const std::unordered_map<std::string, std::shared_ptr<Block>> &src,
     std::shared_ptr<DependentBlock> dep_block)
 {
+    LOG_INFO("Init LO running of BCoefficientGroup in standard basis");
+
     auto ensure_coef = [src] (const LhaID& id) -> complex_t {
         return src.at("B_MATCH")->contains(id) ? src.at("B_MATCH")->retrieve(id)->get_val() : complex_t(0);
     };
@@ -215,6 +229,8 @@ void BCoefficientGroup::base_2_LO_calculation(
     const std::unordered_map<std::string, std::shared_ptr<Block>> &src,
     std::shared_ptr<DependentBlock> dep_block)
 {
+    LOG_INFO("Init LO running of BCoefficientGroup in traditional basis");
+
     auto ensure_coef = [src] (const LhaID& id) -> complex_t {
         return src.at("B_MATCH")->contains(id) ? src.at("B_MATCH")->retrieve(id)->get_val() : complex_t(0);
     };
@@ -255,6 +271,8 @@ void BCoefficientGroup::base_1_NLO_calculation(
     const std::unordered_map<std::string, std::shared_ptr<Block>> &src,
     std::shared_ptr<DependentBlock> dep_block)
 {
+    LOG_INFO("Init NLO running of BCoefficientGroup in standard basis");
+
     auto ensure_coef = [src] (const LhaID& id) -> complex_t {
         return src.at("B_MATCH")->contains(id) ? src.at("B_MATCH")->retrieve(id)->get_val() : complex_t(0);
     };
@@ -309,6 +327,7 @@ void BCoefficientGroup::base_1_NLO_calculation(
     double eta = src.at("WPARAM_RUN_SM")->retrieve(2)->get_val();
     for (size_t k = 0; k < 10; k++) {
         ParamId pid {ParameterType::WILSON, "B_HADRONIC", WCoefMapper::flha_full(ids[k], QCDOrder::NLO, ContributionType::SM)};
+        LOG_INFO("Storing coefficient", WCoefMapper::flha_full(ids[k], QCDOrder::NLO, ContributionType::SM));
         dep_block->store_or_assign(pid.code, std::make_shared<Parameter>(pid, eta * Ci_run[k], 0., 0.));
     }
 }
@@ -317,6 +336,8 @@ void BCoefficientGroup::base_2_NLO_calculation(
     const std::unordered_map<std::string, std::shared_ptr<Block>> &src,
     std::shared_ptr<DependentBlock> dep_block)
 {
+    LOG_INFO("Init NLO running of BCoefficientGroup in traditional basis");
+
     auto ensure_coef = [src] (const LhaID& id) -> complex_t {
         return src.at("B_MATCH")->contains(id) ? src.at("B_MATCH")->retrieve(id)->get_val() : complex_t(0);
     };
@@ -359,6 +380,7 @@ void BCoefficientGroup::base_2_NLO_calculation(
     double eta = src.at("WPARAM_RUN_SM")->retrieve(2)->get_val();
     for (size_t k = 0; k < 10; k++) {
         ParamId pid {ParameterType::WILSON, "B_HADRONIC", WCoefMapper::flha_full(ids[k], QCDOrder::NLO, ContributionType::SM)};
+        LOG_INFO("Storing coefficient", WCoefMapper::flha_full(ids[k], QCDOrder::NLO, ContributionType::SM));
         dep_block->store_or_assign(pid.code, std::make_shared<Parameter>(pid, eta * Ci_run[k], 0., 0.));
     }
 }
@@ -367,6 +389,8 @@ void BCoefficientGroup::base_1_NNLO_calculation(
     const std::unordered_map<std::string, std::shared_ptr<Block>> &src,
     std::shared_ptr<DependentBlock> dep_block)
 {
+    LOG_INFO("Init NNLO running of BCoefficientGroup in standard basis");
+
     auto ensure_coef = [src] (const LhaID& id) -> complex_t {
         return src.at("B_MATCH")->contains(id) ? src.at("B_MATCH")->retrieve(id)->get_val() : complex_t(0);
     };
@@ -412,7 +436,8 @@ void BCoefficientGroup::base_1_NNLO_calculation(
     // Store
     double eta_sq = pow(src.at("WPARAM_RUN_SM")->retrieve(2)->get_val(), 2);
     for (size_t k = 0; k < 10; k++) {
-        ParamId pid {ParameterType::WILSON, "B_HADRONIC", WCoefMapper::flha_full(ids[k], QCDOrder::NLO, ContributionType::SM)};
+        ParamId pid {ParameterType::WILSON, "B_HADRONIC", WCoefMapper::flha_full(ids[k], QCDOrder::NNLO, ContributionType::SM)};
+        LOG_INFO("Storing coefficient", WCoefMapper::flha_full(ids[k], QCDOrder::NNLO, ContributionType::SM));
         dep_block->store_or_assign(pid.code, std::make_shared<Parameter>(pid, eta_sq * Ci_run[k], 0., 0.));
     }
 }
@@ -421,7 +446,7 @@ void BCoefficientGroup::base_1_NNLO_calculation(
 void BCoefficientGroup::init_running_parameter_blocks() {
     WilsonParamComposer composer;
 
-    LOG_DEBUG("Init running matrices blocks of B Coefficient group");
+    LOG_INFO("Init running matrices blocks of B Coefficient group");
 	std::unordered_map<ParameterType, std::vector<std::string>> eta_powers_src = {{ParameterType::WILSON, {"WPARAM_RUN_SM"}}};
 
     auto eta_powers_func = [] (const std::unordered_map<std::string, std::shared_ptr<Block>>& src, std::shared_ptr<DependentBlock> dep_block) {
@@ -603,7 +628,7 @@ BPrimeCoefficientGroup::BPrimeCoefficientGroup() {
 }
 
 std::shared_ptr<CoefficientGroup> BPrimeCoefficientGroup::clone() const {
-    return std::make_shared<BCoefficientGroup>(*this);
+    return std::make_shared<BPrimeCoefficientGroup>(*this);
 }
 
 void BPrimeCoefficientGroup::base_1_LO_calculation(

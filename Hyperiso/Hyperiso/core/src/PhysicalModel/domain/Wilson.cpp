@@ -5,16 +5,15 @@ void WilsonCoefficient::init(QCDOrder order) {
         WilsonParameterHelper::init(2);
     }
 
+    max_order = order;
+
     switch (order) {
     case QCDOrder::NNLO:
         NNLO_calculation();
-        is_calculated["NNLO"] = true;
     case QCDOrder::NLO:
         NLO_calculation();
-        is_calculated["NLO"] = true;
     case QCDOrder::LO:
         LO_calculation();
-        is_calculated["LO"] = true;
     default:
         break;
     }

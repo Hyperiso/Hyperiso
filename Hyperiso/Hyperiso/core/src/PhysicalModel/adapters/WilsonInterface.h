@@ -2,12 +2,8 @@
 #define __WILSONINTERFACE_H__
 
 #include "WilsonManager.h"
-#ifdef BUILD_WITH_SOFTSUSY
 #include "Wilson_SUSY.h"
-#endif
-#ifdef BUILD_WITH_2HDMC
 #include "Wilson_THDM.h"
-#endif
 #include "MartyWilson.h"
 #include "General.h"
 
@@ -15,30 +11,8 @@
 
 class WilsonInterface {
 private:
-    std::shared_ptr<CoefficientManager> wm;
-
-    std::map<std::string, std::shared_ptr<CoefficientGroup>> group_ptrs
-     = {
-        {"BCoefficients", std::make_shared<BCoefficientGroup>()},
-        {"BPrimeCoefficients", std::make_shared<BPrimeCoefficientGroup>()},
-        {"BScalarCoefficients", std::make_shared<BScalarCoefficientGroup>()},
-        {"BlnuCoefficients", std::make_shared<BlnuCoefficientGroup>()},
-        {"BclnuCoefficients", std::make_shared<BclnuCoefficientGroup>()},
-        #ifdef BUILD_WITH_2HDMC
-        {"BCoefficients_THDM", std::make_shared<BCoefficientGroup_THDM>()},
-        {"BPrimeCoefficients_THDM", std::make_shared<BPrimeCoefficientGroup_THDM>()},
-        {"BScalarCoefficients_THDM", std::make_shared<BScalarCoefficientGroup_THDM>()},
-        {"BlnuCoefficients_THDM", std::make_shared<BlnuCoefficientGroup_THDM>()},
-        {"BclnuCoefficients_THDM", std::make_shared<BclnuCoefficientGroup_THDM>()},
-        #endif
-        #ifdef BUILD_WITH_SOFTSUSY
-        {"BCoefficients_SUSY", std::make_shared<BCoefficientGroup_susy>()},
-        {"BPrimeCoefficients_SUSY", std::make_shared<BPrimeCoefficientGroup_susy>()},
-        {"BScalarCoefficients_SUSY", std::make_shared<BScalarCoefficientGroup_susy>()},
-        {"BlnuCoefficients_SUSY", std::make_shared<BlnuCoefficientGroup_SUSY>()},
-        {"BclnuCoefficients_SUSY", std::make_shared<BclnuCoefficientGroup_SUSY>()},
-        #endif
-    };
+    CoefficientManager wm;
+    std::map<std::string, std::shared_ptr<CoefficientGroup>> group_ptrs;
 
     QCDOrder ensure_mty_compat(QCDOrder order) {
         if (UseMarty().get() && !(order == QCDOrder::LO)) {
@@ -50,43 +24,69 @@ private:
 
 public:
     explicit WilsonInterface() {
-        this->wm = CoefficientManager::GetInstance();
+        this->init();
+        this->wm = CoefficientManager();
+    }
+
+    void init() {
+        WilsonParameterHelper().init(2);
+
+        this->group_ptrs = {
+            {"BCoefficients", std::make_shared<BCoefficientGroup>()},
+            {"BPrimeCoefficients", std::make_shared<BPrimeCoefficientGroup>()},
+            {"BScalarCoefficients", std::make_shared<BScalarCoefficientGroup>()},
+            {"BlnuCoefficients", std::make_shared<BlnuCoefficientGroup>()},
+            {"BclnuCoefficients", std::make_shared<BclnuCoefficientGroup>()}
+        };
+
+        std::map<std::string, std::shared_ptr<CoefficientGroup>> bsm_groups;
+        if (ModelAPI().get() == Model::THDM) {
+            bsm_groups = {
+                {"BCoefficients_THDM", std::make_shared<BCoefficientGroup_THDM>()},
+                {"BPrimeCoefficients_THDM", std::make_shared<BPrimeCoefficientGroup_THDM>()},
+                {"BScalarCoefficients_THDM", std::make_shared<BScalarCoefficientGroup_THDM>()},
+                {"BlnuCoefficients_THDM", std::make_shared<BlnuCoefficientGroup_THDM>()},
+                {"BclnuCoefficients_THDM", std::make_shared<BclnuCoefficientGroup_THDM>()}
+            };
+        } else if (ModelAPI().get() == Model::SUSY) {
+            bsm_groups = {
+                {"BCoefficients_SUSY", std::make_shared<BCoefficientGroup_susy>()},
+                {"BPrimeCoefficients_SUSY", std::make_shared<BPrimeCoefficientGroup_susy>()},
+                {"BScalarCoefficients_SUSY", std::make_shared<BScalarCoefficientGroup_susy>()},
+                {"BlnuCoefficients_SUSY", std::make_shared<BlnuCoefficientGroup_SUSY>()},
+                {"BclnuCoefficients_SUSY", std::make_shared<BclnuCoefficientGroup_SUSY>()}
+            };
+        }
+
+        this->group_ptrs.insert(bsm_groups.begin(), bsm_groups.end());
     }
 
     void addWilsonGroup(WGroup group_name) {
-        this->wm->registerCoefficientGroup(GroupMapper::str(group_name), this->group_ptrs.at(GroupMapper::str(group_name)));
+        this->wm.registerCoefficientGroup(GroupMapper::str(group_name), this->group_ptrs.at(GroupMapper::str(group_name)));
     }
 
-    void setQMatch(WGroup group_name, double Q_match) {
-        this->wm->setQMatch(GroupMapper::str(group_name), Q_match);
+    void set_matching_scale(double mu_W) {
+        this->wm.set_matching_scale(mu_W);
     }
 
-    void setParams(const std::string& block, int pdgCode, double value) {
-        this->wm->setParams("BCoefficients", block, pdgCode, value);
+    void init_group_matching(WGroup group_name, QCDOrder order) {
+        this->wm.init_group_matching(GroupMapper::str(group_name), OrderMapper::str(ensure_mty_compat(order)));
     }
 
-    void setMatchingCoefficient(WGroup group_name, QCDOrder order) {
-        this->wm->setMatchingCoefficient(GroupMapper::str(group_name), OrderMapper::str(ensure_mty_compat(order)));
+    void init_group_hadronic(WGroup group_name, QCDOrder order) {
+        this->wm.init_group_hadronic(GroupMapper::str(group_name), OrderMapper::str(ensure_mty_compat(order)));
     }
 
-    void setGroupScale(WGroup group_name, double Q) {
-        this->wm->setGroupScale(GroupMapper::str(group_name), Q);
-    }
-
-    void setRunCoefficient(WGroup group_name, QCDOrder order) {
-        this->wm->setRunCoefficient(GroupMapper::str(group_name), OrderMapper::str(ensure_mty_compat(order)));
+    void set_hadronic_scale(WGroup group_name, double mu_h) {
+        this->wm.set_hadronic_scale(mu_h);
     }
 
     void switchbasis(WGroup group_name) {
-        this->wm->switchbasis(GroupMapper::str(group_name));
-    }
-
-    double getAlphaS(WGroup group_name) {
-        return this->wm->getAlphaS(GroupMapper::str(group_name));
+        this->wm.switchbasis(GroupMapper::str(group_name));
     }
 
     complex_t getMatchingCoefficient(WGroup group, WCoef coeff, QCDOrder order, bool sm_only=false) {
-        return this->wm->getMatchingCoefficient(GroupMapper::str(group), WCoefMapper::str(coeff), OrderMapper::str(ensure_mty_compat(order)), sm_only);
+        return this->wm.getMatchingCoefficient(GroupMapper::str(group), WCoefMapper::str(coeff), OrderMapper::str(ensure_mty_compat(order)), sm_only);
     }
 
     complex_t getM(WGroup group, WCoef coeff, QCDOrder order, bool sm_only=false) {
@@ -94,7 +94,7 @@ public:
     }
 
     complex_t getFullMatchingCoefficient(WGroup group, WCoef coeff, QCDOrder order, bool sm_only=false) {
-        return this->wm->getFullMatchingCoefficient(GroupMapper::str(group), WCoefMapper::str(coeff), OrderMapper::str(ensure_mty_compat(order)), sm_only);
+        return this->wm.getFullMatchingCoefficient(GroupMapper::str(group), WCoefMapper::str(coeff), OrderMapper::str(ensure_mty_compat(order)), sm_only);
     }
 
     complex_t getFM(WGroup group, WCoef coeff, QCDOrder order, bool sm_only=false) {
@@ -102,7 +102,7 @@ public:
     }
 
     complex_t getRunCoefficient(WGroup group, WCoef coeff, QCDOrder order, bool sm_only=false) {
-        return this->wm->getRunCoefficient(GroupMapper::str(group), WCoefMapper::str(coeff), OrderMapper::str(ensure_mty_compat(order)), sm_only);
+        return this->wm.getRunCoefficient(GroupMapper::str(group), WCoefMapper::str(coeff), OrderMapper::str(ensure_mty_compat(order)), sm_only);
     }
 
     complex_t getR(WGroup group, WCoef coeff, QCDOrder order, bool sm_only=false) {
@@ -110,7 +110,7 @@ public:
     }
 
     complex_t getFullRunCoefficient(WGroup group, WCoef coeff, QCDOrder order, bool sm_only=false) {
-        return this->wm->getFullRunCoefficient(GroupMapper::str(group), WCoefMapper::str(coeff), OrderMapper::str(ensure_mty_compat(order)), sm_only);
+        return this->wm.getFullRunCoefficient(GroupMapper::str(group), WCoefMapper::str(coeff), OrderMapper::str(ensure_mty_compat(order)), sm_only);
     }
 
     complex_t getFR(WGroup group, WCoef coeff, QCDOrder order, bool sm_only=false) {
@@ -199,7 +199,7 @@ public:
         return getAllFullRunCoefficients(group, order, sm_only);
     }
 
-    inline void build(std::vector<WGroup> group_names, double Q_match, double Q, QCDOrder order) {
+    inline void build(std::vector<WGroup> group_names, double mu_W, double mu_h, QCDOrder order) {
         std::map<std::string, std::shared_ptr<CoefficientGroup>> groups;
         auto model = ModelAPI().get();
        
@@ -211,7 +211,7 @@ public:
                 groups.emplace(gn_bsm_str, group_ptrs.at(gn_bsm_str));
             }
         }
-        this->wm = CoefficientManager::Builder(ModelMapper::str(model), groups, Q_match, Q, OrderMapper::str(order));
+        this->wm = CoefficientManager::Builder(ModelMapper::str(model), groups, mu_W, mu_h, OrderMapper::str(order));
     }
 };
 

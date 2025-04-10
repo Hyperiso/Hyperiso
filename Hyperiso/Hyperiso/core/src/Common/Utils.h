@@ -52,4 +52,9 @@ inline std::unordered_set<T> get_keys(const std::unordered_map<T, U>& map) {
     return keys;
 }
 
+template<typename T, typename U>
+inline bool haveSameKeys(const std::map<T, U>& map1, const std::map<T, U>& map2) {
+    return get_keys(map1) == get_keys(map2);
+}
+
 #endif // __HYPERISO_UTILS_H__

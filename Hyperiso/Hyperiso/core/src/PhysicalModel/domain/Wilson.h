@@ -22,7 +22,7 @@ public:
 
     complex_t get_matching_value(std::string order) const; 
     std::string get_name() const {return this->coeffName;}
-    bool is_order_calculated(std::string order) const {return this->is_calculated.at(order);}
+    QCDOrder get_max_order() const {return this->max_order;}
     LhaID id(QCDOrder order) const;
 
     bool operator==(const WilsonCoefficient& other) const;
@@ -36,13 +36,11 @@ protected:
     virtual void NNLO_calculation() = 0;
 
     std::string coeffName{};
+    QCDOrder max_order;
     ContributionType type {ContributionType::SM};
     bool is_owned {false};
     bool from_lha {false};
     std::string storage_block;
-
-private:
-    std::map<std::string, bool> is_calculated{{"LO", false}, {"NLO", false}, {"NNLO", false}};
 };
 
 // TODO : virtual LO, NLO, NNLO calculation need to be dealt properly

@@ -99,9 +99,9 @@ int handleWilsonOptions(int argc, char* argv[]) {
             throw std::invalid_argument("Invalid group name specified.");
         }
 
-        manager->setQMatch(group_name, Q_match);
-        manager->setMatchingCoefficient(group_name, order);
-        manager->setGroupScale(group_name, Q);
+        manager->set_matching_scale(group_name, Q_match);
+        manager->init_group(group_name, order);
+        manager->set_hadronic_scale(group_name, Q);
         manager->setRunCoefficient(group_name, order);
         auto group = manager->getCoefficientGroup(group_name);
         if (coefficient_name.empty()) {
