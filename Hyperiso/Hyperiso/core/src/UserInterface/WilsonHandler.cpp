@@ -106,7 +106,7 @@ int handleWilsonOptions(int argc, char* argv[]) {
         auto group = manager->getCoefficientGroup(group_name);
         if (coefficient_name.empty()) {
             for (const auto& elem : *group) {
-                complex_t coeff_M = elem.second->get_CoefficientMatchingValue(order);
+                complex_t coeff_M = elem.second->get_matching_value(order);
                 complex_t coeff_Q = elem.second->get_CoefficientRunValue(order);
                 std::cout << "Coefficient " << elem.first << " at Q_match = " << Q_match
                           << ": " << coeff_M.real() << " + " << coeff_M.imag() << "i\n";
@@ -116,7 +116,7 @@ int handleWilsonOptions(int argc, char* argv[]) {
         } else {
             auto it = group->find(coefficient_name);
             if (it != group->end()) {
-                complex_t coeff_M = it->second->get_CoefficientMatchingValue(order);
+                complex_t coeff_M = it->second->get_matching_value(order);
                 complex_t coeff_Q = it->second->get_CoefficientRunValue(order);
                 std::cout << "Coefficient " << coefficient_name << " at Q_match = " << Q_match
                           << ": " << coeff_M.real() << " + " << coeff_M.imag() << "i\n";

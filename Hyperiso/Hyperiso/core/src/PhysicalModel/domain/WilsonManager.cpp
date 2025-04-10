@@ -101,7 +101,7 @@ complex_t MatchingSetState::getMatchingCoefficient(CoefficientManager* manager, 
     }
 
     CoefficientGroup* group = manager->getCoefficientGroup(groupName);
-    return group->getMatching(coeffName, order);
+    return group->get_matching_coefficient(coeffName, order);
 }
 
 complex_t MatchingSetState::getFullMatchingCoefficient(CoefficientManager* manager, const std::string& groupName, const std::string& coeffName, const std::string& order) {
@@ -166,7 +166,7 @@ complex_t RunSetState::getMatchingCoefficient(CoefficientManager* manager, const
         throw std::runtime_error("Matching coefficient of the requested order has not been set.");
     }
     CoefficientGroup* group = manager->getCoefficientGroup(groupName);
-    return group->getMatching(coeffName, order);
+    return group->get_matching_coefficient(coeffName, order);
 
 }
 
@@ -175,7 +175,7 @@ complex_t QSetState::getMatchingCoefficient(CoefficientManager* manager, const s
         throw std::runtime_error("Matching coefficient of the requested order has not been set.");
     }
     CoefficientGroup* group = manager->getCoefficientGroup(groupName);
-    return group->getMatching(coeffName, order);
+    return group->get_matching_coefficient(coeffName, order);
 
 }
 
@@ -186,7 +186,7 @@ complex_t RunSetState::getRunCoefficient(CoefficientManager* manager, const std:
     }
 
     CoefficientGroup* group = manager->getCoefficientGroup(groupName);
-    return group->getRun(coeffName, order);
+    return group->get_running_coefficient(coeffName, order);
 }
 
 std::shared_ptr<CoefficientManager> CoefficientManager::instance;

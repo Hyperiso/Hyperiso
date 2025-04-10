@@ -1,5 +1,64 @@
 #include "WilsonGroup.h"
 
+CoefficientGroup::CoefficientGroup(std::map<std::string, std::shared_ptr<WilsonCoefficient>>& coeffs) {
+    for (auto& coeff : coeffs) {
+        this->insert(std::make_pair(coeff.first, std::move(coeff.second)));
+    }
+
+    // TODO : retrieve max order of given coeffs and init at this order.
+}
+
+void CoefficientGroup::init(QCDOrder order) {
+    this->claim_coefficients();
+    for (auto& coeff : *this) {
+            coeff.second->init(order);
+    }
+}
+
+complex_t CoefficientGroup::get_matching_coefficient(std::string coeff, std::string order) const { 
+    return this->at(coeff)->get_matching_value(order); 
+}
+
+complex_t CoefficientGroup::get_running_coefficient(std::string coeff, std::string order) const {
+    auto coef = this->at(coeff);
+    ParameterProvider wilson_p = ParameterProvider(ParameterType::WILSON);
+    return complex_t(wilson_p(this->storage_block, coef->id(OrderMapper::enum_elt(order))));
+}
+
+bool CoefficientGroup::is_double_basis() const {
+    return this->basis.has_value();
+}
+
+BCoefficientGroup::BCoefficientGroup() {
+    LOG_INFO("In BCoefficientGroup constructor");
+        init_running_parameter_blocks();
+        
+        if (UseMarty().get()) {
+            for (auto&& coeff : {"C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9", "C10"}) {
+                this->insert(std::make_pair(coeff, std::make_shared<MartyWilson>(coeff)));
+            }
+            return;
+        }
+
+        this->insert(std::make_pair("C1", std::make_shared<C1>())); 
+        this->insert(std::make_pair("C2", std::make_shared<C2>())); 
+        this->insert(std::make_pair("C3", std::make_shared<C3>()));
+        this->insert(std::make_pair("C4", std::make_shared<C4>()));  
+        this->insert(std::make_pair("C5", std::make_shared<C5>())); 
+        this->insert(std::make_pair("C6", std::make_shared<C6>())); 
+        this->insert(std::make_pair("C7", std::make_shared<C7>()));  
+        this->insert(std::make_pair("C8", std::make_shared<C8>()));  
+        this->insert(std::make_pair("C9", std::make_shared<C9>())); 
+        this->insert(std::make_pair("C10", std::make_shared<C10>())); 
+
+        this->basis = BWilsonBasis::STANDARD;
+        this->storage_block = "B_HADRONIC";
+}
+
+std::shared_ptr<CoefficientGroup> BCoefficientGroup::clone() const {
+    return std::make_shared<BCoefficientGroup>(*this);
+}
+
 void BCoefficientGroup::init_running_block(QCDOrder order, BWilsonBasis basis) {
     LOG_INFO("In BCoefficientGroup::init_running_block");
 
@@ -44,7 +103,7 @@ void BCoefficientGroup::init_running_block(QCDOrder order, BWilsonBasis basis) {
 }
 
 void BCoefficientGroup::switch_basis() {
-    WilsonParamComposer().remove_block("B_HADRONIC");
+    WilsonParamComposer().remove_block(this->storage_block);
     init_running_block(current_order, basis == BWilsonBasis::STANDARD ? BWilsonBasis::TRADITIONAL : BWilsonBasis::STANDARD);
 }
 
@@ -63,7 +122,7 @@ void BCoefficientGroup::base_1_LO_calculation(
     std::array<complex_t, 10> Ci_match = {};
     auto ids = WCoefMapper::get_group(WGroup::B);
     for (size_t k = 0; k < 10; k++) {
-        Ci_match[k] = ensure_coef(WCoefMapper::flha_full(ids[k], QCDOrder::LO, false));
+        Ci_match[k] = ensure_coef(WCoefMapper::flha_full(ids[k], QCDOrder::LO, ContributionType::SM));
     }
 
     Ci_match[6] = BRP::C7_eff_std(Ci_match); 
@@ -91,8 +150,8 @@ void BCoefficientGroup::base_1_LO_calculation(
     double mu_h = src.at("B_SCALE")->retrieve(1)->get_val();
     double eta = src.at("WPARAM_RUN_SM")->retrieve(2)->get_val();
 
-    complex_t C1_NLO = ensure_coef(WCoefMapper::flha_full(WCoef::C1, QCDOrder::NLO, false));
-    complex_t C4_NLO = ensure_coef(WCoefMapper::flha_full(WCoef::C4, QCDOrder::NLO, false));
+    complex_t C1_NLO = ensure_coef(WCoefMapper::flha_full(WCoef::C1, QCDOrder::NLO, ContributionType::SM));
+    complex_t C4_NLO = ensure_coef(WCoefMapper::flha_full(WCoef::C4, QCDOrder::NLO, ContributionType::SM));
 
     complex_t C10_02=0.;
     for(size_t ie = 0; ie < 8; ie++) {
@@ -117,17 +176,17 @@ void BCoefficientGroup::base_1_LO_calculation(
     complex_t C1022 = (46.9287715663914 - 3.102350691200236 * L + 0.0992974073578769 * L * L + 0.175877 * (m_t_muW - 163.5) + 0.0173725 * (m_h - 125.9)) / sw2OS;
     C1022 += -Ci_match[9] * Gmu1_Gmu0;
 
-    complex_t C9_NLO = ensure_coef(WCoefMapper::flha_full(WCoef::C9, QCDOrder::NLO, false));
-    complex_t C10_NLO = ensure_coef(WCoefMapper::flha_full(WCoef::C10, QCDOrder::NLO, false));
+    complex_t C9_NLO = ensure_coef(WCoefMapper::flha_full(WCoef::C9, QCDOrder::NLO, ContributionType::SM));
+    complex_t C10_NLO = ensure_coef(WCoefMapper::flha_full(WCoef::C10, QCDOrder::NLO, ContributionType::SM));
     
     complex_t C10_22 = (0.27924 * C1_NLO + 0.33157 * C4_NLO + 2.35917 * Ci_match[8] + 3.29679 * Ci_match[9]) * log(eta) + (1 - eta) * (0.26087 * C9_NLO + 1.15942 * C10_NLO) + C1022;
     
-    complex_t C1_NNLO = ensure_coef(WCoefMapper::flha_full(WCoef::C1, QCDOrder::NNLO, false));
-    complex_t C2_NNLO = ensure_coef(WCoefMapper::flha_full(WCoef::C2, QCDOrder::NNLO, false));
-    complex_t C3_NNLO = ensure_coef(WCoefMapper::flha_full(WCoef::C3, QCDOrder::NNLO, false));
-    complex_t C4_NNLO = ensure_coef(WCoefMapper::flha_full(WCoef::C4, QCDOrder::NNLO, false));
-    complex_t C5_NNLO = ensure_coef(WCoefMapper::flha_full(WCoef::C5, QCDOrder::NNLO, false));
-    complex_t C6_NNLO = ensure_coef(WCoefMapper::flha_full(WCoef::C6, QCDOrder::NNLO, false));
+    complex_t C1_NNLO = ensure_coef(WCoefMapper::flha_full(WCoef::C1, QCDOrder::NNLO, ContributionType::SM));
+    complex_t C2_NNLO = ensure_coef(WCoefMapper::flha_full(WCoef::C2, QCDOrder::NNLO, ContributionType::SM));
+    complex_t C3_NNLO = ensure_coef(WCoefMapper::flha_full(WCoef::C3, QCDOrder::NNLO, ContributionType::SM));
+    complex_t C4_NNLO = ensure_coef(WCoefMapper::flha_full(WCoef::C4, QCDOrder::NNLO, ContributionType::SM));
+    complex_t C5_NNLO = ensure_coef(WCoefMapper::flha_full(WCoef::C5, QCDOrder::NNLO, ContributionType::SM));
+    complex_t C6_NNLO = ensure_coef(WCoefMapper::flha_full(WCoef::C6, QCDOrder::NNLO, ContributionType::SM));
 
     for(int ie = 0; ie <= 7; ie++) {
         C10_22 += pow(eta, BRP::a[ie] + 2) * (
@@ -146,8 +205,8 @@ void BCoefficientGroup::base_1_LO_calculation(
     
     // Store
     for (size_t k = 0; k < 10; k++) {
-        ParamId pid {ParameterType::WILSON, "B_HADRONIC", WCoefMapper::flha_full(ids[k], QCDOrder::LO, false)};
-        LOG_INFO("Storing coefficient", WCoefMapper::flha_full(ids[k], QCDOrder::LO, false));
+        ParamId pid {ParameterType::WILSON, "B_HADRONIC", WCoefMapper::flha_full(ids[k], QCDOrder::LO, ContributionType::SM)};
+        LOG_INFO("Storing coefficient", WCoefMapper::flha_full(ids[k], QCDOrder::LO, ContributionType::SM));
         dep_block->store_or_assign(pid.code, std::make_shared<Parameter>(pid, Ci_run[k], 0., 0.));
     }
 }
@@ -168,10 +227,10 @@ void BCoefficientGroup::base_2_LO_calculation(
     auto ids = WCoefMapper::get_group(WGroup::B);
     for (size_t k = 0; k < 8; k++) {
         for (size_t j = 0; j < 8; j++) {
-            Ci_match_trad[k] = BRP::std_to_trad_LO[k][j] * ensure_coef(WCoefMapper::flha_full(ids[j], QCDOrder::LO, false));
+            Ci_match_trad[k] = BRP::std_to_trad_LO[k][j] * ensure_coef(WCoefMapper::flha_full(ids[j], QCDOrder::LO, ContributionType::SM));
         }
     }
-    Ci_match_trad[8] = ensure_coef(WCoefMapper::flha_full(WCoef::C9, QCDOrder::LO, false));
+    Ci_match_trad[8] = ensure_coef(WCoefMapper::flha_full(WCoef::C9, QCDOrder::LO, ContributionType::SM));
 
     std::array<complex_t, 10> Ci_run {};
     for (size_t k = 0; k < 9; k++) {
@@ -183,11 +242,11 @@ void BCoefficientGroup::base_2_LO_calculation(
 
     double fact = 4 * PI / src.at("WPARAM_RUN_SM")->retrieve(1)->get_val();
     Ci_run[8] *= fact;
-    Ci_run[9] = ensure_coef(WCoefMapper::flha_full(WCoef::C10, QCDOrder::LO, false));
+    Ci_run[9] = ensure_coef(WCoefMapper::flha_full(WCoef::C10, QCDOrder::LO, ContributionType::SM));
 
     // Store
     for (size_t k = 0; k < 10; k++) {
-        ParamId pid {ParameterType::WILSON, "B_HADRONIC", WCoefMapper::flha_full(ids[k], QCDOrder::LO, false)};
+        ParamId pid {ParameterType::WILSON, "B_HADRONIC", WCoefMapper::flha_full(ids[k], QCDOrder::LO, ContributionType::SM)};
         dep_block->store_or_assign(pid.code, std::make_shared<Parameter>(pid, Ci_run[k], 0., 0.));;
     }
 }
@@ -220,8 +279,8 @@ void BCoefficientGroup::base_1_NLO_calculation(
     std::array<complex_t, 10> Ci_1_match = {};
     auto ids = WCoefMapper::get_group(WGroup::B);
     for (size_t k = 0; k < 10; k++) {
-        Ci_0_match[k] = ensure_coef(WCoefMapper::flha_full(ids[k], QCDOrder::LO, false));
-        Ci_1_match[k] = ensure_coef(WCoefMapper::flha_full(ids[k], QCDOrder::NLO, false));
+        Ci_0_match[k] = ensure_coef(WCoefMapper::flha_full(ids[k], QCDOrder::LO, ContributionType::SM));
+        Ci_1_match[k] = ensure_coef(WCoefMapper::flha_full(ids[k], QCDOrder::NLO, ContributionType::SM));
     }
 
     Ci_0_match[6] = C_eff(Ci_0_match, BRP::y_std);
@@ -244,12 +303,12 @@ void BCoefficientGroup::base_1_NLO_calculation(
     Ci_run[8] = fact * (Ci_run[8] + U0(8, 8) * Ci_0_match[8]);
 
     // C10
-    Ci_run[9] = ensure_coef(WCoefMapper::flha_full(WCoef::C10, QCDOrder::NLO, false));
+    Ci_run[9] = ensure_coef(WCoefMapper::flha_full(WCoef::C10, QCDOrder::NLO, ContributionType::SM));
     
     // Store
     double eta = src.at("WPARAM_RUN_SM")->retrieve(2)->get_val();
     for (size_t k = 0; k < 10; k++) {
-        ParamId pid {ParameterType::WILSON, "B_HADRONIC", WCoefMapper::flha_full(ids[k], QCDOrder::NLO, false)};
+        ParamId pid {ParameterType::WILSON, "B_HADRONIC", WCoefMapper::flha_full(ids[k], QCDOrder::NLO, ContributionType::SM)};
         dep_block->store_or_assign(pid.code, std::make_shared<Parameter>(pid, eta * Ci_run[k], 0., 0.));
     }
 }
@@ -275,14 +334,14 @@ void BCoefficientGroup::base_2_NLO_calculation(
     auto ids = WCoefMapper::get_group(WGroup::B);
     for (size_t k = 0; k < 8; k++) {
         for (size_t j = 0; j < 8; j++) {
-            complex_t Cj_0_match_std = ensure_coef(WCoefMapper::flha_full(ids[j], QCDOrder::LO, false));
-            complex_t Cj_1_match_std = ensure_coef(WCoefMapper::flha_full(ids[j], QCDOrder::NLO, false));
+            complex_t Cj_0_match_std = ensure_coef(WCoefMapper::flha_full(ids[j], QCDOrder::LO, ContributionType::SM));
+            complex_t Cj_1_match_std = ensure_coef(WCoefMapper::flha_full(ids[j], QCDOrder::NLO, ContributionType::SM));
             Ci_0_match_trad[k] = BRP::std_to_trad_LO[k][j] * Cj_0_match_std;
             Ci_1_match_trad[k] = BRP::std_to_trad_LO[k][j] * Cj_1_match_std + BRP::std_to_trad_NLO[k][j] * Cj_0_match_std;
         }
     }
-    Ci_0_match_trad[8] = ensure_coef(WCoefMapper::flha_full(WCoef::C9, QCDOrder::LO, false));
-    Ci_1_match_trad[8] = ensure_coef(WCoefMapper::flha_full(WCoef::C9, QCDOrder::NLO, false));
+    Ci_0_match_trad[8] = ensure_coef(WCoefMapper::flha_full(WCoef::C9, QCDOrder::LO, ContributionType::SM));
+    Ci_1_match_trad[8] = ensure_coef(WCoefMapper::flha_full(WCoef::C9, QCDOrder::NLO, ContributionType::SM));
 
     std::array<complex_t, 10> Ci_run {};
     for (size_t k = 0; k < 9; k++) {
@@ -294,12 +353,12 @@ void BCoefficientGroup::base_2_NLO_calculation(
 
     double fact = 4 * PI / src.at("WPARAM_RUN_SM")->retrieve(1)->get_val();
     Ci_run[8] = fact * (Ci_run[8] + V0(8, 8) * Ci_0_match_trad[8]);
-    Ci_run[9] = ensure_coef(WCoefMapper::flha_full(WCoef::C10, QCDOrder::LO, false));
+    Ci_run[9] = ensure_coef(WCoefMapper::flha_full(WCoef::C10, QCDOrder::LO, ContributionType::SM));
 
     // Store
     double eta = src.at("WPARAM_RUN_SM")->retrieve(2)->get_val();
     for (size_t k = 0; k < 10; k++) {
-        ParamId pid {ParameterType::WILSON, "B_HADRONIC", WCoefMapper::flha_full(ids[k], QCDOrder::NLO, false)};
+        ParamId pid {ParameterType::WILSON, "B_HADRONIC", WCoefMapper::flha_full(ids[k], QCDOrder::NLO, ContributionType::SM)};
         dep_block->store_or_assign(pid.code, std::make_shared<Parameter>(pid, eta * Ci_run[k], 0., 0.));
     }
 }
@@ -321,9 +380,9 @@ void BCoefficientGroup::base_1_NNLO_calculation(
     std::array<complex_t, 10> Ci_2_match = {};
     auto ids = WCoefMapper::get_group(WGroup::B);
     for (size_t k = 0; k < 10; k++) {
-        Ci_0_match[k] = ensure_coef(WCoefMapper::flha_full(ids[k], QCDOrder::LO, false));
-        Ci_1_match[k] = ensure_coef(WCoefMapper::flha_full(ids[k], QCDOrder::NLO, false));
-        Ci_2_match[k] = ensure_coef(WCoefMapper::flha_full(ids[k], QCDOrder::NNLO, false));
+        Ci_0_match[k] = ensure_coef(WCoefMapper::flha_full(ids[k], QCDOrder::LO, ContributionType::SM));
+        Ci_1_match[k] = ensure_coef(WCoefMapper::flha_full(ids[k], QCDOrder::NLO, ContributionType::SM));
+        Ci_2_match[k] = ensure_coef(WCoefMapper::flha_full(ids[k], QCDOrder::NNLO, ContributionType::SM));
     }
 
     Ci_0_match[6] = BRP::C7_eff_std(Ci_0_match);
@@ -348,12 +407,12 @@ void BCoefficientGroup::base_1_NNLO_calculation(
     Ci_run[8] = fact * (Ci_run[8] + U(1, 8, 8) * Ci_0_match[8] + U(0, 8, 8) * Ci_1_match[8]);
 
     // C10
-    Ci_run[9] = ensure_coef(WCoefMapper::flha_full(WCoef::C10, QCDOrder::NLO, false));
+    Ci_run[9] = ensure_coef(WCoefMapper::flha_full(WCoef::C10, QCDOrder::NLO, ContributionType::SM));
     
     // Store
     double eta_sq = pow(src.at("WPARAM_RUN_SM")->retrieve(2)->get_val(), 2);
     for (size_t k = 0; k < 10; k++) {
-        ParamId pid {ParameterType::WILSON, "B_HADRONIC", WCoefMapper::flha_full(ids[k], QCDOrder::NLO, false)};
+        ParamId pid {ParameterType::WILSON, "B_HADRONIC", WCoefMapper::flha_full(ids[k], QCDOrder::NLO, ContributionType::SM)};
         dep_block->store_or_assign(pid.code, std::make_shared<Parameter>(pid, eta_sq * Ci_run[k], 0., 0.));
     }
 }
@@ -431,6 +490,23 @@ void BCoefficientGroup::init_running_parameter_blocks() {
     LOG_INFO("Running matrices updated");
 }
 
+std::shared_ptr<CoefficientGroup> BScalarCoefficientGroup::clone() const {
+    return std::make_shared<BScalarCoefficientGroup>(*this);
+}
+
+BScalarCoefficientGroup::BScalarCoefficientGroup() {
+    if (UseMarty().get()) {
+        for (auto&& coeff : {"CQ1", "CQ2"}) {
+            this->insert(std::make_pair(coeff, std::make_shared<MartyWilson>(coeff)));
+        }
+        return;
+    }
+    this->insert(std::make_pair("CQ1", std::make_shared<CQ1>()));
+    this->insert(std::make_pair("CQ2", std::make_shared<CQ2>()));
+
+    this->storage_block = "B_SCALAR_HADRONIC";
+}
+
 void BScalarCoefficientGroup::base_1_LO_calculation(
     const std::unordered_map<std::string, std::shared_ptr<Block>> &src,
     std::shared_ptr<DependentBlock> dep_block)
@@ -442,7 +518,7 @@ void BScalarCoefficientGroup::base_1_LO_calculation(
     std::array<complex_t, 10> CQi_match = {};
     auto ids = WCoefMapper::get_group(WGroup::BScalar);
     for (size_t k = 0; k < ids.size(); k++) {
-        CQi_match[k] = ensure_coef(WCoefMapper::flha_full(ids[k], QCDOrder::LO, false));
+        CQi_match[k] = ensure_coef(WCoefMapper::flha_full(ids[k], QCDOrder::LO, ContributionType::SM));
     }
 
     double eta = src.at("WPARAM_RUN_SM")->retrieve(2)->get_val();
@@ -451,7 +527,7 @@ void BScalarCoefficientGroup::base_1_LO_calculation(
     
     // Store
     for (size_t k = 0; k < ids.size(); k++) {
-        ParamId pid {ParameterType::WILSON, "B_SCALAR_HADRONIC", WCoefMapper::flha_full(ids[k], QCDOrder::LO, false)};
+        ParamId pid {ParameterType::WILSON, "B_SCALAR_HADRONIC", WCoefMapper::flha_full(ids[k], QCDOrder::LO, ContributionType::SM)};
         dep_block->store_or_assign(pid.code, std::make_shared<Parameter>(pid, fact * CQi_match[k], 0., 0.));;
     }
 }
@@ -467,7 +543,7 @@ void BScalarCoefficientGroup::base_1_NLO_calculation(
     auto ids = WCoefMapper::get_group(WGroup::BScalar);
     std::array<complex_t, 2> CQi_match = {};
     for (size_t k = 0; k < ids.size(); k++) {
-        CQi_match[k] = ensure_coef(WCoefMapper::flha_full(ids[k], QCDOrder::NLO, false));
+        CQi_match[k] = ensure_coef(WCoefMapper::flha_full(ids[k], QCDOrder::NLO, ContributionType::SM));
     }
 
     double eta = src.at("WPARAM_RUN_SM")->retrieve(2)->get_val();
@@ -476,7 +552,7 @@ void BScalarCoefficientGroup::base_1_NLO_calculation(
     
     // Store
     for (size_t k = 0; k < ids.size(); k++) {
-        ParamId pid {ParameterType::WILSON, "B_SCALAR_HADRONIC", WCoefMapper::flha_full(ids[k], QCDOrder::NLO, false)};
+        ParamId pid {ParameterType::WILSON, "B_SCALAR_HADRONIC", WCoefMapper::flha_full(ids[k], QCDOrder::NLO, ContributionType::SM)};
         dep_block->store_or_assign(pid.code, std::make_shared<Parameter>(pid, fact * CQi_match[k], 0., 0.));;
     }
 }
@@ -493,13 +569,41 @@ void BScalarCoefficientGroup::init_running_block(QCDOrder order, BWilsonBasis ba
         case QCDOrder::NNLO:
             LOG_WARN("Scalar B Coefficients are not defined at NNLO.");
         case QCDOrder::NLO:
-            BCoefficientGroup::base_1_NLO_calculation(src, dep_block);
+            BScalarCoefficientGroup::base_1_NLO_calculation(src, dep_block);
         case QCDOrder::LO:
-            BCoefficientGroup::base_1_LO_calculation(src, dep_block);
+            BScalarCoefficientGroup::base_1_LO_calculation(src, dep_block);
         }
     };
 
     WilsonParamComposer().compose_block("B_SCALAR_HADRONIC", src, func);
+}
+
+BPrimeCoefficientGroup::BPrimeCoefficientGroup() {
+    if (UseMarty().get()) {
+        for (auto&& coeff : {"CP1", "CP2", "CP3", "CP4", "CP5", "CP6", "CP7", "CP8", "CP9", "CP10", "CPQ1", "CPQ2"}) {
+            this->insert(std::make_pair(coeff, std::make_shared<MartyWilson>(coeff)));
+        }
+        return;
+    }
+
+    this->insert(std::make_pair("CP1", std::make_shared<CP1>())); 
+    this->insert(std::make_pair("CP2", std::make_shared<CP2>())); 
+    this->insert(std::make_pair("CP3", std::make_shared<CP3>()));
+    this->insert(std::make_pair("CP4", std::make_shared<CP4>()));  
+    this->insert(std::make_pair("CP5", std::make_shared<CP5>())); 
+    this->insert(std::make_pair("CP6", std::make_shared<CP6>())); 
+    this->insert(std::make_pair("CP7", std::make_shared<CP7>()));  
+    this->insert(std::make_pair("CP8", std::make_shared<CP8>()));  
+    this->insert(std::make_pair("CP9", std::make_shared<CP9>())); 
+    this->insert(std::make_pair("CP10", std::make_shared<CP10>())); 
+    this->insert(std::make_pair("CPQ1", std::make_shared<CPQ1>())); 
+    this->insert(std::make_pair("CPQ2", std::make_shared<CPQ2>()));
+
+    this->storage_block = "B_PRIME_HADRONIC"; 
+}
+
+std::shared_ptr<CoefficientGroup> BPrimeCoefficientGroup::clone() const {
+    return std::make_shared<BCoefficientGroup>(*this);
 }
 
 void BPrimeCoefficientGroup::base_1_LO_calculation(
@@ -513,14 +617,14 @@ void BPrimeCoefficientGroup::base_1_LO_calculation(
     std::array<complex_t, 12> CPi_match = {};
     auto ids = WCoefMapper::get_group(WGroup::BPrime);
     for (size_t k = 0; k < ids.size(); k++) {
-        CPi_match[k] = ensure_coef(WCoefMapper::flha_full(ids[k], QCDOrder::LO, false));
+        CPi_match[k] = ensure_coef(WCoefMapper::flha_full(ids[k], QCDOrder::LO, ContributionType::SM));
     }
 
     double eta = src.at("WPARAM_RUN_SM")->retrieve(2)->get_val();
     
     // Store
     for (size_t k = 0; k < ids.size(); k++) {
-        ParamId pid {ParameterType::WILSON, "B_PRIME_HADRONIC", WCoefMapper::flha_full(ids[k], QCDOrder::LO, false)};
+        ParamId pid {ParameterType::WILSON, "B_PRIME_HADRONIC", WCoefMapper::flha_full(ids[k], QCDOrder::LO, ContributionType::SM)};
         complex_t CPk_run = pow(eta, BRP::exp_prime_running[k]) * CPi_match[k]; 
         dep_block->store_or_assign(pid.code, std::make_shared<Parameter>(pid, CPk_run, 0., 0.));;
     }
@@ -548,4 +652,59 @@ void CoefficientGroup::claim_coefficients() {
     for (auto& [_, coeff]: *this) {
         coeff->set_owned(true);
     }
+}
+
+BlnuCoefficientGroup::BlnuCoefficientGroup() {
+    if (UseMarty().get()) {
+        for (auto&& coeff : {"C_Blnu_A", "C_Blnu_P"}) {
+            this->insert(std::make_pair(coeff, std::make_shared<MartyWilson>(coeff)));
+        }
+        return;
+    }
+
+    this->insert(std::make_pair("C_Blnu_A", std::make_shared<C_Blnu_A>()));
+    this->insert(std::make_pair("C_Blnu_P", std::make_shared<C_Blnu_P>()));
+
+    this->storage_block = "B_LNU_HADRONIC";
+}
+
+std::shared_ptr<CoefficientGroup> BlnuCoefficientGroup::clone() const {
+    return std::make_shared<BlnuCoefficientGroup>(*this);
+}
+
+BclnuCoefficientGroup::BclnuCoefficientGroup() {
+    if (UseMarty().get()) {
+        for (auto&& coeff : {"C_V1", "C_V2", "C_S1", "C_S2", "C_T"}) {
+            this->insert(std::make_pair(coeff, std::make_shared<MartyWilson>(coeff)));
+        }
+        return;
+    }
+    this->insert(std::make_pair("C_V1", std::make_shared<C_V1>()));
+    this->insert(std::make_pair("C_V2", std::make_shared<C_V2>()));
+    this->insert(std::make_pair("C_S1", std::make_shared<C_S1>()));
+    this->insert(std::make_pair("C_S2", std::make_shared<C_S2>()));
+    this->insert(std::make_pair("C_T", std::make_shared<C_T>()));
+
+    this->storage_block = "B_CLNU_HADRONIC";
+}
+
+std::shared_ptr<CoefficientGroup> BclnuCoefficientGroup::clone() const {
+    return std::make_shared<BclnuCoefficientGroup>(*this);
+}
+
+std::ostream& operator<<(std::ostream& os, const CoefficientGroup& coeffs) {
+    for(auto& [name, coeff] : coeffs) {
+        os << name << " --------------------------------" << std::endl;
+        os << "LO at mu_W: "    << coeffs.get_matching_coefficient(name, "LO")      << std::endl;
+        os << "LO at mu_h: "    << coeffs.get_running_coefficient(name, "LO")       << std::endl;
+        os << "NLO at mu_W: "   << coeffs.get_matching_coefficient(name, "NLO")     << std::endl;
+        os << "NLO at mu_h: "   << coeffs.get_running_coefficient(name, "NLO")      << std::endl;
+        os << "NNLO at mu_W: "  << coeffs.get_matching_coefficient(name, "NNLO")    << std::endl;
+        os << "NNLO at mu_h: "  << coeffs.get_running_coefficient(name, "NNLO")     << std::endl;
+    }
+    return os;
+}
+
+std::ostream& operator<<(std::ostream& os, std::shared_ptr<CoefficientGroup>& coeffs) {
+    return os << *coeffs;
 }

@@ -10,10 +10,27 @@
 #include "ModelParamAdapter.h"
 
 class WilsonCoefficient {
-protected:
+public:
     WilsonCoefficient() = default;
     WilsonCoefficient(const std::string& name, const std::string& storage_block) : coeffName(name), storage_block(storage_block) {}
 
+    // TODO : Implement initialization as dependent parameter from MARTY library or from lha
+    void init(QCDOrder order);
+
+    void set_name(std::string name) {this->coeffName = name;}
+    void set_owned(bool owned);
+
+    complex_t get_matching_value(std::string order) const; 
+    std::string get_name() const {return this->coeffName;}
+    bool is_order_calculated(std::string order) const {return this->is_calculated.at(order);}
+    LhaID id(QCDOrder order) const;
+
+    bool operator==(const WilsonCoefficient& other) const;
+    bool operator!=(const WilsonCoefficient& other) const { return !(*this == other); }
+
+    virtual ~WilsonCoefficient() = default;
+
+protected:
     virtual void LO_calculation() = 0;
     virtual void NLO_calculation() = 0;
     virtual void NNLO_calculation() = 0;
@@ -24,27 +41,11 @@ protected:
     bool from_lha {false};
     std::string storage_block;
 
-public:
-    // TODO : Implement initialization as dependent parameter from MARTY library or from lha
-    void init(QCDOrder order);
-
-    void set_name(std::string name) {this->coeffName = name;}
-    void set_owned(bool owned);
-
-    complex_t get_CoefficientMatchingValue(std::string order) const; 
-    std::string get_name() const {return this->coeffName;}
-    bool is_order_calculated(std::string order) const {return this->is_calculated.at(order);}
-
-    bool operator==(const WilsonCoefficient& other) const;
-    bool operator!=(const WilsonCoefficient& other) const { return !(*this == other); }
-
-    virtual ~WilsonCoefficient() = default;
-
 private:
     std::map<std::string, bool> is_calculated{{"LO", false}, {"NLO", false}, {"NNLO", false}};
 };
 
-//TODO : virtual LO,NLO,NNLO calculation need to be dealed properly
+// TODO : virtual LO, NLO, NNLO calculation need to be dealt properly
 
 class C_Blnu_A : public WilsonCoefficient {
 public:
@@ -118,8 +119,8 @@ public:
 };
 
 inline std::ostream& operator<<(std::ostream& os, WilsonCoefficient& coeff) {
-    os << "WilsonCoefficient " << coeff.get_name() << "has matching value: " << coeff.get_CoefficientMatchingValue("LO") << " at LO" << std::endl;
-    os << ", " << coeff.get_CoefficientMatchingValue("NLO") << " at NLO, " << coeff.get_CoefficientMatchingValue("NNLO") << "at NNLO" << std::endl;
+    os << "WilsonCoefficient " << coeff.get_name() << "has matching value: " << coeff.get_matching_value("LO") << " at LO" << std::endl;
+    os << ", " << coeff.get_matching_value("NLO") << " at NLO, " << coeff.get_matching_value("NNLO") << "at NNLO" << std::endl;
     return os;
 }
 

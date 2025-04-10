@@ -312,6 +312,8 @@ public:
         this->insert(std::make_pair("C4", std::make_shared<C4_THDM>()));  this->insert(std::make_pair("C5", std::make_shared<C5_THDM>())); this->insert(std::make_pair("C6", std::make_shared<C6_THDM>())); 
         this->insert(std::make_pair("C7", std::make_shared<C7_THDM>()));  this->insert(std::make_pair("C8", std::make_shared<C8_THDM>()));  this->insert(std::make_pair("C9", std::make_shared<C9_THDM>())); 
         this->insert(std::make_pair("C10", std::make_shared<C10_THDM>())); 
+
+        this->storage_block = "B_HADRONIC_THDM";
     }
 };
 
@@ -322,6 +324,8 @@ public:
         this->insert(std::make_pair("CP4", std::make_shared<CP4_THDM>()));  this->insert(std::make_pair("CP5", std::make_shared<CP5_THDM>())); this->insert(std::make_pair("CP6", std::make_shared<CP6_THDM>())); 
         this->insert(std::make_pair("CP7", std::make_shared<CP7_THDM>()));  this->insert(std::make_pair("CP8", std::make_shared<CP8_THDM>()));  this->insert(std::make_pair("CP9", std::make_shared<CP9_THDM>())); 
         this->insert(std::make_pair("CP10", std::make_shared<CP10_THDM>())); this->insert(std::make_pair("CPQ1", std::make_shared<CPQ1_THDM>())); this->insert(std::make_pair("CPQ2", std::make_shared<CPQ2_THDM>())); 
+
+        this->storage_block = "B_PRIME_HADRONIC_THDM";
     }
 
     void set_base_1();
@@ -332,6 +336,8 @@ class BScalarCoefficientGroup_THDM : public BScalarCoefficientGroup {
 public:
     BScalarCoefficientGroup_THDM() { this->clear();
         this->insert(std::make_pair("CQ1", std::make_shared<CQ1_THDM>())); this->insert(std::make_pair("CQ2", std::make_shared<CQ2_THDM>()));
+
+        this->storage_block = "B_SCALAR_HADRONIC_THDM";
     }
 
     void set_base_1();
@@ -343,6 +349,8 @@ public:
     BlnuCoefficientGroup_THDM() { this->clear();
         this->insert(std::make_pair("C_Blnu_A", std::make_shared<C_Blnu_A_THDM>())); 
         this->insert(std::make_pair("C_Blnu_P", std::make_shared<C_Blnu_P_THDM>()));
+
+        this->storage_block = "B_LNU_HADRONIC_THDM";
     }
 
     void set_base_1() {}
@@ -357,6 +365,8 @@ public:
         this->insert(std::make_pair("C_S1", std::make_shared<C_S1_THDM>()));
         this->insert(std::make_pair("C_S2", std::make_shared<C_S2_THDM>()));
         this->insert(std::make_pair("C_T", std::make_shared<C_T_THDM>()));
+
+        this->storage_block = "B_CLNU_HADRONIC_THDM";
     }
 
     void set_base_1() {}

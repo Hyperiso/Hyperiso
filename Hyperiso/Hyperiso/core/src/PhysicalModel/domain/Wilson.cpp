@@ -28,15 +28,18 @@ void WilsonCoefficient::set_owned(bool owned) {
     this->is_owned = owned;
 }
 
-bool WilsonCoefficient::operator==(const WilsonCoefficient& other) const {
+LhaID WilsonCoefficient::id(QCDOrder order) const {
+    return WCoefMapper::flha_full(WCoefMapper::enum_elt(this->coeffName), order, type);
+}
+
+bool WilsonCoefficient::operator==(const WilsonCoefficient &other) const {
     return this->coeffName == other.coeffName
             && this->type == other.type
             && this->is_owned == other.is_owned
             && this->from_lha == other.from_lha;
 }
 
-complex_t WilsonCoefficient::get_CoefficientMatchingValue(std::string order) const {
-    LhaID code(WCoefMapper::flha_full(WCoefMapper::enum_elt(this->coeffName), OrderMapper::enum_elt(order), type));
+complex_t WilsonCoefficient::get_matching_value(std::string order) const {
     ParameterProvider wilson_p = ParameterProvider(ParameterType::WILSON);
-    return complex_t(wilson_p("B_MATCH", code));
+    return complex_t(wilson_p(storage_block, this->id(OrderMapper::enum_elt(order))));
 }
