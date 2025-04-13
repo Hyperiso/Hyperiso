@@ -3,13 +3,13 @@ name: Run special test
 on:
   push:
     paths:
-      - "Common/**"
-      - "Database/**"
-      - "Core/**"
-      - "PhysicalModel/**"
-      - "BusinessLogic/**"
-      - "ExternalIntegration/**"
-      - "Math/**"
+      - "Hyperiso/Hyperiso/core/Common/**"
+      - "Hyperiso/Hyperiso/core/Database/**"
+      - "Hyperiso/Hyperiso/core/Core/**"
+      - "Hyperiso/Hyperiso/core/PhysicalModel/**"
+      - "Hyperiso/Hyperiso/core/BusinessLogic/**"
+      - "Hyperiso/Hyperiso/core/ExternalIntegration/**"
+      - "Hyperiso/Hyperiso/core/Math/**"
 
 
 jobs:
@@ -26,7 +26,7 @@ jobs:
           sudo apt-get install -y cmake make build-essential libgsl-dev
 
       - name: Configure Cmake
-        run: cmake -S. -B build -DENABLE_TESTS=ON
+        run: cmake -S Hyperiso/Hyperiso/core -B build -DENABLE_TESTS=ON
 
       - name: Build Project
         run: cmake --build build --target testCommon
@@ -47,7 +47,7 @@ jobs:
           sudo apt-get install -y cmake make build-essential libgsl-dev
 
       - name: Configure Cmake
-        run: cmake -S. -B build -DENABLE_TESTS=ON
+        run: cmake -S Hyperiso/Hyperiso/core -B build -DENABLE_TESTS=ON
 
       - name: Build Project
         run: cmake --build build --target testSMWilson testSMCQPrimeWilson
@@ -66,7 +66,7 @@ jobs:
         run: sudo apt-get install textlive-latex-base texlive-fonts-recommended texlive-fonts-extra textlive-latex-extra libgsl-dev
 
       - name: Configure Cmake
-        run: cmake -S. -B build -DENABLE_TESTS=ON -DBUILD_WITH_SOFTSUSY=ON
+        run: cmake -S Hyperiso/Hyperiso/core -B build -DENABLE_TESTS=ON -DBUILD_WITH_SOFTSUSY=ON
 
       - name: Build Project
         run: cmake --build build --target testSUSYWilson testSUSYCQPrimeWilson
@@ -86,7 +86,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y cmake make build-essential libgsl-dev
       - name: Configure Cmake
-        run: cmake -S. -B build -DENABLE_TESTS=ON -DBUILD_WITH_2HDMC=ON
+        run: cmake -S Hyperiso/Hyperiso/core -B build -DENABLE_TESTS=ON -DBUILD_WITH_2HDMC=ON
 
       - name: Build Project
         run: cmake --build build --target testTHDMWilson testTHDMCQPrimeWilson
