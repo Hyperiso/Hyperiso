@@ -112,6 +112,38 @@
       "syst_error": 0
     }
   },
+  "UPMNSIN": {
+    "1": {
+      "central_value": 0.5831,
+      "stat_error": 0,
+      "syst_error": 0
+    },
+    "2": {
+      "central_value": 0.857,
+      "stat_error": 0,
+      "syst_error": 0
+    },
+    "3": {
+      "central_value": 0.149,
+      "stat_error": 0,
+      "syst_error": 0
+    },
+    "4": {
+      "central_value": -2.84,
+      "stat_error": 0,
+      "syst_error": 0
+    },
+    "5": {
+      "central_value": 0,
+      "stat_error": 0,
+      "syst_error": 0
+    },
+    "6": {
+      "central_value": 0,
+      "stat_error": 0,
+      "syst_error": 0
+    }
+  },
   "UPMNS": {
     "0": {
       "central_value": 1,

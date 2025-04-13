@@ -120,17 +120,17 @@ add_subdirectory(src/ExternalIntegration ExternalIntegrationLib)
 add_subdirectory(src/Core CoreLib)
 add_subdirectory(src/ExternalIntegration/MartyInterface MartyInterfaceLib)
 add_subdirectory(src/PhysicalModel PhysicalModelLib)
-add_subdirectory(src/BusinessLogic BusinessLogicLib)
-add_subdirectory(src/UserInterface UserInterfaceLib)
+# add_subdirectory(src/BusinessLogic BusinessLogicLib) //TODO : BusinessLogic
+# add_subdirectory(src/UserInterface UserInterfaceLib) //TODO : UserInterface
 
 if (ENABLE_TESTS)
-    FetchContent_Declare(
-        Catch2
-        GIT_REPOSITORY https://github.com/catchorg/Catch2
-        GIT_TAG v3.5.3
-        GIT_SHALLOW TRUE)
-    FetchContent_MakeAvailable(Catch2)
-    list(APPEND CMAKE_MODULE_PATH ${catch2_SOURCE_DIR}/extras)
+    # FetchContent_Declare(
+    #     Catch2
+    #     GIT_REPOSITORY https://github.com/catchorg/Catch2
+    #     GIT_TAG v3.5.3
+    #     GIT_SHALLOW TRUE)
+    # FetchContent_MakeAvailable(Catch2)
+    # list(APPEND CMAKE_MODULE_PATH ${catch2_SOURCE_DIR}/extras)
     enable_testing()
     add_subdirectory(Test)
 endif()
