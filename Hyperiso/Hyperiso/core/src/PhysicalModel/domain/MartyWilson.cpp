@@ -47,6 +47,6 @@ void MartyWilson::LO_calculation() {
         dep_param->set_expected(result);
     };
 
-    WilsonParamComposer().compose_parameter(ParamId{"B_MATCH", LhaID(3040405, 4141, 2, 0)}, sources, func);
+    WilsonParamComposer().compose_parameter(ParamId{"B_MATCH", WCoefMapper::flha_full(WCoefMapper::enum_elt(this->coeffName), QCDOrder::LO, ContributionType::TOTAL)}, sources, func);
 
 }

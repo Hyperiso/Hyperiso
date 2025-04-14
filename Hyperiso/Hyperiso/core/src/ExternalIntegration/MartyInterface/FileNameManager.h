@@ -41,8 +41,8 @@ private:
     std::string root_dir = project_assets_root.data();
     std::string lowercaseWilson_;
     std::string lowercaseModel_;
-    std::string templateDir_ = "../Hyperiso/Hyperiso/MartyWilson/";
-    std::string baseTemplateDir_ = "template/MARTY/";
+    std::string templateDir_ = std::string(project_assets_root.data()) +"MartyTemp/";
+    std::string baseTemplateDir_ = std::string(project_assets_root.data()) +"template/MARTY/";
     std::string toLowercase(const std::string& str) const;
 };
 

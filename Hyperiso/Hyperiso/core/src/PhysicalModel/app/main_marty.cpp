@@ -17,7 +17,7 @@ int main() {
     auto wi = WilsonInterface();
     LOG_INFO("WilsonInterface created");
     wi.build(
-        {WGroup::B, WGroup::BPrime},
+        {WGroup::B},
         81,
         4.7,
         QCDOrder::LO 
@@ -28,8 +28,9 @@ int main() {
     ParameterSetter ps;
     ParameterProxy pa (ParameterType::WILSON);
 
-    
+    LOG_INFO("Parameters created");
     LOG_INFO("C7(mu_h) at LO =", wi.getR(WGroup::B, WCoef::C7, QCDOrder::LO));
+    LOG_INFO("AGAIN");
     LOG_INFO("C7(mu_h) at NLO =", wi.getR(WGroup::B, WCoef::C7, QCDOrder::NLO));
     LOG_INFO("C7(mu_h) at NNLO =", wi.getR(WGroup::B, WCoef::C7, QCDOrder::NNLO));
 
