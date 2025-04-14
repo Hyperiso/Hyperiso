@@ -70,6 +70,9 @@ target_link_libraries(PhysicalModelLib PUBLIC MartyInterfaceLib CoreLib CommonLi
 add_executable(test_wilson app/main_PM.cpp)
 target_link_libraries(test_wilson PhysicalModelLib)
 
+add_executable(test_wilson_marty app/main_marty.cpp)
+target_link_libraries(test_wilson_marty PhysicalModelLib)
+
 # add_executable(test_wilson main_phymod.cpp)
 # target_link_libraries(test_wilson PhysicalModelLib)
 
