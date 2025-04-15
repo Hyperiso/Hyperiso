@@ -148,6 +148,8 @@ void readParams(std::ifstream& inputFile,
                 }
 
             } else {
+                std::cout << "key : " << key << std::endl;
+                std::cout << "value : " << value << std::endl;
                 if (real.find(key) != real.end()) {
                     *real[key] = value;
                 } else {

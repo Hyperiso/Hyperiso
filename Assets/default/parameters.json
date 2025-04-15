@@ -39,6 +39,11 @@
       "central_value": 0.22348,
       "stat_error": 0.00010,
       "syst_error": 0
+    },
+    "10": {
+      "central_value": 0.303,
+      "stat_error": 0,
+      "syst_error": 0
     }
   },
 
@@ -86,6 +91,28 @@
     "25": {
       "central_value": 125.20,
       "stat_error": 0.11,
+      "syst_error": 0
+    }
+  },
+  "GAUGE": {
+    "1": {
+      "central_value": 0.358003,
+      "stat_error": 0,
+      "syst_error": 0
+    },
+    "2": {
+      "central_value": 0.648435,
+      "stat_error": 0,
+      "syst_error": 0
+    },
+    "3": {
+      "central_value": 1.21358,
+      "stat_error": 0,
+      "syst_error": 0
+    },
+    "4": {
+      "central_value": 0.313409,
+      "stat_error": 0,
       "syst_error": 0
     }
   },

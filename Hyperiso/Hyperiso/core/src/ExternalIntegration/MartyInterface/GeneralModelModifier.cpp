@@ -33,7 +33,7 @@ void GeneralModelModifier::addLine(std::ofstream& outputFile, const std::string&
         std::string model_l = this->model;
         std::transform(model_l.begin(), model_l.end(), model_l.begin(),
         [](unsigned char c){return std::tolower(c);});
-        outputFile << "#include \"../../ExternalIntegration/MARTY/MARTY_INSTALL/include/marty/models/" + model_l +".h\"" << "\n";
+        outputFile << "#include \"" + this->model_path + "\"" << "\n";
     }
     else {
         outputFile << currentLine << "\n";

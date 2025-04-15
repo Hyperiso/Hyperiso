@@ -30,21 +30,28 @@ public:
      * @brief Initializes model-specific parameters.
      * @param params Reference to Parameters object.
      */
-    virtual void initializeParameters(class Parameters& params) = 0;
+    virtual std::unordered_set<std::string> initializeParameters(class Parameters& params) = 0;
+    virtual void postInitialization(Parameters& params) = 0;
     virtual ~ModelStrategy() = default;
+    void add_absent_block(std::unordered_set<std::string> _) {absent_blocks = _;};
+    void remove_absent_block() {absent_blocks = std::unordered_set<std::string>();}
+protected:
+    std::unordered_set<std::string> absent_blocks;
 };
 
 // Concrete Strategy Classes
 /** @class SMModelStrategy @brief Strategy for the Standard Model. */
 class SMModelStrategy : public ModelStrategy {
 public:
-    void initializeParameters(class Parameters& params) override;
+std::unordered_set<std::string> initializeParameters(class Parameters& params) override;
+    void postInitialization(Parameters& params) override;
 };
 
 /** @class BSMModelStrategy @brief Strategy for BSM models. */
 class BSMModelStrategy : public ModelStrategy {
     public:
-        void initializeParameters(class Parameters& params) override;
+    std::unordered_set<std::string> initializeParameters(class Parameters& params) override;
+        void postInitialization(Parameters& params) override {}
     };
 
 // /** @class SUSYModelStrategy @brief Strategy for SUSY models. */
@@ -62,37 +69,43 @@ class BSMModelStrategy : public ModelStrategy {
 /** @class FlavorStrategy @brief Strategy for flavor physics parameters. */
 class FlavorStrategy : public ModelStrategy {
 public:
-    void initializeParameters(class Parameters& params) override;
+std::unordered_set<std::string> initializeParameters(class Parameters& params) override;
+    void postInitialization(Parameters& params) override {}
 };
 
 /** @class GeneralModelStrategy @brief General model strategy for parameter initialization. */
 class GeneralModelStrategy : public ModelStrategy {
 public:
-    void initializeParameters(class Parameters& params) override;
+std::unordered_set<std::string> initializeParameters(class Parameters& params) override;
+    void postInitialization(Parameters& params) override {}
 };
 
 /** @class WilsonInputStrategy @brief Strategy for Wilson coefficient inputs. */
 class WilsonInputStrategy : public ModelStrategy {
 public:
-    void initializeParameters(class Parameters& params) override;
+std::unordered_set<std::string> initializeParameters(class Parameters& params) override;
+    void postInitialization(Parameters& params) override {}
 };
 
 /** @class DecayStrategy @brief Strategy for decay parameters (incl. formfactors). */
 class DecayStrategy : public ModelStrategy {
 public:
-    void initializeParameters(class Parameters& params) override;
+std::unordered_set<std::string> initializeParameters(class Parameters& params) override;
+    void postInitialization(Parameters& params) override {}
 };
 
 /** @class ObservableStrategy @brief Strategy for observable inputs (exp. values). */
 class ObservableStrategy : public ModelStrategy {
 public:
-    void initializeParameters(class Parameters& params) override;
+std::unordered_set<std::string> initializeParameters(class Parameters& params) override;
+    void postInitialization(Parameters& params) override {}
 };
 
     /** @class PassthroughStrategy @brief Strategy for passthrough parameters (not needed at runtime but must be in the output). */
 class PassthroughStrategy : public ModelStrategy {
 public:
-    void initializeParameters(class Parameters& params) override;
+std::unordered_set<std::string> initializeParameters(class Parameters& params) override;
+    void postInitialization(Parameters& params) override {}
 };
 
 /**
@@ -129,7 +142,7 @@ public:
      * @param pdgCode The PDG code.
      * @return The corresponding parameter value.
      */
-    double operator()(const std::string& block, LhaID pdgCode) const;
+    scalar_t operator()(const std::string& block, LhaID pdgCode) const;
 
     std::shared_ptr<Parameter> get_parameter(const std::string& block, LhaID pdgCode);
 

@@ -16,8 +16,8 @@ public:
     ParameterProvider() = default;
     inline ParameterProvider(ParameterType p_type) : p_type(p_type) { Parameters::GetInstance(p_type); }
 
-    double operator()(const ParamId& pid, DataType d_type=DataType::VALUE);
-    double operator()(const std::string& block, const LhaID& id, DataType d_type=DataType::VALUE) const;
+    scalar_t operator()(const ParamId& pid, DataType d_type=DataType::VALUE);
+    scalar_t operator()(const std::string& block, const LhaID& id, DataType d_type=DataType::VALUE) const;
 
     bool exists(const ParamId& pid) const;
     bool exists(const std::string& block, const LhaID& id) const;

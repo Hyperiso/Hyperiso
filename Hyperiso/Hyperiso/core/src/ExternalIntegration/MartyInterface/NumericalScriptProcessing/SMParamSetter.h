@@ -41,7 +41,7 @@ public:
 private:
     std::unordered_map<std::string, double>& params;
 
-    double calculateValue(const std::string& name, const Interpreter::InterpretedParam& interpretedParam);
+    scalar_t calculateValue(const std::string& name, const Interpreter::InterpretedParam& interpretedParam);
 
     // JSONParser *jsonparser = JSONParser::getInstance(0);
     Model model_type;

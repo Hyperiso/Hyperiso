@@ -52,7 +52,7 @@ public:
      * @param pdgCode The PDG code of the parameter.
      * @return The parameter value.
      */
-    double getValue(const std::string& blockName, LhaID pdgCode) const;
+    scalar_t getValue(const std::string& blockName, LhaID pdgCode) const;
 
     /**
      * @brief Retrieves the parameter from a specified block.

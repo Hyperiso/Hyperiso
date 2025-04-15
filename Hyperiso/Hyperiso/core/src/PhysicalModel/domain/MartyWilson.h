@@ -12,16 +12,14 @@
 
 class MartyWilson : public WilsonCoefficient {
 public:
-    MartyWilson(const std::string& coeff_name, const std::string& csv_path)
-        : WilsonCoefficient() {
-        this->csv_path = csv_path;
-        this->set_name(coeff_name);
-        df = csv_reader.read_csv(csv_path);
+    MartyWilson(const std::string& coeff_name, const std::string& storage_block)
+        : WilsonCoefficient(coeff_name, storage_block) {
+        df = csv_reader.read_csv(this->csv_path);
         df.setIndex(df.getColumn<double>("Q_match").to_string_vec());
     }
 
     MartyWilson(const std::string& coeff_name)
-        : WilsonCoefficient() {
+        : WilsonCoefficient(coeff_name, "B_MATCH") {
         this->set_name(coeff_name);
         df = csv_reader.read_csv(this->csv_path);
         df.setIndex(df.getColumn<double>("Q_match").to_string_vec());

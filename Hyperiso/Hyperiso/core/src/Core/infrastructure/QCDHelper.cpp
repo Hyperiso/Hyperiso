@@ -238,15 +238,15 @@ double QCDHelper::R(double alpha, int nf) {
     return a * (1 + b + c);
 }
 
-bool QCDParamCache::cache_valid() {
+bool QCDParamCache::cache_valid() { //TODO : bad cast
     auto p = Parameters::GetInstance(ParameterType::SM);
-    bool valid = fpeq(alphas_mZ, (*p)("SMINPUTS", 3)) 
-                    && fpeq(m_Z, (*p)("SMINPUTS", 4)) 
-                    && fpeq(mb_mb, (*p)("SMINPUTS", 5))
-                    && fpeq(mt_pole, (*p)("SMINPUTS", 6));
+    bool valid = fpeq(alphas_mZ, (double)(*p)("SMINPUTS", 3)) 
+                    && fpeq(m_Z, (double)(*p)("SMINPUTS", 4)) 
+                    && fpeq(mb_mb, (double)(*p)("SMINPUTS", 5))
+                    && fpeq(mt_pole, (double)(*p)("SMINPUTS", 6));
 
     for (size_t i = 0; i < 4; i++) {
-        valid &= fpeq(light_masses[i], (*p)("MASS", i + 1));
+        valid &= fpeq(light_masses[i], (double)(*p)("MASS", i + 1));
     }
     
     return valid;

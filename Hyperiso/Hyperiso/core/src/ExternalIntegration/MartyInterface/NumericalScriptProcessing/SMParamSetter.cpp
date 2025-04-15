@@ -2,7 +2,7 @@
 
 void SMParamSetter::setParam(const std::string& name, const Interpreter::InterpretedParam& interpretedParam) {
     LOG_INFO("setting parameter", name, interpretedParam.block, interpretedParam.code);
-    std::set<std::string> special = {"KIN", "WEIN", "Finite", "REGPROP"};
+    std::set<std::string> special = {"KIN", "WEIN", "Finite", "REGPROP"}; //TODO : put else where, needed in wilson marty
 
     if (special.find(interpretedParam.block) != special.end()) {
         params[name] = calculateValue(name, interpretedParam);
@@ -14,20 +14,34 @@ void SMParamSetter::setParam(const std::string& name, const Interpreter::Interpr
         }
     } else {
         if (interpretedParam.is_bsm) {
+            std::cout << "ohoh : " << name << std::endl;
             ParameterType type = ParameterTypeMapper::enum_elt(ModelMapper::str(ModelAPI().get()));
-            params[name] = (*Parameters::GetInstance(type))(interpretedParam.block, interpretedParam.code);
+            std::cout << (*Parameters::GetInstance(type))(interpretedParam.block, interpretedParam.code) << std::endl;
+            if (interpretedParam.is_complex) {
+                params[name+ "_rel"] = (*Parameters::GetInstance(type))(interpretedParam.block, interpretedParam.code).real();
+                params[name + "_img"] = (*Parameters::GetInstance(type))(interpretedParam.block, interpretedParam.code).imag();
+            } else {
+                params[name] = (*Parameters::GetInstance(type))(interpretedParam.block, interpretedParam.code);
+            }
         } else {
-            params[name] = (*Parameters::GetInstance())(interpretedParam.block, interpretedParam.code);
+            std::cout << "eheh : " << name << std::endl;
+            if (interpretedParam.is_complex) {
+                params[name+ "_rel"] = (*Parameters::GetInstance())(interpretedParam.block, interpretedParam.code).real();
+                params[name + "_img"] = (*Parameters::GetInstance())(interpretedParam.block, interpretedParam.code).imag();
+            } else {
+                params[name] = (*Parameters::GetInstance())(interpretedParam.block, interpretedParam.code);
+            }
+            // params[name] = (*Parameters::GetInstance())(interpretedParam.block, interpretedParam.code);
         }
     }
 }
 
-double SMParamSetter::calculateValue(const std::string& name, const Interpreter::InterpretedParam& interpretedParam) {
+scalar_t SMParamSetter::calculateValue(const std::string& name, const Interpreter::InterpretedParam& interpretedParam) {
     if (interpretedParam.block == "KIN") {
         if (interpretedParam.code == LhaID(34)) {
-            return -std::pow((*Parameters::GetInstance())("MASS", 13),2.);
+            return -pow((*Parameters::GetInstance())("MASS", 13),2.);
         }
-        return (std::pow(QCDHelper::mass_b_msbar(),2.) + std::pow((*Parameters::GetInstance())("MASS", 3), 2.))/2;
+        return (pow(QCDHelper::mass_b_msbar(),2.) + std::pow((*Parameters::GetInstance())("MASS", 3), 2.))/2.;
     }
     if (interpretedParam.block == "WEIN") {
         return 0.5;

@@ -12,11 +12,13 @@ public:
         std::string block;
         LhaID code;
         bool is_bsm;
+        bool is_complex;
 
         bool operator==(const InterpretedParam& other) const {
             return block == other.block &&
                    code == other.code &&
-                   is_bsm == other.is_bsm;
+                   is_bsm == other.is_bsm &&
+                   is_complex == other.is_complex;
         }
     };
 

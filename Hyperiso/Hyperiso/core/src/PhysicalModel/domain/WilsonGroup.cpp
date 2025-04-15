@@ -44,7 +44,6 @@ bool CoefficientGroup::is_double_basis() const {
 BCoefficientGroup::BCoefficientGroup() {
     LOG_INFO("In BCoefficientGroup constructor");
     init_running_parameter_blocks();
-    
     if (UseMarty().get()) {
         for (auto&& coeff : {"C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9", "C10"}) {
             this->insert(std::make_pair(coeff, std::make_shared<MartyWilson>(coeff)));
@@ -77,13 +76,12 @@ void BCoefficientGroup::init_running_block(QCDOrder order, BWilsonBasis basis) {
     std::unordered_map<ParameterType, std::vector<std::string>> src = {
         {ParameterType::WILSON, {"B_MATCH", "WPARAM_RUN_SM"}},
     };
-
     if (basis == BWilsonBasis::STANDARD) {
         src.at(ParameterType::WILSON).push_back("WPARAM_MATCH_SM");
         src.at(ParameterType::WILSON).push_back("B_SCALE");
         src.at(ParameterType::WILSON).push_back("U_MATRIX");
         src.emplace(std::make_pair<ParameterType, std::vector<std::string>>(ParameterType::SM, {"SMINPUTS", "MASS"}));
-
+        LOG_INFO("In BCoefficientGroup::init_running_block");
         auto func = [order] (const std::unordered_map<std::string, std::shared_ptr<Block>>& src, std::shared_ptr<DependentBlock> dep_block) {
             switch (order) {
             case QCDOrder::NNLO:
@@ -94,7 +92,9 @@ void BCoefficientGroup::init_running_block(QCDOrder order, BWilsonBasis basis) {
                 BCoefficientGroup::base_1_LO_calculation(src, dep_block);
             }
         };
+        LOG_INFO("In BCoefficientGroup::init_running_block");
         WilsonParamComposer().compose_block("B_HADRONIC", src, func);
+        LOG_INFO("In BCoefficientGroup::init_running_block");
         basis = BWilsonBasis::STANDARD;
     } else {
         src.at(ParameterType::WILSON).push_back("V_MATRIX");
@@ -112,6 +112,7 @@ void BCoefficientGroup::init_running_block(QCDOrder order, BWilsonBasis basis) {
         WilsonParamComposer().compose_block("B_HADRONIC", src, func);
         basis = BWilsonBasis::TRADITIONAL;
     }
+    LOG_INFO("In BCoefficientGroup::init_running_block");
 }
 
 void BCoefficientGroup::switch_basis() {

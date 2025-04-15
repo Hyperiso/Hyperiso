@@ -11,7 +11,7 @@
 
 struct ParameterBlockRepartition {
     static inline const std::map<ParameterType, std::unordered_set<std::string>> BLOCKS {
-        {ParameterType::SM, {"SMINPUTS", "MASS", "VCKMIN", "UPMNSIN", "VCKMIN", "UPMNS", "IMUPMNS", "VCKM", "UPMNS"}}, //TODO VCKM, GAUGE
+        {ParameterType::SM, {"SMINPUTS", "MASS", "VCKMIN", "UPMNSIN", "UPMNS", "IMUPMNS", "VCKM", "GAUGE"}}, //TODO VCKM, GAUGE
         // {ParameterType::SUSY, {"MASS", "HMIX", "ALPHA", "MSOFT", "NMIX", "UMIX", "VMIX", "A0MIX", "H0MIX", "STOPMIX", "SBOTMIX", "STAUMIX", "AU", "AD", "AE", "YU", "YD", "YE"}},
         // {ParameterType::THDM, {"MASS", "ALPHA", "UCOUPL", "DCOUPL", "LCOUPL"}},
         {ParameterType::BSM, {"MASS", "HMIX", "ALPHA", "MSOFT", "NMIX", "UMIX", "VMIX", "A0MIX", "H0MIX", "STOPMIX", "SBOTMIX", "STAUMIX", "AU", "AD", "AE", "YU", "YD", "YE",  "UCOUPL", "DCOUPL", "LCOUPL"}},

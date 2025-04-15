@@ -16,12 +16,14 @@ std::unordered_map<std::string, Interpreter::InterpretedParam> Interpreter::inte
         if (it != modelDatabase->getParams().end()) {
             interpreted.block = it->second.block;
             interpreted.code = it->second.pdgCode;
+            interpreted.is_complex = param.complex;
             interpreted.is_bsm = true;
         } else {
             it = defaultDatabase->getParams().find(param.name);
             if (it != defaultDatabase->getParams().end()) {
                 interpreted.block = it->second.block;
                 interpreted.code = it->second.pdgCode;
+                interpreted.is_complex = param.complex;
                 interpreted.is_bsm = false;
             } else {
                 std::cerr << "Error: Parameter " << param.name << " not found in model or SM mapping databases." << std::endl;

@@ -1,6 +1,6 @@
 #include "BlockAccessor.h"
 
-double BlockAccessor::getValue(const std::string& blockName, LhaID id) const {
+scalar_t BlockAccessor::getValue(const std::string& blockName, LhaID id) const {
     auto it = this->find(blockName);
     if (it != this->end()) {
         return it->second->retrieve(id)->get_val();

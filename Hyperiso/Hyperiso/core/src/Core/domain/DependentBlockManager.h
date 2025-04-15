@@ -2,7 +2,6 @@
 #define DEPENDENT_BLOCK_MANAGER_H
 
 #include "Block.h"
-#include "Parameters.h"
 #include <map>
 #include <unordered_map>
 #include <memory>

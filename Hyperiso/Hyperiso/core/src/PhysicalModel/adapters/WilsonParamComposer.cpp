@@ -12,7 +12,6 @@ void WilsonParamComposer::compose_parameter(const ParamId& pid,
                                             const DepParamUpdateFunc& update_func)
 {
     ParamId typed_pid = {ParameterType::WILSON, pid.block, pid.code};
-
     std::unordered_set<ParamId> typed_sources;
 
     for (auto& src_pid : source_pids) {
@@ -22,7 +21,6 @@ void WilsonParamComposer::compose_parameter(const ParamId& pid,
             typed_sources.emplace(ParamId{src_pid.type.value(), src_pid.block, src_pid.code});
         }
     }
-
     CompositeParamAdapter().add_param_dependency(typed_pid, typed_sources, update_func);
 }
 

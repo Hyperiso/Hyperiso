@@ -6,6 +6,7 @@
 #include <concepts>
 #include <type_traits>
 #include "General.h"
+#include "scalar.h"
 #include <utility>
 
 template <typename, typename... Args>
@@ -13,7 +14,7 @@ struct has_callable_operator : std::false_type {};
 
 template <typename T, typename... Args>
 struct has_callable_operator<T, std::void_t<decltype(std::declval<T>()(std::declval<Args>()...))>, Args...>
-    : std::is_convertible<decltype(std::declval<T>()(std::declval<Args>()...)), double> {};
+    : std::is_convertible<decltype(std::declval<T>()(std::declval<Args>()...)), scalar_t> {};
 
 template <typename T, typename... Args>
 concept HasCallableOperator = has_callable_operator<T,void, Args...>::value;

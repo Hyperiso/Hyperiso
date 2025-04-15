@@ -48,10 +48,20 @@ void MartyWilson::LO_calculation() {
                 //return {df.iat<double>(i, this->get_name()+"_real"), df.iat<double>(i, this->get_name()+"_img")}; 
             }
         }
-
+        std::set<std::string> special = {"KIN", "WEIN", "Finite", "REGPROP"}; //TODO : do better with this, in SMParamSetter
         for (auto &par : martyInterface.get_dependencies(this->get_name())) {
+            if (std::find(special.begin(), special.end(),par.block) != special.end()) {
+                continue;
+            }
+            if (par.block == "MASS" && par.code == LhaID(5)) { // TODO : FUCK QCDHELPER
+                continue;
+            } else if (par.block == "MASS" && par.code == LhaID(6)) {
+                continue;
+            }
+
             if (par.is_bsm) {
-                sources.emplace(ParamId{ParameterType::BSM, par.block, par.code});
+                
+                sources.emplace(ParamId{ParameterType::SM, par.block, par.code}); //TODO : NOT SM, BUT BSM cannot work, for SM model, lol
             } else {
                 sources.emplace(ParamId{ParameterType::SM, par.block, par.code});
             }
@@ -59,15 +69,18 @@ void MartyWilson::LO_calculation() {
 
         dep_param->set_expected(result);
     };
-
+    std::cout <<"AAAAAAAAAAAH" << std::endl;
     ParamId pid {ParameterType::WILSON, "EW_SCALE", 1};
     std::unordered_map<ParamId, std::shared_ptr<Parameter>> dummy {{pid, std::make_shared<Parameter>(pid, 1, 0, 0)}};
+    std::cout <<"ZZZZZZH" << std::endl;
     func(dummy, std::make_shared<DependentParameter>(dummy, func));
-    
+    std::cout <<"BBBBBH" << std::endl;
     for (const auto& source : sources) {
         std::cout << source << std::endl;
     }
-
-    WilsonParamComposer().compose_parameter(ParamId{this->storage_block, WCoefMapper::flha_full(WCoefMapper::enum_elt(this->coeffName), QCDOrder::LO, ContributionType::TOTAL)}, sources, func);
+    std::cout <<"CCCCCCCCCH" << std::endl;
+    //TODO  :configuration here to SM, need to put at FULL but cannot work with WilsonGroup at the moment (only sm)
+    WilsonParamComposer().compose_parameter(ParamId{this->storage_block, WCoefMapper::flha_full(WCoefMapper::enum_elt(this->coeffName), QCDOrder::LO, ContributionType::SM)}, sources, func);
+    std::cout <<"DDDDDDDH" << std::endl;
 
 }

@@ -8,7 +8,7 @@ std::shared_ptr<Parameters> Parameters::GetInstance(ParameterType id) {
     LOG_DEBUG("Trying to access Parameters instance of type", static_cast<int>(id));
     auto allowed = MemoryManager::GetInstance()->getMemoryCache().parameter_types;
     if (std::find(allowed.begin(), allowed.end(), id) == allowed.end())
-        LOG_ERROR("OutOfRange", "Parameter type undefined");
+        LOG_ERROR("OutOfRange", "Parameter type undefined: ", ParameterTypeMapper::str(id));
     return ParametersFactory::GetParameters(id);
 }
 
@@ -26,10 +26,11 @@ Parameters::Parameters(std::shared_ptr<ModelStrategy> modelStrategy)
     : strategy(modelStrategy)
 {
     LOG_VERBOSE("Param creation at", this);
-    strategy->initializeParameters(*this);
+    auto truc = strategy->initializeParameters(*this);
+    strategy->add_absent_block(truc);
 }
 
-double Parameters::operator()(const std::string& block, LhaID id) const {
+scalar_t Parameters::operator()(const std::string& block, LhaID id) const {
     // if (block == "WPARAM_MATCH_SM" ){
 
     //     std::cout << blockAccessor << std::endl;
@@ -84,7 +85,7 @@ std::unordered_set<std::string> Parameters::init_blocks(ParameterType type) {
     return missing;
 }
 
-void SMModelStrategy::initializeParameters(Parameters& params) {
+std::unordered_set<std::string> SMModelStrategy::initializeParameters(Parameters& params) {
     
     auto absent_blocks = params.init_blocks(ParameterType::SM);
     QCDHelper::Init(params("SMINPUTS", 3), params("SMINPUTS", 4), params("SMINPUTS", 6), params("SMINPUTS", 5),  
@@ -106,13 +107,23 @@ void SMModelStrategy::initializeParameters(Parameters& params) {
     // };
 
     // params.addDependantBlock("GAUGE", gauge_block, "SMINPUTS", gauge_update_func);
+    std::cout << "fuuuuck strategy" << std::endl;
+    
 
+    // TODO : Initialize derived blocks RE/IMUPMNS
+    // TODO : Calculate W mass and store it somewhere
+    // TODO : Export savestate to JSON
+    return absent_blocks;
+}
+
+void SMModelStrategy::postInitialization(Parameters& params) {
     if (absent_blocks.contains("VCKM")) {
         std::unordered_map<ParameterType, std::vector<std::string>> src = {
             {ParameterType::SM, {"VCKMIN"}}
         };
     
         auto func = [] (const std::unordered_map<std::string, std::shared_ptr<Block>>& src, std::shared_ptr<DependentBlock> dep_block) {
+            std::cout << "ITS MEEEE, MARIOOO" << std::endl;
             double lambda = src.at("VCKMIN")->retrieve(1)->get_val();
             double l2 = lambda * lambda;
             double l3 = l2 * lambda;
@@ -133,14 +144,11 @@ void SMModelStrategy::initializeParameters(Parameters& params) {
 
         DependentBlockManager::addDependentBlock("VCKM", src, ParameterType::SM, func);
     }
-
-    // TODO : Initialize derived blocks RE/IMUPMNS
-    // TODO : Calculate W mass and store it somewhere
-    // TODO : Export savestate to JSON
 }
 
-void BSMModelStrategy::initializeParameters(Parameters& params) {
-    params.init_blocks(ParameterType::BSM);
+std::unordered_set<std::string> BSMModelStrategy::initializeParameters(Parameters& params) {
+    auto absent_blocks = params.init_blocks(ParameterType::BSM);
+    return absent_blocks;
     // TODO : Export savestate to JSON
 }
 
@@ -154,8 +162,9 @@ void BSMModelStrategy::initializeParameters(Parameters& params) {
 //     // TODO : Export savestate to JSON
 // }
 
-void FlavorStrategy::initializeParameters(Parameters& params) {
-    params.init_blocks(ParameterType::FLAVOR);
+std::unordered_set<std::string> FlavorStrategy::initializeParameters(Parameters& params) {
+    auto absent_blocks = params.init_blocks(ParameterType::FLAVOR);
+    return absent_blocks;
     // TODO : Export savestate to JSON
 }   
 
@@ -164,8 +173,9 @@ void FlavorStrategy::initializeParameters(Parameters& params) {
 //     // TODO : Export savestate to JSON
 // }
 
-void WilsonInputStrategy::initializeParameters(Parameters &params) {
-    params.init_blocks(ParameterType::WILSON);
+std::unordered_set<std::string> WilsonInputStrategy::initializeParameters(Parameters &params) {
+    auto absent_blocks = params.init_blocks(ParameterType::WILSON);
+    return absent_blocks;
     // TODO : Export savestate to JSON
 
     // TODO : Adapt WilsonBlock to MapBlock and rework the following code
@@ -233,17 +243,20 @@ void WilsonInputStrategy::initializeParameters(Parameters &params) {
     // }   
 }
 
-void DecayStrategy::initializeParameters(Parameters &params) {
-    params.init_blocks(ParameterType::DECAY);
+std::unordered_set<std::string> DecayStrategy::initializeParameters(Parameters &params) {
+    auto absent_blocks = params.init_blocks(ParameterType::DECAY);
+    return absent_blocks;
     // TODO : Export savestate to JSON
 }
 
-void ObservableStrategy::initializeParameters(Parameters &params) {
-    params.init_blocks(ParameterType::OBSERVABLE);
+std::unordered_set<std::string> ObservableStrategy::initializeParameters(Parameters &params) {
+    auto absent_blocks = params.init_blocks(ParameterType::OBSERVABLE);
+    return absent_blocks;
 }
 
-void PassthroughStrategy::initializeParameters(Parameters &params) {
-    params.init_blocks(ParameterType::PASSTHROUGH);
+std::unordered_set<std::string> PassthroughStrategy::initializeParameters(Parameters &params) {
+    auto absent_blocks = params.init_blocks(ParameterType::PASSTHROUGH);
+    return absent_blocks;
 }
 
 
@@ -259,6 +272,8 @@ std::shared_ptr<Parameters> ParametersFactory::GetParameters(ParameterType id) {
     if (instances.find(id) == instances.end()) {
         std::shared_ptr<ModelStrategy> strategy = createStrategy(id);
         instances[id] = std::make_shared<Parameters>(Parameters(strategy));
+        strategy->postInitialization(*instances[id]);
+        std::cout << (int)id << std::endl;
     }
     return instances[id];
 }
