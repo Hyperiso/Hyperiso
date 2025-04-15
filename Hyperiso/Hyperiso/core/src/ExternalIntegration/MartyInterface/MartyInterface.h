@@ -24,12 +24,15 @@ public:
 
     void calculate(std::string wilson, std::string model, double Q_match, bool new_params=false);
 
+    std::unordered_set<Interpreter::InterpretedParam> get_dependencies(std::string wilson);
+
 private:
 
     bool already_run(std::string&& outputBinary);
     std::string output_binary_name(std::string& wilson, std::string& model);
 
     std::string num_file_path{};
+    std::unordered_map<std::string, std::unordered_set<Interpreter::InterpretedParam>> dependencies;
 };
 
 #endif // MARTY_INTERFACE_H

@@ -23,24 +23,7 @@ ParameterType ParamRouter::GetType(std::string block, LhaID id) {
     auto conflict_blocks = get_keys<std::string, std::unordered_set<long>>(ParametersAccessRights::SM_RIGHTS);
 
     if (conflict_blocks.contains(block)) {
-        switch (MemoryManager::GetInstance()->getMemoryCache().config.model) {
-        case Model::THDM:
-            if (ParametersAccessRights::THDM_RIGHTS.at(block).contains(id))
-                return ParameterType::BSM;
-            break;
-        case Model::SUSY:
-            if (ParametersAccessRights::SUSY_RIGHTS.at(block).contains(id))
-                return ParameterType::BSM;
-            break;
-        case Model::CUSTOM: // Janky
-            if (!ParametersAccessRights::SM_RIGHTS.at(block).contains(id))
-                return ParameterType::BSM;
-            break;
-        default:
-            break;
-        }
-        if (ParametersAccessRights::SM_RIGHTS.at(block).contains(id))
-            return ParameterType::SM;
+        return ParametersAccessRights::SM_RIGHTS.at(block).contains(id) ? ParameterType::SM : ParameterType::BSM;
     } else {
         for (auto& [type, owned_blocks] : ParameterBlockRepartition::BLOCKS) {
             if (owned_blocks.contains(block)) {

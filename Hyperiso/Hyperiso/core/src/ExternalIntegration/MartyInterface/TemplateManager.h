@@ -22,6 +22,8 @@ public:
 
     void setModelAndWilson(std::string model, std::string wilson) { this->model = model; this->wilson = wilson; }
 
+    std::unordered_set<Interpreter::InterpretedParam> get_dependencies();
+
 protected:
     std::string templatesDir;
     std::string wilson;

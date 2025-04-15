@@ -88,7 +88,16 @@ void NonNumericTemplateManager::generateTemplateImpl(const std::string& template
     }
 }
 
-bool TemplateManagerBase::already_generated(const std::string& path) {
+std::unordered_set<Interpreter::InterpretedParam> TemplateManagerBase::get_dependencies() {
+    std::unordered_set<Interpreter::InterpretedParam> deps;
+    for (auto& [k, v] : numModifier->get_interpreted_param_map()) {
+        deps.emplace(v);
+    }
+    return deps;
+}
+
+bool TemplateManagerBase::already_generated(const std::string &path)
+{
     std::ifstream file(path);
 
     if (!file.is_open()) {

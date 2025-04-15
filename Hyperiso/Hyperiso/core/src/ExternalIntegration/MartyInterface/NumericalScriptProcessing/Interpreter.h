@@ -13,7 +13,15 @@ public:
         bool complex;
         int code;
         bool is_bsm;
+
+        bool operator==(const InterpretedParam& other) const {
+            return block == other.block &&
+                   complex == other.complex &&
+                   code == other.code &&
+                   is_bsm == other.is_bsm;
+        }
     };
+
     Interpreter(const std::string& model = "SM");
     std::unordered_map<std::string, InterpretedParam> interpret(std::vector<Extractor::Parameter>& params);
 
@@ -21,5 +29,24 @@ private:
     std::shared_ptr<MappingDatabase> modelDatabase;
     std::shared_ptr<MappingDatabase> defaultDatabase;
 };
+
+namespace std {
+    template <>
+    struct hash<Interpreter::InterpretedParam> {
+        std::size_t operator()(const Interpreter::InterpretedParam& p) const {
+            std::size_t h1 = std::hash<std::string>{}(p.block);
+            std::size_t h2 = std::hash<bool>{}(p.complex);
+            std::size_t h3 = std::hash<int>{}(p.code);
+            std::size_t h4 = std::hash<bool>{}(p.is_bsm);
+
+            std::size_t seed = h1;
+            seed ^= h2 + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+            seed ^= h3 + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+            seed ^= h4 + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+
+            return seed;
+        }
+    };
+}
 
 #endif // INTERPRETER_H

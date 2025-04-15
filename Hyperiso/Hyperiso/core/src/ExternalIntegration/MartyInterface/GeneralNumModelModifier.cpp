@@ -12,9 +12,9 @@ void GeneralNumModelModifier::initializeParams() {
         std::string filename = FileNameManager::getInstance(wilson, model)->getNumParamFileName();
         
         auto extractedParams = extractor.extract(filename);
-        auto interpretedParams = interpreter.interpret(extractedParams);
+        this->interpreted_params = interpreter.interpret(extractedParams);
 
-        for (const auto& [name, interpreted] : interpretedParams) {
+        for (const auto& [name, interpreted] : this->interpreted_params) {
             paramSetter.setParam(name, interpreted);
         }
     }

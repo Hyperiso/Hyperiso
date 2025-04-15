@@ -35,6 +35,7 @@ void MartyInterface::generate_numlib(std::string wilson, std::string model, doub
     std::unique_ptr<TemplateManagerBase> templateManager = std::make_unique<NumericTemplateManager>(FileNameManager::getInstance(wilson, model)->getLibDir());
     templateManager->setModelAndWilson(model, wilson);
     templateManager->setNumModelModifier(std::move(ModelModifier));
+    this->dependencies.emplace(wilson, templateManager->get_dependencies());
 
     CodeGenerator codeGenerator(std::move(templateManager));
 
@@ -54,6 +55,14 @@ void MartyInterface::calculate(std::string wilson, std::string model, double Q_m
     compile_run(wilson, model);
     generate_numlib(wilson, model, Q_match);
     compile_run_libs(wilson, model, Q_match);
+}
+
+std::unordered_set<Interpreter::InterpretedParam> MartyInterface::get_dependencies(std::string wilson) {
+    if (!this->dependencies.contains(wilson)) {
+        LOG_ERROR("KeyError", "Trying to access dependencies for unknown wilson coefficient", wilson, "in WilsonInterface.");
+    }
+    
+    return this->dependencies.at(wilson);
 }
 
 bool MartyInterface::already_run(std::string&& outputBinary) {
