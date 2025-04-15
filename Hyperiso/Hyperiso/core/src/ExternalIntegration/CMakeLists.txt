@@ -37,7 +37,7 @@ if (BUILD_WITH_SOFTSUSY)
     ExternalProject_Add(SOFTSUSY
         GIT_REPOSITORY "https://github.com/BAllanach/softsusy.git"
         GIT_TAG "v4.1.19"
-        PREFIX "${CMAKE_CURRENT_SOURCE_DIR}/../ExternalIntegration/SOFTSUSY"
+        PREFIX "${CMAKE_CURRENT_SOURCE_DIR}/../../../../../Third_party/SOFTSUSY"
         CONFIGURE_COMMAND ""
         COMMAND autoreconf -fiv
         COMMAND ./configure
@@ -57,7 +57,7 @@ if (BUILD_WITH_2HDMC)
     find_package(GSL REQUIRED)
 
     set(DOWNLOAD_DIR "${CMAKE_BINARY_DIR}/downloads")
-    set(EXTRACT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../ExternalIntegration/2HDMC/src")
+    set(EXTRACT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../../../Third_party/2HDMC/src")
     set(TAR_FILE "${DOWNLOAD_DIR}/2HDMC-1.8.0.tar.gz")
     set(URL "https://2hdmc.hepforge.org/downloads/?f=2HDMC-1.8.0.tar.gz")
 
@@ -90,7 +90,7 @@ if (BUILD_WITH_MARTY)
 
     include(ExternalProject)
   
-    set(MARTY_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../ExternalIntegration/MARTY")
+    set(MARTY_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../../../../../Third_party/MARTY")
     set(MARTY_INSTALL_PATH "${MARTY_PATH}/install")
 
     set(MARTY_CORRECT_COMPILER_VERSION "11")  # Remplacez par la version correcte de votre compilateur
@@ -165,7 +165,7 @@ if (BUILD_WITH_MARTY)
     # set(MARTY_INSTALL_PREFIX ${CMAKE_CURRENT_SOURCE_DIR}/../ExternalIntegration/MARTY/marty)    
     ExternalProject_Add(MARTY
         GIT_REPOSITORY "https://github.com/docbrown1955/marty-public.git"
-        GIT_TAG master
+        GIT_TAG 1.6-beta
         PREFIX ${MARTY_PATH}
         # SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../ExternalIntegration/MARTY/src"
         # BINARY_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../ExternalIntegration/MARTY/build"

@@ -172,7 +172,11 @@ struct LhaID {
     operator long() const {
         if (this->parts.size() > 1) {
             LOG_WARN("Casting nontrivial LhaID to int discards information.");
+            for (auto& part : this->parts){
+                std::cout << part<< std::endl;
+            }
         }
+        
         return this->parts.at(0);
     };
 

@@ -29,7 +29,7 @@ complex_t CoefficientGroup::get_matching_coefficient(std::string coeff, std::str
 
 complex_t CoefficientGroup::get_running_coefficient(std::string coeff, std::string order) const {
     auto coef = this->at(coeff);
-    ParameterProvider wilson_p = ParameterProvider(ParameterType::WILSON);
+    ParameterProxy wilson_p = ParameterProxy(ParameterType::WILSON);
     return complex_t(wilson_p(this->storage_block, coef->id(OrderMapper::enum_elt(order))));
 }
 

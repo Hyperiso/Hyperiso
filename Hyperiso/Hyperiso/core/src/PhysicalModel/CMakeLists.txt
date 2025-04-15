@@ -43,6 +43,7 @@ add_library(PhysicalModelLib STATIC
     domain/BWilsonRunningParameters.cpp
     domain/Wilson_parameters.cpp
     domain/Wilson.cpp
+    domain/MartyWilson.cpp
     domain/BWilson.cpp
     domain/WilsonGroup.cpp
     domain/WilsonManager.cpp

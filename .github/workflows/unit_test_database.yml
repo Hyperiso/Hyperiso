@@ -3,10 +3,10 @@ name: Database Changes CI
 on:
   push:
     paths:
-      - 'DataBase/**'
+      - 'Hyperiso/Hyperiso/core/DataBase/**'
   pull_request:
     paths:
-      - 'DataBase/**'
+      - 'Hyperiso/Hyperiso/core/DataBase/**'
 
 jobs:
   test-database:
@@ -21,7 +21,7 @@ jobs:
         sudo apt-get install -y cmake make build-essential libgsl-dev
 
     - name: Configure CMake (Tests)
-      run: cmake -S. -B build -DENABLE_TESTS=ON 
+      run: cmake -S Hyperiso/Hyperiso/core -B build -DENABLE_TESTS=ON 
 
     - name: Build testReader
       run: cmake --build build

@@ -1,5 +1,5 @@
-#include "MemoryManager.h"
-#include "Parameters.h"
+#include "HyperisoMaster.h"
+#include "ParameterProvider.h"
 #include "Logger.h"
 #include "config.hpp"
 #include <iostream>
@@ -9,13 +9,15 @@ int main() {
 
     Logger::getInstance()->setLevel(Logger::LogLevel::DEBUG);
 
-    std::string root_file = project_root.data();
+    std::string root_data_file = project_assets_root.data();
+    auto mm = HyperisoMaster();
 
-    auto mm = MemoryManager::GetInstance();  // Initialize program manager with LHA file containing SMINPUTS block
-    mm->init(root_file + "Test/InputFiles/testInput.flha", Model::SM);  // Initialize parameters from given LHA file
+    Config config;
+    config.model = Model::SM;
+    mm.init(root_data_file + "Test/InputFiles/testInput.flha", config);
+    auto sm_provider = ParameterProvider(ParameterType::SM);
 
-    auto sm_params = Parameters::GetInstance(ParameterType::SM); 
-    double alpha_s_MZ = std::pow((*sm_params)("GAUGE", 3), 2) / (4 * M_PI);
-    std::cout << alpha_s_MZ << std::endl;
-    assert(std::abs(alpha_s_MZ - 0.1172) < 1e-5);  // gauge[3] is g_s
+    std::cout << "M_Z : " << sm_provider("SMINPUTS", 4) << std::endl;
+    assert(std::abs(sm_provider("SMINPUTS", 4) - 9.11876000e+01) < 1e-5);
+
 }

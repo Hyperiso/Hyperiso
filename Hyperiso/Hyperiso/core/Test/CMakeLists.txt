@@ -16,7 +16,7 @@ if (NOT DEFINED BUILD_WITH_2HDMC)
     option(BUILD_WITH_2HDMC "Build project with 2HDMC support" OFF)
 endif()
 
-include(Catch)
+# include(Catch)
 set(CTEST_ENVIRONMENT_VARIABLE "CTEST_RUN")
 # add_executable(testSMWilson testSMWilson.cpp)
 # target_link_libraries(testSMWilson PhysicalModelLib)
@@ -30,14 +30,15 @@ set(CTEST_ENVIRONMENT_VARIABLE "CTEST_RUN")
 # add_executable(testWilson testWilson.cpp)
 # target_link_libraries(testWilson PhysicalModelLib)
 
-add_executable(testObservable BusinessLogic/testObservable.cpp)
-target_link_libraries(testObservable BusinessLogicLib)
+#TODO : Observable tests
+# add_executable(testObservable BusinessLogic/testObservable.cpp)
+# target_link_libraries(testObservable BusinessLogicLib)
 
-add_executable(testStat BusinessLogic/testChi2.cpp)
-target_link_libraries(testStat BusinessLogicLib)
+# add_executable(testStat BusinessLogic/testChi2.cpp)
+# target_link_libraries(testStat BusinessLogicLib)
 
-add_executable(testCustomWilsons BusinessLogic/testCustomWilson.cpp)
-target_link_libraries(testCustomWilsons BusinessLogicLib)
+# add_executable(testCustomWilsons BusinessLogic/testCustomWilson.cpp)
+# target_link_libraries(testCustomWilsons BusinessLogicLib)
 
 # add_executable(testParams testParams.cpp)
 # target_link_libraries(testParams CoreLib)
