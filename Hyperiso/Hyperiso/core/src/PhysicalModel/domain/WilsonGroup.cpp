@@ -651,7 +651,7 @@ void BPrimeCoefficientGroup::base_1_LO_calculation(
     for (size_t k = 0; k < ids.size(); k++) {
         ParamId pid {ParameterType::WILSON, "B_PRIME_HADRONIC", WCoefMapper::flha_full(ids[k], QCDOrder::LO, ContributionType::SM)};
         complex_t CPk_run = pow(eta, BRP::exp_prime_running[k]) * CPi_match[k]; 
-        dep_block->store_or_assign(pid.code, std::make_shared<Parameter>(pid, CPk_run, 0., 0.));;
+        dep_block->store_or_assign(pid.code, std::make_shared<Parameter>(pid, CPk_run, 0., 0.));
     }
 }
 

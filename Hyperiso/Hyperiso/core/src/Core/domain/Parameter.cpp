@@ -44,3 +44,12 @@ void Parameter::set_shift(scalar_t shift) {
         throw std::runtime_error("Cannot change the value of immutable parameter " + id.block + " " + std::to_string(id.code));
     }
 }
+
+DependentParameter::~DependentParameter() {
+    LOG_INFO("Destruct DependentParameter at", self.get());
+    if (self) {
+        for (auto src : sources){
+            src.second->removeObserver(self);   
+        }
+    }
+}

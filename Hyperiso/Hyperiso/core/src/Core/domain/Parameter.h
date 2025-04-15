@@ -160,14 +160,7 @@ public:
         }
     }
 
-    ~DependentParameter() {
-        LOG_INFO("Destruct DependentParameter at", self.get());
-        if (self) {
-            for (auto src : sources){
-                src.second->removeObserver(self);   
-            }
-        }
-    }
+    ~DependentParameter();
 
 private:
     std::shared_ptr<DependentParameter> self;

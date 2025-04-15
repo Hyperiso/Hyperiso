@@ -6,6 +6,7 @@
 #include <memory>
 
 #include "IParser.h"
+#include "Include.h"
 
 /**
  * @struct InterpretedParam
@@ -13,7 +14,7 @@
  */
 struct InterpretedParam {
     std::string block; /**< The block name associated with the parameter. */
-    int pdgCode; /**< The PDG code associated with the parameter. */
+    LhaID pdgCode; /**< The PDG code associated with the parameter. */
 };
 
 /**

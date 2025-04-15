@@ -1,4 +1,5 @@
 #include "Parameters.h"
+#include "DependentBlockManager.h"
 
 std::map<ParameterType, std::shared_ptr<Parameters>> Parameters::instances;
 std::map<ParameterType, std::shared_ptr<Parameters>> ParametersFactory::instances;
@@ -60,30 +61,25 @@ std::unordered_set<std::string> Parameters::get_blocks_list() {
 std::unordered_set<std::string> Parameters::init_blocks(ParameterType type) {
     std::unordered_set<std::string> existing, missing;
     
-    if (ParameterTypeMapper::str(type) == ModelMapper::str(MemoryManager::GetInstance()->getMemoryCache().config.model)) {
-        auto block_names = MemoryManager::GetInstance()->input_cache->get_block_names();
-        this->blockAccessor = MemoryManager::GetInstance()->extract_blocks(ParamRouter::GetOwnedBlocks(type));
-    } else {
-        std::ranges::partition_copy(
-            ParameterBlockRepartition::BLOCKS.at(type),
-            std::inserter(existing, existing.end()),
-            std::inserter(missing, missing.end()),
-            [&](const std::string& s) {
-                return MemoryManager::GetInstance()->input_cache->get_block_names().contains(s);
-            }
-        );
-
-        if (type == ParameterType::WILSON && !MemoryManager::GetInstance()->cache.config.flags[ExternalFlag::HAS_WILSON_INPUT]) {
-            existing.erase("FWCOEF");
-            existing.erase("IMFWCOEF");
+    std::ranges::partition_copy(
+        ParameterBlockRepartition::BLOCKS.at(type),
+        std::inserter(existing, existing.end()),
+        std::inserter(missing, missing.end()),
+        [&](const std::string& s) {
+            return MemoryManager::GetInstance()->input_cache->get_block_names().contains(s);
         }
+    );
 
-        if (type == ParameterType::OBSERVABLE && !MemoryManager::GetInstance()->cache.config.flags[ExternalFlag::HAS_TH_OBSERVABLE_INPUT]) {
-            return missing;
-        }
-        
-        this->blockAccessor = MemoryManager::GetInstance()->extract_blocks(existing);
+    if (type == ParameterType::WILSON && !MemoryManager::GetInstance()->cache.config.flags[ExternalFlag::HAS_WILSON_INPUT]) {
+        existing.erase("FWCOEF");
+        existing.erase("IMFWCOEF");
     }
+
+    if (type == ParameterType::OBSERVABLE && !MemoryManager::GetInstance()->cache.config.flags[ExternalFlag::HAS_TH_OBSERVABLE_INPUT]) {
+        return missing;
+    }
+    
+    this->blockAccessor = MemoryManager::GetInstance()->extract_blocks(existing);
     claim_parameters(type);
     return missing;
 }
@@ -94,9 +90,6 @@ void SMModelStrategy::initializeParameters(Parameters& params) {
     QCDHelper::Init(params("SMINPUTS", 3), params("SMINPUTS", 4), params("SMINPUTS", 6), params("SMINPUTS", 5),  
                     params("MASS", 4), params("MASS", 3), params("MASS", 2), params("MASS", 1));
 
-    for (auto& elem : params.get_block_infos("MASS")) {
-        std::cout << elem.first << " " << elem.second << std::endl;
-    }
     // std::shared_psger::addDependentBlock("GAUGE", gauge_block, {"SMINPUTS"}, gauge_update_func);
 
     // std::shared_ptr<DependentBlock> gauge_block = nullptr;
@@ -114,15 +107,32 @@ void SMModelStrategy::initializeParameters(Parameters& params) {
 
     // params.addDependantBlock("GAUGE", gauge_block, "SMINPUTS", gauge_update_func);
 
-    // if (absent_blocks.contains("RECKM")) {
-    //     std::shared_ptr<ReCKMBlock> reckm_block = nullptr;
-    //     params.addDependantBlock("RECKM", reckm_block, "SMINPUTS");
-    // }
+    if (absent_blocks.contains("VCKM")) {
+        std::unordered_map<ParameterType, std::vector<std::string>> src = {
+            {ParameterType::SM, {"VCKMIN"}}
+        };
+    
+        auto func = [] (const std::unordered_map<std::string, std::shared_ptr<Block>>& src, std::shared_ptr<DependentBlock> dep_block) {
+            double lambda = src.at("VCKMIN")->retrieve(1)->get_val();
+            double l2 = lambda * lambda;
+            double l3 = l2 * lambda;
+            double A = src.at("VCKMIN")->retrieve(2)->get_val();
+            double rho = src.at("VCKMIN")->retrieve(3)->get_val();
+            double eta = src.at("VCKMIN")->retrieve(4)->get_val();
 
-    // if (absent_blocks.contains("IMCKM")) {
-    //     std::shared_ptr<ImCKMBlock> imckm_block = nullptr;
-    //     params.addDependantBlock("IMCKM", imckm_block, "SMINPUTS");
-    // }
+            dep_block->store_or_assign(LhaID(0, 0), std::make_shared<Parameter>(ParamId{ParameterType::SM, "VCKM", LhaID(0, 0)}, 1 - l2 / 2, 0., 0.));
+            dep_block->store_or_assign(LhaID(0, 1), std::make_shared<Parameter>(ParamId{ParameterType::SM, "VCKM", LhaID(0, 1)}, lambda, 0., 0.));
+            dep_block->store_or_assign(LhaID(0, 2), std::make_shared<Parameter>(ParamId{ParameterType::SM, "VCKM", LhaID(0, 2)}, A * l3 * complex_t(rho, -eta), 0., 0.));
+            dep_block->store_or_assign(LhaID(1, 0), std::make_shared<Parameter>(ParamId{ParameterType::SM, "VCKM", LhaID(1, 0)}, -lambda, 0., 0.));
+            dep_block->store_or_assign(LhaID(1, 1), std::make_shared<Parameter>(ParamId{ParameterType::SM, "VCKM", LhaID(1, 1)}, 1 - l2 / 2, 0., 0.));
+            dep_block->store_or_assign(LhaID(1, 2), std::make_shared<Parameter>(ParamId{ParameterType::SM, "VCKM", LhaID(1, 2)}, A * l2, 0., 0.));
+            dep_block->store_or_assign(LhaID(2, 0), std::make_shared<Parameter>(ParamId{ParameterType::SM, "VCKM", LhaID(2, 0)}, A * l3 * complex_t(1 - rho, -eta), 0., 0.));
+            dep_block->store_or_assign(LhaID(2, 1), std::make_shared<Parameter>(ParamId{ParameterType::SM, "VCKM", LhaID(2, 1)}, -A * l2, 0., 0.));
+            dep_block->store_or_assign(LhaID(2, 2), std::make_shared<Parameter>(ParamId{ParameterType::SM, "VCKM", LhaID(2, 2)}, 1, 0., 0.));
+        };
+
+        DependentBlockManager::addDependentBlock("VCKM", src, ParameterType::SM, func);
+    }
 
     // TODO : Initialize derived blocks RE/IMUPMNS
     // TODO : Calculate W mass and store it somewhere

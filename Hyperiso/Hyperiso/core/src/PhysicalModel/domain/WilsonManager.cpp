@@ -106,14 +106,18 @@ CoefficientManager CoefficientManager::Builder(std::string model, std::map<std::
     manager.has_bsm = model == ModelMapper::str(Model::THDM) || model == ModelMapper::str(Model::SUSY);
     manager.bsm_suffix = manager.has_bsm ? "_" + model : "";
     for (auto& group : groups) {
-        LOG_DEBUG("(CoefficientManager) Registering coefficient group", group.first);
+        LOG_INFO("(CoefficientManager) Registering coefficient group", group.first);
         manager.registerCoefficientGroup(group.first, group.second);
     }
+    LOG_INFO("(CoefficientManager) Setting matching scale");
     manager.set_matching_scale(mu_W);
+    LOG_INFO("(CoefficientManager) Setting hadronic scale");
     manager.set_hadronic_scale(mu_h);
     for (auto& group: groups) {
         if (manager.has_bsm && group.first.ends_with(manager.bsm_suffix)) continue;
+        LOG_INFO("(CoefficientManager) Initializing group matching", group.first);
         manager.init_group_matching(group.first, order);
+        LOG_INFO("(CoefficientManager) Initializing group hadronic", group.first);
         manager.init_group_hadronic(group.first, order);
     }
     return manager;

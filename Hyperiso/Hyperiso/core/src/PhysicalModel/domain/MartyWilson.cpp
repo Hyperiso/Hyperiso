@@ -2,11 +2,14 @@
 
 void MartyWilson::LO_calculation() {
 
+    LOG_INFO("In MartyWilson::LO_calculation of coefficient " + this->get_name());
+
     std::unordered_set<ParamId> sources {
         {"EW_SCALE", 1}
     };
 
     auto func = [this, &sources] (const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src, std::shared_ptr<DependentParameter> dep_param) {
+        LOG_INFO("Updating coeff");
         double epsi = 1e-4;
         double ew_scale = src.at({ParameterType::WILSON, "EW_SCALE", 1})->get_val();
         complex_t result = 0;
@@ -60,6 +63,10 @@ void MartyWilson::LO_calculation() {
     ParamId pid {ParameterType::WILSON, "EW_SCALE", 1};
     std::unordered_map<ParamId, std::shared_ptr<Parameter>> dummy {{pid, std::make_shared<Parameter>(pid, 1, 0, 0)}};
     func(dummy, std::make_shared<DependentParameter>(dummy, func));
+    
+    for (const auto& source : sources) {
+        std::cout << source << std::endl;
+    }
 
     WilsonParamComposer().compose_parameter(ParamId{this->storage_block, WCoefMapper::flha_full(WCoefMapper::enum_elt(this->coeffName), QCDOrder::LO, ContributionType::TOTAL)}, sources, func);
 

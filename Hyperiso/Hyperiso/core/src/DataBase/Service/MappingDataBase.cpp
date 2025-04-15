@@ -53,9 +53,10 @@ void MappingDatabase::loadFromJson(const std::string& jsonFilePath) {
 
         codeStr.erase(0, codeStr.find_first_not_of(" \t"));
         codeStr.erase(codeStr.find_last_not_of(" ,\t") + 1);
-        int pdgCode = 0;
+        LhaID pdgCode;
         try {
-            pdgCode = std::stoi(codeStr);
+            codeStr = codeStr.substr(1, codeStr.size() - 2);
+            pdgCode = LhaID(codeStr);
         } catch (const std::invalid_argument& e) {
             std::cerr << "Invalid integer format for pdgCode: " << codeStr << std::endl;
             pdgCode = -1;

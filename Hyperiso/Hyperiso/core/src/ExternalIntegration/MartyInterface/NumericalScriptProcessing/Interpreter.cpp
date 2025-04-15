@@ -12,7 +12,6 @@ std::unordered_map<std::string, Interpreter::InterpretedParam> Interpreter::inte
 
     for (auto& param : params) {
         InterpretedParam interpreted;
-        interpreted.complex = param.complex;
         auto it = modelDatabase->getParams().find(param.name);
         if (it != modelDatabase->getParams().end()) {
             interpreted.block = it->second.block;
