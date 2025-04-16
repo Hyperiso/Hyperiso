@@ -54,7 +54,6 @@ void MartyWilson::LO_calculation() {
             if (std::find(special.begin(), special.end(),par.block) != special.end()) {
                 continue;
             }
-            
             if (par.is_bsm) {
                 sources.emplace(ParamId{ParameterType::BSM, par.block, par.code});
             } else {
@@ -64,18 +63,11 @@ void MartyWilson::LO_calculation() {
 
         dep_param->set_expected(result);
     };
-    std::cout <<"AAAAAAAAAAAH" << std::endl;
     ParamId pid {ParameterType::WILSON, "EW_SCALE", 1};
     std::unordered_map<ParamId, std::shared_ptr<Parameter>> dummy {{pid, std::make_shared<Parameter>(pid, 1, 0, 0)}};
-    std::cout <<"ZZZZZZH" << std::endl;
     func(dummy, std::make_shared<DependentParameter>(dummy, func));
-    std::cout <<"BBBBBH" << std::endl;
-    for (const auto& source : sources) {
-        std::cout << source << std::endl;
-    }
-    std::cout <<"CCCCCCCCCH" << std::endl;
+
     //TODO  :configuration here to SM, need to put at FULL but cannot work with WilsonGroup at the moment (only sm)
     WilsonParamComposer().compose_parameter(ParamId{this->storage_block, WCoefMapper::flha_full(WCoefMapper::enum_elt(this->coeffName), QCDOrder::LO, ContributionType::SM)}, sources, func);
-    std::cout <<"DDDDDDDH" << std::endl;
 
 }

@@ -39,11 +39,6 @@
       "central_value": 0.22348,
       "stat_error": 0.00010,
       "syst_error": 0
-    },
-    "10": {
-      "central_value": 0.303,
-      "stat_error": 0,
-      "syst_error": 0
     }
   },
 

@@ -49,6 +49,7 @@ add_library(MartyInterfaceLib STATIC
     GeneralNumModelModifier.cpp
     CompilerStrategy.cpp
     CinematicExtractor.cpp
+    adapters/MartyParameterProxy.cpp
     )
 
 set_target_properties(MartyInterfaceLib PROPERTIES POSITION_INDEPENDENT_CODE ON)
