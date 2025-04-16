@@ -12,6 +12,7 @@
 #include <string>
 #include <iostream>
 #include <cmath>
+#include "MartyParameterProxy.h"
 
 class SMParamSetter {
 public:
@@ -45,6 +46,8 @@ private:
 
     // JSONParser *jsonparser = JSONParser::getInstance(0);
     Model model_type;
+    MartyParameterProxy sm_proxy {ParameterType::SM};
+    MartyParameterProxy bsm_proxy {ParameterType::BSM};
 };
 
 #endif // SMPARAMSETTER_H

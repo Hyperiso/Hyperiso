@@ -48,20 +48,15 @@ void MartyWilson::LO_calculation() {
                 //return {df.iat<double>(i, this->get_name()+"_real"), df.iat<double>(i, this->get_name()+"_img")}; 
             }
         }
+
         std::set<std::string> special = {"KIN", "WEIN", "Finite", "REGPROP"}; //TODO : do better with this, in SMParamSetter
         for (auto &par : martyInterface.get_dependencies(this->get_name())) {
             if (std::find(special.begin(), special.end(),par.block) != special.end()) {
                 continue;
             }
-            if (par.block == "MASS" && par.code == LhaID(5)) { // TODO : FUCK QCDHELPER
-                continue;
-            } else if (par.block == "MASS" && par.code == LhaID(6)) {
-                continue;
-            }
-
+            
             if (par.is_bsm) {
-                
-                sources.emplace(ParamId{ParameterType::SM, par.block, par.code}); //TODO : NOT SM, BUT BSM cannot work, for SM model, lol
+                sources.emplace(ParamId{ParameterType::BSM, par.block, par.code});
             } else {
                 sources.emplace(ParamId{ParameterType::SM, par.block, par.code});
             }

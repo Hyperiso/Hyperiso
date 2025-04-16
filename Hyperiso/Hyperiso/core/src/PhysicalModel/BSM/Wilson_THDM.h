@@ -314,6 +314,7 @@ public:
         this->insert(std::make_pair("C10", std::make_shared<C10_THDM>())); 
 
         this->storage_block = "B_HADRONIC_THDM";
+        this->wilson_type = ContributionType::BSM;
     }
 };
 
@@ -326,6 +327,7 @@ public:
         this->insert(std::make_pair("CP10", std::make_shared<CP10_THDM>())); this->insert(std::make_pair("CPQ1", std::make_shared<CPQ1_THDM>())); this->insert(std::make_pair("CPQ2", std::make_shared<CPQ2_THDM>())); 
 
         this->storage_block = "B_PRIME_HADRONIC_THDM";
+        this->wilson_type = ContributionType::BSM;
     }
 
     void set_base_1();
@@ -338,6 +340,7 @@ public:
         this->insert(std::make_pair("CQ1", std::make_shared<CQ1_THDM>())); this->insert(std::make_pair("CQ2", std::make_shared<CQ2_THDM>()));
 
         this->storage_block = "B_SCALAR_HADRONIC_THDM";
+        this->wilson_type = ContributionType::BSM;
     }
 
     void set_base_1();
@@ -351,6 +354,7 @@ public:
         this->insert(std::make_pair("C_Blnu_P", std::make_shared<C_Blnu_P_THDM>()));
 
         this->storage_block = "B_LNU_HADRONIC_THDM";
+        this->wilson_type = ContributionType::BSM;
     }
 
     void set_base_1() {}
@@ -367,6 +371,7 @@ public:
         this->insert(std::make_pair("C_T", std::make_shared<C_T_THDM>()));
 
         this->storage_block = "B_CLNU_HADRONIC_THDM";
+        this->wilson_type = ContributionType::BSM;
     }
 
     void set_base_1() {}

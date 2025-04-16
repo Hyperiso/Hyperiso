@@ -5,15 +5,6 @@
 #include "IQCDProvider.h"
 #include "QCDHelper.h"
 
-enum class QCDMass {
-    C_POLE,
-    B_POLE,
-    B_MSBAR,
-    B_1S,
-    T_POLE,
-    T_MSBAR
-};
-
 struct AlphasConfig : public AbstractConfig {
     double scale;
     MassType m_b_type;
@@ -32,7 +23,6 @@ class QCDProvider : public IDataProvider<QCDProvider>, public IQCDProvider {
 public:
     double operator()(AlphasConfig);
     double operator()(MassConfig);
-    double operator()(QCDMass);
     QCDConstants* get_constants() override;
 };
 

@@ -533,7 +533,7 @@ void C_Blnu_P_THDM::LO_calculation() {
         double ld = src.at({ParameterType::WILSON, "WPARAM_SI_BSM", 8})->get_val();
         double mH = src.at({ParameterType::BSM, "MASS", 37})->get_val();
 
-        double m_b = QCDHelper::mass_b_msbar();
+        double m_b = (*Parameters::GetInstance())("QCD", LhaID(5, 1));
         double m_tau = src.at({ParameterType::SM, "MASS", 15})->get_val();
         double l_tau = src.at({ParameterType::BSM, "YL", 22})->get_val();
 
@@ -570,7 +570,7 @@ void C_S1_THDM::LO_calculation() {
         double ld = src.at({ParameterType::WILSON, "WPARAM_SI_BSM", 8})->get_val();
         double mH = src.at({ParameterType::BSM, "MASS", 37})->get_val();
 
-        double m_b = QCDHelper::mass_b_msbar();
+        double m_b = (*Parameters::GetInstance())("QCD", LhaID(5, 1));
         double m_tau = src.at({ParameterType::SM, "MASS", 15})->get_val();
         double l_tau = src.at({ParameterType::BSM, "YL", 22})->get_val();
 

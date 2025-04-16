@@ -39,8 +39,11 @@ public:
 protected:
     void claim_coefficients();
 
-    std::optional<BWilsonBasis> basis;
+    static complex_t ensure_coef(WCoef coef, QCDOrder order, ContributionType type, std::string matching_block);
+
     std::string storage_block;
+    std::optional<BWilsonBasis> basis = BWilsonBasis::STANDARD;
+    ContributionType wilson_type {ContributionType::SM};
     QCDOrder current_order = QCDOrder::NONE;
 };
 
@@ -55,11 +58,11 @@ public:
     std::shared_ptr<CoefficientGroup> clone() const override;
 
 private:
-    static void base_1_LO_calculation   (const std::unordered_map<std::string, std::shared_ptr<Block>>&, std::shared_ptr<DependentBlock>);
-    static void base_2_LO_calculation   (const std::unordered_map<std::string, std::shared_ptr<Block>>&, std::shared_ptr<DependentBlock>);
-    static void base_1_NLO_calculation  (const std::unordered_map<std::string, std::shared_ptr<Block>>&, std::shared_ptr<DependentBlock>);
-    static void base_2_NLO_calculation  (const std::unordered_map<std::string, std::shared_ptr<Block>>&, std::shared_ptr<DependentBlock>);
-    static void base_1_NNLO_calculation (const std::unordered_map<std::string, std::shared_ptr<Block>>&, std::shared_ptr<DependentBlock>);
+    static void base_1_LO_calculation   (const std::unordered_map<std::string, std::shared_ptr<Block>>&, std::shared_ptr<DependentBlock>, ContributionType);
+    static void base_2_LO_calculation   (const std::unordered_map<std::string, std::shared_ptr<Block>>&, std::shared_ptr<DependentBlock>, ContributionType);
+    static void base_1_NLO_calculation  (const std::unordered_map<std::string, std::shared_ptr<Block>>&, std::shared_ptr<DependentBlock>, ContributionType);
+    static void base_2_NLO_calculation  (const std::unordered_map<std::string, std::shared_ptr<Block>>&, std::shared_ptr<DependentBlock>, ContributionType);
+    static void base_1_NNLO_calculation (const std::unordered_map<std::string, std::shared_ptr<Block>>&, std::shared_ptr<DependentBlock>, ContributionType);
 
     void init_running_parameter_blocks();
 };
@@ -72,7 +75,7 @@ public:
     void init_running_block(QCDOrder order, BWilsonBasis basis) override;
 
 private:
-    static void base_1_LO_calculation(const std::unordered_map<std::string, std::shared_ptr<Block>>&, std::shared_ptr<DependentBlock>);
+    static void base_1_LO_calculation(const std::unordered_map<std::string, std::shared_ptr<Block>>&, std::shared_ptr<DependentBlock>, ContributionType);
 };
 
 
@@ -83,8 +86,8 @@ public:
     void init_running_block(QCDOrder order, BWilsonBasis basis) override;
 
 private:
-    static void base_1_LO_calculation(const std::unordered_map<std::string, std::shared_ptr<Block>>&, std::shared_ptr<DependentBlock>);
-    static void base_1_NLO_calculation(const std::unordered_map<std::string, std::shared_ptr<Block>>&, std::shared_ptr<DependentBlock>);
+    static void base_1_LO_calculation(const std::unordered_map<std::string, std::shared_ptr<Block>>&, std::shared_ptr<DependentBlock>, ContributionType);
+    static void base_1_NLO_calculation(const std::unordered_map<std::string, std::shared_ptr<Block>>&, std::shared_ptr<DependentBlock>, ContributionType);
 };
 
 

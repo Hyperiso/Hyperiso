@@ -2927,7 +2927,8 @@ void CQ2_susy::LO_calculation() {
         {"WPARAM_SI_BSM", 7},
         {"WPARAM_MATCH_BSM", 1},
         {"EW_SCALE", 1},
-        {ParameterType::BSM, "MASS", 37}
+        {ParameterType::BSM, "MASS", 37},
+		{ParameterType::SM, "QCD", LhaID(5, 1)}
     };
 
     auto func = [] (const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src, std::shared_ptr<DependentParameter> dep_param) {
@@ -3132,7 +3133,7 @@ void CQ2_susy::LO_calculation() {
 			if(src.at({ParameterType::BSM, "MASS",  36})->get_val()>Q_match) coeff_temp+=-v_deltam_s/2.*mass_b_muW/sw2*src.at({ParameterType::WILSON, "WPARAM_SI_SM",  3})->get_val()*CA/src.at({ParameterType::BSM, "MASS",  36})->get_val()/src.at({ParameterType::BSM, "MASS",  36})->get_val();
 
 			
-			if((src.at({ParameterType::BSM, "MASS",  36})->get_val()>QCDHelper::mass_b_pole())&&(src.at({ParameterType::BSM, "MASS",  36})->get_val()<Q_match ))
+			if((src.at({ParameterType::BSM, "MASS",  36})->get_val()>(*Parameters::GetInstance())("QCD", LhaID(5, 1)))&&(src.at({ParameterType::BSM, "MASS",  36})->get_val()<Q_match ))
 			{	
 				double alphas_Ma1  = QCDHelper::alpha_s(src.at({ParameterType::BSM, "MASS",  36})->get_val());	
 				double mass_b_ma1=QCDHelper::msbar_mass(5, src.at({ParameterType::BSM, "MASS",  36})->get_val());
@@ -3671,7 +3672,7 @@ void BScalarCoefficientGroup_susy::set_base_1_LO() {
 		
 		
 		if(src.at("MASS")->retrieve(46)->get_val()!=0.||src.at("MASS")->retrieve(45)->get_val()!=0.) {
-			if(mA < QCDHelper::mass_b_pole()) {	
+			if(mA < (*Parameters::GetInstance())("QCD", LhaID(5, 2))) {	
 				double lambdaNMSSM = 1;
 				double lambdaSNMSSM = 1;
 				double AlambdaNSSM = 1;
@@ -3726,7 +3727,7 @@ void BScalarCoefficientGroup_susy::set_base_1_LO() {
 				}
 				complex_t CA=CAH+CAc;
 				double width_A0=1.e-6;
-				coeff_temp2+=complex_t{v_deltam_s/2.*QCDHelper::mass_b_msbar()/sw2*src.at("WPARAM_SI_SM")->retrieve(3)->get_val()*CA/(m_Bs*m_Bs-mA*mA,mA*width_A0)};
+				coeff_temp2+=complex_t{v_deltam_s/2.*(*Parameters::GetInstance())("QCD", LhaID(5, 1))/sw2*src.at("WPARAM_SI_SM")->retrieve(3)->get_val()*CA/(m_Bs*m_Bs-mA*mA,mA*width_A0)};
 			}
 		}
 		ParamId pid2 {ParameterType::WILSON, "B_HADRONIC", WCoefMapper::flha_full(WCoef::CQ2, QCDOrder::LO, ContributionType::BSM)}; //TODO CHECK
@@ -3756,7 +3757,7 @@ void C_Blnu_P_SUSY::LO_calculation() {
     auto func = [] (const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src, std::shared_ptr<DependentParameter> dep_param) {
         double mH = src.at({ParameterType::BSM, "MASS", 37})->get_val();
 		double tanb = src.at({ParameterType::BSM, "HMIX", 2})->get_val();
-        double m_b = QCDHelper::mass_b_msbar();
+        double m_b = (*Parameters::GetInstance())("QCD", LhaID(5, 1));
         double m_tau = src.at({ParameterType::SM, "MASS", 15})->get_val();
 		double epsilon0 = src.at({ParameterType::WILSON, "EPSILON_SUSY", {0,1}})->get_val();
         dep_param->set_expected(m_b * m_tau * std::pow(tanb / mH, 2) / (1 + epsilon0 * tanb));
@@ -3788,7 +3789,7 @@ void C_S1_SUSY::LO_calculation() {
     auto func = [] (const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src, std::shared_ptr<DependentParameter> dep_param) {
         double mH = src.at({ParameterType::BSM, "MASS", 37})->get_val();
 		double tanb = src.at({ParameterType::BSM, "HMIX", 2})->get_val();
-        double m_b = QCDHelper::mass_b_msbar();
+        double m_b = (*Parameters::GetInstance())("QCD", LhaID(5, 1));
         double m_tau = src.at({ParameterType::SM, "MASS", 15})->get_val();
 		double epsilon0 = src.at({ParameterType::WILSON, "EPSILON_SUSY", {0,1}})->get_val();
         dep_param->set_expected(m_b * m_tau * std::pow(tanb / mH, 2) / (1 + epsilon0 * tanb));

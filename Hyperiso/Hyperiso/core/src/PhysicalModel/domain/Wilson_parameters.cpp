@@ -39,7 +39,7 @@ void WilsonParameterHelper::init_scale_independent_block(int gen) {
 
 void WilsonParameterHelper::init_matching_block() {
 	LOG_DEBUG("Init matching scale dependent wparam block");
-	std::unordered_map<ParameterType, std::vector<std::string>> src = {{ParameterType::SM, {"MASS" /*, "QCD"*/}}, {ParameterType::WILSON, {"EW_SCALE"}}};
+	std::unordered_map<ParameterType, std::vector<std::string>> src = {{ParameterType::SM, {"MASS", "QCD"}}, {ParameterType::WILSON, {"EW_SCALE"}}};
 
     auto func = [] (const std::unordered_map<std::string, std::shared_ptr<Block>>& src, std::shared_ptr<DependentBlock> dep_block) {
 		double mu_W = src.at("EW_SCALE")->retrieve(1)->get_val();
@@ -53,7 +53,7 @@ void WilsonParameterHelper::init_matching_block() {
 		double xt = pow(mass_top_muW / m_W, 2);
 		double L = log(std::pow(mu_W / m_W, 2));
 		double xtW = pow(QCDHelper::msbar_mass(6, m_W) / m_W, 2); // mass top at pole for mtot param
-		double xtt = pow(QCDHelper::mass_t_msbar() / m_W, 2.); // 24 -> W
+		double xtt = pow(src.at("QCD")->retrieve(6)->get_val() / m_W, 2.); // 24 -> W
 
 		dep_block->store_or_assign(1, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_MATCH_SM", 1}, alphas_muW, 0., 0.));
 		dep_block->store_or_assign(LhaID(2, 1), std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_MATCH_SM", LhaID(2, 1)}, xt, 0., 0.));

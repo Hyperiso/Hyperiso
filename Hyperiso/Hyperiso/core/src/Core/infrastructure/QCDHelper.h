@@ -26,23 +26,6 @@ struct QCDConstants {
                                                                   {2, 6.75  , 9.6773}}};
 };
 
-struct QCDParamCache {
-    double alphas_mZ;
-    double m_Z;
-    double mt_pole;
-    double mb_mb;
-    std::array<double, 4> light_masses;
-
-    bool cache_valid();
-};
-
-struct SpecialMasses {
-    double mc_pole;
-    double mb_pole;
-    double mb_1S;
-    double mt_mt;
-};
-
 enum class MassType {
     POLE,
     MSBAR
@@ -50,8 +33,6 @@ enum class MassType {
 
 class QCDHelper {
 private:
-    static inline QCDParamCache param_cache;
-    static inline SpecialMasses special_masses;
     static inline std::array<double, 6> lambdas_running;
     static inline double lambda4_mb_pole;
     static inline double lambda6_mt_pole;
@@ -59,37 +40,27 @@ private:
     static inline MassType m_b_type {MassType::POLE};
     static inline MassType m_t_type {MassType::POLE};
 
-    static void update_cached_values();
-    static double get_lambda(double mu);
-    static std::vector<double> getOrderedMasses();
+    static double get_lambda(double mu, MassType mass_b_type, MassType mass_t_type);
+    static std::vector<double> getOrderedMasses(MassType mass_b_type, MassType mass_t_type);
     static double match_lambda(double target_alpha, double Q, int nf);
     static double alpha_s_explicit(double mu, double lambda, int nf);
-    static void set_mass_types(MassType m_b_type, MassType m_t_type);
     static double runMass(double mass, double Q_i, double Q_f, int nf);
     static double R(double alpha, int nf);
 
-    static double calc_mc_pole();
-    static double calc_mb_pole();
-    static double calc_mb_1S();
-    static double calc_mt_mt();
-
-    static void Update();
+    static double calc_mc_pole(double lambda_4);
+    static double calc_mb_pole(double lambda_5);
+    static double calc_mb_1S(double lambda_4, double mb_pole);
+    static double calc_mt_mt(double lambda6_mt_pole, double lambda_5);
 
 public:
     static inline QCDConstants* constants;
 
-    static void Init(double alpha_s_mZ, double m_Z, double mt_pole, double mb_mb, double m_c, double m_s, double m_d, double m_u);
+    static void Init();
 
     static double alpha_s(double mu, MassType mass_b_type = MassType::POLE, MassType mass_t_type = MassType::POLE);
     static double msbar_mass(int pdg_code, double mu, MassType mass_b_type = MassType::POLE, MassType mass_t_type = MassType::POLE);
 
-    static int get_nf(double mu);
-    static double mass_c_pole();
-    static double mass_b_pole();
-    static double mass_b_msbar();
-    static double mass_b_1S();
-    static double mass_t_pole();
-    static double mass_t_msbar();
+    static int get_nf(double mu, MassType mass_b_type, MassType mass_t_type);
 };
 
 #endif // __QCDHELPER_H__

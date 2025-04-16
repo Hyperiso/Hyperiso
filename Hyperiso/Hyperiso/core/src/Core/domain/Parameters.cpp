@@ -88,12 +88,7 @@ std::unordered_set<std::string> Parameters::init_blocks(ParameterType type) {
 std::unordered_set<std::string> SMModelStrategy::initializeParameters(Parameters& params) {
     
     auto absent_blocks = params.init_blocks(ParameterType::SM);
-    QCDHelper::Init(params("SMINPUTS", 3), params("SMINPUTS", 4), params("SMINPUTS", 6), params("SMINPUTS", 5),  
-                    params("MASS", 4), params("MASS", 3), params("MASS", 2), params("MASS", 1));
 
-    // std::shared_psger::addDependentBlock("GAUGE", gauge_block, {"SMINPUTS"}, gauge_update_func);
-
-    // std::shared_ptr<DependentBlock> gauge_block = nullptr;
 
     // auto gauge_update_func = [](std::shared_ptr<Block> src, std::shared_ptr<DependentBlock> dep_block) {
     //     double e_em = std::sqrt(4 * PI / src->getValue(1));
@@ -117,6 +112,8 @@ std::unordered_set<std::string> SMModelStrategy::initializeParameters(Parameters
 }
 
 void SMModelStrategy::postInitialization(Parameters& params) {
+    QCDHelper::Init();
+
     if (absent_blocks.contains("VCKM")) {
         std::unordered_map<ParameterType, std::vector<std::string>> src = {
             {ParameterType::SM, {"VCKMIN"}}
