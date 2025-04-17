@@ -14,13 +14,10 @@ void WilsonParameterHelper::init(int gen) {
 
 void WilsonParameterHelper::init_scale_independent_block(int gen) {
 	LOG_DEBUG("Init scale-independent wparam block");
-	std::cout << "fuuuuck" << std::endl;
 	ParameterProxy(ParameterType::SM);
-	std::cout << "fuuuuck 2" << std::endl;
 	std::unordered_map<ParameterType, std::vector<std::string>> src = {{ParameterType::SM, {"SMINPUTS", "MASS"}}};
 
     auto func = [gen] (const std::unordered_map<std::string, std::shared_ptr<Block>>& src, std::shared_ptr<DependentBlock> dep_block) {
-		std::cout << "fuck wilson indep" << std::endl;
         double xh = pow(src.at("MASS")->retrieve(25)->get_val() / src.at("MASS")->retrieve(24)->get_val(), 2);
 		
 		int nf = 5;
@@ -30,11 +27,8 @@ void WilsonParameterHelper::init_scale_independent_block(int gen) {
 		dep_block->store_or_assign(id++, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_SM", id}, src.at("MASS")->retrieve(9 + 2 * gen)->get_val(), 0., 0.));
 		dep_block->store_or_assign(id++, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_SM", id}, src.at("SMINPUTS")->retrieve({7, 1})->get_val(), 0., 0.));
 		dep_block->store_or_assign(id++, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_SM", id}, 11.-2./3.*nf, 0., 0.)); //TODO, beta0
-		std::cout << "finish fucking" << std::endl;
     };
-	std::cout << "compose fuck" << std::endl;
     WilsonParameterHelper::composer.compose_block("WPARAM_SI_SM", src, func);
-	std::cout << "end compose fuck" << std::endl;
 }
 
 void WilsonParameterHelper::init_matching_block() {

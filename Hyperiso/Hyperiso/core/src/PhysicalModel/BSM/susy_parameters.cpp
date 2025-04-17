@@ -362,7 +362,7 @@ void susy_parameters::init_scale_independant_block() {
 		double ag = 1.0 - 7.0 / (12.0 * Pi) * alphas_mg;
 		double aY = 1.0 + alphas_mg / (4.0 * Pi);
 
-		// TODO : Ask Nazila
+		// TODO : Ask Nazila Answer : keep complex
 		double kappa = 1.0 / (pow(src.at("GAUGE")->retrieve(2)->get_val(), 2.) * 
 						std::real((src.at("RECKM")->retrieve(22)->get_val() + I * src.at("IMCKM")->retrieve(22)->get_val())*(src.at("RECKM")->retrieve(21)->get_val() + I * src.at("IMCKM")->retrieve(21)->get_val()))); //VCKM 33 et 32
 

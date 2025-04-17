@@ -156,6 +156,8 @@ void BCoefficientGroup::base_1_LO_calculation(
 
     // C10
     // Ask Nazila : Pourquoi les N et NNLO dans le running de C10 à LO et pas séparé en plusieurs ordres ?
+    // Answer : Ask Siavash, need to understand if pb comes from litt or implementation.
+    // Answer : Fck around and find out
     double alpha_ew = 1 / src.at("SMINPUTS")->retrieve(1)->get_val();
     double m_h = src.at("MASS")->retrieve(25)->get_val();
     double m_t_muW = src.at("WPARAM_MATCH_SM")->retrieve(6)->get_val();

@@ -3,7 +3,6 @@
 void SMParamSetter::setParam(const std::string& name, const Interpreter::InterpretedParam& interpretedParam) {
     LOG_INFO("setting parameter", name, interpretedParam.block, interpretedParam.code);
     std::set<std::string> special = {"KIN", "WEIN", "Finite", "REGPROP"}; //TODO : put else where, needed in wilson marty
-
     if (special.find(interpretedParam.block) != special.end()) {
         params[name] = calculateValue(name, interpretedParam);
     } else if (interpretedParam.block == "MASS" && (interpretedParam.code == LhaID(5) || interpretedParam.code == LhaID(6))) {
@@ -21,7 +20,6 @@ void SMParamSetter::setParam(const std::string& name, const Interpreter::Interpr
                 params[name] = bsm_proxy(interpretedParam.block, interpretedParam.code);
             }
         } else {
-            std::cout << "eheh : " << name << std::endl;
             if (interpretedParam.is_complex) {
                 params[name+ "_rel"] = sm_proxy(interpretedParam.block, interpretedParam.code).real();
                 params[name + "_img"] = sm_proxy(interpretedParam.block, interpretedParam.code).imag();

@@ -194,12 +194,10 @@ void writeRunCoefficientsToFile(const std::string& strat_name, const std::string
 
     std::cout << "wtf " << std::endl;
     if (model == "SM") {
-        std::cout << "WHAT THE FUCK before" << std::endl;
         config.model = Model::SM;
         hyperiso->init(root_data_file + "Test/InputFiles/testinput_thdm.lha", config);
         wi = std::make_shared<WilsonInterface>();
         // MemoryManager::GetInstance()->init(root_data_file + "Test/InputFiles/testinput_thdm.lha", Model::SM);
-        std::cout << "WHAT THE FUCK" << std::endl;
         std::map<std::string, std::shared_ptr<CoefficientGroup>> temp_map;
         temp_map["BCoefficient"] = std::make_shared<BCoefficientGroup>();
         wi->build({WGroup::B}, Q_match, Q, OrderMapper::enum_elt(strat_name));

@@ -11,18 +11,13 @@ void DependentBlockManager::addDependentBlock(
 
     for (const auto& [k, v] : source_names) {
         for (const auto& src_name : v) {
-            LOG_INFO(src_name);
-            LOG_INFO("error");
             sources.emplace(src_name, Parameters::GetInstance(k)->blockAccessor->at(src_name));
         }
     }
-    LOG_INFO("truc");
     auto dependentBlock = std::make_shared<DependentBlock>(sources, recalculateFunc);
-    LOG_INFO("truc");
     dependentBlock->blockname = name;
     dependentBlock->init();
     dependentBlock->update();
-    LOG_INFO("truc");
     Parameters::GetInstance(dest)->blockAccessor->emplace(name, dependentBlock);
 }
 
