@@ -1,6 +1,4 @@
 #include "Extractor.h"
-#include <regex>
-#include <fstream>
 
 std::vector<Extractor::Parameter> Extractor::extract(const std::string& filename) {
     std::vector<Parameter> params;

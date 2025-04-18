@@ -1,8 +1,7 @@
-#include <iostream>
-//42
-#include "/home/theo/hyperiso/Third_party/MARTY/MARTY_INSTALL/include/marty/models/sm.h"
+#include <iostream> 
 #include "/home/nfardeau/Hyperiso/Hyperiso/Third_party/MARTY/MARTY_INSTALL/include/marty/models/sm.h"
-#include "/home/theo/hyperiso/Third_party/MARTY/MARTY_INSTALL/include/marty.h"
+#include "/home/nfardeau/Hyperiso/Hyperiso/Third_party/MARTY/MARTY_INSTALL/include/marty.h"
+//42
 
 using namespace csl;
 using namespace mty;

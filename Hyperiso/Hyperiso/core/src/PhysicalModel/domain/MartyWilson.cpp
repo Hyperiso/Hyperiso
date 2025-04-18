@@ -68,6 +68,6 @@ void MartyWilson::LO_calculation() {
     func(dummy, std::make_shared<DependentParameter>(dummy, func));
 
     //TODO  :configuration here to SM, need to put at FULL but cannot work with WilsonGroup at the moment (only sm)
-    WilsonParamComposer().compose_parameter(ParamId{this->storage_block, WCoefMapper::flha_full(WCoefMapper::enum_elt(this->coeffName), QCDOrder::LO, ContributionType::SM)}, sources, func);
+    WilsonParamComposer().compose_parameter(ParamId{this->storage_block, WCoefMapper::flha_full(WCoefMapper::enum_elt(this->coeffName), QCDOrder::LO, this->type)}, sources, func);
 
 }

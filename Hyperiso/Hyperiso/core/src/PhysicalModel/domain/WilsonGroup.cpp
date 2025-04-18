@@ -18,7 +18,7 @@ CoefficientGroup::CoefficientGroup(std::map<std::string, std::shared_ptr<WilsonC
 void CoefficientGroup::init(QCDOrder order) {
     this->claim_coefficients();
     for (auto& coeff : *this) {
-            coeff.second->init(order);
+        coeff.second->init(order);
     }
     this->current_order = order;
 }
@@ -44,6 +44,9 @@ bool CoefficientGroup::is_double_basis() const {
 BCoefficientGroup::BCoefficientGroup() {
     LOG_INFO("In BCoefficientGroup constructor");
     init_running_parameter_blocks();
+    this->basis = BWilsonBasis::STANDARD;
+    this->storage_block = "B_HADRONIC";
+
     if (UseMarty().get()) {
         for (auto&& coeff : {"C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9", "C10"}) {
             this->insert(std::make_pair(coeff, std::make_shared<MartyWilson>(coeff)));
@@ -62,9 +65,6 @@ BCoefficientGroup::BCoefficientGroup() {
     this->insert(std::make_pair("C8", std::make_shared<C8>()));  
     this->insert(std::make_pair("C9", std::make_shared<C9>())); 
     this->insert(std::make_pair("C10", std::make_shared<C10>())); 
-
-    this->basis = BWilsonBasis::STANDARD;
-    this->storage_block = "B_HADRONIC";
 }
 
 std::shared_ptr<CoefficientGroup> BCoefficientGroup::clone() const {
@@ -148,6 +148,7 @@ void BCoefficientGroup::base_1_LO_calculation(
         for (size_t l = 0; l < 9; l++) {
             Ci_run[k] += U0(k, l) * Ci_match[l];
         }
+        LOG_INFO("C_match_", k + 1, "=", Ci_match[k]);
         LOG_INFO("C_run_", k + 1, "=", Ci_run[k]);
     }
 
@@ -220,8 +221,8 @@ void BCoefficientGroup::base_1_LO_calculation(
     
     // Store
     for (size_t k = 0; k < 10; k++) {
-        ParamId pid {ParameterType::WILSON, "B_HADRONIC", WCoefMapper::flha_full(ids[k], QCDOrder::LO, ContributionType::SM)};
-        LOG_INFO("Storing coefficient", WCoefMapper::flha_full(ids[k], QCDOrder::LO, ContributionType::SM));
+        ParamId pid {ParameterType::WILSON, "B_HADRONIC", WCoefMapper::flha_full(ids[k], QCDOrder::LO, type)};
+        LOG_INFO("Storing coefficient", WCoefMapper::flha_full(ids[k], QCDOrder::LO, type));
         dep_block->store_or_assign(pid.code, std::make_shared<Parameter>(pid, Ci_run[k], 0., 0.));
     }
 }
@@ -260,7 +261,7 @@ void BCoefficientGroup::base_2_LO_calculation(
 
     // Store
     for (size_t k = 0; k < 10; k++) {
-        ParamId pid {ParameterType::WILSON, "B_HADRONIC", WCoefMapper::flha_full(ids[k], QCDOrder::LO, ContributionType::SM)};
+        ParamId pid {ParameterType::WILSON, "B_HADRONIC", WCoefMapper::flha_full(ids[k], QCDOrder::LO, type)};
         dep_block->store_or_assign(pid.code, std::make_shared<Parameter>(pid, Ci_run[k], 0., 0.));;
     }
 }
@@ -321,8 +322,8 @@ void BCoefficientGroup::base_1_NLO_calculation(
     // Store
     double eta = src.at("WPARAM_RUN_SM")->retrieve(2)->get_val();
     for (size_t k = 0; k < 10; k++) {
-        ParamId pid {ParameterType::WILSON, "B_HADRONIC", WCoefMapper::flha_full(ids[k], QCDOrder::NLO, ContributionType::SM)};
-        LOG_INFO("Storing coefficient", WCoefMapper::flha_full(ids[k], QCDOrder::NLO, ContributionType::SM));
+        ParamId pid {ParameterType::WILSON, "B_HADRONIC", WCoefMapper::flha_full(ids[k], QCDOrder::NLO, type)};
+        LOG_INFO("Storing coefficient", WCoefMapper::flha_full(ids[k], QCDOrder::NLO, type));
         dep_block->store_or_assign(pid.code, std::make_shared<Parameter>(pid, eta * Ci_run[k], 0., 0.));
     }
 }
@@ -371,8 +372,8 @@ void BCoefficientGroup::base_2_NLO_calculation(
     // Store
     double eta = src.at("WPARAM_RUN_SM")->retrieve(2)->get_val();
     for (size_t k = 0; k < 10; k++) {
-        ParamId pid {ParameterType::WILSON, "B_HADRONIC", WCoefMapper::flha_full(ids[k], QCDOrder::NLO, ContributionType::SM)};
-        LOG_INFO("Storing coefficient", WCoefMapper::flha_full(ids[k], QCDOrder::NLO, ContributionType::SM));
+        ParamId pid {ParameterType::WILSON, "B_HADRONIC", WCoefMapper::flha_full(ids[k], QCDOrder::NLO, type)};
+        LOG_INFO("Storing coefficient", WCoefMapper::flha_full(ids[k], QCDOrder::NLO, type));
         dep_block->store_or_assign(pid.code, std::make_shared<Parameter>(pid, eta * Ci_run[k], 0., 0.));
     }
 }
@@ -425,8 +426,8 @@ void BCoefficientGroup::base_1_NNLO_calculation(
     // Store
     double eta_sq = pow(src.at("WPARAM_RUN_SM")->retrieve(2)->get_val(), 2);
     for (size_t k = 0; k < 10; k++) {
-        ParamId pid {ParameterType::WILSON, "B_HADRONIC", WCoefMapper::flha_full(ids[k], QCDOrder::NNLO, ContributionType::SM)};
-        LOG_INFO("Storing coefficient", WCoefMapper::flha_full(ids[k], QCDOrder::NNLO, ContributionType::SM));
+        ParamId pid {ParameterType::WILSON, "B_HADRONIC", WCoefMapper::flha_full(ids[k], QCDOrder::NNLO, type)};
+        LOG_INFO("Storing coefficient", WCoefMapper::flha_full(ids[k], QCDOrder::NNLO, type));
         dep_block->store_or_assign(pid.code, std::make_shared<Parameter>(pid, eta_sq * Ci_run[k], 0., 0.));
     }
 }

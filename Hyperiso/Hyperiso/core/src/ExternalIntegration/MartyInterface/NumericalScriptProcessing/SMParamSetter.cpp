@@ -14,10 +14,10 @@ void SMParamSetter::setParam(const std::string& name, const Interpreter::Interpr
     } else {
         if (interpretedParam.is_bsm) {
             if (interpretedParam.is_complex) {
-                params[name+ "_rel"] = bsm_proxy(interpretedParam.block, interpretedParam.code).real();
-                params[name + "_img"] = bsm_proxy(interpretedParam.block, interpretedParam.code).imag();
+                params[name+ "_rel"] = bsm_proxy.value()(interpretedParam.block, interpretedParam.code).real();
+                params[name + "_img"] = bsm_proxy.value()(interpretedParam.block, interpretedParam.code).imag();
             } else {
-                params[name] = bsm_proxy(interpretedParam.block, interpretedParam.code);
+                params[name] = bsm_proxy.value()(interpretedParam.block, interpretedParam.code);
             }
         } else {
             if (interpretedParam.is_complex) {

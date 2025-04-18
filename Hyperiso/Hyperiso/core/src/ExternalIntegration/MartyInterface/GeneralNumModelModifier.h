@@ -25,7 +25,6 @@ private:
     int count = 0;
     std::string wilson;
     std::string model;
-    Extractor extractor;
     Interpreter interpreter;
     SMParamSetter paramSetter;
     ParamWriter paramWriter;
@@ -36,7 +35,7 @@ private:
 
 public:
     GeneralNumModelModifier(const std::string& wilson, const std::string& model, bool force = false)
-        : wilson(wilson), model(model), forceMode(force), interpreter(model), paramSetter(params, model), fileWriter(wilson, model), paramWriter(params, wilson, model), 
+        : wilson(wilson), model(model), forceMode(force), interpreter(model), paramSetter(params, model), fileWriter(wilson, model), paramWriter(params), 
           lineProcessor(includeManager, fileWriter, force), modelWriter(lineProcessor, paramWriter) {
         
         initializeParams();

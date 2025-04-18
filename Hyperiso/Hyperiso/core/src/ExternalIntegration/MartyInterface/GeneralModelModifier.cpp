@@ -5,7 +5,8 @@ GeneralModelModifier::GeneralModelModifier(std::string wilson, std::string model
         std::string model_l = this->model;
         std::transform(model_l.begin(), model_l.end(), model_l.begin(), 
         [](unsigned char c){return std::tolower(c);});
-        this->model_path = project_tp_root.data() +std::string()+ "MARTY/MARTY_INSTALL/include/marty/models/" + model_l +".h";
+        this->model_path = project_tp_root.data() + std::string() + "MARTY/MARTY_INSTALL/include/marty/models/" + model_l +".h";
+        this->marty_path = project_tp_root.data() + std::string() + "MARTY/MARTY_INSTALL/include/marty.h";
     }
 
 void GeneralModelModifier::modifyLine(std::string& line) {
@@ -28,12 +29,13 @@ void GeneralModelModifier::modifyLine(std::string& line) {
 }
 
 void GeneralModelModifier::addLine(std::ofstream& outputFile, const std::string& currentLine, bool addBefore) {
-    if (currentLine.find("marty/models/sm.h") != std::string::npos) {
+    if (currentLine.find("<iostream>") != std::string::npos) {
         outputFile << currentLine << "\n";
         std::string model_l = this->model;
         std::transform(model_l.begin(), model_l.end(), model_l.begin(),
         [](unsigned char c){return std::tolower(c);});
         outputFile << "#include \"" + this->model_path + "\"" << "\n";
+        outputFile << "#include \"" + this->marty_path + "\"" << "\n";
     }
     else {
         outputFile << currentLine << "\n";

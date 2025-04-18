@@ -8,7 +8,7 @@
 #include "Wilson.h"
 #include "BWilson.h"
 #include "MartyWilson.h"
-#include "ModelParamAdapter.h"
+#include "ParameterProxy.h"
 #include "UseMarty.h"
 
 using BRP = BWilsonRunningParameters;

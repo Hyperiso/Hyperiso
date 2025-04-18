@@ -1,0 +1,1 @@
+cmd='COMMAND;/home/nfardeau/Hyperiso/Hyperiso/Hyperiso/Hyperiso/core/src/ExternalIntegration/../../../../../Third_party/MARTY/src/run_setup.sh'

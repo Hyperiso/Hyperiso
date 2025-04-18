@@ -3,6 +3,8 @@
 
 #include <string>
 #include <vector>
+#include <regex>
+#include <fstream>
 
 class Extractor {
 public:
@@ -12,7 +14,7 @@ public:
         bool complex;
     };
 
-    std::vector<Parameter> extract(const std::string& filename);
+    static std::vector<Parameter> extract(const std::string& filename);
 };
 
 #endif // EXTRACTOR_H

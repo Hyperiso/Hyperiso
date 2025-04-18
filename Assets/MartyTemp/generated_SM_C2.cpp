@@ -1,8 +1,7 @@
 #include <iostream>
-//42
-#include "/home/theo/hyperiso/Third_party/MARTY/MARTY_INSTALL/include/marty/models/sm.h"
 #include "/home/nfardeau/Hyperiso/Hyperiso/Third_party/MARTY/MARTY_INSTALL/include/marty/models/sm.h"
-#include "/home/theo/hyperiso/Third_party/MARTY/MARTY_INSTALL/include/marty.h"
+#include "/home/nfardeau/Hyperiso/Hyperiso/Third_party/MARTY/MARTY_INSTALL/include/marty.h"
+//42
 
 using namespace csl;
 using namespace mty;
@@ -29,7 +28,7 @@ int calculate_C2(Model &model, gauge::Type gauge) {
     undefineNumericalValues(); // Allow for HIso to set all the parameters' values
     mty::option::excludeExternalLegsCorrections = true;
 
-    Expr factorOperator = -4 * GetComplexConjugate(V_cs) * V_cb * G_F / csl::sqrt_s(2);
+    Expr factorOperator = 4 * GetComplexConjugate(V_cs) * V_cb * G_F / csl::sqrt_s(2);
     FeynOptions opts;
     opts.setFermionOrder({1, 3, 2, 0});
     opts.setWilsonOperatorCoefficient(factorOperator);

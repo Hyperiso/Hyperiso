@@ -5,6 +5,7 @@
 #include <string>
 #include <unordered_map>
 #include "MappingDataBase.h"
+#include "ModelAPI.h"
 
 class Interpreter {
 public:

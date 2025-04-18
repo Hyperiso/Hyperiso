@@ -86,7 +86,7 @@ public:
     }
 
     complex_t getMatchingCoefficient(WGroup group, WCoef coeff, QCDOrder order, bool sm_only=false) {
-        return this->wm.getMatchingCoefficient(GroupMapper::str(group), WCoefMapper::str(coeff), OrderMapper::str(ensure_mty_compat(order)), sm_only);
+        return this->wm.getMatchingCoefficient(GroupMapper::str(group), WCoefMapper::str(coeff), OrderMapper::str(order), sm_only);
     }
 
     complex_t getM(WGroup group, WCoef coeff, QCDOrder order, bool sm_only=false) {
@@ -102,7 +102,7 @@ public:
     }
 
     complex_t getRunCoefficient(WGroup group, WCoef coeff, QCDOrder order, bool sm_only=false) {
-        return this->wm.getRunCoefficient(GroupMapper::str(group), WCoefMapper::str(coeff), OrderMapper::str(ensure_mty_compat(order)), sm_only);
+        return this->wm.getRunCoefficient(GroupMapper::str(group), WCoefMapper::str(coeff), OrderMapper::str(order), sm_only);
     }
 
     complex_t getR(WGroup group, WCoef coeff, QCDOrder order, bool sm_only=false) {

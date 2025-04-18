@@ -16,6 +16,7 @@ public:
         : WilsonCoefficient(coeff_name, storage_block) {
         df = csv_reader.read_csv(this->csv_path);
         df.setIndex(df.getColumn<double>("Q_match").to_string_vec());
+        this->type = ContributionType::TOTAL;
     }
 
     MartyWilson(const std::string& coeff_name)
@@ -23,6 +24,7 @@ public:
         this->set_name(coeff_name);
         df = csv_reader.read_csv(this->csv_path);
         df.setIndex(df.getColumn<double>("Q_match").to_string_vec());
+        this->type = ContributionType::TOTAL;
     }
 
     std::string get_model() {

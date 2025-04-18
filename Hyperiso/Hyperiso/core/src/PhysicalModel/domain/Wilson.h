@@ -7,7 +7,7 @@
 #include "Wilson_parameters.h"
 #include "ModelAPI.h"
 #include "HasWilsonAPI.h"
-#include "ModelParamAdapter.h"
+#include "ParameterProxy.h"
 
 class WilsonCoefficient {
 public:

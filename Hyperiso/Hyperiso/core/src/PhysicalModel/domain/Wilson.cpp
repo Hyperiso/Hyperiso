@@ -39,6 +39,6 @@ bool WilsonCoefficient::operator==(const WilsonCoefficient &other) const {
 }
 
 complex_t WilsonCoefficient::get_matching_value(std::string order) const {
-    ParameterProvider wilson_p = ParameterProvider(ParameterType::WILSON);
+    ParameterProxy wilson_p {ParameterType::WILSON};
     return complex_t(wilson_p(storage_block, this->id(OrderMapper::enum_elt(order))));
 }

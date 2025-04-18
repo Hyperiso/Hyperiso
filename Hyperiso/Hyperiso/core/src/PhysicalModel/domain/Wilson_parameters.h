@@ -2,7 +2,7 @@
 #include <array>
 #include "WilsonParamComposer.h"
 #include "BWilsonRunningParameters.h"
-#include "ModelParamAdapter.h"
+#include "ParameterProxy.h"
 #include "Include.h"
 
 class WilsonParameterHelper {

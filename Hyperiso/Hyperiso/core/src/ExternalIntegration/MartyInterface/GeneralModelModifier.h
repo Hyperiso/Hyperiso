@@ -17,6 +17,7 @@ public:
 private:
     std::string model{};
     std::string model_path{};
+    std::string marty_path{};
 };
 
 #endif // GENERAL_MODEL_MODIFIER_H

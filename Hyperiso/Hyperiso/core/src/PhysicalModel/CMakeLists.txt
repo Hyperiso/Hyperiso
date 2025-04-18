@@ -48,7 +48,7 @@ add_library(PhysicalModelLib STATIC
     domain/WilsonGroup.cpp
     domain/WilsonManager.cpp
     domain/MartyWilson.cpp
-    adapters/ModelParamAdapter.cpp
+    adapters/ParameterProxy.cpp
     adapters/WilsonParamComposer.cpp
     adapters/ScaleSetter.cpp
     BSM/epsilon_calculator.cpp

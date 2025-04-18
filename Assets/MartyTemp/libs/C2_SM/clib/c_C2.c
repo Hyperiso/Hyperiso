@@ -38,7 +38,7 @@ ccomplex_return_t c_C2(
     const ccomplex_t IT_0013 = IT_0010*IT_0012;
     const ccomplex_t IT_0014 = IT_0006*IT_0013;
     const ccomplex_t IT_0015 = (0 + _Complex_I*1)*IT_0014;
-    return create_ccomplex_return((0 + _Complex_I*(-0.353553390593274))
-      *IT_0000*IT_0001*IT_0002*IT_0015);
+    return create_ccomplex_return((0 + _Complex_I*0.353553390593274)*IT_0000
+      *IT_0001*IT_0002*IT_0015);
 }
 

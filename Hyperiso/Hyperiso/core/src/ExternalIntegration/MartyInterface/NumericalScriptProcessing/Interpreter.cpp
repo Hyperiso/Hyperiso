@@ -21,6 +21,9 @@ std::unordered_map<std::string, Interpreter::InterpretedParam> Interpreter::inte
         } else {
             it = modelDatabase->getParams().find(param.name);
             if (it != modelDatabase->getParams().end()) {
+                if (ModelAPI().get() == Model::SM) {
+                    LOG_ERROR("LogicError", "Trying to access BSM parameter in SM calculation. Check MARTY parameter mapping files.");
+                }
                 interpreted.block = it->second.block;
                 interpreted.code = it->second.pdgCode;
                 interpreted.is_complex = param.complex;

@@ -4,7 +4,7 @@
 #include "epsilon_calculator.h"
 #include "Math_SUSY.h"
 #include "Logger.h"
-#include "ModelParamAdapter.h"
+#include "ParameterProxy.h"
 #include "WilsonParamComposer.h"
 
 constexpr double Pi = 3.14159265358979323846;

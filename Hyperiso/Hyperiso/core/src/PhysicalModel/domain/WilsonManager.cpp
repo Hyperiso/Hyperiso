@@ -69,7 +69,7 @@ complex_t CoefficientManager::getFullRunCoefficient(const std::string& groupName
     int max_order = static_cast<int>(OrderMapper::enum_elt(order));
     complex_t c {0};
     for (size_t o = 1; o <= max_order; o++) {
-        c += this->getMatchingCoefficient(groupName, coeffName, OrderMapper::str(static_cast<QCDOrder>(o)), sm_only) * std::pow(fact, o - 1);
+        c += this->getRunCoefficient(groupName, coeffName, OrderMapper::str(static_cast<QCDOrder>(o)), sm_only) * std::pow(fact, o - 1);
     }
     return c;
 }

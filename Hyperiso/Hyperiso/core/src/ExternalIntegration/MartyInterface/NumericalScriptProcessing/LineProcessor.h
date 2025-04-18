@@ -37,21 +37,4 @@ public:
             outputFile << currentLine << "\n";
         }
     }
-
-    void processParamLine(std::ofstream& paramFile, const std::string& currentLine) {
-        paramFile << "coucou" << "\n";
-    }
-
-private:
-    std::string extractParamName(const std::string& line) {
-        size_t startPos = line.find("param.") + 6;
-        size_t endPos = line.find(" =");
-        return line.substr(startPos, endPos - startPos);
-    }
-
-    std::string extractParamValue(const std::string& line) {
-        size_t startPos = line.find("= ") + 2;
-        size_t endPos = line.find(";");
-        return line.substr(startPos, endPos - startPos);
-    }
 };

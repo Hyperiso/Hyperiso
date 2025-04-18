@@ -28,13 +28,10 @@ public:
         } else {
             this->model_type = Model::CUSTOM;
         }
-        // if (model == "MSSM" || model == "NMSSM") {
-        //     jsonparser->loadFromFile(root_path + "savestate/parameters_SUSY.json");
-        // } else if (model == "SM" || model == "THDM") {
-        //     jsonparser->loadFromFile(root_path + "savestate/parameters_" + model + ".json");
-        // } else {
-        //     jsonparser->loadFromFile(root_path + "savestate/parameters_GENERAL.json");
-        // }
+        
+        if (model_type != Model::SM) {
+            bsm_proxy = MartyParameterProxy(ParameterType::BSM);
+        }
     }
 
     void setParam(const std::string& name, const Interpreter::InterpretedParam& interpretedParam);
@@ -44,10 +41,9 @@ private:
 
     scalar_t calculateValue(const std::string& name, const Interpreter::InterpretedParam& interpretedParam);
 
-    // JSONParser *jsonparser = JSONParser::getInstance(0);
     Model model_type;
     MartyParameterProxy sm_proxy {ParameterType::SM};
-    MartyParameterProxy bsm_proxy {ParameterType::BSM};
+    std::optional<MartyParameterProxy> bsm_proxy;
 };
 
 #endif // SMPARAMSETTER_H
