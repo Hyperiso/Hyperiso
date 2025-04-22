@@ -1,3 +1,0 @@
-repository='https://github.com/BAllanach/softsusy.git'
-module=''
-tag='origin'
