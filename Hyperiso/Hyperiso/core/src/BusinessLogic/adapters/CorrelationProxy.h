@@ -1,13 +1,13 @@
 #ifndef MODEL_PARAM_ADAPTER_H
 #define MODEL_PARAM_ADAPTER_H
 
-#include "IDataBaseAdapter.h"
+#include "IObsParameterProxy.h"
 #include "ParameterProvider.h"
 #include "CorrelationProvider.h"
 #include "HyperisoMaster.h"
 #include "Include.h"
 
-class CorrelationProxy : public IDataBaseProxy<std::string, LhaID> {
+class CorrelationProxy : public IObsParameterProxy<std::string, LhaID> {
 public:
     CorrelationProxy(ParameterType type);
 

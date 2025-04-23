@@ -1,5 +1,5 @@
-#ifndef ICORE_API_H
-#define ICORE_API_H
+#ifndef IOBS_CORE_API_H
+#define IOBS_CORE_API_H
 
 template <typename T>
 class IObsCoreAPI{

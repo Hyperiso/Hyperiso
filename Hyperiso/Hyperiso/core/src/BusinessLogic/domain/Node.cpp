@@ -1,7 +1,7 @@
 #include "Node.h"
 
 void ParameterNode::updateValue() {
-    value = Parameters::Get(lookup);
+    value = ObsParameterProxy()(lookup);
 }
 
 scalar_t ParameterNode::getValue() {
@@ -12,7 +12,7 @@ scalar_t ParameterNode::getValue() {
 bool ParameterNode::updateCacheFlag() {
     LOG_DEBUG("ParameterNode::updateCacheFlag() [", getName(), "]");
     if (!visited) {
-        cacheValid = fpeq(value, Parameters::Get(lookup));
+        cacheValid = fpeq(value, (double)ObsParameterProxy()(lookup));
         if (!cacheValid)
             updateValue();
         visited = true;

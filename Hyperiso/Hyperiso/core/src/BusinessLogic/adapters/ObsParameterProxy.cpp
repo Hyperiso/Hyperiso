@@ -27,3 +27,7 @@ scalar_t ObsParameterProxy::operator()(const ParamId& pid, ParameterProvider::Da
 
     return pp(pid); 
 };
+
+std::shared_ptr<Parameter> ObsParameterProxy::get_parameter(const ParamId& pid) const{
+    return pp.get_parameter(pid);
+}

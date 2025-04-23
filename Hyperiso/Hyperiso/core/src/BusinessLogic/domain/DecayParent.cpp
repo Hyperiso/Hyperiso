@@ -21,7 +21,7 @@ std::shared_ptr<WilsonInterface> DecayParent::get_wilsons(bool force_update) {
 }
 
 void DecayParent::set_order(QCDOrder new_order) {
-    if (MemoryManager::GetInstance()->getUseMarty() && new_order > QCDOrder::LO) {
+    if (ObsUseMarty().get() && new_order > QCDOrder::LO) {
         LOG_WARN("Using MARTY defaults all calculations to LO in QCD.");
         new_order = QCDOrder::LO;
     }

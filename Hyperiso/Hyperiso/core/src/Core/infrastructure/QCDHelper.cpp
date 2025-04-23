@@ -36,6 +36,7 @@ void QCDHelper::Init() {
         dep_block->store_or_assign(4, std::make_shared<Parameter>(ParamId{ParameterType::SM, "QCD", 4}, m_c_pole, 0., 0.));
         dep_block->store_or_assign(LhaID(5, 1), std::make_shared<Parameter>(ParamId{ParameterType::SM, "QCD", LhaID(5, 1)}, m_b_mb, 0., 0.));
         dep_block->store_or_assign(LhaID(5, 2), std::make_shared<Parameter>(ParamId{ParameterType::SM, "QCD", LhaID(5, 2)}, m_b_pole, 0., 0.));
+        dep_block->store_or_assign(LhaID(5, 3), std::make_shared<Parameter>(ParamId{ParameterType::SM, "QCD", LhaID(5, 3)}, m_b_1S, 0., 0.));
         dep_block->store_or_assign(6, std::make_shared<Parameter>(ParamId{ParameterType::SM, "QCD", 6}, m_t_mt, 0., 0.));
     };
     

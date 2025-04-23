@@ -35,3 +35,7 @@ ParameterType ParameterProvider::get_type() const {
 
     return p_type.value();
 }
+
+std::shared_ptr<Parameter> ParameterProvider::get_parameter(const ParamId &pid) const {
+    return (*Parameters::GetInstance(pid.type.value())).get_parameter(pid.block, pid.code);
+}

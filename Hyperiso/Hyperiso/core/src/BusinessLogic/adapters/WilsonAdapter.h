@@ -1,3 +1,6 @@
+#ifndef WILSON_ADAPTER_H
+#define WILSON_ADAPTER_H
+
 #include "WilsonInterface.h"
 
 class WilsonAdapter {
@@ -8,7 +11,9 @@ class WilsonAdapter {
     void addWilsonGroup(WGroup group_name) {wi.addWilsonGroup(group_name);}
 
     void switchbasis(WGroup group_name) {wi.switchbasis(group_name);}
-    
+
 private:
     WilsonInterface wi = WilsonInterface();
 };
+
+#endif

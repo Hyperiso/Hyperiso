@@ -23,6 +23,7 @@ public:
     bool exists(const std::string& block, const LhaID& id) const;
 
     ParameterType get_type() const;
+    std::shared_ptr<Parameter> get_parameter(const ParamId& pid) const;
 };
 
 

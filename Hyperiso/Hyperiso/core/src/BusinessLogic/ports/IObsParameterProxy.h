@@ -1,5 +1,5 @@
-#ifndef IDATABASe_ADAPTER_H
-#define IDATABASe_ADAPTER_H
+#ifndef IOBS_PARAMETER_PROXY_H
+#define IOBS_PARAMETER_PROXY_H
 
 #include "scalar.h"
 #include "ParameterProvider.h"

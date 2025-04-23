@@ -1,3 +1,6 @@
+#ifndef OBSERVABLE_INTERFACE_H
+#define OBSERVABLE_INTERFACE_H
+
 #include <map>
 #include <memory>
 #include <vector>
@@ -81,3 +84,5 @@ public:
         return manager->update_gradient(obs);
     }
 };
+
+#endif

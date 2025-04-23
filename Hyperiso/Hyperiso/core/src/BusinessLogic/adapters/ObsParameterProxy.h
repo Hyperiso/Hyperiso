@@ -1,17 +1,18 @@
-#ifndef MODEL_PARAM_ADAPTER_H
-#define MODEL_PARAM_ADAPTER_H
+#ifndef OBS_PARAMETER_PROXY_H
+#define OBS_PARAMETER_PROXY_H
 
-#include "IObsParameterAdapter.h"
+#include "IObsParameterProxy.h"
 #include "ParameterProvider.h"
 #include "Include.h"
 
 class ObsParameterProxy : public IObsParameterProxy<std::string, LhaID> {
 public:
-ObsParameterProxy(ParameterType type);
+    ObsParameterProxy(ParameterType type = ParameterType::SM);
 
     scalar_t operator()(const ParamId& pid, ParameterProvider::DataType d_type=ParameterProvider::DataType::VALUE);
     scalar_t operator()(const std::string& block, const LhaID& id) const;
     
+    std::shared_ptr<Parameter> get_parameter(const ParamId& pid) const;
 private:
     ParameterProvider pp;
     ParameterProvider pp_with_type;

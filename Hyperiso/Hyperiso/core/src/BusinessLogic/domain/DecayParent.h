@@ -6,7 +6,7 @@
 #include "General.h"
 #include "WilsonInterface.h"
 #include "Node.h"
-#include "QCDHelper.h"
+#include "ObsUseMarty.h"
 
 struct WilsonInfo {
     double matching_scale;

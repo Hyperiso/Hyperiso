@@ -5,7 +5,7 @@
 #include <unordered_set>
 #include <map>
 
-#include "Parameters.h"
+#include "ObsParameterProxy.h"
 #include "General.h"
 
 // Node interface, purely virtual
@@ -37,7 +37,7 @@ private:
     bool visited;
 
 public:
-    inline ParameterNode(ParamId param_id) : lookup(param_id), value(Parameters::Get(param_id)), cacheValid(true), visited(false) {}
+    inline ParameterNode(ParamId param_id) : lookup(param_id), value(ObsParameterProxy()(param_id)), cacheValid(true), visited(false) {}
 
     // Updates cached value by reading the parameter structure
     void updateValue();

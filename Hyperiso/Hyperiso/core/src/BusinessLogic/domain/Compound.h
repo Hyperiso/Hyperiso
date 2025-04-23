@@ -8,7 +8,7 @@
 #include <algorithm>
 #include "Parameter.h"
 #include "CorrelationRepo.h"
-#include "Parameters.h"
+#include "ObsParameterProxy.h"
 
 class Compound {
 
