@@ -5,7 +5,7 @@
 #include "ParameterProvider.h"
 
 template<typename T, typename V>
-class IDataBaseProxy {
+class IObsParameterProxy {
 public:
     template<typename... Args>
     requires HasCallableOperator<T, Args...>

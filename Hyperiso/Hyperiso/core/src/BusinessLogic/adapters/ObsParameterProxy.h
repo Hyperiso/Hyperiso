@@ -1,13 +1,13 @@
 #ifndef MODEL_PARAM_ADAPTER_H
 #define MODEL_PARAM_ADAPTER_H
 
-#include "IDataBaseAdapter.h"
+#include "IObsParameterAdapter.h"
 #include "ParameterProvider.h"
 #include "Include.h"
 
-class DataBaseProxy : public IDataBaseProxy<std::string, LhaID> {
+class ObsParameterProxy : public IObsParameterProxy<std::string, LhaID> {
 public:
-    DataBaseProxy(ParameterType type);
+ObsParameterProxy(ParameterType type);
 
     scalar_t operator()(const ParamId& pid, ParameterProvider::DataType d_type=ParameterProvider::DataType::VALUE);
     scalar_t operator()(const std::string& block, const LhaID& id) const;
