@@ -1,5 +1,5 @@
-#ifndef __COMPOUND_H__
-#define __COMPOUND_H__
+#ifndef COMPOUND_H
+#define COMPOUND_H
 
 #include <iostream>
 #include <string>
@@ -7,8 +7,10 @@
 #include <map>
 #include <algorithm>
 #include "Parameter.h"
-#include "CorrelationRepo.h"
+// #include "CorrelationRepo.h"
 #include "ObsParameterProxy.h"
+#include "ObsParameterMutator.h"
+#include "CorrelationProxy.h"
 
 class Compound {
 

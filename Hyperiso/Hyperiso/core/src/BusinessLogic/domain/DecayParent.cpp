@@ -20,27 +20,28 @@
 //     return wilson;
 // }
 
-// void DecayParent::set_order(QCDOrder new_order) {
-//     if (ObsUseMarty().get() && new_order > QCDOrder::LO) {
-//         LOG_WARN("Using MARTY defaults all calculations to LO in QCD.");
-//         new_order = QCDOrder::LO;
-//     }
-
-//     if (winfo.order == new_order) {
-//         return;
-//     }
+//TODO : everything here, just for make it works
+void DecayParent::set_order(QCDOrder new_order) {
+    if (ObsUseMarty().get() && new_order > QCDOrder::LO) {
+        LOG_WARN("Using MARTY defaults all calculations to LO in QCD.");
+        new_order = QCDOrder::LO;
+    }
+    return;
+    // if (winfo.order == new_order) {
+    //     return;
+    // }
     
-//     if (winfo.order == QCDOrder::NONE) {
-//         if (new_order <= max_order && new_order != QCDOrder::NONE) {
-//             winfo.order = new_order;
-//         } else {
-//             winfo.order = max_order;
-//             LOG_WARN("Cannot set decay order to", OrderMapper::str(new_order));
-//         }
-//     } else {
-//         LOG_WARN("QCD order for this decay has already been set.");
-//     }
-// }
+    // if (winfo.order == QCDOrder::NONE) {
+    //     if (new_order <= max_order && new_order != QCDOrder::NONE) {
+    //         winfo.order = new_order;
+    //     } else {
+    //         winfo.order = max_order;
+    //         LOG_WARN("Cannot set decay order to", OrderMapper::str(new_order));
+    //     }
+    // } else {
+    //     LOG_WARN("QCD order for this decay has already been set.");
+    // }
+}
 
 scalar_t DecayParent::compute_observable(Observables obs) {
     return roots.at(obs)->calculate();

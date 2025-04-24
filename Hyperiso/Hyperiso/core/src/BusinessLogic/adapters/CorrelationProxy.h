@@ -1,5 +1,5 @@
-#ifndef MODEL_PARAM_ADAPTER_H
-#define MODEL_PARAM_ADAPTER_H
+#ifndef CORRELATION_PROXY_H
+#define CORRELATION_PROXY_H
 
 #include "IObsParameterProxy.h"
 #include "ParameterProvider.h"

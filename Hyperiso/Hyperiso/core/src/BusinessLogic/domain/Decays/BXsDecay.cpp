@@ -306,7 +306,7 @@ double BXsDecay::P12() {
 
 template<std::size_t size>
 double BXsDecay::gen_P00(const std::vector<scalar_t>& flat_K, const std::array<std::pair<int, int>, size>& indices) {
-    auto wilson = get_wilsons();
+    // auto wilson = get_wilsons();
     auto C = w_proxy.getAR(WGroup::B, QCDOrder::LO);
     auto Cp = w_proxy.getAR(WGroup::BPrime, QCDOrder::LO); 
 
@@ -324,7 +324,7 @@ double BXsDecay::gen_P00(const std::vector<scalar_t>& flat_K, const std::array<s
 
 template<std::size_t size>
 double BXsDecay::gen_P01(const std::vector<scalar_t>& flat_K, const std::array<std::pair<int, int>, size>& indices) {
-    auto wilson = get_wilsons();
+    // auto wilson = get_wilsons();
     auto C0 = w_proxy.getAR(WGroup::B, QCDOrder::LO);
     auto C1 = w_proxy.getAR(WGroup::B, QCDOrder::NLO);
 

@@ -9,11 +9,13 @@ double Compound::compute_pdv(const ParamId &param_id) const {
     h = fpeq(h, 0.) ? 1e-8 : h;
     std::shared_ptr<Parameter> pa = ObsParameterProxy().get_parameter(param_id);
 
-    pa->changeParameterMode(param_id, ParameterMode::SHIFTABLE);
-    pa->shiftParameter(param_id, h);
+    ObsParameterMutator opm;
+
+    opm.change_mode(param_id, ParameterMode::SHIFTABLE);
+    opm.shift(param_id, h);
     double f_p = eval();
-    pa->shiftParameter(param_id, -h);
-    pa->changeParameterMode(param_id, ParameterMode::FIXED);
+    opm.shift(param_id, -h);
+    opm.change_mode(param_id, ParameterMode::FIXED);
 
     // p->changeParameterMode(param_id, ParameterMode::SHIFTABLE);
     // p->shiftParameter(param_id, h);
@@ -64,9 +66,11 @@ const std::map<ParamId, double> &Compound::get_gradient() const {
     return gradient;
 }
 
+//TODO : correlation proxy ? or not correlation proxy ? that's the question
 double Compound::variance() {
     double var = 0;
-    CorrelationRepository cr;
+    // CorrelationRepository cr;
+    CorrelationProxy cprox;
     ObsParameterProxy opp = ObsParameterProxy();
 
     for (const auto &pid_1 : dependences) {
@@ -75,7 +79,8 @@ double Compound::variance() {
             if (pid_1 == pid_2) {
                 var += pow(opp.get_parameter(pid_1)->get_std() * gradient.at(pid_1), 2);
             } else {
-                var += cr.get_combined_correlation(pid_1, pid_2) * opp.get_parameter(pid_1)->get_std() * opp.get_parameter(pid_2)->get_std() * gradient.at(pid_1) * gradient.at(pid_2);
+                var += cprox(pid_1, pid_2, CorrelationProvider::CorrelationType::COMBINED) * opp.get_parameter(pid_1)->get_std() * opp.get_parameter(pid_2)->get_std() * gradient.at(pid_1) * gradient.at(pid_2);
+                // var += cr.get_combined_correlation(pid_1, pid_2) * opp.get_parameter(pid_1)->get_std() * opp.get_parameter(pid_2)->get_std() * gradient.at(pid_1) * gradient.at(pid_2);
             }
 
             // if (pid_1 == pid_2) {
@@ -105,30 +110,36 @@ const std::map<ParamId, double> Compound::get_leading_uncertainties(size_t n) co
     return max_uncertainties;
 }
 
+//TODO : same than before
 const std::map<ParamId, double> Compound::get_uncertainties() const {
     std::map<ParamId, double> uncertainties;
-    CorrelationRepository cr;
+    // CorrelationRepository cr;
+    CorrelationProxy cprox;
     ObsParameterProxy opp = ObsParameterProxy();
 
     for (auto p : dependences) {
         // double u = std::sqrt(cr.get_combined_correlation(p, p)) * p.std * std::abs(gradient.at(p));
-        double u = std::sqrt(cr.get_combined_correlation(p, p)) * opp.get_parameter(p)->get_std() * std::abs(gradient.at(p));
+        double u = std::sqrt(cprox(p, p, CorrelationProvider::CorrelationType::COMBINED)) * opp.get_parameter(p)->get_std() * std::abs(gradient.at(p));
+        // double u = std::sqrt(cr.get_combined_correlation(p, p)) * opp.get_parameter(p)->get_std() * std::abs(gradient.at(p));
         uncertainties.emplace(p, u);
     }
 
     return uncertainties;
 }
 
+//TODO : same than before before
 double Compound::correlation_with(const Compound &other) const {
     double corr = 0;
     auto common_dep = get_common_dependences_with(other);
-    CorrelationRepository cr;
+    // CorrelationRepository cr;
+    CorrelationProxy cprox;
     ObsParameterProxy opp = ObsParameterProxy();
     
     for (auto &&p_1 : common_dep) {
         for (auto &&p_2 : common_dep) {
                 // corr += cr.get_combined_correlation(p_1, p_2) * p_1.std * p_2.std * gradient.at(p_1) * other.get_gradient().at(p_2);
-                corr += cr.get_combined_correlation(p_1, p_2) * opp.get_parameter(p_1)->get_std() * opp.get_parameter(p_2)->get_std() * gradient.at(p_1) * other.get_gradient().at(p_2);
+                corr += cprox(p_1, p_2, CorrelationProvider::CorrelationType::COMBINED) * opp.get_parameter(p_1)->get_std() * opp.get_parameter(p_2)->get_std() * gradient.at(p_1) * other.get_gradient().at(p_2);
+                // corr += cr.get_combined_correlation(p_1, p_2) * opp.get_parameter(p_1)->get_std() * opp.get_parameter(p_2)->get_std() * gradient.at(p_1) * other.get_gradient().at(p_2);
         }
     }
     return corr;

@@ -1,5 +1,5 @@
-#ifndef __OBSERVABLEMANAGER_H__
-#define __OBSERVABLEMANAGER_H__
+#ifndef OBSERVABLEMANAGER_H
+#define OBSERVABLEMANAGER_H
 
 #include <memory>
 #include <map>

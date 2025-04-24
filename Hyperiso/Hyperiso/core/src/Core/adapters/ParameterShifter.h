@@ -1,12 +1,13 @@
-#ifndef __PARAMETERSHIFTER_H__
-#define __PARAMETERSHIFTER_H__
+#ifndef PARAMETERSHIFTER_H
+#define PARAMETERSHIFTER_H
 
 #include "IDataMutator.h"
 #include "Parameters.h"
 
-class ParameterShifter : public IDataMutator {
+class ParameterShifter : public IDataMutator<ParamId, scalar_t, ParameterMode> {
 public:
     void mutate(const ParamId& pid, scalar_t value) override;
+    void change_mode(const ParamId& pid, ParameterMode mode) override;
 };
 
 

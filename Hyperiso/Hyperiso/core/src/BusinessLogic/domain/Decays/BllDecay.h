@@ -1,5 +1,5 @@
-#ifndef __BLLDECAY_H__
-#define __BLLDECAY_H__
+#ifndef BLLDECAY_H
+#define BLLDECAY_H
 
 #include "DecayParent.h"
 #include "General.h"

@@ -5,7 +5,7 @@
 
 class WilsonAdapter {
 public:
-    WilsonAdapter() = default;
+    WilsonAdapter() {wi = WilsonInterface();}
 
     void build(std::vector<WGroup> groups, double mu_W, double mu_h, QCDOrder order) {wi.build(groups, mu_W, mu_h, order); built = true;}
 
@@ -14,7 +14,7 @@ public:
     void switchbasis(WGroup group_name) {wi.switchbasis(group_name);}
 
 private:
-    static inline WilsonInterface wi {};
+    WilsonInterface wi; //TODO : if static, built at compile time (or before main at least, so MemoryManager not initialized, error..)
     static inline bool built {false};
 
 friend class ObsWilsonProxy;

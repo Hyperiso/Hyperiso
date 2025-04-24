@@ -1,5 +1,5 @@
-#ifndef __BKSTARDECAY_H__
-#define __BKSTARDECAY_H__
+#ifndef BKSTARDECAY_H
+#define BKSTARDECAY_H
 
 #include "DecayParent.h"
 #include "General.h"

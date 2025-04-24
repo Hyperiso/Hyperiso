@@ -1,5 +1,5 @@
-#ifndef __WILSONINTERFACE_H__
-#define __WILSONINTERFACE_H__
+#ifndef WILSONINTERFACE_H
+#define WILSONINTERFACE_H
 
 #include "WilsonManager.h"
 #include "Wilson_SUSY.h"

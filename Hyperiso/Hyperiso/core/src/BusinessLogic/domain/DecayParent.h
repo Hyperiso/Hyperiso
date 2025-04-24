@@ -1,5 +1,5 @@
-#ifndef __DECAYPARENT_H__
-#define __DECAYPARENT_H__
+#ifndef DECAYPARENT_H
+#define DECAYPARENT_H
 
 #include <map>
 #include <string>

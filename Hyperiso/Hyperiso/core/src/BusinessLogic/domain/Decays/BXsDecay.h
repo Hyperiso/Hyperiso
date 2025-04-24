@@ -1,5 +1,5 @@
-#ifndef __BXSDECAY_H__
-#define __BXSDECAY_H__
+#ifndef BXSDECAY_H
+#define BXSDECAY_H
 
 #include "DecayParent.h"
 #include "General.h"

@@ -1,3 +1,6 @@
+#ifndef OBS_NODE_H
+#define OBS_NODE_H
+
 #include <iostream>
 #include <vector>
 #include <memory>
@@ -112,3 +115,5 @@ public:
         std::cout << "OperatorNode " << node.getName() << " : " << value << "\n";
     }
 };
+
+#endif

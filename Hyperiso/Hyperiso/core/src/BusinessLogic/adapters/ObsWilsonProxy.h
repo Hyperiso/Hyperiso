@@ -1,5 +1,5 @@
-#ifndef __OBSWILSONPROXY_H__
-#define __OBSWILSONPROXY_H__
+#ifndef OBSWILSONPROXY_H
+#define OBSWILSONPROXY_H
 
 #include "Include.h"
 #include "IObsWilsonProxy.h"
@@ -13,7 +13,7 @@ public:
             LOG_ERROR("InitializationError", "WilsonAdapter not built. Please call WilsonAdapter::build() before using ObsWilsonProxy.");
         }
 
-        this->wi = WilsonAdapter::wi;
+        this->wi = wi;
     }
 
     complex_t getM(WGroup group, WCoef coeff, QCDOrder order, bool sm_only=false) override {

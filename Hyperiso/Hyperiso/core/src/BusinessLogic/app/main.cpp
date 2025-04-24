@@ -1,16 +1,23 @@
-#include "MemoryManager.h"
+// #include "MemoryManager.h"
 #include "Logger.h"
 #include <functional>
 #include <iostream>
 #include <cassert>
 #include "ObservableInterface.h"
+#include "HyperisoMaster.h"
 
 int main() {
+    LOG_INFO("WWWAAA");
+    // Logger::getInstance()->setLevel(Logger::LogLevel::INFO);
 
-    Logger::getInstance()->setLevel(Logger::LogLevel::INFO);
+    // auto mm = MemoryManager::GetInstance();  // Initialize program manager with LHA file containing SMINPUTS block
+    // mm->init("Test/InputFiles/testinput_thdm.lha", Model::THDM);  // Initialize parameters from given LHA file
 
-    auto mm = MemoryManager::GetInstance();  // Initialize program manager with LHA file containing SMINPUTS block
-    mm->init("Test/InputFiles/testinput_thdm.lha", Model::THDM);  // Initialize parameters from given LHA file
+    LOG_INFO("WWWAAA");
+    HyperisoMaster hyperiso;
+    Config config;
+    config.model = Model::SM;
+    hyperiso.init("default/lha/testInput.flha", config);
 
     auto interface = ObservableInterface();
     interface.add_observable(Observables::BR_B_XS_GAMMA, QCDOrder::NNLO, false);

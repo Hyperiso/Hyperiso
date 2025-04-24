@@ -1,10 +1,11 @@
-#ifndef __MODELEVALUATOR_H__
-#define __MODELEVALUATOR_H__
+#ifndef MODELEVALUATOR_H
+#define MODELEVALUATOR_H
 
 #include "Compound.h"
 #include "Observable.h"
 #include "General.h"
 #include "Matrix.h"
+#include "CorrelationProxy.h"
 #include <vector>
 #include <string>
 
@@ -17,7 +18,7 @@ private:
     SparseMatrix<Observables> exp_cov_mtx;
 
     void update_th_covariance();
-    void update_exp_data();
+    // void update_exp_data(); //TODO: correlation proxy
 
 public:
 
