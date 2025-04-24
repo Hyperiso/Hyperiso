@@ -46,7 +46,7 @@ public:
         order = check_max_order(QCDOrder::NNLO);
         WilsonAdapter().build({WGroup::B, WGroup::BPrime}, matching_scale, hadronic_scale, order);
         WilsonAdapter().switchbasis(WGroup::B);
-        this->w_proxy = ObsWilsonProxy();
+        this->w_proxy = std::make_shared<ObsWilsonProxy>();
         build_op_tree();
     }
 

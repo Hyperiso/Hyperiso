@@ -2,8 +2,8 @@
 
 
 complex_t BlnuDecay::R(double m_B, double m_b, double m_tau) {
-    complex_t C_A = w_proxy.getFM(WGroup::Blnu, WCoef::CBlnu_A, QCDOrder::LO);
-    complex_t C_P = w_proxy.getFM(WGroup::Blnu, WCoef::CBlnu_P, QCDOrder::LO);
+    complex_t C_A = w_proxy->getFM(WGroup::Blnu, WCoef::CBlnu_A, QCDOrder::LO);
+    complex_t C_P = w_proxy->getFM(WGroup::Blnu, WCoef::CBlnu_P, QCDOrder::LO);
 
     return std::pow(std::abs(C_A + std::pow(m_B, 2) * C_P / (m_b * m_tau)), 2);
 }

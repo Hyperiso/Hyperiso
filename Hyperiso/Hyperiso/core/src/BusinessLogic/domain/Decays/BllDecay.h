@@ -22,7 +22,7 @@ public:
     BllDecay(QCDOrder order, double matching_scale, double hadronic_scale) {
         order = check_max_order(QCDOrder::NNLO);
         WilsonAdapter().build({WGroup::B, WGroup::BPrime, WGroup::BScalar}, matching_scale, hadronic_scale, order);
-        this->w_proxy = ObsWilsonProxy();
+        this->w_proxy = std::make_shared<ObsWilsonProxy>();
         build_op_tree();
     }
 

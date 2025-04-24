@@ -16,7 +16,7 @@ public:
 private:
     ParameterProvider pp;
     ParameterProvider pp_with_type;
-    static inline const std::unordered_set<ParameterType> ALLOWED {ParameterType::SM, ParameterType::BSM, ParameterType::WILSON};
+    static inline const std::unordered_set<ParameterType> ALLOWED {ParameterType::SM, ParameterType::BSM, ParameterType::WILSON, ParameterType::FLAVOR};
 };
 
 #endif 

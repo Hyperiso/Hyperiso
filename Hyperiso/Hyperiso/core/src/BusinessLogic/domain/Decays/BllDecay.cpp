@@ -2,20 +2,20 @@
 
 
 complex_t BllDecay::W1(double r, bool prime) {
-    complex_t cq1 = w_proxy.getFR(WGroup::BScalar, WCoef::CQ1, QCDOrder::NLO);
-    complex_t cpq1 = prime ? w_proxy.getFR(WGroup::BPrime, WCoef::CPQ1, QCDOrder::NLO) : 0;
+    complex_t cq1 = w_proxy->getFR(WGroup::BScalar, WCoef::CQ1, QCDOrder::NLO);
+    complex_t cpq1 = prime ? w_proxy->getFR(WGroup::BPrime, WCoef::CPQ1, QCDOrder::NLO) : 0;
     return r * (cq1 - cpq1);
 }
 
 complex_t BllDecay::W2Q(double r, bool prime) {
-    complex_t cq2 = w_proxy.getFR(WGroup::BScalar, WCoef::CQ2, QCDOrder::NLO);
-    complex_t cpq2 = prime ? w_proxy.getFR(WGroup::BPrime, WCoef::CPQ2, QCDOrder::NLO) : 0;
+    complex_t cq2 = w_proxy->getFR(WGroup::BScalar, WCoef::CQ2, QCDOrder::NLO);
+    complex_t cpq2 = prime ? w_proxy->getFR(WGroup::BPrime, WCoef::CPQ2, QCDOrder::NLO) : 0;
     return r * (cq2 - cpq2);
 }
 
 complex_t BllDecay::W210(double x, bool prime) {
-    complex_t c10 = w_proxy.getFR(WGroup::B, WCoef::C10, QCDOrder::NNLO);
-    complex_t cp10 = prime ? w_proxy.getFR(WGroup::BPrime, WCoef::CP10, QCDOrder::NLO) : 0;
+    complex_t c10 = w_proxy->getFR(WGroup::B, WCoef::C10, QCDOrder::NNLO);
+    complex_t cp10 = prime ? w_proxy->getFR(WGroup::BPrime, WCoef::CP10, QCDOrder::NLO) : 0;
     return 2. * (c10 - cp10) * x;
 }
 
@@ -40,13 +40,13 @@ double BllDecay::BR_avg_Bq_mumu(complex_t w1,
 }
 
 double BllDecay::A_DG(double x, double r) {
-    complex_t cq1 = w_proxy.getFR(WGroup::BScalar, WCoef::CQ1, QCDOrder::NLO);
-    complex_t cpq1 = w_proxy.getFR(WGroup::BPrime, WCoef::CPQ1, QCDOrder::LO);
-    complex_t cq2 = w_proxy.getFR(WGroup::BScalar, WCoef::CQ2, QCDOrder::NLO);
-    complex_t cpq2 = w_proxy.getFR(WGroup::BPrime, WCoef::CPQ2, QCDOrder::LO);
-    complex_t c10 = w_proxy.getFR(WGroup::B, WCoef::C10, QCDOrder::NNLO);
-    complex_t cp10 = w_proxy.getFR(WGroup::BPrime, WCoef::CP10, QCDOrder::LO);
-    complex_t c10sm = w_proxy.getFR(WGroup::B, WCoef::C10, QCDOrder::NNLO, true);
+    complex_t cq1 = w_proxy->getFR(WGroup::BScalar, WCoef::CQ1, QCDOrder::NLO);
+    complex_t cpq1 = w_proxy->getFR(WGroup::BPrime, WCoef::CPQ1, QCDOrder::LO);
+    complex_t cq2 = w_proxy->getFR(WGroup::BScalar, WCoef::CQ2, QCDOrder::NLO);
+    complex_t cpq2 = w_proxy->getFR(WGroup::BPrime, WCoef::CPQ2, QCDOrder::LO);
+    complex_t c10 = w_proxy->getFR(WGroup::B, WCoef::C10, QCDOrder::NNLO);
+    complex_t cp10 = w_proxy->getFR(WGroup::BPrime, WCoef::CP10, QCDOrder::LO);
+    complex_t c10sm = w_proxy->getFR(WGroup::B, WCoef::C10, QCDOrder::NNLO, true);
 
     complex_t S = x * std::sqrt(1 - 4 * x * x) * r * (cq1 - cpq1) / (2. * c10sm);
     complex_t P = (c10 - cp10) / c10sm + x * r * (cq2 - cpq2) / (2. * c10sm);

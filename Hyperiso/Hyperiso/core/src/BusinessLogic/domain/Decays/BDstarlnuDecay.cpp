@@ -343,26 +343,26 @@ double BDstarlnuDecay::G_S_T0(double rD, double rt_rD, double one_m_rD_sq, doubl
 }
 
 complex_t BDstarlnuDecay::C_V1() {
-    return w_proxy.getFM(WGroup::BCLNU, WCoef::C_V1, QCDOrder::LO);
+    return w_proxy->getFM(WGroup::BCLNU, WCoef::C_V1, QCDOrder::LO);
 }
 
 complex_t BDstarlnuDecay::C_V2() {
-    return w_proxy.getFM(WGroup::BCLNU, WCoef::C_V2, QCDOrder::LO);
+    return w_proxy->getFM(WGroup::BCLNU, WCoef::C_V2, QCDOrder::LO);
 }
 
 complex_t BDstarlnuDecay::C_A() {
     
-    return w_proxy.getFM(WGroup::BCLNU, WCoef::C_V1, QCDOrder::LO) - w_proxy.getFM(WGroup::BCLNU, WCoef::C_V2, QCDOrder::LO);
+    return w_proxy->getFM(WGroup::BCLNU, WCoef::C_V1, QCDOrder::LO) - w_proxy->getFM(WGroup::BCLNU, WCoef::C_V2, QCDOrder::LO);
 }
 
 complex_t BDstarlnuDecay::C_P() {
     
-    return w_proxy.getFM(WGroup::BCLNU, WCoef::C_S1, QCDOrder::LO) - w_proxy.getFM(WGroup::BCLNU, WCoef::C_S2, QCDOrder::LO);
+    return w_proxy->getFM(WGroup::BCLNU, WCoef::C_S1, QCDOrder::LO) - w_proxy->getFM(WGroup::BCLNU, WCoef::C_S2, QCDOrder::LO);
 }
 
 complex_t BDstarlnuDecay::C_T() {
     
-    return w_proxy.getFM(WGroup::BCLNU, WCoef::C_T, QCDOrder::LO);
+    return w_proxy->getFM(WGroup::BCLNU, WCoef::C_T, QCDOrder::LO);
 }
 
 double BDstarlnuDecay::c_flag(complex_t C) {

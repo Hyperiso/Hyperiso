@@ -7,7 +7,7 @@ double Compound::compute_pdv(const ParamId &param_id) const {
     double h = ObsParameterProxy()(param_id) * 1e-5;
     // double h = Parameters::Get(param_id) * 1e-5;
     h = fpeq(h, 0.) ? 1e-8 : h;
-    std::shared_ptr<Parameter> pa = ObsParameterProxy().get_parameter(param_id);
+    // std::shared_ptr<Parameter> pa = ObsParameterProxy().get_parameter(param_id);
 
     ObsParameterMutator opm;
 
@@ -72,7 +72,6 @@ double Compound::variance() {
     // CorrelationRepository cr;
     CorrelationProxy cprox;
     ObsParameterProxy opp = ObsParameterProxy();
-
     for (const auto &pid_1 : dependences) {
         for (const auto &pid_2 : dependences) {
 

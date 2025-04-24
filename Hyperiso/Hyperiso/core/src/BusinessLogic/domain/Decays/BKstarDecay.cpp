@@ -131,24 +131,24 @@ complex_t BKstarDecay::a7c_h(double mu_h,
                              complex_t h8) {
     
     ObsParameterMutator().set(ParamId{ParameterType::WILSON, "B_SCALE", 1}, mu_h);
-    complex_t C2_h = w_proxy.getFR(WGroup::B, WCoef::C2, QCDOrder::NNLO) + w_proxy.getFR(WGroup::BPrime, WCoef::CP2, QCDOrder::LO);
-    complex_t C8_h = w_proxy.getFR(WGroup::B, WCoef::C8, QCDOrder::NNLO) + w_proxy.getFR(WGroup::BPrime, WCoef::CP8, QCDOrder::LO);
+    complex_t C2_h = w_proxy->getFR(WGroup::B, WCoef::C2, QCDOrder::NNLO) + w_proxy->getFR(WGroup::BPrime, WCoef::CP2, QCDOrder::LO);
+    complex_t C8_h = w_proxy->getFR(WGroup::B, WCoef::C8, QCDOrder::NNLO) + w_proxy->getFR(WGroup::BPrime, WCoef::CP8, QCDOrder::LO);
     ObsParameterMutator().set(ParamId{ParameterType::WILSON, "B_SCALE", 1}, mu_b);
 
     return PI * QCDHelper::constants->C_F * alpha_s_mu_h * f_B * f_Ks_perp * (2. * C8_h * h8 - C2_h * h2) / (6 * QCDHelper::constants->Nc * T1 * m_B * lambda_B);
 }
 
 complex_t BKstarDecay::a7c_b(double alpha_s_mu_b, complex_t g2, complex_t g8) {
-    auto C = w_proxy.getAFR(WGroup::B, QCDOrder::NNLO);
-    auto Cp = w_proxy.getAFR(WGroup::BPrime, QCDOrder::LO);
+    auto C = w_proxy->getAFR(WGroup::B, QCDOrder::NNLO);
+    auto Cp = w_proxy->getAFR(WGroup::BPrime, QCDOrder::LO);
     return C[WCoef::C7] + Cp[WCoef::CP7] + alpha_s_mu_b * QCDHelper::constants->C_F * ((C[WCoef::C2] + Cp[WCoef::CP2]) * g2 + (C[WCoef::C8] + Cp[WCoef::CP8]) * g8) / (4 * PI);
 }
 
 complex_t BKstarDecay::r1(double mu_0, double mu_b, double F_p) {
     if (fpeq(mu_0, -1.)) return 0;
     
-    auto C = w_proxy.getAFR(WGroup::B, QCDOrder::NNLO);
-    auto Cp = w_proxy.getAFR(WGroup::BPrime, QCDOrder::LO);
+    auto C = w_proxy->getAFR(WGroup::B, QCDOrder::NNLO);
+    auto Cp = w_proxy->getAFR(WGroup::BPrime, QCDOrder::LO);
     complex_t C3 = C[WCoef::C3] + Cp[WCoef::CP3];
     complex_t C4 = C[WCoef::C4] + Cp[WCoef::CP4];
     complex_t C5 = C[WCoef::C5] + Cp[WCoef::CP5];
@@ -160,8 +160,8 @@ complex_t BKstarDecay::r1(double mu_0, double mu_b, double F_p) {
 complex_t BKstarDecay::r2(double mu_0, double mu_b) {
     if (fpeq(mu_0, -1.)) return 0;
     
-    auto C = w_proxy.getAFR(WGroup::B, QCDOrder::NNLO);
-    auto Cp = w_proxy.getAFR(WGroup::BPrime, QCDOrder::LO);
+    auto C = w_proxy->getAFR(WGroup::B, QCDOrder::NNLO);
+    auto Cp = w_proxy->getAFR(WGroup::BPrime, QCDOrder::LO);
     complex_t C3 = C[WCoef::C3] + Cp[WCoef::CP3];
     complex_t C4 = C[WCoef::C4] + Cp[WCoef::CP4];
     complex_t C6 = C[WCoef::C6] + Cp[WCoef::CP6];
@@ -179,8 +179,8 @@ complex_t BKstarDecay::K1(double mb_mb,
                           double mu_b)
 {
     
-    auto C = w_proxy.getAFR(WGroup::B, QCDOrder::NNLO);
-    auto Cp = w_proxy.getAFR(WGroup::BPrime, QCDOrder::LO);
+    auto C = w_proxy->getAFR(WGroup::B, QCDOrder::NNLO);
+    auto Cp = w_proxy->getAFR(WGroup::BPrime, QCDOrder::LO);
     complex_t C2 = C[WCoef::C2] + Cp[WCoef::CP2];
     complex_t C5 = C[WCoef::C5] + Cp[WCoef::CP5];
     complex_t C6 = C[WCoef::C6] + Cp[WCoef::CP6];
@@ -197,8 +197,8 @@ complex_t BKstarDecay::K2d(double mb_mb,
                            complex_t r2,
                            double mu_b)
 {
-    auto C = w_proxy.getAFR(WGroup::B, QCDOrder::NNLO);
-    auto Cp = w_proxy.getAFR(WGroup::BPrime, QCDOrder::LO);
+    auto C = w_proxy->getAFR(WGroup::B, QCDOrder::NNLO);
+    auto Cp = w_proxy->getAFR(WGroup::BPrime, QCDOrder::LO);
     complex_t C2 = C[WCoef::C2] + Cp[WCoef::CP2];
     complex_t C3 = C[WCoef::C3] + Cp[WCoef::CP3];
     complex_t C4 = C[WCoef::C4] + Cp[WCoef::CP4];
@@ -212,8 +212,8 @@ complex_t BKstarDecay::ckm_factor(complex_t V_us, complex_t V_ub, complex_t V_cs
 }
 
 complex_t BKstarDecay::K2u(complex_t ckm, complex_t K2d) {
-    complex_t C1 = w_proxy.getFR(WGroup::B, WCoef::C1, QCDOrder::NNLO) + w_proxy.getFR(WGroup::BPrime, WCoef::CP1, QCDOrder::LO);
-    complex_t C2 = w_proxy.getFR(WGroup::B, WCoef::C2, QCDOrder::NNLO) + w_proxy.getFR(WGroup::BPrime, WCoef::CP2, QCDOrder::LO);
+    complex_t C1 = w_proxy->getFR(WGroup::B, WCoef::C1, QCDOrder::NNLO) + w_proxy->getFR(WGroup::BPrime, WCoef::CP1, QCDOrder::LO);
+    complex_t C2 = w_proxy->getFR(WGroup::B, WCoef::C2, QCDOrder::NNLO) + w_proxy->getFR(WGroup::BPrime, WCoef::CP2, QCDOrder::LO);
     double N = QCDHelper::constants->Nc;
     return ckm * (C2 + C1 / N) + K2d;
 }

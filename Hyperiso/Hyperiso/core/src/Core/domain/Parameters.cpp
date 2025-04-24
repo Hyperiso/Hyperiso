@@ -102,7 +102,6 @@ std::unordered_set<std::string> SMModelStrategy::initializeParameters(Parameters
     // };
 
     // params.addDependantBlock("GAUGE", gauge_block, "SMINPUTS", gauge_update_func);
-    std::cout << "fuuuuck strategy" << std::endl;
     
 
     // TODO : Initialize derived blocks RE/IMUPMNS

@@ -1,5 +1,5 @@
-#ifndef __IOBSWILSONPROXY_H__
-#define __IOBSWILSONPROXY_H__
+#ifndef IOBSWILSONPROXY_H
+#define IOBSWILSONPROXY_H
 
 #include "Include.h"
 

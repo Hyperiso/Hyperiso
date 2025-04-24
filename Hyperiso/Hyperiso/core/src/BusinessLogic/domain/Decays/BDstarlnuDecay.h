@@ -83,7 +83,7 @@ public:
     BDstarlnuDecay(QCDOrder order, double matching_scale, double hadronic_scale) {
         order = check_max_order(QCDOrder::LO);
         WilsonAdapter().build({WGroup::BCLNU}, matching_scale, hadronic_scale, order);
-        this->w_proxy = ObsWilsonProxy();
+        this->w_proxy = std::make_shared<ObsWilsonProxy>();
         build_op_tree();
     }
 

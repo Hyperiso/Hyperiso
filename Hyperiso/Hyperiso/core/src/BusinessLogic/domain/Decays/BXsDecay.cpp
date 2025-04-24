@@ -289,26 +289,26 @@ double BXsDecay::x5(double P0, double K77_rem) {
 }
 
 double BXsDecay::P0() {
-    complex_t C70 = w_proxy.getR(WGroup::B, WCoef::C7, QCDOrder::LO);
-    complex_t C70p = w_proxy.getR(WGroup::BPrime, WCoef::CP7, QCDOrder::LO);
+    complex_t C70 = w_proxy->getR(WGroup::B, WCoef::C7, QCDOrder::LO);
+    complex_t C70p = w_proxy->getR(WGroup::BPrime, WCoef::CP7, QCDOrder::LO);
     return std::pow(std::abs(C70), 2) + std::pow(std::abs(C70p), 2);
 }
 
 double BXsDecay::P11() {
-    auto C7 = w_proxy.getSR(WGroup::B, WCoef::C7);
+    auto C7 = w_proxy->getSR(WGroup::B, WCoef::C7);
     return 2 * std::real(C7[QCDOrder::LO] * std::conj(C7[QCDOrder::NLO]));
 }
 
 double BXsDecay::P12() {
-    auto C7 = w_proxy.getSR(WGroup::B, WCoef::C7);
+    auto C7 = w_proxy->getSR(WGroup::B, WCoef::C7);
     return std::pow(std::abs(C7[QCDOrder::NLO]), 2) + 2 * std::real(C7[QCDOrder::LO] * std::conj(C7[QCDOrder::NNLO]));
 }
 
 template<std::size_t size>
 double BXsDecay::gen_P00(const std::vector<scalar_t>& flat_K, const std::array<std::pair<int, int>, size>& indices) {
     // auto wilson = get_wilsons();
-    auto C = w_proxy.getAR(WGroup::B, QCDOrder::LO);
-    auto Cp = w_proxy.getAR(WGroup::BPrime, QCDOrder::LO); 
+    auto C = w_proxy->getAR(WGroup::B, QCDOrder::LO);
+    auto Cp = w_proxy->getAR(WGroup::BPrime, QCDOrder::LO); 
 
     auto K = fill_K(flat_K, indices);
     double P {0};
@@ -325,8 +325,8 @@ double BXsDecay::gen_P00(const std::vector<scalar_t>& flat_K, const std::array<s
 template<std::size_t size>
 double BXsDecay::gen_P01(const std::vector<scalar_t>& flat_K, const std::array<std::pair<int, int>, size>& indices) {
     // auto wilson = get_wilsons();
-    auto C0 = w_proxy.getAR(WGroup::B, QCDOrder::LO);
-    auto C1 = w_proxy.getAR(WGroup::B, QCDOrder::NLO);
+    auto C0 = w_proxy->getAR(WGroup::B, QCDOrder::LO);
+    auto C1 = w_proxy->getAR(WGroup::B, QCDOrder::NLO);
 
     auto K = fill_K(flat_K, indices);
     double P {0};
@@ -381,8 +381,8 @@ double BXsDecay::Kc(double eta) {
 double BXsDecay::Kt(double eta) {
     double f = std::pow(eta, 2. / 23);
     double f2 = f * f;
-    double C7 = std::real(w_proxy.getM(WGroup::B, WCoef::C7, QCDOrder::LO));
-    double C8 = std::real(w_proxy.getM(WGroup::B, WCoef::C8, QCDOrder::LO));
+    double C7 = std::real(w_proxy->getM(WGroup::B, WCoef::C7, QCDOrder::LO));
+    double C8 = std::real(w_proxy->getM(WGroup::B, WCoef::C8, QCDOrder::LO));
     return (C7 + 23. / 36) * f2 - 8 * (C8 + 1. / 3) * (f2 - f) / 3;
 }
 
@@ -421,13 +421,13 @@ double BXsDecay::C8_em(double eta) {
 }
 
 complex_t BXsDecay::C7_em(double eta, double C8_em, double C2_em) {
-    complex_t C7 = w_proxy.getM(WGroup::B, WCoef::C7, QCDOrder::LO);
-    complex_t C8 = w_proxy.getM(WGroup::B, WCoef::C8, QCDOrder::LO);
+    complex_t C7 = w_proxy->getM(WGroup::B, WCoef::C7, QCDOrder::LO);
+    complex_t C8 = w_proxy->getM(WGroup::B, WCoef::C8, QCDOrder::LO);
     return (32 * std::pow(eta, -9. / 23) / 75 - 40 * std::pow(eta, -7. / 23) / 69 + 88 * std::pow(eta, 16. / 23) / 575) * C7 + C8_em * C8 + C2_em;
 }
 
 double BXsDecay::epsilon_em(double inv_alpha_em, double alpha_mub, double C7_em, double k) {
-    complex_t C7 = w_proxy.getR(WGroup::B, WCoef::C7, QCDOrder::LO);
+    complex_t C7 = w_proxy->getR(WGroup::B, WCoef::C7, QCDOrder::LO);
     return (2 * std::real(C7_em * std::conj(C7)) - k * std::pow(std::abs(C7), 2)) / (inv_alpha_em * alpha_mub);
 }
 
@@ -600,8 +600,8 @@ double BXsDecay::target(double p_22, double x1, double x2, double x5, double z) 
 }
 
 double BXsDecay::x1() {
-    auto C = w_proxy.getAR(WGroup::B, QCDOrder::LO);
-    auto CP = w_proxy.getAR(WGroup::BPrime, QCDOrder::LO);
+    auto C = w_proxy->getAR(WGroup::B, QCDOrder::LO);
+    auto CP = w_proxy->getAR(WGroup::BPrime, QCDOrder::LO);
 
     auto f = [] (complex_t c1, complex_t c2) { 
         return std::pow(std::abs(c1), 2) / 36 + std::pow(std::abs(c2), 2) - std::real(c1 * std::conj(c2)) / 3; 
@@ -611,8 +611,8 @@ double BXsDecay::x1() {
 }
 
 double BXsDecay::x2() {
-    auto C = w_proxy.getAR(WGroup::B, QCDOrder::LO);
-    auto CP = w_proxy.getAR(WGroup::BPrime, QCDOrder::LO);
+    auto C = w_proxy->getAR(WGroup::B, QCDOrder::LO);
+    auto CP = w_proxy->getAR(WGroup::BPrime, QCDOrder::LO);
 
     auto f = [] (complex_t c1, complex_t c2, complex_t c7, complex_t c8) { 
         return std::real(c7 * std::conj(4019. * c1 / 486. - 1184. * c2 / 81. - 4. * c7 + 4. * c8 / 3.)); 

@@ -5,16 +5,16 @@
 
 class WilsonAdapter {
 public:
-    WilsonAdapter() {wi = WilsonInterface();}
+    WilsonAdapter();
 
-    void build(std::vector<WGroup> groups, double mu_W, double mu_h, QCDOrder order) {wi.build(groups, mu_W, mu_h, order); built = true;}
+    void build(std::vector<WGroup> groups, double mu_W, double mu_h, QCDOrder order) {wi->build(groups, mu_W, mu_h, order); built = true;}
 
-    void addWilsonGroup(WGroup group_name) {wi.addWilsonGroup(group_name);}
+    void addWilsonGroup(WGroup group_name) {wi->addWilsonGroup(group_name);}
 
-    void switchbasis(WGroup group_name) {wi.switchbasis(group_name);}
+    void switchbasis(WGroup group_name) {wi->switchbasis(group_name);}
 
 private:
-    WilsonInterface wi; //TODO : if static, built at compile time (or before main at least, so MemoryManager not initialized, error..)
+    static inline std::shared_ptr<WilsonInterface> wi; //TODO : if static, built at compile time (or before main at least, so MemoryManager not initialized, error..)
     static inline bool built {false};
 
 friend class ObsWilsonProxy;
