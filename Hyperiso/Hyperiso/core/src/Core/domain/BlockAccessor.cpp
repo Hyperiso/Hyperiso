@@ -26,7 +26,7 @@ bool BlockAccessor::has_param(const std::string blockName, LhaID id) const {
     return false;
 }
 
-void BlockAccessor::setValue(const std::string& blockName, LhaID id, double value, bool force) {
+void BlockAccessor::setValue(const std::string& blockName, LhaID id, double value) {
     auto it = this->find(blockName);
     if (it != this->end()) {
         if (it->second->contains(id)) {
@@ -121,7 +121,7 @@ std::shared_ptr<BlockAccessor> operator>>(std::shared_ptr<BlockAccessor> lhs, st
     for (const auto &b : lhs->get_block_names()) {
         if (res->contains(b)) {
             for (const auto& id : lhs->at(b)->getAllIDs()) {
-                res->setValue(b, id, lhs->getValue(b, id), true);
+                res->setValue(b, id, lhs->getValue(b, id));
             }
         } else {
             res->emplace(b, std::make_shared<Block>(lhs->at(b)));

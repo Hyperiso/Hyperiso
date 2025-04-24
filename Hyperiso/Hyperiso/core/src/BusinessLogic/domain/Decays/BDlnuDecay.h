@@ -3,6 +3,8 @@
 
 #include "DecayParent.h"
 #include "General.h"
+#include "WilsonAdapter.h"
+#include "ObsWilsonProxy.h"
 
 /**
  * @brief Decay parent for the B > D l nu_l decays [1309:0301]. Currently implements :
@@ -12,9 +14,8 @@
  *     - P_tau = (Γ(s_tau = +1/2) - Γ(s_tau = -1/2)) / Γ
  */
 class BDlnuDecay : public DecayParent {
-
 protected:
-    double ckm(double V_cb_r, double V_cb_i);
+    double ckm(complex_t V_cb);
     double pref(double G_F, double tau_B, double m_B, double m_D, double V_11);
 
     double t(double rD, double w);
@@ -59,15 +60,9 @@ protected:
 
 public:
     BDlnuDecay(QCDOrder order, double matching_scale, double hadronic_scale) {
-        winfo.matching_scale = matching_scale;
-        winfo.hadronic_scale = hadronic_scale;
-        winfo.model = MemoryManager::GetInstance()->getModel();
-        winfo.order = order;
-        winfo.basis = BWilsonBasis::STANDARD;
-        winfo.wgroups = {WGroup::BCLNU};
-
-        max_order = QCDOrder::LO;
-
+        order = check_max_order(QCDOrder::LO);
+        WilsonAdapter().build({WGroup::BCLNU}, matching_scale, hadronic_scale, order);
+        this->w_proxy = ObsWilsonProxy();
         build_op_tree();
     }
 

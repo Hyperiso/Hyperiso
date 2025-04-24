@@ -4,13 +4,15 @@
 #include "DecayParent.h"
 #include "General.h"
 #include "QCDHelper.h"
+#include "Math.h"
+#include "ObsParameterMutator.h"
 
 class BKstarDecay : public DecayParent {
 
 protected:
     double alpha_s(double mu);
     double beta_0(double mu);
-    double sc(double mb_mu_b);
+    double sc(double mb_mu_b, double hadronic_scale);
     double run(double initial_value, double eta, double gamma, double beta);
     double a_n_perp(int n, double a_1_gev, double beta_0, double eta);
     double a_n_par(int n, double a_1_gev, double beta_0, double eta);
@@ -25,31 +27,26 @@ protected:
     complex_t G_perp(double s, double a1, double a2); 
     complex_t H_perp(double s, double a1par, double a2par, double z3a, double z3v, double w10a, double dtp, double dtm); 
     double X_perp(double a1, double a2, double m_B, double Lambda_h); 
-    complex_t G2(double s); 
-    complex_t G8();
+    complex_t G2(double s, double lrb); 
+    complex_t G8(double lrb);
     complex_t H2(double s, double a1, double a2);
     double H8(double a1, double a2); 
-    complex_t a7c_h(double mu_h, double alpha_s_mu_h, double f_B, double f_Ks_perp, double T1, double m_B, double lambda_B, complex_t h2, complex_t h8); 
+    complex_t a7c_h(double mu_h, double mu_b, double alpha_s_mu_h, double f_B, double f_Ks_perp, double T1, double m_B, double lambda_B, complex_t h2, complex_t h8); 
     complex_t a7c_b(double alpha_s_mu_b, complex_t g2, complex_t g8); 
-    complex_t r1(double mu_0, double F_p);
-    complex_t r2(double mu_0);
-    complex_t K1(double mb_mb, double m_B, double alpha_s_mu_b, double F_p, complex_t G_p, complex_t X_p, complex_t r1);
-    complex_t K2d(double mb_mb, double alpha_s_mu_b, complex_t H_p, complex_t r2);
-    complex_t ckm_factor(double Vus_r, double Vus_i, double Vub_r, double Vub_i, double Vcs_r, double Vcs_i, double Vcb_r, double Vcb_i);
+    complex_t r1(double mu_0, double mu_b, double F_p);
+    complex_t r2(double mu_0, double mu_b);
+    complex_t K1(double mb_mb, double m_B, double alpha_s_mu_b, double F_p, complex_t G_p, complex_t X_p, complex_t r1, double mu_b);
+    complex_t K2d(double mb_mb, double alpha_s_mu_b, complex_t H_p, complex_t r2, double mu_b);
+    complex_t ckm_factor(complex_t Vus, complex_t Vub, complex_t Vcs, complex_t Vcb);
     complex_t K2u(complex_t ckm, complex_t K2d);
     double delta_0(double f_B, double mb_mb, double T1, double f_Ks_perp, double f_Ks_par, double m_Ks, double m_B, double lambda_B, complex_t a7c, complex_t K1, complex_t K2d, complex_t K2u);
 
 public:
     BKstarDecay(QCDOrder order, double matching_scale, double hadronic_scale) {
-        winfo.matching_scale = matching_scale;
-        winfo.hadronic_scale = hadronic_scale;
-        winfo.model = MemoryManager::GetInstance()->getModel();
-        winfo.order = order;
-        winfo.basis = BWilsonBasis::TRADITIONAL;
-        winfo.wgroups = {WGroup::B, WGroup::BPrime};
-
-        max_order = QCDOrder::NNLO;
-
+        order = check_max_order(QCDOrder::NNLO);
+        WilsonAdapter().build({WGroup::B, WGroup::BPrime}, matching_scale, hadronic_scale, order);
+        WilsonAdapter().switchbasis(WGroup::B);
+        this->w_proxy = ObsWilsonProxy();
         build_op_tree();
     }
 

@@ -153,7 +153,7 @@ public:
      * @param value The new value to assign.
      * @param force If true, forces the update.
      */
-    void setBlockValue(const std::string& name, LhaID pdgCode, double value, bool force = false);
+    void setBlockValue(const std::string& name, LhaID pdgCode, double value);
 
     /**
      * @brief Retrieves all parameter values from a specified block.

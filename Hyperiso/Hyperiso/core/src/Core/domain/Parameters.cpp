@@ -47,8 +47,8 @@ bool Parameters::exist(const std::string& block, LhaID id) {
     return blockAccessor->has_param(block, id);
 }
 
-void Parameters::setBlockValue(const std::string& name, LhaID id, double value, bool force) {
-    blockAccessor->setValue(name, id, value, force);
+void Parameters::setBlockValue(const std::string& name, LhaID id, double value) {
+    blockAccessor->setValue(name, id, value);
 }
 
 std::map<LhaID, double> Parameters::get_block_infos(std::string blockName) {
@@ -262,7 +262,7 @@ void Parameters::changeParameterMode(const ParamId &param_id, ParameterMode new_
 }
 
 void Parameters::shiftParameter(const ParamId &param_id, double shift_value) {
-    blockAccessor->setValue(param_id.block, param_id.code, blockAccessor->getValue(param_id.block, param_id.code) + shift_value, true);
+    blockAccessor->setValue(param_id.block, param_id.code, blockAccessor->getValue(param_id.block, param_id.code) + shift_value);
 }
 
 std::shared_ptr<Parameters> ParametersFactory::GetParameters(ParameterType id) {

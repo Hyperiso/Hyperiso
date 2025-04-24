@@ -1,7 +1,7 @@
 #ifndef IOBS_PARAMETER_PROXY_H
 #define IOBS_PARAMETER_PROXY_H
 
-#include "scalar.h"
+#include "Math.h"
 #include "ParameterProvider.h"
 
 template<typename T, typename V>

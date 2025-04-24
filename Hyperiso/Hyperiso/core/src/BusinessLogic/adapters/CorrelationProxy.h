@@ -9,8 +9,6 @@
 
 class CorrelationProxy : public IObsParameterProxy<std::string, LhaID> {
 public:
-    CorrelationProxy(ParameterType type);
-
     double operator()(const ParamId& pid_1, const ParamId& pid_2, CorrelationProvider::CorrelationType type);
     double operator()(const Observables& pid_1, const Observables& pid_2, CorrelationProvider::CorrelationType type);
     

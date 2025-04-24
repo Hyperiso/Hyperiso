@@ -7,7 +7,7 @@ class IDataMutator {
 public:
     virtual ~IDataMutator() = default;
 
-    virtual void mutate(const ParamId&, double) = 0;
+    virtual void mutate(const ParamId&, scalar_t) = 0;
 };
 
 #endif // __IPARAMMODIFIER_H__

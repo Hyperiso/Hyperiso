@@ -7,28 +7,27 @@
 #include "WilsonInterface.h"
 #include "Node.h"
 #include "ObsUseMarty.h"
-
-struct WilsonInfo {
-    double matching_scale;
-    double hadronic_scale;
-    Model model;
-    QCDOrder order;
-    BWilsonBasis basis;
-    std::vector<WGroup> wgroups;
-};
+#include "WilsonAdapter.h"
+#include "ObsWilsonProxy.h"
+#include "Math.h"
 
 class DecayParent {
 
 protected:
     std::map<Observables, std::shared_ptr<OperatorNode>> roots;
-    WilsonInfo winfo;
-    std::shared_ptr<WilsonInterface> wilson;
     QCDOrder max_order;
+    ObsWilsonProxy w_proxy;
+
+    QCDOrder check_max_order(QCDOrder order) const {
+        if (order > max_order) {
+            LOG_WARN("QCD order for decay cannot be higher than", OrderMapper::str(max_order));
+            return max_order;
+        }
+        return order;
+    }
 
 public:
     explicit DecayParent() = default;
-
-    std::shared_ptr<WilsonInterface> get_wilsons(bool force_update=true);
     void set_order(QCDOrder new_order);
 
     scalar_t compute_observable(Observables obs);

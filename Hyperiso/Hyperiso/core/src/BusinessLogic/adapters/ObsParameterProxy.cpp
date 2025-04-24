@@ -23,7 +23,7 @@ scalar_t ObsParameterProxy::operator()(const ParamId& pid, ParameterProvider::Da
     if (pp.get_type() == ParameterType::WILSON) {
         return pp.exists(pid) ? pp(pid) : scalar_t();
     }
-    pp(pid, ParameterProvider::DataType::VALUE);
+    pp(pid, d_type);
 
     return pp(pid); 
 };

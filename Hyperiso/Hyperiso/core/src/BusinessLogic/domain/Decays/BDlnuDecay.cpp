@@ -1,7 +1,7 @@
 #include "BDlnuDecay.h"
 
-double BDlnuDecay::ckm(double V_cb_r, double V_cb_i) {
-    return std::pow(std::abs(complex_t(V_cb_r, V_cb_i)), 2);
+double BDlnuDecay::ckm(complex_t V_cb) {
+    return std::pow(std::abs(V_cb), 2);
 }
 
 double BDlnuDecay::pref(double G_F, double tau_B, double m_B, double m_D, double V11) {
@@ -176,17 +176,15 @@ double BDlnuDecay::G_S_T(double rD, double rl, double rqp, double rqm, double rh
 }
 
 complex_t BDlnuDecay::C_V() {
-    auto wil = get_wilsons();
-    return wil->getFM(WGroup::BCLNU, WCoef::C_V1, QCDOrder::LO) + wil->getFM(WGroup::BCLNU, WCoef::C_V2, QCDOrder::LO);
+    return w_proxy.getFM(WGroup::BCLNU, WCoef::C_V1, QCDOrder::LO) + w_proxy.getFM(WGroup::BCLNU, WCoef::C_V2, QCDOrder::LO);
 }
 
 complex_t BDlnuDecay::C_S() {
-    auto wil = get_wilsons();
-    return wil->getFM(WGroup::BCLNU, WCoef::C_S1, QCDOrder::LO) + wil->getFM(WGroup::BCLNU, WCoef::C_S2, QCDOrder::LO);
+    return w_proxy.getFM(WGroup::BCLNU, WCoef::C_S1, QCDOrder::LO) + w_proxy.getFM(WGroup::BCLNU, WCoef::C_S2, QCDOrder::LO);
 }
 
 complex_t BDlnuDecay::C_T() {
-    return get_wilsons()->getFM(WGroup::BCLNU, WCoef::C_T, QCDOrder::LO);
+    return w_proxy.getFM(WGroup::BCLNU, WCoef::C_T, QCDOrder::LO);
 }
 
 double BDlnuDecay::c_flag(complex_t C) {
@@ -236,19 +234,13 @@ double BDlnuDecay::BR_B_Dtaunu(double pref, double ckm, double width) {
 void BDlnuDecay::build_op_tree() {
     // SM Parameters
     auto G_F = std::make_shared<ParameterNode>(ParamId(ParameterType::SM, "SMINPUTS", 2));
-    auto alpha_s_MZ = std::make_shared<ParameterNode>(ParamId(ParameterType::SM, "SMINPUTS", 3));
-    auto M_Z = std::make_shared<ParameterNode>(ParamId(ParameterType::SM, "SMINPUTS", 4));
-    auto mt_pole = std::make_shared<ParameterNode>(ParamId(ParameterType::SM, "SMINPUTS", 6));
-    auto mb_mb = std::make_shared<ParameterNode>(ParamId(ParameterType::SM, "SMINPUTS", 5));
-
     auto m_tau = std::make_shared<ParameterNode>(ParamId(ParameterType::SM, "MASS", 15));
     auto m_e = std::make_shared<ParameterNode>(ParamId(ParameterType::SM, "MASS", 11));
     auto m_d = std::make_shared<ParameterNode>(ParamId(ParameterType::SM, "MASS", 1));
     auto m_u = std::make_shared<ParameterNode>(ParamId(ParameterType::SM, "MASS", 2));
     auto m_s = std::make_shared<ParameterNode>(ParamId(ParameterType::SM, "MASS", 3));
     auto m_c = std::make_shared<ParameterNode>(ParamId(ParameterType::SM, "MASS", 4));
-    auto V_cb_r = std::make_shared<ParameterNode>(ParamId(ParameterType::SM, "RECKM", 12));
-    auto V_cb_i = std::make_shared<ParameterNode>(ParamId(ParameterType::SM, "IMCKM", 12));
+    auto V_cb = std::make_shared<ParameterNode>(ParamId(ParameterType::SM, "VCKM", LhaID(1, 2)));
 
     // Flavor Parameters
     auto m_B = std::make_shared<ParameterNode>(ParamId(ParameterType::FLAVOR, "FMASS", 521));
@@ -260,13 +252,15 @@ void BDlnuDecay::build_op_tree() {
     auto rho_D2 = std::make_shared<ParameterNode>(ParamId(ParameterType::DECAY, "B_Dlnu", 2));
     auto Delta = std::make_shared<ParameterNode>(ParamId(ParameterType::DECAY, "B_Dlnu", 3));
 
+    // Scales and Wilsons
+    auto hadronic_scale = std::make_shared<ParameterNode>(ParamId(ParameterType::WILSON, "B_SCALE", 1));
+
     // Operator nodes
-    auto qcd = std::make_shared<OperatorNode>("qcd", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return 0; });
-    qcd->addChildren({alpha_s_MZ, M_Z, mt_pole, mb_mb, m_u, m_d, m_s, m_c});
-    auto m_b_muh = std::make_shared<OperatorNode>("m_b", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return QCDHelper::msbar_mass(5, winfo.hadronic_scale); });
-    m_b_muh->addChildren({qcd});
-    auto m_c_muh = std::make_shared<OperatorNode>("m_c", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return QCDHelper::msbar_mass(4, winfo.hadronic_scale); });
-    m_c_muh->addChildren({qcd});
+    auto m_b_muh = std::make_shared<OperatorNode>("m_b", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return QCDHelper::msbar_mass(5, values[0]); });
+    m_b_muh->addChild(hadronic_scale);
+    auto m_c_muh = std::make_shared<OperatorNode>("m_c", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return QCDHelper::msbar_mass(4, values[0]); });
+    m_c_muh->addChild(hadronic_scale);
+
     auto r_D = std::make_shared<OperatorNode>("r_D", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return values[0] / values[1]; });
     r_D->addChildren({m_D, m_B});
     auto r_tau = std::make_shared<OperatorNode>("r_tau", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return values[0] / values[1]; });
@@ -377,8 +371,8 @@ void BDlnuDecay::build_op_tree() {
     auto prefactor = std::make_shared<OperatorNode>("G0", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return pref(values[0], values[1], values[2], values[3], values[4]); });
     prefactor->addChildren({G_F, life_B, m_B, m_D, V11});
 
-    auto nckm = std::make_shared<OperatorNode>("ckm", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return ckm(values[0], values[1]); });
-    nckm->addChildren({V_cb_r, V_cb_i});
+    auto nckm = std::make_shared<OperatorNode>("ckm", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return ckm(values[0]); });
+    nckm->addChildren({V_cb});
 
     auto BR = std::make_shared<OperatorNode>("BR(B > D tau nu)", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return BR_B_Dtaunu(values[0], values[1], values[2]); });
     BR->addChildren({prefactor, nckm, gamma});

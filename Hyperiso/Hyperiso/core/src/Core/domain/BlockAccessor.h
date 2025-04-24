@@ -34,9 +34,8 @@ public:
      * @param blockName The name of the block.
      * @param pdgCode The PDG code of the parameter.
      * @param value The new value to set.
-     * @param force If true, forces the update.
      */
-    void setValue(const std::string& blockName, LhaID pdgCode, double value, bool force = false);
+    void setValue(const std::string& blockName, LhaID pdgCode, double value);
 
     // /**
     //  * @brief Sets the mode of a parameter in a specified block.

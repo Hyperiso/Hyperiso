@@ -1,6 +1,6 @@
 #include "ParameterSetter.h"
 
-void ParameterSetter::mutate(const ParamId &pid, double value) {
+void ParameterSetter::mutate(const ParamId &pid, scalar_t value) {
     if (!pid.type.has_value()) {
         LOG_ERROR("LogicError", "Use of incomplete ParamId to mutate parameter. Please specify a ParameterType.");
     }

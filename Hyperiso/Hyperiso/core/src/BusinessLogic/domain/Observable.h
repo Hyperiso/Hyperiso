@@ -3,7 +3,7 @@
 
 #include "General.h"
 #include "Compound.h"
-#include "BKstarDecay.h"
+#include "DecayParent.h"
 
 class Observable : public Compound {
 

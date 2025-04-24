@@ -29,14 +29,12 @@ protected:
     template<std::size_t size>
     std::array<std::array<scalar_t, 8>, 8> fill_K(const std::vector<scalar_t>& flat_K, const std::array<std::pair<int, int>, size>& indices);
 
-    double alpha_s_mub();
     double alpha_s_upsilon(double mb_1S);
-    double eta(double alpha_mub);
     double delta(double E0, double mb_1S);
     double mc_muc(double mu_c);
     double mc_3GeV();
     double z(double mc_muc, double mb_1S);
-    double Lb(double mb_1S);
+    double Lb(double mu_b, double mb_1S);
     double Lc(double mu_c, double mc_muc);
     double LD(double Lb, double z);
     double a(double z);
@@ -118,34 +116,28 @@ protected:
     double P(double alpha_mub, double p0, double p11, double p12, double p21, double p22, double p32);
 
     double g(double m_c_3gev, double m_b_1S);
-    double C(double g, double m_c_3gev, double mu_G2, double rho_D3, double rho_LS3);
+    double C(double g, double m_b_mb, double m_c_3gev, double mu_G2, double rho_D3, double rho_LS3);
 
     double Kc(double eta);
     double Kt(double eta);
-    double r(double m_b_1S);
+    double r(double m_b_mb, double m_b_1S);
     double N_eta_factor(double eta);
     double N(double Kc, double Kt, double r, double eta_factor, double lambda_2, double mc);
 
-    double k_SL(double eta);
+    double k_SL(double eta, double mu_W, double mu_b);
     double C2_em(double eta);
     double C8_em(double eta);
     complex_t C7_em(double eta, double C8_em, double C2_em);
     double epsilon_em(double inv_alpha_em, double alpha_mub, double C7_em, double k);
 
-    double ckm(double V_tb_r, double V_tb_i, double V_ts_r, double V_ts_i, double V_cb_r, double V_cb_i);
+    double ckm(complex_t V_tb, complex_t V_ts, complex_t V_cb);
     double BR_B_Xs_gamma(double br_B__Xc_e_nu, double ckm, double inv_alpha_em, double C, double P, double N, double eps_em);
 
 public:
     BXsDecay(QCDOrder order, double matching_scale, double hadronic_scale) {
-        winfo.matching_scale = matching_scale;
-        winfo.hadronic_scale = hadronic_scale;
-        winfo.model = MemoryManager::GetInstance()->getModel();
-        winfo.order = order;
-        winfo.basis = BWilsonBasis::STANDARD;
-        winfo.wgroups = {WGroup::B, WGroup::BPrime};
-
-        max_order = QCDOrder::NNLO;
-
+        order = check_max_order(QCDOrder::NNLO);
+        WilsonAdapter().build({WGroup::B, WGroup::BPrime}, matching_scale, hadronic_scale, order);
+        this->w_proxy = ObsWilsonProxy();
         build_op_tree();
     }
 

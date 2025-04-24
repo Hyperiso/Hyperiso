@@ -15,7 +15,7 @@
 class BDstarlnuDecay : public DecayParent {
 
 protected:
-    double ckm  (double V_cb_r, double V_cb_i);
+    double ckm  (complex_t V_cb);
     double pref (double G_F, double tau_B, double m_B, double m_D, double h_A1_1);
 
     double t        (double rD, double w);
@@ -81,15 +81,9 @@ protected:
 
 public:
     BDstarlnuDecay(QCDOrder order, double matching_scale, double hadronic_scale) {
-        winfo.matching_scale = matching_scale;
-        winfo.hadronic_scale = hadronic_scale;
-        winfo.model = MemoryManager::GetInstance()->getModel();
-        winfo.order = order;
-        winfo.basis = BWilsonBasis::STANDARD;
-        winfo.wgroups = {WGroup::BCLNU};
-
-        max_order = QCDOrder::LO;
-
+        order = check_max_order(QCDOrder::LO);
+        WilsonAdapter().build({WGroup::BCLNU}, matching_scale, hadronic_scale, order);
+        this->w_proxy = ObsWilsonProxy();
         build_op_tree();
     }
 

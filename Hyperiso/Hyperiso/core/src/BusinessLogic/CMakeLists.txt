@@ -54,5 +54,5 @@ target_include_directories(BusinessLogicLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/d
 
 target_link_libraries(BusinessLogicLib PUBLIC PhysicalModelLib CoreLib CommonLib ConfiguredModule MathLib)
 
-add_executable(TEST main.cpp)
+add_executable(TEST app/main.cpp)
 target_link_libraries(TEST BusinessLogicLib)

@@ -11,21 +11,15 @@ class BlnuDecay : public DecayParent {
 
 protected:
     complex_t R(double m_B, double m_b, double m_tau);
-    double ckm(double V_ub_r, double V_ub_i);
+    double ckm(complex_t V_ub);
     double pref(double G_F, double f_B, double tau_B, double m_B, double m_tau);
     double BR_B_taunu(double pref, double ckm, double R);
 
 public:
     BlnuDecay(QCDOrder order, double matching_scale, double hadronic_scale) {
-        winfo.matching_scale = matching_scale;
-        winfo.hadronic_scale = hadronic_scale;
-        winfo.model = MemoryManager::GetInstance()->getModel();
-        winfo.order = order;
-        winfo.basis = BWilsonBasis::STANDARD;
-        winfo.wgroups = {WGroup::Blnu};
-
-        max_order = QCDOrder::LO;
-
+        order = check_max_order(QCDOrder::LO);
+        WilsonAdapter().build({WGroup::Blnu}, matching_scale, hadronic_scale, order);
+        this->w_proxy = ObsWilsonProxy();
         build_op_tree();
     }
 

@@ -60,7 +60,7 @@ public:
     static double alpha_s(double mu, MassType mass_b_type = MassType::POLE, MassType mass_t_type = MassType::POLE);
     static double msbar_mass(int pdg_code, double mu, MassType mass_b_type = MassType::POLE, MassType mass_t_type = MassType::POLE);
 
-    static int get_nf(double mu, MassType mass_b_type, MassType mass_t_type);
+    static int get_nf(double mu, MassType mass_b_type = MassType::POLE, MassType mass_t_type = MassType::POLE);
 };
 
 #endif // __QCDHELPER_H__

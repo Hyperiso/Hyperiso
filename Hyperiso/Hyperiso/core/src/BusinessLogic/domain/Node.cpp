@@ -12,7 +12,7 @@ scalar_t ParameterNode::getValue() {
 bool ParameterNode::updateCacheFlag() {
     LOG_DEBUG("ParameterNode::updateCacheFlag() [", getName(), "]");
     if (!visited) {
-        cacheValid = fpeq(value, (double)ObsParameterProxy()(lookup));
+        cacheValid = fpeq(value, ObsParameterProxy()(lookup));
         if (!cacheValid)
             updateValue();
         visited = true;
