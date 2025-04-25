@@ -279,7 +279,7 @@ void BKstarDecay::build_op_tree() {
     auto m_b_1S = std::make_shared<ParameterNode>(ParamId(ParameterType::SM, "QCD", LhaID(5, 3)));
 
     // SM and scale parameters
-    auto alpha_s_mu_b    = std::make_shared<ParameterNode>(ParamId(ParameterType::WILSON, "WPARAM_SM_RUN", 1));
+    auto alpha_s_mu_b    = std::make_shared<ParameterNode>(ParamId(ParameterType::WILSON, "WPARAM_RUN_SM", 1));
     auto mu_b = std::make_shared<ParameterNode>(ParamId(ParameterType::WILSON, "B_SCALE", 1));    
 
     // Operator nodes

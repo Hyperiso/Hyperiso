@@ -45,6 +45,18 @@ void Parameter::set_shift(scalar_t shift) {
     }
 }
 
+void DependentParameter::freeze() {
+    this->frozen = true;
+}
+
+void DependentParameter::unfreeze() {
+    this->frozen = false;
+    if (update_at_unfreeze) {
+        update();
+        update_at_unfreeze = false;
+    }
+}
+
 DependentParameter::~DependentParameter() {
     LOG_INFO("Destruct DependentParameter at", self.get());
     if (self) {

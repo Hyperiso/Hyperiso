@@ -9,6 +9,13 @@
 
 #include <map>
 
+struct WilsonConfig {
+    std::unordered_set<WGroup> groups;
+    double matching_scale;
+    double hadronic_scale;
+    QCDOrder order;
+};
+
 class WilsonInterface {
 private:
     CoefficientManager wm;
@@ -199,11 +206,11 @@ public:
         return getAllFullRunCoefficients(group, order, sm_only);
     }
 
-    inline void build(std::vector<WGroup> group_names, double mu_W, double mu_h, QCDOrder order) {
+    inline void build(WilsonConfig config) {
         std::map<std::string, std::shared_ptr<CoefficientGroup>> groups;
         auto model = ModelAPI().get();
        
-        for (auto& gn : group_names) {
+        for (auto& gn : config.groups) {
             std::string gn_str = GroupMapper::str(gn);
             groups.emplace(gn_str, group_ptrs.at(gn_str));
             if (model == Model::THDM || model == Model::SUSY) {
@@ -211,7 +218,7 @@ public:
                 groups.emplace(gn_bsm_str, group_ptrs.at(gn_bsm_str));
             }
         }
-        this->wm = CoefficientManager::Builder(ModelMapper::str(model), groups, mu_W, mu_h, OrderMapper::str(order));
+        this->wm = CoefficientManager::Builder(ModelMapper::str(model), groups, config.matching_scale, config.hadronic_scale, OrderMapper::str(config.order));
     }
 };
 

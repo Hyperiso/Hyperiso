@@ -70,9 +70,9 @@ void BllDecay::build_op_tree() {
     auto m_mu = std::make_shared<ParameterNode>(ParamId(ParameterType::SM, "MASS", 13));
     auto m_d = std::make_shared<ParameterNode>(ParamId(ParameterType::SM, "MASS", 1));
     auto m_s = std::make_shared<ParameterNode>(ParamId(ParameterType::SM, "MASS", 3));
-    auto V_tb = std::make_shared<ParameterNode>(ParamId(ParameterType::SM, "RECKM", 22));
-    auto V_ts = std::make_shared<ParameterNode>(ParamId(ParameterType::SM, "RECKM", 21));
-    auto V_td = std::make_shared<ParameterNode>(ParamId(ParameterType::SM, "RECKM", 20));
+    auto V_tb = std::make_shared<ParameterNode>(ParamId(ParameterType::SM, "VCKM", LhaID(2, 2)));
+    auto V_ts = std::make_shared<ParameterNode>(ParamId(ParameterType::SM, "VCKM", LhaID(2, 1)));
+    auto V_td = std::make_shared<ParameterNode>(ParamId(ParameterType::SM, "VCKM", LhaID(2, 0)));
     auto m_b_pole = std::make_shared<ParameterNode>(ParamId(ParameterType::SM, "QCD", LhaID(5, 2)));
 
     // Flavor Parameters

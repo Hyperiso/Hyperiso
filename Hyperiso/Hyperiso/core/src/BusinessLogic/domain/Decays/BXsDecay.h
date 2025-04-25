@@ -133,12 +133,12 @@ protected:
     double ckm(complex_t V_tb, complex_t V_ts, complex_t V_cb);
     double BR_B_Xs_gamma(double br_B__Xc_e_nu, double ckm, double inv_alpha_em, double C, double P, double N, double eps_em);
 
+private:
+    const QCDOrder max_order = QCDOrder::NNLO;
+
 public:
-    BXsDecay(QCDOrder order, double matching_scale, double hadronic_scale) {
-        order = check_max_order(QCDOrder::NNLO);
-        WilsonAdapter().build({WGroup::B, WGroup::BPrime}, matching_scale, hadronic_scale, order);
-        this->w_proxy = std::make_shared<ObsWilsonProxy>();
-        build_op_tree();
+    BXsDecay(QCDOrder order, double matching_scale, double hadronic_scale) : DecayParent(matching_scale, hadronic_scale, order) {
+        this->w_config.groups = {WGroup::B, WGroup::BPrime};
     }
 
     void build_op_tree() override;

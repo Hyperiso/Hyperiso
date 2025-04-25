@@ -15,6 +15,7 @@ public:
     void init(QCDOrder order);
 };
 
+// TODO : adapt with storage_block constructor as in THDM
 class C1_susy : public WilsonCoefficient_susy {
 public:
     C1_susy() : WilsonCoefficient_susy() { this->set_name("C1_SUSY"); }

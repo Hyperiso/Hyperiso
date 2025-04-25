@@ -47,7 +47,7 @@ protected:
 
 class C_Blnu_A : public WilsonCoefficient {
 public:
-    C_Blnu_A() : WilsonCoefficient() {this->set_name("C_Blnu_A");}
+    C_Blnu_A() : WilsonCoefficient("C_Blnu_A", GroupMapper::str(WGroup::Blnu) + "_MATCH") {}
 
     void LO_calculation() { }; 
     void NLO_calculation() {} 
@@ -57,7 +57,7 @@ public:
 
 class C_Blnu_P : public WilsonCoefficient {
 public:
-    C_Blnu_P() : WilsonCoefficient() {this->set_name("C_Blnu_P");}
+    C_Blnu_P() : WilsonCoefficient("C_Blnu_P", GroupMapper::str(WGroup::Blnu) + "_MATCH") {}
 
     void LO_calculation() {}
     void NLO_calculation() {} 
@@ -67,7 +67,7 @@ public:
 
 class C_V1 : public WilsonCoefficient {
 public:
-    C_V1() : WilsonCoefficient() {this->set_name("C_V1");}
+    C_V1() : WilsonCoefficient("C_V1", GroupMapper::str(WGroup::BCLNU) + "_MATCH") {}
 
     void LO_calculation() {
          //return double_to_complex_save("LO", 1.);  TODO
@@ -79,7 +79,7 @@ public:
 
 class C_V2 : public WilsonCoefficient {
 public:
-    C_V2() : WilsonCoefficient() {this->set_name("C_V2");}
+    C_V2() : WilsonCoefficient("C_V2", GroupMapper::str(WGroup::BCLNU) + "_MATCH") {}
 
     void LO_calculation() {}
     void NLO_calculation() {} 
@@ -89,7 +89,7 @@ public:
 
 class C_S1 : public WilsonCoefficient {
 public:
-    C_S1() : WilsonCoefficient() {this->set_name("C_S1");}
+    C_S1() : WilsonCoefficient("C_S1", GroupMapper::str(WGroup::BCLNU) + "_MATCH") {}
 
     void LO_calculation() {}
     void NLO_calculation() {} 
@@ -99,7 +99,7 @@ public:
 
 class C_S2 : public WilsonCoefficient {
 public:
-    C_S2() : WilsonCoefficient() {this->set_name("C_S2");}
+    C_S2() : WilsonCoefficient("C_S2", GroupMapper::str(WGroup::BCLNU) + "_MATCH") {}
 
     void LO_calculation() {}
     void NLO_calculation() {} 
@@ -109,7 +109,7 @@ public:
 
 class C_T : public WilsonCoefficient {
 public:
-    C_T() : WilsonCoefficient() {this->set_name("C_T");}
+    C_T() : WilsonCoefficient("C_T", GroupMapper::str(WGroup::BCLNU) + "_MATCH") {}
 
     void LO_calculation() {}
     void NLO_calculation() {} 

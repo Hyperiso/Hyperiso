@@ -46,6 +46,8 @@ public:
     void removeObserver(std::shared_ptr<Block> observer);
     void notifyObservers();
     virtual void update();
+    virtual void freeze();
+    virtual void unfreeze();
     void copy(std::shared_ptr<Block> other);
 
     ~Block() { notifyObservers(); }
@@ -58,7 +60,7 @@ protected:
 class DependentBlock : public Block, public std::enable_shared_from_this<DependentBlock> {
 public:
     explicit DependentBlock(const std::unordered_map<std::string, std::shared_ptr<Block>>& sources, DepUpdateFunc recalculateFunc) 
-        : sourceBlocks(std::move(sources)), recalculateLambda(std::move(recalculateFunc)) {}
+        : sourceBlocks(std::move(sources)), recalculateLambda(std::move(recalculateFunc)), frozen(false) {}
 
     bool dependsOn(const std::string& blockName) {
         return sourceBlocks.contains(blockName);
@@ -78,7 +80,10 @@ public:
     }
 
     void update() override {
-        if (recalculateLambda 
+        if (frozen) {
+            LOG_INFO("DependentBlock is frozen, skipping update");
+            update_at_unfreeze = true;
+        } else if (recalculateLambda 
             && std::all_of(sourceBlocks.begin(), sourceBlocks.end(), 
                            [](std::pair<std::string, std::shared_ptr<Block>> block) { return block.second; })) 
         {
@@ -88,10 +93,15 @@ public:
             } else {
                 std::cerr << "Error: shared_from_this() failed in update()" << std::endl;
             }
+        } else {
+            LOG_ERROR("Error", "DependentBlock::update() called without all source blocks being set");
         }
         LOG_INFO("Call to notifyObservers from DependentBlock::update() of", blockname);
         notifyObservers();
     }
+
+    void freeze() override;
+    void unfreeze() override;
 
     ~DependentBlock() {
         LOG_INFO("Destruct dependentBlock at", self.get());
@@ -109,35 +119,8 @@ private:
     std::shared_ptr<DependentBlock> self;
     std::unordered_map<std::string, std::shared_ptr<Block>> sourceBlocks;
     DepUpdateFunc recalculateLambda;
-};
-
-
-
-
-/* ------------------------------------------------------------------------------------------------
-Wilson Input BLOCKS*/
-
-/**
- * @class WilsonBlock
- * @brief Special block for Wilson coefficients.
- * 
- * The PDG code encodes coefficient ID and QCD order.
- */
-class WilsonBlock : public Block {
-    // pdgCode is NNO with NN = integer ID of the coefficient as in BWilsonCoefficients enum, O is QCD order
-    // pdgCode -1 is reserved to access the scale of the coefficients
-    // pdgCode -2 is reserved to access the type of the coefficients
-public:
-    double getValue(LhaID pdgCode) const;
-    void setValue(LhaID pdgCode, double value, bool force = false);
-
-protected:
-    // Index is QCD order
-    /// Map of Wilson coefficients indexed by order
-    std::map<WCoef, std::array<double, 3>> values; 
-    double scale; ///< Scale of the coefficients
-    int type;     ///< Type of the coefficients
-
+    bool frozen;
+    bool update_at_unfreeze;
 };
 
 #endif

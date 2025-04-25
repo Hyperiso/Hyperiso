@@ -40,11 +40,13 @@ add_library(BusinessLogicLib STATIC
     domain/Node.cpp
     domain/ModelEvaluator.cpp
     domain/ObsManager.cpp
+    domain/ObsWilsonHelper.cpp
     adapters/CorrelationProxy.cpp
     adapters/ObsParameterProxy.cpp
     adapters/ObsParameterMutator.cpp
     adapters/ObsQCDProxy.cpp
     adapters/WilsonAdapter.cpp
+    adapters/WilsonFreezer.cpp
 )
 set_target_properties(BusinessLogicLib PROPERTIES POSITION_INDEPENDENT_CODE ON)
 

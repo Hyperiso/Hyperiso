@@ -12,7 +12,7 @@ void C1::NLO_calculation() {
         dep_param->set_expected(15 + 6 * L);
     };
 
-    WilsonParamComposer().compose_parameter(ParamId{"B_MATCH", LhaID(3040405, 6161, 1, 0)}, sources, func);
+    WilsonParamComposer().compose_parameter(ParamId{this->storage_block, LhaID(3040405, 6161, 1, 0)}, sources, func);
 }
 
 void C1::NNLO_calculation() {
@@ -27,7 +27,7 @@ void C1::NNLO_calculation() {
         dep_param->set_expected(-T(xt) + 7987./72. + 17. * PI2 / 3. + 475./6. * L + 17. * L * L);
     };
 
-    WilsonParamComposer().compose_parameter(ParamId{"B_MATCH", LhaID(3040405, 6161, 2, 0)}, sources, func);
+    WilsonParamComposer().compose_parameter(ParamId{this->storage_block, LhaID(3040405, 6161, 2, 0)}, sources, func);
 }
 
 // ---------- C2 ----------
@@ -39,7 +39,7 @@ void C2::LO_calculation() {
         dep_param->set_expected(1.);
     };
 
-    WilsonParamComposer().compose_parameter(ParamId{"B_MATCH", LhaID(3040405, 4141, 0, 0)}, sources, func);
+    WilsonParamComposer().compose_parameter(ParamId{this->storage_block, LhaID(3040405, 4141, 0, 0)}, sources, func);
 }
 
 void C2::NNLO_calculation() {
@@ -52,7 +52,7 @@ void C2::NNLO_calculation() {
         dep_param->set_expected(127. / 18. + 4. / 3. * PI2 + 46. / 3. * L + 4. * L * L);
     };
 
-    WilsonParamComposer().compose_parameter(ParamId{"B_MATCH", LhaID(3040405, 4141, 2, 0)}, sources, func);
+    WilsonParamComposer().compose_parameter(ParamId{this->storage_block, LhaID(3040405, 4141, 2, 0)}, sources, func);
 }
 
 // ---------- C3 ----------
@@ -75,7 +75,7 @@ void C3::NNLO_calculation() {
         dep_param->set_expected(coeff_temp);
     };
 
-    WilsonParamComposer().compose_parameter(ParamId{"B_MATCH", LhaID(3050707, 4133, 2, 0)}, sources, func);
+    WilsonParamComposer().compose_parameter(ParamId{this->storage_block, LhaID(3050707, 4133, 2, 0)}, sources, func);
 }
 
 // ---------- C4 ----------
@@ -94,7 +94,7 @@ void C4::NLO_calculation() {
         dep_param->set_expected(coeff_temp);
     };
 
-    WilsonParamComposer().compose_parameter(ParamId{"B_MATCH", LhaID(3050707, 6153, 1, 0)}, sources, func);
+    WilsonParamComposer().compose_parameter(ParamId{this->storage_block, LhaID(3050707, 6153, 1, 0)}, sources, func);
 }
 
 void C4::NNLO_calculation() {
@@ -115,7 +115,7 @@ void C4::NNLO_calculation() {
         dep_param->set_expected(coeff_temp);
     };
 
-    WilsonParamComposer().compose_parameter(ParamId{"B_MATCH", LhaID(3050707, 6153, 2, 0)}, sources, func);
+    WilsonParamComposer().compose_parameter(ParamId{this->storage_block, LhaID(3050707, 6153, 2, 0)}, sources, func);
 }
 
 // ---------- C5 ----------
@@ -138,7 +138,7 @@ void C5::NNLO_calculation() {
         dep_param->set_expected(coeff_temp);
     };
 
-    WilsonParamComposer().compose_parameter(ParamId{"B_MATCH", LhaID(3050707, 4536, 2, 0)}, sources, func);
+    WilsonParamComposer().compose_parameter(ParamId{this->storage_block, LhaID(3050707, 4536, 2, 0)}, sources, func);
 }
 
 // ---------- C6 ----------
@@ -161,7 +161,7 @@ void C6::NNLO_calculation() {
         dep_param->set_expected(coeff_temp);
     };
 
-    WilsonParamComposer().compose_parameter(ParamId{"B_MATCH", LhaID(3050707, 6556, 2, 0)}, sources, func);
+    WilsonParamComposer().compose_parameter(ParamId{this->storage_block, LhaID(3050707, 6556, 2, 0)}, sources, func);
 }
 
 // ---------- C7 ----------
@@ -176,7 +176,7 @@ void C7::LO_calculation() {
         dep_param->set_expected(-0.5 * A0t(xt) - 23. / 36.);
     };
 
-    WilsonParamComposer().compose_parameter(ParamId{"B_MATCH", LhaID(305, 4422, 0, 0)}, sources, func);
+    WilsonParamComposer().compose_parameter(ParamId{this->storage_block, LhaID(305, 4422, 0, 0)}, sources, func);
 }
 
 void C7::NLO_calculation() {
@@ -197,7 +197,7 @@ void C7::NLO_calculation() {
         dep_param->set_expected(coeff_temp);
     };
 
-    WilsonParamComposer().compose_parameter(ParamId{"B_MATCH", LhaID(305, 4422, 1, 0)}, sources, func);
+    WilsonParamComposer().compose_parameter(ParamId{this->storage_block, LhaID(305, 4422, 1, 0)}, sources, func);
 }
 
 void C7::NNLO_calculation() {
@@ -232,7 +232,7 @@ void C7::NNLO_calculation() {
             dep_param->set_expected(coeff_temp);
         };
 
-    WilsonParamComposer().compose_parameter(ParamId{"B_MATCH", LhaID(305, 4422, 2, 0)}, sources, func);
+    WilsonParamComposer().compose_parameter(ParamId{this->storage_block, LhaID(305, 4422, 2, 0)}, sources, func);
 }
 
 // ---------- C8 ----------
@@ -247,7 +247,7 @@ void C8::LO_calculation() {
         dep_param->set_expected(-0.5*F0t(xt)-1./3.);
     };
 
-    WilsonParamComposer().compose_parameter(ParamId{"B_MATCH", LhaID(305, 6421, 0, 0)}, sources, func);
+    WilsonParamComposer().compose_parameter(ParamId{this->storage_block, LhaID(305, 6421, 0, 0)}, sources, func);
 }
 
 void C8::NLO_calculation() {
@@ -270,7 +270,7 @@ void C8::NLO_calculation() {
         dep_param->set_expected(coeff_temp);
     };
 
-    WilsonParamComposer().compose_parameter(ParamId{"B_MATCH", LhaID(305, 6421, 1, 0)}, sources, func);
+    WilsonParamComposer().compose_parameter(ParamId{this->storage_block, LhaID(305, 6421, 1, 0)}, sources, func);
 }
 
 void C8::NNLO_calculation() {
@@ -304,7 +304,7 @@ void C8::NNLO_calculation() {
         dep_param->set_expected(coeff_temp);
         };
 
-    WilsonParamComposer().compose_parameter(ParamId{"B_MATCH", LhaID(305, 6421, 2, 0)}, sources, func);
+    WilsonParamComposer().compose_parameter(ParamId{this->storage_block, LhaID(305, 6421, 2, 0)}, sources, func);
 }
 
 // ---------- C9 ----------
@@ -324,7 +324,7 @@ void C9::LO_calculation() {
         dep_param->set_expected(coeff_temp);
     };
 
-    WilsonParamComposer().compose_parameter(ParamId{"B_MATCH", LhaID(3051313, 4133, 0, 0)}, sources, func);
+    WilsonParamComposer().compose_parameter(ParamId{this->storage_block, LhaID(3051313, 4133, 0, 0)}, sources, func);
 }
 
 void C9::NLO_calculation() {
@@ -351,7 +351,7 @@ void C9::NLO_calculation() {
         dep_param->set_expected(coeff_temp);
         };
 
-    WilsonParamComposer().compose_parameter(ParamId{"B_MATCH", LhaID(3051313, 4133, 1, 0)}, sources, func);
+    WilsonParamComposer().compose_parameter(ParamId{this->storage_block, LhaID(3051313, 4133, 1, 0)}, sources, func);
 }
 
 void C9::NNLO_calculation() {
@@ -374,7 +374,7 @@ void C10::LO_calculation() {
         dep_param->set_expected(coeff_temp);
     };
 
-    WilsonParamComposer().compose_parameter(ParamId{"B_MATCH", LhaID(3051313, 4137, 0, 0)}, sources, func);
+    WilsonParamComposer().compose_parameter(ParamId{this->storage_block, LhaID(3051313, 4137, 0, 0)}, sources, func);
 }
 
 void C10::NLO_calculation() {
@@ -398,7 +398,7 @@ void C10::NLO_calculation() {
         dep_param->set_expected(coeff_temp);
         };
 
-    WilsonParamComposer().compose_parameter(ParamId{"B_MATCH", LhaID(3051313, 4137, 1, 0)}, sources, func);
+    WilsonParamComposer().compose_parameter(ParamId{this->storage_block, LhaID(3051313, 4137, 1, 0)}, sources, func);
 }
  
 void C10::NNLO_calculation() {
@@ -438,7 +438,7 @@ void C10::NNLO_calculation() {
         dep_param->set_expected(coeff_temp);
         };
 
-    WilsonParamComposer().compose_parameter(ParamId{"B_MATCH", LhaID(3051313, 4137, 2, 0)}, sources, func);
+    WilsonParamComposer().compose_parameter(ParamId{this->storage_block, LhaID(3051313, 4137, 2, 0)}, sources, func);
 }
 
 // ---------- CQ1 ----------
@@ -468,7 +468,7 @@ void CQ1::LO_calculation() {
         dep_param->set_expected(coeff_temp);
     };
 
-    WilsonParamComposer().compose_parameter(ParamId{"B_SCALAR_MATCH", LhaID(3051313, 3230, 0, 0)}, sources, func);
+    WilsonParamComposer().compose_parameter(ParamId{this->storage_block, LhaID(3051313, 3230, 0, 0)}, sources, func);
 }
 
 // ---------- CQ2 ----------
@@ -503,7 +503,7 @@ void CQ2::LO_calculation() {
         dep_param->set_expected(coeff_temp);
     };
 
-    WilsonParamComposer().compose_parameter(ParamId{"B_SCALAR_MATCH", LhaID(3051313, 3233, 0, 0)}, sources, func);
+    WilsonParamComposer().compose_parameter(ParamId{this->storage_block, LhaID(3051313, 3233, 0, 0)}, sources, func);
 }
 
 // ---------- C'7 ----------
@@ -525,7 +525,7 @@ void CP7::LO_calculation() {
         dep_param->set_expected(coeff_temp);
         };
 
-    WilsonParamComposer().compose_parameter(ParamId{"B_PRIME_MATCH", LhaID(305, 4322, 0, 0)}, sources, func);
+    WilsonParamComposer().compose_parameter(ParamId{this->storage_block, LhaID(305, 4322, 0, 0)}, sources, func);
 }
 
 // ---------- C'8 ----------
@@ -548,5 +548,5 @@ void CP8::LO_calculation() {
         dep_param->set_expected(coeff_temp);
         };
 
-    WilsonParamComposer().compose_parameter(ParamId{"B_PRIME_MATCH", LhaID(305, 4321, 0, 0)}, sources, func);
+    WilsonParamComposer().compose_parameter(ParamId{this->storage_block, LhaID(305, 4321, 0, 0)}, sources, func);
 }

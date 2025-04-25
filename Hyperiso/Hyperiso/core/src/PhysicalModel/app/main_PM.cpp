@@ -14,10 +14,10 @@ int main(){
     auto wi = WilsonInterface(); // Initialize interface and build the required groups
     LOG_INFO("WilsonInterface created");
     wi.build(
-        {WGroup::B},                            // Coefficient groups
+        WilsonConfig{{WGroup::B},                            // Coefficient groups
         81,     // Matching scale
         4.7,                             // Hadronic scale
-        QCDOrder::NNLO                                          // QCD Order
+        QCDOrder::NNLO}                                          // QCD Order
     );
 
     LOG_INFO("Interface built");

@@ -16,11 +16,11 @@ int main() {
 
     auto wi = WilsonInterface();
     LOG_INFO("WilsonInterface created");
-    wi.build(
+    wi.build(WilsonConfig{
         {WGroup::B},
         81,
         4.7,
-        QCDOrder::LO 
+        QCDOrder::LO} 
     );
 
     LOG_INFO("Interface built");

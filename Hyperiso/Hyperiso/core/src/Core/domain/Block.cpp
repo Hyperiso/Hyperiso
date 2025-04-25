@@ -22,6 +22,20 @@ void Block::update() {
     }
 }
 
+void Block::freeze() {
+    LOG_INFO("In Block::freeze");
+    for (auto& [_, param] : this->items) {
+        param->freeze();
+    }
+}
+
+void Block::unfreeze() {
+    LOG_INFO("In Block::unfreeze");
+    for (auto& [_, param] : this->items) {
+        param->unfreeze();
+    }
+}
+
 Block::Block(std::shared_ptr<Block> other) {
     this->copy(other);
 }
@@ -97,38 +111,20 @@ void Block::copy(std::shared_ptr<Block> other) {
     this->blockname = other->blockname;
 }
 
-// TODO : Remove WilsonBlock
-
-double WilsonBlock::getValue(LhaID pdgCode) const {
-    if ((long)pdgCode == -1) {
-        return scale;
-    } else if ((long)pdgCode == -2) {
-        return type;
-    }
-
-    int order = pdgCode % 10; 
-    WCoef id = static_cast<WCoef>((pdgCode - order) / 10); 
-
-    return values.at(id)[order];
+void DependentBlock::freeze() {
+    this->frozen = true;
 }
 
-void WilsonBlock::setValue(LhaID pdgCode, double value, bool force) {
-    if ((long)pdgCode == -1) {
-        scale = value;
-    } else if ((long)pdgCode == -2) {
-        type = (int)value;
+void DependentBlock::unfreeze() {
+    this->frozen = false;
+    if (this->update_at_unfreeze) {
+        this->update();
+        this->update_at_unfreeze = false;
     }
-
-    int order = pdgCode % 10; 
-    WCoef id = static_cast<WCoef>((pdgCode - order) / 10); 
-    if (!values.contains(id)) {
-        values.emplace(std::make_pair(id, std::array<double, 3>()));
-    }
-    values.at(id)[order] = value;
-    notifyObservers();
 }
 
-void DependentBlock::assign(const LhaID &key, std::shared_ptr<Parameter> param) {
+void DependentBlock::assign(const LhaID &key, std::shared_ptr<Parameter> param)
+{
     if (!this->contains(key)) {
         LOG_ERROR("KeyError", "Cannot update non-existing parameter", key.to_string(), "in block", this->blockname);
     }

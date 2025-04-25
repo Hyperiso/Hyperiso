@@ -9,6 +9,7 @@
 #include "ObsUseMarty.h"
 #include "WilsonAdapter.h"
 #include "ObsWilsonProxy.h"
+#include "ObsWilsonHelper.h"
 #include "Math.h"
 
 class DecayParent {
@@ -17,24 +18,20 @@ protected:
     std::map<Observables, std::shared_ptr<OperatorNode>> roots;
     QCDOrder max_order;
     std::shared_ptr<ObsWilsonProxy> w_proxy;
+    WilsonConfig w_config;
 
-    QCDOrder check_max_order(QCDOrder order) const {
-        if (order > max_order) {
-            LOG_WARN("QCD order for decay cannot be higher than", OrderMapper::str(max_order));
-            return max_order;
-        }
-        return order;
-    }
+    QCDOrder check_max_order(QCDOrder order) const;
 
 public:
-    explicit DecayParent() = default;
+    DecayParent(double matching_scale, double hadronic_scale, QCDOrder order);
+
+    void init();
     void set_order(QCDOrder new_order);
 
     scalar_t compute_observable(Observables obs);
     size_t get_n_evals(Observables obs);
 
     virtual void build_op_tree() = 0;
-
 };
 
 #endif // __DECAYPARENT_H__

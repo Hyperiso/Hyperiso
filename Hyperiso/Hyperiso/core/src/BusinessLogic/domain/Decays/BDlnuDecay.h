@@ -58,16 +58,15 @@ protected:
 
     double BR_B_Dtaunu(double pref, double ckm, double width);
 
+private:
+    const QCDOrder max_order = QCDOrder::LO;
+
 public:
-    BDlnuDecay(QCDOrder order, double matching_scale, double hadronic_scale) {
-        order = check_max_order(QCDOrder::LO);
-        WilsonAdapter().build({WGroup::BCLNU}, matching_scale, hadronic_scale, order);
-        this->w_proxy = std::make_shared<ObsWilsonProxy>();
-        build_op_tree();
+    BDlnuDecay(QCDOrder order, double matching_scale, double hadronic_scale) : DecayParent(matching_scale, hadronic_scale, order) {
+        this->w_config.groups = {WGroup::BCLNU};
     }
 
     void build_op_tree() override;
-
 };
 
 #endif // __BDLNUDECAY_H__

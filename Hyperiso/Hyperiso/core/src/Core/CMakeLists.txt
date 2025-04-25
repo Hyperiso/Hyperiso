@@ -43,6 +43,7 @@ add_library(CoreLib STATIC
     adapters/QCDProvider.cpp
     adapters/ParameterSetter.cpp
     adapters/ParameterShifter.cpp
+    adapters/Freezer.cpp
     domain/CorrelationRepo.cpp
     domain/ParameterRouter.cpp
     domain/Parameters.cpp

@@ -18,7 +18,6 @@ private:
     SparseMatrix<Observables> exp_cov_mtx;
 
     void update_th_covariance();
-    // void update_exp_data(); //TODO: correlation proxy
 
 public:
 

@@ -41,13 +41,17 @@ protected:
     complex_t K2u(complex_t ckm, complex_t K2d);
     double delta_0(double f_B, double mb_mb, double T1, double f_Ks_perp, double f_Ks_par, double m_Ks, double m_B, double lambda_B, complex_t a7c, complex_t K1, complex_t K2d, complex_t K2u);
 
+private:
+    const QCDOrder max_order = QCDOrder::NNLO;
+
 public:
-    BKstarDecay(QCDOrder order, double matching_scale, double hadronic_scale) {
-        order = check_max_order(QCDOrder::NNLO);
-        WilsonAdapter().build({WGroup::B, WGroup::BPrime}, matching_scale, hadronic_scale, order);
+    BKstarDecay(QCDOrder order, double matching_scale, double hadronic_scale) : DecayParent(matching_scale, hadronic_scale, order) {
+        this->w_config.groups = {WGroup::B, WGroup::BPrime};
+    }
+
+    void init() {
+        DecayParent::init();
         WilsonAdapter().switchbasis(WGroup::B);
-        this->w_proxy = std::make_shared<ObsWilsonProxy>();
-        build_op_tree();
     }
 
     void build_op_tree() override;

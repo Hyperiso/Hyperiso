@@ -100,6 +100,8 @@ public:
         }
     }
     virtual void update() {}
+    virtual void freeze() {}
+    virtual void unfreeze() {}
 
     /**
      * @brief Assignment operator.
@@ -129,7 +131,7 @@ typedef std::function<void(const std::unordered_map<ParamId, std::shared_ptr<Par
 class DependentParameter : public Parameter, public std::enable_shared_from_this<DependentParameter> {
 public:
     explicit DependentParameter(std::unordered_map<ParamId, std::shared_ptr<Parameter>> sources, DepParamUpdateFunc recalculateFunc) 
-    : sources(std::move(sources)), recalculateLambda(std::move(recalculateFunc)) {}
+    : sources(std::move(sources)), recalculateLambda(std::move(recalculateFunc)), frozen(false) {}
 
     bool dependsOn(const ParamId& pid) {
         return sources.contains(pid);
@@ -147,7 +149,10 @@ public:
     }
 
     void update() override {
-        if (recalculateLambda 
+        if (frozen) {
+            LOG_INFO("DependentParameter is frozen, skipping update");
+            this->update_at_unfreeze = true;
+        } else if (recalculateLambda 
             && std::all_of(sources.begin(), sources.end(), 
                         [](std::pair<ParamId, std::shared_ptr<Parameter>> block) { return block.second; })) 
         {
@@ -157,8 +162,13 @@ public:
             } else {
                 std::cerr << "Error: shared_from_this() failed in update()" << std::endl;
             }
+        } else {
+            LOG_ERROR("Error", "DependentParameter::update() called without all source parameters being set");
         }
     }
+
+    void freeze() override;
+    void unfreeze() override;
 
     ~DependentParameter();
 
@@ -166,6 +176,8 @@ private:
     std::shared_ptr<DependentParameter> self;
     std::unordered_map<ParamId, std::shared_ptr<Parameter>> sources;
     DepParamUpdateFunc recalculateLambda;
+    bool frozen = false;
+    bool update_at_unfreeze = false;
 };
 
 

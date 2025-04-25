@@ -646,19 +646,19 @@ void BXsDecay::build_op_tree() {
 
     // SM parameters
     auto inv_alpha_em   = std::make_shared<ParameterNode>(ParamId(ParameterType::SM, "SMINPUTS", 1));
-    auto V_cb           = std::make_shared<ParameterNode>(ParamId(ParameterType::SM, "VCKM", 12));
-    auto V_tb           = std::make_shared<ParameterNode>(ParamId(ParameterType::SM, "VCKM", 22));
-    auto V_ts           = std::make_shared<ParameterNode>(ParamId(ParameterType::SM, "VCKM", 21));
+    auto V_cb           = std::make_shared<ParameterNode>(ParamId(ParameterType::SM, "VCKM", LhaID(1, 2)));
+    auto V_tb           = std::make_shared<ParameterNode>(ParamId(ParameterType::SM, "VCKM", LhaID(2, 2)));
+    auto V_ts           = std::make_shared<ParameterNode>(ParamId(ParameterType::SM, "VCKM", LhaID(2, 1)));
     auto m_d            = std::make_shared<ParameterNode>(ParamId(ParameterType::SM, "MASS", 1));
     auto m_u            = std::make_shared<ParameterNode>(ParamId(ParameterType::SM, "MASS", 2));
     auto m_s            = std::make_shared<ParameterNode>(ParamId(ParameterType::SM, "MASS", 3));
     auto m_c            = std::make_shared<ParameterNode>(ParamId(ParameterType::SM, "MASS", 4));
-    auto m_b_mb          = std::make_shared<ParameterNode>(ParamId(ParameterType::SM, "MASS", LhaID(5, 1)));
-    auto mb_1S          = std::make_shared<ParameterNode>(ParamId(ParameterType::SM, "MASS", LhaID(5, 3)));
+    auto m_b_mb          = std::make_shared<ParameterNode>(ParamId(ParameterType::SM, "QCD", LhaID(5, 1)));
+    auto mb_1S          = std::make_shared<ParameterNode>(ParamId(ParameterType::SM, "QCD", LhaID(5, 3)));
 
     // WILSON and SCALE parameters
-    auto alpha_s_mu_b     = std::make_shared<ParameterNode>(ParamId(ParameterType::WILSON, "WPARAM_SM_RUN", 1));
-    auto eta     = std::make_shared<ParameterNode>(ParamId(ParameterType::WILSON, "WPARAM_SM_RUN", 2));
+    auto alpha_s_mu_b     = std::make_shared<ParameterNode>(ParamId(ParameterType::WILSON, "WPARAM_RUN_SM", 1));
+    auto eta     = std::make_shared<ParameterNode>(ParamId(ParameterType::WILSON, "WPARAM_RUN_SM", 2));
     auto mu_b     = std::make_shared<ParameterNode>(ParamId(ParameterType::WILSON, "B_SCALE", 1));
     auto mu_W     = std::make_shared<ParameterNode>(ParamId(ParameterType::WILSON, "EW_SCALE", 1));
 

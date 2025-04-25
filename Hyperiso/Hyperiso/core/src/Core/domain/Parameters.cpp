@@ -5,7 +5,7 @@ std::map<ParameterType, std::shared_ptr<Parameters>> Parameters::instances;
 std::map<ParameterType, std::shared_ptr<Parameters>> ParametersFactory::instances;
 
 std::shared_ptr<Parameters> Parameters::GetInstance(ParameterType id) {
-    LOG_DEBUG("Trying to access Parameters instance of type", static_cast<int>(id));
+    // LOG_INFO("Trying to access Parameters instance of type", static_cast<int>(id));
     auto allowed = MemoryManager::GetInstance()->getMemoryCache().parameter_types;
     if (std::find(allowed.begin(), allowed.end(), id) == allowed.end())
         LOG_ERROR("OutOfRange", "Parameter type undefined: ", ParameterTypeMapper::str(id));
@@ -83,6 +83,34 @@ std::unordered_set<std::string> Parameters::init_blocks(ParameterType type) {
     this->blockAccessor = MemoryManager::GetInstance()->extract_blocks(existing);
     claim_parameters(type);
     return missing;
+}
+
+void Parameters::freeze_block(const std::string &blockName) {
+    if (!blockAccessor->contains(blockName)) {
+        LOG_ERROR("Cannot freeze non-existing dependent block", blockName);
+    }
+
+    return this->blockAccessor->at(blockName)->freeze();
+}
+
+void Parameters::unfreeze_block(const std::string &blockName) {
+    return this->blockAccessor->at(blockName)->unfreeze();
+}
+
+void Parameters::freeze_param(const std::string &blockName, const LhaID &id) {
+    if (!blockAccessor->contains(blockName)) {
+        LOG_ERROR("Cannot freeze dependent parameter in non-existing block", blockName);
+    }
+
+    if (!blockAccessor->at(blockName)->contains(id)) {
+        LOG_ERROR("Cannot freeze non-existing dependent parameter", id.to_string(), "in block", blockName);
+    }
+
+    return this->blockAccessor->at(blockName)->retrieve(id)->freeze();
+}
+
+void Parameters::unfreeze_param(const std::string &blockName, const LhaID &id) {
+    return this->blockAccessor->at(blockName)->retrieve(id)->unfreeze();
 }
 
 std::unordered_set<std::string> SMModelStrategy::initializeParameters(Parameters& params) {

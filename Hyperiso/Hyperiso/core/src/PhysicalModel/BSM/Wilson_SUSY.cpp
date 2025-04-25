@@ -39,7 +39,7 @@ void C1_susy::NNLO_calculation() {
         dep_param->set_expected(C1squark_2);
     };
 
-    WilsonParamComposer().compose_parameter(ParamId{"B_MATCH_BSM", LhaID(3040405, 6161, 2, 0)}, sources, func);
+    WilsonParamComposer().compose_parameter(ParamId{this->storage_block, LhaID(3040405, 6161, 2, 1)}, sources, func);
 
     // complex_t C1squark_2 = 0.0;
 	// if (std::all_of(begin((*sus_param).MsqU), end((*sus_param).MsqU), [&](double m) { return std::abs(m) > sm("MASS", 24) / 2.0; })) {
@@ -94,7 +94,7 @@ void C3_susy::NNLO_calculation() {
         dep_param->set_expected(C3charg_2 + C3H_2);
     };
 
-    WilsonParamComposer().compose_parameter(ParamId{"B_MATCH_BSM", LhaID(3050707, 4133, 2, 0)}, sources, func);
+    WilsonParamComposer().compose_parameter(ParamId{this->storage_block, LhaID(3050707, 4133, 2, 1)}, sources, func);
 
 
     // complex_t C3charg_2 = 0.0;
@@ -140,7 +140,7 @@ void C4_susy::NLO_calculation() {
         dep_param->set_expected(coeff_temp);
     };
 
-    WilsonParamComposer().compose_parameter(ParamId{"B_MATCH_BSM", LhaID(3050707, 6153, 1, 0)}, sources, func);
+    WilsonParamComposer().compose_parameter(ParamId{this->storage_block, LhaID(3050707, 6153, 1, 1)}, sources, func);
 
     // complex_t C4charg_1 = 0.;
     // for (int ie = 0; ie < 2; ie++) {
@@ -197,7 +197,7 @@ void C4_susy::NNLO_calculation() {
         dep_param->set_expected(C4charg_2+C4four_2+C4H_2);
     };
 
-    WilsonParamComposer().compose_parameter(ParamId{"B_MATCH_BSM", LhaID(3050707, 6153, 2, 0)}, sources, func);
+    WilsonParamComposer().compose_parameter(ParamId{this->storage_block, LhaID(3050707, 6153, 2, 1)}, sources, func);
 
     // complex_t C4charg_2{};
 	// complex_t C4four_2{};
@@ -265,7 +265,7 @@ void C5_susy::NNLO_calculation() {
         dep_param->set_expected(C5charg_2+C5H_2);
     };
 
-    WilsonParamComposer().compose_parameter(ParamId{"B_MATCH_BSM", LhaID(3050707, 4536, 2, 0)}, sources, func);
+    WilsonParamComposer().compose_parameter(ParamId{this->storage_block, LhaID(3050707, 4536, 2, 1)}, sources, func);
 
     // complex_t C3charg_2{};
 	// complex_t C4charg_1{};
@@ -330,7 +330,7 @@ void C6_susy::NNLO_calculation() {
         dep_param->set_expected(C6charg_2+C6H_2);
     };
 
-    WilsonParamComposer().compose_parameter(ParamId{"B_MATCH_BSM", LhaID(3050707, 6556, 2, 0)}, sources, func);
+    WilsonParamComposer().compose_parameter(ParamId{this->storage_block, LhaID(3050707, 6556, 2, 1)}, sources, func);
 
     // complex_t C3charg_2{};
 	// complex_t C4charg_1{};
@@ -439,7 +439,7 @@ void C7_susy::LO_calculation() {
         dep_param->set_expected(C7SMeps_0 + C7Heps_0 + C7Heps2_0 + C7charg_0 + C7_chargeps_0+C7H_0);
     };
 
-    WilsonParamComposer().compose_parameter(ParamId{"B_MATCH_BSM", LhaID(305, 4422, 0, 0)}, sources, func);
+    WilsonParamComposer().compose_parameter(ParamId{this->storage_block, LhaID(305, 4422, 0, 1)}, sources, func);
 
     // complex_t C7SMeps_0= ((*sus_param).epsilonb-(*sus_param).epsilonbp)/(1.+(*sus_param).epsilonb*(*susy)("HMIX",2))*(*susy)("HMIX",2)*F7_2((*sus_param).xt);
     // complex_t C7Heps_0=(-(*sus_param).epsilon0p-(*sus_param).epsilonb)/(1.+(*sus_param).epsilonb*(*susy)("HMIX",2))*(*susy)("HMIX",2)*F7_2((*sus_param).yt);
@@ -544,7 +544,7 @@ void C7_susy::NLO_calculation() {
         dep_param->set_expected(C7charg_1+C7four_1+C7H_1);
     };
 
-    WilsonParamComposer().compose_parameter(ParamId{"B_MATCH_BSM", LhaID(305, 4422, 1, 0)}, sources, func);
+    WilsonParamComposer().compose_parameter(ParamId{this->storage_block, LhaID(305, 4422, 1, 1)}, sources, func);
 
     // complex_t C7charg_1{};
     // complex_t C7four_1{};
@@ -599,7 +599,7 @@ void C7_susy::NNLO_calculation() {
         dep_param->set_expected(coeff_temp);
     };
 
-    WilsonParamComposer().compose_parameter(ParamId{"B_MATCH_BSM", LhaID(305, 4422, 2, 0)}, sources, func);
+    WilsonParamComposer().compose_parameter(ParamId{this->storage_block, LhaID(305, 4422, 2, 1)}, sources, func);
 
 	// double coeff_temp =C7H2(sus_param->yt,sus_param->lu,sus_param->ld,log(pow(this->get_Q_match()/sus_param->mass_top_muW, 2.)));
     // // return this->double_to_complex_save("NNLO", coeff_temp);
@@ -687,7 +687,7 @@ void C8_susy::LO_calculation() {
         dep_param->set_expected(C8SMeps_0 +  C8Heps_0 + C8Heps2_0 + C8charg_0 + C8_chargeps_0 + C8H_0);
     };
 
-    WilsonParamComposer().compose_parameter(ParamId{"B_MATCH_BSM", LhaID(305, 6421, 0, 0)}, sources, func);
+    WilsonParamComposer().compose_parameter(ParamId{this->storage_block, LhaID(305, 6421, 0, 1)}, sources, func);
 
 // 	complex_t C8SMeps_0= ((*sus_param).epsilonb-(*sus_param).epsilonbp)/(1.+(*sus_param).epsilonb*(*susy)("HMIX",2))*(*susy)("HMIX",2)*F8_2((*sus_param).xt);
 // 	complex_t C8Heps_0=(-(*sus_param).epsilon0p-(*sus_param).epsilonb)/(1.+(*sus_param).epsilonb*(*susy)("HMIX",2))*(*susy)("HMIX",2)*F8_2((*sus_param).yt);
@@ -783,7 +783,7 @@ void C8_susy::NLO_calculation() {
         dep_param->set_expected(C8charg_1 + C8four_1+C8H_1);
     };
 
-    WilsonParamComposer().compose_parameter(ParamId{"B_MATCH_BSM", LhaID(305, 6421, 1, 0)}, sources, func);
+    WilsonParamComposer().compose_parameter(ParamId{this->storage_block, LhaID(305, 6421, 1, 1)}, sources, func);
 
 
     // complex_t C8charg_1{};
@@ -837,7 +837,7 @@ void C8_susy::NNLO_calculation() {
         dep_param->set_expected(coeff_temp);
     };
 
-    WilsonParamComposer().compose_parameter(ParamId{"B_MATCH_BSM", LhaID(305, 6421, 2, 0)}, sources, func);
+    WilsonParamComposer().compose_parameter(ParamId{this->storage_block, LhaID(305, 6421, 2, 1)}, sources, func);
 
 	// double coeff_temp =C8H2(sus_param->yt,sus_param->lu,sus_param->ld,log(pow(this->get_Q_match()/sus_param->mass_top_muW, 2.)));
     // // return this->double_to_complex_save("NNLO", coeff_temp);
@@ -872,7 +872,7 @@ void C9_susy::LO_calculation() {
         dep_param->set_expected(C9charg_0+C9H_0);
     };
 
-    WilsonParamComposer().compose_parameter(ParamId{"B_MATCH_BSM", LhaID(3051313, 4133, 0, 0)}, sources, func);
+    WilsonParamComposer().compose_parameter(ParamId{this->storage_block, LhaID(3051313, 4133, 0, 1)}, sources, func);
 
     // complex_t C9charg_0 = (1.0 - 4.0 * (*sus_param).sw2) / (*sus_param).sw2 * (*sus_param).C90c - (*sus_param).B90c / (*sus_param).sw2 - (*sus_param).D90c;
     // double C9H_0 = (1.-4.*sus_param->sw2)/sus_param->sw2*C9llH0(sus_param->xt,sus_param->yt,sus_param->lu)-D9H0(sus_param->yt,sus_param->lu);
@@ -1058,7 +1058,7 @@ void C9_susy::NLO_calculation() {
         dep_param->set_expected(C9four_1+C9charg_1 + C9H_1);
     };
 
-    WilsonParamComposer().compose_parameter(ParamId{"B_MATCH_BSM", LhaID(3051313, 4133, 1, 0)}, sources, func);
+    WilsonParamComposer().compose_parameter(ParamId{this->storage_block, LhaID(3051313, 4133, 1, 1)}, sources, func);
 
 
 	// complex_t C91f = 0.0;
@@ -1244,7 +1244,7 @@ void C10_susy::LO_calculation() {
         dep_param->set_expected(C10charg_0+C10H_0);
     };
 
-    WilsonParamComposer().compose_parameter(ParamId{"B_MATCH_BSM", LhaID(3051313, 4137, 0, 0)}, sources, func);
+    WilsonParamComposer().compose_parameter(ParamId{this->storage_block, LhaID(3051313, 4137, 0, 1)}, sources, func);
 
     // complex_t C10charg_0 = ((*sus_param).B100c - (*sus_param).C90c) / (*sus_param).sw2;
     // complex_t C10H_0 = -C9llH0(sus_param->xt,sus_param->yt,sus_param->lu)/sus_param->sw2;
@@ -1412,7 +1412,7 @@ void C10_susy::NLO_calculation() {
         dep_param->set_expected(C10four_1+C10charg_1+C10H_1);
     };
 
-    WilsonParamComposer().compose_parameter(ParamId{"B_MATCH_BSM", LhaID(3051313, 4137, 1, 0)}, sources, func);
+    WilsonParamComposer().compose_parameter(ParamId{this->storage_block, LhaID(3051313, 4137, 1, 1)}, sources, func);
 
 
 // 	complex_t C91f = 0.0;
@@ -1601,7 +1601,7 @@ void CP7_susy::LO_calculation() {
         dep_param->set_expected(C7pH+C7pcharg);
     };
 
-    WilsonParamComposer().compose_parameter(ParamId{"B_MATCH_BSM", LhaID(305, 4322, 0, 0)}, sources, func);
+    WilsonParamComposer().compose_parameter(ParamId{this->storage_block, LhaID(305, 4322, 0, 1)}, sources, func);
 
 	// // sus_param->reset_PrimeCQG(this->get_Q_match());
 	// double C7pH=sm("MASS",3)*wilson_p("WPARAM_MATCH_SM", {5,1})/(*sus_param).mass_top_muW/(*sus_param).mass_top_muW*1./3.*(*sus_param).ld*(*sus_param).ld*F7_1((*sus_param).yt);
@@ -1667,7 +1667,7 @@ void CP8_susy::LO_calculation() {
         dep_param->set_expected(C8pH+C8pcharg);
     };
 
-    WilsonParamComposer().compose_parameter(ParamId{"B_MATCH_BSM", LhaID(305, 4321, 0, 0)}, sources, func);
+    WilsonParamComposer().compose_parameter(ParamId{this->storage_block, LhaID(305, 4321, 0, 1)}, sources, func);
 
     // double C8pH=sm("MASS",3)*wilson_p("WPARAM_MATCH_SM", {5,1})/(*sus_param).mass_top_muW/(*sus_param).mass_top_muW*1./3.*(*sus_param).ld*(*sus_param).ld*F8_1((*sus_param).yt);
     // double C8pcharg=0.;
@@ -1750,7 +1750,7 @@ void CP9_susy::LO_calculation() {
         dep_param->set_expected(C9pH+C9pcharg);
     };
 
-    WilsonParamComposer().compose_parameter(ParamId{"B_MATCH_BSM", LhaID(3051313, 4233, 0, 0)}, sources, func);
+    WilsonParamComposer().compose_parameter(ParamId{this->storage_block, LhaID(3051313, 4233, 0, 1)}, sources, func);
 
 	// // sus_param->reset_PrimeCQG(this->get_Q_match());
     // double B10pc=0.;
@@ -1874,7 +1874,7 @@ void CP10_susy::LO_calculation() {
         dep_param->set_expected(C10pH+C10pcharg);
     };
 
-    WilsonParamComposer().compose_parameter(ParamId{"B_MATCH_BSM", LhaID(3051313, 4234, 0, 0)}, sources, func);
+    WilsonParamComposer().compose_parameter(ParamId{this->storage_block, LhaID(3051313, 4234, 0, 1)}, sources, func);
 
 	// // sus_param->reset_PrimeCQG(this->get_Q_match());
     // double B10pc=0.;
@@ -2009,7 +2009,7 @@ void CPQ1_susy::LO_calculation() {
         dep_param->set_expected((CQ1pcharg+CQ1pH)/epsfac);
     };
 
-    WilsonParamComposer().compose_parameter(ParamId{"B_MATCH_BSM", LhaID(3051313, 3130, 0, 0)}, sources, func);
+    WilsonParamComposer().compose_parameter(ParamId{this->storage_block, LhaID(3051313, 3130, 0, 1)}, sources, func);
 
 
 	// // sus_param->reset_PrimeCQG(this->get_Q_match());
@@ -2168,7 +2168,7 @@ void CPQ2_susy::LO_calculation() {
         dep_param->set_expected((CQ2pH+CQ2pcharg)/epsfac);
     };
 
-    WilsonParamComposer().compose_parameter(ParamId{"B_MATCH_BSM", LhaID(3051313, 3133, 0, 0)}, sources, func);
+    WilsonParamComposer().compose_parameter(ParamId{this->storage_block, LhaID(3051313, 3133, 0, 1)}, sources, func);
 
 	// // sus_param->reset_PrimeCQG(this->get_Q_match());
 	// double BQ1pc1=0.;
@@ -2443,7 +2443,7 @@ void CQ1_susy::LO_calculation() {
         dep_param->set_expected(coeff_temp);
     };
 
-    WilsonParamComposer().compose_parameter(ParamId{"B_MATCH_BSM", LhaID(3051313, 3230, 0, 0)}, sources, func);
+    WilsonParamComposer().compose_parameter(ParamId{this->storage_block, LhaID(3051313, 3230, 0, 1)}, sources, func);
 
 	// // sus_param->reset_PrimeCQG(this->get_Q_match());
 	// complex_t BQ10c1=0.;
@@ -2787,7 +2787,7 @@ void CQ1_susy::NLO_calculation() {
         dep_param->set_expected(coeff_temp);
     };
 
-    WilsonParamComposer().compose_parameter(ParamId{"B_MATCH_BSM", LhaID(3051313, 3230, 1, 0)}, sources, func);
+    WilsonParamComposer().compose_parameter(ParamId{this->storage_block, LhaID(3051313, 3230, 1, 1)}, sources, func);
 
 	// // sus_param->reset_PrimeCQG(this->get_Q_match());
 	// complex_t NQ11H=-wilson_p("WPARAM_SI_SM", 3)*((*susy)("HMIX",2))*(*susy)("HMIX",2)/4./sm("MASS",24)/sm("MASS",24)*(f141((*sus_param).xt,(*sus_param).z)+8.*(*sus_param).xt*(f30((*sus_param).xt,(*sus_param).z)+(*sus_param).xt*(f30((*sus_param).xt*1.0001,(*sus_param).z)-f30((*sus_param).xt*0.9999,(*sus_param).z))/0.0002)*log(this->get_Q_match()*this->get_Q_match()/(*sus_param).mass_top_muW/(*sus_param).mass_top_muW));
@@ -3146,7 +3146,7 @@ void CQ2_susy::LO_calculation() {
         dep_param->set_expected(coeff_temp);
     };
 
-    WilsonParamComposer().compose_parameter(ParamId{"B_MATCH_BSM", LhaID(3051313, 3233, 0, 0)}, sources, func);
+    WilsonParamComposer().compose_parameter(ParamId{this->storage_block, LhaID(3051313, 3233, 0, 1)}, sources, func);
 
 
 	// // sus_param->reset_PrimeCQG(this->get_Q_match());
@@ -3502,7 +3502,7 @@ void CQ2_susy::NLO_calculation() {
         dep_param->set_expected(coeff_temp);
     };
 
-    WilsonParamComposer().compose_parameter(ParamId{"B_MATCH_BSM", LhaID(3051313, 3233, 1, 0)}, sources, func);
+    WilsonParamComposer().compose_parameter(ParamId{this->storage_block, LhaID(3051313, 3233, 1, 1)}, sources, func);
 
 
 	// // sus_param->reset_PrimeCQG(this->get_Q_match());
@@ -3659,7 +3659,7 @@ void BScalarCoefficientGroup_susy::set_base_1_LO() {
 
 		auto ensure_coef = [src] (const LhaID& id) -> complex_t {
             return src.at("B_SCALAR_MATCH")->contains(id) ? src.at("B_SCALAR_MATCH")->retrieve(id)->get_val() : complex_t(0);
-	};
+		};
 
 
 		complex_t coeff_temp = ensure_coef(WCoefMapper::flha_full(WCoef::CQ1, QCDOrder::LO, ContributionType::BSM)) * pow(eta,-4./beta_0);
@@ -3763,7 +3763,7 @@ void C_Blnu_P_SUSY::LO_calculation() {
         dep_param->set_expected(m_b * m_tau * std::pow(tanb / mH, 2) / (1 + epsilon0 * tanb));
     };
 
-    WilsonParamComposer().compose_parameter(ParamId{"B_MATCH_BSM", LhaID(3051313, 3230, 0, 0)}, sources, func);
+    WilsonParamComposer().compose_parameter(ParamId{this->storage_block, LhaID(3051313, 3230, 0, 1)}, sources, func);
 
 	// double m_b = QCDHelper::mass_b_msbar();
     // double m_tau = sm("MASS", 15);
@@ -3795,7 +3795,7 @@ void C_S1_SUSY::LO_calculation() {
         dep_param->set_expected(m_b * m_tau * std::pow(tanb / mH, 2) / (1 + epsilon0 * tanb));
     };
 
-    WilsonParamComposer().compose_parameter(ParamId{"B_MATCH_BSM", LhaID(3051313, 3230, 0, 0)}, sources, func);
+    WilsonParamComposer().compose_parameter(ParamId{this->storage_block, LhaID(3051313, 3230, 0, 1)}, sources, func);
 
     // double m_b = QCDHelper::mass_b_msbar();
     // double m_tau = sm("MASS", 15);
@@ -3827,7 +3827,7 @@ void C_S2_SUSY::LO_calculation() {
         dep_param->set_expected(m_c * m_tau * std::pow(tanb / mH, 2) / (1 + epsilon0 * tanb));
     };
 
-    WilsonParamComposer().compose_parameter(ParamId{"B_MATCH_BSM", LhaID(3051313, 3230, 0, 0)}, sources, func);
+    WilsonParamComposer().compose_parameter(ParamId{this->storage_block, LhaID(3051313, 3230, 0, 1)}, sources, func);
 
     // double m_c = sm("MASS", 4);
     // double m_tau = sm("MASS", 15);

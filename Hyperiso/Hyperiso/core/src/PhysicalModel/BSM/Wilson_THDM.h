@@ -9,6 +9,7 @@
 class WilsonCoefficient_THDM : public WilsonCoefficient {
 protected:
     WilsonCoefficient_THDM() = default;
+    WilsonCoefficient_THDM(const std::string& name, const std::string& storage_block) : WilsonCoefficient(name, storage_block) {};
 
 public:
     void init(QCDOrder order);
@@ -16,7 +17,7 @@ public:
 
 class C1_THDM : public WilsonCoefficient_THDM {
 public:
-    C1_THDM() : WilsonCoefficient_THDM() { this->set_name("C1_THDM"); }
+    C1_THDM() : WilsonCoefficient_THDM("C1_THDM", GroupMapper::str(WGroup::B) + "_MATCH") {}
 
     void LO_calculation() {} 
     void NLO_calculation() {} 
@@ -25,7 +26,7 @@ public:
 
 class C2_THDM : public WilsonCoefficient_THDM {
 public:
-    C2_THDM() : WilsonCoefficient_THDM() { this->set_name("C2_THDM"); }
+    C2_THDM() : WilsonCoefficient_THDM("C2_THDM", GroupMapper::str(WGroup::B) + "_MATCH") {}
 
     void LO_calculation() {} 
     void NLO_calculation() {} 
@@ -34,7 +35,7 @@ public:
 
 class C3_THDM : public WilsonCoefficient_THDM {
 public:
-    C3_THDM() : WilsonCoefficient_THDM() { this->set_name("C3_THDM"); }
+    C3_THDM() : WilsonCoefficient_THDM("C3_THDM", GroupMapper::str(WGroup::B) + "_MATCH") {}
 
     void LO_calculation() {} 
     void NLO_calculation()  {} 
@@ -44,7 +45,7 @@ public:
 
 class C4_THDM : public WilsonCoefficient_THDM {
 public:
-    C4_THDM() : WilsonCoefficient_THDM() { this->set_name("C4_THDM"); }
+    C4_THDM() : WilsonCoefficient_THDM("C4_THDM", GroupMapper::str(WGroup::B) + "_MATCH") {}
 
     void LO_calculation() {} 
     void NLO_calculation();
@@ -54,7 +55,7 @@ public:
 
 class C5_THDM : public WilsonCoefficient_THDM {
 public:
-    C5_THDM() :  WilsonCoefficient_THDM() { this->set_name("C5_THDM"); }
+    C5_THDM() : WilsonCoefficient_THDM("C5_THDM", GroupMapper::str(WGroup::B) + "_MATCH") {}
 
     void LO_calculation() {} 
     void NLO_calculation() {} 
@@ -64,7 +65,7 @@ public:
 
 class C6_THDM : public WilsonCoefficient_THDM {
 public:
-    C6_THDM() : WilsonCoefficient_THDM() { this->set_name("C6_THDM"); }
+    C6_THDM() : WilsonCoefficient_THDM("C6_THDM", GroupMapper::str(WGroup::B) + "_MATCH") {}
 
     void LO_calculation() {} 
     void NLO_calculation() {} 
@@ -74,7 +75,7 @@ public:
 
 class C7_THDM : public WilsonCoefficient_THDM {
 public:
-    C7_THDM() : WilsonCoefficient_THDM() { this->set_name("C7_THDM"); }
+    C7_THDM() : WilsonCoefficient_THDM("C7_THDM", GroupMapper::str(WGroup::B) + "_MATCH") {}
 
     void LO_calculation();
     void NLO_calculation();
@@ -83,7 +84,7 @@ public:
 
 class C8_THDM : public WilsonCoefficient_THDM {
 public:
-    C8_THDM() : WilsonCoefficient_THDM() { this->set_name("C8_THDM"); }
+    C8_THDM() : WilsonCoefficient_THDM("C8_THDM", GroupMapper::str(WGroup::B) + "_MATCH") {}
 
     void LO_calculation();
     void NLO_calculation();
@@ -92,7 +93,7 @@ public:
 
 class C9_THDM : public WilsonCoefficient_THDM {
 public:
-    C9_THDM() : WilsonCoefficient_THDM() { this->set_name("C9_THDM"); }
+    C9_THDM() : WilsonCoefficient_THDM("C9_THDM", GroupMapper::str(WGroup::B) + "_MATCH") {}
 
     void LO_calculation();
     void NLO_calculation();
@@ -101,7 +102,7 @@ public:
 
 class C10_THDM : public WilsonCoefficient_THDM {
 public:
-    C10_THDM() : WilsonCoefficient_THDM() { this->set_name("C10_THDM"); }
+    C10_THDM() : WilsonCoefficient_THDM("C10_THDM", GroupMapper::str(WGroup::B) + "_MATCH") {}
 
     void LO_calculation();
     void NLO_calculation();
@@ -110,7 +111,7 @@ public:
 
 class CQ1_THDM : public WilsonCoefficient_THDM {
 public:
-    CQ1_THDM() : WilsonCoefficient_THDM() { this->set_name("CQ1_THDM"); }
+    CQ1_THDM() : WilsonCoefficient_THDM("CQ1_THDM", GroupMapper::str(WGroup::BScalar) + "_MATCH") {}
 
     void LO_calculation();
     void NLO_calculation() {}
@@ -119,7 +120,7 @@ public:
 
 class CQ2_THDM : public WilsonCoefficient_THDM {
 public:
-    CQ2_THDM() : WilsonCoefficient_THDM() { this->set_name("CQ2_THDM"); }
+    CQ2_THDM() : WilsonCoefficient_THDM("CQ2_THDM", GroupMapper::str(WGroup::BScalar) + "_MATCH") {}
 
     void LO_calculation();
     void NLO_calculation() {}
@@ -128,7 +129,7 @@ public:
 
 class CP1_THDM : public WilsonCoefficient_THDM {
 public:
-    CP1_THDM() : WilsonCoefficient_THDM() { this->set_name("CP1_THDM"); }
+    CP1_THDM() : WilsonCoefficient_THDM("CP1_THDM", GroupMapper::str(WGroup::BPrime) + "_MATCH") {}
 
     void LO_calculation() {} 
     void NLO_calculation() {}
@@ -137,7 +138,7 @@ public:
 
 class CP2_THDM : public WilsonCoefficient_THDM {
 public:
-    CP2_THDM() : WilsonCoefficient_THDM() { this->set_name("CP2_THDM"); }
+    CP2_THDM() : WilsonCoefficient_THDM("CP2_THDM", GroupMapper::str(WGroup::BPrime) + "_MATCH") {}
 
     void LO_calculation() {} 
     void NLO_calculation() {}
@@ -146,7 +147,7 @@ public:
 
 class CP3_THDM : public WilsonCoefficient_THDM {
 public:
-    CP3_THDM() : WilsonCoefficient_THDM() { this->set_name("CP3_THDM"); }
+    CP3_THDM() : WilsonCoefficient_THDM("CP3_THDM", GroupMapper::str(WGroup::BPrime) + "_MATCH") {}
 
     void LO_calculation() {} 
     void NLO_calculation() {}
@@ -155,7 +156,7 @@ public:
 
 class CP4_THDM : public WilsonCoefficient_THDM {
 public:
-    CP4_THDM() : WilsonCoefficient_THDM() { this->set_name("CP4_THDM"); }
+    CP4_THDM() : WilsonCoefficient_THDM("CP4_THDM", GroupMapper::str(WGroup::BPrime) + "_MATCH") {}
 
     void LO_calculation() {} 
     void NLO_calculation() {}
@@ -164,7 +165,7 @@ public:
 
 class CP5_THDM : public WilsonCoefficient_THDM {
 public:
-    CP5_THDM() : WilsonCoefficient_THDM() { this->set_name("CP5_THDM"); }
+    CP5_THDM() : WilsonCoefficient_THDM("CP5_THDM", GroupMapper::str(WGroup::BPrime) + "_MATCH") {}
 
     void LO_calculation() {} 
     void NLO_calculation() {}
@@ -173,7 +174,7 @@ public:
 
 class CP6_THDM : public WilsonCoefficient_THDM {
 public:
-    CP6_THDM() : WilsonCoefficient_THDM() { this->set_name("CP6_THDM"); }
+    CP6_THDM() : WilsonCoefficient_THDM("CP6_THDM", GroupMapper::str(WGroup::BPrime) + "_MATCH") {}
 
     void LO_calculation() {} 
     void NLO_calculation() {}
@@ -182,7 +183,7 @@ public:
 
 class CP7_THDM : public WilsonCoefficient_THDM {
 public:
-    CP7_THDM() : WilsonCoefficient_THDM() { this->set_name("CP7_THDM"); }
+    CP7_THDM() : WilsonCoefficient_THDM("CP7_THDM", GroupMapper::str(WGroup::BPrime) + "_MATCH") {}
 
     void LO_calculation() {} 
     void NLO_calculation() {}
@@ -191,7 +192,7 @@ public:
 
 class CP8_THDM : public WilsonCoefficient_THDM {
 public:
-    CP8_THDM() : WilsonCoefficient_THDM() { this->set_name("CP8_THDM"); }
+    CP8_THDM() : WilsonCoefficient_THDM("CP8_THDM", GroupMapper::str(WGroup::BPrime) + "_MATCH") {}
 
     void LO_calculation() {} 
     void NLO_calculation() {}
@@ -200,7 +201,7 @@ public:
 
 class CP9_THDM : public WilsonCoefficient_THDM {
 public:
-    CP9_THDM() : WilsonCoefficient_THDM() { this->set_name("CP9_THDM"); }
+    CP9_THDM() : WilsonCoefficient_THDM("CP9_THDM", GroupMapper::str(WGroup::BPrime) + "_MATCH") {}
 
     void LO_calculation() {} 
     void NLO_calculation() {}
@@ -209,7 +210,7 @@ public:
 
 class CP10_THDM : public WilsonCoefficient_THDM {
 public:
-    CP10_THDM() : WilsonCoefficient_THDM() { this->set_name("CP10_THDM"); }
+    CP10_THDM() : WilsonCoefficient_THDM("CP10_THDM", GroupMapper::str(WGroup::BPrime) + "_MATCH") {}
 
     void LO_calculation() {} 
     void NLO_calculation() {}
@@ -218,7 +219,7 @@ public:
 
 class CPQ1_THDM : public WilsonCoefficient_THDM {
 public:
-    CPQ1_THDM() : WilsonCoefficient_THDM() { this->set_name("CPQ1_THDM"); }
+    CPQ1_THDM() : WilsonCoefficient_THDM("CPQ1_THDM", GroupMapper::str(WGroup::BPrime) + "_MATCH") {}
 
     void LO_calculation() {} 
     void NLO_calculation() {}
@@ -227,7 +228,7 @@ public:
 
 class CPQ2_THDM : public WilsonCoefficient_THDM {
 public:
-    CPQ2_THDM() : WilsonCoefficient_THDM() { this->set_name("CPQ2_THDM"); }
+    CPQ2_THDM() : WilsonCoefficient_THDM("CPQ2_THDM", GroupMapper::str(WGroup::BPrime) + "_MATCH") {}
 
     void LO_calculation() {} 
     void NLO_calculation() {}
@@ -236,7 +237,7 @@ public:
 
 class C_Blnu_A_THDM : public WilsonCoefficient_THDM {
 public:
-    C_Blnu_A_THDM() : WilsonCoefficient_THDM() { this->set_name("C_Blnu_A_THDM"); }
+    C_Blnu_A_THDM() : WilsonCoefficient_THDM("C_Blnu_A_THDM", GroupMapper::str(WGroup::Blnu) + "_MATCH") {}
 
     void LO_calculation() { }
     void NLO_calculation() { } 
@@ -246,7 +247,7 @@ public:
 
 class C_Blnu_P_THDM : public WilsonCoefficient_THDM {
 public:
-    C_Blnu_P_THDM() : WilsonCoefficient_THDM() { this->set_name("C_Blnu_P_THDM"); }
+    C_Blnu_P_THDM() : WilsonCoefficient_THDM("C_Blnu_P_THDM", GroupMapper::str(WGroup::Blnu) + "_MATCH") {}
 
     void LO_calculation();
     void NLO_calculation() { } 
@@ -256,7 +257,7 @@ public:
 
 class C_V1_THDM : public WilsonCoefficient_THDM {
 public:
-    C_V1_THDM() : WilsonCoefficient_THDM() { this->set_name("C_V1_THDM"); }
+    C_V1_THDM() : WilsonCoefficient_THDM("C_V1_THDM", GroupMapper::str(WGroup::BCLNU) + "_MATCH") {}
 
     void LO_calculation() { } 
     void NLO_calculation() { } 
@@ -266,7 +267,7 @@ public:
 
 class C_V2_THDM : public WilsonCoefficient_THDM {
 public:
-    C_V2_THDM() : WilsonCoefficient_THDM() { this->set_name("C_V2_THDM"); }
+    C_V2_THDM() : WilsonCoefficient_THDM("C_V2_THDM", GroupMapper::str(WGroup::BCLNU) + "_MATCH") {}
 
     void LO_calculation() { } 
     void NLO_calculation() { } 
@@ -276,7 +277,7 @@ public:
 
 class C_S1_THDM : public WilsonCoefficient_THDM {
 public:
-    C_S1_THDM() : WilsonCoefficient_THDM() { this->set_name("C_S1_THDM"); }
+    C_S1_THDM() : WilsonCoefficient_THDM("C_S1_THDM", GroupMapper::str(WGroup::BCLNU) + "_MATCH") {}
 
     void LO_calculation();
     void NLO_calculation() { } 
@@ -286,7 +287,7 @@ public:
 
 class C_S2_THDM : public WilsonCoefficient_THDM {
 public:
-    C_S2_THDM() : WilsonCoefficient_THDM() { this->set_name("C_S2_THDM"); }
+    C_S2_THDM() : WilsonCoefficient_THDM("C_S2_THDM", GroupMapper::str(WGroup::BCLNU) + "_MATCH") {}
 
     void LO_calculation();
     void NLO_calculation() { } 
@@ -296,7 +297,7 @@ public:
 
 class C_T_THDM : public WilsonCoefficient_THDM {
 public:
-    C_T_THDM() : WilsonCoefficient_THDM() { this->set_name("C_T_THDM"); }
+    C_T_THDM() : WilsonCoefficient_THDM("C_T_THDM", GroupMapper::str(WGroup::BCLNU) + "_MATCH") {}
 
     void LO_calculation() { } 
     void NLO_calculation() { } 
@@ -313,7 +314,7 @@ public:
         this->insert(std::make_pair("C7", std::make_shared<C7_THDM>()));  this->insert(std::make_pair("C8", std::make_shared<C8_THDM>()));  this->insert(std::make_pair("C9", std::make_shared<C9_THDM>())); 
         this->insert(std::make_pair("C10", std::make_shared<C10_THDM>())); 
 
-        this->storage_block = "B_HADRONIC_THDM";
+        this->storage_block = GroupMapper::str(WGroup::B) + "_HADRONIC";
         this->wilson_type = ContributionType::BSM;
     }
 };
@@ -326,7 +327,7 @@ public:
         this->insert(std::make_pair("CP7", std::make_shared<CP7_THDM>()));  this->insert(std::make_pair("CP8", std::make_shared<CP8_THDM>()));  this->insert(std::make_pair("CP9", std::make_shared<CP9_THDM>())); 
         this->insert(std::make_pair("CP10", std::make_shared<CP10_THDM>())); this->insert(std::make_pair("CPQ1", std::make_shared<CPQ1_THDM>())); this->insert(std::make_pair("CPQ2", std::make_shared<CPQ2_THDM>())); 
 
-        this->storage_block = "B_PRIME_HADRONIC_THDM";
+        this->storage_block = GroupMapper::str(WGroup::BPrime) + "_HADRONIC";
         this->wilson_type = ContributionType::BSM;
     }
 
@@ -339,7 +340,7 @@ public:
     BScalarCoefficientGroup_THDM() { this->clear();
         this->insert(std::make_pair("CQ1", std::make_shared<CQ1_THDM>())); this->insert(std::make_pair("CQ2", std::make_shared<CQ2_THDM>()));
 
-        this->storage_block = "B_SCALAR_HADRONIC_THDM";
+        this->storage_block = GroupMapper::str(WGroup::BScalar) + "_HADRONIC";
         this->wilson_type = ContributionType::BSM;
     }
 
@@ -353,7 +354,7 @@ public:
         this->insert(std::make_pair("C_Blnu_A", std::make_shared<C_Blnu_A_THDM>())); 
         this->insert(std::make_pair("C_Blnu_P", std::make_shared<C_Blnu_P_THDM>()));
 
-        this->storage_block = "B_LNU_HADRONIC_THDM";
+        this->storage_block = GroupMapper::str(WGroup::Blnu) + "_HADRONIC";
         this->wilson_type = ContributionType::BSM;
     }
 
@@ -370,7 +371,7 @@ public:
         this->insert(std::make_pair("C_S2", std::make_shared<C_S2_THDM>()));
         this->insert(std::make_pair("C_T", std::make_shared<C_T_THDM>()));
 
-        this->storage_block = "B_CLNU_HADRONIC_THDM";
+        this->storage_block = GroupMapper::str(WGroup::BCLNU) + "_HADRONIC";
         this->wilson_type = ContributionType::BSM;
     }
 

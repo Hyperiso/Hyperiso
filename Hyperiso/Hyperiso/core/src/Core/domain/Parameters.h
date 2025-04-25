@@ -184,6 +184,12 @@ public:
 
     std::unordered_set<std::string> init_blocks(ParameterType type);
 
+    void freeze_block(const std::string& blockName);
+    void unfreeze_block(const std::string& blockName);
+
+    void freeze_param(const std::string& blockName, const LhaID& id);
+    void unfreeze_param(const std::string& blockName, const LhaID& id);
+
     /**
      * @brief Destructor that logs the destruction of a Parameters instance.
      */

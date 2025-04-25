@@ -5,7 +5,7 @@
 
 class C1 : public WilsonCoefficient {
 public:
-    C1() : WilsonCoefficient("C1", "B_MATCH") {}
+    C1() : WilsonCoefficient("C1", GroupMapper::str(WGroup::B) + "_MATCH") {}
 
     void LO_calculation() {}
     void NLO_calculation();
@@ -15,7 +15,7 @@ public:
 
 class C2 : public WilsonCoefficient {
 public:
-    C2() : WilsonCoefficient("C2", "B_MATCH") {}
+    C2() : WilsonCoefficient("C2", GroupMapper::str(WGroup::B) + "_MATCH") {}
 
     void LO_calculation();
     void NLO_calculation() {}
@@ -25,7 +25,7 @@ public:
 
 class C3 : public WilsonCoefficient {
 public:
-    C3() : WilsonCoefficient("C3", "B_MATCH") {}
+    C3() : WilsonCoefficient("C3", GroupMapper::str(WGroup::B) + "_MATCH") {}
 
     void LO_calculation() {}
     void NLO_calculation() {}
@@ -35,7 +35,7 @@ public:
 
 class C4 : public WilsonCoefficient {
 public:
-    C4() : WilsonCoefficient("C4", "B_MATCH") {}
+    C4() : WilsonCoefficient("C4", GroupMapper::str(WGroup::B) + "_MATCH") {}
 
     void LO_calculation() {}
     void NLO_calculation();
@@ -45,7 +45,7 @@ public:
 
 class C5 : public WilsonCoefficient {
 public:
-    C5() : WilsonCoefficient("C5", "B_MATCH") {}
+    C5() : WilsonCoefficient("C5", GroupMapper::str(WGroup::B) + "_MATCH") {}
 
     void LO_calculation() {} 
     void NLO_calculation() {} 
@@ -55,7 +55,7 @@ public:
 
 class C6 : public WilsonCoefficient {
 public:
-    C6() : WilsonCoefficient("C6", "B_MATCH") {}
+    C6() : WilsonCoefficient("C6", GroupMapper::str(WGroup::B) + "_MATCH") {}
 
     void LO_calculation() {} 
     void NLO_calculation() {} 
@@ -65,7 +65,7 @@ public:
 
 class C7 : public WilsonCoefficient {
 public:
-    C7() : WilsonCoefficient("C7", "B_MATCH") {}
+    C7() : WilsonCoefficient("C7", GroupMapper::str(WGroup::B) + "_MATCH") {}
 
     void LO_calculation();
     void NLO_calculation();
@@ -75,7 +75,7 @@ public:
 
 class C8 : public WilsonCoefficient {
 public:
-    C8() : WilsonCoefficient("C8", "B_MATCH") {}
+    C8() : WilsonCoefficient("C8", GroupMapper::str(WGroup::B) + "_MATCH") {}
 
     void LO_calculation();
     void NLO_calculation();
@@ -85,7 +85,7 @@ public:
 
 class C9 : public WilsonCoefficient {
 public:
-    C9() : WilsonCoefficient("C9", "B_MATCH") {}
+    C9() : WilsonCoefficient("C9", GroupMapper::str(WGroup::B) + "_MATCH") {}
 
     void LO_calculation();
     void NLO_calculation();
@@ -95,7 +95,7 @@ public:
 
 class C10 : public WilsonCoefficient {
 public:
-    C10() : WilsonCoefficient("C10", "B_MATCH") {}
+    C10() : WilsonCoefficient("C10", GroupMapper::str(WGroup::B) + "_MATCH") {}
 
     void LO_calculation();
     void NLO_calculation();
@@ -106,7 +106,7 @@ public:
 
 class CQ1 : public WilsonCoefficient {
 public:
-    CQ1() : WilsonCoefficient("CQ1", "B_SCALAR_MATCH") {}
+    CQ1() : WilsonCoefficient("CQ1", GroupMapper::str(WGroup::BScalar) + "_MATCH") {}
 
     void LO_calculation();
     void NLO_calculation() {} 
@@ -117,7 +117,7 @@ public:
 
 class CQ2 : public WilsonCoefficient {
 public:
-    CQ2() : WilsonCoefficient("CQ2", "B_SCALAR_MATCH") {}
+    CQ2() : WilsonCoefficient("CQ2", GroupMapper::str(WGroup::BScalar) + "_MATCH") {}
 
     void LO_calculation();
     void NLO_calculation() {} 
@@ -128,7 +128,7 @@ public:
 
 class CP1 : public WilsonCoefficient {
 public:
-    CP1() : WilsonCoefficient("CP1", "B_PRIME_MATCH") {}
+    CP1() : WilsonCoefficient("CP1", GroupMapper::str(WGroup::BPrime) + "_MATCH") {}
 
     void LO_calculation() {} 
     void NLO_calculation() {} 
@@ -139,7 +139,7 @@ public:
 
 class CP2 : public WilsonCoefficient {
 public:
-    CP2() : WilsonCoefficient("CP2", "B_PRIME_MATCH") {}
+    CP2() : WilsonCoefficient("CP2", GroupMapper::str(WGroup::BPrime) + "_MATCH") {}
 
     void LO_calculation() {} 
     void NLO_calculation() {} 
@@ -150,7 +150,7 @@ public:
 
 class CP3 : public WilsonCoefficient {
 public:
-    CP3() : WilsonCoefficient("CP3", "B_PRIME_MATCH") {}
+    CP3() : WilsonCoefficient("CP3", GroupMapper::str(WGroup::BPrime) + "_MATCH") {}
 
     void LO_calculation() {} 
     void NLO_calculation() {} 
@@ -161,7 +161,7 @@ public:
 
 class CP4 : public WilsonCoefficient {
 public:
-    CP4() : WilsonCoefficient("CP4", "B_PRIME_MATCH") {}
+    CP4() : WilsonCoefficient("CP4", GroupMapper::str(WGroup::BPrime) + "_MATCH") {}
 
     void LO_calculation() {} 
     void NLO_calculation() {} 
@@ -172,7 +172,7 @@ public:
 
 class CP5 : public WilsonCoefficient {
 public:
-    CP5() : WilsonCoefficient("CP5", "B_PRIME_MATCH") {}
+    CP5() : WilsonCoefficient("CP5", GroupMapper::str(WGroup::BPrime) + "_MATCH") {}
 
     void LO_calculation() {} 
     void NLO_calculation() {} 
@@ -183,7 +183,7 @@ public:
 
 class CP6 : public WilsonCoefficient {
 public:
-    CP6() : WilsonCoefficient("CP6", "B_PRIME_MATCH") {}
+    CP6() : WilsonCoefficient("CP6", GroupMapper::str(WGroup::BPrime) + "_MATCH") {}
 
     void LO_calculation() {} 
     void NLO_calculation() {} 
@@ -194,7 +194,7 @@ public:
 
 class CP7 : public WilsonCoefficient {
 public:
-    CP7() : WilsonCoefficient("CP7", "B_PRIME_MATCH") {}
+    CP7() : WilsonCoefficient("CP7", GroupMapper::str(WGroup::BPrime) + "_MATCH") {}
 
     void LO_calculation();
     void NLO_calculation() {} 
@@ -205,7 +205,7 @@ public:
 
 class CP8 : public WilsonCoefficient {
 public:
-    CP8() : WilsonCoefficient("CP8", "B_PRIME_MATCH") {}
+    CP8() : WilsonCoefficient("CP8", GroupMapper::str(WGroup::BPrime) + "_MATCH") {}
 
     void LO_calculation();
     void NLO_calculation() {} 
@@ -216,7 +216,7 @@ public:
 
 class CP9 : public WilsonCoefficient {
 public:
-    CP9() : WilsonCoefficient("CP9", "B_PRIME_MATCH") {}
+    CP9() : WilsonCoefficient("CP9", GroupMapper::str(WGroup::BPrime) + "_MATCH") {}
 
     void LO_calculation() {} 
     void NLO_calculation() {} 
@@ -227,7 +227,7 @@ public:
 
 class CP10 : public WilsonCoefficient {
 public:
-    CP10() : WilsonCoefficient("CP10", "B_PRIME_MATCH") {}
+    CP10() : WilsonCoefficient("CP10", GroupMapper::str(WGroup::BPrime) + "_MATCH") {}
 
     void LO_calculation() {} 
     void NLO_calculation() {} 
@@ -238,7 +238,7 @@ public:
 
 class CPQ1 : public WilsonCoefficient {
 public:
-    CPQ1() : WilsonCoefficient("CPQ1", "B_PRIME_MATCH") {}
+    CPQ1() : WilsonCoefficient("CPQ1", GroupMapper::str(WGroup::BPrime) + "_MATCH") {}
 
     void LO_calculation() {} 
     void NLO_calculation() {} 
@@ -249,7 +249,7 @@ public:
 
 class CPQ2 : public WilsonCoefficient {
 public:
-    CPQ2() : WilsonCoefficient("CPQ2", "B_PRIME_MATCH") {}
+    CPQ2() : WilsonCoefficient("CPQ2", GroupMapper::str(WGroup::BPrime) + "_MATCH") {}
 
     void LO_calculation() {} 
     void NLO_calculation() {} 

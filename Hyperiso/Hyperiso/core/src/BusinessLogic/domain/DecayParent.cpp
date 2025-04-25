@@ -1,24 +1,24 @@
 #include "DecayParent.h"
 
-// std::shared_ptr<WilsonInterface> DecayParent::get_wilsons(bool force_update) {
-//     if (!wilson || force_update || true) {
-//         wilson = std::make_shared<WilsonInterface>();
-//         wilson->build(winfo.wgroups, winfo.matching_scale, winfo.hadronic_scale, winfo.order);
-        
-//         if (winfo.basis == BWilsonBasis::TRADITIONAL 
-//             && std::find(winfo.wgroups.begin(), winfo.wgroups.end(), WGroup::B) != winfo.wgroups.end()) {
-//             wilson->switchbasis(WGroup::B);
-//         }
-//     } else {
-//         // for (auto &p : manager->getGroups()) {
-//             // if (p.second->cacheChanged()) {
-//                 // manager->update(p.first);
-//             // }
-//         // }
-//     }
+QCDOrder DecayParent::check_max_order(QCDOrder order) const {
+    if (order > max_order) {
+        LOG_WARN("QCD order for decay cannot be higher than", OrderMapper::str(max_order));
+        return max_order;
+    }
+    return order;
+}
 
-//     return wilson;
-// }
+DecayParent::DecayParent(double matching_scale, double hadronic_scale, QCDOrder order) {
+    this->w_config.matching_scale = matching_scale;
+    this->w_config.hadronic_scale = hadronic_scale;
+    this->w_config.order = check_max_order(order);
+}
+
+void DecayParent::init() {
+    ObsWilsonHelper::build(this->w_config);
+    this->w_proxy = std::make_shared<ObsWilsonProxy>();
+    build_op_tree();
+}
 
 //TODO : everything here, just for make it works
 void DecayParent::set_order(QCDOrder new_order) {
@@ -26,21 +26,16 @@ void DecayParent::set_order(QCDOrder new_order) {
         LOG_WARN("Using MARTY defaults all calculations to LO in QCD.");
         new_order = QCDOrder::LO;
     }
-    return;
-    // if (winfo.order == new_order) {
-    //     return;
-    // }
     
-    // if (winfo.order == QCDOrder::NONE) {
-    //     if (new_order <= max_order && new_order != QCDOrder::NONE) {
-    //         winfo.order = new_order;
-    //     } else {
-    //         winfo.order = max_order;
-    //         LOG_WARN("Cannot set decay order to", OrderMapper::str(new_order));
-    //     }
-    // } else {
-    //     LOG_WARN("QCD order for this decay has already been set.");
-    // }
+    if (this->w_config.order == new_order) {
+        return;
+    }
+    
+    if (this->w_config.order == QCDOrder::NONE) {
+        this->w_config.order = check_max_order(new_order);
+    } else {
+        LOG_WARN("QCD order for this decay has already been set.");
+    }
 }
 
 scalar_t DecayParent::compute_observable(Observables obs) {

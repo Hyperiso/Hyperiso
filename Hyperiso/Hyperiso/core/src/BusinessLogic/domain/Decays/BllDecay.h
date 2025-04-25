@@ -18,12 +18,12 @@ protected:
     double A_DG(double x, double r);
     double BR_untag_Bs_mumu(double br_avg, double ys, double A);
 
+private:
+    const QCDOrder max_order = QCDOrder::NNLO;
+
 public:
-    BllDecay(QCDOrder order, double matching_scale, double hadronic_scale) {
-        order = check_max_order(QCDOrder::NNLO);
-        WilsonAdapter().build({WGroup::B, WGroup::BPrime, WGroup::BScalar}, matching_scale, hadronic_scale, order);
-        this->w_proxy = std::make_shared<ObsWilsonProxy>();
-        build_op_tree();
+    BllDecay(QCDOrder order, double matching_scale, double hadronic_scale) : DecayParent(matching_scale, hadronic_scale, order) {
+        this->w_config.groups = {WGroup::B, WGroup::BPrime, WGroup::BScalar};
     }
 
     void build_op_tree() override;

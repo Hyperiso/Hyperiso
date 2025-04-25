@@ -4,25 +4,16 @@ std::shared_ptr<ObsManager> ObsManager::instance = nullptr;
 
 ObsManager::ObsManager() {
     ObsParameterProxy obsParamProxy = ObsParameterProxy(ParameterType::FLAVOR);
+    ObsParameterProxy smParamProxy = ObsParameterProxy(ParameterType::SM);
     
-
     this->decays = {
-        {Decays::B__D_l_nu, std::make_shared<BDlnuDecay>(QCDOrder::NONE, 81, obsParamProxy("FMASS", 521))},
+        {Decays::B__D_l_nu,     std::make_shared<BDlnuDecay>(QCDOrder::NONE, 81, obsParamProxy("FMASS", 521))},
         {Decays::B__Dstar_l_nu, std::make_shared<BDstarlnuDecay>(QCDOrder::NONE, 81, obsParamProxy("FMASS", 521))},
-        {Decays::B__Kstar,  std::make_shared<BKstarDecay>(QCDOrder::NONE, 81, obsParamProxy("FMASS", 511))},
-        {Decays::B__l_l,    std::make_shared<BllDecay>(QCDOrder::NONE, 81, obsParamProxy("FMASS", 531))},
-        {Decays::B__l_nu,   std::make_shared<BlnuDecay>(QCDOrder::NONE, 81, obsParamProxy("FMASS", 511))},
-        {Decays::B__Xs,     std::make_shared<BXsDecay>(QCDOrder::NONE, 81, ObsParameterProxy(ParameterType::SM)("QCD", LhaID(5,3)) / 2)},
+        {Decays::B__Kstar,      std::make_shared<BKstarDecay>(QCDOrder::NONE, 81, obsParamProxy("FMASS", 511))},
+        {Decays::B__l_l,        std::make_shared<BllDecay>(QCDOrder::NONE, 81, obsParamProxy("FMASS", 531))},
+        {Decays::B__l_nu,       std::make_shared<BlnuDecay>(QCDOrder::NONE, 81, obsParamProxy("FMASS", 511))},
+        {Decays::B__Xs,         std::make_shared<BXsDecay>(QCDOrder::NONE, 81, smParamProxy("QCD", LhaID(5, 3)) / 2)},
     };
-
-    // this->decays = {
-    //     {Decays::B__D_l_nu, std::make_shared<BDlnuDecay>(QCDOrder::NONE, 81, Parameters::Get(ParameterType::FLAVOR, "FMASS", 521))},
-    //     {Decays::B__Dstar_l_nu, std::make_shared<BDstarlnuDecay>(QCDOrder::NONE, 81, Parameters::Get(ParameterType::FLAVOR, "FMASS", 521))},
-    //     {Decays::B__Kstar,  std::make_shared<BKstarDecay>(QCDOrder::NONE, 81, Parameters::Get(ParameterType::FLAVOR, "FMASS", 511))},
-    //     {Decays::B__l_l,    std::make_shared<BllDecay>(QCDOrder::NONE, 81, Parameters::Get(ParameterType::FLAVOR, "FMASS", 531))},
-    //     {Decays::B__l_nu,   std::make_shared<BlnuDecay>(QCDOrder::NONE, 81, Parameters::Get(ParameterType::FLAVOR, "FMASS", 511))},
-    //     {Decays::B__Xs,     std::make_shared<BXsDecay>(QCDOrder::NONE, 81, QCDHelper::mass_b_1S() / 2)},
-    // };
 }
 
 std::shared_ptr<ObsManager> ObsManager::GetInstance() {
@@ -33,6 +24,7 @@ std::shared_ptr<ObsManager> ObsManager::GetInstance() {
 }
 
 std::shared_ptr<ObsManager> ObsManager::add_obs(Observables id, QCDOrder order, bool add_deps) {
+    LOG_INFO("Adding observable", ObservableMapper::str(id), "to manager");
     auto dec = decays.at(DecayMapper::get_decay(id));
     dec->set_order(order);
     auto obs_ptr = std::make_shared<Observable>(id, dec);
@@ -55,6 +47,7 @@ std::shared_ptr<ObsManager> ObsManager::remove_obs(Observables id) {
 }
 
 double ObsManager::evaluate(Observables id) {
+    decays.at(DecayMapper::get_decay(id))->init();
     return obss.at(ensure_present(id))->eval();
 }
 

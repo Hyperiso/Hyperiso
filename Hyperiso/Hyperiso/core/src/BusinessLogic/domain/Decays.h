@@ -1,7 +1,7 @@
 #ifndef DECAYS_H
 #define DECAYS_H
 
-//TODO : wtf, error vscode ? red without Decays/
+// VS Code error without Decays/ (WTF)
 #include "Decays/BDlnuDecay.h"
 #include "Decays/BDstarlnuDecay.h"
 #include "Decays/BKstarDecay.h"

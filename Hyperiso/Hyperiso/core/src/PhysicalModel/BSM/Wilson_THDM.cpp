@@ -19,7 +19,7 @@ void C3_THDM::NNLO_calculation() {
         dep_param->set_expected(coeff_temp);
     };
 
-    WilsonParamComposer().compose_parameter(ParamId{"B_MATCH_BSM", LhaID(3050707, 4133, 2, 0)}, sources, func);
+    WilsonParamComposer().compose_parameter(ParamId{this->storage_block, LhaID(3050707, 4133, 2, 1)}, sources, func);
 
     // double coeff_temp = G3H(thdm_params->yt,thdm_params->lu)+Delta3H(thdm_params->yt,thdm_params->lu)*log(pow(this->get_Q_match()/(*mod)("MASS",37),2.));
     // // return this->double_to_complex_save("NNLO", coeff_temp);
@@ -38,7 +38,7 @@ void C4_THDM::NLO_calculation() {
         dep_param->set_expected(coeff_temp);
     };
 
-    WilsonParamComposer().compose_parameter(ParamId{"B_MATCH_BSM", LhaID(3050707, 6153, 1, 0)}, sources, func);
+    WilsonParamComposer().compose_parameter(ParamId{this->storage_block, LhaID(3050707, 6153, 1, 1)}, sources, func);
 
     // double coeff_temp = EH(thdm_params->yt,thdm_params->lu);
     // // return this->double_to_complex_save("NLO", coeff_temp);
@@ -62,7 +62,7 @@ void C4_THDM::NNLO_calculation() {
         dep_param->set_expected(coeff_temp);
     };
 
-    WilsonParamComposer().compose_parameter(ParamId{"B_MATCH_BSM", LhaID(3050707, 6153, 2, 0)}, sources, func);
+    WilsonParamComposer().compose_parameter(ParamId{this->storage_block, LhaID(3050707, 6153, 2, 1)}, sources, func);
 
     // double coeff_temp=G4H(thdm_params->yt,thdm_params->lu)+Delta4H(thdm_params->yt,thdm_params->lu)*log(pow(this->get_Q_match()/(*mod)("MASS",37),2.));
     // // return this->double_to_complex_save("NNLO", coeff_temp);
@@ -89,7 +89,7 @@ void C5_THDM::NNLO_calculation() {
         dep_param->set_expected(coeff_temp);
     };
 
-    WilsonParamComposer().compose_parameter(ParamId{"B_MATCH_BSM", LhaID(3050707, 4536, 2, 0)}, sources, func);
+    WilsonParamComposer().compose_parameter(ParamId{this->storage_block, LhaID(3050707, 4536, 2, 1)}, sources, func);
 
 
     // double C4H_1=EH(thdm_params->yt,thdm_params->lu);
@@ -119,7 +119,7 @@ void C6_THDM::NNLO_calculation() {
         dep_param->set_expected(coeff_temp);
     };
 
-    WilsonParamComposer().compose_parameter(ParamId{"B_MATCH_BSM", LhaID(3050707, 6556, 2, 0)}, sources, func);
+    WilsonParamComposer().compose_parameter(ParamId{this->storage_block, LhaID(3050707, 6556, 2, 1)}, sources, func);
 
 
     // double C4H_1=EH(thdm_params->yt,thdm_params->lu);
@@ -146,7 +146,7 @@ void C7_THDM::LO_calculation() {
         dep_param->set_expected(coeff_temp);
     };
 
-    WilsonParamComposer().compose_parameter(ParamId{"B_MATCH_BSM", LhaID(305, 4422, 0, 0)}, sources, func);
+    WilsonParamComposer().compose_parameter(ParamId{this->storage_block, LhaID(305, 4422, 0, 1)}, sources, func);
 
     // std::cout << "YUUU" <<  (*mod)("YU", 22) << std::endl;
     // double coeff_temp = 1./3.*thdm_params->lu*thdm_params->lu*F7_1(thdm_params->yt) - thdm_params->lu*thdm_params->ld*F7_2(thdm_params->yt);
@@ -178,7 +178,7 @@ void C7_THDM::NLO_calculation() {
         dep_param->set_expected(coeff_temp);
     };
 
-    WilsonParamComposer().compose_parameter(ParamId{"B_MATCH_BSM", LhaID(305, 4422, 1, 0)}, sources, func);
+    WilsonParamComposer().compose_parameter(ParamId{this->storage_block, LhaID(305, 4422, 1, 1)}, sources, func);
 
 
     // double coeff_temp = G7H(thdm_params->yt,thdm_params->lu,thdm_params->ld)+Delta7H(thdm_params->yt,thdm_params->lu,thdm_params->ld)*log(pow(this->get_Q_match()/thdm_params->m_H,2.))
@@ -207,7 +207,7 @@ void C7_THDM::NNLO_calculation() {
         dep_param->set_expected(coeff_temp);
     };
 
-    WilsonParamComposer().compose_parameter(ParamId{"B_MATCH_BSM", LhaID(305, 4422, 2, 0)}, sources, func);
+    WilsonParamComposer().compose_parameter(ParamId{this->storage_block, LhaID(305, 4422, 2, 1)}, sources, func);
 
 	// double coeff_temp =C7H2(thdm_params->yt,thdm_params->lu,thdm_params->ld,log(pow(this->get_Q_match()/thdm_params->mass_top_muW, 2.)));
     // // return this->double_to_complex_save("NNLO", coeff_temp);
@@ -230,7 +230,7 @@ void C8_THDM::LO_calculation() {
         dep_param->set_expected(coeff_temp);
     };
 
-    WilsonParamComposer().compose_parameter(ParamId{"B_MATCH_BSM", LhaID(305, 6421, 0, 0)}, sources, func);
+    WilsonParamComposer().compose_parameter(ParamId{this->storage_block, LhaID(305, 6421, 0, 1)}, sources, func);
 
     // double coeff_temp = 1./3.*thdm_params->lu*thdm_params->lu*F8_1(thdm_params->yt) - thdm_params->lu*thdm_params->ld*F8_2(thdm_params->yt);
     // // return this->double_to_complex_save("LO", coeff_temp);
@@ -258,7 +258,7 @@ void C8_THDM::NLO_calculation() {
         dep_param->set_expected(coeff_temp);
     };
 
-    WilsonParamComposer().compose_parameter(ParamId{"B_MATCH_BSM", LhaID(305, 6421, 1, 0)}, sources, func);
+    WilsonParamComposer().compose_parameter(ParamId{this->storage_block, LhaID(305, 6421, 1, 1)}, sources, func);
 
 
     // double coeff_temp = G8H(thdm_params->yt,thdm_params->lu,thdm_params->ld)+Delta8H(thdm_params->yt,thdm_params->lu,thdm_params->ld)*log(pow(this->get_Q_match()/thdm_params->m_H,2.))
@@ -288,7 +288,7 @@ void C8_THDM::NNLO_calculation() {
         dep_param->set_expected(coeff_temp);
     };
 
-    WilsonParamComposer().compose_parameter(ParamId{"B_MATCH_BSM", LhaID(305, 6421, 1, 0)}, sources, func);
+    WilsonParamComposer().compose_parameter(ParamId{this->storage_block, LhaID(305, 6421, 1, 1)}, sources, func);
 
 
 	// double coeff_temp =C8H2(thdm_params->yt,thdm_params->lu,thdm_params->ld,log(pow(this->get_Q_match()/thdm_params->mass_top_muW, 2.)));
@@ -314,7 +314,7 @@ void C9_THDM::LO_calculation() {
         dep_param->set_expected(coeff_temp);
     };
 
-    WilsonParamComposer().compose_parameter(ParamId{"B_MATCH_BSM", LhaID(3051313, 4133, 0, 0)}, sources, func);
+    WilsonParamComposer().compose_parameter(ParamId{this->storage_block, LhaID(3051313, 4133, 0, 1)}, sources, func);
 
 
     // double coeff_temp = (1.-4.*thdm_params->sw2)/thdm_params->sw2*C9llH0(thdm_params->xt,thdm_params->yt,thdm_params->lu)-D9H0(thdm_params->yt,thdm_params->lu);
@@ -345,7 +345,7 @@ void C9_THDM::NLO_calculation() {
         dep_param->set_expected(coeff_temp);
     };
 
-    WilsonParamComposer().compose_parameter(ParamId{"B_MATCH_BSM", LhaID(3051313, 4133, 1, 0)}, sources, func);
+    WilsonParamComposer().compose_parameter(ParamId{this->storage_block, LhaID(3051313, 4133, 1, 1)}, sources, func);
 
 
     // double coeff_temp = (1.-4.*thdm_params->sw2)/thdm_params->sw2*C9llH1(thdm_params->xt,thdm_params->yt,thdm_params->lu,log(pow(this->get_Q_match()/thdm_params->m_H,2.)))
@@ -372,7 +372,7 @@ void C10_THDM::LO_calculation() {
         dep_param->set_expected(coeff_temp);
     };
 
-    WilsonParamComposer().compose_parameter(ParamId{"B_MATCH_BSM", LhaID(3051313, 4137, 0, 0)}, sources, func);
+    WilsonParamComposer().compose_parameter(ParamId{this->storage_block, LhaID(3051313, 4137, 0, 1)}, sources, func);
 
     // double coeff_temp = -C9llH0(thdm_params->xt,thdm_params->yt,thdm_params->lu)/thdm_params->sw2;
     // // return this->double_to_complex_save("LO", coeff_temp);
@@ -401,7 +401,7 @@ void C10_THDM::NLO_calculation() {
         dep_param->set_expected(coeff_temp);
     };
 
-    WilsonParamComposer().compose_parameter(ParamId{"B_MATCH_BSM", LhaID(3051313, 4137, 1, 0)}, sources, func);
+    WilsonParamComposer().compose_parameter(ParamId{this->storage_block, LhaID(3051313, 4137, 1, 1)}, sources, func);
 
     // double coeff_temp = -C9llH1(thdm_params->xt,thdm_params->yt,thdm_params->lu,log(pow(this->get_Q_match()/thdm_params->m_H,2.)))/thdm_params->sw2;
     // // return this->double_to_complex_save("NLO", coeff_temp);
@@ -449,7 +449,7 @@ void CQ1_THDM::LO_calculation() {
         dep_param->set_expected(coeff_temp);
     };
 
-    WilsonParamComposer().compose_parameter(ParamId{"B_MATCH_BSM", LhaID(3051313, 3230, 0, 0)}, sources, func);
+    WilsonParamComposer().compose_parameter(ParamId{this->storage_block, LhaID(3051313, 3230, 0, 1)}, sources, func);
 
     // double le = (*mod)("YL",10*(gen-1)+gen-1);
 	// double G1=-3./4.+thdm_params->ld*thdm_params->lu*F4SP(thdm_params->xt,thdm_params->xH)+thdm_params->lu*thdm_params->lu*F5SP(thdm_params->xt,thdm_params->xH);
@@ -500,7 +500,7 @@ void CQ2_THDM::LO_calculation() {
         dep_param->set_expected(coeff_temp);
     };
 
-    WilsonParamComposer().compose_parameter(ParamId{"B_MATCH_BSM", LhaID(3051313, 3230, 0, 0)}, sources, func);
+    WilsonParamComposer().compose_parameter(ParamId{this->storage_block, LhaID(3051313, 3230, 0, 1)}, sources, func);
 
     // double le = (*mod)("YL",10*(gen-1)+gen-1);
     // double G3=thdm_params->ld*(thdm_params->ld*thdm_params->lu+1.)*F6SP(thdm_params->xt,thdm_params->xH)+thdm_params->ld*thdm_params->lu*thdm_params->lu*F7SP(thdm_params->xt,thdm_params->xH)
@@ -540,7 +540,7 @@ void C_Blnu_P_THDM::LO_calculation() {
         dep_param->set_expected(-m_b * m_tau * ld * l_tau / std::pow(mH, 2));
     };
 
-    WilsonParamComposer().compose_parameter(ParamId{"B_MATCH_BSM", LhaID(3051313, 3230, 0, 0)}, sources, func);
+    WilsonParamComposer().compose_parameter(ParamId{this->storage_block, LhaID(3051313, 3230, 0, 1)}, sources, func);
 
     // double m_b = QCDHelper::mass_b_msbar();
     // double m_tau = sm("MASS", 15);
@@ -577,7 +577,7 @@ void C_S1_THDM::LO_calculation() {
         dep_param->set_expected(-m_b * m_tau * ld * l_tau / std::pow(mH, 2));
     };
 
-    WilsonParamComposer().compose_parameter(ParamId{"B_MATCH_BSM", LhaID(3051313, 3230, 0, 0)}, sources, func);
+    WilsonParamComposer().compose_parameter(ParamId{this->storage_block, LhaID(3051313, 3230, 0, 1)}, sources, func);
 
     // double m_b = QCDHelper::mass_b_msbar();
     // double m_tau = sm("MASS", 15);
@@ -613,7 +613,7 @@ void C_S2_THDM::LO_calculation() {
         dep_param->set_expected(-m_c * m_tau * lu * l_tau / std::pow(mH, 2));
     };
 
-    WilsonParamComposer().compose_parameter(ParamId{"B_MATCH_BSM", LhaID(3051313, 3230, 0, 0)}, sources, func);
+    WilsonParamComposer().compose_parameter(ParamId{this->storage_block, LhaID(3051313, 3230, 0, 1)}, sources, func);
 
     // double m_c = sm("MASS", 4);
     // double m_tau = sm("MASS", 15);
