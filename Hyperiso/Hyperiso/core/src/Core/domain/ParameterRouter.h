@@ -1,3 +1,12 @@
+/**
+ * @file ParameterRouter.h
+ * @brief Defines structures and classes for routing and categorizing parameter blocks.
+ *
+ * This file contains:
+ * - ParameterBlockRepartition: a structure that maps blocks to their parameter types.
+ * - ParametersAccessRights: a structure that defines access rights to parameters for various models.
+ * - ParamRouter: a class that provides utility functions to determine the type of a parameter block.
+ */
 #ifndef __PARAMETERROUTER_H__
 #define __PARAMETERROUTER_H__
 
@@ -5,15 +14,21 @@
 #include <string>
 #include <unordered_set>
 #include <vector>
+
 #include "General.h"
 #include "MemoryManager.h"
 #include "Utils.h"
 
+/**
+ * @struct ParameterBlockRepartition
+ * @brief Contains the repartition of parameter blocks according to their parameter type.
+ */
 struct ParameterBlockRepartition {
+    /**
+     * @brief Static map associating a ParameterType with a set of block names.
+     */
     static inline const std::map<ParameterType, std::unordered_set<std::string>> BLOCKS {
         {ParameterType::SM, {"SMINPUTS", "MASS", "VCKMIN", "UPMNSIN", "UPMNS", "IMUPMNS", "VCKM", "GAUGE"}}, //TODO VCKM, GAUGE
-        // {ParameterType::SUSY, {"MASS", "HMIX", "ALPHA", "MSOFT", "NMIX", "UMIX", "VMIX", "A0MIX", "H0MIX", "STOPMIX", "SBOTMIX", "STAUMIX", "AU", "AD", "AE", "YU", "YD", "YE"}},
-        // {ParameterType::THDM, {"MASS", "ALPHA", "UCOUPL", "DCOUPL", "LCOUPL"}},
         {ParameterType::BSM, {"MASS", "HMIX", "ALPHA", "MSOFT", "NMIX", "UMIX", "VMIX", "A0MIX", "H0MIX", "STOPMIX", "SBOTMIX", "STAUMIX", "AU", "AD", "AE", "YU", "YD", "YE",  "UCOUPL", "DCOUPL", "LCOUPL"}},
         {ParameterType::FLAVOR, {"FMASS", "FLIFE", "FCONST", "FCONSTRATIO", "FBAG", "FPARAM"}},
         {ParameterType::WILSON, {"FWCOEF", "IMFWCOEF", "EW_SCALE", "B_SCALE"}},
@@ -22,20 +37,39 @@ struct ParameterBlockRepartition {
         {ParameterType::PASSTHROUGH, {"MODSEL", "SPINFO", "FMODSEL", "FCINFO", "MINPAR", "EXTPAR"}}
     };
 
+    /**
+     * @brief Filters custom (non-standard) blocks from a source list.
+     *
+     * @param source A list of input block names.
+     * @return A list of block names considered as custom blocks.
+     */
     static std::vector<std::string> filter_custom_blocks(const std::vector<std::string>& source);
 };
 
+/**
+ * @struct ParametersAccessRights
+ * @brief Contains access rights to parameters for different theoretical models (SM, THDM, SUSY).
+ */
 struct ParametersAccessRights {
+    /**
+     * @brief Access rights for Standard Model (SM) parameters.
+     */
     static inline const std::map<std::string, std::unordered_set<long>> SM_RIGHTS {
         {"MASS", {1, 2, 3, 4, 11, 12, 13, 14, 15, 16, 21, 22, 24, 25}}, 
         {"GAUGE", {1, 2, 3}},
     };
 
+    /**
+     * @brief Access rights for Two-Higgs-Doublet Model (THDM) parameters.
+     */
     static inline const std::map<std::string, std::unordered_set<long>> THDM_RIGHTS {
         {"MASS", {25, 35, 36, 37}}, 
         {"GAUGE", {{}}},
     };
 
+    /**
+     * @brief Access rights for Supersymmetric (SUSY) model parameters.
+     */
     static inline const std::map<std::string, std::unordered_set<long>> SUSY_RIGHTS {
         {"MASS", {25, 35, 36, 37, 
                   1000001, 1000002, 1000003, 1000004, 1000005, 1000006, 1000011, 1000012, 1000013, 1000014, 1000015, 1000016, 
@@ -45,10 +79,36 @@ struct ParametersAccessRights {
     };
 };
 
+/**
+ * @class ParamRouter
+ * @brief Provides utilities for identifying the type of parameter blocks.
+ */
 class ParamRouter {
 public:
+    /**
+     * @brief Determines the parameter type of a given block and ID.
+     *
+     * @param block Name of the block.
+     * @param id LHA ID of the parameter.
+     * @return The corresponding ParameterType.
+     * @throws Logs an error if the block or ID is invalid.
+     */
     static ParameterType GetType(std::string block, LhaID id);
+
+    /**
+     * @brief Retrieves all parameter types associated with a block.
+     *
+     * @param block Name of the block.
+     * @return A list of ParameterTypes corresponding to the block.
+     */
     static std::vector<ParameterType> GetType(std::string block);
+
+    /**
+     * @brief Retrieves all blocks owned by a given parameter type.
+     *
+     * @param ptype The ParameterType.
+     * @return A set of block names belonging to the specified type.
+     */
     static std::unordered_set<std::string> GetOwnedBlocks(ParameterType ptype);
    
 };

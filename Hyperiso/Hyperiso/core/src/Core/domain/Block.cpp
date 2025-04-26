@@ -111,6 +111,44 @@ void Block::copy(std::shared_ptr<Block> other) {
     this->blockname = other->blockname;
 }
 
+bool DependentBlock::dependsOn(const std::string& blockName) {
+    return sourceBlocks.contains(blockName);
+}
+
+void DependentBlock::init() {
+    self = shared_from_this();
+    if (self) {
+        LOG_INFO("Adding observer to", sourceBlocks.size(), "source blocks");
+        for (auto src : sourceBlocks){
+            LOG_INFO(src.second->blockname);
+            src.second->addObserver(self);   
+        }
+    } else {
+        std::cerr << "Error: DependentBlock must be created with std::make_shared!" << std::endl;
+    }
+}
+
+void DependentBlock::update() {
+    if (frozen) {
+        LOG_INFO("DependentBlock is frozen, skipping update");
+        update_at_unfreeze = true;
+    } else if (recalculateLambda 
+        && std::all_of(sourceBlocks.begin(), sourceBlocks.end(), 
+                       [](std::pair<std::string, std::shared_ptr<Block>> block) { return block.second; })) 
+    {
+        LOG_INFO("Updating dependent block", blockname);
+        if (auto self = shared_from_this()) { 
+            recalculateLambda(sourceBlocks, self);
+        } else {
+            std::cerr << "Error: shared_from_this() failed in update()" << std::endl;
+        }
+    } else {
+        LOG_ERROR("Error", "DependentBlock::update() called without all source blocks being set");
+    }
+    LOG_INFO("Call to notifyObservers from DependentBlock::update() of", blockname);
+    notifyObservers();
+}
+
 void DependentBlock::freeze() {
     this->frozen = true;
 }
@@ -120,6 +158,15 @@ void DependentBlock::unfreeze() {
     if (this->update_at_unfreeze) {
         this->update();
         this->update_at_unfreeze = false;
+    }
+}
+
+DependentBlock::~DependentBlock() {
+    LOG_INFO("Destruct dependentBlock at", self.get());
+    if (self) {
+        for (auto src : sourceBlocks){
+            src.second->removeObserver(self);   
+        }
     }
 }
 

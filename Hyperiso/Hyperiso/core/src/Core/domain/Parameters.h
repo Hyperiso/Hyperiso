@@ -1,45 +1,69 @@
 /**
  * @file Parameters.h
- * @brief Defines strategies for different physics models and parameter management.
- * 
- * This file declares several Parameters singletons instances using strategy classes that manage initialization and
- * manipulation of the instances.
+ * @brief Defines strategies for different physics models and manages parameter instances.
+ *
+ * This file declares:
+ * - ModelStrategy: abstract base class for model-specific strategies.
+ * - Concrete strategies (e.g., SMModelStrategy, BSMModelStrategy, etc.).
+ * - Parameters: singleton class to manage parameter values and blocks for different models.
+ * - ParametersFactory: factory class to create and manage Parameters instances.
  */
 
 #ifndef PARAMETERS_H
 #define PARAMETERS_H
 
+#include <memory>
+#include <ranges>
+#include <algorithm>
+#include <unordered_set>
+
+#include "ParameterRouter.h"
 #include "BlockAccessor.h"
 #include "MemoryManager.h"
 #include "Interface.h"
 #include "QCDHelper.h"
 #include "config.hpp"
-#include <memory>
-#include <ranges>
-#include <algorithm>
-#include <unordered_set>
-#include "ParameterRouter.h"
 
 /**
  * @class ModelStrategy
- * @brief Abstract base class for model-specific strategies.
+ * @brief Abstract base class for different physics model strategies.
+ *
+ * Defines how parameters are initialized and post-processed for a given model type.
  */
 class ModelStrategy {
 public:
     /**
      * @brief Initializes model-specific parameters.
      * @param params Reference to Parameters object.
+     * @return Set of block names that were absent during initialization.
      */
     virtual std::unordered_set<std::string> initializeParameters(class Parameters& params) = 0;
+
+    /**
+     * @brief Executes additional initialization tasks after main parameter loading.
+     * @param params Reference to Parameters object.
+     */
     virtual void postInitialization(Parameters& params) = 0;
+
+    /**
+     * @brief Virtual destructor.
+     */
     virtual ~ModelStrategy() = default;
+
+    /**
+     * @brief Sets the list of absent blocks for the model strategy.
+     * @param _ Set of absent block names.
+     */
     void add_absent_block(std::unordered_set<std::string> _) {absent_blocks = _;};
+
+    /**
+     * @brief Clears the list of absent blocks.
+     */
     void remove_absent_block() {absent_blocks = std::unordered_set<std::string>();}
 protected:
-    std::unordered_set<std::string> absent_blocks;
+    std::unordered_set<std::string> absent_blocks;  ///< List of blocks missing from initialization.
 };
 
-// Concrete Strategy Classes
 /** @class SMModelStrategy @brief Strategy for the Standard Model. */
 class SMModelStrategy : public ModelStrategy {
 public:
@@ -47,7 +71,7 @@ std::unordered_set<std::string> initializeParameters(class Parameters& params) o
     void postInitialization(Parameters& params) override;
 };
 
-/** @class BSMModelStrategy @brief Strategy for BSM models. */
+/** @class BSMModelStrategy @brief Strategy for Beyond Standard Model (BSM) parameters. */
 class BSMModelStrategy : public ModelStrategy {
     public:
     std::unordered_set<std::string> initializeParameters(class Parameters& params) override;
@@ -110,104 +134,135 @@ std::unordered_set<std::string> initializeParameters(class Parameters& params) o
 
 /**
  * @class Parameters
- * @brief Manages parameter values and strategies for different models. Manage every parameters stored
- * which came from the lha.
+ * @brief Singleton class to manage parameter values, blocks, and model-specific strategies.
+ *
+ * Manages all parameter instances loaded from input files (typically LHA format).
  */
 class Parameters {
 public:
     /**
-     * @brief Retrieves an instance of Parameters for a given model type.
-     * @param id The model type (default: Standard Model).
-     * @return Shared pointer to a Parameters instance.
+     * @brief Retrieves the singleton instance for a given model.
+     * @param id ParameterType (default: SM).
+     * @return Shared pointer to the Parameters instance.
      */
     static std::shared_ptr<Parameters> GetInstance(ParameterType id = ParameterType::SM);
 
     /**
-     * @brief Cleans up and removes an instance of Parameters for a given model type.
-     * @param id The parameters type to remove.
+     * @brief Cleans up an instance of Parameters for a given model.
+     * @param id ParameterType to remove.
      */
     void CleanupInstance(ParameterType id = ParameterType::SM);
 
     /**
-     * @brief Checks if a parameter exists within a specified block.
-     * @param block The name of the block.
-     * @param pdgCode The PDG code to check.
-     * @return True if the parameter exists, false otherwise.
+     * @brief Checks if a parameter exists in a specified block.
+     * @param block Block name.
+     * @param pdgCode PDG code identifier.
+     * @return True if parameter exists, false otherwise.
      */
     bool exist(const std::string& block, LhaID pdgCode);
     
     /**
-     * @brief Retrieves a parameter value using function call syntax.
-     * @param block The name of the block.
-     * @param pdgCode The PDG code.
+     * @brief Retrieves a parameter value (operator syntax).
+     * @param block Block name.
+     * @param pdgCode PDG code identifier.
      * @return The corresponding parameter value.
      */
     scalar_t operator()(const std::string& block, LhaID pdgCode) const;
 
+    /**
+     * @brief Retrieves a shared pointer to a Parameter.
+     * @param block Block name.
+     * @param pdgCode PDG code identifier.
+     * @return Shared pointer to the parameter.
+     */
     std::shared_ptr<Parameter> get_parameter(const std::string& block, LhaID pdgCode);
 
     /**
-     * @brief Sets a parameter value within a specified block.
-     * @param name The name of the block.
-     * @param pdgCode The PDG code of the parameter.
-     * @param value The new value to assign.
-     * @param force If true, forces the update.
+     * @brief Sets a parameter value manually.
+     * @param name Block name.
+     * @param pdgCode PDG code.
+     * @param value Value to assign.
+     * @param force If true, forces the overwrite (default false).
      */
     void setBlockValue(const std::string& name, LhaID pdgCode, double value);
 
     /**
-     * @brief Retrieves all parameter values from a specified block.
-     * @param blockName The name of the block.
-     * @return A map of PDG codes to parameter values.
+     * @brief Retrieves all parameter values for a given block.
+     * @param blockName Block name.
+     * @return Map of LHA IDs to parameter values.
      */
     std::map<LhaID, double> get_block_infos(std::string blockName);
 
     /**
-     * @brief Retrieves a list of all available parameter blocks.
-     * @return A set of block names.
+     * @brief Retrieves the list of available parameter blocks.
+     * @return Set of block names.
      */
     std::unordered_set<std::string> get_blocks_list();
 
     /**
-     * @brief Changes the operational mode of a specified parameter.
-     * @param param_id The unique identifier of the parameter.
-     * @param new_mode The new mode to apply.
+     * @brief Changes the operational mode of a parameter (fixed/shiftable).
+     * @param param_id Identifier of the parameter.
+     * @param new_mode New mode to apply.
      */
     void changeParameterMode(const ParamId& param_id, ParameterMode new_mode);
 
     /**
-     * @brief Adjusts the value of a specified parameter by a shift amount.
-     * @param param_id The unique identifier of the parameter.
-     * @param shift_value The amount by which to shift the parameter value.
+     * @brief Applies a shift to a parameter value.
+     * @param param_id Identifier of the parameter.
+     * @param shift_value Value to shift.
      */
     void shiftParameter(const ParamId& param_id, double shift_value);
 
+    /**
+     * @brief Initializes parameter blocks for a given model type.
+     * @param type Model type.
+     * @return Set of missing blocks.
+     */
     std::unordered_set<std::string> init_blocks(ParameterType type);
 
+    /**
+     * @brief Freezes an entire block (preventing parameter updates).
+     * @param blockName Name of the block to freeze.
+     */
     void freeze_block(const std::string& blockName);
+
+    /**
+     * @brief Unfreezes an entire block.
+     * @param blockName Name of the block to unfreeze.
+     */
     void unfreeze_block(const std::string& blockName);
 
+    /**
+     * @brief Freezes a specific parameter within a block.
+     * @param blockName Name of the block.
+     * @param id LHA ID of the parameter.
+     */
     void freeze_param(const std::string& blockName, const LhaID& id);
+
+    /**
+     * @brief Unfreezes a specific parameter within a block.
+     * @param blockName Name of the block.
+     * @param id LHA ID of the parameter.
+     */
     void unfreeze_param(const std::string& blockName, const LhaID& id);
 
     /**
-     * @brief Destructor that logs the destruction of a Parameters instance.
+     * @brief Destructor. Logs when a Parameters instance is destroyed.
      */
     ~Parameters() { LOG_DEBUG("Parameters at ", this); }
 
 private:
     void claim_parameters(ParameterType type);
     
-    /** @brief Private constructor for singleton pattern. */
+    /** 
+     * @brief Private constructor for Parameters.
+     * @param modelStrategy Strategy associated with this instance.
+     */
     explicit Parameters(std::shared_ptr<ModelStrategy> modelStrategy);
 
-    /** @brief Map of model types to their corresponding Parameters instances. */
-    static std::map<ParameterType, std::shared_ptr<Parameters>> instances;
-
-    /** @brief Strategy used for parameter management. */
-    std::shared_ptr<ModelStrategy> strategy;
-
-    std::shared_ptr<BlockAccessor> blockAccessor;
+    static std::map<ParameterType, std::shared_ptr<Parameters>> instances;  ///< Static map of instances.
+    std::shared_ptr<ModelStrategy> strategy;                                ///< Strategy object for this instance.
+    std::shared_ptr<BlockAccessor> blockAccessor;                           ///< Accessor for blocks and parameters.
 
     /** @brief Factory friend. */
     friend class ParametersFactory;
@@ -217,35 +272,30 @@ private:
 /**
  * @class ParametersFactory
  * @brief Factory class for creating and managing Parameters instances.
- * 
- * The factory is responsible for ensuring that parameter instances are created
- * and managed correctly. It provides methods to retrieve and remove instances
- * of Parameters for different models.
+ *
+ * Ensures correct creation and retrieval of Parameters for different models.
  */
 class ParametersFactory {
 public:
     /**
-     * @brief Retrieves an instance of Parameters for a given model type.
-     * @param id The type of model parameters to retrieve.
-     * @return A shared pointer to the Parameters instance.
+     * @brief Retrieves the Parameters instance for a given model.
+     * @param id ParameterType.
+     * @return Shared pointer to Parameters.
      */
     static std::shared_ptr<Parameters> GetParameters(ParameterType id);
 
     /**
-     * @brief Removes an instance of Parameters for a given model type.
-     * @param id The model type whose instance should be removed.
+     * @brief Removes a Parameters instance for a given model.
+     * @param id ParameterType.
      */
     static void removeParameters(ParameterType id);
 private:
-    /**
-     * @brief Stores instances of Parameters for different model types.
-     */
-    static std::map<ParameterType, std::shared_ptr<Parameters>> instances;
+    static std::map<ParameterType, std::shared_ptr<Parameters>> instances;  ///< Static map of instances.
 
     /**
-     * @brief Creates an appropriate ModelStrategy based on the given model type.
-     * @param id The model type.
-     * @return A shared pointer to the newly created ModelStrategy.
+     * @brief Creates the correct ModelStrategy for a given ParameterType.
+     * @param id Model type.
+     * @return Shared pointer to ModelStrategy.
      */
     static std::shared_ptr<ModelStrategy> createStrategy(ParameterType id);
 };

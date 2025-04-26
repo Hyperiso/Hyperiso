@@ -8,10 +8,11 @@
 #if !defined(BLOCK_ACCESSOR_H)
 #define BLOCK_ACCESSOR_H
 
-#include "Include.h"
-#include "Block.h"
 #include <functional>
 #include <unordered_map>
+
+#include "Include.h"
+#include "Block.h"
 
 /**
  * @class BlockAccessor
@@ -82,31 +83,58 @@ public:
      */
     std::unordered_set<std::string> get_block_names();
 
+    /**
+     * @brief Removes a parameter from a specified block.
+     * 
+     * If the block does not exist, a warning is logged.
+     * 
+     * @param block_name The name of the block.
+     * @param id The LHA ID of the parameter to remove.
+     */
     void remove_item(const std::string& block_name, LhaID id);
 
     /**
-     * @brief Merges two distinct BlockAccessor instances without priority. Throws an error if both have blocks in common.  
+     * @brief Merges two BlockAccessor instances without resolving conflicts.
+     * 
+     * Throws an error if both accessors contain a block with the same name.
+     *
      * @param lhs First BlockAccessor instance.
      * @param rhs Second BlockAccessor instance.
-     * @return A new `BlockAccessor` instance storing all the blocks from `rhs` and `lhs`. 
+     * @return A shared pointer to a new BlockAccessor containing all unique blocks.
+     * @throws Error if overlapping blocks are found.
      */
     friend std::shared_ptr<BlockAccessor> operator+(std::shared_ptr<BlockAccessor> lhs, std::shared_ptr<BlockAccessor> rhs);
 
     /**
-     * @brief Merges two overlapping BlockAccessor instances with left-priority. If rhs has elements in common with lhs, they will be overwritten.
-     * @param lhs First BlockAccessor instance.
+     * @brief Merges two BlockAccessor instances with priority given to lhs.
+     *
+     * If both accessors contain the same block, parameters from lhs overwrite those from rhs.
+     *
+     * @param lhs First BlockAccessor instance (priority).
      * @param rhs Second BlockAccessor instance.
-     * @return A new `BlockAccessor` instance storing all the blocks from `rhs` and `lhs`.   
+     * @return A shared pointer to a new BlockAccessor containing merged blocks.
      */
     friend std::shared_ptr<BlockAccessor> operator>>(std::shared_ptr<BlockAccessor> lhs, std::shared_ptr<BlockAccessor> rhs);
 
     /**
-     * @brief Retrieves given blocks from stored blocks if they exist.
-     * @param block_names List of block names to retrieve.
-     * @return A new `BlockAccessor` instance storing all the given blocks.   
+     * @brief Retrieves specific blocks from the accessor.
+     * 
+     * Only blocks listed in `block_names` will be extracted.
+     * If any block does not exist, an error is logged.
+     * 
+     * @param block_names A set of block names to retrieve.
+     * @return A shared pointer to a new BlockAccessor containing the requested blocks.
      */
     std::shared_ptr<BlockAccessor> operator[](std::unordered_set<std::string> block_names);
-
+    /**
+     * @brief Stream output operator for BlockAccessor.
+     *
+     * Prints all block names and their parameter values.
+     *
+     * @param os Output stream.
+     * @param ba Shared pointer to the BlockAccessor to print.
+     * @return The output stream.
+     */
     friend std::ostream& operator<<(std::ostream&, std::shared_ptr<BlockAccessor>);
 };
 

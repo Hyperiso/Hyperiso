@@ -45,6 +45,50 @@ void Parameter::set_shift(scalar_t shift) {
     }
 }
 
+Parameter& Parameter::operator=(const Parameter& other) {
+    this->id = other.id;
+    this->set_expected(other.expected);
+    this->deviation_stat = other.deviation_stat;
+    this->deviation_syst = other.deviation_syst;
+    this->mode = other.mode;
+    this->shift = other.shift;
+    return *this;
+}
+
+bool DependentParameter::dependsOn(const ParamId& pid) {
+    return sources.contains(pid);
+}
+
+void DependentParameter::init() {
+    self = shared_from_this();
+    if (self) {
+        for (auto src : sources){
+            src.second->addObserver(self);   
+        }
+    } else {
+        std::cerr << "Error: DependentBlock must be created with std::make_shared!" << std::endl;
+    }
+}
+
+void DependentParameter::update() {
+    if (frozen) {
+        LOG_INFO("DependentParameter is frozen, skipping update");
+        this->update_at_unfreeze = true;
+    } else if (recalculateLambda 
+        && std::all_of(sources.begin(), sources.end(), 
+                    [](std::pair<ParamId, std::shared_ptr<Parameter>> block) { return block.second; })) 
+    {
+        LOG_INFO("Updating dependent parameter value");
+        if (auto self = shared_from_this()) { 
+            recalculateLambda(sources, self);
+        } else {
+            std::cerr << "Error: shared_from_this() failed in update()" << std::endl;
+        }
+    } else {
+        LOG_ERROR("Error", "DependentParameter::update() called without all source parameters being set");
+    }
+}
+
 void DependentParameter::freeze() {
     this->frozen = true;
 }
