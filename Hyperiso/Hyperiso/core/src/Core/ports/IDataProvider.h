@@ -10,6 +10,8 @@
 #include <utility>
 
 /**
+ * @example data_provider_example.cpp
+ * @brief Example usage of ParameterProvider, CorrelationProvider, and QCDProvider.
  * @defgroup DataProvidersModule Data Providers System
  * @brief Provides flexible access to parameter, correlation, and QCD data.
  *

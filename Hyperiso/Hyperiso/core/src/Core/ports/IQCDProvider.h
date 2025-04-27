@@ -1,5 +1,5 @@
-#ifndef __IQCDPROVIDER_H__
-#define __IQCDPROVIDER_H__
+#ifndef IQCDPROVIDER_H
+#define IQCDPROVIDER_H
 
 #include "AbstractConfig.h"
 #include "QCDHelper.h"
@@ -20,4 +20,4 @@ public:
     virtual QCDConstants* get_constants() = 0;
 };
 
-#endif // __IQCDPROVIDER_H__
+#endif // IQCDPROVIDER_H
