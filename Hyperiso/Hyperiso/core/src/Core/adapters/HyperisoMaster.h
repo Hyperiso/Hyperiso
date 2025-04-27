@@ -2,6 +2,8 @@
 #define __CONFIGPROVIDER_H__
 
 #include "IMonitor.h"
+#include "MemoryManager.h"
+#include "ParamBlockLoader.h"
 
 class HyperisoMaster : public IMonitor<ExternalFlag> {
 public:

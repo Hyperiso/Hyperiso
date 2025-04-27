@@ -1,8 +1,6 @@
 #ifndef __IMONITOR_H__
 #define __IMONITOR_H__
 
-#include "MemoryManager.h"
-
 template<typename FlagType>
 class IMonitor {
 public:

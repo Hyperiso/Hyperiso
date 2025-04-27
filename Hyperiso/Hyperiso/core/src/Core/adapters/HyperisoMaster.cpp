@@ -1,7 +1,10 @@
 #include "HyperisoMaster.h"
 
 void HyperisoMaster::init(const std::string &lhaFile, Config config) {
-    MemoryManager::GetInstance()->init(lhaFile, std::move(config));
+    std::shared_ptr<ParamBlockLoader> pbl = std::make_shared<ParamBlockLoader>();
+    std::shared_ptr<CorrelationLoader<ParamId>> cl_param = std::make_shared<CorrelationLoader<ParamId>>();
+    std::shared_ptr<CorrelationLoader<Observables>> cl_obs = std::make_shared<CorrelationLoader<Observables>>();
+    MemoryManager::GetInstance()->init(lhaFile, std::move(config), pbl, cl_param, cl_obs);
 }
 
 void HyperisoMaster::init(const std::string &lhaFile) {

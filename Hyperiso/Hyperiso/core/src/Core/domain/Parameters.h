@@ -25,11 +25,51 @@
 #include "config.hpp"
 
 /**
- * @class ModelStrategy
- * @brief Abstract base class for different physics model strategies.
+ * @defgroup ParametersModule Parameters and Model Strategies
+ * @brief Management of parameters and model-specific initialization.
  *
- * Defines how parameters are initialized and post-processed for a given model type.
+ * This module defines and manages:
+ * - ModelStrategy classes for different physics models (SM, BSM, Flavor, Wilson, etc.)
+ * - The Parameters singleton that holds all parameter values.
+ * - The ParametersFactory that ensures proper instance creation and destruction.
+ *
+ * ## Overview
+ *
+ * The Parameters system relies on a flexible architecture:
+ * - Each model type (Standard Model, BSM, etc.) uses a dedicated **ModelStrategy** to load its parameters.
+ * - **Parameters** holds the blocks and parameters for each model instance.
+ * - **ParametersFactory** guarantees that only one Parameters instance per model exists.
+ *
+ * ## Structure
+ *
+ * ```
+ * [Input files / MemoryManager]
+ *       ↓
+ *    [BlockAccessor]
+ *       ↓
+ * [Parameters instance] ← ModelStrategy
+ * ```
+ *
+ * ## Related Classes
+ * - @ref Parameters
+ * - @ref ParametersFactory
+ * - @ref ModelStrategy
+ * - @ref SMModelStrategy
+ * - @ref BSMModelStrategy
+ * - @ref FlavorStrategy
+ * - @ref WilsonInputStrategy
+ * - @ref ObservableStrategy
+ * - @ref DecayStrategy
+ * - @ref PassthroughStrategy
  */
+
+
+/**
+ * @class ModelStrategy
+ * @ingroup ParametersModule
+ * @brief Abstract base class for different physics model strategies.
+ */
+
 class ModelStrategy {
 public:
     /**
@@ -64,14 +104,22 @@ protected:
     std::unordered_set<std::string> absent_blocks;  ///< List of blocks missing from initialization.
 };
 
-/** @class SMModelStrategy @brief Strategy for the Standard Model. */
+/** 
+ * @class SMModelStrategy
+ * @ingroup ParametersModule
+ * @brief Strategy for Standard Model parameters.
+ */
 class SMModelStrategy : public ModelStrategy {
 public:
 std::unordered_set<std::string> initializeParameters(class Parameters& params) override;
     void postInitialization(Parameters& params) override;
 };
 
-/** @class BSMModelStrategy @brief Strategy for Beyond Standard Model (BSM) parameters. */
+/** 
+ * @class BSMModelStrategy
+ * @ingroup ParametersModule
+ * @brief Strategy for Beyond Standard Model parameters.
+ */
 class BSMModelStrategy : public ModelStrategy {
     public:
     std::unordered_set<std::string> initializeParameters(class Parameters& params) override;
@@ -90,42 +138,66 @@ class BSMModelStrategy : public ModelStrategy {
 //     void initializeParameters(class Parameters& params) override;
 // };
 
-/** @class FlavorStrategy @brief Strategy for flavor physics parameters. */
+/** 
+ * @class FlavorStrategy
+ * @ingroup ParametersModule
+ * @brief Strategy for flavor parameters (mesons mass, lifetime, etc.).
+ */
 class FlavorStrategy : public ModelStrategy {
 public:
 std::unordered_set<std::string> initializeParameters(class Parameters& params) override;
     void postInitialization(Parameters& params) override {}
 };
 
-/** @class GeneralModelStrategy @brief General model strategy for parameter initialization. */
+/** 
+ * @class GeneralModelStrategy
+ * @ingroup ParametersModule
+ * @brief Strategy for TODO ??.
+ */
 class GeneralModelStrategy : public ModelStrategy {
 public:
 std::unordered_set<std::string> initializeParameters(class Parameters& params) override;
     void postInitialization(Parameters& params) override {}
 };
 
-/** @class WilsonInputStrategy @brief Strategy for Wilson coefficient inputs. */
+/** 
+ * @class WilsonInputStrategy
+ * @ingroup ParametersModule
+ * @brief Strategy for Wilson parameters (and wilson itself).
+ */
 class WilsonInputStrategy : public ModelStrategy {
 public:
 std::unordered_set<std::string> initializeParameters(class Parameters& params) override;
     void postInitialization(Parameters& params) override {}
 };
 
-/** @class DecayStrategy @brief Strategy for decay parameters (incl. formfactors). */
+/** 
+ * @class DecayStrategy
+ * @ingroup ParametersModule
+ * @brief Strategy for decay parameters.
+ */
 class DecayStrategy : public ModelStrategy {
 public:
 std::unordered_set<std::string> initializeParameters(class Parameters& params) override;
     void postInitialization(Parameters& params) override {}
 };
 
-/** @class ObservableStrategy @brief Strategy for observable inputs (exp. values). */
+/** 
+ * @class ObservableStrategy
+ * @ingroup ParametersModule
+ * @brief Strategy for observables parameters (and observables themself).
+ */
 class ObservableStrategy : public ModelStrategy {
 public:
 std::unordered_set<std::string> initializeParameters(class Parameters& params) override;
     void postInitialization(Parameters& params) override {}
 };
 
-    /** @class PassthroughStrategy @brief Strategy for passthrough parameters (not needed at runtime but must be in the output). */
+/** 
+ * @class PassthroughStrategy
+ * @ingroup ParametersModule
+ * @brief Strategy for passthrough parameters (not needed at runtime but must be in the output).
+ */
 class PassthroughStrategy : public ModelStrategy {
 public:
 std::unordered_set<std::string> initializeParameters(class Parameters& params) override;
@@ -134,9 +206,8 @@ std::unordered_set<std::string> initializeParameters(class Parameters& params) o
 
 /**
  * @class Parameters
+ * @ingroup ParametersModule
  * @brief Singleton class to manage parameter values, blocks, and model-specific strategies.
- *
- * Manages all parameter instances loaded from input files (typically LHA format).
  */
 class Parameters {
 public:
@@ -271,9 +342,8 @@ private:
 
 /**
  * @class ParametersFactory
+ * @ingroup ParametersModule
  * @brief Factory class for creating and managing Parameters instances.
- *
- * Ensures correct creation and retrieval of Parameters for different models.
  */
 class ParametersFactory {
 public:
