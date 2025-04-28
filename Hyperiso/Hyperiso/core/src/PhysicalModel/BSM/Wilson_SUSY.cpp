@@ -5,11 +5,26 @@
 void C1_susy::NNLO_calculation() {
 
 	std::unordered_set<ParamId> sources {
-        {"WPARAM_SI_BSM", 7},
-        {"WPARAM_MATCH_BSM", 1},
-        {"EW_EW_SCALE", 1},
-        {ParameterType::BSM, "MASS", 37}
-    };
+		{ParameterType::SM, "MASS", 24},
+		{ParameterType::BSM, "MASS", 1000002},
+		{ParameterType::BSM, "MASS", 1000004},
+		{ParameterType::BSM, "MASS", 1000006},
+		{ParameterType::BSM, "MASS", 2000002},
+		{ParameterType::BSM, "MASS", 2000004},
+		{ParameterType::BSM, "MASS", 2000006},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {14, 0}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {14, 1}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {14, 2}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {14, 3}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {14, 4}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {14, 5}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {15, 0}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {15, 1}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {15, 2}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {15, 3}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {15, 4}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {15, 5}}
+	};
 
     auto func = [] (const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src, std::shared_ptr<DependentParameter> dep_param) {
         complex_t C1squark_2 = 0.0;
@@ -67,11 +82,45 @@ void C1_susy::NNLO_calculation() {
 void C3_susy::NNLO_calculation() {
 
 	std::unordered_set<ParamId> sources {
-        {"WPARAM_SI_BSM", 7},
-        {"WPARAM_MATCH_BSM", 1},
-        {"EW_EW_SCALE", 1},
-        {ParameterType::BSM, "MASS", 37}
-    };
+		{ParameterType::WILSON, "EW_EW_SCALE", 1},
+		{ParameterType::SM, "MASS", 24},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {13, 0}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {13, 1}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {14, 0}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {14, 1}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {14, 2}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {14, 3}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {14, 4}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {14, 5}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3, 0, 0, 1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3, 0, 0, 2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3, 0, 1, 1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3, 0, 1, 2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3, 0, 2, 1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3, 0, 2, 2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3, 0, 3, 1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3, 0, 3, 2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3, 0, 4, 1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3, 0, 4, 2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3, 0, 5, 1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3, 0, 5, 2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3, 1, 0, 1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3, 1, 0, 2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3, 1, 1, 1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3, 1, 1, 2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3, 1, 2, 1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3, 1, 2, 2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3, 1, 3, 1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3, 1, 3, 2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3, 1, 4, 1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3, 1, 4, 2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3, 1, 5, 1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3, 1, 5, 2}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", 6},
+		{ParameterType::WILSON, "WPARAM_MATCH_BSM", 1},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", 7},
+		{ParameterType::BSM, "MASS", 37}
+	};
 
     auto func = [] (const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src, std::shared_ptr<DependentParameter> dep_param) {
 		complex_t C3charg_2 = 0.0;
@@ -360,11 +409,43 @@ void C6_susy::NNLO_calculation() {
 void C7_susy::LO_calculation() {
 
 	std::unordered_set<ParamId> sources {
-        {"WPARAM_SI_BSM", 7},
-        {"WPARAM_MATCH_BSM", 1},
-        {"EW_EW_SCALE", 1},
-        {ParameterType::BSM, "MASS", 37}
-    };
+		{ParameterType::SM, "MASS", 24},                          // utilisé directement
+		{ParameterType::WILSON, "WPARAM_SI_BSM", 6},              // pour kappa
+		{ParameterType::WILSON, "WPARAM_SI_BSM", 7},              // pour lu
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {13, 0}},        // utilisé dans boucle sur ie
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {13, 1}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {14, 0}},        // utilisé dans boucle sur ae
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {14, 1}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {14, 2}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {14, 3}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {14, 4}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {14, 5}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,0,0,1}},         // matrice pour ie/ae
+		{ParameterType::WILSON, "MATRIX_BSM", {3,0,0,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,0,1,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,0,1,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,0,2,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,0,2,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,0,3,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,0,3,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,0,4,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,0,4,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,0,5,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,0,5,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,1,0,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,1,0,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,1,1,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,1,1,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,1,2,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,1,2,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,1,3,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,1,3,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,1,4,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,1,4,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,1,5,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,1,5,2}},
+		{ParameterType::WILSON, "WPARAM_MATCH_BSM", 1}            // pour yt
+	};
 
     auto func = [] (const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src, std::shared_ptr<DependentParameter> dep_param) {
 		double xt = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {2,1}})->get_val();
@@ -485,11 +566,100 @@ void C7_susy::LO_calculation() {
 void C7_susy::NLO_calculation() {
 
 	std::unordered_set<ParamId> sources {
-        {"WPARAM_SI_BSM", 7},
-        {"WPARAM_MATCH_BSM", 1},
-        {"EW_EW_SCALE", 1},
-        {ParameterType::BSM, "MASS", 37}
-    };
+		{ParameterType::WILSON, "WPARAM_MATCH_SM", {2,1}},
+		{ParameterType::WILSON, "WPARAM_MATCH_SM", {5,1}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", 6},   // kappa
+		{ParameterType::WILSON, "WPARAM_SI_BSM", 7},   // lu
+		{ParameterType::WILSON, "WPARAM_SI_BSM", 8},   // ld
+		{ParameterType::WILSON, "WPARAM_MATCH_BSM", 1}, // yt
+		{ParameterType::WILSON, "EW_EW_SCALE", 1},     // Q_match
+		{ParameterType::SM, "MASS", 24},               // mW
+		{ParameterType::BSM, "MASS", 25},              // mh
+		{ParameterType::BSM, "MASS", 35},              // mH0
+		{ParameterType::BSM, "MASS", 37},              // mH
+	
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {13,0}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {13,1}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {13,2}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {13,3}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {13,4}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {13,5}},
+	
+		{ParameterType::WILSON, "MATRIX_BSM", {3,0,0,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,0,0,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,0,1,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,0,1,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,0,2,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,0,2,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,0,3,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,0,3,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,0,4,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,0,4,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,0,5,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,0,5,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,1,0,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,1,0,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,1,1,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,1,1,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,1,2,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,1,2,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,1,3,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,1,3,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,1,4,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,1,4,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,1,5,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,1,5,2}},
+	
+		{ParameterType::WILSON, "MATRIX_BSM", {4,0,0,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,0,1,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,0,2,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,0,3,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,0,4,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,0,5,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,1,0,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,1,1,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,1,2,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,1,3,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,1,4,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,1,5,2}},
+	
+		{ParameterType::WILSON, "MATRIX_BSM", {9,0,0}},
+		{ParameterType::WILSON, "MATRIX_BSM", {9,0,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {9,0,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {9,0,3}},
+		{ParameterType::WILSON, "MATRIX_BSM", {9,0,4}},
+		{ParameterType::WILSON, "MATRIX_BSM", {9,0,5}},
+		{ParameterType::WILSON, "MATRIX_BSM", {9,1,0}},
+		{ParameterType::WILSON, "MATRIX_BSM", {9,1,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {9,1,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {9,1,3}},
+		{ParameterType::WILSON, "MATRIX_BSM", {9,1,4}},
+		{ParameterType::WILSON, "MATRIX_BSM", {9,1,5}},
+		{ParameterType::WILSON, "MATRIX_BSM", {9,2,0}},
+		{ParameterType::WILSON, "MATRIX_BSM", {9,2,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {9,2,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {9,2,3}},
+		{ParameterType::WILSON, "MATRIX_BSM", {9,2,4}},
+		{ParameterType::WILSON, "MATRIX_BSM", {9,2,5}},
+		{ParameterType::WILSON, "MATRIX_BSM", {9,3,0}},
+		{ParameterType::WILSON, "MATRIX_BSM", {9,3,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {9,3,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {9,3,3}},
+		{ParameterType::WILSON, "MATRIX_BSM", {9,3,4}},
+		{ParameterType::WILSON, "MATRIX_BSM", {9,3,5}},
+		{ParameterType::WILSON, "MATRIX_BSM", {9,4,0}},
+		{ParameterType::WILSON, "MATRIX_BSM", {9,4,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {9,4,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {9,4,3}},
+		{ParameterType::WILSON, "MATRIX_BSM", {9,4,4}},
+		{ParameterType::WILSON, "MATRIX_BSM", {9,4,5}},
+		{ParameterType::WILSON, "MATRIX_BSM", {9,5,0}},
+		{ParameterType::WILSON, "MATRIX_BSM", {9,5,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {9,5,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {9,5,3}},
+		{ParameterType::WILSON, "MATRIX_BSM", {9,5,4}},
+		{ParameterType::WILSON, "MATRIX_BSM", {9,5,5}}
+	};
 
     auto func = [] (const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src, std::shared_ptr<DependentParameter> dep_param) {
 		double xt = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {2,1}})->get_val();
@@ -500,11 +670,8 @@ void C7_susy::NLO_calculation() {
 		double Q_match = src.at({ParameterType::WILSON, "EW_EW_SCALE", 1})->get_val();
 		double mW = src.at({ParameterType::SM, "MASS", 24})->get_val();
 		double mH = src.at({ParameterType::BSM, "MASS", 37})->get_val();
-		double tanb = src.at({ParameterType::BSM, "HMIX", 2})->get_val();
-		double alpha = src.at({ParameterType::BSM, "ALPHA", 0})->get_val();
 		double mH0 = src.at({ParameterType::BSM, "MASS", 35})->get_val();
 		double mh = src.at({ParameterType::BSM, "MASS", 25})->get_val();
-		double mA0 = src.at({ParameterType::BSM, "MASS", 36})->get_val();
 
 		double mass_b_muW = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {5,1}})->get_val();
 
@@ -582,11 +749,12 @@ void C7_susy::NLO_calculation() {
 void C7_susy::NNLO_calculation() {
 
 	std::unordered_set<ParamId> sources {
-        {"WPARAM_SI_BSM", 7},
-        {"WPARAM_MATCH_BSM", 1},
-        {"EW_SCALE", 1},
-        {ParameterType::BSM, "MASS", 37}
-    };
+		{ParameterType::WILSON, "WPARAM_SI_BSM", 7},     // lu
+		{ParameterType::WILSON, "WPARAM_SI_BSM", 8},     // ld
+		{ParameterType::WILSON, "WPARAM_MATCH_BSM", 1},  // yt
+		{ParameterType::WILSON, "EW_SCALE", 1},          // Q_match
+		{ParameterType::WILSON, "WPARAM_MATCH_SM", 6}    // mass_top_muW
+	};
 
     auto func = [] (const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src, std::shared_ptr<DependentParameter> dep_param) {
 		double lu = src.at({ParameterType::WILSON, "WPARAM_SI_BSM", 7})->get_val();
@@ -608,11 +776,91 @@ void C7_susy::NNLO_calculation() {
 void C8_susy::LO_calculation() {
 
 	std::unordered_set<ParamId> sources {
-        {"WPARAM_SI_BSM", 7},
-        {"WPARAM_MATCH_BSM", 1},
-        {"EW_SCALE", 1},
-        {ParameterType::BSM, "MASS", 37}
-    };
+		{ParameterType::WILSON, "WPARAM_SI_BSM", 7},      // lu
+		{ParameterType::WILSON, "WPARAM_SI_BSM", 8},      // ld
+		{ParameterType::WILSON, "WPARAM_MATCH_BSM", 1},   // yt
+		{ParameterType::WILSON, "EW_SCALE", 1},           // Q_match
+		{ParameterType::WILSON, "WPARAM_MATCH_SM", {2,1}}, // xt
+		{ParameterType::WILSON, "WPARAM_MATCH_SM", {5,1}}, // mass_b_muW
+		{ParameterType::SM, "MASS", 24},                  // mW
+		{ParameterType::BSM, "MASS", 25},                 // mh
+		{ParameterType::BSM, "MASS", 35},                 // mH0
+		{ParameterType::BSM, "MASS", 36},                 // mA0
+		{ParameterType::BSM, "MASS", 37},                 // mH
+		{ParameterType::BSM, "HMIX", 2},                  // tanb
+		{ParameterType::BSM, "ALPHA", 0},                 // alpha
+	
+		// EPSILON_SUSY parameters
+		{ParameterType::WILSON, "EPSILON_SUSY", {0,1}},
+		{ParameterType::WILSON, "EPSILON_SUSY", {0,2}},
+		{ParameterType::WILSON, "EPSILON_SUSY", 1},
+		{ParameterType::WILSON, "EPSILON_SUSY", 2},
+		{ParameterType::WILSON, "EPSILON_SUSY", 3},
+		{ParameterType::WILSON, "EPSILON_SUSY", 4},
+	
+		// HMIX & AMIX matrix elements used in the else branch
+		{ParameterType::BSM, "HMIX", 00},
+		{ParameterType::BSM, "HMIX", 01},
+		{ParameterType::BSM, "HMIX", 10},
+		{ParameterType::BSM, "HMIX", 11},
+		{ParameterType::BSM, "HMIX", 20},
+		{ParameterType::BSM, "HMIX", 21},
+		{ParameterType::BSM, "HMIX", 31},
+		{ParameterType::BSM, "AMIX", 00},
+		{ParameterType::BSM, "AMIX", 01},
+		{ParameterType::BSM, "AMIX", 10},
+		{ParameterType::BSM, "AMIX", 11},
+	
+		// Additional WPARAM_SI_BSM entries for calculateContribution
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {13,0}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {13,1}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {14,0}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {14,1}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {14,2}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {14,3}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {14,4}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {14,5}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", 18},     // kappafactor
+	
+		// Matrices MATRIX_BSM (h50 and h60 contributions)
+		{ParameterType::WILSON, "MATRIX_BSM", {3,0,0,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,0,0,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,0,1,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,0,1,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,0,2,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,0,2,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,0,3,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,0,3,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,0,4,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,0,4,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,0,5,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,0,5,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,1,0,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,1,0,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,1,1,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,1,1,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,1,2,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,1,2,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,1,3,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,1,3,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,1,4,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,1,4,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,1,5,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,1,5,2}},
+	
+		{ParameterType::WILSON, "MATRIX_BSM", {4,0,0,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,0,1,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,0,2,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,0,3,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,0,4,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,0,5,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,1,0,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,1,1,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,1,2,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,1,3,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,1,4,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,1,5,2}}
+	};
 
     auto func = [] (const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src, std::shared_ptr<DependentParameter> dep_param) {
 		complex_t C4charg_2{};
@@ -727,11 +975,104 @@ void C8_susy::LO_calculation() {
 void C8_susy::NLO_calculation() {
 
 	std::unordered_set<ParamId> sources {
-        {"WPARAM_SI_BSM", 7},
-        {"WPARAM_MATCH_BSM", 1},
-        {"EW_SCALE", 1},
-        {ParameterType::BSM, "MASS", 37}
-    };
+		{ParameterType::WILSON, "WPARAM_SI_BSM", 7},     // lu
+		{ParameterType::WILSON, "WPARAM_SI_BSM", 8},     // ld
+		{ParameterType::WILSON, "WPARAM_MATCH_BSM", 1},  // yt
+		{ParameterType::WILSON, "EW_SCALE", 1},          // Q_match
+		{ParameterType::WILSON, "WPARAM_MATCH_SM", {2,1}}, // xt
+		{ParameterType::SM, "MASS", 24},                 // mW
+		{ParameterType::BSM, "MASS", 37},                // mH
+		{ParameterType::BSM, "HMIX", 2},                 // tanb
+		{ParameterType::BSM, "ALPHA", 0},                // alpha
+		{ParameterType::BSM, "MASS", 35},                // mH0
+		{ParameterType::BSM, "MASS", 25},                // mh
+		{ParameterType::BSM, "MASS", 36},                // mA0
+		{ParameterType::WILSON, "WPARAM_MATCH_SM", {5,1}}, // mass_b_muW
+	
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {13,0}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {13,1}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {14,0}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {14,1}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {14,2}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {14,3}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {14,4}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {14,5}},
+	
+		{ParameterType::WILSON, "MATRIX_BSM", {3,0,0,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,0,0,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,0,1,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,0,1,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,0,2,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,0,2,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,0,3,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,0,3,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,0,4,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,0,4,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,0,5,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,0,5,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,1,0,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,1,0,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,1,1,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,1,1,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,1,2,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,1,2,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,1,3,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,1,3,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,1,4,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,1,4,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,1,5,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,1,5,2}},
+	
+		{ParameterType::WILSON, "MATRIX_BSM", {4,0,0,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,0,1,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,0,2,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,0,3,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,0,4,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,0,5,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,1,0,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,1,1,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,1,2,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,1,3,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,1,4,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,1,5,2}},
+	
+		{ParameterType::WILSON, "MATRIX_BSM", {9,0,0}},
+		{ParameterType::WILSON, "MATRIX_BSM", {9,0,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {9,0,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {9,0,3}},
+		{ParameterType::WILSON, "MATRIX_BSM", {9,0,4}},
+		{ParameterType::WILSON, "MATRIX_BSM", {9,0,5}},
+		{ParameterType::WILSON, "MATRIX_BSM", {9,1,0}},
+		{ParameterType::WILSON, "MATRIX_BSM", {9,1,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {9,1,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {9,1,3}},
+		{ParameterType::WILSON, "MATRIX_BSM", {9,1,4}},
+		{ParameterType::WILSON, "MATRIX_BSM", {9,1,5}},
+		{ParameterType::WILSON, "MATRIX_BSM", {9,2,0}},
+		{ParameterType::WILSON, "MATRIX_BSM", {9,2,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {9,2,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {9,2,3}},
+		{ParameterType::WILSON, "MATRIX_BSM", {9,2,4}},
+		{ParameterType::WILSON, "MATRIX_BSM", {9,2,5}},
+		{ParameterType::WILSON, "MATRIX_BSM", {9,3,0}},
+		{ParameterType::WILSON, "MATRIX_BSM", {9,3,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {9,3,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {9,3,3}},
+		{ParameterType::WILSON, "MATRIX_BSM", {9,3,4}},
+		{ParameterType::WILSON, "MATRIX_BSM", {9,3,5}},
+		{ParameterType::WILSON, "MATRIX_BSM", {9,4,0}},
+		{ParameterType::WILSON, "MATRIX_BSM", {9,4,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {9,4,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {9,4,3}},
+		{ParameterType::WILSON, "MATRIX_BSM", {9,4,4}},
+		{ParameterType::WILSON, "MATRIX_BSM", {9,4,5}},
+		{ParameterType::WILSON, "MATRIX_BSM", {9,5,0}},
+		{ParameterType::WILSON, "MATRIX_BSM", {9,5,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {9,5,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {9,5,3}},
+		{ParameterType::WILSON, "MATRIX_BSM", {9,5,4}},
+		{ParameterType::WILSON, "MATRIX_BSM", {9,5,5}}
+	};
 
     auto func = [] (const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src, std::shared_ptr<DependentParameter> dep_param) {
 		double xt = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {2,1}})->get_val();
@@ -818,11 +1159,12 @@ void C8_susy::NLO_calculation() {
 void C8_susy::NNLO_calculation() {
 
 	std::unordered_set<ParamId> sources {
-        {"WPARAM_SI_BSM", 7},
-        {"WPARAM_MATCH_BSM", 1},
-        {"EW_SCALE", 1},
-        {ParameterType::BSM, "MASS", 37}
-    };
+		{ParameterType::WILSON, "WPARAM_SI_BSM", 7},    // lu
+		{ParameterType::WILSON, "WPARAM_SI_BSM", 8},    // ld
+		{ParameterType::WILSON, "WPARAM_MATCH_BSM", 1}, // yt
+		{ParameterType::WILSON, "EW_SCALE", 1},         // Q_match
+		{ParameterType::WILSON, "WPARAM_MATCH_SM", 6}   // mass_top_muW
+	};
 
     auto func = [] (const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src, std::shared_ptr<DependentParameter> dep_param) {
 
@@ -846,22 +1188,22 @@ void C8_susy::NNLO_calculation() {
 void C9_susy::LO_calculation() {
 
 	std::unordered_set<ParamId> sources {
-        {"WPARAM_SI_BSM", 7},
-        {"WPARAM_MATCH_BSM", 1},
-        {"EW_SCALE", 1},
-        {ParameterType::BSM, "MASS", 37}
-    };
+		{ParameterType::WILSON, "WPARAM_SI_BSM", 7},        // lu
+		{ParameterType::WILSON, "WPARAM_MATCH_BSM", 1},     // yt
+		{ParameterType::WILSON, "WPARAM_MATCH_SM", {2,1}},  // xt
+		{ParameterType::WILSON, "WPARAM_SI_SM", 4},         // sw2
+		{ParameterType::WILSON, "MATRIX_BSM", 13},          // B90c
+		{ParameterType::WILSON, "MATRIX_BSM", 14},          // C90c
+		{ParameterType::WILSON, "MATRIX_BSM", 15}           // D90c
+	};
 
     auto func = [] (const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src, std::shared_ptr<DependentParameter> dep_param) {
 
 		
 		double xt = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {2,1}})->get_val();
 		double lu = src.at({ParameterType::WILSON, "WPARAM_SI_BSM", 7})->get_val();
-		double ld = src.at({ParameterType::WILSON, "WPARAM_SI_BSM", 8})->get_val();
 		double yt = src.at({ParameterType::WILSON, "WPARAM_MATCH_BSM", 1})->get_val();
-		double Q_match = src.at({ParameterType::WILSON, "EW_SCALE", 1})->get_val();
 		double sw2 = src.at({ParameterType::WILSON, "WPARAM_SI_SM", 4})->get_val();
-		double mass_top_muW = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 6})->get_val();
 
 		complex_t C90c = src.at({ParameterType::WILSON, "MATRIX_BSM", 14})->get_val();
 		complex_t B90c = src.at({ParameterType::WILSON, "MATRIX_BSM", 13})->get_val();
@@ -883,11 +1225,78 @@ void C9_susy::LO_calculation() {
 void C9_susy::NLO_calculation() {
 
 	std::unordered_set<ParamId> sources {
-        {"WPARAM_SI_BSM", 7},
-        {"WPARAM_MATCH_BSM", 1},
-        {"EW_SCALE", 1},
-        {ParameterType::BSM, "MASS", 37}
-    };
+		// Paramètres simples
+		{ParameterType::WILSON, "WPARAM_SI_BSM", 6},   // kappa
+		{ParameterType::WILSON, "WPARAM_SI_BSM", 7},   // lu
+		{ParameterType::WILSON, "WPARAM_SI_BSM", 8},   // ld
+		{ParameterType::WILSON, "WPARAM_MATCH_BSM", 1}, // yt
+		{ParameterType::WILSON, "EW_SCALE", 1},         // Q_match
+		{ParameterType::WILSON, "WPARAM_MATCH_SM", {2,1}}, // xt
+		{ParameterType::SM, "MASS", 24},                // mW
+		{ParameterType::BSM, "MASS", 37},               // mH
+		{ParameterType::WILSON, "WPARAM_SI_SM", 4},     // sw2
+		{ParameterType::SM, "GAUGE", 2},                // g2
+	
+		// Pour les boucles : masses
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {13,0}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {13,1}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {14,0}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {14,1}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {14,2}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {14,3}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {14,4}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {14,5}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {16,0}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {16,1}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {16,2}},
+	
+		// Matrices utilisées
+		{ParameterType::WILSON, "MATRIX_BSM", {1,0,0}},
+		{ParameterType::WILSON, "MATRIX_BSM", {1,0,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {1,0,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {1,0,3}},
+		{ParameterType::WILSON, "MATRIX_BSM", {1,0,4}},
+		{ParameterType::WILSON, "MATRIX_BSM", {1,0,5}},
+		{ParameterType::WILSON, "MATRIX_BSM", {1,1,0}},
+		{ParameterType::WILSON, "MATRIX_BSM", {1,1,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {1,1,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {1,1,3}},
+		{ParameterType::WILSON, "MATRIX_BSM", {1,1,4}},
+		{ParameterType::WILSON, "MATRIX_BSM", {1,1,5}},
+	
+		{ParameterType::WILSON, "MATRIX_BSM", {3,0,0,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,0,0,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,0,1,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,0,1,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,1,0,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,1,0,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,1,1,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,1,1,2}},
+	
+		{ParameterType::WILSON, "MATRIX_BSM", {4,0,0,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,1,0,2}},
+	
+		{ParameterType::WILSON, "MATRIX_BSM", {5,0,0,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {5,1,0,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {5,0,1,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {5,1,1,1}},
+		
+		{ParameterType::WILSON, "MATRIX_BSM", {6,0,0,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {6,1,0,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {6,0,1,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {6,1,1,1}},
+	
+		{ParameterType::WILSON, "MATRIX_BSM", {9,0,0}},
+		{ParameterType::WILSON, "MATRIX_BSM", {9,0,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {9,1,0}},
+		{ParameterType::WILSON, "MATRIX_BSM", {9,1,1}},
+		
+		// Mixages
+		{ParameterType::BSM, "UMIX", 0},
+		{ParameterType::BSM, "UMIX", 10},
+		{ParameterType::BSM, "VMIX", 0},
+		{ParameterType::BSM, "VMIX", 10}
+	};
 
     auto func = [] (const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src, std::shared_ptr<DependentParameter> dep_param) {
 		double xt = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {2,1}})->get_val();
@@ -899,7 +1308,6 @@ void C9_susy::NLO_calculation() {
 		double mW = src.at({ParameterType::SM, "MASS", 24})->get_val();
 		double mH = src.at({ParameterType::BSM, "MASS", 37})->get_val();
 		double sw2 = src.at({ParameterType::WILSON, "WPARAM_SI_SM", 4})->get_val();
-		double mass_b_muW = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {5,1}})->get_val();
 		double g2 = src.at({ParameterType::SM, "GAUGE", 2})->get_val();
 		double H03  = 0.; //TODO, wtf
 		double A02 = 0.; //TODO, WTF
@@ -1219,22 +1627,21 @@ void C9_susy::NLO_calculation() {
 void C10_susy::LO_calculation() {
 
 	std::unordered_set<ParamId> sources {
-        {"WPARAM_SI_BSM", 7},
-        {"WPARAM_MATCH_BSM", 1},
-        {"EW_SCALE", 1},
-        {ParameterType::BSM, "MASS", 37}
-    };
+		{ParameterType::WILSON, "WPARAM_SI_BSM", 7},        // lu
+		{ParameterType::WILSON, "WPARAM_MATCH_BSM", 1},     // yt
+		{ParameterType::WILSON, "WPARAM_MATCH_SM", {2,1}},  // xt
+		{ParameterType::WILSON, "WPARAM_SI_SM", 4},         // sw2
+		{ParameterType::WILSON, "MATRIX_BSM", 14},          // C90c
+		{ParameterType::WILSON, "MATRIX_BSM", 16}           // B100c
+	};
 
     auto func = [] (const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src, std::shared_ptr<DependentParameter> dep_param) {
 
 		
 		double xt = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {2,1}})->get_val();
 		double lu = src.at({ParameterType::WILSON, "WPARAM_SI_BSM", 7})->get_val();
-		double ld = src.at({ParameterType::WILSON, "WPARAM_SI_BSM", 8})->get_val();
 		double yt = src.at({ParameterType::WILSON, "WPARAM_MATCH_BSM", 1})->get_val();
-		double Q_match = src.at({ParameterType::WILSON, "EW_SCALE", 1})->get_val();
 		double sw2 = src.at({ParameterType::WILSON, "WPARAM_SI_SM", 4})->get_val();
-		double mass_top_muW = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 6})->get_val();
 
 		complex_t C90c = src.at({ParameterType::WILSON, "MATRIX_BSM", 14})->get_val();
 		complex_t B100c = src.at({ParameterType::WILSON, "MATRIX_BSM", 16})->get_val();
@@ -1255,11 +1662,95 @@ void C10_susy::LO_calculation() {
 void C10_susy::NLO_calculation() {
 
 	std::unordered_set<ParamId> sources {
-        {"WPARAM_SI_BSM", 7},
-        {"WPARAM_MATCH_BSM", 1},
-        {"EW_SCALE", 1},
-        {ParameterType::BSM, "MASS", 37}
-    };
+		{ParameterType::WILSON, "WPARAM_SI_BSM", 6},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", 7},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", 8},
+		{ParameterType::WILSON, "WPARAM_MATCH_BSM", 1},
+		{ParameterType::WILSON, "EW_SCALE", 1},
+		{ParameterType::WILSON, "WPARAM_MATCH_SM", {2,1}},
+		{ParameterType::SM, "MASS", 24},
+		{ParameterType::SM, "GAUGE", 2},
+		{ParameterType::WILSON, "WPARAM_SI_SM", 4},
+		{ParameterType::BSM, "MASS", 37},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {13,0}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {13,1}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {14,0}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {14,1}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {14,2}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {14,3}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {14,4}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {14,5}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {16,0}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {16,1}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {16,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {1,0,0}},
+		{ParameterType::WILSON, "MATRIX_BSM", {1,0,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {1,0,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {1,1,0}},
+		{ParameterType::WILSON, "MATRIX_BSM", {1,1,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {1,1,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {1,2,0}},
+		{ParameterType::WILSON, "MATRIX_BSM", {1,2,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {1,2,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {1,3,0}},
+		{ParameterType::WILSON, "MATRIX_BSM", {1,3,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {1,3,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {1,4,0}},
+		{ParameterType::WILSON, "MATRIX_BSM", {1,4,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {1,4,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {1,5,0}},
+		{ParameterType::WILSON, "MATRIX_BSM", {1,5,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {1,5,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,0,0,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,0,0,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,0,1,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,0,1,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,0,2,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,0,2,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,0,3,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,0,3,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,0,4,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,0,4,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,0,5,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,0,5,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,1,0,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,1,0,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,1,1,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,1,1,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,1,2,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,1,2,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,1,3,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,1,3,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,1,4,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,1,4,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,1,5,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,1,5,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {5,0,0,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {5,0,1,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {5,0,2,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {5,1,0,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {5,1,1,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {5,1,2,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {6,0,0,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {6,0,1,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {6,0,2,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {6,1,0,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {6,1,1,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {6,1,2,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {9,0,0}},
+		{ParameterType::WILSON, "MATRIX_BSM", {9,0,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {9,0,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {9,1,0}},
+		{ParameterType::WILSON, "MATRIX_BSM", {9,1,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {9,1,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {9,2,0}},
+		{ParameterType::WILSON, "MATRIX_BSM", {9,2,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {9,2,2}},
+		{ParameterType::BSM, "UMIX", 0},
+		{ParameterType::BSM, "UMIX", 10},
+		{ParameterType::BSM, "VMIX", 0},
+		{ParameterType::BSM, "VMIX", 10}
+	};
 
     auto func = [] (const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src, std::shared_ptr<DependentParameter> dep_param) {
 		double xt = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {2,1}})->get_val();
@@ -1271,7 +1762,6 @@ void C10_susy::NLO_calculation() {
 		double mW = src.at({ParameterType::SM, "MASS", 24})->get_val();
 		double mH = src.at({ParameterType::BSM, "MASS", 37})->get_val();
 		double sw2 = src.at({ParameterType::WILSON, "WPARAM_SI_SM", 4})->get_val();
-		double mass_b_muW = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {5,1}})->get_val();
 		double g2 = src.at({ParameterType::SM, "GAUGE", 2})->get_val();
 
 		complex_t C91f = 0.0;
@@ -1555,11 +2045,48 @@ void C10_susy::NLO_calculation() {
 void CP7_susy::LO_calculation() {
 	// sus_param->reset_PrimeCQG(this->get_Q_match());
 	std::unordered_set<ParamId> sources {
-        {"WPARAM_SI_BSM", 7},
-        {"WPARAM_MATCH_BSM", 1},
-        {"EW_SCALE", 1},
-        {ParameterType::BSM, "MASS", 37}
-    };
+		{ParameterType::WILSON, "WPARAM_SI_BSM", 6},        // kappa
+		{ParameterType::WILSON, "WPARAM_SI_BSM", 8},        // ld
+		{ParameterType::WILSON, "WPARAM_MATCH_BSM", 1},     // yt
+		{ParameterType::WILSON, "WPARAM_MATCH_SM", 6},      // mass_top_muW
+		{ParameterType::WILSON, "WPARAM_MATCH_SM", {5,1}},  // mass_b_muW
+		{ParameterType::SM, "MASS", 24},                    // mW
+		{ParameterType::SM, "MASS", 3},                     // masse pour C7pH
+	
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {13,0}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {13,1}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {14,0}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {14,1}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {14,2}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {14,3}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {14,4}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {14,5}},
+	
+		{ParameterType::WILSON, "MATRIX_BSM", {4,0,0,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,0,0,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,0,1,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,0,1,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,0,2,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,0,2,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,0,3,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,0,3,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,0,4,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,0,4,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,0,5,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,0,5,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,1,0,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,1,0,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,1,1,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,1,1,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,1,2,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,1,2,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,1,3,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,1,3,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,1,4,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,1,4,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,1,5,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,1,5,2}}
+	};
 
     auto func = [] (const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src, std::shared_ptr<DependentParameter> dep_param) {
 
@@ -1633,11 +2160,60 @@ void CP7_susy::LO_calculation() {
 void CP8_susy::LO_calculation() {
 
 	std::unordered_set<ParamId> sources {
-        {"WPARAM_SI_BSM", 7},
-        {"WPARAM_MATCH_BSM", 1},
-        {"EW_SCALE", 1},
-        {ParameterType::BSM, "MASS", 37}
-    };
+		{ParameterType::WILSON, "WPARAM_SI_BSM", 6},         // kappa
+		{ParameterType::WILSON, "WPARAM_SI_BSM", 8},         // ld
+		{ParameterType::WILSON, "WPARAM_MATCH_BSM", 1},      // yt
+		{ParameterType::WILSON, "WPARAM_MATCH_SM", 6},       // mass_top_muW
+		{ParameterType::WILSON, "WPARAM_MATCH_SM", {5,1}},   // mass_b_muW
+		{ParameterType::SM, "MASS", 24},                     // mW
+		{ParameterType::SM, "MASS", 3},                      // masse utilisée deux fois
+	
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {13,0}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {13,1}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {14,0}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {14,1}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {14,2}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {14,3}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {14,4}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {14,5}},
+	
+		{ParameterType::WILSON, "MATRIX_BSM", {4,0,0,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,0,0,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,0,0,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,0,1,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,0,1,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,0,1,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,0,2,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,0,2,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,0,2,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,0,3,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,0,3,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,0,3,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,0,4,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,0,4,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,0,4,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,0,5,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,0,5,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,0,5,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,1,0,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,1,0,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,1,0,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,1,1,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,1,1,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,1,1,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,1,2,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,1,2,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,1,2,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,1,3,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,1,3,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,1,3,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,1,4,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,1,4,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,1,4,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,1,5,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,1,5,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,1,5,2}}
+	};
 
     auto func = [] (const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src, std::shared_ptr<DependentParameter> dep_param) {
 
@@ -1683,11 +2259,97 @@ void CP8_susy::LO_calculation() {
 void CP9_susy::LO_calculation() {
 	// sus_param->reset_PrimeCQG(this->get_Q_match());
 	std::unordered_set<ParamId> sources {
-        {"WPARAM_SI_BSM", 7},
-        {"WPARAM_MATCH_BSM", 1},
-        {"EW_SCALE", 1},
-        {ParameterType::BSM, "MASS", 37}
-    };
+		{ParameterType::WILSON, "WPARAM_SI_BSM", 6},   // kappa
+		{ParameterType::WILSON, "WPARAM_SI_BSM", 7},   // lu
+		{ParameterType::WILSON, "WPARAM_SI_BSM", 8},   // ld
+		{ParameterType::WILSON, "WPARAM_MATCH_BSM", 1},   // yt
+		{ParameterType::WILSON, "WPARAM_MATCH_SM", {2,1}},  // xt
+		{ParameterType::WILSON, "WPARAM_MATCH_SM", {5,1}},  // mass_b_muW
+		{ParameterType::WILSON, "WPARAM_MATCH_SM", 6},  // mass_top_muW
+		{ParameterType::WILSON, "WPARAM_SI_SM", 3},     // pour C10pH
+		{ParameterType::WILSON, "WPARAM_SI_SM", 4},     // sw2
+		{ParameterType::SM, "MASS", 3},                 // masse dans C9pH et C10pH
+		{ParameterType::SM, "MASS", 24},                // mW
+		{ParameterType::SM, "GAUGE", 2},                // g2
+		{ParameterType::BSM, "MASS", 37},               // mH
+		{ParameterType::BSM, "HMIX", 2},                // tanb
+	
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {13,0}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {13,1}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {14,0}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {14,1}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {14,2}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {14,3}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {14,4}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {14,5}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {16,0}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {16,1}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {16,2}},
+	
+		{ParameterType::WILSON, "MATRIX_BSM", {4,0,0,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,0,0,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,0,1,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,0,1,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,0,2,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,0,2,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,0,3,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,0,3,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,0,4,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,0,4,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,0,5,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,0,5,2}},
+	
+		{ParameterType::WILSON, "MATRIX_BSM", {4,1,0,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,1,0,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,1,1,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,1,1,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,1,2,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,1,2,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,1,3,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,1,3,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,1,4,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,1,4,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,1,5,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,1,5,2}},
+	
+		{ParameterType::WILSON, "MATRIX_BSM", {5,0,0,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {5,0,1,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {5,0,2,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {5,1,0,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {5,1,1,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {5,1,2,1}},
+	
+		{ParameterType::WILSON, "MATRIX_BSM", {6,0,0,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {6,0,1,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {6,0,2,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {6,1,0,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {6,1,1,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {6,1,2,1}},
+	
+		{ParameterType::WILSON, "MATRIX_BSM", {2,0,0}},
+		{ParameterType::WILSON, "MATRIX_BSM", {2,0,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {2,0,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {2,1,0}},
+		{ParameterType::WILSON, "MATRIX_BSM", {2,1,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {2,1,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {2,2,0}},
+		{ParameterType::WILSON, "MATRIX_BSM", {2,2,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {2,2,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {2,3,0}},
+		{ParameterType::WILSON, "MATRIX_BSM", {2,3,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {2,3,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {2,4,0}},
+		{ParameterType::WILSON, "MATRIX_BSM", {2,4,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {2,4,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {2,5,0}},
+		{ParameterType::WILSON, "MATRIX_BSM", {2,5,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {2,5,2}},
+	
+		{ParameterType::BSM, "UMIX", 0},
+		{ParameterType::BSM, "UMIX", 10},
+		{ParameterType::BSM, "VMIX", 0},
+		{ParameterType::BSM, "VMIX", 10}
+	};
 
     auto func = [] (const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src, std::shared_ptr<DependentParameter> dep_param) {
 		double xt = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {2,1}})->get_val();
@@ -1803,24 +2465,94 @@ void CP9_susy::LO_calculation() {
 void CP10_susy::LO_calculation() {
 	// sus_param->reset_PrimeCQG(this->get_Q_match());
 	std::unordered_set<ParamId> sources {
-        {"WPARAM_SI_BSM", 7},
-        {"WPARAM_MATCH_BSM", 1},
-        {"EW_SCALE", 1},
-        {ParameterType::BSM, "MASS", 37}
-    };
+		{ParameterType::WILSON, "WPARAM_SI_BSM", 6},
+		{ParameterType::WILSON, "WPARAM_MATCH_BSM", 1},
+		{ParameterType::WILSON, "WPARAM_MATCH_SM", {5,1}},
+		{ParameterType::WILSON, "WPARAM_SI_SM", 3},
+		{ParameterType::WILSON, "WPARAM_SI_SM", 4},
+		{ParameterType::SM, "MASS", 24},
+		{ParameterType::SM, "MASS", 3},
+		{ParameterType::SM, "GAUGE", 2},
+		{ParameterType::BSM, "MASS", 37},
+		{ParameterType::BSM, "HMIX", 2},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {13,0}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {13,1}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {14,0}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {14,1}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {14,2}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {14,3}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {14,4}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {14,5}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {16,0}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {16,1}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {16,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {2,0,0}},
+		{ParameterType::WILSON, "MATRIX_BSM", {2,0,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {2,0,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {2,1,0}},
+		{ParameterType::WILSON, "MATRIX_BSM", {2,1,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {2,1,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {2,2,0}},
+		{ParameterType::WILSON, "MATRIX_BSM", {2,2,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {2,2,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {2,3,0}},
+		{ParameterType::WILSON, "MATRIX_BSM", {2,3,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {2,3,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {2,4,0}},
+		{ParameterType::WILSON, "MATRIX_BSM", {2,4,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {2,4,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {2,5,0}},
+		{ParameterType::WILSON, "MATRIX_BSM", {2,5,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {2,5,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,0,0,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,0,0,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,0,1,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,0,1,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,0,2,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,0,2,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,0,3,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,0,3,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,0,4,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,0,4,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,0,5,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,0,5,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,1,0,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,1,0,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,1,1,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,1,1,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,1,2,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,1,2,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,1,3,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,1,3,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,1,4,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,1,4,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,1,5,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,1,5,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {5,0,0,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {5,0,1,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {5,0,2,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {5,1,0,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {5,1,1,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {5,1,2,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {6,0,0,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {6,0,1,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {6,0,2,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {6,1,0,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {6,1,1,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {6,1,2,1}},
+		{ParameterType::BSM, "UMIX", 0},
+		{ParameterType::BSM, "UMIX", 10},
+		{ParameterType::BSM, "VMIX", 0},
+		{ParameterType::BSM, "VMIX", 10}
+	};
 
     auto func = [] (const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src, std::shared_ptr<DependentParameter> dep_param) {
-		double xt = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {2,1}})->get_val();
 
-		double lu = src.at({ParameterType::WILSON, "WPARAM_SI_BSM", 7})->get_val();
-		double ld = src.at({ParameterType::WILSON, "WPARAM_SI_BSM", 8})->get_val();
 		double yt = src.at({ParameterType::WILSON, "WPARAM_MATCH_BSM", 1})->get_val();
-		double Q_match = src.at({ParameterType::WILSON, "EW_SCALE", 1})->get_val();
 		double mW = src.at({ParameterType::SM, "MASS", 24})->get_val();
 		double mH = src.at({ParameterType::BSM, "MASS", 37})->get_val();
 		double sw2 = src.at({ParameterType::WILSON, "WPARAM_SI_SM", 4})->get_val();
 		double mass_b_muW = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {5,1}})->get_val();
-		double mass_top_muW = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 6})->get_val();
 		double g2 = src.at({ParameterType::SM, "GAUGE", 2})->get_val();
 		double tanb = src.at({ParameterType::BSM, "HMIX", 2})->get_val();
 
@@ -1914,26 +2646,95 @@ void CP10_susy::LO_calculation() {
 void CPQ1_susy::LO_calculation() {
 	// sus_param->reset_PrimeCQG(this->get_Q_match());
 	std::unordered_set<ParamId> sources {
-        {"WPARAM_SI_BSM", 7},
-        {"WPARAM_MATCH_BSM", 1},
-        {"EW_SCALE", 1},
-        {ParameterType::BSM, "MASS", 37}
-    };
+		{ParameterType::WILSON, "WPARAM_SI_BSM", 6},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", 1},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", 11},
+		{ParameterType::WILSON, "WPARAM_MATCH_BSM", {2,0}},
+		{ParameterType::WILSON, "WPARAM_MATCH_BSM", {2,1}},
+		{ParameterType::WILSON, "WPARAM_MATCH_BSM", {2,2}},
+		{ParameterType::WILSON, "WPARAM_MATCH_SM", {2,1}},
+		{ParameterType::WILSON, "WPARAM_SI_SM", 3},
+		{ParameterType::WILSON, "WPARAM_SI_SM", 4},
+		{ParameterType::SM, "MASS", 24},
+		{ParameterType::SM, "MASS", 3},
+		{ParameterType::SM, "GAUGE", 2},
+		{ParameterType::BSM, "MASS", 37},
+		{ParameterType::BSM, "HMIX", 1},
+		{ParameterType::BSM, "HMIX", 2},
+		{ParameterType::WILSON, "EPSILON_SUSY", 5},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {13,0}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {13,1}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {14,0}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {14,1}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {14,2}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {14,3}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {14,4}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {14,5}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {16,0}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {16,1}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {16,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {1,0,0}},
+		{ParameterType::WILSON, "MATRIX_BSM", {1,0,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {1,0,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {1,1,0}},
+		{ParameterType::WILSON, "MATRIX_BSM", {1,1,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {1,1,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {1,2,0}},
+		{ParameterType::WILSON, "MATRIX_BSM", {1,2,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {1,2,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {2,0,0}},
+		{ParameterType::WILSON, "MATRIX_BSM", {2,0,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {2,0,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {2,1,0}},
+		{ParameterType::WILSON, "MATRIX_BSM", {2,1,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {2,1,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {2,2,0}},
+		{ParameterType::WILSON, "MATRIX_BSM", {2,2,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {2,2,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,0,0,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,0,1,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,0,2,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,1,0,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,1,1,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,1,2,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,0,0,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,0,1,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,0,2,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,1,0,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,1,1,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,1,2,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {5,0,0,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {5,0,1,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {5,0,2,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {5,1,0,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {5,1,1,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {5,1,2,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {6,0,0,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {6,0,1,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {6,0,2,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {6,1,0,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {6,1,1,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {6,1,2,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {12,0,0,0,0}},
+		{ParameterType::WILSON, "MATRIX_BSM", {12,0,0,0,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {12,0,0,0,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {12,0,0,1,0}},
+		{ParameterType::WILSON, "MATRIX_BSM", {12,0,0,1,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {12,0,0,1,2}},
+		{ParameterType::BSM, "UMIX", 1},
+		{ParameterType::BSM, "UMIX", 11},
+		{ParameterType::BSM, "VMIX", 0},
+		{ParameterType::BSM, "VMIX", 10}
+	};
 
     auto func = [] (const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src, std::shared_ptr<DependentParameter> dep_param) {
 		double xt = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {2,1}})->get_val();
 
-		double lu = src.at({ParameterType::WILSON, "WPARAM_SI_BSM", 7})->get_val();
-		double ld = src.at({ParameterType::WILSON, "WPARAM_SI_BSM", 8})->get_val();
 		double z = src.at({ParameterType::WILSON, "WPARAM_SI_BSM", 1})->get_val();
 		double aY = src.at({ParameterType::WILSON, "WPARAM_SI_BSM", 11})->get_val();
-		double yt = src.at({ParameterType::WILSON, "WPARAM_MATCH_BSM", 1})->get_val();
-		double Q_match = src.at({ParameterType::WILSON, "EW_SCALE", 1})->get_val();
 		double mW = src.at({ParameterType::SM, "MASS", 24})->get_val();
 		double mH = src.at({ParameterType::BSM, "MASS", 37})->get_val();
 		double sw2 = src.at({ParameterType::WILSON, "WPARAM_SI_SM", 4})->get_val();
-		double mass_b_muW = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {5,1}})->get_val();
-		double mass_top_muW = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 6})->get_val();
 		double g2 = src.at({ParameterType::SM, "GAUGE", 2})->get_val();
 		double tanb = src.at({ParameterType::BSM, "HMIX", 2})->get_val();
 
@@ -2076,26 +2877,95 @@ void CPQ1_susy::LO_calculation() {
 void CPQ2_susy::LO_calculation() {
 	// sus_param->reset_PrimeCQG(this->get_Q_match());
 	std::unordered_set<ParamId> sources {
-        {"WPARAM_SI_BSM", 7},
-        {"WPARAM_MATCH_BSM", 1},
-        {"EW_SCALE", 1},
-        {ParameterType::BSM, "MASS", 37}
-    };
+		{ParameterType::WILSON, "WPARAM_SI_BSM", 1},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", 6},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", 11},
+		{ParameterType::WILSON, "WPARAM_SI_SM", 3},
+		{ParameterType::WILSON, "WPARAM_SI_SM", 4},
+		{ParameterType::WILSON, "WPARAM_MATCH_BSM", {2,0}},
+		{ParameterType::WILSON, "WPARAM_MATCH_BSM", {2,1}},
+		{ParameterType::WILSON, "WPARAM_MATCH_BSM", {2,2}},
+		{ParameterType::WILSON, "WPARAM_MATCH_SM", {2,1}},
+		{ParameterType::SM, "MASS", 3},
+		{ParameterType::SM, "MASS", 24},
+		{ParameterType::SM, "GAUGE", 2},
+		{ParameterType::BSM, "MASS", 37},
+		{ParameterType::BSM, "HMIX", 1},
+		{ParameterType::BSM, "HMIX", 2},
+		{ParameterType::WILSON, "EPSILON_SUSY", 5},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {13,0}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {13,1}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {14,0}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {14,1}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {14,2}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {14,3}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {14,4}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {14,5}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {16,0}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {16,1}},
+		{ParameterType::WILSON, "WPARAM_SI_BSM", {16,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {1,0,0}},
+		{ParameterType::WILSON, "MATRIX_BSM", {1,0,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {1,0,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {1,1,0}},
+		{ParameterType::WILSON, "MATRIX_BSM", {1,1,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {1,1,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {1,2,0}},
+		{ParameterType::WILSON, "MATRIX_BSM", {1,2,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {1,2,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {2,0,0}},
+		{ParameterType::WILSON, "MATRIX_BSM", {2,0,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {2,0,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {2,1,0}},
+		{ParameterType::WILSON, "MATRIX_BSM", {2,1,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {2,1,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {2,2,0}},
+		{ParameterType::WILSON, "MATRIX_BSM", {2,2,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {2,2,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,0,0,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,0,1,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,0,2,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,1,0,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,1,1,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {3,1,2,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,0,0,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,0,1,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,0,2,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,1,0,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,1,1,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {4,1,2,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {5,0,0,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {5,0,1,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {5,0,2,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {5,1,0,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {5,1,1,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {5,1,2,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {6,0,0,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {6,0,1,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {6,0,2,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {6,1,0,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {6,1,1,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {6,1,2,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {12,0,0,0,0}},
+		{ParameterType::WILSON, "MATRIX_BSM", {12,0,0,0,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {12,0,0,0,2}},
+		{ParameterType::WILSON, "MATRIX_BSM", {12,0,0,1,0}},
+		{ParameterType::WILSON, "MATRIX_BSM", {12,0,0,1,1}},
+		{ParameterType::WILSON, "MATRIX_BSM", {12,0,0,1,2}},
+		{ParameterType::BSM, "UMIX", 1},
+		{ParameterType::BSM, "UMIX", 11},
+		{ParameterType::BSM, "VMIX", 0},
+		{ParameterType::BSM, "VMIX", 10}
+	};
 
     auto func = [] (const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src, std::shared_ptr<DependentParameter> dep_param) {
 		double xt = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {2,1}})->get_val();
 
-		double lu = src.at({ParameterType::WILSON, "WPARAM_SI_BSM", 7})->get_val();
-		double ld = src.at({ParameterType::WILSON, "WPARAM_SI_BSM", 8})->get_val();
 		double z = src.at({ParameterType::WILSON, "WPARAM_SI_BSM", 1})->get_val();
 		double aY = src.at({ParameterType::WILSON, "WPARAM_SI_BSM", 11})->get_val();
-		double yt = src.at({ParameterType::WILSON, "WPARAM_MATCH_BSM", 1})->get_val();
-		double Q_match = src.at({ParameterType::WILSON, "EW_SCALE", 1})->get_val();
 		double mW = src.at({ParameterType::SM, "MASS", 24})->get_val();
 		double mH = src.at({ParameterType::BSM, "MASS", 37})->get_val();
 		double sw2 = src.at({ParameterType::WILSON, "WPARAM_SI_SM", 4})->get_val();
-		double mass_b_muW = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {5,1}})->get_val();
-		double mass_top_muW = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 6})->get_val();
 		double g2 = src.at({ParameterType::SM, "GAUGE", 2})->get_val();
 		double tanb = src.at({ParameterType::BSM, "HMIX", 2})->get_val();
 
