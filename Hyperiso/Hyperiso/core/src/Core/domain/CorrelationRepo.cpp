@@ -1,19 +1,13 @@
 #include "CorrelationRepo.h"
 
-std::pair<double, double> CorrelationRepository::get_correlation(ParamId id1, ParamId id2) {
+std::pair<double, double> CorrelationRepository::get_correlation(ParamId id1, ParamId id2) const {
     auto key = std::make_pair(id1, id2);
     return parameter_correlations->at(key);
 }
 
-std::pair<double, double> CorrelationRepository::get_correlation(Observables id1, Observables id2) {
+std::pair<double, double> CorrelationRepository::get_correlation(Observables id1, Observables id2) const {
     auto key = std::make_pair(id1, id2);
     return observable_correlations->at(key);
-}
-
-template<typename T>
-double CorrelationRepository::get_combined_correlation(T id1, T id2) {
-    auto corr = get_correlation(id1, id2);
-    return std::hypot(corr.first, corr.second);
 }
 
 void CorrelationRepository::set_correlation_matrix(std::shared_ptr<CorrelationMatrixPair<ParamId>> correlation_matrices) {
@@ -44,7 +38,7 @@ void CorrelationRepository::merge_correlation_matrix(std::shared_ptr<Correlation
     }
 }
 
-void CorrelationRepository::print_content() {
+void CorrelationRepository::print_content() const {
     LOG_INFO("------- Parameter correlations (off-diagonal) -------");
     LOG_INFO(parameter_correlations);
     LOG_INFO("------- Observable correlations (off-diagonal) -------");

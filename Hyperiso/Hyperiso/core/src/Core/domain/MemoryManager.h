@@ -213,6 +213,12 @@ public:
      */
     std::shared_ptr<BlockAccessor> extract_blocks(std::unordered_set<std::string> block_names);
 
+    /**
+     * @brief Retrieves the current correlation repository.
+     * @return A const reference to the CorrelationRepository.
+     */
+    const CorrelationRepository& get_correlation_repository();
+
     MemoryManager(const MemoryManager&) = delete;
     MemoryManager& operator=(const MemoryManager&) = delete;
     MemoryManager(MemoryManager&&) noexcept = default;

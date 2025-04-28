@@ -449,11 +449,11 @@ inline std::ostream& operator<<(std::ostream& os, const Observables& oid) {
 
 class DependenciesHelper {
 public:
-    static std::vector<ParamId> get_allowed_parameters(Observables id);
+    static std::unordered_set<ParamId> get_allowed_parameters(Observables id);
     static bool is_param_allowed(Observables id, ParamId pid);
 
 private:
-    static const std::map<Observables, std::vector<ParamId>> dep_lists;
+    static const std::map<Observables, std::unordered_set<ParamId>> dep_lists;
 };
 
 class LhaParamsHelper {

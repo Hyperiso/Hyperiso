@@ -7,7 +7,7 @@ class WilsonAdapter {
 public:
     WilsonAdapter();
 
-    void build(WilsonConfig config) {wi->build(config); built = true;}
+    void build(WilsonConfig config);
 
     void addWilsonGroup(WGroup group_name) {wi->addWilsonGroup(group_name);}
 

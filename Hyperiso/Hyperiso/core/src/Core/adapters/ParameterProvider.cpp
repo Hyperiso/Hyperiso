@@ -5,11 +5,7 @@ scalar_t ParameterProvider::operator()(const ParamId &pid, DataType d_type) {
         LOG_WARN("LogicError", "This ParameterProvider already has a type.");
     }
 
-    if (!pid.type.has_value()) {
-        LOG_WARN("LogicError", "Use of untyped ParamId in ParameterProvider.");
-    }
-
-    return (*Parameters::GetInstance(pid.type.value()))(pid.block, pid.code);
+    return this->get_value(pid, d_type);
 }
 
 scalar_t ParameterProvider::operator()(const std::string &block, const LhaID &id, DataType d_type) const {
@@ -17,7 +13,8 @@ scalar_t ParameterProvider::operator()(const std::string &block, const LhaID &id
         LOG_ERROR("LogicError", "Please specify a parameter type for the ParameterProvider.");
     }
 
-    return (*Parameters::GetInstance(this->p_type.value()))(block, id);
+    ParamId pid {this->p_type.value(), block, id};
+    return this->get_value(pid, d_type);
 }
 
 bool ParameterProvider::exists(const ParamId &pid) const {
@@ -38,4 +35,23 @@ ParameterType ParameterProvider::get_type() const {
 
 std::shared_ptr<Parameter> ParameterProvider::get_parameter(const ParamId &pid) const {
     return (*Parameters::GetInstance(pid.type.value())).get_parameter(pid.block, pid.code);
+}
+
+scalar_t ParameterProvider::get_value(const ParamId& pid, DataType d_type) const {
+    switch (d_type) {
+    case DataType::VALUE:
+        return (*Parameters::GetInstance(pid.type.value()))(pid.block, pid.code);
+        break;
+    case DataType::STD_STAT:
+        return get_parameter(pid)->get_std().first;
+        break;
+    case DataType::STD_SYST:
+        return get_parameter(pid)->get_std().second;
+        break;
+    case DataType::STD_COMBINED:
+        return get_parameter(pid)->get_combined_std();
+        break;
+    default:
+        LOG_ERROR("LogicError", "ParameterProvider does not support this data type.");
+    }
 }

@@ -25,7 +25,7 @@ protected:
 public:
     DecayParent(double matching_scale, double hadronic_scale, QCDOrder order);
 
-    void init();
+    void enable();
     void set_order(QCDOrder new_order);
 
     scalar_t compute_observable(Observables obs);

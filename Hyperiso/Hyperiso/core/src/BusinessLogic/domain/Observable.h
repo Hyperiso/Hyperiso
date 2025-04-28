@@ -18,7 +18,7 @@ public:
     Observables getId() const { return id; }
     double get_exp_val() const { return exp_val; }
     void set_exp_val(double value) { exp_val = value; }
-    double eval() const override { return decay_parent->compute_observable(id); };
+    scalar_t eval() const override;
     size_t get_n_evals() const { return decay_parent->get_n_evals(id); };
 }; 
 

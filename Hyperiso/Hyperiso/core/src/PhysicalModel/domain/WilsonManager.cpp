@@ -101,6 +101,11 @@ void CoefficientManager::update(std::string group, double mu_W, double mu_h) {
 }
 
 CoefficientManager CoefficientManager::Builder(std::string model, std::map<std::string, std::shared_ptr<CoefficientGroup>> groups, double mu_W, double mu_h, std::string order) {
+    if (groups.empty()) {
+        LOG_WARN("(CoefficientManager) No coefficient groups provided.");
+        return CoefficientManager();
+    }
+
     WilsonParameterHelper().init(2);
     CoefficientManager manager;
     manager.has_bsm = model == ModelMapper::str(Model::THDM) || model == ModelMapper::str(Model::SUSY);

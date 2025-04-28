@@ -71,7 +71,6 @@ void WilsonParameterHelper::init_matching_block() {
 void WilsonParameterHelper::init_running_block() {
 	LOG_DEBUG("Init running scale dependent wparam block");
 	std::unordered_map<ParameterType, std::vector<std::string>> src = {
-		{ParameterType::SM, {"MASS"/*, "QCD" */}}, 
 		{ParameterType::WILSON, {"EW_SCALE", "B_SCALE"}}
 	};
 

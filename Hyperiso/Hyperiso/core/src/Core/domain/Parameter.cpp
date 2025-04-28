@@ -25,8 +25,12 @@ void Parameter::set_expected(scalar_t val) {
     notifyObservers();
 }
 
-scalar_t Parameter::get_std() const {
+scalar_t Parameter::get_combined_std() const {
     return std::hypot(deviation_stat, deviation_syst);
+}
+
+std::pair<scalar_t, scalar_t> Parameter::get_std() const {
+    return std::make_pair(deviation_stat, deviation_syst);
 }
 
 ParamId Parameter::get_id() const {

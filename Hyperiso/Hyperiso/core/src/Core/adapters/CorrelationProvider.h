@@ -4,6 +4,8 @@
 #include "IDataProvider.h"
 #include "General.h"
 #include "Parameter.h"
+#include "CorrelationRepo.h"
+#include "MemoryManager.h"
 
 /**
  * @class CorrelationProvider
@@ -31,6 +33,22 @@ public:
      * @return The requested correlation value.
      */
     double operator()(const Observables& pid_1, const Observables& pid_2, CorrelationType type);
+
+private:
+    /**
+     * @brief Internal utility function to compute the correlation between two entities.
+     * 
+     * This function is used internally to calculate the correlation value between
+     * two entities of the same type, such as parameters or observables.
+     * 
+     * @tparam T The type of the entities (e.g., ParamId or Observables).
+     * @param id_1 The first entity.
+     * @param id_2 The second entity.
+     * @param type The type of correlation to compute (stat, syst, combined).
+     * @return The computed correlation value.
+     */
+    template<typename T>
+    double get_correlation(const T& id_1, const T& id_2, CorrelationType type) const;
 };
 
 #endif // __CORRELATIONPROVIDER_H__

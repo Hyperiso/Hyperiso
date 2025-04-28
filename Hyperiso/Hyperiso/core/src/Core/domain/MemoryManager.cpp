@@ -16,6 +16,11 @@ std::shared_ptr<BlockAccessor> MemoryManager::extract_blocks(std::unordered_set<
     return (*input_cache)[block_names];
 }
 
+const CorrelationRepository &MemoryManager::get_correlation_repository() {
+    check_if_ready();
+    return correlation_repository;
+}
+
 void MemoryManager::save_input_cache() {
     memento.takeSnapshot(input_cache);
 }

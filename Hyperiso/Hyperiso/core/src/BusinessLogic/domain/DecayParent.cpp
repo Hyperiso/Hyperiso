@@ -14,7 +14,7 @@ DecayParent::DecayParent(double matching_scale, double hadronic_scale, QCDOrder 
     this->w_config.order = check_max_order(order);
 }
 
-void DecayParent::init() {
+void DecayParent::enable() {
     ObsWilsonHelper::build(this->w_config);
     this->w_proxy = std::make_shared<ObsWilsonProxy>();
     build_op_tree();

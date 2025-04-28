@@ -90,7 +90,14 @@ public:
      * @brief Retrieves the combined standard deviation (quadratic sum of stat and syst).
      * @return The total standard deviation.
      */
-    scalar_t get_std() const;
+    scalar_t get_combined_std() const;
+
+    /**
+     * @brief Retrieves the separated standard deviations (stat and syst).
+     * @return A pair containing the statistical and systematic standard deviations.
+     */
+    std::pair<scalar_t, scalar_t> get_std() const;
+
 
     /**
      * @brief Retrieves the parameter's ID.

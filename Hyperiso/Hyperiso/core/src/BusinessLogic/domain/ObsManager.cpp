@@ -33,6 +33,7 @@ std::shared_ptr<ObsManager> ObsManager::add_obs(Observables id, QCDOrder order, 
 
     if (add_deps) {
         add_all_obs_deps(id);
+        LOG_INFO("6");
     }
 
     return instance;
@@ -46,13 +47,13 @@ std::shared_ptr<ObsManager> ObsManager::remove_obs(Observables id) {
     return instance;
 }
 
-double ObsManager::evaluate(Observables id) {
-    decays.at(DecayMapper::get_decay(id))->init();
+scalar_t ObsManager::evaluate(Observables id) {
+    decays.at(DecayMapper::get_decay(id))->enable();
     return obss.at(ensure_present(id))->eval();
 }
 
-std::map<Observables, double> ObsManager::evaluate_all() {
-    std::map<Observables, double> all_vals;
+std::unordered_map<Observables, scalar_t> ObsManager::evaluate_all() {
+    std::unordered_map<Observables, scalar_t> all_vals;
     for (auto &[k, _] : obss) {
         all_vals.emplace(k, evaluate(k));
     }
@@ -68,7 +69,7 @@ void ObsManager::add_obs_dep(Observables id, ParamId param) {
     }
 }
 
-void ObsManager::add_obs_deps(Observables id, std::vector<ParamId> params) {
+void ObsManager::add_obs_deps(Observables id, std::unordered_set<ParamId> params) {
     for (auto &p : params) {
         if (!DependenciesHelper::is_param_allowed(id, p)) {
             LOG_WARN("Observable", ObservableMapper::str(id), "doesn't depend on parameter (", p.block, ",", p.code, "). Ignoring.");
@@ -78,22 +79,24 @@ void ObsManager::add_obs_deps(Observables id, std::vector<ParamId> params) {
 }
 
 void ObsManager::add_all_obs_deps(Observables id) {
-    obss.at(ensure_present(id))->add_dependences(DependenciesHelper::get_allowed_parameters(id));
+    auto allowed = DependenciesHelper::get_allowed_parameters(id);
+    LOG_DEBUG("Found", allowed.size(), "allowed parameters for observable", ObservableMapper::str(id));
+    obss.at(ensure_present(id))->add_dependences(allowed);
 }
 
-double ObsManager::get_uncertainty(Observables id) {
+scalar_t ObsManager::get_uncertainty(Observables id) {
     return std::sqrt(obss.at(ensure_present(id))->variance());
 }
 
-std::map<Observables, double> ObsManager::get_all_uncertainties() {
-    std::map<Observables, double> all_vars;
+std::unordered_map<Observables, scalar_t> ObsManager::get_all_uncertainties() {
+    std::unordered_map<Observables, scalar_t> all_vars;
     for (auto &[k, _] : obss) {
         all_vars.emplace(k, get_uncertainty(k));
     }
     return all_vars;
 }
 
-std::map<ParamId, double> ObsManager::get_leading_uncertainties(Observables id, size_t n) {
+std::unordered_map<ParamId, scalar_t> ObsManager::get_leading_uncertainties(Observables id, size_t n) {
     return obss.at(ensure_present(id))->get_leading_uncertainties(n);
 }
 

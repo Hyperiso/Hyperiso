@@ -49,8 +49,8 @@ public:
         this->w_config.groups = {WGroup::B, WGroup::BPrime};
     }
 
-    void init() {
-        DecayParent::init();
+    void enable() {
+        DecayParent::enable();
         WilsonAdapter().switchbasis(WGroup::B);
     }
 

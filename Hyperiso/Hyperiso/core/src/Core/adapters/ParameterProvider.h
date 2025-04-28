@@ -12,9 +12,6 @@
  * @brief Provides access to parameter values, errors, and existence checks.
  */
 class ParameterProvider : public IDataProvider<ParameterProvider> {
-private:
-    std::optional<ParameterType> p_type;
-
 public:
     enum class DataType { VALUE, STD_STAT, STD_SYST, STD_COMBINED };
 
@@ -65,6 +62,17 @@ public:
      * @return A shared pointer to the Parameter object.
      */
     std::shared_ptr<Parameter> get_parameter(const ParamId& pid) const;
+
+private:
+    std::optional<ParameterType> p_type;
+
+    /**
+     * @brief Retrieves the value corresponding to the given ParamId and data type (Value, std_stat/syst/combined).
+     * @param pid The parameter ID.
+     * @param d_type The data type requested.
+     * @return The requested scalar value.
+     */
+    scalar_t get_value(const ParamId& pid, DataType d_type) const;
 };
 
 

@@ -148,8 +148,8 @@ void BCoefficientGroup::base_1_LO_calculation(
         for (size_t l = 0; l < 9; l++) {
             Ci_run[k] += U0(k, l) * Ci_match[l];
         }
-        LOG_INFO("C_match_", k + 1, "=", Ci_match[k]);
-        LOG_INFO("C_run_", k + 1, "=", Ci_run[k]);
+        LOG_DEBUG("C_match_", k + 1, "=", Ci_match[k]);
+        LOG_DEBUG("C_run_", k + 1, "=", Ci_run[k]);
     }
 
     double fact = 4 * PI / src.at("WPARAM_RUN_SM")->retrieve(1)->get_val();
@@ -222,7 +222,7 @@ void BCoefficientGroup::base_1_LO_calculation(
     // Store
     for (size_t k = 0; k < 10; k++) {
         ParamId pid {ParameterType::WILSON, GroupMapper::str(WGroup::B) + "_HADRONIC", WCoefMapper::flha_full(ids[k], QCDOrder::LO, type)};
-        LOG_INFO("Storing coefficient", WCoefMapper::flha_full(ids[k], QCDOrder::LO, type));
+        LOG_DEBUG("Storing coefficient", WCoefMapper::flha_full(ids[k], QCDOrder::LO, type));
         dep_block->store_or_assign(pid.code, std::make_shared<Parameter>(pid, Ci_run[k], 0., 0.));
     }
 }
@@ -252,7 +252,7 @@ void BCoefficientGroup::base_2_LO_calculation(
         for (size_t l = 0; l < 9; l++) {
             Ci_run[k] += V0(k, l) * Ci_match_trad[l];
         }
-        LOG_INFO("C_run_", k + 1, "=", Ci_run[k]);
+        LOG_DEBUG("C_run_", k + 1, "=", Ci_run[k]);
     }
 
     double fact = 4 * PI / src.at("WPARAM_RUN_SM")->retrieve(1)->get_val();
@@ -309,7 +309,7 @@ void BCoefficientGroup::base_1_NLO_calculation(
         for (size_t l = 0; l < 9; l++) {
             Ci_run[k] += U0(k, l) * Ci_1_match[l] + U1(k, l) * Ci_0_match[l];
         }
-        LOG_INFO("C_run_", k + 1, "=", Ci_run[k]);
+        LOG_DEBUG("C_run_", k + 1, "=", Ci_run[k]);
     }
 
     // C9 special treatment
@@ -323,7 +323,7 @@ void BCoefficientGroup::base_1_NLO_calculation(
     double eta = src.at("WPARAM_RUN_SM")->retrieve(2)->get_val();
     for (size_t k = 0; k < 10; k++) {
         ParamId pid {ParameterType::WILSON, GroupMapper::str(WGroup::B) + "_HADRONIC", WCoefMapper::flha_full(ids[k], QCDOrder::NLO, type)};
-        LOG_INFO("Storing coefficient", WCoefMapper::flha_full(ids[k], QCDOrder::NLO, type));
+        LOG_DEBUG("Storing coefficient", WCoefMapper::flha_full(ids[k], QCDOrder::NLO, type));
         dep_block->store_or_assign(pid.code, std::make_shared<Parameter>(pid, eta * Ci_run[k], 0., 0.));
     }
 }
@@ -362,7 +362,7 @@ void BCoefficientGroup::base_2_NLO_calculation(
         for (size_t l = 0; l < 8; l++) {
             Ci_run[k] += V0(k, l) * Ci_1_match_trad[l] + V1(k, l) * Ci_0_match_trad[l];
         }
-        LOG_INFO("C_run_", k + 1, "=", Ci_run[k]);
+        LOG_DEBUG("C_run_", k + 1, "=", Ci_run[k]);
     }
 
     double fact = 4 * PI / src.at("WPARAM_RUN_SM")->retrieve(1)->get_val();
@@ -373,7 +373,7 @@ void BCoefficientGroup::base_2_NLO_calculation(
     double eta = src.at("WPARAM_RUN_SM")->retrieve(2)->get_val();
     for (size_t k = 0; k < 10; k++) {
         ParamId pid {ParameterType::WILSON, GroupMapper::str(WGroup::B) + "_HADRONIC", WCoefMapper::flha_full(ids[k], QCDOrder::NLO, type)};
-        LOG_INFO("Storing coefficient", WCoefMapper::flha_full(ids[k], QCDOrder::NLO, type));
+        LOG_DEBUG("Storing coefficient", WCoefMapper::flha_full(ids[k], QCDOrder::NLO, type));
         dep_block->store_or_assign(pid.code, std::make_shared<Parameter>(pid, eta * Ci_run[k], 0., 0.));
     }
 }
@@ -413,7 +413,7 @@ void BCoefficientGroup::base_1_NNLO_calculation(
         for (size_t l = 0; l < 9; l++) {
             Ci_run[k] += U(2, k, l) * Ci_0_match[l] + U(1, k, l) * Ci_1_match[l] + U(0, k, l) * Ci_2_match[l];
         }
-        LOG_INFO("C_run_", k + 1, "=", Ci_run[k]);
+        LOG_DEBUG("C_run_", k + 1, "=", Ci_run[k]);
     }
 
     // C9 special treatment
@@ -427,7 +427,7 @@ void BCoefficientGroup::base_1_NNLO_calculation(
     double eta_sq = pow(src.at("WPARAM_RUN_SM")->retrieve(2)->get_val(), 2);
     for (size_t k = 0; k < 10; k++) {
         ParamId pid {ParameterType::WILSON, GroupMapper::str(WGroup::B) + "_HADRONIC", WCoefMapper::flha_full(ids[k], QCDOrder::NNLO, type)};
-        LOG_INFO("Storing coefficient", WCoefMapper::flha_full(ids[k], QCDOrder::NNLO, type));
+        LOG_DEBUG("Storing coefficient", WCoefMapper::flha_full(ids[k], QCDOrder::NNLO, type));
         dep_block->store_or_assign(pid.code, std::make_shared<Parameter>(pid, eta_sq * Ci_run[k], 0., 0.));
     }
 }

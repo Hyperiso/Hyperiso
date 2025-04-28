@@ -276,7 +276,7 @@ const std::map<std::string, ParameterType> ParameterTypeMapper::inverse_mapping 
     {"DECAY", ParameterType::DECAY},
 };
 
-const std::map<Observables, std::vector<ParamId>> DependenciesHelper::dep_lists = {
+const std::map<Observables, std::unordered_set<ParamId>> DependenciesHelper::dep_lists = {
     {Observables::BR_BS_MUMU, {
         ParamId{ParameterType::SM, "SMINPUTS", 1},
         ParamId{ParameterType::SM, "SMINPUTS", 2},
@@ -413,12 +413,9 @@ const std::map<Observables, std::vector<ParamId>> DependenciesHelper::dep_lists 
         ParamId{ParameterType::SM, "MASS", 2},
         ParamId{ParameterType::SM, "MASS", 3},
         ParamId{ParameterType::SM, "MASS", 4},
-        ParamId{ParameterType::SM, "RECKM", 12},
-        // ParamId{ParameterType::SM, "IMCKM", 12},
-        ParamId{ParameterType::SM, "RECKM", 21},
-        // ParamId{ParameterType::SM, "IMCKM", 21},
-        ParamId{ParameterType::SM, "RECKM", 22},
-        // ParamId{ParameterType::SM, "IMCKM", 22},
+        ParamId{ParameterType::SM, "VCKM", LhaID(1, 2)},
+        ParamId{ParameterType::SM, "VCKM", LhaID(2, 1)},
+        ParamId{ParameterType::SM, "VCKM", LhaID(2, 2)},
         ParamId{ParameterType::DECAY, "B_Xs", 1},
         ParamId{ParameterType::DECAY, "B_Xs", 2},
         ParamId{ParameterType::DECAY, "B_Xs", 3},
@@ -595,7 +592,7 @@ const std::map<Observables, std::vector<ParamId>> DependenciesHelper::dep_lists 
     }}
 };
 
-std::vector<ParamId> DependenciesHelper::get_allowed_parameters(Observables id) {
+std::unordered_set<ParamId> DependenciesHelper::get_allowed_parameters(Observables id) {
     return dep_lists.at(id);
 }
 

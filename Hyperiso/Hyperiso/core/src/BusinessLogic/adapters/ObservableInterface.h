@@ -36,27 +36,27 @@ public:
         manager->add_obs_dep(obs, pid);
     }
 
-    void add_observable_parameters(Observables obs, std::vector<ParamId> pids) {
+    void add_observable_parameters(Observables obs, std::unordered_set<ParamId> pids) {
         manager->add_obs_deps(obs, pids);
     }
 
-    double compute_observable(Observables obs) const {
+    scalar_t compute_observable(Observables obs) const {
         return manager->evaluate(obs);
     }
 
-    std::map<Observables, double> compute_all_observables() const {
+    std::unordered_map<Observables, scalar_t> compute_all_observables() const {
         return manager->evaluate_all();
     }
 
-    double compute_uncertainty(Observables obs) const {
+    scalar_t compute_uncertainty(Observables obs) const {
         return manager->get_uncertainty(obs);
     }
 
-    std::map<ParamId, double> compute_leading_uncertainties(Observables obs, size_t n) const {
+    std::unordered_map<ParamId, scalar_t> compute_leading_uncertainties(Observables obs, size_t n) const {
         return manager->get_leading_uncertainties(obs, n);
     }
 
-    std::map<Observables, double> compute_all_uncertainties() const {
+    std::unordered_map<Observables, scalar_t> compute_all_uncertainties() const {
         return manager->get_all_uncertainties();
     }
 
@@ -76,7 +76,7 @@ public:
         return manager->get_obs_evals(obs);
     }
 
-    std::vector<Observables> get_current_obss() {
+    std::unordered_set<Observables> get_current_obss() {
         return manager->get_current_obss();
     }
 

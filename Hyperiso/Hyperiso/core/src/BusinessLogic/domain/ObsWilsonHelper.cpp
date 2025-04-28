@@ -2,6 +2,12 @@
 
 void ObsWilsonHelper::build(WilsonConfig config) {
     config.groups = update_state(config.groups);
+    if (config.groups.empty()) {
+        return;
+    }
+    for (auto group : config.groups) {
+        LOG_INFO("Building Wilson group", GroupMapper::str(group));
+    }
     WilsonAdapter().build(config);
 }
 
