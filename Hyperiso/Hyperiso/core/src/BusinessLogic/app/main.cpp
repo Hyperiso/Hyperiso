@@ -5,6 +5,7 @@
 #include "HyperisoMaster.h"
 
 int main() {
+    LOG_INFO("Starting HyperisoMaster test");
     Logger::getInstance()->setLevel(Logger::LogLevel::INFO);
     HyperisoMaster hyperiso;
     Config config;
@@ -13,15 +14,17 @@ int main() {
     LOG_INFO("HyperisoMaster initialized");
 
     auto interface = ObservableInterface();
-    interface.add_observable(Observables::BR_B_XS_GAMMA, QCDOrder::NNLO, true);
-    LOG_INFO("Observable added to manager");
-    
-    for (auto& [k, v] : interface.compute_leading_uncertainties(Observables::BR_B_XS_GAMMA, 10)) {
-        LOG_INFO(k, ":", v);
-    }
-    
 
-    LOG_INFO(interface.compute_observable(Observables::BR_B_XS_GAMMA), "+-", interface.compute_uncertainty(Observables::BR_B_XS_GAMMA));
+    for (Observables obs : ObservableMapper::get_enum()) {
+        interface.add_observable(obs, QCDOrder::NNLO, true);
+    }
+
+    LOG_INFO("All observables added");
+    
+    for (Observables obs : ObservableMapper::get_enum()) {
+        LOG_INFO(interface.compute_observable(obs), "+-", interface.compute_uncertainty(obs));
+    }
+
     // LOG_INFO(interface.compute_chi2());
 
 }

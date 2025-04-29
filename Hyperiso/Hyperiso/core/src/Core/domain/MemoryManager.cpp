@@ -32,16 +32,20 @@ void MemoryManager::read_default_input(std::shared_ptr<IDataLoader<BlockAccessor
     auto obs_blocks = std::make_shared<BlockAccessor>();
     loader->load(obs_blocks, FilePaths::default_obs_values_path); 
     input_cache = input_cache + obs_blocks; 
+    LOG_INFO("Default input loaded");
     save_input_cache();
+    LOG_INFO("Default cache stored");
 
     auto default_param_corr = std::make_shared<CorrelationMatrixPair<ParamId>>();
     param_corr->load(default_param_corr, FilePaths::default_param_corr_path.string());
+    LOG_INFO("Default param correlations loaded");
     auto default_obs_corr = std::make_shared<CorrelationMatrixPair<Observables>>();
     obs_corr->load(default_obs_corr, FilePaths::default_obs_corr_path.string());
+    LOG_INFO("Default observable correlations loaded");
     correlation_repository.set_correlation_matrix(default_param_corr);
     correlation_repository.set_correlation_matrix(default_obs_corr);
 
-    LOG_DEBUG("Default files loaded");
+    LOG_INFO("Default files loaded");
 }
 
 void MemoryManager::read_user_input(std::shared_ptr<IDataLoader<BlockAccessor>> loader, std::shared_ptr<IDataLoader<CorrelationMatrixPair<ParamId>>> param_corr, std::shared_ptr<IDataLoader<CorrelationMatrixPair<Observables>>> obs_corr) {

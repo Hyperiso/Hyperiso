@@ -15,6 +15,73 @@
 
 namespace fs = std::filesystem;
 
+/**
+ * @struct LhaID
+ * @brief Represents an identifier of a LHA element, possibly containing several sub-ids 
+ */
+struct LhaID {
+    std::vector<long> parts;     /**< Collection of sub-ids. */
+
+    /**
+     * @brief Constructs a LhaID with specified sub-ids
+     * @param parts List of sub-ids of the element
+     */
+    template<typename... Args>
+    requires (std::convertible_to<Args, long> && ...)
+    LhaID(Args... sub_ids) : parts({static_cast<long>(sub_ids)...}) {}
+
+    /**
+     * @brief Constructs a LhaID from a string of _-separated integer values
+     * @param parts String of sub-ids of the element separated by an _
+     */
+    LhaID(const std::string& parts);
+
+    /**
+     * @brief Constructs a LhaID with a single identifier
+     * @param sub_ids Sub-identifiers of the element
+     */
+    LhaID(const std::vector<long>& sub_ids) : parts(std::move(sub_ids)) {}
+
+    /**
+     * @brief Constructs a LhaID with a single identifier
+     * @param id Identifier of the element
+     */
+    LhaID(long id) : parts({id}) {}
+
+    std::string to_string() const;
+
+    std::vector<long> get_parts() const { return parts; }
+    
+    /**
+     * @brief Allows for implicit conversion of a trivial LhaID to an integer 
+     */
+    operator long() const {
+        if (this->parts.size() > 1) {
+            LOG_WARN("Casting nontrivial LhaID to int discards information.");
+            for (auto& part : this->parts){
+                std::cout << part<< std::endl;
+            }
+        }
+        
+        return this->parts.at(0);
+    };
+
+    inline friend bool operator==(const LhaID& lhs, const LhaID& rhs) { return lhs.parts == rhs.parts; };
+    inline friend bool operator!=(const LhaID& lhs, const LhaID& rhs) { return !(lhs == rhs); };
+    inline friend bool operator<(const LhaID& lhs, const LhaID& rhs) { return (lhs.parts <=> rhs.parts) == std::weak_ordering::less; };
+
+    friend std::ostream& operator<<(std::ostream&, const LhaID&);
+};
+
+namespace std {
+    template <>
+    struct hash<LhaID> {
+        std::size_t operator()(const LhaID& p) const noexcept {
+            return std::hash<std::string>{}(p.to_string());
+        }
+    };
+}
+
 enum class Observables {
     BR_BS_MUMU,
     BR_BS_MUMU_UNTAG,
@@ -26,7 +93,8 @@ enum class Observables {
     BR_B__D_TAU_NU,
     A_FB_B__D_TAU_NU,
     P_TAU_B__D_TAU_NU,
-    R_D,BR_B__DSTAR_TAU_NU,
+    R_D,
+    BR_B__DSTAR_TAU_NU,
     A_FB_B__DSTAR_TAU_NU,
     P_TAU_B__DSTAR_TAU_NU,
     P_D_B__DSTAR_TAU_NU,
@@ -41,6 +109,14 @@ public:
 
     static Observables enum_elt(std::string name) {
         return ObservableMapper::inverse_mapping.at(name);
+    };
+
+    static LhaID flha(Observables obs) {
+        return ObservableMapper::flha_mapping.at(obs);
+    };
+
+    static Observables enum_elt(LhaID id) {
+        return ObservableMapper::inverse_flha_mapping.at(id);
     };
 
     static std::vector<std::string> get_str() {
@@ -61,6 +137,8 @@ public:
 private:
     static const std::map<Observables, std::string> mapping; 
     static const std::map<std::string, Observables> inverse_mapping; 
+    static const std::map<Observables, LhaID> flha_mapping; 
+    static const std::map<LhaID, Observables> inverse_flha_mapping; 
 };
 
 enum class Decays {
@@ -128,73 +206,6 @@ private:
     static const std::map<QCDOrder, std::string> mapping; 
     static const std::map<std::string, QCDOrder> inverse_mapping; 
 };
-
-/**
- * @struct LhaID
- * @brief Represents an identifier of a LHA element, possibly containing several sub-ids 
- */
-struct LhaID {
-    std::vector<long> parts;     /**< Collection of sub-ids. */
-
-    /**
-     * @brief Constructs a LhaID with specified sub-ids
-     * @param parts List of sub-ids of the element
-     */
-    template<typename... Args>
-    requires (std::convertible_to<Args, long> && ...)
-    LhaID(Args... sub_ids) : parts({static_cast<long>(sub_ids)...}) {}
-
-    /**
-     * @brief Constructs a LhaID from a string of _-separated integer values
-     * @param parts String of sub-ids of the element separated by an _
-     */
-    LhaID(const std::string& parts);
-
-    /**
-     * @brief Constructs a LhaID with a single identifier
-     * @param sub_ids Sub-identifiers of the element
-     */
-    LhaID(const std::vector<long>& sub_ids) : parts(std::move(sub_ids)) {}
-
-    /**
-     * @brief Constructs a LhaID with a single identifier
-     * @param id Identifier of the element
-     */
-    LhaID(long id) : parts({id}) {}
-
-    std::string to_string() const;
-
-    std::vector<long> get_parts() const { return parts; }
-    
-    /**
-     * @brief Allows for implicit conversion of a trivial LhaID to an integer 
-     */
-    operator long() const {
-        if (this->parts.size() > 1) {
-            LOG_WARN("Casting nontrivial LhaID to int discards information.");
-            for (auto& part : this->parts){
-                std::cout << part<< std::endl;
-            }
-        }
-        
-        return this->parts.at(0);
-    };
-
-    inline friend bool operator==(const LhaID& lhs, const LhaID& rhs) { return lhs.parts == rhs.parts; };
-    inline friend bool operator!=(const LhaID& lhs, const LhaID& rhs) { return !(lhs == rhs); };
-    inline friend bool operator<(const LhaID& lhs, const LhaID& rhs) { return (lhs.parts <=> rhs.parts) == std::weak_ordering::less; };
-
-    friend std::ostream& operator<<(std::ostream&, const LhaID&);
-};
-
-namespace std {
-    template <>
-    struct hash<LhaID> {
-        std::size_t operator()(const LhaID& p) const noexcept {
-            return std::hash<std::string>{}(p.to_string());
-        }
-    };
-}
 
 enum class WCoef {
     C1, C2, C3, C4, C5, C6, C7, C8, C9, C10, CQ1, CQ2, CP1, CP2, CP3, CP4, CP5, CP6, CP7, CP8, CP9, CP10, CPQ1, CPQ2, CBlnu_A, CBlnu_P, C_V1, C_V2, C_S1, C_S2, C_T
@@ -266,7 +277,9 @@ public:
     };
 
     static LhaID flha_full(WCoef coef, QCDOrder order, ContributionType type) {
+        // LOG_INFO("Attention");
         auto base_id = WCoefMapper::flha_mapping.at(coef);
+        // LOG_INFO("Paf");
         return LhaID{base_id.first, base_id.second, static_cast<int>(order) - 1, static_cast<int>(type)};
     };
 

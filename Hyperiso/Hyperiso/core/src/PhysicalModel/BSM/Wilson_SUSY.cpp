@@ -82,7 +82,7 @@ void C1_susy::NNLO_calculation() {
 void C3_susy::NNLO_calculation() {
 
 	std::unordered_set<ParamId> sources {
-		{ParameterType::WILSON, "EW_EW_SCALE", 1},
+		{ParameterType::WILSON, "EW_SCALE", 1},
 		{ParameterType::SM, "MASS", 24},
 		{ParameterType::WILSON, "WPARAM_SI_BSM", {13, 0}},
 		{ParameterType::WILSON, "WPARAM_SI_BSM", {13, 1}},
@@ -124,7 +124,7 @@ void C3_susy::NNLO_calculation() {
 
     auto func = [] (const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src, std::shared_ptr<DependentParameter> dep_param) {
 		complex_t C3charg_2 = 0.0;
-		double Q_match = src.at({ParameterType::WILSON, "EW_EW_SCALE", 1})->get_val();
+		double Q_match = src.at({ParameterType::WILSON, "EW_SCALE", 1})->get_val();
 		std::shared_ptr<susy_parameters> sus_param;
 		for(int ie = 0; ie < 2; ie++) {
 			for(int ae = 0; ae < 6; ae++) {
@@ -168,7 +168,7 @@ void C4_susy::NLO_calculation() {
 	std::unordered_set<ParamId> sources {
         {"WPARAM_SI_BSM", 7},
         {"WPARAM_MATCH_BSM", 1},
-        {"EW_EW_SCALE", 1},
+        {"EW_SCALE", 1},
         {ParameterType::BSM, "MASS", 37}
     };
 
@@ -210,7 +210,7 @@ void C4_susy::NNLO_calculation() {
 	std::unordered_set<ParamId> sources {
         {"WPARAM_SI_BSM", 7},
         {"WPARAM_MATCH_BSM", 1},
-        {"EW_EW_SCALE", 1},
+        {"EW_SCALE", 1},
         {ParameterType::BSM, "MASS", 37}
     };
 
@@ -219,7 +219,7 @@ void C4_susy::NNLO_calculation() {
 		complex_t C4four_2{};
 		double lu = src.at({ParameterType::WILSON, "WPARAM_SI_BSM", 7})->get_val();
 		double yt = src.at({ParameterType::WILSON, "WPARAM_MATCH_BSM", 1})->get_val();
-		double Q_match = src.at({ParameterType::WILSON, "EW_EW_SCALE", 1})->get_val();
+		double Q_match = src.at({ParameterType::WILSON, "EW_SCALE", 1})->get_val();
 		double mW = src.at({ParameterType::SM, "MASS", 24})->get_val();
 		double mH = src.at({ParameterType::BSM, "MASS", 37})->get_val();
 		for(int ie = 0; ie < 2; ie++) {
@@ -279,14 +279,14 @@ void C5_susy::NNLO_calculation() {
 	std::unordered_set<ParamId> sources {
         {"WPARAM_SI_BSM", 7},
         {"WPARAM_MATCH_BSM", 1},
-        {"EW_EW_SCALE", 1},
+        {"EW_SCALE", 1},
         {ParameterType::BSM, "MASS", 37}
     };
 
     auto func = [] (const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src, std::shared_ptr<DependentParameter> dep_param) {
 		double lu = src.at({ParameterType::WILSON, "WPARAM_SI_BSM", 7})->get_val();
 		double yt = src.at({ParameterType::WILSON, "WPARAM_MATCH_BSM", 1})->get_val();
-		double Q_match = src.at({ParameterType::WILSON, "EW_EW_SCALE", 1})->get_val();
+		double Q_match = src.at({ParameterType::WILSON, "EW_SCALE", 1})->get_val();
 		double mW = src.at({ParameterType::SM, "MASS", 24})->get_val();
 		double mH = src.at({ParameterType::BSM, "MASS", 37})->get_val();
 		complex_t C3charg_2{};
@@ -345,14 +345,14 @@ void C6_susy::NNLO_calculation() {
 	std::unordered_set<ParamId> sources {
         {"WPARAM_SI_BSM", 7},
         {"WPARAM_MATCH_BSM", 1},
-        {"EW_EW_SCALE", 1},
+        {"EW_SCALE", 1},
         {ParameterType::BSM, "MASS", 37}
     };
 
     auto func = [] (const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src, std::shared_ptr<DependentParameter> dep_param) {
 		double lu = src.at({ParameterType::WILSON, "WPARAM_SI_BSM", 7})->get_val();
 		double yt = src.at({ParameterType::WILSON, "WPARAM_MATCH_BSM", 1})->get_val();
-		double Q_match = src.at({ParameterType::WILSON, "EW_EW_SCALE", 1})->get_val();
+		double Q_match = src.at({ParameterType::WILSON, "EW_SCALE", 1})->get_val();
 		double mW = src.at({ParameterType::SM, "MASS", 24})->get_val();
 		double mH = src.at({ParameterType::BSM, "MASS", 37})->get_val();
 		complex_t C3charg_2{};
@@ -453,7 +453,7 @@ void C7_susy::LO_calculation() {
 		double lu = src.at({ParameterType::WILSON, "WPARAM_SI_BSM", 7})->get_val();
 		double ld = src.at({ParameterType::WILSON, "WPARAM_SI_BSM", 8})->get_val();
 		double yt = src.at({ParameterType::WILSON, "WPARAM_MATCH_BSM", 1})->get_val();
-		double Q_match = src.at({ParameterType::WILSON, "EW_EW_SCALE", 1})->get_val();
+		double Q_match = src.at({ParameterType::WILSON, "EW_SCALE", 1})->get_val();
 		double mW = src.at({ParameterType::SM, "MASS", 24})->get_val();
 		double mH = src.at({ParameterType::BSM, "MASS", 37})->get_val();
 		double tanb = src.at({ParameterType::BSM, "HMIX", 2})->get_val();
@@ -572,7 +572,7 @@ void C7_susy::NLO_calculation() {
 		{ParameterType::WILSON, "WPARAM_SI_BSM", 7},   // lu
 		{ParameterType::WILSON, "WPARAM_SI_BSM", 8},   // ld
 		{ParameterType::WILSON, "WPARAM_MATCH_BSM", 1}, // yt
-		{ParameterType::WILSON, "EW_EW_SCALE", 1},     // Q_match
+		{ParameterType::WILSON, "EW_SCALE", 1},     // Q_match
 		{ParameterType::SM, "MASS", 24},               // mW
 		{ParameterType::BSM, "MASS", 25},              // mh
 		{ParameterType::BSM, "MASS", 35},              // mH0
@@ -667,7 +667,7 @@ void C7_susy::NLO_calculation() {
 		double lu = src.at({ParameterType::WILSON, "WPARAM_SI_BSM", 7})->get_val();
 		double ld = src.at({ParameterType::WILSON, "WPARAM_SI_BSM", 8})->get_val();
 		double yt = src.at({ParameterType::WILSON, "WPARAM_MATCH_BSM", 1})->get_val();
-		double Q_match = src.at({ParameterType::WILSON, "EW_EW_SCALE", 1})->get_val();
+		double Q_match = src.at({ParameterType::WILSON, "EW_SCALE", 1})->get_val();
 		double mW = src.at({ParameterType::SM, "MASS", 24})->get_val();
 		double mH = src.at({ParameterType::BSM, "MASS", 37})->get_val();
 		double mH0 = src.at({ParameterType::BSM, "MASS", 35})->get_val();

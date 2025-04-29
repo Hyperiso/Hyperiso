@@ -261,9 +261,9 @@ void BKstarDecay::build_op_tree() {
     auto mu_0       = std::make_shared<ParameterNode>(ParamId(ParameterType::DECAY, "B_Ks", 13));
   
     // Flavor parameters
-    auto f_Ks_par   = std::make_shared<ParameterNode>(ParamId(ParameterType::FLAVOR, "FCONST", 32301));
-    auto f_Ks_perp  = std::make_shared<ParameterNode>(ParamId(ParameterType::FLAVOR, "FCONST", 32302));
-    auto f_B        = std::make_shared<ParameterNode>(ParamId(ParameterType::FLAVOR, "FCONST", 52101));
+    auto f_Ks_par   = std::make_shared<ParameterNode>(ParamId(ParameterType::FLAVOR, "FCONST", LhaID(323, 1)));
+    auto f_Ks_perp  = std::make_shared<ParameterNode>(ParamId(ParameterType::FLAVOR, "FCONST", LhaID(323, 2)));
+    auto f_B        = std::make_shared<ParameterNode>(ParamId(ParameterType::FLAVOR, "FCONST", LhaID(521, 1)));
     auto m_B        = std::make_shared<ParameterNode>(ParamId(ParameterType::FLAVOR, "FMASS", 521));
     auto m_Ks       = std::make_shared<ParameterNode>(ParamId(ParameterType::FLAVOR, "FMASS", 323));
 

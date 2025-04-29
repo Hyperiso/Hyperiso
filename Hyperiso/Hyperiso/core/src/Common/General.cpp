@@ -57,6 +57,7 @@ const std::map<WCoef, std::string> WCoefMapper::mapping = {
     {WCoef::C_T, "C_T"}, 
 };
 
+// TODO : Check FLHA mapping for charged current operators
 const std::map<WCoef, std::pair<int, int>> WCoefMapper::flha_mapping = {
     {WCoef::C1, {3040405, 6161}},
     {WCoef::C2, {3040405, 4141}},
@@ -82,6 +83,13 @@ const std::map<WCoef, std::pair<int, int>> WCoefMapper::flha_mapping = {
     {WCoef::CQ2, {3051313, 3233}},
     {WCoef::CPQ1, {3051313, 3130}},
     {WCoef::CPQ2, {3051313, 3133}}, 
+    {WCoef::CBlnu_A, {2051516, 3737}}, 
+    {WCoef::CBlnu_P, {2051516, 3434}},  
+    {WCoef::C_V1, {4051516, 4141}}, 
+    {WCoef::C_V2, {4051516, 4241}}, 
+    {WCoef::C_S1, {4051516, 3231}}, 
+    {WCoef::C_S2, {4051516, 3131}}, 
+    {WCoef::C_T, {4051516, 4343}}, 
 };
 
 const std::map<std::pair<int, int>, WCoef> WCoefMapper::inverse_flha_mapping = {
@@ -109,6 +117,13 @@ const std::map<std::pair<int, int>, WCoef> WCoefMapper::inverse_flha_mapping = {
     {{3051313, 3233}, WCoef::CQ2},
     {{3051313, 3130}, WCoef::CPQ1},
     {{3051313, 3133}, WCoef::CPQ2}, 
+    {{2051516, 3737}, WCoef::CBlnu_A}, 
+    {{2051516, 3434}, WCoef::CBlnu_P},  
+    {{4051516, 4141}, WCoef::C_V1}, 
+    {{4051516, 4241}, WCoef::C_V2}, 
+    {{4051516, 3231}, WCoef::C_S1}, 
+    {{4051516, 3131}, WCoef::C_S2}, 
+    {{4051516, 4343}, WCoef::C_T}, 
 };
 
 const std::map<std::string, WCoef> WCoefMapper::inverse_mapping = {
@@ -208,9 +223,9 @@ const std::map<std::string, WGroup> GroupMapper::inverse_mapping = {
 }; 
 
 const std::map<Observables, std::string> ObservableMapper::mapping = {
-    {Observables::BR_BS_MUMU, "531_1_2_13_-13"},
+    {Observables::BR_BS_MUMU, "BR_Bs__mu_mu"},
     {Observables::BR_BS_MUMU_UNTAG, "BRuntag_Bs__mu_mu"},
-    {Observables::BR_BD_MUMU, "511_1_2_13_-13"},
+    {Observables::BR_BD_MUMU, "BR_Bd__mu_mu"},
     {Observables::BR_BU_TAU_NU, "BR_Bu__tau_nu"},
     {Observables::R_TAU_NU, "R_tau_nu"},
     {Observables::ISOSPIN_ASYMMETRY_B_KSTAR_GAMMA, "IA_B__K*_gamma"},
@@ -227,9 +242,9 @@ const std::map<Observables, std::string> ObservableMapper::mapping = {
 };
 
 const std::map<std::string, Observables> ObservableMapper::inverse_mapping = {
-    {"531_1_2_13_-13", Observables::BR_BS_MUMU},
+    {"BR_Bs__mu_mu", Observables::BR_BS_MUMU},
     {"BRuntag_Bs__mu_mu", Observables::BR_BS_MUMU_UNTAG},
-    {"511_1_2_13_-13", Observables::BR_BD_MUMU},
+    {"BR_Bd__mu_mu-13", Observables::BR_BD_MUMU},
     {"BR_Bu__tau_nu", Observables::BR_BU_TAU_NU},
     {"R_tau_nu", Observables::R_TAU_NU},
     {"IA_B__K*_gamma", Observables::ISOSPIN_ASYMMETRY_B_KSTAR_GAMMA},
@@ -243,6 +258,44 @@ const std::map<std::string, Observables> ObservableMapper::inverse_mapping = {
     {"P_tau_B__D*_tau_nu", Observables::P_TAU_B__DSTAR_TAU_NU},
     {"P_D_B__D*_tau_nu", Observables::P_D_B__DSTAR_TAU_NU},
     {"R_D*", Observables::R_DSTAR},
+};
+
+const std::map<Observables, LhaID> ObservableMapper::flha_mapping = {
+    {Observables::BR_BS_MUMU, LhaID(531, 1, 2, 13, -13)},
+    {Observables::BR_BS_MUMU_UNTAG, LhaID(531, 15, 2, 13, -13)},
+    {Observables::BR_BD_MUMU, LhaID(511, 1, 2, 13, -13)},
+    {Observables::BR_BU_TAU_NU, LhaID(521, 1, 2, -15, 16)},
+    {Observables::R_TAU_NU, LhaID(521, 2, 2, -15, 16)},
+    {Observables::ISOSPIN_ASYMMETRY_B_KSTAR_GAMMA, LhaID(521, 4, 2, 313, 22)},
+    {Observables::BR_B_XS_GAMMA, LhaID(5, 1, 2, 3, 22)},
+    {Observables::BR_B__D_TAU_NU, LhaID(521, 1, 3, 421, -15, 16)},
+    {Observables::A_FB_B__D_TAU_NU, LhaID(521, 5, 3, 421, -15, 16)},
+    {Observables::P_TAU_B__D_TAU_NU, LhaID(521, 82, 3, 421, -15, 16)},
+    {Observables::R_D, LhaID(521, 11, 3, 421, -15, 16)},
+    {Observables::BR_B__DSTAR_TAU_NU, LhaID(521, 1, 3, 423, -15, 16)},
+    {Observables::A_FB_B__DSTAR_TAU_NU, LhaID(521, 5, 3, 423, -15, 16)},
+    {Observables::P_TAU_B__DSTAR_TAU_NU, LhaID(521, 82, 3, 423, -15, 16)},
+    {Observables::P_D_B__DSTAR_TAU_NU, LhaID(521, 81, 3, 423, -15, 16)},
+    {Observables::R_DSTAR, LhaID(521, 11, 3, 423, -15, 16)},
+};
+
+const std::map<LhaID, Observables> ObservableMapper::inverse_flha_mapping = {
+    {LhaID(531, 1, 2, 13, -13), Observables::BR_BS_MUMU},
+    {LhaID(531, 15, 2, 13, -13), Observables::BR_BS_MUMU_UNTAG},
+    {LhaID(511, 1, 2, 13, -13), Observables::BR_BD_MUMU},
+    {LhaID(521, 1, 2, -15, 16), Observables::BR_BU_TAU_NU},
+    {LhaID(521, 2, 2, -15, 16), Observables::R_TAU_NU},
+    {LhaID(521, 4, 2, 313, 22), Observables::ISOSPIN_ASYMMETRY_B_KSTAR_GAMMA},
+    {LhaID(5, 1, 2, 3, 22), Observables::BR_B_XS_GAMMA},
+    {LhaID(521, 1, 3, 421, -15, 16), Observables::BR_B__D_TAU_NU},
+    {LhaID(521, 5, 3, 421, -15, 16), Observables::A_FB_B__D_TAU_NU},
+    {LhaID(521, 82, 3, 421, -15, 16), Observables::P_TAU_B__D_TAU_NU},
+    {LhaID(521, 11, 3, 421, -15, 16), Observables::R_D},
+    {LhaID(521, 1, 3, 423, -15, 16), Observables::BR_B__DSTAR_TAU_NU},
+    {LhaID(521, 5, 3, 423, -15, 16), Observables::A_FB_B__DSTAR_TAU_NU},
+    {LhaID(521, 82, 3, 423, -15, 16), Observables::P_TAU_B__DSTAR_TAU_NU},
+    {LhaID(521, 81, 3, 423, -15, 16), Observables::P_D_B__DSTAR_TAU_NU},
+    {LhaID(521, 11, 3, 423, -15, 16), Observables::R_DSTAR},
 };
 
 const std::map<Model, std::string> ModelMapper::mapping = {
@@ -289,13 +342,11 @@ const std::map<Observables, std::unordered_set<ParamId>> DependenciesHelper::dep
         ParamId{ParameterType::SM, "MASS", 3},
         ParamId{ParameterType::SM, "MASS", 4},
         ParamId{ParameterType::SM, "MASS", 13},
-        ParamId{ParameterType::SM, "RECKM", 21},
-        ParamId{ParameterType::SM, "RECKM", 22},
-        ParamId{ParameterType::SM, "IMCKM", 21},
-        ParamId{ParameterType::SM, "IMCKM", 22},
+        ParamId{ParameterType::SM, "VCKM", LhaID(2, 1)},
+        ParamId{ParameterType::SM, "VCKM", LhaID(2, 2)},
         ParamId{ParameterType::FLAVOR, "FMASS", 531},
         ParamId{ParameterType::FLAVOR, "FLIFE", 531},
-        ParamId{ParameterType::FLAVOR, "FCONST", 53101}
+        ParamId{ParameterType::FLAVOR, "FCONST", LhaID(531,1)}
     }},
     {Observables::BR_BS_MUMU_UNTAG, {
         ParamId{ParameterType::SM, "SMINPUTS", 1},
@@ -309,13 +360,11 @@ const std::map<Observables, std::unordered_set<ParamId>> DependenciesHelper::dep
         ParamId{ParameterType::SM, "MASS", 3},
         ParamId{ParameterType::SM, "MASS", 4},
         ParamId{ParameterType::SM, "MASS", 13},
-        ParamId{ParameterType::SM, "RECKM", 21},
-        ParamId{ParameterType::SM, "RECKM", 22},
-        ParamId{ParameterType::SM, "IMCKM", 21},
-        ParamId{ParameterType::SM, "IMCKM", 22},
+        ParamId{ParameterType::SM, "VCKM", LhaID(2, 1)},
+        ParamId{ParameterType::SM, "VCKM", LhaID(2, 2)},
         ParamId{ParameterType::FLAVOR, "FMASS", 531},
         ParamId{ParameterType::FLAVOR, "FLIFE", 531},
-        ParamId{ParameterType::FLAVOR, "FCONST", 53101},
+        ParamId{ParameterType::FLAVOR, "FCONST", LhaID(531,1)},
         ParamId{ParameterType::DECAY, "B_ll", 1}
     }},
     {Observables::BR_BD_MUMU, {
@@ -330,13 +379,11 @@ const std::map<Observables, std::unordered_set<ParamId>> DependenciesHelper::dep
         ParamId{ParameterType::SM, "MASS", 3},
         ParamId{ParameterType::SM, "MASS", 4},
         ParamId{ParameterType::SM, "MASS", 13},
-        ParamId{ParameterType::SM, "RECKM", 20},
-        ParamId{ParameterType::SM, "RECKM", 22},
-        ParamId{ParameterType::SM, "IMCKM", 20},
-        ParamId{ParameterType::SM, "IMCKM", 22},
+        ParamId{ParameterType::SM, "VCKM", LhaID(2, 0)},
+        ParamId{ParameterType::SM, "VCKM", LhaID(2, 2)},
         ParamId{ParameterType::FLAVOR, "FMASS", 511},
         ParamId{ParameterType::FLAVOR, "FLIFE", 511},
-        ParamId{ParameterType::FLAVOR, "FCONST", 51101}
+        ParamId{ParameterType::FLAVOR, "FCONST", LhaID(511,1)}
     }},
     {Observables::BR_BU_TAU_NU, {
         ParamId{ParameterType::SM, "SMINPUTS", 2},
@@ -349,11 +396,10 @@ const std::map<Observables, std::unordered_set<ParamId>> DependenciesHelper::dep
         ParamId{ParameterType::SM, "MASS", 3},
         ParamId{ParameterType::SM, "MASS", 4},
         ParamId{ParameterType::SM, "MASS", 15},
-        ParamId{ParameterType::SM, "RECKM", 02},
-        // ParamId{ParameterType::SM, "IMCKM", 02},
+        ParamId{ParameterType::SM, "VCKM", LhaID(0, 2)},
         ParamId{ParameterType::FLAVOR, "FMASS", 521},
         ParamId{ParameterType::FLAVOR, "FLIFE", 521},
-        ParamId{ParameterType::FLAVOR, "FCONST", 52101}
+        ParamId{ParameterType::FLAVOR, "FCONST", LhaID(521,1)}
     }},
     {Observables::R_TAU_NU, {
         ParamId{ParameterType::SM, "SMINPUTS", 3},
@@ -376,19 +422,15 @@ const std::map<Observables, std::unordered_set<ParamId>> DependenciesHelper::dep
         ParamId{ParameterType::SM, "MASS", 2},
         ParamId{ParameterType::SM, "MASS", 3},
         ParamId{ParameterType::SM, "MASS", 4},
-        ParamId{ParameterType::SM, "RECKM", 01},
-        ParamId{ParameterType::SM, "IMCKM", 01},
-        ParamId{ParameterType::SM, "RECKM", 02},
-        ParamId{ParameterType::SM, "IMCKM", 02},
-        ParamId{ParameterType::SM, "RECKM", 11},
-        ParamId{ParameterType::SM, "IMCKM", 11},
-        ParamId{ParameterType::SM, "RECKM", 12},
-        ParamId{ParameterType::SM, "IMCKM", 12},
+        ParamId{ParameterType::SM, "VCKM", LhaID(0, 1)},
+        ParamId{ParameterType::SM, "VCKM", LhaID(0, 2)},
+        ParamId{ParameterType::SM, "VCKM", LhaID(1, 1)},
+        ParamId{ParameterType::SM, "VCKM", LhaID(1, 2)},
         ParamId{ParameterType::FLAVOR, "FMASS", 521},
         ParamId{ParameterType::FLAVOR, "FMASS", 323},
-        ParamId{ParameterType::FLAVOR, "FCONST", 52101},
-        ParamId{ParameterType::FLAVOR, "FCONST", 32301},
-        ParamId{ParameterType::FLAVOR, "FCONST", 32302},
+        ParamId{ParameterType::FLAVOR, "FCONST", LhaID(521,1)},
+        ParamId{ParameterType::FLAVOR, "FCONST", LhaID(323,1)},
+        ParamId{ParameterType::FLAVOR, "FCONST", LhaID(323,2)},
         ParamId{ParameterType::DECAY, "B_Ks", 1},
         ParamId{ParameterType::DECAY, "B_Ks", 2},
         ParamId{ParameterType::DECAY, "B_Ks", 3},
@@ -437,8 +479,7 @@ const std::map<Observables, std::unordered_set<ParamId>> DependenciesHelper::dep
         ParamId{ParameterType::SM, "MASS", 3},
         ParamId{ParameterType::SM, "MASS", 4},
         ParamId{ParameterType::SM, "MASS", 15},
-        ParamId{ParameterType::SM, "RECKM", 12},
-        ParamId{ParameterType::SM, "IMCKM", 12},
+        ParamId{ParameterType::SM, "VCKM", LhaID(1, 2)},
         ParamId{ParameterType::FLAVOR, "FMASS", 521},
         ParamId{ParameterType::FLAVOR, "FMASS", 421},
         ParamId{ParameterType::FLAVOR, "FLIFE", 521},
@@ -508,8 +549,7 @@ const std::map<Observables, std::unordered_set<ParamId>> DependenciesHelper::dep
         ParamId{ParameterType::SM, "MASS", 3},
         ParamId{ParameterType::SM, "MASS", 4},
         ParamId{ParameterType::SM, "MASS", 15},
-        ParamId{ParameterType::SM, "RECKM", 12},
-        ParamId{ParameterType::SM, "IMCKM", 12},
+        ParamId{ParameterType::SM, "VCKM", LhaID(1, 2)},
         ParamId{ParameterType::FLAVOR, "FMASS", 521},
         ParamId{ParameterType::FLAVOR, "FMASS", 421},
         ParamId{ParameterType::FLAVOR, "FLIFE", 523},

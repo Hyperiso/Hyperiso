@@ -7,6 +7,7 @@
 #include "Utils.h"
 #include "Wilson.h"
 #include "BWilson.h"
+#include "ChargedCurrentWilson.h"
 #include "MartyWilson.h"
 #include "ParameterProxy.h"
 #include "UseMarty.h"
@@ -95,7 +96,10 @@ class BlnuCoefficientGroup : public CoefficientGroup {
 public:
     BlnuCoefficientGroup();
     std::shared_ptr<CoefficientGroup> clone() const override;
-    void init_running_block(QCDOrder order, BWilsonBasis basis = BWilsonBasis::STANDARD) {}
+    void init_running_block(QCDOrder order, BWilsonBasis basis = BWilsonBasis::STANDARD);
+
+private:
+    static void base_1_LO_calculation(const std::unordered_map<std::string, std::shared_ptr<Block>>&, std::shared_ptr<DependentBlock>, ContributionType);
 };
 
 
@@ -103,7 +107,10 @@ class BclnuCoefficientGroup : public CoefficientGroup {
 public:
     BclnuCoefficientGroup();
     std::shared_ptr<CoefficientGroup> clone() const override;
-    void init_running_block(QCDOrder order, BWilsonBasis basis = BWilsonBasis::STANDARD) {}
+    void init_running_block(QCDOrder order, BWilsonBasis basis = BWilsonBasis::STANDARD);
+
+private:
+    static void base_1_LO_calculation(const std::unordered_map<std::string, std::shared_ptr<Block>>&, std::shared_ptr<DependentBlock>, ContributionType);
 };
 
 

@@ -1,24 +1,27 @@
 #include "ModelEvaluator.h"
-// #include "json_parser.h"
 #include "config.hpp"
 
 ModelEvaluator::ModelEvaluator() {}
 
-ModelEvaluator::ModelEvaluator(const std::vector<std::shared_ptr<Observable>>& observables) : observables(std::move(observables)) {
+ModelEvaluator::ModelEvaluator(const std::unordered_set<std::shared_ptr<Observable>>& observables) {
+    for (auto &&obs : observables) {
+        this->observables.emplace(obs->getId(), obs);
+    }
     LOG_INFO("Instantiating chi squared calculator with", this->observables.size(), "observables");
     printMatrix(exp_cov_mtx, getDiagonalElements(exp_cov_mtx));
     update_th_covariance();
-    LOG_INFO("Theoretical covariance updated");
+    update_exp_covariance();
+    LOG_INFO("Covariance matrices updated");
     printMatrix(th_cov_mtx, getDiagonalElements(th_cov_mtx));
 }
 
 bool ModelEvaluator::has_observable(Observables id) {
-    return static_cast<bool>(find_from_id(id));
+    return this->observables.contains(id);
 }
 
 void ModelEvaluator::add_observable(std::shared_ptr<Observable> obs) {
     if (!has_observable(obs->getId())) {
-        observables.emplace_back(obs);
+        observables.emplace(obs->getId(), obs);
     } else {
         LOG_WARN("ModelEvaluator already takes observable", ObservableMapper::str(obs->getId()), "into account.");
     }
@@ -26,31 +29,39 @@ void ModelEvaluator::add_observable(std::shared_ptr<Observable> obs) {
 
 void ModelEvaluator::remove_observable(Observables id) {
     if (has_observable(id)) {
-        observables.erase(std::find(observables.begin(), observables.end(), find_from_id(id)));
+        observables.erase(id);
     } else {
         LOG_WARN("ModelEvaluator doesn't take observable", ObservableMapper::str(id), "into account.");
     }
 }
 
-std::shared_ptr<Observable> ModelEvaluator::find_from_id(Observables id) {
-    for (auto o : observables) {
-        if (o->getId() == id)
-            return o;
+void ModelEvaluator::update_th_covariance() {
+    // TODO : optimisation possible via map et itérateur pour exploiter la symétrie de la matrice de covariance
+    for (auto &[id_1, obs_1] : this->observables) {
+        for (auto &[id_2, obs_2] : this->observables) {
+            if (id_1 == id_2) {
+                th_cov_mtx.insert_or_assign(std::make_pair(id_1, id_2), obs_1->variance());
+            } else {
+                double corr = obs_1->correlation_with(*obs_2);
+                th_cov_mtx.insert_or_assign(std::make_pair(id_1, id_2), corr);
+            }
+        }
     }
-    return nullptr;
 }
 
-void ModelEvaluator::update_th_covariance() {
-    for (size_t i = 0; i < observables.size(); i++) {
-        for (size_t j = i; j < observables.size(); j++) {
-            auto id_i = observables.at(i)->getId();
-            auto id_j = observables.at(j)->getId();
-            if (i == j) {
-                th_cov_mtx.insert_or_assign(std::make_pair(id_i, id_j), observables.at(i)->variance());
+void ModelEvaluator::update_exp_covariance() {
+    CorrelationProxy cp;
+    ObsParameterProxy opp {ParameterType::OBSERVABLE};
+    for (auto &[id_1, obs_1] : this->observables) {
+        for (auto &[id_2, obs_2] : this->observables) {
+            if (id_1 == id_2) {
+                scalar_t var = std::pow(opp("FOBS", LhaID(ObservableMapper::str(id_1)), ParameterProvider::DataType::STD_COMBINED), 2);
+                exp_cov_mtx.insert_or_assign(std::make_pair(id_1, id_2), var);
             } else {
-                double corr = observables.at(i)->correlation_with(*observables.at(j));
-                th_cov_mtx.insert_or_assign(std::make_pair(id_i, id_j), corr);
-                th_cov_mtx.insert_or_assign(std::make_pair(id_j, id_i), corr);
+                double corr = cp(id_1, id_2, CorrelationProvider::CorrelationType::COMBINED);
+                scalar_t sigma_1 = opp("FOBS", ObservableMapper::flha(id_1), ParameterProvider::DataType::STD_COMBINED);
+                scalar_t sigma_2 = opp("FOBS", ObservableMapper::flha(id_2), ParameterProvider::DataType::STD_COMBINED);
+                th_cov_mtx.insert_or_assign(std::make_pair(id_1, id_2), corr * sigma_1 * sigma_2);
             }
         }
     }
@@ -63,17 +74,15 @@ SparseMatrix<Observables> ModelEvaluator::get_covariance() {
     SparseMatrix<Observables> cov = th_cov_mtx;
     CorrelationProxy corr_prox;
     LOG_DEBUG("Theoretical covariance matrix size", cov.size());
-    for (auto &&p : th_cov_mtx) {
-        cov.at(p.first) += corr_prox(p.first.first, p.first.second, CorrelationProvider::CorrelationType::COMBINED); //TODO : combined for now
+
+    for (auto &&p : exp_cov_mtx) {
+        if (cov.contains(p.first)) {
+            cov.at(p.first) += p.second;
+        } else {
+            cov.emplace(p);
+        }
     }
 
-    // for (auto &&p : exp_cov_mtx) {
-    //     if (cov.contains(p.first)) {
-    //         cov.at(p.first) += p.second;
-    //     } else {
-    //         cov.emplace(p);
-    //     }
-    // }
     return cov;
 }
 
@@ -84,11 +93,11 @@ double ModelEvaluator::chi2() {
     LOG_DEBUG("Precision matrix calculated");
 
     double chi2 {0};
-    for (auto &&o_i : observables) {
-        for (auto &&o_j : observables) {
-            double err_i = o_i->eval() - o_i->get_exp_val();
-            double err_j = o_j->eval() - o_j->get_exp_val();
-            std::pair<Observables, Observables> obs_pair = std::make_pair(o_i->getId(), o_j->getId());
+    for (auto &&[id_i, obs_i] : this->observables) {
+        for (auto &&[id_j, obs_j] : this->observables) {
+            double err_i = obs_i->eval() - obs_i->get_exp_val();
+            double err_j = obs_j->eval() - obs_j->get_exp_val();
+            std::pair<Observables, Observables> obs_pair = std::make_pair(id_i, id_j);
             if (precision_mtx.contains(obs_pair)) {
                 double C_ij_inv = precision_mtx.at(obs_pair);
                 chi2 += err_i * C_ij_inv * err_j;

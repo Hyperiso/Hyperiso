@@ -447,6 +447,7 @@ void CQ1::LO_calculation() {
 
     std::unordered_set<ParamId> sources {
         {"WPARAM_MATCH_SM", {2,1}},
+        {"WPARAM_MATCH_SM", {5,2}},
         {"WPARAM_SI_SM", 4},
         {"WPARAM_SI_SM", 3},
         {"WPARAM_SI_SM", 1},
@@ -455,7 +456,8 @@ void CQ1::LO_calculation() {
 
     auto func = [] (const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src, std::shared_ptr<DependentParameter> dep_param) {
         double xt = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {2,1}})->get_val();
-        double mass_b_muW = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {5,2}})->get_val(); // mass top at pole for mtot param
+        // TODO : Ask Nazila (check SI first) : Why {5,2} and not {5,1} ?
+        double mass_b_muW = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {5,2}})->get_val();
 
         double xh=src.at({ParameterType::WILSON, "WPARAM_SI_SM", 1})->get_val(); // xh
         double ml=src.at({ParameterType::WILSON, "WPARAM_SI_SM", 3})->get_val(); // ml
@@ -480,6 +482,7 @@ void CQ2::LO_calculation() {
         {"WPARAM_MATCH_SM", {2,2}},
         {"WPARAM_MATCH_SM", {2,3}},
         {"WPARAM_MATCH_SM", {2,4}},
+        {"WPARAM_MATCH_SM", {5,1}},
         {"WPARAM_SI_SM", 4},
         {"WPARAM_SI_SM", 3},
         {ParameterType::SM, "MASS", 24}

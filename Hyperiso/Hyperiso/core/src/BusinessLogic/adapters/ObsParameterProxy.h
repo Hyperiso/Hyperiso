@@ -10,7 +10,7 @@ public:
     ObsParameterProxy(ParameterType type = ParameterType::SM);
 
     scalar_t operator()(const ParamId& pid, ParameterProvider::DataType d_type=ParameterProvider::DataType::VALUE);
-    scalar_t operator()(const std::string& block, const LhaID& id) const;
+    scalar_t operator()(const std::string& block, const LhaID& id, ParameterProvider::DataType d_type=ParameterProvider::DataType::VALUE) const;
     
     std::shared_ptr<Parameter> get_parameter(const ParamId& pid) const;
 private:

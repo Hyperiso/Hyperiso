@@ -1,6 +1,7 @@
 #include "ParamBlockLoader.h"
 
 void ParamBlockLoader::load(std::shared_ptr<BlockAccessor> dest, fs::path src_file) {
+    LOG_INFO("Loading parameter blocks from", src_file.string());
     auto np = NodeProviderFactory::createNodeProvider(src_file);
     auto src = np->provide_db_as_node();
     
@@ -27,4 +28,6 @@ void ParamBlockLoader::load(std::shared_ptr<BlockAccessor> dest, fs::path src_fi
 
         dest->emplace(bk, block);
     }
+
+    LOG_INFO("Parameter blocks loaded");
 }

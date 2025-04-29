@@ -8,12 +8,12 @@ ObsParameterProxy::ObsParameterProxy(ParameterType type) {
     this->pp = ParameterProvider();
 } 
 
-scalar_t ObsParameterProxy::operator()(const std::string& block, const LhaID& id) const {
+scalar_t ObsParameterProxy::operator()(const std::string& block, const LhaID& id, ParameterProvider::DataType d_type) const {
     LOG_INFO(block, id);
     if (pp_with_type.get_type() == ParameterType::WILSON) {
-        return pp_with_type.exists(block, id) ? pp_with_type(block, id) : scalar_t();
+        return pp_with_type.exists(block, id) ? pp_with_type(block, id, d_type) : scalar_t();
     } 
-    scalar_t value = pp_with_type(block, id);
+    scalar_t value = pp_with_type(block, id, d_type);
     LOG_INFO("coucou");
     return value;
 };

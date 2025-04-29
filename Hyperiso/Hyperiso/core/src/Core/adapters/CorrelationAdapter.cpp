@@ -48,8 +48,8 @@ void CorrelationLoader<Observables>::emplace_correlation(std::shared_ptr<Correla
         LOG_ERROR("CorrelationLoader", "Node doesn't have all necessary keys for observable correlation.");
     }
 
-    Observables obs_1 = ObservableMapper::enum_elt(std::get<std::string>(leaf->get("id_1")));
-    Observables obs_2 = ObservableMapper::enum_elt(std::get<std::string>(leaf->get("id_2")));
+    Observables obs_1 = ObservableMapper::enum_elt(LhaID(std::get<std::string>(leaf->get("id_1"))));
+    Observables obs_2 = ObservableMapper::enum_elt(LhaID(std::get<std::string>(leaf->get("id_2"))));
     auto stat_value = std::get<double>(leaf->get("stat_correlation"));
     auto syst_value = leaf->contains("syst_correlation") ? std::get<double>(leaf->get("syst_correlation")) : 0;
 

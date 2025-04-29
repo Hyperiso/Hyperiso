@@ -599,14 +599,13 @@ void C_S2_THDM::LO_calculation() {
         {ParameterType::SM, "MASS", 24}
     };
 
-
     auto func = [] (const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src, std::shared_ptr<DependentParameter> dep_param) {
         double sw2 = src.at({ParameterType::WILSON, "WPARAM_SI_SM", 4})->get_val();
         double lu = src.at({ParameterType::WILSON, "WPARAM_SI_BSM", 7})->get_val();
         double ld = src.at({ParameterType::WILSON, "WPARAM_SI_BSM", 8})->get_val();
         double mH = src.at({ParameterType::BSM, "MASS", 37})->get_val();
 
-        double m_c = src.at({ParameterType::SM, "MASS", 4})->get_val(); // mass c does not run ?
+        double m_c = src.at({ParameterType::SM, "MASS", 4})->get_val(); // TODO : mass c does not run ?
         double m_tau = src.at({ParameterType::SM, "MASS", 15})->get_val();
         double l_tau = src.at({ParameterType::BSM, "YL", 22})->get_val();
 

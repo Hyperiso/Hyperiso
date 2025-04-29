@@ -37,7 +37,7 @@ void BlnuDecay::build_op_tree() {
     // Flavor Parameters
     auto m_B = std::make_shared<ParameterNode>(ParamId(ParameterType::FLAVOR, "FMASS", 521));
     auto life_B = std::make_shared<ParameterNode>(ParamId(ParameterType::FLAVOR, "FLIFE", 521));
-    auto f_B = std::make_shared<ParameterNode>(ParamId(ParameterType::FLAVOR, "FCONST", 52101));
+    auto f_B = std::make_shared<ParameterNode>(ParamId(ParameterType::FLAVOR, "FCONST", LhaID(521, 1)));
 
     auto dummy = std::make_shared<ParameterNode>(ParamId(ParameterType::FLAVOR, "FMASS", 511));
 
