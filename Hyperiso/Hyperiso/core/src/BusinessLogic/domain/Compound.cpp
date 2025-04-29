@@ -4,7 +4,8 @@
 
 scalar_t Compound::compute_pdv(const ParamId &param_id) const {
     LOG_INFO("Computing pdv wrt", param_id);
-    scalar_t h = ObsParameterProxy()(param_id) * 1e-5;
+    ObsParameterProxy opp = ObsParameterProxy();
+    scalar_t h = opp(param_id) * 1e-5;
     h = fpeq(std::abs(h), 0.) ? scalar_t(1e-5) : h;
 
     ObsParameterMutator opm;
@@ -60,12 +61,13 @@ const std::unordered_map<ParamId, scalar_t> &Compound::get_gradient() const {
 scalar_t Compound::variance() {
     scalar_t var = 0;
     ObsParameterProxy opp = ObsParameterProxy();
+    CorrelationProxy cp = CorrelationProxy();
     for (const auto &pid_1 : dependences) {
         for (const auto &pid_2 : dependences) {
             if (pid_1 == pid_2) {
                 var += pow(opp(pid_1, ParameterProvider::DataType::STD_COMBINED) * gradient.at(pid_1), 2);
             } else {
-                var += CorrelationProxy()(pid_1, pid_2, CorrelationProvider::CorrelationType::COMBINED)  // rho_12
+                var += cp(pid_1, pid_2, CorrelationProvider::CorrelationType::COMBINED)  // rho_12
                         * opp(pid_1, ParameterProvider::DataType::STD_COMBINED)                          // sigma_1
                         * opp(pid_2, ParameterProvider::DataType::STD_COMBINED)                          // sigma_2
                         * gradient.at(pid_1)                                                             // dC/dp_1   
@@ -109,10 +111,10 @@ scalar_t Compound::correlation_with(const Compound &other) const {
     auto common_dep = get_common_dependences_with(other);
     CorrelationProxy cprox;
     ObsParameterProxy opp = ObsParameterProxy();
-    
+    CorrelationProxy cp = CorrelationProxy();
     for (auto &&p_1 : common_dep) {
         for (auto &&p_2 : common_dep) {
-            corr += CorrelationProxy()(p_1, p_2, CorrelationProvider::CorrelationType::COMBINED)   // rho_12
+            corr += cp(p_1, p_2, CorrelationProvider::CorrelationType::COMBINED)   // rho_12
                     * opp(p_1, ParameterProvider::DataType::STD_COMBINED)                          // sigma_1
                     * opp(p_2, ParameterProvider::DataType::STD_COMBINED)                          // sigma_2
                     * this->gradient.at(p_1)                                                       // dC_1/dp_1   

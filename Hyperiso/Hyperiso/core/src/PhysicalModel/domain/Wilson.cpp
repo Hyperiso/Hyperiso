@@ -6,7 +6,7 @@ void WilsonCoefficient::init(QCDOrder order) {
     }
 
     max_order = order;
-
+    std::cout << OrderMapper::str(order) << " ;;;" << std::endl;
     switch (order) {
     case QCDOrder::NNLO:
         NNLO_calculation();
@@ -14,7 +14,9 @@ void WilsonCoefficient::init(QCDOrder order) {
         NLO_calculation();
     case QCDOrder::LO:
         LO_calculation();
+        break;
     default:
+        LOG_ERROR("logicerror", "QCDOrder cannot be none.");
         break;
     }
 }

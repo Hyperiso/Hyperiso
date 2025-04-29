@@ -11,8 +11,9 @@ scalar_t ParameterNode::getValue() {
 
 bool ParameterNode::updateCacheFlag() {
     LOG_DEBUG("ParameterNode::updateCacheFlag() [", getName(), "]");
+    ObsParameterProxy opp = ObsParameterProxy();
     if (!visited) {
-        cacheValid = fpeq(value, ObsParameterProxy()(lookup));
+        cacheValid = fpeq(value, opp(lookup));
         if (!cacheValid)
             updateValue();
         visited = true;
@@ -36,6 +37,7 @@ void ParameterNode::accept(Visitor& visitor) {
 }
 
 void OperatorNode::unvisit() {
+    std::cout << "fuck" << std::endl;
     if (visited) {
         visited = false;
         for (auto c : children)
@@ -45,23 +47,27 @@ void OperatorNode::unvisit() {
 
 scalar_t OperatorNode::calculate() {
     updateCacheFlag();
-    getValue();
+    scalar_t truc = getValue();
+    std::cout << "ùmh" << std::endl;
     unvisit();
+    std::cout << "fuck " << std::endl;
     return cachedValue;
 }
 
 bool OperatorNode::updateCacheFlag() {
-    LOG_DEBUG("OperatorNode::updateCacheFlag() [", name, "]");
+    LOG_INFO("OperatorNode::updateCacheFlag() [", name, "]");
     if (!visited) {
         for (auto c : children)
             cacheValid &= c->updateCacheFlag();
         visited = true;
     }
+    std::cout << "ended" << std::endl;
+    std::cout << "ended" << std::endl;
     return cacheValid;
 }
 
 scalar_t OperatorNode::getValue() {
-    LOG_DEBUG("OperatorNode::getValue() [", name, "]");
+    LOG_INFO("OperatorNode::getValue() [", name, "]");
     if (!cacheValid) {
         std::vector<scalar_t> childValues;
         for (const auto& child : children) {
@@ -70,8 +76,9 @@ scalar_t OperatorNode::getValue() {
         cachedValue = computeFunc(childValues);
         cacheValid = true;
         n_evals++;
-        LOG_DEBUG("Call to OperatorNode::computeFunc [", name, "] (", cachedValue, ")");
+        LOG_INFO("Call to OperatorNode::computeFunc [", name, "] (", cachedValue, ")");
     }
+    std::cout << "dsdsdsd" << std::endl;
     return cachedValue;
 }
 

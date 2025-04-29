@@ -13,7 +13,7 @@ struct WilsonConfig {
     std::unordered_set<WGroup> groups;
     double matching_scale;
     double hadronic_scale;
-    QCDOrder order;
+    QCDOrder order{QCDOrder::LO}; //TODO : I choose LO as default here
 };
 
 class WilsonInterface {

@@ -1,4 +1,5 @@
 #include "DecayParent.h"
+#include <iostream>
 
 QCDOrder DecayParent::check_max_order(QCDOrder order) const {
     if (order > max_order) {
@@ -39,7 +40,17 @@ void DecayParent::set_order(QCDOrder new_order) {
 }
 
 scalar_t DecayParent::compute_observable(Observables obs) {
-    return roots.at(obs)->calculate();
+    std::cout << ObservableMapper::str(obs) << std::endl;
+
+    std::cout << "----------------------------" << std::endl;
+    for (auto& elem : roots) {
+        std::cout << ObservableMapper::str(elem.first) << std::endl;
+    }
+    auto truc = roots.at(obs);
+    std::cout << "its was fine" << std::endl;
+    auto _ = truc->calculate();
+    std::cout << "its fine" << std::endl;
+    return _;
 }
 
 size_t DecayParent::get_n_evals(Observables obs) {

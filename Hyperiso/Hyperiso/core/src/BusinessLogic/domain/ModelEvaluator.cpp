@@ -39,11 +39,12 @@ void ModelEvaluator::update_th_covariance() {
     // TODO : optimisation possible via map et itérateur pour exploiter la symétrie de la matrice de covariance
     for (auto &[id_1, obs_1] : this->observables) {
         for (auto &[id_2, obs_2] : this->observables) {
+            auto pair_id = std::make_pair(id_1, id_2);
             if (id_1 == id_2) {
-                th_cov_mtx.insert_or_assign(std::make_pair(id_1, id_2), obs_1->variance());
+                th_cov_mtx.insert_or_assign(pair_id, obs_1->variance());
             } else {
                 double corr = obs_1->correlation_with(*obs_2);
-                th_cov_mtx.insert_or_assign(std::make_pair(id_1, id_2), corr);
+                th_cov_mtx.insert_or_assign(pair_id, corr);
             }
         }
     }
@@ -54,14 +55,15 @@ void ModelEvaluator::update_exp_covariance() {
     ObsParameterProxy opp {ParameterType::OBSERVABLE};
     for (auto &[id_1, obs_1] : this->observables) {
         for (auto &[id_2, obs_2] : this->observables) {
+            auto pair_id = std::make_pair(id_1, id_2);
             if (id_1 == id_2) {
                 scalar_t var = std::pow(opp("FOBS", LhaID(ObservableMapper::str(id_1)), ParameterProvider::DataType::STD_COMBINED), 2);
-                exp_cov_mtx.insert_or_assign(std::make_pair(id_1, id_2), var);
+                exp_cov_mtx.insert_or_assign(pair_id, var);
             } else {
                 double corr = cp(id_1, id_2, CorrelationProvider::CorrelationType::COMBINED);
                 scalar_t sigma_1 = opp("FOBS", ObservableMapper::flha(id_1), ParameterProvider::DataType::STD_COMBINED);
                 scalar_t sigma_2 = opp("FOBS", ObservableMapper::flha(id_2), ParameterProvider::DataType::STD_COMBINED);
-                th_cov_mtx.insert_or_assign(std::make_pair(id_1, id_2), corr * sigma_1 * sigma_2);
+                th_cov_mtx.insert_or_assign(pair_id, corr * sigma_1 * sigma_2);
             }
         }
     }

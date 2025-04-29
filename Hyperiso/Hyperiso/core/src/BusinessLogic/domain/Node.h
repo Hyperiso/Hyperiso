@@ -107,6 +107,7 @@ public:
 class PrintVisitor : public Visitor {
 public:
     void visit(ParameterNode& node) override {
+        std::cout << "mmh" << std::endl;
         std::cout << "ParameterNode " << node.getName() << " : " << node.getValue() << "\n";
     }
 

@@ -16,9 +16,9 @@ class DecayParent {
 
 protected:
     std::map<Observables, std::shared_ptr<OperatorNode>> roots;
-    QCDOrder max_order;
+    QCDOrder max_order = QCDOrder::LO; //DEFAULT AS LO, using default at least once, need to check (error if NONE)
     std::shared_ptr<ObsWilsonProxy> w_proxy;
-    WilsonConfig w_config;
+    WilsonConfig w_config{};
 
     QCDOrder check_max_order(QCDOrder order) const;
 

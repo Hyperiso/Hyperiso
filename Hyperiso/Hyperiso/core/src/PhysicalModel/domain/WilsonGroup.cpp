@@ -3,7 +3,7 @@
 CoefficientGroup::CoefficientGroup(std::map<std::string, std::shared_ptr<WilsonCoefficient>>& coeffs) {
     this->insert(coeffs.begin(), coeffs.end());
     
-    QCDOrder max_order = QCDOrder::NONE;
+    QCDOrder max_order = QCDOrder::LO; //TODO : start a LO, if None; error; need to check
     for (const auto& [_, wil] : coeffs) {
         if (wil->get_max_order() > max_order) {
             max_order = wil->get_max_order();
@@ -18,6 +18,7 @@ CoefficientGroup::CoefficientGroup(std::map<std::string, std::shared_ptr<WilsonC
 void CoefficientGroup::init(QCDOrder order) {
     this->claim_coefficients();
     for (auto& coeff : *this) {
+        std::cout << coeff.first << " "<< OrderMapper::str(order) << std::endl;
         coeff.second->init(order);
     }
     this->current_order = order;

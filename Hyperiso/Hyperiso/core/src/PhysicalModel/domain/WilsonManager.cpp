@@ -18,7 +18,9 @@ std::string CoefficientManager::getModel() {
 }
 
 void CoefficientManager::init_group_matching(const std::string& groupName, const std::string& order) {
+    std::cout << "trying to init" << std::endl;
     this->coefficientGroups.at(groupName)->init(OrderMapper::enum_elt(order));
+    std::cout << "trying to init " << groupName<< std::endl;
     if (has_bsm) {
         this->coefficientGroups.at(groupName + bsm_suffix)->init(OrderMapper::enum_elt(order));
     }

@@ -45,7 +45,7 @@ protected:
     std::string storage_block;
     std::optional<BWilsonBasis> basis = BWilsonBasis::STANDARD;
     ContributionType wilson_type {ContributionType::SM};
-    QCDOrder current_order = QCDOrder::NONE;
+    QCDOrder current_order = QCDOrder::LO; //TODO SAME : cannot be none, need to see logic
 };
 
 

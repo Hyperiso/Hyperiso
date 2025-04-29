@@ -11,6 +11,10 @@ void DependentBlockManager::addDependentBlock(
 
     for (const auto& [k, v] : source_names) {
         for (const auto& src_name : v) {
+            if (Parameters::GetInstance(k)->blockAccessor->find(src_name) == Parameters::GetInstance(k)->blockAccessor->end()) {
+                std::cout << "k: " << ParameterTypeMapper::str(k) << std::endl;
+                std::cout << "bad: " << src_name << std::endl;
+            }
             sources.emplace(src_name, Parameters::GetInstance(k)->blockAccessor->at(src_name));
         }
     }
