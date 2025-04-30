@@ -7,7 +7,7 @@
 
 class ObsWilsonHelper {
 public:
-    static void build(WilsonConfig config);
+    static void build(WilsonBuildConfig config);
 
 private:
     static std::unordered_set<WGroup> get_all_groups(const std::unordered_set<WGroup>& needed);

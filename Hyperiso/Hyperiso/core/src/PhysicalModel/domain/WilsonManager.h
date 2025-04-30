@@ -20,8 +20,8 @@ private:
     bool has_bsm;
     std::string bsm_suffix;
     ParameterProxy wilson_p {ParameterType::WILSON};
-    MatchingScaleSetter mss;
-    HadronicScaleSetter hss;
+
+    void throw_no_group_error(const std::string& groupName) const;
 
 public:
     CoefficientManager() = default;
@@ -29,7 +29,7 @@ public:
     void initialize(const std::string& lhaFile, Model model = Model::SM, 
                     bool use_marty = false, bool is_spectrum = false, bool has_wilsons = false, bool has_obs = false);
 
-    static CoefficientManager Builder(std::string model, std::map<std::string, std::shared_ptr<CoefficientGroup>> groups, double mu_W, double mu_h, std::string order);
+    static std::shared_ptr<CoefficientManager> Builder(std::string model, std::map<std::string, std::shared_ptr<CoefficientGroup>> groups, double mu_W, double mu_h, std::string order);
 
     void set_matching_scale(double mu_W);
     void set_hadronic_scale(double mu_h);

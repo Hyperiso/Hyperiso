@@ -169,11 +169,26 @@ private:
     static const std::map<Decays, std::vector<Observables>> obs_mapping;
 };
 
+enum class ScaleType {
+    MATCHING,
+    HADRONIC
+};
+
+class ScaleTypeMapper {
+public:
+    static std::string block(ScaleType type) {
+        return ScaleTypeMapper::block_mapping.at(type);
+    }
+
+private:
+    static const std::map<ScaleType, std::string> block_mapping; 
+};
+
 enum class QCDOrder {
     NONE,
     LO,
     NLO,
-    NNLO,
+    NNLO
 };
 
 class OrderMapper {

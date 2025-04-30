@@ -16,7 +16,7 @@ int main() {
 
     auto wi = WilsonInterface();
     LOG_INFO("WilsonInterface created");
-    wi.build(WilsonConfig{
+    wi.build(WilsonBuildConfig{
         {WGroup::B},
         81,
         4.7,

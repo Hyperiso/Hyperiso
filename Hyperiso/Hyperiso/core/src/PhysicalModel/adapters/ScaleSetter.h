@@ -2,15 +2,16 @@
 #define __SCALESETTER_H__
 
 #include "IParamSetter.h"
+#include "Include.h"
 
-class MatchingScaleSetter : public IParamSetter {
+class ScaleSetter : public IParamSetter {
 public:
-    void set(double value) override;
-};
+    ScaleSetter(ScaleType scale_type) : scale_type(scale_type) {}
 
-class HadronicScaleSetter : public IParamSetter {
-public:
     void set(double value) override;
+
+private:
+    ScaleType scale_type;
 };
 
 #endif // __SCALESETTER_H__

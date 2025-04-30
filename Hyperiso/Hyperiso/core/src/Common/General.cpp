@@ -23,6 +23,11 @@ const std::map<std::string, QCDOrder> OrderMapper::inverse_mapping = {
     {"NNLO", QCDOrder::NNLO}
 };
 
+const std::map<ScaleType, std::string> ScaleTypeMapper::block_mapping = {
+    {ScaleType::MATCHING, "EW_SCALE"}, 
+    {ScaleType::HADRONIC, "B_SCALE"}
+};
+
 const std::map<WCoef, std::string> WCoefMapper::mapping = {
     {WCoef::C1, "C1"},
     {WCoef::C2, "C2"},

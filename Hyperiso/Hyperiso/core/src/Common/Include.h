@@ -7,5 +7,6 @@
 #include <vector>
 #include "Logger.h"
 #include "General.h"
+#include "AbstractConfig.h"
 
 #endif // __INCLUDE_H__

@@ -1,6 +1,6 @@
 #include "ObsWilsonHelper.h"
 
-void ObsWilsonHelper::build(WilsonConfig config) {
+void ObsWilsonHelper::build(WilsonBuildConfig config) {
     config.groups = update_state(config.groups);
     if (config.groups.empty()) {
         return;
