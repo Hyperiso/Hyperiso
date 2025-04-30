@@ -19,7 +19,7 @@ private:
     std::shared_ptr<ObsManager> manager;
 
 public:
-    ObservableInterface() : manager(ObsManager::GetInstance()) {}
+    ObservableInterface();
 
     ObservableInterface add_observable(Observables obs, QCDOrder order, bool add_dependencies=false) {  
         manager->add_obs(obs, order, add_dependencies);

@@ -23,14 +23,12 @@ void Block::update() {
 }
 
 void Block::freeze() {
-    LOG_INFO("In Block::freeze");
     for (auto& [_, param] : this->items) {
         param->freeze();
     }
 }
 
 void Block::unfreeze() {
-    LOG_INFO("In Block::unfreeze");
     for (auto& [_, param] : this->items) {
         param->unfreeze();
     }

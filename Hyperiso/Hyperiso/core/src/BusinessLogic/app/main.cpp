@@ -24,7 +24,6 @@ int main() {
     for (Observables obs : ObservableMapper::get_enum()) {
         LOG_INFO(interface.compute_observable(obs), "+-", interface.compute_uncertainty(obs));
     }
-
+    
     // LOG_INFO(interface.compute_chi2());
-
 }

@@ -1,6 +1,6 @@
 #include "ObsWilsonHelper.h"
 
-void ObsWilsonHelper::build(WilsonBuildConfig config) {
+void ObsWilsonHelper::build(WilsonBuildConfig config, std::shared_ptr<IObsWilsonBuilder<ObsWilsonProxy, WGroup>> wil_builder) {
     config.groups = update_state(config.groups);
     if (config.groups.empty()) {
         return;
@@ -8,7 +8,7 @@ void ObsWilsonHelper::build(WilsonBuildConfig config) {
     for (auto group : config.groups) {
         LOG_INFO("Building Wilson group", GroupMapper::str(group));
     }
-    WilsonAdapter().build(config);
+    wil_builder->build(std::make_shared<WilsonBuildConfig>(config));
 }
 
 std::unordered_set<WGroup> ObsWilsonHelper::get_all_groups(const std::unordered_set<WGroup> &needed) {

@@ -10,12 +10,11 @@
 #include "Decays.h"
 
 class ObsManager {
-
 public:
-    static std::shared_ptr<ObsManager> GetInstance();
+    ObsManager(std::shared_ptr<IObsWilsonBuilder<ObsWilsonProxy, WGroup>> wil_builder);
 
-    std::shared_ptr<ObsManager> add_obs(Observables id, QCDOrder order, bool add_deps=false);
-    std::shared_ptr<ObsManager> remove_obs(Observables id);
+    ObsManager add_obs(Observables id, QCDOrder order, bool add_deps=false);
+    ObsManager remove_obs(Observables id);
 
     scalar_t evaluate(Observables id);
     std::unordered_map<Observables, scalar_t> evaluate_all();
@@ -31,9 +30,6 @@ public:
     void update_gradient(Observables id);
 
 private:
-    ObsManager();
-    static std::shared_ptr<ObsManager> instance;
-
     std::unordered_map<Decays, std::shared_ptr<DecayParent>> decays;
     std::unordered_map<Observables, std::shared_ptr<Observable>> obss;
     ModelEvaluator me;

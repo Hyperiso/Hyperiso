@@ -169,6 +169,11 @@ private:
     static const std::map<Decays, std::vector<Observables>> obs_mapping;
 };
 
+enum class MassType {
+    POLE,
+    MSBAR
+};
+
 enum class ScaleType {
     MATCHING,
     HADRONIC

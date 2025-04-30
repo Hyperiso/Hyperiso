@@ -3,6 +3,7 @@
 
 #include "Include.h"
 
+template<typename BuilderType>
 class IObsWilsonProxy {
 public:
     virtual ~IObsWilsonProxy() = default;
@@ -17,6 +18,8 @@ public:
     virtual std::map<WCoef, complex_t>      getAR   (WGroup group, QCDOrder order, bool sm_only=false)              = 0;
     virtual std::map<WCoef, complex_t>      getAFM  (WGroup group, QCDOrder order, bool sm_only=false)              = 0;
     virtual std::map<WCoef, complex_t>      getAFR  (WGroup group, QCDOrder order, bool sm_only=false)              = 0;
+
+    virtual std::shared_ptr<BuilderType> get_builder() = 0;
 };
 
 #endif // __IOBSWILSONPROXY_H__

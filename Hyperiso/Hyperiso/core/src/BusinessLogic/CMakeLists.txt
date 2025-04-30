@@ -46,8 +46,10 @@ add_library(BusinessLogicLib STATIC
     adapters/ObsParameterProxy.cpp
     adapters/ObsParameterMutator.cpp
     adapters/ObsQCDProxy.cpp
-    adapters/WilsonAdapter.cpp
+    adapters/ObsWilsonBuilder.cpp
+    adapters/ObsWilsonProxy.cpp
     adapters/WilsonFreezer.cpp
+    adapters/ObservableInterface.cpp
 )
 set_target_properties(BusinessLogicLib PROPERTIES POSITION_INDEPENDENT_CODE ON)
 

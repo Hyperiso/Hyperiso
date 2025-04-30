@@ -4,21 +4,16 @@
 #include "IWilsonProvider.h"
 #include "Include.h"
 #include "WilsonManager.h"
+#include "Configs.h"
 
-struct WilsonRequest : public AbstractConfig {
-    WGroup group;
-    WCoef coefficient;
-    QCDOrder order {QCDOrder::LO};
-    ContributionType contribution {ContributionType::TOTAL};
-    ScaleType scale_type {ScaleType::HADRONIC};
-    bool sum_qcd_orders {false};
-};
+class WilsonBuilder;
 
-class WilsonProvider : public IWilsonProvider {
+class WilsonProvider : public IWilsonProvider<WilsonBuilder> {
 public:
     WilsonProvider(std::shared_ptr<CoefficientManager> manager);
 
     scalar_t get(std::shared_ptr<AbstractConfig> config) override;
+    std::shared_ptr<WilsonBuilder> get_builder() override;
 
 private:
     std::shared_ptr<CoefficientManager> cm;

@@ -9,15 +9,16 @@ QCDOrder DecayParent::check_max_order(QCDOrder order) const {
     return order;
 }
 
-DecayParent::DecayParent(double matching_scale, double hadronic_scale, QCDOrder order) {
+DecayParent::DecayParent(double matching_scale, double hadronic_scale, QCDOrder order, std::shared_ptr<IObsWilsonBuilder<ObsWilsonProxy, WGroup>> wilson_builder) {
     this->w_config.matching_scale = matching_scale;
     this->w_config.hadronic_scale = hadronic_scale;
     this->w_config.order = check_max_order(order);
+    this->w_builder = wilson_builder;
 }
 
 void DecayParent::enable() {
-    ObsWilsonHelper::build(this->w_config);
-    this->w_proxy = std::make_shared<ObsWilsonProxy>();
+    ObsWilsonHelper::build(this->w_config, this->w_builder);
+    this->w_proxy = this->w_builder->get_proxy();
     build_op_tree();
 }
 
@@ -40,16 +41,9 @@ void DecayParent::set_order(QCDOrder new_order) {
 }
 
 scalar_t DecayParent::compute_observable(Observables obs) {
-    std::cout << ObservableMapper::str(obs) << std::endl;
-
-    std::cout << "----------------------------" << std::endl;
-    for (auto& elem : roots) {
-        std::cout << ObservableMapper::str(elem.first) << std::endl;
-    }
+    // TODO
     auto truc = roots.at(obs);
-    std::cout << "its was fine" << std::endl;
     auto _ = truc->calculate();
-    std::cout << "its fine" << std::endl;
     return _;
 }
 

@@ -1,5 +1,9 @@
 #include "WilsonBuilder.h"
 
+WilsonBuilder::WilsonBuilder() {
+    this->cm = std::make_shared<CoefficientManager>();
+}
+
 WilsonBuilder::WilsonBuilder(WilsonBuildConfig config) {
     this->build(config);
 }
@@ -44,6 +48,6 @@ void WilsonBuilder::switch_basis(WGroup group_id) {
     this->cm->switchbasis(GroupMapper::str(group_id));
 }
 
-std::shared_ptr<IWilsonProvider> WilsonBuilder::get_wilson_provider() {
+std::shared_ptr<WilsonProvider> WilsonBuilder::get_wilson_provider() {
     return std::make_shared<WilsonProvider>(this->cm);
 }

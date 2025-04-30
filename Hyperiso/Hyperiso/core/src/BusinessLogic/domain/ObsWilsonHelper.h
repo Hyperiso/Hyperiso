@@ -3,11 +3,13 @@
 
 #include "Include.h"
 #include "WilsonFreezer.h"
-#include "WilsonAdapter.h"
+#include "IObsWilsonBuilder.h"
+#include "Configs.h"
+#include "ObsWilsonProxy.h"
 
 class ObsWilsonHelper {
 public:
-    static void build(WilsonBuildConfig config);
+    static void build(WilsonBuildConfig config, std::shared_ptr<IObsWilsonBuilder<ObsWilsonProxy, WGroup>> wil_builder);
 
 private:
     static std::unordered_set<WGroup> get_all_groups(const std::unordered_set<WGroup>& needed);

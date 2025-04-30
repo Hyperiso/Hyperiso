@@ -1,4 +1,5 @@
 #include "WilsonProvider.h"
+#include "WilsonBuilder.h" // Théo is reponsible for this horror
 
 WilsonProvider::WilsonProvider(std::shared_ptr<CoefficientManager> manager) : cm(manager) {
     if (!cm) {
@@ -43,4 +44,8 @@ scalar_t WilsonProvider::get(std::shared_ptr<AbstractConfig> config) {
     } else {
         LOG_ERROR("Invalid argument", "(WilsonProvider) Invalid scale type.");
     }
+}
+
+std::shared_ptr<WilsonBuilder> WilsonProvider::get_builder() {
+    return std::make_shared<WilsonBuilder>(this->cm);
 }

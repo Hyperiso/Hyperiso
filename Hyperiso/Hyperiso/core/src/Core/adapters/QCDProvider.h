@@ -4,20 +4,7 @@
 #include "IDataProvider.h"
 #include "IQCDProvider.h"
 #include "QCDHelper.h"
-
-struct AlphasConfig : public AbstractConfig {
-    double scale;
-    MassType m_b_type;
-    MassType m_t_type;
-
-    AlphasConfig(double scale, MassType m_b_type, MassType m_t_type) : scale(scale), m_b_type(m_b_type), m_t_type(m_t_type) {}
-};
-
-struct MassConfig : public AlphasConfig {
-    int pdg_id;
-
-    MassConfig(int pdg_id, double scale, MassType m_b_type, MassType m_t_type) : AlphasConfig(scale, m_b_type, m_t_type), pdg_id(pdg_id) {}
-};
+#include "Configs.h"
 
 /**
  * @class QCDProvider

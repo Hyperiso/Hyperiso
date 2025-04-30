@@ -7,23 +7,25 @@
 #include "WilsonInterface.h"
 #include "Node.h"
 #include "ObsUseMarty.h"
-#include "WilsonAdapter.h"
+#include "ObsWilsonBuilder.h"
 #include "ObsWilsonProxy.h"
 #include "ObsWilsonHelper.h"
 #include "Math.h"
+#include "Configs.h"
 
 class DecayParent {
 
 protected:
     std::map<Observables, std::shared_ptr<OperatorNode>> roots;
     QCDOrder max_order = QCDOrder::LO; //DEFAULT AS LO, using default at least once, need to check (error if NONE)
-    std::shared_ptr<ObsWilsonProxy> w_proxy;
+    std::shared_ptr<IObsWilsonBuilder<ObsWilsonProxy, WGroup>> w_builder;
+    std::shared_ptr<IObsWilsonProxy<ObsWilsonBuilder>> w_proxy;
     WilsonBuildConfig w_config{};
 
     QCDOrder check_max_order(QCDOrder order) const;
 
 public:
-    DecayParent(double matching_scale, double hadronic_scale, QCDOrder order);
+    DecayParent(double matching_scale, double hadronic_scale, QCDOrder order, std::shared_ptr<IObsWilsonBuilder<ObsWilsonProxy, WGroup>> wilson_builder);
 
     void enable();
     void set_order(QCDOrder new_order);

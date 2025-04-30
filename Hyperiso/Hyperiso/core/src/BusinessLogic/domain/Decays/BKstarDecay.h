@@ -45,13 +45,13 @@ private:
     const QCDOrder max_order = QCDOrder::NNLO;
 
 public:
-    BKstarDecay(QCDOrder order, double matching_scale, double hadronic_scale) : DecayParent(matching_scale, hadronic_scale, order) {
+    BKstarDecay(QCDOrder order, double matching_scale, double hadronic_scale, std::shared_ptr<IObsWilsonBuilder<ObsWilsonProxy, WGroup>> wilson_builder) : DecayParent(matching_scale, hadronic_scale, order, wilson_builder) {
         this->w_config.groups = {WGroup::B, WGroup::BPrime};
     }
 
     void enable() {
         DecayParent::enable();
-        WilsonAdapter().switchbasis(WGroup::B);
+        this->w_builder->switch_basis(WGroup::B);
     }
 
     void build_op_tree() override;

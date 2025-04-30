@@ -26,11 +26,6 @@ struct QCDConstants {
                                                                   {2, 6.75  , 9.6773}}};
 };
 
-enum class MassType {
-    POLE,
-    MSBAR
-};
-
 class QCDHelper {
 private:
     static inline std::array<double, 6> lambdas_running;
