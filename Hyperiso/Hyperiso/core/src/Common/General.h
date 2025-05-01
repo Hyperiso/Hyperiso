@@ -12,6 +12,7 @@
 #include <variant>
 #include "Logger.h"
 #include "Utils.h"
+#include "GeneralEnum.h"
 
 namespace fs = std::filesystem;
 
@@ -82,362 +83,362 @@ namespace std {
     };
 }
 
-enum class Observables {
-    BR_BS_MUMU,
-    BR_BS_MUMU_UNTAG,
-    BR_BD_MUMU,
-    R_TAU_NU,
-    BR_BU_TAU_NU,
-    ISOSPIN_ASYMMETRY_B_KSTAR_GAMMA,
-    BR_B_XS_GAMMA,
-    BR_B__D_TAU_NU,
-    A_FB_B__D_TAU_NU,
-    P_TAU_B__D_TAU_NU,
-    R_D,
-    BR_B__DSTAR_TAU_NU,
-    A_FB_B__DSTAR_TAU_NU,
-    P_TAU_B__DSTAR_TAU_NU,
-    P_D_B__DSTAR_TAU_NU,
-    R_DSTAR,
-};
+// enum class Observables {
+//     BR_BS_MUMU,
+//     BR_BS_MUMU_UNTAG,
+//     BR_BD_MUMU,
+//     R_TAU_NU,
+//     BR_BU_TAU_NU,
+//     ISOSPIN_ASYMMETRY_B_KSTAR_GAMMA,
+//     BR_B_XS_GAMMA,
+//     BR_B__D_TAU_NU,
+//     A_FB_B__D_TAU_NU,
+//     P_TAU_B__D_TAU_NU,
+//     R_D,
+//     BR_B__DSTAR_TAU_NU,
+//     A_FB_B__DSTAR_TAU_NU,
+//     P_TAU_B__DSTAR_TAU_NU,
+//     P_D_B__DSTAR_TAU_NU,
+//     R_DSTAR,
+// };
 
-class ObservableMapper {
-public:
-    static std::string str(Observables obs) {
-        return ObservableMapper::mapping.at(obs);
-    };
+// class ObservableMapper {
+// public:
+//     static std::string str(Observables obs) {
+//         return ObservableMapper::mapping.at(obs);
+//     };
 
-    static Observables enum_elt(std::string name) {
-        return ObservableMapper::inverse_mapping.at(name);
-    };
+//     static Observables enum_elt(std::string name) {
+//         return ObservableMapper::inverse_mapping.at(name);
+//     };
 
-    static LhaID flha(Observables obs) {
-        return ObservableMapper::flha_mapping.at(obs);
-    };
+//     static LhaID flha(Observables obs) {
+//         return ObservableMapper::flha_mapping.at(obs);
+//     };
 
-    static Observables enum_elt(LhaID id) {
-        return ObservableMapper::inverse_flha_mapping.at(id);
-    };
+//     static Observables enum_elt(LhaID id) {
+//         return ObservableMapper::inverse_flha_mapping.at(id);
+//     };
 
-    static std::vector<std::string> get_str() {
-        std::vector<std::string> _;
-        for (auto&& elem : ObservableMapper::mapping) {
-            _.push_back(elem.second);
-        }
-        return _;
-    }
+//     static std::vector<std::string> get_str() {
+//         std::vector<std::string> _;
+//         for (auto&& elem : ObservableMapper::mapping) {
+//             _.push_back(elem.second);
+//         }
+//         return _;
+//     }
 
-    static std::vector<Observables> get_enum() {
-        std::vector<Observables> _;
-        for (auto&& elem : ObservableMapper::mapping) {
-            _.push_back(elem.first);
-        }
-        return _;
-    }
-private:
-    static const std::map<Observables, std::string> mapping; 
-    static const std::map<std::string, Observables> inverse_mapping; 
-    static const std::map<Observables, LhaID> flha_mapping; 
-    static const std::map<LhaID, Observables> inverse_flha_mapping; 
-};
+//     static std::vector<Observables> get_enum() {
+//         std::vector<Observables> _;
+//         for (auto&& elem : ObservableMapper::mapping) {
+//             _.push_back(elem.first);
+//         }
+//         return _;
+//     }
+// private:
+//     static const std::map<Observables, std::string> mapping; 
+//     static const std::map<std::string, Observables> inverse_mapping; 
+//     static const std::map<Observables, LhaID> flha_mapping; 
+//     static const std::map<LhaID, Observables> inverse_flha_mapping; 
+// };
 
-enum class Decays {
-    B__D_l_nu,
-    B__Dstar_l_nu,
-    B__Kstar,
-    B__l_l,
-    B__l_nu,
-    B__Xs,
-};
+// enum class Decays {
+//     B__D_l_nu,
+//     B__Dstar_l_nu,
+//     B__Kstar,
+//     B__l_l,
+//     B__l_nu,
+//     B__Xs,
+// };
 
-class DecayMapper {
-public:
-    static std::vector<Observables> get_observables(Decays decay) {
-        return DecayMapper::obs_mapping.at(decay);
-    }
+// class DecayMapper {
+// public:
+//     static std::vector<Observables> get_observables(Decays decay) {
+//         return DecayMapper::obs_mapping.at(decay);
+//     }
 
-    static Decays get_decay(Observables obs) {
-        for (auto &[k, v] : DecayMapper::obs_mapping) {
-            if (std::find(v.begin(), v.end(), obs) != v.end()) {
-                return k;
-            }
-        }
-        LOG_ERROR("ValueError", "Observable belongs to none of the implemented decays.");
-    }
+//     static Decays get_decay(Observables obs) {
+//         for (auto &[k, v] : DecayMapper::obs_mapping) {
+//             if (std::find(v.begin(), v.end(), obs) != v.end()) {
+//                 return k;
+//             }
+//         }
+//         LOG_ERROR("ValueError", "Observable belongs to none of the implemented decays.");
+//     }
 
-private:
-    static const std::map<Decays, std::vector<Observables>> obs_mapping;
-};
+// private:
+//     static const std::map<Decays, std::vector<Observables>> obs_mapping;
+// };
 
-enum class MassType {
-    POLE,
-    MSBAR
-};
+// enum class MassType {
+//     POLE,
+//     MSBAR
+// };
 
-enum class ScaleType {
-    MATCHING,
-    HADRONIC
-};
+// enum class ScaleType {
+//     MATCHING,
+//     HADRONIC
+// };
 
-class ScaleTypeMapper {
-public:
-    static std::string block(ScaleType type) {
-        return ScaleTypeMapper::block_mapping.at(type);
-    }
+// class ScaleTypeMapper {
+// public:
+//     static std::string block(ScaleType type) {
+//         return ScaleTypeMapper::block_mapping.at(type);
+//     }
 
-private:
-    static const std::map<ScaleType, std::string> block_mapping; 
-};
+// private:
+//     static const std::map<ScaleType, std::string> block_mapping; 
+// };
 
-enum class QCDOrder {
-    NONE,
-    LO,
-    NLO,
-    NNLO
-};
+// enum class QCDOrder {
+//     NONE,
+//     LO,
+//     NLO,
+//     NNLO
+// };
 
-class OrderMapper {
+// class OrderMapper {
 
-public:
-    static std::string str(QCDOrder order) {
-        return OrderMapper::mapping.at(order);
-    };
+// public:
+//     static std::string str(QCDOrder order) {
+//         return OrderMapper::mapping.at(order);
+//     };
 
-    static QCDOrder enum_elt(std::string order) {
-        return OrderMapper::inverse_mapping.at(order);
-    };
+//     static QCDOrder enum_elt(std::string order) {
+//         return OrderMapper::inverse_mapping.at(order);
+//     };
 
-    static std::vector<std::string> get_str() {
-        std::vector<std::string> _;
-        for (auto&& elem : OrderMapper::mapping) {
-            _.push_back(elem.second);
-        }
-        return _;
-    }
+//     static std::vector<std::string> get_str() {
+//         std::vector<std::string> _;
+//         for (auto&& elem : OrderMapper::mapping) {
+//             _.push_back(elem.second);
+//         }
+//         return _;
+//     }
 
-    static std::vector<QCDOrder> get_enum() {
-        std::vector<QCDOrder> _;
-        for (auto&& elem : OrderMapper::mapping) {
-            _.push_back(elem.first);
-        }
-        return _;
-    }
-private:
-    static const std::map<QCDOrder, std::string> mapping; 
-    static const std::map<std::string, QCDOrder> inverse_mapping; 
-};
+//     static std::vector<QCDOrder> get_enum() {
+//         std::vector<QCDOrder> _;
+//         for (auto&& elem : OrderMapper::mapping) {
+//             _.push_back(elem.first);
+//         }
+//         return _;
+//     }
+// private:
+//     static const std::map<QCDOrder, std::string> mapping; 
+//     static const std::map<std::string, QCDOrder> inverse_mapping; 
+// };
 
-enum class WCoef {
-    C1, C2, C3, C4, C5, C6, C7, C8, C9, C10, CQ1, CQ2, CP1, CP2, CP3, CP4, CP5, CP6, CP7, CP8, CP9, CP10, CPQ1, CPQ2, CBlnu_A, CBlnu_P, C_V1, C_V2, C_S1, C_S2, C_T
-};
+// enum class WCoef {
+//     C1, C2, C3, C4, C5, C6, C7, C8, C9, C10, CQ1, CQ2, CP1, CP2, CP3, CP4, CP5, CP6, CP7, CP8, CP9, CP10, CPQ1, CPQ2, CBlnu_A, CBlnu_P, C_V1, C_V2, C_S1, C_S2, C_T
+// };
 
-enum class WGroup {
-    B, 
-    BPrime, 
-    BScalar,
-    Blnu,
-    BCLNU,
-};
+// enum class WGroup {
+//     B, 
+//     BPrime, 
+//     BScalar,
+//     Blnu,
+//     BCLNU,
+// };
 
-enum class BWilsonBasis {
-    STANDARD, 
-    TRADITIONAL
-};
+// enum class BWilsonBasis {
+//     STANDARD, 
+//     TRADITIONAL
+// };
 
-enum class ContributionType {
-    SM, 
-    BSM,
-    TOTAL
-};
+// enum class ContributionType {
+//     SM, 
+//     BSM,
+//     TOTAL
+// };
 
 
-class GroupMapper {
-public:
-    static std::string str(WGroup group) {
-        return GroupMapper::mapping.at(group);
-    };
+// class GroupMapper {
+// public:
+//     static std::string str(WGroup group) {
+//         return GroupMapper::mapping.at(group);
+//     };
 
-    static WGroup enum_elt(std::string group) {
-        return GroupMapper::inverse_mapping.at(group);
-    };
+//     static WGroup enum_elt(std::string group) {
+//         return GroupMapper::inverse_mapping.at(group);
+//     };
 
-    static std::vector<std::string> get_str() {
-        std::vector<std::string> _;
-        for (auto&& elem : GroupMapper::mapping) {
-            _.push_back(elem.second);
-        }
-        return _;
-    }
+//     static std::vector<std::string> get_str() {
+//         std::vector<std::string> _;
+//         for (auto&& elem : GroupMapper::mapping) {
+//             _.push_back(elem.second);
+//         }
+//         return _;
+//     }
 
-    static std::vector<WGroup> get_enum() {
-        std::vector<WGroup> _;
-        for (auto&& elem : GroupMapper::mapping) {
-            _.push_back(elem.first);
-        }
-        return _;
-    }
-private:
-    static const std::map<WGroup, std::string> mapping; 
-    static const std::map<std::string, WGroup> inverse_mapping; 
-};
+//     static std::vector<WGroup> get_enum() {
+//         std::vector<WGroup> _;
+//         for (auto&& elem : GroupMapper::mapping) {
+//             _.push_back(elem.first);
+//         }
+//         return _;
+//     }
+// private:
+//     static const std::map<WGroup, std::string> mapping; 
+//     static const std::map<std::string, WGroup> inverse_mapping; 
+// };
 
-class WCoefMapper {
+// class WCoefMapper {
 
-public:
-    static std::string str(WCoef coef) {
-        return WCoefMapper::mapping.at(coef);
-    };
+// public:
+//     static std::string str(WCoef coef) {
+//         return WCoefMapper::mapping.at(coef);
+//     };
 
-    static WCoef enum_elt(std::string coef) {
-        return WCoefMapper::inverse_mapping.at(coef);
-    };
+//     static WCoef enum_elt(std::string coef) {
+//         return WCoefMapper::inverse_mapping.at(coef);
+//     };
 
-    static std::pair<int, int> flha_base(WCoef coef) {
-        return WCoefMapper::flha_mapping.at(coef);
-    };
+//     static std::pair<int, int> flha_base(WCoef coef) {
+//         return WCoefMapper::flha_mapping.at(coef);
+//     };
 
-    static LhaID flha_full(WCoef coef, QCDOrder order, ContributionType type) {
-        // LOG_INFO("Attention");
-        auto base_id = WCoefMapper::flha_mapping.at(coef);
-        // LOG_INFO("Paf");
-        return LhaID{base_id.first, base_id.second, static_cast<int>(order) - 1, static_cast<int>(type)};
-    };
+//     static LhaID flha_full(WCoef coef, QCDOrder order, ContributionType type) {
+//         // LOG_INFO("Attention");
+//         auto base_id = WCoefMapper::flha_mapping.at(coef);
+//         // LOG_INFO("Paf");
+//         return LhaID{base_id.first, base_id.second, static_cast<int>(order) - 1, static_cast<int>(type)};
+//     };
 
-    static WCoef from_flha(int content, int structure) {
-        if (WCoefMapper::inverse_flha_mapping.contains({content, structure})) {
-            return WCoefMapper::inverse_flha_mapping.at({content, structure});
-        }
-        LOG_ERROR("General", "Wilson coefficient with ID", content, structure, "is not supported");
-    };
+//     static WCoef from_flha(int content, int structure) {
+//         if (WCoefMapper::inverse_flha_mapping.contains({content, structure})) {
+//             return WCoefMapper::inverse_flha_mapping.at({content, structure});
+//         }
+//         LOG_ERROR("General", "Wilson coefficient with ID", content, structure, "is not supported");
+//     };
 
-    static std::vector<WCoef> get_group(WGroup group) {
-        switch (group) {
-            case WGroup::B:
-                return B_group;
-            case WGroup::BPrime:
-                return B_prime_group;
-            case WGroup::BScalar:
-                return B_scalar_group;
-            case WGroup::Blnu:
-                return B_lnu_group;
-            case WGroup::BCLNU:
-                return b_clnu_group;
-            default:
-                LOG_ERROR("Invalid WGroup", "get_group function couldn't find your group");
-        }
-    }
+//     static std::vector<WCoef> get_group(WGroup group) {
+//         switch (group) {
+//             case WGroup::B:
+//                 return B_group;
+//             case WGroup::BPrime:
+//                 return B_prime_group;
+//             case WGroup::BScalar:
+//                 return B_scalar_group;
+//             case WGroup::Blnu:
+//                 return B_lnu_group;
+//             case WGroup::BCLNU:
+//                 return b_clnu_group;
+//             default:
+//                 LOG_ERROR("Invalid WGroup", "get_group function couldn't find your group");
+//         }
+//     }
 
-    static size_t n_wilsons() {
-        return WCoefMapper::mapping.size();
-    }
+//     static size_t n_wilsons() {
+//         return WCoefMapper::mapping.size();
+//     }
 
-    static std::vector<std::string> get_str() {
-        std::vector<std::string> _;
-        for (auto&& elem : WCoefMapper::mapping) {
-            _.push_back(elem.second);
-        }
-        return _;
-    }
+//     static std::vector<std::string> get_str() {
+//         std::vector<std::string> _;
+//         for (auto&& elem : WCoefMapper::mapping) {
+//             _.push_back(elem.second);
+//         }
+//         return _;
+//     }
 
-    static std::vector<WCoef> get_enum() {
-        std::vector<WCoef> _;
-        for (auto&& elem : WCoefMapper::mapping) {
-            _.push_back(elem.first);
-        }
-        return _;
-    }
-private:
-    static const std::vector<WCoef> B_group;
-    static const std::vector<WCoef> B_prime_group;
-    static const std::vector<WCoef> B_scalar_group;
-    static const std::vector<WCoef> B_lnu_group;
-    static const std::vector<WCoef> b_clnu_group;
-    static const std::map<WCoef, std::string> mapping; 
-    static const std::map<std::string, WCoef> inverse_mapping; 
-    static const std::map<WCoef, std::pair<int, int>> flha_mapping; 
-    static const std::map<std::pair<int, int>, WCoef> inverse_flha_mapping; 
-};
+//     static std::vector<WCoef> get_enum() {
+//         std::vector<WCoef> _;
+//         for (auto&& elem : WCoefMapper::mapping) {
+//             _.push_back(elem.first);
+//         }
+//         return _;
+//     }
+// private:
+//     static const std::vector<WCoef> B_group;
+//     static const std::vector<WCoef> B_prime_group;
+//     static const std::vector<WCoef> B_scalar_group;
+//     static const std::vector<WCoef> B_lnu_group;
+//     static const std::vector<WCoef> b_clnu_group;
+//     static const std::map<WCoef, std::string> mapping; 
+//     static const std::map<std::string, WCoef> inverse_mapping; 
+//     static const std::map<WCoef, std::pair<int, int>> flha_mapping; 
+//     static const std::map<std::pair<int, int>, WCoef> inverse_flha_mapping; 
+// };
 
 /* !!!! Do not change the order of the first 4 entries !!!! */
 
-enum class ParameterType {
-    SM,
-    BSM,
-    FLAVOR,
-    WILSON,
-    DECAY,
-    PASSTHROUGH,
-    OBSERVABLE,
-};
+// enum class ParameterType {
+//     SM,
+//     BSM,
+//     FLAVOR,
+//     WILSON,
+//     DECAY,
+//     PASSTHROUGH,
+//     OBSERVABLE,
+// };
 
-class ParameterTypeMapper {
-public:
-    static std::string str(ParameterType type) {
-        return ParameterTypeMapper::mapping.at(type);
-    };
+// class ParameterTypeMapper {
+// public:
+//     static std::string str(ParameterType type) {
+//         return ParameterTypeMapper::mapping.at(type);
+//     };
 
-    static ParameterType enum_elt(std::string type) {
-        return ParameterTypeMapper::inverse_mapping.at(type);
-    };
+//     static ParameterType enum_elt(std::string type) {
+//         return ParameterTypeMapper::inverse_mapping.at(type);
+//     };
 
-    static std::vector<std::string> get_str() {
-        std::vector<std::string> _;
-        for (auto&& elem : ParameterTypeMapper::mapping) {
-            _.push_back(elem.second);
-        }
-        return _;
-    }
+//     static std::vector<std::string> get_str() {
+//         std::vector<std::string> _;
+//         for (auto&& elem : ParameterTypeMapper::mapping) {
+//             _.push_back(elem.second);
+//         }
+//         return _;
+//     }
 
-    static std::vector<ParameterType> get_enum() {
-        std::vector<ParameterType> _;
-        for (auto&& elem : ParameterTypeMapper::mapping) {
-            _.push_back(elem.first);
-        }
-        return _;
-    }
+//     static std::vector<ParameterType> get_enum() {
+//         std::vector<ParameterType> _;
+//         for (auto&& elem : ParameterTypeMapper::mapping) {
+//             _.push_back(elem.first);
+//         }
+//         return _;
+//     }
 
-private:
-    static const std::map<ParameterType, std::string> mapping; 
-    static const std::map<std::string, ParameterType> inverse_mapping; 
-};
+// private:
+//     static const std::map<ParameterType, std::string> mapping; 
+//     static const std::map<std::string, ParameterType> inverse_mapping; 
+// };
 
-enum class Model {
-    SM,
-    SUSY,
-    THDM,
-    CUSTOM
-};
+// enum class Model {
+//     SM,
+//     SUSY,
+//     THDM,
+//     CUSTOM
+// };
 
-class ModelMapper {
-public:
-    static std::string str(Model model) {
-        return ModelMapper::mapping.at(model);
-    };
+// class ModelMapper {
+// public:
+//     static std::string str(Model model) {
+//         return ModelMapper::mapping.at(model);
+//     };
 
-    static Model enum_elt(std::string model) {
-        return ModelMapper::inverse_mapping.at(model);
-    };
+//     static Model enum_elt(std::string model) {
+//         return ModelMapper::inverse_mapping.at(model);
+//     };
 
-    static std::vector<std::string> get_str() {
-        std::vector<std::string> _;
-        for (auto&& elem : ModelMapper::mapping) {
-            _.push_back(elem.second);
-        }
-        return _;
-    }
+//     static std::vector<std::string> get_str() {
+//         std::vector<std::string> _;
+//         for (auto&& elem : ModelMapper::mapping) {
+//             _.push_back(elem.second);
+//         }
+//         return _;
+//     }
 
-    static std::vector<Model> get_enum() {
-        std::vector<Model> _;
-        for (auto&& elem : ModelMapper::mapping) {
-            _.push_back(elem.first);
-        }
-        return _;
-    }
+//     static std::vector<Model> get_enum() {
+//         std::vector<Model> _;
+//         for (auto&& elem : ModelMapper::mapping) {
+//             _.push_back(elem.first);
+//         }
+//         return _;
+//     }
 
-private:
-    static const std::map<Model, std::string> mapping; 
-    static const std::map<std::string, Model> inverse_mapping; 
-};
+// private:
+//     static const std::map<Model, std::string> mapping; 
+//     static const std::map<std::string, Model> inverse_mapping; 
+// };
 
 struct ParamId {
     std::optional<ParameterType> type;
@@ -475,10 +476,6 @@ inline std::ostream& operator<<(std::ostream& os, const ParamId& pid) {
     return os;
 };
 
-inline std::ostream& operator<<(std::ostream& os, const Observables& oid) {
-    os << ObservableMapper::str(oid);
-    return os;
-};
 
 class DependenciesHelper {
 public:

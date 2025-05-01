@@ -315,7 +315,7 @@ void EpsilonCalculator::init_epsilon_block() {
                     sbot_mix_01 * sbot_mix_01 *
                     H2(M_2 * M_2 / m_b2s / m_b2s, mu_Q * mu_Q / m_b2s / m_b2s) / m_b2s / m_b2s));
 
-        return epsilonbp;
+        // return epsilonbp;
         
         //0p
 
