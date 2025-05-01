@@ -104,11 +104,11 @@ void init_coefficient_manager(py::module &m) {
 
 // Initialisation des paramètres Wilson
 void init_wilson_parameters(py::module &m) {
-    py::class_<Wilson_parameters, std::shared_ptr<Wilson_parameters>>(m, "WilsonParameters")
-        .def_static("get_instance", &Wilson_parameters::GetInstance, py::return_value_policy::reference)
-        .def("set_mu", &Wilson_parameters::SetMu)
-        .def("set_mu_w", &Wilson_parameters::SetMuW)
-        .def("set_gen", &Wilson_parameters::set_gen);
+    // py::class_<Wilson_parameters, std::shared_ptr<Wilson_parameters>>(m, "WilsonParameters")
+    //     .def_static("get_instance", &Wilson_parameters::GetInstance, py::return_value_policy::reference)
+    //     .def("set_mu", &Wilson_parameters::SetMu)
+    //     .def("set_mu_w", &Wilson_parameters::SetMuW)
+    //     .def("set_gen", &Wilson_parameters::set_gen);
 }
 
 void init_wilson_interface(py::module &m) {
@@ -116,27 +116,29 @@ void init_wilson_interface(py::module &m) {
 
     py::class_<WilsonInterface, std::shared_ptr<WilsonInterface>>(m, "WilsonInterface")
         .def(py::init<>())
-        .def("add_wilson_group", &WilsonInterface::addWilsonGroup)
-        .def("set_q_match", &WilsonInterface::set_matching_scale)
-        .def("set_params", &WilsonInterface::setParams)
-        .def("set_matching_coefficient", &WilsonInterface::init_group)
-        .def("set_group_scale", &WilsonInterface::set_hadronic_scale)
-        .def("set_run_coefficient", &WilsonInterface::setRunCoefficient)
-        .def("switch_basis", &WilsonInterface::switchbasis)
-        .def("get_alpha_s", &WilsonInterface::getAlphaS)
+        .def("add_wilson_group", &WilsonInterface::addWilsonGroup, py::arg("group_name"))
+        // .def("set_params", &WilsonInterface::setParams)
+        .def("init_group_matching", &WilsonInterface::init_group_matching, py::arg("group_name"), py::arg("order"))
+        .def("init_group_hadronic", &WilsonInterface::init_group_hadronic, py::arg("group_name"), py::arg("order"))
+        .def("set_matching_scale", &WilsonInterface::set_matching_scale, py::arg("mu_W"))
+        .def("set_hadronic_scale", &WilsonInterface::set_hadronic_scale, py::arg("mu_h"))
+        .def("switch_basis", &WilsonInterface::switchbasis, py::arg("group_name"))
         .def("get_matching_coefficient", &WilsonInterface::getMatchingCoefficient)
+        .def("get_M", &WilsonInterface::getM)
         .def("get_full_matching_coefficient", &WilsonInterface::getFullMatchingCoefficient)
+        .def("get_FM", &WilsonInterface::getFM)
+        .def("get_run_coefficient", &WilsonInterface::getRunCoefficient)
+        .def("get_R", &WilsonInterface::getR)
         .def("get_full_run_coefficient", &WilsonInterface::getFullRunCoefficient)
+        .def("get_FR", &WilsonInterface::getFR)
         .def("get_sep_order_matching_coefficient", &WilsonInterface::getSepOrderMatchingCoefficient)
         .def("get_sep_order_run_coefficient", &WilsonInterface::getSepOrderRunCoefficient)
         .def("get_all_matching_coefficient", &WilsonInterface::getAllMatchingCoefficients)
         .def("get_all_run_coefficient", &WilsonInterface::getAllRunCoefficients)
         .def("get_all_full_matching_coefficient", &WilsonInterface::getAllFullMatchingCoefficients)
-        .def("get_all_full_run_coefficient", &WilsonInterface::getAllFullRunCoefficients)
-        .def("build", &WilsonInterface::build);
+        .def("get_all_full_run_coefficient", &WilsonInterface::getAllFullRunCoefficients);
 }
 
-// Fonction principale d'initialisation pour le module Wilson
 void init_wilson(py::module &m) {
     auto coeff_groups = m.def_submodule("coefficient_groups", "Coefficient group management");
     init_coefficient_groups(coeff_groups);
