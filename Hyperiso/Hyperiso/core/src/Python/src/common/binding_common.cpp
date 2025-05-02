@@ -129,11 +129,11 @@ void init_common(py::module &m) {
         .export_values();
 
 
-    py::class_<ParamId>(m, "ParamId")
-        .def(py::init<ParameterType, std::string, int>())
-        .def_readwrite("type", &ParamId::type)
-        .def_readwrite("block", &ParamId::block)
-        .def_readwrite("code", &ParamId::code);
+    // py::class_<ParamId>(m, "ParamId")
+    //     .def(py::init<ParameterType, std::string, int>())
+    //     .def_readwrite("type", &ParamId::type)
+    //     .def_readwrite("block", &ParamId::block)
+    //     .def_readwrite("code", &ParamId::code);
 
     
 
@@ -145,14 +145,14 @@ void init_common(py::module &m) {
     BIND_ENUM_MAPPER(ObservableMapper, Observables)
     BIND_ENUM_MAPPER(OrderMapper, QCDOrder)
     BIND_ENUM_MAPPER(GroupMapper, WGroup)
-    BIND_ENUM_MAPPER(WCoefMapper, WCoef)
+    // BIND_ENUM_MAPPER(WCoefMapper, WCoef)
     BIND_ENUM_MAPPER(ParameterTypeMapper, ParameterType)
     BIND_ENUM_MAPPER(ModelMapper, Model)
     BIND_ENUM_MAPPER(BWilsonBasisMapper, BWilsonBasis)
     BIND_ENUM_MAPPER(ContributionTypeMapper, ContributionType)
     BIND_ENUM_MAPPER(MassTypeMapper, MassType)
-    BIND_ENUM_MAPPER(ScaleTypeMapper, ScaleType)
-    BIND_ENUM_MAPPER(DecayMapper, Decays)
+    // BIND_ENUM_MAPPER(ScaleTypeMapper, ScaleType)
+    // BIND_ENUM_MAPPER(DecayMapper, Decays)
 
     py::class_<WCoefMapper, std::shared_ptr<WCoefMapper>>(m, "WCoefMapper")
         .def_static("str", &WCoefMapper::str, py::arg("coef"))

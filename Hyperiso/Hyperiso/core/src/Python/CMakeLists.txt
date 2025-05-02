@@ -39,7 +39,7 @@ if (NOT TARGET BusinessLogicLib)
 endif()
 
 
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../../../Python/phyperiso)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../../../Python/pyhyperiso/phyperiso)
 
 # add_subdirectory(src/core)
 # add_subdirectory(src/wilson)
