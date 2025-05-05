@@ -6,7 +6,7 @@
 #include "EnumMapper.h"
 #include "Map.h"
 #include "General.h"
-#include "Math.h"
+#include "Configs.h"
 
 #define BIND_ENUM_MAPPER(cls, type) \
     py::class_<cls, std::shared_ptr<cls>>(m, #cls) \
@@ -55,6 +55,15 @@ void init_common(py::module &m) {
         .value("P_TAU_B__DSTAR_TAU_NU", Observables::P_TAU_B__DSTAR_TAU_NU)
         .value("P_D_B__DSTAR_TAU_NU", Observables::P_D_B__DSTAR_TAU_NU)
         .value("R_DSTAR", Observables::R_DSTAR)
+        .export_values();
+
+    py::enum_<Decays>(m, "Decays")
+        .value("B__D_l_nu", Decays::B__D_l_nu)
+        .value("B__Dstar_l_nu", Decays::B__Dstar_l_nu)
+        .value("B__Kstar", Decays::B__Kstar)
+        .value("B__l_l", Decays::B__l_l)
+        .value("B__l_nu", Decays::B__l_nu)
+        .value("B__Xs", Decays::B__Xs)
         .export_values();
 
     py::enum_<QCDOrder>(m, "QCDOrder")
@@ -184,6 +193,7 @@ void init_common(py::module &m) {
         .def(py::init<const std::string&>())
         .def(py::init<long>())
         .def(py::init<const std::vector<long>&>())
+        .def("__int__", [](const LhaID& self) { return static_cast<long>(self); })
         .def("to_string", &LhaID::to_string)
         .def("get_parts", &LhaID::get_parts);
 
@@ -203,18 +213,32 @@ void init_common(py::module &m) {
     py::class_<LhaParamsHelper, std::shared_ptr<LhaParamsHelper>>(m, "LhaParamsHelper")
         .def_static("get_minimal_content", &LhaParamsHelper::get_minimal_content, py::arg("block_name"));
 
-    py::class_<scalar_t>(m, "scalar_t")
-        .def(py::init<double, double>(), py::arg("re") = 0.0, py::arg("im") = 0.0)
-        .def(py::init<std::complex<double>>())
-        .def("real", [](const scalar_t& z) { return z.real(); })
-        .def("imag", [](const scalar_t& z) { return z.imag(); })
-        .def("to_double", [](const scalar_t& z) { return static_cast<double>(z); })
-        .def(py::self + py::self)
-        .def(py::self - py::self)
-        .def(py::self * py::self)
-        .def(py::self / py::self)
-        .def(-py::self)
-        .def("__repr__", [](const scalar_t& z) {
-            return "scalar_t(" + std::to_string(z.real()) + ", " + std::to_string(z.imag()) + ")";
-        });
+
+    py::class_<WilsonBuildConfig>(m, "WilsonBuildConfig")
+        .def(py::init<>())
+        .def_readwrite("groups", &WilsonBuildConfig::groups)
+        .def_readwrite("matching_scale", &WilsonBuildConfig::matching_scale)
+        .def_readwrite("hadronic_scale", &WilsonBuildConfig::hadronic_scale)
+        .def_readwrite("order", &WilsonBuildConfig::order);
+    
+    py::class_<WilsonRequest>(m, "WilsonRequest")
+        .def(py::init<>())
+        .def_readwrite("group", &WilsonRequest::group)
+        .def_readwrite("coefficient", &WilsonRequest::coefficient)
+        .def_readwrite("order", &WilsonRequest::order)
+        .def_readwrite("contribution", &WilsonRequest::contribution)
+        .def_readwrite("scale_type", &WilsonRequest::scale_type)
+        .def_readwrite("sum_qcd_orders", &WilsonRequest::sum_qcd_orders);
+    
+    py::class_<AlphasConfig>(m, "AlphasConfig")
+        .def(py::init<double, MassType, MassType>(), py::arg("scale"), py::arg("m_b_type"), py::arg("m_t_type"))
+        .def_readwrite("scale", &AlphasConfig::scale)
+        .def_readwrite("m_b_type", &AlphasConfig::m_b_type)
+        .def_readwrite("m_t_type", &AlphasConfig::m_t_type);
+    
+    py::class_<MassConfig, AlphasConfig>(m, "MassConfig")
+        .def(py::init<int, double, MassType, MassType>(),
+             py::arg("pdg_id"), py::arg("scale"), py::arg("m_b_type"), py::arg("m_t_type"))
+        .def_readwrite("pdg_id", &MassConfig::pdg_id);
+
 }

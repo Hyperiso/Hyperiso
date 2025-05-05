@@ -9,6 +9,7 @@ from pyhyperiso.phyperiso.pyhyperiso.common import WCoef as _CppWCoef
 from pyhyperiso.phyperiso.pyhyperiso.common import Decays as _CppDecays
 from pyhyperiso.phyperiso.pyhyperiso.common import MassType as _CppMassType
 from pyhyperiso.phyperiso.pyhyperiso.common import ScaleType as _CppScaleType
+from pyhyperiso.phyperiso.pyhyperiso.common import ContributionType  as _CppContributionType 
 
 class Model(Enum):
     SM = _CppModel.SM
@@ -111,3 +112,9 @@ class MassType(Enum):
 class ScaleType(Enum):
     MATCHING = _CppScaleType.MATCHING
     HADRONIC = _CppScaleType.HADRONIC
+    
+class ContributionType(Enum):
+    SM = _CppContributionType.SM
+    BSM = _CppContributionType.BSM
+    TOTAL = _CppContributionType.TOTAL
+    

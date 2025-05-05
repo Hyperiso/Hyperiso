@@ -1,5 +1,8 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
+#include <pybind11/complex.h>
+#include <optional>
+#include <filesystem>
 #include "General.h"
 // #include "MemoryManager.h"
 // #include "Parameters.h"
@@ -22,6 +25,14 @@ void init_core(py::module &m) {
     //         "mass_b_1S", &QCDHelper::mass_b_1S
     //     );
 
+    //my technique to implicit cast from string to filesystem for python
+    py::class_<std::filesystem::path>(m, "Path")
+        .def(py::init<std::string>())
+        .def("__str__", [](const std::filesystem::path &p) {
+            return p.string();
+        });
+
+    py::implicitly_convertible<std::string, std::filesystem::path>();
 
     // ExternalFlag enum
     py::enum_<ExternalFlag>(m, "ExternalFlag")

@@ -45,7 +45,8 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../../../Python/p
 # add_subdirectory(src/wilson)
 
 add_library(pyhyperiso MODULE src/pyhyperiso.cpp
-    src/common/binding_common.cpp 
+    src/common/binding_common.cpp
+    src/math/binding_math.cpp  
     src/core/binding_core.cpp 
     src/wilson/binding_wilson.cpp 
     src/observable/binding_observable.cpp)

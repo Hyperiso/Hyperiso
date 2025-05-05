@@ -2,6 +2,7 @@
 namespace py = pybind11;
 
 void init_common(py::module &);
+void init_math(py::module &);
 void init_core(py::module &);
 void init_wilson(py::module &);
 void init_observable(py::module &);
@@ -11,6 +12,9 @@ PYBIND11_MODULE(pyhyperiso, m) {
 
     auto common = m.def_submodule("common", "Common functionalities for hyperiso");
     init_common(common);
+
+    auto math = m.def_submodule("math", "Math functions, type and matrix calculation for hyperiso");
+    init_math(math);
 
     auto core = m.def_submodule("core", "Core functionalities for hyperiso");
     init_core(core);
