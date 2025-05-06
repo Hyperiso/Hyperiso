@@ -36,7 +36,7 @@ public:
      * @param pdgCode The PDG code of the parameter.
      * @param value The new value to set.
      */
-    void setValue(const std::string& blockName, LhaID pdgCode, double value);
+    void setValue(const std::string& blockName, LhaID pdgCode, scalar_t value);
 
     // /**
     //  * @brief Sets the mode of a parameter in a specified block.

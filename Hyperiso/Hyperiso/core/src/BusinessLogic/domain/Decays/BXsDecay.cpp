@@ -119,12 +119,12 @@ double BXsDecay::r8() {
     return 44. / 9 - 8 * PI2 / 27;
 }
 
-complex_t BXsDecay::G(double t) {
+scalar_t BXsDecay::G(double t) {
     if (t < 4) {
         return -2 * std::pow(std::atan(std::sqrt(t / (4 - t))), 2);
     }
     double L = std::log((std::sqrt(t) + sqrt(t - 4)) / 2);
-    return complex_t {-PI2 / 2 + 2 * std::pow(L, 2), -2 * PI * L};
+    return scalar_t {-PI2 / 2 + 2 * std::pow(L, 2), -2 * PI * L};
 }
 
 double BXsDecay::phi_11(double phi_22) {
@@ -289,8 +289,8 @@ double BXsDecay::x5(double P0, double K77_rem) {
 }
 
 double BXsDecay::P0() {
-    complex_t C70 = w_proxy->getR(WGroup::B, WCoef::C7, QCDOrder::LO);
-    complex_t C70p = w_proxy->getR(WGroup::BPrime, WCoef::CP7, QCDOrder::LO);
+    scalar_t C70 = w_proxy->getR(WGroup::B, WCoef::C7, QCDOrder::LO);
+    scalar_t C70p = w_proxy->getR(WGroup::BPrime, WCoef::CP7, QCDOrder::LO);
     return std::pow(std::abs(C70), 2) + std::pow(std::abs(C70p), 2);
 }
 
@@ -344,11 +344,11 @@ double BXsDecay::P22_rem(double x1,
                      double x3,
                      double x4,
                      double x5,
-                     complex_t r21,
+                     scalar_t r21,
                      double r22,
                      double dr21_dlogz)
 {
-    complex_t r21_0 {-1666. / 243, -80 * PI / 81};
+    scalar_t r21_0 {-1666. / 243, -80 * PI / 81};
     double r22_0 {67454. / 6561 - 124 * PI2 / 729}; 
 
     return x1 * (std::pow(std::abs(r21), 2) - std::pow(std::abs(r21_0), 2))
@@ -420,18 +420,18 @@ double BXsDecay::C8_em(double eta) {
     return -32 * std::pow(eta, -9. / 23) / 575 + 32 * std::pow(eta, -7. / 23) / 1449 + 640 * std::pow(eta, 14. / 23) / 1449 - 704 * std::pow(eta, 16. / 23) / 1725;
 }
 
-complex_t BXsDecay::C7_em(double eta, double C8_em, double C2_em) {
-    complex_t C7 = w_proxy->getM(WGroup::B, WCoef::C7, QCDOrder::LO);
-    complex_t C8 = w_proxy->getM(WGroup::B, WCoef::C8, QCDOrder::LO);
+scalar_t BXsDecay::C7_em(double eta, double C8_em, double C2_em) {
+    scalar_t C7 = w_proxy->getM(WGroup::B, WCoef::C7, QCDOrder::LO);
+    scalar_t C8 = w_proxy->getM(WGroup::B, WCoef::C8, QCDOrder::LO);
     return (32 * std::pow(eta, -9. / 23) / 75 - 40 * std::pow(eta, -7. / 23) / 69 + 88 * std::pow(eta, 16. / 23) / 575) * C7 + C8_em * C8 + C2_em;
 }
 
 double BXsDecay::epsilon_em(double inv_alpha_em, double alpha_mub, double C7_em, double k) {
-    complex_t C7 = w_proxy->getR(WGroup::B, WCoef::C7, QCDOrder::LO);
+    scalar_t C7 = w_proxy->getR(WGroup::B, WCoef::C7, QCDOrder::LO);
     return (2 * std::real(C7_em * std::conj(C7)) - k * std::pow(std::abs(C7), 2)) / (inv_alpha_em * alpha_mub);
 }
 
-double BXsDecay::ckm(complex_t V_tb, complex_t V_ts, complex_t V_cb) {
+double BXsDecay::ckm(scalar_t V_tb, scalar_t V_ts, scalar_t V_cb) {
     return std::pow(std::abs(std::conj(V_ts) * V_tb / V_cb), 2);
 }
 
@@ -603,7 +603,7 @@ double BXsDecay::x1() {
     auto C = w_proxy->getAR(WGroup::B, QCDOrder::LO);
     auto CP = w_proxy->getAR(WGroup::BPrime, QCDOrder::LO);
 
-    auto f = [] (complex_t c1, complex_t c2) { 
+    auto f = [] (scalar_t c1, scalar_t c2) { 
         return std::pow(std::abs(c1), 2) / 36 + std::pow(std::abs(c2), 2) - std::real(c1 * std::conj(c2)) / 3; 
     };
 
@@ -614,7 +614,7 @@ double BXsDecay::x2() {
     auto C = w_proxy->getAR(WGroup::B, QCDOrder::LO);
     auto CP = w_proxy->getAR(WGroup::BPrime, QCDOrder::LO);
 
-    auto f = [] (complex_t c1, complex_t c2, complex_t c7, complex_t c8) { 
+    auto f = [] (scalar_t c1, scalar_t c2, scalar_t c7, scalar_t c8) { 
         return std::real(c7 * std::conj(4019. * c1 / 486. - 1184. * c2 / 81. - 4. * c7 + 4. * c8 / 3.)); 
     };
 

@@ -14,7 +14,7 @@
 #include "scalar.h"
 
 using Integrand = std::function<double(double)>;
-using cIntegrand = std::function<complex_t(double)>;
+using cIntegrand = std::function<scalar_t(double)>;
 
 /* Constants */
 
@@ -45,7 +45,7 @@ constexpr complex_t I = complex_t(0, 1);
 double kron(int x, int y);
 
 double Li2(double x);
-complex_t CLi2(complex_t x);
+scalar_t CLi2(scalar_t x);
 double Li3(double x);
 double Cl2(double x);
 double H2(double x, double y);
@@ -125,7 +125,7 @@ double F0SP(double xt);
 */
 
 double integrate(Integrand f, double l, double u, double prec);
-complex_t c_integrate(cIntegrand f, double l, double u, double prec);
+scalar_t c_integrate(cIntegrand f, double l, double u, double prec);
 
 /*
 *   Numerical constants for flavor observables 

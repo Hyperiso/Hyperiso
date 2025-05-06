@@ -48,7 +48,7 @@ protected:
     double r5(double a1, double b1);
     double r6(double az, double bz, double a1, double b1);
     double r8();
-    complex_t G(double t);
+    scalar_t G(double t);
     double phi_11(double phi_22); 
     double phi_12(double phi_22); 
     double phi_17(double phi_27); 
@@ -112,7 +112,7 @@ protected:
     template<std::size_t size>
     double gen_P01(const std::vector<scalar_t>& flat_K, const std::array<std::pair<int, int>, size>& indices);
 
-    double P22_rem(double x1, double x2, double x3, double x4, double x5, complex_t r21, double r22, double dr21_dlogz);
+    double P22_rem(double x1, double x2, double x3, double x4, double x5, scalar_t r21, double r22, double dr21_dlogz);
     double P(double alpha_mub, double p0, double p11, double p12, double p21, double p22, double p32);
 
     double g(double m_c_3gev, double m_b_1S);
@@ -127,10 +127,10 @@ protected:
     double k_SL(double eta, double mu_W, double mu_b);
     double C2_em(double eta);
     double C8_em(double eta);
-    complex_t C7_em(double eta, double C8_em, double C2_em);
+    scalar_t C7_em(double eta, double C8_em, double C2_em);
     double epsilon_em(double inv_alpha_em, double alpha_mub, double C7_em, double k);
 
-    double ckm(complex_t V_tb, complex_t V_ts, complex_t V_cb);
+    double ckm(scalar_t V_tb, scalar_t V_ts, scalar_t V_cb);
     double BR_B_Xs_gamma(double br_B__Xc_e_nu, double ckm, double inv_alpha_em, double C, double P, double N, double eps_em);
 
 private:

@@ -10,8 +10,8 @@
 class BlnuDecay : public DecayParent {
 
 protected:
-    complex_t R(double m_B, double m_b, double m_tau);
-    double ckm(complex_t V_ub);
+    scalar_t R(double m_B, double m_b, double m_tau);
+    double ckm(scalar_t V_ub);
     double pref(double G_F, double f_B, double tau_B, double m_B, double m_tau);
     double BR_B_taunu(double pref, double ckm, double R);
 

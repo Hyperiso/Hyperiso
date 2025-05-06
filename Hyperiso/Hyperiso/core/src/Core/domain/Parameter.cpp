@@ -26,7 +26,8 @@ void Parameter::set_expected(scalar_t val) {
 }
 
 scalar_t Parameter::get_combined_std() const {
-    return std::hypot(deviation_stat, deviation_syst);
+    return std::hypot(static_cast<double>(deviation_stat),
+                  static_cast<double>(deviation_syst));
 }
 
 std::pair<scalar_t, scalar_t> Parameter::get_std() const {

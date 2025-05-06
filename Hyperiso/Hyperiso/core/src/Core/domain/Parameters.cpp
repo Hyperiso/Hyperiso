@@ -47,7 +47,7 @@ bool Parameters::exist(const std::string& block, LhaID id) {
     return blockAccessor->has_param(block, id);
 }
 
-void Parameters::setBlockValue(const std::string& name, LhaID id, double value) {
+void Parameters::setBlockValue(const std::string& name, LhaID id, scalar_t value) {
     blockAccessor->setValue(name, id, value);
 }
 
@@ -147,20 +147,20 @@ void SMModelStrategy::postInitialization(Parameters& params) {
         };
     
         auto func = [] (const std::unordered_map<std::string, std::shared_ptr<Block>>& src, std::shared_ptr<DependentBlock> dep_block) {
-            double lambda = src.at("VCKMIN")->retrieve(1)->get_val();
-            double l2 = lambda * lambda;
-            double l3 = l2 * lambda;
-            double A = src.at("VCKMIN")->retrieve(2)->get_val();
-            double rho = src.at("VCKMIN")->retrieve(3)->get_val();
-            double eta = src.at("VCKMIN")->retrieve(4)->get_val();
+            scalar_t lambda = src.at("VCKMIN")->retrieve(1)->get_val();
+            scalar_t l2 = lambda * lambda;
+            scalar_t l3 = l2 * lambda;
+            scalar_t A = src.at("VCKMIN")->retrieve(2)->get_val();
+            scalar_t rho = src.at("VCKMIN")->retrieve(3)->get_val();
+            scalar_t eta = src.at("VCKMIN")->retrieve(4)->get_val();
 
             dep_block->store_or_assign(LhaID(0, 0), std::make_shared<Parameter>(ParamId{ParameterType::SM, "VCKM", LhaID(0, 0)}, 1 - l2 / 2, 0., 0.));
             dep_block->store_or_assign(LhaID(0, 1), std::make_shared<Parameter>(ParamId{ParameterType::SM, "VCKM", LhaID(0, 1)}, lambda, 0., 0.));
-            dep_block->store_or_assign(LhaID(0, 2), std::make_shared<Parameter>(ParamId{ParameterType::SM, "VCKM", LhaID(0, 2)}, A * l3 * complex_t(rho, -eta), 0., 0.));
+            dep_block->store_or_assign(LhaID(0, 2), std::make_shared<Parameter>(ParamId{ParameterType::SM, "VCKM", LhaID(0, 2)}, A * l3 * complex_t((double)rho, -(double)eta), 0., 0.));
             dep_block->store_or_assign(LhaID(1, 0), std::make_shared<Parameter>(ParamId{ParameterType::SM, "VCKM", LhaID(1, 0)}, -lambda, 0., 0.));
             dep_block->store_or_assign(LhaID(1, 1), std::make_shared<Parameter>(ParamId{ParameterType::SM, "VCKM", LhaID(1, 1)}, 1 - l2 / 2, 0., 0.));
             dep_block->store_or_assign(LhaID(1, 2), std::make_shared<Parameter>(ParamId{ParameterType::SM, "VCKM", LhaID(1, 2)}, A * l2, 0., 0.));
-            dep_block->store_or_assign(LhaID(2, 0), std::make_shared<Parameter>(ParamId{ParameterType::SM, "VCKM", LhaID(2, 0)}, A * l3 * complex_t(1 - rho, -eta), 0., 0.));
+            dep_block->store_or_assign(LhaID(2, 0), std::make_shared<Parameter>(ParamId{ParameterType::SM, "VCKM", LhaID(2, 0)}, A * l3 * complex_t(1 - (double)rho, -(double)eta), 0., 0.));
             dep_block->store_or_assign(LhaID(2, 1), std::make_shared<Parameter>(ParamId{ParameterType::SM, "VCKM", LhaID(2, 1)}, -A * l2, 0., 0.));
             dep_block->store_or_assign(LhaID(2, 2), std::make_shared<Parameter>(ParamId{ParameterType::SM, "VCKM", LhaID(2, 2)}, 1, 0., 0.));
         };
@@ -287,7 +287,7 @@ void Parameters::changeParameterMode(const ParamId &param_id, ParameterMode new_
     // blockAccessor->setMode(param_id.block, param_id.code, new_mode);
 }
 
-void Parameters::shiftParameter(const ParamId &param_id, double shift_value) {
+void Parameters::shiftParameter(const ParamId &param_id, scalar_t shift_value) {
     blockAccessor->setValue(param_id.block, param_id.code, blockAccessor->getValue(param_id.block, param_id.code) + shift_value);
 }
 

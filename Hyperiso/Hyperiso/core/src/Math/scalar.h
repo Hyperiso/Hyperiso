@@ -15,7 +15,7 @@ public:
 
     operator double() const {
         if (!fpeq(this->imag(), 0.)) {
-            LOG_WARN("Casting complex values to double discards imaginary part.");
+            LOG_WARN("Casting complex values to double discards imaginary part: (", this->real(), ",", this->imag(), ")");
         }
         return this->real();
     };
@@ -72,13 +72,16 @@ public:
     template<typename T>
     requires std::convertible_to<T, std::complex<double>>
     friend scalar_t operator-(T lhs, const scalar_t& rhs) {
-        lhs -= rhs;
-        return lhs;
+        return scalar_t(static_cast<std::complex<double>>(lhs) - static_cast<std::complex<double>>(rhs));
+
     }
 
+
+
     template<typename T>
+    scalar_t& operator*=(const T& rhs)
     requires std::convertible_to<T, std::complex<double>>
-    scalar_t& operator*=(const T& rhs) {
+    {
         *this = static_cast<complex_t>(*this) * static_cast<complex_t>(rhs);
         return *this;
     }
@@ -86,6 +89,14 @@ public:
     friend scalar_t operator*(scalar_t lhs, const scalar_t& rhs) {
         lhs *= rhs;
         return lhs;
+    }
+
+    friend scalar_t operator*(double lhs, const scalar_t& rhs) {
+        return scalar_t(lhs) * rhs;
+    }
+
+    friend scalar_t operator*(const scalar_t& lhs, double rhs) {
+        return lhs * scalar_t(rhs);
     }
 
     template<typename T>
@@ -127,6 +138,7 @@ public:
         lhs /= rhs;
         return lhs;
     }
+
 };
     
 #define DEFINE_MATH_FUNCTION(func)                          \
@@ -166,6 +178,9 @@ requires std::is_integral_v<T>
 inline scalar_t pow(const scalar_t& base, T exp) {
     return pow(base, static_cast<double>(exp));
 }
+
+inline double real(const scalar_t& z) { return z.real(); }
+inline double imag(const scalar_t& z) { return z.imag(); }
 
 // Ensure ADL works by defining functions in the same namespace
 using std::sqrt;

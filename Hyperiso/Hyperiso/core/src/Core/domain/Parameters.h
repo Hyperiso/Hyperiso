@@ -255,7 +255,7 @@ public:
      * @param value Value to assign.
      * @param force If true, forces the overwrite (default false).
      */
-    void setBlockValue(const std::string& name, LhaID pdgCode, double value);
+    void setBlockValue(const std::string& name, LhaID pdgCode, scalar_t value);
 
     /**
      * @brief Retrieves all parameter values for a given block.
@@ -282,7 +282,7 @@ public:
      * @param param_id Identifier of the parameter.
      * @param shift_value Value to shift.
      */
-    void shiftParameter(const ParamId& param_id, double shift_value);
+    void shiftParameter(const ParamId& param_id, scalar_t shift_value);
 
     /**
      * @brief Initializes parameter blocks for a given model type.

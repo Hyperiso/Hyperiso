@@ -1,14 +1,14 @@
 #include "BlnuDecay.h"
 
 
-complex_t BlnuDecay::R(double m_B, double m_b, double m_tau) {
-    complex_t C_A = w_proxy->getFM(WGroup::Blnu, WCoef::CBlnu_A, QCDOrder::LO);
-    complex_t C_P = w_proxy->getFM(WGroup::Blnu, WCoef::CBlnu_P, QCDOrder::LO);
+scalar_t BlnuDecay::R(double m_B, double m_b, double m_tau) {
+    scalar_t C_A = w_proxy->getFM(WGroup::Blnu, WCoef::CBlnu_A, QCDOrder::LO);
+    scalar_t C_P = w_proxy->getFM(WGroup::Blnu, WCoef::CBlnu_P, QCDOrder::LO);
 
     return std::pow(std::abs(C_A + std::pow(m_B, 2) * C_P / (m_b * m_tau)), 2);
 }
 
-double BlnuDecay::ckm(complex_t V_ub) {
+double BlnuDecay::ckm(scalar_t V_ub) {
     return std::pow(std::abs(V_ub), 2);
 }
 

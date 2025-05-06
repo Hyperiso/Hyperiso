@@ -64,7 +64,7 @@ void Block::assign(const LhaID& key, std::shared_ptr<Parameter> param) {
     notifyObservers();
 }
 
-void Block::assign(const LhaID &key, double value) {
+void Block::assign(const LhaID &key, scalar_t value) {
     if (!this->contains(key)) {
         LOG_ERROR("KeyError", "Cannot update non-existing parameter", key.to_string(), "in block", this->blockname);
     }

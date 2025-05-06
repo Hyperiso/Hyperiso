@@ -26,7 +26,7 @@ bool BlockAccessor::has_param(const std::string blockName, LhaID id) const {
     return false;
 }
 
-void BlockAccessor::setValue(const std::string& blockName, LhaID id, double value) {
+void BlockAccessor::setValue(const std::string& blockName, LhaID id, scalar_t value) {
     auto it = this->find(blockName);
     if (it != this->end()) {
         if (it->second->contains(id)) {

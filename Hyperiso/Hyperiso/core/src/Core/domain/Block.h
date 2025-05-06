@@ -58,7 +58,7 @@ public:
      * @param key The LHA ID of the parameter.
      * @param value The new value to assign.
      */
-    void assign(const LhaID& key, double value);
+    void assign(const LhaID& key, scalar_t value);
 
     /**
      * @brief Stores or assigns a parameter depending on whether it already exists.

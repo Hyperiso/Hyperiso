@@ -1,6 +1,6 @@
 #include "BDstarlnuDecay.h"
 
-double BDstarlnuDecay::ckm(complex_t V_cb) {
+double BDstarlnuDecay::ckm(scalar_t V_cb) {
     return std::pow(std::abs(V_cb), 2);
 }
 
@@ -342,30 +342,30 @@ double BDstarlnuDecay::G_S_T0(double rD, double rt_rD, double one_m_rD_sq, doubl
     return integrate(f, 1, w_m, 1e-3);
 }
 
-complex_t BDstarlnuDecay::C_V1() {
+scalar_t BDstarlnuDecay::C_V1() {
     return w_proxy->getFM(WGroup::BCLNU, WCoef::C_V1, QCDOrder::LO);
 }
 
-complex_t BDstarlnuDecay::C_V2() {
+scalar_t BDstarlnuDecay::C_V2() {
     return w_proxy->getFM(WGroup::BCLNU, WCoef::C_V2, QCDOrder::LO);
 }
 
-complex_t BDstarlnuDecay::C_A() {
+scalar_t BDstarlnuDecay::C_A() {
     
     return w_proxy->getFM(WGroup::BCLNU, WCoef::C_V1, QCDOrder::LO) - w_proxy->getFM(WGroup::BCLNU, WCoef::C_V2, QCDOrder::LO);
 }
 
-complex_t BDstarlnuDecay::C_P() {
+scalar_t BDstarlnuDecay::C_P() {
     
     return w_proxy->getFM(WGroup::BCLNU, WCoef::C_S1, QCDOrder::LO) - w_proxy->getFM(WGroup::BCLNU, WCoef::C_S2, QCDOrder::LO);
 }
 
-complex_t BDstarlnuDecay::C_T() {
+scalar_t BDstarlnuDecay::C_T() {
     
     return w_proxy->getFM(WGroup::BCLNU, WCoef::C_T, QCDOrder::LO);
 }
 
-double BDstarlnuDecay::c_flag(complex_t C) {
+double BDstarlnuDecay::c_flag(scalar_t C) {
     if (fpeq(std::abs(C), 0.)) {
         return 0;
     }
@@ -374,7 +374,7 @@ double BDstarlnuDecay::c_flag(complex_t C) {
 
 double BDstarlnuDecay::Gamma_tau_m(double F_Vp_1, double F_Vm_1, double F_V0_1, double F_Tp_2, double F_Tm_2, double F_T0_2, 
                                    double G_Vp_Vm_1, double G_T0_V0, double G_Tp_Vp, double G_Tm_Vm, double G_Tp_Vm, double G_Tm_Vp,
-                                   complex_t C_V1, complex_t C_V2, complex_t C_T)
+                                   scalar_t C_V1, scalar_t C_V2, scalar_t C_T)
 {
     double c_vsq = std::pow(std::abs(C_V1), 2) + std::pow(std::abs(C_V2), 2);
     double c_vv = -2 * std::real(C_V1 * std::conj(C_V2));
@@ -391,7 +391,7 @@ double BDstarlnuDecay::Gamma_tau_m(double F_Vp_1, double F_Vm_1, double F_V0_1, 
 
 double BDstarlnuDecay::Gamma_tau_p(double F_Vp_2, double F_Vm_2, double F_V0_2, double F_Vt, double F_S, double F_Tp_1, double F_Tm_1, double F_T0_1,
                                    double G_Vp_Vm_2,double G_Vt_S, double G_T0_V0, double G_Tp_Vp, double G_Tm_Vm, double G_Tp_Vm, double G_Tm_Vp,
-                                   complex_t C_V1, complex_t C_V2, complex_t C_A, complex_t C_P, complex_t C_T)
+                                   scalar_t C_V1, scalar_t C_V2, scalar_t C_A, scalar_t C_P, scalar_t C_T)
 {
     double c_vsq = 0.5 * std::pow(std::abs(C_V1), 2) + std::pow(std::abs(C_V2), 2);
     double c_vv = -std::real(C_V1 * std::conj(C_V2));
@@ -412,7 +412,7 @@ double BDstarlnuDecay::Gamma_tau_p(double F_Vp_2, double F_Vm_2, double F_V0_2, 
 
 double BDstarlnuDecay::Gamma_D_0(double F_V0_1, double F_V0_2, double F_Vt, double F_S, double F_T0_1, double F_T0_2,
                                  double G_Vt_S, double G_V0_T0,
-                                 complex_t C_A, complex_t C_P, complex_t C_T)
+                                 scalar_t C_A, scalar_t C_P, scalar_t C_T)
 {
     double c_aa = 0.5 * std::pow(std::abs(C_A), 2);
     double c_pp = 1.5 * std::pow(std::abs(C_P), 2);
@@ -429,7 +429,7 @@ double BDstarlnuDecay::Gamma_D_0(double F_V0_1, double F_V0_2, double F_Vt, doub
 
 double BDstarlnuDecay::B_theta(double F_Vp_1, double F_Vm_1, double F_Tp_2, double F_Tm_2,
                                double G_V0_Vt,double G_V0_S, double G_Vt_T0, double G_Tp_Vp, double G_Tm_Vm, double G_Tp_Vm, double G_Tm_Vp, double G_T0_S,
-                               complex_t C_V1, complex_t C_V2, complex_t C_A, complex_t C_P, complex_t C_T)
+                               scalar_t C_V1, scalar_t C_V2, scalar_t C_A, scalar_t C_P, scalar_t C_T)
 {
     double c_vv = 0.75 * std::pow(std::abs(C_V1), 2) - std::pow(std::abs(C_V2), 2);
     double c_aa = 1.5 * std::pow(std::abs(C_A), 2);
