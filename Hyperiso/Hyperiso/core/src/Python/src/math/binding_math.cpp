@@ -45,4 +45,61 @@ void init_math(py::module &m) {
     // pow overloads
     m.def("pow", static_cast<scalar_t(*)(const scalar_t&, const scalar_t&)>(&pow));
     m.def("pow", static_cast<scalar_t(*)(const scalar_t&, double)>(&pow));
+
+    // Math functions
+    m.def("Li2", &Li2);
+    m.def("Li3", &Li3);
+    m.def("CLi2", &CLi2);
+    m.def("Cl2", &Cl2);
+    m.def("H2", &H2);
+    m.def("B", &B);
+    m.def("kron", &kron);
+    m.def("integrate", &integrate);
+    m.def("c_integrate", &c_integrate);
+
+    // Wilson coefficients
+    m.def("A0t", &A0t); m.def("F0t", &F0t);
+    m.def("B0t", &B0t); m.def("C0t", &C0t);
+    m.def("D0t", &D0t); m.def("E0t", &E0t);
+    m.def("T", &T);
+
+    m.def("A1t", &A1t); m.def("B1t", &B1t);
+    m.def("C1t", &C1t); m.def("D1t", &D1t);
+    m.def("E1t", &E1t); m.def("F1t", &F1t);
+    m.def("G1t", &G1t);
+
+    m.def("C7t2mt", &C7t2mt); m.def("C7c2MW", &C7c2MW);
+    m.def("C8t2mt", &C8t2mt); m.def("C8c2MW", &C8c2MW);
+    m.def("F7_1", &F7_1); m.def("F7_2", &F7_2);
+    m.def("F8_1", &F8_1); m.def("F8_2", &F8_2);
+
+    m.def("G3H", &G3H); m.def("G4H", &G4H);
+    m.def("G7H", &G7H); m.def("G8H", &G8H);
+    m.def("EH", &EH);
+
+    m.def("D9H0", &D9H0); m.def("D9H1", &D9H1);
+    m.def("Delta3H", &Delta3H); m.def("Delta4H", &Delta4H);
+    m.def("Delta7H", &Delta7H); m.def("Delta8H", &Delta8H);
+    m.def("C9llH0", &C9llH0); m.def("C9llH1", &C9llH1);
+    m.def("C10Wt2mt", &C10Wt2mt); m.def("C10Wc2MW", &C10Wc2MW);
+    m.def("C10Zt2mt", &C10Zt2mt); m.def("C10Z2tri", &C10Z2tri);
+    m.def("F0SP", &F0SP);
+
+    // Constantes
+    m.attr("PI") = PI;
+    m.attr("E") = E;
+    m.attr("ZETA3") = ZETA3;
+    m.attr("GAMMA") = GAMMA;
+
+    // Digamma function
+    m.def("psi", &psi);
+
+    // Matrix.h
+    py::module matrix = m.def_submodule("matrix");
+    matrix.def("getDiagonalElements", &getDiagonalElements<int>);
+    matrix.def("createIdentityMatrix", &createIdentityMatrix<int>);
+    matrix.def("getElement", &getElement<int>);
+    matrix.def("setElement", &setElement<int>);
+    matrix.def("invertMatrix", &invertMatrix<int>);
+    matrix.def("printMatrix", &printMatrix<int>);
 }

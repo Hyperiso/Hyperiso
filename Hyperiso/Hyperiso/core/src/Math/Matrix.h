@@ -1,5 +1,5 @@
-#ifndef __MATRIX_H__
-#define __MATRIX_H__
+#ifndef MATRIX_H
+#define MATRIX_H
 
 #include <iostream>
 #include <map>
@@ -7,9 +7,21 @@
 #include <vector>
 #include <stdexcept>
 
+/**
+ * @brief Alias for a sparse matrix using a map of coordinate pairs.
+ * 
+ * @tparam T Type of the row and column indices.
+ */
 template<typename T>
 using SparseMatrix = std::map<std::pair<T, T>, double>;
 
+/**
+ * @brief Extracts the diagonal elements from a sparse matrix.
+ * 
+ * @tparam T Index type.
+ * @param matrix The sparse matrix.
+ * @return Vector of diagonal indices.
+ */
 template<typename T>
 std::vector<T> getDiagonalElements(const SparseMatrix<T>& matrix) {
     std::vector<T> diagonalElements;
@@ -21,6 +33,13 @@ std::vector<T> getDiagonalElements(const SparseMatrix<T>& matrix) {
     return diagonalElements;
 }
 
+/**
+ * @brief Creates an identity matrix from a list of indices.
+ * 
+ * @tparam T Index type.
+ * @param indices List of row/column indices.
+ * @return Sparse identity matrix.
+ */
 template<typename T>
 SparseMatrix<T> createIdentityMatrix(const std::vector<T>& indices) {
     SparseMatrix<T> identity;
@@ -30,6 +49,15 @@ SparseMatrix<T> createIdentityMatrix(const std::vector<T>& indices) {
     return identity;
 }
 
+/**
+ * @brief Retrieves an element from the sparse matrix.
+ * 
+ * @tparam T Index type.
+ * @param matrix The sparse matrix.
+ * @param row Row index.
+ * @param col Column index.
+ * @return Value of the element (0.0 if not present).
+ */
 template<typename T>
 double getElement(const SparseMatrix<T>& matrix, const T& row, const T& col) {
     auto it = matrix.find({row, col});
@@ -39,6 +67,15 @@ double getElement(const SparseMatrix<T>& matrix, const T& row, const T& col) {
     return 0.0;
 }
 
+/**
+ * @brief Sets or updates an element in the sparse matrix.
+ * 
+ * @tparam T Index type.
+ * @param matrix Sparse matrix to modify.
+ * @param row Row index.
+ * @param col Column index.
+ * @param value Value to assign.
+ */
 template<typename T>
 void setElement(SparseMatrix<T>& matrix, const T& row, const T& col, double value) {
     if (value != 0.0) {
@@ -48,6 +85,15 @@ void setElement(SparseMatrix<T>& matrix, const T& row, const T& col, double valu
     }
 }
 
+/**
+ * @brief Inverts a square sparse matrix using Gauss-Jordan elimination.
+ * 
+ * @tparam T Index type.
+ * @param matrix Input square sparse matrix.
+ * @param indices List of row/column indices (must match matrix size).
+ * @return Inverted matrix.
+ * @throws std::runtime_error if the matrix is singular.
+ */
 template<typename T>
 SparseMatrix<T> invertMatrix(const SparseMatrix<T>& matrix, const std::vector<T>& indices) {
     SparseMatrix<T> augmentedMatrix = matrix;
@@ -82,6 +128,13 @@ SparseMatrix<T> invertMatrix(const SparseMatrix<T>& matrix, const std::vector<T>
     return inverse;
 }
 
+/**
+ * @brief Prints the matrix in dense form using a list of indices.
+ * 
+ * @tparam T Index type.
+ * @param matrix Sparse matrix.
+ * @param indices List of indices to determine order.
+ */
 template<typename T>
 void printMatrix(const SparseMatrix<T>& matrix, const std::vector<T>& indices) {
     for (const auto& i : indices) {
