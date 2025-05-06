@@ -81,7 +81,7 @@ public:
     }
 
     void update_gradient(Observables obs) {
-        return manager->update_gradient(obs);
+        manager->update_gradient(obs);
     }
 };
 

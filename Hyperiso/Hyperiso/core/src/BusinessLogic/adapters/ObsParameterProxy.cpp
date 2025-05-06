@@ -2,7 +2,7 @@
 
 ObsParameterProxy::ObsParameterProxy(ParameterType type) { 
     if (!ObsParameterProxy::ALLOWED.contains(type)) {
-        LOG_ERROR("ValueError", "PhysicalModel cannot access parameter type", ParameterTypeMapper::str(type));
+        LOG_ERROR("ValueError", "BusinessLogic cannot access parameter type", ParameterTypeMapper::str(type));
     }
     this->pp_with_type = ParameterProvider(type);
     this->pp = ParameterProvider();
@@ -17,9 +17,12 @@ scalar_t ObsParameterProxy::operator()(const std::string& block, const LhaID& id
 };
 
 scalar_t ObsParameterProxy::operator()(const ParamId& pid, ParameterProvider::DataType d_type) { 
-
     if (!pid.type.has_value()) {
         LOG_WARN("LogicError", "Use of untyped ParamId in ParameterProvider.");
+    }
+
+    if (!ObsParameterProxy::ALLOWED.contains(pid.type.value())) {
+        LOG_ERROR("ValueError", "BusinessLogic cannot access parameter type", ParameterTypeMapper::str(pid.type.value()));
     }
 
     return pp(pid, d_type); 

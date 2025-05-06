@@ -10,134 +10,90 @@ std::enable_if_t<not std::numeric_limits<T>::is_integer, bool> fpeq(T, T, std::s
 
 class scalar_t : public complex_t {
 public:
-    scalar_t(double re = 0.0, double im = 0.0) : complex_t(re, im) {};
-    scalar_t(complex_t z) : complex_t(z) {};
+    // scalar_t(double re = 0.0, double im = 0.0);
+    constexpr scalar_t(double re = 0.0, double im = 0.0) : complex_t(re, im) {};
+    scalar_t(complex_t z);
+    
+    scalar_t(const scalar_t& k);
+    scalar_t& operator=(const scalar_t& k);
+    scalar_t(scalar_t&& k) = default;
+    scalar_t& operator=(scalar_t&& k) = default;
 
-    operator double() const {
-        if (!fpeq(this->imag(), 0.)) {
-            LOG_WARN("Casting complex values to double discards imaginary part: (", this->real(), ",", this->imag(), ")");
-        }
-        return this->real();
-    };
+    operator double() const;
 
-    scalar_t operator-() const {
-        return -static_cast<complex_t>(*this);
-    }
-
-    template<typename T>
-    requires std::convertible_to<T, std::complex<double>>
-    scalar_t& operator+=(const T& rhs) {
-        *this = static_cast<complex_t>(*this) + static_cast<complex_t>(rhs);
-        return *this;
-    }
-
-    friend scalar_t operator+(scalar_t lhs, const scalar_t& rhs) {
-        lhs += rhs;
-        return lhs;
-    }
+    scalar_t operator-() const;
 
     template<typename T>
     requires std::convertible_to<T, std::complex<double>>
-    friend scalar_t operator+(scalar_t lhs, const T& rhs) {
-        lhs += rhs;
-        return lhs;
-    }
+    scalar_t& operator+=(const T& rhs);
+
+    friend scalar_t operator+(scalar_t lhs, const scalar_t& rhs);
 
     template<typename T>
     requires std::convertible_to<T, std::complex<double>>
-    friend scalar_t operator+(T lhs, const scalar_t& rhs) {
-        lhs += rhs;
-        return lhs;
-    }
+    friend scalar_t operator+(scalar_t lhs, const T& rhs);
 
     template<typename T>
     requires std::convertible_to<T, std::complex<double>>
-    scalar_t& operator-=(const T& rhs) {
-        *this = static_cast<complex_t>(*this) - static_cast<complex_t>(rhs);
-        return *this;
-    }
+    friend scalar_t operator+(T lhs, const scalar_t& rhs);
 
-    friend scalar_t operator-(scalar_t lhs, const scalar_t& rhs) {
-        lhs -= rhs;
-        return lhs;
-    }
+    template<typename T>
+    requires std::convertible_to<T, std::complex<double>>
+    scalar_t& operator-=(const T& rhs);
+
+    friend scalar_t operator-(scalar_t lhs, const scalar_t& rhs);
     
     template<typename T>
     requires std::convertible_to<T, std::complex<double>>
-    friend scalar_t operator-(scalar_t lhs, const T& rhs) {
-        lhs -= rhs;
-        return lhs;
-    }
+    friend scalar_t operator-(scalar_t lhs, const T& rhs);
 
     template<typename T>
     requires std::convertible_to<T, std::complex<double>>
-    friend scalar_t operator-(T lhs, const scalar_t& rhs) {
-        return scalar_t(static_cast<std::complex<double>>(lhs) - static_cast<std::complex<double>>(rhs));
-
-    }
-
-
-
-    template<typename T>
-    scalar_t& operator*=(const T& rhs)
-    requires std::convertible_to<T, std::complex<double>>
-    {
-        *this = static_cast<complex_t>(*this) * static_cast<complex_t>(rhs);
-        return *this;
-    }
-
-    friend scalar_t operator*(scalar_t lhs, const scalar_t& rhs) {
-        lhs *= rhs;
-        return lhs;
-    }
-
-    friend scalar_t operator*(double lhs, const scalar_t& rhs) {
-        return scalar_t(lhs) * rhs;
-    }
-
-    friend scalar_t operator*(const scalar_t& lhs, double rhs) {
-        return lhs * scalar_t(rhs);
-    }
+    friend scalar_t operator-(T lhs, const scalar_t& rhs);
 
     template<typename T>
     requires std::convertible_to<T, std::complex<double>>
-    friend scalar_t operator*(scalar_t lhs, const T& rhs) {
-        lhs *= rhs;
-        return lhs;
-    }
+    scalar_t& operator*=(const T& rhs);
+
+    friend scalar_t operator+(scalar_t lhs, const scalar_t& rhs);
+
+    friend scalar_t operator+(double lhs, const scalar_t& rhs);
+
+    friend scalar_t operator-(scalar_t lhs, const scalar_t& rhs);
+
+    friend scalar_t operator-(double lhs, const scalar_t& rhs);
+
+    friend scalar_t operator/(scalar_t lhs, const scalar_t& rhs);
+
+    friend scalar_t operator/(double lhs, const scalar_t& rhs);
+
+    friend scalar_t operator*(scalar_t lhs, const scalar_t& rhs);
+
+    friend scalar_t operator*(double lhs, const scalar_t& rhs);
+
+    friend scalar_t operator*(const scalar_t& lhs, double rhs);
 
     template<typename T>
     requires std::convertible_to<T, std::complex<double>>
-    friend scalar_t operator*(T lhs, const scalar_t& rhs) {
-        lhs *= rhs;
-        return lhs;
-    }
+    friend scalar_t operator*(scalar_t lhs, const T& rhs);
 
     template<typename T>
     requires std::convertible_to<T, std::complex<double>>
-    scalar_t& operator/=(const T& rhs) {
-        *this = static_cast<complex_t>(*this) / static_cast<complex_t>(rhs);
-        return *this;
-    }
-
-    friend scalar_t operator/(scalar_t lhs, const scalar_t& rhs) {
-        lhs /= rhs;
-        return lhs;
-    }
+    friend scalar_t operator*(T lhs, const scalar_t& rhs);
 
     template<typename T>
     requires std::convertible_to<T, std::complex<double>>
-    friend scalar_t operator/(scalar_t lhs, const T& rhs) {
-        lhs /= rhs;
-        return lhs;
-    }
+    scalar_t& operator/=(const T& rhs);
+
+    friend scalar_t operator/(scalar_t lhs, const scalar_t& rhs);
 
     template<typename T>
     requires std::convertible_to<T, std::complex<double>>
-    friend scalar_t operator/(T lhs, const scalar_t& rhs) {
-        lhs /= rhs;
-        return lhs;
-    }
+    friend scalar_t operator/(scalar_t lhs, const T& rhs);
+
+    template<typename T>
+    requires std::convertible_to<T, std::complex<double>>
+    friend scalar_t operator/(T lhs, const scalar_t& rhs);
 
 };
     
@@ -164,23 +120,17 @@ DEFINE_MATH_FUNCTION(norm)
 
 // TODO : warnings
 // Define overload for pow(scalar_t, scalar_t)
-inline scalar_t pow(const scalar_t& base, const scalar_t& exp) {
-    return scalar_t(std::pow(static_cast<complex_t>(base), static_cast<complex_t>(exp)));
-}
+scalar_t pow(const scalar_t& base, const scalar_t& exp);
 
 // Define overload for pow(scalar_t, double)
-inline scalar_t pow(const scalar_t& base, double exp) {
-    return scalar_t(std::pow(static_cast<complex_t>(base), exp));
-}
+scalar_t pow(const scalar_t& base, double exp);
 
 template <typename T>
 requires std::is_integral_v<T>
-inline scalar_t pow(const scalar_t& base, T exp) {
-    return pow(base, static_cast<double>(exp));
-}
+scalar_t pow(const scalar_t& base, T exp);
 
-inline double real(const scalar_t& z) { return z.real(); }
-inline double imag(const scalar_t& z) { return z.imag(); }
+double real(const scalar_t& z);
+double imag(const scalar_t& z);
 
 // Ensure ADL works by defining functions in the same namespace
 using std::sqrt;
@@ -199,5 +149,9 @@ using std::tanh;
 using std::abs;
 using std::arg;
 using std::norm;
+using std::real;
+using std::imag;
+
+#include "scalar.tpp"
 
 #endif // __SCALAR_H__

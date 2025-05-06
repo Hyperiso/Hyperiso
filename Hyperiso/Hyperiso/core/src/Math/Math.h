@@ -38,7 +38,7 @@ constexpr double M_N =   0.9395654;  // Gev
 
 constexpr double EPSILON = 1e-5;
 
-constexpr complex_t I = complex_t(0, 1);
+constexpr scalar_t I = scalar_t(0, 1);
 
 /* Functions */
 

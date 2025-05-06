@@ -27,6 +27,8 @@ ObsManager ObsManager::add_obs(Observables id, QCDOrder order, bool add_deps) {
         add_all_obs_deps(id);
     }
 
+    obs_ptr->print_gradient(std::cout);
+
     return *this;
 }
 

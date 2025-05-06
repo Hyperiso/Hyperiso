@@ -45,11 +45,11 @@ scalar_t BKstarDecay::g_2(double s) {
     double ls = log(s);
     double ls2 = ls * ls;
     double ls3 = ls * ls2;
-    scalar_t a_0 = -833 / 162. - 20 * PI * I / 27.;
-    scalar_t a_1 = 48 - 5 * PI2 - 36 * ZETA3 + I * (30 * PI - 2 * PI3) + (36 - 9 * PI2 + 6 * PI * I) * ls + (3. + 6 * PI * I) * ls2 + ls3;
-    scalar_t a_2 = 18 + 2 * PI2 - 2 * PI3 * I + (12 - 6 * PI2) * ls + 6 * PI * I * ls2 + ls3;
-    scalar_t a_3 = -9 - 14 * PI2 + 112 * PI * I + (182. - 48 * PI * I) * ls - 126 * ls2;
-    return a_0 + 2. * (s * a_1 + s * s * a_2) / 9. + s * s * s * a_3 / 27. + 8 * PI2 * pow(s, 1.5) / 9;
+    scalar_t a_0 {-833. / 162., -20. * PI / 27.};
+    scalar_t a_1 = 48. - 5. * PI2 - 36. * ZETA3 + I * (30. * PI - 2. * PI3) + (36. - 9. * PI2 + 6. * PI * I) * ls + (3. + 6. * PI * I) * ls2 + ls3;
+    scalar_t a_2 = 18. + 2. * PI2 - 2. * PI3 * I + (12. - 6. * PI2) * ls + 6. * PI * I * ls2 + ls3;
+    scalar_t a_3 = -9. - 14. * PI2 + 112. * PI * I + (182. - 48. * PI * I) * ls - 126. * ls2;
+    return a_0 + 2. * (s * a_1 + s * s * a_2) / 9. + s * s * s * a_3 / 27. + 8. * PI2 * pow(s, 1.5) / 9.;
 }
 
 double BKstarDecay::phi_perp(double a1, double a2, double u) {
@@ -63,7 +63,6 @@ double BKstarDecay::gv_dga_4(double a1p, double a2p, double z3a, double z3v, dou
     double a2 = 30 * z3a * (15 * w10a + 32) - 12600 * z3v + 36 * a1p - 72 * a2p - 12;
     double a3 = -100 * z3a * (9 * w10a + 8) + 25200 * z3v - 48 * a1p + 240 * a2p;
     double a4 = 525 * z3a * w10a - 14700 * z3v - 180 * a2p;
-
     return -u * (a1 + u * (a2 + u * (a3 + u * a4))) / 4 + dtp * (9 * u - 1.5) + dtm * 6 * u + 3 * (dtp + dtm) * log(1 - u);
 }
 
@@ -135,8 +134,6 @@ scalar_t BKstarDecay::a7c_h(double mu_h,
     ObsParameterMutator().set(ParamId{ParameterType::WILSON, "B_SCALE", 1}, mu_b);
 
     double prefactor = PI * QCDHelper::constants->C_F * alpha_s_mu_h * f_B * f_Ks_perp / (6. * QCDHelper::constants->Nc * T1 * m_B * lambda_B);
-    LOG_INFO(prefactor * (2. * C8_h * h8 - C2_h * h2).real());
-
     return prefactor * (2. * C8_h * h8 - C2_h * h2);
 }
 
@@ -260,7 +257,13 @@ void BKstarDecay::build_op_tree() {
     auto lambda_B   = std::make_shared<ParameterNode>(ParamId(ParameterType::DECAY, "B_Ks", 10));
     auto T1_B_Ks    = std::make_shared<ParameterNode>(ParamId(ParameterType::DECAY, "B_Ks", 11));
     auto Lambda_h   = std::make_shared<ParameterNode>(ParamId(ParameterType::DECAY, "B_Ks", 12));
-    auto mu_0       = std::make_shared<ParameterNode>(ParamId(ParameterType::DECAY, "B_Ks", 13));
+
+    std::shared_ptr<ParameterNode> mu_0;
+    if (fpeq(ObsParameterProxy(ParameterType::DECAY)("B_Ks", 13), scalar_t(-1.))) {
+        mu_0 = std::make_shared<ParameterNode>(ParamId(ParameterType::WILSON, "B_SCALE", 1));
+    } else {
+        mu_0 = std::make_shared<ParameterNode>(ParamId(ParameterType::DECAY, "B_Ks", 13));
+    }
   
     // Flavor parameters
     auto f_Ks_par   = std::make_shared<ParameterNode>(ParamId(ParameterType::FLAVOR, "FCONST", LhaID(323, 1)));

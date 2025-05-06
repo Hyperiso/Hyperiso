@@ -10,6 +10,7 @@ if (NOT TARGET CommonLib)
 endif()
 
 add_library(MathLib STATIC 
+    scalar.cpp
     bessel_function.cpp
     exponential_integral.cpp
     others_functions.cpp

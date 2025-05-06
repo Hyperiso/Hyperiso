@@ -29,6 +29,6 @@ double integrate(Integrand f, double l, double u, double prec) {
 }
 
 scalar_t c_integrate(cIntegrand f, double l, double u, double prec) {
-    return scalar_t(integrate([f] (double u) { return f(u).real(); }, l, u, prec),
-                     integrate([f] (double u) { return f(u).imag(); }, l, u, prec));
+    return scalar_t(integrate([f] (double u) -> double { return f(u).real(); }, l, u, prec),
+                     integrate([f] (double u) -> double { return f(u).imag(); }, l, u, prec));
 }
