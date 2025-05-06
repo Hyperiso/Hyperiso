@@ -25,7 +25,6 @@ ObsManager ObsManager::add_obs(Observables id, QCDOrder order, bool add_deps) {
 
     if (add_deps) {
         add_all_obs_deps(id);
-        LOG_INFO("6");
     }
 
     return *this;

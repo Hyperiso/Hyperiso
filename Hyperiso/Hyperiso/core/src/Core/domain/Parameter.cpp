@@ -76,13 +76,13 @@ void DependentParameter::init() {
 
 void DependentParameter::update() {
     if (frozen) {
-        LOG_INFO("DependentParameter is frozen, skipping update");
+        LOG_DEBUG("DependentParameter is frozen, skipping update");
         this->update_at_unfreeze = true;
     } else if (recalculateLambda 
         && std::all_of(sources.begin(), sources.end(), 
                     [](std::pair<ParamId, std::shared_ptr<Parameter>> block) { return block.second; })) 
     {
-        LOG_INFO("Updating dependent parameter value");
+        LOG_DEBUG("Updating dependent parameter value");
         if (auto self = shared_from_this()) { 
             recalculateLambda(sources, self);
         } else {

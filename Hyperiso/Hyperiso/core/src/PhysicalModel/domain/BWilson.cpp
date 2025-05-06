@@ -37,8 +37,7 @@ void C2::LO_calculation() {
 
     auto func = [] (const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src, std::shared_ptr<DependentParameter> dep_param) {
         dep_param->set_expected(1.);
-    };
-    std::cout << "aaaaaaaaaaaaaaaaaaaaaah : " << this->storage_block << std::endl; 
+    }; 
     WilsonParamComposer().compose_parameter(ParamId{this->storage_block, LhaID(3040405, 4141, 0, 0)}, sources, func);
 }
 

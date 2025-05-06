@@ -147,7 +147,6 @@ void SMModelStrategy::postInitialization(Parameters& params) {
         };
     
         auto func = [] (const std::unordered_map<std::string, std::shared_ptr<Block>>& src, std::shared_ptr<DependentBlock> dep_block) {
-            std::cout << "ITS MEEEE, MARIOOO" << std::endl;
             double lambda = src.at("VCKMIN")->retrieve(1)->get_val();
             double l2 = lambda * lambda;
             double l3 = l2 * lambda;
@@ -297,7 +296,6 @@ std::shared_ptr<Parameters> ParametersFactory::GetParameters(ParameterType id) {
         std::shared_ptr<ModelStrategy> strategy = createStrategy(id);
         instances[id] = std::make_shared<Parameters>(Parameters(strategy));
         strategy->postInitialization(*instances[id]);
-        std::cout << (int)id << std::endl;
     }
     return instances[id];
 }

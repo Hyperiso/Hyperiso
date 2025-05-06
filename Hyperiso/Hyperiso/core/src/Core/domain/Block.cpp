@@ -10,13 +10,13 @@ void Block::removeObserver(std::shared_ptr<Block> observer) {
 
 void Block::notifyObservers() {
     for (auto& observer : observers) {
-        LOG_INFO("Notifying observer", observer->blockname, "from source block", blockname);
+        LOG_DEBUG("Notifying observer", observer->blockname, "from source block", blockname);
         observer->update();
     }
 }
 
 void Block::update() {
-    LOG_INFO("In Block::update");
+    LOG_DEBUG("In Block::update");
     for (auto& [_, param] : this->items) {
         param->update();
     }
@@ -60,7 +60,7 @@ void Block::assign(const LhaID& key, std::shared_ptr<Parameter> param) {
     }
 
     *(this->items.at(key)) = *param;
-    LOG_INFO("Call to notifyObservers from Block::assign(const LhaID&, std::shared_ptr<Parameter>) of", blockname);
+    LOG_DEBUG("Call to notifyObservers from Block::assign(const LhaID&, std::shared_ptr<Parameter>) of", blockname);
     notifyObservers();
 }
 
@@ -70,7 +70,7 @@ void Block::assign(const LhaID &key, double value) {
     }
 
     this->items.at(key)->set_expected(value);
-    LOG_INFO("Call to notifyObservers from Block::assign(const LhaID&, double) of", blockname);
+    LOG_DEBUG("Call to notifyObservers from Block::assign(const LhaID&, double) of", blockname);
     notifyObservers();
 }
 
@@ -116,9 +116,9 @@ bool DependentBlock::dependsOn(const std::string& blockName) {
 void DependentBlock::init() {
     self = shared_from_this();
     if (self) {
-        LOG_INFO("Adding observer to", sourceBlocks.size(), "source blocks");
+        LOG_DEBUG("Adding observer to", sourceBlocks.size(), "source blocks");
         for (auto src : sourceBlocks){
-            LOG_INFO(src.second->blockname);
+            LOG_DEBUG(src.second->blockname);
             src.second->addObserver(self);   
         }
     } else {
@@ -128,13 +128,13 @@ void DependentBlock::init() {
 
 void DependentBlock::update() {
     if (frozen) {
-        LOG_INFO("DependentBlock is frozen, skipping update");
+        LOG_DEBUG("DependentBlock is frozen, skipping update");
         update_at_unfreeze = true;
     } else if (recalculateLambda 
         && std::all_of(sourceBlocks.begin(), sourceBlocks.end(), 
                        [](std::pair<std::string, std::shared_ptr<Block>> block) { return block.second; })) 
     {
-        LOG_INFO("Updating dependent block", blockname);
+        LOG_DEBUG("Updating dependent block", blockname);
         if (auto self = shared_from_this()) { 
             recalculateLambda(sourceBlocks, self);
         } else {
@@ -143,7 +143,7 @@ void DependentBlock::update() {
     } else {
         LOG_ERROR("Error", "DependentBlock::update() called without all source blocks being set");
     }
-    LOG_INFO("Call to notifyObservers from DependentBlock::update() of", blockname);
+    LOG_DEBUG("Call to notifyObservers from DependentBlock::update() of", blockname);
     notifyObservers();
 }
 

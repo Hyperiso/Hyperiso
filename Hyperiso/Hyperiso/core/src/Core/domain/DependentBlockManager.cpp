@@ -40,8 +40,6 @@ void DependentBlockManager::addDependentParameter(
     dependentParam->init();
     dependentParam->update();
 
-    LOG_INFO(dependentParam->get_val());
-
     auto ba = Parameters::GetInstance(pid.type.value())->blockAccessor;
 
     if (!ba->contains(pid.block)) {

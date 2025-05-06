@@ -135,7 +135,8 @@ complex_t BKstarDecay::a7c_h(double mu_h,
     complex_t C8_h = w_proxy->getFR(WGroup::B, WCoef::C8, QCDOrder::NNLO) + w_proxy->getFR(WGroup::BPrime, WCoef::CP8, QCDOrder::LO);
     ObsParameterMutator().set(ParamId{ParameterType::WILSON, "B_SCALE", 1}, mu_b);
 
-    return PI * QCDHelper::constants->C_F * alpha_s_mu_h * f_B * f_Ks_perp * (2. * C8_h * h8 - C2_h * h2) / (6 * QCDHelper::constants->Nc * T1 * m_B * lambda_B);
+    double prefactor = PI * QCDHelper::constants->C_F * alpha_s_mu_h * f_B * f_Ks_perp / (6. * QCDHelper::constants->Nc * T1 * m_B * lambda_B);
+    return prefactor * (2. * C8_h * h8 - C2_h * h2);
 }
 
 complex_t BKstarDecay::a7c_b(double alpha_s_mu_b, complex_t g2, complex_t g8) {

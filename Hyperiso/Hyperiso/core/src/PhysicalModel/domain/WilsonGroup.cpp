@@ -18,7 +18,7 @@ CoefficientGroup::CoefficientGroup(std::map<std::string, std::shared_ptr<WilsonC
 void CoefficientGroup::init(QCDOrder order) {
     this->claim_coefficients();
     for (auto& coeff : *this) {
-        std::cout << coeff.first << " "<< OrderMapper::str(order) << std::endl;
+        LOG_DEBUG("Initializing Wilson coefficient", coeff.first, "at", OrderMapper::str(order));
         coeff.second->init(order);
     }
     this->current_order = order;
@@ -43,7 +43,7 @@ bool CoefficientGroup::is_double_basis() const {
 }
 
 BCoefficientGroup::BCoefficientGroup() {
-    LOG_INFO("In BCoefficientGroup constructor");
+    LOG_TRACE("In BCoefficientGroup constructor");
     init_running_parameter_blocks();
     this->basis = BWilsonBasis::STANDARD;
     this->storage_block = GroupMapper::str(WGroup::B) + "_HADRONIC";
@@ -73,7 +73,7 @@ std::shared_ptr<CoefficientGroup> BCoefficientGroup::clone() const {
 }
 
 void BCoefficientGroup::init_running_block(QCDOrder order, BWilsonBasis basis) {
-    LOG_INFO("In BCoefficientGroup::init_running_block");
+    LOG_TRACE("In BCoefficientGroup::init_running_block");
 
     std::unordered_map<ParameterType, std::vector<std::string>> src = {
         {ParameterType::WILSON, {GroupMapper::str(WGroup::B) + "_MATCH", "WPARAM_RUN_SM"}},
@@ -83,7 +83,6 @@ void BCoefficientGroup::init_running_block(QCDOrder order, BWilsonBasis basis) {
         src.at(ParameterType::WILSON).push_back("B_SCALE");
         src.at(ParameterType::WILSON).push_back("U_MATRIX");
         src.emplace(std::make_pair<ParameterType, std::vector<std::string>>(ParameterType::SM, {"SMINPUTS", "MASS"}));
-        LOG_INFO("In BCoefficientGroup::init_running_block");
         auto func = [order, this] (const std::unordered_map<std::string, std::shared_ptr<Block>>& src, std::shared_ptr<DependentBlock> dep_block) {
             switch (order) {
             case QCDOrder::NNLO:
@@ -94,9 +93,7 @@ void BCoefficientGroup::init_running_block(QCDOrder order, BWilsonBasis basis) {
                 BCoefficientGroup::base_1_LO_calculation(src, dep_block, this->wilson_type);
             }
         };
-        LOG_INFO("In BCoefficientGroup::init_running_block");
         WilsonParamComposer().compose_block(this->storage_block, src, func);
-        LOG_INFO("In BCoefficientGroup::init_running_block");
         basis = BWilsonBasis::STANDARD;
     } else {
         src.at(ParameterType::WILSON).push_back("V_MATRIX");
@@ -104,7 +101,7 @@ void BCoefficientGroup::init_running_block(QCDOrder order, BWilsonBasis basis) {
         auto func = [order, this] (const std::unordered_map<std::string, std::shared_ptr<Block>>& src, std::shared_ptr<DependentBlock> dep_block) {
             switch (order) {
             case QCDOrder::NNLO:
-                LOG_WARN("NNLO running is undefined in teh traditional basis of B Wilson coefficients.");
+                LOG_WARN("NNLO running is undefined in the traditional basis of B Wilson coefficients.");
             case QCDOrder::NLO:
                 BCoefficientGroup::base_2_NLO_calculation(src, dep_block, this->wilson_type);
             case QCDOrder::LO:
@@ -114,7 +111,6 @@ void BCoefficientGroup::init_running_block(QCDOrder order, BWilsonBasis basis) {
         WilsonParamComposer().compose_block(this->storage_block, src, func);
         basis = BWilsonBasis::TRADITIONAL;
     }
-    LOG_INFO("In BCoefficientGroup::init_running_block");
 }
 
 void BCoefficientGroup::switch_basis() {
@@ -127,7 +123,7 @@ void BCoefficientGroup::base_1_LO_calculation(
     std::shared_ptr<DependentBlock> dep_block, 
     ContributionType type)
 {
-    LOG_INFO("Init LO running of BCoefficientGroup in standard basis");
+    LOG_DEBUG("Init LO running of BCoefficientGroup in standard basis");
 
     auto U0 = [src] (int k, int l) -> double {
         return src.at("U_MATRIX")->retrieve(LhaID(0, k, l))->get_val();
@@ -160,7 +156,7 @@ void BCoefficientGroup::base_1_LO_calculation(
     // Ask Nazila : Pourquoi les N et NNLO dans le running de C10 à LO et pas séparé en plusieurs ordres ?
     // Answer : Ask Siavash, need to understand if pb comes from litt or implementation.
     // Answer : Fck around and find out
-    double alpha_ew = 1 / src.at("SMINPUTS")->retrieve(1)->get_val();
+    double alpha_ew = 1. / src.at("SMINPUTS")->retrieve(1)->get_val();
     double m_h = src.at("MASS")->retrieve(25)->get_val();
     double m_t_muW = src.at("WPARAM_MATCH_SM")->retrieve(6)->get_val();
     double sw2OS = src.at("SMINPUTS")->retrieve(LhaID(7, 2))->get_val();
@@ -233,7 +229,7 @@ void BCoefficientGroup::base_2_LO_calculation(
     std::shared_ptr<DependentBlock> dep_block,
     ContributionType type)
 {
-    LOG_INFO("Init LO running of BCoefficientGroup in traditional basis");
+    LOG_DEBUG("Init LO running of BCoefficientGroup in traditional basis");
 
     auto V0 = [src] (int k, int l) -> double {
         return src.at("V_MATRIX")->retrieve(LhaID(0, k, l))->get_val();
@@ -272,7 +268,7 @@ void BCoefficientGroup::base_1_NLO_calculation(
     std::shared_ptr<DependentBlock> dep_block,
     ContributionType type)
 {
-    LOG_INFO("Init NLO running of BCoefficientGroup in standard basis");
+    LOG_DEBUG("Init NLO running of BCoefficientGroup in standard basis");
 
     auto U0 = [src] (int k, int l) -> double {
         return src.at("U_MATRIX")->retrieve(LhaID(0, k, l))->get_val();
@@ -334,7 +330,7 @@ void BCoefficientGroup::base_2_NLO_calculation(
     std::shared_ptr<DependentBlock> dep_block,
     ContributionType type)
 {
-    LOG_INFO("Init NLO running of BCoefficientGroup in traditional basis");
+    LOG_DEBUG("Init NLO running of BCoefficientGroup in traditional basis");
 
     auto V0 = [src] (int k, int l) -> double {
         return src.at("V_MATRIX")->retrieve(LhaID(0, k, l))->get_val();
@@ -384,7 +380,7 @@ void BCoefficientGroup::base_1_NNLO_calculation(
     std::shared_ptr<DependentBlock> dep_block,
     ContributionType type)
 {
-    LOG_INFO("Init NNLO running of BCoefficientGroup in standard basis");
+    LOG_DEBUG("Init NNLO running of BCoefficientGroup in standard basis");
 
     auto U = [src] (int order, int k, int l) -> double {
         return src.at("U_MATRIX")->retrieve(LhaID(order, k, l))->get_val();
@@ -437,7 +433,7 @@ void BCoefficientGroup::base_1_NNLO_calculation(
 void BCoefficientGroup::init_running_parameter_blocks() {
     WilsonParamComposer composer;
 
-    LOG_INFO("Init running matrices blocks of B Coefficient group");
+    LOG_DEBUG("Init running matrices blocks of B Coefficient group");
 	std::unordered_map<ParameterType, std::vector<std::string>> eta_powers_src = {{ParameterType::WILSON, {"WPARAM_RUN_SM"}}};
 
     auto eta_powers_func = [] (const std::unordered_map<std::string, std::shared_ptr<Block>>& src, std::shared_ptr<DependentBlock> dep_block) {
@@ -503,7 +499,7 @@ void BCoefficientGroup::init_running_parameter_blocks() {
     composer.compose_block("U_MATRIX", mtx_src, U_func);
     composer.compose_block("V_MATRIX", mtx_src, V_func);
 
-    LOG_INFO("Running matrices updated");
+    LOG_DEBUG("Running matrices updated");
 }
 
 std::shared_ptr<CoefficientGroup> BScalarCoefficientGroup::clone() const {
@@ -569,7 +565,7 @@ void BScalarCoefficientGroup::base_1_NLO_calculation(
 }
 
 void BScalarCoefficientGroup::init_running_block(QCDOrder order, BWilsonBasis basis) {
-    LOG_INFO("In BScalarCoefficientGroup::init_running_block");
+    LOG_DEBUG("In BScalarCoefficientGroup::init_running_block");
 
     std::unordered_map<ParameterType, std::vector<std::string>> src = {
         {ParameterType::WILSON, {GroupMapper::str(WGroup::BScalar) + "_MATCH", "WPARAM_RUN_SM", "WPARAM_SI_SM"}},
@@ -639,7 +635,7 @@ void BPrimeCoefficientGroup::base_1_LO_calculation(
 }
 
 void BPrimeCoefficientGroup::init_running_block(QCDOrder order, BWilsonBasis basis) {
-    LOG_INFO("In BPrimeCoefficientGroup::init_running_block");
+    LOG_DEBUG("In BPrimeCoefficientGroup::init_running_block");
 
     if (order > QCDOrder::LO) {
         LOG_WARN("Primed coefficients are only defined at leading order, defaulting to LO.");
@@ -686,7 +682,7 @@ std::shared_ptr<CoefficientGroup> BlnuCoefficientGroup::clone() const {
 }
 
 void BlnuCoefficientGroup::init_running_block(QCDOrder order, BWilsonBasis basis) {
-    LOG_INFO("In BlnuCoefficientGroup::init_running_block");
+    LOG_DEBUG("In BlnuCoefficientGroup::init_running_block");
 
     if (order > QCDOrder::LO) {
         LOG_WARN("Charged current coefficients are only defined at leading order, defaulting to LO.");
@@ -738,7 +734,7 @@ std::shared_ptr<CoefficientGroup> BclnuCoefficientGroup::clone() const {
 }
 
 void BclnuCoefficientGroup::init_running_block(QCDOrder order, BWilsonBasis basis) {
-    LOG_INFO("In BclnuCoefficientGroup::init_running_block");
+    LOG_TRACE("In BclnuCoefficientGroup::init_running_block");
 
     if (order > QCDOrder::LO) {
         LOG_WARN("Charged current coefficients are only defined at leading order, defaulting to LO.");

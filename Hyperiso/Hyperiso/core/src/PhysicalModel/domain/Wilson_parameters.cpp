@@ -5,7 +5,7 @@ void WilsonParameterHelper::init(int gen) {
 		return;
 	}
 
-	std::cout << "Initializing WilsonParameterHelper" << std::endl;
+	LOG_DEBUG("Initializing WilsonParameterHelper");
 	WilsonParameterHelper::init_scale_independent_block(gen);
 	WilsonParameterHelper::init_matching_block();
 	WilsonParameterHelper::init_running_block();
@@ -62,7 +62,7 @@ void WilsonParameterHelper::init_matching_block() {
 		dep_block->store_or_assign(7, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_MATCH_SM", 7}, xtW, 0., 0.));
 		dep_block->store_or_assign(8, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_MATCH_SM", 8}, xtt, 0., 0.));
 
-		LOG_INFO("Update matching block");
+		LOG_DEBUG("Update matching block");
     };
 
     WilsonParameterHelper::composer.compose_block("WPARAM_MATCH_SM", src, func);

@@ -46,7 +46,6 @@ void Compound::add_dependences(const std::unordered_set<ParamId> &param_names) {
     std::set_union(dependences.begin(), dependences.end(),
                    param_names.begin(), param_names.end(),
                    std::inserter(dependences, dependences.begin()));
-    LOG_INFO("Set union done");
     update_gradient();
 }
 

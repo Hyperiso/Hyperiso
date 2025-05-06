@@ -30,7 +30,6 @@ void BlockAccessor::setValue(const std::string& blockName, LhaID id, double valu
     auto it = this->find(blockName);
     if (it != this->end()) {
         if (it->second->contains(id)) {
-            LOG_INFO("In assign");
             it->second->assign(id, value);
         } else {
             it->second->store(id, std::make_shared<Parameter>(ParamId(blockName, id), value, 0., 0.));

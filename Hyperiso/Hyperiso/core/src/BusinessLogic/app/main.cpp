@@ -15,15 +15,18 @@ int main() {
 
     auto interface = ObservableInterface();
 
-    for (Observables obs : ObservableMapper::get_enum()) {
-        interface.add_observable(obs, QCDOrder::NNLO, true);
-    }
-
-    LOG_INFO("All observables added");
+    interface.add_observable(Observables::ISOSPIN_ASYMMETRY_B_KSTAR_GAMMA, QCDOrder::NNLO, false);
+    LOG_INFO(interface.compute_observable(Observables::ISOSPIN_ASYMMETRY_B_KSTAR_GAMMA));
     
-    for (Observables obs : ObservableMapper::get_enum()) {
-        LOG_INFO(interface.compute_observable(obs), "+-", interface.compute_uncertainty(obs));
-    }
+    // for (Observables obs : ObservableMapper::get_enum()) {
+    //     interface.add_observable(obs, QCDOrder::NNLO, true);
+    // }
+
+    // LOG_INFO("All observables added");
+    
+    // for (Observables obs : ObservableMapper::get_enum()) {
+    //     LOG_INFO(ObservableMapper::str(obs), "=", interface.compute_observable(obs), "+-", interface.compute_uncertainty(obs));
+    // }
     
     // LOG_INFO(interface.compute_chi2());
 }
