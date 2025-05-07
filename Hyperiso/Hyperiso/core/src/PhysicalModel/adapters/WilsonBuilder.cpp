@@ -32,6 +32,7 @@ void WilsonBuilder::add(WilsonBuildConfig config) {
         this->cm->registerCoefficientGroup(group_name, WilsonGroupFactory::create_coefficient_group(g_id, model));
         this->cm->init_group_matching(group_name, OrderMapper::str(config.order));
         this->cm->init_group_hadronic(group_name, OrderMapper::str(config.order));
+        this->cm->post_init();
     };
 
     Model model = ModelAPI().get();

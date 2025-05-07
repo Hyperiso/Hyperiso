@@ -52,13 +52,13 @@ void CoefficientManager::init_group_hadronic(const std::string& groupName, const
         throw_no_group_error(groupName);
     }
 
-    this->coefficientGroups.at(groupName)->init_running_block(OrderMapper::enum_elt(order));
+    this->coefficientGroups.at(groupName)->init_running_blocks(OrderMapper::enum_elt(order));
     if (has_bsm) {
         std::string bsm_group = groupName + bsm_suffix;
         if (!this->coefficientGroups.contains(bsm_group)) {
             throw_no_group_error(bsm_group);
         }
-        this->coefficientGroups.at(bsm_group)->init_running_block(OrderMapper::enum_elt(order));
+        this->coefficientGroups.at(bsm_group)->init_running_blocks(OrderMapper::enum_elt(order));
     }
 }
 
@@ -158,6 +158,85 @@ void CoefficientManager::update(std::string group, double mu_W, double mu_h) {
     this->set_hadronic_scale(mu_h);
 }
 
+void CoefficientManager::post_init() {
+    // TODO : Fill Wilson blocks with separate SM, BSM and SM + BSM values.
+    bool marty = HAS_WILSON_API().get();
+    bool SM = ModelAPI().get() == Model::SM;
+
+    if (SM) {
+        if (marty) {
+            for (std::string group_name : get_keys(this->coefficientGroups)) {
+                WGroup group_id = GroupMapper::enum_elt(group_name);
+                complete_wilson_block_from_copy(group_id, ContributionType::TOTAL, ContributionType::SM, BWilsonBasis::STANDARD);
+
+                if (group_id == WGroup::B) {   
+                    complete_wilson_block_from_copy(group_id, ContributionType::TOTAL, ContributionType::SM, BWilsonBasis::TRADITIONAL);
+                }
+            }
+        } else {
+            for (std::string group_name : get_keys(this->coefficientGroups)) {
+                WGroup group_id = GroupMapper::enum_elt(group_name);
+                complete_wilson_block_from_copy(group_id, ContributionType::SM, ContributionType::TOTAL, BWilsonBasis::STANDARD);
+
+                if (group_id == WGroup::B) {   
+                    complete_wilson_block_from_copy(group_id, ContributionType::SM, ContributionType::TOTAL, BWilsonBasis::TRADITIONAL);
+                }
+            }
+        }
+    } else {
+        if (marty) {
+            
+        } else {
+
+        }
+    }
+
+    // if(!SM && UseMarty) perform MARTY SM calculation to separate 0 and 1 from 2.
+
+    // if(SM && UseMarty) copy values from 2 to 0
+
+    // if(SM && !UseMarty) copy values from 0 to 2
+
+    // if(!SM && !UseMarty) add 0 and 1 to build 2
+}
+
+void CoefficientManager::complete_wilson_block_from_copy(WGroup group_id, ContributionType src_id, ContributionType dest_id, BWilsonBasis basis) {
+    // TODO : Check whether GroupMapper::str(group_id, ScaleType::HADRONIC, false, basis) already exists
+
+    std::unordered_map<ParameterType, std::vector<std::string>> src = {
+        {ParameterType::WILSON, {GroupMapper::str(group_id, ScaleType::HADRONIC) + "INTER"}}
+    };
+
+    auto func = [&] (const std::unordered_map<std::string, std::shared_ptr<Block>>& src, std::shared_ptr<DependentBlock> dep_block) {
+        for (WCoef coef_id : WCoefMapper::get_group(group_id)) {
+            for (int order=0; order<2; order++) {
+                ParameterProxy pp(ParameterType::WILSON);
+                complex_t coef = pp(GroupMapper::str(group_id, ScaleType::HADRONIC) + "INTER", WCoefMapper::flha_full(coef_id, (QCDOrder)(order + 1), src_id));
+                
+                if (fpeq(coef.real(), 0.) && fpeq(coef.imag(), 0.)) continue;
+
+                auto coef_lha_base = WCoefMapper::flha_base(coef_id);
+                ParamId pid_src {
+                    ParameterType::WILSON, 
+                    GroupMapper::str(group_id, ScaleType::HADRONIC, false, basis), 
+                    LhaID(coef_lha_base.first, coef_lha_base.second, order, (int)src_id)
+                };
+
+                ParamId pid_dest {
+                    ParameterType::WILSON, 
+                    GroupMapper::str(group_id, ScaleType::HADRONIC, false, basis), 
+                    LhaID(coef_lha_base.first, coef_lha_base.second, order, (int)dest_id)
+                };
+
+                dep_block->store_or_assign(pid_src.code, std::make_shared<Parameter>(pid_src, coef, 0., 0.));
+                dep_block->store_or_assign(pid_dest.code, std::make_shared<Parameter>(pid_dest, coef, 0., 0.));
+            }
+        }
+    };
+
+    WilsonParamComposer().compose_block(GroupMapper::str(group_id, ScaleType::HADRONIC, false, basis), src, func);
+}
+
 std::shared_ptr<CoefficientManager> CoefficientManager::Builder(std::string model, std::map<std::string, std::shared_ptr<CoefficientGroup>> groups, double mu_W, double mu_h, std::string order) {
     if (groups.empty()) {
         LOG_WARN("(CoefficientManager) No coefficient groups provided.");
@@ -183,6 +262,8 @@ std::shared_ptr<CoefficientManager> CoefficientManager::Builder(std::string mode
         LOG_INFO("(CoefficientManager) Initializing group hadronic", group.first);
         manager->init_group_hadronic(group.first, order);
     }
+    manager->post_init();
+    LOG_INFO("(CoefficientManager) Manager successfully initialized");
     return manager;
 }
 

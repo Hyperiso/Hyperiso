@@ -1,5 +1,7 @@
 #include "BDlnuDecay.h"
 
+// TODO : Eliminate QCDHelper Instances
+
 double BDlnuDecay::ckm(complex_t V_cb) {
     return std::pow(std::abs(V_cb), 2);
 }

@@ -39,6 +39,8 @@ public:
     void init_group_hadronic(const std::string& groupName, const std::string& order);
     void switchbasis(const std::string& groupName);
     void update(std::string group, double mu_W, double mu_h);
+    void post_init();
+    void complete_wilson_block_from_copy(WGroup group_id, ContributionType src, ContributionType dest, BWilsonBasis basis=BWilsonBasis::STANDARD);
     
     std::string getModel();
     std::shared_ptr<CoefficientGroup> getCoefficientGroup(const std::string& groupName) const;

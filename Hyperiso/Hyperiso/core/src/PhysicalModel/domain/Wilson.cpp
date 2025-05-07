@@ -5,6 +5,8 @@ void WilsonCoefficient::init(QCDOrder order) {
         WilsonParameterHelper::init(2);
     }
 
+    LOG_VERBOSE("Initializing Wilson Coefficient", this->coeffName, "in block", this->storage_block);
+
     max_order = order;
     switch (order) {
     case QCDOrder::NNLO:
@@ -26,6 +28,10 @@ void WilsonCoefficient::set_owned(bool owned) {
     }
 
     this->is_owned = owned;
+}
+
+void WilsonCoefficient::set_storage_block(std::string block_name) {
+    this->storage_block = block_name;
 }
 
 LhaID WilsonCoefficient::id(QCDOrder order) const {

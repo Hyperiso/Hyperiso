@@ -328,7 +328,7 @@ public:
         this->insert(std::make_pair("C7", std::make_shared<C7_susy>()));  this->insert(std::make_pair("C8", std::make_shared<C8_susy>()));  this->insert(std::make_pair("C9", std::make_shared<C9_susy>())); 
         this->insert(std::make_pair("C10", std::make_shared<C10_susy>())); 
 
-        this->storage_block = "B_HADRONIC_SUSY";
+        this->id = WGroup::B;
         this->wilson_type = ContributionType::BSM;
     }
 };
@@ -341,7 +341,7 @@ public:
         this->insert(std::make_pair("CP7", std::make_shared<CP7_susy>()));  this->insert(std::make_pair("CP8", std::make_shared<CP8_susy>()));  this->insert(std::make_pair("CP9", std::make_shared<CP9_susy>())); 
         this->insert(std::make_pair("CP10", std::make_shared<CP10_susy>())); this->insert(std::make_pair("CPQ1", std::make_shared<CPQ1_susy>())); this->insert(std::make_pair("CPQ2", std::make_shared<CPQ2_susy>())); 
 
-        this->storage_block = "B_PRIME_HADRONIC_SUSY";
+        this->id = WGroup::BPrime;
         this->wilson_type = ContributionType::BSM;
     }
 };
@@ -351,7 +351,7 @@ public:
     BScalarCoefficientGroup_susy() : BScalarCoefficientGroup() { this->clear();
         this->insert(std::make_pair("CQ1", std::make_shared<CQ1_susy>())); this->insert(std::make_pair("CQ2", std::make_shared<CQ2_susy>()));
 
-        this->storage_block = "B_SCALAR_HADRONIC_SUSY";
+        this->id = WGroup::BScalar;
         this->wilson_type = ContributionType::BSM;
     }
 
@@ -368,7 +368,7 @@ public:
         this->insert(std::make_pair("C_Blnu_A", std::make_shared<C_Blnu_A_SUSY>())); 
         this->insert(std::make_pair("C_Blnu_P", std::make_shared<C_Blnu_P_SUSY>()));
 
-        this->storage_block = "B_LNU_HADRONIC_SUSY";
+        this->id = WGroup::Blnu;
         this->wilson_type = ContributionType::BSM;
     }
 };
@@ -382,7 +382,7 @@ public:
         this->insert(std::make_pair("C_S2", std::make_shared<C_S2_SUSY>()));
         this->insert(std::make_pair("C_T", std::make_shared<C_T_SUSY>()));
 
-        this->storage_block = "B_CLNU_HADRONIC_SUSY";
+        this->id = WGroup::BCLNU;
         this->wilson_type = ContributionType::BSM;
     }
 

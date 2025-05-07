@@ -19,6 +19,7 @@ public:
 
     void set_name(std::string name) {this->coeffName = name;}
     void set_owned(bool owned);
+    void set_storage_block(std::string block_name);
 
     complex_t get_matching_value(std::string order) const; 
     std::string get_name() const {return this->coeffName;}

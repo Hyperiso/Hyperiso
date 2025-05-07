@@ -314,7 +314,7 @@ public:
         this->insert(std::make_pair("C7", std::make_shared<C7_THDM>()));  this->insert(std::make_pair("C8", std::make_shared<C8_THDM>()));  this->insert(std::make_pair("C9", std::make_shared<C9_THDM>())); 
         this->insert(std::make_pair("C10", std::make_shared<C10_THDM>())); 
 
-        this->storage_block = GroupMapper::str(WGroup::B) + "_HADRONIC";
+        this->id = WGroup::B;
         this->wilson_type = ContributionType::BSM;
     }
 };
@@ -327,7 +327,7 @@ public:
         this->insert(std::make_pair("CP7", std::make_shared<CP7_THDM>()));  this->insert(std::make_pair("CP8", std::make_shared<CP8_THDM>()));  this->insert(std::make_pair("CP9", std::make_shared<CP9_THDM>())); 
         this->insert(std::make_pair("CP10", std::make_shared<CP10_THDM>())); this->insert(std::make_pair("CPQ1", std::make_shared<CPQ1_THDM>())); this->insert(std::make_pair("CPQ2", std::make_shared<CPQ2_THDM>())); 
 
-        this->storage_block = GroupMapper::str(WGroup::BPrime) + "_HADRONIC";
+        this->id = WGroup::BPrime;
         this->wilson_type = ContributionType::BSM;
     }
 
@@ -340,7 +340,7 @@ public:
     BScalarCoefficientGroup_THDM() { this->clear();
         this->insert(std::make_pair("CQ1", std::make_shared<CQ1_THDM>())); this->insert(std::make_pair("CQ2", std::make_shared<CQ2_THDM>()));
 
-        this->storage_block = GroupMapper::str(WGroup::BScalar) + "_HADRONIC";
+        this->id = WGroup::BScalar;
         this->wilson_type = ContributionType::BSM;
     }
 
@@ -354,7 +354,7 @@ public:
         this->insert(std::make_pair("C_Blnu_A", std::make_shared<C_Blnu_A_THDM>())); 
         this->insert(std::make_pair("C_Blnu_P", std::make_shared<C_Blnu_P_THDM>()));
 
-        this->storage_block = GroupMapper::str(WGroup::Blnu) + "_HADRONIC";
+        this->id = WGroup::Blnu;
         this->wilson_type = ContributionType::BSM;
     }
 
@@ -371,7 +371,7 @@ public:
         this->insert(std::make_pair("C_S2", std::make_shared<C_S2_THDM>()));
         this->insert(std::make_pair("C_T", std::make_shared<C_T_THDM>()));
 
-        this->storage_block = GroupMapper::str(WGroup::BCLNU) + "_HADRONIC";
+        this->id = WGroup::BCLNU;
         this->wilson_type = ContributionType::BSM;
     }
 

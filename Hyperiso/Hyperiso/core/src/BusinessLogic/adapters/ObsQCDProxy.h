@@ -9,7 +9,6 @@ public:
     double operator()(MassConfig config);
 
     QCDConstants *get_constants();
-
 };
 
 #endif
