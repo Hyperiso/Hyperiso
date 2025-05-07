@@ -31,7 +31,7 @@ complex_t CoefficientGroup::get_matching_coefficient(std::string coeff, std::str
 complex_t CoefficientGroup::get_running_coefficient(std::string coeff, std::string order) const {
     auto coef = this->at(coeff);
     ParameterProxy wilson_p = ParameterProxy(ParameterType::WILSON);
-    std::cout << "before : " << coef->id(OrderMapper::enum_elt(order)) << std::endl;
+    // std::cout << "before : " << coef->id(OrderMapper::enum_elt(order)) << std::endl;
     return complex_t(wilson_p(GroupMapper::str(this->id, ScaleType::HADRONIC, false, this->basis.value_or(BWilsonBasis::STANDARD)), coef->id(OrderMapper::enum_elt(order))));
 }
 
@@ -136,7 +136,7 @@ void CoefficientGroup::init_full_running_block(BWilsonBasis basis) {
                 GroupMapper::str(this->id, ScaleType::HADRONIC, true, basis) + "INTER", 
                 LhaID(coef_lha_base.first, coef_lha_base.second, (int)this->wilson_type)
             };
-            LOG_INFO("Storing full coefficient", LhaID(coef_lha_base.first, coef_lha_base.second, (int)this->wilson_type));
+            // LOG_INFO("Storing full coefficient", LhaID(coef_lha_base.first, coef_lha_base.second, (int)this->wilson_type));
             dep_block->store_or_assign(pid.code, std::make_shared<Parameter>(pid, coef_full, 0., 0.));
         }
     };

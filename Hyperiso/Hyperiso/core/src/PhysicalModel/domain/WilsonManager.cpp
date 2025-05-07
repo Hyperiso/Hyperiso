@@ -123,7 +123,6 @@ complex_t CoefficientManager::getRunCoefficient(const std::string& groupName, co
 }
 
 complex_t CoefficientManager::getFullRunCoefficient(const std::string& groupName, const std::string& coeffName, const std::string& order, bool sm_only) {
-    std::cout << "before : " << coeffName << std::endl;
     double fact = wilson_p("WPARAM_RUN_SM", 1) / (4 * PI);
     int max_order = static_cast<int>(OrderMapper::enum_elt(order));
     complex_t c {0};
@@ -210,7 +209,6 @@ void CoefficientManager::complete_wilson_block_from_copy(WGroup group_id, Contri
     //TODO or not TODO : do not use reference if variable gonna be destroyed.
     auto func = [group_id, src_id, dest_id, basis] (const std::unordered_map<std::string, std::shared_ptr<Block>>& src, std::shared_ptr<DependentBlock> dep_block) {
         for (WCoef coef_id : WCoefMapper::get_group(group_id)) {
-            std::cout << GroupMapper::str(group_id) << std::endl;
             for (int order=0; order<2; order++) {
                 ParameterProxy pp(ParameterType::WILSON);
                 complex_t coef = pp(GroupMapper::str(group_id, ScaleType::HADRONIC) + "INTER", WCoefMapper::flha_full(coef_id, (QCDOrder)(order + 1), src_id));
@@ -235,7 +233,6 @@ void CoefficientManager::complete_wilson_block_from_copy(WGroup group_id, Contri
             }
         }
     };
-
     WilsonParamComposer().compose_block(GroupMapper::str(group_id, ScaleType::HADRONIC, false, basis), src, func);
 
     this->coefficientGroups.at(GroupMapper::str(group_id))->init_full_running_block(basis); //TODO : We need to add full again ? 
