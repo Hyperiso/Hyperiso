@@ -46,7 +46,8 @@ void DependentBlockManager::addDependentParameter(
         ba->emplace(pid.block, std::make_shared<Block>());
         ba->at(pid.block)->blockname = pid.block;
     } 
-    
+    std::cout << "--------------------------------------------------------------------------" << std::endl;
+    std::cout << ba << std::endl;
     ba->at(pid.block)->store(pid.code, dependentParam);
 }
 

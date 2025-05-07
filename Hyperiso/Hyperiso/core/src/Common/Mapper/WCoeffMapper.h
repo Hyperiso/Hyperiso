@@ -35,6 +35,7 @@ public:
     }
 
     static std::vector<WCoef> get_group(WGroup group) {
+        std::cout << (int)group << std::endl;
         switch (group) {
             case WGroup::B: return B_group();
             case WGroup::BPrime: return B_prime_group();
