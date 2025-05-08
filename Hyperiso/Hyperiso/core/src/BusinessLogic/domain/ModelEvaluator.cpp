@@ -63,7 +63,7 @@ void ModelEvaluator::update_exp_covariance() {
                 double corr = cp(id_1, id_2, CorrelationProvider::CorrelationType::COMBINED);
                 scalar_t sigma_1 = opp("FOBS", ObservableMapper::flha(id_1), ParameterProvider::DataType::STD_COMBINED);
                 scalar_t sigma_2 = opp("FOBS", ObservableMapper::flha(id_2), ParameterProvider::DataType::STD_COMBINED);
-                th_cov_mtx.insert_or_assign(pair_id, corr * sigma_1 * sigma_2);
+                exp_cov_mtx.insert_or_assign(pair_id, corr * sigma_1 * sigma_2); //TODO or not TODO : it was th_cov_mtx, typo ?
             }
         }
     }
@@ -74,10 +74,13 @@ SparseMatrix<Observables> ModelEvaluator::get_covariance() {
     LOG_DEBUG("Theoretical covariance matrix calculated");
 
     SparseMatrix<Observables> cov = th_cov_mtx;
+    std::cout << "thory" << std::endl;
+    printMatrix(cov, getDiagonalElements(cov));
     CorrelationProxy corr_prox;
     LOG_DEBUG("Theoretical covariance matrix size", cov.size());
 
     for (auto &&p : exp_cov_mtx) {
+        std::cout << ObservableMapper::str(p.first.first) << " " << ObservableMapper::str(p.first.second) << ": "<< p.second << std::endl;
         if (cov.contains(p.first)) {
             cov.at(p.first) += p.second;
         } else {
@@ -91,6 +94,7 @@ SparseMatrix<Observables> ModelEvaluator::get_covariance() {
 double ModelEvaluator::chi2() {
     SparseMatrix<Observables> covariance_mtx = get_covariance();
     LOG_DEBUG("Covariance calculated");
+    printMatrix(covariance_mtx, getDiagonalElements(covariance_mtx));
     SparseMatrix<Observables> precision_mtx = invertMatrix(covariance_mtx, getDiagonalElements(covariance_mtx));
     LOG_DEBUG("Precision matrix calculated");
 

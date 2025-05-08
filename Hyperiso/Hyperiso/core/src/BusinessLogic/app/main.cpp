@@ -36,5 +36,5 @@ int main() {
         LOG_INFO(ObservableMapper::str(obs), "=", interface.compute_observable(obs), "+-", interface.compute_uncertainty(obs));
     }
     
-    // LOG_INFO(interface.compute_chi2());
+    LOG_INFO(interface.compute_chi2());
 }
