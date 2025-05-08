@@ -30,8 +30,11 @@ void WilsonBuilder::add(WilsonBuildConfig config) {
     auto init_group = [&](WGroup g_id, Model model) {
         std::string group_name = GroupMapper::str(g_id) + (model == Model::THDM || model == Model::SUSY ? "_" + ModelMapper::str(model) : "");
         this->cm->registerCoefficientGroup(group_name, WilsonGroupFactory::create_coefficient_group(g_id, model));
+        std::cout << "still here" << std::endl;
         this->cm->init_group_matching(group_name, OrderMapper::str(config.order));
+        std::cout << "still here" << std::endl;
         this->cm->init_group_hadronic(group_name, OrderMapper::str(config.order));
+        std::cout << "still here" << std::endl;
         this->cm->post_init();
     };
 

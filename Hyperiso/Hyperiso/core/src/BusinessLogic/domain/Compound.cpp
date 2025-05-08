@@ -3,7 +3,7 @@
 // TODO : Ensure compatibility with complex compounds (nonlinear operations).
 
 scalar_t Compound::compute_pdv(const ParamId &param_id) const {
-    LOG_INFO("Computing pdv wrt", param_id);
+    LOG_DEBUG("Computing pdv wrt", param_id);
     ObsParameterProxy opp = ObsParameterProxy();
     scalar_t h = opp(param_id) * 1e-5;
     h = fpeq(std::abs(h), 0.) ? scalar_t(1e-5) : h;
@@ -18,7 +18,7 @@ scalar_t Compound::compute_pdv(const ParamId &param_id) const {
 }
 
 void Compound::update_gradient() {
-    LOG_INFO("Updating gradient");
+    LOG_DEBUG("Updating gradient");
     central_value = eval();
     for (auto &&p : dependences) {
         gradient.insert_or_assign(p, compute_pdv(p));
@@ -42,7 +42,7 @@ void Compound::add_dependence(const ParamId &param_name) {
 }
 
 void Compound::add_dependences(const std::unordered_set<ParamId> &param_names) {
-    LOG_INFO("Adding parameter list to compound");
+    LOG_DEBUG("Adding parameter list to compound");
     std::set_union(dependences.begin(), dependences.end(),
                    param_names.begin(), param_names.end(),
                    std::inserter(dependences, dependences.begin()));

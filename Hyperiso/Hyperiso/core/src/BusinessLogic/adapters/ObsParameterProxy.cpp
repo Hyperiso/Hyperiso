@@ -24,8 +24,9 @@ scalar_t ObsParameterProxy::operator()(const ParamId& pid, ParameterProvider::Da
     if (!ObsParameterProxy::ALLOWED.contains(pid.type.value())) {
         LOG_ERROR("ValueError", "BusinessLogic cannot access parameter type", ParameterTypeMapper::str(pid.type.value()));
     }
-    
     if (pid.type == ParameterType::WILSON) {
+        // std::cout << pid << std::endl;
+        // std::cout << pp.exists(pid) << std::endl;
         return pp.exists(pid) ? pp(pid, d_type) : scalar_t();
     } 
     return pp(pid, d_type); 

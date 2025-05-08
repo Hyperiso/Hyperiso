@@ -24,7 +24,7 @@ public:
 
     void init(QCDOrder order);
     virtual void init_running_blocks(QCDOrder order) = 0;
-    void init_full_running_block(BWilsonBasis basis);
+    void init_full_running_block(const std::unordered_map<ParameterType, std::vector<std::string>> &source_names, BWilsonBasis basis, bool inter, std::vector<ContributionType> type);
 
     // Getters
     complex_t get_matching_coefficient(std::string coeff, std::string order) const;

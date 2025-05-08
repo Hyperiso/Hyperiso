@@ -32,6 +32,7 @@ complex_t CoefficientGroup::get_running_coefficient(std::string coeff, std::stri
     auto coef = this->at(coeff);
     ParameterProxy wilson_p = ParameterProxy(ParameterType::WILSON);
     // std::cout << "before : " << coef->id(OrderMapper::enum_elt(order)) << std::endl;
+    // std::cout << GroupMapper::str(this->id, ScaleType::HADRONIC, false, this->basis.value_or(BWilsonBasis::STANDARD)) << " eheh " << coef->id(OrderMapper::enum_elt(order)) << std::endl;
     return complex_t(wilson_p(GroupMapper::str(this->id, ScaleType::HADRONIC, false, this->basis.value_or(BWilsonBasis::STANDARD)), coef->id(OrderMapper::enum_elt(order))));
 }
 
@@ -111,37 +112,44 @@ void BCoefficientGroup::init_running_blocks(QCDOrder order) {
 
     WilsonParamComposer().compose_block(GroupMapper::str(this->id, ScaleType::HADRONIC, false, BWilsonBasis::TRADITIONAL) + "INTER", src_2, func_2);
 
-    init_full_running_block(BWilsonBasis::STANDARD);
-    init_full_running_block(BWilsonBasis::TRADITIONAL);
-}
-
-void CoefficientGroup::init_full_running_block(BWilsonBasis basis) {
     std::unordered_map<ParameterType, std::vector<std::string>> src = {
         {ParameterType::WILSON, {GroupMapper::str(this->id, ScaleType::HADRONIC) + "INTER", "WPARAM_RUN_SM"}}
     };
 
-    auto func = [basis, this] (const std::unordered_map<std::string, std::shared_ptr<Block>>& src, std::shared_ptr<DependentBlock> dep_block) {
+    init_full_running_block(src, BWilsonBasis::STANDARD, true, {this->wilson_type});
+    init_full_running_block(src, BWilsonBasis::TRADITIONAL, true, {this->wilson_type});
+}
+
+void CoefficientGroup::init_full_running_block(const std::unordered_map<ParameterType, std::vector<std::string>> &source_names, BWilsonBasis basis, bool inter, std::vector<ContributionType> contribution_type) {
+    // std::unordered_map<ParameterType, std::vector<std::string>> src = {
+    //     {ParameterType::WILSON, {GroupMapper::str(this->id, ScaleType::HADRONIC) + "INTER", "WPARAM_RUN_SM"}}
+    // };
+
+    auto func = [basis, this, inter, contribution_type] (const std::unordered_map<std::string, std::shared_ptr<Block>>& src, std::shared_ptr<DependentBlock> dep_block) {
         double alpha_s_mu_h = src.at("WPARAM_RUN_SM")->retrieve(1)->get_val();
         double fact = alpha_s_mu_h / 4 * PI;
-        
         for (WCoef coef_id : WCoefMapper::get_group(this->id)) {
-            complex_t coef_full {0.};
-            for (int order=0; order < 2; order++) {
-                coef_full += ensure_coef(coef_id, (QCDOrder)(order + 1), this->wilson_type, GroupMapper::str(this->id, ScaleType::HADRONIC) + "INTER");
+            std::map<ContributionType, complex_t> coeff_fulls;
+            for (ContributionType type : contribution_type) {
+                for (int order=0; order < 2; order++) {
+                    coeff_fulls[type] += ensure_coef(coef_id, (QCDOrder)(order + 1), type, GroupMapper::str(this->id, ScaleType::HADRONIC, false, basis) + (inter ? "INTER" : ""));
+                }
+
             }
 
             auto coef_lha_base = WCoefMapper::flha_base(coef_id);
-            ParamId pid {
-                ParameterType::WILSON, 
-                GroupMapper::str(this->id, ScaleType::HADRONIC, true, basis) + "INTER", 
-                LhaID(coef_lha_base.first, coef_lha_base.second, (int)this->wilson_type)
-            };
             // LOG_INFO("Storing full coefficient", LhaID(coef_lha_base.first, coef_lha_base.second, (int)this->wilson_type));
-            dep_block->store_or_assign(pid.code, std::make_shared<Parameter>(pid, coef_full, 0., 0.));
+            for (ContributionType type : contribution_type) {
+                ParamId pid {
+                    ParameterType::WILSON, 
+                    GroupMapper::str(this->id, ScaleType::HADRONIC, true, basis) + (inter ? "INTER" : ""), 
+                    LhaID(coef_lha_base.first, coef_lha_base.second, (int)type)
+                };
+                dep_block->store_or_assign(pid.code, std::make_shared<Parameter>(pid, coeff_fulls[type], 0., (int)type));
+            }
         }
     };
-
-    WilsonParamComposer().compose_block(GroupMapper::str(this->id, ScaleType::HADRONIC, true, basis) + "INTER", src, func);
+    WilsonParamComposer().compose_block(GroupMapper::str(this->id, ScaleType::HADRONIC, true, basis) + (inter ? "INTER" : ""), source_names, func);
 }
 
 void CoefficientGroup::switch_basis() {
@@ -226,12 +234,13 @@ void BCoefficientGroup::base_1_LO_calculation(
     
     complex_t C10_22 = (0.27924 * C1_NLO + 0.33157 * C4_NLO + 2.35917 * Ci_match[8] + 3.29679 * Ci_match[9]) * log(eta) + (1 - eta) * (0.26087 * C9_NLO + 1.15942 * C10_NLO) + C1022;
     
+    //TODO or not TODO : why was it all C1 before ?
     complex_t C1_NNLO = ensure_coef(WCoef::C1, QCDOrder::NNLO, type, GroupMapper::str(WGroup::B, ScaleType::MATCHING));
-    complex_t C2_NNLO = ensure_coef(WCoef::C1, QCDOrder::NNLO, type, GroupMapper::str(WGroup::B, ScaleType::MATCHING));
-    complex_t C3_NNLO = ensure_coef(WCoef::C1, QCDOrder::NNLO, type, GroupMapper::str(WGroup::B, ScaleType::MATCHING));
-    complex_t C4_NNLO = ensure_coef(WCoef::C1, QCDOrder::NNLO, type, GroupMapper::str(WGroup::B, ScaleType::MATCHING));
-    complex_t C5_NNLO = ensure_coef(WCoef::C1, QCDOrder::NNLO, type, GroupMapper::str(WGroup::B, ScaleType::MATCHING));
-    complex_t C6_NNLO = ensure_coef(WCoef::C1, QCDOrder::NNLO, type, GroupMapper::str(WGroup::B, ScaleType::MATCHING));
+    complex_t C2_NNLO = ensure_coef(WCoef::C2, QCDOrder::NNLO, type, GroupMapper::str(WGroup::B, ScaleType::MATCHING));
+    complex_t C3_NNLO = ensure_coef(WCoef::C3, QCDOrder::NNLO, type, GroupMapper::str(WGroup::B, ScaleType::MATCHING));
+    complex_t C4_NNLO = ensure_coef(WCoef::C4, QCDOrder::NNLO, type, GroupMapper::str(WGroup::B, ScaleType::MATCHING));
+    complex_t C5_NNLO = ensure_coef(WCoef::C5, QCDOrder::NNLO, type, GroupMapper::str(WGroup::B, ScaleType::MATCHING));
+    complex_t C6_NNLO = ensure_coef(WCoef::C6, QCDOrder::NNLO, type, GroupMapper::str(WGroup::B, ScaleType::MATCHING));
 
     for(int ie = 0; ie <= 7; ie++) {
         C10_22 += pow(eta, BRP::a[ie] + 2) * (
@@ -255,7 +264,7 @@ void BCoefficientGroup::base_1_LO_calculation(
             GroupMapper::str(WGroup::B, ScaleType::HADRONIC, false, BWilsonBasis::STANDARD) + "INTER", 
             WCoefMapper::flha_full(ids[k], QCDOrder::LO, type)
         };
-        LOG_INFO("Storing coefficient", WCoefMapper::flha_full(ids[k], QCDOrder::LO, type));
+        LOG_DEBUG("Storing coefficient", WCoefMapper::flha_full(ids[k], QCDOrder::LO, type));
         dep_block->store_or_assign(pid.code, std::make_shared<Parameter>(pid, Ci_run[k], 0., 0.));
     }
 }
@@ -364,7 +373,7 @@ void BCoefficientGroup::base_1_NLO_calculation(
             GroupMapper::str(WGroup::B, ScaleType::HADRONIC, false, BWilsonBasis::STANDARD) + "INTER", 
             WCoefMapper::flha_full(ids[k], QCDOrder::NLO, type)
         };
-        LOG_INFO("Storing coefficient", WCoefMapper::flha_full(ids[k], QCDOrder::NLO, type));
+        LOG_DEBUG("Storing coefficient", WCoefMapper::flha_full(ids[k], QCDOrder::NLO, type));
         dep_block->store_or_assign(pid.code, std::make_shared<Parameter>(pid, eta * Ci_run[k], 0., 0.));
     }
 }
@@ -418,7 +427,7 @@ void BCoefficientGroup::base_2_NLO_calculation(
             GroupMapper::str(WGroup::B, ScaleType::HADRONIC, false, BWilsonBasis::TRADITIONAL) + "INTER", 
             WCoefMapper::flha_full(ids[k], QCDOrder::NLO, type)
         };
-        LOG_INFO("Storing coefficient", WCoefMapper::flha_full(ids[k], QCDOrder::NLO, type));
+        LOG_DEBUG("Storing coefficient", WCoefMapper::flha_full(ids[k], QCDOrder::NLO, type));
         dep_block->store_or_assign(pid.code, std::make_shared<Parameter>(pid, eta * Ci_run[k], 0., 0.));
     }
 }
@@ -476,7 +485,7 @@ void BCoefficientGroup::base_1_NNLO_calculation(
             GroupMapper::str(WGroup::B, ScaleType::HADRONIC, false, BWilsonBasis::STANDARD) + "INTER", 
             WCoefMapper::flha_full(ids[k], QCDOrder::NNLO, type)
         };
-        LOG_INFO("Storing coefficient", WCoefMapper::flha_full(ids[k], QCDOrder::NNLO, type));
+        LOG_DEBUG("Storing coefficient", WCoefMapper::flha_full(ids[k], QCDOrder::NNLO, type));
         dep_block->store_or_assign(pid.code, std::make_shared<Parameter>(pid, eta_sq * Ci_run[k], 0., 0.));
     }
 }
@@ -644,7 +653,13 @@ void BScalarCoefficientGroup::init_running_blocks(QCDOrder order) {
 
     WilsonParamComposer().compose_block(GroupMapper::str(this->id, ScaleType::HADRONIC) + "INTER", src, func);
 
-    init_full_running_block(BWilsonBasis::STANDARD);
+    std::unordered_map<ParameterType, std::vector<std::string>> src_full = {
+        {ParameterType::WILSON, {GroupMapper::str(this->id, ScaleType::HADRONIC) + "INTER", "WPARAM_RUN_SM"}}
+    };
+
+    init_full_running_block(src, BWilsonBasis::STANDARD, true, {this->wilson_type});
+
+    // init_full_running_block(BWilsonBasis::STANDARD);
 }
 
 BPrimeCoefficientGroup::BPrimeCoefficientGroup() {
@@ -717,7 +732,13 @@ void BPrimeCoefficientGroup::init_running_blocks(QCDOrder order) {
 
     WilsonParamComposer().compose_block(GroupMapper::str(this->id, ScaleType::HADRONIC) + "INTER", src, func);
 
-    init_full_running_block(BWilsonBasis::STANDARD);
+    std::unordered_map<ParameterType, std::vector<std::string>> src_full = {
+        {ParameterType::WILSON, {GroupMapper::str(this->id, ScaleType::HADRONIC) + "INTER", "WPARAM_RUN_SM"}}
+    };
+
+    init_full_running_block(src, BWilsonBasis::STANDARD, true, {this->wilson_type});
+
+    // init_full_running_block(BWilsonBasis::STANDARD);
 }
 
 void CoefficientGroup::claim_coefficients() {
@@ -752,22 +773,28 @@ std::shared_ptr<CoefficientGroup> BlnuCoefficientGroup::clone() const {
 
 void BlnuCoefficientGroup::init_running_blocks(QCDOrder order) {
     LOG_DEBUG("In BlnuCoefficientGroup::init_running_block");
-
     if (order > QCDOrder::LO) {
         LOG_WARN("Charged current coefficients are only defined at leading order, defaulting to LO.");
     }
-
+    
     std::unordered_map<ParameterType, std::vector<std::string>> src = {
         {ParameterType::WILSON, {GroupMapper::str(WGroup::Blnu, ScaleType::MATCHING)}},
     };
+    std::cout << "mmmhg" << std::endl;
 
     auto func = [this] (const std::unordered_map<std::string, std::shared_ptr<Block>>& src, std::shared_ptr<DependentBlock> dep_block) {
         BlnuCoefficientGroup::base_1_LO_calculation(src, dep_block, this->wilson_type);
     };
 
     WilsonParamComposer().compose_block(GroupMapper::str(WGroup::Blnu, ScaleType::HADRONIC) + "INTER", src, func);
+    std::cout << "aaaaaaaaaaaah" << std::endl;
+    std::unordered_map<ParameterType, std::vector<std::string>> src_full = {
+        {ParameterType::WILSON, {GroupMapper::str(this->id, ScaleType::HADRONIC) + "INTER", "WPARAM_RUN_SM"}}
+    };
 
-    init_full_running_block(BWilsonBasis::STANDARD);
+    init_full_running_block(src_full, BWilsonBasis::STANDARD, true, {this->wilson_type});
+
+    // init_full_running_block(BWilsonBasis::STANDARD);
 }
 
 void BlnuCoefficientGroup::base_1_LO_calculation(const std::unordered_map<std::string, std::shared_ptr<Block>> &src, std::shared_ptr<DependentBlock> dep_block, ContributionType type) {
@@ -818,14 +845,20 @@ void BclnuCoefficientGroup::init_running_blocks(QCDOrder order) {
     std::unordered_map<ParameterType, std::vector<std::string>> src = {
         {ParameterType::WILSON, {GroupMapper::str(WGroup::BCLNU, ScaleType::MATCHING)}},
     };
-
+    
     auto func = [this] (const std::unordered_map<std::string, std::shared_ptr<Block>>& src, std::shared_ptr<DependentBlock> dep_block) {
         BclnuCoefficientGroup::base_1_LO_calculation(src, dep_block, this->wilson_type);
     };
 
     WilsonParamComposer().compose_block(GroupMapper::str(WGroup::BCLNU, ScaleType::HADRONIC) + "INTER", src, func);
 
-    init_full_running_block(BWilsonBasis::STANDARD);
+    std::unordered_map<ParameterType, std::vector<std::string>> src_full = {
+        {ParameterType::WILSON, {GroupMapper::str(this->id, ScaleType::HADRONIC) + "INTER", "WPARAM_RUN_SM"}}
+    };
+
+    init_full_running_block(src_full, BWilsonBasis::STANDARD, true, {this->wilson_type});
+
+    // init_full_running_block(BWilsonBasis::STANDARD);
 }
 
 void BclnuCoefficientGroup::base_1_LO_calculation(const std::unordered_map<std::string,std::shared_ptr<Block>>&src, std::shared_ptr<DependentBlock> dep_block, ContributionType type) {

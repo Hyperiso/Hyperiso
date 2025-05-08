@@ -51,7 +51,7 @@ void CoefficientManager::init_group_hadronic(const std::string& groupName, const
     if (!this->coefficientGroups.contains(groupName)) {
         throw_no_group_error(groupName);
     }
-
+    std::cout << "::" << groupName << std::endl;
     this->coefficientGroups.at(groupName)->init_running_blocks(OrderMapper::enum_elt(order));
     if (has_bsm) {
         std::string bsm_group = groupName + bsm_suffix;
@@ -211,7 +211,7 @@ void CoefficientManager::complete_wilson_block_from_copy(WGroup group_id, Contri
         for (WCoef coef_id : WCoefMapper::get_group(group_id)) {
             for (int order=0; order<2; order++) {
                 ParameterProxy pp(ParameterType::WILSON);
-                complex_t coef = pp(GroupMapper::str(group_id, ScaleType::HADRONIC) + "INTER", WCoefMapper::flha_full(coef_id, (QCDOrder)(order + 1), src_id));
+                complex_t coef = pp(GroupMapper::str(group_id, ScaleType::HADRONIC, false, basis) + "INTER", WCoefMapper::flha_full(coef_id, (QCDOrder)(order + 1), src_id));
                 
                 if (fpeq(coef.real(), 0.) && fpeq(coef.imag(), 0.)) continue;
 
@@ -233,9 +233,17 @@ void CoefficientManager::complete_wilson_block_from_copy(WGroup group_id, Contri
             }
         }
     };
+    std::cout << "mmh : " << GroupMapper::str(group_id, ScaleType::HADRONIC, false, basis) << std::endl;
     WilsonParamComposer().compose_block(GroupMapper::str(group_id, ScaleType::HADRONIC, false, basis), src, func);
 
-    this->coefficientGroups.at(GroupMapper::str(group_id))->init_full_running_block(basis); //TODO : We need to add full again ? 
+    std::unordered_map<ParameterType, std::vector<std::string>> src_full = {
+        {ParameterType::WILSON, {GroupMapper::str(group_id, ScaleType::HADRONIC, false, basis), "WPARAM_RUN_SM"}}
+    };
+    // std::cout << this->coefficientGroups.at(GroupMapper::str(group_id)) << std::endl;
+    std::cout << "cont : " << ContributionTypeMapper::str(src_id) << std::endl;
+    std::cout << "cont : " << ContributionTypeMapper::str(dest_id) << std::endl;
+    this->coefficientGroups.at(GroupMapper::str(group_id))->init_full_running_block(src_full, basis, false, {src_id, dest_id}); //TODO : We need to add full again ?
+    // this->coefficientGroups.at(GroupMapper::str(group_id))->init_full_running_block(src_full, basis, false, dest_id); //TODO : We need to add full again ?
 }
 
 std::shared_ptr<CoefficientManager> CoefficientManager::Builder(std::string model, std::map<std::string, std::shared_ptr<CoefficientGroup>> groups, double mu_W, double mu_h, std::string order) {
