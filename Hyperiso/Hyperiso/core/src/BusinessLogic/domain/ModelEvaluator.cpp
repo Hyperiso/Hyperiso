@@ -75,7 +75,7 @@ SparseMatrix<Observables> ModelEvaluator::get_covariance() {
 
     SparseMatrix<Observables> cov = th_cov_mtx;
     std::cout << "thory" << std::endl;
-    printMatrix(cov, getDiagonalElements(cov));
+    customPrintMatrix(cov, getDiagonalElements(cov));
     CorrelationProxy corr_prox;
     LOG_DEBUG("Theoretical covariance matrix size", cov.size());
 
@@ -87,16 +87,25 @@ SparseMatrix<Observables> ModelEvaluator::get_covariance() {
             cov.emplace(p);
         }
     }
+    auto final_cov = removeEmptyRowsAndCols(cov, getDiagonalElements(cov));
 
-    return cov;
+    for (auto& elem : getDiagonalElements(cov)) {
+        std::cout << "before : " << ObservableMapper::str(elem) << std::endl;
+    }
+    
+    for (auto& elem : final_cov.second) {
+        std::cout << "after : " << ObservableMapper::str(elem) << std::endl;
+    }
+    customPrintMatrix(final_cov.first, final_cov.second);
+    return final_cov.first;
 }
 
 double ModelEvaluator::chi2() {
     SparseMatrix<Observables> covariance_mtx = get_covariance();
     LOG_DEBUG("Covariance calculated");
-    printMatrix(covariance_mtx, getDiagonalElements(covariance_mtx));
     SparseMatrix<Observables> precision_mtx = invertMatrix(covariance_mtx, getDiagonalElements(covariance_mtx));
     LOG_DEBUG("Precision matrix calculated");
+    customPrintMatrix(precision_mtx, getDiagonalElements(precision_mtx));
 
     double chi2 {0};
     for (auto &&[id_i, obs_i] : this->observables) {

@@ -129,6 +129,56 @@ SparseMatrix<T> invertMatrix(const SparseMatrix<T>& matrix, const std::vector<T>
 }
 
 /**
+ * @brief Removes rows and columns that are entirely zero (i.e., not present in the sparse matrix).
+ * 
+ * @tparam T Index type.
+ * @param matrix The input sparse matrix.
+ * @param indices The input list of row/column indices.
+ * @return A pair containing:
+ *         - The cleaned sparse matrix.
+ *         - The updated list of indices.
+ */
+template<typename T>
+std::pair<SparseMatrix<T>, std::vector<T>> removeEmptyRowsAndCols(const SparseMatrix<T>& matrix, const std::vector<T>& indices) {
+    std::map<T, int> rowCount;
+    std::map<T, int> colCount;
+
+    // Count non-zero elements per row and column
+    for (const auto& [coord, value] : matrix) {
+        if (value != 0.0) { // <-- Ignore zero entries explicitly present
+            T row = coord.first;
+            T col = coord.second;
+            rowCount[row]++;
+            colCount[col]++;
+        }
+    }
+
+    // Keep only indices where row and column are not empty
+    std::vector<T> cleanedIndices;
+    for (const T& idx : indices) {
+        if (rowCount[idx] > 0 || colCount[idx] > 0) {
+            cleanedIndices.push_back(idx);
+        }
+    }
+
+    // Filter matrix to keep only relevant rows/cols
+    SparseMatrix<T> cleanedMatrix;
+    for (const auto& [coord, value] : matrix) {
+        if (value != 0.0) {
+            T row = coord.first;
+            T col = coord.second;
+            if (std::find(cleanedIndices.begin(), cleanedIndices.end(), row) != cleanedIndices.end() &&
+                std::find(cleanedIndices.begin(), cleanedIndices.end(), col) != cleanedIndices.end()) {
+                cleanedMatrix[coord] = value;
+            }
+        }
+    }
+
+    return {cleanedMatrix, cleanedIndices};
+}
+
+
+/**
  * @brief Prints the matrix in dense form using a list of indices.
  * 
  * @tparam T Index type.
@@ -142,6 +192,63 @@ void printMatrix(const SparseMatrix<T>& matrix, const std::vector<T>& indices) {
             std::cout << getElement(matrix, i, j) << " ";
         }
         std::cout << std::endl;
+    }
+}
+
+/**
+ * @brief Prints the matrix in a formatted grid with row and column headers.
+ *
+ * @tparam T Index type (must support std::ostream << operator).
+ * @param matrix Sparse matrix.
+ * @param indices List of row/column indices.
+ */
+template<typename T>
+void customPrintMatrix(const SparseMatrix<T>& matrix, const std::vector<T>& indices) {
+    // Determine maximum width for any label or value
+    size_t maxLabelWidth = 0;
+    size_t maxValueWidth = 0;
+
+    std::ostringstream oss;
+    for (const T& index : indices) {
+        oss.str("");
+        oss.clear();
+        oss << index;
+        maxLabelWidth = std::max(maxLabelWidth, oss.str().length());
+    }
+
+    for (const auto& [coord, value] : matrix) {
+        oss.str("");
+        oss.clear();
+        oss << value;
+        maxValueWidth = std::max(maxValueWidth, oss.str().length());
+    }
+
+    size_t cellWidth = std::max(maxLabelWidth, maxValueWidth) + 2;
+
+    // Print top-left empty cell
+    std::cout << std::setw(cellWidth) << " ";
+
+    // Print column headers
+    for (const auto& col : indices) {
+        std::cout << std::setw(cellWidth) << col;
+    }
+    std::cout << "\n";
+
+    // Print separator line
+    std::cout << std::setw(cellWidth) << " ";
+    for (size_t i = 0; i < indices.size(); ++i) {
+        std::cout << std::setw(cellWidth) << std::string(cellWidth - 1, '-');
+    }
+    std::cout << "\n";
+
+    // Print rows
+    for (const auto& row : indices) {
+        std::cout << std::setw(cellWidth) << row;
+        for (const auto& col : indices) {
+            double val = getElement(matrix, row, col);
+            std::cout << std::setw(cellWidth) << val;
+        }
+        std::cout << "\n";
     }
 }
 

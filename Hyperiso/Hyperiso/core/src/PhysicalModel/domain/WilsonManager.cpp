@@ -240,8 +240,6 @@ void CoefficientManager::complete_wilson_block_from_copy(WGroup group_id, Contri
         {ParameterType::WILSON, {GroupMapper::str(group_id, ScaleType::HADRONIC, false, basis), "WPARAM_RUN_SM"}}
     };
     // std::cout << this->coefficientGroups.at(GroupMapper::str(group_id)) << std::endl;
-    std::cout << "cont : " << ContributionTypeMapper::str(src_id) << std::endl;
-    std::cout << "cont : " << ContributionTypeMapper::str(dest_id) << std::endl;
     this->coefficientGroups.at(GroupMapper::str(group_id))->init_full_running_block(src_full, basis, false, {src_id, dest_id}); //TODO : We need to add full again ?
     // this->coefficientGroups.at(GroupMapper::str(group_id))->init_full_running_block(src_full, basis, false, dest_id); //TODO : We need to add full again ?
 }
