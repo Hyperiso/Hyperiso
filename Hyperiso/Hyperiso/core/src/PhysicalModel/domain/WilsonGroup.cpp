@@ -1,5 +1,21 @@
 #include "WilsonGroup.h"
 
+CoefficientGroup::CoefficientGroup(const CoefficientGroup& other)
+    : std::map<std::string, std::shared_ptr<WilsonCoefficient>>() 
+{
+    for (const auto& [key, ptr] : other) {
+        if (ptr) {
+            (*this)[key] = ptr->clone();
+        } else {
+            (*this)[key] = nullptr;
+        }
+    }
+    basis = other.basis;
+    wilson_type = other.wilson_type;
+    current_order = other.current_order;
+    id = other.id;
+}
+
 CoefficientGroup::CoefficientGroup(std::map<std::string, std::shared_ptr<WilsonCoefficient>>& coeffs) {
     this->insert(coeffs.begin(), coeffs.end());
     

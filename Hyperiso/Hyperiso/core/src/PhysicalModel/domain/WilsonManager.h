@@ -40,6 +40,7 @@ public:
     void switchbasis(const std::string& groupName);
     void update(std::string group, double mu_W, double mu_h);
     void post_init();
+    void complete_wilson_block_with_op(WGroup group_id, ContributionType src_id, ContributionType dest_id, BWilsonBasis basis);
     void complete_wilson_block_from_copy(WGroup group_id, ContributionType src, ContributionType dest, BWilsonBasis basis=BWilsonBasis::STANDARD);
     
     std::string getModel();

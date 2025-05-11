@@ -6,9 +6,9 @@
 int main(){
     HyperisoMaster hyp = HyperisoMaster();
     Config config;
-    config.model = Model::SM;
+    config.model = Model::THDM;
 
-    hyp.init("default/lha/testInput.flha", config);
+    hyp.init("lha/testinput_thdm.lha", config);
     LOG_INFO("HyperisoMaster initialized");
 
     auto wi = WilsonInterface(); // Initialize interface and build the required groups

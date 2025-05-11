@@ -15,6 +15,8 @@ private:
     static void init_matching_block();
     static void init_running_block();
 
+    static bool is_init() { return WilsonParameterHelper::initialized; }
+
     static inline WilsonParamComposer composer = WilsonParamComposer();
     static inline double current_mu_W{-1};
     static inline double current_mu_h{-1};

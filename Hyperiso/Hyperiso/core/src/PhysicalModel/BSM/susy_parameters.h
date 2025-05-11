@@ -52,7 +52,7 @@ public:
     static void init_scale_independant_block();
     static void init_matching_block();
 
-
+	static inline bool is_initialized() { return susy_parameters::initialized; }
 	void reset_PrimeCQG(double Qmatch);
 	void reset_G();
 	

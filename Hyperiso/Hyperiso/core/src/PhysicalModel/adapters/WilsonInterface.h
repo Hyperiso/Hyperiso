@@ -32,30 +32,32 @@ public:
     void init() {
         WilsonParameterHelper().init(2);
 
-        this->group_ptrs = {
-            {"BCoefficients", std::make_shared<BCoefficientGroup>()},
-            {"BPrimeCoefficients", std::make_shared<BPrimeCoefficientGroup>()},
-            {"BScalarCoefficients", std::make_shared<BScalarCoefficientGroup>()},
-            {"BlnuCoefficients", std::make_shared<BlnuCoefficientGroup>()},
-            {"BclnuCoefficients", std::make_shared<BclnuCoefficientGroup>()}
-        };
+        this->group_ptrs = { };
 
         std::map<std::string, std::shared_ptr<CoefficientGroup>> bsm_groups;
-        if (ModelAPI().get() == Model::THDM) {
+        if (ModelAPI().get() == Model::SM) {
             bsm_groups = {
-                {"BCoefficients_THDM", std::make_shared<BCoefficientGroup_THDM>()},
-                {"BPrimeCoefficients_THDM", std::make_shared<BPrimeCoefficientGroup_THDM>()},
-                {"BScalarCoefficients_THDM", std::make_shared<BScalarCoefficientGroup_THDM>()},
-                {"BlnuCoefficients_THDM", std::make_shared<BlnuCoefficientGroup_THDM>()},
-                {"BclnuCoefficients_THDM", std::make_shared<BclnuCoefficientGroup_THDM>()}
+                {"BCoefficients", std::make_shared<BCoefficientGroup>()},
+                {"BPrimeCoefficients", std::make_shared<BPrimeCoefficientGroup>()},
+                {"BScalarCoefficients", std::make_shared<BScalarCoefficientGroup>()},
+                {"BlnuCoefficients", std::make_shared<BlnuCoefficientGroup>()},
+                {"BclnuCoefficients", std::make_shared<BclnuCoefficientGroup>()}
+            };
+        } else if (ModelAPI().get() == Model::THDM) {
+            bsm_groups = {
+                {"BCoefficients", std::make_shared<BCoefficientGroup_THDM>()},
+                {"BPrimeCoefficients", std::make_shared<BPrimeCoefficientGroup_THDM>()},
+                {"BScalarCoefficients", std::make_shared<BScalarCoefficientGroup_THDM>()},
+                {"BlnuCoefficients", std::make_shared<BlnuCoefficientGroup_THDM>()},
+                {"BclnuCoefficients", std::make_shared<BclnuCoefficientGroup_THDM>()}
             };
         } else if (ModelAPI().get() == Model::SUSY) {
             bsm_groups = {
-                {"BCoefficients_SUSY", std::make_shared<BCoefficientGroup_susy>()},
-                {"BPrimeCoefficients_SUSY", std::make_shared<BPrimeCoefficientGroup_susy>()},
-                {"BScalarCoefficients_SUSY", std::make_shared<BScalarCoefficientGroup_susy>()},
-                {"BlnuCoefficients_SUSY", std::make_shared<BlnuCoefficientGroup_SUSY>()},
-                {"BclnuCoefficients_SUSY", std::make_shared<BclnuCoefficientGroup_SUSY>()}
+                {"BCoefficients", std::make_shared<BCoefficientGroup_susy>()},
+                {"BPrimeCoefficients", std::make_shared<BPrimeCoefficientGroup_susy>()},
+                {"BScalarCoefficients", std::make_shared<BScalarCoefficientGroup_susy>()},
+                {"BlnuCoefficients", std::make_shared<BlnuCoefficientGroup_SUSY>()},
+                {"BclnuCoefficients", std::make_shared<BclnuCoefficientGroup_SUSY>()}
             };
         }
 

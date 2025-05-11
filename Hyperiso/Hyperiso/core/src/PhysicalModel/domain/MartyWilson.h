@@ -39,6 +39,10 @@ public:
     void NLO_calculation() override {} //TODO, at least deal properly
     void NNLO_calculation() override {} //TODO
 
+    std::shared_ptr<WilsonCoefficient> clone() const override {
+        return std::make_shared<MartyWilson>(*this);
+    }
+    
 private:
     CSVReader csv_reader;
     DataFrame df;

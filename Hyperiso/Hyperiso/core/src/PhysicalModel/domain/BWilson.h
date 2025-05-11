@@ -11,6 +11,10 @@ public:
     void NLO_calculation();
     void NNLO_calculation();
 
+    std::shared_ptr<WilsonCoefficient> clone() const override {
+        return std::make_shared<C1>(*this);
+    }
+
 };
 
 class C2 : public WilsonCoefficient {
@@ -20,6 +24,10 @@ public:
     void LO_calculation();
     void NLO_calculation() {}
     void NNLO_calculation();
+
+    std::shared_ptr<WilsonCoefficient> clone() const override {
+        return std::make_shared<C2>(*this);
+    }
 
 };
 
@@ -31,6 +39,9 @@ public:
     void NLO_calculation() {}
     void NNLO_calculation();
 
+    std::shared_ptr<WilsonCoefficient> clone() const override {
+        return std::make_shared<C3>(*this);
+    }
 };
 
 class C4 : public WilsonCoefficient {
@@ -40,6 +51,10 @@ public:
     void LO_calculation() {}
     void NLO_calculation();
     void NNLO_calculation();
+
+    std::shared_ptr<WilsonCoefficient> clone() const override {
+        return std::make_shared<C4>(*this);
+    }
 
 };
 
@@ -51,6 +66,10 @@ public:
     void NLO_calculation() {} 
     void NNLO_calculation();
 
+    std::shared_ptr<WilsonCoefficient> clone() const override {
+        return std::make_shared<C5>(*this);
+    }
+
 };
 
 class C6 : public WilsonCoefficient {
@@ -60,6 +79,10 @@ public:
     void LO_calculation() {} 
     void NLO_calculation() {} 
     void NNLO_calculation();
+
+    std::shared_ptr<WilsonCoefficient> clone() const override {
+        return std::make_shared<C6>(*this);
+    }
 
 };
 
@@ -71,6 +94,9 @@ public:
     void NLO_calculation();
     void NNLO_calculation();
 
+    std::shared_ptr<WilsonCoefficient> clone() const override {
+        return std::make_shared<C7>(*this);
+    }
 };
 
 class C8 : public WilsonCoefficient {
@@ -81,6 +107,9 @@ public:
     void NLO_calculation();
     void NNLO_calculation();
 
+    std::shared_ptr<WilsonCoefficient> clone() const override {
+        return std::make_shared<C8>(*this);
+    }
 };
 
 class C9 : public WilsonCoefficient {
@@ -91,6 +120,9 @@ public:
     void NLO_calculation();
     void NNLO_calculation();
 
+    std::shared_ptr<WilsonCoefficient> clone() const override {
+        return std::make_shared<C9>(*this);
+    }
 };
 
 class C10 : public WilsonCoefficient {
@@ -101,6 +133,9 @@ public:
     void NLO_calculation();
     void NNLO_calculation();
 
+    std::shared_ptr<WilsonCoefficient> clone() const override {
+        return std::make_shared<C10>(*this);
+    }
 };
 
 
@@ -111,6 +146,10 @@ public:
     void LO_calculation();
     void NLO_calculation() {} 
     void NNLO_calculation() {} 
+
+    std::shared_ptr<WilsonCoefficient> clone() const override {
+        return std::make_shared<CQ1>(*this);
+    }
 
     int gen{2};
 };
@@ -123,6 +162,10 @@ public:
     void NLO_calculation() {} 
     void NNLO_calculation() {} 
 
+    std::shared_ptr<WilsonCoefficient> clone() const override {
+        return std::make_shared<CQ2>(*this);
+    }
+
     int gen{2};
 };
 
@@ -133,6 +176,10 @@ public:
     void LO_calculation() {} 
     void NLO_calculation() {} 
     void NNLO_calculation() {} 
+
+    std::shared_ptr<WilsonCoefficient> clone() const override {
+        return std::make_shared<CP1>(*this);
+    }
 
     int gen{2};
 };
@@ -145,6 +192,10 @@ public:
     void NLO_calculation() {} 
     void NNLO_calculation() {} 
 
+    std::shared_ptr<WilsonCoefficient> clone() const override {
+        return std::make_shared<CP2>(*this);
+    }
+
     int gen{2};
 };
 
@@ -155,6 +206,10 @@ public:
     void LO_calculation() {} 
     void NLO_calculation() {} 
     void NNLO_calculation() {} 
+
+    std::shared_ptr<WilsonCoefficient> clone() const override {
+        return std::make_shared<CP3>(*this);
+    }
 
     int gen{2};
 };
@@ -167,6 +222,10 @@ public:
     void NLO_calculation() {} 
     void NNLO_calculation() {} 
 
+    std::shared_ptr<WilsonCoefficient> clone() const override {
+        return std::make_shared<CP4>(*this);
+    }
+
     int gen{2};
 };
 
@@ -177,6 +236,10 @@ public:
     void LO_calculation() {} 
     void NLO_calculation() {} 
     void NNLO_calculation() {} 
+
+    std::shared_ptr<WilsonCoefficient> clone() const override {
+        return std::make_shared<CP5>(*this);
+    }
 
     int gen{2};
 };
@@ -189,6 +252,10 @@ public:
     void NLO_calculation() {} 
     void NNLO_calculation() {} 
 
+    std::shared_ptr<WilsonCoefficient> clone() const override {
+        return std::make_shared<CP6>(*this);
+    }
+
     int gen{2};
 };
 
@@ -199,6 +266,10 @@ public:
     void LO_calculation();
     void NLO_calculation() {} 
     void NNLO_calculation() {} 
+
+    std::shared_ptr<WilsonCoefficient> clone() const override {
+        return std::make_shared<CP7>(*this);
+    }
 
     int gen{2};
 };
@@ -211,6 +282,10 @@ public:
     void NLO_calculation() {} 
     void NNLO_calculation() {} 
 
+    std::shared_ptr<WilsonCoefficient> clone() const override {
+        return std::make_shared<CP8>(*this);
+    }
+
     int gen{2};
 };
 
@@ -221,6 +296,10 @@ public:
     void LO_calculation() {} 
     void NLO_calculation() {} 
     void NNLO_calculation() {} 
+
+    std::shared_ptr<WilsonCoefficient> clone() const override {
+        return std::make_shared<CP9>(*this);
+    }
 
     int gen{2};
 };
@@ -233,6 +312,10 @@ public:
     void NLO_calculation() {} 
     void NNLO_calculation() {} 
 
+    std::shared_ptr<WilsonCoefficient> clone() const override {
+        return std::make_shared<CP10>(*this);
+    }
+
     int gen{2};
 };
 
@@ -244,6 +327,10 @@ public:
     void NLO_calculation() {} 
     void NNLO_calculation() {} 
 
+    std::shared_ptr<WilsonCoefficient> clone() const override {
+        return std::make_shared<CPQ1>(*this);
+    }
+
     int gen{2};
 };
 
@@ -254,6 +341,10 @@ public:
     void LO_calculation() {} 
     void NLO_calculation() {} 
     void NNLO_calculation() {} 
+
+    std::shared_ptr<WilsonCoefficient> clone() const override {
+        return std::make_shared<CPQ2>(*this);
+    }
 
     int gen{2};
 };

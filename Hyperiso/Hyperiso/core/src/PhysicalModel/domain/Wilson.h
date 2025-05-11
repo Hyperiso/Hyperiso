@@ -26,10 +26,12 @@ public:
     QCDOrder get_max_order() const {return this->max_order;}
     LhaID id(QCDOrder order) const;
 
+    
     bool operator==(const WilsonCoefficient& other) const;
     bool operator!=(const WilsonCoefficient& other) const { return !(*this == other); }
 
     virtual ~WilsonCoefficient() = default;
+    virtual std::shared_ptr<WilsonCoefficient> clone() const = 0;
 
 protected:
     virtual void LO_calculation() = 0;
