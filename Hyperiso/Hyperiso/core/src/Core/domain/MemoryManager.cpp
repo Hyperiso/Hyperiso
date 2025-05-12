@@ -127,7 +127,7 @@ void MemoryManager::deduce_parameter_types(const Config &config) {
                              ParameterType::PASSTHROUGH,
                              ParameterType::WILSON};
     if (config.model != Model::SM)
-        cache.parameter_types.push_back(static_cast<ParameterType>(static_cast<int>(config.model)));
+        cache.parameter_types.push_back(ParameterType::BSM);
     if (config.flags.at(ExternalFlag::HAS_WILSON_INPUT))
         cache.parameter_types.push_back(ParameterType::WILSON);
 }

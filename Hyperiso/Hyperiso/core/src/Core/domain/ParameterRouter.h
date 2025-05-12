@@ -63,7 +63,8 @@ struct ParametersAccessRights {
      * @brief Access rights for Two-Higgs-Doublet Model (THDM) parameters.
      */
     static inline const std::map<std::string, std::unordered_set<long>> THDM_RIGHTS {
-        {"MASS", {25, 35, 36, 37}}, 
+        {"MASS", {25, 35, 36, 37}},
+        {"ALPHA", {0}},
         {"GAUGE", {{}}},
     };
 
