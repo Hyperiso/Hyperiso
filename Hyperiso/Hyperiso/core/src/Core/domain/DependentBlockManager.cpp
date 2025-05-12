@@ -15,6 +15,7 @@ void DependentBlockManager::addDependentBlock(
                 // std::cout << "k: " << ParameterTypeMapper::str(k) << std::endl;
                 // std::cout << "bad: " << src_name << std::endl;
             }
+
             sources.emplace(src_name, Parameters::GetInstance(k)->blockAccessor->at(src_name));
         }
     }

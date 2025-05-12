@@ -16,16 +16,17 @@ void thdm_parameters::init_scale_independant_block() {
     
 
     // ParameterProxy(ParameterType::SM);
-	std::unordered_map<ParameterType, std::vector<std::string>> src = {{ParameterType::SM, {"MASS"}}, {ParameterType::BSM, {"MASS"}}, 
-                                                                       {ParameterType::BSM, {"ALPHA"}}, {ParameterType::BSM, {"HMIX"}},
-                                                                       {ParameterType::BSM, {"YU"}}, {ParameterType::BSM, {"YD"}}, {ParameterType::BSM,  {"YL"}},
+	std::unordered_map<ParameterType, std::vector<std::string>> src = {{ParameterType::SM, {"MASS"}}, {ParameterType::BSM, {"MASS", "ALPHA", "HMIX", "YU", "YD", "YE"}},
                                                                         {ParameterType::WILSON, {"WPARAM_SI_SM"}}};
 
     auto func = [] (const std::unordered_map<std::string, std::shared_ptr<Block>>& src, std::shared_ptr<DependentBlock> dep_block) {
         std::cout << "ca va" << std::endl;
 
         double xh = pow(src.at("MASS")->retrieve(25)->get_val() / src.at("MASS")->retrieve(24)->get_val(), 2);
+        std::cout << LhaID("")<< std::endl;
         std::cout << "ca va" << std::endl;
+        // std::cout <<  "eheh :"<<src.at("ALPHA")<< std::endl;
+        std::cout << "mmh" << std::endl;
         double alpha = src.at("ALPHA")->retrieve(LhaID(""))->get_val();
         std::cout << "ca va" << std::endl;
         double m_H = src.at("MASS")->retrieve(37)->get_val();

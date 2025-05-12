@@ -42,7 +42,6 @@ std::shared_ptr<Parameter> Block::retrieve(const LhaID& id) {
     if (!this->contains(id)) {
         LOG_ERROR("KeyError", "Block", this->blockname, "doesn't contain parameter", id.to_string());
     }
-
     return this->items.at(id);
 }
 
