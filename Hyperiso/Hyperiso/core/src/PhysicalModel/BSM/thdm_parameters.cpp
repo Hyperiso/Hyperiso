@@ -26,7 +26,7 @@ void thdm_parameters::init_scale_independant_block() {
 
         double xh = pow(src.at("MASS")->retrieve(25)->get_val() / src.at("MASS")->retrieve(24)->get_val(), 2);
         std::cout << "ca va" << std::endl;
-        double alpha = src.at("ALPHA")->retrieve(0)->get_val();
+        double alpha = src.at("ALPHA")->retrieve(LhaID(""))->get_val();
         std::cout << "ca va" << std::endl;
         double m_H = src.at("MASS")->retrieve(37)->get_val();
         double beta = atan(src.at("HMIX")->retrieve(2)->get_val());

@@ -134,7 +134,7 @@ std::shared_ptr<Node> LhaParser::parse(const std::string &src) const {
 
 void LhaParser::writeToFile(const std::string &filename,
                             const std::shared_ptr<Node> &root) const {
-                                
+    // TODO                                
 }
 
 void LhaParser::set_prototypes(const std::unordered_set<Prototype> &prototypes)

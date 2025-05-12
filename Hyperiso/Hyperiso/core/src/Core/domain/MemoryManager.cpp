@@ -74,7 +74,7 @@ void MemoryManager::read_lha_input(const std::string& lhaFile, const Config& con
 
     ParamBlockLoader p_loader;
     auto lha_ba = std::make_shared<BlockAccessor>();
-    p_loader.load(lha_ba, lha_path);
+    p_loader.load(lha_ba, spectrum_path);
     input_cache = lha_ba >> input_cache;
     save_input_cache();
 

@@ -70,7 +70,8 @@ std::unordered_set<std::string> Parameters::init_blocks(ParameterType type) {
             return MemoryManager::GetInstance()->input_cache->get_block_names().contains(s);
         }
     );
-
+    std::cout << MemoryManager::GetInstance()->input_cache << std::endl;
+    std::cout << "..............................................." << std::endl;
     if (type == ParameterType::WILSON && !MemoryManager::GetInstance()->cache.config.flags[ExternalFlag::HAS_WILSON_INPUT]) {
         existing.erase("FWCOEF");
         existing.erase("IMFWCOEF");

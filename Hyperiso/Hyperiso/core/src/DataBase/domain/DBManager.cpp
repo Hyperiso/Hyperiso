@@ -14,7 +14,7 @@ void DBManager::add_default_lha_prototypes(fs::path file_path) {
     auto input_extension = file_path.extension().string();
     lha_prototypes.insert(LHA_BLOCKS.begin(), LHA_BLOCKS.end());
 
-    if (input_extension == ".slha") {
+    if (input_extension == ".slha" || input_extension == ".lha") {
         lha_prototypes.insert(SLHA_BLOCKS.begin(), SLHA_BLOCKS.end());
     } else if (input_extension == ".flha") {
         lha_prototypes.insert(FLHA_BLOCKS.begin(), FLHA_BLOCKS.end());
