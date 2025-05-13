@@ -1,11 +1,11 @@
 #include "LhaParser.h"
 
-void LhaParser::addBlock(std::map<std::string, std::shared_ptr<LhaBlock>>& blocks, const std::string& id, const std::vector<std::vector<std::string>>& lines) const {
+void LhaParser::addBlock(std::map<BlockName, std::shared_ptr<LhaBlock>>& blocks, const std::string& id, const std::vector<std::vector<std::string>>& lines) const {
     auto block = std::make_shared<LhaBlock>(findPrototype(id));
     LOG_DEBUG(id);
     block->readData(lines);
-    std::string id_ci = id;
-    std::transform(id_ci.begin(), id_ci.end(), id_ci.begin(), ::toupper);
+    BlockName id_ci = block->getPrototype().blockName;
+    id_ci.to_upper();
     blocks.insert(std::pair(id_ci, std::move(block)));
 }
 
@@ -45,26 +45,26 @@ std::vector<Token> LhaParser::tokenize(const std::string &src) const {
     return tokens;
 }
 
-std::map<std::string, std::vector<std::vector<std::string>>> LhaParser::parse_tokens(std::vector<Token> tokens, bool comments) const {
+std::map<BlockName, std::vector<std::vector<std::string>>> LhaParser::parse_tokens(std::vector<Token> tokens, bool comments) const {
     bool newBlock = false;
     bool hasGlobalScale = false;
     bool isQ = false;
     bool skipBlock = false;
     bool decay = false;
     std::string globalQ;
-    std::string cBlock;
+    BlockName cBlock;
 
     int cCol = INT_MAX;
 
-    std::map<std::string, std::vector<std::vector<std::string>>> rawBlocks;
+    std::map<BlockName, std::vector<std::vector<std::string>>> rawBlocks;
 
     for (const Token& t : tokens) {
         if (newBlock) {
             auto prototype = this->findPrototype(t.value);
             if (prototype.blockName != "") {
                 LOG_DEBUG("LHA reader: Block " + prototype.blockName + " found.");
-                rawBlocks[t.value] = std::vector<std::vector<std::string>> {};
-                cBlock = t.value;
+                rawBlocks[prototype.blockName] = std::vector<std::vector<std::string>> {}; //TODO or not TODO : here t.value to prototype.blockName
+                cBlock = prototype.blockName; //TODO or not TODO : here t.value to prototype.blockName
                 hasGlobalScale = prototype.globalScale;
                 skipBlock = false;
             } else if (decay) {
@@ -109,7 +109,7 @@ std::map<std::string, std::vector<std::vector<std::string>>> LhaParser::parse_to
 Prototype LhaParser::findPrototype(std::string name) const {
     for (const auto& p : blockPrototypes) {
         std::transform(name.begin(), name.end(), name.begin(), ::toupper);
-        if (p.blockName == name) 
+        if (p.blockName == name)
             return p;
     }
     return Prototype{""};
@@ -124,11 +124,12 @@ std::shared_ptr<Node> LhaParser::readFromFile(const std::string& input_file) con
 
 std::shared_ptr<Node> LhaParser::parse(const std::string &src) const {
     auto rawBlocks = this->parse_tokens(this->tokenize(src));
-    std::map<std::string, std::shared_ptr<LhaBlock>> blocks;
+    std::map<BlockName, std::shared_ptr<LhaBlock>> blocks;
     for (auto &[id, lines] : rawBlocks) {
         addBlock(blocks, id, lines);
     }     
     LOG_DEBUG("LHA file parsed.");
+
     return this->toDBNode(blocks);
 }
 
@@ -142,7 +143,7 @@ void LhaParser::set_prototypes(const std::unordered_set<Prototype> &prototypes)
     this->blockPrototypes = prototypes;
 }
 
-std::shared_ptr<Node> LhaParser::toDBNode(std::map<std::string, std::shared_ptr<LhaBlock>> blocks) const {
+std::shared_ptr<Node> LhaParser::toDBNode(std::map<BlockName, std::shared_ptr<LhaBlock>> blocks) const {
     Node node;
     for (const auto& block : blocks) {
         auto block_node = block.second->toDBNode();

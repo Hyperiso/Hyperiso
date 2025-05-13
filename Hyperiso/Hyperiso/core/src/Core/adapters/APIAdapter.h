@@ -42,14 +42,14 @@ public:
      * @brief Retrieves all block names across all available model types.
      * @return A set of all block names.
      */
-    std::unordered_set<std::string> get_all_blocks();
+    std::unordered_set<BlockName> get_all_blocks();
 
     /**
      * @brief Retrieves block names for a specific parameter type.
      * @param param_type The parameter type (default: SM).
      * @return A set of block names.
      */
-    std::unordered_set<std::string> get_blocks_list(ParameterType param_type = ParameterType::SM);
+    std::unordered_set<BlockName> get_blocks_list(ParameterType param_type = ParameterType::SM);
 
     /**
      * @brief Retrieves all parameter values inside a given block.
@@ -57,14 +57,14 @@ public:
      * @param param_type Type of the model (default: SM).
      * @return A map from LHA IDs to parameter values.
      */
-    std::map<LhaID, double> get_block_infos(const std::string& block, ParameterType param_type = ParameterType::SM);
+    std::map<LhaID, double> get_block_infos(const BlockName& block, ParameterType param_type = ParameterType::SM);
 
     /**
      * @brief Retrieves the list of parameter types that own a specific block.
      * @param block The name of the block.
      * @return A vector of parameter types.
      */
-    std::vector<ParameterType> get_type_of_block(const std::string& block);
+    std::vector<ParameterType> get_type_of_block(const BlockName& block);
 };
 
 

@@ -211,7 +211,7 @@ public:
      * @param block_names Set of block names to extract.
      * @return Shared pointer to a new BlockAccessor containing the requested blocks.
      */
-    std::shared_ptr<BlockAccessor> extract_blocks(std::unordered_set<std::string> block_names);
+    std::shared_ptr<BlockAccessor> extract_blocks(std::unordered_set<BlockName> block_names);
 
     /**
      * @brief Retrieves the current correlation repository.

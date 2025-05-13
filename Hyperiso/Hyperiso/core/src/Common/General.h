@@ -5,8 +5,11 @@
 #include <stdexcept>
 #include <algorithm>
 #include <iostream>
+#include <unordered_set>
+#include <initializer_list>
 #include <map>
 #include <vector>
+#include <set>
 #include <ranges>
 #include <concepts>
 #include <variant>
@@ -79,6 +82,130 @@ namespace std {
     struct hash<LhaID> {
         std::size_t operator()(const LhaID& p) const noexcept {
             return std::hash<std::string>{}(p.to_string());
+        }
+    };
+}
+
+class BlockName {
+private:
+    std::unordered_set<std::string> block_names;
+
+public:
+    BlockName() = default;
+
+    BlockName(const std::string& name) {
+        block_names.insert(name);
+    }
+
+    BlockName(const char* name) {
+        block_names.insert(std::string(name));
+    }
+    
+    BlockName(std::initializer_list<std::string> names) : block_names(names) {}
+
+    BlockName(const std::unordered_set<std::string>& names) : block_names(names) {}
+
+    std::unordered_set<std::string> get_alias() const{
+        return block_names;
+    }
+    operator std::string() const {
+        if (block_names.size() > 1) {
+            LOG_WARN("Casting BlockName with multiple aliases to string discards information.");
+            for (const auto& name : block_names) {
+                std::cerr << name << std::endl;
+            }
+        }
+        return block_names.empty() ? "" : *block_names.begin();
+    }
+
+    bool hasAlias(const std::string& alias) const {
+        return block_names.find(alias) != block_names.end();
+    }
+
+    std::string to_string() const {
+        return operator std::string();
+    }
+
+    bool operator==(const BlockName& other) const {
+        for (const auto& name : block_names) {
+            if (other.hasAlias(name)) return true;
+        }
+        return false;
+    }
+
+    bool operator!=(const BlockName& other) const {
+        return !(*this == other);
+    }
+
+    bool operator==(const std::string& name) const {
+        return hasAlias(name);
+    }
+
+    bool operator==(const char* name) const {
+        return hasAlias(std::string(name));
+    }
+
+    bool operator!=(const std::string& name) const {
+        return !hasAlias(name);
+    }
+
+    BlockName& addAlias(const std::string& alias) {
+        block_names.insert(alias);
+        return *this;
+    }
+
+    friend BlockName operator+(const std::string& lhs, const BlockName& rhs) {
+        std::unordered_set<std::string> combined;
+        for (const auto& name : rhs.block_names) {
+            combined.insert(lhs + name);
+        }
+        return BlockName{combined};
+    }
+
+    friend std::ostream& operator<<(std::ostream& os, const BlockName& block) {
+        bool first = true;
+        for (const auto& name : block.block_names) {
+            if (!first) os << "/";
+            os << name;
+            first = false;
+        }
+        return os;
+    }
+
+    void to_upper() {
+        std::unordered_set<std::string> upper_names;
+        for (auto name : block_names) {
+            std::transform(name.begin(), name.end(), name.begin(), ::toupper);
+            upper_names.insert(name);
+        }
+        block_names = std::move(upper_names);
+    }
+
+    bool operator<(const BlockName& other) const {
+        std::set<std::string> lhs_sorted(block_names.begin(), block_names.end());
+        std::set<std::string> rhs_sorted(other.block_names.begin(), other.block_names.end());
+        return lhs_sorted < rhs_sorted;
+    }
+};
+
+inline bool operator==(const std::string& lhs, const BlockName& rhs) {
+    return rhs == lhs;
+}
+
+inline bool operator!=(const std::string& lhs, const BlockName& rhs) {
+    return !(rhs == lhs);
+}
+
+
+namespace std {
+    template <>
+    struct hash<BlockName> {
+        std::size_t operator()(const BlockName& p) const noexcept {
+            size_t h = 0;
+            for (const auto& name : p.get_alias()) {
+                h ^= std::hash<std::string>{}(name) + 0x9e3779b9 + (h << 6) + (h >> 2); // boost-style hash combine
+            }
+            return h;
         }
     };
 }
@@ -442,12 +569,12 @@ namespace std {
 
 struct ParamId {
     std::optional<ParameterType> type;
-    std::string block;
+    BlockName block;
     LhaID code;
 
     ParamId() : block("NULL"), code(0) {}
-    ParamId(const std::string& block, const LhaID& code) : block(block), code(code) {}
-    ParamId(ParameterType type, const std::string& block, const LhaID& code) : type(type), block(block), code(code) {}
+    ParamId(const BlockName& block, const LhaID& code) : block(block), code(code) {}
+    ParamId(ParameterType type, const BlockName& block, const LhaID& code) : type(type), block(block), code(code) {}
 
     void set_parameter_type(ParameterType type) { this->type = type; }
 
@@ -466,7 +593,7 @@ namespace std {
     template <>
     struct hash<ParamId> {
         std::size_t operator()(const ParamId& p) const noexcept {
-            return std::hash<std::string>{}(p.block) ^ std::hash<LhaID>{}(p.code);
+            return std::hash<BlockName>{}(p.block) ^ std::hash<LhaID>{}(p.code);
         }
     };
 }
@@ -488,10 +615,10 @@ private:
 
 class LhaParamsHelper {
 public:
-    static std::vector<std::vector<long>> get_minimal_content(const std::string& block_name);
+    static std::vector<std::vector<long>> get_minimal_content(const BlockName& block_name);
 
 private:
-    static const std::map<std::string, std::vector<std::vector<long>>> minimal_blocks;
+    static const std::map<BlockName, std::vector<std::vector<long>>> minimal_blocks;
 };
 
 #endif // __GENERAL_H__

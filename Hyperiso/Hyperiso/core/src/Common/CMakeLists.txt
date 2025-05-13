@@ -16,3 +16,8 @@ set_target_properties(CommonLib PROPERTIES PUBLIC_HEADER "Logger.h;General.h;Uti
 
 target_include_directories(CommonLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_include_directories(CommonLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/Mapper)
+
+
+add_executable(aaaah aaaah.cpp)
+
+target_link_libraries(aaaah CommonLib)

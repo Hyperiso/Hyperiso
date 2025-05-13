@@ -1,6 +1,6 @@
 #include "BlockAccessor.h"
 
-scalar_t BlockAccessor::getValue(const std::string& blockName, LhaID id) const {
+scalar_t BlockAccessor::getValue(const BlockName& blockName, LhaID id) const {
     auto it = this->find(blockName);
     if (it != this->end()) {
         return it->second->retrieve(id)->get_val();
@@ -9,7 +9,7 @@ scalar_t BlockAccessor::getValue(const std::string& blockName, LhaID id) const {
     throw std::invalid_argument("Block " + blockName + " not found with pdg code : " + id.to_string());
 }
 
-std::shared_ptr<Parameter> BlockAccessor::getParameter(const std::string &blockName, LhaID id) const {
+std::shared_ptr<Parameter> BlockAccessor::getParameter(const BlockName& blockName, LhaID id) const {
     auto it = this->find(blockName);
     if (it != this->end()) {
         return it->second->retrieve(id);
@@ -18,7 +18,7 @@ std::shared_ptr<Parameter> BlockAccessor::getParameter(const std::string &blockN
     throw std::invalid_argument("Block " + blockName + " not found with pdg code : " + id.to_string());
 }
 
-bool BlockAccessor::has_param(const std::string blockName, LhaID id) const {
+bool BlockAccessor::has_param(const BlockName& blockName, LhaID id) const {
     auto it = this->find(blockName);
     if (it != this->end()) {
         return it->second->contains(id);
@@ -26,7 +26,7 @@ bool BlockAccessor::has_param(const std::string blockName, LhaID id) const {
     return false;
 }
 
-void BlockAccessor::setValue(const std::string& blockName, LhaID id, scalar_t value) {
+void BlockAccessor::setValue(const BlockName& blockName, LhaID id, scalar_t value) {
     auto it = this->find(blockName);
     if (it != this->end()) {
         if (it->second->contains(id)) {
@@ -48,7 +48,7 @@ void BlockAccessor::setValue(const std::string& blockName, LhaID id, scalar_t va
 //     }
 // }
 
-void BlockAccessor::setParameter(const std::string &blockName, LhaID id, std::shared_ptr<Parameter> source) {
+void BlockAccessor::setParameter(const BlockName &blockName, LhaID id, std::shared_ptr<Parameter> source) {
     auto it = this->find(blockName);
     if (it != this->end()) {
         it->second->store(id, source);
@@ -57,7 +57,7 @@ void BlockAccessor::setParameter(const std::string &blockName, LhaID id, std::sh
     }
 }
 
-std::map<LhaID, double> BlockAccessor::getAllValues(std::string blockName) {
+std::map<LhaID, double> BlockAccessor::getAllValues(BlockName blockName) {
     auto it = this->find(blockName);
     if (it != this->end()) {
         std::map<LhaID, double> values;
@@ -70,11 +70,11 @@ std::map<LhaID, double> BlockAccessor::getAllValues(std::string blockName) {
     }
 }
 
-std::unordered_set<std::string> BlockAccessor::get_block_names() {
+std::unordered_set<BlockName> BlockAccessor::get_block_names() {
     return get_keys(*this);
 }
 
-void BlockAccessor::remove_item(const std::string &block_name, LhaID id) {
+void BlockAccessor::remove_item(const BlockName& block_name, LhaID id) {
     if (this->contains(block_name)) {
         this->at(block_name)->remove(id);
     } else {
@@ -82,7 +82,7 @@ void BlockAccessor::remove_item(const std::string &block_name, LhaID id) {
     }
 }
 
-std::shared_ptr<BlockAccessor> BlockAccessor::operator[](std::unordered_set<std::string> block_names) {
+std::shared_ptr<BlockAccessor> BlockAccessor::operator[](std::unordered_set<BlockName> block_names) {
     auto sub_block_accessor = std::make_shared<BlockAccessor>();
 
     for (const auto& block_name : block_names) {

@@ -3,13 +3,14 @@
 
 #include <string>
 #include <unordered_set>
+#include "General.h"
 
 /**
  * @struct Prototype
  * @brief Represents the structure of an LHA block, specifying columns for values, scales, and renormalization groups.
  */
 struct Prototype {
-    std::string blockName;      /**< Block name, case insensitive. */
+    BlockName blockName;      /**< Block name, case insensitive. */
     size_t itemCount {2};       /**< Number of columns in the block. */
     size_t valueIdx {1};        /**< Column index for value. */
     int scaleIdx {-1};          /**< Column index for scale, -1 if scale-independent. */
@@ -62,12 +63,15 @@ const Prototype ALPHA = Prototype{"ALPHA", 1, 0};
 const Prototype HMIX = Prototype{"HMIX", 3, 2, -1, -1, true};
 const Prototype GAUGE = Prototype{"GAUGE", 3, 2, -1, -1, true};
 const Prototype MSOFT = Prototype{"MSOFT", 3, 2, -1, -1, true};
-const Prototype AU = Prototype{"AU", 4, 3, -1, -1, true};
-const Prototype AD = Prototype{"AD", 4, 3, -1, -1, true};
-const Prototype AE = Prototype{"AE", 4, 3, -1, -1, true};
+const Prototype AU = Prototype{{"AU", "UCOUPL"}, 4, 3, -1, -1, true};
+const Prototype AD = Prototype{{"AD", "DCOUPL"}, 4, 3, -1, -1, true};
+const Prototype AE = Prototype{{"AE", "LCOUPL"}, 4, 3, -1, -1, true};
 const Prototype YU = Prototype{"YU", 4, 3, -1, -1, true};
 const Prototype YD = Prototype{"YD", 4, 3, -1, -1, true};
 const Prototype YE = Prototype{"YE", 4, 3, -1, -1, true};
+// const Prototype UCOUPL = Prototype{"UCOUPL", 4, 3, -1, -1, true};// TODO : temporary fix, maybe need possibility to have 2 name (composite construtor with simple and vector inputs)
+// const Prototype DCOUPL = Prototype{"DCOUPL", 4, 3, -1, -1, true};
+// const Prototype LCOUPL = Prototype{"LCOUPL", 4, 3, -1, -1, true};
 const Prototype SPINFO = Prototype{"SPINFO"};
 
 const std::unordered_set<Prototype> LHA_BLOCKS = {MODSEL, SMINPUTS, VCKMIN, UPMNSIN, MASS, GAUGE};

@@ -33,7 +33,7 @@ void test_read_modify_write_and_reload() {
     auto node = db.read_from_file(input_file);
 
     // Vérif lecture
-    assert(std::get<std::string>(node->get("model", "type")) == "SM");
+    assert(std::get<BlockName>(node->get("model", "type")) == "SM");
     assert(std::abs(std::get<double>(node->get("parameters", "alpha_s")) - 0.118) < 1e-6);
 
     // Modification
@@ -44,7 +44,7 @@ void test_read_modify_write_and_reload() {
 
     // Relecture
     auto reloaded = db.read_from_file(output_file);
-    assert(std::get<std::string>(reloaded->get("model", "type")) == "2HDM");
+    assert(std::get<BlockName>(reloaded->get("model", "type")) == "2HDM");
     assert(std::abs(std::get<double>(reloaded->get("model", "MH")) - 125.0) < 1e-6);
 
     // Nettoyage fichiers temporaires
@@ -77,7 +77,7 @@ void test_yaml_read_modify_write_reload() {
     auto node = db.read_from_file(input_file);
 
     // Vérif lecture
-    assert(std::get<std::string>(node->get("model", "type")) == "SM");
+    assert(std::get<BlockName>(node->get("model", "type")) == "SM");
     assert(std::abs(std::get<double>(node->get("parameters", "top_mass")) - 173.1) < 1e-6);
 
     // Modifications
@@ -87,7 +87,7 @@ void test_yaml_read_modify_write_reload() {
     db.write_to_file(output_file, node);
 
     auto reloaded = db.read_from_file(output_file);
-    assert(std::get<std::string>(reloaded->get("meta", "type")) == "YAML_MODE");
+    assert(std::get<BlockName>(reloaded->get("meta", "type")) == "YAML_MODE");
     assert(std::get<int>(reloaded->get("meta", "version")) == 999);
 
     fs::remove(input_file);

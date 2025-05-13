@@ -20,7 +20,7 @@ public:
      * @brief Adds a dependent block using DependentBlockManager.
      */
     void add_block_dependency(
-        const std::string& name,
+        const BlockName& name,
         const std::unordered_map<ParameterType, std::vector<std::string>>& source_names,
         ParameterType dest,
         DepUpdateFunc recalculateFunc
@@ -38,12 +38,12 @@ public:
     /**
      * @brief Removes a dependent block using DependentBlockManager.
      */
-    void remove_dependency(const std::string& name, ParameterType src) override;
+    void remove_dependency(const BlockName& name, ParameterType src) override;
 
     /**
      * @brief Updates a dependent block using DependentBlockManager.
      */
-    void update_dependency(const std::string& name, ParameterType src) override;
+    void update_dependency(const BlockName& name, ParameterType src) override;
 
 };
 

@@ -42,8 +42,8 @@ void DBManager::write_to_file(fs::path file_path, std::shared_ptr<Node> root) {
     // sanitize_file(file_path);  // TODO: basic checks (empty file, wrong encoding...)
 }
 
-void DBManager::add_lha_prototype(std::string blockName, size_t itemCount, size_t valueIdx, int scaleIdx, int rgIdx, bool globalScale) {
-    std::transform(blockName.begin(), blockName.end(), blockName.begin(), ::toupper);  // Make sure block name is uppercase 
+void DBManager::add_lha_prototype(BlockName blockName, size_t itemCount, size_t valueIdx, int scaleIdx, int rgIdx, bool globalScale) {
+    blockName.to_upper();
     Prototype new_prototype = Prototype{blockName, itemCount, valueIdx, scaleIdx, rgIdx, globalScale};
 
     auto it = std::find_if(DBManager::lha_prototypes.begin(), 

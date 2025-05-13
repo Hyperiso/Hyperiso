@@ -72,14 +72,14 @@ private:
      * @brief Parses the source string into blocks, optionally including comments.
      * @param comments If `true`, includes comments in the parsing process.
      */
-    std::map<std::string, std::vector<std::vector<std::string>>> parse_tokens(std::vector<Token> tokens, bool comments = false) const;
+    std::map<BlockName, std::vector<std::vector<std::string>>> parse_tokens(std::vector<Token> tokens, bool comments = false) const;
 
     /**
      * @brief Adds a new block to the reader from parsed lines.
      * @param id Block identifier.
      * @param lines Vector of lines containing the block's data.
      */
-    void addBlock(std::map<std::string, std::shared_ptr<LhaBlock>>& blocks, const std::string& id, const std::vector<std::vector<std::string>>& lines) const;
+    void addBlock(std::map<BlockName, std::shared_ptr<LhaBlock>>& blocks, const std::string& id, const std::vector<std::vector<std::string>>& lines) const;
 
     /**
      * @brief Finds a prototype by block name.
@@ -92,7 +92,7 @@ private:
      * @brief Converts the reader's content to a string representation.
      * @return String representing all blocks and their contents.
      */
-    std::shared_ptr<Node> toDBNode(std::map<std::string, std::shared_ptr<LhaBlock>> blocks) const;
+    std::shared_ptr<Node> toDBNode(std::map<BlockName, std::shared_ptr<LhaBlock>> blocks) const;
 
 public:
     /**

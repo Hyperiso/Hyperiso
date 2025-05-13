@@ -7,10 +7,14 @@ Node::Value Node::get(Keys&&... keys) const {
 
 template <typename T, typename Key, typename... Rest>
 void Node::set(T value, Key&& key, Rest&&... rest) {
+    using KeyType = std::decay_t<Key>;
     if constexpr (sizeof...(rest) == 0) {
-        data_[std::string(std::forward<Key>(key))] = std::forward<T>(value);
+        if constexpr (std::is_same_v<KeyType, BlockName>)
+            data_[std::forward<Key>(key)] = std::forward<T>(value);
+        else
+            data_[BlockName(std::forward<Key>(key))] = std::forward<T>(value);
     } else {
-        auto& node = data_[std::string(std::forward<Key>(key))];
+        auto& node = data_[BlockName(std::forward<Key>(key))];
         if (!std::holds_alternative<std::shared_ptr<Node>>(node)) {
             node = std::make_shared<Node>();
         }
@@ -20,8 +24,9 @@ void Node::set(T value, Key&& key, Rest&&... rest) {
 }
 
 template <typename Key, typename... Rest>
-Node::Value Node::getRecursive(const std::map<std::string, Value>& map, Key&& key, Rest&&... rest) {
-    auto it = map.find(std::forward<Key>(key));
+Node::Value Node::getRecursive(const std::map<BlockName, Value>& map, Key&& key, Rest&&... rest) {
+    BlockName blockKey = BlockName(std::forward<Key>(key));
+    auto it = map.find(blockKey);
     if (it == map.end()) {
         throw std::runtime_error("Key not found");
     }

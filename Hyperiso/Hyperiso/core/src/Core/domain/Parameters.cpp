@@ -30,7 +30,7 @@ Parameters::Parameters(std::shared_ptr<ModelStrategy> modelStrategy)
     strategy->add_absent_block(truc);
 }
 
-scalar_t Parameters::operator()(const std::string& block, LhaID id) const {
+scalar_t Parameters::operator()(const BlockName& block, LhaID id) const {
     // if (block == "WPARAM_MATCH_SM" ){
 
     //     std::cout << blockAccessor << std::endl;
@@ -38,40 +38,40 @@ scalar_t Parameters::operator()(const std::string& block, LhaID id) const {
     return blockAccessor->getValue(block, id);
 }
 
-std::shared_ptr<Parameter> Parameters::get_parameter(const std::string &block,
+std::shared_ptr<Parameter> Parameters::get_parameter(const BlockName &block,
                                                      LhaID pdgCode) {
     return blockAccessor->at(block)->retrieve(pdgCode);
 }
 
-bool Parameters::exist(const std::string& block, LhaID id) {
+bool Parameters::exist(const BlockName& block, LhaID id) {
     return blockAccessor->has_param(block, id);
 }
 
-void Parameters::setBlockValue(const std::string& name, LhaID id, scalar_t value) {
+void Parameters::setBlockValue(const BlockName& name, LhaID id, scalar_t value) {
     blockAccessor->setValue(name, id, value);
 }
 
-std::map<LhaID, double> Parameters::get_block_infos(std::string blockName) {
+std::map<LhaID, double> Parameters::get_block_infos(BlockName blockName) {
     return blockAccessor->getAllValues(blockName);
 }
 
-std::unordered_set<std::string> Parameters::get_blocks_list() {
+std::unordered_set<BlockName> Parameters::get_blocks_list() {
     return blockAccessor->get_block_names();
 }
 
-std::unordered_set<std::string> Parameters::init_blocks(ParameterType type) {
-    std::unordered_set<std::string> existing, missing;
+std::unordered_set<BlockName> Parameters::init_blocks(ParameterType type) {
+    std::unordered_set<BlockName> existing, missing;
     
     std::ranges::partition_copy(
         ParameterBlockRepartition::BLOCKS.at(type),
         std::inserter(existing, existing.end()),
         std::inserter(missing, missing.end()),
-        [&](const std::string& s) {
+        [&](const BlockName& s) {
             return MemoryManager::GetInstance()->input_cache->get_block_names().contains(s);
         }
     );
-    std::cout << MemoryManager::GetInstance()->input_cache << std::endl;
-    std::cout << "..............................................." << std::endl;
+    // std::cout << MemoryManager::GetInstance()->input_cache << std::endl;
+    // std::cout << "..............................................." << std::endl;
     if (type == ParameterType::WILSON && !MemoryManager::GetInstance()->cache.config.flags[ExternalFlag::HAS_WILSON_INPUT]) {
         existing.erase("FWCOEF");
         existing.erase("IMFWCOEF");
@@ -88,7 +88,7 @@ std::unordered_set<std::string> Parameters::init_blocks(ParameterType type) {
     return missing;
 }
 
-void Parameters::freeze_block(const std::string &blockName) {
+void Parameters::freeze_block(const BlockName &blockName) {
     if (!blockAccessor->contains(blockName)) {
         // std::cout << blockAccessor << std::endl;
         LOG_ERROR("Cannot freeze non-existing dependent block", blockName);
@@ -97,11 +97,11 @@ void Parameters::freeze_block(const std::string &blockName) {
     return this->blockAccessor->at(blockName)->freeze();
 }
 
-void Parameters::unfreeze_block(const std::string &blockName) {
+void Parameters::unfreeze_block(const BlockName &blockName) {
     return this->blockAccessor->at(blockName)->unfreeze();
 }
 
-void Parameters::freeze_param(const std::string &blockName, const LhaID &id) {
+void Parameters::freeze_param(const BlockName &blockName, const LhaID &id) {
     if (!blockAccessor->contains(blockName)) {
         LOG_ERROR("Cannot freeze dependent parameter in non-existing block", blockName);
     }
@@ -113,11 +113,11 @@ void Parameters::freeze_param(const std::string &blockName, const LhaID &id) {
     return this->blockAccessor->at(blockName)->retrieve(id)->freeze();
 }
 
-void Parameters::unfreeze_param(const std::string &blockName, const LhaID &id) {
+void Parameters::unfreeze_param(const BlockName &blockName, const LhaID &id) {
     return this->blockAccessor->at(blockName)->retrieve(id)->unfreeze();
 }
 
-std::unordered_set<std::string> SMModelStrategy::initializeParameters(Parameters& params) {
+std::unordered_set<BlockName> SMModelStrategy::initializeParameters(Parameters& params) {
     
     auto absent_blocks = params.init_blocks(ParameterType::SM);
 
@@ -173,7 +173,7 @@ void SMModelStrategy::postInitialization(Parameters& params) {
     }
 }
 
-std::unordered_set<std::string> BSMModelStrategy::initializeParameters(Parameters& params) {
+std::unordered_set<BlockName> BSMModelStrategy::initializeParameters(Parameters& params) {
     auto absent_blocks = params.init_blocks(ParameterType::BSM);
     return absent_blocks;
     // TODO : Export savestate to JSON
@@ -189,7 +189,7 @@ std::unordered_set<std::string> BSMModelStrategy::initializeParameters(Parameter
 //     // TODO : Export savestate to JSON
 // }
 
-std::unordered_set<std::string> FlavorStrategy::initializeParameters(Parameters& params) {
+std::unordered_set<BlockName> FlavorStrategy::initializeParameters(Parameters& params) {
     auto absent_blocks = params.init_blocks(ParameterType::FLAVOR);
     return absent_blocks;
     // TODO : Export savestate to JSON
@@ -200,7 +200,7 @@ std::unordered_set<std::string> FlavorStrategy::initializeParameters(Parameters&
 //     // TODO : Export savestate to JSON
 // }
 
-std::unordered_set<std::string> WilsonInputStrategy::initializeParameters(Parameters &params) {
+std::unordered_set<BlockName> WilsonInputStrategy::initializeParameters(Parameters &params) {
     auto absent_blocks = params.init_blocks(ParameterType::WILSON);
     return absent_blocks;
     // TODO : Export savestate to JSON
@@ -270,18 +270,18 @@ std::unordered_set<std::string> WilsonInputStrategy::initializeParameters(Parame
     // }   
 }
 
-std::unordered_set<std::string> DecayStrategy::initializeParameters(Parameters &params) {
+std::unordered_set<BlockName> DecayStrategy::initializeParameters(Parameters &params) {
     auto absent_blocks = params.init_blocks(ParameterType::DECAY);
     return absent_blocks;
     // TODO : Export savestate to JSON
 }
 
-std::unordered_set<std::string> ObservableStrategy::initializeParameters(Parameters &params) {
+std::unordered_set<BlockName> ObservableStrategy::initializeParameters(Parameters &params) {
     auto absent_blocks = params.init_blocks(ParameterType::OBSERVABLE);
     return absent_blocks;
 }
 
-std::unordered_set<std::string> PassthroughStrategy::initializeParameters(Parameters &params) {
+std::unordered_set<BlockName> PassthroughStrategy::initializeParameters(Parameters &params) {
     auto absent_blocks = params.init_blocks(ParameterType::PASSTHROUGH);
     return absent_blocks;
 }

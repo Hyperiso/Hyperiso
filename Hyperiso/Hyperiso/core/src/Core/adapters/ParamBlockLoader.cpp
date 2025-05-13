@@ -3,9 +3,10 @@
 void ParamBlockLoader::load(std::shared_ptr<BlockAccessor> dest, fs::path src_file) {
     LOG_INFO("Loading parameter blocks from", src_file.string());
     auto np = NodeProviderFactory::createNodeProvider(src_file);
+    std::cout << "herhe" << std::endl;
     auto src = np->provide_db_as_node();
-    
-    src->printJSON();
+    // src->printJSON();
+    std::cout << "ahah" << std::endl;
     for (auto &bk : src->get_keys()) {
         auto block = std::make_shared<Block>();
         block->blockname = bk;
@@ -17,13 +18,13 @@ void ParamBlockLoader::load(std::shared_ptr<BlockAccessor> dest, fs::path src_fi
             }
 
             auto value = node->get("central_value");
-            if (std::holds_alternative<std::string>(value)) {
+            if (std::holds_alternative<BlockName>(value)) {
                 continue;
             } else {
                 auto val = std::get<double>(value);
                 auto stat = node->contains("stat_error") ? node->get("stat_error") : 0.;
                 auto syst = node->contains("syst_error") ? node->get("syst_error") : 0.;
-                block->store(LhaID(vk.first), std::make_shared<Parameter>(Parameter(ParamId(bk, vk.first), val, std::get<double>(stat), std::get<double>(syst))));  
+                block->store(LhaID(vk.first), std::make_shared<Parameter>(Parameter(ParamId(bk, std::string(vk.first)), val, std::get<double>(stat), std::get<double>(syst))));  //TODO : just be careful to string conversion, maybe better things to do.
             }
         }
 

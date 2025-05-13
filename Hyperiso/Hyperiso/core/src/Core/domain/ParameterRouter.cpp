@@ -1,7 +1,7 @@
 #include "ParameterRouter.h"
 
-std::vector<std::string> ParameterBlockRepartition::filter_custom_blocks(const std::vector<std::string> &source) {
-    std::vector<std::string> custom_blocks {};
+std::vector<BlockName> ParameterBlockRepartition::filter_custom_blocks(const std::vector<BlockName> &source) {
+    std::vector<BlockName> custom_blocks {};
 
     for (const auto& block : source) {
         if (to_lowercase(block) == "mass" || to_lowercase(block) == "gauge") {
@@ -19,8 +19,8 @@ std::vector<std::string> ParameterBlockRepartition::filter_custom_blocks(const s
     return custom_blocks;
 }
 
-ParameterType ParamRouter::GetType(std::string block, LhaID id) {
-    auto conflict_blocks = get_keys<std::string, std::unordered_set<long>>(ParametersAccessRights::SM_RIGHTS);
+ParameterType ParamRouter::GetType(BlockName block, LhaID id) {
+    auto conflict_blocks = get_keys<BlockName, std::unordered_set<long>>(ParametersAccessRights::SM_RIGHTS);
 
     if (conflict_blocks.contains(block)) {
         return ParametersAccessRights::SM_RIGHTS.at(block).contains(id) ? ParameterType::SM : ParameterType::BSM;
@@ -35,7 +35,7 @@ ParameterType ParamRouter::GetType(std::string block, LhaID id) {
     LOG_ERROR("Invalid Parameter", "Parameter", block, ",", id, "is undefined.");
 }
 
-std::vector<ParameterType> ParamRouter::GetType(std::string block) {
+std::vector<ParameterType> ParamRouter::GetType(BlockName block) {
     std::vector<ParameterType> param_types;
     for (auto& [type, owned_blocks] : ParameterBlockRepartition::BLOCKS) {
         if (owned_blocks.contains(block)) {
@@ -45,6 +45,6 @@ std::vector<ParameterType> ParamRouter::GetType(std::string block) {
     return param_types;
 }
 
-std::unordered_set<std::string> ParamRouter::GetOwnedBlocks(ParameterType ptype) {
+std::unordered_set<BlockName> ParamRouter::GetOwnedBlocks(ParameterType ptype) {
     return ParameterBlockRepartition::BLOCKS.at(ptype);
 }

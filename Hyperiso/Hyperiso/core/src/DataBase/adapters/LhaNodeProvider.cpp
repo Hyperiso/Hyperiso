@@ -4,7 +4,7 @@ std::shared_ptr<Node> LhaNodeProvider::provide_db_as_node() {
     return DBManager().read_from_file(this->src_path);
 }
 
-void LhaNodeProvider::add_lha_prototype(std::string blockName,
+void LhaNodeProvider::add_lha_prototype(BlockName blockName,
                                         size_t itemCount,
                                         size_t valueIdx,
                                         int scaleIdx,

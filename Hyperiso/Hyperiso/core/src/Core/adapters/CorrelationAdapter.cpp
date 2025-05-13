@@ -23,9 +23,9 @@ void CorrelationLoader<ParamId>::emplace_correlation(std::shared_ptr<Correlation
         if (std::holds_alternative<int>(id_value)) {
             id = LhaID{std::get<int>(id_value)};
         } else {
-            id = LhaID{std::get<std::string>(id_value)};
+            id = LhaID{std::get<BlockName>(id_value)};
         }
-        auto block = std::get<std::string>(leaf->get("block_" + std::to_string(i)));
+        auto block = std::get<BlockName>(leaf->get("block_" + std::to_string(i)));
         return ParamId {ParamRouter::GetType(block, id), block, id};
     };
 
@@ -48,8 +48,8 @@ void CorrelationLoader<Observables>::emplace_correlation(std::shared_ptr<Correla
         LOG_ERROR("CorrelationLoader", "Node doesn't have all necessary keys for observable correlation.");
     }
 
-    Observables obs_1 = ObservableMapper::enum_elt(LhaID(std::get<std::string>(leaf->get("id_1"))));
-    Observables obs_2 = ObservableMapper::enum_elt(LhaID(std::get<std::string>(leaf->get("id_2"))));
+    Observables obs_1 = ObservableMapper::enum_elt(LhaID(std::get<BlockName>(leaf->get("id_1"))));
+    Observables obs_2 = ObservableMapper::enum_elt(LhaID(std::get<BlockName>(leaf->get("id_2"))));
     auto stat_value = std::get<double>(leaf->get("stat_correlation"));
     auto syst_value = leaf->contains("syst_correlation") ? std::get<double>(leaf->get("syst_correlation")) : 0;
 

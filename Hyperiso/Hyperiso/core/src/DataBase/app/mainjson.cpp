@@ -16,7 +16,7 @@ int main() {
     std::cout << "\n";
 
     try {
-        auto value = std::get<std::string>(root->get("1", "2", "3"));
+        auto value = std::get<BlockName>(root->get("1", "2", "3"));
         std::cout << "Valeur de [1, 2, 3] : " << value << "\n";
     } catch (const std::exception& e) {
         std::cerr << "Erreur : " << e.what() << "\n";
@@ -27,8 +27,8 @@ int main() {
         std::cout << "Groupe sous [1, 2] :\n";
         for (const auto& [key, val] : group) {
             std::cout << "- " << key << " : ";
-            if (std::holds_alternative<std::string>(val)) {
-                std::cout << std::get<std::string>(val);
+            if (std::holds_alternative<BlockName>(val)) {
+                std::cout << std::get<BlockName>(val);
             } else if (std::holds_alternative<int>(val)) {
                 std::cout << std::get<int>(val);
             } else if (std::holds_alternative<double>(val)) {

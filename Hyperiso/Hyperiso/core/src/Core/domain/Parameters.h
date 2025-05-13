@@ -77,7 +77,7 @@ public:
      * @param params Reference to Parameters object.
      * @return Set of block names that were absent during initialization.
      */
-    virtual std::unordered_set<std::string> initializeParameters(class Parameters& params) = 0;
+    virtual std::unordered_set<BlockName> initializeParameters(class Parameters& params) = 0;
 
     /**
      * @brief Executes additional initialization tasks after main parameter loading.
@@ -94,14 +94,14 @@ public:
      * @brief Sets the list of absent blocks for the model strategy.
      * @param _ Set of absent block names.
      */
-    void add_absent_block(std::unordered_set<std::string> _) {absent_blocks = _;};
+    void add_absent_block(std::unordered_set<BlockName> _) {absent_blocks = _;};
 
     /**
      * @brief Clears the list of absent blocks.
      */
-    void remove_absent_block() {absent_blocks = std::unordered_set<std::string>();}
+    void remove_absent_block() {absent_blocks = std::unordered_set<BlockName>();}
 protected:
-    std::unordered_set<std::string> absent_blocks;  ///< List of blocks missing from initialization.
+    std::unordered_set<BlockName> absent_blocks;  ///< List of blocks missing from initialization.
 };
 
 /** 
@@ -111,7 +111,7 @@ protected:
  */
 class SMModelStrategy : public ModelStrategy {
 public:
-std::unordered_set<std::string> initializeParameters(class Parameters& params) override;
+std::unordered_set<BlockName> initializeParameters(class Parameters& params) override;
     void postInitialization(Parameters& params) override;
 };
 
@@ -122,7 +122,7 @@ std::unordered_set<std::string> initializeParameters(class Parameters& params) o
  */
 class BSMModelStrategy : public ModelStrategy {
     public:
-    std::unordered_set<std::string> initializeParameters(class Parameters& params) override;
+    std::unordered_set<BlockName> initializeParameters(class Parameters& params) override;
         void postInitialization(Parameters& params) override {}
     };
 
@@ -145,7 +145,7 @@ class BSMModelStrategy : public ModelStrategy {
  */
 class FlavorStrategy : public ModelStrategy {
 public:
-std::unordered_set<std::string> initializeParameters(class Parameters& params) override;
+std::unordered_set<BlockName> initializeParameters(class Parameters& params) override;
     void postInitialization(Parameters& params) override {}
 };
 
@@ -156,7 +156,7 @@ std::unordered_set<std::string> initializeParameters(class Parameters& params) o
  */
 class GeneralModelStrategy : public ModelStrategy {
 public:
-std::unordered_set<std::string> initializeParameters(class Parameters& params) override;
+std::unordered_set<BlockName> initializeParameters(class Parameters& params) override;
     void postInitialization(Parameters& params) override {}
 };
 
@@ -167,7 +167,7 @@ std::unordered_set<std::string> initializeParameters(class Parameters& params) o
  */
 class WilsonInputStrategy : public ModelStrategy {
 public:
-std::unordered_set<std::string> initializeParameters(class Parameters& params) override;
+std::unordered_set<BlockName> initializeParameters(class Parameters& params) override;
     void postInitialization(Parameters& params) override {}
 };
 
@@ -178,7 +178,7 @@ std::unordered_set<std::string> initializeParameters(class Parameters& params) o
  */
 class DecayStrategy : public ModelStrategy {
 public:
-std::unordered_set<std::string> initializeParameters(class Parameters& params) override;
+std::unordered_set<BlockName> initializeParameters(class Parameters& params) override;
     void postInitialization(Parameters& params) override {}
 };
 
@@ -189,7 +189,7 @@ std::unordered_set<std::string> initializeParameters(class Parameters& params) o
  */
 class ObservableStrategy : public ModelStrategy {
 public:
-std::unordered_set<std::string> initializeParameters(class Parameters& params) override;
+std::unordered_set<BlockName> initializeParameters(class Parameters& params) override;
     void postInitialization(Parameters& params) override {}
 };
 
@@ -200,7 +200,7 @@ std::unordered_set<std::string> initializeParameters(class Parameters& params) o
  */
 class PassthroughStrategy : public ModelStrategy {
 public:
-std::unordered_set<std::string> initializeParameters(class Parameters& params) override;
+std::unordered_set<BlockName> initializeParameters(class Parameters& params) override;
     void postInitialization(Parameters& params) override {}
 };
 
@@ -230,7 +230,7 @@ public:
      * @param pdgCode PDG code identifier.
      * @return True if parameter exists, false otherwise.
      */
-    bool exist(const std::string& block, LhaID pdgCode);
+    bool exist(const BlockName& block, LhaID pdgCode);
     
     /**
      * @brief Retrieves a parameter value (operator syntax).
@@ -238,7 +238,7 @@ public:
      * @param pdgCode PDG code identifier.
      * @return The corresponding parameter value.
      */
-    scalar_t operator()(const std::string& block, LhaID pdgCode) const;
+    scalar_t operator()(const BlockName& block, LhaID pdgCode) const;
 
     /**
      * @brief Retrieves a shared pointer to a Parameter.
@@ -246,7 +246,7 @@ public:
      * @param pdgCode PDG code identifier.
      * @return Shared pointer to the parameter.
      */
-    std::shared_ptr<Parameter> get_parameter(const std::string& block, LhaID pdgCode);
+    std::shared_ptr<Parameter> get_parameter(const BlockName& block, LhaID pdgCode);
 
     /**
      * @brief Sets a parameter value manually.
@@ -255,20 +255,20 @@ public:
      * @param value Value to assign.
      * @param force If true, forces the overwrite (default false).
      */
-    void setBlockValue(const std::string& name, LhaID pdgCode, scalar_t value);
+    void setBlockValue(const BlockName& name, LhaID pdgCode, scalar_t value);
 
     /**
      * @brief Retrieves all parameter values for a given block.
      * @param blockName Block name.
      * @return Map of LHA IDs to parameter values.
      */
-    std::map<LhaID, double> get_block_infos(std::string blockName);
+    std::map<LhaID, double> get_block_infos(BlockName blockName);
 
     /**
      * @brief Retrieves the list of available parameter blocks.
      * @return Set of block names.
      */
-    std::unordered_set<std::string> get_blocks_list();
+    std::unordered_set<BlockName> get_blocks_list();
 
     /**
      * @brief Changes the operational mode of a parameter (fixed/shiftable).
@@ -289,33 +289,33 @@ public:
      * @param type Model type.
      * @return Set of missing blocks.
      */
-    std::unordered_set<std::string> init_blocks(ParameterType type);
+    std::unordered_set<BlockName> init_blocks(ParameterType type);
 
     /**
      * @brief Freezes an entire block (preventing parameter updates).
      * @param blockName Name of the block to freeze.
      */
-    void freeze_block(const std::string& blockName);
+    void freeze_block(const BlockName& blockName);
 
     /**
      * @brief Unfreezes an entire block.
      * @param blockName Name of the block to unfreeze.
      */
-    void unfreeze_block(const std::string& blockName);
+    void unfreeze_block(const BlockName& blockName);
 
     /**
      * @brief Freezes a specific parameter within a block.
      * @param blockName Name of the block.
      * @param id LHA ID of the parameter.
      */
-    void freeze_param(const std::string& blockName, const LhaID& id);
+    void freeze_param(const BlockName& blockName, const LhaID& id);
 
     /**
      * @brief Unfreezes a specific parameter within a block.
      * @param blockName Name of the block.
      * @param id LHA ID of the parameter.
      */
-    void unfreeze_param(const std::string& blockName, const LhaID& id);
+    void unfreeze_param(const BlockName& blockName, const LhaID& id);
 
     /**
      * @brief Destructor. Logs when a Parameters instance is destroyed.

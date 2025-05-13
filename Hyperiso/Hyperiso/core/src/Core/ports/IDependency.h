@@ -34,7 +34,7 @@ public:
      * @param dest Destination parameter type where the new block will be stored.
      * @param recalculateFunc Function used to recalculate the dependent block.
      */
-    virtual void add_block_dependency(const std::string& name,
+    virtual void add_block_dependency(const BlockName& name,
                                       const std::unordered_map<ParameterType, std::vector<std::string>>& source_names,
                                       ParameterType dest,
                                       DepUpdateFunc recalculateFunc) 
@@ -56,14 +56,14 @@ public:
      * @param name Name of the dependency block.
      * @param src Source parameter type.
      */
-    virtual void remove_dependency(const std::string& name, ParameterType src) = 0;
+    virtual void remove_dependency(const BlockName& name, ParameterType src) = 0;
 
     /**
      * @brief Updates a dependency by name and parameter type.
      * @param name Name of the dependency block.
      * @param src Source parameter type.
      */
-    virtual void update_dependency(const std::string& name, ParameterType src) = 0;
+    virtual void update_dependency(const BlockName& name, ParameterType src) = 0;
 };
 
 #endif // IDEPENDECY_H

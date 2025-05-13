@@ -12,7 +12,7 @@ void MemoryManager::check_if_ready() {
     }
 }
 
-std::shared_ptr<BlockAccessor> MemoryManager::extract_blocks(std::unordered_set<std::string> block_names) {
+std::shared_ptr<BlockAccessor> MemoryManager::extract_blocks(std::unordered_set<BlockName> block_names) {
     return (*input_cache)[block_names];
 }
 

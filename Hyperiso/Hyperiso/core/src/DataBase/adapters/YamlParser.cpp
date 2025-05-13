@@ -62,7 +62,7 @@ void YAMLParser::processKeyValue(const std::string& line, std::shared_ptr<Node>&
 }
 
 void YAMLParser::processList(std::shared_ptr<Node>& node, std::istringstream& stream, int indentLevel, std::string firstLine) {
-    std::map<std::string, Node::Value> listData;
+    std::map<BlockName, Node::Value> listData;
     size_t index = 0;
     std::string line = firstLine;
     bool first {true};
@@ -159,7 +159,9 @@ bool YAMLParser::isDouble(const std::string& str) {
 
 bool YAMLParser::isListNode(const std::shared_ptr<Node>& node) const {
     for (const auto& [key, _] : node->getGroup({})) {
-        if (!std::all_of(key.begin(), key.end(), ::isdigit)) {
+        std::string keyStr = key.to_string();
+
+        if (!std::all_of(keyStr.begin(), keyStr.end(), ::isdigit)) {
             return false;
         }
     }

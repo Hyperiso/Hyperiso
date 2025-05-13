@@ -34,7 +34,7 @@ typedef std::function<void(const std::unordered_map<std::string, std::shared_ptr
  */
 class Block : public IStorage<LhaID, Parameter> {
 public:
-    std::string blockname {""}; ///< Name of the block.
+    BlockName blockname {""}; ///< Name of the block.
 
     Block() = default;
     Block(std::shared_ptr<Block> other);

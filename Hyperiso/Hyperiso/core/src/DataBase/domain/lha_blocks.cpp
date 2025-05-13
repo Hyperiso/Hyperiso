@@ -25,7 +25,7 @@ std::string LhaBlock::toString() const {
 
 std::shared_ptr<Node> LhaBlock::toDBNode() const {
     Node node;
-    std::map<std::string, Node::Value> elts_as_nodes;
+    std::map<BlockName, Node::Value> elts_as_nodes;
     for (const auto& elt : this->entries) {
         elts_as_nodes.emplace(elt->getId().to_string(), elt->toDBNode());
         

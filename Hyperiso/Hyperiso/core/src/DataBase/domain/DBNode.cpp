@@ -2,15 +2,15 @@
 
 Node::Node() = default;
 
-std::vector<std::string> Node::get_keys() {
-    std::vector<std::string> keys;
+std::vector<BlockName> Node::get_keys() {
+    std::vector<BlockName> keys;
     for (auto& [k, _] : this->data_)
         keys.emplace_back(k);
     return keys;
 }
 
 
-std::map<std::string, Node::Value> Node::getGroup(const std::vector<std::string>& keys) const {
+std::map<BlockName, Node::Value> Node::getGroup(const std::vector<BlockName>& keys) const {
     const Node* currentNode = this;
     for (const auto& key : keys) {
         auto it = currentNode->data_.find(key);
@@ -24,7 +24,7 @@ std::map<std::string, Node::Value> Node::getGroup(const std::vector<std::string>
     return currentNode->data_;
 }
 
-void Node::setGroup(const std::vector<std::string>& keys, const std::map<std::string, Value>& groupData) {
+void Node::setGroup(const std::vector<BlockName>& keys, const std::map<BlockName, Value>& groupData) {
     Node* currentNode = this;
     for (const auto& key : keys) {
         auto& value = currentNode->data_[key];
@@ -134,8 +134,8 @@ bool Node::isListNode(const std::shared_ptr<Node>& node) const {
 
 
 void Node::printValue(const Value& value, int level) const {
-    if (std::holds_alternative<std::string>(value)) {
-        std::cout << "\"" << std::get<std::string>(value) << "\"";
+    if (std::holds_alternative<BlockName>(value)) {
+        std::cout << "\"" << std::get<BlockName>(value) << "\"";
     } else if (std::holds_alternative<int>(value)) {
         std::cout << std::get<int>(value);
     } else if (std::holds_alternative<double>(value)) {
@@ -159,8 +159,8 @@ void Node::printValue(const Value& value, int level) const {
 
 
 void Node::printValueToStream(std::ostream& os, const Value& value, int level) const {
-    if (std::holds_alternative<std::string>(value)) {
-        os << "\"" << std::get<std::string>(value) << "\"";
+    if (std::holds_alternative<BlockName>(value)) {
+        os << "\"" << std::get<BlockName>(value) << "\"";
     } else if (std::holds_alternative<int>(value)) {
         os << std::get<int>(value);
     } else if (std::holds_alternative<double>(value)) {
@@ -173,8 +173,8 @@ void Node::printValueToStream(std::ostream& os, const Value& value, int level) c
 }
 
 void Node::printScalarYAML(const Value& value) const {
-    if (std::holds_alternative<std::string>(value)) {
-        std::cout << std::get<std::string>(value);
+    if (std::holds_alternative<BlockName>(value)) {
+        std::cout << std::get<BlockName>(value);
     } else if (std::holds_alternative<int>(value)) {
         std::cout << std::get<int>(value);
     } else if (std::holds_alternative<double>(value)) {
@@ -184,7 +184,7 @@ void Node::printScalarYAML(const Value& value) const {
     }
 }
 
-bool Node::contains(const std::string& key) const {
+bool Node::contains(const BlockName& key) const {
     return data_.find(key) != data_.end();
 }
 

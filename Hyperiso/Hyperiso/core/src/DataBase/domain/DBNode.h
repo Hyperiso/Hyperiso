@@ -13,12 +13,14 @@
 #include <stdexcept>
 #include <algorithm>
 
+#include "General.h"
+
 /**
  * @brief A hierarchical data structure with JSON and YAML serialization capabilities.
  */
 class Node {
 public:
-    using Value = std::variant<std::string, int, double, bool, std::shared_ptr<Node>, std::vector<std::shared_ptr<Node>>>;
+    using Value = std::variant<BlockName, int, double, bool, std::shared_ptr<Node>, std::vector<std::shared_ptr<Node>>>;
 
 
     /**
@@ -40,7 +42,7 @@ public:
      * @brief Retrieves all the stored keys below the current node.
      * @return A vector of all the stored keys below the current node.
      */
-    std::vector<std::string> get_keys();
+    std::vector<BlockName> get_keys();
 
     /**
      * @brief Sets a value in the node using a series of keys.
@@ -60,14 +62,14 @@ public:
      * @return A map of key-value pairs representing the group.
      * @throws std::runtime_error If the key path does not exist.
      */
-    std::map<std::string, Value> getGroup(const std::vector<std::string>& keys) const;
+    std::map<BlockName, Value> getGroup(const std::vector<BlockName>& keys) const;
 
     /**
      * @brief Sets a group of values using a vector of keys.
      * @param keys The keys specifying the path to the group.
      * @param groupData A map of key-value pairs representing the group to set.
      */
-    void setGroup(const std::vector<std::string>& keys, const std::map<std::string, Value>& groupData);
+    void setGroup(const std::vector<BlockName>& keys, const std::map<BlockName, Value>& groupData);
 
     /**
      * @brief Prints the node in JSON format to standard output.
@@ -88,7 +90,7 @@ public:
      */
     void printYAML(int level = 0) const;
 
-    bool contains(const std::string& key) const;
+    bool contains(const BlockName& key) const;
 
     int countChildren() const;
 
@@ -97,10 +99,10 @@ public:
      */
     bool isList() const;
 private:
-    std::map<std::string, Value> data_;
+    std::map<BlockName, Value> data_;
 
     template <typename Key, typename... Rest>
-    static Value getRecursive(const std::map<std::string, Value>& map, Key&& key, Rest&&... rest);
+    static Value getRecursive(const std::map<BlockName, Value>& map, Key&& key, Rest&&... rest);
 
     void printValue(const Value& value, int level) const;
     void printValueToStream(std::ostream& os, const Value& value, int level) const;

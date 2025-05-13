@@ -14,7 +14,7 @@ void test_simple_set_and_get() {
 
     assert(std::get<int>(node.get("intVal")) == 42);
     assert(std::abs(std::get<double>(node.get("doubleVal")) - 3.14) < 1e-6);
-    assert(std::get<std::string>(node.get("strVal")) == "hello");
+    assert(std::get<BlockName>(node.get("strVal")) == "hello");
     assert(std::get<bool>(node.get("boolVal")) == true);
 }
 
@@ -55,7 +55,7 @@ void test_setGroup_and_getGroup() {
 
     auto g = node.getGroup({"group1", "sub"});
     assert(std::get<int>(g["a"]) == 1);
-    assert(std::get<std::string>(g["b"]) == "x");
+    assert(std::get<BlockName>(g["b"]) == "x");
     assert(std::abs(std::get<double>(g["c"]) - 2.2) < 1e-6);
 }
 

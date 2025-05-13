@@ -20,7 +20,7 @@
  * 
  * This class allows adding, retrieving, and modifying values in multiple parameter blocks.
  */
-class BlockAccessor : public std::unordered_map<std::string, std::shared_ptr<Block>> {
+class BlockAccessor : public std::unordered_map<BlockName, std::shared_ptr<Block>> {
 public:
     /**
      * @brief Checks if a block exists with a given parameter.
@@ -28,7 +28,7 @@ public:
      * @param pdgCode The PDG code of the parameter.
      * @return True if the block exists, false otherwise.
      */
-    bool has_param(const std::string blockName, LhaID pdgCode) const;
+    bool has_param(const BlockName& blockName, LhaID pdgCode) const;
 
     /**
      * @brief Sets the value of a parameter in a specified block.
@@ -36,7 +36,7 @@ public:
      * @param pdgCode The PDG code of the parameter.
      * @param value The new value to set.
      */
-    void setValue(const std::string& blockName, LhaID pdgCode, scalar_t value);
+    void setValue(const BlockName& blockName, LhaID pdgCode, scalar_t value);
 
     // /**
     //  * @brief Sets the mode of a parameter in a specified block.
@@ -52,7 +52,7 @@ public:
      * @param pdgCode The PDG code of the parameter.
      * @return The parameter value.
      */
-    scalar_t getValue(const std::string& blockName, LhaID pdgCode) const;
+    scalar_t getValue(const BlockName& blockName, LhaID pdgCode) const;
 
     /**
      * @brief Retrieves the parameter from a specified block.
@@ -60,7 +60,7 @@ public:
      * @param id The LHA ID of the parameter.
      * @return The parameter.
      */
-    std::shared_ptr<Parameter> getParameter(const std::string& blockName, LhaID id) const;
+    std::shared_ptr<Parameter> getParameter(const BlockName& blockName, LhaID id) const;
 
     /**
      * @brief Retrieves the parameter from a specified block.
@@ -68,20 +68,20 @@ public:
      * @param id The LHA ID of the parameter.
      * @param source The source parameter.
      */
-    void setParameter(const std::string& blockName, LhaID id, std::shared_ptr<Parameter> source);
+    void setParameter(const BlockName& blockName, LhaID id, std::shared_ptr<Parameter> source);
 
     /**
      * @brief Retrieves all values from a specified block.
      * @param blockName The name of the block.
      * @return A map of PDG codes to parameter values.
      */
-    std::map<LhaID, double> getAllValues(std::string blockName);
+    std::map<LhaID, double> getAllValues(BlockName blockName);
 
     /**
      * @brief Retrieves a list of all block names.
      * @return A vector of block names.
      */
-    std::unordered_set<std::string> get_block_names();
+    std::unordered_set<BlockName> get_block_names();
 
     /**
      * @brief Removes a parameter from a specified block.
@@ -91,7 +91,7 @@ public:
      * @param block_name The name of the block.
      * @param id The LHA ID of the parameter to remove.
      */
-    void remove_item(const std::string& block_name, LhaID id);
+    void remove_item(const BlockName& block_name, LhaID id);
 
     /**
      * @brief Merges two BlockAccessor instances without resolving conflicts.
@@ -125,7 +125,7 @@ public:
      * @param block_names A set of block names to retrieve.
      * @return A shared pointer to a new BlockAccessor containing the requested blocks.
      */
-    std::shared_ptr<BlockAccessor> operator[](std::unordered_set<std::string> block_names);
+    std::shared_ptr<BlockAccessor> operator[](std::unordered_set<BlockName> block_names);
     /**
      * @brief Stream output operator for BlockAccessor.
      *

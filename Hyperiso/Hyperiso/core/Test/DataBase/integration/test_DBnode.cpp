@@ -34,7 +34,7 @@ void test_complex_hierarchy_and_output() {
     root.set(obs_list, "observables");
 
     // Validate values
-    assert(std::get<std::string>(root.get("model", "type")) == "SM");
+    assert(std::get<BlockName>(root.get("model", "type")) == "SM");
     assert(std::abs(std::get<double>(root.get("model", "MZ")) - 91.1876) < 1e-6);
     assert(std::get<bool>(root.get("model", "use_QED")) == true);
     assert(std::get<int>(root.get("metadata", "run_id")) == 42);

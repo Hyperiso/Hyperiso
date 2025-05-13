@@ -29,23 +29,23 @@ skills:
     nodeYaml->printJSON();
 
     try {
-        auto name = std::get<std::string>(nodeYaml->get("name"));
+        auto name = std::get<BlockName>(nodeYaml->get("name"));
         std::cout << "✅ Name: " << name << "\n";
     } catch (const std::exception& e) {
         std::cerr << "❌ Error: " << e.what() << "\n";
     }
 
     try {
-        auto city = std::get<std::string>(nodeYaml->get("location", "city"));
+        auto city = std::get<BlockName>(nodeYaml->get("location", "city"));
         std::cout << "✅ City: " << city << "\n";
     } catch (const std::exception& e) {
         std::cerr << "❌ Error: " << e.what() << "\n";
     }
 
     try {
-        auto skill1 = std::get<std::string>(nodeYaml->get("skills", "0"));
-        auto skill2 = std::get<std::string>(nodeYaml->get("skills", "1"));
-        auto skill3 = std::get<std::string>(nodeYaml->get("skills", "2"));
+        auto skill1 = std::get<BlockName>(nodeYaml->get("skills", "0"));
+        auto skill2 = std::get<BlockName>(nodeYaml->get("skills", "1"));
+        auto skill3 = std::get<BlockName>(nodeYaml->get("skills", "2"));
         std::cout << "✅ Skills: " << skill1 << ", " << skill2 << ", " << skill3 << "\n";
     } catch (const std::exception& e) {
         std::cerr << "❌ Error: " << e.what() << "\n";
@@ -56,8 +56,8 @@ skills:
         std::cout << "✅ Group 'location':\n";
         for (const auto& [key, val] : group) {
             std::cout << "- " << key << " : ";
-            if (std::holds_alternative<std::string>(val)) {
-                std::cout << std::get<std::string>(val);
+            if (std::holds_alternative<BlockName>(val)) {
+                std::cout << std::get<BlockName>(val);
             } else if (std::holds_alternative<int>(val)) {
                 std::cout << std::get<int>(val);
             }
@@ -67,7 +67,7 @@ skills:
         std::cerr << "❌ Error: " << e.what() << "\n";
     }
 
-    std::map<std::string, Node::Value> newGroup = {
+    std::map<BlockName, Node::Value> newGroup = {
         {"hobby", "cycling"},
         {"job", "engineer"}
     };
@@ -160,23 +160,23 @@ details:
     root->printJSON();
 
     try {
-        auto name = std::get<std::string>(root->get("name"));
+        auto name = std::get<BlockName>(root->get("name"));
         std::cout << "✅ Name: " << name << "\n";
     } catch (const std::exception& e) {
         std::cerr << "❌ Error: " << e.what() << "\n";
     }
 
     try {
-        auto city = std::get<std::string>(root->get("address", "city"));
+        auto city = std::get<BlockName>(root->get("address", "city"));
         std::cout << "✅ Address city: " << city << "\n";
     } catch (const std::exception& e) {
         std::cerr << "❌ Error: " << e.what() << "\n";
     }
 
     try {
-        auto skill1 = std::get<std::string>(root->get("skills", "0"));
-        auto skill2 = std::get<std::string>(root->get("skills", "1"));
-        auto skill3 = std::get<std::string>(root->get("skills", "2"));
+        auto skill1 = std::get<BlockName>(root->get("skills", "0"));
+        auto skill2 = std::get<BlockName>(root->get("skills", "1"));
+        auto skill3 = std::get<BlockName>(root->get("skills", "2"));
         std::cout << "✅ Skills: " << skill1 << ", " << skill2 << ", " << skill3 << "\n";
     } catch (const std::exception& e) {
         std::cerr << "❌ Error: " << e.what() << "\n";
@@ -187,8 +187,8 @@ details:
         std::cout << "✅ Group 'address':\n";
         for (const auto& [key, val] : group) {
             std::cout << "- " << key << " : ";
-            if (std::holds_alternative<std::string>(val)) {
-                std::cout << std::get<std::string>(val);
+            if (std::holds_alternative<BlockName>(val)) {
+                std::cout << std::get<BlockName>(val);
             } else if (std::holds_alternative<int>(val)) {
                 std::cout << std::get<int>(val);
             }
@@ -198,7 +198,7 @@ details:
         std::cerr << "❌ Error: " << e.what() << "\n";
     }
 
-    std::map<std::string, Node::Value> newGroup = {
+    std::map<BlockName, Node::Value> newGroup = {
         {"newKey1", "newValue1"},
         {"newKey2", 12345},
         {"newKey3", false},

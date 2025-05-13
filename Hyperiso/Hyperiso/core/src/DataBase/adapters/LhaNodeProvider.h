@@ -20,7 +20,7 @@ public:
      * @param rgIdx Index of the renormalization group column.
      * @param globalScale Flag indicating if the block uses a global scale.
      */
-    void add_lha_prototype(std::string blockName, size_t itemCount=2, size_t valueIdx=1, int scaleIdx=-1, int rgIdx=-1, bool globalScale=false);
+    void add_lha_prototype(BlockName blockName, size_t itemCount=2, size_t valueIdx=1, int scaleIdx=-1, int rgIdx=-1, bool globalScale=false);
 
 };
 
