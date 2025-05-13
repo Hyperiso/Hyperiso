@@ -50,7 +50,7 @@ public:
      * @param param_type Model type associated with the block (default: SM).
      * @return A map of LHA IDs to their corresponding values.
      */
-    virtual std::map<LhaID, double> get_block_infos(const std::string& block, ParameterType param_type = ParameterType::SM) = 0;
+    virtual std::map<LhaID, double> get_block_infos(const BlockName& block, ParameterType param_type = ParameterType::SM) = 0;
 
 
     /**
@@ -58,7 +58,7 @@ public:
      * @param block Name of the block.
      * @return A vector of model types associated with the block.
      */
-    virtual std::vector<ParameterType> get_type_of_block(const std::string& block) = 0;
+    virtual std::vector<ParameterType> get_type_of_block(const BlockName& block) = 0;
 };
 
 
