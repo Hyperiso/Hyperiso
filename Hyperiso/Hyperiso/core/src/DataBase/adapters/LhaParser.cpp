@@ -1,6 +1,6 @@
 #include "LhaParser.h"
 
-void LhaParser::addBlock(std::map<BlockName, std::shared_ptr<LhaBlock>>& blocks, const std::string& id, const std::vector<std::vector<std::string>>& lines) const {
+void LhaParser::addBlock(std::map<BlockName, std::shared_ptr<LhaBlock>>& blocks, const BlockName& id, const std::vector<std::vector<std::string>>& lines) const {
     auto block = std::make_shared<LhaBlock>(findPrototype(id));
     LOG_DEBUG(id);
     block->readData(lines);
@@ -106,9 +106,9 @@ std::map<BlockName, std::vector<std::vector<std::string>>> LhaParser::parse_toke
     return rawBlocks;
 }
 
-Prototype LhaParser::findPrototype(std::string name) const {
+Prototype LhaParser::findPrototype(BlockName name) const {
     for (const auto& p : blockPrototypes) {
-        std::transform(name.begin(), name.end(), name.begin(), ::toupper);
+        name.to_upper();
         if (p.blockName == name)
             return p;
     }

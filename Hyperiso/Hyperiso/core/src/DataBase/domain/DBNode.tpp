@@ -8,13 +8,34 @@ Node::Value Node::get(Keys&&... keys) const {
 template <typename T, typename Key, typename... Rest>
 void Node::set(T value, Key&& key, Rest&&... rest) {
     using KeyType = std::decay_t<Key>;
+    BlockName blockKey = BlockName(std::forward<Key>(key));
+
     if constexpr (sizeof...(rest) == 0) {
-        if constexpr (std::is_same_v<KeyType, BlockName>)
-            data_[std::forward<Key>(key)] = std::forward<T>(value);
-        else
-            data_[BlockName(std::forward<Key>(key))] = std::forward<T>(value);
+        auto it = std::find_if(data_.begin(), data_.end(),
+            [&](const auto& pair) {
+                return pair.first == blockKey;
+            });
+
+        if (it != data_.end()) {
+            it->second = std::forward<T>(value);
+        } else {
+            data_[blockKey] = std::forward<T>(value);
+        }
     } else {
-        auto& node = data_[BlockName(std::forward<Key>(key))];
+        auto it = std::find_if(data_.begin(), data_.end(),
+            [&](const auto& pair) {
+                return pair.first == blockKey;
+            });
+
+        if (it == data_.end()) {
+            data_[blockKey] = std::make_shared<Node>();
+            it = std::find_if(data_.begin(), data_.end(),
+                [&](const auto& pair) {
+                    return pair.first == blockKey;
+                });
+        }
+
+        auto& node = it->second;
         if (!std::holds_alternative<std::shared_ptr<Node>>(node)) {
             node = std::make_shared<Node>();
         }
@@ -26,10 +47,16 @@ void Node::set(T value, Key&& key, Rest&&... rest) {
 template <typename Key, typename... Rest>
 Node::Value Node::getRecursive(const std::map<BlockName, Value>& map, Key&& key, Rest&&... rest) {
     BlockName blockKey = BlockName(std::forward<Key>(key));
-    auto it = map.find(blockKey);
+    
+    auto it = std::find_if(map.begin(), map.end(),
+        [&](const auto& pair) {
+            return pair.first == blockKey;
+        });
+    
     if (it == map.end()) {
         throw std::runtime_error("Key not found");
     }
+
     if constexpr (sizeof...(rest) == 0) {
         return it->second;
     } else {

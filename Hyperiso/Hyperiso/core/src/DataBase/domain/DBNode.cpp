@@ -13,7 +13,10 @@ std::vector<BlockName> Node::get_keys() {
 std::map<BlockName, Node::Value> Node::getGroup(const std::vector<BlockName>& keys) const {
     const Node* currentNode = this;
     for (const auto& key : keys) {
-        auto it = currentNode->data_.find(key);
+        auto it = std::find_if(currentNode->data_.begin(), currentNode->data_.end(),
+        [&](const auto& pair) {
+            return pair.first == key;
+        });
         if (it == currentNode->data_.end() || !std::holds_alternative<std::shared_ptr<Node>>(it->second)) {
             std::stringstream path;
             for(auto& k : keys) path << k << " ";
@@ -27,7 +30,20 @@ std::map<BlockName, Node::Value> Node::getGroup(const std::vector<BlockName>& ke
 void Node::setGroup(const std::vector<BlockName>& keys, const std::map<BlockName, Value>& groupData) {
     Node* currentNode = this;
     for (const auto& key : keys) {
-        auto& value = currentNode->data_[key];
+        auto it = std::find_if(currentNode->data_.begin(), currentNode->data_.end(),
+        [&](const auto& pair) {
+            return pair.first == key;
+        });
+
+    if (it == currentNode->data_.end()) {
+        currentNode->data_[key] = std::make_shared<Node>();
+        it = std::find_if(currentNode->data_.begin(), currentNode->data_.end(),
+            [&](const auto& pair) {
+                return pair.first == key;
+            });
+    }
+
+    auto& value = it->second;
         if (!std::holds_alternative<std::shared_ptr<Node>>(value)) {
             value = std::make_shared<Node>();
         }
@@ -185,7 +201,10 @@ void Node::printScalarYAML(const Value& value) const {
 }
 
 bool Node::contains(const BlockName& key) const {
-    return data_.find(key) != data_.end();
+    return std::any_of(data_.begin(), data_.end(),
+        [&](const auto& pair) {
+            return pair.first == key;
+        });
 }
 
 int Node::countChildren() const {

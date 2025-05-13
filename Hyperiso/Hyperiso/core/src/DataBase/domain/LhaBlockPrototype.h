@@ -31,7 +31,7 @@ namespace std {
     template <>
     struct hash<Prototype> {
         std::size_t operator()(const Prototype& p) const noexcept {
-            std::size_t h1 = std::hash<std::string>{}(p.blockName);
+            std::size_t h1 = std::hash<BlockName>{}(p.blockName);
             std::size_t h2 = std::hash<int>{}(p.itemCount);
             std::size_t h3 = std::hash<int>{}(p.valueIdx);
             std::size_t h4 = std::hash<int>{}(p.scaleIdx);

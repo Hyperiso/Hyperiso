@@ -43,6 +43,6 @@ target_link_libraries(DataBaseLib PUBLIC PandasLib CommonLib)
 
 # target_link_libraries(TEST_json DataBaseLib)
 
-# add_executable(TEST_PARSER app/main_parser.cpp)
+add_executable(TEST_PARSER app/main_parser.cpp)
 
-# target_link_libraries(TEST_PARSER DataBaseLib)
+target_link_libraries(TEST_PARSER DataBaseLib)

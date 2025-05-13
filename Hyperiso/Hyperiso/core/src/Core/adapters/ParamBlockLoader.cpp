@@ -3,10 +3,8 @@
 void ParamBlockLoader::load(std::shared_ptr<BlockAccessor> dest, fs::path src_file) {
     LOG_INFO("Loading parameter blocks from", src_file.string());
     auto np = NodeProviderFactory::createNodeProvider(src_file);
-    std::cout << "herhe" << std::endl;
     auto src = np->provide_db_as_node();
     // src->printJSON();
-    std::cout << "ahah" << std::endl;
     for (auto &bk : src->get_keys()) {
         auto block = std::make_shared<Block>();
         block->blockname = bk;

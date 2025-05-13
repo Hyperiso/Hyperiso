@@ -13,7 +13,7 @@ struct StringConverter<double> {
         try {
             return std::stod(str);
         } catch(...) {
-            return std::numeric_limits<double>::max(); //small patch
+            return std::numeric_limits<double>::max(); //TODO : small patch
         }
     }
 };

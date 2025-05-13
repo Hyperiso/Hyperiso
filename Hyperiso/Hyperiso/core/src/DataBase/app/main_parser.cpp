@@ -68,13 +68,14 @@ skills:
     }
 
     std::map<BlockName, Node::Value> newGroup = {
-        {"hobby", "cycling"},
+        {{"hobby","hobbies"}, "cycling"},
         {"job", "engineer"}
     };
     nodeYaml->setGroup({"extra"}, newGroup);
-    std::cout << "\n✅ Structure YAML after setGroup:\n";
     nodeYaml->printJSON();
-
+    std::cout << "\n✅ Structure YAML after setGroup:\n";
+    auto truc = std::get<BlockName>(nodeYaml->get("extra", "hobby"));
+    std::cout << "test BlockName special : " <<truc << std::endl;
     std::cout << "\n🔹 Writing YAML to file...\n";
     std::ofstream file("test_output.yaml");
     if (file.is_open()) {

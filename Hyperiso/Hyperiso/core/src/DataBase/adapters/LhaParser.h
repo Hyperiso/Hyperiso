@@ -79,14 +79,14 @@ private:
      * @param id Block identifier.
      * @param lines Vector of lines containing the block's data.
      */
-    void addBlock(std::map<BlockName, std::shared_ptr<LhaBlock>>& blocks, const std::string& id, const std::vector<std::vector<std::string>>& lines) const;
+    void addBlock(std::map<BlockName, std::shared_ptr<LhaBlock>>& blocks, const BlockName& id, const std::vector<std::vector<std::string>>& lines) const;
 
     /**
      * @brief Finds a prototype by block name.
      * @param name Name of the block.
      * @return `Prototype` instance if found; otherwise, an empty prototype.
      */
-    Prototype findPrototype(std::string name) const;
+    Prototype findPrototype(BlockName name) const;
 
     /**
      * @brief Converts the reader's content to a string representation.
