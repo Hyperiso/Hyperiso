@@ -25,11 +25,13 @@ private:
 
 public:
     explicit WilsonInterface() {
+        LOG_INFO("In WilsonInterface constructor");
         this->init();
         this->wm = CoefficientManager();
     }
 
     void init() {
+        LOG_INFO("In WilsonInterface::init");
         WilsonParameterHelper().init(2);
 
         this->group_ptrs = { };

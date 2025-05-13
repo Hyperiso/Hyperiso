@@ -46,6 +46,8 @@ struct LhaID {
      */
     LhaID(const std::vector<long>& sub_ids) : parts(std::move(sub_ids)) {}
 
+    LhaID(std::initializer_list<long> sub_ids) : parts(sub_ids) {}
+
     /**
      * @brief Constructs a LhaID with a single identifier
      * @param id Identifier of the element

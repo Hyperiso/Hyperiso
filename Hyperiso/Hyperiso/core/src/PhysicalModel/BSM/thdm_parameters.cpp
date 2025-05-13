@@ -16,7 +16,7 @@ void thdm_parameters::init_scale_independant_block() {
     
 
     // ParameterProxy(ParameterType::SM);
-	std::unordered_map<ParameterType, std::vector<std::string>> src = {{ParameterType::SM, {"MASS"}}, {ParameterType::BSM, {"MASS", "ALPHA", "HMIX", "YU", "YD", "YE"}},
+	std::unordered_map<ParameterType, std::vector<std::string>> src = {{ParameterType::SM, {"MASS"}}, {ParameterType::BSM, {"MASS", "ALPHA", "MINPAR", "YU", "YD", "YE"}},
                                                                         {ParameterType::WILSON, {"WPARAM_SI_SM"}}};
 
     auto func = [] (const std::unordered_map<std::string, std::shared_ptr<Block>>& src, std::shared_ptr<DependentBlock> dep_block) {
@@ -30,12 +30,12 @@ void thdm_parameters::init_scale_independant_block() {
         double alpha = src.at("ALPHA")->retrieve(LhaID(""))->get_val();
         std::cout << "ca va" << std::endl;
         double m_H = src.at("MASS")->retrieve(37)->get_val();
-        double beta = atan(src.at("HMIX")->retrieve(2)->get_val());
+        double beta = atan(src.at("MINPAR")->retrieve(3)->get_val());
         std::cout << "ca va" << std::endl;
         double lu = src.at("YU")->retrieve(LhaID(2,2))->get_val();
         double ld = src.at("YD")->retrieve(LhaID(2,2))->get_val();
         double gen = src.at("WPARAM_SI_SM")->retrieve(2)->get_val();
-        double le = src.at("YE")->retrieve(10*(gen-1)+gen-1)->get_val(); //TODO or not TODO : was YL before
+        double le = src.at("YE")->retrieve(LhaID(gen-1, gen-1))->get_val(); //TODO or not TODO : was YL before
         double mW = src.at("MASS")->retrieve(24)->get_val();
         double xH=pow(m_H/mW,2.);
         double xH0=pow(src.at("MASS")->retrieve(35)->get_val() / mW, 2.);

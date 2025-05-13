@@ -62,7 +62,7 @@ std::map<BlockName, std::vector<std::vector<std::string>>> LhaParser::parse_toke
         if (newBlock) {
             auto prototype = this->findPrototype(t.value);
             if (prototype.blockName != "") {
-                LOG_DEBUG("LHA reader: Block " + prototype.blockName + " found.");
+                LOG_DEBUG("LHA reader: Block ", prototype.blockName, " found.");
                 rawBlocks[prototype.blockName] = std::vector<std::vector<std::string>> {}; //TODO or not TODO : here t.value to prototype.blockName
                 cBlock = prototype.blockName; //TODO or not TODO : here t.value to prototype.blockName
                 hasGlobalScale = prototype.globalScale;

@@ -82,6 +82,43 @@ void BlockAccessor::remove_item(const BlockName& block_name, LhaID id) {
     }
 }
 
+bool BlockAccessor::contains(const BlockName& block_name) const {
+    auto keys = get_keys(*this);
+    return std::any_of(
+        keys.begin(),
+        keys.end(),
+        [&](const auto& bn) { return bn == block_name; }
+    );
+}
+
+std::shared_ptr<Block> &BlockAccessor::at(const BlockName &block_name) {
+    auto it = std::find_if(
+        this->begin(),
+        this->end(),
+        [&](const auto& pair) { return pair.first == block_name; }
+    );
+
+    if (it == this->end()) {
+        LOG_ERROR("Block", block_name, "not found in BlockAccessor");
+    }
+
+    return it->second;
+}
+
+const std::shared_ptr<Block> &BlockAccessor::at(const BlockName &block_name) const {
+    auto it = std::find_if(
+        this->begin(),
+        this->end(),
+        [&](const auto& pair) { return pair.first == block_name; }
+    );
+
+    if (it == this->end()) {
+        LOG_ERROR("Block", block_name, "not found in BlockAccessor");
+    }
+
+    return it->second;
+}
+
 std::shared_ptr<BlockAccessor> BlockAccessor::operator[](std::unordered_set<BlockName> block_names) {
     auto sub_block_accessor = std::make_shared<BlockAccessor>();
 
@@ -89,7 +126,8 @@ std::shared_ptr<BlockAccessor> BlockAccessor::operator[](std::unordered_set<Bloc
         if (!this->contains(block_name)) {
             LOG_ERROR("BlockAccessor", "Block", block_name, "doesn't exist. Cannot extract.");
         }
-        sub_block_accessor->emplace(block_name, this->at(block_name));
+        auto block_ptr = this->at(block_name);
+        sub_block_accessor->emplace(block_ptr->get_name(), block_ptr);
     }
 
     return sub_block_accessor;

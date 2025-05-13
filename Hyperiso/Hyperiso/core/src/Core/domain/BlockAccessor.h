@@ -93,6 +93,11 @@ public:
      */
     void remove_item(const BlockName& block_name, LhaID id);
 
+    bool contains(const BlockName& block_name) const;
+
+    std::shared_ptr<Block>& at(const BlockName& block_name);
+    const std::shared_ptr<Block>& at(const BlockName& block_name) const;
+
     /**
      * @brief Merges two BlockAccessor instances without resolving conflicts.
      * 

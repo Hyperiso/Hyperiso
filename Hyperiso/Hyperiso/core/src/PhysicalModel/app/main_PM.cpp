@@ -14,17 +14,15 @@ int main(){
     auto wi = WilsonInterface(); // Initialize interface and build the required groups
     LOG_INFO("WilsonInterface created");
 
-    wi.init();
+    
     wi.addWilsonGroup(WGroup::B);
     wi.init_group_matching(WGroup::B, QCDOrder::LO);
     wi.init_group_hadronic(WGroup::B, QCDOrder::LO);
 
-    wi.init();
     wi.addWilsonGroup(WGroup::BScalar);
     wi.init_group_matching(WGroup::BScalar, QCDOrder::LO);
     wi.init_group_hadronic(WGroup::BScalar, QCDOrder::LO);
 
-    wi.init();
     wi.addWilsonGroup(WGroup::BPrime);
     wi.init_group_matching(WGroup::BPrime, QCDOrder::LO);
     wi.init_group_hadronic(WGroup::BPrime, QCDOrder::LO);

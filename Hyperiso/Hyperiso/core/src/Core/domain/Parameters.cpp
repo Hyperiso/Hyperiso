@@ -67,11 +67,15 @@ std::unordered_set<BlockName> Parameters::init_blocks(ParameterType type) {
         std::inserter(existing, existing.end()),
         std::inserter(missing, missing.end()),
         [&](const BlockName& s) {
-            return MemoryManager::GetInstance()->input_cache->get_block_names().contains(s);
+            auto data_ = MemoryManager::GetInstance()->input_cache->get_block_names();
+            return std::any_of(
+                data_.begin(),
+                data_.end(),
+                [&](const auto& bn) { return bn == s; }
+            );
         }
     );
-    // std::cout << MemoryManager::GetInstance()->input_cache << std::endl;
-    // std::cout << "..............................................." << std::endl;
+
     if (type == ParameterType::WILSON && !MemoryManager::GetInstance()->cache.config.flags[ExternalFlag::HAS_WILSON_INPUT]) {
         existing.erase("FWCOEF");
         existing.erase("IMFWCOEF");
@@ -84,7 +88,6 @@ std::unordered_set<BlockName> Parameters::init_blocks(ParameterType type) {
     this->blockAccessor = MemoryManager::GetInstance()->extract_blocks(existing);
     claim_parameters(type);
     std::cout << ParameterTypeMapper::str(type) << std::endl;
-    std::cout << this->blockAccessor << std::endl;
     return missing;
 }
 

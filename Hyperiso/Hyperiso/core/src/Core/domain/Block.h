@@ -39,6 +39,8 @@ public:
     Block() = default;
     Block(std::shared_ptr<Block> other);
 
+    BlockName get_name() const { return this->blockname; }
+
     /**
      * @brief Stores a new parameter.
      * @param id The LHA ID of the parameter.
