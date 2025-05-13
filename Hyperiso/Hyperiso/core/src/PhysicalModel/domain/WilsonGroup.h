@@ -11,6 +11,7 @@
 #include "MartyWilson.h"
 #include "ParameterProxy.h"
 #include "UseMarty.h"
+#include "BlockProxy.h"
 
 using BRP = BWilsonRunningParameters;
 

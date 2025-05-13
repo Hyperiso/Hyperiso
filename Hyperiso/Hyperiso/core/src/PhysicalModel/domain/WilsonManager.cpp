@@ -53,13 +53,13 @@ void CoefficientManager::init_group_hadronic(const std::string& groupName, const
     }
     std::cout << "::" << groupName << std::endl;
     this->coefficientGroups.at(groupName)->init_running_blocks(OrderMapper::enum_elt(order));
-    if (has_bsm) {
-        std::string bsm_group = groupName + bsm_suffix;
-        if (!this->coefficientGroups.contains(bsm_group)) {
-            throw_no_group_error(bsm_group);
-        }
-        this->coefficientGroups.at(bsm_group)->init_running_blocks(OrderMapper::enum_elt(order));
-    }
+    // if (has_bsm) { //TODO : WIP with BSM
+    //     std::string bsm_group = groupName + bsm_suffix;
+    //     if (!this->coefficientGroups.contains(bsm_group)) {
+    //         throw_no_group_error(bsm_group);
+    //     }
+    //     this->coefficientGroups.at(bsm_group)->init_running_blocks(OrderMapper::enum_elt(order));
+    // }
 }
 
 void CoefficientManager::switchbasis(const std::string& groupName) {

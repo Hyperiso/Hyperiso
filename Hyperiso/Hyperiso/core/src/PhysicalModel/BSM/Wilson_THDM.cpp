@@ -502,7 +502,7 @@ void CQ2_THDM::LO_calculation() {
         dep_param->set_expected(coeff_temp);
     };
 
-    WilsonParamComposer().compose_parameter(ParamId{this->storage_block, LhaID(3051313, 3230, 0, 1)}, sources, func);
+    WilsonParamComposer().compose_parameter(ParamId{this->storage_block, LhaID(3051313, 3233, 0, 1)}, sources, func);
 
     // double le = (*mod)("YL",10*(gen-1)+gen-1);
     // double G3=thdm_params->ld*(thdm_params->ld*thdm_params->lu+1.)*F6SP(thdm_params->xt,thdm_params->xH)+thdm_params->ld*thdm_params->lu*thdm_params->lu*F7SP(thdm_params->xt,thdm_params->xH)
@@ -539,7 +539,7 @@ void C_Blnu_P_THDM::LO_calculation() {
         dep_param->set_expected(-m_b * m_tau * ld * l_tau / std::pow(mH, 2));
     };
 
-    WilsonParamComposer().compose_parameter(ParamId{this->storage_block, LhaID(3051313, 3230, 0, 1)}, sources, func);
+    WilsonParamComposer().compose_parameter(ParamId{this->storage_block, LhaID(2051516, 3434, 0, 1)}, sources, func);
 
     // double m_b = QCDHelper::mass_b_msbar();
     // double m_tau = sm("MASS", 15);
@@ -574,7 +574,7 @@ void C_S1_THDM::LO_calculation() {
         dep_param->set_expected(-m_b * m_tau * ld * l_tau / std::pow(mH, 2));
     };
 
-    WilsonParamComposer().compose_parameter(ParamId{this->storage_block, LhaID(3051313, 3230, 0, 1)}, sources, func);
+    WilsonParamComposer().compose_parameter(ParamId{this->storage_block, LhaID(4051516, 3231, 0, 1)}, sources, func);
 
     // double m_b = QCDHelper::mass_b_msbar();
     // double m_tau = sm("MASS", 15);
@@ -607,7 +607,7 @@ void C_S2_THDM::LO_calculation() {
         dep_param->set_expected(-m_c * m_tau * lu * l_tau / std::pow(mH, 2));
     };
 
-    WilsonParamComposer().compose_parameter(ParamId{this->storage_block, LhaID(3051313, 3230, 0, 1)}, sources, func);
+    WilsonParamComposer().compose_parameter(ParamId{this->storage_block, LhaID(4051516, 3131, 0, 1)}, sources, func);
 
     // double m_c = sm("MASS", 4);
     // double m_tau = sm("MASS", 15);

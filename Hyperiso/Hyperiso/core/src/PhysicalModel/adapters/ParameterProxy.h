@@ -11,6 +11,7 @@ public:
     ParameterProxy(ParameterType type);
     scalar_t operator()(const std::string& block, const LhaID& id) const override;
     
+    bool exist(const std::string& block, const LhaID& id) const override;
 private:
     ParameterProvider pp;
     static inline const std::unordered_set<ParameterType> ALLOWED {ParameterType::SM, ParameterType::BSM, ParameterType::WILSON};

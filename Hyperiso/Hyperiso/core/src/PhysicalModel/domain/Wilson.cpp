@@ -34,8 +34,12 @@ void WilsonCoefficient::set_storage_block(std::string block_name) {
     this->storage_block = block_name;
 }
 
+//TODO : disgusting
 LhaID WilsonCoefficient::id(QCDOrder order) const {
-    return WCoefMapper::flha_full(WCoefMapper::enum_elt(this->coeffName), order, type);
+    std::string name = this->coeffName;
+    size_t pos = name.rfind('_');
+    std::string trimmedName = (pos != std::string::npos) ? name.substr(0, pos) : name;
+    return WCoefMapper::flha_full(WCoefMapper::enum_elt(trimmedName), order, type);
 }
 
 bool WilsonCoefficient::operator==(const WilsonCoefficient &other) const {

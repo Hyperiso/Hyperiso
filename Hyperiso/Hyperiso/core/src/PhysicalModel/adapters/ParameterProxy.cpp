@@ -14,3 +14,7 @@ scalar_t ParameterProxy::operator()(const std::string& block, const LhaID& id) c
     LOG_INFO("Not WILSON");
     return pp(block, id); 
 };
+
+bool ParameterProxy::exist(const std::string& block, const LhaID& id) const {
+    return pp.exists(block, id);
+}

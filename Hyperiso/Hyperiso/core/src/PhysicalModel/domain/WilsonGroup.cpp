@@ -98,6 +98,17 @@ void BCoefficientGroup::init_running_blocks(QCDOrder order) {
         {ParameterType::SM, {"SMINPUTS", "MASS"}},
     };
 
+    if (!BlockProxy().exists(GroupMapper::str(this->id, ScaleType::MATCHING), ParameterType::WILSON)) {
+        std::unordered_set<ParamId> sources {};
+        auto func_match = [] (const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src, std::shared_ptr<DependentParameter> dep_param) {
+            dep_param->set_expected(0.);
+        };
+        for (auto& elem : *this) {
+            WilsonParamComposer().compose_parameter(ParamId{GroupMapper::str(this->id, ScaleType::MATCHING), elem.second->id(order)}, sources, func_match);
+
+        }
+    }
+
     auto func_1 = [order, this] (const std::unordered_map<std::string, std::shared_ptr<Block>>& src, std::shared_ptr<DependentBlock> dep_block) {
         switch (order) {
         case QCDOrder::NNLO:
@@ -656,6 +667,17 @@ void BScalarCoefficientGroup::init_running_blocks(QCDOrder order) {
         {ParameterType::WILSON, {GroupMapper::str(WGroup::BScalar, ScaleType::MATCHING), "WPARAM_RUN_SM", "WPARAM_SI_SM"}},
     };
 
+    if (!BlockProxy().exists(GroupMapper::str(this->id, ScaleType::MATCHING), ParameterType::WILSON)) {
+        std::unordered_set<ParamId> sources {};
+        auto func_match = [] (const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src, std::shared_ptr<DependentParameter> dep_param) {
+            dep_param->set_expected(0.);
+        };
+        for (auto& elem : *this) {
+            WilsonParamComposer().compose_parameter(ParamId{GroupMapper::str(this->id, ScaleType::MATCHING), elem.second->id(order)}, sources, func_match);
+
+        }
+    }
+
     auto func = [order, this] (const std::unordered_map<std::string, std::shared_ptr<Block>>& src, std::shared_ptr<DependentBlock> dep_block) {
         switch (order) {
         case QCDOrder::NNLO:
@@ -741,6 +763,21 @@ void BPrimeCoefficientGroup::init_running_blocks(QCDOrder order) {
     std::unordered_map<ParameterType, std::vector<std::string>> src = {
         {ParameterType::WILSON, {GroupMapper::str(WGroup::BPrime, ScaleType::MATCHING), "WPARAM_RUN_SM", "WPARAM_SI_SM"}},
     };
+    std::cout << "iwas not  here !" << std::endl;
+    if (!BlockProxy().exists(GroupMapper::str(this->id, ScaleType::MATCHING), ParameterType::WILSON)) {
+        std::cout << "iwas very here !" << std::endl;
+        std::unordered_set<ParamId> sources {};
+        auto func_match = [] (const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src, std::shared_ptr<DependentParameter> dep_param) {
+            dep_param->set_expected(0.);
+        };
+        for (auto& elem : *this) {
+            std::cout << elem.second->get_name() << std::endl;
+            std::cout << elem.second->id(order) << std::endl;
+            WilsonParamComposer().compose_parameter(ParamId{GroupMapper::str(this->id, ScaleType::MATCHING), elem.second->id(order)}, sources, func_match);
+
+        }
+        std::cout << "iwas here !" << std::endl;
+    }
 
     auto func = [this] (const std::unordered_map<std::string, std::shared_ptr<Block>>& src, std::shared_ptr<DependentBlock> dep_block) {
         BPrimeCoefficientGroup::base_1_LO_calculation(src, dep_block, this->wilson_type);

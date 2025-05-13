@@ -99,6 +99,7 @@ std::shared_ptr<Block> &BlockAccessor::at(const BlockName &block_name) {
     );
 
     if (it == this->end()) {
+        std::cout << std::make_shared<BlockAccessor>(*this) << std::endl;
         LOG_ERROR("Block", block_name, "not found in BlockAccessor");
     }
 
@@ -113,6 +114,7 @@ const std::shared_ptr<Block> &BlockAccessor::at(const BlockName &block_name) con
     );
 
     if (it == this->end()) {
+        std::cout << std::make_shared<BlockAccessor>(*this) << std::endl;
         LOG_ERROR("Block", block_name, "not found in BlockAccessor");
     }
 
