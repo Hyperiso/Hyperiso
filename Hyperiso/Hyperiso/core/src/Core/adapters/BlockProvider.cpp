@@ -9,3 +9,7 @@ bool BlockProvider::exists(const std::string& blockname, ParameterType pt) {
     }
     return false;
 }
+
+void BlockProvider::log_all_blocks(ParameterType type) {
+    LOG_INFO(Parameters::GetInstance(type));
+}

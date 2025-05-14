@@ -798,6 +798,7 @@ void CoefficientGroup::claim_coefficients() {
     for (auto& [_, coeff]: *this) {
         coeff->set_owned(true);
         coeff->set_storage_block(GroupMapper::str(this->id, ScaleType::MATCHING));
+        coeff->set_contribution_type(this->wilson_type);
     }
 }
 

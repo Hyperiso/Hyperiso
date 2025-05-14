@@ -213,10 +213,10 @@ void CoefficientManager::post_init() {
                 std::cout << "truc! "<< this->coefficientGroups[group_name] << std::endl;
                 std::cout << "hereee" << std::endl;
                 WGroup group_id = GroupMapper::enum_elt(group_name);
-                complete_wilson_block_with_op(group_id, ContributionType::BSM, ContributionType::SM, BWilsonBasis::STANDARD);
+                complete_wilson_block_with_op(group_id, ContributionType::BSM, ContributionType::TOTAL, BWilsonBasis::STANDARD);
                 std::cout << "hereeee" << std::endl;
                 if (group_id == WGroup::B) {   
-                    complete_wilson_block_with_op(group_id, ContributionType::BSM, ContributionType::SM, BWilsonBasis::TRADITIONAL);
+                    complete_wilson_block_with_op(group_id, ContributionType::BSM, ContributionType::TOTAL, BWilsonBasis::TRADITIONAL);
                 }
             }
         }
@@ -265,12 +265,20 @@ void CoefficientManager::complete_wilson_block_with_op(WGroup group_id, Contribu
                     LhaID(coef_lha_base.first, coef_lha_base.second, order, (int)dest_id)
                 };
 
+                ParamId pid_sm {
+                    ParameterType::WILSON, 
+                    GroupMapper::str(group_id, ScaleType::HADRONIC, false, basis), 
+                    LhaID(coef_lha_base.first, coef_lha_base.second, order, 0)
+                };
+
                 if (src_id == ContributionType::TOTAL) {
                     dep_block->store_or_assign(pid_src.code, std::make_shared<Parameter>(pid_src, coef, 0., 0.));
                     dep_block->store_or_assign(pid_dest.code, std::make_shared<Parameter>(pid_dest, coef-coef_sm, 0., 0.));
+                    dep_block->store_or_assign(pid_sm.code, std::make_shared<Parameter>(pid_sm, coef_sm, 0., 0.));
                 } else if (src_id == ContributionType::BSM) {
                     dep_block->store_or_assign(pid_src.code, std::make_shared<Parameter>(pid_src, coef, 0., 0.));
                     dep_block->store_or_assign(pid_dest.code, std::make_shared<Parameter>(pid_dest, coef+coef_sm, 0., 0.));
+                    dep_block->store_or_assign(pid_sm.code, std::make_shared<Parameter>(pid_sm, coef_sm, 0., 0.));
                 } else {
                     dep_block->store_or_assign(pid_src.code, std::make_shared<Parameter>(pid_src, coef, 0., 0.));
                     dep_block->store_or_assign(pid_dest.code, std::make_shared<Parameter>(pid_dest, coef, 0., 0.));

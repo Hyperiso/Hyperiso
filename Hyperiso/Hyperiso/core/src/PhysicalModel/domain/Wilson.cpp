@@ -34,6 +34,10 @@ void WilsonCoefficient::set_storage_block(std::string block_name) {
     this->storage_block = block_name;
 }
 
+void WilsonCoefficient::set_contribution_type(ContributionType type) {
+    this->type = type;
+}
+
 //TODO : disgusting
 LhaID WilsonCoefficient::id(QCDOrder order) const {
     std::string name = this->coeffName;

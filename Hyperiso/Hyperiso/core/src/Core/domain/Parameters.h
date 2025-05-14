@@ -318,6 +318,17 @@ public:
     void unfreeze_param(const BlockName& blockName, const LhaID& id);
 
     /**
+     * @brief Stream output operator for Parameters instance.
+     *
+     * Prints the content of the block accessor.
+     *
+     * @param os Output stream.
+     * @param ba Shared pointer to the BlockAccessor to print.
+     * @return The output stream.
+     */
+    friend std::ostream& operator<<(std::ostream&, std::shared_ptr<Parameters>);
+    
+    /**
      * @brief Destructor. Logs when a Parameters instance is destroyed.
      */
     ~Parameters() { LOG_DEBUG("Parameters at ", this); }

@@ -120,6 +120,11 @@ void Parameters::unfreeze_param(const BlockName &blockName, const LhaID &id) {
     return this->blockAccessor->at(blockName)->retrieve(id)->unfreeze();
 }
 
+std::ostream &operator<<(std::ostream &os, std::shared_ptr<Parameters> instance) {
+    os << instance->blockAccessor;
+    return os;
+}
+
 std::unordered_set<BlockName> SMModelStrategy::initializeParameters(Parameters& params) {
     
     auto absent_blocks = params.init_blocks(ParameterType::SM);
