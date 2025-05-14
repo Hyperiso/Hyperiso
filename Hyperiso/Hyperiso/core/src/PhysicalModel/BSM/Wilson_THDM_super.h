@@ -1,348 +1,358 @@
-#if !defined(HYPERISO_WILSON_THDM_H)
-#define HYPERISO_WILSON_THDM_H
-#include "Wilson.h"
-#include "WilsonGroup.h"
+#ifndef WILSON_THDM_SUPER_H
+#define WILSON_THDM_SUPER_H
+#include "WilsonSuper.h"
+#include "WilsonGroupSuper.h"
 #include "thdm_parameters.h"
 #include "Math_THDM.h"
 #include "Utils.h"
 
-class WilsonCoefficient_THDM : public WilsonCoefficient {
-protected:
-    WilsonCoefficient_THDM() = default;
-    WilsonCoefficient_THDM(const std::string& name, const std::string& storage_block) : WilsonCoefficient(name, storage_block) {};
 
+class C1_THDM : public WilsonCoefficient {
 public:
-    void init(QCDOrder order);
+    C1_THDM() : WilsonCoefficient("C1_THDM", GroupMapper::str(WGroup::B) + "_MATCH") {}
 
-    void LO_calculation() {} 
-    void NLO_calculation() {} 
-    void NNLO_calculation() {}
     
-    std::shared_ptr<WilsonCoefficient> clone() const override {
-        return std::make_shared<WilsonCoefficient_THDM>(*this);
-    }
-};
-
-class C1_THDM : public WilsonCoefficient_THDM {
-public:
-    C1_THDM() : WilsonCoefficient_THDM("C1_THDM", GroupMapper::str(WGroup::B) + "_MATCH") {}
-
-    void LO_calculation() {} 
-    void NLO_calculation() {} 
-    void NNLO_calculation() {}
+    
+    
 
     std::shared_ptr<WilsonCoefficient> clone() const override {
         return std::make_shared<C1_THDM>(*this);
     }
 };
 
-class C2_THDM : public WilsonCoefficient_THDM {
+class C2_THDM : public WilsonCoefficient {
 public:
-    C2_THDM() : WilsonCoefficient_THDM("C2_THDM", GroupMapper::str(WGroup::B) + "_MATCH") {}
+    C2_THDM() : WilsonCoefficient("C2_THDM", GroupMapper::str(WGroup::B) + "_MATCH") {}
 
-    void LO_calculation() {} 
-    void NLO_calculation() {} 
-    void NNLO_calculation() {}
+    
+    
+    
 
     std::shared_ptr<WilsonCoefficient> clone() const override {
         return std::make_shared<C2_THDM>(*this);
     }
 };
 
-class C3_THDM : public WilsonCoefficient_THDM {
+class C3_THDM : public WilsonCoefficient {
 public:
-    C3_THDM() : WilsonCoefficient_THDM("C3_THDM", GroupMapper::str(WGroup::B) + "_MATCH") {}
+    C3_THDM() : WilsonCoefficient("C3_THDM", GroupMapper::str(WGroup::B) + "_MATCH") {}
 
-    void LO_calculation() {} 
-    void NLO_calculation()  {} 
-    void NNLO_calculation();
+    
+     
+    
 
     std::shared_ptr<WilsonCoefficient> clone() const override {
         return std::make_shared<C3_THDM>(*this);
     }
-    
+
+    static double compute_NNLO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
 };
 
-class C4_THDM : public WilsonCoefficient_THDM {
+class C4_THDM : public WilsonCoefficient {
 public:
-    C4_THDM() : WilsonCoefficient_THDM("C4_THDM", GroupMapper::str(WGroup::B) + "_MATCH") {}
+    C4_THDM() : WilsonCoefficient("C4_THDM", GroupMapper::str(WGroup::B) + "_MATCH") {}
 
-    void LO_calculation() {} 
-    void NLO_calculation();
-    void NNLO_calculation();
+    
+    
+    
 
     std::shared_ptr<WilsonCoefficient> clone() const override {
         return std::make_shared<C4_THDM>(*this);
     }
+
+    static double compute_NLO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
+    static double compute_NNLO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
 };
 
-class C5_THDM : public WilsonCoefficient_THDM {
+class C5_THDM : public WilsonCoefficient {
 public:
-    C5_THDM() : WilsonCoefficient_THDM("C5_THDM", GroupMapper::str(WGroup::B) + "_MATCH") {}
+    C5_THDM() : WilsonCoefficient("C5_THDM", GroupMapper::str(WGroup::B) + "_MATCH") {}
 
-    void LO_calculation() {} 
-    void NLO_calculation() {} 
-    void NNLO_calculation();
+    
+    
+    
 
     std::shared_ptr<WilsonCoefficient> clone() const override {
         return std::make_shared<C5_THDM>(*this);
     }
+
+    static double compute_NNLO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
 };
 
-class C6_THDM : public WilsonCoefficient_THDM {
+class C6_THDM : public WilsonCoefficient {
 public:
-    C6_THDM() : WilsonCoefficient_THDM("C6_THDM", GroupMapper::str(WGroup::B) + "_MATCH") {}
+    C6_THDM() : WilsonCoefficient("C6_THDM", GroupMapper::str(WGroup::B) + "_MATCH") {}
 
-    void LO_calculation() {} 
-    void NLO_calculation() {} 
-    void NNLO_calculation();
+    
+    
+    
 
     std::shared_ptr<WilsonCoefficient> clone() const override {
         return std::make_shared<C6_THDM>(*this);
     }
+
+    static double compute_NNLO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
 };
 
-class C7_THDM : public WilsonCoefficient_THDM {
+class C7_THDM : public WilsonCoefficient {
 public:
-    C7_THDM() : WilsonCoefficient_THDM("C7_THDM", GroupMapper::str(WGroup::B) + "_MATCH") {}
+    C7_THDM() : WilsonCoefficient("C7_THDM", GroupMapper::str(WGroup::B) + "_MATCH") {}
 
-    void LO_calculation();
-    void NLO_calculation();
-    void NNLO_calculation();
+    
+    
+    
 
     std::shared_ptr<WilsonCoefficient> clone() const override {
         return std::make_shared<C7_THDM>(*this);
     }
+
+    static double compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
+    static double compute_NLO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
+    static double compute_NNLO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
 };
 
-class C8_THDM : public WilsonCoefficient_THDM {
+class C8_THDM : public WilsonCoefficient {
 public:
-    C8_THDM() : WilsonCoefficient_THDM("C8_THDM", GroupMapper::str(WGroup::B) + "_MATCH") {}
+    C8_THDM() : WilsonCoefficient("C8_THDM", GroupMapper::str(WGroup::B) + "_MATCH") {}
 
-    void LO_calculation();
-    void NLO_calculation();
-    void NNLO_calculation();
+    
+    
+    
 
     std::shared_ptr<WilsonCoefficient> clone() const override {
         return std::make_shared<C8_THDM>(*this);
     }
+
+    static double compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
+    static double compute_NLO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
+    static double compute_NNLO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
 };
 
-class C9_THDM : public WilsonCoefficient_THDM {
+class C9_THDM : public WilsonCoefficient {
 public:
-    C9_THDM() : WilsonCoefficient_THDM("C9_THDM", GroupMapper::str(WGroup::B) + "_MATCH") {}
+    C9_THDM() : WilsonCoefficient("C9_THDM", GroupMapper::str(WGroup::B) + "_MATCH") {}
 
-    void LO_calculation();
-    void NLO_calculation();
-    void NNLO_calculation() {}
+    
+    
+    
 
     std::shared_ptr<WilsonCoefficient> clone() const override {
         return std::make_shared<C9_THDM>(*this);
     }
+
+    static double compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
+    static double compute_NLO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
 };
 
-class C10_THDM : public WilsonCoefficient_THDM {
+class C10_THDM : public WilsonCoefficient {
 public:
-    C10_THDM() : WilsonCoefficient_THDM("C10_THDM", GroupMapper::str(WGroup::B) + "_MATCH") {}
+    C10_THDM() : WilsonCoefficient("C10_THDM", GroupMapper::str(WGroup::B) + "_MATCH") {}
 
-    void LO_calculation();
-    void NLO_calculation();
-    void NNLO_calculation() {}
+    
+    
+    
 
     std::shared_ptr<WilsonCoefficient> clone() const override {
         return std::make_shared<C10_THDM>(*this);
     }
+
+    static double compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
+    static double compute_NLO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
 };
 
-class CQ1_THDM : public WilsonCoefficient_THDM {
+class CQ1_THDM : public WilsonCoefficient {
 public:
-    CQ1_THDM() : WilsonCoefficient_THDM("CQ1_THDM", GroupMapper::str(WGroup::BScalar) + "_MATCH") {}
+    CQ1_THDM() : WilsonCoefficient("CQ1_THDM", GroupMapper::str(WGroup::BScalar) + "_MATCH") {}
 
-    void LO_calculation();
-    void NLO_calculation() {}
-    void NNLO_calculation() {}
+    
+    
+    
 
     std::shared_ptr<WilsonCoefficient> clone() const override {
         return std::make_shared<CQ1_THDM>(*this);
     }
+
+    static double compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
 };
 
-class CQ2_THDM : public WilsonCoefficient_THDM {
+class CQ2_THDM : public WilsonCoefficient {
 public:
-    CQ2_THDM() : WilsonCoefficient_THDM("CQ2_THDM", GroupMapper::str(WGroup::BScalar) + "_MATCH") {}
+    CQ2_THDM() : WilsonCoefficient("CQ2_THDM", GroupMapper::str(WGroup::BScalar) + "_MATCH") {}
 
-    void LO_calculation();
-    void NLO_calculation() {}
-    void NNLO_calculation() {}
+    
+    
+    
 
     std::shared_ptr<WilsonCoefficient> clone() const override {
         return std::make_shared<CQ2_THDM>(*this);
     }
+
+    static double compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
 };
 
-class CP1_THDM : public WilsonCoefficient_THDM {
+class CP1_THDM : public WilsonCoefficient {
 public:
-    CP1_THDM() : WilsonCoefficient_THDM("CP1_THDM", GroupMapper::str(WGroup::BPrime) + "_MATCH") {}
+    CP1_THDM() : WilsonCoefficient("CP1_THDM", GroupMapper::str(WGroup::BPrime) + "_MATCH") {}
 
-    void LO_calculation() {} 
-    void NLO_calculation() {}
-    void NNLO_calculation() {}
+    
+    
+    
 
     std::shared_ptr<WilsonCoefficient> clone() const override {
         return std::make_shared<CP1_THDM>(*this);
     }
 };
 
-class CP2_THDM : public WilsonCoefficient_THDM {
+class CP2_THDM : public WilsonCoefficient {
 public:
-    CP2_THDM() : WilsonCoefficient_THDM("CP2_THDM", GroupMapper::str(WGroup::BPrime) + "_MATCH") {}
+    CP2_THDM() : WilsonCoefficient("CP2_THDM", GroupMapper::str(WGroup::BPrime) + "_MATCH") {}
 
-    void LO_calculation() {} 
-    void NLO_calculation() {}
-    void NNLO_calculation() {}
+    
+    
+    
 
     std::shared_ptr<WilsonCoefficient> clone() const override {
         return std::make_shared<CP2_THDM>(*this);
     }
 };
 
-class CP3_THDM : public WilsonCoefficient_THDM {
+class CP3_THDM : public WilsonCoefficient {
 public:
-    CP3_THDM() : WilsonCoefficient_THDM("CP3_THDM", GroupMapper::str(WGroup::BPrime) + "_MATCH") {}
+    CP3_THDM() : WilsonCoefficient("CP3_THDM", GroupMapper::str(WGroup::BPrime) + "_MATCH") {}
 
-    void LO_calculation() {} 
-    void NLO_calculation() {}
-    void NNLO_calculation() {}
+    
+    
+    
 
     std::shared_ptr<WilsonCoefficient> clone() const override {
         return std::make_shared<CP3_THDM>(*this);
     }
 };
 
-class CP4_THDM : public WilsonCoefficient_THDM {
+class CP4_THDM : public WilsonCoefficient {
 public:
-    CP4_THDM() : WilsonCoefficient_THDM("CP4_THDM", GroupMapper::str(WGroup::BPrime) + "_MATCH") {}
+    CP4_THDM() : WilsonCoefficient("CP4_THDM", GroupMapper::str(WGroup::BPrime) + "_MATCH") {}
 
-    void LO_calculation() {} 
-    void NLO_calculation() {}
-    void NNLO_calculation() {}
+    
+    
+    
 
     std::shared_ptr<WilsonCoefficient> clone() const override {
         return std::make_shared<CP4_THDM>(*this);
     }
 };
 
-class CP5_THDM : public WilsonCoefficient_THDM {
+class CP5_THDM : public WilsonCoefficient {
 public:
-    CP5_THDM() : WilsonCoefficient_THDM("CP5_THDM", GroupMapper::str(WGroup::BPrime) + "_MATCH") {}
+    CP5_THDM() : WilsonCoefficient("CP5_THDM", GroupMapper::str(WGroup::BPrime) + "_MATCH") {}
 
-    void LO_calculation() {} 
-    void NLO_calculation() {}
-    void NNLO_calculation() {}
+    
+    
+    
 
     std::shared_ptr<WilsonCoefficient> clone() const override {
         return std::make_shared<CP5_THDM>(*this);
     }
 };
 
-class CP6_THDM : public WilsonCoefficient_THDM {
+class CP6_THDM : public WilsonCoefficient {
 public:
-    CP6_THDM() : WilsonCoefficient_THDM("CP6_THDM", GroupMapper::str(WGroup::BPrime) + "_MATCH") {}
+    CP6_THDM() : WilsonCoefficient("CP6_THDM", GroupMapper::str(WGroup::BPrime) + "_MATCH") {}
 
-    void LO_calculation() {} 
-    void NLO_calculation() {}
-    void NNLO_calculation() {}
+    
+    
+    
 
     std::shared_ptr<WilsonCoefficient> clone() const override {
         return std::make_shared<CP6_THDM>(*this);
     }
 };
 
-class CP7_THDM : public WilsonCoefficient_THDM {
+class CP7_THDM : public WilsonCoefficient {
 public:
-    CP7_THDM() : WilsonCoefficient_THDM("CP7_THDM", GroupMapper::str(WGroup::BPrime) + "_MATCH") {}
+    CP7_THDM() : WilsonCoefficient("CP7_THDM", GroupMapper::str(WGroup::BPrime) + "_MATCH") {}
 
-    void LO_calculation() {} 
-    void NLO_calculation() {}
-    void NNLO_calculation() {}
+    
+    
+    
 
     std::shared_ptr<WilsonCoefficient> clone() const override {
         return std::make_shared<CP7_THDM>(*this);
     }
 };
 
-class CP8_THDM : public WilsonCoefficient_THDM {
+class CP8_THDM : public WilsonCoefficient {
 public:
-    CP8_THDM() : WilsonCoefficient_THDM("CP8_THDM", GroupMapper::str(WGroup::BPrime) + "_MATCH") {}
+    CP8_THDM() : WilsonCoefficient("CP8_THDM", GroupMapper::str(WGroup::BPrime) + "_MATCH") {}
 
-    void LO_calculation() {} 
-    void NLO_calculation() {}
-    void NNLO_calculation() {}
+    
+    
+    
 
     std::shared_ptr<WilsonCoefficient> clone() const override {
         return std::make_shared<CP8_THDM>(*this);
     }
 };
 
-class CP9_THDM : public WilsonCoefficient_THDM {
+class CP9_THDM : public WilsonCoefficient {
 public:
-    CP9_THDM() : WilsonCoefficient_THDM("CP9_THDM", GroupMapper::str(WGroup::BPrime) + "_MATCH") {}
+    CP9_THDM() : WilsonCoefficient("CP9_THDM", GroupMapper::str(WGroup::BPrime) + "_MATCH") {}
 
-    void LO_calculation() {} 
-    void NLO_calculation() {}
-    void NNLO_calculation() {}
+    
+    
+    
 
     std::shared_ptr<WilsonCoefficient> clone() const override {
         return std::make_shared<CP9_THDM>(*this);
     }
 };
 
-class CP10_THDM : public WilsonCoefficient_THDM {
+class CP10_THDM : public WilsonCoefficient {
 public:
-    CP10_THDM() : WilsonCoefficient_THDM("CP10_THDM", GroupMapper::str(WGroup::BPrime) + "_MATCH") {}
+    CP10_THDM() : WilsonCoefficient("CP10_THDM", GroupMapper::str(WGroup::BPrime) + "_MATCH") {}
 
-    void LO_calculation() {} 
-    void NLO_calculation() {}
-    void NNLO_calculation() {}
+    
+    
+    
 
     std::shared_ptr<WilsonCoefficient> clone() const override {
         return std::make_shared<CP10_THDM>(*this);
     }
 };
 
-class CPQ1_THDM : public WilsonCoefficient_THDM {
+class CPQ1_THDM : public WilsonCoefficient {
 public:
-    CPQ1_THDM() : WilsonCoefficient_THDM("CPQ1_THDM", GroupMapper::str(WGroup::BPrime) + "_MATCH") {}
+    CPQ1_THDM() : WilsonCoefficient("CPQ1_THDM", GroupMapper::str(WGroup::BPrime) + "_MATCH") {}
 
-    void LO_calculation() {} 
-    void NLO_calculation() {}
-    void NNLO_calculation() {}
+    
+    
+    
 
     std::shared_ptr<WilsonCoefficient> clone() const override {
         return std::make_shared<CPQ1_THDM>(*this);
     }
 };
 
-class CPQ2_THDM : public WilsonCoefficient_THDM {
+class CPQ2_THDM : public WilsonCoefficient {
 public:
-    CPQ2_THDM() : WilsonCoefficient_THDM("CPQ2_THDM", GroupMapper::str(WGroup::BPrime) + "_MATCH") {}
+    CPQ2_THDM() : WilsonCoefficient("CPQ2_THDM", GroupMapper::str(WGroup::BPrime) + "_MATCH") {}
 
-    void LO_calculation() {} 
-    void NLO_calculation() {}
-    void NNLO_calculation() {}
+    
+    
+    
 
     std::shared_ptr<WilsonCoefficient> clone() const override {
         return std::make_shared<CPQ2_THDM>(*this);
     }
 };
 
-class C_Blnu_A_THDM : public WilsonCoefficient_THDM {
+class C_Blnu_A_THDM : public WilsonCoefficient {
 public:
-    C_Blnu_A_THDM() : WilsonCoefficient_THDM("C_Blnu_A_THDM", GroupMapper::str(WGroup::Blnu) + "_MATCH") {}
+    C_Blnu_A_THDM() : WilsonCoefficient("C_Blnu_A_THDM", GroupMapper::str(WGroup::Blnu) + "_MATCH") {}
 
-    void LO_calculation() { }
-    void NLO_calculation() { } 
-    void NNLO_calculation() { }
+    
+     
+    
     
     std::shared_ptr<WilsonCoefficient> clone() const override {
         return std::make_shared<C_Blnu_A_THDM>(*this);
@@ -350,13 +360,13 @@ public:
 
 };
 
-class C_Blnu_P_THDM : public WilsonCoefficient_THDM {
+class C_Blnu_P_THDM : public WilsonCoefficient {
 public:
-    C_Blnu_P_THDM() : WilsonCoefficient_THDM("C_Blnu_P_THDM", GroupMapper::str(WGroup::Blnu) + "_MATCH") {}
+    C_Blnu_P_THDM() : WilsonCoefficient("C_Blnu_P_THDM", GroupMapper::str(WGroup::Blnu) + "_MATCH") {}
 
-    void LO_calculation();
-    void NLO_calculation() { } 
-    void NNLO_calculation() { }
+    
+     
+    
 
     std::shared_ptr<WilsonCoefficient> clone() const override {
         return std::make_shared<C_Blnu_P_THDM>(*this);
@@ -364,13 +374,13 @@ public:
 
 };
 
-class C_V1_THDM : public WilsonCoefficient_THDM {
+class C_V1_THDM : public WilsonCoefficient {
 public:
-    C_V1_THDM() : WilsonCoefficient_THDM("C_V1_THDM", GroupMapper::str(WGroup::BCLNU) + "_MATCH") {}
+    C_V1_THDM() : WilsonCoefficient("C_V1_THDM", GroupMapper::str(WGroup::BCLNU) + "_MATCH") {}
 
-    void LO_calculation() { } 
-    void NLO_calculation() { } 
-    void NNLO_calculation() { }
+     
+     
+    
 
     std::shared_ptr<WilsonCoefficient> clone() const override {
         return std::make_shared<C_V1_THDM>(*this);
@@ -378,13 +388,13 @@ public:
 
 };
 
-class C_V2_THDM : public WilsonCoefficient_THDM {
+class C_V2_THDM : public WilsonCoefficient {
 public:
-    C_V2_THDM() : WilsonCoefficient_THDM("C_V2_THDM", GroupMapper::str(WGroup::BCLNU) + "_MATCH") {}
+    C_V2_THDM() : WilsonCoefficient("C_V2_THDM", GroupMapper::str(WGroup::BCLNU) + "_MATCH") {}
 
-    void LO_calculation() { } 
-    void NLO_calculation() { } 
-    void NNLO_calculation() { }
+     
+     
+    
 
     std::shared_ptr<WilsonCoefficient> clone() const override {
         return std::make_shared<C_V2_THDM>(*this);
@@ -392,13 +402,13 @@ public:
 
 };
 
-class C_S1_THDM : public WilsonCoefficient_THDM {
+class C_S1_THDM : public WilsonCoefficient {
 public:
-    C_S1_THDM() : WilsonCoefficient_THDM("C_S1_THDM", GroupMapper::str(WGroup::BCLNU) + "_MATCH") {}
+    C_S1_THDM() : WilsonCoefficient("C_S1_THDM", GroupMapper::str(WGroup::BCLNU) + "_MATCH") {}
 
-    void LO_calculation();
-    void NLO_calculation() { } 
-    void NNLO_calculation() { }
+    
+     
+    
 
     std::shared_ptr<WilsonCoefficient> clone() const override {
         return std::make_shared<C_S1_THDM>(*this);
@@ -406,13 +416,13 @@ public:
 
 };
 
-class C_S2_THDM : public WilsonCoefficient_THDM {
+class C_S2_THDM : public WilsonCoefficient {
 public:
-    C_S2_THDM() : WilsonCoefficient_THDM("C_S2_THDM", GroupMapper::str(WGroup::BCLNU) + "_MATCH") {}
+    C_S2_THDM() : WilsonCoefficient("C_S2_THDM", GroupMapper::str(WGroup::BCLNU) + "_MATCH") {}
 
-    void LO_calculation();
-    void NLO_calculation() { } 
-    void NNLO_calculation() { }
+    
+     
+    
 
     std::shared_ptr<WilsonCoefficient> clone() const override {
         return std::make_shared<C_S2_THDM>(*this);
@@ -420,13 +430,13 @@ public:
 
 };
 
-class C_T_THDM : public WilsonCoefficient_THDM {
+class C_T_THDM : public WilsonCoefficient {
 public:
-    C_T_THDM() : WilsonCoefficient_THDM("C_T_THDM", GroupMapper::str(WGroup::BCLNU) + "_MATCH") {}
+    C_T_THDM() : WilsonCoefficient("C_T_THDM", GroupMapper::str(WGroup::BCLNU) + "_MATCH") {}
 
-    void LO_calculation() { } 
-    void NLO_calculation() { } 
-    void NNLO_calculation() { }
+     
+     
+    
 
     std::shared_ptr<WilsonCoefficient> clone() const override {
         return std::make_shared<C_T_THDM>(*this);
