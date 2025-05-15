@@ -1,6 +1,6 @@
 #pragma once
 #include <complex>
-#include "Wilson.h"
+#include "WilsonSuper.h"
 // #include "Interpolator.h"
 #include "DataFrame.h"
 #include "CSVReader.h"
@@ -34,15 +34,15 @@ public:
         this->model = model;
     }
 
-    void LO_calculation() override;
+    // void LO_calculation() override;
 
-    void NLO_calculation() override {} //TODO, at least deal properly
-    void NNLO_calculation() override {} //TODO
+    // void NLO_calculation() override {} //TODO, at least deal properly
+    // void NNLO_calculation() override {} //TODO
 
     std::shared_ptr<WilsonCoefficient> clone() const override {
         return std::make_shared<MartyWilson>(*this);
     }
-    
+
 private:
     CSVReader csv_reader;
     DataFrame df;

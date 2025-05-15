@@ -45,7 +45,14 @@ void CoefficientGroup::init(QCDOrder order) {
 
         auto func_wrapper = [&coeff, order](const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src,
                                     std::shared_ptr<DependentParameter> dep_param) {
-            dep_param->set_expected(coeff.second->get_func(order)(src));
+                                        std::cout << "here ? " << std::endl;
+            auto func = coeff.second->get_func(order);
+            if (!func) {
+                dep_param->set_expected(0.);
+                return;
+            }
+            dep_param->set_expected(func(src));
+            // dep_param->set_expected(coeff.second->get_func(order)(src));
         };
         WilsonParamComposer().compose_parameter(ParamId{coeff.second->get_storage_block(), coeff.second->get_lhaid(order)}, coeff.second->get_sources(order), func_wrapper);
 
@@ -112,3 +119,20 @@ void CoefficientGroup::switch_basis() {
 
     basis = (basis.value() == BWilsonBasis::STANDARD ? BWilsonBasis::TRADITIONAL : BWilsonBasis::STANDARD);
 }
+
+std::ostream& operator<<(std::ostream& os, const CoefficientGroup& coeffs) {
+    for(auto& [name, coeff] : coeffs) {
+        os << name << " --------------------------------" << std::endl;
+        os << "LO at mu_W: "    << coeffs.get_matching_coefficient(name, "LO")      << std::endl;
+        os << "LO at mu_h: "    << coeffs.get_running_coefficient(name, "LO")       << std::endl;
+        os << "NLO at mu_W: "   << coeffs.get_matching_coefficient(name, "NLO")     << std::endl;
+        os << "NLO at mu_h: "   << coeffs.get_running_coefficient(name, "NLO")      << std::endl;
+        os << "NNLO at mu_W: "  << coeffs.get_matching_coefficient(name, "NNLO")    << std::endl;
+        os << "NNLO at mu_h: "  << coeffs.get_running_coefficient(name, "NNLO")     << std::endl;
+    }
+    return os;
+}
+
+std::ostream& operator<<(std::ostream& os, std::shared_ptr<CoefficientGroup>& coeffs) {
+    return os << *coeffs;
+} 

@@ -42,13 +42,14 @@ endif()
 add_library(PhysicalModelLib STATIC 
     domain/BWilsonRunningParameters.cpp
     domain/Wilson_parameters.cpp
-    domain/Wilson.cpp
-    domain/MartyWilson.cpp
-    domain/BWilson.cpp
+    domain/WilsonSuper.cpp
+    domain/MartyWilsonSuper.cpp
+    domain/BWilsonSuper.cpp
+    domain/BWilsonGroupSuper.cpp
     domain/ChargedCurrentWilson.cpp
-    domain/WilsonGroup.cpp
+    domain/WilsonGroupSuper.cpp
     domain/WilsonManager.cpp
-    domain/MartyWilson.cpp
+    domain/MartyWilsonSuper.cpp
     adapters/ParameterProxy.cpp
     adapters/WilsonParamComposer.cpp
     adapters/ScaleSetter.cpp
@@ -59,7 +60,7 @@ add_library(PhysicalModelLib STATIC
     BSM/susy_parameters.cpp
     BSM/thdm_parameters.cpp
     BSM/Wilson_SUSY.cpp
-    BSM/Wilson_THDM.cpp
+    BSM/Wilson_THDM_super.cpp
     )
 
 set_target_properties(PhysicalModelLib PROPERTIES POSITION_INDEPENDENT_CODE ON)

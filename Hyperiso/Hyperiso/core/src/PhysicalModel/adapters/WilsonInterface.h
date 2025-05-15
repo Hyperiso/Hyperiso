@@ -3,8 +3,8 @@
 
 #include "WilsonManager.h"
 #include "Wilson_SUSY.h"
-#include "Wilson_THDM.h"
-#include "MartyWilson.h"
+#include "Wilson_THDM_super.h"
+#include "MartyWilsonSuper.h"
 #include "General.h"
 #include "AbstractConfig.h"
 
@@ -54,13 +54,13 @@ public:
                 {"BclnuCoefficients", std::make_shared<BclnuCoefficientGroup_THDM>()}
             };
         } else if (ModelAPI().get() == Model::SUSY) {
-            bsm_groups = {
-                {"BCoefficients", std::make_shared<BCoefficientGroup_susy>()},
-                {"BPrimeCoefficients", std::make_shared<BPrimeCoefficientGroup_susy>()},
-                {"BScalarCoefficients", std::make_shared<BScalarCoefficientGroup_susy>()},
-                {"BlnuCoefficients", std::make_shared<BlnuCoefficientGroup_SUSY>()},
-                {"BclnuCoefficients", std::make_shared<BclnuCoefficientGroup_SUSY>()}
-            };
+            // bsm_groups = {
+            //     {"BCoefficients", std::make_shared<BCoefficientGroup_susy>()},
+            //     {"BPrimeCoefficients", std::make_shared<BPrimeCoefficientGroup_susy>()},
+            //     {"BScalarCoefficients", std::make_shared<BScalarCoefficientGroup_susy>()},
+            //     {"BlnuCoefficients", std::make_shared<BlnuCoefficientGroup_SUSY>()},
+            //     {"BclnuCoefficients", std::make_shared<BclnuCoefficientGroup_SUSY>()}
+            // };
         }
 
         this->group_ptrs.insert(bsm_groups.begin(), bsm_groups.end());

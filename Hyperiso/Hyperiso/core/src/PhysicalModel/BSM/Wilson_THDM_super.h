@@ -2,6 +2,7 @@
 #define WILSON_THDM_SUPER_H
 #include "WilsonSuper.h"
 #include "WilsonGroupSuper.h"
+#include "BWilsonGroupSuper.h"
 #include "thdm_parameters.h"
 #include "Math_THDM.h"
 #include "Utils.h"
@@ -35,7 +36,7 @@ public:
 
 class C3_THDM : public WilsonCoefficient {
 public:
-    C3_THDM() : WilsonCoefficient("C3_THDM", GroupMapper::str(WGroup::B) + "_MATCH") {}
+    C3_THDM();
 
     
      
@@ -50,7 +51,7 @@ public:
 
 class C4_THDM : public WilsonCoefficient {
 public:
-    C4_THDM() : WilsonCoefficient("C4_THDM", GroupMapper::str(WGroup::B) + "_MATCH") {}
+    C4_THDM();
 
     
     
@@ -66,7 +67,7 @@ public:
 
 class C5_THDM : public WilsonCoefficient {
 public:
-    C5_THDM() : WilsonCoefficient("C5_THDM", GroupMapper::str(WGroup::B) + "_MATCH") {}
+    C5_THDM();
 
     
     
@@ -81,7 +82,7 @@ public:
 
 class C6_THDM : public WilsonCoefficient {
 public:
-    C6_THDM() : WilsonCoefficient("C6_THDM", GroupMapper::str(WGroup::B) + "_MATCH") {}
+    C6_THDM();
 
     
     
@@ -96,7 +97,7 @@ public:
 
 class C7_THDM : public WilsonCoefficient {
 public:
-    C7_THDM() : WilsonCoefficient("C7_THDM", GroupMapper::str(WGroup::B) + "_MATCH") {}
+    C7_THDM();
 
     
     
@@ -113,7 +114,7 @@ public:
 
 class C8_THDM : public WilsonCoefficient {
 public:
-    C8_THDM() : WilsonCoefficient("C8_THDM", GroupMapper::str(WGroup::B) + "_MATCH") {}
+    C8_THDM();
 
     
     
@@ -130,7 +131,7 @@ public:
 
 class C9_THDM : public WilsonCoefficient {
 public:
-    C9_THDM() : WilsonCoefficient("C9_THDM", GroupMapper::str(WGroup::B) + "_MATCH") {}
+    C9_THDM();
 
     
     
@@ -146,7 +147,7 @@ public:
 
 class C10_THDM : public WilsonCoefficient {
 public:
-    C10_THDM() : WilsonCoefficient("C10_THDM", GroupMapper::str(WGroup::B) + "_MATCH") {}
+    C10_THDM();
 
     
     
@@ -162,7 +163,7 @@ public:
 
 class CQ1_THDM : public WilsonCoefficient {
 public:
-    CQ1_THDM() : WilsonCoefficient("CQ1_THDM", GroupMapper::str(WGroup::BScalar) + "_MATCH") {}
+    CQ1_THDM();
 
     
     
@@ -177,7 +178,7 @@ public:
 
 class CQ2_THDM : public WilsonCoefficient {
 public:
-    CQ2_THDM() : WilsonCoefficient("CQ2_THDM", GroupMapper::str(WGroup::BScalar) + "_MATCH") {}
+    CQ2_THDM();
 
     
     
@@ -362,7 +363,7 @@ public:
 
 class C_Blnu_P_THDM : public WilsonCoefficient {
 public:
-    C_Blnu_P_THDM() : WilsonCoefficient("C_Blnu_P_THDM", GroupMapper::str(WGroup::Blnu) + "_MATCH") {}
+    C_Blnu_P_THDM();
 
     
      
@@ -371,6 +372,8 @@ public:
     std::shared_ptr<WilsonCoefficient> clone() const override {
         return std::make_shared<C_Blnu_P_THDM>(*this);
     }
+
+    static double compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
 
 };
 
@@ -404,11 +407,11 @@ public:
 
 class C_S1_THDM : public WilsonCoefficient {
 public:
-    C_S1_THDM() : WilsonCoefficient("C_S1_THDM", GroupMapper::str(WGroup::BCLNU) + "_MATCH") {}
+    C_S1_THDM();
 
     
      
-    
+    static double compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
 
     std::shared_ptr<WilsonCoefficient> clone() const override {
         return std::make_shared<C_S1_THDM>(*this);
@@ -418,11 +421,11 @@ public:
 
 class C_S2_THDM : public WilsonCoefficient {
 public:
-    C_S2_THDM() : WilsonCoefficient("C_S2_THDM", GroupMapper::str(WGroup::BCLNU) + "_MATCH") {}
+    C_S2_THDM();
 
     
      
-    
+    static double compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
 
     std::shared_ptr<WilsonCoefficient> clone() const override {
         return std::make_shared<C_S2_THDM>(*this);

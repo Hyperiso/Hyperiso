@@ -37,7 +37,6 @@ public:
     LhaID id(QCDOrder order) const;
 
 
-    virtual void init_sources() = 0;
     bool operator==(const WilsonCoefficient& other) const;
     bool operator!=(const WilsonCoefficient& other) const { return !(*this == other); }
 

@@ -19,7 +19,7 @@ public:
 
 class C2 : public WilsonCoefficient {
 public:
-    C2() : WilsonCoefficient("C2", GroupMapper::str(WGroup::B) + "_MATCH") {}
+    C2();
 
     
     
@@ -36,7 +36,7 @@ public:
 
 class C3 : public WilsonCoefficient {
 public:
-    C3() : WilsonCoefficient("C3", GroupMapper::str(WGroup::B) + "_MATCH") {}
+    C3();
 
     
     
@@ -51,7 +51,7 @@ public:
 
 class C4 : public WilsonCoefficient {
 public:
-    C4() : WilsonCoefficient("C4", GroupMapper::str(WGroup::B) + "_MATCH") {}
+    C4();
 
     
     
@@ -67,7 +67,7 @@ public:
 
 class C5 : public WilsonCoefficient {
 public:
-    C5() : WilsonCoefficient("C5", GroupMapper::str(WGroup::B) + "_MATCH") {}
+    C5();
 
      
      
@@ -82,7 +82,7 @@ public:
 
 class C6 : public WilsonCoefficient {
 public:
-    C6() : WilsonCoefficient("C6", GroupMapper::str(WGroup::B) + "_MATCH") {}
+    C6();
 
      
      
@@ -98,7 +98,7 @@ public:
 
 class C7 : public WilsonCoefficient {
 public:
-    C7() : WilsonCoefficient("C7", GroupMapper::str(WGroup::B) + "_MATCH") {}
+    C7();
 
     
     
@@ -115,7 +115,7 @@ public:
 
 class C8 : public WilsonCoefficient {
 public:
-    C8() : WilsonCoefficient("C8", GroupMapper::str(WGroup::B) + "_MATCH") {}
+    C8();
 
     
     
@@ -132,7 +132,7 @@ public:
 
 class C9 : public WilsonCoefficient {
 public:
-    C9() : WilsonCoefficient("C9", GroupMapper::str(WGroup::B) + "_MATCH") {}
+    C9();
 
     
     
@@ -148,7 +148,7 @@ public:
 
 class C10 : public WilsonCoefficient {
 public:
-    C10() : WilsonCoefficient("C10", GroupMapper::str(WGroup::B) + "_MATCH") {}
+    C10();
 
     
     
@@ -167,8 +167,7 @@ public:
 
 class CQ1 : public WilsonCoefficient {
 public:
-    CQ1() : WilsonCoefficient("CQ1", GroupMapper::str(WGroup::BScalar) + "_MATCH") {}
-
+    CQ1();
     
      
     void NNLO_calculation() {} 
@@ -182,7 +181,7 @@ public:
 
 class CQ2 : public WilsonCoefficient {
 public:
-    CQ2() : WilsonCoefficient("CQ2", GroupMapper::str(WGroup::BScalar) + "_MATCH") {}
+    CQ2();
 
     
      
@@ -281,7 +280,7 @@ public:
 
 class CP7 : public WilsonCoefficient {
 public:
-    CP7() : WilsonCoefficient("CP7", GroupMapper::str(WGroup::BPrime) + "_MATCH") {}
+    CP7();
 
     
      
@@ -295,7 +294,7 @@ public:
 
 class CP8 : public WilsonCoefficient {
 public:
-    CP8() : WilsonCoefficient("CP8", GroupMapper::str(WGroup::BPrime) + "_MATCH") {}
+    CP8();
 
     
      
