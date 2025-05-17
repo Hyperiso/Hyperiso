@@ -3,6 +3,8 @@
 // ---------- C1 ----------
 
 C1::C1() : WilsonCoefficient("C1", GroupMapper::str(WGroup::B) + "_MATCH") {
+
+    matching_info[QCDOrder::LO] = MatchingInfo(LhaID(3040405, 6161, 0, 0));
     matching_info[QCDOrder::NLO] = {
         {{"WPARAM_MATCH_SM", 3}},  // sources
         [](const auto& src) {
@@ -35,6 +37,8 @@ C2::C2() : WilsonCoefficient("C2", GroupMapper::str(WGroup::B) + "_MATCH") {
         LhaID(3040405, 4141, 0, 0)
     };
 
+    matching_info[QCDOrder::NLO] = MatchingInfo(LhaID(3040405, 4141, 1, 0));
+
     matching_info[QCDOrder::NNLO] = {
         {
             {"WPARAM_MATCH_SM", 3}
@@ -57,6 +61,11 @@ double C2::compute_NNLO(const std::unordered_map<ParamId, std::shared_ptr<Parame
 // ---------- C3 ----------
 
 C3::C3() : WilsonCoefficient("C3", GroupMapper::str(WGroup::B) + "_MATCH") {
+
+    matching_info[QCDOrder::NLO] = MatchingInfo(LhaID(3050707, 4133, 0, 0));
+
+    matching_info[QCDOrder::NLO] = MatchingInfo(LhaID(3050707, 4133, 1, 0));
+
     matching_info[QCDOrder::NNLO] = {
         {
             {"WPARAM_MATCH_SM", 3},               // L
@@ -87,6 +96,9 @@ double C3::compute_NNLO(const std::unordered_map<ParamId, std::shared_ptr<Parame
 // ---------- C4 ----------
 
 C4::C4() : WilsonCoefficient("C4", GroupMapper::str(WGroup::B) + "_MATCH") {
+
+    matching_info[QCDOrder::LO] = MatchingInfo(LhaID(3050707, 6153, 0, 0));
+
     // NLO
     matching_info[QCDOrder::NLO] = {
         {
@@ -131,6 +143,11 @@ double C4::compute_NNLO(const std::unordered_map<ParamId, std::shared_ptr<Parame
 // ---------- C5 ----------
 
 C5::C5() : WilsonCoefficient("C5", GroupMapper::str(WGroup::B) + "_MATCH") {
+
+    matching_info[QCDOrder::LO] = MatchingInfo(LhaID(3050707, 4536, 0, 0));
+
+    matching_info[QCDOrder::NLO] = MatchingInfo(LhaID(3050707, 4536, 1, 0));
+
     matching_info[QCDOrder::NNLO] = {
         {
             {"WPARAM_MATCH_SM", 3},               // L
@@ -163,6 +180,11 @@ double C5::compute_NNLO(const std::unordered_map<ParamId, std::shared_ptr<Parame
 // ---------- C6 ----------
 
 C6::C6() : WilsonCoefficient("C6", GroupMapper::str(WGroup::B) + "_MATCH") {
+
+    matching_info[QCDOrder::LO] = MatchingInfo(LhaID(3050707, 6556, 0, 0));
+
+    matching_info[QCDOrder::NLO] = MatchingInfo(LhaID(3050707, 6556, 1, 0));
+
     matching_info[QCDOrder::NNLO] = {
         {
             {"WPARAM_MATCH_SM", 3},               // L
@@ -397,6 +419,9 @@ C9::C9() : WilsonCoefficient("C9", GroupMapper::str(WGroup::B) + "_MATCH") {
         compute_NLO,
         LhaID(3051313, 4133, 1, 0)
     };
+
+    matching_info[QCDOrder::NLO] = MatchingInfo(LhaID(3051313, 4133, 2, 0));
+
 }
 
 double C9::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src) {
@@ -545,6 +570,10 @@ CQ1::CQ1() : WilsonCoefficient("CQ1", GroupMapper::str(WGroup::B) + "_MATCH") {
         compute_LO,
         LhaID(3051313, 3230, 0, 0)
     };
+
+    matching_info[QCDOrder::NLO] = MatchingInfo(LhaID(3051313, 3230, 1, 0));
+
+    matching_info[QCDOrder::NNLO] = MatchingInfo(LhaID(3051313, 3230, 2, 0));
 }
 
 double CQ1::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src) {
@@ -582,6 +611,10 @@ CQ2::CQ2() : WilsonCoefficient("CQ2", GroupMapper::str(WGroup::B) + "_MATCH") {
         compute_LO,
         LhaID(3051313, 3233, 0, 0)
     };
+
+    matching_info[QCDOrder::NLO] = MatchingInfo(LhaID(3051313, 3233, 1, 0));
+
+    matching_info[QCDOrder::NNLO] = MatchingInfo(LhaID(3051313, 3233, 2, 0));
 }
 
 double CQ2::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src) {
@@ -622,6 +655,10 @@ CP7::CP7() : WilsonCoefficient("CP7", GroupMapper::str(WGroup::B) + "_MATCH") {
         compute_LO,
         LhaID(305, 4322, 0, 0)
     };
+
+    matching_info[QCDOrder::NLO] = MatchingInfo(LhaID(305, 4322, 1, 0));
+
+    matching_info[QCDOrder::NNLO] = MatchingInfo(LhaID(305, 4322, 2, 0));
 }
 
 double CP7::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src) {
@@ -645,6 +682,10 @@ CP8::CP8() : WilsonCoefficient("CP8", GroupMapper::str(WGroup::B) + "_MATCH") {
         compute_LO,
         LhaID(305, 4321, 0, 0)
     };
+
+    matching_info[QCDOrder::NLO] = MatchingInfo(LhaID(305, 4321, 1, 0));
+
+    matching_info[QCDOrder::NNLO] = MatchingInfo(LhaID(305, 4321, 2, 0));
 }
 
 double CP8::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src) {

@@ -87,7 +87,7 @@ std::unordered_set<BlockName> Parameters::init_blocks(ParameterType type) {
     
     this->blockAccessor = MemoryManager::GetInstance()->extract_blocks(existing);
     claim_parameters(type);
-    std::cout << ParameterTypeMapper::str(type) << std::endl;
+    // std::cout << ParameterTypeMapper::str(type) << std::endl;
     return missing;
 }
 

@@ -38,7 +38,7 @@ int main(){
     
     LOG_INFO("Interface built");
 
-    BlockProxy().log_all_blocks(ParameterType::WILSON);
+    // BlockProxy().log_all_blocks(ParameterType::WILSON);
     
     // LOG_INFO("C1(mu_h) at LO =", wi.getR(WGroup::B, WCoef::C1, QCDOrder::LO));
     // LOG_INFO("C2(mu_h) at LO =", wi.getR(WGroup::B, WCoef::C2, QCDOrder::LO));

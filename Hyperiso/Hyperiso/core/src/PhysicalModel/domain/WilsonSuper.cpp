@@ -32,9 +32,14 @@ void WilsonCoefficient::set_contribution_type(ContributionType type) {
 //TODO : disgusting
 LhaID WilsonCoefficient::id(QCDOrder order) const {
     std::string name = this->coeffName;
-    size_t pos = name.rfind('_');
-    std::string trimmedName = (pos != std::string::npos) ? name.substr(0, pos) : name;
-    return WCoefMapper::flha_full(WCoefMapper::enum_elt(trimmedName), order, type);
+
+    if (ends_with(name, "_THDM")) {
+        name = name.substr(0, name.size() - 5);
+    } else if (ends_with(name, "_SUSY")) {
+        name = name.substr(0, name.size() - 5);
+    }
+
+    return WCoefMapper::flha_full(WCoefMapper::enum_elt(name), order, type);
 }
 
 bool WilsonCoefficient::operator==(const WilsonCoefficient &other) const {

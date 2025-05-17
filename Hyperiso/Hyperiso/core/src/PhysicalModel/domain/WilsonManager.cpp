@@ -51,7 +51,6 @@ void CoefficientManager::init_group_hadronic(const std::string& groupName, const
     if (!this->coefficientGroups.contains(groupName)) {
         throw_no_group_error(groupName);
     }
-    std::cout << "::" << groupName << std::endl;
     this->coefficientGroups.at(groupName)->init_running_blocks(OrderMapper::enum_elt(order));
     // if (has_bsm) { //TODO : WIP with BSM
     //     std::string bsm_group = groupName + bsm_suffix;
@@ -194,27 +193,17 @@ void CoefficientManager::post_init() {
                 }
             }
         } else {
-            std::cout << "here" << std::endl;
             for (std::string group_name : get_keys(this->coefficientGroups)) {
-                std::cout << "here" << group_name << std::endl;
                 // std::shared_ptr<CoefficientGroup> coefs_sm = std::make_shared<BCoefficientGroup>();
                 std::string sm_name = group_name + std::string("_SM_") +  "INTER";
-                std::cout << "heree" << std::endl;
                 std::shared_ptr<CoefficientGroup> sm_group = this->coefficientGroups[group_name]->get_sm_group();
-                std::cout << "haaeree" << std::endl;
                 if (!this->coefficientGroups[group_name]) std::cerr << "null ptr\n";
                 
                 this->registerCoefficientGroup(sm_name, sm_group);
-                std::cout << "haeree" << std::endl;
                 this->init_group_matching(sm_name, OrderMapper::str(this->coefficientGroups[group_name]->get_order()));
                 this->init_group_hadronic(sm_name, OrderMapper::str(this->coefficientGroups[group_name]->get_order()));
-                std::cout << "truc! "<< sm_group << std::endl;
-                std::cout << "----------------------------------------------------------------------------------------------"<< std::endl;
-                std::cout << "truc! "<< this->coefficientGroups[group_name] << std::endl;
-                std::cout << "hereee" << std::endl;
                 WGroup group_id = GroupMapper::enum_elt(group_name);
                 complete_wilson_block_with_op(group_id, ContributionType::BSM, ContributionType::TOTAL, BWilsonBasis::STANDARD);
-                std::cout << "hereeee" << std::endl;
                 if (group_id == WGroup::B) {   
                     complete_wilson_block_with_op(group_id, ContributionType::BSM, ContributionType::TOTAL, BWilsonBasis::TRADITIONAL);
                 }
@@ -286,7 +275,6 @@ void CoefficientManager::complete_wilson_block_with_op(WGroup group_id, Contribu
             }
         }
     };
-    std::cout << "mmh : " << GroupMapper::str(group_id, ScaleType::HADRONIC, false, basis) << std::endl;
     WilsonParamComposer().compose_block(GroupMapper::str(group_id, ScaleType::HADRONIC, false, basis), src, func);
 
     std::unordered_map<ParameterType, std::vector<std::string>> src_full = {
@@ -330,7 +318,6 @@ void CoefficientManager::complete_wilson_block_from_copy(WGroup group_id, Contri
             }
         }
     };
-    std::cout << "mmh : " << GroupMapper::str(group_id, ScaleType::HADRONIC, false, basis) << std::endl;
     WilsonParamComposer().compose_block(GroupMapper::str(group_id, ScaleType::HADRONIC, false, basis), src, func);
 
     std::unordered_map<ParameterType, std::vector<std::string>> src_full = {

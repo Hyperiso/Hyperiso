@@ -45,12 +45,12 @@ void CoefficientGroup::init(QCDOrder order) {
 
         auto func_wrapper = [&coeff, order](const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src,
                                     std::shared_ptr<DependentParameter> dep_param) {
-                                        std::cout << "here ? " << std::endl;
             auto func = coeff.second->get_func(order);
             if (!func) {
                 dep_param->set_expected(0.);
                 return;
             }
+            std::cout << "value of : " << coeff.second->get_name() << " : " << func(src) << std::endl;;
             dep_param->set_expected(func(src));
             // dep_param->set_expected(coeff.second->get_func(order)(src));
         };

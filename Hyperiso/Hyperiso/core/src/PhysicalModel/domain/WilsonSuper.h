@@ -10,15 +10,50 @@
 #include "ParameterProxy.h"
 
 struct MatchingInfo {
-    std::unordered_set<ParamId> sources;
-    std::function<double(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>&)> compute;
+    std::unordered_set<ParamId> sources = {};
+    std::function<scalar_t(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>&)> compute =
+        [](const auto&) { return 0.0; };
     LhaID lhaid;
+
+    MatchingInfo()
+    : compute([](const auto&) { return 0.0; }) {}
+
+    MatchingInfo(const LhaID& id) : lhaid(id) {}
+
+    MatchingInfo(std::unordered_set<ParamId> src,
+                 std::function<scalar_t(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>&)> comp,
+                 LhaID id)
+        : sources(std::move(src)), compute(std::move(comp)), lhaid(std::move(id)) {}
+
+    MatchingInfo(MatchingInfo&& mi) = default;
+    MatchingInfo(const MatchingInfo& mi) = default;
+
+    MatchingInfo operator=(const MatchingInfo& mi) {
+        this->sources = mi.sources;
+        this->compute = mi.compute;
+        this->lhaid = mi.lhaid;
+        return *this;
+    }
 };
+
+
+//TODO : utility function
+static bool ends_with(const std::string& str, const std::string& suffix) {
+    return str.size() >= suffix.size() &&
+           str.compare(str.size() - suffix.size(), suffix.size(), suffix) == 0;
+}
 
 class WilsonCoefficient {
 public:
     WilsonCoefficient() = default;
-    WilsonCoefficient(const std::string& name, const std::string& storage_block) : coeffName(name), storage_block(storage_block) {}
+    WilsonCoefficient(const std::string& name, const std::string& storage_block) : coeffName(name), storage_block(storage_block) {
+        if (ends_with(coeffName, "_THDM") || ends_with(coeffName, "_SUSY")) {
+            type = ContributionType::BSM;
+        }
+        for (auto order : {QCDOrder::LO, QCDOrder::NLO, QCDOrder::NNLO}) {
+            matching_info[order] = MatchingInfo(this->id(order));
+        }
+    }
 
     // TODO : Implement initialization as dependent parameter from MARTY library or from lha
     std::function<double(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>&)> get_func(QCDOrder order);
