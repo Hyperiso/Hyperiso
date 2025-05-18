@@ -442,9 +442,9 @@ C7_susy::C7_susy() : WilsonCoefficient("C7_SUSY", GroupMapper::str(WGroup::B) + 
             {ParameterType::BSM, "MASS", 35},                        // mH0
             {ParameterType::BSM, "MASS", 36},                        // mA0
             {ParameterType::BSM, "MASS", 37},                        // mH+
-            {ParameterType::BSM, "HMIX", {0+1, 0+1}}, {ParameterType::BSM, "HMIX", {0+1, 1+1}},
-            {ParameterType::BSM, "HMIX", {1+1, 0+1}}, {ParameterType::BSM, "HMIX", {1+1, 1+1}},
-            {ParameterType::BSM, "HMIX", {2+1, 0+1}}, {ParameterType::BSM, "HMIX", {2+1, 1+1}},
+            {ParameterType::BSM, "H0MIX", /* was HMIX before */{0+1, 0+1}}, {ParameterType::BSM, "H0MIX", /* was HMIX before */{0+1, 1+1}},
+            {ParameterType::BSM, "H0MIX", /* was HMIX before */{1+1, 0+1}}, {ParameterType::BSM, "H0MIX", /* was HMIX before */{1+1, 1+1}},
+            {ParameterType::BSM, "H0MIX", /* was HMIX before */{2+1, 0+1}}, {ParameterType::BSM, "H0MIX", /* was HMIX before */{2+1, 1+1}},
             {ParameterType::BSM, "A0MIX" /* TODO or not TODO was AMIX before */, {0+1, 0+1}}, {ParameterType::BSM, "A0MIX" /* TODO or not TODO was AMIX before */, {0+1, 1+1}},
             {ParameterType::BSM, "A0MIX" /* TODO or not TODO was AMIX before */, {1+1, 0+1}}, {ParameterType::BSM, "A0MIX" /* TODO or not TODO was AMIX before */, {1+1, 1+1}}
         },
@@ -604,12 +604,12 @@ scalar_t C7_susy::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<P
     } else {
         C7Heps2_0 = -epsilon2 * epsilon1p * pow(tanb, 2.) / (1. + epsilonb * tanb) / (1. + epsilon0 * tanb) * F7_2(yt);
         C7Heps2_0 += epsilon2 / pow(1. + epsilonb * tanb, 2.) * (1. + pow(tanb, 2.)) / (1. + epsilon0 * tanb) / 72. *
-            ((src.at({ParameterType::BSM, "HMIX", {0+1, 0+1}})->get_val() + src.at({ParameterType::BSM, "HMIX", {0+1, 1+1}})->get_val() * tanb) *
-             (-src.at({ParameterType::BSM, "HMIX", {0+1, 1+1}})->get_val() + epsilonb * src.at({ParameterType::BSM, "HMIX", {0+1, 0+1}})->get_val()) * pow(mass_b_muW / mh, 2.) +
-             (src.at({ParameterType::BSM, "HMIX", {1+1, 0+1}})->get_val() + src.at({ParameterType::BSM, "HMIX", {1+1, 1+1}})->get_val() * tanb) *
-             (-src.at({ParameterType::BSM, "HMIX", {1+1, 1+1}})->get_val() + epsilonb * src.at({ParameterType::BSM, "HMIX", {1+1, 0+1}})->get_val()) * pow(mass_b_muW / mH0, 2.) +
-             (src.at({ParameterType::BSM, "HMIX", {2+1, 0+1}})->get_val() + src.at({ParameterType::BSM, "HMIX", {2+1, 1+1}})->get_val() * tanb) *
-             (-src.at({ParameterType::BSM, "HMIX", {2+1, 1+1}})->get_val() + epsilonb * src.at({ParameterType::BSM, "HMIX", {2+1, 0+1}})->get_val()) * pow(mass_b_muW / H03, 2.) +
+            ((src.at({ParameterType::BSM, "H0MIX", /* was HMIX before */{0+1, 0+1}})->get_val() + src.at({ParameterType::BSM, "H0MIX", /* was HMIX before */{0+1, 1+1}})->get_val() * tanb) *
+             (-src.at({ParameterType::BSM, "H0MIX", /* was HMIX before */{0+1, 1+1}})->get_val() + epsilonb * src.at({ParameterType::BSM, "H0MIX", /* was HMIX before */{0+1, 0+1}})->get_val()) * pow(mass_b_muW / mh, 2.) +
+             (src.at({ParameterType::BSM, "H0MIX", /* was HMIX before */{1+1, 0+1}})->get_val() + src.at({ParameterType::BSM, "H0MIX", /* was HMIX before */{1+1, 1+1}})->get_val() * tanb) *
+             (-src.at({ParameterType::BSM, "H0MIX", /* was HMIX before */{1+1, 1+1}})->get_val() + epsilonb * src.at({ParameterType::BSM, "H0MIX", /* was HMIX before */{1+1, 0+1}})->get_val()) * pow(mass_b_muW / mH0, 2.) +
+             (src.at({ParameterType::BSM, "H0MIX", /* was HMIX before */{2+1, 0+1}})->get_val() + src.at({ParameterType::BSM, "H0MIX", /* was HMIX before */{2+1, 1+1}})->get_val() * tanb) *
+             (-src.at({ParameterType::BSM, "H0MIX", /* was HMIX before */{2+1, 1+1}})->get_val() + epsilonb * src.at({ParameterType::BSM, "H0MIX", /* was HMIX before */{2+1, 0+1}})->get_val()) * pow(mass_b_muW / H03, 2.) +
              (src.at({ParameterType::BSM, "A0MIX" /* TODO or not TODO was AMIX before */, {0+1, 0+1}})->get_val() + src.at({ParameterType::BSM, "A0MIX" /* TODO or not TODO was AMIX before */, {0+1, 1+1}})->get_val() * tanb) *
              (-src.at({ParameterType::BSM, "A0MIX" /* TODO or not TODO was AMIX before */, {0+1, 1+1}})->get_val() + epsilonb * src.at({ParameterType::BSM, "A0MIX" /* TODO or not TODO was AMIX before */, {0+1, 0+1}})->get_val()) * pow(mass_b_muW / mA0, 2.) +
              (src.at({ParameterType::BSM, "A0MIX" /* TODO or not TODO was AMIX before */, {1+1, 0+1}})->get_val() + src.at({ParameterType::BSM, "A0MIX" /* TODO or not TODO was AMIX before */, {1+1, 1+1}})->get_val() * tanb) *
@@ -752,13 +752,13 @@ C8_susy::C8_susy() : WilsonCoefficient("C8_SUSY", GroupMapper::str(WGroup::B) + 
             {ParameterType::WILSON, "EPSILON_SUSY", 4},
         
             // HMIX & AMIX matrix elements used in the else branch
-            {ParameterType::BSM, "HMIX", {0+1, 0+1}},
-            {ParameterType::BSM, "HMIX", {0+1, 1+1}},
-            {ParameterType::BSM, "HMIX", {1+1, 0+1}},
-            {ParameterType::BSM, "HMIX", {1+1, 1+1}},
-            {ParameterType::BSM, "HMIX", {2+1, 0+1}},
-            {ParameterType::BSM, "HMIX", {2+1, 1+1}},
-            {ParameterType::BSM, "HMIX", {3+1, 0+1}},
+            {ParameterType::BSM, "H0MIX", /* was HMIX before */{0+1, 0+1}},
+            {ParameterType::BSM, "H0MIX", /* was HMIX before */{0+1, 1+1}},
+            {ParameterType::BSM, "H0MIX", /* was HMIX before */{1+1, 0+1}},
+            {ParameterType::BSM, "H0MIX", /* was HMIX before */{1+1, 1+1}},
+            {ParameterType::BSM, "H0MIX", /* was HMIX before */{2+1, 0+1}},
+            {ParameterType::BSM, "H0MIX", /* was HMIX before */{2+1, 1+1}},
+            {ParameterType::BSM, "H0MIX", /* was HMIX before */{3+1, 0+1}},
             {ParameterType::BSM, "A0MIX" /* TODO or not TODO was AMIX before */, {0+1, 0+1}},
             {ParameterType::BSM, "A0MIX" /* TODO or not TODO was AMIX before */, {0+1, 1+1}},
             {ParameterType::BSM, "A0MIX" /* TODO or not TODO was AMIX before */, {1+1, 0+1}},
@@ -975,12 +975,12 @@ scalar_t C8_susy::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<P
     } else {
         C8Heps2_0 = -eps2 * eps1p * pow(tanb, 2.) / ((1. + epsb * tanb) * (1. + eps0 * tanb)) * F8_2(yt);
         C8Heps2_0 += -3. * eps2 / pow(1. + epsb * tanb, 2.) * (1. + pow(tanb, 2.)) / (1. + eps0 * tanb) / 72. *
-            ((src.at({ParameterType::BSM, "HMIX", {0+1, 0+1}})->get_val() + src.at({ParameterType::BSM, "HMIX", {0+1, 1+1}})->get_val() * tanb) *
-             (-src.at({ParameterType::BSM, "HMIX", {0+1, 1+1}})->get_val() + epsb * src.at({ParameterType::BSM, "HMIX", {0+1, 0+1}})->get_val()) * pow(mb_muW / mh, 2.) +
-             (src.at({ParameterType::BSM, "HMIX", {1+1, 0+1}})->get_val() + src.at({ParameterType::BSM, "HMIX", {1+1, 1+1}})->get_val() * tanb) *
-             (-src.at({ParameterType::BSM, "HMIX", {1+1, 1+1}})->get_val() + epsb * src.at({ParameterType::BSM, "HMIX", {1+1, 0+1}})->get_val()) * pow(mb_muW / mH0, 2.) +
-             (src.at({ParameterType::BSM, "HMIX", {3+1, 1+1}})->get_val() + src.at({ParameterType::BSM, "HMIX", {2+1, 1+1}})->get_val() * tanb) *
-             (-src.at({ParameterType::BSM, "HMIX", {2+1, 1+1}})->get_val() + epsb * src.at({ParameterType::BSM, "HMIX", {2+1, 0+1}})->get_val()) * pow(mb_muW / H03, 2.) +
+            ((src.at({ParameterType::BSM, "H0MIX", /* was HMIX before */{0+1, 0+1}})->get_val() + src.at({ParameterType::BSM, "H0MIX", /* was HMIX before */{0+1, 1+1}})->get_val() * tanb) *
+             (-src.at({ParameterType::BSM, "H0MIX", /* was HMIX before */{0+1, 1+1}})->get_val() + epsb * src.at({ParameterType::BSM, "H0MIX", /* was HMIX before */{0+1, 0+1}})->get_val()) * pow(mb_muW / mh, 2.) +
+             (src.at({ParameterType::BSM, "H0MIX", /* was HMIX before */{1+1, 0+1}})->get_val() + src.at({ParameterType::BSM, "H0MIX", /* was HMIX before */{1+1, 1+1}})->get_val() * tanb) *
+             (-src.at({ParameterType::BSM, "H0MIX", /* was HMIX before */{1+1, 1+1}})->get_val() + epsb * src.at({ParameterType::BSM, "H0MIX", /* was HMIX before */{1+1, 0+1}})->get_val()) * pow(mb_muW / mH0, 2.) +
+             (src.at({ParameterType::BSM, "H0MIX", /* was HMIX before */{3+1, 1+1}})->get_val() + src.at({ParameterType::BSM, "H0MIX", /* was HMIX before */{2+1, 1+1}})->get_val() * tanb) *
+             (-src.at({ParameterType::BSM, "H0MIX", /* was HMIX before */{2+1, 1+1}})->get_val() + epsb * src.at({ParameterType::BSM, "H0MIX", /* was HMIX before */{2+1, 0+1}})->get_val()) * pow(mb_muW / H03, 2.) +
              (src.at({ParameterType::BSM, "A0MIX" /* TODO or not TODO was AMIX before */, {0+1, 0+1}})->get_val() + src.at({ParameterType::BSM, "A0MIX" /* TODO or not TODO was AMIX before */, {0+1, 1+1}})->get_val() * tanb) *
              (-src.at({ParameterType::BSM, "A0MIX" /* TODO or not TODO was AMIX before */, {0+1, 1+1}})->get_val() + epsb * src.at({ParameterType::BSM, "A0MIX" /* TODO or not TODO was AMIX before */, {0+1, 0+1}})->get_val()) * pow(mb_muW / mA0, 2.) +
              (src.at({ParameterType::BSM, "A0MIX" /* TODO or not TODO was AMIX before */, {1+1, 0+1}})->get_val() + src.at({ParameterType::BSM, "A0MIX" /* TODO or not TODO was AMIX before */, {1+1, 1+1}})->get_val() * tanb) *
