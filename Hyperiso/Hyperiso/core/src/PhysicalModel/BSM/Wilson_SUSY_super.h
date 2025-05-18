@@ -48,7 +48,7 @@ public:
 
 class C4_susy : public WilsonCoefficient {
 public:
-    C4_susy() : WilsonCoefficient() { this->set_name("C4_SUSY"); }
+    C4_susy();
 
     static scalar_t compute_NLO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
     static scalar_t compute_NNLO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
@@ -60,7 +60,7 @@ public:
 
 class C5_susy : public WilsonCoefficient {
 public:
-    C5_susy() : WilsonCoefficient() { this->set_name("C5_SUSY"); }
+    C5_susy();
 
     static scalar_t compute_NNLO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
 
@@ -71,7 +71,7 @@ public:
 
 class C6_susy : public WilsonCoefficient {
 public:
-    C6_susy() : WilsonCoefficient() { this->set_name("C6_SUSY"); }
+    C6_susy();
 
     static scalar_t compute_NNLO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
 
@@ -82,7 +82,7 @@ public:
 
 class C7_susy : public WilsonCoefficient {
 public:
-    C7_susy() : WilsonCoefficient() { this->set_name("C7_SUSY"); }
+    C7_susy();
 
     static scalar_t compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
     static scalar_t compute_NLO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
@@ -95,7 +95,7 @@ public:
 
 class C8_susy : public WilsonCoefficient {
 public:
-    C8_susy() : WilsonCoefficient() { this->set_name("C8_SUSY"); }
+    C8_susy();
 
     static scalar_t compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
     static scalar_t compute_NLO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
@@ -107,7 +107,7 @@ public:
 
 class C9_susy : public WilsonCoefficient {
 public:
-    C9_susy() : WilsonCoefficient() { this->set_name("C9_SUSY"); }
+    C9_susy();
 
     static scalar_t compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
     static scalar_t compute_NLO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
@@ -119,7 +119,7 @@ public:
 
 class C10_susy : public WilsonCoefficient {
 public:
-    C10_susy() : WilsonCoefficient() { this->set_name("C10_SUSY"); }
+    C10_susy();
 
     static scalar_t compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
     static scalar_t compute_NLO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
@@ -131,9 +131,10 @@ public:
 
 class CQ1_susy : public WilsonCoefficient {
 public:
-    CQ1_susy() : WilsonCoefficient() { this->set_name("CQ1_SUSY"); }
+    CQ1_susy();
 
-
+    static scalar_t compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
+    static scalar_t compute_NLO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
 
     std::shared_ptr<WilsonCoefficient> clone() const override {
         return std::make_shared<CQ1_susy>(*this);
@@ -142,9 +143,10 @@ public:
 
 class CQ2_susy : public WilsonCoefficient {
 public:
-    CQ2_susy() : WilsonCoefficient() { this->set_name("CQ2_SUSY"); }
+    CQ2_susy();
 
-
+    static scalar_t compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
+    static scalar_t compute_NLO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
 
     std::shared_ptr<WilsonCoefficient> clone() const override {
         return std::make_shared<CQ2_susy>(*this);
@@ -153,7 +155,7 @@ public:
 
 class CP1_susy : public WilsonCoefficient {
 public:
-    CP1_susy() : WilsonCoefficient() { this->set_name("CP1_SUSY"); }
+    CP1_susy() : WilsonCoefficient("CP1_SUSY", GroupMapper::str(WGroup::B) + "_MATCH") { }
 
  
 
@@ -164,7 +166,7 @@ public:
 
 class CP2_susy : public WilsonCoefficient {
 public:
-    CP2_susy() : WilsonCoefficient() { this->set_name("CP2_SUSY"); }
+    CP2_susy() : WilsonCoefficient("CP2_SUSY", GroupMapper::str(WGroup::B) + "_MATCH") { }
 
 
 
@@ -175,7 +177,7 @@ public:
 
 class CP3_susy : public WilsonCoefficient {
 public:
-    CP3_susy() : WilsonCoefficient() { this->set_name("CP3_SUSY"); }
+    CP3_susy() : WilsonCoefficient("CP3_SUSY", GroupMapper::str(WGroup::B) + "_MATCH") { }
 
 
 
@@ -187,7 +189,7 @@ public:
 
 class CP4_susy : public WilsonCoefficient {
 public:
-    CP4_susy() : WilsonCoefficient() { this->set_name("CP4_SUSY"); }
+    CP4_susy() : WilsonCoefficient("CP4_SUSY", GroupMapper::str(WGroup::B) + "_MATCH") { }
 
  
 
@@ -198,7 +200,7 @@ public:
 
 class CP5_susy : public WilsonCoefficient {
 public:
-    CP5_susy() : WilsonCoefficient() { this->set_name("CP5_SUSY"); }
+    CP5_susy() : WilsonCoefficient("CP5_SUSY", GroupMapper::str(WGroup::B) + "_MATCH") { }
 
  
 
@@ -209,7 +211,7 @@ public:
 
 class CP6_susy : public WilsonCoefficient {
 public:
-    CP6_susy() : WilsonCoefficient() { this->set_name("CP6_SUSY"); }
+    CP6_susy() : WilsonCoefficient("CP6_SUSY", GroupMapper::str(WGroup::B) + "_MATCH") { }
 
  
 
@@ -220,7 +222,7 @@ public:
 
 class CP7_susy : public WilsonCoefficient {
 public:
-    CP7_susy() : WilsonCoefficient() { this->set_name("CP7_SUSY"); }
+    CP7_susy();
 
     static scalar_t compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
 
@@ -231,7 +233,7 @@ public:
 
 class CP8_susy : public WilsonCoefficient {
 public:
-    CP8_susy() : WilsonCoefficient() { this->set_name("CP8_SUSY"); }
+    CP8_susy();
 
     static scalar_t compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
 
@@ -242,7 +244,7 @@ public:
 
 class CP9_susy : public WilsonCoefficient {
 public:
-    CP9_susy() : WilsonCoefficient() { this->set_name("CP9_SUSY"); }
+    CP9_susy();
 
     static scalar_t compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
 
@@ -253,7 +255,7 @@ public:
 
 class CP10_susy : public WilsonCoefficient {
 public:
-    CP10_susy() : WilsonCoefficient() { this->set_name("CP10_SUSY"); }
+    CP10_susy();
 
     static scalar_t compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
 
@@ -264,9 +266,10 @@ public:
 
 class CPQ1_susy : public WilsonCoefficient {
 public:
-    CPQ1_susy() : WilsonCoefficient() { this->set_name("CPQ1_SUSY"); }
+    CPQ1_susy();
 
  
+    static scalar_t compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
 
     std::shared_ptr<WilsonCoefficient> clone() const override {
         return std::make_shared<CPQ1_susy>(*this);
@@ -275,9 +278,9 @@ public:
 
 class CPQ2_susy : public WilsonCoefficient {
 public:
-    CPQ2_susy() : WilsonCoefficient() { this->set_name("CPQ2_SUSY"); }
+    CPQ2_susy();
 
-
+    static scalar_t compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
 
     std::shared_ptr<WilsonCoefficient> clone() const override {
         return std::make_shared<CPQ2_susy>(*this);
@@ -286,7 +289,7 @@ public:
 
 class C_Blnu_A_SUSY : public WilsonCoefficient {
 public:
-    C_Blnu_A_SUSY() : WilsonCoefficient() { this->set_name("C_Blnu_A_SUSY"); }
+    C_Blnu_A_SUSY() : WilsonCoefficient("C_Blnu_A_SUSY", GroupMapper::str(WGroup::B) + "_MATCH") { }
 
  
 
@@ -297,9 +300,9 @@ public:
 
 class C_Blnu_P_SUSY : public WilsonCoefficient {
 public:
-    C_Blnu_P_SUSY() : WilsonCoefficient() { this->set_name("C_Blnu_P_SUSY"); }
+    C_Blnu_P_SUSY();
 
- 
+    static scalar_t compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
 
     std::shared_ptr<WilsonCoefficient> clone() const override {
         return std::make_shared<C_Blnu_P_SUSY>(*this);
@@ -308,7 +311,7 @@ public:
 
 class C_V1_SUSY : public WilsonCoefficient {
 public:
-    C_V1_SUSY() : WilsonCoefficient() { this->set_name("C_V1_SUSY"); }
+    C_V1_SUSY() : WilsonCoefficient("C_V1_SUSY", GroupMapper::str(WGroup::B) + "_MATCH") { }
 
  
 
@@ -319,7 +322,7 @@ public:
 
 class C_V2_SUSY : public WilsonCoefficient {
 public:
-    C_V2_SUSY() : WilsonCoefficient() { this->set_name("C_V2_SUSY"); }
+    C_V2_SUSY() : WilsonCoefficient("C_V2_SUSY", GroupMapper::str(WGroup::B) + "_MATCH") { }
 
  
 
@@ -330,9 +333,9 @@ public:
 
 class C_S1_SUSY : public WilsonCoefficient {
 public:
-    C_S1_SUSY() : WilsonCoefficient() { this->set_name("C_S1_SUSY"); }
+    C_S1_SUSY();
 
- 
+    static scalar_t compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
 
     std::shared_ptr<WilsonCoefficient> clone() const override {
         return std::make_shared<C_S1_SUSY>(*this);
@@ -341,9 +344,9 @@ public:
 
 class C_S2_SUSY : public WilsonCoefficient {
 public:
-    C_S2_SUSY() : WilsonCoefficient() { this->set_name("C_S2_SUSY"); }
+    C_S2_SUSY();
 
- 
+    static scalar_t compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
 
     std::shared_ptr<WilsonCoefficient> clone() const override {
         return std::make_shared<C_S2_SUSY>(*this);
@@ -352,7 +355,7 @@ public:
 
 class C_T_SUSY : public WilsonCoefficient {
 public:
-    C_T_SUSY() : WilsonCoefficient() { this->set_name("C_T_SUSY"); }
+    C_T_SUSY() : WilsonCoefficient("C_T_SUSY", GroupMapper::str(WGroup::B) + "_MATCH") { }
 
  
 

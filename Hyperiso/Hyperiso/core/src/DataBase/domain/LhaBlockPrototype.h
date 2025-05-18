@@ -72,10 +72,10 @@ const Prototype YE = Prototype{{"YE", "LCOUPL"}, 4, 3, -1, -1, true};
 // const Prototype UCOUPL = Prototype{"UCOUPL", 4, 3, -1, -1, true};// TODO : temporary fix, maybe need possibility to have 2 name (composite construtor with simple and vector inputs)
 // const Prototype DCOUPL = Prototype{"DCOUPL", 4, 3, -1, -1, true};
 // const Prototype LCOUPL = Prototype{"LCOUPL", 4, 3, -1, -1, true};
-const Prototype SPINFO = Prototype{"SPINFO"};
+// const Prototype SPINFO = Prototype{"SPINFO"}; //TODO : remove because .19 was in stol
 
 const std::unordered_set<Prototype> LHA_BLOCKS = {MODSEL, SMINPUTS, VCKMIN, UPMNSIN, MASS, GAUGE};
-const std::unordered_set<Prototype> SLHA_BLOCKS = {MINPAR, EXTPAR, NMIX, UMIX, VMIX, STOPMIX, SBOTMIX, STAUMIX, ALPHA, HMIX, MSOFT, AU, AD, AE, YU, YD, YE, SPINFO};
+const std::unordered_set<Prototype> SLHA_BLOCKS = {MINPAR, EXTPAR, NMIX, UMIX, VMIX, STOPMIX, SBOTMIX, STAUMIX, ALPHA, HMIX, MSOFT, AU, AD, AE, YU, YD, YE}; //TODO : SPINFO pb
 
 // FLHA Block prototypes
 const Prototype FCINFO = Prototype{"FCINFO"};

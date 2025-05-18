@@ -59,7 +59,7 @@ add_library(PhysicalModelLib STATIC
     BSM/epsilon_calculator.cpp
     BSM/susy_parameters.cpp
     BSM/thdm_parameters.cpp
-    BSM/Wilson_SUSY.cpp
+    BSM/Wilson_SUSY_super.cpp
     BSM/Wilson_THDM_super.cpp
     )
 

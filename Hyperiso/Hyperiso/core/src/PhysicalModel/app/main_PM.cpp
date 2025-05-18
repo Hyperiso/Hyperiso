@@ -7,9 +7,9 @@
 int main(){
     HyperisoMaster hyp = HyperisoMaster();
     Config config;
-    config.model = Model::THDM;
+    config.model = Model::SUSY;
 
-    hyp.init("lha/testinput_thdm.lha", config);
+    hyp.init("lha/testInput.slha", config);
     LOG_INFO("HyperisoMaster initialized");
 
     auto wi = WilsonInterface(); // Initialize interface and build the required groups
@@ -17,9 +17,12 @@ int main(){
 
     
     wi.addWilsonGroup(WGroup::B);
+    std::cout << "niiice" << std::endl;
     wi.init_group_matching(WGroup::B, QCDOrder::LO);
+    std::cout << "niiice" << std::endl;
     wi.init_group_hadronic(WGroup::B, QCDOrder::LO);
 
+    std::cout << "niiice" << std::endl;
     wi.addWilsonGroup(WGroup::BScalar);
     wi.init_group_matching(WGroup::BScalar, QCDOrder::LO);
     wi.init_group_hadronic(WGroup::BScalar, QCDOrder::LO);
