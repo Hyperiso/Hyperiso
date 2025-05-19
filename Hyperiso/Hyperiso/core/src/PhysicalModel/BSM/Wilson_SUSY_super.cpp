@@ -402,7 +402,8 @@ scalar_t C6_susy::compute_NNLO(const std::unordered_map<ParamId, std::shared_ptr
 C7_susy::C7_susy() : WilsonCoefficient("C7_SUSY", GroupMapper::str(WGroup::B) + "_MATCH") {
     matching_info[QCDOrder::LO] = {
         {
-            {ParameterType::SM, "MASS", 24},                          // mW
+            {ParameterType::SM, "MASS", 24},       
+            {ParameterType::WILSON, "EW_SCALE", 1},                   // mW
             {ParameterType::WILSON, "WPARAM_SI_BSM", 6},             // kappa
             {ParameterType::WILSON, "WPARAM_SI_BSM", 7},             // lu
             {ParameterType::WILSON, "WPARAM_SI_BSM", 8},             // ld
@@ -426,6 +427,19 @@ C7_susy::C7_susy() : WilsonCoefficient("C7_SUSY", GroupMapper::str(WGroup::B) + 
             {ParameterType::WILSON, "MATRIX_BSM", {3, 1, 3, 1}}, {ParameterType::WILSON, "MATRIX_BSM", {3, 1, 3, 2}},
             {ParameterType::WILSON, "MATRIX_BSM", {3, 1, 4, 1}}, {ParameterType::WILSON, "MATRIX_BSM", {3, 1, 4, 2}},
             {ParameterType::WILSON, "MATRIX_BSM", {3, 1, 5, 1}}, {ParameterType::WILSON, "MATRIX_BSM", {3, 1, 5, 2}},
+            
+            {ParameterType::WILSON, "MATRIX_BSM", {4, 0, 0, 1}}, {ParameterType::WILSON, "MATRIX_BSM", {4, 0, 0, 2}},
+            {ParameterType::WILSON, "MATRIX_BSM", {4, 0, 1, 1}}, {ParameterType::WILSON, "MATRIX_BSM", {4, 0, 1, 2}},
+            {ParameterType::WILSON, "MATRIX_BSM", {4, 0, 2, 1}}, {ParameterType::WILSON, "MATRIX_BSM", {4, 0, 2, 2}},
+            {ParameterType::WILSON, "MATRIX_BSM", {4, 0, 3, 1}}, {ParameterType::WILSON, "MATRIX_BSM", {4, 0, 3, 2}},
+            {ParameterType::WILSON, "MATRIX_BSM", {4, 0, 4, 1}}, {ParameterType::WILSON, "MATRIX_BSM", {4, 0, 4, 2}},
+            {ParameterType::WILSON, "MATRIX_BSM", {4, 0, 5, 1}}, {ParameterType::WILSON, "MATRIX_BSM", {4, 0, 5, 2}},
+            {ParameterType::WILSON, "MATRIX_BSM", {4, 1, 0, 1}}, {ParameterType::WILSON, "MATRIX_BSM", {4, 1, 0, 2}},
+            {ParameterType::WILSON, "MATRIX_BSM", {4, 1, 1, 1}}, {ParameterType::WILSON, "MATRIX_BSM", {4, 1, 1, 2}},
+            {ParameterType::WILSON, "MATRIX_BSM", {4, 1, 2, 1}}, {ParameterType::WILSON, "MATRIX_BSM", {4, 1, 2, 2}},
+            {ParameterType::WILSON, "MATRIX_BSM", {4, 1, 3, 1}}, {ParameterType::WILSON, "MATRIX_BSM", {4, 1, 3, 2}},
+            {ParameterType::WILSON, "MATRIX_BSM", {4, 1, 4, 1}}, {ParameterType::WILSON, "MATRIX_BSM", {4, 1, 4, 2}},
+            {ParameterType::WILSON, "MATRIX_BSM", {4, 1, 5, 1}}, {ParameterType::WILSON, "MATRIX_BSM", {4, 1, 5, 2}},
             {ParameterType::WILSON, "WPARAM_MATCH_BSM", 1},          // yt
             {ParameterType::WILSON, "WPARAM_MATCH_SM", {2,1}},       // xt
             {ParameterType::WILSON, "WPARAM_MATCH_SM", {5,1}},       // mb(Q)
@@ -437,16 +451,16 @@ C7_susy::C7_susy() : WilsonCoefficient("C7_SUSY", GroupMapper::str(WGroup::B) + 
             {ParameterType::WILSON, "EPSILON_SUSY", 4},              // epsb'
             {ParameterType::WILSON, "WPARAM_SI_BSM", 18},            // kappafactor
             {ParameterType::BSM, "HMIX", 2},                         // tanb
-            {ParameterType::BSM, "ALPHA", 0},                        // alpha
+            {ParameterType::BSM, "ALPHA", {}},                        // alpha
             {ParameterType::BSM, "MASS", 25},                        // mh
             {ParameterType::BSM, "MASS", 35},                        // mH0
             {ParameterType::BSM, "MASS", 36},                        // mA0
             {ParameterType::BSM, "MASS", 37},                        // mH+
-            {ParameterType::BSM, "H0MIX", /* was HMIX before */{0+1, 0+1}}, {ParameterType::BSM, "H0MIX", /* was HMIX before */{0+1, 1+1}},
-            {ParameterType::BSM, "H0MIX", /* was HMIX before */{1+1, 0+1}}, {ParameterType::BSM, "H0MIX", /* was HMIX before */{1+1, 1+1}},
-            {ParameterType::BSM, "H0MIX", /* was HMIX before */{2+1, 0+1}}, {ParameterType::BSM, "H0MIX", /* was HMIX before */{2+1, 1+1}},
-            {ParameterType::BSM, "A0MIX" /* TODO or not TODO was AMIX before */, {0+1, 0+1}}, {ParameterType::BSM, "A0MIX" /* TODO or not TODO was AMIX before */, {0+1, 1+1}},
-            {ParameterType::BSM, "A0MIX" /* TODO or not TODO was AMIX before */, {1+1, 0+1}}, {ParameterType::BSM, "A0MIX" /* TODO or not TODO was AMIX before */, {1+1, 1+1}}
+            {ParameterType::BSM, "NMHMIX", {0+1, 0+1}}, {ParameterType::BSM, "NMHMIX", {0+1, 1+1}},
+            {ParameterType::BSM, "NMHMIX", {1+1, 0+1}}, {ParameterType::BSM, "NMHMIX", {1+1, 1+1}},
+            {ParameterType::BSM, "NMHMIX", {2+1, 0+1}}, {ParameterType::BSM, "NMHMIX", {2+1, 1+1}},
+            {ParameterType::BSM, "NMAMIX" , {0+1, 0+1}}, {ParameterType::BSM, "NMAMIX" , {0+1, 1+1}},
+            {ParameterType::BSM, "NMAMIX" , {1+1, 0+1}}, {ParameterType::BSM, "NMAMIX" , {1+1, 1+1}}
         },
         compute_LO,
         LhaID(3050447, 4422, 0, 1)
@@ -565,6 +579,7 @@ C7_susy::C7_susy() : WilsonCoefficient("C7_SUSY", GroupMapper::str(WGroup::B) + 
 }
 
 scalar_t C7_susy::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src) {
+    LOG_INFO("C7_susy::compute_LO");
     double xt = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {2,1}})->get_val();
     double lu = src.at({ParameterType::WILSON, "WPARAM_SI_BSM", 7})->get_val();
     double ld = src.at({ParameterType::WILSON, "WPARAM_SI_BSM", 8})->get_val();
@@ -573,7 +588,7 @@ scalar_t C7_susy::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<P
     double mW = src.at({ParameterType::SM, "MASS", 24})->get_val();
     double mH = src.at({ParameterType::BSM, "MASS", 37})->get_val();
     double tanb = src.at({ParameterType::BSM, "HMIX", 2})->get_val();
-    double alpha = src.at({ParameterType::BSM, "ALPHA", 0})->get_val();
+    double alpha = src.at({ParameterType::BSM, "ALPHA", {}})->get_val();
     double mH0 = src.at({ParameterType::BSM, "MASS", 35})->get_val();
     double mh = src.at({ParameterType::BSM, "MASS", 25})->get_val();
     double mA0 = src.at({ParameterType::BSM, "MASS", 36})->get_val();
@@ -586,7 +601,9 @@ scalar_t C7_susy::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<P
     double epsilonb = src.at({ParameterType::WILSON, "EPSILON_SUSY", 3})->get_val();
     double epsilonbp = src.at({ParameterType::WILSON, "EPSILON_SUSY", 4})->get_val();
 
-    src.at({ParameterType::BSM, "A0MIX" /* TODO or not TODO was AMIX before */, {0+1, 0+1}})->get_val();
+    LOG_INFO("1");
+
+    // src.at({ParameterType::BSM, "NMAMIX" , {0+1, 0+1}})->get_val();
     double H03 = 0.; // TODO
     double A02 = 0.; // TODO
 
@@ -604,17 +621,19 @@ scalar_t C7_susy::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<P
     } else {
         C7Heps2_0 = -epsilon2 * epsilon1p * pow(tanb, 2.) / (1. + epsilonb * tanb) / (1. + epsilon0 * tanb) * F7_2(yt);
         C7Heps2_0 += epsilon2 / pow(1. + epsilonb * tanb, 2.) * (1. + pow(tanb, 2.)) / (1. + epsilon0 * tanb) / 72. *
-            ((src.at({ParameterType::BSM, "H0MIX", /* was HMIX before */{0+1, 0+1}})->get_val() + src.at({ParameterType::BSM, "H0MIX", /* was HMIX before */{0+1, 1+1}})->get_val() * tanb) *
-             (-src.at({ParameterType::BSM, "H0MIX", /* was HMIX before */{0+1, 1+1}})->get_val() + epsilonb * src.at({ParameterType::BSM, "H0MIX", /* was HMIX before */{0+1, 0+1}})->get_val()) * pow(mass_b_muW / mh, 2.) +
-             (src.at({ParameterType::BSM, "H0MIX", /* was HMIX before */{1+1, 0+1}})->get_val() + src.at({ParameterType::BSM, "H0MIX", /* was HMIX before */{1+1, 1+1}})->get_val() * tanb) *
-             (-src.at({ParameterType::BSM, "H0MIX", /* was HMIX before */{1+1, 1+1}})->get_val() + epsilonb * src.at({ParameterType::BSM, "H0MIX", /* was HMIX before */{1+1, 0+1}})->get_val()) * pow(mass_b_muW / mH0, 2.) +
-             (src.at({ParameterType::BSM, "H0MIX", /* was HMIX before */{2+1, 0+1}})->get_val() + src.at({ParameterType::BSM, "H0MIX", /* was HMIX before */{2+1, 1+1}})->get_val() * tanb) *
-             (-src.at({ParameterType::BSM, "H0MIX", /* was HMIX before */{2+1, 1+1}})->get_val() + epsilonb * src.at({ParameterType::BSM, "H0MIX", /* was HMIX before */{2+1, 0+1}})->get_val()) * pow(mass_b_muW / H03, 2.) +
-             (src.at({ParameterType::BSM, "A0MIX" /* TODO or not TODO was AMIX before */, {0+1, 0+1}})->get_val() + src.at({ParameterType::BSM, "A0MIX" /* TODO or not TODO was AMIX before */, {0+1, 1+1}})->get_val() * tanb) *
-             (-src.at({ParameterType::BSM, "A0MIX" /* TODO or not TODO was AMIX before */, {0+1, 1+1}})->get_val() + epsilonb * src.at({ParameterType::BSM, "A0MIX" /* TODO or not TODO was AMIX before */, {0+1, 0+1}})->get_val()) * pow(mass_b_muW / mA0, 2.) +
-             (src.at({ParameterType::BSM, "A0MIX" /* TODO or not TODO was AMIX before */, {1+1, 0+1}})->get_val() + src.at({ParameterType::BSM, "A0MIX" /* TODO or not TODO was AMIX before */, {1+1, 1+1}})->get_val() * tanb) *
-             (-src.at({ParameterType::BSM, "A0MIX" /* TODO or not TODO was AMIX before */, {1+1, 1+1}})->get_val() + epsilonb * src.at({ParameterType::BSM, "A0MIX" /* TODO or not TODO was AMIX before */, {1+1, 0+1}})->get_val()) * pow(mass_b_muW / A02, 2.));
+            ((src.at({ParameterType::BSM, "NMHMIX", {0+1, 0+1}})->get_val() + src.at({ParameterType::BSM, "NMHMIX", {0+1, 1+1}})->get_val() * tanb) *
+             (-src.at({ParameterType::BSM, "NMHMIX", {0+1, 1+1}})->get_val() + epsilonb * src.at({ParameterType::BSM, "NMHMIX", {0+1, 0+1}})->get_val()) * pow(mass_b_muW / mh, 2.) +
+             (src.at({ParameterType::BSM, "NMHMIX", {1+1, 0+1}})->get_val() + src.at({ParameterType::BSM, "NMHMIX", {1+1, 1+1}})->get_val() * tanb) *
+             (-src.at({ParameterType::BSM, "NMHMIX", {1+1, 1+1}})->get_val() + epsilonb * src.at({ParameterType::BSM, "NMHMIX", {1+1, 0+1}})->get_val()) * pow(mass_b_muW / mH0, 2.) +
+             (src.at({ParameterType::BSM, "NMHMIX", {2+1, 0+1}})->get_val() + src.at({ParameterType::BSM, "NMHMIX", {2+1, 1+1}})->get_val() * tanb) *
+             (-src.at({ParameterType::BSM, "NMHMIX", {2+1, 1+1}})->get_val() + epsilonb * src.at({ParameterType::BSM, "NMHMIX", {2+1, 0+1}})->get_val()) * pow(mass_b_muW / H03, 2.) +
+             (src.at({ParameterType::BSM, "NMAMIX" , {0+1, 0+1}})->get_val() + src.at({ParameterType::BSM, "NMAMIX" , {0+1, 1+1}})->get_val() * tanb) *
+             (-src.at({ParameterType::BSM, "NMAMIX" , {0+1, 1+1}})->get_val() + epsilonb * src.at({ParameterType::BSM, "NMAMIX" , {0+1, 0+1}})->get_val()) * pow(mass_b_muW / mA0, 2.) +
+             (src.at({ParameterType::BSM, "NMAMIX" , {1+1, 0+1}})->get_val() + src.at({ParameterType::BSM, "NMAMIX" , {1+1, 1+1}})->get_val() * tanb) *
+             (-src.at({ParameterType::BSM, "NMAMIX" , {1+1, 1+1}})->get_val() + epsilonb * src.at({ParameterType::BSM, "NMAMIX" , {1+1, 0+1}})->get_val()) * pow(mass_b_muW / A02, 2.));
     }
+
+    LOG_INFO("2");
 
     complex_t C7charg_0 = 0.0;
     complex_t C7_chargeps_0 = 0.0;
@@ -642,7 +661,11 @@ scalar_t C7_susy::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<P
         }
     }
 
+    LOG_INFO("3");
+
     complex_t C7H_0 = 1. / 3. * lu * lu * F7_1(yt) - lu * ld * F7_2(yt);
+
+    LOG_INFO("LO OK");
 
     return scalar_t(C7SMeps_0 + C7Heps_0 + C7Heps2_0 + C7charg_0 + C7_chargeps_0 + C7H_0);
 }
@@ -670,9 +693,9 @@ scalar_t C7_susy::compute_NLO(const std::unordered_map<ParamId, std::shared_ptr<
         double ratio_W_Mch = std::pow(mW / Mch_ie, 2.0);
 
         for (int ae = 0; ae < 6; ++ae) {
-            double Mch_ae = src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, ae}})->get_val();
-            double x = std::pow(Mch_ae / Mch_ie, 2.0);
-            double log_mu = std::log(std::pow(Q_match / Mch_ae, 2.0));
+            double MsqU_ae = src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {14, ae}})->get_val();
+            double x = std::pow(MsqU_ae / Mch_ie, 2.0);
+            double log_mu = std::log(std::pow(Q_match / MsqU_ae, 2.0));
 
             double aij = src.at({ParameterType::WILSON, "MATRIX_BSM", {3, ie, ae, 1}})->get_val();
             double bij = src.at({ParameterType::WILSON, "MATRIX_BSM", {3, ie, ae, 2}})->get_val();
@@ -681,14 +704,14 @@ scalar_t C7_susy::compute_NLO(const std::unordered_map<ParamId, std::shared_ptr<
             C7charg_1 += ratio_W_Mch * (aij * bij * h11(x, log_mu) + Mch_ie / mass_b_muW * aij * cij * h21(x, log_mu));
 
             for (int ce = 0; ce < 6; ++ce) {
-                double Mch_ce = src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, ce}})->get_val();
-                double log_ce = std::log(std::pow(Q_match / Mch_ce, 2.0));
-                double ratio_ce_ie = Mch_ce / Mch_ie;
+                double MsqU_ce = src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {14, ce}})->get_val();
+                double log_ce = std::log(std::pow(Q_match / MsqU_ce, 2.0));
+                double ratio_ce_ie = MsqU_ce / Mch_ie;
 
                 for (int de = 0; de < 6; ++de) {
-                    double Mch_de = src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, de}})->get_val();
-                    double x_ae = std::pow(Mch_ae / Mch_ie, 2.0);
-                    double x_de = std::pow(Mch_de / Mch_ie, 2.0);
+                    double MsqU_de = src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {14, de}})->get_val();
+                    double x_ae = std::pow(MsqU_ae / Mch_ie, 2.0);
+                    double x_de = std::pow(MsqU_de / Mch_ie, 2.0);
 
                     double Nij = src.at({ParameterType::WILSON, "MATRIX_BSM", {9, ae, ce}})->get_val();
                     double Ncd = src.at({ParameterType::WILSON, "MATRIX_BSM", {9, ce, de}})->get_val();
@@ -709,6 +732,8 @@ scalar_t C7_susy::compute_NLO(const std::unordered_map<ParamId, std::shared_ptr<
 
     complex_t C7H_1 = G7H(yt, lu, ld) + Delta7H(yt, lu, ld) * std::log(std::pow(Q_match / mH, 2.0)) - 4.0 / 9.0 * EH(yt, lu);
 
+    LOG_INFO("NLO OK");
+
     return scalar_t(C7charg_1 + C7four_1 + C7H_1);
 }
 
@@ -722,6 +747,8 @@ scalar_t C7_susy::compute_NNLO(const std::unordered_map<ParamId, std::shared_ptr
     double log_term = std::log(std::pow(Q_match / mass_top_muW, 2.0));
 
     double coeff_temp = C7H2(yt, lu, ld, log_term);
+
+    LOG_INFO("NNLO OK");
 
     return scalar_t(coeff_temp);
 }
@@ -741,7 +768,7 @@ C8_susy::C8_susy() : WilsonCoefficient("C8_SUSY", GroupMapper::str(WGroup::B) + 
             {ParameterType::BSM, "MASS", 36},                 // mA0
             {ParameterType::BSM, "MASS", 37},                 // mH
             {ParameterType::BSM, "HMIX", 2},                  // tanb
-            {ParameterType::BSM, "ALPHA", 0},                 // alpha
+            {ParameterType::BSM, "ALPHA", {}},                 // alpha
         
             // EPSILON_SUSY parameters
             {ParameterType::WILSON, "EPSILON_SUSY", {0,1}},
@@ -752,17 +779,17 @@ C8_susy::C8_susy() : WilsonCoefficient("C8_SUSY", GroupMapper::str(WGroup::B) + 
             {ParameterType::WILSON, "EPSILON_SUSY", 4},
         
             // HMIX & AMIX matrix elements used in the else branch
-            {ParameterType::BSM, "H0MIX", /* was HMIX before */{0+1, 0+1}},
-            {ParameterType::BSM, "H0MIX", /* was HMIX before */{0+1, 1+1}},
-            {ParameterType::BSM, "H0MIX", /* was HMIX before */{1+1, 0+1}},
-            {ParameterType::BSM, "H0MIX", /* was HMIX before */{1+1, 1+1}},
-            {ParameterType::BSM, "H0MIX", /* was HMIX before */{2+1, 0+1}},
-            {ParameterType::BSM, "H0MIX", /* was HMIX before */{2+1, 1+1}},
-            {ParameterType::BSM, "H0MIX", /* was HMIX before */{3+1, 0+1}},
-            {ParameterType::BSM, "A0MIX" /* TODO or not TODO was AMIX before */, {0+1, 0+1}},
-            {ParameterType::BSM, "A0MIX" /* TODO or not TODO was AMIX before */, {0+1, 1+1}},
-            {ParameterType::BSM, "A0MIX" /* TODO or not TODO was AMIX before */, {1+1, 0+1}},
-            {ParameterType::BSM, "A0MIX" /* TODO or not TODO was AMIX before */, {1+1, 1+1}},
+            {ParameterType::BSM, "NMHMIX", {0+1, 0+1}},
+            {ParameterType::BSM, "NMHMIX", {0+1, 1+1}},
+            {ParameterType::BSM, "NMHMIX", {1+1, 0+1}},
+            {ParameterType::BSM, "NMHMIX", {1+1, 1+1}},
+            {ParameterType::BSM, "NMHMIX", {2+1, 0+1}},
+            {ParameterType::BSM, "NMHMIX", {2+1, 1+1}},
+            {ParameterType::BSM, "NMHMIX", {3+1, 0+1}},
+            {ParameterType::BSM, "NMAMIX" , {0+1, 0+1}},
+            {ParameterType::BSM, "NMAMIX" , {0+1, 1+1}},
+            {ParameterType::BSM, "NMAMIX" , {1+1, 0+1}},
+            {ParameterType::BSM, "NMAMIX" , {1+1, 1+1}},
         
             // Additional WPARAM_SI_BSM entries for calculateContribution
             {ParameterType::WILSON, "WPARAM_SI_BSM", {13,0}},
@@ -828,7 +855,7 @@ C8_susy::C8_susy() : WilsonCoefficient("C8_SUSY", GroupMapper::str(WGroup::B) + 
             {ParameterType::SM, "MASS", 24},                 // mW
             {ParameterType::BSM, "MASS", 37},                // mH
             {ParameterType::BSM, "HMIX", 2},                 // tanb
-            {ParameterType::BSM, "ALPHA", 0},                // alpha
+            {ParameterType::BSM, "ALPHA", {}},                // alpha
             {ParameterType::BSM, "MASS", 35},                // mH0
             {ParameterType::BSM, "MASS", 25},                // mh
             {ParameterType::BSM, "MASS", 36},                // mA0
@@ -945,7 +972,7 @@ scalar_t C8_susy::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<P
     double mW      = src.at({ParameterType::SM, "MASS", 24})->get_val();
     double mH      = src.at({ParameterType::BSM, "MASS", 37})->get_val();
     double tanb    = src.at({ParameterType::BSM, "HMIX", 2})->get_val();
-    double alpha   = src.at({ParameterType::BSM, "ALPHA", 0})->get_val();
+    double alpha   = src.at({ParameterType::BSM, "ALPHA", {}})->get_val();
     double mH0     = src.at({ParameterType::BSM, "MASS", 35})->get_val();
     double mh      = src.at({ParameterType::BSM, "MASS", 25})->get_val();
     double mA0     = src.at({ParameterType::BSM, "MASS", 36})->get_val();
@@ -975,16 +1002,16 @@ scalar_t C8_susy::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<P
     } else {
         C8Heps2_0 = -eps2 * eps1p * pow(tanb, 2.) / ((1. + epsb * tanb) * (1. + eps0 * tanb)) * F8_2(yt);
         C8Heps2_0 += -3. * eps2 / pow(1. + epsb * tanb, 2.) * (1. + pow(tanb, 2.)) / (1. + eps0 * tanb) / 72. *
-            ((src.at({ParameterType::BSM, "H0MIX", /* was HMIX before */{0+1, 0+1}})->get_val() + src.at({ParameterType::BSM, "H0MIX", /* was HMIX before */{0+1, 1+1}})->get_val() * tanb) *
-             (-src.at({ParameterType::BSM, "H0MIX", /* was HMIX before */{0+1, 1+1}})->get_val() + epsb * src.at({ParameterType::BSM, "H0MIX", /* was HMIX before */{0+1, 0+1}})->get_val()) * pow(mb_muW / mh, 2.) +
-             (src.at({ParameterType::BSM, "H0MIX", /* was HMIX before */{1+1, 0+1}})->get_val() + src.at({ParameterType::BSM, "H0MIX", /* was HMIX before */{1+1, 1+1}})->get_val() * tanb) *
-             (-src.at({ParameterType::BSM, "H0MIX", /* was HMIX before */{1+1, 1+1}})->get_val() + epsb * src.at({ParameterType::BSM, "H0MIX", /* was HMIX before */{1+1, 0+1}})->get_val()) * pow(mb_muW / mH0, 2.) +
-             (src.at({ParameterType::BSM, "H0MIX", /* was HMIX before */{3+1, 1+1}})->get_val() + src.at({ParameterType::BSM, "H0MIX", /* was HMIX before */{2+1, 1+1}})->get_val() * tanb) *
-             (-src.at({ParameterType::BSM, "H0MIX", /* was HMIX before */{2+1, 1+1}})->get_val() + epsb * src.at({ParameterType::BSM, "H0MIX", /* was HMIX before */{2+1, 0+1}})->get_val()) * pow(mb_muW / H03, 2.) +
-             (src.at({ParameterType::BSM, "A0MIX" /* TODO or not TODO was AMIX before */, {0+1, 0+1}})->get_val() + src.at({ParameterType::BSM, "A0MIX" /* TODO or not TODO was AMIX before */, {0+1, 1+1}})->get_val() * tanb) *
-             (-src.at({ParameterType::BSM, "A0MIX" /* TODO or not TODO was AMIX before */, {0+1, 1+1}})->get_val() + epsb * src.at({ParameterType::BSM, "A0MIX" /* TODO or not TODO was AMIX before */, {0+1, 0+1}})->get_val()) * pow(mb_muW / mA0, 2.) +
-             (src.at({ParameterType::BSM, "A0MIX" /* TODO or not TODO was AMIX before */, {1+1, 0+1}})->get_val() + src.at({ParameterType::BSM, "A0MIX" /* TODO or not TODO was AMIX before */, {1+1, 1+1}})->get_val() * tanb) *
-             (-src.at({ParameterType::BSM, "A0MIX" /* TODO or not TODO was AMIX before */, {1+1, 1+1}})->get_val() + epsb * src.at({ParameterType::BSM, "A0MIX" /* TODO or not TODO was AMIX before */, {1+1, 0+1}})->get_val()) * pow(mb_muW / A02, 2.));
+            ((src.at({ParameterType::BSM, "NMHMIX", {0+1, 0+1}})->get_val() + src.at({ParameterType::BSM, "NMHMIX", {0+1, 1+1}})->get_val() * tanb) *
+             (-src.at({ParameterType::BSM, "NMHMIX", {0+1, 1+1}})->get_val() + epsb * src.at({ParameterType::BSM, "NMHMIX", {0+1, 0+1}})->get_val()) * pow(mb_muW / mh, 2.) +
+             (src.at({ParameterType::BSM, "NMHMIX", {1+1, 0+1}})->get_val() + src.at({ParameterType::BSM, "NMHMIX", {1+1, 1+1}})->get_val() * tanb) *
+             (-src.at({ParameterType::BSM, "NMHMIX", {1+1, 1+1}})->get_val() + epsb * src.at({ParameterType::BSM, "NMHMIX", {1+1, 0+1}})->get_val()) * pow(mb_muW / mH0, 2.) +
+             (src.at({ParameterType::BSM, "NMHMIX", {3+1, 1+1}})->get_val() + src.at({ParameterType::BSM, "NMHMIX", {2+1, 1+1}})->get_val() * tanb) *
+             (-src.at({ParameterType::BSM, "NMHMIX", {2+1, 1+1}})->get_val() + epsb * src.at({ParameterType::BSM, "NMHMIX", {2+1, 0+1}})->get_val()) * pow(mb_muW / H03, 2.) +
+             (src.at({ParameterType::BSM, "NMAMIX" , {0+1, 0+1}})->get_val() + src.at({ParameterType::BSM, "NMAMIX" , {0+1, 1+1}})->get_val() * tanb) *
+             (-src.at({ParameterType::BSM, "NMAMIX" , {0+1, 1+1}})->get_val() + epsb * src.at({ParameterType::BSM, "NMAMIX" , {0+1, 0+1}})->get_val()) * pow(mb_muW / mA0, 2.) +
+             (src.at({ParameterType::BSM, "NMAMIX" , {1+1, 0+1}})->get_val() + src.at({ParameterType::BSM, "NMAMIX" , {1+1, 1+1}})->get_val() * tanb) *
+             (-src.at({ParameterType::BSM, "NMAMIX" , {1+1, 1+1}})->get_val() + epsb * src.at({ParameterType::BSM, "NMAMIX" , {1+1, 0+1}})->get_val()) * pow(mb_muW / A02, 2.));
     }
 
     auto calculateContribution = [src, mW, tanb, epsb](auto hFunc, int X, int X2, int ie, int ae, bool isChargeps) -> double {
@@ -2777,9 +2804,9 @@ scalar_t CQ1_susy::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<
             for(int le=0;le<2;le++) {
                 for(int ae=0;ae<3;ae++) {
                     if (ae <3 ){
-                        Ralj[ae][le][je]=-g2/sqrt(2.)*(src.at({ParameterType::BSM, "A0MIX", ae*10+1})->get_val()*src.at({ParameterType::BSM, "UMIX", 20+le})->get_val()*src.at({ParameterType::BSM, "VMIX", 20+je})->get_val()+src.at({ParameterType::BSM, "A0MIX", ae*10+2})->get_val()*src.at({ParameterType::BSM, "UMIX", 10+le})->get_val()*src.at({ParameterType::BSM, "VMIX", 20+je})->get_val())-lambdaNMSSM/sqrt(2.)*src.at({ParameterType::BSM, "A0MIX", ae*10+3})->get_val()*src.at({ParameterType::BSM, "UMIX", 20+le})->get_val()*src.at({ParameterType::BSM, "VMIX", 20+je})->get_val();
+                        Ralj[ae][le][je]=-g2/sqrt(2.)*(src.at({ParameterType::BSM, "NMAMIX", ae*10+1})->get_val()*src.at({ParameterType::BSM, "UMIX", 20+le})->get_val()*src.at({ParameterType::BSM, "VMIX", 20+je})->get_val()+src.at({ParameterType::BSM, "NMAMIX", ae*10+2})->get_val()*src.at({ParameterType::BSM, "UMIX", 10+le})->get_val()*src.at({ParameterType::BSM, "VMIX", 20+je})->get_val())-lambdaNMSSM/sqrt(2.)*src.at({ParameterType::BSM, "NMAMIX", ae*10+3})->get_val()*src.at({ParameterType::BSM, "UMIX", 20+le})->get_val()*src.at({ParameterType::BSM, "VMIX", 20+je})->get_val();
                     }
-                    Qalj[ae][le][je]=g2/sqrt(2.)*(src.at({ParameterType::BSM, "H0MIX", ae*10+1})->get_val()*src.at({ParameterType::BSM, "UMIX", 20+le})->get_val()*src.at({ParameterType::BSM, "VMIX", 20+je})->get_val()+src.at({ParameterType::BSM, "H0MIX", ae*10+2})->get_val()*src.at({ParameterType::BSM, "UMIX", 10+le})->get_val()*src.at({ParameterType::BSM, "VMIX", 20+je})->get_val())-lambdaNMSSM/sqrt(2.)*src.at({ParameterType::BSM, "H0MIX", ae*10+3})->get_val()*src.at({ParameterType::BSM, "UMIX", 20+le})->get_val()*src.at({ParameterType::BSM, "VMIX", 20+je})->get_val();
+                    Qalj[ae][le][je]=g2/sqrt(2.)*(src.at({ParameterType::BSM, "NMHMIX", ae*10+1})->get_val()*src.at({ParameterType::BSM, "UMIX", 20+le})->get_val()*src.at({ParameterType::BSM, "VMIX", 20+je})->get_val()+src.at({ParameterType::BSM, "NMHMIX", ae*10+2})->get_val()*src.at({ParameterType::BSM, "UMIX", 10+le})->get_val()*src.at({ParameterType::BSM, "VMIX", 20+je})->get_val())-lambdaNMSSM/sqrt(2.)*src.at({ParameterType::BSM, "NMHMIX", ae*10+3})->get_val()*src.at({ParameterType::BSM, "UMIX", 20+le})->get_val()*src.at({ParameterType::BSM, "VMIX", 20+je})->get_val();
                     for(int ke=1;ke<=3;ke++) {
                         G1[ae][ke][je][le]=(TU[ae][2]*TU[ke][2]-kron(ae,1)*kron(ke,1))*src.at({ParameterType::BSM, "VMIX", 10+le})->get_val()*src.at({ParameterType::BSM, "UMIX", 20+je})->get_val()-mass_top_muW/sqrt(2.)/sin(atan(tanb))/mW*TU[ae][3]*TU[ke][2]*src.at({ParameterType::BSM, "VMIX", 20+le})->get_val()*src.at({ParameterType::BSM, "UMIX", 20+je})->get_val();
                     }
@@ -2787,7 +2814,7 @@ scalar_t CQ1_susy::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<
             }
             for(int ie=0;ie<3;ie++) {
                 for(int ke=0;ke<3;ke++) {
-                    T1[je][ie][ke]=(TU[ie][3]*TU[ke][2]-TU[ie][2]*TU[ke][3])*((lambdaNMSSM/sqrt(2.)*(vd*src.at({ParameterType::BSM, "A0MIX", je*10+3})->get_val()+s*src.at({ParameterType::BSM, "A0MIX", je*10+1})->get_val()))-src.at({ParameterType::BSM, "AU", 11})->get_val()*src.at({ParameterType::BSM, "A0MIX", je*10+2})->get_val());
+                    T1[je][ie][ke]=(TU[ie][3]*TU[ke][2]-TU[ie][2]*TU[ke][3])*((lambdaNMSSM/sqrt(2.)*(vd*src.at({ParameterType::BSM, "NMAMIX", je*10+3})->get_val()+s*src.at({ParameterType::BSM, "NMAMIX", je*10+1})->get_val()))-src.at({ParameterType::BSM, "AU", 11})->get_val()*src.at({ParameterType::BSM, "NMAMIX", je*10+2})->get_val());
                 }
             }
         }
@@ -2801,17 +2828,17 @@ scalar_t CQ1_susy::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<
         for(int ae=0;ae<3;ae++) {
             for(int ie=0;ie<3;ie++) {
                 for(int ke=0;ke<3;ke++){
-                    T2[ae][ie][ke]=-mass_top_muW/2./mW*(2.*mass_top_muW*src.at({ParameterType::BSM, "H0MIX", ae*10+2})->get_val()*(TU[ie][2]*TU[ke][2]+TU[ie][3]*TU[ke][3])	+((lambdaNMSSM/sqrt(2.)*(vd*src.at({ParameterType::BSM, "H0MIX", ae*10+3})->get_val()+s*src.at({ParameterType::BSM, "H0MIX", ae*10+1})->get_val()))+src.at({ParameterType::BSM, "AU", 11})->get_val()*src.at({ParameterType::BSM, "H0MIX", ae*10+2})->get_val())*(TU[ie][3]*TU[ke][2]+TU[ie][2]*TU[ke][3]))	+src.at({ParameterType::SM, "MASS",  23})->get_val()/2./sqrt(1.-sw2)*(1.-4./3.*sw2)*src.at({ParameterType::BSM, "H0MIX", ae*10+2})->get_val()*(TU[ie][1]*TU[ke][1]+TU[ie][2]*TU[ke][2])+2./3.*mW*sw2/(1.-sw2)*src.at({ParameterType::BSM, "H0MIX", ae*10+2})->get_val()*TU[ie][3]*TU[ke][3];
+                    T2[ae][ie][ke]=-mass_top_muW/2./mW*(2.*mass_top_muW*src.at({ParameterType::BSM, "NMHMIX", ae*10+2})->get_val()*(TU[ie][2]*TU[ke][2]+TU[ie][3]*TU[ke][3])	+((lambdaNMSSM/sqrt(2.)*(vd*src.at({ParameterType::BSM, "NMHMIX", ae*10+3})->get_val()+s*src.at({ParameterType::BSM, "NMHMIX", ae*10+1})->get_val()))+src.at({ParameterType::BSM, "AU", 11})->get_val()*src.at({ParameterType::BSM, "NMHMIX", ae*10+2})->get_val())*(TU[ie][3]*TU[ke][2]+TU[ie][2]*TU[ke][3]))	+src.at({ParameterType::SM, "MASS",  23})->get_val()/2./sqrt(1.-sw2)*(1.-4./3.*sw2)*src.at({ParameterType::BSM, "NMHMIX", ae*10+2})->get_val()*(TU[ie][1]*TU[ke][1]+TU[ie][2]*TU[ke][2])+2./3.*mW*sw2/(1.-sw2)*src.at({ParameterType::BSM, "NMHMIX", ae*10+2})->get_val()*TU[ie][3]*TU[ke][3];
 
                     for(int je=0;je<2;je++) {
                         for(int le=0;le<2;le++) {
-                            CQ1c+=G1[ie][ke][je][le]/mH0[ae]/mH0[ae]*( sqrt(2.)*src.at({ParameterType::BSM, "H0MIX", ae*10+1})->get_val()*src.at({ParameterType::BSM, "H0MIX", ae*10+1})->get_val()*src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, je}})->get_val()/mW/cos(atan(tanb))*kron(ie,ke)*kron(le,je)*f80(pow(mstop[ie-1]/src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, je}})->get_val(),2.))
-                            -2.*sqrt(2.)*src.at({ParameterType::BSM, "H0MIX", ae*10+1})->get_val()/g2*kron(ie,ke)*(Qalj[ae][le][je]*f40(pow(mstop[ie-1]/src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, le}})->get_val(),2.),pow(src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, je}})->get_val()/src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, le}})->get_val(),2.))+src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, je}})->get_val()/src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, le}})->get_val()*Qalj[ae][je][le]*f30(pow(mstop[ie-1]/src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, le}})->get_val(),2.),pow(src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, je}})->get_val()/src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, le}})->get_val(),2.)))		+2.*sqrt(2.)*src.at({ParameterType::BSM, "H0MIX", ae*10+1})->get_val()*T2[ae][ie][ke]*src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, je}})->get_val()/mstop[ke-1]/mstop[ke-1]*kron(le,je)*f30(pow(mstop[ie-1]/mstop[ke-1],2.),pow(src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, je}})->get_val()/mstop[ke-1],2.))
+                            CQ1c+=G1[ie][ke][je][le]/mH0[ae]/mH0[ae]*( sqrt(2.)*src.at({ParameterType::BSM, "NMHMIX", ae*10+1})->get_val()*src.at({ParameterType::BSM, "NMHMIX", ae*10+1})->get_val()*src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, je}})->get_val()/mW/cos(atan(tanb))*kron(ie,ke)*kron(le,je)*f80(pow(mstop[ie-1]/src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, je}})->get_val(),2.))
+                            -2.*sqrt(2.)*src.at({ParameterType::BSM, "NMHMIX", ae*10+1})->get_val()/g2*kron(ie,ke)*(Qalj[ae][le][je]*f40(pow(mstop[ie-1]/src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, le}})->get_val(),2.),pow(src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, je}})->get_val()/src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, le}})->get_val(),2.))+src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, je}})->get_val()/src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, le}})->get_val()*Qalj[ae][je][le]*f30(pow(mstop[ie-1]/src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, le}})->get_val(),2.),pow(src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, je}})->get_val()/src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, le}})->get_val(),2.)))		+2.*sqrt(2.)*src.at({ParameterType::BSM, "NMHMIX", ae*10+1})->get_val()*T2[ae][ie][ke]*src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, je}})->get_val()/mstop[ke-1]/mstop[ke-1]*kron(le,je)*f30(pow(mstop[ie-1]/mstop[ke-1],2.),pow(src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, je}})->get_val()/mstop[ke-1],2.))
                             +mH0[ae]*mH0[ae]/src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, je}})->get_val()/src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, je}})->get_val()*kron(ie,ke)*(src.at({ParameterType::BSM, "UMIX", 20+je})->get_val()*src.at({ParameterType::BSM, "VMIX", 10+le})->get_val()*f50(pow(mstop[ie-1]/src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, je}})->get_val(),2.),pow(src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, le}})->get_val()/src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, je}})->get_val(),2.),pow(mass_nutl/src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, le}})->get_val(),2.))
                             -src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, le}})->get_val()/src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, je}})->get_val()*src.at({ParameterType::BSM, "UMIX", 20+le})->get_val()*src.at({ParameterType::BSM, "VMIX", 10+je})->get_val()* f60(pow(mstop[ie-1]/src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, je}})->get_val(),2.),pow(src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, le}})->get_val()/src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, je}})->get_val(),2.),pow(mass_nutl/src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, le}})->get_val(),2.))));
 
-                            CQ2c+=G1[ie][ke][je][le]/mA0[ae]/mA0[ae]*(sqrt(2.)*src.at({ParameterType::BSM, "A0MIX", ae*10+1})->get_val()*src.at({ParameterType::BSM, "A0MIX", ae*10+1})->get_val()*src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, je}})->get_val()/mW/cos(atan(tanb))*kron(ie,ke)*kron(le,je)*f80(pow(mstop[ie-1]/src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, je}})->get_val(),2.))
-                            -2.*sqrt(2.)*src.at({ParameterType::BSM, "A0MIX", ae*10+1})->get_val()/g2*kron(ie,ke)*(-Ralj[ae][le][je]*f40(pow(mstop[ie-1]/src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, le}})->get_val(),2.),pow(src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, je}})->get_val()/src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, le}})->get_val(),2.))+src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, je}})->get_val()/src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, le}})->get_val()*Ralj[ae][je][le]*f30(pow(mstop[ie-1]/src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, le}})->get_val(),2.),pow(src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, je}})->get_val()/src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, le}})->get_val(),2.)))			-sqrt(2.)*src.at({ParameterType::BSM, "A0MIX", ae*10+1})->get_val()*T1[ae][ie][ke]*mass_top_muW*src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, je}})->get_val()/mstop[ke-1]/mstop[ke-1]*kron(le,je)*f30(pow(mstop[ie-1]/mstop[ke-1],2.),pow(src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, je}})->get_val()/mstop[ke-1],2.))
+                            CQ2c+=G1[ie][ke][je][le]/mA0[ae]/mA0[ae]*(sqrt(2.)*src.at({ParameterType::BSM, "NMAMIX", ae*10+1})->get_val()*src.at({ParameterType::BSM, "NMAMIX", ae*10+1})->get_val()*src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, je}})->get_val()/mW/cos(atan(tanb))*kron(ie,ke)*kron(le,je)*f80(pow(mstop[ie-1]/src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, je}})->get_val(),2.))
+                            -2.*sqrt(2.)*src.at({ParameterType::BSM, "NMAMIX", ae*10+1})->get_val()/g2*kron(ie,ke)*(-Ralj[ae][le][je]*f40(pow(mstop[ie-1]/src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, le}})->get_val(),2.),pow(src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, je}})->get_val()/src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, le}})->get_val(),2.))+src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, je}})->get_val()/src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, le}})->get_val()*Ralj[ae][je][le]*f30(pow(mstop[ie-1]/src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, le}})->get_val(),2.),pow(src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, je}})->get_val()/src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, le}})->get_val(),2.)))			-sqrt(2.)*src.at({ParameterType::BSM, "NMAMIX", ae*10+1})->get_val()*T1[ae][ie][ke]*mass_top_muW*src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, je}})->get_val()/mstop[ke-1]/mstop[ke-1]*kron(le,je)*f30(pow(mstop[ie-1]/mstop[ke-1],2.),pow(src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, je}})->get_val()/mstop[ke-1],2.))
                             +mA0[ae]*mA0[ae]/src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, je}})->get_val()/src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, je}})->get_val()*kron(ie,ke)*(src.at({ParameterType::BSM, "UMIX", 20+je})->get_val()*src.at({ParameterType::BSM, "VMIX", 10+le})->get_val()*f50(pow(mstop[ie-1]/src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, je}})->get_val(),2.),pow(src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, le}})->get_val()/src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, je}})->get_val(),2.),pow(mass_nutl/src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, le}})->get_val(),2.))
                             -src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, le}})->get_val()/src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, je}})->get_val()*src.at({ParameterType::BSM, "UMIX", 20+le})->get_val()*src.at({ParameterType::BSM, "VMIX", 10+je})->get_val()*f60(pow(mstop[ie-1]/src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, je}})->get_val(),2.),pow(src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, le}})->get_val()/src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, je}})->get_val(),2.),pow(mass_nutl/src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, le}})->get_val(),2.))));
                         }		
@@ -2819,9 +2846,9 @@ scalar_t CQ1_susy::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<
 
                 }
             }
-            CQ1H+=(mH*mH/mW/mW*src.at({ParameterType::BSM, "H0MIX", ae*10+1})->get_val()*src.at({ParameterType::BSM, "H0MIX", ae*10+1})->get_val()*f30(mH*mH/mass_top_muW/mass_top_muW,mW*mW/mass_top_muW/mass_top_muW)	+mass_top_muW*mass_top_muW*mH0[ae]*mH0[ae]/mW/mW/mH/mH*f30(mass_top_muW*mass_top_muW/mH/mH,mass_top_muW*mass_top_muW/mW/mW))/mH0[ae]/mH0[ae];
+            CQ1H+=(mH*mH/mW/mW*src.at({ParameterType::BSM, "NMHMIX", ae*10+1})->get_val()*src.at({ParameterType::BSM, "NMHMIX", ae*10+1})->get_val()*f30(mH*mH/mass_top_muW/mass_top_muW,mW*mW/mass_top_muW/mass_top_muW)	+mass_top_muW*mass_top_muW*mH0[ae]*mH0[ae]/mW/mW/mH/mH*f30(mass_top_muW*mass_top_muW/mH/mH,mass_top_muW*mass_top_muW/mW/mW))/mH0[ae]/mH0[ae];
             if (ae < 3) {
-                CQ2H+=((mH*mH/mW/mW*src.at({ParameterType::BSM, "A0MIX", ae*10+1})->get_val()*src.at({ParameterType::BSM, "A0MIX", ae*10+1})->get_val()+kron(ae,2)*src.at({ParameterType::BSM, "A0MIX", ae*10+1})->get_val())*f30(mH*mH/mass_top_muW/mass_top_muW,mW*mW/mass_top_muW/mass_top_muW)	+mass_top_muW*mass_top_muW*mA0[ae]*mA0[ae]/mW/mW/mH/mH*f30(mass_top_muW*mass_top_muW/mH/mH,mass_top_muW*mass_top_muW/mW/mW))/mA0[ae]/mA0[ae];
+                CQ2H+=((mH*mH/mW/mW*src.at({ParameterType::BSM, "NMAMIX", ae*10+1})->get_val()*src.at({ParameterType::BSM, "NMAMIX", ae*10+1})->get_val()+kron(ae,2)*src.at({ParameterType::BSM, "NMAMIX", ae*10+1})->get_val())*f30(mH*mH/mass_top_muW/mass_top_muW,mW*mW/mass_top_muW/mass_top_muW)	+mass_top_muW*mass_top_muW*mA0[ae]*mA0[ae]/mW/mW/mH/mH*f30(mass_top_muW*mass_top_muW/mH/mH,mass_top_muW*mass_top_muW/mW/mW))/mA0[ae]/mA0[ae];
             }
             for(int je=0;je<2;je++) {
                 for(int le=0;le<2;le++) {
@@ -3344,9 +3371,9 @@ scalar_t CQ2_susy::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<
             for(int le=0;le<2;le++) {
                 for(int ae=0;ae<3;ae++) {
                     if (ae <3 ){
-                        Ralj[ae][le][je]=-g2/sqrt(2.)*(src.at({ParameterType::BSM, "A0MIX",  ae*10+1})->get_val()*src.at({ParameterType::BSM, "UMIX",20+le})->get_val()*src.at({ParameterType::BSM, "VMIX",20+je})->get_val()+src.at({ParameterType::BSM, "A0MIX", ae*10+2})->get_val()*src.at({ParameterType::BSM, "UMIX", 10+le})->get_val()*src.at({ParameterType::BSM, "VMIX",20+je})->get_val())-lambdaNMSSM/sqrt(2.)*src.at({ParameterType::BSM, "A0MIX", ae*10+3})->get_val()*src.at({ParameterType::BSM, "UMIX",20+le})->get_val()*src.at({ParameterType::BSM, "VMIX",20+je})->get_val();
+                        Ralj[ae][le][je]=-g2/sqrt(2.)*(src.at({ParameterType::BSM, "NMAMIX",  ae*10+1})->get_val()*src.at({ParameterType::BSM, "UMIX",20+le})->get_val()*src.at({ParameterType::BSM, "VMIX",20+je})->get_val()+src.at({ParameterType::BSM, "NMAMIX", ae*10+2})->get_val()*src.at({ParameterType::BSM, "UMIX", 10+le})->get_val()*src.at({ParameterType::BSM, "VMIX",20+je})->get_val())-lambdaNMSSM/sqrt(2.)*src.at({ParameterType::BSM, "NMAMIX", ae*10+3})->get_val()*src.at({ParameterType::BSM, "UMIX",20+le})->get_val()*src.at({ParameterType::BSM, "VMIX",20+je})->get_val();
                     }
-                    Qalj[ae][le][je]=g2/sqrt(2.)*(src.at({ParameterType::BSM, "H0MIX",  ae*10+1})->get_val()*src.at({ParameterType::BSM, "UMIX",20+le})->get_val()*src.at({ParameterType::BSM, "VMIX",20+je})->get_val()+src.at({ParameterType::BSM, "H0MIX",  ae*10+2})->get_val()*src.at({ParameterType::BSM, "UMIX", 10+le})->get_val()*src.at({ParameterType::BSM, "VMIX",20+je})->get_val())-lambdaNMSSM/sqrt(2.)*src.at({ParameterType::BSM, "H0MIX", ae*10+3})->get_val()*src.at({ParameterType::BSM, "UMIX",20+le})->get_val()*src.at({ParameterType::BSM, "VMIX",20+je})->get_val();
+                    Qalj[ae][le][je]=g2/sqrt(2.)*(src.at({ParameterType::BSM, "NMHMIX",  ae*10+1})->get_val()*src.at({ParameterType::BSM, "UMIX",20+le})->get_val()*src.at({ParameterType::BSM, "VMIX",20+je})->get_val()+src.at({ParameterType::BSM, "NMHMIX",  ae*10+2})->get_val()*src.at({ParameterType::BSM, "UMIX", 10+le})->get_val()*src.at({ParameterType::BSM, "VMIX",20+je})->get_val())-lambdaNMSSM/sqrt(2.)*src.at({ParameterType::BSM, "NMHMIX", ae*10+3})->get_val()*src.at({ParameterType::BSM, "UMIX",20+le})->get_val()*src.at({ParameterType::BSM, "VMIX",20+je})->get_val();
                     for(int ke=1;ke<=3;ke++) {
                         G1[ae][ke][je][le]=(TU[ae][2]*TU[ke][2]-kron(ae,1)*kron(ke,1))*src.at({ParameterType::BSM, "VMIX",10+le})->get_val()*src.at({ParameterType::BSM, "UMIX",20+je})->get_val()-mass_top_muW/sqrt(2.)/sin(atan(tanb))/mW*TU[ae][3]*TU[ke][2]*src.at({ParameterType::BSM, "VMIX",20+le})->get_val()*src.at({ParameterType::BSM, "UMIX",20+je})->get_val();
                     }
@@ -3354,7 +3381,7 @@ scalar_t CQ2_susy::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<
             }
             for(int ie=0;ie<3;ie++) {
                 for(int ke=0;ke<3;ke++) {
-                    T1[je][ie][ke]=(TU[ie][3]*TU[ke][2]-TU[ie][2]*TU[ke][3])*((lambdaNMSSM/sqrt(2.)*(vd*src.at({ParameterType::BSM, "A0MIX", je*10+3})->get_val()+s*src.at({ParameterType::BSM, "A0MIX", je*10+1})->get_val()))-src.at({ParameterType::BSM, "AU",  11})->get_val()*src.at({ParameterType::BSM, "A0MIX", je*10+2})->get_val());
+                    T1[je][ie][ke]=(TU[ie][3]*TU[ke][2]-TU[ie][2]*TU[ke][3])*((lambdaNMSSM/sqrt(2.)*(vd*src.at({ParameterType::BSM, "NMAMIX", je*10+3})->get_val()+s*src.at({ParameterType::BSM, "NMAMIX", je*10+1})->get_val()))-src.at({ParameterType::BSM, "AU",  11})->get_val()*src.at({ParameterType::BSM, "NMAMIX", je*10+2})->get_val());
                 }
             }
         }
@@ -3368,17 +3395,17 @@ scalar_t CQ2_susy::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<
         for(int ae=0;ae<3;ae++) {
             for(int ie=0;ie<3;ie++) {
                 for(int ke=0;ke<3;ke++){
-                    T2[ae][ie][ke]=-mass_top_muW/2./mW*(2.*mass_top_muW*src.at({ParameterType::BSM, "H0MIX",  ae*10+2})->get_val()*(TU[ie][2]*TU[ke][2]+TU[ie][3]*TU[ke][3])	+((lambdaNMSSM/sqrt(2.)*(vd*src.at({ParameterType::BSM, "H0MIX", ae*10+3})->get_val()+s*src.at({ParameterType::BSM, "H0MIX",  ae*10+1})->get_val()))+src.at({ParameterType::BSM, "AU",  11})->get_val()*src.at({ParameterType::BSM, "H0MIX",  ae*10+2})->get_val())*(TU[ie][3]*TU[ke][2]+TU[ie][2]*TU[ke][3]))	+src.at({ParameterType::SM, "MASS",  23})->get_val()/2./sqrt(1.-sw2)*(1.-4./3.*sw2)*src.at({ParameterType::BSM, "H0MIX",  ae*10+2})->get_val()*(TU[ie][1]*TU[ke][1]+TU[ie][2]*TU[ke][2])+2./3.*mW*sw2/(1.-sw2)*src.at({ParameterType::BSM, "H0MIX",  ae*10+2})->get_val()*TU[ie][3]*TU[ke][3];
+                    T2[ae][ie][ke]=-mass_top_muW/2./mW*(2.*mass_top_muW*src.at({ParameterType::BSM, "NMHMIX",  ae*10+2})->get_val()*(TU[ie][2]*TU[ke][2]+TU[ie][3]*TU[ke][3])	+((lambdaNMSSM/sqrt(2.)*(vd*src.at({ParameterType::BSM, "NMHMIX", ae*10+3})->get_val()+s*src.at({ParameterType::BSM, "NMHMIX",  ae*10+1})->get_val()))+src.at({ParameterType::BSM, "AU",  11})->get_val()*src.at({ParameterType::BSM, "NMHMIX",  ae*10+2})->get_val())*(TU[ie][3]*TU[ke][2]+TU[ie][2]*TU[ke][3]))	+src.at({ParameterType::SM, "MASS",  23})->get_val()/2./sqrt(1.-sw2)*(1.-4./3.*sw2)*src.at({ParameterType::BSM, "NMHMIX",  ae*10+2})->get_val()*(TU[ie][1]*TU[ke][1]+TU[ie][2]*TU[ke][2])+2./3.*mW*sw2/(1.-sw2)*src.at({ParameterType::BSM, "NMHMIX",  ae*10+2})->get_val()*TU[ie][3]*TU[ke][3];
 
                     for(int je=0;je<2;je++) {
                         for(int le=0;le<2;le++) {
-                            CQ1c+=G1[ie][ke][je][le]/mH0[ae]/mH0[ae]*( sqrt(2.)*src.at({ParameterType::BSM, "H0MIX",  ae*10+1})->get_val()*src.at({ParameterType::BSM, "H0MIX",  ae*10+1})->get_val()*src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, je}})->get_val()/mW/cos(atan(tanb))*kron(ie,ke)*kron(le,je)*f80(pow(mstop[ie-1]/src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, je}})->get_val(),2.))
-                            -2.*sqrt(2.)*src.at({ParameterType::BSM, "H0MIX",  ae*10+1})->get_val()/g2*kron(ie,ke)*(Qalj[ae][le][je]*f40(pow(mstop[ie-1]/src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, le}})->get_val(),2.),pow(src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, je}})->get_val()/src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, le}})->get_val(),2.))+src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, je}})->get_val()/src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, le}})->get_val()*Qalj[ae][je][le]*f30(pow(mstop[ie-1]/src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, le}})->get_val(),2.),pow(src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, je}})->get_val()/src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, le}})->get_val(),2.)))		+2.*sqrt(2.)*src.at({ParameterType::BSM, "H0MIX",  ae*10+1})->get_val()*T2[ae][ie][ke]*src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, je}})->get_val()/mstop[ke-1]/mstop[ke-1]*kron(le,je)*f30(pow(mstop[ie-1]/mstop[ke-1],2.),pow(src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, je}})->get_val()/mstop[ke-1],2.))
+                            CQ1c+=G1[ie][ke][je][le]/mH0[ae]/mH0[ae]*( sqrt(2.)*src.at({ParameterType::BSM, "NMHMIX",  ae*10+1})->get_val()*src.at({ParameterType::BSM, "NMHMIX",  ae*10+1})->get_val()*src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, je}})->get_val()/mW/cos(atan(tanb))*kron(ie,ke)*kron(le,je)*f80(pow(mstop[ie-1]/src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, je}})->get_val(),2.))
+                            -2.*sqrt(2.)*src.at({ParameterType::BSM, "NMHMIX",  ae*10+1})->get_val()/g2*kron(ie,ke)*(Qalj[ae][le][je]*f40(pow(mstop[ie-1]/src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, le}})->get_val(),2.),pow(src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, je}})->get_val()/src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, le}})->get_val(),2.))+src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, je}})->get_val()/src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, le}})->get_val()*Qalj[ae][je][le]*f30(pow(mstop[ie-1]/src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, le}})->get_val(),2.),pow(src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, je}})->get_val()/src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, le}})->get_val(),2.)))		+2.*sqrt(2.)*src.at({ParameterType::BSM, "NMHMIX",  ae*10+1})->get_val()*T2[ae][ie][ke]*src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, je}})->get_val()/mstop[ke-1]/mstop[ke-1]*kron(le,je)*f30(pow(mstop[ie-1]/mstop[ke-1],2.),pow(src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, je}})->get_val()/mstop[ke-1],2.))
                             +mH0[ae]*mH0[ae]/src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, je}})->get_val()/src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, je}})->get_val()*kron(ie,ke)*(src.at({ParameterType::BSM, "UMIX",20+je})->get_val()*src.at({ParameterType::BSM, "VMIX",10+le})->get_val()*f50(pow(mstop[ie-1]/src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, je}})->get_val(),2.),pow(src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, le}})->get_val()/src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, je}})->get_val(),2.),pow(mass_nutl/src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, le}})->get_val(),2.))
                             -src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, le}})->get_val()/src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, je}})->get_val()*src.at({ParameterType::BSM, "UMIX",20+le})->get_val()*src.at({ParameterType::BSM, "VMIX",10+je})->get_val()* f60(pow(mstop[ie-1]/src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, je}})->get_val(),2.),pow(src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, le}})->get_val()/src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, je}})->get_val(),2.),pow(mass_nutl/src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, le}})->get_val(),2.))));
 
-                            CQ2c+=G1[ie][ke][je][le]/mA0[ae]/mA0[ae]*(sqrt(2.)*src.at({ParameterType::BSM, "A0MIX",  ae*10+1})->get_val()*src.at({ParameterType::BSM, "A0MIX",  ae*10+1})->get_val()*src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, je}})->get_val()/mW/cos(atan(tanb))*kron(ie,ke)*kron(le,je)*f80(pow(mstop[ie-1]/src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, je}})->get_val(),2.))
-                            -2.*sqrt(2.)*src.at({ParameterType::BSM, "A0MIX",  ae*10+1})->get_val()/g2*kron(ie,ke)*(-Ralj[ae][le][je]*f40(pow(mstop[ie-1]/src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, le}})->get_val(),2.),pow(src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, je}})->get_val()/src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, le}})->get_val(),2.))+src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, je}})->get_val()/src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, le}})->get_val()*Ralj[ae][je][le]*f30(pow(mstop[ie-1]/src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, le}})->get_val(),2.),pow(src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, je}})->get_val()/src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, le}})->get_val(),2.)))			-sqrt(2.)*src.at({ParameterType::BSM, "A0MIX",  ae*10+1})->get_val()*T1[ae][ie][ke]*mass_top_muW*src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, je}})->get_val()/mstop[ke-1]/mstop[ke-1]*kron(le,je)*f30(pow(mstop[ie-1]/mstop[ke-1],2.),pow(src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, je}})->get_val()/mstop[ke-1],2.))
+                            CQ2c+=G1[ie][ke][je][le]/mA0[ae]/mA0[ae]*(sqrt(2.)*src.at({ParameterType::BSM, "NMAMIX",  ae*10+1})->get_val()*src.at({ParameterType::BSM, "NMAMIX",  ae*10+1})->get_val()*src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, je}})->get_val()/mW/cos(atan(tanb))*kron(ie,ke)*kron(le,je)*f80(pow(mstop[ie-1]/src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, je}})->get_val(),2.))
+                            -2.*sqrt(2.)*src.at({ParameterType::BSM, "NMAMIX",  ae*10+1})->get_val()/g2*kron(ie,ke)*(-Ralj[ae][le][je]*f40(pow(mstop[ie-1]/src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, le}})->get_val(),2.),pow(src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, je}})->get_val()/src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, le}})->get_val(),2.))+src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, je}})->get_val()/src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, le}})->get_val()*Ralj[ae][je][le]*f30(pow(mstop[ie-1]/src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, le}})->get_val(),2.),pow(src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, je}})->get_val()/src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, le}})->get_val(),2.)))			-sqrt(2.)*src.at({ParameterType::BSM, "NMAMIX",  ae*10+1})->get_val()*T1[ae][ie][ke]*mass_top_muW*src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, je}})->get_val()/mstop[ke-1]/mstop[ke-1]*kron(le,je)*f30(pow(mstop[ie-1]/mstop[ke-1],2.),pow(src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, je}})->get_val()/mstop[ke-1],2.))
                             +mA0[ae]*mA0[ae]/src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, je}})->get_val()/src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, je}})->get_val()*kron(ie,ke)*(src.at({ParameterType::BSM, "UMIX",20+je})->get_val()*src.at({ParameterType::BSM, "VMIX",10+le})->get_val()*f50(pow(mstop[ie-1]/src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, je}})->get_val(),2.),pow(src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, le}})->get_val()/src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, je}})->get_val(),2.),pow(mass_nutl/src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, le}})->get_val(),2.))
                             -src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, le}})->get_val()/src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, je}})->get_val()*src.at({ParameterType::BSM, "UMIX",20+le})->get_val()*src.at({ParameterType::BSM, "VMIX",10+je})->get_val()*f60(pow(mstop[ie-1]/src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, je}})->get_val(),2.),pow(src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, le}})->get_val()/src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, je}})->get_val(),2.),pow(mass_nutl/src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, le}})->get_val(),2.))));
                         }		
@@ -3386,9 +3413,9 @@ scalar_t CQ2_susy::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<
 
                 }
             }
-            CQ1H+=(mH*mH/mW/mW*src.at({ParameterType::BSM, "H0MIX",  ae*10+1})->get_val()*src.at({ParameterType::BSM, "H0MIX",  ae*10+1})->get_val()*f30(mH*mH/mass_top_muW/mass_top_muW,mW*mW/mass_top_muW/mass_top_muW)	+mass_top_muW*mass_top_muW*mH0[ae]*mH0[ae]/mW/mW/mH/mH*f30(mass_top_muW*mass_top_muW/mH/mH,mass_top_muW*mass_top_muW/mW/mW))/mH0[ae]/mH0[ae];
+            CQ1H+=(mH*mH/mW/mW*src.at({ParameterType::BSM, "NMHMIX",  ae*10+1})->get_val()*src.at({ParameterType::BSM, "NMHMIX",  ae*10+1})->get_val()*f30(mH*mH/mass_top_muW/mass_top_muW,mW*mW/mass_top_muW/mass_top_muW)	+mass_top_muW*mass_top_muW*mH0[ae]*mH0[ae]/mW/mW/mH/mH*f30(mass_top_muW*mass_top_muW/mH/mH,mass_top_muW*mass_top_muW/mW/mW))/mH0[ae]/mH0[ae];
             if (ae < 3) {
-                CQ2H+=((mH*mH/mW/mW*src.at({ParameterType::BSM, "A0MIX",  ae*10+1})->get_val()*src.at({ParameterType::BSM, "A0MIX",  ae*10+1})->get_val()+kron(ae,2)*src.at({ParameterType::BSM, "A0MIX",  ae*10+1})->get_val())*f30(mH*mH/mass_top_muW/mass_top_muW,mW*mW/mass_top_muW/mass_top_muW)	+mass_top_muW*mass_top_muW*mA0[ae]*mA0[ae]/mW/mW/mH/mH*f30(mass_top_muW*mass_top_muW/mH/mH,mass_top_muW*mass_top_muW/mW/mW))/mA0[ae]/mA0[ae];
+                CQ2H+=((mH*mH/mW/mW*src.at({ParameterType::BSM, "NMAMIX",  ae*10+1})->get_val()*src.at({ParameterType::BSM, "NMAMIX",  ae*10+1})->get_val()+kron(ae,2)*src.at({ParameterType::BSM, "NMAMIX",  ae*10+1})->get_val())*f30(mH*mH/mass_top_muW/mass_top_muW,mW*mW/mass_top_muW/mass_top_muW)	+mass_top_muW*mass_top_muW*mA0[ae]*mA0[ae]/mW/mW/mH/mH*f30(mass_top_muW*mass_top_muW/mH/mH,mass_top_muW*mass_top_muW/mW/mW))/mA0[ae]/mA0[ae];
             }
             for(int je=0;je<2;je++) {
                 for(int le=0;le<2;le++) {
@@ -3656,9 +3683,9 @@ void BScalarCoefficientGroup_susy::set_base_1_LO() {
 					for(int le=0;le<2;le++) {
 						for(int ae=0;ae<3;ae++) {
 							if (ae <3 ){
-								Ralj[ae][le][je]=-g2/sqrt(2.)*(src.at("A0MIX")->retrieve(ae*10+1)->get_val()*src.at("UMIX")->retrieve(20+le)->get_val()*src.at("VMIX")->retrieve(20+je)->get_val()+src.at("A0MIX")->retrieve(ae*10+2)->get_val()*src.at("UMIX")->retrieve(10+le)->get_val()*src.at("VMIX")->retrieve(20+je)->get_val())-lambdaNMSSM/sqrt(2.)*src.at("A0MIX")->retrieve(ae*10+3)->get_val()*src.at("UMIX")->retrieve(20+le)->get_val()*src.at("VMIX")->retrieve(20+je)->get_val();
+								Ralj[ae][le][je]=-g2/sqrt(2.)*(src.at("NMAMIX")->retrieve(ae*10+1)->get_val()*src.at("UMIX")->retrieve(20+le)->get_val()*src.at("VMIX")->retrieve(20+je)->get_val()+src.at("NMAMIX")->retrieve(ae*10+2)->get_val()*src.at("UMIX")->retrieve(10+le)->get_val()*src.at("VMIX")->retrieve(20+je)->get_val())-lambdaNMSSM/sqrt(2.)*src.at("NMAMIX")->retrieve(ae*10+3)->get_val()*src.at("UMIX")->retrieve(20+le)->get_val()*src.at("VMIX")->retrieve(20+je)->get_val();
 							}
-							Qalj[ae][le][je]=g2/sqrt(2.)*(src.at("H0MIX")->retrieve(ae*10+1)->get_val()*src.at("UMIX")->retrieve(20+le)->get_val()*src.at("VMIX")->retrieve(20+je)->get_val()+src.at("H0MIX")->retrieve(ae*10+2)->get_val()*src.at("UMIX")->retrieve(10+le)->get_val()*src.at("VMIX")->retrieve(20+je)->get_val())-lambdaNMSSM/sqrt(2.)*src.at("H0MIX")->retrieve(ae*10+3)->get_val()*src.at("UMIX")->retrieve(20+le)->get_val()*src.at("VMIX")->retrieve(20+je)->get_val();
+							Qalj[ae][le][je]=g2/sqrt(2.)*(src.at("NMHMIX")->retrieve(ae*10+1)->get_val()*src.at("UMIX")->retrieve(20+le)->get_val()*src.at("VMIX")->retrieve(20+je)->get_val()+src.at("NMHMIX")->retrieve(ae*10+2)->get_val()*src.at("UMIX")->retrieve(10+le)->get_val()*src.at("VMIX")->retrieve(20+je)->get_val())-lambdaNMSSM/sqrt(2.)*src.at("NMHMIX")->retrieve(ae*10+3)->get_val()*src.at("UMIX")->retrieve(20+le)->get_val()*src.at("VMIX")->retrieve(20+je)->get_val();
 							for(int ke=1;ke<=3;ke++) {
 								G1[ae][ke][je][le]=(TU[ae][2]*TU[ke][2]-kron(ae,1)*kron(ke,1))*src.at("VMIX")->retrieve(10+le)->get_val()*src.at("UMIX")->retrieve(20+je)->get_val()-mass_top_muW/sqrt(2.)/sin(atan(tanb))/mW*TU[ae][3]*TU[ke][2]*src.at("VMIX")->retrieve(20+le)->get_val()*src.at("UMIX")->retrieve(20+je)->get_val();
 							}

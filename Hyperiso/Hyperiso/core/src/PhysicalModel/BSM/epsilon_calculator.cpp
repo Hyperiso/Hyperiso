@@ -172,20 +172,18 @@ void EpsilonCalculator::init() {
 }
 
 void EpsilonCalculator::init_epsilon_block() {
-    std::unordered_map<ParameterType, std::vector<std::string>> src = {{ParameterType::SM, {"MASS"}}, {ParameterType::SM, {"MASS"}}, {ParameterType::SM, {"MASS"}},
-                                                                       {ParameterType::SM, {"ALPHA"}}, {ParameterType::SM, {"HMIX"}},
-                                                                       {ParameterType::SM, {"YU"}}, {ParameterType::SM, {"YD"}}, {ParameterType::SM,  {"YL"}},
-                                                                       {ParameterType::SM, {"MSOFT"}}, {ParameterType::SM, {"GAUGE"}}, {ParameterType::SM,  {"AD"}},
-                                                                       {ParameterType::SM, {"SBOTMIX"}}, {ParameterType::SM, {"STOPMIX"}}, {ParameterType::SM,  {"YL"}},
-                                                                        {ParameterType::WILSON, {"WPARAM_SI_SM"}}};
+    std::unordered_map<ParameterType, std::vector<std::string>> src = {
+        {ParameterType::SM, {"MASS", "SMINPUTS"}}, 
+        {ParameterType::BSM, {"MASS", "GAUGE", "HMIX", "MSOFT", "AD", "AU", "YD", "YU", "SBOTMIX", "STOPMIX", "UMIX", "VMIX", "NMIX", "ALPHA"}},
+        {ParameterType::WILSON, {"WPARAM_SI_SM"}}
+    };
 
     auto func = [] (const std::unordered_map<std::string, std::shared_ptr<Block>>& src, std::shared_ptr<DependentBlock> dep_block) {
 
-        src.at("ALPHA")->retrieve(0)->get_val();
+        src.at("ALPHA")->retrieve({})->get_val();
 
         double g2 = src.at("GAUGE")->retrieve(2)->get_val();
         double alpha_em = src.at("SMINPUTS")->retrieve(1)->get_val();
-
 
         double m_ds = src.at("MASS")->retrieve(1000001)->get_val();
         double m_us = src.at("MASS")->retrieve(1000002)->get_val();
@@ -215,28 +213,29 @@ void EpsilonCalculator::init_epsilon_block() {
 
 
         std::vector<double> m_neutralino = {src.at("MASS")->retrieve(neutralino[0])->get_val(), src.at("MASS")->retrieve(neutralino[1])->get_val(), src.at("MASS")->retrieve(neutralino[2])->get_val(), src.at("MASS")->retrieve(neutralino[3])->get_val()};
-        double ad_22 = src.at("AD")->retrieve(22)->get_val();
-        double au_22 = src.at("AU")->retrieve(22)->get_val();
+        double ad_22 = src.at("AD")->retrieve({3, 3})->get_val();
+        double au_22 = src.at("AU")->retrieve({3, 3})->get_val();
 
-        double yu_22 = src.at("YU")->retrieve(22)->get_val();
-        double yd_22 = src.at("YD")->retrieve(22)->get_val();
+        double yu_22 = src.at("YU")->retrieve({3, 3})->get_val();
+        double yd_22 = src.at("YD")->retrieve({3, 3})->get_val();
 
-        double sbot_mix_00 = src.at("SBOTMIX")->retrieve(00)->get_val();
-        double sbot_mix_01 = src.at("SBOTMIX")->retrieve(01)->get_val();
+        double sbot_mix_00 = src.at("SBOTMIX")->retrieve({0+1, 0+1})->get_val();
+        double sbot_mix_01 = src.at("SBOTMIX")->retrieve({0+1, 1+1})->get_val();
 
-        double stop_mix_00 = src.at("STOPMIX")->retrieve(00)->get_val();
-        double stop_mix_01 = src.at("STOPMIX")->retrieve(01)->get_val();
+        double stop_mix_00 = src.at("STOPMIX")->retrieve({0+1, 0+1})->get_val();
+        double stop_mix_01 = src.at("STOPMIX")->retrieve({0+1, 1+1})->get_val();
 
-        double umix_01 = src.at("UMIX")->retrieve(01)->get_val();
-        double umix_11 = src.at("UMIX")->retrieve(11)->get_val();
+        double umix_01 = src.at("UMIX")->retrieve({0+1, 1+1})->get_val();
+        double umix_11 = src.at("UMIX")->retrieve({1+1, 1+1})->get_val();
 
-        double vmix_01 = src.at("VMIX")->retrieve(01)->get_val();
-        double vmix_11 = src.at("VMIX")->retrieve(11)->get_val();
+        double vmix_01 = src.at("VMIX")->retrieve({0+1, 1+1})->get_val();
+        double vmix_11 = src.at("VMIX")->retrieve({1+1, 1+1})->get_val();
         
         //0
         double sw2 = src.at("WPARAM_SI_SM")->retrieve(4)->get_val();
 
-        double alphas_MSOFT = QCDHelper::alpha_s(src.at("HMIX")->retrieve(0)->get_val());
+        // double alphas_MSOFT = QCDHelper::alpha_s(src.at("HMIX")->retrieve(0)->get_val()); // SUSY Breaking scale
+        double alphas_MSOFT = QCDHelper::alpha_s(2.448e3);
 
         double tan_beta = src.at("HMIX")->retrieve(2)->get_val();
 
@@ -292,7 +291,7 @@ void EpsilonCalculator::init_epsilon_block() {
 
         for(int ie = 0; ie < nb_neut; ++ie) {
             epsilonbp += yu_22 * yu_22 / 16.0 / M_PI / M_PI * 
-                        src.at("NMIX")->retrieve(ie*10+3)->get_val() * src.at("NMIX")->retrieve(ie*10+2)->get_val() * 
+                        src.at("NMIX")->retrieve({ie + 1, 3 + 1})->get_val() * src.at("NMIX")->retrieve({ie + 1, 2 + 1})->get_val() * 
                         (au_22 - mu_Q / tan_beta) / m_neutralino[ie] *
                         (stop_mix_00 * stop_mix_00 * sbot_mix_00 * sbot_mix_00 *
                         H2(m_t2s * m_t2s / m_neutralino[ie] / m_neutralino[ie], m_bs * m_bs / m_neutralino[ie] / m_neutralino[ie]) +
@@ -328,7 +327,7 @@ void EpsilonCalculator::init_epsilon_block() {
 
         for(int ie = 0; ie < nb_neut; ++ie) {
             epsilon0p += yd_22 * yd_22 / 16.0 / M_PI / M_PI * 
-                        src.at("NMIX")->retrieve(ie*10+3)->get_val() * src.at("NMIX")->retrieve(ie*10+2)->get_val() * 
+                        src.at("NMIX")->retrieve({ie+1, 3+1})->get_val() * src.at("NMIX")->retrieve({ie+1, 2+1})->get_val() * 
                         (mu_Q / tan_beta) / m_neutralino[ie] *
                         (stop_mix_00 * stop_mix_00 * sbot_mix_00 * sbot_mix_00 * 
                         H2(m_ts * m_ts / m_neutralino[ie] / m_neutralino[ie], m_b2s * m_b2s / m_neutralino[ie] / m_neutralino[ie]) +

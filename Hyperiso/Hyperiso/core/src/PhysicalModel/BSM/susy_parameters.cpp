@@ -348,8 +348,13 @@ void susy_parameters::init() {
 		return;
 	}
 
+	LOG_INFO("Initializing scale independent SUSY parameters");
 	init_scale_independant_block();
+	LOG_INFO("Initializing matching SUSY parameters");
 	init_matching_block();
+	LOG_INFO("Initializing epsilon block");
+	EpsilonCalculator().init();
+	LOG_INFO("Done");
 }
 
 void susy_parameters::init_scale_independant_block() {

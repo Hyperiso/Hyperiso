@@ -87,6 +87,9 @@
       "central_value": 125.20,
       "stat_error": 0.11,
       "syst_error": 0
+    },
+    "1000039": {
+      "central_value": 0.0
     }
   },
   "GAUGE": {
@@ -526,6 +529,57 @@
       "central_value": 0.854,
       "stat_error": 0.020,
       "syst_error": 0
+    }
+  },
+
+  "NMHMIX": {
+    "1_1": {
+      "central_value": 0
+    },
+    "1_2": {
+      "central_value": 0
+    },
+    "1_3": {
+      "central_value": 0
+    },
+    "2_1": {
+      "central_value": 0
+    },
+    "2_2": {
+      "central_value": 0
+    },
+    "2_3": {
+      "central_value": 0
+    },
+    "3_1": {
+      "central_value": 0
+    },
+    "3_2": {
+      "central_value": 0
+    },
+    "3_3": {
+      "central_value": 0
+    }
+  },
+
+  "NMAMIX": {
+    "1_1": {
+      "central_value": 0
+    },
+    "1_2": {
+      "central_value": 0
+    },
+    "1_3": {
+      "central_value": 0
+    },
+    "2_1": {
+      "central_value": 0
+    },
+    "2_2": {
+      "central_value": 0
+    },
+    "2_3": {
+      "central_value": 0
     }
   }
 }

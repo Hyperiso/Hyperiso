@@ -29,7 +29,7 @@ struct ParameterBlockRepartition {
      */
     static inline const std::map<ParameterType, std::unordered_set<BlockName>> BLOCKS {
         {ParameterType::SM, {"SMINPUTS", "MASS", "VCKMIN", "UPMNSIN", "UPMNS", "IMUPMNS", "VCKM", "GAUGE"}}, //TODO VCKM, GAUGE
-        {ParameterType::BSM, {"MASS", "HMIX", "ALPHA", "MSOFT", "NMIX", "UMIX", "VMIX", "A0MIX", "H0MIX", "STOPMIX", "SBOTMIX", "STAUMIX", "AU", "AD", "AE", "YU", "YD", "YE", "MINPAR"}},
+        {ParameterType::BSM, {"GAUGE", "MASS", "HMIX", "ALPHA", "MSOFT", "NMIX", "UMIX", "VMIX", "NMAMIX", "NMHMIX", "STOPMIX", "SBOTMIX", "STAUMIX", "AU", "AD", "AE", "YU", "YD", "YE", "MINPAR"}},
         {ParameterType::FLAVOR, {"FMASS", "FLIFE", "FCONST", "FCONSTRATIO", "FBAG", "FPARAM"}},
         {ParameterType::WILSON, {"FWCOEF", "IMFWCOEF", "EW_SCALE", "B_SCALE"}},
         {ParameterType::DECAY, {"B_Ks", "B_ll", "B_Xs", "B_Dlnu", "B_Dslnu"}},
@@ -66,7 +66,7 @@ struct ParametersAccessRights {
         {"MASS", {25, 35, 36, 37}},
         {"ALPHA", {0}},
         {"HMIX", {}},
-        {"GAUGE", {{}}},
+        {"GAUGE", {}},
     };
 
     /**
@@ -77,7 +77,7 @@ struct ParametersAccessRights {
                   1000001, 1000002, 1000003, 1000004, 1000005, 1000006, 1000011, 1000012, 1000013, 1000014, 1000015, 1000016, 
                   2000001, 2000002, 2000003, 2000004, 2000005, 2000006, 2000011, 2000013, 2000015, 
                   1000021, 1000022, 1000023, 1000024, 1000025, 1000035, 1000037, 1000039}}, 
-        {"GAUGE", {{}}},
+        {"GAUGE", {1, 2, 3}},
     };
 };
 
