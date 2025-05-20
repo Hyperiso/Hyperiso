@@ -39,25 +39,24 @@ CoefficientGroup::CoefficientGroup(std::map<std::string, std::shared_ptr<WilsonC
     this->init(max_order == QCDOrder::NONE ? QCDOrder::LO : max_order);
 }
 
-void CoefficientGroup::init(QCDOrder order) {
+void CoefficientGroup::init(QCDOrder max_order) {
     this->claim_coefficients();
-    for (auto& coeff : *this) {
-
-        auto func_wrapper = [&coeff, order](const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src,
-                                    std::shared_ptr<DependentParameter> dep_param) {
-            auto func = coeff.second->get_func(order);
-            if (!func) {
-                dep_param->set_expected(0.);
-                return;
-            }
-            std::cout << "value of : " << coeff.second->get_name() << " : " << func(src) << std::endl;;
-            dep_param->set_expected(func(src));
-            // dep_param->set_expected(coeff.second->get_func(order)(src));
-        };
-        WilsonParamComposer().compose_parameter(ParamId{coeff.second->get_storage_block(), coeff.second->get_lhaid(order)}, coeff.second->get_sources(order), func_wrapper);
-
+    for (int order = 1; order <= (int)max_order; order++) {
+        for (auto& coeff : *this) {
+            auto func_wrapper = [&coeff, order](const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src,
+                                        std::shared_ptr<DependentParameter> dep_param) {
+                auto func = coeff.second->get_func((QCDOrder)order);
+                if (!func) {
+                    dep_param->set_expected(0.);
+                    return;
+                }
+                std::cout << "value of : " << coeff.second->get_name() << " at " << OrderMapper::str((QCDOrder)order) << " : " << func(src) << std::endl;;
+                dep_param->set_expected(func(src));
+            };
+            WilsonParamComposer().compose_parameter(ParamId{coeff.second->get_storage_block(), coeff.second->get_lhaid((QCDOrder)order)}, coeff.second->get_sources((QCDOrder)order), func_wrapper);
+        }
     }
-    this->current_order = order;
+    this->current_order = max_order;
 }
 
 complex_t CoefficientGroup::get_matching_coefficient(std::string coeff, std::string order) const { 
@@ -79,8 +78,6 @@ QCDOrder CoefficientGroup::get_order(){
 bool CoefficientGroup::is_double_basis() const {
     return this->basis.has_value();
 }
-
-
 
 void CoefficientGroup::init_full_running_block(const std::unordered_map<ParameterType, std::vector<std::string>> &source_names, BWilsonBasis basis, bool inter, std::vector<ContributionType> contribution_type) {
     // std::unordered_map<ParameterType, std::vector<std::string>> src = {

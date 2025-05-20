@@ -355,6 +355,8 @@ void susy_parameters::init() {
 	LOG_INFO("Initializing epsilon block");
 	EpsilonCalculator().init();
 	LOG_INFO("Done");
+
+	susy_parameters::initialized = true;
 }
 
 void susy_parameters::init_scale_independant_block() {
@@ -373,6 +375,7 @@ void susy_parameters::init_scale_independant_block() {
 
 		double kappaFactor = -0.5 * kappa;
 		double tanb = src.at("HMIX")->retrieve(2)->get_val();
+		double beta = std::atan(tanb);
 		double z = pow(src.at("MASS")->retrieve(37)->get_val() / mW, 2.);
 		double sinb = std::sin(std::atan(tanb));
 		double cosb = std::cos(std::atan(tanb));
@@ -421,7 +424,7 @@ void susy_parameters::init_scale_independant_block() {
 		dep_block->store_or_assign(id++, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", id}, sinb, 0., 0.)); //3
 		dep_block->store_or_assign(id++, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", id}, ct, 0., 0.)); //4
 		dep_block->store_or_assign(id++, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", id}, st, 0., 0.)); //5
-        dep_block->store_or_assign(id++, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", id}, kappa, 0., 0.)); //6
+        dep_block->store_or_assign(id++, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", id}, beta, 0., 0.)); //6
         dep_block->store_or_assign(id++, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", id}, lu, 0., 0.)); //7
         dep_block->store_or_assign(id++, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", id}, ld, 0., 0.)); //8
         dep_block->store_or_assign(id++, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", id}, alphas_mg, 0., 0.)); //9
@@ -449,6 +452,7 @@ void susy_parameters::init_scale_independant_block() {
 		dep_block->store_or_assign({id++, 2}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", {id, 2}}, Msn[2], 0., 0.)); //16
 		dep_block->store_or_assign(id++, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", id}, (double)isNonZeroMix, 0., 0.)); //17
 		dep_block->store_or_assign(id++, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", id}, kappaFactor, 0., 0.)); //18
+		dep_block->store_or_assign(id++, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", id}, kappa, 0., 0.)); //19
     };
 
     susy_parameters::composer.compose_block("WPARAM_SI_BSM", src, func);

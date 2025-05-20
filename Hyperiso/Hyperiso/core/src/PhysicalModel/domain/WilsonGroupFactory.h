@@ -4,7 +4,7 @@
 #include "Include.h"
 #include "WilsonGroupSuper.h"
 #include "BWilsonGroupSuper.h"
-// #include "Wilson_SUSY.h"
+#include "Wilson_SUSY_super.h"
 #include "Wilson_THDM_super.h"
 
 class WilsonGroupFactory {
@@ -30,21 +30,21 @@ public:
                 default:
                     LOG_ERROR("Invalid Argument", "Unknown group type", GroupMapper::str(group));
             }
-            // case Model::SUSY:
-            // switch (group) {
-            //     case WGroup::B:
-            //         return std::make_shared<BCoefficientGroup_susy>();
-            //     case WGroup::BPrime:
-            //         return std::make_shared<BPrimeCoefficientGroup_susy>();
-            //     case WGroup::BScalar:
-            //         return std::make_shared<BScalarCoefficientGroup_susy>();
-            //     case WGroup::Blnu:
-            //         return std::make_shared<BlnuCoefficientGroup_SUSY>();
-            //     case WGroup::BCLNU:
-            //         return std::make_shared<BclnuCoefficientGroup_SUSY>();
-            //     default:
-            //         LOG_ERROR("Invalid Argument", "Unknown group type", GroupMapper::str(group));
-            // }
+            case Model::SUSY:
+            switch (group) {
+                case WGroup::B:
+                    return std::make_shared<BCoefficientGroup_susy>();
+                case WGroup::BPrime:
+                    return std::make_shared<BPrimeCoefficientGroup_susy>();
+                case WGroup::BScalar:
+                    return std::make_shared<BScalarCoefficientGroup_susy>();
+                case WGroup::Blnu:
+                    return std::make_shared<BlnuCoefficientGroup_SUSY>();
+                case WGroup::BCLNU:
+                    return std::make_shared<BclnuCoefficientGroup_SUSY>();
+                default:
+                    LOG_ERROR("Invalid Argument", "Unknown group type", GroupMapper::str(group));
+            }
             case Model::THDM:
             switch (group) {
                 case WGroup::B:

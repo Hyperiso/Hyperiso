@@ -36,14 +36,59 @@ void CoefficientManager::init_group_matching(const std::string& groupName, const
     if (!this->coefficientGroups.contains(groupName)) {
         throw_no_group_error(groupName);
     }
-
+    
     this->coefficientGroups.at(groupName)->init(OrderMapper::enum_elt(order));
-    if (has_bsm) {
-        std::string bsm_group = groupName + bsm_suffix;
-        if (!this->coefficientGroups.contains(bsm_group)) {
-            throw_no_group_error(bsm_group);
+
+    bool marty = HAS_WILSON_API().get();
+    bool SM = ModelAPI().get() == Model::SM;
+    QCDOrder enum_order = OrderMapper::enum_elt(order);
+    std::string storage_block = this->coefficientGroups.at(groupName)->get_matching_storage_block();
+    WilsonParamComposer composer;
+
+    for (auto& coeff : *this->coefficientGroups.at(groupName)) {
+        if (SM) {
+            ContributionType c_type = marty ? ContributionType::SM : ContributionType::TOTAL;
+            ParamId pid {
+                storage_block,
+                WCoefMapper::flha_full(WCoefMapper::enum_elt(coeff.second->get_base_name()), enum_order, c_type)
+            };
+            composer.compose_parameter(
+                pid, 
+                std::unordered_set<ParamId> {{storage_block, coeff.second->id(enum_order)}}, 
+                [&] (const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src, std::shared_ptr<DependentParameter> dep_param) {
+                    dep_param->set_expected(src.at({ParameterType::WILSON, storage_block, coeff.second->id(enum_order)})->get_val());
+                }
+            );
+        } else {
+            std::string sm_group = groupName + "_SM";
+            if (!this->coefficientGroups.contains(sm_group)) {
+                throw_no_group_error(sm_group);
+            }
+            this->coefficientGroups.at(sm_group)->init(OrderMapper::enum_elt(order));
+
+            ContributionType c_type = marty ? ContributionType::BSM : ContributionType::TOTAL;
+            ParamId pid_dest {
+                this->coefficientGroups.at(groupName)->get_matching_storage_block(),
+                WCoefMapper::flha_full(WCoefMapper::enum_elt(coeff.second->get_base_name()), enum_order, c_type)
+            };
+
+            ParamId pid_src {
+                this->coefficientGroups.at(groupName)->get_matching_storage_block(),
+                WCoefMapper::flha_full(WCoefMapper::enum_elt(coeff.second->get_base_name()), enum_order, ContributionType::SM)
+            };
+
+            std::unordered_set<ParamId> sources {pid_src, {storage_block, coeff.second->id(enum_order)}};
+
+            composer.compose_parameter(
+                pid_dest, 
+                sources, 
+                [&] (const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src, std::shared_ptr<DependentParameter> dep_param) {
+                    double src_val = src.at({ParameterType::WILSON, storage_block, coeff.second->id(enum_order)})->get_val();
+                    double sm_val = src.at(pid_src)->get_val();
+                    dep_param->set_expected(marty ? src_val - sm_val : src_val + sm_val);
+                }
+            );
         }
-        this->coefficientGroups.at(bsm_group)->init(OrderMapper::enum_elt(order));
     }
 }
 
@@ -51,14 +96,17 @@ void CoefficientManager::init_group_hadronic(const std::string& groupName, const
     if (!this->coefficientGroups.contains(groupName)) {
         throw_no_group_error(groupName);
     }
+
+
+    if (ModelAPI().get() == Model::SM) {
+
+    } else {
+
+    }
+
     this->coefficientGroups.at(groupName)->init_running_blocks(OrderMapper::enum_elt(order));
-    // if (has_bsm) { //TODO : WIP with BSM
-    //     std::string bsm_group = groupName + bsm_suffix;
-    //     if (!this->coefficientGroups.contains(bsm_group)) {
-    //         throw_no_group_error(bsm_group);
-    //     }
-    //     this->coefficientGroups.at(bsm_group)->init_running_blocks(OrderMapper::enum_elt(order));
-    // }
+    
+    
 }
 
 void CoefficientManager::switchbasis(const std::string& groupName) {
@@ -336,8 +384,7 @@ std::shared_ptr<CoefficientManager> CoefficientManager::Builder(std::string mode
 
     WilsonParameterHelper().init(2);
     auto manager = std::make_shared<CoefficientManager>();
-    manager->has_bsm = model == ModelMapper::str(Model::THDM) || model == ModelMapper::str(Model::SUSY);
-    manager->bsm_suffix = manager->has_bsm ? "_" + model : "";
+    bool is_bsm = model != ModelMapper::str(Model::SM);
     for (auto& group : groups) {
         LOG_INFO("(CoefficientManager) Registering coefficient group", group.first);
         manager->registerCoefficientGroup(group.first, group.second);

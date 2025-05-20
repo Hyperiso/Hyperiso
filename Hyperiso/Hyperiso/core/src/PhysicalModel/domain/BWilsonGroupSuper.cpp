@@ -89,10 +89,10 @@ void BCoefficientGroup::init_running_blocks(QCDOrder order) {
 }
 
 
-void BCoefficientGroup::base_1_LO_calculation(
-    const std::unordered_map<std::string, std::shared_ptr<Block>> &src,
-    std::shared_ptr<DependentBlock> dep_block, 
-    ContributionType type)
+std::unordered_map<WCoef, scalar_t> BCoefficientGroup::base_1_LO_calculation (
+    const std::unordered_map<QCDOrder, std::unordered_map<WCoef, scalar_t>>& coef_matching, 
+    const std::unordered_map<std::string, std::shared_ptr<Block>>& src
+)
 {
     LOG_DEBUG("Init LO running of BCoefficientGroup in standard basis");
 
@@ -103,7 +103,7 @@ void BCoefficientGroup::base_1_LO_calculation(
     std::array<complex_t, 10> Ci_match = {};
     auto ids = WCoefMapper::get_group(WGroup::B);
     for (size_t k = 0; k < 10; k++) {
-        Ci_match[k] = ensure_coef(ids[k], QCDOrder::LO, type, GroupMapper::str(WGroup::B, ScaleType::MATCHING));
+        Ci_match[k] = coef_matching.at(QCDOrder::LO).at(ids[k]);
     }
 
     Ci_match[6] = BRP::C7_eff_std(Ci_match); 
@@ -123,87 +123,86 @@ void BCoefficientGroup::base_1_LO_calculation(
     double fact = 4 * PI / src.at("WPARAM_RUN_SM")->retrieve(1)->get_val();
     Ci_run[8] *= fact;
 
+/*
     // C10
     // Ask Nazila : Pourquoi les N et NNLO dans le running de C10 à LO et pas séparé en plusieurs ordres ?
     // Answer : Ask Siavash, need to understand if pb comes from litt or implementation.
     // Answer : Fck around and find out
-    double alpha_ew = 1. / src.at("SMINPUTS")->retrieve(1)->get_val();
-    double m_h = src.at("MASS")->retrieve(25)->get_val();
-    double m_t_muW = src.at("WPARAM_MATCH_SM")->retrieve(6)->get_val();
-    double sw2OS = src.at("SMINPUTS")->retrieve(LhaID(7, 2))->get_val();
-    double mu_h = src.at("B_SCALE")->retrieve(1)->get_val();
-    double eta = src.at("WPARAM_RUN_SM")->retrieve(2)->get_val();
-
-    complex_t C1_NLO = ensure_coef(WCoef::C1, QCDOrder::NLO, type, GroupMapper::str(WGroup::B, ScaleType::MATCHING));
-    complex_t C4_NLO = ensure_coef(WCoef::C4, QCDOrder::NLO, type, GroupMapper::str(WGroup::B, ScaleType::MATCHING));
-
-    complex_t C10_02=0.;
-    for(size_t ie = 0; ie < 8; ie++) {
-        C10_02 += BRP::b[ie] * pow(eta, BRP::a[ie]) * Ci_match[1];
-    } 
+    // double alpha_ew = 1. / src.at("SMINPUTS")->retrieve(1)->get_val();
+    // double m_h = src.at("MASS")->retrieve(25)->get_val();
+    // double m_t_muW = src.at("WPARAM_MATCH_SM")->retrieve(6)->get_val();
+    // double sw2OS = src.at("SMINPUTS")->retrieve(LhaID(7, 2))->get_val();
+    // double mu_h = src.at("B_SCALE")->retrieve(1)->get_val();
+    // double eta = src.at("WPARAM_RUN_SM")->retrieve(2)->get_val();
+    // complex_t C1_NLO = ensure_coef(WCoef::C1, QCDOrder::NLO, type, GroupMapper::str(WGroup::B, ScaleType::MATCHING));
+    // complex_t C4_NLO = ensure_coef(WCoef::C4, QCDOrder::NLO, type, GroupMapper::str(WGroup::B, ScaleType::MATCHING));
+    // complex_t C10_02=0.;
+    // for(size_t ie = 0; ie < 8; ie++) {
+    //     C10_02 += BRP::b[ie] * pow(eta, BRP::a[ie]) * Ci_match[1];
+    // } 
     
-    complex_t C10_12 = -0.11060 * std::log(eta) / eta * Ci_match[1]  + (1 / eta - 1) * (0.26087 * Ci_match[8] + 1.15942 * Ci_match[9]);
-    for(int ie=0;ie<=7;ie++) {
-        C10_12 += pow(eta, BRP::a[ie] + 1.) * (
-            (BRP::d_2a[ie] / eta + BRP::d_2b[ie]) * Ci_match[1] 
-            + BRP::d_1[ie] * C1_NLO
-            + BRP::d_4[ie] * C4_NLO);
-    }
+    // complex_t C10_12 = -0.11060 * std::log(eta) / eta * Ci_match[1]  + (1 / eta - 1) * (0.26087 * Ci_match[8] + 1.15942 * Ci_match[9]);
+    // for(int ie=0;ie<=7;ie++) {
+    //     C10_12 += pow(eta, BRP::a[ie] + 1.) * (
+    //         (BRP::d_2a[ie] / eta + BRP::d_2b[ie]) * Ci_match[1] 
+    //         + BRP::d_1[ie] * C1_NLO
+    //         + BRP::d_4[ie] * C4_NLO);
+    // }
 
-    double Delta_alpha = 0.06; 
-    double Delta_rhosw2 = -0.03; 
-    double Delta_rem = 0.01;
-    double Deltar = Delta_alpha + Delta_rhosw2 + Delta_rem; 
+    // double Delta_alpha = 0.06; 
+    // double Delta_rhosw2 = -0.03; 
+    // double Delta_rem = 0.01;
+    // double Deltar = Delta_alpha + Delta_rhosw2 + Delta_rem; 
 
-    double Gmu1_Gmu0 = 4 * PI / alpha_ew * Deltar;
-    double L = std::log(mu_h * mu_h);
-    complex_t C1022 = (46.9287715663914 - 3.102350691200236 * L + 0.0992974073578769 * L * L + 0.175877 * (m_t_muW - 163.5) + 0.0173725 * (m_h - 125.9)) / sw2OS;
-    C1022 += -Ci_match[9] * Gmu1_Gmu0;
+    // double Gmu1_Gmu0 = 4 * PI / alpha_ew * Deltar;
+    // double L = std::log(mu_h * mu_h);
+    // complex_t C1022 = (46.9287715663914 - 3.102350691200236 * L + 0.0992974073578769 * L * L + 0.175877 * (m_t_muW - 163.5) + 0.0173725 * (m_h - 125.9)) / sw2OS;
+    // C1022 += -Ci_match[9] * Gmu1_Gmu0;
 
-    complex_t C9_NLO = ensure_coef(WCoef::C9, QCDOrder::NLO, type, GroupMapper::str(WGroup::B, ScaleType::MATCHING));
-    complex_t C10_NLO = ensure_coef(WCoef::C10, QCDOrder::NLO, type, GroupMapper::str(WGroup::B, ScaleType::MATCHING));
+    // complex_t C9_NLO = ensure_coef(WCoef::C9, QCDOrder::NLO, type, GroupMapper::str(WGroup::B, ScaleType::MATCHING));
+    // complex_t C10_NLO = ensure_coef(WCoef::C10, QCDOrder::NLO, type, GroupMapper::str(WGroup::B, ScaleType::MATCHING));
     
-    complex_t C10_22 = (0.27924 * C1_NLO + 0.33157 * C4_NLO + 2.35917 * Ci_match[8] + 3.29679 * Ci_match[9]) * log(eta) + (1 - eta) * (0.26087 * C9_NLO + 1.15942 * C10_NLO) + C1022;
+    // complex_t C10_22 = (0.27924 * C1_NLO + 0.33157 * C4_NLO + 2.35917 * Ci_match[8] + 3.29679 * Ci_match[9]) * log(eta) + (1 - eta) * (0.26087 * C9_NLO + 1.15942 * C10_NLO) + C1022;
     
-    //TODO or not TODO : why was it all C1 before ?
-    complex_t C1_NNLO = ensure_coef(WCoef::C1, QCDOrder::NNLO, type, GroupMapper::str(WGroup::B, ScaleType::MATCHING));
-    complex_t C2_NNLO = ensure_coef(WCoef::C2, QCDOrder::NNLO, type, GroupMapper::str(WGroup::B, ScaleType::MATCHING));
-    complex_t C3_NNLO = ensure_coef(WCoef::C3, QCDOrder::NNLO, type, GroupMapper::str(WGroup::B, ScaleType::MATCHING));
-    complex_t C4_NNLO = ensure_coef(WCoef::C4, QCDOrder::NNLO, type, GroupMapper::str(WGroup::B, ScaleType::MATCHING));
-    complex_t C5_NNLO = ensure_coef(WCoef::C5, QCDOrder::NNLO, type, GroupMapper::str(WGroup::B, ScaleType::MATCHING));
-    complex_t C6_NNLO = ensure_coef(WCoef::C6, QCDOrder::NNLO, type, GroupMapper::str(WGroup::B, ScaleType::MATCHING));
+    // //TODO or not TODO : why was it all C1 before ?
+    // complex_t C1_NNLO = ensure_coef(WCoef::C1, QCDOrder::NNLO, type, GroupMapper::str(WGroup::B, ScaleType::MATCHING));
+    // complex_t C2_NNLO = ensure_coef(WCoef::C2, QCDOrder::NNLO, type, GroupMapper::str(WGroup::B, ScaleType::MATCHING));
+    // complex_t C3_NNLO = ensure_coef(WCoef::C3, QCDOrder::NNLO, type, GroupMapper::str(WGroup::B, ScaleType::MATCHING));
+    // complex_t C4_NNLO = ensure_coef(WCoef::C4, QCDOrder::NNLO, type, GroupMapper::str(WGroup::B, ScaleType::MATCHING));
+    // complex_t C5_NNLO = ensure_coef(WCoef::C5, QCDOrder::NNLO, type, GroupMapper::str(WGroup::B, ScaleType::MATCHING));
+    // complex_t C6_NNLO = ensure_coef(WCoef::C6, QCDOrder::NNLO, type, GroupMapper::str(WGroup::B, ScaleType::MATCHING));
 
-    for(int ie = 0; ie <= 7; ie++) {
-        C10_22 += pow(eta, BRP::a[ie] + 2) * (
-                  (BRP::e_1a[ie] / eta + BRP::e_1b[ie]) * C1_NLO
-                + (BRP::e_4a[ie] / eta + BRP::e_4b[ie]) * C4_NLO
-                + BRP::e_1[ie] * C1_NNLO
-                + BRP::e_2[ie] * C2_NNLO
-                + BRP::e_3[ie] * C3_NNLO
-                + BRP::e_4[ie] * C4_NNLO
-                + BRP::e_5[ie] * C5_NNLO
-                + BRP::e_6[ie] * C6_NNLO);
-    }
+    // for(int ie = 0; ie <= 7; ie++) {
+    //     C10_22 += pow(eta, BRP::a[ie] + 2) * (
+    //               (BRP::e_1a[ie] / eta + BRP::e_1b[ie]) * C1_NLO
+    //             + (BRP::e_4a[ie] / eta + BRP::e_4b[ie]) * C4_NLO
+    //             + BRP::e_1[ie] * C1_NNLO
+    //             + BRP::e_2[ie] * C2_NNLO
+    //             + BRP::e_3[ie] * C3_NNLO
+    //             + BRP::e_4[ie] * C4_NNLO
+    //             + BRP::e_5[ie] * C5_NNLO
+    //             + BRP::e_6[ie] * C6_NNLO);
+    // }
 
-    double alpha_s_mu_h = src.at("WPARAM_RUN_SM")->retrieve(1)->get_val();
-    Ci_run[9] = Ci_match[9] + alpha_ew / alpha_s_mu_h * (fact * C10_02 + C10_12) + alpha_ew / (4 * PI) * C10_22;
+    // double alpha_s_mu_h = src.at("WPARAM_RUN_SM")->retrieve(1)->get_val();
+    // Ci_run[9] = Ci_match[9] + alpha_ew / alpha_s_mu_h * (fact * C10_02 + C10_12) + alpha_ew / (4 * PI) * C10_22;
+*/
+
+    Ci_run[9] = Ci_match[9];
     
-    // Store
+    // Return
+    std::unordered_map<WCoef, scalar_t> Ci_run_map {};
     for (size_t k = 0; k < 10; k++) {
-        ParamId pid {
-            ParameterType::WILSON, 
-            GroupMapper::str(WGroup::B, ScaleType::HADRONIC, false, BWilsonBasis::STANDARD) + "INTER", 
-            WCoefMapper::flha_full(ids[k], QCDOrder::LO, type)
-        };
-        LOG_DEBUG("Storing coefficient", WCoefMapper::flha_full(ids[k], QCDOrder::LO, type));
-        dep_block->store_or_assign(pid.code, std::make_shared<Parameter>(pid, Ci_run[k], 0., 0.));
+        Ci_run_map[ids[k]] = Ci_run[k];
     }
+
+    return Ci_run_map;
 }
 
-void BCoefficientGroup::base_2_LO_calculation(
-    const std::unordered_map<std::string, std::shared_ptr<Block>> &src,
-    std::shared_ptr<DependentBlock> dep_block,
-    ContributionType type)
+std::unordered_map<WCoef, scalar_t> BCoefficientGroup::base_2_LO_calculation (
+    const std::unordered_map<QCDOrder, std::unordered_map<WCoef, scalar_t>>& coef_matching,
+    const std::unordered_map<std::string, std::shared_ptr<Block>>& src
+)
 {
     LOG_DEBUG("Init LO running of BCoefficientGroup in traditional basis");
 
@@ -215,10 +214,10 @@ void BCoefficientGroup::base_2_LO_calculation(
     auto ids = WCoefMapper::get_group(WGroup::B);
     for (size_t k = 0; k < 8; k++) {
         for (size_t j = 0; j < 8; j++) {
-            Ci_match_trad[k] = BRP::std_to_trad_LO[k][j] * ensure_coef(ids[j], QCDOrder::NNLO, type, GroupMapper::str(WGroup::B, ScaleType::MATCHING));;
+            Ci_match_trad[k] = BRP::std_to_trad_LO[k][j] * coef_matching.at(QCDOrder::LO).at(ids[j]);
         }
     }
-    Ci_match_trad[8] = ensure_coef(WCoef::C9, QCDOrder::LO, type, GroupMapper::str(WGroup::B, ScaleType::MATCHING));
+    Ci_match_trad[8] = coef_matching.at(QCDOrder::LO).at(WCoef::C9);
 
     std::array<complex_t, 10> Ci_run {};
     for (size_t k = 0; k < 9; k++) {
@@ -230,23 +229,20 @@ void BCoefficientGroup::base_2_LO_calculation(
 
     double fact = 4 * PI / src.at("WPARAM_RUN_SM")->retrieve(1)->get_val();
     Ci_run[8] *= fact;
-    Ci_run[9] = ensure_coef(WCoef::C10, QCDOrder::LO, type, GroupMapper::str(WGroup::B, ScaleType::MATCHING));
+    Ci_run[9] = coef_matching.at(QCDOrder::LO).at(WCoef::C10);
 
-    // Store
+    std::unordered_map<WCoef, scalar_t> Ci_run_map {};
     for (size_t k = 0; k < 10; k++) {
-        ParamId pid {
-            ParameterType::WILSON, 
-            GroupMapper::str(WGroup::B, ScaleType::HADRONIC, false, BWilsonBasis::TRADITIONAL) + "INTER", 
-            WCoefMapper::flha_full(ids[k], QCDOrder::LO, type)
-        };
-        dep_block->store_or_assign(pid.code, std::make_shared<Parameter>(pid, Ci_run[k], 0., 0.));;
+        Ci_run_map[ids[k]] = Ci_run[k];
     }
+
+    return Ci_run_map;
 }
 
-void BCoefficientGroup::base_1_NLO_calculation(
-    const std::unordered_map<std::string, std::shared_ptr<Block>> &src,
-    std::shared_ptr<DependentBlock> dep_block,
-    ContributionType type)
+std::unordered_map<WCoef, scalar_t> BCoefficientGroup::base_1_NLO_calculation(
+    const std::unordered_map<QCDOrder, std::unordered_map<WCoef, scalar_t>>& coef_matching,
+    const std::unordered_map<std::string, std::shared_ptr<Block>>& src
+)
 {
     LOG_DEBUG("Init NLO running of BCoefficientGroup in standard basis");
 
@@ -270,8 +266,8 @@ void BCoefficientGroup::base_1_NLO_calculation(
     std::array<complex_t, 10> Ci_1_match = {};
     auto ids = WCoefMapper::get_group(WGroup::B);
     for (size_t k = 0; k < 10; k++) {
-        Ci_0_match[k] = ensure_coef(ids[k], QCDOrder::LO, type, GroupMapper::str(WGroup::B, ScaleType::MATCHING));
-        Ci_1_match[k] = ensure_coef(ids[k], QCDOrder::NLO, type, GroupMapper::str(WGroup::B, ScaleType::MATCHING));
+        Ci_0_match[k] = coef_matching.at(QCDOrder::LO).at(ids[k]);
+        Ci_1_match[k] = coef_matching.at(QCDOrder::NLO).at(ids[k]);
     }
 
     Ci_0_match[6] = C_eff(Ci_0_match, BRP::y_std);
@@ -294,25 +290,22 @@ void BCoefficientGroup::base_1_NLO_calculation(
     Ci_run[8] = fact * (Ci_run[8] + U0(8, 8) * Ci_0_match[8]);
 
     // C10
-    Ci_run[9] = ensure_coef(WCoef::C10, QCDOrder::NLO, type, GroupMapper::str(WGroup::B, ScaleType::MATCHING));
+    Ci_run[9] = coef_matching.at(QCDOrder::NLO).at(WCoef::C10);
     
     // Store
     double eta = src.at("WPARAM_RUN_SM")->retrieve(2)->get_val();
+    std::unordered_map<WCoef, scalar_t> Ci_run_map {};
     for (size_t k = 0; k < 10; k++) {
-        ParamId pid {
-            ParameterType::WILSON, 
-            GroupMapper::str(WGroup::B, ScaleType::HADRONIC, false, BWilsonBasis::STANDARD) + "INTER", 
-            WCoefMapper::flha_full(ids[k], QCDOrder::NLO, type)
-        };
-        LOG_DEBUG("Storing coefficient", WCoefMapper::flha_full(ids[k], QCDOrder::NLO, type));
-        dep_block->store_or_assign(pid.code, std::make_shared<Parameter>(pid, eta * Ci_run[k], 0., 0.));
+        Ci_run_map[ids[k]] = eta * Ci_run[k];
     }
+
+    return Ci_run_map;
 }
 
-void BCoefficientGroup::base_2_NLO_calculation(
-    const std::unordered_map<std::string, std::shared_ptr<Block>> &src,
-    std::shared_ptr<DependentBlock> dep_block,
-    ContributionType type)
+std::unordered_map<WCoef, scalar_t> BCoefficientGroup::base_2_NLO_calculation(
+    const std::unordered_map<QCDOrder, std::unordered_map<WCoef, scalar_t>>& coef_matching,
+    const std::unordered_map<std::string, std::shared_ptr<Block>>& src
+)
 {
     LOG_DEBUG("Init NLO running of BCoefficientGroup in traditional basis");
 
@@ -329,14 +322,14 @@ void BCoefficientGroup::base_2_NLO_calculation(
     auto ids = WCoefMapper::get_group(WGroup::B);
     for (size_t k = 0; k < 8; k++) {
         for (size_t j = 0; j < 8; j++) {
-            complex_t Cj_0_match_std = ensure_coef(ids[j], QCDOrder::LO, type, GroupMapper::str(WGroup::B, ScaleType::MATCHING));
-            complex_t Cj_1_match_std = ensure_coef(ids[j], QCDOrder::NLO, type, GroupMapper::str(WGroup::B, ScaleType::MATCHING));
+            complex_t Cj_0_match_std = coef_matching.at(QCDOrder::LO).at(ids[j]);
+            complex_t Cj_1_match_std = coef_matching.at(QCDOrder::NLO).at(ids[j]);
             Ci_0_match_trad[k] = BRP::std_to_trad_LO[k][j] * Cj_0_match_std;
             Ci_1_match_trad[k] = BRP::std_to_trad_LO[k][j] * Cj_1_match_std + BRP::std_to_trad_NLO[k][j] * Cj_0_match_std;
         }
     }
-    Ci_0_match_trad[8] = ensure_coef(WCoef::C9, QCDOrder::LO, type, GroupMapper::str(WGroup::B, ScaleType::MATCHING));
-    Ci_1_match_trad[8] = ensure_coef(WCoef::C9, QCDOrder::NLO, type, GroupMapper::str(WGroup::B, ScaleType::MATCHING));
+    Ci_0_match_trad[8] = coef_matching.at(QCDOrder::LO).at(WCoef::C9);
+    Ci_1_match_trad[8] = coef_matching.at(QCDOrder::NLO).at(WCoef::C9);
 
     std::array<complex_t, 10> Ci_run {};
     for (size_t k = 0; k < 9; k++) {
@@ -348,25 +341,22 @@ void BCoefficientGroup::base_2_NLO_calculation(
 
     double fact = 4 * PI / src.at("WPARAM_RUN_SM")->retrieve(1)->get_val();
     Ci_run[8] = fact * (Ci_run[8] + V0(8, 8) * Ci_0_match_trad[8]);
-    Ci_run[9] = ensure_coef(WCoef::C10, QCDOrder::NLO, type, GroupMapper::str(WGroup::B, ScaleType::MATCHING));
+    Ci_run[9] = coef_matching.at(QCDOrder::NLO).at(WCoef::C10);;
 
     // Store
     double eta = src.at("WPARAM_RUN_SM")->retrieve(2)->get_val();
+    std::unordered_map<WCoef, scalar_t> Ci_run_map {};
     for (size_t k = 0; k < 10; k++) {
-        ParamId pid {
-            ParameterType::WILSON,
-            GroupMapper::str(WGroup::B, ScaleType::HADRONIC, false, BWilsonBasis::TRADITIONAL) + "INTER", 
-            WCoefMapper::flha_full(ids[k], QCDOrder::NLO, type)
-        };
-        LOG_DEBUG("Storing coefficient", WCoefMapper::flha_full(ids[k], QCDOrder::NLO, type));
-        dep_block->store_or_assign(pid.code, std::make_shared<Parameter>(pid, eta * Ci_run[k], 0., 0.));
+        Ci_run_map[ids[k]] = eta * Ci_run[k];
     }
+
+    return Ci_run_map;
 }
 
-void BCoefficientGroup::base_1_NNLO_calculation(
-    const std::unordered_map<std::string, std::shared_ptr<Block>> &src,
-    std::shared_ptr<DependentBlock> dep_block,
-    ContributionType type)
+std::unordered_map<WCoef, scalar_t> BCoefficientGroup::base_1_NNLO_calculation(
+    const std::unordered_map<QCDOrder, std::unordered_map<WCoef, scalar_t>>& coef_matching,
+    const std::unordered_map<std::string, std::shared_ptr<Block>>& src
+)
 {
     LOG_DEBUG("Init NNLO running of BCoefficientGroup in standard basis");
 
@@ -379,9 +369,9 @@ void BCoefficientGroup::base_1_NNLO_calculation(
     std::array<complex_t, 10> Ci_2_match = {};
     auto ids = WCoefMapper::get_group(WGroup::B);
     for (size_t k = 0; k < 10; k++) {
-        Ci_0_match[k] = ensure_coef(ids[k], QCDOrder::LO, type, GroupMapper::str(WGroup::B, ScaleType::MATCHING));
-        Ci_1_match[k] = ensure_coef(ids[k], QCDOrder::NLO, type, GroupMapper::str(WGroup::B, ScaleType::MATCHING));
-        Ci_2_match[k] = ensure_coef(ids[k], QCDOrder::NNLO, type, GroupMapper::str(WGroup::B, ScaleType::MATCHING));
+        Ci_0_match[k] = coef_matching.at(QCDOrder::LO).at(ids[k]);
+        Ci_1_match[k] = coef_matching.at(QCDOrder::NLO).at(ids[k]);
+        Ci_2_match[k] = coef_matching.at(QCDOrder::NNLO).at(ids[k]);
     }
 
     Ci_0_match[6] = BRP::C7_eff_std(Ci_0_match);
@@ -406,19 +396,16 @@ void BCoefficientGroup::base_1_NNLO_calculation(
     Ci_run[8] = fact * (Ci_run[8] + U(1, 8, 8) * Ci_0_match[8] + U(0, 8, 8) * Ci_1_match[8]);
 
     // C10
-    Ci_run[9] = ensure_coef(WCoef::C10, QCDOrder::NNLO, type, GroupMapper::str(WGroup::B, ScaleType::MATCHING));
+    Ci_run[9] = coef_matching.at(QCDOrder::NNLO).at(WCoef::C10);
     
     // Store
     double eta_sq = pow(src.at("WPARAM_RUN_SM")->retrieve(2)->get_val(), 2);
+    std::unordered_map<WCoef, scalar_t> Ci_run_map {};
     for (size_t k = 0; k < 10; k++) {
-        ParamId pid {
-            ParameterType::WILSON,
-            GroupMapper::str(WGroup::B, ScaleType::HADRONIC, false, BWilsonBasis::STANDARD) + "INTER", 
-            WCoefMapper::flha_full(ids[k], QCDOrder::NNLO, type)
-        };
-        LOG_DEBUG("Storing coefficient", WCoefMapper::flha_full(ids[k], QCDOrder::NNLO, type));
-        dep_block->store_or_assign(pid.code, std::make_shared<Parameter>(pid, eta_sq * Ci_run[k], 0., 0.));
+        Ci_run_map[ids[k]] = eta_sq * Ci_run[k];
     }
+
+    return Ci_run_map;
 }
 
 
@@ -511,16 +498,15 @@ BScalarCoefficientGroup::BScalarCoefficientGroup() {
     this->id = WGroup::BScalar;
 }
 
-void BScalarCoefficientGroup::base_1_LO_calculation(
-    const std::unordered_map<std::string, std::shared_ptr<Block>> &src,
-    std::shared_ptr<DependentBlock> dep_block,
-    ContributionType type)
+std::unordered_map<WCoef, scalar_t> BScalarCoefficientGroup::base_1_LO_calculation (
+    const std::unordered_map<QCDOrder, std::unordered_map<WCoef, scalar_t>>& coef_matching,
+    const std::unordered_map<std::string, std::shared_ptr<Block>>& src
+)
 {
-
     std::array<complex_t, 10> CQi_match = {};
     auto ids = WCoefMapper::get_group(WGroup::BScalar);
     for (size_t k = 0; k < ids.size(); k++) {
-        CQi_match[k] = ensure_coef(ids[k], QCDOrder::LO, type, GroupMapper::str(WGroup::BScalar, ScaleType::MATCHING));
+        CQi_match[k] = coef_matching.at(QCDOrder::LO).at(ids[k]);
     }
 
     double eta = src.at("WPARAM_RUN_SM")->retrieve(2)->get_val();
@@ -528,25 +514,23 @@ void BScalarCoefficientGroup::base_1_LO_calculation(
     double fact = pow(eta, -4 / beta_0);
     
     // Store
-    for (size_t k = 0; k < ids.size(); k++) {
-        ParamId pid {
-            ParameterType::WILSON,
-            GroupMapper::str(WGroup::BScalar, ScaleType::HADRONIC) + "INTER", 
-            WCoefMapper::flha_full(ids[k], QCDOrder::LO, ContributionType::SM)
-        };
-        dep_block->store_or_assign(pid.code, std::make_shared<Parameter>(pid, fact * CQi_match[k], 0., 0.));;
+    std::unordered_map<WCoef, scalar_t> Ci_run_map {};
+    for (size_t k = 0; k < 10; k++) {
+        Ci_run_map[ids[k]] = fact * CQi_match[k];
     }
+
+    return Ci_run_map;
 }
 
-void BScalarCoefficientGroup::base_1_NLO_calculation(
-    const std::unordered_map<std::string, std::shared_ptr<Block>> &src,
-    std::shared_ptr<DependentBlock> dep_block,
-    ContributionType type)
+std::unordered_map<WCoef, scalar_t> BScalarCoefficientGroup::base_1_NLO_calculation (
+    const std::unordered_map<QCDOrder, std::unordered_map<WCoef, scalar_t>>& coef_matching,
+    const std::unordered_map<std::string, std::shared_ptr<Block>>& src
+)
 {
     auto ids = WCoefMapper::get_group(WGroup::BScalar);
     std::array<complex_t, 2> CQi_match = {};
     for (size_t k = 0; k < ids.size(); k++) {
-        CQi_match[k] = ensure_coef(ids[k], QCDOrder::NLO, type, GroupMapper::str(WGroup::BScalar, ScaleType::MATCHING));
+        CQi_match[k] = coef_matching.at(QCDOrder::NLO).at(ids[k]);
     }
 
     double eta = src.at("WPARAM_RUN_SM")->retrieve(2)->get_val();
@@ -554,14 +538,12 @@ void BScalarCoefficientGroup::base_1_NLO_calculation(
     double fact = pow(eta, 1 - 4 / beta_0);
     
     // Store
-    for (size_t k = 0; k < ids.size(); k++) {
-        ParamId pid {
-            ParameterType::WILSON, 
-            GroupMapper::str(WGroup::BScalar, ScaleType::HADRONIC) + "INTER", 
-            WCoefMapper::flha_full(ids[k], QCDOrder::NLO, ContributionType::SM)
-        };
-        dep_block->store_or_assign(pid.code, std::make_shared<Parameter>(pid, fact * CQi_match[k], 0., 0.));;
+    std::unordered_map<WCoef, scalar_t> Ci_run_map {};
+    for (size_t k = 0; k < 10; k++) {
+        Ci_run_map[ids[k]] = fact * CQi_match[k];
     }
+
+    return Ci_run_map;
 }
 
 void BScalarCoefficientGroup::init_running_blocks(QCDOrder order) {
@@ -632,29 +614,28 @@ std::shared_ptr<CoefficientGroup> BPrimeCoefficientGroup::clone() const {
     return std::make_shared<BPrimeCoefficientGroup>(*this);
 }
 
-void BPrimeCoefficientGroup::base_1_LO_calculation(
-    const std::unordered_map<std::string, std::shared_ptr<Block>> &src,
-    std::shared_ptr<DependentBlock> dep_block,
-    ContributionType type)
+std::unordered_map<WCoef, scalar_t> BPrimeCoefficientGroup::base_1_LO_calculation(
+    const std::unordered_map<QCDOrder, std::unordered_map<WCoef, scalar_t>>& coef_matching,
+    const std::unordered_map<std::string, std::shared_ptr<Block>>& src
+)
 {
     std::array<complex_t, 12> CPi_match = {};
     auto ids = WCoefMapper::get_group(WGroup::BPrime);
     for (size_t k = 0; k < ids.size(); k++) {
-        CPi_match[k] = ensure_coef(ids[k], QCDOrder::LO, type, GroupMapper::str(WGroup::BPrime, ScaleType::MATCHING));
+        CPi_match[k] = coef_matching.at(QCDOrder::LO).at(ids[k]);
     }
 
     double eta = src.at("WPARAM_RUN_SM")->retrieve(2)->get_val();
+
+    ;
     
     // Store
-    for (size_t k = 0; k < ids.size(); k++) {
-        ParamId pid {
-            ParameterType::WILSON,
-            GroupMapper::str(WGroup::BPrime, ScaleType::HADRONIC) + "INTER", 
-            WCoefMapper::flha_full(ids[k], QCDOrder::LO, ContributionType::SM)
-        };
-        complex_t CPk_run = pow(eta, BRP::exp_prime_running[k]) * CPi_match[k]; 
-        dep_block->store_or_assign(pid.code, std::make_shared<Parameter>(pid, CPk_run, 0., 0.));
+    std::unordered_map<WCoef, scalar_t> Ci_run_map {};
+    for (size_t k = 0; k < 10; k++) {
+        Ci_run_map[ids[k]] = pow(eta, BRP::exp_prime_running[k]) * CPi_match[k];
     }
+
+    return Ci_run_map;
 }
 
 void BPrimeCoefficientGroup::init_running_blocks(QCDOrder order) {

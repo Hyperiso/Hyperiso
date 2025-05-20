@@ -13,7 +13,19 @@ std::unordered_set<ParamId> WilsonCoefficient::get_sources(QCDOrder order) {
 LhaID WilsonCoefficient::get_lhaid(QCDOrder order) {
     return this->matching_info[order].lhaid;
 }
-void WilsonCoefficient::set_owned(bool owned) {
+std::string WilsonCoefficient::get_base_name() const {
+    std::string name = this->coeffName;
+
+    if (ends_with(name, "_THDM")) {
+        name = name.substr(0, name.size() - 5);
+    } else if (ends_with(name, "_SUSY")) {
+        name = name.substr(0, name.size() - 5);
+    }
+
+    return name;
+}
+void WilsonCoefficient::set_owned(bool owned)
+{
     if (this->is_owned && owned) {
         LOG_ERROR("LogicError", "WilsonCoefficient is already owned by a WilsonGroup and cannot be shared.");
     }
@@ -31,15 +43,7 @@ void WilsonCoefficient::set_contribution_type(ContributionType type) {
 
 //TODO : disgusting
 LhaID WilsonCoefficient::id(QCDOrder order) const {
-    std::string name = this->coeffName;
-
-    if (ends_with(name, "_THDM")) {
-        name = name.substr(0, name.size() - 5);
-    } else if (ends_with(name, "_SUSY")) {
-        name = name.substr(0, name.size() - 5);
-    }
-
-    return WCoefMapper::flha_full(WCoefMapper::enum_elt(name), order, type);
+    return WCoefMapper::flha_full(WCoefMapper::enum_elt(get_base_name()), order, type);
 }
 
 bool WilsonCoefficient::operator==(const WilsonCoefficient &other) const {

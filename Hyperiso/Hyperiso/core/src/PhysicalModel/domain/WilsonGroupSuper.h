@@ -32,6 +32,7 @@ public:
     complex_t get_matching_coefficient(std::string coeff, std::string order) const;
     complex_t get_running_coefficient(std::string coeff, std::string order) const;
     QCDOrder get_order();
+    std::string get_matching_storage_block() const { return GroupMapper::str(this->id, ScaleType::MATCHING); }
     bool is_double_basis() const;
 
     // Interface methods
