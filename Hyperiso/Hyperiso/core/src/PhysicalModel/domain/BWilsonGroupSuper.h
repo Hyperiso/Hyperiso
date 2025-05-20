@@ -4,6 +4,8 @@
 #include "BWilsonSuper.h"
 #include "WilsonGroupSuper.h"
 
+
+
 class BCoefficientGroup : public CoefficientGroup {
 public:
     BCoefficientGroup();

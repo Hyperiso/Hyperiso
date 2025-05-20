@@ -15,6 +15,12 @@
 
 using BRP = BWilsonRunningParameters;
 
+struct CoefficientGroupSources {
+    std::unordered_map<ParameterType, std::vector<std::string>> sources;
+    std::function<std::unordered_map<WCoef, scalar_t>(const std::unordered_map<QCDOrder, std::unordered_map<WCoef, scalar_t>>&, const std::unordered_map<std::string, std::shared_ptr<Block>>&)> func;
+};
+
+
 class CoefficientGroup : public std::map<std::string, std::shared_ptr<WilsonCoefficient>> {
 public:
     // Constructors
@@ -33,6 +39,10 @@ public:
     complex_t get_running_coefficient(std::string coeff, std::string order) const;
     QCDOrder get_order();
     std::string get_matching_storage_block() const { return GroupMapper::str(this->id, ScaleType::MATCHING); }
+
+    std::unordered_map<ParameterType, std::vector<std::string>> get_sources(QCDOrder ord, int id=0) {return this->sources[id][ord].sources;}
+    std::function<std::unordered_map<WCoef, scalar_t>(const std::unordered_map<QCDOrder, std::unordered_map<WCoef, scalar_t>>&, const std::unordered_map<std::string, std::shared_ptr<Block>>&)> get_func(QCDOrder ord, int id=0) {return this->sources[id][ord].func;}
+    
     bool is_double_basis() const;
 
     // Interface methods
@@ -50,6 +60,7 @@ protected:
     ContributionType wilson_type {ContributionType::SM};
     QCDOrder current_order = QCDOrder::LO; //TODO SAME : cannot be none, need to see logic
     WGroup id;
+    std::vector<std::map<QCDOrder, CoefficientGroupSources>> sources;
 };
 
 #endif

@@ -44,6 +44,8 @@ public:
     void complete_wilson_block_with_op(WGroup group_id, ContributionType src_id, ContributionType dest_id, BWilsonBasis basis);
     void complete_wilson_block_from_copy(WGroup group_id, ContributionType src, ContributionType dest, BWilsonBasis basis=BWilsonBasis::STANDARD);
     
+    void fill_sources_for_group(const std::string & groupName, const std::string& order, std::unordered_map<ParameterType, std::vector<std::string>>& src, int id=0);
+
     std::string getModel();
     std::shared_ptr<CoefficientGroup> getCoefficientGroup(const std::string& groupName) const;
     std::map<std::string, std::shared_ptr<CoefficientGroup>> getGroups();

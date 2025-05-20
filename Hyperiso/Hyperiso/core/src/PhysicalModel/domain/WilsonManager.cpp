@@ -92,11 +92,114 @@ void CoefficientManager::init_group_matching(const std::string& groupName, const
     }
 }
 
+void CoefficientManager::fill_sources_for_group(const std::string & groupName, const std::string& order, std::unordered_map<ParameterType, std::vector<std::string>>& src, int id) {
+    switch (OrderMapper::enum_elt(order))
+    {
+    case QCDOrder::NNLO:
+        for (const auto& [key, vec] : this->coefficientGroups[groupName]->get_sources(QCDOrder::NNLO)) {
+            auto& targetVec = src[key];
+            targetVec.insert(targetVec.end(), vec.begin(), vec.end());
+        }
+        [[fallthrough]];
+        
+    case QCDOrder::NLO:
+        for (const auto& [key, vec] : this->coefficientGroups[groupName]->get_sources(QCDOrder::NLO)) {
+            auto& targetVec = src[key];
+            targetVec.insert(targetVec.end(), vec.begin(), vec.end());
+        }
+        [[fallthrough]];
+
+    case QCDOrder::LO:
+        for (const auto& [key, vec] : this->coefficientGroups[groupName]->get_sources(QCDOrder::LO)) {
+            auto& targetVec = src[key];
+            targetVec.insert(targetVec.end(), vec.begin(), vec.end());
+        }
+        break;
+
+    default:
+        break;
+    }
+}
+
+std::pair<WCoef, std::pair<QCDOrder, ContributionType>> lha_wilson_deserialize(LhaID id) {
+    auto parts = id.get_parts();
+    auto w_id = std::make_pair<int, int>(parts[0], parts[1]);
+
+    if (!WCoefMapper::inverse_flha_mapping().contains(w_id)) {
+        LOG_ERROR("ValueError", "bad lha id for wilson conversion");
+    }
+    WCoef coef = WCoefMapper::inverse_flha_mapping().at(w_id);
+    QCDOrder order = parts[2] ? parts[2] -1 ? QCDOrder::NNLO : QCDOrder::NLO : QCDOrder::LO;
+    ContributionType part = parts[3] ? parts[3] -1 ? ContributionType::TOTAL : ContributionType::BSM : ContributionType::SM;
+
+    std::pair<WCoef, std::pair<QCDOrder, ContributionType>> ret;
+    ret = {coef, {order, part}};
+
+    return ret;
+}
+
 void CoefficientManager::init_group_hadronic(const std::string& groupName, const std::string& order) {
     if (!this->coefficientGroups.contains(groupName)) {
         throw_no_group_error(groupName);
     }
 
+    std::unordered_map<ParameterType, std::vector<std::string>> src = {};
+    fill_sources_for_group(groupName, order, src);
+
+    QCDOrder ord = OrderMapper::enum_elt(order);
+
+    std::map<QCDOrder, std::function<std::unordered_map<WCoef, scalar_t>(const std::unordered_map<QCDOrder, std::unordered_map<WCoef, scalar_t>>&, const std::unordered_map<std::string, std::shared_ptr<Block>>&)>> funcs = {
+        {QCDOrder::LO, this->coefficientGroups[groupName]->get_func(QCDOrder::LO)},
+        {QCDOrder::NLO, this->coefficientGroups[groupName]->get_func(QCDOrder::NLO)},
+        {QCDOrder::NNLO, this->coefficientGroups[groupName]->get_func(QCDOrder::NNLO)}
+    };
+
+    std::string matching_block_name = this->coefficientGroups[groupName]->get_matching_storage_block();
+
+    auto func = [matching_block_name, ord, funcs] (const std::unordered_map<std::string, std::shared_ptr<Block>>& src, std::shared_ptr<DependentBlock> dep_block) {
+        std::map<LhaID, std::shared_ptr<Parameter>> matching_coeff = src.at(matching_block_name)->getItems();
+
+        std::unordered_map<ContributionType, std::unordered_map<QCDOrder, std::unordered_map<WCoef, scalar_t>>> matching_map;
+
+        for (auto& coef : matching_coeff) {
+            std::pair<WCoef, std::pair<QCDOrder, ContributionType>> c = lha_wilson_deserialize(coef.first);
+
+            const WCoef& wcoef = c.first;
+            const QCDOrder& order = c.second.first;
+            const ContributionType& contrib = c.second.second;
+
+            matching_map[contrib][order][wcoef] = coef.second->get_val();
+
+        }
+        std::unordered_map<ContributionType, std::unordered_map<QCDOrder,std::unordered_map<WCoef, scalar_t>>> res;
+
+        for (auto contri : {ContributionType::SM, ContributionType::BSM, ContributionType::TOTAL}) {
+            switch (ord)
+                {
+                case QCDOrder::NNLO:
+                    res[contri][QCDOrder::NNLO] = funcs.at(QCDOrder::NNLO)(matching_map[contri], src);
+                    [[fallthrough]];
+                    
+                case QCDOrder::NLO:
+                    res[contri][QCDOrder::NLO] = funcs.at(QCDOrder::NLO)(matching_map[contri], src);
+                    [[fallthrough]];
+
+                case QCDOrder::LO:
+                    res[contri][QCDOrder::LO] = funcs.at(QCDOrder::LO)(matching_map[contri], src);
+                    break;
+
+                default:
+                    break;
+                }
+        }
+        for (auto& _1 : res) {
+            for (auto& coef : _1) {
+                //STORE
+            }
+        }
+
+    };
+    WilsonParamComposer().compose_block(GroupMapper::str(GroupMapper::enum_elt(groupName), ScaleType::HADRONIC, false, BWilsonBasis::STANDARD), src, func);
 
     if (ModelAPI().get() == Model::SM) {
 
