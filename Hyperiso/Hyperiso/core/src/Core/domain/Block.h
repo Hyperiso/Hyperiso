@@ -150,6 +150,7 @@ public:
      */
     ~Block() { notifyObservers(); }
 
+    friend std::ostream& operator<<(std::ostream&, std::shared_ptr<Block>);
 protected:
     std::vector<std::shared_ptr<Block>> observers;      ///< List of observer blocks.
     std::map<LhaID, std::shared_ptr<Parameter>> items;  ///< Map of parameters.

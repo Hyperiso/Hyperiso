@@ -51,7 +51,7 @@ public:
             type = ContributionType::BSM;
         }
         for (auto order : {QCDOrder::LO, QCDOrder::NLO, QCDOrder::NNLO}) {
-            matching_info[order] = MatchingInfo(this->id(order));
+            matching_info[order] = MatchingInfo(this->id(order, type));
         }
     }
 
@@ -66,11 +66,13 @@ public:
     void set_storage_block(std::string block_name);
     void set_contribution_type(ContributionType type);
 
-    complex_t get_matching_value(std::string order) const; 
+    complex_t get_matching_value(std::string order, ContributionType cont_type) const; 
     std::string get_name() const {return this->coeffName;}
     std::string get_storage_block() const {return this->storage_block;}
     QCDOrder get_max_order() const {return this->max_order;}
-    LhaID id(QCDOrder order) const;
+    ContributionType get_type() {return this->type;}
+
+    LhaID id(QCDOrder order, ContributionType typ) const;
 
 
     bool operator==(const WilsonCoefficient& other) const;

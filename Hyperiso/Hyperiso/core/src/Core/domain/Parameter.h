@@ -75,6 +75,12 @@ public:
     void set_std(scalar_t stat, scalar_t syst);
 
     /**
+     * @brief Sets the identifier of the parameter.
+     * @param stat New identifier.
+     */
+    void set_id(ParamId id);
+
+    /**
      * @brief Retrieves the current value of the parameter (shifted if allowed).
      * @return The current parameter value.
      */
@@ -171,6 +177,18 @@ public:
         os << "Parameter " << p.id.block << "," << p.id.code << "=" << p.expected << "+-" << p.deviation_syst << "+-" << p.deviation_stat << std::endl;
         return os;
     }
+
+    /**
+     * @brief Overloads the += operator to add another Parameter to this one.
+     *
+     * Adds the numerical fields (expected, deviation_stat, deviation_syst, shift)
+     * from the given Parameter to this instance.
+     *
+     * @param other The Parameter to add.
+     * @return Reference to this Parameter after addition.
+     */
+    Parameter& operator+=(const Parameter& other);
+
 };
 
 class DependentParameter;
@@ -241,6 +259,25 @@ private:
     bool update_at_unfreeze {false};                                    ///< If true, an update is triggered upon unfreezing.
 };
 
+/**
+ * @brief Overloads the += operator for shared pointers to Parameter.
+ *
+ * If both shared pointers are non-null, this function adds the contents
+ * of rhs to lhs using the Parameter's += operator.
+ *
+ * @param lhs Shared pointer to the Parameter to be modified.
+ * @param rhs Shared pointer to the Parameter to add.
+ * @return Reference to lhs after the addition.
+ */
+inline std::shared_ptr<Parameter>& operator+=(std::shared_ptr<Parameter>& lhs, const std::shared_ptr<Parameter>& rhs) {
+    if (rhs) {
+        if (lhs)
+            *lhs += *rhs;
+        else
+            lhs = std::make_shared<Parameter>(*rhs);
+    }
+    return lhs;
+}
 
 #endif // __PARAMETER_H__
 

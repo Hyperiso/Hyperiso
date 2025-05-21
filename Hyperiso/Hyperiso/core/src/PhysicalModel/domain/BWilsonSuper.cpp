@@ -420,7 +420,7 @@ C9::C9() : WilsonCoefficient("C9", GroupMapper::str(WGroup::B) + "_MATCH") {
         LhaID(3051313, 4133, 1, 0)
     };
 
-    matching_info[QCDOrder::NLO] = MatchingInfo(LhaID(3051313, 4133, 2, 0));
+    matching_info[QCDOrder::NNLO] = MatchingInfo(LhaID(3051313, 4133, 2, 0));
 
 }
 

@@ -33,6 +33,27 @@ std::string CoefficientManager::getModel() {
 }
 
 void CoefficientManager::init_group_matching(const std::string& groupName, const std::string& order) {
+    int only_total = 0;
+    switch (OrderMapper::enum_elt(order))
+    {
+    case QCDOrder::NNLO:
+        init_specific_order_group_matching(groupName, OrderMapper::str(QCDOrder::NNLO), only_total++);
+        [[fallthrough]];
+        
+    case QCDOrder::NLO:
+        init_specific_order_group_matching(groupName, OrderMapper::str(QCDOrder::NLO), only_total++);
+        [[fallthrough]];
+
+    case QCDOrder::LO:
+        init_specific_order_group_matching(groupName, OrderMapper::str(QCDOrder::LO), only_total++);
+        break;
+
+    default:
+        break;
+    }
+}
+
+void CoefficientManager::init_specific_order_group_matching(const std::string& groupName, const std::string& order, bool only_total) {
     if (!this->coefficientGroups.contains(groupName)) {
         throw_no_group_error(groupName);
     }
@@ -40,19 +61,21 @@ void CoefficientManager::init_group_matching(const std::string& groupName, const
     bool marty = HAS_WILSON_API().get();
     bool SM = ModelAPI().get() == Model::SM;
     
-    LOG_INFO("Initializing group", groupName, "at", order);
-    this->coefficientGroups.at(groupName)->init(OrderMapper::enum_elt(order));
-
-    if (!SM) {
-        LOG_INFO("Computing SM contribution");
-        std::string sm_group = groupName + "_SM";
-        std::shared_ptr<CoefficientGroup> sm_group_ptr = this->coefficientGroups[groupName]->get_sm_group();
-        if (!sm_group_ptr)
-            LOG_ERROR("LogicError", "No SM group found for " + groupName);
-        
-        this->registerCoefficientGroup(sm_group, sm_group_ptr);
-        sm_group_ptr->init(OrderMapper::enum_elt(order));
+    if (!only_total) {
+        LOG_INFO("Initializing group", groupName, "at", order);
+        this->coefficientGroups.at(groupName)->init(OrderMapper::enum_elt(order));
+        if (!SM) {
+            LOG_INFO("Computing SM contribution");
+            std::string sm_group = groupName + "_SM";
+            std::shared_ptr<CoefficientGroup> sm_group_ptr = this->coefficientGroups[groupName]->get_sm_group();
+            if (!sm_group_ptr)
+                LOG_ERROR("LogicError", "No SM group found for " + groupName);
+            
+            this->registerCoefficientGroup(sm_group, sm_group_ptr);
+            sm_group_ptr->init(OrderMapper::enum_elt(order));
+        }
     }
+
 
     QCDOrder enum_order = OrderMapper::enum_elt(order);
     std::string storage_block = this->coefficientGroups.at(groupName)->get_matching_storage_block();
@@ -68,9 +91,9 @@ void CoefficientManager::init_group_matching(const std::string& groupName, const
 
             composer.compose_parameter(
                 pid, 
-                std::unordered_set<ParamId> {{storage_block, coeff.second->id(enum_order)}}, 
+                std::unordered_set<ParamId> {{storage_block, coeff.second->id(enum_order, coeff.second->get_type())}}, 
                 [&] (const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src, std::shared_ptr<DependentParameter> dep_param) {
-                    dep_param->set_expected(src.at({ParameterType::WILSON, storage_block, coeff.second->id(enum_order)})->get_val());
+                    dep_param->set_expected(src.at({ParameterType::WILSON, storage_block, coeff.second->id(enum_order, coeff.second->get_type())})->get_val());
                 }
             );
         } else {
@@ -86,13 +109,13 @@ void CoefficientManager::init_group_matching(const std::string& groupName, const
                 WCoefMapper::flha_full(WCoefMapper::enum_elt(coeff.second->get_base_name()), enum_order, ContributionType::SM)
             };
 
-            std::unordered_set<ParamId> sources {pid_src, {storage_block, coeff.second->id(enum_order)}};
+            std::unordered_set<ParamId> sources {pid_src, {storage_block, coeff.second->id(enum_order, coeff.second->get_type())}};
 
             composer.compose_parameter(
                 pid_dest, 
                 sources, 
                 [&] (const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src, std::shared_ptr<DependentParameter> dep_param) {
-                    double src_val = ParameterProxy(ParameterType::WILSON)(storage_block, coeff.second->id(enum_order));
+                    double src_val = ParameterProxy(ParameterType::WILSON)(storage_block, coeff.second->id(enum_order, coeff.second->get_type()));
                     double sm_val = ParameterProxy(ParameterType::WILSON)(pid_src.block, pid_src.code);
                     dep_param->set_expected(marty ? src_val - sm_val : src_val + sm_val);
                 }
@@ -107,21 +130,21 @@ void CoefficientManager::fill_sources_for_group(const std::string & groupName, c
     switch (OrderMapper::enum_elt(order))
     {
     case QCDOrder::NNLO:
-        for (const auto& [key, vec] : this->coefficientGroups[groupName]->get_sources(QCDOrder::NNLO)) {
+        for (const auto& [key, vec] : this->coefficientGroups[groupName]->get_sources(QCDOrder::NNLO, id)) {
             auto& targetVec = src[key];
             targetVec.insert(targetVec.end(), vec.begin(), vec.end());
         }
         [[fallthrough]];
         
     case QCDOrder::NLO:
-        for (const auto& [key, vec] : this->coefficientGroups[groupName]->get_sources(QCDOrder::NLO)) {
+        for (const auto& [key, vec] : this->coefficientGroups[groupName]->get_sources(QCDOrder::NLO, id)) {
             auto& targetVec = src[key];
             targetVec.insert(targetVec.end(), vec.begin(), vec.end());
         }
         [[fallthrough]];
 
     case QCDOrder::LO:
-        for (const auto& [key, vec] : this->coefficientGroups[groupName]->get_sources(QCDOrder::LO)) {
+        for (const auto& [key, vec] : this->coefficientGroups[groupName]->get_sources(QCDOrder::LO, id)) {
             auto& targetVec = src[key];
             targetVec.insert(targetVec.end(), vec.begin(), vec.end());
         }
@@ -140,7 +163,7 @@ std::pair<WCoef, std::pair<QCDOrder, ContributionType>> lha_wilson_deserialize(L
         LOG_ERROR("ValueError", "bad lha id for wilson conversion");
     }
     WCoef coef = WCoefMapper::inverse_flha_mapping().at(w_id);
-    QCDOrder order = parts[2] ? parts[2] -1 ? QCDOrder::NNLO : QCDOrder::NLO : QCDOrder::LO;
+    QCDOrder order = parts[2] ? ((parts[2] -1) ? QCDOrder::NNLO : QCDOrder::NLO) : QCDOrder::LO;
     ContributionType part = parts[3] ? parts[3] -1 ? ContributionType::TOTAL : ContributionType::BSM : ContributionType::SM;
 
     std::pair<WCoef, std::pair<QCDOrder, ContributionType>> ret;
@@ -149,41 +172,39 @@ std::pair<WCoef, std::pair<QCDOrder, ContributionType>> lha_wilson_deserialize(L
     return ret;
 }
 
-void CoefficientManager::init_group_hadronic(const std::string& groupName, const std::string& order) {
+//TODO : manage id correctly, use base ENUM.
+void CoefficientManager::init_group_hadronic(const std::string& groupName, const std::string& order, int id) {
     if (!this->coefficientGroups.contains(groupName)) {
         throw_no_group_error(groupName);
     }
 
     std::unordered_map<ParameterType, std::vector<std::string>> src = {};
-    fill_sources_for_group(groupName, order, src);
+    fill_sources_for_group(groupName, order, src, id);
 
     QCDOrder ord = OrderMapper::enum_elt(order);
 
     std::map<QCDOrder, std::function<std::unordered_map<WCoef, scalar_t>(const std::unordered_map<QCDOrder, std::unordered_map<WCoef, scalar_t>>&, const std::unordered_map<std::string, std::shared_ptr<Block>>&)>> funcs = {
-        {QCDOrder::LO, this->coefficientGroups[groupName]->get_func(QCDOrder::LO)},
-        {QCDOrder::NLO, this->coefficientGroups[groupName]->get_func(QCDOrder::NLO)},
-        {QCDOrder::NNLO, this->coefficientGroups[groupName]->get_func(QCDOrder::NNLO)}
+        {QCDOrder::LO, this->coefficientGroups[groupName]->get_func(QCDOrder::LO, id)},
+        {QCDOrder::NLO, this->coefficientGroups[groupName]->get_func(QCDOrder::NLO, id)},
+        {QCDOrder::NNLO, this->coefficientGroups[groupName]->get_func(QCDOrder::NNLO, id)}
     };
 
     std::string matching_block_name = this->coefficientGroups[groupName]->get_matching_storage_block();
 
     auto func = [matching_block_name, ord, funcs, groupName] (const std::unordered_map<std::string, std::shared_ptr<Block>>& src, std::shared_ptr<DependentBlock> dep_block) {
         std::map<LhaID, std::shared_ptr<Parameter>> matching_coeff = src.at(matching_block_name)->getItems();
-
+        std::cout << src.at(matching_block_name) << std::endl;
         std::unordered_map<ContributionType, std::unordered_map<QCDOrder, std::unordered_map<WCoef, scalar_t>>> matching_map;
-
         for (auto& coef : matching_coeff) {
             std::pair<WCoef, std::pair<QCDOrder, ContributionType>> c = lha_wilson_deserialize(coef.first);
 
             const WCoef& wcoef = c.first;
             const QCDOrder& order = c.second.first;
             const ContributionType& contrib = c.second.second;
-
             matching_map[contrib][order][wcoef] = coef.second->get_val();
 
         }
         std::unordered_map<ContributionType, std::unordered_map<QCDOrder,std::unordered_map<WCoef, scalar_t>>> res;
-
         for (auto contri : {ContributionType::SM, ContributionType::BSM, ContributionType::TOTAL}) {
             switch (ord)
                 {
@@ -218,7 +239,34 @@ void CoefficientManager::init_group_hadronic(const std::string& groupName, const
         }
     };
 
-    WilsonParamComposer().compose_block(GroupMapper::str(GroupMapper::enum_elt(groupName), ScaleType::HADRONIC, false, BWilsonBasis::STANDARD), src, func);
+    WilsonParamComposer().compose_block(GroupMapper::str(GroupMapper::enum_elt(groupName), ScaleType::HADRONIC, false, id ? BWilsonBasis::TRADITIONAL : BWilsonBasis::STANDARD), src, func);
+}
+
+//TODO : manage with multiple basis
+void CoefficientManager::init_group_full(const std::string& groupName, int id) {
+
+    std::string block_grp_name = GroupMapper::str(GroupMapper::enum_elt(groupName), ScaleType::HADRONIC, false, id ? BWilsonBasis::TRADITIONAL : BWilsonBasis::STANDARD);
+    std::unordered_map<ParameterType, std::vector<std::string>> src = {
+        {ParameterType::WILSON, {block_grp_name}}
+    };
+
+    auto func = [block_grp_name] (const std::unordered_map<std::string, std::shared_ptr<Block>>& src, std::shared_ptr<DependentBlock> dep_block) {
+        std::map<LhaID, std::shared_ptr<Parameter>> items = src.at(block_grp_name)->getItems();
+        std::map<LhaID, std::shared_ptr<Parameter>> result;
+
+        for (auto& [k,v] : items) {
+            std::pair<WCoef, std::pair<QCDOrder, ContributionType>> elem = lha_wilson_deserialize(k);
+            auto base = WCoefMapper::flha_base(elem.first);
+            auto res_id = LhaID(base.first, base.second, 2, elem.second.second == ContributionType::SM ? 0 : elem.second.second == ContributionType::BSM ? 1 : 2);
+            result[res_id] += v;
+            result[res_id]->set_id({ParameterType::WILSON, block_grp_name, res_id });
+        }
+
+        for (auto& elem : result) {
+            dep_block->store_or_assign(elem.first, std::make_shared<Parameter>(*elem.second));
+        }
+    };
+    WilsonParamComposer().compose_block(GroupMapper::str(GroupMapper::enum_elt(groupName), ScaleType::HADRONIC, true, id ? BWilsonBasis::TRADITIONAL : BWilsonBasis::STANDARD), src, func);
 }
 
 void CoefficientManager::switchbasis(const std::string& groupName) {
@@ -236,57 +284,44 @@ void CoefficientManager::switchbasis(const std::string& groupName) {
     }
 }
 
-complex_t CoefficientManager::getMatchingCoefficient(const std::string& groupName, const std::string& coeffName, const std::string& order, bool sm_only) {
+complex_t CoefficientManager::getMatchingCoefficient(const std::string& groupName, const std::string& coeffName, const std::string& order, ContributionType cont_type) {
     if (!this->coefficientGroups.contains(groupName)) {
         throw_no_group_error(groupName);
     }
 
-    complex_t c = this->coefficientGroups.at(groupName)->get_matching_coefficient(coeffName, order);
+    complex_t c = this->coefficientGroups.at(groupName)->get_matching_coefficient(coeffName, order, cont_type);
 
-    if (has_bsm && !sm_only) {
-        std::string bsm_group = groupName + bsm_suffix;
-        if (!this->coefficientGroups.contains(bsm_group)) {
-            throw_no_group_error(bsm_group);
-        }
-        c += this->coefficientGroups.at(bsm_group)->get_matching_coefficient(coeffName, order);
-    }
     return c;
 }
 
-complex_t CoefficientManager::getFullMatchingCoefficient(const std::string& groupName, const std::string& coeffName, const std::string& order, bool sm_only) {
+complex_t CoefficientManager::getFullMatchingCoefficient(const std::string& groupName, const std::string& coeffName, const std::string& order, ContributionType cont_type) {
     double fact = wilson_p("WPARAM_MATCH_SM", 1) / (4 * PI);
     int max_order = static_cast<int>(OrderMapper::enum_elt(order));
     complex_t c {0};
     for (size_t o = 1; o <= max_order; o++) {
-        c += this->getMatchingCoefficient(groupName, coeffName, OrderMapper::str(static_cast<QCDOrder>(o)), sm_only) * std::pow(fact, o - 1);
+        c += this->getMatchingCoefficient(groupName, coeffName, OrderMapper::str(static_cast<QCDOrder>(o)), cont_type) * std::pow(fact, o - 1);
     }
     return c;
 }
 
-complex_t CoefficientManager::getRunCoefficient(const std::string& groupName, const std::string& coeffName, const std::string& order, bool sm_only) {
+complex_t CoefficientManager::getRunCoefficient(const std::string& groupName, const std::string& coeffName, const std::string& order, ContributionType cont_type) {
     if (!this->coefficientGroups.contains(groupName)) {
         throw_no_group_error(groupName);
     }
 
-    complex_t c = this->coefficientGroups.at(groupName)->get_running_coefficient(coeffName, order);
+    complex_t c = this->coefficientGroups.at(groupName)->get_running_coefficient(coeffName, order, cont_type);
 
-    if (has_bsm && !sm_only) {
-        std::string bsm_group = groupName + bsm_suffix;
-        if (!this->coefficientGroups.contains(bsm_group)) {
-            throw_no_group_error(bsm_group);
-        }
-        c += this->coefficientGroups.at(bsm_group)->get_running_coefficient(coeffName, order);
-    }
+
 
     return c;
 }
 
-complex_t CoefficientManager::getFullRunCoefficient(const std::string& groupName, const std::string& coeffName, const std::string& order, bool sm_only) {
+complex_t CoefficientManager::getFullRunCoefficient(const std::string& groupName, const std::string& coeffName, const std::string& order, ContributionType cont_type) {
     double fact = wilson_p("WPARAM_RUN_SM", 1) / (4 * PI);
     int max_order = static_cast<int>(OrderMapper::enum_elt(order));
     complex_t c {0};
     for (size_t o = 1; o <= max_order; o++) {
-        c += this->getRunCoefficient(groupName, coeffName, OrderMapper::str(static_cast<QCDOrder>(o)), sm_only) * std::pow(fact, o - 1);
+        c += this->getRunCoefficient(groupName, coeffName, OrderMapper::str(static_cast<QCDOrder>(o)), cont_type) * std::pow(fact, o - 1);
     }
     return c;
 }
@@ -340,6 +375,11 @@ std::shared_ptr<CoefficientManager> CoefficientManager::Builder(std::string mode
         manager->init_group_matching(group.first, order);
         LOG_INFO("(CoefficientManager) Initializing group hadronic", group.first);
         manager->init_group_hadronic(group.first, order);
+        manager->init_group_full(group.first);
+        if (group.second->is_double_basis()){
+            manager->init_group_hadronic(group.first, order, 1); //TODO : base 2}
+            manager->init_group_full(group.first, 1);
+        }
     }
     LOG_INFO("(CoefficientManager) Manager successfully initialized");
     return manager;

@@ -42,8 +42,8 @@ void WilsonCoefficient::set_contribution_type(ContributionType type) {
 }
 
 //TODO : disgusting
-LhaID WilsonCoefficient::id(QCDOrder order) const {
-    return WCoefMapper::flha_full(WCoefMapper::enum_elt(get_base_name()), order, type);
+LhaID WilsonCoefficient::id(QCDOrder order, ContributionType typ) const {
+    return WCoefMapper::flha_full(WCoefMapper::enum_elt(get_base_name()), order, typ);
 }
 
 bool WilsonCoefficient::operator==(const WilsonCoefficient &other) const {
@@ -52,7 +52,7 @@ bool WilsonCoefficient::operator==(const WilsonCoefficient &other) const {
             && this->is_owned == other.is_owned;
 }
 
-complex_t WilsonCoefficient::get_matching_value(std::string order) const {
+complex_t WilsonCoefficient::get_matching_value(std::string order, ContributionType cont_type) const {
     ParameterProxy wilson_p {ParameterType::WILSON};
-    return complex_t(wilson_p(storage_block, this->id(OrderMapper::enum_elt(order))));
+    return complex_t(wilson_p(storage_block, this->id(OrderMapper::enum_elt(order), cont_type)));
 }

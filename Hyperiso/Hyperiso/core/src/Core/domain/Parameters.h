@@ -318,6 +318,15 @@ public:
     void unfreeze_param(const BlockName& blockName, const LhaID& id);
 
     /**
+     * @brief Print the content of a block.
+     *
+     * Prints the content of a block in the block accessor.
+     *
+     * @param blockname Name of the block to print
+     */
+    void print_block(const std::string blockname);
+    
+    /**
      * @brief Stream output operator for Parameters instance.
      *
      * Prints the content of the block accessor.

@@ -482,7 +482,12 @@ C7_susy::C7_susy() : WilsonCoefficient("C7_SUSY", GroupMapper::str(WGroup::B) + 
         
             {ParameterType::WILSON, "WPARAM_SI_BSM", {13,0}},
             {ParameterType::WILSON, "WPARAM_SI_BSM", {13,1}},
-        
+            {ParameterType::WILSON, "WPARAM_SI_BSM", {14, 0}},       // MsqU
+            {ParameterType::WILSON, "WPARAM_SI_BSM", {14, 1}},
+            {ParameterType::WILSON, "WPARAM_SI_BSM", {14, 2}},
+            {ParameterType::WILSON, "WPARAM_SI_BSM", {14, 3}},
+            {ParameterType::WILSON, "WPARAM_SI_BSM", {14, 4}},
+            {ParameterType::WILSON, "WPARAM_SI_BSM", {14, 5}},
             {ParameterType::WILSON, "MATRIX_BSM", {3,0,0,1}},
             {ParameterType::WILSON, "MATRIX_BSM", {3,0,0,2}},
             {ParameterType::WILSON, "MATRIX_BSM", {3,0,1,1}},
@@ -1146,46 +1151,12 @@ C9_susy::C9_susy() : WilsonCoefficient("C9_SUSY", GroupMapper::str(WGroup::B) + 
             {ParameterType::WILSON, "WPARAM_SI_BSM", {16,1}},
             {ParameterType::WILSON, "WPARAM_SI_BSM", {16,2}},
         
-            // Matrices utilisées
-            {ParameterType::WILSON, "MATRIX_BSM", {1,0,0}},
-            {ParameterType::WILSON, "MATRIX_BSM", {1,0,1}},
-            {ParameterType::WILSON, "MATRIX_BSM", {1,0,2}},
-            {ParameterType::WILSON, "MATRIX_BSM", {1,0,3}},
-            {ParameterType::WILSON, "MATRIX_BSM", {1,0,4}},
-            {ParameterType::WILSON, "MATRIX_BSM", {1,0,5}},
-            {ParameterType::WILSON, "MATRIX_BSM", {1,1,0}},
-            {ParameterType::WILSON, "MATRIX_BSM", {1,1,1}},
-            {ParameterType::WILSON, "MATRIX_BSM", {1,1,2}},
-            {ParameterType::WILSON, "MATRIX_BSM", {1,1,3}},
-            {ParameterType::WILSON, "MATRIX_BSM", {1,1,4}},
-            {ParameterType::WILSON, "MATRIX_BSM", {1,1,5}},
-        
-            {ParameterType::WILSON, "MATRIX_BSM", {3,0,0,1}},
-            {ParameterType::WILSON, "MATRIX_BSM", {3,0,0,2}},
-            {ParameterType::WILSON, "MATRIX_BSM", {3,0,1,1}},
-            {ParameterType::WILSON, "MATRIX_BSM", {3,0,1,2}},
-            {ParameterType::WILSON, "MATRIX_BSM", {3,1,0,1}},
-            {ParameterType::WILSON, "MATRIX_BSM", {3,1,0,2}},
-            {ParameterType::WILSON, "MATRIX_BSM", {3,1,1,1}},
-            {ParameterType::WILSON, "MATRIX_BSM", {3,1,1,2}},
-        
-            {ParameterType::WILSON, "MATRIX_BSM", {4,0,0,2}},
-            {ParameterType::WILSON, "MATRIX_BSM", {4,1,0,2}},
-        
-            {ParameterType::WILSON, "MATRIX_BSM", {5,0,0,1}},
-            {ParameterType::WILSON, "MATRIX_BSM", {5,1,0,1}},
-            {ParameterType::WILSON, "MATRIX_BSM", {5,0,1,1}},
-            {ParameterType::WILSON, "MATRIX_BSM", {5,1,1,1}},
             
             {ParameterType::WILSON, "MATRIX_BSM", {6,0,0,1}},
             {ParameterType::WILSON, "MATRIX_BSM", {6,1,0,1}},
             {ParameterType::WILSON, "MATRIX_BSM", {6,0,1,1}},
             {ParameterType::WILSON, "MATRIX_BSM", {6,1,1,1}},
         
-            {ParameterType::WILSON, "MATRIX_BSM", {9,0,0}},
-            {ParameterType::WILSON, "MATRIX_BSM", {9,0,1}},
-            {ParameterType::WILSON, "MATRIX_BSM", {9,1,0}},
-            {ParameterType::WILSON, "MATRIX_BSM", {9,1,1}},
             
             // Mixages
             {ParameterType::BSM, "UMIX", {0+1, 0+1}},
@@ -1196,6 +1167,35 @@ C9_susy::C9_susy() : WilsonCoefficient("C9_SUSY", GroupMapper::str(WGroup::B) + 
         compute_NLO,
         WCoefMapper::flha_full(WCoef::C9, QCDOrder::NLO, ContributionType::BSM)
     };
+
+    auto& sources = matching_info[QCDOrder::NLO].sources;
+
+    for (int me = 0; me < 6; ++me) {
+        for (int be = 0; be < 3; ++be) {
+            sources.insert({ParameterType::WILSON, "MATRIX_BSM", {1, me, be}});
+        }
+    }
+
+    for (int ie = 0; ie < 2; ie++) {
+        for (int ae = 0; ae < 6; ae++) {
+            for (int be = 1; be<3; ++be) {
+                sources.insert({ParameterType::WILSON, "MATRIX_BSM", {3, ie, ae, be}});
+            }
+        }
+    }
+
+    for (int je = 0; je < 2; je++) {
+        for (int be=0; be<3; be++) {
+            sources.insert({ParameterType::WILSON, "MATRIX_BSM", {5,je, be, 1}});
+            sources.insert({ParameterType::WILSON, "MATRIX_BSM", {6,je, be, 1}});
+        }
+    }
+
+    for (int ce = 0; ce < 6; ce++) {
+        for (int de = 0; de < 6; de++) {
+            sources.insert({ParameterType::WILSON, "MATRIX_BSM", {9,ce, de}});
+        }
+    }
 }
 
 scalar_t C9_susy::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src) {

@@ -341,3 +341,7 @@ std::shared_ptr<ModelStrategy> ParametersFactory::createStrategy(ParameterType i
             throw std::invalid_argument("Unknown parameters instance ID");
     }
 }
+
+void Parameters::print_block(const std::string blockname) {
+    std::cout << this->blockAccessor->at(blockname) << std::endl;
+}

@@ -23,24 +23,24 @@ scalar_t WilsonProvider::get(std::shared_ptr<AbstractConfig> config) {
                 GroupMapper::str(request.group),
                 WCoefMapper::str(request.coefficient),
                 OrderMapper::str(request.order),
-                sm_only) :
+                request.contribution) :
             cm->getMatchingCoefficient(
                 GroupMapper::str(request.group),
                 WCoefMapper::str(request.coefficient),
                 OrderMapper::str(request.order),
-                sm_only);
+                request.contribution);
     } else if (scale_type == ScaleType::HADRONIC) {
         return request.sum_qcd_orders ? 
             cm->getFullRunCoefficient(
                 GroupMapper::str(request.group),
                 WCoefMapper::str(request.coefficient),
                 OrderMapper::str(request.order),
-                sm_only) :
+                request.contribution) :
             cm->getRunCoefficient(
                 GroupMapper::str(request.group),
                 WCoefMapper::str(request.coefficient),
                 OrderMapper::str(request.order),
-                sm_only);
+                request.contribution);
     } else {
         LOG_ERROR("Invalid argument", "(WilsonProvider) Invalid scale type.");
     }

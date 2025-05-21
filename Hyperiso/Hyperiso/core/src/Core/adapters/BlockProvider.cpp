@@ -13,3 +13,7 @@ bool BlockProvider::exists(const std::string& blockname, ParameterType pt) {
 void BlockProvider::log_all_blocks(ParameterType type) {
     LOG_INFO(Parameters::GetInstance(type));
 }
+
+void BlockProvider::log_block(ParameterType type, const std::string& blockname) {
+    Parameters::GetInstance(type)->print_block(blockname);
+}

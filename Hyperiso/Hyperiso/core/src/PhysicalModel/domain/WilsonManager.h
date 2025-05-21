@@ -37,7 +37,9 @@ public:
 
     void registerCoefficientGroup(const std::string& groupName, std::shared_ptr<CoefficientGroup> group);
     void init_group_matching(const std::string& groupName, const std::string& order);
-    void init_group_hadronic(const std::string& groupName, const std::string& order);
+    void init_group_hadronic(const std::string& groupName, const std::string& order, int id=0);
+    void init_specific_order_group_matching(const std::string& groupName, const std::string& order, bool only_total);
+    void init_group_full(const std::string& groupName, int id = 0);
     void switchbasis(const std::string& groupName);
     void update(std::string group, double mu_W, double mu_h);
     
@@ -47,10 +49,10 @@ public:
     std::shared_ptr<CoefficientGroup> getCoefficientGroup(const std::string& groupName) const;
     std::map<std::string, std::shared_ptr<CoefficientGroup>> getGroups();
 
-    complex_t getMatchingCoefficient(const std::string& groupName, const std::string& coeffName, const std::string& order, bool sm_only=false);
-    complex_t getFullMatchingCoefficient(const std::string& groupName, const std::string& coeffName, const std::string& order, bool sm_only=false);
-    complex_t getRunCoefficient(const std::string& groupName, const std::string& coeffName, const std::string& order, bool sm_only=false);
-    complex_t getFullRunCoefficient(const std::string& groupName, const std::string& coeffName, const std::string& order, bool sm_only=false);
+    complex_t getMatchingCoefficient(const std::string& groupName, const std::string& coeffName, const std::string& order, ContributionType cont_type);
+    complex_t getFullMatchingCoefficient(const std::string& groupName, const std::string& coeffName, const std::string& order, ContributionType cont_type);
+    complex_t getRunCoefficient(const std::string& groupName, const std::string& coeffName, const std::string& order, ContributionType cont_type);
+    complex_t getFullRunCoefficient(const std::string& groupName, const std::string& coeffName, const std::string& order, ContributionType cont_type);
 
     void printGroupCoefficients(const std::string& groupName) const;
 };

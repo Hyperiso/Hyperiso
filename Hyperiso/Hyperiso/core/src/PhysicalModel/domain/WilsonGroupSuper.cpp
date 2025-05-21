@@ -59,16 +59,16 @@ void CoefficientGroup::init(QCDOrder max_order) {
     this->current_order = max_order;
 }
 
-complex_t CoefficientGroup::get_matching_coefficient(std::string coeff, std::string order) const { 
-    return this->at(coeff)->get_matching_value(order); 
+complex_t CoefficientGroup::get_matching_coefficient(std::string coeff, std::string order, ContributionType cont_type) const { 
+    return this->at(coeff)->get_matching_value(order, cont_type); 
 }
 
-complex_t CoefficientGroup::get_running_coefficient(std::string coeff, std::string order) const {
+complex_t CoefficientGroup::get_running_coefficient(std::string coeff, std::string order, ContributionType cont_type) const {
     auto coef = this->at(coeff);
     ParameterProxy wilson_p = ParameterProxy(ParameterType::WILSON);
     // std::cout << "before : " << coef->id(OrderMapper::enum_elt(order)) << std::endl;
     // std::cout << GroupMapper::str(this->id, ScaleType::HADRONIC, false, this->basis.value_or(BWilsonBasis::STANDARD)) << " eheh " << coef->id(OrderMapper::enum_elt(order)) << std::endl;
-    return complex_t(wilson_p(GroupMapper::str(this->id, ScaleType::HADRONIC, false, this->basis.value_or(BWilsonBasis::STANDARD)), coef->id(OrderMapper::enum_elt(order))));
+    return complex_t(wilson_p(GroupMapper::str(this->id, ScaleType::HADRONIC, false, this->basis.value_or(BWilsonBasis::STANDARD)), coef->id(OrderMapper::enum_elt(order), cont_type)));
 }
 
 QCDOrder CoefficientGroup::get_order(){
@@ -120,12 +120,12 @@ void CoefficientGroup::switch_basis() {
 std::ostream& operator<<(std::ostream& os, const CoefficientGroup& coeffs) {
     for(auto& [name, coeff] : coeffs) {
         os << name << " --------------------------------" << std::endl;
-        os << "LO at mu_W: "    << coeffs.get_matching_coefficient(name, "LO")      << std::endl;
-        os << "LO at mu_h: "    << coeffs.get_running_coefficient(name, "LO")       << std::endl;
-        os << "NLO at mu_W: "   << coeffs.get_matching_coefficient(name, "NLO")     << std::endl;
-        os << "NLO at mu_h: "   << coeffs.get_running_coefficient(name, "NLO")      << std::endl;
-        os << "NNLO at mu_W: "  << coeffs.get_matching_coefficient(name, "NNLO")    << std::endl;
-        os << "NNLO at mu_h: "  << coeffs.get_running_coefficient(name, "NNLO")     << std::endl;
+        os << "LO at mu_W: "    << coeffs.get_matching_coefficient(name, "LO", ContributionType::TOTAL)      << std::endl;
+        os << "LO at mu_h: "    << coeffs.get_running_coefficient(name, "LO", ContributionType::TOTAL)       << std::endl;
+        os << "NLO at mu_W: "   << coeffs.get_matching_coefficient(name, "NLO", ContributionType::TOTAL)     << std::endl;
+        os << "NLO at mu_h: "   << coeffs.get_running_coefficient(name, "NLO", ContributionType::TOTAL)      << std::endl;
+        os << "NNLO at mu_W: "  << coeffs.get_matching_coefficient(name, "NNLO", ContributionType::TOTAL)    << std::endl;
+        os << "NNLO at mu_h: "  << coeffs.get_running_coefficient(name, "NNLO", ContributionType::TOTAL)     << std::endl;
     }
     return os;
 }

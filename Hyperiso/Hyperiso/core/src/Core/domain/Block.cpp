@@ -183,3 +183,12 @@ void DependentBlock::assign(const LhaID &key, double value) {
 
     this->items.at(key)->set_expected(value);
 }
+
+std::ostream &operator<<(std::ostream &os, std::shared_ptr<Block> ba) {
+    os << "Block " << ba->get_name() << ":\n";
+    for (auto &[id, val] : ba->getItems()) {
+        os << '\t' << id << ": " << val->get_val() << '\n';
+    }
+    os << '\n';
+    return os;
+}

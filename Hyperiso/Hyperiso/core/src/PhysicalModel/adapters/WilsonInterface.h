@@ -91,118 +91,118 @@ public:
         this->wm.switchbasis(GroupMapper::str(group_name));
     }
 
-    complex_t getMatchingCoefficient(WGroup group, WCoef coeff, QCDOrder order, bool sm_only=false) {
-        return this->wm.getMatchingCoefficient(GroupMapper::str(group), WCoefMapper::str(coeff), OrderMapper::str(order), sm_only);
+    complex_t getMatchingCoefficient(WGroup group, WCoef coeff, QCDOrder order, ContributionType cont_type) {
+        return this->wm.getMatchingCoefficient(GroupMapper::str(group), WCoefMapper::str(coeff), OrderMapper::str(order), cont_type);
     }
 
-    complex_t getM(WGroup group, WCoef coeff, QCDOrder order, bool sm_only=false) {
-        return getMatchingCoefficient(group, coeff, order, sm_only);
+    complex_t getM(WGroup group, WCoef coeff, QCDOrder order, ContributionType cont_type) {
+        return getMatchingCoefficient(group, coeff, order, cont_type);
     }
 
-    complex_t getFullMatchingCoefficient(WGroup group, WCoef coeff, QCDOrder order, bool sm_only=false) {
-        return this->wm.getFullMatchingCoefficient(GroupMapper::str(group), WCoefMapper::str(coeff), OrderMapper::str(ensure_mty_compat(order)), sm_only);
+    complex_t getFullMatchingCoefficient(WGroup group, WCoef coeff, QCDOrder order, ContributionType cont_type) {
+        return this->wm.getFullMatchingCoefficient(GroupMapper::str(group), WCoefMapper::str(coeff), OrderMapper::str(ensure_mty_compat(order)), cont_type);
     }
 
-    complex_t getFM(WGroup group, WCoef coeff, QCDOrder order, bool sm_only=false) {
-        return getFullMatchingCoefficient(group, coeff, order, sm_only);
+    complex_t getFM(WGroup group, WCoef coeff, QCDOrder order, ContributionType cont_type) {
+        return getFullMatchingCoefficient(group, coeff, order, cont_type);
     }
 
-    complex_t getRunCoefficient(WGroup group, WCoef coeff, QCDOrder order, bool sm_only=false) {
-        return this->wm.getRunCoefficient(GroupMapper::str(group), WCoefMapper::str(coeff), OrderMapper::str(order), sm_only);
+    complex_t getRunCoefficient(WGroup group, WCoef coeff, QCDOrder order, ContributionType cont_type) {
+        return this->wm.getRunCoefficient(GroupMapper::str(group), WCoefMapper::str(coeff), OrderMapper::str(order), cont_type);
     }
 
-    complex_t getR(WGroup group, WCoef coeff, QCDOrder order, bool sm_only=false) {
-        return getRunCoefficient(group, coeff, order, sm_only);
+    complex_t getR(WGroup group, WCoef coeff, QCDOrder order, ContributionType cont_type) {
+        return getRunCoefficient(group, coeff, order, cont_type);
     }
 
-    complex_t getFullRunCoefficient(WGroup group, WCoef coeff, QCDOrder order, bool sm_only=false) {
-        return this->wm.getFullRunCoefficient(GroupMapper::str(group), WCoefMapper::str(coeff), OrderMapper::str(ensure_mty_compat(order)), sm_only);
+    complex_t getFullRunCoefficient(WGroup group, WCoef coeff, QCDOrder order, ContributionType cont_type) {
+        return this->wm.getFullRunCoefficient(GroupMapper::str(group), WCoefMapper::str(coeff), OrderMapper::str(ensure_mty_compat(order)), cont_type);
     }
 
-    complex_t getFR(WGroup group, WCoef coeff, QCDOrder order, bool sm_only=false) {
-        return getFullRunCoefficient(group, coeff, order, sm_only);
+    complex_t getFR(WGroup group, WCoef coeff, QCDOrder order, ContributionType cont_type) {
+        return getFullRunCoefficient(group, coeff, order, cont_type);
     }
 
-    std::map<QCDOrder, complex_t> getSepOrderMatchingCoefficient(WGroup group, WCoef coeff, bool sm_only=false) {
+    std::map<QCDOrder, complex_t> getSepOrderMatchingCoefficient(WGroup group, WCoef coeff, ContributionType cont_type) {
         std::map<QCDOrder, complex_t> C {{
-            {QCDOrder::LO, getMatchingCoefficient(group, coeff, QCDOrder::LO)},
-            {QCDOrder::NLO, getMatchingCoefficient(group, coeff, QCDOrder::NLO)},
-            {QCDOrder::NNLO, getMatchingCoefficient(group, coeff, QCDOrder::NNLO)}
+            {QCDOrder::LO, getMatchingCoefficient(group, coeff, QCDOrder::LO, cont_type)},
+            {QCDOrder::NLO, getMatchingCoefficient(group, coeff, QCDOrder::NLO, cont_type)},
+            {QCDOrder::NNLO, getMatchingCoefficient(group, coeff, QCDOrder::NNLO, cont_type)}
         }};
         return C;
     }
 
-    std::map<QCDOrder, complex_t> getSM(WGroup group, WCoef coeff, bool sm_only=false) {
-        return getSepOrderMatchingCoefficient(group, coeff, sm_only);
+    std::map<QCDOrder, complex_t> getSM(WGroup group, WCoef coeff, ContributionType cont_type) {
+        return getSepOrderMatchingCoefficient(group, coeff, cont_type);
     }
 
-    std::map<QCDOrder, complex_t> getSepOrderRunCoefficient(WGroup group, WCoef coeff, bool sm_only=false) {
+    std::map<QCDOrder, complex_t> getSepOrderRunCoefficient(WGroup group, WCoef coeff, ContributionType cont_type) {
         std::map<QCDOrder, complex_t> C {{
-            {QCDOrder::LO, getRunCoefficient(group, coeff, QCDOrder::LO, sm_only)},
-            {QCDOrder::NLO, getRunCoefficient(group, coeff, QCDOrder::NLO, sm_only)},
-            {QCDOrder::NNLO, getRunCoefficient(group, coeff, QCDOrder::NNLO, sm_only)}
+            {QCDOrder::LO, getRunCoefficient(group, coeff, QCDOrder::LO, cont_type)},
+            {QCDOrder::NLO, getRunCoefficient(group, coeff, QCDOrder::NLO, cont_type)},
+            {QCDOrder::NNLO, getRunCoefficient(group, coeff, QCDOrder::NNLO, cont_type)}
         }};
         return C;
     }
 
-    std::map<QCDOrder, complex_t> getSR(WGroup group, WCoef coeff, bool sm_only=false) {
-        return getSepOrderRunCoefficient(group, coeff, sm_only);
+    std::map<QCDOrder, complex_t> getSR(WGroup group, WCoef coeff, ContributionType cont_type) {
+        return getSepOrderRunCoefficient(group, coeff, cont_type);
     }
 
-    std::map<WCoef, complex_t> getAllMatchingCoefficients(WGroup group, QCDOrder order, bool sm_only=false) {
+    std::map<WCoef, complex_t> getAllMatchingCoefficients(WGroup group, QCDOrder order, ContributionType cont_type) {
         std::vector<WCoef> ids = WCoefMapper::get_group(group);
         std::map<WCoef, complex_t> Cs;
         for (auto c : ids) {
-            Cs.emplace(c, getMatchingCoefficient(group, c, order, sm_only));
+            Cs.emplace(c, getMatchingCoefficient(group, c, order, cont_type));
         }
 
         return Cs;
     }
 
-    std::map<WCoef, complex_t> getAM(WGroup group, QCDOrder order, bool sm_only=false) {
-        return getAllMatchingCoefficients(group, order, sm_only);
+    std::map<WCoef, complex_t> getAM(WGroup group, QCDOrder order, ContributionType cont_type) {
+        return getAllMatchingCoefficients(group, order, cont_type);
     }
 
-    std::map<WCoef, complex_t> getAllRunCoefficients(WGroup group, QCDOrder order, bool sm_only=false) {
+    std::map<WCoef, complex_t> getAllRunCoefficients(WGroup group, QCDOrder order, ContributionType cont_type) {
         std::vector<WCoef> ids = WCoefMapper::get_group(group);
         std::map<WCoef, complex_t> Cs;
         for (auto c : ids) {
-            Cs.emplace(c, getRunCoefficient(group, c, order, sm_only));
+            Cs.emplace(c, getRunCoefficient(group, c, order, cont_type));
         }
 
         return Cs;
     }
 
-    std::map<WCoef, complex_t> getAR(WGroup group, QCDOrder order, bool sm_only=false) {
-        return getAllRunCoefficients(group, order, sm_only);
+    std::map<WCoef, complex_t> getAR(WGroup group, QCDOrder order, ContributionType cont_type) {
+        return getAllRunCoefficients(group, order, cont_type);
     }
 
-    std::map<WCoef, complex_t> getAllFullMatchingCoefficients(WGroup group, QCDOrder order, bool sm_only=false) {
+    std::map<WCoef, complex_t> getAllFullMatchingCoefficients(WGroup group, QCDOrder order, ContributionType cont_type) {
         std::vector<WCoef> ids = WCoefMapper::get_group(group);
         std::map<WCoef, complex_t> Cs;
         for (auto c : ids) {
-            Cs.emplace(c, getFullMatchingCoefficient(group, c, order, sm_only));
+            Cs.emplace(c, getFullMatchingCoefficient(group, c, order, cont_type));
         }
 
         return Cs;
     }
 
-    std::map<WCoef, complex_t> getAFM(WGroup group, QCDOrder order, bool sm_only=false) {
-        return getAllFullMatchingCoefficients(group, order, sm_only);
+    std::map<WCoef, complex_t> getAFM(WGroup group, QCDOrder order, ContributionType cont_type) {
+        return getAllFullMatchingCoefficients(group, order, cont_type);
     }
 
-    std::map<WCoef, complex_t> getAllFullRunCoefficients(WGroup group, QCDOrder order, bool sm_only=false) {
+    std::map<WCoef, complex_t> getAllFullRunCoefficients(WGroup group, QCDOrder order, ContributionType cont_type) {
         std::vector<WCoef> ids = WCoefMapper::get_group(group);
         std::map<WCoef, complex_t> Cs;
         for (auto c : ids) {
-            Cs.emplace(c, getFullRunCoefficient(group, c, order, sm_only));
+            Cs.emplace(c, getFullRunCoefficient(group, c, order, cont_type));
         }
 
         return Cs;
     }
 
-    std::map<WCoef, complex_t> getAFR(WGroup group, QCDOrder order, bool sm_only=false) {
-        return getAllFullRunCoefficients(group, order, sm_only);
+    std::map<WCoef, complex_t> getAFR(WGroup group, QCDOrder order, ContributionType cont_type) {
+        return getAllFullRunCoefficients(group, order, cont_type);
     }
 };
 

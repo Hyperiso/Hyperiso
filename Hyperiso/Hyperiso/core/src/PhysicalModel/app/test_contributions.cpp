@@ -17,11 +17,16 @@ int main(){
     wilson_config.groups = {WGroup::B, WGroup::BPrime};
     wilson_config.matching_scale = 85.0;
     wilson_config.hadronic_scale = 4.5;
-    wilson_config.order = QCDOrder::LO;
+    wilson_config.order = QCDOrder::NLO;
     LOG_INFO("Building Wilson coefficients");
     builder.build(wilson_config);
 
-    BlockProxy().log_all_blocks(ParameterType::WILSON);
+    // BlockProxy().log_all_blocks(ParameterType::WILSON);
+
+    BlockProxy().log_block(ParameterType::WILSON, "BCoefficients_B_SCALE_STANDARD");
+    BlockProxy().log_block(ParameterType::WILSON, "BCoefficients_B_SCALE_FULL_STANDARD");
+    BlockProxy().log_block(ParameterType::WILSON, "BCoefficients_B_SCALE_TRADITIONAL");
+    BlockProxy().log_block(ParameterType::WILSON, "BCoefficients_EW_SCALE");
 
     LOG_INFO("Retrieving provider");
     WilsonProvider wilson_provider = *builder.get_wilson_provider();
@@ -57,6 +62,7 @@ int main(){
     LOG_INFO("C7_HADRONIC_TOTAL =", C7b_TOTAL);
 
     assert(fpeq(C7w_SM + C7w_BSM, C7w_TOTAL));
+    std::cout << C7b_TOTAL - C7b_SM-C7b_BSM << std::endl;
     assert(fpeq(C7b_SM + C7b_BSM, C7b_TOTAL));
 
     return 0;

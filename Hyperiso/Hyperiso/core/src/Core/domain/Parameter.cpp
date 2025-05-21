@@ -25,6 +25,10 @@ void Parameter::set_expected(scalar_t val) {
     notifyObservers();
 }
 
+void Parameter::set_id(ParamId id) {
+    this-> id = id;
+}
+
 scalar_t Parameter::get_combined_std() const {
     return std::hypot(static_cast<double>(deviation_stat),
                   static_cast<double>(deviation_syst));
@@ -113,4 +117,12 @@ DependentParameter::~DependentParameter() {
             src.second->removeObserver(self);   
         }
     }
+}
+
+Parameter& Parameter::operator+=(const Parameter& other) {
+    this->expected       += other.expected;
+    this->deviation_stat += other.deviation_stat;
+    this->deviation_syst += other.deviation_syst;
+    this->shift          += other.shift;
+    return *this;
 }
