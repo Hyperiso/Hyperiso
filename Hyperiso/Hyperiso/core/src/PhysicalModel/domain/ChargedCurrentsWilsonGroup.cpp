@@ -37,3 +37,46 @@ std::array<complex_t, 2> C_match = {};
 
     return Ci_run_map;
 }
+
+BlnuCoefficientGroup::BlnuCoefficientGroup() {
+    if (UseMarty().get()) {
+        for (auto&& coeff : {"C_Blnu_A", "C_Blnu_P"}) {
+            this->insert(std::make_pair(coeff, std::make_shared<MartyWilson>(coeff)));
+        }
+        return;
+    }
+
+    this->insert(std::make_pair("C_Blnu_A", std::make_shared<C_Blnu_A>()));
+    this->insert(std::make_pair("C_Blnu_P", std::make_shared<C_Blnu_P>()));
+
+    this->id = WGroup::Blnu;
+}
+
+std::shared_ptr<CoefficientGroup> BlnuCoefficientGroup::clone() const {
+    return std::make_shared<BlnuCoefficientGroup>(*this);
+}
+
+BclnuCoefficientGroup::BclnuCoefficientGroup() {
+    if (UseMarty().get()) {
+        for (auto&& coeff : {"C_V1", "C_V2", "C_S1", "C_S2", "C_T"}) {
+            this->insert(std::make_pair(coeff, std::make_shared<MartyWilson>(coeff)));
+        }
+        return;
+    }
+    this->insert(std::make_pair("C_V1", std::make_shared<C_V1>()));
+    this->insert(std::make_pair("C_V2", std::make_shared<C_V2>()));
+    this->insert(std::make_pair("C_S1", std::make_shared<C_S1>()));
+    this->insert(std::make_pair("C_S2", std::make_shared<C_S2>()));
+    this->insert(std::make_pair("C_T", std::make_shared<C_T>()));
+
+    this->id = WGroup::BCLNU;
+}
+
+std::shared_ptr<CoefficientGroup> BclnuCoefficientGroup::clone() const {
+    return std::make_shared<BclnuCoefficientGroup>(*this);
+}
+
+complex_t CoefficientGroup::ensure_coef(WCoef coef, QCDOrder order, ContributionType type, std::string matching_block) {
+    ParameterProxy pp {ParameterType::WILSON};
+    return pp(matching_block, WCoefMapper::flha_full(coef, order, type));
+}

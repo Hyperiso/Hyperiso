@@ -10,7 +10,6 @@ class BCoefficientGroup : public CoefficientGroup {
 public:
     BCoefficientGroup();
 
-    void init_running_blocks(QCDOrder order) override;
     void set_gen(int new_gen) {}
     std::shared_ptr<CoefficientGroup> clone() const override;
     
@@ -30,7 +29,6 @@ class BPrimeCoefficientGroup : public CoefficientGroup {
 public:
     BPrimeCoefficientGroup();
     std::shared_ptr<CoefficientGroup> clone() const override;
-    void init_running_blocks(QCDOrder order) override;
 
     std::shared_ptr<CoefficientGroup> get_sm_group() override { return std::make_shared<BPrimeCoefficientGroup>(); }
 private:
@@ -42,7 +40,6 @@ class BScalarCoefficientGroup : public CoefficientGroup {
 public:
     BScalarCoefficientGroup();
     std::shared_ptr<CoefficientGroup> clone() const override;
-    void init_running_blocks(QCDOrder order) override;
 
     std::shared_ptr<CoefficientGroup> get_sm_group() override { return std::make_shared<BScalarCoefficientGroup>(); }
 private:

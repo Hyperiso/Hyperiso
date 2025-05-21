@@ -22,7 +22,6 @@ void DependentBlockManager::addDependentBlock(
                 std::cout << "bad: " << src_name << std::endl;
                 std::cout << Parameters::GetInstance(k)->blockAccessor << std::endl;
             }
-            std::cout << src_name << std::endl;
             sources.emplace(src_name, Parameters::GetInstance(k)->blockAccessor->at(src_name));
         }
     }

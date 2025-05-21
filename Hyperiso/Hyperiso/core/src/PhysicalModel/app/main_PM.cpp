@@ -30,7 +30,6 @@ int main(){
     wi.addWilsonGroup(WGroup::BPrime);
     wi.init_group_matching(WGroup::BPrime, QCDOrder::LO);
     wi.init_group_hadronic(WGroup::BPrime, QCDOrder::LO);
-    wi.post_init();
     // wi.build(
     //     WilsonBuildConfig{{WGroup::B},                            // Coefficient groups
     //     81,     // Matching scale

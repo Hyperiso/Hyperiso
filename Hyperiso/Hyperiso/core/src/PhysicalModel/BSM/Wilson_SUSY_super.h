@@ -5,6 +5,7 @@
 #include "susy_parameters.h"
 #include "Math_THDM.h"
 #include "Utils.h"
+#include "ChargedCurrentsWilsonGroup.h"
 
 
 // TODO : adapt with storage_block constructor as in THDM
@@ -385,8 +386,8 @@ public:
 
 class BPrimeCoefficientGroup_susy : public BPrimeCoefficientGroup {
 public:
-    BPrimeCoefficientGroup_susy() { this->clear();
-
+    BPrimeCoefficientGroup_susy() { 
+        this->clear();
         if (!susy_parameters::is_initialized()) {
             susy_parameters::init();
         }

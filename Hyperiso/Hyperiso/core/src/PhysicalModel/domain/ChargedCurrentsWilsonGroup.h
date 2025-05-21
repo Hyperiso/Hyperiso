@@ -1,7 +1,7 @@
 #ifndef __CHARGEDCURRENTSWILSONGROUP_H__
 #define __CHARGEDCURRENTSWILSONGROUP_H__
 
-#include "ChargedCurrentWilson.h"
+#include "ChargedCurrentWilsonSuper.h"
 #include "WilsonGroupSuper.h"
 
 class BlnuCoefficientGroup : public CoefficientGroup {

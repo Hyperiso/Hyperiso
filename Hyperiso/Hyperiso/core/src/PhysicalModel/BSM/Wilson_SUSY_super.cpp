@@ -24,7 +24,7 @@ C1_susy::C1_susy() : WilsonCoefficient("C1_SUSY", GroupMapper::str(WGroup::B) + 
             {ParameterType::WILSON, "WPARAM_SI_BSM", {15, 5}}
         },
         compute_NNLO,
-        LhaID(3040405, 6161, 2, 1)
+        WCoefMapper::flha_full(WCoef::C1, QCDOrder::NNLO, ContributionType::BSM)
     };
 }
 
@@ -90,7 +90,7 @@ C3_susy::C3_susy() : WilsonCoefficient("C3_SUSY", GroupMapper::str(WGroup::B) + 
             {ParameterType::BSM, "MASS", 37}                       // mH
         },
         compute_NNLO,
-        LhaID(3050707, 4133, 2, 1)
+        WCoefMapper::flha_full(WCoef::C3, QCDOrder::NNLO, ContributionType::BSM)
     };
 }
 
@@ -158,14 +158,14 @@ C4_susy::C4_susy() : WilsonCoefficient("C4_SUSY", GroupMapper::str(WGroup::B) + 
             {ParameterType::WILSON, "WPARAM_SI_BSM", 19}         // kappa
         },
         compute_NLO,
-        LhaID(3050707, 6153, 1, 1)
+        WCoefMapper::flha_full(WCoef::C4, QCDOrder::NLO, ContributionType::BSM)
     };
 
     // NNLO Matching
     matching_info[QCDOrder::NNLO] = {
         matching_info[QCDOrder::NLO].sources,
         compute_NNLO,
-        LhaID(3050707, 6153, 2, 1)
+        WCoefMapper::flha_full(WCoef::C4, QCDOrder::NNLO, ContributionType::BSM)
     };
 }
 
@@ -277,7 +277,7 @@ C5_susy::C5_susy() : WilsonCoefficient("C5_SUSY", GroupMapper::str(WGroup::B) + 
             {ParameterType::WILSON, "WPARAM_SI_BSM", 19} 
         },
         compute_NNLO,
-        LhaID(3050707, 4536, 2, 1)
+        WCoefMapper::flha_full(WCoef::C5, QCDOrder::NNLO, ContributionType::BSM)
     };
 }
 
@@ -352,7 +352,7 @@ C6_susy::C6_susy() : WilsonCoefficient("C6_SUSY", GroupMapper::str(WGroup::B) + 
             {ParameterType::WILSON, "WPARAM_SI_BSM", 19}          // kappa
         },
         compute_NNLO,
-        LhaID(3050707, 6556, 2, 1)
+        WCoefMapper::flha_full(WCoef::C6, QCDOrder::NNLO, ContributionType::BSM)
     };
 }
 
@@ -463,7 +463,7 @@ C7_susy::C7_susy() : WilsonCoefficient("C7_SUSY", GroupMapper::str(WGroup::B) + 
             {ParameterType::BSM, "NMAMIX" , {1+1, 0+1}}, {ParameterType::BSM, "NMAMIX" , {1+1, 1+1}}
         },
         compute_LO,
-        LhaID(3050447, 4422, 0, 1)
+        WCoefMapper::flha_full(WCoef::C7, QCDOrder::LO, ContributionType::BSM)
     };
 
     matching_info[QCDOrder::NLO] = {
@@ -559,7 +559,7 @@ C7_susy::C7_susy() : WilsonCoefficient("C7_SUSY", GroupMapper::str(WGroup::B) + 
             {ParameterType::WILSON, "MATRIX_BSM", {9,5,5}}
         },
         compute_NLO,
-        LhaID(3050447, 4422, 1, 1)
+        WCoefMapper::flha_full(WCoef::C7, QCDOrder::NLO, ContributionType::BSM)
     };
     matching_info[QCDOrder::NNLO] = {
         {
@@ -570,7 +570,7 @@ C7_susy::C7_susy() : WilsonCoefficient("C7_SUSY", GroupMapper::str(WGroup::B) + 
             {ParameterType::WILSON, "WPARAM_MATCH_SM", 6}    // mass_top_muW
         },
         compute_NNLO,
-        LhaID(3050447, 4422, 2, 1)
+        WCoefMapper::flha_full(WCoef::C7, QCDOrder::NNLO, ContributionType::BSM)
     };
 }
 
@@ -831,7 +831,7 @@ C8_susy::C8_susy() : WilsonCoefficient("C8_SUSY", GroupMapper::str(WGroup::B) + 
             {ParameterType::WILSON, "MATRIX_BSM", {4,1,5,2}}
         },
         compute_LO,
-        LhaID(3050642, 6421, 0, 1)
+        WCoefMapper::flha_full(WCoef::C8, QCDOrder::LO, ContributionType::BSM)
     };
 
     matching_info[QCDOrder::NLO] = {
@@ -935,7 +935,7 @@ C8_susy::C8_susy() : WilsonCoefficient("C8_SUSY", GroupMapper::str(WGroup::B) + 
             {ParameterType::WILSON, "MATRIX_BSM", {9,5,5}}
         },
         compute_NLO,
-        LhaID(3050642, 6421, 1, 1)
+        WCoefMapper::flha_full(WCoef::C8, QCDOrder::NLO, ContributionType::BSM)
     };
 
     matching_info[QCDOrder::NNLO] = {
@@ -947,7 +947,7 @@ C8_susy::C8_susy() : WilsonCoefficient("C8_SUSY", GroupMapper::str(WGroup::B) + 
             {ParameterType::WILSON, "WPARAM_MATCH_SM", 6}    // mass_top_muW
         },
         compute_NNLO,
-        LhaID(3050642, 6421, 2, 1)
+        WCoefMapper::flha_full(WCoef::C8, QCDOrder::NNLO, ContributionType::BSM)
     };
 
 }
@@ -1117,7 +1117,7 @@ C9_susy::C9_susy() : WilsonCoefficient("C9_SUSY", GroupMapper::str(WGroup::B) + 
             {ParameterType::WILSON, "MATRIX_BSM", 15}           // D90c
         },
         compute_LO,
-        LhaID(3051313, 4133, 0, 1)
+        WCoefMapper::flha_full(WCoef::C9, QCDOrder::LO, ContributionType::BSM)
     };
 
     matching_info[QCDOrder::NLO] = {
@@ -1194,7 +1194,7 @@ C9_susy::C9_susy() : WilsonCoefficient("C9_SUSY", GroupMapper::str(WGroup::B) + 
             {ParameterType::BSM, "VMIX", {1+1,0+1}}
         },
         compute_NLO,
-        LhaID(3051313, 4133, 1, 1)
+        WCoefMapper::flha_full(WCoef::C9, QCDOrder::NLO, ContributionType::BSM)
     };
 }
 
@@ -1392,7 +1392,7 @@ C10_susy::C10_susy() : WilsonCoefficient("C10_SUSY", GroupMapper::str(WGroup::B)
             {ParameterType::WILSON, "MATRIX_BSM", 16}           // B100c
         },
         compute_LO,
-        LhaID(3051313, 4137, 0, 1)
+        WCoefMapper::flha_full(WCoef::C10, QCDOrder::LO, ContributionType::BSM)
     };
 
     matching_info[QCDOrder::NLO] = {
@@ -1518,7 +1518,7 @@ C10_susy::C10_susy() : WilsonCoefficient("C10_SUSY", GroupMapper::str(WGroup::B)
             {ParameterType::BSM, "VMIX", {2, 2}},
         },
         compute_NLO,
-        LhaID(3051313, 4137, 1, 1)
+        WCoefMapper::flha_full(WCoef::C10, QCDOrder::NLO, ContributionType::BSM)
     };
 
 }
@@ -1730,7 +1730,7 @@ CP7_susy::CP7_susy() : WilsonCoefficient("CP7_SUSY", GroupMapper::str(WGroup::B)
             {ParameterType::WILSON, "MATRIX_BSM", {4, 1, 5, 2}}
         },
         compute_LO,
-        LhaID(305, 4322, 0, 1)
+        WCoefMapper::flha_full(WCoef::CP7, QCDOrder::LO, ContributionType::BSM)
     };
 }
 
@@ -1819,7 +1819,7 @@ CP8_susy::CP8_susy() : WilsonCoefficient("CP8_SUSY", GroupMapper::str(WGroup::B)
             {ParameterType::WILSON, "MATRIX_BSM", {3,1,5,2}},
         },
         compute_LO,
-        LhaID(305, 4321, 0, 1)
+        WCoefMapper::flha_full(WCoef::CP8, QCDOrder::LO, ContributionType::BSM)
     };
 }
 
@@ -1950,7 +1950,7 @@ CP9_susy::CP9_susy() : WilsonCoefficient("CP9_SUSY", GroupMapper::str(WGroup::B)
             {ParameterType::BSM, "VMIX", {1+1,0+1}}
         },
         compute_LO,
-        LhaID(3051313, 4233, 0, 1)
+        WCoefMapper::flha_full(WCoef::CP9, QCDOrder::LO, ContributionType::BSM)
     };
 }
 
@@ -2099,7 +2099,7 @@ CP10_susy::CP10_susy() : WilsonCoefficient("CP10_SUSY", GroupMapper::str(WGroup:
             {ParameterType::BSM, "VMIX", {1+1, 0+1}}
         },
         compute_LO,
-        LhaID(3051313, 4234, 0, 1)
+        WCoefMapper::flha_full(WCoef::CP10, QCDOrder::LO, ContributionType::BSM)
     };
 }
 
@@ -2222,7 +2222,7 @@ CPQ1_susy::CPQ1_susy() : WilsonCoefficient("CPQ1_SUSY", GroupMapper::str(WGroup:
             {ParameterType::BSM, "VMIX", {1+1, 0+1}}
         },
         compute_LO,
-        LhaID(3051313, 3130, 0, 1)
+        WCoefMapper::flha_full(WCoef::CPQ1, QCDOrder::LO, ContributionType::BSM)
     };
 
     auto& sources = matching_info[QCDOrder::LO].sources;
@@ -2399,7 +2399,7 @@ CPQ2_susy::CPQ2_susy() : WilsonCoefficient("CPQ2_SUSY", GroupMapper::str(WGroup:
             {ParameterType::BSM, "VMIX", {1+1, 0+1}}
         },
         compute_LO,
-        LhaID(3051313, 3133, 0, 1)
+        WCoefMapper::flha_full(WCoef::CPQ2, QCDOrder::LO, ContributionType::BSM)
     };
 
     auto& sources = matching_info[QCDOrder::LO].sources;
@@ -2521,7 +2521,7 @@ CQ1_susy::CQ1_susy() : WilsonCoefficient("CQ1_SUSY", GroupMapper::str(WGroup::B)
     matching_info[QCDOrder::LO] = {
         {}, // sources seront insérées ensuite par boucle
         compute_LO,
-        LhaID(3051313, 3230, 0, 1)
+        WCoefMapper::flha_full(WCoef::CQ1, QCDOrder::LO, ContributionType::BSM)
     };
 
     auto& sources = matching_info[QCDOrder::LO].sources;
@@ -2633,7 +2633,7 @@ CQ1_susy::CQ1_susy() : WilsonCoefficient("CQ1_SUSY", GroupMapper::str(WGroup::B)
     matching_info[QCDOrder::NLO] = {
         {}, // les sources sont ajoutées juste après
         compute_NLO,
-        LhaID(3051313, 3230, 1, 1)
+        WCoefMapper::flha_full(WCoef::CQ1, QCDOrder::NLO, ContributionType::BSM)
     };
 
     auto& sources_NLO = matching_info[QCDOrder::NLO].sources;
@@ -3081,7 +3081,7 @@ CQ2_susy::CQ2_susy() : WilsonCoefficient("CQ2_SUSY", GroupMapper::str(WGroup::B)
     matching_info[QCDOrder::LO] = {
         {}, // sources
         compute_LO,
-        LhaID(3051313, 3233, 0, 1)
+        WCoefMapper::flha_full(WCoef::CQ2, QCDOrder::LO, ContributionType::BSM)
     };
 
     auto& sources = matching_info[QCDOrder::LO].sources;
@@ -3193,7 +3193,7 @@ CQ2_susy::CQ2_susy() : WilsonCoefficient("CQ2_SUSY", GroupMapper::str(WGroup::B)
     matching_info[QCDOrder::NLO] = {
         {}, // sources
         compute_NLO,
-        LhaID(3051313, 3233, 1, 1)
+        WCoefMapper::flha_full(WCoef::CQ2, QCDOrder::NLO, ContributionType::BSM)
     };
 
     auto& sources_NLO = matching_info[QCDOrder::NLO].sources;
@@ -3786,7 +3786,7 @@ C_Blnu_P_SUSY::C_Blnu_P_SUSY() : WilsonCoefficient("C_Blnu_P_SUSY", GroupMapper:
             {ParameterType::SM, "MASS", 24}
         },
         compute_LO,
-        LhaID(3051313, 3230, 0, 1)
+        WCoefMapper::flha_full(WCoef::CBlnu_P, QCDOrder::LO, ContributionType::BSM)
     };
 }
 
@@ -3813,7 +3813,7 @@ C_S1_SUSY::C_S1_SUSY() : WilsonCoefficient("C_S1_SUSY", GroupMapper::str(WGroup:
             {ParameterType::SM, "MASS", 24}
         },
         compute_LO,
-        LhaID(3051313, 3230, 0, 1)
+        WCoefMapper::flha_full(WCoef::C_S1, QCDOrder::LO, ContributionType::BSM)
     };
 }
 
@@ -3840,7 +3840,7 @@ C_S2_SUSY::C_S2_SUSY() : WilsonCoefficient("C_S2_SUSY", GroupMapper::str(WGroup:
             {ParameterType::SM, "MASS", 24}
         },
         compute_LO,
-        LhaID(3051313, 3230, 0, 1)
+        WCoefMapper::flha_full(WCoef::C_S2, QCDOrder::LO, ContributionType::BSM)
     };
 }
 

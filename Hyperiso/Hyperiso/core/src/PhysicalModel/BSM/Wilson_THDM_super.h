@@ -6,6 +6,7 @@
 #include "thdm_parameters.h"
 #include "Math_THDM.h"
 #include "Utils.h"
+#include "ChargedCurrentsWilsonGroup.h"
 
 
 class C1_THDM : public WilsonCoefficient {

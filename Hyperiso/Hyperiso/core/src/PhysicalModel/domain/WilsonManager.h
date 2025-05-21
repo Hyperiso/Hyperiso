@@ -40,9 +40,6 @@ public:
     void init_group_hadronic(const std::string& groupName, const std::string& order);
     void switchbasis(const std::string& groupName);
     void update(std::string group, double mu_W, double mu_h);
-    void post_init();
-    void complete_wilson_block_with_op(WGroup group_id, ContributionType src_id, ContributionType dest_id, BWilsonBasis basis);
-    void complete_wilson_block_from_copy(WGroup group_id, ContributionType src, ContributionType dest, BWilsonBasis basis=BWilsonBasis::STANDARD);
     
     void fill_sources_for_group(const std::string & groupName, const std::string& order, std::unordered_map<ParameterType, std::vector<std::string>>& src, int id=0);
 

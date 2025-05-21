@@ -10,14 +10,20 @@ int main(){
 
     hyp.init("lha/testInput.slha", config);
 
+    LOG_INFO("Hyperiso initialized");
+
     WilsonBuilder builder;
     WilsonBuildConfig wilson_config;
     wilson_config.groups = {WGroup::B, WGroup::BPrime};
     wilson_config.matching_scale = 85.0;
     wilson_config.hadronic_scale = 4.5;
     wilson_config.order = QCDOrder::LO;
+    LOG_INFO("Building Wilson coefficients");
     builder.build(wilson_config);
 
+    BlockProxy().log_all_blocks(ParameterType::WILSON);
+
+    LOG_INFO("Retrieving provider");
     WilsonProvider wilson_provider = *builder.get_wilson_provider();
 
     std::shared_ptr<WilsonRequest> C7_request = std::make_shared<WilsonRequest>(

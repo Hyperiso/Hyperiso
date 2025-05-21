@@ -47,6 +47,7 @@ add_library(PhysicalModelLib STATIC
     domain/BWilsonSuper.cpp
     domain/BWilsonGroupSuper.cpp
     domain/ChargedCurrentWilson.cpp
+    domain/ChargedCurrentsWilsonGroup.cpp
     domain/WilsonGroupSuper.cpp
     domain/WilsonManager.cpp
     domain/MartyWilsonSuper.cpp

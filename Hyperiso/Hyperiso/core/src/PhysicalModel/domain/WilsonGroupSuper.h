@@ -30,10 +30,10 @@ public:
     CoefficientGroup(std::map<std::string, std::shared_ptr<WilsonCoefficient>>& coeffs);
 
     void init(QCDOrder order);
-    virtual void init_running_blocks(QCDOrder order) = 0;
     void init_full_running_block(const std::unordered_map<ParameterType, std::vector<std::string>> &source_names, BWilsonBasis basis, bool inter, std::vector<ContributionType> type);
 
-    virtual std::shared_ptr<CoefficientGroup> get_sm_group() {LOG_ERROR("LogicError", "cannot get_sm_group for non real group"); return nullptr;}
+    virtual std::shared_ptr<CoefficientGroup> get_sm_group() {LOG_ERROR("LogicError", "cannot get_sm_group for virtual group"); return nullptr;}
+
     // Getters
     complex_t get_matching_coefficient(std::string coeff, std::string order) const;
     complex_t get_running_coefficient(std::string coeff, std::string order) const;
@@ -58,7 +58,7 @@ protected:
 
     std::optional<BWilsonBasis> basis;
     ContributionType wilson_type {ContributionType::SM};
-    QCDOrder current_order = QCDOrder::LO; //TODO SAME : cannot be none, need to see logic
+    QCDOrder current_order = QCDOrder::LO;
     WGroup id;
     std::vector<std::map<QCDOrder, CoefficientGroupSources>> sources;
 };

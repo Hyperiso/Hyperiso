@@ -204,10 +204,6 @@ public:
     std::map<WCoef, complex_t> getAFR(WGroup group, QCDOrder order, bool sm_only=false) {
         return getAllFullRunCoefficients(group, order, sm_only);
     }
-
-    void post_init() {
-        this->wm.post_init();
-    }
 };
 
 #endif // __WILSONINTERFACE_H__
