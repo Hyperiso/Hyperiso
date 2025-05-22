@@ -189,6 +189,17 @@ public:
      */
     Parameter& operator+=(const Parameter& other);
 
+    /**
+     * @brief Overloads the *= operator to scale a parameter by a scalar.
+     *
+     * Performs the scaling of the different fields (expected, deviation_stat, deviation_syst, shift)
+     * from the given Parameter to this instance.
+     *
+     * @param factor The scalar to scale by.
+     * @return Reference to this Parameter after scaling.
+     */
+    Parameter& operator*=(const scalar_t& scale);
+
 };
 
 class DependentParameter;
@@ -271,10 +282,28 @@ private:
  */
 inline std::shared_ptr<Parameter>& operator+=(std::shared_ptr<Parameter>& lhs, const std::shared_ptr<Parameter>& rhs) {
     if (rhs) {
-        if (lhs)
+        if (lhs && lhs->get_id() == rhs->get_id()) {
             *lhs += *rhs;
+        }
         else
             lhs = std::make_shared<Parameter>(*rhs);
+    }
+    return lhs;
+}
+
+/**
+ * @brief Overloads the * operator for a shared pointer to Parameter.
+ *
+ * If the shared pointer is non-null, this function scales the contents
+ * of rhs by lhs using the Parameter's *= operator.
+ *
+ * @param lhs Shared pointer to the Parameter to be modified.
+ * @param rhs Scale factor.
+ * @return Reference to lhs after scaling.
+ */
+inline std::shared_ptr<Parameter>& operator*(std::shared_ptr<Parameter>& lhs, const scalar_t& rhs) {
+    if (rhs) {
+        *lhs *= rhs;
     }
     return lhs;
 }

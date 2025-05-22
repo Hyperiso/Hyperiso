@@ -39,7 +39,6 @@ public:
     void init_group_matching(const std::string& groupName, const std::string& order);
     void init_group_hadronic(const std::string& groupName, const std::string& order, int id=0);
     void init_specific_order_group_matching(const std::string& groupName, const std::string& order, bool only_total);
-    void init_group_full(const std::string& groupName, int id = 0);
     void switchbasis(const std::string& groupName);
     void update(std::string group, double mu_W, double mu_h);
     

@@ -121,8 +121,16 @@ DependentParameter::~DependentParameter() {
 
 Parameter& Parameter::operator+=(const Parameter& other) {
     this->expected       += other.expected;
-    this->deviation_stat += other.deviation_stat;
-    this->deviation_syst += other.deviation_syst;
+    this->deviation_stat = std::hypot(other.deviation_stat, this->deviation_stat);
+    this->deviation_syst = std::hypot(other.deviation_syst, this->deviation_syst);
     this->shift          += other.shift;
+    return *this;
+}
+
+Parameter &Parameter::operator*=(const scalar_t &scale) {
+    this->expected       *= scale;
+    this->deviation_stat *= std::abs(scale);
+    this->deviation_syst *= std::abs(scale);
+    this->shift          *= scale;
     return *this;
 }

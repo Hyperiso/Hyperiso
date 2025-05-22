@@ -242,33 +242,6 @@ void CoefficientManager::init_group_hadronic(const std::string& groupName, const
     WilsonParamComposer().compose_block(GroupMapper::str(GroupMapper::enum_elt(groupName), ScaleType::HADRONIC, false, id ? BWilsonBasis::TRADITIONAL : BWilsonBasis::STANDARD), src, func);
 }
 
-//TODO : manage with multiple basis
-void CoefficientManager::init_group_full(const std::string& groupName, int id) {
-
-    std::string block_grp_name = GroupMapper::str(GroupMapper::enum_elt(groupName), ScaleType::HADRONIC, false, id ? BWilsonBasis::TRADITIONAL : BWilsonBasis::STANDARD);
-    std::unordered_map<ParameterType, std::vector<std::string>> src = {
-        {ParameterType::WILSON, {block_grp_name}}
-    };
-
-    auto func = [block_grp_name] (const std::unordered_map<std::string, std::shared_ptr<Block>>& src, std::shared_ptr<DependentBlock> dep_block) {
-        std::map<LhaID, std::shared_ptr<Parameter>> items = src.at(block_grp_name)->getItems();
-        std::map<LhaID, std::shared_ptr<Parameter>> result;
-
-        for (auto& [k,v] : items) {
-            std::pair<WCoef, std::pair<QCDOrder, ContributionType>> elem = lha_wilson_deserialize(k);
-            auto base = WCoefMapper::flha_base(elem.first);
-            auto res_id = LhaID(base.first, base.second, 2, elem.second.second == ContributionType::SM ? 0 : elem.second.second == ContributionType::BSM ? 1 : 2);
-            result[res_id] += v;
-            result[res_id]->set_id({ParameterType::WILSON, block_grp_name, res_id });
-        }
-
-        for (auto& elem : result) {
-            dep_block->store_or_assign(elem.first, std::make_shared<Parameter>(*elem.second));
-        }
-    };
-    WilsonParamComposer().compose_block(GroupMapper::str(GroupMapper::enum_elt(groupName), ScaleType::HADRONIC, true, id ? BWilsonBasis::TRADITIONAL : BWilsonBasis::STANDARD), src, func);
-}
-
 void CoefficientManager::switchbasis(const std::string& groupName) {
     if (!this->coefficientGroups.contains(groupName)) {
         throw_no_group_error(groupName);
@@ -310,9 +283,6 @@ complex_t CoefficientManager::getRunCoefficient(const std::string& groupName, co
     }
 
     complex_t c = this->coefficientGroups.at(groupName)->get_running_coefficient(coeffName, order, cont_type);
-
-
-
     return c;
 }
 
@@ -375,10 +345,8 @@ std::shared_ptr<CoefficientManager> CoefficientManager::Builder(std::string mode
         manager->init_group_matching(group.first, order);
         LOG_INFO("(CoefficientManager) Initializing group hadronic", group.first);
         manager->init_group_hadronic(group.first, order);
-        manager->init_group_full(group.first);
         if (group.second->is_double_basis()){
             manager->init_group_hadronic(group.first, order, 1); //TODO : base 2}
-            manager->init_group_full(group.first, 1);
         }
     }
     LOG_INFO("(CoefficientManager) Manager successfully initialized");
