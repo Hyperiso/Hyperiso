@@ -35,8 +35,7 @@ public:
 
     void init_group_ptrs() {
         LOG_INFO("In WilsonInterface::init");
-        // WilsonParameterHelper().init(2);
-
+        WilsonParameterHelper().init(2); // needed for group initialization (finding WPARAM_RUN_SM in blockaccessor)
         switch(ModelAPI().get()) {
             case Model::THDM:
                 this->group_ptrs = {
@@ -66,6 +65,7 @@ public:
                 };
                 break;
         }
+        std::cout << "here" << std::endl;
     }
 
     void build(WilsonBuildConfig config) {

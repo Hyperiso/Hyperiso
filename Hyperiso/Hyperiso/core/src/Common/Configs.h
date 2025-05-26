@@ -7,7 +7,19 @@ struct WilsonBuildConfig : public AbstractConfig {
     std::unordered_set<WGroup> groups;
     double matching_scale;
     double hadronic_scale;
-    QCDOrder order {QCDOrder::LO}; 
+    QCDOrder order {QCDOrder::LO};
+
+    WilsonBuildConfig() = default;
+    WilsonBuildConfig(
+        std::unordered_set<WGroup> groups_,
+        double matching_scale_,
+        double hadronic_scale_,
+        QCDOrder order_ = QCDOrder::LO
+    ) :
+        groups(std::move(groups_)),
+        matching_scale(matching_scale_),
+        hadronic_scale(hadronic_scale_),
+        order(order_) {}
 };
 
 struct WilsonRequest : public AbstractConfig {

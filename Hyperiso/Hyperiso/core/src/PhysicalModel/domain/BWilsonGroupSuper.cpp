@@ -456,9 +456,10 @@ std::shared_ptr<CoefficientGroup> BScalarCoefficientGroup::clone() const {
 }
 
 BScalarCoefficientGroup::BScalarCoefficientGroup() {
+    this->id = WGroup::BScalar;
 
     std::map<QCDOrder,CoefficientGroupSources> grp_src;
-
+    std::cout << "dh" << std::endl;
     grp_src[QCDOrder::LO].sources = {
         {ParameterType::WILSON, {this->get_matching_storage_block(), "WPARAM_RUN_SM", "WPARAM_SI_SM"}},
     };
@@ -467,7 +468,7 @@ BScalarCoefficientGroup::BScalarCoefficientGroup() {
     grp_src[QCDOrder::NLO].sources = grp_src[QCDOrder::LO].sources;
     grp_src[QCDOrder::NLO].func = base_1_NLO_calculation;
 
-
+    std::cout << "dh" << std::endl;
     this->sources.insert({WilsonBasis::B_STANDARD, grp_src});
 
     if (UseMarty().get()) {
@@ -476,10 +477,11 @@ BScalarCoefficientGroup::BScalarCoefficientGroup() {
         }
         return;
     }
+    std::cout << "dh" << std::endl;
     this->insert(std::make_pair("CQ1", std::make_shared<CQ1>()));
     this->insert(std::make_pair("CQ2", std::make_shared<CQ2>()));
 
-    this->id = WGroup::BScalar;
+    std::cout << "dh" << std::endl;
 }
 
 std::unordered_map<WCoef, scalar_t> BScalarCoefficientGroup::base_1_LO_calculation (
@@ -533,12 +535,10 @@ std::unordered_map<WCoef, scalar_t> BScalarCoefficientGroup::base_1_NLO_calculat
 BPrimeCoefficientGroup::BPrimeCoefficientGroup() {
     this->id = WGroup::BPrime;
     std::map<QCDOrder,CoefficientGroupSources> grp_src;
-
     grp_src[QCDOrder::LO].sources = {
         {ParameterType::WILSON, {this->get_matching_storage_block(), "WPARAM_RUN_SM", "WPARAM_SI_SM"}},
     };
     grp_src[QCDOrder::LO].func = base_1_LO_calculation;
-
     this->sources.insert({WilsonBasis::B_STANDARD, grp_src});
 
     if (UseMarty().get()) {
@@ -547,7 +547,6 @@ BPrimeCoefficientGroup::BPrimeCoefficientGroup() {
         }
         return;
     }
-
     this->insert(std::make_pair("CP1", std::make_shared<CP1>())); 
     this->insert(std::make_pair("CP2", std::make_shared<CP2>())); 
     this->insert(std::make_pair("CP3", std::make_shared<CP3>()));

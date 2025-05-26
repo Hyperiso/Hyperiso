@@ -18,12 +18,12 @@ int main() {
     auto param1 = params.find("param1");
     assert(param1 != params.end());
     assert(param1->second.block == "BlockA");
-    assert(param1->second.pdgCode == 1234);
+    assert(param1->second.pdgCode == LhaID(1234));
 
     auto param2 = params.find("param2");
     assert(param2 != params.end());
     assert(param2->second.block == "BlockB");
-    assert(param2->second.pdgCode == 5678);
+    assert(param2->second.pdgCode == LhaID(5678));
 
     auto dbInstanceDuplicate = MappingDatabase::getInstance("TestInstance");
     assert(dbInstance == dbInstanceDuplicate); 
