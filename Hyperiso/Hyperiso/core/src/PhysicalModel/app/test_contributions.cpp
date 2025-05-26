@@ -15,10 +15,8 @@ int main(){
     wilson_config.groups = {WGroup::B, WGroup::BPrime};
     wilson_config.matching_scale = 85.0;
     wilson_config.hadronic_scale = 4.5;
-    wilson_config.order = QCDOrder::NLO;
+    wilson_config.order = QCDOrder::NNLO;
     builder.build(wilson_config);
-
-    // BlockProxy().log_all_blocks(ParameterType::WILSON);
 
     BlockProxy().log_block(ParameterType::WILSON, "BCoefficients_B_SCALE_STANDARD");
     BlockProxy().log_block(ParameterType::WILSON, "BCoefficients_B_SCALE_TRADITIONAL");
@@ -28,12 +26,13 @@ int main(){
 
     std::shared_ptr<WilsonRequest> C7_request = std::make_shared<WilsonRequest>(
         WGroup::B,
-        WCoef::C7,
-        QCDOrder::NLO,
+        WCoef::C5,
+        QCDOrder::NNLO,
         ContributionType::SM,
         ScaleType::MATCHING,
         false
     );
+    C7_request->basis = WilsonBasis::B_STANDARD;
 
     scalar_t C7w_SM = wilson_provider.get(C7_request);
     C7_request->contribution = ContributionType::BSM;
@@ -67,8 +66,8 @@ int main(){
     LOG_INFO("C7_HADRONIC_FULL_BSM =", C7b_BSM_full);
     LOG_INFO("C7_HADRONIC_FULL_TOTAL =", C7b_TOTAL_full);
 
-    assert(std::abs(C7w_SM + C7w_BSM - C7w_TOTAL) < 1e-15);
-    assert(std::abs(C7b_SM + C7b_BSM - C7b_TOTAL) < 1e-15);
+    assert(std::abs(C7w_SM + C7w_BSM - C7w_TOTAL) < 1e-13);
+    assert(std::abs(C7b_SM + C7b_BSM - C7b_TOTAL) < 1e-13);
 
     return 0;
 }

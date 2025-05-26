@@ -66,9 +66,9 @@ enum class Model {
     CUSTOM
 };
 
-enum class BWilsonBasis {
-    STANDARD, 
-    TRADITIONAL
+enum class WilsonBasis {
+    B_STANDARD, 
+    B_TRADITIONAL
 };
 
 enum class ContributionType {

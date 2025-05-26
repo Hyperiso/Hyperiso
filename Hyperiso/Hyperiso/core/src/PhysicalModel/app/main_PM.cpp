@@ -16,20 +16,20 @@ int main(){
     LOG_INFO("WilsonInterface created");
 
     
-    wi.addWilsonGroup(WGroup::B);
-    std::cout << "niiice" << std::endl;
-    wi.init_group_matching(WGroup::B, QCDOrder::LO);
-    std::cout << "niiice" << std::endl;
-    wi.init_group_hadronic(WGroup::B, QCDOrder::LO);
+    // wi.addWilsonGroup(WGroup::B);
+    // std::cout << "niiice" << std::endl;
+    // wi.init_group_matching(WGroup::B, QCDOrder::LO);
+    // std::cout << "niiice" << std::endl;
+    // wi.init_group_hadronic(WGroup::B, QCDOrder::LO);
 
-    std::cout << "niiice" << std::endl;
-    wi.addWilsonGroup(WGroup::BScalar);
-    wi.init_group_matching(WGroup::BScalar, QCDOrder::LO);
-    wi.init_group_hadronic(WGroup::BScalar, QCDOrder::LO);
+    // std::cout << "niiice" << std::endl;
+    // wi.addWilsonGroup(WGroup::BScalar);
+    // wi.init_group_matching(WGroup::BScalar, QCDOrder::LO);
+    // wi.init_group_hadronic(WGroup::BScalar, QCDOrder::LO);
 
-    wi.addWilsonGroup(WGroup::BPrime);
-    wi.init_group_matching(WGroup::BPrime, QCDOrder::LO);
-    wi.init_group_hadronic(WGroup::BPrime, QCDOrder::LO);
+    // wi.addWilsonGroup(WGroup::BPrime);
+    // wi.init_group_matching(WGroup::BPrime, QCDOrder::LO);
+    // wi.init_group_hadronic(WGroup::BPrime, QCDOrder::LO);
     // wi.build(
     //     WilsonBuildConfig{{WGroup::B},                            // Coefficient groups
     //     81,     // Matching scale

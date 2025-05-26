@@ -28,7 +28,7 @@ void WilsonBuilder::add(WilsonBuildConfig config) {
         std::string group_name = GroupMapper::str(g_id);
         this->cm->registerCoefficientGroup(group_name, WilsonGroupFactory::create_coefficient_group(g_id, model));
         this->cm->init_group_matching(group_name, OrderMapper::str(config.order));
-        this->cm->init_group_hadronic(group_name, OrderMapper::str(config.order));
+        this->cm->init_group_hadronic_all_bases(group_name, OrderMapper::str(config.order));
     };
 
     Model model = ModelAPI().get();
@@ -39,10 +39,6 @@ void WilsonBuilder::add(WilsonBuildConfig config) {
             init_group(g_id, model);
         }
     }
-}
-
-void WilsonBuilder::switch_basis(WGroup group_id) {
-    this->cm->switchbasis(GroupMapper::str(group_id));
 }
 
 std::shared_ptr<WilsonProvider> WilsonBuilder::get_wilson_provider() {

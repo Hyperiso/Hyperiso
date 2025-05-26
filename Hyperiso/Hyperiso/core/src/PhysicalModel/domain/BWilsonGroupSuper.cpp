@@ -4,7 +4,6 @@
 BCoefficientGroup::BCoefficientGroup() {
     LOG_TRACE("In BCoefficientGroup constructor");
     init_running_parameter_blocks();
-    this->basis = BWilsonBasis::STANDARD;
     this->id = WGroup::B;
 
     std::map<QCDOrder,CoefficientGroupSources> grp_src;
@@ -21,7 +20,7 @@ BCoefficientGroup::BCoefficientGroup() {
     grp_src[QCDOrder::NNLO].sources = grp_src[QCDOrder::LO].sources;
     grp_src[QCDOrder::NNLO].func = base_1_NNLO_calculation;
 
-    this->sources.push_back(grp_src);
+    this->sources.insert({WilsonBasis::B_STANDARD, grp_src});
 
     std::map<QCDOrder,CoefficientGroupSources> grp_src_base2;
 
@@ -33,7 +32,7 @@ BCoefficientGroup::BCoefficientGroup() {
     grp_src_base2[QCDOrder::NLO].sources = grp_src_base2[QCDOrder::LO].sources;
     grp_src_base2[QCDOrder::NLO].func = base_2_NLO_calculation;
 
-    this->sources.push_back(grp_src_base2);
+    this->sources.insert({WilsonBasis::B_TRADITIONAL, grp_src_base2});
 
     if (UseMarty().get()) {
         for (auto&& coeff : {"C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9", "C10"}) {
@@ -469,7 +468,7 @@ BScalarCoefficientGroup::BScalarCoefficientGroup() {
     grp_src[QCDOrder::NLO].func = base_1_NLO_calculation;
 
 
-    this->sources.push_back(grp_src);
+    this->sources.insert({WilsonBasis::B_STANDARD, grp_src});
 
     if (UseMarty().get()) {
         for (auto&& coeff : {"CQ1", "CQ2"}) {
@@ -540,7 +539,7 @@ BPrimeCoefficientGroup::BPrimeCoefficientGroup() {
     };
     grp_src[QCDOrder::LO].func = base_1_LO_calculation;
 
-    this->sources.push_back(grp_src);
+    this->sources.insert({WilsonBasis::B_STANDARD, grp_src});
 
     if (UseMarty().get()) {
         for (auto&& coeff : {"CP1", "CP2", "CP3", "CP4", "CP5", "CP6", "CP7", "CP8", "CP9", "CP10", "CPQ1", "CPQ2"}) {

@@ -8,7 +8,7 @@
 #include "WilsonGroupFactory.h"
 #include "Configs.h"
 
-class WilsonBuilder : public IWilsonBuilder<WilsonBuildConfig, WGroup, WilsonProvider> { 
+class WilsonBuilder : public IWilsonBuilder<WilsonBuildConfig, WilsonProvider> { 
 public:
     WilsonBuilder();
     WilsonBuilder(WilsonBuildConfig config);
@@ -16,8 +16,7 @@ public:
 
     void build(WilsonBuildConfig config) override;
     void add(WilsonBuildConfig config) override;
-    void switch_basis(WGroup group_id) override;
-    
+
     std::shared_ptr<WilsonProvider> get_wilson_provider();
 
 private:

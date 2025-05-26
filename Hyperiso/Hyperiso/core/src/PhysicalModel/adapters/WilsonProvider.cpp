@@ -15,7 +15,9 @@ scalar_t WilsonProvider::get(std::shared_ptr<AbstractConfig> config) {
     WilsonRequest request = *static_cast<WilsonRequest*>(config.get());
 
     ScaleType scale_type = request.scale_type;
-    bool sm_only = request.contribution == ContributionType::SM; // TODO : manage properly
+    if (request.basis.has_value()) {
+        
+    }
 
     if (scale_type == ScaleType::MATCHING) {
         return request.sum_qcd_orders ? 
@@ -35,12 +37,14 @@ scalar_t WilsonProvider::get(std::shared_ptr<AbstractConfig> config) {
                 GroupMapper::str(request.group),
                 WCoefMapper::str(request.coefficient),
                 OrderMapper::str(request.order),
-                request.contribution) :
+                request.contribution,
+                request.basis.value_or(WilsonBasis::B_STANDARD)) :
             cm->getRunCoefficient(
                 GroupMapper::str(request.group),
                 WCoefMapper::str(request.coefficient),
                 OrderMapper::str(request.order),
-                request.contribution);
+                request.contribution,
+                request.basis.value_or(WilsonBasis::B_STANDARD));
     } else {
         LOG_ERROR("Invalid argument", "(WilsonProvider) Invalid scale type.");
     }

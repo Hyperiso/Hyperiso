@@ -25,7 +25,7 @@
 
 //     void init(QCDOrder order);
 //     virtual void init_running_blocks(QCDOrder order) = 0;
-//     void init_full_running_block(const std::unordered_map<ParameterType, std::vector<std::string>> &source_names, BWilsonBasis basis, bool inter, std::vector<ContributionType> type);
+//     void init_full_running_block(const std::unordered_map<ParameterType, std::vector<std::string>> &source_names, WilsonBasis basis, bool inter, std::vector<ContributionType> type);
 
 //     virtual std::shared_ptr<CoefficientGroup> get_sm_group() {LOG_ERROR("LogicError", "cannot get_sm_group for non real group"); return nullptr;}
 //     // Getters
@@ -45,7 +45,7 @@
 
 //     static complex_t ensure_coef(WCoef coef, QCDOrder order, ContributionType type, std::string matching_block);
 
-//     std::optional<BWilsonBasis> basis;
+//     std::optional<WilsonBasis> basis;
 //     ContributionType wilson_type {ContributionType::SM};
 //     QCDOrder current_order = QCDOrder::LO; //TODO SAME : cannot be none, need to see logic
 //     WGroup id;

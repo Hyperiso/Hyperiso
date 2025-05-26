@@ -161,9 +161,16 @@ C4_susy::C4_susy() : WilsonCoefficient("C4_SUSY", GroupMapper::str(WGroup::B) + 
         WCoefMapper::flha_full(WCoef::C4, QCDOrder::NLO, ContributionType::BSM)
     };
 
+    auto nnlo_sources = matching_info[QCDOrder::NLO].sources;
+    for (int ae = 0; ae < 6; ++ae) {
+        for (int be = 0; be < 6; ++be) {
+            nnlo_sources.insert({ParameterType::WILSON, "MATRIX_BSM", {9, ae, be}});
+        }
+    }
+
     // NNLO Matching
     matching_info[QCDOrder::NNLO] = {
-        matching_info[QCDOrder::NLO].sources,
+        nnlo_sources,
         compute_NNLO,
         WCoefMapper::flha_full(WCoef::C4, QCDOrder::NNLO, ContributionType::BSM)
     };

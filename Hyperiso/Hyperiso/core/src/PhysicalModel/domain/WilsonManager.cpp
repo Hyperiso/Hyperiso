@@ -126,7 +126,7 @@ void CoefficientManager::init_specific_order_group_matching(const std::string& g
     LOG_INFO("CoefficientManager", "Initialized group", groupName, "at", order);
 }
 
-void CoefficientManager::fill_sources_for_group(const std::string & groupName, const std::string& order, std::unordered_map<ParameterType, std::vector<std::string>>& src, int id) {
+void CoefficientManager::fill_sources_for_group(const std::string & groupName, const std::string& order, std::unordered_map<ParameterType, std::vector<std::string>>& src, WilsonBasis id) {
     switch (OrderMapper::enum_elt(order))
     {
     case QCDOrder::NNLO:
@@ -173,20 +173,20 @@ std::pair<WCoef, std::pair<QCDOrder, ContributionType>> lha_wilson_deserialize(L
 }
 
 //TODO : manage id correctly, use base ENUM.
-void CoefficientManager::init_group_hadronic(const std::string& groupName, const std::string& order, int id) {
+void CoefficientManager::init_group_hadronic(const std::string& groupName, const std::string& order, WilsonBasis basis) {
     if (!this->coefficientGroups.contains(groupName)) {
         throw_no_group_error(groupName);
     }
 
     std::unordered_map<ParameterType, std::vector<std::string>> src = {};
-    fill_sources_for_group(groupName, order, src, id);
+    fill_sources_for_group(groupName, order, src, basis);
 
     QCDOrder ord = OrderMapper::enum_elt(order);
 
     std::map<QCDOrder, std::function<std::unordered_map<WCoef, scalar_t>(const std::unordered_map<QCDOrder, std::unordered_map<WCoef, scalar_t>>&, const std::unordered_map<std::string, std::shared_ptr<Block>>&)>> funcs = {
-        {QCDOrder::LO, this->coefficientGroups[groupName]->get_func(QCDOrder::LO, id)},
-        {QCDOrder::NLO, this->coefficientGroups[groupName]->get_func(QCDOrder::NLO, id)},
-        {QCDOrder::NNLO, this->coefficientGroups[groupName]->get_func(QCDOrder::NNLO, id)}
+        {QCDOrder::LO, this->coefficientGroups[groupName]->get_func(QCDOrder::LO, basis)},
+        {QCDOrder::NLO, this->coefficientGroups[groupName]->get_func(QCDOrder::NLO, basis)},
+        {QCDOrder::NNLO, this->coefficientGroups[groupName]->get_func(QCDOrder::NNLO, basis)}
     };
 
     std::string matching_block_name = this->coefficientGroups[groupName]->get_matching_storage_block();
@@ -230,7 +230,7 @@ void CoefficientManager::init_group_hadronic(const std::string& groupName, const
                     LhaID coef_lha = WCoefMapper::flha_full(coef_id, order, c_type);
                     ParamId pid {
                         ParameterType::WILSON, 
-                        GroupMapper::str(GroupMapper::enum_elt(groupName), ScaleType::HADRONIC, false, BWilsonBasis::STANDARD), 
+                        GroupMapper::str(GroupMapper::enum_elt(groupName), ScaleType::HADRONIC, false, WilsonBasis::B_STANDARD), 
                         coef_lha
                     };
                     dep_block->store_or_assign(pid.code, std::make_shared<Parameter>(pid, coef_val, 0., (int)c_type));
@@ -239,21 +239,12 @@ void CoefficientManager::init_group_hadronic(const std::string& groupName, const
         }
     };
 
-    WilsonParamComposer().compose_block(GroupMapper::str(GroupMapper::enum_elt(groupName), ScaleType::HADRONIC, false, id ? BWilsonBasis::TRADITIONAL : BWilsonBasis::STANDARD), src, func);
+    WilsonParamComposer().compose_block(GroupMapper::str(GroupMapper::enum_elt(groupName), ScaleType::HADRONIC, false, basis), src, func);
 }
 
-void CoefficientManager::switchbasis(const std::string& groupName) {
-    if (!this->coefficientGroups.contains(groupName)) {
-        throw_no_group_error(groupName);
-    }
-
-    this->coefficientGroups.at(groupName)->switch_basis();
-    if (has_bsm) {
-        std::string bsm_group = groupName + bsm_suffix;
-        if (!this->coefficientGroups.contains(bsm_group)) {
-            throw_no_group_error(bsm_group);
-        }
-        this->coefficientGroups.at(bsm_group)->switch_basis();
+void CoefficientManager::init_group_hadronic_all_bases(const std::string &groupName, const std::string &order) {
+    for (auto basis : this->coefficientGroups.at(groupName)->get_bases()) {
+        this->init_group_hadronic(groupName, order, basis);
     }
 }
 
@@ -277,21 +268,21 @@ complex_t CoefficientManager::getFullMatchingCoefficient(const std::string& grou
     return c;
 }
 
-complex_t CoefficientManager::getRunCoefficient(const std::string& groupName, const std::string& coeffName, const std::string& order, ContributionType cont_type) {
+complex_t CoefficientManager::getRunCoefficient(const std::string& groupName, const std::string& coeffName, const std::string& order, ContributionType cont_type, WilsonBasis basis) {
     if (!this->coefficientGroups.contains(groupName)) {
         throw_no_group_error(groupName);
     }
 
-    complex_t c = this->coefficientGroups.at(groupName)->get_running_coefficient(coeffName, order, cont_type);
+    complex_t c = this->coefficientGroups.at(groupName)->get_running_coefficient(coeffName, order, cont_type, basis);
     return c;
 }
 
-complex_t CoefficientManager::getFullRunCoefficient(const std::string& groupName, const std::string& coeffName, const std::string& order, ContributionType cont_type) {
+complex_t CoefficientManager::getFullRunCoefficient(const std::string& groupName, const std::string& coeffName, const std::string& order, ContributionType cont_type, WilsonBasis basis) {
     double fact = wilson_p("WPARAM_RUN_SM", 1) / (4 * PI);
     int max_order = static_cast<int>(OrderMapper::enum_elt(order));
     complex_t c {0};
     for (size_t o = 1; o <= max_order; o++) {
-        c += this->getRunCoefficient(groupName, coeffName, OrderMapper::str(static_cast<QCDOrder>(o)), cont_type) * std::pow(fact, o - 1);
+        c += this->getRunCoefficient(groupName, coeffName, OrderMapper::str(static_cast<QCDOrder>(o)), cont_type, basis) * std::pow(fact, o - 1);
     }
     return c;
 }
@@ -344,10 +335,7 @@ std::shared_ptr<CoefficientManager> CoefficientManager::Builder(std::string mode
         LOG_INFO("(CoefficientManager) Initializing group matching", group.first);
         manager->init_group_matching(group.first, order);
         LOG_INFO("(CoefficientManager) Initializing group hadronic", group.first);
-        manager->init_group_hadronic(group.first, order);
-        if (group.second->is_double_basis()){
-            manager->init_group_hadronic(group.first, order, 1); //TODO : base 2}
-        }
+        manager->init_group_hadronic_all_bases(group.first, order);
     }
     LOG_INFO("(CoefficientManager) Manager successfully initialized");
     return manager;

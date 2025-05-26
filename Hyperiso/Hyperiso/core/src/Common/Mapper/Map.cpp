@@ -99,10 +99,10 @@ const std::map<Model, std::string>& model_mapping() {
     return m;
 }
 
-const std::map<BWilsonBasis, std::string>& bwilsonbasis_mapping() {
-    static const std::map<BWilsonBasis, std::string> m = {
-        {BWilsonBasis::STANDARD, "STANDARD"},
-        {BWilsonBasis::TRADITIONAL, "TRADITIONAL"},
+const std::map<WilsonBasis, std::string>& wilsonbasis_mapping() {
+    static const std::map<WilsonBasis, std::string> m = {
+        {WilsonBasis::B_STANDARD, "STANDARD"},
+        {WilsonBasis::B_TRADITIONAL, "TRADITIONAL"},
     };
     return m;
 }

@@ -37,12 +37,12 @@ public:
 
     void registerCoefficientGroup(const std::string& groupName, std::shared_ptr<CoefficientGroup> group);
     void init_group_matching(const std::string& groupName, const std::string& order);
-    void init_group_hadronic(const std::string& groupName, const std::string& order, int id=0);
+    void init_group_hadronic(const std::string& groupName, const std::string& order, WilsonBasis id);
+    void init_group_hadronic_all_bases(const std::string& groupName, const std::string& order);
     void init_specific_order_group_matching(const std::string& groupName, const std::string& order, bool only_total);
-    void switchbasis(const std::string& groupName);
     void update(std::string group, double mu_W, double mu_h);
     
-    void fill_sources_for_group(const std::string & groupName, const std::string& order, std::unordered_map<ParameterType, std::vector<std::string>>& src, int id=0);
+    void fill_sources_for_group(const std::string & groupName, const std::string& order, std::unordered_map<ParameterType, std::vector<std::string>>& src, WilsonBasis id);
 
     std::string getModel();
     std::shared_ptr<CoefficientGroup> getCoefficientGroup(const std::string& groupName) const;
@@ -50,8 +50,8 @@ public:
 
     complex_t getMatchingCoefficient(const std::string& groupName, const std::string& coeffName, const std::string& order, ContributionType cont_type);
     complex_t getFullMatchingCoefficient(const std::string& groupName, const std::string& coeffName, const std::string& order, ContributionType cont_type);
-    complex_t getRunCoefficient(const std::string& groupName, const std::string& coeffName, const std::string& order, ContributionType cont_type);
-    complex_t getFullRunCoefficient(const std::string& groupName, const std::string& coeffName, const std::string& order, ContributionType cont_type);
+    complex_t getRunCoefficient(const std::string& groupName, const std::string& coeffName, const std::string& order, ContributionType cont_type, WilsonBasis basis = WilsonBasis::B_STANDARD);
+    complex_t getFullRunCoefficient(const std::string& groupName, const std::string& coeffName, const std::string& order, ContributionType cont_type, WilsonBasis basis = WilsonBasis::B_STANDARD);
 
     void printGroupCoefficients(const std::string& groupName) const;
 };

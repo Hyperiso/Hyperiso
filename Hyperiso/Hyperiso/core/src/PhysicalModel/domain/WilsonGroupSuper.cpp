@@ -18,7 +18,6 @@ CoefficientGroup::CoefficientGroup(const CoefficientGroup& other)
             (*this)[key] = nullptr;
         }
     }
-    basis = other.basis;
     wilson_type = other.wilson_type;
     current_order = other.current_order;
     id = other.id;
@@ -63,26 +62,17 @@ complex_t CoefficientGroup::get_matching_coefficient(std::string coeff, std::str
     return this->at(coeff)->get_matching_value(order, cont_type); 
 }
 
-complex_t CoefficientGroup::get_running_coefficient(std::string coeff, std::string order, ContributionType cont_type) const {
+complex_t CoefficientGroup::get_running_coefficient(std::string coeff, std::string order, ContributionType cont_type, WilsonBasis basis) const {
     auto coef = this->at(coeff);
     ParameterProxy wilson_p = ParameterProxy(ParameterType::WILSON);
-    // std::cout << "before : " << coef->id(OrderMapper::enum_elt(order)) << std::endl;
-    // std::cout << GroupMapper::str(this->id, ScaleType::HADRONIC, false, this->basis.value_or(BWilsonBasis::STANDARD)) << " eheh " << coef->id(OrderMapper::enum_elt(order)) << std::endl;
-    return complex_t(wilson_p(GroupMapper::str(this->id, ScaleType::HADRONIC, false, this->basis.value_or(BWilsonBasis::STANDARD)), coef->id(OrderMapper::enum_elt(order), cont_type)));
+    return complex_t(wilson_p(GroupMapper::str(this->id, ScaleType::HADRONIC, false, basis), coef->id(OrderMapper::enum_elt(order), cont_type)));
 }
 
 QCDOrder CoefficientGroup::get_order(){
     return this->current_order;
 }
 
-bool CoefficientGroup::is_double_basis() const {
-    return this->basis.has_value();
-}
-
-void CoefficientGroup::init_full_running_block(const std::unordered_map<ParameterType, std::vector<std::string>> &source_names, BWilsonBasis basis, bool inter, std::vector<ContributionType> contribution_type) {
-    // std::unordered_map<ParameterType, std::vector<std::string>> src = {
-    //     {ParameterType::WILSON, {GroupMapper::str(this->id, ScaleType::HADRONIC) + "INTER", "WPARAM_RUN_SM"}}
-    // };
+void CoefficientGroup::init_full_running_block(const std::unordered_map<ParameterType, std::vector<std::string>> &source_names, WilsonBasis basis, bool inter, std::vector<ContributionType> contribution_type) {
 
     auto func = [basis, this, inter, contribution_type] (const std::unordered_map<std::string, std::shared_ptr<Block>>& src, std::shared_ptr<DependentBlock> dep_block) {
         double alpha_s_mu_h = src.at("WPARAM_RUN_SM")->retrieve(1)->get_val();
@@ -109,12 +99,6 @@ void CoefficientGroup::init_full_running_block(const std::unordered_map<Paramete
         }
     };
     WilsonParamComposer().compose_block(GroupMapper::str(this->id, ScaleType::HADRONIC, true, basis) + (inter ? "INTER" : ""), source_names, func);
-}
-
-void CoefficientGroup::switch_basis() {
-    if (!basis.has_value()) return;
-
-    basis = (basis.value() == BWilsonBasis::STANDARD ? BWilsonBasis::TRADITIONAL : BWilsonBasis::STANDARD);
 }
 
 std::ostream& operator<<(std::ostream& os, const CoefficientGroup& coeffs) {

@@ -4,7 +4,7 @@
 #include "EnumMapper.h"
 #include "GeneralEnum.h"
 #include "ScaleTypeMapper.h"
-#include "BWilsonBasisMapper.h"
+#include "WilsonBasisMapper.h"
 
 class GroupMapper : public EnumMapperBase<WGroup, GroupMapper> {
 public:
@@ -28,12 +28,12 @@ public:
         return EnumMapperBase::str(group);
     }
 
-    static std::string str(WGroup group, ScaleType scale, bool full=false, BWilsonBasis basis=BWilsonBasis::STANDARD) {
+    static std::string str(WGroup group, ScaleType scale, bool full=false, WilsonBasis basis=WilsonBasis::B_STANDARD) {
         std::stringstream ss;
         ss << mapping().at(group)
            << "_" << ScaleTypeMapper::str(scale)
            << (full ? "_FULL" : "")
-           << (scale == ScaleType::HADRONIC ? "_" + BWilsonBasisMapper::str(basis) : "");
+           << (scale == ScaleType::HADRONIC ? "_" + WilsonBasisMapper::str(basis) : "");
 
         return ss.str();
     }

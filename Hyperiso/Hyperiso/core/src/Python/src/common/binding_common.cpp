@@ -115,9 +115,9 @@ void init_common(py::module &m) {
         .value("BCLNU", WGroup::BCLNU)
         .export_values();
 
-    py::enum_<BWilsonBasis>(m, "BWilsonBasis")
-        .value("STANDARD", BWilsonBasis::STANDARD)
-        .value("TRADITIONAL", BWilsonBasis::TRADITIONAL)
+    py::enum_<WilsonBasis>(m, "WilsonBasis")
+        .value("STANDARD", WilsonBasis::B_STANDARD)
+        .value("TRADITIONAL", WilsonBasis::B_TRADITIONAL)
         .export_values();
 
     py::enum_<ContributionType>(m, "ContributionType")
@@ -157,7 +157,7 @@ void init_common(py::module &m) {
     // BIND_ENUM_MAPPER(WCoefMapper, WCoef)
     BIND_ENUM_MAPPER(ParameterTypeMapper, ParameterType)
     BIND_ENUM_MAPPER(ModelMapper, Model)
-    BIND_ENUM_MAPPER(BWilsonBasisMapper, BWilsonBasis)
+    BIND_ENUM_MAPPER(WilsonBasisMapper, WilsonBasis)
     BIND_ENUM_MAPPER(ContributionTypeMapper, ContributionType)
     BIND_ENUM_MAPPER(MassTypeMapper, MassType)
     // BIND_ENUM_MAPPER(ScaleTypeMapper, ScaleType)

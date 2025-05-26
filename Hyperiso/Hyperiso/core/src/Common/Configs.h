@@ -17,6 +17,7 @@ struct WilsonRequest : public AbstractConfig {
     ContributionType contribution {ContributionType::TOTAL};
     ScaleType scale_type {ScaleType::HADRONIC};
     bool sum_qcd_orders {false};
+    std::optional<WilsonBasis> basis;
 
     WilsonRequest(WGroup group, WCoef coefficient, QCDOrder order, ContributionType contribution, ScaleType scale_type, bool sum_qcd_orders) :
         group(group), coefficient(coefficient), order(order), contribution(contribution), scale_type(scale_type), sum_qcd_orders(sum_qcd_orders) {}

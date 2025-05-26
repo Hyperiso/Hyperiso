@@ -369,7 +369,7 @@ namespace std {
 //     BCLNU,
 // };
 
-// enum class BWilsonBasis {
+// enum class WilsonBasis {
 //     STANDARD, 
 //     TRADITIONAL
 // };

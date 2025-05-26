@@ -8,7 +8,7 @@
 #include "WCoeffMapper.h"
 #include "ParameterTypeMapper.h"
 #include "ModelMapper.h"
-#include "BWilsonBasisMapper.h"
+#include "WilsonBasisMapper.h"
 #include "ContributionTypeMapper.h"
 #include "MassTypeMapper.h"
 #include "ScaleTypeMapper.h"
@@ -21,7 +21,7 @@ const std::map<WCoef, std::string>& wcoef_mapping();
 const std::map<WCoef, std::pair<int, int>>& wcoef_flha_mapping();
 const std::map<ParameterType, std::string>& parametertype_mapping();
 const std::map<Model, std::string>& model_mapping();
-const std::map<BWilsonBasis, std::string>& bwilsonbasis_mapping();
+const std::map<WilsonBasis, std::string>& wilsonbasis_mapping();
 const std::map<ContributionType, std::string>& contributiontype_mapping();
 const std::map<Decays, std::string>& decays_mapping();
 
@@ -72,16 +72,16 @@ inline const std::map<std::string, Model>& ModelMapper::inverse_mapping() {
     return inv;
 }
 
-inline const std::map<BWilsonBasis, std::string>& BWilsonBasisMapper::mapping() {
-    static const std::map<BWilsonBasis, std::string> m = {
-        {BWilsonBasis::STANDARD, "STANDARD"},
-        {BWilsonBasis::TRADITIONAL, "TRADITIONAL"},
+inline const std::map<WilsonBasis, std::string>& WilsonBasisMapper::mapping() {
+    static const std::map<WilsonBasis, std::string> m = {
+        {WilsonBasis::B_STANDARD, "STANDARD"},
+        {WilsonBasis::B_TRADITIONAL, "TRADITIONAL"},
     };
     return m;
 }
 
-inline const std::map<std::string, BWilsonBasis>& BWilsonBasisMapper::inverse_mapping() {
-    static const std::map<std::string, BWilsonBasis> inv = invert_map(mapping());
+inline const std::map<std::string, WilsonBasis>& WilsonBasisMapper::inverse_mapping() {
+    static const std::map<std::string, WilsonBasis> inv = invert_map(mapping());
     return inv;
 }
 

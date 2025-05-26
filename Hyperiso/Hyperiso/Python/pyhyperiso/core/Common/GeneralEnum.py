@@ -4,7 +4,7 @@ from pyhyperiso.phyperiso.pyhyperiso.common import ParameterType as _CppParamete
 from pyhyperiso.phyperiso.pyhyperiso.common import Observables as _CppObservables
 from pyhyperiso.phyperiso.pyhyperiso.common import QCDOrder as _CppQCDOrder
 from pyhyperiso.phyperiso.pyhyperiso.common import WGroup as _CppWGroup
-from pyhyperiso.phyperiso.pyhyperiso.common import BWilsonBasis as _CppBWilsonBasis
+from pyhyperiso.phyperiso.pyhyperiso.common import WilsonBasis as _CppWilsonBasis
 from pyhyperiso.phyperiso.pyhyperiso.common import WCoef as _CppWCoef
 from pyhyperiso.phyperiso.pyhyperiso.common import Decays as _CppDecays
 from pyhyperiso.phyperiso.pyhyperiso.common import MassType as _CppMassType
@@ -75,9 +75,9 @@ class WGroup(Enum):
     Blnu = _CppWGroup.Blnu
     BCLNU = _CppWGroup.BCLNU
     
-class BWilsonBasis(Enum):
-    STANDARD = _CppBWilsonBasis.STANDARD
-    TRADITIONAL = _CppBWilsonBasis.TRADITIONAL
+class WilsonBasis(Enum):
+    STANDARD = _CppWilsonBasis.STANDARD
+    TRADITIONAL = _CppWilsonBasis.TRADITIONAL
 
 class Observables(Enum):
     BR_BS_MUMU = _CppObservables.BR_BS_MUMU
