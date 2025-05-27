@@ -86,3 +86,7 @@ void WilsonParameterHelper::init_running_block() {
 
     WilsonParameterHelper::composer.compose_block("WPARAM_RUN_SM", src, func);
 }
+
+void WilsonParameterHelper::cleanup() {
+	WilsonParameterHelper::initialized = false;
+}

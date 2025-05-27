@@ -64,7 +64,7 @@ public:
      * @param src The ParameterType (model) where the block is registered.
      */
     static void removeDependentBlock(const std::string& name, ParameterType src);
-
+    
     /**
      * @brief Manually triggers an update on a DependentBlock.
      *

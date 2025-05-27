@@ -166,10 +166,6 @@ public:
      */
     virtual void clear_below();
 
-    /**
-     * @brief Virtual method to unfreeze the parameter (default: no operation).
-     */
-    virtual void unfreeze() {}
 
     /**
      * @brief Assignment operator.
@@ -268,6 +264,8 @@ public:
      * @brief Unfreezes the dependent parameter (updates if needed).
      */
     void unfreeze() override;
+
+    void clear_above() override;
 
     /**
      * @brief Destructor. Cleans up dependency links.

@@ -153,9 +153,9 @@ public:
      */
     void copy(std::shared_ptr<Block> other);
 
-    void clear_above();
+    virtual void clear_above();
 
-    void clear_below();
+    virtual void clear_below();
 
     /**
      * @brief Destructor. Notifies observers when the block is destroyed.
@@ -238,9 +238,9 @@ public:
         return this->sourceBlocks;
     }
 
-    void clear_above();
+    void clear_above() override;
 
-    void clear_below();
+    void clear_below() override;
 
 private:
     std::shared_ptr<DependentBlock> self;                                   ///< Self-reference for observer management.

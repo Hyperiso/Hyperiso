@@ -1,8 +1,9 @@
 #include "WilsonBuilder.h"
 
-WilsonBuilder::WilsonBuilder() {
-    this->cm = std::make_shared<CoefficientManager>();
-}
+//DUPLICATE the creation of coefficientmanager -> lead to ~CoefficientManager, destroy everything
+// WilsonBuilder::WilsonBuilder() {
+//     this->cm = std::make_shared<CoefficientManager>();
+// }
 
 WilsonBuilder::WilsonBuilder(WilsonBuildConfig config) {
     this->build(config);

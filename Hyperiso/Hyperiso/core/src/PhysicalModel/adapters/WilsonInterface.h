@@ -30,7 +30,7 @@ public:
     explicit WilsonInterface() {
         LOG_INFO("In WilsonInterface constructor");
         this->init_group_ptrs();
-        this->builder = std::make_shared<WilsonBuilder>();
+        // this->builder = std::make_shared<WilsonBuilder>();
     }
 
     void init_group_ptrs() {
@@ -69,7 +69,8 @@ public:
     }
 
     void build(WilsonBuildConfig config) {
-        this->builder->build(config);
+        this->builder = std::make_shared<WilsonBuilder>(config);
+        // this->builder->build(config);
         this->provider = this->builder->get_wilson_provider();
     }
 

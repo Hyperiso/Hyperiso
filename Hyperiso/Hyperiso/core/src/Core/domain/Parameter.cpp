@@ -21,10 +21,10 @@ scalar_t Parameter::get_val() const {
 }
 
 void Parameter::set_expected(scalar_t val) {
-    LOG_INFO("Parameter::set_expected of ", id.block, " ", id.code);
+    LOG_DEBUG("Parameter::set_expected of ", id.block, " ", id.code);
     this->expected = val;
     notifyObservers();
-    LOG_INFO("Parameter::set_expected end");
+    LOG_DEBUG("Parameter::set_expected end");
 }
 
 void Parameter::set_id(ParamId id) {
@@ -57,8 +57,9 @@ void Parameter::set_shift(scalar_t shift) {
 }
 
 void Parameter::clear_below() {
+    this->clear_above();
+    std::cout << "cleaning param : " << this->id.block << this->id.code << std::endl; 
     for (auto& obs : observers) {
-        obs->clear_above();
         obs->clear_below();
     }
 }
@@ -75,6 +76,12 @@ Parameter& Parameter::operator=(const Parameter& other) {
 
 bool DependentParameter::dependsOn(const ParamId& pid) {
     return sources.contains(pid);
+}
+
+void DependentParameter::clear_above() {
+    for (auto &[name, param] : sources) {
+        param->removeObserver(self);
+    }
 }
 
 void DependentParameter::init() {
@@ -96,7 +103,7 @@ void DependentParameter::update() {
         && std::all_of(sources.begin(), sources.end(), 
                     [](std::pair<ParamId, std::shared_ptr<Parameter>> block) { return block.second; })) 
     {
-        LOG_INFO("Updating dependent parameter value");
+        LOG_DEBUG("Updating dependent parameter value");
         if (auto self = shared_from_this()) { 
             recalculateLambda(sources, self);
         } else {

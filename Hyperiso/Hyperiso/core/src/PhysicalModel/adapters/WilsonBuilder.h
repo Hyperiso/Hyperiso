@@ -10,7 +10,7 @@
 
 class WilsonBuilder : public IWilsonBuilder<WilsonBuildConfig, WilsonProvider> { 
 public:
-    WilsonBuilder();
+    // WilsonBuilder();
     WilsonBuilder(WilsonBuildConfig config);
     WilsonBuilder(std::shared_ptr<CoefficientManager> manager);
 

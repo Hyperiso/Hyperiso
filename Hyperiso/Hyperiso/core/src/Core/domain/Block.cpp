@@ -208,8 +208,14 @@ void DependentBlock::clear_above() {
 }
 
 void DependentBlock::clear_below() {
+    this->clear_above();
+    std::cout << "clear : " << this->get_name() << std::endl;
+    //base case
+    if (observers.size() < 1) {
+        return; //no need to destroy itself, if no ref, shared_ptr do it
+    }
+
     for (auto &obs : observers) {
-        obs->clear_above();
         obs->clear_below();
     }
 }

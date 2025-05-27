@@ -65,15 +65,16 @@ void DependentBlockManager::removeDependentBlock(const std::string &name,
     if (!Parameters::GetInstance(src)->blockAccessor->contains(name)) {
         return;
     }
+    std::shared_ptr<Block> dep_block = Parameters::GetInstance(src)->blockAccessor->at(name);
+    dep_block->clear_above();
 
-    std::shared_ptr<DependentBlock> dep_block = std::static_pointer_cast<DependentBlock>(Parameters::GetInstance(src)->blockAccessor->at(name));
-    for (auto& src : dep_block->get_source_blocks()) {
-        src.second->removeObserver(dep_block);
-    }
+    // for (auto& src : dep_block->get_source_blocks()) {
+    //     src.second->removeObserver(dep_block);
+    // }
 
-    for (auto& observer : dep_block->getObservers()) {
-        removeDependentBlock(observer->get_name(), src);
-    }
+    // for (auto& observer : dep_block->getObservers()) {
+    //     removeDependentBlock(observer->get_name(), src);
+    // }
 
     Parameters::GetInstance(src)->blockAccessor->erase(name);
 }

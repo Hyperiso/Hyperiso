@@ -9,6 +9,7 @@ class WilsonParameterHelper {
 public:
     static void init(int gen);
     static void set_gen(int gen);
+    static void cleanup();
 
 private:
     static void init_scale_independent_block(int gen);

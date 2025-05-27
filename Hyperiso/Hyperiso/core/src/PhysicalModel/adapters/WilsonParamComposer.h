@@ -13,7 +13,7 @@ public:
     void remove_all_composed_blocks();
 
 private:
-    std::unordered_set<std::string> composed_blocks;
+    inline static std::unordered_set<std::string> composed_blocks;
 
 };
 

@@ -323,7 +323,9 @@ void CoefficientManager::printGroupCoefficients(const std::string& groupName) co
 }
 
 CoefficientManager::~CoefficientManager() {
+    std::cout << "IM HERE" << std::endl;
     WilsonParamComposer().remove_all_composed_blocks();
+    WilsonParameterHelper::cleanup();
 }
 
 void CoefficientManager::update(std::string group, double mu_W, double mu_h) {
