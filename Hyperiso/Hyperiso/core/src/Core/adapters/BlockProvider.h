@@ -10,6 +10,8 @@ public:
     bool exists(const std::string& blockname, ParameterType);
     void log_all_blocks(ParameterType type);
     void log_block(ParameterType type, const std::string& blockname);
+
+    
 };
 
 #endif

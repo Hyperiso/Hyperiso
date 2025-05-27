@@ -3,7 +3,7 @@
 #include <iostream>
 #include <cassert>
 
-int main(){
+int main() {
     HyperisoMaster hyp = HyperisoMaster();
     Config config;
     config.model = Model::SUSY;

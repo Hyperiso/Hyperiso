@@ -48,6 +48,7 @@ bool Parameters::exist(const BlockName& block, LhaID id) {
 }
 
 void Parameters::setBlockValue(const BlockName& name, LhaID id, scalar_t value) {
+    LOG_INFO("Parameters::setBlockValue");
     blockAccessor->setValue(name, id, value);
 }
 

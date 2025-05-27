@@ -40,7 +40,6 @@ bool compareCSV(const std::string& file1, const std::string& file2, double toler
         std::cerr << "File sizes are different." << std::endl;
         return false;
     }
-    LOG_INFO("TOUT VA BIEEEEN");
     for (size_t i = 1; i < data1.size(); ++i) { // start from 1 to skip headers
         for (size_t j = 0; j < data1[i].size(); ++j) {
             double val1 = std::stod(data1[i][j]);

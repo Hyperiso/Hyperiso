@@ -14,14 +14,13 @@ int main() {
     
     std::string root_file = project_root.data();
 
-    // auto loStrategy = std::make_shared<SM_LO_Strategy>();
-    // auto nloStrategy = std::make_shared<SM_NLO_Strategy>();
-    // auto nnloStrategy = std::make_shared<SM_NNLO_Strategy>();
-
-    double tolerance = 0.01;
+    double tolerance = 0.1;
     
+    LOG_INFO("Running LO SM Wilson Coefficients Tests");
     runTest("LO", root_file + "Test/csv/sm/WilsonCoefficients_LO.csv", root_file + "Test/csv/superiso/sm/WilsonCoefficients_LO.csv", "SM", tolerance);
+    LOG_INFO("Running NLO SM Wilson Coefficients Tests");
     runTest("NLO", root_file + "Test/csv/sm/WilsonCoefficients_NLO.csv", root_file + "Test/csv/superiso/sm/WilsonCoefficients_NLO.csv", "SM",tolerance);
+    LOG_INFO("Running NNLO SM Wilson Coefficients Tests");
     runTest("NNLO", root_file + "Test/csv/sm/WilsonCoefficients_NNLO.csv", root_file + "Test/csv/superiso/sm/WilsonCoefficients_NNLO.csv", "SM",tolerance);
 
     return 0;

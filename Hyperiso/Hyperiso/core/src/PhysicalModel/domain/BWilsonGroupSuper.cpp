@@ -459,7 +459,6 @@ BScalarCoefficientGroup::BScalarCoefficientGroup() {
     this->id = WGroup::BScalar;
 
     std::map<QCDOrder,CoefficientGroupSources> grp_src;
-    std::cout << "dh" << std::endl;
     grp_src[QCDOrder::LO].sources = {
         {ParameterType::WILSON, {this->get_matching_storage_block(), "WPARAM_RUN_SM", "WPARAM_SI_SM"}},
     };
@@ -467,8 +466,6 @@ BScalarCoefficientGroup::BScalarCoefficientGroup() {
 
     grp_src[QCDOrder::NLO].sources = grp_src[QCDOrder::LO].sources;
     grp_src[QCDOrder::NLO].func = base_1_NLO_calculation;
-
-    std::cout << "dh" << std::endl;
     this->sources.insert({WilsonBasis::B_STANDARD, grp_src});
 
     if (UseMarty().get()) {
@@ -477,11 +474,8 @@ BScalarCoefficientGroup::BScalarCoefficientGroup() {
         }
         return;
     }
-    std::cout << "dh" << std::endl;
     this->insert(std::make_pair("CQ1", std::make_shared<CQ1>()));
     this->insert(std::make_pair("CQ2", std::make_shared<CQ2>()));
-
-    std::cout << "dh" << std::endl;
 }
 
 std::unordered_map<WCoef, scalar_t> BScalarCoefficientGroup::base_1_LO_calculation (
@@ -489,7 +483,7 @@ std::unordered_map<WCoef, scalar_t> BScalarCoefficientGroup::base_1_LO_calculati
     const std::unordered_map<std::string, std::shared_ptr<Block>>& src
 )
 {
-    std::array<complex_t, 10> CQi_match = {};
+    std::array<complex_t, 2> CQi_match = {};
     auto ids = WCoefMapper::get_group(WGroup::BScalar);
     for (size_t k = 0; k < ids.size(); k++) {
         CQi_match[k] = coef_matching.at(QCDOrder::LO).at(ids[k]);
@@ -501,7 +495,7 @@ std::unordered_map<WCoef, scalar_t> BScalarCoefficientGroup::base_1_LO_calculati
     
     // Store
     std::unordered_map<WCoef, scalar_t> Ci_run_map {};
-    for (size_t k = 0; k < 10; k++) {
+    for (size_t k = 0; k < ids.size(); k++) {
         Ci_run_map[ids[k]] = fact * CQi_match[k];
     }
 
@@ -525,7 +519,7 @@ std::unordered_map<WCoef, scalar_t> BScalarCoefficientGroup::base_1_NLO_calculat
     
     // Store
     std::unordered_map<WCoef, scalar_t> Ci_run_map {};
-    for (size_t k = 0; k < 10; k++) {
+    for (size_t k = 0; k < ids.size(); k++) {
         Ci_run_map[ids[k]] = fact * CQi_match[k];
     }
 
@@ -577,12 +571,10 @@ std::unordered_map<WCoef, scalar_t> BPrimeCoefficientGroup::base_1_LO_calculatio
     }
 
     double eta = src.at("WPARAM_RUN_SM")->retrieve(2)->get_val();
-
-    ;
     
     // Store
     std::unordered_map<WCoef, scalar_t> Ci_run_map {};
-    for (size_t k = 0; k < 10; k++) {
+    for (size_t k = 0; k < ids.size(); k++) {
         Ci_run_map[ids[k]] = pow(eta, BRP::exp_prime_running[k]) * CPi_match[k];
     }
 

@@ -141,6 +141,11 @@ public:
      */
     void notifyObservers() {
         for (auto& observer : observers) {
+            LOG_INFO("Notifiyng observer", observer->id.block, observer->id.code, "from parameter", id.block, id.code);
+            if (observer == nullptr) {
+                removeObserver(observer);
+                continue;
+            }
             observer->update();
         }
     }

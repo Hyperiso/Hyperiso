@@ -34,8 +34,8 @@ public:
      * @param dest Destination parameter type where the new block will be stored.
      * @param recalculateFunc Function used to recalculate the dependent block.
      */
-    virtual void add_block_dependency(const BlockName& name,
-                                      const std::unordered_map<ParameterType, std::vector<std::string>>& source_names,
+    virtual void add_block_dependency(BlockName name,
+                                      std::unordered_map<ParameterType, std::vector<std::string>> source_names,
                                       ParameterType dest,
                                       DepUpdateFunc recalculateFunc) 
                                       = 0;
@@ -46,8 +46,8 @@ public:
      * @param source_pids Set of source parameter IDs the new parameter depends on.
      * @param recalculateFunc Function used to recalculate the dependent parameter.
      */
-    virtual void add_param_dependency(const ParamId& pid,
-                                      const std::unordered_set<ParamId>& source_pids,
+    virtual void add_param_dependency(ParamId pid,
+                                      std::unordered_set<ParamId> source_pids,
                                       DepParamUpdateFunc recalculateFunc) 
                                       = 0;
 

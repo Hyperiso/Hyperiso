@@ -20,8 +20,8 @@ public:
      * @brief Adds a dependent block using DependentBlockManager.
      */
     void add_block_dependency(
-        const BlockName& name,
-        const std::unordered_map<ParameterType, std::vector<std::string>>& source_names,
+        BlockName name,
+        std::unordered_map<ParameterType, std::vector<std::string>> source_names,
         ParameterType dest,
         DepUpdateFunc recalculateFunc
     ) override;
@@ -30,8 +30,8 @@ public:
      * @brief Adds a dependent parameter using DependentBlockManager.
      */
     void add_param_dependency(
-        const ParamId& pid,
-        const std::unordered_set<ParamId>& source_pids,
+        ParamId pid,
+        std::unordered_set<ParamId> source_pids,
         DepParamUpdateFunc recalculateFunc
     ) override;
 

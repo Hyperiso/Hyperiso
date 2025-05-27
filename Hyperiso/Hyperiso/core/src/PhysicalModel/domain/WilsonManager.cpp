@@ -89,11 +89,24 @@ void CoefficientManager::init_specific_order_group_matching(const std::string& g
                 WCoefMapper::flha_full(WCoefMapper::enum_elt(coeff.second->get_base_name()), enum_order, c_type)
             };
 
+            ParamId pid_BSM {
+                storage_block,
+                WCoefMapper::flha_full(WCoefMapper::enum_elt(coeff.second->get_base_name()), enum_order, ContributionType::BSM)
+            };
+
             composer.compose_parameter(
                 pid, 
                 std::unordered_set<ParamId> {{storage_block, coeff.second->id(enum_order, coeff.second->get_type())}}, 
                 [&] (const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src, std::shared_ptr<DependentParameter> dep_param) {
                     dep_param->set_expected(src.at({ParameterType::WILSON, storage_block, coeff.second->id(enum_order, coeff.second->get_type())})->get_val());
+                }
+            );
+
+            composer.compose_parameter(
+                pid_BSM, 
+                std::unordered_set<ParamId> {}, 
+                [&] (const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src, std::shared_ptr<DependentParameter> dep_param) {
+                    dep_param->set_expected(0.);
                 }
             );
         } else {
@@ -191,7 +204,7 @@ void CoefficientManager::init_group_hadronic(const std::string& groupName, const
 
     std::string matching_block_name = this->coefficientGroups[groupName]->get_matching_storage_block();
 
-    auto func = [matching_block_name, ord, funcs, groupName] (const std::unordered_map<std::string, std::shared_ptr<Block>>& src, std::shared_ptr<DependentBlock> dep_block) {
+    auto func = [matching_block_name, ord, funcs, groupName, basis] (const std::unordered_map<std::string, std::shared_ptr<Block>>& src, std::shared_ptr<DependentBlock> dep_block) {
         std::map<LhaID, std::shared_ptr<Parameter>> matching_coeff = src.at(matching_block_name)->getItems();
         std::cout << src.at(matching_block_name) << std::endl;
         std::unordered_map<ContributionType, std::unordered_map<QCDOrder, std::unordered_map<WCoef, scalar_t>>> matching_map;
@@ -202,8 +215,8 @@ void CoefficientManager::init_group_hadronic(const std::string& groupName, const
             const QCDOrder& order = c.second.first;
             const ContributionType& contrib = c.second.second;
             matching_map[contrib][order][wcoef] = coef.second->get_val();
-
         }
+        
         std::unordered_map<ContributionType, std::unordered_map<QCDOrder,std::unordered_map<WCoef, scalar_t>>> res;
         for (auto contri : {ContributionType::SM, ContributionType::BSM, ContributionType::TOTAL}) {
             switch (ord)
@@ -224,13 +237,14 @@ void CoefficientManager::init_group_hadronic(const std::string& groupName, const
                     break;
                 }
         }
+
         for (auto& [c_type, order_map] : res) { // Iterate over the contributions
             for (auto& [order, coef_map] : order_map) { // Iterate over the orders
                 for (auto& [coef_id, coef_val] : coef_map) { // Iterate over the coefficients
                     LhaID coef_lha = WCoefMapper::flha_full(coef_id, order, c_type);
                     ParamId pid {
                         ParameterType::WILSON, 
-                        GroupMapper::str(GroupMapper::enum_elt(groupName), ScaleType::HADRONIC, false, WilsonBasis::B_STANDARD), 
+                        GroupMapper::str(GroupMapper::enum_elt(groupName), ScaleType::HADRONIC, false, basis), 
                         coef_lha
                     };
                     dep_block->store_or_assign(pid.code, std::make_shared<Parameter>(pid, coef_val, 0., (int)c_type));
@@ -346,5 +360,6 @@ void CoefficientManager::set_hadronic_scale(double mu_h) {
 }
 
 void CoefficientManager::set_matching_scale(double mu_W) {
+    LOG_INFO("CoefficientManager::set_matching_scale");
     ScaleSetter(ScaleType::MATCHING).set(mu_W);
 }

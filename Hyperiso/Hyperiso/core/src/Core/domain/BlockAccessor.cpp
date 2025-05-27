@@ -27,6 +27,7 @@ bool BlockAccessor::has_param(const BlockName& blockName, LhaID id) const {
 }
 
 void BlockAccessor::setValue(const BlockName& blockName, LhaID id, scalar_t value) {
+    LOG_INFO("BlockAccessor::setBlockValue");
     auto it = this->find(blockName);
     if (it != this->end()) {
         if (it->second->contains(id)) {

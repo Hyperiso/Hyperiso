@@ -11,3 +11,7 @@ void BlockProxy::log_all_blocks(ParameterType pt) {
 void BlockProxy::log_block(ParameterType pt, const std::string& blockname) {
     bp.log_block(pt, blockname);
 }
+
+std::unordered_set<BlockName> BlockProxy::get_block_list(ParameterType pt) {
+    return api.get_blocks_list(pt);
+}

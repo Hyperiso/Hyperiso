@@ -21,8 +21,10 @@ scalar_t Parameter::get_val() const {
 }
 
 void Parameter::set_expected(scalar_t val) {
+    LOG_INFO("Parameter::set_expected of ", id.block, " ", id.code);
     this->expected = val;
     notifyObservers();
+    LOG_INFO("Parameter::set_expected end");
 }
 
 void Parameter::set_id(ParamId id) {
