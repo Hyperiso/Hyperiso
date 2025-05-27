@@ -20,7 +20,6 @@ public:
     std::shared_ptr<WilsonProvider> get_wilson_provider();
 
 private:
-    void clear_existing_groups();
 
     std::shared_ptr<CoefficientManager> cm;
 };

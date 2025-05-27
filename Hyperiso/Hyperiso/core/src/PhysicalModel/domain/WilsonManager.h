@@ -54,6 +54,8 @@ public:
     complex_t getFullRunCoefficient(const std::string& groupName, const std::string& coeffName, const std::string& order, ContributionType cont_type, WilsonBasis basis = WilsonBasis::B_STANDARD);
 
     void printGroupCoefficients(const std::string& groupName) const;
+
+    ~CoefficientManager();
 };
 
 

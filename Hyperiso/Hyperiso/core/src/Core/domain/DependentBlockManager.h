@@ -36,8 +36,8 @@ public:
      * @param recalculateFunc Lambda function used to recalculate the content of the DependentBlock.
      */
     static void addDependentBlock(
-        const std::string& name,
-        const std::unordered_map<ParameterType, std::vector<std::string>>& source_names,
+        std::string name,
+        std::unordered_map<ParameterType, std::vector<std::string>> source_names,
         ParameterType dest,
         std::function<void(const std::unordered_map<std::string, std::shared_ptr<Block>>&, std::shared_ptr<DependentBlock>)> recalculateFunc
     );
@@ -52,8 +52,8 @@ public:
      * @param recalculateFunc Lambda function used to recalculate the value of the DependentParameter.
      */
     static void addDependentParameter(
-        const ParamId &pid,
-        const std::unordered_set<ParamId> &source_pids,
+        ParamId pid,
+        std::unordered_set<ParamId> source_pids,
         DepParamUpdateFunc recalculateFunc
     );
 

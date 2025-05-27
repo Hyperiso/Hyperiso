@@ -56,6 +56,13 @@ void Parameter::set_shift(scalar_t shift) {
     }
 }
 
+void Parameter::clear_below() {
+    for (auto& obs : observers) {
+        obs->clear_above();
+        obs->clear_below();
+    }
+}
+
 Parameter& Parameter::operator=(const Parameter& other) {
     this->id = other.id;
     this->set_expected(other.expected);
@@ -83,13 +90,13 @@ void DependentParameter::init() {
 
 void DependentParameter::update() {
     if (frozen) {
-        LOG_DEBUG("DependentParameter is frozen, skipping update");
+        LOG_INFO("DependentParameter is frozen, skipping update");
         this->update_at_unfreeze = true;
     } else if (recalculateLambda 
         && std::all_of(sources.begin(), sources.end(), 
                     [](std::pair<ParamId, std::shared_ptr<Parameter>> block) { return block.second; })) 
     {
-        LOG_DEBUG("Updating dependent parameter value");
+        LOG_INFO("Updating dependent parameter value");
         if (auto self = shared_from_this()) { 
             recalculateLambda(sources, self);
         } else {
@@ -110,6 +117,23 @@ void DependentParameter::unfreeze() {
         update();
         update_at_unfreeze = false;
     }
+}
+
+void Parameter::notifyObservers() {
+    for (auto& observer : observers) {
+        LOG_INFO("Notifiyng observer", observer->id.block, observer->id.code, "from parameter", id.block, id.code);
+        if (observer == nullptr) {
+            LOG_INFO("Observer is null, removing from observers list");
+            removeObserver(observer);
+            continue;
+        }
+        observer->update();
+        LOG_INFO("Observer", observer->id.block, observer->id.code, "updated successfully");
+    }
+}
+
+void Parameter::removeObserver(std::shared_ptr<Parameter> observer) { 
+    observers.erase(std::find(observers.begin(), observers.end(), observer));
 }
 
 DependentParameter::~DependentParameter() {

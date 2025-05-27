@@ -2,8 +2,8 @@
 #include "Parameters.h"
 
 void DependentBlockManager::addDependentBlock(
-    const std::string& name,
-    const std::unordered_map<ParameterType, std::vector<std::string>>& source_names,
+    std::string name,
+    std::unordered_map<ParameterType, std::vector<std::string>> source_names,
     ParameterType dest,
     std::function<void(const std::unordered_map<std::string, std::shared_ptr<Block>>&, std::shared_ptr<DependentBlock>)> recalculateFunc
 ) {
@@ -35,8 +35,8 @@ void DependentBlockManager::addDependentBlock(
 }
 
 void DependentBlockManager::addDependentParameter(
-    const ParamId &pid,
-    const std::unordered_set<ParamId> &source_pids,
+    ParamId pid,
+    std::unordered_set<ParamId> source_pids,
     DepParamUpdateFunc recalculateFunc)
 {
     std::unordered_map<ParamId, std::shared_ptr<Parameter>> sources;
@@ -45,7 +45,7 @@ void DependentBlockManager::addDependentParameter(
         sources.emplace(id, Parameters::GetInstance(id.type.value())->blockAccessor->getParameter(id.block, id.code));
     }
     
-    auto dependentParam = std::make_shared<DependentParameter>(sources, recalculateFunc);
+    auto dependentParam = std::make_shared<DependentParameter>(pid, sources, recalculateFunc);
     dependentParam->init();
     dependentParam->update();
 
@@ -62,6 +62,19 @@ void DependentBlockManager::addDependentParameter(
 void DependentBlockManager::removeDependentBlock(const std::string &name,
                                                  ParameterType src)
 {
+    if (!Parameters::GetInstance(src)->blockAccessor->contains(name)) {
+        return;
+    }
+
+    std::shared_ptr<DependentBlock> dep_block = std::static_pointer_cast<DependentBlock>(Parameters::GetInstance(src)->blockAccessor->at(name));
+    for (auto& src : dep_block->get_source_blocks()) {
+        src.second->removeObserver(dep_block);
+    }
+
+    for (auto& observer : dep_block->getObservers()) {
+        removeDependentBlock(observer->get_name(), src);
+    }
+
     Parameters::GetInstance(src)->blockAccessor->erase(name);
 }
 

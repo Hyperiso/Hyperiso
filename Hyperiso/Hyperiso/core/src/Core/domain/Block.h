@@ -125,6 +125,14 @@ public:
     void notifyObservers();
 
     /**
+     * @brief Retrieves the list of observer blocks.
+     * @return Vector of shared pointers to observer blocks.
+     */
+    std::vector<std::shared_ptr<Block>> getObservers() const {
+        return observers;
+    }
+
+    /**
      * @brief Virtual method to update the block (default behavior: update all parameters).
      */
     virtual void update();
@@ -144,6 +152,10 @@ public:
      * @param other Shared pointer to the other block.
      */
     void copy(std::shared_ptr<Block> other);
+
+    void clear_above();
+
+    void clear_below();
 
     /**
      * @brief Destructor. Notifies observers when the block is destroyed.
@@ -217,6 +229,18 @@ public:
      * @param value The new value to assign.
      */
     void assign(const LhaID& key, double value);
+
+    /**
+     * @brief Retrieves all the source blocks of the dependent block.
+     * @return A map of source block names to their shared pointers.
+     */
+    std::unordered_map<std::string, std::shared_ptr<Block>> get_source_blocks() const {
+        return this->sourceBlocks;
+    }
+
+    void clear_above();
+
+    void clear_below();
 
 private:
     std::shared_ptr<DependentBlock> self;                                   ///< Self-reference for observer management.

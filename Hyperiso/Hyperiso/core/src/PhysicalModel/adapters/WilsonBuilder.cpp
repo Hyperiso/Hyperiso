@@ -11,7 +11,6 @@ WilsonBuilder::WilsonBuilder(WilsonBuildConfig config) {
 WilsonBuilder::WilsonBuilder(std::shared_ptr<CoefficientManager> manager) : cm(manager) {}
 
 void WilsonBuilder::build(WilsonBuildConfig config) {
-    this->clear_existing_groups();
     WilsonParameterHelper().init(2);
     std::map<std::string, std::shared_ptr<CoefficientGroup>> groups;
     Model model = ModelAPI().get();
@@ -44,17 +43,4 @@ void WilsonBuilder::add(WilsonBuildConfig config) {
 
 std::shared_ptr<WilsonProvider> WilsonBuilder::get_wilson_provider() {
     return std::make_shared<WilsonProvider>(this->cm);
-}
-
-void WilsonBuilder::clear_existing_groups() {
-    BlockProxy bp;
-    for (const auto& block_name : bp.get_block_list(ParameterType::WILSON)) {
-        for (const auto& [_, group_name] : GroupMapper::mapping()) { 
-            // TODO: Implement starts_with for BlockName
-            if (block_name.to_string().starts_with(group_name)) {
-                LOG_INFO("Clearing existing group", block_name);
-                WilsonParamComposer().remove_block(block_name.to_string());
-            }
-        }
-    }
 }

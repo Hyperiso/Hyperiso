@@ -134,21 +134,12 @@ public:
      * @brief Removes an observer parameter.
      * @param observer Shared pointer to the observer.
      */
-    void removeObserver(std::shared_ptr<Parameter> observer) { observers.erase(std::find(observers.begin(), observers.end(), observer)); }
+    void removeObserver(std::shared_ptr<Parameter> observer);
 
     /**
      * @brief Notifies all observers of a change.
      */
-    void notifyObservers() {
-        for (auto& observer : observers) {
-            LOG_INFO("Notifiyng observer", observer->id.block, observer->id.code, "from parameter", id.block, id.code);
-            if (observer == nullptr) {
-                removeObserver(observer);
-                continue;
-            }
-            observer->update();
-        }
-    }
+    void notifyObservers();
 
     /**
      * @brief Virtual method to update the parameter (default: no operation).
@@ -159,6 +150,21 @@ public:
      * @brief Virtual method to freeze the parameter (default: no operation).
      */
     virtual void freeze() {}
+
+    /**
+     * @brief Virtual method to unfreeze the parameter (default: no operation).
+     */
+    virtual void unfreeze() {}
+
+    /**
+     * @brief Virtual method to unfreeze the parameter (default: no operation).
+     */
+    virtual void clear_above() {}
+
+    /**
+     * @brief Virtual method to unfreeze the parameter (default: no operation).
+     */
+    virtual void clear_below();
 
     /**
      * @brief Virtual method to unfreeze the parameter (default: no operation).
@@ -227,11 +233,12 @@ class DependentParameter : public Parameter, public std::enable_shared_from_this
 public:
     /**
      * @brief Constructs a DependentParameter from a set of source parameters and a recalculation function.
+     * @param pid ID of the dependent parameter.
      * @param sources Map of source parameters.
      * @param recalculateFunc Lambda function to compute the value based on sources.
      */
-    explicit DependentParameter(std::unordered_map<ParamId, std::shared_ptr<Parameter>> sources, DepParamUpdateFunc recalculateFunc) 
-    : sources(std::move(sources)), recalculateLambda(std::move(recalculateFunc)), frozen(false) {}
+    explicit DependentParameter(ParamId pid, std::unordered_map<ParamId, std::shared_ptr<Parameter>> sources, DepParamUpdateFunc recalculateFunc) 
+    : Parameter(pid, 0, 0, 0), sources(std::move(sources)), recalculateLambda(std::move(recalculateFunc)), frozen(false) {}
 
     /**
      * @brief Checks if the dependent parameter depends on a given parameter.

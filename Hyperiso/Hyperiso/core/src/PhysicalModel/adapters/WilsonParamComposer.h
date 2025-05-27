@@ -10,6 +10,10 @@ public:
     void compose_parameter(const ParamId&, const std::unordered_set<ParamId>&, const DepParamUpdateFunc&) override;
     void remove_block(const std::string&);
     void update(const std::string& block_name);
+    void remove_all_composed_blocks();
+
+private:
+    std::unordered_set<std::string> composed_blocks;
 
 };
 

@@ -322,6 +322,10 @@ void CoefficientManager::printGroupCoefficients(const std::string& groupName) co
     std::cout << group;
 }
 
+CoefficientManager::~CoefficientManager() {
+    WilsonParamComposer().remove_all_composed_blocks();
+}
+
 void CoefficientManager::update(std::string group, double mu_W, double mu_h) {
     this->set_matching_scale(mu_W);
     this->set_hadronic_scale(mu_h);

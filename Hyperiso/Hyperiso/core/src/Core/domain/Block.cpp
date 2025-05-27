@@ -113,6 +113,18 @@ void Block::copy(std::shared_ptr<Block> other) {
     this->blockname = other->blockname;
 }
 
+void Block::clear_above() {
+    for (auto& param: this->items) {
+        param.second->clear_above();
+    }
+}
+
+void Block::clear_below() {
+    for (auto& param: this->items) {
+        param.second->clear_below();
+    }
+}
+
 bool DependentBlock::dependsOn(const std::string& blockName) {
     return sourceBlocks.contains(blockName);
 }
@@ -187,6 +199,19 @@ void DependentBlock::assign(const LhaID &key, double value) {
     }
 
     this->items.at(key)->set_expected(value);
+}
+
+void DependentBlock::clear_above() {
+    for (auto &[name, block] : sourceBlocks) {
+        block->removeObserver(self);
+    }
+}
+
+void DependentBlock::clear_below() {
+    for (auto &obs : observers) {
+        obs->clear_above();
+        obs->clear_below();
+    }
 }
 
 std::ostream &operator<<(std::ostream &os, std::shared_ptr<Block> ba) {
