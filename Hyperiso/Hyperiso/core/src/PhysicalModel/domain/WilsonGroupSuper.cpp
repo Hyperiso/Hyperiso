@@ -49,7 +49,7 @@ void CoefficientGroup::init(QCDOrder max_order) {
                     dep_param->set_expected(0.);
                     return;
                 }
-                std::cout << "value of : " << coeff.second->get_name() << " at " << OrderMapper::str((QCDOrder)order) << " : " << func(src) << std::endl;;
+                // std::cout << "value of : " << coeff.second->get_name() << " at " << OrderMapper::str((QCDOrder)order) << " : " << func(src) << std::endl;;
                 dep_param->set_expected(func(src));
             };
             WilsonParamComposer().compose_parameter(ParamId{coeff.second->get_storage_block(), coeff.second->get_lhaid((QCDOrder)order)}, coeff.second->get_sources((QCDOrder)order), func_wrapper);

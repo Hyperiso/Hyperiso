@@ -20,7 +20,7 @@ void QCDHelper::Init() {
         double lambda_6_mt_pole = match_lambda(alpha_s_explicit(m_t_pole, lambda_5, 5), m_t_pole, 6);
         double lambda_4_mb_mb = match_lambda(alpha_s_explicit(m_b_mb, lambda_5, 5), m_b_mb, 4);
         double lambda_3 = match_lambda(alpha_s_explicit(m_c, lambda_4_mb_mb, 4), m_c, 3);
-        double m_t_mt = calc_mt_mt(lambda6_mt_pole, lambda_5);
+        double m_t_mt = calc_mt_mt(lambda_6_mt_pole, lambda_5);
         double lambda_6_mt_mt = match_lambda(alpha_s_explicit(m_t_mt, lambda_5, 5), m_t_mt, 6);
         double m_b_pole = calc_mb_pole(lambda_5);
         double lambda_4_mb_pole = match_lambda(alpha_s_explicit(m_b_pole, lambda_5, 5), m_b_pole, 4);

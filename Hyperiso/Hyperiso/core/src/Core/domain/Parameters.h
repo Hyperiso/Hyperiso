@@ -262,7 +262,7 @@ public:
      * @param blockName Block name.
      * @return Map of LHA IDs to parameter values.
      */
-    std::map<LhaID, double> get_block_infos(BlockName blockName);
+    std::map<LhaID, scalar_t> get_block_infos(BlockName blockName);
 
     /**
      * @brief Retrieves the list of available parameter blocks.

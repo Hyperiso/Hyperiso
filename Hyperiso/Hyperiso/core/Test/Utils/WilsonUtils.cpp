@@ -13,7 +13,6 @@
 void writeCoefficientsToFile(const std::string& strat_name, const std::string& fileName, double Q_match, const std::string& model) {
     std::ofstream file(fileName);
     std::string root_data_file = project_assets_root.data();
-    std::cout << "fuck 0" << std::endl;
     file << "Q,alpha_s";
     for (int i = 1; i <= 10; ++i) {
         file << ",C" << i << "_real,C" << i << "_imag";
@@ -37,22 +36,20 @@ void writeCoefficientsToFile(const std::string& strat_name, const std::string& f
     else {
         LOG_ERROR("ModelError", "MODEL not known");
     }
-    std::cout << "before" << std::endl;
-    BlockProxy().log_all_blocks(ParameterType::WILSON);
+
+    // BlockProxy().log_all_blocks(ParameterType::SM);
+    // BlockProxy().log_all_blocks(ParameterType::WILSON);
+
     std::shared_ptr<WilsonInterface> wi;
     wi = std::make_shared<WilsonInterface>();
-    std::cout << "fuck 1" << std::endl;
     std::unordered_set<WGroup> groups = {WGroup::B};
     WilsonBuildConfig wbc = {groups, Q_match, Q_match, OrderMapper::enum_elt(strat_name)};
-    std::cout << "fuck 2" << std::endl;
     wi->build(wbc);
-    std::cout << "fuck 3" << std::endl;
     std::shared_ptr<Parameters> sm = Parameters::GetInstance();
     double alpha_s = QCDHelper::alpha_s(Q_match);
 
     file << Q_match << "," << alpha_s;
     std::vector<std::string> name {"C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9", "C10"};
-    std::cout << "fuck 4" << std::endl;
     for (auto& coeff : name) {
         complex_t C = {0,0};
         if (model == "SM") {
@@ -60,15 +57,12 @@ void writeCoefficientsToFile(const std::string& strat_name, const std::string& f
         } else {
             C = wi->getMatchingCoefficient(WGroup::B,WCoefMapper::enum_elt(coeff), OrderMapper::enum_elt(strat_name), ContributionType::BSM );
         }
-        std::cout << coeff << " " << C << std::endl;
         file << "," << C.real() << "," << C.imag();
     }
-    std::cout << "fuck 5" << std::endl;
     file << "\n"; 
 
     file.close();
-    std::cout << "after" << std::endl;
-    BlockProxy().log_all_blocks(ParameterType::WILSON);
+    // BlockProxy().log_all_blocks(ParameterType::WILSON);
 }
 
 void writeCoefficientsPrimeCQToFile(const std::string& strat_name, const std::string& fileName, double Q_match, const std::string& model) {
@@ -107,13 +101,13 @@ void writeCoefficientsPrimeCQToFile(const std::string& strat_name, const std::st
     std::shared_ptr<Parameters> sm = Parameters::GetInstance();
     wi = std::make_shared<WilsonInterface>();
     std::unordered_set<WGroup> groups = {WGroup::BPrime, WGroup::BScalar};
-    double answer = 42.;
-    WilsonBuildConfig wbc = {groups, Q_match, answer, OrderMapper::enum_elt(strat_name)};
+    double mu_h = 5;
+    WilsonBuildConfig wbc = {groups, Q_match, mu_h, OrderMapper::enum_elt(strat_name)};
     wi->build(wbc);
 
-    double alpha_s = QCDHelper::alpha_s(answer);
+    double alpha_s = QCDHelper::alpha_s(mu_h);
 
-    file << answer << "," << alpha_s;
+    file << mu_h << "," << alpha_s;
 
     std::vector<std::string> name_scalar {"CQ1", "CQ2"};
     std::vector<std::string> name_prime {"CP1", "CP2", "CP3", "CP4", "CP5", "CP6", "CP7", "CP8", "CP9", "CP10", "CPQ1", "CPQ2"};
@@ -157,7 +151,6 @@ void writeRunCoefficientsToFile(const std::string& strat_name, const std::string
 
     Config config;
 
-    std::cout << "wtf " << std::endl;
     if (model == "SM") {
         config.model = Model::SM;
         hyperiso->init(root_data_file + "Test/InputFiles/testinput_thdm.lha", config);

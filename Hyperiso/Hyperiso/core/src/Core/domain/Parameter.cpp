@@ -24,7 +24,6 @@ void Parameter::set_expected(scalar_t val) {
     LOG_DEBUG("Parameter::set_expected of ", id.block, " ", id.code);
     this->expected = val;
     notifyObservers();
-    LOG_DEBUG("Parameter::set_expected end");
 }
 
 void Parameter::set_id(ParamId id) {
@@ -128,7 +127,7 @@ void DependentParameter::unfreeze() {
 
 void Parameter::notifyObservers() {
     for (auto& observer : observers) {
-        LOG_INFO("Notifiyng observer", observer->id.block, observer->id.code, "from parameter", id.block, id.code);
+        LOG_DEBUG("Notifying observer", observer->id.block, observer->id.code, "from parameter", id.block, id.code);
         if (observer == nullptr) {
             LOG_INFO("Observer is null, removing from observers list");
             removeObserver(observer);

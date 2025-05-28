@@ -4,6 +4,7 @@
 #include <unordered_set>
 #include <map>
 #include <vector>
+#include "scalar.h"
 
 #include "General.h"
 
@@ -50,7 +51,7 @@ public:
      * @param param_type Model type associated with the block (default: SM).
      * @return A map of LHA IDs to their corresponding values.
      */
-    virtual std::map<LhaID, double> get_block_infos(const BlockName& block, ParameterType param_type = ParameterType::SM) = 0;
+    virtual std::map<LhaID, scalar_t> get_block_infos(const BlockName& block, ParameterType param_type = ParameterType::SM) = 0;
 
 
     /**

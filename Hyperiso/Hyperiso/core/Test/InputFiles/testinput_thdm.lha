@@ -13,13 +13,13 @@
 Block MODSEL # Select Model
     0   10     #  10 = THDM
 Block SMINPUTS  # Standard Model inputs
-    1        1.27934e+02   # 1/alpha_em(MZ) SM MSbar
-    2        1.16637000e-05   # G Fermi
-    3        1.17200000e-01   # alpha_s(MZ) SM MSbar
-    4        9.11876000e+01   # MZ
-    5        4.25e+00   # mb(mb)
-    6        1.72500000e+02   # mt (pole)
-    7        1.7768600000e+00   # mtau(pole)
+    1        1.37036e2   # 1/alpha_em(MZ) SM MSbar
+    2        1.1663787e-5   # G Fermi
+    3        0.1179   # alpha_s(MZ) SM MSbar
+    4        91.1876   # MZ
+    5        4.18   # mb(mb)
+    6        173.34   # mt (pole)
+    7        1.77693   # mtau(pole)
 Block MINPAR    # Model parameters
 # Parameters for general potential in generic basis
     3        1.00000000e+01   # tan(beta)
@@ -36,13 +36,13 @@ Block MINPAR    # Model parameters
 Block MASS      #  Mass spectrum (kinematic masses)
 #  PDG      Mass
      1        4.7e-03   # Md
-     2        2.2e-03   # Mu
-     3        0.093   # Ms
-     4        1.27000000e+00   # Mc
+     2        2.16e-03   # Mu
+     3        0.0935   # Ms
+     4        1.27300000e+00   # Mc
      5        4.250000000e+00   # Mb
      6        1.72500000e+02   # Mt
     11        5.11000000e-04   # Me
     13        1.05658e-01   # Mmu
     15        1.7768600000e+00   # Mta
     23        9.11876000e+01   # MZ
-    24        7.98290000e+01   # MW
+    24        90  # MW

@@ -14,7 +14,7 @@ int main() {
     
     std::string root_file = project_root.data();
 
-    double tolerance = 0.1;
+    double tolerance = 0.01;
     
     LOG_INFO("Running LO SM Wilson Coefficients Tests");
     runTest("LO", root_file + "Test/csv/sm/WilsonCoefficients_LO.csv", root_file + "Test/csv/superiso/sm/WilsonCoefficients_LO.csv", "SM", tolerance);

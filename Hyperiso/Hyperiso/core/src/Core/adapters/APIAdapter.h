@@ -57,7 +57,7 @@ public:
      * @param param_type Type of the model (default: SM).
      * @return A map from LHA IDs to parameter values.
      */
-    std::map<LhaID, double> get_block_infos(const BlockName& block, ParameterType param_type = ParameterType::SM);
+    std::map<LhaID, scalar_t> get_block_infos(const BlockName& block, ParameterType param_type = ParameterType::SM);
 
     /**
      * @brief Retrieves the list of parameter types that own a specific block.

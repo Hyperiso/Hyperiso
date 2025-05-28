@@ -10,7 +10,7 @@ void Block::removeObserver(std::shared_ptr<Block> observer) {
 
 void Block::notifyObservers() {
     for (auto& observer : observers) {
-        LOG_INFO("Notifying observer", observer->blockname, "from source block", blockname);
+        LOG_DEBUG("Notifying observer", observer->blockname, "from source block", blockname);
         if (observer == nullptr) {
             removeObserver(observer);
             continue;
@@ -68,7 +68,6 @@ void Block::assign(const LhaID& key, std::shared_ptr<Parameter> param) {
 }
 
 void Block::assign(const LhaID &key, scalar_t value) {
-    LOG_INFO("Block::assign");
     if (!this->contains(key)) {
         LOG_ERROR("KeyError", "Cannot update non-existing parameter", key.to_string(), "in block", this->blockname);
     }
@@ -211,7 +210,7 @@ void DependentBlock::clear_below() {
     this->clear_above();
     std::cout << "clear : " << this->get_name() << std::endl;
     //base case
-    if (observers.size() < 1) {
+    if (observers.empty()) {
         return; //no need to destroy itself, if no ref, shared_ptr do it
     }
 

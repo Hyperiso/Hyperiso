@@ -48,11 +48,10 @@ bool Parameters::exist(const BlockName& block, LhaID id) {
 }
 
 void Parameters::setBlockValue(const BlockName& name, LhaID id, scalar_t value) {
-    LOG_INFO("Parameters::setBlockValue");
     blockAccessor->setValue(name, id, value);
 }
 
-std::map<LhaID, double> Parameters::get_block_infos(BlockName blockName) {
+std::map<LhaID, scalar_t> Parameters::get_block_infos(BlockName blockName) {
     return blockAccessor->getAllValues(blockName);
 }
 

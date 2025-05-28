@@ -65,7 +65,6 @@ public:
                 };
                 break;
         }
-        std::cout << "here" << std::endl;
     }
 
     void build(WilsonBuildConfig config) {

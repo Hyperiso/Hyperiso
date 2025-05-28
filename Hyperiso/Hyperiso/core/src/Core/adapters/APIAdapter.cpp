@@ -1,6 +1,6 @@
 #include "APIAdapter.h"
 
-std::map<LhaID, double> APIAdapter::get_block_infos(const BlockName& block, ParameterType param_type) {
+std::map<LhaID, scalar_t> APIAdapter::get_block_infos(const BlockName& block, ParameterType param_type) {
     return Parameters::GetInstance(param_type)->get_block_infos(block);
 }
 

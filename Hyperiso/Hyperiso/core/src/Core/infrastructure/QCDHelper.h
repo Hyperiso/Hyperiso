@@ -28,10 +28,6 @@ struct QCDConstants {
 
 class QCDHelper {
 private:
-    static inline std::array<double, 6> lambdas_running;
-    static inline double lambda4_mb_pole;
-    static inline double lambda6_mt_pole;
-
     static inline MassType m_b_type {MassType::POLE};
     static inline MassType m_t_type {MassType::POLE};
 

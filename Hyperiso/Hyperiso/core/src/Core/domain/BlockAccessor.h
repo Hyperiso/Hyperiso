@@ -75,7 +75,7 @@ public:
      * @param blockName The name of the block.
      * @return A map of PDG codes to parameter values.
      */
-    std::map<LhaID, double> getAllValues(BlockName blockName);
+    std::map<LhaID, scalar_t> getAllValues(BlockName blockName);
 
     /**
      * @brief Retrieves a list of all block names.

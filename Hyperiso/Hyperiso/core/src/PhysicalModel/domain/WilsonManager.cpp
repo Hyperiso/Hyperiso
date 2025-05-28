@@ -206,7 +206,7 @@ void CoefficientManager::init_group_hadronic(const std::string& groupName, const
 
     auto func = [matching_block_name, ord, funcs, groupName, basis] (const std::unordered_map<std::string, std::shared_ptr<Block>>& src, std::shared_ptr<DependentBlock> dep_block) {
         std::map<LhaID, std::shared_ptr<Parameter>> matching_coeff = src.at(matching_block_name)->getItems();
-        std::cout << src.at(matching_block_name) << std::endl;
+        // std::cout << src.at(matching_block_name) << std::endl;
         std::unordered_map<ContributionType, std::unordered_map<QCDOrder, std::unordered_map<WCoef, scalar_t>>> matching_map;
         for (auto& coef : matching_coeff) {
             std::pair<WCoef, std::pair<QCDOrder, ContributionType>> c = lha_wilson_deserialize(coef.first);
@@ -319,11 +319,10 @@ std::map<std::string, std::shared_ptr<CoefficientGroup>> CoefficientManager::get
 
 void CoefficientManager::printGroupCoefficients(const std::string& groupName) const {
     std::shared_ptr<CoefficientGroup> group = getCoefficientGroup(groupName);
-    std::cout << group;
 }
 
 CoefficientManager::~CoefficientManager() {
-    std::cout << "IM HERE" << std::endl;
+    LOG_TRACE("Call to CoefficientManager destructor");
     WilsonParamComposer().remove_all_composed_blocks();
     WilsonParameterHelper::cleanup();
 }

@@ -11,6 +11,7 @@
 #include <unordered_set>
 #include <unordered_map>
 #include <map>
+#include <memory>
 
 typedef std::complex<double> complex_t; 
 
@@ -56,5 +57,40 @@ template<typename T, typename U>
 inline bool haveSameKeys(const std::map<T, U>& map1, const std::map<T, U>& map2) {
     return get_keys(map1) == get_keys(map2);
 }
+
+template <typename T>
+void print_value(std::ostream& os, const T& value) {
+    os << value;
+}
+
+template <typename T>
+void print_value(std::ostream& os, const std::shared_ptr<T> &ptr) {
+    if (ptr)
+        os << *ptr;
+    else
+        os << "nullptr";
+}
+
+template <typename Map>
+std::enable_if_t<
+    std::is_same_v<typename Map::value_type,
+                   std::pair<const typename Map::key_type, typename Map::mapped_type>>,
+    std::ostream&
+>
+operator<<(std::ostream& os, const Map& m) {
+    os << "{ ";
+    for (const auto& [key, value] : m) {
+        os << key << ": ";
+        print_value(os, value);
+        os << ", ";
+    }
+    if (!m.empty())
+        os.seekp(-2, std::ios_base::end); // retire ", "
+    os << " }";
+    return os;
+}
+
+
+
 
 #endif // __HYPERISO_UTILS_H__

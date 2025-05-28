@@ -27,7 +27,6 @@ bool BlockAccessor::has_param(const BlockName& blockName, LhaID id) const {
 }
 
 void BlockAccessor::setValue(const BlockName& blockName, LhaID id, scalar_t value) {
-    LOG_INFO("BlockAccessor::setBlockValue");
     auto it = this->find(blockName);
     if (it != this->end()) {
         if (it->second->contains(id)) {
@@ -58,10 +57,10 @@ void BlockAccessor::setParameter(const BlockName &blockName, LhaID id, std::shar
     }
 }
 
-std::map<LhaID, double> BlockAccessor::getAllValues(BlockName blockName) {
+std::map<LhaID, scalar_t> BlockAccessor::getAllValues(BlockName blockName) {
     auto it = this->find(blockName);
     if (it != this->end()) {
-        std::map<LhaID, double> values;
+        std::map<LhaID, scalar_t> values;
         for(auto& [id, p] : it->second->getItems()) {
             values.emplace(id, p->get_val());
         }

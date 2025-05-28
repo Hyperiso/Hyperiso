@@ -26,6 +26,8 @@ private:
 
 public:
     CoefficientManager() = default;
+    CoefficientManager(const CoefficientManager&) = delete;
+    CoefficientManager operator=(const CoefficientManager&) = delete;
 
     void initialize(const std::string& lhaFile, Model model = Model::SM, 
                     bool use_marty = false, bool is_spectrum = false, bool has_wilsons = false, bool has_obs = false);

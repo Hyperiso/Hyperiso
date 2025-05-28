@@ -36,7 +36,6 @@ void WilsonParamComposer::update(const std::string &block_name) {
 
 void WilsonParamComposer::remove_all_composed_blocks() {
     for (const auto& block_name : WilsonParamComposer::composed_blocks) {
-        std::cout << block_name << std::endl;
         CompositeParamAdapter().remove_dependency(block_name, ParameterType::WILSON);
     }
     WilsonParamComposer::composed_blocks.clear();
