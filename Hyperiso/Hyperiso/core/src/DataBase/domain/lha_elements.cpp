@@ -12,11 +12,14 @@ struct StringConverter<double> {
     static double convert(const std::string& str) {
         try {
             return std::stod(str);
-        } catch(...) {
-            return std::numeric_limits<double>::max(); //TODO : small patch
+        } catch (const std::invalid_argument&) {
+            throw std::runtime_error("Invalid double: '" + str + "'");
+        } catch (const std::out_of_range&) {
+            throw std::runtime_error("Out-of-range double: '" + str + "'");
         }
     }
 };
+
 
 template <>
 struct StringConverter<std::string> {

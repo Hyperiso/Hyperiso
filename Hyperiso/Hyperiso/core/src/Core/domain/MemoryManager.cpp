@@ -26,8 +26,6 @@ void MemoryManager::save_input_cache() {
 }
 
 void MemoryManager::read_default_input(std::shared_ptr<IDataLoader<BlockAccessor>> loader, std::shared_ptr<IDataLoader<CorrelationMatrixPair<ParamId>>> param_corr, std::shared_ptr<IDataLoader<CorrelationMatrixPair<Observables>>> obs_corr) {
-    // TODO : insert file check here
-    // ParamBlockLoader p_loader;
     loader->load(input_cache, FilePaths::default_param_values_path); 
     auto obs_blocks = std::make_shared<BlockAccessor>();
     loader->load(obs_blocks, FilePaths::default_obs_values_path); 

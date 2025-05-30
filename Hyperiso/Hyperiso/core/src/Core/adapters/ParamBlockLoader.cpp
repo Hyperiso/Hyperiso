@@ -22,7 +22,7 @@ void ParamBlockLoader::load(std::shared_ptr<BlockAccessor> dest, fs::path src_fi
                 auto val = std::get<double>(value);
                 auto stat = node->contains("stat_error") ? node->get("stat_error") : 0.;
                 auto syst = node->contains("syst_error") ? node->get("syst_error") : 0.;
-                block->store(LhaID(vk.first), std::make_shared<Parameter>(Parameter(ParamId(bk, std::string(vk.first)), val, std::get<double>(stat), std::get<double>(syst))));  //TODO : just be careful to string conversion, maybe better things to do.
+                block->store(LhaID(vk.first), std::make_shared<Parameter>(Parameter(ParamId(bk, std::string(vk.first)), val, std::get<double>(stat), std::get<double>(syst)))); 
             }
         }
 

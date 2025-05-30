@@ -10,13 +10,13 @@ int main() {
 
     hyp.init("lha/testInput.slha", config);
 
-    WilsonBuilder builder;
     WilsonBuildConfig wilson_config;
     wilson_config.groups = {WGroup::B, WGroup::BPrime};
     wilson_config.matching_scale = 85.0;
     wilson_config.hadronic_scale = 4.5;
     wilson_config.order = QCDOrder::NNLO;
-    builder.build(wilson_config);
+    WilsonBuilder builder {wilson_config};
+    // builder.build(wilson_config);
 
     BlockProxy().log_block(ParameterType::WILSON, "BCoefficients_B_SCALE_STANDARD");
     BlockProxy().log_block(ParameterType::WILSON, "BCoefficients_B_SCALE_TRADITIONAL");

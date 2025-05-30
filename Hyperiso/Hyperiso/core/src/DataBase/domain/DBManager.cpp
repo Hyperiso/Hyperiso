@@ -21,8 +21,30 @@ void DBManager::add_default_lha_prototypes(fs::path file_path) {
     }
 }   
 
+void DBManager::sanitize_file(const fs::path& file_path) {
+    if (!fs::exists(file_path)) {
+        throw std::runtime_error("File does not exist: " + file_path.string());
+    }
+
+    if (fs::is_empty(file_path)) {
+        throw std::runtime_error("File is empty: " + file_path.string());
+    }
+
+    std::ifstream file(file_path);
+    if (!file.is_open()) {
+        throw std::runtime_error("Unable to open file: " + file_path.string());
+    }
+
+    char c;
+    while (file.get(c)) {
+        if (static_cast<unsigned char>(c) < 0x09 && c != '\n' && c != '\r' && c != '\t') {
+            throw std::runtime_error("File may contain invalid characters.");
+        }
+    }
+}
+
 std::shared_ptr<Node> DBManager::read_from_file(fs::path file_path) {
-    // sanitize_file(file_path);  // TODO basic checks (empty file, wrong encoding...)
+    sanitize_file(file_path);
     ParserFactory::Type parser_type = deduce_parser_type(file_path);
     auto parser = ParserFactory::createParser(parser_type);
     if (parser_type == ParserFactory::Type::LHA) {
@@ -30,16 +52,33 @@ std::shared_ptr<Node> DBManager::read_from_file(fs::path file_path) {
         std::dynamic_pointer_cast<LhaParser>(parser)->set_prototypes(this->lha_prototypes);
     }
     auto root = parser->readFromFile(file_path);
-    // sanitize_tree(root); // TODO
+    sanitize_tree(root);
     return root;
 }
 
+void DBManager::sanitize_tree(const std::shared_ptr<Node>& root, const std::vector<BlockName>& required_keys) {
+    if (!root) {
+        throw std::runtime_error("Tree is null.");
+    }
+
+    if (root->countChildren() == 0) {
+        throw std::runtime_error("Tree is empty.");
+    }
+
+    for (const auto& key : required_keys) {
+        if (!root->contains(key)) {
+            throw std::runtime_error("Missing required key in tree: " + key);
+        }
+    }
+}
+
+
 void DBManager::write_to_file(fs::path file_path, std::shared_ptr<Node> root) {
-    // sanitize_tree(root); // TODO
+    sanitize_tree(root, { "SMINPUTS" });
     ParserFactory::Type parser_type = deduce_parser_type(file_path);
     auto parser = ParserFactory::createParser(parser_type);
     parser->writeToFile(file_path, root);
-    // sanitize_file(file_path);  // TODO: basic checks (empty file, wrong encoding...)
+    sanitize_file(file_path);
 }
 
 void DBManager::add_lha_prototype(BlockName blockName, size_t itemCount, size_t valueIdx, int scaleIdx, int rgIdx, bool globalScale) {

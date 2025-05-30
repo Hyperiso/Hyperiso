@@ -1,0 +1,5 @@
+FAKE:
+  511:
+    central_value: 5.27
+    stat_error: 0.005
+    syst_error: 0.004

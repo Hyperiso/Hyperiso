@@ -146,7 +146,6 @@ std::unordered_set<BlockName> SMModelStrategy::initializeParameters(Parameters& 
 
     // TODO : Initialize derived blocks RE/IMUPMNS
     // TODO : Calculate W mass and store it somewhere
-    // TODO : Export savestate to JSON
     return absent_blocks;
 }
 
@@ -187,16 +186,6 @@ std::unordered_set<BlockName> BSMModelStrategy::initializeParameters(Parameters&
     // TODO : Export savestate to JSON
 }
 
-// void SUSYModelStrategy::initializeParameters(Parameters& params) {
-//     params.init_blocks(ParameterType::BSM);
-//     // TODO : Export savestate to JSON
-// }
-
-// void THDMModelStrategy::initializeParameters(Parameters& params) {
-//     params.init_blocks(ParameterType::BSM);
-//     // TODO : Export savestate to JSON
-// }
-
 std::unordered_set<BlockName> FlavorStrategy::initializeParameters(Parameters& params) {
     auto absent_blocks = params.init_blocks(ParameterType::FLAVOR);
     return absent_blocks;
@@ -211,7 +200,6 @@ std::unordered_set<BlockName> FlavorStrategy::initializeParameters(Parameters& p
 std::unordered_set<BlockName> WilsonInputStrategy::initializeParameters(Parameters &params) {
     auto absent_blocks = params.init_blocks(ParameterType::WILSON);
     return absent_blocks;
-    // TODO : Export savestate to JSON
 
     // TODO : Adapt WilsonBlock to MapBlock and rework the following code
     // auto fill_wilson_block = [] (const std::string& block_name, const std::string& flha_name, double scale, int type, Parameters& params, std::vector<int>& nonzero) -> std::pair<double, int> {

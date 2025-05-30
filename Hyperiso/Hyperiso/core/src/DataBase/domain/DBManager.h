@@ -22,6 +22,8 @@ private:
     ParserFactory::Type deduce_parser_type(fs::path file_path);
 
     void add_default_lha_prototypes(fs::path file_path);
+    void sanitize_file(const fs::path& file_path);
+    void sanitize_tree(const std::shared_ptr<Node>& root, const std::vector<BlockName>& required_keys = {});
 
 public:
     std::shared_ptr<Node> read_from_file(fs::path file_path);

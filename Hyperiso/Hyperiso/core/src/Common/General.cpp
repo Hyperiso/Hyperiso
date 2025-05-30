@@ -62,7 +62,6 @@
 //     {WCoef::C_T, "C_T"}, 
 // };
 
-// TODO : Check FLHA mapping for charged current operators
 // const std::map<WCoef, std::pair<int, int>> WCoefMapper::flha_mapping = {
 //     {WCoef::C1, {3040405, 6161}},
 //     {WCoef::C2, {3040405, 4141}},

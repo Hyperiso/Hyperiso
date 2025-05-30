@@ -265,7 +265,6 @@
 	
 // }
 
-//TODO TODO TODO
 // void susy_parameters::reset_PrimeCQG(double Q_match) {
 // 	if (is_PrimeCQG) {return;}
 // 	is_PrimeCQG = true;
