@@ -5,8 +5,6 @@
     "m_s": {"block": "MASS", "pdgCode": "3"},
     "m_t": {"block": "QCD", "pdgCode": "6"},
     "m_b": {"block": "QCD", "pdgCode": "5_1"},
-    "m_t": {"block": "QCD", "pdgCode": "6"},
-    "m_b": {"block": "QCD", "pdgCode": "5_1"},
     "M_W": {"block": "MASS", "pdgCode": "24"},
     "M_Z": {"block": "SMINPUTS", "pdgCode": "4"},
     "m_mu": {"block": "MASS", "pdgCode": "13"},

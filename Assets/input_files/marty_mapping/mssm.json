@@ -43,5 +43,5 @@
     "V_Wp2": {"block": "VMIX", "pdgCode": 1},
     "V_u1": {"block": "VMIX", "pdgCode": 10},
     "V_u2": {"block": "VMIX", "pdgCode": 11},
-    "beta": {"block" : "HMIX", "pdgCode": 2}
+    "beta": {"block" : "MINPAR", "pdgCode": 3}
 }

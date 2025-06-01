@@ -451,7 +451,15 @@ public:
 class BCoefficientGroup_THDM : public BCoefficientGroup {
 
 public:
-    BCoefficientGroup_THDM() {this->clear();
+    BCoefficientGroup_THDM() {
+        this->id = WGroup::B;
+        this->wilson_type = ContributionType::BSM;
+
+        if (UseMarty().get()) {
+            this->wilson_type = ContributionType::TOTAL;
+            return;
+        }
+        this->clear();
 
         if (!thdm_parameters::is_initialized()) {
             thdm_parameters::init();
@@ -461,15 +469,21 @@ public:
         this->insert(std::make_pair("C7", std::make_shared<C7_THDM>()));  this->insert(std::make_pair("C8", std::make_shared<C8_THDM>()));  this->insert(std::make_pair("C9", std::make_shared<C9_THDM>())); 
         this->insert(std::make_pair("C10", std::make_shared<C10_THDM>())); 
 
-        this->id = WGroup::B;
-        this->wilson_type = ContributionType::BSM;
+        
     }
     
 };
 
 class BPrimeCoefficientGroup_THDM : public BPrimeCoefficientGroup {
 public:
-    BPrimeCoefficientGroup_THDM() { this->clear();
+    BPrimeCoefficientGroup_THDM() {
+        this->id = WGroup::BPrime;
+        this->wilson_type = ContributionType::BSM;
+        if (UseMarty().get()) {
+            this->wilson_type = ContributionType::TOTAL;
+            return;
+        }
+        this->clear();
 
         if (!thdm_parameters::is_initialized()) {
             thdm_parameters::init();
@@ -479,8 +493,7 @@ public:
         this->insert(std::make_pair("CP7", std::make_shared<CP7_THDM>()));  this->insert(std::make_pair("CP8", std::make_shared<CP8_THDM>()));  this->insert(std::make_pair("CP9", std::make_shared<CP9_THDM>())); 
         this->insert(std::make_pair("CP10", std::make_shared<CP10_THDM>())); this->insert(std::make_pair("CPQ1", std::make_shared<CPQ1_THDM>())); this->insert(std::make_pair("CPQ2", std::make_shared<CPQ2_THDM>())); 
 
-        this->id = WGroup::BPrime;
-        this->wilson_type = ContributionType::BSM;
+        
     }
 
     void set_base_1();
@@ -489,15 +502,21 @@ public:
 
 class BScalarCoefficientGroup_THDM : public BScalarCoefficientGroup {
 public:
-    BScalarCoefficientGroup_THDM() { this->clear();
+    BScalarCoefficientGroup_THDM() {
+        this->id = WGroup::BScalar;
+        this->wilson_type = ContributionType::BSM;
+        if (UseMarty().get()) {
+            this->wilson_type = ContributionType::TOTAL;
+            return;
+        }
+        this->clear();
 
         if (!thdm_parameters::is_initialized()) {
             thdm_parameters::init();
         }
         this->insert(std::make_pair("CQ1", std::make_shared<CQ1_THDM>())); this->insert(std::make_pair("CQ2", std::make_shared<CQ2_THDM>()));
 
-        this->id = WGroup::BScalar;
-        this->wilson_type = ContributionType::BSM;
+        
     }
 
     void set_base_1();

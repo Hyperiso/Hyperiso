@@ -6,9 +6,10 @@
 int main() {
     HyperisoMaster hyp = HyperisoMaster();
     Config config;
-    config.model = Model::SUSY;
+    config.model = Model::THDM;
+    config.flags[ExternalFlag::USE_MARTY] = true;
 
-    hyp.init("lha/testInput.slha", config);
+    hyp.init("lha/testinput_thdm.lha", config);
 
     WilsonBuildConfig wilson_config;
     wilson_config.groups = {WGroup::B, WGroup::BPrime};

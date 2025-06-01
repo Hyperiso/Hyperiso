@@ -14,18 +14,10 @@ class MartyWilson : public WilsonCoefficient {
 public:
     MartyWilson(const std::string& coeff_name, const std::string& storage_block)
         : WilsonCoefficient(coeff_name, storage_block) {
-        df = csv_reader.read_csv(this->csv_path);
-        df.setIndex(df.getColumn<double>("Q_match").to_string_vec());
         this->type = ContributionType::TOTAL;
     }
 
-    MartyWilson(const std::string& coeff_name)
-        : WilsonCoefficient(coeff_name, "B_MATCH") {
-        this->set_name(coeff_name);
-        df = csv_reader.read_csv(this->csv_path);
-        df.setIndex(df.getColumn<double>("Q_match").to_string_vec());
-        this->type = ContributionType::TOTAL;
-    }
+    MartyWilson(const std::string& coeff_name, ContributionType cont_type);
 
     std::string get_model() {
         return this->model;
@@ -34,7 +26,7 @@ public:
         this->model = model;
     }
 
-    // void LO_calculation() override;
+    void LO_calculation();
 
     // void NLO_calculation() override {} //TODO, at least deal properly
     // void NNLO_calculation() override {} //TODO
@@ -44,10 +36,7 @@ public:
     }
 
 private:
-    CSVReader csv_reader;
-    DataFrame df;
     std::string model{"SM"};
-    std::string csv_path{project_assets_root.data() +std::string("/MartyTemp/SM_wilson.csv")};
     // std::pair<size_t, size_t> find_closest_Q_matches(double target_Q_match) {
         
     //     size_t closest_below = 0, closest_above = 0;

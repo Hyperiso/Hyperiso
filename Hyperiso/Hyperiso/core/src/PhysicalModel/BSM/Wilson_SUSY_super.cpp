@@ -455,7 +455,7 @@ C7_susy::C7_susy() : WilsonCoefficient("C7_SUSY", GroupMapper::str(WGroup::B) + 
             {ParameterType::WILSON, "EPSILON_SUSY", 3},              // epsb
             {ParameterType::WILSON, "EPSILON_SUSY", 4},              // epsb'
             {ParameterType::WILSON, "WPARAM_SI_BSM", 18},            // kappafactor
-            {ParameterType::BSM, "HMIX", 2},                         // tanb
+            {ParameterType::BSM, "MINPAR", 3},                         // tanb
             {ParameterType::BSM, "ALPHA", {}},                        // alpha
             {ParameterType::BSM, "MASS", 25},                        // mh
             {ParameterType::BSM, "MASS", 35},                        // mH0
@@ -595,7 +595,7 @@ scalar_t C7_susy::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<P
     double Q_match = src.at({ParameterType::WILSON, "EW_SCALE", 1})->get_val();
     double mW = src.at({ParameterType::SM, "MASS", 24})->get_val();
     double mH = src.at({ParameterType::BSM, "MASS", 37})->get_val();
-    double tanb = src.at({ParameterType::BSM, "HMIX", 2})->get_val();
+    double tanb = src.at({ParameterType::BSM, "MINPAR", 3})->get_val();
     double alpha = src.at({ParameterType::BSM, "ALPHA", {}})->get_val();
     double mH0 = src.at({ParameterType::BSM, "MASS", 35})->get_val();
     double mh = src.at({ParameterType::BSM, "MASS", 25})->get_val();
@@ -768,7 +768,7 @@ C8_susy::C8_susy() : WilsonCoefficient("C8_SUSY", GroupMapper::str(WGroup::B) + 
             {ParameterType::BSM, "MASS", 37},                 // mH
             {ParameterType::BSM, "MASS", 45},                       // mH03    
             {ParameterType::BSM, "MASS", 46},                       // mA02
-            {ParameterType::BSM, "HMIX", 2},                  // tanb
+            {ParameterType::BSM, "MINPAR", 3},                  // tanb
             {ParameterType::BSM, "ALPHA", {}},                 // alpha
         
             // EPSILON_SUSY parameters
@@ -855,7 +855,7 @@ C8_susy::C8_susy() : WilsonCoefficient("C8_SUSY", GroupMapper::str(WGroup::B) + 
             {ParameterType::WILSON, "WPARAM_MATCH_SM", {2,1}}, // xt
             {ParameterType::SM, "MASS", 24},                 // mW
             {ParameterType::BSM, "MASS", 37},                // mH
-            {ParameterType::BSM, "HMIX", 2},                 // tanb
+            {ParameterType::BSM, "MINPAR", 3},                 // tanb
             {ParameterType::BSM, "ALPHA", {}},                // alpha
             {ParameterType::BSM, "MASS", 35},                // mH0
             {ParameterType::BSM, "MASS", 25},                // mh
@@ -972,7 +972,7 @@ scalar_t C8_susy::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<P
     double Q_match = src.at({ParameterType::WILSON, "EW_SCALE", 1})->get_val();
     double mW      = src.at({ParameterType::SM, "MASS", 24})->get_val();
     double mH      = src.at({ParameterType::BSM, "MASS", 37})->get_val();
-    double tanb    = src.at({ParameterType::BSM, "HMIX", 2})->get_val();
+    double tanb    = src.at({ParameterType::BSM, "MINPAR", 3})->get_val();
     double alpha   = src.at({ParameterType::BSM, "ALPHA", {}})->get_val();
     double mH0     = src.at({ParameterType::BSM, "MASS", 35})->get_val();
     double mh      = src.at({ParameterType::BSM, "MASS", 25})->get_val();
@@ -1878,7 +1878,7 @@ CP9_susy::CP9_susy() : WilsonCoefficient("CP9_SUSY", GroupMapper::str(WGroup::B)
             {ParameterType::SM, "MASS", 24},                // mW
             {ParameterType::SM, "GAUGE", 2},                // g2
             {ParameterType::BSM, "MASS", 37},               // mH
-            {ParameterType::BSM, "HMIX", 2},                // tanb
+            {ParameterType::BSM, "MINPAR", 3},                // tanb
             {ParameterType::WILSON, "EW_SCALE", 1},
             {ParameterType::WILSON, "WPARAM_SI_BSM", {13,0}},
             {ParameterType::WILSON, "WPARAM_SI_BSM", {13,1}},
@@ -1974,7 +1974,7 @@ scalar_t CP9_susy::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<
     double mass_b_muW = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {5,1}})->get_val();
     double mass_top_muW = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 6})->get_val();
     double g2 = src.at({ParameterType::SM, "GAUGE", 2})->get_val();
-    double tanb = src.at({ParameterType::BSM, "HMIX", 2})->get_val();
+    double tanb = src.at({ParameterType::BSM, "MINPAR", 3})->get_val();
 
     double B10pc=0.;
     double C9pc=0.;
@@ -2034,7 +2034,7 @@ CP10_susy::CP10_susy() : WilsonCoefficient("CP10_SUSY", GroupMapper::str(WGroup:
             {ParameterType::SM, "MASS", 3},
             {ParameterType::SM, "GAUGE", 2},
             {ParameterType::BSM, "MASS", 37},
-            {ParameterType::BSM, "HMIX", 2},
+            {ParameterType::BSM, "MINPAR", 3},
             {ParameterType::WILSON, "WPARAM_SI_BSM", {13,0}},
             {ParameterType::WILSON, "WPARAM_SI_BSM", {13,1}},
             {ParameterType::WILSON, "WPARAM_SI_BSM", {14,0}},
@@ -2117,7 +2117,7 @@ scalar_t CP10_susy::compute_LO(const std::unordered_map<ParamId, std::shared_ptr
     double sw2 = src.at({ParameterType::WILSON, "WPARAM_SI_SM", 4})->get_val();
     double mass_b_muW = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {5,1}})->get_val();
     double g2 = src.at({ParameterType::SM, "GAUGE", 2})->get_val();
-    double tanb = src.at({ParameterType::BSM, "HMIX", 2})->get_val();
+    double tanb = src.at({ParameterType::BSM, "MINPAR", 3})->get_val();
 
     double B10pc = 0.0;
     double C9pc = 0.0;
@@ -2206,7 +2206,7 @@ CPQ1_susy::CPQ1_susy() : WilsonCoefficient("CPQ1_SUSY", GroupMapper::str(WGroup:
             {ParameterType::SM, "GAUGE", 2},
             {ParameterType::BSM, "MASS", 37},
             {ParameterType::BSM, "HMIX", 1},
-            {ParameterType::BSM, "HMIX", 2},
+            {ParameterType::BSM, "MINPAR", 3},
             {ParameterType::WILSON, "EPSILON_SUSY", 5},
             {ParameterType::WILSON, "WPARAM_SI_BSM", {13,0}},
             {ParameterType::WILSON, "WPARAM_SI_BSM", {13,1}},
@@ -2277,7 +2277,7 @@ scalar_t CPQ1_susy::compute_LO(const std::unordered_map<ParamId, std::shared_ptr
     double mH = src.at({ParameterType::BSM, "MASS", 37})->get_val();
     double sw2 = src.at({ParameterType::WILSON, "WPARAM_SI_SM", 4})->get_val();
     double g2 = src.at({ParameterType::SM, "GAUGE", 2})->get_val();
-    double tanb = src.at({ParameterType::BSM, "HMIX", 2})->get_val();
+    double tanb = src.at({ParameterType::BSM, "MINPAR", 3})->get_val();
 
     double muQ = src.at({ParameterType::BSM, "HMIX", 1})->get_val();
     double BQ1pc1=0.;
@@ -2369,7 +2369,7 @@ CPQ2_susy::CPQ2_susy() : WilsonCoefficient("CPQ2_SUSY", GroupMapper::str(WGroup:
             {ParameterType::SM, "GAUGE", 2},
             {ParameterType::BSM, "MASS", 37},
             {ParameterType::BSM, "HMIX", 1},
-            {ParameterType::BSM, "HMIX", 2},
+            {ParameterType::BSM, "MINPAR", 3},
             {ParameterType::WILSON, "EPSILON_SUSY", 5},
             {ParameterType::WILSON, "WPARAM_SI_BSM", {13,0}},
             {ParameterType::WILSON, "WPARAM_SI_BSM", {13,1}},
@@ -2453,7 +2453,7 @@ scalar_t CPQ2_susy::compute_LO(const std::unordered_map<ParamId, std::shared_ptr
     double mH = src.at({ParameterType::BSM, "MASS", 37})->get_val();
     double sw2 = src.at({ParameterType::WILSON, "WPARAM_SI_SM", 4})->get_val();
     double g2 = src.at({ParameterType::SM, "GAUGE", 2})->get_val();
-    double tanb = src.at({ParameterType::BSM, "HMIX", 2})->get_val();
+    double tanb = src.at({ParameterType::BSM, "MINPAR", 3})->get_val();
 
     double muQ = src.at({ParameterType::BSM, "HMIX", 1})->get_val();
 
@@ -2568,7 +2568,7 @@ CQ1_susy::CQ1_susy() : WilsonCoefficient("CQ1_SUSY", GroupMapper::str(WGroup::B)
     sources.insert({ParameterType::BSM, "MASS", 35});
     sources.insert({ParameterType::BSM, "MASS", 36});
     sources.insert({ParameterType::BSM, "HMIX", 1});
-    sources.insert({ParameterType::BSM, "HMIX", 2});
+    sources.insert({ParameterType::BSM, "MINPAR", 3});
     sources.insert({ParameterType::WILSON, "EPSILON_SUSY", 5});
     sources.insert({ParameterType::WILSON, "WPARAM_SI_BSM", {13,0}});
     sources.insert({ParameterType::WILSON, "WPARAM_SI_BSM", {13,1}});
@@ -2671,7 +2671,7 @@ CQ1_susy::CQ1_susy() : WilsonCoefficient("CQ1_SUSY", GroupMapper::str(WGroup::B)
     sources_NLO.insert({ParameterType::SM, "VCKM", {2+1, 2+1}});
     sources_NLO.insert({ParameterType::BSM, "MASS", 37});
     sources_NLO.insert({ParameterType::BSM, "HMIX", 1});
-    sources_NLO.insert({ParameterType::BSM, "HMIX", 2});
+    sources_NLO.insert({ParameterType::BSM, "MINPAR", 3});
     sources_NLO.insert({ParameterType::WILSON, "EPSILON_SUSY", 5});
 
     // Boucles : WPARAM_SI_BSM et mixings
@@ -2746,7 +2746,7 @@ scalar_t CQ1_susy::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<
     double mass_b_muW = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {5,1}})->get_val();
     double mass_top_muW = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 6})->get_val();
     double g2 = src.at({ParameterType::SM, "GAUGE", 2})->get_val();
-    double tanb = src.at({ParameterType::BSM, "HMIX", 2})->get_val();
+    double tanb = src.at({ParameterType::BSM, "MINPAR", 3})->get_val();
 
     double muQ = src.at({ParameterType::BSM, "HMIX", 1})->get_val();
     double xH = src.at({ParameterType::WILSON, "WPARAM_SI_BSM", 2})->get_val();
@@ -2943,7 +2943,7 @@ scalar_t CQ1_susy::compute_NLO(const std::unordered_map<ParamId, std::shared_ptr
     double mass_b_muW = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {5,1}})->get_val();
     double mass_top_muW = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 6})->get_val();
     double g2 = src.at({ParameterType::SM, "GAUGE", 2})->get_val();
-    double tanb = src.at({ParameterType::BSM, "HMIX", 2})->get_val();
+    double tanb = src.at({ParameterType::BSM, "MINPAR", 3})->get_val();
 
     double muQ = src.at({ParameterType::BSM, "HMIX", 1})->get_val();
     double xH = src.at({ParameterType::WILSON, "WPARAM_SI_BSM", 2})->get_val();
@@ -3120,7 +3120,7 @@ CQ2_susy::CQ2_susy() : WilsonCoefficient("CQ2_SUSY", GroupMapper::str(WGroup::B)
     sources.insert({ParameterType::BSM, "MASS", 35});
     sources.insert({ParameterType::BSM, "MASS", 36});
     sources.insert({ParameterType::BSM, "HMIX", 1});
-    sources.insert({ParameterType::BSM, "HMIX", 2});
+    sources.insert({ParameterType::BSM, "MINPAR", 3});
     sources.insert({ParameterType::WILSON, "EPSILON_SUSY", 5});
     // sources.insert({ParameterType::SM, "MASS", 23});
     sources.insert({ParameterType::SM, "SMINPUTS", 4}); //MASS Z in SMINPUTS
@@ -3228,7 +3228,7 @@ CQ2_susy::CQ2_susy() : WilsonCoefficient("CQ2_SUSY", GroupMapper::str(WGroup::B)
     sources_NLO.insert({ParameterType::SM, "GAUGE", 2});
     sources_NLO.insert({ParameterType::BSM, "MASS", 37});
     sources_NLO.insert({ParameterType::BSM, "HMIX", 1});
-    sources_NLO.insert({ParameterType::BSM, "HMIX", 2});
+    sources_NLO.insert({ParameterType::BSM, "MINPAR", 3});
 
     // WPARAM_SI_BSM
     for (int ie = 0; ie < 2; ++ie) {
@@ -3324,7 +3324,7 @@ scalar_t CQ2_susy::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<
     double mass_b_muW = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {5,1}})->get_val();
     double mass_top_muW = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 6})->get_val();
     double g2 = src.at({ParameterType::SM, "GAUGE", 2})->get_val();
-    double tanb = src.at({ParameterType::BSM, "HMIX", 2})->get_val();
+    double tanb = src.at({ParameterType::BSM, "MINPAR", 3})->get_val();
 
     double muQ = src.at({ParameterType::BSM, "HMIX", 1})->get_val();
     double xH = src.at({ParameterType::WILSON, "WPARAM_SI_BSM", 2})->get_val();
@@ -3538,7 +3538,7 @@ scalar_t CQ2_susy::compute_NLO(const std::unordered_map<ParamId, std::shared_ptr
     double mass_b_muW = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {5,1}})->get_val();
     double mass_top_muW = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 6})->get_val();
     double g2 = src.at({ParameterType::SM, "GAUGE", 2})->get_val();
-    double tanb = src.at({ParameterType::BSM, "HMIX", 2})->get_val();
+    double tanb = src.at({ParameterType::BSM, "MINPAR", 3})->get_val();
 
     double muQ = src.at({ParameterType::BSM, "HMIX", 1})->get_val();
     double xH = src.at({ParameterType::WILSON, "WPARAM_SI_BSM", 2})->get_val();
@@ -3799,7 +3799,7 @@ C_Blnu_P_SUSY::C_Blnu_P_SUSY() : WilsonCoefficient("C_Blnu_P_SUSY", GroupMapper:
 
 scalar_t C_Blnu_P_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src) {
     double mH = src.at({ParameterType::BSM, "MASS", 37})->get_val();
-    double tanb = src.at({ParameterType::BSM, "HMIX", 2})->get_val();
+    double tanb = src.at({ParameterType::BSM, "MINPAR", 3})->get_val();
     double m_b = (*Parameters::GetInstance())("QCD", LhaID(5, 1));
     double m_tau = src.at({ParameterType::SM, "MASS", 15})->get_val();
     double epsilon0 = src.at({ParameterType::WILSON, "EPSILON_SUSY", {0,1}})->get_val();
@@ -3826,7 +3826,7 @@ C_S1_SUSY::C_S1_SUSY() : WilsonCoefficient("C_S1_SUSY", GroupMapper::str(WGroup:
 
 scalar_t C_S1_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src) {
     double mH = src.at({ParameterType::BSM, "MASS", 37})->get_val();
-    double tanb = src.at({ParameterType::BSM, "HMIX", 2})->get_val();
+    double tanb = src.at({ParameterType::BSM, "MINPAR", 3})->get_val();
     double m_b = (*Parameters::GetInstance())("QCD", LhaID(5, 1));
     double m_tau = src.at({ParameterType::SM, "MASS", 15})->get_val();
     double epsilon0 = src.at({ParameterType::WILSON, "EPSILON_SUSY", {0,1}})->get_val();
@@ -3853,7 +3853,7 @@ C_S2_SUSY::C_S2_SUSY() : WilsonCoefficient("C_S2_SUSY", GroupMapper::str(WGroup:
 
 scalar_t C_S2_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src) {
     double mH = src.at({ParameterType::BSM, "MASS", 37})->get_val();
-    double tanb = src.at({ParameterType::BSM, "HMIX", 2})->get_val();
+    double tanb = src.at({ParameterType::BSM, "MINPAR", 3})->get_val();
     double m_b = (*Parameters::GetInstance())("QCD", LhaID(5, 1));
     double m_tau = src.at({ParameterType::SM, "MASS", 15})->get_val();
     double epsilon0 = src.at({ParameterType::WILSON, "EPSILON_SUSY", {0,1}})->get_val();
