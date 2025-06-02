@@ -6,13 +6,16 @@
 int main() {
     HyperisoMaster hyp = HyperisoMaster();
     Config config;
-    config.model = Model::THDM;
-    config.flags[ExternalFlag::USE_MARTY] = true;
+    config.model = Model::CUSTOM;
+    config.flags[ExternalFlag::USE_MARTY] = true; // TODO : Théo not happy
+    config.mty_model_name = "THDM_Model";
+    config.mty_model_path = std::string(project_tp_root.data()) + "MARTY/src/MARTY/src/marty/models/thdm.h";
 
     hyp.init("lha/testinput_thdm.lha", config);
 
     WilsonBuildConfig wilson_config;
-    wilson_config.groups = {WGroup::B, WGroup::BPrime};
+    // wilson_config.groups = {WGroup::B, WGroup::BPrime};
+    wilson_config.groups = {WGroup::B};
     wilson_config.matching_scale = 85.0;
     wilson_config.hadronic_scale = 4.5;
     wilson_config.order = QCDOrder::NNLO;

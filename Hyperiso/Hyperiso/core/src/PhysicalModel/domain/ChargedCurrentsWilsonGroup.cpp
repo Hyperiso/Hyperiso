@@ -41,7 +41,11 @@ std::array<complex_t, 2> C_match = {};
 BlnuCoefficientGroup::BlnuCoefficientGroup() {
     if (UseMarty().get()) {
         for (auto&& coeff : {"C_Blnu_A", "C_Blnu_P"}) {
-            this->insert(std::make_pair(coeff, std::make_shared<MartyWilson>(coeff)));
+            std::string _name = MartyModelNameAPI().get();
+            fs::path _path = MartyModelPathAPI().get();
+            std::string _block = GroupMapper::str(this->id, ScaleType::MATCHING);
+            LhaID _id = WCoefMapper::flha_full(WCoefMapper::enum_elt(coeff), QCDOrder::LO, this->get_type());
+            this->insert(std::make_pair(coeff, std::make_shared<MartyWilson>(_id, _block, _name, _path)));
         }
         return;
     }
@@ -59,7 +63,11 @@ std::shared_ptr<CoefficientGroup> BlnuCoefficientGroup::clone() const {
 BclnuCoefficientGroup::BclnuCoefficientGroup() {
     if (UseMarty().get()) {
         for (auto&& coeff : {"C_V1", "C_V2", "C_S1", "C_S2", "C_T"}) {
-            this->insert(std::make_pair(coeff, std::make_shared<MartyWilson>(coeff)));
+            std::string _name = MartyModelNameAPI().get();
+            fs::path _path = MartyModelPathAPI().get();
+            std::string _block = GroupMapper::str(this->id, ScaleType::MATCHING);
+            LhaID _id = WCoefMapper::flha_full(WCoefMapper::enum_elt(coeff), QCDOrder::LO, this->get_type());
+            this->insert(std::make_pair(coeff, std::make_shared<MartyWilson>(_id, _block, _name, _path)));
         }
         return;
     }

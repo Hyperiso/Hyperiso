@@ -3,7 +3,8 @@
 
 #include "BWilsonSuper.h"
 #include "WilsonGroupSuper.h"
-
+#include "MartyModelNameAPI.h"
+#include "MartyModelPathAPI.h"
 
 
 class BCoefficientGroup : public CoefficientGroup {

@@ -12,12 +12,12 @@
 
 class MartyWilson : public WilsonCoefficient {
 public:
-    MartyWilson(const std::string& coeff_name, const std::string& storage_block)
-        : WilsonCoefficient(coeff_name, storage_block) {
-        this->type = ContributionType::TOTAL;
-    }
+    // MartyWilson(const std::string& coeff_name, const std::string& storage_block)
+    //     : WilsonCoefficient(coeff_name, storage_block) {
+    //     this->type = ContributionType::TOTAL;
+    // }
 
-    MartyWilson(const std::string& coeff_name, ContributionType cont_type);
+    MartyWilson(const LhaID& coeff_id, const std::string& storage_block, const std::string& model_name, const fs::path& model_path);
 
     std::string get_model() {
         return this->model;
@@ -26,7 +26,7 @@ public:
         this->model = model;
     }
 
-    void LO_calculation();
+    // void LO_calculation();
 
     // void NLO_calculation() override {} //TODO, at least deal properly
     // void NNLO_calculation() override {} //TODO
@@ -37,6 +37,7 @@ public:
 
 private:
     std::string model{"SM"};
+
     // std::pair<size_t, size_t> find_closest_Q_matches(double target_Q_match) {
         
     //     size_t closest_below = 0, closest_above = 0;

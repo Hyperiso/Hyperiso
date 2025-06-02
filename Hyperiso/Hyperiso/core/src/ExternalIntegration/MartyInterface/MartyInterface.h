@@ -17,12 +17,12 @@
 
 class MartyInterface {
 public:
-    void generate(std::string wilson, std::string model);
+    void generate(std::string wilson, std::string model, std::string model_path);
     void compile_run(std::string wilson, std::string model);
     void generate_numlib(std::string wilson, std::string model, double Q_match);
     void compile_run_libs(std::string wilson, std::string model, double Q_match);
 
-    void calculate(std::string wilson, std::string model, double Q_match, bool new_params=false);
+    void calculate(std::string wilson, std::string model, double Q_match, std::string model_path, bool new_params=false);
 
     std::unordered_set<Interpreter::InterpretedParam> get_dependencies(std::string wilson);
 

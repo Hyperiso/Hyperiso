@@ -3,6 +3,8 @@
 
 #include "ChargedCurrentWilsonSuper.h"
 #include "WilsonGroupSuper.h"
+#include "MartyModelPathAPI.h"
+#include "MartyModelNameAPI.h"
 
 class BlnuCoefficientGroup : public CoefficientGroup {
 public:

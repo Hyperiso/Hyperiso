@@ -50,7 +50,7 @@ int main() {
     // MartyInterface.calculate("C9", "ZPrime", 81);
     // MartyInterface.calculate("C10", "ZPrime", 81);
     // MartyInterface.calculate("C2", "ZPrime", 81);
-    MartyInterface.calculate("C7", "SM", 81);
+    MartyInterface.calculate("C7", "SM", 81, project_tp_root.data() + std::string("MARTY/src/MARTY/src/marty/models/thdm.h"));
     // MartyInterface.calculate("C5", "SM", 81);
     // MartyInterface.calculate("C7", "THDM", 81);
     // MartyInterface.calculate("C7", "SM", 160);

@@ -10,7 +10,7 @@
 
 class GeneralModelModifier : public ModelModifier {
 public:
-    GeneralModelModifier(std::string wilson, std::string model);
+    GeneralModelModifier(std::string wilson, std::string model, std::string model_path);
     void modifyLine(std::string& line) override;
     void addLine(std::ofstream& outputFile, const std::string& currentLine, bool addBefore) override;
 

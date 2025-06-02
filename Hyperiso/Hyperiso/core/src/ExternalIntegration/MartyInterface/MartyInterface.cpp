@@ -13,10 +13,10 @@ void MartyInterface::compile_run(std::string wilson, std::string model) {
     }
 }
 
-void MartyInterface::generate(std::string wilson, std::string model) {
+void MartyInterface::generate(std::string wilson, std::string model, std::string model_path) {
 
     std::unique_ptr<ModelModifier> smModifier;
-    smModifier = std::make_unique<GeneralModelModifier>(wilson, model);
+    smModifier = std::make_unique<GeneralModelModifier>(wilson, model, model_path);
 
     std::unique_ptr<TemplateManagerBase> templateManager = std::make_unique<NonNumericTemplateManager>(FileNameManager::getInstance(wilson, model)->getTemplateDir());
     templateManager->setModelAndWilson(model, wilson);
@@ -50,8 +50,8 @@ void MartyInterface::compile_run_libs(std::string wilson, std::string model, dou
     compiler.compile_run(FileNameManager::getInstance(wilson, model)->getLibDir(), FileNameManager::getInstance(wilson,model)->getNumExecutableFileName());
 }
 
-void MartyInterface::calculate(std::string wilson, std::string model, double Q_match, bool new_params) {
-    generate(wilson, model);
+void MartyInterface::calculate(std::string wilson, std::string model, double Q_match, std::string model_path, bool new_params) {
+    generate(wilson, model, model_path);
     compile_run(wilson, model);
     generate_numlib(wilson, model, Q_match);
     compile_run_libs(wilson, model, Q_match);

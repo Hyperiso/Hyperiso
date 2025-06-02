@@ -1,5 +1,5 @@
 #include <iostream>
-#include "/home/nfardeau/Hyperiso/Hyperiso/Third_party/MARTY/MARTY_INSTALL/include/marty/models/sm.h"
+#include "/home/nfardeau/Hyperiso/Hyperiso/Third_party/MARTY/src/MARTY/src/marty/models/thdm.h"
 #include "/home/nfardeau/Hyperiso/Hyperiso/Third_party/MARTY/MARTY_INSTALL/include/marty.h"
 //42
 
