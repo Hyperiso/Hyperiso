@@ -17,7 +17,7 @@ void defineLibPath(Library &lib) {
 #endif
 }
 
-int calculate_C_S1_tau(Model &model, gauge::Type gauge) {
+int calculate_CQP2mu(Model &model, gauge::Type gauge) {
 
     model.getParticle("W")->setGaugeChoice(gauge);
     model.getParticle("Z")->setGaugeChoice(gauge);
@@ -25,23 +25,23 @@ int calculate_C_S1_tau(Model &model, gauge::Type gauge) {
     undefineNumericalValues(); // Allow for HIso to set all the parameters' values
     mty::option::excludeExternalLegsCorrections = true;
 
-    Expr factorOperator = -4 * V_cb * G_F / csl::sqrt_s(2);
+    Expr factorOperator = -4 * GetComplexConjugate(V_ts) * V_tb * G_F * pow_s(e_em / (4 * CSL_PI), 2) / csl::sqrt_s(2);
     FeynOptions opts;
     opts.setFermionOrder({1, 0, 2, 3});
     opts.setWilsonOperatorCoefficient(factorOperator);
 
     auto wil = model.computeWilsonCoefficients(mty::Order::TreeLevel,
-        {Incoming("b"), Outgoing("c"),
-         Outgoing("tau"), Outgoing(AntiPart("nu_tau"))},
+        {Incoming("b"), Outgoing("s"),
+         Outgoing("mu"), Outgoing(AntiPart("mu"))},
         opts);
 
-    auto O = dimension6Operator(model, wil, DiracCoupling::R, DiracCoupling::L, {0, 2, 1, 3});
-    Expr C = getWilsonCoefficient(wil, O);
+    auto QP2_mu = dimension6Operator(model, wil, DiracCoupling::L, DiracCoupling::P, {0, 2, 1, 3});
+    Expr CQP2_mu = getWilsonCoefficient(wil, QP2_mu);
 
-    [[maybe_unused]] int sysres = system("rm -rf libs/C_S1_tau_SM");
-    mty::Library wilsonLib("C_S1_tau_SM", "libs");
+    [[maybe_unused]] int sysres = system("rm -rf libs/CPQ2_SM");
+    mty::Library wilsonLib("CPQ2_SM", "libs");
     wilsonLib.cleanExistingSources();
-    wilsonLib.addFunction("C_S1_tau_SM", C);
+    wilsonLib.addFunction("CPQ2", CQP2_mu);
     defineLibPath(wilsonLib);
     wilsonLib.print();
 
@@ -50,5 +50,5 @@ int calculate_C_S1_tau(Model &model, gauge::Type gauge) {
 
 int main() {
     SM_Model sm;
-    return calculate_C_S1_tau(sm, gauge::Type::Feynman);
+    return calculate_CQP2mu(sm, gauge::Type::Feynman);
 }

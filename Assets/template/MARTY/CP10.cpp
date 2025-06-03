@@ -38,10 +38,10 @@ int calculate_CP10mu(Model &model, gauge::Type gauge) {
     auto OP10_mu = dimension6Operator(model, wil, DiracCoupling::VR, DiracCoupling::A, {0, 2, 1, 3});
     Expr CP10_mu = getWilsonCoefficient(wil, OP10_mu);
 
-    [[maybe_unused]] int sysres = system("rm -rf libs/CP10_mu_SM");
-    mty::Library wilsonLib("CP10_mu_SM", "libs");
+    [[maybe_unused]] int sysres = system("rm -rf libs/CP10_SM");
+    mty::Library wilsonLib("CP10_SM", "libs");
     wilsonLib.cleanExistingSources();
-    wilsonLib.addFunction("CP10_mu", CP10_mu);
+    wilsonLib.addFunction("CP10", CP10_mu);
     defineLibPath(wilsonLib);
     wilsonLib.print();
 

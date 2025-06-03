@@ -17,7 +17,7 @@ void defineLibPath(Library &lib) {
 #endif
 }
 
-int calculate_C_T_tau(Model &model, gauge::Type gauge) {
+int calculate_C1(Model &model, gauge::Type gauge) {
 
     model.getParticle("W")->setGaugeChoice(gauge);
     model.getParticle("Z")->setGaugeChoice(gauge);
@@ -25,23 +25,24 @@ int calculate_C_T_tau(Model &model, gauge::Type gauge) {
     undefineNumericalValues(); // Allow for HIso to set all the parameters' values
     mty::option::excludeExternalLegsCorrections = true;
 
-    Expr factorOperator = -4 * V_cb * G_F / csl::sqrt_s(2);
+    Expr factorOperator = -4 * GetComplexConjugate(V_cs) * V_cb * G_F / csl::sqrt_s(2);
     FeynOptions opts;
-    opts.setFermionOrder({1, 0, 2, 3});
+    opts.setFermionOrder({1, 3, 2, 0});
     opts.setWilsonOperatorCoefficient(factorOperator);
 
     auto wil = model.computeWilsonCoefficients(mty::Order::TreeLevel,
-        {Incoming("b"), Outgoing("c"),
-         Outgoing("tau"), Outgoing(AntiPart("nu_tau"))},
+        {Incoming("b"), Outgoing("s"),
+         Outgoing("c"), Outgoing(AntiPart("c"))},
         opts);
 
-    auto O = dimension6Operator(model, wil, DiracCoupling::TL, DiracCoupling::TL, {0, 2, 1, 3});
-    Expr C = getWilsonCoefficient(wil, O);
+    auto O1 = dimension6Operator(model, wil, DiracCoupling::VR, DiracCoupling::VR, {"C", ColorCoupling::Generator}, {1, 3, 0, 2});
+    Expr C1 = getWilsonCoefficient(wil, O1);
+    Replace(C1, e_em, sqrt_s(8 * G_F / sqrt_s(2)) * M_W * sin_s(theta_W));
 
-    [[maybe_unused]] int sysres = system("rm -rf libs/C_T_tau_SM");
-    mty::Library wilsonLib("C_T_tau_SM", "libs");
+    [[maybe_unused]] int sysres = system("rm -rf libs/CP1_SM");
+    mty::Library wilsonLib("CP1_SM", "libs");
     wilsonLib.cleanExistingSources();
-    wilsonLib.addFunction("C_T_tau_SM", C);
+    wilsonLib.addFunction("CP1", C1);
     defineLibPath(wilsonLib);
     wilsonLib.print();
 
@@ -50,5 +51,5 @@ int calculate_C_T_tau(Model &model, gauge::Type gauge) {
 
 int main() {
     SM_Model sm;
-    return calculate_C_T_tau(sm, gauge::Type::Feynman);
+    return calculate_C1(sm, gauge::Type::Feynman);
 }

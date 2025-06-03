@@ -1,6 +1,5 @@
 #include "BWilsonGroupSuper.h"
 
-
 BCoefficientGroup::BCoefficientGroup(bool force_sm) {
     LOG_TRACE("In BCoefficientGroup constructor");
     this->id = WGroup::B;
@@ -465,9 +464,14 @@ std::shared_ptr<CoefficientGroup> BScalarCoefficientGroup::clone() const {
     return std::make_shared<BScalarCoefficientGroup>(*this);
 }
 
-BScalarCoefficientGroup::BScalarCoefficientGroup() {
+BScalarCoefficientGroup::BScalarCoefficientGroup(bool force_sm) {
+    LOG_TRACE("In BScalarCoefficientGroup constructor");
     this->id = WGroup::BScalar;
+    init_sources();
+    add_wilson_coefficients(force_sm);
+}
 
+void BScalarCoefficientGroup::init_sources() {
     std::map<QCDOrder,CoefficientGroupSources> grp_src;
     grp_src[QCDOrder::LO].sources = {
         {ParameterType::WILSON, {this->get_matching_storage_block(), "WPARAM_RUN_SM", "WPARAM_SI_SM"}},
@@ -477,11 +481,14 @@ BScalarCoefficientGroup::BScalarCoefficientGroup() {
     grp_src[QCDOrder::NLO].sources = grp_src[QCDOrder::LO].sources;
     grp_src[QCDOrder::NLO].func = base_1_NLO_calculation;
     this->sources.insert({WilsonBasis::B_STANDARD, grp_src});
+}
 
+void BScalarCoefficientGroup::add_wilson_coefficients(bool force_sm) {
     if (UseMarty().get()) {
+        this->wilson_type = force_sm ? ContributionType::SM : ContributionType::TOTAL;
         for (auto&& coeff : {"CQ1", "CQ2"}) {
-            std::string _name = MartyModelNameAPI().get();
-            fs::path _path = MartyModelPathAPI().get();
+            std::string _name = force_sm ? "SM" : MartyModelNameAPI().get();
+            fs::path _path = force_sm ? fs::path(std::string(project_tp_root.data()) + "MARTY/src/MARTY/src/marty/models/sm.h") : MartyModelPathAPI().get();
             std::string _block = GroupMapper::str(this->id, ScaleType::MATCHING);
             LhaID _id = WCoefMapper::flha_full(WCoefMapper::enum_elt(coeff), QCDOrder::LO, this->get_type());
             this->insert(std::make_pair(coeff, std::make_shared<MartyWilson>(_id, _block, _name, _path)));
@@ -540,25 +547,35 @@ std::unordered_map<WCoef, scalar_t> BScalarCoefficientGroup::base_1_NLO_calculat
     return Ci_run_map;
 }
 
-BPrimeCoefficientGroup::BPrimeCoefficientGroup() {
+BPrimeCoefficientGroup::BPrimeCoefficientGroup(bool force_sm) {
+    LOG_TRACE("In BPrimeCoefficientGroup constructor");
     this->id = WGroup::BPrime;
+    init_sources();
+    add_wilson_coefficients(force_sm);
+}
+
+void BPrimeCoefficientGroup::init_sources() {
     std::map<QCDOrder,CoefficientGroupSources> grp_src;
     grp_src[QCDOrder::LO].sources = {
         {ParameterType::WILSON, {this->get_matching_storage_block(), "WPARAM_RUN_SM", "WPARAM_SI_SM"}},
     };
     grp_src[QCDOrder::LO].func = base_1_LO_calculation;
     this->sources.insert({WilsonBasis::B_STANDARD, grp_src});
+}
 
+void BPrimeCoefficientGroup::add_wilson_coefficients(bool force_sm) {
     if (UseMarty().get()) {
+        this->wilson_type = force_sm ? ContributionType::SM : ContributionType::TOTAL;
         for (auto&& coeff : {"CP1", "CP2", "CP3", "CP4", "CP5", "CP6", "CP7", "CP8", "CP9", "CP10", "CPQ1", "CPQ2"}) {
-            std::string _name = MartyModelNameAPI().get();
-            fs::path _path = MartyModelPathAPI().get();
+            std::string _name = force_sm ? "SM" : MartyModelNameAPI().get();
+            fs::path _path = force_sm ? fs::path(std::string(project_tp_root.data()) + "MARTY/src/MARTY/src/marty/models/sm.h") : MartyModelPathAPI().get();
             std::string _block = GroupMapper::str(this->id, ScaleType::MATCHING);
             LhaID _id = WCoefMapper::flha_full(WCoefMapper::enum_elt(coeff), QCDOrder::LO, this->get_type());
             this->insert(std::make_pair(coeff, std::make_shared<MartyWilson>(_id, _block, _name, _path)));
         }
         return;
     }
+
     this->insert(std::make_pair("CP1", std::make_shared<CP1>())); 
     this->insert(std::make_pair("CP2", std::make_shared<CP2>())); 
     this->insert(std::make_pair("CP3", std::make_shared<CP3>()));

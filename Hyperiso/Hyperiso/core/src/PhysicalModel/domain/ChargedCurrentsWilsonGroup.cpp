@@ -38,11 +38,27 @@ std::array<complex_t, 2> C_match = {};
     return Ci_run_map;
 }
 
-BlnuCoefficientGroup::BlnuCoefficientGroup() {
+BlnuCoefficientGroup::BlnuCoefficientGroup(bool force_sm) {
+    this->id = WGroup::Blnu;
+    init_sources();
+    add_wilson_coefficients(force_sm);
+}
+
+void BlnuCoefficientGroup::init_sources() {
+    std::map<QCDOrder,CoefficientGroupSources> grp_src;
+    grp_src[QCDOrder::LO].sources = {
+        {ParameterType::WILSON, {this->get_matching_storage_block()}},
+    };
+    grp_src[QCDOrder::LO].func = base_1_LO_calculation;
+    this->sources.insert({WilsonBasis::B_STANDARD, grp_src});
+}
+
+void BlnuCoefficientGroup::add_wilson_coefficients(bool force_sm) {
     if (UseMarty().get()) {
+        this->wilson_type = force_sm ? ContributionType::SM : ContributionType::TOTAL;
         for (auto&& coeff : {"C_Blnu_A", "C_Blnu_P"}) {
-            std::string _name = MartyModelNameAPI().get();
-            fs::path _path = MartyModelPathAPI().get();
+            std::string _name = force_sm ? "SM" : MartyModelNameAPI().get();
+            fs::path _path = force_sm ? fs::path(std::string(project_tp_root.data()) + "MARTY/src/MARTY/src/marty/models/sm.h") : MartyModelPathAPI().get();
             std::string _block = GroupMapper::str(this->id, ScaleType::MATCHING);
             LhaID _id = WCoefMapper::flha_full(WCoefMapper::enum_elt(coeff), QCDOrder::LO, this->get_type());
             this->insert(std::make_pair(coeff, std::make_shared<MartyWilson>(_id, _block, _name, _path)));
@@ -50,18 +66,21 @@ BlnuCoefficientGroup::BlnuCoefficientGroup() {
         return;
     }
 
-    this->insert(std::make_pair("C_Blnu_A", std::make_shared<C_Blnu_A>()));
-    this->insert(std::make_pair("C_Blnu_P", std::make_shared<C_Blnu_P>()));
-
-    this->id = WGroup::Blnu;
+    this->insert(std::make_pair("C_Blnu_A", std::make_shared<CQ1>()));
+    this->insert(std::make_pair("C_Blnu_P", std::make_shared<CQ2>()));
 }
 
 std::shared_ptr<CoefficientGroup> BlnuCoefficientGroup::clone() const {
     return std::make_shared<BlnuCoefficientGroup>(*this);
 }
 
-BclnuCoefficientGroup::BclnuCoefficientGroup() {
+BclnuCoefficientGroup::BclnuCoefficientGroup(bool force_sm) {
+    this->id = WGroup::BCLNU;
+    init_sources();
+    add_wilson_coefficients(force_sm);
+
     if (UseMarty().get()) {
+        this->wilson_type = force_sm ? ContributionType::SM : ContributionType::TOTAL;
         for (auto&& coeff : {"C_V1", "C_V2", "C_S1", "C_S2", "C_T"}) {
             std::string _name = MartyModelNameAPI().get();
             fs::path _path = MartyModelPathAPI().get();
@@ -71,13 +90,35 @@ BclnuCoefficientGroup::BclnuCoefficientGroup() {
         }
         return;
     }
+}
+
+void BclnuCoefficientGroup::init_sources() {
+    std::map<QCDOrder,CoefficientGroupSources> grp_src;
+    grp_src[QCDOrder::LO].sources = {
+        {ParameterType::WILSON, {this->get_matching_storage_block()}},
+    };
+    grp_src[QCDOrder::LO].func = base_1_LO_calculation;
+    this->sources.insert({WilsonBasis::B_STANDARD, grp_src});
+}
+
+void BclnuCoefficientGroup::add_wilson_coefficients(bool force_sm) {
+    if (UseMarty().get()) {
+        this->wilson_type = force_sm ? ContributionType::SM : ContributionType::TOTAL;
+        for (auto&& coeff : {"C_V1", "C_V2", "C_S1", "C_S2", "C_T"}) {
+            std::string _name = force_sm ? "SM" : MartyModelNameAPI().get();
+            fs::path _path = force_sm ? fs::path(std::string(project_tp_root.data()) + "MARTY/src/MARTY/src/marty/models/sm.h") : MartyModelPathAPI().get();
+            std::string _block = GroupMapper::str(this->id, ScaleType::MATCHING);
+            LhaID _id = WCoefMapper::flha_full(WCoefMapper::enum_elt(coeff), QCDOrder::LO, this->get_type());
+            this->insert(std::make_pair(coeff, std::make_shared<MartyWilson>(_id, _block, _name, _path)));
+        }
+        return;
+    }
+
     this->insert(std::make_pair("C_V1", std::make_shared<C_V1>()));
     this->insert(std::make_pair("C_V2", std::make_shared<C_V2>()));
     this->insert(std::make_pair("C_S1", std::make_shared<C_S1>()));
     this->insert(std::make_pair("C_S2", std::make_shared<C_S2>()));
     this->insert(std::make_pair("C_T", std::make_shared<C_T>()));
-
-    this->id = WGroup::BCLNU;
 }
 
 std::shared_ptr<CoefficientGroup> BclnuCoefficientGroup::clone() const {

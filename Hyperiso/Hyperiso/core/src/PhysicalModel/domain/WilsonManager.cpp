@@ -38,11 +38,11 @@ void CoefficientManager::init_group_matching(const std::string& groupName, const
     {
     case QCDOrder::NNLO:
         init_specific_order_group_matching(groupName, OrderMapper::str(QCDOrder::NNLO), only_total++);
-        break;
+        [[fallthrough]];
         
     case QCDOrder::NLO:
         init_specific_order_group_matching(groupName, OrderMapper::str(QCDOrder::NLO), only_total++);
-        break;
+        [[fallthrough]];
 
     case QCDOrder::LO:
         init_specific_order_group_matching(groupName, OrderMapper::str(QCDOrder::LO), only_total++);
@@ -191,8 +191,12 @@ void CoefficientManager::init_group_hadronic(const std::string& groupName, const
         throw_no_group_error(groupName);
     }
 
+    LOG_INFO("1");
+
     std::unordered_map<ParameterType, std::vector<std::string>> src = {};
     fill_sources_for_group(groupName, order, src, basis);
+
+    LOG_INFO("2");
 
     QCDOrder ord = OrderMapper::enum_elt(order);
 
@@ -202,11 +206,17 @@ void CoefficientManager::init_group_hadronic(const std::string& groupName, const
         {QCDOrder::NNLO, this->coefficientGroups[groupName]->get_func(QCDOrder::NNLO, basis)}
     };
 
+    LOG_INFO("3");
+
     std::string matching_block_name = this->coefficientGroups[groupName]->get_matching_storage_block();
 
+    LOG_INFO("4");
+
     auto func = [matching_block_name, ord, funcs, groupName, basis] (const std::unordered_map<std::string, std::shared_ptr<Block>>& src, std::shared_ptr<DependentBlock> dep_block) {
+
+        LOG_INFO("L1");
         std::map<LhaID, std::shared_ptr<Parameter>> matching_coeff = src.at(matching_block_name)->getItems();
-        // std::cout << src.at(matching_block_name) << std::endl;
+        std::cout << src.at(matching_block_name) << std::endl;
         std::unordered_map<ContributionType, std::unordered_map<QCDOrder, std::unordered_map<WCoef, scalar_t>>> matching_map;
         for (auto& coef : matching_coeff) {
             std::pair<WCoef, std::pair<QCDOrder, ContributionType>> c = lha_wilson_deserialize(coef.first);
@@ -216,20 +226,25 @@ void CoefficientManager::init_group_hadronic(const std::string& groupName, const
             const ContributionType& contrib = c.second.second;
             matching_map[contrib][order][wcoef] = coef.second->get_val();
         }
+
+        LOG_INFO("L2");
         
         std::unordered_map<ContributionType, std::unordered_map<QCDOrder,std::unordered_map<WCoef, scalar_t>>> res;
         for (auto contri : {ContributionType::SM, ContributionType::BSM, ContributionType::TOTAL}) {
             switch (ord)
                 {
                 case QCDOrder::NNLO:
+                    LOG_INFO("NNLO");
                     res[contri][QCDOrder::NNLO] = funcs.at(QCDOrder::NNLO)(matching_map[contri], src);
                     [[fallthrough]];
                     
                 case QCDOrder::NLO:
+                    LOG_INFO("NLO");
                     res[contri][QCDOrder::NLO] = funcs.at(QCDOrder::NLO)(matching_map[contri], src);
                     [[fallthrough]];
 
                 case QCDOrder::LO:
+                    LOG_INFO("LO");
                     res[contri][QCDOrder::LO] = funcs.at(QCDOrder::LO)(matching_map[contri], src);
                     break;
 
@@ -237,6 +252,8 @@ void CoefficientManager::init_group_hadronic(const std::string& groupName, const
                     break;
                 }
         }
+
+        LOG_INFO("L3");
 
         for (auto& [c_type, order_map] : res) { // Iterate over the contributions
             for (auto& [order, coef_map] : order_map) { // Iterate over the orders
@@ -251,9 +268,15 @@ void CoefficientManager::init_group_hadronic(const std::string& groupName, const
                 }
             }
         }
+
+        LOG_INFO("L4");
     };
 
+    LOG_INFO("5");
+
     WilsonParamComposer().compose_block(GroupMapper::str(GroupMapper::enum_elt(groupName), ScaleType::HADRONIC, false, basis), src, func);
+
+    LOG_INFO("6");
 }
 
 void CoefficientManager::init_group_hadronic_all_bases(const std::string &groupName, const std::string &order) {
@@ -351,9 +374,9 @@ std::shared_ptr<CoefficientManager> CoefficientManager::Builder(std::string mode
     manager->set_hadronic_scale(mu_h);
     for (auto& group: groups) {
         if (manager->has_bsm && group.first.ends_with(manager->bsm_suffix)) continue;
-        LOG_INFO("(CoefficientManager) Initializing group matching", group.first);
+        LOG_INFO("(CoefficientManager) Initializing group matching", group.first, "at", order);
         manager->init_group_matching(group.first, order);
-        LOG_INFO("(CoefficientManager) Initializing group hadronic", group.first);
+        LOG_INFO("(CoefficientManager) Initializing group hadronic", group.first, "at", order);
         manager->init_group_hadronic_all_bases(group.first, order);
     }
     LOG_INFO("(CoefficientManager) Manager successfully initialized");

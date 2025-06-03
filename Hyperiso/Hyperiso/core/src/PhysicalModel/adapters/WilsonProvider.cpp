@@ -14,10 +14,12 @@ WilsonProvider::WilsonProvider(std::shared_ptr<CoefficientManager> manager) : cm
 scalar_t WilsonProvider::get(std::shared_ptr<AbstractConfig> config) {
     WilsonRequest request = *static_cast<WilsonRequest*>(config.get());
 
-    ScaleType scale_type = request.scale_type;
-    if (request.basis.has_value()) {
-        
+    if (UseMarty().get() && request.order > QCDOrder::LO) {
+        LOG_WARN("Trying to access coefficient at ", OrderMapper::str(request.order), "but coefficients were only calculated at LO (MARTY). Defaulting to LO.");
+        request.order = QCDOrder::LO;
     }
+
+    ScaleType scale_type = request.scale_type;
 
     if (scale_type == ScaleType::MATCHING) {
         return request.sum_qcd_orders ? 

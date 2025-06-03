@@ -15,7 +15,7 @@ MartyWilson::MartyWilson(const LhaID& coeff_id, const std::string& storage_block
     std::string marty_model_path = model_path;
     ContributionType cont = this->type;
 
-    matching_info[QCDOrder::LO].compute = [&sources, name, csv_path, marty_model, marty_model_path] (const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src) {
+    matching_info[QCDOrder::LO].compute = [&sources, name, csv_path, marty_model, marty_model_path] (const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src) -> scalar_t {
         LOG_INFO("Updating coeff", name);
         double epsi = 1e-4;
         double ew_scale = src.at({ParameterType::WILSON, "EW_SCALE", 1})->get_val();
@@ -54,7 +54,6 @@ MartyWilson::MartyWilson(const LhaID& coeff_id, const std::string& storage_block
         return result;
     };
 
-    LOG_INFO("Dummy run");
     ParamId pid {ParameterType::WILSON, "EW_SCALE", 1};
     std::unordered_map<ParamId, std::shared_ptr<Parameter>> dummy {{pid, std::make_shared<Parameter>(pid, 1, 0, 0)}};
     matching_info[QCDOrder::LO].compute(dummy);

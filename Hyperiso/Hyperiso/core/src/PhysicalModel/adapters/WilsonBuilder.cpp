@@ -21,6 +21,11 @@ void WilsonBuilder::build(WilsonBuildConfig config) {
         groups.emplace(gn_str, WilsonGroupFactory::create_coefficient_group(g_id, model));
     }
 
+    if (UseMarty().get() && config.order > QCDOrder::LO) {
+        LOG_WARN("Using MARTY defaults all calculations to LO.");
+        config.order = QCDOrder::LO;
+    }
+
     this->cm = CoefficientManager::Builder(ModelMapper::str(model), groups, config.matching_scale, config.hadronic_scale, OrderMapper::str(config.order));
 }
 

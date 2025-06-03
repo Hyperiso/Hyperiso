@@ -13,25 +13,26 @@ int main() {
 
     hyp.init("lha/testinput_thdm.lha", config);
 
+    BlockProxy().log_block(ParameterType::BSM, "YE");
+
     WilsonBuildConfig wilson_config;
-    // wilson_config.groups = {WGroup::B, WGroup::BPrime};
-    wilson_config.groups = {WGroup::B};
+    wilson_config.groups = {WGroup::BCLNU};
     wilson_config.matching_scale = 85.0;
     wilson_config.hadronic_scale = 4.5;
-    wilson_config.order = QCDOrder::NNLO;
+    wilson_config.order = QCDOrder::LO;
     WilsonBuilder builder {wilson_config};
     // builder.build(wilson_config);
 
-    BlockProxy().log_block(ParameterType::WILSON, "BCoefficients_B_SCALE_STANDARD");
-    BlockProxy().log_block(ParameterType::WILSON, "BCoefficients_B_SCALE_TRADITIONAL");
-    BlockProxy().log_block(ParameterType::WILSON, "BCoefficients_EW_SCALE");
+    // BlockProxy().log_block(ParameterType::WILSON, "BCoefficients_B_SCALE_STANDARD");
+    // BlockProxy().log_block(ParameterType::WILSON, "BCoefficients_B_SCALE_TRADITIONAL");
+    // BlockProxy().log_block(ParameterType::WILSON, "BCoefficients_EW_SCALE");
 
     WilsonProvider wilson_provider = *builder.get_wilson_provider();
 
     std::shared_ptr<WilsonRequest> C7_request = std::make_shared<WilsonRequest>(
-        WGroup::B,
-        WCoef::C5,
-        QCDOrder::NNLO,
+        WGroup::BCLNU,
+        WCoef::C_S1,
+        QCDOrder::LO,
         ContributionType::SM,
         ScaleType::MATCHING,
         false

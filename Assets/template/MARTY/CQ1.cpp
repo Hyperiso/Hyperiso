@@ -1,5 +1,5 @@
 #include <iostream>
- 
+
 using namespace csl;
 using namespace mty;
 using namespace std;
@@ -17,7 +17,7 @@ void defineLibPath(Library &lib) {
 #endif
 }
 
-int calculate_C_S2_tau(Model &model, gauge::Type gauge) {
+int calculate_CQ1mu(Model &model, gauge::Type gauge) {
 
     model.getParticle("W")->setGaugeChoice(gauge);
     model.getParticle("Z")->setGaugeChoice(gauge);
@@ -25,23 +25,23 @@ int calculate_C_S2_tau(Model &model, gauge::Type gauge) {
     undefineNumericalValues(); // Allow for HIso to set all the parameters' values
     mty::option::excludeExternalLegsCorrections = true;
 
-    Expr factorOperator = -4 * V_cb * G_F / csl::sqrt_s(2);
+    Expr factorOperator = -4 * GetComplexConjugate(V_ts) * V_tb * G_F * pow_s(e_em / (4 * CSL_PI), 2) / csl::sqrt_s(2);
     FeynOptions opts;
     opts.setFermionOrder({1, 0, 2, 3});
     opts.setWilsonOperatorCoefficient(factorOperator);
 
-    auto wil = model.computeWilsonCoefficients(mty::Order::TreeLevel,
-        {Incoming("b"), Outgoing("c"),
-         Outgoing("tau"), Outgoing(AntiPart("nu_tau"))},
+    auto wil = model.computeWilsonCoefficients(mty::Order::OneLoop,
+        {Incoming("b"), Outgoing("s"),
+         Outgoing("mu"), Outgoing(AntiPart("mu"))},
         opts);
 
-    auto O = dimension6Operator(model, wil, DiracCoupling::L, DiracCoupling::L, {0, 2, 1, 3});
-    Expr C = getWilsonCoefficient(wil, O);
+    auto Q1_mu = dimension6Operator(model, wil, DiracCoupling::R, DiracCoupling::S, {0, 2, 1, 3});
+    Expr CQ1_mu = getWilsonCoefficient(wil, Q1_mu);
 
-    [[maybe_unused]] int sysres = system("rm -rf libs/C_S2_tau_SM");
-    mty::Library wilsonLib("C_S2_tau_SM", "libs");
+    [[maybe_unused]] int sysres = system("rm -rf libs/CQ1_SM");
+    mty::Library wilsonLib("CQ1_SM", "libs");
     wilsonLib.cleanExistingSources();
-    wilsonLib.addFunction("C_S2_tau_SM", C);
+    wilsonLib.addFunction("CQ1", CQ1_mu);
     defineLibPath(wilsonLib);
     wilsonLib.print();
 
@@ -50,5 +50,5 @@ int calculate_C_S2_tau(Model &model, gauge::Type gauge) {
 
 int main() {
     SM_Model sm;
-    return calculate_C_S2_tau(sm, gauge::Type::Feynman);
+    return calculate_CQ1mu(sm, gauge::Type::Feynman);
 }

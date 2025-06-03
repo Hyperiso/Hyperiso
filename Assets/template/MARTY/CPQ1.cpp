@@ -17,7 +17,7 @@ void defineLibPath(Library &lib) {
 #endif
 }
 
-int calculate_CQ1mu(Model &model, gauge::Type gauge) {
+int calculate_CPQ1mu(Model &model, gauge::Type gauge) {
 
     model.getParticle("W")->setGaugeChoice(gauge);
     model.getParticle("Z")->setGaugeChoice(gauge);
@@ -30,18 +30,18 @@ int calculate_CQ1mu(Model &model, gauge::Type gauge) {
     opts.setFermionOrder({1, 0, 2, 3});
     opts.setWilsonOperatorCoefficient(factorOperator);
 
-    auto wil = model.computeWilsonCoefficients(mty::Order::OneLoop,
+    auto wil = model.computeWilsonCoefficients(mty::Order::TreeLevel,
         {Incoming("b"), Outgoing("s"),
          Outgoing("mu"), Outgoing(AntiPart("mu"))},
         opts);
 
-    auto Q1_mu = dimension6Operator(model, wil, DiracCoupling::R, DiracCoupling::S, {0, 2, 1, 3});
-    Expr CQ1_mu = getWilsonCoefficient(wil, Q1_mu);
+    auto QP1_mu = dimension6Operator(model, wil, DiracCoupling::L, DiracCoupling::S, {0, 2, 1, 3});
+    Expr CQP1_mu = getWilsonCoefficient(wil, QP1_mu);
 
-    [[maybe_unused]] int sysres = system("rm -rf libs/CQ1_mu_SM");
-    mty::Library wilsonLib("CQ1_mu_SM", "libs");
+    [[maybe_unused]] int sysres = system("rm -rf libs/CPQ1_SM");
+    mty::Library wilsonLib("CPQ1_SM", "libs");
     wilsonLib.cleanExistingSources();
-    wilsonLib.addFunction("CQ1_mu", CQ1_mu);
+    wilsonLib.addFunction("CPQ1", CQP1_mu);
     defineLibPath(wilsonLib);
     wilsonLib.print();
 
@@ -50,5 +50,5 @@ int calculate_CQ1mu(Model &model, gauge::Type gauge) {
 
 int main() {
     SM_Model sm;
-    return calculate_CQ1mu(sm, gauge::Type::Feynman);
+    return calculate_CPQ1mu(sm, gauge::Type::Feynman);
 }

@@ -444,7 +444,7 @@ double CQ2_THDM::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Pa
 
 
 C_Blnu_P_THDM::C_Blnu_P_THDM()
-    : WilsonCoefficient("C_Blnu_P_THDM", GroupMapper::str(WGroup::B) + "_MATCH")
+    : WilsonCoefficient("C_Blnu_P_THDM", GroupMapper::str(WGroup::Blnu, ScaleType::MATCHING))
 {
     matching_info[QCDOrder::LO] = {
         {
@@ -452,7 +452,7 @@ C_Blnu_P_THDM::C_Blnu_P_THDM()
             {"WPARAM_SI_BSM", 8},               // ld
             {ParameterType::SM, "MASS", 15},    // m_tau
             {ParameterType::SM, "QCD", {5, 1}}, // m_b
-            {ParameterType::BSM, "YL", {2, 2}}, // l_tau
+            {ParameterType::BSM, "YE", {3, 3}}, // l_tau
             {ParameterType::BSM, "MASS", 37}    // m_H
         },
         compute_LO,
@@ -465,23 +465,21 @@ double C_Blnu_P_THDM::compute_LO(const std::unordered_map<ParamId, std::shared_p
     double ld     = src.at({ParameterType::WILSON, "WPARAM_SI_BSM", 8})->get_val();
     double m_tau  = src.at({ParameterType::SM, "MASS", 15})->get_val();
     double m_b    = src.at({ParameterType::SM, "QCD", {5, 1}})->get_val();
-    double l_tau  = src.at({ParameterType::BSM, "YL", {2, 2}})->get_val();
+    double l_tau  = src.at({ParameterType::BSM, "YE", {3, 3}})->get_val();
     double mH     = src.at({ParameterType::BSM, "MASS", 37})->get_val();
 
     return -m_b * m_tau * ld * l_tau / std::pow(mH, 2);
 }
 
 C_S1_THDM::C_S1_THDM()
-    : WilsonCoefficient("C_S1_THDM", GroupMapper::str(WGroup::B) + "_MATCH")
+    : WilsonCoefficient("C_S1_THDM", GroupMapper::str(WGroup::BCLNU, ScaleType::MATCHING))
 {
     matching_info[QCDOrder::LO] = {
         {
-            {"WPARAM_SI_SM", 4},               // sw2 (inutile ici mais présent)
-            {"WPARAM_SI_BSM", 7},              // lu
             {"WPARAM_SI_BSM", 8},              // ld
             {ParameterType::SM, "MASS", 15},   // m_tau
             {ParameterType::BSM, "MASS", 37},  // m_H
-            {ParameterType::BSM, "YL", {2, 2}},// l_tau
+            {ParameterType::BSM, "YE", {3, 3}},// l_tau
             {ParameterType::SM, "QCD", {5, 1}} // m_b
         },
         compute_LO,
@@ -491,29 +489,25 @@ C_S1_THDM::C_S1_THDM()
 
 // TODO : need to merge B_lnu group and B_CLNU group
 double C_S1_THDM::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src) {
-    double sw2    = src.at({ParameterType::WILSON, "WPARAM_SI_SM", 4})->get_val(); // Pas utilisé ici
-    double lu     = src.at({ParameterType::WILSON, "WPARAM_SI_BSM", 7})->get_val();
     double ld     = src.at({ParameterType::WILSON, "WPARAM_SI_BSM", 8})->get_val();
     double mH     = src.at({ParameterType::BSM, "MASS", 37})->get_val();
     double m_tau  = src.at({ParameterType::SM, "MASS", 15})->get_val();
-    double l_tau  = src.at({ParameterType::BSM, "YL", {2, 2}})->get_val();
+    double l_tau  = src.at({ParameterType::BSM, "YE", {3, 3}})->get_val();
     double m_b    = src.at({ParameterType::SM, "QCD", {5, 1}})->get_val();
 
     return -m_b * m_tau * ld * l_tau / std::pow(mH, 2);
 }
 
 C_S2_THDM::C_S2_THDM()
-    : WilsonCoefficient("C_S2_THDM", GroupMapper::str(WGroup::B) + "_MATCH")
+    : WilsonCoefficient("C_S2_THDM", GroupMapper::str(WGroup::BCLNU, ScaleType::MATCHING))
 {
     matching_info[QCDOrder::LO] = {
         {
-            {"WPARAM_SI_SM", 4},               // sw2 (non utilisé ici)
             {"WPARAM_SI_BSM", 7},              // lu
-            {"WPARAM_SI_BSM", 8},              // ld
             {ParameterType::SM, "MASS", 15},   // m_tau
             {ParameterType::SM, "MASS", 4},    // m_c (charm)
             {ParameterType::BSM, "MASS", 37},  // m_H
-            {ParameterType::BSM, "YL", {2, 2}} // l_tau
+            {ParameterType::BSM, "YE", {3, 3}} // l_tau
         },
         compute_LO,
         LhaID(4051516, 3131, 0, 1)
@@ -521,13 +515,11 @@ C_S2_THDM::C_S2_THDM()
 }
 
 double C_S2_THDM::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src) {
-    double sw2    = src.at({ParameterType::WILSON, "WPARAM_SI_SM", 4})->get_val(); // inutile ici
     double lu     = src.at({ParameterType::WILSON, "WPARAM_SI_BSM", 7})->get_val();
-    double ld     = src.at({ParameterType::WILSON, "WPARAM_SI_BSM", 8})->get_val();
     double mH     = src.at({ParameterType::BSM, "MASS", 37})->get_val();
     double m_c    = src.at({ParameterType::SM, "MASS", 4})->get_val();    // m_c
     double m_tau  = src.at({ParameterType::SM, "MASS", 15})->get_val();   // m_tau
-    double l_tau  = src.at({ParameterType::BSM, "YL", {2, 2}})->get_val(); // l_tau
+    double l_tau  = src.at({ParameterType::BSM, "YE", {3, 3}})->get_val(); // l_tau
 
     return -m_c * m_tau * lu * l_tau / std::pow(mH, 2);
 }

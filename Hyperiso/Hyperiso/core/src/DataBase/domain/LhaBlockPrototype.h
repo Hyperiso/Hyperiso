@@ -68,11 +68,7 @@ const Prototype AD = Prototype{"AD", 4, 3, -1, -1, true};
 const Prototype AE = Prototype{"AE", 4, 3, -1, -1, true};
 const Prototype YU = Prototype{{"YU", "UCOUPL"}, 4, 3, -1, -1, true};
 const Prototype YD = Prototype{{"YD", "DCOUPL"}, 4, 3, -1, -1, true};
-const Prototype YE = Prototype{{"YE", "LCOUPL"}, 4, 3, -1, -1, true};
-// const Prototype UCOUPL = Prototype{"UCOUPL", 4, 3, -1, -1, true};
-// const Prototype DCOUPL = Prototype{"DCOUPL", 4, 3, -1, -1, true};
-// const Prototype LCOUPL = Prototype{"LCOUPL", 4, 3, -1, -1, true};
-// const Prototype SPINFO = Prototype{"SPINFO"}; //TODO : remove because .19 was in stol
+const Prototype YE = Prototype{{"YE", "LCOUPL", "YL"}, 4, 3, -1, -1, true};
 
 const std::unordered_set<Prototype> LHA_BLOCKS = {MODSEL, SMINPUTS, VCKMIN, UPMNSIN, MASS, GAUGE};
 const std::unordered_set<Prototype> SLHA_BLOCKS = {MINPAR, EXTPAR, NMIX, UMIX, VMIX, STOPMIX, SBOTMIX, STAUMIX, ALPHA, HMIX, MSOFT, AU, AD, AE, YU, YD, YE, NMHMIX, NMAMIX}; //TODO : SPINFO pb

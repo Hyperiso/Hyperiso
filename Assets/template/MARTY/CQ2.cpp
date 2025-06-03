@@ -17,7 +17,7 @@ void defineLibPath(Library &lib) {
 #endif
 }
 
-int calculate_C_V1_tau(Model &model, gauge::Type gauge) {
+int calculate_CQ2mu(Model &model, gauge::Type gauge) {
 
     model.getParticle("W")->setGaugeChoice(gauge);
     model.getParticle("Z")->setGaugeChoice(gauge);
@@ -25,24 +25,23 @@ int calculate_C_V1_tau(Model &model, gauge::Type gauge) {
     undefineNumericalValues(); // Allow for HIso to set all the parameters' values
     mty::option::excludeExternalLegsCorrections = true;
 
-    Expr factorOperator = -4 * V_cb * G_F / csl::sqrt_s(2);
+    Expr factorOperator = -4 * GetComplexConjugate(V_ts) * V_tb * G_F * pow_s(e_em / (4 * CSL_PI), 2) / csl::sqrt_s(2);
     FeynOptions opts;
     opts.setFermionOrder({1, 0, 2, 3});
     opts.setWilsonOperatorCoefficient(factorOperator);
 
     auto wil = model.computeWilsonCoefficients(mty::Order::TreeLevel,
-        {Incoming("b"), Outgoing("c"),
-         Outgoing("tau"), Outgoing(AntiPart("nu_tau"))},
+        {Incoming("b"), Outgoing("s"),
+         Outgoing("mu"), Outgoing(AntiPart("mu"))},
         opts);
 
-    auto O = dimension6Operator(model, wil, DiracCoupling::VL, DiracCoupling::VL, {0, 2, 1, 3});
-    Expr C = getWilsonCoefficient(wil, O);
-    Replace(C, e_em, sqrt_s(8 * G_F / sqrt_s(2)) * M_W * sin_s(theta_W));
+    auto Q2_mu = dimension6Operator(model, wil, DiracCoupling::R, DiracCoupling::P, {0, 2, 1, 3});
+    Expr CQ2_mu = getWilsonCoefficient(wil, Q2_mu);
 
-    [[maybe_unused]] int sysres = system("rm -rf libs/C_V1_tau_SM");
-    mty::Library wilsonLib("C_V1_tau_SM", "libs");
+    [[maybe_unused]] int sysres = system("rm -rf libs/CQ2_SM");
+    mty::Library wilsonLib("CQ2_SM", "libs");
     wilsonLib.cleanExistingSources();
-    wilsonLib.addFunction("C_V1_tau_SM", C);
+    wilsonLib.addFunction("CQ2", CQ2_mu);
     defineLibPath(wilsonLib);
     wilsonLib.print();
 
@@ -51,5 +50,5 @@ int calculate_C_V1_tau(Model &model, gauge::Type gauge) {
 
 int main() {
     SM_Model sm;
-    return calculate_C_V1_tau(sm, gauge::Type::Feynman);
+    return calculate_CQ2mu(sm, gauge::Type::Feynman);
 }

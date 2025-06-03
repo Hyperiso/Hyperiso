@@ -17,7 +17,7 @@ void defineLibPath(Library &lib) {
 #endif
 }
 
-int calculate_C_V2_tau(Model &model, gauge::Type gauge) {
+int calculate_C_T_tau(Model &model, gauge::Type gauge) {
 
     model.getParticle("W")->setGaugeChoice(gauge);
     model.getParticle("Z")->setGaugeChoice(gauge);
@@ -35,13 +35,13 @@ int calculate_C_V2_tau(Model &model, gauge::Type gauge) {
          Outgoing("tau"), Outgoing(AntiPart("nu_tau"))},
         opts);
 
-    auto O = dimension6Operator(model, wil, DiracCoupling::VR, DiracCoupling::VL, {0, 2, 1, 3});
+    auto O = dimension6Operator(model, wil, DiracCoupling::TL, DiracCoupling::TL, {0, 2, 1, 3});
     Expr C = getWilsonCoefficient(wil, O);
 
-    [[maybe_unused]] int sysres = system("rm -rf libs/C_V2_tau_SM");
-    mty::Library wilsonLib("C_V2_tau_SM", "libs");
+    [[maybe_unused]] int sysres = system("rm -rf libs/C_T_SM");
+    mty::Library wilsonLib("C_T_SM", "libs");
     wilsonLib.cleanExistingSources();
-    wilsonLib.addFunction("C_V2_tau_SM", C);
+    wilsonLib.addFunction("C_T", C);
     defineLibPath(wilsonLib);
     wilsonLib.print();
 
@@ -50,5 +50,5 @@ int calculate_C_V2_tau(Model &model, gauge::Type gauge) {
 
 int main() {
     SM_Model sm;
-    return calculate_C_V2_tau(sm, gauge::Type::Feynman);
+    return calculate_C_T_tau(sm, gauge::Type::Feynman);
 }
