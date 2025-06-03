@@ -11,7 +11,6 @@
 #include "CodeGenerator.h"
 #include "GppCompilerStrategy.h"
 #include "MakeCompilerStrategy.h"
-#include "SMModelModifier.h"
 #include "Logger.h"
 #include "GeneralNumModelModifier.h"
 

@@ -4,7 +4,7 @@
 MartyWilson::MartyWilson(const LhaID& coeff_id, const std::string& storage_block, const std::string& model_name, const fs::path& model_path)
     : WilsonCoefficient(WCoefMapper::str(WCoefMapper::from_flha(coeff_id.get_parts()[0], coeff_id.get_parts()[1])), storage_block) {
     this->type = static_cast<ContributionType>(coeff_id.get_parts()[3]);
-
+    this->set_model(model_name);
     std::unordered_set<ParamId> sources {
         {"EW_SCALE", 1}
     };

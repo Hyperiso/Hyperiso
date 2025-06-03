@@ -8,7 +8,7 @@ int main() {
     Config config;
     config.model = Model::CUSTOM;
     config.flags[ExternalFlag::USE_MARTY] = true; // TODO : Théo not happy
-    config.mty_model_name = "THDM_Model";
+    config.mty_model_name = "THDM";
     config.mty_model_path = std::string(project_tp_root.data()) + "MARTY/src/MARTY/src/marty/models/thdm.h";
 
     hyp.init("lha/testinput_thdm.lha", config);

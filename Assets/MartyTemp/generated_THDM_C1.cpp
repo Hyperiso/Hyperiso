@@ -1,6 +1,6 @@
 #include <iostream>
-#include "/home/nfardeau/Hyperiso/Hyperiso/Third_party/MARTY/src/MARTY/src/marty/models/thdm.h"
-#include "/home/nfardeau/Hyperiso/Hyperiso/Third_party/MARTY/MARTY_INSTALL/include/marty.h"
+#include "/home/theo/hyperiso/Third_party/MARTY/src/MARTY/src/marty/models/thdm.h"
+#include "/home/theo/hyperiso/Third_party/MARTY/MARTY_INSTALL/include/marty.h"
 //42
 
 using namespace csl;
@@ -42,8 +42,8 @@ int calculate_C1(Model &model, gauge::Type gauge) {
     Expr C1 = getWilsonCoefficient(wil, O1);
     Replace(C1, e_em, sqrt_s(8 * G_F / sqrt_s(2)) * M_W * sin_s(theta_W));
 
-    [[maybe_unused]] int sysres = system("rm -rf libs/C1_SM");
-    mty::Library wilsonLib("C1_SM", "libs");
+    [[maybe_unused]] int sysres = system("rm -rf libs/C1_THDM");
+    mty::Library wilsonLib("C1_THDM", "libs");
     wilsonLib.cleanExistingSources();
     wilsonLib.addFunction("C1", C1);
     defineLibPath(wilsonLib);
@@ -53,6 +53,6 @@ int calculate_C1(Model &model, gauge::Type gauge) {
 }
 
 int main() {
-    SM_Model sm;
+    THDM_Model<1> sm;
     return calculate_C1(sm, gauge::Type::Feynman);
 }
