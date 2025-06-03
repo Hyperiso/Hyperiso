@@ -5,9 +5,7 @@ MartyWilson::MartyWilson(const LhaID& coeff_id, const std::string& storage_block
     : WilsonCoefficient(WCoefMapper::str(WCoefMapper::from_flha(coeff_id.get_parts()[0], coeff_id.get_parts()[1])), storage_block) {
     this->type = static_cast<ContributionType>(coeff_id.get_parts()[3]);
     this->set_model(model_name);
-    std::unordered_set<ParamId> sources {
-        {"EW_SCALE", 1}
-    };
+    std::unordered_set<ParamId> sources;
 
     std::string name = this->get_name();
 
@@ -17,11 +15,7 @@ MartyWilson::MartyWilson(const LhaID& coeff_id, const std::string& storage_block
     std::string marty_model_path = model_path;
     ContributionType cont = this->type;
 
-    matching_info[QCDOrder::LO] = {
-        {
-            {"EW_SCALE", 1}
-        },
-        [&sources, name, csv_path, marty_model, marty_model_path] (const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src) {
+    matching_info[QCDOrder::LO].compute = [&sources, name, csv_path, marty_model, marty_model_path] (const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src) {
         LOG_INFO("Updating coeff", name);
         double epsi = 1e-4;
         double ew_scale = src.at({ParameterType::WILSON, "EW_SCALE", 1})->get_val();
@@ -29,26 +23,6 @@ MartyWilson::MartyWilson(const LhaID& coeff_id, const std::string& storage_block
 
         CSVReader csv_reader;
         DataFrame df;
-
-        // for (size_t i = 0; i < df.getRowCount(); ++i) {
-        //     double Q_match = df.iat<double>(i, "Q_match");
-        //     if (fabs(Q_match - ew_scale) < epsi) {
-        //         std::cout << this->get_name() << " waw" << std::endl;
-        //         for (auto& _ : this->df.getColumnNames()) {
-        //             if (this->get_name()+"_real" == _) {
-        //                 if (isnan(df.iat<double>(i, this->get_name()+"_real")) && isnan(df.iat<double>(i, this->get_name()+"_img"))) {
-        //                     break;
-        //                 }
-        //                 std::cout << df.iat<double>(i, this->get_name()+"_real") << " BUTE" << std::endl;
-        //                 result = {df.iat<double>(i, this->get_name()+"_real"), df.iat<double>(i, this->get_name()+"_img")};
-        //                 dep_param->set_expected(result);
-        //                 return;
-        //                 // this->set_WilsonCoeffMatching("LO", {df.iat<double>(i, this->get_name()+"_real"), df.iat<double>(i, this->get_name()+"_img")});
-        //                 //return {df.iat<double>(i, this->get_name()+"_real"), df.iat<double>(i, this->get_name()+"_img")}; TODO
-        //             }
-        //         } 
-        //     }
-        // }
 
         MartyInterface martyInterface;
         martyInterface.calculate(name, marty_model, ew_scale, marty_model_path);
@@ -59,33 +33,40 @@ MartyWilson::MartyWilson(const LhaID& coeff_id, const std::string& storage_block
             double Q_match = df.iat<double>(i, "Q_match");
             if (fabs(Q_match - ew_scale) < epsi) {
                 result = {df.iat<double>(i, name+"_real"), df.iat<double>(i, name+"_img")};
-                break;
-                // this->set_WilsonCoeffMatching("LO", {df.iat<double>(i, this->get_name()+"_real"), df.iat<double>(i, this->get_name()+"_img")});
-                //return {df.iat<double>(i, this->get_name()+"_real"), df.iat<double>(i, this->get_name()+"_img")}; 
+                break; 
             }
         }
 
-        std::set<std::string> special = {"KIN", "WEIN", "Finite", "REGPROP"}; //TODO : do better with this, in SMParamSetter
-        for (auto &par : martyInterface.get_dependencies(name)) {
-            if (std::find(special.begin(), special.end(),par.block) != special.end()) {
-                continue;
-            }
-            if (par.is_bsm) {
-                sources.emplace(ParamId{ParameterType::BSM, par.block, par.code});
-            } else {
-                sources.emplace(ParamId{ParameterType::SM, par.block, par.code});
+        if (src.size() == 1) {
+            std::set<std::string> special = {"KIN", "WEIN", "Finite", "REGPROP"}; //TODO : do better with this, in SMParamSetter
+            for (auto &par : martyInterface.get_dependencies(name)) {
+                if (std::find(special.begin(), special.end(),par.block) != special.end()) {
+                    continue;
+                }
+                if (par.is_bsm) {
+                    sources.emplace(ParamId{ParameterType::BSM, par.block, par.code});
+                } else {
+                    sources.emplace(ParamId{ParameterType::SM, par.block, par.code});
+                }
             }
         }
+
         return result;
-    },
-        coeff_id
     };
 
+    LOG_INFO("Dummy run");
     ParamId pid {ParameterType::WILSON, "EW_SCALE", 1};
     std::unordered_map<ParamId, std::shared_ptr<Parameter>> dummy {{pid, std::make_shared<Parameter>(pid, 1, 0, 0)}};
     matching_info[QCDOrder::LO].compute(dummy);
 
+    sources.emplace(ParamId{ParameterType::WILSON, "EW_SCALE", 1});
     matching_info[QCDOrder::LO].sources = sources;
+    matching_info[QCDOrder::LO].lhaid = coeff_id;
+
+    WCoef coef = WCoefMapper::from_flha(coeff_id.parts[0], coeff_id.parts[1]);
+    ContributionType ct = static_cast<ContributionType>(coeff_id.parts[3]);
+    matching_info[QCDOrder::NLO].lhaid = WCoefMapper::flha_full(coef, QCDOrder::NLO, ct);
+    matching_info[QCDOrder::NNLO].lhaid = WCoefMapper::flha_full(coef, QCDOrder::NNLO, ct);
 }
 
 // void MartyWilson::LO_calculation() {

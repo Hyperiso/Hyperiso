@@ -80,7 +80,7 @@ void MemoryManager::read_lha_input(const std::string& lhaFile, const Config& con
 }
 
 fs::path MemoryManager::calculate_spectrum(fs::path input_lha_path, const Config &config) {
-    if (config.flags.at(ExternalFlag::USE_MARTY) || !(config.model == Model::THDM || config.model == Model::SUSY)) {
+    if (!(config.model == Model::THDM || config.model == Model::SUSY)) {
         return input_lha_path;
     }
 

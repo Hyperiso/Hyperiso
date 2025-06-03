@@ -8,7 +8,7 @@ using namespace c1_thdm;
 int main(int argc, char** argv) {
 
 	param_t param;
-	std::string ParamFilePath = "/home/theo/hyperiso/Assets/MartyTemp/libs/C1_THDM/bin/paramlist.csv";
+	std::string ParamFilePath = "/home/nfardeau/Hyperiso/Hyperiso/Assets/MartyTemp/libs/C1_THDM/bin/paramlist.csv";
 	std::ifstream ParamFile(ParamFilePath);
 	readParams(ParamFile, param.realParams, param.complexParams);
 	double Q_match = 80.379;
@@ -24,7 +24,7 @@ int main(int argc, char** argv) {
 		}
 	}
 
-	std::string path = "/home/theo/hyperiso/Assets/MartyTemp/THDM_wilson.csv";
+	std::string path = "/home/nfardeau/Hyperiso/Hyperiso/Assets/MartyTemp/THDM_wilson.csv";
 	setMu(Q_match);
 	writeWilsonCoefficients("C1", C1(param), Q_match, path);
     return 0;

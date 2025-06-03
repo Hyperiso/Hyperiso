@@ -38,11 +38,11 @@ void CoefficientManager::init_group_matching(const std::string& groupName, const
     {
     case QCDOrder::NNLO:
         init_specific_order_group_matching(groupName, OrderMapper::str(QCDOrder::NNLO), only_total++);
-        [[fallthrough]];
+        break;
         
     case QCDOrder::NLO:
         init_specific_order_group_matching(groupName, OrderMapper::str(QCDOrder::NLO), only_total++);
-        [[fallthrough]];
+        break;
 
     case QCDOrder::LO:
         init_specific_order_group_matching(groupName, OrderMapper::str(QCDOrder::LO), only_total++);
@@ -58,7 +58,7 @@ void CoefficientManager::init_specific_order_group_matching(const std::string& g
         throw_no_group_error(groupName);
     }
 
-    bool marty = HAS_WILSON_API().get();
+    bool marty = UseMarty().get();
     bool SM = ModelAPI().get() == Model::SM;
     
     if (!only_total) {

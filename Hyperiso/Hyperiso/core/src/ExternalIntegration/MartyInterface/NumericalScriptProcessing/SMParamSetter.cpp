@@ -1,7 +1,7 @@
 #include "SMParamSetter.h"
 
 void SMParamSetter::setParam(const std::string& name, const Interpreter::InterpretedParam& interpretedParam) {
-    LOG_INFO("setting parameter", name, interpretedParam.block, interpretedParam.code);
+    LOG_DEBUG("setting parameter", name, interpretedParam.block, interpretedParam.code);
     std::set<std::string> special = {"KIN", "WEIN", "Finite", "REGPROP"}; //TODO : put else where, needed in wilson marty
     if (special.find(interpretedParam.block) != special.end()) {
         params[name] = calculateValue(name, interpretedParam);

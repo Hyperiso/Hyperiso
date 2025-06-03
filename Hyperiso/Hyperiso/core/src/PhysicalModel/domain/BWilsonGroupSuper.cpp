@@ -1,61 +1,11 @@
 #include "BWilsonGroupSuper.h"
 
 
-BCoefficientGroup::BCoefficientGroup() {
+BCoefficientGroup::BCoefficientGroup(bool force_sm) {
     LOG_TRACE("In BCoefficientGroup constructor");
-    init_running_parameter_blocks();
     this->id = WGroup::B;
-
-    std::map<QCDOrder,CoefficientGroupSources> grp_src;
-
-    grp_src[QCDOrder::LO].sources = {
-        {ParameterType::WILSON, {this->get_matching_storage_block(), "WPARAM_RUN_SM", "WPARAM_MATCH_SM", "B_SCALE", "U_MATRIX"}},
-        {ParameterType::SM, {"SMINPUTS", "MASS"}}
-    };
-    grp_src[QCDOrder::LO].func = base_1_LO_calculation;
-
-    grp_src[QCDOrder::NLO].sources = grp_src[QCDOrder::LO].sources;
-    grp_src[QCDOrder::NLO].func = base_1_NLO_calculation;
-
-    grp_src[QCDOrder::NNLO].sources = grp_src[QCDOrder::LO].sources;
-    grp_src[QCDOrder::NNLO].func = base_1_NNLO_calculation;
-
-    this->sources.insert({WilsonBasis::B_STANDARD, grp_src});
-
-    std::map<QCDOrder,CoefficientGroupSources> grp_src_base2;
-
-    grp_src_base2[QCDOrder::LO].sources = {
-        {ParameterType::WILSON, {this->get_matching_storage_block(), "WPARAM_RUN_SM", "V_MATRIX"}}
-    };
-    grp_src_base2[QCDOrder::LO].func = base_2_LO_calculation;
-
-    grp_src_base2[QCDOrder::NLO].sources = grp_src_base2[QCDOrder::LO].sources;
-    grp_src_base2[QCDOrder::NLO].func = base_2_NLO_calculation;
-
-    this->sources.insert({WilsonBasis::B_TRADITIONAL, grp_src_base2});
-
-    if (UseMarty().get()) {
-        this->wilson_type = ContributionType::TOTAL;
-        for (auto&& coeff : {"C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9", "C10"}) {
-            std::string _name = MartyModelNameAPI().get();
-            fs::path _path = MartyModelPathAPI().get();
-            std::string _block = GroupMapper::str(this->id, ScaleType::MATCHING);
-            LhaID _id = WCoefMapper::flha_full(WCoefMapper::enum_elt(coeff), QCDOrder::LO, this->get_type());
-            this->insert(std::make_pair(coeff, std::make_shared<MartyWilson>(_id, _block, _name, _path)));
-        }
-        return;
-    }
-
-    this->insert(std::make_pair("C1", std::make_shared<C1>())); 
-    this->insert(std::make_pair("C2", std::make_shared<C2>())); 
-    this->insert(std::make_pair("C3", std::make_shared<C3>()));
-    this->insert(std::make_pair("C4", std::make_shared<C4>()));  
-    this->insert(std::make_pair("C5", std::make_shared<C5>())); 
-    this->insert(std::make_pair("C6", std::make_shared<C6>())); 
-    this->insert(std::make_pair("C7", std::make_shared<C7>()));  
-    this->insert(std::make_pair("C8", std::make_shared<C8>()));  
-    this->insert(std::make_pair("C9", std::make_shared<C9>())); 
-    this->insert(std::make_pair("C10", std::make_shared<C10>())); 
+    init_sources();
+    add_wilson_coefficients(force_sm);
 }
 
 std::shared_ptr<CoefficientGroup> BCoefficientGroup::clone() const {
@@ -453,6 +403,62 @@ void BCoefficientGroup::init_running_parameter_blocks() {
     composer.compose_block("V_MATRIX", mtx_src, V_func);
 
     LOG_VERBOSE("Running matrices updated");
+}
+
+void BCoefficientGroup::init_sources() {
+    init_running_parameter_blocks();
+    std::map<QCDOrder,CoefficientGroupSources> grp_src;
+
+    grp_src[QCDOrder::LO].sources = {
+        {ParameterType::WILSON, {this->get_matching_storage_block(), "WPARAM_RUN_SM", "WPARAM_MATCH_SM", "B_SCALE", "U_MATRIX"}},
+        {ParameterType::SM, {"SMINPUTS", "MASS"}}
+    };
+    grp_src[QCDOrder::LO].func = base_1_LO_calculation;
+
+    grp_src[QCDOrder::NLO].sources = grp_src[QCDOrder::LO].sources;
+    grp_src[QCDOrder::NLO].func = base_1_NLO_calculation;
+
+    grp_src[QCDOrder::NNLO].sources = grp_src[QCDOrder::LO].sources;
+    grp_src[QCDOrder::NNLO].func = base_1_NNLO_calculation;
+
+    this->sources.insert({WilsonBasis::B_STANDARD, grp_src});
+
+    std::map<QCDOrder,CoefficientGroupSources> grp_src_base2;
+
+    grp_src_base2[QCDOrder::LO].sources = {
+        {ParameterType::WILSON, {this->get_matching_storage_block(), "WPARAM_RUN_SM", "V_MATRIX"}}
+    };
+    grp_src_base2[QCDOrder::LO].func = base_2_LO_calculation;
+
+    grp_src_base2[QCDOrder::NLO].sources = grp_src_base2[QCDOrder::LO].sources;
+    grp_src_base2[QCDOrder::NLO].func = base_2_NLO_calculation;
+
+    this->sources.insert({WilsonBasis::B_TRADITIONAL, grp_src_base2});
+}
+
+void BCoefficientGroup::add_wilson_coefficients(bool force_sm) {
+    if (UseMarty().get()) {
+        this->wilson_type = force_sm ? ContributionType::SM : ContributionType::TOTAL;
+        for (auto&& coeff : {"C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9", "C10"}) {
+            std::string _name = force_sm ? "SM" : MartyModelNameAPI().get();
+            fs::path _path = force_sm ? fs::path(std::string(project_tp_root.data()) + "MARTY/src/MARTY/src/marty/models/sm.h") : MartyModelPathAPI().get();
+            std::string _block = GroupMapper::str(this->id, ScaleType::MATCHING);
+            LhaID _id = WCoefMapper::flha_full(WCoefMapper::enum_elt(coeff), QCDOrder::LO, this->get_type());
+            this->insert(std::make_pair(coeff, std::make_shared<MartyWilson>(_id, _block, _name, _path)));
+        }
+        return;
+    }
+
+    this->insert(std::make_pair("C1", std::make_shared<C1>())); 
+    this->insert(std::make_pair("C2", std::make_shared<C2>())); 
+    this->insert(std::make_pair("C3", std::make_shared<C3>()));
+    this->insert(std::make_pair("C4", std::make_shared<C4>()));  
+    this->insert(std::make_pair("C5", std::make_shared<C5>())); 
+    this->insert(std::make_pair("C6", std::make_shared<C6>())); 
+    this->insert(std::make_pair("C7", std::make_shared<C7>()));  
+    this->insert(std::make_pair("C8", std::make_shared<C8>()));  
+    this->insert(std::make_pair("C9", std::make_shared<C9>())); 
+    this->insert(std::make_pair("C10", std::make_shared<C10>())); 
 }
 
 std::shared_ptr<CoefficientGroup> BScalarCoefficientGroup::clone() const {

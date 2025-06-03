@@ -57,31 +57,62 @@ if (BUILD_WITH_2HDMC)
     find_package(GSL REQUIRED)
 
     set(DOWNLOAD_DIR "${CMAKE_BINARY_DIR}/downloads")
-    set(EXTRACT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../../../Third_party/2HDMC/src")
+    set(EXTRACT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../../../Third_party/2HDMC/src/src")
     set(TAR_FILE "${DOWNLOAD_DIR}/2HDMC-1.8.0.tar.gz")
     set(URL "https://2hdmc.hepforge.org/downloads/?f=2HDMC-1.8.0.tar.gz")
 
-    execute_process(
-        COMMAND ${CMAKE_COMMAND} -E make_directory ${DOWNLOAD_DIR}
-    )
-    execute_process(
-        COMMAND ${CMAKE_COMMAND} -E make_directory ${EXTRACT_DIR}
-    )
-    execute_process(
-        COMMAND wget -O ${TAR_FILE} ${URL}
-        WORKING_DIRECTORY ${DOWNLOAD_DIR}
-    )
-    execute_process(
-        COMMAND tar xzf ${TAR_FILE} --strip-components=1 -C ${EXTRACT_DIR}
-        WORKING_DIRECTORY ${DOWNLOAD_DIR}
-    )
+    # Vérifie d'abord si les fichiers sources existent déjà
+    if(NOT EXISTS "${EXTRACT_DIR}/THDM.cpp")
+        message(STATUS "2HDMC sources not found, preparing download and extraction...")
 
-    message(STATUS "2HDMC source files: ${THDM}")
+        file(MAKE_DIRECTORY ${DOWNLOAD_DIR})
+        file(MAKE_DIRECTORY ${EXTRACT_DIR})
 
-    target_sources(ExternalIntegrationLib PRIVATE "${EXTRACT_DIR}/src/THDM.cpp" "${EXTRACT_DIR}/src/SM.cpp" "${EXTRACT_DIR}/src/Util.cpp" "${EXTRACT_DIR}/src/DecayTable.cpp")
+        # Vérifie si le fichier existe mais semble corrompu
+        if(EXISTS ${TAR_FILE})
+            file(SIZE ${TAR_FILE} TAR_SIZE)
+            if(${TAR_SIZE} LESS 10000)
+                message(WARNING "2HDMC archive seems corrupted, removing it...")
+                file(REMOVE ${TAR_FILE})
+            endif()
+        endif()
+
+        if(NOT EXISTS ${TAR_FILE})
+            message(STATUS "Downloading 2HDMC source archive...")
+            execute_process(
+                COMMAND wget -O ${TAR_FILE} ${URL}
+                WORKING_DIRECTORY ${DOWNLOAD_DIR}
+                RESULT_VARIABLE DOWNLOAD_RESULT
+            )
+            if(NOT DOWNLOAD_RESULT EQUAL 0)
+                message(FATAL_ERROR "Failed to download 2HDMC archive from ${URL}")
+            endif()
+        else()
+            message(STATUS "2HDMC archive already exists, skipping download.")
+        endif()
+
+        message(STATUS "Extracting 2HDMC source files...")
+        execute_process(
+            COMMAND tar xzf ${TAR_FILE} --strip-components=1 -C ${EXTRACT_DIR}
+            WORKING_DIRECTORY ${DOWNLOAD_DIR}
+            RESULT_VARIABLE TAR_RESULT
+        )
+        if(NOT TAR_RESULT EQUAL 0)
+            message(FATAL_ERROR "Failed to extract 2HDMC archive.")
+        endif()
+    else()
+        message(STATUS "2HDMC source files already present, skipping download and extraction.")
+    endif()
+
+    # Ajout des fichiers à la target
+    target_sources(ExternalIntegrationLib PRIVATE
+        "${EXTRACT_DIR}/THDM.cpp"
+        "${EXTRACT_DIR}/SM.cpp"
+        "${EXTRACT_DIR}/Util.cpp"
+        "${EXTRACT_DIR}/DecayTable.cpp"
+    )
     target_link_libraries(ExternalIntegrationLib PRIVATE ${GSL_LIBRARIES})
-    target_include_directories(ExternalIntegrationLib PRIVATE "${EXTRACT_DIR}/src" ${GSL_INCLUDE_DIRS})
-    
+    target_include_directories(ExternalIntegrationLib PRIVATE "${EXTRACT_DIR}" ${GSL_INCLUDE_DIRS})
 endif()
 
 if (BUILD_WITH_MARTY)
