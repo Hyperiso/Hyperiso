@@ -31,7 +31,7 @@
 
 // class C_V1 : public WilsonCoefficient {
 // public:
-//     C_V1() : WilsonCoefficient("C_V1", GroupMapper::str(WGroup::BCLNU) + "_MATCH") {}
+//     C_V1() : WilsonCoefficient("C_V1", GroupMapper::str(WGroup::BCC) + "_MATCH") {}
 
 //     void LO_calculation();
 //     void NLO_calculation() {} 
@@ -44,7 +44,7 @@
 
 // class C_V2 : public WilsonCoefficient {
 // public:
-//     C_V2() : WilsonCoefficient("C_V2", GroupMapper::str(WGroup::BCLNU) + "_MATCH") {}
+//     C_V2() : WilsonCoefficient("C_V2", GroupMapper::str(WGroup::BCC) + "_MATCH") {}
 
 //     void LO_calculation() {}
 //     void NLO_calculation() {} 
@@ -57,7 +57,7 @@
 
 // class C_S1 : public WilsonCoefficient {
 // public:
-//     C_S1() : WilsonCoefficient("C_S1", GroupMapper::str(WGroup::BCLNU) + "_MATCH") {}
+//     C_S1() : WilsonCoefficient("C_S1", GroupMapper::str(WGroup::BCC) + "_MATCH") {}
 
 //     void LO_calculation() {}
 //     void NLO_calculation() {} 
@@ -71,7 +71,7 @@
 
 // class C_S2 : public WilsonCoefficient {
 // public:
-//     C_S2() : WilsonCoefficient("C_S2", GroupMapper::str(WGroup::BCLNU) + "_MATCH") {}
+//     C_S2() : WilsonCoefficient("C_S2", GroupMapper::str(WGroup::BCC) + "_MATCH") {}
 
 //     void LO_calculation() {}
 //     void NLO_calculation() {} 
@@ -84,7 +84,7 @@
 
 // class C_T : public WilsonCoefficient {
 // public:
-//     C_T() : WilsonCoefficient("C_T", GroupMapper::str(WGroup::BCLNU) + "_MATCH") {}
+//     C_T() : WilsonCoefficient("C_T", GroupMapper::str(WGroup::BCC) + "_MATCH") {}
 
 //     void LO_calculation() {}
 //     void NLO_calculation() {} 

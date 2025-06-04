@@ -64,6 +64,7 @@ void CoefficientManager::init_specific_order_group_matching(const std::string& g
     if (!only_total) {
         LOG_INFO("Initializing group", groupName, "at", order);
         this->coefficientGroups.at(groupName)->init(OrderMapper::enum_elt(order));
+        LOG_INFO("init ok");
         if (!SM) {
             LOG_INFO("Computing SM contribution");
             std::string sm_group = groupName + "_SM";
@@ -75,6 +76,8 @@ void CoefficientManager::init_specific_order_group_matching(const std::string& g
             sm_group_ptr->init(OrderMapper::enum_elt(order));
         }
     }
+
+    LOG_INFO("cc");
 
 
     QCDOrder enum_order = OrderMapper::enum_elt(order);
@@ -258,13 +261,17 @@ void CoefficientManager::init_group_hadronic(const std::string& groupName, const
         for (auto& [c_type, order_map] : res) { // Iterate over the contributions
             for (auto& [order, coef_map] : order_map) { // Iterate over the orders
                 for (auto& [coef_id, coef_val] : coef_map) { // Iterate over the coefficients
+                    LOG_INFO(ContributionTypeMapper::str(c_type), OrderMapper::str(order), (int)coef_id, coef_val);
                     LhaID coef_lha = WCoefMapper::flha_full(coef_id, order, c_type);
+                    LOG_INFO("LL_1");
                     ParamId pid {
                         ParameterType::WILSON, 
                         GroupMapper::str(GroupMapper::enum_elt(groupName), ScaleType::HADRONIC, false, basis), 
                         coef_lha
                     };
+                    LOG_INFO("LL_2");
                     dep_block->store_or_assign(pid.code, std::make_shared<Parameter>(pid, coef_val, 0., (int)c_type));
+                    LOG_INFO("LL_3");
                 }
             }
         }

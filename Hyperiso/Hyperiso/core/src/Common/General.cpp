@@ -215,7 +215,7 @@
 //     {WGroup::BPrime, "BPrimeCoefficients"},
 //     {WGroup::BScalar, "BScalarCoefficients"},
 //     {WGroup::Blnu, "BlnuCoefficients"},
-//     {WGroup::BCLNU, "BclnuCoefficients"},
+//     {WGroup::BCC, "BclnuCoefficients"},
 // }; 
 
 // const std::map<std::string, WGroup> GroupMapper::inverse_mapping = {
@@ -223,7 +223,7 @@
 //     {"BPrimeCoefficients", WGroup::BPrime},
 //     {"BScalarCoefficients", WGroup::BScalar},
 //     {"BlnuCoefficients", WGroup::Blnu},
-//     {"BclnuCoefficients", WGroup::BCLNU},
+//     {"BclnuCoefficients", WGroup::BCC},
 // }; 
 
 // const std::map<Observables, std::string> ObservableMapper::mapping = {

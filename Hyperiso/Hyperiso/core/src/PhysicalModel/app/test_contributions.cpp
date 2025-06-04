@@ -16,7 +16,7 @@ int main() {
     BlockProxy().log_block(ParameterType::BSM, "YE");
 
     WilsonBuildConfig wilson_config;
-    wilson_config.groups = {WGroup::BCLNU};
+    wilson_config.groups = {WGroup::BCC};
     wilson_config.matching_scale = 85.0;
     wilson_config.hadronic_scale = 4.5;
     wilson_config.order = QCDOrder::LO;
@@ -30,7 +30,7 @@ int main() {
     WilsonProvider wilson_provider = *builder.get_wilson_provider();
 
     std::shared_ptr<WilsonRequest> C7_request = std::make_shared<WilsonRequest>(
-        WGroup::BCLNU,
+        WGroup::BCC,
         WCoef::C_S1,
         QCDOrder::LO,
         ContributionType::SM,

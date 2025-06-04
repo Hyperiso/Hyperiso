@@ -112,7 +112,7 @@ void init_common(py::module &m) {
         .value("BPrime", WGroup::BPrime)
         .value("BScalar", WGroup::BScalar)
         .value("Blnu", WGroup::Blnu)
-        .value("BCLNU", WGroup::BCLNU)
+        .value("BCC", WGroup::BCC)
         .export_values();
 
     py::enum_<WilsonBasis>(m, "WilsonBasis")

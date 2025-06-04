@@ -178,15 +178,15 @@ double BDlnuDecay::G_S_T(double rD, double rl, double rqp, double rqm, double rh
 }
 
 complex_t BDlnuDecay::C_V() {
-    return w_proxy->getFM(WGroup::BCLNU, WCoef::C_V1, QCDOrder::LO) + w_proxy->getFM(WGroup::BCLNU, WCoef::C_V2, QCDOrder::LO);
+    return w_proxy->getFM(WGroup::BCC, WCoef::C_V1, QCDOrder::LO) + w_proxy->getFM(WGroup::BCC, WCoef::C_V2, QCDOrder::LO);
 }
 
 complex_t BDlnuDecay::C_S() {
-    return w_proxy->getFM(WGroup::BCLNU, WCoef::C_S1, QCDOrder::LO) + w_proxy->getFM(WGroup::BCLNU, WCoef::C_S2, QCDOrder::LO);
+    return w_proxy->getFM(WGroup::BCC, WCoef::C_S1, QCDOrder::LO) + w_proxy->getFM(WGroup::BCC, WCoef::C_S2, QCDOrder::LO);
 }
 
 complex_t BDlnuDecay::C_T() {
-    return w_proxy->getFM(WGroup::BCLNU, WCoef::C_T, QCDOrder::LO);
+    return w_proxy->getFM(WGroup::BCC, WCoef::C_T, QCDOrder::LO);
 }
 
 double BDlnuDecay::c_flag(complex_t C) {

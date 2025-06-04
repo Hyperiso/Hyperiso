@@ -40,7 +40,7 @@ public:
             case WGroup::BPrime: return B_prime_group();
             case WGroup::BScalar: return B_scalar_group();
             case WGroup::Blnu: return B_lnu_group();
-            case WGroup::BCLNU: return b_clnu_group();
+            case WGroup::BCC: return b_clnu_group();
             default:
                 LOG_ERROR("Invalid WGroup", "get_group function couldn't find your group");
         }

@@ -366,7 +366,7 @@
 
 // class C_V1_THDM : public WilsonCoefficient_THDM {
 // public:
-//     C_V1_THDM() : WilsonCoefficient_THDM("C_V1_THDM", GroupMapper::str(WGroup::BCLNU) + "_MATCH") {}
+//     C_V1_THDM() : WilsonCoefficient_THDM("C_V1_THDM", GroupMapper::str(WGroup::BCC) + "_MATCH") {}
 
 //     void LO_calculation() { } 
 //     void NLO_calculation() { } 
@@ -380,7 +380,7 @@
 
 // class C_V2_THDM : public WilsonCoefficient_THDM {
 // public:
-//     C_V2_THDM() : WilsonCoefficient_THDM("C_V2_THDM", GroupMapper::str(WGroup::BCLNU) + "_MATCH") {}
+//     C_V2_THDM() : WilsonCoefficient_THDM("C_V2_THDM", GroupMapper::str(WGroup::BCC) + "_MATCH") {}
 
 //     void LO_calculation() { } 
 //     void NLO_calculation() { } 
@@ -394,7 +394,7 @@
 
 // class C_S1_THDM : public WilsonCoefficient_THDM {
 // public:
-//     C_S1_THDM() : WilsonCoefficient_THDM("C_S1_THDM", GroupMapper::str(WGroup::BCLNU) + "_MATCH") {}
+//     C_S1_THDM() : WilsonCoefficient_THDM("C_S1_THDM", GroupMapper::str(WGroup::BCC) + "_MATCH") {}
 
 //     void LO_calculation();
 //     void NLO_calculation() { } 
@@ -408,7 +408,7 @@
 
 // class C_S2_THDM : public WilsonCoefficient_THDM {
 // public:
-//     C_S2_THDM() : WilsonCoefficient_THDM("C_S2_THDM", GroupMapper::str(WGroup::BCLNU) + "_MATCH") {}
+//     C_S2_THDM() : WilsonCoefficient_THDM("C_S2_THDM", GroupMapper::str(WGroup::BCC) + "_MATCH") {}
 
 //     void LO_calculation();
 //     void NLO_calculation() { } 
@@ -422,7 +422,7 @@
 
 // class C_T_THDM : public WilsonCoefficient_THDM {
 // public:
-//     C_T_THDM() : WilsonCoefficient_THDM("C_T_THDM", GroupMapper::str(WGroup::BCLNU) + "_MATCH") {}
+//     C_T_THDM() : WilsonCoefficient_THDM("C_T_THDM", GroupMapper::str(WGroup::BCC) + "_MATCH") {}
 
 //     void LO_calculation() { } 
 //     void NLO_calculation() { } 
@@ -521,7 +521,7 @@
 //         this->insert(std::make_pair("C_S2", std::make_shared<C_S2_THDM>()));
 //         this->insert(std::make_pair("C_T", std::make_shared<C_T_THDM>()));
 
-//         this->id = WGroup::BCLNU;
+//         this->id = WGroup::BCC;
 //         this->wilson_type = ContributionType::BSM;
 //     }
 

@@ -2,8 +2,8 @@
 
 
 scalar_t BlnuDecay::R(double m_B, double m_b, double m_tau) {
-    scalar_t C_A = w_proxy->getFM(WGroup::Blnu, WCoef::CBlnu_A, QCDOrder::LO);
-    scalar_t C_P = w_proxy->getFM(WGroup::Blnu, WCoef::CBlnu_P, QCDOrder::LO);
+    scalar_t C_A = w_proxy->getFM(WGroup::BCC, WCoef::C_V1, QCDOrder::LO);
+    scalar_t C_P = w_proxy->getFM(WGroup::BCC, WCoef::C_S1, QCDOrder::LO);
 
     return std::pow(std::abs(C_A + std::pow(m_B, 2) * C_P / (m_b * m_tau)), 2);
 }

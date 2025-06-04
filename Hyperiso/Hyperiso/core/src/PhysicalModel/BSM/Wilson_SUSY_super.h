@@ -288,27 +288,27 @@ public:
     }
 };
 
-class C_Blnu_A_SUSY : public WilsonCoefficient {
-public:
-    C_Blnu_A_SUSY() : WilsonCoefficient("C_Blnu_A_SUSY", GroupMapper::str(WGroup::B) + "_MATCH") { }
+// class C_Blnu_A_SUSY : public WilsonCoefficient {
+// public:
+//     C_Blnu_A_SUSY() : WilsonCoefficient("C_Blnu_A_SUSY", GroupMapper::str(WGroup::B) + "_MATCH") { }
 
  
 
-    std::shared_ptr<WilsonCoefficient> clone() const override {
-        return std::make_shared<C_Blnu_A_SUSY>(*this);
-    }
-};
+//     std::shared_ptr<WilsonCoefficient> clone() const override {
+//         return std::make_shared<C_Blnu_A_SUSY>(*this);
+//     }
+// };
 
-class C_Blnu_P_SUSY : public WilsonCoefficient {
-public:
-    C_Blnu_P_SUSY();
+// class C_Blnu_P_SUSY : public WilsonCoefficient {
+// public:
+//     C_Blnu_P_SUSY();
 
-    static scalar_t compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
+//     static scalar_t compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
 
-    std::shared_ptr<WilsonCoefficient> clone() const override {
-        return std::make_shared<C_Blnu_P_SUSY>(*this);
-    }
-};
+//     std::shared_ptr<WilsonCoefficient> clone() const override {
+//         return std::make_shared<C_Blnu_P_SUSY>(*this);
+//     }
+// };
 
 class C_V1_SUSY : public WilsonCoefficient {
 public:
@@ -421,20 +421,20 @@ private:
     susy_parameters* sus_param;
 };
 
-class BlnuCoefficientGroup_SUSY : public BlnuCoefficientGroup {
-public:
-    BlnuCoefficientGroup_SUSY() { this->clear();
+// class BlnuCoefficientGroup_SUSY : public BlnuCoefficientGroup {
+// public:
+//     BlnuCoefficientGroup_SUSY() { this->clear();
 
-        if (!susy_parameters::is_initialized()) {
-            susy_parameters::init();
-        }
-        this->insert(std::make_pair("C_Blnu_A", std::make_shared<C_Blnu_A_SUSY>())); 
-        this->insert(std::make_pair("C_Blnu_P", std::make_shared<C_Blnu_P_SUSY>()));
+//         if (!susy_parameters::is_initialized()) {
+//             susy_parameters::init();
+//         }
+//         this->insert(std::make_pair("C_Blnu_A", std::make_shared<C_Blnu_A_SUSY>())); 
+//         this->insert(std::make_pair("C_Blnu_P", std::make_shared<C_Blnu_P_SUSY>()));
 
-        this->id = WGroup::Blnu;
-        this->wilson_type = ContributionType::BSM;
-    }
-};
+//         this->id = WGroup::Blnu;
+//         this->wilson_type = ContributionType::BSM;
+//     }
+// };
 
 class BclnuCoefficientGroup_SUSY : public BclnuCoefficientGroup {
 public:
@@ -449,7 +449,7 @@ public:
         this->insert(std::make_pair("C_S2", std::make_shared<C_S2_SUSY>()));
         this->insert(std::make_pair("C_T", std::make_shared<C_T_SUSY>()));
 
-        this->id = WGroup::BCLNU;
+        this->id = WGroup::BCC;
         this->wilson_type = ContributionType::BSM;
     }
 

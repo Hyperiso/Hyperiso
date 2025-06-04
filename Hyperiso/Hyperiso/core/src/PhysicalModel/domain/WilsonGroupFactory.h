@@ -10,7 +10,7 @@
 class WilsonGroupFactory {
 public:
     static std::shared_ptr<CoefficientGroup> create_coefficient_group(WGroup group, Model model) {
-        if (model == Model::CUSTOM) {
+        if (UseMarty().get()) {
             model = Model::SM;
         }
 
@@ -23,9 +23,7 @@ public:
                     return std::make_shared<BPrimeCoefficientGroup>();
                 case WGroup::BScalar:
                     return std::make_shared<BScalarCoefficientGroup>();
-                case WGroup::Blnu:
-                    return std::make_shared<BlnuCoefficientGroup>();
-                case WGroup::BCLNU:
+                case WGroup::BCC:
                     return std::make_shared<BclnuCoefficientGroup>();
                 default:
                     LOG_ERROR("Invalid Argument", "Unknown group type", GroupMapper::str(group));
@@ -38,9 +36,7 @@ public:
                     return std::make_shared<BPrimeCoefficientGroup_susy>();
                 case WGroup::BScalar:
                     return std::make_shared<BScalarCoefficientGroup_susy>();
-                case WGroup::Blnu:
-                    return std::make_shared<BlnuCoefficientGroup_SUSY>();
-                case WGroup::BCLNU:
+                case WGroup::BCC:
                     return std::make_shared<BclnuCoefficientGroup_SUSY>();
                 default:
                     LOG_ERROR("Invalid Argument", "Unknown group type", GroupMapper::str(group));
@@ -53,9 +49,7 @@ public:
                     return std::make_shared<BPrimeCoefficientGroup_THDM>();
                 case WGroup::BScalar:
                     return std::make_shared<BScalarCoefficientGroup_THDM>();
-                case WGroup::Blnu:
-                    return std::make_shared<BlnuCoefficientGroup_THDM>();
-                case WGroup::BCLNU:
+                case WGroup::BCC:
                     return std::make_shared<BclnuCoefficientGroup_THDM>();
                 default:
                     LOG_ERROR("Invalid Argument", "Unknown group type", GroupMapper::str(group));

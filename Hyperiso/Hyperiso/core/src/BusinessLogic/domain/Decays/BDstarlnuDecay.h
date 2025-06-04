@@ -84,7 +84,7 @@ private:
 
 public:
     BDstarlnuDecay(QCDOrder order, double matching_scale, double hadronic_scale, std::shared_ptr<IObsWilsonBuilder<ObsWilsonProxy, WGroup>> wilson_builder) : DecayParent(matching_scale, hadronic_scale, order, wilson_builder) {
-        this->w_config.groups = {WGroup::BCLNU};
+        this->w_config.groups = {WGroup::BCC};
     }
 
     void build_op_tree() override;

@@ -512,7 +512,7 @@
 //         this->insert(std::make_pair("C_S2", std::make_shared<C_S2_SUSY>()));
 //         this->insert(std::make_pair("C_T", std::make_shared<C_T_SUSY>()));
 
-//         this->id = WGroup::BCLNU;
+//         this->id = WGroup::BCC;
 //         this->wilson_type = ContributionType::BSM;
 //     }
 

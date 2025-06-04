@@ -57,12 +57,12 @@ if (BUILD_WITH_2HDMC)
     find_package(GSL REQUIRED)
 
     set(DOWNLOAD_DIR "${CMAKE_BINARY_DIR}/downloads")
-    set(EXTRACT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../../../Third_party/2HDMC/src/src")
+    set(EXTRACT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../../../Third_party/2HDMC/")
     set(TAR_FILE "${DOWNLOAD_DIR}/2HDMC-1.8.0.tar.gz")
     set(URL "https://2hdmc.hepforge.org/downloads/?f=2HDMC-1.8.0.tar.gz")
 
     # Vérifie d'abord si les fichiers sources existent déjà
-    if(NOT EXISTS "${EXTRACT_DIR}/THDM.cpp")
+    if(NOT EXISTS "${EXTRACT_DIR}/src/THDM.cpp")
         message(STATUS "2HDMC sources not found, preparing download and extraction...")
 
         file(MAKE_DIRECTORY ${DOWNLOAD_DIR})
@@ -106,13 +106,13 @@ if (BUILD_WITH_2HDMC)
 
     # Ajout des fichiers à la target
     target_sources(ExternalIntegrationLib PRIVATE
-        "${EXTRACT_DIR}/THDM.cpp"
-        "${EXTRACT_DIR}/SM.cpp"
-        "${EXTRACT_DIR}/Util.cpp"
-        "${EXTRACT_DIR}/DecayTable.cpp"
+        "${EXTRACT_DIR}/src/THDM.cpp"
+        "${EXTRACT_DIR}/src/SM.cpp"
+        "${EXTRACT_DIR}/src/Util.cpp"
+        "${EXTRACT_DIR}/src/DecayTable.cpp"
     )
     target_link_libraries(ExternalIntegrationLib PRIVATE ${GSL_LIBRARIES})
-    target_include_directories(ExternalIntegrationLib PRIVATE "${EXTRACT_DIR}" ${GSL_INCLUDE_DIRS})
+    target_include_directories(ExternalIntegrationLib PRIVATE "${EXTRACT_DIR}/src" ${GSL_INCLUDE_DIRS})
 endif()
 
 if (BUILD_WITH_MARTY)

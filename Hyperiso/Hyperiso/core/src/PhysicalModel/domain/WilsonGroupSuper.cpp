@@ -52,7 +52,11 @@ void CoefficientGroup::init(QCDOrder max_order) {
                 // std::cout << "value of : " << coeff.second->get_name() << " at " << OrderMapper::str((QCDOrder)order) << " : " << func(src) << std::endl;
                 dep_param->set_expected(func(src));
             };
+            LOG_INFO("coucou");
+            for (auto& pid : coeff.second->get_sources((QCDOrder)order))
+                LOG_INFO(pid);
             WilsonParamComposer().compose_parameter(ParamId{coeff.second->get_storage_block(), coeff.second->get_lhaid((QCDOrder)order)}, coeff.second->get_sources((QCDOrder)order), func_wrapper);
+            LOG_INFO("composed");
         }
     }
     this->current_order = max_order;

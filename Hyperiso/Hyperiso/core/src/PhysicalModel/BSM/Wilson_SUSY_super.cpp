@@ -3779,32 +3779,32 @@ void BScalarCoefficientGroup_susy::set_base_1_LO() {
 
 }
 
-C_Blnu_P_SUSY::C_Blnu_P_SUSY() : WilsonCoefficient("C_Blnu_P_SUSY", GroupMapper::str(WGroup::B) + "_MATCH"){
-    matching_info[QCDOrder::LO] = {
-        {
-            {"WPARAM_SI_SM", 4},
-            {"WPARAM_SI_BSM", 4},
-            {"WPARAM_SI_BSM", 19},
-            {"WPARAM_SI_BSM", 7},
-            {"WPARAM_SI_BSM", 8},
-            {"WPARAM_SI_BSM", 10},
-            {"WPARAM_MATCH_SM", {2,1}},
-            {"WPARAM_MATCH_SM", {5,1}},
-            {ParameterType::SM, "MASS", 24}
-        },
-        compute_LO,
-        WCoefMapper::flha_full(WCoef::CBlnu_P, QCDOrder::LO, ContributionType::BSM)
-    };
-}
+// C_Blnu_P_SUSY::C_Blnu_P_SUSY() : WilsonCoefficient("C_Blnu_P_SUSY", GroupMapper::str(WGroup::B) + "_MATCH"){
+//     matching_info[QCDOrder::LO] = {
+//         {
+//             {"WPARAM_SI_SM", 4},
+//             {"WPARAM_SI_BSM", 4},
+//             {"WPARAM_SI_BSM", 19},
+//             {"WPARAM_SI_BSM", 7},
+//             {"WPARAM_SI_BSM", 8},
+//             {"WPARAM_SI_BSM", 10},
+//             {"WPARAM_MATCH_SM", {2,1}},
+//             {"WPARAM_MATCH_SM", {5,1}},
+//             {ParameterType::SM, "MASS", 24}
+//         },
+//         compute_LO,
+//         WCoefMapper::flha_full(WCoef::CBlnu_P, QCDOrder::LO, ContributionType::BSM)
+//     };
+// }
 
-scalar_t C_Blnu_P_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src) {
-    double mH = src.at({ParameterType::BSM, "MASS", 37})->get_val();
-    double tanb = src.at({ParameterType::BSM, "MINPAR", 3})->get_val();
-    double m_b = (*Parameters::GetInstance())("QCD", LhaID(5, 1));
-    double m_tau = src.at({ParameterType::SM, "MASS", 15})->get_val();
-    double epsilon0 = src.at({ParameterType::WILSON, "EPSILON_SUSY", {0,1}})->get_val();
-    return m_b * m_tau * std::pow(tanb / mH, 2) / (1 + epsilon0 * tanb);
-}
+// scalar_t C_Blnu_P_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src) {
+//     double mH = src.at({ParameterType::BSM, "MASS", 37})->get_val();
+//     double tanb = src.at({ParameterType::BSM, "MINPAR", 3})->get_val();
+//     double m_b = (*Parameters::GetInstance())("QCD", LhaID(5, 1));
+//     double m_tau = src.at({ParameterType::SM, "MASS", 15})->get_val();
+//     double epsilon0 = src.at({ParameterType::WILSON, "EPSILON_SUSY", {0,1}})->get_val();
+//     return m_b * m_tau * std::pow(tanb / mH, 2) / (1 + epsilon0 * tanb);
+// }
 
 C_S1_SUSY::C_S1_SUSY() : WilsonCoefficient("C_S1_SUSY", GroupMapper::str(WGroup::B) + "_MATCH"){
     matching_info[QCDOrder::LO] = {

@@ -45,7 +45,7 @@ enum class WGroup {
     BPrime, 
     BScalar,
     Blnu,
-    BCLNU,
+    BCC,
 };
 
 

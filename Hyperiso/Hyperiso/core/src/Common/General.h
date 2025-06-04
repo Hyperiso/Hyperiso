@@ -366,7 +366,7 @@ namespace std {
 //     BPrime, 
 //     BScalar,
 //     Blnu,
-//     BCLNU,
+//     BCC,
 // };
 
 // enum class WilsonBasis {
@@ -450,7 +450,7 @@ namespace std {
 //                 return B_scalar_group;
 //             case WGroup::Blnu:
 //                 return B_lnu_group;
-//             case WGroup::BCLNU:
+//             case WGroup::BCC:
 //                 return b_clnu_group;
 //             default:
 //                 LOG_ERROR("Invalid WGroup", "get_group function couldn't find your group");

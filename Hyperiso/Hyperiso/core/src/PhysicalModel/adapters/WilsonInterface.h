@@ -16,7 +16,6 @@ class WilsonInterface {
 private:
     std::shared_ptr<WilsonBuilder> builder;
     std::shared_ptr<WilsonProvider> provider;
-    std::map<std::string, std::shared_ptr<CoefficientGroup>> group_ptrs;
 
     QCDOrder ensure_mty_compat(QCDOrder order) {
         if (UseMarty().get() && !(order == QCDOrder::LO)) {
@@ -27,49 +26,10 @@ private:
     }
 
 public:
-    explicit WilsonInterface() {
-        LOG_INFO("In WilsonInterface constructor");
-        this->init_group_ptrs();
-        // this->builder = std::make_shared<WilsonBuilder>();
-    }
-
-    void init_group_ptrs() {
-        LOG_INFO("In WilsonInterface::init");
-        WilsonParameterHelper().init(2); // needed for group initialization (finding WPARAM_RUN_SM in blockaccessor)
-        switch(ModelAPI().get()) {
-            case Model::THDM:
-                this->group_ptrs = {
-                    {"BCoefficients", std::make_shared<BCoefficientGroup_THDM>()},
-                    {"BPrimeCoefficients", std::make_shared<BPrimeCoefficientGroup_THDM>()},
-                    {"BScalarCoefficients", std::make_shared<BScalarCoefficientGroup_THDM>()},
-                    {"BlnuCoefficients", std::make_shared<BlnuCoefficientGroup_THDM>()},
-                    {"BclnuCoefficients", std::make_shared<BclnuCoefficientGroup_THDM>()}
-                };
-                break;
-            case Model::SUSY:
-                this->group_ptrs = {
-                    {"BCoefficients", std::make_shared<BCoefficientGroup_susy>()},
-                    {"BPrimeCoefficients", std::make_shared<BPrimeCoefficientGroup_susy>()},
-                    {"BScalarCoefficients", std::make_shared<BScalarCoefficientGroup_susy>()},
-                    {"BlnuCoefficients", std::make_shared<BlnuCoefficientGroup_SUSY>()},
-                    {"BclnuCoefficients", std::make_shared<BclnuCoefficientGroup_SUSY>()}
-                };
-                break;
-            default:
-                this->group_ptrs = {
-                    {"BCoefficients", std::make_shared<BCoefficientGroup>()},
-                    {"BPrimeCoefficients", std::make_shared<BPrimeCoefficientGroup>()},
-                    {"BScalarCoefficients", std::make_shared<BScalarCoefficientGroup>()},
-                    {"BlnuCoefficients", std::make_shared<BlnuCoefficientGroup>()},
-                    {"BclnuCoefficients", std::make_shared<BclnuCoefficientGroup>()}
-                };
-                break;
-        }
-    }
+    WilsonInterface() = default;
 
     void build(WilsonBuildConfig config) {
         this->builder = std::make_shared<WilsonBuilder>(config);
-        // this->builder->build(config);
         this->provider = this->builder->get_wilson_provider();
     }
 

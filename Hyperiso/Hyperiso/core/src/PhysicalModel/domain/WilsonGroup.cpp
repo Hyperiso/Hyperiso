@@ -882,7 +882,7 @@
 //     this->insert(std::make_pair("C_S2", std::make_shared<C_S2>()));
 //     this->insert(std::make_pair("C_T", std::make_shared<C_T>()));
 
-//     this->id = WGroup::BCLNU;
+//     this->id = WGroup::BCC;
 // }
 
 // std::shared_ptr<CoefficientGroup> BclnuCoefficientGroup::clone() const {
@@ -897,14 +897,14 @@
 //     }
 
 //     std::unordered_map<ParameterType, std::vector<std::string>> src = {
-//         {ParameterType::WILSON, {GroupMapper::str(WGroup::BCLNU, ScaleType::MATCHING)}},
+//         {ParameterType::WILSON, {GroupMapper::str(WGroup::BCC, ScaleType::MATCHING)}},
 //     };
     
 //     auto func = [this] (const std::unordered_map<std::string, std::shared_ptr<Block>>& src, std::shared_ptr<DependentBlock> dep_block) {
 //         BclnuCoefficientGroup::base_1_LO_calculation(src, dep_block, this->wilson_type);
 //     };
 
-//     WilsonParamComposer().compose_block(GroupMapper::str(WGroup::BCLNU, ScaleType::HADRONIC) + "INTER", src, func);
+//     WilsonParamComposer().compose_block(GroupMapper::str(WGroup::BCC, ScaleType::HADRONIC) + "INTER", src, func);
 
 //     std::unordered_map<ParameterType, std::vector<std::string>> src_full = {
 //         {ParameterType::WILSON, {GroupMapper::str(this->id, ScaleType::HADRONIC) + "INTER", "WPARAM_RUN_SM"}}
@@ -917,16 +917,16 @@
 
 // void BclnuCoefficientGroup::base_1_LO_calculation(const std::unordered_map<std::string,std::shared_ptr<Block>>&src, std::shared_ptr<DependentBlock> dep_block, ContributionType type) {
 //     std::array<complex_t, 5> C_match = {};
-//     auto ids = WCoefMapper::get_group(WGroup::BCLNU);
+//     auto ids = WCoefMapper::get_group(WGroup::BCC);
 //     for (size_t k = 0; k < ids.size(); k++) {
-//         C_match[k] = ensure_coef(ids[k], QCDOrder::LO, type, GroupMapper::str(WGroup::BCLNU, ScaleType::MATCHING));
+//         C_match[k] = ensure_coef(ids[k], QCDOrder::LO, type, GroupMapper::str(WGroup::BCC, ScaleType::MATCHING));
 //     }
     
 //     // Store
 //     for (size_t k = 0; k < ids.size(); k++) {
 //         ParamId pid {
 //             ParameterType::WILSON, 
-//             GroupMapper::str(WGroup::BCLNU, ScaleType::HADRONIC) + "INTER", 
+//             GroupMapper::str(WGroup::BCC, ScaleType::HADRONIC) + "INTER", 
 //             WCoefMapper::flha_full(ids[k], QCDOrder::LO, ContributionType::SM)
 //         };
 //         dep_block->store_or_assign(pid.code, std::make_shared<Parameter>(pid, C_match[k], 0., 0.));

@@ -348,39 +348,39 @@ public:
     }
 };
 
-class C_Blnu_A_THDM : public WilsonCoefficient {
-public:
-    C_Blnu_A_THDM() : WilsonCoefficient("C_Blnu_A_THDM", GroupMapper::str(WGroup::Blnu) + "_MATCH") {}
+// class C_Blnu_A_THDM : public WilsonCoefficient {
+// public:
+//     C_Blnu_A_THDM() : WilsonCoefficient("C_Blnu_A_THDM", GroupMapper::str(WGroup::Blnu) + "_MATCH") {}
 
     
      
     
     
-    std::shared_ptr<WilsonCoefficient> clone() const override {
-        return std::make_shared<C_Blnu_A_THDM>(*this);
-    }
+//     std::shared_ptr<WilsonCoefficient> clone() const override {
+//         return std::make_shared<C_Blnu_A_THDM>(*this);
+//     }
 
-};
+// };
 
-class C_Blnu_P_THDM : public WilsonCoefficient {
-public:
-    C_Blnu_P_THDM();
+// class C_Blnu_P_THDM : public WilsonCoefficient {
+// public:
+//     C_Blnu_P_THDM();
 
     
      
     
 
-    std::shared_ptr<WilsonCoefficient> clone() const override {
-        return std::make_shared<C_Blnu_P_THDM>(*this);
-    }
+//     std::shared_ptr<WilsonCoefficient> clone() const override {
+//         return std::make_shared<C_Blnu_P_THDM>(*this);
+//     }
 
-    static double compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
+//     static double compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
 
-};
+// };
 
 class C_V1_THDM : public WilsonCoefficient {
 public:
-    C_V1_THDM() : WilsonCoefficient("C_V1_THDM", GroupMapper::str(WGroup::BCLNU) + "_MATCH") {}
+    C_V1_THDM() : WilsonCoefficient("C_V1_THDM", GroupMapper::str(WGroup::BCC) + "_MATCH") {}
 
      
      
@@ -394,7 +394,7 @@ public:
 
 class C_V2_THDM : public WilsonCoefficient {
 public:
-    C_V2_THDM() : WilsonCoefficient("C_V2_THDM", GroupMapper::str(WGroup::BCLNU) + "_MATCH") {}
+    C_V2_THDM() : WilsonCoefficient("C_V2_THDM", GroupMapper::str(WGroup::BCC) + "_MATCH") {}
 
      
      
@@ -436,7 +436,7 @@ public:
 
 class C_T_THDM : public WilsonCoefficient {
 public:
-    C_T_THDM() : WilsonCoefficient("C_T_THDM", GroupMapper::str(WGroup::BCLNU) + "_MATCH") {}
+    C_T_THDM() : WilsonCoefficient("C_T_THDM", GroupMapper::str(WGroup::BCC) + "_MATCH") {}
 
      
      
@@ -523,27 +523,38 @@ public:
     void set_base_2();
 };
 
-class BlnuCoefficientGroup_THDM : public BlnuCoefficientGroup {
-public:
-    BlnuCoefficientGroup_THDM() { this->clear();
+// class BlnuCoefficientGroup_THDM : public BlnuCoefficientGroup {
+// public:
+//     BlnuCoefficientGroup_THDM() { 
+//         this->id = WGroup::Blnu;
+//         this->wilson_type = ContributionType::BSM;
+//         if (UseMarty().get()) {
+//             this->wilson_type = ContributionType::TOTAL;
+//             return;
+//         }
+//         this->clear();
 
-        if (!thdm_parameters::is_initialized()) {
-            thdm_parameters::init();
-        }
-        this->insert(std::make_pair("C_Blnu_A", std::make_shared<C_Blnu_A_THDM>())); 
-        this->insert(std::make_pair("C_Blnu_P", std::make_shared<C_Blnu_P_THDM>()));
+//         if (!thdm_parameters::is_initialized()) {
+//             thdm_parameters::init();
+//         }
+//         this->insert(std::make_pair("C_Blnu_A", std::make_shared<C_Blnu_A_THDM>())); 
+//         this->insert(std::make_pair("C_Blnu_P", std::make_shared<C_Blnu_P_THDM>()));
+//     }
 
-        this->id = WGroup::Blnu;
-        this->wilson_type = ContributionType::BSM;
-    }
-
-    void set_base_1() {}
-    void set_base_2() {}
-};
+//     void set_base_1() {}
+//     void set_base_2() {}
+// };
 
 class BclnuCoefficientGroup_THDM : public BclnuCoefficientGroup {
 public:
-    BclnuCoefficientGroup_THDM() { this->clear();
+    BclnuCoefficientGroup_THDM() { 
+        this->id = WGroup::BCC;
+        this->wilson_type = ContributionType::BSM;
+        if (UseMarty().get()) {
+            this->wilson_type = ContributionType::TOTAL;
+            return;
+        }
+        this->clear();
 
         if (!thdm_parameters::is_initialized()) {
             thdm_parameters::init();
@@ -553,9 +564,6 @@ public:
         this->insert(std::make_pair("C_S1", std::make_shared<C_S1_THDM>()));
         this->insert(std::make_pair("C_S2", std::make_shared<C_S2_THDM>()));
         this->insert(std::make_pair("C_T", std::make_shared<C_T_THDM>()));
-
-        this->id = WGroup::BCLNU;
-        this->wilson_type = ContributionType::BSM;
     }
 
     void set_base_1() {}

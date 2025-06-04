@@ -39,8 +39,8 @@ const std::map<WGroup, std::string>& group_mapping() {
         {WGroup::B, "BCoefficients"},
         {WGroup::BPrime, "BPrimeCoefficients"},
         {WGroup::BScalar, "BScalarCoefficients"},
-        {WGroup::Blnu, "BlnuCoefficients"},
-        {WGroup::BCLNU, "BclnuCoefficients"},
+        // {WGroup::Blnu, "BlnuCoefficients"},
+        {WGroup::BCC, "BChargedCurrentCoefficients"},
     };
     return m;
 }
