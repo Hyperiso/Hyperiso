@@ -20,7 +20,7 @@ bool MartyAdapter::check_flag(InternalFlag flag) {
     return MemoryManager::GetInstance()->getMemoryCache().flags.at(flag);
 }
 
-std::string MartyAdapter::get_marty_model_name() {
+std::string MartyAdapter::get_marty_model_name() const{
     auto m_name = MemoryManager::GetInstance()->getMemoryCache().config.mty_model_name;
 
     if (!m_name.has_value()) {

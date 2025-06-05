@@ -15,6 +15,6 @@ std::shared_ptr<ObsWilsonProxy> ObsWilsonBuilder::get_proxy() {
     return std::make_shared<ObsWilsonProxy>(wil_builder->get_wilson_provider());
 }
 
-void ObsWilsonBuilder::switch_basis(WGroup group) {
-    this->wil_builder->switch_basis(group);
-}
+// void ObsWilsonBuilder::switch_basis(WGroup group) {
+//     this->wil_builder->switch_basis(group);
+// }

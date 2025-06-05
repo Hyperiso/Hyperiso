@@ -40,7 +40,7 @@ public:
      * @brief Retrieves the name of the MARTY model currently configured.
      * @return The name of the MARTY model.
      */
-    std::string get_marty_model_name();
+    std::string get_marty_model_name() const;
 };
 
 

@@ -51,7 +51,7 @@ public:
 
     void enable() {
         DecayParent::enable();
-        this->w_builder->switch_basis(WGroup::B);
+        // this->w_builder->switch_basis(WGroup::B); //TODO or not TODO, something to do here ?
     }
 
     void build_op_tree() override;

@@ -116,13 +116,13 @@ void init_wilson_interface(py::module &m) {
 
     py::class_<WilsonInterface, std::shared_ptr<WilsonInterface>>(m, "WilsonInterface")
         .def(py::init<>())
-        .def("add_wilson_group", &WilsonInterface::addWilsonGroup, py::arg("group_name"))
+        // .def("add_wilson_group", &WilsonInterface::addWilsonGroup, py::arg("group_name")) //TODO : do that again
         // .def("set_params", &WilsonInterface::setParams)
-        .def("init_group_matching", &WilsonInterface::init_group_matching, py::arg("group_name"), py::arg("order"))
-        .def("init_group_hadronic", &WilsonInterface::init_group_hadronic, py::arg("group_name"), py::arg("order"))
+        // .def("init_group_matching", &WilsonInterface::init_group_matching, py::arg("group_name"), py::arg("order"))
+        // .def("init_group_hadronic", &WilsonInterface::init_group_hadronic, py::arg("group_name"), py::arg("order"))
         .def("set_matching_scale", &WilsonInterface::set_matching_scale, py::arg("mu_W"))
         .def("set_hadronic_scale", &WilsonInterface::set_hadronic_scale, py::arg("mu_h"))
-        .def("switch_basis", &WilsonInterface::switchbasis, py::arg("group_name"))
+        // .def("switch_basis", &WilsonInterface::switchbasis, py::arg("group_name"))
         .def("get_matching_coefficient", &WilsonInterface::getMatchingCoefficient)
         .def("get_M", &WilsonInterface::getM)
         .def("get_full_matching_coefficient", &WilsonInterface::getFullMatchingCoefficient)

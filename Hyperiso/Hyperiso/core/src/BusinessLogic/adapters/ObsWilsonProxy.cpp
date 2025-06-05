@@ -2,49 +2,52 @@
 #include "ObsWilsonBuilder.h"
 
 complex_t ObsWilsonProxy::getM(WGroup group, WCoef coeff, QCDOrder order, bool sm_only) {
-    WilsonRequest request;
-    request.group = group;
-    request.coefficient = coeff;
-    request.order = order;
-    request.scale_type = ScaleType::MATCHING;
-    request.contribution = sm_only ? ContributionType::SM : ContributionType::TOTAL;
-    request.sum_qcd_orders = false;
+    WilsonRequest request{group, coeff, order, sm_only ? ContributionType::SM : ContributionType::TOTAL, ScaleType::MATCHING, false};
+    // request.group = group;
+    // request.coefficient = coeff;
+    // request.order = order;
+    // request.scale_type = ScaleType::MATCHING;
+    // request.contribution = sm_only ? ContributionType::SM : ContributionType::TOTAL;
+    // request.sum_qcd_orders = false;
 
     return this->wil_p->get(std::make_shared<WilsonRequest>(request));
 }
 
 complex_t ObsWilsonProxy::getFM(WGroup group, WCoef coeff, QCDOrder order, bool sm_only) {
-    WilsonRequest request;
-    request.group = group;
-    request.coefficient = coeff;
-    request.order = order;
-    request.scale_type = ScaleType::MATCHING;
-    request.contribution = sm_only ? ContributionType::SM : ContributionType::TOTAL;
+    WilsonRequest request{group, coeff, order, sm_only ? ContributionType::SM : ContributionType::TOTAL, ScaleType::MATCHING, true};
+    // WilsonRequest request;
+    // request.group = group;
+    // request.coefficient = coeff;
+    // request.order = order;
+    // request.scale_type = ScaleType::MATCHING;
+    // request.contribution = sm_only ? ContributionType::SM : ContributionType::TOTAL;
     request.sum_qcd_orders = true;
 
     return this->wil_p->get(std::make_shared<WilsonRequest>(request));
 }
 
 complex_t ObsWilsonProxy::getR(WGroup group, WCoef coeff, QCDOrder order, bool sm_only) {
-    WilsonRequest request;
-    request.group = group;
-    request.coefficient = coeff;
-    request.order = order;
-    request.scale_type = ScaleType::HADRONIC;
-    request.contribution = sm_only ? ContributionType::SM : ContributionType::TOTAL;
-    request.sum_qcd_orders = false;
+    WilsonRequest request{group, coeff, order, sm_only ? ContributionType::SM : ContributionType::TOTAL, ScaleType::HADRONIC, false};
+    // WilsonRequest request;
+    // request.group = group;
+    // request.coefficient = coeff;
+    // request.order = order;
+    // request.scale_type = ScaleType::HADRONIC;
+    // request.contribution = sm_only ? ContributionType::SM : ContributionType::TOTAL;
+    // request.sum_qcd_orders = false;
 
     return this->wil_p->get(std::make_shared<WilsonRequest>(request));
 }
 
 complex_t ObsWilsonProxy::getFR(WGroup group, WCoef coeff, QCDOrder order, bool sm_only){
-    WilsonRequest request;
-    request.group = group;
-    request.coefficient = coeff;
-    request.order = order;
-    request.scale_type = ScaleType::HADRONIC;
-    request.contribution = sm_only ? ContributionType::SM : ContributionType::TOTAL;
-    request.sum_qcd_orders = true;
+    WilsonRequest request{group, coeff, order, sm_only ? ContributionType::SM : ContributionType::TOTAL, ScaleType::HADRONIC, true};
+    // WilsonRequest request;
+    // request.group = group;
+    // request.coefficient = coeff;
+    // request.order = order;
+    // request.scale_type = ScaleType::HADRONIC;
+    // request.contribution = sm_only ? ContributionType::SM : ContributionType::TOTAL;
+    // request.sum_qcd_orders = true;
 
     return this->wil_p->get(std::make_shared<WilsonRequest>(request));
 }
@@ -98,6 +101,6 @@ std::map<WCoef, complex_t> ObsWilsonProxy::getAFR(WGroup group, QCDOrder order, 
 }
 
 std::shared_ptr<ObsWilsonBuilder> ObsWilsonProxy::get_builder() {
-    auto wilson_builder = std::static_pointer_cast<IWilsonBuilder<WilsonBuildConfig, WGroup, WilsonProvider>>(this->wil_p->get_builder());
+    auto wilson_builder = std::static_pointer_cast<IWilsonBuilder<WilsonBuildConfig, WilsonProvider>>(this->wil_p->get_builder());
     return std::make_shared<ObsWilsonBuilder>(wilson_builder);
 }

@@ -10,7 +10,7 @@ public:
     virtual ~IObsWilsonBuilder() = default;	
 
     virtual void build(std::shared_ptr<AbstractConfig>) = 0;
-    virtual void switch_basis(IdType) = 0;
+    // virtual void switch_basis(IdType) = 0;
     virtual std::shared_ptr<ProxyType> get_proxy() = 0;
 };
 

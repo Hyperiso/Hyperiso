@@ -15,6 +15,8 @@
 #include "Freezer.h"
 #include "DBMemento.h"
 #include "APIAdapter.h"
+#include "ParameterShifter.h"
+#include "MartyAdapter.h"
 
 namespace py = pybind11;
 

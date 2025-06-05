@@ -98,8 +98,8 @@ void init_common(py::module &m) {
         .value("CP10", WCoef::CP10)
         .value("CPQ1", WCoef::CPQ1)
         .value("CPQ2", WCoef::CPQ2)
-        .value("CBlnu_A", WCoef::CBlnu_A)
-        .value("CBlnu_P", WCoef::CBlnu_P)
+        // .value("CBlnu_A", WCoef::CBlnu_A)
+        // .value("CBlnu_P", WCoef::CBlnu_P)
         .value("C_V1", WCoef::C_V1)
         .value("C_V2", WCoef::C_V2)
         .value("C_S1", WCoef::C_S1)
@@ -111,7 +111,7 @@ void init_common(py::module &m) {
         .value("B", WGroup::B)
         .value("BPrime", WGroup::BPrime)
         .value("BScalar", WGroup::BScalar)
-        .value("Blnu", WGroup::Blnu)
+        // .value("Blnu", WGroup::Blnu)
         .value("BCC", WGroup::BCC)
         .export_values();
 
@@ -153,7 +153,7 @@ void init_common(py::module &m) {
     
     BIND_ENUM_MAPPER(ObservableMapper, Observables)
     BIND_ENUM_MAPPER(OrderMapper, QCDOrder)
-    BIND_ENUM_MAPPER(GroupMapper, WGroup)
+    // BIND_ENUM_MAPPER(GroupMapper, WGroup)
     // BIND_ENUM_MAPPER(WCoefMapper, WCoef)
     BIND_ENUM_MAPPER(ParameterTypeMapper, ParameterType)
     BIND_ENUM_MAPPER(ModelMapper, Model)
@@ -180,8 +180,23 @@ void init_common(py::module &m) {
         .def_static("B_group", &WCoefMapper::B_group, py::return_value_policy::reference)
         .def_static("B_prime_group", &WCoefMapper::B_prime_group, py::return_value_policy::reference)
         .def_static("B_scalar_group", &WCoefMapper::B_scalar_group, py::return_value_policy::reference)
-        .def_static("B_lnu_group", &WCoefMapper::B_lnu_group, py::return_value_policy::reference)
+        // .def_static("B_lnu_group", &WCoefMapper::B_lnu_group, py::return_value_policy::reference)
         .def_static("b_clnu_group", &WCoefMapper::b_clnu_group, py::return_value_policy::reference);
+
+    py::class_<GroupMapper, std::shared_ptr<GroupMapper>>(m, "GroupMapper")
+        .def_static(
+            "str",
+            static_cast<std::string(*)(WGroup)>(&GroupMapper::str),
+            py::arg("group")
+        )
+        .def_static(
+            "str",
+            static_cast<std::string(*)(WGroup, ScaleType, WilsonBasis)>(&GroupMapper::str),
+            py::arg("group"), py::arg("scale"), py::arg("basis") = WilsonBasis::B_STANDARD
+        )
+        .def_static("enum_elt", &GroupMapper::enum_elt, py::arg("name"))
+        .def_static("get_str", &GroupMapper::get_str)
+        .def_static("get_enum", &GroupMapper::get_enum);
 
     py::class_<ScaleTypeMapper, std::shared_ptr<ScaleTypeMapper>>(m, "ScaleTypeMapper")
         .def_static("str", &ScaleTypeMapper::str, py::arg("type"))
@@ -316,7 +331,7 @@ void init_common(py::module &m) {
         .def_readwrite("order", &WilsonBuildConfig::order);
     
     py::class_<WilsonRequest>(m, "WilsonRequest")
-        .def(py::init<>())
+        .def(py::init<WGroup, WCoef, QCDOrder, ContributionType, ScaleType, bool>())
         .def_readwrite("group", &WilsonRequest::group)
         .def_readwrite("coefficient", &WilsonRequest::coefficient)
         .def_readwrite("order", &WilsonRequest::order)
