@@ -64,9 +64,11 @@ void init_core(py::module &m) {
     .def("get_model", &HyperisoMaster::get_model);
 
     // ParameterSetter
-    py::class_<ParameterSetter, std::shared_ptr<ParameterSetter>>(m, "ParameterSetter")
+    py::class_<ParameterShifter, std::shared_ptr<ParameterShifter>>(m, "ParameterShifter")
     .def(py::init<>())
-    .def("mutate", &ParameterSetter::mutate);
+
+    .def("mutate", &ParameterShifter::mutate, py::arg("pid"), py::arg("value"))
+    .def("change_mode", &ParameterShifter::change_mode, py::arg("pid"), py::arg("mode"));
 
     // ParameterProvider::DataType
     py::enum_<ParameterProvider::DataType>(m, "DataType")
@@ -76,15 +78,39 @@ void init_core(py::module &m) {
     .value("STD_COMBINED", ParameterProvider::DataType::STD_COMBINED)
     .export_values();
 
-    // ParameterProvider
     py::class_<ParameterProvider, std::shared_ptr<ParameterProvider>>(m, "ParameterProvider")
     .def(py::init<>())
-    .def(py::init<ParameterType>())
-    .def("__call__", py::overload_cast<const ParamId&, ParameterProvider::DataType>(&ParameterProvider::operator()), py::arg("pid"), py::arg("d_type") = ParameterProvider::DataType::VALUE)
-    .def("__call__", py::overload_cast<const std::string&, const LhaID&, ParameterProvider::DataType>(&ParameterProvider::operator(), py::const_), py::arg("block"), py::arg("id"), py::arg("d_type") = ParameterProvider::DataType::VALUE)
-    .def("exists", py::overload_cast<const ParamId&>(&ParameterProvider::exists, py::const_))
-    .def("exists", py::overload_cast<const std::string&, const LhaID&>(&ParameterProvider::exists, py::const_))
-    .def("get_type", &ParameterProvider::get_type);
+    .def(py::init<ParameterType>(), py::arg("type"))
+
+    .def("__call__",
+         py::overload_cast<const ParamId&, ParameterProvider::DataType>(&ParameterProvider::operator()),
+         py::arg("pid"), py::arg("d_type") = ParameterProvider::DataType::VALUE)
+
+    .def("__call__",
+         py::overload_cast<const std::string&, const LhaID&, ParameterProvider::DataType>(&ParameterProvider::operator(), py::const_),
+         py::arg("block"), py::arg("id"), py::arg("d_type") = ParameterProvider::DataType::VALUE)
+
+    .def("exists",
+         py::overload_cast<const ParamId&>(&ParameterProvider::exists, py::const_),
+         py::arg("pid"))
+
+    .def("exists",
+         py::overload_cast<const std::string&, const LhaID&>(&ParameterProvider::exists, py::const_),
+         py::arg("block"), py::arg("id"))
+
+    .def("get_type", &ParameterProvider::get_type)
+
+    .def("get_parameter", &ParameterProvider::get_parameter, py::arg("pid"))
+
+    .def("__repr__", [](const ParameterProvider& self) {
+        std::ostringstream oss;
+        oss << "<ParameterProvider type=";
+        if (auto t = self.get_type(); true) {
+            oss << static_cast<int>(t);
+        }
+        oss << ">";
+        return oss.str();
+    });
 
 
     // CorrelationProvider
@@ -127,10 +153,31 @@ void init_core(py::module &m) {
 
     // DBMemento
     py::class_<DBMemento, std::shared_ptr<DBMemento>>(m, "DBMemento")
-    .def(py::init<>())
-    .def("takeSnapshot", &DBMemento::takeSnapshot, py::arg("blocks"))
-    .def("restore", &DBMemento::restore, py::arg("n_steps") = 1)
-    .def("print_snapshot_content", &DBMemento::print_snapshot_content, py::arg("n") = 1)
-    .def("stack_size", &DBMemento::stack_size);
+        .def(py::init<>())
+        .def("takeSnapshot", &DBMemento::takeSnapshot, py::arg("blocks"))
+        .def("restore", &DBMemento::restore, py::arg("n_steps") = 1)
+        .def("print_snapshot_content", &DBMemento::print_snapshot_content, py::arg("n") = 1)
+        .def("stack_size", &DBMemento::stack_size);
+
+            py::enum_<MartyPath>(m, "MartyPath")
+        .value("MODEL_FILE", MartyPath::MODEL_FILE)
+        .value("TEMPLATE_DIR", MartyPath::TEMPLATE_DIR)
+        .value("PARAM_MAPPING_DIR", MartyPath::PARAM_MAPPING_DIR)
+        .export_values();
+
+    py::class_<MartyAdapter, std::shared_ptr<MartyAdapter>>(m, "MartyAdapter")
+        .def(py::init<>())
+
+        .def("get_path", [](MartyAdapter& self, MartyPath path) {
+            return self.get_path(path).string();
+        }, py::arg("path"))
+
+        .def("check_flag", &MartyAdapter::check_flag, py::arg("flag"))
+
+        .def("get_marty_model_name", &MartyAdapter::get_marty_model_name)
+
+        .def("__repr__", [](const MartyAdapter& self) {
+            return "<MartyAdapter: model=" + self.get_marty_model_name() + ">";
+        });
 
 }

@@ -171,7 +171,17 @@ void init_common(py::module &m) {
         .def_static("get_group", &WCoefMapper::get_group, py::arg("group"))
         .def_static("flha_base", &WCoefMapper::flha_base, py::arg("coef"))
         .def_static("flha_full", &WCoefMapper::flha_full, py::arg("coef"), py::arg("order"), py::arg("type"))
-        .def_static("from_flha", &WCoefMapper::from_flha, py::arg("content"), py::arg("structure"));
+        .def_static("from_flha", &WCoefMapper::from_flha, py::arg("content"), py::arg("structure"))
+        .def_static("n_wilsons", &WCoefMapper::n_wilsons)
+        .def_static("mapping", &WCoefMapper::mapping, py::return_value_policy::reference)
+        .def_static("inverse_mapping", &WCoefMapper::inverse_mapping, py::return_value_policy::reference)
+        .def_static("flha_mapping", &WCoefMapper::flha_mapping, py::return_value_policy::reference)
+        .def_static("inverse_flha_mapping", &WCoefMapper::inverse_flha_mapping, py::return_value_policy::reference)
+        .def_static("B_group", &WCoefMapper::B_group, py::return_value_policy::reference)
+        .def_static("B_prime_group", &WCoefMapper::B_prime_group, py::return_value_policy::reference)
+        .def_static("B_scalar_group", &WCoefMapper::B_scalar_group, py::return_value_policy::reference)
+        .def_static("B_lnu_group", &WCoefMapper::B_lnu_group, py::return_value_policy::reference)
+        .def_static("b_clnu_group", &WCoefMapper::b_clnu_group, py::return_value_policy::reference);
 
     py::class_<ScaleTypeMapper, std::shared_ptr<ScaleTypeMapper>>(m, "ScaleTypeMapper")
         .def_static("str", &ScaleTypeMapper::str, py::arg("type"))
@@ -190,21 +200,105 @@ void init_common(py::module &m) {
 
  
     py::class_<LhaID>(m, "LhaID")
-        .def(py::init<const std::string&>())
-        .def(py::init<long>())
-        .def(py::init<const std::vector<long>&>())
-        .def("__int__", [](const LhaID& self) { return static_cast<long>(self); })
-        .def("to_string", &LhaID::to_string)
-        .def("get_parts", &LhaID::get_parts);
+    .def(py::init<const std::string&>(), py::arg("parts"))
+    .def(py::init<long>(), py::arg("id"))
+    .def(py::init<const std::vector<long>&>(), py::arg("sub_ids"))
+    .def(py::init<std::initializer_list<long>>(), py::arg("sub_ids"))
+    .def(py::init([](py::args args) {
+        std::vector<long> values;
+        for (auto& item : args) {
+            values.push_back(item.cast<long>());
+        }
+        return LhaID(values);
+    }), "Construct from multiple long arguments")
+
+    .def("to_string", &LhaID::to_string)
+    .def("get_parts", &LhaID::get_parts)
+
+    .def("__int__", [](const LhaID& self) { return static_cast<long>(self); })
+
+    .def("__repr__", [](const LhaID& self) {
+        return "<LhaID: " + self.to_string() + ">";
+    })
+
+    .def(py::self == py::self)
+    .def(py::self != py::self)
+    .def(py::self < py::self)
+
+    .def("__hash__", [](const LhaID& self) {
+        return std::hash<LhaID>{}(self);
+    });
+
+    py::class_<BlockName>(m, "BlockName")
+
+    .def(py::init<>())
+    .def(py::init<const std::string&>(), py::arg("name"))
+    .def(py::init<const char*>(), py::arg("name"))
+    .def(py::init<std::initializer_list<std::string>>(), py::arg("names"))
+    .def(py::init<const std::unordered_set<std::string>&>(), py::arg("names"))
+
+    .def("get_alias", &BlockName::get_alias)
+    .def("has_alias", &BlockName::hasAlias, py::arg("alias"))
+    .def("add_alias", &BlockName::addAlias, py::arg("alias"), py::return_value_policy::reference)
+    .def("to_string", &BlockName::to_string)
+    .def("to_upper", &BlockName::to_upper)
+
+    .def("__str__", &BlockName::to_string)
+    .def("__repr__", [](const BlockName& b) {
+        std::ostringstream oss;
+        oss << "<BlockName: ";
+        bool first = true;
+        for (const auto& name : b.get_alias()) {
+            if (!first) oss << "/";
+            oss << name;
+            first = false;
+        }
+        oss << ">";
+        return oss.str();
+    })
+
+    .def(py::self == py::self)
+    .def(py::self != py::self)
+    .def(py::self < py::self)
+
+    .def("__eq__", [](const BlockName& self, const std::string& s) { return self == s; })
+    .def("__ne__", [](const BlockName& self, const std::string& s) { return self != s; })
+    .def("__eq__", [](const std::string& s, const BlockName& self) { return self == s; })
+    .def("__ne__", [](const std::string& s, const BlockName& self) { return self != s; })
+
+    .def("__hash__", [](const BlockName& b) {
+        return std::hash<BlockName>{}(b);
+    });
 
     py::class_<ParamId>(m, "ParamId")
-        .def(py::init<>())
-        .def(py::init<const std::string&, const LhaID&>())
-        .def(py::init<ParameterType, const std::string&, const LhaID&>())
-        .def("set_parameter_type", &ParamId::set_parameter_type)
-        .def_readwrite("type", &ParamId::type)
-        .def_readwrite("block", &ParamId::block)
-        .def_readwrite("code", &ParamId::code);
+    .def(py::init<>())
+    .def(py::init<const BlockName&, const LhaID&>(), py::arg("block"), py::arg("code"))
+    .def(py::init<ParameterType, const BlockName&, const LhaID&>(), py::arg("type"), py::arg("block"), py::arg("code"))
+
+    .def_readwrite("type", &ParamId::type)
+    .def_readwrite("block", &ParamId::block)
+    .def_readwrite("code", &ParamId::code)
+
+    .def("set_parameter_type", &ParamId::set_parameter_type)
+
+    .def(py::self == py::self)
+    .def(py::self < py::self)
+
+    .def("__repr__", [](const ParamId& pid) {
+        std::ostringstream oss;
+        oss << "<ParamId: " << pid.block << ":" << pid.code;
+        if (pid.type.has_value()) {
+            oss << ", type=" << static_cast<int>(pid.type.value()); // adapt if enum is bound
+        } else {
+            oss << ", type=None";
+        }
+        oss << ">";
+        return oss.str();
+    })
+
+    .def("__hash__", [](const ParamId& pid) {
+        return std::hash<ParamId>{}(pid);
+    });
 
     py::class_<DependenciesHelper, std::shared_ptr<DependenciesHelper>>(m, "DependenciesHelper")
         .def_static("get_allowed_parameters", &DependenciesHelper::get_allowed_parameters, py::arg("obs"))
