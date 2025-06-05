@@ -1,38 +1,31 @@
 #include "BlockAccessor.h"
 
 scalar_t BlockAccessor::getValue(const BlockName& blockName, LhaID id) const {
-    auto it = this->find(blockName);
-    if (it != this->end()) {
-        return it->second->retrieve(id)->get_val();
+    if (this->contains(blockName)) {
+        return this->at(blockName)->retrieve(id)->get_val();
     }
 
-    throw std::invalid_argument("Block " + blockName + " not found with pdg code : " + id.to_string());
+    throw std::invalid_argument("Block " + blockName + " not found (LhaID: " + id.to_string() + ")");
 }
 
 std::shared_ptr<Parameter> BlockAccessor::getParameter(const BlockName& blockName, LhaID id) const {
-    auto it = this->find(blockName);
-    if (it != this->end()) {
-        return it->second->retrieve(id);
+    if (this->contains(blockName)) {
+        return this->at(blockName)->retrieve(id);
     }
 
-    throw std::invalid_argument("Block " + blockName + " not found with pdg code : " + id.to_string());
+    throw std::invalid_argument("Block " + blockName + " not found (LhaID: " + id.to_string() + ").");
 }
 
 bool BlockAccessor::has_param(const BlockName& blockName, LhaID id) const {
-    auto it = this->find(blockName);
-    if (it != this->end()) {
-        return it->second->contains(id);
-    }
-    return false;
+    return this->contains(blockName) && this->at(blockName)->contains(id);
 }
 
 void BlockAccessor::setValue(const BlockName& blockName, LhaID id, scalar_t value) {
-    auto it = this->find(blockName);
-    if (it != this->end()) {
-        if (it->second->contains(id)) {
-            it->second->assign(id, value);
+    if (this->contains(blockName)) {
+        if (this->at(blockName)->contains(id)) {
+            this->at(blockName)->assign(id, value);
         } else {
-            it->second->store(id, std::make_shared<Parameter>(ParamId(blockName, id), value, 0., 0.));
+            this->at(blockName)->store(id, std::make_shared<Parameter>(ParamId(blockName, id), value, 0., 0.));
         }
     } else {
         throw std::invalid_argument("Block not found");
@@ -49,19 +42,17 @@ void BlockAccessor::setValue(const BlockName& blockName, LhaID id, scalar_t valu
 // }
 
 void BlockAccessor::setParameter(const BlockName &blockName, LhaID id, std::shared_ptr<Parameter> source) {
-    auto it = this->find(blockName);
-    if (it != this->end()) {
-        it->second->store(id, source);
+    if (this->contains(blockName)) {
+        this->at(blockName)->store(id, source);
     } else {
         throw std::invalid_argument("Block not found");
     }
 }
 
 std::map<LhaID, scalar_t> BlockAccessor::getAllValues(BlockName blockName) {
-    auto it = this->find(blockName);
-    if (it != this->end()) {
+    if (this->contains(blockName)) {
         std::map<LhaID, scalar_t> values;
-        for(auto& [id, p] : it->second->getItems()) {
+        for(auto& [id, p] : this->at(blockName)->getItems()) {
             values.emplace(id, p->get_val());
         }
         return values;

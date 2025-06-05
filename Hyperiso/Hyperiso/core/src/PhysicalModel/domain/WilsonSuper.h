@@ -56,7 +56,7 @@ public:
     }
 
     // TODO : Implement initialization as dependent parameter from MARTY library or from lha
-    std::function<double(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>&)> get_func(QCDOrder order);
+    std::function<scalar_t(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>&)> get_func(QCDOrder order);
     std::unordered_set<ParamId> get_sources(QCDOrder order);
     LhaID get_lhaid(QCDOrder order);
     std::string get_base_name() const;

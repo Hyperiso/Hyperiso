@@ -52,11 +52,7 @@ void CoefficientGroup::init(QCDOrder max_order) {
                 // std::cout << "value of : " << coeff.second->get_name() << " at " << OrderMapper::str((QCDOrder)order) << " : " << func(src) << std::endl;
                 dep_param->set_expected(func(src));
             };
-            LOG_INFO("coucou");
-            for (auto& pid : coeff.second->get_sources((QCDOrder)order))
-                LOG_INFO(pid);
             WilsonParamComposer().compose_parameter(ParamId{coeff.second->get_storage_block(), coeff.second->get_lhaid((QCDOrder)order)}, coeff.second->get_sources((QCDOrder)order), func_wrapper);
-            LOG_INFO("composed");
         }
     }
     this->current_order = max_order;
@@ -69,40 +65,11 @@ complex_t CoefficientGroup::get_matching_coefficient(std::string coeff, std::str
 complex_t CoefficientGroup::get_running_coefficient(std::string coeff, std::string order, ContributionType cont_type, WilsonBasis basis) const {
     auto coef = this->at(coeff);
     ParameterProxy wilson_p = ParameterProxy(ParameterType::WILSON);
-    return complex_t(wilson_p(GroupMapper::str(this->id, ScaleType::HADRONIC, false, basis), coef->id(OrderMapper::enum_elt(order), cont_type)));
+    return complex_t(wilson_p(GroupMapper::str(this->id, ScaleType::HADRONIC, basis), coef->id(OrderMapper::enum_elt(order), cont_type)));
 }
 
 QCDOrder CoefficientGroup::get_order(){
     return this->current_order;
-}
-
-void CoefficientGroup::init_full_running_block(const std::unordered_map<ParameterType, std::vector<std::string>> &source_names, WilsonBasis basis, bool inter, std::vector<ContributionType> contribution_type) {
-
-    auto func = [basis, this, inter, contribution_type] (const std::unordered_map<std::string, std::shared_ptr<Block>>& src, std::shared_ptr<DependentBlock> dep_block) {
-        double alpha_s_mu_h = src.at("WPARAM_RUN_SM")->retrieve(1)->get_val();
-        double fact = alpha_s_mu_h / 4 * PI;
-        for (WCoef coef_id : WCoefMapper::get_group(this->id)) {
-            std::map<ContributionType, complex_t> coeff_fulls;
-            for (ContributionType type : contribution_type) {
-                for (int order=0; order < 2; order++) {
-                    coeff_fulls[type] += ensure_coef(coef_id, (QCDOrder)(order + 1), type, GroupMapper::str(this->id, ScaleType::HADRONIC, false, basis) + (inter ? "INTER" : ""));
-                }
-
-            }
-
-            auto coef_lha_base = WCoefMapper::flha_base(coef_id);
-            // LOG_INFO("Storing full coefficient", LhaID(coef_lha_base.first, coef_lha_base.second, (int)this->wilson_type));
-            for (ContributionType type : contribution_type) {
-                ParamId pid {
-                    ParameterType::WILSON, 
-                    GroupMapper::str(this->id, ScaleType::HADRONIC, true, basis) + (inter ? "INTER" : ""), 
-                    LhaID(coef_lha_base.first, coef_lha_base.second, (int)type)
-                };
-                dep_block->store_or_assign(pid.code, std::make_shared<Parameter>(pid, coeff_fulls[type], 0., (int)type));
-            }
-        }
-    };
-    WilsonParamComposer().compose_block(GroupMapper::str(this->id, ScaleType::HADRONIC, true, basis) + (inter ? "INTER" : ""), source_names, func);
 }
 
 std::ostream& operator<<(std::ostream& os, const CoefficientGroup& coeffs) {

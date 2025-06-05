@@ -13,7 +13,6 @@ public:
             {WGroup::B, "BCoefficients"},
             {WGroup::BPrime, "BPrimeCoefficients"},
             {WGroup::BScalar, "BScalarCoefficients"},
-            // {WGroup::Blnu, "BlnuCoefficients"},
             {WGroup::BCC, "BChargedCurrentCoefficients"},
         };
         return m;
@@ -28,11 +27,10 @@ public:
         return EnumMapperBase::str(group);
     }
 
-    static std::string str(WGroup group, ScaleType scale, bool full=false, WilsonBasis basis=WilsonBasis::B_STANDARD) {
+    static std::string str(WGroup group, ScaleType scale, WilsonBasis basis=WilsonBasis::B_STANDARD) {
         std::stringstream ss;
         ss << mapping().at(group)
            << "_" << ScaleTypeMapper::str(scale)
-           << (full ? "_FULL" : "")
            << (scale == ScaleType::HADRONIC ? "_" + WilsonBasisMapper::str(basis) : "");
 
         return ss.str();

@@ -44,7 +44,7 @@ Block::Block(std::shared_ptr<Block> other) {
 
 std::shared_ptr<Parameter> Block::retrieve(const LhaID& id) {
     if (!this->contains(id)) {
-        LOG_ERROR("KeyError", "Block", this->blockname, "doesn't contain parameter", id.to_string());
+        LOG_ERROR("KeyError", "Block", this->blockname, "doesn't contain parameter", id.to_string(), ". Available keys are", std::make_shared<Block>(*this));
     }
     return this->items.at(id);
 }
@@ -175,7 +175,7 @@ void DependentBlock::unfreeze() {
 }
 
 DependentBlock::~DependentBlock() {
-    LOG_INFO("Destruct dependentBlock at", self.get());
+    LOG_DEBUG("Destruct dependentBlock at", self.get());
     if (self) {
         for (auto src : sourceBlocks){
             src.second->removeObserver(self);   

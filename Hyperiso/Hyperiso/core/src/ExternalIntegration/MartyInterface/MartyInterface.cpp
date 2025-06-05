@@ -73,7 +73,7 @@ bool MartyInterface::already_run(std::string&& outputBinary) {
     if (buffer.st_size == 0) {
         return false;
     }
-    std::cout << "Already run !" << std::endl;
+    LOG_DEBUG("Already run !");
     return true;
 }
 

@@ -8,6 +8,7 @@
 #include <cstdio>
 #include <memory>
 #include <array>
+#include "Include.h"
 
 bool executeCommand(const std::string& command);
 

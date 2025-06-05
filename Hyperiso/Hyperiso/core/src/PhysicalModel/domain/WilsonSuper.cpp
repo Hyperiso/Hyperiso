@@ -1,7 +1,7 @@
 #include "WilsonSuper.h"
 
 
-std::function<double(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>&)> WilsonCoefficient::get_func(QCDOrder order) {
+std::function<scalar_t(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>&)> WilsonCoefficient::get_func(QCDOrder order) {
     return this->matching_info[order].compute;
 }
 

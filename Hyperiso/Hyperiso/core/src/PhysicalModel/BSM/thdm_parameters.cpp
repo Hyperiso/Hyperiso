@@ -6,8 +6,6 @@ void thdm_parameters::init() {
 		return;
 	}
 
-	std::cout << "Initializing thdm_parameters" << std::endl;
-
     init_scale_independant_block();
     init_matching_block();
 }
@@ -56,8 +54,6 @@ void thdm_parameters::init_matching_block() {
     auto func = [] (const std::unordered_map<std::string, std::shared_ptr<Block>>& src, std::shared_ptr<DependentBlock> dep_block) {
         double yt = pow(src.at("WPARAM_MATCH_SM")->retrieve(6)->get_val()/src.at("MASS")->retrieve(37)->get_val(),2.); // param->mass_H (25)
 		dep_block->store_or_assign(1, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_MATCH_BSM", 1}, yt, 0., 0.));
-
-		LOG_INFO("Update bsm matching block");
     };
 
     thdm_parameters::composer.compose_block("WPARAM_MATCH_BSM", src, func);

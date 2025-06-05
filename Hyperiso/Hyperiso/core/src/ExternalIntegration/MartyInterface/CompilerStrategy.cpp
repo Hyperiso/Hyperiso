@@ -28,6 +28,6 @@ bool CompilerStrategy::check_if_compile(const std::string& outputBinary) {
     if (buffer.st_size == 0) {
         return false;
     }
-    std::cout << "Already compiled !" << std::endl;
+    LOG_DEBUG("Already compiled !");
     return true;
 }

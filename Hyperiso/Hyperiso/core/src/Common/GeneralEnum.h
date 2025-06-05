@@ -37,14 +37,13 @@ enum class QCDOrder {
 };
 
 enum class WCoef {
-    C1, C2, C3, C4, C5, C6, C7, C8, C9, C10, CQ1, CQ2, CP1, CP2, CP3, CP4, CP5, CP6, CP7, CP8, CP9, CP10, CPQ1, CPQ2, CBlnu_A, CBlnu_P, C_V1, C_V2, C_S1, C_S2, C_T
+    C1, C2, C3, C4, C5, C6, C7, C8, C9, C10, CQ1, CQ2, CP1, CP2, CP3, CP4, CP5, CP6, CP7, CP8, CP9, CP10, CPQ1, CPQ2, C_V1, C_V2, C_S1, C_S2, C_T
 };
 
 enum class WGroup {
     B, 
     BPrime, 
     BScalar,
-    Blnu,
     BCC,
 };
 

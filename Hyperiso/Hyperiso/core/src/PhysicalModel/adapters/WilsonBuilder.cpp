@@ -17,7 +17,6 @@ void WilsonBuilder::build(WilsonBuildConfig config) {
     Model model = ModelAPI().get();
     for (auto& g_id : config.groups) {
         std::string gn_str = GroupMapper::str(g_id);
-        LOG_INFO("Creating group", gn_str);
         groups.emplace(gn_str, WilsonGroupFactory::create_coefficient_group(g_id, model));
     }
 

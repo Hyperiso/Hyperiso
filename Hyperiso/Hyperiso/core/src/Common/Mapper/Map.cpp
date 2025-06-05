@@ -39,7 +39,6 @@ const std::map<WGroup, std::string>& group_mapping() {
         {WGroup::B, "BCoefficients"},
         {WGroup::BPrime, "BPrimeCoefficients"},
         {WGroup::BScalar, "BScalarCoefficients"},
-        // {WGroup::Blnu, "BlnuCoefficients"},
         {WGroup::BCC, "BChargedCurrentCoefficients"},
     };
     return m;
@@ -52,7 +51,7 @@ const std::map<WCoef, std::string>& wcoef_mapping() {
         {WCoef::CP1, "CP1"}, {WCoef::CP2, "CP2"}, {WCoef::CP3, "CP3"}, {WCoef::CP4, "CP4"},
         {WCoef::CP5, "CP5"}, {WCoef::CP6, "CP6"}, {WCoef::CP7, "CP7"}, {WCoef::CP8, "CP8"},
         {WCoef::CP9, "CP9"}, {WCoef::CP10, "CP10"}, {WCoef::CQ1, "CQ1"}, {WCoef::CQ2, "CQ2"},
-        {WCoef::CPQ1, "CPQ1"}, {WCoef::CPQ2, "CPQ2"}, {WCoef::CBlnu_A, "C_Blnu_A"}, {WCoef::CBlnu_P, "C_Blnu_P"},
+        {WCoef::CPQ1, "CPQ1"}, {WCoef::CPQ2, "CPQ2"},
         {WCoef::C_V1, "C_V1"}, {WCoef::C_V2, "C_V2"}, {WCoef::C_S1, "C_S1"}, {WCoef::C_S2, "C_S2"}, {WCoef::C_T, "C_T"},
     };
     return m;
@@ -68,7 +67,6 @@ const std::map<WCoef, std::pair<int, int>>& wcoef_flha_mapping() {
         {WCoef::CP7, {305, 4322}}, {WCoef::CP8, {305, 4321}}, {WCoef::CP9, {3051313, 4233}},
         {WCoef::CP10, {3051313, 4234}}, {WCoef::CQ1, {3051313, 3230}}, {WCoef::CQ2, {3051313, 3233}},
         {WCoef::CPQ1, {3051313, 3130}}, {WCoef::CPQ2, {3051313, 3133}},
-        {WCoef::CBlnu_A, {2051516, 3737}}, {WCoef::CBlnu_P, {2051516, 3434}},
         {WCoef::C_V1, {4051516, 4141}}, {WCoef::C_V2, {4051516, 4241}},
         {WCoef::C_S1, {4051516, 3231}}, {WCoef::C_S2, {4051516, 3131}}, {WCoef::C_T, {4051516, 4343}},
     };

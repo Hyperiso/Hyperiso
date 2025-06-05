@@ -348,36 +348,6 @@ public:
     }
 };
 
-// class C_Blnu_A_THDM : public WilsonCoefficient {
-// public:
-//     C_Blnu_A_THDM() : WilsonCoefficient("C_Blnu_A_THDM", GroupMapper::str(WGroup::Blnu) + "_MATCH") {}
-
-    
-     
-    
-    
-//     std::shared_ptr<WilsonCoefficient> clone() const override {
-//         return std::make_shared<C_Blnu_A_THDM>(*this);
-//     }
-
-// };
-
-// class C_Blnu_P_THDM : public WilsonCoefficient {
-// public:
-//     C_Blnu_P_THDM();
-
-    
-     
-    
-
-//     std::shared_ptr<WilsonCoefficient> clone() const override {
-//         return std::make_shared<C_Blnu_P_THDM>(*this);
-//     }
-
-//     static double compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
-
-// };
-
 class C_V1_THDM : public WilsonCoefficient {
 public:
     C_V1_THDM() : WilsonCoefficient("C_V1_THDM", GroupMapper::str(WGroup::BCC) + "_MATCH") {}
