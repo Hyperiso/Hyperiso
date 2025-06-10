@@ -14,7 +14,7 @@ int main() {
     LOG_INFO("HyperisoMaster initialized");
 
     auto interface = ObservableInterface();
-
+    
     // interface.add_observable(Observables::ISOSPIN_ASYMMETRY_B_KSTAR_GAMMA, QCDOrder::NNLO, true);
 
     // auto us = interface.compute_leading_uncertainties(Observables::ISOSPIN_ASYMMETRY_B_KSTAR_GAMMA, 5);
@@ -26,7 +26,9 @@ int main() {
 
     for (Observables obs : ObservableMapper::get_enum()) {
         interface.add_observable(obs, QCDOrder::NNLO, true);
+        LOG_INFO("STILL HERE");
     }
+    LOG_INFO("STILLaaa HERE");
     // interface.add_observable(Observables::BR_BD_MUMU, QCDOrder::NNLO, true);
     LOG_INFO("All observables added");
     // LOG_INFO(ObservableMapper::str(Observables::BR_BD_MUMU), "=", interface.compute_observable(Observables::BR_BD_MUMU), "+-", interface.compute_uncertainty(Observables::BR_BD_MUMU));

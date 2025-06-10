@@ -8,7 +8,7 @@
 #include "WilsonGroupFactory.h"
 #include "Configs.h"
 
-class WilsonBuilder : public IWilsonBuilder<WilsonBuildConfig, WilsonProvider> { 
+class WilsonBuilder : public IWilsonBuilder<WilsonBuildConfig, WilsonProvider>, public std::enable_shared_from_this<WilsonBuilder> { 
 public:
     // WilsonBuilder();
     WilsonBuilder(WilsonBuildConfig config);
@@ -18,6 +18,7 @@ public:
     void add(WilsonBuildConfig config) override;
 
     std::shared_ptr<WilsonProvider> get_wilson_provider();
+    std::shared_ptr<CoefficientManager> get_coefficient_manager();
 
 private:
 

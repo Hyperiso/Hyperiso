@@ -10,15 +10,15 @@
 
 class ObsWilsonBuilder : public IObsWilsonBuilder<ObsWilsonProxy, WGroup> {
 public:
-    ObsWilsonBuilder(WilsonBuildConfig wbc) : wil_builder(std::make_shared<WilsonBuilder>(wbc)) {}
-    ObsWilsonBuilder(std::shared_ptr<IWilsonBuilder<WilsonBuildConfig, WilsonProvider>> wil_builder) : wil_builder(wil_builder) {}
+    // ObsWilsonBuilder(WilsonBuildConfig wbc) : wil_builder(std::make_shared<WilsonBuilder>(wbc)) {}
+    ObsWilsonBuilder(std::shared_ptr<WilsonBuilder> wil_builder) : wil_builder(wil_builder) {}
 
     void build(std::shared_ptr<AbstractConfig> config) override;
     // void switch_basis(WGroup group) override;
     std::shared_ptr<ObsWilsonProxy> get_proxy() override;
 
 private:
-    std::shared_ptr<IWilsonBuilder<WilsonBuildConfig, WilsonProvider>> wil_builder;
+    std::shared_ptr<WilsonBuilder> wil_builder;
     bool built {false};
 };
 

@@ -101,7 +101,7 @@ std::map<WCoef, complex_t> ObsWilsonProxy::getAFR(WGroup group, QCDOrder order, 
 }
 
 std::shared_ptr<ObsWilsonBuilder> ObsWilsonProxy::get_builder() {
-    auto wilson_builder = std::static_pointer_cast<IWilsonBuilder<WilsonBuildConfig, WilsonProvider>>(this->wil_p->get_builder());
+    auto wilson_builder = std::static_pointer_cast<WilsonBuilder>(this->wil_p->get_builder());
     return std::make_shared<ObsWilsonBuilder>(wilson_builder);
 }
 

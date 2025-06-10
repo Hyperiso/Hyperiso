@@ -47,5 +47,9 @@ void WilsonBuilder::add(WilsonBuildConfig config) {
 }
 
 std::shared_ptr<WilsonProvider> WilsonBuilder::get_wilson_provider() {
-    return std::make_shared<WilsonProvider>(this->cm);
+    return std::make_shared<WilsonProvider>(shared_from_this());
+}
+
+std::shared_ptr<CoefficientManager> WilsonBuilder::get_coefficient_manager() {
+    return cm;
 }

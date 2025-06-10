@@ -2,6 +2,7 @@
 
 
 ObsManager::ObsManager(std::shared_ptr<IObsWilsonBuilder<ObsWilsonProxy, WGroup>> wil_builder) {
+    this->wil_builder = wil_builder;
     ObsParameterProxy obsParamProxy = ObsParameterProxy(ParameterType::FLAVOR);
     ObsParameterProxy smParamProxy = ObsParameterProxy(ParameterType::SM);
     

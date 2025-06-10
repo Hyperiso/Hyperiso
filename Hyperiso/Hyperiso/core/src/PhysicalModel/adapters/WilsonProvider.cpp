@@ -1,7 +1,7 @@
 #include "WilsonProvider.h"
 #include "WilsonBuilder.h" // Théo is reponsible for this horror
 
-WilsonProvider::WilsonProvider(std::shared_ptr<CoefficientManager> manager) : cm(manager) {
+WilsonProvider::WilsonProvider(std::shared_ptr<WilsonBuilder> builder) : builder(builder), cm(builder->get_coefficient_manager()) {
     if (!cm) {
         LOG_ERROR("NullPointerError", "(WilsonProvider) CoefficientManager is null.");
     }
@@ -53,7 +53,7 @@ scalar_t WilsonProvider::get(std::shared_ptr<AbstractConfig> config) {
 }
 
 std::shared_ptr<WilsonBuilder> WilsonProvider::get_builder() {
-    return std::make_shared<WilsonBuilder>(this->cm);
+    return builder;
 }
 
 std::unordered_set<WilsonBasis> WilsonProvider::get_bases(WGroup group) {

@@ -10,13 +10,14 @@ class WilsonBuilder;
 
 class WilsonProvider : public IWilsonProvider<WilsonBuilder> {
 public:
-    WilsonProvider(std::shared_ptr<CoefficientManager> manager);
+    WilsonProvider(std::shared_ptr<WilsonBuilder> builder);
 
     scalar_t get(std::shared_ptr<AbstractConfig> config) override;
     std::shared_ptr<WilsonBuilder> get_builder() override;
     std::unordered_set<WilsonBasis> get_bases(WGroup group) override;
 
 private:
+    std::shared_ptr<WilsonBuilder> builder;
     std::shared_ptr<CoefficientManager> cm;
 };
 

@@ -35,7 +35,7 @@ private:
     ModelEvaluator me;
 
     Observables ensure_present(Observables id);
-
+    std::shared_ptr<IObsWilsonBuilder<ObsWilsonProxy, WGroup>> wil_builder;
 };
 
 #endif // __OBSERVABLEMANAGER_H__
