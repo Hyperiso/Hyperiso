@@ -18,16 +18,18 @@ class DecayParent {
 protected:
     std::map<Observables, std::shared_ptr<OperatorNode>> roots;
     QCDOrder max_order = QCDOrder::LO; //DEFAULT AS LO, using default at least once, need to check (error if NONE)
-    std::shared_ptr<IObsWilsonBuilder<ObsWilsonProxy, WGroup>> w_builder;
-    std::shared_ptr<IObsWilsonProxy<ObsWilsonBuilder>> w_proxy;
-    WilsonBuildConfig w_config{};
+    std::shared_ptr<ObsWilsonBuilder> w_builder;
+    std::shared_ptr<ObsWilsonProxy> w_proxy;
+    WilsonBuildConfig w_config {};
+    bool enabled {false};
 
     QCDOrder check_max_order(QCDOrder order) const;
 
 public:
-    DecayParent(double matching_scale, double hadronic_scale, QCDOrder order, std::shared_ptr<IObsWilsonBuilder<ObsWilsonProxy, WGroup>> wilson_builder);
+    DecayParent(double matching_scale, double hadronic_scale, QCDOrder order, std::shared_ptr<ObsWilsonBuilder>& wilson_builder);
 
     void enable();
+    void disable();
     void set_order(QCDOrder new_order);
 
     scalar_t compute_observable(Observables obs);

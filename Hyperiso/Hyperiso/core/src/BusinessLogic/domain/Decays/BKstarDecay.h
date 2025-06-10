@@ -41,17 +41,10 @@ protected:
     scalar_t K2u(scalar_t ckm, scalar_t K2d);
     double delta_0(double f_B, double mb_mb, double T1, double f_Ks_perp, double f_Ks_par, double m_Ks, double m_B, double lambda_B, scalar_t a7c, scalar_t K1, scalar_t K2d, scalar_t K2u);
 
-private:
-    const QCDOrder max_order = QCDOrder::NNLO;
-
 public:
-    BKstarDecay(QCDOrder order, double matching_scale, double hadronic_scale, std::shared_ptr<IObsWilsonBuilder<ObsWilsonProxy, WGroup>> wilson_builder) : DecayParent(matching_scale, hadronic_scale, order, wilson_builder) {
+    BKstarDecay(QCDOrder order, double matching_scale, double hadronic_scale, std::shared_ptr<ObsWilsonBuilder>& wilson_builder) : DecayParent(matching_scale, hadronic_scale, order, wilson_builder) {
         this->w_config.groups = {WGroup::B, WGroup::BPrime};
-    }
-
-    void enable() {
-        DecayParent::enable();
-        // this->w_builder->switch_basis(WGroup::B); //TODO or not TODO, something to do here ?
+        this->max_order = QCDOrder::NNLO;
     }
 
     void build_op_tree() override;

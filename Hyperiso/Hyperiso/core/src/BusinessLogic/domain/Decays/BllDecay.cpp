@@ -13,7 +13,6 @@ scalar_t BllDecay::W2Q(scalar_t r, scalar_t CQ2, scalar_t CPQ2, bool prime) {
 
 scalar_t BllDecay::W210(scalar_t x, scalar_t C10, scalar_t CP10, bool prime) {
     CP10 = prime ? CP10 : scalar_t(0.);
-    LOG_INFO("C10 =", C10);
     return 2. * (C10 - CP10) * x;
 }
 
@@ -34,17 +33,11 @@ scalar_t BllDecay::BR_avg_Bq_mumu(scalar_t w1,
 {
     scalar_t b = std::sqrt(1. - 4. * std::pow(x, 2));
     scalar_t pref = std::pow(G_F * f_B / inv_alpha, 2) * std::pow(m_B / M_PI, 3) * life_B * ckm * b / (64. * HBAR);
-    std::cout << "b : " << b << std::endl;
-    std::cout << "pref : " << pref << std::endl;
-    std::cout << "w1: " << w1 << std::endl;
-    std::cout << "w2q: " << w2q << std::endl;
-    std::cout << "w210: " << w210 << std::endl;
 
     return pref * (std::pow(b * std::abs(w1), 2) + std::pow(std::abs(w2q + w210), 2));
 }
 
 scalar_t BllDecay::A_DG(scalar_t x, scalar_t r, scalar_t w210, scalar_t w1q, scalar_t w2q, scalar_t C10_SM) {
-    std::cout << C10_SM << std::endl;
     scalar_t S = x * std::sqrt(1. - 4. * x * x) * w1q / (2. * C10_SM);
     scalar_t P = (w210 / x + w2q * x) / (2. * C10_SM);
     scalar_t abs_S = std::pow(std::abs(S), 2);

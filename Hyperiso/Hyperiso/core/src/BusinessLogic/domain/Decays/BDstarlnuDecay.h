@@ -79,12 +79,10 @@ protected:
     double Gamma_D_0(double F_V0_1, double F_V0_2, double F_Vt, double F_S, double F_T0_1, double F_T0_2, double G_Vt_S, double G_V0_T0, scalar_t C_A, scalar_t C_P, scalar_t C_T);
     double B_theta(double F_Vp_1, double F_Vm_1, double F_Tp_2, double F_Tm_2, double G_V0_Vt, double G_V0_S, double G_Vt_T0, double G_Tp_Vp, double G_Tm_Vm, double G_Tp_Vm, double G_Tm_Vp, double G_T0_S, scalar_t C_V1, scalar_t C_V2, scalar_t C_A, scalar_t C_P, scalar_t C_T);
 
-private:
-    const QCDOrder max_order = QCDOrder::LO;
-
 public:
-    BDstarlnuDecay(QCDOrder order, double matching_scale, double hadronic_scale, std::shared_ptr<IObsWilsonBuilder<ObsWilsonProxy, WGroup>> wilson_builder) : DecayParent(matching_scale, hadronic_scale, order, wilson_builder) {
+    BDstarlnuDecay(QCDOrder order, double matching_scale, double hadronic_scale, std::shared_ptr<ObsWilsonBuilder>& wilson_builder) : DecayParent(matching_scale, hadronic_scale, order, wilson_builder) {
         this->w_config.groups = {WGroup::BCC};
+        this->max_order = QCDOrder::LO;
     }
 
     void build_op_tree() override;

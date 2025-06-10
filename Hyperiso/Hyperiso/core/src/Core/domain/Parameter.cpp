@@ -96,7 +96,7 @@ void DependentParameter::init() {
 
 void DependentParameter::update() {
     if (frozen) {
-        LOG_INFO("DependentParameter is frozen, skipping update");
+        LOG_DEBUG("DependentParameter is frozen, skipping update");
         this->update_at_unfreeze = true;
     } else if (recalculateLambda 
         && std::all_of(sources.begin(), sources.end(), 
@@ -134,7 +134,7 @@ void Parameter::notifyObservers() {
             continue;
         }
         observer->update();
-        LOG_INFO("Observer", observer->id.block, observer->id.code, "updated successfully");
+        LOG_DEBUG("Observer", observer->id.block, observer->id.code, "updated successfully");
     }
 }
 

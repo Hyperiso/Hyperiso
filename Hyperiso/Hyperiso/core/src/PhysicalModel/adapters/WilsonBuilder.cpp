@@ -1,10 +1,5 @@
 #include "WilsonBuilder.h"
 
-//DUPLICATE the creation of coefficientmanager -> lead to ~CoefficientManager, destroy everything
-// WilsonBuilder::WilsonBuilder() {
-//     this->cm = std::make_shared<CoefficientManager>();
-// }
-
 WilsonBuilder::WilsonBuilder(WilsonBuildConfig config) {
     this->build(config);
 }
@@ -29,20 +24,16 @@ void WilsonBuilder::build(WilsonBuildConfig config) {
 }
 
 void WilsonBuilder::add(WilsonBuildConfig config) {
-    auto init_group = [&](WGroup g_id, Model model) {
+    Model model = ModelAPI().get();
+    this->cm->set_matching_scale(config.matching_scale);
+    this->cm->set_hadronic_scale(config.hadronic_scale);
+
+    for (auto& g_id : config.groups) {
         std::string group_name = GroupMapper::str(g_id);
+        LOG_INFO("Initializing group", group_name);
         this->cm->registerCoefficientGroup(group_name, WilsonGroupFactory::create_coefficient_group(g_id, model));
         this->cm->init_group_matching(group_name, OrderMapper::str(config.order));
         this->cm->init_group_hadronic_all_bases(group_name, OrderMapper::str(config.order));
-    };
-
-    Model model = ModelAPI().get();
-
-    for (auto& g_id : config.groups) {
-        init_group(g_id, Model::SM);
-        if (model == Model::THDM || model == Model::SUSY) {
-            init_group(g_id, model);
-        }
     }
 }
 

@@ -82,7 +82,14 @@ void CoefficientManager::init_specific_order_group_matching(const std::string& g
     for (auto& coeff : *this->coefficientGroups.at(groupName)) {
         if (SM) {
             ContributionType c_type = marty ? ContributionType::SM : ContributionType::TOTAL;
-            ParamId pid {
+
+            ParamId pid_src {
+                ParameterType::WILSON, 
+                storage_block, 
+                coeff.second->id(enum_order, coeff.second->get_type())
+            };
+
+            ParamId pid_dest {
                 storage_block,
                 WCoefMapper::flha_full(WCoefMapper::enum_elt(coeff.second->get_base_name()), enum_order, c_type)
             };
@@ -93,17 +100,17 @@ void CoefficientManager::init_specific_order_group_matching(const std::string& g
             };
 
             composer.compose_parameter(
-                pid, 
-                std::unordered_set<ParamId> {{storage_block, coeff.second->id(enum_order, coeff.second->get_type())}}, 
-                [&] (const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src, std::shared_ptr<DependentParameter> dep_param) {
-                    dep_param->set_expected(src.at({ParameterType::WILSON, storage_block, coeff.second->id(enum_order, coeff.second->get_type())})->get_val());
+                pid_dest, 
+                std::unordered_set<ParamId> {pid_src}, 
+                [pid_src] (const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src, std::shared_ptr<DependentParameter> dep_param) {
+                    dep_param->set_expected(src.at(pid_src)->get_val());
                 }
             );
 
             composer.compose_parameter(
                 pid_BSM, 
                 std::unordered_set<ParamId> {}, 
-                [&] (const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src, std::shared_ptr<DependentParameter> dep_param) {
+                [] (const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src, std::shared_ptr<DependentParameter> dep_param) {
                     dep_param->set_expected(0.);
                 }
             );
@@ -115,19 +122,24 @@ void CoefficientManager::init_specific_order_group_matching(const std::string& g
                 WCoefMapper::flha_full(WCoefMapper::enum_elt(coeff.second->get_base_name()), enum_order, c_type)
             };
 
-            ParamId pid_src {
+            ParamId pid_sm {
                 this->coefficientGroups.at(groupName)->get_matching_storage_block(),
                 WCoefMapper::flha_full(WCoefMapper::enum_elt(coeff.second->get_base_name()), enum_order, ContributionType::SM)
             };
 
-            std::unordered_set<ParamId> sources {pid_src, {storage_block, coeff.second->id(enum_order, coeff.second->get_type())}};
+            ParamId pid_src {
+                storage_block, 
+                coeff.second->id(enum_order, coeff.second->get_type())
+            };
+
+            std::unordered_set<ParamId> sources {pid_sm, pid_src};
 
             composer.compose_parameter(
                 pid_dest, 
                 sources, 
-                [&] (const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src, std::shared_ptr<DependentParameter> dep_param) {
-                    scalar_t src_val = ParameterProxy(ParameterType::WILSON)(storage_block, coeff.second->id(enum_order, coeff.second->get_type()));
-                    scalar_t sm_val = ParameterProxy(ParameterType::WILSON)(pid_src.block, pid_src.code);
+                [pid_sm, pid_src, marty] (const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src, std::shared_ptr<DependentParameter> dep_param) {
+                    scalar_t src_val = src.at(pid_src)->get_val();
+                    scalar_t sm_val = src.at(pid_sm)->get_val();
                     dep_param->set_expected(marty ? src_val - sm_val : src_val + sm_val);
                 }
             );
@@ -331,14 +343,14 @@ void CoefficientManager::update(std::string group, double mu_W, double mu_h) {
 }
 
 std::shared_ptr<CoefficientManager> CoefficientManager::Builder(std::string model, std::map<std::string, std::shared_ptr<CoefficientGroup>> groups, double mu_W, double mu_h, std::string order) {
+    WilsonParameterHelper().init(2);
+    
     if (groups.empty()) {
         LOG_WARN("(CoefficientManager) No coefficient groups provided.");
         return std::make_shared<CoefficientManager>();
     }
 
-    WilsonParameterHelper().init(2);
     auto manager = std::make_shared<CoefficientManager>();
-    bool is_bsm = model != ModelMapper::str(Model::SM);
     for (auto& group : groups) {
         LOG_INFO("(CoefficientManager) Registering coefficient group", group.first);
         manager->registerCoefficientGroup(group.first, group.second);
@@ -348,7 +360,6 @@ std::shared_ptr<CoefficientManager> CoefficientManager::Builder(std::string mode
     LOG_INFO("(CoefficientManager) Setting hadronic scale");
     manager->set_hadronic_scale(mu_h);
     for (auto& group: groups) {
-        if (manager->has_bsm && group.first.ends_with(manager->bsm_suffix)) continue;
         LOG_INFO("(CoefficientManager) Initializing group matching", group.first, "at", order);
         manager->init_group_matching(group.first, order);
         LOG_INFO("(CoefficientManager) Initializing group hadronic", group.first, "at", order);
@@ -363,6 +374,5 @@ void CoefficientManager::set_hadronic_scale(double mu_h) {
 }
 
 void CoefficientManager::set_matching_scale(double mu_W) {
-    LOG_INFO("CoefficientManager::set_matching_scale");
     ScaleSetter(ScaleType::MATCHING).set(mu_W);
 }

@@ -17,9 +17,6 @@
 class CoefficientManager {
 private:
     std::map<std::string, std::shared_ptr<CoefficientGroup>> coefficientGroups;
-
-    bool has_bsm;
-    std::string bsm_suffix;
     ParameterProxy wilson_p {ParameterType::WILSON};
 
     void throw_no_group_error(const std::string& groupName) const;

@@ -9,7 +9,7 @@ QCDOrder DecayParent::check_max_order(QCDOrder order) const {
     return order;
 }
 
-DecayParent::DecayParent(double matching_scale, double hadronic_scale, QCDOrder order, std::shared_ptr<IObsWilsonBuilder<ObsWilsonProxy, WGroup>> wilson_builder) {
+DecayParent::DecayParent(double matching_scale, double hadronic_scale, QCDOrder order, std::shared_ptr<ObsWilsonBuilder>& wilson_builder) {
     this->w_config.matching_scale = matching_scale;
     this->w_config.hadronic_scale = hadronic_scale;
     this->w_config.order = check_max_order(order);
@@ -17,9 +17,18 @@ DecayParent::DecayParent(double matching_scale, double hadronic_scale, QCDOrder 
 }
 
 void DecayParent::enable() {
+    // if (this->enabled) {
+    //     return;
+    // }
+
     ObsWilsonHelper::build(this->w_config, this->w_builder);
     this->w_proxy = this->w_builder->get_proxy();
     build_op_tree();
+    // this->enabled = true;
+}
+
+void DecayParent::disable() {
+    this->enabled = false;
 }
 
 //TODO : everything here, just for make it works

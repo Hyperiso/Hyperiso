@@ -15,12 +15,10 @@ protected:
     double pref(double G_F, double f_B, double tau_B, double m_B, double m_tau);
     double BR_B_taunu(double pref, double ckm, double R);
 
-private:
-    const QCDOrder max_order = QCDOrder::LO;
-
 public:
-    BlnuDecay(QCDOrder order, double matching_scale, double hadronic_scale, std::shared_ptr<IObsWilsonBuilder<ObsWilsonProxy, WGroup>> wilson_builder) : DecayParent(matching_scale, hadronic_scale, order, wilson_builder) {
-        this->w_config.groups = {WGroup::BCC}; //TODO or not TODO : old Blnu ?
+    BlnuDecay(QCDOrder order, double matching_scale, double hadronic_scale, std::shared_ptr<ObsWilsonBuilder>& wilson_builder) : DecayParent(matching_scale, hadronic_scale, order, wilson_builder) {
+        this->w_config.groups = {WGroup::BCC};
+        this->max_order = QCDOrder::LO;
     }
 
     void build_op_tree() override;

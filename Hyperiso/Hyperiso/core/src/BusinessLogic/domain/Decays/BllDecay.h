@@ -18,12 +18,10 @@ protected:
     scalar_t A_DG(scalar_t x, scalar_t r, scalar_t w210, scalar_t w1q, scalar_t w2q, scalar_t C10_SM);
     scalar_t BR_untag_Bs_mumu(scalar_t br_avg, scalar_t ys, scalar_t A);
 
-private:
-    const QCDOrder max_order = QCDOrder::NNLO;
-
 public:
-    BllDecay(QCDOrder order, double matching_scale, double hadronic_scale, std::shared_ptr<IObsWilsonBuilder<ObsWilsonProxy, WGroup>> wilson_builder) : DecayParent(matching_scale, hadronic_scale, order, wilson_builder) {
+    BllDecay(QCDOrder order, double matching_scale, double hadronic_scale, std::shared_ptr<ObsWilsonBuilder>& wilson_builder) : DecayParent(matching_scale, hadronic_scale, order, wilson_builder) {
         this->w_config.groups = {WGroup::B, WGroup::BPrime, WGroup::BScalar};
+        this->max_order = QCDOrder::NNLO;
     }
 
     void build_op_tree() override;

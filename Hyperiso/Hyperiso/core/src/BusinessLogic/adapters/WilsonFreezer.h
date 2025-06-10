@@ -5,17 +5,19 @@
 #include "Freezer.h"
 #include "Include.h"
 #include "ObsWilsonProxy.h"
-#include "IObsWilsonBuilder.h"
+#include "ObsWilsonBuilder.h"
 
 class WilsonFreezer : public IWilsonFreezer<WGroup> {
 public:
-    WilsonFreezer(std::shared_ptr<IObsWilsonBuilder<ObsWilsonProxy, WGroup>> wil_builder) : w_proxy(wil_builder->get_proxy()) {}
+    WilsonFreezer(const std::shared_ptr<ObsWilsonBuilder> &wil_builder) {
+        this->w_proxy = wil_builder->get_proxy();
+    }
 
     void freeze(WGroup group) override;
     void unfreeze(WGroup group) override;
 
 private:
-    std::shared_ptr<IObsWilsonProxy<ObsWilsonBuilder>> w_proxy;
+    std::shared_ptr<ObsWilsonProxy> w_proxy;
 };
 
 #endif // __WILSONFREEZER_H__

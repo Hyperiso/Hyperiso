@@ -3,52 +3,21 @@
 
 complex_t ObsWilsonProxy::getM(WGroup group, WCoef coeff, QCDOrder order, bool sm_only) {
     WilsonRequest request{group, coeff, order, sm_only ? ContributionType::SM : ContributionType::TOTAL, ScaleType::MATCHING, false};
-    // request.group = group;
-    // request.coefficient = coeff;
-    // request.order = order;
-    // request.scale_type = ScaleType::MATCHING;
-    // request.contribution = sm_only ? ContributionType::SM : ContributionType::TOTAL;
-    // request.sum_qcd_orders = false;
-
     return this->wil_p->get(std::make_shared<WilsonRequest>(request));
 }
 
 complex_t ObsWilsonProxy::getFM(WGroup group, WCoef coeff, QCDOrder order, bool sm_only) {
     WilsonRequest request{group, coeff, order, sm_only ? ContributionType::SM : ContributionType::TOTAL, ScaleType::MATCHING, true};
-    // WilsonRequest request;
-    // request.group = group;
-    // request.coefficient = coeff;
-    // request.order = order;
-    // request.scale_type = ScaleType::MATCHING;
-    // request.contribution = sm_only ? ContributionType::SM : ContributionType::TOTAL;
-    request.sum_qcd_orders = true;
-
     return this->wil_p->get(std::make_shared<WilsonRequest>(request));
 }
 
 complex_t ObsWilsonProxy::getR(WGroup group, WCoef coeff, QCDOrder order, bool sm_only) {
     WilsonRequest request{group, coeff, order, sm_only ? ContributionType::SM : ContributionType::TOTAL, ScaleType::HADRONIC, false};
-    // WilsonRequest request;
-    // request.group = group;
-    // request.coefficient = coeff;
-    // request.order = order;
-    // request.scale_type = ScaleType::HADRONIC;
-    // request.contribution = sm_only ? ContributionType::SM : ContributionType::TOTAL;
-    // request.sum_qcd_orders = false;
-
     return this->wil_p->get(std::make_shared<WilsonRequest>(request));
 }
 
 complex_t ObsWilsonProxy::getFR(WGroup group, WCoef coeff, QCDOrder order, bool sm_only){
     WilsonRequest request{group, coeff, order, sm_only ? ContributionType::SM : ContributionType::TOTAL, ScaleType::HADRONIC, true};
-    // WilsonRequest request;
-    // request.group = group;
-    // request.coefficient = coeff;
-    // request.order = order;
-    // request.scale_type = ScaleType::HADRONIC;
-    // request.contribution = sm_only ? ContributionType::SM : ContributionType::TOTAL;
-    // request.sum_qcd_orders = true;
-
     return this->wil_p->get(std::make_shared<WilsonRequest>(request));
 }
 

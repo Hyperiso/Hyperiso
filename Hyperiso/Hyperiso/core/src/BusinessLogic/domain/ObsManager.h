@@ -11,7 +11,7 @@
 
 class ObsManager {
 public:
-    ObsManager(std::shared_ptr<IObsWilsonBuilder<ObsWilsonProxy, WGroup>> wil_builder);
+    ObsManager(std::shared_ptr<ObsWilsonBuilder>& wil_builder);
 
     ObsManager add_obs(Observables id, QCDOrder order, bool add_deps=false);
     ObsManager remove_obs(Observables id);
@@ -29,13 +29,15 @@ public:
     size_t get_obs_evals(Observables id);
     void update_gradient(Observables id);
 
+    void disable_decays();
+
 private:
     std::unordered_map<Decays, std::shared_ptr<DecayParent>> decays;
     std::unordered_map<Observables, std::shared_ptr<Observable>> obss;
     ModelEvaluator me;
 
     Observables ensure_present(Observables id);
-    std::shared_ptr<IObsWilsonBuilder<ObsWilsonProxy, WGroup>> wil_builder;
+    std::shared_ptr<ObsWilsonBuilder> wil_builder;
 };
 
 #endif // __OBSERVABLEMANAGER_H__

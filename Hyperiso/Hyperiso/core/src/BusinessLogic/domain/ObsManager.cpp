@@ -1,7 +1,7 @@
 #include "ObsManager.h"
 
 
-ObsManager::ObsManager(std::shared_ptr<IObsWilsonBuilder<ObsWilsonProxy, WGroup>> wil_builder) {
+ObsManager::ObsManager(std::shared_ptr<ObsWilsonBuilder>& wil_builder) {
     this->wil_builder = wil_builder;
     ObsParameterProxy obsParamProxy = ObsParameterProxy(ParameterType::FLAVOR);
     ObsParameterProxy smParamProxy = ObsParameterProxy(ParameterType::SM);
@@ -28,8 +28,6 @@ ObsManager ObsManager::add_obs(Observables id, QCDOrder order, bool add_deps) {
         add_all_obs_deps(id);
     }
 
-    obs_ptr->print_gradient(std::cout);
-
     return *this;
 }
 
@@ -48,6 +46,7 @@ scalar_t ObsManager::evaluate(Observables id) {
 std::unordered_map<Observables, scalar_t> ObsManager::evaluate_all() {
     std::unordered_map<Observables, scalar_t> all_vals;
     for (auto &[k, _] : obss) {
+        disable_decays();
         all_vals.emplace(k, evaluate(k));
     }
     return all_vals;
@@ -103,6 +102,12 @@ size_t ObsManager::get_obs_evals(Observables id) {
 
 void ObsManager::update_gradient(Observables id) {
     obss.at(ensure_present(id))->update_gradient();
+}
+
+void ObsManager::disable_decays() {
+    for (auto& [_, decay] : this->decays) {
+        decay->disable();
+    }
 }
 
 Observables ObsManager::ensure_present(Observables id) {
