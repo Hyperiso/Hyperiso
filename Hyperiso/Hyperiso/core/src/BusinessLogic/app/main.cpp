@@ -5,8 +5,6 @@
 #include "HyperisoMaster.h"
 
 int main() {
-    Logger::getInstance()->setLevel(Logger::LogLevel::TRACE);
-
     LOG_INFO("Starting HyperisoMaster test");
     Logger::getInstance()->setLevel(Logger::LogLevel::INFO);
     HyperisoMaster hyperiso;

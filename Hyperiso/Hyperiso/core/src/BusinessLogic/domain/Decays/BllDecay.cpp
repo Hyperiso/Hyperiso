@@ -13,6 +13,7 @@ scalar_t BllDecay::W2Q(scalar_t r, scalar_t CQ2, scalar_t CPQ2, bool prime) {
 
 scalar_t BllDecay::W210(scalar_t x, scalar_t C10, scalar_t CP10, bool prime) {
     CP10 = prime ? CP10 : scalar_t(0.);
+    LOG_INFO("C10 =", C10);
     return 2. * (C10 - CP10) * x;
 }
 
@@ -72,13 +73,13 @@ void BllDecay::build_op_tree() {
     auto m_b_pole = std::make_shared<ParameterNode>(ParamId(ParameterType::SM, "QCD", LhaID(5, 2)));
 
     // Wilson Coefficients
-    auto C10 = std::make_shared<ParameterNode>(ParamId(ParameterType::WILSON, GroupMapper::str(WGroup::B, ScaleType::HADRONIC), LhaID(3051313, 4137, 2)));
-    auto C10_SM = std::make_shared<ParameterNode>(ParamId(ParameterType::WILSON, GroupMapper::str(WGroup::B, ScaleType::HADRONIC), LhaID(3051313, 4137, 0)));
-    auto CQ1 = std::make_shared<ParameterNode>(ParamId(ParameterType::WILSON, GroupMapper::str(WGroup::BScalar, ScaleType::HADRONIC), LhaID(3051313, 3230, 2)));
-    auto CQ2 = std::make_shared<ParameterNode>(ParamId(ParameterType::WILSON, GroupMapper::str(WGroup::BScalar, ScaleType::HADRONIC), LhaID(3051313, 3233, 2)));
-    auto CP10 = std::make_shared<ParameterNode>(ParamId(ParameterType::WILSON, GroupMapper::str(WGroup::BPrime, ScaleType::HADRONIC), LhaID(3051313, 4234, 2)));
-    auto CPQ1 = std::make_shared<ParameterNode>(ParamId(ParameterType::WILSON, GroupMapper::str(WGroup::BPrime, ScaleType::HADRONIC), LhaID(3051313, 3130, 2)));
-    auto CPQ2 = std::make_shared<ParameterNode>(ParamId(ParameterType::WILSON, GroupMapper::str(WGroup::BPrime, ScaleType::HADRONIC), LhaID(3051313, 3133, 2)));
+    auto C10 = std::make_shared<ParameterNode>(ParamId(ParameterType::WILSON, GroupMapper::str(WGroup::B, ScaleType::HADRONIC), WCoefMapper::flha_full(WCoef::C10, QCDOrder::LO, ContributionType::TOTAL)));
+    auto C10_SM = std::make_shared<ParameterNode>(ParamId(ParameterType::WILSON, GroupMapper::str(WGroup::B, ScaleType::HADRONIC), WCoefMapper::flha_full(WCoef::C10, QCDOrder::LO, ContributionType::SM)));
+    auto CQ1 = std::make_shared<ParameterNode>(ParamId(ParameterType::WILSON, GroupMapper::str(WGroup::BScalar, ScaleType::HADRONIC), WCoefMapper::flha_full(WCoef::CQ1, QCDOrder::LO, ContributionType::TOTAL)));
+    auto CQ2 = std::make_shared<ParameterNode>(ParamId(ParameterType::WILSON, GroupMapper::str(WGroup::BScalar, ScaleType::HADRONIC), WCoefMapper::flha_full(WCoef::CQ2, QCDOrder::LO, ContributionType::TOTAL)));
+    auto CP10 = std::make_shared<ParameterNode>(ParamId(ParameterType::WILSON, GroupMapper::str(WGroup::BPrime, ScaleType::HADRONIC), WCoefMapper::flha_full(WCoef::CP10, QCDOrder::LO, ContributionType::TOTAL)));
+    auto CPQ1 = std::make_shared<ParameterNode>(ParamId(ParameterType::WILSON, GroupMapper::str(WGroup::BPrime, ScaleType::HADRONIC), WCoefMapper::flha_full(WCoef::CPQ1, QCDOrder::LO, ContributionType::TOTAL)));
+    auto CPQ2 = std::make_shared<ParameterNode>(ParamId(ParameterType::WILSON, GroupMapper::str(WGroup::BPrime, ScaleType::HADRONIC), WCoefMapper::flha_full(WCoef::CPQ2, QCDOrder::LO, ContributionType::TOTAL)));
 
     // Flavor Parameters
     auto m_Bs = std::make_shared<ParameterNode>(ParamId(ParameterType::FLAVOR, "FMASS", 531));

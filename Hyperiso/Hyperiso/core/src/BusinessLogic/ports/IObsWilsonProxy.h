@@ -20,6 +20,7 @@ public:
     virtual std::map<WCoef, complex_t>      getAFR  (WGroup group, QCDOrder order, bool sm_only=false)              = 0;
 
     virtual std::shared_ptr<BuilderType> get_builder() = 0;
+    virtual std::unordered_set<WilsonBasis> get_bases(WGroup) = 0;
 };
 
 #endif // __IOBSWILSONPROXY_H__

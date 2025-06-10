@@ -6,7 +6,7 @@
 int main() {
     HyperisoMaster hyp = HyperisoMaster();
     Config config;
-    config.model = Model::SUSY;
+    config.model = Model::SM;
     // config.flags[ExternalFlag::USE_MARTY] = true; // TODO : Théo not happy
     // config.mty_model_name = "THDM";
     // config.mty_model_path = std::string(project_tp_root.data()) + "MARTY/src/MARTY/src/marty/models/thdm.h";
@@ -17,7 +17,7 @@ int main() {
     wilson_config.groups = {WGroup::B, WGroup::BPrime, WGroup::BScalar, WGroup::BCC};
     wilson_config.matching_scale = 85.0;
     wilson_config.hadronic_scale = 4.5;
-    wilson_config.order = QCDOrder::NNLO;
+    wilson_config.order = QCDOrder::LO;
     WilsonBuilder builder {wilson_config};
 
     BlockProxy bp;
@@ -36,6 +36,14 @@ int main() {
     bp.log_block(ParameterType::WILSON, GroupMapper::str(WGroup::BPrime, ScaleType::HADRONIC));
     bp.log_block(ParameterType::WILSON, GroupMapper::str(WGroup::BScalar, ScaleType::HADRONIC));
     bp.log_block(ParameterType::WILSON, GroupMapper::str(WGroup::BCC, ScaleType::HADRONIC));
+
+    LOG_INFO("------------- Wilson Parameter blocks -------------");
+    bp.log_block(ParameterType::SM, "QCD");
+    bp.log_block(ParameterType::SM, "VCKM");
+    bp.log_block(ParameterType::WILSON, "B_SCALE");
+    bp.log_block(ParameterType::WILSON, "WPARAM_SI_SM");
+    bp.log_block(ParameterType::WILSON, "WPARAM_MATCH_SM");
+    bp.log_block(ParameterType::WILSON, "WPARAM_RUN_SM");
 
     return 0;
 }

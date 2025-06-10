@@ -311,12 +311,16 @@ std::map<std::string, std::shared_ptr<CoefficientGroup>> CoefficientManager::get
     return this->coefficientGroups;
 }
 
+std::unordered_set<WilsonBasis> CoefficientManager::getGroupBases(WGroup group) {
+    return this->coefficientGroups.at(GroupMapper::str(group))->get_bases();
+}
+
 void CoefficientManager::printGroupCoefficients(const std::string& groupName) const {
     std::shared_ptr<CoefficientGroup> group = getCoefficientGroup(groupName);
 }
 
 CoefficientManager::~CoefficientManager() {
-    LOG_TRACE("Call to CoefficientManager destructor");
+    LOG_INFO("Call to CoefficientManager destructor");
     WilsonParamComposer().remove_all_composed_blocks();
     WilsonParameterHelper::cleanup();
 }

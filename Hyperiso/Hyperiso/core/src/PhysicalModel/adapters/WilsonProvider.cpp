@@ -55,3 +55,7 @@ scalar_t WilsonProvider::get(std::shared_ptr<AbstractConfig> config) {
 std::shared_ptr<WilsonBuilder> WilsonProvider::get_builder() {
     return std::make_shared<WilsonBuilder>(this->cm);
 }
+
+std::unordered_set<WilsonBasis> WilsonProvider::get_bases(WGroup group) {
+    return this->cm->getGroupBases(group);
+}

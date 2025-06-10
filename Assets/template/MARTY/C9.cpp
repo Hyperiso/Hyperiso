@@ -30,13 +30,19 @@ int calculate_C9mu(Model &model, gauge::Type gauge) {
     opts.setFermionOrder({1, 0, 2, 3});
     opts.setWilsonOperatorCoefficient(factorOperator);
 
-    auto wil = model.computeWilsonCoefficients(mty::Order::OneLoop,
-        {Incoming("b"), Outgoing("s"),
-         Outgoing("mu"), Outgoing(AntiPart("mu"))},
-        opts);
+    auto wil = model.computeWilsonCoefficients(
+        mty::Order::OneLoop,
+        {Incoming("b"), 
+         Outgoing("s"),
+         Outgoing("mu"),
+         Outgoing(AntiPart("mu"))},
+        opts
+    );
 
-    auto O9_mu = dimension6Operator(model, wil, DiracCoupling::VL, DiracCoupling::V, {1, 2, 0, 3});
-    Expr C9_mu = getWilsonCoefficient(wil, O9_mu);
+    Expr C9_mu = getWilsonCoefficient(
+        wil, 
+        dimension6Operator(model, wil, DiracCoupling::VL, DiracCoupling::V)
+    );
 
     [[maybe_unused]] int sysres = system("rm -rf libs/C9_SM");
     mty::Library wilsonLib("C9_SM", "libs");

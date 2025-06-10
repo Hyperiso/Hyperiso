@@ -104,3 +104,7 @@ std::shared_ptr<ObsWilsonBuilder> ObsWilsonProxy::get_builder() {
     auto wilson_builder = std::static_pointer_cast<IWilsonBuilder<WilsonBuildConfig, WilsonProvider>>(this->wil_p->get_builder());
     return std::make_shared<ObsWilsonBuilder>(wilson_builder);
 }
+
+std::unordered_set<WilsonBasis> ObsWilsonProxy::get_bases(WGroup group) {
+    return this->wil_p->get_bases(group);
+}

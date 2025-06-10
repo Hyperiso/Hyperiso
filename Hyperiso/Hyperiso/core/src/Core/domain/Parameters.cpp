@@ -94,7 +94,8 @@ std::unordered_set<BlockName> Parameters::init_blocks(ParameterType type) {
 void Parameters::freeze_block(const BlockName &blockName) {
     if (!blockAccessor->contains(blockName)) {
         // std::cout << blockAccessor << std::endl;
-        LOG_ERROR("Cannot freeze non-existing dependent block", blockName);
+        LOG_INFO(blockAccessor);
+        LOG_ERROR("Cannot freeze non-existing block", blockName);
     }
 
     return this->blockAccessor->at(blockName)->freeze();

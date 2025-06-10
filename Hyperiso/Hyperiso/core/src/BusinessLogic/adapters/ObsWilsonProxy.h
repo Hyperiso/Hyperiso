@@ -24,6 +24,7 @@ public:
     std::map<WCoef, complex_t> getAFR(WGroup group, QCDOrder order, bool sm_only=false);
 
     std::shared_ptr<ObsWilsonBuilder> get_builder() override;
+    std::unordered_set<WilsonBasis> get_bases(WGroup) override;
 
 private:
     std::shared_ptr<WilsonProvider> wil_p;

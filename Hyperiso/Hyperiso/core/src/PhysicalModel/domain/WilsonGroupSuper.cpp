@@ -44,14 +44,18 @@ void CoefficientGroup::init(QCDOrder max_order) {
         for (auto& coeff : *this) {
             auto func_wrapper = [&coeff, order](const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src,
                                         std::shared_ptr<DependentParameter> dep_param) {
+                std::cout << "Init coeff " << coeff.second->get_name() << " at " << OrderMapper::str((QCDOrder)order) << std::endl;
                 auto func = coeff.second->get_func((QCDOrder)order);
+                std::cout << "cc" << std::endl;
                 if (!func) {
                     dep_param->set_expected(0.);
                     return;
                 }
-                // std::cout << "value of : " << coeff.second->get_name() << " at " << OrderMapper::str((QCDOrder)order) << " : " << func(src) << std::endl;
+                std::cout << func(src) << std::endl;
+                std::cout << "value of : " << coeff.second->get_name() << " at " << OrderMapper::str((QCDOrder)order) << " : " << func(src) << std::endl;
                 dep_param->set_expected(func(src));
             };
+            std::cout << "Composing parameter" << std::endl;
             WilsonParamComposer().compose_parameter(ParamId{coeff.second->get_storage_block(), coeff.second->get_lhaid((QCDOrder)order)}, coeff.second->get_sources((QCDOrder)order), func_wrapper);
         }
     }

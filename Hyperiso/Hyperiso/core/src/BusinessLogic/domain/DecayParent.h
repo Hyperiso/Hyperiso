@@ -33,6 +33,8 @@ public:
     scalar_t compute_observable(Observables obs);
     size_t get_n_evals(Observables obs);
 
+    std::shared_ptr<OperatorNode> get_wilson_node();
+
     virtual void build_op_tree() = 0;
 };
 

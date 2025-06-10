@@ -30,20 +30,28 @@ int calculate_CP10mu(Model &model, gauge::Type gauge) {
     opts.setFermionOrder({1, 0, 2, 3});
     opts.setWilsonOperatorCoefficient(factorOperator);
 
-    auto wil = model.computeWilsonCoefficients(mty::Order::TreeLevel,
-        {Incoming("b"), Outgoing("s"),
-         Outgoing("mu"), Outgoing(AntiPart("mu"))},
-        opts);
+    auto wil = model.computeWilsonCoefficients(
+        mty::Order::OneLoop,
+        {Incoming("b"), 
+         Outgoing("s"),
+         Outgoing("mu"),
+         Outgoing(AntiPart("mu"))},
+        opts
+    );
 
-    auto OP10_mu = dimension6Operator(model, wil, DiracCoupling::VR, DiracCoupling::A, {0, 2, 1, 3});
-    Expr CP10_mu = getWilsonCoefficient(wil, OP10_mu);
+    Expr C10_mu = getWilsonCoefficient(
+        wil, 
+        dimension6Operator(model, wil, DiracCoupling::VR, DiracCoupling::A)
+    );
 
-    [[maybe_unused]] int sysres = system("rm -rf libs/CP10_SM");
-    mty::Library wilsonLib("CP10_SM", "libs");
+    [[maybe_unused]] int sysres = system("rm -rf libs/C10_SM");
+    mty::Library wilsonLib("C10_SM", "libs");
     wilsonLib.cleanExistingSources();
-    wilsonLib.addFunction("CP10", CP10_mu);
+    wilsonLib.addFunction("C10", C10_mu);
     defineLibPath(wilsonLib);
     wilsonLib.print();
+
+    return 0;
 
     return 0;
 }

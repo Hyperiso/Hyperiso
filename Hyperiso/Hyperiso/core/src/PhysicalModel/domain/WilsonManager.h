@@ -49,6 +49,7 @@ public:
     std::string getModel();
     std::shared_ptr<CoefficientGroup> getCoefficientGroup(const std::string& groupName) const;
     std::map<std::string, std::shared_ptr<CoefficientGroup>> getGroups();
+    std::unordered_set<WilsonBasis> getGroupBases(WGroup group);
 
     complex_t getMatchingCoefficient(const std::string& groupName, const std::string& coeffName, const std::string& order, ContributionType cont_type);
     complex_t getFullMatchingCoefficient(const std::string& groupName, const std::string& coeffName, const std::string& order, ContributionType cont_type);

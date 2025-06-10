@@ -2607,8 +2607,6 @@ CQ1_susy::CQ1_susy() : WilsonCoefficient("CQ1_SUSY", GroupMapper::str(WGroup::B)
         sources.insert({ParameterType::BSM, "VMIX", {1, i}});
         sources.insert({ParameterType::BSM, "UMIX", {2, i}});
         sources.insert({ParameterType::BSM, "VMIX", {2, i}});
-
-        
     }
 
     for (int i = 0; i < 3; ++i) {
@@ -2664,8 +2662,10 @@ CQ1_susy::CQ1_susy() : WilsonCoefficient("CQ1_SUSY", GroupMapper::str(WGroup::B)
     sources_NLO.insert({ParameterType::SM, "VCKM", {2, 1}});
     sources_NLO.insert({ParameterType::SM, "VCKM", {2, 2}});
     sources_NLO.insert({ParameterType::BSM, "MASS", 37});
+    sources_NLO.insert({ParameterType::BSM, "MASS", 45});
+    sources_NLO.insert({ParameterType::BSM, "MASS", 46});
     sources_NLO.insert({ParameterType::BSM, "HMIX", 1});
-    sources_NLO.insert({ParameterType::BSM, "MINPAR", 3});
+    sources_NLO.insert({ParameterType::BSM, "HMIX", 2});
     sources_NLO.insert({ParameterType::WILSON, "EPSILON_SUSY", 5});
 
     // Boucles : WPARAM_SI_BSM et mixings
@@ -2678,7 +2678,7 @@ CQ1_susy::CQ1_susy() : WilsonCoefficient("CQ1_SUSY", GroupMapper::str(WGroup::B)
 
     for (int i = 1; i < 3; ++i) {
         sources_NLO.insert({ParameterType::WILSON, "WPARAM_SI_BSM", {16, i}});
-        
+
         sources_NLO.insert({ParameterType::BSM, "UMIX", {1, i}});
         sources_NLO.insert({ParameterType::BSM, "VMIX", {1, i}});
         sources_NLO.insert({ParameterType::BSM, "UMIX", {2, i}});
@@ -2701,6 +2701,8 @@ CQ1_susy::CQ1_susy() : WilsonCoefficient("CQ1_SUSY", GroupMapper::str(WGroup::B)
         for (int j = 0; j < 6; ++j) {
             sources_NLO.insert({ParameterType::WILSON, "MATRIX_BSM", {3, i, j, 1}});
             sources_NLO.insert({ParameterType::WILSON, "MATRIX_BSM", {4, i, j, 2}});
+            sources_NLO.insert({ParameterType::WILSON, "MATRIX_BSM", {5, i, j, 1}});
+            sources_NLO.insert({ParameterType::WILSON, "MATRIX_BSM", {6, i, j, 1}});
         }
     }
 
@@ -2725,6 +2727,19 @@ CQ1_susy::CQ1_susy() : WilsonCoefficient("CQ1_SUSY", GroupMapper::str(WGroup::B)
     for (int fe = 0; fe < 3; ++fe) {
         sources_NLO.insert({ParameterType::WILSON, "WPARAM_MATCH_BSM", {2, fe}});
     }
+
+    // HMIX & AMIX matrix elements used in the else branch
+    sources_NLO.insert({ParameterType::BSM, "NMHMIX", {0+1, 0+1}});
+    sources_NLO.insert({ParameterType::BSM, "NMHMIX", {0+1, 1+1}});
+    sources_NLO.insert({ParameterType::BSM, "NMHMIX", {1+1, 0+1}});
+    sources_NLO.insert({ParameterType::BSM, "NMHMIX", {1+1, 1+1}});
+    sources_NLO.insert({ParameterType::BSM, "NMHMIX", {2+1, 0+1}});
+    sources_NLO.insert({ParameterType::BSM, "NMHMIX", {2+1, 1+1}});
+            // {ParameterType::BSM, "NMHMIX", {3+1, 0+1}},
+    sources_NLO.insert({ParameterType::BSM, "NMAMIX" , {0+1, 0+1}});
+    sources_NLO.insert({ParameterType::BSM, "NMAMIX" , {0+1, 1+1}});
+    sources_NLO.insert({ParameterType::BSM, "NMAMIX" , {1+1, 0+1}});
+    sources_NLO.insert({ParameterType::BSM, "NMAMIX" , {1+1, 1+1}});
 
 }
 
@@ -2926,6 +2941,7 @@ scalar_t CQ1_susy::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<
 }
 
 scalar_t CQ1_susy::compute_NLO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src) {
+    LOG_INFO("CQ1_susy::NLO 1");
     double xt = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {2,1}})->get_val();
 
     double lu = src.at({ParameterType::WILSON, "WPARAM_SI_BSM", 7})->get_val();
@@ -2940,7 +2956,7 @@ scalar_t CQ1_susy::compute_NLO(const std::unordered_map<ParamId, std::shared_ptr
     double mass_b_muW = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {5,1}})->get_val();
     double mass_top_muW = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 6})->get_val();
     double g2 = src.at({ParameterType::SM, "GAUGE", 2})->get_val();
-    double tanb = src.at({ParameterType::BSM, "MINPAR", 3})->get_val();
+    double tanb = src.at({ParameterType::BSM, "HMIX", 2})->get_val();
 
     double muQ = src.at({ParameterType::BSM, "HMIX", 1})->get_val();
     double xH = src.at({ParameterType::WILSON, "WPARAM_SI_BSM", 2})->get_val();
@@ -2956,7 +2972,7 @@ scalar_t CQ1_susy::compute_NLO(const std::unordered_map<ParamId, std::shared_ptr
     complex_t CQ1H_1=(NQ11H+BQ11H)*mass_b_muW/sw2;
     complex_t CQ2H_1=-CQ1H_1;
 
-    
+    LOG_INFO("CQ1_susy::NLO 2");
     complex_t BQ11c1=0.;
     complex_t BQ11c2=0.;
     complex_t NQ11c=0.;
@@ -3015,6 +3031,8 @@ scalar_t CQ1_susy::compute_NLO(const std::unordered_map<ParamId, std::shared_ptr
                 }
             }
 
+            LOG_INFO("CQ1_susy::NLO 2.1");
+
             for(int me=0;me<3;me++) {
                 for(int ne=0;ne<3;ne++) {
                     for(int de=0;de<6;de++) {
@@ -3051,6 +3069,8 @@ scalar_t CQ1_susy::compute_NLO(const std::unordered_map<ParamId, std::shared_ptr
             }
         }
     }
+
+    LOG_INFO("CQ1_susy::NLO 3");
     
     complex_t BQ11c=(BQ11c1+BQ11c2)*kappa*mW*mW/2./g2/g2/sw2;
     complex_t BQ21c=-(BQ11c1-BQ11c2)*kappa*mW*mW/2./g2/g2/sw2;
@@ -3077,6 +3097,9 @@ scalar_t CQ1_susy::compute_NLO(const std::unordered_map<ParamId, std::shared_ptr
 
     complex_t CQ1four_1=NQ11f+BQ11f;
     complex_t coeff_temp = (CQ1H_1+CQ1charg_1)/epsfac+CQ1four_1;
+
+    LOG_INFO("CQ1_susy::NLO 4");
+
 
     return coeff_temp;
 }
@@ -3194,6 +3217,19 @@ CQ2_susy::CQ2_susy() : WilsonCoefficient("CQ2_SUSY", GroupMapper::str(WGroup::B)
         }
     }
 
+    // HMIX & AMIX matrix elements used in the else branch
+    sources.insert({ParameterType::BSM, "NMHMIX", {0+1, 0+1}});
+    sources.insert({ParameterType::BSM, "NMHMIX", {0+1, 1+1}});
+    sources.insert({ParameterType::BSM, "NMHMIX", {1+1, 0+1}});
+    sources.insert({ParameterType::BSM, "NMHMIX", {1+1, 1+1}});
+    sources.insert({ParameterType::BSM, "NMHMIX", {2+1, 0+1}});
+    sources.insert({ParameterType::BSM, "NMHMIX", {2+1, 1+1}});
+            // {ParameterType::BSM, "NMHMIX", {3+1, 0+1}},
+    sources.insert({ParameterType::BSM, "NMAMIX" , {0+1, 0+1}});
+    sources.insert({ParameterType::BSM, "NMAMIX" , {0+1, 1+1}});
+    sources.insert({ParameterType::BSM, "NMAMIX" , {1+1, 0+1}});
+    sources.insert({ParameterType::BSM, "NMAMIX" , {1+1, 1+1}});
+
     matching_info[QCDOrder::NLO] = {
         {}, // sources
         compute_NLO,
@@ -3224,6 +3260,8 @@ CQ2_susy::CQ2_susy() : WilsonCoefficient("CQ2_SUSY", GroupMapper::str(WGroup::B)
     sources_NLO.insert({ParameterType::SM, "MASS", 24});
     sources_NLO.insert({ParameterType::SM, "GAUGE", 2});
     sources_NLO.insert({ParameterType::BSM, "MASS", 37});
+    sources_NLO.insert({ParameterType::BSM, "MASS", 45});
+    sources_NLO.insert({ParameterType::BSM, "MASS", 46});
     sources_NLO.insert({ParameterType::BSM, "HMIX", 1});
     sources_NLO.insert({ParameterType::BSM, "MINPAR", 3});
 
@@ -3268,11 +3306,7 @@ CQ2_susy::CQ2_susy() : WilsonCoefficient("CQ2_SUSY", GroupMapper::str(WGroup::B)
     for (int ae = 0; ae < 6; ++ae) {
     for (int fe = 0; fe < 3; ++fe) {
         sources_NLO.insert({ParameterType::WILSON, "MATRIX_BSM", {2, ae, fe}});
-    }
-    }
-    for (int me = 0; me < 6; ++me) {
-    for (int be = 0; be < 3; ++be) {
-        sources_NLO.insert({ParameterType::WILSON, "MATRIX_BSM", {1, me, be}});
+        sources_NLO.insert({ParameterType::WILSON, "MATRIX_BSM", {1, ae, fe}});
     }
     }
 
@@ -3298,6 +3332,19 @@ CQ2_susy::CQ2_susy() : WilsonCoefficient("CQ2_SUSY", GroupMapper::str(WGroup::B)
     for (int fe = 1; fe <= 3; ++fe) {
     sources_NLO.insert({ParameterType::WILSON, "WPARAM_MATCH_BSM", {2, fe}});
     }
+
+    // HMIX & AMIX matrix elements used in the else branch
+    sources_NLO.insert({ParameterType::BSM, "NMHMIX", {0+1, 0+1}});
+    sources_NLO.insert({ParameterType::BSM, "NMHMIX", {0+1, 1+1}});
+    sources_NLO.insert({ParameterType::BSM, "NMHMIX", {1+1, 0+1}});
+    sources_NLO.insert({ParameterType::BSM, "NMHMIX", {1+1, 1+1}});
+    sources_NLO.insert({ParameterType::BSM, "NMHMIX", {2+1, 0+1}});
+    sources_NLO.insert({ParameterType::BSM, "NMHMIX", {2+1, 1+1}});
+            // {ParameterType::BSM, "NMHMIX", {3+1, 0+1}},
+    sources_NLO.insert({ParameterType::BSM, "NMAMIX" , {0+1, 0+1}});
+    sources_NLO.insert({ParameterType::BSM, "NMAMIX" , {0+1, 1+1}});
+    sources_NLO.insert({ParameterType::BSM, "NMAMIX" , {1+1, 0+1}});
+    sources_NLO.insert({ParameterType::BSM, "NMAMIX" , {1+1, 1+1}});
 
     // // RECKM approximatif (0 à 29)
     // for (int i = 0; i < 30; ++i) {
@@ -3521,6 +3568,7 @@ scalar_t CQ2_susy::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<
 
 
 scalar_t CQ2_susy::compute_NLO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src) {
+    LOG_INFO("CQ2_susy::NLO 1");
     double xt = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {2,1}})->get_val();
 
     double lu = src.at({ParameterType::WILSON, "WPARAM_SI_BSM", 7})->get_val();
@@ -3551,6 +3599,7 @@ scalar_t CQ2_susy::compute_NLO(const std::unordered_map<ParamId, std::shared_ptr
     complex_t CQ1H_1=(NQ11H+BQ11H)*mass_b_muW/sw2;
     complex_t CQ2H_1=-CQ1H_1;
 
+    LOG_INFO("CQ2_susy::NLO 2");
     
     complex_t BQ11c1=0.;
     complex_t BQ11c2=0.;
@@ -3575,7 +3624,7 @@ scalar_t CQ2_susy::compute_NLO(const std::unordered_map<ParamId, std::shared_ptr
                         for(int ne=0;ne<3;ne++) {
                             Dp=0.;
                             Dm=0.;
-                            for(int fe=1;fe<=3;fe++) { 	
+                            for(int fe=1;fe<3;fe++) { 	
                                 Dp+=src.at({ParameterType::WILSON, "WPARAM_MATCH_BSM", {2, fe}})->get_val()/sqrt(2.)/src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, ie}})->get_val()*muQ*(src.at({ParameterType::WILSON, "MATRIX_BSM", {2, ae, fe}})->get_val()*src.at({ParameterType::WILSON, "MATRIX_BSM", {1, me, fe}})->get_val()+src.at({ParameterType::WILSON, "MATRIX_BSM", {1, ae, fe}})->get_val()*src.at({ParameterType::WILSON, "MATRIX_BSM", {2, me, fe}})->get_val());
                                 Dm+=src.at({ParameterType::WILSON, "WPARAM_MATCH_BSM", {2, fe}})->get_val()/sqrt(2.)/src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, ie}})->get_val()*muQ*(src.at({ParameterType::WILSON, "MATRIX_BSM", {2, ae, fe}})->get_val()*src.at({ParameterType::WILSON, "MATRIX_BSM", {1, me, fe}})->get_val()-src.at({ParameterType::WILSON, "MATRIX_BSM", {1, ae, fe}})->get_val()*src.at({ParameterType::WILSON, "MATRIX_BSM", {2, me, fe}})->get_val());
                             }
@@ -3609,6 +3658,8 @@ scalar_t CQ2_susy::compute_NLO(const std::unordered_map<ParamId, std::shared_ptr
                     }
                 }
             }
+
+            LOG_INFO("CQ2_susy::NLO 3");
 
             for(int me=0;me<3;me++) {
                 for(int ne=0;ne<3;ne++) {
@@ -3644,10 +3695,12 @@ scalar_t CQ2_susy::compute_NLO(const std::unordered_map<ParamId, std::shared_ptr
                 }
                     
             }
+
+            LOG_INFO("CQ2_susy::NLO 4");
         }
     }
     
-    
+    LOG_INFO("CQ2_susy::NLO 5");
     complex_t BQ11c=(BQ11c1+BQ11c2)*kappa*mW*mW/2./g2/g2/sw2;
     complex_t BQ21c=-(BQ11c1-BQ11c2)*kappa*mW*mW/2./g2/g2/sw2;
 
@@ -3668,6 +3721,8 @@ scalar_t CQ2_susy::compute_NLO(const std::unordered_map<ParamId, std::shared_ptr
     complex_t CQ2four_1=NQ21f+BQ21f;
 
     complex_t coeff_temp = (CQ2H_1+CQ2charg_1)/epsfac+CQ2four_1;
+
+    LOG_INFO("CQ2_susy::NLO 6");
 
     return coeff_temp;
 }
