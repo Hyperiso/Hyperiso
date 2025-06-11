@@ -86,5 +86,18 @@ enum class ScaleType {
     HADRONIC
 };
 
+enum class DataType { 
+    VALUE,
+    STD_STAT,
+    STD_SYST,
+    STD_COMBINED
+};
+
+enum class UncertaintyType {
+    STAT,
+    SYST,
+    COMBINED
+};
+
 
 #endif

@@ -64,11 +64,11 @@ scalar_t Compound::variance() {
     for (const auto &pid_1 : dependences) {
         for (const auto &pid_2 : dependences) {
             if (pid_1 == pid_2) {
-                var += pow(opp(pid_1, ParameterProvider::DataType::STD_COMBINED) * gradient.at(pid_1), 2);
+                var += pow(opp(pid_1, DataType::STD_COMBINED) * gradient.at(pid_1), 2);
             } else {
                 var += cp(pid_1, pid_2, CorrelationProvider::CorrelationType::COMBINED)  // rho_12
-                        * opp(pid_1, ParameterProvider::DataType::STD_COMBINED)                          // sigma_1
-                        * opp(pid_2, ParameterProvider::DataType::STD_COMBINED)                          // sigma_2
+                        * opp(pid_1, DataType::STD_COMBINED)                          // sigma_1
+                        * opp(pid_2, DataType::STD_COMBINED)                          // sigma_2
                         * gradient.at(pid_1)                                                             // dC/dp_1   
                         * gradient.at(pid_2);                                                            // dC/dp_2
             }
@@ -98,11 +98,16 @@ const std::unordered_map<ParamId, scalar_t> Compound::get_uncertainties() const 
     std::unordered_map<ParamId, scalar_t> uncertainties;
     ObsParameterProxy opp = ObsParameterProxy();
     for (auto p : dependences) {
-        scalar_t u = opp(p, ParameterProvider::DataType::STD_COMBINED) * std::abs(gradient.at(p));
+        scalar_t u = opp(p, DataType::STD_COMBINED) * std::abs(gradient.at(p));
         uncertainties.emplace(p, u);
     }
 
     return uncertainties;
+}
+
+Estimate Compound::get_estimate() {
+    // TODO : Manage stat and syst separation
+    return Estimate {this->eval(), this->variance(), 0};
 }
 
 scalar_t Compound::correlation_with(const Compound &other) const {
@@ -114,8 +119,8 @@ scalar_t Compound::correlation_with(const Compound &other) const {
     for (auto &&p_1 : common_dep) {
         for (auto &&p_2 : common_dep) {
             corr += cp(p_1, p_2, CorrelationProvider::CorrelationType::COMBINED)   // rho_12
-                    * opp(p_1, ParameterProvider::DataType::STD_COMBINED)                          // sigma_1
-                    * opp(p_2, ParameterProvider::DataType::STD_COMBINED)                          // sigma_2
+                    * opp(p_1, DataType::STD_COMBINED)                          // sigma_1
+                    * opp(p_2, DataType::STD_COMBINED)                          // sigma_2
                     * this->gradient.at(p_1)                                                       // dC_1/dp_1   
                     * other.get_gradient().at(p_2);                                                // dC_2/dp_2
         }

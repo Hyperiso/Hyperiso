@@ -13,8 +13,6 @@
  */
 class ParameterProvider : public IDataProvider<ParameterProvider> {
 public:
-    enum class DataType { VALUE, STD_STAT, STD_SYST, STD_COMBINED };
-
     ParameterProvider() = default;
     inline ParameterProvider(ParameterType p_type) : p_type(p_type) { Parameters::GetInstance(p_type); }
 

@@ -17,6 +17,7 @@ DecayParent::DecayParent(double matching_scale, double hadronic_scale, QCDOrder 
 }
 
 void DecayParent::enable() {
+    // TODO : Manage enabling properly (don't call it each time eval() is called)
     // if (this->enabled) {
     //     return;
     // }

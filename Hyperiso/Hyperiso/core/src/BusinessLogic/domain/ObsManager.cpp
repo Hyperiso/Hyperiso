@@ -43,13 +43,12 @@ scalar_t ObsManager::evaluate(Observables id) {
     return obss.at(ensure_present(id))->eval();
 }
 
-std::unordered_map<Observables, scalar_t> ObsManager::evaluate_all() {
-    std::unordered_map<Observables, scalar_t> all_vals;
-    for (auto &[k, _] : obss) {
-        disable_decays();
-        all_vals.emplace(k, evaluate(k));
+std::unordered_map<Observables, Estimate> ObsManager::evaluate_all() {
+    std::unordered_map<Observables, Estimate> all_ests;
+    for (auto &[k, k_ptr] : obss) {
+        all_ests.emplace(k, k_ptr->get_estimate());
     }
-    return all_vals;
+    return all_ests;
 }
 
 void ObsManager::add_obs_dep(Observables id, ParamId param) {
@@ -96,12 +95,20 @@ double ObsManager::get_chi2() {
     return me.chi2();
 }
 
+std::unordered_set<Observables> ObsManager::get_current_obss() {
+    return get_keys(this->obss);
+}
+
 size_t ObsManager::get_obs_evals(Observables id) {
     return obss.at(ensure_present(id))->get_n_evals();
 }
 
 void ObsManager::update_gradient(Observables id) {
     obss.at(ensure_present(id))->update_gradient();
+}
+
+std::shared_ptr<Observable> ObsManager::get_obs(Observables id){
+    return this->obss.at(ensure_present(id));
 }
 
 void ObsManager::disable_decays() {

@@ -17,7 +17,7 @@ public:
     ObsManager remove_obs(Observables id);
 
     scalar_t evaluate(Observables id);
-    std::unordered_map<Observables, scalar_t> evaluate_all();
+    std::unordered_map<Observables, Estimate> evaluate_all();
     void add_obs_dep(Observables id, ParamId param);
     void add_obs_deps(Observables id, std::unordered_set<ParamId> params);
     void add_all_obs_deps(Observables id);
@@ -28,6 +28,7 @@ public:
     std::unordered_set<Observables> get_current_obss();
     size_t get_obs_evals(Observables id);
     void update_gradient(Observables id);
+    std::shared_ptr<Observable> get_obs(Observables id);
 
     void disable_decays();
 

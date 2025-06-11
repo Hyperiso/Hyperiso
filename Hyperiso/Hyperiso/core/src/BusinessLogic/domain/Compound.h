@@ -10,6 +10,21 @@
 #include "ObsParameterMutator.h"
 #include "CorrelationProxy.h"
 
+struct Estimate {
+    scalar_t central_value;
+    scalar_t stat_std;
+    scalar_t syst_std;
+
+    scalar_t combined_std() {
+        return std::hypot(stat_std, syst_std);
+    }
+
+    friend std::ostream& operator<<(std::ostream& os, Estimate est) {
+        os << est.central_value << " +- " << est.stat_std << " (stat)" << " +- " << est.syst_std << "(syst)";
+        return os;
+    }
+};
+
 class Compound {
 
 protected:
@@ -31,6 +46,7 @@ public:
     scalar_t correlation_with(const Compound& other) const;
     const std::unordered_map<ParamId, scalar_t> get_leading_uncertainties(size_t n) const;
     const std::unordered_map<ParamId, scalar_t> get_uncertainties() const;
+    Estimate get_estimate();
     void print_gradient(std::ostream& os) const;
 
 };

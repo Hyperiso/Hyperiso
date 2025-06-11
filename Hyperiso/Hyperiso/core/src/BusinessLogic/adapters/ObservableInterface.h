@@ -9,7 +9,7 @@
 #include <iostream>
 #include <cmath>
 
-#include "General.h"
+#include "Include.h"
 #include "ModelEvaluator.h"
 #include "Decays.h"
 #include "ObsManager.h"
@@ -18,15 +18,10 @@ class ObservableInterface {
 private:
     std::shared_ptr<ObsManager> manager;
 
-    void disable_decays() const {
-        manager->disable_decays();
-    }
-
 public:
     ObservableInterface();
 
     ObservableInterface& add_observable(Observables obs, QCDOrder order, bool add_dependencies=false) {  
-        // disable_decays();
         manager->add_obs(obs, order, add_dependencies);
         return *this;
     }
@@ -37,33 +32,29 @@ public:
         }
     }
 
+    void add_observables(Decays decay, QCDOrder order, bool add_dependencies=false) {  
+        for (auto &obs : DecayMapper::get_observables(decay)) {
+            add_observable(obs, order, add_dependencies);
+        }
+    }
+
     void add_observable_parameter(Observables obs, ParamId pid) {
-        // disable_decays();
         manager->add_obs_dep(obs, pid);
     }
 
     void add_observable_parameters(Observables obs, std::unordered_set<ParamId> pids) {
-        // disable_decays();
         manager->add_obs_deps(obs, pids);
     }
 
     scalar_t compute_observable(Observables obs) const {
-        // disable_decays();
         return manager->evaluate(obs);
     }
 
-    std::unordered_map<Observables, scalar_t> compute_all_observables() const {
-        // disable_decays();
-        return manager->evaluate_all();
-    }
-
-    scalar_t compute_uncertainty(Observables obs) const {
-        // disable_decays();
+    scalar_t compute_uncertainty(Observables obs, UncertaintyType u_type=UncertaintyType::COMBINED) const {
         return manager->get_uncertainty(obs);
     }
 
-    std::unordered_map<ParamId, scalar_t> compute_leading_uncertainties(Observables obs, size_t n) const {
-        // disable_decays();
+    std::unordered_map<ParamId, scalar_t> compute_leading_uncertainties(Observables obs, size_t n, UncertaintyType u_type=UncertaintyType::COMBINED) const {
         return manager->get_leading_uncertainties(obs, n);
     }
 
@@ -73,6 +64,53 @@ public:
 
     double compute_chi2() const {
         return manager->get_chi2();
+    }
+
+    void remove_observable(Observables id) {
+        manager->remove_obs(id);
+    }
+
+    void remove_observables(std::unordered_set<Observables> ids) {
+        for (Observables id : ids) {
+            remove_observable(id);
+        }
+    };
+
+    void remove_observables(Decays dec) {
+        for (Observables id : DecayMapper::get_observables(dec)) {
+            remove_observable(id);
+        }
+    };
+
+    scalar_t get_exp_value(Observables id) {
+        return manager->get_obs(id)->get_exp_val();
+    };
+
+    scalar_t get_exp_uncertainty(Observables id, UncertaintyType u_type=UncertaintyType::COMBINED) {
+        return manager->get_obs(id)->get_exp_uncertainty(u_type);
+    }
+
+    std::unordered_set<Observables> get_current_observables() {
+        return manager->get_current_obss();
+    }
+
+    std::unordered_map<Observables, Estimate> compute_all() {
+        return manager->evaluate_all();
+    }
+
+    std::unordered_map<Observables, Estimate> get_all_exp() {
+        std::unordered_map<Observables, Estimate> all_exp;
+        for (Observables id : get_current_observables()) {
+            all_exp.emplace(
+                id, 
+                Estimate {
+                    get_exp_value(id),
+                    get_exp_uncertainty(id, UncertaintyType::STAT),
+                    get_exp_uncertainty(id, UncertaintyType::SYST), 
+                }
+            );
+        }
+        return all_exp;
     }
 
     void set_param(const std::string& block, int code, double value, ParameterType type) {
@@ -87,15 +125,9 @@ public:
         return manager->get_obs_evals(obs);
     }
 
-    std::unordered_set<Observables> get_current_obss() {
-        return manager->get_current_obss();
-    }
-
     void update_gradient(Observables obs) {
-        // disable_decays();
         manager->update_gradient(obs);
     }
-
 };
 
 #endif

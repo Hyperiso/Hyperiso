@@ -57,13 +57,13 @@ void ModelEvaluator::update_exp_covariance() {
         for (auto &[id_2, obs_2] : this->observables) {
             auto pair_id = std::make_pair(id_1, id_2);
             if (id_1 == id_2) {
-                scalar_t var = std::pow(opp("FOBS", LhaID(ObservableMapper::str(id_1)), ParameterProvider::DataType::STD_COMBINED), 2);
+                scalar_t var = std::pow(opp("FOBS", LhaID(ObservableMapper::str(id_1)), DataType::STD_COMBINED), 2);
                 exp_cov_mtx.insert_or_assign(pair_id, var);
             } else {
                 double corr = cp(id_1, id_2, CorrelationProvider::CorrelationType::COMBINED);
-                scalar_t sigma_1 = opp("FOBS", ObservableMapper::flha(id_1), ParameterProvider::DataType::STD_COMBINED);
-                scalar_t sigma_2 = opp("FOBS", ObservableMapper::flha(id_2), ParameterProvider::DataType::STD_COMBINED);
-                exp_cov_mtx.insert_or_assign(pair_id, corr * sigma_1 * sigma_2); //TODO or not TODO : it was th_cov_mtx, typo ?
+                scalar_t sigma_1 = opp("FOBS", ObservableMapper::flha(id_1), DataType::STD_COMBINED);
+                scalar_t sigma_2 = opp("FOBS", ObservableMapper::flha(id_2), DataType::STD_COMBINED);
+                exp_cov_mtx.insert_or_assign(pair_id, corr * sigma_1 * sigma_2);
             }
         }
     }

@@ -8,7 +8,7 @@ ObsParameterProxy::ObsParameterProxy(ParameterType type) {
     this->pp = ParameterProvider();
 } 
 
-scalar_t ObsParameterProxy::operator()(const std::string& block, const LhaID& id, ParameterProvider::DataType d_type) const {
+scalar_t ObsParameterProxy::operator()(const std::string& block, const LhaID& id, DataType d_type) const {
     if (pp_with_type.get_type() == ParameterType::WILSON) {
         return pp_with_type.exists(block, id) ? pp_with_type(block, id, d_type) : scalar_t();
     } 
@@ -16,7 +16,7 @@ scalar_t ObsParameterProxy::operator()(const std::string& block, const LhaID& id
     return value;
 };
 
-scalar_t ObsParameterProxy::operator()(const ParamId& pid, ParameterProvider::DataType d_type) { 
+scalar_t ObsParameterProxy::operator()(const ParamId& pid, DataType d_type) { 
     if (!pid.type.has_value()) {
         LOG_WARN("LogicError", "Use of untyped ParamId in ParameterProvider.");
     }

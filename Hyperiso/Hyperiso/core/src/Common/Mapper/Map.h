@@ -13,6 +13,7 @@
 #include "MassTypeMapper.h"
 #include "ScaleTypeMapper.h"
 #include "DecayMapper.h"
+#include "UncertaintyTypeMapper.h"
 
 const std::map<Observables, std::string>& observable_mapping();
 const std::map<QCDOrder, std::string>& order_mapping();
@@ -24,7 +25,6 @@ const std::map<Model, std::string>& model_mapping();
 const std::map<WilsonBasis, std::string>& wilsonbasis_mapping();
 const std::map<ContributionType, std::string>& contributiontype_mapping();
 const std::map<Decays, std::string>& decays_mapping();
-
 const std::map<Decays, std::vector<Observables>>& decay_observable_mapping();
 
 // inline const std::map<Observables, std::string>& ObservableMapper::mapping() {
