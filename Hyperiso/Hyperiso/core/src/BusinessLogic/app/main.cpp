@@ -27,7 +27,7 @@ void test_interface(ObservableInterface& interface) {
     interface.add_observables({
         {R_D, LO},
         {R_DSTAR, LO}
-    });
+    }, true);
     assert_equal(interface.get_current_observables().count(R_D), 1u, "add_observables (map) - R_D");
     assert_equal(interface.get_current_observables().count(R_DSTAR), 1u, "add_observables (map) - R_DSTAR");
 
@@ -38,15 +38,15 @@ void test_interface(ObservableInterface& interface) {
     }
 
     // Add observable parameters
-    interface.add_observable_parameter(R_DSTAR, ParamId(ParameterType::FLAVOR, "FMASS", 423));
-    interface.add_observable_parameters(R_D, {ParamId(ParameterType::FLAVOR, "FMASS", 411), ParamId(ParameterType::FLAVOR, "FMASS", 521)});
+    // interface.add_observable_parameter(R_DSTAR, ParamId(ParameterType::FLAVOR, "FMASS", 423));
+    // interface.add_observable_parameters(R_D, {ParamId(ParameterType::FLAVOR, "FMASS", 421), ParamId(ParameterType::FLAVOR, "FMASS", 521)});
 
     // Compute observable
-    auto val = interface.compute_observable(BR_BS_MUMU);
+    auto val = interface.compute_observable(R_DSTAR);
     std::cout << "compute_observable: " << val << "\n";
 
     // Compute uncertainty
-    auto unc = interface.compute_uncertainty(BR_BS_MUMU);
+    auto unc = interface.compute_uncertainty(R_DSTAR);
     std::cout << "compute_uncertainty: " << unc << "\n";
 
     // Leading uncertainties
@@ -76,10 +76,10 @@ void test_interface(ObservableInterface& interface) {
     }
 
     // Experimental values and uncertainties
-    interface.add_observable(BR_BU_TAU_NU, LO); // Add back for exp tests
-    scalar_t exp_val = interface.get_exp_value(BR_BU_TAU_NU);
-    scalar_t stat = interface.get_exp_uncertainty(BR_BU_TAU_NU, STAT);
-    scalar_t syst = interface.get_exp_uncertainty(BR_BU_TAU_NU, SYST);
+    interface.add_observable(R_DSTAR, LO); // Add back for exp tests
+    scalar_t exp_val = interface.get_exp_value(R_DSTAR);
+    scalar_t stat = interface.get_exp_uncertainty(R_DSTAR, STAT);
+    scalar_t syst = interface.get_exp_uncertainty(R_DSTAR, SYST);
     std::cout << "get_exp_value: " << exp_val << ", stat: " << stat << ", syst: " << syst << "\n";
 
     // compute_all

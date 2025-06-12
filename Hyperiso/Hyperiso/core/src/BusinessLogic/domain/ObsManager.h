@@ -37,7 +37,7 @@ private:
     std::unordered_map<Observables, std::shared_ptr<Observable>> obss;
     ModelEvaluator me;
 
-    Observables ensure_present(Observables id);
+    Observables ensure_present(Observables id, bool critical=true);
     std::shared_ptr<ObsWilsonBuilder> wil_builder;
 };
 

@@ -32,7 +32,7 @@ ObsManager ObsManager::add_obs(Observables id, QCDOrder order, bool add_deps) {
 }
 
 ObsManager ObsManager::remove_obs(Observables id) {
-    id = ensure_present(id);
+    id = ensure_present(id, false);
     obss.erase(id);
     me.remove_observable(id);
 
@@ -117,9 +117,12 @@ void ObsManager::disable_decays() {
     }
 }
 
-Observables ObsManager::ensure_present(Observables id) {
+Observables ObsManager::ensure_present(Observables id, bool critical) {
     if (!obss.contains(id)) {
-        LOG_ERROR("KeyError", "Observable manager doesn't contain observable", ObservableMapper::str(id));
+        if (critical)
+            LOG_ERROR("KeyError", "Observable manager doesn't contain observable", ObservableMapper::str(id));
+        else
+            LOG_WARN("Observable manager doesn't contain observable", ObservableMapper::str(id));
     }
     return id;
 }

@@ -81,13 +81,15 @@ std::unordered_set<BlockName> Parameters::init_blocks(ParameterType type) {
         existing.erase("IMFWCOEF");
     }
 
-    if (type == ParameterType::OBSERVABLE && !MemoryManager::GetInstance()->cache.config.flags[ExternalFlag::HAS_TH_OBSERVABLE_INPUT]) {
+    // TODO : manage case of theoretical obs in lha. For now, assume only exp is given. 
+    if (type == ParameterType::OBSERVABLE && MemoryManager::GetInstance()->cache.config.flags[ExternalFlag::HAS_TH_OBSERVABLE_INPUT]) {
         return missing;
     }
     
     this->blockAccessor = MemoryManager::GetInstance()->extract_blocks(existing);
+    std::cout << ParameterTypeMapper::str(type) << std::endl;
+    // LOG_INFO(this->blockAccessor);
     claim_parameters(type);
-    // std::cout << ParameterTypeMapper::str(type) << std::endl;
     return missing;
 }
 
@@ -323,9 +325,10 @@ std::shared_ptr<ModelStrategy> ParametersFactory::createStrategy(ParameterType i
         case ParameterType::DECAY:
             return std::make_shared<DecayStrategy>(DecayStrategy());
         case ParameterType::OBSERVABLE:
-            return std::make_shared<DecayStrategy>(DecayStrategy());
+            std::cout << "fck" << std::endl;
+            return std::make_shared<ObservableStrategy>(ObservableStrategy());
         case ParameterType::PASSTHROUGH:
-            return std::make_shared<DecayStrategy>(DecayStrategy());
+            return std::make_shared<PassthroughStrategy>(PassthroughStrategy());
         default:
             throw std::invalid_argument("Unknown parameters instance ID");
     }
