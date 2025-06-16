@@ -8,7 +8,7 @@ namespace c10_sm {
 struct param_t;
 
 complex_t C10(
-        param_t const &
+        param_t const &param
         );
 
 }

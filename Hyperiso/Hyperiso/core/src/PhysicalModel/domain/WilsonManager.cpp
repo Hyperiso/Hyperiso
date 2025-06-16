@@ -115,25 +115,25 @@ void CoefficientManager::init_specific_order_group_matching(const std::string& g
                 }
             );
         } else {
-
             ContributionType c_type = marty ? ContributionType::BSM : ContributionType::TOTAL;
             ParamId pid_dest {
+                ParameterType::WILSON,
                 this->coefficientGroups.at(groupName)->get_matching_storage_block(),
                 WCoefMapper::flha_full(WCoefMapper::enum_elt(coeff.second->get_base_name()), enum_order, c_type)
             };
-
             ParamId pid_sm {
+                ParameterType::WILSON,
                 this->coefficientGroups.at(groupName)->get_matching_storage_block(),
                 WCoefMapper::flha_full(WCoefMapper::enum_elt(coeff.second->get_base_name()), enum_order, ContributionType::SM)
             };
 
             ParamId pid_src {
+                ParameterType::WILSON,
                 storage_block, 
                 coeff.second->id(enum_order, coeff.second->get_type())
             };
 
             std::unordered_set<ParamId> sources {pid_sm, pid_src};
-
             composer.compose_parameter(
                 pid_dest, 
                 sources, 

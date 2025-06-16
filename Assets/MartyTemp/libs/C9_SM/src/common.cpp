@@ -1,5 +1,7 @@
 #include "clooptools.h"
 #include "marty/core/looptools_init.h"
+#include <cmath>
+#include "marty/core/looptools_interface.h"
 #include "common.h"
 
 namespace c9_sm {

@@ -595,7 +595,10 @@ namespace std {
     template <>
     struct hash<ParamId> {
         std::size_t operator()(const ParamId& p) const noexcept {
-            return std::hash<BlockName>{}(p.block) ^ std::hash<LhaID>{}(p.code);
+            std::size_t h1 = std::hash<BlockName>{}(p.block);
+            std::size_t h2 = std::hash<LhaID>{}(p.code);
+            std::size_t h3 = p.type ? std::hash<int>{}(static_cast<int>(*p.type)) : 0;
+            return h1 ^ (h2 << 1) ^ (h3 << 2);
         }
     };
 }

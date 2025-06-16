@@ -8,7 +8,7 @@ namespace c9_sm {
 struct param_t;
 
 complex_t C9(
-        param_t const &
+        param_t const &param
         );
 
 }

@@ -1,6 +1,6 @@
 #include <iostream>
-#include "/home/nfardeau/Hyperiso/Hyperiso/Third_party/MARTY/src/MARTY/src/marty/models/sm.h"
-#include "/home/nfardeau/Hyperiso/Hyperiso/Third_party/MARTY/MARTY_INSTALL/include/marty.h"
+#include "/home/cbmessaouda/Documents/hyperiso/Third_party/MARTY/src/MARTY/src/marty/models/sm.h"
+#include "/home/cbmessaouda/Documents/hyperiso/Third_party/MARTY/MARTY_INSTALL/include/marty.h"
 //42
 
 using namespace csl;
@@ -33,13 +33,19 @@ int calculate_C10mu(Model &model, gauge::Type gauge) {
     opts.setFermionOrder({1, 0, 2, 3});
     opts.setWilsonOperatorCoefficient(factorOperator);
 
-    auto wil = model.computeWilsonCoefficients(mty::Order::OneLoop,
-        {Incoming("b"), Outgoing("s"),
-         Outgoing("mu"), Outgoing(AntiPart("mu"))},
-        opts);
+    auto wil = model.computeWilsonCoefficients(
+        mty::Order::OneLoop,
+        {Incoming("b"), 
+         Outgoing("s"),
+         Outgoing("mu"),
+         Outgoing(AntiPart("mu"))},
+        opts
+    );
 
-    auto O10_mu = dimension6Operator(model, wil, DiracCoupling::VL, DiracCoupling::A, {1, 2, 0, 3});
-    Expr C10_mu = getWilsonCoefficient(wil, O10_mu);
+    Expr C10_mu = getWilsonCoefficient(
+        wil, 
+        dimension6Operator(model, wil, DiracCoupling::VL, DiracCoupling::A)
+    );
 
     [[maybe_unused]] int sysres = system("rm -rf libs/C10_SM");
     mty::Library wilsonLib("C10_SM", "libs");

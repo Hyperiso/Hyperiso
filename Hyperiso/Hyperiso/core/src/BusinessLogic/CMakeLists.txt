@@ -64,3 +64,6 @@ target_link_libraries(BusinessLogicLib PUBLIC PhysicalModelLib CoreLib CommonLib
 
 add_executable(TEST app/main.cpp)
 target_link_libraries(TEST BusinessLogicLib)
+
+add_executable(CAMILIA app/main_camilia.cpp)
+target_link_libraries(CAMILIA BusinessLogicLib)
