@@ -10,7 +10,7 @@ void Block::removeObserver(std::shared_ptr<Block> observer) {
 
 void Block::notifyObservers() {
     for (auto& observer : observers) {
-        LOG_DEBUG("Notifying observer", observer->blockname, "from source block", blockname);
+        LOG_INFO("Notifying observer", observer->blockname, "from source block", blockname);
         if (observer == nullptr) {
             removeObserver(observer);
             continue;

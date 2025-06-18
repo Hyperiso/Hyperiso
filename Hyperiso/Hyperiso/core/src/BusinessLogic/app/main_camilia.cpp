@@ -14,25 +14,32 @@ int main() {
     config.mty_model_name = "ZPrime";
     config.mty_model_path = project_assets_root.data() + std::string("input_files/marty_model/ZPrime.h");
     hyp.init("lha/camilia.flha", config);
-    // ParameterSetter().mutate({ParameterType::BSM, "MASS", 32}, 1.5);
     
     LOG_INFO("HyperisoMaster initialized");
 
+    BlockProxy().log_block(ParameterType::SM, "MASS");
+    BlockProxy().log_block(ParameterType::BSM, "MASS");
+
     auto obs_int = ObservableInterface();
 
-    obs_int.add_observable(Observables::BR_B_XS_GAMMA, QCDOrder::LO, true);
+    obs_int.add_observable(Observables::BR_BS_MUMU_UNTAG, QCDOrder::LO, true);
+    obs_int.add_observable(Observables::ISOSPIN_ASYMMETRY_B_KSTAR_GAMMA, QCDOrder::LO, true);
 
+    std::cout << obs_int.compute_observable(Observables::BR_BS_MUMU_UNTAG) << std::endl;
+    std::cout << obs_int.compute_uncertainty(Observables::BR_BS_MUMU_UNTAG, UncertaintyType::COMBINED) << std::endl;
+    std::cout << obs_int.compute_observable(Observables::ISOSPIN_ASYMMETRY_B_KSTAR_GAMMA) << std::endl;
+    std::cout << obs_int.compute_uncertainty(Observables::ISOSPIN_ASYMMETRY_B_KSTAR_GAMMA, UncertaintyType::COMBINED) << std::endl;
 
-    std::cout << obs_int.compute_observable(Observables::BR_B_XS_GAMMA) << std::endl;
-    std::cout << obs_int.compute_uncertainty(Observables::BR_B_XS_GAMMA, UncertaintyType::COMBINED) << std::endl;
+    std::cout << obs_int.compute_chi2() << std::endl;
 
-    obs_int.add_observable(Observables::BR_BS_MUMU, QCDOrder::LO);
+    ParameterSetter().mutate({ParameterType::BSM, "MASS", 32}, 10);
 
-    std::cout << obs_int.get_exp_value(Observables::BR_BS_MUMU) << " +- " << obs_int.get_exp_uncertainty(Observables::BR_BS_MUMU) << std::endl; 
-    obs_int.add_observable(Observables::BR_BD_MUMU, QCDOrder::LO, true);
+    LOG_INFO(ParameterProvider()({ParameterType::BSM, "MASS", 32}));
 
-    std::cout << obs_int.compute_observable(Observables::BR_BD_MUMU) << std::endl;
-    std::cout << obs_int.compute_uncertainty(Observables::BR_BD_MUMU, UncertaintyType::COMBINED) << std::endl;
+    std::cout << obs_int.compute_observable(Observables::BR_BS_MUMU_UNTAG) << std::endl;
+    std::cout << obs_int.compute_uncertainty(Observables::BR_BS_MUMU_UNTAG, UncertaintyType::COMBINED) << std::endl;
+    std::cout << obs_int.compute_observable(Observables::ISOSPIN_ASYMMETRY_B_KSTAR_GAMMA) << std::endl;
+    std::cout << obs_int.compute_uncertainty(Observables::ISOSPIN_ASYMMETRY_B_KSTAR_GAMMA, UncertaintyType::COMBINED) << std::endl;
 
     std::cout << obs_int.compute_chi2() << std::endl;
     return 0;

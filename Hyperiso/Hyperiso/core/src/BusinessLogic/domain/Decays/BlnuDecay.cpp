@@ -39,11 +39,12 @@ void BlnuDecay::build_op_tree() {
     auto life_B = std::make_shared<ParameterNode>(ParamId(ParameterType::FLAVOR, "FLIFE", 521));
     auto f_B = std::make_shared<ParameterNode>(ParamId(ParameterType::FLAVOR, "FCONST", LhaID(521, 1)));
 
-    auto dummy = std::make_shared<ParameterNode>(ParamId(ParameterType::FLAVOR, "FMASS", 511));
+    // Wilson
+    auto wilson = this->get_wilson_node();
 
     // Operator nodes
     auto R_tau_nu = std::make_shared<OperatorNode>("R_tau_nu", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->R(values[0], values[1], values[2]); });
-    R_tau_nu->addChildren({m_B, m_b, m_tau, dummy});
+    R_tau_nu->addChildren({m_B, m_b, m_tau, wilson});
     roots.emplace(Observables::R_TAU_NU, R_tau_nu);
     auto ckm = std::make_shared<OperatorNode>("ckm", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->ckm(values[0]); });
     ckm->addChildren({V_ub});

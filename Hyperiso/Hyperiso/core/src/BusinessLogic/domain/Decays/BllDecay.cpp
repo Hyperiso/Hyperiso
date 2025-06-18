@@ -1,18 +1,21 @@
 #include "BllDecay.h"
 
 
-scalar_t BllDecay::W1(scalar_t r, scalar_t CQ1, scalar_t CPQ1, bool prime) {
-    CPQ1 = prime ? CPQ1 : scalar_t(0.);
+scalar_t BllDecay::W1(scalar_t r, bool prime) {
+    scalar_t CQ1 = w_proxy->getFM(WGroup::BScalar, WCoef::CQ1, this->w_config.order);
+    scalar_t CPQ1 = prime ? w_proxy->getFM(WGroup::BPrime, WCoef::CPQ1, this->w_config.order) : scalar_t(0.);
     return r * (CQ1 - CPQ1);
 }
 
-scalar_t BllDecay::W2Q(scalar_t r, scalar_t CQ2, scalar_t CPQ2, bool prime) {
-    CPQ2 = prime ? CPQ2 : scalar_t(0.);
+scalar_t BllDecay::W2Q(scalar_t r, bool prime) {
+    scalar_t CQ2 = w_proxy->getFM(WGroup::BScalar, WCoef::CQ2, this->w_config.order);
+    scalar_t CPQ2 = prime ? w_proxy->getFM(WGroup::BPrime, WCoef::CPQ2, this->w_config.order) : scalar_t(0.);
     return r * (CQ2 - CPQ2);
 }
 
-scalar_t BllDecay::W210(scalar_t x, scalar_t C10, scalar_t CP10, bool prime) {
-    CP10 = prime ? CP10 : scalar_t(0.);
+scalar_t BllDecay::W210(scalar_t x, bool prime) {
+    scalar_t C10 = w_proxy->getFM(WGroup::B, WCoef::C10, this->w_config.order);
+    scalar_t CP10 = prime ? w_proxy->getFM(WGroup::BPrime, WCoef::CP10, this->w_config.order) : scalar_t(0.);
     return 2. * (C10 - CP10) * x;
 }
 
@@ -65,14 +68,9 @@ void BllDecay::build_op_tree() {
     auto V_td = std::make_shared<ParameterNode>(ParamId(ParameterType::SM, "VCKM", LhaID(2, 0)));
     auto m_b_pole = std::make_shared<ParameterNode>(ParamId(ParameterType::SM, "QCD", LhaID(5, 2)));
 
-    // Wilson Coefficients
-    auto C10 = std::make_shared<ParameterNode>(ParamId(ParameterType::WILSON, GroupMapper::str(WGroup::B, ScaleType::HADRONIC), WCoefMapper::flha_full(WCoef::C10, QCDOrder::LO, ContributionType::TOTAL)));
+    // Wilson node
+    auto wilson = this->get_wilson_node();
     auto C10_SM = std::make_shared<ParameterNode>(ParamId(ParameterType::WILSON, GroupMapper::str(WGroup::B, ScaleType::HADRONIC), WCoefMapper::flha_full(WCoef::C10, QCDOrder::LO, ContributionType::SM)));
-    auto CQ1 = std::make_shared<ParameterNode>(ParamId(ParameterType::WILSON, GroupMapper::str(WGroup::BScalar, ScaleType::HADRONIC), WCoefMapper::flha_full(WCoef::CQ1, QCDOrder::LO, ContributionType::TOTAL)));
-    auto CQ2 = std::make_shared<ParameterNode>(ParamId(ParameterType::WILSON, GroupMapper::str(WGroup::BScalar, ScaleType::HADRONIC), WCoefMapper::flha_full(WCoef::CQ2, QCDOrder::LO, ContributionType::TOTAL)));
-    auto CP10 = std::make_shared<ParameterNode>(ParamId(ParameterType::WILSON, GroupMapper::str(WGroup::BPrime, ScaleType::HADRONIC), WCoefMapper::flha_full(WCoef::CP10, QCDOrder::LO, ContributionType::TOTAL)));
-    auto CPQ1 = std::make_shared<ParameterNode>(ParamId(ParameterType::WILSON, GroupMapper::str(WGroup::BPrime, ScaleType::HADRONIC), WCoefMapper::flha_full(WCoef::CPQ1, QCDOrder::LO, ContributionType::TOTAL)));
-    auto CPQ2 = std::make_shared<ParameterNode>(ParamId(ParameterType::WILSON, GroupMapper::str(WGroup::BPrime, ScaleType::HADRONIC), WCoefMapper::flha_full(WCoef::CPQ2, QCDOrder::LO, ContributionType::TOTAL)));
 
     // Flavor Parameters
     auto m_Bs = std::make_shared<ParameterNode>(ParamId(ParameterType::FLAVOR, "FMASS", 531));
@@ -90,12 +88,12 @@ void BllDecay::build_op_tree() {
     xs->addChildren({m_mu, m_Bs});
     auto rs = std::make_shared<OperatorNode>("rs", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return values[0] / (values[1] + values[2]); });
     rs->addChildren({m_Bs, m_b_pole, m_s});
-    auto w1s = std::make_shared<OperatorNode>("W1s", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->W1(values[0], values[1], values[2], true); });
-    w1s->addChildren({rs, CQ1, CPQ1});
-    auto w2qs = std::make_shared<OperatorNode>("W2Qs", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->W2Q(values[0], values[1], values[2], true); });
-    w2qs->addChildren({rs, CQ2, CPQ2});
-    auto w210s = std::make_shared<OperatorNode>("W210s", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->W210(values[0], values[1], values[2], true); });
-    w210s->addChildren({xs, C10, CP10});
+    auto w1s = std::make_shared<OperatorNode>("W1s", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->W1(values[0], true); });
+    w1s->addChildren({rs, wilson});
+    auto w2qs = std::make_shared<OperatorNode>("W2Qs", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->W2Q(values[0], true); });
+    w2qs->addChildren({rs, wilson});
+    auto w210s = std::make_shared<OperatorNode>("W210s", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->W210(values[0], true); });
+    w210s->addChildren({xs, wilson});
     auto ckm_s = std::make_shared<OperatorNode>("CKM_s", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->ckm(values[0], values[1]); });
     ckm_s->addChildren({V_tb, V_ts});
     auto br_avg_Bs_mumu = std::make_shared<OperatorNode>("BR_Bs__mu_mu", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->BR_avg_Bq_mumu(values[0], values[1], values[2], values[3], values[4], values[5], values[6], values[7], values[8], values[9]); });
@@ -107,12 +105,12 @@ void BllDecay::build_op_tree() {
     auto rd = std::make_shared<OperatorNode>("rd", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return values[0] / (values[1] + values[2]); });
     rd->addChildren({m_Bd, m_b_pole, m_d});
     //TODO or not TODO : why was it addChild with only rd ? not addChildren with CQ1, CPQ1, CQ2, etc. ?
-    auto w1d = std::make_shared<OperatorNode>("W1d", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->W1(values[0], values[1], values[2], false); });
-    w1d->addChildren({rd, CQ1, CPQ1});
-    auto w2qd = std::make_shared<OperatorNode>("W2Qd", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->W2Q(values[0], values[1], values[2], false); });
-    w2qd->addChildren({rd, CQ2, CPQ2});
-    auto w210d = std::make_shared<OperatorNode>("W210d", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->W210(values[0], values[1], values[2], false); });
-    w210d->addChildren({xd, C10, CP10});
+    auto w1d = std::make_shared<OperatorNode>("W1d", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->W1(values[0], false); });
+    w1d->addChildren({rd, wilson});
+    auto w2qd = std::make_shared<OperatorNode>("W2Qd", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->W2Q(values[0], false); });
+    w2qd->addChildren({rd, wilson});
+    auto w210d = std::make_shared<OperatorNode>("W210d", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->W210(values[0], false); });
+    w210d->addChildren({xd, wilson});
     auto ckm_d = std::make_shared<OperatorNode>("CKM_d", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->ckm(values[0], values[1]); });
     ckm_d->addChildren({V_tb, V_td});
 

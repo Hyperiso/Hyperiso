@@ -107,7 +107,7 @@ const std::unordered_map<ParamId, scalar_t> Compound::get_uncertainties() const 
 
 Estimate Compound::get_estimate() {
     // TODO : Manage stat and syst separation
-    return Estimate {this->eval(), this->variance(), 0};
+    return Estimate {this->eval(), std::sqrt(this->variance()), 0};
 }
 
 scalar_t Compound::correlation_with(const Compound &other) const {

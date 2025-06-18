@@ -23,6 +23,7 @@
     "s_12": {"block": "KIN", "pdgCode": "4"},
     "s_13": {"block": "KIN", "pdgCode": "7"},
     "s_34": {"block": "KIN", "pdgCode": "34"},
+    "s_24": {"block": "KIN", "pdgCode": "24"},
     "G_F": {"block": "SMINPUTS", "pdgCode": "2"},
     "e_em": {"block": "GAUGE", "pdgCode": "4"},
     "s2_thetaW": {"block": "SMINPUTS", "pdgCode": "7_1"},

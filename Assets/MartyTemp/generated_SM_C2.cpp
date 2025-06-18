@@ -1,6 +1,6 @@
 #include <iostream>
-#include "/home/cbmessaouda/Documents/hyperiso/Third_party/MARTY/src/MARTY/src/marty/models/sm.h"
-#include "/home/cbmessaouda/Documents/hyperiso/Third_party/MARTY/MARTY_INSTALL/include/marty.h"
+#include "/home/nfardeau/Hyperiso/Hyperiso/Third_party/MARTY/src/MARTY/src/marty/models/sm.h"
+#include "/home/nfardeau/Hyperiso/Hyperiso/Third_party/MARTY/MARTY_INSTALL/include/marty.h"
 //42
 
 using namespace csl;
@@ -32,13 +32,14 @@ int calculate_C2(Model &model, gauge::Type gauge) {
     FeynOptions opts;
     opts.setFermionOrder({1, 3, 2, 0});
     opts.setWilsonOperatorCoefficient(factorOperator);
+    opts.addFilter(mty::filter::disableParticle("G"));
 
-    auto wil = model.computeWilsonCoefficients(mty::Order::TreeLevel,
+    auto wil = model.computeWilsonCoefficients(mty::Order::OneLoop,
         {Incoming("b"), Outgoing("s"),
          Outgoing("c"), Outgoing(AntiPart("c"))},
         opts);
 
-    auto O2 = dimension6Operator(model, wil, DiracCoupling::VL, DiracCoupling::VL, {1, 3, 0, 2});
+    auto O2 = dimension6Operator(model, wil, DiracCoupling::VL, DiracCoupling::VL/*, {1, 3, 0, 2}*/);
     Expr C2 = getWilsonCoefficient(wil, O2);
     Replace(C2, e_em, sqrt_s(8 * G_F / sqrt_s(2)) * M_W * sin_s(theta_W));
 

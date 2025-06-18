@@ -256,6 +256,7 @@ void BDlnuDecay::build_op_tree() {
 
     // Scales and Wilsons
     auto hadronic_scale = std::make_shared<ParameterNode>(ParamId(ParameterType::WILSON, "B_SCALE", 1));
+    auto wilson = this->get_wilson_node();
 
     // Operator nodes
     auto m_b_muh = std::make_shared<OperatorNode>("m_b", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return QCDHelper::msbar_mass(5, values[0]); });
@@ -279,8 +280,11 @@ void BDlnuDecay::build_op_tree() {
     w_e->addChildren({r_D, r_e});
 
     auto nC_V = std::make_shared<OperatorNode>("C_V", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return C_V(); });
+    nC_V->addChild(wilson);
     auto nC_S = std::make_shared<OperatorNode>("C_S", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return C_S(); });
+    nC_S->addChild(wilson);
     auto nC_T = std::make_shared<OperatorNode>("C_T", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return C_T(); });
+    nC_T->addChild(wilson);
 
     auto flag_V = std::make_shared<OperatorNode>("flag_V", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return c_flag(values[0]); });
     flag_V->addChild(nC_V);

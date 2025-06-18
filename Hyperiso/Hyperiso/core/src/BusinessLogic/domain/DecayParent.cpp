@@ -60,3 +60,20 @@ scalar_t DecayParent::compute_observable(Observables obs) {
 size_t DecayParent::get_n_evals(Observables obs) {
     return roots.at(obs)->get_n_evals();
 }
+
+std::shared_ptr<OperatorNode> DecayParent::get_wilson_node(ScaleType scale, WilsonBasis basis) {
+    auto wilson_node = std::make_shared<OperatorNode>("wilson", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return 0; });
+
+    for (WGroup group: this->w_config.groups) {
+        for (WCoef c: WCoefMapper::get_group(group)) {
+            std::string storage_block = GroupMapper::str(group, scale, basis);
+            for (size_t order=1; order < (size_t)this->w_config.order; order++) {
+                LhaID c_id = WCoefMapper::flha_full(c, (QCDOrder)order, ContributionType::TOTAL);
+                auto c_node = std::make_shared<ParameterNode>(ParamId(ParameterType::WILSON, storage_block, c_id));
+                wilson_node->addChild(c_node);
+            }
+        }
+    }
+
+    return wilson_node;
+}
