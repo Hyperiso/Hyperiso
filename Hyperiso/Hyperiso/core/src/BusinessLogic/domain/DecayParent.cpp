@@ -24,6 +24,7 @@ void DecayParent::enable() {
 
     ObsWilsonHelper::build(this->w_config, this->w_builder);
     this->w_proxy = this->w_builder->get_proxy();
+    this->w_proxy->set_basis(WilsonBasis::B_STANDARD);
     build_op_tree();
     // this->enabled = true;
 }
@@ -67,7 +68,7 @@ std::shared_ptr<OperatorNode> DecayParent::get_wilson_node(ScaleType scale, Wils
     for (WGroup group: this->w_config.groups) {
         for (WCoef c: WCoefMapper::get_group(group)) {
             std::string storage_block = GroupMapper::str(group, scale, basis);
-            for (size_t order=1; order < (size_t)this->w_config.order; order++) {
+            for (size_t order=1; order <= (size_t)this->w_config.order; order++) {
                 LhaID c_id = WCoefMapper::flha_full(c, (QCDOrder)order, ContributionType::TOTAL);
                 auto c_node = std::make_shared<ParameterNode>(ParamId(ParameterType::WILSON, storage_block, c_id));
                 wilson_node->addChild(c_node);

@@ -8,7 +8,7 @@ V_ub_rel,0.00149598
 m_b,4.18
 V_ts_rel,-0.0418162
 V_ub_img,-0.00327421
-V_ts_img,0
+V_ts_img,-0
 V_cs_rel,0.974688
 V_cs_img,0
 G_F,1.16637e-05

@@ -74,13 +74,12 @@ SparseMatrix<Observables> ModelEvaluator::get_covariance() {
     LOG_DEBUG("Theoretical covariance matrix calculated");
 
     SparseMatrix<Observables> cov = th_cov_mtx;
-    std::cout << "thory" << std::endl;
-    customPrintMatrix(cov, getDiagonalElements(cov));
+    // customPrintMatrix(cov, getDiagonalElements(cov));
     CorrelationProxy corr_prox;
     LOG_DEBUG("Theoretical covariance matrix size", cov.size());
 
     for (auto &&p : exp_cov_mtx) {
-        std::cout << ObservableMapper::str(p.first.first) << " " << ObservableMapper::str(p.first.second) << ": "<< p.second << std::endl;
+        // std::cout << ObservableMapper::str(p.first.first) << " " << ObservableMapper::str(p.first.second) << ": "<< p.second << std::endl;
         if (cov.contains(p.first)) {
             cov.at(p.first) += p.second;
         } else {
@@ -89,14 +88,14 @@ SparseMatrix<Observables> ModelEvaluator::get_covariance() {
     }
     auto final_cov = removeEmptyRowsAndCols(cov, getDiagonalElements(cov));
 
-    for (auto& elem : getDiagonalElements(cov)) {
-        std::cout << "before : " << ObservableMapper::str(elem) << std::endl;
-    }
+    // for (auto& elem : getDiagonalElements(cov)) {
+    //     std::cout << "before : " << ObservableMapper::str(elem) << std::endl;
+    // }
     
-    for (auto& elem : final_cov.second) {
-        std::cout << "after : " << ObservableMapper::str(elem) << std::endl;
-    }
-    customPrintMatrix(final_cov.first, final_cov.second);
+    // for (auto& elem : final_cov.second) {
+    //     std::cout << "after : " << ObservableMapper::str(elem) << std::endl;
+    // }
+    // customPrintMatrix(final_cov.first, final_cov.second);
     return final_cov.first;
 }
 
@@ -105,7 +104,7 @@ double ModelEvaluator::chi2() {
     LOG_DEBUG("Covariance calculated");
     SparseMatrix<Observables> precision_mtx = invertMatrix(covariance_mtx, getDiagonalElements(covariance_mtx));
     LOG_DEBUG("Precision matrix calculated");
-    customPrintMatrix(precision_mtx, getDiagonalElements(precision_mtx));
+    // customPrintMatrix(precision_mtx, getDiagonalElements(precision_mtx));
 
     double chi2 {0};
     for (auto &&[id_i, obs_i] : this->observables) {

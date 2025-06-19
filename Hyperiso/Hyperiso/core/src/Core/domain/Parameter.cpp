@@ -127,7 +127,7 @@ void DependentParameter::unfreeze() {
 
 void Parameter::notifyObservers() {
     for (auto& observer : observers) {
-        LOG_INFO("Notifying observer", observer->id.block, observer->id.code, "from parameter", id.block, id.code);
+        LOG_DEBUG("Notifying observer", observer->id.block, observer->id.code, "from parameter", id.block, id.code);
         if (observer == nullptr) {
             LOG_INFO("Observer is null, removing from observers list");
             removeObserver(observer);

@@ -3,21 +3,25 @@
 
 complex_t ObsWilsonProxy::getM(WGroup group, WCoef coeff, QCDOrder order, bool sm_only) {
     WilsonRequest request{group, coeff, order, sm_only ? ContributionType::SM : ContributionType::TOTAL, ScaleType::MATCHING, false};
+    request.basis = this->basis;
     return this->wil_p->get(std::make_shared<WilsonRequest>(request));
 }
 
 complex_t ObsWilsonProxy::getFM(WGroup group, WCoef coeff, QCDOrder order, bool sm_only) {
     WilsonRequest request{group, coeff, order, sm_only ? ContributionType::SM : ContributionType::TOTAL, ScaleType::MATCHING, true};
+    request.basis = this->basis;
     return this->wil_p->get(std::make_shared<WilsonRequest>(request));
 }
 
 complex_t ObsWilsonProxy::getR(WGroup group, WCoef coeff, QCDOrder order, bool sm_only) {
     WilsonRequest request{group, coeff, order, sm_only ? ContributionType::SM : ContributionType::TOTAL, ScaleType::HADRONIC, false};
+    request.basis = this->basis;
     return this->wil_p->get(std::make_shared<WilsonRequest>(request));
 }
 
 complex_t ObsWilsonProxy::getFR(WGroup group, WCoef coeff, QCDOrder order, bool sm_only){
     WilsonRequest request{group, coeff, order, sm_only ? ContributionType::SM : ContributionType::TOTAL, ScaleType::HADRONIC, true};
+    request.basis = this->basis;
     return this->wil_p->get(std::make_shared<WilsonRequest>(request));
 }
 
@@ -76,4 +80,8 @@ std::shared_ptr<ObsWilsonBuilder> ObsWilsonProxy::get_builder() {
 
 std::unordered_set<WilsonBasis> ObsWilsonProxy::get_bases(WGroup group) {
     return this->wil_p->get_bases(group);
+}
+
+void ObsWilsonProxy::set_basis(WilsonBasis basis) {
+    this->basis = basis;
 }

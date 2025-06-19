@@ -25,9 +25,11 @@ public:
 
     std::shared_ptr<ObsWilsonBuilder> get_builder() override;
     std::unordered_set<WilsonBasis> get_bases(WGroup) override;
+    void set_basis(WilsonBasis basis);
 
 private:
     std::shared_ptr<WilsonProvider> wil_p;
+    WilsonBasis basis {WilsonBasis::B_STANDARD}; 
 };
 
 #endif // __OBSWILSONPROXY_H__

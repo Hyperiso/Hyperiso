@@ -19,5 +19,5 @@ V_cb,0.0418162
 reg_prop,0.001
 Finite,1
 V_ub_rel,0.00149598
-V_ts_img,0
+V_ts_img,-0
 V_ub_img,-0.00327421

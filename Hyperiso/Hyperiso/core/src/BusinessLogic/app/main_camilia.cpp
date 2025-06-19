@@ -17,16 +17,10 @@ int main() {
     
     LOG_INFO("HyperisoMaster initialized");
 
-    BlockProxy().log_block(ParameterType::SM, "MASS");
-    BlockProxy().log_block(ParameterType::BSM, "MASS");
-
     auto obs_int = ObservableInterface();
 
-    obs_int.add_observable(Observables::BR_BS_MUMU_UNTAG, QCDOrder::LO, true);
     obs_int.add_observable(Observables::ISOSPIN_ASYMMETRY_B_KSTAR_GAMMA, QCDOrder::LO, true);
 
-    std::cout << obs_int.compute_observable(Observables::BR_BS_MUMU_UNTAG) << std::endl;
-    std::cout << obs_int.compute_uncertainty(Observables::BR_BS_MUMU_UNTAG, UncertaintyType::COMBINED) << std::endl;
     std::cout << obs_int.compute_observable(Observables::ISOSPIN_ASYMMETRY_B_KSTAR_GAMMA) << std::endl;
     std::cout << obs_int.compute_uncertainty(Observables::ISOSPIN_ASYMMETRY_B_KSTAR_GAMMA, UncertaintyType::COMBINED) << std::endl;
 
@@ -34,13 +28,10 @@ int main() {
 
     ParameterSetter().mutate({ParameterType::BSM, "MASS", 32}, 10);
 
-    LOG_INFO(ParameterProvider()({ParameterType::BSM, "MASS", 32}));
-
-    std::cout << obs_int.compute_observable(Observables::BR_BS_MUMU_UNTAG) << std::endl;
-    std::cout << obs_int.compute_uncertainty(Observables::BR_BS_MUMU_UNTAG, UncertaintyType::COMBINED) << std::endl;
     std::cout << obs_int.compute_observable(Observables::ISOSPIN_ASYMMETRY_B_KSTAR_GAMMA) << std::endl;
     std::cout << obs_int.compute_uncertainty(Observables::ISOSPIN_ASYMMETRY_B_KSTAR_GAMMA, UncertaintyType::COMBINED) << std::endl;
 
     std::cout << obs_int.compute_chi2() << std::endl;
+
     return 0;
 }

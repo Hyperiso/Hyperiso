@@ -47,6 +47,11 @@ public:
         this->max_order = QCDOrder::NNLO;
     }
 
+    void enable() {
+        DecayParent::enable();
+        this->w_proxy->set_basis(WilsonBasis::B_TRADITIONAL);
+    }
+
     void build_op_tree() override;
 
 };
