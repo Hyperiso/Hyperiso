@@ -27,6 +27,7 @@ std::unordered_map<WCoef, scalar_t> BCoefficientGroup::base_1_LO_calculation (
     auto ids = WCoefMapper::get_group(WGroup::B);
     for (size_t k = 0; k < 10; k++) {
         Ci_match[k] = coef_matching.at(QCDOrder::LO).at(ids[k]);
+        std::cout << k << " : " <<coef_matching.at(QCDOrder::LO).at(ids[k]) << std::endl;
     }
 
     Ci_match[6] = BRP::C7_eff_std(Ci_match); 
@@ -35,8 +36,8 @@ std::unordered_map<WCoef, scalar_t> BCoefficientGroup::base_1_LO_calculation (
     std::array<complex_t, 10> Ci_run {};
 
     // C1 - C9
-    for (size_t k = 0; k < 9; k++) {
-        for (size_t l = 0; l < 9; l++) {
+    for (size_t k = 0; k < 8; k++) {
+        for (size_t l = 0; l < 8; l++) {
             Ci_run[k] += U0(k, l) * Ci_match[l];
         }
         LOG_VERBOSE("C_match_", k + 1, "=", Ci_match[k]);
@@ -44,6 +45,10 @@ std::unordered_map<WCoef, scalar_t> BCoefficientGroup::base_1_LO_calculation (
     }
 
     double fact = 4 * PI / src.at("WPARAM_RUN_SM")->retrieve(1)->get_val();
+
+    for (size_t k = 0; k < 8; k++) {
+        Ci_run[8] += Ci_match[k]* U0(8, k);
+    }
     Ci_run[8] *= fact;
 
 /*

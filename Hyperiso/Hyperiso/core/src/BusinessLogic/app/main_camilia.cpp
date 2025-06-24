@@ -10,7 +10,7 @@ int main() {
     HyperisoMaster hyp;
     Config config;
     config.model = Model::SM;
-    config.flags[ExternalFlag::USE_MARTY] = true;
+    config.flags[ExternalFlag::USE_MARTY] = false;
     config.mty_model_name = "SM";
     config.mty_model_path = project_assets_root.data() + std::string("input_files/marty_model/sm.h");
     hyp.init("lha/testInput.flha", config);
@@ -25,6 +25,7 @@ int main() {
     wilson_config.groups = {WGroup::B, WGroup::BPrime};
     wilson_config.matching_scale = 2. * pp({ParameterType::SM, "MASS", 24});
     wilson_config.hadronic_scale = pp({ParameterType::SM, "QCD", {5, 3}}) / 2;
+    wilson_config.hadronic_scale = 42;
     wilson_config.order = QCDOrder::LO;
     wi.build(wilson_config);
 
@@ -42,5 +43,6 @@ int main() {
     LOG_INFO("C'9 =", wi.getM(WGroup::BPrime, WCoef::CP9, QCDOrder::LO, ContributionType::SM));
     LOG_INFO("C'10 =", wi.getM(WGroup::BPrime, WCoef::CP10, QCDOrder::LO, ContributionType::SM));
 
+    LOG_INFO("C9mu =", wi.getR(WGroup::B, WCoef::C9, QCDOrder::LO, ContributionType::SM));
     return 0;
 }

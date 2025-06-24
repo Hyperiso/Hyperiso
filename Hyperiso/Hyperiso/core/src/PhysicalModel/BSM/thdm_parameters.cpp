@@ -22,7 +22,7 @@ void thdm_parameters::init_scale_independant_block() {
         double lu = src.at("YU")->retrieve(LhaID(2,2))->get_val();
         double ld = src.at("YD")->retrieve(LhaID(2,2))->get_val();
         double gen = src.at("WPARAM_SI_SM")->retrieve(2)->get_val();
-        double le = src.at("YE")->retrieve(LhaID(gen-1, gen-1))->get_val(); //TODO or not TODO : was YL before
+        double le = src.at("YE")->retrieve(LhaID(gen-1, gen-1))->get_val();
         double mW = src.at("MASS")->retrieve(24)->get_val();
         double xH=pow(m_H/mW,2.);
         double xH0=pow(src.at("MASS")->retrieve(35)->get_val() / mW, 2.);

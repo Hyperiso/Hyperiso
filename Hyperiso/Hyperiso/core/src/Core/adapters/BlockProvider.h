@@ -3,13 +3,13 @@
 
 #include "Include.h"
 #include "Parameters.h"
+#include "IBlockProvider.h"
 
-//TODO : port
-class BlockProvider {
+class BlockProvider : public IBlockProvider<ParameterType, const std::string&> {
 public:
-    bool exists(const std::string& blockname, ParameterType);
-    void log_all_blocks(ParameterType type);
-    void log_block(ParameterType type, const std::string& blockname);
+    bool exists(const std::string& blockname, ParameterType) override;
+    void log_all_blocks(ParameterType type) override;
+    void log_block(ParameterType type, const std::string& blockname) override;
 
     
 };
