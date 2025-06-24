@@ -25,12 +25,15 @@ private:
         return order;
     }
 
+    bool built {false};
+
 public:
     WilsonInterface() = default;
 
     void build(WilsonBuildConfig config) {
         this->builder = std::make_shared<WilsonBuilder>(config);
         this->provider = this->builder->get_wilson_provider();
+        built = true;
     }
 
     // TODO
@@ -47,6 +50,10 @@ public:
     }
 
     complex_t getMatchingCoefficient(WGroup group, WCoef coeff, QCDOrder order, ContributionType cont_type) {
+        if (!built) {
+            LOG_ERROR("LogicError", "Interface has not been built");
+        }
+
         WilsonRequest request {
             group,
             coeff,
@@ -63,6 +70,10 @@ public:
     }
 
     complex_t getFullMatchingCoefficient(WGroup group, WCoef coeff, QCDOrder order, ContributionType cont_type) {
+        if (!built) {
+            LOG_ERROR("LogicError", "Interface has not been built");
+        }
+
         WilsonRequest request {
             group,
             coeff,
@@ -79,6 +90,10 @@ public:
     }
 
     complex_t getRunCoefficient(WGroup group, WCoef coeff, QCDOrder order, ContributionType cont_type, WilsonBasis basis=WilsonBasis::B_STANDARD) {
+        if (!built) {
+            LOG_ERROR("LogicError", "Interface has not been built");
+        }
+
         WilsonRequest request {
             group,
             coeff,
@@ -96,6 +111,10 @@ public:
     }
 
     complex_t getFullRunCoefficient(WGroup group, WCoef coeff, QCDOrder order, ContributionType cont_type, WilsonBasis basis=WilsonBasis::B_STANDARD) {
+        if (!built) {
+            LOG_ERROR("LogicError", "Interface has not been built");
+        }
+
         WilsonRequest request {
             group,
             coeff,

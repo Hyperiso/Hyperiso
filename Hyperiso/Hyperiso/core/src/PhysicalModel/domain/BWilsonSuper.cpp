@@ -649,8 +649,7 @@ CP7::CP7() : WilsonCoefficient("CP7", GroupMapper::str(WGroup::B) + "_MATCH") {
         {
             {"WPARAM_MATCH_SM", {2, 1}},     // x_t
             {"WPARAM_MATCH_SM", {5, 1}},     // m_b(muW)
-            {"WPARAM_SI_SM", 4},             // sw2 (non utilisé ici mais dans d'autres CPx ?)
-            {ParameterType::SM, "MASS", 3}   // m_c
+            {ParameterType::SM, "MASS", 3}   // m_s
         },
         compute_LO,
         LhaID(305, 4322, 0, 0)
@@ -664,9 +663,9 @@ CP7::CP7() : WilsonCoefficient("CP7", GroupMapper::str(WGroup::B) + "_MATCH") {
 double CP7::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src) {
     double xt     = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1}})->get_val();
     double mb     = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {5, 1}})->get_val();
-    double mc     = src.at({ParameterType::SM, "MASS", 3})->get_val();
+    double ms     = src.at({ParameterType::SM, "MASS", 3})->get_val();
 
-    return mc / mb * (-0.5 * A0t(xt) - 23. / 36.);
+    return ms / mb * (-0.5 * A0t(xt) - 23. / 36.);
 }
 
 // ---------- C'8 ----------
@@ -676,8 +675,7 @@ CP8::CP8() : WilsonCoefficient("CP8", GroupMapper::str(WGroup::B) + "_MATCH") {
         {
             {"WPARAM_MATCH_SM", {2, 1}},     // x_t
             {"WPARAM_MATCH_SM", {5, 1}},     // m_b(muW)
-            {"WPARAM_SI_SM", 4},             // sw2 (inutile ici mais ok si global)
-            {ParameterType::SM, "MASS", 3}   // m_c
+            {ParameterType::SM, "MASS", 3}   // m_s
         },
         compute_LO,
         LhaID(305, 4321, 0, 0)
@@ -691,7 +689,7 @@ CP8::CP8() : WilsonCoefficient("CP8", GroupMapper::str(WGroup::B) + "_MATCH") {
 double CP8::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src) {
     double xt     = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1}})->get_val();
     double mb     = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {5, 1}})->get_val();
-    double mc     = src.at({ParameterType::SM, "MASS", 3})->get_val();
+    double ms     = src.at({ParameterType::SM, "MASS", 3})->get_val();
 
-    return mc / mb * (-0.5 * F0t(xt) - 1. / 3.);
+    return ms / mb * (-0.5 * F0t(xt) - 1. / 3.);
 }

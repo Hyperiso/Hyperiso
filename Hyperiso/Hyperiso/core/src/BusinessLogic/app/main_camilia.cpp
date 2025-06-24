@@ -9,29 +9,38 @@ int main() {
     Logger::getInstance()->setLevel(Logger::LogLevel::INFO);
     HyperisoMaster hyp;
     Config config;
-    config.model = Model::CUSTOM;
+    config.model = Model::SM;
     config.flags[ExternalFlag::USE_MARTY] = true;
-    config.mty_model_name = "ZPrime";
-    config.mty_model_path = project_assets_root.data() + std::string("input_files/marty_model/ZPrime.h");
-    hyp.init("lha/camilia.flha", config);
+    config.mty_model_name = "SM";
+    config.mty_model_path = project_assets_root.data() + std::string("input_files/marty_model/sm.h");
+    hyp.init("lha/testInput.flha", config);
     
     LOG_INFO("HyperisoMaster initialized");
 
-    auto obs_int = ObservableInterface();
+    ParameterProvider pp;
+    ParameterSetter ps;
+    WilsonInterface wi;
 
-    obs_int.add_observable(Observables::ISOSPIN_ASYMMETRY_B_KSTAR_GAMMA, QCDOrder::LO, true);
+    WilsonBuildConfig wilson_config;
+    wilson_config.groups = {WGroup::B, WGroup::BPrime};
+    wilson_config.matching_scale = 2. * pp({ParameterType::SM, "MASS", 24});
+    wilson_config.hadronic_scale = pp({ParameterType::SM, "QCD", {5, 3}}) / 2;
+    wilson_config.order = QCDOrder::LO;
+    wi.build(wilson_config);
 
-    std::cout << obs_int.compute_observable(Observables::ISOSPIN_ASYMMETRY_B_KSTAR_GAMMA) << std::endl;
-    std::cout << obs_int.compute_uncertainty(Observables::ISOSPIN_ASYMMETRY_B_KSTAR_GAMMA, UncertaintyType::COMBINED) << std::endl;
+    BlockProvider().log_block(ParameterType::SM, "VCKM");
+    LOG_INFO(ParameterProvider()({ParameterType::WILSON, "WPARAM_MATCH_SM", 6}));
+    LOG_INFO(ParameterProvider()({ParameterType::WILSON, "WPARAM_MATCH_SM", 1}));
 
-    std::cout << obs_int.compute_chi2() << std::endl;
-
-    ParameterSetter().mutate({ParameterType::BSM, "MASS", 32}, 10);
-
-    std::cout << obs_int.compute_observable(Observables::ISOSPIN_ASYMMETRY_B_KSTAR_GAMMA) << std::endl;
-    std::cout << obs_int.compute_uncertainty(Observables::ISOSPIN_ASYMMETRY_B_KSTAR_GAMMA, UncertaintyType::COMBINED) << std::endl;
-
-    std::cout << obs_int.compute_chi2() << std::endl;
+    LOG_INFO("C2 =", wi.getM(WGroup::B, WCoef::C2, QCDOrder::LO, ContributionType::SM));
+    LOG_INFO("C7 =", wi.getM(WGroup::B, WCoef::C7, QCDOrder::LO, ContributionType::SM));
+    LOG_INFO("C8 =", wi.getM(WGroup::B, WCoef::C8, QCDOrder::LO, ContributionType::SM));
+    LOG_INFO("C9 =", wi.getM(WGroup::B, WCoef::C9, QCDOrder::LO, ContributionType::SM));
+    LOG_INFO("C10 =", wi.getM(WGroup::B, WCoef::C10, QCDOrder::LO, ContributionType::SM));
+    LOG_INFO("C'7 =", wi.getM(WGroup::BPrime, WCoef::CP7, QCDOrder::LO, ContributionType::SM));
+    LOG_INFO("C'8 =", wi.getM(WGroup::BPrime, WCoef::CP8, QCDOrder::LO, ContributionType::SM));
+    LOG_INFO("C'9 =", wi.getM(WGroup::BPrime, WCoef::CP9, QCDOrder::LO, ContributionType::SM));
+    LOG_INFO("C'10 =", wi.getM(WGroup::BPrime, WCoef::CP10, QCDOrder::LO, ContributionType::SM));
 
     return 0;
 }

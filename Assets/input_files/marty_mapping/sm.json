@@ -1,10 +1,10 @@
 {
     "m_u": {"block": "MASS", "pdgCode": "2"},
     "m_d": {"block": "MASS", "pdgCode": "1"},
-    "m_c": {"block": "MASS", "pdgCode": "4"},
+    "m_c": {"block": "MASS_EW_SCALE", "pdgCode": "4"},
     "m_s": {"block": "MASS", "pdgCode": "3"},
-    "m_t": {"block": "QCD", "pdgCode": "6"},
-    "m_b": {"block": "QCD", "pdgCode": "5_1"},
+    "m_t": {"block": "MASS_EW_SCALE", "pdgCode": "6"},
+    "m_b": {"block": "MASS_EW_SCALE", "pdgCode": "5_1"},
     "M_W": {"block": "MASS", "pdgCode": "24"},
     "M_Z": {"block": "SMINPUTS", "pdgCode": "4"},
     "m_h": {"block": "MASS", "pdgCode": "25"},

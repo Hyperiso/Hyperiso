@@ -7,9 +7,9 @@ void SMParamSetter::setParam(const std::string& name, const Interpreter::Interpr
         params[name] = calculateValue(name, interpretedParam);
     } else if (interpretedParam.block == "MASS" && (interpretedParam.code == LhaID(5) || interpretedParam.code == LhaID(6))) {
         if (interpretedParam.code == LhaID(5)) {
-            params[name] = sm_proxy("QCD", LhaID(5, 1));
+            params[name] = sm_proxy("MASS_EW_SCALE", LhaID(5, 1));
         } else {
-            params[name] = sm_proxy("QCD", 6);
+            params[name] = sm_proxy("MASS_EW_SCALE", 6);
         }
     } else {
         if (interpretedParam.is_bsm) {
@@ -33,9 +33,9 @@ void SMParamSetter::setParam(const std::string& name, const Interpreter::Interpr
 scalar_t SMParamSetter::calculateValue(const std::string& name, const Interpreter::InterpretedParam& interpretedParam) {
     if (interpretedParam.block == "KIN") {
         if (interpretedParam.code == LhaID(34)) {
-            return -pow(sm_proxy("MASS", 13),2.);
+            return -pow(sm_proxy("MASS", 13), 2.);
         }
-        return (pow(sm_proxy("QCD", LhaID(5, 1)) ,2.) + std::pow(sm_proxy("MASS", 3), 2.))/2.;
+        return (pow(sm_proxy("MASS_EW_SCALE", LhaID(5, 1)) ,2.) + std::pow(sm_proxy("MASS", 3), 2.))/2.;
     }
     if (interpretedParam.block == "WEIN") {
         return 0.5;

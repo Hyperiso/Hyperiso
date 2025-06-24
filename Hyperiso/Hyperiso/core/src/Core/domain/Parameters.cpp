@@ -156,11 +156,11 @@ void SMModelStrategy::postInitialization(Parameters& params) {
     QCDHelper::Init();
 
     if (absent_blocks.contains("VCKM")) {
-        std::unordered_map<ParameterType, std::vector<std::string>> src = {
+        std::unordered_map<ParameterType, std::vector<std::string>> src_ckm = {
             {ParameterType::SM, {"VCKMIN"}}
         };
     
-        auto func = [] (const std::unordered_map<std::string, std::shared_ptr<Block>>& src, std::shared_ptr<DependentBlock> dep_block) {
+        auto func_ckm = [] (const std::unordered_map<std::string, std::shared_ptr<Block>>& src, std::shared_ptr<DependentBlock> dep_block) {
             scalar_t lambda = src.at("VCKMIN")->retrieve(1)->get_val();
             scalar_t l2 = lambda * lambda;
             scalar_t l3 = l2 * lambda;
@@ -179,8 +179,29 @@ void SMModelStrategy::postInitialization(Parameters& params) {
             dep_block->store_or_assign(LhaID(2, 2), std::make_shared<Parameter>(ParamId{ParameterType::SM, "VCKM", LhaID(2, 2)}, 1, 0., 0.));
         };
 
-        DependentBlockManager::addDependentBlock("VCKM", src, ParameterType::SM, func);
+        DependentBlockManager::addDependentBlock("VCKM", src_ckm, ParameterType::SM, func_ckm);
     }
+
+    Parameters::GetInstance(ParameterType::WILSON);
+    std::unordered_map<ParameterType, std::vector<std::string>> src = {
+        {ParameterType::SM, {"QCD"}},
+        {ParameterType::WILSON, {"EW_SCALE"}}
+    };
+
+    auto func = [] (const std::unordered_map<std::string, std::shared_ptr<Block>>& src, std::shared_ptr<DependentBlock> dep_block) {
+        double mu_W = src.at("EW_SCALE")->retrieve(1)->get_val();
+        double mass_top_muW = QCDHelper::msbar_mass(6, mu_W, MassType::MSBAR);
+		double mass_b_muW_mbrun = QCDHelper::msbar_mass(5, mu_W, MassType::MSBAR);
+		double mass_b_muW_mbpole = QCDHelper::msbar_mass(5, mu_W, MassType::POLE);
+		double mass_c_muW = QCDHelper::msbar_mass(4, mu_W, MassType::POLE);
+
+        dep_block->store_or_assign(4, std::make_shared<Parameter>(ParamId{ParameterType::SM, "MASS_EW_SCALE", 4}, mass_c_muW, 0., 0.));
+		dep_block->store_or_assign(LhaID(5, 1), std::make_shared<Parameter>(ParamId{ParameterType::SM, "MASS_EW_SCALE", LhaID(5, 1)}, mass_b_muW_mbrun, 0., 0.));
+		dep_block->store_or_assign(LhaID(5, 2), std::make_shared<Parameter>(ParamId{ParameterType::SM, "MASS_EW_SCALE", LhaID(5, 2)}, mass_b_muW_mbpole, 0., 0.));
+		dep_block->store_or_assign(6, std::make_shared<Parameter>(ParamId{ParameterType::SM, "MASS_EW_SCALE", 6}, mass_top_muW, 0., 0.));
+    };
+
+    DependentBlockManager::addDependentBlock("MASS_EW_SCALE", src, ParameterType::SM, func);
 }
 
 std::unordered_set<BlockName> BSMModelStrategy::initializeParameters(Parameters& params) {
