@@ -110,6 +110,9 @@ std::unordered_set<LhaID> Block::getAllIDs() {
 void Block::copy(std::shared_ptr<Block> other) {
     this->items = other->getItems();
     this->blockname = other->blockname;
+    if (other->has_scale()) {
+        this->set_scale(other->get_scale());
+    }
 }
 
 void Block::clear_above() {
@@ -137,7 +140,7 @@ void Block::set_scale(double scale) {
 
 double Block::get_scale() {
     if (!this->has_scale()) 
-        LOG_ERROR("LogicError", "Scale for the block has not been set, cannot retrieve it.");
+        LOG_ERROR("LogicError", "Scale for the block ",  this->get_name() ," has not been set, cannot retrieve it.");
 
     return this->scale.value();
 }

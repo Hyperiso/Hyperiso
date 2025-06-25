@@ -102,7 +102,17 @@ std::map<BlockName, std::vector<std::vector<std::string>>> LhaParser::parse_toke
             }
         }
     }
-
+    // std::cout << "------------------------------" << std::endl;
+    // for (auto _ : rawBlocks) {
+    //     if (_.first == "FWCOEF") {
+    //         for (auto elem : _.second) {
+    //             for (auto eelem : elem) {
+    //                 std::cout << eelem << std::endl;
+    //             }
+    //         }
+    //     }
+    // }
+    // std::cout << "------------------------------" << std::endl;
     return rawBlocks;
 }
 
