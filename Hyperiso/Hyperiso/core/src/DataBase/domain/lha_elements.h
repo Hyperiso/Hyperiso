@@ -48,6 +48,12 @@ public:
     inline LhaID getId() const { return this->id; }
 
     /**
+     * @brief Retrieves the energy scale of the element.
+     * @return The energy scale of the element, if defined.
+     */
+    virtual double getScale() const = 0;
+
+    /**
      * @brief Converts the element to a string representation.
      * @return String representing the element.
      */
@@ -113,7 +119,7 @@ public:
      * @brief Retrieves the scale associated with the element.
      * @return The scale value or `0` if not set.
      */
-    inline double getScale() const { return this->Q.has_value() ? this->Q.value() : 0; }
+    inline double getScale() const override { return this->Q.has_value() ? this->Q.value() : 0; }
 
     /**
      * @brief Converts the element to a string representation.

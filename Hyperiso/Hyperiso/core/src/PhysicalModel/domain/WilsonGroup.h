@@ -1,127 +1,65 @@
-// #ifndef WILSON_GROUP_H
-// #define WILSON_GROUP_H
+#ifndef WILSON_GROUP_SUPER_H
+#define WILSON_GROUP_SUPER_H
 
-// #include <unordered_map>
-// #include <optional>
-// #include "Include.h"
-// #include "Utils.h"
-// #include "Wilson.h"
-// #include "BWilson.h"
-// #include "ChargedCurrentWilson.h"
-// #include "MartyWilson.h"
-// #include "ParameterProxy.h"
-// #include "UseMarty.h"
-// #include "BlockProxy.h"
+#include <unordered_map>
+#include <optional>
+#include "Include.h"
+#include "Utils.h"
+#include "Wilson.h"
+#include "BWilson.h"
+#include "ChargedCurrentWilson.h"
+#include "MartyWilson.h"
+#include "ParameterProxy.h"
+#include "UseMarty.h"
+#include "BlockProxy.h"
 
-// using BRP = BWilsonRunningParameters;
+using BRP = BWilsonRunningParameters;
 
-// class CoefficientGroup : public std::map<std::string, std::shared_ptr<WilsonCoefficient>> {
-// public:
-//     // Constructors
-//     CoefficientGroup() = default;
-//     CoefficientGroup(const CoefficientGroup&);
-//     CoefficientGroup(CoefficientGroup&&) = default;
-//     CoefficientGroup(std::map<std::string, std::shared_ptr<WilsonCoefficient>>& coeffs);
-
-//     void init(QCDOrder order);
-//     virtual void init_running_blocks(QCDOrder order) = 0;
-//     void init_full_running_block(const std::unordered_map<ParameterType, std::vector<std::string>> &source_names, WilsonBasis basis, bool inter, std::vector<ContributionType> type);
-
-//     virtual std::shared_ptr<CoefficientGroup> get_sm_group() {LOG_ERROR("LogicError", "cannot get_sm_group for non real group"); return nullptr;}
-//     // Getters
-//     complex_t get_matching_coefficient(std::string coeff, std::string order) const;
-//     complex_t get_running_coefficient(std::string coeff, std::string order) const;
-//     QCDOrder get_order();
-//     bool is_double_basis() const;
-
-//     // Interface methods
-//     virtual std::shared_ptr<CoefficientGroup> clone() const = 0;
-//     void switch_basis();
-
-//     virtual ~CoefficientGroup() = default;
-
-// protected:
-//     void claim_coefficients();
-
-//     static complex_t ensure_coef(WCoef coef, QCDOrder order, ContributionType type, std::string matching_block);
-
-//     std::optional<WilsonBasis> basis;
-//     ContributionType wilson_type {ContributionType::SM};
-//     QCDOrder current_order = QCDOrder::LO; //TODO SAME : cannot be none, need to see logic
-//     WGroup id;
-// };
+struct CoefficientGroupSources {
+    std::unordered_map<ParameterType, std::vector<std::string>> sources {};
+    std::function<std::unordered_map<WCoef, scalar_t>(const std::unordered_map<QCDOrder, std::unordered_map<WCoef, scalar_t>>&, const std::unordered_map<std::string, std::shared_ptr<Block>>&)> func =
+        [](const auto&, const auto&) { return std::unordered_map<WCoef, scalar_t>(); };
+};
 
 
-// class BCoefficientGroup : public CoefficientGroup {
-// public:
-//     BCoefficientGroup();
+class CoefficientGroup : public std::map<std::string, std::shared_ptr<WilsonCoefficient>> {
+public:
+    // Constructors
+    CoefficientGroup() = default;
+    CoefficientGroup(const CoefficientGroup&);
+    CoefficientGroup(CoefficientGroup&&) = default;
+    CoefficientGroup(std::map<std::string, std::shared_ptr<WilsonCoefficient>>& coeffs);
 
-//     void init_running_blocks(QCDOrder order) override;
-//     void set_gen(int new_gen) {}
-//     std::shared_ptr<CoefficientGroup> clone() const override;
-    
-//     std::shared_ptr<CoefficientGroup> get_sm_group() override { return std::make_shared<BCoefficientGroup>(); }
-// private:
-//     static void base_1_LO_calculation   (const std::unordered_map<std::string, std::shared_ptr<Block>>&, std::shared_ptr<DependentBlock>, ContributionType);
-//     static void base_2_LO_calculation   (const std::unordered_map<std::string, std::shared_ptr<Block>>&, std::shared_ptr<DependentBlock>, ContributionType);
-//     static void base_1_NLO_calculation  (const std::unordered_map<std::string, std::shared_ptr<Block>>&, std::shared_ptr<DependentBlock>, ContributionType);
-//     static void base_2_NLO_calculation  (const std::unordered_map<std::string, std::shared_ptr<Block>>&, std::shared_ptr<DependentBlock>, ContributionType);
-//     static void base_1_NNLO_calculation (const std::unordered_map<std::string, std::shared_ptr<Block>>&, std::shared_ptr<DependentBlock>, ContributionType);
+    void init(QCDOrder order);
+    void init_full_running_block(const std::unordered_map<ParameterType, std::vector<std::string>> &source_names, WilsonBasis basis, bool inter, std::vector<ContributionType> type);
 
-//     void init_running_parameter_blocks();
-// };
+    virtual std::shared_ptr<CoefficientGroup> get_sm_group() {LOG_ERROR("LogicError", "cannot get_sm_group for virtual group"); return nullptr;}
 
+    // Getters
+    complex_t get_matching_coefficient(std::string coeff, std::string order, ContributionType cont_type) const;
+    complex_t get_running_coefficient(std::string coeff, std::string order, ContributionType cont_type, WilsonBasis basis = WilsonBasis::B_STANDARD) const;
+    QCDOrder get_order();
+    std::string get_matching_storage_block() const { return GroupMapper::str(this->id, ScaleType::MATCHING); }
+    ContributionType get_type() {return this->wilson_type;}
+    std::unordered_map<ParameterType, std::vector<std::string>> get_sources(QCDOrder ord, WilsonBasis id) {return this->sources[id][ord].sources;}
+    std::unordered_set<WilsonBasis> get_bases() const {
+        return get_keys(this->sources);
+    }
+    std::function<std::unordered_map<WCoef, scalar_t>(const std::unordered_map<QCDOrder, std::unordered_map<WCoef, scalar_t>>&, const std::unordered_map<std::string, std::shared_ptr<Block>>&)> get_func(QCDOrder ord, WilsonBasis id) {return this->sources[id][ord].func;}
 
-// class BPrimeCoefficientGroup : public CoefficientGroup {
-// public:
-//     BPrimeCoefficientGroup();
-//     std::shared_ptr<CoefficientGroup> clone() const override;
-//     void init_running_blocks(QCDOrder order) override;
+    // Interface methods
+    virtual std::shared_ptr<CoefficientGroup> clone() const = 0;
 
-//     std::shared_ptr<CoefficientGroup> get_sm_group() override { return std::make_shared<BPrimeCoefficientGroup>(); }
-// private:
-//     static void base_1_LO_calculation(const std::unordered_map<std::string, std::shared_ptr<Block>>&, std::shared_ptr<DependentBlock>, ContributionType);
-// };
+    virtual ~CoefficientGroup() = default;
 
+protected:
+    void claim_coefficients();
 
-// class BScalarCoefficientGroup : public CoefficientGroup {
-// public:
-//     BScalarCoefficientGroup();
-//     std::shared_ptr<CoefficientGroup> clone() const override;
-//     void init_running_blocks(QCDOrder order) override;
+    static complex_t ensure_coef(WCoef coef, QCDOrder order, ContributionType type, std::string matching_block);
+    ContributionType wilson_type {ContributionType::SM};
+    QCDOrder current_order = QCDOrder::LO;
+    WGroup id;
+    std::map<WilsonBasis, std::map<QCDOrder, CoefficientGroupSources>> sources;
+};
 
-//     std::shared_ptr<CoefficientGroup> get_sm_group() override { return std::make_shared<BScalarCoefficientGroup>(); }
-// private:
-//     static void base_1_LO_calculation(const std::unordered_map<std::string, std::shared_ptr<Block>>&, std::shared_ptr<DependentBlock>, ContributionType);
-//     static void base_1_NLO_calculation(const std::unordered_map<std::string, std::shared_ptr<Block>>&, std::shared_ptr<DependentBlock>, ContributionType);
-// };
-
-
-// class BlnuCoefficientGroup : public CoefficientGroup {
-// public:
-//     BlnuCoefficientGroup();
-//     std::shared_ptr<CoefficientGroup> clone() const override;
-//     void init_running_blocks(QCDOrder order);
-
-//     std::shared_ptr<CoefficientGroup> get_sm_group() override { return std::make_shared<BlnuCoefficientGroup>(); }
-// private:
-//     static void base_1_LO_calculation(const std::unordered_map<std::string, std::shared_ptr<Block>>&, std::shared_ptr<DependentBlock>, ContributionType);
-// };
-
-
-// class BclnuCoefficientGroup : public CoefficientGroup {
-// public:
-//     BclnuCoefficientGroup();
-//     std::shared_ptr<CoefficientGroup> clone() const override;
-//     void init_running_blocks(QCDOrder order);
-
-//     std::shared_ptr<CoefficientGroup> get_sm_group() override { return std::make_shared<BclnuCoefficientGroup>(); }
-// private:
-//     static void base_1_LO_calculation(const std::unordered_map<std::string, std::shared_ptr<Block>>&, std::shared_ptr<DependentBlock>, ContributionType);
-// };
-
-
-// std::ostream& operator<<(std::ostream& os, const CoefficientGroup& coeffs);
-// std::ostream& operator<<(std::ostream& os, std::shared_ptr<CoefficientGroup>& coeffs);
-
-// #endif
+#endif

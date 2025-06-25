@@ -1,4 +1,4 @@
-#include "BWilsonGroupSuper.h"
+#include "BWilsonGroup.h"
 
 BCoefficientGroup::BCoefficientGroup(bool force_sm) {
     LOG_TRACE("In BCoefficientGroup constructor");
@@ -36,7 +36,7 @@ std::unordered_map<WCoef, scalar_t> BCoefficientGroup::base_1_LO_calculation (
     std::array<complex_t, 10> Ci_run {};
 
     // C1 - C9
-    for (size_t k = 0; k < 8; k++) {
+    for (size_t k = 0; k < 9; k++) {
         for (size_t l = 0; l < 8; l++) {
             Ci_run[k] += U0(k, l) * Ci_match[l];
         }
@@ -44,12 +44,7 @@ std::unordered_map<WCoef, scalar_t> BCoefficientGroup::base_1_LO_calculation (
         LOG_VERBOSE("C_run_", k + 1, "=", Ci_run[k]);
     }
 
-    double fact = 4 * PI / src.at("WPARAM_RUN_SM")->retrieve(1)->get_val();
-
-    for (size_t k = 0; k < 8; k++) {
-        Ci_run[8] += Ci_match[k] * U0(8, k);
-    }
-    Ci_run[8] *= fact;
+    Ci_run[8] *= 4 * PI / src.at("WPARAM_RUN_SM")->retrieve(1)->get_val();
 
 /*
     // C10
@@ -149,14 +144,13 @@ std::unordered_map<WCoef, scalar_t> BCoefficientGroup::base_2_LO_calculation (
 
     std::array<complex_t, 10> Ci_run {};
     for (size_t k = 0; k < 9; k++) {
-        for (size_t l = 0; l < 9; l++) {
+        for (size_t l = 0; l < 8; l++) {
             Ci_run[k] += V0(k, l) * Ci_match_trad[l];
         }
         LOG_VERBOSE("C_run_", k + 1, "=", Ci_run[k]);
     }
 
-    double fact = 4 * PI / src.at("WPARAM_RUN_SM")->retrieve(1)->get_val();
-    Ci_run[8] *= fact;
+    Ci_run[8] *= 4 * PI / src.at("WPARAM_RUN_SM")->retrieve(1)->get_val();
     Ci_run[9] = coef_matching.at(QCDOrder::LO).at(WCoef::C10);
 
     std::unordered_map<WCoef, scalar_t> Ci_run_map {};
@@ -205,17 +199,16 @@ std::unordered_map<WCoef, scalar_t> BCoefficientGroup::base_1_NLO_calculation(
 
     std::array<complex_t, 10> Ci_run {};
 
-    // C1 - C8
-    for (size_t k = 0; k < 8; k++) {
+    // C1 - C9
+    for (size_t k = 0; k < 9; k++) {
         for (size_t l = 0; l < 8; l++) {
             Ci_run[k] += U0(k, l) * Ci_1_match[l] + U1(k, l) * Ci_0_match[l];
         }
-        
-        Ci_run[8] += U1(8, k) * Ci_0_match[k] + U0(8, k) * Ci_1_match[k];
         LOG_VERBOSE("C_run_", k + 1, "=", Ci_run[k]);
     }
 
     // C9 special treatment
+	Ci_run[8] += U0(8, 8) * Ci_0_match[8];
     Ci_run[8] *= 4 * PI / src.at("WPARAM_RUN_SM")->retrieve(1)->get_val();
 
     // C10
@@ -269,7 +262,8 @@ std::unordered_map<WCoef, scalar_t> BCoefficientGroup::base_2_NLO_calculation(
     }
 
     double fact = 4 * PI / src.at("WPARAM_RUN_SM")->retrieve(1)->get_val();
-    Ci_run[8] = fact * (Ci_run[8] + V0(8, 8) * Ci_0_match_trad[8]);
+    Ci_run[8] += V0(8, 8) * Ci_0_match_trad[8];
+    Ci_run[8] *= fact;
     Ci_run[9] = coef_matching.at(QCDOrder::NLO).at(WCoef::C10);;
 
     // Store
@@ -314,16 +308,15 @@ std::unordered_map<WCoef, scalar_t> BCoefficientGroup::base_1_NNLO_calculation(
 
     // C1 - C9
     for (size_t k = 0; k < 9; k++) {
-        for (size_t l = 0; l < 9; l++) {
+        for (size_t l = 0; l < 8; l++) {
             Ci_run[k] += U(2, k, l) * Ci_0_match[l] + U(1, k, l) * Ci_1_match[l] + U(0, k, l) * Ci_2_match[l];
         }
-        Ci_run[8] += U(1, 8, k) * Ci_0_match[k] + U(0, 8, k) * Ci_1_match[k] + U(0, 8, k) * Ci_2_match[k];
         LOG_VERBOSE("C_run_", k + 1, "=", Ci_run[k]);
     }
 
     // C9 special treatment
-    double fact = 4 * PI / src.at("WPARAM_RUN_SM")->retrieve(1)->get_val();
-    Ci_run[8] *= fact;
+    Ci_run[8] += U(0, 8, 8) * Ci_1_match[8] + U(1, 8, 8) * Ci_0_match[8];
+    Ci_run[8] *= 4 * PI / src.at("WPARAM_RUN_SM")->retrieve(1)->get_val();
 
     // C10
     Ci_run[9] = coef_matching.at(QCDOrder::NNLO).at(WCoef::C10);

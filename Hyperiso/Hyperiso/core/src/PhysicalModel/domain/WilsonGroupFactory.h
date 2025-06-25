@@ -2,8 +2,8 @@
 #define __WILSONGROUPFACTORY_H__
 
 #include "Include.h"
-#include "WilsonGroupSuper.h"
-#include "BWilsonGroupSuper.h"
+#include "WilsonGroup.h"
+#include "BWilsonGroup.h"
 #include "Wilson_SUSY_super.h"
 #include "Wilson_THDM_super.h"
 

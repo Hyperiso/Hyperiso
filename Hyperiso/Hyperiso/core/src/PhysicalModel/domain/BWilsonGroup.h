@@ -1,8 +1,8 @@
 #ifndef BWILSON_GROUP_SUPER_H
 #define BWILSON_GROUP_SUPER_H
 
-#include "BWilsonSuper.h"
-#include "WilsonGroupSuper.h"
+#include "BWilson.h"
+#include "WilsonGroup.h"
 #include "MartyModelNameAPI.h"
 #include "MartyModelPathAPI.h"
 

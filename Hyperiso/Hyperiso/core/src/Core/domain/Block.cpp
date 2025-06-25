@@ -124,6 +124,24 @@ void Block::clear_below() {
     }
 }
 
+bool Block::has_scale() {
+    return this->scale.has_value();
+}
+
+void Block::set_scale(double scale) {
+    if (this->has_scale()) 
+        LOG_ERROR("LogicError", "Cannot set scale of a block which already has one.");
+
+    this->scale.emplace(scale);
+}
+
+double Block::get_scale() {
+    if (!this->has_scale()) 
+        LOG_ERROR("LogicError", "Scale for the block has not been set, cannot retrieve it.");
+
+    return this->scale.value();
+}
+
 bool DependentBlock::dependsOn(const std::string& blockName) {
     return sourceBlocks.contains(blockName);
 }

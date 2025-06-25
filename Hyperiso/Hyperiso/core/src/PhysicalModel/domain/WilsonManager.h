@@ -5,9 +5,9 @@
 #include <string>
 #include <stdexcept>
 #include <set>
-#include "WilsonSuper.h"
-#include "WilsonGroupSuper.h"
-#include "BWilsonGroupSuper.h"
+#include "Wilson.h"
+#include "WilsonGroup.h"
+#include "BWilsonGroup.h"
 #include "MemoryManager.h"
 #include "QCDHelper.h"
 #include "Utils.h"

@@ -28,7 +28,10 @@ std::shared_ptr<Node> LhaBlock::toDBNode() const {
     std::map<BlockName, Node::Value> elts_as_nodes;
     for (const auto& elt : this->entries) {
         elts_as_nodes.emplace(elt->getId().to_string(), elt->toDBNode());
-        
+    }
+    if (!this->entries.empty() && this->prototype.globalScale) {
+        double scale = entries[0]->getScale();
+        node.set(scale, "scale");
     }
     node.setGroup({this->prototype.blockName}, elts_as_nodes);
     return std::make_shared<Node>(node);

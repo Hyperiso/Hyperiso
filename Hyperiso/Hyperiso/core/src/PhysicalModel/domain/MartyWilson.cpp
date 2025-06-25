@@ -1,73 +1,69 @@
-// #include "MartyWilson.h"
+#include "MartyWilson.h"
 
-// void MartyWilson::LO_calculation() {
 
-//     LOG_INFO("In MartyWilson::LO_calculation of coefficient " + this->get_name());
+MartyWilson::MartyWilson(const LhaID& coeff_id, const std::string& storage_block, const std::string& model_name, const fs::path& model_path)
+    : WilsonCoefficient(WCoefMapper::str(WCoefMapper::from_flha(coeff_id.get_parts()[0], coeff_id.get_parts()[1])), storage_block) {
+    this->type = static_cast<ContributionType>(coeff_id.get_parts()[3]);
+    this->set_model(model_name);
+    std::unordered_set<ParamId> sources;
 
-//     std::unordered_set<ParamId> sources {
-//         {"EW_SCALE", 1}
-//     };
+    std::string name = this->get_name();
 
-//     auto func = [this, &sources] (const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src, std::shared_ptr<DependentParameter> dep_param) {
-//         LOG_INFO("Updating coeff");
-//         double epsi = 1e-4;
-//         double ew_scale = src.at({ParameterType::WILSON, "EW_SCALE", 1})->get_val();
-//         complex_t result = 0;
+    std::string csv_relative_path = "/MartyTemp/" + this->get_model() + "_wilson.csv";
+    std::string csv_path = project_assets_root.data() +csv_relative_path;
+    std::string marty_model = this->get_model();
+    std::string marty_model_path = model_path;
+    ContributionType cont = this->type;
 
-//         // for (size_t i = 0; i < df.getRowCount(); ++i) {
-//         //     double Q_match = df.iat<double>(i, "Q_match");
-//         //     if (fabs(Q_match - ew_scale) < epsi) {
-//         //         std::cout << this->get_name() << " waw" << std::endl;
-//         //         for (auto& _ : this->df.getColumnNames()) {
-//         //             if (this->get_name()+"_real" == _) {
-//         //                 if (isnan(df.iat<double>(i, this->get_name()+"_real")) && isnan(df.iat<double>(i, this->get_name()+"_img"))) {
-//         //                     break;
-//         //                 }
-//         //                 std::cout << df.iat<double>(i, this->get_name()+"_real") << " BUTE" << std::endl;
-//         //                 result = {df.iat<double>(i, this->get_name()+"_real"), df.iat<double>(i, this->get_name()+"_img")};
-//         //                 dep_param->set_expected(result);
-//         //                 return;
-//         //                 // this->set_WilsonCoeffMatching("LO", {df.iat<double>(i, this->get_name()+"_real"), df.iat<double>(i, this->get_name()+"_img")});
-//         //                 //return {df.iat<double>(i, this->get_name()+"_real"), df.iat<double>(i, this->get_name()+"_img")}; TODO
-//         //             }
-//         //         } 
-//         //     }
-//         // }
+    matching_info[QCDOrder::LO].compute = [&sources, name, csv_path, marty_model, marty_model_path] (const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src) -> scalar_t {
+        LOG_DEBUG("Updating coeff", name);
+        double epsi = 1e-4;
+        double ew_scale = src.at({ParameterType::WILSON, "EW_SCALE", 1})->get_val();
+        LOG_INFO("ew_scale =", ew_scale);
+        scalar_t result;
 
-//         MartyInterface martyInterface;
-//         martyInterface.calculate(this->get_name(), this->get_model(), ew_scale);
-//         df = csv_reader.read_csv(this->csv_path);
-//         df.setIndex(df.getColumn<double>("Q_match").to_string_vec());
+        CSVReader csv_reader;
+        DataFrame df;
 
-//         for (size_t i = 0; i < df.getRowCount(); ++i) {
-//             double Q_match = df.iat<double>(i, "Q_match");
-//             if (fabs(Q_match - ew_scale) < epsi) {
-//                 result = {df.iat<double>(i, this->get_name()+"_real"), df.iat<double>(i, this->get_name()+"_img")};
-//                 break;
-//                 // this->set_WilsonCoeffMatching("LO", {df.iat<double>(i, this->get_name()+"_real"), df.iat<double>(i, this->get_name()+"_img")});
-//                 //return {df.iat<double>(i, this->get_name()+"_real"), df.iat<double>(i, this->get_name()+"_img")}; 
-//             }
-//         }
+        MartyInterface martyInterface;
+        martyInterface.calculate(name, marty_model, ew_scale, marty_model_path);
+        df = csv_reader.read_csv(csv_path);
+        df.setIndex(df.getColumn<double>("Q_match").to_string_vec());
 
-//         std::set<std::string> special = {"KIN", "WEIN", "Finite", "REGPROP"}; //TODO : do better with this, in SMParamSetter
-//         for (auto &par : martyInterface.get_dependencies(this->get_name())) {
-//             if (std::find(special.begin(), special.end(),par.block) != special.end()) {
-//                 continue;
-//             }
-//             if (par.is_bsm) {
-//                 sources.emplace(ParamId{ParameterType::BSM, par.block, par.code});
-//             } else {
-//                 sources.emplace(ParamId{ParameterType::SM, par.block, par.code});
-//             }
-//         }
+        for (size_t i = 0; i < df.getRowCount(); ++i) {
+            double Q_match = df.iat<double>(i, "Q_match");
+            if (fabs(Q_match - ew_scale) < epsi) {
+                result = {df.iat<double>(i, name+"_real"), df.iat<double>(i, name+"_img")};
+                break; 
+            }
+        }
 
-//         dep_param->set_expected(result);
-//     };
-//     ParamId pid {ParameterType::WILSON, "EW_SCALE", 1};
-//     std::unordered_map<ParamId, std::shared_ptr<Parameter>> dummy {{pid, std::make_shared<Parameter>(pid, 1, 0, 0)}};
-//     func(dummy, std::make_shared<DependentParameter>(dummy, func));
+        if (src.size() == 1) {
+            std::set<std::string> special = {"KIN", "WEIN", "Finite", "REGPROP"}; //TODO : do better with this, in SMParamSetter
+            for (auto &par : martyInterface.get_dependencies(name)) {
+                if (std::find(special.begin(), special.end(),par.block) != special.end()) {
+                    continue;
+                }
+                if (par.is_bsm) {
+                    sources.emplace(ParamId{ParameterType::BSM, par.block, par.code});
+                } else {
+                    sources.emplace(ParamId{ParameterType::SM, par.block, par.code});
+                }
+            }
+        }
+        return result;
+    };
 
-//     //TODO  :configuration here to SM, need to put at FULL but cannot work with WilsonGroup at the moment (only sm)
-//     WilsonParamComposer().compose_parameter(ParamId{this->storage_block, WCoefMapper::flha_full(WCoefMapper::enum_elt(this->coeffName), QCDOrder::LO, this->type)}, sources, func);
+    ParamId pid {ParameterType::WILSON, "EW_SCALE", 1};
+    std::unordered_map<ParamId, std::shared_ptr<Parameter>> dummy {{pid, std::make_shared<Parameter>(pid, 1, 0, 0)}};
+    matching_info[QCDOrder::LO].compute(dummy);
 
-// }
+    sources.emplace(ParamId{ParameterType::WILSON, "EW_SCALE", 1});
+    matching_info[QCDOrder::LO].sources = sources;
+    matching_info[QCDOrder::LO].lhaid = coeff_id;
+
+    WCoef coef = WCoefMapper::from_flha(coeff_id.parts[0], coeff_id.parts[1]);
+    ContributionType ct = static_cast<ContributionType>(coeff_id.parts[3]);
+    matching_info[QCDOrder::NLO].lhaid = WCoefMapper::flha_full(coef, QCDOrder::NLO, ct);
+    matching_info[QCDOrder::NNLO].lhaid = WCoefMapper::flha_full(coef, QCDOrder::NNLO, ct);
+}

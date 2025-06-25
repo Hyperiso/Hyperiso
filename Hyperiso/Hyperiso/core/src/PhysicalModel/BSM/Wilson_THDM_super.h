@@ -1,8 +1,8 @@
 #ifndef WILSON_THDM_SUPER_H
 #define WILSON_THDM_SUPER_H
-#include "WilsonSuper.h"
-#include "WilsonGroupSuper.h"
-#include "BWilsonGroupSuper.h"
+#include "Wilson.h"
+#include "WilsonGroup.h"
+#include "BWilsonGroup.h"
 #include "thdm_parameters.h"
 #include "Math_THDM.h"
 #include "Utils.h"

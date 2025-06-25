@@ -42,15 +42,15 @@ endif()
 add_library(PhysicalModelLib STATIC 
     domain/BWilsonRunningParameters.cpp
     domain/Wilson_parameters.cpp
-    domain/WilsonSuper.cpp
-    domain/MartyWilsonSuper.cpp
-    domain/BWilsonSuper.cpp
-    domain/BWilsonGroupSuper.cpp
-    domain/ChargedCurrentWilsonSuper.cpp
+    domain/Wilson.cpp
+    domain/MartyWilson.cpp
+    domain/BWilson.cpp
+    domain/BWilsonGroup.cpp
+    domain/ChargedCurrentWilson.cpp
     domain/ChargedCurrentsWilsonGroup.cpp
-    domain/WilsonGroupSuper.cpp
+    domain/WilsonGroup.cpp
     domain/WilsonManager.cpp
-    domain/MartyWilsonSuper.cpp
+    domain/MartyWilson.cpp
     adapters/ParameterProxy.cpp
     adapters/WilsonParamComposer.cpp
     adapters/ScaleSetter.cpp

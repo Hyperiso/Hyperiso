@@ -55,7 +55,12 @@ std::map<LhaID, scalar_t> Parameters::get_block_infos(BlockName blockName) {
     return blockAccessor->getAllValues(blockName);
 }
 
-std::unordered_set<BlockName> Parameters::get_blocks_list() {
+double Parameters::get_block_scale(BlockName blockName) {
+    return this->blockAccessor->at(blockName)->get_scale();
+}
+
+std::unordered_set<BlockName> Parameters::get_blocks_list()
+{
     return blockAccessor->get_block_names();
 }
 
@@ -81,7 +86,7 @@ std::unordered_set<BlockName> Parameters::init_blocks(ParameterType type) {
         existing.erase("IMFWCOEF");
     }
 
-    // TODO : manage case of theoretical obs in lha. For now, assume only exp is given. 
+    // TODO v1.1 : manage case of theoretical obs in lha. For now, assume only exp is given. 
     if (type == ParameterType::OBSERVABLE && MemoryManager::GetInstance()->cache.config.flags[ExternalFlag::HAS_TH_OBSERVABLE_INPUT]) {
         return missing;
     }
@@ -129,10 +134,12 @@ std::ostream &operator<<(std::ostream &os, std::shared_ptr<Parameters> instance)
 }
 
 std::unordered_set<BlockName> SMModelStrategy::initializeParameters(Parameters& params) {
-    
     auto absent_blocks = params.init_blocks(ParameterType::SM);
+    return absent_blocks;
+}
 
-
+void SMModelStrategy::postInitialization(Parameters& params) {
+    // Ask Nazila : Which value to use ? BSM (i.e. from spectrum ?) or SMINPUTS-derived (dependent block) ?
     // auto gauge_update_func = [](std::shared_ptr<Block> src, std::shared_ptr<DependentBlock> dep_block) {
     //     double e_em = std::sqrt(4 * PI / src->getValue(1));
     //     double g_3 = std::sqrt(4 * PI * src->getValue(3));
@@ -143,16 +150,12 @@ std::unordered_set<BlockName> SMModelStrategy::initializeParameters(Parameters& 
     //     dep_block->setValue(3, std::sqrt(4 * PI * src->getValue(3)));
     //     dep_block->setValue(4, e_em);
     // };
-
     // params.addDependantBlock("GAUGE", gauge_block, "SMINPUTS", gauge_update_func);
     
 
     // TODO : Initialize derived blocks RE/IMUPMNS
-    // TODO : Calculate W mass and store it somewhere
-    return absent_blocks;
-}
+    // Ask Nazila : Calculate W mass and store it somewhere
 
-void SMModelStrategy::postInitialization(Parameters& params) {
     QCDHelper::Init();
 
     if (absent_blocks.contains("VCKM")) {
@@ -207,19 +210,12 @@ void SMModelStrategy::postInitialization(Parameters& params) {
 std::unordered_set<BlockName> BSMModelStrategy::initializeParameters(Parameters& params) {
     auto absent_blocks = params.init_blocks(ParameterType::BSM);
     return absent_blocks;
-    // TODO : Export savestate to JSON
 }
 
 std::unordered_set<BlockName> FlavorStrategy::initializeParameters(Parameters& params) {
     auto absent_blocks = params.init_blocks(ParameterType::FLAVOR);
     return absent_blocks;
-    // TODO : Export savestate to JSON
 }   
-
-// void GeneralModelStrategy::initializeParameters(Parameters& params) {
-//     params.init_blocks(ParameterType::BSM);
-//     // TODO : Export savestate to JSON
-// }
 
 std::unordered_set<BlockName> WilsonInputStrategy::initializeParameters(Parameters &params) {
     auto absent_blocks = params.init_blocks(ParameterType::WILSON);
@@ -288,6 +284,13 @@ std::unordered_set<BlockName> WilsonInputStrategy::initializeParameters(Paramete
     //         params.setBlockValue("IMWCOEF", i * 10, 0);
     //     }
     // }   
+}
+
+void WilsonInputStrategy::postInitialization(Parameters& params) {
+    if (MemoryManager::GetInstance()->getMemoryCache().config.flags.at(ExternalFlag::HAS_WILSON_INPUT)) {
+        auto wil = Parameters::GetInstance(ParameterType::WILSON);
+        wil->setBlockValue("EW_SCALE", 1, params.get_block_scale("FWCOEF"));
+    }
 }
 
 std::unordered_set<BlockName> DecayStrategy::initializeParameters(Parameters &params) {

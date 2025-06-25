@@ -1,12 +1,8 @@
 #ifndef WILSONINTERFACE_H
 #define WILSONINTERFACE_H
 
+#include "Include.h"
 #include "WilsonManager.h"
-#include "Wilson_SUSY.h"
-#include "Wilson_THDM_super.h"
-#include "Wilson_SUSY_super.h"
-#include "MartyWilsonSuper.h"
-#include "General.h"
 #include "AbstractConfig.h"
 #include "WilsonBuilder.h"
 

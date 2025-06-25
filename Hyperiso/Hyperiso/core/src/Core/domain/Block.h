@@ -157,6 +157,12 @@ public:
 
     virtual void clear_below();
 
+    bool has_scale();
+
+    void set_scale(double scale);
+
+    double get_scale();
+
     /**
      * @brief Destructor. Notifies observers when the block is destroyed.
      */
@@ -166,6 +172,7 @@ public:
 protected:
     std::vector<std::shared_ptr<Block>> observers;      ///< List of observer blocks.
     std::map<LhaID, std::shared_ptr<Parameter>> items;  ///< Map of parameters.
+    std::optional<double> scale;                        ///< Optional scale of the block
 };
 
 /**

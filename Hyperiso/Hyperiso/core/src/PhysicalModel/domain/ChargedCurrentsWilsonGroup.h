@@ -1,8 +1,8 @@
 #ifndef __CHARGEDCURRENTSWILSONGROUP_H__
 #define __CHARGEDCURRENTSWILSONGROUP_H__
 
-#include "ChargedCurrentWilsonSuper.h"
-#include "WilsonGroupSuper.h"
+#include "ChargedCurrentWilson.h"
+#include "WilsonGroup.h"
 #include "MartyModelPathAPI.h"
 #include "MartyModelNameAPI.h"
 

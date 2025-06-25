@@ -1,7 +1,7 @@
 #ifndef WILSON_SUSY_SUPER_H
 #define WILSON_SUSY_SUPER_H
-#include "WilsonSuper.h"
-#include "BWilsonGroupSuper.h"
+#include "Wilson.h"
+#include "BWilsonGroup.h"
 #include "susy_parameters.h"
 #include "Math_THDM.h"
 #include "Utils.h"

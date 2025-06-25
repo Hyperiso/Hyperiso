@@ -167,8 +167,8 @@ std::unordered_set<BlockName> initializeParameters(class Parameters& params) ove
  */
 class WilsonInputStrategy : public ModelStrategy {
 public:
-std::unordered_set<BlockName> initializeParameters(class Parameters& params) override;
-    void postInitialization(Parameters& params) override {}
+    std::unordered_set<BlockName> initializeParameters(class Parameters& params) override;
+    void postInitialization(Parameters& params) override;
 };
 
 /** 
@@ -263,6 +263,13 @@ public:
      * @return Map of LHA IDs to parameter values.
      */
     std::map<LhaID, scalar_t> get_block_infos(BlockName blockName);
+
+    /**
+     * @brief Retrieves the energy scale of a block, if defined.
+     * @param blockName Block name.
+     * @return Energy scale of the block.
+     */
+    double get_block_scale(BlockName blockName);
 
     /**
      * @brief Retrieves the list of available parameter blocks.

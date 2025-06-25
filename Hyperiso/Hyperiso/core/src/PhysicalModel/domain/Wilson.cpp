@@ -1,59 +1,58 @@
-// #include "Wilson.h"
+#include "Wilson.h"
 
-// void WilsonCoefficient::init(QCDOrder order) {
-//     if (!is_owned) {
-//         WilsonParameterHelper::init(2);
-//     }
 
-//     LOG_VERBOSE("Initializing Wilson Coefficient", this->coeffName, "in block", this->storage_block);
+std::function<scalar_t(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>&)> WilsonCoefficient::get_func(QCDOrder order) {
+    return this->matching_info[order].compute;
+}
 
-//     max_order = order;
-//     switch (order) {
-//     case QCDOrder::NNLO:
-//         NNLO_calculation();
-//     case QCDOrder::NLO:
-//         NLO_calculation();
-//     case QCDOrder::LO:
-//         LO_calculation();
-//         break;
-//     default:
-//         LOG_ERROR("logicerror", "QCDOrder cannot be none.");
-//         break;
-//     }
-// }
 
-// void WilsonCoefficient::set_owned(bool owned) {
-//     if (this->is_owned && owned) {
-//         LOG_ERROR("LogicError", "WilsonCoefficient is already owned by a WilsonGroup and cannot be shared.");
-//     }
+std::unordered_set<ParamId> WilsonCoefficient::get_sources(QCDOrder order) {
+    return this->matching_info[order].sources;
+}
 
-//     this->is_owned = owned;
-// }
+LhaID WilsonCoefficient::get_lhaid(QCDOrder order) {
+    return this->matching_info[order].lhaid;
+}
+std::string WilsonCoefficient::get_base_name() const {
+    std::string name = this->coeffName;
 
-// void WilsonCoefficient::set_storage_block(std::string block_name) {
-//     this->storage_block = block_name;
-// }
+    if (ends_with(name, "_THDM")) {
+        name = name.substr(0, name.size() - 5);
+    } else if (ends_with(name, "_SUSY")) {
+        name = name.substr(0, name.size() - 5);
+    }
 
-// void WilsonCoefficient::set_contribution_type(ContributionType type) {
-//     this->type = type;
-// }
+    return name;
+}
+void WilsonCoefficient::set_owned(bool owned)
+{
+    if (this->is_owned && owned) {
+        LOG_ERROR("LogicError", "WilsonCoefficient is already owned by a WilsonGroup and cannot be shared.");
+    }
 
-// //TODO : disgusting
-// LhaID WilsonCoefficient::id(QCDOrder order) const {
-//     std::string name = this->coeffName;
-//     size_t pos = name.rfind('_');
-//     std::string trimmedName = (pos != std::string::npos) ? name.substr(0, pos) : name;
-//     return WCoefMapper::flha_full(WCoefMapper::enum_elt(trimmedName), order, type);
-// }
+    this->is_owned = owned;
+}
 
-// bool WilsonCoefficient::operator==(const WilsonCoefficient &other) const {
-//     return this->coeffName == other.coeffName
-//             && this->type == other.type
-//             && this->is_owned == other.is_owned
-//             && this->from_lha == other.from_lha;
-// }
+void WilsonCoefficient::set_storage_block(std::string block_name) {
+    this->storage_block = block_name;
+}
 
-// complex_t WilsonCoefficient::get_matching_value(std::string order) const {
-//     ParameterProxy wilson_p {ParameterType::WILSON};
-//     return complex_t(wilson_p(storage_block, this->id(OrderMapper::enum_elt(order))));
-// }
+void WilsonCoefficient::set_contribution_type(ContributionType type) {
+    this->type = type;
+}
+
+//TODO : disgusting
+LhaID WilsonCoefficient::id(QCDOrder order, ContributionType typ) const {
+    return WCoefMapper::flha_full(WCoefMapper::enum_elt(get_base_name()), order, typ);
+}
+
+bool WilsonCoefficient::operator==(const WilsonCoefficient &other) const {
+    return this->coeffName == other.coeffName
+            && this->type == other.type
+            && this->is_owned == other.is_owned;
+}
+
+complex_t WilsonCoefficient::get_matching_value(std::string order, ContributionType cont_type) const {
+    ParameterProxy wilson_p {ParameterType::WILSON};
+    return complex_t(wilson_p(storage_block, this->id(OrderMapper::enum_elt(order), cont_type)));
+}
