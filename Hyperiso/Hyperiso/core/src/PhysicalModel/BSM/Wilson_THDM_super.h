@@ -270,6 +270,8 @@ public:
     }
 };
 
+// TODO : Implement CP7, CP8, CP9, CP10, CPQ1 and CPQ2 contributions
+
 class CP7_THDM : public WilsonCoefficient {
 public:
     CP7_THDM() : WilsonCoefficient("CP7_THDM", GroupMapper::str(WGroup::BPrime) + "_MATCH") {}

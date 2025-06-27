@@ -345,6 +345,7 @@ CQ1_THDM::CQ1_THDM() : WilsonCoefficient("CQ1_THDM", GroupMapper::str(WGroup::B)
         {
             {"WPARAM_SI_SM", 3},              // ml
             {"WPARAM_SI_SM", 4},              // sw2
+            {"WPARAM_SI_BSM", 1},             // xh
             {"WPARAM_SI_BSM", 2},             // xH
             {"WPARAM_SI_BSM", 3},             // xH0
             {"WPARAM_SI_BSM", 6},             // beta
@@ -353,7 +354,7 @@ CQ1_THDM::CQ1_THDM() : WilsonCoefficient("CQ1_THDM", GroupMapper::str(WGroup::B)
             {"WPARAM_SI_BSM", 9},             // alpha
             {"WPARAM_SI_BSM", 10},            // le
             {"WPARAM_MATCH_SM", {2, 1}},      // xt
-            {"WPARAM_MATCH_SM", 6},           // mass_top_muW
+            {"WPARAM_MATCH_SM", {5, 1}},      // mass_b_muW
             {ParameterType::SM, "MASS", 24}   // m_W
         },
         compute_LO,
@@ -363,6 +364,7 @@ CQ1_THDM::CQ1_THDM() : WilsonCoefficient("CQ1_THDM", GroupMapper::str(WGroup::B)
 
 
 double CQ1_THDM::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src) {
+    double xh     = src.at({ParameterType::WILSON, "WPARAM_SI_BSM", 1})->get_val();
     double ml     = src.at({ParameterType::WILSON, "WPARAM_SI_SM", 3})->get_val();
     double sw2    = src.at({ParameterType::WILSON, "WPARAM_SI_SM", 4})->get_val();
     double xH     = src.at({ParameterType::WILSON, "WPARAM_SI_BSM", 2})->get_val();
@@ -373,7 +375,7 @@ double CQ1_THDM::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Pa
     double alpha  = src.at({ParameterType::WILSON, "WPARAM_SI_BSM", 9})->get_val();
     double le     = src.at({ParameterType::WILSON, "WPARAM_SI_BSM", 10})->get_val();
     double xt     = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1}})->get_val();
-    double mt_muW = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 6})->get_val();
+    double mb_muW = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {5, 1}})->get_val();
     double mW     = src.at({ParameterType::SM, "MASS", 24})->get_val();
 
     double G1 = -3. / 4. + ld * lu * F4SP(xt, xH) + lu * lu * F5SP(xt, xH);
@@ -384,13 +386,31 @@ double CQ1_THDM::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Pa
 
     double CSn_2HDM =
         xt * (F0SP(xt) + le * (ld * F1SP(xt, xH) + lu * F2SP(xt, xH)) + le * lu * F3SP(xt, xH)) +
-        xt / (2. * xH) * (sin(alpha - beta) + cos(alpha - beta) * le) *
+        xt / (2. * xh) * (sin(alpha - beta) + cos(alpha - beta) * le) *
         (sin(alpha - beta) * G1 + cos(alpha - beta) * G2) +
         xt / (2. * xH0) * (cos(alpha - beta) - sin(alpha - beta) * le) *
         (cos(alpha - beta) * G1 - sin(alpha - beta) * G2);
 
+    LOG_INFO("F0SP =", F0SP(xt));
+    LOG_INFO("F1SP =", F1SP(xt, xH));
+    LOG_INFO("F2SP =", F2SP(xt, xH));
+    LOG_INFO("F3SP =", F3SP(xt, xH));
+    LOG_INFO("alpha =", alpha);
+    LOG_INFO("beta =", beta);
+    LOG_INFO("xH0 =", xH0);
+    LOG_INFO("xt =", xt);
+    LOG_INFO("xH =", xH);
+    LOG_INFO("G1 =", G1);
+    LOG_INFO("G2 =", G2);
+    LOG_INFO("lambda_e =", le);
+    LOG_INFO("sin(alpha-beta) =", sin(alpha - beta));
+    LOG_INFO("cos(alpha-beta) =", cos(alpha - beta));
+    LOG_INFO("beta =", beta);
+    LOG_INFO("CSn_2HDM =", CSn_2HDM);
+    LOG_INFO("CSc_2HDM =", CSc_2HDM(xH, xt, lu, ld, le));
+
     double coeff_temp = CSc_2HDM(xH, xt, lu, ld, le) + CSn_2HDM;
-    coeff_temp *= (ml * mt_muW / (mW * mW)) / sw2;
+    coeff_temp *= (ml * mb_muW / (mW * mW)) / sw2;
 
     return coeff_temp;
 }
@@ -438,6 +458,13 @@ double CQ2_THDM::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Pa
 
     double coeff_temp = CPc_2HDM(xH, xt, lu, ld, le, sw2) + CPn_2HDM;
     coeff_temp *= (ml * mb_muW / (mW * mW)) / sw2;
+
+    LOG_INFO("G3 =", G3);
+    LOG_INFO("Factor =", (ml * mb_muW / (mW * mW)) / sw2);
+    LOG_INFO("m_b_muW =", mb_muW);
+    LOG_INFO("CPn_2HDM =", CPn_2HDM);
+    LOG_INFO("CPc_2HDM =", CPc_2HDM(xH, xt, lu, ld, le, sw2));
+    LOG_INFO("CQ2(mu_W) =", coeff_temp);
 
     return coeff_temp;
 }

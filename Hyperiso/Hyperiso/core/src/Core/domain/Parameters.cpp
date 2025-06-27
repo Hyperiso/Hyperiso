@@ -288,8 +288,7 @@ std::unordered_set<BlockName> WilsonInputStrategy::initializeParameters(Paramete
 
 void WilsonInputStrategy::postInitialization(Parameters& params) {
     if (MemoryManager::GetInstance()->getMemoryCache().config.flags.at(ExternalFlag::HAS_WILSON_INPUT)) {
-        auto wil = Parameters::GetInstance(ParameterType::WILSON);
-        wil->setBlockValue("EW_SCALE", 1, params.get_block_scale("FWCOEF"));
+        params.setBlockValue("EW_SCALE", 1, params.get_block_scale("FWCOEF"));
     }
 }
 

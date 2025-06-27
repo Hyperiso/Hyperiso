@@ -5,16 +5,11 @@ void ParamBlockLoader::load(std::shared_ptr<BlockAccessor> dest, fs::path src_fi
     auto np = NodeProviderFactory::createNodeProvider(src_file);
     auto src = np->provide_db_as_node();
     
-    // src->printJSON();
     for (auto &bk : src->get_keys()) {
         auto block = std::make_shared<Block>();
         block->blockname = bk;
+        LOG_INFO("Loading block", bk);
         for (auto &vk : src->getGroup({bk})) {
-            if (vk.first == "scale") {
-                block->set_scale(std::get<double>(vk.second));
-                continue;
-            }
-
             auto node = std::get<std::shared_ptr<Node>>(vk.second);
 
             if (!node->contains("central_value")) {
