@@ -1,4 +1,7 @@
 {
     "m_Hp": {"block": "MASS", "pdgCode": "37"},
-    "beta": {"block" : "MINPAR", "pdgCode": "3"}
+    "m_A0": {"block": "MASS", "pdgCode": "36"},
+    "m_H0": {"block": "MASS", "pdgCode": "35"},
+    "beta": {"block" : "MINPAR", "pdgCode": "3"},
+    "alpha": {"block" : "ALPHA", "pdgCode": ""}
 }

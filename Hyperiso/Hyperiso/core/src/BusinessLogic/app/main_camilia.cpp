@@ -10,7 +10,7 @@ int main() {
     HyperisoMaster hyp;
     Config config;
     config.model = Model::THDM;
-    config.flags[ExternalFlag::USE_MARTY] = true;
+    config.flags[ExternalFlag::USE_MARTY] = false;
     config.mty_model_name = "THDM";
     config.mty_model_path = project_assets_root.data() + std::string("input_files/marty_model/thdm.h");
     hyp.init("lha/testinput_thdm.lha", config);
@@ -33,12 +33,12 @@ int main() {
     oi.add_observable(Observables::BR_B_XS_GAMMA, wilson_config.order, true);
 
     std::ofstream ofs;
-    ofs.open("B_s_gamma_MARTY.csv");
+    ofs.open("B_s_gamma_SI.csv");
     ofs << "M_Hp,BR,u(BR)\n";
 
     double log_m_min = 2;
     double log_m_max = log10(5e3);
-    size_t n = 100;
+    size_t n = 1000;
     double dl = (log_m_max - log_m_min) / n;
 
     double lm = log_m_min;

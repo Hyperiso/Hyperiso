@@ -19,7 +19,6 @@ MartyWilson::MartyWilson(const LhaID& coeff_id, const std::string& storage_block
         LOG_DEBUG("Updating coeff", name);
         double epsi = 1e-4;
         double ew_scale = src.at({ParameterType::WILSON, "EW_SCALE", 1})->get_val();
-        LOG_INFO("ew_scale =", ew_scale);
         scalar_t result;
 
         CSVReader csv_reader;
