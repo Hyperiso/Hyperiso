@@ -27,7 +27,6 @@ std::unordered_map<WCoef, scalar_t> BCoefficientGroup::base_1_LO_calculation (
     auto ids = WCoefMapper::get_group(WGroup::B);
     for (size_t k = 0; k < 10; k++) {
         Ci_match[k] = coef_matching.at(QCDOrder::LO).at(ids[k]);
-        std::cout << k << " : " <<coef_matching.at(QCDOrder::LO).at(ids[k]) << std::endl;
     }
 
     Ci_match[6] = BRP::C7_eff_std(Ci_match); 
@@ -40,8 +39,8 @@ std::unordered_map<WCoef, scalar_t> BCoefficientGroup::base_1_LO_calculation (
         for (size_t l = 0; l < 8; l++) {
             Ci_run[k] += U0(k, l) * Ci_match[l];
         }
-        LOG_VERBOSE("C_match_", k + 1, "=", Ci_match[k]);
-        LOG_VERBOSE("C_run_", k + 1, "=", Ci_run[k]);
+        LOG_INFO("C_match_", k + 1, "=", Ci_match[k]);
+        LOG_INFO("C_run_", k + 1, "=", Ci_run[k]);
     }
 
     Ci_run[8] *= 4 * PI / src.at("WPARAM_RUN_SM")->retrieve(1)->get_val();
@@ -117,6 +116,7 @@ std::unordered_map<WCoef, scalar_t> BCoefficientGroup::base_1_LO_calculation (
     std::unordered_map<WCoef, scalar_t> Ci_run_map {};
     for (size_t k = 0; k < 10; k++) {
         Ci_run_map[ids[k]] = Ci_run[k];
+        LOG_INFO("At hadronic scale:", k+1, "=", Ci_run_map[ids[k]]);
     }
 
     return Ci_run_map;

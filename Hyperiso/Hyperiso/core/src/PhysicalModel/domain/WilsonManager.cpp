@@ -225,6 +225,10 @@ void CoefficientManager::init_group_hadronic(const std::string& groupName, const
         
         std::unordered_map<ContributionType, std::unordered_map<QCDOrder,std::unordered_map<WCoef, scalar_t>>> res;
         for (auto contri : {ContributionType::SM, ContributionType::BSM, ContributionType::TOTAL}) {
+            LOG_INFO("Contribution:", ContributionTypeMapper::str(contri));
+            if (contri == ContributionType::BSM) {
+                matching_map[contri][QCDOrder::LO][WCoef::C2] = 0;
+            }
             switch (ord)
                 {
                 case QCDOrder::NNLO:

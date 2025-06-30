@@ -67,6 +67,20 @@ double Li2(double x);
 scalar_t CLi2(scalar_t x);
 
 /**
+ * @brief Computes the complex trilogarithm function.
+ * @param x Complex input value.
+ * @return Complex trilogarithm result.
+ */
+scalar_t CLi3(scalar_t x);
+
+/**
+ * @brief Computes the complex quadrilogarithm function.
+ * @param x Complex input value.
+ * @return Complex quadrilogarithm result.
+ */
+scalar_t CLi4(scalar_t x);
+
+/**
  * @brief Computes the trilogarithm function Li3(x).
  * @param x Input value.
  * @return Result of the trilogarithm.
@@ -79,6 +93,13 @@ double Li3(double x);
  * @return Result of the Clausen function.
  */
 double Cl2(double x);
+
+/**
+ * @brief Computes the Clausen function Cl3(x).
+ * @param x Input value.
+ * @return Result of the Clausen function.
+ */
+double Cl3(double x);
 
 /**
  * @brief Computes the two-variable function H2(x, y).

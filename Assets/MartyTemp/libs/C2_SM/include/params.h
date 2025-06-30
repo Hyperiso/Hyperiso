@@ -17,16 +17,10 @@ struct param_t {
 
     csl::InitSanitizer<real_t> G_F { "G_F" };
     csl::InitSanitizer<real_t> M_W { "M_W" };
-    csl::InitSanitizer<real_t> M_Z { "M_Z" };
     csl::InitSanitizer<real_t> m_b { "m_b" };
     csl::InitSanitizer<real_t> m_c { "m_c" };
-    csl::InitSanitizer<real_t> m_h { "m_h" };
-    csl::InitSanitizer<real_t> m_s { "m_s" };
     csl::InitSanitizer<real_t> V_cb { "V_cb" };
     csl::InitSanitizer<real_t> s_13 { "s_13" };
-    csl::InitSanitizer<real_t> s_24 { "s_24" };
-    csl::InitSanitizer<real_t> Finite { "Finite" };
-    csl::InitSanitizer<real_t> theta_W { "theta_W" };
     csl::InitSanitizer<real_t> reg_prop { "reg_prop" };
     csl::InitSanitizer<complex_t> V_cs { "V_cs" };
 
@@ -43,13 +37,12 @@ struct param_t {
 
     void reset()
     {
-        using real_params = std::array<csl::InitSanitizer<real_t>*, 13>;
+        using real_params = std::array<csl::InitSanitizer<real_t>*, 7>;
         using complex_params = std::array<csl::InitSanitizer<complex_t>*, 1>;
 
         for (auto &par : real_params{
-                &G_F, &M_W, &M_Z, &m_b, &m_c, 
-                &m_h, &m_s, &V_cb, &s_13, &s_24, &Finite, 
-                &theta_W, &reg_prop, })
+                &G_F, &M_W, &m_b, &m_c, &V_cb, 
+                &s_13, &reg_prop, })
         {
             par->reset();
         }
@@ -62,15 +55,14 @@ struct param_t {
 
     void print(std::ostream &out = std::cout) const
     {
-        using real_params = std::array<csl::InitSanitizer<real_t> const*, 13>;
+        using real_params = std::array<csl::InitSanitizer<real_t> const*, 7>;
         using complex_params = std::array<csl::InitSanitizer<complex_t> const*, 1>;
 
         out << "param_t struct:\n";
         out << "Real parameters\n";
         for (auto const &par : real_params{
-                &G_F, &M_W, &M_Z, &m_b, &m_c, 
-                &m_h, &m_s, &V_cb, &s_13, &s_24, &Finite, 
-                &theta_W, &reg_prop, })
+                &G_F, &M_W, &m_b, &m_c, &V_cb, 
+                &s_13, &reg_prop, })
         {
             out << "  -> " << par->getName() << ": ";
             if (par->hasValue()) {
@@ -99,16 +91,10 @@ struct param_t {
     std::map<std::string, csl::InitSanitizer<real_t>*> realParams {
         {"G_F", &G_F},
         {"M_W", &M_W},
-        {"M_Z", &M_Z},
         {"m_b", &m_b},
         {"m_c", &m_c},
-        {"m_h", &m_h},
-        {"m_s", &m_s},
         {"V_cb", &V_cb},
         {"s_13", &s_13},
-        {"s_24", &s_24},
-        {"Finite", &Finite},
-        {"theta_W", &theta_W},
         {"reg_prop", &reg_prop},
     };
 

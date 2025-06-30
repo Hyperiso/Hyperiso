@@ -2,7 +2,7 @@
 
 void SMParamSetter::setParam(const std::string& name, const Interpreter::InterpretedParam& interpretedParam) {
     LOG_DEBUG("setting parameter", name, interpretedParam.block, interpretedParam.code);
-    std::set<std::string> special = {"KIN", "WEIN", "Finite", "REGPROP"}; //TODO : put else where, needed in wilson marty
+    std::set<std::string> special = {"KIN", "WEIN", "Finite", "REGPROP", "BETA"}; //TODO : put else where, needed in wilson marty
     if (special.find(interpretedParam.block) != special.end()) {
         params[name] = calculateValue(name, interpretedParam);
     } else if (interpretedParam.block == "MASS" && (interpretedParam.code == LhaID(5) || interpretedParam.code == LhaID(6))) {
@@ -38,10 +38,13 @@ scalar_t SMParamSetter::calculateValue(const std::string& name, const Interprete
         return (pow(sm_proxy("MASS_EW_SCALE", LhaID(5, 1)) ,2.) + std::pow(sm_proxy("MASS", 3), 2.))/2.;
     }
     if (interpretedParam.block == "WEIN") {
-        return 0.5;
+        return asin(sqrt(sm_proxy("SMINPUTS", LhaID(7, 1))));
     }
     if (interpretedParam.block == "REGPROP") {
         return 1e-3;
+    }
+    if (interpretedParam.block == "BETA") {
+        return atan(bsm_proxy.value()("MINPAR", 3));
     }
 
     return 1.0;

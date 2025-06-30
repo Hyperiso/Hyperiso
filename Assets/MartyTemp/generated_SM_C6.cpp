@@ -1,6 +1,6 @@
 #include <iostream> 
-#include "/home/theo/hyperiso/Third_party/MARTY/src/MARTY/src/marty/models/sm.h"
-#include "/home/theo/hyperiso/Third_party/MARTY/MARTY_INSTALL/include/marty.h"
+#include "/home/nfardeau/Hyperiso/Hyperiso/Third_party/MARTY/src/MARTY/src/marty/models/sm.h"
+#include "/home/nfardeau/Hyperiso/Hyperiso/Third_party/MARTY/MARTY_INSTALL/include/marty.h"
 //42
 
 using namespace csl;

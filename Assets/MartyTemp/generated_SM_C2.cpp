@@ -1,6 +1,6 @@
 #include <iostream>
-#include "/home/theo/hyperiso/Third_party/MARTY/src/MARTY/src/marty/models/sm.h"
-#include "/home/theo/hyperiso/Third_party/MARTY/MARTY_INSTALL/include/marty.h"
+#include "/home/nfardeau/Hyperiso/Hyperiso/Third_party/MARTY/src/MARTY/src/marty/models/sm.h"
+#include "/home/nfardeau/Hyperiso/Hyperiso/Third_party/MARTY/MARTY_INSTALL/include/marty.h"
 //42
 
 using namespace csl;
@@ -43,20 +43,22 @@ int calculate_C2(Model &model, gauge::Type gauge) {
 
     Expr C2_LO = getWilsonCoefficient(wil_LO, dimension6Operator(model, wil_LO, DiracCoupling::VL, DiracCoupling::VL, {1, 3, 0, 2}));
 
-    opts.discardLowerOrders = true;
-    auto wil_NLO = model.computeWilsonCoefficients(
-        mty::Order::OneLoop,
-        {Incoming("b"), Outgoing("s"),
-        Outgoing("c"), Outgoing(AntiPart("c"))},
-        opts
-    );
+    // opts.discardLowerOrders = true;
+    // auto wil_NLO = model.computeWilsonCoefficients(
+    //     mty::Order::OneLoop,
+    //     {Incoming("b"), Outgoing("s"),
+    //     Outgoing("c"), Outgoing(AntiPart("c"))},
+    //     opts
+    // );
 
-    Expr C2_NLO = getWilsonCoefficient(
-        wil_NLO,
-        dimension6Operator(model, wil_NLO, DiracCoupling::VL, DiracCoupling::VL)
-    );
+    // Expr C2_NLO = getWilsonCoefficient(
+    //     wil_NLO,
+    //     dimension6Operator(model, wil_NLO, DiracCoupling::VL, DiracCoupling::VL)
+    // );
     
-    Expr C2 = C2_LO + C2_NLO;
+    // Expr C2 = C2_LO + C2_NLO;
+
+    Expr C2 = C2_LO;
     Replace(C2, e_em, sqrt_s(8 * G_F / sqrt_s(2)) * M_W * sin_s(theta_W));
 
     [[maybe_unused]] int sysres = system("rm -rf libs/C2_SM");

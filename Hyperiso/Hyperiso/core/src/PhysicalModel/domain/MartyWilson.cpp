@@ -38,7 +38,7 @@ MartyWilson::MartyWilson(const LhaID& coeff_id, const std::string& storage_block
         }
 
         if (src.size() == 1) {
-            std::set<std::string> special = {"KIN", "WEIN", "Finite", "REGPROP"}; //TODO : do better with this, in SMParamSetter
+            std::set<std::string> special = {"KIN", "WEIN", "Finite", "REGPROP", "BETA"}; //TODO : do better with this, in SMParamSetter
             for (auto &par : martyInterface.get_dependencies(name)) {
                 if (std::find(special.begin(), special.end(),par.block) != special.end()) {
                     continue;
