@@ -67,3 +67,6 @@ target_link_libraries(TEST BusinessLogicLib)
 
 add_executable(CAMILIA app/main_camilia.cpp)
 target_link_libraries(CAMILIA BusinessLogicLib)
+
+add_executable(SCAN app/main_scan.cpp)
+target_link_libraries(SCAN BusinessLogicLib)

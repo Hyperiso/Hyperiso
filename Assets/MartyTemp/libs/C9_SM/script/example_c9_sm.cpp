@@ -8,7 +8,7 @@ using namespace c9_sm;
 int main(int argc, char** argv) {
 
 	param_t param;
-	std::string ParamFilePath = "/home/nfardeau/Hyperiso/Hyperiso/Assets/MartyTemp/libs/C9_SM/bin/paramlist.csv";
+	std::string ParamFilePath = "/home/theo/hyperiso/Assets/MartyTemp/libs/C9_SM/bin/paramlist.csv";
 	std::ifstream ParamFile(ParamFilePath);
 	readParams(ParamFile, param.realParams, param.complexParams);
 	double Q_match = 80.379;
@@ -24,7 +24,7 @@ int main(int argc, char** argv) {
 		}
 	}
 
-	std::string path = "/home/nfardeau/Hyperiso/Hyperiso/Assets/MartyTemp/SM_wilson.csv";
+	std::string path = "/home/theo/hyperiso/Assets/MartyTemp/SM_wilson.csv";
 	setMu(Q_match);
 	writeWilsonCoefficients("C9", C9(param), Q_match, path);
     return 0;

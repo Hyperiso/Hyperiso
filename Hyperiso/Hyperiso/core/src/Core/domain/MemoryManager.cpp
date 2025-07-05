@@ -135,6 +135,7 @@ void MemoryManager::switch_lha(const std::string& lhaFile, Config config) {
     memento.restore();
     this->read_lha_input(lhaFile, config);
     this->cache.flags.at(InternalFlag::PARAMS_CHANGED) = true;
+    this->cache.is_ready = true;
 }
 
 void MemoryManager::reload_user_input(Config config, std::shared_ptr<IDataLoader<BlockAccessor>> loader, std::shared_ptr<IDataLoader<CorrelationMatrixPair<ParamId>>> param_corr, std::shared_ptr<IDataLoader<CorrelationMatrixPair<Observables>>> obs_corr) {

@@ -3,6 +3,7 @@ import math
 import cmath
 from typing import  Union
 
+
 class Scalar:
     """Python wrapper for the C++ scalar_t class.
 
@@ -103,9 +104,28 @@ class Scalar:
             return False
         return self.real() == other.real() and self.imag() == other.imag()
 
+    @classmethod
+    def from_cpp(cls, cpp_obj) -> "Scalar":
+        """Wraps an existing C++ scalar_t object."""
+        instance = cls()
+        instance._cpp_obj = cpp_obj
+        return instance
+    
     def __repr__(self) -> str:
         return f"Scalar({self.real()}, {self.imag()})"
 
+
+def _to_scalar(value: Union[float, complex, Scalar]) -> Scalar:
+    """Helper to convert float/complex to Scalar."""
+    if isinstance(value, Scalar):
+        return value
+    elif isinstance(value, (float, int)):
+        return Scalar(value)
+    elif isinstance(value, complex):
+        return Scalar.from_complex(value)
+    else:
+        raise TypeError(f"Expected float, complex or Scalar, got {type(value)}")
+    
 
 # -------- Math function wrappers -------- #
 

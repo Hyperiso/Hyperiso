@@ -20,6 +20,23 @@
 
 namespace py = pybind11;
 
+template <typename T>
+void declare_parameter(py::module &m, const std::string &name) {
+    py::class_<T, std::shared_ptr<T>>(m, name.c_str())
+        .def(py::init<>())
+        .def(py::init<ParamId, scalar_t, scalar_t, scalar_t>(), py::arg("id"), py::arg("mean"), py::arg("std_stat"), py::arg("std_syst"))
+        .def("get_val", &T::get_val)
+        .def("get_combined_std", &T::get_combined_std)
+        .def("get_std", &T::get_std)
+        .def("get_id", &T::get_id)
+        .def("set_expected", &T::set_expected)
+        .def("set_std", &T::set_std)
+        .def("set_shift", &T::set_shift)
+        .def("set_id", &T::set_id)
+        .def("set_mode", &T::set_mode)
+        .def("set_owner", &T::set_owner);
+}
+
 void init_core(py::module &m) {
 
     // py::class_<QCDHelper, std::shared_ptr<QCDHelper>>(m, "QCDHelper")
@@ -48,6 +65,21 @@ void init_core(py::module &m) {
     py::enum_<APIPath>(m, "APIPath")
     .value("LHA_PATH", APIPath::LHA_PATH)
     .export_values();
+    
+    py::enum_<ParameterMode>(m, "ParameterMode")
+        .value("FIXED", ParameterMode::FIXED)
+        .value("SHIFTABLE", ParameterMode::SHIFTABLE)
+        .export_values();
+
+    declare_parameter<Parameter>(m, "Parameter");
+
+    py::class_<DependentParameter, Parameter, std::shared_ptr<DependentParameter>>(m, "DependentParameter")
+        .def(py::init<ParamId, std::unordered_map<ParamId, std::shared_ptr<Parameter>>, DepParamUpdateFunc>())
+        .def("init", &DependentParameter::init)
+        .def("freeze", &DependentParameter::freeze)
+        .def("unfreeze", &DependentParameter::unfreeze)
+        .def("update", &DependentParameter::update)
+        .def("dependsOn", &DependentParameter::dependsOn);
 
     // Config class
     py::class_<Config>(m, "Config")
@@ -72,25 +104,23 @@ void init_core(py::module &m) {
     .def("mutate", &ParameterShifter::mutate, py::arg("pid"), py::arg("value"))
     .def("change_mode", &ParameterShifter::change_mode, py::arg("pid"), py::arg("mode"));
 
-    // ParameterProvider::DataType
-    py::enum_<ParameterProvider::DataType>(m, "DataType")
-    .value("VALUE", ParameterProvider::DataType::VALUE)
-    .value("STD_STAT", ParameterProvider::DataType::STD_STAT)
-    .value("STD_SYST", ParameterProvider::DataType::STD_SYST)
-    .value("STD_COMBINED", ParameterProvider::DataType::STD_COMBINED)
-    .export_values();
+    py::class_<ParameterSetter, std::shared_ptr<ParameterSetter>>(m, "ParameterSetter")
+    .def(py::init<>())
+
+    .def("mutate", &ParameterSetter::mutate, py::arg("pid"), py::arg("value"))
+    .def("change_mode", &ParameterSetter::change_mode, py::arg("pid"), py::arg("mode"));
 
     py::class_<ParameterProvider, std::shared_ptr<ParameterProvider>>(m, "ParameterProvider")
     .def(py::init<>())
     .def(py::init<ParameterType>(), py::arg("type"))
 
     .def("__call__",
-         py::overload_cast<const ParamId&, ParameterProvider::DataType>(&ParameterProvider::operator()),
-         py::arg("pid"), py::arg("d_type") = ParameterProvider::DataType::VALUE)
+         py::overload_cast<const ParamId&, DataType>(&ParameterProvider::operator()),
+         py::arg("pid"), py::arg("d_type") = DataType::VALUE)
 
     .def("__call__",
-         py::overload_cast<const std::string&, const LhaID&, ParameterProvider::DataType>(&ParameterProvider::operator(), py::const_),
-         py::arg("block"), py::arg("id"), py::arg("d_type") = ParameterProvider::DataType::VALUE)
+         py::overload_cast<const std::string&, const LhaID&, DataType>(&ParameterProvider::operator(), py::const_),
+         py::arg("block"), py::arg("id"), py::arg("d_type") = DataType::VALUE)
 
     .def("exists",
          py::overload_cast<const ParamId&>(&ParameterProvider::exists, py::const_),
@@ -166,6 +196,7 @@ void init_core(py::module &m) {
         .value("TEMPLATE_DIR", MartyPath::TEMPLATE_DIR)
         .value("PARAM_MAPPING_DIR", MartyPath::PARAM_MAPPING_DIR)
         .export_values();
+    
 
     py::class_<MartyAdapter, std::shared_ptr<MartyAdapter>>(m, "MartyAdapter")
         .def(py::init<>())

@@ -137,6 +137,18 @@ void init_common(py::module &m) {
         .value("HADRONIC", ScaleType::HADRONIC)
         .export_values();
 
+    py::enum_<DataType>(m, "DataType")
+        .value("VALUE", DataType::VALUE)
+        .value("STD_STAT", DataType::STD_STAT)
+        .value("STD_SYST", DataType::STD_SYST)
+        .value("STD_COMBINED", DataType::STD_COMBINED)
+        .export_values();
+
+    py::enum_<UncertaintyType>(m, "UncertaintyType")
+        .value("STAT", UncertaintyType::STAT)
+        .value("SYST", UncertaintyType::SYST)
+        .value("COMBINED", UncertaintyType::COMBINED)
+        .export_values();
 
     // py::class_<ParamId>(m, "ParamId")
     //     .def(py::init<ParameterType, std::string, int>())

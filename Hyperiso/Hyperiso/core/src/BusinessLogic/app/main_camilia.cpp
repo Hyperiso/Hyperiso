@@ -10,7 +10,7 @@ int main() {
     HyperisoMaster hyp;
     Config config;
     config.model = Model::THDM;
-    config.flags[ExternalFlag::USE_MARTY] = true;
+    config.flags[ExternalFlag::USE_MARTY] = false;
     config.mty_model_name = "THDM";
     config.mty_model_path = project_assets_root.data() + std::string("input_files/marty_model/thdm.h");
     hyp.init("lha/testinput_thdm.lha", config);
@@ -45,27 +45,27 @@ int main() {
     // bp.log_block(ParameterType::WILSON, GroupMapper::str(WGroup::BPrime, ScaleType::HADRONIC));
     // bp.log_block(ParameterType::WILSON, GroupMapper::str(WGroup::BScalar, ScaleType::HADRONIC));
     // bp.log_block(ParameterType::WILSON, GroupMapper::str(WGroup::BCC, ScaleType::HADRONIC));
-    // ObservableInterface oi;
-    // oi.add_observable(Observables::BR_B_XS_GAMMA, wilson_config.order, true);
+    ObservableInterface oi;
+    oi.add_observable(Observables::BR_B_XS_GAMMA, wilson_config.order, true);
 
-    // std::ofstream ofs;
-    // ofs.open("B_s_gamma_SI.csv");
-    // ofs << "M_Hp,BR,u(BR)\n";
+    std::ofstream ofs;
+    ofs.open("B_s_gamma_SI.csv");
+    ofs << "M_Hp,BR,u(BR)\n";
 
-    // double log_m_min = 2;
-    // double log_m_max = log10(5e3);
-    // size_t n = 10;
-    // double dl = (log_m_max - log_m_min) / n;
+    double log_m_min = 2;
+    double log_m_max = log10(5e3);
+    size_t n = 100;
+    double dl = (log_m_max - log_m_min) / n;
 
-    // double lm = log_m_min;
-    // for (size_t k = 0; k < n; k++) {
-    //     double m = std::pow(10, lm);
-    //     ps.mutate({ParameterType::BSM, "MASS", 37}, m);
-    //     ofs << m << ","
-    //         << oi.compute_observable(Observables::BR_B_XS_GAMMA).real() << ","
-    //         << oi.compute_uncertainty(Observables::BR_B_XS_GAMMA).real() << "\n";
-    //     lm += dl;
-    // }   
+    double lm = log_m_min;
+    for (size_t k = 0; k < n; k++) {
+        double m = std::pow(10, lm);
+        ps.mutate({ParameterType::BSM, "MASS", 37}, m);
+        ofs << m << ","
+            << oi.compute_observable(Observables::BR_B_XS_GAMMA).real() << ","
+            << oi.compute_uncertainty(Observables::BR_B_XS_GAMMA).real() << "\n";
+        lm += dl;
+    }   
 
     return 0;
 }
