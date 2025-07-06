@@ -17,6 +17,7 @@
 #include "APIAdapter.h"
 #include "ParameterShifter.h"
 #include "MartyAdapter.h"
+#include "BlockProvider.h"
 
 namespace py = pybind11;
 
@@ -144,6 +145,11 @@ void init_core(py::module &m) {
         return oss.str();
     });
 
+    py::class_<BlockProvider>(m, "BlockProvider")
+        .def(py::init<>())
+        .def("exists", &BlockProvider::exists, py::arg("blockname"), py::arg("type"))
+        .def("log_all_blocks", &BlockProvider::log_all_blocks, py::arg("type"))
+        .def("log_block", &BlockProvider::log_block, py::arg("type"), py::arg("blockname"));
 
     // CorrelationProvider
     py::class_<CorrelationProvider, std::shared_ptr<CorrelationProvider>>(m, "CorrelationProvider")

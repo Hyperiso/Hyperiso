@@ -59,7 +59,6 @@ if __name__ == "__main__":
 
     print("🔧 Initializing PyHyperisoMaster with custom PyConfig...")
 
-    # Création du config avec un flag activé
     config = PyConfig(
         flags={
             ExternalFlag.IS_LHA_SPECTRUM: True,
@@ -75,9 +74,8 @@ if __name__ == "__main__":
     print("🔧 PyConfig content:")
     print(config)
 
-    # Initialisation de HyperisoMaster
     hyp = PyHyperisoMaster()
-    lha_file_path = "lha/camilia.flha"  # adapte ce chemin à ton repo local
+    lha_file_path = "lha/camilia.flha"
 
     print("\n🚀 Calling init with config...")
     hyp.init(lha_file=lha_file_path, config=config)

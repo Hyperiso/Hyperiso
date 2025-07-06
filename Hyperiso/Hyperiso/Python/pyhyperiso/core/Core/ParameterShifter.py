@@ -23,7 +23,6 @@ if __name__ == "__main__":
     from pyhyperiso.core.Core.ParamaterProvider import PyParameterProvider
     print("🔧 Initializing PyHyperisoMaster with custom PyConfig...")
 
-    # Création du config avec un flag activé
     config = PyConfig(
         flags={
             ExternalFlag.IS_LHA_SPECTRUM: True,

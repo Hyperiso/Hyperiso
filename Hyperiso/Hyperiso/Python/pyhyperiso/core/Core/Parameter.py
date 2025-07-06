@@ -104,7 +104,7 @@ if __name__ == "__main__":
     print(f"sqrt({b}) =", e)
     
     pid = PyParamId(type=ParameterType.SM, block="MASS", code=25)
-    param = PyParameter(pid, 125.0, 0.1, 0.2)  # floats acceptés directement !
+    param = PyParameter(pid, 125.0, 0.1, 0.2)
 
     print("Initial:", param)
     param.set_expected(126.5)
