@@ -56,8 +56,8 @@ class PyWilsonRequest:
 class PyAlphasConfig:
     """Python wrapper for the AlphasConfig C++ struct."""
     scale: float
-    m_b_type: MassType
-    m_t_type: MassType
+    m_b_type: MassType = field(default=MassType.POLE)
+    m_t_type: MassType = field(default=MassType.POLE)
 
     def to_cpp(self) -> _CppAlphasConfig:
         """Converts the Python wrapper to a native C++ AlphasConfig object."""
@@ -67,8 +67,20 @@ class PyAlphasConfig:
 @dataclass
 class PyMassConfig(PyAlphasConfig):
     """Python wrapper for the MassConfig C++ struct, extending AlphasConfig."""
-    pdg_id: int
+    pdg_id: int = field(default=6)
 
     def to_cpp(self) -> _CppMassConfig:
         """Converts the Python wrapper to a native C++ MassConfig object."""
         return _CppMassConfig(self.pdg_id, self.scale, self.m_b_type.value, self.m_t_type.value)
+    
+    
+if __name__ == "__main__":
+    py_alpha_config = PyAlphasConfig(scale=91.1876, m_b_type=MassType.POLE, m_t_type=MassType.MSBAR)
+    py_mass_config = PyMassConfig(pdg_id=5, scale=91.1876, m_b_type=MassType.MSBAR, m_t_type=MassType.MSBAR)
+
+    print(py_alpha_config)
+    print(py_mass_config)
+
+    cpp_alpha_config = py_alpha_config.to_cpp()
+    cpp_mass_config = py_mass_config.to_cpp()
+    

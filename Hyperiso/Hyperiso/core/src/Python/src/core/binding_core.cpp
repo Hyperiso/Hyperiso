@@ -158,11 +158,22 @@ void init_core(py::module &m) {
     .def("__call__", py::overload_cast<const Observables&, const Observables&, CorrelationProvider::CorrelationType>(&CorrelationProvider::operator()), py::arg("pid_1"), py::arg("pid_2"), py::arg("type"));
 
     // QCDProvider
+    py::class_<QCDConstants>(m, "QCDConstants")
+        .def_readonly_static("Nc", &QCDConstants::Nc)
+        .def_readonly_static("C_F", &QCDConstants::C_F)
+        .def_readonly_static("C_A", &QCDConstants::C_A)
+        .def_readonly_static("beta", &QCDConstants::beta)
+        .def_readonly_static("gamma", &QCDConstants::gamma);
+
+    
+        
     py::class_<QCDProvider, std::shared_ptr<QCDProvider>>(m, "QCDProvider")
-    .def(py::init<>())
-    .def("__call__", py::overload_cast<AlphasConfig>(&QCDProvider::operator()), py::arg("alpha_config"))
-    .def("__call__", py::overload_cast<MassConfig>(&QCDProvider::operator()), py::arg("mass_config"))
-    .def("get_constants", &QCDProvider::get_constants);
+        .def(py::init<>())
+        .def("compute_alphas", py::overload_cast<AlphasConfig>(&QCDProvider::operator()), py::arg("alpha_config"))
+        .def("compute_mass", py::overload_cast<MassConfig>(&QCDProvider::operator()), py::arg("mass_config"))
+        .def("get_constants", [](QCDProvider &self) {
+            return self.get_constants();
+        }, py::return_value_policy::reference);
 
     // APIAdapter
     py::class_<APIAdapter, std::shared_ptr<APIAdapter>>(m, "APIAdapter")

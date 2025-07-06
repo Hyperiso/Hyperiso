@@ -80,6 +80,10 @@ class PyLhaID:
         """
         return f"PyLhaID({self.to_string()})"
 
+    def __hash__(self):
+        """Allows PyLhaID to be used as a dictionary key."""
+        return hash(tuple(self.get_parts()))
+    
 class PyBlockName:
     """Python wrapper for the C++ BlockName class.
 
