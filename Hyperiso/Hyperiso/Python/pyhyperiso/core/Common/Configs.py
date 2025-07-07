@@ -51,6 +51,22 @@ class PyWilsonRequest:
         cpp.sum_qcd_orders = self.sum_qcd_orders
         return cpp
 
+    def to_matching_args(self):
+        return {
+            "group": self.group.value,
+            "coeff": self.coefficient.value,
+            "order": self.order.value,
+            "cont_type": self.contribution.value
+        }
+
+    def to_running_args(self):
+        return {
+            "group": self.group.value,
+            "coeff": self.coefficient.value,
+            "order": self.order.value,
+            "cont_type": self.contribution.value,
+            "basis": self.scale_type.value
+        }
 
 @dataclass
 class PyAlphasConfig:

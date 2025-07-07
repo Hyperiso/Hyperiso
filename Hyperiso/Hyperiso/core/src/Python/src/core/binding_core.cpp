@@ -151,11 +151,17 @@ void init_core(py::module &m) {
         .def("log_all_blocks", &BlockProvider::log_all_blocks, py::arg("type"))
         .def("log_block", &BlockProvider::log_block, py::arg("type"), py::arg("blockname"));
 
+    py::enum_<CorrelationProvider::CorrelationType>(m, "CorrelationType")
+        .value("STAT", CorrelationProvider::CorrelationType::STAT)
+        .value("SYST", CorrelationProvider::CorrelationType::SYST)
+        .value("COMBINED", CorrelationProvider::CorrelationType::COMBINED)
+        .export_values();
+
     // CorrelationProvider
     py::class_<CorrelationProvider, std::shared_ptr<CorrelationProvider>>(m, "CorrelationProvider")
     .def(py::init<>())
-    .def("__call__", py::overload_cast<const ParamId&, const ParamId&, CorrelationProvider::CorrelationType>(&CorrelationProvider::operator()), py::arg("pid_1"), py::arg("pid_2"), py::arg("type"))
-    .def("__call__", py::overload_cast<const Observables&, const Observables&, CorrelationProvider::CorrelationType>(&CorrelationProvider::operator()), py::arg("pid_1"), py::arg("pid_2"), py::arg("type"));
+    .def("correlation_from_paramid", py::overload_cast<const ParamId&, const ParamId&, CorrelationProvider::CorrelationType>(&CorrelationProvider::operator()), py::arg("pid_1"), py::arg("pid_2"), py::arg("type"))
+    .def("correlation_from_observable", py::overload_cast<const Observables&, const Observables&, CorrelationProvider::CorrelationType>(&CorrelationProvider::operator()), py::arg("pid_1"), py::arg("pid_2"), py::arg("type"));
 
     // QCDProvider
     py::class_<QCDConstants>(m, "QCDConstants")
