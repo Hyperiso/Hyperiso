@@ -8,7 +8,7 @@ from pyhyperiso.phyperiso.pyhyperiso.common import (
 )
 
 from pyhyperiso.core.Common.GeneralEnum import (
-    QCDOrder, WGroup, WCoeff, ContributionType, ScaleType, MassType
+    QCDOrder, WGroup, WCoeff, ContributionType, ScaleType, MassType, WilsonBasis
 )
 
 
@@ -38,6 +38,7 @@ class PyWilsonRequest:
     order: QCDOrder = QCDOrder.LO
     contribution: ContributionType = ContributionType.TOTAL
     scale_type: ScaleType = ScaleType.HADRONIC
+    wilson_basis : WilsonBasis = WilsonBasis.STANDARD
     sum_qcd_orders: bool = False
 
     def to_cpp(self) -> _CppWilsonRequest:

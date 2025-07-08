@@ -52,7 +52,7 @@ class PyWilsonInterface:
                 req.coefficient.value,
                 req.order.value,
                 req.contribution.value,
-                req.scale_type.value
+                req.wilson_basis.value
             )
         )
 
@@ -64,7 +64,7 @@ class PyWilsonInterface:
                 req.coefficient.value,
                 req.order.value,
                 req.contribution.value,
-                req.scale_type.value
+                req.wilson_basis.value
             )
         )
 
@@ -148,3 +148,18 @@ if __name__ == "__main__":
 
     value = interface.get_M(req)
     print(value)  # Scalar(...)
+    
+    test_values = []
+    from pyhyperiso.core.Core.ParameterSetter import PyParameterSetter, PyParamId, ParameterType
+    py_set = PyParameterSetter()
+    for i in range(1, 81):
+        py_set.mutate(PyParamId(ParameterType.WILSON, "B_SCALE", 1), i)
+        test_values.append(interface.get_R(PyWilsonRequest(WGroup.B, WCoeff.C9, QCDOrder.LO, ContributionType.TOTAL)))
+    
+    import matplotlib
+    matplotlib.use("TkAgg")
+    import matplotlib.pyplot as plt
+    
+    plt.scatter(range(1, 81), test_values)
+    
+    plt.show()
