@@ -96,7 +96,8 @@ void init_core(py::module &m) {
     .def("init", py::overload_cast<const std::string&, Config>(&HyperisoMaster::init))
     .def("init", py::overload_cast<const std::string&>(&HyperisoMaster::init))
     .def("check_flag", &HyperisoMaster::check_flag)
-    .def("get_model", &HyperisoMaster::get_model);
+    .def("get_model", &HyperisoMaster::get_model)
+    .def("switch_lha",  py::overload_cast<const std::string&, Config>(&HyperisoMaster::switch_lha));
 
     // ParameterSetter
     py::class_<ParameterShifter, std::shared_ptr<ParameterShifter>>(m, "ParameterShifter")

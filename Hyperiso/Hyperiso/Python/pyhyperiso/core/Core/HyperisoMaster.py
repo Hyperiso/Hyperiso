@@ -17,7 +17,7 @@ class PyHyperisoMaster:
 
         Args:
             lha_file (str): Path to the LHA input file.
-            config (_CppConfig, optional): Native Config object. If not provided,
+            config (PyConfig, optional): Config object with Hyperiso input flags. If not provided,
                 a default config will be used.
         """
         if config is not None:
@@ -25,6 +25,19 @@ class PyHyperisoMaster:
         else:
             self._cpp_obj.init(lha_file)
 
+    def switch_lha(self, lha_file: str, config: PyConfig = None):
+        """Initializes Hyperiso with an LHA file and an optional config.
+
+        Args:
+            lha_file (str): Path to the LHA input file.
+            config (PyConfig, optional): Basic Config with hyperiso flags inputs. If not provided,
+                a default config will be used.
+        """
+        if config is not None:
+            self._cpp_obj.switch_lha(lha_file, config.to_cpp())
+        else:
+            self._cpp_obj.init(lha_file) #TODO : take this into account
+            
     def check_flag(self, flag: ExternalFlag) -> bool:
         """Checks whether a specific external flag is active.
 
@@ -83,3 +96,5 @@ if __name__ == "__main__":
     print("✅ Current model:", hyp.model.name)
     print("✅ Flag IS_LHA_SPECTRUM:", hyp.check_flag(ExternalFlag.IS_LHA_SPECTRUM))
     print("✅ Flag USE_MARTY:", hyp.check_flag(ExternalFlag.USE_MARTY))
+
+    hyp.switch_lha("lha/testinput_thdm.lha",config)
