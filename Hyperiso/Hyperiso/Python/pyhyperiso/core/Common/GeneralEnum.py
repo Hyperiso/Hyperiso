@@ -11,7 +11,7 @@ from pyhyperiso.phyperiso.pyhyperiso.common import MassType as _CppMassType
 from pyhyperiso.phyperiso.pyhyperiso.common import ScaleType as _CppScaleType
 from pyhyperiso.phyperiso.pyhyperiso.common import ContributionType  as _CppContributionType 
 from pyhyperiso.phyperiso.pyhyperiso.common import DataType  as _CppDataType
-
+from pyhyperiso.phyperiso.pyhyperiso.common import UncertaintyType as _CppUncertaintyType
 
 class Model(Enum):
     SM = _CppModel.SM
@@ -123,3 +123,7 @@ class DataType(Enum):
     STD_SYST = _CppDataType.STD_SYST
     STD_COMBINED = _CppDataType.STD_COMBINED
     
+class UncertaintyType(Enum):
+    STAT = _CppUncertaintyType.STAT
+    SYST = _CppUncertaintyType.SYST
+    COMBINED = _CppUncertaintyType.COMBINED

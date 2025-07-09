@@ -2,10 +2,25 @@
 #include <pybind11/stl.h>
 #include <pybind11/complex.h>
 #include "ObservableInterface.h"
+#include "Compound.h"
 
 namespace py = pybind11;
 
 void init_observable(py::module &m) {
+
+     py::class_<Estimate>(m, "Estimate")
+          .def_readwrite("central_value", &Estimate::central_value)
+          .def_readwrite("stat_std", &Estimate::stat_std)
+          .def_readwrite("syst_std", &Estimate::syst_std)
+          .def("combined_std", &Estimate::combined_std)
+          .def("__repr__",
+               [](const Estimate& e) {
+                    std::ostringstream oss;
+                    oss << e;
+                    return oss.str();
+               }
+          );
+
     py::class_<ObservableInterface, std::shared_ptr<ObservableInterface>>(m, "ObservableInterface")
         .def(py::init<>()) 
         .def("add_observable", &ObservableInterface::add_observable,
