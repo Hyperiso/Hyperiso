@@ -14,8 +14,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(wilson.router, prefix="/api/wilson")
 app.include_router(lha.router, prefix="/api/lha")
+app.include_router(wilson.router, prefix="/api/wilson")
 app.include_router(parameters.router, prefix="/api/parameters")
 app.include_router(scan.router, prefix="/api/scan")
 app.include_router(observables.router, prefix="/api/observables")

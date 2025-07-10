@@ -8,10 +8,8 @@ from pathlib import Path
 
 router = APIRouter()
 
-# Singleton partagé dans toute l'appli
 hyperiso = PyHyperisoMaster()
 
-# Configuration par défaut centralisée
 DEFAULT_CONFIG = PyConfig(
     flags={
         ExternalFlag.IS_LHA_SPECTRUM: True,

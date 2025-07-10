@@ -16,7 +16,7 @@
 
 class SMParamSetter {
 public:
-    SMParamSetter(std::unordered_map<std::string, double>& params, const std::string& model) : params(params) {
+    SMParamSetter(std::unordered_map<std::string, double>& params, const std::string& model, std::set<std::string> special_blocks) :  params(params), special_blocks(special_blocks) {
         std::string root_path = project_assets_root.data();
 
         if (model == "SM") {
@@ -42,6 +42,7 @@ private:
     scalar_t calculateValue(const std::string& name, const Interpreter::InterpretedParam& interpretedParam);
 
     Model model_type;
+    std::set<std::string> special_blocks;
     MartyParameterProxy sm_proxy {ParameterType::SM};
     std::optional<MartyParameterProxy> bsm_proxy;
 };

@@ -29,7 +29,7 @@ void MartyInterface::generate(std::string wilson, std::string model, std::string
 
 void MartyInterface::generate_numlib(std::string wilson, std::string model, double Q_match) {
     bool forceMode = false;
-    std::unique_ptr<GeneralNumModelModifier> ModelModifier = std::make_unique<GeneralNumModelModifier>(wilson, model, forceMode);
+    std::unique_ptr<GeneralNumModelModifier> ModelModifier = std::make_unique<GeneralNumModelModifier>(wilson, model,this->specials_block, forceMode);
     
     
     std::unique_ptr<TemplateManagerBase> templateManager = std::make_unique<NumericTemplateManager>(FileNameManager::getInstance(wilson, model)->getLibDir());
@@ -81,8 +81,6 @@ std::string MartyInterface::output_binary_name(std::string& wilson, std::string&
         return "generated_" + wilson+"_" + model + ".cpp";
     }
 
-// std::string to_lowercase(const std::string& str) {
-//     std::string result = str;
-//     std::transform(result.begin(), result.end(), result.begin(), [](unsigned char c){return std::tolower(c);});
-//     return result;
-// }
+std::set<std::string> MartyInterface::get_special_blocks() {
+    return this->specials_block;
+}

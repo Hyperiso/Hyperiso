@@ -120,8 +120,8 @@ add_subdirectory(src/ExternalIntegration ExternalIntegrationLib)
 add_subdirectory(src/Core CoreLib)
 add_subdirectory(src/ExternalIntegration/MartyInterface MartyInterfaceLib)
 add_subdirectory(src/PhysicalModel PhysicalModelLib)
-# add_subdirectory(src/BusinessLogic BusinessLogicLib) //TODO : BusinessLogic
-# add_subdirectory(src/UserInterface UserInterfaceLib) //TODO : UserInterface
+add_subdirectory(src/BusinessLogic BusinessLogicLib)
+add_subdirectory(src/UserInterface UserInterfaceLib)
 
 if (ENABLE_TESTS)
     # FetchContent_Declare(

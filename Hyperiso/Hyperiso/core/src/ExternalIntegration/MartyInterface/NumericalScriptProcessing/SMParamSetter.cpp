@@ -2,7 +2,7 @@
 
 void SMParamSetter::setParam(const std::string& name, const Interpreter::InterpretedParam& interpretedParam) {
     LOG_DEBUG("setting parameter", name, interpretedParam.block, interpretedParam.code);
-    std::set<std::string> special = {"KIN", "WEIN", "Finite", "REGPROP", "BETA"}; //TODO : put else where, needed in wilson marty
+    std::set<std::string> special = this->special_blocks; //TODO : put else where, needed in wilson marty
     if (special.find(interpretedParam.block) != special.end()) {
         params[name] = calculateValue(name, interpretedParam);
     } else if (interpretedParam.block == "MASS" && (interpretedParam.code == LhaID(5) || interpretedParam.code == LhaID(6))) {

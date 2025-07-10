@@ -75,10 +75,14 @@ if __name__ == "__main__":
 
 
     interface = PyObservableInterface()
-    interface.add_observable(Observables.BR_B_XS_GAMMA, QCDOrder.LO)
-
-    print(interface.compute_observable(Observables.BR_B_XS_GAMMA))  # Scalar(...)
+    interface.add_observable(Observables.BR_B_XS_GAMMA, QCDOrder.NNLO, True)
+    interface.add_observable(Observables.BR_BS_MUMU, QCDOrder.NNLO, True)
+    interface.add_observable(Observables.BR_BD_MUMU, QCDOrder.NNLO, True)
+    interface.add_observable(Observables.BR_B__D_TAU_NU, QCDOrder.NNLO, True)
+    interface.add_observable(Observables.ISOSPIN_ASYMMETRY_B_KSTAR_GAMMA, QCDOrder.NNLO, True)
     
+    print(interface.compute_observable(Observables.BR_B_XS_GAMMA))  # Scalar(...)
+    print("chi2 : ", interface.compute_chi2())
     # test_values = []
     # from pyhyperiso.core.Core.ParameterSetter import PyParameterSetter, PyParamId, ParameterType
     # py_set = PyParameterSetter()
