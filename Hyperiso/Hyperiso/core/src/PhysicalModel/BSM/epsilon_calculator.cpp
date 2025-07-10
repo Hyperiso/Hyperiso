@@ -207,7 +207,7 @@ void EpsilonCalculator::init_epsilon_block() {
         double mqL3 = src.at("MSOFT")->retrieve(43)->get_val();
         double mbR = src.at("MSOFT")->retrieve(49)->get_val();
 
-        double m_G = src.at("MASS")->retrieve(1000039)->get_val(); //TODO
+        double m_G = src.at("MASS")->retrieve(1000039)->get_val();
 
         std::map<int,int> neutralino = {{0, 1000022},{1, 1000023},{2, 1000025},{3, 1000035}};
 
