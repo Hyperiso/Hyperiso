@@ -117,7 +117,7 @@ void init_wilson_interface(py::module &m) {
     py::class_<WilsonInterface, std::shared_ptr<WilsonInterface>>(m, "WilsonInterface")
         .def(py::init<>())
         .def("build", &WilsonInterface::build, py::arg("wilson_config"))
-        // .def("add_wilson_group", &WilsonInterface::addWilsonGroup, py::arg("group_name")) //TODO : do that again
+        .def("add_wilson_group", &WilsonInterface::addWilsonGroup, py::arg("config"))
         // .def("set_params", &WilsonInterface::setParams)
         // .def("init_group_matching", &WilsonInterface::init_group_matching, py::arg("group_name"), py::arg("order"))
         // .def("init_group_hadronic", &WilsonInterface::init_group_hadronic, py::arg("group_name"), py::arg("order"))

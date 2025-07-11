@@ -32,10 +32,9 @@ public:
         built = true;
     }
 
-    // TODO
-    // void addWilsonGroup(WGroup group_id) {
-    //     this->builder->add(GroupMapper::str(group_id), this->group_ptrs.at(GroupMapper::str(group_name)));
-    // }
+    void addWilsonGroup(WilsonBuildConfig config) {
+        this->builder->add(config);
+    }
 
     void set_matching_scale(double mu_W) {
         ScaleSetter(ScaleType::MATCHING).set(mu_W);

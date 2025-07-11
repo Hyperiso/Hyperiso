@@ -14,6 +14,9 @@ class PyWilsonInterface:
         """Initializes the WilsonInterface with a build config."""
         self._cpp_obj.build(config.to_cpp())
 
+    def add_wilson_group(self, config: PyWilsonBuildConfig):
+        self._cpp_obj.add_wilson_group(config.to_cpp())
+        
     def set_matching_scale(self, mu_W: float):
         """Sets the matching scale (μ_W)."""
         self._cpp_obj.set_matching_scale(mu_W)
@@ -129,7 +132,7 @@ if __name__ == "__main__":
     
     
     config = PyWilsonBuildConfig(
-        groups={WGroup.B, WGroup.BPrime},
+        groups={WGroup.B},
         matching_scale=160.0,
         hadronic_scale=2.0,
         order=QCDOrder.NLO
@@ -146,6 +149,8 @@ if __name__ == "__main__":
         contribution=ContributionType.TOTAL
     )
 
+    config.groups = [WGroup.BPrime]
+    interface.add_wilson_group(config)
     value = interface.get_M(req)
     print(value)  # Scalar(...)
     
