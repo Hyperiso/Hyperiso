@@ -29,12 +29,18 @@ std::unordered_map<WCoef, scalar_t> BCoefficientGroup::base_1_LO_calculation (
         Ci_match[k] = coef_matching.at(QCDOrder::LO).at(ids[k]);
     }
 
+    std::array<complex_t, 10> Ci_run {};
+
+    for (size_t k = 0; k < 8; k++) {
+        Ci_run[8] += U0(8,k) * Ci_match[k];
+    }
+
     Ci_match[6] = BRP::C7_eff_std(Ci_match); 
     Ci_match[7] = BRP::C8_eff_std(Ci_match);
 
-    std::array<complex_t, 10> Ci_run {};
+    
 
-    // C1 - C8
+    // C1 - C9
     for (size_t k = 0; k < 8; k++) {
         for (size_t l = 0; l < 8; l++) {
             Ci_run[k] += U0(k, l) * Ci_match[l];
@@ -148,7 +154,9 @@ std::unordered_map<WCoef, scalar_t> BCoefficientGroup::base_2_LO_calculation (
     Ci_match_trad[8] = coef_matching.at(QCDOrder::LO).at(WCoef::C9);
 
     std::array<complex_t, 10> Ci_run {};
-    for (size_t k = 0; k < 9; k++) {
+
+
+    for (size_t k = 0; k < 8; k++) {
         for (size_t l = 0; l < 8; l++) {
             Ci_run[k] += V0(k, l) * Ci_match_trad[l];
         }
@@ -189,6 +197,8 @@ std::unordered_map<WCoef, scalar_t> BCoefficientGroup::base_1_NLO_calculation(
         return C;
     };
 
+    double eta = src.at("WPARAM_RUN_SM")->retrieve(2)->get_val();
+
     std::array<complex_t, 10> Ci_0_match = {};
     std::array<complex_t, 10> Ci_1_match = {};
     auto ids = WCoefMapper::get_group(WGroup::B);
@@ -197,14 +207,20 @@ std::unordered_map<WCoef, scalar_t> BCoefficientGroup::base_1_NLO_calculation(
         Ci_1_match[k] = coef_matching.at(QCDOrder::NLO).at(ids[k]);
     }
 
+    std::array<complex_t, 10> Ci_run {};
+
+    for (size_t k = 0; k < 8; k++) {
+        Ci_run[8] += eta*(U0(8,k) * Ci_0_match[k] + U1(8,k) *Ci_1_match[k]);
+    }
+
     Ci_0_match[6] = C_eff(Ci_0_match, BRP::y_std);
     Ci_0_match[7] = C_eff(Ci_0_match, BRP::z_std);
     Ci_1_match[6] = C_eff(Ci_1_match, BRP::y_std); 
     Ci_1_match[7] = C_eff(Ci_1_match, BRP::z_std);
 
-    std::array<complex_t, 10> Ci_run {};
+    
 
-    // C1 - C9
+    // C1 - C8
     for (size_t k = 0; k < 8; k++) {
         for (size_t l = 0; l < 8; l++) {
             Ci_run[k] += U0(k, l) * Ci_1_match[l] + U1(k, l) * Ci_0_match[l];
@@ -218,15 +234,14 @@ std::unordered_map<WCoef, scalar_t> BCoefficientGroup::base_1_NLO_calculation(
     }
 
     // C9 special treatment
-	Ci_run[8] += U0(8, 8) * Ci_0_match[8];
-    // Ci_run[8] *= 4 * PI / src.at("WPARAM_RUN_SM")->retrieve(1)->get_val();
-    // LOG_INFO("C_run_9 = ", Ci_run[8]);
+	Ci_run[8] += U0(8, 8) * Ci_0_match[8] * eta;
+    Ci_run[8] *= 4 * PI / src.at("WPARAM_RUN_SM")->retrieve(1)->get_val();
 
     // C10
     Ci_run[9] = coef_matching.at(QCDOrder::NLO).at(WCoef::C10);
     
     // Store
-    double eta = src.at("WPARAM_RUN_SM")->retrieve(2)->get_val();
+    
     std::unordered_map<WCoef, scalar_t> Ci_run_map {};
     for (size_t k = 0; k < 10; k++) {
         Ci_run_map[ids[k]] = eta * Ci_run[k];
@@ -308,6 +323,12 @@ std::unordered_map<WCoef, scalar_t> BCoefficientGroup::base_1_NNLO_calculation(
         Ci_2_match[k] = coef_matching.at(QCDOrder::NNLO).at(ids[k]);
     }
 
+    std::array<complex_t, 10> Ci_run {};
+    
+    for (size_t k = 0; k < 8; k++) {
+        Ci_run[8] += U(2, 8, k) * Ci_0_match[k] + U(1, 8, k) *Ci_1_match[k] + U(0, 8, k) * Ci_2_match[k];
+    }
+
     Ci_0_match[6] = BRP::C7_eff_std(Ci_0_match);
     Ci_0_match[7] = BRP::C8_eff_std(Ci_0_match);
     Ci_1_match[6] = BRP::C7_eff_std(Ci_1_match);
@@ -315,9 +336,9 @@ std::unordered_map<WCoef, scalar_t> BCoefficientGroup::base_1_NNLO_calculation(
     Ci_2_match[6] = BRP::C7_eff_std(Ci_2_match);
     Ci_2_match[7] = BRP::C8_eff_std(Ci_2_match);
 
-    std::array<complex_t, 10> Ci_run {};
+    
 
-    // C1 - C9
+    // C1 - C8
     for (size_t k = 0; k < 8; k++) {
         for (size_t l = 0; l < 8; l++) {
             Ci_run[k] += U(2, k, l) * Ci_0_match[l] + U(1, k, l) * Ci_1_match[l] + U(0, k, l) * Ci_2_match[l];

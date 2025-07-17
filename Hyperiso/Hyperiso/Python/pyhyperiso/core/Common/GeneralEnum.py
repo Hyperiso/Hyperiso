@@ -10,6 +10,8 @@ from pyhyperiso.phyperiso.pyhyperiso.common import Decays as _CppDecays
 from pyhyperiso.phyperiso.pyhyperiso.common import MassType as _CppMassType
 from pyhyperiso.phyperiso.pyhyperiso.common import ScaleType as _CppScaleType
 from pyhyperiso.phyperiso.pyhyperiso.common import ContributionType  as _CppContributionType 
+from pyhyperiso.phyperiso.pyhyperiso.common import DataType  as _CppDataType
+from pyhyperiso.phyperiso.pyhyperiso.common import UncertaintyType as _CppUncertaintyType
 
 class Model(Enum):
     SM = _CppModel.SM
@@ -59,8 +61,6 @@ class WCoeff(Enum):
     CP10 = _CppWCoef.CP10
     CPQ1 = _CppWCoef.CPQ1
     CPQ2 = _CppWCoef.CPQ2
-    CBlnu_A = _CppWCoef.CBlnu_A
-    CBlnu_P = _CppWCoef.CBlnu_P
     C_V1 = _CppWCoef.C_V1
     C_V2 = _CppWCoef.C_V2
     C_S1 = _CppWCoef.C_S1
@@ -72,8 +72,7 @@ class WGroup(Enum):
     B = _CppWGroup.B
     BPrime = _CppWGroup.BPrime
     BScalar = _CppWGroup.BScalar
-    Blnu = _CppWGroup.Blnu
-    BCLNU = _CppWGroup.BCLNU
+    BCC = _CppWGroup.BCC
     
 class WilsonBasis(Enum):
     STANDARD = _CppWilsonBasis.STANDARD
@@ -118,3 +117,13 @@ class ContributionType(Enum):
     BSM = _CppContributionType.BSM
     TOTAL = _CppContributionType.TOTAL
     
+class DataType(Enum):
+    VALUE = _CppDataType.VALUE
+    STD_STAT = _CppDataType.STD_STAT
+    STD_SYST = _CppDataType.STD_SYST
+    STD_COMBINED = _CppDataType.STD_COMBINED
+    
+class UncertaintyType(Enum):
+    STAT = _CppUncertaintyType.STAT
+    SYST = _CppUncertaintyType.SYST
+    COMBINED = _CppUncertaintyType.COMBINED

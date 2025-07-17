@@ -14,7 +14,7 @@ void GeneralModelModifier::modifyLine(std::string& line) {
     if (line.find("SM_Model sm;") != std::string::npos) {
         bool is_template = ModelFileChecker(this->model_path).isAnyModelTemplate();
         if (is_template) {
-            int model_num = 1;
+            int model_num = 2;
             // std::cout << this->model << std::endl;
             if(this->model == "THDM"){
                 line.replace(line.find("SM_Model"), 8, this->model + "_Model<" + std::to_string(model_num) + ">");

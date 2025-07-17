@@ -1,0 +1,28 @@
+version: '3.9'
+
+services:
+  backend:
+    build:
+      context: ./Hyperiso
+    container_name: hyperiso-backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./Hyperiso:/app
+    command: uvicorn api.main:app --host 0.0.0.0 --port 8000 --reload
+
+  frontend:
+    build:
+      context: ./GHyperiso
+    container_name: ghyperiso-frontend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./GHyperiso:/app
+    command: npm run dev
+    environment:
+      - NEXT_PUBLIC_API_BASE=http://localhost:8000
+
+networks:
+  default:
+    name: ghyperiso-net

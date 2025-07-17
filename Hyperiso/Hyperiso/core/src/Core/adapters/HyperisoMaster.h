@@ -40,6 +40,13 @@ public:
      * @return The active model.
      */
     Model get_model();
+
+    /**
+     * @brief Switch lha in Hyperiso, and use a new configuration.
+     * @param lhaFile Path to the LHA input file.
+     * @param config Configuration used for hyperiso.
+     */
+    void switch_lha(const std::string &lhaFile, Config config);
 };
 
 #endif // CONFIGPROVIDER_H

@@ -34,8 +34,8 @@ private:
     ModelWriter modelWriter;
 
 public:
-    GeneralNumModelModifier(const std::string& wilson, const std::string& model, bool force = false)
-        : wilson(wilson), model(model), forceMode(force), interpreter(model), paramSetter(params, model), fileWriter(wilson, model), paramWriter(params), 
+    GeneralNumModelModifier(const std::string& wilson, const std::string& model, std::set<std::string>& special_blocks, bool force = false)
+        : wilson(wilson), model(model), forceMode(force), interpreter(model), paramSetter(params, model, special_blocks), fileWriter(wilson, model), paramWriter(params), 
           lineProcessor(includeManager, fileWriter, force), modelWriter(lineProcessor, paramWriter) {
         
         initializeParams();

@@ -39,3 +39,6 @@ class PyConfig:
             cpp.mty_model_path = str(self.mty_model_path)
 
         return cpp
+    
+    def __repr__(self):
+        return f"PyConfig(model={self.model}, flags={self.flags})"

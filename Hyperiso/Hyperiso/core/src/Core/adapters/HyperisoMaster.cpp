@@ -18,3 +18,7 @@ bool HyperisoMaster::check_flag(ExternalFlag flag) {
 Model HyperisoMaster::get_model() {
     return MemoryManager::GetInstance()->getMemoryCache().config.model;
 }
+
+void HyperisoMaster::switch_lha(const std::string &lhaFile, Config config) {
+    MemoryManager::GetInstance()->switch_lha(lhaFile, config);
+}

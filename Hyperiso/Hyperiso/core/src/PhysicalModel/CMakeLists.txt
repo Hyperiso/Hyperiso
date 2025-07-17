@@ -83,8 +83,10 @@ target_link_libraries(test_wilson_marty PhysicalModelLib)
 add_executable(test_contributions app/test_contributions.cpp)
 target_link_libraries(test_contributions PhysicalModelLib)
 
-# add_executable(test_wilson main_phymod.cpp)
-# target_link_libraries(test_wilson PhysicalModelLib)
+add_executable(test_add_wilson app/main_phymod.cpp)
+target_link_libraries(test_add_wilson PhysicalModelLib)
 
+add_executable(camilia_test app/main_camilia.cpp)
+target_link_libraries(camilia_test PhysicalModelLib)
 # add_executable(test_martywilson main.cpp)
 # target_link_libraries(test_martywilson PhysicalModelLib MartyInterfaceLib)

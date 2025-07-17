@@ -17,8 +17,26 @@
 #include "APIAdapter.h"
 #include "ParameterShifter.h"
 #include "MartyAdapter.h"
+#include "BlockProvider.h"
 
 namespace py = pybind11;
+
+template <typename T>
+void declare_parameter(py::module &m, const std::string &name) {
+    py::class_<T, std::shared_ptr<T>>(m, name.c_str())
+        .def(py::init<>())
+        .def(py::init<ParamId, scalar_t, scalar_t, scalar_t>(), py::arg("id"), py::arg("mean"), py::arg("std_stat"), py::arg("std_syst"))
+        .def("get_val", &T::get_val)
+        .def("get_combined_std", &T::get_combined_std)
+        .def("get_std", &T::get_std)
+        .def("get_id", &T::get_id)
+        .def("set_expected", &T::set_expected)
+        .def("set_std", &T::set_std)
+        .def("set_shift", &T::set_shift)
+        .def("set_id", &T::set_id)
+        .def("set_mode", &T::set_mode)
+        .def("set_owner", &T::set_owner);
+}
 
 void init_core(py::module &m) {
 
@@ -48,6 +66,21 @@ void init_core(py::module &m) {
     py::enum_<APIPath>(m, "APIPath")
     .value("LHA_PATH", APIPath::LHA_PATH)
     .export_values();
+    
+    py::enum_<ParameterMode>(m, "ParameterMode")
+        .value("FIXED", ParameterMode::FIXED)
+        .value("SHIFTABLE", ParameterMode::SHIFTABLE)
+        .export_values();
+
+    declare_parameter<Parameter>(m, "Parameter");
+
+    py::class_<DependentParameter, Parameter, std::shared_ptr<DependentParameter>>(m, "DependentParameter")
+        .def(py::init<ParamId, std::unordered_map<ParamId, std::shared_ptr<Parameter>>, DepParamUpdateFunc>())
+        .def("init", &DependentParameter::init)
+        .def("freeze", &DependentParameter::freeze)
+        .def("unfreeze", &DependentParameter::unfreeze)
+        .def("update", &DependentParameter::update)
+        .def("dependsOn", &DependentParameter::dependsOn);
 
     // Config class
     py::class_<Config>(m, "Config")
@@ -63,7 +96,8 @@ void init_core(py::module &m) {
     .def("init", py::overload_cast<const std::string&, Config>(&HyperisoMaster::init))
     .def("init", py::overload_cast<const std::string&>(&HyperisoMaster::init))
     .def("check_flag", &HyperisoMaster::check_flag)
-    .def("get_model", &HyperisoMaster::get_model);
+    .def("get_model", &HyperisoMaster::get_model)
+    .def("switch_lha",  py::overload_cast<const std::string&, Config>(&HyperisoMaster::switch_lha));
 
     // ParameterSetter
     py::class_<ParameterShifter, std::shared_ptr<ParameterShifter>>(m, "ParameterShifter")
@@ -72,25 +106,23 @@ void init_core(py::module &m) {
     .def("mutate", &ParameterShifter::mutate, py::arg("pid"), py::arg("value"))
     .def("change_mode", &ParameterShifter::change_mode, py::arg("pid"), py::arg("mode"));
 
-    // ParameterProvider::DataType
-    py::enum_<ParameterProvider::DataType>(m, "DataType")
-    .value("VALUE", ParameterProvider::DataType::VALUE)
-    .value("STD_STAT", ParameterProvider::DataType::STD_STAT)
-    .value("STD_SYST", ParameterProvider::DataType::STD_SYST)
-    .value("STD_COMBINED", ParameterProvider::DataType::STD_COMBINED)
-    .export_values();
+    py::class_<ParameterSetter, std::shared_ptr<ParameterSetter>>(m, "ParameterSetter")
+    .def(py::init<>())
+
+    .def("mutate", &ParameterSetter::mutate, py::arg("pid"), py::arg("value"))
+    .def("change_mode", &ParameterSetter::change_mode, py::arg("pid"), py::arg("mode"));
 
     py::class_<ParameterProvider, std::shared_ptr<ParameterProvider>>(m, "ParameterProvider")
     .def(py::init<>())
     .def(py::init<ParameterType>(), py::arg("type"))
 
     .def("__call__",
-         py::overload_cast<const ParamId&, ParameterProvider::DataType>(&ParameterProvider::operator()),
-         py::arg("pid"), py::arg("d_type") = ParameterProvider::DataType::VALUE)
+         py::overload_cast<const ParamId&, DataType>(&ParameterProvider::operator()),
+         py::arg("pid"), py::arg("d_type") = DataType::VALUE)
 
     .def("__call__",
-         py::overload_cast<const std::string&, const LhaID&, ParameterProvider::DataType>(&ParameterProvider::operator(), py::const_),
-         py::arg("block"), py::arg("id"), py::arg("d_type") = ParameterProvider::DataType::VALUE)
+         py::overload_cast<const std::string&, const LhaID&, DataType>(&ParameterProvider::operator(), py::const_),
+         py::arg("block"), py::arg("id"), py::arg("d_type") = DataType::VALUE)
 
     .def("exists",
          py::overload_cast<const ParamId&>(&ParameterProvider::exists, py::const_),
@@ -114,19 +146,41 @@ void init_core(py::module &m) {
         return oss.str();
     });
 
+    py::class_<BlockProvider>(m, "BlockProvider")
+        .def(py::init<>())
+        .def("exists", &BlockProvider::exists, py::arg("blockname"), py::arg("type"))
+        .def("log_all_blocks", &BlockProvider::log_all_blocks, py::arg("type"))
+        .def("log_block", &BlockProvider::log_block, py::arg("type"), py::arg("blockname"));
+
+    py::enum_<CorrelationProvider::CorrelationType>(m, "CorrelationType")
+        .value("STAT", CorrelationProvider::CorrelationType::STAT)
+        .value("SYST", CorrelationProvider::CorrelationType::SYST)
+        .value("COMBINED", CorrelationProvider::CorrelationType::COMBINED)
+        .export_values();
 
     // CorrelationProvider
     py::class_<CorrelationProvider, std::shared_ptr<CorrelationProvider>>(m, "CorrelationProvider")
     .def(py::init<>())
-    .def("__call__", py::overload_cast<const ParamId&, const ParamId&, CorrelationProvider::CorrelationType>(&CorrelationProvider::operator()), py::arg("pid_1"), py::arg("pid_2"), py::arg("type"))
-    .def("__call__", py::overload_cast<const Observables&, const Observables&, CorrelationProvider::CorrelationType>(&CorrelationProvider::operator()), py::arg("pid_1"), py::arg("pid_2"), py::arg("type"));
+    .def("correlation_from_paramid", py::overload_cast<const ParamId&, const ParamId&, CorrelationProvider::CorrelationType>(&CorrelationProvider::operator()), py::arg("pid_1"), py::arg("pid_2"), py::arg("type"))
+    .def("correlation_from_observable", py::overload_cast<const Observables&, const Observables&, CorrelationProvider::CorrelationType>(&CorrelationProvider::operator()), py::arg("pid_1"), py::arg("pid_2"), py::arg("type"));
 
     // QCDProvider
+    py::class_<QCDConstants>(m, "QCDConstants")
+        .def_readonly_static("Nc", &QCDConstants::Nc)
+        .def_readonly_static("C_F", &QCDConstants::C_F)
+        .def_readonly_static("C_A", &QCDConstants::C_A)
+        .def_readonly_static("beta", &QCDConstants::beta)
+        .def_readonly_static("gamma", &QCDConstants::gamma);
+
+    
+        
     py::class_<QCDProvider, std::shared_ptr<QCDProvider>>(m, "QCDProvider")
-    .def(py::init<>())
-    .def("__call__", py::overload_cast<AlphasConfig>(&QCDProvider::operator()), py::arg("alpha_config"))
-    .def("__call__", py::overload_cast<MassConfig>(&QCDProvider::operator()), py::arg("mass_config"))
-    .def("get_constants", &QCDProvider::get_constants);
+        .def(py::init<>())
+        .def("compute_alphas", py::overload_cast<AlphasConfig>(&QCDProvider::operator()), py::arg("alpha_config"))
+        .def("compute_mass", py::overload_cast<MassConfig>(&QCDProvider::operator()), py::arg("mass_config"))
+        .def("get_constants", [](QCDProvider &self) {
+            return self.get_constants();
+        }, py::return_value_policy::reference);
 
     // APIAdapter
     py::class_<APIAdapter, std::shared_ptr<APIAdapter>>(m, "APIAdapter")
@@ -166,6 +220,7 @@ void init_core(py::module &m) {
         .value("TEMPLATE_DIR", MartyPath::TEMPLATE_DIR)
         .value("PARAM_MAPPING_DIR", MartyPath::PARAM_MAPPING_DIR)
         .export_values();
+    
 
     py::class_<MartyAdapter, std::shared_ptr<MartyAdapter>>(m, "MartyAdapter")
         .def(py::init<>())

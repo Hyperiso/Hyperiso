@@ -1,7 +1,7 @@
 from pyhyperiso.phyperiso.pyhyperiso import common
 from pyhyperiso.core.Common.GeneralEnum import ParameterType
 from dataclasses import dataclass, field
-from typing import Optional, List, Union
+from typing import Optional, List, Union, Set
 
 class PyLhaID:
     """Python wrapper for the C++ LhaID class.
@@ -80,6 +80,67 @@ class PyLhaID:
         """
         return f"PyLhaID({self.to_string()})"
 
+    def __hash__(self):
+        """Allows PyLhaID to be used as a dictionary key."""
+        return hash(tuple(self.get_parts()))
+    
+class PyBlockName:
+    """Python wrapper for the C++ BlockName class.
+
+    Accepts various input types (string, list, set, C++ BlockName).
+    """
+    def __init__(self, names: Union[str, List[str], Set[str], common.BlockName]):
+        if isinstance(names, common.BlockName):
+            self._cpp_obj = names
+        elif isinstance(names, str):
+            self._cpp_obj = common.BlockName(names)
+        elif isinstance(names, (list, set)):
+            str_set = {str(name) for name in names}
+            self._cpp_obj = common.BlockName(str_set)
+        else:
+            raise TypeError(f"Unsupported type for PyBlockName init: {type(names)}")
+
+    def to_string(self) -> str:
+        return self._cpp_obj.to_string()
+
+    def get_alias(self) -> Set[str]:
+        return set(self._cpp_obj.get_alias())
+
+    def has_alias(self, alias: str) -> bool:
+        return self._cpp_obj.has_alias(alias)
+
+    def add_alias(self, alias: str):
+        self._cpp_obj.add_alias(alias)
+        return self  # chainable
+
+    def to_upper(self):
+        self._cpp_obj.to_upper()
+        return self  # chainable
+
+    def __eq__(self, other):
+        if isinstance(other, PyBlockName):
+            return self._cpp_obj == other._cpp_obj
+        elif isinstance(other, str):
+            return self._cpp_obj == other
+        return False
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def __lt__(self, other):
+        if isinstance(other, PyBlockName):
+            return self._cpp_obj < other._cpp_obj
+        raise TypeError(f"Cannot compare PyBlockName with {type(other)}")
+
+    def __hash__(self):
+        return hash(self._cpp_obj)
+
+    def __str__(self):
+        return self.to_string()
+
+    def __repr__(self):
+        return f"PyBlockName({self.get_alias()})"
+    
 
 @dataclass
 class PyParamId:
@@ -96,20 +157,20 @@ class PyParamId:
         """Initializes the underlying C++ ParamId object after dataclass init."""
         if not isinstance(self.code, PyLhaID):
             self.code = PyLhaID(self.code)
+        
+        if not isinstance(self.block, PyBlockName):
+            self.block = PyBlockName(self.block)
 
-        cpp_type = self.type.value if self.type is not None else None
-
-        if cpp_type is not None:
-            self._cpp_obj = common.ParamId(cpp_type, self.block, self.code._cpp_obj)
+        if self.type is not None:
+            self._cpp_obj = common.ParamId(self.type.value, self.block._cpp_obj, self.code._cpp_obj)
         else:
-            if self.block == "NULL" and int(self.code) == 0:
+            if str(self.block) == "NULL" and int(self.code) == 0:
                 self._cpp_obj = common.ParamId()
             else:
-                self._cpp_obj = common.ParamId(self.block, self.code._cpp_obj)
+                self._cpp_obj = common.ParamId(self.block._cpp_obj, self.code._cpp_obj)
 
-        cpp_value = self._cpp_obj.type
-        self.type = ParameterType(cpp_value) if cpp_value is not None else None
-        self.block = self._cpp_obj.block
+        self.type = ParameterType(self._cpp_obj.type) if self._cpp_obj.type is not None else None
+        self.block = PyBlockName(self._cpp_obj.block)
         self.code = PyLhaID(self._cpp_obj.code)
 
     def set_parameter_type(self, param_type: ParameterType):
@@ -133,6 +194,16 @@ class PyParamId:
             "code": self.code.to_string()
         }
 
+    @classmethod
+    def from_cpp(cls, cpp_obj: common.ParamId) -> "PyParamId":
+        """Constructs a PyParamId from a native C++ ParamId."""
+        instance = cls()
+        instance._cpp_obj = cpp_obj
+        instance.type = ParameterType(cpp_obj.type)
+        instance.block = PyBlockName(cpp_obj.block)
+        instance.code = PyLhaID(cpp_obj.code)
+        return instance
+    
     def __repr__(self):
         """Returns a string representation for debugging.
 
@@ -140,3 +211,57 @@ class PyParamId:
             str: Debug-style string.
         """
         return f"PyParamId(type={self.type}, block='{self.block}', code={self.code})"
+    
+    
+if __name__ == "__main__":
+    print("🔧 Testing PyBlockName...")
+    b1 = PyBlockName("MASS")
+    b2 = PyBlockName(["mass", "MASS"])
+    b3 = PyBlockName({"mass", "other"})
+
+    print(f"b1: {b1}")
+    print(f"b2: {b2}")
+    print(f"b3 (before to_upper): {b3}")
+
+    print("✅ b1 == 'MASS' :", b1 == "MASS")
+    print("✅ b2 == b1     :", b2 == b1)
+    print("✅ 'mass' in b3.get_alias():", "mass" in b3.get_alias())
+
+    b3.to_upper()
+    print(f"b3 (after to_upper): {b3}")
+
+    b3.add_alias("EXTRA")
+    print(f"b3 (after add_alias): {b3}")
+    print("✅ has_alias('EXTRA'):", b3.has_alias("EXTRA"))
+
+    print("\n🔢 Testing PyLhaID...")
+    lid1 = PyLhaID(32)
+    lid2 = PyLhaID("1_2_3")
+    lid3 = PyLhaID([4, 5, 6])
+
+    print(f"lid1 = {lid1}, int: {int(lid1)}, parts: {lid1.get_parts()}")
+    print(f"lid2 = {lid2}, parts: {lid2.get_parts()}")
+    print(f"lid3 = {lid3}, parts: {lid3.get_parts()}")
+    print("✅ lid2 == PyLhaID('1_2_3'):", lid2 == PyLhaID("1_2_3"))
+
+    print("\n🧬 Testing PyParamId...")
+    pid1 = PyParamId(ParameterType.SM, "MASS", 32)
+    pid2 = PyParamId(block="YUKAWA", code="3_3")  # sans type
+    pid3 = PyParamId(type=None, block=PyBlockName("QNUMBERS"), code=PyLhaID([6, 2]))
+
+    print(f"pid1 = {pid1}")
+    print(f"pid2 = {pid2}")
+    print(f"pid3 = {pid3}")
+
+    print("\n📤 Serialized dicts:")
+    print("pid1.to_dict() =", pid1.to_dict())
+    print("pid2.to_dict() =", pid2.to_dict())
+    print("pid3.to_dict() =", pid3.to_dict())
+
+    print("\n🛠️ Testing set_parameter_type...")
+    pid2.set_parameter_type(ParameterType.WILSON)
+    print(f"pid2 (after setting type to WILSON) = {pid2}")
+
+    print("\n✅ Equality check:")
+    print("pid1 == pid1:", pid1 == pid1)
+    print("pid1 != pid2:", pid1 != pid2)

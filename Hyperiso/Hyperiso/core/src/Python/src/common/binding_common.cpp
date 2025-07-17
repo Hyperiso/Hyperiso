@@ -137,6 +137,18 @@ void init_common(py::module &m) {
         .value("HADRONIC", ScaleType::HADRONIC)
         .export_values();
 
+    py::enum_<DataType>(m, "DataType")
+        .value("VALUE", DataType::VALUE)
+        .value("STD_STAT", DataType::STD_STAT)
+        .value("STD_SYST", DataType::STD_SYST)
+        .value("STD_COMBINED", DataType::STD_COMBINED)
+        .export_values();
+
+    py::enum_<UncertaintyType>(m, "UncertaintyType")
+        .value("STAT", UncertaintyType::STAT)
+        .value("SYST", UncertaintyType::SYST)
+        .value("COMBINED", UncertaintyType::COMBINED)
+        .export_values();
 
     // py::class_<ParamId>(m, "ParamId")
     //     .def(py::init<ParameterType, std::string, int>())
@@ -339,15 +351,16 @@ void init_common(py::module &m) {
         .def_readwrite("scale_type", &WilsonRequest::scale_type)
         .def_readwrite("sum_qcd_orders", &WilsonRequest::sum_qcd_orders);
     
-    py::class_<AlphasConfig>(m, "AlphasConfig")
+    py::class_<AbstractConfig>(m, "AbstractConfig"); 
+
+    py::class_<AlphasConfig, AbstractConfig>(m, "AlphasConfig")
         .def(py::init<double, MassType, MassType>(), py::arg("scale"), py::arg("m_b_type"), py::arg("m_t_type"))
         .def_readwrite("scale", &AlphasConfig::scale)
         .def_readwrite("m_b_type", &AlphasConfig::m_b_type)
         .def_readwrite("m_t_type", &AlphasConfig::m_t_type);
-    
+
     py::class_<MassConfig, AlphasConfig>(m, "MassConfig")
-        .def(py::init<int, double, MassType, MassType>(),
-             py::arg("pdg_id"), py::arg("scale"), py::arg("m_b_type"), py::arg("m_t_type"))
+        .def(py::init<int, double, MassType, MassType>(), py::arg("pdg_id"), py::arg("scale"), py::arg("m_b_type"), py::arg("m_t_type"))
         .def_readwrite("pdg_id", &MassConfig::pdg_id);
 
 }

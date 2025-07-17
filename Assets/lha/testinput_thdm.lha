@@ -31,11 +31,16 @@ Block MINPAR    # Model parameters
    16        0.00000000e+00   # lambda_6
    17        0.00000000e+00   # lambda_7
    18        8.91089e+03   # m_12^2
-   24        1                   # Yukawas Type
+   24        2                   # Yukawas Type
 
 Block MASS      #  Mass spectrum (kinematic masses)
 #  PDG      Mass
      1        4.7e-03   # Md
+     2        2.16e-03   # Mu
+     3        0.0935   # Ms
+     4        1.27300000e+00   # Mc
+     5        4.18   # Mb
+     6        1.7334000e+02   # Mt
      2        2.16e-03   # Mu
      3        0.0935   # Ms
      4        1.27300000e+00   # Mc

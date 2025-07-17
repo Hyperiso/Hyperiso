@@ -44,7 +44,8 @@ private:
     static double calc_mt_mt(double lambda6_mt_pole, double lambda_5);
 
 public:
-    static inline QCDConstants* constants;
+    static inline QCDConstants _static_constants{};
+    static inline QCDConstants* constants = &_static_constants;
 
     static void Init();
 

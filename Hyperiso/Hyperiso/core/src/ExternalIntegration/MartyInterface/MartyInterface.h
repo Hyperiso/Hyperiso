@@ -24,12 +24,13 @@ public:
     void calculate(std::string wilson, std::string model, double Q_match, std::string model_path, bool new_params=false);
 
     std::unordered_set<Interpreter::InterpretedParam> get_dependencies(std::string wilson);
+    std::set<std::string> get_special_blocks();
 
 private:
 
     bool already_run(std::string&& outputBinary);
     std::string output_binary_name(std::string& wilson, std::string& model);
-
+    std::set<std::string> specials_block {"KIN", "WEIN", "Finite", "REGPROP", "BETA"};
     std::string num_file_path{};
     std::unordered_map<std::string, std::unordered_set<Interpreter::InterpretedParam>> dependencies;
 };
