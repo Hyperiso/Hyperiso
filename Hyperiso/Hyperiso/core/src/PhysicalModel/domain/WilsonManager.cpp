@@ -53,25 +53,25 @@ void CoefficientManager::init_group_matching(const std::string& groupName, const
     }
 }
 
-void CoefficientManager::fill_matching_groups(const std::string& groupName) {
+void CoefficientManager::fill_matching_groups(const std::string& groupName, const std::string& order) {
     std::string storage_block = this->coefficientGroups.at(groupName)->get_matching_storage_block();
     WilsonParamComposer composer;
-    for (auto order : {QCDOrder::NLO, QCDOrder::NNLO}) {
-        
+    std::vector<QCDOrder> orders = order == "LO" ? std::vector({QCDOrder::NLO, QCDOrder::NNLO}) : std::vector({QCDOrder::NNLO});
+    for (auto o : orders) {
         for (auto& coeff : *this->coefficientGroups.at(groupName)) {
             ParamId pid_SM {
                 storage_block,
-                WCoefMapper::flha_full(WCoefMapper::enum_elt(coeff.second->get_base_name()), order, ContributionType::SM)
+                WCoefMapper::flha_full(WCoefMapper::enum_elt(coeff.second->get_base_name()), o, ContributionType::SM)
             };
 
             ParamId pid_BSM {
                 storage_block,
-                WCoefMapper::flha_full(WCoefMapper::enum_elt(coeff.second->get_base_name()), order, ContributionType::BSM)
+                WCoefMapper::flha_full(WCoefMapper::enum_elt(coeff.second->get_base_name()), o, ContributionType::BSM)
             };
 
             ParamId pid_TOT {
                 storage_block,
-                WCoefMapper::flha_full(WCoefMapper::enum_elt(coeff.second->get_base_name()), order, ContributionType::TOTAL)
+                WCoefMapper::flha_full(WCoefMapper::enum_elt(coeff.second->get_base_name()), o, ContributionType::TOTAL)
             };
 
             composer.compose_parameter(
@@ -272,25 +272,17 @@ void CoefficientManager::init_group_hadronic(const std::string& groupName, const
         
         std::unordered_map<ContributionType, std::unordered_map<QCDOrder,std::unordered_map<WCoef, scalar_t>>> res;
         for (auto contri : {ContributionType::SM, ContributionType::BSM, ContributionType::TOTAL}) {
-            LOG_INFO("Contribution:", ContributionTypeMapper::str(contri));
-            if (contri == ContributionType::BSM) { //TODO : wtf bro
-                matching_map[contri][QCDOrder::LO][WCoef::C2] = 0;
-            }
             switch (ord)
                 {
                 case QCDOrder::NNLO:
-                    std::cout <<" before" << std::endl;
                     res[contri][QCDOrder::NNLO] = funcs.at(QCDOrder::NNLO)(matching_map[contri], src);
-                    std::cout <<" after" << std::endl;
                     [[fallthrough]];
                     
                 case QCDOrder::NLO:
-                    std::cout <<" before" << std::endl;
                     res[contri][QCDOrder::NLO] = funcs.at(QCDOrder::NLO)(matching_map[contri], src);
                     [[fallthrough]];
 
                 case QCDOrder::LO:
-                    std::cout <<" before" << std::endl;
                     res[contri][QCDOrder::LO] = funcs.at(QCDOrder::LO)(matching_map[contri], src);
                     break;
 
@@ -318,7 +310,10 @@ void CoefficientManager::init_group_hadronic(const std::string& groupName, const
 }
 
 void CoefficientManager::init_group_hadronic_all_bases(const std::string &groupName, const std::string &order) {
-    fill_matching_groups(groupName);
+    if (OrderMapper::enum_elt(order) < QCDOrder::NNLO) {
+        fill_matching_groups(groupName, order);
+    }
+
     for (auto basis : this->coefficientGroups.at(groupName)->get_bases()) {
         this->init_group_hadronic(groupName, order, basis);
     }
@@ -418,7 +413,6 @@ std::shared_ptr<CoefficientManager> CoefficientManager::Builder(std::string mode
     for (auto& group: groups) {
         LOG_INFO("(CoefficientManager) Initializing group matching", group.first, "at", order);
         manager->init_group_matching(group.first, order);
-        BlockProxy().log_block(ParameterType::WILSON, "BCoefficients_EW_SCALE" );
         LOG_INFO("(CoefficientManager) Initializing group hadronic", group.first, "at", order); //TODO : Camilia change, need to be done correctly
         manager->init_group_hadronic_all_bases(group.first, "NNLO");
     }

@@ -12,6 +12,10 @@
 #include "ObsWilsonHelper.h"
 #include "Math.h"
 #include "Configs.h"
+#include <chrono>
+
+using std::chrono::high_resolution_clock;
+using std::chrono::duration;
 
 class DecayParent {
 

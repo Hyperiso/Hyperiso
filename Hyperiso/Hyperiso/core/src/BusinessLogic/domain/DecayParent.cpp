@@ -54,7 +54,11 @@ void DecayParent::set_order(QCDOrder new_order) {
 scalar_t DecayParent::compute_observable(Observables obs) {
     // TODO
     auto truc = roots.at(obs);
+    auto t1 = high_resolution_clock::now();
     auto _ = truc->calculate();
+    auto t2 = high_resolution_clock::now();
+    duration<double, std::milli> ms = t2 - t1;
+    LOG_DEBUG("Evaluation of observable", ObservableMapper::str(obs), "took", ms.count(), "ms");
     return _;
 }
 

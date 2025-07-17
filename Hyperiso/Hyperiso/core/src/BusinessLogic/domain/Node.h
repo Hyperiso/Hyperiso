@@ -7,10 +7,14 @@
 #include <functional>
 #include <unordered_set>
 #include <map>
+#include <chrono>
 
 #include "ObsParameterProxy.h"
 #include "General.h"
 #include "Math.h"
+
+using std::chrono::high_resolution_clock;
+using std::chrono::duration;
 
 // Node interface, purely virtual
 class AbstractNode {

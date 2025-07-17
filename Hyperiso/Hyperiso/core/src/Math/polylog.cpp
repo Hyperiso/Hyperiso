@@ -1332,7 +1332,7 @@ double Cl2(double x) {
 }
 
 double Cl3(double x) {
-    scalar_t z = std::cos(x) + scalar_t(0, 1) * std::sin(x);
+    scalar_t z = std::cos(x) + scalar_t(0, 1.) * std::sin(x);
     return std::real(CLi3(z));
 }
 

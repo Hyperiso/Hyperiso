@@ -13,7 +13,7 @@ scalar_t& scalar_t::operator=(const scalar_t& k) {
 }
 
 scalar_t::operator double() const {
-    if (!fpeq(this->imag(), 0.)) {
+    if (std::abs(this->imag() / this->real()) > 1e-10) {
         LOG_WARN("Casting complex values to double discards imaginary part: (", this->real(), ",", this->imag(), ")");
     }
     return this->real();

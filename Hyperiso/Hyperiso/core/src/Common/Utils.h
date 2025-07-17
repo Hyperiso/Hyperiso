@@ -12,8 +12,10 @@
 #include <unordered_map>
 #include <map>
 #include <memory>
+#include <limits>
 
 typedef std::complex<double> complex_t; 
+const std::numeric_limits<double> nld = *new std::numeric_limits<double>;
 
 inline std::vector<std::string> split(const std::string& s, char delimiter) {
     std::vector<std::string> parts;
@@ -90,7 +92,31 @@ operator<<(std::ostream& os, const Map& m) {
     return os;
 }
 
+template <typename T, std::size_t cache_size, typename Func, typename... Args>
+void fill_cache(Func&& f, std::array<T, cache_size>& cache, Args&&... args) {
+    cache[0] = f(T(nld.epsilon()), std::forward<Args>(args)...);
+    for (std::size_t i = 1; i < cache_size - 1; ++i) {
+        double s = static_cast<double>(i) / static_cast<double>(cache_size - 1);
+        cache[i] = f(T(s), std::forward<Args>(args)...);
+    }
+    cache[cache_size - 1] = f(T(1. - nld.epsilon()), std::forward<Args>(args)...);
+}
 
+template <typename T, typename U, std::size_t cache_size>
+T lerp(U s, const std::array<T, cache_size>& lookup)
+{
+    // Clamp s ∈ [0, 1]
+    double x = std::clamp(static_cast<double>(s), 0.0, 1.0);
+    double scaled = x * (cache_size - 1);
+    std::size_t i = static_cast<std::size_t>(std::floor(scaled));
+    
+    if (i >= cache_size - 1) {
+        return lookup[cache_size - 1];
+    }
+
+    double t = scaled - static_cast<double>(i);
+    return T((1.0 - t)) * lookup[i] + T(t) * lookup[i + 1];
+}
 
 
 #endif // __HYPERISO_UTILS_H__

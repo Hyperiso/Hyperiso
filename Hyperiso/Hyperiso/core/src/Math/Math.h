@@ -471,6 +471,19 @@ double F0SP(double xt);
 double integrate(Integrand f, double l, double u, double prec);
 
 /**
+ * @brief Computes the Cauchy principal value of a real-valued function with a given pole.
+ * @param f Function to integrate.
+ * @param l Lower bound of integration.
+ * @param u Upper bound of integration.
+ * @param pole Location of the pole.
+ * @param prec Desired relative precision.
+ * @return Numerical integral result.
+ */
+double cauchy_principal_value(Integrand f, double l, double u, double pole, double prec);
+
+double cauchy_principal_value_s(Integrand f, double l, double u, double pole, std::vector<double> s, double prec);
+
+/**
  * @brief Performs numerical integration of a complex-valued function.
  * @param f Complex function to integrate.
  * @param l Lower bound of integration.

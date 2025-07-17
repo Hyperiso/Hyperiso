@@ -536,6 +536,29 @@
       "stat_error": 0.020,
       "syst_error": 0
     }
+  },  
+  
+  "B_Xsll": {
+    "1": {
+      "central_value": 0.1065,
+      "stat_error": 1.6e-3,
+      "syst_error": 0
+    },
+    "2": {
+      "central_value": -0.314,
+      "stat_error": 0.056,
+      "syst_error": 0
+    },
+    "3": {
+      "central_value": 0.111,
+      "stat_error": 0.018,
+      "syst_error": 0
+    },
+    "4": {
+      "central_value": 0.08,
+      "stat_error": 0.031,
+      "syst_error": 0
+    }
   },
 
   "NMHMIX": {

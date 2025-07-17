@@ -13,6 +13,7 @@ ObsManager::ObsManager(std::shared_ptr<ObsWilsonBuilder>& wil_builder) {
         {Decays::B__l_l,        std::make_shared<BllDecay>(QCDOrder::NONE, 81, obsParamProxy("FMASS", 531), wil_builder)},
         {Decays::B__l_nu,       std::make_shared<BlnuDecay>(QCDOrder::NONE, 81, obsParamProxy("FMASS", 511), wil_builder)},
         {Decays::B__Xs,         std::make_shared<BXsDecay>(QCDOrder::NONE, 81, smParamProxy("QCD", LhaID(5, 3)) / 2, wil_builder)},
+        {Decays::B__Xs_l_l,     std::make_shared<BXsllDecay>(QCDOrder::NONE, 2 * smParamProxy("MASS", 24), smParamProxy("QCD", LhaID(5, 2)) / 2, wil_builder)},
     };
 }
 
@@ -23,11 +24,9 @@ ObsManager ObsManager::add_obs(Observables id, QCDOrder order, bool add_deps) {
     auto obs_ptr = std::make_shared<Observable>(id, dec);
     obss.emplace(id, obs_ptr);
     me.add_observable(obs_ptr);
-
     if (add_deps) {
         add_all_obs_deps(id);
     }
-
     return *this;
 }
 

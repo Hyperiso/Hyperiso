@@ -42,7 +42,7 @@ public:
     void update(std::string group, double mu_W, double mu_h);
     
     void fill_sources_for_group(const std::string & groupName, const std::string& order, std::unordered_map<ParameterType, std::vector<std::string>>& src, WilsonBasis id);
-    void fill_matching_groups(const std::string& groupName);
+    void fill_matching_groups(const std::string& groupName, const std::string& order);
 
     std::string getModel();
     std::shared_ptr<CoefficientGroup> getCoefficientGroup(const std::string& groupName) const;

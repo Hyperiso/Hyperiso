@@ -1,5 +1,13 @@
-FAKE:
-  511:
-    central_value: 5.27
-    stat_error: 0.005
-    syst_error: 0.004
+B_Xsll:
+  # 2:  
+  #   central_value: -0.314
+  #   stat_error: 0.056
+  #   syst_error: 0
+  # 3:  
+  #   central_value: 0.111
+  #   stat_error: 0.018
+  #   syst_error: 0.
+  # 4:  
+  #   central_value: 0.080
+  #   stat_error: 0.031
+  #   syst_error: 0.

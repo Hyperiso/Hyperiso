@@ -68,10 +68,13 @@ scalar_t OperatorNode::getValue() {
         for (const auto& child : children) {
             childValues.push_back(child->getValue());
         }
+        auto t1 = high_resolution_clock::now();
         cachedValue = computeFunc(childValues);
+        auto t2 = high_resolution_clock::now();
         cacheValid = true;
         n_evals++;
-        LOG_DEBUG("Call to OperatorNode::computeFunc [", name, "] (", cachedValue, ")");
+        duration<double, std::milli> ms = t2 - t1;
+        LOG_DEBUG("Call to OperatorNode::computeFunc [", name, "] (", cachedValue, ") took", ms.count(), "ms");
     }
     return cachedValue;
 }
