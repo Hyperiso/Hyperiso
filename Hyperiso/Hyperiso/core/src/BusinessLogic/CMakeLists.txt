@@ -35,6 +35,8 @@ add_library(BusinessLogicLib STATIC
     domain/Decays/BlnuDecay.cpp
     domain/Decays/BDlnuDecay.cpp
     domain/Decays/BDstarlnuDecay.cpp
+    domain/Decays/BXsllDecay.cpp
+    domain/Decays/BXsllDecay_ff.cpp
     domain/Compound.cpp
     domain/Observable.cpp
     domain/DecayParent.cpp
@@ -67,3 +69,6 @@ target_link_libraries(TEST BusinessLogicLib)
 
 add_executable(CAMILIA app/main_camilia.cpp)
 target_link_libraries(CAMILIA BusinessLogicLib)
+
+add_executable(BSLL_FF app/test_bsll_ff.cpp)
+target_link_libraries(BSLL_FF BusinessLogicLib)
