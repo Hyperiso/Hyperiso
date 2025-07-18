@@ -32,7 +32,7 @@ public:
      * @param dest_file Path to the destination file.
      * @param src Shared pointer to the source BlockAccessor.
      */
-    void save(fs::path dest_file, std::shared_ptr<BlockAccessor> src) overide;
+    void save(fs::path dest_file, std::shared_ptr<BlockAccessor> src) override;
 };
 
 #endif // BLOCKSCREATOR_H
