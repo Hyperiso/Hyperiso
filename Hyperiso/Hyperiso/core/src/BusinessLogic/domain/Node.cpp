@@ -5,7 +5,7 @@ void ParameterNode::updateValue() {
 }
 
 scalar_t ParameterNode::getValue() {
-    LOG_DEBUG("ParameterNode::getValue() [", getName(), "] (", value, ")");
+    LOG_INFO("ParameterNode::getValue() [", getName(), "] (", value, ")");
     return value;
 }
 
@@ -74,7 +74,7 @@ scalar_t OperatorNode::getValue() {
         cacheValid = true;
         n_evals++;
         duration<double, std::milli> ms = t2 - t1;
-        LOG_DEBUG("Call to OperatorNode::computeFunc [", name, "] (", cachedValue, ") took", ms.count(), "ms");
+        LOG_INFO("Call to OperatorNode::computeFunc [", name, "] (", cachedValue, ") took", ms.count(), "ms");
     }
     return cachedValue;
 }

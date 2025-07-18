@@ -24,7 +24,7 @@ void QCDHelper::Init() {
         double lambda_6_mt_mt = match_lambda(alpha_s_explicit(m_t_mt, lambda_5, 5), m_t_mt, 6);
         double m_b_pole = calc_mb_pole(lambda_5);
         double lambda_4_mb_pole = match_lambda(alpha_s_explicit(m_b_pole, lambda_5, 5), m_b_pole, 4);
-        double m_b_1S = calc_mb_1S(lambda_4_mb_mb, m_b_pole);
+        double m_b_1S = calc_mb_1S(lambda_4_mb_pole, m_b_pole);
         double m_c_pole = calc_mc_pole(lambda_4_mb_mb);
 
         dep_block->store_or_assign(LhaID(1, 3), std::make_shared<Parameter>(ParamId{ParameterType::SM, "QCD", LhaID(1, 3)}, lambda_3, 0., 0.));
@@ -103,7 +103,7 @@ double QCDHelper::calc_mb_pole(double lambda_5) {
 }
 
 double QCDHelper::calc_mb_1S(double lambda_4, double mb_pole) {
-    double mu = mb_pole / 2.;
+    double mu = (*Parameters::GetInstance())("SMINPUTS", 5) / 2.;
 	return mb_pole * (1 - 2. / 9 * pow(alpha_s_explicit(mu, lambda_4, 4), 2.));
 }
 

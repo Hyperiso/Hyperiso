@@ -72,7 +72,9 @@ protected:
     double tau_89(double s);
     double tau_99(double s);
     double tau_79(double s);
+    scalar_t tau_210(double s, double z);
     double tau_710(double s);
+    double tau_810(double s);
     double tau_910(double s);
     double sigma(double s);
     double sigma_9(double s);
@@ -136,44 +138,61 @@ protected:
     scalar_t C9_new(double s, bool prime);
     scalar_t C10_new(double s, bool prime);
 
-    double W_7(double s);
-    double W_9(double s);
-    double W_10(double s);
-    scalar_t W_27(double s);
-    scalar_t W_29(double s);
-    double W_79(double s);
+    double W_7(double s, double alpha_s_mu_b, double L_mu);
+    double W_9(double s, double alpha_s_mu_b, double L_mu, double mc_hat, double inv_alpha_em, double m_D_hat, double m_b);
+    double W_10(double s, double alpha_s_mu_b);
+    scalar_t W_27(double s, double alpha_s_mu_b, double L_mu);
+    scalar_t W_29(double s, double alpha_s_mu_b, double L_mu, double mc_hat, double inv_alpha_em, double m_D_hat, double m_b);
+    scalar_t W_210(double s, double alpha_s_mu_b);
+    double W_79(double s, double alpha_s_mu_b, double L_mu, double mc_hat, double inv_alpha_em, double m_D_hat, double m_b);
+    double W_710(double s, double alpha_s_mu_b, double L_mu);
+    double W_910(double s, double alpha_s_mu_b, double L_mu, double mc_hat, double inv_alpha_em, double m_D_hat, double m_b);
 
     scalar_t H7(double s, double ml_hat, double alpha_s_mu_b);
     scalar_t H9(double s, double ml_hat, double alpha_s_mu_b);
     scalar_t H10(double s, double ml_hat, double alpha_s_mu_b);
     scalar_t H79(double s, double ml_hat, double alpha_s_mu_b);
 
-    double dB0_ds(double s, double ml_hat, double alpha_s_mu_b);
+    double dB0_ds(double s, double ml_hat, double alpha_s_mu_b, double L_mu, double mc_hat, double inv_alpha_em, double m_D_hat, double m_b);
 
-    double delta_mb2(double s);
-    double delta_mb3(double s);
-    double delta_mc2(double s, double z);
+    double delta_mb2(double s, double alpha_s_mu_b, double L_mu, double mc_hat, double inv_alpha_em, double m_D_hat, double m_b);
+    double delta_mb3(double s, double alpha_s_mu_b, double L_mu, double mc_hat, double inv_alpha_em, double m_D_hat, double m_b);
+    double delta_mc2(double s, double z, double alpha_s_mu_b, double L_mu, double mc_hat, double inv_alpha_em, double m_D_hat, double m_b);
     double delta_bremA(double s);
     double delta_bremB_base(double t, double z, double s_min, double s_max);
     double delta_bremB(double s, double m_b);
-    double delta_em(double s, double L_l, double mu_b);
+    double delta_em(double s, double L_l, double L_b_5_GeV);
 
     double pref_dB0_ds(double lambda_2, double g_lam_z, double f_z, double m_b, double rho_1, double g_rho_z);
     double pref_delta_mb2(double lambda_2, double m_b, scalar_t V_tb);
     double pref_delta_mb3(double rho_1, double m_b, scalar_t V_tb);
-    double pref_delta_mc2(double lambda_2, double m_c, scalar_t V_tb, scalar_t V_cb, scalar_t V_cs);
+    double pref_delta_mc2(double lambda_2, double m_c, scalar_t V_tb, scalar_t V_ts, scalar_t V_cb, scalar_t V_cs);
     double pref_delta_brems(double alpha_s_mu_b);
     double pref_delta_em(double inv_alpha_em);
     double dB_ds(double s, double ml_hat, double alpha_s_mu_b, double z, double L_l, double L_b_5_GeV,
                     double pref_dB0_ds, double pref_delta_mb2, double pref_delta_mb3, double pref_delta_mc2, 
-                    double pref_delta_brems, double pref_delta_em, double m_b);
+                    double pref_delta_brems, double pref_delta_em, double m_b, double L_mu, double mc_hat, double inv_alpha_em, double m_D_hat);
+
+    double A_FB_0(double s, double ml_hat, double alpha_s_mu_b, double L_mu, double mc_hat, double inv_alpha_em, double m_D_hat, double m_b);
+
+    double delta_A_mb2(double s, double alpha_s_mu_b, double L_mu, double mc_hat, double inv_alpha_em, double m_D_hat, double m_b);
+    double delta_A_mc2(double s, double z, double alpha_s_mu_b);
+    double delta_A_brem(double s, double z);
+    double delta_A_em(double s, double L_l, double L_b_5_GeV, double z);
+
+    double pref_A0_0(double lambda_2, double g_lam_z, double f_z, double m_b);
+    double pref_A0_1(double lambda_1, double m_b);
+    double A_FB(double s, double ml_hat, double alpha_s_mu_b, double z, double L_l, double L_b_5_GeV, double pref_A0_0, 
+                double pref_A0_1, double pref_delta_mb2, double pref_delta_mc2, double pref_delta_brems, double pref_delta_em,
+                double m_b, double L_mu, double mc_hat, double inv_alpha_em, double m_D_hat);
 
     double ckm(scalar_t V_tb, scalar_t V_ts, scalar_t V_cb);
     double pref(double BR_BXclnu, double inv_alpha_em, double f, double kappa, double ckm);
 
     double BR_B_Xsll(double q2_min, double q2_max, double m_b, double pref, double ml_hat, double alpha_s_mu_b, 
                         double z, double L_l, double L_b_5_GeV, double pref_dB0_ds, double pref_delta_mb2,
-                        double pref_delta_mb3, double pref_delta_mc2, double pref_delta_brems, double pref_delta_em);
+                        double pref_delta_mb3, double pref_delta_mc2, double pref_delta_brems, double pref_delta_em,
+                        double L_mu, double mc_hat, double inv_alpha_em, double m_D_hat);
 
 public:
     BXsllDecay(QCDOrder order, double matching_scale, double hadronic_scale, std::shared_ptr<ObsWilsonBuilder>& wilson_builder) : DecayParent(matching_scale, hadronic_scale, order, wilson_builder) {

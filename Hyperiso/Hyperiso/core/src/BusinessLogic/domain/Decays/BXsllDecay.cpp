@@ -123,8 +123,32 @@ double BXsllDecay::tau_79(double s) {
     return -4.*(1.-s)*(1.-s)/9./s*log(1.-s)-4.*s*(3.-2.*s)*log(s)/9./(1.-s)/(1.-s)-2./9.*(5.-3.*s)/(1.-s);
 }
 
+scalar_t BXsllDecay::tau_210(double s, double z) {
+    auto f = [&] (double w) {
+        return -s/(s-w)/(1.-s)/(1.-s)*((4.*(1.-s)*(1.+w)-2.*fabs(s-w*w)*(w*(3.+w)-s*(1.-w))/w/w
+            +(2.+5.*w+2.*w*w+s*(3.+4.*w))*log((s+w*w+fabs(s-w*w))/2./w)-(s-w)/s/sqrt((1.+w)*(1.+w)-4.*s)
+            *(w*(2.-w)-s*(6.-5.*w))*(log(1.+w-s*(3.-w)+(1.-s)*sqrt((1.+w)*(1.+w)-4.*s))
+            -log(s*(1.-3.*w)+w*w*(1.+w)+fabs(s-w*w)*sqrt((1.+w)*(1.+w)-4.*s))))*Delta_i_23(s, z, w)
+            -(2.*(1.-s)*(1.+2.*w)-2.*fabs(s-w*w)*(w*(2.+w)-s*(1.-w))/w/w
+            +2.*(s*(1.+2.*w)+w*(2.+w))*log((s+w*w+fabs(s-w*w))/2./w)
+            +4.*(1.-w)*(s-w)/sqrt((1.+w)*(1.+w)-4.*s)*(log(1.+w-s*(3.-w)+(1.-s)*sqrt((1.+w)*(1.+w)-4.*s))
+            -log(s*(1.-3.*w)+w*w*(1.+w)+fabs(s-w*w)*sqrt((1.+w)*(1.+w)-4.*s))))*Delta_i_27(s, z, w));
+    };
+
+    return c_integrate(f, s, 1, 1e-2);
+}
+
 double BXsllDecay::tau_710(double s) {
     return -5./2.+1./3./(1.-3.*s)-1./3.*s*(6.-7.*s)*log(s)/(1.-s)/(1.-s)-1./9.*(3.-7.*s+4.*s*s)*log(1.-s)/s+f_7(s)/3.;
+}
+
+double BXsllDecay::tau_810(double s){
+    return 1./6./(1.-s)/(1.-s)*(3.*((1.-sqrt(s))*(1.-sqrt(s))*(23.-6.*sqrt(s)-s)+4.*(1.-s)*(7.+s)*log(1.+sqrt(s))
+	+2.*s*(1.+s-log(s))*log(s))+2.*(-3.*PI2*(1.+2.*s)+6.*(3.-s)*s*log(2.-sqrt(s))
+	-36.*(1.+2.*s)*CLi2(-sqrt(s))-6.*sqrt(s/(4.-s))*(2.*(-3.+s)*s*atan((2.+sqrt(s))/sqrt(4.-s))
+	+2.*PI*log(2.-sqrt(s))-atan(sqrt((4.-s)/s))*((-3.+s)*s+4.*log(2.-sqrt(s)))
+	-atan(sqrt(s*(4.-s))/(2.-s))*((-3.+s)*s-log(s))+4.*real(I*CLi2((-2.+I*sqrt(4.-s)+sqrt(s))*sqrt(s)/(I*sqrt(4.-s)-sqrt(s))))
+	-2.*real(I*CLi2(I/2.*sqrt(4.-s)*(1.-s)*sqrt(s)+(3.-s)*s/2.)))));
 }
 
 double BXsllDecay::tau_910(double s) {
@@ -316,6 +340,7 @@ scalar_t BXsllDecay::g_ld(double z, double s, double inv_alpha_em, double m_D_ha
 }
 
 scalar_t BXsllDecay::C9_eff_base(double s, double L_mu, double mc_hat, double inv_alpha_em, double m_D_hat, double m_b, QCDOrder order, bool prime) {
+    s = std::clamp(s, 1e-6, 1. - 1e-6);
     auto C = order == QCDOrder::LO ? (prime ? BPrime_FR_wilson_cache_LO : B_FR_wilson_cache_LO) : (prime ? BPrime_FR_wilson_cache : B_FR_wilson_cache);
     auto C_ids = WCoefMapper::get_group(prime ? WGroup::BPrime : WGroup::B);
     scalar_t g_0 = g(0, s);
@@ -366,24 +391,27 @@ scalar_t BXsllDecay::F_89(double s) {
 scalar_t BXsllDecay::C7_new_base(double s, double alpha_s_mu_b, double L_mu, bool prime) {
     auto C_0 = prime ? BPrime_FR_wilson_cache_LO : B_FR_wilson_cache_LO;
     auto C7_eff = prime ? BPrime_FR_wilson_cache[WCoef::CP7] : B_FR_wilson_cache[WCoef::C7];
+    LOG_INFO("s_hat =", s);
+    LOG_INFO("C7eff =", C7_eff);
+    LOG_INFO("sigma_7 =", sigma_7(s, L_mu));
+    LOG_INFO("F_17 =", F_17(s));
+    LOG_INFO("F_27 =", F_27(s));
+    LOG_INFO("F_87 =", F_87(s, L_mu));
     return (1.+alpha_s_mu_b/PI*sigma_7(s, L_mu))*C7_eff
 	-alpha_s_mu_b/4./PI*(C_0.at(prime ? WCoef::CP1 :WCoef::C1)*F_17(s)+C_0.at(prime ? WCoef::CP2 :WCoef::C2)*F_27(s)+C_0.at(prime ? WCoef::CP8 :WCoef::C8)*F_87(s, L_mu));
 }
 
-scalar_t BXsllDecay::C9_new_base(double s,
-                            double alpha_s_mu_b,
-                            double L_mu,
-                            double mc_hat,
-                            double inv_alpha_em,
-                            double m_D_hat,
-                            double m_b, bool prime)
+scalar_t BXsllDecay::C9_new_base(double s, double alpha_s_mu_b, double L_mu, double mc_hat, double inv_alpha_em, double m_D_hat, double m_b, bool prime)
 {
+    if (abs(s - 1) < 1e-6) s = 1;
     auto C_0 = prime ? BPrime_FR_wilson_cache_LO : B_FR_wilson_cache_LO;
     return (1.+alpha_s_mu_b/PI*sigma_9(s))*C9_eff_base(s, L_mu, mc_hat, inv_alpha_em, m_D_hat, m_b, this->w_config.order, prime)
 	        -alpha_s_mu_b/4./PI*(C_0.at(prime ? WCoef::CP1 :WCoef::C1)*F_19(s)+C_0.at(prime ? WCoef::CP2 :WCoef::C2)*F_29(s)+C_0.at(prime ? WCoef::CP8 :WCoef::C8)*F_89(s));
 }
 
 scalar_t BXsllDecay::C10_new_base(double s, double alpha_s_mu_b, bool prime) {
+    s = std::clamp(s, 1e-6, 1. - 1e-6);
+    LOG_INFO("C10eff =", prime ? BPrime_FR_wilson_cache[WCoef::CP10] : B_FR_wilson_cache[WCoef::C10]);
     return (1.+alpha_s_mu_b/PI*sigma_9(s))*(prime ? BPrime_FR_wilson_cache[WCoef::CP10] : B_FR_wilson_cache[WCoef::C10]);
 }
 
@@ -399,29 +427,46 @@ scalar_t BXsllDecay::C10_new(double s, bool prime) {
     return lerp(s, prime ? CP10_new_lookup : C10_new_lookup);
 }
 
-double BXsllDecay::W_7(double s) {
-    return pow(abs(C7_new(s, false)), 2) + pow(abs(C7_new(s, true)), 2);
+double BXsllDecay::W_7(double s, double alpha_s_mu_b, double L_mu) {
+    return pow(abs(C7_new_base(s, alpha_s_mu_b, L_mu, false)), 2) + pow(abs(C7_new_base(s, alpha_s_mu_b, L_mu, true)), 2);
 }
 
-double BXsllDecay::W_9(double s) {
-    return pow(abs(C9_new(s, false)), 2) + pow(abs(C9_new(s, true)), 2);
+double BXsllDecay::W_9(double s, double alpha_s_mu_b, double L_mu, double mc_hat, double inv_alpha_em, double m_D_hat, double m_b) {
+    return pow(abs(C9_new_base(s, alpha_s_mu_b, L_mu, mc_hat, inv_alpha_em, m_D_hat, m_b, false)), 2) + pow(abs(C9_new_base(s, alpha_s_mu_b, L_mu, mc_hat, inv_alpha_em, m_D_hat, m_b, true)), 2);
 }
 
-double BXsllDecay::W_10(double s) {
-    return pow(abs(C10_new(s, false)), 2) + pow(abs(C10_new(s, true)), 2);
+double BXsllDecay::W_10(double s, double alpha_s_mu_b) {
+    return pow(abs(C10_new_base(s, alpha_s_mu_b, false)), 2) + pow(abs(C10_new_base(s, alpha_s_mu_b, true)), 2);
 }
 
-scalar_t BXsllDecay::W_27(double s) {
-    return B_FR_wilson_cache[WCoef::C2] * conj(C7_new(s, false)) + BPrime_FR_wilson_cache[WCoef::CP2] * conj(C7_new(s, true));
+scalar_t BXsllDecay::W_27(double s, double alpha_s_mu_b, double L_mu) {
+    return B_FR_wilson_cache[WCoef::C2] * conj(C7_new_base(s, alpha_s_mu_b, L_mu, false)) 
+            + BPrime_FR_wilson_cache[WCoef::CP2] * conj(C7_new_base(s, alpha_s_mu_b, L_mu, true));
 }
 
-scalar_t BXsllDecay::W_29(double s) {
-    return B_FR_wilson_cache[WCoef::C2] * conj(C9_new(s, false)) +
-            BPrime_FR_wilson_cache[WCoef::CP2] * conj(C9_new(s, true));
+scalar_t BXsllDecay::W_29(double s, double alpha_s_mu_b, double L_mu, double mc_hat, double inv_alpha_em, double m_D_hat, double m_b) {
+    return B_FR_wilson_cache[WCoef::C2] * conj(C9_new_base(s, alpha_s_mu_b, L_mu, mc_hat, inv_alpha_em, m_D_hat, m_b, false)) +
+            BPrime_FR_wilson_cache[WCoef::CP2] * conj(C9_new_base(s, alpha_s_mu_b, L_mu, mc_hat, inv_alpha_em, m_D_hat, m_b, true));
 }
 
-double BXsllDecay::W_79(double s) {
-    return real(C7_new(s, false) * conj(C9_new(s, false))) + real(C7_new(s, true) * conj(C9_new(s, true)));
+scalar_t BXsllDecay::W_210(double s, double alpha_s_mu_b) {
+    return B_FR_wilson_cache[WCoef::C2] * conj(C10_new_base(s, alpha_s_mu_b, false)) +
+            BPrime_FR_wilson_cache[WCoef::CP2] * conj(C10_new_base(s, alpha_s_mu_b, true));
+}
+
+double BXsllDecay::W_79(double s, double alpha_s_mu_b, double L_mu, double mc_hat, double inv_alpha_em, double m_D_hat, double m_b) {
+    return real(C7_new_base(s, alpha_s_mu_b, L_mu, false) * conj(C9_new_base(s, alpha_s_mu_b, L_mu, mc_hat, inv_alpha_em, m_D_hat, m_b, false))) 
+            + real(C7_new_base(s, alpha_s_mu_b, L_mu, true) * conj(C9_new_base(s, alpha_s_mu_b, L_mu, mc_hat, inv_alpha_em, m_D_hat, m_b, true)));
+}
+
+double BXsllDecay::W_710(double s, double alpha_s_mu_b, double L_mu) {
+    return real(C7_new_base(s, alpha_s_mu_b, L_mu, false) * conj(C10_new_base(s, alpha_s_mu_b, false))) 
+            + real(C7_new_base(s, alpha_s_mu_b, L_mu, true) * conj(C10_new_base(s, alpha_s_mu_b, true)));
+}
+
+double BXsllDecay::W_910(double s, double alpha_s_mu_b, double L_mu, double mc_hat, double inv_alpha_em, double m_D_hat, double m_b) {
+    return real(C9_new_base(s, alpha_s_mu_b, L_mu, mc_hat, inv_alpha_em, m_D_hat, m_b, false) * conj(C10_new_base(s, alpha_s_mu_b, false))) 
+            + real(C9_new_base(s, alpha_s_mu_b, L_mu, mc_hat, inv_alpha_em, m_D_hat, m_b, true) * conj(C10_new_base(s, alpha_s_mu_b, true)));
 }
 
 scalar_t BXsllDecay::H7(double s, double ml_hat, double alpha_s_mu_b) {
@@ -440,38 +485,57 @@ scalar_t BXsllDecay::H79(double s, double ml_hat, double alpha_s_mu_b) {
     return 12 * (1.+2.*ml_hat*ml_hat/s)*(1.+alpha_s_mu_b/PI*tau_79(s));
 }
 
-double BXsllDecay::dB0_ds(double s, double ml_hat, double alpha_s_mu_b) {
+double BXsllDecay::dB0_ds(double s, double ml_hat, double alpha_s_mu_b, double L_mu, double mc_hat, double inv_alpha_em, double m_D_hat, double m_b) {
     double W_Q1 = pow(abs(BScalar_FR_wilson_cache[WCoef::CQ1]), 2) + pow(abs(BPrime_FR_wilson_cache[WCoef::CPQ1]), 2);
     double W_Q2 = pow(abs(BScalar_FR_wilson_cache[WCoef::CQ2]), 2) + pow(abs(BPrime_FR_wilson_cache[WCoef::CPQ2]), 2);
-    double W_10Q2 = real(BScalar_FR_wilson_cache[WCoef::CQ2] * conj(C10_new(s, false))) + real(BPrime_FR_wilson_cache[WCoef::CPQ2] * conj(C10_new(s, true)));
+    double W_10Q2 = real(BScalar_FR_wilson_cache[WCoef::CQ2] * conj(C10_new_base(s, alpha_s_mu_b, false))) + real(BPrime_FR_wilson_cache[WCoef::CPQ2] * conj(C10_new_base(s, alpha_s_mu_b, true)));
 
     return pow(1 - s, 2) * sqrt(1 - 4 * pow(ml_hat, 2) / s) * (
-            H7(s, ml_hat, alpha_s_mu_b) * W_7(s) + 
-            H9(s, ml_hat, alpha_s_mu_b) * W_9(s) + 
-            H10(s, ml_hat, alpha_s_mu_b) * W_10(s) + 
-            H79(s, ml_hat, alpha_s_mu_b) * W_79(s) +
+            H7(s, ml_hat, alpha_s_mu_b) * W_7(s, alpha_s_mu_b, L_mu) + 
+            H9(s, ml_hat, alpha_s_mu_b) * W_9(s, alpha_s_mu_b, L_mu, mc_hat, inv_alpha_em, m_D_hat, m_b) + 
+            H10(s, ml_hat, alpha_s_mu_b) * W_10(s, alpha_s_mu_b) + 
+            H79(s, ml_hat, alpha_s_mu_b) * W_79(s, alpha_s_mu_b, L_mu, mc_hat, inv_alpha_em, m_D_hat, m_b) +
             1.5 * (s - 4 * ml_hat * ml_hat) * W_Q1 +
             1.5 * s * W_Q2 +
             6 * ml_hat * W_10Q2
         );
 }
 
-double BXsllDecay::delta_mb2(double s) {
-    return -4 * (6 + 3 * s - 5 * s * s) * W_7(s) / s + (1 - 15 * s * s + 10 * pow(s, 3)) * (W_9(s) + W_10(s)) - 4 * (5 + 6 * s - 7 * s * s) * W_79(s);
+double BXsllDecay::A_FB_0(double s, double ml_hat, double alpha_s_mu_b, double L_mu, double mc_hat, double inv_alpha_em, double m_D_hat, double m_b) {
+    double W_7Q1 = real(C7_new(s, false) * BScalar_FR_wilson_cache[WCoef::CQ1]) + real(C7_new(s, true) * BPrime_FR_wilson_cache[WCoef::CPQ1]);
+    double W_9Q1 = real(C9_new(s, false) * BScalar_FR_wilson_cache[WCoef::CQ1]) + real(C9_new(s, true) * BPrime_FR_wilson_cache[WCoef::CPQ1]);
+
+    return pow(1 - s, 2) * sqrt(1 - 4 * pow(ml_hat, 2) / s) * (
+            2 * (1 + alpha_s_mu_b * tau_710(s) / PI) * W_710(s, alpha_s_mu_b, L_mu) + 
+            s * (1 + alpha_s_mu_b * tau_910(s) / PI) * W_910(s, alpha_s_mu_b, L_mu, mc_hat, inv_alpha_em, m_D_hat, m_b) + 
+            ml_hat * (2 * W_7Q1 + W_9Q1)
+        );
 }
 
-double BXsllDecay::delta_mb3(double s) {
+double BXsllDecay::delta_A_mb2(double s, double alpha_s_mu_b, double L_mu, double mc_hat, double inv_alpha_em, double m_D_hat, double m_b) {
+    return s * (9 + 14 * s - 15 * pow(s, 2)) * W_910(s, alpha_s_mu_b, L_mu, mc_hat, inv_alpha_em, m_D_hat, m_b) + 2 * (7 + 10 * s - 9 * s * s) * W_710(s, alpha_s_mu_b, L_mu);
+}
+
+double BXsllDecay::delta_mb2(double s, double alpha_s_mu_b, double L_mu, double mc_hat, double inv_alpha_em, double m_D_hat, double m_b) {
+    return -4 * (6 + 3 * s - 5 * pow(s, 3)) * W_7(s, alpha_s_mu_b, L_mu) / s + (1 - 15 * s * s + 10 * pow(s, 3)) * (W_9(s, alpha_s_mu_b, L_mu, mc_hat, inv_alpha_em, m_D_hat, m_b) + W_10(s, alpha_s_mu_b)) - 4 * (5 + 6 * s - 7 * s * s) * W_79(s, alpha_s_mu_b, L_mu, mc_hat, inv_alpha_em, m_D_hat, m_b);
+}
+
+double BXsllDecay::delta_mb3(double s, double alpha_s_mu_b, double L_mu, double mc_hat, double inv_alpha_em, double m_D_hat, double m_b) {
     if (s > 0.4)
         return 0;
 
-    return (5.*pow(s,4.)+19.*pow(s,3.)+9.*s*s-7.*s+22.)/6./(1.-s)*4.*W_7(s)/s+
-            (10.*pow(s,4.)+23.*pow(s,3.)-9.*s*s+13.*s+11.)/6./(1.-s)*(W_9(s) + W_10(s))+
-            4.*(-3.*pow(s,3.)+17.*s*s-s+3.)/2./(1.-s)* W_79(s);
+    return (5.*pow(s,4.)+19.*pow(s,3.)+9.*s*s-7.*s+22.)/6./(1.-s)*4.*W_7(s, alpha_s_mu_b, L_mu)/s+
+            (10.*pow(s,4.)+23.*pow(s,3.)-9.*s*s+13.*s+11.)/6./(1.-s)*(W_9(s, alpha_s_mu_b, L_mu, mc_hat, inv_alpha_em, m_D_hat, m_b) + W_10(s, alpha_s_mu_b))+
+            4.*(-3.*pow(s,3.)+17.*s*s-s+3.)/2./(1.-s)* W_79(s, alpha_s_mu_b, L_mu, mc_hat, inv_alpha_em, m_D_hat, m_b);
 }
 
-double BXsllDecay::delta_mc2(double s, double z) {
+double BXsllDecay::delta_mc2(double s, double z, double alpha_s_mu_b, double L_mu, double mc_hat, double inv_alpha_em, double m_D_hat, double m_b) {
     scalar_t f = F(s / (4. * z));
-    return pow(1 - s, 2) * real((1 + 6 * s - s * s) * f * W_27(s) / s + (2 + s) * f * W_29(s));
+    return pow(1 - s, 2) * real((1 + 6 * s - s * s) * f * W_27(s, alpha_s_mu_b, L_mu) / s + (2 + s) * f * W_29(s, alpha_s_mu_b, L_mu, mc_hat, inv_alpha_em, m_D_hat, m_b));
+}
+
+double BXsllDecay::delta_A_mc2(double s, double z, double alpha_s_mu_b) {
+    return pow(1 - s, 2) * real((1 + 3 * s) * F(s / (4. * z)) * W_210(s, alpha_s_mu_b));
 }
 
 double BXsllDecay::delta_bremA(double s) {
@@ -534,6 +598,18 @@ double BXsllDecay::delta_bremB(double s, double m_b) {
     }
 }
 
+double BXsllDecay::delta_A_brem(double s, double z) {
+    auto C_0 = B_FR_wilson_cache_LO;
+    auto CP_0 = BPrime_FR_wilson_cache_LO;
+    scalar_t C10 = B_FR_wilson_cache[WCoef::C10];
+    scalar_t CP10 = BPrime_FR_wilson_cache[WCoef::CP10];
+
+    scalar_t W_210 = (C_0[WCoef::C2] - C_0[WCoef::C1] / 6.) * C10 + (CP_0[WCoef::CP2] - CP_0[WCoef::CP1] / 6.) * CP10;
+    scalar_t W_810 = C_0[WCoef::C8] * C10 + CP_0[WCoef::CP8] * CP10;
+
+    return pow(1 - s, 2) * real(W_810 * tau_810(s) + W_210 * tau_210(s, z));
+}
+
 double BXsllDecay::delta_em(double s, double L_l, double L_b_5_GeV) {
     auto C = B_FR_wilson_cache;
     auto Cp = BPrime_FR_wilson_cache;
@@ -562,6 +638,43 @@ double BXsllDecay::delta_em(double s, double L_l, double L_b_5_GeV) {
     );
 }
 
+double BXsllDecay::delta_A_em(double s, double L_l, double L_b_5_GeV, double z) {
+    auto C = B_FR_wilson_cache;
+    auto Cp = BPrime_FR_wilson_cache;
+
+    double C_F = ObsQCDProxy().get_constants()->C_F;
+    scalar_t W_210 = (C[WCoef::C2] + C_F * C[WCoef::C1]) * conj(C[WCoef::C10]) + (Cp[WCoef::CP2] + C_F * Cp[WCoef::CP1]) * conj(Cp[WCoef::CP10]);
+    scalar_t W_710 = C[WCoef::C7] * conj(C[WCoef::C10]) + Cp[WCoef::CP7] * conj(Cp[WCoef::CP10]);
+    scalar_t W_910 = C[WCoef::C9] * conj(C[WCoef::C10]) + Cp[WCoef::CP9] * conj(Cp[WCoef::CP10]);
+
+    return pow(1 - s, 2) * (
+        -48 * W_710 * omega_710(s, L_l) +
+        -24 * s * (
+            W_910 * omega_910(s, L_l) +
+            W_210 * omega_210(s, L_l, L_b_5_GeV, z)
+        )
+    );
+}
+
+double BXsllDecay::pref_A0_0(double lambda_2, double g_lam_z, double f_z, double m_b) {
+    return 1 + 3 * lambda_2 * g_lam_z / (2 * pow(m_b, 2) * f_z);
+}
+
+double BXsllDecay::pref_A0_1(double lambda_1, double m_b) {
+    return 4 * lambda_1 / (3 * pow(m_b, 2));
+}
+
+double BXsllDecay::A_FB(double s, double ml_hat, double alpha_s_mu_b, double z, double L_l, double L_b_5_GeV, double pref_A0_0, 
+                double pref_A0_1, double pref_delta_mb2, double pref_delta_mc2, double pref_delta_brems, double pref_delta_em,
+                double m_b, double L_mu, double mc_hat, double inv_alpha_em, double m_D_hat) 
+{
+    return -3 * A_FB_0(s, ml_hat, alpha_s_mu_b, L_mu, mc_hat, inv_alpha_em, m_D_hat, m_b) * (pref_A0_0 + pref_A0_1 * s / pow(1 - s, 2)) +
+            pref_delta_mb2 * delta_A_mb2(s, alpha_s_mu_b, L_mu, mc_hat, inv_alpha_em, m_D_hat, m_b) + 
+            -3 / 8 * pref_delta_mc2 * delta_A_mc2(s, z, alpha_s_mu_b) +
+            8 / 3 * pref_delta_brems * delta_A_brem(s, z) +
+            pref_delta_em * delta_A_em(s, L_l, L_b_5_GeV, z);
+}
+
 double BXsllDecay::pref_dB0_ds(double lambda_2,
                                  double g_lam_z,
                                  double f_z,
@@ -585,10 +698,11 @@ double BXsllDecay::pref_delta_mb3(double rho_1, double m_b, scalar_t V_tb) {
 double BXsllDecay::pref_delta_mc2(double lambda_2,
                                     double m_c,
                                     scalar_t V_tb,
+                                    scalar_t V_ts,
                                     scalar_t V_cb,
                                     scalar_t V_cs)
 {
-    return 8. * lambda_2 / (9. * pow(m_c, 2)) * abs(conj(V_cs) * V_cb / pow(V_tb, 3));
+    return 8. * lambda_2 / (9. * pow(m_c, 2)) * abs(conj(V_cs) * V_cb / (conj(V_ts) * pow(V_tb, 3)));
 }
 
 double BXsllDecay::pref_delta_brems(double alpha_s_mu_b) {
@@ -602,12 +716,13 @@ double BXsllDecay::pref_delta_em(double inv_alpha_em) {
 
 double BXsllDecay::dB_ds(double s, double ml_hat, double alpha_s_mu_b, double z,
                            double L_l, double L_b_5_GeV, double pref_dB0_ds, double pref_delta_mb2,
-                           double pref_delta_mb3, double pref_delta_mc2, double pref_delta_brems, double pref_delta_em, double m_b)
+                           double pref_delta_mb3, double pref_delta_mc2, double pref_delta_brems, double pref_delta_em,
+                           double m_b, double L_mu, double mc_hat, double inv_alpha_em, double m_D_hat)
 {   
-    return pref_dB0_ds * dB0_ds(s, ml_hat, alpha_s_mu_b) +
-            pref_delta_mb2 * delta_mb2(s) + 
-            pref_delta_mb3 * delta_mb3(s) + 
-            pref_delta_mc2 * delta_mc2(s, z) +
+    return pref_dB0_ds * dB0_ds(s, ml_hat, alpha_s_mu_b, L_mu, mc_hat, inv_alpha_em, m_D_hat, m_b) +
+            pref_delta_mb2 * delta_mb2(s, alpha_s_mu_b, L_mu, mc_hat, inv_alpha_em, m_D_hat, m_b) + 
+            pref_delta_mb3 * delta_mb3(s, alpha_s_mu_b, L_mu, mc_hat, inv_alpha_em, m_D_hat, m_b) + 
+            pref_delta_mc2 * delta_mc2(s, z, alpha_s_mu_b, L_mu, mc_hat, inv_alpha_em, m_D_hat, m_b) +
             pref_delta_brems * (delta_bremA(s) + delta_bremB(s, m_b)) +
             pref_delta_em * delta_em(s, L_l, L_b_5_GeV);
 }
@@ -622,16 +737,39 @@ double BXsllDecay::pref(double BR_BXclnu, double inv_alpha_em, double f, double 
 
 double BXsllDecay::BR_B_Xsll(double s_min, double s_max, double m_b, double pref, double ml_hat, double alpha_s_mu_b, 
                         double z, double L_l, double L_b_5_GeV, double pref_dB0_ds, double pref_delta_mb2,
-                        double pref_delta_mb3, double pref_delta_mc2, double pref_delta_brems, double pref_delta_em)
+                        double pref_delta_mb3, double pref_delta_mc2, double pref_delta_brems, double pref_delta_em, 
+                        double L_mu, double mc_hat, double inv_alpha_em, double m_D_hat)
 {
     double s_hat_min = s_min / pow(m_b, 2);
     double s_hat_max = s_max / pow(m_b, 2);
 
+    std::ofstream fs;
+    fs.open("dB_ds_mu_high.csv", std::ios_base::app);
+    // fs << "s_hat,dB0_dS,delta_mb2,delta_mb3,delta_mc2,delta_brems_A,delta_brems_B,delta_em,delta_tot,W_7,W_9,W_10,W_79\n";
+
     auto f = [&] (double s) {
-        return dB_ds(s, ml_hat, alpha_s_mu_b, z, L_l, L_b_5_GeV, pref_dB0_ds, pref_delta_mb2, pref_delta_mb3, pref_delta_mc2, pref_delta_brems, pref_delta_em, m_b);
+        double res = dB_ds(s, ml_hat, alpha_s_mu_b, z, L_l, L_b_5_GeV, pref_dB0_ds, pref_delta_mb2, pref_delta_mb3, pref_delta_mc2, pref_delta_brems, pref_delta_em, m_b,  L_mu, mc_hat, inv_alpha_em, m_D_hat);
+        fs << s << "," 
+           << pref * pref_dB0_ds * dB0_ds(s, ml_hat, alpha_s_mu_b, L_mu, mc_hat, inv_alpha_em, m_D_hat, m_b) << ","
+           << pref * pref_delta_mb2 * delta_mb2(s, alpha_s_mu_b, L_mu, mc_hat, inv_alpha_em, m_D_hat, m_b) << ","
+           << pref * pref_delta_mb3 * delta_mb3(s, alpha_s_mu_b, L_mu, mc_hat, inv_alpha_em, m_D_hat, m_b) << ","
+           << pref * pref_delta_mc2 * delta_mc2(s, z, alpha_s_mu_b, L_mu, mc_hat, inv_alpha_em, m_D_hat, m_b) << ","
+           << pref * pref_delta_brems * delta_bremA(s) << ","
+           << pref * pref_delta_brems * delta_bremB(s, m_b) << ","
+           << pref * pref_delta_em * delta_em(s, L_l, L_b_5_GeV) << ","
+           << pref * (pref_delta_mb2 * delta_mb2(s, alpha_s_mu_b, L_mu, mc_hat, inv_alpha_em, m_D_hat, m_b) + pref_delta_mb3 * delta_mb3(s, alpha_s_mu_b, L_mu, mc_hat, inv_alpha_em, m_D_hat, m_b) + pref_delta_mc2 * delta_mc2(s, z, alpha_s_mu_b, L_mu, mc_hat, inv_alpha_em, m_D_hat, m_b) + pref_delta_brems * (delta_bremA(s) + delta_bremB(s, m_b)) + pref_delta_em * delta_em(s, L_l, L_b_5_GeV)) << ","
+           << W_7(s, alpha_s_mu_b, L_mu) << ","
+           << W_9(s, alpha_s_mu_b, L_mu, mc_hat, inv_alpha_em, m_D_hat, m_b) << ","
+           << W_10(s, alpha_s_mu_b) << ","
+           << W_79(s, alpha_s_mu_b, L_mu, mc_hat, inv_alpha_em, m_D_hat, m_b)
+           << "\n";
+        return res;
     };
+
+    double res = pref * integrate(f, s_hat_min, s_hat_max, 1e-3);
+    C7_new_base(0.19961, alpha_s_mu_b, L_mu, false);
     
-    return pref * integrate(f, s_hat_min, s_hat_max, 1e-3);
+    return res;
 }
 
 void BXsllDecay::build_op_tree() {
@@ -640,6 +778,7 @@ void BXsllDecay::build_op_tree() {
     // SM Parameters
     auto inv_alpha_em = std::make_shared<ParameterNode>(ParamId(ParameterType::SM, "SMINPUTS", 1));
     auto m_mu = std::make_shared<ParameterNode>(ParamId(ParameterType::SM, "MASS", 13));
+    auto m_tau = std::make_shared<ParameterNode>(ParamId(ParameterType::SM, "MASS", 15));
     auto m_c = std::make_shared<ParameterNode>(ParamId(ParameterType::SM, "MASS", 4));
     auto m_b_1S = std::make_shared<ParameterNode>(ParamId(ParameterType::SM, "QCD", LhaID(5, 3)));
 
@@ -649,7 +788,7 @@ void BXsllDecay::build_op_tree() {
     auto V_cs = std::make_shared<ParameterNode>(ParamId(ParameterType::SM, "VCKM", LhaID(1, 1)));
 
     // Flavor parameters
-    auto m_D = std::make_shared<ParameterNode>(ParamId(ParameterType::FLAVOR, "FMASS", 421));
+    auto m_D = std::make_shared<ParameterNode>(ParamId(ParameterType::FLAVOR, "FMASS", 411));
 
     // Wilson node
     auto wilson = this->get_wilson_node();
@@ -657,12 +796,15 @@ void BXsllDecay::build_op_tree() {
 
     // Misc experimental input
     auto BR_B_Xclnu = std::make_shared<ParameterNode>(ParamId(ParameterType::DECAY, "B_Xsll", 1));
+    auto lambda_1 = std::make_shared<ParameterNode>(ParamId(ParameterType::DECAY, "B_Xsll", 2)); 
     auto lambda_2 = std::make_shared<ParameterNode>(ParamId(ParameterType::DECAY, "B_Xsll", 3)); 
     auto rho_1 = std::make_shared<ParameterNode>(ParamId(ParameterType::DECAY, "B_Xsll", 4)); 
     
     // Operator nodes
-    auto m_l_hat = std::make_shared<OperatorNode>("m_l_hat", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return m_hat(values[0], values[1]); });
-    m_l_hat->addChildren({m_mu, m_b_1S});
+    auto m_mu_hat = std::make_shared<OperatorNode>("m_mu_hat", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return m_hat(values[0], values[1]); });
+    m_mu_hat->addChildren({m_mu, m_b_1S});
+    auto m_tau_hat = std::make_shared<OperatorNode>("m_tau_hat", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return m_hat(values[0], values[1]); });
+    m_tau_hat->addChildren({m_tau, m_b_1S});
     auto m_c_hat = std::make_shared<OperatorNode>("m_c_hat", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return m_hat(values[0], values[1]); });
     m_c_hat->addChildren({m_c, m_b_1S});
     auto m_D_hat = std::make_shared<OperatorNode>("m_D_hat", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return m_hat(values[0], values[1]); });
@@ -673,8 +815,10 @@ void BXsllDecay::build_op_tree() {
     L_b->addChildren({mu_b, m_b_1S});
     auto L_b_5GeV = std::make_shared<OperatorNode>("L_b_5GeV", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return log(values[0] / 5.); });
     L_b_5GeV->addChildren({mu_b});
-    auto L_l = std::make_shared<OperatorNode>("L_l", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return -2. * log(values[0]); });
-    L_l->addChildren({m_l_hat});
+    auto L_l_mu = std::make_shared<OperatorNode>("L_l_mu", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return -2. * log(values[0]); });
+    L_l_mu->addChildren({m_mu_hat});
+    auto L_l_tau = std::make_shared<OperatorNode>("L_l_tau", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return -2. * log(values[0]); });
+    L_l_tau->addChildren({m_tau_hat});
     auto alpha_s_mu_b = std::make_shared<OperatorNode>("alpha_s(mu_b)", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return alpha_s(values[0]); });
     alpha_s_mu_b->addChildren({mu_b});
     auto f_z = std::make_shared<OperatorNode>("f", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return f(values[0]); });
@@ -734,29 +878,29 @@ void BXsllDecay::build_op_tree() {
     });
     n_f_29_lookup->addChildren({L_b, z});
 
-    auto n_C7_new_lookup = std::make_shared<OperatorNode>("C7_new_lookup", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { 
-        auto bound_func = std::bind(&BXsllDecay::C7_new_base, &*this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4);
-        fill_cache(bound_func, C7_new_lookup, values[0], values[1], false); 
-        fill_cache(bound_func, CP7_new_lookup, values[0], values[1], true); 
-        return 0; 
-    });
-    n_C7_new_lookup->addChildren({L_b, m_c_hat, inv_alpha_em, m_D_hat, n_f_17_lookup, n_f_27_lookup, wilson_cache});
+    // auto n_C7_new_lookup = std::make_shared<OperatorNode>("C7_new_lookup", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { 
+    //     auto bound_func = std::bind(&BXsllDecay::C7_new_base, &*this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4);
+    //     fill_cache(bound_func, C7_new_lookup, values[0], values[1], false); 
+    //     fill_cache(bound_func, CP7_new_lookup, values[0], values[1], true); 
+    //     return 0; 
+    // });
+    // n_C7_new_lookup->addChildren({L_b, m_c_hat, inv_alpha_em, m_D_hat, n_f_17_lookup, n_f_27_lookup, wilson_cache});
 
-    auto n_C9_new_lookup = std::make_shared<OperatorNode>("C9_new_lookup", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { 
-        auto bound_func = std::bind(&BXsllDecay::C9_new_base, &*this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, std::placeholders::_6, std::placeholders::_7, std::placeholders::_8);
-        fill_cache(bound_func, C9_new_lookup, values[0], values[1], values[2], values[3], values[4], values[5], false); 
-        fill_cache(bound_func, CP9_new_lookup, values[0], values[1], values[2], values[3], values[4], values[5], true); 
-        return 0; 
-    });
-    n_C9_new_lookup->addChildren({alpha_s_mu_b, L_b, m_c_hat, inv_alpha_em, m_D_hat, m_b_1S, n_f_19_lookup, n_f_29_lookup, wilson_cache});
+    // auto n_C9_new_lookup = std::make_shared<OperatorNode>("C9_new_lookup", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { 
+    //     auto bound_func = std::bind(&BXsllDecay::C9_new_base, &*this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, std::placeholders::_6, std::placeholders::_7, std::placeholders::_8);
+    //     fill_cache(bound_func, C9_new_lookup, values[0], values[1], values[2], values[3], values[4], values[5], false); 
+    //     fill_cache(bound_func, CP9_new_lookup, values[0], values[1], values[2], values[3], values[4], values[5], true); 
+    //     return 0; 
+    // });
+    // n_C9_new_lookup->addChildren({alpha_s_mu_b, L_b, m_c_hat, inv_alpha_em, m_D_hat, m_b_1S, n_f_19_lookup, n_f_29_lookup, wilson_cache});
 
-    auto n_C10_new_lookup = std::make_shared<OperatorNode>("C10_new_lookup", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { 
-        auto bound_func = std::bind(&BXsllDecay::C10_new_base, &*this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
-        fill_cache(bound_func, C10_new_lookup, values[0], false); 
-        fill_cache(bound_func, CP10_new_lookup, values[0], true); 
-        return 0; 
-    });
-    n_C10_new_lookup->addChildren({alpha_s_mu_b, wilson_cache});
+    // auto n_C10_new_lookup = std::make_shared<OperatorNode>("C10_new_lookup", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { 
+    //     auto bound_func = std::bind(&BXsllDecay::C10_new_base, &*this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
+    //     fill_cache(bound_func, C10_new_lookup, values[0], false); 
+    //     fill_cache(bound_func, CP10_new_lookup, values[0], true); 
+    //     return 0; 
+    // });
+    // n_C10_new_lookup->addChildren({alpha_s_mu_b, wilson_cache});
 
     auto n_delta_brems_B_lookup = std::make_shared<OperatorNode>("delta_brems_B_lookup", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { 
         auto bound_func = std::bind(&BXsllDecay::delta_bremB_base, &*this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4);
@@ -776,17 +920,20 @@ void BXsllDecay::build_op_tree() {
     n_pref_delta_mb2->addChildren({lambda_2, m_b_1S, V_tb});
     auto n_pref_delta_mb3 = std::make_shared<OperatorNode>("pref_delta_mb3", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return pref_delta_mb3(values[0], values[1], values[2]); });
     n_pref_delta_mb3->addChildren({rho_1, m_b_1S, V_tb});
-    auto n_pref_delta_mc2 = std::make_shared<OperatorNode>("pref_delta_mc2", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return pref_delta_mc2(values[0], values[1], values[2], values[3], values[4]); });
-    n_pref_delta_mc2->addChildren({lambda_2, m_c, V_tb, V_cb, V_cs});
+    auto n_pref_delta_mc2 = std::make_shared<OperatorNode>("pref_delta_mc2", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return pref_delta_mc2(values[0], values[1], values[2], values[3], values[4], values[5]); });
+    n_pref_delta_mc2->addChildren({lambda_2, m_c, V_tb, V_ts, V_cb, V_cs});
     auto n_pref_delta_brems = std::make_shared<OperatorNode>("pref_delta_brems", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return pref_delta_brems(values[0]); });
     n_pref_delta_brems->addChildren({alpha_s_mu_b});
     auto n_pref_delta_em = std::make_shared<OperatorNode>("pref_delta_em", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return pref_delta_em(values[0]); });
     n_pref_delta_em->addChildren({inv_alpha_em});
-    auto br_low = std::make_shared<OperatorNode>("BR(B>X_sll)_low_q2", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return BR_B_Xsll(q2_low_bound.first, q2_low_bound.second, values[0], values[1], values[2], values[3], values[4], values[5], values[6], values[7], values[8], values[9], values[10], values[11], values[12]); });
-    br_low->addChildren({m_b_1S, n_pref, m_l_hat, alpha_s_mu_b, z, L_l, L_b_5GeV, n_pref_dB0_ds, n_pref_delta_mb2, n_pref_delta_mb3, n_pref_delta_mc2, n_pref_delta_brems, n_pref_delta_em, C9_eff_lookup, n_C7_new_lookup, n_C9_new_lookup, n_C10_new_lookup, wilson_cache, n_delta_brems_B_lookup});
-    auto br_high = std::make_shared<OperatorNode>("BR(B>X_sll)_high_q2", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return BR_B_Xsll(q2_high_bound.first, q2_high_bound.second, values[0], values[1], values[2], values[3], values[4], values[5], values[6], values[7], values[8], values[9], values[10], values[11], values[12]); });
-    br_high->addChildren({m_b_1S, n_pref, m_l_hat, alpha_s_mu_b, z, L_l, L_b_5GeV, n_pref_dB0_ds, n_pref_delta_mb2, n_pref_delta_mb3, n_pref_delta_mc2, n_pref_delta_brems, n_pref_delta_em, C9_eff_lookup, n_C7_new_lookup, n_C9_new_lookup, n_C10_new_lookup, wilson_cache, n_delta_brems_B_lookup});
+    auto br_low_mu = std::make_shared<OperatorNode>("BR(B>X_sll)_low_q2", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return BR_B_Xsll(q2_low_bound.first, q2_low_bound.second, values[0], values[1], values[2], values[3], values[4], values[5], values[6], values[7], values[8], values[9], values[10], values[11], values[12], values[13], values[14], values[15], values[16]); });
+    br_low_mu->addChildren({m_b_1S, n_pref, m_mu_hat, alpha_s_mu_b, z, L_l_mu, L_b_5GeV, n_pref_dB0_ds, n_pref_delta_mb2, n_pref_delta_mb3, n_pref_delta_mc2, n_pref_delta_brems, n_pref_delta_em, L_b, m_c_hat, inv_alpha_em, m_D_hat, C9_eff_lookup, wilson_cache, n_delta_brems_B_lookup, n_f_17_lookup, n_f_19_lookup, n_f_27_lookup, n_f_29_lookup});
+    auto br_high_mu = std::make_shared<OperatorNode>("BR(B>X_sll)_high_q2", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return BR_B_Xsll(q2_high_bound.first, q2_high_bound.second, values[0], values[1], values[2], values[3], values[4], values[5], values[6], values[7], values[8], values[9], values[10], values[11], values[12], values[13], values[14], values[15], values[16]); });
+    br_high_mu->addChildren({m_b_1S, n_pref, m_mu_hat, alpha_s_mu_b, z, L_l_mu, L_b_5GeV, n_pref_dB0_ds, n_pref_delta_mb2, n_pref_delta_mb3, n_pref_delta_mc2, n_pref_delta_brems, n_pref_delta_em, L_b, m_c_hat, inv_alpha_em, m_D_hat, C9_eff_lookup, wilson_cache, n_delta_brems_B_lookup, n_f_17_lookup, n_f_19_lookup, n_f_27_lookup, n_f_29_lookup});
+    auto br_high_tau = std::make_shared<OperatorNode>("BR(B>X_sll)_high_q2", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return BR_B_Xsll(q2_high_bound.first, q2_high_bound.second, values[0], values[1], values[2], values[3], values[4], values[5], values[6], values[7], values[8], values[9], values[10], values[11], values[12], values[13], values[14], values[15], values[16]); });
+    br_high_tau->addChildren({m_b_1S, n_pref, m_tau_hat, alpha_s_mu_b, z, L_l_tau, L_b_5GeV, n_pref_dB0_ds, n_pref_delta_mb2, n_pref_delta_mb3, n_pref_delta_mc2, n_pref_delta_brems, n_pref_delta_em, L_b, m_c_hat, inv_alpha_em, m_D_hat, C9_eff_lookup, wilson_cache, n_delta_brems_B_lookup, n_f_17_lookup, n_f_19_lookup, n_f_27_lookup, n_f_29_lookup});
 
-    roots.emplace(Observables::BR_B__Xs_l_l__LOW_Q2, br_low);
-    roots.emplace(Observables::BR_B__Xs_l_l__HIGH_Q2, br_high);
+    roots.emplace(Observables::BR_B__Xs_mu_mu__LOW_Q2, br_low_mu);
+    roots.emplace(Observables::BR_B__Xs_mu_mu__HIGH_Q2, br_high_mu);
+    roots.emplace(Observables::BR_B__Xs_tau_tau__HIGH_Q2, br_high_tau);
 }

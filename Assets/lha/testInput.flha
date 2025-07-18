@@ -5,17 +5,17 @@ Block FCINFO  # Program information
 Block SMINPUTS # Standard Model inputs
     1   1.27934000e+02  # alpha_em^(-1)
     2   1.16637000e-05  # G_Fermi
-    3   1.17200e-01  # alpha_s(M_Z)
-    4   9.11876000e+01  # m_{Z}(pole)
+    3   1.18000e-01  # alpha_s(M_Z)
+    4   9.1188000e+01  # m_{Z}(pole)
     5   4.180000000e+00  # m_{b}(m_{b})
     6   1.72500000e+02  # m_{top}(pole)
     7   1.7768600000e+00  # m_{tau}(pole)
 
 Block VCKMIN
-    1   0.225  # lambda
+    1   0.22501  # lambda
     2   0.826   # A
-    3   0.159   # rho
-    4   0.348   # eta
+    3   0.1591   # rho
+    4   0.3523   # eta
 
 Block UPMNSIN
     1   0.5831  # t_12

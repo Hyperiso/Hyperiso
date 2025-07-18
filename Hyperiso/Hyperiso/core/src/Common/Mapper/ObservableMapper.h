@@ -25,8 +25,9 @@ public:
             {Observables::P_TAU_B__DSTAR_TAU_NU, "P_tau_B__D*_tau_nu"},
             {Observables::P_D_B__DSTAR_TAU_NU, "P_D*_B__D*_tau_nu"},
             {Observables::R_DSTAR, "R_D*"},
-            {Observables::BR_B__Xs_l_l__LOW_Q2, "BR_B__Xs_l_l__[1-6]"},
-            {Observables::BR_B__Xs_l_l__HIGH_Q2, "BR_B__Xs_l_l__[>14.4]"},
+            {Observables::BR_B__Xs_mu_mu__LOW_Q2, "BR_B__Xs_mu_mu__[1-6]"},
+            {Observables::BR_B__Xs_mu_mu__HIGH_Q2, "BR_B__Xs_mu_mu__[>14.4]"},
+            {Observables::BR_B__Xs_tau_tau__HIGH_Q2, "BR_B__Xs_tau_tau__[>14.4]"},
         };
         return m;
     }

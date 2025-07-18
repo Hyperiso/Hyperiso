@@ -634,7 +634,7 @@ const std::map<Observables, std::unordered_set<ParamId>> DependenciesHelper::dep
         ParamId{ParameterType::DECAY, "B_Dslnu", 3},
         ParamId{ParameterType::DECAY, "B_Dslnu", 4},
     }},
-    {Observables::BR_B__Xs_l_l__LOW_Q2, {
+    {Observables::BR_B__Xs_mu_mu__LOW_Q2, {
         ParamId{ParameterType::SM, "SMINPUTS", 1},
         ParamId{ParameterType::SM, "SMINPUTS", 3},
         ParamId{ParameterType::SM, "SMINPUTS", 4},
@@ -655,7 +655,28 @@ const std::map<Observables, std::unordered_set<ParamId>> DependenciesHelper::dep
         ParamId{ParameterType::SM, "VCKM", LhaID(1, 1)},
         ParamId{ParameterType::SM, "VCKM", LhaID(1, 2)},
     }},
-    {Observables::BR_B__Xs_l_l__HIGH_Q2, {
+    {Observables::BR_B__Xs_mu_mu__HIGH_Q2, {
+        ParamId{ParameterType::SM, "SMINPUTS", 1},
+        ParamId{ParameterType::SM, "SMINPUTS", 3},
+        ParamId{ParameterType::SM, "SMINPUTS", 4},
+        ParamId{ParameterType::SM, "SMINPUTS", 5},
+        ParamId{ParameterType::SM, "SMINPUTS", 6},
+        ParamId{ParameterType::SM, "MASS", 1},
+        ParamId{ParameterType::SM, "MASS", 2},
+        ParamId{ParameterType::SM, "MASS", 3},
+        ParamId{ParameterType::SM, "MASS", 4},
+        ParamId{ParameterType::SM, "MASS", 13},
+        ParamId{ParameterType::WILSON, "B_SCALE", 1},
+        ParamId{ParameterType::FLAVOR, "FMASS", 421},
+        ParamId{ParameterType::DECAY, "B_Xsll", 1},
+        ParamId{ParameterType::DECAY, "B_Xsll", 3},
+        ParamId{ParameterType::DECAY, "B_Xsll", 4},
+        ParamId{ParameterType::SM, "VCKM", LhaID(2, 1)},
+        ParamId{ParameterType::SM, "VCKM", LhaID(2, 2)},
+        ParamId{ParameterType::SM, "VCKM", LhaID(1, 1)},
+        ParamId{ParameterType::SM, "VCKM", LhaID(1, 2)},
+    }},
+    {Observables::BR_B__Xs_tau_tau__HIGH_Q2, {
         ParamId{ParameterType::SM, "SMINPUTS", 1},
         ParamId{ParameterType::SM, "SMINPUTS", 3},
         ParamId{ParameterType::SM, "SMINPUTS", 4},

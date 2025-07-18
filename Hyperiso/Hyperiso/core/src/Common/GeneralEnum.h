@@ -18,8 +18,9 @@ enum class Observables {
     P_TAU_B__DSTAR_TAU_NU,
     P_D_B__DSTAR_TAU_NU,
     R_DSTAR,
-    BR_B__Xs_l_l__LOW_Q2,
-    BR_B__Xs_l_l__HIGH_Q2,
+    BR_B__Xs_mu_mu__LOW_Q2,
+    BR_B__Xs_mu_mu__HIGH_Q2,
+    BR_B__Xs_tau_tau__HIGH_Q2,
 };
 
 enum class Decays {

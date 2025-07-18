@@ -375,32 +375,32 @@
       
   "B_Ks": {
     "1": {
-      "central_value": 0.10,
+      "central_value": 0.04,
       "stat_error": 0.07,
       "syst_error": 0
     },
     "2": {
-      "central_value": 0.13,
+      "central_value": 0.10,
       "stat_error": 0.08,
       "syst_error": 0
     },
     "3": {
-      "central_value": 0.10,
+      "central_value": 0.06,
       "stat_error": 0.07,
       "syst_error": 0
     },
     "4": {
-      "central_value": 0.09,
+      "central_value": 0.16,
       "stat_error": 0.05,
       "syst_error": 0
     },
     "5": {
-      "central_value": 0.013,
+      "central_value": 0.032,
       "stat_error": 0,
       "syst_error": 0
     },
     "6": {
-      "central_value": 0.032,
+      "central_value": 0.013,
       "stat_error": 0,
       "syst_error": 0
     },
@@ -443,7 +443,7 @@
       
   "B_ll": {
     "1": {
-      "central_value": 0.088,
+      "central_value": 0.0635,
       "stat_error": 0.014,
       "syst_error": 0
     }
@@ -517,12 +517,12 @@
   
   "B_Dslnu": {
     "1": {
-      "central_value": 0.908,
+      "central_value": 0.921,
       "stat_error": 0.017,
       "syst_error": 0
     },
     "2": {
-      "central_value": 1.207,
+      "central_value": 1.214,
       "stat_error": 0.026,
       "syst_error": 0
     },
@@ -532,7 +532,7 @@
       "syst_error": 0
     },
     "4": {
-      "central_value": 0.854,
+      "central_value": 0.864,
       "stat_error": 0.020,
       "syst_error": 0
     }
@@ -545,17 +545,17 @@
       "syst_error": 0
     },
     "2": {
-      "central_value": -0.314,
+      "central_value": -0.15,
       "stat_error": 0.056,
       "syst_error": 0
     },
     "3": {
-      "central_value": 0.111,
+      "central_value": 0.12,
       "stat_error": 0.018,
       "syst_error": 0
     },
     "4": {
-      "central_value": 0.08,
+      "central_value": 0.06,
       "stat_error": 0.031,
       "syst_error": 0
     }
