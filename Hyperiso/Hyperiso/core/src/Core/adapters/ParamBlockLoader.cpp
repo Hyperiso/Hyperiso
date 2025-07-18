@@ -45,4 +45,18 @@ void ParamBlockLoader::load(std::shared_ptr<BlockAccessor> dest, fs::path src_fi
 void ParamBlockLoader::save(fs::path dest_file, std::shared_ptr<BlockAccessor> src){
     LOG_INFO("Saving blocks to ", dest_file.string());
 
+    auto db_manager = std::make_shared<DBManager>();
+    auto nd = std::make_shared<Node>();
+    auto block_names = src->get_block_names();
+
+    for (const auto &block_name : block_names) {
+        auto block = src->at(block_name);
+        auto block_ids = getAllIDs();
+
+        for (const auto &id : block_ids) {
+
+        }
+
+        db_manager->write_to_file(dest_file, nd);
+    }
 }
