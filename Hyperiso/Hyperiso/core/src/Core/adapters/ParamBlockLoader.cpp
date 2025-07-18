@@ -41,3 +41,8 @@ void ParamBlockLoader::load(std::shared_ptr<BlockAccessor> dest, fs::path src_fi
 
     LOG_INFO("Parameter blocks loaded");
 }
+
+void ParamBlockLoader::save(fs::path dest_file, std::shared_ptr<BlockAccessor> src){
+    LOG_INFO("Saving blocks to ", dest_file.string());
+
+}

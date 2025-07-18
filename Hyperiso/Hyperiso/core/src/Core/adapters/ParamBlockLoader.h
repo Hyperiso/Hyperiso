@@ -27,6 +27,12 @@ public:
      * @param src_file Path to the source file.
      */
     void load(std::shared_ptr<BlockAccessor> dest, fs::path src_file) override;
+    /**
+     * @brief Loads parameter blocks from a BlockAccessor to a file.
+     * @param dest_file Path to the destination file.
+     * @param src Shared pointer to the source BlockAccessor.
+     */
+    void save(fs::path dest_file, std::shared_ptr<BlockAccessor> src) overide;
 };
 
 #endif // BLOCKSCREATOR_H
