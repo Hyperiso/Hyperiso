@@ -67,6 +67,14 @@ public:
     virtual void load(std::shared_ptr<T> dest, fs::path src_file) = 0;
 
     /**
+     * @brief Retreive block data and save it in the database
+     * @param dest_file Path to the destination file where data will be saved.
+     * @param src Shared pointer to the source object containing data to save.
+     * 
+     */
+    virtual void save(fs::path dest_file, std::shared_ptr<T> src);
+
+    /**
      * @brief Virtual destructor.
      */
     virtual ~IDataLoader() = default;
