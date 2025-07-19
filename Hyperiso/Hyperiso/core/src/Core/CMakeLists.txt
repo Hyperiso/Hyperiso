@@ -65,7 +65,7 @@ target_include_directories(CoreLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/domain)
 target_include_directories(CoreLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/infrastructure)
 target_include_directories(CoreLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/ports)
 
-target_link_libraries(CoreLib PUBLIC CommonLib DataBaseLib ConfiguredModule ExternalIntegrationLib MathLib)
+target_link_libraries(CoreLib PUBLIC CommonLib DataBaseLib ConfiguredModule ExternalIntegrationLib MathLib pthread)
 
 if (${ENABLE_WARNINGS})
     target_set_warnings(CoreLib
@@ -73,8 +73,11 @@ if (${ENABLE_WARNINGS})
                         ${ENABLE_WARNINGS_AS_ERRORS})
 endif()
 
-add_executable(TEST_CORE app/main_core.cpp)
-target_link_libraries(TEST_CORE CoreLib)
+# add_executable(TEST_CORE app/main_core.cpp)
+# target_link_libraries(TEST_CORE CoreLib)
+
+add_executable(TEST_PARAM_BLOCKS_LOADER app/main_param_loader.cpp)
+target_link_libraries(TEST_PARAM_BLOCKS_LOADER CoreLib pthread)
 
 # add_executable(TEST main_parameters.cpp)
 # target_link_libraries(TEST CoreLib)
