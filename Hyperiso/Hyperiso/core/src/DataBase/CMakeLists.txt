@@ -45,4 +45,4 @@ target_link_libraries(DataBaseLib PUBLIC PandasLib CommonLib)
 
 add_executable(TEST_PARSER app/main_parser.cpp)
 
-target_link_libraries(TEST_PARSER DataBaseLib)
+target_link_libraries(TEST_PARSER DataBaseLib pthread)

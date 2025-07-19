@@ -1,9 +1,10 @@
 #include "ParamBlockLoader.h"
+#include "IDataLoader.h"
 
 int main(){
 
     ParamBlockLoader loader;
-    ba = std::make_shared<BlockAccessor>();
+    auto ba = std::make_shared<BlockAccessor>();
     loader.load(ba,"Assets/default/lha/testInput.flha");
     LOG_INFO("Loaded blocks:", ba->size());
     loader.save("Assets/default/lha/testOutput.flha", ba);

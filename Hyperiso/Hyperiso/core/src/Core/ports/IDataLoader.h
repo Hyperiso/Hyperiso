@@ -72,7 +72,7 @@ public:
      * @param src Shared pointer to the source object containing data to save.
      * 
      */
-    virtual void save(fs::path dest_file, std::shared_ptr<T> src);
+    virtual void save(fs::path dest_file, std::shared_ptr<T> src) = 0;
 
     /**
      * @brief Virtual destructor.
