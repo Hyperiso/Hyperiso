@@ -1,4 +1,6 @@
 #include "ParamBlockLoader.h"
+#include "IDataLoader.h"
+template class IDataLoader<BlockAccessor>;
 
 void ParamBlockLoader::load(std::shared_ptr<BlockAccessor> dest, fs::path src_file) {
     LOG_INFO("Loading parameter blocks from", src_file.string());
@@ -55,11 +57,9 @@ void ParamBlockLoader::save(fs::path dest_file, std::shared_ptr<BlockAccessor> s
         std::map<BlockName, Node::Value> block_data;
         for (const auto &[id, param] : items) {
             auto node_param = std::make_shared<Node>();
-            node_param->set(param->get_value(), "central_value");
-            node_param->set(param->get_stat_error(), "stat_error");
-            node_param->set(param->get_syst_error(), "syst_error");
+                node_param->set(param->get_val(), "central_value");
 
-            block_data[id.str()] = node_param;
+            block_data[id.to_string()] = node_param;
         }
         node->setGroup({block_name}, block_data);
     }
