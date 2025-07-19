@@ -55,9 +55,9 @@ void ParamBlockLoader::save(fs::path dest_file, std::shared_ptr<BlockAccessor> s
         std::map<BlockName, Node::Value> block_data;
         for (const auto &[id, param] : items) {
             auto node_param = std::make_shared<Node>();
-            param_node->set(param->get_value(), "central_value");
-            param_node->set(param->get_stat_error(), "stat_error");
-            param_node->set(param->get_syst_error(), "syst_error");
+            node_param->set(param->get_value(), "central_value");
+            node_param->set(param->get_stat_error(), "stat_error");
+            node_param->set(param->get_syst_error(), "syst_error");
 
             block_data[id.str()] = node_param;
         }
