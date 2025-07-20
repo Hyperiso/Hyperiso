@@ -62,6 +62,11 @@ void ParamBlockLoader::save(fs::path dest_file, std::shared_ptr<BlockAccessor> s
             block_data[id.to_string()] = node_param;
         }
         node->setGroup({block_name}, block_data);
+        LOG_INFO("Saving block_name", block_name);
+        LOG_INFO("Block size", block_data.size());
+        node->printJSON(2);
     }
-    db_manager->write_to_file(dest_file, node);
+    //LOG_INFO("Saving node", node->get_keys());
+
+    //db_manager->write_to_file(dest_file, node);
 }
