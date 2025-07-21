@@ -43,13 +43,10 @@ class PyWilsonRequest:
 
     def to_cpp(self) -> _CppWilsonRequest:
         """Converts the Python wrapper to a native C++ WilsonRequest object."""
-        cpp = _CppWilsonRequest()
-        cpp.group = self.group.value
-        cpp.coefficient = self.coefficient.value
-        cpp.order = self.order.value
-        cpp.contribution = self.contribution.value
-        cpp.scale_type = self.scale_type.value
-        cpp.sum_qcd_orders = self.sum_qcd_orders
+        cpp = _CppWilsonRequest(self.group.value, self.coefficient.value,
+                                self.order.value, self.contribution.value,
+                                self.scale_type.value, self.sum_qcd_orders)
+
         return cpp
 
     def to_matching_args(self):
@@ -94,10 +91,12 @@ class PyMassConfig(PyAlphasConfig):
 if __name__ == "__main__":
     py_alpha_config = PyAlphasConfig(scale=91.1876, m_b_type=MassType.POLE, m_t_type=MassType.MSBAR)
     py_mass_config = PyMassConfig(pdg_id=5, scale=91.1876, m_b_type=MassType.MSBAR, m_t_type=MassType.MSBAR)
-
+    py_wilson = PyWilsonRequest(WGroup.B, WCoeff.C7, QCDOrder.LO, ContributionType.SM, ScaleType.HADRONIC)
     print(py_alpha_config)
     print(py_mass_config)
+    print(py_wilson)
 
     cpp_alpha_config = py_alpha_config.to_cpp()
     cpp_mass_config = py_mass_config.to_cpp()
+    py_wilson.to_cpp()
     

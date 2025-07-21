@@ -40,7 +40,7 @@ class Scalar:
         Returns:
             float: Real component.
         """
-        return self._cpp_obj.real
+        return self._cpp_obj.real()
 
     def imag(self) -> float:
         """Returns the imaginary part.
@@ -48,7 +48,7 @@ class Scalar:
         Returns:
             float: Imaginary component.
         """
-        return self._cpp_obj.imag
+        return self._cpp_obj.imag()
 
     def to_double(self) -> float:
         """Casts to float (real part only, warns if imaginary part exists).

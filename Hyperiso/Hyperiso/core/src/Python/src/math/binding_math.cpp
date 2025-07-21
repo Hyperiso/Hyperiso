@@ -2,6 +2,7 @@
 #include <pybind11/stl.h>
 #include <pybind11/operators.h>
 #include <pybind11/complex.h>
+#include <pybind11/functional.h>
 #include "Math.h"
 
 
@@ -96,10 +97,11 @@ void init_math(py::module &m) {
 
     // Matrix.h
     py::module matrix = m.def_submodule("matrix");
-    matrix.def("getDiagonalElements", &getDiagonalElements<int>);
-    matrix.def("createIdentityMatrix", &createIdentityMatrix<int>);
-    matrix.def("getElement", &getElement<int>);
-    matrix.def("setElement", &setElement<int>);
-    matrix.def("invertMatrix", &invertMatrix<int>);
-    matrix.def("printMatrix", &printMatrix<int>);
+    py::class_<SparseMatrixWrapper<int>>(matrix, "SparseMatrix")
+    .def(py::init<>())
+    .def("get_element", &SparseMatrixWrapper<int>::getElement)
+    .def("set_element", &SparseMatrixWrapper<int>::setElement)
+    .def("get_diagonal_elements", &SparseMatrixWrapper<int>::getDiagonalElements)
+    .def("invert", &SparseMatrixWrapper<int>::invert)
+    .def("print", &SparseMatrixWrapper<int>::print);
 }

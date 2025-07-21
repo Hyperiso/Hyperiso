@@ -4,9 +4,9 @@ from pyhyperiso.core.Math.scalar import Scalar, sqrt, exp, sin, pow_scalar
 
 def test_scalar_creation():
     s = Scalar(1.5, -0.5)
+    print(s, s.real(), s.imag())
     assert s.real() == pytest.approx(1.5)
     assert s.imag() == pytest.approx(-0.5)
-
 
 def test_scalar_from_complex():
     z = complex(2, 3)

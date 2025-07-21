@@ -252,4 +252,35 @@ void customPrintMatrix(const SparseMatrix<T>& matrix, const std::vector<T>& indi
     }
 }
 
+template<typename T>
+class SparseMatrixWrapper {
+public:
+    SparseMatrix<T> matrix;
+
+    SparseMatrixWrapper() = default;
+
+    double getElement(T row, T col) const {
+        return ::getElement(matrix, row, col);
+    }
+
+    void setElement(T row, T col, double value) {
+        ::setElement(matrix, row, col, value);
+    }
+
+    std::vector<T> getDiagonalElements() const {
+        return ::getDiagonalElements(matrix);
+    }
+
+    void print(const std::vector<T>& indices) const {
+        ::printMatrix(matrix, indices);
+    }
+
+    SparseMatrixWrapper<T> invert(const std::vector<T>& indices) const {
+        SparseMatrixWrapper<T> result;
+        result.matrix = ::invertMatrix(matrix, indices);
+        return result;
+    }
+};
+
+
 #endif // __MATRIX_H__

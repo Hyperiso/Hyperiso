@@ -1,71 +1,32 @@
 from pyhyperiso.phyperiso.pyhyperiso import math as mb
 
-# Matrix functions
-matrix = mb.matrix
 
-def get_diagonal_elements(matrix_data):
-    """Extract diagonal indices from a sparse matrix.
+class SparseMatrix:
+    def __init__(self):
+        self._cpp_obj = mb.matrix.SparseMatrix()
 
-    Args:
-        matrix_data: Sparse matrix in dictionary form with (row, col) keys.
+    def set(self, row, col, val):
+        self._cpp_obj.set_element(row, col, val)
 
-    Returns:
-        List of diagonal indices.
-    """
-    return matrix.getDiagonalElements(matrix_data)
+    def get(self, row, col):
+        return self._cpp_obj.get_element(row, col)
 
-def create_identity_matrix(indices):
-    """Create a sparse identity matrix.
+    def print(self, indices):
+        self._cpp_obj.print(indices)
 
-    Args:
-        indices: List of row/column indices.
+    def invert(self, indices):
+        inv_cpp = self._cpp_obj.invert(indices)
+        inv = SparseMatrix()
+        inv._cpp_obj = inv_cpp
+        return inv
 
-    Returns:
-        Dictionary representing the sparse identity matrix.
-    """
-    return matrix.createIdentityMatrix(indices)
+    def diagonal(self):
+        return self._cpp_obj.get_diagonal_elements()
 
-def get_element(matrix_data, row, col):
-    """Get value at a specific matrix position.
+    def __getitem__(self, key):
+        row, col = key
+        return self.get(row, col)
 
-    Args:
-        matrix_data: Sparse matrix.
-        row: Row index.
-        col: Column index.
-
-    Returns:
-        Value at (row, col), or 0.0 if not present.
-    """
-    return matrix.getElement(matrix_data, row, col)
-
-def set_element(matrix_data, row, col, value):
-    """Set value in a sparse matrix.
-
-    Args:
-        matrix_data: Sparse matrix.
-        row: Row index.
-        col: Column index.
-        value: Value to set. If 0.0, the entry is removed.
-    """
-    matrix.setElement(matrix_data, row, col, value)
-
-def invert_matrix(matrix_data, indices):
-    """Invert a sparse matrix.
-
-    Args:
-        matrix_data: Sparse matrix.
-        indices: List of indices defining matrix order.
-
-    Returns:
-        Inverted sparse matrix.
-    """
-    return matrix.invertMatrix(matrix_data, indices)
-
-def print_matrix(matrix_data, indices):
-    """Print a sparse matrix as a dense 2D table.
-
-    Args:
-        matrix_data: Sparse matrix.
-        indices: List of row/column indices for ordering.
-    """
-    matrix.printMatrix(matrix_data, indices)
+    def __setitem__(self, key, value):
+        row, col = key
+        self.set(row, col, value)

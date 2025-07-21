@@ -1,5 +1,6 @@
 import pytest
 from pyhyperiso.core.Math.math import *
+from pyhyperiso.core.Math.scalar import Scalar
 import math
 import cmath
 
@@ -16,7 +17,7 @@ def test_Li3():
 
 def test_CLi2():
     z = complex(0.5, 0.5)
-    assert isinstance(CLi2(z), complex)
+    assert isinstance(CLi2(z), Scalar)
 
 def test_Cl2():
     assert math.isclose(Cl2(0), 0.0, abs_tol=1e-10)
@@ -32,8 +33,8 @@ def test_integrate():
     assert math.isclose(result, 1/3, rel_tol=1e-4)
 
 def test_c_integrate():
-    result = c_integrate(lambda x: complex(x, 0), 0, 1)
-    assert cmath.isclose(result, complex(0.5, 0), abs_tol=1e-4)
+    result = c_integrate(lambda x: Scalar(x, 0)._cpp_obj, 0, 1)
+    assert cmath.isclose(Scalar.from_cpp(result), Scalar(0.5, 0), abs_tol=1e-4)
 
 def test_psi():
     assert math.isclose(psi(1), -0.5772156649, rel_tol=1e-5)

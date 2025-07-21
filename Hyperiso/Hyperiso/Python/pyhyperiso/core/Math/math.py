@@ -3,7 +3,7 @@ Python wrapper for C++ bindings generated using Pybind11.
 Each function corresponds to a mathematical or numerical utility available in the C++ backend.
 """
 from pyhyperiso.phyperiso.pyhyperiso import math as mb
-
+from pyhyperiso.core.Math.scalar import Scalar
 # Math functions
 
 def Li2(x: float) -> float:
@@ -28,7 +28,7 @@ def Li3(x: float) -> float:
     """
     return mb.Li3(x)
 
-def CLi2(x: complex) -> complex:
+def CLi2(x: Scalar) -> complex:
     """Compute the complex dilogarithm function.
 
     Args:
@@ -37,7 +37,10 @@ def CLi2(x: complex) -> complex:
     Returns:
         Complex dilogarithm value.
     """
-    return mb.CLi2(x)
+    if type(x) == complex:
+        x = Scalar.from_complex(x)
+
+    return Scalar.from_cpp(mb.CLi2(x._cpp_obj))
 
 def Cl2(x: float) -> float:
     """Compute the Clausen function Cl2.
@@ -101,7 +104,7 @@ def integrate(f, l: float, u: float, prec: float = 1e-6) -> float:
     """
     return mb.integrate(f, l, u, prec)
 
-def c_integrate(f, l: float, u: float, prec: float = 1e-6) -> complex:
+def c_integrate(f, l: float, u: float, prec: float = 1e-6) -> Scalar:
     """Integrate a complex-valued function f over [l, u].
 
     Args:
@@ -113,7 +116,7 @@ def c_integrate(f, l: float, u: float, prec: float = 1e-6) -> complex:
     Returns:
         Complex integral value.
     """
-    return mb.c_integrate(f, l, u, prec)
+    return Scalar.from_cpp(mb.c_integrate(f, l, u, prec))
 
 def psi(n: int) -> float:
     """Compute the digamma function ψ(n) for integer input.

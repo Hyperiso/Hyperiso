@@ -28,7 +28,7 @@ def test_wilson_build_config_to_cpp():
 
 def test_wilson_request_to_cpp():
     request = PyWilsonRequest(
-        group=WGroup.BCLNU,
+        group=WGroup.B,
         coefficient=WCoeff.C9,
         order=QCDOrder.LO,
         contribution=ContributionType.BSM,
@@ -37,7 +37,7 @@ def test_wilson_request_to_cpp():
     )
 
     cpp_request = request.to_cpp()
-    assert cpp_request.group == WGroup.BCLNU.value
+    assert cpp_request.group == WGroup.B.value
     assert cpp_request.coefficient == WCoeff.C9.value
     assert cpp_request.order == QCDOrder.LO.value
     assert cpp_request.contribution == ContributionType.BSM.value
