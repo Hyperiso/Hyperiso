@@ -68,5 +68,5 @@ void ParamBlockLoader::save(fs::path dest_file, std::shared_ptr<BlockAccessor> s
     }
     //LOG_INFO("Saving node", node->get_keys());
 
-    //db_manager->write_to_file(dest_file, node);
+    db_manager->write_to_file(dest_file, node);
 }
