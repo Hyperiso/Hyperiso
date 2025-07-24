@@ -145,7 +145,15 @@ std::shared_ptr<Node> LhaParser::parse(const std::string &src) const {
 
 void LhaParser::writeToFile(const std::string &filename,
                             const std::shared_ptr<Node> &root) const {
-    // TODO                                
+    std::ofstream file(filename);
+    if (!file.is_open()) throw std::runtime_error("Unable to open file for writing");
+
+    for (const auto& [block_name, value] : root->getGroup(root->get_keys())) {
+        file << "Block " << block_name << "\n";
+        if (std::holds_alternative<std::shared_ptr<Node>>(value)) {
+            
+    }
+                                 
 }
 
 void LhaParser::set_prototypes(const std::unordered_set<Prototype> &prototypes)
