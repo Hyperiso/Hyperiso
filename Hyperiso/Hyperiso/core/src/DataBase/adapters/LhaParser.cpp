@@ -1,43 +1,5 @@
 #include "LhaParser.h"
 
-struct Visitor{
-    std::ostream& os;
-    std::string key;
-    
-
-    // std::variant<BlockName, int, double, bool, std::shared_ptr<Node>, std::vector<std::shared_ptr<Node>>>;
-
-    void operator()(const BlockName& blockName) const {
-        os << "Block" << "\t" << blockName.to_string() << "\n";
-    }
-
-    void operator()(int value) const {
-        os << key << "\t" << value << "\n";
-    }
-
-    void operator()(double value) const {
-        os << key << "\t" << value << "\n";
-    }
-
-    void operator()(bool value) const {
-        os << key << "\t" << (value ? "1" : "0") << "\n";
-    }
-
-    void operator()(const std::shared_ptr<Node>& node) const {
-        os << key << "\t" << "{\n";
-        node->printJSON(2);
-        os << "}\n";
-    }
-
-    void operator()(const std::vector<std::shared_ptr<Node>>& nodes) const {
-        os << key << "\t" << "[\n";
-        for (const auto& node : nodes) {
-            node->printJSON(2);
-        }
-        os << "]\n";
-    }
-};
-
 void LhaParser::addBlock(std::map<BlockName, std::shared_ptr<LhaBlock>>& blocks, const BlockName& id, const std::vector<std::vector<std::string>>& lines) const {
     auto block = std::make_shared<LhaBlock>(findPrototype(id));
     LOG_DEBUG(id);
@@ -181,18 +143,36 @@ std::shared_ptr<Node> LhaParser::parse(const std::string &src) const {
     return this->toDBNode(blocks);
 }
 
+void LhaParser::writeLhaBlock(std::ostream &os, const std::string &block_name, std::shared_ptr<Node> node) const {
+    os << "Block: " << block_name << "\n";
+
+    for (const auto& [key, value] : node->getGroup(node->get_keys())){
+        const auto& raw_value = node->get(key);
+
+    }
+
+}
+
+
+
 void LhaParser::writeToFile(const std::string &filename,
                             const std::shared_ptr<Node> &root) const {
     std::ofstream file(filename);
     if (!file.is_open()) throw std::runtime_error("Unable to open file for writing");
+    if (!root) throw std::runtime_error("Root node is null");
 
-    for (const auto& [key, value] : root->getGroup(root->get_keys())){
-        // std::variant<BlockName, int, double, bool, std::shared_ptr<Node>, std::vector<std::shared_ptr<Node>>>;
-        std::visit(Visitor{file, key.to_string()}, value);
-    }
+    LOG_INFO("Writing LHA file to ", filename);
+    for (const auto& block_key : root->get_keys()) {
+        const auto& block_value = root->get(block_key);
+        const auto* block = std::get_if<std::shared_ptr<Node>>(&block_value);
+        if (block && *block) {
+            writeLhaBlock(file, block_key.to_string(), *block);
+        }
+
+    
     file.close();
-    LOG_INFO("LHA file written to ", filename);
-                                 
+    LOG_INFO("LHA file written to ", filename);                             
+    }
 }
 
 void LhaParser::set_prototypes(const std::unordered_set<Prototype> &prototypes)
