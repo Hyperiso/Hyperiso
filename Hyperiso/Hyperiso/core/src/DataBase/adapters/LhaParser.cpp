@@ -3,11 +3,40 @@
 struct Visitor{
     std::ostream& os;
     std::string key;
+    
+
+    // std::variant<BlockName, int, double, bool, std::shared_ptr<Node>, std::vector<std::shared_ptr<Node>>>;
 
     void operator()(const BlockName& blockName) const {
-        os << key << "\t" << blockName.to_string() << "\n";
+        os << "Block" << "\t" << blockName.to_string() << "\n";
     }
-}
+
+    void operator()(int value) const {
+        os << key << "\t" << value << "\n";
+    }
+
+    void operator()(double value) const {
+        os << key << "\t" << value << "\n";
+    }
+
+    void operator()(bool value) const {
+        os << key << "\t" << (value ? "1" : "0") << "\n";
+    }
+
+    void operator()(const std::shared_ptr<Node>& node) const {
+        os << key << "\t" << "{\n";
+        node->printJSON(2);
+        os << "}\n";
+    }
+
+    void operator()(const std::vector<std::shared_ptr<Node>>& nodes) const {
+        os << key << "\t" << "[\n";
+        for (const auto& node : nodes) {
+            node->printJSON(2);
+        }
+        os << "]\n";
+    }
+};
 
 void LhaParser::addBlock(std::map<BlockName, std::shared_ptr<LhaBlock>>& blocks, const BlockName& id, const std::vector<std::vector<std::string>>& lines) const {
     auto block = std::make_shared<LhaBlock>(findPrototype(id));
@@ -157,10 +186,12 @@ void LhaParser::writeToFile(const std::string &filename,
     std::ofstream file(filename);
     if (!file.is_open()) throw std::runtime_error("Unable to open file for writing");
 
-    for (const auto& [key, value] : root->get_group(root->get_keys())){
+    for (const auto& [key, value] : root->getGroup(root->get_keys())){
         // std::variant<BlockName, int, double, bool, std::shared_ptr<Node>, std::vector<std::shared_ptr<Node>>>;
         std::visit(Visitor{file, key.to_string()}, value);
     }
+    file.close();
+    LOG_INFO("LHA file written to ", filename);
                                  
 }
 
