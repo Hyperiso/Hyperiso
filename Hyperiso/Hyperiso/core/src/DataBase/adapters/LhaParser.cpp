@@ -144,14 +144,31 @@ std::shared_ptr<Node> LhaParser::parse(const std::string &src) const {
 }
 
 void LhaParser::writeLhaBlock(std::ostream &os, const std::string &block_name, std::shared_ptr<Node> node) const {
-    os << "Block: " << block_name << "\n";
+    os << "Block" << "\t" << block_name << "\n";
 
-    for (const auto& [key, value] : node->getGroup(node->get_keys())){
-        const auto& raw_value = node->get(key);
+    for (const auto& key : node->get_keys()) {
+        const auto& value = node->get(key);
+        if (std::holds_alternative<std::shared_ptr<Node>>(value)) {
+            LOG_INFO("type is shared_ptr<Node>");
+            writeLhaBlock(os, key.to_string(), std::get<std::shared_ptr<Node>>(value));
+        }
+        if (std::holds_alternative<int>(value)){
+            LOG_INFO("type is int");
+        }
+        if (std::holds_alternative<double>(value)){
+            LOG_INFO("type is double");
+            os << "\t" << key.to_string() << "\t" << std::get<double>(value) << "\n";
+        }
+        if (std::holds_alternative<bool>(value)){
+            LOG_INFO("type is bool");
+        }    
 
-    }
+        }
 
+    os << "\n"; // saut de ligne entre blocs
 }
+
+
 
 
 
@@ -170,7 +187,7 @@ void LhaParser::writeToFile(const std::string &filename,
         }
 
     
-    file.close();
+    //file.close();
     LOG_INFO("LHA file written to ", filename);                             
     }
 }
