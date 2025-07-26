@@ -143,6 +143,34 @@ std::shared_ptr<Node> LhaParser::parse(const std::string &src) const {
     return this->toDBNode(blocks);
 }
 
+void LhaParser::writeUnderscoreKeyLine(std::ostream &os, const std::string &key_str, const Node::Value &value) const {
+    std::vector<std::string> parts;
+    std::stringstream ss(key_str);
+    std::string item;
+    while (std::getline(ss, item, '_')) {
+        parts.push_back(item);
+    }
+
+    os << "\t";
+    for (const auto &part : parts) {
+        os << part << "\t";
+    }
+
+    if (std::holds_alternative<int>(value)) {
+        os << std::get<int>(value);
+    } else if (std::holds_alternative<double>(value)) {
+        std::ostringstream oss;
+        oss << std::scientific << std::uppercase << std::setprecision(3)
+            << std::get<double>(value);
+        os << oss.str();
+    } else if (std::holds_alternative<bool>(value)) {
+        os << (std::get<bool>(value) ? "1" : "0");
+    }
+
+    os << "\n";
+}
+
+
 void LhaParser::writeLhaBlock(std::ostream &os, const std::string &block_name, std::shared_ptr<Node> node) const {
     os << "Block" << "\t" << block_name << "\n";
     //LOG_INFO("Writing block", block_name, "to LHA format");
@@ -152,17 +180,8 @@ void LhaParser::writeLhaBlock(std::ostream &os, const std::string &block_name, s
         const std::string key_str = key.to_string();
         if (key_str.find('_') != std::string::npos) {
             LOG_INFO("underscore key:", key_str);
-            std::vector<std::string> parts;
-            std::stringstream ss(key_str);
-            std::string item;
-            while (std::getline(ss, item, '_')) {
-                parts.push_back(item);
-            }
-            LOG_INFO("split parts for key:", key_str);
-            for (const auto& p : parts) {
-                LOG_INFO("part:", p);
-            }
-            
+            writeUnderscoreKeyLine(os, key_str, node->get(key));
+            continue;  // skip other output formats to avoid duplication
         }
 
 
