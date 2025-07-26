@@ -112,6 +112,9 @@ public:
      */
     void writeToFile(const std::string& filename, const std::shared_ptr<Node>& root) const;
 
+    void writeLhaBlock(std::ostream &os, const std::string &block_name, std::shared_ptr<Node> node) const;
+
+
     void set_prototypes(const std::unordered_set<Prototype>& prototypes);
 };
 
