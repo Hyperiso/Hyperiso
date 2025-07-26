@@ -145,22 +145,58 @@ std::shared_ptr<Node> LhaParser::parse(const std::string &src) const {
 
 void LhaParser::writeLhaBlock(std::ostream &os, const std::string &block_name, std::shared_ptr<Node> node) const {
     os << "Block" << "\t" << block_name << "\n";
-
+    //LOG_INFO("Writing block", block_name, "to LHA format");
     for (const auto& key : node->get_keys()) {
+
+        //to understand what we have to parse 
+        const std::string key_str = key.to_string();
+        if (key_str.find('_') != std::string::npos) {
+            LOG_INFO("underscore key:", key_str);
+            std::vector<std::string> parts;
+            std::stringstream ss(key_str);
+            std::string item;
+            while (std::getline(ss, item, '_')) {
+                parts.push_back(item);
+            }
+            LOG_INFO("split parts for key:", key_str);
+            for (const auto& p : parts) {
+                LOG_INFO("part:", p);
+            }
+            
+        }
+
+
         const auto& value = node->get(key);
         if (std::holds_alternative<std::shared_ptr<Node>>(value)) {
-            LOG_INFO("type is shared_ptr<Node>");
-            writeLhaBlock(os, key.to_string(), std::get<std::shared_ptr<Node>>(value));
+            //LOG_INFO("type is shared_ptr<Node>");
+
+            const auto& sub_node = std::get<std::shared_ptr<Node>>(value);
+            for (const auto& sub_key : sub_node->get_keys()) {
+                const auto& sub_value = sub_node->get(sub_key);
+
+                if (std::holds_alternative<int>(sub_value)) {
+                    os << "\t" << std::get<int>(sub_value);
+                } else if (std::holds_alternative<double>(sub_value)) {
+                    std::ostringstream oss;
+                    oss << std::scientific << std::uppercase << std::setprecision(3)
+                        << std::get<double>(sub_value);
+                    os << "\t" << oss.str();
+                }
+            }
+            os << "\n";
+
         }
-        if (std::holds_alternative<int>(value)){
+        else if (std::holds_alternative<int>(value)){
             LOG_INFO("type is int");
+            os << "\t" << key.to_string() << "\t" << std::get<int>(value) << "\n";
         }
-        if (std::holds_alternative<double>(value)){
+        else if (std::holds_alternative<double>(value)){
             LOG_INFO("type is double");
             os << "\t" << key.to_string() << "\t" << std::get<double>(value) << "\n";
         }
-        if (std::holds_alternative<bool>(value)){
+        else if (std::holds_alternative<bool>(value)){
             LOG_INFO("type is bool");
+            os << "\t" << key.to_string() << "\t" << (std::get<bool>(value) ? "1" : "0") << "\n";
         }    
 
         }
