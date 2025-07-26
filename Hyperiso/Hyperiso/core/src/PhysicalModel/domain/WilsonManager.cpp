@@ -414,7 +414,7 @@ std::shared_ptr<CoefficientManager> CoefficientManager::Builder(std::string mode
         LOG_INFO("(CoefficientManager) Initializing group matching", group.first, "at", order);
         manager->init_group_matching(group.first, order);
         LOG_INFO("(CoefficientManager) Initializing group hadronic", group.first, "at", order); //TODO : Camilia change, need to be done correctly
-        manager->init_group_hadronic_all_bases(group.first, "NNLO");
+        manager->init_group_hadronic_all_bases(group.first, order);
     }
     LOG_INFO("(CoefficientManager) Manager successfully initialized");
     return manager;

@@ -135,17 +135,18 @@ if __name__ == "__main__":
         groups={WGroup.B},
         matching_scale=160.0,
         hadronic_scale=2.0,
-        order=QCDOrder.NLO
+        order=QCDOrder.LO
     )
-
+    print("trying to build wilsoninterface")
     interface = PyWilsonInterface()
     interface.build(config)
+    print("build successful")
     interface.set_matching_scale(81.0)
 
     req = PyWilsonRequest(
         group=WGroup.B,
-        coefficient=WCoeff.C7,
-        order=QCDOrder.LO,
+        coefficient=WCoeff.C9,
+        order=QCDOrder.NNLO,
         contribution=ContributionType.TOTAL
     )
 
@@ -159,7 +160,7 @@ if __name__ == "__main__":
     py_set = PyParameterSetter()
     for i in range(1, 81):
         py_set.mutate(PyParamId(ParameterType.WILSON, "B_SCALE", 1), i)
-        test_values.append(interface.get_R(PyWilsonRequest(WGroup.B, WCoeff.C9, QCDOrder.LO, ContributionType.TOTAL)))
+        test_values.append(interface.get_FR(PyWilsonRequest(WGroup.B, WCoeff.C9, QCDOrder.NNLO, ContributionType.TOTAL)))
     
     import matplotlib
     matplotlib.use("TkAgg")
