@@ -58,13 +58,22 @@ void ParamBlockLoader::save(fs::path dest_file, std::shared_ptr<BlockAccessor> s
         for (const auto &[id, param] : items) {
             auto node_param = std::make_shared<Node>();
                 node_param->set(param->get_val(), "central_value");
+            // if (param->has_stat_error()) {
+            //     node_param->set(param->get_stat_error(), "stat_error");
+            // }
+            // if (param->has_syst_error()) {
+            //     node_param->set(param->get_syst_error(), "syst_error");
+            // }
+            if (block->has_scale()) {
+                node_param->set(block->get_scale(), "scale");
+            }
 
             block_data[id.to_string()] = node_param;
         }
         node->setGroup({block_name}, block_data);
         LOG_INFO("Saving block_name", block_name);
         LOG_INFO("Block size", block_data.size());
-        node->printJSON(2);
+        //node->printJSON(2);
     }
     //LOG_INFO("Saving node", node->get_keys());
 
