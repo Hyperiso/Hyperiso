@@ -111,12 +111,12 @@ if __name__ == "__main__":
 
     config = PyConfig(
         flags={
-            ExternalFlag.IS_LHA_SPECTRUM: True,
+            ExternalFlag.IS_LHA_SPECTRUM: False,
             ExternalFlag.HAS_WILSON_INPUT: False,
             ExternalFlag.HAS_TH_OBSERVABLE_INPUT: False,
             ExternalFlag.USE_MARTY: False
         },
-        model=Model.SM,
+        model=Model.SUSY,
         mty_model_name="MSSM_UFO",
         mty_model_path=Path("/my/custom/marty/path")
     )
@@ -125,47 +125,65 @@ if __name__ == "__main__":
     print(config)
 
     hyp = PyHyperisoMaster()
-    lha_file_path = "lha/camilia.flha" 
-
+    lha_file_path = "lha/testinput_thdm.lha" 
+    lha_file_path = "/home/cern/hyperiso/Hyperiso/Hyperiso/core/Test/InputFiles/testInput.slha"
     print("\n🚀 Calling init with config...")
     hyp.init(lha_file=lha_file_path, config=config)
     
     
     config = PyWilsonBuildConfig(
-        groups={WGroup.B},
-        matching_scale=160.0,
+        groups={WGroup.B, WGroup.BScalar},
+        matching_scale=81.0,
         hadronic_scale=2.0,
-        order=QCDOrder.LO
+        order=QCDOrder.NNLO
     )
     print("trying to build wilsoninterface")
     interface = PyWilsonInterface()
     interface.build(config)
     print("build successful")
-    interface.set_matching_scale(81.0)
+    # interface.set_matching_scale(81.0)
 
+    config.groups = [WGroup.BPrime]
+    interface.add_wilson_group(config)
+     
     req = PyWilsonRequest(
         group=WGroup.B,
         coefficient=WCoeff.C9,
         order=QCDOrder.NNLO,
         contribution=ContributionType.TOTAL
     )
+    coefs = {WCoeff.C1, WCoeff.C2, WCoeff.C3, WCoeff.C4, WCoeff.C5, WCoeff.C6, WCoeff.C7, WCoeff.C8, WCoeff.C9, WCoeff.C10}
+    coefs_primes = {WCoeff.CP1, WCoeff.CP2, WCoeff.CP3, WCoeff.CP4, WCoeff.CP5, WCoeff.CP6, WCoeff.CP7, WCoeff.CP8, WCoeff.CP9, WCoeff.CP10, WCoeff.CPQ1, WCoeff.CPQ2}
+    coefs_scalar = {WCoeff.CQ1, WCoeff.CQ2}
+    for coef in coefs:
+        print(coef.name, " : ", interface.get_sep_order_matching(WGroup.B, coef, ContributionType.BSM))
+    
+    print("\n\n\n")
 
-    config.groups = [WGroup.BPrime]
-    interface.add_wilson_group(config)
+    for coef in coefs_primes:
+        print(coef.name, " : ", interface.get_sep_order_matching(WGroup.BPrime, coef, ContributionType.BSM))
+
+    print("\n\n\n")
+
+    for coef in coefs_scalar:
+        print(coef.name, " : ", interface.get_sep_order_matching(WGroup.BScalar, coef, ContributionType.BSM))
+
+    
+    # print(interface.get_sep_order_matching(WGroup.B, WCoeff.C7, ContributionType.BSM))
     value = interface.get_M(req)
     print(value)  # Scalar(...)
     
-    test_values = []
-    from pyhyperiso.core.Core.ParameterSetter import PyParameterSetter, PyParamId, ParameterType
-    py_set = PyParameterSetter()
-    for i in range(1, 81):
-        py_set.mutate(PyParamId(ParameterType.WILSON, "B_SCALE", 1), i)
-        test_values.append(interface.get_FR(PyWilsonRequest(WGroup.B, WCoeff.C9, QCDOrder.NNLO, ContributionType.TOTAL)))
+    # test_values = []
+    # from pyhyperiso.core.Core.ParameterSetter import PyParameterSetter, PyParamId, ParameterType
+    # py_set = PyParameterSetter()
+    # for i in range(1, 81):
+    #     py_set.mutate(PyParamId(ParameterType.WILSON, "B_SCALE", 1), i)
+    #     test_values.append(interface.get_FR(PyWilsonRequest(WGroup.B, WCoeff.C9, QCDOrder.NNLO, ContributionType.TOTAL)))
     
-    import matplotlib
-    matplotlib.use("TkAgg")
-    import matplotlib.pyplot as plt
+    # import matplotlib
+    # matplotlib.use("TkAgg")
+    # import matplotlib.pyplot as plt
     
-    plt.scatter(range(1, 81), test_values)
+    # plt.scatter(range(1, 81), test_values)
     
-    plt.show()
+    # plt.show()
