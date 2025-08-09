@@ -33,6 +33,15 @@ ParameterType ParameterProvider::get_type() const {
     return p_type.value();
 }
 
+double ParameterProvider::get_scale(const std::string& block) const {
+    if (!p_type.has_value()) {
+        LOG_ERROR("LogicError", "ParameterProvider has no type.");
+    }
+
+    return Parameters::GetInstance(this->p_type.value())->get_block_scale(block);
+
+}
+
 std::shared_ptr<Parameter> ParameterProvider::get_parameter(const ParamId &pid) const {
     return (*Parameters::GetInstance(pid.type.value())).get_parameter(pid.block, pid.code);
 }

@@ -48,6 +48,8 @@ public:
      */
     bool exists(const std::string& block, const LhaID& id) const;
 
+    double get_scale(const std::string& block) const;
+
     /**
      * @brief Retrieves the ParameterType managed by this provider.
      * @return The ParameterType (e.g., SM, BSM, etc.).

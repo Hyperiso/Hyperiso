@@ -11,7 +11,8 @@ class PyHyperisoMaster:
     def __init__(self):
         """Initializes a new Hyperiso controller."""
         self._cpp_obj = _CppHyperisoMaster()
-
+        self._config = None
+        
     def init(self, lha_file: str, config: PyConfig = None):
         """Initializes Hyperiso with an LHA file and an optional config.
 
@@ -22,8 +23,10 @@ class PyHyperisoMaster:
         """
         if config is not None:
             self._cpp_obj.init(lha_file, config.to_cpp())
+            self.config = config
         else:
             self._cpp_obj.init(lha_file)
+            self.config = PyConfig()
 
     def switch_lha(self, lha_file: str, config: PyConfig = None):
         """Initializes Hyperiso with an LHA file and an optional config.
@@ -35,8 +38,10 @@ class PyHyperisoMaster:
         """
         if config is not None:
             self._cpp_obj.switch_lha(lha_file, config.to_cpp())
+            self.config = config
         else:
-            self._cpp_obj.init(lha_file) #TODO : take this into account
+            self._cpp_obj.init(lha_file, self.config.to_cpp())
+            
             
     def check_flag(self, flag: ExternalFlag) -> bool:
         """Checks whether a specific external flag is active.

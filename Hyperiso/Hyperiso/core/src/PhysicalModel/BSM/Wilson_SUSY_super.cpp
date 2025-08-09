@@ -407,6 +407,8 @@ scalar_t C6_susy::compute_NNLO(const std::unordered_map<ParamId, std::shared_ptr
 C7_susy::C7_susy() : WilsonCoefficient("C7_SUSY", GroupMapper::str(WGroup::B) + "_MATCH") {
     matching_info[QCDOrder::LO] = {
         {
+            {ParameterType::WILSON, "WPARAM_MATCH_SM", {5,1}},
+            {ParameterType::WILSON, "WPARAM_MATCH_SM", 6},
             {ParameterType::SM, "MASS", 24},       
             {ParameterType::WILSON, "EW_SCALE", 1},                   // mW
             {ParameterType::WILSON, "WPARAM_SI_BSM", 19},             // kappa
@@ -615,6 +617,13 @@ scalar_t C7_susy::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<P
     complex_t C7SMeps_0 = (epsilonb - epsilonbp) / (1. + epsilonb * tanb) * tanb * F7_2(xt);
     complex_t C7Heps_0 = (-epsilon0p - epsilonb) / (1. + epsilonb * tanb) * tanb * F7_2(yt);
 
+    // std::cout << "epsilon0" << epsilon0 << std::endl;
+    // std::cout << "epsilon2" << epsilon2 << std::endl;
+    // std::cout << "epsilonb" << epsilonb << std::endl;
+    // std::cout << "epsilon0p" << epsilon0p << std::endl;
+    // std::cout << "epsilonbp" << epsilonbp << std::endl;
+    // std::cout << "tanb" << tanb << std::endl;
+
     complex_t C7Heps2_0 = 0.;
 
     // TODO : Use MODSEL block instead
@@ -666,7 +675,19 @@ scalar_t C7_susy::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<P
     }
 
     complex_t C7H_0 = 1. / 3. * lu * lu * F7_1(yt) - lu * ld * F7_2(yt);
+    // std::cout << "yt " << yt << std::endl;
+    // std::cout << "lu " << lu << std::endl;
+    // std::cout << "ld " << ld << std::endl;
+    // std::cout << "mass_b_muW " << src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {5,1}})->get_val() << std::endl;
+    // std::cout << "mass_top_muW " << src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 6})->get_val() << std::endl;
 
+    // std::cout << "C7SMeps_0 " << C7SMeps_0 << std::endl;
+    // std::cout << "C7Heps_0 " << C7Heps_0 << std::endl;
+    // std::cout << "C7Heps2_0 " << C7Heps2_0 << std::endl;
+    // std::cout << "C7charg_0 " << C7charg_0 << std::endl;
+    // std::cout << "C7_chargeps_0 " << C7_chargeps_0 << std::endl;
+    // std::cout << "C7H_0" << C7H_0 << std::endl;
+    // std::cout << "elem are : " << C7SMeps_0 + C7Heps_0 + C7Heps2_0 + C7charg_0 + C7_chargeps_0 + C7H_0 << std::endl; 
     return scalar_t(C7SMeps_0 + C7Heps_0 + C7Heps2_0 + C7charg_0 + C7_chargeps_0 + C7H_0);
 }
 
@@ -1035,6 +1056,14 @@ scalar_t C8_susy::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<P
 
     complex_t C8H_0 = 1. / 3. * lu * lu * F8_1(yt) - lu * ld * F8_2(yt);
 
+    // std::cout << "C8SMeps_0 " << C8SMeps_0 << std::endl;
+    // std::cout << "C8H_0 " << C8H_0 << std::endl;
+    // std::cout << "C8Heps_0 " << C8Heps_0 << std::endl;
+    // std::cout << "C8Heps2_0 " << C8Heps2_0 << std::endl;
+    // std::cout << "C8charg_0 " << C8charg_0 << std::endl;
+    // std::cout << "C8_chargeps_0" << C8_chargeps_0 << std::endl;
+    // std::cout << "elem are : " << C8SMeps_0 + C8Heps_0 + C8Heps2_0 + C8charg_0 + C8_chargeps_0 + C8H_0 << std::endl; 
+
     return scalar_t(C8SMeps_0 + C8Heps_0 + C8Heps2_0 + C8charg_0 + C8_chargeps_0 + C8H_0);
 }
 
@@ -1209,9 +1238,15 @@ scalar_t C9_susy::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<P
     complex_t C90c = src.at({ParameterType::WILSON, "MATRIX_BSM", 14})->get_val();
     complex_t D90c = src.at({ParameterType::WILSON, "MATRIX_BSM", 15})->get_val();
 
+    std::cout << "B90c " <<  B90c << std::endl;
+    std::cout << "C90c " <<  C90c << std::endl;
+    std::cout << "D90c " <<  D90c << std::endl;
+
     complex_t C9charg_0 = (1.0 - 4.0 * sw2) / sw2 * C90c - B90c / sw2 - D90c;
     double    C9H_0     = (1.0 - 4.0 * sw2) / sw2 * C9llH0(xt, yt, lu) - D9H0(yt, lu);
 
+    std::cout << "C9H_0" << C9H_0 << std::endl;
+    std::cout << "C9charg_0" << C9charg_0 << std::endl;
     return scalar_t(C9charg_0 + C9H_0);
 }
 
@@ -1728,7 +1763,32 @@ CP7_susy::CP7_susy() : WilsonCoefficient("CP7_SUSY", GroupMapper::str(WGroup::B)
             {ParameterType::WILSON, "MATRIX_BSM", {4, 1, 4, 1}},
             {ParameterType::WILSON, "MATRIX_BSM", {4, 1, 4, 2}},
             {ParameterType::WILSON, "MATRIX_BSM", {4, 1, 5, 1}},
-            {ParameterType::WILSON, "MATRIX_BSM", {4, 1, 5, 2}}
+            {ParameterType::WILSON, "MATRIX_BSM", {4, 1, 5, 2}},
+            
+            {ParameterType::WILSON, "MATRIX_BSM", {3, 0, 0, 1}},
+            {ParameterType::WILSON, "MATRIX_BSM", {3, 0, 0, 2}},
+            {ParameterType::WILSON, "MATRIX_BSM", {3, 0, 1, 1}},
+            {ParameterType::WILSON, "MATRIX_BSM", {3, 0, 1, 2}},
+            {ParameterType::WILSON, "MATRIX_BSM", {3, 0, 2, 1}},
+            {ParameterType::WILSON, "MATRIX_BSM", {3, 0, 2, 2}},
+            {ParameterType::WILSON, "MATRIX_BSM", {3, 0, 3, 1}},
+            {ParameterType::WILSON, "MATRIX_BSM", {3, 0, 3, 2}},
+            {ParameterType::WILSON, "MATRIX_BSM", {3, 0, 4, 1}},
+            {ParameterType::WILSON, "MATRIX_BSM", {3, 0, 4, 2}},
+            {ParameterType::WILSON, "MATRIX_BSM", {3, 0, 5, 1}},
+            {ParameterType::WILSON, "MATRIX_BSM", {3, 0, 5, 2}},
+            {ParameterType::WILSON, "MATRIX_BSM", {3, 1, 0, 1}},
+            {ParameterType::WILSON, "MATRIX_BSM", {3, 1, 0, 2}},
+            {ParameterType::WILSON, "MATRIX_BSM", {3, 1, 1, 1}},
+            {ParameterType::WILSON, "MATRIX_BSM", {3, 1, 1, 2}},
+            {ParameterType::WILSON, "MATRIX_BSM", {3, 1, 2, 1}},
+            {ParameterType::WILSON, "MATRIX_BSM", {3, 1, 2, 2}},
+            {ParameterType::WILSON, "MATRIX_BSM", {3, 1, 3, 1}},
+            {ParameterType::WILSON, "MATRIX_BSM", {3, 1, 3, 2}},
+            {ParameterType::WILSON, "MATRIX_BSM", {3, 1, 4, 1}},
+            {ParameterType::WILSON, "MATRIX_BSM", {3, 1, 4, 2}},
+            {ParameterType::WILSON, "MATRIX_BSM", {3, 1, 5, 1}},
+            {ParameterType::WILSON, "MATRIX_BSM", {3, 1, 5, 2}}
         },
         compute_LO,
         WCoefMapper::flha_full(WCoef::CP7, QCDOrder::LO, ContributionType::BSM)
@@ -1754,13 +1814,14 @@ scalar_t CP7_susy::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<
                  src.at({ParameterType::WILSON, "MATRIX_BSM", {4, ie, ae, 2}})->get_val() * h10(ratio)
                 + Mch / mass_b_muW *
                   src.at({ParameterType::WILSON, "MATRIX_BSM", {4, ie, ae, 1}})->get_val() *
-                  src.at({ParameterType::WILSON, "MATRIX_BSM", {4, ie, ae, 2}})->get_val() * h20(ratio));
+                  src.at({ParameterType::WILSON, "MATRIX_BSM", {3, ie, ae, 2}})->get_val() * h20(ratio));
         }
     }
 
     double kappa = src.at({ParameterType::WILSON, "WPARAM_SI_BSM", 19})->get_val();
     C7pcharg *= -0.5 * kappa;
-
+    std::cout << "C7pH " << C7pH << std::endl;
+    std::cout << "C7pcharg " << C7pcharg << std::endl;
     return C7pH + C7pcharg;
 }
 
@@ -2833,6 +2894,8 @@ scalar_t CQ1_susy::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<
     complex_t CQ1charg_0=NQ10c+BQ10c;
     complex_t coeff_temp = (CQ1charg_0+CQ1H_0)/epsfac;
 
+    std::cout << "CQ1charg_0 " << CQ1charg_0 << std::endl;
+    std::cout << "CQ1H_0 " << CQ1H_0 << std::endl;
     /* NMSSM */
 
     // TODO : Ask Nazila (a priori in block NMSSMRUN but check) 

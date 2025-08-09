@@ -55,7 +55,7 @@ std::map<LhaID, scalar_t> Parameters::get_block_infos(BlockName blockName) {
     return blockAccessor->getAllValues(blockName);
 }
 
-double Parameters::get_block_scale(BlockName blockName) {
+double Parameters::get_block_scale(BlockName blockName) const{
     return this->blockAccessor->at(blockName)->get_scale();
 }
 

@@ -269,7 +269,8 @@ public:
      * @param blockName Block name.
      * @return Energy scale of the block.
      */
-    double get_block_scale(BlockName blockName);
+    double get_block_scale(BlockName blockName) const;
+    
 
     /**
      * @brief Retrieves the list of available parameter blocks.

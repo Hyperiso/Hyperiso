@@ -18,3 +18,7 @@ scalar_t ParameterProxy::operator()(const std::string& block, const LhaID& id) c
 bool ParameterProxy::exist(const std::string& block, const LhaID& id) const {
     return pp.exists(block, id);
 }
+
+double ParameterProxy::get_scale(const std::string& block) const {
+    return pp.get_scale(block);
+}

@@ -1,7 +1,8 @@
 # Hyperiso
 
 ## Introduction
-HyperIso is a modern redesign of the SuperIso software, used in particle physics for comparing theory and experiment. This new version aims to enhance the user interface, optimize calculations and data generation, as well as enable the use of new features and integration with other software.
+Hyperiso is a modern redesign of the SuperIso software, used in particle physics for flavour observables calculations. Its greatest benefit is the uses of the Marty software, allowing calculations in 
+any BSM models (with BSM masses above 100 GeV). Hyperiso is capable of performing wilson coefficients calculations at matching scale (at Leading Order using Marty, or NNLO for SM, SUSY and THDM), running of these coefficients up TO NNLO, calculation of a lot of flavour observables (mainly from B decays).
 
 ## Features
 - Calculation of Wilson coefficients
@@ -11,21 +12,28 @@ HyperIso is a modern redesign of the SuperIso software, used in particle physics
 ## Installation
 
 ### Prerequisites
-- Operating System: Windows, Linux (not MacOS)
+- Operating System: Windows, Linux (not MacOS, go buy a real computer)
 - gcc
+- gsl
 
-### Installation Steps
+### Installation Steps (C++)
 1. Clone the repository: `git clone https://github.com/Hyperiso/Hyperiso.git`
-2. Run cmake: `cmake .`
-3. Compile: `make`
+2. Go to the repository: `cd Hyperiso`
+3. Run cmake: `mkdir build && cd build && cmake ../Hyperiso/Hyperiso/core`
+3. Compile: `cmake --build .`
+
+### Installation Steps (Python)
+1. Clone the repository: `git clone https://github.com/Hyperiso/Hyperiso.git`
+2. Go to the repository: `cd Hyperiso`
+3. Run pip install: `pip install Hyperiso/Hyperiso/Python`
 
 ## Usage
-Execute the command `./hyperiso` and enjoy.
+Depending on the interface, create your main file, link it to the Hyperiso library and do what you want !
 
 ### Examples
 - Example 1: Reading SLHA file
 
 ## Testing
-Tests can be performed by running the command `make test` in the test folder. Two targets, `testWilson` and `testDatabase`, are available.
+Tests can be performed by running the command `ctest` in the build folder. Multiple targets, like `testWilson` and `testDatabase`, are available.
 
 Feel free to adjust the formatting or provide additional details as needed!

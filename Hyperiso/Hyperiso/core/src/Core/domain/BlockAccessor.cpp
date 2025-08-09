@@ -142,6 +142,42 @@ std::shared_ptr<BlockAccessor> operator+(std::shared_ptr<BlockAccessor> lhs, std
     return res;
 }
 
+double BlockAccessor::get_scale(const BlockName& block_name) const {
+    auto it = std::find_if(
+        this->begin(),
+        this->end(),
+        [&](const auto& pair) { return pair.first == block_name; }
+    );
+
+    if (it == this->end()) {
+        std::cout << std::make_shared<BlockAccessor>(*this) << std::endl;
+        LOG_ERROR("Block", block_name, "not found in BlockAccessor");
+    }
+
+    if (it->second->has_scale()) {
+        return it->second->get_scale();
+    } else {
+        LOG_ERROR("Block", block_name, "has no scale");
+    }
+    
+}
+
+bool BlockAccessor::has_scale(const BlockName& block_name) const {
+    auto it = std::find_if(
+        this->begin(),
+        this->end(),
+        [&](const auto& pair) { return pair.first == block_name; }
+    );
+
+    if (it == this->end()) {
+        std::cout << std::make_shared<BlockAccessor>(*this) << std::endl;
+        LOG_ERROR("Block", block_name, "not found in BlockAccessor");
+    }
+
+    return it->second->has_scale();
+}
+
+
 std::shared_ptr<BlockAccessor> operator>>(std::shared_ptr<BlockAccessor> lhs, std::shared_ptr<BlockAccessor> rhs) {
     auto res = std::make_shared<BlockAccessor>();
     for (const auto &b : rhs->get_block_names()) {

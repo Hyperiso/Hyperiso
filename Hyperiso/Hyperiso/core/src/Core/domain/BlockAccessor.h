@@ -95,6 +95,10 @@ public:
 
     bool contains(const BlockName& block_name) const;
 
+    double get_scale(const BlockName& block_name) const;
+
+    bool has_scale(const BlockName& block_name) const;
+
     std::shared_ptr<Block>& at(const BlockName& block_name);
     const std::shared_ptr<Block>& at(const BlockName& block_name) const;
 

@@ -1,6 +1,6 @@
 #include "epsilon_calculator.h"
 #include "Math.h"
-
+#include "ParameterProxy.h"
 
 //Ive put MSOFT to the block MSOFT and 1
 
@@ -235,8 +235,10 @@ void EpsilonCalculator::init_epsilon_block() {
         double sw2 = src.at("WPARAM_SI_SM")->retrieve(4)->get_val();
 
         // double alphas_MSOFT = QCDHelper::alpha_s(src.at("HMIX")->retrieve(0)->get_val()); // SUSY Breaking scale
-        double alphas_MSOFT = QCDHelper::alpha_s(2.448e3);
+        double alphas_MSOFT = QCDHelper::alpha_s(2.448e3); //TODO better
+        double MSOFT = ParameterProxy(ParameterType::BSM).get_scale("MSOFT"); //TODO : better things to do with scale
 
+        std::cout << "MSOFT" << MSOFT << std::endl; 
         double tan_beta = src.at("HMIX")->retrieve(2)->get_val();
 
         double factor = 2.0 / 3.0 * alphas_MSOFT / M_PI;
@@ -246,7 +248,7 @@ void EpsilonCalculator::init_epsilon_block() {
 
         double term1 =  (ad_22 / tan_beta - mu_Q) / m_gluino *
                 H2(m_bs * m_bs / m_gluino / m_gluino, m_b2s * m_b2s / m_gluino / m_gluino);
-        double term2 = -0.5 * (B(m_gluino, m_bs, alphas_MSOFT) + B(m_gluino, m_b2s, alphas_MSOFT)) / tan_beta;
+        double term2 = -0.5 * (B(m_gluino, m_bs, MSOFT) + B(m_gluino, m_b2s, MSOFT)) / tan_beta;
         double term3 = 1.0 / alpha_em / sw2 / 4.0 / M_PI * (mu_Q * M_2) * 
                 (sbot_mix_00 * sbot_mix_00 * H2(M_2 * M_2 / m_bs / m_bs, mu_Q * mu_Q / m_bs / m_bs) / m_bs / m_bs / 2.0 +
                 sbot_mix_01 * sbot_mix_01 * H2(M_2 * M_2 / m_b2s / m_b2s, mu_Q * mu_Q / m_b2s / m_b2s) / m_b2s / m_b2s / 2.0);
