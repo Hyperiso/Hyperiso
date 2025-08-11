@@ -1,0 +1,40 @@
+@PACKAGE_INIT@
+
+# 1) On garde mémoire des options utilisées à la compilation
+set(HYPERISO_WITH_SOFTSUSY @BUILD_WITH_SOFTSUSY@)
+set(HYPERISO_WITH_2HDMC    @BUILD_WITH_2HDMC@)
+set(HYPERISO_WITH_MARTY    @BUILD_WITH_MARTY@)
+
+# 2) Si tu préfères t’appuyer sur des installs système (non-vendored),
+#    tu peux chercher les dépendances ici via find_dependency(...).
+#    Laisse commenté si tu vends/installe les libs avec Hyperiso.
+include(CMakeFindDependencyMacro)
+
+# Exemple : 2HDMC utilise GSL. Si tu ne la vends pas, décommente :
+# if(HYPERISO_WITH_2HDMC)
+#   find_dependency(GSL REQUIRED)
+# endif()
+
+# 3) Si tu as VENDU (installe avec Hyperiso) les libs externes,
+#    recrée des targets IMPORTED pointant vers ton prefix d’install :
+#    (tu n’es pas obligé de le faire si tu relies tes propres libs statiques)
+# Exemple MARTY vendored :
+if(HYPERISO_WITH_MARTY AND NOT TARGET Marty::marty)
+  add_library(Marty::marty SHARED IMPORTED)
+  set_target_properties(Marty::marty PROPERTIES
+    IMPORTED_LOCATION "${PACKAGE_PREFIX_DIR}/lib/libmarty.so"
+    INTERFACE_INCLUDE_DIRECTORIES "${PACKAGE_PREFIX_DIR}/include"
+  )
+endif()
+
+# Exemple 2HDMC vendored (si tu installes son include/src et sa lib) :
+# if(HYPERISO_WITH_2HDMC AND NOT TARGET TwoHDMC::twohdmc)
+#   add_library(TwoHDMC::twohdmc STATIC IMPORTED)
+#   set_target_properties(TwoHDMC::twohdmc PROPERTIES
+#     IMPORTED_LOCATION "${PACKAGE_PREFIX_DIR}/lib/lib2hdmc.a"
+#     INTERFACE_INCLUDE_DIRECTORIES "${PACKAGE_PREFIX_DIR}/include"
+#   )
+# endif()
+
+# 4) Charge les cibles exportées par Hyperiso
+include("${CMAKE_CURRENT_LIST_DIR}/HyperisoTargets.cmake")

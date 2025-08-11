@@ -33,4 +33,24 @@ configure_file(
     "${CMAKE_BINARY_DIR}/configured_files/include/config.hpp" ESCAPE_QUOTES
 )
 
-target_include_directories(ConfiguredModule INTERFACE "${CMAKE_BINARY_DIR}/configured_files/include")
+# target_include_directories(ConfiguredModule INTERFACE "${CMAKE_BINARY_DIR}/configured_files/include")
+
+target_include_directories(ConfiguredModule
+  PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/configured_files/include>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/Configured>
+)
+
+include(GNUInstallDirs)
+
+install(TARGETS ConfiguredModule
+  EXPORT HyperisoTargets
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+)
+
+# Installer les headers générés
+install(DIRECTORY ${CMAKE_BINARY_DIR}/configured_files/include/
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/Configured
+        FILES_MATCHING PATTERN "*.h" PATTERN "*.hpp")

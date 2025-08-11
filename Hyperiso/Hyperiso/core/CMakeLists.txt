@@ -10,7 +10,8 @@ set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/Cmake/")
 include(Docs)
 include(Warnings)
 include(Tools)
-
+include(CMakePackageConfigHelpers)
+include(GNUInstallDirs)
 include(FetchContent)
 
 # define_property(GLOBAL PROPERTY SUPPORTED_OS BRIEF_DOC "Supported Operating Systems")
@@ -142,3 +143,105 @@ endif()
 if (BUILD_WITH_PYTHON)
     add_subdirectory(src/Python pyhyperiso)
 endif()
+
+
+add_library(Hyperiso INTERFACE)
+
+target_link_libraries(Hyperiso INTERFACE
+    CommonLib
+    ConfiguredModule
+    MathLib
+    DataBaseLib
+    ExternalIntegrationLib
+    CoreLib
+    MartyInterfaceLib
+    PhysicalModelLib
+    BusinessLogicLib
+    UserInterfaceLib
+)
+
+# Inclure src/ pendant le build (pour #include <hyperiso/...>)
+target_include_directories(Hyperiso
+    INTERFACE
+        $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src>
+        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+)
+
+# --- Installation ---
+include(GNUInstallDirs)
+
+# Liste des modules à copier depuis src/ (temporaire tant que les publics sont dans src/)
+set(HYPERISO_MODULES
+    Common
+    Configured
+    Math
+    DataBase
+    ExternalIntegration
+    Core
+    ExternalIntegration/MartyInterface
+    PhysicalModel
+    BusinessLogic
+    UserInterface
+)
+
+foreach(MOD IN LISTS HYPERISO_MODULES)
+    install(DIRECTORY ${PROJECT_SOURCE_DIR}/src/${MOD}/
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/${MOD}
+        FILES_MATCHING
+            PATTERN "*.hpp"
+            PATTERN "*.h"
+            PATTERN "CMakeFiles" EXCLUDE
+            PATTERN "*.cpp" EXCLUDE
+    )
+endforeach()
+
+# Installe l’umbrella header
+install(FILES ${PROJECT_SOURCE_DIR}/include/hyperiso/hyperiso.hpp
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/hyperiso)
+
+# # Installe la cible meta et les libs
+# install(TARGETS
+#     Hyperiso
+#     CommonLib
+#     ConfiguredModule
+#     MathLib
+#     DataBaseLib
+#     ExternalIntegrationLib
+#     CoreLib
+#     MartyInterfaceLib
+#     PhysicalModelLib
+#     BusinessLogicLib
+#     UserInterfaceLib
+#     EXPORT HyperisoTargets
+# )
+
+# Export pour find_package()
+install(EXPORT HyperisoTargets
+    NAMESPACE Hyperiso::
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/Hyperiso
+)
+
+include(CMakePackageConfigHelpers)
+
+# Passe les options pour qu'elles soient substituées dans le .in
+set(BUILD_WITH_SOFTSUSY ${BUILD_WITH_SOFTSUSY})
+set(BUILD_WITH_2HDMC    ${BUILD_WITH_2HDMC})
+set(BUILD_WITH_MARTY    ${BUILD_WITH_MARTY})
+
+configure_package_config_file(
+    ${PROJECT_SOURCE_DIR}/Cmake/HyperisoConfig.cmake.in   # <<< casse "Cmake"
+    ${CMAKE_CURRENT_BINARY_DIR}/HyperisoConfig.cmake
+    INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/Hyperiso
+)
+
+write_basic_package_version_file(
+    ${CMAKE_CURRENT_BINARY_DIR}/HyperisoConfigVersion.cmake
+    VERSION ${PROJECT_VERSION}
+    COMPATIBILITY SameMajorVersion
+)
+
+install(FILES
+    ${CMAKE_CURRENT_BINARY_DIR}/HyperisoConfig.cmake
+    ${CMAKE_CURRENT_BINARY_DIR}/HyperisoConfigVersion.cmake
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/Hyperiso
+)

@@ -29,8 +29,26 @@ add_library(ExternalIntegrationLib STATIC
     SoftSusy.cpp)
 set_target_properties(ExternalIntegrationLib PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
+# set(THIRD_PARTY_DIR "${PROJECT_SOURCE_DIR}/Third_party")
+
+# Permettre de forcer le chemin si besoin :
+set(THIRD_PARTY_DIR "" CACHE PATH "Third-party directory (contains MARTY, SOFTSUSY, 2HDMC)")
+if(NOT THIRD_PARTY_DIR)
+  # Remonter depuis ce dossier jusqu'à la racine du repo (~/hyperiso)
+  get_filename_component(_REPO_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/../../../../.." ABSOLUTE)
+  set(THIRD_PARTY_DIR "${_REPO_ROOT}/Third_party")
+endif()
+message(STATUS "Third-party dir: ${THIRD_PARTY_DIR}")
+
+# Si déjà installés ailleurs, on peut pointer dessus pour éviter ExternalProject:
+set(MARTY_ROOT "" CACHE PATH "Existing Marty install prefix (has include/ and lib/)")
+set(SOFTSUSY_ROOT "" CACHE PATH "Existing SoftSUSY install prefix (has include/ and lib/)")
+# (2HDMC: on compile directement les .cpp, mais on peut aussi fournir un src déjà extrait)
+set(TWOHDMC_SRC "" CACHE PATH "Existing 2HDMC sources (folder containing src/)")
+
 if (BUILD_WITH_SOFTSUSY)
-    add_definitions(-DBUILD_WITH_SOFTSUSY)
+    # add_definitions(-DBUILD_WITH_SOFTSUSY)    
+    add_compile_definitions(BUILD_WITH_SOFTSUSY)
     message(STATUS "Building application with SOFTSUSY software")
     include(ExternalProject)
   
@@ -46,18 +64,20 @@ if (BUILD_WITH_SOFTSUSY)
         INSTALL_COMMAND ""
     )
     ExternalProject_Get_Property(SOFTSUSY SOURCE_DIR)
-    target_include_directories(ExternalIntegrationLib PUBLIC "${SOURCE_DIR}")
+    target_include_directories(ExternalIntegrationLib PRIVATE "${SOURCE_DIR}")
     add_dependencies(ExternalIntegrationLib SOFTSUSY)
 
 endif()
 
 if (BUILD_WITH_2HDMC)
-    add_definitions(-DBUILD_WITH_2HDMC)
+    # add_definitions(-DBUILD_WITH_2HDMC)
+    add_compile_definitions(BUILD_WITH_2HDMC)
     message(STATUS "Building application with 2HDMC software")
     find_package(GSL REQUIRED)
 
     set(DOWNLOAD_DIR "${CMAKE_BINARY_DIR}/downloads")
-    set(EXTRACT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../../../Third_party/2HDMC/")
+    # set(EXTRACT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../../../Third_party/2HDMC/")
+    set(EXTRACT_DIR "${THIRD_PARTY_DIR}/2HDMC")
     set(TAR_FILE "${DOWNLOAD_DIR}/2HDMC-1.8.0.tar.gz")
     set(URL "https://2hdmc.hepforge.org/downloads/?f=2HDMC-1.8.0.tar.gz")
 
@@ -116,12 +136,14 @@ if (BUILD_WITH_2HDMC)
 endif()
 
 if (BUILD_WITH_MARTY)
-    add_definitions(-DBUILD_WITH_MARTY)
+    # add_definitions(-DBUILD_WITH_MARTY)
+    add_compile_definitions(BUILD_WITH_MARTY)
     message(STATUS "Building application with MARTY software")
 
     include(ExternalProject)
   
-    set(MARTY_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../../../../../Third_party/MARTY")
+    # set(MARTY_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../../../../../Third_party/MARTY")
+    set(MARTY_PATH "${THIRD_PARTY_DIR}/MARTY")
     set(MARTY_INSTALL_PATH "${MARTY_PATH}/install")
 
     set(MARTY_CORRECT_COMPILER_VERSION "11")  # Remplacez par la version correcte de votre compilateur
@@ -227,8 +249,34 @@ if (BUILD_WITH_MARTY)
 endif()
 set_target_properties(ExternalIntegrationLib PROPERTIES PUBLIC_HEADER "2HDMC.h;Interface.h;Softsusy.h")
 
-target_include_directories(ExternalIntegrationLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+# target_include_directories(ExternalIntegrationLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 
 target_link_libraries(ExternalIntegrationLib PUBLIC CommonLib)
 target_link_libraries(ExternalIntegrationLib PUBLIC ConfiguredModule)
+
+target_include_directories(ExternalIntegrationLib
+  PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/ExternalIntegration>
+  PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+include(GNUInstallDirs)
+
+install(TARGETS ExternalIntegrationLib
+  EXPORT HyperisoTargets
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+)
+
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/ExternalIntegration
+  FILES_MATCHING
+    PATTERN "*.h" PATTERN "*.hpp" PATTERN "*.inl"
+    PATTERN "*.cpp" EXCLUDE
+    PATTERN "CMakeFiles" EXCLUDE
+)

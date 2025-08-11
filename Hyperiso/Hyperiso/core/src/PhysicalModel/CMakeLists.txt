@@ -67,10 +67,41 @@ add_library(PhysicalModelLib STATIC
 set_target_properties(PhysicalModelLib PROPERTIES POSITION_INDEPENDENT_CODE ON)
 set_target_properties(PhysicalModelLib PROPERTIES PUBLIC_HEADER "Interpolator.h;WilsonManager.h;Wilson.h;WilsonGroup.h;MartyWilson.h;Wilson_parameters.h;epsilon_calculator.h;susy_parameters.h;thdm_parameters;Wilson_susy.h;Wilson_THDM.h;WilsonManager.h")
 
-target_include_directories(PhysicalModelLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/adapters)
-target_include_directories(PhysicalModelLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/ports)
-target_include_directories(PhysicalModelLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/domain)
-target_include_directories(PhysicalModelLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/BSM)
+# target_include_directories(PhysicalModelLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/adapters)
+# target_include_directories(PhysicalModelLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/ports)
+# target_include_directories(PhysicalModelLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/domain)
+# target_include_directories(PhysicalModelLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/BSM)
+
+# target_include_directories(PhysicalModelLib
+#   PUBLIC
+#     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src>
+#     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+#   PRIVATE
+#     ${CMAKE_CURRENT_SOURCE_DIR}
+#     ${CMAKE_CURRENT_SOURCE_DIR}/adapters
+#     ${CMAKE_CURRENT_SOURCE_DIR}/ports
+#     ${CMAKE_CURRENT_SOURCE_DIR}/domain
+#     ${CMAKE_CURRENT_SOURCE_DIR}/BSM
+# )
+
+target_include_directories(PhysicalModelLib
+  PUBLIC
+    # build: expose les dossiers qui contiennent les .h inclus sans préfixe
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/adapters>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/ports>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/domain>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/BSM>
+
+    # install: mêmes chemins sous include/
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/PhysicalModel>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/PhysicalModel/adapters>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/PhysicalModel/ports>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/PhysicalModel/domain>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/PhysicalModel/BSM>
+  PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}
+)
 
 target_link_libraries(PhysicalModelLib PUBLIC MartyInterfaceLib CoreLib CommonLib ConfiguredModule MathLib)
 
@@ -93,3 +124,20 @@ add_executable(susy_test app/main_susy.cpp)
 target_link_libraries(susy_test PhysicalModelLib)
 # add_executable(test_martywilson main.cpp)
 # target_link_libraries(test_martywilson PhysicalModelLib MartyInterfaceLib)
+
+include(GNUInstallDirs)
+
+install(TARGETS PhysicalModelLib
+  EXPORT HyperisoTargets
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+)
+
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/PhysicalModel
+        FILES_MATCHING
+          PATTERN "*.h" PATTERN "*.hpp" PATTERN "*.inl"
+          PATTERN "*.cpp" EXCLUDE
+          PATTERN "app" EXCLUDE
+          PATTERN "CMakeFiles" EXCLUDE)

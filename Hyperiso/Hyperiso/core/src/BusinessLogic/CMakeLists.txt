@@ -57,10 +57,28 @@ set_target_properties(BusinessLogicLib PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
 # set_target_properties(BusinessLogicLib PROPERTIES PUBLIC_HEADER "Decays.h;Compound.h;DecayParent.h;Node.h;Observable.h;ModelEvaluator.h;ObsManager.h;ObservableInterface.h;")
 
-target_include_directories(BusinessLogicLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/domain)
-target_include_directories(BusinessLogicLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/ports)
-target_include_directories(BusinessLogicLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/adapters)
-target_include_directories(BusinessLogicLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/domain/Decays)
+# target_include_directories(BusinessLogicLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/domain)
+# target_include_directories(BusinessLogicLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/ports)
+# target_include_directories(BusinessLogicLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/adapters)
+# target_include_directories(BusinessLogicLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/domain/Decays)
+
+target_include_directories(BusinessLogicLib
+  PUBLIC
+    # build
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/domain>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/domain/Decays>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/ports>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/adapters>
+    # install
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/BusinessLogic>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/BusinessLogic/domain>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/BusinessLogic/domain/Decays>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/BusinessLogic/ports>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/BusinessLogic/adapters>
+  PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}
+)
 
 target_link_libraries(BusinessLogicLib PUBLIC PhysicalModelLib CoreLib CommonLib ConfiguredModule MathLib)
 
@@ -72,3 +90,20 @@ target_link_libraries(CAMILIA BusinessLogicLib)
 
 add_executable(BSLL_FF app/test_bsll_ff.cpp)
 target_link_libraries(BSLL_FF BusinessLogicLib)
+
+include(GNUInstallDirs)
+
+install(TARGETS BusinessLogicLib
+  EXPORT HyperisoTargets
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+)
+
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/BusinessLogic
+  FILES_MATCHING
+    PATTERN "*.h" PATTERN "*.hpp" PATTERN "*.inl"
+    PATTERN "*.cpp" EXCLUDE
+    PATTERN "CMakeFiles" EXCLUDE
+)

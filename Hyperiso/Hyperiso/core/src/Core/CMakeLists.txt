@@ -59,11 +59,43 @@ set_target_properties(CoreLib PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
 # set_target_properties(CoreLib PROPERTIES PUBLIC_HEADER "MemoryManager.h;Parameters.h;Parameter.h;QCDHelper.h;BlocksCreator.h;BlockAccessor.h;CorrelationRepo.h;CorrelationCreator.h;ParameterRouter.h;")
 
-target_include_directories(CoreLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_include_directories(CoreLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/adapters)
-target_include_directories(CoreLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/domain)
-target_include_directories(CoreLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/infrastructure)
-target_include_directories(CoreLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/ports)
+# target_include_directories(CoreLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+# target_include_directories(CoreLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/adapters)
+# target_include_directories(CoreLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/domain)
+# target_include_directories(CoreLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/infrastructure)
+# target_include_directories(CoreLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/ports)
+
+# target_include_directories(CoreLib
+#   PUBLIC
+#     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src>
+#     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+#   PRIVATE
+#     ${CMAKE_CURRENT_SOURCE_DIR}
+#     ${CMAKE_CURRENT_SOURCE_DIR}/adapters
+#     ${CMAKE_CURRENT_SOURCE_DIR}/domain
+#     ${CMAKE_CURRENT_SOURCE_DIR}/infrastructure
+#     ${CMAKE_CURRENT_SOURCE_DIR}/ports
+# )
+
+target_include_directories(CoreLib
+  PUBLIC
+    # pendant le build : dossiers qui contiennent tes .h utilisés avec
+    # des includes courts ("Block.h", "Parameter.h", etc.)
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/adapters>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/domain>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/infrastructure>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/ports>
+
+    # après install : chemins équivalents sous include/
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/Core>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/Core/adapters>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/Core/domain>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/Core/infrastructure>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/Core/ports>
+  PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}
+)
 
 target_link_libraries(CoreLib PUBLIC CommonLib DataBaseLib ConfiguredModule ExternalIntegrationLib MathLib)
 
@@ -78,3 +110,20 @@ target_link_libraries(TEST_CORE CoreLib)
 
 # add_executable(TEST main_parameters.cpp)
 # target_link_libraries(TEST CoreLib)
+
+include(GNUInstallDirs)
+
+install(TARGETS CoreLib
+  EXPORT HyperisoTargets
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+)
+
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/Core
+        FILES_MATCHING
+          PATTERN "*.h" PATTERN "*.hpp" PATTERN "*.inl"
+          PATTERN "*.cpp" EXCLUDE
+          PATTERN "app" EXCLUDE
+          PATTERN "CMakeFiles" EXCLUDE)

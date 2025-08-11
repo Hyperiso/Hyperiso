@@ -9,7 +9,14 @@ add_library(UserInterfaceLib WilsonHandler.cpp ArgsParser.cpp ObservableHandler.
 
 set_target_properties(UserInterfaceLib PROPERTIES PUBLIC_HEADER "ObservableHandler.h;ArgsParser.h;WilsonHandler.h;HyperisoInterface.h")
 
-target_include_directories(UserInterfaceLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+# target_include_directories(UserInterfaceLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+
+target_include_directories(UserInterfaceLib
+  PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/UserInterface>
+)
+
 if (NOT TARGET BusinessLogicLib)
     add_subdirectory(../BusinessLogic BusinessLogicLib)
 endif()
@@ -39,3 +46,25 @@ endif()
 
 add_executable(main_user main.cpp)
 target_link_libraries(main_user UserInterfaceLib)
+
+# --- Install / Export ---
+include(GNUInstallDirs)
+
+install(TARGETS UserInterfaceLib
+  EXPORT HyperisoTargets
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+)
+
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/UserInterface
+  FILES_MATCHING
+    PATTERN "*.h" PATTERN "*.hpp" PATTERN "*.inl"
+    PATTERN "*.cpp" EXCLUDE
+    PATTERN "CMakeFiles" EXCLUDE
+)
+
+# petit binaire de test
+add_executable(main_user_int main.cpp)
+target_link_libraries(main_user_int UserInterfaceLib)
