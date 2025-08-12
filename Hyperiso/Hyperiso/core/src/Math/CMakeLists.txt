@@ -35,6 +35,7 @@
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/MathBSM>
         # après install, tes headers seront copiés sous include/hyperiso/Math
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/Math>
+        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/Math/MathBSM>
     PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${CMAKE_CURRENT_SOURCE_DIR}/MathBSM
@@ -59,10 +60,21 @@
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
     )
 
-    # Copie des headers publics (provisoire tant que tout vit sous src/)
-    install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
-            DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/Math
-            FILES_MATCHING
-            PATTERN "*.h" PATTERN "*.hpp" PATTERN "*.inl"
-            PATTERN "*.cpp" EXCLUDE
-            PATTERN "CMakeFiles" EXCLUDE)
+    # # Copie des headers publics (provisoire tant que tout vit sous src/)
+    # install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
+    #         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/Math
+    #         FILES_MATCHING
+    #         PATTERN "*.h" PATTERN "*.hpp" PATTERN "*.inl"
+    #         PATTERN "*.cpp" EXCLUDE
+    #         PATTERN "CMakeFiles" EXCLUDE)
+
+
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/Math
+  FILES_MATCHING
+    PATTERN "*.h"    PATTERN "*.hpp"
+    PATTERN "*.tpp"  PATTERN "*.ipp"  PATTERN "*.tcc"  PATTERN "*.inl"
+    PATTERN "*.cpp" EXCLUDE
+    PATTERN "app"  EXCLUDE
+    PATTERN "CMakeFiles" EXCLUDE
+)

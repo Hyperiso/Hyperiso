@@ -84,11 +84,21 @@ install(TARGETS DataBaseLib
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
 
+# install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
+#   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/DataBase
+#   FILES_MATCHING
+#     PATTERN "*.h" PATTERN "*.hpp" PATTERN "*.inl"
+#     PATTERN "*.cpp" EXCLUDE
+#     PATTERN "app" EXCLUDE
+#     PATTERN "CMakeFiles" EXCLUDE
+# )
+
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/DataBase
   FILES_MATCHING
-    PATTERN "*.h" PATTERN "*.hpp" PATTERN "*.inl"
+    PATTERN "*.h"    PATTERN "*.hpp"
+    PATTERN "*.tpp"  PATTERN "*.ipp"  PATTERN "*.tcc"  PATTERN "*.inl"
     PATTERN "*.cpp" EXCLUDE
-    PATTERN "app" EXCLUDE
+    PATTERN "app"  EXCLUDE
     PATTERN "CMakeFiles" EXCLUDE
 )

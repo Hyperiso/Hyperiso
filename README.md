@@ -18,9 +18,10 @@ any BSM models (with BSM masses above 100 GeV). Hyperiso is capable of performin
 
 ### Installation Steps (C++)
 1. Clone the repository: `git clone https://github.com/Hyperiso/Hyperiso.git`
-2. Go to the repository: `cd Hyperiso`
-3. Run cmake: `mkdir build && cd build && cmake ../Hyperiso/Hyperiso/core`
+2. Go to the repository: `cd hyperiso`
+3. Run cmake: `mkdir build && cd build && cmake ../Hyperiso/Hyperiso/core` (with options like -DBUILD_WITH_MARTY=ON, -DBUILD_WITH_2HDMC=ON or -DBUILD_WITH_SOFTSUSY=ON)
 3. Compile: `cmake --build .`
+4. Install using `cmake --install build --prefix "$HOME/.local"` (the prefix option is used to avoid permission error)
 
 ### Installation Steps (Python)
 1. Clone the repository: `git clone https://github.com/Hyperiso/Hyperiso.git`

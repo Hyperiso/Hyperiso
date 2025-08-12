@@ -12,7 +12,7 @@ add_library(CommonLib STATIC
     Mapper/Map.cpp)
 
 set_target_properties(CommonLib PROPERTIES POSITION_INDEPENDENT_CODE ON)
-set_target_properties(CommonLib PROPERTIES PUBLIC_HEADER "Logger.h;General.h;Utils.h")
+# set_target_properties(CommonLib PROPERTIES PUBLIC_HEADER "Logger.h;General.h;Utils.h")
 
 # target_include_directories(CommonLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 # target_include_directories(CommonLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/Mapper)
@@ -33,10 +33,13 @@ target_include_directories(CommonLib
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/Mapper>
     # Après install, on les retrouvera là :
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/Common>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/Common/Mapper>
   PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/Mapper
 )
+
+
 
 
 
@@ -51,11 +54,21 @@ install(TARGETS CommonLib
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
 
-# On copie les headers publics depuis src/Common -> include/hyperiso/Common
+# # On copie les headers publics depuis src/Common -> include/hyperiso/Common
+# install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
+#         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/Common
+#         FILES_MATCHING
+#           PATTERN "*.h" PATTERN "*.hpp" PATTERN "*.inl"
+#           PATTERN "*.cpp" EXCLUDE
+#           PATTERN "app" EXCLUDE
+#           PATTERN "CMakeFiles" EXCLUDE)
+
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
-        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/Common
-        FILES_MATCHING
-          PATTERN "*.h" PATTERN "*.hpp" PATTERN "*.inl"
-          PATTERN "*.cpp" EXCLUDE
-          PATTERN "app" EXCLUDE
-          PATTERN "CMakeFiles" EXCLUDE)
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/Common
+  FILES_MATCHING
+    PATTERN "*.h"    PATTERN "*.hpp"
+    PATTERN "*.tpp"  PATTERN "*.ipp"  PATTERN "*.tcc"  PATTERN "*.inl"
+    PATTERN "*.cpp" EXCLUDE
+    PATTERN "app"  EXCLUDE
+    PATTERN "CMakeFiles" EXCLUDE
+)
