@@ -31,19 +31,15 @@ set_target_properties(ExternalIntegrationLib PROPERTIES POSITION_INDEPENDENT_COD
 
 # set(THIRD_PARTY_DIR "${PROJECT_SOURCE_DIR}/Third_party")
 
-# Permettre de forcer le chemin si besoin :
 set(THIRD_PARTY_DIR "" CACHE PATH "Third-party directory (contains MARTY, SOFTSUSY, 2HDMC)")
 if(NOT THIRD_PARTY_DIR)
-  # Remonter depuis ce dossier jusqu'à la racine du repo (~/hyperiso)
   get_filename_component(_REPO_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/../../../../.." ABSOLUTE)
   set(THIRD_PARTY_DIR "${_REPO_ROOT}/Third_party")
 endif()
 message(STATUS "Third-party dir: ${THIRD_PARTY_DIR}")
 
-# Si déjà installés ailleurs, on peut pointer dessus pour éviter ExternalProject:
 set(MARTY_ROOT "" CACHE PATH "Existing Marty install prefix (has include/ and lib/)")
 set(SOFTSUSY_ROOT "" CACHE PATH "Existing SoftSUSY install prefix (has include/ and lib/)")
-# (2HDMC: on compile directement les .cpp, mais on peut aussi fournir un src déjà extrait)
 set(TWOHDMC_SRC "" CACHE PATH "Existing 2HDMC sources (folder containing src/)")
 
 if (BUILD_WITH_SOFTSUSY)
@@ -81,14 +77,12 @@ if (BUILD_WITH_2HDMC)
     set(TAR_FILE "${DOWNLOAD_DIR}/2HDMC-1.8.0.tar.gz")
     set(URL "https://2hdmc.hepforge.org/downloads/?f=2HDMC-1.8.0.tar.gz")
 
-    # Vérifie d'abord si les fichiers sources existent déjà
     if(NOT EXISTS "${EXTRACT_DIR}/src/THDM.cpp")
         message(STATUS "2HDMC sources not found, preparing download and extraction...")
 
         file(MAKE_DIRECTORY ${DOWNLOAD_DIR})
         file(MAKE_DIRECTORY ${EXTRACT_DIR})
 
-        # Vérifie si le fichier existe mais semble corrompu
         if(EXISTS ${TAR_FILE})
             file(SIZE ${TAR_FILE} TAR_SIZE)
             if(${TAR_SIZE} LESS 10000)
@@ -124,7 +118,6 @@ if (BUILD_WITH_2HDMC)
         message(STATUS "2HDMC source files already present, skipping download and extraction.")
     endif()
 
-    # Ajout des fichiers à la target
     target_sources(ExternalIntegrationLib PRIVATE
         "${EXTRACT_DIR}/src/THDM.cpp"
         "${EXTRACT_DIR}/src/SM.cpp"
@@ -148,7 +141,6 @@ if (BUILD_WITH_MARTY)
 
     set(MARTY_CORRECT_COMPILER_VERSION "11")  # Remplacez par la version correcte de votre compilateur
 
-    # Script pour modifier la version du compilateur dans .setup_script.sh
     file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/MARTY/modify_compiler_version.sh" 
         "#!/bin/bash\n"
         "sed -i 's/set(CMAKE_CXX_STANDARD 17)/set(CMAKE_CXX_STANDARD 20)/' ${MARTY_PATH}/src/CMakeLists.txt\n"

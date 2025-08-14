@@ -34,27 +34,16 @@ set_target_properties(DataBaseLib PROPERTIES POSITION_INDEPENDENT_CODE ON)
 # target_include_directories(DataBaseLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/domain)
 # target_include_directories(DataBaseLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/ports)
 
-# target_include_directories(DataBaseLib
-#   PUBLIC
-#     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src>
-#     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
-#   PRIVATE
-#     ${CMAKE_CURRENT_SOURCE_DIR}
-#     ${CMAKE_CURRENT_SOURCE_DIR}/Service
-#     ${CMAKE_CURRENT_SOURCE_DIR}/adapters
-#     ${CMAKE_CURRENT_SOURCE_DIR}/domain
-#     ${CMAKE_CURRENT_SOURCE_DIR}/ports
-# )
 
 target_include_directories(DataBaseLib
   PUBLIC
-    # pendant le build : dossiers réels où sont les headers
+    # build
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/adapters>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/domain>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/Service>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/ports>
-    # après install : mêmes dossiers sous include/
+    # install
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/DataBase>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/DataBase/adapters>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/DataBase/domain>
@@ -83,15 +72,6 @@ install(TARGETS DataBaseLib
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
-
-# install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
-#   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/DataBase
-#   FILES_MATCHING
-#     PATTERN "*.h" PATTERN "*.hpp" PATTERN "*.inl"
-#     PATTERN "*.cpp" EXCLUDE
-#     PATTERN "app" EXCLUDE
-#     PATTERN "CMakeFiles" EXCLUDE
-# )
 
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/DataBase

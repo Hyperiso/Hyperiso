@@ -30,10 +30,10 @@
 
     target_include_directories(MathLib
     PUBLIC
-        # ces DEUX chemins doivent être séparés
+        # build
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/MathBSM>
-        # après install, tes headers seront copiés sous include/hyperiso/Math
+        # install
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/Math>
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/Math/MathBSM>
     PRIVATE
@@ -59,14 +59,6 @@
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
     )
-
-    # # Copie des headers publics (provisoire tant que tout vit sous src/)
-    # install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
-    #         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/Math
-    #         FILES_MATCHING
-    #         PATTERN "*.h" PATTERN "*.hpp" PATTERN "*.inl"
-    #         PATTERN "*.cpp" EXCLUDE
-    #         PATTERN "CMakeFiles" EXCLUDE)
 
 
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/

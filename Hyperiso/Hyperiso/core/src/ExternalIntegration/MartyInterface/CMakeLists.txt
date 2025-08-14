@@ -54,7 +54,7 @@ add_library(MartyInterfaceLib STATIC
 
 set_target_properties(MartyInterfaceLib PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
-set_target_properties(MartyInterfaceLib PROPERTIES PUBLIC_HEADER "CinematicExtractor.h;FileNameManager.h;ModelModifier.h;GeneralNumModelModifier.h;CodeGenerator.h;CompilerStrategy.h;GppCompilerStrategy;MakeCompilerStrategy.h;GeneralModelModifier.h;MartyInterface.h;TemplateManager.h;NumericalScriptProcessing/IncludeManager.h;NumericalScriptProcessing/LineProcessor.h;NumericalScriptProcessing/ModelWriter.h;NumericalScriptProcessing/ParamWriter.h;NumericalScriptProcessing/Extractor.h;NumericalScriptProcessing/Interpreter.h;NumericalScriptProcessing/IParamSetter.h;NumericalScriptProcessing/SMParamSetter.h")
+# set_target_properties(MartyInterfaceLib PROPERTIES PUBLIC_HEADER "CinematicExtractor.h;FileNameManager.h;ModelModifier.h;GeneralNumModelModifier.h;CodeGenerator.h;CompilerStrategy.h;GppCompilerStrategy;MakeCompilerStrategy.h;GeneralModelModifier.h;MartyInterface.h;TemplateManager.h;NumericalScriptProcessing/IncludeManager.h;NumericalScriptProcessing/LineProcessor.h;NumericalScriptProcessing/ModelWriter.h;NumericalScriptProcessing/ParamWriter.h;NumericalScriptProcessing/Extractor.h;NumericalScriptProcessing/Interpreter.h;NumericalScriptProcessing/IParamSetter.h;NumericalScriptProcessing/SMParamSetter.h")
 # target_include_directories(MartyInterfaceLib PRIVATE BSM)
 
 # target_include_directories(MartyInterfaceLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
@@ -62,25 +62,15 @@ set_target_properties(MartyInterfaceLib PROPERTIES PUBLIC_HEADER "CinematicExtra
 # target_include_directories(MartyInterfaceLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/adapters)
 # target_include_directories(MartyInterfaceLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/NumericalScriptProcessing)
 
-# target_include_directories(MartyInterfaceLib
-#   PUBLIC
-#     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src>
-#     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
-#   PRIVATE
-#     ${CMAKE_CURRENT_SOURCE_DIR}
-#     ${CMAKE_CURRENT_SOURCE_DIR}/ports
-#     ${CMAKE_CURRENT_SOURCE_DIR}/adapters
-#     ${CMAKE_CURRENT_SOURCE_DIR}/NumericalScriptProcessing
-# )
 target_include_directories(MartyInterfaceLib
   PUBLIC
-    # build: expose exactement où vivent tes headers inclus sans préfixe
+    # build
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/ports>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/adapters>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/NumericalScriptProcessing>
 
-    # install: miroirs sous include/
+    # install
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/ExternalIntegration/MartyInterface>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/ExternalIntegration/MartyInterface/ports>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/ExternalIntegration/MartyInterface/adapters>

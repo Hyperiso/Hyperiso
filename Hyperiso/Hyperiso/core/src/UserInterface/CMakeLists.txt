@@ -7,7 +7,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 project(UserInterface)
 add_library(UserInterfaceLib WilsonHandler.cpp ArgsParser.cpp ObservableHandler.cpp)
 
-set_target_properties(UserInterfaceLib PROPERTIES PUBLIC_HEADER "ObservableHandler.h;ArgsParser.h;WilsonHandler.h;HyperisoInterface.h")
+# set_target_properties(UserInterfaceLib PROPERTIES PUBLIC_HEADER "ObservableHandler.h;ArgsParser.h;WilsonHandler.h;HyperisoInterface.h")
 
 # target_include_directories(UserInterfaceLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
@@ -47,7 +47,6 @@ endif()
 add_executable(main_user main.cpp)
 target_link_libraries(main_user UserInterfaceLib)
 
-# --- Install / Export ---
 include(GNUInstallDirs)
 
 install(TARGETS UserInterfaceLib
@@ -65,6 +64,5 @@ install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
     PATTERN "CMakeFiles" EXCLUDE
 )
 
-# petit binaire de test
 add_executable(main_user_int main.cpp)
 target_link_libraries(main_user_int UserInterfaceLib)

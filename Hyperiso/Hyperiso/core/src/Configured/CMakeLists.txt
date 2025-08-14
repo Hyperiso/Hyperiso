@@ -50,7 +50,6 @@ install(TARGETS ConfiguredModule
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
 
-# Installer les headers générés
 install(DIRECTORY ${CMAKE_BINARY_DIR}/configured_files/include/
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/Configured
         FILES_MATCHING PATTERN "*.h" PATTERN "*.hpp")

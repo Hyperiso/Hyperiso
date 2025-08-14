@@ -72,28 +72,17 @@ set_target_properties(PhysicalModelLib PROPERTIES PUBLIC_HEADER "Interpolator.h;
 # target_include_directories(PhysicalModelLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/domain)
 # target_include_directories(PhysicalModelLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/BSM)
 
-# target_include_directories(PhysicalModelLib
-#   PUBLIC
-#     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src>
-#     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
-#   PRIVATE
-#     ${CMAKE_CURRENT_SOURCE_DIR}
-#     ${CMAKE_CURRENT_SOURCE_DIR}/adapters
-#     ${CMAKE_CURRENT_SOURCE_DIR}/ports
-#     ${CMAKE_CURRENT_SOURCE_DIR}/domain
-#     ${CMAKE_CURRENT_SOURCE_DIR}/BSM
-# )
 
 target_include_directories(PhysicalModelLib
   PUBLIC
-    # build: expose les dossiers qui contiennent les .h inclus sans préfixe
+    # build
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/adapters>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/ports>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/domain>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/BSM>
 
-    # install: mêmes chemins sous include/
+    # install
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/PhysicalModel>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/PhysicalModel/adapters>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/PhysicalModel/ports>

@@ -15,27 +15,16 @@ add_library(PandasLib STATIC
     )
 
 set_target_properties(PandasLib PROPERTIES POSITION_INDEPENDENT_CODE ON)
-set_target_properties(PandasLib PROPERTIES PUBLIC_HEADER "Series.h;DataFrame.h;CSVReader.h;CSVOptions.h")
+# set_target_properties(PandasLib PROPERTIES PUBLIC_HEADER "Series.h;DataFrame.h;CSVReader.h;CSVOptions.h")
 
 # target_include_directories(PandasLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
-# target_include_directories(PandasLib
-#   PUBLIC
-#     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src>
-#     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
-#   PRIVATE
-#     ${CMAKE_CURRENT_SOURCE_DIR}
-# )
 
 target_include_directories(PandasLib
   PUBLIC
-    # build: dossiers où vivent tes headers (ex: "DataFrame.h")
+    # build
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-    # ajoute ici d'autres sous-dossiers si tu en as, p.ex.:
-    # $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/io>
-    # $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/detail>
-
-    # install: miroir sous include/
+    # install
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/DataBase/Pandas>
   PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
@@ -52,7 +41,6 @@ install(TARGETS PandasLib
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
 
-# On copie les headers publics vers l’arbre installé
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/DataBase/Pandas
   FILES_MATCHING

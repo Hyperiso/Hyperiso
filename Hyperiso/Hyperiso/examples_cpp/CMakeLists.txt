@@ -4,7 +4,7 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(GSL REQUIRED)
-find_package(Hyperiso REQUIRED)  # utilise ~/.local/lib/cmake/Hyperiso
+find_package(Hyperiso REQUIRED)  # ~/.local/lib/cmake/Hyperiso
 
 add_executable(core core_example.cpp)
 target_link_libraries(core PRIVATE Hyperiso::CoreLib)

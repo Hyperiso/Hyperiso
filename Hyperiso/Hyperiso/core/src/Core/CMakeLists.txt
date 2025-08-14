@@ -65,29 +65,18 @@ set_target_properties(CoreLib PROPERTIES POSITION_INDEPENDENT_CODE ON)
 # target_include_directories(CoreLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/infrastructure)
 # target_include_directories(CoreLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/ports)
 
-# target_include_directories(CoreLib
-#   PUBLIC
-#     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src>
-#     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
-#   PRIVATE
-#     ${CMAKE_CURRENT_SOURCE_DIR}
-#     ${CMAKE_CURRENT_SOURCE_DIR}/adapters
-#     ${CMAKE_CURRENT_SOURCE_DIR}/domain
-#     ${CMAKE_CURRENT_SOURCE_DIR}/infrastructure
-#     ${CMAKE_CURRENT_SOURCE_DIR}/ports
-# )
+
 
 target_include_directories(CoreLib
   PUBLIC
-    # pendant le build : dossiers qui contiennent tes .h utilisés avec
-    # des includes courts ("Block.h", "Parameter.h", etc.)
+    # build
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/adapters>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/domain>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/infrastructure>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/ports>
 
-    # après install : chemins équivalents sous include/
+    # install
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/Core>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/Core/adapters>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/Core/domain>
