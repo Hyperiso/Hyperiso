@@ -62,4 +62,6 @@ protected:
     std::map<WilsonBasis, std::map<QCDOrder, CoefficientGroupSources>> sources;
 };
 
+std::ostream& operator<<(std::ostream& os, const CoefficientGroup& coeffs);
+std::ostream& operator<<(std::ostream& os, const std::shared_ptr<CoefficientGroup>& coeffs);
 #endif

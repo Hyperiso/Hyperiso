@@ -111,6 +111,9 @@ target_link_libraries(camilia_test PhysicalModelLib)
 
 add_executable(susy_test app/main_susy.cpp)
 target_link_libraries(susy_test PhysicalModelLib)
+
+add_executable(custom_test app/main_custom_wilson.cpp)
+target_link_libraries(custom_test PhysicalModelLib)
 # add_executable(test_martywilson main.cpp)
 # target_link_libraries(test_martywilson PhysicalModelLib MartyInterfaceLib)
 
