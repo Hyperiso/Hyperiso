@@ -61,7 +61,7 @@ int main() {
             LhaID(999, 1001, 1, 0)
         );
 
-        auto Gcustom = std::make_shared<CustomCoefficientGroup>(WGroup::B, ContributionType::SM);
+        auto Gcustom = std::make_shared<CustomCoefficientGroup>("B", ContributionType::SM);
         Gcustom->add_coefficient(Cfoo);
 
         Gcustom->set_basis_order_sources_and_running(
