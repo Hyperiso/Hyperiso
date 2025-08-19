@@ -39,39 +39,31 @@ int main() {
         Cfoo->set_order_info(
             QCDOrder::LO,
             std::unordered_set<ParamId>{
-                {ParameterType::WILSON, "WPARAM_MATCH_SM", LhaID(2,1)}, // x_t
-                {ParameterType::WILSON, "EW_SCALE", 1}                  // Q_match
             },
             [](const auto& src)->scalar_t {
-                double xt = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", LhaID(2,1)})->get_val();
-                double Q  = src.at({ParameterType::WILSON, "EW_SCALE", 1})->get_val();
-                // démo: remplace par ta vraie formule
+                double xt = 1;
+                double Q = 4.18;
                 return 0.123 + 0.5*std::log(Q) - 0.1*xt;
             },
-            LhaID(999, 1001, 0, 0) // LHA ID LO
+            LhaID(999, 1001, 0, 0) 
         );
 
-        // NLO : sources + lambda + LHA ID
         Cfoo->set_order_info(
             QCDOrder::NLO,
             std::unordered_set<ParamId>{
-                {ParameterType::WILSON, "WPARAM_MATCH_SM", 3},          // L
-                {ParameterType::WILSON, "WPARAM_MATCH_SM", LhaID(2,1)}, // x_t
-                {ParameterType::WILSON, "EW_SCALE", 1}                  // Q_match
             },
             [](const auto& src)->scalar_t {
-                double L  = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 3})->get_val();
-                double xt = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", LhaID(2,1)})->get_val();
+
+                double L = 2;
+                double xt = 1;
                 return 0.456 + 0.25*L - 0.02*xt*xt;
             },
-            LhaID(999, 1001, 1, 0) // LHA ID NLO
+            LhaID(999, 1001, 1, 0)
         );
 
-        // 2) Créer un groupe custom B et y ajouter le coefficient
         auto Gcustom = std::make_shared<CustomCoefficientGroup>(WGroup::B, ContributionType::SM);
         Gcustom->add_coefficient(Cfoo);
 
-        // 3) Déclarer les sources et le running pour la base standard à LO
         Gcustom->set_basis_order_sources_and_running(
             WilsonBasis::B_STANDARD,
             QCDOrder::LO,
@@ -79,19 +71,15 @@ int main() {
                 {ParameterType::WILSON, {"U_MATRIX", "WPARAM_MATCH_SM", "WPARAM_RUN_SM"}},
                 {ParameterType::SM,     {"MASS"}}
             },
-            // Running “identité” (copie le matching de l’ordre dispo vers le hadronique)
             CustomCoefficientGroup::identity_running
         );
 
-        // 4) Finaliser : compose_parameter sur chaque coef/ordre
         Gcustom->finalize(QCDOrder::NLO);
 
-        // 5) Lire et afficher quelques valeurs
-        // Matching mu_W
+
         auto cfoo_lo_match  = Gcustom->get_matching_coefficient("Cfoo", "LO",  ContributionType::TOTAL);
         auto cfoo_nlo_match = Gcustom->get_matching_coefficient("Cfoo", "NLO", ContributionType::TOTAL);
 
-        // Running mu_h (base standard)
         auto cfoo_lo_run  = Gcustom->get_running_coefficient("Cfoo", "LO",  ContributionType::TOTAL, WilsonBasis::B_STANDARD);
         auto cfoo_nlo_run = Gcustom->get_running_coefficient("Cfoo", "NLO", ContributionType::TOTAL, WilsonBasis::B_STANDARD);
 
@@ -101,7 +89,6 @@ int main() {
         std::cout << "Cfoo (running,  LO)  = " << cfoo_lo_run    << "\n";
         std::cout << "Cfoo (running,  NLO) = " << cfoo_nlo_run   << "\n";
 
-        // 6) Optionnel : afficher tout le groupe (utilise ton operator<<)
         std::cout << "\n--- Dump du groupe ---\n";
         std::cout << Gcustom << std::endl;
 

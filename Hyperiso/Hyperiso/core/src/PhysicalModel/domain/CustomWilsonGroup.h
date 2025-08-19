@@ -6,10 +6,11 @@
 class CustomCoefficientGroup : public CoefficientGroup {
 public:
 
-    explicit CustomCoefficientGroup(WGroup id,
+    explicit CustomCoefficientGroup(const std::string& name,
                                     ContributionType type = ContributionType::SM)
     {
-        this->id = id;
+        this->id = WGroup::CUSTOM_GROUP;
+        this->name_grp = name;
         this->wilson_type = type;
     }
 
@@ -52,6 +53,8 @@ public:
         this->init(order);
         return *this;
     }
+    
+    std::string name_grp;
 };
 
 #endif // CUSTOM_WILSON_GROUP_H

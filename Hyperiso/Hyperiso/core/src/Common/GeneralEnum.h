@@ -49,6 +49,7 @@ enum class WGroup {
     BPrime, 
     BScalar,
     BCC,
+    CUSTOM_GROUP
 };
 
 

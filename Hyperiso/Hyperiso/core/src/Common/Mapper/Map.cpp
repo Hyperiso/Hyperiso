@@ -43,6 +43,7 @@ const std::map<WGroup, std::string>& group_mapping() {
         {WGroup::BPrime, "BPrimeCoefficients"},
         {WGroup::BScalar, "BScalarCoefficients"},
         {WGroup::BCC, "BChargedCurrentCoefficients"},
+        {WGroup::CUSTOM_GROUP, "Custom_Group"},
     };
     return m;
 }

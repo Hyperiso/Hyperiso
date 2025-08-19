@@ -50,24 +50,20 @@ public:
         if (ends_with(coeffName, "_THDM") || ends_with(coeffName, "_SUSY")) {
             type = ContributionType::BSM;
         }
-        std::cout << "Creating Wilson part A " << name << std::endl;
 
 
         for (auto order : {QCDOrder::LO, QCDOrder::NLO, QCDOrder::NNLO}) {
             matching_info[order] = MatchingInfo(this->id(order, type));
         }
-        std::cout << "Creating Wilson: " << name << std::endl;
     }
 
     WilsonCoefficient(const LhaID &name, const std::string& storage_block, ContributionType ct) : coeffName(name.to_string()), storage_block(storage_block) {
         type = ct;
-        std::cout << "Creating Wilson part B " << name << std::endl;
 
 
         for (auto order : {QCDOrder::LO, QCDOrder::NLO, QCDOrder::NNLO}) {
             matching_info[order] = MatchingInfo(name + LhaID((int)order, (int)ct));
         }
-        std::cout << "Creating Wilson: " << name << std::endl;
     }
 
 
