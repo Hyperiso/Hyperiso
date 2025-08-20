@@ -40,6 +40,7 @@ endif()
 
 
 add_library(PhysicalModelLib STATIC 
+    domain/MesonMixingRunningParameters.cpp
     domain/BWilsonRunningParameters.cpp
     domain/Wilson_parameters.cpp
     domain/Wilson.cpp
@@ -48,6 +49,8 @@ add_library(PhysicalModelLib STATIC
     domain/BWilsonGroup.cpp
     domain/ChargedCurrentWilson.cpp
     domain/ChargedCurrentsWilsonGroup.cpp
+    domain/MesonMixingWilson.cpp
+    domain/MesonMixingWilsonGroup.cpp
     domain/WilsonGroup.cpp
     domain/WilsonManager.cpp
     domain/MartyWilson.cpp

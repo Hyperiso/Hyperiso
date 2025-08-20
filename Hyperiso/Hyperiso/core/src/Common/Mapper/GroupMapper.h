@@ -14,6 +14,7 @@ public:
             {WGroup::BPrime, "BPrimeCoefficients"},
             {WGroup::BScalar, "BScalarCoefficients"},
             {WGroup::BCC, "BChargedCurrentCoefficients"},
+            {WGroup::MESON_MIXING, "MesonMixing"},
             {WGroup::CUSTOM_GROUP, "Custom_Group"},
         };
         return m;

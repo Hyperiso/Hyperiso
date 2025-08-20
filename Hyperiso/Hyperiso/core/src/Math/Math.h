@@ -456,6 +456,13 @@ double C10Z2tri(double x);
  */
 double F0SP(double xt);
 
+/**
+ * @brief Wilson special funtion S0 depending on xt.
+ * @param xt Input parameter.
+ * @return Value of S0(xt).
+ */
+double S0(double x);
+
 /*
     Integration routines
 */

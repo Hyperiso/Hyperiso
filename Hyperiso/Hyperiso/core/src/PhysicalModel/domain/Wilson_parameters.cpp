@@ -75,17 +75,41 @@ void WilsonParameterHelper::init_matching_block() {
 void WilsonParameterHelper::init_running_block() {
 	LOG_DEBUG("Init running scale dependent wparam block");
 	std::unordered_map<ParameterType, std::vector<std::string>> src = {
-		{ParameterType::WILSON, {"EW_SCALE", "B_SCALE"}}
+		{ParameterType::WILSON, {"EW_SCALE", "B_SCALE"}},
+		{ParameterType::SM, {"QCD", "MASS"}}
 	};
 
     auto func = [] (const std::unordered_map<std::string, std::shared_ptr<Block>>& src, std::shared_ptr<DependentBlock> dep_block) {
 		double mu_W = src.at("EW_SCALE")->retrieve(1)->get_val();
 		double mu_h = src.at("B_SCALE")->retrieve(1)->get_val();
-        double alphas_mu = QCDHelper::alpha_s(mu_h);	
-		double eta = QCDHelper::alpha_s(mu_W) / alphas_mu;
+
+		int n_f_final = QCDHelper::get_nf(mu_h, MassType::MSBAR);
+        double alphas_mu_h = QCDHelper::alpha_s(mu_h);
+
+		double eta_5 {0}, eta_4 {0}, eta_3 {0};
+		if (n_f_final == 5) {
+			eta_5 = QCDHelper::alpha_s(mu_W) / alphas_mu_h;
+		} else if (n_f_final == 4) {
+			double mu_b = src.at("QCD")->retrieve({5, 1})->get_val();
+			double alpha_s_mu_b = QCDHelper::alpha_s(mu_b, MassType::MSBAR);
+			eta_5 = QCDHelper::alpha_s(mu_W) / alpha_s_mu_b;
+			eta_4 = alpha_s_mu_b / alphas_mu_h;
+		} else if (n_f_final == 3) {
+			double mu_b = src.at("QCD")->retrieve({5, 1})->get_val();
+			double mu_c = src.at("MASS")->retrieve(4)->get_val();
+			double alpha_s_mu_b = QCDHelper::alpha_s(mu_b, MassType::MSBAR);
+			double alpha_s_mu_c = QCDHelper::alpha_s(mu_c, MassType::MSBAR);
+			eta_5 = QCDHelper::alpha_s(mu_W) / alpha_s_mu_b;
+			eta_4 = alpha_s_mu_b / alpha_s_mu_c;
+			eta_3 = alpha_s_mu_c / alphas_mu_h;
+		} else {
+			LOG_ERROR("ValueError", "In WilsonParameterHelper::init_running_block() : Hadronic mass is out of allowed range in Hyperiso.");
+		}	
 		
-		dep_block->store_or_assign(1, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_RUN_SM", 1}, alphas_mu, 0., 0.));
-		dep_block->store_or_assign(2, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_RUN_SM", 2}, eta, 0., 0.));
+		dep_block->store_or_assign(1, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_RUN_SM", 1}, alphas_mu_h, 0., 0.));
+		dep_block->store_or_assign(2, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_RUN_SM", 2}, eta_5, 0., 0.));
+		dep_block->store_or_assign(3, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_RUN_SM", 3}, eta_4, 0., 0.));
+		dep_block->store_or_assign(4, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_RUN_SM", 4}, eta_3, 0., 0.));
     };
 
     WilsonParameterHelper::composer.compose_block("WPARAM_RUN_SM", src, func);

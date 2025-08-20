@@ -4,6 +4,7 @@
 #include "Include.h"
 #include "WilsonGroup.h"
 #include "BWilsonGroup.h"
+#include "MesonMixingWilsonGroup.h"
 #include "Wilson_SUSY_super.h"
 #include "Wilson_THDM_super.h"
 
@@ -25,6 +26,8 @@ public:
                     return std::make_shared<BScalarCoefficientGroup>();
                 case WGroup::BCC:
                     return std::make_shared<BclnuCoefficientGroup>();
+                case WGroup::MESON_MIXING:
+                    return std::make_shared<MesonMixingCoefficientGroup>();
                 default:
                     LOG_ERROR("Invalid Argument", "Unknown group type", GroupMapper::str(group));
             }
@@ -38,6 +41,8 @@ public:
                     return std::make_shared<BScalarCoefficientGroup_susy>();
                 case WGroup::BCC:
                     return std::make_shared<BclnuCoefficientGroup_SUSY>();
+                case WGroup::MESON_MIXING:
+                    LOG_ERROR("Not Implemented", "Coefficient group", GroupMapper::str(group), "has not yet been implmented in SUSY");
                 default:
                     LOG_ERROR("Invalid Argument", "Unknown group type", GroupMapper::str(group));
             }
@@ -51,6 +56,8 @@ public:
                     return std::make_shared<BScalarCoefficientGroup_THDM>();
                 case WGroup::BCC:
                     return std::make_shared<BclnuCoefficientGroup_THDM>();
+                case WGroup::MESON_MIXING:
+                    LOG_ERROR("Not Implemented", "Coefficient group", GroupMapper::str(group), "has not yet been implmented in THDM");
                 default:
                     LOG_ERROR("Invalid Argument", "Unknown group type", GroupMapper::str(group));
             }

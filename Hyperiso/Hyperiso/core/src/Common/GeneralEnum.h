@@ -41,7 +41,14 @@ enum class QCDOrder {
 };
 
 enum class WCoef {
-    C1, C2, C3, C4, C5, C6, C7, C8, C9, C10, CQ1, CQ2, CP1, CP2, CP3, CP4, CP5, CP6, CP7, CP8, CP9, CP10, CPQ1, CPQ2, C_V1, C_V2, C_S1, C_S2, C_T
+    C1, C2, C3, C4, C5, C6, C7, C8, C9, C10,                                // b > s l l
+    CQ1, CQ2,                                                               // b > s l l
+    CP1, CP2, CP3, CP4, CP5, CP6, CP7, CP8, CP9, CP10, CPQ1, CPQ2,          // b > s l l
+    C_V1, C_V2, C_S1, C_S2, C_T,                                            // b > c l nu
+    C_BD_1, CT_BD_1, C_BD_2, CT_BD_2, C_BD_3, CT_BD_3, C_BD_4, C_BD_5,      // Bd0 mixing
+    C_BS_1, CT_BS_1, C_BS_2, CT_BS_2, C_BS_3, CT_BS_3, C_BS_4, C_BS_5,      // Bs0 mixing
+    C_SD_1, CT_SD_1, C_SD_2, CT_SD_2, C_SD_3, CT_SD_3, C_SD_4, C_SD_5,      // K0 mixing
+    C_CU_1, CT_CU_1, C_CU_2, CT_CU_2, C_CU_3, CT_CU_3, C_CU_4, C_CU_5,      // D0 mixing
 };
 
 enum class WGroup {
@@ -49,6 +56,7 @@ enum class WGroup {
     BPrime, 
     BScalar,
     BCC,
+    MESON_MIXING,
     CUSTOM_GROUP
 };
 

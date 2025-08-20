@@ -43,6 +43,7 @@ const std::map<WGroup, std::string>& group_mapping() {
         {WGroup::BPrime, "BPrimeCoefficients"},
         {WGroup::BScalar, "BScalarCoefficients"},
         {WGroup::BCC, "BChargedCurrentCoefficients"},
+        {WGroup::MESON_MIXING, "MesonMixing"},
         {WGroup::CUSTOM_GROUP, "Custom_Group"},
     };
     return m;
@@ -57,6 +58,10 @@ const std::map<WCoef, std::string>& wcoef_mapping() {
         {WCoef::CP9, "CP9"}, {WCoef::CP10, "CP10"}, {WCoef::CQ1, "CQ1"}, {WCoef::CQ2, "CQ2"},
         {WCoef::CPQ1, "CPQ1"}, {WCoef::CPQ2, "CPQ2"},
         {WCoef::C_V1, "C_V1"}, {WCoef::C_V2, "C_V2"}, {WCoef::C_S1, "C_S1"}, {WCoef::C_S2, "C_S2"}, {WCoef::C_T, "C_T"},
+        {WCoef::C_BD_1, "C_BD_1"}, {WCoef::CT_BD_1, "CT_BD_1"}, {WCoef::C_BD_2, "C_BD_2"}, {WCoef::CT_BD_2, "CT_BD_2"}, {WCoef::C_BD_3, "C_BD_3"}, {WCoef::CT_BD_3, "CT_BD_3"}, {WCoef::C_BD_4, "C_BD_4"}, {WCoef::C_BD_5, "C_BD_5"},
+        {WCoef::C_BS_1, "C_BS_1"}, {WCoef::CT_BS_1, "CT_BS_1"}, {WCoef::C_BS_2, "C_BS_2"}, {WCoef::CT_BS_2, "CT_BS_2"}, {WCoef::C_BS_3, "C_BS_3"}, {WCoef::CT_BS_3, "CT_BS_3"}, {WCoef::C_BS_4, "C_BS_4"}, {WCoef::C_BS_5, "C_BS_5"},
+        {WCoef::C_SD_1, "C_SD_1"}, {WCoef::CT_SD_1, "CT_SD_1"}, {WCoef::C_SD_2, "C_SD_2"}, {WCoef::CT_SD_2, "CT_SD_2"}, {WCoef::C_SD_3, "C_SD_3"}, {WCoef::CT_SD_3, "CT_SD_3"}, {WCoef::C_SD_4, "C_SD_4"}, {WCoef::C_SD_5, "C_SD_5"},
+        {WCoef::C_CU_1, "C_CU_1"}, {WCoef::CT_CU_1, "CT_CU_1"}, {WCoef::C_CU_2, "C_CU_2"}, {WCoef::CT_CU_2, "CT_CU_2"}, {WCoef::C_CU_3, "C_CU_3"}, {WCoef::CT_CU_3, "CT_CU_3"}, {WCoef::C_CU_4, "C_CU_4"}, {WCoef::C_CU_5, "C_CU_5"},
     };
     return m;
 }
@@ -73,6 +78,14 @@ const std::map<WCoef, std::pair<int, int>>& wcoef_flha_mapping() {
         {WCoef::CPQ1, {3051313, 3130}}, {WCoef::CPQ2, {3051313, 3133}},
         {WCoef::C_V1, {4051516, 4141}}, {WCoef::C_V2, {4051516, 4241}},
         {WCoef::C_S1, {4051516, 3231}}, {WCoef::C_S2, {4051516, 3131}}, {WCoef::C_T, {4051516, 4343}},
+        {WCoef::C_BD_1, {1050105, 4141}}, {WCoef::CT_BD_1, {1050105, 4242}}, {WCoef::C_BD_2, {1050105, 3131}}, {WCoef::CT_BD_2, {1050105, 3232}},
+        {WCoef::C_BD_3, {1050105, 7171}}, {WCoef::CT_BD_3, {1050105, 7272}}, {WCoef::C_BD_4, {1050105, 3132}}, {WCoef::C_BD_5, {1050105, 7172}},
+        {WCoef::C_BS_1, {3050305, 4141}}, {WCoef::CT_BS_1, {3050305, 4242}}, {WCoef::C_BS_2, {3050305, 3131}}, {WCoef::CT_BS_2, {3050305, 3232}},
+        {WCoef::C_BS_3, {3050305, 7171}}, {WCoef::CT_BS_3, {3050305, 7272}}, {WCoef::C_BS_4, {3050305, 3132}}, {WCoef::C_BS_5, {3050305, 7172}},
+        {WCoef::C_SD_1, {1030103, 4141}}, {WCoef::CT_SD_1, {1030103, 4242}}, {WCoef::C_SD_2, {1030103, 3131}}, {WCoef::CT_SD_2, {1030103, 3232}},
+        {WCoef::C_SD_3, {1030103, 7171}}, {WCoef::CT_SD_3, {1030103, 7272}}, {WCoef::C_SD_4, {1030103, 3132}}, {WCoef::C_SD_5, {1030103, 7172}},
+        {WCoef::C_CU_1, {2040204, 4141}}, {WCoef::CT_CU_1, {2040204, 4242}}, {WCoef::C_CU_2, {2040204, 3131}}, {WCoef::CT_CU_2, {2040204, 3232}},
+        {WCoef::C_CU_3, {2040204, 7171}}, {WCoef::CT_CU_3, {2040204, 7272}}, {WCoef::C_CU_4, {2040204, 3132}}, {WCoef::C_CU_5, {2040204, 7172}},
     };
     return m;
 }

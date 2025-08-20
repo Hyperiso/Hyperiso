@@ -1151,3 +1151,10 @@ double F0SP(double xt)
 
 	return 1./8./(xt-1.)/(xt-1.)*((xt-3.)/2.-xt*(xt-2.)/(xt-1.)*log(xt));
 }
+
+
+double S0(double x) {
+	if(abs(1.-x)<1.e-5) return S0(0.9999);
+
+	return (4.*x-11.*x*x+x*x*x)/4./pow(1.-x,2.) - 3.*x*x*x*log(x)/2./pow(1.-x,3.);
+}

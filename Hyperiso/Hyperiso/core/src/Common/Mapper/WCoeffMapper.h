@@ -40,6 +40,7 @@ public:
             case WGroup::BPrime: return B_prime_group();
             case WGroup::BScalar: return B_scalar_group();
             case WGroup::BCC: return b_clnu_group();
+            case WGroup::MESON_MIXING: return meson_mixing_group();
             default:
                 LOG_ERROR("Invalid WGroup", "get_group function couldn't find your group");
         }
@@ -75,6 +76,16 @@ public:
 
     static const std::vector<WCoef>& b_clnu_group() {
         static const std::vector<WCoef> g = {WCoef::C_V1, WCoef::C_V2, WCoef::C_S1, WCoef::C_S2, WCoef::C_T};
+        return g;
+    }
+
+    static const std::vector<WCoef>& meson_mixing_group() {
+        static const std::vector<WCoef> g = {
+            WCoef::C_BD_1, WCoef::CT_BD_1, WCoef::C_BD_2, WCoef::CT_BD_2, WCoef::C_BD_3, WCoef::CT_BD_3, WCoef::C_BD_4, WCoef::C_BD_5,
+            WCoef::C_BS_1, WCoef::CT_BS_1, WCoef::C_BS_2, WCoef::CT_BS_2, WCoef::C_BS_3, WCoef::CT_BS_3, WCoef::C_BS_4, WCoef::C_BS_5,
+            WCoef::C_SD_1, WCoef::CT_SD_1, WCoef::C_SD_2, WCoef::CT_SD_2, WCoef::C_SD_3, WCoef::CT_SD_3, WCoef::C_SD_4, WCoef::C_SD_5,
+            WCoef::C_CU_1, WCoef::CT_CU_1, WCoef::C_CU_2, WCoef::CT_CU_2, WCoef::C_CU_3, WCoef::CT_CU_3, WCoef::C_CU_4, WCoef::C_CU_5,
+        };
         return g;
     }
 

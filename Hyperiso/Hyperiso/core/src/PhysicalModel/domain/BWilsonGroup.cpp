@@ -456,6 +456,7 @@ void BCoefficientGroup::init_sources() {
     this->sources.insert({WilsonBasis::B_TRADITIONAL, grp_src_base2});
 }
 
+//TODO : clean path name and wilson vector managment
 void BCoefficientGroup::add_wilson_coefficients(bool force_sm) {
     if (UseMarty().get()) {
         this->wilson_type = force_sm ? ContributionType::SM : ContributionType::TOTAL;
