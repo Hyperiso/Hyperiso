@@ -126,7 +126,7 @@ if __name__ == "__main__":
 
     hyp = PyHyperisoMaster()
     lha_file_path = "lha/testinput_thdm.lha" 
-    lha_file_path = "/home/cern/hyperiso/Hyperiso/Hyperiso/core/Test/InputFiles/testInput.slha"
+    lha_file_path = "/home/theo/hyperiso/Hyperiso/Hyperiso/core/Test/InputFiles/testInput.slha"
     print("\n🚀 Calling init with config...")
     hyp.init(lha_file=lha_file_path, config=config)
     

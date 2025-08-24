@@ -1158,3 +1158,57 @@ double S0(double x) {
 
 	return (4.*x-11.*x*x+x*x*x)/4./pow(1.-x,2.) - 3.*x*x*x*log(x)/2./pow(1.-x,3.);
 }
+
+double D0(double w, double x, double y, double z)
+{
+	if((fabs(1.-w)<1.e-5)&&(fabs(1.-x)<1.e-5)&&(fabs(1.-y)<1.e-5)&&(fabs(1.-z)<1.e-5)) return D0(0.9996,0.9998,1.0002,1.0004);
+	if((fabs(1.-w)<1.e-5)&&(fabs(1.-x)<1.e-5)&&(fabs(1.-y)<1.e-5)) return D0(0.9996,0.9998,1.0002,z);
+	if((fabs(1.-x)<1.e-5)&&(fabs(1.-y)<1.e-5)&&(fabs(1.-z)<1.e-5)) return D0(w,0.9996,0.9998,1.0002);
+	if((fabs(1.-w)<1.e-5)&&(fabs(1.-y)<1.e-5)&&(fabs(1.-z)<1.e-5)) return D0(0.9996,x,0.9998,1.0002);
+	if((fabs(1.-w)<1.e-5)&&(fabs(1.-x)<1.e-5)&&(fabs(1.-z)<1.e-5)) return D0(0.9996,0.9998,y,1.0002);
+	if((fabs(1.-w)<1.e-5)&&(fabs(1.-x)<1.e-5)) return D0(0.9998,1.0002,y,z);
+	if((fabs(1.-w)<1.e-5)&&(fabs(1.-y)<1.e-5)) return D0(0.9998,x,1.0002,z);
+	if((fabs(1.-w)<1.e-5)&&(fabs(1.-z)<1.e-5)) return D0(0.9998,x,y,1.0002);
+	if((fabs(1.-x)<1.e-5)&&(fabs(1.-y)<1.e-5)) return D0(w,0.9998,1.0002,z);
+	if((fabs(1.-x)<1.e-5)&&(fabs(1.-z)<1.e-5)) return D0(w,0.9998,y,1.0002);
+	if((fabs(1.-y)<1.e-5)&&(fabs(1.-z)<1.e-5)) return D0(w,x,0.9998,1.0002);
+	if(fabs(1.-w)<1.e-5) return D0(0.9999,x,y,z);
+	if(fabs(1.-x)<1.e-5) return D0(w,0.9999,y,z);
+	if(fabs(1.-y)<1.e-5) return D0(w,x,0.9999,z);
+	if(fabs(1.-z)<1.e-5) return D0(w,x,y,0.9999);
+	if(fabs(1.-w/x)<1.e-5) return D0(x*0.9998,x,y,z);
+	if(fabs(1.-w/y)<1.e-5) return D0(y*0.9998,x,y,z);
+	if(fabs(1.-w/z)<1.e-5) return D0(z*0.9998,x,y,z);
+	if(fabs(1.-x/y)<1.e-5) return D0(w,y*0.9998,y,z);
+	if(fabs(1.-y/z)<1.e-5) return D0(w,x,z*0.9998,z);
+	if(fabs(1.-x/z)<1.e-5) return D0(w,x,y,x*0.9998);
+
+	return (w*log(w)/((z-w)*(y-w)*(x-w)))+(x*log(x)/((z-x)*(y-x)*(w-x)))+(y*log(y)/((z-y)*(w-y)*(x-y)))+(z*log(z)/((w-z)*(y-z)*(x-z)));
+}
+
+double D2p(double w, double x, double y, double z)
+{
+	if((fabs(1.-w)<1.e-5)&&(fabs(1.-x)<1.e-5)&&(fabs(1.-y)<1.e-5)&&(fabs(1.-z)<1.e-5)) return D2p(0.9996,0.9998,1.0002,1.0004);
+	if((fabs(1.-w)<1.e-5)&&(fabs(1.-x)<1.e-5)&&(fabs(1.-y)<1.e-5)) return D2p(0.9996,0.9998,1.0002,z);
+	if((fabs(1.-x)<1.e-5)&&(fabs(1.-y)<1.e-5)&&(fabs(1.-z)<1.e-5)) return D2p(w,0.9996,0.9998,1.0002);
+	if((fabs(1.-w)<1.e-5)&&(fabs(1.-y)<1.e-5)&&(fabs(1.-z)<1.e-5)) return D2p(0.9996,x,0.9998,1.0002);
+	if((fabs(1.-w)<1.e-5)&&(fabs(1.-x)<1.e-5)&&(fabs(1.-z)<1.e-5)) return D2p(0.9996,0.9998,y,1.0002);
+	if((fabs(1.-w)<1.e-5)&&(fabs(1.-x)<1.e-5)) return D2p(0.9998,1.0002,y,z);
+	if((fabs(1.-w)<1.e-5)&&(fabs(1.-y)<1.e-5)) return D2p(0.9998,x,1.0002,z);
+	if((fabs(1.-w)<1.e-5)&&(fabs(1.-z)<1.e-5)) return D2p(0.9998,x,y,1.0002);
+	if((fabs(1.-x)<1.e-5)&&(fabs(1.-y)<1.e-5)) return D2p(w,0.9998,1.0002,z);
+	if((fabs(1.-x)<1.e-5)&&(fabs(1.-z)<1.e-5)) return D2p(w,0.9998,y,1.0002);
+	if((fabs(1.-y)<1.e-5)&&(fabs(1.-z)<1.e-5)) return D2p(w,x,0.9998,1.0002);
+	if(fabs(1.-w)<1.e-5) return D2p(0.9999,x,y,z);
+	if(fabs(1.-x)<1.e-5) return D2p(w,0.9999,y,z);
+	if(fabs(1.-y)<1.e-5) return D2p(w,x,0.9999,z);
+	if(fabs(1.-z)<1.e-5) return D2p(w,x,y,0.9999);
+	if(fabs(1.-w/x)<1.e-5) return D2p(x*0.9998,x,y,z);
+	if(fabs(1.-w/y)<1.e-5) return D2p(y*0.9998,x,y,z);
+	if(fabs(1.-w/z)<1.e-5) return D2p(z*0.9998,x,y,z);
+	if(fabs(1.-x/y)<1.e-5) return D2p(w,y*0.9998,y,z);
+	if(fabs(1.-y/z)<1.e-5) return D2p(w,x,z*0.9998,z);
+	if(fabs(1.-x/z)<1.e-5) return D2p(w,x,y,x*0.9998);
+
+	return 0.25*((w*w*log(w)/((z-w)*(y-w)*(x-w)))+(x*x*log(x)/((z-x)*(y-x)*(w-x)))+(y*y*log(y)/((z-y)*(w-y)*(x-y)))+(z*z*log(z)/((w-z)*(y-z)*(x-z))));
+}

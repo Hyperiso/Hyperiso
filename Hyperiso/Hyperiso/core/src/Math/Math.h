@@ -463,6 +463,27 @@ double F0SP(double xt);
  */
 double S0(double x);
 
+/**
+ * @brief Wilson special funtion D0 depending on 4 parameters.
+ * @param w Input parameter.
+ * @param x Input parameter.
+ * @param y Input parameter.
+ * @param z Input parameter.
+ * @return Value of D0(w,x,y,z).
+ */
+double D0(double w, double x, double y, double z);
+
+
+/**
+ * @brief Wilson special funtion D2p depending on 4 parameters.
+ * @param w Input parameter.
+ * @param x Input parameter.
+ * @param y Input parameter.
+ * @param z Input parameter.
+ * @return Value of D2p(w,x,y,z).
+ */
+double D2p(double w, double x, double y, double z)
+
 /*
     Integration routines
 */
