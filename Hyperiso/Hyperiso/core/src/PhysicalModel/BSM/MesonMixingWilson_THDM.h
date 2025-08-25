@@ -141,6 +141,8 @@ class C_mix_bs_3_THDM : public WilsonCoefficient {
 public:
     C_mix_bs_3_THDM();
 
+    static double compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
+
     std::shared_ptr<WilsonCoefficient> clone() const override {
         return std::make_shared<C_mix_bs_3_THDM>(*this);
     }
@@ -150,6 +152,8 @@ class C_mix_bs_3_tilde_THDM : public WilsonCoefficient {
 public:
     C_mix_bs_3_tilde_THDM();
 
+    static double compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
+    
     std::shared_ptr<WilsonCoefficient> clone() const override {
         return std::make_shared<C_mix_bs_3_tilde_THDM>(*this);
     }
