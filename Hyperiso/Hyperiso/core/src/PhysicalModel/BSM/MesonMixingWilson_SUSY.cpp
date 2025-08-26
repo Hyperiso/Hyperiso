@@ -108,21 +108,27 @@ double C_mix_bd_1_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared
     //gluino ->
 
 
-	double M_D[7],M_D_pow_2[7],dm[7]; 
-	double complex Z_D[7][7];
+	double M_D[6],M_D_pow_2[6],dm[6]; 
+	scalar_t Z_D[6][6];
 	double Mg=src.at({ParameterType::BSM, "MASS", 1000021})->get_val();
 	double Mg_pow_2 = pow(Mg,2);
 	double g_3=sqrt(4.*pi*alphas_running(mu_t,param->mass_top_pole,param->mass_b,param)); /* NM: compute from alphas instead of using g3 from SLHA file */
 
-	M_D[1]=src.at({ParameterType::BSM, "MASS", 1000001})->get_val();
-	M_D[2]=src.at({ParameterType::BSM, "MASS", 1000003})->get_val();
-	M_D[3]=src.at({ParameterType::BSM, "MASS", 1000005})->get_val();
-	M_D[4]=src.at({ParameterType::BSM, "MASS", 2000001})->get_val();
-	M_D[5]=src.at({ParameterType::BSM, "MASS", 2000003})->get_val();
-	M_D[6]=src.at({ParameterType::BSM, "MASS", 2000005})->get_val();
+	M_D[0]=src.at({ParameterType::BSM, "MASS", 1000001})->get_val();
+	M_D[1]=src.at({ParameterType::BSM, "MASS", 1000003})->get_val();
+	M_D[2]=src.at({ParameterType::BSM, "MASS", 1000005})->get_val();
+	M_D[3]=src.at({ParameterType::BSM, "MASS", 2000001})->get_val();
+	M_D[4]=src.at({ParameterType::BSM, "MASS", 2000003})->get_val();
+	M_D[5]=src.at({ParameterType::BSM, "MASS", 2000005})->get_val();
 
-	for(ie=1;ie<=6;ie++) for(je=1;je<=6;je++) Z_D[ie][je]= param->sD_mix[je][ie]; // inverse matrix, because in SLHA2 the second index denotes quark flavour (dl,sl,bl,dr,sr,br)
-	for(ie=1;ie<=6;ie++) M_D_pow_2[ie]=pow(M_D[ie],2);
+	for(int i = 0; i<6; ++i) {
+		for(int j = 0; j<6; ++j) {
+			Z_D[i][j]= param->sD_mix[j][i];
+		}
+	} // inverse matrix, because in SLHA2 the second index denotes quark flavour (dl,sl,bl,dr,sr,br)
+	for(int i = 0; i<6; ++i) {
+		M_D_pow_2[i]=pow(M_D[i],2);
+	}
 
 	scalar_t C1_gluino=0.;
 	scalar_t C2_gluino=0.;
@@ -136,62 +142,85 @@ double C_mix_bd_1_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared
 
 	/* NM: added generation dependence, Z_D[2][ie] -> Z_D[gen][ie] and Z_D[5][ie] -> Z_D[gen+3][ie] */
 
-	for(ie=1;ie<=6;ie++) for(je=1;je<=6;je++)
-	{
-		D2g = D2p(M_D_pow_2[ie],M_D_pow_2[je],Mg_pow_2,Mg_pow_2);
-		D0g = D0(M_D_pow_2[ie],M_D_pow_2[je],Mg_pow_2,Mg_pow_2);
-		C1_gluino += -Z_D[3][ie]*Z_D[3][je]*pow(g_3,4.)*(D0g*pow(Mg, 2) + 11.*D2g)*conj(Z_D[gen][ie])*conj(Z_D[gen][je])/(144.*pow(pi, 2));
-		C2_gluino += -17.*D0g*pow(Mg, 2)*Z_D[3][ie]*Z_D[3][je]*pow(g_3, 4.)*conj(Z_D[gen+3][ie])*conj(Z_D[gen+3][je])/(288.*pow(pi, 2));
-		C3_gluino += -D0g*pow(Mg, 2)*Z_D[3][ie]*Z_D[3][je]*pow(g_3,4.)*conj(Z_D[gen+3][ie])*conj(Z_D[gen+3][je])/(96.*pow(pi, 2));
-		C4_gluino += -7.*D0g*pow(Mg, 2)*Z_D[3][ie]*Z_D[6][je]*pow(g_3,4.)*conj(Z_D[gen][ie])*conj(Z_D[gen+3][je])/(48.*pow(pi, 2)) + D2g*pow(g_3,4.)*(6.*Z_D[3][ie]*Z_D[6][je]*conj(Z_D[gen][ie])*conj(Z_D[gen+3][je]) + 11.*Z_D[3][ie]*Z_D[6][je]*conj(Z_D[gen][je])*conj(Z_D[gen+3][ie]))/(72.*pow(pi, 2));
-		C5_gluino += -D0g*pow(Mg, 2)*Z_D[3][ie]*Z_D[6][je]*pow(g_3,4.)*conj(Z_D[gen][ie])*conj(Z_D[gen+3][je])/(144.*pow(pi, 2)) + 5.*D2g*pow(g_3,4.)*(-2.*Z_D[3][ie]*Z_D[6][je]*conj(Z_D[gen][ie])*conj(Z_D[gen+3][je]) + 3.*Z_D[3][ie]*Z_D[6][je]*conj(Z_D[gen][je])*conj(Z_D[gen+3][ie]))/(72.*pow(pi, 2));
-		Cp1_gluino += -Z_D[6][ie]*Z_D[6][je]*pow(g_3,4.)*(D0g*pow(Mg, 2.) + 11.*D2g)*conj(Z_D[gen+3][ie])*conj(Z_D[gen+3][je])/(144.*pow(pi, 2.));
-		Cp2_gluino += -17.*D0g*pow(Mg, 2.)*Z_D[6][ie]*Z_D[6][je]*pow(g_3,4.)*conj(Z_D[gen][ie])*conj(Z_D[gen][je])/(288.*pow(pi, 2.));
-		Cp3_gluino += -D0g*pow(Mg, 2)*Z_D[6][ie]*Z_D[6][je]*pow(g_3,4.)*conj(Z_D[gen][ie])*conj(Z_D[gen][je])/(96.*pow(pi, 2));
+	for(int i =0; i<6; ++i) {
+		for(int j = 0; j<6; ++j) {
+		D2g = D2p(M_D_pow_2[i],M_D_pow_2[j],Mg_pow_2,Mg_pow_2);
+		D0g = D0(M_D_pow_2[i],M_D_pow_2[j],Mg_pow_2,Mg_pow_2);
+		C1_gluino += -Z_D[2][i]*Z_D[2][j]*pow(g_3,4.)*(D0g*pow(Mg, 2) + 11.*D2g)*conj(Z_D[gen][i])*conj(Z_D[gen][j])/(144.*pow(pi, 2));
+		C2_gluino += -17.*D0g*pow(Mg, 2)*Z_D[2][i]*Z_D[2][j]*pow(g_3, 4.)*conj(Z_D[gen+3][i])*conj(Z_D[gen+3][j])/(288.*pow(pi, 2));
+		C3_gluino += -D0g*pow(Mg, 2)*Z_D[2][i]*Z_D[2][j]*pow(g_3,4.)*conj(Z_D[gen+3][i])*conj(Z_D[gen+3][j])/(96.*pow(pi, 2));
+		C4_gluino += -7.*D0g*pow(Mg, 2)*Z_D[2][i]*Z_D[5][j]*pow(g_3,4.)*conj(Z_D[gen][i])*conj(Z_D[gen+3][j])/(48.*pow(pi, 2)) + D2g*pow(g_3,4.)*(6.*Z_D[2][i]*Z_D[5][j]*conj(Z_D[gen][i])*conj(Z_D[gen+3][j]) + 11.*Z_D[2][i]*Z_D[5][j]*conj(Z_D[gen][j])*conj(Z_D[gen+3][i]))/(72.*pow(pi, 2));
+		C5_gluino += -D0g*pow(Mg, 2)*Z_D[2][i]*Z_D[5][j]*pow(g_3,4.)*conj(Z_D[gen][i])*conj(Z_D[gen+3][j])/(144.*pow(pi, 2)) + 5.*D2g*pow(g_3,4.)*(-2.*Z_D[2][i]*Z_D[5][j]*conj(Z_D[gen][i])*conj(Z_D[gen+3][j]) + 3.*Z_D[2][i]*Z_D[5][j]*conj(Z_D[gen][j])*conj(Z_D[gen+3][i]))/(72.*pow(pi, 2));
+		Cp1_gluino += -Z_D[5][i]*Z_D[5][j]*pow(g_3,4.)*(D0g*pow(Mg, 2.) + 11.*D2g)*conj(Z_D[gen+3][i])*conj(Z_D[gen+3][j])/(144.*pow(pi, 2.));
+		Cp2_gluino += -17.*D0g*pow(Mg, 2.)*Z_D[5][i]*Z_D[5][j]*pow(g_3,4.)*conj(Z_D[gen][i])*conj(Z_D[gen][j])/(288.*pow(pi, 2.));
+		Cp3_gluino += -D0g*pow(Mg, 2)*Z_D[5][i]*Z_D[5][j]*pow(g_3,4.)*conj(Z_D[gen][i])*conj(Z_D[gen][j])/(96.*pow(pi, 2));
+		}
 	}
 
 
     //chargino ->
 
 	
-	double M_ch[3],M_ch_pow_2[3],M_U[7],M_U_pow_2[7];
-	scalar_t Z_p[3][3],Z_m[3][3],Z_U[7][7],V_CKM[4][4];
-	scalar_t Yd[4],Yu[4];
+	double M_ch[2],M_ch_pow_2[2],M_U[6],M_U_pow_2[6];
+	scalar_t Z_p[2][2],Z_m[2][2],Z_U[6][6],V_CKM[3][3];
+	scalar_t Yd[3],Yu[3];
  	double sw=sin(atan(param->gp/param->g2));
  	double Q_e = (param->g2)*sw;
 	double swi=1./sw;
 
-	M_ch[1]=src.at({ParameterType::BSM, "MASS", 1000024})->get_val();
-	M_ch[2]=src.at({ParameterType::BSM, "MASS", 1000037})->get_val();
+	M_ch[0]=src.at({ParameterType::BSM, "MASS", 1000024})->get_val();
+	M_ch[1]=src.at({ParameterType::BSM, "MASS", 1000037})->get_val();
 
-	M_U[1]=src.at({ParameterType::BSM, "MASS", 1000002})->get_val();
-	M_U[2]=src.at({ParameterType::BSM, "MASS", 1000004})->get_val();
-	M_U[3]=src.at({ParameterType::BSM, "MASS", 1000006})->get_val();
-	M_U[4]=src.at({ParameterType::BSM, "MASS", 2000002})->get_val();
-	M_U[5]=src.at({ParameterType::BSM, "MASS", 2000004})->get_val();
-	M_U[6]=src.at({ParameterType::BSM, "MASS", 2000006})->get_val();
+	M_U[0]=src.at({ParameterType::BSM, "MASS", 1000002})->get_val();
+	M_U[1]=src.at({ParameterType::BSM, "MASS", 1000004})->get_val();
+	M_U[2]=src.at({ParameterType::BSM, "MASS", 1000006})->get_val();
+	M_U[3]=src.at({ParameterType::BSM, "MASS", 2000002})->get_val();
+	M_U[4]=src.at({ParameterType::BSM, "MASS", 2000004})->get_val();
+	M_U[5]=src.at({ParameterType::BSM, "MASS", 2000006})->get_val();
 
-	for(ie=1;ie<=2;ie++){M_ch_pow_2[ie]=pow(M_ch[ie],2);}
-	for(ie=1;ie<=6;ie++){M_U_pow_2[ie]=pow(M_U[ie],2);}
-	for(ie=1;ie<=2;ie++) for(je=1;je<=2;je++) Z_p[ie][je]=conj(param->charg_Vmix[je][ie]); /* NM: conversion from SLHA2 convention */
-	for(ie=1;ie<=2;ie++) for(je=1;je<=2;je++) Z_m[ie][je]=conj(param->charg_Umix[je][ie]); /* NM: conversion from SLHA2 convention */
-	for(ie=1;ie<=6;ie++) for(je=1;je<=6;je++) Z_U[ie][je]=conj(param->sU_mix[je][ie]); /* NM: conversion from SLHA2 convention */
+	for(int i=0; i<2; ++i){
+		M_ch_pow_2[i]=pow(M_ch[i],2);
+	}
+	for(int i=0; i<6; ++i){
+		M_U_pow_2[i]=pow(M_U[i],2);
+	}
+	for(int i=0; i <2; ++i) {
+		for(int j=0; j<2; ++j) {
+			Z_p[i][j]=conj(src.at({ParameterType::BSM, "VMIX", LhaID(j+1, i+1)})->get_val());
+		}
+	} /* NM: conversion from SLHA2 convention */
+	for(int i=2; i<2; ++i) {
+		for(int j=0; j<2; ++j) {
+			Z_m[i][j]=conj(src.at({ParameterType::BSM, "UMIX", LhaID(j+1, i+1)})->get_val());
+		}
+	} /* NM: conversion from SLHA2 convention */
+	for(int i=0; i<6; ++i) {
+		for(int j=0; j<6; ++j) {
+			Z_U[i][j]=conj(param->sU_mix[j][i]);
+		}
+	} /* NM: conversion from SLHA2 convention */
 
 	double v1,v2,beta;
-	beta = atan(param->tan_beta);
-	v1 = 2.*(param->mass_W)*cos(beta)/param->g2;
+	beta = atan(src.at({ParameterType::BSM, "EXTPAR", 25})->get_val());
+	v1 = 2.*(src.at({ParameterType::SM, "MASS", 24})->get_val())*cos(beta)/src.at({ParameterType::SM, "GAUGE", 2})->get_val();
 	v2 = v1*tan(beta);
   
-	double common = sqrt(2.)/v2;
-	Yu[1] = common*param->mass_u;
-	Yu[2] = common*running_mass(param->mass_c,param->mass_c,mu_t,param->mass_top_pole,param->mass_b,param); /* NM: running mass */
-	Yu[3] = common*running_mass(param->mtmt,param->mtmt,mu_t,param->mass_top_pole,param->mass_b,param); /* NM: running mass */
-	double otherc = sqrt(2.)/v1;
-	Yd[1] = otherc*param->mass_d;
-	Yd[2] = otherc*param->mass_s;
-	Yd[3] = otherc*running_mass(param->mass_b,param->mass_b,mu_t,param->mass_top_pole,param->mass_b,param); /* NM: running mass */
+	double mc = src.at({ParameterType::SM, "MASS", 4})->get_val();
 	
-	for(ie=1;ie<=3;ie++) for(je=1;je<=3;je++) V_CKM[ie][je]=param->CKM[ie][je]+I*param->IMCKM[ie][je];
+	double common = sqrt(2.)/v2;
+	Yu[0] = common*src.at({ParameterType::SM, "MASS", 2})->get_val();
+	Yu[1] = common*running_mass(param->mass_c,param->mass_c,mu_t,param->mass_top_pole,param->mass_b,param); /* NM: running mass */
+	Yu[2] = common*running_mass(param->mtmt,param->mtmt,mu_t,param->mass_top_pole,param->mass_b,param); /* NM: running mass */
+	double otherc = sqrt(2.)/v1;
+	Yd[0] = otherc*src.at({ParameterType::SM, "MASS", 1})->get_val();
+	Yd[1] = otherc*src.at({ParameterType::SM, "MASS", 3})->get_val();
+	Yd[2] = otherc*running_mass(param->mass_b,param->mass_b,mu_t,param->mass_top_pole,param->mass_b,param); /* NM: running mass */
+	
+	for(int i = 0; i<3; ++i) {
+		for(int j = 0; j<3; ++j) {
+			V_CKM[i][j]=src.at({ParameterType::SM, "VCKM", LhaID(i,j)})->get_val();
+		}
+	}
 	
 	scalar_t C1_chargino=0.;
 	scalar_t C2_chargino=0.;
@@ -206,26 +235,34 @@ double C_mix_bd_1_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared
 
 	/* NM: added generation dependence, Yd[2] -> Yd[gen] and V_CKM[Ke][2] -> V_CKM[Ke][gen] */
   
-	for(ie=1;ie<=6;ie++) for(je=1;je<=6;je++) for(ae=1;ae<=2;ae++) for (be=1;be<=2;be++) for(Ke=1;Ke<=3;Ke++)
-	{
-		D0ch = D0(M_U_pow_2[ie],M_U_pow_2[je],M_ch_pow_2[ae],M_ch_pow_2[be]);
-		D2ch = D2p(M_U_pow_2[ie],M_U_pow_2[je],M_ch_pow_2[ae],M_ch_pow_2[be]);    
-		
-		C1_chargino += -D2ch*pow(V_CKM[Ke][3], 2)*(-Q_e*Z_p[1][ae]*conj(Z_U[Ke][ie])*swi + Yu[Ke]*Z_p[2][ae]*conj(Z_U[Ke+3][ie]))*(-Q_e*Z_p[1][be]*conj(Z_U[Ke][je])*swi + Yu[Ke]*Z_p[2][be]*conj(Z_U[Ke+3][je]))*(-Q_e*Z_U[Ke][ie]*conj(Z_p[1][be])*swi + Z_U[Ke+3][ie]*conj(Yu[Ke])*conj(Z_p[2][be]))*(-Q_e*Z_U[Ke][je]*conj(Z_p[1][ae])*swi + Z_U[Ke+3][je]*conj(Yu[Ke])*conj(Z_p[2][ae]))*pow(conj(V_CKM[Ke][gen]), 2)/(32.0*pow(pi, 2));
-		
-		C2_chargino += 0.;
-		
-		C3_chargino += -D0ch*M_ch[ae]*M_ch[be]*pow(V_CKM[Ke][3], 2)*Z_m[2][ae]*Z_m[2][be]*Z_U[Ke][ie]*Z_U[Ke][je]*(-Q_e*Z_p[1][ae]*conj(Z_U[Ke][ie])*swi + Yu[Ke]*Z_p[2][ae]*conj(Z_U[Ke+3][ie]))*(-Q_e*Z_p[1][be]*conj(Z_U[Ke][je])*swi + Yu[Ke]*Z_p[2][be]*conj(Z_U[Ke+3][je]))*pow(conj(V_CKM[Ke][gen]), 2)*pow(conj(Yd[gen]), 2)/(32.0*pow(pi, 2));
-		
-		C4_chargino += D2ch*pow(V_CKM[Ke][3], 2)*Yd[3]*Z_m[2][ae]*Z_U[Ke][je]*(-Q_e*Z_p[1][be]*conj(Z_U[Ke][je])*swi + Yu[Ke]*Z_p[2][be]*conj(Z_U[Ke+3][je]))*(-Q_e*Z_U[Ke][ie]*conj(Z_p[1][be])*swi + Z_U[Ke+3][ie]*conj(Yu[Ke])*conj(Z_p[2][be]))*pow(conj(V_CKM[Ke][gen]), 2)*conj(Yd[gen])*conj(Z_m[2][ae])*conj(Z_U[Ke][ie])/(8.0*pow(pi, 2));
-		
-		C5_chargino += -D0ch*M_ch[ae]*M_ch[be]*pow(V_CKM[Ke][3], 2)*Yd[3]*Z_m[2][be]*Z_U[Ke][ie]*(-Q_e*Z_p[1][be]*conj(Z_U[Ke][je])*swi + Yu[Ke]*Z_p[2][be]*conj(Z_U[Ke+3][je]))*(-Q_e*Z_U[Ke][je]*conj(Z_p[1][ae])*swi + Z_U[Ke+3][je]*conj(Yu[Ke])*conj(Z_p[2][ae]))*pow(conj(V_CKM[Ke][gen]), 2)*conj(Yd[gen])*conj(Z_m[2][ae])*conj(Z_U[Ke][ie])/(16.0*pow(pi, 2));
-    
-		Cp1_chargino += -D2ch*pow(V_CKM[Ke][3], 2)*pow(Yd[3], 2)*Z_m[2][ae]*Z_m[2][be]*Z_U[Ke][ie]*Z_U[Ke][je]*pow(conj(V_CKM[Ke][gen]), 2)*pow(conj(Yd[gen]), 2)*conj(Z_m[2][ae])*conj(Z_m[2][be])*conj(Z_U[Ke][ie])*conj(Z_U[Ke][je])/(32.0*pow(pi, 2));
-		
-		Cp2_chargino += 0.;
-		
-		Cp3_chargino += -D0ch*M_ch[ae]*M_ch[be]*pow(V_CKM[Ke][3], 2)*pow(Yd[3], 2)*(-Q_e*Z_U[Ke][ie]*conj(Z_p[1][be])*swi + Z_U[Ke+3][ie]*conj(Yu[Ke])*conj(Z_p[2][be]))*(-Q_e*Z_U[Ke][je]*conj(Z_p[1][ae])*swi + Z_U[Ke+3][je]*conj(Yu[Ke])*conj(Z_p[2][ae]))*pow(conj(V_CKM[Ke][gen]), 2)*conj(Z_m[2][ae])*conj(Z_m[2][be])*conj(Z_U[Ke][ie])*conj(Z_U[Ke][je])/(32.0*pow(pi, 2));
+	for(int i = 0; i<6; ++i) {
+		for(int j=0; j<6; ++j) {
+			for(int a =0; a<2; ++a) {
+				for (int b=0; b<2; ++b) {
+					D0ch = D0(M_U_pow_2[i],M_U_pow_2[j],M_ch_pow_2[a],M_ch_pow_2[b]);
+					D2ch = D2p(M_U_pow_2[i],M_U_pow_2[j],M_ch_pow_2[a],M_ch_pow_2[b]); 
+					for(int k=0; k<3; ++k) {
+						   
+						
+						C1_chargino += -D2ch*pow(V_CKM[k][2], 2)*(-Q_e*Z_p[0][a]*conj(Z_U[k][i])*swi + Yu[k]*Z_p[1][a]*conj(Z_U[k+3][i]))*(-Q_e*Z_p[0][b]*conj(Z_U[k][j])*swi + Yu[k]*Z_p[1][b]*conj(Z_U[k+3][j]))*(-Q_e*Z_U[k][i]*conj(Z_p[0][b])*swi + Z_U[k+3][i]*conj(Yu[k])*conj(Z_p[1][b]))*(-Q_e*Z_U[k][j]*conj(Z_p[0][a])*swi + Z_U[k+3][j]*conj(Yu[k])*conj(Z_p[1][a]))*pow(conj(V_CKM[k][gen]), 2)/(32.0*pow(pi, 2));
+						
+						C2_chargino += 0.;
+						
+						C3_chargino += -D0ch*M_ch[ae]*M_ch[be]*pow(V_CKM[Ke][3], 2)*Z_m[2][ae]*Z_m[2][be]*Z_U[Ke][ie]*Z_U[Ke][je]*(-Q_e*Z_p[1][ae]*conj(Z_U[Ke][ie])*swi + Yu[Ke]*Z_p[2][ae]*conj(Z_U[Ke+3][ie]))*(-Q_e*Z_p[1][be]*conj(Z_U[Ke][je])*swi + Yu[Ke]*Z_p[2][be]*conj(Z_U[Ke+3][je]))*pow(conj(V_CKM[Ke][gen]), 2)*pow(conj(Yd[gen]), 2)/(32.0*pow(pi, 2));
+						
+						C4_chargino += D2ch*pow(V_CKM[Ke][3], 2)*Yd[3]*Z_m[2][ae]*Z_U[Ke][je]*(-Q_e*Z_p[1][be]*conj(Z_U[Ke][je])*swi + Yu[Ke]*Z_p[2][be]*conj(Z_U[Ke+3][je]))*(-Q_e*Z_U[Ke][ie]*conj(Z_p[1][be])*swi + Z_U[Ke+3][ie]*conj(Yu[Ke])*conj(Z_p[2][be]))*pow(conj(V_CKM[Ke][gen]), 2)*conj(Yd[gen])*conj(Z_m[2][ae])*conj(Z_U[Ke][ie])/(8.0*pow(pi, 2));
+						
+						C5_chargino += -D0ch*M_ch[ae]*M_ch[be]*pow(V_CKM[Ke][3], 2)*Yd[3]*Z_m[2][be]*Z_U[Ke][ie]*(-Q_e*Z_p[1][be]*conj(Z_U[Ke][je])*swi + Yu[Ke]*Z_p[2][be]*conj(Z_U[Ke+3][je]))*(-Q_e*Z_U[Ke][je]*conj(Z_p[1][ae])*swi + Z_U[Ke+3][je]*conj(Yu[Ke])*conj(Z_p[2][ae]))*pow(conj(V_CKM[Ke][gen]), 2)*conj(Yd[gen])*conj(Z_m[2][ae])*conj(Z_U[Ke][ie])/(16.0*pow(pi, 2));
+					
+						Cp1_chargino += -D2ch*pow(V_CKM[Ke][3], 2)*pow(Yd[3], 2)*Z_m[2][ae]*Z_m[2][be]*Z_U[Ke][ie]*Z_U[Ke][je]*pow(conj(V_CKM[Ke][gen]), 2)*pow(conj(Yd[gen]), 2)*conj(Z_m[2][ae])*conj(Z_m[2][be])*conj(Z_U[Ke][ie])*conj(Z_U[Ke][je])/(32.0*pow(pi, 2));
+						
+						Cp2_chargino += 0.;
+						
+						Cp3_chargino += -D0ch*M_ch[ae]*M_ch[be]*pow(V_CKM[Ke][3], 2)*pow(Yd[3], 2)*(-Q_e*Z_U[Ke][ie]*conj(Z_p[1][be])*swi + Z_U[Ke+3][ie]*conj(Yu[Ke])*conj(Z_p[2][be]))*(-Q_e*Z_U[Ke][je]*conj(Z_p[1][ae])*swi + Z_U[Ke+3][je]*conj(Yu[Ke])*conj(Z_p[2][ae]))*pow(conj(V_CKM[Ke][gen]), 2)*conj(Z_m[2][ae])*conj(Z_m[2][be])*conj(Z_U[Ke][ie])*conj(Z_U[Ke][je])/(32.0*pow(pi, 2));
+					}
+				}
+			}
+		}
 	}
 	
 
