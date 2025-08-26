@@ -248,17 +248,17 @@ double C_mix_bd_1_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared
 						
 						C2_chargino += 0.;
 						
-						C3_chargino += -D0ch*M_ch[ae]*M_ch[be]*pow(V_CKM[Ke][3], 2)*Z_m[2][ae]*Z_m[2][be]*Z_U[Ke][ie]*Z_U[Ke][je]*(-Q_e*Z_p[1][ae]*conj(Z_U[Ke][ie])*swi + Yu[Ke]*Z_p[2][ae]*conj(Z_U[Ke+3][ie]))*(-Q_e*Z_p[1][be]*conj(Z_U[Ke][je])*swi + Yu[Ke]*Z_p[2][be]*conj(Z_U[Ke+3][je]))*pow(conj(V_CKM[Ke][gen]), 2)*pow(conj(Yd[gen]), 2)/(32.0*pow(pi, 2));
+						C3_chargino += -D0ch*M_ch[a]*M_ch[b]*pow(V_CKM[k][2], 2)*Z_m[1][a]*Z_m[1][b]*Z_U[k][i]*Z_U[k][j]*(-Q_e*Z_p[0][a]*conj(Z_U[k][i])*swi + Yu[k]*Z_p[1][a]*conj(Z_U[k+3][i]))*(-Q_e*Z_p[0][b]*conj(Z_U[k][j])*swi + Yu[k]*Z_p[1][b]*conj(Z_U[k+3][j]))*pow(conj(V_CKM[k][gen]), 2)*pow(conj(Yd[gen]), 2)/(32.0*pow(pi, 2));
 						
-						C4_chargino += D2ch*pow(V_CKM[Ke][3], 2)*Yd[3]*Z_m[2][ae]*Z_U[Ke][je]*(-Q_e*Z_p[1][be]*conj(Z_U[Ke][je])*swi + Yu[Ke]*Z_p[2][be]*conj(Z_U[Ke+3][je]))*(-Q_e*Z_U[Ke][ie]*conj(Z_p[1][be])*swi + Z_U[Ke+3][ie]*conj(Yu[Ke])*conj(Z_p[2][be]))*pow(conj(V_CKM[Ke][gen]), 2)*conj(Yd[gen])*conj(Z_m[2][ae])*conj(Z_U[Ke][ie])/(8.0*pow(pi, 2));
+						C4_chargino += D2ch*pow(V_CKM[k][2], 2)*Yd[2]*Z_m[1][a]*Z_U[k][j]*(-Q_e*Z_p[0][b]*conj(Z_U[k][j])*swi + Yu[k]*Z_p[1][b]*conj(Z_U[k+3][j]))*(-Q_e*Z_U[k][i]*conj(Z_p[0][b])*swi + Z_U[k+3][i]*conj(Yu[k])*conj(Z_p[1][b]))*pow(conj(V_CKM[k][gen]), 2)*conj(Yd[gen])*conj(Z_m[1][a])*conj(Z_U[k][i])/(8.0*pow(pi, 2));
 						
-						C5_chargino += -D0ch*M_ch[ae]*M_ch[be]*pow(V_CKM[Ke][3], 2)*Yd[3]*Z_m[2][be]*Z_U[Ke][ie]*(-Q_e*Z_p[1][be]*conj(Z_U[Ke][je])*swi + Yu[Ke]*Z_p[2][be]*conj(Z_U[Ke+3][je]))*(-Q_e*Z_U[Ke][je]*conj(Z_p[1][ae])*swi + Z_U[Ke+3][je]*conj(Yu[Ke])*conj(Z_p[2][ae]))*pow(conj(V_CKM[Ke][gen]), 2)*conj(Yd[gen])*conj(Z_m[2][ae])*conj(Z_U[Ke][ie])/(16.0*pow(pi, 2));
+						C5_chargino += -D0ch*M_ch[a]*M_ch[b]*pow(V_CKM[k][2], 2)*Yd[2]*Z_m[1][b]*Z_U[k][i]*(-Q_e*Z_p[0][b]*conj(Z_U[k][j])*swi + Yu[k]*Z_p[1][b]*conj(Z_U[k+3][j]))*(-Q_e*Z_U[k][j]*conj(Z_p[0][a])*swi + Z_U[k+3][j]*conj(Yu[k])*conj(Z_p[1][a]))*pow(conj(V_CKM[k][gen]), 2)*conj(Yd[gen])*conj(Z_m[1][a])*conj(Z_U[k][i])/(16.0*pow(pi, 2));
 					
-						Cp1_chargino += -D2ch*pow(V_CKM[Ke][3], 2)*pow(Yd[3], 2)*Z_m[2][ae]*Z_m[2][be]*Z_U[Ke][ie]*Z_U[Ke][je]*pow(conj(V_CKM[Ke][gen]), 2)*pow(conj(Yd[gen]), 2)*conj(Z_m[2][ae])*conj(Z_m[2][be])*conj(Z_U[Ke][ie])*conj(Z_U[Ke][je])/(32.0*pow(pi, 2));
+						Cp1_chargino += -D2ch*pow(V_CKM[k][2], 2)*pow(Yd[2], 2)*Z_m[1][a]*Z_m[1][b]*Z_U[k][i]*Z_U[k][j]*pow(conj(V_CKM[k][gen]), 2)*pow(conj(Yd[gen]), 2)*conj(Z_m[1][a])*conj(Z_m[1][b])*conj(Z_U[k][i])*conj(Z_U[k][j])/(32.0*pow(pi, 2));
 						
 						Cp2_chargino += 0.;
 						
-						Cp3_chargino += -D0ch*M_ch[ae]*M_ch[be]*pow(V_CKM[Ke][3], 2)*pow(Yd[3], 2)*(-Q_e*Z_U[Ke][ie]*conj(Z_p[1][be])*swi + Z_U[Ke+3][ie]*conj(Yu[Ke])*conj(Z_p[2][be]))*(-Q_e*Z_U[Ke][je]*conj(Z_p[1][ae])*swi + Z_U[Ke+3][je]*conj(Yu[Ke])*conj(Z_p[2][ae]))*pow(conj(V_CKM[Ke][gen]), 2)*conj(Z_m[2][ae])*conj(Z_m[2][be])*conj(Z_U[Ke][ie])*conj(Z_U[Ke][je])/(32.0*pow(pi, 2));
+						Cp3_chargino += -D0ch*M_ch[a]*M_ch[b]*pow(V_CKM[k][2], 2)*pow(Yd[2], 2)*(-Q_e*Z_U[k][i]*conj(Z_p[0][b])*swi + Z_U[k+3][i]*conj(Yu[k])*conj(Z_p[1][b]))*(-Q_e*Z_U[k][j]*conj(Z_p[0][a])*swi + Z_U[k+3][j]*conj(Yu[k])*conj(Z_p[1][a]))*pow(conj(V_CKM[k][gen]), 2)*conj(Z_m[1][a])*conj(Z_m[1][b])*conj(Z_U[k][i])*conj(Z_U[k][j])/(32.0*pow(pi, 2));
 					}
 				}
 			}
@@ -270,9 +270,9 @@ double C_mix_bd_1_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared
     //neutralino ->
 
 
-	double M_ch0[5],M_ch0_pow_2[5],M_D[7],M_D_pow_2[7];
-	scalar_t Z_D[7][7],Z_N[5][5];
-	scalar_t Yd[4];
+	double M_ch0[4],M_ch0_pow_2[4],M_D[6],M_D_pow_2[6];
+	scalar_t Z_D[6][6],Z_N[4][4];
+	// scalar_t Yd[3];
 	double sw=sin(atan(param->gp/param->g2));
 	double cw=cos(atan(param->gp/param->g2));
 	double Q_e = param->g2*sw;
@@ -281,15 +281,18 @@ double C_mix_bd_1_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared
 	beta = atan(param->tan_beta);
 	v1 = 2.*(param->mass_W)*cos(beta)/param->g2;
  	double otherc = sqrt(2.)/v1;
-	Yd[1] = otherc*param->mass_d;
-	Yd[2] = otherc*param->mass_s;
-	Yd[3] = otherc*running_mass(param->mass_b,param->mass_b,mu_t,param->mass_top_pole,param->mass_b,param); /* NM: running mass */
+	// Yd[1] = otherc*param->mass_d;
+	// Yd[2] = otherc*param->mass_s;
+	// Yd[3] = otherc*running_mass(param->mass_b,param->mass_b,mu_t,param->mass_top_pole,param->mass_b,param); /* NM: running mass */
 
-	M_ch0[1]=fabs(param->mass_neut[1]);
-	M_ch0[2]=fabs(param->mass_neut[2]);
-	M_ch0[3]=fabs(param->mass_neut[3]);
-	M_ch0[4]=fabs(param->mass_neut[4]);
-	for(ie=1;ie<=4;ie++){M_ch0_pow_2[ie]=pow(M_ch0[ie],2);}
+	M_ch0[0]=fabs(param->mass_neut[1]);
+	M_ch0[1]=fabs(param->mass_neut[2]);
+	M_ch0[2]=fabs(param->mass_neut[3]);
+	M_ch0[3]=fabs(param->mass_neut[4]);
+
+	for(int i=0; i<4; ++i){
+		M_ch0_pow_2[i]=pow(M_ch0[i],2);
+	}
 	
 	// M_D[1]=param->mass_dnl;
 	// M_D[2]=param->mass_stl;
@@ -298,11 +301,28 @@ double C_mix_bd_1_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared
 	// M_D[5]=param->mass_str;
 	// M_D[6]=param->mass_b2;
 	
-	for(ie=1;ie<=6;ie++) M_D_pow_2[ie]=pow(M_D[ie],2);
-	for(ie=1;ie<=6;ie++) for(je=1;je<=6;je++) Z_D[ie][je] = param->sD_mix[je][ie]; /* NM: conversion from SLHA2 convention */
+	for(int i=0; i<6; ++i) {
+		M_D_pow_2[i]=pow(M_D[i],2);
+	}
+
+	for(int i=0; i<6; ++i) {
+		for(int j=0; j<6; ++j) {
+			Z_D[i][j] = param->sD_mix[j][i];
+		}
+	} /* NM: conversion from SLHA2 convention */
 	
-	for(ie=1;ie<=4;ie++) for(je=1;je<=4;je++) Z_N[ie][je] = param->neut_mix[ie][je];
-	for(ie=1;ie<=4;ie++){if(param->mass_neut[ie]<0.) for(je=1;je<=4;je++) Z_N[ie][je]*=I;} /* NM: in Buras, neutralino masses defined positive, so changed the SLHA2 neutralino mixing matrix when negative neutralino mass */
+	for(int i=0; i<4; ++i) {
+		for(int j=0; j<4; ++j) {
+			Z_N[i][j] = param->neut_mix[i][j];
+		}
+	}
+	for(int i=0; i<4; ++i){
+		if(param->mass_neut[i]<0.) {
+			for(int j=0; j<4; ++j) {
+				Z_N[i][j]*=I;
+			}
+		}
+	} /* NM: in Buras, neutralino masses defined positive, so changed the SLHA2 neutralino mixing matrix when negative neutralino mass */
 
 	scalar_t C1_neutralino=0.;
 	scalar_t C2_neutralino=0.;
@@ -316,19 +336,59 @@ double C_mix_bd_1_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared
 	
 	/* NM: added generation dependence, Z_D[2][ie] -> Z_D[gen][ie], Z_D[5][ie] -> Z_D[gen+3][ie] and Yd[2] -> Yd[gen] */
 
-	for(ie=1;ie<=6;ie++) for(je=1;je<=6;je++) for(ae=1;ae<=4;ae++) for (be=1;be<=4;be++)
-	{
-		D0ne = D0(M_D_pow_2[ie],M_D_pow_2[je],M_ch0_pow_2[ae],M_ch0_pow_2[be]);
-		D2ne = D2p(M_D_pow_2[ie],M_D_pow_2[je],M_ch0_pow_2[ae],M_ch0_pow_2[be]);
-		C1_neutralino += -D0ne*M_ch0[ae]*M_ch0[be]*(-sqrt(2)*Q_e*Z_D[3][ie]*(Z_N[1][ae]*sw/3.0 - Z_N[2][ae]*cw)/(2*cw*sw) + Yd[3]*Z_D[6][ie]*Z_N[3][ae])*(-sqrt(2)*Q_e*Z_D[3][je]*(Z_N[1][be]*sw/3.0 - Z_N[2][be]*cw)/(2.0*cw*sw) + Yd[3]*Z_D[6][je]*Z_N[3][be])*(-sqrt(2)*Q_e*(conj(Z_N[1][ae])*sw/3.0 - conj(Z_N[2][ae])*cw)*conj(Z_D[gen][ie])/(2.0*cw*sw) + conj(Yd[gen])*conj(Z_D[gen+3][ie])*conj(Z_N[3][ae]))*(-sqrt(2)*Q_e*(conj(Z_N[1][be])*sw/3.0 - conj(Z_N[2][be])*cw)*conj(Z_D[gen][ie])/(2.0*cw*sw) + conj(Yd[gen])*conj(Z_D[gen+3][ie])*conj(Z_N[3][be]))/(64.0*pow(pi, 2)) - D2ne*(-sqrt(2)*Q_e*Z_D[3][ie]*(Z_N[1][ae]*sw/3.0 - Z_N[2][ae]*cw)/(2.0*cw*sw) + Yd[3]*Z_D[6][ie]*Z_N[3][ae])*(-sqrt(2)*Q_e*Z_D[3][je]*(Z_N[1][be]*sw/3.0 - Z_N[2][be]*cw)/(2.0*cw*sw) + Yd[3]*Z_D[6][je]*Z_N[3][be])*(-sqrt(2)*Q_e*(conj(Z_N[1][ae])*sw/3.0 - conj(Z_N[2][ae])*cw)*conj(Z_D[gen][ie])/(2*cw*sw) + conj(Yd[gen])*conj(Z_D[gen+3][ie])*conj(Z_N[3][ae]))*(-sqrt(2)*Q_e*(conj(Z_N[1][be])*sw/3.0 - conj(Z_N[2][be])*cw)*conj(Z_D[gen][ie])/(2.0*cw*sw) + conj(Yd[gen])*conj(Z_D[gen+3][ie])*conj(Z_N[3][be]))/(32.0*pow(pi, 2));
-		C2_neutralino += D0ne*M_ch0[ae]*M_ch0[be]*(-sqrt(2)*Q_e*Z_N[1][be]*conj(Z_D[gen+3][ie])/(3.0*cw) + Z_N[3][be]*conj(Yd[gen])*conj(Z_D[gen][ie]))*(-sqrt(2)*Q_e*Z_N[1][be]*conj(Z_D[gen+3][je])/(3.0*cw) + Z_N[3][be]*conj(Yd[gen])*conj(Z_D[gen][je]))*(-sqrt(2)*Q_e*Z_D[3][ie]*(Z_N[1][ae]*sw/3.0 - Z_N[2][ae]*cw)/(2.0*cw*sw) + Yd[3]*Z_D[6][ie]*Z_N[3][ae])*(-sqrt(2)*Q_e*Z_D[3][je]*(Z_N[1][ae]*sw/3.0 - Z_N[2][ae]*cw)/(2.0*cw*sw) + Yd[3]*Z_D[6][je]*Z_N[3][ae])/(32.0*pow(pi, 2));
-		C3_neutralino += -D0ne*M_ch0[ae]*M_ch0[be]*((-sqrt(2)*Q_e*Z_N[1][ae]*conj(Z_D[gen+3][je])/(3.0*cw) + Z_N[3][ae]*conj(Yd[gen])*conj(Z_D[gen][je]))*(-sqrt(2)*Q_e*Z_D[3][je]*(Z_N[1][be]*sw/3.0 - Z_N[2][be]*cw)/(2.0*cw*sw) + Yd[3]*Z_D[6][je]*Z_N[3][be]) - (-sqrt(2)*Q_e*Z_N[1][be]*conj(Z_D[gen+3][je])/(3.0*cw) + Z_N[3][be]*conj(Yd[gen])*conj(Z_D[gen][je]))*(-sqrt(2)*Q_e*Z_D[3][je]*(Z_N[1][ae]*sw/3.0 - Z_N[2][ae]*cw)/(2.0*cw*sw) + Yd[3]*Z_D[6][je]*Z_N[3][ae]))*(-sqrt(2)*Q_e*Z_N[1][be]*conj(Z_D[gen+3][ie])/(3.0*cw) + Z_N[3][be]*conj(Yd[gen])*conj(Z_D[gen][ie]))*(-sqrt(2)*Q_e*Z_D[3][ie]*(Z_N[1][ae]*sw/3.0 - Z_N[2][ae]*cw)/(2.0*cw*sw) + Yd[3]*Z_D[6][ie]*Z_N[3][ae])/(32.0*pow(pi, 2));
-		C4_neutralino += D2ne*((-sqrt(2)*Q_e*Z_N[1][ae]*conj(Z_D[gen+3][je])/(3.0*cw) + Z_N[3][ae]*conj(Yd[gen])*conj(Z_D[gen][je]))*(-sqrt(2)*Q_e*Z_D[3][je]*(Z_N[1][be]*sw/3.0 - Z_N[2][be]*cw)/(2.0*cw*sw) + Yd[3]*Z_D[6][je]*Z_N[3][be]) + (-sqrt(2)*Q_e*Z_N[1][be]*conj(Z_D[gen+3][je])/(3.0*cw) + Z_N[3][be]*conj(Yd[gen])*conj(Z_D[gen][je]))*(-sqrt(2)*Q_e*Z_D[3][je]*(Z_N[1][ae]*sw/3.0 - Z_N[2][ae]*cw)/(2.0*cw*sw) + Yd[3]*Z_D[6][je]*Z_N[3][ae]))*(-sqrt(2)*Q_e*Z_D[6][ie]*conj(Z_N[1][ae])/(3.0*cw) + Yd[3]*Z_D[3][ie]*conj(Z_N[3][ae]))*(-sqrt(2)*Q_e*(conj(Z_N[1][be])*sw/3.0 - conj(Z_N[2][be])*cw)*conj(Z_D[gen][ie])/(2.0*cw*sw) + conj(Yd[gen])*conj(Z_D[gen+3][ie])*conj(Z_N[3][be]))/(8.0*pow(pi, 2));
-		C5_neutralino += -D0ne*M_ch0[ae]*M_ch0[be]*(-sqrt(2)*Q_e*Z_D[6][ie]*conj(Z_N[1][ae])/(3.0*cw) + Yd[3]*Z_D[3][ie]*conj(Z_N[3][ae]))*(-sqrt(2)*Q_e*Z_N[1][be]*conj(Z_D[gen+3][ie])/(3.0*cw) + Z_N[3][be]*conj(Yd[gen])*conj(Z_D[gen][ie]))*(-sqrt(2)*Q_e*Z_D[3][je]*(Z_N[1][be]*sw/3.0 - Z_N[2][be]*cw)/(2.0*cw*sw) + Yd[3]*Z_D[6][je]*Z_N[3][be])*(-sqrt(2)*Q_e*(conj(Z_N[1][ae])*sw/3.0 - conj(Z_N[2][ae])*cw)*conj(Z_D[gen][ie])/(2.0*cw*sw) + conj(Yd[gen])*conj(Z_D[gen+3][ie])*conj(Z_N[3][ae]))/(16.0*pow(pi, 2)) - D2ne*(-sqrt(2)*Q_e*Z_D[6][je]*conj(Z_N[1][ae])/(3.0*cw) + Yd[3]*Z_D[3][je]*conj(Z_N[3][ae]))*(-sqrt(2)*Q_e*Z_N[1][be]*conj(Z_D[gen+3][je])/(3.0*cw) + Z_N[3][be]*conj(Yd[gen])*conj(Z_D[gen][je]))*(-sqrt(2)*Q_e*Z_D[3][ie]*(Z_N[1][ae]*sw/3.0- Z_N[2][ae]*cw)/(2.0*cw*sw) + Yd[3]*Z_D[6][ie]*Z_N[3][ae])*(-sqrt(2)*Q_e*(conj(Z_N[1][be])*sw/3.0 - conj(Z_N[2][be])*cw)*conj(Z_D[gen][ie])/(2.0*cw*sw) + conj(Yd[gen])*conj(Z_D[gen+3][ie])*conj(Z_N[3][be]))/(8.0*pow(pi, 2));
+	for(int i=0; i<6; ++i) {
+		for(int j=0; j<6; ++j) {
+			for(int a=0; a<4; ++a) {
+				for (int b=0; b<4; ++b) {
+					D0ne = D0(M_D_pow_2[i],M_D_pow_2[j],M_ch0_pow_2[a],M_ch0_pow_2[b]);
+					D2ne = D2p(M_D_pow_2[i],M_D_pow_2[j],M_ch0_pow_2[a],M_ch0_pow_2[b]);
+					C1_neutralino += -D0ne*M_ch0[a]*M_ch0[b]*(-sqrt(2)*Q_e*Z_D[2][i]*(Z_N[0][a]*sw/3.0 - Z_N[1][a]*cw)/(2*cw*sw) + Yd[2]*Z_D[5][i]*Z_N[2][a])*
+					(-sqrt(2)*Q_e*Z_D[2][j]*(Z_N[0][b]*sw/3.0 - Z_N[1][b]*cw)/(2.0*cw*sw) + Yd[2]*Z_D[5][j]*Z_N[2][b])*
+					(-sqrt(2)*Q_e*(conj(Z_N[0][a])*sw/3.0 - conj(Z_N[1][a])*cw)*conj(Z_D[gen][i])/(2.0*cw*sw) + conj(Yd[gen])*conj(Z_D[gen+3][i])*conj(Z_N[2][a]))*
+					(-sqrt(2)*Q_e*(conj(Z_N[0][b])*sw/3.0 - conj(Z_N[1][b])*cw)*conj(Z_D[gen][i])/(2.0*cw*sw) + conj(Yd[gen])*conj(Z_D[gen+3][i])*conj(Z_N[2][b]))/(64.0*pow(pi, 2)) - 
+					D2ne*(-sqrt(2)*Q_e*Z_D[2][i]*(Z_N[0][a]*sw/3.0 - Z_N[1][a]*cw)/(2.0*cw*sw) + Yd[2]*Z_D[5][i]*Z_N[2][a])*
+					(-sqrt(2)*Q_e*Z_D[2][j]*(Z_N[0][b]*sw/3.0 - Z_N[1][b]*cw)/(2.0*cw*sw) + Yd[2]*Z_D[5][j]*Z_N[2][b])*
+					(-sqrt(2)*Q_e*(conj(Z_N[0][a])*sw/3.0 - conj(Z_N[1][a])*cw)*conj(Z_D[gen][i])/(2*cw*sw) + conj(Yd[gen])*conj(Z_D[gen+3][i])*conj(Z_N[2][a]))*
+					(-sqrt(2)*Q_e*(conj(Z_N[0][b])*sw/3.0 - conj(Z_N[1][b])*cw)*conj(Z_D[gen][i])/(2.0*cw*sw) + conj(Yd[gen])*conj(Z_D[gen+3][i])*conj(Z_N[2][b]))/(32.0*pow(pi, 2));
+					
+					C2_neutralino += D0ne*M_ch0[a]*M_ch0[b]*(-sqrt(2)*Q_e*Z_N[0][b]*conj(Z_D[gen+3][i])/(3.0*cw) + Z_N[2][b]*conj(Yd[gen])*conj(Z_D[gen][i]))*(-sqrt(2)*Q_e*Z_N[0][b]*conj(Z_D[gen+3][j])/(3.0*cw) + 
+					Z_N[2][b]*conj(Yd[gen])*conj(Z_D[gen][j]))*(-sqrt(2)*Q_e*Z_D[2][i]*(Z_N[0][a]*sw/3.0 - Z_N[1][a]*cw)/(2.0*cw*sw) + Yd[2]*Z_D[5][i]*Z_N[2][a])*(-sqrt(2)*Q_e*Z_D[2][j]*(Z_N[0][a]*sw/3.0 - Z_N[1][a]*cw)/
+					(2.0*cw*sw) + Yd[2]*Z_D[5][j]*Z_N[2][a])/(32.0*pow(pi, 2));
+					
+					C3_neutralino += -D0ne*M_ch0[a]*M_ch0[b]*((-sqrt(2)*Q_e*Z_N[0][a]*conj(Z_D[gen+3][j])/(3.0*cw) + Z_N[2][a]*conj(Yd[gen])*conj(Z_D[gen][j]))*(-sqrt(2)*Q_e*Z_D[2][j]*(Z_N[0][b]*sw/3.0 - Z_N[1][b]*cw)/(2.0*cw*sw) + 
+					Yd[2]*Z_D[5][j]*Z_N[2][b]) - (-sqrt(2)*Q_e*Z_N[0][b]*conj(Z_D[gen+3][j])/(3.0*cw) + Z_N[2][b]*conj(Yd[gen])*conj(Z_D[gen][j]))*(-sqrt(2)*Q_e*Z_D[2][j]*(Z_N[0][a]*sw/3.0 - Z_N[1][a]*cw)/(2.0*cw*sw) + 
+					Yd[2]*Z_D[5][j]*Z_N[2][a]))*(-sqrt(2)*Q_e*Z_N[0][b]*conj(Z_D[gen+3][i])/(3.0*cw) + Z_N[2][b]*conj(Yd[gen])*conj(Z_D[gen][i]))*(-sqrt(2)*Q_e*Z_D[2][i]*(Z_N[0][a]*sw/3.0 - Z_N[1][a]*cw)/(2.0*cw*sw) + 
+					Yd[2]*Z_D[5][i]*Z_N[2][a])/(32.0*pow(pi, 2));
 
-		Cp1_neutralino += -D0ne*M_ch0[ae]*M_ch0[be]*(-sqrt(2)*Q_e*Z_D[6][ie]*conj(Z_N[1][ae])/(3.0*cw) + Yd[3]*Z_D[3][ie]*conj(Z_N[3][ae]))*(-sqrt(2)*Q_e*Z_D[6][je]*conj(Z_N[1][be])/(3.0*cw) + Yd[3]*Z_D[3][je]*conj(Z_N[3][be]))*(-sqrt(2)*Q_e*Z_N[1][ae]*conj(Z_D[gen+3][je])/(3.0*cw) + Z_N[3][ae]*conj(Yd[gen])*conj(Z_D[gen][je]))*(-sqrt(2)*Q_e*Z_N[1][be]*conj(Z_D[gen+3][ie])/(3.0*cw) + Z_N[3][be]*conj(Yd[gen])*conj(Z_D[gen][ie]))/(64.0*pow(pi, 2)) - D2ne*(-sqrt(2)*Q_e*Z_D[6][je]*conj(Z_N[1][be])/(3.0*cw) + Yd[3]*Z_D[3][je]*conj(Z_N[3][be]))*(-sqrt(2)*Q_e*Z_N[1][ae]*conj(Z_D[gen+3][je])/(3.0*cw) + Z_N[3][ae]*conj(Yd[gen])*conj(Z_D[gen][je]))*(-sqrt(2)*Q_e*Z_N[1][be]*conj(Z_D[gen+3][ie])/(3.0*cw) + Z_N[3][be]*conj(Yd[gen])*conj(Z_D[gen][ie]))*(-sqrt(2)*Q_e*Z_D[3][ie]*(Z_N[1][ae]*sw/3.0 - Z_N[2][ae]*cw)/(2.0*cw*sw) + Yd[3]*Z_D[6][ie]*Z_N[3][ae])/(32.0*pow(pi, 2));
-		Cp2_neutralino += D0ne*M_ch0[ae]*M_ch0[be]*(-sqrt(2)*Q_e*Z_D[6][ie]*conj(Z_N[1][ae])/(3.0*cw) + Yd[3]*Z_D[3][ie]*conj(Z_N[3][ae]))*(-sqrt(2)*Q_e*Z_D[6][je]*conj(Z_N[1][ae])/(3.0*cw) + Yd[3]*Z_D[3][je]*conj(Z_N[3][ae]))*(-sqrt(2)*Q_e*(conj(Z_N[1][be])*sw/3.0 - conj(Z_N[2][be])*cw)*conj(Z_D[gen][ie])/(2.0*cw*sw) + conj(Yd[gen])*conj(Z_D[gen+3][ie])*conj(Z_N[3][be]))*(-sqrt(2)*Q_e*(conj(Z_N[1][be])*sw/3.0 - conj(Z_N[2][be])*cw)*conj(Z_D[gen][je])/(2.0*cw*sw) + conj(Yd[gen])*conj(Z_D[gen+3][je])*conj(Z_N[3][be]))/(32.0*pow(pi, 2));
-		Cp3_neutralino += -D0ne*M_ch0[ae]*M_ch0[be]*(-(-sqrt(2)*Q_e*Z_D[6][je]*conj(Z_N[1][ae])/(3.0*cw) + Yd[3]*Z_D[3][je]*conj(Z_N[3][ae]))*(-sqrt(2)*Q_e*(conj(Z_N[1][be])*sw/3.0 - conj(Z_N[2][be])*cw)*conj(Z_D[gen][je])/(2.0*cw*sw) + conj(Yd[gen])*conj(Z_D[gen+3][je])*conj(Z_N[3][be])) + (-sqrt(2)*Q_e*Z_D[6][je]*conj(Z_N[1][be])/(3.0*cw) + Yd[3]*Z_D[3][je]*conj(Z_N[3][be]))*(-sqrt(2)*Q_e*(conj(Z_N[1][ae])*sw/3.0 - conj(Z_N[2][ae])*cw)*conj(Z_D[gen][ie])/(2.0*cw*sw) + conj(Yd[gen])*conj(Z_D[gen+3][ie])*conj(Z_N[3][ae])))*(-sqrt(2)*Q_e*Z_D[6][ie]*conj(Z_N[1][ae])/(3.0*cw) + Yd[3]*Z_D[3][ie]*conj(Z_N[3][ae]))*(-sqrt(2)*Q_e*(conj(Z_N[1][be])*sw/3.0 - conj(Z_N[2][be])*cw)*conj(Z_D[gen][ie])/(2.0*cw*sw) + conj(Yd[gen])*conj(Z_D[gen+3][ie])*conj(Z_N[3][be]))/(32.0*pow(pi, 2));
+					C4_neutralino += D2ne*((-sqrt(2)*Q_e*Z_N[0][a]*conj(Z_D[gen+3][j])/(3.0*cw) + Z_N[2][a]*conj(Yd[gen])*conj(Z_D[gen][j]))*(-sqrt(2)*Q_e*Z_D[2][j]*(Z_N[0][b]*sw/3.0 - Z_N[1][b]*cw)/(2.0*cw*sw) + 
+					Yd[2]*Z_D[5][j]*Z_N[2][b]) + (-sqrt(2)*Q_e*Z_N[0][b]*conj(Z_D[gen+3][j])/(3.0*cw) + Z_N[2][b]*conj(Yd[gen])*conj(Z_D[gen][j]))*(-sqrt(2)*Q_e*Z_D[2][j]*(Z_N[0][a]*sw/3.0 - Z_N[1][a]*cw)/(2.0*cw*sw) + 
+					Yd[2]*Z_D[5][j]*Z_N[2][a]))*(-sqrt(2)*Q_e*Z_D[5][i]*conj(Z_N[0][a])/(3.0*cw) + Yd[2]*Z_D[2][i]*conj(Z_N[2][a]))*(-sqrt(2)*Q_e*(conj(Z_N[0][b])*sw/3.0 - conj(Z_N[1][b])*cw)*conj(Z_D[gen][i])/(2.0*cw*sw) + 
+					conj(Yd[gen])*conj(Z_D[gen+3][i])*conj(Z_N[2][b]))/(8.0*pow(pi, 2));
+
+					C5_neutralino += -D0ne*M_ch0[a]*M_ch0[b]*(-sqrt(2)*Q_e*Z_D[5][i]*conj(Z_N[0][a])/(3.0*cw) + Yd[2]*Z_D[2][i]*conj(Z_N[2][a]))*(-sqrt(2)*Q_e*Z_N[0][b]*conj(Z_D[gen+3][i])/(3.0*cw) + 
+					Z_N[2][b]*conj(Yd[gen])*conj(Z_D[gen][i]))*(-sqrt(2)*Q_e*Z_D[2][j]*(Z_N[0][b]*sw/3.0 - Z_N[1][b]*cw)/(2.0*cw*sw) + Yd[2]*Z_D[5][j]*Z_N[2][b])*(-sqrt(2)*Q_e*(conj(Z_N[0][a])*sw/3.0 - 
+					conj(Z_N[1][a])*cw)*conj(Z_D[gen][i])/(2.0*cw*sw) + conj(Yd[gen])*conj(Z_D[gen+3][i])*conj(Z_N[2][a]))/(16.0*pow(pi, 2)) - D2ne*(-sqrt(2)*Q_e*Z_D[5][j]*conj(Z_N[0][a])/(3.0*cw) + 
+					Yd[2]*Z_D[2][j]*conj(Z_N[2][a]))*(-sqrt(2)*Q_e*Z_N[0][b]*conj(Z_D[gen+3][j])/(3.0*cw) + Z_N[2][b]*conj(Yd[gen])*conj(Z_D[gen][j]))*(-sqrt(2)*Q_e*Z_D[2][i]*(Z_N[0][a]*sw/3.0- Z_N[1][a]*cw)/(2.0*cw*sw) + 
+					Yd[2]*Z_D[5][i]*Z_N[2][a])*(-sqrt(2)*Q_e*(conj(Z_N[0][b])*sw/3.0 - conj(Z_N[1][b])*cw)*conj(Z_D[gen][i])/(2.0*cw*sw) + conj(Yd[gen])*conj(Z_D[gen+3][i])*conj(Z_N[2][b]))/(8.0*pow(pi, 2));
+
+					Cp1_neutralino += -D0ne*M_ch0[a]*M_ch0[b]*(-sqrt(2)*Q_e*Z_D[5][i]*conj(Z_N[0][a])/(3.0*cw) + Yd[2]*Z_D[2][i]*conj(Z_N[2][a]))*(-sqrt(2)*Q_e*Z_D[5][j]*conj(Z_N[0][b])/(3.0*cw) + 
+					Yd[2]*Z_D[2][j]*conj(Z_N[2][b]))*(-sqrt(2)*Q_e*Z_N[0][a]*conj(Z_D[gen+3][j])/(3.0*cw) + Z_N[2][a]*conj(Yd[gen])*conj(Z_D[gen][j]))*(-sqrt(2)*Q_e*Z_N[0][b]*conj(Z_D[gen+3][i])/(3.0*cw) + 
+					Z_N[2][b]*conj(Yd[gen])*conj(Z_D[gen][i]))/(64.0*pow(pi, 2)) - D2ne*(-sqrt(2)*Q_e*Z_D[5][j]*conj(Z_N[0][b])/(3.0*cw) + Yd[2]*Z_D[2][j]*conj(Z_N[2][b]))*(-sqrt(2)*Q_e*Z_N[0][a]*conj(Z_D[gen+3][j])/(3.0*cw) + 
+					Z_N[2][a]*conj(Yd[gen])*conj(Z_D[gen][j]))*(-sqrt(2)*Q_e*Z_N[0][b]*conj(Z_D[gen+3][i])/(3.0*cw) + Z_N[2][b]*conj(Yd[gen])*conj(Z_D[gen][i]))*(-sqrt(2)*Q_e*Z_D[2][i]*(Z_N[0][a]*sw/3.0 - Z_N[1][a]*cw)/(2.0*cw*sw) + 
+					Yd[2]*Z_D[5][i]*Z_N[2][a])/(32.0*pow(pi, 2));
+
+					Cp2_neutralino += D0ne*M_ch0[a]*M_ch0[b]*(-sqrt(2)*Q_e*Z_D[5][i]*conj(Z_N[0][a])/(3.0*cw) + Yd[2]*Z_D[2][i]*conj(Z_N[2][a]))*(-sqrt(2)*Q_e*Z_D[5][j]*conj(Z_N[0][a])/(3.0*cw) + 
+					Yd[2]*Z_D[2][j]*conj(Z_N[2][a]))*(-sqrt(2)*Q_e*(conj(Z_N[0][b])*sw/3.0 - conj(Z_N[1][b])*cw)*conj(Z_D[gen][i])/(2.0*cw*sw) + conj(Yd[gen])*conj(Z_D[gen+3][i])*conj(Z_N[2][b]))*(-sqrt(2)*Q_e*(conj(Z_N[0][b])*sw/3.0 - 
+					conj(Z_N[1][b])*cw)*conj(Z_D[gen][j])/(2.0*cw*sw) + conj(Yd[gen])*conj(Z_D[gen+3][j])*conj(Z_N[2][b]))/(32.0*pow(pi, 2));
+
+					Cp3_neutralino += -D0ne*M_ch0[a]*M_ch0[b]*(-(-sqrt(2)*Q_e*Z_D[5][j]*conj(Z_N[0][a])/(3.0*cw) + Yd[2]*Z_D[2][j]*conj(Z_N[2][a]))*(-sqrt(2)*Q_e*(conj(Z_N[0][b])*sw/3.0 - conj(Z_N[1][b])*cw)*conj(Z_D[gen][j])/(2.0*cw*sw) + 
+					conj(Yd[gen])*conj(Z_D[gen+3][j])*conj(Z_N[2][b])) + (-sqrt(2)*Q_e*Z_D[5][j]*conj(Z_N[0][b])/(3.0*cw) + Yd[2]*Z_D[2][j]*conj(Z_N[2][b]))*(-sqrt(2)*Q_e*(conj(Z_N[0][a])*sw/3.0 - 
+					conj(Z_N[1][a])*cw)*conj(Z_D[gen][i])/(2.0*cw*sw) + conj(Yd[gen])*conj(Z_D[gen+3][i])*conj(Z_N[2][a])))*(-sqrt(2)*Q_e*Z_D[5][i]*conj(Z_N[0][a])/(3.0*cw) + 
+					Yd[2]*Z_D[2][i]*conj(Z_N[2][a]))*(-sqrt(2)*Q_e*(conj(Z_N[0][b])*sw/3.0 - conj(Z_N[1][b])*cw)*conj(Z_D[gen][i])/(2.0*cw*sw) + conj(Yd[gen])*conj(Z_D[gen+3][i])*conj(Z_N[2][b]))/(32.0*pow(pi, 2));
+
+				}
+			}
+		}
 	}
 	
 
@@ -352,23 +412,23 @@ double C_mix_bd_1_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared
 	double Q_e = param->g2*sw;
 	double M_g=param->mass_gluino;
 	double M_g_pow_2 = pow(M_g,2.);
-	double M_ch0[5],M_ch0_pow_2[5],M_D_pow_2[7];
-	double complex Z_D[7][7],Z_N[5][5];
-	double complex Yd[4];
+	// double M_ch0[4],M_ch0_pow_2[4],M_D_pow_2[6];
+	double complex Z_D[6][6],Z_N[4][4];
+	// double complex Yd[3];
 
 	double v1,beta;
 	beta = atan(param->tan_beta);
 	v1 = 2.*(param->mass_W)*cos(beta)/param->g2;
  	double otherc = sqrt(2.)/v1;
-	Yd[1] = otherc*param->mass_d;
-	Yd[2] = otherc*param->mass_s;
-	Yd[3] = otherc*running_mass(param->mass_b,param->mass_b,mu_t,param->mass_top_pole,param->mass_b,param); /* NM: running mass */
+	// Yd[1] = otherc*param->mass_d;
+	// Yd[2] = otherc*param->mass_s;
+	// Yd[3] = otherc*running_mass(param->mass_b,param->mass_b,mu_t,param->mass_top_pole,param->mass_b,param); /* NM: running mass */
 
-	M_ch0[1]=fabs(param->mass_neut[1]);
-	M_ch0[2]=fabs(param->mass_neut[2]);
-	M_ch0[3]=fabs(param->mass_neut[3]);
-	M_ch0[4]=fabs(param->mass_neut[4]);
-	for(ie=1;ie<=4;ie++){M_ch0_pow_2[ie]=pow(M_ch0[ie],2);}
+	// M_ch0[1]=fabs(param->mass_neut[1]);
+	// M_ch0[2]=fabs(param->mass_neut[2]);
+	// M_ch0[3]=fabs(param->mass_neut[3]);
+	// M_ch0[4]=fabs(param->mass_neut[4]);
+	// for(ie=1;ie<=4;ie++){M_ch0_pow_2[ie]=pow(M_ch0[ie],2);}
 	
 	// M_D[1]=param->mass_dnl;
 	// M_D[2]=param->mass_stl;
@@ -377,32 +437,53 @@ double C_mix_bd_1_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared
 	// M_D[5]=param->mass_str;
 	// M_D[6]=param->mass_b2;
 
-	for(ie=1;ie<=6;ie++) M_D_pow_2[ie]=pow(M_D[ie],2);
-	for(ie=1;ie<=6;ie++) for(je=1;je<=6;je++) Z_D[ie][je]= param->sD_mix[je][ie]; /* NM: conversion from SLHA2 convention */
+	// for(ie=1;ie<=6;ie++) {
+	// 	M_D_pow_2[ie]=pow(M_D[ie],2);
+	// }
 
-	//In case sD_mix is not provided by the SLHA (set to 0):
-	//getZD(Z_D,param);
-	for(ie=1;ie<=4;ie++) for(je=1;je<=4;je++) Z_N[ie][je]=param->neut_mix[ie][je];
-	for(ie=1;ie<=4;ie++){if(param->mass_neut[ie]<0.) for(je=1;je<=4;je++) Z_N[ie][je]*=I;} /* NM: in Buras, neutralino masses defined positive, so changed the SLHA2 neutralino mixing matrix when negative neutralino mass */
+	// for(ie=1;ie<=6;ie++) {
+	// 	for(je=1;je<=6;je++) {
+	// 		Z_D[ie][je]= param->sD_mix[je][ie];
+	// 	}
+	// } /* NM: conversion from SLHA2 convention */
+
+	// //In case sD_mix is not provided by the SLHA (set to 0):
+	// //getZD(Z_D,param);
+	// for(ie=1;ie<=4;ie++) {
+	// 	for(je=1;je<=4;je++) {
+	// 		Z_N[ie][je]=param->neut_mix[ie][je];
+	// 	}
+	// }
+
+	// for(ie=1;ie<=4;ie++) {
+	// 	if(param->mass_neut[ie]<0.) {
+	// 		for(je=1;je<=4;je++) {
+	// 			Z_N[ie][je]*=I;
+	// 		}
+	// 	}
+	// } /* NM: in Buras, neutralino masses defined positive, so changed the SLHA2 neutralino mixing matrix when negative neutralino mass */
 
 	double D0mix,D2mix;
 	
 	/* NM: added generation dependence, Z_D[2][ie] -> Z_D[gen][ie], Z_D[5][ie] -> Z_D[gen+3][ie] and Yd[2] -> Yd[gen] */
 
-	for(ie=1;ie<=6;ie++) for(je=1;je<=6;je++) for(ae=1;ae<=4;ae++)
-	{
-		D0mix = D0(M_D_pow_2[ie],M_D_pow_2[je],M_ch0_pow_2[ae],M_g_pow_2);
-		D2mix = D2p(M_D_pow_2[ie],M_D_pow_2[je],M_ch0_pow_2[ae],M_g_pow_2); 
-		
-		C1_mixed += -D0mix*M_ch0[ae]*M_g*pow(g_3, 2)*(Z_D[gen][ie]*Z_D[gen][je]*(-sqrt(2)*Q_e*(conj(Z_N[1][ae])*sw/3.0 - conj(Z_N[2][ae])*cw)*conj(Z_D[3][ie])/(2.0*cw*sw) + conj(Yd[3])*conj(Z_D[6][ie])*conj(Z_N[3][ae]))*(-sqrt(2)*Q_e*(conj(Z_N[1][ae])*sw/3.0 - conj(Z_N[2][ae])*cw)*conj(Z_D[3][je])/(2.0*cw*sw) + conj(Yd[3])*conj(Z_D[6][je])*conj(Z_N[3][ae])) + Z_D[3][ie]*Z_D[3][je]*pow(-sqrt(2)*Q_e*(conj(Z_N[1][ae])*sw/3.0 - conj(Z_N[2][ae])*cw)*conj(Z_D[gen][ie])/(2.0*cw*sw) + conj(Yd[gen])*conj(Z_D[gen+3][ie])*conj(Z_N[3][ae]), 2))/(96.0*pow(pi, 2)) - D2mix*Z_D[3][je]*pow(g_3, 2)*(-sqrt(2)*Q_e*Z_D[3][ie]*(Z_N[1][ae]*sw/3.0 - Z_N[2][ae]*cw)/(2.0*cw*sw) + Yd[3]*Z_D[6][ie]*Z_N[3][ae])*(-sqrt(2)*Q_e*(conj(Z_N[1][ae])*sw/3.0 - conj(Z_N[2][ae])*cw)*conj(Z_D[gen][ie])/(2.0*cw*sw) + conj(Yd[gen])*conj(Z_D[gen+3][ie])*conj(Z_N[3][ae]))*conj(Z_D[gen][ie])/(8.0*pow(pi, 2));
-		C2_mixed += D0mix*M_ch0[ae]*M_g*pow(g_3, 2)*(Z_D[3][ie]*(-sqrt(2)*Q_e*Z_N[1][ae]*conj(Z_D[gen+3][ie])/(3.0*cw) + Z_N[3][ae]*conj(Yd[gen])*conj(Z_D[gen][ie]))*(-sqrt(2)*Q_e*Z_N[1][ae]*conj(Z_D[gen+3][je])/(3.0*cw) + Z_N[3][ae]*conj(Yd[gen])*conj(Z_D[gen][je]))*conj(Z_D[3][je]) + 3.0*Z_D[3][je]*(-sqrt(2)*Q_e*Z_N[1][ae]*conj(Z_D[gen+3][je])/(3.0*cw) + Z_N[3][ae]*conj(Yd[gen])*conj(Z_D[gen][je]))*(-sqrt(2)*Q_e*Z_D[3][ie]*(Z_N[1][ae]*sw/3.0 - Z_N[2][ae]*cw)/(2.0*cw*sw) + Yd[3]*Z_D[6][ie]*Z_N[3][ae])*conj(Z_D[gen+3][ie]))/(48.0*pow(pi, 2)) + D0mix*M_ch0[ae]*M_g*pow(g_3, 2)*(-sqrt(2)*Q_e*Z_D[3][ie]*(Z_N[1][ae]*sw/3.0 - Z_N[2][ae]*cw)/(2.0*cw*sw) + Yd[3]*Z_D[6][ie]*Z_N[3][ae])*(-sqrt(2)*Q_e*Z_D[3][je]*(Z_N[1][ae]*sw/3.0 - Z_N[2][ae]*cw)/(2.0*cw*sw) + Yd[3]*Z_D[6][je]*Z_N[3][ae])*conj(Z_D[gen+3][ie])*conj(Z_D[gen+3][je])/(48.0*pow(pi, 2));
-		C3_mixed += D0mix*M_ch0[ae]*M_g*Z_D[3][ie]*pow(g_3, 2)*(-sqrt(2)*Q_e*Z_N[1][ae]*conj(Z_D[gen+3][ie])/(3.0*cw) + Z_N[3][ae]*conj(Yd[gen])*conj(Z_D[gen][ie]))*(-sqrt(2)*Q_e*Z_N[1][ae]*conj(Z_D[gen+3][je])/(3.0*cw) + Z_N[3][ae]*conj(Yd[gen])*conj(Z_D[gen][je]))*conj(Z_D[3][je])/(48.0*pow(pi, 2)) - D0mix*M_ch0[ae]*M_g*Z_D[3][je]*pow(g_3, 2)*(-sqrt(2)*Q_e*Z_N[1][ae]*conj(Z_D[gen+3][je])/(3.0*cw) + Z_N[3][ae]*conj(Yd[gen])*conj(Z_D[gen][je]))*(-sqrt(2)*Q_e*Z_D[3][ie]*(Z_N[1][ae]*sw/3.0 - Z_N[2][ae]*cw)/(2.0*cw*sw) + Yd[3]*Z_D[6][ie]*Z_N[3][ae])*conj(Z_D[gen+3][ie])/(48.0*pow(pi, 2)) + D0mix*M_ch0[ae]*M_g*pow(g_3, 2)*(-sqrt(2)*Q_e*Z_D[3][ie]*(Z_N[1][ae]*sw/3.0 - Z_N[2][ae]*cw)/(2.0*cw*sw) + Yd[3]*Z_D[6][ie]*Z_N[3][ae])*(-sqrt(2)*Q_e*Z_D[3][je]*(Z_N[1][ae]*sw/3.0 - Z_N[2][ae]*cw)/(2.0*cw*sw) + Yd[3]*Z_D[6][je]*Z_N[3][ae])*conj(Z_D[gen+3][ie])*conj(Z_D[gen+3][je])/(48.0*pow(pi, 2));
-		C4_mixed += D0mix*M_ch0[ae]*M_g*pow(g_3, 2)*(Z_D[3][je]*(-sqrt(2)*Q_e*Z_D[6][ie]*conj(Z_N[1][ae])/(3.0*cw) + Yd[3]*Z_D[3][ie]*conj(Z_N[3][ae]))*(-sqrt(2)*Q_e*(conj(Z_N[1][ae])*sw/3.0 - conj(Z_N[2][ae])*cw)*conj(Z_D[gen][ie])/(2.0*cw*sw) + conj(Yd[gen])*conj(Z_D[gen+3][ie])*conj(Z_N[3][ae]))*conj(Z_D[gen+3][ie]) + Z_D[6][je]*(-sqrt(2)*Q_e*Z_N[1][ae]*conj(Z_D[gen+3][je])/(3.0*cw) + Z_N[3][ae]*conj(Yd[gen])*conj(Z_D[gen][je]))*(-sqrt(2)*Q_e*Z_D[3][ie]*(Z_N[1][ae]*sw/3.0 - Z_N[2][ae]*cw)/(2.0*cw*sw) + Yd[3]*Z_D[6][ie]*Z_N[3][ae])*conj(Z_D[gen][ie]))/(16.0*pow(pi, 2)) - D2mix*pow(g_3, 2)*(-3.0*Z_D[3][je]*Z_D[6][ie]*(-sqrt(2)*Q_e*Z_N[1][ae]*conj(Z_D[gen+3][ie])/(3.0*cw) + Z_N[3][ae]*conj(Yd[gen])*conj(Z_D[gen][ie]))*(-sqrt(2)*Q_e*(conj(Z_N[1][ae])*sw/3.0 - conj(Z_N[2][ae])*cw)*conj(Z_D[gen][ie])/(2.0*cw*sw) + conj(Yd[gen])*conj(Z_D[gen+3][ie])*conj(Z_N[3][ae])) - 3.0*(-sqrt(2)*Q_e*Z_N[1][ae]*conj(Z_D[6][ie])/(3.0*cw) + Z_N[3][ae]*conj(Yd[3])*conj(Z_D[3][ie]))*(-sqrt(2)*Q_e*Z_D[3][je]*(Z_N[1][ae]*sw/3.0 - Z_N[2][ae]*cw)/(2.0*cw*sw) + Yd[3]*Z_D[6][je]*Z_N[3][ae])*conj(Z_D[gen][je])*conj(Z_D[gen+3][ie]))/(24.0*pow(pi, 2)) - D2mix*pow(g_3, 2)*(-Z_D[3][je]*Z_D[6][ie]*(-sqrt(2)*Q_e*Z_N[1][ae]*conj(Z_D[gen+3][je])/(3.0*cw) + Z_N[3][ae]*conj(Yd[gen])*conj(Z_D[gen][je]))*(-sqrt(2)*Q_e*(conj(Z_N[1][ae])*sw/3.0 - conj(Z_N[2][ae])*cw)*conj(Z_D[gen][ie])/(2.0*cw*sw) + conj(Yd[gen])*conj(Z_D[gen+3][ie])*conj(Z_N[3][ae])) - (-sqrt(2)*Q_e*Z_D[6][je]*conj(Z_N[1][ae])/(3.0*cw) + Yd[3]*Z_D[3][je]*conj(Z_N[3][ae]))*(-sqrt(2)*Q_e*Z_D[3][ie]*(Z_N[1][ae]*sw/3.0 - Z_N[2][ae]*cw)/(2.0*cw*sw) + Yd[3]*Z_D[6][ie]*Z_N[3][ae])*conj(Z_D[gen][je])*conj(Z_D[gen+3][ie]))/(24.0*pow(pi, 2)) - D2mix*pow(g_3, 2)*(Z_D[3][je]*(-sqrt(2)*Q_e*Z_D[6][ie]*conj(Z_N[1][ae])/(3.0*cw) + Yd[3]*Z_D[3][ie]*conj(Z_N[3][ae]))*(-sqrt(2)*Q_e*Z_N[1][ae]*conj(Z_D[gen+3][je])/(3.0*cw) + Z_N[3][ae]*conj(Yd[gen])*conj(Z_D[gen][je]))*conj(Z_D[gen][ie]) + Z_D[6][je]*(-sqrt(2)*Q_e*Z_D[3][ie]*(Z_N[1][ae]*sw/3.0 - Z_N[2][ae]*cw)/(2.0*cw*sw) + Yd[3]*Z_D[6][ie]*Z_N[3][ae])*(-sqrt(2)*Q_e*(conj(Z_N[1][ae])*sw/3.0 - conj(Z_N[2][ae])*cw)*conj(Z_D[gen][ie])/(2.0*cw*sw) + conj(Yd[gen])*conj(Z_D[gen+3][ie])*conj(Z_N[3][ae]))*conj(Z_D[gen+3][ie]))/(24.0*pow(pi, 2));
-		C5_mixed += -D0mix*M_ch0[ae]*M_g*pow(g_3, 2)*(Z_D[3][je]*(-sqrt(2)*Q_e*Z_D[6][ie]*conj(Z_N[1][ae])/(3.0*cw) + Yd[3]*Z_D[3][ie]*conj(Z_N[3][ae]))*(-sqrt(2)*Q_e*(conj(Z_N[1][ae])*sw/3.0 - conj(Z_N[2][ae])*cw)*conj(Z_D[gen][ie])/(2.0*cw*sw) + conj(Yd[gen])*conj(Z_D[gen+3][ie])*conj(Z_N[3][ae]))*conj(Z_D[gen+3][ie]) + Z_D[6][je]*(-sqrt(2)*Q_e*Z_N[1][ae]*conj(Z_D[gen+3][je])/(3.0*cw) + Z_N[3][ae]*conj(Yd[gen])*conj(Z_D[gen][je]))*(-sqrt(2)*Q_e*Z_D[3][ie]*(Z_N[1][ae]*sw/3.0 - Z_N[2][ae]*cw)/(2.0*cw*sw) + Yd[3]*Z_D[6][ie]*Z_N[3][ae])*conj(Z_D[gen][ie]))/(48.0*pow(pi, 2)) + D2mix*pow(g_3, 2)*(-Z_D[3][je]*Z_D[6][ie]*(-sqrt(2)*Q_e*Z_N[1][ae]*conj(Z_D[gen+3][ie])/(3.0*cw) + Z_N[3][ae]*conj(Yd[gen])*conj(Z_D[gen][ie]))*(-sqrt(2)*Q_e*(conj(Z_N[1][ae])*sw/3.0 - conj(Z_N[2][ae])*cw)*conj(Z_D[gen][ie])/(2.0*cw*sw) + conj(Yd[gen])*conj(Z_D[gen+3][ie])*conj(Z_N[3][ae])) - (-sqrt(2)*Q_e*Z_N[1][ae]*conj(Z_D[6][ie])/(3*cw) + Z_N[3][ae]*conj(Yd[3])*conj(Z_D[3][ie]))*(-sqrt(2)*Q_e*Z_D[3][je]*(Z_N[1][ae]*sw/3.0 - Z_N[2][ae]*cw)/(2.0*cw*sw) + Yd[3]*Z_D[6][je]*Z_N[3][ae])*conj(Z_D[gen][je])*conj(Z_D[gen+3][ie]))/(24.0*pow(pi, 2)) + D2mix*pow(g_3, 2)*(-Z_D[3][je]*Z_D[6][ie]*(-sqrt(2)*Q_e*Z_N[1][ae]*conj(Z_D[gen+3][je])/(3.0*cw) + Z_N[3][ae]*conj(Yd[gen])*conj(Z_D[gen][je]))*(-sqrt(2)*Q_e*(conj(Z_N[1][ae])*sw/3.0 - conj(Z_N[2][ae])*cw)*conj(Z_D[gen][ie])/(2.0*cw*sw) + conj(Yd[gen])*conj(Z_D[gen+3][ie])*conj(Z_N[3][ae])) - (-sqrt(2)*Q_e*Z_D[6][je]*conj(Z_N[1][ae])/(3.0*cw) + Yd[3]*Z_D[3][je]*conj(Z_N[3][ae]))*(-sqrt(2)*Q_e*Z_D[3][ie]*(Z_N[1][ae]*sw/3.0 - Z_N[2][ae]*cw)/(2.0*cw*sw) + Yd[3]*Z_D[6][ie]*Z_N[3][ae])*conj(Z_D[gen][je])*conj(Z_D[gen+3][ie]))/(8.0*pow(pi, 2)) + D2mix*pow(g_3, 2)*(Z_D[3][je]*(-sqrt(2)*Q_e*Z_D[6][ie]*conj(Z_N[1][ae])/(3.0*cw) + Yd[3]*Z_D[3][ie]*conj(Z_N[3][ae]))*(-sqrt(2)*Q_e*Z_N[1][ae]*conj(Z_D[gen+3][je])/(3.0*cw) + Z_N[3][ae]*conj(Yd[gen])*conj(Z_D[gen][je]))*conj(Z_D[gen][ie]) + Z_D[6][je]*(-sqrt(2)*Q_e*Z_D[3][ie]*(Z_N[1][ae]*sw/3.0 - Z_N[2][ae]*cw)/(2.0*cw*sw) + Yd[3]*Z_D[6][ie]*Z_N[3][ae])*(-sqrt(2)*Q_e*(conj(Z_N[1][ae])*sw/3.0 - conj(Z_N[2][ae])*cw)*conj(Z_D[gen][ie])/(2.0*cw*sw) + conj(Yd[gen])*conj(Z_D[gen+3][ie])*conj(Z_N[3][ae]))*conj(Z_D[gen+3][ie]))/(8.0*pow(pi, 2));
-		Cp1_mixed += -D0mix*M_ch0[ae]*M_g*pow(g_3, 2)*(Z_D[gen+3][ie]*Z_D[gen+3][je]*(-sqrt(2)*Q_e*Z_N[1][ae]*conj(Z_D[6][ie])/(3.0*cw) + Z_N[3][ae]*conj(Yd[3])*conj(Z_D[3][ie]))*(-sqrt(2)*Q_e*Z_N[1][ae]*conj(Z_D[6][je])/(3.0*cw) + Z_N[3][ae]*conj(Yd[3])*conj(Z_D[3][je])) + Z_D[6][ie]*Z_D[6][je]*(-sqrt(2)*Q_e*Z_N[1][ae]*conj(Z_D[gen+3][ie])/(3.0*cw) + Z_N[3][ae]*conj(Yd[gen])*conj(Z_D[gen][ie]))*(-sqrt(2)*Q_e*Z_N[1][ae]*conj(Z_D[gen+3][je])/(3.0*cw) + Z_N[3][ae]*conj(Yd[gen])*conj(Z_D[gen][je])))/(96.0*pow(pi, 2)) - D2mix*Z_D[6][je]*pow(g_3, 2)*(-sqrt(2)*Q_e*Z_D[6][ie]*conj(Z_N[1][ae])/(3.0*cw) + Yd[3]*Z_D[3][ie]*conj(Z_N[3][ae]))*(-sqrt(2)*Q_e*Z_N[1][ae]*conj(Z_D[gen+3][je])/(3.0*cw) + Z_N[3][ae]*conj(Yd[gen])*conj(Z_D[gen][je]))*conj(Z_D[gen+3][ie])/(8.0*pow(pi, 2));
-		Cp2_mixed += D0mix*M_ch0[ae]*M_g*pow(g_3, 2)*(Z_D[6][ie]*pow(-sqrt(2)*Q_e*(conj(Z_N[1][ae])*sw/3.0 - conj(Z_N[2][ae])*cw)*conj(Z_D[gen][ie])/(2.0*cw*sw) + conj(Yd[gen])*conj(Z_D[gen+3][ie])*conj(Z_N[3][ae]), 2)*conj(Z_D[6][je]) + 3.0*Z_D[6][je]*(-sqrt(2)*Q_e*Z_D[6][ie]*conj(Z_N[1][ae])/(3.0*cw) + Yd[3]*Z_D[3][ie]*conj(Z_N[3][ae]))*(-sqrt(2)*Q_e*(conj(Z_N[1][ae])*sw/3.0 - conj(Z_N[2][ae])*cw)*conj(Z_D[gen][ie])/(2.0*cw*sw) + conj(Yd[gen])*conj(Z_D[gen+3][ie])*conj(Z_N[3][ae]))*conj(Z_D[gen][ie]))/(48.0*pow(pi, 2)) + D0mix*M_ch0[ae]*M_g*pow(g_3, 2)*(-sqrt(2)*Q_e*Z_D[6][ie]*conj(Z_N[1][ae])/(3.0*cw) + Yd[3]*Z_D[3][ie]*conj(Z_N[3][ae]))*(-sqrt(2)*Q_e*Z_D[6][je]*conj(Z_N[1][ae])/(3.0*cw) + Yd[3]*Z_D[3][je]*conj(Z_N[3][ae]))*conj(Z_D[gen][ie])*conj(Z_D[gen][je])/(48.0*pow(pi, 2));
-		Cp3_mixed += D0mix*M_ch0[ae]*M_g*Z_D[6][ie]*pow(g_3, 2)*pow(-sqrt(2)*Q_e*(conj(Z_N[1][ae])*sw/3.0 - conj(Z_N[2][ae])*cw)*conj(Z_D[gen][ie])/(2.0*cw*sw) + conj(Yd[gen])*conj(Z_D[gen+3][ie])*conj(Z_N[3][ae]), 2)*conj(Z_D[6][je])/(48.0*pow(pi, 2)) - D0mix*M_ch0[ae]*M_g*Z_D[6][je]*pow(g_3, 2)*(-sqrt(2)*Q_e*Z_D[6][ie]*conj(Z_N[1][ae])/(3.0*cw) + Yd[3]*Z_D[3][ie]*conj(Z_N[3][ae]))*(-sqrt(2)*Q_e*(conj(Z_N[1][ae])*sw/3.0 - conj(Z_N[2][ae])*cw)*conj(Z_D[gen][ie])/(2.0*cw*sw) + conj(Yd[gen])*conj(Z_D[gen+3][ie])*conj(Z_N[3][ae]))*conj(Z_D[gen][ie])/(48.0*pow(pi, 2)) + D0mix*M_ch0[ae]*M_g*pow(g_3, 2)*(-sqrt(2)*Q_e*Z_D[6][ie]*conj(Z_N[1][ae])/(3.0*cw) + Yd[3]*Z_D[3][ie]*conj(Z_N[3][ae]))*(-sqrt(2)*Q_e*Z_D[6][je]*conj(Z_N[1][ae])/(3.0*cw) + Yd[3]*Z_D[3][je]*conj(Z_N[3][ae]))*conj(Z_D[gen][ie])*conj(Z_D[gen][je])/(48.0*pow(pi, 2));
-    }
+	for(ie=1;ie<=6;ie++) {
+		for(je=1;je<=6;je++) {
+			for(ae=1;ae<=4;ae++) {
+				D0mix = D0(M_D_pow_2[ie],M_D_pow_2[je],M_ch0_pow_2[ae],M_g_pow_2);
+				D2mix = D2p(M_D_pow_2[ie],M_D_pow_2[je],M_ch0_pow_2[ae],M_g_pow_2); 
+				
+				C1_mixed += -D0mix*M_ch0[ae]*M_g*pow(g_3, 2)*(Z_D[gen][ie]*Z_D[gen][je]*(-sqrt(2)*Q_e*(conj(Z_N[1][ae])*sw/3.0 - conj(Z_N[2][ae])*cw)*conj(Z_D[3][ie])/(2.0*cw*sw) + conj(Yd[3])*conj(Z_D[6][ie])*conj(Z_N[3][ae]))*(-sqrt(2)*Q_e*(conj(Z_N[1][ae])*sw/3.0 - conj(Z_N[2][ae])*cw)*conj(Z_D[3][je])/(2.0*cw*sw) + conj(Yd[3])*conj(Z_D[6][je])*conj(Z_N[3][ae])) + Z_D[3][ie]*Z_D[3][je]*pow(-sqrt(2)*Q_e*(conj(Z_N[1][ae])*sw/3.0 - conj(Z_N[2][ae])*cw)*conj(Z_D[gen][ie])/(2.0*cw*sw) + conj(Yd[gen])*conj(Z_D[gen+3][ie])*conj(Z_N[3][ae]), 2))/(96.0*pow(pi, 2)) - D2mix*Z_D[3][je]*pow(g_3, 2)*(-sqrt(2)*Q_e*Z_D[3][ie]*(Z_N[1][ae]*sw/3.0 - Z_N[2][ae]*cw)/(2.0*cw*sw) + Yd[3]*Z_D[6][ie]*Z_N[3][ae])*(-sqrt(2)*Q_e*(conj(Z_N[1][ae])*sw/3.0 - conj(Z_N[2][ae])*cw)*conj(Z_D[gen][ie])/(2.0*cw*sw) + conj(Yd[gen])*conj(Z_D[gen+3][ie])*conj(Z_N[3][ae]))*conj(Z_D[gen][ie])/(8.0*pow(pi, 2));
+				C2_mixed += D0mix*M_ch0[ae]*M_g*pow(g_3, 2)*(Z_D[3][ie]*(-sqrt(2)*Q_e*Z_N[1][ae]*conj(Z_D[gen+3][ie])/(3.0*cw) + Z_N[3][ae]*conj(Yd[gen])*conj(Z_D[gen][ie]))*(-sqrt(2)*Q_e*Z_N[1][ae]*conj(Z_D[gen+3][je])/(3.0*cw) + Z_N[3][ae]*conj(Yd[gen])*conj(Z_D[gen][je]))*conj(Z_D[3][je]) + 3.0*Z_D[3][je]*(-sqrt(2)*Q_e*Z_N[1][ae]*conj(Z_D[gen+3][je])/(3.0*cw) + Z_N[3][ae]*conj(Yd[gen])*conj(Z_D[gen][je]))*(-sqrt(2)*Q_e*Z_D[3][ie]*(Z_N[1][ae]*sw/3.0 - Z_N[2][ae]*cw)/(2.0*cw*sw) + Yd[3]*Z_D[6][ie]*Z_N[3][ae])*conj(Z_D[gen+3][ie]))/(48.0*pow(pi, 2)) + D0mix*M_ch0[ae]*M_g*pow(g_3, 2)*(-sqrt(2)*Q_e*Z_D[3][ie]*(Z_N[1][ae]*sw/3.0 - Z_N[2][ae]*cw)/(2.0*cw*sw) + Yd[3]*Z_D[6][ie]*Z_N[3][ae])*(-sqrt(2)*Q_e*Z_D[3][je]*(Z_N[1][ae]*sw/3.0 - Z_N[2][ae]*cw)/(2.0*cw*sw) + Yd[3]*Z_D[6][je]*Z_N[3][ae])*conj(Z_D[gen+3][ie])*conj(Z_D[gen+3][je])/(48.0*pow(pi, 2));
+				C3_mixed += D0mix*M_ch0[ae]*M_g*Z_D[3][ie]*pow(g_3, 2)*(-sqrt(2)*Q_e*Z_N[1][ae]*conj(Z_D[gen+3][ie])/(3.0*cw) + Z_N[3][ae]*conj(Yd[gen])*conj(Z_D[gen][ie]))*(-sqrt(2)*Q_e*Z_N[1][ae]*conj(Z_D[gen+3][je])/(3.0*cw) + Z_N[3][ae]*conj(Yd[gen])*conj(Z_D[gen][je]))*conj(Z_D[3][je])/(48.0*pow(pi, 2)) - D0mix*M_ch0[ae]*M_g*Z_D[3][je]*pow(g_3, 2)*(-sqrt(2)*Q_e*Z_N[1][ae]*conj(Z_D[gen+3][je])/(3.0*cw) + Z_N[3][ae]*conj(Yd[gen])*conj(Z_D[gen][je]))*(-sqrt(2)*Q_e*Z_D[3][ie]*(Z_N[1][ae]*sw/3.0 - Z_N[2][ae]*cw)/(2.0*cw*sw) + Yd[3]*Z_D[6][ie]*Z_N[3][ae])*conj(Z_D[gen+3][ie])/(48.0*pow(pi, 2)) + D0mix*M_ch0[ae]*M_g*pow(g_3, 2)*(-sqrt(2)*Q_e*Z_D[3][ie]*(Z_N[1][ae]*sw/3.0 - Z_N[2][ae]*cw)/(2.0*cw*sw) + Yd[3]*Z_D[6][ie]*Z_N[3][ae])*(-sqrt(2)*Q_e*Z_D[3][je]*(Z_N[1][ae]*sw/3.0 - Z_N[2][ae]*cw)/(2.0*cw*sw) + Yd[3]*Z_D[6][je]*Z_N[3][ae])*conj(Z_D[gen+3][ie])*conj(Z_D[gen+3][je])/(48.0*pow(pi, 2));
+				C4_mixed += D0mix*M_ch0[ae]*M_g*pow(g_3, 2)*(Z_D[3][je]*(-sqrt(2)*Q_e*Z_D[6][ie]*conj(Z_N[1][ae])/(3.0*cw) + Yd[3]*Z_D[3][ie]*conj(Z_N[3][ae]))*(-sqrt(2)*Q_e*(conj(Z_N[1][ae])*sw/3.0 - conj(Z_N[2][ae])*cw)*conj(Z_D[gen][ie])/(2.0*cw*sw) + conj(Yd[gen])*conj(Z_D[gen+3][ie])*conj(Z_N[3][ae]))*conj(Z_D[gen+3][ie]) + Z_D[6][je]*(-sqrt(2)*Q_e*Z_N[1][ae]*conj(Z_D[gen+3][je])/(3.0*cw) + Z_N[3][ae]*conj(Yd[gen])*conj(Z_D[gen][je]))*(-sqrt(2)*Q_e*Z_D[3][ie]*(Z_N[1][ae]*sw/3.0 - Z_N[2][ae]*cw)/(2.0*cw*sw) + Yd[3]*Z_D[6][ie]*Z_N[3][ae])*conj(Z_D[gen][ie]))/(16.0*pow(pi, 2)) - D2mix*pow(g_3, 2)*(-3.0*Z_D[3][je]*Z_D[6][ie]*(-sqrt(2)*Q_e*Z_N[1][ae]*conj(Z_D[gen+3][ie])/(3.0*cw) + Z_N[3][ae]*conj(Yd[gen])*conj(Z_D[gen][ie]))*(-sqrt(2)*Q_e*(conj(Z_N[1][ae])*sw/3.0 - conj(Z_N[2][ae])*cw)*conj(Z_D[gen][ie])/(2.0*cw*sw) + conj(Yd[gen])*conj(Z_D[gen+3][ie])*conj(Z_N[3][ae])) - 3.0*(-sqrt(2)*Q_e*Z_N[1][ae]*conj(Z_D[6][ie])/(3.0*cw) + Z_N[3][ae]*conj(Yd[3])*conj(Z_D[3][ie]))*(-sqrt(2)*Q_e*Z_D[3][je]*(Z_N[1][ae]*sw/3.0 - Z_N[2][ae]*cw)/(2.0*cw*sw) + Yd[3]*Z_D[6][je]*Z_N[3][ae])*conj(Z_D[gen][je])*conj(Z_D[gen+3][ie]))/(24.0*pow(pi, 2)) - D2mix*pow(g_3, 2)*(-Z_D[3][je]*Z_D[6][ie]*(-sqrt(2)*Q_e*Z_N[1][ae]*conj(Z_D[gen+3][je])/(3.0*cw) + Z_N[3][ae]*conj(Yd[gen])*conj(Z_D[gen][je]))*(-sqrt(2)*Q_e*(conj(Z_N[1][ae])*sw/3.0 - conj(Z_N[2][ae])*cw)*conj(Z_D[gen][ie])/(2.0*cw*sw) + conj(Yd[gen])*conj(Z_D[gen+3][ie])*conj(Z_N[3][ae])) - (-sqrt(2)*Q_e*Z_D[6][je]*conj(Z_N[1][ae])/(3.0*cw) + Yd[3]*Z_D[3][je]*conj(Z_N[3][ae]))*(-sqrt(2)*Q_e*Z_D[3][ie]*(Z_N[1][ae]*sw/3.0 - Z_N[2][ae]*cw)/(2.0*cw*sw) + Yd[3]*Z_D[6][ie]*Z_N[3][ae])*conj(Z_D[gen][je])*conj(Z_D[gen+3][ie]))/(24.0*pow(pi, 2)) - D2mix*pow(g_3, 2)*(Z_D[3][je]*(-sqrt(2)*Q_e*Z_D[6][ie]*conj(Z_N[1][ae])/(3.0*cw) + Yd[3]*Z_D[3][ie]*conj(Z_N[3][ae]))*(-sqrt(2)*Q_e*Z_N[1][ae]*conj(Z_D[gen+3][je])/(3.0*cw) + Z_N[3][ae]*conj(Yd[gen])*conj(Z_D[gen][je]))*conj(Z_D[gen][ie]) + Z_D[6][je]*(-sqrt(2)*Q_e*Z_D[3][ie]*(Z_N[1][ae]*sw/3.0 - Z_N[2][ae]*cw)/(2.0*cw*sw) + Yd[3]*Z_D[6][ie]*Z_N[3][ae])*(-sqrt(2)*Q_e*(conj(Z_N[1][ae])*sw/3.0 - conj(Z_N[2][ae])*cw)*conj(Z_D[gen][ie])/(2.0*cw*sw) + conj(Yd[gen])*conj(Z_D[gen+3][ie])*conj(Z_N[3][ae]))*conj(Z_D[gen+3][ie]))/(24.0*pow(pi, 2));
+				C5_mixed += -D0mix*M_ch0[ae]*M_g*pow(g_3, 2)*(Z_D[3][je]*(-sqrt(2)*Q_e*Z_D[6][ie]*conj(Z_N[1][ae])/(3.0*cw) + Yd[3]*Z_D[3][ie]*conj(Z_N[3][ae]))*(-sqrt(2)*Q_e*(conj(Z_N[1][ae])*sw/3.0 - conj(Z_N[2][ae])*cw)*conj(Z_D[gen][ie])/(2.0*cw*sw) + conj(Yd[gen])*conj(Z_D[gen+3][ie])*conj(Z_N[3][ae]))*conj(Z_D[gen+3][ie]) + Z_D[6][je]*(-sqrt(2)*Q_e*Z_N[1][ae]*conj(Z_D[gen+3][je])/(3.0*cw) + Z_N[3][ae]*conj(Yd[gen])*conj(Z_D[gen][je]))*(-sqrt(2)*Q_e*Z_D[3][ie]*(Z_N[1][ae]*sw/3.0 - Z_N[2][ae]*cw)/(2.0*cw*sw) + Yd[3]*Z_D[6][ie]*Z_N[3][ae])*conj(Z_D[gen][ie]))/(48.0*pow(pi, 2)) + D2mix*pow(g_3, 2)*(-Z_D[3][je]*Z_D[6][ie]*(-sqrt(2)*Q_e*Z_N[1][ae]*conj(Z_D[gen+3][ie])/(3.0*cw) + Z_N[3][ae]*conj(Yd[gen])*conj(Z_D[gen][ie]))*(-sqrt(2)*Q_e*(conj(Z_N[1][ae])*sw/3.0 - conj(Z_N[2][ae])*cw)*conj(Z_D[gen][ie])/(2.0*cw*sw) + conj(Yd[gen])*conj(Z_D[gen+3][ie])*conj(Z_N[3][ae])) - (-sqrt(2)*Q_e*Z_N[1][ae]*conj(Z_D[6][ie])/(3*cw) + Z_N[3][ae]*conj(Yd[3])*conj(Z_D[3][ie]))*(-sqrt(2)*Q_e*Z_D[3][je]*(Z_N[1][ae]*sw/3.0 - Z_N[2][ae]*cw)/(2.0*cw*sw) + Yd[3]*Z_D[6][je]*Z_N[3][ae])*conj(Z_D[gen][je])*conj(Z_D[gen+3][ie]))/(24.0*pow(pi, 2)) + D2mix*pow(g_3, 2)*(-Z_D[3][je]*Z_D[6][ie]*(-sqrt(2)*Q_e*Z_N[1][ae]*conj(Z_D[gen+3][je])/(3.0*cw) + Z_N[3][ae]*conj(Yd[gen])*conj(Z_D[gen][je]))*(-sqrt(2)*Q_e*(conj(Z_N[1][ae])*sw/3.0 - conj(Z_N[2][ae])*cw)*conj(Z_D[gen][ie])/(2.0*cw*sw) + conj(Yd[gen])*conj(Z_D[gen+3][ie])*conj(Z_N[3][ae])) - (-sqrt(2)*Q_e*Z_D[6][je]*conj(Z_N[1][ae])/(3.0*cw) + Yd[3]*Z_D[3][je]*conj(Z_N[3][ae]))*(-sqrt(2)*Q_e*Z_D[3][ie]*(Z_N[1][ae]*sw/3.0 - Z_N[2][ae]*cw)/(2.0*cw*sw) + Yd[3]*Z_D[6][ie]*Z_N[3][ae])*conj(Z_D[gen][je])*conj(Z_D[gen+3][ie]))/(8.0*pow(pi, 2)) + D2mix*pow(g_3, 2)*(Z_D[3][je]*(-sqrt(2)*Q_e*Z_D[6][ie]*conj(Z_N[1][ae])/(3.0*cw) + Yd[3]*Z_D[3][ie]*conj(Z_N[3][ae]))*(-sqrt(2)*Q_e*Z_N[1][ae]*conj(Z_D[gen+3][je])/(3.0*cw) + Z_N[3][ae]*conj(Yd[gen])*conj(Z_D[gen][je]))*conj(Z_D[gen][ie]) + Z_D[6][je]*(-sqrt(2)*Q_e*Z_D[3][ie]*(Z_N[1][ae]*sw/3.0 - Z_N[2][ae]*cw)/(2.0*cw*sw) + Yd[3]*Z_D[6][ie]*Z_N[3][ae])*(-sqrt(2)*Q_e*(conj(Z_N[1][ae])*sw/3.0 - conj(Z_N[2][ae])*cw)*conj(Z_D[gen][ie])/(2.0*cw*sw) + conj(Yd[gen])*conj(Z_D[gen+3][ie])*conj(Z_N[3][ae]))*conj(Z_D[gen+3][ie]))/(8.0*pow(pi, 2));
+				Cp1_mixed += -D0mix*M_ch0[ae]*M_g*pow(g_3, 2)*(Z_D[gen+3][ie]*Z_D[gen+3][je]*(-sqrt(2)*Q_e*Z_N[1][ae]*conj(Z_D[6][ie])/(3.0*cw) + Z_N[3][ae]*conj(Yd[3])*conj(Z_D[3][ie]))*(-sqrt(2)*Q_e*Z_N[1][ae]*conj(Z_D[6][je])/(3.0*cw) + Z_N[3][ae]*conj(Yd[3])*conj(Z_D[3][je])) + Z_D[6][ie]*Z_D[6][je]*(-sqrt(2)*Q_e*Z_N[1][ae]*conj(Z_D[gen+3][ie])/(3.0*cw) + Z_N[3][ae]*conj(Yd[gen])*conj(Z_D[gen][ie]))*(-sqrt(2)*Q_e*Z_N[1][ae]*conj(Z_D[gen+3][je])/(3.0*cw) + Z_N[3][ae]*conj(Yd[gen])*conj(Z_D[gen][je])))/(96.0*pow(pi, 2)) - D2mix*Z_D[6][je]*pow(g_3, 2)*(-sqrt(2)*Q_e*Z_D[6][ie]*conj(Z_N[1][ae])/(3.0*cw) + Yd[3]*Z_D[3][ie]*conj(Z_N[3][ae]))*(-sqrt(2)*Q_e*Z_N[1][ae]*conj(Z_D[gen+3][je])/(3.0*cw) + Z_N[3][ae]*conj(Yd[gen])*conj(Z_D[gen][je]))*conj(Z_D[gen+3][ie])/(8.0*pow(pi, 2));
+				Cp2_mixed += D0mix*M_ch0[ae]*M_g*pow(g_3, 2)*(Z_D[6][ie]*pow(-sqrt(2)*Q_e*(conj(Z_N[1][ae])*sw/3.0 - conj(Z_N[2][ae])*cw)*conj(Z_D[gen][ie])/(2.0*cw*sw) + conj(Yd[gen])*conj(Z_D[gen+3][ie])*conj(Z_N[3][ae]), 2)*conj(Z_D[6][je]) + 3.0*Z_D[6][je]*(-sqrt(2)*Q_e*Z_D[6][ie]*conj(Z_N[1][ae])/(3.0*cw) + Yd[3]*Z_D[3][ie]*conj(Z_N[3][ae]))*(-sqrt(2)*Q_e*(conj(Z_N[1][ae])*sw/3.0 - conj(Z_N[2][ae])*cw)*conj(Z_D[gen][ie])/(2.0*cw*sw) + conj(Yd[gen])*conj(Z_D[gen+3][ie])*conj(Z_N[3][ae]))*conj(Z_D[gen][ie]))/(48.0*pow(pi, 2)) + D0mix*M_ch0[ae]*M_g*pow(g_3, 2)*(-sqrt(2)*Q_e*Z_D[6][ie]*conj(Z_N[1][ae])/(3.0*cw) + Yd[3]*Z_D[3][ie]*conj(Z_N[3][ae]))*(-sqrt(2)*Q_e*Z_D[6][je]*conj(Z_N[1][ae])/(3.0*cw) + Yd[3]*Z_D[3][je]*conj(Z_N[3][ae]))*conj(Z_D[gen][ie])*conj(Z_D[gen][je])/(48.0*pow(pi, 2));
+				Cp3_mixed += D0mix*M_ch0[ae]*M_g*Z_D[6][ie]*pow(g_3, 2)*pow(-sqrt(2)*Q_e*(conj(Z_N[1][ae])*sw/3.0 - conj(Z_N[2][ae])*cw)*conj(Z_D[gen][ie])/(2.0*cw*sw) + conj(Yd[gen])*conj(Z_D[gen+3][ie])*conj(Z_N[3][ae]), 2)*conj(Z_D[6][je])/(48.0*pow(pi, 2)) - D0mix*M_ch0[ae]*M_g*Z_D[6][je]*pow(g_3, 2)*(-sqrt(2)*Q_e*Z_D[6][ie]*conj(Z_N[1][ae])/(3.0*cw) + Yd[3]*Z_D[3][ie]*conj(Z_N[3][ae]))*(-sqrt(2)*Q_e*(conj(Z_N[1][ae])*sw/3.0 - conj(Z_N[2][ae])*cw)*conj(Z_D[gen][ie])/(2.0*cw*sw) + conj(Yd[gen])*conj(Z_D[gen+3][ie])*conj(Z_N[3][ae]))*conj(Z_D[gen][ie])/(48.0*pow(pi, 2)) + D0mix*M_ch0[ae]*M_g*pow(g_3, 2)*(-sqrt(2)*Q_e*Z_D[6][ie]*conj(Z_N[1][ae])/(3.0*cw) + Yd[3]*Z_D[3][ie]*conj(Z_N[3][ae]))*(-sqrt(2)*Q_e*Z_D[6][je]*conj(Z_N[1][ae])/(3.0*cw) + Yd[3]*Z_D[3][je]*conj(Z_N[3][ae]))*conj(Z_D[gen][ie])*conj(Z_D[gen][je])/(48.0*pow(pi, 2));
+    		}
+		}
+	}
 
     //higgs pinguin ->
 
@@ -425,10 +506,18 @@ double C_mix_bd_1_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared
 
 	//In case sD_mix is not provided by the SLHA (set to 0):
 	//getZD(Z_D,param);
-	for(ie=1;ie<=6;ie++) for(je=1;je<=6;je++) Z_D[ie][je]= param->sD_mix[je][ie];
+	for(ie=1;ie<=6;ie++) {
+		for(je=1;je<=6;je++) {
+			Z_D[ie][je]= param->sD_mix[je][ie];
+		}
+	}
 	//In case sU_mix is not provided by the SLHA (set to 0):
 	//getZU(Z_U,param);
-	for(ie=1;ie<=6;ie++) for(je=1;je<=6;je++) Z_U[ie][je]= conj(param->sU_mix[je][ie]);
+	for(ie=1;ie<=6;ie++) {
+		for(je=1;je<=6;je++) {
+			Z_U[ie][je]= conj(param->sU_mix[je][ie]);
+		}
+	}
 
 	scalar_t delta_d[7][7],delta_d_LL[4][4],delta_d_LR[4][4],delta_d_RL[4][4],delta_d_RR[4][4];
 	scalar_t delta_u[7][7],delta_u_LL[4][4],delta_u_LR[4][4],delta_u_RL[4][4],delta_u_RR[4][4];
@@ -457,7 +546,11 @@ double C_mix_bd_1_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared
 	double eps=2*alpha_s*mu*M_g*f(x_g)/(3.*pi*pow(m_av,2));
 	
 	scalar_t V_CKM[4][4];
-	for(ie=1;ie<=3;ie++) for(je=1;je<=3;je++) V_CKM[ie][je]=param->CKM[ie][je]+I*param->IMCKM[ie][je];
+	for(ie=1;ie<=3;ie++) {
+		for(je=1;je<=3;je++) {
+			V_CKM[ie][je]=param->CKM[ie][je]+I*param->IMCKM[ie][je];
+		}
+	}
 	
 	scalar_t V_tb = V_CKM[3][3]; 
 	scalar_t V_tq = V_CKM[3][gen];
