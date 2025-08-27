@@ -1212,3 +1212,61 @@ double D2p(double w, double x, double y, double z)
 
 	return 0.25*((w*w*log(w)/((z-w)*(y-w)*(x-w)))+(x*x*log(x)/((z-x)*(y-x)*(w-x)))+(y*y*log(y)/((z-y)*(w-y)*(x-y)))+(z*z*log(z)/((w-z)*(y-z)*(x-z))));
 }
+
+void getDelta(scalar_t delta[6][6],scalar_t Z[6][6],double M[6],double m_av,scalar_t delta_LL[3][3],scalar_t delta_LR[3][3],scalar_t delta_RL[3][3],scalar_t delta_RR[3][3]) {
+	scalar_t mass_matrix[6][6];
+
+	
+	for(int i=0; i<6; ++i) for(int j=0; j<6; ++j)
+	{
+		if (i==j) mass_matrix[i][j]=pow(M[i],2.);
+		else mass_matrix[i][j]=0.;
+	}
+		
+	scalar_t ZMZdag[6][6]; /* NM: ZMZdag = Z*M*Z^dagger */
+	for(int i=0; i<6; ++i) for(int j=0; j<6; ++j)
+	{
+		ZMZdag[i][j]=0.;
+		for(int k=0; k<6; ++k) for(int l=0; l<6; ++l) ZMZdag[i][j]+=Z[i][k]*mass_matrix[k][l]*conj(Z[j][l]); /* NM: matrix product routine removed and replaced locally */
+	}
+
+	for(int i=0; i<6; ++i) for(int j=0; j<6; ++j) delta[i][j] = (ZMZdag[i][j]-pow(m_av,2)*(i==j))/(pow(m_av,2));
+	
+	for(int i=0; i<6; ++i) for(int j=0; j<6; ++j)
+	{
+		delta_LL[i][j]=delta[i][j];
+		delta_LR[i][j]=delta[i][j+3];
+		delta_RL[i][j]=delta[i+3][j];
+		delta_RR[i][j]=delta[i+3][j+3];
+	}
+	
+	return;
+}
+
+double h3(double x)
+{
+	if(fabs(x-1.)<1.e-5) return -1./4;
+	return -0.5/(1.-x)-0.5*x*log(x)*pow(1.-x,-2.);
+}
+
+double h1(double x)
+{
+	if(fabs(x-1.)<1.e-5) return 4./9;
+	return 4.*(1.+x)/(3.*pow(1.-x,2.)) + 8.*x*log(x)/(3.*pow((1.-x),3.));
+}
+
+double h4(double x, double y)
+{
+	if((fabs(1.-x)<1.e-5)&&(fabs(1.-y)<1.e-5)) return 1./6;
+	if(fabs(1.-x)<1.e-5) return h4(0.9999,y);
+	if(fabs(1.-y)<1.e-5) return h4(x,0.9999);
+	if(fabs(1.-x/y)<1.e-5) return h4(y*0.9998,y);
+
+	return -1./((1.-x)*(1.-y))+x*log(x)/((y-x)*pow((1.-x),2.))+y*log(y)/((x-y)*pow((1.-y),2.));
+}
+
+double f(double x)
+{
+	if(fabs(x-1.)<1.e-5) return 0.5;
+	return 1./(1.-x)+x*log(x)/pow(1.-x,2.);
+}
