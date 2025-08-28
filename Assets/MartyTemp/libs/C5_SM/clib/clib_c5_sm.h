@@ -1,5 +1,0 @@
-#ifndef CSL_LIB_CLIB_C5_SM_H_INCLUDED
-#define CSL_LIB_CLIB_C5_SM_H_INCLUDED
-
-
-#endif

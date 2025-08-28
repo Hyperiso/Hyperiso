@@ -11,7 +11,7 @@ class C_mix_bd_1 : public WilsonCoefficient {
 public:
     C_mix_bd_1();
 
-    static double compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
+    static complex_t compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
 
     std::shared_ptr<WilsonCoefficient> clone() const override {
         return std::make_shared<C_mix_bd_1>(*this);
@@ -88,7 +88,7 @@ class C_mix_bs_1 : public WilsonCoefficient {
 public:
     C_mix_bs_1();
 
-    static double compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
+    static complex_t compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
 
     std::shared_ptr<WilsonCoefficient> clone() const override {
         return std::make_shared<C_mix_bs_1>(*this);
@@ -164,7 +164,7 @@ class C_mix_sd_1 : public WilsonCoefficient {
 public:
     C_mix_sd_1();
 
-    static double compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
+    static complex_t compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
 
     std::shared_ptr<WilsonCoefficient> clone() const override {
         return std::make_shared<C_mix_sd_1>(*this);

@@ -72,8 +72,13 @@ void writeWilsonCoefficients(const std::string& coefficientName,
         int realIndex = std::distance(headers.begin(), std::find(headers.begin(), headers.end(), coefficientName + "_real"));
         int imgIndex = std::distance(headers.begin(), std::find(headers.begin(), headers.end(), coefficientName + "_img"));
 
-        data[rowIndex][realIndex] = std::to_string(value.real());
-        data[rowIndex][imgIndex] = std::to_string(value.imag());
+        std::stringstream ss_r;
+        ss_r << std::scientific << value.real();
+        data[rowIndex][realIndex] = ss_r.str();
+        
+        std::stringstream ss_i;
+        ss_i << std::scientific << value.imag();
+        data[rowIndex][imgIndex] = ss_i.str();
     } else {
         std::vector<std::string> newRow(headers.size(), "NaN");
         
@@ -82,8 +87,13 @@ void writeWilsonCoefficients(const std::string& coefficientName,
         int realIndex = std::distance(headers.begin(), std::find(headers.begin(), headers.end(), coefficientName + "_real"));
         int imgIndex = std::distance(headers.begin(), std::find(headers.begin(), headers.end(), coefficientName + "_img"));
 
-        newRow[realIndex] = std::to_string(value.real());
-        newRow[imgIndex] = std::to_string(value.imag());
+        std::stringstream ss_r;
+        ss_r << std::scientific << value.real();
+        newRow[realIndex] = ss_r.str();
+        
+        std::stringstream ss_i;
+        ss_i << std::scientific << value.imag();
+        newRow[imgIndex] = ss_i.str();
 
         data.push_back(newRow);
     }

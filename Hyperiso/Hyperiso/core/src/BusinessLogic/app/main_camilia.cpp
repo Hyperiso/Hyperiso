@@ -13,20 +13,20 @@ int main() {
     hyp.init("lha/si_input.flha", config);
     LOG_INFO("HyperisoMaster initialized");
 
-    QCDOrder order = QCDOrder::NNLO;
+    QCDOrder order = QCDOrder::LO;
 
-    ParameterProvider pp {ParameterType::SM};
-    LOG_INFO("m_b_pole =", pp("QCD", {5, 2}));
+    std::vector<Observables> obss = DecayMapper::get_observables(Decays::M0_Mix);
 
     ObservableInterface oi;
-    oi.add_observable(Observables::BR_B__Xs_mu_mu__LOW_Q2, order, false);
-    // oi.add_observable(Observables::BR_B__Xs_mu_mu__HIGH_Q2, order, false);
-    // oi.add_observable(Observables::BR_B__Xs_tau_tau__HIGH_Q2, order, false);
 
-    LOG_INFO("BR(B > X_s mu mu) (q²=[1, 6] GeV²) =", oi.compute_observable(Observables::BR_B__Xs_mu_mu__LOW_Q2), "+-", oi.compute_uncertainty(Observables::BR_B__Xs_mu_mu__LOW_Q2));
-    // LOG_INFO("BR(B > X_s mu mu) (q²>14.2 GeV²) =", oi.compute_observable(Observables::BR_B__Xs_mu_mu__HIGH_Q2), "+-", oi.compute_uncertainty(Observables::BR_B__Xs_mu_mu__HIGH_Q2));
-    // LOG_INFO("BR(B > X_s tau tau) (q²>14.2 GeV²) =", oi.compute_observable(Observables::BR_B__Xs_tau_tau__HIGH_Q2), "+-", oi.compute_uncertainty(Observables::BR_B__Xs_tau_tau__HIGH_Q2));
-
+    for (auto o : obss) {
+        oi.add_observable(o, order, false);
+    }
+    
+    for (auto o : obss) {
+        LOG_INFO(ObservableMapper::str(o), "=", oi.compute_observable(o), "+-", oi.compute_uncertainty(o));
+    }
+    
     // auto print_leading = [&oi] (Observables o, size_t n) {
     //     LOG_INFO("---------- Leading uncertainties for", ObservableMapper::str(o));
     //     for (const auto& [pid, u] : oi.compute_leading_uncertainties(o, n)) {

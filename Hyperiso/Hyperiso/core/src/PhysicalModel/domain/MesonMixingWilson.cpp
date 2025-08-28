@@ -14,13 +14,13 @@ C_mix_bd_1::C_mix_bd_1() : WilsonCoefficient("C_BD_1", GroupMapper::str(WGroup::
     };
 }
 
-double C_mix_bd_1::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src) {
+complex_t C_mix_bd_1::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src) {
     double xt = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1}})->get_val();
     double G_F = src.at({ParameterType::SM, "SMINPUTS", 2})->get_val();
     double M_W = src.at({ParameterType::SM, "MASS", 24})->get_val();
     complex_t V_td = src.at({ParameterType::SM, "VCKM", {2, 0}})->get_val();
     complex_t V_tb = src.at({ParameterType::SM, "VCKM", {2, 2}})->get_val();
-    return pow(G_F * M_W * abs(std::conj(V_td) * V_tb) / (2 * PI), 2) * S0(xt);
+    return pow(G_F * M_W * std::conj(V_td) * V_tb / (2 * PI), 2) * S0(xt);
 }
 
 C_mix_bd_1_tilde::C_mix_bd_1_tilde(): WilsonCoefficient("CT_BD_1", GroupMapper::str(WGroup::MESON_MIXING) + "_MATCH") {
@@ -65,13 +65,13 @@ C_mix_bs_1::C_mix_bs_1() : WilsonCoefficient("C_BS_1", GroupMapper::str(WGroup::
     };
 }
 
-double C_mix_bs_1::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src) {
+complex_t C_mix_bs_1::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src) {
     double xt = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1}})->get_val();
     double G_F = src.at({ParameterType::SM, "SMINPUTS", 2})->get_val();
     double M_W = src.at({ParameterType::SM, "MASS", 24})->get_val();
     complex_t V_ts = src.at({ParameterType::SM, "VCKM", {2, 1}})->get_val();
     complex_t V_tb = src.at({ParameterType::SM, "VCKM", {2, 2}})->get_val();
-    return pow(G_F * M_W * abs(std::conj(V_ts) * V_tb) / (2 * PI), 2) * S0(xt);
+    return pow(G_F * M_W * std::conj(V_ts) * V_tb / (2 * PI), 2) * S0(xt);
 }
 
 C_mix_bs_1_tilde::C_mix_bs_1_tilde() : WilsonCoefficient("CT_BS_1", GroupMapper::str(WGroup::MESON_MIXING) + "_MATCH") {
@@ -116,7 +116,7 @@ C_mix_sd_1::C_mix_sd_1() : WilsonCoefficient("C_SD_1", GroupMapper::str(WGroup::
     };
 }
 
-double C_mix_sd_1::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src) {
+complex_t C_mix_sd_1::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src) {
     double xt = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1}})->get_val();
     double G_F = src.at({ParameterType::SM, "SMINPUTS", 2})->get_val();
     double M_W = src.at({ParameterType::SM, "MASS", 24})->get_val();

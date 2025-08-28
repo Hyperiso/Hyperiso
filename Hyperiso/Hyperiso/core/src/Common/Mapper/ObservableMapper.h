@@ -28,6 +28,14 @@ public:
             {Observables::BR_B__Xs_mu_mu__LOW_Q2, "BR_B__Xs_mu_mu__[1-6]"},
             {Observables::BR_B__Xs_mu_mu__HIGH_Q2, "BR_B__Xs_mu_mu__[>14.4]"},
             {Observables::BR_B__Xs_tau_tau__HIGH_Q2, "BR_B__Xs_tau_tau__[>14.4]"},
+            {Observables::PHI_D, "phi_d"},
+            {Observables::DELTA_M_BD, "Delta_M_Bd"},
+            {Observables::PHI_S, "phi_s"},
+            {Observables::DELTA_M_BS, "Delta_M_Bs"},
+            {Observables::A_FS, "a_fs"},
+            {Observables::DELTA_M_K, "Delta_M_K"},
+            {Observables::ABS_EPSILON_K, "|epsilon_K|"},
+            {Observables::X_D, "x_D"},
         };
         return m;
     }

@@ -23,6 +23,14 @@ const std::map<Observables, std::string>& observable_mapping() {
         {Observables::BR_B__Xs_mu_mu__LOW_Q2, "BR_B__Xs_mu_mu__[1-6]"},
         {Observables::BR_B__Xs_mu_mu__HIGH_Q2, "BR_B__Xs_mu_mu__[>14.4]"},
         {Observables::BR_B__Xs_tau_tau__HIGH_Q2, "BR_B__Xs_tau_tau__[>14.4]"},
+        {Observables::PHI_D, "phi_d"},
+        {Observables::DELTA_M_BD, "Delta_M_Bd"},
+        {Observables::PHI_S, "phi_s"},
+        {Observables::DELTA_M_BS, "Delta_M_Bs"},
+        {Observables::A_FS, "a_fs"},
+        {Observables::DELTA_M_K, "Delta_M_K"},
+        {Observables::ABS_EPSILON_K, "|epsilon_K|"},
+        {Observables::X_D, "x_D"},
     };
     return m;
 }
@@ -140,6 +148,7 @@ const std::map<Decays, std::string>& decays_mapping() {
         {Decays::B__l_nu, "B__l_nu"},
         {Decays::B__Xs, "B__Xs"},
         {Decays::B__Xs_l_l, "B__Xs_ll"},
+        {Decays::M0_Mix, "M0_Mix"},
     };
     return m;
 }
@@ -153,6 +162,7 @@ const std::map<Decays, std::vector<Observables>>& decay_observable_mapping() {
         {Decays::B__l_nu,       {Observables::BR_BU_TAU_NU, Observables::R_TAU_NU}},
         {Decays::B__Xs,         {Observables::BR_B_XS_GAMMA}},
         {Decays::B__Xs_l_l,     {Observables::BR_B__Xs_mu_mu__LOW_Q2, Observables::BR_B__Xs_mu_mu__HIGH_Q2, Observables::BR_B__Xs_tau_tau__HIGH_Q2}},
+        {Decays::M0_Mix,        {Observables::PHI_D, Observables::DELTA_M_BD, Observables::PHI_S, Observables::DELTA_M_BS, Observables::A_FS, Observables::DELTA_M_K, Observables::ABS_EPSILON_K, Observables::X_D}},
     };
     return m;
 }

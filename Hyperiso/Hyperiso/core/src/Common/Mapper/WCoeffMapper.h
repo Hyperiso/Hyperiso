@@ -79,12 +79,13 @@ public:
         return g;
     }
 
+    // Don't change the order in the vectors !
     static const std::vector<WCoef>& meson_mixing_group() {
         static const std::vector<WCoef> g = {
-            WCoef::C_BD_1, WCoef::CT_BD_1, WCoef::C_BD_2, WCoef::CT_BD_2, WCoef::C_BD_3, WCoef::CT_BD_3, WCoef::C_BD_4, WCoef::C_BD_5,
-            WCoef::C_BS_1, WCoef::CT_BS_1, WCoef::C_BS_2, WCoef::CT_BS_2, WCoef::C_BS_3, WCoef::CT_BS_3, WCoef::C_BS_4, WCoef::C_BS_5,
-            WCoef::C_SD_1, WCoef::CT_SD_1, WCoef::C_SD_2, WCoef::CT_SD_2, WCoef::C_SD_3, WCoef::CT_SD_3, WCoef::C_SD_4, WCoef::C_SD_5,
-            WCoef::C_CU_1, WCoef::CT_CU_1, WCoef::C_CU_2, WCoef::CT_CU_2, WCoef::C_CU_3, WCoef::CT_CU_3, WCoef::C_CU_4, WCoef::C_CU_5,
+            WCoef::C_BD_1, WCoef::C_BD_2, WCoef::C_BD_3, WCoef::C_BD_4, WCoef::C_BD_5, WCoef::CT_BD_1, WCoef::CT_BD_2, WCoef::CT_BD_3,
+            WCoef::C_BS_1, WCoef::C_BS_2, WCoef::C_BS_3, WCoef::C_BS_4, WCoef::C_BS_5, WCoef::CT_BS_1, WCoef::CT_BS_2, WCoef::CT_BS_3,
+            WCoef::C_SD_1, WCoef::C_SD_2, WCoef::C_SD_3, WCoef::C_SD_4, WCoef::C_SD_5, WCoef::CT_SD_1, WCoef::CT_SD_2, WCoef::CT_SD_3,
+            WCoef::C_CU_1, WCoef::C_CU_2, WCoef::C_CU_3, WCoef::C_CU_4, WCoef::C_CU_5, WCoef::CT_CU_1, WCoef::CT_CU_2, WCoef::CT_CU_3,
         };
         return g;
     }

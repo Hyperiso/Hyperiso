@@ -795,10 +795,10 @@ void BXsllDecay::build_op_tree() {
     auto mu_b = std::make_shared<ParameterNode>(ParamId(ParameterType::WILSON, "B_SCALE", 1));
 
     // Misc experimental input
-    auto BR_B_Xclnu = std::make_shared<ParameterNode>(ParamId(ParameterType::DECAY, "B_Xsll", 1));
-    auto lambda_1 = std::make_shared<ParameterNode>(ParamId(ParameterType::DECAY, "B_Xsll", 2)); 
-    auto lambda_2 = std::make_shared<ParameterNode>(ParamId(ParameterType::DECAY, "B_Xsll", 3)); 
-    auto rho_1 = std::make_shared<ParameterNode>(ParamId(ParameterType::DECAY, "B_Xsll", 4)); 
+    auto BR_B_Xclnu = std::make_shared<ParameterNode>(ParamId(ParameterType::DECAY, "B_Xs", 2));
+    auto lambda_1 = std::make_shared<ParameterNode>(ParamId(ParameterType::DECAY, "B_Xsll", 1)); 
+    auto lambda_2 = std::make_shared<ParameterNode>(ParamId(ParameterType::DECAY, "B_Xs", 6)); 
+    auto rho_1 = std::make_shared<ParameterNode>(ParamId(ParameterType::DECAY, "B_Xsll", 2)); 
     
     // Operator nodes
     auto m_mu_hat = std::make_shared<OperatorNode>("m_mu_hat", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return m_hat(values[0], values[1]); });

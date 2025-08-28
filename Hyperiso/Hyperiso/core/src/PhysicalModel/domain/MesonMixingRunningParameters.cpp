@@ -11,6 +11,17 @@ const std::array<std::array<double, MesonMixingRunningParameters::n_coefs>, Meso
     {0.000, 0.000,  0.000, 0.000,  0.000, 0.000, 0.000,  0.125},
 }};
 
+const std::array<std::array<double, MesonMixingRunningParameters::n_coefs>, MesonMixingRunningParameters::n_coefs> MesonMixingRunningParameters::BMU_to_SUSY_superiso {{
+    {1.0,  0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+    {0.0,  0.0, 0.0, 1.0, 4.0, 0.0, 0.0, 0.0},
+    {0.0,  0.0, 0.0, 0.0, 8.0, 0.0, 0.0, 0.0},
+    {0.0,  0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+    {0.0, -2.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+    {0.0,  0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0},
+    {0.0,  0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 4.0},
+    {0.0,  0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 8.0},
+}};
+
 const std::array<std::array<double, MesonMixingRunningParameters::n_coefs>, MesonMixingRunningParameters::n_coefs> MesonMixingRunningParameters::SUSY_to_BMU_fierz {{
     {1.0, 0.0,  0.0, 0.0, 0.0, 0.0, 0.0,  0.0},
     {0.0, 0.0,  0.0, 0.0, 2.5, 0.0, 0.0,  0.0},
@@ -49,7 +60,7 @@ const std::array<std::array<std::array<double, 2>, 2>, 2> MesonMixingRunningPara
 
 const std::array<std::array<std::array<double, 2>, 2>, 2> MesonMixingRunningParameters::b_S_5 {{
     {{{-5.2272,  0.0724}, {-38.8778, -12.7939}}},
-    {{{ 0.0415,  0.3083}, { -0.0380,   6.7219}}},
+    {{{ 0.0415, -0.0380}, {  0.3083,   6.7219}}},
 }};
 
 const std::array<std::array<double, 2>, 2> a0_LR_4_11 {{{1.0000,  0.0000}, {0.0000,  0.0000}}};
@@ -66,8 +77,8 @@ const std::array<std::array<std::array<std::array<double, 2>, 2>, 2>, 2> MesonMi
 
 const std::array<std::array<double, 2>, 2> b_LR_4_11 {{{-0.0753, -0.0029}, {0.0000,  0.0000}}};
 const std::array<std::array<double, 2>, 2> b_LR_4_12 {{{ 0.0000,  0.0043}, {0.0000,  0.0000}}};
-const std::array<std::array<double, 2>, 2> b_LR_4_21 {{{-0.0502, -0.0019}, {0.0000,  0.0029}}};
-const std::array<std::array<double, 2>, 2> b_LR_4_22 {{{ 5.0000, -0.8327}, {0.0000,  1.2491}}};
+const std::array<std::array<double, 2>, 2> b_LR_4_21 {{{-0.0502, -0.0019}, {5.0000, -0.8327}}};
+const std::array<std::array<double, 2>, 2> b_LR_4_22 {{{ 0.0000,  0.0029}, {0.0000,  1.2491}}};
 const std::array<std::array<std::array<std::array<double, 2>, 2>, 2>, 2> MesonMixingRunningParameters::b_LR_4 {{{b_LR_4_11, b_LR_4_12}, {b_LR_4_21, b_LR_4_22}}};
 
 const std::array<std::array<double, 2>, 2> c_LR_4_11 {{{1.1744,  0.0000}, {0.0000,  0.0000}}};

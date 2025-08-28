@@ -1,7 +1,7 @@
 {
   "SMINPUTS": {
     "1": {
-      "central_value": 137.035999710,
+      "central_value": 1.27930e+02,
       "stat_error": 96e-8,
       "syst_error": 0
     },
@@ -346,6 +346,16 @@
   },
 
   "FCONST": {
+    "211_1": {
+      "central_value": 0.1302,
+      "stat_error": 0.0012,
+      "syst_error": 0
+    },
+    "321_1": {
+      "central_value": 0.1557,
+      "stat_error": 0.0007,
+      "syst_error": 0
+    },
     "531_1": {
       "central_value": 0.234,
       "stat_error": 0.010,
@@ -369,6 +379,92 @@
     "323_2": {
       "central_value": 0.185,
       "stat_error": 0.009,
+      "syst_error": 0
+    }
+  },
+
+  "FCONSTRATIO": {
+    "321_211_1_1": {
+      "central_value": 1.1916,
+      "stat_error": 0.0034,
+      "syst_error": 0
+    }
+  },
+  
+  "FBAG": {
+    "511_1": {
+      "central_value": 0.806,
+      "stat_error": 0.04,
+      "syst_error": 0
+    },
+    "511_2": {
+      "central_value": 0.769,
+      "stat_error": 0.044,
+      "syst_error": 0
+    },
+    "511_3": {
+      "central_value": 0.747,
+      "stat_error": 0.059,
+      "syst_error": 0
+    },
+    "511_4": {
+      "central_value": 1.077,
+      "stat_error": 0.055,
+      "syst_error": 0
+    },
+    "511_5": {
+      "central_value": 0.973,
+      "stat_error": 0.046,
+      "syst_error": 0
+    },
+    "531_1": {
+      "central_value": 0.813,
+      "stat_error": 0.035,
+      "syst_error": 0
+    },
+    "531_2": {
+      "central_value": 0.817,
+      "stat_error": 0.043,
+      "syst_error": 0
+    },
+    "531_3": {
+      "central_value": 0.816,
+      "stat_error": 0.057,
+      "syst_error": 0
+    },
+    "531_4": {
+      "central_value": 1.033,
+      "stat_error": 0.047,
+      "syst_error": 0
+    },
+    "531_5": {
+      "central_value": 0.941,
+      "stat_error": 0.038,
+      "syst_error": 0
+    },
+    "311_1": {
+      "central_value": 0.5324,
+      "stat_error": 0.0064,
+      "syst_error": 0
+    },
+    "311_2": {
+      "central_value": 0.488,
+      "stat_error": 0.015,
+      "syst_error": 0
+    },
+    "311_3": {
+      "central_value": 0.757,
+      "stat_error": 0.027,
+      "syst_error": 0
+    },
+    "311_4": {
+      "central_value": 0.903,
+      "stat_error": 0.014,
+      "syst_error": 0
+    },
+    "311_5": {
+      "central_value": 0.691,
+      "stat_error": 0.014,
       "syst_error": 0
     }
   },
@@ -540,24 +636,102 @@
   
   "B_Xsll": {
     "1": {
-      "central_value": 0.1065,
-      "stat_error": 1.6e-3,
-      "syst_error": 0
-    },
-    "2": {
       "central_value": -0.15,
       "stat_error": 0.056,
       "syst_error": 0
     },
-    "3": {
-      "central_value": 0.12,
-      "stat_error": 0.018,
-      "syst_error": 0
-    },
-    "4": {
+    "2": {
       "central_value": 0.06,
       "stat_error": 0.031,
       "syst_error": 0
+    }
+  },
+
+  "M0_Mix": {
+    "1": {
+      "central_value": 1.607,
+      "stat_error": 0.037,
+      "syst_error": 0
+    },
+    "2": {
+      "central_value": 1.601,
+      "stat_error": 0.037,
+      "syst_error": 0
+    },
+    "3": {
+      "central_value": 33.05,
+      "stat_error": 0.71,
+      "syst_error": 0
+    },
+    "4_1": {
+      "central_value": 0.0806,
+      "stat_error": 0.0054,
+      "syst_error": 0.0016
+    },
+    "4_2": {
+      "central_value": -0.1442,
+      "stat_error": 0.0066,
+      "syst_error": 0.0029
+    },
+    "4_3": {
+      "central_value": 0.0452,
+      "stat_error": 0.0030,
+      "syst_error": 0.0009
+    },
+    "4_4": {
+      "central_value": 0.2745,
+      "stat_error": 0.0129,
+      "syst_error": 0.0055
+    },
+    "4_5": {
+      "central_value": 0.1035,
+      "stat_error": 0.0071,
+      "syst_error": 0.0021
+    },
+    "5_1": {
+      "central_value": 0.0435,
+      "stat_error": 0.0,
+      "syst_error": 0.0
+    },
+    "5_2": {
+      "central_value": -0.04,
+      "stat_error": 0.0,
+      "syst_error": 0.0
+    },
+    "6": {
+      "central_value": 0.082,
+      "stat_error": 0.005,
+      "syst_error": 0.0
+    },
+    "7": {
+      "central_value": 0.94,
+      "stat_error": 0.02,
+      "syst_error": 0.0
+    },
+    "8": {
+      "central_value": 4.16,
+      "stat_error": 0.0,
+      "syst_error": 0.0
+    },
+    "9": {
+      "central_value": 3.0,
+      "stat_error": 0.0,
+      "syst_error": 0.0
+    },
+    "10": {
+      "central_value": 3.0,
+      "stat_error": 0.0,
+      "syst_error": 0.0
+    },
+    "11": {
+      "central_value": 1.87,
+      "stat_error": 0.76,
+      "syst_error": 0.0
+    },
+    "12": {
+      "central_value": 0.496,
+      "stat_error": 0.047,
+      "syst_error": 0.0
     }
   },
 

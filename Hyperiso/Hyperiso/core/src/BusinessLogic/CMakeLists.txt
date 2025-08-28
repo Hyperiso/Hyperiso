@@ -37,6 +37,7 @@ add_library(BusinessLogicLib STATIC
     domain/Decays/BDstarlnuDecay.cpp
     domain/Decays/BXsllDecay.cpp
     domain/Decays/BXsllDecay_ff.cpp
+    domain/Decays/M0_Mixing.cpp
     domain/Compound.cpp
     domain/Observable.cpp
     domain/DecayParent.cpp

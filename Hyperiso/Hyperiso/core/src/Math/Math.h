@@ -42,6 +42,11 @@ constexpr double EPSILON = 1e-5;
 
 constexpr scalar_t I = scalar_t(0, 1);
 
+/* Conversion factors */
+
+constexpr double GEV_TO_INV_PS = 1.519268e12;
+constexpr double GEV_TO_INV_S = 1.519268e24;
+
 /* Functions */
 
 /**
@@ -482,7 +487,7 @@ double D0(double w, double x, double y, double z);
  * @param z Input parameter.
  * @return Value of D2p(w,x,y,z).
  */
-double D2p(double w, double x, double y, double z)
+double D2p(double w, double x, double y, double z);
 
 /*
     Integration routines

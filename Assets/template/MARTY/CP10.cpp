@@ -52,8 +52,6 @@ int calculate_CP10mu(Model &model, gauge::Type gauge) {
     wilsonLib.print();
 
     return 0;
-
-    return 0;
 }
 
 int main() {

@@ -2,25 +2,46 @@
 #define GENERAL_ENUM_H
 
 enum class Observables {
+    /* Rare B decays */
+    // B > l l
     BR_BS_MUMU,
     BR_BS_MUMU_UNTAG,
     BR_BD_MUMU,
+    // B > l nu
     R_TAU_NU,
     BR_BU_TAU_NU,
+    // B > K* gamma
     ISOSPIN_ASYMMETRY_B_KSTAR_GAMMA,
+    // b > s gamma
     BR_B_XS_GAMMA,
+    // B > D l nu
     BR_B__D_TAU_NU,
     A_FB_B__D_TAU_NU,
     P_TAU_B__D_TAU_NU,
     R_D,
+    // B > D* l nu
     BR_B__DSTAR_TAU_NU,
     A_FB_B__DSTAR_TAU_NU,
     P_TAU_B__DSTAR_TAU_NU,
     P_D_B__DSTAR_TAU_NU,
     R_DSTAR,
+    // b > s l l 
     BR_B__Xs_mu_mu__LOW_Q2,
     BR_B__Xs_mu_mu__HIGH_Q2,
     BR_B__Xs_tau_tau__HIGH_Q2,
+    /* Neutral Meson Mixing */
+    // Bd
+    PHI_D,
+    DELTA_M_BD,
+    // Bs
+    PHI_S,
+    DELTA_M_BS,
+    A_FS,
+    // K
+    DELTA_M_K,
+    ABS_EPSILON_K,
+    // D
+    X_D,
 };
 
 enum class Decays {
@@ -31,6 +52,7 @@ enum class Decays {
     B__l_nu,
     B__Xs,
     B__Xs_l_l,
+    M0_Mix,
 };
 
 enum class QCDOrder {
