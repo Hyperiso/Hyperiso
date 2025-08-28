@@ -11,20 +11,21 @@ C_mix_bd_1_SUSY::C_mix_bd_1_SUSY() : WilsonCoefficient("C_BD_1", GroupMapper::st
             {ParameterType::SM, "MASS", 1},                       //m_d 
             {ParameterType::SM, "MASS", 2},                       //m_u
             {ParameterType::SM, "MASS", 3},                       //m_s
-			{ParameterType::BSM, "MASS", 1000001}
-			{ParameterType::BSM, "MASS", 1000002}
-			{ParameterType::BSM, "MASS", 1000003}
-			{ParameterType::BSM, "MASS", 1000004}
-			{ParameterType::BSM, "MASS", 1000005}
-			{ParameterType::BSM, "MASS", 1000006}
-			{ParameterType::BSM, "MASS", 2000001}
-			{ParameterType::BSM, "MASS", 2000002}
-			{ParameterType::BSM, "MASS", 2000003}
-			{ParameterType::BSM, "MASS", 2000004}
-			{ParameterType::BSM, "MASS", 2000005}
-			{ParameterType::BSM, "MASS", 2000006}
-			{ParameterType::BSM, "MASS", 1000024}
-			{ParameterType::BSM, "MASS", 1000037}
+			{ParameterType::BSM, "MASS", 1000001},
+			{ParameterType::BSM, "MASS", 1000002},
+			{ParameterType::BSM, "MASS", 1000003},
+			{ParameterType::BSM, "MASS", 1000004},
+			{ParameterType::BSM, "MASS", 1000005},
+			{ParameterType::BSM, "MASS", 1000006},
+			{ParameterType::BSM, "MASS", 2000001},
+			{ParameterType::BSM, "MASS", 2000002},
+			{ParameterType::BSM, "MASS", 2000003},
+			{ParameterType::BSM, "MASS", 2000004},
+			{ParameterType::BSM, "MASS", 2000005},
+			{ParameterType::BSM, "MASS", 2000006},
+			{ParameterType::BSM, "MASS", 1000024},
+			{ParameterType::BSM, "MASS", 1000037},
+			{ParameterType::SM, "GAUGE", 1},						//gp 
             {ParameterType::SM, "GAUGE", 2},                       //g_2 
             {ParameterType::SM, "VCKM", LhaID(0, 0)},             // V_ud
             {ParameterType::SM, "VCKM", LhaID(0, 1)},             // V_us
@@ -123,7 +124,7 @@ double C_mix_bd_1_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared
 
 	for(int i = 0; i<6; ++i) {
 		for(int j = 0; j<6; ++j) {
-			Z_D[i][j]= param->sD_mix[j][i];
+			Z_D[i][j]= src.at({ParameterType::BSM, "DSQMIX", LhaID(j+1, i+1)})->get_val(); //TODO: deal with this group
 		}
 	} // inverse matrix, because in SLHA2 the second index denotes quark flavour (dl,sl,bl,dr,sr,br)
 	for(int i = 0; i<6; ++i) {
@@ -164,8 +165,8 @@ double C_mix_bd_1_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared
 	double M_ch[2],M_ch_pow_2[2],M_U[6],M_U_pow_2[6];
 	scalar_t Z_p[2][2],Z_m[2][2],Z_U[6][6];
 	scalar_t Yd[3],Yu[3];
- 	double sw=sin(atan(param->gp/param->g2));
- 	double Q_e = (param->g2)*sw;
+ 	double sw=sin(atan(src.at({ParameterType::SM, "GAUGE", 2})->get_val()/src.at({ParameterType::SM, "GAUGE", 2})->get_val()));
+ 	double Q_e = (src.at({ParameterType::SM, "GAUGE", 2})->get_val())*sw;
 	double swi=1./sw;
 
 	M_ch[0]=src.at({ParameterType::BSM, "MASS", 1000024})->get_val();
@@ -196,7 +197,7 @@ double C_mix_bd_1_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared
 	} /* NM: conversion from SLHA2 convention */
 	for(int i=0; i<6; ++i) {
 		for(int j=0; j<6; ++j) {
-			Z_U[i][j]=conj(param->sU_mix[j][i]);
+			Z_U[i][j]=conj(src.at({ParameterType::BSM, "USQMIX", LhaID(j+1, i+1)})->get_val()); //TODO: deal with this group
 		}
 	} /* NM: conversion from SLHA2 convention */
 
@@ -274,7 +275,7 @@ double C_mix_bd_1_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared
 	scalar_t Z_N[4][4];
 	// scalar_t Yd[3];
 	// double sw=sin(atan(param->gp/param->g2));
-	double cw=cos(atan(param->gp/param->g2));
+	double cw=cos(atan(src.at({ParameterType::SM, "GAUGE", 1})->get_val()/src.at({ParameterType::SM, "GAUGE", 2})->get_val()));
 	// double Q_e = param->g2*sw;
 
 	// double v1;
@@ -313,7 +314,7 @@ double C_mix_bd_1_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared
 	
 	for(int i=0; i<4; ++i) {
 		for(int j=0; j<4; ++j) {
-			Z_N[i][j] = param->neut_mix[i][j];
+			Z_N[i][j] = conj(src.at({ParameterType::BSM, "NMIX", LhaID(i+1, j+1)})->get_val()); //TODO : i,j or j,i like the others ?
 		}
 	}
 	for(int i=0; i<4; ++i){
@@ -410,7 +411,7 @@ double C_mix_bd_1_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared
 	// double sw=sin(atan(param->gp/param->g2));
 	// double cw=cos(atan(param->gp/param->g2));
 	// double Q_e = param->g2*sw;
-	double M_g=param->mass_gluino;
+	double M_g=src.at({ParameterType::BSM, "MASS", 1000021})->get_val();
 	double M_g_pow_2 = pow(M_g,2.);
 	// double M_ch0[4],M_ch0_pow_2[4],M_D_pow_2[6];
 
