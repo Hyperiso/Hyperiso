@@ -6,10 +6,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 project(Utils)
 
 if (NOT TARGET PhysicalModelLib)
-    add_subdirectory(../../PhysicalModel PhysicalModelLib)
+    add_subdirectory(../../src/PhysicalModel PhysicalModelLib)
 endif()
 if (NOT TARGET CommonLib)
-    add_subdirectory(../../Common CommonLib)
+    add_subdirectory(../../src/Common CommonLib)
 endif()
 
 add_library(UtilsLib STATIC 

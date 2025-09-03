@@ -63,6 +63,19 @@ set(CTEST_ENVIRONMENT_VARIABLE "CTEST_RUN")
 # add_executable(testReader testReader.cpp)
 # target_link_libraries(testReader DataBaseLib)
 
+add_executable(testScalarIntegration Math/integration/test_scalar_integration.cpp)
+target_link_libraries(testScalarIntegration MathLib UtilsLib)
+
+add_executable(testScalarUnit Math/unit/test_scalar_unit.cpp)
+target_link_libraries(testScalarUnit MathLib UtilsLib)
+
+add_executable(testMatrixIntegration Math/integration/test_matrix_integration.cpp)
+target_link_libraries(testMatrixIntegration MathLib UtilsLib)
+
+add_executable(testMatrixUnit Math/unit/test_matrix_unit.cpp)
+target_link_libraries(testMatrixUnit MathLib UtilsLib)
+
+
 add_executable(testCommon Common/testLogger.cpp)
 target_link_libraries(testCommon CommonLib)
 
