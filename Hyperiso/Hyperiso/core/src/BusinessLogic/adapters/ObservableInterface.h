@@ -128,6 +128,16 @@ public:
     void update_gradient(Observables obs) {
         manager->update_gradient(obs);
     }
+
+    template <typename EnumType>
+    void set_config_flag(Decays decay_id, EnumType e) {
+        manager->set_config_flag(decay_id, e);
+    }
+
+    template <typename EnumType>
+    void set_config_flag(Observables obs_id, EnumType e) {
+        manager->set_config_flag(DecayMapper::get_decay(obs_id), e);
+    }
 };
 
 #endif

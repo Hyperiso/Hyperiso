@@ -58,6 +58,13 @@ constexpr double GEV_TO_INV_S = 1.519268e24;
 double kron(int x, int y);
 
 /**
+ * @brief Computes the exponential integral function Ei(x).
+ * @param x Input value.
+ * @return Result of the exponential integral.
+ */
+double Ei(double x);
+
+/**
  * @brief Computes the dilogarithm function Li2(x).
  * @param x Input value.
  * @return Result of the dilogarithm.

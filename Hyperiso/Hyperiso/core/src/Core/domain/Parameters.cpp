@@ -65,6 +65,7 @@ std::unordered_set<BlockName> Parameters::get_blocks_list()
 }
 
 std::unordered_set<BlockName> Parameters::init_blocks(ParameterType type) {
+    LOG_INFO("Init blocks for parameter type", ParameterTypeMapper::str(type));
     std::unordered_set<BlockName> existing, missing;
     
     std::ranges::partition_copy(
@@ -92,7 +93,6 @@ std::unordered_set<BlockName> Parameters::init_blocks(ParameterType type) {
     }
     
     this->blockAccessor = MemoryManager::GetInstance()->extract_blocks(existing);
-    std::cout << ParameterTypeMapper::str(type) << std::endl;
     // LOG_INFO(this->blockAccessor);
     claim_parameters(type);
     return missing;
@@ -164,22 +164,31 @@ void SMModelStrategy::postInitialization(Parameters& params) {
         };
     
         auto func_ckm = [] (const std::unordered_map<std::string, std::shared_ptr<Block>>& src, std::shared_ptr<DependentBlock> dep_block) {
-            scalar_t lambda = src.at("VCKMIN")->retrieve(1)->get_val();
-            scalar_t l2 = lambda * lambda;
-            scalar_t l3 = l2 * lambda;
-            scalar_t A = src.at("VCKMIN")->retrieve(2)->get_val();
-            scalar_t rho = src.at("VCKMIN")->retrieve(3)->get_val();
-            scalar_t eta = src.at("VCKMIN")->retrieve(4)->get_val();
+            double lambda = src.at("VCKMIN")->retrieve(1)->get_val();
+            double l2 = lambda * lambda;
+            double l3 = l2 * lambda;
+            double A = src.at("VCKMIN")->retrieve(2)->get_val();
+            double rho = src.at("VCKMIN")->retrieve(3)->get_val();
+            double eta = src.at("VCKMIN")->retrieve(4)->get_val();
 
-            dep_block->store_or_assign(LhaID(0, 0), std::make_shared<Parameter>(ParamId{ParameterType::SM, "VCKM", LhaID(0, 0)}, 1 - l2 / 2, 0., 0.));
-            dep_block->store_or_assign(LhaID(0, 1), std::make_shared<Parameter>(ParamId{ParameterType::SM, "VCKM", LhaID(0, 1)}, lambda, 0., 0.));
-            dep_block->store_or_assign(LhaID(0, 2), std::make_shared<Parameter>(ParamId{ParameterType::SM, "VCKM", LhaID(0, 2)}, A * l3 * complex_t((double)rho, -(double)eta), 0., 0.));
-            dep_block->store_or_assign(LhaID(1, 0), std::make_shared<Parameter>(ParamId{ParameterType::SM, "VCKM", LhaID(1, 0)}, -lambda, 0., 0.));
-            dep_block->store_or_assign(LhaID(1, 1), std::make_shared<Parameter>(ParamId{ParameterType::SM, "VCKM", LhaID(1, 1)}, 1 - l2 / 2, 0., 0.));
-            dep_block->store_or_assign(LhaID(1, 2), std::make_shared<Parameter>(ParamId{ParameterType::SM, "VCKM", LhaID(1, 2)}, A * l2, 0., 0.));
-            dep_block->store_or_assign(LhaID(2, 0), std::make_shared<Parameter>(ParamId{ParameterType::SM, "VCKM", LhaID(2, 0)}, A * l3 * complex_t(1 - (double)rho, -(double)eta), 0., 0.));
-            dep_block->store_or_assign(LhaID(2, 1), std::make_shared<Parameter>(ParamId{ParameterType::SM, "VCKM", LhaID(2, 1)}, -A * l2, 0., 0.));
-            dep_block->store_or_assign(LhaID(2, 2), std::make_shared<Parameter>(ParamId{ParameterType::SM, "VCKM", LhaID(2, 2)}, 1, 0., 0.));
+            double s_12 = lambda;
+            double s_23 = A * l2;
+            complex_t u_13 = A * l3 * complex_t(rho, eta) * sqrt(1 - std::pow(A * l2, 2)) / (std::sqrt(1 - l2) * (1. - std::pow(A * l2, 2) * complex_t(rho, eta)));
+            double s_13 = std::abs(u_13);
+            complex_t expid = u_13 / std::abs(u_13);
+            double c_12 = std::sqrt(1 - s_12 * s_12);
+            double c_23 = std::sqrt(1 - s_23 * s_23);
+            double c_13 = std::sqrt(1 - s_13 * s_13);
+
+            dep_block->store_or_assign(LhaID(0, 0), std::make_shared<Parameter>(ParamId{ParameterType::SM, "VCKM", LhaID(0, 0)}, c_12 * c_13, 0., 0.));
+            dep_block->store_or_assign(LhaID(0, 1), std::make_shared<Parameter>(ParamId{ParameterType::SM, "VCKM", LhaID(0, 1)}, s_12 * c_13, 0., 0.));
+            dep_block->store_or_assign(LhaID(0, 2), std::make_shared<Parameter>(ParamId{ParameterType::SM, "VCKM", LhaID(0, 2)}, s_13 / expid, 0., 0.));
+            dep_block->store_or_assign(LhaID(1, 0), std::make_shared<Parameter>(ParamId{ParameterType::SM, "VCKM", LhaID(1, 0)}, -s_12 * c_23 - c_12 * s_23 * s_13 * expid, 0., 0.));
+            dep_block->store_or_assign(LhaID(1, 1), std::make_shared<Parameter>(ParamId{ParameterType::SM, "VCKM", LhaID(1, 1)}, c_12 * c_23 - s_12 * s_23 * s_13 * expid, 0., 0.));
+            dep_block->store_or_assign(LhaID(1, 2), std::make_shared<Parameter>(ParamId{ParameterType::SM, "VCKM", LhaID(1, 2)}, s_23 * c_13, 0., 0.));
+            dep_block->store_or_assign(LhaID(2, 0), std::make_shared<Parameter>(ParamId{ParameterType::SM, "VCKM", LhaID(2, 0)}, s_12 * s_23 - c_12 * c_23 * s_13 * expid, 0., 0.));
+            dep_block->store_or_assign(LhaID(2, 1), std::make_shared<Parameter>(ParamId{ParameterType::SM, "VCKM", LhaID(2, 1)}, -c_12 * s_23 - s_12 * c_23 * s_13 * expid, 0., 0.));
+            dep_block->store_or_assign(LhaID(2, 2), std::make_shared<Parameter>(ParamId{ParameterType::SM, "VCKM", LhaID(2, 2)}, c_23 * c_13, 0., 0.));
         };
 
         DependentBlockManager::addDependentBlock("VCKM", src_ckm, ParameterType::SM, func_ckm);

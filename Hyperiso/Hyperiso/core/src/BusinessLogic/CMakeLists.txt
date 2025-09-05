@@ -30,6 +30,7 @@ endif()
 
 add_library(BusinessLogicLib STATIC 
     domain/Decays/BKstarDecay.cpp
+    domain/Decays/BKsllDecay.cpp
     domain/Decays/BllDecay.cpp
     domain/Decays/BXsDecay.cpp
     domain/Decays/BlnuDecay.cpp

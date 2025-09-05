@@ -13,9 +13,14 @@
 #include "Math.h"
 #include "Configs.h"
 #include <chrono>
+#include <type_traits>
 
 using std::chrono::high_resolution_clock;
 using std::chrono::duration;
+
+struct IFormFactorConfig {
+    virtual ~IFormFactorConfig() = default;
+};
 
 class DecayParent {
 
@@ -30,6 +35,7 @@ protected:
     QCDOrder check_max_order(QCDOrder order) const;
 
 public:
+    virtual ~DecayParent() = default;
     DecayParent(double matching_scale, double hadronic_scale, QCDOrder order, std::shared_ptr<ObsWilsonBuilder>& wilson_builder);
 
     void enable();
@@ -42,6 +48,29 @@ public:
     std::shared_ptr<OperatorNode> get_wilson_node(ScaleType scale=ScaleType::MATCHING, WilsonBasis basis=WilsonBasis::B_STANDARD);
 
     virtual void build_op_tree() = 0;
+
+    template<typename EnumType>
+    void set_config_flag(EnumType e) {
+        throw std::logic_error("This flag is not supported for this decay");
+    };
+};
+
+template <typename ConcreteDecay, typename... SupportedEnums>
+class ConfigurableDecayParent : public DecayParent {
+public:
+    ConfigurableDecayParent(double matching_scale, double hadronic_scale,
+                            QCDOrder order, std::shared_ptr<ObsWilsonBuilder>& wilson_builder)
+        : DecayParent(matching_scale, hadronic_scale, order, wilson_builder)
+    {}
+
+    template <typename EnumType>
+    void set_config_flag(EnumType e) {
+        if constexpr ((std::is_same_v<EnumType, SupportedEnums> || ...)) {
+            static_cast<ConcreteDecay*>(this)->set_config_flag_c(e);
+        } else {
+            throw std::logic_error("Unsupported flag type for this decay");
+        }
+    }
 };
 
 #endif // __DECAYPARENT_H__

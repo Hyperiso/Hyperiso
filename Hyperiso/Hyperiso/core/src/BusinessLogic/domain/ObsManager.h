@@ -9,6 +9,21 @@
 #include "ModelEvaluator.h"
 #include "Decays.h"
 
+struct ConfigSetter {
+    template <typename EnumType>
+    static void apply(DecayParent* base, Decays id, EnumType flag) {
+        switch(id) {
+            case Decays::B__Kstar_l_l: {
+                auto* cfg = static_cast<BKstarllDecay*>(base);
+                cfg->set_config_flag(flag);
+                break;
+            }
+            default:
+                throw std::logic_error("This decay does not support knobs");
+        }
+    }
+};
+
 class ObsManager {
 public:
     ObsManager(std::shared_ptr<ObsWilsonBuilder>& wil_builder);
@@ -29,6 +44,13 @@ public:
     size_t get_obs_evals(Observables id);
     void update_gradient(Observables id);
     std::shared_ptr<Observable> get_obs(Observables id);
+
+    template <typename EnumType>
+    void set_config_flag(Decays decay_id, EnumType flag) {
+        if (!decays.contains(decay_id))
+            throw std::logic_error("Decay not found in manager");
+        ConfigSetter::apply(decays.at(decay_id).get(), decay_id, flag);
+    }
 
     void disable_decays();
 

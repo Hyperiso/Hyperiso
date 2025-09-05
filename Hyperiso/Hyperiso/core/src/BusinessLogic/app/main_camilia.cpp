@@ -15,17 +15,24 @@ int main() {
 
     QCDOrder order = QCDOrder::LO;
 
-    std::vector<Observables> obss = DecayMapper::get_observables(Decays::M0_Mix);
+    std::vector<Observables> obss = DecayMapper::get_observables(Decays::B__Kstar_l_l);
+    LOG_INFO(obss.size());
 
     ObservableInterface oi;
+
+    LOG_INFO("Interface created");
 
     for (auto o : obss) {
         oi.add_observable(o, order, false);
     }
     
+    oi.set_config_flag(Decays::B__Kstar_l_l, BKstarllConfig::FF_Src::BSZ_SR_LAT);
+
     for (auto o : obss) {
         LOG_INFO(ObservableMapper::str(o), "=", oi.compute_observable(o), "+-", oi.compute_uncertainty(o));
     }
+
+    BlockProxy().log_block(ParameterType::SM, "SMINPUTS");
     
     // auto print_leading = [&oi] (Observables o, size_t n) {
     //     LOG_INFO("---------- Leading uncertainties for", ObservableMapper::str(o));

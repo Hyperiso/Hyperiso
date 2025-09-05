@@ -1,6 +1,7 @@
 #include <cmath>
 #include <complex>
 #include <iostream>
+#include "Math.h"
 
 constexpr double epsilon = 1.e-10;
 
