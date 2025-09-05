@@ -85,6 +85,13 @@ public:
     void printJSONToStream(std::ostream& os, int level = 0) const;
 
     /**
+     * @brief Prints the node in YAML format to a given output stream.
+     * @param os The output stream.
+     * @param level The indentation level.
+     */
+    void printYAMLToStream(std::ostream& os, int level = 0) const;
+
+    /**
      * @brief Prints the node in YAML format to standard output.
      * @param level The indentation level.
      */
@@ -106,6 +113,7 @@ private:
 
     void printValue(const Value& value, int level) const;
     void printValueToStream(std::ostream& os, const Value& value, int level) const;
+    void printScalarYAMLToStream(std::ostream& os, const Value& value) const;
     void printScalarYAML(const Value& value) const;
     bool isListNode(const std::shared_ptr<Node>& node) const;
 };

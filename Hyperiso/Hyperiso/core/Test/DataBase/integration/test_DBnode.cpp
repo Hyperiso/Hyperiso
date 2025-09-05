@@ -1,10 +1,22 @@
-#include "DBNode.h"
-#include <iostream>
+// test_dbnode_integration.cpp
 #include <cassert>
+#include <iostream>
 #include <sstream>
+#include <vector>
+#include <memory>
+#include <map>
+#include <algorithm>
+#include <cmath>
 
-void test_complex_hierarchy_and_output() {
-    std::cout << "\n-- test_complex_hierarchy_and_output --" << std::endl;
+#include "DBNode.h"
+
+static bool contains_all(const std::string& s, const std::vector<std::string>& needles) {
+    for (auto& n : needles) if (s.find(n) == std::string::npos) return false;
+    return true;
+}
+
+int main() {
+    std::cout << "== Running INTEGRATION tests for Node ==\n";
 
     Node root;
 
@@ -21,59 +33,85 @@ void test_complex_hierarchy_and_output() {
     root.set(42, "metadata", "run_id");
     root.set("integration test", "metadata", "description");
 
-    // Section "observables" as list of Node
-    std::vector<std::shared_ptr<Node>> obs_list;
+    // Observables : final list (valeurs simples stockées sous "" dans chaque élément)
+    {
+        std::vector<std::shared_ptr<Node>> obs_list;
+        auto o1 = std::make_shared<Node>(); o1->set("BR(B→X_s γ)", "");
+        auto o2 = std::make_shared<Node>(); o2->set("R(D*)", "");
+        obs_list.push_back(o1); obs_list.push_back(o2);
+        root.set(obs_list, "observables");
+    }
 
-    auto obs1 = std::make_shared<Node>();
-    obs1->set("BR(B→X_s γ)", "");
-    auto obs2 = std::make_shared<Node>();
-    obs2->set("R(D*)", "");
+    // Observables détaillées : liste d’objets
+    {
+        std::vector<std::shared_ptr<Node>> det;
+        auto n1 = std::make_shared<Node>();
+        n1->set("R_K", "name");
+        n1->set(0.846, "value");
+        n1->set(0.05, "unc");
+        auto n2 = std::make_shared<Node>();
+        n2->set("R_K*", "name");
+        n2->set(0.90, "value");
+        n2->set(0.06, "unc");
+        det.push_back(n1); det.push_back(n2);
+        root.set(det, "observables_detailed");
+    }
 
-    obs_list.push_back(obs1);
-    obs_list.push_back(obs2);
-    root.set(obs_list, "observables");
-
-    // Validate values
+    // Validation de quelques valeurs
     assert(std::get<BlockName>(root.get("model", "type")) == "SM");
-    assert(std::abs(std::get<double>(root.get("model", "MZ")) - 91.1876) < 1e-6);
+    assert(std::abs(std::get<double>(root.get("model", "MZ")) - 91.1876) < 1e-9);
     assert(std::get<bool>(root.get("model", "use_QED")) == true);
     assert(std::get<int>(root.get("metadata", "run_id")) == 42);
 
-    // Print output as JSON
-    std::cout << "\n--- JSON Output ---\n";
-    root.printJSON();
-    std::cout << std::endl;
+    // JSON vers std::cout (visuel) et vers stream (testable)
+    {
+        std::stringstream ss;
+        root.printJSONToStream(ss);
+        const std::string json = ss.str();
 
-    // Print output as YAML
-    std::cout << "\n--- YAML Output ---\n";
-    root.printYAML();
-    std::cout << std::endl;
-}
+        // Présence des champs clés (sans forcer le format exact des doubles)
+        assert(contains_all(json, {
+            "\"model\"", "\"type\"", "\"SM\"",
+            "\"parameters\"", "\"alpha_s\"", "\"top_mass\"",
+            "\"metadata\"", "\"run_id\"", "42", "\"description\"", "\"integration test\"",
+            "\"observables\"", "BR(B", "R(D*)",
+            "\"observables_detailed\"", "\"name\"", "\"value\"", "\"unc\"", "0.846"
+        }));
 
-void test_json_stream_output() {
-    std::cout << "\n-- test_json_stream_output --" << std::endl;
+        // Tolère 0.9 ou 0.90 selon le formatage des doubles
+        bool has_RKstar_val = (json.find("0.90") != std::string::npos) || (json.find("0.9") != std::string::npos);
+        assert(has_RKstar_val);
+    }
 
-    Node root;
-    root.set("streaming test", "info");
-    root.set(123, "version");
+    // YAML (capture stdout)
+    {
+        std::stringstream capture;
+        auto* oldbuf = std::cout.rdbuf(capture.rdbuf());
+        root.printYAML();
+        std::cout.rdbuf(oldbuf);
 
-    std::stringstream ss;
-    root.printJSONToStream(ss);
+        const std::string yaml = capture.str();
 
-    std::string result = ss.str();
-    std::cout << result << std::endl;
+        // Vérifie les clés/valeurs essentielles (sans imposer "- ")
+        std::vector<std::string> must = {
+            "model:", "type:", "SM",
+            "parameters:", "alpha_s:", "top_mass:",
+            "metadata:", "run_id:", "description:",
+            "observables:",                 // la liste existe
+            "BR(B", "R(D*)",               // éléments de la "final list"
+            "observables_detailed:",       // liste d’objets
+            "name:", "value:", "unc:"      // clés dans les objets
+        };
 
-    assert(result.find("\"info\"") != std::string::npos);
-    assert(result.find("streaming test") != std::string::npos);
-    assert(result.find("123") != std::string::npos);
-}
-
-int main() {
-    std::cout << "== Running INTEGRATION tests for Node ==\n";
-
-    test_complex_hierarchy_and_output();
-    test_json_stream_output();
-
-    std::cout << "\n✅ All Node integration tests passed!\n" << std::endl;
+        // Debug sympa : imprimer le YAML et le token manquant si ça plante
+        for (const auto& token : must) {
+            if (yaml.find(token) == std::string::npos) {
+                std::cerr << "\n--- YAML dump ---\n" << yaml << "\n";
+                std::cerr << "Missing token: [" << token << "]\n";
+                assert(false && "YAML is missing an expected token");
+            }
+        }
+    }
+    std::cout << "\n✅ All Node integration tests passed!\n";
     return 0;
 }

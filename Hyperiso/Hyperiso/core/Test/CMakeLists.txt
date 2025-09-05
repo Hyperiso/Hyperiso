@@ -63,9 +63,42 @@ set(CTEST_ENVIRONMENT_VARIABLE "CTEST_RUN")
 # add_executable(testReader testReader.cpp)
 # target_link_libraries(testReader DataBaseLib)
 
+add_executable(testScalarIntegration Math/integration/test_scalar_integration.cpp)
+target_link_libraries(testScalarIntegration MathLib UtilsLib)
+
+add_executable(testScalarUnit Math/unit/test_scalar_unit.cpp)
+target_link_libraries(testScalarUnit MathLib UtilsLib)
+
+add_executable(testMatrixIntegration Math/integration/test_matrix_integration.cpp)
+target_link_libraries(testMatrixIntegration MathLib UtilsLib)
+
+add_executable(testMatrixUnit Math/unit/test_matrix_unit.cpp)
+target_link_libraries(testMatrixUnit MathLib UtilsLib)
+
+#Common
+
 add_executable(testCommon Common/testLogger.cpp)
 target_link_libraries(testCommon CommonLib)
 
+add_executable(testlhaidunit Common/unit/test_lhaid_unit.cpp)
+target_link_libraries(testlhaidunit CommonLib UtilsLib)
+
+add_executable(testlhaidintegration Common/integration/test_lhaid_integration.cpp)
+target_link_libraries(testlhaidintegration CommonLib UtilsLib)
+
+add_executable(testblocknameunit Common/unit/test_blockname_unit.cpp)
+target_link_libraries(testblocknameunit CommonLib UtilsLib)
+
+add_executable(testblocknameintegration Common/integration/test_blockname_integration.cpp)
+target_link_libraries(testblocknameintegration CommonLib UtilsLib)
+
+add_executable(testparamidunit Common/unit/test_paramid_unit.cpp)
+target_link_libraries(testparamidunit CommonLib UtilsLib)
+
+add_executable(testparamidintegration Common/integration/test_paramid_integration.cpp)
+target_link_libraries(testparamidintegration CommonLib UtilsLib)
+
+#Database
 
 add_executable(testReader DataBase/testReader.cpp)
 target_link_libraries(testReader DataBaseLib ConfiguredModule)
@@ -78,6 +111,45 @@ target_link_libraries(testmappingjson DataBaseLib ConfiguredModule)
 
 add_executable(teststatjson DataBase/testJsonStatParser.cpp)
 target_link_libraries(teststatjson DataBaseLib ConfiguredModule)
+
+add_executable(testlhaelementunit DataBase/unit/test_lha_elements_unit.cpp)
+target_link_libraries(testlhaelementunit DataBaseLib UtilsLib)
+
+add_executable(testlhaelementintegration DataBase/integration/test_lha_elements_integration.cpp)
+target_link_libraries(testlhaelementintegration DataBaseLib UtilsLib)
+
+add_executable(testdbnodeunit DataBase/unit/test_DBnode.cpp)
+target_link_libraries(testdbnodeunit DataBaseLib UtilsLib)
+
+add_executable(testdbnodeintegration DataBase/integration/test_DBnode.cpp)
+target_link_libraries(testdbnodeintegration DataBaseLib UtilsLib)
+
+add_executable(testdbmanagerunit DataBase/unit/test_DBmanager.cpp)
+target_link_libraries(testdbmanagerunit DataBaseLib UtilsLib)
+
+add_executable(testdbmanagerintegration DataBase/integration/test_DBmanager.cpp)
+target_link_libraries(testdbmanagerintegration DataBaseLib UtilsLib)
+
+add_executable(testlhablocksunit DataBase/unit/test_lha_blocks_unit.cpp)
+target_link_libraries(testlhablocksunit DataBaseLib UtilsLib)
+
+add_executable(testlhablocksintegration DataBase/integration/test_lha_blocks_integration.cpp)
+target_link_libraries(testlhablocksintegration DataBaseLib UtilsLib)
+
+add_executable(testjsonparserunit DataBase/unit/test_jsonparser_unit.cpp)
+target_link_libraries(testjsonparserunit DataBaseLib UtilsLib)
+
+add_executable(testjsonparserintegration DataBase/integration/test_jsonparser_integration.cpp)
+target_link_libraries(testjsonparserintegration DataBaseLib UtilsLib)
+
+add_executable(testlhaparserunit DataBase/unit/test_lhaparser_unit.cpp)
+target_link_libraries(testlhaparserunit DataBaseLib UtilsLib)
+
+add_executable(testlhaparserintegration DataBase/integration/test_lhaparser_integration.cpp)
+target_link_libraries(testlhaparserintegration DataBaseLib UtilsLib)
+
+#Core
+
 
 add_executable(testSMparams Core/testSMParameters.cpp)
 target_link_libraries(testSMparams CoreLib)

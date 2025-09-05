@@ -29,5 +29,11 @@ int main() {
     LOG_INFO("C9(mu_h) at NNLO =", wi.getR(WGroup::B, WCoef::C9, QCDOrder::NNLO, ContributionType::TOTAL));
     
     LOG_INFO("C9(mu_h) full =", wi.getFR(WGroup::B, WCoef::C9, QCDOrder::NNLO, ContributionType::TOTAL));
+
+    Config config_v2;
+
+    LOG_INFO("changing config");
+    hyp.switch_lha("default/lha/testInput.flha", config_v2);
+
     return 0;
 }

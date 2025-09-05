@@ -22,7 +22,7 @@ C_mix_bd_1_THDM::C_mix_bd_1_THDM() : WilsonCoefficient("C_BD_1", GroupMapper::st
             {ParameterType::SM, "VCKM", LhaID(2, 2)},             // V_tb
         },
         compute_LO,
-        LhaID(1050105, 4141, 0, 0)
+        LhaID(1050105, 4141, 0, 1)
     };
 }
 
@@ -76,7 +76,7 @@ double C_mix_bd_1_THDM::compute_LO(const std::unordered_map<ParamId, std::shared
 
 }
 
-C_mix_bd_1_tilde_THDM::C_mix_bd_1_tilde_THDM() : WilsonCoefficient("C_BD_1", GroupMapper::str(WGroup::MESON_MIXING) + "_MATCH") {
+C_mix_bd_1_tilde_THDM::C_mix_bd_1_tilde_THDM() : WilsonCoefficient("CT_BD_1", GroupMapper::str(WGroup::MESON_MIXING) + "_MATCH") {
     matching_info[QCDOrder::LO] = {
         {
             {ParameterType::WILSON, "WPARAM_MATCH_SM", 4},           //mass_c_muW_mcrun
@@ -98,7 +98,7 @@ C_mix_bd_1_tilde_THDM::C_mix_bd_1_tilde_THDM() : WilsonCoefficient("C_BD_1", Gro
             {ParameterType::SM, "VCKM", LhaID(2, 2)},             // V_tb
         },
         compute_LO,
-        LhaID(1050105, 4141, 0, 0)
+        LhaID(1050105, 4242, 0, 1)
     };
 }
 
@@ -154,7 +154,7 @@ double C_mix_bd_1_tilde_THDM::compute_LO(const std::unordered_map<ParamId, std::
 
 }
 
-C_mix_bd_2_THDM::C_mix_bd_2_THDM() : WilsonCoefficient("C_BD_1", GroupMapper::str(WGroup::MESON_MIXING) + "_MATCH") {
+C_mix_bd_2_THDM::C_mix_bd_2_THDM() : WilsonCoefficient("C_BD_2", GroupMapper::str(WGroup::MESON_MIXING) + "_MATCH") {
     matching_info[QCDOrder::LO] = {
         {
             {ParameterType::WILSON, "WPARAM_MATCH_SM", 4},           //mass_c_muW_mcrun
@@ -176,7 +176,7 @@ C_mix_bd_2_THDM::C_mix_bd_2_THDM() : WilsonCoefficient("C_BD_1", GroupMapper::st
             {ParameterType::SM, "VCKM", LhaID(2, 2)},             // V_tb
         },
         compute_LO,
-        LhaID(1050105, 4141, 0, 0)
+        LhaID(1050105, 3131, 0, 1)
     };
 }
 
@@ -230,7 +230,7 @@ double C_mix_bd_2_THDM::compute_LO(const std::unordered_map<ParamId, std::shared
 
 }
 
-C_mix_bd_2_tilde_THDM::C_mix_bd_2_tilde_THDM() : WilsonCoefficient("C_BD_1", GroupMapper::str(WGroup::MESON_MIXING) + "_MATCH") {
+C_mix_bd_2_tilde_THDM::C_mix_bd_2_tilde_THDM() : WilsonCoefficient("CT_BD_2", GroupMapper::str(WGroup::MESON_MIXING) + "_MATCH") {
     matching_info[QCDOrder::LO] = {
         {
             {ParameterType::WILSON, "WPARAM_MATCH_SM", 4},           //mass_c_muW_mcrun
@@ -252,7 +252,7 @@ C_mix_bd_2_tilde_THDM::C_mix_bd_2_tilde_THDM() : WilsonCoefficient("C_BD_1", Gro
             {ParameterType::SM, "VCKM", LhaID(2, 2)},             // V_tb
         },
         compute_LO,
-        LhaID(1050105, 4141, 0, 0)
+        LhaID(1050105, 4242, 0, 1)
     };
 }
 
@@ -305,14 +305,14 @@ double C_mix_bd_2_tilde_THDM::compute_LO(const std::unordered_map<ParamId, std::
 
 }
 
-C_mix_bd_3_THDM::C_mix_bd_3_THDM() : WilsonCoefficient("C_BD_1", GroupMapper::str(WGroup::MESON_MIXING) + "_MATCH") {
+C_mix_bd_3_THDM::C_mix_bd_3_THDM() : WilsonCoefficient("C_BD_3", GroupMapper::str(WGroup::MESON_MIXING) + "_MATCH") {
 }
 
 
-C_mix_bd_3_tilde_THDM::C_mix_bd_3_tilde_THDM() : WilsonCoefficient("C_BD_1", GroupMapper::str(WGroup::MESON_MIXING) + "_MATCH") {
+C_mix_bd_3_tilde_THDM::C_mix_bd_3_tilde_THDM() : WilsonCoefficient("CT_BD_3", GroupMapper::str(WGroup::MESON_MIXING) + "_MATCH") {
 }
 
-C_mix_bd_4_THDM::C_mix_bd_4_THDM() : WilsonCoefficient("C_BD_1", GroupMapper::str(WGroup::MESON_MIXING) + "_MATCH") {
+C_mix_bd_4_THDM::C_mix_bd_4_THDM() : WilsonCoefficient("C_BD_4", GroupMapper::str(WGroup::MESON_MIXING) + "_MATCH") {
 	matching_info[QCDOrder::LO] = {
         {
             {ParameterType::WILSON, "WPARAM_MATCH_SM", 4},           //mass_c_muW_mcrun
@@ -334,7 +334,7 @@ C_mix_bd_4_THDM::C_mix_bd_4_THDM() : WilsonCoefficient("C_BD_1", GroupMapper::st
             {ParameterType::SM, "VCKM", LhaID(2, 2)},             // V_tb
         },
         compute_LO,
-        LhaID(1050105, 4141, 0, 0)
+        LhaID(1050105, 3132, 0, 1)
     };
 }
 
@@ -391,7 +391,7 @@ double C_mix_bd_4_THDM::compute_LO(const std::unordered_map<ParamId, std::shared
 
 }
 
-C_mix_bd_5_THDM::C_mix_bd_5_THDM() : WilsonCoefficient("C_BD_1", GroupMapper::str(WGroup::MESON_MIXING) + "_MATCH") {
+C_mix_bd_5_THDM::C_mix_bd_5_THDM() : WilsonCoefficient("C_BD_5", GroupMapper::str(WGroup::MESON_MIXING) + "_MATCH") {
     matching_info[QCDOrder::LO] = {
         {
             {ParameterType::WILSON, "WPARAM_MATCH_SM", 4},           //mass_c_muW_mcrun
@@ -413,7 +413,7 @@ C_mix_bd_5_THDM::C_mix_bd_5_THDM() : WilsonCoefficient("C_BD_1", GroupMapper::st
             {ParameterType::SM, "VCKM", LhaID(2, 2)},             // V_tb
         },
         compute_LO,
-        LhaID(1050105, 4141, 0, 0)
+        LhaID(1050105, 7172, 0, 0)
     };
 }
 
@@ -465,7 +465,7 @@ double C_mix_bd_5_THDM::compute_LO(const std::unordered_map<ParamId, std::shared
 
 }
 
-C_mix_bs_1_THDM::C_mix_bs_1_THDM() : WilsonCoefficient("C_BD_1", GroupMapper::str(WGroup::MESON_MIXING) + "_MATCH") {
+C_mix_bs_1_THDM::C_mix_bs_1_THDM() : WilsonCoefficient("C_BS_1", GroupMapper::str(WGroup::MESON_MIXING) + "_MATCH") {
     matching_info[QCDOrder::LO] = {
         {
             {ParameterType::WILSON, "WPARAM_MATCH_SM", 4},           //mass_c_muW_mcrun
@@ -487,7 +487,7 @@ C_mix_bs_1_THDM::C_mix_bs_1_THDM() : WilsonCoefficient("C_BD_1", GroupMapper::st
             {ParameterType::SM, "VCKM", LhaID(2, 2)},             // V_tb
         },
         compute_LO,
-        LhaID(1050105, 4141, 0, 0)
+        LhaID(3050305, 4141, 0, 1)
     };
 }
 
@@ -543,7 +543,7 @@ double C_mix_bs_1_THDM::compute_LO(const std::unordered_map<ParamId, std::shared
 
 }
 
-C_mix_bs_1_tilde_THDM::C_mix_bs_1_tilde_THDM() : WilsonCoefficient("C_BD_1", GroupMapper::str(WGroup::MESON_MIXING) + "_MATCH") {
+C_mix_bs_1_tilde_THDM::C_mix_bs_1_tilde_THDM() : WilsonCoefficient("CT_BS_1", GroupMapper::str(WGroup::MESON_MIXING) + "_MATCH") {
     matching_info[QCDOrder::LO] = {
         {
             {ParameterType::WILSON, "WPARAM_MATCH_SM", 4},           //mass_c_muW_mcrun
@@ -565,7 +565,7 @@ C_mix_bs_1_tilde_THDM::C_mix_bs_1_tilde_THDM() : WilsonCoefficient("C_BD_1", Gro
             {ParameterType::SM, "VCKM", LhaID(2, 2)},             // V_tb
         },
         compute_LO,
-        LhaID(1050105, 4141, 0, 0)
+        LhaID(3050305, 4242, 0, 1)
     };
 }
 
@@ -622,7 +622,7 @@ double C_mix_bs_1_tilde_THDM::compute_LO(const std::unordered_map<ParamId, std::
 
 }
 
-C_mix_bs_2_THDM::C_mix_bs_2_THDM() : WilsonCoefficient("C_BD_1", GroupMapper::str(WGroup::MESON_MIXING) + "_MATCH") {
+C_mix_bs_2_THDM::C_mix_bs_2_THDM() : WilsonCoefficient("C_BS_2", GroupMapper::str(WGroup::MESON_MIXING) + "_MATCH") {
     matching_info[QCDOrder::LO] = {
         {
             {ParameterType::WILSON, "WPARAM_MATCH_SM", 4},           //mass_c_muW_mcrun
@@ -644,7 +644,7 @@ C_mix_bs_2_THDM::C_mix_bs_2_THDM() : WilsonCoefficient("C_BD_1", GroupMapper::st
             {ParameterType::SM, "VCKM", LhaID(2, 2)},             // V_tb
         },
         compute_LO,
-        LhaID(1050105, 4141, 0, 0)
+        LhaID(3050305, 3131, 0, 1)
     };
 }
 
@@ -700,7 +700,7 @@ double C_mix_bs_2_THDM::compute_LO(const std::unordered_map<ParamId, std::shared
 
 }
 
-C_mix_bs_2_tilde_THDM::C_mix_bs_2_tilde_THDM() : WilsonCoefficient("C_BD_1", GroupMapper::str(WGroup::MESON_MIXING) + "_MATCH") {
+C_mix_bs_2_tilde_THDM::C_mix_bs_2_tilde_THDM() : WilsonCoefficient("CT_BS_2", GroupMapper::str(WGroup::MESON_MIXING) + "_MATCH") {
     matching_info[QCDOrder::LO] = {
         {
             {ParameterType::WILSON, "WPARAM_MATCH_SM", 4},           //mass_c_muW_mcrun
@@ -723,7 +723,7 @@ C_mix_bs_2_tilde_THDM::C_mix_bs_2_tilde_THDM() : WilsonCoefficient("C_BD_1", Gro
             {ParameterType::SM, "VCKM", LhaID(2, 2)},             // V_tb
         },
         compute_LO,
-        LhaID(1050105, 4141, 0, 0)
+        LhaID(1050105, 4141, 0, 1)
     };
 }
 
@@ -778,16 +778,16 @@ double C_mix_bs_2_tilde_THDM::compute_LO(const std::unordered_map<ParamId, std::
 
 }
 
-C_mix_bs_3_THDM::C_mix_bs_3_THDM() : WilsonCoefficient("C_BD_1", GroupMapper::str(WGroup::MESON_MIXING) + "_MATCH") {
+C_mix_bs_3_THDM::C_mix_bs_3_THDM() : WilsonCoefficient("C_BS_3", GroupMapper::str(WGroup::MESON_MIXING) + "_MATCH") {
 }
 
 
 
-C_mix_bs_3_tilde_THDM::C_mix_bs_3_tilde_THDM() : WilsonCoefficient("C_BD_1", GroupMapper::str(WGroup::MESON_MIXING) + "_MATCH") {
+C_mix_bs_3_tilde_THDM::C_mix_bs_3_tilde_THDM() : WilsonCoefficient("CT_BS_3", GroupMapper::str(WGroup::MESON_MIXING) + "_MATCH") {
 }
 
 
-C_mix_bs_4_THDM::C_mix_bs_4_THDM() : WilsonCoefficient("C_BD_1", GroupMapper::str(WGroup::MESON_MIXING) + "_MATCH") {
+C_mix_bs_4_THDM::C_mix_bs_4_THDM() : WilsonCoefficient("C_BS_4", GroupMapper::str(WGroup::MESON_MIXING) + "_MATCH") {
     matching_info[QCDOrder::LO] = {
         {
             {ParameterType::WILSON, "WPARAM_MATCH_SM", 4},           //mass_c_muW_mcrun
@@ -809,7 +809,7 @@ C_mix_bs_4_THDM::C_mix_bs_4_THDM() : WilsonCoefficient("C_BD_1", GroupMapper::st
             {ParameterType::SM, "VCKM", LhaID(2, 2)},             // V_tb
         },
         compute_LO,
-        LhaID(1050105, 4141, 0, 0)
+        LhaID(3050305, 3132, 0, 1)
     };
 }
 
@@ -865,7 +865,7 @@ double C_mix_bs_4_THDM::compute_LO(const std::unordered_map<ParamId, std::shared
 
 }
 
-C_mix_bs_5_THDM::C_mix_bs_5_THDM() : WilsonCoefficient("C_BD_1", GroupMapper::str(WGroup::MESON_MIXING) + "_MATCH") {
+C_mix_bs_5_THDM::C_mix_bs_5_THDM() : WilsonCoefficient("C_BS_5", GroupMapper::str(WGroup::MESON_MIXING) + "_MATCH") {
     matching_info[QCDOrder::LO] = {
         {
             {ParameterType::WILSON, "WPARAM_MATCH_SM", 4},           //mass_c_muW_mcrun
@@ -887,7 +887,7 @@ C_mix_bs_5_THDM::C_mix_bs_5_THDM() : WilsonCoefficient("C_BD_1", GroupMapper::st
             {ParameterType::SM, "VCKM", LhaID(2, 2)},             // V_tb
         },
         compute_LO,
-        LhaID(1050105, 4141, 0, 0)
+        LhaID(3050305, 3132, 0, 1)
     };
 }
 
