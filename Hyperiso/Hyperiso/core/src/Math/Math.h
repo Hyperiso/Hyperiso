@@ -489,6 +489,50 @@ double D0(double w, double x, double y, double z);
  */
 double D2p(double w, double x, double y, double z);
 
+
+/**
+ * @brief Wilson special funtion getDelta.
+ * @param delta Input parameter.
+ * @param Z Input parameter.
+ * @param M Input parameter.
+ * @param m_av Input parameter.
+ * @param delta_LL Input parameter.
+ * @param delta_LR Input parameter.
+ * @param delta_RL Input parameter.
+ * @param delta_RR Input parameter.
+ * @return Value of getDelta.
+ */
+void getDelta(scalar_t delta[6][6],scalar_t Z[6][6],double M[6],double m_av,scalar_t delta_LL[3][3],scalar_t delta_LR[3][3],scalar_t delta_RL[3][3],scalar_t delta_RR[3][3]);
+
+/**
+ * @brief Wilson special funtion h3 depending on x.
+ * @param x Input parameter.
+ * @return Value of h3(x).
+ */
+double h3(double x);
+
+/**
+ * @brief Wilson special funtion h1 depending on x.
+ * @param x Input parameter.
+ * @return Value of h1(x).
+ */
+double h1(double x);
+
+/**
+ * @brief Wilson special funtion h4 depending on x and y.
+ * @param x Input parameter.
+ * @param y Input parameter.
+ * @return Value of h4(x,y).
+ */
+double h4(double x, double y);
+
+/**
+ * @brief Wilson special funtion f depending on x.
+ * @param x Input parameter.
+ * @return Value of f(x).
+ */
+double f(double x);
+
 /*
     Integration routines
 */

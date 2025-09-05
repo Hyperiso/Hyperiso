@@ -36,6 +36,7 @@ public:
             {Observables::DELTA_M_K, "Delta_M_K"},
             {Observables::ABS_EPSILON_K, "|epsilon_K|"},
             {Observables::X_D, "x_D"},
+            {Observables::TEST_B__KS_L_L, "test_B_Ks_ll"},
         };
         return m;
     }

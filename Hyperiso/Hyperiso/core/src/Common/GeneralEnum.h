@@ -29,6 +29,8 @@ enum class Observables {
     BR_B__Xs_mu_mu__LOW_Q2,
     BR_B__Xs_mu_mu__HIGH_Q2,
     BR_B__Xs_tau_tau__HIGH_Q2,
+    // B > K* l l 
+    TEST_B__KS_L_L,
     /* Neutral Meson Mixing */
     // Bd
     PHI_D,
@@ -52,6 +54,7 @@ enum class Decays {
     B__l_nu,
     B__Xs,
     B__Xs_l_l,
+    B__Kstar_l_l,
     M0_Mix,
 };
 
