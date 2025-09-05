@@ -153,11 +153,41 @@ void LhaParser::set_prototypes(const std::unordered_set<Prototype> &prototypes)
     this->blockPrototypes = prototypes;
 }
 
+// std::shared_ptr<Node> LhaParser::toDBNode(std::map<BlockName, std::shared_ptr<LhaBlock>> blocks) const {
+//     Node node;
+//     for (const auto& block : blocks) {
+//         auto block_node = block.second->toDBNode();
+//         node.set(block_node->get(block_node->get_keys().at(0)), block_node->get_keys().at(0));
+//     }
+//     return std::make_shared<Node>(node);
+// }
+
+// TODO : proposition chatGPT pour la scale
 std::shared_ptr<Node> LhaParser::toDBNode(std::map<BlockName, std::shared_ptr<LhaBlock>> blocks) const {
-    Node node;
-    for (const auto& block : blocks) {
-        auto block_node = block.second->toDBNode();
-        node.set(block_node->get(block_node->get_keys().at(0)), block_node->get_keys().at(0));
+    Node root;
+
+    for (const auto& [blockName, blockPtr] : blocks) {
+        auto block_node = blockPtr->toDBNode();
+
+        // 1) Récupère le groupe d’entrées du bloc
+        auto group = block_node->getGroup({blockName});
+
+        // 2) Construit un sous-noeud "propre" qui contiendra:
+        //    - les entrées du bloc
+        //    - (optionnel) le scale global directement SOUS le block
+        Node sub;
+        sub.setGroup({blockName}, group);
+
+        if (block_node->contains("scale")) {
+            // Copie le scale global sous <BlockName>/scale
+            auto sval = block_node->get("scale"); // Value (double généralement)
+            sub.set(sval, blockName, "scale");
+        }
+
+        // 3) Pose le sous-noeud au niveau racine sous la clé <BlockName>
+        //    On ne “flatten” plus rien : tout le contenu reste sous le block.
+        root.set(sub.get(blockName), blockName);
     }
-    return std::make_shared<Node>(node);
+
+    return std::make_shared<Node>(root);
 }

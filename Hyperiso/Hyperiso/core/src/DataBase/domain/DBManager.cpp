@@ -12,14 +12,23 @@ ParserFactory::Type DBManager::deduce_parser_type(fs::path file_path) {
 
 void DBManager::add_default_lha_prototypes(fs::path file_path) {
     auto input_extension = file_path.extension().string();
-    lha_prototypes.insert(LHA_BLOCKS.begin(), LHA_BLOCKS.end());
+
+    auto insert_if_absent = [&](const Prototype& p) {
+        auto it = std::find_if(lha_prototypes.begin(), lha_prototypes.end(),
+            [&](const Prototype& q){ return q.blockName == p.blockName; });
+        if (it == lha_prototypes.end()) {
+            lha_prototypes.insert(p);
+        }
+    };
+
+    for (const auto& p : LHA_BLOCKS) insert_if_absent(p);
 
     if (input_extension == ".slha" || input_extension == ".lha") {
-        lha_prototypes.insert(SLHA_BLOCKS.begin(), SLHA_BLOCKS.end());
+        for (const auto& p : SLHA_BLOCKS) insert_if_absent(p);
     } else if (input_extension == ".flha") {
-        lha_prototypes.insert(FLHA_BLOCKS.begin(), FLHA_BLOCKS.end());
+        for (const auto& p : FLHA_BLOCKS) insert_if_absent(p);
     }
-}   
+} 
 
 void DBManager::sanitize_file(const fs::path& file_path) {
     if (!fs::exists(file_path)) {

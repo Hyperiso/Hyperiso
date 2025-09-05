@@ -208,9 +208,13 @@ double YAMLParser::parseNumber(const std::string& value) const {
 
 void YAMLParser::writeToFile(const std::string& filename, const std::shared_ptr<Node>& root) const {
     std::ofstream file(filename);
-    if (!file.is_open()) throw std::runtime_error("Unable to open file for writing");
-    root->printYAML();
-    file.close();
+    if (!file.is_open())
+        throw std::runtime_error("Unable to open file for writing: " + filename);
+    root->printYAMLToStream(file);
+    file << '\n';
+    file.flush();
+    if (!file)
+        throw std::runtime_error("Error while writing YAML file: " + filename);
 }
 
 std::shared_ptr<Node> YAMLParser::readFromFile(const std::string& filename) const {
