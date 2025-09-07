@@ -53,9 +53,9 @@ void writeCoefficientsToFile(const std::string& strat_name, const std::string& f
     for (auto& coeff : name) {
         complex_t C = {0,0};
         if (model == "SM") {
-            C = wi->getMatchingCoefficient(WGroup::B,WCoefMapper::enum_elt(coeff), OrderMapper::enum_elt(strat_name), ContributionType::SM );
+            C = wi->getMatchingCoefficient(WGroup::B,WCoefMapper::enum_of(WCoefMapper::enum_elt(coeff)).value(), OrderMapper::enum_elt(strat_name), ContributionType::SM );
         } else {
-            C = wi->getMatchingCoefficient(WGroup::B,WCoefMapper::enum_elt(coeff), OrderMapper::enum_elt(strat_name), ContributionType::BSM );
+            C = wi->getMatchingCoefficient(WGroup::B,WCoefMapper::enum_of(WCoefMapper::enum_elt(coeff)).value(), OrderMapper::enum_elt(strat_name), ContributionType::BSM );
         }
         file << "," << C.real() << "," << C.imag();
     }
@@ -115,18 +115,18 @@ void writeCoefficientsPrimeCQToFile(const std::string& strat_name, const std::st
     for (auto& coeff : name_scalar) {
         complex_t C = {0.,0.};
         if (model == "SM") {
-            C = wi->getRunCoefficient(WGroup::BScalar, WCoefMapper::enum_elt(coeff), OrderMapper::enum_elt(strat_name), ContributionType::SM);
+            C = wi->getRunCoefficient(WGroup::BScalar, WCoefMapper::enum_of(WCoefMapper::enum_elt(coeff)).value(), OrderMapper::enum_elt(strat_name), ContributionType::SM);
         } else {
-            C = wi->getRunCoefficient(WGroup::BScalar, WCoefMapper::enum_elt(coeff), OrderMapper::enum_elt(strat_name), ContributionType::BSM);
+            C = wi->getRunCoefficient(WGroup::BScalar, WCoefMapper::enum_of(WCoefMapper::enum_elt(coeff)).value(), OrderMapper::enum_elt(strat_name), ContributionType::BSM);
         }
         file << "," << C.real() << "," << C.imag();
     }
     for (auto& coeff : name_prime) {
         complex_t C = {0.,0.};
         if (model == "SM") {
-            C = wi->getRunCoefficient(WGroup::BPrime, WCoefMapper::enum_elt(coeff), OrderMapper::enum_elt(strat_name), ContributionType::SM);
+            C = wi->getRunCoefficient(WGroup::BPrime, WCoefMapper::enum_of(WCoefMapper::enum_elt(coeff)).value(), OrderMapper::enum_elt(strat_name), ContributionType::SM);
         } else {
-            C = wi->getRunCoefficient(WGroup::BPrime, WCoefMapper::enum_elt(coeff), OrderMapper::enum_elt(strat_name), ContributionType::BSM);
+            C = wi->getRunCoefficient(WGroup::BPrime,WCoefMapper::enum_of( WCoefMapper::enum_elt(coeff)).value(), OrderMapper::enum_elt(strat_name), ContributionType::BSM);
         }
         
         file << "," << C.real() << "," << C.imag();
@@ -181,9 +181,9 @@ void writeRunCoefficientsToFile(const std::string& strat_name, const std::string
     for (auto& coeff : name) {
         complex_t C = {0,0};
         if (model == "SM") {
-            C = wi->getRunCoefficient(WGroup::B, WCoefMapper::enum_elt(coeff), OrderMapper::enum_elt(strat_name), ContributionType::SM, basis);
+            C = wi->getRunCoefficient(WGroup::B, WCoefMapper::enum_of(WCoefMapper::enum_elt(coeff)).value(), OrderMapper::enum_elt(strat_name), ContributionType::SM, basis);
         } else {
-            C = wi->getRunCoefficient(WGroup::B, WCoefMapper::enum_elt(coeff), OrderMapper::enum_elt(strat_name), ContributionType::BSM, basis);
+            C = wi->getRunCoefficient(WGroup::B, WCoefMapper::enum_of(WCoefMapper::enum_elt(coeff)).value(), OrderMapper::enum_elt(strat_name), ContributionType::BSM, basis);
         }
         std::cout << coeff << " " << C << std::endl;
         file << "," << C.real() << "," << C.imag();

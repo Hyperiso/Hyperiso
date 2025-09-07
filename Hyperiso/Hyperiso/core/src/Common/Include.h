@@ -11,5 +11,6 @@
 #include "EnumMapper.h"
 #include "GeneralEnum.h"
 #include "Map.h"
+#include "registry_init.hpp"
 
 #endif // __INCLUDE_H__

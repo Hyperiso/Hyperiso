@@ -98,6 +98,12 @@ target_link_libraries(testparamidunit CommonLib UtilsLib)
 add_executable(testparamidintegration Common/integration/test_paramid_integration.cpp)
 target_link_libraries(testparamidintegration CommonLib UtilsLib)
 
+add_executable(testenummapperunit Common/unit/test_enummapper_unit.cpp)
+target_link_libraries(testenummapperunit CommonLib UtilsLib)
+
+add_executable(testenummapperintegration Common/integration/test_enummapper_integration.cpp)
+target_link_libraries(testenummapperintegration CommonLib UtilsLib)
+
 #Database
 
 add_executable(testReader DataBase/testReader.cpp)

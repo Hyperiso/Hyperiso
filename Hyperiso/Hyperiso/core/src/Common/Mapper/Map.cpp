@@ -36,6 +36,28 @@ const std::map<Observables, std::string>& observable_mapping() {
     return m;
 }
 
+const std::map<Observables, LhaID>& observable_flha_mapping() {
+    static const std::map<Observables, LhaID> m = {
+        {Observables::BR_BS_MUMU,        LhaID(531, 1, 2, 13, -13)},
+        {Observables::BR_BS_MUMU_UNTAG,  LhaID(531, 15, 2, 13, -13)},
+        {Observables::BR_BD_MUMU,        LhaID(511, 1, 2, 13, -13)},
+        {Observables::BR_BU_TAU_NU,      LhaID(521, 1, 2, -15, 16)},
+        {Observables::R_TAU_NU,          LhaID(521, 2, 2, -15, 16)},
+        {Observables::ISOSPIN_ASYMMETRY_B_KSTAR_GAMMA, LhaID(521, 4, 2, 313, 22)},
+        {Observables::BR_B_XS_GAMMA,     LhaID(5,   1, 2, 3, 22)},
+        {Observables::BR_B__D_TAU_NU,    LhaID(521, 1, 3, 421, -15, 16)},
+        {Observables::A_FB_B__D_TAU_NU,  LhaID(521, 5, 3, 421, -15, 16)},
+        {Observables::P_TAU_B__D_TAU_NU, LhaID(521, 82,3, 421, -15, 16)},
+        {Observables::R_D,               LhaID(521, 11,3, 421, -15, 16)},
+        {Observables::BR_B__DSTAR_TAU_NU,LhaID(521, 1, 3, 423, -15, 16)},
+        {Observables::A_FB_B__DSTAR_TAU_NU, LhaID(521, 5, 3, 423, -15, 16)},
+        {Observables::P_TAU_B__DSTAR_TAU_NU, LhaID(521, 82,3, 423, -15, 16)},
+        {Observables::P_D_B__DSTAR_TAU_NU,   LhaID(521, 81,3, 423, -15, 16)},
+        {Observables::R_DSTAR,           LhaID(521, 11,3, 423, -15, 16)},
+    };
+    return m;
+}
+
 const std::map<QCDOrder, std::string>& order_mapping() {
     static const std::map<QCDOrder, std::string> m = {
         {QCDOrder::NONE, "None"},
@@ -166,6 +188,22 @@ const std::map<Decays, std::vector<Observables>>& decay_observable_mapping() {
         {Decays::B__Xs_l_l,     {Observables::BR_B__Xs_mu_mu__LOW_Q2, Observables::BR_B__Xs_mu_mu__HIGH_Q2, Observables::BR_B__Xs_tau_tau__HIGH_Q2}},
         {Decays::B__Kstar_l_l,  {Observables::TEST_B__KS_L_L}},
         {Decays::M0_Mix,        {Observables::PHI_D, Observables::DELTA_M_BD, Observables::PHI_S, Observables::DELTA_M_BS, Observables::A_FS, Observables::DELTA_M_K, Observables::ABS_EPSILON_K, Observables::X_D}},
+    };
+    return m;
+}
+
+const std::map<MassType, std::string>& masstype_mapping() {
+    static const std::map<MassType, std::string> m = {
+        {MassType::POLE,  "POLE"},
+        {MassType::MSBAR, "MSBAR"},
+    };
+    return m;
+}
+
+const std::map<ScaleType, std::string>& scaletype_mapping() {
+    static const std::map<ScaleType, std::string> m = {
+        {ScaleType::MATCHING, "EW_SCALE"},
+        {ScaleType::HADRONIC, "B_SCALE"},
     };
     return m;
 }
