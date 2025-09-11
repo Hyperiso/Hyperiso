@@ -32,7 +32,6 @@ static inline void normalize_indices(const Prototype& p,
                                      const std::vector<std::string>& line,
                                      size_t& vIdx, int& sIdx, int& rIdx)
 {
-    // value = dernière colonne si l'index prototype dépasse
     vIdx = p.valueIdx < line.size() ? p.valueIdx : (line.empty() ? 0 : line.size() - 1);
 
     sIdx = (p.scaleIdx >= 0 && static_cast<size_t>(p.scaleIdx) < line.size()) ? p.scaleIdx : -1;

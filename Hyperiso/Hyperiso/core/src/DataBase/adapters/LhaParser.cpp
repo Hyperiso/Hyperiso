@@ -198,11 +198,9 @@ std::shared_ptr<Node> LhaParser::toDBNode(std::map<BlockName, std::shared_ptr<Lh
     for (const auto& [blockName, blockPtr] : blocks) {
         auto block_node = blockPtr->toDBNode();
 
-        // Récupère le groupe des entrées (id -> Node::Value) et place-le sous root/<BlockName>
         auto group = block_node->getGroup({blockName});
         root.setGroup({blockName}, group);
 
-        // Si le bloc expose une scale globale, on la range explicitement sous root/<BlockName>/scale
         if (block_node->contains("scale")) {
             auto sval = block_node->get("scale");
             if (std::holds_alternative<double>(sval)) {

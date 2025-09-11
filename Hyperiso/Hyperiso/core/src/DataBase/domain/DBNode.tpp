@@ -71,8 +71,7 @@ static inline bool is_unsigned_number(const std::string& s) {
     return true;
 }
 
-// On suppose que Node::Value est un std::variant<...,
-//   std::shared_ptr<Node>, std::vector<std::shared_ptr<Node>>>
+
 template <typename Map, typename Key>
 Node::Value Node::getRecursive(const Map& map, Key&& key) const {
     BlockName blockKey = BlockName(std::forward<Key>(key));
@@ -82,7 +81,7 @@ Node::Value Node::getRecursive(const Map& map, Key&& key) const {
         os << "Key not found: '" << std::string(blockKey) << "'";
         throw std::runtime_error(os.str());
     }
-    return it->second; // FEUILLE => on retourne le variant tel quel
+    return it->second;
 }
 
 template <typename Map, typename Key, typename Next, typename... Rest>
@@ -95,7 +94,6 @@ Node::Value Node::getRecursive(const Map& map, Key&& key, Next&& next, Rest&&...
         throw std::runtime_error(os.str());
     }
 
-    // 1) Cas sous-noeud classique
     if (std::holds_alternative<std::shared_ptr<Node>>(it->second)) {
         auto node = std::get<std::shared_ptr<Node>>(it->second);
         if (!node) {
@@ -105,7 +103,6 @@ Node::Value Node::getRecursive(const Map& map, Key&& key, Next&& next, Rest&&...
         return node->get(std::forward<Next>(next), std::forward<Rest>(rest)...);
     }
 
-    // 2) Cas liste: on autorise l'accès par index si la "prochaine clé" est un nombre
     if (std::holds_alternative<std::vector<std::shared_ptr<Node>>>(it->second)) {
         const auto& vec = std::get<std::vector<std::shared_ptr<Node>>>(it->second);
         BlockName nextKey = BlockName(std::forward<Next>(next));
@@ -131,14 +128,12 @@ Node::Value Node::getRecursive(const Map& map, Key&& key, Next&& next, Rest&&...
             throw std::runtime_error(os.str());
         }
         if constexpr (sizeof...(Rest) == 0) {
-            // On retourne le noeud si c'est la fin du chemin
             return std::static_pointer_cast<Node>(node);
         } else {
             return node->get(std::forward<Rest>(rest)...);
         }
     }
 
-    // 3) Sinon: on ne peut pas descendre au travers d'un scalaire
     {
         std::ostringstream os;
         os << "Cannot descend through non-node value at '" << std::string(blockKey)
