@@ -163,31 +163,89 @@ void LhaParser::set_prototypes(const std::unordered_set<Prototype> &prototypes)
 // }
 
 // TODO : proposition chatGPT pour la scale
+// std::shared_ptr<Node> LhaParser::toDBNode(std::map<BlockName, std::shared_ptr<LhaBlock>> blocks) const {
+//     Node root;
+
+//     for (const auto& [blockName, blockPtr] : blocks) {
+//         auto block_node = blockPtr->toDBNode();
+
+//         // 1) Récupère le groupe d’entrées du bloc
+//         auto group = block_node->getGroup({blockName});
+
+//         // 2) Construit un sous-noeud "propre" qui contiendra:
+//         //    - les entrées du bloc
+//         //    - (optionnel) le scale global directement SOUS le block
+//         Node sub;
+//         sub.setGroup({blockName}, group);
+
+//         if (block_node->contains("scale")) {
+//             // Copie le scale global sous <BlockName>/scale
+//             auto sval = block_node->get("scale"); // Value (double généralement)
+//             sub.set(sval, blockName, "scale");
+//         }
+
+//         // 3) Pose le sous-noeud au niveau racine sous la clé <BlockName>
+//         //    On ne “flatten” plus rien : tout le contenu reste sous le block.
+//         root.set(sub.get(blockName), blockName);
+//     }
+
+//     return std::make_shared<Node>(root);
+// }
+
 std::shared_ptr<Node> LhaParser::toDBNode(std::map<BlockName, std::shared_ptr<LhaBlock>> blocks) const {
     Node root;
 
     for (const auto& [blockName, blockPtr] : blocks) {
         auto block_node = blockPtr->toDBNode();
 
-        // 1) Récupère le groupe d’entrées du bloc
+        // Récupère le groupe des entrées (id -> Node::Value) et place-le sous root/<BlockName>
         auto group = block_node->getGroup({blockName});
+        root.setGroup({blockName}, group);
 
-        // 2) Construit un sous-noeud "propre" qui contiendra:
-        //    - les entrées du bloc
-        //    - (optionnel) le scale global directement SOUS le block
-        Node sub;
-        sub.setGroup({blockName}, group);
-
+        // Si le bloc expose une scale globale, on la range explicitement sous root/<BlockName>/scale
         if (block_node->contains("scale")) {
-            // Copie le scale global sous <BlockName>/scale
-            auto sval = block_node->get("scale"); // Value (double généralement)
-            sub.set(sval, blockName, "scale");
+            auto sval = block_node->get("scale");
+            if (std::holds_alternative<double>(sval)) {
+                root.set(std::get<double>(sval), blockName, "scale");
+            } else if (std::holds_alternative<int>(sval)) {
+                root.set(static_cast<double>(std::get<int>(sval)), blockName, "scale");
+            } else {
+                LOG_WARN("Expected numeric 'scale' for block ", blockName, " but got variant index ", sval.index());
+            }
         }
-
-        // 3) Pose le sous-noeud au niveau racine sous la clé <BlockName>
-        //    On ne “flatten” plus rien : tout le contenu reste sous le block.
-        root.set(sub.get(blockName), blockName);
     }
 
     return std::make_shared<Node>(root);
 }
+
+// std::shared_ptr<Node> LhaParser::toDBNode(
+//     std::map<BlockName, std::shared_ptr<LhaBlock>> blocks) const
+// {
+//     Node root;
+
+//     for (const auto& [blockName, blockPtr] : blocks) {
+//         auto block_node = blockPtr->toDBNode();
+
+//         // 1) Récupère le groupe d’entrées id -> shared_ptr<Node> sous <BlockName>
+//         auto group = block_node->getGroup({blockName}); // map<BlockName, Node::Value>
+
+//         // 2) Pose directement ce groupe sous root/<BlockName>
+//         root.setGroup({blockName}, group);
+
+//         // 3) Si le bloc a une scale globale, copie-la explicitement (unwrapped) sous root/<BlockName>/scale
+//         if (block_node->contains("scale")) {
+//             auto sval = block_node->get("scale");  // Node::Value
+//             if (std::holds_alternative<double>(sval)) {
+//                 root.set(std::get<double>(sval), blockName, "scale");
+//             } else if (std::holds_alternative<int>(sval)) {
+//                 // au cas improbable où "scale" aurait atterri en int
+//                 root.set(static_cast<double>(std::get<int>(sval)), blockName, "scale");
+//             } else {
+//                 // Optionnel: tracer au lieu de planter
+//                 LOG_WARN("Expected numeric 'scale' for block ", blockName, " but got another type.");
+//             }
+//         }
+//     }
+
+//     return std::make_shared<Node>(root);
+// }

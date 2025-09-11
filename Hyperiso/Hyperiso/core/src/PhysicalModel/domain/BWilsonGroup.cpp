@@ -462,7 +462,7 @@ void BCoefficientGroup::add_wilson_coefficients(bool force_sm) {
         this->wilson_type = force_sm ? ContributionType::SM : ContributionType::TOTAL;
         for (auto&& coeff : {"C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9", "C10"}) {
             std::string _name = force_sm ? "SM" : MartyModelNameAPI().get();
-            fs::path _path = force_sm ? fs::path(std::string(project_tp_root.data()) + "MARTY/src/MARTY/src/marty/models/sm.h") : MartyModelPathAPI().get();
+            fs::path _path = force_sm ? fs::path(std::string(project_assets_root.data())+"input_files/marty_model/sm.h") : MartyModelPathAPI().get();
             std::string _block = GroupMapper::str(this->id, ScaleType::MATCHING);
             LhaID _id = WCoefMapper::flha_full(WCoefMapper::enum_elt(coeff), QCDOrder::LO, this->get_type());
             this->insert(std::make_pair(coeff, std::make_shared<MartyWilson>(_id, _block, _name, _path)));
@@ -510,7 +510,7 @@ void BScalarCoefficientGroup::add_wilson_coefficients(bool force_sm) {
         this->wilson_type = force_sm ? ContributionType::SM : ContributionType::TOTAL;
         for (auto&& coeff : {"CQ1", "CQ2"}) {
             std::string _name = force_sm ? "SM" : MartyModelNameAPI().get();
-            fs::path _path = force_sm ? fs::path(std::string(project_tp_root.data()) + "MARTY/src/MARTY/src/marty/models/sm.h") : MartyModelPathAPI().get();
+            fs::path _path = force_sm ? fs::path(std::string(project_assets_root.data())+"input_files/marty_model/sm.h") : MartyModelPathAPI().get();
             std::string _block = GroupMapper::str(this->id, ScaleType::MATCHING);
             LhaID _id = WCoefMapper::flha_full(WCoefMapper::enum_elt(coeff), QCDOrder::LO, this->get_type());
             this->insert(std::make_pair(coeff, std::make_shared<MartyWilson>(_id, _block, _name, _path)));
@@ -590,7 +590,7 @@ void BPrimeCoefficientGroup::add_wilson_coefficients(bool force_sm) {
         this->wilson_type = force_sm ? ContributionType::SM : ContributionType::TOTAL;
         for (auto&& coeff : {"CP1", "CP2", "CP3", "CP4", "CP5", "CP6", "CP7", "CP8", "CP9", "CP10", "CPQ1", "CPQ2"}) {
             std::string _name = force_sm ? "SM" : MartyModelNameAPI().get();
-            fs::path _path = force_sm ? fs::path(std::string(project_tp_root.data()) + "MARTY/src/MARTY/src/marty/models/sm.h") : MartyModelPathAPI().get();
+            fs::path _path = force_sm ? fs::path(std::string(project_assets_root.data())+"input_files/marty_model/sm.h") : MartyModelPathAPI().get();
             std::string _block = GroupMapper::str(this->id, ScaleType::MATCHING);
             LhaID _id = WCoefMapper::flha_full(WCoefMapper::enum_elt(coeff), QCDOrder::LO, this->get_type());
             this->insert(std::make_pair(coeff, std::make_shared<MartyWilson>(_id, _block, _name, _path)));

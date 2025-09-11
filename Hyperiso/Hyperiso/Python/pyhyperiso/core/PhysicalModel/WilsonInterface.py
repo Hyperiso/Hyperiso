@@ -116,7 +116,7 @@ if __name__ == "__main__":
             ExternalFlag.HAS_TH_OBSERVABLE_INPUT: False,
             ExternalFlag.USE_MARTY: False
         },
-        model=Model.SUSY,
+        model=Model.SM,
         mty_model_name="MSSM_UFO",
         mty_model_path=Path("/my/custom/marty/path")
     )
@@ -126,7 +126,7 @@ if __name__ == "__main__":
 
     hyp = PyHyperisoMaster()
     lha_file_path = "lha/testinput_thdm.lha" 
-    lha_file_path = "/home/theo/hyperiso/Hyperiso/Hyperiso/core/Test/InputFiles/testInput.slha"
+    # lha_file_path = "/home/theo/hyperiso/Hyperiso/Hyperiso/core/Test/InputFiles/testInput.slha"
     print("\n🚀 Calling init with config...")
     hyp.init(lha_file=lha_file_path, config=config)
     

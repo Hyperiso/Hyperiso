@@ -108,9 +108,12 @@ public:
 private:
     std::map<BlockName, Value> data_;
 
-    template <typename Key, typename... Rest>
-    static Value getRecursive(const std::map<BlockName, Value>& map, Key&& key, Rest&&... rest);
-
+    // template <typename Key, typename... Rest>
+    // static Value getRecursive(const std::map<BlockName, Value>& map, Key&& key, Rest&&... rest);
+    template <typename Map, typename Key>
+    Value getRecursive(const Map& map, Key&& key) const;
+    template <typename Map, typename Key, typename Next, typename... Rest>
+    Value getRecursive(const Map& map, Key&& key, Next&& next, Rest&&... rest) const;
     void printValue(const Value& value, int level) const;
     void printValueToStream(std::ostream& os, const Value& value, int level) const;
     void printScalarYAMLToStream(std::ostream& os, const Value& value) const;

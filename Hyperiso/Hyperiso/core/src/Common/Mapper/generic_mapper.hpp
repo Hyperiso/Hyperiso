@@ -29,6 +29,31 @@ public:
     // Explicit initialization (optional)
     static void init_builtins(){ ensure_init(); }
 
+    static EnumT enum_elt_legacy(std::string_view s){
+        auto key = nk(s);
+        for (auto& [e,name] : MapFn()) if (nk(name)==key) return e;
+        throw std::out_of_range("Unknown name: " + std::string(s));
+    }
+    
+    static std::vector<std::string> get_str(){
+        std::vector<std::string> out;
+        out.reserve(MapFn().size());
+        for (const auto& [e,name] : MapFn()) out.push_back(name);
+        return out;
+    }
+    static std::vector<EnumT> get_enum(){
+        std::vector<EnumT> out;
+        out.reserve(MapFn().size());
+        for (const auto& [e,name] : MapFn()) out.push_back(e);
+        return out;
+    }
+    static std::vector<std::string> get_str_all(){
+        ensure_init();
+        std::vector<std::string> out;
+        for (auto& id : reg().list_all()) out.push_back(id.str());
+        return out;
+    }
+
     // String to Id
     static IdOf<Tag> id_of(std::string_view s){ ensure_init(); auto r=reg().find(s); if(!r) throw std::runtime_error("unknown"); return *r; }
     static IdOf<Tag> enum_elt(std::string_view s){ return id_of(s); } // alias compat
@@ -73,6 +98,33 @@ class GenericMapperWithExt {
     }
 public:
     static void init_builtins(){ ensure_init(); }
+
+    static std::vector<std::string> get_str(){
+        std::vector<std::string> out;
+        out.reserve(MapFn().size());
+        for (const auto& [e,name] : MapFn()) out.push_back(name);
+        return out;
+    }
+    static std::vector<EnumT> get_enum(){
+        std::vector<EnumT> out;
+        out.reserve(MapFn().size());
+        for (const auto& [e,name] : MapFn()) out.push_back(e);
+        return out;
+    }
+
+    static std::vector<std::string> get_str_all(){
+        ensure_init();
+        std::vector<std::string> out;
+        for (auto& id : reg().list_all()) out.push_back(id.str());
+        return out;
+    }
+
+    static EnumT enum_elt_legacy(std::string_view s){
+        auto key = nk(s);
+        for (auto& [e,name] : MapFn()) if (nk(name)==key) return e;
+        throw std::out_of_range("Unknown name: " + std::string(s));
+    }
+
 
     // --- string -> Id
     static IdOf<Tag> id_of(std::string_view s){ ensure_init(); auto r=reg().find(s); if(!r) throw std::runtime_error("unknown"); return *r; }

@@ -32,6 +32,16 @@ public:
     }
     static std::optional<WCoefId> from_flha_key(int a,int b){ return Base::from_external({a,b}); }
 
+    static std::pair<int,int> flha_base(WCoef e){
+        return wcoef_flha_mapping().at(e);
+    }
+
+    static std::pair<int,int> flha_base(const WCoefId& id){
+        auto k = external_of(id);
+        if (!k) throw std::runtime_error("No FLHA key for " + id.str());
+        return *k; // std::pair<int,int>
+    }
+
     static LhaID flha_full(WCoef e, QCDOrder q, ContributionType c){
         auto [x,y] = wcoef_flha_mapping().at(e);
         return LhaID{x,y, int(q)-1, int(c)};

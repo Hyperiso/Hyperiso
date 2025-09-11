@@ -8,12 +8,25 @@
 #include "General.h"
 #include "Configs.h"
 
-#define BIND_ENUM_MAPPER(cls, type) \
-    py::class_<cls, std::shared_ptr<cls>>(m, #cls) \
-        .def_static("str", &cls::str, py::arg("value")) \
-        .def_static("enum_elt", &cls::enum_elt, py::arg("name")) \
-        .def_static("get_str", &cls::get_str) \
-        .def_static("get_enum", &cls::get_enum);
+// #define BIND_ENUM_MAPPER(cls, type) \
+//     py::class_<cls, std::shared_ptr<cls>>(m, #cls) \
+//         .def_static("str", &cls::str, py::arg("value")) \
+//         .def_static("enum_elt", &cls::enum_elt, py::arg("name")) \
+//         .def_static("get_str", &cls::get_str) \
+//         .def_static("get_enum", &cls::get_enum);
+
+#define BIND_ENUM_MAPPER(cls, EnumT)                                          \
+    py::class_<cls, std::shared_ptr<cls>>(m, #cls)                            \
+        /* str(EnumT) -> canonical string */                                  \
+        .def_static("str",                                                    \
+            py::overload_cast<EnumT>(&cls::str), py::arg("value"))            \
+        /* enum_elt(name) -> EnumT (legacy-like) */                           \
+        .def_static("enum_elt", &cls::enum_elt_legacy, py::arg("name"))       \
+        /* builtins lists (comme avant) */                                    \
+        .def_static("get_str",  &cls::get_str)                                \
+        .def_static("get_enum", &cls::get_enum)                               \
+        /* runtime: builtins + customs */                                     \
+        .def_static("get_str_all", &cls::get_str_all);
 
 namespace py = pybind11;
 
@@ -163,7 +176,7 @@ void init_common(py::module &m) {
     //         "mass_b_1S", &QCDHelper::mass_b_1S
     //     );
     
-    BIND_ENUM_MAPPER(ObservableMapper, Observables)
+    // BIND_ENUM_MAPPER(ObservableMapper, Observables)
     BIND_ENUM_MAPPER(OrderMapper, QCDOrder)
     // BIND_ENUM_MAPPER(GroupMapper, WGroup)
     // BIND_ENUM_MAPPER(WCoefMapper, WCoef)
@@ -175,56 +188,162 @@ void init_common(py::module &m) {
     // BIND_ENUM_MAPPER(ScaleTypeMapper, ScaleType)
     // BIND_ENUM_MAPPER(DecayMapper, Decays)
 
+    py::class_<ObservableMapper, std::shared_ptr<ObservableMapper>>(m, "ObservableMapper")
+        .def_static("str",
+            py::overload_cast<Observables>(&ObservableMapper::str),
+            py::arg("obs"))
+        .def_static("enum_elt",   &ObservableMapper::enum_elt_legacy, py::arg("name"))
+        .def_static("get_str",    &ObservableMapper::get_str)
+        .def_static("get_enum",   &ObservableMapper::get_enum)
+        .def_static("get_str_all",&ObservableMapper::get_str_all)
+
+        // runtime id/ext
+        .def_static("id_of",        &ObservableMapper::id_of,         py::arg("name"))
+        .def_static("canonical",
+            py::overload_cast<const ObservableId&>(&ObservableMapper::str),
+            py::arg("id"))
+        .def_static("from_flha",    &ObservableMapper::from_flha,     py::arg("lha"))
+
+        // ⬇️ DISAMBIGUATION: bind the "id -> LhaID" overload
+        .def_static("flha",
+            py::overload_cast<const ObservableId&>(&ObservableMapper::flha),
+            py::arg("id"));
+
+    // py::class_<WCoefMapper, std::shared_ptr<WCoefMapper>>(m, "WCoefMapper")
+    //     .def_static("str", &WCoefMapper::str, py::arg("coef"))
+    //     .def_static("enum_elt", &WCoefMapper::enum_elt, py::arg("name"))
+    //     .def_static("get_str", &WCoefMapper::get_str)
+    //     .def_static("get_enum", &WCoefMapper::get_enum)
+    //     .def_static("get_group", &WCoefMapper::get_group, py::arg("group"))
+    //     .def_static("flha_base", &WCoefMapper::flha_base, py::arg("coef"))
+    //     .def_static("flha_full", &WCoefMapper::flha_full, py::arg("coef"), py::arg("order"), py::arg("type"))
+    //     .def_static("from_flha", &WCoefMapper::from_flha, py::arg("content"), py::arg("structure"))
+    //     .def_static("n_wilsons", &WCoefMapper::n_wilsons)
+    //     .def_static("mapping", &WCoefMapper::mapping, py::return_value_policy::reference)
+    //     .def_static("inverse_mapping", &WCoefMapper::inverse_mapping, py::return_value_policy::reference)
+    //     .def_static("flha_mapping", &WCoefMapper::flha_mapping, py::return_value_policy::reference)
+    //     .def_static("inverse_flha_mapping", &WCoefMapper::inverse_flha_mapping, py::return_value_policy::reference)
+    //     .def_static("B_group", &WCoefMapper::B_group, py::return_value_policy::reference)
+    //     .def_static("B_prime_group", &WCoefMapper::B_prime_group, py::return_value_policy::reference)
+    //     .def_static("B_scalar_group", &WCoefMapper::B_scalar_group, py::return_value_policy::reference)
+    //     // .def_static("B_lnu_group", &WCoefMapper::B_lnu_group, py::return_value_policy::reference)
+    //     .def_static("b_clnu_group", &WCoefMapper::b_clnu_group, py::return_value_policy::reference);
+
     py::class_<WCoefMapper, std::shared_ptr<WCoefMapper>>(m, "WCoefMapper")
-        .def_static("str", &WCoefMapper::str, py::arg("coef"))
-        .def_static("enum_elt", &WCoefMapper::enum_elt, py::arg("name"))
-        .def_static("get_str", &WCoefMapper::get_str)
-        .def_static("get_enum", &WCoefMapper::get_enum)
-        .def_static("get_group", &WCoefMapper::get_group, py::arg("group"))
-        .def_static("flha_base", &WCoefMapper::flha_base, py::arg("coef"))
-        .def_static("flha_full", &WCoefMapper::flha_full, py::arg("coef"), py::arg("order"), py::arg("type"))
-        .def_static("from_flha", &WCoefMapper::from_flha, py::arg("content"), py::arg("structure"))
-        .def_static("n_wilsons", &WCoefMapper::n_wilsons)
-        .def_static("mapping", &WCoefMapper::mapping, py::return_value_policy::reference)
-        .def_static("inverse_mapping", &WCoefMapper::inverse_mapping, py::return_value_policy::reference)
-        .def_static("flha_mapping", &WCoefMapper::flha_mapping, py::return_value_policy::reference)
-        .def_static("inverse_flha_mapping", &WCoefMapper::inverse_flha_mapping, py::return_value_policy::reference)
-        .def_static("B_group", &WCoefMapper::B_group, py::return_value_policy::reference)
-        .def_static("B_prime_group", &WCoefMapper::B_prime_group, py::return_value_policy::reference)
-        .def_static("B_scalar_group", &WCoefMapper::B_scalar_group, py::return_value_policy::reference)
-        // .def_static("B_lnu_group", &WCoefMapper::B_lnu_group, py::return_value_policy::reference)
-        .def_static("b_clnu_group", &WCoefMapper::b_clnu_group, py::return_value_policy::reference);
+        // legacy: str(enum) + enum_elt(name)->Enum
+        .def_static("str",
+            py::overload_cast<WCoef>(&WCoefMapper::str),
+            py::arg("coef"))
+        .def_static("enum_elt",   &WCoefMapper::enum_elt_legacy, py::arg("name"))
+        .def_static("get_str",    &WCoefMapper::get_str)
+        .def_static("get_enum",   &WCoefMapper::get_enum)
+        .def_static("get_str_all",&WCoefMapper::get_str_all)
+
+        // runtime id API
+        .def_static("id_of",        &WCoefMapper::id_of,        py::arg("name"))
+        .def_static("canonical",
+            py::overload_cast<const WCoefId&>(&WCoefMapper::str),
+            py::arg("id"))
+        .def_static("from_external",&WCoefMapper::from_external,py::arg("flha_pair"))
+        .def_static("external_of",  &WCoefMapper::external_of,  py::arg("id"))
+        .def_static("register_custom",
+            [](const std::string& canon, const std::vector<std::string>& aliases, std::pair<int,int> flha){
+                return WCoefMapper::register_custom(canon, aliases, flha);
+            },
+            py::arg("canonical"), py::arg("aliases") = std::vector<std::string>{}, py::arg("flha"))
+
+        // groupes legacy
+        .def_static("get_group",        &WCoefMapper::get_group,        py::arg("group"))
+        .def_static("B_group",          &WCoefMapper::B_group,          py::return_value_policy::reference)
+        .def_static("B_prime_group",    &WCoefMapper::B_prime_group,    py::return_value_policy::reference)
+        .def_static("B_scalar_group",   &WCoefMapper::B_scalar_group,   py::return_value_policy::reference)
+        .def_static("b_clnu_group",     &WCoefMapper::b_clnu_group,     py::return_value_policy::reference)
+
+        // FLHA legacy — ⬇️ DEUX overloads, on les disambiguë
+        .def_static("flha_base",
+            py::overload_cast<WCoef>(&WCoefMapper::flha_base),
+            py::arg("coef"))
+        .def_static("flha_base",
+            py::overload_cast<const WCoefId&>(&WCoefMapper::flha_base),
+            py::arg("id"));
+
+
+
+    // py::class_<GroupMapper, std::shared_ptr<GroupMapper>>(m, "GroupMapper")
+    //     .def_static(
+    //         "str",
+    //         static_cast<std::string(*)(WGroup)>(&GroupMapper::str),
+    //         py::arg("group")
+    //     )
+    //     .def_static(
+    //         "str",
+    //         static_cast<std::string(*)(WGroup, ScaleType, WilsonBasis)>(&GroupMapper::str),
+    //         py::arg("group"), py::arg("scale"), py::arg("basis") = WilsonBasis::B_STANDARD
+    //     )
+    //     .def_static("enum_elt", &GroupMapper::enum_elt, py::arg("name"))
+    //     .def_static("get_str", &GroupMapper::get_str)
+    //     .def_static("get_enum", &GroupMapper::get_enum);
 
     py::class_<GroupMapper, std::shared_ptr<GroupMapper>>(m, "GroupMapper")
-        .def_static(
-            "str",
-            static_cast<std::string(*)(WGroup)>(&GroupMapper::str),
-            py::arg("group")
-        )
-        .def_static(
-            "str",
-            static_cast<std::string(*)(WGroup, ScaleType, WilsonBasis)>(&GroupMapper::str),
-            py::arg("group"), py::arg("scale"), py::arg("basis") = WilsonBasis::B_STANDARD
-        )
-        .def_static("enum_elt", &GroupMapper::enum_elt, py::arg("name"))
-        .def_static("get_str", &GroupMapper::get_str)
-        .def_static("get_enum", &GroupMapper::get_enum);
+        // str(enum) et str(enum, scale, basis)
+        .def_static("str", py::overload_cast<WGroup>(&GroupMapper::str), py::arg("group"))
+        .def_static("str", py::overload_cast<WGroup, ScaleType, WilsonBasis>(&GroupMapper::str),
+                    py::arg("group"), py::arg("scale"), py::arg("basis") = WilsonBasis::B_STANDARD)
+
+        // legacy enum_elt(name)->WGroup + listes
+        .def_static("enum_elt",     &GroupMapper::enum_elt_legacy,  py::arg("name"))
+        .def_static("get_str",      &GroupMapper::get_str)
+        .def_static("get_enum",     &GroupMapper::get_enum)
+        .def_static("get_str_all",  &GroupMapper::get_str_all)
+
+        // (optionnel) runtime id API
+        .def_static("id_of",     &GroupMapper::id_of,     py::arg("name"))
+        .def_static("canonical", py::overload_cast<const WGroupId&>(&GroupMapper::str), py::arg("id"));
+
+
+    // py::class_<ScaleTypeMapper, std::shared_ptr<ScaleTypeMapper>>(m, "ScaleTypeMapper")
+    //     .def_static("str", &ScaleTypeMapper::str, py::arg("type"))
+    //     .def_static("enum_elt", &ScaleTypeMapper::enum_elt, py::arg("name"))
+    //     .def_static("get_str", &ScaleTypeMapper::get_str)
+    //     .def_static("get_enum", &ScaleTypeMapper::get_enum)
+    //     .def_static("block", &ScaleTypeMapper::block, py::arg("type"));
 
     py::class_<ScaleTypeMapper, std::shared_ptr<ScaleTypeMapper>>(m, "ScaleTypeMapper")
-        .def_static("str", &ScaleTypeMapper::str, py::arg("type"))
-        .def_static("enum_elt", &ScaleTypeMapper::enum_elt, py::arg("name"))
-        .def_static("get_str", &ScaleTypeMapper::get_str)
-        .def_static("get_enum", &ScaleTypeMapper::get_enum)
-        .def_static("block", &ScaleTypeMapper::block, py::arg("type"));
+        .def_static("str",        py::overload_cast<ScaleType>(&ScaleTypeMapper::str), py::arg("type"))
+        .def_static("enum_elt",   &ScaleTypeMapper::enum_elt_legacy, py::arg("name"))
+        .def_static("get_str",    &ScaleTypeMapper::get_str)
+        .def_static("get_enum",   &ScaleTypeMapper::get_enum)
+        .def_static("get_str_all",&ScaleTypeMapper::get_str_all)
+        .def_static("block",      &ScaleTypeMapper::block, py::arg("type"))
+        // (optionnel) runtime id:
+        .def_static("id_of",      &ScaleTypeMapper::id_of, py::arg("name"))
+        .def_static("canonical",  py::overload_cast<const ScaleTypeId&>(&ScaleTypeMapper::str), py::arg("id"));
+
+    // py::class_<DecayMapper, std::shared_ptr<DecayMapper>>(m, "DecayMapper")
+    //     .def_static("str", &DecayMapper::str, py::arg("type"))
+    //     .def_static("enum_elt", &DecayMapper::enum_elt, py::arg("name"))
+    //     .def_static("get_str", &DecayMapper::get_str)
+    //     .def_static("get_enum", &DecayMapper::get_enum)
+    //     .def_static("get_observables", &DecayMapper::get_observables, py::arg("decay"))
+    //     .def_static("get_decay", &DecayMapper::get_decay, py::arg("observable"));
 
     py::class_<DecayMapper, std::shared_ptr<DecayMapper>>(m, "DecayMapper")
-        .def_static("str", &DecayMapper::str, py::arg("type"))
-        .def_static("enum_elt", &DecayMapper::enum_elt, py::arg("name"))
-        .def_static("get_str", &DecayMapper::get_str)
-        .def_static("get_enum", &DecayMapper::get_enum)
-        .def_static("get_observables", &DecayMapper::get_observables, py::arg("decay"))
-        .def_static("get_decay", &DecayMapper::get_decay, py::arg("observable"));
+        .def_static("str",        py::overload_cast<Decays>(&DecayMapper::str), py::arg("type"))
+        .def_static("enum_elt",   &DecayMapper::enum_elt_legacy, py::arg("name"))
+        .def_static("get_str",    &DecayMapper::get_str)
+        .def_static("get_enum",   &DecayMapper::get_enum)
+        .def_static("get_str_all",&DecayMapper::get_str_all)
 
+        // métier (comme avant)
+        .def_static("get_observables", &DecayMapper::get_observables, py::arg("decay"))
+        .def_static("get_decay",       &DecayMapper::get_decay,       py::arg("observable"))
+
+        // (optionnel) runtime id/ext
+        .def_static("id_of",        &DecayMapper::id_of,         py::arg("name"))
+        .def_static("canonical",    py::overload_cast<const DecayId&>(&DecayMapper::str), py::arg("id"))
+        .def_static("from_external",&DecayMapper::from_external, py::arg("lha"))
+        .def_static("external_of",  &DecayMapper::external_of,   py::arg("id"))
+        .def_static("set_external", &DecayMapper::set_external,  py::arg("id"), py::arg("lha"));
  
     py::class_<LhaID>(m, "LhaID")
     .def(py::init<const std::string&>(), py::arg("parts"))

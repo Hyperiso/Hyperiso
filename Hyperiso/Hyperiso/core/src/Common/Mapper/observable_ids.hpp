@@ -52,7 +52,7 @@ public:
 
     static std::optional<ObservableId> from_flha(const LhaID& ext){ return from_external(ext); }
     static std::optional<LhaID>        flha_of(const ObservableId& id){ return external_of(id); }
-
+    static LhaID        flha(const Observables& id){ return observable_mapping().at(id); }
     static bool register_custom(const std::string& canonical,
                                 std::vector<std::string> aliases = {},
                                 std::optional<LhaID> ext = std::nullopt,
@@ -65,6 +65,16 @@ public:
         }
         return ok;
     }
+
+    static LhaID flha(const ObservableId& id){
+        auto k = flha_of(id);
+        if (!k) throw std::runtime_error("Observable has no FLHA: " + id.str());
+        return *k;
+    }
+
+    // static LhaID flha(Observables e){
+    //     return observable_flha_mapping().at(e);
+    // }
 
     static bool register_custom(const std::string& canonical,
                                 std::vector<std::string> aliases,
