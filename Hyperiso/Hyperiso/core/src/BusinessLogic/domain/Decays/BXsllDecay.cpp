@@ -375,19 +375,6 @@ scalar_t BXsllDecay::F_29(double s) {
     return lerp(s, F_29_lookup);
 }
 
-scalar_t BXsllDecay::F_87(double s, double L_b) {
-    return 4.*PI2/27.*(2.+s)/pow(1.-s,4.)-4./9.*(11.-16.*s+8.*s*s)/(1.-s)/(1.-s)
-	-8./9.*sqrt(s)*sqrt(4.-s)/pow(1.-s,3.)*(9.-5.*s+2.*s*s)*asin(sqrt(s)/2.)
-	-16./3.*(2.+s)/pow(1.-s,4.)*pow(asin(sqrt(s)/2.),2.)
-	-8.*s/9./(1.-s)*log(s)-32./9.*L_b-I*8./9.*PI;
-}
-
-scalar_t BXsllDecay::F_89(double s) {
-    return -8.*PI2/27.*(4.-s)/pow(1.-s,4.)+8./9.*(5.-2.*s)/(1.-s)/(1.-s)
-	+16./9.*sqrt(4.-s)/sqrt(s)/pow(1.-s,3.)*(4.+3.*s-s*s)*asin(sqrt(s)/2.)
-	+32./3.*(4.-s)/pow(1.-s,4.)*pow(asin(sqrt(s)/2.),2.)+16./9./(1.-s)*log(s);
-}
-
 scalar_t BXsllDecay::C7_new_base(double s, double alpha_s_mu_b, double L_mu, bool prime) {
     auto C_0 = prime ? BPrime_FR_wilson_cache_LO : B_FR_wilson_cache_LO;
     auto C7_eff = prime ? BPrime_FR_wilson_cache[WCoef::CP7] : B_FR_wilson_cache[WCoef::C7];
@@ -396,9 +383,9 @@ scalar_t BXsllDecay::C7_new_base(double s, double alpha_s_mu_b, double L_mu, boo
     LOG_INFO("sigma_7 =", sigma_7(s, L_mu));
     LOG_INFO("F_17 =", F_17(s));
     LOG_INFO("F_27 =", F_27(s));
-    LOG_INFO("F_87 =", F_87(s, L_mu));
+    LOG_INFO("F_87 =", f_87(s, L_mu));
     return (1.+alpha_s_mu_b/PI*sigma_7(s, L_mu))*C7_eff
-	-alpha_s_mu_b/4./PI*(C_0.at(prime ? WCoef::CP1 :WCoef::C1)*F_17(s)+C_0.at(prime ? WCoef::CP2 :WCoef::C2)*F_27(s)+C_0.at(prime ? WCoef::CP8 :WCoef::C8)*F_87(s, L_mu));
+	-alpha_s_mu_b/4./PI*(C_0.at(prime ? WCoef::CP1 :WCoef::C1)*F_17(s)+C_0.at(prime ? WCoef::CP2 :WCoef::C2)*F_27(s)+C_0.at(prime ? WCoef::CP8 :WCoef::C8)*f_87(s, L_mu));
 }
 
 scalar_t BXsllDecay::C9_new_base(double s, double alpha_s_mu_b, double L_mu, double mc_hat, double inv_alpha_em, double m_D_hat, double m_b, bool prime)
@@ -406,7 +393,7 @@ scalar_t BXsllDecay::C9_new_base(double s, double alpha_s_mu_b, double L_mu, dou
     if (abs(s - 1) < 1e-6) s = 1;
     auto C_0 = prime ? BPrime_FR_wilson_cache_LO : B_FR_wilson_cache_LO;
     return (1.+alpha_s_mu_b/PI*sigma_9(s))*C9_eff_base(s, L_mu, mc_hat, inv_alpha_em, m_D_hat, m_b, this->w_config.order, prime)
-	        -alpha_s_mu_b/4./PI*(C_0.at(prime ? WCoef::CP1 :WCoef::C1)*F_19(s)+C_0.at(prime ? WCoef::CP2 :WCoef::C2)*F_29(s)+C_0.at(prime ? WCoef::CP8 :WCoef::C8)*F_89(s));
+	        -alpha_s_mu_b/4./PI*(C_0.at(prime ? WCoef::CP1 :WCoef::C1)*F_19(s)+C_0.at(prime ? WCoef::CP2 :WCoef::C2)*F_29(s)+C_0.at(prime ? WCoef::CP8 :WCoef::C8)*f_89(s));
 }
 
 scalar_t BXsllDecay::C10_new_base(double s, double alpha_s_mu_b, bool prime) {
@@ -844,36 +831,32 @@ void BXsllDecay::build_op_tree() {
 
     auto C9_eff_lookup = std::make_shared<OperatorNode>("C9_eff_LO_lookup", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { 
         auto bound_func = std::bind(&BXsllDecay::C9_eff_base, &*this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, std::placeholders::_6, std::placeholders::_7, std::placeholders::_8);
-        fill_cache(bound_func, C9_eff_LO_lookup, values[0], values[1], values[2], values[3], values[4], QCDOrder::LO, false); 
-        fill_cache(bound_func, CP9_eff_LO_lookup, values[0], values[1], values[2], values[3], values[4], QCDOrder::LO, true); 
+        fill_cache(bound_func, 0, 1, C9_eff_LO_lookup, values[0], values[1], values[2], values[3], values[4], QCDOrder::LO, false); 
+        fill_cache(bound_func, 0, 1, CP9_eff_LO_lookup, values[0], values[1], values[2], values[3], values[4], QCDOrder::LO, true); 
         return 0; 
     });
     C9_eff_lookup->addChildren({L_b, m_c_hat, inv_alpha_em, m_D_hat, m_b_1S, wilson_cache});
 
     auto n_f_17_lookup = std::make_shared<OperatorNode>("f_17_lookup", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { 
-        auto bound_func = std::bind(&BXsllDecay::f_17, &*this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4);
-        fill_cache(bound_func, F_17_lookup, 0., 0.0625, FF_ORDER); 
+        fill_cache(f_17, 0, 1, F_17_lookup, 0., 0.0625, FF_ORDER);
         return 0; 
     });
     n_f_17_lookup->addChildren({L_b, z});
 
     auto n_f_27_lookup = std::make_shared<OperatorNode>("f_27_lookup", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) {
-        auto bound_func = std::bind(&BXsllDecay::f_27, &*this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4);
-        fill_cache(bound_func, F_27_lookup, 0., 0.0625, FF_ORDER); 
+        fill_cache(f_27, 0, 1, F_27_lookup, 0., 0.0625, FF_ORDER);
         return 0; 
     });
     n_f_27_lookup->addChildren({L_b, z});
 
     auto n_f_19_lookup = std::make_shared<OperatorNode>("f_19_lookup", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { 
-        auto bound_func = std::bind(&BXsllDecay::f_19, &*this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4);
-        fill_cache(bound_func, F_19_lookup, 0., 0.0625, FF_ORDER); 
+        fill_cache(f_19_pole, 0, 1, F_19_lookup, 0., 0.0625, FF_ORDER);
         return 0; 
     });
     n_f_19_lookup->addChildren({L_b, z});
 
     auto n_f_29_lookup = std::make_shared<OperatorNode>("f_29_lookup", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { 
-        auto bound_func = std::bind(&BXsllDecay::f_29, &*this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4);
-        fill_cache(bound_func, F_29_lookup, 0., 0.0625, FF_ORDER); 
+        fill_cache(f_29_pole, 0, 1, F_29_lookup, 0., 0.0625, FF_ORDER);
         return 0; 
     });
     n_f_29_lookup->addChildren({L_b, z});
@@ -904,8 +887,8 @@ void BXsllDecay::build_op_tree() {
 
     auto n_delta_brems_B_lookup = std::make_shared<OperatorNode>("delta_brems_B_lookup", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { 
         auto bound_func = std::bind(&BXsllDecay::delta_bremB_base, &*this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4);
-        fill_cache(bound_func, delta_brems_lookup_low, values[0], q2_low_bound.first / pow(values[1], 2), q2_low_bound.second / pow(values[1], 2));
-        fill_cache(bound_func, delta_brems_lookup_high, values[0], q2_high_bound.first / pow(values[1], 2), q2_high_bound.second / pow(values[1], 2)); 
+        fill_cache(bound_func, 0, 1, delta_brems_lookup_low, values[0], q2_low_bound.first / pow(values[1], 2), q2_low_bound.second / pow(values[1], 2));
+        fill_cache(bound_func, 0, 1, delta_brems_lookup_high, values[0], q2_high_bound.first / pow(values[1], 2), q2_high_bound.second / pow(values[1], 2)); 
         return 0; 
     });
     n_delta_brems_B_lookup->addChildren({z, m_b_1S, wilson_cache});

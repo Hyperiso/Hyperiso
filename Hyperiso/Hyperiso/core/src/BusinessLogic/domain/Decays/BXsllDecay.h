@@ -107,28 +107,10 @@ protected:
     scalar_t C9_eff_base(double s, double L_mu, double mc_hat, double inv_alpha_em, double m_D_hat, double m_b, QCDOrder order, bool prime);
     scalar_t C9_eff_LO(double s, bool prime);
     
-    double f_17_re(double s, double L_b, double z, size_t max_pow=20);
-    double f_27_re(double s, double L_b, double z, size_t max_pow=20);
-    double f_19_re(double s, double L_b, double z, size_t max_pow=20);
-    double f_29_re(double s, double L_b, double z, size_t max_pow=20);
-    double delta_f_19_re(double s, double L_b, double z, size_t max_pow=20);
-    double delta_f_29_re(double s, double L_b, double z, size_t max_pow=20);
-    double f_17_im(double s, double L_b, double z, size_t max_pow=20);
-    double f_27_im(double s, double L_b, double z, size_t max_pow=20);
-    double f_19_im(double s, double L_b, double z, size_t max_pow=20);
-    double f_29_im(double s, double L_b, double z, size_t max_pow=20);
-    double delta_f_19_im(double s, double L_b, double z, size_t max_pow=20);
-    double delta_f_29_im(double s, double L_b, double z, size_t max_pow=20);
-    scalar_t f_17(double s, double L_b, double z, size_t max_pow=20);
-    scalar_t f_27(double s, double L_b, double z, size_t max_pow=20);
-    scalar_t f_19(double s, double L_b, double z, size_t max_pow=20);
-    scalar_t f_29(double s, double L_b, double z, size_t max_pow=20);
     scalar_t F_17(double s);
     scalar_t F_27(double s);
     scalar_t F_19(double s);
     scalar_t F_29(double s);
-    scalar_t F_87(double s, double L_b);
-    scalar_t F_89(double s);
 
     scalar_t C7_new_base(double s, double alpha_s_mu_b, double L_mu, bool prime);
     scalar_t C9_new_base(double s, double alpha_s_mu_b, double L_mu, double mc_hat, double inv_alpha_em, double m_D_hat, double m_b, bool prime);

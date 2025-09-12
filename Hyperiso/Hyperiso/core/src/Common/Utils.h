@@ -93,21 +93,25 @@ operator<<(std::ostream& os, const Map& m) {
 }
 
 template <typename T, std::size_t cache_size, typename Func, typename... Args>
-void fill_cache(Func&& f, std::array<T, cache_size>& cache, Args&&... args) {
-    cache[0] = f(T(nld.epsilon()), std::forward<Args>(args)...);
+void fill_cache(Func&& f, double a, double b, std::array<T, cache_size>& cache, Args&&... args) {
+    double x_0 = (b - a) * nld.epsilon() + a;
+    cache[0] = f(T(x_0), std::forward<Args>(args)...);
     for (std::size_t i = 1; i < cache_size - 1; ++i) {
         double s = static_cast<double>(i) / static_cast<double>(cache_size - 1);
-        cache[i] = f(T(s), std::forward<Args>(args)...);
+        double x = (b - a) * s + a;
+        cache[i] = f(T(x), std::forward<Args>(args)...);
     }
-    cache[cache_size - 1] = f(T(1. - nld.epsilon()), std::forward<Args>(args)...);
+    double x_1 = (b - a) * (1. - nld.epsilon()) + a;
+    cache[cache_size - 1] = f(T(x_1), std::forward<Args>(args)...);
 }
 
 template <typename T, typename U, std::size_t cache_size>
-T lerp(U s, const std::array<T, cache_size>& lookup)
+T lerp(U x, const std::array<T, cache_size>& lookup, double a=0.0, double b=1.0)
 {
     // Clamp s ∈ [0, 1]
-    double x = std::clamp(static_cast<double>(s), 0.0, 1.0);
-    double scaled = x * (cache_size - 1);
+    x = std::clamp(static_cast<double>(x), a, b);
+    double u = (x - a) / (b - a);
+    double scaled = u * (cache_size - 1);
     std::size_t i = static_cast<std::size_t>(std::floor(scaled));
     
     if (i >= cache_size - 1) {

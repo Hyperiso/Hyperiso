@@ -61,8 +61,8 @@ void ModelEvaluator::update_exp_covariance() {
                 exp_cov_mtx.insert_or_assign(pair_id, var);
             } else {
                 double corr = cp(id_1, id_2, CorrelationProvider::CorrelationType::COMBINED);
-                scalar_t sigma_1 = opp("FOBS", ObservableMapper::flha(id_1), DataType::STD_COMBINED);
-                scalar_t sigma_2 = opp("FOBS", ObservableMapper::flha(id_2), DataType::STD_COMBINED);
+                scalar_t sigma_1 = opp("FOBS", ObservableMapper::flha_of(ObservableMapper::to_id(id_1)).value(), DataType::STD_COMBINED);
+                scalar_t sigma_2 = opp("FOBS", ObservableMapper::flha_of(ObservableMapper::to_id(id_2)).value(), DataType::STD_COMBINED);
                 exp_cov_mtx.insert_or_assign(pair_id, corr * sigma_1 * sigma_2);
             }
         }

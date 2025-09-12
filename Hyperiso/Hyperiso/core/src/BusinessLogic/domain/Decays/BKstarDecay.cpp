@@ -1,4 +1,5 @@
 #include "BKstarDecay.h"
+#include "BKsllDecay.h"
 
 double BKstarDecay::alpha_s(double mu) {
     return QCDHelper::alpha_s(mu); 
@@ -29,7 +30,7 @@ double BKstarDecay::a_n_par(int n, double a_1_gev, double beta_0, double eta) {
 }
 
 double BKstarDecay::lambda_B(double lam_B_1_gev, double mu_h, double alpha_s_mu_h) {
-    return lam_B_1_gev / (1 - alpha_s_mu_h * log(pow(mu_h, 2)) * 1.8 / (3 * PI));;
+    return lam_B_1_gev / (1 - alpha_s_mu_h * log(pow(mu_h, 2)) * 1.8 / (3 * PI));
 }
 
 double BKstarDecay::f_Ks_perp(double f_1_gev, double beta_0, double eta) {
@@ -80,7 +81,8 @@ double BKstarDecay::F_perp(double a1, double a2) {
     return 1 + a1 + a2;
 }
 
-scalar_t BKstarDecay::G_perp(double s, double a1, double a2) {
+scalar_t BKstarDecay::G_perp(double s, double a1, double a2)
+{
     auto iG_perp = [this, s, a1, a2] (double x) {
         double xbar = 1 - x;
         return phi_perp(a1, a2, x) * G(s, xbar) / (3 * xbar);
