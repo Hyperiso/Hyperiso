@@ -327,6 +327,10 @@ double BKstarllDecay::xi_par(double q2, double m_B, double m_K) {
 }
 
 double BKstarllDecay::F_perp(double s) {
+
+    if (s <= 0.0) {
+        return 1.0 + cache.a_1_perp + 2.0 * cache.a_2_perp;
+    } //TODO : check this
     double d = s - 1;
     double d2 = d * d;
     double d3 = d2 * d;
@@ -1015,6 +1019,9 @@ void BKstarllDecay::build_op_tree() {
         double f_B = values[4];
         double f_K_par = values[5];
         
+        const double q2_min = values[6]; //TODO : THEO
+        const double q2_high = values[7];//TODO : THEO
+
         std::ofstream fs;
         fs.open("B_Ksll_J.csv");
         fs << "q2,J1s,J1c,J2s,J2c,J3,J4,J5,J6s,J6c,J7,J8,J9\n";
@@ -1037,8 +1044,12 @@ void BKstarllDecay::build_op_tree() {
         };
 
         size_t n = 200;
-        double dq2 = (values[6] - cache.q2_min) / n;
-        double q2 = cache.q2_min;
+        double dq2 = (values[7] - values[6]) / n; //TODO : THEO
+        const double eps = 1e-12; //TODO : THEO
+        const double q2_start = std::max(q2_min, eps); //TODO : THEO
+        // double q2 = cache.q2_min;
+        double q2 = values[6]; //TODO : THEO
+        q2 = q2_start; //TODO : THEO
         for (size_t i = 0; i <= n; i++) {
             write_line(q2);
             q2 += dq2;
@@ -1046,7 +1057,7 @@ void BKstarllDecay::build_op_tree() {
 
         return 0; 
     });
-    test_J->addChildren({m_B, m_Ks, m_l, m_s, f_B, f_K_par, q2_high, m_b_PS, m_b_mu_b, alpha_s_mu_b, C_F, N_c, lambda_B_p, test_ff, T_perp_p_cache, T_perp_m_cache, T_par_m_cache});
+    test_J->addChildren({m_B, m_Ks, m_l, m_s, f_B, f_K_par, q2_min,q2_high, m_b_PS, m_b_mu_b, alpha_s_mu_b, C_F, N_c, lambda_B_p, test_ff, T_perp_p_cache, T_perp_m_cache, T_par_m_cache});
 
     roots.emplace(Observables::TEST_B__KS_L_L, test_J);
 }
