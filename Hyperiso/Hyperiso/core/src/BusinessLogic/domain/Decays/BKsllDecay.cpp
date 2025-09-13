@@ -330,7 +330,7 @@ double BKstarllDecay::F_perp(double s) {
 
     if (s <= 0.0) {
         return 1.0 + cache.a_1_perp + 2.0 * cache.a_2_perp;
-    } //TODO : check this
+    } //TODO : THEO
     double d = s - 1;
     double d2 = d * d;
     double d3 = d2 * d;
@@ -1046,10 +1046,12 @@ void BKstarllDecay::build_op_tree() {
         size_t n = 200;
         double dq2 = (values[7] - values[6]) / n; //TODO : THEO
         const double eps = 1e-12; //TODO : THEO
-        const double q2_start = std::max(q2_min, eps); //TODO : THEO
+        const double q2_thr = 4.0 * m_l * m_l + eps; //TODO : THEO
+        const double q2_start = std::max(q2_min, q2_thr); //TODO : THEO
         // double q2 = cache.q2_min;
         double q2 = values[6]; //TODO : THEO
         q2 = q2_start; //TODO : THEO
+
         for (size_t i = 0; i <= n; i++) {
             write_line(q2);
             q2 += dq2;
