@@ -100,6 +100,6 @@
 #include <ostream>
 
 inline std::ostream& operator<<(std::ostream& os, const Observables& oid) {
-    os << ObservableMapper::str(to_id(oid));
+    os << ObservableMapper::str(oid);
     return os;
 }

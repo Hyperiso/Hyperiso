@@ -9,7 +9,9 @@ add_library(CommonLib STATIC
     Logger.cpp
     General.cpp
     Observer.cpp
-    Mapper/Map.cpp)
+    DependenciesHelper.cpp
+    Mapper/Map.cpp
+    Mapper/observable_ids.cpp)
 
 set_target_properties(CommonLib PROPERTIES POSITION_INDEPENDENT_CODE ON)
 # set_target_properties(CommonLib PROPERTIES PUBLIC_HEADER "Logger.h;General.h;Utils.h")

@@ -3,7 +3,7 @@
 void HyperisoMaster::init(const std::string &lhaFile, Config config) {
     std::shared_ptr<ParamBlockLoader> pbl = std::make_shared<ParamBlockLoader>();
     std::shared_ptr<CorrelationLoader<ParamId>> cl_param = std::make_shared<CorrelationLoader<ParamId>>();
-    std::shared_ptr<CorrelationLoader<Observables>> cl_obs = std::make_shared<CorrelationLoader<Observables>>();
+    std::shared_ptr<CorrelationLoader<ObservableId>> cl_obs = std::make_shared<CorrelationLoader<ObservableId>>();
     MemoryManager::GetInstance()->init(lhaFile, std::move(config), pbl, cl_param, cl_obs);
 }
 

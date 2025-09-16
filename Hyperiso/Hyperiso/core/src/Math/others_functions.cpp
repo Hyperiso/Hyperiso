@@ -10779,14 +10779,20 @@ scalar_t f_29_pole(double s, double L_b, double z, size_t max_pow) {
 }
 
 scalar_t f_87(double s, double L_b) {
-    return 4.*PI2/27.*(2.+s)/pow(1.-s,4.)-4./9.*(11.-16.*s+8.*s*s)/(1.-s)/(1.-s)
+   if (std::abs(1 - s) < 5e-3)
+      return -32. / 9 * L_b - 94. / 27. + 148 * std::sqrt(3) * PI / 405 + s * (1 - 58 * std::sqrt(3) * PI / 405) - 8. * PI / 9. * I;
+
+   return 4.*PI2/27.*(2.+s)/pow(1.-s,4.)-4./9.*(11.-16.*s+8.*s*s)/(1.-s)/(1.-s)
 	-8./9.*sqrt(s)*sqrt(4.-s)/pow(1.-s,3.)*(9.-5.*s+2.*s*s)*asin(sqrt(s)/2.)
 	-16./3.*(2.+s)/pow(1.-s,4.)*pow(asin(sqrt(s)/2.),2.)
 	-8.*s/9./(1.-s)*log(s)-32./9.*L_b-I*8./9.*PI;
 }
 
 scalar_t f_89(double s) {
-    return -8.*PI2/27.*(4.-s)/pow(1.-s,4.)+8./9.*(5.-2.*s)/(1.-s)/(1.-s)
+   if (std::abs(1 - s) < 5e-3)
+      return -128. / 27. + 16 * std::sqrt(3) * PI / 45 + s * (2 - 28 * std::sqrt(3) * PI / 135);
+
+   return -8.*PI2/27.*(4.-s)/pow(1.-s,4.)+8./9.*(5.-2.*s)/(1.-s)/(1.-s)
 	+16./9.*sqrt(4.-s)/sqrt(s)/pow(1.-s,3.)*(4.+3.*s-s*s)*asin(sqrt(s)/2.)
 	+32./3.*(4.-s)/pow(1.-s,4.)*pow(asin(sqrt(s)/2.),2.)+16./9./(1.-s)*log(s);
 }

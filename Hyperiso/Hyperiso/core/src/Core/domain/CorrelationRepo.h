@@ -12,6 +12,7 @@
 
 #include "Math.h"
 #include "General.h"
+#include "Include.h"
 
 /**
  * @struct CorrelationMatrixPair
@@ -94,6 +95,15 @@ public:
     std::pair<double, double> get_correlation(Observables o1, Observables o2) const;
 
     /**
+     * @brief Retrieves the correlation between two observables.
+     *
+     * @param o1 First observable.
+     * @param o2 Second observable.
+     * @return A pair containing (statistical correlation, systematic correlation).
+     */
+    std::pair<double, double> get_correlation(ObservableId o1, ObservableId o2) const;
+
+    /**
      * @brief Computes the combined correlation (hypotenuse) between two entities.
      *
      * @tparam T The type of entity (ParamId or Observables).
@@ -119,7 +129,7 @@ public:
      *
      * @param correlation_matrix Shared pointer to the observable correlation matrices.
      */
-    void set_correlation_matrix(std::shared_ptr<CorrelationMatrixPair<Observables>> correlation_matrix);
+    void set_correlation_matrix(std::shared_ptr<CorrelationMatrixPair<ObservableId>> correlation_matrix);
 
     /**
      * @brief Merges a new correlation matrix into the existing parameter correlations.
@@ -137,7 +147,7 @@ public:
      *
      * @param correlation_matrix Shared pointer to the new observable correlation matrix.
      */
-    void merge_correlation_matrix(std::shared_ptr<CorrelationMatrixPair<Observables>> correlation_matrix);
+    void merge_correlation_matrix(std::shared_ptr<CorrelationMatrixPair<ObservableId>> correlation_matrix);
 
     /**
      * @brief Prints the current content of parameter and observable correlations.
@@ -146,7 +156,7 @@ public:
 
 private:
     std::shared_ptr<CorrelationMatrixPair<ParamId>> parameter_correlations;         ///< Parameter correlation matrices.
-    std::shared_ptr<CorrelationMatrixPair<Observables>> observable_correlations;    ///< Observable correlation matrices.
+    std::shared_ptr<CorrelationMatrixPair<ObservableId>> observable_correlations;    ///< Observable correlation matrices.
 };
 
 #endif // CORRELATIONREPO_H

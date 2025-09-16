@@ -8,6 +8,11 @@ double CorrelationProvider::operator()(const Observables &oid_1, const Observabl
     return get_correlation(oid_1, oid_2, type);
 }
 
+double CorrelationProvider::operator()(const ObservableId &oid_1, const ObservableId &oid_2, CorrelationType type) {
+    return get_correlation(oid_1, oid_2, type);
+}
+
+
 template <typename T>
 inline double CorrelationProvider::get_correlation(const T &id_1, const T &id_2, CorrelationType type) const {
     if (id_1 == id_2) {

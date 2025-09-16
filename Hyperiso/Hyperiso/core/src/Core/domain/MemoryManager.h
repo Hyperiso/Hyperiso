@@ -79,7 +79,7 @@ private:
      * @param param_corr Pointer to the DataLoader to use to get parameters correlations from default inputs (JSON).
      * @param obs_corr Pointer to the DataLoader to use to get observables correlations from default inputs (JSON).
      */
-    void read_default_input(std::shared_ptr<IDataLoader<BlockAccessor>> loader, std::shared_ptr<IDataLoader<CorrelationMatrixPair<ParamId>>> param_corr, std::shared_ptr<IDataLoader<CorrelationMatrixPair<Observables>>> obs_corr);
+    void read_default_input(std::shared_ptr<IDataLoader<BlockAccessor>> loader, std::shared_ptr<IDataLoader<CorrelationMatrixPair<ParamId>>> param_corr, std::shared_ptr<IDataLoader<CorrelationMatrixPair<ObservableId>>> obs_corr);
 
     /**
      * @brief Reads and loads user-specific input files (overrides or complements defaults).
@@ -90,7 +90,7 @@ private:
      * @param param_corr Pointer to the DataLoader to use to get parameters correlations from user inputs (YAML).
      * @param obs_corr Pointer to the DataLoader to use to get observables correlations from user inputs (YAML).
      */
-    void read_user_input(std::shared_ptr<IDataLoader<BlockAccessor>> loader, std::shared_ptr<IDataLoader<CorrelationMatrixPair<ParamId>>> param_corr, std::shared_ptr<IDataLoader<CorrelationMatrixPair<Observables>>> obs_corr);
+    void read_user_input(std::shared_ptr<IDataLoader<BlockAccessor>> loader, std::shared_ptr<IDataLoader<CorrelationMatrixPair<ParamId>>> param_corr, std::shared_ptr<IDataLoader<CorrelationMatrixPair<ObservableId>>> obs_corr);
 
     /**
      * @brief Reads a LHA input file and updates the memory cache accordingly.
@@ -158,7 +158,7 @@ public:
      * @param param_corr Pointer to the DataLoader to use to get parameters correlations from inputs.
      * @param obs_corr Pointer to the DataLoader to use to get observables correlations from inputs.
      */
-    void init(const std::string &lhaFile, Config config, std::shared_ptr<IDataLoader<BlockAccessor>> loader, std::shared_ptr<IDataLoader<CorrelationMatrixPair<ParamId>>> param_corr, std::shared_ptr<IDataLoader<CorrelationMatrixPair<Observables>>> obs_corr);
+    void init(const std::string &lhaFile, Config config, std::shared_ptr<IDataLoader<BlockAccessor>> loader, std::shared_ptr<IDataLoader<CorrelationMatrixPair<ParamId>>> param_corr, std::shared_ptr<IDataLoader<CorrelationMatrixPair<ObservableId>>> obs_corr);
 
     /**
      * @brief Switches to a different LHA file, reloading associated parameters and spectrum.
@@ -176,7 +176,7 @@ public:
      * @param param_corr Pointer to the DataLoader to use to get parameters correlations from user inputs (YAML).
      * @param obs_corr Pointer to the DataLoader to use to get observables correlations from user inputs (YAML).
      */
-    void reload_user_input(Config config, std::shared_ptr<IDataLoader<BlockAccessor>> loader, std::shared_ptr<IDataLoader<CorrelationMatrixPair<ParamId>>> param_corr, std::shared_ptr<IDataLoader<CorrelationMatrixPair<Observables>>> obs_corr);
+    void reload_user_input(Config config, std::shared_ptr<IDataLoader<BlockAccessor>> loader, std::shared_ptr<IDataLoader<CorrelationMatrixPair<ParamId>>> param_corr, std::shared_ptr<IDataLoader<CorrelationMatrixPair<ObservableId>>> obs_corr);
 
     /**
      * @brief Reloads user-specific input files with a different LHA file.
@@ -186,7 +186,7 @@ public:
      * @param param_corr Pointer to the DataLoader to use to get parameters correlations from user inputs (YAML).
      * @param obs_corr Pointer to the DataLoader to use to get observables correlations from user inputs (YAML).
      */
-    void reload_user_input(const std::string &lhaFile, Config config, std::shared_ptr<IDataLoader<BlockAccessor>> loader, std::shared_ptr<IDataLoader<CorrelationMatrixPair<ParamId>>> param_corr, std::shared_ptr<IDataLoader<CorrelationMatrixPair<Observables>>> obs_corr);
+    void reload_user_input(const std::string &lhaFile, Config config, std::shared_ptr<IDataLoader<BlockAccessor>> loader, std::shared_ptr<IDataLoader<CorrelationMatrixPair<ParamId>>> param_corr, std::shared_ptr<IDataLoader<CorrelationMatrixPair<ObservableId>>> obs_corr);
 
     /**
      * @brief Switches the model used for spectrum and parameters.

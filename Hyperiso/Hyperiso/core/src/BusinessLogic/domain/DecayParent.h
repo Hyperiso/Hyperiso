@@ -25,7 +25,7 @@ struct IFormFactorConfig {
 class DecayParent {
 
 protected:
-    std::map<Observables, std::shared_ptr<OperatorNode>> roots;
+    std::map<ObservableId, std::shared_ptr<OperatorNode>> roots;
     QCDOrder max_order = QCDOrder::LO; //DEFAULT AS LO, using default at least once, need to check (error if NONE)
     std::shared_ptr<ObsWilsonBuilder> w_builder;
     std::shared_ptr<ObsWilsonProxy> w_proxy;
@@ -44,6 +44,9 @@ public:
 
     scalar_t compute_observable(Observables obs);
     size_t get_n_evals(Observables obs);
+
+    scalar_t compute_observable(ObservableId obs);
+    size_t get_n_evals(ObservableId obs);
 
     std::shared_ptr<OperatorNode> get_wilson_node(ScaleType scale=ScaleType::MATCHING, WilsonBasis basis=WilsonBasis::B_STANDARD);
 

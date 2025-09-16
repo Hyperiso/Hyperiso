@@ -16,6 +16,10 @@ public:
     const std::string& str() const { return name_; }
 };
 
+
+
+
+
 // ------------------------------------------------------------------
 // case-insensitive
 // ------------------------------------------------------------------
@@ -28,6 +32,28 @@ inline std::string normalize_key(std::string_view s) {
     }
     return out;
 }
+
+template<class Tag>
+inline bool operator==(const SymbolId<Tag>& a, const SymbolId<Tag>& b) noexcept {
+    return normalize_key(a.str()) == normalize_key(b.str());
+}
+
+template<class Tag>
+inline bool operator<(const SymbolId<Tag>& a, const SymbolId<Tag>& b) noexcept {
+    const auto an = normalize_key(a.str());
+    const auto bn = normalize_key(b.str());
+    return an < bn;
+}
+
+namespace std {
+    template<class Tag>
+    struct hash<SymbolId<Tag>> {
+        size_t operator()(const SymbolId<Tag>& id) const noexcept {
+            return std::hash<std::string>{}(normalize_key(id.str()));
+        }
+    };
+}
+
 
 // without external key
 template<class Tag, class ExternalKey, class Hash = std::hash<ExternalKey>>

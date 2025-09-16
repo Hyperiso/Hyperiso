@@ -34,6 +34,7 @@
 #include "generic_mapper.hpp"
 #include "Map.h"
 #include "General.h"   // on choisit LhaID comme clé externe des decays (modifiable)
+#include "ObservableMapper.h"
 
 struct DecayTag {};
 using DecayId = IdOf<DecayTag>;
@@ -78,4 +79,25 @@ public:
             if (std::find(vec.begin(), vec.end(), obs) != vec.end()) return d;
         throw std::runtime_error("Observable not mapped to any decay");
     }
+
+
+    inline const std::unordered_map<ObservableId, DecayId>& observable_to_decay() {
+        static std::unordered_map<ObservableId, DecayId> cache;
+        static std::once_flag init;
+        std::call_once(init, []{
+            for (const auto& [decayEnum, vec] : decay_observable_mapping()) {
+                DecayId did = DecayMapper::to_id(decayEnum);
+                for (auto o : vec)
+                    cache.emplace(ObservableMapper::to_id(o), did);
+            }
+        });
+        return cache;
+    }
+
+    inline std::optional<DecayId> get_decay_id(ObservableId obs) {
+        const auto& m = observable_to_decay();
+        if (auto it = m.find(obs); it != m.end()) return it->second;
+        return std::nullopt;
+    }
+
 };

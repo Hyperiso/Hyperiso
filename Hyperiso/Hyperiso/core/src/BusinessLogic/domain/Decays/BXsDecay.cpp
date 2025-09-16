@@ -928,5 +928,5 @@ void BXsDecay::build_op_tree() {
     auto br_B_Xs_gamma  = std::make_shared<OperatorNode>("BR(B > Xs gamma)", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->BR_B_Xs_gamma(values[0], values[1], values[2], values[3], values[4], values[5], values[6]); });
     br_B_Xs_gamma->addChildren({BR_B__Xc_e_nu, ckm, inv_alpha_em, C, P, N, eps_em});
 
-    roots.emplace(Observables::BR_B_XS_GAMMA, br_B_Xs_gamma);
+    roots.emplace(ObservableMapper::to_id(Observables::BR_B_XS_GAMMA), br_B_Xs_gamma);
 }

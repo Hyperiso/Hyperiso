@@ -383,21 +383,21 @@ void BDlnuDecay::build_op_tree() {
     auto BR = std::make_shared<OperatorNode>("BR(B > D tau nu)", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return BR_B_Dtaunu(values[0], values[1], values[2]); });
     BR->addChildren({prefactor, nckm, gamma});
 
-    roots.emplace(Observables::BR_B__D_TAU_NU, BR);
+    roots.emplace(ObservableMapper::to_id(Observables::BR_B__D_TAU_NU), BR);
 
     auto R_D = std::make_shared<OperatorNode>("R(D)", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return values[0] / values[1]; });
     R_D->addChildren({gamma, gamma_e});
 
-    roots.emplace(Observables::R_D, R_D);
+    roots.emplace(ObservableMapper::to_id(Observables::R_D), R_D);
 
     auto A_FB = std::make_shared<OperatorNode>("A_FB", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return values[0] / values[1]; });
     A_FB->addChildren({b_theta, gamma});
 
-    roots.emplace(Observables::A_FB_B__D_TAU_NU, A_FB);
+    roots.emplace(ObservableMapper::to_id(Observables::A_FB_B__D_TAU_NU), A_FB);
 
     auto P_tau = std::make_shared<OperatorNode>("P_tau", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return (values[0] - values[1]) / values[2]; });
     P_tau->addChildren({gamma_p, gamma_m, gamma});
 
-    roots.emplace(Observables::P_TAU_B__D_TAU_NU, P_tau);
+    roots.emplace(ObservableMapper::to_id(Observables::P_TAU_B__D_TAU_NU), P_tau);
 
 }

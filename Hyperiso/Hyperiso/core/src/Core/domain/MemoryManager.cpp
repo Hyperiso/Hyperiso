@@ -25,7 +25,7 @@ void MemoryManager::save_input_cache() {
     memento.takeSnapshot(input_cache);
 }
 
-void MemoryManager::read_default_input(std::shared_ptr<IDataLoader<BlockAccessor>> loader, std::shared_ptr<IDataLoader<CorrelationMatrixPair<ParamId>>> param_corr, std::shared_ptr<IDataLoader<CorrelationMatrixPair<Observables>>> obs_corr) {
+void MemoryManager::read_default_input(std::shared_ptr<IDataLoader<BlockAccessor>> loader, std::shared_ptr<IDataLoader<CorrelationMatrixPair<ParamId>>> param_corr, std::shared_ptr<IDataLoader<CorrelationMatrixPair<ObservableId>>> obs_corr) {
     loader->load(input_cache, FilePaths::default_param_values_path); 
     auto obs_blocks = std::make_shared<BlockAccessor>();
     loader->load(obs_blocks, FilePaths::default_obs_values_path); 
@@ -37,7 +37,7 @@ void MemoryManager::read_default_input(std::shared_ptr<IDataLoader<BlockAccessor
     auto default_param_corr = std::make_shared<CorrelationMatrixPair<ParamId>>();
     param_corr->load(default_param_corr, FilePaths::default_param_corr_path.string());
     LOG_INFO("Default param correlations loaded");
-    auto default_obs_corr = std::make_shared<CorrelationMatrixPair<Observables>>();
+    auto default_obs_corr = std::make_shared<CorrelationMatrixPair<ObservableId>>();
     obs_corr->load(default_obs_corr, FilePaths::default_obs_corr_path.string());
     LOG_INFO("Default observable correlations loaded");
     correlation_repository.set_correlation_matrix(default_param_corr);
@@ -46,7 +46,7 @@ void MemoryManager::read_default_input(std::shared_ptr<IDataLoader<BlockAccessor
     LOG_INFO("Default files loaded");
 }
 
-void MemoryManager::read_user_input(std::shared_ptr<IDataLoader<BlockAccessor>> loader, std::shared_ptr<IDataLoader<CorrelationMatrixPair<ParamId>>> param_corr, std::shared_ptr<IDataLoader<CorrelationMatrixPair<Observables>>> obs_corr) {
+void MemoryManager::read_user_input(std::shared_ptr<IDataLoader<BlockAccessor>> loader, std::shared_ptr<IDataLoader<CorrelationMatrixPair<ParamId>>> param_corr, std::shared_ptr<IDataLoader<CorrelationMatrixPair<ObservableId>>> obs_corr) {
     // ParamBlockLoader p_loader;
     fs::path ui_paths[4] = {FilePaths::user_sm_params_path, FilePaths::user_flavor_params_path, FilePaths::user_decay_params_path, FilePaths::user_obs_values_path};
     for (auto& path : ui_paths) {
@@ -58,7 +58,7 @@ void MemoryManager::read_user_input(std::shared_ptr<IDataLoader<BlockAccessor>> 
 
     auto user_param_corr = std::make_shared<CorrelationMatrixPair<ParamId>>();
     param_corr->load(user_param_corr, FilePaths::user_param_corr_path.string());
-    auto user_obs_corr = std::make_shared<CorrelationMatrixPair<Observables>>();
+    auto user_obs_corr = std::make_shared<CorrelationMatrixPair<ObservableId>>();
     obs_corr->load(user_obs_corr, FilePaths::user_obs_corr_path.string());
     correlation_repository.merge_correlation_matrix(user_param_corr);
     correlation_repository.merge_correlation_matrix(user_obs_corr);
@@ -97,7 +97,7 @@ MemoryManager* MemoryManager::GetInstance() {
     return MemoryManager::instance;
 }
 
-void MemoryManager::init(const std::string& lhaFile, Config config, std::shared_ptr<IDataLoader<BlockAccessor>> loader, std::shared_ptr<IDataLoader<CorrelationMatrixPair<ParamId>>> param_corr, std::shared_ptr<IDataLoader<CorrelationMatrixPair<Observables>>> obs_corr) {
+void MemoryManager::init(const std::string& lhaFile, Config config, std::shared_ptr<IDataLoader<BlockAccessor>> loader, std::shared_ptr<IDataLoader<CorrelationMatrixPair<ParamId>>> param_corr, std::shared_ptr<IDataLoader<CorrelationMatrixPair<ObservableId>>> obs_corr) {
     if (cache.is_ready) {
         LOG_WARN("MemoryManager has already been initialized.");
         return;
@@ -138,11 +138,11 @@ void MemoryManager::switch_lha(const std::string& lhaFile, Config config) {
     this->cache.is_ready = true;
 }
 
-void MemoryManager::reload_user_input(Config config, std::shared_ptr<IDataLoader<BlockAccessor>> loader, std::shared_ptr<IDataLoader<CorrelationMatrixPair<ParamId>>> param_corr, std::shared_ptr<IDataLoader<CorrelationMatrixPair<Observables>>> obs_corr) {
+void MemoryManager::reload_user_input(Config config, std::shared_ptr<IDataLoader<BlockAccessor>> loader, std::shared_ptr<IDataLoader<CorrelationMatrixPair<ParamId>>> param_corr, std::shared_ptr<IDataLoader<CorrelationMatrixPair<ObservableId>>> obs_corr) {
     reload_user_input(cache.lha_path, config, loader, param_corr, obs_corr);
 }
 
-void MemoryManager::reload_user_input(const std::string &lhaFile, Config config, std::shared_ptr<IDataLoader<BlockAccessor>> loader, std::shared_ptr<IDataLoader<CorrelationMatrixPair<ParamId>>> param_corr, std::shared_ptr<IDataLoader<CorrelationMatrixPair<Observables>>> obs_corr) {
+void MemoryManager::reload_user_input(const std::string &lhaFile, Config config, std::shared_ptr<IDataLoader<BlockAccessor>> loader, std::shared_ptr<IDataLoader<CorrelationMatrixPair<ParamId>>> param_corr, std::shared_ptr<IDataLoader<CorrelationMatrixPair<ObservableId>>> obs_corr) {
     this->cache.is_ready = false;
     memento.restore(2);
     this->read_user_input(loader, param_corr, obs_corr);

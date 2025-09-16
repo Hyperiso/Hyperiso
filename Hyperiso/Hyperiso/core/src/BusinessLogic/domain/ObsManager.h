@@ -31,19 +31,41 @@ public:
     ObsManager add_obs(Observables id, QCDOrder order, bool add_deps=false);
     ObsManager remove_obs(Observables id);
 
+    ObsManager add_obs(ObservableId id, QCDOrder order, bool add_deps=false);
+    ObsManager remove_obs(ObservableId id);
+
     scalar_t evaluate(Observables id);
-    std::unordered_map<Observables, Estimate> evaluate_all();
+    scalar_t evaluate(ObservableId id);
+    std::unordered_map<ObservableId, Estimate> evaluate_all();
+
     void add_obs_dep(Observables id, ParamId param);
     void add_obs_deps(Observables id, std::unordered_set<ParamId> params);
+    void add_obs_dep(ObservableId id, ParamId param);
+    void add_obs_deps(ObservableId id, std::unordered_set<ParamId> params);
+
     void add_all_obs_deps(Observables id);
     scalar_t get_uncertainty(Observables id);
-    std::unordered_map<Observables, scalar_t> get_all_uncertainties();
+
+    void add_all_obs_deps(ObservableId id);
+    scalar_t get_uncertainty(ObservableId id);
+
+    std::unordered_map<ObservableId, scalar_t> get_all_uncertainties();
     std::unordered_map<ParamId, scalar_t> get_leading_uncertainties(Observables id, size_t n);
+
+    std::unordered_map<ParamId, scalar_t> get_leading_uncertainties(ObservableId id, size_t n);
+
     double get_chi2();
-    std::unordered_set<Observables> get_current_obss();
+    std::unordered_set<ObservableId> get_current_obss();
     size_t get_obs_evals(Observables id);
     void update_gradient(Observables id);
+
+    size_t get_obs_evals(ObservableId id);
+    void update_gradient(ObservableId id);
+
     std::shared_ptr<Observable> get_obs(Observables id);
+
+    std::shared_ptr<Observable> get_obs(ObservableId id);
+
 
     template <typename EnumType>
     void set_config_flag(Decays decay_id, EnumType flag) {
@@ -55,11 +77,14 @@ public:
     void disable_decays();
 
 private:
-    std::unordered_map<Decays, std::shared_ptr<DecayParent>> decays;
-    std::unordered_map<Observables, std::shared_ptr<Observable>> obss;
+    std::unordered_map<DecayId, std::shared_ptr<DecayParent>> decays;
+    std::unordered_map<ObservableId, std::shared_ptr<Observable>> obss;
     ModelEvaluator me;
 
-    Observables ensure_present(Observables id, bool critical=true);
+    ObservableId ensure_present(Observables id, bool critical=true);
+
+    ObservableId ensure_present(ObservableId id, bool critical=true);
+
     std::shared_ptr<ObsWilsonBuilder> wil_builder;
 };
 

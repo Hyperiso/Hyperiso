@@ -45,12 +45,12 @@ void BlnuDecay::build_op_tree() {
     // Operator nodes
     auto R_tau_nu = std::make_shared<OperatorNode>("R_tau_nu", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->R(values[0], values[1], values[2]); });
     R_tau_nu->addChildren({m_B, m_b, m_tau, wilson});
-    roots.emplace(Observables::R_TAU_NU, R_tau_nu);
+    roots.emplace(ObservableMapper::to_id(Observables::R_TAU_NU), R_tau_nu);
     auto ckm = std::make_shared<OperatorNode>("ckm", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->ckm(values[0]); });
     ckm->addChildren({V_ub});
     auto prefactor = std::make_shared<OperatorNode>("prefactor", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->pref(values[0], values[1], values[2], values[3], values[4]); });
     prefactor->addChildren({G_F, f_B, life_B, m_B, m_tau});
     auto BR_Bu_tau_nu = std::make_shared<OperatorNode>("BR_Bu__tau_nu", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->BR_B_taunu(values[0], values[1], values[2]); });
     BR_Bu_tau_nu->addChildren({prefactor, ckm, R_tau_nu});
-    roots.emplace(Observables::BR_BU_TAU_NU, BR_Bu_tau_nu);
+    roots.emplace(ObservableMapper::to_id(Observables::BR_BU_TAU_NU), BR_Bu_tau_nu);
 }

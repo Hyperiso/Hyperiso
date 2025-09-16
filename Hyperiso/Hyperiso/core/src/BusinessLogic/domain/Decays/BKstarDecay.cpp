@@ -357,5 +357,5 @@ void BKstarDecay::build_op_tree() {
     auto delta_0        = std::make_shared<OperatorNode>("delta_0",         [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->delta_0(values[0], values[1], values[2], values[3], values[4], values[5], values[6], values[7], values[8], values[9], values[10], values[11]); });
     delta_0->addChildren({f_B, mb_mu_b, T1_B_Ks, f_Ks_perp_mu_b, f_Ks_par, m_Ks, m_B, lambda_B_mu_h, a7c, K1, K2d, K2u});
 
-    roots.emplace(Observables::ISOSPIN_ASYMMETRY_B_KSTAR_GAMMA, delta_0);
+    roots.emplace(ObservableMapper::to_id(Observables::ISOSPIN_ASYMMETRY_B_KSTAR_GAMMA), delta_0);
 }

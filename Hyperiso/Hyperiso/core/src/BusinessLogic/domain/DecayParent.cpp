@@ -52,6 +52,16 @@ void DecayParent::set_order(QCDOrder new_order) {
 }
 
 scalar_t DecayParent::compute_observable(Observables obs) {
+    ObservableId obs_id = ObservableMapper::to_id(obs);
+    return compute_observable(obs_id);
+
+}
+
+size_t DecayParent::get_n_evals(ObservableId obs) {
+    return roots.at(obs)->get_n_evals();
+}
+
+scalar_t DecayParent::compute_observable(ObservableId obs) {
     // TODO
     auto truc = roots.at(obs);
     auto t1 = high_resolution_clock::now();
@@ -63,7 +73,8 @@ scalar_t DecayParent::compute_observable(Observables obs) {
 }
 
 size_t DecayParent::get_n_evals(Observables obs) {
-    return roots.at(obs)->get_n_evals();
+    ObservableId obs_id = ObservableMapper::to_id(obs);
+    return get_n_evals(obs_id);
 }
 
 std::shared_ptr<OperatorNode> DecayParent::get_wilson_node(ScaleType scale, WilsonBasis basis) {

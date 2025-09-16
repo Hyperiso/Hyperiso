@@ -12,5 +12,6 @@
 #include "GeneralEnum.h"
 #include "Map.h"
 #include "registry_init.hpp"
+#include "DependenciesHelper.h"
 
 #endif // __INCLUDE_H__

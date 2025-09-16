@@ -36,7 +36,7 @@ struct BKstarllCache {
     double omega_0;
     double e_q, e_d {-1./3}, e_u {2./3};
     double m_b_PS, m_b_pole, m_b_mu_b;
-    double m_c_pole;
+    double m_c_pole, m_c_mu_b;
     complex_t T_par_m_0;
     double a_1_perp, a_2_perp;
     double a_1_par, a_2_par;
@@ -46,10 +46,11 @@ struct BKstarllCache {
     double Delta_M;
     double z_c; // = (mc_pole / mb_PS)^2
     double L_b; // = log(mu_b / mb_PS)
-    double N_0;
+    complex_t N_0;
     double m_l;
     double q2_min, q2_max;
     double q2_low, q2_high;
+    double kappa;
 };
 
 /**
@@ -118,6 +119,9 @@ protected:
     double T_3(double q2, double m_B, double m_K);
     double xi_perp(double q2, double m_B, double m_K);
     double xi_par(double q2, double m_B, double m_K);
+    double f_perp(double q2, double m_B, double m_K);
+    double f_par(double q2, double m_B, double m_K);
+    double f_0(double q2, double m_B, double m_K);
 
     // QCDf 
     double F_perp(double s_hat);
@@ -174,6 +178,21 @@ protected:
     double lambda(double q2, double m_B, double m_K);
     complex_t N(double q2, double m_B, double m_K, double m_l);
 
+    complex_t A_perp_low(double q2, double m_B, double m_K, double m_l, double sign);
+    complex_t A_par_low(double q2, double m_B, double m_K, double m_l, double sign);
+    complex_t A_0_low(double q2, double m_B, double m_K, double m_l, double sign);
+    complex_t A_t_low(double q2, double m_B, double m_K, double m_l, double f_B, double f_K_par, double m_s);
+    complex_t A_S_low(double q2, double m_B, double m_K, double m_l, double f_B, double f_K_par, double m_s);
+
+    complex_t C7_eff(double q2, double m_B);
+    complex_t C9_eff(double q2, double m_B);
+    complex_t A_perp_high(double q2, double m_B, double m_K, double m_l, double sign);
+    complex_t A_par_high(double q2, double m_B, double m_K, double m_l, double sign);
+    complex_t A_0_high(double q2, double m_B, double m_K, double m_l, double sign);
+    complex_t A_t_high(double q2, double m_B, double m_K, double m_l, double m_s);
+    complex_t A_S_high(double q2, double m_B, double m_K, double m_l, double m_s);
+
+    complex_t interpolate(double q2, complex_t val_low, complex_t val_high);
     complex_t A_perp(double q2, double m_B, double m_K, double m_l, double sign);
     complex_t A_par(double q2, double m_B, double m_K, double m_l, double sign);
     complex_t A_0(double q2, double m_B, double m_K, double m_l, double sign);

@@ -7,20 +7,21 @@ ObsManager::ObsManager(std::shared_ptr<ObsWilsonBuilder>& wil_builder) {
     ObsParameterProxy smParamProxy = ObsParameterProxy(ParameterType::SM);
     
     this->decays = {
-        {Decays::B__D_l_nu,     std::make_shared<BDlnuDecay>(QCDOrder::NONE, 81, obsParamProxy("FMASS", 521), wil_builder)},
-        {Decays::B__Dstar_l_nu, std::make_shared<BDstarlnuDecay>(QCDOrder::NONE, 81, obsParamProxy("FMASS", 521), wil_builder)},
-        {Decays::B__Kstar,      std::make_shared<BKstarDecay>(QCDOrder::NONE, 81, obsParamProxy("FMASS", 511), wil_builder)},
-        {Decays::B__l_l,        std::make_shared<BllDecay>(QCDOrder::NONE, 81, obsParamProxy("FMASS", 531), wil_builder)},
-        {Decays::B__l_nu,       std::make_shared<BlnuDecay>(QCDOrder::NONE, 81, obsParamProxy("FMASS", 511), wil_builder)},
-        {Decays::B__Xs,         std::make_shared<BXsDecay>(QCDOrder::NONE, 81, smParamProxy("QCD", LhaID(5, 3)) / 2, wil_builder)},
-        {Decays::B__Xs_l_l,     std::make_shared<BXsllDecay>(QCDOrder::NONE, 2 * smParamProxy("MASS", 24), smParamProxy("QCD", LhaID(5, 2)) / 2, wil_builder)},
-        {Decays::M0_Mix,        std::make_shared<M0Mixing>(QCDOrder::NONE, 160, 4.16, wil_builder)},
-        {Decays::B__Kstar_l_l,  std::make_shared<BKstarllDecay>(QCDOrder::NONE, 81, smParamProxy("QCD", LhaID(5, 3)) / 2, wil_builder)},
+        {DecayMapper::to_id(Decays::B__D_l_nu),     std::make_shared<BDlnuDecay>(QCDOrder::NONE, 81, obsParamProxy("FMASS", 521), wil_builder)},
+        {DecayMapper::to_id(Decays::B__Dstar_l_nu), std::make_shared<BDstarlnuDecay>(QCDOrder::NONE, 81, obsParamProxy("FMASS", 521), wil_builder)},
+        {DecayMapper::to_id(Decays::B__Kstar),      std::make_shared<BKstarDecay>(QCDOrder::NONE, 81, obsParamProxy("FMASS", 511), wil_builder)},
+        {DecayMapper::to_id(Decays::B__l_l),        std::make_shared<BllDecay>(QCDOrder::NONE, 81, obsParamProxy("FMASS", 531), wil_builder)},
+        {DecayMapper::to_id(Decays::B__l_nu),       std::make_shared<BlnuDecay>(QCDOrder::NONE, 81, obsParamProxy("FMASS", 511), wil_builder)},
+        {DecayMapper::to_id(Decays::B__Xs),         std::make_shared<BXsDecay>(QCDOrder::NONE, 81, smParamProxy("QCD", LhaID(5, 3)) / 2, wil_builder)},
+        {DecayMapper::to_id(Decays::B__Xs_l_l),     std::make_shared<BXsllDecay>(QCDOrder::NONE, 2 * smParamProxy("MASS", 24), smParamProxy("QCD", LhaID(5, 2)) / 2, wil_builder)},
+        {DecayMapper::to_id(Decays::M0_Mix),        std::make_shared<M0Mixing>(QCDOrder::NONE, 160, 4.16, wil_builder)},
+        {DecayMapper::to_id(Decays::B__Kstar_l_l),  std::make_shared<BKstarllDecay>(QCDOrder::NONE, 81, smParamProxy("QCD", LhaID(5, 3)), wil_builder)},
     };
 }
 
-ObsManager ObsManager::add_obs(Observables id, QCDOrder order, bool add_deps) {
+ObsManager ObsManager::add_obs(ObservableId id, QCDOrder order, bool add_deps) {
     LOG_INFO("Adding observable", ObservableMapper::str(id), "to manager");
+    //TODO decay mapper properly
     auto dec = decays.at(DecayMapper::get_decay(id));
     dec->set_order(order);
     auto obs_ptr = std::make_shared<Observable>(id, dec);
@@ -32,7 +33,17 @@ ObsManager ObsManager::add_obs(Observables id, QCDOrder order, bool add_deps) {
     return *this;
 }
 
+ObsManager ObsManager::add_obs(Observables id, QCDOrder order, bool add_deps) {
+    ObservableId obs_id = ObservableMapper::to_id(id);
+    return add_obs(obs_id, order, add_deps);
+}
+
 ObsManager ObsManager::remove_obs(Observables id) {
+    ObservableId obs_id = ObservableMapper::to_id(id);
+    return remove_obs(obs_id);
+}
+
+ObsManager ObsManager::remove_obs(ObservableId id) {
     id = ensure_present(id, false);
     obss.erase(id);
     me.remove_observable(id);
@@ -40,12 +51,17 @@ ObsManager ObsManager::remove_obs(Observables id) {
     return *this;
 }
 
-scalar_t ObsManager::evaluate(Observables id) {
+scalar_t ObsManager::evaluate(ObservableId id) {
     return obss.at(ensure_present(id))->eval();
 }
 
-std::unordered_map<Observables, Estimate> ObsManager::evaluate_all() {
-    std::unordered_map<Observables, Estimate> all_ests;
+scalar_t ObsManager::evaluate(Observables id) {
+    ObservableId obs_id = ObservableMapper::to_id(id);
+    return evaluate(obs_id);
+}
+
+std::unordered_map<ObservableId, Estimate> ObsManager::evaluate_all() {
+    std::unordered_map<ObservableId, Estimate> all_ests;
     for (auto &[k, k_ptr] : obss) {
         all_ests.emplace(k, k_ptr->get_estimate());
     }
@@ -53,6 +69,13 @@ std::unordered_map<Observables, Estimate> ObsManager::evaluate_all() {
 }
 
 void ObsManager::add_obs_dep(Observables id, ParamId param) {
+    ObservableId obs_id = ObservableMapper::to_id(id);
+
+    return add_obs_dep(obs_id, param);
+
+}
+
+void ObsManager::add_obs_dep(ObservableId id, ParamId param) {
     if (DependenciesHelper::is_param_allowed(id, param)) {
         obss.at(ensure_present(id))->add_dependence(param);
     }
@@ -62,6 +85,12 @@ void ObsManager::add_obs_dep(Observables id, ParamId param) {
 }
 
 void ObsManager::add_obs_deps(Observables id, std::unordered_set<ParamId> params) {
+    ObservableId obs_id = ObservableMapper::to_id(id);
+
+    return add_obs_deps(obs_id, params);
+}
+
+void ObsManager::add_obs_deps(ObservableId id, std::unordered_set<ParamId> params) {
     for (auto &p : params) {
         if (!DependenciesHelper::is_param_allowed(id, p)) {
             LOG_WARN("Observable", ObservableMapper::str(id), "doesn't depend on parameter (", p.block, ",", p.code, "). Ignoring.");
@@ -71,44 +100,77 @@ void ObsManager::add_obs_deps(Observables id, std::unordered_set<ParamId> params
 }
 
 void ObsManager::add_all_obs_deps(Observables id) {
+    ObservableId obs_id = ObservableMapper::to_id(id);
+
+    return add_all_obs_deps(obs_id);
+}
+
+void ObsManager::add_all_obs_deps(ObservableId id) {
     auto allowed = DependenciesHelper::get_allowed_parameters(id);
     LOG_DEBUG("Found", allowed.size(), "allowed parameters for observable", ObservableMapper::str(id));
     obss.at(ensure_present(id))->add_dependences(allowed);
 }
 
 scalar_t ObsManager::get_uncertainty(Observables id) {
+    ObservableId obs_id = ObservableMapper::to_id(id);
+    return get_uncertainty(obs_id);
+}
+
+scalar_t ObsManager::get_uncertainty(ObservableId id) {
     return std::sqrt(obss.at(ensure_present(id))->variance());
 }
 
-std::unordered_map<Observables, scalar_t> ObsManager::get_all_uncertainties() {
-    std::unordered_map<Observables, scalar_t> all_vars;
+std::unordered_map<ObservableId, scalar_t> ObsManager::get_all_uncertainties() {
+    std::unordered_map<ObservableId, scalar_t> all_vars;
     for (auto &[k, _] : obss) {
         all_vars.emplace(k, get_uncertainty(k));
     }
     return all_vars;
 }
 
-std::unordered_map<ParamId, scalar_t> ObsManager::get_leading_uncertainties(Observables id, size_t n) {
+std::unordered_map<ParamId, scalar_t> ObsManager::get_leading_uncertainties(ObservableId id, size_t n) {
     return obss.at(ensure_present(id))->get_leading_uncertainties(n);
 }
+
+std::unordered_map<ParamId, scalar_t> ObsManager::get_leading_uncertainties(Observables id, size_t n) {
+    ObservableId obs_id = ObservableMapper::to_id(id);
+    return get_leading_uncertainties(obs_id, n);
+}
+
 
 double ObsManager::get_chi2() {
     return me.chi2();
 }
 
-std::unordered_set<Observables> ObsManager::get_current_obss() {
+std::unordered_set<ObservableId> ObsManager::get_current_obss() {
     return get_keys(this->obss);
 }
 
 size_t ObsManager::get_obs_evals(Observables id) {
+    ObservableId obs_id = ObservableMapper::to_id(id);
+    return get_obs_evals(obs_id);
+}
+
+size_t ObsManager::get_obs_evals(ObservableId id) {
     return obss.at(ensure_present(id))->get_n_evals();
 }
 
-void ObsManager::update_gradient(Observables id) {
+void ObsManager::update_gradient(ObservableId id) {
     obss.at(ensure_present(id))->update_gradient();
 }
 
+void ObsManager::update_gradient(Observables id) {
+    ObservableId obs_id = ObservableMapper::to_id(id);
+
+    update_gradient(obs_id);
+}
+
 std::shared_ptr<Observable> ObsManager::get_obs(Observables id){
+    ObservableId obs_id = ObservableMapper::to_id(id);
+    return get_obs(obs_id);
+}
+
+std::shared_ptr<Observable> ObsManager::get_obs(ObservableId id){
     return this->obss.at(ensure_present(id));
 }
 
@@ -118,7 +180,13 @@ void ObsManager::disable_decays() {
     }
 }
 
-Observables ObsManager::ensure_present(Observables id, bool critical) {
+ObservableId ObsManager::ensure_present(Observables id, bool critical) {
+    ObservableId obs_id = ObservableMapper::to_id(id);
+
+    return ensure_present(obs_id);
+}
+
+ObservableId ObsManager::ensure_present(ObservableId id, bool critical) {
     if (!obss.contains(id)) {
         if (critical)
             LOG_ERROR("KeyError", "Observable manager doesn't contain observable", ObservableMapper::str(id));

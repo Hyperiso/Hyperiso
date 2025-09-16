@@ -916,7 +916,7 @@ void BXsllDecay::build_op_tree() {
     auto br_high_tau = std::make_shared<OperatorNode>("BR(B>X_sll)_high_q2", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return BR_B_Xsll(q2_high_bound.first, q2_high_bound.second, values[0], values[1], values[2], values[3], values[4], values[5], values[6], values[7], values[8], values[9], values[10], values[11], values[12], values[13], values[14], values[15], values[16]); });
     br_high_tau->addChildren({m_b_1S, n_pref, m_tau_hat, alpha_s_mu_b, z, L_l_tau, L_b_5GeV, n_pref_dB0_ds, n_pref_delta_mb2, n_pref_delta_mb3, n_pref_delta_mc2, n_pref_delta_brems, n_pref_delta_em, L_b, m_c_hat, inv_alpha_em, m_D_hat, C9_eff_lookup, wilson_cache, n_delta_brems_B_lookup, n_f_17_lookup, n_f_19_lookup, n_f_27_lookup, n_f_29_lookup});
 
-    roots.emplace(Observables::BR_B__Xs_mu_mu__LOW_Q2, br_low_mu);
-    roots.emplace(Observables::BR_B__Xs_mu_mu__HIGH_Q2, br_high_mu);
-    roots.emplace(Observables::BR_B__Xs_tau_tau__HIGH_Q2, br_high_tau);
+    roots.emplace(ObservableMapper::to_id(Observables::BR_B__Xs_mu_mu__LOW_Q2), br_low_mu);
+    roots.emplace(ObservableMapper::to_id(Observables::BR_B__Xs_mu_mu__HIGH_Q2), br_high_mu);
+    roots.emplace(ObservableMapper::to_id(Observables::BR_B__Xs_tau_tau__HIGH_Q2), br_high_tau);
 }

@@ -98,7 +98,7 @@ void BllDecay::build_op_tree() {
     ckm_s->addChildren({V_tb, V_ts});
     auto br_avg_Bs_mumu = std::make_shared<OperatorNode>("BR_Bs__mu_mu", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->BR_avg_Bq_mumu(values[0], values[1], values[2], values[3], values[4], values[5], values[6], values[7], values[8], values[9]); });
     br_avg_Bs_mumu->addChildren({w1s, w2qs, w210s, ckm_s, xs, G_F, inv_alpha_em, f_Bs, m_Bs, life_Bs});
-    roots.emplace(Observables::BR_BS_MUMU, br_avg_Bs_mumu);
+    roots.emplace(ObservableMapper::to_id(Observables::BR_BS_MUMU), br_avg_Bs_mumu);
 
     auto xd = std::make_shared<OperatorNode>("xd", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return values[0] / values[1]; });
     xd->addChildren({m_mu, m_Bd});
@@ -116,10 +116,10 @@ void BllDecay::build_op_tree() {
 
     auto br_avg_Bd_mumu = std::make_shared<OperatorNode>("BR_Bd__mu_mu", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->BR_avg_Bq_mumu(values[0], values[1], values[2], values[3], values[4], values[5], values[6], values[7], values[8], values[9]); });
     br_avg_Bd_mumu->addChildren({w1d, w2qd, w210d, ckm_d, xd, G_F, inv_alpha_em, f_Bd, m_Bd, life_Bd});
-    roots.emplace(Observables::BR_BD_MUMU, br_avg_Bd_mumu);
+    roots.emplace(ObservableMapper::to_id(Observables::BR_BD_MUMU), br_avg_Bd_mumu);
     auto a_dg = std::make_shared<OperatorNode>("A_DeltaGamma", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->A_DG(values[0], values[1], values[2], values[3], values[4], values[5]); });
     a_dg->addChildren({xs, rs, w210s, w1s, w2qs, C10_SM});
     auto br_untag_Bs_mumu = std::make_shared<OperatorNode>("BR_untag_Bs__mu_mu", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->BR_untag_Bs_mumu(values[0], values[1], values[2]); });
     br_untag_Bs_mumu->addChildren({br_avg_Bs_mumu, y_s, a_dg});
-    roots.emplace(Observables::BR_BS_MUMU_UNTAG, br_untag_Bs_mumu);
+    roots.emplace(ObservableMapper::to_id(Observables::BR_BS_MUMU_UNTAG), br_untag_Bs_mumu);
 }

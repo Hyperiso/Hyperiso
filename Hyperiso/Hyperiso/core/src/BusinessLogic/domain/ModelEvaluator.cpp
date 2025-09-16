@@ -16,6 +16,12 @@ ModelEvaluator::ModelEvaluator(const std::unordered_set<std::shared_ptr<Observab
 }
 
 bool ModelEvaluator::has_observable(Observables id) {
+    ObservableId obs_id = ObservableMapper::to_id(id);
+
+    return has_observable(obs_id);
+}
+
+bool ModelEvaluator::has_observable(ObservableId id) {
     return this->observables.contains(id);
 }
 
@@ -28,6 +34,12 @@ void ModelEvaluator::add_observable(std::shared_ptr<Observable> obs) {
 }
 
 void ModelEvaluator::remove_observable(Observables id) {
+    ObservableId obs_id = ObservableMapper::to_id(id);
+
+    return remove_observable(obs_id);
+}
+
+void ModelEvaluator::remove_observable(ObservableId id) {
     if (has_observable(id)) {
         observables.erase(id);
     } else {
@@ -61,19 +73,19 @@ void ModelEvaluator::update_exp_covariance() {
                 exp_cov_mtx.insert_or_assign(pair_id, var);
             } else {
                 double corr = cp(id_1, id_2, CorrelationProvider::CorrelationType::COMBINED);
-                scalar_t sigma_1 = opp("FOBS", ObservableMapper::flha_of(ObservableMapper::to_id(id_1)).value(), DataType::STD_COMBINED);
-                scalar_t sigma_2 = opp("FOBS", ObservableMapper::flha_of(ObservableMapper::to_id(id_2)).value(), DataType::STD_COMBINED);
+                scalar_t sigma_1 = opp("FOBS", ObservableMapper::flha_of(id_1).value(), DataType::STD_COMBINED);
+                scalar_t sigma_2 = opp("FOBS", ObservableMapper::flha_of(id_2).value(), DataType::STD_COMBINED);
                 exp_cov_mtx.insert_or_assign(pair_id, corr * sigma_1 * sigma_2);
             }
         }
     }
 }
 
-SparseMatrix<Observables> ModelEvaluator::get_covariance() {
+SparseMatrix<ObservableId> ModelEvaluator::get_covariance() {
     update_th_covariance();
     LOG_DEBUG("Theoretical covariance matrix calculated");
 
-    SparseMatrix<Observables> cov = th_cov_mtx;
+    SparseMatrix<ObservableId> cov = th_cov_mtx;
     // customPrintMatrix(cov, getDiagonalElements(cov));
     CorrelationProxy corr_prox;
     LOG_DEBUG("Theoretical covariance matrix size", cov.size());
@@ -100,9 +112,9 @@ SparseMatrix<Observables> ModelEvaluator::get_covariance() {
 }
 
 double ModelEvaluator::chi2() {
-    SparseMatrix<Observables> covariance_mtx = get_covariance();
+    SparseMatrix<ObservableId> covariance_mtx = get_covariance();
     LOG_DEBUG("Covariance calculated");
-    SparseMatrix<Observables> precision_mtx = invertMatrix(covariance_mtx, getDiagonalElements(covariance_mtx));
+    SparseMatrix<ObservableId> precision_mtx = invertMatrix(covariance_mtx, getDiagonalElements(covariance_mtx));
     LOG_DEBUG("Precision matrix calculated");
     // customPrintMatrix(precision_mtx, getDiagonalElements(precision_mtx));
 
@@ -111,7 +123,7 @@ double ModelEvaluator::chi2() {
         for (auto &&[id_j, obs_j] : this->observables) {
             double err_i = obs_i->eval() - obs_i->get_exp_val();
             double err_j = obs_j->eval() - obs_j->get_exp_val();
-            std::pair<Observables, Observables> obs_pair = std::make_pair(id_i, id_j);
+            std::pair<ObservableId, ObservableId> obs_pair = std::make_pair(id_i, id_j);
             if (precision_mtx.contains(obs_pair)) {
                 double C_ij_inv = precision_mtx.at(obs_pair);
                 chi2 += err_i * C_ij_inv * err_j;

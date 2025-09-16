@@ -13,9 +13,9 @@ class ModelEvaluator {
 
 private:
 
-    std::unordered_map<Observables, std::shared_ptr<Observable>> observables;
-    SparseMatrix<Observables> th_cov_mtx;
-    SparseMatrix<Observables> exp_cov_mtx;
+    std::unordered_map<ObservableId, std::shared_ptr<Observable>> observables;
+    SparseMatrix<ObservableId> th_cov_mtx;
+    SparseMatrix<ObservableId> exp_cov_mtx;
 
     void update_th_covariance();
     void update_exp_covariance();
@@ -26,9 +26,13 @@ public:
     ModelEvaluator(const std::unordered_set<std::shared_ptr<Observable>>& observables);
 
     bool has_observable(Observables id);
+    bool has_observable(ObservableId id);
+
     void add_observable(std::shared_ptr<Observable> obs);
     void remove_observable(Observables id);
-    SparseMatrix<Observables> get_covariance();
+    void remove_observable(ObservableId id);
+
+    SparseMatrix<ObservableId> get_covariance();
     double chi2();
 
 };

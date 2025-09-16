@@ -233,10 +233,10 @@ void M0Mixing::build_op_tree() {
     M12_Bd->addChildren({M12_Bd_SM, M12_Bd_NP});
     auto phi_d = std::make_shared<OperatorNode>("phi_d", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return phi_q(values[0]); });
     phi_d->addChild(M12_Bd);
-    roots.emplace(Observables::PHI_D, phi_d);
+    roots.emplace(ObservableMapper::to_id(Observables::PHI_D), phi_d);
     auto delta_M_Bd = std::make_shared<OperatorNode>("Delta_M_Bd", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return delta_M_B(values[0]); });
     delta_M_Bd->addChild(M12_Bd);
-    roots.emplace(Observables::DELTA_M_BD, delta_M_Bd);
+    roots.emplace(ObservableMapper::to_id(Observables::DELTA_M_BD), delta_M_Bd);
 
     // Operator nodes for B_s observables
     auto wilson_cache_Bs = std::make_shared<OperatorNode>("Wilson cache", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { populate_C(values[0], 8); return 0; });
@@ -258,15 +258,15 @@ void M0Mixing::build_op_tree() {
     M12_Bs->addChildren({M12_Bs_SM, M12_Bs_NP});
     auto phi_s = std::make_shared<OperatorNode>("phi_s", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return phi_q(values[0]); });
     phi_s->addChild(M12_Bs);
-    roots.emplace(Observables::PHI_S, phi_s);
+    roots.emplace(ObservableMapper::to_id(Observables::PHI_S), phi_s);
     auto delta_M_Bs = std::make_shared<OperatorNode>("Delta_M_Bs", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return delta_M_B(values[0]); });
     delta_M_Bs->addChild(M12_Bs);
-    roots.emplace(Observables::DELTA_M_BS, delta_M_Bs);
+    roots.emplace(ObservableMapper::to_id(Observables::DELTA_M_BS), delta_M_Bs);
     auto Gamma_12_Bs = std::make_shared<OperatorNode>("Gamma_12_Bs", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return values[0] * std::exp(I * values[1]); });
     Gamma_12_Bs->addChildren({abs_G12_s, arg_G12_s});
     auto afs = std::make_shared<OperatorNode>("afs", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return a_fs(values[0], values[1], values[2], values[3]); });
     afs->addChildren({M12_Bs, Gamma_12_Bs, delta_M_Bs, delta_G_s});
-    roots.emplace(Observables::A_FS, afs);
+    roots.emplace(ObservableMapper::to_id(Observables::A_FS), afs);
 
     // Operator nodes for K observables
     auto wilson_cache_K = std::make_shared<OperatorNode>("Wilson cache", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { populate_C(values[0], 16); return 0; });
@@ -301,10 +301,10 @@ void M0Mixing::build_op_tree() {
     M12_K->addChildren({M12_K_SM, M12_K_NP});
     auto abs_epsilon_K = std::make_shared<OperatorNode>("|epsilon_K|", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return std::abs(epsilon_K(values[0], values[1])); });
     abs_epsilon_K->addChildren({M12_K, kappa_e});
-    roots.emplace(Observables::ABS_EPSILON_K, abs_epsilon_K);
+    roots.emplace(ObservableMapper::to_id(Observables::ABS_EPSILON_K), abs_epsilon_K);
     auto delta_M_K0 = std::make_shared<OperatorNode>("Delta_M_K", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return delta_M_K(values[0]); });
     delta_M_K0->addChild(M12_K);
-    roots.emplace(Observables::DELTA_M_K, delta_M_K0);
+    roots.emplace(ObservableMapper::to_id(Observables::DELTA_M_K), delta_M_K0);
 
     // Operator nodes for D observables
     auto wilson_cache_D = std::make_shared<OperatorNode>("Wilson cache", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { populate_C(values[0], 24); return 0; });
@@ -318,6 +318,6 @@ void M0Mixing::build_op_tree() {
     M12_D->addChildren({m_D, mu_D, Q_D, wilson_cache_D});
     auto n_x_D = std::make_shared<OperatorNode>("x_D", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return x_D(values[0], values[1]); });
     n_x_D->addChildren({M12_D, tau_D});
-    roots.emplace(Observables::X_D, n_x_D);
+    roots.emplace(ObservableMapper::to_id(Observables::X_D), n_x_D);
 
 }

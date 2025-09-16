@@ -3,7 +3,6 @@
 #include "Map.h"
 #include "General.h"
 #include "decay_graph.hpp"
-#include "decay_ids.hpp"
 
 struct ObservableTag {};
 using ObservableId = IdOf<ObservableTag>;
@@ -79,18 +78,10 @@ public:
     static bool register_custom(const std::string& canonical,
                                 std::vector<std::string> aliases,
                                 std::optional<LhaID> ext,
-                                Decays parent_decay_enum)
-    {
-        return register_custom(canonical, std::move(aliases), std::move(ext),
-                               DecayMapper::to_id(parent_decay_enum));
-    }
+                                Decays parent_decay_enum);
 
     static bool register_custom(const std::string& canonical,
                                 std::vector<std::string> aliases,
                                 std::optional<LhaID> ext,
-                                std::string_view parent_decay_str)
-    {
-        return register_custom(canonical, std::move(aliases), std::move(ext),
-                               DecayMapper::id_of(parent_decay_str));
-    }
+                                std::string_view parent_decay_str);
 };

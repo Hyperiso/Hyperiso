@@ -34,6 +34,8 @@ public:
      */
     double operator()(const Observables& pid_1, const Observables& pid_2, CorrelationType type);
 
+    double operator()(const ObservableId& pid_1, const ObservableId& pid_2, CorrelationType type);
+
 private:
     /**
      * @brief Internal utility function to compute the correlation between two entities.
