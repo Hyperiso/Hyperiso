@@ -21,20 +21,20 @@ void test_interface(ObservableInterface& interface) {
 
     // Add single observable
     interface.add_observable(BR_BS_MUMU, NLO, true);
-    assert_equal(interface.get_current_observables().count(BR_BS_MUMU), 1u, "add_observable");
+    assert_equal(interface.get_current_observables().count(ObservableMapper::to_id(BR_BS_MUMU)), 1u, "add_observable");
 
     // Add multiple observables (map version)
     interface.add_observables({
         {R_D, LO},
         {R_DSTAR, LO}
     }, true);
-    assert_equal(interface.get_current_observables().count(R_D), 1u, "add_observables (map) - R_D");
-    assert_equal(interface.get_current_observables().count(R_DSTAR), 1u, "add_observables (map) - R_DSTAR");
+    assert_equal(interface.get_current_observables().count(ObservableMapper::to_id(R_D)), 1u, "add_observables (map) - R_D");
+    assert_equal(interface.get_current_observables().count(ObservableMapper::to_id(R_DSTAR)), 1u, "add_observables (map) - R_DSTAR");
 
     // Add decay observables
     interface.add_observables(Decays::B__l_l, LO);
     for (auto obs : DecayMapper::get_observables(Decays::B__l_l)) {
-        assert_equal(interface.get_current_observables().count(obs), 1u, "add_observables (decay)");
+        assert_equal(interface.get_current_observables().count(ObservableMapper::to_id(obs)), 1u, "add_observables (decay)");
     }
 
     // Add observable parameters
@@ -63,16 +63,16 @@ void test_interface(ObservableInterface& interface) {
 
     // Remove single observable
     interface.remove_observable(BR_BS_MUMU);
-    assert_equal(interface.get_current_observables().count(BR_BS_MUMU), 0u, "remove_observable");
+    assert_equal(interface.get_current_observables().count(ObservableMapper::to_id(BR_BS_MUMU)), 0u, "remove_observable");
 
     // Remove multiple observables (set)
     interface.remove_observables({R_D, R_DSTAR});
-    assert_equal(interface.get_current_observables().count(R_D), 0u, "remove_observables (set) - R_D");
+    assert_equal(interface.get_current_observables().count(ObservableMapper::to_id(R_D)), 0u, "remove_observables (set) - R_D");
 
     // Remove decay observables
     interface.remove_observables(Decays::B__l_l);
     for (auto obs : DecayMapper::get_observables(Decays::B__l_l)) {
-        assert_equal(interface.get_current_observables().count(obs), 0u, "remove_observables (decay)");
+        assert_equal(interface.get_current_observables().count(ObservableMapper::to_id(obs)), 0u, "remove_observables (decay)");
     }
 
     // Experimental values and uncertainties

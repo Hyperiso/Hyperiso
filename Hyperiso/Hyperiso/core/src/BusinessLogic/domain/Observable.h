@@ -8,13 +8,13 @@
 class Observable : public Compound {
 
 protected:
-    const Observables id;
+    const ObservableId id;
     std::shared_ptr<DecayParent> decay_parent;
 
 public:
-    Observable(Observables id, std::shared_ptr<DecayParent> decay_parent) : id(id), decay_parent(decay_parent) {}
+    Observable(ObservableId id, std::shared_ptr<DecayParent> decay_parent) : id(id), decay_parent(decay_parent) {}
 
-    Observables getId() const { return id; }
+    ObservableId getId() const { return id; }
     scalar_t get_exp_val() const;
     scalar_t get_exp_uncertainty(UncertaintyType u_type=UncertaintyType::COMBINED) const;
     Estimate get_exp() const;

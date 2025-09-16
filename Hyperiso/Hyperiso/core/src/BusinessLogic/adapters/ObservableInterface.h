@@ -58,7 +58,7 @@ public:
         return manager->get_leading_uncertainties(obs, n);
     }
 
-    std::unordered_map<Observables, scalar_t> compute_all_uncertainties() const {
+    std::unordered_map<ObservableId, scalar_t> compute_all_uncertainties() const {
         return manager->get_all_uncertainties();
     }
 
@@ -86,21 +86,29 @@ public:
         return manager->get_obs(id)->get_exp_val();
     };
 
+    scalar_t get_exp_value(ObservableId id) {
+        return manager->get_obs(id)->get_exp_val();
+    };
+
     scalar_t get_exp_uncertainty(Observables id, UncertaintyType u_type=UncertaintyType::COMBINED) {
         return manager->get_obs(id)->get_exp_uncertainty(u_type);
     }
 
-    std::unordered_set<Observables> get_current_observables() {
+    scalar_t get_exp_uncertainty(ObservableId id, UncertaintyType u_type=UncertaintyType::COMBINED) {
+        return manager->get_obs(id)->get_exp_uncertainty(u_type);
+    }
+
+    std::unordered_set<ObservableId> get_current_observables() {
         return manager->get_current_obss();
     }
 
-    std::unordered_map<Observables, Estimate> compute_all() {
+    std::unordered_map<ObservableId, Estimate> compute_all() {
         return manager->evaluate_all();
     }
 
-    std::unordered_map<Observables, Estimate> get_all_exp() {
-        std::unordered_map<Observables, Estimate> all_exp;
-        for (Observables id : get_current_observables()) {
+    std::unordered_map<ObservableId, Estimate> get_all_exp() {
+        std::unordered_map<ObservableId, Estimate> all_exp;
+        for (ObservableId id : get_current_observables()) {
             all_exp.emplace(
                 id, 
                 Estimate {

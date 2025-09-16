@@ -22,7 +22,8 @@ ObsManager::ObsManager(std::shared_ptr<ObsWilsonBuilder>& wil_builder) {
 ObsManager ObsManager::add_obs(ObservableId id, QCDOrder order, bool add_deps) {
     LOG_INFO("Adding observable", ObservableMapper::str(id), "to manager");
     //TODO decay mapper properly
-    auto dec = decays.at(DecayMapper::get_decay(id));
+    //check for incorect here TODO:
+    auto dec = decays.at(DecayMapper::get_decay_id(id).value());
     dec->set_order(order);
     auto obs_ptr = std::make_shared<Observable>(id, dec);
     obss.emplace(id, obs_ptr);

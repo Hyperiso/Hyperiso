@@ -11,7 +11,8 @@
 
 struct ConfigSetter {
     template <typename EnumType>
-    static void apply(DecayParent* base, Decays id, EnumType flag) {
+    static void apply(DecayParent* base, DecayId id, EnumType flag) {
+        //TODO : théo pas content
         switch(id) {
             case Decays::B__Kstar_l_l: {
                 auto* cfg = static_cast<BKstarllDecay*>(base);
@@ -69,9 +70,10 @@ public:
 
     template <typename EnumType>
     void set_config_flag(Decays decay_id, EnumType flag) {
-        if (!decays.contains(decay_id))
+        DecayId decay_real_id = DecayMapper::to_id(decay_id);
+        if (!decays.contains(decay_real_id))
             throw std::logic_error("Decay not found in manager");
-        ConfigSetter::apply(decays.at(decay_id).get(), decay_id, flag);
+        ConfigSetter::apply(decays.at(decay_real_id).get(), decay_real_id, flag);
     }
 
     void disable_decays();

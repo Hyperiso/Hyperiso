@@ -1,7 +1,7 @@
 #include "CorrelationAdapter.h"
 
 template void CorrelationLoader<ParamId>::load(std::shared_ptr<CorrelationMatrixPair<ParamId>>, fs::path);
-template void CorrelationLoader<Observables>::load(std::shared_ptr<CorrelationMatrixPair<Observables>>, fs::path);
+template void CorrelationLoader<ObservableId>::load(std::shared_ptr<CorrelationMatrixPair<ObservableId>>, fs::path);
 
 template <typename T>
 void CorrelationLoader<T>::load(std::shared_ptr<CorrelationMatrixPair<T>> dest, fs::path src_file) { 
@@ -43,13 +43,13 @@ void CorrelationLoader<ParamId>::emplace_correlation(std::shared_ptr<Correlation
 }
 
 template<>
-void CorrelationLoader<Observables>::emplace_correlation(std::shared_ptr<CorrelationMatrixPair<Observables>> corr_matrices, std::shared_ptr<Node> leaf) {
+void CorrelationLoader<ObservableId>::emplace_correlation(std::shared_ptr<CorrelationMatrixPair<ObservableId>> corr_matrices, std::shared_ptr<Node> leaf) {
     if (!leaf->contains("id_1") || !leaf->contains("id_2") || !leaf->contains("stat_correlation")) {
         LOG_ERROR("CorrelationLoader", "Node doesn't have all necessary keys for observable correlation.");
     }
-
-    Observables obs_1 = ObservableMapper::enum_elt(LhaID(std::get<BlockName>(leaf->get("id_1"))));
-    Observables obs_2 = ObservableMapper::enum_elt(LhaID(std::get<BlockName>(leaf->get("id_2"))));
+    //TODO : do some checking with value()
+    ObservableId obs_1 = ObservableMapper::from_flha(LhaID(std::get<BlockName>(leaf->get("id_1")))).value();
+    ObservableId obs_2 = ObservableMapper::from_flha(LhaID(std::get<BlockName>(leaf->get("id_2")))).value();
     auto stat_value = std::get<double>(leaf->get("stat_correlation"));
     auto syst_value = leaf->contains("syst_correlation") ? std::get<double>(leaf->get("syst_correlation")) : 0;
 

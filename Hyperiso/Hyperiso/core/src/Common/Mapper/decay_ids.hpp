@@ -81,7 +81,7 @@ public:
     }
 
 
-    inline const std::unordered_map<ObservableId, DecayId>& observable_to_decay() {
+    inline static const std::unordered_map<ObservableId, DecayId>& observable_to_decay() {
         static std::unordered_map<ObservableId, DecayId> cache;
         static std::once_flag init;
         std::call_once(init, []{
@@ -94,7 +94,7 @@ public:
         return cache;
     }
 
-    inline std::optional<DecayId> get_decay_id(ObservableId obs) {
+    inline static std::optional<DecayId> get_decay_id(ObservableId obs) {
         const auto& m = observable_to_decay();
         if (auto it = m.find(obs); it != m.end()) return it->second;
         return std::nullopt;
