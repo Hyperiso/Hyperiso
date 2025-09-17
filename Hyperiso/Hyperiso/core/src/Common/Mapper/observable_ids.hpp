@@ -53,14 +53,14 @@ public:
     static std::optional<LhaID>        flha_of(const ObservableId& id){ return external_of(id); }
     static LhaID        flha(const Observables& id){ return observable_mapping().at(id); }
     static bool register_custom(const std::string& canonical,
-                                std::vector<std::string> aliases = {},
-                                std::optional<LhaID> ext = std::nullopt,
-                                std::optional<DecayId> parent_decay = std::nullopt)
+                            std::vector<std::string> aliases = {},
+                            std::optional<LhaID> ext = std::nullopt,
+                            std::optional<DecayId> parent_decay = std::nullopt)
     {
-        const bool ok = Base::register_custom(canonical, std::move(aliases), std::move(ext));
-        if (ok && parent_decay){
-            // link to decay graph
-            DecayGraph::instance().link(*parent_decay, ObservableId(canonical));
+        const bool ok = Base::register_custom(canonical, aliases, ext);
+        if (ok && parent_decay) {
+            auto obs_id = Base::id_of(canonical);
+            DecayGraph::instance().link(*parent_decay, obs_id);
         }
         return ok;
     }

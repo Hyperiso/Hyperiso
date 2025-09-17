@@ -14,7 +14,7 @@ private:
     complex_t get_running_coef(WGroup group_id, WCoef coef_id);
 
 public:
-    WilsonDecay(QCDOrder order, double matching_scale, double hadronic_scale, std::shared_ptr<ObsWilsonBuilder>& wilson_builder) : DecayParent(matching_scale, hadronic_scale, order, wilson_builder) {
+    WilsonDecay(DecayId id, QCDOrder order, double matching_scale, double hadronic_scale) : DecayParent(id, matching_scale, hadronic_scale, order) {
         this->w_config.groups = {WGroup::B, WGroup::BPrime, WGroup::BScalar, WGroup::BCC, WGroup::MESON_MIXING};
         this->max_order = QCDOrder::NNLO;
     }

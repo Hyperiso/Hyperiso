@@ -16,7 +16,7 @@ protected:
     double BR_B_taunu(double pref, double ckm, double R);
 
 public:
-    BlnuDecay(QCDOrder order, double matching_scale, double hadronic_scale, std::shared_ptr<ObsWilsonBuilder>& wilson_builder) : DecayParent(matching_scale, hadronic_scale, order, wilson_builder) {
+    BlnuDecay(QCDOrder order, double matching_scale, double hadronic_scale, std::shared_ptr<ObsWilsonBuilder>& wilson_builder) : DecayParent(DecayMapper::to_id(Decays::B__l_nu), matching_scale, hadronic_scale, order, wilson_builder) {
         this->w_config.groups = {WGroup::BCC};
         this->max_order = QCDOrder::LO;
     }

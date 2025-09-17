@@ -31,13 +31,16 @@ protected:
     std::shared_ptr<ObsWilsonProxy> w_proxy;
     WilsonBuildConfig w_config {};
     bool enabled {false};
+    DecayId id;
 
     QCDOrder check_max_order(QCDOrder order) const;
 
 public:
     virtual ~DecayParent() = default;
-    DecayParent(double matching_scale, double hadronic_scale, QCDOrder order, std::shared_ptr<ObsWilsonBuilder>& wilson_builder);
-
+    DecayParent(DecayId custom_id, double matching_scale, double hadronic_scale, QCDOrder order);
+    DecayParent(DecayId custom_id, double matching_scale, double hadronic_scale, QCDOrder order, std::shared_ptr<ObsWilsonBuilder>& wilson_builder);
+    
+    void bind_wilson_builder(std::shared_ptr<ObsWilsonBuilder>& wilson_builder);
     void enable();
     void disable();
     void set_order(QCDOrder new_order);
@@ -61,9 +64,9 @@ public:
 template <typename ConcreteDecay, typename... SupportedEnums>
 class ConfigurableDecayParent : public DecayParent {
 public:
-    ConfigurableDecayParent(double matching_scale, double hadronic_scale,
+    ConfigurableDecayParent(DecayId id, double matching_scale, double hadronic_scale,
                             QCDOrder order, std::shared_ptr<ObsWilsonBuilder>& wilson_builder)
-        : DecayParent(matching_scale, hadronic_scale, order, wilson_builder)
+        : DecayParent(id, matching_scale, hadronic_scale, order, wilson_builder)
     {}
 
     template <typename EnumType>

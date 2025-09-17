@@ -134,7 +134,7 @@ protected:
     double BR_B_Xs_gamma(double br_B__Xc_e_nu, double ckm, double inv_alpha_em, double C, double P, double N, double eps_em);
 
 public:
-    BXsDecay(QCDOrder order, double matching_scale, double hadronic_scale, std::shared_ptr<ObsWilsonBuilder>& wilson_builder) : DecayParent(matching_scale, hadronic_scale, order, wilson_builder) {
+    BXsDecay(QCDOrder order, double matching_scale, double hadronic_scale, std::shared_ptr<ObsWilsonBuilder>& wilson_builder) : DecayParent(DecayMapper::to_id(Decays::B__Xs), matching_scale, hadronic_scale, order, wilson_builder) {
         this->w_config.groups = {WGroup::B, WGroup::BPrime};
         this->max_order = QCDOrder::NNLO;
     }

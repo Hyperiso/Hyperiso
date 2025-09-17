@@ -177,7 +177,7 @@ protected:
                         double L_mu, double mc_hat, double inv_alpha_em, double m_D_hat);
 
 public:
-    BXsllDecay(QCDOrder order, double matching_scale, double hadronic_scale, std::shared_ptr<ObsWilsonBuilder>& wilson_builder) : DecayParent(matching_scale, hadronic_scale, order, wilson_builder) {
+    BXsllDecay(QCDOrder order, double matching_scale, double hadronic_scale, std::shared_ptr<ObsWilsonBuilder>& wilson_builder) : DecayParent(DecayMapper::to_id(Decays::B__Xs_l_l), matching_scale, hadronic_scale, order, wilson_builder) {
         this->w_config.groups = {WGroup::B, WGroup::BPrime, WGroup::BScalar};
         this->max_order = QCDOrder::NNLO;
     }

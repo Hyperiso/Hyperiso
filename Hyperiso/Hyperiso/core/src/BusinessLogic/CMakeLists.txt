@@ -38,6 +38,7 @@ add_library(BusinessLogicLib STATIC
     domain/Decays/BDstarlnuDecay.cpp
     domain/Decays/BXsllDecay.cpp
     domain/Decays/M0_Mixing.cpp
+    domain/Wilson/WilsonObs.cpp
     domain/Compound.cpp
     domain/Observable.cpp
     domain/DecayParent.cpp
@@ -91,6 +92,9 @@ target_link_libraries(CAMILIA BusinessLogicLib)
 
 add_executable(BSLL_FF app/test_bsll_ff.cpp)
 target_link_libraries(BSLL_FF BusinessLogicLib)
+
+add_executable(TEST_CUSTOM_OBS app/main_custom_obs.cpp)
+target_link_libraries(TEST_CUSTOM_OBS BusinessLogicLib)
 
 include(GNUInstallDirs)
 

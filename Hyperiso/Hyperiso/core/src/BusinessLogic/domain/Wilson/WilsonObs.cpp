@@ -14,8 +14,7 @@ void WilsonDecay::build_op_tree() {
     auto C7 = std::make_shared<OperatorNode>("C7", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return get_matching_coef(WGroup::B, WCoef::C7); });
     C7->addChild(wilson);
 
-    DecayMapper::register_custom("Wilson");
-    ObservableMapper::register_custom("C7", {}, LhaID(42,42), "Wilson");
+    ObservableMapper::register_custom("C7", {}, LhaID(42,42), this->id);
     ObservableId c7_id = ObservableMapper::id_of("C7");
-    roots.emplace(std::pair{c7_id, C7});
+    roots.emplace(c7_id, C7);
 }

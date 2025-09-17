@@ -12,6 +12,7 @@ template<class Tag>
 class SymbolId {
     std::string name_;
 public:
+    SymbolId() = default;
     explicit SymbolId(std::string n) : name_(std::move(n)) {}
     const std::string& str() const { return name_; }
 };

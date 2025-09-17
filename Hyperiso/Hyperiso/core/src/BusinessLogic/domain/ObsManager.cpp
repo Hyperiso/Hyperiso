@@ -17,6 +17,8 @@ ObsManager::ObsManager(std::shared_ptr<ObsWilsonBuilder>& wil_builder) {
         {DecayMapper::to_id(Decays::M0_Mix),        std::make_shared<M0Mixing>(QCDOrder::NONE, 160, 4.16, wil_builder)},
         {DecayMapper::to_id(Decays::B__Kstar_l_l),  std::make_shared<BKstarllDecay>(QCDOrder::NONE, 81, smParamProxy("QCD", LhaID(5, 3)), wil_builder)},
     };
+
+    build_all_decay_trees();
 }
 
 ObsManager ObsManager::add_obs(ObservableId id, QCDOrder order, bool add_deps) {
@@ -69,6 +71,12 @@ std::unordered_map<ObservableId, Estimate> ObsManager::evaluate_all() {
     return all_ests;
 }
 
+void ObsManager::add_custom_decay(DecayId id, std::shared_ptr<DecayParent> ptr) {
+    ptr->bind_wilson_builder(this->wil_builder);
+    ptr->build_op_tree();
+    this->decays.emplace(id, ptr);
+}
+
 void ObsManager::add_obs_dep(Observables id, ParamId param) {
     ObservableId obs_id = ObservableMapper::to_id(id);
 
@@ -93,7 +101,7 @@ void ObsManager::add_obs_deps(Observables id, std::unordered_set<ParamId> params
 
 void ObsManager::add_obs_deps(ObservableId id, std::unordered_set<ParamId> params) {
     for (auto &p : params) {
-        if (!DependenciesHelper::is_param_allowed(id, p)) {
+        if (ObservableMapper::enum_of(id).has_value() && !DependenciesHelper::is_param_allowed(id, p)) {
             LOG_WARN("Observable", ObservableMapper::str(id), "doesn't depend on parameter (", p.block, ",", p.code, "). Ignoring.");
         }
     }
@@ -195,4 +203,10 @@ ObservableId ObsManager::ensure_present(ObservableId id, bool critical) {
             LOG_WARN("Observable manager doesn't contain observable", ObservableMapper::str(id));
     }
     return id;
+}
+
+void ObsManager::build_all_decay_trees() {
+    for (auto &[_, v] : this->decays) {
+        v->build_op_tree();
+    }
 }

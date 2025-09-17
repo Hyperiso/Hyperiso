@@ -16,6 +16,7 @@ void WilsonBuilder::build(WilsonBuildConfig config) {
     }
 
     if (UseMarty().get() && config.order > QCDOrder::LO) {
+        // TODO : Use QCDOrder > LO as a flag for SM calculation. 
         LOG_WARN("Using MARTY defaults all calculations to LO.");
         config.order = QCDOrder::LO;
     }

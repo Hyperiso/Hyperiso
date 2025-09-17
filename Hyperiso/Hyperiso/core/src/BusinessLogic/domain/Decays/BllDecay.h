@@ -19,7 +19,7 @@ protected:
     scalar_t BR_untag_Bs_mumu(scalar_t br_avg, scalar_t ys, scalar_t A);
 
 public:
-    BllDecay(QCDOrder order, double matching_scale, double hadronic_scale, std::shared_ptr<ObsWilsonBuilder>& wilson_builder) : DecayParent(matching_scale, hadronic_scale, order, wilson_builder) {
+    BllDecay(QCDOrder order, double matching_scale, double hadronic_scale, std::shared_ptr<ObsWilsonBuilder>& wilson_builder) : DecayParent(DecayMapper::to_id(Decays::B__l_l), matching_scale, hadronic_scale, order, wilson_builder) {
         this->w_config.groups = {WGroup::B, WGroup::BPrime, WGroup::BScalar};
         this->max_order = QCDOrder::NNLO;
     }

@@ -58,7 +58,7 @@ struct BKstarllCache {
  */
 class BKstarllDecay : public ConfigurableDecayParent<BKstarllDecay, BKstarllConfig::FF_Src, BKstarllConfig::FF_Type, BKstarllConfig::Power_Corrections_Impl, BKstarllConfig::B_Charge> {
 public:
-    BKstarllDecay(QCDOrder order, double matching_scale, double hadronic_scale, std::shared_ptr<ObsWilsonBuilder>& wilson_builder) : ConfigurableDecayParent(matching_scale, hadronic_scale, order, wilson_builder) {
+    BKstarllDecay(QCDOrder order, double matching_scale, double hadronic_scale, std::shared_ptr<ObsWilsonBuilder>& wilson_builder) : ConfigurableDecayParent(DecayMapper::to_id(Decays::B__Kstar_l_l), matching_scale, hadronic_scale, order, wilson_builder) {
         this->w_config.groups = {WGroup::B, WGroup::BPrime, WGroup::BScalar};
         this->max_order = QCDOrder::NNLO;
     }

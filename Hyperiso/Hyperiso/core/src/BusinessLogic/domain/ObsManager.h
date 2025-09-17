@@ -39,6 +39,8 @@ public:
     scalar_t evaluate(ObservableId id);
     std::unordered_map<ObservableId, Estimate> evaluate_all();
 
+    void add_custom_decay(DecayId id, std::shared_ptr<DecayParent> ptr);
+
     void add_obs_dep(Observables id, ParamId param);
     void add_obs_deps(Observables id, std::unordered_set<ParamId> params);
     void add_obs_dep(ObservableId id, ParamId param);
@@ -84,8 +86,9 @@ private:
     ModelEvaluator me;
 
     ObservableId ensure_present(Observables id, bool critical=true);
-
     ObservableId ensure_present(ObservableId id, bool critical=true);
+
+    void build_all_decay_trees();
 
     std::shared_ptr<ObsWilsonBuilder> wil_builder;
 };

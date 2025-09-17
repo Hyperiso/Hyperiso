@@ -6,3 +6,7 @@ ObservableInterface::ObservableInterface() {
     auto builder = std::make_shared<ObsWilsonBuilder>(builder_ptr);
     manager = std::make_shared<ObsManager>(builder);
 }
+
+void ObservableInterface::add_custom_decay(DecayId id, std::shared_ptr<DecayParent> ptr) {
+    manager->add_custom_decay(id, ptr);
+}

@@ -95,6 +95,10 @@ public:
     }
 
     inline static std::optional<DecayId> get_decay_id(ObservableId obs) {
+        if (auto d = DecayGraph::instance().parent_of(obs); d)  // dynamique
+            return d;
+
+        // Fallback legacy (cache construit depuis decay_observable_mapping()) :
         const auto& m = observable_to_decay();
         if (auto it = m.find(obs); it != m.end()) return it->second;
         return std::nullopt;

@@ -21,12 +21,25 @@ private:
 public:
     ObservableInterface();
 
+    void add_custom_decay(DecayId id, std::shared_ptr<DecayParent> ptr);
+
     ObservableInterface& add_observable(Observables obs, QCDOrder order, bool add_dependencies=false) {  
         manager->add_obs(obs, order, add_dependencies);
         return *this;
     }
 
+    ObservableInterface& add_observable(ObservableId obs, QCDOrder order, bool add_dependencies=false) {  
+        manager->add_obs(obs, order, add_dependencies);
+        return *this;
+    }
+
     void add_observables(std::map<Observables, QCDOrder> obss, bool add_dependencies=false) {  
+        for (auto &[k, v] : obss) {
+            add_observable(k, v, add_dependencies);
+        }
+    }
+
+    void add_observables(std::map<ObservableId, QCDOrder> obss, bool add_dependencies=false) {  
         for (auto &[k, v] : obss) {
             add_observable(k, v, add_dependencies);
         }
@@ -38,7 +51,18 @@ public:
         }
     }
 
+    // TODO : Overload get_observables(DecayId)
+    // void add_observables(DecayId decay, QCDOrder order, bool add_dependencies=false) {  
+    //     for (auto &obs : DecayMapper::get_observables(decay)) {
+    //         add_observable(obs, order, add_dependencies);
+    //     }
+    // }
+
     void add_observable_parameter(Observables obs, ParamId pid) {
+        manager->add_obs_dep(obs, pid);
+    }
+
+    void add_observable_parameter(ObservableId obs, ParamId pid) {
         manager->add_obs_dep(obs, pid);
     }
 
@@ -46,7 +70,15 @@ public:
         manager->add_obs_deps(obs, pids);
     }
 
+    void add_observable_parameters(ObservableId obs, std::unordered_set<ParamId> pids) {
+        manager->add_obs_deps(obs, pids);
+    }
+
     scalar_t compute_observable(Observables obs) const {
+        return manager->evaluate(obs);
+    }
+
+    scalar_t compute_observable(ObservableId obs) const {
         return manager->evaluate(obs);
     }
 
@@ -54,7 +86,15 @@ public:
         return manager->get_uncertainty(obs);
     }
 
+    scalar_t compute_uncertainty(ObservableId obs, UncertaintyType u_type=UncertaintyType::COMBINED) const {
+        return manager->get_uncertainty(obs);
+    }
+
     std::unordered_map<ParamId, scalar_t> compute_leading_uncertainties(Observables obs, size_t n, UncertaintyType u_type=UncertaintyType::COMBINED) const {
+        return manager->get_leading_uncertainties(obs, n);
+    }
+
+    std::unordered_map<ParamId, scalar_t> compute_leading_uncertainties(ObservableId obs, size_t n, UncertaintyType u_type=UncertaintyType::COMBINED) const {
         return manager->get_leading_uncertainties(obs, n);
     }
 
@@ -70,8 +110,18 @@ public:
         manager->remove_obs(id);
     }
 
+    void remove_observable(ObservableId id) {
+        manager->remove_obs(id);
+    }
+
     void remove_observables(std::unordered_set<Observables> ids) {
         for (Observables id : ids) {
+            remove_observable(id);
+        }
+    };
+    
+    void remove_observables(std::unordered_set<ObservableId> ids) {
+        for (ObservableId id : ids) {
             remove_observable(id);
         }
     };
@@ -81,6 +131,13 @@ public:
             remove_observable(id);
         }
     };
+
+    // TODO : same as above
+    // void remove_observables(DecayId dec) {
+    //     for (Observables id : DecayMapper::get_observables(dec)) {
+    //         remove_observable(id);
+    //     }
+    // };
 
     scalar_t get_exp_value(Observables id) {
         return manager->get_obs(id)->get_exp_val();
@@ -133,7 +190,15 @@ public:
         return manager->get_obs_evals(obs);
     }
 
+    double get_observable_evaluations(ObservableId obs) {
+        return manager->get_obs_evals(obs);
+    }
+
     void update_gradient(Observables obs) {
+        manager->update_gradient(obs);
+    }
+
+    void update_gradient(ObservableId obs) {
         manager->update_gradient(obs);
     }
 
@@ -143,9 +208,20 @@ public:
     }
 
     template <typename EnumType>
+    void set_config_flag(DecayId decay_id, EnumType e) {
+        manager->set_config_flag(decay_id, e);
+    }
+
+    template <typename EnumType>
     void set_config_flag(Observables obs_id, EnumType e) {
         manager->set_config_flag(DecayMapper::get_decay(obs_id), e);
     }
+
+    // TODO : Overload get_decay(ObservableId)
+    // template <typename EnumType>
+    // void set_config_flag(ObservableId obs_id, EnumType e) {
+    //     manager->set_config_flag(DecayMapper::get_decay(obs_id), e);
+    // }
 };
 
 #endif
