@@ -5,11 +5,12 @@
 #include "ObsQCDProxy.h"
 #include "Include.h"
 #include "Math.h"
+#include "DefaultConfig.h"
 
 /**
  * @brief Decay parent for the inclusive B > X_s l+ l- decays. Implements the integrated branching ratio in both q² \in [1, 6] GeV² and q² > 14.4 GeV², as well as the forward-backward asymmetry of the decay. 
  */
-class BXsllDecay : public DecayParent {
+class BXsllDecay : public DecayParentConfigurable<DecayConfig> {
 
 private:
     static inline const std::array<double, 6> cc_res_mass      {3.096916, 3.68609,   3.77292, 4.039 , 4.153  , 4.421 };
@@ -177,7 +178,7 @@ protected:
                         double L_mu, double mc_hat, double inv_alpha_em, double m_D_hat);
 
 public:
-    BXsllDecay(QCDOrder order, double matching_scale, double hadronic_scale, std::shared_ptr<ObsWilsonBuilder>& wilson_builder) : DecayParent(DecayMapper::to_id(Decays::B__Xs_l_l), matching_scale, hadronic_scale, order, wilson_builder) {
+    BXsllDecay(QCDOrder order, double matching_scale, double hadronic_scale, std::shared_ptr<ObsWilsonBuilder>& wilson_builder) : DecayParentConfigurable(DecayMapper::to_id(Decays::B__Xs_l_l), matching_scale, hadronic_scale, order, wilson_builder) {
         this->w_config.groups = {WGroup::B, WGroup::BPrime, WGroup::BScalar};
         this->max_order = QCDOrder::NNLO;
     }

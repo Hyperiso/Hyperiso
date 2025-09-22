@@ -14,6 +14,8 @@
 #include "Configs.h"
 #include <chrono>
 #include <type_traits>
+#include <any>
+#include "DefaultConfig.h"
 
 using std::chrono::high_resolution_clock;
 using std::chrono::duration;
@@ -22,7 +24,7 @@ struct IFormFactorConfig {
     virtual ~IFormFactorConfig() = default;
 };
 
-class DecayParent {
+class DecayParent  {
 
 protected:
     std::map<ObservableId, std::shared_ptr<OperatorNode>> roots;
@@ -55,6 +57,9 @@ public:
 
     virtual void build_op_tree() = 0;
 
+    virtual void set_config(std::any cfg) = 0;
+    
+
     template<typename EnumType>
     void set_config_flag(EnumType e) {
         throw std::logic_error("This flag is not supported for this decay");
@@ -77,6 +82,41 @@ public:
             throw std::logic_error("Unsupported flag type for this decay");
         }
     }
+};
+
+template<typename T>
+class DecayParentConfigurable : public DecayParent {
+public:
+    DecayParentConfigurable(DecayId id, double matching_scale, double hadronic_scale,
+                            QCDOrder order, std::shared_ptr<ObsWilsonBuilder>& wilson_builder)
+        : DecayParent(id, matching_scale, hadronic_scale, order, wilson_builder)
+    {}
+
+     void set_config(std::any cfg) final override {
+        if (auto p = std::any_cast<T>(&cfg)) { set_config_spe(*p); return; }
+        if (auto p = std::any_cast<std::add_const_t<T>>(&cfg)) { set_config_spe(*p); return; }
+        throw std::bad_any_cast{};
+    }
+    virtual void set_config_spe(T config) = 0;
+};
+
+template<>
+struct DecayParentConfigurable<DecayConfig> : DecayParent {
+public:
+    DecayParentConfigurable(DecayId id, double matching_scale, double hadronic_scale,
+                            QCDOrder order, std::shared_ptr<ObsWilsonBuilder>& wilson_builder)
+        : DecayParent(id, matching_scale, hadronic_scale, order, wilson_builder)
+    {}
+
+    DecayParentConfigurable(DecayId id, double matching_scale, double hadronic_scale,
+                            QCDOrder order)
+        : DecayParent(id, matching_scale, hadronic_scale, order)
+    {}
+
+    void set_config(std::any) final override {
+
+    }
+    // pas de set_config à écrire dans les classes filles
 };
 
 #endif // __DECAYPARENT_H__

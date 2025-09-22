@@ -120,11 +120,6 @@ public:
         }
     };
     
-    void remove_observables(std::unordered_set<ObservableId> ids) {
-        for (ObservableId id : ids) {
-            remove_observable(id);
-        }
-    };
 
     void remove_observables(Decays dec) {
         for (Observables id : DecayMapper::get_observables(dec)) {

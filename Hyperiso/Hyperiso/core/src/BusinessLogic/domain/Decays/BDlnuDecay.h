@@ -4,6 +4,7 @@
 #include "DecayParent.h"
 #include "General.h"
 #include "ObsWilsonProxy.h"
+#include "DefaultConfig.h"
 
 /**
  * @brief Decay parent for the B > D l nu_l decays [1309:0301]. Currently implements :
@@ -12,7 +13,7 @@
  *     - Forward-Backward asymmetry 
  *     - P_tau = (Γ(s_tau = +1/2) - Γ(s_tau = -1/2)) / Γ
  */
-class BDlnuDecay : public DecayParent {
+class BDlnuDecay : public DecayParentConfigurable<DecayConfig> {
 protected:
     double ckm(complex_t V_cb);
     double pref(double G_F, double tau_B, double m_B, double m_D, double V_11);
@@ -58,7 +59,7 @@ protected:
     double BR_B_Dtaunu(double pref, double ckm, double width);
 
 public:
-    BDlnuDecay(QCDOrder order, double matching_scale, double hadronic_scale, std::shared_ptr<ObsWilsonBuilder>& wilson_builder) : DecayParent(DecayMapper::to_id(Decays::B__D_l_nu), matching_scale, hadronic_scale, order, wilson_builder) {
+    BDlnuDecay(QCDOrder order, double matching_scale, double hadronic_scale, std::shared_ptr<ObsWilsonBuilder>& wilson_builder) : DecayParentConfigurable(DecayMapper::to_id(Decays::B__D_l_nu), matching_scale, hadronic_scale, order, wilson_builder) {
         this->w_config.groups = {WGroup::BCC};
         this->max_order = QCDOrder::LO;
     }

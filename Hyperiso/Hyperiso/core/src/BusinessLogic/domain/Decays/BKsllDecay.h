@@ -4,10 +4,11 @@
 #include "DecayParent.h"
 #include "Include.h"
 #include "ObsQCDProxy.h"
+#include "DefaultConfig.h"
 
 enum class FF {A0, A1, A12, V, T1, T2, T23, A2, T3};
 
-struct BKstarllConfig {
+struct BKstarllConfig : public DecayConfig {
     enum class FF_Src {BSZ_SR_LAT, BSZ_SR, GRvDV, GKvD_SR_LAT, GKvD_SR, HLMW};
     enum class Power_Corrections_Impl {SuperIso, Van_Dyk, Khodjamirian};
     enum class FF_Type {FULL, SOFT};
@@ -56,9 +57,9 @@ struct BKstarllCache {
 /**
  * @brief Decay parent for the exclusive B > K* l+ l- decays. Implements the integrated branching ratio and angular observables in several q² bins, as well as the forward-backward asymmetry of the decay. 
  */
-class BKstarllDecay : public ConfigurableDecayParent<BKstarllDecay, BKstarllConfig::FF_Src, BKstarllConfig::FF_Type, BKstarllConfig::Power_Corrections_Impl, BKstarllConfig::B_Charge> {
+class BKstarllDecay : public DecayParentConfigurable<BKstarllConfig> {
 public:
-    BKstarllDecay(QCDOrder order, double matching_scale, double hadronic_scale, std::shared_ptr<ObsWilsonBuilder>& wilson_builder) : ConfigurableDecayParent(DecayMapper::to_id(Decays::B__Kstar_l_l), matching_scale, hadronic_scale, order, wilson_builder) {
+    BKstarllDecay(QCDOrder order, double matching_scale, double hadronic_scale, std::shared_ptr<ObsWilsonBuilder>& wilson_builder) : DecayParentConfigurable(DecayMapper::to_id(Decays::B__Kstar_l_l), matching_scale, hadronic_scale, order, wilson_builder) {
         this->w_config.groups = {WGroup::B, WGroup::BPrime, WGroup::BScalar};
         this->max_order = QCDOrder::NNLO;
     }
@@ -70,6 +71,8 @@ public:
     void set_config_flag_c(BKstarllConfig::Power_Corrections_Impl impl) { cfg.power_corr_impl = impl; };
     void set_config_flag_c(BKstarllConfig::B_Charge charge) { cfg.charge = charge; };
     void set_config_flag_c(BKstarllConfig::Lepton lepton_gen) { cfg.gen = lepton_gen; };
+
+    void set_config_spe(BKstarllConfig config) override {this->cfg = config;}
 
 private:
     BKstarllConfig cfg {};

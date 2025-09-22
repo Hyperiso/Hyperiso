@@ -9,7 +9,7 @@
 /**
  * @brief Parent for the M0 - M0_bar mixing observables. Currently implements TODO. 
  */
-class M0Mixing : public DecayParent {
+class M0Mixing : public DecayParentConfigurable<DecayConfig> {
 
 private:
     std::array<double, 5> Q;
@@ -58,7 +58,7 @@ protected:
     double x_D(complex_t M_12, double tau_D0);
 
 public:
-    M0Mixing(QCDOrder order, double matching_scale, double hadronic_scale, std::shared_ptr<ObsWilsonBuilder>& wilson_builder) : DecayParent(DecayMapper::to_id(Decays::M0_Mix), matching_scale, hadronic_scale, order, wilson_builder) {
+    M0Mixing(QCDOrder order, double matching_scale, double hadronic_scale, std::shared_ptr<ObsWilsonBuilder>& wilson_builder) : DecayParentConfigurable(DecayMapper::to_id(Decays::M0_Mix), matching_scale, hadronic_scale, order, wilson_builder) {
         this->w_config.groups = {WGroup::MESON_MIXING};
         this->max_order = QCDOrder::LO;
     }
