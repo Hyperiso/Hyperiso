@@ -90,6 +90,22 @@ private:
     static inline std::array<scalar_t, LOOKUP_SIZE> T_perp_m_lookup;
     static inline std::array<scalar_t, LOOKUP_SIZE> T_par_p_lookup;
     static inline std::array<scalar_t, LOOKUP_SIZE> T_par_m_lookup;
+    static inline std::array<scalar_t, LOOKUP_SIZE> T_perp_p_bar_lookup;
+    static inline std::array<scalar_t, LOOKUP_SIZE> T_perp_m_bar_lookup;
+    static inline std::array<scalar_t, LOOKUP_SIZE> T_par_p_bar_lookup;
+    static inline std::array<scalar_t, LOOKUP_SIZE> T_par_m_bar_lookup;
+
+    std::vector<std::pair<double, double>> bins {
+        { 0.10,  2.00},
+        { 2.00,  4.30},
+        { 4.30,  8.68},
+        {14.18, 16.00},
+        {16.00, 19.00},
+        { 1.00,  6.00}
+    };
+
+    std::array<std::vector<double>, 14> J_i_binned;
+    std::array<std::vector<double>, 14> J_i_bar_binned; 
 
 protected:
     // Auxiliary
@@ -127,94 +143,168 @@ protected:
     double F_perp(double s_hat);
     double X_perp(double s_hat);
     double gv_dga_4(double u, double z3a, double z3v, double w10a, double dtp, double dtm);
-    complex_t F_V(double v);
+    complex_t F_V(double v, bool bar);
 
     complex_t Y(double q2);
     complex_t Y_u(double q2);
     double L(double q2);
-    complex_t C_perp_0(double q2, double m_B, double sign);
-    complex_t C_par_0(double q2, double m_B, double sign);
-    complex_t C_perp_f(double q2, double sign);
-    complex_t C_par_f(double q2, double sign);
-    complex_t C_perp_nf(double q2, double m_B);
-    complex_t C_par_nf(double q2, double m_B);
+    complex_t C_perp_0(double q2, double m_B, double sign, bool bar);
+    complex_t C_par_0(double q2, double m_B, double sign, bool bar);
+    complex_t C_perp_f(double q2, double sign, bool bar);
+    complex_t C_par_f(double q2, double sign, bool bar);
+    complex_t C_perp_nf(double q2, double m_B, bool bar);
+    complex_t C_par_nf(double q2, double m_B, bool bar);
 
     complex_t t_perp(double u, double m_q, double q2, double E_Kstar, double m_B);
     complex_t t_par(double u, double m_q, double q2, double E_Kstar, double m_B);
-    complex_t T_par_m_0(double m_B);
-    complex_t T_par_p_p_f(double u, double q2, double m_B, double m_K);
-    complex_t T_par_p_m_f(double u, double q2, double m_B, double m_K);
-    complex_t T_perp_p_p_f(double u, double q2, double m_B, double m_K);
-    complex_t T_perp_p_m_f(double u, double q2, double m_B, double m_K);
-    complex_t T_perp_p_nf(double u, double q2, double m_B, double m_K);
-    complex_t T_par_p_nf(double u, double q2, double m_B, double m_K);
-    complex_t T_par_m_nf(double u, double q2, double m_B, double m_K);
+    complex_t T_par_m_0(double m_B, bool bar);
+    complex_t T_par_p_p_f(double u, double q2, double m_B, double m_K, bool bar);
+    complex_t T_par_p_m_f(double u, double q2, double m_B, double m_K, bool bar);
+    complex_t T_perp_p_p_f(double u, double q2, double m_B, double m_K, bool bar);
+    complex_t T_perp_p_m_f(double u, double q2, double m_B, double m_K, bool bar);
+    complex_t T_perp_p_nf(double u, double q2, double m_B, double m_K, bool bar);
+    complex_t T_par_p_nf(double u, double q2, double m_B, double m_K, bool bar);
+    complex_t T_par_m_nf(double u, double q2, double m_B, double m_K, bool bar);
 
     complex_t inv_lambda_B_m(double q2, double m_B);
 
-    complex_t I_perp_p(double q2, double m_B, double m_K); 
-    complex_t I_perp_m(double q2, double m_B, double m_K);
-    complex_t I_par_p(double q2, double m_B, double m_K);
-    complex_t I_par_m(double q2, double m_B, double m_K);
+    complex_t I_perp_p(double q2, double m_B, double m_K, bool bar); 
+    complex_t I_perp_m(double q2, double m_B, double m_K, bool bar);
+    complex_t I_par_p(double q2, double m_B, double m_K, bool bar);
+    complex_t I_par_m(double q2, double m_B, double m_K, bool bar);
 
-    complex_t I_HSA_1(double q2, double m_B);
-    complex_t I_HSA_2(double q2, double m_B, double z3a, double z3v, double w10a, double dtp, double dtm);
+    complex_t I_HSA_1(double q2, double m_B, bool bar);
+    complex_t I_HSA_2(double q2, double m_B, double z3a, double z3v, double w10a, double dtp, double dtm, bool bar);
     complex_t delta_T_perp_WA(double q2, double m_B, double m_K, double f_B, double f_K_par);
-    complex_t delta_T_perp_HSA(double q2, double m_B, double m_K, double f_B, double f_K_par, double z3a, double z3v, double w10a, double dtp, double dtm);
+    complex_t delta_T_perp_HSA(double q2, double m_B, double m_K, double f_B, double f_K_par, double z3a, double z3v, double w10a, double dtp, double dtm, bool bar);
 
-    complex_t T_perp_p(double q2, double m_B, double m_K, double f_B, double f_K_par, double z3a, double z3v, double w10a, double dtp, double dtm);
-    complex_t T_perp_m(double q2, double m_B, double m_K, double f_B, double f_K_par, double z3a, double z3v, double w10a, double dtp, double dtm);
-    complex_t T_par_p(double q2, double m_B, double m_K);
-    complex_t T_par_m(double q2, double m_B, double m_K);
+    complex_t T_perp_p(double q2, double m_B, double m_K, double f_B, double f_K_par, double z3a, double z3v, double w10a, double dtp, double dtm, bool bar);
+    complex_t T_perp_m(double q2, double m_B, double m_K, double f_B, double f_K_par, double z3a, double z3v, double w10a, double dtp, double dtm, bool bar);
+    complex_t T_par_p(double q2, double m_B, double m_K, bool bar);
+    complex_t T_par_m(double q2, double m_B, double m_K, bool bar);
     complex_t Delta_par(double q2, double m_B, double m_K, double f_B, double f_K_par);
 
-    complex_t T_perp_p_cached(double q2);
-    complex_t T_perp_m_cached(double q2);
-    complex_t T_par_p_cached(double q2);
-    complex_t T_par_m_cached(double q2);
+    complex_t T_perp_p_cached(double q2, bool bar);
+    complex_t T_perp_m_cached(double q2, bool bar);
+    complex_t T_par_p_cached(double q2, bool bar);
+    complex_t T_par_m_cached(double q2, bool bar);
 
     // Transversity amplitudes
     double beta_l(double q2, double m_l);
     double lambda(double q2, double m_B, double m_K);
-    complex_t N(double q2, double m_B, double m_K, double m_l);
+    complex_t N(double q2, double m_B, double m_K, double m_l, bool bar);
 
-    complex_t A_perp_low(double q2, double m_B, double m_K, double m_l, double sign);
-    complex_t A_par_low(double q2, double m_B, double m_K, double m_l, double sign);
-    complex_t A_0_low(double q2, double m_B, double m_K, double m_l, double sign);
-    complex_t A_t_low(double q2, double m_B, double m_K, double m_l, double f_B, double f_K_par, double m_s);
-    complex_t A_S_low(double q2, double m_B, double m_K, double m_l, double f_B, double f_K_par, double m_s);
+    complex_t A_perp_low(double q2, double m_B, double m_K, double m_l, double sign, bool bar);
+    complex_t A_par_low(double q2, double m_B, double m_K, double m_l, double sign, bool bar);
+    complex_t A_0_low(double q2, double m_B, double m_K, double m_l, double sign, bool bar);
+    complex_t A_t_low(double q2, double m_B, double m_K, double m_l, double f_B, double f_K_par, double m_s, bool bar);
+    complex_t A_S_low(double q2, double m_B, double m_K, double m_l, double f_B, double f_K_par, double m_s, bool bar);
 
-    complex_t C7_eff(double q2, double m_B);
-    complex_t C9_eff(double q2, double m_B);
-    complex_t A_perp_high(double q2, double m_B, double m_K, double m_l, double sign);
-    complex_t A_par_high(double q2, double m_B, double m_K, double m_l, double sign);
-    complex_t A_0_high(double q2, double m_B, double m_K, double m_l, double sign);
-    complex_t A_t_high(double q2, double m_B, double m_K, double m_l, double m_s);
-    complex_t A_S_high(double q2, double m_B, double m_K, double m_l, double m_s);
+    complex_t C7_eff(double q2, double m_B, bool bar);
+    complex_t C9_eff(double q2, double m_B, bool bar);
+    complex_t A_perp_high(double q2, double m_B, double m_K, double m_l, double sign, bool bar);
+    complex_t A_par_high(double q2, double m_B, double m_K, double m_l, double sign, bool bar);
+    complex_t A_0_high(double q2, double m_B, double m_K, double m_l, double sign, bool bar);
+    complex_t A_t_high(double q2, double m_B, double m_K, double m_l, double m_s, bool bar);
+    complex_t A_S_high(double q2, double m_B, double m_K, double m_l, double m_s, bool bar);
 
     complex_t interpolate(double q2, complex_t val_low, complex_t val_high);
-    complex_t A_perp(double q2, double m_B, double m_K, double m_l, double sign);
-    complex_t A_par(double q2, double m_B, double m_K, double m_l, double sign);
-    complex_t A_0(double q2, double m_B, double m_K, double m_l, double sign);
-    complex_t A_t(double q2, double m_B, double m_K, double m_l, double f_B, double f_K_par, double m_s);
-    complex_t A_S(double q2, double m_B, double m_K, double m_l, double f_B, double f_K_par, double m_s);
+    complex_t A_perp(double q2, double m_B, double m_K, double m_l, double sign, bool bar);
+    complex_t A_par(double q2, double m_B, double m_K, double m_l, double sign, bool bar);
+    complex_t A_0(double q2, double m_B, double m_K, double m_l, double sign, bool bar);
+    complex_t A_t(double q2, double m_B, double m_K, double m_l, double f_B, double f_K_par, double m_s, bool bar);
+    complex_t A_S(double q2, double m_B, double m_K, double m_l, double f_B, double f_K_par, double m_s, bool bar);
     
     // Angular coefficients
-    double J1s(double q2, double m_B, double m_K, double m_l);
-    double J1c(double q2, double m_B, double m_K, double m_l, double f_B, double f_K_par, double m_s);
-    double J2s(double q2, double m_B, double m_K, double m_l);
-    double J2c(double q2, double m_B, double m_K, double m_l);
-    double J3(double q2, double m_B, double m_K, double m_l);
-    double J4(double q2, double m_B, double m_K, double m_l);
-    double J5(double q2, double m_B, double m_K, double m_l, double f_B, double f_K_par, double m_s);
-    double J6s(double q2, double m_B, double m_K, double m_l);
-    double J6c(double q2, double m_B, double m_K, double m_l, double f_B, double f_K_par, double m_s);
-    double J7(double q2, double m_B, double m_K, double m_l, double f_B, double f_K_par, double m_s);
-    double J8(double q2, double m_B, double m_K, double m_l);
-    double J9(double q2, double m_B, double m_K, double m_l);
+    double J1s(double q2, double m_B, double m_K, double m_l, bool bar);
+    double J1c(double q2, double m_B, double m_K, double m_l, double f_B, double f_K_par, double m_s, bool bar);
+    double J2s(double q2, double m_B, double m_K, double m_l, bool bar);
+    double J2c(double q2, double m_B, double m_K, double m_l, bool bar);
+    double J3(double q2, double m_B, double m_K, double m_l, bool bar);
+    double J4(double q2, double m_B, double m_K, double m_l, bool bar);
+    double J5(double q2, double m_B, double m_K, double m_l, double f_B, double f_K_par, double m_s, bool bar);
+    double J6s(double q2, double m_B, double m_K, double m_l, bool bar);
+    double J6c(double q2, double m_B, double m_K, double m_l, double f_B, double f_K_par, double m_s, bool bar);
+    double J7(double q2, double m_B, double m_K, double m_l, double f_B, double f_K_par, double m_s, bool bar);
+    double J8(double q2, double m_B, double m_K, double m_l, bool bar);
+    double J9(double q2, double m_B, double m_K, double m_l, bool bar);
+
+    void compute_binned_J_i(double m_B, double m_K, double m_l, double f_B, double f_K_par, double m_s);
 
     // Observables
+    double dG_dq2_avg(double q2, double m_B, double m_K, double m_l, double f_B, double f_K_par, double m_s);
+    double dG_dq2(double q2,double m_B, double m_K, double m_l, double f_B, double f_K_par, double m_s, bool bar);
+    double A_FB(double q2,double m_B, double m_K, double m_l, double f_B, double f_K_par, double m_s);
+    double A_CP(double q2,double m_B, double m_K, double m_l, double f_B, double f_K_par, double m_s);
+    double F_L(double q2,double m_B, double m_K, double m_l, double f_B, double f_K_par, double m_s);
+    double F_T(double q2,double m_B, double m_K, double m_l, double f_B, double f_K_par, double m_s);
+    double A_T_1(double q2,double m_B, double m_K, double m_l);
+    double A_T_2(double q2,double m_B, double m_K, double m_l);
+    double A_T_3(double q2,double m_B, double m_K, double m_l, double f_B, double f_K_par, double m_s);
+    double A_T_4(double q2,double m_B, double m_K, double m_l, double f_B, double f_K_par, double m_s);
+    double A_T_5(double q2,double m_B, double m_K, double m_l);
+    double A_T_Re(double q2,double m_B, double m_K, double m_l);
+    double AA_T_Re(double q2,double m_B, double m_K, double m_l);
+    double A_Im(double q2,double m_B, double m_K, double m_l, double f_B, double f_K_par, double m_s);
+    double alpha_K(double q2,double m_B, double m_K, double m_l);
+    double H_T_1(double q2,double m_B, double m_K, double m_l);
+    double H_T_2(double q2,double m_B, double m_K, double m_l, double f_B, double f_K_par, double m_s);
+    double H_T_3(double q2,double m_B, double m_K, double m_l, double f_B, double f_K_par, double m_s);
+    double P_2(double q2,double m_B, double m_K, double m_l);
+    double P_3(double q2,double m_B, double m_K, double m_l);
+    double P_6(double q2,double m_B, double m_K, double m_l, double f_B, double f_K_par, double m_s);
+    double P_8(double q2,double m_B, double m_K, double m_l);
+    double Pp_4(double q2,double m_B, double m_K, double m_l);
+    double Pp_5(double q2,double m_B, double m_K, double m_l, double f_B, double f_K_par, double m_s);
+    double Pp_6(double q2,double m_B, double m_K, double m_l, double f_B, double f_K_par, double m_s);
+    double Pp_8(double q2,double m_B, double m_K, double m_l);
+    double S_3(double q2,double m_B, double m_K, double m_l, double f_B, double f_K_par, double m_s);
+    double S_4(double q2,double m_B, double m_K, double m_l, double f_B, double f_K_par, double m_s);
+    double S_5(double q2,double m_B, double m_K, double m_l, double f_B, double f_K_par, double m_s);
+    double S_6c(double q2,double m_B, double m_K, double m_l, double f_B, double f_K_par, double m_s);
+    double S_7(double q2,double m_B, double m_K, double m_l, double f_B, double f_K_par, double m_s);
+    double S_8(double q2,double m_B, double m_K, double m_l, double f_B, double f_K_par, double m_s);
+    double S_9(double q2,double m_B, double m_K, double m_l, double f_B, double f_K_par, double m_s);
+    double A_3(double q2,double m_B, double m_K, double m_l, double f_B, double f_K_par, double m_s);
+    double A_4(double q2,double m_B, double m_K, double m_l, double f_B, double f_K_par, double m_s);
+    double A_5(double q2,double m_B, double m_K, double m_l, double f_B, double f_K_par, double m_s);
+    double A_6s(double q2,double m_B, double m_K, double m_l, double f_B, double f_K_par, double m_s);
+    double A_7(double q2,double m_B, double m_K, double m_l, double f_B, double f_K_par, double m_s);
+    double A_8(double q2,double m_B, double m_K, double m_l, double f_B, double f_K_par, double m_s);
+    double A_9(double q2,double m_B, double m_K, double m_l, double f_B, double f_K_par, double m_s);
+    double AP_1(double q2,double m_B, double m_K, double m_l);
+    double AP_2(double q2,double m_B, double m_K, double m_l);
+    double AP_3(double q2,double m_B, double m_K, double m_l);
+    double APp_4(double q2,double m_B, double m_K, double m_l);
+    double APp_5(double q2,double m_B, double m_K, double m_l, double f_B, double f_K_par, double m_s);
+    double APp_6(double q2,double m_B, double m_K, double m_l, double f_B, double f_K_par, double m_s);
+    double APp_8(double q2,double m_B, double m_K, double m_l);
 
+    std::vector<double> dG_dq2_binned(bool bar);
+    double dG_dq2_avg_bin(size_t bin);
+    std::vector<double> A_FB_binned();
+    std::vector<double> A_CP_binned();
+    std::vector<double> F_L_binned();
+    std::vector<double> F_T_binned();
+    std::vector<double> A_T_1_binned(double m_B, double m_K, double m_l);
+    std::vector<double> A_T_2_binned();
+    std::vector<double> A_T_3_binned();
+    std::vector<double> A_T_4_binned();
+    std::vector<double> A_T_5_binned(double m_B, double m_K, double m_l);
+    std::vector<double> A_T_Re_binned();
+    std::vector<double> A_T_Re_CPV_binned();
+    std::vector<double> A_Im_binned();
+    std::vector<double> alpha_K_binned();
+    std::vector<double> H_T_1_binned();
+    std::vector<double> H_T_2_binned();
+    std::vector<double> H_T_3_binned();
+    std::vector<double> P_2_binned();
+    std::vector<double> P_3_binned();
+    std::vector<double> P_6_binned();
+    std::vector<double> P_8_binned();
+    std::vector<double> Pp_i_binned(size_t i, bool cpv=false);
+    std::vector<double> S_i_binned(size_t i, bool cpv=false);
+    std::vector<double> P_i_CPV_binned(size_t i);
 };
 
 #endif // __BXSLLDECAY_H__

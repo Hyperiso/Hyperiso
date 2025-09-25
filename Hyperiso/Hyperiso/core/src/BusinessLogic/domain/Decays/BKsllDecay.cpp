@@ -377,11 +377,12 @@ double BKstarllDecay::gv_dga_4(double u, double z3a, double z3v, double w10a, do
     return -u * (a1 + u * (a2 + u * (a3 + u * a4))) / 4. + dtp * (9. * u - 1.5) + dtm * 6. * u + 3. * (dtp + dtm) * log(1 - u);
 }
 
-complex_t BKstarllDecay::F_V(double v) {
+complex_t BKstarllDecay::F_V(double v, bool bar) {
+    complex_t l_u = bar ? std::conj(cache.lambda_hat_u) : cache.lambda_hat_u;
     return .75 * (
-        h(v, cache.m_c_pole, w_config.hadronic_scale) * (cache.C_bar[WCoef::C2] + cache.C_bar[WCoef::C4] + cache.C_bar[WCoef::C6] + cache.lambda_hat_u * (cache.C[WCoef::C2] - cache.C[WCoef::C1] / 6.)) 
+        h(v, cache.m_c_pole, w_config.hadronic_scale) * (cache.C_bar[WCoef::C2] + cache.C_bar[WCoef::C4] + cache.C_bar[WCoef::C6] + l_u * (cache.C[WCoef::C2] - cache.C[WCoef::C1] / 6.)) 
       + h(v, cache.m_b_pole, w_config.hadronic_scale) * (cache.C_bar[WCoef::C3] + cache.C_bar[WCoef::C4] + cache.C_bar[WCoef::C6]) 
-      + h(v, 0, w_config.hadronic_scale) * (cache.C_bar[WCoef::C3] + 3. * cache.C_bar[WCoef::C4] + 3. * cache.C_bar[WCoef::C6] - cache.lambda_hat_u * (cache.C[WCoef::C2] - cache.C[WCoef::C1] / 6.)) 
+      + h(v, 0, w_config.hadronic_scale) * (cache.C_bar[WCoef::C3] + 3. * cache.C_bar[WCoef::C4] + 3. * cache.C_bar[WCoef::C6] - l_u * (cache.C[WCoef::C2] - cache.C[WCoef::C1] / 6.)) 
       - 8. / 27. * (cache.C_bar[WCoef::C3] - cache.C_bar[WCoef::C5] - 15. * cache.C_bar[WCoef::C6])
     );
 }
@@ -391,27 +392,36 @@ double BKstarllDecay::L(double q2) {
     return (q2 - mb2) * std::log(1 - q2 / mb2) / q2;
 }
 
-complex_t BKstarllDecay::C_perp_0(double q2, double m_B, double sign) {
-    return (cache.C[WCoef::C7] + sign * cache.C[WCoef::CP7]) + q2 * (Y(q2) + cache.lambda_hat_u * Y_u(q2)) / (2. * cache.m_b_PS * m_B);
+complex_t BKstarllDecay::C_perp_0(double q2, double m_B, double sign, bool bar) {
+    complex_t C7 = cache.C[WCoef::C7] + sign * cache.C[WCoef::CP7];
+    if (bar) C7 = std::conj(C7);
+    return C7 + q2 * (Y(q2) + cache.lambda_hat_u * Y_u(q2)) / (2. * cache.m_b_PS * m_B);
 }
 
-complex_t BKstarllDecay::C_par_0(double q2, double m_B, double sign) {
-    return -(cache.C[WCoef::C7] + sign * cache.C[WCoef::CP7]) - m_B * (Y(q2) + cache.lambda_hat_u * Y_u(q2)) / (2. * cache.m_b_PS);
+complex_t BKstarllDecay::C_par_0(double q2, double m_B, double sign, bool bar) {
+    complex_t C7 = cache.C[WCoef::C7] + sign * cache.C[WCoef::CP7];
+    if (bar) C7 = std::conj(C7);
+    return -C7 - m_B * (Y(q2) + cache.lambda_hat_u * Y_u(q2)) / (2. * cache.m_b_PS);
 }
 
-complex_t BKstarllDecay::C_perp_f(double q2, double sign) {
-    return (cache.C[WCoef::C7] + sign * cache.C[WCoef::CP7]) * (2. * std::log(cache.m_b_PS / w_config.hadronic_scale) - L(q2) + cache.Delta_M);
+complex_t BKstarllDecay::C_perp_f(double q2, double sign, bool bar) {
+    complex_t C7 = cache.C[WCoef::C7] + sign * cache.C[WCoef::CP7];
+    if (bar) C7 = std::conj(C7);
+    return C7 * (2. * std::log(cache.m_b_PS / w_config.hadronic_scale) - L(q2) + cache.Delta_M);
 }
 
-complex_t BKstarllDecay::C_par_f(double q2, double sign) {
-    return -(cache.C[WCoef::C7] + sign * cache.C[WCoef::CP7]) * (2. * std::log(cache.m_b_PS / w_config.hadronic_scale) + 2. * L(q2) + cache.Delta_M);
+complex_t BKstarllDecay::C_par_f(double q2, double sign, bool bar) {
+    complex_t C7 = cache.C[WCoef::C7] + sign * cache.C[WCoef::CP7];
+    if (bar) C7 = std::conj(C7);
+    return -C7 * (2. * std::log(cache.m_b_PS / w_config.hadronic_scale) + 2. * L(q2) + cache.Delta_M);
 }
 
-complex_t BKstarllDecay::C_perp_nf(double q2, double m_B) {
+complex_t BKstarllDecay::C_perp_nf(double q2, double m_B, bool bar) {
     double s_hat = q2 / (cache.m_b_PS * cache.m_b_PS);
-    complex_t F_27 = f_27(s_hat, cache.L_b, cache.z_c) * (1. + cache.lambda_hat_u) + F_27_u(s_hat, cache.L_b) * cache.lambda_hat_u;
-    complex_t F_19 = f_19_PS(s_hat, cache.L_b, cache.z_c) * (1. + cache.lambda_hat_u) + F_19_u(s_hat, cache.L_b) * cache.lambda_hat_u;
-    complex_t F_29 = f_29_PS(s_hat, cache.L_b, cache.z_c) * (1. + cache.lambda_hat_u) + F_29_u(s_hat, cache.L_b) * cache.lambda_hat_u;
+    complex_t l_u = bar ? std::conj(cache.lambda_hat_u) : cache.lambda_hat_u;
+    complex_t F_27 = f_27(s_hat, cache.L_b, cache.z_c) * (1. + l_u) + F_27_u(s_hat, cache.L_b) * l_u;
+    complex_t F_19 = f_19_PS(s_hat, cache.L_b, cache.z_c) * (1. + l_u) + F_19_u(s_hat, cache.L_b) * l_u;
+    complex_t F_29 = f_29_PS(s_hat, cache.L_b, cache.z_c) * (1. + l_u) + F_29_u(s_hat, cache.L_b) * l_u;
     return -(
         cache.C_bar[WCoef::C2] * F_27 
       + cache.C[WCoef::C8] * f_87(s_hat, cache.L_b)
@@ -423,11 +433,12 @@ complex_t BKstarllDecay::C_perp_nf(double q2, double m_B) {
     ) / cache.C_F;
 }
 
-complex_t BKstarllDecay::C_par_nf(double q2, double m_B) {
+complex_t BKstarllDecay::C_par_nf(double q2, double m_B, bool bar) {
     double s_hat = q2 / (m_B * m_B);
-    complex_t F_27 = f_27(s_hat, cache.L_b, cache.z_c) * (1. + cache.lambda_hat_u) + F_27_u(s_hat, cache.L_b) * cache.lambda_hat_u;
-    complex_t F_19 = f_19_PS(s_hat, cache.L_b, cache.z_c) * (1. + cache.lambda_hat_u) + F_19_u(s_hat, cache.L_b) * cache.lambda_hat_u;
-    complex_t F_29 = f_29_PS(s_hat, cache.L_b, cache.z_c) * (1. + cache.lambda_hat_u) + F_29_u(s_hat, cache.L_b) * cache.lambda_hat_u;
+    complex_t l_u = bar ? std::conj(cache.lambda_hat_u) : cache.lambda_hat_u;
+    complex_t F_27 = f_27(s_hat, cache.L_b, cache.z_c) * (1. + l_u) + F_27_u(s_hat, cache.L_b) * l_u;
+    complex_t F_19 = f_19_PS(s_hat, cache.L_b, cache.z_c) * (1. + l_u) + F_19_u(s_hat, cache.L_b) * l_u;
+    complex_t F_29 = f_29_PS(s_hat, cache.L_b, cache.z_c) * (1. + l_u) + F_29_u(s_hat, cache.L_b) * l_u;
     return (
         cache.C_bar[WCoef::C2] * F_27
       + cache.C[WCoef::C8] * f_87(s_hat, cache.L_b)
@@ -438,37 +449,43 @@ complex_t BKstarllDecay::C_par_nf(double q2, double m_B) {
     ) / cache.C_F;
 }
 
-complex_t BKstarllDecay::T_par_m_0(double m_B) {
+complex_t BKstarllDecay::T_par_m_0(double m_B, bool bar) {
     int delta_qu = cfg.charge == Charge::B_PLUS;
-    return 4. * m_B / cache.m_b_PS * (delta_qu * 3. * cache.lambda_hat_u * cache.C[WCoef::C2] - cache.C_bar[WCoef::C3] - 3. * cache.C_bar[WCoef::C4]);
+    complex_t l_u = bar ? std::conj(cache.lambda_hat_u) : cache.lambda_hat_u;
+    return 4. * m_B / cache.m_b_PS * (delta_qu * 3. * l_u * cache.C[WCoef::C2] - cache.C_bar[WCoef::C3] - 3. * cache.C_bar[WCoef::C4]);
 }
 
-complex_t BKstarllDecay::T_par_p_p_f(double u, double q2, double m_B, double m_K) {
-    return 2. * T_perp_p_p_f(u, q2, m_B, m_K);
+complex_t BKstarllDecay::T_par_p_p_f(double u, double q2, double m_B, double m_K, bool bar) {
+    return 2. * T_perp_p_p_f(u, q2, m_B, m_K, bar);
 }
 
-complex_t BKstarllDecay::T_par_p_m_f(double u, double q2, double m_B, double m_K) {
-    return 2. * T_perp_p_m_f(u, q2, m_B, m_K);
+complex_t BKstarllDecay::T_par_p_m_f(double u, double q2, double m_B, double m_K, bool bar) {
+    return 2. * T_perp_p_m_f(u, q2, m_B, m_K, bar);
 }
 
-complex_t BKstarllDecay::T_perp_p_p_f(double u, double q2, double m_B, double m_K) {
-    return 2. * m_B / (1. - u) / E_K(q2, m_B, m_K) * (cache.C[WCoef::C7] + cache.C[WCoef::CP7]);
+complex_t BKstarllDecay::T_perp_p_p_f(double u, double q2, double m_B, double m_K, bool bar) {
+    complex_t C7 = cache.C[WCoef::C7] + cache.C[WCoef::CP7];
+    if (bar) C7 = std::conj(C7);
+    return 2. * m_B / (1. - u) / E_K(q2, m_B, m_K) * C7;
 }
 
-complex_t BKstarllDecay::T_perp_p_m_f(double u, double q2, double m_B, double m_K) {
-    return 2. * m_B / (1. - u) / E_K(q2, m_B, m_K) * (cache.C[WCoef::C7] - cache.C[WCoef::CP7]);
+complex_t BKstarllDecay::T_perp_p_m_f(double u, double q2, double m_B, double m_K, bool bar) {
+    complex_t C7 = cache.C[WCoef::C7] - cache.C[WCoef::CP7];
+    if (bar) C7 = std::conj(C7);
+    return 2. * m_B / (1. - u) / E_K(q2, m_B, m_K) * C7;
 } 
 
-complex_t BKstarllDecay::T_perp_p_nf(double u, double q2, double m_B, double m_K) {
+complex_t BKstarllDecay::T_perp_p_nf(double u, double q2, double m_B, double m_K, bool bar) {
     double E = E_K(q2, m_B, m_K);
+    complex_t l_u = bar ? std::conj(cache.lambda_hat_u) : cache.lambda_hat_u;
     complex_t t_perp_mc = t_perp(u, cache.m_c_pole, q2, E, m_B);
     complex_t t_perp_mb = t_perp(u, cache.m_b_PS, q2, E, m_B);
     complex_t t_perp_0 = t_perp(u, 0, q2, E, m_B);
     return -4 * cache.e_d * cache.C[WCoef::C8] / (u + (1 - u) * q2 / (m_B * m_B))
             + m_B / (2 * cache.m_b_PS) * (
                 cache.e_u * (
-                    t_perp_mc * (cache.C_bar[WCoef::C2] + cache.C_bar[WCoef::C4] - cache.C_bar[WCoef::C6] + cache.lambda_hat_u * (cache.C[WCoef::C2] - cache.C[WCoef::C1] / 6.))
-                    - t_perp_0 * cache.lambda_hat_u * (cache.C[WCoef::C2] - cache.C[WCoef::C1] / 6.)
+                    t_perp_mc * (cache.C_bar[WCoef::C2] + cache.C_bar[WCoef::C4] - cache.C_bar[WCoef::C6] + l_u * (cache.C[WCoef::C2] - cache.C[WCoef::C1] / 6.))
+                    - t_perp_0 * l_u * (cache.C[WCoef::C2] - cache.C[WCoef::C1] / 6.)
                 )
                 + cache.e_d * (
                     t_perp_mb * (cache.C_bar[WCoef::C3] + cache.C_bar[WCoef::C4] - cache.C_bar[WCoef::C6] - 4 * cache.m_b_PS / m_B * cache.C_bar[WCoef::C5])
@@ -477,15 +494,16 @@ complex_t BKstarllDecay::T_perp_p_nf(double u, double q2, double m_B, double m_K
             );
 }
 
-complex_t BKstarllDecay::T_par_p_nf(double u, double q2, double m_B, double m_K) {
+complex_t BKstarllDecay::T_par_p_nf(double u, double q2, double m_B, double m_K, bool bar) {
     double E = E_K(q2, m_B, m_K);
+    complex_t l_u = bar ? std::conj(cache.lambda_hat_u) : cache.lambda_hat_u;
     complex_t t_par_mc = t_par(u, cache.m_c_pole, q2, E, m_B);
     complex_t t_par_mb = t_par(u, cache.m_b_PS, q2, E, m_B);
     complex_t t_par_0 = t_par(u, 0, q2, E, m_B);
     return m_B / cache.m_b_PS * (
         cache.e_u * (
-            t_par_mc * (cache.C_bar[WCoef::C2] + cache.C_bar[WCoef::C4] - cache.C_bar[WCoef::C6] + cache.lambda_hat_u * (cache.C[WCoef::C2] - cache.C[WCoef::C1] / 6.))
-            - t_par_0 * cache.lambda_hat_u * (cache.C[WCoef::C2] - cache.C[WCoef::C1] / 6.)
+            t_par_mc * (cache.C_bar[WCoef::C2] + cache.C_bar[WCoef::C4] - cache.C_bar[WCoef::C6] + l_u * (cache.C[WCoef::C2] - cache.C[WCoef::C1] / 6.))
+            - t_par_0 * l_u * (cache.C[WCoef::C2] - cache.C[WCoef::C1] / 6.)
         )
         + cache.e_d * (
             t_par_mb * (cache.C_bar[WCoef::C3] + cache.C_bar[WCoef::C4] - cache.C_bar[WCoef::C6])
@@ -494,9 +512,9 @@ complex_t BKstarllDecay::T_par_p_nf(double u, double q2, double m_B, double m_K)
     );
 }
 
-complex_t BKstarllDecay::T_par_m_nf(double u, double q2, double m_B, double m_K) {
+complex_t BKstarllDecay::T_par_m_nf(double u, double q2, double m_B, double m_K, bool bar) {
     double v = m_B * m_B * (1 - u) + q2 * u;
-    return 8. * m_B * m_B * cache.C[WCoef::C8] / v + 8. * m_B / cache.m_b_PS * F_V(v);
+    return 8. * m_B * m_B * cache.C[WCoef::C8] / v + 8. * m_B / cache.m_b_PS * F_V(v, bar);
 }
 
 complex_t BKstarllDecay::inv_lambda_B_m(double q2, double m_B) {
@@ -504,64 +522,64 @@ complex_t BKstarllDecay::inv_lambda_B_m(double q2, double m_B) {
     return std::exp(-x) / cache.omega_0 * (I * PI - Ei(x));
 }
 
-complex_t BKstarllDecay::I_perp_p(double q2, double m_B, double m_K) {
-    auto f = [q2, m_B, m_K, this] (double u) {
-        return phi_Kstar(u, cache.a_1_perp, cache.a_2_perp) * (T_perp_p_p_f(u, q2, m_B, m_K) + T_perp_p_nf(u, q2, m_B, m_K));
+complex_t BKstarllDecay::I_perp_p(double q2, double m_B, double m_K, bool bar) {
+    auto f = [q2, m_B, m_K, bar, this] (double u) {
+        return phi_Kstar(u, cache.a_1_perp, cache.a_2_perp) * (T_perp_p_p_f(u, q2, m_B, m_K, bar) + T_perp_p_nf(u, q2, m_B, m_K, bar));
     };
     
-    return cache.alpha_s_mu_f / (4. * PI) * cache.C_F / cache.lambda_B_p * c_integrate(f, 0, 1, 1e-3);
+    return cache.alpha_s_mu_f / (4. * PI) * cache.C_F / cache.lambda_B_p * c_integrate(f, 0, 1, 1e-2);
 }
 
-complex_t BKstarllDecay::I_perp_m(double q2, double m_B, double m_K) {
-    auto f = [q2, m_B, m_K, this] (double u) {
-        return phi_Kstar(u, cache.a_1_perp, cache.a_2_perp) * (T_perp_p_m_f(u, q2, m_B, m_K) + T_perp_p_nf(u, q2, m_B, m_K));
+complex_t BKstarllDecay::I_perp_m(double q2, double m_B, double m_K, bool bar) {
+    auto f = [q2, m_B, m_K, bar, this] (double u) {
+        return phi_Kstar(u, cache.a_1_perp, cache.a_2_perp) * (T_perp_p_m_f(u, q2, m_B, m_K, bar) + T_perp_p_nf(u, q2, m_B, m_K, bar));
     };
     
-    return cache.alpha_s_mu_f / (4. * PI) * cache.C_F / cache.lambda_B_p * c_integrate(f, 0, 1, 1e-3);
+    return cache.alpha_s_mu_f / (4. * PI) * cache.C_F / cache.lambda_B_p * c_integrate(f, 0, 1, 1e-2);
 }
 
-complex_t BKstarllDecay::I_par_p(double q2, double m_B, double m_K) {
-    auto f = [q2, m_B, m_K, this] (double u) {
+complex_t BKstarllDecay::I_par_p(double q2, double m_B, double m_K, bool bar) {
+    auto f = [q2, m_B, m_K, bar, this] (double u) {
         double fact = cache.alpha_s_mu_f * cache.C_F / (4 * PI);
         double phi = phi_Kstar(u, cache.a_1_par, cache.a_2_par);
-        complex_t i1 = phi * (T_par_p_p_f(u, q2, m_B, m_K) + T_par_p_nf(u, q2, m_B, m_K));
-        complex_t i2 = phi * (cache.T_par_m_0 + fact * T_par_m_nf(u, q2, m_B, m_K));
+        complex_t i1 = phi * (T_par_p_p_f(u, q2, m_B, m_K, bar) + T_par_p_nf(u, q2, m_B, m_K, bar));
+        complex_t i2 = phi * (cache.T_par_m_0 + fact * T_par_m_nf(u, q2, m_B, m_K, bar));
         return fact / cache.lambda_B_p * i1 + cache.e_q * inv_lambda_B_m(q2, m_B) * i2;
     };
     
-    return c_integrate(f, 0, 1 - 1e-6, 1e-3);
+    return c_integrate(f, 0, 1 - 1e-6, 1e-2);
 }
 
-complex_t BKstarllDecay::I_par_m(double q2, double m_B, double m_K) {
-    auto f = [q2, m_B, m_K, this] (double u) {
+complex_t BKstarllDecay::I_par_m(double q2, double m_B, double m_K, bool bar) {
+    auto f = [q2, m_B, m_K, bar, this] (double u) {
         double fact = cache.alpha_s_mu_f * cache.C_F / (4 * PI);
         double phi = phi_Kstar(u, cache.a_1_par, cache.a_2_par);
-        complex_t i1 = phi * (T_par_p_m_f(u, q2, m_B, m_K) + T_par_p_nf(u, q2, m_B, m_K));
-        complex_t i2 = phi * (cache.T_par_m_0 + fact * T_par_m_nf(u, q2, m_B, m_K));
+        complex_t i1 = phi * (T_par_p_m_f(u, q2, m_B, m_K, bar) + T_par_p_nf(u, q2, m_B, m_K, bar));
+        complex_t i2 = phi * (cache.T_par_m_0 + fact * T_par_m_nf(u, q2, m_B, m_K, bar));
         return fact / cache.lambda_B_p * i1 + cache.e_q * inv_lambda_B_m(q2, m_B) * i2;
     };
     
-    return c_integrate(f, 0, 1 - 1e-6, 1e-3);
+    return c_integrate(f, 0, 1 - 1e-6, 1e-2);
 }
 
-complex_t BKstarllDecay::I_HSA_1(double q2, double m_B) {
-    auto f = [q2, m_B, this] (double u) {
+complex_t BKstarllDecay::I_HSA_1(double q2, double m_B, bool bar) {
+    auto f = [q2, m_B, bar, this] (double u) {
         double phi = phi_Kstar(u, cache.a_1_par, cache.a_2_par);
         double v = m_B * m_B * (1 - u) + u * q2;
-        return phi * m_B * m_B / v * F_V(v);
+        return phi * m_B * m_B / v * F_V(v, bar);
     };
     
-    return c_integrate(f, 0, 1, 1e-3);
+    return c_integrate(f, 0, 1, 1e-2);
 }
 
-complex_t BKstarllDecay::I_HSA_2(double q2, double m_B, double z3a, double z3v, double w10a, double dtp, double dtm) {
-    auto f = [q2, m_B, z3a, z3v, w10a, dtp, dtm, this] (double u) {
+complex_t BKstarllDecay::I_HSA_2(double q2, double m_B, double z3a, double z3v, double w10a, double dtp, double dtm, bool bar) {
+    auto f = [q2, m_B, z3a, z3v, w10a, dtp, dtm, bar, this] (double u) {
         double int_phi_par = gv_dga_4(u, z3a, z3v, w10a, dtp, dtm);
         double v = m_B * m_B * (1 - u) + u * q2;
-        return int_phi_par * F_V(v);
+        return int_phi_par * F_V(v, bar);
     };
     
-    return c_integrate(f, 0, 1, 1e-3);
+    return c_integrate(f, 0, 1, 1e-2);
 }
 
 complex_t BKstarllDecay::delta_T_perp_WA(double q2, double m_B, double m_K, double f_B, double f_K_par) {
@@ -577,34 +595,34 @@ complex_t BKstarllDecay::delta_T_perp_WA(double q2, double m_B, double m_K, doub
     );
 }
 
-complex_t BKstarllDecay::delta_T_perp_HSA(double q2, double m_B, double m_K, double f_B, double f_K_par, double z3a, double z3v, double w10a, double dtp, double dtm) {
+complex_t BKstarllDecay::delta_T_perp_HSA(double q2, double m_B, double m_K, double f_B, double f_K_par, double z3a, double z3v, double w10a, double dtp, double dtm, bool bar) {
     double pref = cache.e_q * cache.alpha_s_mu_b * cache.C_F * PI * f_B / (cache.Nc * cache.m_b_PS * m_B);
     double s_hat = q2 / (m_B * m_B);
     return pref * (
         3. * cache.C[WCoef::C8] * cache.m_b_PS / m_B * cache.f_K_perp * X_perp(s_hat)
-      + 2. * cache.f_K_perp * I_HSA_1(q2, m_B)
-      - m_K * f_K_par / ((1 - s_hat) * cache.lambda_B_p) * I_HSA_2(q2, m_B, z3a, z3v, w10a, dtp, dtm)
+      + 2. * cache.f_K_perp * I_HSA_1(q2, m_B, bar)
+      - m_K * f_K_par / ((1 - s_hat) * cache.lambda_B_p) * I_HSA_2(q2, m_B, z3a, z3v, w10a, dtp, dtm, bar)
     );
 }
 
-complex_t BKstarllDecay::T_perp_p(double q2, double m_B, double m_K, double f_B, double f_K_par, double z3a, double z3v, double w10a, double dtp, double dtm) {
-    complex_t C_perp_p = C_perp_0(q2, m_B, 1) + cache.alpha_s_mu_b / (4. * PI) * (C_perp_f(q2, 1) + C_perp_nf(q2, m_B));
-    return xi_perp(q2, m_B, m_K) * C_perp_p + cache.pref_T_perp * I_perp_p(q2, m_B, m_K) + delta_T_perp_WA(q2, m_B, m_K, f_B, f_K_par) + delta_T_perp_HSA(q2, m_B, m_K, f_B, f_K_par, z3a, z3v, w10a, dtp, dtm);
+complex_t BKstarllDecay::T_perp_p(double q2, double m_B, double m_K, double f_B, double f_K_par, double z3a, double z3v, double w10a, double dtp, double dtm, bool bar) {
+    complex_t C_perp_p = C_perp_0(q2, m_B, 1, bar) + cache.alpha_s_mu_b / (4. * PI) * (C_perp_f(q2, 1, bar) + C_perp_nf(q2, m_B, bar));
+    return xi_perp(q2, m_B, m_K) * C_perp_p + cache.pref_T_perp * I_perp_p(q2, m_B, m_K, bar) + delta_T_perp_WA(q2, m_B, m_K, f_B, f_K_par) + delta_T_perp_HSA(q2, m_B, m_K, f_B, f_K_par, z3a, z3v, w10a, dtp, dtm, bar);
 }
 
-complex_t BKstarllDecay::T_perp_m(double q2, double m_B, double m_K, double f_B, double f_K_par, double z3a, double z3v, double w10a, double dtp, double dtm) {
-    complex_t C_perp_m = C_perp_0(q2, m_B, -1) + cache.alpha_s_mu_b / (4. * PI) * (C_perp_f(q2, -1) + C_perp_nf(q2, m_B));
-    return xi_perp(q2, m_B, m_K) * C_perp_m + cache.pref_T_perp * I_perp_m(q2, m_B, m_K) + delta_T_perp_WA(q2, m_B, m_K, f_B, f_K_par) + delta_T_perp_HSA(q2, m_B, m_K, f_B, f_K_par, z3a, z3v, w10a, dtp, dtm);
+complex_t BKstarllDecay::T_perp_m(double q2, double m_B, double m_K, double f_B, double f_K_par, double z3a, double z3v, double w10a, double dtp, double dtm, bool bar) {
+    complex_t C_perp_m = C_perp_0(q2, m_B, -1, bar) + cache.alpha_s_mu_b / (4. * PI) * (C_perp_f(q2, -1, bar) + C_perp_nf(q2, m_B, bar));
+    return xi_perp(q2, m_B, m_K) * C_perp_m + cache.pref_T_perp * I_perp_m(q2, m_B, m_K, bar) + delta_T_perp_WA(q2, m_B, m_K, f_B, f_K_par) + delta_T_perp_HSA(q2, m_B, m_K, f_B, f_K_par, z3a, z3v, w10a, dtp, dtm, bar);
 }
 
-complex_t BKstarllDecay::T_par_p(double q2, double m_B, double m_K) {
-    complex_t C_par_p = C_par_0(q2, m_B, 1) + cache.alpha_s_mu_b / (4. * PI) * (C_par_f(q2, 1) + C_par_nf(q2, m_B));
-    return xi_par(q2, m_B, m_K) * C_par_p + cache.pref_T_par / E_K(q2, m_B, m_K) * I_par_p(q2, m_B, m_K);
+complex_t BKstarllDecay::T_par_p(double q2, double m_B, double m_K, bool bar) {
+    complex_t C_par_p = C_par_0(q2, m_B, 1, bar) + cache.alpha_s_mu_b / (4. * PI) * (C_par_f(q2, 1, bar) + C_par_nf(q2, m_B, bar));
+    return xi_par(q2, m_B, m_K) * C_par_p + cache.pref_T_par / E_K(q2, m_B, m_K) * I_par_p(q2, m_B, m_K, bar);
 }
 
-complex_t BKstarllDecay::T_par_m(double q2, double m_B, double m_K) {
-    complex_t C_par_m = C_par_0(q2, m_B, -1) + cache.alpha_s_mu_b / (4. * PI) * (C_par_f(q2, -1) + C_par_nf(q2, m_B));
-    return xi_par(q2, m_B, m_K) * C_par_m + cache.pref_T_par / E_K(q2, m_B, m_K) * I_par_m(q2, m_B, m_K);
+complex_t BKstarllDecay::T_par_m(double q2, double m_B, double m_K, bool bar) {
+    complex_t C_par_m = C_par_0(q2, m_B, -1, bar) + cache.alpha_s_mu_b / (4. * PI) * (C_par_f(q2, -1, bar) + C_par_nf(q2, m_B, bar));
+    return xi_par(q2, m_B, m_K) * C_par_m + cache.pref_T_par / E_K(q2, m_B, m_K) * I_par_m(q2, m_B, m_K, bar);
 }
 
 complex_t BKstarllDecay::Delta_par(double q2, double m_B, double m_K, double f_B, double f_K_par) {
@@ -613,20 +631,20 @@ complex_t BKstarllDecay::Delta_par(double q2, double m_B, double m_K, double f_B
     );
 }
 
-complex_t BKstarllDecay::T_perp_p_cached(double q2) {
-    return lerp(q2, T_perp_p_lookup, cache.q2_min, cache.q2_high);
+complex_t BKstarllDecay::T_perp_p_cached(double q2, bool bar) {
+    return lerp(q2, bar ? T_perp_p_bar_lookup : T_perp_p_lookup, cache.q2_min, cache.q2_high);
 }
 
-complex_t BKstarllDecay::T_perp_m_cached(double q2) {
-    return lerp(q2, T_perp_m_lookup, cache.q2_min, cache.q2_high);
+complex_t BKstarllDecay::T_perp_m_cached(double q2, bool bar) {
+    return lerp(q2, bar ? T_perp_m_bar_lookup : T_perp_m_lookup, cache.q2_min, cache.q2_high);
 }
 
-complex_t BKstarllDecay::T_par_p_cached(double q2) {
-    return lerp(q2, T_par_p_lookup, cache.q2_min, cache.q2_high);
+complex_t BKstarllDecay::T_par_p_cached(double q2, bool bar) {
+    return lerp(q2, bar ? T_par_p_bar_lookup : T_par_p_lookup, cache.q2_min, cache.q2_high);
 }
 
-complex_t BKstarllDecay::T_par_m_cached(double q2) {
-    return lerp(q2, T_par_m_lookup, cache.q2_min, cache.q2_high);
+complex_t BKstarllDecay::T_par_m_cached(double q2, bool bar) {
+    return lerp(q2, bar ? T_par_m_bar_lookup : T_par_m_lookup, cache.q2_min, cache.q2_high);
 }
 
 double BKstarllDecay::beta_l(double q2, double m_l) {
@@ -639,67 +657,82 @@ double BKstarllDecay::lambda(double q2, double m_B, double m_K) {
     return mB2 * mB2 + mK2 * mK2 + q2 * q2 - 2. * (mB2 * mK2 + (mB2 + mK2) * q2);
 }
 
-complex_t BKstarllDecay::N(double q2, double m_B, double m_K, double m_l) {
-    return cache.N_0 * std::sqrt(q2 * beta_l(q2, m_l) * std::sqrt(lambda(q2, m_B, m_K)));
+complex_t BKstarllDecay::N(double q2, double m_B, double m_K, double m_l, bool bar) {
+    complex_t N0 = bar ? std::conj(cache.N_0) : cache.N_0; 
+    return N0 * std::sqrt(q2 * beta_l(q2, m_l) * std::sqrt(lambda(q2, m_B, m_K)));
 }
 
-complex_t BKstarllDecay::A_perp_low(double q2, double m_B, double m_K, double m_l, double sign) {
-    return N(q2, m_B, m_K, m_l) * std::sqrt(2 * lambda(q2, m_B, m_K)) * (
-        (cache.C[WCoef::C9] + cache.C[WCoef::CP9] + sign * (cache.C[WCoef::C10] + cache.C[WCoef::CP10])) * F_a(FF::V, q2) / (m_B + m_K)
-      + 2. * cache.m_b_PS * T_perp_p_cached(q2) / q2
+complex_t BKstarllDecay::A_perp_low(double q2, double m_B, double m_K, double m_l, double sign, bool bar) {
+    complex_t w = cache.C[WCoef::C9] + cache.C[WCoef::CP9] + sign * (cache.C[WCoef::C10] + cache.C[WCoef::CP10]);
+    if (bar) w = std::conj(w);
+    return N(q2, m_B, m_K, m_l, bar) * std::sqrt(2 * lambda(q2, m_B, m_K)) * (
+        w * F_a(FF::V, q2) / (m_B + m_K)
+      + 2. * cache.m_b_PS * T_perp_p_cached(q2, bar) / q2
     );
 }
 
-complex_t BKstarllDecay::A_par_low(double q2, double m_B, double m_K, double m_l, double sign) {
-    return -N(q2, m_B, m_K, m_l) * std::sqrt(2.) * (m_B * m_B - m_K * m_K) * (
-        (cache.C[WCoef::C9] - cache.C[WCoef::CP9] + sign * (cache.C[WCoef::C10] - cache.C[WCoef::CP10])) * F_a(FF::A1, q2) / (m_B - m_K)
-      + 4. * cache.m_b_PS * E_K(q2, m_B, m_K) * T_perp_m_cached(q2) / (m_B * q2)
+complex_t BKstarllDecay::A_par_low(double q2, double m_B, double m_K, double m_l, double sign, bool bar) {
+    complex_t w = cache.C[WCoef::C9] - cache.C[WCoef::CP9] + sign * (cache.C[WCoef::C10] - cache.C[WCoef::CP10]);
+    if (bar) w = std::conj(w);
+    return -N(q2, m_B, m_K, m_l, bar) * std::sqrt(2.) * (m_B * m_B - m_K * m_K) * (
+        w * F_a(FF::A1, q2) / (m_B - m_K)
+      + 4. * cache.m_b_PS * E_K(q2, m_B, m_K) * T_perp_m_cached(q2, bar) / (m_B * q2)
     );
 }
 
-complex_t BKstarllDecay::A_0_low(double q2, double m_B, double m_K, double m_l, double sign) {
+complex_t BKstarllDecay::A_0_low(double q2, double m_B, double m_K, double m_l, double sign, bool bar) {
     double mB2 = m_B * m_B;
     double mK2 = m_K * m_K;
-    return -N(q2, m_B, m_K, m_l) / (2. * m_K * std::sqrt(q2)) * (
-        (cache.C[WCoef::C9] - cache.C[WCoef::CP9] + sign * (cache.C[WCoef::C10] - cache.C[WCoef::CP10])) * (
+    complex_t w = cache.C[WCoef::C9] - cache.C[WCoef::CP9] + sign * (cache.C[WCoef::C10] - cache.C[WCoef::CP10]);
+    if (bar) w = std::conj(w);
+    return -N(q2, m_B, m_K, m_l, bar) / (2. * m_K * std::sqrt(q2)) * (
+        w * (
             (mB2 - mK2 - q2) * (m_B + m_K) * F_a(FF::A1, q2)
           - lambda(q2, m_B, m_K) * A_2(q2, m_B, m_K) / (m_B + m_K)
         )
       + 2. * cache.m_b_PS * (
-          2. * E_K(q2, m_B, m_K) * (mB2 + 3. * mK2 - q2) * T_perp_m_cached(q2) 
-        - lambda(q2, m_B, m_K) * (T_perp_m_cached(q2) + T_par_m_cached(q2)) / (mB2 - mK2)
+          2. * E_K(q2, m_B, m_K) * (mB2 + 3. * mK2 - q2) * T_perp_m_cached(q2, bar) 
+        - lambda(q2, m_B, m_K) * (T_perp_m_cached(q2, bar) + T_par_m_cached(q2, bar)) / (mB2 - mK2)
       )
     );
 }
 
-complex_t BKstarllDecay::A_t_low(double q2, double m_B, double m_K, double m_l, double f_B, double f_K_par, double m_s) {
-    return N(q2, m_B, m_K, m_l) * std::sqrt(lambda(q2, m_B, m_K) / q2) * (
-        (cache.C[WCoef::C10] - cache.C[WCoef::CP10] + q2 / (m_l * (cache.m_b_mu_b + m_s)) * (cache.C[WCoef::CQ2] - cache.C[WCoef::CPQ2]))
+complex_t BKstarllDecay::A_t_low(double q2, double m_B, double m_K, double m_l, double f_B, double f_K_par, double m_s, bool bar) {
+    complex_t C10 = cache.C[WCoef::C10] - cache.C[WCoef::CP10];
+    complex_t CQ2 = cache.C[WCoef::CQ2] - cache.C[WCoef::CPQ2];
+    if (bar) {
+        C10 = std::conj(C10);
+        CQ2 = std::conj(CQ2);
+    }
+    return N(q2, m_B, m_K, m_l, bar) * std::sqrt(lambda(q2, m_B, m_K) / q2) * (
+        (C10 + q2 / (m_l * (cache.m_b_mu_b + m_s)) * CQ2)
     ) * E_K(q2, m_B, m_K) * xi_par(q2, m_B, m_K) / (m_K * Delta_par(q2, m_B, m_K, f_B, f_K_par));
 }
 
-complex_t BKstarllDecay::A_S_low(double q2, double m_B, double m_K, double m_l, double f_B, double f_K_par, double m_s) {
-    return -2. * N(q2, m_B, m_K, m_l) / (cache.m_b_mu_b + m_s) * std::sqrt(lambda(q2, m_B, m_K)) 
-            * (cache.C[WCoef::CQ1] - cache.C[WCoef::CPQ1]) 
-            * E_K(q2, m_B, m_K) * xi_par(q2, m_B, m_K) / (m_K * Delta_par(q2, m_B, m_K, f_B, f_K_par));
+complex_t BKstarllDecay::A_S_low(double q2, double m_B, double m_K, double m_l, double f_B, double f_K_par, double m_s, bool bar) {
+    complex_t CQ1 = cache.C[WCoef::CQ1] - cache.C[WCoef::CPQ1];
+    if (bar) CQ1 = std::conj(CQ1);
+    return -2. * N(q2, m_B, m_K, m_l, bar) / (cache.m_b_mu_b + m_s) * std::sqrt(lambda(q2, m_B, m_K)) 
+            * CQ1 * E_K(q2, m_B, m_K) * xi_par(q2, m_B, m_K) / (m_K * Delta_par(q2, m_B, m_K, f_B, f_K_par));
 }
 
-complex_t BKstarllDecay::C7_eff(double q2, double m_B) {
+complex_t BKstarllDecay::C7_eff(double q2, double m_B, bool bar) {
     complex_t A = A_Seidel(q2, cache.m_b_PS, w_config.hadronic_scale);
-    return cache.C[WCoef::C7] + cache.alpha_s_mu_b / (4. * PI) * ((cache.C[WCoef::C1]-6.*cache.C[WCoef::C2])*A-cache.C[WCoef::C8]*f_87(q2 / (m_B * m_B), cache.L_b));
+    return (bar ? std::conj(cache.C[WCoef::C7]) : cache.C[WCoef::C7]) + cache.alpha_s_mu_b / (4. * PI) * ((cache.C[WCoef::C1]-6.*cache.C[WCoef::C2])*A-cache.C[WCoef::C8]*f_87(q2 / (m_B * m_B), cache.L_b));
 }
 
-complex_t BKstarllDecay::C9_eff(double q2, double m_B) {
+complex_t BKstarllDecay::C9_eff(double q2, double m_B, bool bar) {
     complex_t C_h0 = 4./3.*cache.C[WCoef::C1]+cache.C[WCoef::C2]+11./2.*cache.C[WCoef::C3]-2./3.*cache.C[WCoef::C4]+52.*cache.C[WCoef::C5]-32./3.*cache.C[WCoef::C6];
     complex_t C_hb = -0.5 * (7.*cache.C[WCoef::C3]+4./3.*cache.C[WCoef::C4]+76.*cache.C[WCoef::C5]+64./3.*cache.C[WCoef::C6]);
     complex_t C_0  = 4./3.*(cache.C[WCoef::C3]+16./3.*cache.C[WCoef::C5]+16./9.*cache.C[WCoef::C6]);
-    complex_t C_mc = 8. * ((4./9.*cache.C[WCoef::C1]+1./3.*cache.C[WCoef::C2])*(1.+cache.lambda_hat_u)+2.*cache.C[WCoef::C3]+20.*cache.C[WCoef::C5]);
+    complex_t l_u = bar ? std::conj(cache.lambda_hat_u) : cache.lambda_hat_u;
+    complex_t C_mc = 8. * ((4./9.*cache.C[WCoef::C1]+1./3.*cache.C[WCoef::C2])*(1.+l_u)+2.*cache.C[WCoef::C3]+20.*cache.C[WCoef::C5]);
 
     complex_t A = A_Seidel(q2, cache.m_b_PS, w_config.hadronic_scale);
     complex_t B = B_Seidel(q2, cache.m_b_PS, w_config.hadronic_scale);
     complex_t C = C_Seidel(q2, w_config.hadronic_scale);
 
-    return cache.C[WCoef::C9]
+    return (bar ? std::conj(cache.C[WCoef::C9]) : cache.C[WCoef::C9])
          + h(q2, 0., w_config.hadronic_scale) * C_h0
          + h(q2, cache.m_b_PS, w_config.hadronic_scale) * C_hb
          + C_0
@@ -707,36 +740,44 @@ complex_t BKstarllDecay::C9_eff(double q2, double m_B) {
          + std::pow(cache.m_c_mu_b, 2) / q2 * C_mc;
 }
 
-complex_t BKstarllDecay::A_perp_high(double q2, double m_B, double m_K, double m_l, double sign) {
-    complex_t C7 = C7_eff(q2, m_B) + cache.C[WCoef::CP7];
-    complex_t C9 = C9_eff(q2, m_B) + cache.C[WCoef::CP9];
+complex_t BKstarllDecay::A_perp_high(double q2, double m_B, double m_K, double m_l, double sign, bool bar) {
+    complex_t C7 = C7_eff(q2, m_B, bar) + (bar ? std::conj(cache.C[WCoef::CP7]) : cache.C[WCoef::CP7]);
+    complex_t C9 = C9_eff(q2, m_B, bar) + (bar ? std::conj(cache.C[WCoef::CP9]) : cache.C[WCoef::CP9]);
     complex_t C10 = cache.C[WCoef::C10] + cache.C[WCoef::CP10];
-    return N(q2, m_B, m_K, m_l) * I * (C9 + sign * C10 + 2. * cache.kappa * cache.m_b_mu_b * m_B / q2 * C7) * f_perp(q2, m_B, m_K);
+    if (bar) C10 = std::conj(C10);
+    return N(q2, m_B, m_K, m_l, bar) * (C9 + sign * C10 + 2. * cache.kappa * cache.m_b_mu_b * m_B / q2 * C7) * f_perp(q2, m_B, m_K);
 }
 
-complex_t BKstarllDecay::A_par_high(double q2, double m_B, double m_K, double m_l, double sign) {
-    complex_t C7 = C7_eff(q2, m_B) - cache.C[WCoef::CP7];
-    complex_t C9 = C9_eff(q2, m_B) - cache.C[WCoef::CP9];
+complex_t BKstarllDecay::A_par_high(double q2, double m_B, double m_K, double m_l, double sign, bool bar) {
+    complex_t C7 = C7_eff(q2, m_B, bar) - (bar ? std::conj(cache.C[WCoef::CP7]) : cache.C[WCoef::CP7]);
+    complex_t C9 = C9_eff(q2, m_B, bar) - (bar ? std::conj(cache.C[WCoef::CP9]) : cache.C[WCoef::CP9]);
     complex_t C10 = cache.C[WCoef::C10] - cache.C[WCoef::CP10];
-    return -N(q2, m_B, m_K, m_l) * I * (C9 + sign * C10 + 2. * cache.kappa * cache.m_b_mu_b * m_B / q2 * C7) * f_par(q2, m_B, m_K);
+    if (bar) C10 = std::conj(C10);
+    return -N(q2, m_B, m_K, m_l, bar) * (C9 + sign * C10 + 2. * cache.kappa * cache.m_b_mu_b * m_B / q2 * C7) * f_par(q2, m_B, m_K);
 }
 
-complex_t BKstarllDecay::A_0_high(double q2, double m_B, double m_K, double m_l, double sign) {
-    complex_t C7 = C7_eff(q2, m_B) - cache.C[WCoef::CP7];
-    complex_t C9 = C9_eff(q2, m_B) - cache.C[WCoef::CP9];
+complex_t BKstarllDecay::A_0_high(double q2, double m_B, double m_K, double m_l, double sign, bool bar) {
+    complex_t C7 = C7_eff(q2, m_B, bar) - (bar ? std::conj(cache.C[WCoef::CP7]) : cache.C[WCoef::CP7]);
+    complex_t C9 = C9_eff(q2, m_B, bar) - (bar ? std::conj(cache.C[WCoef::CP9]) : cache.C[WCoef::CP9]);
     complex_t C10 = cache.C[WCoef::C10] - cache.C[WCoef::CP10];
-    return -N(q2, m_B, m_K, m_l) * I * (C9 + sign * C10 + 2. * cache.kappa * cache.m_b_mu_b * m_B / q2 * C7) * f_0(q2, m_B, m_K);
+    if (bar) C10 = std::conj(C10);
+    return -N(q2, m_B, m_K, m_l, bar) * (C9 + sign * C10 + 2. * cache.kappa * cache.m_b_mu_b * m_B / q2 * C7) * f_0(q2, m_B, m_K);
 }
 
-complex_t BKstarllDecay::A_t_high(double q2, double m_B, double m_K, double m_l, double m_s) {
+complex_t BKstarllDecay::A_t_high(double q2, double m_B, double m_K, double m_l, double m_s, bool bar) {
     complex_t C10 = cache.C[WCoef::C10] - cache.C[WCoef::CP10];
     complex_t CQ2 = cache.C[WCoef::CQ2] - cache.C[WCoef::CPQ2];
-    return N(q2, m_B, m_K, m_l) / sqrt(q2 * lambda(q2, m_B, m_K)) * (2. * C10 + q2 / m_l * CQ2 / (cache.m_b_mu_b + m_s)) * F_a(FF::A0, q2);
+    if (bar) {
+        C10 = std::conj(C10);
+        CQ2 = std::conj(CQ2);
+    }
+    return N(q2, m_B, m_K, m_l, bar) / sqrt(q2 * lambda(q2, m_B, m_K)) * (2. * C10 + q2 / m_l * CQ2 / (cache.m_b_mu_b + m_s)) * F_a(FF::A0, q2);
 }
 
-complex_t BKstarllDecay::A_S_high(double q2, double m_B, double m_K, double m_l, double m_s) {
+complex_t BKstarllDecay::A_S_high(double q2, double m_B, double m_K, double m_l, double m_s, bool bar) {
     complex_t CQ1 = cache.C[WCoef::CQ1] - cache.C[WCoef::CPQ1];
-    return -2. * N(q2, m_B, m_K, m_l) * sqrt(lambda(q2, m_B, m_K)) * CQ1 / (cache.m_b_mu_b + m_s) * F_a(FF::A0, q2);
+    if (bar) CQ1 = std::conj(CQ1);
+    return -2. * N(q2, m_B, m_K, m_l, bar) * sqrt(lambda(q2, m_B, m_K)) * CQ1 / (cache.m_b_mu_b + m_s) * F_a(FF::A0, q2);
 }
 
 complex_t BKstarllDecay::interpolate(double q2, complex_t val_low, complex_t val_high) {
@@ -750,120 +791,753 @@ complex_t BKstarllDecay::interpolate(double q2, complex_t val_low, complex_t val
     return t * val_low + (1 - t) * val_high;
 }
 
-complex_t BKstarllDecay::A_perp(double q2, double m_B, double m_K, double m_l, double sign) {
-    return interpolate(q2, A_perp_low(q2, m_B, m_K, m_l, sign), A_perp_high(q2, m_B, m_K, m_l, sign));
+complex_t BKstarllDecay::A_perp(double q2, double m_B, double m_K, double m_l, double sign, bool bar) {
+    return interpolate(q2, A_perp_low(q2, m_B, m_K, m_l, sign, bar), A_perp_high(q2, m_B, m_K, m_l, sign, bar));
 }
 
-complex_t BKstarllDecay::A_par(double q2, double m_B, double m_K, double m_l, double sign) {
-    return interpolate(q2, A_par_low(q2, m_B, m_K, m_l, sign), A_par_high(q2, m_B, m_K, m_l, sign));
+complex_t BKstarllDecay::A_par(double q2, double m_B, double m_K, double m_l, double sign, bool bar) {
+    return interpolate(q2, A_par_low(q2, m_B, m_K, m_l, sign, bar), A_par_high(q2, m_B, m_K, m_l, sign, bar));
 }
 
-complex_t BKstarllDecay::A_0(double q2, double m_B, double m_K, double m_l, double sign) {
-    return interpolate(q2, A_0_low(q2, m_B, m_K, m_l, sign), A_0_high(q2, m_B, m_K, m_l, sign));
+complex_t BKstarllDecay::A_0(double q2, double m_B, double m_K, double m_l, double sign, bool bar) {
+    return interpolate(q2, A_0_low(q2, m_B, m_K, m_l, sign, bar), A_0_high(q2, m_B, m_K, m_l, sign, bar));
 }
 
-complex_t BKstarllDecay::A_t(double q2, double m_B, double m_K, double m_l, double f_B, double f_K_par, double m_s) {
-    return interpolate(q2, A_t_low(q2, m_B, m_K, m_l, f_B, f_K_par, m_s), A_0_high(q2, m_B, m_K, m_l, m_s));
+complex_t BKstarllDecay::A_t(double q2, double m_B, double m_K, double m_l, double f_B, double f_K_par, double m_s, bool bar) {
+    return interpolate(q2, A_t_low(q2, m_B, m_K, m_l, f_B, f_K_par, m_s, bar), A_0_high(q2, m_B, m_K, m_l, m_s, bar));
 }
 
-complex_t BKstarllDecay::A_S(double q2, double m_B, double m_K, double m_l, double f_B, double f_K_par, double m_s) {
-    return interpolate(q2, A_S_low(q2, m_B, m_K, m_l, f_B, f_K_par, m_s), A_S_high(q2, m_B, m_K, m_l, m_s));
+complex_t BKstarllDecay::A_S(double q2, double m_B, double m_K, double m_l, double f_B, double f_K_par, double m_s, bool bar) {
+    return interpolate(q2, A_S_low(q2, m_B, m_K, m_l, f_B, f_K_par, m_s, bar), A_S_high(q2, m_B, m_K, m_l, m_s, bar));
 }
 
-double BKstarllDecay::J1s(double q2, double m_B, double m_K, double m_l) {
+double BKstarllDecay::J1s(double q2, double m_B, double m_K, double m_l, bool bar) {
     return (2. + std::pow(beta_l(q2, m_l), 2)) / 4. * (
-        std::pow(std::abs(A_perp(q2, m_B, m_K, m_l, -1)), 2) 
-      + std::pow(std::abs(A_perp(q2, m_B, m_K, m_l, 1)), 2)
-      + std::pow(std::abs(A_perp(q2, m_B, m_K, m_l, -1)), 2)
-      + std::pow(std::abs(A_perp(q2, m_B, m_K, m_l, 1)), 2)
+        std::pow(std::abs(A_perp(q2, m_B, m_K, m_l, -1, bar)), 2) 
+      + std::pow(std::abs(A_perp(q2, m_B, m_K, m_l, 1, bar)), 2)
+      + std::pow(std::abs(A_perp(q2, m_B, m_K, m_l, -1, bar)), 2)
+      + std::pow(std::abs(A_perp(q2, m_B, m_K, m_l, 1, bar)), 2)
     ) + std::pow(2. * m_l, 2) / q2 * std::real(
-        A_perp(q2, m_B, m_K, m_l, -1) * std::conj(A_perp(q2, m_B, m_K, m_l, 1))
-      + A_perp(q2, m_B, m_K, m_l, -1) * std::conj(A_perp(q2, m_B, m_K, m_l, 1))
+        A_perp(q2, m_B, m_K, m_l, -1, bar) * std::conj(A_perp(q2, m_B, m_K, m_l, 1, bar))
+      + A_perp(q2, m_B, m_K, m_l, -1, bar) * std::conj(A_perp(q2, m_B, m_K, m_l, 1, bar))
     );
 }
 
-double BKstarllDecay::J1c(double q2, double m_B, double m_K, double m_l, double f_B, double f_K_par, double m_s) {
-    return std::pow(std::abs(A_0(q2, m_B, m_K, m_l, -1)), 2) + std::pow(std::abs(A_0(q2, m_B, m_K, m_l, 1)), 2) 
+double BKstarllDecay::J1c(double q2, double m_B, double m_K, double m_l, double f_B, double f_K_par, double m_s, bool bar) {
+    return std::pow(std::abs(A_0(q2, m_B, m_K, m_l, -1, bar)), 2) + std::pow(std::abs(A_0(q2, m_B, m_K, m_l, 1, bar)), 2) 
          + std::pow(2 * m_l, 2) / q2 * (
-              std::pow(std::abs(A_t(q2, m_B, m_K, m_l, f_B, f_K_par, m_s)), 2)
-            + 2. * std::real(A_0(q2, m_B, m_K, m_l, -1) * std::conj(A_0(q2, m_B, m_K, m_l, 1)))
+              std::pow(std::abs(A_t(q2, m_B, m_K, m_l, f_B, f_K_par, m_s, bar)), 2)
+            + 2. * std::real(A_0(q2, m_B, m_K, m_l, -1, bar) * std::conj(A_0(q2, m_B, m_K, m_l, 1, bar)))
            )
-         + std::pow(beta_l(q2, m_l) * std::abs(A_S(q2, m_B, m_K, m_l, f_B, f_K_par, m_s)), 2);
+         + std::pow(beta_l(q2, m_l) * std::abs(A_S(q2, m_B, m_K, m_l, f_B, f_K_par, m_s, bar)), 2);
 }
 
-double BKstarllDecay::J2s(double q2, double m_B, double m_K, double m_l) {
+double BKstarllDecay::J2s(double q2, double m_B, double m_K, double m_l, bool bar) {
     return std::pow(beta_l(q2, m_l), 2) / 4. * (
-        std::pow(std::abs(A_perp(q2, m_B, m_K, m_l, -1)), 2) 
-      + std::pow(std::abs(A_perp(q2, m_B, m_K, m_l, 1)), 2)
-      + std::pow(std::abs(A_perp(q2, m_B, m_K, m_l, -1)), 2)
-      + std::pow(std::abs(A_perp(q2, m_B, m_K, m_l, 1)), 2)
+        std::pow(std::abs(A_perp(q2, m_B, m_K, m_l, -1, bar)), 2) 
+      + std::pow(std::abs(A_perp(q2, m_B, m_K, m_l, 1, bar)), 2)
+      + std::pow(std::abs(A_perp(q2, m_B, m_K, m_l, -1, bar)), 2)
+      + std::pow(std::abs(A_perp(q2, m_B, m_K, m_l, 1, bar)), 2)
     );
 }
 
-double BKstarllDecay::J2c(double q2, double m_B, double m_K, double m_l) {
+double BKstarllDecay::J2c(double q2, double m_B, double m_K, double m_l, bool bar) {
     return -std::pow(beta_l(q2, m_l), 2) * (
-        std::pow(std::abs(A_0(q2, m_B, m_K, m_l, -1)), 2) 
-      + std::pow(std::abs(A_0(q2, m_B, m_K, m_l, 1)), 2)
+        std::pow(std::abs(A_0(q2, m_B, m_K, m_l, -1, bar)), 2) 
+      + std::pow(std::abs(A_0(q2, m_B, m_K, m_l, 1, bar)), 2)
     );
 }
 
-double BKstarllDecay::J3(double q2, double m_B, double m_K, double m_l) {
+double BKstarllDecay::J3(double q2, double m_B, double m_K, double m_l, bool bar) {
     return std::pow(beta_l(q2, m_l), 2) / 2. * (
-        std::pow(std::abs(A_perp(q2, m_B, m_K, m_l, -1)), 2) 
-      + std::pow(std::abs(A_perp(q2, m_B, m_K, m_l, 1)), 2)
-      - std::pow(std::abs(A_par(q2, m_B, m_K, m_l, -1)), 2)
-      - std::pow(std::abs(A_par(q2, m_B, m_K, m_l, 1)), 2)
+        std::pow(std::abs(A_perp(q2, m_B, m_K, m_l, -1, bar)), 2) 
+      + std::pow(std::abs(A_perp(q2, m_B, m_K, m_l, 1, bar)), 2)
+      - std::pow(std::abs(A_par(q2, m_B, m_K, m_l, -1, bar)), 2)
+      - std::pow(std::abs(A_par(q2, m_B, m_K, m_l, 1, bar)), 2)
     );
 }
 
-double BKstarllDecay::J4(double q2, double m_B, double m_K, double m_l) {
+double BKstarllDecay::J4(double q2, double m_B, double m_K, double m_l, bool bar) {
     return std::pow(beta_l(q2, m_l), 2) / std::sqrt(2.) * (
-        std::real(A_0(q2, m_B, m_K, m_l, -1) * std::conj(A_perp(q2, m_B, m_K, m_l, -1))) 
-      + std::real(A_0(q2, m_B, m_K, m_l, 1) * std::conj(A_perp(q2, m_B, m_K, m_l, 1)))
+        std::real(A_0(q2, m_B, m_K, m_l, -1, bar) * std::conj(A_perp(q2, m_B, m_K, m_l, -1, bar))) 
+      + std::real(A_0(q2, m_B, m_K, m_l, 1, bar) * std::conj(A_perp(q2, m_B, m_K, m_l, 1, bar)))
     );
 }
 
-double BKstarllDecay::J5(double q2, double m_B,double m_K,double m_l,double f_B,double f_K_par,double m_s) {
+double BKstarllDecay::J5(double q2, double m_B,double m_K,double m_l,double f_B,double f_K_par,double m_s, bool bar) {
     return beta_l(q2, m_l) * std::sqrt(2.) * (
-        std::real(A_0(q2, m_B, m_K, m_l, -1) * std::conj(A_perp(q2, m_B, m_K, m_l, -1))) 
-      - std::real(A_0(q2, m_B, m_K, m_l, 1) * std::conj(A_perp(q2, m_B, m_K, m_l, 1)))
-      - m_l / std::sqrt(q2) * std::real((A_perp(q2, m_B, m_K, m_l, -1) + A_perp(q2, m_B, m_K, m_l, 1)) * std::conj(A_S(q2, m_B, m_K, m_l, f_B, f_K_par, m_s)))
+        std::real(A_0(q2, m_B, m_K, m_l, -1, bar) * std::conj(A_perp(q2, m_B, m_K, m_l, -1, bar))) 
+      - std::real(A_0(q2, m_B, m_K, m_l, 1, bar) * std::conj(A_perp(q2, m_B, m_K, m_l, 1, bar)))
+      - m_l / std::sqrt(q2) * std::real((A_perp(q2, m_B, m_K, m_l, -1, bar) + A_perp(q2, m_B, m_K, m_l, 1, bar)) * std::conj(A_S(q2, m_B, m_K, m_l, f_B, f_K_par, m_s, bar)))
     );
 }
 
-double BKstarllDecay::J6s(double q2, double m_B, double m_K, double m_l) {
+double BKstarllDecay::J6s(double q2, double m_B, double m_K, double m_l, bool bar) {
     return 2. * beta_l(q2, m_l) * (
-        std::real(A_perp(q2, m_B, m_K, m_l, -1) * std::conj(A_perp(q2, m_B, m_K, m_l, -1))) 
-      - std::real(A_perp(q2, m_B, m_K, m_l, 1) * std::conj(A_perp(q2, m_B, m_K, m_l, 1))) 
+        std::real(A_perp(q2, m_B, m_K, m_l, -1, bar) * std::conj(A_perp(q2, m_B, m_K, m_l, -1, bar))) 
+      - std::real(A_perp(q2, m_B, m_K, m_l, 1, bar) * std::conj(A_perp(q2, m_B, m_K, m_l, 1, bar))) 
     );
 }
 
-double BKstarllDecay::J6c(double q2, double m_B, double m_K, double m_l, double f_B, double f_K_par, double m_s) {
-    return 4. * beta_l(q2, m_l) * m_l / std::sqrt(q2) * (std::real((A_0(q2, m_B, m_K, m_l, -1) + A_0(q2, m_B, m_K, m_l, 1)) * std::conj(A_S(q2, m_B, m_K, m_l, f_B, f_K_par, m_s))));
+double BKstarllDecay::J6c(double q2, double m_B, double m_K, double m_l, double f_B, double f_K_par, double m_s, bool bar) {
+    return 4. * beta_l(q2, m_l) * m_l / std::sqrt(q2) * (std::real((A_0(q2, m_B, m_K, m_l, -1, bar) + A_0(q2, m_B, m_K, m_l, 1, bar)) * std::conj(A_S(q2, m_B, m_K, m_l, f_B, f_K_par, m_s, bar))));
 }
 
-double BKstarllDecay::J7(double q2, double m_B, double m_K, double m_l, double f_B, double f_K_par, double m_s) {
+double BKstarllDecay::J7(double q2, double m_B, double m_K, double m_l, double f_B, double f_K_par, double m_s, bool bar) {
     return beta_l(q2, m_l) * std::sqrt(2.) * (
-        std::imag(A_0(q2, m_B, m_K, m_l, -1) * std::conj(A_perp(q2, m_B, m_K, m_l, -1))) 
-      - std::imag(A_0(q2, m_B, m_K, m_l, 1) * std::conj(A_perp(q2, m_B, m_K, m_l, 1)))
-      + m_l / std::sqrt(q2) * std::imag((A_perp(q2, m_B, m_K, m_l, -1) + A_perp(q2, m_B, m_K, m_l, 1)) * std::conj(A_S(q2, m_B, m_K, m_l, f_B, f_K_par, m_s)))
+        std::imag(A_0(q2, m_B, m_K, m_l, -1, bar) * std::conj(A_perp(q2, m_B, m_K, m_l, -1, bar))) 
+      - std::imag(A_0(q2, m_B, m_K, m_l, 1, bar) * std::conj(A_perp(q2, m_B, m_K, m_l, 1, bar)))
+      + m_l / std::sqrt(q2) * std::imag((A_perp(q2, m_B, m_K, m_l, -1, bar) + A_perp(q2, m_B, m_K, m_l, 1, bar)) * std::conj(A_S(q2, m_B, m_K, m_l, f_B, f_K_par, m_s, bar)))
     );
 }
 
-double BKstarllDecay::J8(double q2, double m_B, double m_K, double m_l) {
+double BKstarllDecay::J8(double q2, double m_B, double m_K, double m_l, bool bar) {
     return std::pow(beta_l(q2, m_l), 2) / std::sqrt(2.) * (
-        std::imag(A_0(q2, m_B, m_K, m_l, -1) * std::conj(A_perp(q2, m_B, m_K, m_l, -1))) 
-      + std::imag(A_0(q2, m_B, m_K, m_l, 1) * std::conj(A_perp(q2, m_B, m_K, m_l, 1)))
+        std::imag(A_0(q2, m_B, m_K, m_l, -1, bar) * std::conj(A_perp(q2, m_B, m_K, m_l, -1, bar))) 
+      + std::imag(A_0(q2, m_B, m_K, m_l, 1, bar) * std::conj(A_perp(q2, m_B, m_K, m_l, 1, bar)))
     );
 }
 
-double BKstarllDecay::J9(double q2, double m_B, double m_K, double m_l) {
+double BKstarllDecay::J9(double q2, double m_B, double m_K, double m_l, bool bar) {
     return std::pow(beta_l(q2, m_l), 2) * (
-        std::imag(A_perp(q2, m_B, m_K, m_l, -1) * std::conj(A_par(q2, m_B, m_K, m_l, -1))) 
-      + std::imag(A_perp(q2, m_B, m_K, m_l, 1) * std::conj(A_par(q2, m_B, m_K, m_l, 1))) 
+        std::imag(A_perp(q2, m_B, m_K, m_l, -1, bar) * std::conj(A_par(q2, m_B, m_K, m_l, -1, bar))) 
+      + std::imag(A_perp(q2, m_B, m_K, m_l, 1, bar) * std::conj(A_par(q2, m_B, m_K, m_l, 1, bar))) 
     );
 }
 
+void BKstarllDecay::compute_binned_J_i(double m_B, double m_K, double m_l, double f_B, double f_K_par, double m_s) {
+    auto fill_binned = [&] (std::array<std::vector<double>, 14>& dest, bool bar) {
+        for (auto [q2_l, q2_u] : this->bins) {
+            dest[0].emplace_back(integrate([&] (double q2) { return 2 * J1s(q2, m_B, m_K, m_l, bar) + J1c(q2, m_B, m_K, m_l, f_B, f_K_par, m_s, bar); }, q2_l, q2_u, 1e-2));
+            dest[1].emplace_back(integrate([&] (double q2) { return J2s(q2, m_B, m_K, m_l, bar); }, q2_l, q2_u, 1e-2));
+            dest[2].emplace_back(integrate([&] (double q2) { return J2c(q2, m_B, m_K, m_l, bar); }, q2_l, q2_u, 1e-2));
+            dest[3].emplace_back(integrate([&] (double q2) { return J3(q2, m_B, m_K, m_l, bar); }, q2_l, q2_u, 1e-2));
+            dest[4].emplace_back(integrate([&] (double q2) { return J4(q2, m_B, m_K, m_l, bar); }, q2_l, q2_u, 1e-2));
+            dest[5].emplace_back(integrate([&] (double q2) { return J5(q2, m_B, m_K, m_l, f_B, f_K_par, m_s, bar); }, q2_l, q2_u, 1e-2));
+            dest[6].emplace_back(integrate([&] (double q2) { return beta_l(q2, m_l) * J5(q2, m_B, m_K, m_l, f_B, f_K_par, m_s, bar); }, q2_l, q2_u, 1e-2));
+            dest[7].emplace_back(integrate([&] (double q2) { return J6s(q2, m_B, m_K, m_l, bar); }, q2_l, q2_u, 1e-2));
+            dest[8].emplace_back(integrate([&] (double q2) { return beta_l(q2, m_l) * J6s(q2, m_B, m_K, m_l, bar); }, q2_l, q2_u, 1e-2));
+            dest[9].emplace_back(integrate([&] (double q2) { return J6c(q2, m_B, m_K, m_l, f_B, f_K_par, m_s, bar); }, q2_l, q2_u, 1e-2));
+            dest[10].emplace_back(integrate([&] (double q2) { return J7(q2, m_B, m_K, m_l, f_B, f_K_par, m_s, bar); }, q2_l, q2_u, 1e-2));
+            dest[11].emplace_back(integrate([&] (double q2) { return beta_l(q2, m_l) * J7(q2, m_B, m_K, m_l, f_B, f_K_par, m_s, bar); }, q2_l, q2_u, 1e-2));
+            dest[12].emplace_back(integrate([&] (double q2) { return J8(q2, m_B, m_K, m_l, bar); }, q2_l, q2_u, 1e-2));
+            dest[13].emplace_back(integrate([&] (double q2) { return J9(q2, m_B, m_K, m_l, bar); }, q2_l, q2_u, 1e-2));
+        }
+    };
+
+    fill_binned(this->J_i_binned, false);
+    fill_binned(this->J_i_bar_binned, true);
+}
+
+double BKstarllDecay::dG_dq2_avg(double q2, double m_B, double m_K, double m_l, double f_B, double f_K_par, double m_s) {
+    double J1 = 2 * J1s(q2, m_B, m_K, m_l, false) + J1c(q2, m_B, m_K, m_l, f_B, f_K_par, m_s, false);
+    double J1bar = 2 * J1s(q2, m_B, m_K, m_l, true) + J1c(q2, m_B, m_K, m_l, f_B, f_K_par, m_s, true);
+    double J2 = 2 * J2s(q2, m_B, m_K, m_l, false) + J2c(q2, m_B, m_K, m_l, false);
+    double J2bar = 2 * J2s(q2, m_B, m_K, m_l, true) + J2c(q2, m_B, m_K, m_l, true);
+    double dG = 0.75 * (J1 - J2 / 3.);
+    double dGbar = 0.75 * (J1bar - J2bar / 3.);
+    return dG + dGbar;
+}
+
+double BKstarllDecay::dG_dq2(double q2, double m_B, double m_K, double m_l, double f_B, double f_K_par, double m_s, bool bar) {
+    double J1 = 2 * J1s(q2, m_B, m_K, m_l, bar) + J1c(q2, m_B, m_K, m_l, f_B, f_K_par, m_s, bar);
+    double J2 = 2 * J2s(q2, m_B, m_K, m_l, bar) + J2c(q2, m_B, m_K, m_l, bar);
+    return 0.75 * (J1 - J2 / 3.);
+}
+
+double BKstarllDecay::A_FB(double q2, double m_B, double m_K, double m_l, double f_B, double f_K_par, double m_s) {
+    double J6 = 2 * J6s(q2, m_B, m_K, m_l, false) + J6c(q2, m_B, m_K, m_l, f_B, f_K_par, m_s, false);
+    double J6bar = 2 * J6s(q2, m_B, m_K, m_l, true) + J6c(q2, m_B, m_K, m_l, f_B, f_K_par, m_s, true);
+    return -0.375 * (J6 + J6bar) / dG_dq2_avg(q2, m_B, m_K, m_l, f_B, f_K_par, m_s);
+}
+
+double BKstarllDecay::A_CP(double q2, double m_B, double m_K, double m_l, double f_B, double f_K_par, double m_s) {
+    double J1 = 2 * J1s(q2, m_B, m_K, m_l, false) + J1c(q2, m_B, m_K, m_l, f_B, f_K_par, m_s, false);
+    double J1bar = 2 * J1s(q2, m_B, m_K, m_l, true) + J1c(q2, m_B, m_K, m_l, f_B, f_K_par, m_s, true);
+    double J2 = 2 * J2s(q2, m_B, m_K, m_l, false) + J2c(q2, m_B, m_K, m_l, false);
+    double J2bar = 2 * J2s(q2, m_B, m_K, m_l, true) + J2c(q2, m_B, m_K, m_l, true);
+    double dG = 0.75 * (J1 - J2 / 3.);
+    double dGbar = 0.75 * (J1bar - J2bar / 3.);
+    return (dG - dGbar) / (dG + dGbar);
+}
+
+double BKstarllDecay::F_L(double q2, double m_B, double m_K, double m_l, double f_B, double f_K_par, double m_s) {
+    double J1 = J1c(q2, m_B, m_K, m_l, f_B, f_K_par, m_s, false) + J1c(q2, m_B, m_K, m_l, f_B, f_K_par, m_s, true);
+    double J2 = J2c(q2, m_B, m_K, m_l, false) + J2c(q2, m_B, m_K, m_l, true);
+    return 0.75 * (3 * J1 - J2) / dG_dq2_avg(q2, m_B, m_K, m_l, f_B, f_K_par, m_s);
+}
+
+double BKstarllDecay::F_T(double q2, double m_B, double m_K, double m_l, double f_B, double f_K_par, double m_s) {
+    double J2 = J2s(q2, m_B, m_K, m_l, false) + J2s(q2, m_B, m_K, m_l, true);
+    return 4. * J2 / dG_dq2_avg(q2, m_B, m_K, m_l, f_B, f_K_par, m_s);
+}
+
+double BKstarllDecay::A_T_1(double q2, double m_B, double m_K, double m_l) {
+    double AperpApar = std::real(A_par(q2, m_B, m_K, m_l, 1, false) * std::conj(A_perp(q2, m_B, m_K, m_l, 1, false)) + A_par(q2, m_B, m_K, m_l, -1, false) * std::conj(A_perp(q2, m_B, m_K, m_l, -1, false)));
+    double AperpApar_bar = std::real(A_par(q2, m_B, m_K, m_l, 1, true) * std::conj(A_perp(q2, m_B, m_K, m_l, 1, true)) + A_par(q2, m_B, m_K, m_l, -1, true) * std::conj(A_perp(q2, m_B, m_K, m_l, -1, true)));
+    double Aperp2 = std::pow(std::abs(A_perp(q2, m_B, m_K, m_l, 1, false)), 2) + std::pow(std::abs(A_perp(q2, m_B, m_K, m_l, -1, false)), 2) + std::pow(std::abs(A_perp(q2, m_B, m_K, m_l, 1, true)), 2) + std::pow(std::abs(A_perp(q2, m_B, m_K, m_l, -1, true)), 2);
+    double Apar2 = std::pow(std::abs(A_par(q2, m_B, m_K, m_l, 1, false)), 2) + std::pow(std::abs(A_par(q2, m_B, m_K, m_l, -1, false)), 2) + std::pow(std::abs(A_par(q2, m_B, m_K, m_l, 1, true)), 2) + std::pow(std::abs(A_par(q2, m_B, m_K, m_l, -1, true)), 2);
+    return -2. * (AperpApar + AperpApar_bar) / (Aperp2 + Apar2);
+}
+
+double BKstarllDecay::A_T_2(double q2, double m_B, double m_K, double m_l) {
+    double J2scp = J2s(q2, m_B, m_K, m_l, false) + J2s(q2, m_B, m_K, m_l, true);
+    double J3cp = J3(q2, m_B, m_K, m_l, false) + J3(q2, m_B, m_K, m_l, true);
+    return 0.5 * J3cp / J2scp;
+}
+
+double BKstarllDecay::A_T_3(double q2, double m_B, double m_K, double m_l, double f_B, double f_K_par, double m_s) {
+    double J2ccp = J2c(q2, m_B, m_K, m_l, false) + J2c(q2, m_B, m_K, m_l, true);
+    double J2scp = J2s(q2, m_B, m_K, m_l, false) + J2s(q2, m_B, m_K, m_l, true);
+    double J3cp = J3(q2, m_B, m_K, m_l, false) + J3(q2, m_B, m_K, m_l, true);
+    double J4cp = J4(q2, m_B, m_K, m_l, false) + J4(q2, m_B, m_K, m_l, true);
+    double J7cp = J7(q2, m_B, m_K, m_l, f_B, f_K_par, m_s, false) + J7(q2, m_B, m_K, m_l, f_B, f_K_par, m_s, true);
+    double bl = beta_l(q2, m_l);
+    return std::sqrt((4. * std::pow(J4cp, 2) + std::pow(bl * J7cp, 2)) / (-2. * J2ccp * (2. * J2scp + J3cp)));
+}
+
+double BKstarllDecay::A_T_4(double q2, double m_B, double m_K, double m_l, double f_B, double f_K_par, double m_s) {
+    double J4cp = J4(q2, m_B, m_K, m_l, false) + J4(q2, m_B, m_K, m_l, true);
+    double J5cp = J5(q2, m_B, m_K, m_l, f_B, f_K_par, m_s, false) + J5(q2, m_B, m_K, m_l, f_B, f_K_par, m_s, true);
+    double J7cp = J7(q2, m_B, m_K, m_l, f_B, f_K_par, m_s, false) + J7(q2, m_B, m_K, m_l, f_B, f_K_par, m_s, true);
+    double J8cp = J8(q2, m_B, m_K, m_l, false) + J8(q2, m_B, m_K, m_l, true);
+    double bl = beta_l(q2, m_l);
+    return std::sqrt((4. * std::pow(J8cp, 2) + std::pow(bl * J5cp, 2)) / (4. * std::pow(J4cp, 2) + std::pow(bl * J7cp, 2)));
+}
+
+double BKstarllDecay::A_T_5(double q2, double m_B, double m_K, double m_l) {
+    complex_t AperpApar = A_perp(q2, m_B, m_K, m_l, 1, false) * std::conj(A_par(q2, m_B, m_K, m_l, -1, false)) + A_perp(q2, m_B, m_K, m_l, -1, false) * std::conj(A_par(q2, m_B, m_K, m_l, 1, false));
+    complex_t AperpApar_bar = A_perp(q2, m_B, m_K, m_l, 1, true) * std::conj(A_par(q2, m_B, m_K, m_l, -1, true)) + A_perp(q2, m_B, m_K, m_l, -1, true) * std::conj(A_par(q2, m_B, m_K, m_l, 1, true));
+    double Aperp2 = std::pow(std::abs(A_perp(q2, m_B, m_K, m_l, 1, false)), 2) + std::pow(std::abs(A_perp(q2, m_B, m_K, m_l, -1, false)), 2) + std::pow(std::abs(A_perp(q2, m_B, m_K, m_l, 1, true)), 2) + std::pow(std::abs(A_perp(q2, m_B, m_K, m_l, -1, true)), 2);
+    double Apar2 = std::pow(std::abs(A_par(q2, m_B, m_K, m_l, 1, false)), 2) + std::pow(std::abs(A_par(q2, m_B, m_K, m_l, -1, false)), 2) + std::pow(std::abs(A_par(q2, m_B, m_K, m_l, 1, true)), 2) + std::pow(std::abs(A_par(q2, m_B, m_K, m_l, -1, true)), 2);
+    return std::abs(AperpApar + AperpApar_bar) / (Aperp2 + Apar2);
+}
+
+double BKstarllDecay::A_T_Re(double q2, double m_B, double m_K, double m_l) {
+    double J2scp = J2s(q2, m_B, m_K, m_l, false) + J2s(q2, m_B, m_K, m_l, true);
+    double J6scp = J6s(q2, m_B, m_K, m_l, false) + J6s(q2, m_B, m_K, m_l, true);
+    double bl = beta_l(q2, m_l);
+    return 0.25 * bl * J6scp / J2scp;
+}
+
+double BKstarllDecay::AA_T_Re(double q2, double m_B, double m_K, double m_l) {
+    double J2scp = J2s(q2, m_B, m_K, m_l, false) + J2s(q2, m_B, m_K, m_l, true);
+    double J6scpa = J6s(q2, m_B, m_K, m_l, false) - J6s(q2, m_B, m_K, m_l, true);
+    double bl = beta_l(q2, m_l);
+    return 0.25 * bl * J6scpa / J2scp;
+}
+
+double BKstarllDecay::A_Im(double q2, double m_B, double m_K, double m_l, double f_B, double f_K_par, double m_s) {
+    double J9cp = J9(q2, m_B, m_K, m_l, false) + J9(q2, m_B, m_K, m_l, true);
+    return J9cp / dG_dq2_avg(q2, m_B, m_K, m_l, f_B, f_K_par, m_s);
+}
+
+double BKstarllDecay::alpha_K(double q2, double m_B, double m_K, double m_l) {
+    double J2scp = J2s(q2, m_B, m_K, m_l, false) + J2s(q2, m_B, m_K, m_l, true);
+    double J2cp = 2 * J2scp + J2c(q2, m_B, m_K, m_l, false) + J2c(q2, m_B, m_K, m_l, true);
+    return -0.5 * J2cp / J2scp;
+}
+
+double BKstarllDecay::H_T_1(double q2, double m_B, double m_K, double m_l) {
+    double J2ccp = J2c(q2, m_B, m_K, m_l, false) + J2c(q2, m_B, m_K, m_l, true);
+    double J2scp = J2s(q2, m_B, m_K, m_l, false) + J2s(q2, m_B, m_K, m_l, true);
+    double J3cp = J3(q2, m_B, m_K, m_l, false) + J3(q2, m_B, m_K, m_l, true);
+    double J4cp = J4(q2, m_B, m_K, m_l, false) + J4(q2, m_B, m_K, m_l, true);
+    return RT2 * J4cp / std::sqrt(-J2ccp * (2 * J2scp - J3cp));
+}
+
+double BKstarllDecay::H_T_2(double q2, double m_B, double m_K, double m_l, double f_B, double f_K_par, double m_s) {
+    double J2ccp = J2c(q2, m_B, m_K, m_l, false) + J2c(q2, m_B, m_K, m_l, true);
+    double J2scp = J2s(q2, m_B, m_K, m_l, false) + J2s(q2, m_B, m_K, m_l, true);
+    double J3cp = J3(q2, m_B, m_K, m_l, false) + J3(q2, m_B, m_K, m_l, true);
+    double J5cp = J5(q2, m_B, m_K, m_l, f_B, f_K_par, m_s, false) + J5(q2, m_B, m_K, m_l, f_B, f_K_par, m_s, true);
+    double bl = beta_l(q2, m_l);
+    return bl * J5cp / std::sqrt(-2. * J2ccp * (2 * J2scp + J3cp));
+}
+
+double BKstarllDecay::H_T_3(double q2, double m_B, double m_K, double m_l, double f_B, double f_K_par, double m_s) {
+    double J6cp = 2 * (J6s(q2, m_B, m_K, m_l, false) + J6s(q2, m_B, m_K, m_l, true)) + J6c(q2, m_B, m_K, m_l, f_B, f_K_par, m_s, false) + J6c(q2, m_B, m_K, m_l, f_B, f_K_par, m_s, true);
+    double J2scp = J2s(q2, m_B, m_K, m_l, false) + J2s(q2, m_B, m_K, m_l, true);
+    double J3cp = J3(q2, m_B, m_K, m_l, false) + J3(q2, m_B, m_K, m_l, true);
+    return 0.5 * J6cp / std::sqrt(4. * std::pow(J2scp, 2) - std::pow(J3cp, 2));
+}
+
+double BKstarllDecay::P_2(double q2, double m_B, double m_K, double m_l) {
+    double J2scp = J2s(q2, m_B, m_K, m_l, false) + J2s(q2, m_B, m_K, m_l, true);
+    double J6scp = J6s(q2, m_B, m_K, m_l, false) + J6s(q2, m_B, m_K, m_l, true);
+    return 0.125 * J6scp / J2scp;
+}
+
+double BKstarllDecay::P_3(double q2, double m_B, double m_K, double m_l) {
+    double J2scp = J2s(q2, m_B, m_K, m_l, false) + J2s(q2, m_B, m_K, m_l, true);
+    double J9cp = J9(q2, m_B, m_K, m_l, false) + J9(q2, m_B, m_K, m_l, true);
+    return -0.25 * J9cp / J2scp;
+}
+
+double BKstarllDecay::P_6(double q2, double m_B, double m_K, double m_l, double f_B, double f_K_par, double m_s) {
+    double J2ccp = J2c(q2, m_B, m_K, m_l, false) + J2c(q2, m_B, m_K, m_l, true);
+    double J2scp = J2s(q2, m_B, m_K, m_l, false) + J2s(q2, m_B, m_K, m_l, true);
+    double J3cp = J3(q2, m_B, m_K, m_l, false) + J3(q2, m_B, m_K, m_l, true);
+    double J7cp = J7(q2, m_B, m_K, m_l, f_B, f_K_par, m_s, false) + J7(q2, m_B, m_K, m_l, f_B, f_K_par, m_s, true);
+    double bl = beta_l(q2, m_l);
+    return -bl * J7cp / std::sqrt(-2. * J2ccp * (2 * J2scp - J3cp));
+}
+
+double BKstarllDecay::P_8(double q2, double m_B, double m_K, double m_l) {
+    double J2ccp = J2c(q2, m_B, m_K, m_l, false) + J2c(q2, m_B, m_K, m_l, true);
+    double J2scp = J2s(q2, m_B, m_K, m_l, false) + J2s(q2, m_B, m_K, m_l, true);
+    double J3cp = J3(q2, m_B, m_K, m_l, false) + J3(q2, m_B, m_K, m_l, true);
+    double J8cp = J8(q2, m_B, m_K, m_l, false) + J8(q2, m_B, m_K, m_l, true);
+    return -RT2 * J8cp / std::sqrt(-J2ccp * (2 * J2scp + J3cp));
+}
+
+double BKstarllDecay::Pp_4(double q2, double m_B, double m_K, double m_l) {
+    double J2ccp = J2c(q2, m_B, m_K, m_l, false) + J2c(q2, m_B, m_K, m_l, true);
+    double J2scp = J2s(q2, m_B, m_K, m_l, false) + J2s(q2, m_B, m_K, m_l, true);
+    double J4cp = J4(q2, m_B, m_K, m_l, false) + J4(q2, m_B, m_K, m_l, true);
+    return J4cp / std::sqrt(-J2ccp * J2scp);
+}
+
+double BKstarllDecay::Pp_5(double q2, double m_B, double m_K, double m_l, double f_B, double f_K_par, double m_s) {
+    double J2ccp = J2c(q2, m_B, m_K, m_l, false) + J2c(q2, m_B, m_K, m_l, true);
+    double J2scp = J2s(q2, m_B, m_K, m_l, false) + J2s(q2, m_B, m_K, m_l, true);
+    double J5cp = J5(q2, m_B, m_K, m_l, f_B, f_K_par, m_s, false) + J5(q2, m_B, m_K, m_l, f_B, f_K_par, m_s, true);
+    return 0.5 * J5cp / std::sqrt(-J2ccp * J2scp);
+}
+
+double BKstarllDecay::Pp_6(double q2, double m_B, double m_K, double m_l, double f_B, double f_K_par, double m_s) {
+    double J2ccp = J2c(q2, m_B, m_K, m_l, false) + J2c(q2, m_B, m_K, m_l, true);
+    double J2scp = J2s(q2, m_B, m_K, m_l, false) + J2s(q2, m_B, m_K, m_l, true);
+    double J7cp = J7(q2, m_B, m_K, m_l, f_B, f_K_par, m_s, false) + J7(q2, m_B, m_K, m_l, f_B, f_K_par, m_s, true);
+    return -0.5 * J7cp / std::sqrt(-J2ccp * J2scp);
+}
+
+double BKstarllDecay::Pp_8(double q2, double m_B, double m_K, double m_l) {
+    double J2ccp = J2c(q2, m_B, m_K, m_l, false) + J2c(q2, m_B, m_K, m_l, true);
+    double J2scp = J2s(q2, m_B, m_K, m_l, false) + J2s(q2, m_B, m_K, m_l, true);
+    double J8cp = J8(q2, m_B, m_K, m_l, false) + J8(q2, m_B, m_K, m_l, true);
+    return -J8cp / std::sqrt(-J2ccp * J2scp);
+}
+
+double BKstarllDecay::S_3(double q2, double m_B, double m_K, double m_l, double f_B, double f_K_par, double m_s) {
+    double J3cp = J3(q2, m_B, m_K, m_l, false) + J3(q2, m_B, m_K, m_l, true);
+    return J3cp / dG_dq2_avg(q2, m_B, m_K, m_l, f_B, f_K_par, m_s);
+}
+
+double BKstarllDecay::S_4(double q2, double m_B, double m_K, double m_l, double f_B, double f_K_par, double m_s) {
+    double J4cp = J4(q2, m_B, m_K, m_l, false) + J4(q2, m_B, m_K, m_l, true);
+    return J4cp / dG_dq2_avg(q2, m_B, m_K, m_l, f_B, f_K_par, m_s);
+}
+
+double BKstarllDecay::S_5(double q2, double m_B, double m_K, double m_l, double f_B, double f_K_par, double m_s) {
+    double J5cp = J5(q2, m_B, m_K, m_l, f_B, f_K_par, m_s, false) + J5(q2, m_B, m_K, m_l, f_B, f_K_par, m_s, true);
+    return J5cp / dG_dq2_avg(q2, m_B, m_K, m_l, f_B, f_K_par, m_s);
+}
+
+double BKstarllDecay::S_6c(double q2, double m_B, double m_K, double m_l, double f_B, double f_K_par, double m_s) {
+    double J6ccp = J6c(q2, m_B, m_K, m_l, f_B, f_K_par, m_s, false) + J6c(q2, m_B, m_K, m_l, f_B, f_K_par, m_s, true);
+    return J6ccp / dG_dq2_avg(q2, m_B, m_K, m_l, f_B, f_K_par, m_s);
+}
+
+double BKstarllDecay::S_7(double q2, double m_B, double m_K, double m_l, double f_B, double f_K_par, double m_s) {
+    double J7cp = J7(q2, m_B, m_K, m_l, f_B, f_K_par, m_s, false) + J7(q2, m_B, m_K, m_l, f_B, f_K_par, m_s, true);
+    return J7cp / dG_dq2_avg(q2, m_B, m_K, m_l, f_B, f_K_par, m_s);
+}
+
+double BKstarllDecay::S_8(double q2, double m_B, double m_K, double m_l, double f_B, double f_K_par, double m_s) {
+    double J8cp = J8(q2, m_B, m_K, m_l, false) + J8(q2, m_B, m_K, m_l, true);
+    return J8cp / dG_dq2_avg(q2, m_B, m_K, m_l, f_B, f_K_par, m_s);
+}
+
+double BKstarllDecay::S_9(double q2, double m_B, double m_K, double m_l, double f_B, double f_K_par, double m_s) {
+    double J9cp = J9(q2, m_B, m_K, m_l, false) + J9(q2, m_B, m_K, m_l, true);
+    return J9cp / dG_dq2_avg(q2, m_B, m_K, m_l, f_B, f_K_par, m_s);
+}
+
+double BKstarllDecay::A_3(double q2, double m_B, double m_K, double m_l, double f_B, double f_K_par, double m_s) {
+    double J3cpa = J3(q2, m_B, m_K, m_l, false) - J3(q2, m_B, m_K, m_l, true);
+    return J3cpa / dG_dq2_avg(q2, m_B, m_K, m_l, f_B, f_K_par, m_s);
+}
+
+double BKstarllDecay::A_4(double q2, double m_B, double m_K, double m_l, double f_B, double f_K_par, double m_s) {
+    double J4cpa = J4(q2, m_B, m_K, m_l, false) - J4(q2, m_B, m_K, m_l, true);
+    return J4cpa / dG_dq2_avg(q2, m_B, m_K, m_l, f_B, f_K_par, m_s);
+}
+
+double BKstarllDecay::A_5(double q2, double m_B, double m_K, double m_l, double f_B, double f_K_par, double m_s) {
+    double J5cpa = J5(q2, m_B, m_K, m_l, f_B, f_K_par, m_s, false) - J5(q2, m_B, m_K, m_l, f_B, f_K_par, m_s, true);
+    return J5cpa / dG_dq2_avg(q2, m_B, m_K, m_l, f_B, f_K_par, m_s);
+}
+
+double BKstarllDecay::A_6s(double q2, double m_B, double m_K, double m_l, double f_B, double f_K_par, double m_s) {
+    double J6scpa = J6s(q2, m_B, m_K, m_l, false) - J6s(q2, m_B, m_K, m_l, true);
+    return J6scpa / dG_dq2_avg(q2, m_B, m_K, m_l, f_B, f_K_par, m_s);
+}
+
+double BKstarllDecay::A_7(double q2, double m_B, double m_K, double m_l, double f_B, double f_K_par, double m_s) {
+    double J7cpa = J7(q2, m_B, m_K, m_l, f_B, f_K_par, m_s, false) - J7(q2, m_B, m_K, m_l, f_B, f_K_par, m_s, true);
+    return J7cpa / dG_dq2_avg(q2, m_B, m_K, m_l, f_B, f_K_par, m_s);
+}
+
+double BKstarllDecay::A_8(double q2, double m_B, double m_K, double m_l, double f_B, double f_K_par, double m_s) {
+    double J8cpa = J8(q2, m_B, m_K, m_l, false) - J8(q2, m_B, m_K, m_l, true);
+    return J8cpa / dG_dq2_avg(q2, m_B, m_K, m_l, f_B, f_K_par, m_s);
+}
+
+double BKstarllDecay::A_9(double q2, double m_B, double m_K, double m_l, double f_B, double f_K_par, double m_s) {
+    double J9cpa = J9(q2, m_B, m_K, m_l, false) - J9(q2, m_B, m_K, m_l, true);
+    return J9cpa / dG_dq2_avg(q2, m_B, m_K, m_l, f_B, f_K_par, m_s);
+}
+
+double BKstarllDecay::AP_1(double q2, double m_B, double m_K, double m_l) {
+    double J3cpa = J3(q2, m_B, m_K, m_l, false) - J3(q2, m_B, m_K, m_l, true);
+    double J2scp = J2s(q2, m_B, m_K, m_l, false) + J2s(q2, m_B, m_K, m_l, true);
+    return 0.5 * J3cpa / J2scp;
+}
+
+double BKstarllDecay::AP_2(double q2, double m_B, double m_K, double m_l) {
+    double J6scpa = J6s(q2, m_B, m_K, m_l, false) - J6s(q2, m_B, m_K, m_l, true);
+    double J2scp = J2s(q2, m_B, m_K, m_l, false) + J2s(q2, m_B, m_K, m_l, true);
+    return 0.125 * J6scpa / J2scp;
+}
+
+double BKstarllDecay::AP_3(double q2, double m_B, double m_K, double m_l) {
+    double J9cpa = J9(q2, m_B, m_K, m_l, false) - J9(q2, m_B, m_K, m_l, true);
+    double J2scp = J2s(q2, m_B, m_K, m_l, false) + J2s(q2, m_B, m_K, m_l, true);
+    return -0.25 * J9cpa / J2scp;
+}
+
+double BKstarllDecay::APp_4(double q2, double m_B, double m_K, double m_l) {
+    double J2ccp = J2c(q2, m_B, m_K, m_l, false) + J2c(q2, m_B, m_K, m_l, true);
+    double J2scp = J2s(q2, m_B, m_K, m_l, false) + J2s(q2, m_B, m_K, m_l, true);
+    double J4cpa = J4(q2, m_B, m_K, m_l, false) - J4(q2, m_B, m_K, m_l, true);
+    return J4cpa / std::sqrt(-J2ccp * J2scp);
+}
+
+double BKstarllDecay::APp_5(double q2, double m_B, double m_K, double m_l, double f_B, double f_K_par, double m_s) {
+    double J2ccp = J2c(q2, m_B, m_K, m_l, false) + J2c(q2, m_B, m_K, m_l, true);
+    double J2scp = J2s(q2, m_B, m_K, m_l, false) + J2s(q2, m_B, m_K, m_l, true);
+    double J5cpa = J5(q2, m_B, m_K, m_l, f_B, f_K_par, m_s, false) - J5(q2, m_B, m_K, m_l, f_B, f_K_par, m_s, true);
+    return 0.5 * J5cpa / std::sqrt(-J2ccp * J2scp);
+}
+
+double BKstarllDecay::APp_6(double q2, double m_B, double m_K, double m_l, double f_B, double f_K_par, double m_s) {
+    double J2ccp = J2c(q2, m_B, m_K, m_l, false) + J2c(q2, m_B, m_K, m_l, true);
+    double J2scp = J2s(q2, m_B, m_K, m_l, false) + J2s(q2, m_B, m_K, m_l, true);
+    double J7cpa = J7(q2, m_B, m_K, m_l, f_B, f_K_par, m_s, false) - J7(q2, m_B, m_K, m_l, f_B, f_K_par, m_s, true);
+    return -0.5 * J7cpa / std::sqrt(-J2ccp * J2scp);
+}
+
+double BKstarllDecay::APp_8(double q2, double m_B, double m_K, double m_l) {
+    double J2ccp = J2c(q2, m_B, m_K, m_l, false) + J2c(q2, m_B, m_K, m_l, true);
+    double J2scp = J2s(q2, m_B, m_K, m_l, false) + J2s(q2, m_B, m_K, m_l, true);
+    double J8cpa = J8(q2, m_B, m_K, m_l, false) - J8(q2, m_B, m_K, m_l, true);
+    return -J8cpa / std::sqrt(-J2ccp * J2scp);
+}
+
+std::vector<double> BKstarllDecay::dG_dq2_binned(bool bar) {
+    std::vector<double> out;
+    auto J_i = bar ? J_i_bar_binned : J_i_binned;
+    for (size_t i = 0; i < this->bins.size(); i++) {
+        double res = 0.75 * (J_i[0][i] - (2 * J_i[1][i] + J_i[2][i]) / 3.); 
+        out.push_back(res);
+    }   
+    return out;
+}
+
+double BKstarllDecay::dG_dq2_avg_bin(size_t bin) {
+    return 0.75 * (J_i_binned[0][bin] + J_i_bar_binned[0][bin] - (2 * (J_i_binned[1][bin] + J_i_bar_binned[1][bin]) + J_i_binned[2][bin] + J_i_bar_binned[2][bin]) / 3.);
+}
+
+std::vector<double> BKstarllDecay::A_FB_binned() {
+    std::vector<double> out;
+    for (size_t i = 0; i < this->bins.size(); i++) {
+        double J6 = 2 * J_i_binned[7][i] + J_i_binned[9][i];
+        double J6bar = 2 * J_i_bar_binned[7][i] + J_i_bar_binned[9][i];
+        double res = -0.375 * (J6 + J6bar) / dG_dq2_avg_bin(i); 
+        out.push_back(res);
+    }   
+    return out;
+}
+
+std::vector<double> BKstarllDecay::A_CP_binned() {
+    std::vector<double> out;
+    for (size_t i = 0; i < this->bins.size(); i++) {
+        double dG = J_i_binned[0][i] - (2 * J_i_binned[1][i] + J_i_binned[2][i]) / 3.;
+        double dGbar = J_i_bar_binned[0][i] - (2 * J_i_bar_binned[1][i] + J_i_bar_binned[2][i]) / 3.;
+        double res = (dG - dGbar) / (dG + dGbar); 
+        out.push_back(res);
+    }   
+    return out;
+}
+
+std::vector<double> BKstarllDecay::F_L_binned() {
+    std::vector<double> out;
+    std::vector<double> f_t = F_T_binned();
+    for (size_t i = 0; i < this->bins.size(); i++) {
+        double res = 1. - f_t[i]; 
+        out.push_back(res);
+    }   
+    return out;
+}
+
+std::vector<double> BKstarllDecay::F_T_binned() {
+    std::vector<double> out;
+    for (size_t i = 0; i < this->bins.size(); i++) {
+        double res = 4.0 * (J_i_binned[1][i] + J_i_bar_binned[1][i]) / dG_dq2_avg_bin(i); 
+        out.push_back(res);
+    }   
+    return out;
+}
+
+std::vector<double> BKstarllDecay::A_T_1_binned(double m_B, double m_K, double m_l) {
+    auto num_f = [m_B, m_K, m_l, this] (double q2) {
+        double AperpApar = std::real(A_par(q2, m_B, m_K, m_l, 1, false) * std::conj(A_perp(q2, m_B, m_K, m_l, 1, false)) + A_par(q2, m_B, m_K, m_l, -1, false) * std::conj(A_perp(q2, m_B, m_K, m_l, -1, false)));
+        double AperpApar_bar = std::real(A_par(q2, m_B, m_K, m_l, 1, true) * std::conj(A_perp(q2, m_B, m_K, m_l, 1, true)) + A_par(q2, m_B, m_K, m_l, -1, true) * std::conj(A_perp(q2, m_B, m_K, m_l, -1, true)));
+        return std::pow(beta_l(q2, m_l), 2) * std::real(AperpApar + AperpApar_bar);
+    };
+
+    std::vector<double> out;
+    for (size_t i = 0; i < this->bins.size(); i++) {
+        double J2scpa = J_i_binned[1][i] + J_i_bar_binned[1][i];
+        double num = integrate(num_f, this->bins[i].first, this->bins[i].second, 1e-2);
+        double res = -0.5 * num / J2scpa; 
+        out.push_back(res);
+    }   
+    return out;
+}
+
+std::vector<double> BKstarllDecay::A_T_2_binned() {
+    std::vector<double> out;
+    for (size_t i = 0; i < this->bins.size(); i++) {
+        double res = 0.5 * (J_i_binned[3][i] + J_i_bar_binned[3][i]) / (J_i_binned[1][i] + J_i_bar_binned[1][i]); 
+        out.push_back(res);
+    }   
+    return out;
+}
+
+std::vector<double> BKstarllDecay::A_T_3_binned() {
+    std::vector<double> out;
+    for (size_t i = 0; i < this->bins.size(); i++) {
+        double J2scp = J_i_binned[1][i] + J_i_bar_binned[1][i];
+        double J2ccp = J_i_binned[2][i] + J_i_bar_binned[2][i];
+        double J3cp = J_i_binned[3][i] + J_i_bar_binned[3][i];
+        double J4cp = J_i_binned[4][i] + J_i_bar_binned[4][i];
+        double J7cp = J_i_binned[11][i] + J_i_bar_binned[11][i];
+        double res = std::sqrt((4 * J4cp * J4cp + J7cp * J7cp) / std::abs(2 * J2ccp * (2 * J2scp + J3cp)));
+        out.push_back(res);
+    }   
+    return out;
+}
+
+std::vector<double> BKstarllDecay::A_T_4_binned() {
+    std::vector<double> out;
+    for (size_t i = 0; i < this->bins.size(); i++) {
+        double J4cp = J_i_binned[4][i] + J_i_bar_binned[4][i];
+        double J5cp = J_i_binned[6][i] + J_i_bar_binned[6][i];
+        double J7cp = J_i_binned[11][i] + J_i_bar_binned[11][i];
+        double J8cp = J_i_binned[12][i] + J_i_bar_binned[12][i];
+        double res = std::sqrt((J5cp * J5cp + 4 * J8cp * J8cp) / (J7cp * J7cp + 4 * J4cp * J4cp));
+        out.push_back(res);
+    }   
+    return out;
+}
+
+std::vector<double> BKstarllDecay::A_T_5_binned(double m_B, double m_K, double m_l) {
+    auto num_f = [m_B, m_K, m_l, this] (double q2) {
+        complex_t AperpApar = A_perp(q2, m_B, m_K, m_l, 1, false) * std::conj(A_par(q2, m_B, m_K, m_l, -1, false)) + A_perp(q2, m_B, m_K, m_l, -1, false) * std::conj(A_par(q2, m_B, m_K, m_l, 1, false));
+        complex_t AperpApar_bar = A_perp(q2, m_B, m_K, m_l, 1, true) * std::conj(A_par(q2, m_B, m_K, m_l, -1, true)) + A_perp(q2, m_B, m_K, m_l, -1, true) * std::conj(A_par(q2, m_B, m_K, m_l, 1, true));
+        return std::pow(beta_l(q2, m_l), 2) * std::abs(AperpApar + AperpApar_bar);
+    };
+
+    std::vector<double> out;
+    for (size_t i = 0; i < this->bins.size(); i++) {
+        double J2scpa = J_i_binned[1][i] + J_i_bar_binned[1][i];
+        double num = integrate(num_f, this->bins[i].first, this->bins[i].second, 1e-2);
+        double res = 0.25 * num / J2scpa; 
+        out.push_back(res);
+    }   
+    return out;
+}
+
+std::vector<double> BKstarllDecay::A_T_Re_binned() {
+    std::vector<double> out;
+    for (size_t i = 0; i < this->bins.size(); i++) {
+        double J2scp = J_i_binned[1][i] + J_i_bar_binned[1][i];
+        double J6scp = J_i_binned[8][i] + J_i_bar_binned[8][i];
+        double res = 0.25 * J6scp / J2scp;
+        out.push_back(res);
+    }   
+    return out;
+}
+
+std::vector<double> BKstarllDecay::A_T_Re_CPV_binned() {
+    std::vector<double> out;
+    for (size_t i = 0; i < this->bins.size(); i++) {
+        double J2scp = J_i_binned[1][i] + J_i_bar_binned[1][i];
+        double J6scpa = J_i_binned[8][i] - J_i_bar_binned[8][i];
+        double res = 0.25 * J6scpa / J2scp;
+        out.push_back(res);
+    }   
+    return out;
+}
+
+std::vector<double> BKstarllDecay::A_Im_binned() {
+    std::vector<double> out;
+    for (size_t i = 0; i < this->bins.size(); i++) {
+        double res = (J_i_binned[13][i] + J_i_bar_binned[13][i]) / dG_dq2_avg_bin(i); 
+        out.push_back(res);
+    }   
+    return out;
+}
+
+std::vector<double> BKstarllDecay::alpha_K_binned() {
+    std::vector<double> out;
+    for (size_t i = 0; i < this->bins.size(); i++) {
+        double J2scp = J_i_binned[1][i] + J_i_bar_binned[1][i];
+        double J2ccp = J_i_binned[2][i] + J_i_bar_binned[2][i];
+        double res = -0.5 * (2 * J2scp + J2ccp) / J2scp;
+        out.push_back(res);
+    }   
+    return out;
+}
+
+std::vector<double> BKstarllDecay::H_T_1_binned() {
+    std::vector<double> out;
+    for (size_t i = 0; i < this->bins.size(); i++) {
+        double J2scp = J_i_binned[1][i] + J_i_bar_binned[1][i];
+        double J2ccp = J_i_binned[2][i] + J_i_bar_binned[2][i];
+        double J3cp = J_i_binned[3][i] + J_i_bar_binned[3][i];
+        double J4cp = J_i_binned[4][i] + J_i_bar_binned[4][i];
+        double res = RT2 * J4cp / std::sqrt(std::abs(J2ccp * (J2scp - J3cp)));
+        out.push_back(res);
+    }   
+    return out;
+}
+
+std::vector<double> BKstarllDecay::H_T_2_binned() {
+    std::vector<double> out;
+    for (size_t i = 0; i < this->bins.size(); i++) {
+        double J2scp = J_i_binned[1][i] + J_i_bar_binned[1][i];
+        double J2ccp = J_i_binned[2][i] + J_i_bar_binned[2][i];
+        double J3cp = J_i_binned[3][i] + J_i_bar_binned[3][i];
+        double J5cp = J_i_binned[6][i] + J_i_bar_binned[6][i];
+        double res = J5cp / std::sqrt(std::abs(2 * J2ccp * (2 * J2scp + J3cp)));
+        out.push_back(res);
+    }   
+    return out;
+}
+
+std::vector<double> BKstarllDecay::H_T_3_binned() {
+    std::vector<double> out;
+    for (size_t i = 0; i < this->bins.size(); i++) {
+        double J2scp = J_i_binned[1][i] + J_i_bar_binned[1][i];
+        double J3cp = J_i_binned[3][i] + J_i_bar_binned[3][i];
+        double J6cp = (2 * (J_i_binned[7][i] + J_i_bar_binned[7][i]) + J_i_binned[9][i] + J_i_bar_binned[9][i]);
+        double res = 0.5 * J6cp / std::sqrt(std::abs(4 * J2scp * J2scp - J3cp * J3cp));
+        out.push_back(res);
+    }   
+    return out;
+}
+
+std::vector<double> BKstarllDecay::P_2_binned() {
+    std::vector<double> out;
+    for (size_t i = 0; i < this->bins.size(); i++) {
+        double J2scp = J_i_binned[1][i] + J_i_bar_binned[1][i];
+        double J6scp = J_i_binned[7][i] + J_i_bar_binned[7][i];
+        double res = 0.125 * J6scp / J2scp;
+        out.push_back(res);
+    }   
+    return out;
+}
+
+std::vector<double> BKstarllDecay::P_3_binned() {
+    std::vector<double> out;
+    for (size_t i = 0; i < this->bins.size(); i++) {
+        double J2scp = J_i_binned[1][i] + J_i_bar_binned[1][i];
+        double J9cp = J_i_binned[13][i] + J_i_bar_binned[13][i];
+        double res = -0.25 * J9cp / J2scp;
+        out.push_back(res);
+    }   
+    return out;
+}
+
+std::vector<double> BKstarllDecay::P_6_binned() {
+    std::vector<double> out;
+    for (size_t i = 0; i < this->bins.size(); i++) {
+        double J2scp = J_i_binned[1][i] + J_i_bar_binned[1][i];
+        double J2ccp = J_i_binned[2][i] + J_i_bar_binned[2][i];
+        double J3cp = J_i_binned[3][i] + J_i_bar_binned[3][i];
+        double J7cp = J_i_binned[11][i] + J_i_bar_binned[11][i];
+        double res = -J7cp / std::sqrt(std::abs(2 * J2ccp * (2 * J2scp - J3cp)));
+        out.push_back(res);
+    }   
+    return out;
+}
+
+std::vector<double> BKstarllDecay::P_8_binned() {
+    std::vector<double> out;
+    for (size_t i = 0; i < this->bins.size(); i++) {
+        double J2scp = J_i_binned[1][i] + J_i_bar_binned[1][i];
+        double J2ccp = J_i_binned[2][i] + J_i_bar_binned[2][i];
+        double J3cp = J_i_binned[3][i] + J_i_bar_binned[3][i];
+        double J8cp = J_i_binned[12][i] + J_i_bar_binned[12][i];
+        double res = -RT2 * J8cp / std::sqrt(std::abs(J2ccp * (2 * J2scp - J3cp)));
+        out.push_back(res);
+    }   
+    return out;
+}
+
+std::vector<double> BKstarllDecay::Pp_i_binned(size_t i, bool cpv) {
+    if (!(i == 4 || i == 5 || i == 6 || i == 8)) LOG_ERROR("Value Error", "P'_i(B > K*ll) is not defined for i =", i);
+
+    std::map<size_t, double> factors = {{4, 1.0}, {5, 0.5}, {6, -0.5}, {8, -1.0}};
+    std::map<size_t, size_t> J_idx = {{4, 4}, {5, 5}, {6, 10}, {8, 12}};
+    double sign = cpv ? -1 : 1;
+
+    std::vector<double> out;
+    for (size_t j = 0; j < this->bins.size(); j++) {
+        double J2scp = J_i_binned[1][j] + J_i_bar_binned[1][j];
+        double J2ccp = J_i_binned[2][j] + J_i_bar_binned[2][j];
+        double Jicp = J_i_binned[J_idx[i]][j] + sign * J_i_bar_binned[J_idx[i]][j];
+        double res = Jicp / std::sqrt(std::abs(J2ccp * J2scp));
+        out.push_back(res);
+    }   
+    return out;
+}
+
+std::vector<double> BKstarllDecay::S_i_binned(size_t i, bool cpv) {
+    if (i < 3 || i > 9) LOG_ERROR("Value Error", "S_i(B > K*ll) is not defined for i =", i);
+
+    if (i == 6) i = 9;
+    else if (i == 7) i = 10;
+    else if (i >= 8) i += 4;
+
+    double sign = cpv ? -1 : 1;
+
+    std::vector<double> out;
+    for (size_t j = 0; j < this->bins.size(); j++) {
+        double res = (J_i_binned[i][j] + sign * J_i_bar_binned[i][j]) / dG_dq2_avg_bin(j); 
+        out.push_back(res);
+    }   
+    return out;
+}
+
+std::vector<double> BKstarllDecay::P_i_CPV_binned(size_t i) {
+   if (i < 1 || i > 3) LOG_ERROR("Value Error", "P_i_CPV(B > K*ll) is not defined for i =", i);
+
+    std::map<size_t, double> factors = {{1, 0.5}, {2, 0.125}, {3, -0.25}};
+    std::map<size_t, size_t> J_idx = {{1, 3}, {2, 7}, {3, 13}};
+
+    std::vector<double> out;
+    for (size_t j = 0; j < this->bins.size(); j++) {
+        double J2scp = J_i_binned[1][j] + J_i_bar_binned[1][j];
+        double Jicpv = J_i_binned[J_idx[i]][j] - J_i_bar_binned[J_idx[i]][j];
+        double res = Jicpv / J2scp;
+        out.push_back(res);
+    }   
+    return out;
+}
 
 void BKstarllDecay::build_op_tree() {
 
@@ -890,9 +1564,8 @@ void BKstarllDecay::build_op_tree() {
     auto ff = this->load_FF_params();
     
     // Flavor Parameters
-    // TODO : Manage the CHARGE flag (B0 - K*0 // B+ - K*+)
-    auto m_B = std::make_shared<ParameterNode>(ParamId(ParameterType::FLAVOR, "FMASS", 511));
-    auto m_Ks = std::make_shared<ParameterNode>(ParamId(ParameterType::FLAVOR, "FMASS", 323));
+    auto m_B = std::make_shared<ParameterNode>(ParamId(ParameterType::FLAVOR, "FMASS", this->cfg.charge == Charge::B_0 ? 511 : 521));
+    auto m_Ks = std::make_shared<ParameterNode>(ParamId(ParameterType::FLAVOR, "FMASS", this->cfg.charge == Charge::B_0 ? 313 : 323));
     auto f_B = std::make_shared<ParameterNode>(ParamId(ParameterType::FLAVOR, "FCONST", {511, 1}));
     auto f_K_perp_1GeV = std::make_shared<ParameterNode>(ParamId(ParameterType::FLAVOR, "FCONST", {323, 1}));
     auto f_K_par = std::make_shared<ParameterNode>(ParamId(ParameterType::FLAVOR, "FCONST", {323, 2}));
@@ -992,32 +1665,42 @@ void BKstarllDecay::build_op_tree() {
     N_0->addChildren({V_tb, V_ts, G_F, inv_alpha_em, m_B});
 
     auto T_perp_p_cache = std::make_shared<OperatorNode>("T_perp_p_cache", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { 
-        auto bound_func = std::bind(&BKstarllDecay::T_perp_p, &*this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, std::placeholders::_6, std::placeholders::_7, std::placeholders::_8, std::placeholders::_9, std::placeholders::_10);
-        fill_cache(bound_func, cache.q2_min, cache.q2_high, T_perp_p_lookup, values[0], values[1], values[2], values[3], values[4], values[5], values[6], values[7], values[8]); 
+        auto bound_func = std::bind(&BKstarllDecay::T_perp_p, &*this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, std::placeholders::_6, std::placeholders::_7, std::placeholders::_8, std::placeholders::_9, std::placeholders::_10, std::placeholders::_11);
+        fill_cache(bound_func, cache.q2_min, cache.q2_high, T_perp_p_lookup, values[0], values[1], values[2], values[3], values[4], values[5], values[6], values[7], values[8], false); 
+        fill_cache(bound_func, cache.q2_min, cache.q2_high, T_perp_p_bar_lookup, values[0], values[1], values[2], values[3], values[4], values[5], values[6], values[7], values[8], true); 
         return T_perp_p_lookup[(size_t)(LOOKUP_SIZE / 2)]; 
     });
     T_perp_p_cache->addChildren({m_B, m_Ks, f_B, f_K_par, zeta_3_A, zeta_3_V, omega_10_A, delta_tilde_p, delta_tilde_m, q2_min, n_q2_high, alpha_s_mu_b, N_perp, lambda_u_hat, m_b_PS, delta_M, zc, Lb, C_F, a_1_perp, a_2_perp, eq, lambda_B_p, wilson_cache, wilson_bar_cache});
 
     auto T_perp_m_cache = std::make_shared<OperatorNode>("T_perp_m_cache", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { 
-        auto bound_func = std::bind(&BKstarllDecay::T_perp_m, &*this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, std::placeholders::_6, std::placeholders::_7, std::placeholders::_8, std::placeholders::_9, std::placeholders::_10);
-        fill_cache(bound_func, cache.q2_min, cache.q2_high, T_perp_m_lookup, values[0], values[1], values[2], values[3], values[4], values[5], values[6], values[7], values[8]); 
+        auto bound_func = std::bind(&BKstarllDecay::T_perp_m, &*this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, std::placeholders::_6, std::placeholders::_7, std::placeholders::_8, std::placeholders::_9, std::placeholders::_10, std::placeholders::_11);
+        fill_cache(bound_func, cache.q2_min, cache.q2_high, T_perp_m_lookup, values[0], values[1], values[2], values[3], values[4], values[5], values[6], values[7], values[8], false);
+        fill_cache(bound_func, cache.q2_min, cache.q2_high, T_perp_m_bar_lookup, values[0], values[1], values[2], values[3], values[4], values[5], values[6], values[7], values[8], true); 
         return T_perp_m_lookup[(size_t)(LOOKUP_SIZE / 2)]; 
     });
     T_perp_m_cache->addChildren({m_B, m_Ks, f_B, f_K_par, zeta_3_A, zeta_3_V, omega_10_A, delta_tilde_p, delta_tilde_m, q2_min, n_q2_high, alpha_s_mu_b, N_perp, lambda_u_hat, m_b_PS, delta_M, zc, Lb, C_F, a_1_perp, a_2_perp, eq, lambda_B_p, wilson_cache, wilson_bar_cache});
 
     auto T_par_p_cache = std::make_shared<OperatorNode>("T_par_p_cache", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { 
-        auto bound_func = std::bind(&BKstarllDecay::T_par_p, &*this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
-        fill_cache(bound_func, cache.q2_min, cache.q2_high, T_par_p_lookup, values[0], values[1]); 
+        auto bound_func = std::bind(&BKstarllDecay::T_par_p, &*this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4);
+        fill_cache(bound_func, cache.q2_min, cache.q2_high, T_par_p_lookup, values[0], values[1], false); 
+        fill_cache(bound_func, cache.q2_min, cache.q2_high, T_par_p_bar_lookup, values[0], values[1], true); 
         return T_par_p_lookup[(size_t)(LOOKUP_SIZE / 2)]; 
     });
     T_par_p_cache->addChildren({m_B, m_Ks, q2_min, n_q2_high, alpha_s_mu_b, N_par, lambda_u_hat, m_b_PS, delta_M, zc, Lb, C_F, a_1_par, a_2_par, eq, lambda_B_p, omega_0, T_par_m_0, wilson_cache, wilson_bar_cache});
 
     auto T_par_m_cache = std::make_shared<OperatorNode>("T_par_m_cache", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { 
-        auto bound_func = std::bind(&BKstarllDecay::T_par_m, &*this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
-        fill_cache(bound_func, cache.q2_min, cache.q2_high, T_par_m_lookup, values[0], values[1]); 
+        auto bound_func = std::bind(&BKstarllDecay::T_par_m, &*this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4);
+        fill_cache(bound_func, cache.q2_min, cache.q2_high, T_par_m_lookup, values[0], values[1], false); 
+        fill_cache(bound_func, cache.q2_min, cache.q2_high, T_par_m_bar_lookup, values[0], values[1], true); 
         return T_par_m_lookup[(size_t)(LOOKUP_SIZE / 2)]; 
     });
     T_par_m_cache->addChildren({m_B, m_Ks, q2_min, n_q2_high, alpha_s_mu_b, N_par, lambda_u_hat, m_b_PS, delta_M, zc, Lb, C_F, a_1_par, a_2_par, eq, lambda_B_p, omega_0, T_par_m_0, wilson_cache, wilson_bar_cache});
+
+    auto binned_J_cache = std::make_shared<OperatorNode>("binned_J", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) {
+        compute_binned_J_i(values[0], values[1], values[2], values[4], values[5], values[3]);
+        return 0; 
+    });
+    binned_J_cache->addChildren({m_B, m_Ks, m_l, m_s, f_B, f_K_par, q2_min, n_q2_low, n_q2_high, q2_max, m_b_PS, m_b_mu_b, m_c_mu_b, kappa, alpha_s_mu_b, C_F, N_c, lambda_B_p, N_0, tp, t0, z0, ff, T_perp_p_cache, T_perp_m_cache, T_par_m_cache});
 
     auto test_ff = std::make_shared<OperatorNode>("test_ff", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) {
 
@@ -1058,8 +1741,8 @@ void BKstarllDecay::build_op_tree() {
         auto f = [m_B, m_K, q2, this] (double u) {
             double fact = cache.alpha_s_mu_f * cache.C_F / (4 * PI);
             double phi = phi_Kstar(u, cache.a_1_par, cache.a_2_par);
-            complex_t i1 = phi * (T_par_p_p_f(u, q2, m_B, m_K) + T_par_p_nf(u, q2, m_B, m_K));
-            complex_t i2 = phi * (cache.T_par_m_0 + fact * T_par_m_nf(u, q2, m_B, m_K));
+            complex_t i1 = phi * (T_par_p_p_f(u, q2, m_B, m_K, false) + T_par_p_nf(u, q2, m_B, m_K, false));
+            complex_t i2 = phi * (cache.T_par_m_0 + fact * T_par_m_nf(u, q2, m_B, m_K, false));
             return fact / cache.lambda_B_p * i1 + cache.e_q * inv_lambda_B_m(q2, m_B) * i2;
         };
 
@@ -1093,10 +1776,10 @@ void BKstarllDecay::build_op_tree() {
 
         auto write_line = [&] (double q2) {
             fs << q2 
-            << "," << std::real(T_perp_p_cached(q2)) << "," << std::imag(T_perp_p_cached(q2))
-            << "," << std::real(T_perp_m_cached(q2)) << "," << std::imag(T_perp_m_cached(q2))
-            << "," << std::real(T_par_p_cached(q2)) << "," << std::imag(T_par_p_cached(q2))
-            << "," << std::real(T_par_m_cached(q2)) << "," << std::imag(T_par_m_cached(q2))
+            << "," << std::real(T_perp_p_cached(q2, false)) << "," << std::imag(T_perp_p_cached(q2, false))
+            << "," << std::real(T_perp_m_cached(q2, false)) << "," << std::imag(T_perp_m_cached(q2, false))
+            << "," << std::real(T_par_p_cached(q2, false)) << "," << std::imag(T_par_p_cached(q2, false))
+            << "," << std::real(T_par_m_cached(q2, false)) << "," << std::imag(T_par_m_cached(q2, false))
             << "\n";
         };
 
@@ -1124,22 +1807,34 @@ void BKstarllDecay::build_op_tree() {
 
         std::ofstream fs;
         fs.open("B_Ksll_J.csv");
-        fs << "q2,J1s,J1c,J2s,J2c,J3,J4,J5,J6s,J6c,J7,J8,J9\n";
+        fs << "q2,J1s,J1c,J2s,J2c,J3,J4,J5,J6s,J6c,J7,J8,J9,J1sbar,J1cbar,J2sbar,J2cbar,J3bar,J4bar,J5bar,J6sbar,J6cbar,J7bar,J8bar,J9bar\n";
 
         auto write_line = [&] (double q2) {
             fs << q2 
-            << "," << J1s(q2, m_B, m_K, m_l)
-            << "," << J1c(q2, m_B, m_K, m_l, f_B, f_K_par, m_s)
-            << "," << J2s(q2, m_B, m_K, m_l)
-            << "," << J2c(q2, m_B, m_K, m_l)
-            << "," << J3(q2, m_B, m_K, m_l)
-            << "," << J4(q2, m_B, m_K, m_l)
-            << "," << J5(q2, m_B, m_K, m_l, f_B, f_K_par, m_s)
-            << "," << J6s(q2, m_B, m_K, m_l)
-            << "," << J6c(q2, m_B, m_K, m_l, f_B, f_K_par, m_s)
-            << "," << J7(q2, m_B, m_K, m_l, f_B, f_K_par, m_s)
-            << "," << J8(q2, m_B, m_K, m_l)
-            << "," << J9(q2, m_B, m_K, m_l)
+            << "," << J1s(q2, m_B, m_K, m_l, false)
+            << "," << J1c(q2, m_B, m_K, m_l, f_B, f_K_par, m_s, false)
+            << "," << J2s(q2, m_B, m_K, m_l, false)
+            << "," << J2c(q2, m_B, m_K, m_l, false)
+            << "," << J3(q2, m_B, m_K, m_l, false)
+            << "," << J4(q2, m_B, m_K, m_l, false)
+            << "," << J5(q2, m_B, m_K, m_l, f_B, f_K_par, m_s, false)
+            << "," << J6s(q2, m_B, m_K, m_l, false)
+            << "," << J6c(q2, m_B, m_K, m_l, f_B, f_K_par, m_s, false)
+            << "," << J7(q2, m_B, m_K, m_l, f_B, f_K_par, m_s, false)
+            << "," << J8(q2, m_B, m_K, m_l, false)
+            << "," << J9(q2, m_B, m_K, m_l, false)
+            << "," << J1s(q2, m_B, m_K, m_l, true)
+            << "," << J1c(q2, m_B, m_K, m_l, f_B, f_K_par, m_s, true)
+            << "," << J2s(q2, m_B, m_K, m_l, true)
+            << "," << J2c(q2, m_B, m_K, m_l, true)
+            << "," << J3(q2, m_B, m_K, m_l, true)
+            << "," << J4(q2, m_B, m_K, m_l, true)
+            << "," << J5(q2, m_B, m_K, m_l, f_B, f_K_par, m_s, true)
+            << "," << J6s(q2, m_B, m_K, m_l, true)
+            << "," << J6c(q2, m_B, m_K, m_l, f_B, f_K_par, m_s, true)
+            << "," << J7(q2, m_B, m_K, m_l, f_B, f_K_par, m_s, true)
+            << "," << J8(q2, m_B, m_K, m_l, true)
+            << "," << J9(q2, m_B, m_K, m_l, true)
             << "\n";
         };
 
@@ -1156,5 +1851,45 @@ void BKstarllDecay::build_op_tree() {
     });
     test_J->addChildren({m_B, m_Ks, m_l, m_s, f_B, f_K_par, q2_min, n_q2_low, n_q2_high, q2_max, m_b_PS, m_b_mu_b, m_c_mu_b, kappa, alpha_s_mu_b, C_F, N_c, lambda_B_p, N_0, test_ff, T_perp_p_cache, T_perp_m_cache, T_par_m_cache});
 
-    roots.emplace(ObservableMapper::to_id(Observables::TEST_B__KS_L_L), test_J);
+    auto test_binned_obs = std::make_shared<OperatorNode>("test_binned_obs", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) {
+        std::ofstream fs;
+        fs.open("B_Ksll_obs.csv");
+        fs << "q2_min,q2_max,dG,dGbar,afb,fl,ft,cpa,pp4,pp5,pp6,pp8\n";
+
+        auto dG = dG_dq2_binned(false);
+        auto dGbar = dG_dq2_binned(true);
+        auto afb = A_FB_binned();
+        auto fl = F_L_binned();
+        auto ft = F_T_binned();
+        auto cpa = A_CP_binned();
+        auto pp4 = Pp_i_binned(4);
+        auto pp5 = Pp_i_binned(5);
+        auto pp6 = Pp_i_binned(6);
+        auto pp8 = Pp_i_binned(8);
+
+        auto write_line = [&] (size_t i) {
+            fs << this->bins[i].first 
+            << "," << this->bins[i].second 
+            << "," << dG[i]
+            << "," << dGbar[i]
+            << "," << afb[i]
+            << "," << fl[i]
+            << "," << ft[i]
+            << "," << cpa[i]
+            << "," << pp4[i]
+            << "," << pp5[i]
+            << "," << pp6[i]
+            << "," << pp8[i]
+            << "\n";
+        };
+
+        for (size_t i = 0; i < bins.size(); i++) {
+            write_line(i);
+        }
+
+        return 0; 
+    });
+    test_binned_obs->addChildren({binned_J_cache});
+
+    roots.emplace(ObservableMapper::to_id(Observables::TEST_B__KS_L_L), test_binned_obs);
 }

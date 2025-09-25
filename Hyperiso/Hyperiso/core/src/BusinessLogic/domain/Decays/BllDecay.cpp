@@ -1,125 +1,63 @@
 #include "BllDecay.h"
 
 
-scalar_t BllDecay::W1(scalar_t r, bool prime) {
-    scalar_t CQ1 = w_proxy->getFM(WGroup::BScalar, WCoef::CQ1, this->w_config.order);
-    scalar_t CPQ1 = prime ? w_proxy->getFM(WGroup::BPrime, WCoef::CPQ1, this->w_config.order) : scalar_t(0.);
-    return r * (CQ1 - CPQ1);
+void BllDecay::fill_cache() {
+    ObsParameterProxy p;
+    double m_b = p(ParamId{ParameterType::SM, "QCD", {5, 2}});
+
+    cache.G_F = p(ParamId{ParameterType::SM, "SMINPUTS", 2});
+    cache.alpha_em = 1. / p(ParamId{ParameterType::SM, "SMINPUTS", 1});
+    cache.m_mu = p(ParamId{ParameterType::SM, "MASS", 13});
+    cache.m_Bd = p(ParamId{ParameterType::FLAVOR, "FMASS", 511});
+    cache.m_Bs = p(ParamId{ParameterType::FLAVOR, "FMASS", 531});
+    cache.f_Bd = p(ParamId{ParameterType::FLAVOR, "FCONST", {511, 1}});
+    cache.f_Bs = p(ParamId{ParameterType::FLAVOR, "FCONST", {531, 2}});
+    cache.tau_Bd = p(ParamId{ParameterType::FLAVOR, "FLIFE", 511});
+    cache.tau_Bs = p(ParamId{ParameterType::FLAVOR, "FLIFE", 531});
+    cache.lambda_d = p(ParamId{ParameterType::SM, "VCKM", {2, 2}}) * std::conj(p(ParamId{ParameterType::SM, "VCKM", {2, 0}}));
+    cache.lambda_s = p(ParamId{ParameterType::SM, "VCKM", {2, 2}}) * std::conj(p(ParamId{ParameterType::SM, "VCKM", {2, 1}}));
+    cache.ys = p(ParamId{ParameterType::DECAY, "B_ll", 1});
+    cache.x_d = cache.m_mu / cache.m_Bd;
+    cache.x_s = cache.m_mu / cache.m_Bs;
+    cache.r_d = cache.m_Bd / (m_b + p(ParamId{ParameterType::SM, "MASS", 1}));
+    cache.r_s = cache.m_Bs / (m_b + p(ParamId{ParameterType::SM, "MASS", 3}));
+    cache.beta_d = std::sqrt(1. - 4. * std::pow(cache.x_d, 2));
+    cache.beta_s = std::sqrt(1. - 4. * std::pow(cache.x_s, 2));
+    cache.C10_SM = w_proxy->getFR(WGroup::B, WCoef::C10, w_config.order, ContributionType::SM);
+    cache.C10 = w_proxy->getFR(WGroup::B, WCoef::C10, w_config.order);
+    cache.CQ1 = w_proxy->getFR(WGroup::BScalar, WCoef::CQ1, w_config.order);
+    cache.CQ2 = w_proxy->getFR(WGroup::BScalar, WCoef::CQ2, w_config.order);
+    cache.C10_m = cache.C10 - w_proxy->getFR(WGroup::BPrime, WCoef::CP10, w_config.order);
+    cache.CQ1_m = cache.CQ1 - w_proxy->getFR(WGroup::BPrime, WCoef::CPQ1, w_config.order);
+    cache.CQ2_m = cache.CQ2 - w_proxy->getFR(WGroup::BPrime, WCoef::CPQ2, w_config.order);
 }
 
-scalar_t BllDecay::W2Q(scalar_t r, bool prime) {
-    scalar_t CQ2 = w_proxy->getFM(WGroup::BScalar, WCoef::CQ2, this->w_config.order);
-    scalar_t CPQ2 = prime ? w_proxy->getFM(WGroup::BPrime, WCoef::CPQ2, this->w_config.order) : scalar_t(0.);
-    return r * (CQ2 - CPQ2);
+double BllDecay::BR_avg_Bq_mumu(int q) {
+    if (q != 1 && q != 3) LOG_ERROR("ValueError", "In Bq > mu mu, q can only be d (1) or s (3), found", q);
+
+    double pref = std::pow(cache.G_F * cache.alpha_em, 2) / (64 * HBAR * std::pow(M_PI, 3));
+    if (q == 1) {
+        return pref * std::pow(cache.f_Bd * std::abs(cache.lambda_d), 2) * std::pow(cache.m_Bd, 3) * cache.tau_Bd * cache.beta_d * (
+            std::pow(cache.beta_d * std::abs(cache.r_d * cache.CQ1), 2) 
+          + std::pow(std::abs(cache.r_d * cache.CQ2 + 2 * cache.x_d * cache.C10), 2)
+        );
+    } else {
+        return pref * std::pow(cache.f_Bs * std::abs(cache.lambda_s), 2) * std::pow(cache.m_Bs, 3) * cache.tau_Bs * cache.beta_s * (
+            std::pow(cache.beta_s * std::abs(cache.r_s * cache.CQ1_m), 2) 
+          + std::pow(std::abs(cache.r_s * cache.CQ2_m + 2 * cache.x_s * cache.C10_m), 2)
+        );
+    }
 }
 
-scalar_t BllDecay::W210(scalar_t x, bool prime) {
-    scalar_t C10 = w_proxy->getFM(WGroup::B, WCoef::C10, this->w_config.order);
-    scalar_t CP10 = prime ? w_proxy->getFM(WGroup::BPrime, WCoef::CP10, this->w_config.order) : scalar_t(0.);
-    return 2. * (C10 - CP10) * x;
+double BllDecay::BR_untag_Bs_mumu() {
+    double f = cache.r_s / (2. * cache.x_s);
+    complex_t S = cache.beta_s * f * cache.CQ1_m / cache.C10_SM;
+    complex_t P = (cache.C10_m + f * cache.CQ2_m) / cache.C10_SM;
+    double abs_S = std::pow(std::abs(S), 2);
+    double abs_P = std::pow(std::abs(P), 2);
+    double A = (abs_P * std::cos(2 * std::arg(P)) - abs_S * std::cos(2 * std::arg(S))) / (abs_P + abs_S);
+
+    double untag_factor = (1. + A * cache.ys) / (1. - std::pow(cache.ys, 2));
+    return untag_factor * BR_avg_Bq_mumu(3);
 }
 
-scalar_t BllDecay::ckm(scalar_t V_tb, scalar_t V_tq) {
-    return std::pow(std::abs(V_tb * std::conj(V_tq)), 2);
-}
-
-scalar_t BllDecay::BR_avg_Bq_mumu(scalar_t w1,
-                                scalar_t w2q,
-                                scalar_t w210,
-                                scalar_t ckm,
-                                scalar_t x,
-                                scalar_t G_F,
-                                scalar_t inv_alpha,
-                                scalar_t f_B,
-                                scalar_t m_B,
-                                scalar_t life_B)
-{
-    scalar_t b = std::sqrt(1. - 4. * std::pow(x, 2));
-    scalar_t pref = std::pow(G_F * f_B / inv_alpha, 2) * std::pow(m_B / M_PI, 3) * life_B * ckm * b / (64. * HBAR);
-
-    return pref * (std::pow(b * std::abs(w1), 2) + std::pow(std::abs(w2q + w210), 2));
-}
-
-scalar_t BllDecay::A_DG(scalar_t x, scalar_t r, scalar_t w210, scalar_t w1q, scalar_t w2q, scalar_t C10_SM) {
-    scalar_t S = x * std::sqrt(1. - 4. * x * x) * w1q / (2. * C10_SM);
-    scalar_t P = (w210 / x + w2q * x) / (2. * C10_SM);
-    scalar_t abs_S = std::pow(std::abs(S), 2);
-    scalar_t abs_P = std::pow(std::abs(P), 2);
-
-    return (abs_P * std::cos(2 * std::arg(P)) - abs_S * std::cos(2 * std::arg(S))) / (abs_P + abs_S);
-}
-
-scalar_t BllDecay::BR_untag_Bs_mumu(scalar_t br_avg, scalar_t ys, scalar_t A) {
-    scalar_t untag_factor = (1. + A * ys) / (1. - ys * ys);
-    return untag_factor * br_avg;
-}
-
-void BllDecay::build_op_tree() {
-    
-    // SM Parameters
-    auto inv_alpha_em = std::make_shared<ParameterNode>(ParamId(ParameterType::SM, "SMINPUTS", 1));
-    auto G_F = std::make_shared<ParameterNode>(ParamId(ParameterType::SM, "SMINPUTS", 2));
-
-    auto m_mu = std::make_shared<ParameterNode>(ParamId(ParameterType::SM, "MASS", 13));
-    auto m_d = std::make_shared<ParameterNode>(ParamId(ParameterType::SM, "MASS", 1));
-    auto m_s = std::make_shared<ParameterNode>(ParamId(ParameterType::SM, "MASS", 3));
-    auto V_tb = std::make_shared<ParameterNode>(ParamId(ParameterType::SM, "VCKM", LhaID(2, 2)));
-    auto V_ts = std::make_shared<ParameterNode>(ParamId(ParameterType::SM, "VCKM", LhaID(2, 1)));
-    auto V_td = std::make_shared<ParameterNode>(ParamId(ParameterType::SM, "VCKM", LhaID(2, 0)));
-    auto m_b_pole = std::make_shared<ParameterNode>(ParamId(ParameterType::SM, "QCD", LhaID(5, 2)));
-
-    // Wilson node
-    auto wilson = this->get_wilson_node();
-    auto C10_SM = std::make_shared<ParameterNode>(ParamId(ParameterType::WILSON, GroupMapper::str(WGroup::B, ScaleType::HADRONIC), WCoefMapper::flha_full(WCoef::C10, QCDOrder::LO, ContributionType::SM)));
-
-    // Flavor Parameters
-    auto m_Bs = std::make_shared<ParameterNode>(ParamId(ParameterType::FLAVOR, "FMASS", 531));
-    auto life_Bs = std::make_shared<ParameterNode>(ParamId(ParameterType::FLAVOR, "FLIFE", 531));
-    auto f_Bs = std::make_shared<ParameterNode>(ParamId(ParameterType::FLAVOR, "FCONST", LhaID(531,1)));
-    auto m_Bd = std::make_shared<ParameterNode>(ParamId(ParameterType::FLAVOR, "FMASS", 511));
-    auto life_Bd = std::make_shared<ParameterNode>(ParamId(ParameterType::FLAVOR, "FLIFE", 511));
-    auto f_Bd = std::make_shared<ParameterNode>(ParamId(ParameterType::FLAVOR, "FCONST", LhaID(511,1)));
-
-    // Misc experimental input
-    auto y_s = std::make_shared<ParameterNode>(ParamId(ParameterType::DECAY, "B_ll", 1)); // y_s = life_Bs * Delta(Gamma_s) / 2
-    
-    // Operator nodes
-    auto xs = std::make_shared<OperatorNode>("xs", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return values[0] / values[1]; });
-    xs->addChildren({m_mu, m_Bs});
-    auto rs = std::make_shared<OperatorNode>("rs", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return values[0] / (values[1] + values[2]); });
-    rs->addChildren({m_Bs, m_b_pole, m_s});
-    auto w1s = std::make_shared<OperatorNode>("W1s", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->W1(values[0], true); });
-    w1s->addChildren({rs, wilson});
-    auto w2qs = std::make_shared<OperatorNode>("W2Qs", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->W2Q(values[0], true); });
-    w2qs->addChildren({rs, wilson});
-    auto w210s = std::make_shared<OperatorNode>("W210s", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->W210(values[0], true); });
-    w210s->addChildren({xs, wilson});
-    auto ckm_s = std::make_shared<OperatorNode>("CKM_s", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->ckm(values[0], values[1]); });
-    ckm_s->addChildren({V_tb, V_ts});
-    auto br_avg_Bs_mumu = std::make_shared<OperatorNode>("BR_Bs__mu_mu", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->BR_avg_Bq_mumu(values[0], values[1], values[2], values[3], values[4], values[5], values[6], values[7], values[8], values[9]); });
-    br_avg_Bs_mumu->addChildren({w1s, w2qs, w210s, ckm_s, xs, G_F, inv_alpha_em, f_Bs, m_Bs, life_Bs});
-    roots.emplace(ObservableMapper::to_id(Observables::BR_BS_MUMU), br_avg_Bs_mumu);
-
-    auto xd = std::make_shared<OperatorNode>("xd", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return values[0] / values[1]; });
-    xd->addChildren({m_mu, m_Bd});
-    auto rd = std::make_shared<OperatorNode>("rd", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return values[0] / (values[1] + values[2]); });
-    rd->addChildren({m_Bd, m_b_pole, m_d});
-    //TODO or not TODO : why was it addChild with only rd ? not addChildren with CQ1, CPQ1, CQ2, etc. ?
-    auto w1d = std::make_shared<OperatorNode>("W1d", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->W1(values[0], false); });
-    w1d->addChildren({rd, wilson});
-    auto w2qd = std::make_shared<OperatorNode>("W2Qd", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->W2Q(values[0], false); });
-    w2qd->addChildren({rd, wilson});
-    auto w210d = std::make_shared<OperatorNode>("W210d", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->W210(values[0], false); });
-    w210d->addChildren({xd, wilson});
-    auto ckm_d = std::make_shared<OperatorNode>("CKM_d", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->ckm(values[0], values[1]); });
-    ckm_d->addChildren({V_tb, V_td});
-
-    auto br_avg_Bd_mumu = std::make_shared<OperatorNode>("BR_Bd__mu_mu", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->BR_avg_Bq_mumu(values[0], values[1], values[2], values[3], values[4], values[5], values[6], values[7], values[8], values[9]); });
-    br_avg_Bd_mumu->addChildren({w1d, w2qd, w210d, ckm_d, xd, G_F, inv_alpha_em, f_Bd, m_Bd, life_Bd});
-    roots.emplace(ObservableMapper::to_id(Observables::BR_BD_MUMU), br_avg_Bd_mumu);
-    auto a_dg = std::make_shared<OperatorNode>("A_DeltaGamma", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->A_DG(values[0], values[1], values[2], values[3], values[4], values[5]); });
-    a_dg->addChildren({xs, rs, w210s, w1s, w2qs, C10_SM});
-    auto br_untag_Bs_mumu = std::make_shared<OperatorNode>("BR_untag_Bs__mu_mu", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->BR_untag_Bs_mumu(values[0], values[1], values[2]); });
-    br_untag_Bs_mumu->addChildren({br_avg_Bs_mumu, y_s, a_dg});
-    roots.emplace(ObservableMapper::to_id(Observables::BR_BS_MUMU_UNTAG), br_untag_Bs_mumu);
-}

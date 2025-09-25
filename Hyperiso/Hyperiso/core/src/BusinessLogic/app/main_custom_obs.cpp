@@ -14,7 +14,7 @@ int main() {
     hyp.init("lha/si_input.flha", config);
     LOG_INFO("HyperisoMaster initialized");
 
-    QCDOrder order = QCDOrder::LO;
+    QCDOrder order = QCDOrder::NNLO;
     ObservableInterface oi;
 
     DecayMapper::register_custom("Wilson");

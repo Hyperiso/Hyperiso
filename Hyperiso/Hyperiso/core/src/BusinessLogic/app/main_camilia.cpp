@@ -25,8 +25,6 @@ int main() {
     for (auto o : obss) {
         oi.add_observable(o, order, false);
     }
-    
-    // oi.set_config_flag(Decays::B__Kstar_l_l, BKstarllConfig::FF_Src::BSZ_SR_LAT);
 
     for (auto o : obss) {
         LOG_INFO(ObservableMapper::str(o), "=", oi.compute_observable(o), "+-", oi.compute_uncertainty(o));

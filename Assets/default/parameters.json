@@ -255,6 +255,11 @@
       "stat_error": 0.015e-3,
       "syst_error": 0
     },
+    "313": {
+      "central_value": 895.55e-3,
+      "stat_error": 0.26e-3,
+      "syst_error": 0
+    },
     "323": {
       "central_value": 891.67e-3,
       "stat_error": 0.26e-3,

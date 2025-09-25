@@ -4,24 +4,52 @@
 #include "DecayParent.h"
 #include "General.h"
 
+struct BllDecayCache {
+    double G_F;
+    double alpha_em;
+    double m_mu;
+    double m_Bd;
+    double m_Bs;
+    double f_Bd;
+    double f_Bs;
+    double tau_Bd;
+    double tau_Bs;
+    complex_t lambda_d;
+    complex_t lambda_s;
+    double ys;
+    double x_d;
+    double x_s;
+    double r_d;
+    double r_s;
+    double beta_d;
+    double beta_s;
+
+    complex_t C10_SM;
+    complex_t C10;
+    complex_t CQ1;
+    complex_t CQ2;
+    complex_t C10_m;
+    complex_t CQ1_m;
+    complex_t CQ2_m;
+};
+
 /**
  * @brief Decay parent for the Bq > ll decays. Currently implements both CP-averaged and untagged Bs > mu+ mu- branching ratios and the CP-averaged Bd > mu+ mu- decays. 
  */
 class BllDecay : public DecayParent {
+private:
+    BllDecayCache cache;
 
 protected:
-    scalar_t W1(scalar_t r, bool prime);
-    scalar_t W2Q(scalar_t r, bool prime);
-    scalar_t W210(scalar_t x, bool prime);
-    scalar_t ckm(scalar_t V_tb, scalar_t V_tq);
-    scalar_t BR_avg_Bq_mumu(scalar_t w1, scalar_t w2q, scalar_t w210, scalar_t ckm, scalar_t b, scalar_t G_F, scalar_t inv_alpha, scalar_t f_Bs, scalar_t m_Bs, scalar_t life_Bs);
-    scalar_t A_DG(scalar_t x, scalar_t r, scalar_t w210, scalar_t w1q, scalar_t w2q, scalar_t C10_SM);
-    scalar_t BR_untag_Bs_mumu(scalar_t br_avg, scalar_t ys, scalar_t A);
+    void fill_cache();
+    double BR_avg_Bq_mumu(int q);
+    double BR_untag_Bs_mumu();
 
 public:
     BllDecay(QCDOrder order, double matching_scale, double hadronic_scale, std::shared_ptr<ObsWilsonBuilder>& wilson_builder) : DecayParent(DecayMapper::to_id(Decays::B__l_l), matching_scale, hadronic_scale, order, wilson_builder) {
         this->w_config.groups = {WGroup::B, WGroup::BPrime, WGroup::BScalar};
         this->max_order = QCDOrder::NNLO;
+        this->fill_cache();
     }
 
     void build_op_tree() override;
