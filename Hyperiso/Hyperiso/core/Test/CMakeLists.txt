@@ -154,6 +154,20 @@ target_link_libraries(testlhaparserunit DataBaseLib UtilsLib)
 add_executable(testlhaparserintegration DataBase/integration/test_lhaparser_integration.cpp)
 target_link_libraries(testlhaparserintegration DataBaseLib UtilsLib)
 
+#Pandas
+
+add_executable(testSerieUnit DataBase/Pandas/unit/test_serie_unit.cpp)
+target_link_libraries(testSerieUnit PandasLib)
+
+add_executable(testSerieIntegration DataBase/Pandas/integration/test_serie_integration.cpp)
+target_link_libraries(testSerieIntegration PandasLib)
+
+add_executable(testDataFrameUnit DataBase/Pandas/unit/test_dataframe_unit.cpp)
+target_link_libraries(testDataFrameUnit PandasLib)
+
+add_executable(testDataFrameIntegration DataBase/Pandas/integration/test_dataframe_integration.cpp)
+target_link_libraries(testDataFrameIntegration PandasLib)
+
 #Core
 
 

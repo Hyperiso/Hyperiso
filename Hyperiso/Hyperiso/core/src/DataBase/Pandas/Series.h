@@ -6,6 +6,7 @@
 #include <iostream>
 #include <algorithm>
 #include <cmath>
+#include <memory>
 
 template <typename T>
 class Series {
