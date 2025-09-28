@@ -5,18 +5,18 @@ void Block::addObserver(std::shared_ptr<Block> observer) {
 }
 
 void Block::removeObserver(std::shared_ptr<Block> observer) {
-    observers.erase(std::find(observers.begin(), observers.end(), observer));
+    auto it = std::find(observers.begin(), observers.end(), observer);
+    if (it != observers.end()) observers.erase(it);
 }
 
 void Block::notifyObservers() {
-    for (auto& observer : observers) {
+    auto snapshot = observers;
+    for (auto& observer : snapshot) {
+        if (!observer) continue;
         LOG_DEBUG("Notifying observer", observer->blockname, "from source block", blockname);
-        if (observer == nullptr) {
-            removeObserver(observer);
-            continue;
-        }
         observer->update();
     }
+    observers.erase(std::remove(observers.begin(), observers.end(), nullptr), observers.end());
 }
 
 void Block::update() {
@@ -229,14 +229,12 @@ void DependentBlock::clear_above() {
 
 void DependentBlock::clear_below() {
     this->clear_above();
-    std::cout << "clear : " << this->get_name() << std::endl;
-    //base case
-    if (observers.empty()) {
-        return; //no need to destroy itself, if no ref, shared_ptr do it
-    }
 
-    for (auto &obs : observers) {
-        obs->clear_below();
+    if (observers.empty()) return;
+
+    auto snapshot = observers;
+    for (auto& obs : snapshot) {
+        if (obs) obs->clear_below();
     }
 }
 

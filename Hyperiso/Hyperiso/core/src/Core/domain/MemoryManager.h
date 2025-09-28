@@ -14,15 +14,16 @@
 
 #include <unordered_map>
 #include <thread>
-
+#include "config.hpp"
 #include "Include.h"
 #include "BlockAccessor.h"
-#include "ParamBlockLoader.h"
+// #include "ParamBlockLoader.h"
 #include "DBMemento.h"
 #include "CorrelationRepo.h"
-#include "CorrelationAdapter.h"
-#include "SpectrumCalculator.h"
-#include "Paths.h"
+// #include "CorrelationAdapter.h"
+#include "ISpectrumCalculator.h"
+#include "IDataLoader.h"
+#include "IPathsProvider.h"
 #include "Config.h"
 
 /**
@@ -45,6 +46,12 @@ struct MemoryCache {
 
 };
 
+struct ReadyGuard {
+    bool& flag;
+    ReadyGuard(bool& f) : flag(f) { flag = false; }
+    ~ReadyGuard() { flag = true; }
+};
+
 /**
  * @class MemoryManager
  * @brief Singleton class responsible for initializing and managing memory, input files, and parameter blocks.
@@ -58,11 +65,25 @@ private:
     std::shared_ptr<BlockAccessor> input_cache;     ///< Cached parameters and blocks.
     DBMemento memento;                              ///< Memento to save and restore input cache.
     CorrelationRepository correlation_repository;   ///< Repository for parameter and observable correlations.
+    std::shared_ptr<ISpectrumCalculator> sc;
+    std::shared_ptr<IDataLoader<BlockAccessor>> dl_ba;
+    std::shared_ptr<IDataLoader<CorrelationMatrixPair<ParamId>>> dl_cmp_p;
+    std::shared_ptr<IDataLoader<CorrelationMatrixPair<ObservableId>>> dl_cmp_o;
+    std::shared_ptr<IPathsProvider> paths_provider;
 
     /**
      * @brief Private constructor to enforce singleton pattern.
      */
     MemoryManager();
+
+    /**
+     * @brief Private constructor to enforce singleton pattern. Special constructor to build ports to db.
+     */
+    MemoryManager(std::shared_ptr<IDataLoader<BlockAccessor>> loader, 
+        std::shared_ptr<IDataLoader<CorrelationMatrixPair<ParamId>>> param_corr, 
+        std::shared_ptr<IDataLoader<CorrelationMatrixPair<ObservableId>>> obs_corr, 
+        std::shared_ptr<ISpectrumCalculator> spectrum_c,
+        std::shared_ptr<IPathsProvider> paths_provider);
 
     /**
      * @brief Ensures the memory manager is initialized before usage.
@@ -79,7 +100,7 @@ private:
      * @param param_corr Pointer to the DataLoader to use to get parameters correlations from default inputs (JSON).
      * @param obs_corr Pointer to the DataLoader to use to get observables correlations from default inputs (JSON).
      */
-    void read_default_input(std::shared_ptr<IDataLoader<BlockAccessor>> loader, std::shared_ptr<IDataLoader<CorrelationMatrixPair<ParamId>>> param_corr, std::shared_ptr<IDataLoader<CorrelationMatrixPair<ObservableId>>> obs_corr);
+    void read_default_input();
 
     /**
      * @brief Reads and loads user-specific input files (overrides or complements defaults).
@@ -90,7 +111,7 @@ private:
      * @param param_corr Pointer to the DataLoader to use to get parameters correlations from user inputs (YAML).
      * @param obs_corr Pointer to the DataLoader to use to get observables correlations from user inputs (YAML).
      */
-    void read_user_input(std::shared_ptr<IDataLoader<BlockAccessor>> loader, std::shared_ptr<IDataLoader<CorrelationMatrixPair<ParamId>>> param_corr, std::shared_ptr<IDataLoader<CorrelationMatrixPair<ObservableId>>> obs_corr);
+    void read_user_input();
 
     /**
      * @brief Reads a LHA input file and updates the memory cache accordingly.
@@ -148,6 +169,16 @@ public:
     static MemoryManager* GetInstance();
     
     /**
+     * @brief Retrieves the singleton instance of MemoryManager. Use to create MemoryManager in the adapters
+     * @return Pointer to MemoryManager instance.
+     */
+    static MemoryManager* Create(std::shared_ptr<IDataLoader<BlockAccessor>> loader, 
+        std::shared_ptr<IDataLoader<CorrelationMatrixPair<ParamId>>> param_corr, 
+        std::shared_ptr<IDataLoader<CorrelationMatrixPair<ObservableId>>> obs_corr, 
+        std::shared_ptr<ISpectrumCalculator> spectrum_c,
+        std::shared_ptr<IPathsProvider> paths_provider);
+
+    /**
      * @brief Initializes the memory manager with the provided LHA file and configuration.
      *
      * Must be called before using any Parameters instances.
@@ -158,7 +189,7 @@ public:
      * @param param_corr Pointer to the DataLoader to use to get parameters correlations from inputs.
      * @param obs_corr Pointer to the DataLoader to use to get observables correlations from inputs.
      */
-    void init(const std::string &lhaFile, Config config, std::shared_ptr<IDataLoader<BlockAccessor>> loader, std::shared_ptr<IDataLoader<CorrelationMatrixPair<ParamId>>> param_corr, std::shared_ptr<IDataLoader<CorrelationMatrixPair<ObservableId>>> obs_corr);
+    void init(const std::string &lhaFile, Config config);
 
     /**
      * @brief Switches to a different LHA file, reloading associated parameters and spectrum.
@@ -176,7 +207,7 @@ public:
      * @param param_corr Pointer to the DataLoader to use to get parameters correlations from user inputs (YAML).
      * @param obs_corr Pointer to the DataLoader to use to get observables correlations from user inputs (YAML).
      */
-    void reload_user_input(Config config, std::shared_ptr<IDataLoader<BlockAccessor>> loader, std::shared_ptr<IDataLoader<CorrelationMatrixPair<ParamId>>> param_corr, std::shared_ptr<IDataLoader<CorrelationMatrixPair<ObservableId>>> obs_corr);
+    void reload_user_input(Config config);
 
     /**
      * @brief Reloads user-specific input files with a different LHA file.
@@ -186,7 +217,7 @@ public:
      * @param param_corr Pointer to the DataLoader to use to get parameters correlations from user inputs (YAML).
      * @param obs_corr Pointer to the DataLoader to use to get observables correlations from user inputs (YAML).
      */
-    void reload_user_input(const std::string &lhaFile, Config config, std::shared_ptr<IDataLoader<BlockAccessor>> loader, std::shared_ptr<IDataLoader<CorrelationMatrixPair<ParamId>>> param_corr, std::shared_ptr<IDataLoader<CorrelationMatrixPair<ObservableId>>> obs_corr);
+    void reload_user_input(const std::string &lhaFile, Config config);
 
     /**
      * @brief Switches the model used for spectrum and parameters.

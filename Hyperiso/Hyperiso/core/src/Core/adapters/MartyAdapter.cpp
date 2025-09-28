@@ -1,15 +1,18 @@
 #include "MartyAdapter.h"
 
 fs::path MartyAdapter::get_path(MartyPath path_name) {
+
+    std::shared_ptr<DefaultPathsProvider> dpp = std::make_shared<DefaultPathsProvider>();
+
     switch (path_name) {
     case MartyPath::MODEL_FILE:
         return MemoryManager::GetInstance()->getMemoryCache().config.mty_model_path.value();
         break;
     case MartyPath::PARAM_MAPPING_DIR:
-        return DirPaths::param_mapping_dir_path;
+        return dpp->param_mapping_dir_path();
         break;
     case MartyPath::TEMPLATE_DIR:
-        return DirPaths::template_dir_path;
+        return dpp->template_dir_path();
         break;
     default:
         LOG_ERROR("ValueError", "Unknown path for MartyAdapter.");

@@ -4,7 +4,7 @@
 #include "IMonitor.h"
 #include "IPathProvider.h"
 #include "MemoryManager.h"
-
+#include "DefaultPathsProvider.h"
 
 enum class MartyPath {
     MODEL_FILE,
