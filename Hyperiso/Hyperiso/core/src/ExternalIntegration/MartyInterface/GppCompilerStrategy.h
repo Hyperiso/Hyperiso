@@ -12,4 +12,4 @@ public:
     void compile(const std::string& sourceFile, const std::string& outputBinary) override;
 };
 
-#endif // GPP_COMPILER_STRATEGY_H
+#endif

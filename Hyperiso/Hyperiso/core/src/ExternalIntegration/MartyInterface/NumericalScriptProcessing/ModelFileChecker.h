@@ -7,25 +7,21 @@ class ModelFileChecker {
 public:
     ModelFileChecker(const std::string& filePath) : filePath(filePath) {}
 
-    bool isAnyModelTemplate() {
+    bool isAnyModelTemplate() const {
         std::ifstream file(filePath);
         if (!file.is_open()) {
             throw std::runtime_error("Cannot open file: " + filePath);
         }
 
-        std::regex templateRegex(R"(template\s*<[^>]*>)");
-        std::regex classRegex(R"(class\s+\w+_Model\s*:\s*public\s+\w+::\w+)");
+        std::string contents((std::istreambuf_iterator<char>(file)), {});
+        contents.erase(std::remove(contents.begin(), contents.end(), '\r'), contents.end());
 
-        std::string line;
-        bool foundTemplate = false;
 
-        while (std::getline(file, line)) {
-            if (foundTemplate && std::regex_search(line, classRegex)) {
-                return true;
-            }
-            foundTemplate = std::regex_search(line, templateRegex);
-        }
-        return false;
+        static const std::regex re(
+            R"(template\s*<[^>]*>\s*class\s+[A-Za-z_]\w*_Model\s*:\s*public\s+[A-Za-z_]\w*::[A-Za-z_]\w+)",
+            std::regex::ECMAScript
+        );
+        return std::regex_search(contents, re);
     }
 
 private:

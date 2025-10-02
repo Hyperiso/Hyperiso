@@ -1,8 +1,18 @@
 #include "MartyInterface.h"
+#include "ModelAPI.h"
+#include "MartyParameterProxy.h"
+#include "DefaultInterpreterPortsFactory.h"
 
 namespace fs = std::filesystem;
 
-// std::string to_lowercase(const std::string& str);
+
+MartyInterface::MartyInterface() {
+    core_api = std::make_shared<ModelAPI>();
+    param_proxy_sm = std::make_shared<MartyParameterProxy>(ParameterType::SM);
+    param_proxy_bsm = std::make_shared<MartyParameterProxy>(ParameterType::BSM);
+    ports = std::make_shared<DefaultInterpreterPortsFactory>();
+}
+
 
 void MartyInterface::compile_run(std::string wilson, std::string model) {
     
@@ -29,16 +39,14 @@ void MartyInterface::generate(std::string wilson, std::string model, std::string
 
 void MartyInterface::generate_numlib(std::string wilson, std::string model, double Q_match) {
     bool forceMode = false;
-    std::unique_ptr<GeneralNumModelModifier> ModelModifier = std::make_unique<GeneralNumModelModifier>(wilson, model,this->specials_block, forceMode);
-    
+    std::unique_ptr<SMParamSetter> sm_p_setter = std::make_unique<SMParamSetter>(model, specials_block, param_proxy_sm, param_proxy_bsm);
+    std::unique_ptr<GeneralNumModelModifier> ModelModifier = std::make_unique<GeneralNumModelModifier>(wilson, model,this->specials_block, std::move(sm_p_setter), core_api, ports, forceMode);
     
     std::unique_ptr<TemplateManagerBase> templateManager = std::make_unique<NumericTemplateManager>(FileNameManager::getInstance(wilson, model)->getLibDir());
     templateManager->setModelAndWilson(model, wilson);
     templateManager->setNumModelModifier(std::move(ModelModifier));
     this->dependencies.emplace(wilson, templateManager->get_dependencies());
-
     CodeGenerator codeGenerator(std::move(templateManager));
-
     std::string file_path = FileNameManager::getInstance(wilson, model)->getNumGeneratedFileName();
     codeGenerator.generate(file_path, file_path);
 }
@@ -51,6 +59,7 @@ void MartyInterface::compile_run_libs(std::string wilson, std::string model, dou
 }
 
 void MartyInterface::calculate(std::string wilson, std::string model, double Q_match, std::string model_path, bool new_params) {
+
     generate(wilson, model, model_path);
     compile_run(wilson, model);
     generate_numlib(wilson, model, Q_match);

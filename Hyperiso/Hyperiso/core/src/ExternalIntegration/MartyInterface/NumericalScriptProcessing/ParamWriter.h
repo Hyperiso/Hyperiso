@@ -6,20 +6,15 @@
 #include "FileNameManager.h"
 
 class ParamWriter {
-private:
-    std::unordered_map<std::string, double>& params;
-
 public:
-    ParamWriter(std::unordered_map<std::string, double>& params) : params(params) {}
+    ParamWriter() =default;
 
-    void writeParams(std::ofstream& outputFile) {
+    void writeParams(std::ofstream& outputFile, const std::unordered_map<std::string, double>& params) {
         for (const auto& [name, value] : params) {
             std::string real_name = name;
             outputFile << real_name << "," << value << "\n";
         }
+
     }
 
-    std::unordered_map<std::string, double>& getParams() {
-        return params;
-    }
 };

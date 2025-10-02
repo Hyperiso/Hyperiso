@@ -17,12 +17,10 @@
 class YAMLParser : public IParser {
 public:
     std::shared_ptr<Node> parse(const std::string& input) const override;
-    // static std::shared_ptr<Node> parseYAMLNode(std::istringstream& stream, int indentLevel);
     void writeToFile(const std::string& filename, const std::shared_ptr<Node>& root) const override;
     std::shared_ptr<Node> readFromFile(const std::string& filename) const override;
 
 private:
-    // size_t countLeadingSpaces(const std::string& line) const;
     bool parseLine(const std::string& line, std::string& key, std::string& value) const;
     void adjustIndentation(size_t indent, std::vector<std::shared_ptr<Node>>& nodeStack, std::vector<int>& indentStack) const;
     static std::shared_ptr<Node> parseYAMLNode(std::istringstream& stream, int indentLevel);

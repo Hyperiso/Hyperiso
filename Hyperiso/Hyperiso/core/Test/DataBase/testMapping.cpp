@@ -1,4 +1,4 @@
-#include "MappingDataBase.h"
+#include "MappingDatabase.h"
 #include "config.hpp"
 #include <iostream>
 #include <cassert>

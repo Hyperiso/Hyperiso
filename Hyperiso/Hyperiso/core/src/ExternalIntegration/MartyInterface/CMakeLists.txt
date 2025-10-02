@@ -50,6 +50,8 @@ add_library(MartyInterfaceLib STATIC
     CompilerStrategy.cpp
     CinematicExtractor.cpp
     adapters/MartyParameterProxy.cpp
+    adapters/MappingDatabaseProxy.cpp
+    adapters/DefaultInterpreterPortsFactory.cpp
     )
 
 set_target_properties(MartyInterfaceLib PROPERTIES POSITION_INDEPENDENT_CODE ON)

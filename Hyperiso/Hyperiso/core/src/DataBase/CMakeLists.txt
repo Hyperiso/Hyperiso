@@ -18,13 +18,14 @@ add_library(DataBaseLib STATIC
     domain/lha_elements.cpp
     domain/DBNode.cpp
     domain/DBManager.cpp
-    Service/MappingDataBase.cpp
+    Service/MappingDatabase.cpp
     adapters/JsonParser.cpp
     adapters/LhaParser.cpp
     adapters/YamlParser.cpp
     adapters/DictNodeProvider.cpp
     adapters/LhaNodeProvider.cpp
     adapters/NodeProviderFactory.cpp
+    adapters/JsonParamMappingAdapter.cpp
 )
 
 set_target_properties(DataBaseLib PROPERTIES POSITION_INDEPENDENT_CODE ON)

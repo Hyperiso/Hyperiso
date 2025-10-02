@@ -9,4 +9,4 @@ public:
     virtual scalar_t operator()(const T& x, const V& y) const = 0 ;
 };
 
-#endif // __IMARTYPARAMETERPROXY_H__
+#endif

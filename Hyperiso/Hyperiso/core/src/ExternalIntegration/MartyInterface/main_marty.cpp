@@ -10,6 +10,9 @@
 #include "MemoryManager.h"
 #include "HyperisoMaster.h"
 #include "config.hpp"
+#include "ModelAPI.h"
+#include "MartyParameterProxy.h"
+#include "DefaultInterpreterPortsFactory.h"
 
 int main() {
     HyperisoMaster hyp = HyperisoMaster();
@@ -25,9 +28,13 @@ int main() {
     // std::cout << truc->getNumGeneratedFileName() << std::endl;
     // std::cout << truc->getNumExecutableFileName() << std::endl;
     // std::cout << truc->getHelperFileName("h") << std::endl;
+    std::shared_ptr<ModelAPI> model_api = std::make_shared<ModelAPI>();
+    std::shared_ptr<MartyParameterProxy> sm_params = std::make_shared<MartyParameterProxy>(ParameterType::SM);
+    std::shared_ptr<MartyParameterProxy> bsm_params = std::make_shared<MartyParameterProxy>(ParameterType::BSM);
+    std::shared_ptr<IInterpreterPortsFactory> ports = std::make_shared<DefaultInterpreterPortsFactory>();
+    MartyInterface MartyInterface(model_api, sm_params, ports, bsm_params);
 
-    
-    MartyInterface MartyInterface;
+    std::cout << sm_params->operator()("MASS", 24) << std::endl;
     // MartyInterface.generate("C7", "SM");
     // MartyInterface.compile_run("C7", "SM");
     
@@ -50,7 +57,7 @@ int main() {
     // MartyInterface.calculate("C9", "ZPrime", 81);
     // MartyInterface.calculate("C10", "ZPrime", 81);
     // MartyInterface.calculate("C2", "ZPrime", 81);
-    MartyInterface.calculate("C7", "SM", 81, project_tp_root.data() + std::string("MARTY/src/MARTY/src/marty/models/thdm.h"));
+    MartyInterface.calculate("C7", "SM", 81, project_tp_root.data() + std::string("MARTY/src/MARTY/src/marty/models/sm.h"));
     // MartyInterface.calculate("C5", "SM", 81);
     // MartyInterface.calculate("C7", "THDM", 81);
     // MartyInterface.calculate("C7", "SM", 160);
