@@ -44,7 +44,7 @@ std::unordered_map<WCoef, scalar_t> BclnuCoefficientGroup::base_1_LO_calculation
 // }
 
 // void BlnuCoefficientGroup::add_wilson_coefficients(bool force_sm) {
-//     if (UseMarty().get()) {
+//     if (adapters.use_marty->get()) {
 //         this->wilson_type = force_sm ? ContributionType::SM : ContributionType::TOTAL;
 //         for (auto&& coeff : {"C_Blnu_A", "C_Blnu_P"}) {
 //             std::string _name = force_sm ? "SM" : MartyModelNameAPI().get();
@@ -64,7 +64,7 @@ std::unordered_map<WCoef, scalar_t> BclnuCoefficientGroup::base_1_LO_calculation
 //     return std::make_shared<BlnuCoefficientGroup>(*this);
 // }
 
-BclnuCoefficientGroup::BclnuCoefficientGroup(bool force_sm) {
+BclnuCoefficientGroup::BclnuCoefficientGroup(WilsonGroupAdapterConfig adapters, bool force_sm) : CoefficientGroup(adapters) {
     this->id = WGroup::BCC;
     init_sources();
     add_wilson_coefficients(force_sm);
@@ -80,11 +80,13 @@ void BclnuCoefficientGroup::init_sources() {
 }
 
 void BclnuCoefficientGroup::add_wilson_coefficients(bool force_sm) {
-    if (UseMarty().get()) {
+    if (adapters.use_marty->get()) {
         this->wilson_type = force_sm ? ContributionType::SM : ContributionType::TOTAL;
         for (auto&& coeff : {"C_V1", "C_V2", "C_S1", "C_S2", "C_T"}) {
-            std::string _name = force_sm ? "SM" : MartyModelNameAPI().get();
-            fs::path _path = force_sm ? fs::path(std::string(project_assets_root.data())+"input_files/marty_model/sm.h") : MartyModelPathAPI().get();
+            std::string _name = force_sm ? "SM" : adapters.marty_model_name->get();
+            // std::string _name = force_sm ? "SM" : MartyModelNameAPI().get();
+            fs::path _path = force_sm ? adapters.sm_path : adapters.marty_model_path->get();
+            // fs::path _path = force_sm ? fs::path(std::string(project_assets_root.data())+"input_files/marty_model/sm.h") : MartyModelPathAPI().get();
             std::string _block = GroupMapper::str(this->id, ScaleType::MATCHING);
             LhaID _id = WCoefMapper::flha_full(WCoefMapper::enum_elt(coeff), QCDOrder::LO, this->get_type());
             this->insert(std::make_pair(coeff, std::make_shared<MartyWilson>(_id, _block, _name, _path)));
@@ -103,7 +105,7 @@ std::shared_ptr<CoefficientGroup> BclnuCoefficientGroup::clone() const {
     return std::make_shared<BclnuCoefficientGroup>(*this);
 }
 
-complex_t CoefficientGroup::ensure_coef(WCoef coef, QCDOrder order, ContributionType type, std::string matching_block) {
-    ParameterProxy pp {ParameterType::WILSON};
-    return pp(matching_block, WCoefMapper::flha_full(coef, order, type));
-}
+// complex_t CoefficientGroup::ensure_coef(WCoef coef, QCDOrder order, ContributionType type, std::string matching_block) {
+//     ParameterProxy pp {ParameterType::WILSON};
+//     return pp(matching_block, WCoefMapper::flha_full(coef, order, type));
+// }

@@ -9,7 +9,7 @@ void CoefficientGroup::claim_coefficients() {
 }
 
 CoefficientGroup::CoefficientGroup(const CoefficientGroup& other)
-    : std::map<std::string, std::shared_ptr<WilsonCoefficient>>() 
+    : std::map<std::string, std::shared_ptr<WilsonCoefficient>> (), adapters(other.adapters) 
 {
     for (const auto& [key, ptr] : other) {
         if (ptr) {
@@ -23,7 +23,7 @@ CoefficientGroup::CoefficientGroup(const CoefficientGroup& other)
     id = other.id;
 }
 
-CoefficientGroup::CoefficientGroup(std::map<std::string, std::shared_ptr<WilsonCoefficient>>& coeffs) {
+CoefficientGroup::CoefficientGroup(std::map<std::string, std::shared_ptr<WilsonCoefficient>>& coeffs, WilsonGroupAdapterConfig adapters) : CoefficientGroup(adapters) {
     this->insert(coeffs.begin(), coeffs.end());
     
     QCDOrder max_order = QCDOrder::LO;
@@ -51,20 +51,20 @@ void CoefficientGroup::init(QCDOrder max_order) {
                 }
                 dep_param->set_expected(func(src));
             };
-            WilsonParamComposer().compose_parameter(ParamId{coeff.second->get_storage_block(), coeff.second->get_lhaid((QCDOrder)order)}, coeff.second->get_sources((QCDOrder)order), func_wrapper);
+            adapters.iblock_c->compose_parameter(ParamId{coeff.second->get_storage_block(), coeff.second->get_lhaid((QCDOrder)order)}, coeff.second->get_sources((QCDOrder)order), func_wrapper);
         }
     }
     this->current_order = max_order;
 }
 
 complex_t CoefficientGroup::get_matching_coefficient(std::string coeff, std::string order, ContributionType cont_type) const { 
-    return this->at(coeff)->get_matching_value(order, cont_type); 
+    return this->at(coeff)->get_matching_value(order, cont_type, adapters.wilson_proxy); 
 }
 
 complex_t CoefficientGroup::get_running_coefficient(std::string coeff, std::string order, ContributionType cont_type, WilsonBasis basis) const {
     auto coef = this->at(coeff);
-    ParameterProxy wilson_p = ParameterProxy(ParameterType::WILSON);
-    return complex_t(wilson_p(GroupMapper::str(this->id, ScaleType::HADRONIC, basis), coef->id(OrderMapper::enum_elt(order), cont_type)));
+    // ParameterProxy wilson_p = ParameterProxy(ParameterType::WILSON);
+    return complex_t((*adapters.wilson_proxy)(GroupMapper::str(this->id, ScaleType::HADRONIC, basis), coef->id(OrderMapper::enum_elt(order), cont_type)));
 }
 
 QCDOrder CoefficientGroup::get_order(){

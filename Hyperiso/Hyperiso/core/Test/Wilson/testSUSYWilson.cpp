@@ -3,7 +3,7 @@
 #include "WilsonUtils.h"
 #include "config.hpp"
 #include "Logger.h"
-
+#include "BlockProxy.h"
 
 int main() {
     Logger* logger = Logger::getInstance();
@@ -24,7 +24,7 @@ int main() {
     runTest("LO", root_file + "Test/csv/susy/WilsonCoefficients_LO.csv", root_file + "Test/csv/superiso/susy/WilsonCoefficients_LO.csv", "SUSY", tolerance);
     runTest("NLO", root_file + "Test/csv/susy/WilsonCoefficients_NLO.csv", root_file + "Test/csv/superiso/susy/WilsonCoefficients_NLO.csv", "SUSY",tolerance);
     runTest("NNLO", root_file + "Test/csv/susy/WilsonCoefficients_NNLO.csv", root_file + "Test/csv/superiso/susy/WilsonCoefficients_NNLO.csv", "SUSY",tolerance);
-
+    
 
     return 0;
 }

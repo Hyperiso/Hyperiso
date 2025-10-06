@@ -1,5 +1,6 @@
 #include "HyperisoMaster.h"
 #include "WilsonBuilder.h"
+#include "BlockProxy.h"
 #include <iostream>
 #include <cassert>
 

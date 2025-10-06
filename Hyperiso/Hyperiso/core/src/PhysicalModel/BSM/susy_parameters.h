@@ -1,3 +1,6 @@
+#ifndef SUSY_PARAMETERS_H
+#define SUSY_PARAMETERS_H
+
 #include <algorithm>
 #include <array>
 #include <functional>
@@ -6,6 +9,7 @@
 #include "Logger.h"
 #include "ParameterProxy.h"
 #include "WilsonParamComposer.h"
+#include "IWilsonParameters.h"
 
 constexpr double Pi = 3.14159265358979323846;
 
@@ -36,25 +40,27 @@ using Array2D_4x4_I = std::array<std::array<complex_t, M_NL_NR>, N_NL_NR>;
 
 // };
 
-class susy_parameters {
-    double scale;
-	bool is_PrimeCQG = false;
+class susy_parameters : public IWilsonParameterHelper {
+	// bool is_PrimeCQG = false;
 
-    explicit susy_parameters();
-    susy_parameters(const susy_parameters&) = delete;
-    void operator=(const susy_parameters&) = delete;
+    // explicit susy_parameters();
+    // susy_parameters(const susy_parameters&) = delete;
+    // void operator=(const susy_parameters&) = delete;
 
 public:
 
-	void update();
+	susy_parameters(std::shared_ptr<IBlockComposer> iblock_c) : IWilsonParameterHelper(iblock_c) {}
+	// void update();
 
-	static void init();
-    static void init_scale_independant_block();
-    static void init_matching_block();
+	void init(int gen) override;
+	void cleanup() override {}
 
-	static inline bool is_initialized() { return susy_parameters::initialized; }
-	void reset_PrimeCQG(double Qmatch);
-	void reset_G();
+protected:
+    void init_scale_independent_block(int gen) override;
+    void init_matching_block() override;
+	void init_running_block() override {};
+	// void reset_PrimeCQG(double Qmatch);
+	// void reset_G();
 	
 	// Array2D_4x4  VCKM = {{{0.,0.,0.,0.},
 	// 				{param->Vud, param->Vus, -(param->Vts * param->Vtb + param->Vcs * param->Vcb) / param->Vus, 0.0},
@@ -98,7 +104,6 @@ public:
 // }};
 	
 
-	Array2D_7x7 sU_mix;
 
 
     // double mass_H03 = (*susy)("MASS",36); // We have H_0^3 = A_0 from pdg numering scheme ?
@@ -109,8 +114,8 @@ public:
     // double B0c1 = 0.0, B0c2 = 0.0, B90c = 0.0, B100c = 0.0, C90c = 0.0, D90c = 0.0;
     // bool test;
     
-	static inline WilsonParamComposer composer = WilsonParamComposer();
-	static inline bool initialized {false};
 
 	// WilsonSusyMatrix w_susy;
 };
+
+#endif

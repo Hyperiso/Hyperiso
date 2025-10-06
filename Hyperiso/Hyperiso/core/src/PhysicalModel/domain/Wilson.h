@@ -4,10 +4,12 @@
 #include "Include.h"
 #include "Math.h"
 #include "Utils.h"
-#include "Wilson_parameters.h"
-#include "ModelAPI.h"
-#include "HasWilsonAPI.h"
-#include "ParameterProxy.h"
+#include "Parameter.h"
+#include "IParamAdapter.h"
+// #include "Wilson_parameters.h"
+// #include "ModelAPI.h"
+// #include "HasWilsonAPI.h"
+// #include "ParameterProxy.h"
 
 struct MatchingInfo {
     std::unordered_set<ParamId> sources = {};
@@ -78,7 +80,7 @@ public:
     void set_storage_block(std::string block_name);
     void set_contribution_type(ContributionType type);
 
-    complex_t get_matching_value(std::string order, ContributionType cont_type) const; 
+    complex_t get_matching_value(std::string order, ContributionType cont_type, std::shared_ptr<IParameterProxy<std::string, LhaID>> wilson_p) const; 
     std::string get_name() const {return this->coeffName;}
     std::string get_storage_block() const {return this->storage_block;}
     QCDOrder get_max_order() const {return this->max_order;}

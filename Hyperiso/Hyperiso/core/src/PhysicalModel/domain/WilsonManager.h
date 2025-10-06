@@ -12,24 +12,40 @@
 #include "QCDHelper.h"
 #include "Utils.h"
 #include "HyperisoMaster.h"
-#include "ScaleSetter.h"
+#include "IParamSetter.h"
+#include "IWilsonParameters.h"
+
+struct PortsConfig {
+
+    PortsConfig(std::shared_ptr<IBlockComposer> iblock_c, std::shared_ptr<IParameterProxy<std::string, LhaID>> wilson_proxy, std::shared_ptr<ICoreAPI<bool>> use_marty, std::shared_ptr<ICoreAPI<Model>> model_api, std::shared_ptr<IParamSetter<ScaleType>> scale_setter_api) :
+        iblock_c(iblock_c), wilson_proxy(wilson_proxy), use_marty(use_marty), model_api(model_api), scale_setter_api(scale_setter_api) {}
+
+    std::shared_ptr<IBlockComposer> iblock_c;
+    std::shared_ptr<IParameterProxy<std::string, LhaID>> wilson_proxy;
+    // std::shared_ptr<IParameterProxy<std::string, LhaID>> sm_proxy;
+    std::shared_ptr<ICoreAPI<bool>> use_marty;
+    std::shared_ptr<ICoreAPI<Model>> model_api;
+    std::shared_ptr<IParamSetter<ScaleType>> scale_setter_api;
+};
 
 class CoefficientManager {
 private:
     std::map<std::string, std::shared_ptr<CoefficientGroup>> coefficientGroups;
-    ParameterProxy wilson_p {ParameterType::WILSON};
+    // ParameterProxy wilson_p {ParameterType::WILSON};
+    PortsConfig ports_config;
+    // std::unique_ptr<IWilsonParameterHelper> wilson_param_helper;
 
     void throw_no_group_error(const std::string& groupName) const;
 
 public:
-    CoefficientManager() = default;
+    CoefficientManager(PortsConfig ports_config) : ports_config(ports_config) {}
     CoefficientManager(const CoefficientManager&) = delete;
     CoefficientManager operator=(const CoefficientManager&) = delete;
 
     void initialize(const std::string& lhaFile, Model model = Model::SM, 
                     bool use_marty = false, bool is_spectrum = false, bool has_wilsons = false, bool has_obs = false);
 
-    static std::shared_ptr<CoefficientManager> Builder(std::string model, std::map<std::string, std::shared_ptr<CoefficientGroup>> groups, double mu_W, double mu_h, std::string order);
+    static std::shared_ptr<CoefficientManager> Builder(std::string model, std::map<std::string, std::shared_ptr<CoefficientGroup>> groups, double mu_W, double mu_h, std::string order, PortsConfig portconfig, std::map<Model, std::shared_ptr<IWilsonParameterHelper>> wilson_param_helpers = {});
 
     void set_matching_scale(double mu_W);
     void set_hadronic_scale(double mu_h);

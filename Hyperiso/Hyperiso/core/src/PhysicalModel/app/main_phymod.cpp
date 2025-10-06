@@ -3,6 +3,7 @@
 #include "MemoryManager.h"
 #include "Parameters.h"
 #include "WilsonInterface.h"
+#include "BlockProxy.h"
 
 int main() {
     auto hyp = HyperisoMaster();

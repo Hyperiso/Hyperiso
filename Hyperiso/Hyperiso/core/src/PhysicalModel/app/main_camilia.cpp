@@ -3,12 +3,13 @@
 #include "MemoryManager.h"
 #include "Parameters.h"
 #include "WilsonInterface.h"
+#include "BlockProxy.h"
 
 int main() {
     auto hyp = HyperisoMaster();
     Config config_hyp;
-    config_hyp.flags[ExternalFlag::USE_MARTY] = false;
-    config_hyp.model = Model::SM;
+    config_hyp.flags[ExternalFlag::USE_MARTY] = true;
+    config_hyp.model = Model::CUSTOM;
     config_hyp.mty_model_name = "ZPrime";
     config_hyp.mty_model_path = "/home/theo/hyperiso/Assets/input_files/marty_model/ZPrime.h";
 
@@ -32,8 +33,8 @@ int main() {
 
     Config config_v2;
 
-    LOG_INFO("changing config");
-    hyp.switch_lha("default/lha/testInput.flha", config_v2);
+    // LOG_INFO("changing config");
+    // hyp.switch_lha("default/lha/testInput.flha", config_v2);
 
     return 0;
 }

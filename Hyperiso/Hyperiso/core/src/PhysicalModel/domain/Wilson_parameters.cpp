@@ -1,20 +1,20 @@
 #include "Wilson_parameters.h"
 
 void WilsonParameterHelper::init(int gen) {
-	if (WilsonParameterHelper::initialized) {
+	if (initialized) {
+		std::cout << "wilson_param_helper already done " << std::endl;
 		return;
 	}
-
+	std::cout << "Initializing WilsonParameterHelper" << std::endl;
 	LOG_DEBUG("Initializing WilsonParameterHelper");
-	WilsonParameterHelper::init_scale_independent_block(gen);
-	WilsonParameterHelper::init_matching_block();
-	WilsonParameterHelper::init_running_block();
-	WilsonParameterHelper::initialized = true;
+	init_scale_independent_block(gen);
+	init_matching_block();
+	init_running_block();
+	initialized = true;
 }
 
 void WilsonParameterHelper::init_scale_independent_block(int gen) {
 	LOG_DEBUG("Init scale-independent wparam block");
-	ParameterProxy(ParameterType::SM);
 	std::unordered_map<ParameterType, std::vector<std::string>> src = {{ParameterType::SM, {"SMINPUTS", "MASS"}}};
 
     auto func = [gen] (const std::unordered_map<std::string, std::shared_ptr<Block>>& src, std::shared_ptr<DependentBlock> dep_block) {
@@ -28,7 +28,7 @@ void WilsonParameterHelper::init_scale_independent_block(int gen) {
 		dep_block->store_or_assign(id++, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_SM", id}, src.at("SMINPUTS")->retrieve({7, 1})->get_val(), 0., 0.));
 		dep_block->store_or_assign(id++, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_SM", id}, 11.-2./3.*nf, 0., 0.)); //TODO, beta0
     };
-    WilsonParameterHelper::composer.compose_block("WPARAM_SI_SM", src, func);
+    iblock_c->compose_block("WPARAM_SI_SM", src, func);
 }
 
 void WilsonParameterHelper::init_matching_block() {
@@ -42,7 +42,7 @@ void WilsonParameterHelper::init_matching_block() {
 		double mass_b_muW_mbrun = QCDHelper::msbar_mass(5, mu_W, MassType::MSBAR);
 		double mass_b_muW_mbpole = QCDHelper::msbar_mass(5, mu_W, MassType::POLE);
 		double mass_c_muW = QCDHelper::msbar_mass(4, mu_W, MassType::POLE);
-
+		printf("mass_b_muW : %.14lf\n",mass_b_muW_mbrun);
 		double m_W = src.at("MASS")->retrieve(24)->get_val();
 		double xt = pow(mass_top_muW / m_W, 2);
 		double L = log(std::pow(mu_W / m_W, 2));
@@ -67,7 +67,7 @@ void WilsonParameterHelper::init_matching_block() {
 
 	
 
-    WilsonParameterHelper::composer.compose_block("WPARAM_MATCH_SM", src, func);
+    iblock_c->compose_block("WPARAM_MATCH_SM", src, func);
 
 
 }
@@ -112,9 +112,9 @@ void WilsonParameterHelper::init_running_block() {
 		dep_block->store_or_assign(4, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_RUN_SM", 4}, eta_3, 0., 0.));
     };
 
-    WilsonParameterHelper::composer.compose_block("WPARAM_RUN_SM", src, func);
+    iblock_c->compose_block("WPARAM_RUN_SM", src, func);
 }
 
 void WilsonParameterHelper::cleanup() {
-	WilsonParameterHelper::initialized = false;
+	initialized = false;
 }
