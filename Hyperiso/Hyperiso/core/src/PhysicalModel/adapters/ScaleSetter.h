@@ -4,14 +4,14 @@
 #include "IParamSetter.h"
 #include "Include.h"
 
-class ScaleSetter : public IParamSetter {
+class ScaleSetter : public IParamSetter<ScaleType> {
 public:
-    ScaleSetter(ScaleType scale_type) : scale_type(scale_type) {}
+    ScaleSetter(ScaleType scale_type) {this->param = scale_type;}
+
+    void switch_param(ScaleType scale_type) override {this->param = scale_type;}
 
     void set(double value) override;
 
-private:
-    ScaleType scale_type;
 };
 
 #endif // __SCALESETTER_H__

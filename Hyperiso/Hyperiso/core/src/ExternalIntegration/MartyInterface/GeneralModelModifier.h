@@ -20,4 +20,4 @@ private:
     std::string marty_path{};
 };
 
-#endif // GENERAL_MODEL_MODIFIER_H
+#endif

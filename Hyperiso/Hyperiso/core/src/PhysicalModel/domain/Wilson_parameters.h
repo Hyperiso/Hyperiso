@@ -1,26 +1,25 @@
 #pragma once
 #include <array>
-#include "WilsonParamComposer.h"
+#include "IBlockComposer.h"
 #include "BWilsonRunningParameters.h"
 #include "ParameterProxy.h"
 #include "Include.h"
+#include "IWilsonParameters.h"
 
-class WilsonParameterHelper {
+class WilsonParameterHelper : public IWilsonParameterHelper {
 public:
-    static void init(int gen);
-    static void set_gen(int gen);
-    static void cleanup();
-
+    WilsonParameterHelper(std::shared_ptr<IBlockComposer> ibc) : IWilsonParameterHelper(ibc) {}
+    void init(int gen) override;
+    void cleanup() override;
+    
 private:
-    static void init_scale_independent_block(int gen);
-    static void init_matching_block();
-    static void init_running_block();
+    void init_scale_independent_block(int gen) override;
+    void init_matching_block() override;
+    void init_running_block() override;
 
-    static bool is_init() { return WilsonParameterHelper::initialized; }
 
-    static inline WilsonParamComposer composer = WilsonParamComposer();
-    static inline double current_mu_W{-1};
-    static inline double current_mu_h{-1};
-    static inline bool initialized {false};
+    // std::shared_ptr<IBlockComposer> iblock_c;
+
+    // bool initialized {false};
 };
 

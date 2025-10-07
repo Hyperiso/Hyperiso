@@ -18,7 +18,7 @@ public:
         }
     }
 
-    void writeParam(std::ofstream& paramFile) {
-        paramwriter.writeParams(paramFile);
+    void writeParam(std::ofstream& paramFile, const std::unordered_map<std::string, double>& params) {
+        paramwriter.writeParams(paramFile, params);
     }
 };

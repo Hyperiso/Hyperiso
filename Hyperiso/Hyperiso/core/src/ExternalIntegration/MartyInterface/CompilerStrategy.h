@@ -25,4 +25,4 @@ protected:
     std::string model{};
 };
 
-#endif // COMPILER_STRATEGY_H
+#endif

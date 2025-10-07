@@ -6,9 +6,9 @@
 class CustomCoefficientGroup : public CoefficientGroup {
 public:
 
-    explicit CustomCoefficientGroup(const std::string& name,
+    explicit CustomCoefficientGroup(WilsonGroupAdapterConfig adapters, const std::string& name,
                                     ContributionType type = ContributionType::SM)
-    {
+    : CoefficientGroup(adapters) {
         this->id = WGroup::CUSTOM_GROUP;
         this->name_grp = name;
         this->wilson_type = type;

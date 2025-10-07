@@ -33,7 +33,7 @@ Parameters::Parameters(std::shared_ptr<ModelStrategy> modelStrategy)
 scalar_t Parameters::operator()(const BlockName& block, LhaID id) const {
     // if (block == "WPARAM_MATCH_SM" ){
 
-    //     std::cout << blockAccessor << std::endl;
+    //     std::cout << blockAccessor << std::endl; 
     // }
     return blockAccessor->getValue(block, id);
 }

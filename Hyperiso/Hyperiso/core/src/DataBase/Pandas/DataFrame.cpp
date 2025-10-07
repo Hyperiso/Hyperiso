@@ -51,7 +51,6 @@ size_t DataFrame::getRowCount() const {
 DataFrame DataFrame::head(size_t n) const {
     DataFrame df;
     n = std::min(n, nRows);
-    df.index = std::vector<std::string>(index.begin(), index.begin() + n);  // Copie l'index
 
     for (const auto& colName : columns) {
         const std::type_index& colType = csvOptions.columnTypes.at(colName);
@@ -73,41 +72,46 @@ DataFrame DataFrame::head(size_t n) const {
             }
         }
     }
+
     df._set_csv_options(this->csvOptions);
-    std::vector<std::string> ind(&this->index[0], &this->index[n]);
-    df.setIndex(ind);
+
+    if (!index.empty()) {
+        std::vector<std::string> ind(index.begin(), index.begin() + n);
+        df.setIndex(ind);
+    }
+
     return df;
 }
 
 DataFrame DataFrame::tail(size_t n) const {
     DataFrame df;
     n = std::min(n, nRows);
-    df.index = std::vector<std::string>(index.end() - n, index.end());  // Copie l'index
 
     for (const auto& colName : columns) {
         const std::type_index& colType = csvOptions.columnTypes.at(colName);
 
         if (colType == typeid(int)) {
             df.addColumn<int>(colName);
-            for (size_t i = nRows - n; i < nRows; ++i) {
+            for (size_t i = nRows - n; i < nRows; ++i)
                 df.addValueToColumn<int>(colName, iat<int>(i, colName));
-            }
         } else if (colType == typeid(double)) {
             df.addColumn<double>(colName);
-            for (size_t i = nRows - n; i < nRows; ++i) {
+            for (size_t i = nRows - n; i < nRows; ++i)
                 df.addValueToColumn<double>(colName, iat<double>(i, colName));
-            }
         } else if (colType == typeid(std::string)) {
             df.addColumn<std::string>(colName);
-            for (size_t i = nRows - n; i < nRows; ++i) {
+            for (size_t i = nRows - n; i < nRows; ++i)
                 df.addValueToColumn<std::string>(colName, iat<std::string>(i, colName));
-            }
         }
     }
 
     df._set_csv_options(this->csvOptions);
-    std::vector<std::string> ind(&this->index[0], &this->index[n]);
-    df.setIndex(ind);
+
+    if (!index.empty()) {
+        std::vector<std::string> ind(index.end() - n, index.end());
+        df.setIndex(ind);
+    }
+
     return df;
 }
 
@@ -128,57 +132,53 @@ void DataFrame::describe() const {
 
 void DataFrame::to_csv(const std::string& filename) {
     std::ofstream file(filename);
-    if (!file.is_open()) {
-        throw std::runtime_error("Could not open file");
-    }
+    if (!file.is_open()) throw std::runtime_error("Could not open file");
 
-    const auto& columns = this->getColumnNames();
-    size_t nRows = this->getRowCount();
+    const auto& cols = this->getColumnNames();
+    size_t n = this->getRowCount();
 
     if (this->csvOptions.hasIndex) {
         file << "Index";
-        for (const auto& colName : columns) {
-            file << "," << colName;
-        }
+        for (const auto& c : cols) file << "," << c;
         file << "\n";
     } else {
-        for (const auto& colName : columns) {
-            file << colName;
-            if (&colName != &columns.back()) {
-                file << ",";
-            }
+        for (size_t j = 0; j < cols.size(); ++j) {
+            file << cols[j];
+            if (j + 1 < cols.size()) file << ",";
         }
         file << "\n";
     }
 
-    for (size_t i = 0; i < nRows; ++i) {
-        if (this->csvOptions.hasIndex) {
-            file << i;
-        }
-        
-        for (size_t j = 0; j < columns.size(); ++j) {
-            const std::string& colName = columns[j];
+    for (size_t i = 0; i < n; ++i) {
+        if (this->csvOptions.hasIndex) file << i << ",";
 
-            if (this->csvOptions.columnTypes.at(colName) == typeid(int)) {
-                file << this->iat<int>(i, colName);
-            } else if (this->csvOptions.columnTypes.at(colName) == typeid(double)) {
-                file << this->iat<double>(i, colName);
-            } else if (this->csvOptions.columnTypes.at(colName) == typeid(std::string)) {
-                file << this->iat<std::string>(i, colName);
+        for (size_t j = 0; j < cols.size(); ++j) {
+            const auto& c = cols[j];
+
+            auto it = this->csvOptions.columnTypes.find(c);
+            if (it == this->csvOptions.columnTypes.end()) {
+                throw std::runtime_error("Missing type info for column: " + c);
+            }
+            const std::type_index& ty = it->second;
+
+            if (ty == typeid(int)) {
+                file << this->iat<int>(i, c);
+            } else if (ty == typeid(double)) {
+                file << this->iat<double>(i, c);
+            } else if (ty == typeid(std::string)) {
+                file << this->iat<std::string>(i, c);
             } else {
-                throw std::runtime_error("Unsupported column type for column: " + colName);
+                throw std::runtime_error("Unsupported column type for column: " + c);
             }
 
-            if (j != columns.size() - 1 || this->csvOptions.hasIndex) {
-                file << ",";
-            }
+            if (j + 1 < cols.size()) file << ",";
         }
         file << "\n";
     }
 
-    file.close();
     std::cout << "DataFrame successfully written to " << filename << std::endl;
 }
+
 
 const std::vector<std::string>& DataFrame::getIndex() const {
     
@@ -193,4 +193,21 @@ void DataFrame::setIndex(const std::vector<std::string>& newIndex) {
         throw std::invalid_argument("Index size does not match number of rows");
     }
     index = newIndex;
+
+    for (const auto& colName : columns) {
+        auto it = csvOptions.columnTypes.find(colName);
+        if (it == csvOptions.columnTypes.end()) continue;
+        const std::type_index& t = it->second;
+
+        if (t == typeid(int)) {
+            auto s = std::static_pointer_cast<Series<int>>(columns_map.at(colName));
+            *s->getIndex() = index;
+        } else if (t == typeid(double)) {
+            auto s = std::static_pointer_cast<Series<double>>(columns_map.at(colName));
+            *s->getIndex() = index;
+        } else if (t == typeid(std::string)) {
+            auto s = std::static_pointer_cast<Series<std::string>>(columns_map.at(colName));
+            *s->getIndex() = index;
+        }
+    }
 }

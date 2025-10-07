@@ -2,7 +2,7 @@
 
 using MMRP = MesonMixingRunningParameters;
 
-MesonMixingCoefficientGroup::MesonMixingCoefficientGroup(bool force_sm) {
+MesonMixingCoefficientGroup::MesonMixingCoefficientGroup(WilsonGroupAdapterConfig adapters, bool force_sm) : CoefficientGroup(adapters) {
     this->id = WGroup::MESON_MIXING;
     init_sources();
     add_wilson_coefficients(force_sm);
@@ -27,7 +27,7 @@ void MesonMixingCoefficientGroup::init_sources() {
 }
 
 void MesonMixingCoefficientGroup::init_running_parameter_blocks() {
-    WilsonParamComposer composer;
+    // WilsonParamComposer composer;
 
     LOG_DEBUG("Init running matrices blocks of Meson Mixing Coefficient group");
 	std::unordered_map<ParameterType, std::vector<std::string>> eta_powers_src = {{ParameterType::WILSON, {"WPARAM_RUN_SM"}}};
@@ -172,9 +172,9 @@ void MesonMixingCoefficientGroup::init_running_parameter_blocks() {
         }
     };
 
-    composer.compose_block("ETA_POWS_MIXING", eta_powers_src, eta_powers_func);
-    composer.compose_block("UM_MATRIX_5", mtx_src, U_5_func);
-    composer.compose_block("UM_MATRIX_4", mtx_src, U_4_func);
+    adapters.iblock_c->compose_block("ETA_POWS_MIXING", eta_powers_src, eta_powers_func);
+    adapters.iblock_c->compose_block("UM_MATRIX_5", mtx_src, U_5_func);
+    adapters.iblock_c->compose_block("UM_MATRIX_4", mtx_src, U_4_func);
 }
 
 std::unordered_map<WCoef, scalar_t> 
@@ -224,11 +224,13 @@ MesonMixingCoefficientGroup::base_1_LO_calculation (
 }
 
 void MesonMixingCoefficientGroup::add_wilson_coefficients(bool force_sm) {
-    if (UseMarty().get()) {
+    if (adapters.use_marty->get()) {
         this->wilson_type = force_sm ? ContributionType::SM : ContributionType::TOTAL;
         for (auto&& coeff : {"C_BD_1", "CT_BD_1", "C_BD_2", "CT_BD_2", "C_BD_3", "CT_BD_3", "C_BD_4", "C_BD_5", "C_BS_1", "CT_BS_1", "C_BS_2", "CT_BS_2", "C_BS_3", "CT_BS_3", "C_BS_4", "C_BS_5", "C_SD_1", "CT_SD_1", "C_SD_2", "CT_SD_2", "C_SD_3", "CT_SD_3", "C_SD_4", "C_SD_5", "C_CU_1", "CT_CU_1", "C_CU_2", "CT_CU_2", "C_CU_3", "CT_CU_3", "C_CU_4", "C_CU_5"}) {
-            std::string _name = force_sm ? "SM" : MartyModelNameAPI().get();
-            fs::path _path = force_sm ? fs::path(std::string(project_assets_root.data())+"input_files/marty_model/sm.h") : MartyModelPathAPI().get();
+            std::string _name = force_sm ? "SM" : adapters.marty_model_name->get();
+            // std::string _name = force_sm ? "SM" : MartyModelNameAPI().get();
+            fs::path _path = force_sm ? adapters.sm_path : adapters.marty_model_path->get();
+            // fs::path _path = force_sm ? fs::path(std::string(project_assets_root.data())+"input_files/marty_model/sm.h") : MartyModelPathAPI().get();
             std::string _block = GroupMapper::str(this->id, ScaleType::MATCHING);
             LhaID _id = WCoefMapper::flha_full(WCoefMapper::enum_elt(coeff), QCDOrder::LO, this->get_type());
             this->insert(std::make_pair(coeff, std::make_shared<MartyWilson>(_id, _block, _name, _path)));

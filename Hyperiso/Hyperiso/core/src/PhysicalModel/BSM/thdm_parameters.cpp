@@ -1,16 +1,18 @@
 #include "thdm_parameters.h"
 
 
-void thdm_parameters::init() {
-    if (thdm_parameters::initialized) {
+void thdm_parameters::init(int gen) {
+    if (initialized) {
 		return;
 	}
 
-    init_scale_independant_block();
+    init_scale_independent_block(gen);
     init_matching_block();
+
+    initialized = true;
 }
 
-void thdm_parameters::init_scale_independant_block() {
+void thdm_parameters::init_scale_independent_block(int gen) {
 	std::unordered_map<ParameterType, std::vector<std::string>> src = {{ParameterType::SM, {"MASS"}}, {ParameterType::BSM, {"MASS", "ALPHA", "MINPAR", "YU", "YD", "YE"}},
                                                                         {ParameterType::WILSON, {"WPARAM_SI_SM"}}};
 
@@ -27,7 +29,6 @@ void thdm_parameters::init_scale_independant_block() {
         double xH=pow(m_H/mW,2.);
         double xH0=pow(src.at("MASS")->retrieve(35)->get_val() / mW, 2.);
         double xA=pow(src.at("MASS")->retrieve(36)->get_val() / mW, 2.);
-
         int id {1};
         dep_block->store_or_assign(id++, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", id}, xh, 0., 0.));
 		dep_block->store_or_assign(id++, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", id}, xH, 0., 0.));
@@ -41,7 +42,7 @@ void thdm_parameters::init_scale_independant_block() {
         dep_block->store_or_assign(id++, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", id}, le, 0., 0.)); 
     };
 
-    thdm_parameters::composer.compose_block("WPARAM_SI_BSM", src, func);
+    iblock_c->compose_block("WPARAM_SI_BSM", src, func);
  }
 
 void thdm_parameters::init_matching_block() {
@@ -56,6 +57,6 @@ void thdm_parameters::init_matching_block() {
 		dep_block->store_or_assign(1, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_MATCH_BSM", 1}, yt, 0., 0.));
     };
 
-    thdm_parameters::composer.compose_block("WPARAM_MATCH_BSM", src, func);
+    iblock_c->compose_block("WPARAM_MATCH_BSM", src, func);
 
 }

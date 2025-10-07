@@ -9,7 +9,6 @@
 #include "Configs.h"
 #include <unordered_set>
 
-
 void writeCoefficientsToFile(const std::string& strat_name, const std::string& fileName, double Q_match, const std::string& model) {
     std::ofstream file(fileName);
     std::string root_data_file = project_assets_root.data();
@@ -192,6 +191,8 @@ void writeRunCoefficientsToFile(const std::string& strat_name, const std::string
     file << "\n"; 
 
     file.close();
+
+    
 }
 
 void runTest(const std::string& strategyName, const std::string& testFile, const std::string& referenceFile,const std::string& model, double tolerance, bool primeCQ, int run) {

@@ -5,7 +5,10 @@
 #include <algorithm>
 
 template <typename T>
-Series<T>::Series(const std::string& colName) : name(colName) {}
+Series<T>::Series(const std::string& colName)
+    : name(colName),
+      index(std::make_shared<std::vector<std::string>>())
+{}
 
 template <typename T>
 void Series<T>::add(const T& value) {

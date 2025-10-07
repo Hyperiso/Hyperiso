@@ -29,7 +29,7 @@ void CoefficientManager::initialize(const std::string &lhaFile,
 }
 
 std::string CoefficientManager::getModel() {
-    return ModelMapper::str(ModelAPI().get());
+    return ModelMapper::str(ports_config.model_api->get());
 }
 
 void CoefficientManager::init_group_matching(const std::string& groupName, const std::string& order) {
@@ -55,7 +55,7 @@ void CoefficientManager::init_group_matching(const std::string& groupName, const
 
 void CoefficientManager::fill_matching_groups(const std::string& groupName, const std::string& order) {
     std::string storage_block = this->coefficientGroups.at(groupName)->get_matching_storage_block();
-    WilsonParamComposer composer;
+    // WilsonParamComposer composer;
     std::vector<QCDOrder> orders = order == "LO" ? std::vector({QCDOrder::NLO, QCDOrder::NNLO}) : std::vector({QCDOrder::NNLO});
     for (auto o : orders) {
         for (auto& coeff : *this->coefficientGroups.at(groupName)) {
@@ -74,7 +74,7 @@ void CoefficientManager::fill_matching_groups(const std::string& groupName, cons
                 WCoefMapper::flha_full(WCoefMapper::enum_elt(coeff.second->get_base_name()), o, ContributionType::TOTAL)
             };
 
-            composer.compose_parameter(
+            ports_config.iblock_c->compose_parameter(
                 pid_SM, 
                 std::unordered_set<ParamId> {}, 
                 [] (const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src, std::shared_ptr<DependentParameter> dep_param) {
@@ -82,7 +82,7 @@ void CoefficientManager::fill_matching_groups(const std::string& groupName, cons
                 }
             );
 
-            composer.compose_parameter(
+            ports_config.iblock_c->compose_parameter(
                 pid_BSM, 
                 std::unordered_set<ParamId> {}, 
                 [] (const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src, std::shared_ptr<DependentParameter> dep_param) {
@@ -90,7 +90,7 @@ void CoefficientManager::fill_matching_groups(const std::string& groupName, cons
                 }
             );
 
-            composer.compose_parameter(
+            ports_config.iblock_c->compose_parameter(
                 pid_TOT, 
                 std::unordered_set<ParamId> {}, 
                 [] (const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src, std::shared_ptr<DependentParameter> dep_param) {
@@ -106,8 +106,8 @@ void CoefficientManager::init_specific_order_group_matching(const std::string& g
         throw_no_group_error(groupName);
     }
 
-    bool marty = UseMarty().get();
-    bool SM = ModelAPI().get() == Model::SM;
+    bool marty = ports_config.use_marty->get();
+    bool SM = ports_config.model_api->get() == Model::SM;
     
     if (!only_total) {
         this->coefficientGroups.at(groupName)->init(OrderMapper::enum_elt(order));
@@ -125,7 +125,7 @@ void CoefficientManager::init_specific_order_group_matching(const std::string& g
 
     QCDOrder enum_order = OrderMapper::enum_elt(order);
     std::string storage_block = this->coefficientGroups.at(groupName)->get_matching_storage_block();
-    WilsonParamComposer composer;
+    // WilsonParamComposer composer;
 
     for (auto& coeff : *this->coefficientGroups.at(groupName)) {
         if (SM) {
@@ -147,7 +147,7 @@ void CoefficientManager::init_specific_order_group_matching(const std::string& g
                 WCoefMapper::flha_full(WCoefMapper::enum_elt(coeff.second->get_base_name()), enum_order, ContributionType::BSM)
             };
 
-            composer.compose_parameter(
+            ports_config.iblock_c->compose_parameter(
                 pid_dest, 
                 std::unordered_set<ParamId> {pid_src}, 
                 [pid_src] (const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src, std::shared_ptr<DependentParameter> dep_param) {
@@ -155,7 +155,7 @@ void CoefficientManager::init_specific_order_group_matching(const std::string& g
                 }
             );
 
-            composer.compose_parameter(
+            ports_config.iblock_c->compose_parameter(
                 pid_BSM, 
                 std::unordered_set<ParamId> {}, 
                 [] (const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src, std::shared_ptr<DependentParameter> dep_param) {
@@ -182,7 +182,7 @@ void CoefficientManager::init_specific_order_group_matching(const std::string& g
             };
 
             std::unordered_set<ParamId> sources {pid_sm, pid_src};
-            composer.compose_parameter(
+            ports_config.iblock_c->compose_parameter(
                 pid_dest, 
                 sources, 
                 [pid_sm, pid_src, marty] (const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src, std::shared_ptr<DependentParameter> dep_param) {
@@ -306,7 +306,7 @@ void CoefficientManager::init_group_hadronic(const std::string& groupName, const
         }
     };
 
-    WilsonParamComposer().compose_block(GroupMapper::str(GroupMapper::enum_elt(groupName), ScaleType::HADRONIC, basis), src, func);
+    ports_config.iblock_c->compose_block(GroupMapper::str(GroupMapper::enum_elt(groupName), ScaleType::HADRONIC, basis), src, func);
 }
 
 void CoefficientManager::init_group_hadronic_all_bases(const std::string &groupName, const std::string &order) {
@@ -330,7 +330,7 @@ complex_t CoefficientManager::getMatchingCoefficient(const std::string& groupNam
 }
 
 complex_t CoefficientManager::getFullMatchingCoefficient(const std::string& groupName, const std::string& coeffName, const std::string& order, ContributionType cont_type) {
-    double fact = wilson_p("WPARAM_MATCH_SM", 1) / (4 * PI);
+    double fact = (*ports_config.wilson_proxy)("WPARAM_MATCH_SM", 1) / (4 * PI);
     int max_order = static_cast<int>(OrderMapper::enum_elt(order));
     complex_t c {0};
     for (size_t o = 1; o <= max_order; o++) {
@@ -349,7 +349,7 @@ complex_t CoefficientManager::getRunCoefficient(const std::string& groupName, co
 }
 
 complex_t CoefficientManager::getFullRunCoefficient(const std::string& groupName, const std::string& coeffName, const std::string& order, ContributionType cont_type, WilsonBasis basis) {
-    double fact = wilson_p("WPARAM_RUN_SM", 1) / (4 * PI);
+    double fact = (*ports_config.wilson_proxy)("WPARAM_RUN_SM", 1) / (4 * PI);
     int max_order = static_cast<int>(OrderMapper::enum_elt(order));
     complex_t c {0};
     for (size_t o = 1; o <= max_order; o++) {
@@ -384,8 +384,9 @@ void CoefficientManager::printGroupCoefficients(const std::string& groupName) co
 
 CoefficientManager::~CoefficientManager() {
     LOG_INFO("Call to CoefficientManager destructor");
-    WilsonParamComposer().remove_all_composed_blocks();
-    WilsonParameterHelper::cleanup();
+    ports_config.iblock_c->remove_all_composed_blocks();
+    // wilson_param_helper->cleanup(); //TODO : with maps
+
 }
 
 void CoefficientManager::update(std::string group, double mu_W, double mu_h) {
@@ -393,15 +394,21 @@ void CoefficientManager::update(std::string group, double mu_W, double mu_h) {
     this->set_hadronic_scale(mu_h);
 }
 
-std::shared_ptr<CoefficientManager> CoefficientManager::Builder(std::string model, std::map<std::string, std::shared_ptr<CoefficientGroup>> groups, double mu_W, double mu_h, std::string order) {
-    WilsonParameterHelper().init(2);
+std::shared_ptr<CoefficientManager> CoefficientManager::Builder(std::string model, std::map<std::string, std::shared_ptr<CoefficientGroup>> groups, double mu_W, double mu_h, std::string order, PortsConfig portconfig, std::map<Model, std::shared_ptr<IWilsonParameterHelper>> wilson_param_helpers) {
     
+    for (auto& helper : wilson_param_helpers) {
+        if (!helper.second->is_init()) {
+            helper.second->init(2);
+        }
+    }
+    //TODO : add version where helper is not containing the right things
+
     if (groups.empty()) {
         LOG_WARN("(CoefficientManager) No coefficient groups provided.");
-        return std::make_shared<CoefficientManager>();
+        return std::make_shared<CoefficientManager>(portconfig);
     }
 
-    auto manager = std::make_shared<CoefficientManager>();
+    auto manager = std::make_shared<CoefficientManager>(portconfig);
     for (auto& group : groups) {
         LOG_INFO("(CoefficientManager) Registering coefficient group", group.first);
         manager->registerCoefficientGroup(group.first, group.second);
@@ -421,9 +428,11 @@ std::shared_ptr<CoefficientManager> CoefficientManager::Builder(std::string mode
 }
 
 void CoefficientManager::set_hadronic_scale(double mu_h) {
-    ScaleSetter(ScaleType::HADRONIC).set(mu_h);
+    ports_config.scale_setter_api->switch_param(ScaleType::HADRONIC);
+    ports_config.scale_setter_api->set(mu_h);
 }
 
 void CoefficientManager::set_matching_scale(double mu_W) {
-    ScaleSetter(ScaleType::MATCHING).set(mu_W);
+    ports_config.scale_setter_api->switch_param(ScaleType::MATCHING);
+    ports_config.scale_setter_api->set(mu_W);
 }

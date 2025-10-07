@@ -15,44 +15,51 @@ std::string joinLines(const std::vector<std::string>& lines) {
     return ss.str();
 }
 
-void NumericTemplateManager::generateTemplateImpl(const std::string& templateName, const std::string& outputPath) {
-    std::string csv_helper= "csv_helper";
-    std::string csv_helper_path = FileNameManager::getInstance(this->wilson, this->model)->getBaseHelperFileName("cpp");
-    std::string csv_new_helper_path = FileNameManager::getInstance(this->wilson, this->model)->getHelperFileName("cpp");
-    if (!this->already_generated(csv_new_helper_path)) {
-        std::string csv_header_helper_path = FileNameManager::getInstance(this->wilson, this->model)->getBaseHelperFileName("h");
-        std::string csv_header_new_helper_path = FileNameManager::getInstance(this->wilson, this->model)->getHelperFileName("h");
-        std::string command = "cp " + csv_helper_path + " " + csv_new_helper_path;
-        std::string command_h = "cp " + csv_header_helper_path + " " + csv_header_new_helper_path;
-        system(command.c_str());
-        system(command_h.c_str());
+void NumericTemplateManager::generateTemplateImpl(const std::string& templateName,
+                                                  const std::string& outputPath) {
+    namespace fs = std::filesystem;
+
+    auto mgr = FileNameManager::getInstance(this->wilson, this->model);
+
+    const fs::path helper_cpp_src = mgr->getBaseHelperFileName("cpp");
+    const fs::path helper_h_src   = mgr->getBaseHelperFileName("h");
+    const fs::path helper_cpp_dst = mgr->getHelperFileName("cpp");
+    const fs::path helper_h_dst   = mgr->getHelperFileName("h");
+
+    fs::create_directories(helper_cpp_dst.parent_path());
+    fs::create_directories(helper_h_dst.parent_path());
+
+    if (!this->already_generated(helper_cpp_dst.string())) {
+        fs::copy_file(helper_cpp_src, helper_cpp_dst, fs::copy_options::overwrite_existing);
+        fs::copy_file(helper_h_src,   helper_h_dst,   fs::copy_options::overwrite_existing);
     }
-    std::string templatePath = FileNameManager::getInstance(this->wilson, this->model)->getNumGeneratedFileName();
+
+    const fs::path templatePath = mgr->getNumGeneratedFileName();
     std::ifstream templateFile(templatePath);
 
-    std::string paramPath = FileNameManager::getInstance(wilson, model)->getParamFileName();
+    const fs::path paramPath = mgr->getParamFileName();
+    fs::create_directories(paramPath.parent_path());
     std::ofstream paramFile(paramPath);
-    numModifier->createparamfile(paramFile);
+    std::unordered_map<std::string, double> params = numModifier->get_params();
+    numModifier->createparamfile(paramFile, params);
+
+    const fs::path outPathFs = outputPath;
+    fs::create_directories(outPathFs.parent_path());
 
     if (this->already_generated(outputPath)) {
         return;
     }
-    
-    std::string tempFilePath = outputPath + ".tmp";
-    std::ofstream outputFile(tempFilePath);
-    if (!outputFile) {
-        return;
-    }
 
+    const fs::path tmpPath = outPathFs.string() + ".tmp";
+    std::ofstream outputFile(tmpPath);
+    if (!outputFile) return;
 
-    outputFile << "//42" << "\n";
+    outputFile << "//42\n";
     numModifier->modify(templateFile, outputFile);
-
     templateFile.close();
     outputFile.close();
 
-    std::string command = "cp " + tempFilePath + " " + outputPath;
-    system(command.c_str());
+    fs::copy_file(tmpPath, outPathFs, fs::copy_options::overwrite_existing);
 }
 
 void NonNumericTemplateManager::generateTemplateImpl(const std::string& templateName, const std::string& outputPath) {

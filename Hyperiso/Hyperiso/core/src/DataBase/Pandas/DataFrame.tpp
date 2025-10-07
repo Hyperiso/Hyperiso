@@ -33,12 +33,15 @@ T DataFrame::iat(size_t row, const std::string& colName) const {
 
 template <typename T>
 T DataFrame::at(const std::string& idxValue, const std::string& colName) const {
-    if (columns_map.find(colName) == columns_map.end()) {
-        throw std::invalid_argument("Column " + colName + " not found");
+    if (index.empty()) {
+        throw std::invalid_argument("Index not set");
     }
-    auto col = std::static_pointer_cast<Series<T>>(columns_map.at(colName));
-    
-    return col->at(idxValue);
+    auto it = std::find(index.begin(), index.end(), idxValue);
+    if (it == index.end()) {
+        throw std::invalid_argument("Index not found");
+    }
+    size_t pos = static_cast<size_t>(std::distance(index.begin(), it));
+    return iat<T>(pos, colName);
 }
 
 template <typename T>

@@ -25,20 +25,19 @@ void MemoryManager::save_input_cache() {
     memento.takeSnapshot(input_cache);
 }
 
-void MemoryManager::read_default_input(std::shared_ptr<IDataLoader<BlockAccessor>> loader, std::shared_ptr<IDataLoader<CorrelationMatrixPair<ParamId>>> param_corr, std::shared_ptr<IDataLoader<CorrelationMatrixPair<ObservableId>>> obs_corr) {
-    loader->load(input_cache, FilePaths::default_param_values_path); 
+void MemoryManager::read_default_input() {
+    dl_ba->load(input_cache, paths_provider->default_param_values()); 
     auto obs_blocks = std::make_shared<BlockAccessor>();
-    loader->load(obs_blocks, FilePaths::default_obs_values_path); 
-    input_cache = input_cache + obs_blocks; 
-    LOG_INFO("Default input loaded");
+    dl_ba->load(obs_blocks, paths_provider->default_obs_values()); 
+    input_cache = input_cache >> obs_blocks;
     save_input_cache();
     LOG_INFO("Default cache stored");
 
     auto default_param_corr = std::make_shared<CorrelationMatrixPair<ParamId>>();
-    param_corr->load(default_param_corr, FilePaths::default_param_corr_path.string());
+    dl_cmp_p->load(default_param_corr, paths_provider->default_param_corr().string());
     LOG_INFO("Default param correlations loaded");
     auto default_obs_corr = std::make_shared<CorrelationMatrixPair<ObservableId>>();
-    obs_corr->load(default_obs_corr, FilePaths::default_obs_corr_path.string());
+    dl_cmp_o->load(default_obs_corr, paths_provider->default_obs_corr().string());
     LOG_INFO("Default observable correlations loaded");
     correlation_repository.set_correlation_matrix(default_param_corr);
     correlation_repository.set_correlation_matrix(default_obs_corr);
@@ -46,20 +45,23 @@ void MemoryManager::read_default_input(std::shared_ptr<IDataLoader<BlockAccessor
     LOG_INFO("Default files loaded");
 }
 
-void MemoryManager::read_user_input(std::shared_ptr<IDataLoader<BlockAccessor>> loader, std::shared_ptr<IDataLoader<CorrelationMatrixPair<ParamId>>> param_corr, std::shared_ptr<IDataLoader<CorrelationMatrixPair<ObservableId>>> obs_corr) {
+void MemoryManager::read_user_input() {
     // ParamBlockLoader p_loader;
-    fs::path ui_paths[4] = {FilePaths::user_sm_params_path, FilePaths::user_flavor_params_path, FilePaths::user_decay_params_path, FilePaths::user_obs_values_path};
+    fs::path ui_paths[4] = {
+        paths_provider->user_sm_params(), paths_provider->user_flavor_params(),
+        paths_provider->user_decay_params(), paths_provider->user_obs_values()
+    };
     for (auto& path : ui_paths) {
         auto ui_ba = std::make_shared<BlockAccessor>();
-        loader->load(ui_ba, path); 
+        dl_ba->load(ui_ba, path); 
         input_cache = ui_ba >> input_cache;
     }
     save_input_cache();
 
     auto user_param_corr = std::make_shared<CorrelationMatrixPair<ParamId>>();
-    param_corr->load(user_param_corr, FilePaths::user_param_corr_path.string());
+    dl_cmp_p->load(user_param_corr, paths_provider->user_param_corr().string());
     auto user_obs_corr = std::make_shared<CorrelationMatrixPair<ObservableId>>();
-    obs_corr->load(user_obs_corr, FilePaths::user_obs_corr_path.string());
+    dl_cmp_o->load(user_obs_corr, paths_provider->user_obs_corr().string());
     correlation_repository.merge_correlation_matrix(user_param_corr);
     correlation_repository.merge_correlation_matrix(user_obs_corr);
 
@@ -70,9 +72,9 @@ void MemoryManager::read_lha_input(const std::string& lhaFile, const Config& con
     fs::path lha_path = this->format_lha_path(lhaFile);
     fs::path spectrum_path = calculate_spectrum(lha_path, config);
 
-    ParamBlockLoader p_loader;
+    // ParamBlockLoader p_loader;
     auto lha_ba = std::make_shared<BlockAccessor>();
-    p_loader.load(lha_ba, spectrum_path);
+    dl_ba->load(lha_ba, spectrum_path);
     input_cache = lha_ba >> input_cache;
     save_input_cache();
 
@@ -84,9 +86,14 @@ fs::path MemoryManager::calculate_spectrum(fs::path input_lha_path, const Config
         return input_lha_path;
     }
 
-    fs::path spectrum_path = DirPaths::spectrum_dir_path/input_lha_path.filename();
-    SpectrumCalculator sc;
-    sc.calculate_spectrum(input_lha_path, spectrum_path, config.model);
+    if (!sc) {
+        LOG_WARN("MemoryManager", "No ISpectrumCalculator provided, skipping spectrum calculation.");
+        return input_lha_path;
+    }
+
+    fs::path spectrum_path = paths_provider->spectrum_dir()/input_lha_path.filename();
+    // SpectrumCalculator sc;
+    sc->calculate_spectrum(input_lha_path, spectrum_path, config.model);
     return spectrum_path;
 }
 
@@ -97,15 +104,33 @@ MemoryManager* MemoryManager::GetInstance() {
     return MemoryManager::instance;
 }
 
-void MemoryManager::init(const std::string& lhaFile, Config config, std::shared_ptr<IDataLoader<BlockAccessor>> loader, std::shared_ptr<IDataLoader<CorrelationMatrixPair<ParamId>>> param_corr, std::shared_ptr<IDataLoader<CorrelationMatrixPair<ObservableId>>> obs_corr) {
+MemoryManager::MemoryManager(std::shared_ptr<IDataLoader<BlockAccessor>> loader, std::shared_ptr<IDataLoader<CorrelationMatrixPair<ParamId>>> param_corr, std::shared_ptr<IDataLoader<CorrelationMatrixPair<ObservableId>>> obs_corr, std::shared_ptr<ISpectrumCalculator> spectrum_c, std::shared_ptr<IPathsProvider> paths_provider) : memento(DBMemento()) {
+    this->sc = spectrum_c;
+    
+    this->dl_ba = loader;
+    this->dl_cmp_p = param_corr;
+    this->dl_cmp_o = obs_corr;
+
+    this->paths_provider = paths_provider;
+    this->cache.is_ready = false;
+}
+
+MemoryManager* MemoryManager::Create(std::shared_ptr<IDataLoader<BlockAccessor>> loader, std::shared_ptr<IDataLoader<CorrelationMatrixPair<ParamId>>> param_corr, std::shared_ptr<IDataLoader<CorrelationMatrixPair<ObservableId>>> obs_corr, std::shared_ptr<ISpectrumCalculator> spectrum_c, std::shared_ptr<IPathsProvider> paths_provider) {
+    if (!MemoryManager::instance) {
+        MemoryManager::instance = new MemoryManager(loader, param_corr, obs_corr, spectrum_c, paths_provider);
+    }
+    return MemoryManager::instance;
+}
+
+void MemoryManager::init(const std::string& lhaFile, Config config) {
     if (cache.is_ready) {
         LOG_WARN("MemoryManager has already been initialized.");
         return;
     }
 
     input_cache = std::make_shared<BlockAccessor>();
-    this->read_default_input(loader, param_corr, obs_corr);
-    this->read_user_input(loader, param_corr, obs_corr);
+    this->read_default_input();
+    this->read_user_input();
     this->read_lha_input(lhaFile, config);
 
     cache.lha_path = lhaFile;
@@ -124,35 +149,41 @@ void MemoryManager::deduce_parameter_types(const Config &config) {
                              ParameterType::OBSERVABLE,
                              ParameterType::PASSTHROUGH,
                              ParameterType::WILSON};
-    if (config.model != Model::SM)
+    if (config.model != Model::SM) {
         cache.parameter_types.push_back(ParameterType::BSM);
-    if (config.flags.at(ExternalFlag::HAS_WILSON_INPUT))
-        cache.parameter_types.push_back(ParameterType::WILSON);
+    }
 }
 
 void MemoryManager::switch_lha(const std::string& lhaFile, Config config) {
-    this->cache.is_ready = false;
+    ReadyGuard guard(cache.is_ready);
     memento.restore();
     this->read_lha_input(lhaFile, config);
-    this->cache.flags.at(InternalFlag::PARAMS_CHANGED) = true;
-    this->cache.is_ready = true;
+    cache.lha_path = lhaFile; 
+    cache.config   = std::move(config);
+    this->deduce_parameter_types(cache.config);
+    this->cache.flags[InternalFlag::PARAMS_CHANGED] = true;
 }
 
-void MemoryManager::reload_user_input(Config config, std::shared_ptr<IDataLoader<BlockAccessor>> loader, std::shared_ptr<IDataLoader<CorrelationMatrixPair<ParamId>>> param_corr, std::shared_ptr<IDataLoader<CorrelationMatrixPair<ObservableId>>> obs_corr) {
-    reload_user_input(cache.lha_path, config, loader, param_corr, obs_corr);
+void MemoryManager::reload_user_input(Config config) {
+    reload_user_input(cache.lha_path, config);
 }
 
-void MemoryManager::reload_user_input(const std::string &lhaFile, Config config, std::shared_ptr<IDataLoader<BlockAccessor>> loader, std::shared_ptr<IDataLoader<CorrelationMatrixPair<ParamId>>> param_corr, std::shared_ptr<IDataLoader<CorrelationMatrixPair<ObservableId>>> obs_corr) {
-    this->cache.is_ready = false;
+void MemoryManager::reload_user_input(const std::string &lhaFile, Config config) {
+    ReadyGuard guard(cache.is_ready);
     memento.restore(2);
-    this->read_user_input(loader, param_corr, obs_corr);
+    this->read_user_input();
     this->read_lha_input(lhaFile, config);
-    this->cache.flags.at(InternalFlag::PARAMS_CHANGED) = true;
+    
+    cache.lha_path = lhaFile;
+    cache.config   = std::move(config);
+    this->deduce_parameter_types(cache.config);
+    this->cache.flags[InternalFlag::PARAMS_CHANGED] = true;
+
 }
 
 fs::path MemoryManager::format_lha_path(const std::string &path) {
     const fs::path input_path(path);
-    const fs::path assets_dir(project_assets_root.data());
+    const fs::path assets_dir = paths_provider->assets_root();
     fs::path full_path;
     if (input_path.is_relative()) { // Path is specified relative to Assets/
         full_path = assets_dir/path;
@@ -171,9 +202,10 @@ fs::path MemoryManager::format_lha_path(const std::string &path) {
 }
 
 void MemoryManager::switch_model(Model model, bool use_marty) {
-    this->cache.config.flags.at(ExternalFlag::USE_MARTY) = use_marty;
-    this->cache.parameter_types.erase(std::find(this->cache.parameter_types.begin(), this->cache.parameter_types.end(), static_cast<ParameterType>(static_cast<int>(cache.config.model))));
-    this->cache.parameter_types.push_back(static_cast<ParameterType>(static_cast<int>(model)));
+    this->cache.config.flags[ExternalFlag::USE_MARTY] = use_marty;
     this->cache.config.model = model;
-    this->cache.flags.at(InternalFlag::PARAMS_CHANGED) = true;
+
+    this->deduce_parameter_types(this->cache.config);
+
+    this->cache.flags[InternalFlag::PARAMS_CHANGED] = true;
 }

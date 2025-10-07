@@ -26,7 +26,7 @@ private:
     std::string wilson;
     std::string model;
     Interpreter interpreter;
-    SMParamSetter paramSetter;
+    std::unique_ptr<SMParamSetter> paramSetter;
     ParamWriter paramWriter;
     FileWriter fileWriter;
     IncludeManager includeManager;
@@ -34,19 +34,38 @@ private:
     ModelWriter modelWriter;
 
 public:
-    GeneralNumModelModifier(const std::string& wilson, const std::string& model, std::set<std::string>& special_blocks, bool force = false)
-        : wilson(wilson), model(model), forceMode(force), interpreter(model), paramSetter(params, model, special_blocks), fileWriter(wilson, model), paramWriter(params), 
+    GeneralNumModelModifier(const std::string& wilson, const std::string& model, std::set<std::string>& special_blocks, std::unique_ptr<SMParamSetter> param_setter, std::shared_ptr<ICoreAPI<Model>> api, std::shared_ptr<IInterpreterPortsFactory> ports, bool force = false)
+        : wilson(wilson), model(model), forceMode(force), interpreter(model, api, ports), paramSetter(std::move(param_setter)), fileWriter(wilson, model), 
           lineProcessor(includeManager, fileWriter, force), modelWriter(lineProcessor, paramWriter) {
         
         initializeParams();
     }
 
+    inline GeneralNumModelModifier(const GeneralNumModelModifier& other)
+    : paramMap(other.paramMap),
+      params(other.params),
+      interpreted_params(other.interpreted_params),
+      done(other.done),
+      forceMode(other.forceMode),
+      count(other.count),
+      wilson(other.wilson),
+      model(other.model),
+      interpreter(other.interpreter),
+      paramSetter(other.paramSetter ? std::make_unique<SMParamSetter>(*other.paramSetter) : nullptr),
+      paramWriter(other.paramWriter),
+      fileWriter(other.wilson, other.model),
+      includeManager(other.includeManager),
+      lineProcessor(includeManager, fileWriter, other.forceMode),
+      modelWriter(lineProcessor, paramWriter)
+{}
+
     void modify(std::ifstream& inputFile, std::ofstream& outputFile);
 
-    void createparamfile(std::ofstream& paramFile);
+    void createparamfile(std::ofstream& paramFile, const std::unordered_map<std::string, double> &params);
 
     std::unordered_map<std::string, Interpreter::InterpretedParam> get_interpreted_param_map() { return this->interpreted_params; }
 
+    std::unordered_map<std::string, double> get_params() {return this->params;}
 private:
     void initializeParams();
 };

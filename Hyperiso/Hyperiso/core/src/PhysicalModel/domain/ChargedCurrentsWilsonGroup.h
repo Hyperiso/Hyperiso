@@ -5,6 +5,7 @@
 #include "WilsonGroup.h"
 #include "MartyModelPathAPI.h"
 #include "MartyModelNameAPI.h"
+#include "MartyWilson.h"
 
 // class BlnuCoefficientGroup : public CoefficientGroup {
 // public:
@@ -25,9 +26,9 @@
 
 class BclnuCoefficientGroup : public CoefficientGroup {
 public:
-    BclnuCoefficientGroup(bool force_sm=false);
+    BclnuCoefficientGroup(WilsonGroupAdapterConfig adapters, bool force_sm=false);
     std::shared_ptr<CoefficientGroup> clone() const override;
-    std::shared_ptr<CoefficientGroup> get_sm_group() override { return std::make_shared<BclnuCoefficientGroup>(true); }
+    std::shared_ptr<CoefficientGroup> get_sm_group() override { return std::make_shared<BclnuCoefficientGroup>(adapters, true); }
 
 private:
     static std::unordered_map<WCoef, scalar_t> base_1_LO_calculation(

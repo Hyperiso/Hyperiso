@@ -3,18 +3,23 @@
 
 #include "BWilson.h"
 #include "WilsonGroup.h"
-#include "MartyModelNameAPI.h"
-#include "MartyModelPathAPI.h"
+#include "ICoreAPI.h"
+#include "Block.h"
+#include "BWilsonRunningParameters.h"
+#include "MartyWilson.h"
+// #include "MartyModelNameAPI.h"
+// #include "MartyModelPathAPI.h"
 
+using BRP = BWilsonRunningParameters;
 
 class BCoefficientGroup : public CoefficientGroup {
 public:
-    BCoefficientGroup(bool force_sm=false);
+    BCoefficientGroup(WilsonGroupAdapterConfig adapters, bool force_sm=false);
 
     void set_gen(int new_gen) {}
     std::shared_ptr<CoefficientGroup> clone() const override;
     
-    std::shared_ptr<CoefficientGroup> get_sm_group() override { return std::make_shared<BCoefficientGroup>(true); }
+    std::shared_ptr<CoefficientGroup> get_sm_group() override { return std::make_shared<BCoefficientGroup>(adapters, true); }
 private:
     static std::unordered_map<WCoef, scalar_t> base_1_LO_calculation (const std::unordered_map<QCDOrder, std::unordered_map<WCoef, scalar_t>>& coef_matching, const std::unordered_map<std::string, std::shared_ptr<Block>>& src);
     static std::unordered_map<WCoef, scalar_t> base_2_LO_calculation   (const std::unordered_map<QCDOrder, std::unordered_map<WCoef, scalar_t>>& coef_matching, const std::unordered_map<std::string, std::shared_ptr<Block>>& src);
@@ -31,10 +36,10 @@ private:
 
 class BPrimeCoefficientGroup : public CoefficientGroup {
 public:
-    BPrimeCoefficientGroup(bool force_sm=false);
+    BPrimeCoefficientGroup(WilsonGroupAdapterConfig adapters, bool force_sm=false);
     std::shared_ptr<CoefficientGroup> clone() const override;
 
-    std::shared_ptr<CoefficientGroup> get_sm_group() override { return std::make_shared<BPrimeCoefficientGroup>(true); }
+    std::shared_ptr<CoefficientGroup> get_sm_group() override { return std::make_shared<BPrimeCoefficientGroup>(adapters, true); }
 private:
     static std::unordered_map<WCoef, scalar_t> base_1_LO_calculation (const std::unordered_map<QCDOrder, std::unordered_map<WCoef, scalar_t>>& coef_matching, const std::unordered_map<std::string, std::shared_ptr<Block>>& src);
 
@@ -45,10 +50,10 @@ private:
 
 class BScalarCoefficientGroup : public CoefficientGroup {
 public:
-    BScalarCoefficientGroup(bool force_sm=false);
+    BScalarCoefficientGroup(WilsonGroupAdapterConfig adapters, bool force_sm=false);
     std::shared_ptr<CoefficientGroup> clone() const override;
 
-    std::shared_ptr<CoefficientGroup> get_sm_group() override { return std::make_shared<BScalarCoefficientGroup>(true); }
+    std::shared_ptr<CoefficientGroup> get_sm_group() override { return std::make_shared<BScalarCoefficientGroup>(adapters, true); }
 private:
     static std::unordered_map<WCoef, scalar_t> base_1_LO_calculation (const std::unordered_map<QCDOrder, std::unordered_map<WCoef, scalar_t>>& coef_matching, const std::unordered_map<std::string, std::shared_ptr<Block>>& src);
     static std::unordered_map<WCoef, scalar_t> base_1_NLO_calculation (const std::unordered_map<QCDOrder, std::unordered_map<WCoef, scalar_t>>& coef_matching, const std::unordered_map<std::string, std::shared_ptr<Block>>& src);

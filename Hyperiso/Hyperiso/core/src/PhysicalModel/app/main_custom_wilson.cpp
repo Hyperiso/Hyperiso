@@ -8,6 +8,13 @@
 #include "GroupMapper.h"
 #include "QCDOrderMapper.h"
 #include "WCoeffMapper.h"
+#include "WilsonParamComposer.h"
+#include "ScaleSetter.h"
+#include "ModelAPI.h"
+#include "MartyModelNameAPI.h"
+#include "MartyModelPathAPI.h"
+#include "ParameterProxy.h"
+#include "UseMarty.h"
 
 // Optionnel: si tu as des logs
 // #include "Utils.h"
@@ -60,8 +67,18 @@ int main() {
             },
             LhaID(999, 1001, 1, 0)
         );
+        
+        std::shared_ptr<IBlockComposer> iblock_c = std::make_shared<WilsonParamComposer>();
+        std::shared_ptr<IParameterProxy<std::string, LhaID>> wilson_proxy = std::make_shared<ParameterProxy>(ParameterType::WILSON);
+        std::shared_ptr<IParameterProxy<std::string, LhaID>> sm_proxy = std::make_shared<ParameterProxy>(ParameterType::SM);
+        std::shared_ptr<ICoreAPI<bool>> use_marty = std::make_shared<UseMarty>();
+        std::shared_ptr<ICoreAPI<Model>> model_api = std::make_shared<ModelAPI>();
+        std::shared_ptr<IParamSetter<ScaleType>> scale_setter_api = std::make_shared<ScaleSetter>(ScaleType::MATCHING);
+        std::shared_ptr<ICoreAPI<std::string>> marty_model_name = std::make_shared<MartyModelNameAPI>();
+        std::shared_ptr<ICoreAPI<fs::path>> marty_model_path = std::make_shared<MartyModelPathAPI>();
+        WilsonGroupAdapterConfig adapters(wilson_proxy, iblock_c, use_marty, marty_model_name, marty_model_path);
 
-        auto Gcustom = std::make_shared<CustomCoefficientGroup>("B", ContributionType::SM);
+        auto Gcustom = std::make_shared<CustomCoefficientGroup>(adapters,"B", ContributionType::SM);
         Gcustom->add_coefficient(Cfoo);
 
         Gcustom->set_basis_order_sources_and_running(

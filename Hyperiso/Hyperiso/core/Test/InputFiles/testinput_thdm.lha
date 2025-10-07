@@ -45,4 +45,4 @@ Block MASS      #  Mass spectrum (kinematic masses)
     13        1.05658e-01   # Mmu
     15        1.7768600000e+00   # Mta
     23        9.11876000e+01   # MZ
-    24        90  # MW
+    24        80.4  # MW

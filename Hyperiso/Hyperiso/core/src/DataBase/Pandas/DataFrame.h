@@ -87,8 +87,12 @@ public:
 
     void to_csv(const std::string& filename);
 
-    void _set_csv_options(CSVOptions options) {
-        this->csvOptions = options;
+    void _set_csv_options(const CSVOptions& options) {
+        this->csvOptions.hasIndex = options.hasIndex;
+
+        if (!options.columnTypes.empty()) {
+            this->csvOptions.columnTypes = options.columnTypes;
+        }
     }
 };
 

@@ -4,6 +4,9 @@
 #include "IMonitor.h"
 #include "MemoryManager.h"
 #include "ParamBlockLoader.h"
+#include "CorrelationAdapter.h"
+#include "SpectrumCalculator.h"
+#include "DefaultPathsProvider.h"
 
 /**
  * @class HyperisoMaster

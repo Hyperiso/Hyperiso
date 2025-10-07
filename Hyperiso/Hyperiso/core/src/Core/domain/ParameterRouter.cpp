@@ -1,18 +1,27 @@
 #include "ParameterRouter.h"
 
 std::vector<BlockName> ParameterBlockRepartition::filter_custom_blocks(const std::vector<BlockName> &source) {
-    std::vector<BlockName> custom_blocks {};
+    std::unordered_set<std::string> known_norm;
+    for (const auto& [_, known] : ParameterBlockRepartition::BLOCKS) {
+        for (const auto& b : known) {
+            known_norm.insert(to_lowercase(b));
+        }
+    }
+
+    std::vector<BlockName> custom_blocks;
+    custom_blocks.reserve(source.size());
 
     for (const auto& block : source) {
-        if (to_lowercase(block) == "mass" || to_lowercase(block) == "gauge") {
+        const auto bnorm = to_lowercase(block);
+
+        // Special cases
+        if (bnorm == "mass" || bnorm == "gauge") {
             custom_blocks.emplace_back(block);
             continue;
         }
 
-        for (const auto& [_, known_blocks]: ParameterBlockRepartition::BLOCKS) {
-            if (std::find(known_blocks.begin(), known_blocks.end(), block) == known_blocks.end()) {
-                custom_blocks.emplace_back(block);
-            }
+        if (!known_norm.count(bnorm)) {
+            custom_blocks.emplace_back(block);
         }
     }
 

@@ -3,21 +3,19 @@
 
 #include "config.hpp"
 #include "General.h"
-#include "Parameters.h"
-#include "ModelAPI.h"
-#include "QCDHelper.h"
 #include "Interpreter.h"
 #include <cmath>
 #include <set>
 #include <string>
 #include <iostream>
 #include <cmath>
-#include "MartyParameterProxy.h"
+#include "IMartyParameterProxy.h"
 
 class SMParamSetter {
 public:
-    SMParamSetter(std::unordered_map<std::string, double>& params, const std::string& model, std::set<std::string> special_blocks) :  params(params), special_blocks(special_blocks) {
+    SMParamSetter(const std::string& model, std::set<std::string> special_blocks, std::shared_ptr<IMartyParameterProxy<std::string, LhaID>> sm_proxy, std::shared_ptr<IMartyParameterProxy<std::string, LhaID>> bsm_proxy = nullptr) : special_blocks(special_blocks) {
         std::string root_path = project_assets_root.data();
+        this->sm_proxy = sm_proxy;
 
         if (model == "SM") {
             this->model_type = Model::SM;
@@ -30,21 +28,20 @@ public:
         }
         
         if (model_type != Model::SM) {
-            bsm_proxy = MartyParameterProxy(ParameterType::BSM);
+            this->bsm_proxy = bsm_proxy;
         }
     }
 
-    void setParam(const std::string& name, const Interpreter::InterpretedParam& interpretedParam);
+    std::unordered_map<std::string, double> setParam(const std::string& name, const Interpreter::InterpretedParam& interpretedParam);
 
 private:
-    std::unordered_map<std::string, double>& params;
 
     scalar_t calculateValue(const std::string& name, const Interpreter::InterpretedParam& interpretedParam);
 
     Model model_type;
     std::set<std::string> special_blocks;
-    MartyParameterProxy sm_proxy {ParameterType::SM};
-    std::optional<MartyParameterProxy> bsm_proxy;
+    std::shared_ptr<IMartyParameterProxy<std::string, LhaID>> sm_proxy;
+    std::shared_ptr<IMartyParameterProxy<std::string, LhaID>> bsm_proxy;
 };
 
 #endif // SMPARAMSETTER_H

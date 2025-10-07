@@ -154,11 +154,117 @@ target_link_libraries(testlhaparserunit DataBaseLib UtilsLib)
 add_executable(testlhaparserintegration DataBase/integration/test_lhaparser_integration.cpp)
 target_link_libraries(testlhaparserintegration DataBaseLib UtilsLib)
 
+#Pandas
+
+add_executable(testSerieUnit DataBase/Pandas/unit/test_serie_unit.cpp)
+target_link_libraries(testSerieUnit PandasLib)
+
+add_executable(testSerieIntegration DataBase/Pandas/integration/test_serie_integration.cpp)
+target_link_libraries(testSerieIntegration PandasLib)
+
+add_executable(testDataFrameUnit DataBase/Pandas/unit/test_dataframe_unit.cpp)
+target_link_libraries(testDataFrameUnit PandasLib)
+
+add_executable(testDataFrameIntegration DataBase/Pandas/integration/test_dataframe_integration.cpp)
+target_link_libraries(testDataFrameIntegration PandasLib)
+
 #Core
 
 
+add_executable(testParameterIntegration Core/integration/test_parameter_integration.cpp)
+target_link_libraries(testParameterIntegration CoreLib UtilsLib)
+
+add_executable(testParameterUnit Core/unit/test_parameter_unit.cpp)
+target_link_libraries(testParameterUnit CoreLib UtilsLib)
+
+add_executable(testBlockIntegration Core/integration/test_block_integration.cpp)
+target_link_libraries(testBlockIntegration CoreLib UtilsLib)
+
+add_executable(testBlockUnit Core/unit/test_block_unit.cpp)
+target_link_libraries(testBlockUnit CoreLib UtilsLib)
+
+add_executable(testBlockAccessorIntegration Core/integration/test_blockaccessor_integration.cpp)
+target_link_libraries(testBlockAccessorIntegration CoreLib UtilsLib)
+
+add_executable(testBlockAccessorUnit Core/unit/test_blockaccessor_unit.cpp)
+target_link_libraries(testBlockAccessorUnit CoreLib UtilsLib)
+
+add_executable(testCorrelationRepoIntegration Core/integration/test_correlationrepo_integration.cpp)
+target_link_libraries(testCorrelationRepoIntegration CoreLib UtilsLib)
+
+add_executable(testCorrelationRepoUnit Core/unit/test_correlationrepo_unit.cpp)
+target_link_libraries(testCorrelationRepoUnit CoreLib UtilsLib)
+
+add_executable(testParameterRouterIntegration Core/integration/test_parameterrouter_integration.cpp)
+target_link_libraries(testParameterRouterIntegration CoreLib UtilsLib)
+
+add_executable(testParameterRouterUnit Core/unit/test_parameterrouter_unit.cpp)
+target_link_libraries(testParameterRouterUnit CoreLib UtilsLib)
+
+add_executable(testDBMementoIntegration Core/integration/test_dbmemento_integration.cpp)
+target_link_libraries(testDBMementoIntegration CoreLib UtilsLib)
+
+add_executable(testDBMementoUnit Core/unit/test_dbmemento_unit.cpp)
+target_link_libraries(testDBMementoUnit CoreLib UtilsLib)
+
+add_executable(testMemoryManagerIntegration Core/integration/test_memory_manager_integration.cpp)
+target_link_libraries(testMemoryManagerIntegration CoreLib UtilsLib)
+
+add_executable(testMemoryManagerUnit Core/unit/test_memory_manager_unit.cpp)
+target_link_libraries(testMemoryManagerUnit CoreLib UtilsLib)
+
+target_include_directories(testMemoryManagerIntegration PRIVATE Core/support)
+target_include_directories(testMemoryManagerUnit PRIVATE Core/support)
+
+add_executable(testParametersIntegration Core/integration/test_parameters_integration.cpp)
+target_link_libraries(testParametersIntegration CoreLib UtilsLib)
+
+add_executable(testParametersUnit Core/unit/test_parameters_unit.cpp)
+target_link_libraries(testParametersUnit CoreLib UtilsLib)
+
+target_include_directories(testParametersIntegration PRIVATE Core/support)
+target_include_directories(testParametersUnit PRIVATE Core/support)
+
 add_executable(testSMparams Core/testSMParameters.cpp)
 target_link_libraries(testSMparams CoreLib)
+
+#MartyInterface
+
+add_executable(testCompilerStrategyUnit ExternalIntegration/MartyInterface/unit/test_compiler_strategy_unit.cpp)
+target_link_libraries(testCompilerStrategyUnit MartyInterfaceLib UtilsLib)
+
+add_executable(testCompilerStrategyIntegration ExternalIntegration/MartyInterface/integration/test_compiler_strategy_integration.cpp)
+target_link_libraries(testCompilerStrategyIntegration MartyInterfaceLib UtilsLib)
+
+add_executable(testModelFileChecker ExternalIntegration/MartyInterface/unit/test_model_file_checker_unit.cpp)
+target_link_libraries(testModelFileChecker MartyInterfaceLib UtilsLib)
+
+add_executable(testGeneralModelModifierUnit ExternalIntegration/MartyInterface/unit/test_general_model_modifier_unit.cpp)
+target_link_libraries(testGeneralModelModifierUnit MartyInterfaceLib UtilsLib)
+
+add_executable(testGeneralModelModifierIntegration ExternalIntegration/MartyInterface/integration/test_general_model_modifier_integration.cpp)
+target_link_libraries(testGeneralModelModifierIntegration MartyInterfaceLib UtilsLib)
+
+add_executable(testExtractorUnit ExternalIntegration/MartyInterface/unit/test_extractor_unit.cpp)
+target_link_libraries(testExtractorUnit MartyInterfaceLib UtilsLib)
+
+add_executable(testFileWriterUnit ExternalIntegration/MartyInterface/unit/test_file_writer_unit.cpp)
+target_link_libraries(testFileWriterUnit MartyInterfaceLib UtilsLib)
+
+add_executable(testLineProcessorUnit ExternalIntegration/MartyInterface/unit/test_line_processor_unit.cpp)
+target_link_libraries(testLineProcessorUnit MartyInterfaceLib UtilsLib)
+
+add_executable(testParamWriterUnit ExternalIntegration/MartyInterface/unit/test_param_writer_unit.cpp)
+target_link_libraries(testParamWriterUnit MartyInterfaceLib UtilsLib)
+
+add_executable(testSMParamSetterUnit ExternalIntegration/MartyInterface/unit/test_param_setter_unit.cpp)
+target_link_libraries(testSMParamSetterUnit MartyInterfaceLib UtilsLib)
+
+add_executable(testWriterPipelineIntegration ExternalIntegration/MartyInterface/integration/test_writer_pipeline_integration.cpp)
+target_link_libraries(testWriterPipelineIntegration MartyInterfaceLib UtilsLib)
+
+#Wilson
+
 
 add_executable(testSMWilson Wilson/testSMWilson.cpp)
 target_link_libraries(testSMWilson PhysicalModelLib UtilsLib)

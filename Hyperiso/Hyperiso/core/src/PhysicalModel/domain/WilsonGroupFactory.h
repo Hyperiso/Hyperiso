@@ -10,8 +10,8 @@
 
 class WilsonGroupFactory {
 public:
-    static std::shared_ptr<CoefficientGroup> create_coefficient_group(WGroup group, Model model) {
-        if (UseMarty().get()) {
+    static std::shared_ptr<CoefficientGroup> create_coefficient_group(WGroup group, Model model, WilsonGroupAdapterConfig adapters) {
+        if (adapters.use_marty->get()) {
             model = Model::SM;
         }
 
@@ -19,28 +19,28 @@ public:
             case Model::SM:
             switch (group) {
                 case WGroup::B:
-                    return std::make_shared<BCoefficientGroup>();
+                    return std::make_shared<BCoefficientGroup>(adapters);
                 case WGroup::BPrime:
-                    return std::make_shared<BPrimeCoefficientGroup>();
+                    return std::make_shared<BPrimeCoefficientGroup>(adapters);
                 case WGroup::BScalar:
-                    return std::make_shared<BScalarCoefficientGroup>();
+                    return std::make_shared<BScalarCoefficientGroup>(adapters);
                 case WGroup::BCC:
-                    return std::make_shared<BclnuCoefficientGroup>();
+                    return std::make_shared<BclnuCoefficientGroup>(adapters);
                 case WGroup::MESON_MIXING:
-                    return std::make_shared<MesonMixingCoefficientGroup>();
+                    return std::make_shared<MesonMixingCoefficientGroup>(adapters);
                 default:
                     LOG_ERROR("Invalid Argument", "Unknown group type", GroupMapper::str(group));
             }
             case Model::SUSY:
             switch (group) {
                 case WGroup::B:
-                    return std::make_shared<BCoefficientGroup_susy>();
+                    return std::make_shared<BCoefficientGroup_susy>(adapters);
                 case WGroup::BPrime:
-                    return std::make_shared<BPrimeCoefficientGroup_susy>();
+                    return std::make_shared<BPrimeCoefficientGroup_susy>(adapters);
                 case WGroup::BScalar:
-                    return std::make_shared<BScalarCoefficientGroup_susy>();
+                    return std::make_shared<BScalarCoefficientGroup_susy>(adapters);
                 case WGroup::BCC:
-                    return std::make_shared<BclnuCoefficientGroup_SUSY>();
+                    return std::make_shared<BclnuCoefficientGroup_SUSY>(adapters);
                 case WGroup::MESON_MIXING:
                     LOG_ERROR("Not Implemented", "Coefficient group", GroupMapper::str(group), "has not yet been implmented in SUSY");
                 default:
@@ -49,13 +49,13 @@ public:
             case Model::THDM:
             switch (group) {
                 case WGroup::B:
-                    return std::make_shared<BCoefficientGroup_THDM>();
+                    return std::make_shared<BCoefficientGroup_THDM>(adapters);
                 case WGroup::BPrime:
-                    return std::make_shared<BPrimeCoefficientGroup_THDM>();
+                    return std::make_shared<BPrimeCoefficientGroup_THDM>(adapters);
                 case WGroup::BScalar:
-                    return std::make_shared<BScalarCoefficientGroup_THDM>();
+                    return std::make_shared<BScalarCoefficientGroup_THDM>(adapters);
                 case WGroup::BCC:
-                    return std::make_shared<BclnuCoefficientGroup_THDM>();
+                    return std::make_shared<BclnuCoefficientGroup_THDM>(adapters);
                 case WGroup::MESON_MIXING:
                     LOG_ERROR("Not Implemented", "Coefficient group", GroupMapper::str(group), "has not yet been implmented in THDM");
                 default:

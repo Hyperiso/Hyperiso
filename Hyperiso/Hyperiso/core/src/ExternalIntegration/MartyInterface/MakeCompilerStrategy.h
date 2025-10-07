@@ -14,4 +14,4 @@ public:
 
 };
 
-#endif // GPP_COMPILER_STRATEGY_H
+#endif

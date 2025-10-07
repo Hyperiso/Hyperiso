@@ -368,11 +368,11 @@ public:
 class BCoefficientGroup_susy : public BCoefficientGroup {
 
 public:
-    BCoefficientGroup_susy() { this->clear();
+    BCoefficientGroup_susy(WilsonGroupAdapterConfig adapters) : BCoefficientGroup(adapters) { this->clear();
 
-        if (!susy_parameters::is_initialized()) {
-            susy_parameters::init();
-        }
+        // if (!susy_parameters::is_initialized()) {
+        //     susy_parameters::init();
+        // }
 
         this->insert(std::make_pair("C1", std::make_shared<C1_susy>())); this->insert(std::make_pair("C2", std::make_shared<C2_susy>())); this->insert(std::make_pair("C3", std::make_shared<C3_susy>()));
         this->insert(std::make_pair("C4", std::make_shared<C4_susy>()));  this->insert(std::make_pair("C5", std::make_shared<C5_susy>())); this->insert(std::make_pair("C6", std::make_shared<C6_susy>())); 
@@ -386,11 +386,9 @@ public:
 
 class BPrimeCoefficientGroup_susy : public BPrimeCoefficientGroup {
 public:
-    BPrimeCoefficientGroup_susy() { 
+    BPrimeCoefficientGroup_susy(WilsonGroupAdapterConfig adapters) : BPrimeCoefficientGroup(adapters) { 
         this->clear();
-        if (!susy_parameters::is_initialized()) {
-            susy_parameters::init();
-        }
+
         this->insert(std::make_pair("CP1", std::make_shared<CP1_susy>())); this->insert(std::make_pair("CP2", std::make_shared<CP2_susy>())); this->insert(std::make_pair("CP3", std::make_shared<CP3_susy>()));
         this->insert(std::make_pair("CP4", std::make_shared<CP4_susy>()));  this->insert(std::make_pair("CP5", std::make_shared<CP5_susy>())); this->insert(std::make_pair("CP6", std::make_shared<CP6_susy>())); 
         this->insert(std::make_pair("CP7", std::make_shared<CP7_susy>()));  this->insert(std::make_pair("CP8", std::make_shared<CP8_susy>()));  this->insert(std::make_pair("CP9", std::make_shared<CP9_susy>())); 
@@ -403,11 +401,9 @@ public:
 
 class BScalarCoefficientGroup_susy : public BScalarCoefficientGroup {
 public:
-    BScalarCoefficientGroup_susy() : BScalarCoefficientGroup() { this->clear();
+    BScalarCoefficientGroup_susy(WilsonGroupAdapterConfig adapters) : BScalarCoefficientGroup(adapters) { this->clear();
 
-        if (!susy_parameters::is_initialized()) {
-            susy_parameters::init();
-        }
+
         this->insert(std::make_pair("CQ1", std::make_shared<CQ1_susy>())); this->insert(std::make_pair("CQ2", std::make_shared<CQ2_susy>()));
 
         this->id = WGroup::BScalar;
@@ -417,8 +413,6 @@ public:
     void set_base_1_LO();
 
 private:
-    // std::shared_ptr<Parameters> susy = Parameters::GetInstance(ParameterType::BSM);
-    susy_parameters* sus_param;
 };
 
 // class BlnuCoefficientGroup_SUSY : public BlnuCoefficientGroup {
@@ -438,11 +432,8 @@ private:
 
 class BclnuCoefficientGroup_SUSY : public BclnuCoefficientGroup {
 public:
-    BclnuCoefficientGroup_SUSY() { this->clear();
+    BclnuCoefficientGroup_SUSY(WilsonGroupAdapterConfig adapters) : BclnuCoefficientGroup(adapters) { this->clear();
 
-        if (!susy_parameters::is_initialized()) {
-            susy_parameters::init();
-        }
         this->insert(std::make_pair("C_V1", std::make_shared<C_V1_SUSY>()));
         this->insert(std::make_pair("C_V2", std::make_shared<C_V2_SUSY>()));
         this->insert(std::make_pair("C_S1", std::make_shared<C_S1_SUSY>()));

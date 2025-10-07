@@ -54,4 +54,4 @@ private:
 };
 
 
-#endif // TEMPLATE_MANAGER_H
+#endif

@@ -174,7 +174,7 @@ double C7_THDM::compute_NNLO(const std::unordered_map<ParamId, std::shared_ptr<P
     double yt    = src.at({ParameterType::WILSON, "WPARAM_MATCH_BSM", 1})->get_val();
     double mtop  = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 6})->get_val();
     double Q     = src.at({ParameterType::WILSON, "EW_SCALE", 1})->get_val();
-
+    std::cout << "mtop : " << mtop << std::endl;
     return C7H2(yt, lu, ld, log(pow(Q / mtop, 2.0)));
 }
 
@@ -277,6 +277,9 @@ double C9_THDM::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Par
     double yt  = src.at({ParameterType::WILSON, "WPARAM_MATCH_BSM", 1})->get_val();
     double xt  = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1}})->get_val();
 
+    std::cout << "sw2 : " << sw2 << std::endl;
+    std::cout << "xt : " << xt << std::endl;
+    std::cout << "yt : " << yt << std::endl;
     return (1. - 4. * sw2) / sw2 * C9llH0(xt, yt, lu) - D9H0(yt, lu);
 }
 
@@ -412,6 +415,11 @@ double CQ1_THDM::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Pa
     double coeff_temp = CSc_2HDM(xH, xt, lu, ld, le) + CSn_2HDM;
     coeff_temp *= (ml * mb_muW / (mW * mW)) / sw2;
 
+    printf("sw2 = %lf\n", sw2);
+    printf("ml = %lf\n", ml);
+	printf("mass_b_muW = %lf\n", mb_muW);
+	printf("param->mass_W = %lf\n", mW);
+    std::cout << "CQ1H_0 : " << coeff_temp << std::endl;
     return coeff_temp;
 }
 

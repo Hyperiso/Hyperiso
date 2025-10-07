@@ -52,7 +52,7 @@ bool WilsonCoefficient::operator==(const WilsonCoefficient &other) const {
             && this->is_owned == other.is_owned;
 }
 
-complex_t WilsonCoefficient::get_matching_value(std::string order, ContributionType cont_type) const {
-    ParameterProxy wilson_p {ParameterType::WILSON};
-    return complex_t(wilson_p(storage_block, this->id(OrderMapper::enum_elt(order), cont_type)));
+complex_t WilsonCoefficient::get_matching_value(std::string order, ContributionType cont_type, std::shared_ptr<IParameterProxy<std::string, LhaID>> wilson_p) const {
+    // ParameterProxy wilson_p {ParameterType::WILSON};
+    return complex_t((*wilson_p)(storage_block, this->id(OrderMapper::enum_elt(order), cont_type)));
 }

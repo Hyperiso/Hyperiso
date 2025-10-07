@@ -9,9 +9,12 @@
 #ifndef CORRELATIONCREATOR_H
 #define CORRELATIONCREATOR_H
 
-#include "General.h"
+#include "Include.h"
 #include "ParameterRouter.h"
 #include "IDataLoader.h"
+#include "CorrelationRepo.h"
+#include "DBNode.h"
+#include "NodeProviderFactory.h"
 
 /**
  * @class CorrelationLoader

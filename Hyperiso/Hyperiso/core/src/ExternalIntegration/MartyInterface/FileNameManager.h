@@ -1,3 +1,4 @@
+// FileNameManager.h
 #ifndef FILENAME_MANAGER_H
 #define FILENAME_MANAGER_H
 
@@ -9,6 +10,11 @@
 class FileNameManager {
 public:
     static std::shared_ptr<FileNameManager> getInstance(const std::string& wilson = "", const std::string& model = "");
+
+    static void setTestingRoots(const std::string& templateRoot,
+                                const std::string& baseTemplateRoot,
+                                const std::string& assetsRoot);
+    static void clearTestingRoots();
 
     FileNameManager(const FileNameManager&) = delete;
     FileNameManager& operator=(const FileNameManager&) = delete;
@@ -29,21 +35,25 @@ public:
     std::string getjsondbmodel() const;
 
     std::string getParamFileName() const;
-    
+
 private:
     FileNameManager(const std::string& wilson, const std::string& model);
 
     static std::map<std::string, std::shared_ptr<FileNameManager>> instances;
 
+    static inline std::string test_template_root{};
+    static inline std::string test_base_template_root{};
+    static inline std::string test_assets_root{};
+
     std::string wilson_;
     std::string model_;
     std::string baseDir_;
-    std::string root_dir = project_assets_root.data();
+    std::string root_dir;
     std::string lowercaseWilson_;
     std::string lowercaseModel_;
-    std::string templateDir_ = std::string(project_assets_root.data()) +"MartyTemp/";
-    std::string baseTemplateDir_ = std::string(project_assets_root.data()) +"template/MARTY/";
+    std::string templateDir_; 
+    std::string baseTemplateDir_;
     std::string toLowercase(const std::string& str) const;
 };
 
-#endif // FILENAME_MANAGER_H
+#endif

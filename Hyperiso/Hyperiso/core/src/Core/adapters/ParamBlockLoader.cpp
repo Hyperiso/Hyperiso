@@ -46,7 +46,7 @@ void ParamBlockLoader::load(std::shared_ptr<BlockAccessor> dest, fs::path src_fi
     LOG_INFO("Loading parameter blocks from", src_file.string());
     auto np  = NodeProviderFactory::createNodeProvider(src_file);
     auto src = np->provide_db_as_node();
-    
+
     for (auto &bk : src->get_keys()) {
         auto block = std::make_shared<Block>();
         block->blockname = bk;

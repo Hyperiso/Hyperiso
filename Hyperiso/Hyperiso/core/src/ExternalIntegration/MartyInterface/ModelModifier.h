@@ -14,4 +14,4 @@ protected:
     std::string wilson{};
 };
 
-#endif // MODEL_MODIFIER_H
+#endif

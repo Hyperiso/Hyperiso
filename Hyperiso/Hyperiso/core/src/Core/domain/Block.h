@@ -253,8 +253,8 @@ private:
     std::shared_ptr<DependentBlock> self;                                   ///< Self-reference for observer management.
     std::unordered_map<std::string, std::shared_ptr<Block>> sourceBlocks;   ///< Source blocks for dependencies.
     DepUpdateFunc recalculateLambda;                                        ///< Function used to recalculate this block's content.
-    bool frozen;                                                            ///< Indicates if the block is frozen (no update).
-    bool update_at_unfreeze;                                                ///< Indicates if an update is pending after unfreezing.
+    bool frozen = false;                                                            ///< Indicates if the block is frozen (no update).
+    bool update_at_unfreeze = false;                                                ///< Indicates if an update is pending after unfreezing.
 };
 
 #endif
