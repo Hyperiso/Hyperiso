@@ -55,7 +55,7 @@ scalar_t C1_susy::compute_NNLO(const std::unordered_map<ParamId, std::shared_ptr
                 C1squark_2 += -2.0 * pow(4.0 * xsqa - 1.0, 1.5) * Cl2(angle);
                 C1squark_2 += 8.0 * (xsqa - 1.0 / 3.0) * log(xsqa) + 16.0 * xsqa;
             }
-            std::cout << "C1squark_2 : " << ae << " : "<< C1squark_2 << std::endl;
+            // std::cout << "C1squark_2 : " << ae << " : "<< C1squark_2 << std::endl;
         }
     }
 
@@ -608,11 +608,11 @@ scalar_t C7_susy::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<P
     double mA0 = src.at({ParameterType::BSM, "MASS", 36})->get_val();
     double mass_b_muW = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {5,1}})->get_val();
 
-    std::cout << "mass_b_muW : " << mass_b_muW << std::endl;
-    std::cout << "xt : " << xt << std::endl;
-    std::cout << "yt : " << yt << std::endl;
-    std::cout << "lu : " << lu << std::endl;
-    std::cout << "ld : " << ld << std::endl;
+    // std::cout << "mass_b_muW : " << mass_b_muW << std::endl;
+    // std::cout << "xt : " << xt << std::endl;
+    // std::cout << "yt : " << yt << std::endl;
+    // std::cout << "lu : " << lu << std::endl;
+    // std::cout << "ld : " << ld << std::endl;
 
     double epsilon0 = src.at({ParameterType::WILSON, "EPSILON_SUSY", {0,1}})->get_val();
     double epsilon0p = src.at({ParameterType::WILSON, "EPSILON_SUSY", {0,2}})->get_val();
@@ -627,19 +627,19 @@ scalar_t C7_susy::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<P
     complex_t C7SMeps_0 = (epsilonb - epsilonbp) / (1. + epsilonb * tanb) * tanb * F7_2(xt);
     complex_t C7Heps_0 = (-epsilon0p - epsilonb) / (1. + epsilonb * tanb) * tanb * F7_2(yt);
 
-    std::cout << "epsilon0" << epsilon0 << std::endl;
-    std::cout << "epsilon2" << epsilon2 << std::endl;
-    std::cout << "epsilonb" << epsilonb << std::endl;
-    std::cout << "epsilon0p" << epsilon0p << std::endl;
-    std::cout << "epsilonbp" << epsilonbp << std::endl;
-    std::cout << "epsilon1p" << epsilon1p << std::endl;
-    std::cout << "tanb" << tanb << std::endl;
+    // std::cout << "epsilon0" << epsilon0 << std::endl;
+    // std::cout << "epsilon2" << epsilon2 << std::endl;
+    // std::cout << "epsilonb" << epsilonb << std::endl;
+    // std::cout << "epsilon0p" << epsilon0p << std::endl;
+    // std::cout << "epsilonbp" << epsilonbp << std::endl;
+    // std::cout << "epsilon1p" << epsilon1p << std::endl;
+    // std::cout << "tanb" << tanb << std::endl;
 
-    std::cout << "alpha" << alpha << std::endl;
-    std::cout << "mh" << mh << std::endl;
-    std::cout << "mH0" << mH0 << std::endl;
+    // std::cout << "alpha" << alpha << std::endl;
+    // std::cout << "mh" << mh << std::endl;
+    // std::cout << "mH0" << mH0 << std::endl;
 
-    std::cout << "mW" << mW << std::endl;
+    // std::cout << "mW" << mW << std::endl;
     complex_t C7Heps2_0 = 0.;
 
     // TODO : Use MODSEL block instead
@@ -680,7 +680,7 @@ scalar_t C7_susy::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<P
             src.at({ParameterType::WILSON, "WPARAM_SI_BSM", 18})->get_val() *
             factor;
     };
-    std::cout << "mass_b_muW : " << mass_b_muW << std::endl; 
+    // std::cout << "mass_b_muW : " << mass_b_muW << std::endl; 
     for (int ie = 0; ie < 2; ++ie) {
         for (int ae = 0; ae < 6; ++ae) {
             double Mch = src.at({ParameterType::WILSON, "WPARAM_SI_BSM", {13, ie}})->get_val();
@@ -1254,15 +1254,15 @@ scalar_t C9_susy::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<P
     complex_t C90c = src.at({ParameterType::WILSON, "MATRIX_BSM", 14})->get_val();
     complex_t D90c = src.at({ParameterType::WILSON, "MATRIX_BSM", 15})->get_val();
 
-    std::cout << "B90c " <<  B90c << std::endl;
-    std::cout << "C90c " <<  C90c << std::endl;
-    std::cout << "D90c " <<  D90c << std::endl;
+    // std::cout << "B90c " <<  B90c << std::endl;
+    // std::cout << "C90c " <<  C90c << std::endl;
+    // std::cout << "D90c " <<  D90c << std::endl;
 
     complex_t C9charg_0 = (1.0 - 4.0 * sw2) / sw2 * C90c - B90c / sw2 - D90c;
     double    C9H_0     = (1.0 - 4.0 * sw2) / sw2 * C9llH0(xt, yt, lu) - D9H0(yt, lu);
 
-    std::cout << "C9H_0" << C9H_0 << std::endl;
-    std::cout << "C9charg_0" << C9charg_0 << std::endl;
+    // std::cout << "C9H_0" << C9H_0 << std::endl;
+    // std::cout << "C9charg_0" << C9charg_0 << std::endl;
     return scalar_t(C9charg_0 + C9H_0);
 }
 
@@ -1618,7 +1618,7 @@ scalar_t C10_susy::compute_NLO(const std::unordered_map<ParamId, std::shared_ptr
     complex_t C91f_beg_11 = 0;
     complex_t C91f_a1 = 0.;
     complex_t C91f_a2 = 0.;
-    std::cout << "Qmatch : " << Q_match << std::endl;
+    // std::cout << "Qmatch : " << Q_match << std::endl;
     long long aa = 0;
     for (int ie = 0; ie < 2; ie++) {
         for (int ae = 0; ae < 6; ae++) {
@@ -1761,27 +1761,27 @@ scalar_t C10_susy::compute_NLO(const std::unordered_map<ParamId, std::shared_ptr
         }
     }
 
-    for(int ie=0;ie<2;ie++) for(int ae=0;ae<6;ae++) printf("X_UL[%d][%d][1] : %lf\n",ie, ae, src.at({ParameterType::WILSON, "MATRIX_BSM", {3,ie, ae, 1}})->get_val().real());
-    printf("aa : %d\n", aa);
-    printf("C91f before : %lf\n", C91f_b.real());
-    printf("C91f 50 : %lf\n", C91f_50.real());
-    printf("C91f 60 : %lf\n", C91f_60.real());
-    printf("C91f beg : %lf\n", C91f_beg.real());
-    printf("C91f beg1 : %lf\n", C91f_beg_1.real());
-    printf("C91f beg1a : %lf\n", C91f_beg_1a.real());
-    printf("C91f beg1b : %lf\n", C91f_beg_1b.real());
-    printf("C91f beg10 : %lf\n", C91f_beg_10.real());
-    printf("C91f beg11 : %lf\n", C91f_beg_11.real());
-    printf("C91f beg10 img : %lf\n", C91f_beg_10.imag());
-    printf("C91f beg11 img : %lf\n", C91f_beg_11.imag());
-    printf("C91f a1 : %lf\n", C91f_a1.real());
-    printf("C91f a1 : %lf\n", C91f_a2.real());
-    for (int ie =0; ie<2; ++ie) {
-        printf("U_MIX[%d][1] = %lf\n", ie+1, src.at({ParameterType::BSM, "UMIX",{ie+1,0+1}})->get_val().real());
-    }
-    for (int ie =0; ie<2; ++ie) {
-        printf("V_MIX[%d][1] = %lf\n", ie+1, src.at({ParameterType::BSM, "VMIX",{ie+1,0+1}})->get_val().real());
-    }
+    // for(int ie=0;ie<2;ie++) for(int ae=0;ae<6;ae++) printf("X_UL[%d][%d][1] : %lf\n",ie, ae, src.at({ParameterType::WILSON, "MATRIX_BSM", {3,ie, ae, 1}})->get_val().real());
+    // printf("aa : %d\n", aa);
+    // printf("C91f before : %lf\n", C91f_b.real());
+    // printf("C91f 50 : %lf\n", C91f_50.real());
+    // printf("C91f 60 : %lf\n", C91f_60.real());
+    // printf("C91f beg : %lf\n", C91f_beg.real());
+    // printf("C91f beg1 : %lf\n", C91f_beg_1.real());
+    // printf("C91f beg1a : %lf\n", C91f_beg_1a.real());
+    // printf("C91f beg1b : %lf\n", C91f_beg_1b.real());
+    // printf("C91f beg10 : %lf\n", C91f_beg_10.real());
+    // printf("C91f beg11 : %lf\n", C91f_beg_11.real());
+    // printf("C91f beg10 img : %lf\n", C91f_beg_10.imag());
+    // printf("C91f beg11 img : %lf\n", C91f_beg_11.imag());
+    // printf("C91f a1 : %lf\n", C91f_a1.real());
+    // printf("C91f a1 : %lf\n", C91f_a2.real());
+    // for (int ie =0; ie<2; ++ie) {
+    //     printf("U_MIX[%d][1] = %lf\n", ie+1, src.at({ParameterType::BSM, "UMIX",{ie+1,0+1}})->get_val().real());
+    // }
+    // for (int ie =0; ie<2; ++ie) {
+    //     printf("V_MIX[%d][1] = %lf\n", ie+1, src.at({ParameterType::BSM, "VMIX",{ie+1,0+1}})->get_val().real());
+    // }
     double kappa = src.at({ParameterType::WILSON, "WPARAM_SI_BSM", 19})->get_val();
     C91c *= -kappa / 8.0;
 
@@ -1791,18 +1791,18 @@ scalar_t C10_susy::compute_NLO(const std::unordered_map<ParamId, std::shared_ptr
 
     complex_t B101f = -(B1f1 + B1f2) * 2.0 / 3.0 * kappa / pow(g2, 2);
 
-    printf("B101f : %f\n", B101f);
-    printf("C91f : %f\n", C91f);
-    printf("sw2 : %f\n", sw2);
+    // printf("B101f : %f\n", B101f);
+    // printf("C91f : %f\n", C91f);
+    // printf("sw2 : %f\n", sw2);
 
     complex_t C10four_1 = (B101f - C91f) / sw2;	
 
     complex_t C10charg_1=(B101c-C91c)/sw2;
     double C10H_1 = -C9llH1(xt,yt,lu,log(pow(Q_match/mH,2.)))/sw2;
 
-    printf("C10H_1 : %f\n", C10H_1);
-    printf("C10charg_1 : %f\n", C10charg_1);
-    printf("C10four_1 : %f\n", C10four_1);
+    // printf("C10H_1 : %f\n", C10H_1);
+    // printf("C10charg_1 : %f\n", C10charg_1);
+    // printf("C10four_1 : %f\n", C10four_1);
 
     return C10four_1 + C10charg_1 + C10H_1;
 }
@@ -2261,9 +2261,9 @@ scalar_t CP10_susy::compute_LO(const std::unordered_map<ParamId, std::shared_ptr
 
     double B10pc = 0.0;
     double C9pc = 0.0;
-    printf("g2 : %.10lf\n", g2);
-    printf("mass_b_muW : %.10lf\n", mass_b_muW);
-    printf("yt : %.10lf\n", yt);
+    // printf("g2 : %.10lf\n", g2);
+    // printf("mass_b_muW : %.10lf\n", mass_b_muW);
+    // printf("yt : %.10lf\n", yt);
     for (int ie = 0; ie < 2; ie++) {
         for (int ae = 0; ae < 6; ae++) {
             for (int je = 0; je < 2; je++) {
@@ -2321,9 +2321,9 @@ scalar_t CP10_susy::compute_LO(const std::unordered_map<ParamId, std::shared_ptr
     B10pc *= kappa * mW * mW / (2.0 * g2 * g2);
     C9pc *= -kappa / 8.0;
 
-    printf("B10pc : %.10lf\n", B10pc);
-	printf("C9pc : %.10lf\n", C9pc);
-    printf("kappa : %.10lf\n", kappa);
+    // printf("B10pc : %.10lf\n", B10pc);
+	// printf("C9pc : %.10lf\n", C9pc);
+    // printf("kappa : %.10lf\n", kappa);
     double C10pH = -mass_b_muW * src.at({ParameterType::SM, "MASS", 3})->get_val() *
                    (tanb * tanb / (8.0 * mW * mW) +
                     pow(src.at({ParameterType::WILSON, "WPARAM_SI_SM", 3})->get_val() * tanb * tanb /
@@ -2331,8 +2331,8 @@ scalar_t CP10_susy::compute_LO(const std::unordered_map<ParamId, std::shared_ptr
 
     double C10pcharg = (B10pc - C9pc) / sw2;
 
-    printf("C10pcharg : %.10lf\n", C10pcharg);
-	printf("C10pH : %.10lf\n", C10pH);
+    // printf("C10pcharg : %.10lf\n", C10pcharg);
+	// printf("C10pH : %.10lf\n", C10pH);
     return C10pH + C10pcharg;
 }
 
@@ -2978,8 +2978,8 @@ scalar_t CQ1_susy::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<
         }
     }
     complex_t BQ10c=(BQ10c1+BQ10c2)*kappa*mW*mW/2./g2/g2/sw2;
-    printf("BQ10c1 : %.14lf\n", BQ10c1);
-    printf("BQ10c2 : %.14lf\n", BQ10c2);
+    // printf("BQ10c1 : %.14lf\n", BQ10c1);
+    // printf("BQ10c2 : %.14lf\n", BQ10c2);
     NQ10c*=src.at({ParameterType::WILSON, "WPARAM_SI_SM",  3})->get_val()*(tanb)*tanb/mW/(mH*mH-mW*mW)*aY*mass_b_muW/sw2;
     double le = -tanb;
     double G1=-3./4.+ld*lu*F4SP(xt,xH)+lu*lu*F5SP(xt,xH);
@@ -2992,28 +2992,28 @@ scalar_t CQ1_susy::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<
     complex_t CQ1H_0=CSc_2HDM(xH,xt,lu,ld,le)+CSn_2HDM;
     CQ1H_0*=(src.at({ParameterType::WILSON, "WPARAM_SI_SM",  3})->get_val()*mass_b_muW/mW/mW)/sw2;
 
-    printf("sw2 = %.9lf\n", sw2);
-	printf("mass_b_muW = %.9lf\n", mass_b_muW);
-	printf("param->mass_W = %.9lf\n", mW);
-    printf("CSn_2HDM : %.9lf\n", CSn_2HDM);
-    printf("xH : %.9lf\n", xH);
-    printf("xt : %.9lf\n", xt);
-    printf("lu : %.9lf\n", lu);
-    printf("ld : %.9lf\n", ld);
-    printf("le : %.9lf\n", le);
-    printf("alpha : %.9lf\n", alpha);
-    printf("beta : %.9lf\n", beta);
-    printf("G1 : %.9lf\n", G1);
-    printf("G2 : %.9lf\n", G2);
-    printf("CSc_2HDM(xH,xt,lu,ld,le) : %.9lf\n", CSc_2HDM(xH,xt,lu,ld,le));
+    // printf("sw2 = %.9lf\n", sw2);
+	// printf("mass_b_muW = %.9lf\n", mass_b_muW);
+	// printf("param->mass_W = %.9lf\n", mW);
+    // printf("CSn_2HDM : %.9lf\n", CSn_2HDM);
+    // printf("xH : %.9lf\n", xH);
+    // printf("xt : %.9lf\n", xt);
+    // printf("lu : %.9lf\n", lu);
+    // printf("ld : %.9lf\n", ld);
+    // printf("le : %.9lf\n", le);
+    // printf("alpha : %.9lf\n", alpha);
+    // printf("beta : %.9lf\n", beta);
+    // printf("G1 : %.9lf\n", G1);
+    // printf("G2 : %.9lf\n", G2);
+    // printf("CSc_2HDM(xH,xt,lu,ld,le) : %.9lf\n", CSc_2HDM(xH,xt,lu,ld,le));
     
-    printf("NQ10c : %.9lf\n", NQ10c.real());
-	printf("BQ10c : %.9lf\n", BQ10c.real());
+    // printf("NQ10c : %.9lf\n", NQ10c.real());
+	// printf("BQ10c : %.9lf\n", BQ10c.real());
     complex_t CQ1charg_0=NQ10c+BQ10c;
     complex_t coeff_temp = (CQ1charg_0+CQ1H_0)/epsfac;
-    printf("kappa : %.9lf\n", kappa);
-    std::cout << "CQ1charg_0 " << CQ1charg_0 << std::endl;
-    std::cout << "CQ1H_0 " << CQ1H_0.real() << std::endl;
+    // printf("kappa : %.9lf\n", kappa);
+    // std::cout << "CQ1charg_0 " << CQ1charg_0 << std::endl;
+    // std::cout << "CQ1H_0 " << CQ1H_0.real() << std::endl;
     /* NMSSM */
 
     // TODO : Ask Nazila (a priori in block NMSSMRUN but check) 
@@ -3178,8 +3178,8 @@ scalar_t CQ1_susy::compute_NLO(const std::unordered_map<ParamId, std::shared_ptr
     complex_t NQ11f=0.;
     complex_t NQ21f=0.;
 
-    double Dp{0}, Dm{0}, temp{0}, temp2{0};
-    double a0a{0}, a0b{0}, a0c{0}, a0Q1{0}, a0Q2{0}, a0p{0}, a1{0},a2p{0};
+    complex_t Dp{0}, Dm{0}, temp{0}, temp2{0};
+    complex_t a0a{0}, a0b{0}, a0c{0}, a0Q1{0}, a0Q2{0}, a0p{0}, a1{0},a2p{0};
 
     for(int ie=0;ie<2;ie++) {
         for(int ae=0;ae<6;ae++){
@@ -3594,9 +3594,9 @@ scalar_t CQ2_susy::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<
     complex_t BQ10c1=0.;
     complex_t BQ10c2=0.;
 
-    double Dp, Dm;
-    double a0a{0}, a0b{0}, a0c, a0Q1{0}, a0Q2{0};
-    double a1{0};
+    complex_t Dp, Dm;
+    complex_t a0a{0}, a0b{0}, a0c, a0Q1{0}, a0Q2{0};
+    complex_t a1{0};
     complex_t NQ20c=0.;
 
     for(int ie=0;ie<2;ie++) {
@@ -3820,8 +3820,8 @@ scalar_t CQ2_susy::compute_NLO(const std::unordered_map<ParamId, std::shared_ptr
     complex_t NQ11f=0.;
     complex_t NQ21f=0.;
 
-    double Dp{0}, Dm{0}, temp{0}, temp2{0};
-    double a0a{0}, a0b{0}, a0c{0}, a0Q1{0}, a0Q2{0}, a0p{0}, a1{0},a2p{0};
+    complex_t Dp{0}, Dm{0}, temp{0}, temp2{0};
+    complex_t a0a{0}, a0b{0}, a0c{0}, a0Q1{0}, a0Q2{0}, a0p{0}, a1{0},a2p{0};
 
     for(int ie=0;ie<2;ie++) {
         for(int ae=0;ae<6;ae++){

@@ -368,19 +368,19 @@ void susy_parameters::init_scale_independent_block(int gen) {
 		double ag = 1.0 - 7.0 / (12.0 * Pi) * alphas_mg;
 		double aY = 1.0 + alphas_mg / (4.0 * Pi);
 
-		printf("ag : %.14lf\n",ag);
-		printf("aY : %.14lf\n",aY);
+		// printf("ag : %.14lf\n",ag);
+		// printf("aY : %.14lf\n",aY);
 
-		std::cout << "ag :" << ag << std::endl;
-		std::cout << "aY :" << aY << std::endl;
+		// std::cout << "ag :" << ag << std::endl;
+		// std::cout << "aY :" << aY << std::endl;
 		// TODO : Ask Nazila Answer : keep complex
 		double kappa = 1.0 / (pow(src.at("GAUGE")->retrieve(2)->get_val(), 2.) * 
 						std::real((src.at("VCKM")->retrieve({2,2})->get_val())*(src.at("VCKM")->retrieve({2,1})->get_val()))); //VCKM 33 et 32
 
-		std::cout << "kappa :" << kappa << std::endl;
-		std::cout << "g2 :" << src.at("GAUGE")->retrieve(2)->get_val() << std::endl;
-		std::cout << "V22 :" << src.at("VCKM")->retrieve({2,2})->get_val() << std::endl;
-		std::cout << "V21 :" << src.at("VCKM")->retrieve({2,1})->get_val() << std::endl;	
+		// std::cout << "kappa :" << kappa << std::endl;
+		// std::cout << "g2 :" << src.at("GAUGE")->retrieve(2)->get_val() << std::endl;
+		// std::cout << "V22 :" << src.at("VCKM")->retrieve({2,2})->get_val() << std::endl;
+		// std::cout << "V21 :" << src.at("VCKM")->retrieve({2,1})->get_val() << std::endl;	
 		double kappaFactor = -0.5 * kappa;
 		// std::cout << "g2 : " << src.at("GAUGE")->retrieve(2)->get_val() << std::endl;
 		// std::cout << "kappa :" << kappa << std::endl;
@@ -401,8 +401,8 @@ void susy_parameters::init_scale_independent_block(int gen) {
 		double ct = src.at("STOPMIX")->retrieve({2,2})->get_val(); //TODO : 0 or 1 convention
 		double st = src.at("STOPMIX")->retrieve({1,2})->get_val();  //TODO : 0 or 1 convention
 
-		std::cout << "cosb :" << cosb << std::endl;
-		std::cout << "mW :" << src.at("MASS")->retrieve(24)->get_val() << std::endl;
+		// std::cout << "cosb :" << cosb << std::endl;
+		// std::cout << "mW :" << src.at("MASS")->retrieve(24)->get_val() << std::endl;
 
 		// double ct = src.at("STOPMIX")->retrieve({1,1})->get_val(); //TODO : 0 or 1 convention
 		// double st = src.at("STOPMIX")->retrieve({0,1})->get_val();  //TODO : 0 or 1 convention
@@ -423,13 +423,13 @@ void susy_parameters::init_scale_independent_block(int gen) {
 
 		Array1D_4 Msn = {src.at("MASS")->retrieve(1000012)->get_val(), src.at("MASS")->retrieve(1000014)->get_val(), src.at("MASS")->retrieve(1000016)->get_val()};
 		
-		std::cout << "mass 100002 : " <<  src.at("MASS")->retrieve(1000002)->get_val() << std::endl;
-		std::cout << "mass 100004 : " <<  src.at("MASS")->retrieve(1000004)->get_val() << std::endl;
+		// std::cout << "mass 100002 : " <<  src.at("MASS")->retrieve(1000002)->get_val() << std::endl;
+		// std::cout << "mass 100004 : " <<  src.at("MASS")->retrieve(1000004)->get_val() << std::endl;
 		// for (int i  = 0; i<6; i++) {
 		// 	std::cout << "MsqU[" << i+1 << "] = " << MsqU[i] << std::endl;
 		// }
-		for(int ke=0;ke<6;ke++) printf("MsqU[%d] = %lf\n", ke,  MsqU[ke]);
-		for(int ke=0;ke<2;ke++) printf("Mch[%d] = %lf\n", ke,  Mch[ke]);
+		// for(int ke=0;ke<6;ke++) printf("MsqU[%d] = %lf\n", ke,  MsqU[ke]);
+		// for(int ke=0;ke<2;ke++) printf("Mch[%d] = %lf\n", ke,  Mch[ke]);
 		const size_t NumSquarks = 6;
 		Array2D_7x7 sU_mix; //ERROR
 		bool isNonZeroMix = true;
@@ -448,7 +448,7 @@ void susy_parameters::init_scale_independent_block(int gen) {
 			printf("eheheheh\n");
 			std::sort(MsqU.begin(), MsqU.end());
 		}
-		for(int ie=0;ie<3;ie++) printf("Msn[%d] : %.14lf\n",ie, Msn[ie]);
+		// for(int ie=0;ie<3;ie++) printf("Msn[%d] : %.14lf\n",ie, Msn[ie]);
         int id {1};
         dep_block->store_or_assign(id++, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", id}, z, 0., 0.)); //1
 		dep_block->store_or_assign(id++, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", id}, cosb, 0., 0.)); //2
@@ -500,11 +500,11 @@ void susy_parameters::init_matching_block() {
 		Array1D_4 MU = {src.at("MASS")->retrieve(2)->get_val(), src.at("MASS")->retrieve(4)->get_val(), src.at("WPARAM_MATCH_SM")->retrieve(6)->get_val()}; //TODO : size 3 not 4
 		Array1D_4 MD = {src.at("MASS")->retrieve(2)->get_val(), src.at("MASS")->retrieve(3)->get_val(), src.at("WPARAM_MATCH_SM")->retrieve({5,1})->get_val()}; //TODO : size 3 not 4 // TODO : MD[0] -> mu like superiso but why ?
 
-		std::cout << "MU : " << src.at("MASS")->retrieve(2)->get_val() << std::endl;
-		std::cout << "MC : " << src.at("MASS")->retrieve(4)->get_val() << std::endl;
-		std::cout << "MT : " << src.at("WPARAM_MATCH_SM")->retrieve(6)->get_val() << std::endl;
-		std::cout << "MD : " << src.at("MASS")->retrieve(1)->get_val() << std::endl;
-		std::cout << "MS : " << src.at("MASS")->retrieve(3)->get_val() << std::endl;
+		// std::cout << "MU : " << src.at("MASS")->retrieve(2)->get_val() << std::endl;
+		// std::cout << "MC : " << src.at("MASS")->retrieve(4)->get_val() << std::endl;
+		// std::cout << "MT : " << src.at("WPARAM_MATCH_SM")->retrieve(6)->get_val() << std::endl;
+		// std::cout << "MD : " << src.at("MASS")->retrieve(1)->get_val() << std::endl;
+		// std::cout << "MS : " << src.at("MASS")->retrieve(3)->get_val() << std::endl;
         dep_block->store_or_assign(1, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_MATCH_BSM", 1}, yt, 0., 0.));
 		dep_block->store_or_assign({2,0}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_MATCH_BSM", {2,0}}, MU[0], 0., 0.));
 		dep_block->store_or_assign({2,1}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_MATCH_BSM", {2,1}}, MU[1], 0., 0.));
@@ -545,25 +545,16 @@ void susy_parameters::init_matching_block() {
 		complex_t c32 = src.at("VCKM")->retrieve({2,1})->get_val();
 		complex_t c33 = src.at("VCKM")->retrieve({2,2})->get_val();
 
-		printf("c11: %.14lf\n", c11.real());
-		printf("c12: %.14lf\n", c12.real());
-		printf("c13: %.14lf\n", c13.real());
-		printf("c21: %.14lf\n", c21.real());
-		printf("c22: %.14lf\n", c22.real());
-		printf("c23: %.14lf\n", c23.real());
-		printf("c31: %.14lf\n", c31.real());
-		printf("c32: %.14lf\n", c32.real());
-		printf("c33: %.14lf\n", c33.real());
+		// printf("c11: %.14lf\n", c11.real());
+		// printf("c12: %.14lf\n", c12.real());
+		// printf("c13: %.14lf\n", c13.real());
+		// printf("c21: %.14lf\n", c21.real());
+		// printf("c22: %.14lf\n", c22.real());
+		// printf("c23: %.14lf\n", c23.real());
+		// printf("c31: %.14lf\n", c31.real());
+		// printf("c32: %.14lf\n", c32.real());
+		// printf("c33: %.14lf\n", c33.real());
 
-		std::cout << c11 << std::endl;
-		std::cout << c12 << std::endl;
-		std::cout << c13 << std::endl;
-		std::cout << c21 << std::endl;
-		std::cout << c22 << std::endl;
-		std::cout << c23 << std::endl;
-		std::cout << c31 << std::endl;
-		std::cout << c32 << std::endl;
-		std::cout << c33 << std::endl;
 		// complex_t c11 = src.at("RECKM")->retrieve(00)->get_val() + src.at("IMCKM")->retrieve(00)->get_val() * complex_t(0, 1);
 		// complex_t c12 = src.at("RECKM")->retrieve(01)->get_val() + src.at("IMCKM")->retrieve(01)->get_val() * complex_t(0, 1);
 		// complex_t c13 = src.at("RECKM")->retrieve(02)->get_val() + src.at("IMCKM")->retrieve(02)->get_val() * complex_t(0, 1);
@@ -600,7 +591,7 @@ void susy_parameters::init_matching_block() {
 
         double mW = src.at("MASS")->retrieve(24)->get_val();
 		double g2 = src.at("GAUGE")->retrieve(2)->get_val();
-		std::cout << "g2 : " << g2 << std::endl;
+		// std::cout << "g2 : " << g2 << std::endl;
 		if (src.at("WPARAM_SI_BSM")->retrieve(17)->get_val()) {
 			std::cout << "SHOULD NOT BE HERE" << std::endl;
 			Array2D_7x7 sU_mix; //TODO : wtf
@@ -676,16 +667,16 @@ void susy_parameters::init_matching_block() {
 
 						X_NR[ie][ae][be] = g2 * src.at("UMIX")->retrieve({ie+1, 1+1})->get_val() * Gamma_NL[ae][be] * src.at("WPARAM_SI_BSM")->retrieve({12, be})->get_val() / (sqrt(2.0) * mW * src.at("WPARAM_SI_BSM")->retrieve(2)->get_val()); //12 -> ME
 					}
-					printf("X_UR[%d][%d][%d] : %.14lf\n", ie+1, ae+1, be+1, X_UR[ie][ae][be]);
+					// printf("X_UR[%d][%d][%d] : %.14lf\n", ie+1, ae+1, be+1, X_UR[ie][ae][be]);
 					// std::cout << "X_NR[" << ie+1 << "][" << ae+1 << "][" << be+1 << "] = " << X_NR[ie][ae][be] << std::endl;
 					// std::cout << "X_UL[" << ie+1 << "][" << ae+1 << "][" << be+1 << "] = " << X_UL[ie][ae][be] << std::endl;
 				}
 			}
 		}
-		printf("param->g2 : %.14lf\n", g2);
-		printf("param->g2 : %.14lf\n", g2);
-		printf("param->mW : %.14lf\n", mW);
-		printf("cosb : %.14lf\n", src.at("WPARAM_SI_BSM")->retrieve(2)->get_val().real());
+		// printf("param->g2 : %.14lf\n", g2);
+		// printf("param->g2 : %.14lf\n", g2);
+		// printf("param->mW : %.14lf\n", mW);
+		// printf("cosb : %.14lf\n", src.at("WPARAM_SI_BSM")->retrieve(2)->get_val().real());
 		// for (int i = 0; i < 6; ++i) {
 		// 	for (int j = 0; j < 3; ++j) {
 		// 		printf("Gamma_UL[%d][%d] = %f\n", i+1, j+1, Gamma_UL[i][j]);
