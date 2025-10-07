@@ -13,21 +13,15 @@ int main() {
     hyp.init("lha/si_input.flha", config);
     LOG_INFO("HyperisoMaster initialized");
 
-    QCDOrder order = QCDOrder::LO;
-
-    std::vector<Observables> obss = DecayMapper::get_observables(Decays::B__Kstar_l_l);
-    LOG_INFO(obss.size());
-
+    QCDOrder order = QCDOrder::NNLO;
     ObservableInterface oi;
 
-    LOG_INFO("Interface created");
-
-    for (auto o : obss) {
-        oi.add_observable(o, order, false);
-    }
-
-    for (auto o : obss) {
-        LOG_INFO(ObservableMapper::str(o), "=", oi.compute_observable(o), "+-", oi.compute_uncertainty(o));
+    for (auto& dec : DecayMapper::get_enum()) {
+        oi.add_observables(dec, order, false);
+        
+        for (auto o : DecayMapper::get_observables(dec)) {
+            LOG_INFO(ObservableMapper::str(o), "=", oi.compute_observable(o)[0].value);
+        }
     }
     
     // auto print_leading = [&oi] (Observables o, size_t n) {

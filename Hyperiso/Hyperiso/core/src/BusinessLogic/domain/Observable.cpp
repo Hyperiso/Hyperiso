@@ -20,7 +20,12 @@ Estimate Observable::get_exp() const {
     return est;
 }
 
+// TODO : Adapt to error estimation in compound
 scalar_t Observable::eval() const {
+    return compute()[0].value;
+}
+
+std::vector<ObservableValue> Observable::compute() const {
     decay_parent->enable();
     return decay_parent->compute_observable(id);
 }

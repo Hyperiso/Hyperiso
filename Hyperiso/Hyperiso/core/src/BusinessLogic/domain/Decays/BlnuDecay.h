@@ -3,25 +3,40 @@
 
 #include "DecayParent.h"
 #include "General.h"
+#include "DefaultConfig.h"
+
+struct BlnuDecayCache {
+    double G_F;
+    double m_tau;
+    double m_b;
+    double V_ub_2;
+    double tau_B;
+    double m_B;
+    double f_B;
+    complex_t C_V;
+    complex_t C_S;
+};
 
 /**
  * @brief Decay parent for the B > l nu_l decays. Currently implements Bu > tau nu_tau branching ratio and the R_nu_tau ratio of this BR its SM expectation. 
  */
-class BlnuDecay : public DecayParent {
+class BlnuDecay : public DecayParentConfigurable<DecayConfig> {
+private:
+    BlnuDecayCache cache;
 
 protected:
-    scalar_t R(double m_B, double m_b, double m_tau);
-    double ckm(scalar_t V_ub);
-    double pref(double G_F, double f_B, double tau_B, double m_B, double m_tau);
-    double BR_B_taunu(double pref, double ckm, double R);
+    scalar_t R();
+    double BR();
 
 public:
-    BlnuDecay(QCDOrder order, double matching_scale, double hadronic_scale, std::shared_ptr<ObsWilsonBuilder>& wilson_builder) : DecayParent(DecayMapper::to_id(Decays::B__l_nu), matching_scale, hadronic_scale, order, wilson_builder) {
+    BlnuDecay(QCDOrder order, double matching_scale, double hadronic_scale, std::shared_ptr<ObsWilsonBuilder>& wilson_builder) : DecayParentConfigurable(DecayMapper::to_id(Decays::B__l_nu), matching_scale, hadronic_scale, order, wilson_builder) {
         this->w_config.groups = {WGroup::BCC};
         this->max_order = QCDOrder::LO;
     }
 
-    void build_op_tree() override;
+    void load_params() override;
+    std::vector<ObservableValue> compute_observable(Observables obs) override;
+    std::vector<ObservableValue> compute_observable(ObservableId obs) override;
 
 };
 

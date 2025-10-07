@@ -10752,33 +10752,33 @@ res += (2.300148477252303e6*pow(sh,-10) +
 }return res;
 }
 
-scalar_t f_17(double s, double L_b, double z, size_t max_pow) {
+complex_t f_17(double s, double L_b, double z, size_t max_pow) {
     return {f_17_re(s, L_b, z, max_pow), f_17_im(s, L_b, z, max_pow)};
 }
 
-scalar_t f_27(double s, double L_b, double z, size_t max_pow) {
+complex_t f_27(double s, double L_b, double z, size_t max_pow) {
     return {f_27_re(s, L_b, z, max_pow), f_27_im(s, L_b, z, max_pow)};
 }
 
-scalar_t f_19_PS(double s, double L_b, double z, size_t max_pow) {
+complex_t f_19_PS(double s, double L_b, double z, size_t max_pow) {
     return {f_19_re(s, L_b, z, max_pow), f_19_im(s, L_b, z, max_pow)};
 }
 
-scalar_t f_29_PS(double s, double L_b, double z, size_t max_pow) {
+complex_t f_29_PS(double s, double L_b, double z, size_t max_pow) {
     return {f_29_re(s, L_b, z, max_pow), f_29_im(s, L_b, z, max_pow)};
 }
 
-scalar_t f_19_pole(double s, double L_b, double z, size_t max_pow) {
+complex_t f_19_1S(double s, double L_b, double z, size_t max_pow) {
     return {f_19_re(s, L_b, z, max_pow) + delta_f_19_re(s, L_b, z, max_pow),
              f_19_im(s, L_b, z, max_pow) + delta_f_19_im(s, L_b, z, max_pow)};
 }
 
-scalar_t f_29_pole(double s, double L_b, double z, size_t max_pow) {
+complex_t f_29_1S(double s, double L_b, double z, size_t max_pow) {
     return {f_29_re(s, L_b, z, max_pow) + delta_f_29_re(s, L_b, z, max_pow),
              f_29_im(s, L_b, z, max_pow) + delta_f_29_im(s, L_b, z, max_pow)};
 }
 
-scalar_t f_87(double s, double L_b) {
+complex_t f_87(double s, double L_b) {
    if (std::abs(1 - s) < 5e-3)
       return -32. / 9 * L_b - 94. / 27. + 148 * std::sqrt(3) * PI / 405 + s * (1 - 58 * std::sqrt(3) * PI / 405) - 8. * PI / 9. * I;
 
@@ -10788,7 +10788,7 @@ scalar_t f_87(double s, double L_b) {
 	-8.*s/9./(1.-s)*log(s)-32./9.*L_b-I*8./9.*PI;
 }
 
-scalar_t f_89(double s) {
+complex_t f_89(double s) {
    if (std::abs(1 - s) < 5e-3)
       return -128. / 27. + 16 * std::sqrt(3) * PI / 45 + s * (2 - 28 * std::sqrt(3) * PI / 135);
 

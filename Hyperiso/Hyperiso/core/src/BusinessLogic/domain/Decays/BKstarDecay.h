@@ -6,43 +6,52 @@
 #include "QCDHelper.h"
 #include "Math.h"
 #include "ObsParameterMutator.h"
+#include "DefaultConfig.h"
 
-class BKstarDecay : public DecayParent {
+struct BKstarDecayCache {
+    double m_b_mu_b, m_b_1S;
+    double f_Ks_par, f_Ks_perp, f_B;
+    double m_B, m_Ks;
+    double a_1_perp, a_2_perp;
+    double a_1_par, a_2_par;
+    double zeta_3_A, zeta_3_V;
+    double omega_10_A;
+    double delta_t_p, delta_t_m;
+    double lambda_B;
+    double T1_B_Ks;
+    double Lambda_h, mu_0;
+
+    complex_t lambda_hat_u;
+    double C_F, Nc, beta_0, n_f;
+    double mu_b;
+    double alpha_s_mu_b, alpha_s_mu_h;
+    double s_c;
+
+    std::unordered_map<WCoef, complex_t> C_b;
+    complex_t C2_h, C8_h;
+};
+
+class BKstarDecay : public DecayParentConfigurable<DecayConfig> {
+private:
+    BKstarDecayCache cache;
 
 protected:
-    double alpha_s(double mu);
-    double beta_0(double mu);
-    double sc(double mb_mu_b, double hadronic_scale);
-    double run(double initial_value, double eta, double gamma, double beta);
-    double a_n_perp(int n, double a_1_gev, double beta_0, double eta);
-    double a_n_par(int n, double a_1_gev, double beta_0, double eta);
-    double lambda_B(double lam_B_1_gev, double mu_h, double alpha_s_mu_h);
-    double f_Ks_perp(double f_1_gev, double beta_0, double eta);
-    scalar_t h(double s, double u);
-    scalar_t g_2(double s);
-    double phi_perp(double a1, double a2, double u);
-    double gv_dga_4(double a1, double a2, double z3a, double z3v, double w10a, double dtp, double dtm, double u);
-    scalar_t G(double s, double xbar);
-    double F_perp(double a1, double a2); 
-    scalar_t G_perp(double s, double a1, double a2); 
-    scalar_t H_perp(double s, double a1par, double a2par, double z3a, double z3v, double w10a, double dtp, double dtm); 
-    double X_perp(double a1, double a2, double m_B, double Lambda_h); 
-    scalar_t G2(double s, double lrb); 
-    scalar_t G8(double lrb);
-    scalar_t H2(double s, double a1, double a2);
-    double H8(double a1, double a2); 
-    scalar_t a7c_h(double mu_h, double mu_b, double alpha_s_mu_h, double f_B, double f_Ks_perp, double T1, double m_B, double lambda_B, scalar_t h2, scalar_t h8); 
-    scalar_t a7c_b(double alpha_s_mu_b, scalar_t g2, scalar_t g8); 
-    scalar_t r1(double mu_0, double mu_b, double F_p);
-    scalar_t r2(double mu_0, double mu_b);
-    scalar_t K1(double mb_mb, double m_B, double alpha_s_mu_b, double F_p, scalar_t G_p, scalar_t X_p, scalar_t r1, double mu_b);
-    scalar_t K2d(double mb_mb, double alpha_s_mu_b, scalar_t H_p, scalar_t r2, double mu_b);
-    scalar_t ckm_factor(scalar_t Vus, scalar_t Vub, scalar_t Vcs, scalar_t Vcb);
-    scalar_t K2u(scalar_t ckm, scalar_t K2d);
-    double delta_0(double f_B, double mb_mb, double T1, double f_Ks_perp, double f_Ks_par, double m_Ks, double m_B, double lambda_B, scalar_t a7c, scalar_t K1, scalar_t K2d, scalar_t K2u);
+    complex_t h(double u);
+    double phi_perp(double u);
+    double gv_dga_4(double u);
+    complex_t G(double xbar);
+    complex_t G_perp(); 
+    complex_t H_perp(); 
+    double X_perp(); 
+    complex_t G2(); 
+    complex_t G8();
+    complex_t H2();
+    complex_t K1();
+    complex_t K2(int q);
+    double delta_0();
 
 public:
-    BKstarDecay(QCDOrder order, double matching_scale, double hadronic_scale, std::shared_ptr<ObsWilsonBuilder>& wilson_builder) : DecayParent(DecayMapper::to_id(Decays::B__Kstar), matching_scale, hadronic_scale, order, wilson_builder) {
+    BKstarDecay(QCDOrder order, double matching_scale, double hadronic_scale, std::shared_ptr<ObsWilsonBuilder>& wilson_builder) : DecayParentConfigurable(DecayMapper::to_id(Decays::B__Kstar), matching_scale, hadronic_scale, order, wilson_builder) {
         this->w_config.groups = {WGroup::B, WGroup::BPrime};
         this->max_order = QCDOrder::NNLO;
     }
@@ -52,8 +61,9 @@ public:
         this->w_proxy->set_basis(WilsonBasis::B_TRADITIONAL);
     }
 
-    void build_op_tree() override;
-
+    void load_params() override;
+    std::vector<ObservableValue> compute_observable(Observables obs) override;
+    std::vector<ObservableValue> compute_observable(ObservableId obs) override;
 };
 
 #endif // __BKSTARDECAY_H__

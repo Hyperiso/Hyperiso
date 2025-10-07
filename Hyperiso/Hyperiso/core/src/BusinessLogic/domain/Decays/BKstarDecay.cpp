@@ -1,361 +1,191 @@
 #include "BKstarDecay.h"
 #include "BKsllDecay.h"
 
-double BKstarDecay::alpha_s(double mu) {
-    return QCDHelper::alpha_s(mu); 
+void BKstarDecay::load_params() {
+    ObsParameterProxy p;
+    auto run = [this] (double value_1gev, double eta, double gamma) { return value_1gev * pow(eta, gamma / cache.beta_0); };
+    auto gamma_perp = [this] (int n) { return 4. * cache.C_F * (psi(n + 1) + GAMMA - 1. + 1. / (n + 1)); };
+    auto gamma_par = [this] (int n) { return 4. * cache.C_F * (psi(n + 2) + GAMMA - .75 - 1. /(2. * (n + 1) * (n + 2))); };
+    auto get_C = [this] (WCoef id) { return w_proxy->getFR(WGroup::B, id, w_config.order); };
+    auto get_Cp = [this] (WCoef id) { return w_proxy->getFR(WGroup::BPrime, id, QCDOrder::LO); };
+
+    cache.mu_b = w_config.hadronic_scale;
+    cache.lambda_hat_u = std::conj(p(ParamId{ParameterType::SM, "VCKM", {0, 1}})) * p(ParamId{ParameterType::SM, "VCKM", {0, 2}}) 
+                            / (std::conj(p(ParamId{ParameterType::SM, "VCKM", {1, 1}})) * p(ParamId{ParameterType::SM, "VCKM", {1, 2}}));
+    cache.m_b_1S = p(ParamId{ParameterType::SM, "QCD", {5, 3}});
+    cache.m_b_mu_b = ObsQCDProxy()(MassConfig(5, cache.mu_b, MassType::MSBAR, MassType::POLE));
+    cache.s_c = std::pow(ObsQCDProxy()(MassConfig(4, cache.mu_b, MassType::MSBAR, MassType::POLE)) / cache.m_b_mu_b, 2);
+    cache.f_Ks_par = p(ParamId{ParameterType::FLAVOR, "FCONST", {323, 1}});
+    cache.f_B = p(ParamId{ParameterType::FLAVOR, "FCONST", {521, 1}});
+    cache.m_B = p(ParamId{ParameterType::FLAVOR, "FMASS", 521});
+    cache.m_Ks = p(ParamId{ParameterType::FLAVOR, "FMASS", 323});
+    cache.zeta_3_A = p(ParamId{ParameterType::DECAY, "B_Ks", 5});
+    cache.zeta_3_V = p(ParamId{ParameterType::DECAY, "B_Ks", 6});
+    cache.omega_10_A = p(ParamId{ParameterType::DECAY, "B_Ks", 7});
+    cache.delta_t_p = p(ParamId{ParameterType::DECAY, "B_Ks", 8});
+    cache.delta_t_m = p(ParamId{ParameterType::DECAY, "B_Ks", 9});
+    cache.T1_B_Ks = p(ParamId{ParameterType::DECAY, "B_Ks", 11});
+    cache.Lambda_h = p(ParamId{ParameterType::DECAY, "B_Ks", 12});
+    cache.mu_0 = p(ParamId{ParameterType::DECAY, "B_Ks", 13});
+    if (fpeq(cache.mu_0, -1.)) cache.mu_0 = cache.mu_b;
+    double mu_h = std::sqrt(cache.mu_b * cache.Lambda_h);
+    cache.C_F = ObsQCDProxy().get_constants()->C_F;
+    cache.Nc = ObsQCDProxy().get_constants()->Nc;
+    cache.beta_0 = ObsQCDProxy().get_constants()->beta[5][0];
+    cache.n_f = 5.0; // TODO : Link with get_nf vs. hard-coded ?
+    cache.alpha_s_mu_b = ObsQCDProxy()(AlphasConfig(cache.mu_b, MassType::POLE, MassType::POLE));
+    cache.alpha_s_mu_h = ObsQCDProxy()(AlphasConfig(mu_h, MassType::POLE, MassType::POLE));
+    double eta = cache.alpha_s_mu_b / ObsQCDProxy()(AlphasConfig(1.0, MassType::POLE, MassType::POLE));
+    cache.f_Ks_perp = run(p(ParamId{ParameterType::FLAVOR, "FCONST", {323, 2}}), eta, cache.C_F);
+    cache.a_1_perp = run(p(ParamId{ParameterType::DECAY, "B_Ks", 1}), eta, gamma_perp(1));
+    cache.a_2_perp = run(p(ParamId{ParameterType::DECAY, "B_Ks", 2}), eta, gamma_perp(2));
+    cache.a_1_par = run(p(ParamId{ParameterType::DECAY, "B_Ks", 3}), eta, gamma_par(1));
+    cache.a_2_par = run(p(ParamId{ParameterType::DECAY, "B_Ks", 4}), eta, gamma_par(2));
+    cache.lambda_B = p(ParamId{ParameterType::DECAY, "B_Ks", 10}) / (1. - cache.alpha_s_mu_h * log(pow(mu_h, 2)) * 1.8 / (3. * PI));
+    
+    cache.C_b.emplace(WCoef::C1, get_C(WCoef::C1) /* + get_Cp(WCoef::CP1) */ );
+    cache.C_b.emplace(WCoef::C2, get_C(WCoef::C2) /* + get_Cp(WCoef::CP2) */ );
+    cache.C_b.emplace(WCoef::C3, get_C(WCoef::C3) /* + get_Cp(WCoef::CP3) */ );
+    cache.C_b.emplace(WCoef::C4, get_C(WCoef::C4) /* + get_Cp(WCoef::CP4) */ );
+    cache.C_b.emplace(WCoef::C5, get_C(WCoef::C5) /* + get_Cp(WCoef::CP5) */ );
+    cache.C_b.emplace(WCoef::C6, get_C(WCoef::C6) /* + get_Cp(WCoef::CP6) */ );
+    cache.C_b.emplace(WCoef::C7, get_C(WCoef::C7) + get_Cp(WCoef::CP7));
+    cache.C_b.emplace(WCoef::C8, get_C(WCoef::C8) + get_Cp(WCoef::CP8));
+
+    ObsParameterMutator().set(ParamId{ParameterType::WILSON, "B_SCALE", 1}, mu_h);
+    cache.C2_h = get_C(WCoef::C2) /* + get_Cp(WCoef::CP2) */;
+    cache.C8_h = get_C(WCoef::C8) + get_Cp(WCoef::CP8);
 }
 
-double BKstarDecay::beta_0(double mu) {
-    int nf = QCDHelper::get_nf(mu);
-    return QCDHelper::constants->beta[nf][0];
+complex_t BKstarDecay::h(double u) {
+    complex_t rt = sqrt((u - 4 * cache.s_c + I * EPSILON) / u);
+    return (4 * cache.s_c * (CLi2(2. / (1. - rt)) + CLi2(2. / (1. + rt))) / u - 2.) / u;
 }
 
-double BKstarDecay::sc(double mb_mu_b, double hadronic_scale) {
-    double m_c_mu_b = QCDHelper::msbar_mass(4, hadronic_scale, MassType::POLE);
-    return pow(m_c_mu_b / mb_mu_b, 2);
-}
-
-double BKstarDecay::run(double initial_value, double eta, double gamma, double beta) {
-    return initial_value * pow(eta, gamma / beta);
-}
-
-double BKstarDecay::a_n_perp(int n, double a_1_gev, double beta_0, double eta) {
-    double gamma = 4 * QCDHelper::constants->C_F * (psi(n + 1) + GAMMA - 1. + 1. / (n + 1));
-    return run(a_1_gev, eta, gamma, beta_0);
-}
-
-double BKstarDecay::a_n_par(int n, double a_1_gev, double beta_0, double eta) {
-    double gamma = 4 * QCDHelper::constants->C_F * (psi(n + 2) + GAMMA - .75 - 1. /(2 * (n + 1) * (n + 2)));
-    return run(a_1_gev, eta, gamma, beta_0);
-}
-
-double BKstarDecay::lambda_B(double lam_B_1_gev, double mu_h, double alpha_s_mu_h) {
-    return lam_B_1_gev / (1 - alpha_s_mu_h * log(pow(mu_h, 2)) * 1.8 / (3 * PI));
-}
-
-double BKstarDecay::f_Ks_perp(double f_1_gev, double beta_0, double eta) {
-    return run(f_1_gev, eta, QCDHelper::constants->C_F, beta_0);
-}
-
-scalar_t BKstarDecay::h(double s, double u) {
-    scalar_t rt = sqrt((u - 4 * s + I * EPSILON) / u);
-    return (4 * s * (CLi2(2. / (1. - rt)) + CLi2(2. / (1. + rt))) / u - 2.) / u;
-}
-
-scalar_t BKstarDecay::g_2(double s) {
-    double ls = log(s);
-    double ls2 = ls * ls;
-    double ls3 = ls * ls2;
-    scalar_t a_0 {-833. / 162., -20. * PI / 27.};
-    scalar_t a_1 = 48. - 5. * PI2 - 36. * ZETA3 + I * (30. * PI - 2. * PI3) + (36. - 9. * PI2 + 6. * PI * I) * ls + (3. + 6. * PI * I) * ls2 + ls3;
-    scalar_t a_2 = 18. + 2. * PI2 - 2. * PI3 * I + (12. - 6. * PI2) * ls + 6. * PI * I * ls2 + ls3;
-    scalar_t a_3 = -9. - 14. * PI2 + 112. * PI * I + (182. - 48. * PI * I) * ls - 126. * ls2;
-    return a_0 + 2. * (s * a_1 + s * s * a_2) / 9. + s * s * s * a_3 / 27. + 8. * PI2 * pow(s, 1.5) / 9.;
-}
-
-double BKstarDecay::phi_perp(double a1, double a2, double u) {
+double BKstarDecay::phi_perp(double u) {
     double ubar = 1 - u;
     double xi = u - ubar;
-    return 6 * u * ubar * (1 + 3 * a1 * xi + 1.5 * a2 * (5 * xi * xi - 1));
+    return 6 * u * ubar * (1 + 3 * cache.a_1_perp * xi + 1.5 * cache.a_2_perp * (5 * xi * xi - 1));
 }
 
-double BKstarDecay::gv_dga_4(double a1p, double a2p, double z3a, double z3v, double w10a, double dtp, double dtm, double u) {
-    double a1 = -60 * z3a * (w10a + 4) + 1680 * z3v;
-    double a2 = 30 * z3a * (15 * w10a + 32) - 12600 * z3v + 36 * a1p - 72 * a2p - 12;
-    double a3 = -100 * z3a * (9 * w10a + 8) + 25200 * z3v - 48 * a1p + 240 * a2p;
-    double a4 = 525 * z3a * w10a - 14700 * z3v - 180 * a2p;
-    return -u * (a1 + u * (a2 + u * (a3 + u * a4))) / 4 + dtp * (9 * u - 1.5) + dtm * 6 * u + 3 * (dtp + dtm) * log(1 - u);
+double BKstarDecay::gv_dga_4(double u) {
+    double a1 = -60 * cache.zeta_3_A * (cache.omega_10_A + 4) + 1680 * cache.zeta_3_V;
+    double a2 = 30 * cache.zeta_3_A * (15 * cache.omega_10_A + 32) - 12600 * cache.zeta_3_V + 36 * cache.a_1_par - 72 * cache.a_2_par - 12;
+    double a3 = -100 * cache.zeta_3_A * (9 * cache.omega_10_A + 8) + 25200 * cache.zeta_3_V - 48 * cache.a_1_par + 240 * cache.a_2_par;
+    double a4 = 525 * cache.zeta_3_A * cache.omega_10_A - 14700 * cache.zeta_3_V - 180 * cache.a_2_par;
+    return -u * (a1 + u * (a2 + u * (a3 + u * a4))) / 4 + cache.delta_t_p * (9 * u - 1.5) + cache.delta_t_m * 6 * u + 3 * (cache.delta_t_p + cache.delta_t_m) * log(1 - u);
 }
 
-scalar_t BKstarDecay::G(double s, double xbar) {
-    scalar_t alpha = scalar_t(s, -EPSILON);
+complex_t BKstarDecay::G(double xbar) {
+    complex_t alpha = complex_t(cache.s_c, -EPSILON);
 
     if (xbar < EPSILON)
         return -2. * log(alpha) / 3.;
 
-    scalar_t A = (xbar + 2. * alpha) * sqrt(xbar - 4. * alpha) / pow(xbar, 1.5);
+    complex_t A = (xbar + 2. * alpha) * sqrt(xbar - 4. * alpha) / pow(xbar, 1.5);
     return 10. / 9 - 2. * log(alpha) / 3. + 8. * alpha / (3 * xbar) + 2. * A * log(-(xbar * (1. - A) + 2. * alpha) / (xbar * (1. + A) + 2. * alpha)) / 3.;
 }
 
-double BKstarDecay::F_perp(double a1, double a2) {
-    return 1 + a1 + a2;
-}
-
-scalar_t BKstarDecay::G_perp(double s, double a1, double a2)
-{
-    auto iG_perp = [this, s, a1, a2] (double x) {
+complex_t BKstarDecay::G_perp() {
+    auto iG_perp = [this] (double x) {
         double xbar = 1 - x;
-        return phi_perp(a1, a2, x) * G(s, xbar) / (3 * xbar);
+        return phi_perp(x) * G(xbar) / (3 * xbar);
     };
 
     return c_integrate(iG_perp, 0, 1, 1e-3);
 }
 
-scalar_t BKstarDecay::G2(double s, double lrb) {
-    return 8 * lrb / 3 + g_2(s);
+complex_t BKstarDecay::G2() {
+    double ls = log(cache.s_c);
+    double ls2 = ls * ls;
+    double ls3 = ls * ls2;
+    complex_t a_0 {-833. / 162., -20. * PI / 27.};
+    complex_t a_1 = 48. - 5. * PI2 - 36. * ZETA3 + I * (30. * PI - 2. * PI3) + (36. - 9. * PI2 + 6. * PI * I) * ls + (3. + 6. * PI * I) * ls2 + ls3;
+    complex_t a_2 = 18. + 2. * PI2 - 2. * PI3 * I + (12. - 6. * PI2) * ls + 6. * PI * I * ls2 + ls3;
+    complex_t a_3 = -9. - 14. * PI2 + 112. * PI * I + (182. - 48. * PI * I) * ls - 126. * ls2;
+    complex_t g_2 = a_0 + 2. * (cache.s_c * a_1 + cache.s_c * cache.s_c * a_2) / 9. + cache.s_c * cache.s_c * cache.s_c * a_3 / 27. + 8. * PI2 * pow(cache.s_c, 1.5) / 9.;
+    
+    return 8 * std::log(cache.mu_b / cache.m_b_1S) / 3 + g_2;
 }
 
-scalar_t BKstarDecay::G8(double lrb) {
-    scalar_t g_8 = 11. / 3 - 2 * PI2 / 9 + 2. * I * PI / 3.;
-    return -104 * lrb / 27 + g_8;
+complex_t BKstarDecay::G8() {
+    complex_t g_8 = 11. / 3 - 2 * PI2 / 9 + 2. * I * PI / 3.;
+    return -104 * std::log(cache.mu_b / cache.m_b_1S) / 27 + g_8;
 }
 
-scalar_t BKstarDecay::H_perp(double s, double a1par, double a2par, double z3a, double z3v, double w10a, double dtp, double dtm) {
-    auto iH_perp = [this, s, a1par, a2par, z3a, z3v, w10a, dtp, dtm] (double x) {
-        return gv_dga_4(a1par, a2par, z3a, z3v, w10a, dtp, dtm, x) * G(s, 1 - x);
+complex_t BKstarDecay::H_perp() {
+    auto iH_perp = [this] (double x) {
+        return gv_dga_4(x) * G(1 - x);
     }; 
     return c_integrate(iH_perp, 0, 1, 1e-3);
 }
 
-scalar_t BKstarDecay::H2(double s, double a1, double a2) {
-    auto iH2_perp = [this, s, a1, a2] (double x) {
-        return h(s, 1 - x) * phi_perp(a1, a2, x);
+complex_t BKstarDecay::H2() {
+    auto iH2_perp = [this] (double x) {
+        return h(1 - x) * phi_perp(x);
     }; 
 
     return c_integrate(iH2_perp, 0, 1, 1e-4);
 }
 
-double BKstarDecay::H8(double a1, double a2) {
-    return 3 * (1 - a1 + a2);
+complex_t BKstarDecay::K1() {
+    double F_perp = 1 + cache.a_1_perp + cache.a_2_perp;
+    return -(cache.C_b[WCoef::C6] + cache.C_b[WCoef::C5] / cache.Nc) * F_perp
+           + cache.C_F * cache.alpha_s_mu_b / (4 * cache.Nc * PI) * (
+                pow(cache.m_b_mu_b / cache.m_B, 2) * cache.C_b[WCoef::C8] * X_perp() 
+              - cache.C_b[WCoef::C2] * ((4 * log(cache.m_b_1S / cache.mu_b) + 2) * F_perp / 3 - G_perp()) 
+              + F_perp * log(cache.mu_b / cache.mu_0) * (
+                    8. * cache.C_b[WCoef::C3] / 3. 
+                  + 4 * cache.n_f * (cache.C_b[WCoef::C4] + cache.C_b[WCoef::C6]) / 3. 
+                  - 8. * (cache.Nc * cache.C_b[WCoef::C6] + cache.C_b[WCoef::C5]))
+            );
 }
 
-scalar_t BKstarDecay::a7c_h(double mu_h,
-                             double mu_b,
-                             double alpha_s_mu_h,
-                             double f_B,
-                             double f_Ks_perp,
-                             double T1,
-                             double m_B,
-                             double lambda_B,
-                             scalar_t h2,
-                             scalar_t h8) {
-    
-    ObsParameterMutator().set(ParamId{ParameterType::WILSON, "B_SCALE", 1}, mu_h);
-    scalar_t C2_h = w_proxy->getFR(WGroup::B, WCoef::C2, this->w_config.order) + w_proxy->getFR(WGroup::BPrime, WCoef::CP2, this->w_config.order);
-    scalar_t C8_h = w_proxy->getFR(WGroup::B, WCoef::C8, this->w_config.order) + w_proxy->getFR(WGroup::BPrime, WCoef::CP8, this->w_config.order);
-    ObsParameterMutator().set(ParamId{ParameterType::WILSON, "B_SCALE", 1}, mu_b);
-
-    double prefactor = PI * QCDHelper::constants->C_F * alpha_s_mu_h * f_B * f_Ks_perp / (6. * QCDHelper::constants->Nc * T1 * m_B * lambda_B);
-    return prefactor * (2. * C8_h * h8 - C2_h * h2);
+complex_t BKstarDecay::K2(int q) {
+    complex_t k2 = cache.C_b[WCoef::C4] + cache.C_b[WCoef::C3] / cache.Nc 
+                    + cache.C_F * cache.alpha_s_mu_b / (4 * cache.Nc * PI) * (
+                        cache.C_b[WCoef::C2] * ((2 - 4 * log(cache.m_b_1S / cache.mu_b)) / 3. - H_perp()) 
+                      + log(cache.mu_b / cache.mu_0) * (
+                        -44. * cache.C_b[WCoef::C3] / 3. 
+                        -4. * cache.n_f * (cache.C_b[WCoef::C4] + cache.C_b[WCoef::C6]) / 3.)
+                    );
+    if (q == 2) 
+        k2 += cache.lambda_hat_u * (cache.C_b[WCoef::C2] + cache.C_b[WCoef::C1] / cache.Nc);
+    return k2;
 }
 
-scalar_t BKstarDecay::a7c_b(double alpha_s_mu_b, scalar_t g2, scalar_t g8) {
-    auto C = w_proxy->getAFR(WGroup::B, this->w_config.order);
-    auto Cp = w_proxy->getAFR(WGroup::BPrime, this->w_config.order);
-    return C[WCoef::C7] + Cp[WCoef::CP7] + alpha_s_mu_b * QCDHelper::constants->C_F * ((C[WCoef::C2] + Cp[WCoef::CP2]) * g2 + (C[WCoef::C8] + Cp[WCoef::CP8]) * g8) / (4 * PI);
+double BKstarDecay::X_perp() {
+    double cutoff = cache.Lambda_h / cache.m_B;
+    return -2 * (1 + 3 * cache.a_1_perp + 6 * cache.a_2_perp) * log(cutoff) - (1 + 11 * cache.a_1_perp + 31 * cache.a_2_perp) + 12 * cutoff * (cache.a_1_perp + 5 * cache.a_2_perp);
 }
 
-scalar_t BKstarDecay::r1(double mu_0, double mu_b, double F_p) {
-    if (fpeq(mu_0, -1.)) return 0;
-    
-    auto C = w_proxy->getAFR(WGroup::B, this->w_config.order);
-    auto Cp = w_proxy->getAFR(WGroup::BPrime, this->w_config.order);
-    scalar_t C3 = C[WCoef::C3] + Cp[WCoef::CP3];
-    scalar_t C4 = C[WCoef::C4] + Cp[WCoef::CP4];
-    scalar_t C5 = C[WCoef::C5] + Cp[WCoef::CP5];
-    scalar_t C6 = C[WCoef::C6] + Cp[WCoef::CP6];
-    double nf = QCDHelper::get_nf(mu_b);
-    return (8. * C3 / 3. + 4 * nf * (C4 + C6) / 3. - 8. * ((double)QCDHelper::constants->Nc * C6 + C5)) * F_p * log(mu_b / mu_0);
-}
+double BKstarDecay::delta_0() {    
+    double prefactor = PI * cache.C_F * cache.alpha_s_mu_h * cache.f_B * cache.f_Ks_perp / (6. * cache.Nc * cache.T1_B_Ks * cache.m_B * cache.lambda_B);
+    double H_8 = 3 * (1 - cache.a_1_perp + cache.a_2_perp);
+    complex_t a7c = cache.C_b[WCoef::C7] + cache.alpha_s_mu_b * cache.C_F * (cache.C_b[WCoef::C2] * G2() + cache.C_b[WCoef::C8] * G8()) / (4. * PI) 
+                    + prefactor * (2. * cache.C8_h * H_8 - cache.C2_h * H2());
 
-scalar_t BKstarDecay::r2(double mu_0, double mu_b) {
-    if (fpeq(mu_0, -1.)) return 0;
-    
-    auto C = w_proxy->getAFR(WGroup::B, this->w_config.order);
-    auto Cp = w_proxy->getAFR(WGroup::BPrime, this->w_config.order);
-    scalar_t C3 = C[WCoef::C3] + Cp[WCoef::CP3];
-    scalar_t C4 = C[WCoef::C4] + Cp[WCoef::CP4];
-    scalar_t C6 = C[WCoef::C6] + Cp[WCoef::CP6];
-    double nf = QCDHelper::get_nf(mu_b);
-    return (-44. * C3 / 3. - 4 * nf * (C4 + C6) / 3.) * log(mu_b / mu_0);
-}
-
-scalar_t BKstarDecay::K1(double mb_mb,
-                          double m_B,
-                          double alpha_s_mu_b,
-                          double F_p,
-                          scalar_t G_p,
-                          scalar_t X_p,
-                          scalar_t r1,
-                          double mu_b)
-{
-    
-    auto C = w_proxy->getAFR(WGroup::B, this->w_config.order);
-    auto Cp = w_proxy->getAFR(WGroup::BPrime, this->w_config.order);
-    scalar_t C2 = C[WCoef::C2] + Cp[WCoef::CP2];
-    scalar_t C5 = C[WCoef::C5] + Cp[WCoef::CP5];
-    scalar_t C6 = C[WCoef::C6] + Cp[WCoef::CP6];
-    scalar_t C8 = C[WCoef::C8] + Cp[WCoef::CP8];
-    double N = QCDHelper::constants->Nc;
-    double C_F = QCDHelper::constants->C_F;
-
-    return -(C6 + C5 / N) * F_p + C_F * alpha_s_mu_b / (4 * N * PI) * (pow(mb_mb / m_B, 2) * C8 * X_p - C2 * ((4 * log(mb_mb / mu_b) + 2) * F_p / 3 - G_p) + r1);
-}
-
-scalar_t BKstarDecay::K2d(double mb_mb,
-                           double alpha_s_mu_b,
-                           scalar_t H_p,
-                           scalar_t r2,
-                           double mu_b)
-{
-    auto C = w_proxy->getAFR(WGroup::B, this->w_config.order);
-    auto Cp = w_proxy->getAFR(WGroup::BPrime, this->w_config.order);
-    scalar_t C2 = C[WCoef::C2] + Cp[WCoef::CP2];
-    scalar_t C3 = C[WCoef::C3] + Cp[WCoef::CP3];
-    scalar_t C4 = C[WCoef::C4] + Cp[WCoef::CP4];
-    double N = QCDHelper::constants->Nc;
-    double C_F = QCDHelper::constants->C_F;
-    return C4 + C3 / N + C_F * alpha_s_mu_b * (C2 * ((2 - 4 * log(mb_mb / mu_b)) / 3. - H_p) + r2) / (4 * N * PI);
-}
-
-scalar_t BKstarDecay::ckm_factor(scalar_t V_us, scalar_t V_ub, scalar_t V_cs, scalar_t V_cb) {
-    return conj(V_us) * V_ub / (conj(V_cs) * V_cb);
-}
-
-scalar_t BKstarDecay::K2u(scalar_t ckm, scalar_t K2d) {
-    scalar_t C1 = w_proxy->getFR(WGroup::B, WCoef::C1, this->w_config.order) + w_proxy->getFR(WGroup::BPrime, WCoef::CP1, this->w_config.order);
-    scalar_t C2 = w_proxy->getFR(WGroup::B, WCoef::C2, this->w_config.order) + w_proxy->getFR(WGroup::BPrime, WCoef::CP2, this->w_config.order);
-    double N = QCDHelper::constants->Nc;
-    return ckm * (C2 + C1 / N) + K2d;
-}
-
-double BKstarDecay::delta_0(double f_B,
-                            double mb_mb,
-                            double T1,
-                            double f_Ks_perp,
-                            double f_Ks_par,
-                            double m_Ks,
-                            double m_B,
-                            double lambda_B,
-                            scalar_t a7c,
-                            scalar_t K1,
-                            scalar_t K2d,
-                            scalar_t K2u)
-{
-    scalar_t pref = 4 * PI2 * f_B / (mb_mb * T1 * a7c);
-    scalar_t t1 = f_Ks_perp * K1 / mb_mb;
-    scalar_t f2 = f_Ks_par * m_Ks / (6 * lambda_B * m_B);
-    scalar_t bd = -pref * (t1 + f2 * K2d);
-    scalar_t bu = 2. * pref * (t1 + f2 * K2u);
+    complex_t pref = 4 * PI2 * cache.f_B / (cache.m_b_mu_b * cache.T1_B_Ks * a7c);
+    complex_t t1 = cache.f_Ks_perp * K1() / cache.m_b_mu_b;
+    complex_t f2 = cache.f_Ks_par * cache.m_Ks / (6 * cache.lambda_B * cache.m_B);
+    complex_t bd = -pref * (t1 + f2 * K2(1));
+    complex_t bu = 2. * pref * (t1 + f2 * K2(2));
     return real(bd - bu);
 }
 
-double BKstarDecay::X_perp(double a1, double a2, double m_B, double Lambda_h) {
-    double cutoff = Lambda_h / m_B;
-    return -2 * (1 + 3 * a1 + 6 * a2) * log(cutoff) - (1 + 11 * a1 + 31 * a2) + 12 * cutoff * (a1 + 5 * a2);
+std::vector<ObservableValue> BKstarDecay::compute_observable(Observables obs) {
+    double value;
+    switch (obs) {
+    case Observables::ISOSPIN_ASYMMETRY_B_KSTAR_GAMMA:   
+        value = delta_0();
+        break;
+    default:
+        LOG_ERROR("IndexError", "Observable", ObservableMapper::str(obs), "doesn't belong to the decay", DecayMapper::str(this->id));
+    }
+
+    return {ObservableValue(ObservableMapper::to_id(obs), value)};
 }
 
-void BKstarDecay::build_op_tree() {
-    // Formfactors and decay-specific parameters
-    auto a_1_perp   = std::make_shared<ParameterNode>(ParamId(ParameterType::DECAY, "B_Ks", 1));
-    auto a_2_perp   = std::make_shared<ParameterNode>(ParamId(ParameterType::DECAY, "B_Ks", 2));
-    auto a_1_par    = std::make_shared<ParameterNode>(ParamId(ParameterType::DECAY, "B_Ks", 3));
-    auto a_2_par    = std::make_shared<ParameterNode>(ParamId(ParameterType::DECAY, "B_Ks", 4));
-    auto zeta_3_A   = std::make_shared<ParameterNode>(ParamId(ParameterType::DECAY, "B_Ks", 5));
-    auto zeta_3_V   = std::make_shared<ParameterNode>(ParamId(ParameterType::DECAY, "B_Ks", 6));
-    auto w_10_A     = std::make_shared<ParameterNode>(ParamId(ParameterType::DECAY, "B_Ks", 7));
-    auto delta_t_p  = std::make_shared<ParameterNode>(ParamId(ParameterType::DECAY, "B_Ks", 8));
-    auto delta_t_m  = std::make_shared<ParameterNode>(ParamId(ParameterType::DECAY, "B_Ks", 9));
-    auto lambda_B   = std::make_shared<ParameterNode>(ParamId(ParameterType::DECAY, "B_Ks", 10));
-    auto T1_B_Ks    = std::make_shared<ParameterNode>(ParamId(ParameterType::DECAY, "B_Ks", 11));
-    auto Lambda_h   = std::make_shared<ParameterNode>(ParamId(ParameterType::DECAY, "B_Ks", 12));
-
-    std::shared_ptr<ParameterNode> mu_0;
-    if (fpeq(ObsParameterProxy(ParameterType::DECAY)("B_Ks", 13), scalar_t(-1.))) {
-        mu_0 = std::make_shared<ParameterNode>(ParamId(ParameterType::WILSON, "B_SCALE", 1));
-    } else {
-        mu_0 = std::make_shared<ParameterNode>(ParamId(ParameterType::DECAY, "B_Ks", 13));
-    }
-  
-    // Flavor parameters
-    auto f_Ks_par   = std::make_shared<ParameterNode>(ParamId(ParameterType::FLAVOR, "FCONST", LhaID(323, 1)));
-    auto f_Ks_perp  = std::make_shared<ParameterNode>(ParamId(ParameterType::FLAVOR, "FCONST", LhaID(323, 2)));
-    auto f_B        = std::make_shared<ParameterNode>(ParamId(ParameterType::FLAVOR, "FCONST", LhaID(521, 1)));
-    auto m_B        = std::make_shared<ParameterNode>(ParamId(ParameterType::FLAVOR, "FMASS", 521));
-    auto m_Ks       = std::make_shared<ParameterNode>(ParamId(ParameterType::FLAVOR, "FMASS", 323));
-
-    // SM parameters
-    auto V_us = std::make_shared<ParameterNode>(ParamId(ParameterType::SM, "VCKM", LhaID(0, 1)));
-    auto V_cs = std::make_shared<ParameterNode>(ParamId(ParameterType::SM, "VCKM", LhaID(1, 1)));
-    auto V_ub = std::make_shared<ParameterNode>(ParamId(ParameterType::SM, "VCKM", LhaID(0, 2)));
-    auto V_cb = std::make_shared<ParameterNode>(ParamId(ParameterType::SM, "VCKM", LhaID(1, 2)));
-    auto m_d    = std::make_shared<ParameterNode>(ParamId(ParameterType::SM, "MASS", 1));
-    auto m_u    = std::make_shared<ParameterNode>(ParamId(ParameterType::SM, "MASS", 2));
-    auto m_s    = std::make_shared<ParameterNode>(ParamId(ParameterType::SM, "MASS", 3));
-    auto m_c    = std::make_shared<ParameterNode>(ParamId(ParameterType::SM, "MASS", 4));
-    auto m_b_1S = std::make_shared<ParameterNode>(ParamId(ParameterType::SM, "QCD", LhaID(5, 3)));
-
-    // SM and scale parameters
-    auto alpha_s_mu_b    = std::make_shared<ParameterNode>(ParamId(ParameterType::WILSON, "WPARAM_RUN_SM", 1));
-    auto mu_b = std::make_shared<ParameterNode>(ParamId(ParameterType::WILSON, "B_SCALE", 1));    
-
-    // Wilsons
-    auto wilson = this->get_wilson_node(ScaleType::MATCHING, WilsonBasis::B_TRADITIONAL);
-
-    // Operator nodes
-    auto alpha_s_1_gev  = std::make_shared<OperatorNode>("alpha_s_1_gev",   [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->alpha_s(1.); });
-    auto eta            = std::make_shared<OperatorNode>("eta",             [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return values[0] / values[1]; });
-    eta->addChildren({alpha_s_mu_b, alpha_s_1_gev});
-    auto beta_0         = std::make_shared<OperatorNode>("beta_0",          [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->beta_0(values[0]); });
-    beta_0->addChild(mu_b);
-    auto mu_h           = std::make_shared<OperatorNode>("mu_h",            [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return sqrt(values[0] * values[1]); });
-    mu_h->addChildren({Lambda_h, mu_b});
-    auto alpha_s_mu_h   = std::make_shared<OperatorNode>("alpha_s_mu_h",    [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->alpha_s(values[0]); });
-    alpha_s_mu_h->addChildren({mu_h});
-    auto lambda_B_mu_h  = std::make_shared<OperatorNode>("lambda_B_mu_h",   [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->lambda_B(values[0], values[1], values[2]); });
-    lambda_B_mu_h->addChildren({lambda_B, mu_h, alpha_s_mu_h});
-    auto f_Ks_perp_mu_b = std::make_shared<OperatorNode>("f_Ks_perp_mu_b",  [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->f_Ks_perp(values[0], values[1], values[2]); });
-    f_Ks_perp_mu_b->addChildren({f_Ks_perp, beta_0, eta});
-    auto a_1_perp_mu_b  = std::make_shared<OperatorNode>("a_1_perp_mu_b",   [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->a_n_perp(1, values[0], values[1], values[2]); });
-    a_1_perp_mu_b->addChildren({a_1_perp, beta_0, eta});
-    auto a_2_perp_mu_b  = std::make_shared<OperatorNode>("a_2_perp_mu_b",   [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->a_n_perp(2, values[0], values[1], values[2]); });
-    a_2_perp_mu_b->addChildren({a_2_perp, beta_0, eta});
-    auto a_1_par_mu_b   = std::make_shared<OperatorNode>("a_1_par_mu_b",    [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->a_n_par(1, values[0], values[1], values[2]); });
-    a_1_par_mu_b->addChildren({a_1_par, beta_0, eta});
-    auto a_2_par_mu_b   = std::make_shared<OperatorNode>("a_2_par_mu_b",    [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->a_n_par(2, values[0], values[1], values[2]); });
-    a_2_par_mu_b->addChildren({a_2_par, beta_0, eta});
-    auto mb_mu_b        = std::make_shared<OperatorNode>("mb_mu_b",         [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return QCDHelper::msbar_mass(5, values[0], MassType::MSBAR); });
-    mb_mu_b->addChild(mu_b);
-    auto s_c            = std::make_shared<OperatorNode>("s_c",             [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->sc(values[0], values[1]); });
-    s_c->addChildren({mb_mu_b, mu_b});
-    auto H2             = std::make_shared<OperatorNode>("H2",              [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->H2(values[0], values[1], values[2]); });
-    H2->addChildren({s_c, a_1_perp_mu_b, a_2_perp_mu_b});
-    auto H8             = std::make_shared<OperatorNode>("H8",              [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->H8(values[0], values[1]); });
-    H8->addChildren({a_1_perp_mu_b, a_2_perp_mu_b});
-    auto log_r_b            = std::make_shared<OperatorNode>("log(r_b)",    [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return log(values[0] / values[1]); });
-    log_r_b->addChildren({mu_b, m_b_1S});
-    auto G2             = std::make_shared<OperatorNode>("G2",              [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->G2(values[0], values[1]); });
-    G2->addChildren({s_c, log_r_b});
-    auto G8             = std::make_shared<OperatorNode>("G8",              [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->G8(values[0]); });
-    G8->addChild(log_r_b);
-    auto F_perp         = std::make_shared<OperatorNode>("F_perp",          [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->F_perp(values[0], values[1]); });
-    F_perp->addChildren({a_1_perp_mu_b, a_2_perp_mu_b});
-    auto G_perp         = std::make_shared<OperatorNode>("G_perp",          [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->G_perp(values[0], values[1], values[2]); });
-    G_perp->addChildren({s_c, a_1_perp_mu_b, a_2_perp_mu_b});
-    auto H_perp         = std::make_shared<OperatorNode>("H_perp",          [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->H_perp(values[0], values[1], values[2], values[3], values[4], values[5], values[6], values[7]); });
-    H_perp->addChildren({s_c, a_1_par_mu_b, a_2_par_mu_b, zeta_3_A, zeta_3_V, w_10_A, delta_t_p, delta_t_m});
-    auto X_perp         = std::make_shared<OperatorNode>("X_perp",          [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->X_perp(values[0], values[1], values[2], values[3]); });
-    X_perp->addChildren({a_1_perp_mu_b, a_2_perp_mu_b, m_B, Lambda_h});
-    auto a7c_h          = std::make_shared<OperatorNode>("a7c_h",           [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->a7c_h(values[0], values[1], values[2], values[3], values[4], values[5], values[6], values[7], values[8], values[9]); });
-    a7c_h->addChildren({mu_h, mu_b, alpha_s_mu_h, f_B, f_Ks_perp_mu_b, T1_B_Ks, m_B, lambda_B_mu_h, H2, H8, wilson});
-    auto a7c_b          = std::make_shared<OperatorNode>("a7c_b",           [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->a7c_b(values[0], values[1], values[2]); });
-    a7c_b->addChildren({alpha_s_mu_b, G2, G8, wilson});
-    auto a7c            = std::make_shared<OperatorNode>("a7c",             [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return values[0] + values[1]; });
-    a7c->addChildren({a7c_b, a7c_h});
-    auto r1             = std::make_shared<OperatorNode>("r1",              [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->r1(values[0], values[1], values[2]); });
-    r1->addChildren({mu_0, mu_b, F_perp, wilson});
-    auto r2             = std::make_shared<OperatorNode>("r2",              [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->r2(values[0], values[1]); });
-    r2->addChildren({mu_0, mu_b, wilson});
-    auto K1             = std::make_shared<OperatorNode>("K1",              [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->K1(values[0], values[1], values[2], values[3], values[4], values[5], values[6], values[7]); });
-    K1->addChildren({mb_mu_b, m_B, alpha_s_mu_b, F_perp, G_perp, X_perp, r1, mu_b, wilson});
-    auto K2d            = std::make_shared<OperatorNode>("K2d",             [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->K2d(values[0], values[1], values[2], values[3], values[4]); });
-    K2d->addChildren({mb_mu_b, alpha_s_mu_b, H_perp, r2, mu_b, wilson});
-    auto ckm            = std::make_shared<OperatorNode>("ckm",             [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->ckm_factor(values[0], values[1], values[2], values[3]); });
-    ckm->addChildren({V_us, V_ub, V_cs, V_cb});
-    auto K2u            = std::make_shared<OperatorNode>("K2u",             [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->K2u(values[0], values[1]); });
-    K2u->addChildren({ckm, K2d, wilson});
-    auto delta_0        = std::make_shared<OperatorNode>("delta_0",         [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->delta_0(values[0], values[1], values[2], values[3], values[4], values[5], values[6], values[7], values[8], values[9], values[10], values[11]); });
-    delta_0->addChildren({f_B, mb_mu_b, T1_B_Ks, f_Ks_perp_mu_b, f_Ks_par, m_Ks, m_B, lambda_B_mu_h, a7c, K1, K2d, K2u});
-
-    roots.emplace(ObservableMapper::to_id(Observables::ISOSPIN_ASYMMETRY_B_KSTAR_GAMMA), delta_0);
+std::vector<ObservableValue> BKstarDecay::compute_observable(ObservableId obs) {
+    return compute_observable(ObservableMapper::enum_of(obs).value());
 }

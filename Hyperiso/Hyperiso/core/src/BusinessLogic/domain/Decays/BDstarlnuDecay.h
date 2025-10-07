@@ -3,6 +3,25 @@
 
 #include "DecayParent.h"
 #include "General.h"
+#include "DefaultConfig.h"
+#include "ObsQCDProxy.h"
+
+struct BDstarlnuDecayCache {
+    double G_F;
+    double m_e, m_tau;
+    double m_B, m_D_star;
+    double tau_B;
+    double h_A1_1, rho_D2, R_11, R_21;
+
+    complex_t C_V1, C_V2, C_A, C_P, C_T;
+    bool C_V1_flag, C_V2_flag, C_A_flag, C_P_flag, C_T_flag;
+
+    double r_D, r_e, r_tau, r_qp, r_qm;
+    double sqrt_rD, one_m_rD2;
+    double w_e, w_tau;
+    double BR_pref;
+    double Gamma_p, Gamma_m;
+};
 
 /**
  * @brief Decay parent for the B > D* l nu_l decays [1309:0301]. Currently implements :
@@ -12,80 +31,83 @@
  *     - P_tau = (Γ(s_tau = +1/2) - Γ(s_tau = -1/2)) / Γ
  *     - P_D* = Γ(l_D = 0) / Γ
  */
-class BDstarlnuDecay : public DecayParent {
+class BDstarlnuDecay : public DecayParentConfigurable<DecayConfig> {
+private:
+    BDstarlnuDecayCache cache;
 
 protected:
-    double ckm  (scalar_t V_cb);
-    double pref (double G_F, double tau_B, double m_B, double m_D, double h_A1_1);
+    // Kinematics
+    double t        (double w);
+    double lambda_D (double w);
+    double x_l      (double rl, double w);
+    double phi      (double rl, double w);
+    double w_max    (double rl);
 
-    double t        (double rD, double w);
-    double lambda_D (double rD, double w);
-    double x_l      (double rl, double rD, double w);
-    double phi      (double rl, double rD, double w, double rho_D2);
-    double w_max    (double rD, double rl);
-
-    double h_A1 (double w, double rho_D2);
-    double R_1  (double w, double R_11);
-    double R_2  (double w, double R_21);
+    // Form Factors
+    double h_A1 (double w);
+    double R_1  (double w);
+    double R_2  (double w);
     double R_3  (double w);
 
-    double H_Vp (double w, double rt_rD, double R_11);
-    double H_Vm (double w, double rt_rD, double R_11);
-    double H_V0 (double w, double rD, double rt_rD, double R_21);
-    double H_Vt (double w, double rD, double rt_rD, double one_m_rD_sq, double R_21);
-    double H_S  (double w, double rD, double rt_rD, double one_m_rD_sq, double rqp, double R_21);
-    double H_Tp (double w, double rD, double rt_rD, double rqp, double rqm, double R_11);
-    double H_Tm (double w, double rD, double rt_rD, double rqp, double rqm, double R_11);
-    double H_T0 (double w, double rD, double rt_rD, double one_m_rD_sq, double rqp, double rqm, double R_11);
+    // Helicity amplitudes
+    double H_Vp (double w);
+    double H_Vm (double w);
+    double H_V0 (double w);
+    double H_Vt (double w);
+    double H_S  (double w);
+    double H_Tp (double w);
+    double H_Tm (double w);
+    double H_T0 (double w);
 
-    double F_V0_1  (double rD, double rt_rD, double rl, double rho_D2, double R_21, double w_m, bool flag);
-    double F_V0_2  (double rD, double rt_rD, double rl, double rho_D2, double R_21, double w_m, bool flag);
-    double F_Vp_1  (double rD, double rt_rD, double rl, double rho_D2, double R_11, double w_m, bool flag);
-    double F_Vp_2  (double rD, double rt_rD, double rl, double rho_D2, double R_11, double w_m, bool flag);
-    double F_Vm_1  (double rD, double rt_rD, double rl, double rho_D2, double R_11, double w_m, bool flag);
-    double F_Vm_2  (double rD, double rt_rD, double rl, double rho_D2, double R_11, double w_m, bool flag);
-    double F_Vt    (double rD, double rt_rD, double one_m_rD_sq, double rl, double rho_D2, double R_21, double w_m, bool flag);
-    double F_S     (double rD, double rt_rD, double one_m_rD_sq, double rl, double rqp, double rho_D2, double R_21, double w_m, bool flag);
-    double F_T0_1  (double rD, double rt_rD, double one_m_rD_sq, double rl, double rqp, double rqm, double rho_D2, double R_11, double w_m, bool flag);
-    double F_T0_2  (double rD, double rt_rD, double one_m_rD_sq, double rl, double rqp, double rqm, double rho_D2, double R_11, double w_m, bool flag);
-    double F_Tp_1  (double rD, double rt_rD, double rl, double rqp, double rqm, double rho_D2, double R_11, double w_m, bool flag);
-    double F_Tp_2  (double rD, double rt_rD, double rl, double rqp, double rqm, double rho_D2, double R_11, double w_m, bool flag);
-    double F_Tm_1  (double rD, double rt_rD, double rl, double rqp, double rqm, double rho_D2, double R_11, double w_m, bool flag);
-    double F_Tm_2  (double rD, double rt_rD, double rl, double rqp, double rqm, double rho_D2, double R_11, double w_m, bool flag);
+    // Helicity amplitude integrals
+    double F_V0_1  (double rl, double w_m);
+    double F_V0_2  (double rl, double w_m);
+    double F_Vp_1  (double rl, double w_m);
+    double F_Vp_2  (double rl, double w_m);
+    double F_Vm_1  (double rl, double w_m);
+    double F_Vm_2  (double rl, double w_m);
+    double F_Vt    (double rl, double w_m);
+    double F_S     (double rl, double w_m);
+    double F_T0_1  (double rl, double w_m);
+    double F_T0_2  (double rl, double w_m);
+    double F_Tp_1  (double rl, double w_m);
+    double F_Tp_2  (double rl, double w_m);
+    double F_Tm_1  (double rl, double w_m);
+    double F_Tm_2  (double rl, double w_m);
 
-    double G_Vp_Vm_1 (double rD, double rt_rD, double rl, double rho_D2, double R_11, double w_m, bool flag);
-    double G_Vp_Vm_2 (double rD, double rt_rD, double rl, double rho_D2, double R_11, double w_m, bool flag);
-    double G_Vp_Tp   (double rD, double rt_rD, double rl, double rqp, double rqm, double rho_D2, double R_11, double w_m, bool flag);
-    double G_Vp_Tm   (double rD, double rt_rD, double rl, double rqp, double rqm, double rho_D2, double R_11, double w_m, bool flag);
-    double G_Vm_Tp   (double rD, double rt_rD, double rl, double rqp, double rqm, double rho_D2, double R_11, double w_m, bool flag);
-    double G_Vm_Tm   (double rD, double rt_rD, double rl, double rqp, double rqm, double rho_D2, double R_11, double w_m, bool flag);
-    double G_V0_Vt   (double rD, double rt_rD, double one_m_rD_sq, double rl, double rho_D2, double R_21, double w_m, bool flag);
-    double G_V0_S    (double rD, double rt_rD, double one_m_rD_sq, double rl, double rqp, double rho_D2, double R_21, double w_m, bool flag);
-    double G_V0_T0   (double rD, double rt_rD, double one_m_rD_sq, double rl, double rqp, double rqm, double rho_D2, double R_11, double R_21, double w_m, bool flag);
-    double G_Vt_S    (double rD, double rt_rD, double one_m_rD_sq, double rl, double rqp, double rho_D2, double R_21, double w_m, bool flag);
-    double G_Vt_T0   (double rD, double rt_rD, double one_m_rD_sq, double rl, double rqp, double rqm, double rho_D2, double R_11, double R_21, double w_m, bool flag);
-    double G_S_T0    (double rD, double rt_rD, double one_m_rD_sq, double rl, double rqp, double rqm, double rho_D2, double R_11, double R_21, double w_m, bool flag);
+    double G_Vp_Vm_1 (double rl, double w_m);
+    double G_Vp_Vm_2 (double rl, double w_m);
+    double G_Vp_Tp   (double rl, double w_m);
+    double G_Vp_Tm   (double rl, double w_m);
+    double G_Vm_Tp   (double rl, double w_m);
+    double G_Vm_Tm   (double rl, double w_m);
+    double G_V0_Vt   (double rl, double w_m);
+    double G_V0_S    (double rl, double w_m);
+    double G_V0_T0   (double rl, double w_m);
+    double G_Vt_S    (double rl, double w_m);
+    double G_Vt_T0   (double rl, double w_m);
+    double G_S_T0    (double rl, double w_m);
 
-    scalar_t C_V1();
-    scalar_t C_V2();
-    scalar_t C_A();
-    scalar_t C_P();
-    scalar_t C_T();
+    // Intermediate results
+    double Gamma_tau_m(double rl, double w_m);
+    double Gamma_tau_p(double rl, double w_m);
 
-    double c_flag(scalar_t C);
-
-    double Gamma_tau_m(double F_Vp_1, double F_Vm_1, double F_V0_1, double F_Tp_2, double F_Tm_2, double F_T0_2, double G_Vp_Vm_1, double G_T0_V0, double G_Tp_Vp, double G_Tm_Vm, double G_Tp_Vm, double G_Tm_Vp, scalar_t C_V1, scalar_t C_V2, scalar_t C_T);
-    double Gamma_tau_p(double F_Vp_2, double F_Vm_2, double F_V0_2, double F_Vt, double F_S, double F_Tp_1, double F_Tm_1, double F_T0_1, double G_Vp_Vm_2, double G_Vt_S, double G_T0_V0, double G_Tp_Vp, double G_Tm_Vm, double G_Tp_Vm, double G_Tm_Vp, scalar_t C_V1, scalar_t C_V2, scalar_t C_A, scalar_t C_P, scalar_t C_T);
-    double Gamma_D_0(double F_V0_1, double F_V0_2, double F_Vt, double F_S, double F_T0_1, double F_T0_2, double G_Vt_S, double G_V0_T0, scalar_t C_A, scalar_t C_P, scalar_t C_T);
-    double B_theta(double F_Vp_1, double F_Vm_1, double F_Tp_2, double F_Tm_2, double G_V0_Vt, double G_V0_S, double G_Vt_T0, double G_Tp_Vp, double G_Tm_Vm, double G_Tp_Vm, double G_Tm_Vp, double G_T0_S, scalar_t C_V1, scalar_t C_V2, scalar_t C_A, scalar_t C_P, scalar_t C_T);
+    // Observables
+    double BR();
+    double A_FB();
+    double R_Dstar();
+    double P_tau();
+    double P_D();
 
 public:
-    BDstarlnuDecay(QCDOrder order, double matching_scale, double hadronic_scale, std::shared_ptr<ObsWilsonBuilder>& wilson_builder) : DecayParent(DecayMapper::to_id(Decays::B__Dstar_l_nu), matching_scale, hadronic_scale, order, wilson_builder) {
+    BDstarlnuDecay(QCDOrder order, double matching_scale, double hadronic_scale, std::shared_ptr<ObsWilsonBuilder>& wilson_builder) : DecayParentConfigurable(DecayMapper::to_id(Decays::B__Dstar_l_nu), matching_scale, hadronic_scale, order, wilson_builder) {
         this->w_config.groups = {WGroup::BCC};
         this->max_order = QCDOrder::LO;
     }
 
-    void build_op_tree() override;
+    void load_params() override;
+    std::vector<ObservableValue> compute_observable(Observables obs) override;
+    std::vector<ObservableValue> compute_observable(ObservableId obs) override;
 
 };
 

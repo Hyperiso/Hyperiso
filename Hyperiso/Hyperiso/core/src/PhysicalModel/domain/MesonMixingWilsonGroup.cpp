@@ -192,11 +192,11 @@ MesonMixingCoefficientGroup::base_1_LO_calculation (
         for (size_t k = 0; k < 8; k++) {
             Ci_match_temp[k] = coef_matching.at(QCDOrder::LO).at(ids[8 * n + k]);
         }
-        Ci_match_temp = MMRP::change_basis(Ci_match_temp, MMRP::SUSY_to_BMU_superiso);
+        Ci_match_temp = MMRP::change_basis(Ci_match_temp, MMRP::SUSY_to_BMU);
         for (size_t k = 0; k < 8; k++) {
             Ci_match_BMU[8 * n + k] = Ci_match_temp[k];
         }
-        Ci_match_temp = MMRP::change_basis(Ci_match_temp, MMRP::BMU_to_SUSY_superiso);
+        Ci_match_temp = MMRP::change_basis(Ci_match_temp, MMRP::BMU_to_SUSY);
     }    
 
     double fact = 4 * PI / src.at("WPARAM_RUN_SM")->retrieve(1)->get_val();

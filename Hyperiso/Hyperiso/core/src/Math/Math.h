@@ -542,14 +542,14 @@ double f(double x);
 
 // TODO : Docstring
 // B > sll NLO corrections
-scalar_t f_17(double s, double L_b, double z, size_t max_pow=20);
-scalar_t f_27(double s, double L_b, double z, size_t max_pow=20);
-scalar_t f_19_PS(double s, double L_b, double z, size_t max_pow=20);
-scalar_t f_29_PS(double s, double L_b, double z, size_t max_pow=20);
-scalar_t f_19_pole(double s, double L_b, double z, size_t max_pow=20);
-scalar_t f_29_pole(double s, double L_b, double z, size_t max_pow=20);
-scalar_t f_87(double s, double L_b);
-scalar_t f_89(double s);
+complex_t f_17(double s, double L_b, double z, size_t max_pow=20);
+complex_t f_27(double s, double L_b, double z, size_t max_pow=20);
+complex_t f_19_PS(double s, double L_b, double z, size_t max_pow=20);
+complex_t f_29_PS(double s, double L_b, double z, size_t max_pow=20);
+complex_t f_19_1S(double s, double L_b, double z, size_t max_pow=20);
+complex_t f_29_1S(double s, double L_b, double z, size_t max_pow=20);
+complex_t f_87(double s, double L_b);
+complex_t f_89(double s);
 
 /*
     Integration routines

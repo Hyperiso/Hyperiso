@@ -95,14 +95,14 @@ operator<<(std::ostream& os, const Map& m) {
 template <typename T, std::size_t cache_size, typename Func, typename... Args>
 void fill_cache(Func&& f, double a, double b, std::array<T, cache_size>& cache, Args&&... args) {
     double x_0 = (b - a) * nld.epsilon() + a;
-    cache[0] = f(T(x_0), std::forward<Args>(args)...);
+    cache[0] = f(x_0, std::forward<Args>(args)...);
     for (std::size_t i = 1; i < cache_size - 1; ++i) {
         double s = static_cast<double>(i) / static_cast<double>(cache_size - 1);
         double x = (b - a) * s + a;
-        cache[i] = f(T(x), std::forward<Args>(args)...);
+        cache[i] = f(x, std::forward<Args>(args)...);
     }
     double x_1 = (b - a) * (1. - nld.epsilon()) + a;
-    cache[cache_size - 1] = f(T(x_1), std::forward<Args>(args)...);
+    cache[cache_size - 1] = f(x_1, std::forward<Args>(args)...);
 }
 
 template <typename T, typename U, std::size_t cache_size>

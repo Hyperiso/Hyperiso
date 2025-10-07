@@ -3,6 +3,7 @@
 
 #include "DecayParent.h"
 #include "General.h"
+#include "DefaultConfig.h"
 
 struct BllDecayCache {
     double G_F;
@@ -36,23 +37,23 @@ struct BllDecayCache {
 /**
  * @brief Decay parent for the Bq > ll decays. Currently implements both CP-averaged and untagged Bs > mu+ mu- branching ratios and the CP-averaged Bd > mu+ mu- decays. 
  */
-class BllDecay : public DecayParent {
+class BllDecay : public DecayParentConfigurable<DecayConfig> {
 private:
     BllDecayCache cache;
 
 protected:
-    void fill_cache();
     double BR_avg_Bq_mumu(int q);
     double BR_untag_Bs_mumu();
 
 public:
-    BllDecay(QCDOrder order, double matching_scale, double hadronic_scale, std::shared_ptr<ObsWilsonBuilder>& wilson_builder) : DecayParent(DecayMapper::to_id(Decays::B__l_l), matching_scale, hadronic_scale, order, wilson_builder) {
+    BllDecay(QCDOrder order, double matching_scale, double hadronic_scale, std::shared_ptr<ObsWilsonBuilder>& wilson_builder) : DecayParentConfigurable(DecayMapper::to_id(Decays::B__l_l), matching_scale, hadronic_scale, order, wilson_builder) {
         this->w_config.groups = {WGroup::B, WGroup::BPrime, WGroup::BScalar};
         this->max_order = QCDOrder::NNLO;
-        this->fill_cache();
     }
 
-    void build_op_tree() override;
+    void load_params() override;
+    std::vector<ObservableValue> compute_observable(Observables obs) override;
+    std::vector<ObservableValue> compute_observable(ObservableId obs) override;
 };
 
 #endif // __BLLDECAY_H__

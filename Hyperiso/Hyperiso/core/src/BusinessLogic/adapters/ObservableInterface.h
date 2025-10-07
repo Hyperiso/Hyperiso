@@ -74,11 +74,11 @@ public:
         manager->add_obs_deps(obs, pids);
     }
 
-    scalar_t compute_observable(Observables obs) const {
+    std::vector<ObservableValue> compute_observable(Observables obs) const {
         return manager->evaluate(obs);
     }
 
-    scalar_t compute_observable(ObservableId obs) const {
+    std::vector<ObservableValue> compute_observable(ObservableId obs) const {
         return manager->evaluate(obs);
     }
 
@@ -120,11 +120,6 @@ public:
         }
     };
     
-    void remove_observables(std::unordered_set<ObservableId> ids) {
-        for (ObservableId id : ids) {
-            remove_observable(id);
-        }
-    };
 
     void remove_observables(Decays dec) {
         for (Observables id : DecayMapper::get_observables(dec)) {
@@ -186,14 +181,6 @@ public:
         return Parameters::GetInstance(type)->operator()(block, code);
     }
 
-    double get_observable_evaluations(Observables obs) {
-        return manager->get_obs_evals(obs);
-    }
-
-    double get_observable_evaluations(ObservableId obs) {
-        return manager->get_obs_evals(obs);
-    }
-
     void update_gradient(Observables obs) {
         manager->update_gradient(obs);
     }
@@ -201,27 +188,6 @@ public:
     void update_gradient(ObservableId obs) {
         manager->update_gradient(obs);
     }
-
-    template <typename EnumType>
-    void set_config_flag(Decays decay_id, EnumType e) {
-        manager->set_config_flag(decay_id, e);
-    }
-
-    template <typename EnumType>
-    void set_config_flag(DecayId decay_id, EnumType e) {
-        manager->set_config_flag(decay_id, e);
-    }
-
-    template <typename EnumType>
-    void set_config_flag(Observables obs_id, EnumType e) {
-        manager->set_config_flag(DecayMapper::get_decay(obs_id), e);
-    }
-
-    // TODO : Overload get_decay(ObservableId)
-    // template <typename EnumType>
-    // void set_config_flag(ObservableId obs_id, EnumType e) {
-    //     manager->set_config_flag(DecayMapper::get_decay(obs_id), e);
-    // }
 };
 
 #endif

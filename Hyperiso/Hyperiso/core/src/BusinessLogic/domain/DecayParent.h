@@ -14,19 +14,17 @@
 #include "Configs.h"
 #include <chrono>
 #include <type_traits>
+#include <any>
+#include "DefaultConfig.h"
+#include "ObservableValue.h"
 
 using std::chrono::high_resolution_clock;
 using std::chrono::duration;
 
-struct IFormFactorConfig {
-    virtual ~IFormFactorConfig() = default;
-};
-
-class DecayParent {
+class DecayParent  {
 
 protected:
-    std::map<ObservableId, std::shared_ptr<OperatorNode>> roots;
-    QCDOrder max_order = QCDOrder::LO; //DEFAULT AS LO, using default at least once, need to check (error if NONE)
+    QCDOrder max_order = QCDOrder::LO;
     std::shared_ptr<ObsWilsonBuilder> w_builder;
     std::shared_ptr<ObsWilsonProxy> w_proxy;
     WilsonBuildConfig w_config {};
@@ -45,37 +43,46 @@ public:
     void disable();
     void set_order(QCDOrder new_order);
 
-    scalar_t compute_observable(Observables obs);
-    size_t get_n_evals(Observables obs);
+    virtual void load_params() = 0; 
+    virtual std::vector<ObservableValue> compute_observable(Observables obs) = 0;
+    virtual std::vector<ObservableValue> compute_observable(ObservableId obs) = 0;
 
-    scalar_t compute_observable(ObservableId obs);
-    size_t get_n_evals(ObservableId obs);
+    virtual void set_config(std::any cfg) = 0;
 
-    std::shared_ptr<OperatorNode> get_wilson_node(ScaleType scale=ScaleType::MATCHING, WilsonBasis basis=WilsonBasis::B_STANDARD);
-
-    virtual void build_op_tree() = 0;
-
-    template<typename EnumType>
-    void set_config_flag(EnumType e) {
-        throw std::logic_error("This flag is not supported for this decay");
-    };
+    DecayId get_id() { return id; };
 };
 
-template <typename ConcreteDecay, typename... SupportedEnums>
-class ConfigurableDecayParent : public DecayParent {
+template<typename T>
+class DecayParentConfigurable : public DecayParent {
 public:
-    ConfigurableDecayParent(DecayId id, double matching_scale, double hadronic_scale,
+    DecayParentConfigurable(DecayId id, double matching_scale, double hadronic_scale,
                             QCDOrder order, std::shared_ptr<ObsWilsonBuilder>& wilson_builder)
         : DecayParent(id, matching_scale, hadronic_scale, order, wilson_builder)
     {}
 
-    template <typename EnumType>
-    void set_config_flag(EnumType e) {
-        if constexpr ((std::is_same_v<EnumType, SupportedEnums> || ...)) {
-            static_cast<ConcreteDecay*>(this)->set_config_flag_c(e);
-        } else {
-            throw std::logic_error("Unsupported flag type for this decay");
-        }
+     void set_config(std::any cfg) final override {
+        if (auto p = std::any_cast<T>(&cfg)) { set_config_spe(*p); return; }
+        if (auto p = std::any_cast<std::add_const_t<T>>(&cfg)) { set_config_spe(*p); return; }
+        throw std::bad_any_cast{};
+    }
+    virtual void set_config_spe(T config) = 0;
+};
+
+template<>
+struct DecayParentConfigurable<DecayConfig> : DecayParent {
+public:
+    DecayParentConfigurable(DecayId id, double matching_scale, double hadronic_scale,
+                            QCDOrder order, std::shared_ptr<ObsWilsonBuilder>& wilson_builder)
+        : DecayParent(id, matching_scale, hadronic_scale, order, wilson_builder)
+    {}
+
+    DecayParentConfigurable(DecayId id, double matching_scale, double hadronic_scale,
+                            QCDOrder order)
+        : DecayParent(id, matching_scale, hadronic_scale, order)
+    {}
+
+    void set_config(std::any) final override {
+
     }
 };
 

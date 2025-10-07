@@ -19,7 +19,7 @@ public:
     scalar_t get_exp_uncertainty(UncertaintyType u_type=UncertaintyType::COMBINED) const;
     Estimate get_exp() const;
     scalar_t eval() const override;
-    size_t get_n_evals() const { return decay_parent->get_n_evals(id); };
+    std::vector<ObservableValue> compute() const;
 }; 
 
 

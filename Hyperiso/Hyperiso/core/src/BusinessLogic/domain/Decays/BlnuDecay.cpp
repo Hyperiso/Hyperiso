@@ -1,56 +1,45 @@
 #include "BlnuDecay.h"
 
-
-scalar_t BlnuDecay::R(double m_B, double m_b, double m_tau) {
-    scalar_t C_A = w_proxy->getFM(WGroup::BCC, WCoef::C_V1, QCDOrder::LO);
-    scalar_t C_P = w_proxy->getFM(WGroup::BCC, WCoef::C_S1, QCDOrder::LO);
-
-    return std::pow(std::abs(C_A + std::pow(m_B, 2) * C_P / (m_b * m_tau)), 2);
+void BlnuDecay::load_params() {
+    ObsParameterProxy p;
+    cache.G_F = p(ParamId{ParameterType::SM, "SMINPUTS", 2});
+    cache.m_tau = p(ParamId{ParameterType::SM, "MASS", 15});
+    cache.m_tau = p(ParamId{ParameterType::SM, "QCD", {5, 1}});
+    cache.m_B = p(ParamId{ParameterType::FLAVOR, "FMASS", 521});
+    cache.f_B = p(ParamId{ParameterType::FLAVOR, "FCONST", {521, 1}});
+    cache.tau_B = p(ParamId{ParameterType::FLAVOR, "FLIFE", 521});
+    cache.V_ub_2 = std::pow(std::abs(p(ParamId{ParameterType::SM, "VCKM", {0, 2}})), 2);
+    cache.C_V = w_proxy->getFM(WGroup::BCC, WCoef::C_V1, QCDOrder::LO);
+    cache.C_S = w_proxy->getFM(WGroup::BCC, WCoef::C_S1, QCDOrder::LO);
 }
 
-double BlnuDecay::ckm(scalar_t V_ub) {
-    return std::pow(std::abs(V_ub), 2);
+scalar_t BlnuDecay::R() {
+    return std::pow(std::abs(cache.C_V + std::pow(cache.m_B, 2) * cache.C_S / (cache.m_b * cache.m_tau)), 2);
 }
 
-double BlnuDecay::pref(double G_F,
-                       double f_B,
-                       double tau_B,
-                       double m_B,
-                       double m_tau)
-{
-    double beta = 1 - std::pow(m_tau / m_B, 2);
-    return std::pow(G_F * f_B * m_tau * beta, 2) * tau_B * m_B / (8 * PI * HBAR);
+double BlnuDecay::BR() {
+    double beta = 1 - std::pow(cache.m_tau / cache.m_B, 2);
+    double pref = std::pow(cache.G_F * cache.f_B * cache.m_tau * beta, 2) * cache.tau_B * cache.m_B * cache.V_ub_2 / (8 * PI * HBAR);
+    return pref * R();
 }
 
-double BlnuDecay::BR_B_taunu(double pref, double ckm, double R) {
-    return pref * ckm * R;
+std::vector<ObservableValue> BlnuDecay::compute_observable(Observables obs) {
+    double value;
+    switch (obs) {
+    case Observables::R_TAU_NU:   
+        value = R();
+        break;
+    case Observables::BR_BU_TAU_NU:   
+        value = BR();
+        break;
+    default:
+        LOG_ERROR("IndexError", "Observable", ObservableMapper::str(obs), "doesn't belong to the decay", DecayMapper::str(this->id));
+    }
+
+    return {ObservableValue(ObservableMapper::to_id(obs), value)};
 }
 
-void BlnuDecay::build_op_tree() {
 
-    // SM Parameters
-    auto G_F = std::make_shared<ParameterNode>(ParamId(ParameterType::SM, "SMINPUTS", 2));
-    auto m_tau = std::make_shared<ParameterNode>(ParamId(ParameterType::SM, "MASS", 15));
-    auto V_ub = std::make_shared<ParameterNode>(ParamId(ParameterType::SM, "VCKM", LhaID(0, 2)));
-    auto m_b = std::make_shared<ParameterNode>(ParamId(ParameterType::SM, "QCD", LhaID(5, 1)));
-
-    // Flavor Parameters
-    auto m_B = std::make_shared<ParameterNode>(ParamId(ParameterType::FLAVOR, "FMASS", 521));
-    auto life_B = std::make_shared<ParameterNode>(ParamId(ParameterType::FLAVOR, "FLIFE", 521));
-    auto f_B = std::make_shared<ParameterNode>(ParamId(ParameterType::FLAVOR, "FCONST", LhaID(521, 1)));
-
-    // Wilson
-    auto wilson = this->get_wilson_node();
-
-    // Operator nodes
-    auto R_tau_nu = std::make_shared<OperatorNode>("R_tau_nu", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->R(values[0], values[1], values[2]); });
-    R_tau_nu->addChildren({m_B, m_b, m_tau, wilson});
-    roots.emplace(ObservableMapper::to_id(Observables::R_TAU_NU), R_tau_nu);
-    auto ckm = std::make_shared<OperatorNode>("ckm", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->ckm(values[0]); });
-    ckm->addChildren({V_ub});
-    auto prefactor = std::make_shared<OperatorNode>("prefactor", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->pref(values[0], values[1], values[2], values[3], values[4]); });
-    prefactor->addChildren({G_F, f_B, life_B, m_B, m_tau});
-    auto BR_Bu_tau_nu = std::make_shared<OperatorNode>("BR_Bu__tau_nu", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return this->BR_B_taunu(values[0], values[1], values[2]); });
-    BR_Bu_tau_nu->addChildren({prefactor, ckm, R_tau_nu});
-    roots.emplace(ObservableMapper::to_id(Observables::BR_BU_TAU_NU), BR_Bu_tau_nu);
+std::vector<ObservableValue> BlnuDecay::compute_observable(ObservableId obs) {
+    return compute_observable(ObservableMapper::enum_of(obs).value());
 }

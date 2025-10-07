@@ -1,17 +1,15 @@
 #include "BllDecay.h"
 
 
-void BllDecay::fill_cache() {
+void BllDecay::load_params() {
     ObsParameterProxy p;
-    double m_b = p(ParamId{ParameterType::SM, "QCD", {5, 2}});
-
     cache.G_F = p(ParamId{ParameterType::SM, "SMINPUTS", 2});
     cache.alpha_em = 1. / p(ParamId{ParameterType::SM, "SMINPUTS", 1});
     cache.m_mu = p(ParamId{ParameterType::SM, "MASS", 13});
     cache.m_Bd = p(ParamId{ParameterType::FLAVOR, "FMASS", 511});
     cache.m_Bs = p(ParamId{ParameterType::FLAVOR, "FMASS", 531});
     cache.f_Bd = p(ParamId{ParameterType::FLAVOR, "FCONST", {511, 1}});
-    cache.f_Bs = p(ParamId{ParameterType::FLAVOR, "FCONST", {531, 2}});
+    cache.f_Bs = p(ParamId{ParameterType::FLAVOR, "FCONST", {531, 1}});
     cache.tau_Bd = p(ParamId{ParameterType::FLAVOR, "FLIFE", 511});
     cache.tau_Bs = p(ParamId{ParameterType::FLAVOR, "FLIFE", 531});
     cache.lambda_d = p(ParamId{ParameterType::SM, "VCKM", {2, 2}}) * std::conj(p(ParamId{ParameterType::SM, "VCKM", {2, 0}}));
@@ -19,8 +17,8 @@ void BllDecay::fill_cache() {
     cache.ys = p(ParamId{ParameterType::DECAY, "B_ll", 1});
     cache.x_d = cache.m_mu / cache.m_Bd;
     cache.x_s = cache.m_mu / cache.m_Bs;
-    cache.r_d = cache.m_Bd / (m_b + p(ParamId{ParameterType::SM, "MASS", 1}));
-    cache.r_s = cache.m_Bs / (m_b + p(ParamId{ParameterType::SM, "MASS", 3}));
+    cache.r_d = cache.m_Bd / (p(ParamId{ParameterType::SM, "QCD", {5, 2}}) + p(ParamId{ParameterType::SM, "MASS", 1}));
+    cache.r_s = cache.m_Bs / (p(ParamId{ParameterType::SM, "QCD", {5, 2}}) + p(ParamId{ParameterType::SM, "MASS", 3}));
     cache.beta_d = std::sqrt(1. - 4. * std::pow(cache.x_d, 2));
     cache.beta_s = std::sqrt(1. - 4. * std::pow(cache.x_s, 2));
     cache.C10_SM = w_proxy->getFR(WGroup::B, WCoef::C10, w_config.order, ContributionType::SM);
@@ -61,3 +59,25 @@ double BllDecay::BR_untag_Bs_mumu() {
     return untag_factor * BR_avg_Bq_mumu(3);
 }
 
+std::vector<ObservableValue> BllDecay::compute_observable(Observables obs) {
+    double value;
+    switch (obs) {
+    case Observables::BR_BD_MUMU:   
+        value = BR_avg_Bq_mumu(1);
+        break;
+    case Observables::BR_BS_MUMU:   
+        value = BR_avg_Bq_mumu(3);
+        break;
+    case Observables::BR_BS_MUMU_UNTAG:   
+        value = BR_untag_Bs_mumu();
+        break;
+    default:
+        LOG_ERROR("IndexError", "Observable", ObservableMapper::str(obs), "doesn't belong to the decay", DecayMapper::str(this->id));
+    }
+
+    return {ObservableValue(ObservableMapper::to_id(obs), value)};
+}
+
+std::vector<ObservableValue> BllDecay::compute_observable(ObservableId obs) {
+    return compute_observable(ObservableMapper::enum_of(obs).value());
+}

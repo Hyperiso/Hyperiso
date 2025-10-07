@@ -24,17 +24,15 @@ void DecayParent::bind_wilson_builder(std::shared_ptr<ObsWilsonBuilder> &wilson_
     this->w_builder = wilson_builder;
 }
 
-void DecayParent::enable()
-{
-    // TODO : Manage enabling properly (don't call it each time eval() is called)
-    // if (this->enabled) {
-    //     return;
-    // }
+void DecayParent::enable() {
+    if (this->enabled)
+        return;
 
     ObsWilsonHelper::build(this->w_config, this->w_builder);
     this->w_proxy = this->w_builder->get_proxy();
     this->w_proxy->set_basis(WilsonBasis::B_STANDARD);
-    // this->enabled = true;
+    load_params();
+    this->enabled = true;
 }
 
 void DecayParent::disable() {
@@ -57,47 +55,4 @@ void DecayParent::set_order(QCDOrder new_order) {
     } else {
         LOG_WARN("QCD order for this decay has already been set.");
     }
-}
-
-scalar_t DecayParent::compute_observable(Observables obs) {
-    ObservableId obs_id = ObservableMapper::to_id(obs);
-    return compute_observable(obs_id);
-
-}
-
-size_t DecayParent::get_n_evals(ObservableId obs) {
-    return roots.at(obs)->get_n_evals();
-}
-
-scalar_t DecayParent::compute_observable(ObservableId obs) {
-    // TODO
-    auto truc = roots.at(obs);
-    auto t1 = high_resolution_clock::now();
-    auto _ = truc->calculate();
-    auto t2 = high_resolution_clock::now();
-    duration<double, std::milli> ms = t2 - t1;
-    LOG_DEBUG("Evaluation of observable", ObservableMapper::str(obs), "took", ms.count(), "ms");
-    return _;
-}
-
-size_t DecayParent::get_n_evals(Observables obs) {
-    ObservableId obs_id = ObservableMapper::to_id(obs);
-    return get_n_evals(obs_id);
-}
-
-std::shared_ptr<OperatorNode> DecayParent::get_wilson_node(ScaleType scale, WilsonBasis basis) {
-    auto wilson_node = std::make_shared<OperatorNode>("wilson", [this] ([[maybe_unused]] const std::vector<scalar_t>& values) { return 0; });
-
-    for (WGroup group: this->w_config.groups) {
-        for (WCoef c: WCoefMapper::get_group(group)) {
-            std::string storage_block = GroupMapper::str(group, scale, basis);
-            for (size_t order=1; order <= (size_t)this->w_config.order; order++) {
-                LhaID c_id = WCoefMapper::flha_full(c, (QCDOrder)order, ContributionType::TOTAL);
-                auto c_node = std::make_shared<ParameterNode>(ParamId(ParameterType::WILSON, storage_block, c_id));
-                wilson_node->addChild(c_node);
-            }
-        }
-    }
-
-    return wilson_node;
 }

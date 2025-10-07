@@ -50,10 +50,8 @@ struct MesonMixingRunningParameters {
         return Ci_out;
 	}
 
-	static const std::array<std::array<double, n_coefs>, n_coefs> SUSY_to_BMU_superiso;
-    static const std::array<std::array<double, n_coefs>, n_coefs> SUSY_to_BMU_fierz;
-    static const std::array<std::array<double, n_coefs>, n_coefs> BMU_to_SUSY_superiso;
-    static const std::array<std::array<double, n_coefs>, n_coefs> BMU_to_SUSY_fierz;
+	static const std::array<std::array<double, n_coefs>, n_coefs> SUSY_to_BMU;
+    static const std::array<std::array<double, n_coefs>, n_coefs> BMU_to_SUSY;
 };
 
 #endif // __MESONMIXINGRUNNINGPARAMETERS_H__

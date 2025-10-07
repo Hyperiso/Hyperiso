@@ -356,6 +356,11 @@
       "stat_error": 0.0012,
       "syst_error": 0
     },
+    "311_1": {
+      "central_value": 0.1556,
+      "stat_error": 0.0007,
+      "syst_error": 0
+    },
     "321_1": {
       "central_value": 0.1557,
       "stat_error": 0.0007,

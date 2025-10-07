@@ -1,6 +1,6 @@
 #include "MesonMixingRunningParameters.h"
 
-const std::array<std::array<double, MesonMixingRunningParameters::n_coefs>, MesonMixingRunningParameters::n_coefs> MesonMixingRunningParameters::SUSY_to_BMU_superiso {{
+const std::array<std::array<double, MesonMixingRunningParameters::n_coefs>, MesonMixingRunningParameters::n_coefs> MesonMixingRunningParameters::SUSY_to_BMU {{
     {1.000, 0.000,  0.000, 0.000,  0.000, 0.000, 0.000,  0.000},
     {0.000, 0.000,  0.000, 0.000, -0.500, 0.000, 0.000,  0.000},
     {0.000, 0.000,  0.000, 1.000,  0.000, 0.000, 0.000,  0.000},
@@ -11,7 +11,7 @@ const std::array<std::array<double, MesonMixingRunningParameters::n_coefs>, Meso
     {0.000, 0.000,  0.000, 0.000,  0.000, 0.000, 0.000,  0.125},
 }};
 
-const std::array<std::array<double, MesonMixingRunningParameters::n_coefs>, MesonMixingRunningParameters::n_coefs> MesonMixingRunningParameters::BMU_to_SUSY_superiso {{
+const std::array<std::array<double, MesonMixingRunningParameters::n_coefs>, MesonMixingRunningParameters::n_coefs> MesonMixingRunningParameters::BMU_to_SUSY {{
     {1.0,  0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
     {0.0,  0.0, 0.0, 1.0, 4.0, 0.0, 0.0, 0.0},
     {0.0,  0.0, 0.0, 0.0, 8.0, 0.0, 0.0, 0.0},
@@ -20,17 +20,6 @@ const std::array<std::array<double, MesonMixingRunningParameters::n_coefs>, Meso
     {0.0,  0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0},
     {0.0,  0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 4.0},
     {0.0,  0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 8.0},
-}};
-
-const std::array<std::array<double, MesonMixingRunningParameters::n_coefs>, MesonMixingRunningParameters::n_coefs> MesonMixingRunningParameters::SUSY_to_BMU_fierz {{
-    {1.0, 0.0,  0.0, 0.0, 0.0, 0.0, 0.0,  0.0},
-    {0.0, 0.0,  0.0, 0.0, 2.5, 0.0, 0.0,  0.0},
-    {0.0, 0.0,  0.0, 1.0, 0.0, 0.0, 0.0,  0.0},
-    {0.0, 1.0,  2.5, 0.0, 0.0, 0.0, 0.0,  0.0},
-    {0.0, 0.0, -1.5, 0.0, 0.0, 0.0, 0.0,  0.0},
-    {0.0, 0.0,  0.0, 0.0, 0.0, 1.0, 0.0,  0.0},
-    {0.0, 0.0,  0.0, 0.0, 0.0, 0.0, 1.0,  2.5},
-    {0.0, 0.0,  0.0, 0.0, 0.0, 0.0, 0.0, -1.5},
 }};
 
 const std::array<std::array<std::array<double, 2>, 2>, 2> MesonMixingRunningParameters::a0_LR_5 {{
