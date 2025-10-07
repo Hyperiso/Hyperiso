@@ -4,7 +4,7 @@ void BlnuDecay::load_params() {
     ObsParameterProxy p;
     cache.G_F = p(ParamId{ParameterType::SM, "SMINPUTS", 2});
     cache.m_tau = p(ParamId{ParameterType::SM, "MASS", 15});
-    cache.m_tau = p(ParamId{ParameterType::SM, "QCD", {5, 1}});
+    cache.m_b = p(ParamId{ParameterType::SM, "QCD", {5, 1}});
     cache.m_B = p(ParamId{ParameterType::FLAVOR, "FMASS", 521});
     cache.f_B = p(ParamId{ParameterType::FLAVOR, "FCONST", {521, 1}});
     cache.tau_B = p(ParamId{ParameterType::FLAVOR, "FLIFE", 521});
@@ -19,7 +19,7 @@ scalar_t BlnuDecay::R() {
 
 double BlnuDecay::BR() {
     double beta = 1 - std::pow(cache.m_tau / cache.m_B, 2);
-    double pref = std::pow(cache.G_F * cache.f_B * cache.m_tau * beta, 2) * cache.tau_B * cache.m_B * cache.V_ub_2 / (8 * PI * HBAR);
+    double pref = std::pow(cache.G_F * cache.f_B * cache.m_tau * beta, 2) * cache.tau_B * cache.m_B * cache.V_ub_2 / (8. * PI * HBAR);
     return pref * R();
 }
 

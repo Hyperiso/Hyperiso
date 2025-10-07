@@ -342,7 +342,13 @@ double BXsllDecay::breit_wigner(double s, double m_V, double br, double gamma_to
     double m_V_hat = m_V / cache.m_b_1S;
     double gamma_tot_hat = gamma_tot / cache.m_b_1S;
     double gamma_had_hat = gamma_had / cache.m_b_1S;
-    return br * gamma_tot_hat * gamma_had_hat / (pow(s - pow(m_V_hat, 2.), 2.) + pow(m_V_hat * gamma_tot_hat, 2.));
+    // LOG_INFO("m_V_hat", m_V_hat);
+    // LOG_INFO("gamma_tot_hat", gamma_tot_hat);
+    // LOG_INFO("gamma_had_hat", gamma_had_hat);
+    // LOG_INFO("br * gamma_tot_hat * gamma_had_hat",br * gamma_tot_hat * gamma_had_hat);
+    // LOG_INFO("denom",  (std::pow(s - std::pow(m_V_hat, 2), 2) + std::pow(m_V_hat * gamma_tot_hat, 2)));
+    // LOG_INFO("tout", br * gamma_tot_hat * gamma_had_hat / (std::pow(s - std::pow(m_V_hat, 2), 2) + std::pow(m_V_hat * gamma_tot_hat, 2)));
+    return br * gamma_tot_hat * gamma_had_hat / (std::pow(s - std::pow(m_V_hat, 2), 2) + std::pow(m_V_hat * gamma_tot_hat, 2));
 }
 
 double BXsllDecay::R_cc_cont(double s) {
@@ -350,13 +356,13 @@ double BXsllDecay::R_cc_cont(double s) {
 }
 
 double BXsllDecay::R_cc(double s) {
-    double R_cc_res;
+    double R_cc_res = 0;
 
     for (size_t k = 0; k < cache.cc_res_mass.size(); k++) {
         R_cc_res += breit_wigner(s, cache.cc_res_mass[k], cache.cc_res_br[k], cache.cc_res_width_tot[k], cache.cc_res_width_had[k]);
     }
-
-    return 9. * s / pow(cache.alpha_em, 2) * R_cc_res + R_cc_cont(s);
+    
+    return 9. * s / std::pow(cache.alpha_em, 2) * R_cc_res + R_cc_cont(s);
 }
 
 double BXsllDecay::PV_breit_wigner(double s, double m_V, double br, double gamma_tot, double gamma_had) {
@@ -365,9 +371,9 @@ double BXsllDecay::PV_breit_wigner(double s, double m_V, double br, double gamma
     double m_V_hat2 = pow(m_V_hat, 2);
     double gamma_tot_hat = gamma_tot / cache.m_b_1S;
     double gamma_had_hat = gamma_had / cache.m_b_1S; 
-    double den = (pow(s - pow(m_V_hat, 2.), 2.) + pow(m_V_hat * gamma_tot_hat, 2.));
+    double den = (pow(s - pow(m_V_hat, 2), 2) + pow(m_V_hat * gamma_tot_hat, 2));
     double B = breit_wigner(s, m_V, br, gamma_tot, gamma_had);
-    return 9 * s / pow(cache.alpha_em, 2) * B * (0.5 * log(den / pow(s_c - s, 2)) + (s - m_V_hat2) / gamma_tot_hat * m_V_hat * (atan((s_c - m_V_hat2) / gamma_tot_hat * m_V_hat) - PI / 2));
+    return 9. * s / pow(cache.alpha_em, 2) * B * (0.5 * log(den / pow(s_c - s, 2)) + (s - m_V_hat2) / gamma_tot_hat * m_V_hat * (atan((s_c - m_V_hat2) / gamma_tot_hat * m_V_hat) - PI / 2.));
 }
 
 double BXsllDecay::PV_R_cc_cont(double s) {
@@ -376,7 +382,7 @@ double BXsllDecay::PV_R_cc_cont(double s) {
 }
 
 double BXsllDecay::PV_R_cc(double s) {
-    double PV_res;
+    double PV_res = 0;
 
     for (size_t k = 0; k < cache.cc_res_mass.size(); k++) {
         PV_res += PV_breit_wigner(s, cache.cc_res_mass[k], cache.cc_res_br[k], cache.cc_res_width_tot[k], cache.cc_res_width_had[k]);
@@ -398,7 +404,7 @@ complex_t BXsllDecay::C9_eff(double s, QCDOrder order, bool prime) {
     complex_t g_1 = g(1, s);
     complex_t g_mc = g_ld(cache.m_c_hat, s);
 
-    LOG_INFO("g_mc =", g_mc);
+    // LOG_INFO("g_mc =", g_mc);
 
     return C[C_ids[8]]
 	        +(-32./27.*C[C_ids[0]]-8./9.*C[C_ids[1]]-16./9.*C[C_ids[2]]+32./27.*C[C_ids[3]]-112./9.*C[C_ids[4]]+512./27.*C[C_ids[5]]) * cache.L_b
@@ -440,7 +446,7 @@ complex_t BXsllDecay::C7_new(double s, bool prime) {
 complex_t BXsllDecay::C9_new(double s, bool prime) {
     if (abs(s - 1) < 1e-6) s = 1;
     auto C_0 = cache.C_LO;
-    LOG_INFO("C9_eff =", C9_eff(s, this->w_config.order, prime));
+    // LOG_INFO("C9_eff =", C9_eff(s, this->w_config.order, prime));
     return (1.+cache.alpha_s_mu_b/PI*sigma_9(s))*C9_eff(s, this->w_config.order, prime)
 	        -cache.alpha_s_mu_b/4./PI*(C_0.at(prime ? WCoef::CP1 :WCoef::C1)*F_19(s)+C_0.at(prime ? WCoef::CP2 :WCoef::C2)*F_29(s)+C_0.at(prime ? WCoef::CP8 :WCoef::C8)*f_89(s));
 }
@@ -496,10 +502,10 @@ double BXsllDecay::dB0_ds(double s, double ml_hat) {
     double H10 = ((1.+2.*s)+2.*ml_hat*ml_hat/s*(1.-4.*s))*(1.+cache.alpha_s_mu_b/PI*tau_99(s));
     double H79 = 12 * (1.+2.*ml_hat*ml_hat/s)*(1.+cache.alpha_s_mu_b/PI*tau_79(s));
 
-    LOG_INFO("W_7 =", W_7(s));
-    LOG_INFO("W_9 =", W_9(s));
-    LOG_INFO("W_10 =", W_10(s));
-    LOG_INFO("W_79 =", W_79(s));
+    // LOG_INFO("W_7 =", W_7(s));
+    // LOG_INFO("W_9 =", W_9(s));
+    // LOG_INFO("W_10 =", W_10(s));
+    // LOG_INFO("W_79 =", W_79(s));
 
     return pow(1 - s, 2) * sqrt(1 - 4 * pow(ml_hat, 2) / s) * (
             H7 * W_7(s) + 
