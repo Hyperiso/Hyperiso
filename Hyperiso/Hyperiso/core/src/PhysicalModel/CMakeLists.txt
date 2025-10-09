@@ -118,6 +118,9 @@ target_link_libraries(susy_test PhysicalModelLib)
 add_executable(thdm_test app/main_thdm.cpp)
 target_link_libraries(thdm_test PhysicalModelLib)
 
+add_executable(TEST_SWITCH_LHA app/main_switch_lha.cpp)
+target_link_libraries(TEST_SWITCH_LHA PhysicalModelLib)
+
 add_executable(custom_test app/main_custom_wilson.cpp)
 target_link_libraries(custom_test PhysicalModelLib)
 # add_executable(test_martywilson main.cpp)

@@ -138,6 +138,10 @@ public:
     virtual void update();
 
     /**
+     * @brief Virtual method to destroy the block (remove all elements and being forgotten by all those that observe you).
+     */
+    virtual void destroy();
+    /**
      * @brief Virtual method to freeze the block (prevent updates).
      */
     virtual void freeze();
@@ -248,6 +252,8 @@ public:
     void clear_above() override;
 
     void clear_below() override;
+
+    void destroy() override;
 
 private:
     std::shared_ptr<DependentBlock> self;                                   ///< Self-reference for observer management.

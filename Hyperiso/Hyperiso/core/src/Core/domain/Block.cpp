@@ -93,8 +93,12 @@ void Block::remove(const LhaID& id) {
     if (!this->items.contains(id)) {
         LOG_ERROR("Cannot remove non-existing parameter", id, "in block", blockname);
     }
-
+    this->items.at(id)->clear_below();
     this->items.erase(id);
+
+    for (auto& obs : observers) {
+        if (obs) obs->destroy();
+    }
 }
 
 void Block::set_owner(ParameterType type) {
@@ -145,9 +149,15 @@ double Block::get_scale() {
     return this->scale.value();
 }
 
-bool DependentBlock::dependsOn(const std::string& blockName) {
-    return sourceBlocks.contains(blockName);
+void Block::destroy() {
+    clear_below();
+    items.clear();
+    for (auto& obs : observers) {
+        if (obs) obs->destroy();
+    }
+    observers.clear();   
 }
+
 
 void DependentBlock::init() {
     self = shared_from_this();
@@ -235,6 +245,19 @@ void DependentBlock::clear_below() {
     auto snapshot = observers;
     for (auto& obs : snapshot) {
         if (obs) obs->clear_below();
+    }
+}
+
+void DependentBlock::destroy() {
+    clear_below();
+    items.clear();
+    for (auto& obs : observers) {
+        if (obs) obs->destroy();
+    }
+    observers.clear();
+    
+    for (auto &[name, block] : sourceBlocks) {
+        block->removeObserver(self);
     }
 }
 
