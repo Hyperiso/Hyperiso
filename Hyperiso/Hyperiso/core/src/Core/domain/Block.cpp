@@ -1,11 +1,19 @@
 #include "Block.h"
 
 void Block::addObserver(std::shared_ptr<Block> observer) {
+    std::cout << "I am : " << blockname << std::endl;
+    std::cout << "new obs : " << observer->blockname << std::endl;
     observers.push_back(observer);
 }
 
+// void Block::removeObserver(std::shared_ptr<Block> observer) {
+//     auto it = std::find(observers.begin(), observers.end(), observer);
+//     if (it != observers.end()) observers.erase(it);
+// }
+
 void Block::removeObserver(std::shared_ptr<Block> observer) {
-    auto it = std::find(observers.begin(), observers.end(), observer);
+    auto it = std::find_if(observers.begin(), observers.end(),
+        [&](const std::shared_ptr<Block>& p){ return p.get() == observer.get(); });
     if (it != observers.end()) observers.erase(it);
 }
 
@@ -89,6 +97,18 @@ bool Block::contains(const LhaID& id) const {
     return this->items.contains(id);
 }
 
+// void Block::remove(const LhaID& id) {
+//     if (!this->items.contains(id)) {
+//         LOG_ERROR("Cannot remove non-existing parameter", id, "in block", blockname);
+//     }
+//     this->items.at(id)->clear_below();
+//     this->items.erase(id);
+
+//     for (auto& obs : observers) {
+//         if (obs) obs->destroy();
+//     }
+// }
+
 void Block::remove(const LhaID& id) {
     if (!this->items.contains(id)) {
         LOG_ERROR("Cannot remove non-existing parameter", id, "in block", blockname);
@@ -96,7 +116,8 @@ void Block::remove(const LhaID& id) {
     this->items.at(id)->clear_below();
     this->items.erase(id);
 
-    for (auto& obs : observers) {
+    auto dependents = std::exchange(observers, {});
+    for (auto& obs : dependents) {
         if (obs) obs->destroy();
     }
 }
@@ -150,27 +171,37 @@ double Block::get_scale() {
 }
 
 void Block::destroy() {
+    std::cout << "destroying (block) :" << this->blockname << std::endl;
+
+    auto dependents = std::exchange(observers, {});
+    
     clear_below();
     items.clear();
-    for (auto& obs : observers) {
+
+
+    for (auto& obs : dependents) {
         if (obs) obs->destroy();
     }
-    observers.clear();   
 }
-
 
 void DependentBlock::init() {
-    self = shared_from_this();
-    if (self) {
-        LOG_DEBUG("Adding observer to", sourceBlocks.size(), "source blocks");
-        for (auto src : sourceBlocks){
-            LOG_DEBUG(src.second->blockname);
-            src.second->addObserver(self);   
-        }
-    } else {
-        std::cerr << "Error: DependentBlock must be created with std::make_shared!" << std::endl;
-    }
+    auto me = shared_from_this();
+    self = me;
+    for (auto& [_, src] : sourceBlocks) src->addObserver(me);
 }
+
+// void DependentBlock::init() {
+//     self = shared_from_this();
+//     if (self) {
+//         LOG_DEBUG("Adding observer to", sourceBlocks.size(), "source blocks");
+//         for (auto src : sourceBlocks){
+//             LOG_DEBUG(src.second->blockname);
+//             src.second->addObserver(self);   
+//         }
+//     } else {
+//         std::cerr << "Error: DependentBlock must be created with std::make_shared!" << std::endl;
+//     }
+// }
 
 void DependentBlock::update() {
     if (frozen) {
@@ -206,10 +237,10 @@ void DependentBlock::unfreeze() {
 }
 
 DependentBlock::~DependentBlock() {
-    LOG_DEBUG("Destruct dependentBlock at", self.get());
-    if (self) {
+    LOG_DEBUG("Destruct dependentBlock at", self.lock().get());
+    if (auto me = self.lock()) {
         for (auto src : sourceBlocks){
-            src.second->removeObserver(self);   
+            src.second->removeObserver(me);   
         }
     }
 }
@@ -231,9 +262,17 @@ void DependentBlock::assign(const LhaID &key, double value) {
     this->items.at(key)->set_expected(value);
 }
 
+// void DependentBlock::clear_above() {
+//     for (auto &[name, block] : sourceBlocks) {
+//         block->removeObserver(self.lock());
+//     }
+// }
+
 void DependentBlock::clear_above() {
-    for (auto &[name, block] : sourceBlocks) {
-        block->removeObserver(self);
+    if (auto me = self.lock()) {
+        for (auto& [_, block] : sourceBlocks) {
+            block->removeObserver(me);
+        }
     }
 }
 
@@ -248,18 +287,50 @@ void DependentBlock::clear_below() {
     }
 }
 
+// void DependentBlock::destroy() {
+//     std::cout << "destroying (depblock) :" << this->blockname << std::endl;
+//     clear_below();
+//     std::cout << "......" << std::endl;
+//     for (auto item : items) {
+//         std::cout << *item.second << std::endl;
+//     }
+//     items.clear();
+//     std::cout << "-----------" << std::endl;
+//     for (auto item : items) {
+//         std::cout << *item.second << std::endl;
+//     }
+//     std::cout << "......" << std::endl;
+//     for (auto& obs : observers) {
+//         std::cout << "jsppp " << std::endl;
+//         if (obs) {
+//             std::cout << obs->blockname << " ee" << std::endl;
+//             obs->destroy();
+//         }
+//     }
+//     observers.clear();
+    
+//     for (auto &[name, block] : sourceBlocks) {
+//         block->removeObserver(self.lock());
+//     }
+// }
+
 void DependentBlock::destroy() {
-    clear_below();
+    LOG_DEBUG("destroying (depblock) :", this->blockname);
+
+    auto dependents = std::exchange(observers, {});
+
+    clear_above();
+
+    for (auto& kv : items) {
+        kv.second->clear_below();
+    }
     items.clear();
-    for (auto& obs : observers) {
+
+    for (auto& obs : dependents) {
         if (obs) obs->destroy();
     }
-    observers.clear();
-    
-    for (auto &[name, block] : sourceBlocks) {
-        block->removeObserver(self);
-    }
 }
+
 
 std::ostream &operator<<(std::ostream &os, std::shared_ptr<Block> ba) {
     os << "Block " << ba->get_name() << ":\n";

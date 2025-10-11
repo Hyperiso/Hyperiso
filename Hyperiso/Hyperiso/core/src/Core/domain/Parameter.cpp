@@ -1,5 +1,6 @@
 #include "Parameter.h"
 #include <stdexcept>
+#include <utility>
 
 Parameter::Parameter(ParamId id, scalar_t mean, scalar_t std_stat, scalar_t std_syst) 
     : id(id), expected(mean), deviation_stat(std_stat), deviation_syst(std_syst), shift(0), mode(ParameterMode::FIXED) {}
@@ -55,11 +56,22 @@ void Parameter::set_shift(scalar_t shift) {
     }
 }
 
+// void Parameter::clear_below() {
+//     this->clear_above();
+//     std::cout << "cleaning param : " << this->id.block << this->id.code << std::endl; 
+//     for (auto& obs : observers) {
+//         obs->clear_below();
+//     }
+// }
+
 void Parameter::clear_below() {
+    auto dependents = std::exchange(observers, {});
+    LOG_DEBUG("cleaning param : ", this->id.block, this->id.code);
+
     this->clear_above();
-    std::cout << "cleaning param : " << this->id.block << this->id.code << std::endl; 
-    for (auto& obs : observers) {
-        obs->clear_below();
+
+    for (auto& obs : dependents) {
+        if (obs) obs->clear_below();
     }
 }
 
@@ -77,20 +89,36 @@ bool DependentParameter::dependsOn(const ParamId& pid) {
     return sources.contains(pid);
 }
 
+// void DependentParameter::clear_above() {
+//     for (auto &[name, param] : sources) {
+//         param->removeObserver(self);
+//     }
+// }
+
 void DependentParameter::clear_above() {
-    for (auto &[name, param] : sources) {
-        param->removeObserver(self);
+    if (auto me = self.lock()) {
+        for (auto& [_, param] : sources) {
+            param->removeObserver(me);
+        }
     }
 }
 
+// void DependentParameter::init() {
+//     self = shared_from_this();
+//     if (self) {
+//         for (auto src : sources){
+//             src.second->addObserver(self);   
+//         }
+//     } else {
+//         std::cerr << "Error: DependentBlock must be created with std::make_shared!" << std::endl;
+//     }
+// }
+
 void DependentParameter::init() {
-    self = shared_from_this();
-    if (self) {
-        for (auto src : sources){
-            src.second->addObserver(self);   
-        }
-    } else {
-        std::cerr << "Error: DependentBlock must be created with std::make_shared!" << std::endl;
+    auto me = shared_from_this();
+    self = me;
+    for (auto& [_, src] : sources) {
+        src->addObserver(me);
     }
 }
 
@@ -125,28 +153,55 @@ void DependentParameter::unfreeze() {
     }
 }
 
+// void Parameter::notifyObservers() {
+//     for (auto& observer : observers) {
+//         LOG_DEBUG("Notifying observer", observer->id.block, observer->id.code, "from parameter", id.block, id.code);
+//         if (observer == nullptr) {
+//             LOG_INFO("Observer is null, removing from observers list");
+//             removeObserver(observer);
+//             continue;
+//         }
+//         observer->update();
+//         LOG_DEBUG("Observer", observer->id.block, observer->id.code, "updated successfully");
+//     }
+// }
+
 void Parameter::notifyObservers() {
-    for (auto& observer : observers) {
-        LOG_DEBUG("Notifying observer", observer->id.block, observer->id.code, "from parameter", id.block, id.code);
-        if (observer == nullptr) {
-            LOG_INFO("Observer is null, removing from observers list");
-            removeObserver(observer);
-            continue;
-        }
+    auto snapshot = observers;
+    for (auto& observer : snapshot) {
+        if (!observer) continue;
+        LOG_DEBUG("Notifying observer", observer->id.block, observer->id.code,
+                  "from parameter", id.block, id.code);
         observer->update();
-        LOG_DEBUG("Observer", observer->id.block, observer->id.code, "updated successfully");
     }
+    observers.erase(std::remove(observers.begin(), observers.end(), nullptr), observers.end());
 }
+
+// void Parameter::removeObserver(std::shared_ptr<Parameter> observer) { 
+//     observers.erase(std::find(observers.begin(), observers.end(), observer));
+// }
 
 void Parameter::removeObserver(std::shared_ptr<Parameter> observer) { 
-    observers.erase(std::find(observers.begin(), observers.end(), observer));
+    auto it = std::find_if(observers.begin(), observers.end(),
+        [&](const std::shared_ptr<Parameter>& p){ return p.get() == observer.get(); });
+    if (it != observers.end()) observers.erase(it);
 }
 
+
+// DependentParameter::~DependentParameter() {
+//     LOG_INFO("Destruct DependentParameter at", self.get());
+//     if (self) {
+//         for (auto src : sources){
+//             src.second->removeObserver(self);   
+//         }
+//     }
+// }
+
 DependentParameter::~DependentParameter() {
-    LOG_INFO("Destruct DependentParameter at", self.get());
-    if (self) {
-        for (auto src : sources){
-            src.second->removeObserver(self);   
+    LOG_DEBUG("Destruct DependentParameter at", self.lock().get());
+    if (auto me = self.lock()) {
+        for (auto& [_, src] : sources) {
+            src->removeObserver(me);
         }
     }
 }

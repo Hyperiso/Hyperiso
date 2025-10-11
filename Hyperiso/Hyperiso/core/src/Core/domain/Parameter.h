@@ -273,7 +273,7 @@ public:
     ~DependentParameter();
 
 private:
-    std::shared_ptr<DependentParameter> self;                           ///< Self-reference used for observer management.
+    std::weak_ptr<DependentParameter> self;                           ///< Self-reference used for observer management.
     std::unordered_map<ParamId, std::shared_ptr<Parameter>> sources;    ///< Source parameters.
     DepParamUpdateFunc recalculateLambda;                               ///< Recalculation function.
     bool frozen {false};                                                ///< If true, update is delayed.

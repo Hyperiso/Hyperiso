@@ -133,6 +133,11 @@ public:
     }
 
     /**
+     * @brief Virtual method to init the block (default behavior: do nothing).
+     */
+    virtual void init() {};
+    
+    /**
      * @brief Virtual method to update the block (default behavior: update all parameters).
      */
     virtual void update();
@@ -205,7 +210,7 @@ public:
     /**
      * @brief Initializes dependency tracking (must be called after construction).
      */
-    void init();
+    void init() override;
 
     /**
      * @brief Updates the dependent block.
@@ -256,7 +261,7 @@ public:
     void destroy() override;
 
 private:
-    std::shared_ptr<DependentBlock> self;                                   ///< Self-reference for observer management.
+    std::weak_ptr<DependentBlock> self;                                   ///< Self-reference for observer management.
     std::unordered_map<std::string, std::shared_ptr<Block>> sourceBlocks;   ///< Source blocks for dependencies.
     DepUpdateFunc recalculateLambda;                                        ///< Function used to recalculate this block's content.
     bool frozen = false;                                                            ///< Indicates if the block is frozen (no update).
