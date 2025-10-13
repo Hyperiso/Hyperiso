@@ -177,7 +177,7 @@ public:
     /**
      * @brief Destructor. Notifies observers when the block is destroyed.
      */
-    ~Block() { notifyObservers(); }
+    ~Block() {}
 
     friend std::ostream& operator<<(std::ostream&, std::shared_ptr<Block>);
 protected:

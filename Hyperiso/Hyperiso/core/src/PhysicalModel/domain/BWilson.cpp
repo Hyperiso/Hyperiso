@@ -218,10 +218,11 @@ double C6::compute_NNLO(const std::unordered_map<ParamId, std::shared_ptr<Parame
 // ---------- C7 ----------
 
 C7::C7() : WilsonCoefficient("C7", GroupMapper::str(WGroup::B) + "_MATCH") {
+    this->max_order = QCDOrder::NNLO;
     // LO
     matching_info[QCDOrder::LO] = {
         {
-            {"WPARAM_MATCH_SM", LhaID(2, 1)}  // x_t
+            {ParameterType::WILSON, "WPARAM_MATCH_SM", LhaID(2, 1)}  // x_t
         },
         compute_LO,
         LhaID(305, 4422, 0, 0)

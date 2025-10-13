@@ -69,7 +69,8 @@ void Block::store(const LhaID& id, std::shared_ptr<Parameter> param) {
     if (this->contains(id)) {
         LOG_WARN("Block", blockname, "already contains a parameter with id", id.to_string());
     } else {
-        param->set_owner_block(shared_from_this()); 
+        auto w = weak_from_this();
+        if (!w.expired()) param->set_owner_block(w);
         this->items.emplace(id, std::move(param));
     }
 }
@@ -158,7 +159,10 @@ void Block::copy(std::shared_ptr<Block> other) {
     this->blockname = other->blockname;
     if (other->has_scale()) this->set_scale(other->get_scale());
 
-    for (auto& [id, p] : items) if (p) p->set_owner_block(shared_from_this());
+    auto w = weak_from_this();
+    if (!w.expired()) {
+        for (auto& [id, p] : items) if (p) p->set_owner_block(w);
+    }
 }
 
 void Block::clear_above() {
@@ -353,6 +357,10 @@ void DependentBlock::clear_below() {
     for (auto& obs : snapshot) {
         if (obs) obs->clear_below();
     }
+}
+
+bool DependentBlock::dependsOn(const std::string& blockName) {
+    return sourceBlocks.contains(blockName) && sourceBlocks.at(blockName) != nullptr;
 }
 
 // void DependentBlock::destroy() {
