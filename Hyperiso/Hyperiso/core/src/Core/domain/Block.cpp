@@ -57,12 +57,25 @@ std::shared_ptr<Parameter> Block::retrieve(const LhaID& id) {
     return this->items.at(id);
 }
 
+// void Block::store(const LhaID& id, std::shared_ptr<Parameter> param) {
+//     if (this->contains(id)) {
+//         LOG_WARN("Block", blockname, "already contains a parameter with id", id.to_string());
+//     } else {
+//         this->items.emplace(id, param);
+//     }
+// }
+
 void Block::store(const LhaID& id, std::shared_ptr<Parameter> param) {
     if (this->contains(id)) {
         LOG_WARN("Block", blockname, "already contains a parameter with id", id.to_string());
     } else {
-        this->items.emplace(id, param);
+        param->set_owner_block(shared_from_this()); 
+        this->items.emplace(id, std::move(param));
     }
+}
+
+void Block::erase_local(const LhaID& id) {
+    this->items.erase(id);
 }
 
 void Block::assign(const LhaID& key, std::shared_ptr<Parameter> param) {
@@ -132,12 +145,20 @@ std::unordered_set<LhaID> Block::getAllIDs() {
     return get_keys(this->items);
 }
 
+// void Block::copy(std::shared_ptr<Block> other) {
+//     this->items = other->getItems();
+//     this->blockname = other->blockname;
+//     if (other->has_scale()) {
+//         this->set_scale(other->get_scale());
+//     }
+// }
+
 void Block::copy(std::shared_ptr<Block> other) {
     this->items = other->getItems();
     this->blockname = other->blockname;
-    if (other->has_scale()) {
-        this->set_scale(other->get_scale());
-    }
+    if (other->has_scale()) this->set_scale(other->get_scale());
+
+    for (auto& [id, p] : items) if (p) p->set_owner_block(shared_from_this());
 }
 
 void Block::clear_above() {
@@ -146,11 +167,22 @@ void Block::clear_above() {
     }
 }
 
+// void Block::clear_below() {
+//     for (auto& param: this->items) {
+//         param.second->clear_below();
+//     }
+// }
+
 void Block::clear_below() {
-    for (auto& param: this->items) {
-        param.second->clear_below();
+    std::vector<std::shared_ptr<Parameter>> snapshot;
+    snapshot.reserve(items.size());
+    for (auto& kv : items) snapshot.push_back(kv.second);
+
+    for (auto& p : snapshot) {
+        if (p) p->clear_below();
     }
 }
+
 
 bool Block::has_scale() {
     return this->scale.has_value();
@@ -184,10 +216,18 @@ void Block::destroy() {
     }
 }
 
+// void DependentBlock::init() {
+//     auto me = shared_from_this();
+//     self = me;
+//     for (auto& [_, src] : sourceBlocks) src->addObserver(me);
+// }
+
 void DependentBlock::init() {
-    auto me = shared_from_this();
-    self = me;
-    for (auto& [_, src] : sourceBlocks) src->addObserver(me);
+    auto me_base = shared_from_this();     
+    auto me_dep  = std::static_pointer_cast<DependentBlock>(me_base);
+    self = me_dep;     
+
+    for (auto& [_, src] : sourceBlocks) src->addObserver(me_base);
 }
 
 // void DependentBlock::init() {
@@ -208,21 +248,39 @@ void DependentBlock::update() {
         LOG_DEBUG("DependentBlock is frozen, skipping update");
         update_at_unfreeze = true;
     } else if (recalculateLambda 
-        && std::all_of(sourceBlocks.begin(), sourceBlocks.end(), 
-                       [](std::pair<std::string, std::shared_ptr<Block>> block) { return block.second; })) 
+        && std::all_of(sourceBlocks.begin(), sourceBlocks.end(),
+                       [](const std::pair<std::string, std::shared_ptr<Block>>& b){ return b.second != nullptr; })) 
     {
         LOG_DEBUG("Updating dependent block", blockname);
-        if (auto self = shared_from_this()) { 
-            recalculateLambda(sourceBlocks, self);
-        } else {
-            std::cerr << "Error: shared_from_this() failed in update()" << std::endl;
-        }
+        auto me_dep = std::static_pointer_cast<DependentBlock>(shared_from_this());
+        recalculateLambda(sourceBlocks, me_dep);
     } else {
         LOG_ERROR("Error", "DependentBlock::update() called without all source blocks being set");
     }
     LOG_DEBUG("Call to notifyObservers from DependentBlock::update() of", blockname);
     notifyObservers();
 }
+
+// void DependentBlock::update() {
+//     if (frozen) {
+//         LOG_DEBUG("DependentBlock is frozen, skipping update");
+//         update_at_unfreeze = true;
+//     } else if (recalculateLambda 
+//         && std::all_of(sourceBlocks.begin(), sourceBlocks.end(), 
+//                        [](std::pair<std::string, std::shared_ptr<Block>> block) { return block.second; })) 
+//     {
+//         LOG_DEBUG("Updating dependent block", blockname);
+//         if (auto self = shared_from_this()) { 
+//             recalculateLambda(sourceBlocks, self);
+//         } else {
+//             std::cerr << "Error: shared_from_this() failed in update()" << std::endl;
+//         }
+//     } else {
+//         LOG_ERROR("Error", "DependentBlock::update() called without all source blocks being set");
+//     }
+//     LOG_DEBUG("Call to notifyObservers from DependentBlock::update() of", blockname);
+//     notifyObservers();
+// }
 
 void DependentBlock::freeze() {
     this->frozen = true;
@@ -236,11 +294,21 @@ void DependentBlock::unfreeze() {
     }
 }
 
+// DependentBlock::~DependentBlock() {
+//     LOG_DEBUG("Destruct dependentBlock at", self.lock().get());
+//     if (auto me = self.lock()) {
+//         for (auto src : sourceBlocks){
+//             src.second->removeObserver(me);   
+//         }
+//     }
+// }
+
 DependentBlock::~DependentBlock() {
     LOG_DEBUG("Destruct dependentBlock at", self.lock().get());
-    if (auto me = self.lock()) {
-        for (auto src : sourceBlocks){
-            src.second->removeObserver(me);   
+    if (auto me_dep = self.lock()) {
+        auto me_base = std::static_pointer_cast<Block>(me_dep);
+        for (auto& [_, src] : sourceBlocks) {
+            src->removeObserver(me_base);
         }
     }
 }

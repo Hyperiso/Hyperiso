@@ -32,7 +32,7 @@ typedef std::function<void(const std::unordered_map<std::string, std::shared_ptr
  *
  * Supports storing, updating, freezing, and notifying dependent observers when parameters change.
  */
-class Block : public IStorage<LhaID, Parameter> {
+class Block : public IStorage<LhaID, Parameter>, public std::enable_shared_from_this<Block> {
 public:
     BlockName blockname {""}; ///< Name of the block.
 
@@ -172,6 +172,8 @@ public:
 
     double get_scale();
 
+    void erase_local(const LhaID& id);
+
     /**
      * @brief Destructor. Notifies observers when the block is destroyed.
      */
@@ -190,7 +192,7 @@ protected:
  *
  * Implements dependency management and lazy update mechanisms (freeze/unfreeze behavior).
  */
-class DependentBlock : public Block, public std::enable_shared_from_this<DependentBlock> {
+class DependentBlock : public Block {
 public:
     /**
      * @brief Constructs a DependentBlock.

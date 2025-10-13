@@ -1,4 +1,5 @@
 #include "Parameter.h"
+#include "Block.h"
 #include <stdexcept>
 #include <utility>
 
@@ -56,6 +57,17 @@ void Parameter::set_shift(scalar_t shift) {
     }
 }
 
+void Parameter::clear_below() {
+    auto dependents = std::exchange(observers, {});
+    LOG_DEBUG("cleaning param : ",this->id.block,this->id.code);
+
+    this->clear_above();
+
+    for (auto& obs : dependents) {
+        if (obs) obs->clear_below();
+    }
+}
+
 // void Parameter::clear_below() {
 //     this->clear_above();
 //     std::cout << "cleaning param : " << this->id.block << this->id.code << std::endl; 
@@ -64,11 +76,14 @@ void Parameter::set_shift(scalar_t shift) {
 //     }
 // }
 
-void Parameter::clear_below() {
+void DependentParameter::clear_below() {
     auto dependents = std::exchange(observers, {});
-    LOG_DEBUG("cleaning param : ", this->id.block, this->id.code);
 
     this->clear_above();
+
+    if (auto host = owner_block.lock()) {
+        host->erase_local(this->id.code);
+    }
 
     for (auto& obs : dependents) {
         if (obs) obs->clear_below();
@@ -114,28 +129,54 @@ void DependentParameter::clear_above() {
 //     }
 // }
 
+// void DependentParameter::init() {
+//     auto me = shared_from_this();
+//     self = me;
+//     for (auto& [_, src] : sources) {
+//         src->addObserver(me);
+//     }
+// }
+
 void DependentParameter::init() {
-    auto me = shared_from_this();
-    self = me;
+    auto me_base = shared_from_this();
+    auto me_dep  = std::static_pointer_cast<DependentParameter>(me_base);
+    self = me_dep; 
+
     for (auto& [_, src] : sources) {
-        src->addObserver(me);
+        src->addObserver(me_base);
     }
 }
+
+// void DependentParameter::update() {
+//     if (frozen) {
+//         LOG_DEBUG("DependentParameter is frozen, skipping update");
+//         this->update_at_unfreeze = true;
+//     } else if (recalculateLambda 
+//         && std::all_of(sources.begin(), sources.end(), 
+//                     [](std::pair<ParamId, std::shared_ptr<Parameter>> block) { return block.second; })) 
+//     {
+//         LOG_DEBUG("Updating dependent parameter value");
+//         if (auto self = shared_from_this()) { 
+//             recalculateLambda(sources, self);
+//         } else {
+//             std::cerr << "Error: shared_from_this() failed in update()" << std::endl;
+//         }
+//     } else {
+//         LOG_ERROR("Error", "DependentParameter::update() called without all source parameters being set");
+//     }
+// }
 
 void DependentParameter::update() {
     if (frozen) {
         LOG_DEBUG("DependentParameter is frozen, skipping update");
         this->update_at_unfreeze = true;
     } else if (recalculateLambda 
-        && std::all_of(sources.begin(), sources.end(), 
-                    [](std::pair<ParamId, std::shared_ptr<Parameter>> block) { return block.second; })) 
+        && std::all_of(sources.begin(), sources.end(),
+                       [](const std::pair<ParamId, std::shared_ptr<Parameter>>& p){ return p.second != nullptr; })) 
     {
         LOG_DEBUG("Updating dependent parameter value");
-        if (auto self = shared_from_this()) { 
-            recalculateLambda(sources, self);
-        } else {
-            std::cerr << "Error: shared_from_this() failed in update()" << std::endl;
-        }
+        auto me_dep = std::static_pointer_cast<DependentParameter>(shared_from_this());
+        recalculateLambda(sources, me_dep);   // <-- signature correcte
     } else {
         LOG_ERROR("Error", "DependentParameter::update() called without all source parameters being set");
     }
@@ -201,7 +242,7 @@ DependentParameter::~DependentParameter() {
     LOG_DEBUG("Destruct DependentParameter at", self.lock().get());
     if (auto me = self.lock()) {
         for (auto& [_, src] : sources) {
-            src->removeObserver(me);
+            src->removeObserver(me); 
         }
     }
 }
