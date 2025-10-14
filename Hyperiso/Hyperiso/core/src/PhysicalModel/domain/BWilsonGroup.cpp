@@ -465,7 +465,8 @@ void BCoefficientGroup::add_wilson_coefficients(bool force_sm) {
             fs::path _path = force_sm ? adapters.sm_path : adapters.marty_model_path->get();
             std::string _block = GroupMapper::str(this->id, ScaleType::MATCHING);
             LhaID _id = WCoefMapper::flha_full(WCoefMapper::enum_elt(coeff), QCDOrder::LO, this->get_type());
-            this->insert(std::make_pair(coeff, std::make_shared<MartyWilson>(_id, _block, _name, _path)));
+            MartyWilsonConfig config {_name, _id, _block, _path, adapters.marty_proxy};
+            this->insert(std::make_pair(coeff, std::make_shared<MartyWilson>(config)));
         }
         return;
     }
@@ -513,7 +514,9 @@ void BScalarCoefficientGroup::add_wilson_coefficients(bool force_sm) {
             fs::path _path = force_sm ? adapters.sm_path : adapters.marty_model_path->get();
             std::string _block = GroupMapper::str(this->id, ScaleType::MATCHING);
             LhaID _id = WCoefMapper::flha_full(WCoefMapper::enum_elt(coeff), QCDOrder::LO, this->get_type());
-            this->insert(std::make_pair(coeff, std::make_shared<MartyWilson>(_id, _block, _name, _path)));
+            // this->insert(std::make_pair(coeff, std::make_shared<MartyWilson>(_id, _block, _name, _path)));
+            MartyWilsonConfig config {_name, _id, _block, _path, adapters.marty_proxy};
+            this->insert(std::make_pair(coeff, std::make_shared<MartyWilson>(config)));
         }
         return;
     }
@@ -593,7 +596,9 @@ void BPrimeCoefficientGroup::add_wilson_coefficients(bool force_sm) {
             fs::path _path = force_sm ? adapters.sm_path : adapters.marty_model_path->get();
             std::string _block = GroupMapper::str(this->id, ScaleType::MATCHING);
             LhaID _id = WCoefMapper::flha_full(WCoefMapper::enum_elt(coeff), QCDOrder::LO, this->get_type());
-            this->insert(std::make_pair(coeff, std::make_shared<MartyWilson>(_id, _block, _name, _path)));
+            // this->insert(std::make_pair(coeff, std::make_shared<MartyWilson>(_id, _block, _name, _path)));
+            MartyWilsonConfig config {_name, _id, _block, _path, adapters.marty_proxy};
+            this->insert(std::make_pair(coeff, std::make_shared<MartyWilson>(config)));
         }
         return;
     }

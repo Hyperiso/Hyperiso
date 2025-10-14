@@ -95,8 +95,8 @@ void NonNumericTemplateManager::generateTemplateImpl(const std::string& template
     }
 }
 
-std::unordered_set<Interpreter::InterpretedParam> TemplateManagerBase::get_dependencies() {
-    std::unordered_set<Interpreter::InterpretedParam> deps;
+std::unordered_set<InterpretedParam> TemplateManagerBase::get_dependencies() {
+    std::unordered_set<InterpretedParam> deps;
     for (auto& [k, v] : numModifier->get_interpreted_param_map()) {
         deps.emplace(v);
     }

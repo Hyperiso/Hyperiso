@@ -1,8 +1,8 @@
 #include "Block.h"
 
 void Block::addObserver(std::shared_ptr<Block> observer) {
-    std::cout << "I am : " << blockname << std::endl;
-    std::cout << "new obs : " << observer->blockname << std::endl;
+    // std::cout << "I am : " << blockname << std::endl;
+    // std::cout << "new obs : " << observer->blockname << std::endl;
     observers.push_back(observer);
 }
 

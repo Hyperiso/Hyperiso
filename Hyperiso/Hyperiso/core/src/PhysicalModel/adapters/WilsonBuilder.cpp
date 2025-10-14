@@ -30,8 +30,12 @@ void WilsonBuilder::build(WilsonBuildConfig config) {
     std::shared_ptr<IParamSetter<ScaleType>> scale_setter_api = std::make_shared<ScaleSetter>(ScaleType::MATCHING);
     std::shared_ptr<ICoreAPI<std::string>> marty_model_name = std::make_shared<MartyModelNameAPI>();
     std::shared_ptr<ICoreAPI<fs::path>> marty_model_path = std::make_shared<MartyModelPathAPI>();
+    std::shared_ptr<IMartyWilsonProxy<InterpretedParam>> marty_proxy = nullptr;
+    if (use_marty->get()) {
+        marty_proxy = std::make_shared<MartyWilsonProxy>(); 
+    }
 
-    WilsonGroupAdapterConfig adapters(wilson_proxy, iblock_c, use_marty, marty_model_name, marty_model_path);
+    WilsonGroupAdapterConfig adapters(wilson_proxy, iblock_c, use_marty, marty_model_name, marty_model_path, marty_proxy);
 
     for (auto& g_id : config.groups) {
         std::string gn_str = GroupMapper::str(g_id);
@@ -62,8 +66,12 @@ void WilsonBuilder::add(WilsonBuildConfig config) {
     std::shared_ptr<IParamSetter<ScaleType>> scale_setter_api = std::make_shared<ScaleSetter>(ScaleType::MATCHING);
     std::shared_ptr<ICoreAPI<std::string>> marty_model_name = std::make_shared<MartyModelNameAPI>();
     std::shared_ptr<ICoreAPI<fs::path>> marty_model_path = std::make_shared<MartyModelPathAPI>();
+    std::shared_ptr<IMartyWilsonProxy<InterpretedParam>> marty_proxy = nullptr;
+    if (use_marty->get()) {
+        marty_proxy = std::make_shared<MartyWilsonProxy>(); 
+    }
 
-    WilsonGroupAdapterConfig adapters(wilson_proxy, iblock_c, use_marty, marty_model_name, marty_model_path);
+    WilsonGroupAdapterConfig adapters(wilson_proxy, iblock_c, use_marty, marty_model_name, marty_model_path, marty_proxy);
 
     for (auto& g_id : config.groups) {
         std::string group_name = GroupMapper::str(g_id);

@@ -19,7 +19,7 @@ class GeneralNumModelModifier {
 private:
     std::map<std::string, std::string> paramMap;
     std::unordered_map<std::string, double> params;
-    std::unordered_map<std::string, Interpreter::InterpretedParam> interpreted_params;
+    std::unordered_map<std::string, InterpretedParam> interpreted_params;
     bool done = false;
     bool forceMode = false;
     int count = 0;
@@ -63,7 +63,7 @@ public:
 
     void createparamfile(std::ofstream& paramFile, const std::unordered_map<std::string, double> &params);
 
-    std::unordered_map<std::string, Interpreter::InterpretedParam> get_interpreted_param_map() { return this->interpreted_params; }
+    std::unordered_map<std::string, InterpretedParam> get_interpreted_param_map() { return this->interpreted_params; }
 
     std::unordered_map<std::string, double> get_params() {return this->params;}
 private:

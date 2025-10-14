@@ -8,7 +8,10 @@
 #include "Wilson.h"
 #include "IBlockComposer.h"
 #include "ICoreAPI.h"
+#include "IMartyWilsonProxy.h"
 #include "config.hpp"
+#include "InterpretedParam.h"
+
 // #include "BWilson.h"
 // #include "ChargedCurrentWilson.h"
 // #include "MartyWilson.h"
@@ -25,14 +28,16 @@ struct CoefficientGroupSources {
 struct WilsonGroupAdapterConfig {
 
     WilsonGroupAdapterConfig(std::shared_ptr<IParameterProxy<std::string, LhaID>> wilson_proxy, std::shared_ptr<IBlockComposer> ibc,
-    std::shared_ptr<ICoreAPI<bool>> use_marty, std::shared_ptr<ICoreAPI<std::string>> marty_model_name, std::shared_ptr<ICoreAPI<fs::path>> marty_model_path) 
-    : wilson_proxy(wilson_proxy), iblock_c(ibc), use_marty(use_marty), marty_model_name(marty_model_name), marty_model_path(marty_model_path) {}
+    std::shared_ptr<ICoreAPI<bool>> use_marty, std::shared_ptr<ICoreAPI<std::string>> marty_model_name, std::shared_ptr<ICoreAPI<fs::path>> marty_model_path,
+    std::shared_ptr<IMartyWilsonProxy<InterpretedParam>> marty_proxy = nullptr) 
+    : wilson_proxy(wilson_proxy), iblock_c(ibc), use_marty(use_marty), marty_model_name(marty_model_name), marty_model_path(marty_model_path), marty_proxy(marty_proxy) {}
 
     std::shared_ptr<IParameterProxy<std::string, LhaID>> wilson_proxy;
     std::shared_ptr<IBlockComposer> iblock_c;
     std::shared_ptr<ICoreAPI<bool>> use_marty;
     std::shared_ptr<ICoreAPI<std::string>> marty_model_name;
     std::shared_ptr<ICoreAPI<fs::path>> marty_model_path;
+    std::shared_ptr<IMartyWilsonProxy<InterpretedParam>> marty_proxy = nullptr;
 
     fs::path sm_path = fs::path(std::string(project_assets_root.data())+"input_files/marty_model/sm.h");
 };
