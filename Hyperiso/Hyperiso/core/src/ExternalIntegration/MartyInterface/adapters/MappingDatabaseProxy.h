@@ -21,7 +21,7 @@ public:
 
     explicit MappingDatabaseProxy(std::shared_ptr<IMappingDatabaseAdapter> adapter);
 
-    const std::unordered_map<std::string, InterpretedParam>& getParams() const override;
+    std::unordered_map<std::string, InterpretedParam> getParams() const override;
     std::optional<InterpretedParam> getParam(const std::string& name) const override;
     std::string instanceName() const override;
 

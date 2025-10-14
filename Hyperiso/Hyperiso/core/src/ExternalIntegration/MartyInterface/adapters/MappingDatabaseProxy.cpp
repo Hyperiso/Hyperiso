@@ -16,7 +16,7 @@ MappingDatabaseProxy::MappingDatabaseProxy(std::shared_ptr<IMappingDatabaseAdapt
     if (!adapter_) throw std::runtime_error("MappingDatabaseProxy: adapter nul");
 }
 
-const std::unordered_map<std::string, InterpretedParam>&
+std::unordered_map<std::string, InterpretedParam>
 MappingDatabaseProxy::getParams() const {
     return adapter_->getParams();
 }

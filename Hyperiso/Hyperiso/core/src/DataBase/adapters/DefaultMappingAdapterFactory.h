@@ -19,7 +19,7 @@ public:
             loader = std::make_shared<JsonParamMappingAdapter>(std::make_shared<JSONParser>());
         }
 
-        auto db = MappingDatabase::getInstance(instanceName, jsonFilePath, loader);
+        auto db = std::make_shared<MappingDatabase>(MappingDatabase(instanceName, jsonFilePath, loader));
         if (!db) throw std::runtime_error("DefaultMappingAdapterFactory: DB introuvable");
 
         return std::make_shared<DefaultMappingDatabaseAdapter>(instanceName, db);

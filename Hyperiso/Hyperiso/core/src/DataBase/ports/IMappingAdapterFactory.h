@@ -14,7 +14,7 @@ public:
     virtual std::shared_ptr<IMappingDatabaseAdapter> create(
         const std::string& instanceName,
         const std::string& jsonFilePath,
-        std::shared_ptr<IParamMappingSource> loader /* peut être nul, fallback interne */
+        std::shared_ptr<IParamMappingSource> loader
     ) const = 0;
 };
 

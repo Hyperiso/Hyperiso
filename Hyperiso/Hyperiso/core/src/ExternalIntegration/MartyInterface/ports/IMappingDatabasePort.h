@@ -6,12 +6,13 @@
 #include <unordered_map>
 #include <optional>
 #include "IParamMappingSource.h"
+#include "InterpretedParam.h"
 
 class IMappingDatabasePort {
 public:
     virtual ~IMappingDatabasePort() = default;
 
-    virtual const std::unordered_map<std::string, InterpretedParam>&
+    virtual std::unordered_map<std::string, InterpretedParam>
     getParams() const = 0;
 
     virtual std::optional<InterpretedParam>

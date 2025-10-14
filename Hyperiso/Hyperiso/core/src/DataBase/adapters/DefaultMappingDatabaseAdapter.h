@@ -11,14 +11,14 @@ public:
                                            std::shared_ptr<MappingDatabase> db)
         : name_(std::move(instanceName)), db_(std::move(db)) {}
 
-    const std::unordered_map<std::string, InterpretedParam>&
+    std::unordered_map<std::string, InterpretedParam>
     getParams() const override {
         return db_->getParams();
     }
 
     std::optional<InterpretedParam>
     getParam(const std::string& name) const override {
-        const auto& m = db_->getParams();
+        auto m = getParams();
         if (auto it = m.find(name); it != m.end()) return it->second;
         return std::nullopt;
     }

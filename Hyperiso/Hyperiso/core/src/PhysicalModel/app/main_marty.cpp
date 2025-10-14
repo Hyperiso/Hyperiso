@@ -2,6 +2,7 @@
 #include "WilsonInterface.h"
 #include "ParameterSetter.h"
 #include <iostream>
+#include "BlockProxy.h"
 
 int main() {
     HyperisoMaster hyp = HyperisoMaster();
@@ -9,11 +10,12 @@ int main() {
     config.flags[ExternalFlag::USE_MARTY] = true;
     config.model = Model::SM;
     config.mty_model_name = "SM";
-    config.mty_model_path = "/data/Hyperiso/Assets/input_files/marty_model/sm.h";
+    config.mty_model_path = project_assets_root.data() + std::string("input_files/marty_model/sm.h");
 
     hyp.init("default/lha/testInput.flha", config);
     LOG_INFO("HyperisoMaster initialized");
 
+    BlockProxy().log_block(ParameterType::SM, "SMINPUTS");
     auto wi = WilsonInterface();
     LOG_INFO("WilsonInterface created");
     wi.build(WilsonBuildConfig{
