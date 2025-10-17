@@ -7,7 +7,7 @@
 #include "WilsonGroup.h"
 #include "Wilson.h"
 #include "BWilsonGroup.h"
-#include "IParamAdapter.h"
+#include "IParameterProxy.h"
 #include "IBlockComposer.h"
 #include "ICoreAPI.h"
 #include "Parameter.h"

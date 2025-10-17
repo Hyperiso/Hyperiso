@@ -16,7 +16,7 @@ int main() {
 
     auto wi = WilsonInterface(); // Initialize interface and build the required groups
 
-    WilsonBuildConfig config({WGroup::BScalar, WGroup::B, WGroup::BPrime}, 81, 42, QCDOrder::NNLO);
+    WilsonBuildConfig config({GroupMapper::to_id(WGroup::BScalar), GroupMapper::to_id(WGroup::B), GroupMapper::to_id(WGroup::BPrime)}, 81, 42, QCDOrder::NNLO);
 
     wi.build(config);
 

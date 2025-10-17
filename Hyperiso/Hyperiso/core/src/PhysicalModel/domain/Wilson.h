@@ -5,7 +5,7 @@
 #include "Math.h"
 #include "Utils.h"
 #include "Parameter.h"
-#include "IParamAdapter.h"
+#include "IParameterProxy.h"
 
 
 struct MatchingInfo {

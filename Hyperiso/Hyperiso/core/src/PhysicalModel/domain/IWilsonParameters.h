@@ -11,7 +11,7 @@ public:
     virtual ~IWilsonParameterHelper() = default;
 
     virtual void init(int gen) = 0;
-    // virtual void set_gen(int gen) = 0;
+
     virtual void cleanup() = 0;
 
     bool is_init() const {return initialized;}

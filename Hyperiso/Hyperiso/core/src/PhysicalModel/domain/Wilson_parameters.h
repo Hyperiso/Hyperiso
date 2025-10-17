@@ -5,6 +5,9 @@
 #include "ParameterProxy.h"
 #include "Include.h"
 #include "IWilsonParameters.h"
+#include "BWilsonRunningParameters.h"
+
+using BRP = BWilsonRunningParameters;
 
 class WilsonParameterHelper : public IWilsonParameterHelper {
 public:
@@ -17,9 +20,7 @@ private:
     void init_matching_block() override;
     void init_running_block() override;
 
+    void init_running_parameter_blocks();
 
-    // std::shared_ptr<IBlockComposer> iblock_c;
-
-    // bool initialized {false};
 };
 

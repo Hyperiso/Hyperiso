@@ -9,7 +9,7 @@ public:
     explicit CustomCoefficientGroup(WilsonGroupAdapterConfig adapters, const std::string& name,
                                     ContributionType type = ContributionType::SM)
     : CoefficientGroup(adapters) {
-        this->id = WGroup::CUSTOM_GROUP;
+        this->id = GroupMapper::to_id(WGroup::CUSTOM_GROUP);
         this->name_grp = name;
         this->wilson_type = type;
     }

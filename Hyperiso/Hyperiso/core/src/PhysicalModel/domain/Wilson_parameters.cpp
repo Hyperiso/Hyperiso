@@ -72,6 +72,77 @@ void WilsonParameterHelper::init_matching_block() {
 
 }
 
+void WilsonParameterHelper::init_running_parameter_blocks() {
+
+    LOG_DEBUG("Init running matrices blocks of B Coefficient group");
+	std::unordered_map<ParameterType, std::vector<std::string>> eta_powers_src = {{ParameterType::WILSON, {"WPARAM_RUN_SM"}}};
+
+    auto eta_powers_func = [] (const std::unordered_map<std::string, std::shared_ptr<Block>>& src, std::shared_ptr<DependentBlock> dep_block) {
+		double eta = src.at("WPARAM_RUN_SM")->retrieve(2)->get_val();
+
+		for (int i = 0; i < BRP::array_size; ++i) {
+            dep_block->store_or_assign(LhaID(1, i), std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "ETA_POWS", LhaID(1, i)}, std::pow(eta, (BRP::ai)[i]), 0., 0.));
+            dep_block->store_or_assign(LhaID(2, i), std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "ETA_POWS", LhaID(2, i)}, std::pow(eta, (BRP::ai2)[i]), 0., 0.));
+		}
+    };
+
+    std::unordered_map<ParameterType, std::vector<std::string>> mtx_src = {{ParameterType::WILSON, {"WPARAM_RUN_SM", "ETA_POWS"}}};
+
+    auto U_func = [] (const std::unordered_map<std::string, std::shared_ptr<Block>>& src, std::shared_ptr<DependentBlock> dep_block) {
+		double eta = src.at("WPARAM_RUN_SM")->retrieve(2)->get_val();
+        auto pid = [] (int n, int k, int l) {
+            return ParamId{ParameterType::WILSON, "U_MATRIX", LhaID(n, k, l)};
+        };
+
+        double U0, U1, U2;
+        double eta_ai;
+        using BRP = BRP;
+		for (int ke = 0; ke < BRP::array_size; ++ke) {
+            for (int le = 0; le < BRP::array_size; ++le) {
+                U0 = U1 = U2 = 0;
+                for (int ie = 0; ie < BRP::array_size; ++ie) {
+                    eta_ai = src.at("ETA_POWS")->retrieve(LhaID(1, ie))->get_val();
+                    U0 += BRP::m00[ke][le][ie] * eta_ai;    
+                    U1 += (BRP::m10[ke][le][ie] + BRP::m11[ke][le][ie] / eta) * eta_ai;
+                    U2 += (BRP::m20[ke][le][ie] + BRP::m21[ke][le][ie] / eta + BRP::m22[ke][le][ie] / (eta * eta)) * eta_ai;
+                }
+                dep_block->store_or_assign(LhaID(0, ke, le), std::make_shared<Parameter>(pid(0, ke, le), U0, 0., 0.));
+                dep_block->store_or_assign(LhaID(1, ke, le), std::make_shared<Parameter>(pid(1, ke, le), U1, 0., 0.));
+                dep_block->store_or_assign(LhaID(2, ke, le), std::make_shared<Parameter>(pid(2, ke, le), U2, 0., 0.));
+            }
+        }
+    };
+
+    auto V_func = [] (const std::unordered_map<std::string, std::shared_ptr<Block>>& src, std::shared_ptr<DependentBlock> dep_block) {
+		double eta = src.at("WPARAM_RUN_SM")->retrieve(2)->get_val();
+        auto pid = [] (int n, int k, int l) {
+            return ParamId{ParameterType::WILSON, "V_MATRIX", LhaID(n, k, l)};
+        };
+
+        double V0, V1;
+        double eta_ai;
+        using BRP = BRP;
+		for (int ke = 0; ke < BRP::array_size; ++ke) {
+            for (int le = 0; le < BRP::array_size; ++le) {
+                V0 = V1 = 0;
+                for (int ie = 0; ie < BRP::array_size; ++ie) {
+                    eta_ai = src.at("ETA_POWS")->retrieve(LhaID(1, ie))->get_val();
+                    V0 += BRP::l00[ke][le][ie] * eta_ai;    
+                    V1 += (BRP::l10[ke][le][ie] + BRP::l11[ke][le][ie] / eta) * eta_ai;
+                }
+                dep_block->store_or_assign(LhaID(0, ke, le), std::make_shared<Parameter>(pid(0, ke, le), V0, 0., 0.));
+                dep_block->store_or_assign(LhaID(1, ke, le), std::make_shared<Parameter>(pid(1, ke, le), V1, 0., 0.));
+            }
+        }
+    };
+
+    iblock_c->compose_block("ETA_POWS", eta_powers_src, eta_powers_func);
+    iblock_c->compose_block("U_MATRIX", mtx_src, U_func);
+    iblock_c->compose_block("V_MATRIX", mtx_src, V_func);
+
+    LOG_VERBOSE("Running matrices updated");
+}
+
 void WilsonParameterHelper::init_running_block() {
 	LOG_DEBUG("Init running scale dependent wparam block");
 	std::unordered_map<ParameterType, std::vector<std::string>> src = {
@@ -113,6 +184,8 @@ void WilsonParameterHelper::init_running_block() {
     };
 
     iblock_c->compose_block("WPARAM_RUN_SM", src, func);
+
+	init_running_parameter_blocks();
 }
 
 void WilsonParameterHelper::cleanup() {

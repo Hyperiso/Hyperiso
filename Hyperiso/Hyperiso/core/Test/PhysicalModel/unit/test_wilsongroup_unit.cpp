@@ -8,7 +8,7 @@
 #include "WilsonGroup.h"
 #include "Wilson.h"
 #include "BWilson.h"
-#include "IParamAdapter.h"
+#include "IParameterProxy.h"
 #include "IBlockComposer.h"
 #include "ICoreAPI.h"
 #include "Parameter.h"
@@ -57,7 +57,7 @@ public:
     TestGroupNoInit(WGroup gid, WilsonGroupAdapterConfig cfg, ContributionType t = ContributionType::SM)
         : CoefficientGroup(cfg)
     {
-        this->id = gid;
+        this->id = GroupMapper::to_id(gid);;
         this->wilson_type = t;
     }
 

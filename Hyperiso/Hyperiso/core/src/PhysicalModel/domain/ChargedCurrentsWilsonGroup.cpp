@@ -65,9 +65,9 @@ std::unordered_map<WCoef, scalar_t> BclnuCoefficientGroup::base_1_LO_calculation
 // }
 
 BclnuCoefficientGroup::BclnuCoefficientGroup(WilsonGroupAdapterConfig adapters, bool force_sm) : CoefficientGroup(adapters) {
-    this->id = WGroup::BCC;
-    init_sources();
-    add_wilson_coefficients(force_sm);
+    this->id = GroupMapper::to_id(WGroup::BCC);
+    // init_sources();
+    // add_wilson_coefficients(force_sm);
 }
 
 void BclnuCoefficientGroup::init_sources() {

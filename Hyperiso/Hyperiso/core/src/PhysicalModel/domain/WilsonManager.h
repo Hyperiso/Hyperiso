@@ -18,7 +18,9 @@
 struct PortsConfig {
 
     PortsConfig(std::shared_ptr<IBlockComposer> iblock_c, std::shared_ptr<IParameterProxy<std::string, LhaID>> wilson_proxy, std::shared_ptr<ICoreAPI<bool>> use_marty, std::shared_ptr<ICoreAPI<Model>> model_api, std::shared_ptr<IParamSetter<ScaleType>> scale_setter_api) :
-        iblock_c(iblock_c), wilson_proxy(wilson_proxy), use_marty(use_marty), model_api(model_api), scale_setter_api(scale_setter_api) {}
+        iblock_c(iblock_c), wilson_proxy(wilson_proxy), 
+        use_marty(use_marty), model_api(model_api), 
+        scale_setter_api(scale_setter_api) {}
 
     std::shared_ptr<IBlockComposer> iblock_c;
     std::shared_ptr<IParameterProxy<std::string, LhaID>> wilson_proxy;
@@ -26,6 +28,7 @@ struct PortsConfig {
     std::shared_ptr<ICoreAPI<bool>> use_marty;
     std::shared_ptr<ICoreAPI<Model>> model_api;
     std::shared_ptr<IParamSetter<ScaleType>> scale_setter_api;
+    std::function<std::shared_ptr<CoefficientGroup>(WGroupId, Model, bool, ContributionType)> build_group;
 };
 
 class CoefficientManager {

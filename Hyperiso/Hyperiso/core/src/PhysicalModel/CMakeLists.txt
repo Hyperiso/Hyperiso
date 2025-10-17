@@ -54,6 +54,14 @@ add_library(PhysicalModelLib STATIC
     domain/WilsonGroup.cpp
     domain/WilsonManager.cpp
     domain/MartyWilson.cpp
+    domain/GroupDefinitions.cpp
+    domain/GroupDef_B.cpp
+    domain/GroupDef_BCC.cpp
+    domain/GroupDef_BPrime.cpp
+    domain/GroupDef_BScalar.cpp
+    domain/GroupDef_MesonMixing.cpp
+    domain/WilsonCoefficientRegistry.cpp
+    domain/CoefficientGroupBuilder.cpp
     adapters/ParameterProxy.cpp
     adapters/WilsonParamComposer.cpp
     adapters/ScaleSetter.cpp

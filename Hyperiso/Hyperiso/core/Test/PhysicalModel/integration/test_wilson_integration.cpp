@@ -6,7 +6,7 @@
 
 #include "Wilson.h"   // inclut la base
 #include "Parameter.h"
-#include "IParamAdapter.h"
+#include "IParameterProxy.h"
 #include "Math.h"
 #include "BWilson.h"       // ton header C7
 
@@ -42,7 +42,7 @@ int main() {
         auto sNLO  = c7.get_sources(QCDOrder::NLO);
         auto sNNLO = c7.get_sources(QCDOrder::NNLO);
 
-        assert(sLO.count({"WPARAM_MATCH_SM", LhaID(2, 1)}) == 1);
+        assert(sLO.count({ParameterType::WILSON, "WPARAM_MATCH_SM", LhaID(2, 1)}) == 1);
 
         assert(sNLO.count({"WPARAM_MATCH_SM", LhaID(3)}) == 1);
         assert(sNLO.count({"WPARAM_MATCH_SM", LhaID(6)}) == 1);

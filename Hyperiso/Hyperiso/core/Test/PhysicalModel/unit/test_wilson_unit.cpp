@@ -5,7 +5,7 @@
 
 #include "Wilson.h"     // ta classe de base + MatchingInfo, etc.
 #include "Parameter.h"  // ParamId, Parameter
-#include "IParamAdapter.h"
+#include "IParameterProxy.h"
 
 // Un stub concret minimal pour tester la base sans impl spécifique
 class StubWC : public WilsonCoefficient {
