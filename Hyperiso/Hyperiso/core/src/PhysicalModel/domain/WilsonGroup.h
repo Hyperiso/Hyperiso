@@ -52,6 +52,7 @@ public:
     }
     std::function<std::unordered_map<WCoef, scalar_t>(const std::unordered_map<QCDOrder, std::unordered_map<WCoef, scalar_t>>&, const std::unordered_map<std::string, std::shared_ptr<Block>>&)> get_func(QCDOrder ord, WilsonBasis id) {return this->sources[id][ord].func;}
 
+    WGroupId get_group_id() {return id;}
     void set_group_id(WGroupId gid) { id = gid; } //TDOO : need to check Group and GroupId
     void set_wilson_type(ContributionType ct) { wilson_type = ct; }
     void add_sources(WilsonBasis basis, const std::map<QCDOrder, CoefficientGroupSources>& m) {

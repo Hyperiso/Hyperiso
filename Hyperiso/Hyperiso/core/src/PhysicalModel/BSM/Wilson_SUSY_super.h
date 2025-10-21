@@ -368,7 +368,7 @@ public:
 class BCoefficientGroup_susy : public BCoefficientGroup {
 
 public:
-    BCoefficientGroup_susy(WilsonGroupAdapterConfig adapters) : BCoefficientGroup(adapters) { this->clear();
+    BCoefficientGroup_susy(WilsonGroupAdapterConfig adapters) : BCoefficientGroup(adapters) {
 
         // if (!susy_parameters::is_initialized()) {
         //     susy_parameters::init();
@@ -401,7 +401,7 @@ public:
 
 class BScalarCoefficientGroup_susy : public BScalarCoefficientGroup {
 public:
-    BScalarCoefficientGroup_susy(WilsonGroupAdapterConfig adapters) : BScalarCoefficientGroup(adapters) { this->clear();
+    BScalarCoefficientGroup_susy(WilsonGroupAdapterConfig adapters) : BScalarCoefficientGroup(adapters) {
 
 
         // this->insert(std::make_pair("CQ1", std::make_shared<CQ1_susy>())); this->insert(std::make_pair("CQ2", std::make_shared<CQ2_susy>()));
