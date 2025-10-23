@@ -32,6 +32,7 @@ namespace GroupDefinitions {
     const GroupDefinition& BScalar();
     const GroupDefinition& BCC();
     const GroupDefinition& MesonMixing();
+    const GroupDefinition& K();
     const GroupDefinition& get(WGroupId g);
 
     void register_custom(const GroupDefinition& def);

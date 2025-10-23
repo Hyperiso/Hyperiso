@@ -58,4 +58,5 @@ void register_B(CoefficientRegistry&);
 void register_BPrime(CoefficientRegistry&);
 void register_BScalar(CoefficientRegistry&);
 void register_BCC(CoefficientRegistry&);
-// void register_MesonMixing(CoefficientRegistry&); //TODO
+void register_MesonMixing(CoefficientRegistry&);
+void register_K(CoefficientRegistry& reg);

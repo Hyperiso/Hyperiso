@@ -409,7 +409,9 @@ std::shared_ptr<CoefficientManager> CoefficientManager::Builder(std::string mode
     
     for (auto& helper : wilson_param_helpers) {
         if (!helper.second->is_init()) {
-            helper.second->init(2);
+            for (const auto& elem : groups) {
+                helper.second->init(2, GroupMapper::enum_elt(elem.first));
+            }
         }
     }
     //TODO : add version where helper is not containing the right things

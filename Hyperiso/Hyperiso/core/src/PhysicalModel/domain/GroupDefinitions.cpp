@@ -27,6 +27,7 @@ namespace GroupDefinitions {
                 case WGroup::BScalar:      return BScalar();
                 case WGroup::BCC:          return BCC();
                 case WGroup::MESON_MIXING: return MesonMixing();
+                case WGroup::K:            return K();
                 default: break;
             }
             throw std::runtime_error("Unknown built-in WGroup");

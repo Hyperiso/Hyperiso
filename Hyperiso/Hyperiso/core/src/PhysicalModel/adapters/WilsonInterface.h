@@ -33,6 +33,9 @@ public:
     }
 
     void addWilsonGroup(WilsonBuildConfig config) {
+        if (!this->builder) {
+            LOG_ERROR("AccessError", "Please build the interface first before adding groups");
+        }
         this->builder->add(config);
     }
 

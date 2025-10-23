@@ -13,12 +13,12 @@ class thdm_parameters : public IWilsonParameterHelper {
 public:
 
     thdm_parameters(std::shared_ptr<IBlockComposer> iblock_c) : IWilsonParameterHelper(iblock_c) {}
-    void init(int gen) override;
+    void init(int gen, WGroupId grp) override;
     void cleanup() override {} //TODO
 protected:
     void init_scale_independent_block(int gen) override;
     void init_matching_block() override;
-    void init_running_block() override {}
+    void init_running_block(WGroupId grp) override {}
     // inline bool is_initialized() {return thdm_parameters::initialized;}
     // static inline WilsonParamComposer composer = WilsonParamComposer();
     // // static inline double current_mu_W{-1};

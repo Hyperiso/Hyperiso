@@ -15,7 +15,8 @@ static std::shared_ptr<CoefficientRegistry> make_registry() {
     register_BPrime(*reg);
     register_BScalar(*reg);
     register_BCC(*reg);
-    // register_MesonMixing(*reg); //TODO
+    register_K(*reg);
+    register_MesonMixing(*reg); //TODO
     return reg;
 }
 
@@ -28,15 +29,26 @@ void WilsonBuilder::build(WilsonBuildConfig config) {
     std::shared_ptr<IBlockComposer> iblock_c = std::make_shared<WilsonParamComposer>();
     
     wilson_param_helpers[Model::SM] = std::make_shared<WilsonParameterHelper>(iblock_c);
-    wilson_param_helpers[Model::SM]->init(2);
+
+    for (const auto& elem : config.groups) {
+        wilson_param_helpers[Model::SM]->init(2, elem);
+
+    }
 
     Model model = ModelAPI().get();
+
+    //TODO :: better
     if (model == Model::THDM) {
         wilson_param_helpers[model] = std::make_shared<thdm_parameters>(iblock_c);
-        wilson_param_helpers[model]->init(2);
+        for (const auto& elem : config.groups) {
+            wilson_param_helpers[model]->init(2, elem);
+
+        }
     } else if (model == Model::SUSY) {
         wilson_param_helpers[model] = std::make_shared<susy_parameters>(iblock_c);
-        wilson_param_helpers[model]->init(2);
+        for (const auto& elem : config.groups) {
+            wilson_param_helpers[model]->init(2, elem);
+        }
     }
 
 
@@ -96,10 +108,19 @@ void WilsonBuilder::build(WilsonBuildConfig config) {
     this->cm = CoefficientManager::Builder(ModelMapper::str(model), groups, config.matching_scale, config.hadronic_scale, OrderMapper::str(config.order), port_config, wilson_param_helpers);
 }
 
+//TODO : deal with new wilson_parameters
 void WilsonBuilder::add(WilsonBuildConfig config) {
+    std::cout << "0" << std::endl;
     Model model = ModelAPI().get();
+
+    std::cout << "1" << std::endl;
     this->cm->set_matching_scale(config.matching_scale);
+
+    std::cout << "2" << std::endl;
+
     this->cm->set_hadronic_scale(config.hadronic_scale);
+
+    std::cout << "3" << std::endl;
 
     std::shared_ptr<IBlockComposer> iblock_c = std::make_shared<WilsonParamComposer>();
     std::shared_ptr<IParameterProxy<std::string, LhaID>> wilson_proxy = std::make_shared<ParameterProxy>(ParameterType::WILSON);
@@ -114,18 +135,24 @@ void WilsonBuilder::add(WilsonBuildConfig config) {
         marty_proxy = std::make_shared<MartyWilsonProxy>(); 
     }
 
+    std::cout << "4" << std::endl;
+
     WilsonGroupAdapterConfig adapters(wilson_proxy, iblock_c, use_marty, marty_model_name, marty_model_path, marty_proxy);
 
     auto reg_ptr = make_registry();
     CoefficientGroupBuilder b{*reg_ptr};
 
+    std::cout << "5" << std::endl;
+
     for (auto& g_id : config.groups) {
         ContributionType ct;
         if (use_marty->get()) ct = ContributionType::TOTAL;
         else ct = (model == Model::SM) ? ContributionType::SM : ContributionType::BSM;
-
+        std::cout << "6" << std::endl;
         BuildContext ctx{adapters, model, use_marty->get() ? Backend::Marty : Backend::Builtin, ct, g_id};
         auto grp = b.build(ctx);
+
+        std::cout << "7" << std::endl;
         std::string group_name = GroupMapper::str(g_id);
         LOG_INFO("Initializing group", group_name);
         this->cm->registerCoefficientGroup(group_name, std::move(grp));

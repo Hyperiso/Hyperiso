@@ -341,7 +341,7 @@
 // }
 
 
-void susy_parameters::init(int gen) {
+void susy_parameters::init(int gen, WGroupId grp) {
 
 	if (initialized) {
 		return;

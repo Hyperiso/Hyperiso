@@ -52,13 +52,13 @@ public:
 	susy_parameters(std::shared_ptr<IBlockComposer> iblock_c) : IWilsonParameterHelper(iblock_c) {}
 	// void update();
 
-	void init(int gen) override;
+	void init(int gen, WGroupId grp) override;
 	void cleanup() override {}
 
 protected:
     void init_scale_independent_block(int gen) override;
     void init_matching_block() override;
-	void init_running_block() override {};
+	void init_running_block(WGroupId grp) override {};
 	// void reset_PrimeCQG(double Qmatch);
 	// void reset_G();
 	
