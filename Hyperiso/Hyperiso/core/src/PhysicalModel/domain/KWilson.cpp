@@ -21,17 +21,39 @@ CK10::CK10() : WilsonCoefficient("CK10", GroupMapper::str(WGroup::K) + "_MATCH")
     // LO
     matching_info[QCDOrder::LO] = {
         {
-            {"WPARAM_MATCH_SM", LhaID(2, 1)}  // x_t
+            {"WPARAM_MATCH_SM", LhaID(2, 1)},  // x_t
+            {"WPARAM_SI_SM", 4}                // sw2
         },
         compute_LO,
-        LhaID(0, 2, 0, 0)
+        LhaID(0, 3, 0, 0)
+    };
+
+    matching_info[QCDOrder::NLO] = {
+        {
+            {"WPARAM_MATCH_SM", LhaID(2, 1)},  // x_t
+            {"WPARAM_SI_SM", 4},               // sw2
+            {ParameterType::SM, "MASS", 24},   // mW
+            {ParameterType::SM, "QCD", 6},     //mt 
+        },
+        compute_NLO,
+        LhaID(0, 3, 1, 0)
     };
 
 }
 
 double CK10::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src) {
     double xt = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1}})->get_val();
-    return -0.5 * F0t(xt) - 1. / 3.;
+    double sw2  = src.at({ParameterType::WILSON, "WPARAM_SI_SM", 4})->get_val();
+    return -Y0(xt)/sw2;
+}
+
+//TODO : careful with NLO, alpha/4pi is not the same than before (not same scale)
+double CK10::compute_NLO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src) {
+    double xt = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1}})->get_val();
+    double sw2  = src.at({ParameterType::WILSON, "WPARAM_SI_SM", 4})->get_val();
+    double mW    = src.at({ParameterType::SM, "MASS", 24})->get_val();
+    double mtmt = src.at({ParameterType::SM, "QCD", 6})->get_val();
+    return -Y1(xt,mtmt,mW)/sw2;
 }
 
 CKQ1::CKQ1() : WilsonCoefficient("CKQ1", GroupMapper::str(WGroup::K) + "_MATCH") {
@@ -41,7 +63,7 @@ CKQ1::CKQ1() : WilsonCoefficient("CKQ1", GroupMapper::str(WGroup::K) + "_MATCH")
             {"WPARAM_MATCH_SM", LhaID(2, 1)}  // x_t
         },
         compute_LO,
-        LhaID(0, 3, 0, 0)
+        LhaID(0, 5, 0, 0)
     };
 
 }
@@ -58,7 +80,7 @@ CKQ2::CKQ2() : WilsonCoefficient("CKQ2", GroupMapper::str(WGroup::K) + "_MATCH")
             {"WPARAM_MATCH_SM", LhaID(2, 1)}  // x_t
         },
         compute_LO,
-        LhaID(0, 4, 0, 0)
+        LhaID(0, 6, 0, 0)
     };
 
 }
@@ -75,7 +97,7 @@ CPK9::CPK9() : WilsonCoefficient("CPK9", GroupMapper::str(WGroup::K) + "_MATCH")
             {"WPARAM_MATCH_SM", LhaID(2, 1)}  // x_t
         },
         compute_LO,
-        LhaID(0, 5, 0, 0)
+        LhaID(0, 2, 0, 0)
     };
 
 }
@@ -92,7 +114,7 @@ CPK10::CPK10() : WilsonCoefficient("CPK10", GroupMapper::str(WGroup::K) + "_MATC
             {"WPARAM_MATCH_SM", LhaID(2, 1)}  // x_t
         },
         compute_LO,
-        LhaID(0, 6, 0, 0)
+        LhaID(0, 4, 0, 0)
     };
 
 }

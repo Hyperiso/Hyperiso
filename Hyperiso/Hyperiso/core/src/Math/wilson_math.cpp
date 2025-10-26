@@ -1270,3 +1270,18 @@ double f(double x)
 	if(fabs(x-1.)<1.e-5) return 0.5;
 	return 1./(1.-x)+x*log(x)/pow(1.-x,2.);
 }
+
+
+/* hep-ph/9901288 */
+double Y0(double xt)
+{
+	return xt/8. * ((4.-xt)/(1.-xt) + (3.*xt)/pow(1.-xt,2.) * log(xt));
+}
+
+/* hep-ph/9901288 */
+double Y1(double xt, double mu, double mass_W)
+{
+	return (10.*xt + 10*xt*xt + 4.*pow(xt,3.))/(3.*pow(1.-xt,2.)) - (2.*xt - 8.*xt*xt - pow(xt,3.) - pow(xt,4.))/(pow(1.-xt,3.)) * log(xt)
+	+ (2.*xt - 14.*xt*xt + xt*xt*xt - pow(xt,4.))/(2*pow(1.-xt,3)) * log(xt)*log(xt) + (2.*xt + pow(xt,3.))/(pow(1.-xt,2.)) * Li2(1.-xt)
+	+ 8.*xt*log(mu*mu/(mass_W*mass_W))*( (-4. + 3.*xt + xt*xt*xt -6.*xt*log(xt))/(8.*pow(xt-1.,3.)) );
+}

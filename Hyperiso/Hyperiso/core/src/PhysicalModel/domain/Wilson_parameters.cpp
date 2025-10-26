@@ -19,7 +19,8 @@ void WilsonParameterHelper::init_scale_independent_block(int gen) {
 
     auto func = [gen] (const std::unordered_map<std::string, std::shared_ptr<Block>>& src, std::shared_ptr<DependentBlock> dep_block) {
         double xh = pow(src.at("MASS")->retrieve(25)->get_val() / src.at("MASS")->retrieve(24)->get_val(), 2);
-		
+        printf("25 in the SM (LO) : %.8lf\n", src.at("MASS")->retrieve(25)->get_val().real());
+        printf("24 in the SM (LO) : %.8lf\n", src.at("MASS")->retrieve(24)->get_val().real());
 		int nf = 5;
 		int id = 1;
         dep_block->store_or_assign(id++, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_SM", id}, xh, 0., 0.));

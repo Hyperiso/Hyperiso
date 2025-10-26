@@ -394,6 +394,10 @@ double CQ1_THDM::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Pa
         xt / (2. * xH0) * (cos(alpha - beta) - sin(alpha - beta) * le) *
         (cos(alpha - beta) * G1 - sin(alpha - beta) * G2);
 
+        printf("first_part : %.9lf\n", xt * (F0SP(xt) + le * (ld * F1SP(xt, xH) + lu * F2SP(xt, xH)) + le * lu * F3SP(xt, xH)));
+        printf("second_part : %.9lf\n", xt / (2. * xh) * (sin(alpha - beta) + cos(alpha - beta) * le) *
+        (sin(alpha - beta) * G1 + cos(alpha - beta) * G2));
+
     LOG_INFO("F0SP =", F0SP(xt));
     LOG_INFO("F1SP =", F1SP(xt, xH));
     LOG_INFO("F2SP =", F2SP(xt, xH));
@@ -402,9 +406,12 @@ double CQ1_THDM::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Pa
     LOG_INFO("beta =", beta);
     LOG_INFO("xH0 =", xH0);
     LOG_INFO("xt =", xt);
+    LOG_INFO("xh =", xh);
     LOG_INFO("xH =", xH);
     LOG_INFO("G1 =", G1);
     LOG_INFO("G2 =", G2);
+    LOG_INFO("lu =", lu);
+    LOG_INFO("ld =", ld);
     LOG_INFO("lambda_e =", le);
     LOG_INFO("sin(alpha-beta) =", sin(alpha - beta));
     LOG_INFO("cos(alpha-beta) =", cos(alpha - beta));
@@ -417,7 +424,7 @@ double CQ1_THDM::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Pa
 
     printf("sw2 = %lf\n", sw2);
     printf("ml = %lf\n", ml);
-	printf("mass_b_muW = %lf\n", mb_muW);
+	printf("mass_b_muW = %.8lf\n", mb_muW);
 	printf("param->mass_W = %lf\n", mW);
     std::cout << "CQ1H_0 : " << coeff_temp << std::endl;
     return coeff_temp;

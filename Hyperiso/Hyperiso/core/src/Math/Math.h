@@ -551,6 +551,10 @@ complex_t f_29_1S(double s, double L_b, double z, size_t max_pow=20);
 complex_t f_87(double s, double L_b);
 complex_t f_89(double s);
 
+double Y0(double xt);
+double Y1(double xt, double mu, double mass_W);
+
+
 /*
     Integration routines
 */

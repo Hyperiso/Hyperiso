@@ -763,7 +763,7 @@ scalar_t C7_susy::compute_NLO(const std::unordered_map<ParamId, std::shared_ptr<
     }
 
     C7charg_1 *= -0.5 * src.at({ParameterType::WILSON, "WPARAM_SI_BSM", 19})->get_val();  // kappa
-
+    C7four_1 *= -0.5 * src.at({ParameterType::WILSON, "WPARAM_SI_BSM", 19})->get_val();  // kappa
     complex_t C7H_1 = G7H(yt, lu, ld) + Delta7H(yt, lu, ld) * std::log(std::pow(Q_match / mH, 2.0)) - 4.0 / 9.0 * EH(yt, lu);
 
     return scalar_t(C7charg_1 + C7four_1 + C7H_1);
@@ -892,7 +892,7 @@ C8_susy::C8_susy() : WilsonCoefficient("C8_SUSY", GroupMapper::str(WGroup::B) + 
             {ParameterType::BSM, "MASS", 25},                // mh
             {ParameterType::BSM, "MASS", 36},                // mA0
             {ParameterType::WILSON, "WPARAM_MATCH_SM", {5,1}}, // mass_b_muW
-        
+            {ParameterType::WILSON, "WPARAM_SI_BSM", 19},     //kappa
             {ParameterType::WILSON, "WPARAM_SI_BSM", {13,0}},
             {ParameterType::WILSON, "WPARAM_SI_BSM", {13,1}},
             {ParameterType::WILSON, "WPARAM_SI_BSM", {14,0}},
@@ -1079,7 +1079,7 @@ scalar_t C8_susy::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<P
     // std::cout << "C8charg_0 " << C8charg_0 << std::endl;
     // std::cout << "C8_chargeps_0" << C8_chargeps_0 << std::endl;
     // std::cout << "elem are : " << C8SMeps_0 + C8Heps_0 + C8Heps2_0 + C8charg_0 + C8_chargeps_0 + C8H_0 << std::endl; 
-
+    
     return scalar_t(C8SMeps_0 + C8Heps_0 + C8Heps2_0 + C8charg_0 + C8_chargeps_0 + C8H_0);
 }
 
@@ -1137,8 +1137,13 @@ scalar_t C8_susy::compute_NLO(const std::unordered_map<ParamId, std::shared_ptr<
             }
         }
     }
-
+    C8charg_1 *= -0.5 * src.at({ParameterType::WILSON, "WPARAM_SI_BSM", 19})->get_val();
+    C8four_1 *= -0.5 * src.at({ParameterType::WILSON, "WPARAM_SI_BSM", 19})->get_val();
     complex_t C8H_1 = G8H(yt, lu, ld) + Delta8H(yt, lu, ld) * std::log(std::pow(Q_match / mH, 2.0)) - 1. / 6. * EH(yt, lu);
+
+    // printf("C8H_1 (NLO) : %.8lf\n", C8H_1);
+    // printf("C8charg_1 (NLO) : %.8lf\n", C8charg_1);
+    // printf("C8four_1 (NLO) : %.8lf\n", C8four_1);
 
     return scalar_t(C8charg_1 + C8four_1 + C8H_1);
 }
@@ -3773,6 +3778,7 @@ scalar_t CQ2_susy::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<
         
 
     }
+    std::cout << "coeff_temp " << coeff_temp << std::endl;
     return coeff_temp;
 }
 

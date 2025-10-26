@@ -568,7 +568,7 @@ std::unordered_map<WCoef, scalar_t> BScalarCoefficientGroup::base_1_NLO_calculat
     for (size_t k = 0; k < ids.size(); k++) {
         Ci_run_map[ids[k]] = fact * CQi_match[k];
     }
-
+    
     return Ci_run_map;
 }
 
