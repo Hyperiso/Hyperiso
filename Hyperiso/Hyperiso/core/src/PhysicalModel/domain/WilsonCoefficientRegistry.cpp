@@ -223,9 +223,9 @@ void register_K(CoefficientRegistry& reg) {
     REG(WCoef::CPK10,  SM, Builtin, std::make_shared<CPK10>());
     REG(WCoef::CPKQ1,  SM, Builtin, std::make_shared<CPKQ1>());
     REG(WCoef::CPKQ2,  SM, Builtin, std::make_shared<CPKQ2>());
+    REG(WCoef::CK_L,  SM, Builtin, std::make_shared<CK_L>());
 
-
-    for (WCoef c : {WCoef::CK9, WCoef::CK10, WCoef::CKQ1, WCoef::CKQ2, WCoef::CPK9, WCoef::CPK10, WCoef::CPKQ1, WCoef::CPKQ2})
+    for (WCoef c : {WCoef::CK9, WCoef::CK10, WCoef::CKQ1, WCoef::CKQ2, WCoef::CPK9, WCoef::CPK10, WCoef::CPKQ1, WCoef::CPKQ2, WCoef::CK_L})
         REG(c, Model::SM, Backend::Marty, make_marty(ctx, coef));
 
         //TODO : marty other cases

@@ -1285,3 +1285,17 @@ double Y1(double xt, double mu, double mass_W)
 	+ (2.*xt - 14.*xt*xt + xt*xt*xt - pow(xt,4.))/(2*pow(1.-xt,3)) * log(xt)*log(xt) + (2.*xt + pow(xt,3.))/(pow(1.-xt,2.)) * Li2(1.-xt)
 	+ 8.*xt*log(mu*mu/(mass_W*mass_W))*( (-4. + 3.*xt + xt*xt*xt -6.*xt*log(xt))/(8.*pow(xt-1.,3.)) );
 }
+
+double X0(double xt)
+{
+  return xt/8. * ((xt + 2.)/(xt - 1.) + (3.*xt - 6.)/pow(xt - 1.,2.) * log(xt));
+}
+
+/*----------------------------------------------------------------------------*/
+
+double X1(double xt, double mu, double mass_W)
+{
+	return -(29.*xt - xt*xt - 4.*pow(xt,3.))/(3.*pow(1.-xt,2.)) - (xt + 9.*xt*xt - pow(xt,3.) - pow(xt,4.))/(pow(1.-xt,3.)) * log(xt)
+	+ (8.*xt + 4.*xt*xt + xt*xt*xt - pow(xt,4.))/(2*pow(1.-xt,3)) * log(xt)*log(xt) - (4.*xt - pow(xt,3.))/(pow(1.-xt,2.)) * Li2(1.-xt)
+	+ 8.*xt*( (8. - 9.*xt + pow(xt,3.) +6.*log(xt))/(8.*pow(-1+xt,3.)) )*log(mu*mu/(mass_W*mass_W));
+}

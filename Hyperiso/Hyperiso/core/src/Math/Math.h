@@ -553,7 +553,8 @@ complex_t f_89(double s);
 
 double Y0(double xt);
 double Y1(double xt, double mu, double mass_W);
-
+double X0(double xt);
+double X1(double xt, double mu, double mass_W);
 
 /*
     Integration routines
