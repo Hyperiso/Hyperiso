@@ -40,7 +40,7 @@ constexpr double M_N =   0.9395654;  // Gev
 
 constexpr double EPSILON = 1e-5;
 
-constexpr scalar_t I = scalar_t(0, 1);
+constexpr complex_t I = complex_t(0, 1);
 
 /* Conversion factors */
 
@@ -540,17 +540,6 @@ double h4(double x, double y);
  */
 double f(double x);
 
-// TODO : Docstring
-// B > sll NLO corrections
-complex_t f_17(double s, double L_b, double z, size_t max_pow=20);
-complex_t f_27(double s, double L_b, double z, size_t max_pow=20);
-complex_t f_19_PS(double s, double L_b, double z, size_t max_pow=20);
-complex_t f_29_PS(double s, double L_b, double z, size_t max_pow=20);
-complex_t f_19_1S(double s, double L_b, double z, size_t max_pow=20);
-complex_t f_29_1S(double s, double L_b, double z, size_t max_pow=20);
-complex_t f_87(double s, double L_b);
-complex_t f_89(double s);
-
 /*
     Integration routines
 */
@@ -602,5 +591,67 @@ static double psi(int n) {
     }
     return sum - GAMMA;
 }
+
+// Root finding and minimization algorithms
+
+bool find_bracket(const std::function<double(double)>& f,
+                  double x_min, double x_max,
+                  double &a, double &b,
+                  int n_samples = 100);
+
+                  
+/*
+ * brent_root: Brent's method for root finding.
+ *
+ * f       : function<double(double)> to find root of (must be continuous)
+ * a, b    : initial bracket with f(a) and f(b) of opposite signs
+ * xtol    : absolute/relative tolerance stopping criterion for x
+ * ftol    : tolerance for |f(x)|
+ * max_it  : max iterations
+ *
+ * returns approximate root x (throws on invalid bracket or failure)
+ */
+double brent_root(const std::function<double(double)>& f,
+                  double a, double b,
+                  double xtol = 1e-6,
+                  double ftol = 1e-6,
+                  int max_it = 100);
+
+
+/*****************************************
+ *                                       *
+ *      Observable-related functions     *
+ *                                       *
+ *****************************************/
+
+// TODO : Docstring
+
+namespace BV {
+    complex_t A_Seidel  (double s_hat, double L_b);
+    complex_t B_Seidel  (double s_hat, double L_b);
+    complex_t C_Seidel  (double s, double mu_b);
+
+    complex_t f_17      (double s_hat, double L_b, double z, size_t max_pow=20);
+    complex_t f_27      (double s_hat, double L_b, double z, size_t max_pow=20);
+    complex_t f_27_u    (double s_hat, double L_b);
+    complex_t f_19_PS   (double s_hat, double L_b, double z, size_t max_pow=20);
+    complex_t f_19_1S   (double s_hat, double L_b, double z, size_t max_pow=20);
+    complex_t f_19_u    (double s_hat, double L_b);
+    complex_t f_29_PS   (double s_hat, double L_b, double z, size_t max_pow=20);
+    complex_t f_29_1S   (double s_hat, double L_b, double z, size_t max_pow=20);
+    complex_t f_29_u    (double s_hat, double L_b);
+    complex_t f_87      (double s_hat, double L_b);
+    complex_t f_89      (double s_hat);
+
+    complex_t h(double s, double m_q, double mu_b);
+    complex_t B_0(double s, double m_q);
+    complex_t L_1(complex_t x);
+    complex_t I_1(double u, double s_hat, double m_q_hat);
+    complex_t G(double x_bar, double z);
+    complex_t hard_kernel(double u, double z);
+    complex_t G2(double z, double L_b); 
+    complex_t G8(double L_b);
+
+}; // namespace BV
 
 #endif

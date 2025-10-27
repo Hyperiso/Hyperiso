@@ -65,7 +65,7 @@ std::unordered_set<BlockName> Parameters::get_blocks_list()
 }
 
 std::unordered_set<BlockName> Parameters::init_blocks(ParameterType type) {
-    LOG_INFO("Init blocks for parameter type", ParameterTypeMapper::str(type));
+    LOG_DEBUG("Init blocks for parameter type", ParameterTypeMapper::str(type));
     std::unordered_set<BlockName> existing, missing;
     
     std::ranges::partition_copy(

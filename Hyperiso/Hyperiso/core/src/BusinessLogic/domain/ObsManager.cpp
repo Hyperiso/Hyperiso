@@ -7,15 +7,17 @@ ObsManager::ObsManager(std::shared_ptr<ObsWilsonBuilder>& wil_builder) {
     ObsParameterProxy smParamProxy = ObsParameterProxy(ParameterType::SM);
     
     this->decays = {
-        {DecayMapper::to_id(Decays::B__D_l_nu),     std::make_shared<BDlnuDecay>(QCDOrder::NONE, 81, obsParamProxy("FMASS", 521), wil_builder)},
-        {DecayMapper::to_id(Decays::B__Dstar_l_nu), std::make_shared<BDstarlnuDecay>(QCDOrder::NONE, 81, obsParamProxy("FMASS", 521), wil_builder)},
-        {DecayMapper::to_id(Decays::B__Kstar),      std::make_shared<BKstarDecay>(QCDOrder::NONE, 81, obsParamProxy("FMASS", 511), wil_builder)},
-        {DecayMapper::to_id(Decays::B__l_l),        std::make_shared<BllDecay>(QCDOrder::NONE, 81, obsParamProxy("FMASS", 531), wil_builder)},
-        {DecayMapper::to_id(Decays::B__l_nu),       std::make_shared<BlnuDecay>(QCDOrder::NONE, 81, obsParamProxy("FMASS", 511), wil_builder)},
-        {DecayMapper::to_id(Decays::B__Xs),         std::make_shared<BXsDecay>(QCDOrder::NONE, 2 * smParamProxy("MASS", 24), smParamProxy("QCD", LhaID(5, 2)) / 2, wil_builder)},
-        {DecayMapper::to_id(Decays::B__Xs_l_l),     std::make_shared<BXsllDecay>(QCDOrder::NONE, 2 * smParamProxy("MASS", 24), smParamProxy("QCD", LhaID(5, 2)) / 2, wil_builder)},
-        {DecayMapper::to_id(Decays::M0_Mix),        std::make_shared<M0Mixing>(QCDOrder::NONE, 160, 4.16, wil_builder)},
-        {DecayMapper::to_id(Decays::B__Kstar_l_l),  std::make_shared<BKstarllDecay>(QCDOrder::NONE, 81, smParamProxy("QCD", LhaID(5, 3)), wil_builder)},
+        {DecayMapper::to_id(Decays::B__D_l_nu),      std::make_shared<BDlnuDecay>(QCDOrder::NONE, 81, obsParamProxy("FMASS", 521), wil_builder)},
+        {DecayMapper::to_id(Decays::B__Dstar_l_nu),  std::make_shared<BDstarlnuDecay>(QCDOrder::NONE, 81, obsParamProxy("FMASS", 521), wil_builder)},
+        {DecayMapper::to_id(Decays::B__Kstar_gamma), std::make_shared<BKstarGammaDecay>(QCDOrder::NONE, 81, obsParamProxy("FMASS", 511), wil_builder)},
+        {DecayMapper::to_id(Decays::B__l_l),         std::make_shared<BllDecay>(QCDOrder::NONE, 81, obsParamProxy("FMASS", 531), wil_builder)},
+        {DecayMapper::to_id(Decays::B__l_nu),        std::make_shared<BlnuDecay>(QCDOrder::NONE, 81, obsParamProxy("FMASS", 511), wil_builder)},
+        {DecayMapper::to_id(Decays::B__Xs),          std::make_shared<BXsDecay>(QCDOrder::NONE, 2 * smParamProxy("MASS", 24), smParamProxy("QCD", LhaID(5, 2)) / 2, wil_builder)},
+        {DecayMapper::to_id(Decays::B__Xs_l_l),      std::make_shared<BXsllDecay>(QCDOrder::NONE, 2 * smParamProxy("MASS", 24), smParamProxy("QCD", LhaID(5, 2)) / 2, wil_builder)},
+        {DecayMapper::to_id(Decays::M0_Mix),         std::make_shared<M0Mixing>(QCDOrder::NONE, 160, 4.16, wil_builder)},
+        {DecayMapper::to_id(Decays::B__Kstar_l_l),   std::make_shared<BKstarllDecay>(QCDOrder::NONE, 81, smParamProxy("QCD", LhaID(5, 3)), wil_builder)},
+        {DecayMapper::to_id(Decays::B__K_l_l),       std::make_shared<BKllDecay>(QCDOrder::NONE, 81, smParamProxy("QCD", LhaID(5, 3)), wil_builder)},
+        {DecayMapper::to_id(Decays::Bs__phi_l_l),    std::make_shared<BsPhiDecay>(QCDOrder::NONE, 81, smParamProxy("QCD", LhaID(5, 3)), wil_builder)},
     };
 }
 
@@ -72,7 +74,7 @@ std::unordered_map<ObservableId, Estimate> ObsManager::evaluate_all() {
 
 void ObsManager::add_custom_decay(DecayId id, std::shared_ptr<DecayParent> ptr) {
     ptr->bind_wilson_builder(this->wil_builder);
-    ptr->load_params();
+    // ptr->load_params();
     this->decays.emplace(id, ptr);
 }
 

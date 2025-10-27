@@ -23,7 +23,7 @@ public:
 
     void add_custom_decay(DecayId id, std::shared_ptr<DecayParent> ptr);
 
-    ObservableInterface& add_observable(Observables obs, QCDOrder order, bool add_dependencies=false) {  
+    ObservableInterface& add_observable(Observables obs, QCDOrder order, bool add_dependencies=false) {
         manager->add_obs(obs, order, add_dependencies);
         return *this;
     }

@@ -112,7 +112,7 @@ void CoefficientManager::init_specific_order_group_matching(const std::string& g
     if (!only_total) {
         this->coefficientGroups.at(groupName)->init(OrderMapper::enum_elt(order));
         if (!SM) {
-            LOG_INFO("Computing SM contribution");
+            LOG_DEBUG("Computing SM contribution");
             std::string sm_group = groupName + "_SM";
             std::shared_ptr<CoefficientGroup> sm_group_ptr = this->coefficientGroups[groupName]->get_sm_group();
             if (!sm_group_ptr)
@@ -383,7 +383,7 @@ void CoefficientManager::printGroupCoefficients(const std::string& groupName) co
 }
 
 CoefficientManager::~CoefficientManager() {
-    LOG_INFO("Call to CoefficientManager destructor");
+    LOG_TRACE("Call to CoefficientManager destructor");
     ports_config.iblock_c->remove_all_composed_blocks();
     // wilson_param_helper->cleanup(); //TODO : with maps
 
@@ -410,20 +410,20 @@ std::shared_ptr<CoefficientManager> CoefficientManager::Builder(std::string mode
 
     auto manager = std::make_shared<CoefficientManager>(portconfig);
     for (auto& group : groups) {
-        LOG_INFO("(CoefficientManager) Registering coefficient group", group.first);
+        LOG_DEBUG("(CoefficientManager) Registering coefficient group", group.first);
         manager->registerCoefficientGroup(group.first, group.second);
     }
-    LOG_INFO("(CoefficientManager) Setting matching scale");
+    LOG_DEBUG("(CoefficientManager) Setting matching scale");
     manager->set_matching_scale(mu_W);
-    LOG_INFO("(CoefficientManager) Setting hadronic scale");
+    LOG_DEBUG("(CoefficientManager) Setting hadronic scale");
     manager->set_hadronic_scale(mu_h);
     for (auto& group: groups) {
-        LOG_INFO("(CoefficientManager) Initializing group matching", group.first, "at", order);
+        LOG_DEBUG("(CoefficientManager) Initializing group matching", group.first, "at", order);
         manager->init_group_matching(group.first, order);
-        LOG_INFO("(CoefficientManager) Initializing group hadronic", group.first, "at", order); //TODO : Camilia change, need to be done correctly
+        LOG_DEBUG("(CoefficientManager) Initializing group hadronic", group.first, "at", order); //TODO : Camilia change, need to be done correctly
         manager->init_group_hadronic_all_bases(group.first, order);
     }
-    LOG_INFO("(CoefficientManager) Manager successfully initialized");
+    LOG_DEBUG("(CoefficientManager) Manager successfully initialized");
     return manager;
 }
 

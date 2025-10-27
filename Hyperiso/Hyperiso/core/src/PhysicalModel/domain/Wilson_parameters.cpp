@@ -5,7 +5,7 @@ void WilsonParameterHelper::init(int gen) {
 		std::cout << "wilson_param_helper already done " << std::endl;
 		return;
 	}
-	std::cout << "Initializing WilsonParameterHelper" << std::endl;
+	// std::cout << "Initializing WilsonParameterHelper" << std::endl;
 	LOG_DEBUG("Initializing WilsonParameterHelper");
 	init_scale_independent_block(gen);
 	init_matching_block();
@@ -42,7 +42,7 @@ void WilsonParameterHelper::init_matching_block() {
 		double mass_b_muW_mbrun = QCDHelper::msbar_mass(5, mu_W, MassType::MSBAR);
 		double mass_b_muW_mbpole = QCDHelper::msbar_mass(5, mu_W, MassType::POLE);
 		double mass_c_muW = QCDHelper::msbar_mass(4, mu_W, MassType::POLE);
-		printf("mass_b_muW : %.14lf\n",mass_b_muW_mbrun);
+		// printf("mass_b_muW : %.14lf\n",mass_b_muW_mbrun);
 		double m_W = src.at("MASS")->retrieve(24)->get_val();
 		double xt = pow(mass_top_muW / m_W, 2);
 		double L = log(std::pow(mu_W / m_W, 2));

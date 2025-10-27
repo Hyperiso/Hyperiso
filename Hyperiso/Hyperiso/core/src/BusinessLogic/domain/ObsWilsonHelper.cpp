@@ -6,7 +6,7 @@ void ObsWilsonHelper::build(WilsonBuildConfig config, std::shared_ptr<ObsWilsonB
         return;
     }
     for (auto group : config.groups) {
-        LOG_INFO("Building Wilson group", GroupMapper::str(group));
+        LOG_DEBUG("Building Wilson group", GroupMapper::str(group));
     }
     wil_builder->build(std::make_shared<WilsonBuildConfig>(config));
 }

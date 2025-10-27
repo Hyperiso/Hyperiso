@@ -30,9 +30,6 @@ void BXsDecay::load_params() {
     cache.z = std::pow(cache.m_c_mu_c / cache.m_b_1S, 2);
     cache.delta = 1 - 2 * cache.E0 / cache.m_b_1S;
     cache.L_b = 2 * std::log(cache.mu_b / cache.m_b_1S);
-    // cache.z = 5.80430e-02;
-    // cache.delta = 2.97167e-01;
-    // cache.L_b = -1.28585e+00;
 
     cache.L_c = 2 * std::log(cache.mu_c / cache.m_c_mu_c);
     
@@ -409,7 +406,7 @@ double BXsDecay::P22_rem() {
     auto target = [this, r21_0, r22_0, x1, x2, x5] (double z) {
         auto K_2 = K_2_rem(z);
         double y = gen_P00(K_2);
-        printf("P22rem = %.5e\n", y);
+        // printf("P22rem = %.5e\n", y);
         double a1 = std::pow(std::abs(r2_large_z(z)), 2) - std::pow(std::abs(r21_0), 2);
         double a2 = r22_large_z(z) - r22_0;
         return y - a1 * x1 - a2 * x2 - x5;
@@ -421,26 +418,26 @@ double BXsDecay::P22_rem() {
     double y_0 = target(cache.z0);
     double y_1 = target(cache.z1);
 
-    printf("a3 = %.5e\n", a_3_z0);
-    printf("b3 = %.5e\n", a_3_z1);
-    printf("a4 = %.5e\n", a_4);
-    printf("b4 = %.5e\n", a_4);
-    printf("a = %.5e\n", y_0);
-    printf("b = %.5e\n", y_1);
+    // printf("a3 = %.5e\n", a_3_z0);
+    // printf("b3 = %.5e\n", a_3_z1);
+    // printf("a4 = %.5e\n", a_4);
+    // printf("b4 = %.5e\n", a_4);
+    // printf("a = %.5e\n", y_0);
+    // printf("b = %.5e\n", y_1);
 
     double x3 = (y_1 - y_0) / (a_3_z1 - a_3_z0);
     double x4 = (y_0 * a_3_z1 - y_1 * a_3_z0) / (a_4 * (a_3_z1 - a_3_z0));
-    complex_t r_21 = -1666. / 243 + 2 * (a(cache.z) + b(cache.z)) - 80. * I * PI / 81;
+    complex_t r_21 = -1666. / 243 + 2 * (a(cache.z) + b(cache.z)) - 80. * I * PI / 81.;
 
-    printf("x1 = %.5e\n", x1);
-    printf("x2 = %.5e\n", x2);
-    printf("x3 = %.5e\n", x3);
-    printf("x4 = %.5e\n", x4);
-    printf("x5 = %.5e\n", x5);
+    // printf("x1 = %.5e\n", x1);
+    // printf("x2 = %.5e\n", x2);
+    // printf("x3 = %.5e\n", x3);
+    // printf("x4 = %.5e\n", x4);
+    // printf("x5 = %.5e\n", x5);
 
     return x1 * (std::pow(std::abs(r_21), 2) - std::pow(std::abs(r21_0), 2))
             + x2 * (r22(cache.z) - r22_0)
-            + x3 * std::real(r_21 - r22_0)
+            + x3 * std::real(r_21 - r21_0)
             + x4 * dr2_dlogz(cache.z)
             + x5;
 }
@@ -453,12 +450,12 @@ double BXsDecay::P() {
     double p32 = gen_P01(K_1());
     double p22 = gen_P00(K_2_b0()) + P22_rem();
 
-    LOG_INFO("p0", p0);
-    LOG_INFO("p11", p11);
-    LOG_INFO("p12", p12);
-    LOG_INFO("p21", p21);
-    LOG_INFO("p32", p32);
-    LOG_INFO("p22", p22);
+    // LOG_INFO("p0", p0);
+    // LOG_INFO("p11", p11);
+    // LOG_INFO("p12", p12);
+    // LOG_INFO("p21", p21);
+    // LOG_INFO("p32", p32);
+    // LOG_INFO("p22", p22);
     
     double k = cache.alpha_s_mu_b / (4 * PI);
     return p0 + k * ((p11 + p21) + k * (p12 + p22 + p32));

@@ -14,6 +14,7 @@ enum class Observables {
     BR_BU_TAU_NU,
     // B > K* gamma
     ISOSPIN_ASYMMETRY_B_KSTAR_GAMMA,
+    BR_B__KSTAR_GAMMA,
     // b > s gamma
     BR_B_XS_GAMMA,
     // B > D l nu
@@ -80,7 +81,35 @@ enum class Observables {
     P_PRIME_5_CPV_B__KSTAR_L_L,
     P_PRIME_6_CPV_B__KSTAR_L_L,
     P_PRIME_8_CPV_B__KSTAR_L_L,
-
+    // Bs > phi l l
+    DGAMMA_DQ2_BS__PHI_L_L,
+    DGAMMA_BAR_DQ2_BS__PHI_L_L,
+    A_FB_CPV_BS__PHI_L_L,
+    F_L_BS_PHI_L_L,
+    A_T_2_BS_PHI_L_L,
+    A_T_RE_CPV_BS_PHI_L_L,
+    A_T_IM_CPV_BS_PHI_L_L,
+    P_PRIME_4_BS_PHI_L_L,
+    P_PRIME_6_BS_PHI_L_L,
+    S_2S_BS_PHI_L_L,
+    S_3_BS_PHI_L_L,
+    S_4_BS_PHI_L_L,
+    S_7_BS_PHI_L_L,
+    A_5_BS_PHI_L_L,
+    A_6C_BS_PHI_L_L,
+    A_8_BS_PHI_L_L,
+    A_9_BS_PHI_L_L,
+    P_2_CPV_BS_PHI_L_L,
+    P_3_CPV_BS_PHI_L_L,
+    P_PRIME_5_CPV_BS_PHI_L_L,
+    P_PRIME_8_CPV_BS_PHI_L_L,
+    Q_8M_BS_PHI_L_L,
+    Q_8P_BS_PHI_L_L,
+    Q_9_BS_PHI_L_L,
+    // B > K l l
+    DGAMMA_DQ2_B__K_L_L,
+    A_FB_B__K_L_L,
+    F_H_B__K_L_L,
     /* Neutral Meson Mixing */
     // Bd
     PHI_D,
@@ -99,12 +128,14 @@ enum class Observables {
 enum class Decays {
     B__D_l_nu,
     B__Dstar_l_nu,
-    B__Kstar,
+    B__Kstar_gamma,
     B__l_l,
     B__l_nu,
     B__Xs,
     B__Xs_l_l,
+    B__K_l_l,
     B__Kstar_l_l,
+    Bs__phi_l_l,
     M0_Mix,
 };
 

@@ -18,7 +18,10 @@
         wilson_math.cpp
         MathBSM/wilson_susy.cpp
         MathBSM/wilson_THDM.cpp
-        integration.cpp)
+        integration.cpp
+        root_finding.cpp
+        ObsMath.cpp
+        )
 
     set_target_properties(MathLib PROPERTIES POSITION_INDEPENDENT_CODE ON)
     find_package(GSL REQUIRED)

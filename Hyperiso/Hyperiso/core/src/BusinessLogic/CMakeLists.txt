@@ -29,8 +29,13 @@ if (NOT TARGET CoreLib)
 endif()
 
 add_library(BusinessLogicLib STATIC 
-    domain/Decays/BKstarDecay.cpp
+    domain/Calculators/BPFFCalculator.cpp
+    domain/Calculators/BVFFCalculator.cpp
+    domain/Calculators/BaseQCDfCalculator.cpp
+    domain/Calculators/BPQCDfCalculator.cpp
+    domain/Calculators/BVQCDfCalculator.cpp
     domain/Decays/BKsllDecay.cpp
+    domain/Decays/BKstarGammaDecay.cpp
     domain/Decays/BllDecay.cpp
     domain/Decays/BXsDecay.cpp
     domain/Decays/BlnuDecay.cpp
@@ -38,6 +43,8 @@ add_library(BusinessLogicLib STATIC
     domain/Decays/BDstarlnuDecay.cpp
     domain/Decays/BXsllDecay.cpp
     domain/Decays/M0_Mixing.cpp
+    domain/Decays/BsPhiDecay.cpp
+    domain/Decays/BKllDecay.cpp
     # domain/Wilson/WilsonObs.cpp
     domain/Compound.cpp
     domain/Observable.cpp
@@ -69,12 +76,14 @@ target_include_directories(BusinessLogicLib
     # build
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/domain>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/domain/Calculators>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/domain/Decays>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/ports>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/adapters>
     # install
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/BusinessLogic>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/BusinessLogic/domain>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/BusinessLogic/domain/Calculators>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/BusinessLogic/domain/Decays>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/BusinessLogic/ports>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/BusinessLogic/adapters>

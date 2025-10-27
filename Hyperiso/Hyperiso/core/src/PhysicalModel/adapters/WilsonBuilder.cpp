@@ -37,7 +37,7 @@ void WilsonBuilder::build(WilsonBuildConfig config) {
         std::string gn_str = GroupMapper::str(g_id);
         groups.emplace(gn_str, WilsonGroupFactory::create_coefficient_group(g_id, model, adapters));
     }
-    std::cout << "FUC3K " << std::endl; 
+    
     if (UseMarty().get() && config.order > QCDOrder::LO) {
         // TODO : Use QCDOrder > LO as a flag for SM calculation. 
         LOG_WARN("Using MARTY defaults all calculations to LO.");
@@ -67,7 +67,7 @@ void WilsonBuilder::add(WilsonBuildConfig config) {
 
     for (auto& g_id : config.groups) {
         std::string group_name = GroupMapper::str(g_id);
-        LOG_INFO("Initializing group", group_name);
+        LOG_DEBUG("Initializing group", group_name);
         this->cm->registerCoefficientGroup(group_name, WilsonGroupFactory::create_coefficient_group(g_id, model, adapters));
         this->cm->init_group_matching(group_name, OrderMapper::str(config.order));
         this->cm->init_group_hadronic_all_bases(group_name, OrderMapper::str(config.order));

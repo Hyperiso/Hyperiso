@@ -48,10 +48,10 @@ void BXsllDecay::load_params() {
     cache.C_LO.insert(C_P_LO.begin(), C_P_LO.end());
 
     size_t ff_order {20};
-    fill_cache(f_17, 0, 1, cache.F_17_lookup, cache.L_b, cache.z, ff_order);
-    fill_cache(f_27, 0, 1, cache.F_27_lookup, cache.L_b, cache.z, ff_order);
-    fill_cache(f_19_1S, 0, 1, cache.F_19_lookup, cache.L_b, cache.z, ff_order);
-    fill_cache(f_29_1S, 0, 1, cache.F_29_lookup, cache.L_b, cache.z, ff_order);
+    fill_cache(BV::f_17, 0, 1, cache.F_17_lookup, cache.L_b, cache.z, ff_order);
+    fill_cache(BV::f_27, 0, 1, cache.F_27_lookup, cache.L_b, cache.z, ff_order);
+    fill_cache(BV::f_19_1S, 0, 1, cache.F_19_lookup, cache.L_b, cache.z, ff_order);
+    fill_cache(BV::f_29_1S, 0, 1, cache.F_29_lookup, cache.L_b, cache.z, ff_order);
 
     auto hatify = [this] (double q2) { return q2 / pow(cache.m_b_1S, 2); };
     cache.s_hat_low_bound = {hatify(cache.q2_low_bound.first), hatify(cache.q2_low_bound.second)};
@@ -440,7 +440,7 @@ complex_t BXsllDecay::C7_new(double s, bool prime) {
     // LOG_INFO("F_27 =", F_27(s));
     // LOG_INFO("F_87 =", f_87(s, cache.L_b));
     return (1.+cache.alpha_s_mu_b/PI*sigma_7(s, cache.L_b))*C7_eff
-	-cache.alpha_s_mu_b/4./PI*(C_0.at(prime ? WCoef::CP1 : WCoef::C1)*F_17(s)+C_0.at(prime ? WCoef::CP2 :WCoef::C2)*F_27(s)+C_0.at(prime ? WCoef::CP8 :WCoef::C8)*f_87(s, cache.L_b));
+	-cache.alpha_s_mu_b/4./PI*(C_0.at(prime ? WCoef::CP1 : WCoef::C1)*F_17(s)+C_0.at(prime ? WCoef::CP2 :WCoef::C2)*F_27(s)+C_0.at(prime ? WCoef::CP8 :WCoef::C8)*BV::f_87(s, cache.L_b));
 }
 
 complex_t BXsllDecay::C9_new(double s, bool prime) {
@@ -448,7 +448,7 @@ complex_t BXsllDecay::C9_new(double s, bool prime) {
     auto C_0 = cache.C_LO;
     // LOG_INFO("C9_eff =", C9_eff(s, this->w_config.order, prime));
     return (1.+cache.alpha_s_mu_b/PI*sigma_9(s))*C9_eff(s, this->w_config.order, prime)
-	        -cache.alpha_s_mu_b/4./PI*(C_0.at(prime ? WCoef::CP1 :WCoef::C1)*F_19(s)+C_0.at(prime ? WCoef::CP2 :WCoef::C2)*F_29(s)+C_0.at(prime ? WCoef::CP8 :WCoef::C8)*f_89(s));
+	        -cache.alpha_s_mu_b/4./PI*(C_0.at(prime ? WCoef::CP1 :WCoef::C1)*F_19(s)+C_0.at(prime ? WCoef::CP2 :WCoef::C2)*F_29(s)+C_0.at(prime ? WCoef::CP8 :WCoef::C8)*BV::f_89(s));
 }
 
 complex_t BXsllDecay::C10_new(double s, bool prime) {

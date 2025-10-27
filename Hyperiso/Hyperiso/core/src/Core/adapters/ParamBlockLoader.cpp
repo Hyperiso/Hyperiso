@@ -43,14 +43,14 @@
 // }
 
 void ParamBlockLoader::load(std::shared_ptr<BlockAccessor> dest, fs::path src_file) {
-    LOG_INFO("Loading parameter blocks from", src_file.string());
+    LOG_DEBUG("Loading parameter blocks from", src_file.string());
     auto np  = NodeProviderFactory::createNodeProvider(src_file);
     auto src = np->provide_db_as_node();
 
     for (auto &bk : src->get_keys()) {
         auto block = std::make_shared<Block>();
         block->blockname = bk;
-        LOG_INFO("Loading block", bk);
+        LOG_DEBUG("Loading block", bk);
 
         auto group = src->getGroup({bk});  // map<BlockName, Node::Value>
 
@@ -122,5 +122,5 @@ void ParamBlockLoader::load(std::shared_ptr<BlockAccessor> dest, fs::path src_fi
         dest->emplace(bk, block);
     }
 
-    LOG_INFO("Parameter blocks loaded");
+    LOG_DEBUG("Parameter blocks loaded");
 }
