@@ -1,6 +1,6 @@
 #include "SMParamSetter.h"
 
-std::unordered_map<std::string, double> SMParamSetter::setParam(const std::string& name, const Interpreter::InterpretedParam& interpretedParam) {
+std::unordered_map<std::string, double> SMParamSetter::setParam(const std::string& name, const InterpretedParam& interpretedParam) {
 
     std::unordered_map<std::string, double> params {};
 
@@ -34,7 +34,7 @@ std::unordered_map<std::string, double> SMParamSetter::setParam(const std::strin
     return params;
 }
 
-scalar_t SMParamSetter::calculateValue(const std::string& name, const Interpreter::InterpretedParam& interpretedParam) {
+scalar_t SMParamSetter::calculateValue(const std::string& name, const InterpretedParam& interpretedParam) {
     if (interpretedParam.block == "KIN") {
         if (interpretedParam.code == LhaID(34)) {
             return -pow((*sm_proxy)("MASS", 13), 2.);

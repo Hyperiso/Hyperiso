@@ -114,7 +114,18 @@ void CoefficientManager::init_specific_order_group_matching(const std::string& g
         if (!SM) {
             LOG_DEBUG("Computing SM contribution");
             std::string sm_group = groupName + "_SM";
-            std::shared_ptr<CoefficientGroup> sm_group_ptr = this->coefficientGroups[groupName]->get_sm_group();
+
+            std::shared_ptr<CoefficientGroup> sm_group_ptr;
+            if (ports_config.build_group) {
+                // Construire un groupe SM avec le même backend (use_marty identique), type SM
+                WGroupId gid = GroupMapper::enum_elt(groupName);
+                sm_group_ptr = ports_config.build_group(gid, Model::SM, marty, ContributionType::SM);
+            } else {
+                // Chemin legacy (compat) : utiliser get_sm_group() s'il existe
+                sm_group_ptr = this->coefficientGroups[groupName]->get_sm_group();
+            }
+
+            // std::shared_ptr<CoefficientGroup> sm_group_ptr = this->coefficientGroups[groupName]->get_sm_group();
             if (!sm_group_ptr)
                 LOG_ERROR("LogicError", "No SM group found for " + groupName);
             
@@ -398,7 +409,9 @@ std::shared_ptr<CoefficientManager> CoefficientManager::Builder(std::string mode
     
     for (auto& helper : wilson_param_helpers) {
         if (!helper.second->is_init()) {
-            helper.second->init(2);
+            for (const auto& elem : groups) {
+                helper.second->init(2, GroupMapper::enum_elt(elem.first));
+            }
         }
     }
     //TODO : add version where helper is not containing the right things

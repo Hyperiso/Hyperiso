@@ -9,7 +9,7 @@ C1::C1() : WilsonCoefficient("C1", GroupMapper::str(WGroup::B) + "_MATCH") {
         {{"WPARAM_MATCH_SM", 3}},  // sources
         [](const auto& src) {
             auto L = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 3})->get_val();
-            return 15 + 6 * L;
+            return 15. + 6. * L;
         },
         LhaID(3040405, 6161, 1, 0)
     };
@@ -218,10 +218,11 @@ double C6::compute_NNLO(const std::unordered_map<ParamId, std::shared_ptr<Parame
 // ---------- C7 ----------
 
 C7::C7() : WilsonCoefficient("C7", GroupMapper::str(WGroup::B) + "_MATCH") {
+    this->max_order = QCDOrder::NNLO;
     // LO
     matching_info[QCDOrder::LO] = {
         {
-            {"WPARAM_MATCH_SM", LhaID(2, 1)}  // x_t
+            {ParameterType::WILSON, "WPARAM_MATCH_SM", LhaID(2, 1)}  // x_t
         },
         compute_LO,
         LhaID(305, 4422, 0, 0)
@@ -584,6 +585,13 @@ double CQ1::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Paramet
     double sw2    = src.at({ParameterType::WILSON, "WPARAM_SI_SM", 4})->get_val();
     double mW     = src.at({ParameterType::SM, "MASS", 24})->get_val();
 
+    printf("xt in the SM (LO) : %.8lf\n", xt);
+    printf("mb_muW in the SM (LO) : %.8lf\n", mb_muW);
+    printf("xh in the SM (LO) : %.8lf\n", xh);
+    printf("ml in the SM (LO) : %.8lf\n", ml);
+    printf("sw2 in the SM (LO) : %.8lf\n", sw2);
+    printf("mW in the SM (LO) : %.8lf\n",mW);
+
     double CSc_SM = -xt * (xt - 2.) / 12. / pow(xt - 1., 2)
                   + (xt - 2.) * (3. * xt - 1.) / 24. / pow(xt - 1., 3.) * log(xt);
 
@@ -665,6 +673,11 @@ double CP7::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Paramet
     double mb     = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {5, 1}})->get_val();
     double ms     = src.at({ParameterType::SM, "MASS", 3})->get_val();
 
+    printf("ms in SM (LO) : %.8lf\n", ms);
+    printf("mb in SM (LO) : %.8lf\n", mb);
+    printf("xt : %.8lf\n", xt);
+
+    printf("CP7 in SM (LO) : %.8lf\n", ms / mb * (-0.5 * A0t(xt) - 23. / 36.));
     return ms / mb * (-0.5 * A0t(xt) - 23. / 36.);
 }
 
@@ -690,6 +703,6 @@ double CP8::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Paramet
     double xt     = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1}})->get_val();
     double mb     = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {5, 1}})->get_val();
     double ms     = src.at({ParameterType::SM, "MASS", 3})->get_val();
-
+    printf("CP8 in SM (LO) : %.8lf\n", ms / mb * (-0.5 * F0t(xt) - 1. / 3.));
     return ms / mb * (-0.5 * F0t(xt) - 1. / 3.);
 }

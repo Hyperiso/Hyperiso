@@ -14,10 +14,11 @@
 #include "UseMarty.h"
 #include "susy_parameters.h"
 #include "thdm_parameters.h"
+#include "MartyWilsonProxy.h"
 
 class WilsonBuilder : public IWilsonBuilder<WilsonBuildConfig, WilsonProvider>, public std::enable_shared_from_this<WilsonBuilder> { 
 public:
-    // WilsonBuilder();
+
     WilsonBuilder(WilsonBuildConfig config);
     WilsonBuilder(std::shared_ptr<CoefficientManager> manager);
 

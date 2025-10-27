@@ -10,8 +10,8 @@ public:
 
     virtual ~IWilsonParameterHelper() = default;
 
-    virtual void init(int gen) = 0;
-    // virtual void set_gen(int gen) = 0;
+    virtual void init(int gen, WGroupId grp) = 0;
+
     virtual void cleanup() = 0;
 
     bool is_init() const {return initialized;}
@@ -19,7 +19,7 @@ public:
 protected:
     virtual void init_scale_independent_block(int gen) = 0;
     virtual void init_matching_block() = 0;
-    virtual void init_running_block() = 0;
+    virtual void init_running_block(WGroupId grp) = 0;
 
     std::shared_ptr<IBlockComposer> iblock_c;
     bool initialized{false};

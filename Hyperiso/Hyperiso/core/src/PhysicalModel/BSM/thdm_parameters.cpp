@@ -1,7 +1,7 @@
 #include "thdm_parameters.h"
 
 
-void thdm_parameters::init(int gen) {
+void thdm_parameters::init(int gen, WGroupId grp) {
     if (initialized) {
 		return;
 	}

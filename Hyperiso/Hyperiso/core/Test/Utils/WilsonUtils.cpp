@@ -56,6 +56,8 @@ void writeCoefficientsToFile(const std::string& strat_name, const std::string& f
         } else {
             C = wi->getMatchingCoefficient(WGroup::B,WCoefMapper::enum_of(WCoefMapper::enum_elt(coeff)).value(), OrderMapper::enum_elt(strat_name), ContributionType::BSM );
         }
+        std::cout << std::fixed << std::setprecision(8);
+        file     << std::fixed << std::setprecision(8);
         file << "," << C.real() << "," << C.imag();
     }
     file << "\n"; 
@@ -128,6 +130,9 @@ void writeCoefficientsPrimeCQToFile(const std::string& strat_name, const std::st
             C = wi->getRunCoefficient(WGroup::BPrime,WCoefMapper::enum_of( WCoefMapper::enum_elt(coeff)).value(), OrderMapper::enum_elt(strat_name), ContributionType::BSM);
         }
         
+        std::cout << std::fixed << std::setprecision(8);
+        file     << std::fixed << std::setprecision(8);
+
         file << "," << C.real() << "," << C.imag();
     }
 
@@ -184,6 +189,10 @@ void writeRunCoefficientsToFile(const std::string& strat_name, const std::string
         } else {
             C = wi->getRunCoefficient(WGroup::B, WCoefMapper::enum_of(WCoefMapper::enum_elt(coeff)).value(), OrderMapper::enum_elt(strat_name), ContributionType::BSM, basis);
         }
+
+        std::cout << std::fixed << std::setprecision(8);
+        file     << std::fixed << std::setprecision(8);
+
         std::cout << coeff << " " << C << std::endl;
         file << "," << C.real() << "," << C.imag();
     }

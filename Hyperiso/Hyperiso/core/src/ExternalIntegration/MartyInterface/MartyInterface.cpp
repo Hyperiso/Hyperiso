@@ -66,7 +66,7 @@ void MartyInterface::calculate(std::string wilson, std::string model, double Q_m
     compile_run_libs(wilson, model, Q_match);
 }
 
-std::unordered_set<Interpreter::InterpretedParam> MartyInterface::get_dependencies(std::string wilson) {
+std::unordered_set<InterpretedParam> MartyInterface::get_dependencies(std::string wilson) {
     if (!this->dependencies.contains(wilson)) {
         LOG_ERROR("KeyError", "Trying to access dependencies for unknown wilson coefficient", wilson, "in WilsonInterface.");
     }

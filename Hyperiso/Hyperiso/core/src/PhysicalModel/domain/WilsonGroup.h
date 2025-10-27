@@ -8,7 +8,10 @@
 #include "Wilson.h"
 #include "IBlockComposer.h"
 #include "ICoreAPI.h"
+#include "IMartyWilsonProxy.h"
 #include "config.hpp"
+#include "InterpretedParam.h"
+#include "WilsonGroupAdapterConfig.h"
 // #include "BWilson.h"
 // #include "ChargedCurrentWilson.h"
 // #include "MartyWilson.h"
@@ -22,20 +25,7 @@ struct CoefficientGroupSources {
         [](const auto&, const auto&) { return std::unordered_map<WCoef, scalar_t>(); };
 };
 
-struct WilsonGroupAdapterConfig {
 
-    WilsonGroupAdapterConfig(std::shared_ptr<IParameterProxy<std::string, LhaID>> wilson_proxy, std::shared_ptr<IBlockComposer> ibc,
-    std::shared_ptr<ICoreAPI<bool>> use_marty, std::shared_ptr<ICoreAPI<std::string>> marty_model_name, std::shared_ptr<ICoreAPI<fs::path>> marty_model_path) 
-    : wilson_proxy(wilson_proxy), iblock_c(ibc), use_marty(use_marty), marty_model_name(marty_model_name), marty_model_path(marty_model_path) {}
-
-    std::shared_ptr<IParameterProxy<std::string, LhaID>> wilson_proxy;
-    std::shared_ptr<IBlockComposer> iblock_c;
-    std::shared_ptr<ICoreAPI<bool>> use_marty;
-    std::shared_ptr<ICoreAPI<std::string>> marty_model_name;
-    std::shared_ptr<ICoreAPI<fs::path>> marty_model_path;
-
-    fs::path sm_path = fs::path(std::string(project_assets_root.data())+"input_files/marty_model/sm.h");
-};
 
 class CoefficientGroup : public std::map<std::string, std::shared_ptr<WilsonCoefficient>> {
 public:
@@ -62,6 +52,13 @@ public:
     }
     std::function<std::unordered_map<WCoef, scalar_t>(const std::unordered_map<QCDOrder, std::unordered_map<WCoef, scalar_t>>&, const std::unordered_map<std::string, std::shared_ptr<Block>>&)> get_func(QCDOrder ord, WilsonBasis id) {return this->sources[id][ord].func;}
 
+    WGroupId get_group_id() {return id;}
+    void set_group_id(WGroupId gid) { id = gid; } //TDOO : need to check Group and GroupId
+    void set_wilson_type(ContributionType ct) { wilson_type = ct; }
+    void add_sources(WilsonBasis basis, const std::map<QCDOrder, CoefficientGroupSources>& m) {
+        sources[basis] = m;
+    }
+    
     // Interface methods
     virtual std::shared_ptr<CoefficientGroup> clone() const = 0;
 
@@ -73,7 +70,7 @@ protected:
     // static complex_t ensure_coef(WCoef coef, QCDOrder order, ContributionType type, std::string matching_block);
     ContributionType wilson_type {ContributionType::SM};
     QCDOrder current_order = QCDOrder::LO;
-    WGroup id;
+    WGroupId id;
     std::map<WilsonBasis, std::map<QCDOrder, CoefficientGroupSources>> sources;
 
     WilsonGroupAdapterConfig adapters;

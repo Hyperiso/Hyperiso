@@ -3,7 +3,7 @@
 
 
 
-std::unordered_map<std::string, Interpreter::InterpretedParam>
+std::unordered_map<std::string, InterpretedParam>
 Interpreter::interpret(std::vector<Extractor::Parameter>& params) {
     const bool modelIsSM = (marty_api->get() == Model::SM);
 

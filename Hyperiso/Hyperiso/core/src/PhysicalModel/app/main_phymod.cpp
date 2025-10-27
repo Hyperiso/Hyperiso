@@ -17,7 +17,7 @@ int main() {
     wi.build(config);
 
     BlockProxy().log_block(ParameterType::WILSON, "BCoefficients_B_SCALE_STANDARD");
-    config.groups = {WGroup::BPrime};
+    config.groups = {GroupMapper::to_id(WGroup::BPrime)};
     wi.addWilsonGroup(config);
 
     BlockProxy().log_block(ParameterType::WILSON, "BPrimeCoefficients_B_SCALE_STANDARD");

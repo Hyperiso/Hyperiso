@@ -18,6 +18,8 @@
 #include "General.h"
 #include "Math.h"
 
+class Block;
+
 /**
  * @enum ParameterMode
  * @brief Defines the modes in which a parameter can operate.
@@ -36,8 +38,8 @@ enum class ParameterMode {
  *
  * Supports operations such as shifting, freezing, and notifying dependent parameters.
  */
-class Parameter {
-private:
+class Parameter : public std::enable_shared_from_this<Parameter> {
+protected:
     ParamId id;                                         ///< Unique identifier for the parameter.
     scalar_t expected;                                  ///< Expected value of the parameter.    
     scalar_t deviation_stat;                            ///< Statistical standard deviation.
@@ -45,6 +47,7 @@ private:
     scalar_t shift;                                     ///< Current shift applied to the parameter (0 if fixed).
     ParameterMode mode;                                 ///< Mode of operation (fixed or shiftable).
     std::vector<std::shared_ptr<Parameter>> observers;  ///< Observers notified when this parameter changes.
+    std::weak_ptr<Block> owner_block;
 
 public:
     /**
@@ -167,6 +170,9 @@ public:
     virtual void clear_below();
 
 
+    void set_owner_block(std::weak_ptr<Block> owner) { owner_block = std::move(owner); }
+    std::weak_ptr<Block> get_owner_block() const { return owner_block; }
+
     /**
      * @brief Assignment operator.
      * @param other The parameter to copy.
@@ -225,7 +231,7 @@ typedef std::function<void(const std::unordered_map<ParamId, std::shared_ptr<Par
  *
  * Automatically updates itself when any of its source parameters changes.
  */
-class DependentParameter : public Parameter, public std::enable_shared_from_this<DependentParameter> {
+class DependentParameter : public Parameter {
 public:
     /**
      * @brief Constructs a DependentParameter from a set of source parameters and a recalculation function.
@@ -267,13 +273,15 @@ public:
 
     void clear_above() override;
 
+    void clear_below() override;
+
     /**
      * @brief Destructor. Cleans up dependency links.
      */
     ~DependentParameter();
 
 private:
-    std::shared_ptr<DependentParameter> self;                           ///< Self-reference used for observer management.
+    std::weak_ptr<DependentParameter> self;                           ///< Self-reference used for observer management.
     std::unordered_map<ParamId, std::shared_ptr<Parameter>> sources;    ///< Source parameters.
     DepParamUpdateFunc recalculateLambda;                               ///< Recalculation function.
     bool frozen {false};                                                ///< If true, update is delayed.

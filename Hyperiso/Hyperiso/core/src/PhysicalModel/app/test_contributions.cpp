@@ -15,7 +15,7 @@ int main() {
     hyp.init("lha/testinput_thdm.lha", config);
 
     WilsonBuildConfig wilson_config;
-    wilson_config.groups = {WGroup::MESON_MIXING};
+    wilson_config.groups = {GroupMapper::to_id(WGroup::MESON_MIXING)};
     wilson_config.matching_scale = 160.0;
     wilson_config.hadronic_scale = 3;
     wilson_config.order = QCDOrder::LO;

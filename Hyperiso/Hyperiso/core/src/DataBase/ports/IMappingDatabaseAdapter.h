@@ -1,4 +1,3 @@
-// IMappingDatabaseAdapter.h
 #ifndef IMAPPINGDATABASEADAPTER_H
 #define IMAPPINGDATABASEADAPTER_H
 
@@ -6,13 +5,13 @@
 #include <string>
 #include <memory>
 #include <optional>
-#include "IParamMappingSource.h" // définit InterpretedParam
+#include "IParamMappingSource.h"
 
 class IMappingDatabaseAdapter {
 public:
     virtual ~IMappingDatabaseAdapter() = default;
 
-    virtual const std::unordered_map<std::string, InterpretedParam>&
+    virtual std::unordered_map<std::string, InterpretedParam>
     getParams() const = 0;
 
     virtual std::optional<InterpretedParam>

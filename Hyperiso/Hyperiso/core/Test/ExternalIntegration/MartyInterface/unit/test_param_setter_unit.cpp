@@ -30,8 +30,8 @@ public:
     }
 };
 
-static Interpreter::InterpretedParam P(std::string b, LhaID c, bool bsm, bool cpx){
-    return Interpreter::InterpretedParam{std::move(b), c, bsm, cpx};
+static InterpretedParam P(std::string b, LhaID c, bool bsm, bool cpx){
+    return InterpretedParam{std::move(b), c, bsm, cpx};
 }
 
 int main(){

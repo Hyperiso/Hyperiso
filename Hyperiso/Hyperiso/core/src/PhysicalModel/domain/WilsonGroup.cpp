@@ -57,14 +57,24 @@ void CoefficientGroup::init(QCDOrder max_order) {
     this->current_order = max_order;
 }
 
-complex_t CoefficientGroup::get_matching_coefficient(std::string coeff, std::string order, ContributionType cont_type) const { 
-    return this->at(coeff)->get_matching_value(order, cont_type, adapters.wilson_proxy); 
+complex_t CoefficientGroup::get_matching_coefficient(std::string coeff, std::string order, ContributionType cont_type) const {
+    auto it = this->find(coeff);
+    if (it == this->end()) {
+        throw std::out_of_range("Coefficient '" + coeff + "' not found in group '" + GroupMapper::str(this->id) + "'");
+    }
+    return it->second->get_matching_value(order, cont_type, adapters.wilson_proxy);
 }
 
 complex_t CoefficientGroup::get_running_coefficient(std::string coeff, std::string order, ContributionType cont_type, WilsonBasis basis) const {
-    auto coef = this->at(coeff);
-    // ParameterProxy wilson_p = ParameterProxy(ParameterType::WILSON);
-    return complex_t((*adapters.wilson_proxy)(GroupMapper::str(this->id, ScaleType::HADRONIC, basis), coef->id(OrderMapper::enum_elt(order), cont_type)));
+    auto it = this->find(coeff);
+    if (it == this->end()) {
+        throw std::out_of_range("Coefficient '" + coeff + "' not found in group '" + GroupMapper::str(this->id) + "'");
+    }
+    auto& c = it->second;
+    return complex_t((*adapters.wilson_proxy)(
+        GroupMapper::str(this->id, ScaleType::HADRONIC, basis),
+        c->id(OrderMapper::enum_elt(order), cont_type)
+    ));
 }
 
 QCDOrder CoefficientGroup::get_order(){

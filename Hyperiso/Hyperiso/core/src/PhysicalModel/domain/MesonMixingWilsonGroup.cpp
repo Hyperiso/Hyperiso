@@ -3,9 +3,8 @@
 using MMRP = MesonMixingRunningParameters;
 
 MesonMixingCoefficientGroup::MesonMixingCoefficientGroup(WilsonGroupAdapterConfig adapters, bool force_sm) : CoefficientGroup(adapters) {
-    this->id = WGroup::MESON_MIXING;
-    init_sources();
-    add_wilson_coefficients(force_sm);
+    this->id = GroupMapper::to_id(WGroup::MESON_MIXING);
+
 }
 
 std::shared_ptr<CoefficientGroup> MesonMixingCoefficientGroup::clone() const
@@ -13,19 +12,20 @@ std::shared_ptr<CoefficientGroup> MesonMixingCoefficientGroup::clone() const
     return std::make_shared<MesonMixingCoefficientGroup>(*this);
 }
 
-void MesonMixingCoefficientGroup::init_sources() {
-    init_running_parameter_blocks();
-    std::map<QCDOrder,CoefficientGroupSources> grp_src;
+// void MesonMixingCoefficientGroup::init_sources() {
+//     init_running_parameter_blocks();
+//     std::map<QCDOrder,CoefficientGroupSources> grp_src;
 
-    grp_src[QCDOrder::LO].sources = {
-        {ParameterType::WILSON, {this->get_matching_storage_block(), "WPARAM_RUN_SM", "UM_MATRIX_5", "UM_MATRIX_4", "B_SCALE"}},
-    };
+//     grp_src[QCDOrder::LO].sources = {
+//         {ParameterType::WILSON, {this->get_matching_storage_block(), "WPARAM_RUN_SM", "UM_MATRIX_5", "UM_MATRIX_4", "B_SCALE"}},
+//     };
 
-    grp_src[QCDOrder::LO].func = base_1_LO_calculation;
+//     grp_src[QCDOrder::LO].func = base_1_LO_calculation;
 
-    this->sources.insert({WilsonBasis::B_STANDARD, grp_src});
-}
+//     this->sources.insert({WilsonBasis::B_STANDARD, grp_src});
+// }
 
+//Fake !!
 void MesonMixingCoefficientGroup::init_running_parameter_blocks() {
     // WilsonParamComposer composer;
 
@@ -223,54 +223,56 @@ MesonMixingCoefficientGroup::base_1_LO_calculation (
     return Ci_run_map;
 }
 
-void MesonMixingCoefficientGroup::add_wilson_coefficients(bool force_sm) {
-    if (adapters.use_marty->get()) {
-        this->wilson_type = force_sm ? ContributionType::SM : ContributionType::TOTAL;
-        for (auto&& coeff : {"C_BD_1", "CT_BD_1", "C_BD_2", "CT_BD_2", "C_BD_3", "CT_BD_3", "C_BD_4", "C_BD_5", "C_BS_1", "CT_BS_1", "C_BS_2", "CT_BS_2", "C_BS_3", "CT_BS_3", "C_BS_4", "C_BS_5", "C_SD_1", "CT_SD_1", "C_SD_2", "CT_SD_2", "C_SD_3", "CT_SD_3", "C_SD_4", "C_SD_5", "C_CU_1", "CT_CU_1", "C_CU_2", "CT_CU_2", "C_CU_3", "CT_CU_3", "C_CU_4", "C_CU_5"}) {
-            std::string _name = force_sm ? "SM" : adapters.marty_model_name->get();
-            // std::string _name = force_sm ? "SM" : MartyModelNameAPI().get();
-            fs::path _path = force_sm ? adapters.sm_path : adapters.marty_model_path->get();
-            // fs::path _path = force_sm ? fs::path(std::string(project_assets_root.data())+"input_files/marty_model/sm.h") : MartyModelPathAPI().get();
-            std::string _block = GroupMapper::str(this->id, ScaleType::MATCHING);
-            LhaID _id = WCoefMapper::flha_full(WCoefMapper::enum_elt(coeff), QCDOrder::LO, this->get_type());
-            this->insert(std::make_pair(coeff, std::make_shared<MartyWilson>(_id, _block, _name, _path)));
-        }
-        return;
-    }
+// void MesonMixingCoefficientGroup::add_wilson_coefficients(bool force_sm) {
+//     if (adapters.use_marty->get()) {
+//         this->wilson_type = force_sm ? ContributionType::SM : ContributionType::TOTAL;
+//         for (auto&& coeff : {"C_BD_1", "CT_BD_1", "C_BD_2", "CT_BD_2", "C_BD_3", "CT_BD_3", "C_BD_4", "C_BD_5", "C_BS_1", "CT_BS_1", "C_BS_2", "CT_BS_2", "C_BS_3", "CT_BS_3", "C_BS_4", "C_BS_5", "C_SD_1", "CT_SD_1", "C_SD_2", "CT_SD_2", "C_SD_3", "CT_SD_3", "C_SD_4", "C_SD_5", "C_CU_1", "CT_CU_1", "C_CU_2", "CT_CU_2", "C_CU_3", "CT_CU_3", "C_CU_4", "C_CU_5"}) {
+//             std::string _name = force_sm ? "SM" : adapters.marty_model_name->get();
+//             // std::string _name = force_sm ? "SM" : MartyModelNameAPI().get();
+//             fs::path _path = force_sm ? adapters.sm_path : adapters.marty_model_path->get();
+//             // fs::path _path = force_sm ? fs::path(std::string(project_assets_root.data())+"input_files/marty_model/sm.h") : MartyModelPathAPI().get();
+//             std::string _block = GroupMapper::str(this->id, ScaleType::MATCHING);
+//             LhaID _id = WCoefMapper::flha_full(WCoefMapper::enum_elt(coeff), QCDOrder::LO, this->get_type());
+//             // this->insert(std::make_pair(coeff, std::make_shared<MartyWilson>(_id, _block, _name, _path)));
+//             MartyWilsonConfig config {_name, _id, _block, _path, adapters.marty_proxy};
+//             this->insert(std::make_pair(coeff, std::make_shared<MartyWilson>(config)));
+//         }
+//         return;
+//     }
 
-    this->insert(std::make_pair("C_BD_1", std::make_shared<C_mix_bd_1>())); 
-    this->insert(std::make_pair("CT_BD_1", std::make_shared<C_mix_bd_1_tilde>())); 
-    this->insert(std::make_pair("C_BD_2", std::make_shared<C_mix_bd_2>()));
-    this->insert(std::make_pair("CT_BD_2", std::make_shared<C_mix_bd_2_tilde>()));  
-    this->insert(std::make_pair("C_BD_3", std::make_shared<C_mix_bd_3>())); 
-    this->insert(std::make_pair("CT_BD_3", std::make_shared<C_mix_bd_3_tilde>())); 
-    this->insert(std::make_pair("C_BD_4", std::make_shared<C_mix_bd_4>()));  
-    this->insert(std::make_pair("C_BD_5", std::make_shared<C_mix_bd_5>()));  
+//     this->insert(std::make_pair("C_BD_1", std::make_shared<C_mix_bd_1>())); 
+//     this->insert(std::make_pair("CT_BD_1", std::make_shared<C_mix_bd_1_tilde>())); 
+//     this->insert(std::make_pair("C_BD_2", std::make_shared<C_mix_bd_2>()));
+//     this->insert(std::make_pair("CT_BD_2", std::make_shared<C_mix_bd_2_tilde>()));  
+//     this->insert(std::make_pair("C_BD_3", std::make_shared<C_mix_bd_3>())); 
+//     this->insert(std::make_pair("CT_BD_3", std::make_shared<C_mix_bd_3_tilde>())); 
+//     this->insert(std::make_pair("C_BD_4", std::make_shared<C_mix_bd_4>()));  
+//     this->insert(std::make_pair("C_BD_5", std::make_shared<C_mix_bd_5>()));  
 
-    this->insert(std::make_pair("C_BS_1", std::make_shared<C_mix_bs_1>())); 
-    this->insert(std::make_pair("CT_BS_1", std::make_shared<C_mix_bs_1_tilde>()));
-    this->insert(std::make_pair("C_BS_2", std::make_shared<C_mix_bs_2>())); 
-    this->insert(std::make_pair("CT_BS_2", std::make_shared<C_mix_bs_2_tilde>())); 
-    this->insert(std::make_pair("C_BS_3", std::make_shared<C_mix_bs_3>())); 
-    this->insert(std::make_pair("CT_BS_3", std::make_shared<C_mix_bs_3_tilde>())); 
-    this->insert(std::make_pair("C_BS_4", std::make_shared<C_mix_bs_4>())); 
-    this->insert(std::make_pair("C_BS_5", std::make_shared<C_mix_bs_5>())); 
+//     this->insert(std::make_pair("C_BS_1", std::make_shared<C_mix_bs_1>())); 
+//     this->insert(std::make_pair("CT_BS_1", std::make_shared<C_mix_bs_1_tilde>()));
+//     this->insert(std::make_pair("C_BS_2", std::make_shared<C_mix_bs_2>())); 
+//     this->insert(std::make_pair("CT_BS_2", std::make_shared<C_mix_bs_2_tilde>())); 
+//     this->insert(std::make_pair("C_BS_3", std::make_shared<C_mix_bs_3>())); 
+//     this->insert(std::make_pair("CT_BS_3", std::make_shared<C_mix_bs_3_tilde>())); 
+//     this->insert(std::make_pair("C_BS_4", std::make_shared<C_mix_bs_4>())); 
+//     this->insert(std::make_pair("C_BS_5", std::make_shared<C_mix_bs_5>())); 
 
-    this->insert(std::make_pair("C_SD_1", std::make_shared<C_mix_sd_1>())); 
-    this->insert(std::make_pair("CT_SD_1", std::make_shared<C_mix_sd_1_tilde>())); 
-    this->insert(std::make_pair("C_SD_2", std::make_shared<C_mix_sd_2>())); 
-    this->insert(std::make_pair("CT_SD_2", std::make_shared<C_mix_sd_2_tilde>())); 
-    this->insert(std::make_pair("C_SD_3", std::make_shared<C_mix_sd_3>())); 
-    this->insert(std::make_pair("CT_SD_3", std::make_shared<C_mix_sd_3_tilde>())); 
-    this->insert(std::make_pair("C_SD_4", std::make_shared<C_mix_sd_4>()));
-    this->insert(std::make_pair("C_SD_5", std::make_shared<C_mix_sd_5>()));
+//     this->insert(std::make_pair("C_SD_1", std::make_shared<C_mix_sd_1>())); 
+//     this->insert(std::make_pair("CT_SD_1", std::make_shared<C_mix_sd_1_tilde>())); 
+//     this->insert(std::make_pair("C_SD_2", std::make_shared<C_mix_sd_2>())); 
+//     this->insert(std::make_pair("CT_SD_2", std::make_shared<C_mix_sd_2_tilde>())); 
+//     this->insert(std::make_pair("C_SD_3", std::make_shared<C_mix_sd_3>())); 
+//     this->insert(std::make_pair("CT_SD_3", std::make_shared<C_mix_sd_3_tilde>())); 
+//     this->insert(std::make_pair("C_SD_4", std::make_shared<C_mix_sd_4>()));
+//     this->insert(std::make_pair("C_SD_5", std::make_shared<C_mix_sd_5>()));
 
-    this->insert(std::make_pair("C_CU_1", std::make_shared<C_mix_cu_1>()));
-    this->insert(std::make_pair("CT_CU_1", std::make_shared<C_mix_cu_1_tilde>()));
-    this->insert(std::make_pair("C_CU_2", std::make_shared<C_mix_cu_2>()));
-    this->insert(std::make_pair("CT_CU_2", std::make_shared<C_mix_cu_2_tilde>()));
-    this->insert(std::make_pair("C_CU_3", std::make_shared<C_mix_cu_3>()));
-    this->insert(std::make_pair("CT_CU_3", std::make_shared<C_mix_cu_3_tilde>()));
-    this->insert(std::make_pair("C_CU_4", std::make_shared<C_mix_cu_4>()));
-    this->insert(std::make_pair("C_CU_5", std::make_shared<C_mix_cu_5>()));
-}
+//     this->insert(std::make_pair("C_CU_1", std::make_shared<C_mix_cu_1>()));
+//     this->insert(std::make_pair("CT_CU_1", std::make_shared<C_mix_cu_1_tilde>()));
+//     this->insert(std::make_pair("C_CU_2", std::make_shared<C_mix_cu_2>()));
+//     this->insert(std::make_pair("CT_CU_2", std::make_shared<C_mix_cu_2_tilde>()));
+//     this->insert(std::make_pair("C_CU_3", std::make_shared<C_mix_cu_3>()));
+//     this->insert(std::make_pair("CT_CU_3", std::make_shared<C_mix_cu_3_tilde>()));
+//     this->insert(std::make_pair("C_CU_4", std::make_shared<C_mix_cu_4>()));
+//     this->insert(std::make_pair("C_CU_5", std::make_shared<C_mix_cu_5>()));
+// }

@@ -1,15 +1,12 @@
-#ifndef WILSON_SUPER_H
-#define WILSON_SUPER_H
+#ifndef WILSON_H
+#define WILSON_H
 
 #include "Include.h"
 #include "Math.h"
 #include "Utils.h"
 #include "Parameter.h"
-#include "IParamAdapter.h"
-// #include "Wilson_parameters.h"
-// #include "ModelAPI.h"
-// #include "HasWilsonAPI.h"
-// #include "ParameterProxy.h"
+#include "IParameterProxy.h"
+
 
 struct MatchingInfo {
     std::unordered_set<ParamId> sources = {};
@@ -105,8 +102,4 @@ protected:
     std::map<QCDOrder, MatchingInfo> matching_info;
 };
 
-// TODO : virtual LO, NLO, NNLO calculation need to be dealt properly
-
-
-
-#endif //Wilsonv2
+#endif

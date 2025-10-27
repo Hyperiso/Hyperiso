@@ -1,4 +1,3 @@
-// ParameterResolverProxy.h
 #ifndef PARAMETER_RESOLVER_PROXY_H
 #define PARAMETER_RESOLVER_PROXY_H
 
@@ -8,6 +7,7 @@
 #include "IParameterResolver.h"
 #include "IMappingDatabasePort.h"
 #include "Logger.h"
+#include <iomanip>
 
 class ParameterResolverProxy final : public IParameterResolver {
 public:
@@ -20,14 +20,15 @@ public:
             bool modelIsSM) const override
     {
         std::unordered_map<std::string, ResolvedParam> out;
-        const auto& smMap    = sm_->getParams();
-        const auto& modelMap = model_->getParams();
-
+        auto smMap    = sm_->getParams();
+        auto modelMap = model_->getParams();
+        
         for (const auto& p : params) {
             const auto& name = p.name;
             auto it = smMap.find(name);
             if (it != smMap.end()) {
-                out[name] = { it->second.block, it->second.pdgCode, p.complex, false };
+                
+                out[name] = { it->second.block, it->second.code, p.complex, false };
                 continue;
             }
             it = modelMap.find(name);
@@ -36,7 +37,7 @@ public:
                     LOG_ERROR("LogicError",
                         "Accès à un paramètre BSM pendant un calcul SM. Vérifie les fichiers de mapping MARTY.");
                 }
-                out[name] = { it->second.block, it->second.pdgCode, p.complex, true };
+                out[name] = { it->second.block, it->second.code, p.complex, true };
             } else {
                 LOG_ERROR("Mapping", std::string("Paramètre introuvable: ") + name);
             }

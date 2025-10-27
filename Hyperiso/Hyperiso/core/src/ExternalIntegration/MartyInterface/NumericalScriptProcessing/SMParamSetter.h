@@ -32,11 +32,11 @@ public:
         }
     }
 
-    std::unordered_map<std::string, double> setParam(const std::string& name, const Interpreter::InterpretedParam& interpretedParam);
+    std::unordered_map<std::string, double> setParam(const std::string& name, const InterpretedParam& interpretedParam);
 
 private:
 
-    scalar_t calculateValue(const std::string& name, const Interpreter::InterpretedParam& interpretedParam);
+    scalar_t calculateValue(const std::string& name, const InterpretedParam& interpretedParam);
 
     Model model_type;
     std::set<std::string> special_blocks;

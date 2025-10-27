@@ -1,7 +1,7 @@
-#ifndef MODEL_PARAM_ADAPTER_H
-#define MODEL_PARAM_ADAPTER_H
+#ifndef PARAMETER_PROXY_H
+#define PARAMETER_PROXY_H
 
-#include "IParamAdapter.h"
+#include "IParameterProxy.h"
 #include "ParameterProvider.h"
 #include "HyperisoMaster.h"
 #include "Include.h"

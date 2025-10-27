@@ -47,6 +47,8 @@ add_library(PhysicalModelLib STATIC
     domain/MartyWilson.cpp
     domain/BWilson.cpp
     domain/BWilsonGroup.cpp
+    domain/KWilson.cpp
+    domain/KWilsonGroup.cpp
     domain/ChargedCurrentWilson.cpp
     domain/ChargedCurrentsWilsonGroup.cpp
     domain/MesonMixingWilson.cpp
@@ -54,6 +56,15 @@ add_library(PhysicalModelLib STATIC
     domain/WilsonGroup.cpp
     domain/WilsonManager.cpp
     domain/MartyWilson.cpp
+    domain/GroupDefinitions.cpp
+    domain/GroupDef_B.cpp
+    domain/GroupDef_BCC.cpp
+    domain/GroupDef_BPrime.cpp
+    domain/GroupDef_BScalar.cpp
+    domain/GroupDef_MesonMixing.cpp
+    domain/GroupDef_K.cpp
+    domain/WilsonCoefficientRegistry.cpp
+    domain/CoefficientGroupBuilder.cpp
     adapters/ParameterProxy.cpp
     adapters/WilsonParamComposer.cpp
     adapters/ScaleSetter.cpp
@@ -118,8 +129,18 @@ target_link_libraries(susy_test PhysicalModelLib)
 add_executable(thdm_test app/main_thdm.cpp)
 target_link_libraries(thdm_test PhysicalModelLib)
 
+add_executable(TEST_SWITCH_LHA app/main_switch_lha.cpp)
+target_link_libraries(TEST_SWITCH_LHA PhysicalModelLib)
+
 add_executable(custom_test app/main_custom_wilson.cpp)
 target_link_libraries(custom_test PhysicalModelLib)
+
+add_executable(kaons_test app/main_kaons.cpp)
+target_link_libraries(kaons_test PhysicalModelLib)
+
+add_executable(mixing_test app/main_mixing.cpp)
+target_link_libraries(mixing_test PhysicalModelLib)
+
 # add_executable(test_martywilson main.cpp)
 # target_link_libraries(test_martywilson PhysicalModelLib MartyInterfaceLib)
 

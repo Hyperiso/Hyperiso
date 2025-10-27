@@ -4,14 +4,14 @@
 #include "Include.h"
 
 struct WilsonBuildConfig : public AbstractConfig {
-    std::unordered_set<WGroup> groups;
+    std::unordered_set<WGroupId> groups;
     double matching_scale;
     double hadronic_scale;
     QCDOrder order {QCDOrder::LO};
 
     WilsonBuildConfig() = default;
     WilsonBuildConfig(
-        std::unordered_set<WGroup> groups_,
+        std::unordered_set<WGroupId> groups_,
         double matching_scale_,
         double hadronic_scale_,
         QCDOrder order_ = QCDOrder::LO
@@ -20,6 +20,16 @@ struct WilsonBuildConfig : public AbstractConfig {
         matching_scale(matching_scale_),
         hadronic_scale(hadronic_scale_),
         order(order_) {}
+
+    WilsonBuildConfig(
+        std::unordered_set<WGroup> groups_,
+        double matching_scale_,
+        double hadronic_scale_,
+        QCDOrder order_ = QCDOrder::LO
+    ) :
+        matching_scale(matching_scale_),
+        hadronic_scale(hadronic_scale_),
+        order(order_) { for (auto group : groups_) { groups.insert(GroupMapper::to_id(group));}}
 };
 
 struct WilsonRequest : public AbstractConfig {

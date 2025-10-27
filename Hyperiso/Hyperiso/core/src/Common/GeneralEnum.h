@@ -155,6 +155,7 @@ enum class WCoef {
     C_BS_1, CT_BS_1, C_BS_2, CT_BS_2, C_BS_3, CT_BS_3, C_BS_4, C_BS_5,      // Bs0 mixing
     C_SD_1, CT_SD_1, C_SD_2, CT_SD_2, C_SD_3, CT_SD_3, C_SD_4, C_SD_5,      // K0 mixing
     C_CU_1, CT_CU_1, C_CU_2, CT_CU_2, C_CU_3, CT_CU_3, C_CU_4, C_CU_5,      // D0 mixing
+    CK9, CPK9, CK10, CPK10, CKQ1, CKQ2, CPKQ1, CPKQ2                        // s > d l l
 };
 
 enum class WGroup {
@@ -163,7 +164,8 @@ enum class WGroup {
     BScalar,
     BCC,
     MESON_MIXING,
-    CUSTOM_GROUP
+    CUSTOM_GROUP,
+    K
 };
 
 

@@ -32,7 +32,7 @@ typedef std::function<void(const std::unordered_map<std::string, std::shared_ptr
  *
  * Supports storing, updating, freezing, and notifying dependent observers when parameters change.
  */
-class Block : public IStorage<LhaID, Parameter> {
+class Block : public IStorage<LhaID, Parameter>, public std::enable_shared_from_this<Block> {
 public:
     BlockName blockname {""}; ///< Name of the block.
 
@@ -133,10 +133,19 @@ public:
     }
 
     /**
+     * @brief Virtual method to init the block (default behavior: do nothing).
+     */
+    virtual void init() {};
+    
+    /**
      * @brief Virtual method to update the block (default behavior: update all parameters).
      */
     virtual void update();
 
+    /**
+     * @brief Virtual method to destroy the block (remove all elements and being forgotten by all those that observe you).
+     */
+    virtual void destroy();
     /**
      * @brief Virtual method to freeze the block (prevent updates).
      */
@@ -163,10 +172,12 @@ public:
 
     double get_scale();
 
+    void erase_local(const LhaID& id);
+
     /**
      * @brief Destructor. Notifies observers when the block is destroyed.
      */
-    ~Block() { notifyObservers(); }
+    ~Block() {}
 
     friend std::ostream& operator<<(std::ostream&, std::shared_ptr<Block>);
 protected:
@@ -181,7 +192,7 @@ protected:
  *
  * Implements dependency management and lazy update mechanisms (freeze/unfreeze behavior).
  */
-class DependentBlock : public Block, public std::enable_shared_from_this<DependentBlock> {
+class DependentBlock : public Block {
 public:
     /**
      * @brief Constructs a DependentBlock.
@@ -201,7 +212,7 @@ public:
     /**
      * @brief Initializes dependency tracking (must be called after construction).
      */
-    void init();
+    void init() override;
 
     /**
      * @brief Updates the dependent block.
@@ -249,8 +260,10 @@ public:
 
     void clear_below() override;
 
+    void destroy() override;
+
 private:
-    std::shared_ptr<DependentBlock> self;                                   ///< Self-reference for observer management.
+    std::weak_ptr<DependentBlock> self;                                   ///< Self-reference for observer management.
     std::unordered_map<std::string, std::shared_ptr<Block>> sourceBlocks;   ///< Source blocks for dependencies.
     DepUpdateFunc recalculateLambda;                                        ///< Function used to recalculate this block's content.
     bool frozen = false;                                                            ///< Indicates if the block is frozen (no update).

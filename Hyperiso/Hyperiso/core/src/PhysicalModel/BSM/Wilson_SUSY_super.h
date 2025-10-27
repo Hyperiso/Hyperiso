@@ -368,18 +368,18 @@ public:
 class BCoefficientGroup_susy : public BCoefficientGroup {
 
 public:
-    BCoefficientGroup_susy(WilsonGroupAdapterConfig adapters) : BCoefficientGroup(adapters) { this->clear();
+    BCoefficientGroup_susy(WilsonGroupAdapterConfig adapters) : BCoefficientGroup(adapters) {
 
         // if (!susy_parameters::is_initialized()) {
         //     susy_parameters::init();
         // }
 
-        this->insert(std::make_pair("C1", std::make_shared<C1_susy>())); this->insert(std::make_pair("C2", std::make_shared<C2_susy>())); this->insert(std::make_pair("C3", std::make_shared<C3_susy>()));
-        this->insert(std::make_pair("C4", std::make_shared<C4_susy>()));  this->insert(std::make_pair("C5", std::make_shared<C5_susy>())); this->insert(std::make_pair("C6", std::make_shared<C6_susy>())); 
-        this->insert(std::make_pair("C7", std::make_shared<C7_susy>()));  this->insert(std::make_pair("C8", std::make_shared<C8_susy>()));  this->insert(std::make_pair("C9", std::make_shared<C9_susy>())); 
-        this->insert(std::make_pair("C10", std::make_shared<C10_susy>())); 
+        // this->insert(std::make_pair("C1", std::make_shared<C1_susy>())); this->insert(std::make_pair("C2", std::make_shared<C2_susy>())); this->insert(std::make_pair("C3", std::make_shared<C3_susy>()));
+        // this->insert(std::make_pair("C4", std::make_shared<C4_susy>()));  this->insert(std::make_pair("C5", std::make_shared<C5_susy>())); this->insert(std::make_pair("C6", std::make_shared<C6_susy>())); 
+        // this->insert(std::make_pair("C7", std::make_shared<C7_susy>()));  this->insert(std::make_pair("C8", std::make_shared<C8_susy>()));  this->insert(std::make_pair("C9", std::make_shared<C9_susy>())); 
+        // this->insert(std::make_pair("C10", std::make_shared<C10_susy>())); 
 
-        this->id = WGroup::B;
+        this->id = GroupMapper::to_id(WGroup::B);
         this->wilson_type = ContributionType::BSM;
     }
 };
@@ -387,26 +387,26 @@ public:
 class BPrimeCoefficientGroup_susy : public BPrimeCoefficientGroup {
 public:
     BPrimeCoefficientGroup_susy(WilsonGroupAdapterConfig adapters) : BPrimeCoefficientGroup(adapters) { 
-        this->clear();
+        // this->clear();
 
-        this->insert(std::make_pair("CP1", std::make_shared<CP1_susy>())); this->insert(std::make_pair("CP2", std::make_shared<CP2_susy>())); this->insert(std::make_pair("CP3", std::make_shared<CP3_susy>()));
-        this->insert(std::make_pair("CP4", std::make_shared<CP4_susy>()));  this->insert(std::make_pair("CP5", std::make_shared<CP5_susy>())); this->insert(std::make_pair("CP6", std::make_shared<CP6_susy>())); 
-        this->insert(std::make_pair("CP7", std::make_shared<CP7_susy>()));  this->insert(std::make_pair("CP8", std::make_shared<CP8_susy>()));  this->insert(std::make_pair("CP9", std::make_shared<CP9_susy>())); 
-        this->insert(std::make_pair("CP10", std::make_shared<CP10_susy>())); this->insert(std::make_pair("CPQ1", std::make_shared<CPQ1_susy>())); this->insert(std::make_pair("CPQ2", std::make_shared<CPQ2_susy>())); 
+        // this->insert(std::make_pair("CP1", std::make_shared<CP1_susy>())); this->insert(std::make_pair("CP2", std::make_shared<CP2_susy>())); this->insert(std::make_pair("CP3", std::make_shared<CP3_susy>()));
+        // this->insert(std::make_pair("CP4", std::make_shared<CP4_susy>()));  this->insert(std::make_pair("CP5", std::make_shared<CP5_susy>())); this->insert(std::make_pair("CP6", std::make_shared<CP6_susy>())); 
+        // this->insert(std::make_pair("CP7", std::make_shared<CP7_susy>()));  this->insert(std::make_pair("CP8", std::make_shared<CP8_susy>()));  this->insert(std::make_pair("CP9", std::make_shared<CP9_susy>())); 
+        // this->insert(std::make_pair("CP10", std::make_shared<CP10_susy>())); this->insert(std::make_pair("CPQ1", std::make_shared<CPQ1_susy>())); this->insert(std::make_pair("CPQ2", std::make_shared<CPQ2_susy>())); 
 
-        this->id = WGroup::BPrime;
+        this->id = GroupMapper::to_id(WGroup::BPrime);
         this->wilson_type = ContributionType::BSM;
     }
 };
 
 class BScalarCoefficientGroup_susy : public BScalarCoefficientGroup {
 public:
-    BScalarCoefficientGroup_susy(WilsonGroupAdapterConfig adapters) : BScalarCoefficientGroup(adapters) { this->clear();
+    BScalarCoefficientGroup_susy(WilsonGroupAdapterConfig adapters) : BScalarCoefficientGroup(adapters) {
 
 
-        this->insert(std::make_pair("CQ1", std::make_shared<CQ1_susy>())); this->insert(std::make_pair("CQ2", std::make_shared<CQ2_susy>()));
+        // this->insert(std::make_pair("CQ1", std::make_shared<CQ1_susy>())); this->insert(std::make_pair("CQ2", std::make_shared<CQ2_susy>()));
 
-        this->id = WGroup::BScalar;
+        this->id = GroupMapper::to_id(WGroup::BScalar);
         this->wilson_type = ContributionType::BSM;
     }
 
@@ -434,13 +434,13 @@ class BclnuCoefficientGroup_SUSY : public BclnuCoefficientGroup {
 public:
     BclnuCoefficientGroup_SUSY(WilsonGroupAdapterConfig adapters) : BclnuCoefficientGroup(adapters) { this->clear();
 
-        this->insert(std::make_pair("C_V1", std::make_shared<C_V1_SUSY>()));
-        this->insert(std::make_pair("C_V2", std::make_shared<C_V2_SUSY>()));
-        this->insert(std::make_pair("C_S1", std::make_shared<C_S1_SUSY>()));
-        this->insert(std::make_pair("C_S2", std::make_shared<C_S2_SUSY>()));
-        this->insert(std::make_pair("C_T", std::make_shared<C_T_SUSY>()));
+        // this->insert(std::make_pair("C_V1", std::make_shared<C_V1_SUSY>()));
+        // this->insert(std::make_pair("C_V2", std::make_shared<C_V2_SUSY>()));
+        // this->insert(std::make_pair("C_S1", std::make_shared<C_S1_SUSY>()));
+        // this->insert(std::make_pair("C_S2", std::make_shared<C_S2_SUSY>()));
+        // this->insert(std::make_pair("C_T", std::make_shared<C_T_SUSY>()));
 
-        this->id = WGroup::BCC;
+        this->id = GroupMapper::to_id(WGroup::BCC);
         this->wilson_type = ContributionType::BSM;
     }
 

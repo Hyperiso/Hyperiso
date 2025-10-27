@@ -263,6 +263,20 @@ target_link_libraries(testSMParamSetterUnit MartyInterfaceLib UtilsLib)
 add_executable(testWriterPipelineIntegration ExternalIntegration/MartyInterface/integration/test_writer_pipeline_integration.cpp)
 target_link_libraries(testWriterPipelineIntegration MartyInterfaceLib UtilsLib)
 
+#PhysicalModel
+
+add_executable(testWilsonUnit PhysicalModel/unit/test_wilson_unit.cpp)
+target_link_libraries(testWilsonUnit PhysicalModelLib UtilsLib)
+
+add_executable(testWilsonIntegration PhysicalModel/integration/test_wilson_integration.cpp)
+target_link_libraries(testWilsonIntegration PhysicalModelLib UtilsLib)
+
+add_executable(testWilsonGroupUnit PhysicalModel/unit/test_wilsongroup_unit.cpp)
+target_link_libraries(testWilsonGroupUnit PhysicalModelLib UtilsLib)
+
+add_executable(testWilsonGroupIntegration PhysicalModel/integration/test_wilsongroup_integration.cpp)
+target_link_libraries(testWilsonGroupIntegration PhysicalModelLib UtilsLib)
+
 #Wilson
 
 
