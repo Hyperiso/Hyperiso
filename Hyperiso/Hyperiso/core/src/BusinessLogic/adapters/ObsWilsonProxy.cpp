@@ -78,7 +78,7 @@ std::shared_ptr<ObsWilsonBuilder> ObsWilsonProxy::get_builder() {
     return std::make_shared<ObsWilsonBuilder>(wilson_builder);
 }
 
-std::unordered_set<WilsonBasis> ObsWilsonProxy::get_bases(WGroup group) {
+std::unordered_set<WilsonBasis> ObsWilsonProxy::get_bases(WGroupId group) {
     return this->wil_p->get_bases(group);
 }
 

@@ -107,6 +107,8 @@ const std::map<Observables, std::string>& observable_mapping() {
         {Observables::DELTA_M_K, "Delta_M_K"},
         {Observables::ABS_EPSILON_K, "|epsilon_K|"},
         {Observables::X_D, "x_D"},
+        {Observables::BR_KL__MU_MU, "BR_K_L__mu_mu"},
+        {Observables::BR_KS__MU_MU, "BR_K_S__mu_mu"},
         {Observables::TEST, "test"},
     };
     return m;
@@ -259,6 +261,7 @@ const std::map<Decays, std::string>& decays_mapping() {
         {Decays::B__K_l_l, "B__K_l_l"},
         {Decays::Bs__phi_l_l, "Bs__phi_l_l"},
         {Decays::M0_Mix, "M0_Mix"},
+        {Decays::K__l_l, "K__l_l"},
     };
     return m;
 }
@@ -276,6 +279,7 @@ const std::map<Decays, std::vector<Observables>>& decay_observable_mapping() {
         {Decays::B__K_l_l,      {Observables::DGAMMA_DQ2_B__K_L_L, Observables::A_FB_B__K_L_L, Observables::F_H_B__K_L_L}},
         {Decays::Bs__phi_l_l,   {Observables::DGAMMA_DQ2_BS__PHI_L_L, Observables::DGAMMA_BAR_DQ2_BS__PHI_L_L, Observables::A_FB_CPV_BS__PHI_L_L, Observables::F_L_BS_PHI_L_L, Observables::A_T_2_BS_PHI_L_L, Observables::A_T_RE_CPV_BS_PHI_L_L, Observables::A_T_IM_CPV_BS_PHI_L_L, Observables::P_PRIME_4_BS_PHI_L_L, Observables::P_PRIME_6_BS_PHI_L_L, Observables::S_2S_BS_PHI_L_L, Observables::S_3_BS_PHI_L_L, Observables::S_4_BS_PHI_L_L, Observables::S_7_BS_PHI_L_L, Observables::A_5_BS_PHI_L_L, Observables::A_6C_BS_PHI_L_L, Observables::A_8_BS_PHI_L_L, Observables::A_9_BS_PHI_L_L, Observables::P_2_CPV_BS_PHI_L_L, Observables::P_3_CPV_BS_PHI_L_L, Observables::P_PRIME_5_CPV_BS_PHI_L_L, Observables::P_PRIME_8_CPV_BS_PHI_L_L, Observables::Q_8M_BS_PHI_L_L, Observables::Q_8P_BS_PHI_L_L, Observables::Q_9_BS_PHI_L_L}},
         {Decays::M0_Mix,        {Observables::PHI_D, Observables::DELTA_M_BD, Observables::PHI_S, Observables::DELTA_M_BS, Observables::A_FS, Observables::DELTA_M_K, Observables::ABS_EPSILON_K, Observables::X_D}},
+        {Decays::K__l_l,        {Observables::BR_KL__MU_MU, Observables::BR_KS__MU_MU}},
     };
     return m;
 }

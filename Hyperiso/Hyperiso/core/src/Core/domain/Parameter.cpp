@@ -239,10 +239,10 @@ void Parameter::removeObserver(std::shared_ptr<Parameter> observer) {
 // }
 
 DependentParameter::~DependentParameter() {
-    LOG_TRACE("Destruct DependentParameter at", self.get());
-    if (self) {
-        for (auto src : sources){
-            src.second->removeObserver(self);   
+    LOG_DEBUG("Destruct DependentParameter at", self.lock().get());
+    if (auto me = self.lock()) {
+        for (auto& [_, src] : sources) {
+            src->removeObserver(me); 
         }
     }
 }

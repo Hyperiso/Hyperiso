@@ -123,6 +123,10 @@ enum class Observables {
     ABS_EPSILON_K,
     // D
     X_D,
+    /* Rare K decays */
+    // K_L,S > mu mu
+    BR_KL__MU_MU,
+    BR_KS__MU_MU
 };
 
 enum class Decays {
@@ -137,6 +141,7 @@ enum class Decays {
     B__Kstar_l_l,
     Bs__phi_l_l,
     M0_Mix,
+    K__l_l,
 };
 
 enum class QCDOrder {

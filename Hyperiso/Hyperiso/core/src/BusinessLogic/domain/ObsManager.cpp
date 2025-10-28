@@ -18,6 +18,7 @@ ObsManager::ObsManager(std::shared_ptr<ObsWilsonBuilder>& wil_builder) {
         {DecayMapper::to_id(Decays::B__Kstar_l_l),   std::make_shared<BKstarllDecay>(QCDOrder::NONE, 81, smParamProxy("QCD", LhaID(5, 3)), wil_builder)},
         {DecayMapper::to_id(Decays::B__K_l_l),       std::make_shared<BKllDecay>(QCDOrder::NONE, 81, smParamProxy("QCD", LhaID(5, 3)), wil_builder)},
         {DecayMapper::to_id(Decays::Bs__phi_l_l),    std::make_shared<BsPhiDecay>(QCDOrder::NONE, 81, smParamProxy("QCD", LhaID(5, 3)), wil_builder)},
+        {DecayMapper::to_id(Decays::K__l_l),         std::make_shared<KllDecay>(QCDOrder::NONE, 81, 2.0, wil_builder)},
     };
 }
 

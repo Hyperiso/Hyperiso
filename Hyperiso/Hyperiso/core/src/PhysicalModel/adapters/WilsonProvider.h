@@ -14,7 +14,7 @@ public:
 
     scalar_t get(std::shared_ptr<AbstractConfig> config) override;
     std::shared_ptr<WilsonBuilder> get_builder() override;
-    std::unordered_set<WilsonBasis> get_bases(WGroup group) override;
+    std::unordered_set<WilsonBasis> get_bases(WGroupId group) override;
 
 private:
     std::shared_ptr<WilsonBuilder> builder;

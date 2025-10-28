@@ -19,7 +19,7 @@ int main() {
     for (auto& dec : DecayMapper::get_enum()) {
         if (dec == Decays::M0_Mix) continue;
 
-        // if (dec != Decays::B__K_l_l) continue;
+        if (dec != Decays::K__l_l) continue;
 
         // LOG_INFO("Adding observables for decay", DecayMapper::str(dec));
         oi.add_observables(dec, order, false);

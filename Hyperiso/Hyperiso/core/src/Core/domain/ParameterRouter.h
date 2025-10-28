@@ -32,7 +32,7 @@ struct ParameterBlockRepartition {
         {ParameterType::BSM, {"GAUGE", "MASS", "HMIX", "ALPHA", "MSOFT", "NMIX", "UMIX", "VMIX", "NMAMIX", "NMHMIX", "STOPMIX", "SBOTMIX", "STAUMIX", "AU", "AD", "AE", "YU", "YD", "YE", "MINPAR"}},
         {ParameterType::FLAVOR, {"FMASS", "FLIFE", "FCONST", "FCONSTRATIO", "FBAG", "FPARAM"}},
         {ParameterType::WILSON, {"FWCOEF", "IMFWCOEF", "EW_SCALE", "B_SCALE"}},
-        {ParameterType::DECAY, {"B_Ks", "B_ll", "B_Xs", "B_Dlnu", "B_Dslnu", "B_Xsll", "B_Ksll", "M0_Mix", "B_phi", "B_K"}},
+        {ParameterType::DECAY, {"B_Ks", "B_ll", "B_Xs", "B_Dlnu", "B_Dslnu", "B_Xsll", "B_Ksll", "M0_Mix", "B_phi", "B_K", "K_ll"}},
         {ParameterType::OBSERVABLE, {"FOBS", "FOBSERR", "FOBSSM", "FOBSSMERR", "FDIPOLE"}},
         {ParameterType::PASSTHROUGH, {"MODSEL", "SPINFO", "FMODSEL", "FCINFO", "EXTPAR"}}
     };

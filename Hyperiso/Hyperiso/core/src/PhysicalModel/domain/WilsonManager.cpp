@@ -385,7 +385,7 @@ std::map<std::string, std::shared_ptr<CoefficientGroup>> CoefficientManager::get
     return this->coefficientGroups;
 }
 
-std::unordered_set<WilsonBasis> CoefficientManager::getGroupBases(WGroup group) {
+std::unordered_set<WilsonBasis> CoefficientManager::getGroupBases(WGroupId group) {
     return this->coefficientGroups.at(GroupMapper::str(group))->get_bases();
 }
 

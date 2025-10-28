@@ -56,6 +56,6 @@ std::shared_ptr<WilsonBuilder> WilsonProvider::get_builder() {
     return builder;
 }
 
-std::unordered_set<WilsonBasis> WilsonProvider::get_bases(WGroup group) {
+std::unordered_set<WilsonBasis> WilsonProvider::get_bases(WGroupId group) {
     return this->cm->getGroupBases(group);
 }

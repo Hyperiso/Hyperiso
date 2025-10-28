@@ -11,8 +11,8 @@ void ObsWilsonHelper::build(WilsonBuildConfig config, std::shared_ptr<ObsWilsonB
     wil_builder->build(std::make_shared<WilsonBuildConfig>(config));
 }
 
-std::unordered_set<WGroup> ObsWilsonHelper::get_all_groups(const std::unordered_set<WGroup> &needed) {
-    std::unordered_set<WGroup> all_groups = get_keys(state);
+std::unordered_set<WGroupId> ObsWilsonHelper::get_all_groups(const std::unordered_set<WGroupId> &needed) {
+    std::unordered_set<WGroupId> all_groups = get_keys(state);
     std::set_union(
         all_groups.begin(), all_groups.end(),
         needed.begin(), needed.end(),
@@ -21,8 +21,8 @@ std::unordered_set<WGroup> ObsWilsonHelper::get_all_groups(const std::unordered_
     return all_groups;
 }
 
-std::unordered_set<WGroup> ObsWilsonHelper::update_state(const std::unordered_set<WGroup> &needed, std::shared_ptr<ObsWilsonBuilder> &wil_builder) {
-    std::unordered_set<WGroup> to_build;
+std::unordered_set<WGroupId> ObsWilsonHelper::update_state(const std::unordered_set<WGroupId> &needed, std::shared_ptr<ObsWilsonBuilder> &wil_builder) {
+    std::unordered_set<WGroupId> to_build;
     for (auto group : get_all_groups(needed)) {
         if (!needed.contains(group)) {
             WilsonFreezer(wil_builder).freeze(group);

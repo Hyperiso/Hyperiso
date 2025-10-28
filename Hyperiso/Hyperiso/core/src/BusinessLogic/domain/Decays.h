@@ -13,5 +13,6 @@
 #include "Decays/BKllDecay.h"
 #include "Decays/BsPhiDecay.h"
 #include "Decays/M0_Mixing.h"
+#include "Decays/KllDecay.h"
 
 #endif // __DECAYS_H__

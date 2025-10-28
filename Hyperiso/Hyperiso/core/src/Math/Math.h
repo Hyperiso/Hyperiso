@@ -540,6 +540,11 @@ double h4(double x, double y);
  */
 double f(double x);
 
+double Y0(double xt);
+double Y1(double xt, double mu, double mass_W);
+double X0(double xt);
+double X1(double xt, double mu, double mass_W);
+
 /*
     Integration routines
 */
@@ -653,5 +658,11 @@ namespace BV {
     complex_t G8(double L_b);
 
 }; // namespace BV
+
+namespace KP {
+    complex_t F(double z);
+    complex_t G(double z);
+    complex_t H(double z, double r_P);
+}; // namespace KP
 
 #endif

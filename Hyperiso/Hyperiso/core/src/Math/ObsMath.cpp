@@ -11013,6 +11013,24 @@ complex_t BV::G2(double z, double L_b) {
 }
 
 complex_t BV::G8(double L_b) {
-    complex_t g_8 = 11. / 3 - 2 * PI2 / 9 + 2. * I * PI / 3.;
-    return -104 * L_b / 27 + g_8;
+   complex_t g_8 = 11. / 3 - 2 * PI2 / 9 + 2. * I * PI / 3.;
+   return -104 * L_b / 27 + g_8;
+}
+
+complex_t KP::F(double z) {
+   if (fpeq(z, 0.0)) return 0.0;
+   complex_t _z {z};
+   return 1.0 - 4.0 / _z * std::pow(std::asin(std::sqrt(_z) / 2.0), 2);
+}
+
+complex_t KP::G(double z) {
+   if (fpeq(z, 0.0)) return 1.0;
+   complex_t _z {z};
+   return std::sqrt(4.0 / _z - 1.0) * std::asin(std::sqrt(_z) / 2.0);
+}
+
+complex_t KP::H(double z, double r_P) {
+   double x = 1 / std::pow(r_P, 2);
+   double y = z * x;
+   return 1 / (2 * std::pow(1 - z, 2)) * (z * KP::F(y) - KP::F(x) - 2 * z * (KP::G(y) - KP::G(x)));
 }

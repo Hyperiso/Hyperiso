@@ -24,7 +24,7 @@ public:
     std::map<WCoef, complex_t> getAFR(WGroup group, QCDOrder order, ContributionType contribution=ContributionType::TOTAL);
 
     std::shared_ptr<ObsWilsonBuilder> get_builder() override;
-    std::unordered_set<WilsonBasis> get_bases(WGroup) override;
+    std::unordered_set<WilsonBasis> get_bases(WGroupId) override;
     void set_basis(WilsonBasis basis);
 
 private:

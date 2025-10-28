@@ -30,7 +30,7 @@ protected:
 
 public:
     BlnuDecay(QCDOrder order, double matching_scale, double hadronic_scale, std::shared_ptr<ObsWilsonBuilder>& wilson_builder) : DecayParentConfigurable(DecayMapper::to_id(Decays::B__l_nu), matching_scale, hadronic_scale, order, wilson_builder) {
-        this->w_config.groups = {WGroup::BCC};
+        this->w_config.groups = {GroupMapper::to_id(WGroup::BCC)};
         this->max_order = QCDOrder::LO;
     }
 

@@ -45,6 +45,7 @@ add_library(BusinessLogicLib STATIC
     domain/Decays/M0_Mixing.cpp
     domain/Decays/BsPhiDecay.cpp
     domain/Decays/BKllDecay.cpp
+    domain/Decays/KllDecay.cpp
     # domain/Wilson/WilsonObs.cpp
     domain/Compound.cpp
     domain/Observable.cpp

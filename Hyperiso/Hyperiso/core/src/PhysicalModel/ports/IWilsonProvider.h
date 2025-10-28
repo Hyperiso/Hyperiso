@@ -13,7 +13,7 @@ public:
     virtual ~IWilsonProvider() = default;
 
     virtual scalar_t get(std::shared_ptr<AbstractConfig>) = 0;
-    virtual std::unordered_set<WilsonBasis> get_bases(WGroup) = 0;
+    virtual std::unordered_set<WilsonBasis> get_bases(WGroupId) = 0;
     virtual std::shared_ptr<BuilderType> get_builder() = 0;
 };
 
