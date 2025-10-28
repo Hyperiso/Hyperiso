@@ -1,4 +1,4 @@
-#include "MesonMixingWilson_SUSY.h"
+#include "MesonMixingWilsonSUSY.h"
 
 C_mix_bd_1_SUSY::C_mix_bd_1_SUSY() : WilsonCoefficient("C_BD_1", GroupMapper::str(WGroup::MESON_MIXING) + "_MATCH") {
     matching_info[QCDOrder::LO] = {

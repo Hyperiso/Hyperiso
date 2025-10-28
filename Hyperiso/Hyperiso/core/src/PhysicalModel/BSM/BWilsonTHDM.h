@@ -1,9 +1,9 @@
-#ifndef WILSON_THDM_SUPER_H
-#define WILSON_THDM_SUPER_H
+#ifndef BWILSON_THDM_H
+#define BWILSON_THDM_H
 #include "Wilson.h"
 #include "WilsonGroup.h"
 #include "BWilsonGroup.h"
-#include "thdm_parameters.h"
+#include "THDMParametersHelper.h"
 #include "Math_THDM.h"
 #include "Utils.h"
 #include "ChargedCurrentsWilsonGroup.h"

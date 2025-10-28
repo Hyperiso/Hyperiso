@@ -128,3 +128,19 @@ public:
 
     static double compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
 };
+
+class CK_L : public WilsonCoefficient {
+public:
+    CK_L();
+
+    
+     
+    void NNLO_calculation() {} 
+
+    std::shared_ptr<WilsonCoefficient> clone() const override {
+        return std::make_shared<CK_L>(*this);
+    }
+
+    static double compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
+    static double compute_NLO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
+};

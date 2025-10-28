@@ -1,4 +1,4 @@
-#include "Wilson_THDM_super.h"
+#include "BWilsonTHDM.h"
 
 C3_THDM::C3_THDM() : WilsonCoefficient("C3_THDM", GroupMapper::str(WGroup::B) + "_MATCH") {
     matching_info[QCDOrder::NNLO] = {

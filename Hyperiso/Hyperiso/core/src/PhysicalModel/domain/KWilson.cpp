@@ -157,3 +157,41 @@ double CPKQ2::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Param
     double xt = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1}})->get_val();
     return -0.5 * F0t(xt) - 1. / 3.;
 }
+
+CK_L::CK_L() : WilsonCoefficient("CK_L", GroupMapper::str(WGroup::K) + "_MATCH") {
+    // LO
+    matching_info[QCDOrder::LO] = {
+        {
+            {"WPARAM_MATCH_SM", LhaID(2, 1)},  // x_t
+            {"WPARAM_SI_SM", 4},               // sw2
+        },
+        compute_LO,
+        LhaID(0, 9, 0, 0)
+    };
+
+    matching_info[QCDOrder::NLO] = {
+        {
+            {"WPARAM_MATCH_SM", LhaID(2, 1)},  // x_t
+            {"WPARAM_SI_SM", 4},               // sw2
+            {ParameterType::SM, "MASS", 24},   // mW
+            {ParameterType::SM, "QCD", 6},     //mt 
+        },
+        compute_NLO,
+        LhaID(0, 9, 1, 0)
+    };
+
+}
+
+double CK_L::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src) {
+    double xt = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1}})->get_val();
+    double sw2  = src.at({ParameterType::WILSON, "WPARAM_SI_SM", 4})->get_val();
+    return X0(xt)/std::pow(sw2,2);
+}
+
+double CK_L::compute_NLO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src) {
+    double xt = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1}})->get_val();
+    double sw2  = src.at({ParameterType::WILSON, "WPARAM_SI_SM", 4})->get_val();
+    double mW    = src.at({ParameterType::SM, "MASS", 24})->get_val();
+    double mtmt = src.at({ParameterType::SM, "QCD", 6})->get_val();
+    return X1(xt, mtmt, mW)/std::pow(sw2,2);
+}

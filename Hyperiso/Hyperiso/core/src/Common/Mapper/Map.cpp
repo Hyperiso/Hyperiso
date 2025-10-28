@@ -174,7 +174,7 @@ const std::map<WCoef, std::string>& wcoef_mapping() {
         {WCoef::C_BS_1, "C_BS_1"}, {WCoef::CT_BS_1, "CT_BS_1"}, {WCoef::C_BS_2, "C_BS_2"}, {WCoef::CT_BS_2, "CT_BS_2"}, {WCoef::C_BS_3, "C_BS_3"}, {WCoef::CT_BS_3, "CT_BS_3"}, {WCoef::C_BS_4, "C_BS_4"}, {WCoef::C_BS_5, "C_BS_5"},
         {WCoef::C_SD_1, "C_SD_1"}, {WCoef::CT_SD_1, "CT_SD_1"}, {WCoef::C_SD_2, "C_SD_2"}, {WCoef::CT_SD_2, "CT_SD_2"}, {WCoef::C_SD_3, "C_SD_3"}, {WCoef::CT_SD_3, "CT_SD_3"}, {WCoef::C_SD_4, "C_SD_4"}, {WCoef::C_SD_5, "C_SD_5"},
         {WCoef::C_CU_1, "C_CU_1"}, {WCoef::CT_CU_1, "CT_CU_1"}, {WCoef::C_CU_2, "C_CU_2"}, {WCoef::CT_CU_2, "CT_CU_2"}, {WCoef::C_CU_3, "C_CU_3"}, {WCoef::CT_CU_3, "CT_CU_3"}, {WCoef::C_CU_4, "C_CU_4"}, {WCoef::C_CU_5, "C_CU_5"},
-        {WCoef::CK9, "CK9"}, {WCoef::CPK9, "CPK9"}, {WCoef::CK10, "CK10"}, {WCoef::CPK10, "CPK10"}, {WCoef::CKQ1, "CKQ1"}, {WCoef::CKQ2, "CKQ2"}, {WCoef::CPKQ1, "CPKQ1"}, {WCoef::CPKQ2, "CPKQ2"},
+        {WCoef::CK9, "CK9"}, {WCoef::CPK9, "CPK9"}, {WCoef::CK10, "CK10"}, {WCoef::CPK10, "CPK10"}, {WCoef::CKQ1, "CKQ1"}, {WCoef::CKQ2, "CKQ2"}, {WCoef::CPKQ1, "CPKQ1"}, {WCoef::CPKQ2, "CPKQ2"}, {WCoef::CK_L, "CK_L"}
     };
     return m;
 }
@@ -203,6 +203,7 @@ const std::map<WCoef, std::pair<int, int>>& wcoef_flha_mapping() {
 
         {WCoef::CK9, {0, 1}}, {WCoef::CPK9, {0, 2}}, {WCoef::CK10, {0, 3}}, {WCoef::CPK10, {0, 4}}, //TODO : real coefs
         {WCoef::CKQ1, {0, 5}}, {WCoef::CKQ2, {0, 6}}, {WCoef::CPKQ1, {0, 7}}, {WCoef::CPKQ2, {0, 8}},
+        {WCoef::CK_L, {0, 9}},
     };
     return m;
 }

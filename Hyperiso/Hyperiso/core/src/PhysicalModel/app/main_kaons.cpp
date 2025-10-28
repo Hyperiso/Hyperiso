@@ -14,11 +14,15 @@ int main(){
 
     auto wi = WilsonInterface(); // Initialize interface and build the required groups
     LOG_INFO("WilsonInterface created");
-
-    WilsonBuildConfig config_k{{WGroup::K}, 81, 4.18, QCDOrder::LO};
+    WilsonBuildConfig config_b{{WGroup::B}, 81, 4.18, QCDOrder::NLO};
 
     std::cout << "here" << std::endl;
-    wi.build(config_k);
+    wi.build(config_b);
+
+    WilsonBuildConfig config_k{{WGroup::K}, 81, 4.18, QCDOrder::NLO};
+
+    std::cout << "here" << std::endl;
+    wi.addWilsonGroup(config_k);
 
 
     
@@ -34,6 +38,7 @@ int main(){
     LOG_INFO("CPK10(mu_W) at LO =", wi.getM(WGroup::K, WCoef::CPK10, QCDOrder::LO, ContributionType::SM));
     LOG_INFO("CPKQ1(mu_W) at LO =", wi.getM(WGroup::K, WCoef::CPKQ1, QCDOrder::LO, ContributionType::SM));
     LOG_INFO("CPKQ2(mu_W) at LO =", wi.getM(WGroup::K, WCoef::CPKQ2, QCDOrder::LO, ContributionType::SM));
+    LOG_INFO("CK_L(mu_W) at LO =", wi.getM(WGroup::K, WCoef::CK_L, QCDOrder::LO, ContributionType::SM));
 
     LOG_INFO("CK9(mu_h) at LO =", wi.getR(WGroup::K, WCoef::CK9, QCDOrder::LO, ContributionType::SM));
     LOG_INFO("CK10(mu_h) at LO =", wi.getR(WGroup::K, WCoef::CK10, QCDOrder::LO, ContributionType::SM));
@@ -43,7 +48,7 @@ int main(){
     LOG_INFO("CPK10(mu_h) at LO =", wi.getR(WGroup::K, WCoef::CPK10, QCDOrder::LO, ContributionType::SM));
     LOG_INFO("CPKQ1(mu_h) at LO =", wi.getR(WGroup::K, WCoef::CPKQ1, QCDOrder::LO, ContributionType::SM));
     LOG_INFO("CPKQ2(mu_h) at LO =", wi.getR(WGroup::K, WCoef::CPKQ2, QCDOrder::LO, ContributionType::SM));
-
+    LOG_INFO("CK_L(mu_h) at LO =", wi.getR(WGroup::K, WCoef::CK_L, QCDOrder::LO, ContributionType::SM));
     // LOG_INFO("CQ1(mu_h) at LO =", wi.getR(WGroup::BScalar, WCoef::CQ1, QCDOrder::LO));
     // LOG_INFO("CQ2(mu_h) at LO =", wi.getR(WGroup::BScalar, WCoef::CQ2, QCDOrder::LO));
     // LOG_INFO("C10(mu_h) at LO =", wi.getR(WGroup::B, WCoef::C10, QCDOrder::LO));
@@ -59,6 +64,7 @@ int main(){
     // LOG_INFO("C7(mu_W) at NNLO =", wi.getM(WGroup::B, WCoef::C7, QCDOrder::NNLO));
 
     // LOG_INFO("C7(mu_W) full =", wi.getFM(WGroup::B, WCoef::C7, QCDOrder::NNLO));
-
+    
+    
     return 0;
 }

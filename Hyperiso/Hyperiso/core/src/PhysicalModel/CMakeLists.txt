@@ -42,7 +42,7 @@ endif()
 add_library(PhysicalModelLib STATIC 
     domain/MesonMixingRunningParameters.cpp
     domain/BWilsonRunningParameters.cpp
-    domain/Wilson_parameters.cpp
+    domain/WilsonParametersHelper.cpp
     domain/Wilson.cpp
     domain/MartyWilson.cpp
     domain/BWilson.cpp
@@ -71,11 +71,10 @@ add_library(PhysicalModelLib STATIC
     adapters/WilsonBuilder.cpp
     adapters/WilsonProvider.cpp
     adapters/BlockProxy.cpp
-    BSM/epsilon_calculator.cpp
-    BSM/susy_parameters.cpp
-    BSM/thdm_parameters.cpp
-    BSM/Wilson_SUSY_super.cpp
-    BSM/Wilson_THDM_super.cpp
+    BSM/SUSYParametersHelper.cpp
+    BSM/THDMParametersHelper.cpp
+    BSM/BWilsonSUSY.cpp
+    BSM/BWilsonTHDM.cpp
     )
 
 set_target_properties(PhysicalModelLib PROPERTIES POSITION_INDEPENDENT_CODE ON)

@@ -1,4 +1,4 @@
-#include "MesonMixingWilson_THDM.h"
+#include "MesonMixingWilsonTHDM.h"
 
 C_mix_bd_1_THDM::C_mix_bd_1_THDM() : WilsonCoefficient("C_BD_1", GroupMapper::str(WGroup::MESON_MIXING) + "_MATCH") {
     matching_info[QCDOrder::LO] = {
