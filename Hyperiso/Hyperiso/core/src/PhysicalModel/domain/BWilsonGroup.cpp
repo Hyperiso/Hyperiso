@@ -3,8 +3,6 @@
 BCoefficientGroup::BCoefficientGroup(WilsonGroupAdapterConfig adapters, bool force_sm) : CoefficientGroup(adapters) {
     LOG_TRACE("In BCoefficientGroup constructor");
     this->id = GroupMapper::to_id(WGroup::B);
-    // init_sources();
-    // add_wilson_coefficients(force_sm);
 }
 
 std::shared_ptr<CoefficientGroup> BCoefficientGroup::clone() const {
@@ -352,137 +350,6 @@ std::unordered_map<WCoef, scalar_t> BCoefficientGroup::base_1_NNLO_calculation(
     return Ci_run_map;
 }
 
-
-// void BCoefficientGroup::init_running_parameter_blocks() {
-//     // WilsonParamComposer composer;
-
-//     LOG_DEBUG("Init running matrices blocks of B Coefficient group");
-// 	std::unordered_map<ParameterType, std::vector<std::string>> eta_powers_src = {{ParameterType::WILSON, {"WPARAM_RUN_SM"}}};
-
-//     auto eta_powers_func = [] (const std::unordered_map<std::string, std::shared_ptr<Block>>& src, std::shared_ptr<DependentBlock> dep_block) {
-// 		double eta = src.at("WPARAM_RUN_SM")->retrieve(2)->get_val();
-
-// 		for (int i = 0; i < BRP::array_size; ++i) {
-//             dep_block->store_or_assign(LhaID(1, i), std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "ETA_POWS", LhaID(1, i)}, std::pow(eta, (BRP::ai)[i]), 0., 0.));
-//             dep_block->store_or_assign(LhaID(2, i), std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "ETA_POWS", LhaID(2, i)}, std::pow(eta, (BRP::ai2)[i]), 0., 0.));
-// 		}
-//     };
-
-//     std::unordered_map<ParameterType, std::vector<std::string>> mtx_src = {{ParameterType::WILSON, {"WPARAM_RUN_SM", "ETA_POWS"}}};
-
-//     auto U_func = [] (const std::unordered_map<std::string, std::shared_ptr<Block>>& src, std::shared_ptr<DependentBlock> dep_block) {
-// 		double eta = src.at("WPARAM_RUN_SM")->retrieve(2)->get_val();
-//         auto pid = [] (int n, int k, int l) {
-//             return ParamId{ParameterType::WILSON, "U_MATRIX", LhaID(n, k, l)};
-//         };
-
-//         double U0, U1, U2;
-//         double eta_ai;
-//         using BRP = BRP;
-// 		for (int ke = 0; ke < BRP::array_size; ++ke) {
-//             for (int le = 0; le < BRP::array_size; ++le) {
-//                 U0 = U1 = U2 = 0;
-//                 for (int ie = 0; ie < BRP::array_size; ++ie) {
-//                     eta_ai = src.at("ETA_POWS")->retrieve(LhaID(1, ie))->get_val();
-//                     U0 += BRP::m00[ke][le][ie] * eta_ai;    
-//                     U1 += (BRP::m10[ke][le][ie] + BRP::m11[ke][le][ie] / eta) * eta_ai;
-//                     U2 += (BRP::m20[ke][le][ie] + BRP::m21[ke][le][ie] / eta + BRP::m22[ke][le][ie] / (eta * eta)) * eta_ai;
-//                 }
-//                 dep_block->store_or_assign(LhaID(0, ke, le), std::make_shared<Parameter>(pid(0, ke, le), U0, 0., 0.));
-//                 dep_block->store_or_assign(LhaID(1, ke, le), std::make_shared<Parameter>(pid(1, ke, le), U1, 0., 0.));
-//                 dep_block->store_or_assign(LhaID(2, ke, le), std::make_shared<Parameter>(pid(2, ke, le), U2, 0., 0.));
-//             }
-//         }
-//     };
-
-//     auto V_func = [] (const std::unordered_map<std::string, std::shared_ptr<Block>>& src, std::shared_ptr<DependentBlock> dep_block) {
-// 		double eta = src.at("WPARAM_RUN_SM")->retrieve(2)->get_val();
-//         auto pid = [] (int n, int k, int l) {
-//             return ParamId{ParameterType::WILSON, "V_MATRIX", LhaID(n, k, l)};
-//         };
-
-//         double V0, V1;
-//         double eta_ai;
-//         using BRP = BRP;
-// 		for (int ke = 0; ke < BRP::array_size; ++ke) {
-//             for (int le = 0; le < BRP::array_size; ++le) {
-//                 V0 = V1 = 0;
-//                 for (int ie = 0; ie < BRP::array_size; ++ie) {
-//                     eta_ai = src.at("ETA_POWS")->retrieve(LhaID(1, ie))->get_val();
-//                     V0 += BRP::l00[ke][le][ie] * eta_ai;    
-//                     V1 += (BRP::l10[ke][le][ie] + BRP::l11[ke][le][ie] / eta) * eta_ai;
-//                 }
-//                 dep_block->store_or_assign(LhaID(0, ke, le), std::make_shared<Parameter>(pid(0, ke, le), V0, 0., 0.));
-//                 dep_block->store_or_assign(LhaID(1, ke, le), std::make_shared<Parameter>(pid(1, ke, le), V1, 0., 0.));
-//             }
-//         }
-//     };
-
-//     adapters.iblock_c->compose_block("ETA_POWS", eta_powers_src, eta_powers_func);
-//     adapters.iblock_c->compose_block("U_MATRIX", mtx_src, U_func);
-//     adapters.iblock_c->compose_block("V_MATRIX", mtx_src, V_func);
-
-//     LOG_VERBOSE("Running matrices updated");
-// }
-
-void BCoefficientGroup::init_sources() {
-    // init_running_parameter_blocks();
-    std::map<QCDOrder,CoefficientGroupSources> grp_src;
-
-    grp_src[QCDOrder::LO].sources = {
-        {ParameterType::WILSON, {this->get_matching_storage_block(), "WPARAM_RUN_SM", "WPARAM_MATCH_SM", "B_SCALE", "U_MATRIX"}},
-        {ParameterType::SM, {"SMINPUTS", "MASS"}}
-    };
-    grp_src[QCDOrder::LO].func = base_1_LO_calculation;
-
-    grp_src[QCDOrder::NLO].sources = grp_src[QCDOrder::LO].sources;
-    grp_src[QCDOrder::NLO].func = base_1_NLO_calculation;
-
-    grp_src[QCDOrder::NNLO].sources = grp_src[QCDOrder::LO].sources;
-    grp_src[QCDOrder::NNLO].func = base_1_NNLO_calculation;
-
-    this->sources.insert({WilsonBasis::B_STANDARD, grp_src});
-
-    std::map<QCDOrder,CoefficientGroupSources> grp_src_base2;
-
-    grp_src_base2[QCDOrder::LO].sources = {
-        {ParameterType::WILSON, {this->get_matching_storage_block(), "WPARAM_RUN_SM", "WPARAM_MATCH_SM", "V_MATRIX"}}
-    };
-    grp_src_base2[QCDOrder::LO].func = base_2_LO_calculation;
-
-    grp_src_base2[QCDOrder::NLO].sources = grp_src_base2[QCDOrder::LO].sources;
-    grp_src_base2[QCDOrder::NLO].func = base_2_NLO_calculation;
-
-    this->sources.insert({WilsonBasis::B_TRADITIONAL, grp_src_base2});
-}
-
-//TODO : clean path name and wilson vector managment
-void BCoefficientGroup::add_wilson_coefficients(bool force_sm) {
-    if (adapters.use_marty->get()) {
-        this->wilson_type = force_sm ? ContributionType::SM : ContributionType::TOTAL;
-        for (auto&& coeff : {"C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9", "C10"}) {
-            std::string _name = force_sm ? "SM" : adapters.marty_model_name->get();
-            fs::path _path = force_sm ? adapters.sm_path : adapters.marty_model_path->get();
-            std::string _block = GroupMapper::str(this->id, ScaleType::MATCHING);
-            LhaID _id = WCoefMapper::flha_full(WCoefMapper::enum_elt(coeff), QCDOrder::LO, this->get_type());
-            MartyWilsonConfig config {_name, _id, _block, _path, adapters.marty_proxy};
-            this->insert(std::make_pair(coeff, std::make_shared<MartyWilson>(config)));
-        }
-        return;
-    }
-
-    this->insert(std::make_pair("C1", std::make_shared<C1>())); 
-    this->insert(std::make_pair("C2", std::make_shared<C2>())); 
-    this->insert(std::make_pair("C3", std::make_shared<C3>()));
-    this->insert(std::make_pair("C4", std::make_shared<C4>()));  
-    this->insert(std::make_pair("C5", std::make_shared<C5>())); 
-    this->insert(std::make_pair("C6", std::make_shared<C6>())); 
-    this->insert(std::make_pair("C7", std::make_shared<C7>()));  
-    this->insert(std::make_pair("C8", std::make_shared<C8>()));  
-    this->insert(std::make_pair("C9", std::make_shared<C9>())); 
-    this->insert(std::make_pair("C10", std::make_shared<C10>())); 
-}
-
 std::shared_ptr<CoefficientGroup> BScalarCoefficientGroup::clone() const {
     return std::make_shared<BScalarCoefficientGroup>(*this);
 }
@@ -490,38 +357,6 @@ std::shared_ptr<CoefficientGroup> BScalarCoefficientGroup::clone() const {
 BScalarCoefficientGroup::BScalarCoefficientGroup(WilsonGroupAdapterConfig adapters, bool force_sm) : CoefficientGroup(adapters) {
     LOG_TRACE("In BScalarCoefficientGroup constructor");
     this->id = GroupMapper::to_id(WGroup::BScalar);
-    // init_sources();
-    // add_wilson_coefficients(force_sm);
-}
-
-void BScalarCoefficientGroup::init_sources() {
-    std::map<QCDOrder,CoefficientGroupSources> grp_src;
-    grp_src[QCDOrder::LO].sources = {
-        {ParameterType::WILSON, {this->get_matching_storage_block(), "WPARAM_RUN_SM", "WPARAM_SI_SM"}},
-    };
-    grp_src[QCDOrder::LO].func = base_1_LO_calculation;
-
-    grp_src[QCDOrder::NLO].sources = grp_src[QCDOrder::LO].sources;
-    grp_src[QCDOrder::NLO].func = base_1_NLO_calculation;
-    this->sources.insert({WilsonBasis::B_STANDARD, grp_src});
-}
-
-void BScalarCoefficientGroup::add_wilson_coefficients(bool force_sm) {
-    if (adapters.use_marty->get()) {
-        this->wilson_type = force_sm ? ContributionType::SM : ContributionType::TOTAL;
-        for (auto&& coeff : {"CQ1", "CQ2"}) {
-            std::string _name = force_sm ? "SM" : adapters.marty_model_name->get();
-            fs::path _path = force_sm ? adapters.sm_path : adapters.marty_model_path->get();
-            std::string _block = GroupMapper::str(this->id, ScaleType::MATCHING);
-            LhaID _id = WCoefMapper::flha_full(WCoefMapper::enum_elt(coeff), QCDOrder::LO, this->get_type());
-            // this->insert(std::make_pair(coeff, std::make_shared<MartyWilson>(_id, _block, _name, _path)));
-            MartyWilsonConfig config {_name, _id, _block, _path, adapters.marty_proxy};
-            this->insert(std::make_pair(coeff, std::make_shared<MartyWilson>(config)));
-        }
-        return;
-    }
-    this->insert(std::make_pair("CQ1", std::make_shared<CQ1>()));
-    this->insert(std::make_pair("CQ2", std::make_shared<CQ2>()));
 }
 
 std::unordered_map<WCoef, scalar_t> BScalarCoefficientGroup::base_1_LO_calculation (
@@ -575,46 +410,6 @@ std::unordered_map<WCoef, scalar_t> BScalarCoefficientGroup::base_1_NLO_calculat
 BPrimeCoefficientGroup::BPrimeCoefficientGroup(WilsonGroupAdapterConfig adapters, bool force_sm) : CoefficientGroup(adapters) {
     LOG_TRACE("In BPrimeCoefficientGroup constructor");
     this->id = GroupMapper::to_id(WGroup::BPrime);
-    // init_sources();
-    // add_wilson_coefficients(force_sm);
-}
-
-void BPrimeCoefficientGroup::init_sources() {
-    std::map<QCDOrder,CoefficientGroupSources> grp_src;
-    grp_src[QCDOrder::LO].sources = {
-        {ParameterType::WILSON, {this->get_matching_storage_block(), "WPARAM_RUN_SM", "WPARAM_SI_SM"}},
-    };
-    grp_src[QCDOrder::LO].func = base_1_LO_calculation;
-    this->sources.insert({WilsonBasis::B_STANDARD, grp_src});
-}
-
-void BPrimeCoefficientGroup::add_wilson_coefficients(bool force_sm) {
-    if (adapters.use_marty->get()) {
-        this->wilson_type = force_sm ? ContributionType::SM : ContributionType::TOTAL;
-        for (auto&& coeff : {"CP1", "CP2", "CP3", "CP4", "CP5", "CP6", "CP7", "CP8", "CP9", "CP10", "CPQ1", "CPQ2"}) {
-            std::string _name = force_sm ? "SM" : adapters.marty_model_name->get();
-            fs::path _path = force_sm ? adapters.sm_path : adapters.marty_model_path->get();
-            std::string _block = GroupMapper::str(this->id, ScaleType::MATCHING);
-            LhaID _id = WCoefMapper::flha_full(WCoefMapper::enum_elt(coeff), QCDOrder::LO, this->get_type());
-            // this->insert(std::make_pair(coeff, std::make_shared<MartyWilson>(_id, _block, _name, _path)));
-            MartyWilsonConfig config {_name, _id, _block, _path, adapters.marty_proxy};
-            this->insert(std::make_pair(coeff, std::make_shared<MartyWilson>(config)));
-        }
-        return;
-    }
-
-    this->insert(std::make_pair("CP1", std::make_shared<CP1>())); 
-    this->insert(std::make_pair("CP2", std::make_shared<CP2>())); 
-    this->insert(std::make_pair("CP3", std::make_shared<CP3>()));
-    this->insert(std::make_pair("CP4", std::make_shared<CP4>()));  
-    this->insert(std::make_pair("CP5", std::make_shared<CP5>())); 
-    this->insert(std::make_pair("CP6", std::make_shared<CP6>())); 
-    this->insert(std::make_pair("CP7", std::make_shared<CP7>()));  
-    this->insert(std::make_pair("CP8", std::make_shared<CP8>()));  
-    this->insert(std::make_pair("CP9", std::make_shared<CP9>())); 
-    this->insert(std::make_pair("CP10", std::make_shared<CP10>())); 
-    this->insert(std::make_pair("CPQ1", std::make_shared<CPQ1>())); 
-    this->insert(std::make_pair("CPQ2", std::make_shared<CPQ2>()));
 }
 
 std::shared_ptr<CoefficientGroup> BPrimeCoefficientGroup::clone() const {

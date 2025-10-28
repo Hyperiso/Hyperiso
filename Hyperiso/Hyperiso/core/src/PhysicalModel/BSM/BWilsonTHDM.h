@@ -419,71 +419,71 @@ public:
 
 };
 
-class BCoefficientGroup_THDM : public BCoefficientGroup {
+// class BCoefficientGroup_THDM : public BCoefficientGroup {
 
-public:
-    BCoefficientGroup_THDM(WilsonGroupAdapterConfig adapters) : BCoefficientGroup(adapters) {
-        this->id = GroupMapper::to_id(WGroup::B);
-        this->wilson_type = ContributionType::BSM;
+// public:
+//     BCoefficientGroup_THDM(WilsonGroupAdapterConfig adapters) : BCoefficientGroup(adapters) {
+//         this->id = GroupMapper::to_id(WGroup::B);
+//         this->wilson_type = ContributionType::BSM;
 
-        if (adapters.use_marty->get()) {
-            this->wilson_type = ContributionType::TOTAL;
-            return;
-        }
-        // this->clear();
+//         if (adapters.use_marty->get()) {
+//             this->wilson_type = ContributionType::TOTAL;
+//             return;
+//         }
+//         // this->clear();
 
-        // this->insert(std::make_pair("C1", std::make_shared<C1_THDM>())); this->insert(std::make_pair("C2", std::make_shared<C2_THDM>())); this->insert(std::make_pair("C3", std::make_shared<C3_THDM>()));
-        // this->insert(std::make_pair("C4", std::make_shared<C4_THDM>()));  this->insert(std::make_pair("C5", std::make_shared<C5_THDM>())); this->insert(std::make_pair("C6", std::make_shared<C6_THDM>())); 
-        // this->insert(std::make_pair("C7", std::make_shared<C7_THDM>()));  this->insert(std::make_pair("C8", std::make_shared<C8_THDM>()));  this->insert(std::make_pair("C9", std::make_shared<C9_THDM>())); 
-        // this->insert(std::make_pair("C10", std::make_shared<C10_THDM>())); 
+//         // this->insert(std::make_pair("C1", std::make_shared<C1_THDM>())); this->insert(std::make_pair("C2", std::make_shared<C2_THDM>())); this->insert(std::make_pair("C3", std::make_shared<C3_THDM>()));
+//         // this->insert(std::make_pair("C4", std::make_shared<C4_THDM>()));  this->insert(std::make_pair("C5", std::make_shared<C5_THDM>())); this->insert(std::make_pair("C6", std::make_shared<C6_THDM>())); 
+//         // this->insert(std::make_pair("C7", std::make_shared<C7_THDM>()));  this->insert(std::make_pair("C8", std::make_shared<C8_THDM>()));  this->insert(std::make_pair("C9", std::make_shared<C9_THDM>())); 
+//         // this->insert(std::make_pair("C10", std::make_shared<C10_THDM>())); 
 
         
-    }
+//     }
     
-};
+// };
 
-class BPrimeCoefficientGroup_THDM : public BPrimeCoefficientGroup {
-public:
-    BPrimeCoefficientGroup_THDM(WilsonGroupAdapterConfig adapters) : BPrimeCoefficientGroup(adapters) {
-        this->id = GroupMapper::to_id(WGroup::BPrime);
-        this->wilson_type = ContributionType::BSM;
-        if (adapters.use_marty->get()) {
-            this->wilson_type = ContributionType::TOTAL;
-            return;
-        }
-        // this->clear();
+// class BPrimeCoefficientGroup_THDM : public BPrimeCoefficientGroup {
+// public:
+//     BPrimeCoefficientGroup_THDM(WilsonGroupAdapterConfig adapters) : BPrimeCoefficientGroup(adapters) {
+//         this->id = GroupMapper::to_id(WGroup::BPrime);
+//         this->wilson_type = ContributionType::BSM;
+//         if (adapters.use_marty->get()) {
+//             this->wilson_type = ContributionType::TOTAL;
+//             return;
+//         }
+//         // this->clear();
 
-        // this->insert(std::make_pair("CP1", std::make_shared<CP1_THDM>())); this->insert(std::make_pair("CP2", std::make_shared<CP2_THDM>())); this->insert(std::make_pair("CP3", std::make_shared<CP3_THDM>()));
-        // this->insert(std::make_pair("CP4", std::make_shared<CP4_THDM>()));  this->insert(std::make_pair("CP5", std::make_shared<CP5_THDM>())); this->insert(std::make_pair("CP6", std::make_shared<CP6_THDM>())); 
-        // this->insert(std::make_pair("CP7", std::make_shared<CP7_THDM>()));  this->insert(std::make_pair("CP8", std::make_shared<CP8_THDM>()));  this->insert(std::make_pair("CP9", std::make_shared<CP9_THDM>())); 
-        // this->insert(std::make_pair("CP10", std::make_shared<CP10_THDM>())); this->insert(std::make_pair("CPQ1", std::make_shared<CPQ1_THDM>())); this->insert(std::make_pair("CPQ2", std::make_shared<CPQ2_THDM>())); 
-
-        
-    }
-
-    void set_base_1();
-    void set_base_2();
-};
-
-class BScalarCoefficientGroup_THDM : public BScalarCoefficientGroup {
-public:
-    BScalarCoefficientGroup_THDM(WilsonGroupAdapterConfig adapters) : BScalarCoefficientGroup(adapters) {
-        this->id = GroupMapper::to_id(WGroup::BScalar);
-        this->wilson_type = ContributionType::BSM;
-        if (adapters.use_marty->get()) {
-            this->wilson_type = ContributionType::TOTAL;
-            return;
-        }
-        // this->clear();
-
-        // this->insert(std::make_pair("CQ1", std::make_shared<CQ1_THDM>())); this->insert(std::make_pair("CQ2", std::make_shared<CQ2_THDM>()));
+//         // this->insert(std::make_pair("CP1", std::make_shared<CP1_THDM>())); this->insert(std::make_pair("CP2", std::make_shared<CP2_THDM>())); this->insert(std::make_pair("CP3", std::make_shared<CP3_THDM>()));
+//         // this->insert(std::make_pair("CP4", std::make_shared<CP4_THDM>()));  this->insert(std::make_pair("CP5", std::make_shared<CP5_THDM>())); this->insert(std::make_pair("CP6", std::make_shared<CP6_THDM>())); 
+//         // this->insert(std::make_pair("CP7", std::make_shared<CP7_THDM>()));  this->insert(std::make_pair("CP8", std::make_shared<CP8_THDM>()));  this->insert(std::make_pair("CP9", std::make_shared<CP9_THDM>())); 
+//         // this->insert(std::make_pair("CP10", std::make_shared<CP10_THDM>())); this->insert(std::make_pair("CPQ1", std::make_shared<CPQ1_THDM>())); this->insert(std::make_pair("CPQ2", std::make_shared<CPQ2_THDM>())); 
 
         
-    }
+//     }
 
-    void set_base_1();
-    void set_base_2();
-};
+//     void set_base_1();
+//     void set_base_2();
+// };
+
+// class BScalarCoefficientGroup_THDM : public BScalarCoefficientGroup {
+// public:
+//     BScalarCoefficientGroup_THDM(WilsonGroupAdapterConfig adapters) : BScalarCoefficientGroup(adapters) {
+//         this->id = GroupMapper::to_id(WGroup::BScalar);
+//         this->wilson_type = ContributionType::BSM;
+//         if (adapters.use_marty->get()) {
+//             this->wilson_type = ContributionType::TOTAL;
+//             return;
+//         }
+//         // this->clear();
+
+//         // this->insert(std::make_pair("CQ1", std::make_shared<CQ1_THDM>())); this->insert(std::make_pair("CQ2", std::make_shared<CQ2_THDM>()));
+
+        
+//     }
+
+//     void set_base_1();
+//     void set_base_2();
+// };
 
 // class BlnuCoefficientGroup_THDM : public BlnuCoefficientGroup {
 // public:
@@ -507,26 +507,26 @@ public:
 //     void set_base_2() {}
 // };
 
-class BclnuCoefficientGroup_THDM : public BclnuCoefficientGroup {
-public:
-    BclnuCoefficientGroup_THDM(WilsonGroupAdapterConfig adapters) : BclnuCoefficientGroup(adapters) { 
-        this->id = GroupMapper::to_id(WGroup::BCC);
-        this->wilson_type = ContributionType::BSM;
-        if (adapters.use_marty->get()) {
-            this->wilson_type = ContributionType::TOTAL;
-            return;
-        }
-    //     this->clear();
+// class BclnuCoefficientGroup_THDM : public BclnuCoefficientGroup {
+// public:
+//     BclnuCoefficientGroup_THDM(WilsonGroupAdapterConfig adapters) : BclnuCoefficientGroup(adapters) { 
+//         this->id = GroupMapper::to_id(WGroup::BCC);
+//         this->wilson_type = ContributionType::BSM;
+//         if (adapters.use_marty->get()) {
+//             this->wilson_type = ContributionType::TOTAL;
+//             return;
+//         }
+//     //     this->clear();
 
-    //     this->insert(std::make_pair("C_V1", std::make_shared<C_V1_THDM>()));
-    //     this->insert(std::make_pair("C_V2", std::make_shared<C_V2_THDM>()));
-    //     this->insert(std::make_pair("C_S1", std::make_shared<C_S1_THDM>()));
-    //     this->insert(std::make_pair("C_S2", std::make_shared<C_S2_THDM>()));
-    //     this->insert(std::make_pair("C_T", std::make_shared<C_T_THDM>()));
-    }
+//     //     this->insert(std::make_pair("C_V1", std::make_shared<C_V1_THDM>()));
+//     //     this->insert(std::make_pair("C_V2", std::make_shared<C_V2_THDM>()));
+//     //     this->insert(std::make_pair("C_S1", std::make_shared<C_S1_THDM>()));
+//     //     this->insert(std::make_pair("C_S2", std::make_shared<C_S2_THDM>()));
+//     //     this->insert(std::make_pair("C_T", std::make_shared<C_T_THDM>()));
+//     }
 
-    void set_base_1() {}
-    void set_base_2() {}
-};
+//     void set_base_1() {}
+//     void set_base_2() {}
+// };
 
 #endif

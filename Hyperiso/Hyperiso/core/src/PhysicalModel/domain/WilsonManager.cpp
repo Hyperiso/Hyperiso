@@ -117,15 +117,12 @@ void CoefficientManager::init_specific_order_group_matching(const std::string& g
 
             std::shared_ptr<CoefficientGroup> sm_group_ptr;
             if (ports_config.build_group) {
-                // Construire un groupe SM avec le même backend (use_marty identique), type SM
                 WGroupId gid = GroupMapper::enum_elt(groupName);
                 sm_group_ptr = ports_config.build_group(gid, Model::SM, marty, ContributionType::SM);
             } else {
-                // Chemin legacy (compat) : utiliser get_sm_group() s'il existe
                 sm_group_ptr = this->coefficientGroups[groupName]->get_sm_group();
             }
 
-            // std::shared_ptr<CoefficientGroup> sm_group_ptr = this->coefficientGroups[groupName]->get_sm_group();
             if (!sm_group_ptr)
                 LOG_ERROR("LogicError", "No SM group found for " + groupName);
             
@@ -136,7 +133,6 @@ void CoefficientManager::init_specific_order_group_matching(const std::string& g
 
     QCDOrder enum_order = OrderMapper::enum_elt(order);
     std::string storage_block = this->coefficientGroups.at(groupName)->get_matching_storage_block();
-    // WilsonParamComposer composer;
 
     for (auto& coeff : *this->coefficientGroups.at(groupName)) {
         if (SM) {

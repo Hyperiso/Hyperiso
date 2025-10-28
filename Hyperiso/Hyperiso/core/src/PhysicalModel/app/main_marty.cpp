@@ -8,11 +8,13 @@ int main() {
     HyperisoMaster hyp = HyperisoMaster();
     Config config;
     config.flags[ExternalFlag::USE_MARTY] = true;
-    config.model = Model::SM;
-    config.mty_model_name = "SM";
-    config.mty_model_path = project_assets_root.data() + std::string("input_files/marty_model/sm.h");
+    config.model = Model::CUSTOM;
+    config.mty_model_name = "THDM";
+    config.mty_model_path = project_assets_root.data() + std::string("input_files/marty_model/thdm.h");
 
-    hyp.init("default/lha/testInput.flha", config);
+    // hyp.init("default/lha/testInput.flha", config);
+    // hyp.init("lha/camilia.flha", config);
+    hyp.init("lha/testinput_thdm.lha", config);
     LOG_INFO("HyperisoMaster initialized");
 
     BlockProxy().log_block(ParameterType::SM, "SMINPUTS");
@@ -37,6 +39,13 @@ int main() {
     LOG_INFO("C7(mu_h) at NNLO =", wi.getR(WGroup::B, WCoef::C7, QCDOrder::NNLO, ContributionType::TOTAL));
 
     LOG_INFO("C7(mu_h) full =", wi.getFR(WGroup::B, WCoef::C7, QCDOrder::NNLO, ContributionType::TOTAL));
+
+    LOG_INFO("C9(mu_W) BSM at LO =", wi.getM(WGroup::B, WCoef::C9, QCDOrder::LO, ContributionType::BSM));
+    LOG_INFO("C9(mu_W) BSM at NLO =", wi.getM(WGroup::B, WCoef::C9, QCDOrder::NLO, ContributionType::BSM));
+    LOG_INFO("C9(mu_W) BSM at NNLO =", wi.getM(WGroup::B, WCoef::C9, QCDOrder::NNLO, ContributionType::BSM));
+    LOG_INFO("C9(mu_W) SM at LO =", wi.getM(WGroup::B, WCoef::C9, QCDOrder::LO, ContributionType::SM));
+    LOG_INFO("C9(mu_W) SM at NLO =", wi.getM(WGroup::B, WCoef::C9, QCDOrder::NLO, ContributionType::SM));
+    LOG_INFO("C9(mu_W) SM at NNLO =", wi.getM(WGroup::B, WCoef::C9, QCDOrder::NNLO, ContributionType::SM));
 
     LOG_INFO("C7(mu_W) at LO =", wi.getM(WGroup::B, WCoef::C7, QCDOrder::LO, ContributionType::TOTAL));
     LOG_INFO("C7(mu_W) at NLO =", wi.getM(WGroup::B, WCoef::C7, QCDOrder::NLO, ContributionType::TOTAL));

@@ -72,6 +72,7 @@ void register_B(CoefficientRegistry& reg) {
     REG(WCoef::C8,  SM,   Marty, make_marty(ctx, WCoef::C8));
     REG(WCoef::C9,  SM,   Marty, make_marty(ctx, WCoef::C9));
     REG(WCoef::C10, SM,   Marty, make_marty(ctx, WCoef::C10));
+    
 
     // TODO Marty custom, THDM, SUSY
 }
