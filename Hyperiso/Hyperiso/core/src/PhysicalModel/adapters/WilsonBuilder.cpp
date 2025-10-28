@@ -3,7 +3,7 @@
 #include "GroupDefinition.h"
 #include "WilsonCoefficientRegistry.h"
 #include "CoefficientGroupBuilder.h"
-#include "Wilson_parameters.h"
+// #include "Wilson_parameters.h"
 
 WilsonBuilder::WilsonBuilder(WilsonBuildConfig config) {
     this->build(config);
@@ -24,7 +24,7 @@ WilsonBuilder::WilsonBuilder(std::shared_ptr<CoefficientManager> manager) : cm(m
 
 void WilsonBuilder::build(WilsonBuildConfig config) {
     // WilsonParameterHelper().init(2);
-    std::map<Model, std::shared_ptr<IWilsonParameterHelper>> wilson_param_helpers {};
+    // std::map<Model, std::shared_ptr<IWilsonParameterHelper>> wilson_param_helpers {};
 
     std::shared_ptr<IBlockComposer> iblock_c = std::make_shared<WilsonParamComposer>();
     
@@ -110,6 +110,12 @@ void WilsonBuilder::build(WilsonBuildConfig config) {
 
 //TODO : deal with new wilson_parameters
 void WilsonBuilder::add(WilsonBuildConfig config) {
+
+    for (const auto& elem : config.groups) {
+        wilson_param_helpers[Model::SM]->init(2, elem);
+
+    }
+    
     std::cout << "0" << std::endl;
     Model model = ModelAPI().get();
 

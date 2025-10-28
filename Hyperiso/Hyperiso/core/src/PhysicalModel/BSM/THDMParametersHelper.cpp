@@ -1,4 +1,4 @@
-#include "thdm_parameters.h"
+#include "THDMParametersHelper.h"
 
 
 void thdm_parameters::init(int gen, WGroupId grp) {

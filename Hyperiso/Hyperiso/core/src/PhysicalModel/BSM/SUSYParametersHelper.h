@@ -1,10 +1,10 @@
-#ifndef SUSY_PARAMETERS_H
-#define SUSY_PARAMETERS_H
+#ifndef SUSY_PARAMETERS_HELPER_H
+#define SUSY_PARAMETERS_HELPER_H
 
 #include <algorithm>
 #include <array>
 #include <functional>
-#include "epsilon_calculator.h"
+// #include "epsilon_calculator.h"
 #include "Math_SUSY.h"
 #include "Logger.h"
 #include "ParameterProxy.h"
@@ -56,6 +56,7 @@ public:
 	void cleanup() override {}
 
 protected:
+	void init_epsilon_block();
     void init_scale_independent_block(int gen) override;
     void init_matching_block() override;
 	void init_running_block(WGroupId grp) override {};

@@ -1,5 +1,5 @@
-#ifndef THDM_PARAMETERS_H
-#define THDM_PARAMETERS_H
+#ifndef THDM_PARAMETERS_HELPER_H
+#define THDM_PARAMETERS_HELPER_H
 
 #include <algorithm>
 #include <array>

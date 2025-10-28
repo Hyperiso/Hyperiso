@@ -1,4 +1,4 @@
-#include "Wilson_parameters.h"
+#include "WilsonParametersHelper.h"
 
 void WilsonParameterHelper::init(int gen, WGroupId grp) {
 	if (initialized) {

@@ -5,16 +5,18 @@
 #include "WilsonProvider.h"
 #include "Include.h"
 #include "WilsonManager.h"
-#include "WilsonGroupFactory.h"
+// #include "WilsonGroupFactory.h"
 #include "Configs.h"
 #include "WilsonParamComposer.h"
 #include "ScaleSetter.h"
-#include "Wilson_parameters.h"
+#include "WilsonParametersHelper.h"
 #include "ModelAPI.h"
 #include "UseMarty.h"
-#include "susy_parameters.h"
-#include "thdm_parameters.h"
+#include "SUSYParametersHelper.h"
+#include "THDMParametersHelper.h"
 #include "MartyWilsonProxy.h"
+#include "MartyModelNameAPI.h"
+#include "MartyModelPathAPI.h"
 
 class WilsonBuilder : public IWilsonBuilder<WilsonBuildConfig, WilsonProvider>, public std::enable_shared_from_this<WilsonBuilder> { 
 public:
@@ -29,7 +31,7 @@ public:
     std::shared_ptr<CoefficientManager> get_coefficient_manager();
 
 private:
-
+    std::map<Model, std::shared_ptr<IWilsonParameterHelper>> wilson_param_helpers;
     std::shared_ptr<CoefficientManager> cm;
 };
 

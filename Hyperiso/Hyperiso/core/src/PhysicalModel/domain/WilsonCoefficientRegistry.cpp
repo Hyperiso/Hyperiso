@@ -3,8 +3,8 @@
 #include "ChargedCurrentsWilsonGroup.h"
 #include "MesonMixingWilsonGroup.h" //TODO
 #include "MartyWilson.h"
-#include "Wilson_SUSY_super.h"
-#include "Wilson_THDM_super.h"
+#include "BWilsonSUSY.h"
+#include "BWilsonTHDM.h"
 #include "KWilson.h"
 
 #include "Include.h"

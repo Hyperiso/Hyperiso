@@ -14,11 +14,15 @@ int main(){
 
     auto wi = WilsonInterface(); // Initialize interface and build the required groups
     LOG_INFO("WilsonInterface created");
+    WilsonBuildConfig config_b{{WGroup::B}, 81, 4.18, QCDOrder::NLO};
+
+    std::cout << "here" << std::endl;
+    wi.build(config_b);
 
     WilsonBuildConfig config_k{{WGroup::K}, 81, 4.18, QCDOrder::NLO};
 
     std::cout << "here" << std::endl;
-    wi.build(config_k);
+    wi.addWilsonGroup(config_k);
 
 
     
@@ -60,6 +64,7 @@ int main(){
     // LOG_INFO("C7(mu_W) at NNLO =", wi.getM(WGroup::B, WCoef::C7, QCDOrder::NNLO));
 
     // LOG_INFO("C7(mu_W) full =", wi.getFM(WGroup::B, WCoef::C7, QCDOrder::NNLO));
-
+    
+    
     return 0;
 }

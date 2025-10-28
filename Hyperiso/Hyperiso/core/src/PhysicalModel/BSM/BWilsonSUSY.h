@@ -1,8 +1,8 @@
-#ifndef WILSON_SUSY_SUPER_H
-#define WILSON_SUSY_SUPER_H
+#ifndef BWILSON_SUSY_H
+#define BWILSON_SUSY_H
 #include "Wilson.h"
 #include "BWilsonGroup.h"
-#include "susy_parameters.h"
+#include "SUSYParametersHelper.h"
 #include "Math_THDM.h"
 #include "Utils.h"
 #include "ChargedCurrentsWilsonGroup.h"

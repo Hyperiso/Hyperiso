@@ -1,4 +1,4 @@
-#include "Wilson_SUSY_super.h"
+#include "BWilsonSUSY.h"
 
 C1_susy::C1_susy() : WilsonCoefficient("C1_SUSY", GroupMapper::str(WGroup::B) + "_MATCH") {
     matching_info[QCDOrder::NNLO] = {

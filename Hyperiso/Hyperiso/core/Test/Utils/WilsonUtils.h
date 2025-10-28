@@ -4,8 +4,8 @@
 #include <string>
 #include <memory>
 #include "WilsonManager.h"
-#include "Wilson_THDM.h"
-#include "Wilson_SUSY.h"
+#include "BWilsonTHDM.h"
+#include "BWilsonSUSY.h"
 // #include "Wilson.h"
 // #include "Wilson_susy.h"
 // #include "Wilson_THDM.h"
