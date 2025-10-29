@@ -8,7 +8,7 @@ int main() {
     HyperisoMaster hyp = HyperisoMaster();
     Config config;
     config.flags[ExternalFlag::USE_MARTY] = true;
-    config.model = Model::CUSTOM;
+    config.model = Model::THDM;
     config.mty_model_name = "THDM";
     config.mty_model_path = project_assets_root.data() + std::string("input_files/marty_model/thdm.h");
 

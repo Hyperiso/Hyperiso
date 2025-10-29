@@ -30,7 +30,11 @@ namespace GroupDefinitions {
     const GroupDefinition& B();
     const GroupDefinition& BPrime();
     const GroupDefinition& BScalar();
-    const GroupDefinition& BCC();
+    const GroupDefinition& BCC_bc();
+    const GroupDefinition& BCC_bu();
+    const GroupDefinition& BCC_cs();
+    const GroupDefinition& BCC_cd();
+    const GroupDefinition& BCC_su();
     const GroupDefinition& MesonMixing();
     const GroupDefinition& K();
     const GroupDefinition& get(WGroupId g);

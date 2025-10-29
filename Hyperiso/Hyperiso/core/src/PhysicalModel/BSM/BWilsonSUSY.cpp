@@ -4047,48 +4047,48 @@ scalar_t CQ2_susy::compute_NLO(const std::unordered_map<ParamId, std::shared_ptr
 
 // }
 
-C_S1_SUSY::C_S1_SUSY() : WilsonCoefficient("C_S1_SUSY", GroupMapper::str(WGroup::B) + "_MATCH"){
-    matching_info[QCDOrder::LO] = {
-        {
-            {ParameterType::BSM, "MASS", 37},
-            {ParameterType::BSM, "HMIX", 2},
-            {ParameterType::SM, "QCD", {5, 1}},
-            {ParameterType::SM, "MASS", 15},
-            {"EPSILON_SUSY", {0, 1}},
-        },
-        compute_LO,
-        WCoefMapper::flha_full(WCoef::C_S1, QCDOrder::LO, ContributionType::BSM)
-    };
-}
+// C_S1_SUSY::C_S1_SUSY() : WilsonCoefficient("C_S1_SUSY", GroupMapper::str(WGroup::B) + "_MATCH"){
+//     matching_info[QCDOrder::LO] = {
+//         {
+//             {ParameterType::BSM, "MASS", 37},
+//             {ParameterType::BSM, "HMIX", 2},
+//             {ParameterType::SM, "QCD", {5, 1}},
+//             {ParameterType::SM, "MASS", 15},
+//             {"EPSILON_SUSY", {0, 1}},
+//         },
+//         compute_LO,
+//         WCoefMapper::flha_full(WCoef::C_S1, QCDOrder::LO, ContributionType::BSM)
+//     };
+// }
 
-scalar_t C_S1_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src) {
-    double mH = src.at({ParameterType::BSM, "MASS", 37})->get_val();
-    double tanb = src.at({ParameterType::BSM, "HMIX", 2})->get_val();
-    double m_b = (*Parameters::GetInstance())("QCD", LhaID(5, 1));
-    double m_tau = src.at({ParameterType::SM, "MASS", 15})->get_val();
-    double epsilon0 = src.at({ParameterType::WILSON, "EPSILON_SUSY", {0,1}})->get_val();
-    return -m_b * m_tau * std::pow(tanb / mH, 2) / (1 + epsilon0 * tanb);
-}
+// scalar_t C_S1_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src) {
+//     double mH = src.at({ParameterType::BSM, "MASS", 37})->get_val();
+//     double tanb = src.at({ParameterType::BSM, "HMIX", 2})->get_val();
+//     double m_b = (*Parameters::GetInstance())("QCD", LhaID(5, 1));
+//     double m_tau = src.at({ParameterType::SM, "MASS", 15})->get_val();
+//     double epsilon0 = src.at({ParameterType::WILSON, "EPSILON_SUSY", {0,1}})->get_val();
+//     return -m_b * m_tau * std::pow(tanb / mH, 2) / (1 + epsilon0 * tanb);
+// }
 
-C_S2_SUSY::C_S2_SUSY() : WilsonCoefficient("C_S2_SUSY", GroupMapper::str(WGroup::B) + "_MATCH"){
-    matching_info[QCDOrder::LO] = {
-        {
-            {ParameterType::BSM, "MASS", 37},
-            {ParameterType::BSM, "HMIX", 2},
-            {ParameterType::SM, "MASS", 4},
-            {ParameterType::SM, "MASS", 15},
-            {"EPSILON_SUSY", {0, 1}},
-        },
-        compute_LO,
-        WCoefMapper::flha_full(WCoef::C_S2, QCDOrder::LO, ContributionType::BSM)
-    };
-}
+// C_S2_SUSY::C_S2_SUSY() : WilsonCoefficient("C_S2_SUSY", GroupMapper::str(WGroup::B) + "_MATCH"){
+//     matching_info[QCDOrder::LO] = {
+//         {
+//             {ParameterType::BSM, "MASS", 37},
+//             {ParameterType::BSM, "HMIX", 2},
+//             {ParameterType::SM, "MASS", 4},
+//             {ParameterType::SM, "MASS", 15},
+//             {"EPSILON_SUSY", {0, 1}},
+//         },
+//         compute_LO,
+//         WCoefMapper::flha_full(WCoef::C_S2, QCDOrder::LO, ContributionType::BSM)
+//     };
+// }
 
-scalar_t C_S2_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src) {
-    double mH = src.at({ParameterType::BSM, "MASS", 37})->get_val();
-    double tanb = src.at({ParameterType::BSM, "HMIX", 2})->get_val();
-    double m_c = (*Parameters::GetInstance())("MASS", 4);
-    double m_tau = src.at({ParameterType::SM, "MASS", 15})->get_val();
-    double epsilon0 = src.at({ParameterType::WILSON, "EPSILON_SUSY", {0,1}})->get_val();
-    return -m_c * m_tau * std::pow(tanb / mH, 2) / (1 + epsilon0 * tanb);
-}
+// scalar_t C_S2_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src) {
+//     double mH = src.at({ParameterType::BSM, "MASS", 37})->get_val();
+//     double tanb = src.at({ParameterType::BSM, "HMIX", 2})->get_val();
+//     double m_c = (*Parameters::GetInstance())("MASS", 4);
+//     double m_tau = src.at({ParameterType::SM, "MASS", 15})->get_val();
+//     double epsilon0 = src.at({ParameterType::WILSON, "EPSILON_SUSY", {0,1}})->get_val();
+//     return -m_c * m_tau * std::pow(tanb / mH, 2) / (1 + epsilon0 * tanb);
+// }

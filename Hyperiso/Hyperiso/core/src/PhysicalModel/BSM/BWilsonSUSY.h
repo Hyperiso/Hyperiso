@@ -310,60 +310,60 @@ public:
 //     }
 // };
 
-class C_V1_SUSY : public WilsonCoefficient {
-public:
-    C_V1_SUSY() : WilsonCoefficient("C_V1_SUSY", GroupMapper::str(WGroup::B) + "_MATCH") { }
+// class C_V1_SUSY : public WilsonCoefficient {
+// public:
+//     C_V1_SUSY() : WilsonCoefficient("C_V1_SUSY", GroupMapper::str(WGroup::B) + "_MATCH") { }
 
  
 
-    std::shared_ptr<WilsonCoefficient> clone() const override {
-        return std::make_shared<C_V1_SUSY>(*this);
-    }
-};
+//     std::shared_ptr<WilsonCoefficient> clone() const override {
+//         return std::make_shared<C_V1_SUSY>(*this);
+//     }
+// };
 
-class C_V2_SUSY : public WilsonCoefficient {
-public:
-    C_V2_SUSY() : WilsonCoefficient("C_V2_SUSY", GroupMapper::str(WGroup::B) + "_MATCH") { }
-
- 
-
-    std::shared_ptr<WilsonCoefficient> clone() const override {
-        return std::make_shared<C_V2_SUSY>(*this);
-    }
-};
-
-class C_S1_SUSY : public WilsonCoefficient {
-public:
-    C_S1_SUSY();
-
-    static scalar_t compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
-
-    std::shared_ptr<WilsonCoefficient> clone() const override {
-        return std::make_shared<C_S1_SUSY>(*this);
-    }
-};
-
-class C_S2_SUSY : public WilsonCoefficient {
-public:
-    C_S2_SUSY();
-
-    static scalar_t compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
-
-    std::shared_ptr<WilsonCoefficient> clone() const override {
-        return std::make_shared<C_S2_SUSY>(*this);
-    }
-};
-
-class C_T_SUSY : public WilsonCoefficient {
-public:
-    C_T_SUSY() : WilsonCoefficient("C_T_SUSY", GroupMapper::str(WGroup::B) + "_MATCH") { }
+// class C_V2_SUSY : public WilsonCoefficient {
+// public:
+//     C_V2_SUSY() : WilsonCoefficient("C_V2_SUSY", GroupMapper::str(WGroup::B) + "_MATCH") { }
 
  
 
-    std::shared_ptr<WilsonCoefficient> clone() const override {
-        return std::make_shared<C_T_SUSY>(*this);
-    }
-};
+//     std::shared_ptr<WilsonCoefficient> clone() const override {
+//         return std::make_shared<C_V2_SUSY>(*this);
+//     }
+// };
+
+// class C_S1_SUSY : public WilsonCoefficient {
+// public:
+//     C_S1_SUSY();
+
+//     static scalar_t compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
+
+//     std::shared_ptr<WilsonCoefficient> clone() const override {
+//         return std::make_shared<C_S1_SUSY>(*this);
+//     }
+// };
+
+// class C_S2_SUSY : public WilsonCoefficient {
+// public:
+//     C_S2_SUSY();
+
+//     static scalar_t compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
+
+//     std::shared_ptr<WilsonCoefficient> clone() const override {
+//         return std::make_shared<C_S2_SUSY>(*this);
+//     }
+// };
+
+// class C_T_SUSY : public WilsonCoefficient {
+// public:
+//     C_T_SUSY() : WilsonCoefficient("C_T_SUSY", GroupMapper::str(WGroup::B) + "_MATCH") { }
+
+ 
+
+//     std::shared_ptr<WilsonCoefficient> clone() const override {
+//         return std::make_shared<C_T_SUSY>(*this);
+//     }
+// };
 
 // class BCoefficientGroup_susy : public BCoefficientGroup {
 

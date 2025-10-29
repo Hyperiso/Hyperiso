@@ -14,7 +14,11 @@ static std::shared_ptr<CoefficientRegistry> make_registry() {
     register_B(*reg);
     register_BPrime(*reg);
     register_BScalar(*reg);
-    register_BCC(*reg);
+    register_BCC_bc(*reg);
+    register_BCC_bu(*reg);
+    register_BCC_cs(*reg);
+    register_BCC_cd(*reg);
+    register_BCC_su(*reg);
     register_K(*reg);
     register_MesonMixing(*reg); //TODO
     return reg;
@@ -34,7 +38,7 @@ void WilsonBuilder::build(WilsonBuildConfig config) {
         wilson_param_helpers[Model::SM]->init(2, elem);
 
     }
-
+    
     Model model = ModelAPI().get();
 
     //TODO :: better
@@ -51,6 +55,7 @@ void WilsonBuilder::build(WilsonBuildConfig config) {
         }
     }
 
+    
 
     std::shared_ptr<IParameterProxy<std::string, LhaID>> wilson_proxy = std::make_shared<ParameterProxy>(ParameterType::WILSON);
     std::shared_ptr<IParameterProxy<std::string, LhaID>> sm_proxy = std::make_shared<ParameterProxy>(ParameterType::SM);
@@ -63,11 +68,9 @@ void WilsonBuilder::build(WilsonBuildConfig config) {
     if (use_marty->get()) {
         marty_proxy = std::make_shared<MartyWilsonProxy>(); 
     }
-
     WilsonGroupAdapterConfig adapters(wilson_proxy, iblock_c, use_marty, marty_model_name, marty_model_path, marty_proxy);
 
     auto reg_ptr = make_registry();
-
     auto build_group_fn = [reg_ptr, adapters](WGroupId gid, Model mdl, bool useMarty, ContributionType ct) -> std::shared_ptr<CoefficientGroup> {
         BuildContext ctx{
             .adapters = adapters,
@@ -84,6 +87,7 @@ void WilsonBuilder::build(WilsonBuildConfig config) {
     const bool marty = use_marty->get();
 
     for (auto& g_id : config.groups) {
+        std::cout << GroupMapper::str(g_id) << std::endl;
         ContributionType ct;
         std::string gn_str = GroupMapper::str(g_id);
         if (marty) {
@@ -91,11 +95,12 @@ void WilsonBuilder::build(WilsonBuildConfig config) {
         } else {
             ct = (model == Model::SM) ? ContributionType::SM : ContributionType::BSM;
         }
+        std::cout << "first" << std::endl;
         auto grp = build_group_fn(g_id, model, marty, ct);
+        std::cout << "second" << std::endl;
         groups.emplace(GroupMapper::str(g_id), std::move(grp));
 
     }
-
     if (UseMarty().get() && config.order > QCDOrder::LO) {
         // TODO : Use QCDOrder > LO as a flag for SM calculation. 
         LOG_WARN("Using MARTY defaults all calculations to LO.");
@@ -151,8 +156,9 @@ void WilsonBuilder::add(WilsonBuildConfig config) {
         std::string group_name = GroupMapper::str(g_id);
         LOG_INFO("Initializing group", group_name);
         this->cm->registerCoefficientGroup(group_name, std::move(grp));
-
+        LOG_INFO("Initializing group at matching scale", group_name);
         this->cm->init_group_matching(group_name, OrderMapper::str(config.order));
+        LOG_INFO("Initializing group at hardronic scale", group_name);
         this->cm->init_group_hadronic_all_bases(group_name, OrderMapper::str(config.order));
     }
 }
