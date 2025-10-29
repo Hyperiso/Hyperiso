@@ -87,7 +87,6 @@ void WilsonBuilder::build(WilsonBuildConfig config) {
     const bool marty = use_marty->get();
 
     for (auto& g_id : config.groups) {
-        std::cout << GroupMapper::str(g_id) << std::endl;
         ContributionType ct;
         std::string gn_str = GroupMapper::str(g_id);
         if (marty) {
@@ -95,9 +94,7 @@ void WilsonBuilder::build(WilsonBuildConfig config) {
         } else {
             ct = (model == Model::SM) ? ContributionType::SM : ContributionType::BSM;
         }
-        std::cout << "first" << std::endl;
         auto grp = build_group_fn(g_id, model, marty, ct);
-        std::cout << "second" << std::endl;
         groups.emplace(GroupMapper::str(g_id), std::move(grp));
 
     }
