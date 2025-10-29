@@ -41,6 +41,7 @@ std::unordered_map<WCoef, scalar_t> BCoefficientGroup::base_1_LO_calculation (
     // C1 - C9
     for (size_t k = 0; k < 8; k++) {
         for (size_t l = 0; l < 8; l++) {
+            // printf("UFO[%d][%d] = %lf\n",k+1, l+1, U0(k, l));
             Ci_run[k] += U0(k, l) * Ci_match[l];
         }
     }
@@ -142,11 +143,16 @@ std::unordered_map<WCoef, scalar_t> BCoefficientGroup::base_2_LO_calculation (
     auto ids = WCoefMapper::get_group(WGroup::B);
     for (size_t k = 0; k < 8; k++) {
         for (size_t j = 0; j < 8; j++) {
-            Ci_match_trad[k] = BRP::std_to_trad_LO[k][j] * coef_matching.at(QCDOrder::LO).at(ids[j]);
+            Ci_match_trad[k] += BRP::std_to_trad_LO[k][j] * coef_matching.at(QCDOrder::LO).at(ids[j]);
+            
         }
+        printf("C_match_trad[%d] = %lf\n", k+1, Ci_match_trad[k].real());
+        printf("C_match_old[%d] = %lf\n", k+1, coef_matching.at(QCDOrder::LO).at(ids[k]).real());
     }
     Ci_match_trad[8] = src.at("WPARAM_MATCH_SM")->retrieve(1)->get_val() / (4 * PI) * coef_matching.at(QCDOrder::LO).at(WCoef::C9);
 
+    printf("alpha_muW = %lf\n", src.at("WPARAM_MATCH_SM")->retrieve(1)->get_val().real());
+    printf("alpha_mu = %lf\n", src.at("WPARAM_RUN_SM")->retrieve(1)->get_val().real());
     std::array<complex_t, 10> Ci_run {};
 
     for (size_t k = 0; k < 8; k++) {
@@ -160,7 +166,10 @@ std::unordered_map<WCoef, scalar_t> BCoefficientGroup::base_2_LO_calculation (
     for (size_t l = 0; l < 9; l++) {
         Ci_run[8] += 4 * PI / src.at("WPARAM_RUN_SM")->retrieve(1)->get_val() * V0(8, l) * Ci_match_trad[l];
     }
-
+    for (int ie=1; ie<=8; ie++) for (int je=1; je<=8; je++)
+	{
+		printf("VO[%d][%d] = %lf\n",ie, je, V0(ie-1,je-1));
+    }
     Ci_run[9] = coef_matching.at(QCDOrder::LO).at(WCoef::C10);
 
     std::unordered_map<WCoef, scalar_t> Ci_run_map {};
@@ -260,8 +269,8 @@ std::unordered_map<WCoef, scalar_t> BCoefficientGroup::base_2_NLO_calculation(
         for (size_t j = 0; j < 8; j++) {
             complex_t Cj_0_match_std = coef_matching.at(QCDOrder::LO).at(ids[j]);
             complex_t Cj_1_match_std = coef_matching.at(QCDOrder::NLO).at(ids[j]);
-            Ci_0_match_trad[k] = BRP::std_to_trad_LO[k][j] * Cj_0_match_std;
-            Ci_1_match_trad[k] = BRP::std_to_trad_LO[k][j] * Cj_1_match_std + BRP::std_to_trad_NLO[k][j] * Cj_0_match_std;
+            Ci_0_match_trad[k] += BRP::std_to_trad_LO[k][j] * Cj_0_match_std;
+            Ci_1_match_trad[k] += BRP::std_to_trad_LO[k][j] * Cj_1_match_std + BRP::std_to_trad_NLO[k][j] * Cj_0_match_std;
         }
     }
     Ci_0_match_trad[8] = src.at("WPARAM_MATCH_SM")->retrieve(1)->get_val() / (4 * PI) * coef_matching.at(QCDOrder::LO).at(WCoef::C9);
