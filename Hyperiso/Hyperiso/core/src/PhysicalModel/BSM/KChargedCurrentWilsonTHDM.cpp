@@ -1,7 +1,7 @@
 #include "KChargedCurrentWilsonTHDM.h"
 
 C_S1_su_THDM::C_S1_su_THDM()
-    : WilsonCoefficient("C_S1_su_THDM", GroupMapper::str(WGroup::BCC_su, ScaleType::MATCHING))
+    : WilsonCoefficient("C_S1_su_THDM", GroupMapper::str(WGroup::CC_su, ScaleType::MATCHING))
 {
     matching_info[QCDOrder::LO] = {
         {
@@ -27,7 +27,7 @@ double C_S1_su_THDM::compute_LO(const std::unordered_map<ParamId, std::shared_pt
 }
 
 C_S2_su_THDM::C_S2_su_THDM()
-    : WilsonCoefficient("C_S2_su_THDM", GroupMapper::str(WGroup::BCC_su, ScaleType::MATCHING))
+    : WilsonCoefficient("C_S2_su_THDM", GroupMapper::str(WGroup::CC_su, ScaleType::MATCHING))
 {
     matching_info[QCDOrder::LO] = {
         {

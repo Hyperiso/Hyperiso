@@ -1,7 +1,7 @@
 #include "DChargedCurrentWilsonTHDM.h"
 
 C_S1_cs_THDM::C_S1_cs_THDM()
-    : WilsonCoefficient("C_S1_cs_THDM", GroupMapper::str(WGroup::BCC_cs, ScaleType::MATCHING))
+    : WilsonCoefficient("C_S1_cs_THDM", GroupMapper::str(WGroup::CC_cs, ScaleType::MATCHING))
 {
     matching_info[QCDOrder::LO] = {
         {
@@ -27,7 +27,7 @@ double C_S1_cs_THDM::compute_LO(const std::unordered_map<ParamId, std::shared_pt
 }
 
 C_S2_cs_THDM::C_S2_cs_THDM()
-    : WilsonCoefficient("C_S2_cs_THDM", GroupMapper::str(WGroup::BCC_cs, ScaleType::MATCHING))
+    : WilsonCoefficient("C_S2_cs_THDM", GroupMapper::str(WGroup::CC_cs, ScaleType::MATCHING))
 {
     matching_info[QCDOrder::LO] = {
         {
@@ -55,7 +55,7 @@ double C_S2_cs_THDM::compute_LO(const std::unordered_map<ParamId, std::shared_pt
 
 
 C_S1_cd_THDM::C_S1_cd_THDM()
-    : WilsonCoefficient("C_S1_cd_THDM", GroupMapper::str(WGroup::BCC_cd, ScaleType::MATCHING))
+    : WilsonCoefficient("C_S1_cd_THDM", GroupMapper::str(WGroup::CC_cd, ScaleType::MATCHING))
 {
     matching_info[QCDOrder::LO] = {
         {
@@ -81,7 +81,7 @@ double C_S1_cd_THDM::compute_LO(const std::unordered_map<ParamId, std::shared_pt
 }
 
 C_S2_cd_THDM::C_S2_cd_THDM()
-    : WilsonCoefficient("C_S2_cd_THDM", GroupMapper::str(WGroup::BCC_cd, ScaleType::MATCHING))
+    : WilsonCoefficient("C_S2_cd_THDM", GroupMapper::str(WGroup::CC_cd, ScaleType::MATCHING))
 {
     matching_info[QCDOrder::LO] = {
         {

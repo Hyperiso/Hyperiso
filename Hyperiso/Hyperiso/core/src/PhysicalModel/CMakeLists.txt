@@ -62,11 +62,11 @@ add_library(PhysicalModelLib STATIC
     domain/MartyWilson.cpp
     domain/GroupDefinitions.cpp
     domain/GroupDef_B.cpp
-    domain/GroupDef_BCC_bc.cpp
-    domain/GroupDef_BCC_bu.cpp
-    domain/GroupDef_BCC_cs.cpp
-    domain/GroupDef_BCC_cd.cpp
-    domain/GroupDef_BCC_su.cpp
+    domain/GroupDef_CC_bc.cpp
+    domain/GroupDef_CC_bu.cpp
+    domain/GroupDef_CC_cs.cpp
+    domain/GroupDef_CC_cd.cpp
+    domain/GroupDef_CC_su.cpp
     domain/GroupDef_BPrime.cpp
     domain/GroupDef_BScalar.cpp
     domain/GroupDef_MesonMixing.cpp

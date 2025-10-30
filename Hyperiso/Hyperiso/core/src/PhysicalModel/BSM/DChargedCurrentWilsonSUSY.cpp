@@ -1,7 +1,7 @@
 #include "DChargedCurrentWilsonSUSY.h"
 
 C_S1_cs_SUSY::C_S1_cs_SUSY()
-    : WilsonCoefficient("C_S1_cs_SUSY", GroupMapper::str(WGroup::BCC_cs, ScaleType::MATCHING))
+    : WilsonCoefficient("C_S1_cs_SUSY", GroupMapper::str(WGroup::CC_cs, ScaleType::MATCHING))
 {
     matching_info[QCDOrder::LO] = {
         {
@@ -27,7 +27,7 @@ double C_S1_cs_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared_pt
 }
 
 C_S2_cs_SUSY::C_S2_cs_SUSY()
-    : WilsonCoefficient("C_S2_cs_SUSY", GroupMapper::str(WGroup::BCC_cs, ScaleType::MATCHING))
+    : WilsonCoefficient("C_S2_cs_SUSY", GroupMapper::str(WGroup::CC_cs, ScaleType::MATCHING))
 {
     matching_info[QCDOrder::LO] = {
         {
@@ -55,7 +55,7 @@ double C_S2_cs_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared_pt
 
 
 C_S1_cd_SUSY::C_S1_cd_SUSY()
-    : WilsonCoefficient("C_S1_cd_SUSY", GroupMapper::str(WGroup::BCC_cd, ScaleType::MATCHING))
+    : WilsonCoefficient("C_S1_cd_SUSY", GroupMapper::str(WGroup::CC_cd, ScaleType::MATCHING))
 {
     matching_info[QCDOrder::LO] = {
         {
@@ -81,7 +81,7 @@ double C_S1_cd_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared_pt
 }
 
 C_S2_cd_SUSY::C_S2_cd_SUSY()
-    : WilsonCoefficient("C_S2_cd_SUSY", GroupMapper::str(WGroup::BCC_cd, ScaleType::MATCHING))
+    : WilsonCoefficient("C_S2_cd_SUSY", GroupMapper::str(WGroup::CC_cd, ScaleType::MATCHING))
 {
     matching_info[QCDOrder::LO] = {
         {

@@ -21,12 +21,12 @@ private:
     KlnuDecayCache cache;
 
 protected:
-    scalar_t R_mu23();
+    double R_mu23();
     double BR_K_BR_pi();
 
 public:
-    KlnuDecay(QCDOrder order, double matching_scale, double hadronic_scale, std::shared_ptr<ObsWilsonBuilder>& wilson_builder) : DecayParentConfigurable(DecayMapper::to_id(Decays::B__l_nu), matching_scale, hadronic_scale, order, wilson_builder) {
-        this->w_config.groups = {GroupMapper::to_id(WGroup::BCC)};
+    KlnuDecay(QCDOrder order, double matching_scale, double hadronic_scale, std::shared_ptr<ObsWilsonBuilder>& wilson_builder) : DecayParentConfigurable(DecayMapper::to_id(Decays::K__l_nu), matching_scale, hadronic_scale, order, wilson_builder) {
+        this->w_config.groups = {GroupMapper::to_id(WGroup::CC_su), GroupMapper::to_id(WGroup::CC_du)};
         this->max_order = QCDOrder::LO;
     }
 

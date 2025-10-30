@@ -440,7 +440,7 @@ public:
 //         // this->insert(std::make_pair("C_S2", std::make_shared<C_S2_SUSY>()));
 //         // this->insert(std::make_pair("C_T", std::make_shared<C_T_SUSY>()));
 
-//         this->id = GroupMapper::to_id(WGroup::BCC);
+//         this->id = GroupMapper::to_id(WGroup::CC_bc);
 //         this->wilson_type = ContributionType::BSM;
 //     }
 

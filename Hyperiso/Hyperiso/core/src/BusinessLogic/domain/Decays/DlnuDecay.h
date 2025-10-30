@@ -1,29 +1,28 @@
-#ifndef BLNUDECAY_H
-#define BLNUDECAY_H
+#ifndef __DLNUDECAY_H__
+#define __DLNUDECAY_H__
 
 #include "DecayParent.h"
 #include "General.h"
 #include "DefaultConfig.h"
 #include "PlnuCalculator.h"
 
-struct BlnuDecayCache {
+struct DlnuDecayCache {
     PlnuCalculator calc;
 };
 
 /**
  * @brief Decay parent for the B > l nu_l decays. Currently implements Bu > tau nu_tau branching ratio and the R_nu_tau ratio of this BR its SM expectation. 
  */
-class BlnuDecay : public DecayParentConfigurable<DecayConfig> {
+class DlnuDecay : public DecayParentConfigurable<DecayConfig> {
 private:
-    BlnuDecayCache cache;
+    DlnuDecayCache cache;
 
 protected:
-    scalar_t R();
     double BR();
 
 public:
-    BlnuDecay(QCDOrder order, double matching_scale, double hadronic_scale, std::shared_ptr<ObsWilsonBuilder>& wilson_builder) : DecayParentConfigurable(DecayMapper::to_id(Decays::B__l_nu), matching_scale, hadronic_scale, order, wilson_builder) {
-        this->w_config.groups = {GroupMapper::to_id(WGroup::CC_bu)};
+    DlnuDecay(QCDOrder order, double matching_scale, double hadronic_scale, std::shared_ptr<ObsWilsonBuilder>& wilson_builder) : DecayParentConfigurable(DecayMapper::to_id(Decays::D__l_nu), matching_scale, hadronic_scale, order, wilson_builder) {
+        this->w_config.groups = {GroupMapper::to_id(WGroup::CC_cd)};
         this->max_order = QCDOrder::LO;
     }
 
@@ -33,4 +32,4 @@ public:
 
 };
 
-#endif // __BLNUDECAY_H__
+#endif // __DLNUDECAY_H__

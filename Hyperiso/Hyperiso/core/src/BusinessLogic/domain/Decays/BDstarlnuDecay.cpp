@@ -26,11 +26,11 @@ void BDstarlnuDecay::load_params() {
     cache.w_e = w_max(cache.r_e);
     cache.w_tau = w_max(cache.r_tau);
     cache.BR_pref = std::pow(cache.G_F * cache.m_B * cache.m_B * cache.h_A1_1, 2) * cache.m_D_star * cache.tau_B * V_cb2 / (96 * PI3 * HBAR);
-    cache.C_V1 = w_proxy->getFM(WGroup::BCC, WCoef::C_V1, QCDOrder::LO);
-    cache.C_V2 = w_proxy->getFM(WGroup::BCC, WCoef::C_V2, QCDOrder::LO);
+    cache.C_V1 = w_proxy->getFM(WGroup::CC_bc, WCoef::C_V1_bc, QCDOrder::LO);
+    cache.C_V2 = w_proxy->getFM(WGroup::CC_bc, WCoef::C_V2_bc, QCDOrder::LO);
     cache.C_A = cache.C_V1 - cache.C_V2;
-    cache.C_P = w_proxy->getFM(WGroup::BCC, WCoef::C_S1, QCDOrder::LO) - w_proxy->getFM(WGroup::BCC, WCoef::C_S2, QCDOrder::LO);
-    cache.C_T = w_proxy->getFM(WGroup::BCC, WCoef::C_T, QCDOrder::LO);
+    cache.C_P = w_proxy->getFM(WGroup::CC_bc, WCoef::C_S1_bc, QCDOrder::LO) - w_proxy->getFM(WGroup::CC_bc, WCoef::C_S2_bc, QCDOrder::LO);
+    cache.C_T = w_proxy->getFM(WGroup::CC_bc, WCoef::C_T_bc, QCDOrder::LO);
     cache.C_V1_flag = !fpeq(std::abs(cache.C_V1), 0.0);
     cache.C_V2_flag = !fpeq(std::abs(cache.C_V2), 0.0);
     cache.C_A_flag = !fpeq(std::abs(cache.C_A), 0.0);

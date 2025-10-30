@@ -14,12 +14,12 @@ int main(){
 
     auto wi = WilsonInterface(); // Initialize interface and build the required groups
     LOG_INFO("WilsonInterface created");
-    WilsonBuildConfig config_b{{WGroup::BCC_bc, WGroup::BCC_cd, WGroup::BCC_su, WGroup::BCC_cs}, 81, 4.18, QCDOrder::NLO};
+    WilsonBuildConfig config_b{{WGroup::CC_bc, WGroup::CC_cd, WGroup::CC_su, WGroup::CC_cs}, 81, 4.18, QCDOrder::NLO};
 
     std::cout << "hereeee" << std::endl;
     wi.build(config_b);
 
-    WilsonBuildConfig config_k{{WGroup::BCC_bu}, 81, 4.18, QCDOrder::NLO};
+    WilsonBuildConfig config_k{{WGroup::CC_bu}, 81, 4.18, QCDOrder::NLO};
 
     std::cout << "here" << std::endl;
     wi.addWilsonGroup(config_k);
@@ -30,38 +30,38 @@ int main(){
 
     BlockProxy().log_all_blocks(ParameterType::WILSON);
     
-    LOG_INFO("C_S1_bc(mu_W) at LO =", wi.getM(WGroup::BCC_bc, WCoef::C_S1_bc, QCDOrder::LO, ContributionType::SM));
-    LOG_INFO("C_S2_bc(mu_W) at LO =", wi.getM(WGroup::BCC_bc, WCoef::C_S2_bc, QCDOrder::LO, ContributionType::SM));
-    LOG_INFO("C_V1_bc(mu_W) at LO =", wi.getM(WGroup::BCC_bc, WCoef::C_V1_bc, QCDOrder::LO, ContributionType::SM));
-    LOG_INFO("C_V2_bc(mu_W) at LO =", wi.getM(WGroup::BCC_bc, WCoef::C_V2_bc, QCDOrder::LO, ContributionType::SM));
-    LOG_INFO("C_T_bc(mu_W) at LO =", wi.getM(WGroup::BCC_bc, WCoef::C_T_bc, QCDOrder::LO, ContributionType::SM));
-    LOG_INFO("C_S1_bu(mu_W) at LO =", wi.getM(WGroup::BCC_bu, WCoef::C_S1_bu, QCDOrder::LO, ContributionType::SM));
-    LOG_INFO("C_S2_bu(mu_W) at LO =", wi.getM(WGroup::BCC_bu, WCoef::C_S2_bu, QCDOrder::LO, ContributionType::SM));
-    LOG_INFO("C_V1_bu(mu_W) at LO =", wi.getM(WGroup::BCC_bu, WCoef::C_V1_bu, QCDOrder::LO, ContributionType::SM));
-    LOG_INFO("C_V2_bu(mu_W) at LO =", wi.getM(WGroup::BCC_bu, WCoef::C_V2_bu, QCDOrder::LO, ContributionType::SM));
-    LOG_INFO("C_T_bu(mu_W) at LO =", wi.getM(WGroup::BCC_bu, WCoef::C_T_bu, QCDOrder::LO, ContributionType::SM));
+    LOG_INFO("C_S1_bc(mu_W) at LO =", wi.getM(WGroup::CC_bc, WCoef::C_S1_bc, QCDOrder::LO, ContributionType::SM));
+    LOG_INFO("C_S2_bc(mu_W) at LO =", wi.getM(WGroup::CC_bc, WCoef::C_S2_bc, QCDOrder::LO, ContributionType::SM));
+    LOG_INFO("C_V1_bc(mu_W) at LO =", wi.getM(WGroup::CC_bc, WCoef::C_V1_bc, QCDOrder::LO, ContributionType::SM));
+    LOG_INFO("C_V2_bc(mu_W) at LO =", wi.getM(WGroup::CC_bc, WCoef::C_V2_bc, QCDOrder::LO, ContributionType::SM));
+    LOG_INFO("C_T_bc(mu_W) at LO =", wi.getM(WGroup::CC_bc, WCoef::C_T_bc, QCDOrder::LO, ContributionType::SM));
+    LOG_INFO("C_S1_bu(mu_W) at LO =", wi.getM(WGroup::CC_bu, WCoef::C_S1_bu, QCDOrder::LO, ContributionType::SM));
+    LOG_INFO("C_S2_bu(mu_W) at LO =", wi.getM(WGroup::CC_bu, WCoef::C_S2_bu, QCDOrder::LO, ContributionType::SM));
+    LOG_INFO("C_V1_bu(mu_W) at LO =", wi.getM(WGroup::CC_bu, WCoef::C_V1_bu, QCDOrder::LO, ContributionType::SM));
+    LOG_INFO("C_V2_bu(mu_W) at LO =", wi.getM(WGroup::CC_bu, WCoef::C_V2_bu, QCDOrder::LO, ContributionType::SM));
+    LOG_INFO("C_T_bu(mu_W) at LO =", wi.getM(WGroup::CC_bu, WCoef::C_T_bu, QCDOrder::LO, ContributionType::SM));
 
-    LOG_INFO("C_S1_bc(mu_W) BSM at LO =", wi.getM(WGroup::BCC_bc, WCoef::C_S1_bc, QCDOrder::LO, ContributionType::BSM));
-    LOG_INFO("C_S2_bc(mu_W) BSM at LO =", wi.getM(WGroup::BCC_bc, WCoef::C_S2_bc, QCDOrder::LO, ContributionType::BSM));
-    LOG_INFO("C_V1_bc(mu_W) BSM at LO =", wi.getM(WGroup::BCC_bc, WCoef::C_V1_bc, QCDOrder::LO, ContributionType::BSM));
-    LOG_INFO("C_V2_bc(mu_W) BSM at LO =", wi.getM(WGroup::BCC_bc, WCoef::C_V2_bc, QCDOrder::LO, ContributionType::BSM));
-    LOG_INFO("C_T_bc(mu_W) BSM at LO =", wi.getM(WGroup::BCC_bc, WCoef::C_T_bc, QCDOrder::LO, ContributionType::BSM));
-    LOG_INFO("C_S1_bu(mu_W) BSM at LO =", wi.getM(WGroup::BCC_bu, WCoef::C_S1_bu, QCDOrder::LO, ContributionType::BSM));
-    LOG_INFO("C_S2_bu(mu_W) BSM at LO =", wi.getM(WGroup::BCC_bu, WCoef::C_S2_bu, QCDOrder::LO, ContributionType::BSM));
-    LOG_INFO("C_V1_bu(mu_W) BSM at LO =", wi.getM(WGroup::BCC_bu, WCoef::C_V1_bu, QCDOrder::LO, ContributionType::BSM));
-    LOG_INFO("C_V2_bu(mu_W) BSM at LO =", wi.getM(WGroup::BCC_bu, WCoef::C_V2_bu, QCDOrder::LO, ContributionType::BSM));
-    LOG_INFO("C_T_bu(mu_W) BSM at LO =", wi.getM(WGroup::BCC_bu, WCoef::C_T_bu, QCDOrder::LO, ContributionType::BSM));
+    LOG_INFO("C_S1_bc(mu_W) BSM at LO =", wi.getM(WGroup::CC_bc, WCoef::C_S1_bc, QCDOrder::LO, ContributionType::BSM));
+    LOG_INFO("C_S2_bc(mu_W) BSM at LO =", wi.getM(WGroup::CC_bc, WCoef::C_S2_bc, QCDOrder::LO, ContributionType::BSM));
+    LOG_INFO("C_V1_bc(mu_W) BSM at LO =", wi.getM(WGroup::CC_bc, WCoef::C_V1_bc, QCDOrder::LO, ContributionType::BSM));
+    LOG_INFO("C_V2_bc(mu_W) BSM at LO =", wi.getM(WGroup::CC_bc, WCoef::C_V2_bc, QCDOrder::LO, ContributionType::BSM));
+    LOG_INFO("C_T_bc(mu_W) BSM at LO =", wi.getM(WGroup::CC_bc, WCoef::C_T_bc, QCDOrder::LO, ContributionType::BSM));
+    LOG_INFO("C_S1_bu(mu_W) BSM at LO =", wi.getM(WGroup::CC_bu, WCoef::C_S1_bu, QCDOrder::LO, ContributionType::BSM));
+    LOG_INFO("C_S2_bu(mu_W) BSM at LO =", wi.getM(WGroup::CC_bu, WCoef::C_S2_bu, QCDOrder::LO, ContributionType::BSM));
+    LOG_INFO("C_V1_bu(mu_W) BSM at LO =", wi.getM(WGroup::CC_bu, WCoef::C_V1_bu, QCDOrder::LO, ContributionType::BSM));
+    LOG_INFO("C_V2_bu(mu_W) BSM at LO =", wi.getM(WGroup::CC_bu, WCoef::C_V2_bu, QCDOrder::LO, ContributionType::BSM));
+    LOG_INFO("C_T_bu(mu_W) BSM at LO =", wi.getM(WGroup::CC_bu, WCoef::C_T_bu, QCDOrder::LO, ContributionType::BSM));
 
-    LOG_INFO("C_S1_bc(mu_h) at LO =", wi.getR(WGroup::BCC_bc, WCoef::C_S1_bc, QCDOrder::LO, ContributionType::SM));
-    LOG_INFO("C_S2_bc(mu_h) at LO =", wi.getR(WGroup::BCC_bc, WCoef::C_S2_bc, QCDOrder::LO, ContributionType::SM));
-    LOG_INFO("C_V1_bc(mu_h) at LO =", wi.getR(WGroup::BCC_bc, WCoef::C_V1_bc, QCDOrder::LO, ContributionType::SM));
-    LOG_INFO("C_V2_bc(mu_h) at LO =", wi.getR(WGroup::BCC_bc, WCoef::C_V2_bc, QCDOrder::LO, ContributionType::SM));
-    LOG_INFO("C_T_bc(mu_h) at LO =", wi.getR(WGroup::BCC_bc, WCoef::C_T_bc, QCDOrder::LO, ContributionType::SM));
-    LOG_INFO("C_S1_bu(mu_h) at LO =", wi.getR(WGroup::BCC_bu, WCoef::C_S1_bu, QCDOrder::LO, ContributionType::SM));
-    LOG_INFO("C_S2_bu(mu_h) at LO =", wi.getR(WGroup::BCC_bu, WCoef::C_S2_bu, QCDOrder::LO, ContributionType::SM));
-    LOG_INFO("C_V1_bu(mu_h) at LO =", wi.getR(WGroup::BCC_bu, WCoef::C_V1_bu, QCDOrder::LO, ContributionType::SM));
-    LOG_INFO("C_V2_bu(mu_h) at LO =", wi.getR(WGroup::BCC_bu, WCoef::C_V2_bu, QCDOrder::LO, ContributionType::SM));
-    LOG_INFO("C_T_bu(mu_h) at LO =", wi.getR(WGroup::BCC_bu, WCoef::C_T_bu, QCDOrder::LO, ContributionType::SM));
+    LOG_INFO("C_S1_bc(mu_h) at LO =", wi.getR(WGroup::CC_bc, WCoef::C_S1_bc, QCDOrder::LO, ContributionType::SM));
+    LOG_INFO("C_S2_bc(mu_h) at LO =", wi.getR(WGroup::CC_bc, WCoef::C_S2_bc, QCDOrder::LO, ContributionType::SM));
+    LOG_INFO("C_V1_bc(mu_h) at LO =", wi.getR(WGroup::CC_bc, WCoef::C_V1_bc, QCDOrder::LO, ContributionType::SM));
+    LOG_INFO("C_V2_bc(mu_h) at LO =", wi.getR(WGroup::CC_bc, WCoef::C_V2_bc, QCDOrder::LO, ContributionType::SM));
+    LOG_INFO("C_T_bc(mu_h) at LO =", wi.getR(WGroup::CC_bc, WCoef::C_T_bc, QCDOrder::LO, ContributionType::SM));
+    LOG_INFO("C_S1_bu(mu_h) at LO =", wi.getR(WGroup::CC_bu, WCoef::C_S1_bu, QCDOrder::LO, ContributionType::SM));
+    LOG_INFO("C_S2_bu(mu_h) at LO =", wi.getR(WGroup::CC_bu, WCoef::C_S2_bu, QCDOrder::LO, ContributionType::SM));
+    LOG_INFO("C_V1_bu(mu_h) at LO =", wi.getR(WGroup::CC_bu, WCoef::C_V1_bu, QCDOrder::LO, ContributionType::SM));
+    LOG_INFO("C_V2_bu(mu_h) at LO =", wi.getR(WGroup::CC_bu, WCoef::C_V2_bu, QCDOrder::LO, ContributionType::SM));
+    LOG_INFO("C_T_bu(mu_h) at LO =", wi.getR(WGroup::CC_bu, WCoef::C_T_bu, QCDOrder::LO, ContributionType::SM));
     // LOG_INFO("CQ1(mu_h) at LO =", wi.getR(WGroup::BScalar, WCoef::CQ1, QCDOrder::LO));
     // LOG_INFO("CQ2(mu_h) at LO =", wi.getR(WGroup::BScalar, WCoef::CQ2, QCDOrder::LO));
     // LOG_INFO("C10(mu_h) at LO =", wi.getR(WGroup::B, WCoef::C10, QCDOrder::LO));

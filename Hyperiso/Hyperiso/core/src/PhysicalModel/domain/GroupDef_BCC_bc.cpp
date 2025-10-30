@@ -4,10 +4,10 @@
 using CGS = CoefficientGroupSources;
 
 namespace GroupDefinitions {
-    const GroupDefinition& BCC_bc() {
+    const GroupDefinition& CC_bc() {
         static const GroupDefinition def = []{
             GroupDefinition d;
-            d.id = GroupMapper::to_id(WGroup::BCC_bc);
+            d.id = GroupMapper::to_id(WGroup::CC_bc);
             d.members = { WCoef::C_V1_bc, WCoef::C_V2_bc, WCoef::C_S1_bc, WCoef::C_S2_bc, WCoef::C_T_bc };
 
             std::map<QCDOrder, CGS> m;

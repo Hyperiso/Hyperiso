@@ -1,7 +1,7 @@
 #include "KChargedCurrentWilsonSUSY.h"
 
 C_S1_su_SUSY::C_S1_su_SUSY()
-    : WilsonCoefficient("C_S1_su_SUSY", GroupMapper::str(WGroup::BCC_su, ScaleType::MATCHING))
+    : WilsonCoefficient("C_S1_su_SUSY", GroupMapper::str(WGroup::CC_su, ScaleType::MATCHING))
 {
     matching_info[QCDOrder::LO] = {
         {
@@ -27,7 +27,7 @@ double C_S1_su_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared_pt
 }
 
 C_S2_su_SUSY::C_S2_su_SUSY()
-    : WilsonCoefficient("C_S2_su_SUSY", GroupMapper::str(WGroup::BCC_su, ScaleType::MATCHING))
+    : WilsonCoefficient("C_S2_su_SUSY", GroupMapper::str(WGroup::CC_su, ScaleType::MATCHING))
 {
     matching_info[QCDOrder::LO] = {
         {

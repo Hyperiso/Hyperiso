@@ -14,11 +14,11 @@ static std::shared_ptr<CoefficientRegistry> make_registry() {
     register_B(*reg);
     register_BPrime(*reg);
     register_BScalar(*reg);
-    register_BCC_bc(*reg);
-    register_BCC_bu(*reg);
-    register_BCC_cs(*reg);
-    register_BCC_cd(*reg);
-    register_BCC_su(*reg);
+    register_CC_bc(*reg);
+    register_CC_bu(*reg);
+    register_CC_cs(*reg);
+    register_CC_cd(*reg);
+    register_CC_su(*reg);
     register_K(*reg);
     register_MesonMixing(*reg); //TODO
     return reg;

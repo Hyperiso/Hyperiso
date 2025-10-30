@@ -5,7 +5,7 @@
 
 class C_V1_su_THDM : public WilsonCoefficient {
 public:
-    C_V1_su_THDM() : WilsonCoefficient("C_V1_su_THDM", GroupMapper::str(WGroup::BCC_su) + "_MATCH") {}
+    C_V1_su_THDM() : WilsonCoefficient("C_V1_su_THDM", GroupMapper::str(WGroup::CC_su) + "_MATCH") {}
 
      
      
@@ -19,7 +19,7 @@ public:
 
 class C_V2_su_THDM : public WilsonCoefficient {
 public:
-    C_V2_su_THDM() : WilsonCoefficient("C_V2_su_THDM", GroupMapper::str(WGroup::BCC_su) + "_MATCH") {}
+    C_V2_su_THDM() : WilsonCoefficient("C_V2_su_THDM", GroupMapper::str(WGroup::CC_su) + "_MATCH") {}
 
      
      
@@ -61,7 +61,7 @@ public:
 
 class C_T_su_THDM : public WilsonCoefficient {
 public:
-    C_T_su_THDM() : WilsonCoefficient("C_T_su_THDM", GroupMapper::str(WGroup::BCC_su) + "_MATCH") {}
+    C_T_su_THDM() : WilsonCoefficient("C_T_su_THDM", GroupMapper::str(WGroup::CC_su) + "_MATCH") {}
 
      
      

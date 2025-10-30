@@ -57,10 +57,10 @@ private:
 void register_B(CoefficientRegistry&);
 void register_BPrime(CoefficientRegistry&);
 void register_BScalar(CoefficientRegistry&);
-void register_BCC_bc(CoefficientRegistry&);
-void register_BCC_bu(CoefficientRegistry&);
-void register_BCC_cs(CoefficientRegistry&);
-void register_BCC_cd(CoefficientRegistry&);
-void register_BCC_su(CoefficientRegistry&);
+void register_CC_bc(CoefficientRegistry&);
+void register_CC_bu(CoefficientRegistry&);
+void register_CC_cs(CoefficientRegistry&);
+void register_CC_cd(CoefficientRegistry&);
+void register_CC_su(CoefficientRegistry&);
 void register_MesonMixing(CoefficientRegistry&);
 void register_K(CoefficientRegistry& reg);

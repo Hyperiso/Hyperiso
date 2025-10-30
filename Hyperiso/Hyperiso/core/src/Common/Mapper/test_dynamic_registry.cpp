@@ -117,8 +117,8 @@ int main() {
     // 5) GROUP: block naming helpers (MATCHING / HADRONIC + basis)
     // -----------------------------------------------------------------------------
     {
-        auto m = GroupMapper::str(WGroup::BCC, ScaleType::MATCHING);
-        auto h = GroupMapper::str(WGroup::BCC, ScaleType::HADRONIC, WilsonBasis::B_TRADITIONAL);
+        auto m = GroupMapper::str(WGroup::CC_bc, ScaleType::MATCHING);
+        auto h = GroupMapper::str(WGroup::CC_bc, ScaleType::HADRONIC, WilsonBasis::B_TRADITIONAL);
         std::cout << "[GROUP] MATCHING=" << m << "  HADRONIC(TRAD)=" << h << "\n";
     }
 

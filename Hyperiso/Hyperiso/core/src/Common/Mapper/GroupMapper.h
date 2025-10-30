@@ -13,7 +13,7 @@
 //             {WGroup::B, "BCoefficients"},
 //             {WGroup::BPrime, "BPrimeCoefficients"},
 //             {WGroup::BScalar, "BScalarCoefficients"},
-//             {WGroup::BCC, "BChargedCurrentCoefficients"},
+//             {WGroup::CC_bc, "BChargedCurrentCoefficients"},
 //             {WGroup::MESON_MIXING, "MesonMixing"},
 //             {WGroup::CUSTOM_GROUP, "Custom_Group"},
 //         };

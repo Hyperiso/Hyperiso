@@ -1,6 +1,6 @@
 #include "DChargedCurrentWilson.h"
 
-C_V1_cs::C_V1_cs() : WilsonCoefficient("C_V1_cs", GroupMapper::str(WGroup::BCC_cs, ScaleType::MATCHING)) {
+C_V1_cs::C_V1_cs() : WilsonCoefficient("C_V1_cs", GroupMapper::str(WGroup::CC_cs, ScaleType::MATCHING)) {
     matching_info[QCDOrder::LO] = {
         {},
         compute_LO,
@@ -14,7 +14,7 @@ double C_V1_cs::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Par
 
 
 
-C_V1_cd::C_V1_cd() : WilsonCoefficient("C_V1_cd", GroupMapper::str(WGroup::BCC_cd, ScaleType::MATCHING)) {
+C_V1_cd::C_V1_cd() : WilsonCoefficient("C_V1_cd", GroupMapper::str(WGroup::CC_cd, ScaleType::MATCHING)) {
     matching_info[QCDOrder::LO] = {
         {},
         compute_LO,

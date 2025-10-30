@@ -155,7 +155,7 @@ void register_BScalar(CoefficientRegistry& reg) {
     //TODO : marty other cases
 }
 
-void register_BCC_bc(CoefficientRegistry& reg) {
+void register_CC_bc(CoefficientRegistry& reg) {
     using enum Model; using enum Backend;
 
     REG(WCoef::C_V1_bc, SM, Builtin, std::make_shared<C_V1_bc>());
@@ -182,7 +182,7 @@ void register_BCC_bc(CoefficientRegistry& reg) {
         //TODO : marty other cases
 }
 
-void register_BCC_bu(CoefficientRegistry& reg) {
+void register_CC_bu(CoefficientRegistry& reg) {
     using enum Model; using enum Backend;
 
     REG(WCoef::C_V1_bu, SM, Builtin, std::make_shared<C_V1_bu>());
@@ -209,7 +209,7 @@ void register_BCC_bu(CoefficientRegistry& reg) {
         //TODO : marty other cases
 }
 
-void register_BCC_cs(CoefficientRegistry& reg) {
+void register_CC_cs(CoefficientRegistry& reg) {
     using enum Model; using enum Backend;
 
     REG(WCoef::C_V1_cs, SM, Builtin, std::make_shared<C_V1_cs>());
@@ -236,7 +236,7 @@ void register_BCC_cs(CoefficientRegistry& reg) {
         //TODO : marty other cases
 }
 
-void register_BCC_cd(CoefficientRegistry& reg) {
+void register_CC_cd(CoefficientRegistry& reg) {
     using enum Model; using enum Backend;
 
     REG(WCoef::C_V1_cd, SM, Builtin, std::make_shared<C_V1_cd>());
@@ -263,7 +263,7 @@ void register_BCC_cd(CoefficientRegistry& reg) {
         //TODO : marty other cases
 }
 
-void register_BCC_su(CoefficientRegistry& reg) {
+void register_CC_su(CoefficientRegistry& reg) {
     using enum Model; using enum Backend;
 
     REG(WCoef::C_V1_su, SM, Builtin, std::make_shared<C_V1_su>());

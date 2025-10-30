@@ -16,7 +16,7 @@ public:
 
 class C_V2_bc : public WilsonCoefficient {
 public:
-    C_V2_bc() : WilsonCoefficient("C_V2_bc", GroupMapper::str(WGroup::BCC_bc, ScaleType::MATCHING)) {}
+    C_V2_bc() : WilsonCoefficient("C_V2_bc", GroupMapper::str(WGroup::CC_bc, ScaleType::MATCHING)) {}
 
     
      
@@ -29,7 +29,7 @@ public:
 
 class C_S1_bc : public WilsonCoefficient {
 public:
-    C_S1_bc() : WilsonCoefficient("C_S1_bc", GroupMapper::str(WGroup::BCC_bc, ScaleType::MATCHING)) {}
+    C_S1_bc() : WilsonCoefficient("C_S1_bc", GroupMapper::str(WGroup::CC_bc, ScaleType::MATCHING)) {}
 
     
      
@@ -43,7 +43,7 @@ public:
 
 class C_S2_bc : public WilsonCoefficient {
 public:
-    C_S2_bc() : WilsonCoefficient("C_S2_bc", GroupMapper::str(WGroup::BCC_bc, ScaleType::MATCHING)) {}
+    C_S2_bc() : WilsonCoefficient("C_S2_bc", GroupMapper::str(WGroup::CC_bc, ScaleType::MATCHING)) {}
 
     
      
@@ -56,7 +56,7 @@ public:
 
 class C_T_bc : public WilsonCoefficient {
 public:
-    C_T_bc() : WilsonCoefficient("C_T_bc", GroupMapper::str(WGroup::BCC_bc, ScaleType::MATCHING)) {}
+    C_T_bc() : WilsonCoefficient("C_T_bc", GroupMapper::str(WGroup::CC_bc, ScaleType::MATCHING)) {}
 
     
      
@@ -83,7 +83,7 @@ public:
 
 class C_V2_bu : public WilsonCoefficient {
 public:
-    C_V2_bu() : WilsonCoefficient("C_V2_bu", GroupMapper::str(WGroup::BCC_bu, ScaleType::MATCHING)) {}
+    C_V2_bu() : WilsonCoefficient("C_V2_bu", GroupMapper::str(WGroup::CC_bu, ScaleType::MATCHING)) {}
 
     
      
@@ -96,7 +96,7 @@ public:
 
 class C_S1_bu : public WilsonCoefficient {
 public:
-    C_S1_bu() : WilsonCoefficient("C_S1_bu", GroupMapper::str(WGroup::BCC_bu, ScaleType::MATCHING)) {}
+    C_S1_bu() : WilsonCoefficient("C_S1_bu", GroupMapper::str(WGroup::CC_bu, ScaleType::MATCHING)) {}
 
     
      
@@ -110,7 +110,7 @@ public:
 
 class C_S2_bu : public WilsonCoefficient {
 public:
-    C_S2_bu() : WilsonCoefficient("C_S2_bu", GroupMapper::str(WGroup::BCC_bu, ScaleType::MATCHING)) {}
+    C_S2_bu() : WilsonCoefficient("C_S2_bu", GroupMapper::str(WGroup::CC_bu, ScaleType::MATCHING)) {}
 
     
      
@@ -123,7 +123,7 @@ public:
 
 class C_T_bu : public WilsonCoefficient {
 public:
-    C_T_bu() : WilsonCoefficient("C_T_bu", GroupMapper::str(WGroup::BCC_bu, ScaleType::MATCHING)) {}
+    C_T_bu() : WilsonCoefficient("C_T_bu", GroupMapper::str(WGroup::CC_bu, ScaleType::MATCHING)) {}
 
     
      

@@ -111,11 +111,11 @@ public:
             case WGroup::B: return {B_group().begin(), B_group().end()};
             case WGroup::BPrime: return {B_prime_group().begin(), B_prime_group().end()};
             case WGroup::BScalar: return {B_scalar_group().begin(), B_scalar_group().end()};
-            case WGroup::BCC_bc: return {b_clnu_group().begin(), b_clnu_group().end()};
-            case WGroup::BCC_bu: return {b_ulnu_group().begin(), b_ulnu_group().end()};
-            case WGroup::BCC_cs: return {c_slnu_group().begin(), c_slnu_group().end()};
-            case WGroup::BCC_cd: return {c_dlnu_group().begin(), c_dlnu_group().end()};
-            case WGroup::BCC_su: return {s_ulnu_group().begin(), s_ulnu_group().end()};
+            case WGroup::CC_bc: return {b_clnu_group().begin(), b_clnu_group().end()};
+            case WGroup::CC_bu: return {b_ulnu_group().begin(), b_ulnu_group().end()};
+            case WGroup::CC_cs: return {c_slnu_group().begin(), c_slnu_group().end()};
+            case WGroup::CC_cd: return {c_dlnu_group().begin(), c_dlnu_group().end()};
+            case WGroup::CC_su: return {s_ulnu_group().begin(), s_ulnu_group().end()};
             case WGroup::MESON_MIXING: return {meson_mixing_group().begin(), meson_mixing_group().end()};
             default: LOG_ERROR("Invalid WGroup","get_group couldn't find your group"); return {};
         }
