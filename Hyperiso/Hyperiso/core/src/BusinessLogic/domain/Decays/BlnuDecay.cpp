@@ -1,26 +1,17 @@
 #include "BlnuDecay.h"
 
 void BlnuDecay::load_params() {
-    ObsParameterProxy p;
-    cache.G_F = p(ParamId{ParameterType::SM, "SMINPUTS", 2});
-    cache.m_tau = p(ParamId{ParameterType::SM, "MASS", 15});
-    cache.m_b = p(ParamId{ParameterType::SM, "QCD", {5, 1}});
-    cache.m_B = p(ParamId{ParameterType::FLAVOR, "FMASS", 521});
-    cache.f_B = p(ParamId{ParameterType::FLAVOR, "FCONST", {521, 1}});
-    cache.tau_B = p(ParamId{ParameterType::FLAVOR, "FLIFE", 521});
-    cache.V_ub_2 = std::pow(std::abs(p(ParamId{ParameterType::SM, "VCKM", {0, 2}})), 2);
-    cache.C_V = w_proxy->getFM(WGroup::BCC, WCoef::C_V1, QCDOrder::LO);
-    cache.C_S = w_proxy->getFM(WGroup::BCC, WCoef::C_S1, QCDOrder::LO);
+    complex_t C_A = w_proxy->getFM(WGroup::BCC, WCoef::C_V2, QCDOrder::LO) - w_proxy->getFM(WGroup::BCC, WCoef::C_V1, QCDOrder::LO);
+    complex_t C_P = w_proxy->getFM(WGroup::BCC, WCoef::C_S2, QCDOrder::LO) - w_proxy->getFM(WGroup::BCC, WCoef::C_S1, QCDOrder::LO);
+    cache.calc = PlnuCalculator(521, 15, C_A, C_P);
 }
 
 scalar_t BlnuDecay::R() {
-    return std::pow(std::abs(cache.C_V + std::pow(cache.m_B, 2) * cache.C_S / (cache.m_b * cache.m_tau)), 2);
+    return cache.calc.R_SM_BSM();
 }
 
 double BlnuDecay::BR() {
-    double beta = 1 - std::pow(cache.m_tau / cache.m_B, 2);
-    double pref = std::pow(cache.G_F * cache.f_B * cache.m_tau * beta, 2) * cache.tau_B * cache.m_B * cache.V_ub_2 / (8. * PI * HBAR);
-    return pref * R();
+    return cache.calc.BR_0_SM() * cache.calc.R_SM_BSM();
 }
 
 std::vector<ObservableValue> BlnuDecay::compute_observable(Observables obs) {

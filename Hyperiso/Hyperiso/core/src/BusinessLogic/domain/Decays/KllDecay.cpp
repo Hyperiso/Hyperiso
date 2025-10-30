@@ -33,7 +33,7 @@ void KllDecay::load_params() {
 }
 
 complex_t KllDecay::C_gg(double b) {
-    double x = (b - 1) / (b + 1);
+    complex_t x = (b - 1) / (b + 1);
     return 1 / b * (CLi2(x) + PI2 / 3 + 0.25 * std::pow(std::log(x), 2));
 }
 
@@ -44,7 +44,7 @@ complex_t KllDecay::N_L() {
     complex_t chi = chi_gg - 2.5 + 3.0 * L_mu_rho + C_gg(cache.beta);
     double N0 = 4 * cache.alpha_em_0 * cache.m_mu / (PI * cache.f_K * std::pow(cache.m_K, 2)) 
                     * std::sqrt(2 * PI * cache.BR_KL_gg_exp / (cache.m_K * cache.tau_L));
-    return N0 * chi;
+    return sign * N0 * chi;
 }
 
 complex_t KllDecay::N_S() {

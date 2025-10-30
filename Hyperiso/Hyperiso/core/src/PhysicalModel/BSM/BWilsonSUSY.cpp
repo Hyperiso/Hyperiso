@@ -4090,5 +4090,5 @@ scalar_t C_S2_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared_ptr
     double m_c = (*Parameters::GetInstance())("MASS", 4);
     double m_tau = src.at({ParameterType::SM, "MASS", 15})->get_val();
     double epsilon0 = src.at({ParameterType::WILSON, "EPSILON_SUSY", {0,1}})->get_val();
-    return -m_c * m_tau * std::pow(tanb / mH, 2) / (1 + epsilon0 * tanb);
+    return -m_c * m_tau / std::pow(mH, 2);
 }
