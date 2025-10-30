@@ -3944,151 +3944,151 @@ scalar_t CQ2_susy::compute_NLO(const std::unordered_map<ParamId, std::shared_ptr
 }
 
 
-void BScalarCoefficientGroup_susy::set_base_1_LO() {
-    std::unordered_map<ParameterType, std::vector<std::string>> src = {
-        {ParameterType::SM, {"MASS", "SMINPUTS"}},
-        {ParameterType::BSM, {"GAUGE", "HMIX", "STOPMIX", "UMIX", "VMIX", "NMAMIX", "NMHMIX", "MASS"}},
-        {ParameterType::WILSON, {"B_SCALAR_MATCH", "WPARAM_RUN_SM", "WPARAM_SI_SM", "WPARAM_MATCH_SM"}},
-    };
+// void BScalarCoefficientGroup_susy::set_base_1_LO() {
+//     std::unordered_map<ParameterType, std::vector<std::string>> src = {
+//         {ParameterType::SM, {"MASS", "SMINPUTS"}},
+//         {ParameterType::BSM, {"GAUGE", "HMIX", "STOPMIX", "UMIX", "VMIX", "NMAMIX", "NMHMIX", "MASS"}},
+//         {ParameterType::WILSON, {"B_SCALAR_MATCH", "WPARAM_RUN_SM", "WPARAM_SI_SM", "WPARAM_MATCH_SM"}},
+//     };
 
-    auto func = [] (const std::unordered_map<std::string, std::shared_ptr<Block>>& src, std::shared_ptr<DependentBlock> dep_block) {
-		double g2 = src.at("GAUGE")->retrieve(2)->get_val();
-		double tanb = src.at("HMIX")->retrieve(2)->get_val();
-		double mW = src.at("MASS")->retrieve(24)->get_val();
+//     auto func = [] (const std::unordered_map<std::string, std::shared_ptr<Block>>& src, std::shared_ptr<DependentBlock> dep_block) {
+// 		double g2 = src.at("GAUGE")->retrieve(2)->get_val();
+// 		double tanb = src.at("HMIX")->retrieve(2)->get_val();
+// 		double mW = src.at("MASS")->retrieve(24)->get_val();
 		
-		double mH = src.at("MASS")->retrieve(37)->get_val();
-		double mA = src.at("MASS")->retrieve(36)->get_val();
+// 		double mH = src.at("MASS")->retrieve(37)->get_val();
+// 		double mA = src.at("MASS")->retrieve(36)->get_val();
 
-		double eta = src.at("WPARAM_RUN_SM")->retrieve(2)->get_val();
-        double beta_0 = src.at("WPARAM_SI_SM")->retrieve(5)->get_val();
+// 		double eta = src.at("WPARAM_RUN_SM")->retrieve(2)->get_val();
+//         double beta_0 = src.at("WPARAM_SI_SM")->retrieve(5)->get_val();
 
-		double mass_top_muW = src.at("WPARAM_MATCH_SM")->retrieve(6)->get_val();
-		double sw2 = src.at("WPARAM_SI_SM")->retrieve(4)->get_val();
+// 		double mass_top_muW = src.at("WPARAM_MATCH_SM")->retrieve(6)->get_val();
+// 		double sw2 = src.at("WPARAM_SI_SM")->retrieve(4)->get_val();
 
-		auto ensure_coef = [src] (const LhaID& id) -> complex_t {
-            return src.at("B_SCALAR_MATCH")->contains(id) ? src.at("B_SCALAR_MATCH")->retrieve(id)->get_val() : complex_t(0);
-		};
-
-
-		complex_t coeff_temp = ensure_coef(WCoefMapper::flha_full(WCoef::CQ1, QCDOrder::LO, ContributionType::BSM)) * pow(eta,-4./beta_0);
-
-		ParamId pid {ParameterType::WILSON, "B_HADRONIC", WCoefMapper::flha_full(WCoef::CQ1, QCDOrder::LO, ContributionType::BSM)}; //PID TO CHANGE
-        dep_block->store_or_assign(1, std::make_shared<Parameter>(pid, coeff_temp, 0., 0.));
+// 		auto ensure_coef = [src] (const LhaID& id) -> complex_t {
+//             return src.at("B_SCALAR_MATCH")->contains(id) ? src.at("B_SCALAR_MATCH")->retrieve(id)->get_val() : complex_t(0);
+// 		};
 
 
-		complex_t coeff_temp2= ensure_coef(WCoefMapper::flha_full(WCoef::CQ2, QCDOrder::LO, ContributionType::BSM)) * pow(eta,-4./beta_0);
+// 		complex_t coeff_temp = ensure_coef(WCoefMapper::flha_full(WCoef::CQ1, QCDOrder::LO, ContributionType::BSM)) * pow(eta,-4./beta_0);
+
+// 		ParamId pid {ParameterType::WILSON, "B_HADRONIC", WCoefMapper::flha_full(WCoef::CQ1, QCDOrder::LO, ContributionType::BSM)}; //PID TO CHANGE
+//         dep_block->store_or_assign(1, std::make_shared<Parameter>(pid, coeff_temp, 0., 0.));
+
+
+// 		complex_t coeff_temp2= ensure_coef(WCoefMapper::flha_full(WCoef::CQ2, QCDOrder::LO, ContributionType::BSM)) * pow(eta,-4./beta_0);
 		
 		
-		if(src.at("MASS")->retrieve(46)->get_val()!=0.||src.at("MASS")->retrieve(45)->get_val()!=0.) {
-			if(mA < (*Parameters::GetInstance())("QCD", LhaID(5, 2))) {	
-				double lambdaNMSSM = 1;
-				double lambdaSNMSSM = 1;
-				double AlambdaNSSM = 1;
-				double kappaNMSSM = 1;
-				double m_Bs = 1;
-				double mass_nutl = 1;
+// 		if(src.at("MASS")->retrieve(46)->get_val()!=0.||src.at("MASS")->retrieve(45)->get_val()!=0.) {
+// 			if(mA < (*Parameters::GetInstance())("QCD", LhaID(5, 2))) {	
+// 				double lambdaNMSSM = 1;
+// 				double lambdaSNMSSM = 1;
+// 				double AlambdaNSSM = 1;
+// 				double kappaNMSSM = 1;
+// 				double m_Bs = 1;
+// 				double mass_nutl = 1;
 
-				double mH0[4],mA0[3],mstop[3];
+// 				double mH0[4],mA0[3],mstop[3];
 			
-				mstop[0]=src.at("MASS")->retrieve(2000002)->get_val(); //mass upr, is that right ?
-				mstop[1]=src.at("MASS")->retrieve(1000006)->get_val();
-				mstop[2]=src.at("MASS")->retrieve(2000006)->get_val();
+// 				mstop[0]=src.at("MASS")->retrieve(2000002)->get_val(); //mass upr, is that right ?
+// 				mstop[1]=src.at("MASS")->retrieve(1000006)->get_val();
+// 				mstop[2]=src.at("MASS")->retrieve(2000006)->get_val();
 
-				complex_t CAH={0,-lambdaNMSSM*AlambdaNSSM/g2/mW*tanb*f30(mH*mH/mass_top_muW/mass_top_muW,mW*mW/mass_top_muW/mass_top_muW)};
-				complex_t CAc{};
-				double s=lambdaSNMSSM/lambdaNMSSM;
-				double v=sqrt(1./sqrt(2.)/src.at("SMINPUTS")->retrieve(2)->get_val());
-				double v_deltam_s=v/s*(sqrt(2.)*AlambdaNSSM-2.*kappaNMSSM*s)/(sqrt(2.)*AlambdaNSSM+kappaNMSSM*s);
+// 				complex_t CAH={0,-lambdaNMSSM*AlambdaNSSM/g2/mW*tanb*f30(mH*mH/mass_top_muW/mass_top_muW,mW*mW/mass_top_muW/mass_top_muW)};
+// 				complex_t CAc{};
+// 				double s=lambdaSNMSSM/lambdaNMSSM;
+// 				double v=sqrt(1./sqrt(2.)/src.at("SMINPUTS")->retrieve(2)->get_val());
+// 				double v_deltam_s=v/s*(sqrt(2.)*AlambdaNSSM-2.*kappaNMSSM*s)/(sqrt(2.)*AlambdaNSSM+kappaNMSSM*s);
 
-				double Ralj[3][3][3],Qalj[4][3][3],G1[4][4][3][3];
-				double T2[4][4][4];
-				std::array<std::array<double,4>,4> TU;
-				double vu=sqrt(pow(sin(atan(tanb)),2.)/sqrt(2.)/src.at("SMINPUTS")->retrieve(2)->get_val());
-				double vd=vu/tanb;
+// 				double Ralj[3][3][3],Qalj[4][3][3],G1[4][4][3][3];
+// 				double T2[4][4][4];
+// 				std::array<std::array<double,4>,4> TU;
+// 				double vu=sqrt(pow(sin(atan(tanb)),2.)/sqrt(2.)/src.at("SMINPUTS")->retrieve(2)->get_val());
+// 				double vd=vu/tanb;
 
-				TU[1][1]=1.;
-				for(int ie=0;ie<2;ie++){
-					for(int je=0;je<2;je++) {
-						TU[ie+1][je+1]=src.at("STOPMIX")->retrieve({ie+1, je+1})->get_val();
-					}
-				}
+// 				TU[1][1]=1.;
+// 				for(int ie=0;ie<2;ie++){
+// 					for(int je=0;je<2;je++) {
+// 						TU[ie+1][je+1]=src.at("STOPMIX")->retrieve({ie+1, je+1})->get_val();
+// 					}
+// 				}
 
-				for(int je=0;je<2;je++) {
-					for(int le=0;le<2;le++) {
-						for(int ae=0;ae<3;ae++) {
-							if (ae <3 ){
-								Ralj[ae][le][je]=-g2/sqrt(2.)*(src.at("NMAMIX")->retrieve({ae+1, 1+1})->get_val()*src.at("UMIX")->retrieve({2+1, le+1})->get_val()*src.at("VMIX")->retrieve({2+1, je+1})->get_val()+src.at("NMAMIX")->retrieve({ae+1, 2+1})->get_val()*src.at("UMIX")->retrieve({1+1, le+1})->get_val()*src.at("VMIX")->retrieve({2+1, je+1})->get_val())-lambdaNMSSM/sqrt(2.)*src.at("NMAMIX")->retrieve({ae+1, 3+1})->get_val()*src.at("UMIX")->retrieve({2+1, le+1})->get_val()*src.at("VMIX")->retrieve({2+1, je+1})->get_val();
-							}
-							Qalj[ae][le][je]=g2/sqrt(2.)*(src.at("NMHMIX")->retrieve({ae+1,1+1})->get_val()*src.at("UMIX")->retrieve({2+1, le+1})->get_val()*src.at("VMIX")->retrieve({2+1, je+1})->get_val()+src.at("NMHMIX")->retrieve({ae+1, 2+1})->get_val()*src.at("UMIX")->retrieve({1+1, le+1})->get_val()*src.at("VMIX")->retrieve({2+1, je+1})->get_val())-lambdaNMSSM/sqrt(2.)*src.at("NMHMIX")->retrieve({ae+1, 3+1})->get_val()*src.at("UMIX")->retrieve({2+1, le+1})->get_val()*src.at("VMIX")->retrieve({2+1, je+1})->get_val();
-							for(int ke=1;ke<=3;ke++) {
-								G1[ae][ke][je][le]=(TU[ae][2]*TU[ke][2]-kron(ae,1)*kron(ke,1))*src.at("VMIX")->retrieve({1+1, le+1})->get_val()*src.at("UMIX")->retrieve({2+1, je+1})->get_val()-mass_top_muW/sqrt(2.)/sin(atan(tanb))/mW*TU[ae][3]*TU[ke][2]*src.at("VMIX")->retrieve({2+1, le+1})->get_val()*src.at("UMIX")->retrieve({2+1, je+1})->get_val();
-							}
-						}
-					}
-				}
-				for(int ae=0;ae<3;ae++) {
-					for(int je=0;je<2;je++) {
-						for(int le=0;le<2;le++) {
-							CAc = complex_t(CAc.real(), CAc.imag()+(tanb)/sqrt(2.)*G1[ae][ae][je][le]*(v_deltam_s*kron(le,je)*fabs(src.at("WPARAM_SI_BSM")->retrieve(je)->get_val()/mW)*f80(pow(mstop[ae-1]/src.at("WPARAM_SI_BSM")->retrieve(je)->get_val(),2.))-(Ralj[1][je][le]*fabs(src.at("WPARAM_SI_BSM")->retrieve(je)->get_val()/src.at("WPARAM_SI_BSM")->retrieve(le)->get_val())*f30(pow(mstop[ae-1]/src.at("WPARAM_SI_BSM")->retrieve(le)->get_val(),2.),pow(src.at("WPARAM_SI_BSM")->retrieve(je)->get_val()/src.at("WPARAM_SI_BSM")->retrieve(le)->get_val(),2.))-Ralj[1][le][je]*f40(pow(mstop[ae-1]/src.at("WPARAM_SI_BSM")->retrieve(le)->get_val(),2.),pow(src.at("WPARAM_SI_BSM")->retrieve(je)->get_val()/src.at("WPARAM_SI_BSM")->retrieve(le)->get_val(),2.)))));
-						}
-					}
-				}
-				complex_t CA=CAH+CAc;
-				double width_A0=1.e-6;
-				coeff_temp2+=complex_t{v_deltam_s/2.*(*Parameters::GetInstance())("QCD", LhaID(5, 1))/sw2*src.at("WPARAM_SI_SM")->retrieve(3)->get_val()*CA/(m_Bs*m_Bs-mA*mA,mA*width_A0)};
-			}
-		}
-		ParamId pid2 {ParameterType::WILSON, "B_HADRONIC", WCoefMapper::flha_full(WCoef::CQ2, QCDOrder::LO, ContributionType::BSM)}; //TODO CHECK
-        dep_block->store_or_assign(2, std::make_shared<Parameter>(pid2, coeff_temp2, 0., 0.));
+// 				for(int je=0;je<2;je++) {
+// 					for(int le=0;le<2;le++) {
+// 						for(int ae=0;ae<3;ae++) {
+// 							if (ae <3 ){
+// 								Ralj[ae][le][je]=-g2/sqrt(2.)*(src.at("NMAMIX")->retrieve({ae+1, 1+1})->get_val()*src.at("UMIX")->retrieve({2+1, le+1})->get_val()*src.at("VMIX")->retrieve({2+1, je+1})->get_val()+src.at("NMAMIX")->retrieve({ae+1, 2+1})->get_val()*src.at("UMIX")->retrieve({1+1, le+1})->get_val()*src.at("VMIX")->retrieve({2+1, je+1})->get_val())-lambdaNMSSM/sqrt(2.)*src.at("NMAMIX")->retrieve({ae+1, 3+1})->get_val()*src.at("UMIX")->retrieve({2+1, le+1})->get_val()*src.at("VMIX")->retrieve({2+1, je+1})->get_val();
+// 							}
+// 							Qalj[ae][le][je]=g2/sqrt(2.)*(src.at("NMHMIX")->retrieve({ae+1,1+1})->get_val()*src.at("UMIX")->retrieve({2+1, le+1})->get_val()*src.at("VMIX")->retrieve({2+1, je+1})->get_val()+src.at("NMHMIX")->retrieve({ae+1, 2+1})->get_val()*src.at("UMIX")->retrieve({1+1, le+1})->get_val()*src.at("VMIX")->retrieve({2+1, je+1})->get_val())-lambdaNMSSM/sqrt(2.)*src.at("NMHMIX")->retrieve({ae+1, 3+1})->get_val()*src.at("UMIX")->retrieve({2+1, le+1})->get_val()*src.at("VMIX")->retrieve({2+1, je+1})->get_val();
+// 							for(int ke=1;ke<=3;ke++) {
+// 								G1[ae][ke][je][le]=(TU[ae][2]*TU[ke][2]-kron(ae,1)*kron(ke,1))*src.at("VMIX")->retrieve({1+1, le+1})->get_val()*src.at("UMIX")->retrieve({2+1, je+1})->get_val()-mass_top_muW/sqrt(2.)/sin(atan(tanb))/mW*TU[ae][3]*TU[ke][2]*src.at("VMIX")->retrieve({2+1, le+1})->get_val()*src.at("UMIX")->retrieve({2+1, je+1})->get_val();
+// 							}
+// 						}
+// 					}
+// 				}
+// 				for(int ae=0;ae<3;ae++) {
+// 					for(int je=0;je<2;je++) {
+// 						for(int le=0;le<2;le++) {
+// 							CAc = complex_t(CAc.real(), CAc.imag()+(tanb)/sqrt(2.)*G1[ae][ae][je][le]*(v_deltam_s*kron(le,je)*fabs(src.at("WPARAM_SI_BSM")->retrieve(je)->get_val()/mW)*f80(pow(mstop[ae-1]/src.at("WPARAM_SI_BSM")->retrieve(je)->get_val(),2.))-(Ralj[1][je][le]*fabs(src.at("WPARAM_SI_BSM")->retrieve(je)->get_val()/src.at("WPARAM_SI_BSM")->retrieve(le)->get_val())*f30(pow(mstop[ae-1]/src.at("WPARAM_SI_BSM")->retrieve(le)->get_val(),2.),pow(src.at("WPARAM_SI_BSM")->retrieve(je)->get_val()/src.at("WPARAM_SI_BSM")->retrieve(le)->get_val(),2.))-Ralj[1][le][je]*f40(pow(mstop[ae-1]/src.at("WPARAM_SI_BSM")->retrieve(le)->get_val(),2.),pow(src.at("WPARAM_SI_BSM")->retrieve(je)->get_val()/src.at("WPARAM_SI_BSM")->retrieve(le)->get_val(),2.)))));
+// 						}
+// 					}
+// 				}
+// 				complex_t CA=CAH+CAc;
+// 				double width_A0=1.e-6;
+// 				coeff_temp2+=complex_t{v_deltam_s/2.*(*Parameters::GetInstance())("QCD", LhaID(5, 1))/sw2*src.at("WPARAM_SI_SM")->retrieve(3)->get_val()*CA/(m_Bs*m_Bs-mA*mA,mA*width_A0)};
+// 			}
+// 		}
+// 		ParamId pid2 {ParameterType::WILSON, "B_HADRONIC", WCoefMapper::flha_full(WCoef::CQ2, QCDOrder::LO, ContributionType::BSM)}; //TODO CHECK
+//         dep_block->store_or_assign(2, std::make_shared<Parameter>(pid2, coeff_temp2, 0., 0.));
 
-    };
+//     };
 
-    WilsonParamComposer().compose_block("B_SCALAR_HADRONIC", src, func);
+//     WilsonParamComposer().compose_block("B_SCALAR_HADRONIC", src, func);
 
-}
+// }
 
-C_S1_SUSY::C_S1_SUSY() : WilsonCoefficient("C_S1_SUSY", GroupMapper::str(WGroup::B) + "_MATCH"){
-    matching_info[QCDOrder::LO] = {
-        {
-            {ParameterType::BSM, "MASS", 37},
-            {ParameterType::BSM, "HMIX", 2},
-            {ParameterType::SM, "QCD", {5, 1}},
-            {ParameterType::SM, "MASS", 15},
-            {"EPSILON_SUSY", {0, 1}},
-        },
-        compute_LO,
-        WCoefMapper::flha_full(WCoef::C_S1, QCDOrder::LO, ContributionType::BSM)
-    };
-}
+// C_S1_SUSY::C_S1_SUSY() : WilsonCoefficient("C_S1_SUSY", GroupMapper::str(WGroup::B) + "_MATCH"){
+//     matching_info[QCDOrder::LO] = {
+//         {
+//             {ParameterType::BSM, "MASS", 37},
+//             {ParameterType::BSM, "HMIX", 2},
+//             {ParameterType::SM, "QCD", {5, 1}},
+//             {ParameterType::SM, "MASS", 15},
+//             {"EPSILON_SUSY", {0, 1}},
+//         },
+//         compute_LO,
+//         WCoefMapper::flha_full(WCoef::C_S1, QCDOrder::LO, ContributionType::BSM)
+//     };
+// }
 
-scalar_t C_S1_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src) {
-    double mH = src.at({ParameterType::BSM, "MASS", 37})->get_val();
-    double tanb = src.at({ParameterType::BSM, "HMIX", 2})->get_val();
-    double m_b = (*Parameters::GetInstance())("QCD", LhaID(5, 1));
-    double m_tau = src.at({ParameterType::SM, "MASS", 15})->get_val();
-    double epsilon0 = src.at({ParameterType::WILSON, "EPSILON_SUSY", {0,1}})->get_val();
-    return -m_b * m_tau * std::pow(tanb / mH, 2) / (1 + epsilon0 * tanb);
-}
+// scalar_t C_S1_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src) {
+//     double mH = src.at({ParameterType::BSM, "MASS", 37})->get_val();
+//     double tanb = src.at({ParameterType::BSM, "HMIX", 2})->get_val();
+//     double m_b = (*Parameters::GetInstance())("QCD", LhaID(5, 1));
+//     double m_tau = src.at({ParameterType::SM, "MASS", 15})->get_val();
+//     double epsilon0 = src.at({ParameterType::WILSON, "EPSILON_SUSY", {0,1}})->get_val();
+//     return -m_b * m_tau * std::pow(tanb / mH, 2) / (1 + epsilon0 * tanb);
+// }
 
-C_S2_SUSY::C_S2_SUSY() : WilsonCoefficient("C_S2_SUSY", GroupMapper::str(WGroup::B) + "_MATCH"){
-    matching_info[QCDOrder::LO] = {
-        {
-            {ParameterType::BSM, "MASS", 37},
-            {ParameterType::BSM, "HMIX", 2},
-            {ParameterType::SM, "MASS", 4},
-            {ParameterType::SM, "MASS", 15},
-            {"EPSILON_SUSY", {0, 1}},
-        },
-        compute_LO,
-        WCoefMapper::flha_full(WCoef::C_S2, QCDOrder::LO, ContributionType::BSM)
-    };
-}
+// C_S2_SUSY::C_S2_SUSY() : WilsonCoefficient("C_S2_SUSY", GroupMapper::str(WGroup::B) + "_MATCH"){
+//     matching_info[QCDOrder::LO] = {
+//         {
+//             {ParameterType::BSM, "MASS", 37},
+//             {ParameterType::BSM, "HMIX", 2},
+//             {ParameterType::SM, "MASS", 4},
+//             {ParameterType::SM, "MASS", 15},
+//             {"EPSILON_SUSY", {0, 1}},
+//         },
+//         compute_LO,
+//         WCoefMapper::flha_full(WCoef::C_S2, QCDOrder::LO, ContributionType::BSM)
+//     };
+// }
 
-scalar_t C_S2_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src) {
-    double mH = src.at({ParameterType::BSM, "MASS", 37})->get_val();
-    double tanb = src.at({ParameterType::BSM, "HMIX", 2})->get_val();
-    double m_c = (*Parameters::GetInstance())("MASS", 4);
-    double m_tau = src.at({ParameterType::SM, "MASS", 15})->get_val();
-    double epsilon0 = src.at({ParameterType::WILSON, "EPSILON_SUSY", {0,1}})->get_val();
-    return -m_c * m_tau / std::pow(mH, 2);
-}
+// scalar_t C_S2_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src) {
+//     double mH = src.at({ParameterType::BSM, "MASS", 37})->get_val();
+//     double tanb = src.at({ParameterType::BSM, "HMIX", 2})->get_val();
+//     double m_c = (*Parameters::GetInstance())("MASS", 4);
+//     double m_tau = src.at({ParameterType::SM, "MASS", 15})->get_val();
+//     double epsilon0 = src.at({ParameterType::WILSON, "EPSILON_SUSY", {0,1}})->get_val();
+//     return -m_c * m_tau * std::pow(tanb / mH, 2) / (1 + epsilon0 * tanb);
+// }

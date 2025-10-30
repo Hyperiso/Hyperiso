@@ -25,7 +25,11 @@ namespace GroupDefinitions {
                 case WGroup::B:            return B();
                 case WGroup::BPrime:       return BPrime();
                 case WGroup::BScalar:      return BScalar();
-                case WGroup::BCC:          return BCC();
+                case WGroup::BCC_bc:          return BCC_bc();
+                case WGroup::BCC_bu:          return BCC_bu();
+                case WGroup::BCC_cs:          return BCC_cs();
+                case WGroup::BCC_cd:          return BCC_cd();
+                case WGroup::BCC_su:          return BCC_su();
                 case WGroup::MESON_MIXING: return MesonMixing();
                 case WGroup::K:            return K();
                 default: break;

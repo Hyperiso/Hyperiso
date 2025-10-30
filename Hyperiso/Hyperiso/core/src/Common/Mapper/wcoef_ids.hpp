@@ -79,7 +79,19 @@ public:
         static const std::vector<WCoef> g = { WCoef::CQ1, WCoef::CQ2 }; return g;
     }
     static const std::vector<WCoef>& b_clnu_group(){
-        static const std::vector<WCoef> g = { WCoef::C_V1, WCoef::C_V2, WCoef::C_S1, WCoef::C_S2, WCoef::C_T }; return g;
+        static const std::vector<WCoef> g = { WCoef::C_V1_bc, WCoef::C_V2_bc, WCoef::C_S1_bc, WCoef::C_S2_bc, WCoef::C_T_bc }; return g;
+    }
+    static const std::vector<WCoef>& b_ulnu_group(){
+        static const std::vector<WCoef> g = { WCoef::C_V1_bu, WCoef::C_V2_bu, WCoef::C_S1_bu, WCoef::C_S2_bu, WCoef::C_T_bu }; return g;
+    }
+    static const std::vector<WCoef>& c_slnu_group(){
+        static const std::vector<WCoef> g = { WCoef::C_V1_cs, WCoef::C_V2_cs, WCoef::C_S1_cs, WCoef::C_S2_cs, WCoef::C_T_cs }; return g;
+    }
+    static const std::vector<WCoef>& c_dlnu_group(){
+        static const std::vector<WCoef> g = { WCoef::C_V1_cd, WCoef::C_V2_cd, WCoef::C_S1_cd, WCoef::C_S2_cd, WCoef::C_T_cd }; return g;
+    }
+    static const std::vector<WCoef>& s_ulnu_group(){
+        static const std::vector<WCoef> g = { WCoef::C_V1_su, WCoef::C_V2_su, WCoef::C_S1_su, WCoef::C_S2_su, WCoef::C_T_su }; return g;
     }
     static const std::vector<WCoef>& meson_mixing_group(){
         static const std::vector<WCoef> g = {
@@ -99,7 +111,11 @@ public:
             case WGroup::B: return {B_group().begin(), B_group().end()};
             case WGroup::BPrime: return {B_prime_group().begin(), B_prime_group().end()};
             case WGroup::BScalar: return {B_scalar_group().begin(), B_scalar_group().end()};
-            case WGroup::BCC: return {b_clnu_group().begin(), b_clnu_group().end()};
+            case WGroup::BCC_bc: return {b_clnu_group().begin(), b_clnu_group().end()};
+            case WGroup::BCC_bu: return {b_ulnu_group().begin(), b_ulnu_group().end()};
+            case WGroup::BCC_cs: return {c_slnu_group().begin(), c_slnu_group().end()};
+            case WGroup::BCC_cd: return {c_dlnu_group().begin(), c_dlnu_group().end()};
+            case WGroup::BCC_su: return {s_ulnu_group().begin(), s_ulnu_group().end()};
             case WGroup::MESON_MIXING: return {meson_mixing_group().begin(), meson_mixing_group().end()};
             default: LOG_ERROR("Invalid WGroup","get_group couldn't find your group"); return {};
         }

@@ -208,7 +208,7 @@ void runTest(const std::string& strategyName, const std::string& testFile, const
     
     
     if (run==1 || run==2) {
-        writeRunCoefficientsToFile(strategyName, testFile, 81, 42, model, run);
+        writeRunCoefficientsToFile(strategyName, testFile, 81, 5, model, run);
     }
     else if (run == 0) {
         if (primeCQ) {

@@ -51,6 +51,10 @@ add_library(PhysicalModelLib STATIC
     domain/KWilsonGroup.cpp
     domain/ChargedCurrentWilson.cpp
     domain/ChargedCurrentsWilsonGroup.cpp
+    domain/DChargedCurrentWilson.cpp
+    domain/DChargedCurrentsWilsonGroup.cpp
+    domain/KChargedCurrentWilson.cpp
+    domain/KChargedCurrentsWilsonGroup.cpp
     domain/MesonMixingWilson.cpp
     domain/MesonMixingWilsonGroup.cpp
     domain/WilsonGroup.cpp
@@ -58,7 +62,11 @@ add_library(PhysicalModelLib STATIC
     domain/MartyWilson.cpp
     domain/GroupDefinitions.cpp
     domain/GroupDef_B.cpp
-    domain/GroupDef_BCC.cpp
+    domain/GroupDef_BCC_bc.cpp
+    domain/GroupDef_BCC_bu.cpp
+    domain/GroupDef_BCC_cs.cpp
+    domain/GroupDef_BCC_cd.cpp
+    domain/GroupDef_BCC_su.cpp
     domain/GroupDef_BPrime.cpp
     domain/GroupDef_BScalar.cpp
     domain/GroupDef_MesonMixing.cpp
@@ -75,6 +83,12 @@ add_library(PhysicalModelLib STATIC
     BSM/THDMParametersHelper.cpp
     BSM/BWilsonSUSY.cpp
     BSM/BWilsonTHDM.cpp
+    BSM/ChargedCurrentWilsonSUSY.cpp
+    BSM/ChargedCurrentWilsonTHDM.cpp
+    BSM/DChargedCurrentWilsonSUSY.cpp
+    BSM/DChargedCurrentWilsonTHDM.cpp
+    BSM/KChargedCurrentWilsonSUSY.cpp
+    BSM/KChargedCurrentWilsonTHDM.cpp
     )
 
 set_target_properties(PhysicalModelLib PROPERTIES POSITION_INDEPENDENT_CODE ON)
@@ -139,6 +153,10 @@ target_link_libraries(kaons_test PhysicalModelLib)
 
 add_executable(mixing_test app/main_mixing.cpp)
 target_link_libraries(mixing_test PhysicalModelLib)
+
+add_executable(charged_test app/main_charged_current.cpp)
+target_link_libraries(charged_test PhysicalModelLib)
+
 
 # add_executable(test_martywilson main.cpp)
 # target_link_libraries(test_martywilson PhysicalModelLib MartyInterfaceLib)

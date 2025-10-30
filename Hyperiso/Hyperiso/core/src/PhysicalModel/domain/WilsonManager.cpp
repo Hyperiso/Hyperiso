@@ -117,15 +117,12 @@ void CoefficientManager::init_specific_order_group_matching(const std::string& g
 
             std::shared_ptr<CoefficientGroup> sm_group_ptr;
             if (ports_config.build_group) {
-                // Construire un groupe SM avec le même backend (use_marty identique), type SM
                 WGroupId gid = GroupMapper::enum_elt(groupName);
                 sm_group_ptr = ports_config.build_group(gid, Model::SM, marty, ContributionType::SM);
             } else {
-                // Chemin legacy (compat) : utiliser get_sm_group() s'il existe
                 sm_group_ptr = this->coefficientGroups[groupName]->get_sm_group();
             }
 
-            // std::shared_ptr<CoefficientGroup> sm_group_ptr = this->coefficientGroups[groupName]->get_sm_group();
             if (!sm_group_ptr)
                 LOG_ERROR("LogicError", "No SM group found for " + groupName);
             
@@ -136,7 +133,6 @@ void CoefficientManager::init_specific_order_group_matching(const std::string& g
 
     QCDOrder enum_order = OrderMapper::enum_elt(order);
     std::string storage_block = this->coefficientGroups.at(groupName)->get_matching_storage_block();
-    // WilsonParamComposer composer;
 
     for (auto& coeff : *this->coefficientGroups.at(groupName)) {
         if (SM) {
@@ -257,10 +253,8 @@ void CoefficientManager::init_group_hadronic(const std::string& groupName, const
     if (!this->coefficientGroups.contains(groupName)) {
         throw_no_group_error(groupName);
     }
-
     std::unordered_map<ParameterType, std::vector<std::string>> src = {};
     fill_sources_for_group(groupName, order, src, basis);
-
     QCDOrder ord = OrderMapper::enum_elt(order);
     std::map<QCDOrder, std::function<std::unordered_map<WCoef, scalar_t>(const std::unordered_map<QCDOrder, std::unordered_map<WCoef, scalar_t>>&, const std::unordered_map<std::string, std::shared_ptr<Block>>&)>> funcs = {
         {QCDOrder::LO, this->coefficientGroups[groupName]->get_func(QCDOrder::LO, basis)},
@@ -269,7 +263,6 @@ void CoefficientManager::init_group_hadronic(const std::string& groupName, const
     };
 
     std::string matching_block_name = this->coefficientGroups[groupName]->get_matching_storage_block();
-
     auto func = [matching_block_name, ord, funcs, groupName, basis] (const std::unordered_map<std::string, std::shared_ptr<Block>>& src, std::shared_ptr<DependentBlock> dep_block) {
         std::map<LhaID, std::shared_ptr<Parameter>> matching_coeff = src.at(matching_block_name)->getItems();
         std::unordered_map<ContributionType, std::unordered_map<QCDOrder, std::unordered_map<WCoef, scalar_t>>> matching_map;
@@ -280,7 +273,6 @@ void CoefficientManager::init_group_hadronic(const std::string& groupName, const
             const ContributionType& contrib = c.second.second;
             matching_map[contrib][order][wcoef] = coef.second->get_val();
         }
-        
         std::unordered_map<ContributionType, std::unordered_map<QCDOrder,std::unordered_map<WCoef, scalar_t>>> res;
         for (auto contri : {ContributionType::SM, ContributionType::BSM, ContributionType::TOTAL}) {
             switch (ord)
@@ -301,7 +293,6 @@ void CoefficientManager::init_group_hadronic(const std::string& groupName, const
                     break;
                 }
         }
-
         for (auto& [c_type, order_map] : res) { // Iterate over the contributions
             for (auto& [order, coef_map] : order_map) { // Iterate over the orders
                 for (auto& [coef_id, coef_val] : coef_map) { // Iterate over the coefficients
@@ -316,7 +307,6 @@ void CoefficientManager::init_group_hadronic(const std::string& groupName, const
             }
         }
     };
-
     ports_config.iblock_c->compose_block(GroupMapper::str(GroupMapper::enum_elt(groupName), ScaleType::HADRONIC, basis), src, func);
 }
 

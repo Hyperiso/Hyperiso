@@ -155,7 +155,11 @@ enum class WCoef {
     C1, C2, C3, C4, C5, C6, C7, C8, C9, C10,                                // b > s l l
     CQ1, CQ2,                                                               // b > s l l
     CP1, CP2, CP3, CP4, CP5, CP6, CP7, CP8, CP9, CP10, CPQ1, CPQ2,          // b > s l l
-    C_V1, C_V2, C_S1, C_S2, C_T,                                            // b > c l nu
+    C_V1_bc, C_V2_bc, C_S1_bc, C_S2_bc, C_T_bc,                             // b > c l nu
+    C_V1_bu, C_V2_bu, C_S1_bu, C_S2_bu, C_T_bu,                             // b > u l nu
+    C_V1_cs, C_V2_cs, C_S1_cs, C_S2_cs, C_T_cs,                             // c > s l nu
+    C_V1_cd, C_V2_cd, C_S1_cd, C_S2_cd, C_T_cd,                             // c > d l nu
+    C_V1_su, C_V2_su, C_S1_su, C_S2_su, C_T_su,                             // s > u l nu
     C_BD_1, CT_BD_1, C_BD_2, CT_BD_2, C_BD_3, CT_BD_3, C_BD_4, C_BD_5,      // Bd0 mixing
     C_BS_1, CT_BS_1, C_BS_2, CT_BS_2, C_BS_3, CT_BS_3, C_BS_4, C_BS_5,      // Bs0 mixing
     C_SD_1, CT_SD_1, C_SD_2, CT_SD_2, C_SD_3, CT_SD_3, C_SD_4, C_SD_5,      // K0 mixing
@@ -167,7 +171,11 @@ enum class WGroup {
     B, 
     BPrime, 
     BScalar,
-    BCC,
+    BCC_bc,
+    BCC_bu,
+    BCC_cs,
+    BCC_cd,
+    BCC_su,
     MESON_MIXING,
     CUSTOM_GROUP,
     K

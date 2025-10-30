@@ -1,10 +1,18 @@
 #include "WilsonCoefficientRegistry.h"
 #include "BWilson.h"
 #include "ChargedCurrentsWilsonGroup.h"
+#include "DChargedCurrentsWilsonGroup.h"
+#include "KChargedCurrentsWilsonGroup.h"
 #include "MesonMixingWilsonGroup.h" //TODO
 #include "MartyWilson.h"
 #include "BWilsonSUSY.h"
 #include "BWilsonTHDM.h"
+#include "ChargedCurrentWilsonTHDM.h"
+#include "DChargedCurrentWilsonTHDM.h"
+#include "KChargedCurrentWilsonTHDM.h"
+#include "ChargedCurrentWilsonSUSY.h"
+#include "DChargedCurrentWilsonSUSY.h"
+#include "KChargedCurrentWilsonSUSY.h"
 #include "KWilson.h"
 
 #include "Include.h"
@@ -72,6 +80,7 @@ void register_B(CoefficientRegistry& reg) {
     REG(WCoef::C8,  SM,   Marty, make_marty(ctx, WCoef::C8));
     REG(WCoef::C9,  SM,   Marty, make_marty(ctx, WCoef::C9));
     REG(WCoef::C10, SM,   Marty, make_marty(ctx, WCoef::C10));
+    
 
     // TODO Marty custom, THDM, SUSY
 }
@@ -146,33 +155,140 @@ void register_BScalar(CoefficientRegistry& reg) {
     //TODO : marty other cases
 }
 
-void register_BCC(CoefficientRegistry& reg) {
+void register_BCC_bc(CoefficientRegistry& reg) {
     using enum Model; using enum Backend;
 
-    REG(WCoef::C_V1, SM, Builtin, std::make_shared<C_V1>());
-    REG(WCoef::C_V2, SM, Builtin, std::make_shared<C_V2>());
-    REG(WCoef::C_S1, SM, Builtin, std::make_shared<C_S1>());
-    REG(WCoef::C_S2, SM, Builtin, std::make_shared<C_S2>());
-    REG(WCoef::C_T,  SM, Builtin, std::make_shared<C_T>());
+    REG(WCoef::C_V1_bc, SM, Builtin, std::make_shared<C_V1_bc>());
+    REG(WCoef::C_V2_bc, SM, Builtin, std::make_shared<C_V2_bc>());
+    REG(WCoef::C_S1_bc, SM, Builtin, std::make_shared<C_S1_bc>());
+    REG(WCoef::C_S2_bc, SM, Builtin, std::make_shared<C_S2_bc>());
+    REG(WCoef::C_T_bc,  SM, Builtin, std::make_shared<C_T_bc>());
 
-    REG(WCoef::C_V1, SUSY, Builtin, std::make_shared<C_V1_SUSY>());
-    REG(WCoef::C_V2, SUSY, Builtin, std::make_shared<C_V2_SUSY>());
-    REG(WCoef::C_S1, SUSY, Builtin, std::make_shared<C_S1_SUSY>());
-    REG(WCoef::C_S2, SUSY, Builtin, std::make_shared<C_S2_SUSY>());
-    REG(WCoef::C_T,  SUSY, Builtin, std::make_shared<C_T_SUSY>());
+    REG(WCoef::C_V1_bc, SUSY, Builtin, std::make_shared<C_V1_bc_SUSY>());
+    REG(WCoef::C_V2_bc, SUSY, Builtin, std::make_shared<C_V2_bc_SUSY>());
+    REG(WCoef::C_S1_bc, SUSY, Builtin, std::make_shared<C_S1_bc_SUSY>());
+    REG(WCoef::C_S2_bc, SUSY, Builtin, std::make_shared<C_S2_bc_SUSY>());
+    REG(WCoef::C_T_bc,  SUSY, Builtin, std::make_shared<C_T_bc_SUSY>());
 
-    REG(WCoef::C_V1, THDM, Builtin, std::make_shared<C_V1_THDM>());
-    REG(WCoef::C_V2, THDM, Builtin, std::make_shared<C_V2_THDM>());
-    REG(WCoef::C_S1, THDM, Builtin, std::make_shared<C_S1_THDM>());
-    REG(WCoef::C_S2, THDM, Builtin, std::make_shared<C_S2_THDM>());
-    REG(WCoef::C_T,  THDM, Builtin, std::make_shared<C_T_THDM>());
+    REG(WCoef::C_V1_bc, THDM, Builtin, std::make_shared<C_V1_bc_THDM>());
+    REG(WCoef::C_V2_bc, THDM, Builtin, std::make_shared<C_V2_bc_THDM>());
+    REG(WCoef::C_S1_bc, THDM, Builtin, std::make_shared<C_S1_bc_THDM>());
+    REG(WCoef::C_S2_bc, THDM, Builtin, std::make_shared<C_S2_bc_THDM>());
+    REG(WCoef::C_T_bc,  THDM, Builtin, std::make_shared<C_T_bc_THDM>());
 
-    for (WCoef c : {WCoef::C_V1, WCoef::C_V2, WCoef::C_S1, WCoef::C_S2, WCoef::C_T})
+    for (WCoef c : {WCoef::C_V1_bc, WCoef::C_V2_bc, WCoef::C_S1_bc, WCoef::C_S2_bc, WCoef::C_T_bc})
         REG(c, Model::SM, Backend::Marty, make_marty(ctx, coef));
 
         //TODO : marty other cases
 }
 
+void register_BCC_bu(CoefficientRegistry& reg) {
+    using enum Model; using enum Backend;
+
+    REG(WCoef::C_V1_bu, SM, Builtin, std::make_shared<C_V1_bu>());
+    REG(WCoef::C_V2_bu, SM, Builtin, std::make_shared<C_V2_bu>());
+    REG(WCoef::C_S1_bu, SM, Builtin, std::make_shared<C_S1_bu>());
+    REG(WCoef::C_S2_bu, SM, Builtin, std::make_shared<C_S2_bu>());
+    REG(WCoef::C_T_bu,  SM, Builtin, std::make_shared<C_T_bu>());
+
+    REG(WCoef::C_V1_bu, SUSY, Builtin, std::make_shared<C_V1_bu_SUSY>());
+    REG(WCoef::C_V2_bu, SUSY, Builtin, std::make_shared<C_V2_bu_SUSY>());
+    REG(WCoef::C_S1_bu, SUSY, Builtin, std::make_shared<C_S1_bu_SUSY>());
+    REG(WCoef::C_S2_bu, SUSY, Builtin, std::make_shared<C_S2_bu_SUSY>());
+    REG(WCoef::C_T_bu,  SUSY, Builtin, std::make_shared<C_T_bu_SUSY>());
+
+    REG(WCoef::C_V1_bu, THDM, Builtin, std::make_shared<C_V1_bu_THDM>());
+    REG(WCoef::C_V2_bu, THDM, Builtin, std::make_shared<C_V2_bu_THDM>());
+    REG(WCoef::C_S1_bu, THDM, Builtin, std::make_shared<C_S1_bu_THDM>());
+    REG(WCoef::C_S2_bu, THDM, Builtin, std::make_shared<C_S2_bu_THDM>());
+    REG(WCoef::C_T_bu,  THDM, Builtin, std::make_shared<C_T_bu_THDM>());
+
+    for (WCoef c : {WCoef::C_V1_bu, WCoef::C_V2_bu, WCoef::C_S1_bu, WCoef::C_S2_bu, WCoef::C_T_bu})
+        REG(c, Model::SM, Backend::Marty, make_marty(ctx, coef));
+
+        //TODO : marty other cases
+}
+
+void register_BCC_cs(CoefficientRegistry& reg) {
+    using enum Model; using enum Backend;
+
+    REG(WCoef::C_V1_cs, SM, Builtin, std::make_shared<C_V1_cs>());
+    REG(WCoef::C_V2_cs, SM, Builtin, std::make_shared<C_V2_cs>());
+    REG(WCoef::C_S1_cs, SM, Builtin, std::make_shared<C_S1_cs>());
+    REG(WCoef::C_S2_cs, SM, Builtin, std::make_shared<C_S2_cs>());
+    REG(WCoef::C_T_cs,  SM, Builtin, std::make_shared<C_T_cs>());
+
+    REG(WCoef::C_V1_cs, SUSY, Builtin, std::make_shared<C_V1_cs_SUSY>());
+    REG(WCoef::C_V2_cs, SUSY, Builtin, std::make_shared<C_V2_cs_SUSY>());
+    REG(WCoef::C_S1_cs, SUSY, Builtin, std::make_shared<C_S1_cs_SUSY>());
+    REG(WCoef::C_S2_cs, SUSY, Builtin, std::make_shared<C_S2_cs_SUSY>());
+    REG(WCoef::C_T_cs,  SUSY, Builtin, std::make_shared<C_T_cs_SUSY>());
+
+    REG(WCoef::C_V1_cs, THDM, Builtin, std::make_shared<C_V1_cs_THDM>());
+    REG(WCoef::C_V2_cs, THDM, Builtin, std::make_shared<C_V2_cs_THDM>());
+    REG(WCoef::C_S1_cs, THDM, Builtin, std::make_shared<C_S1_cs_THDM>());
+    REG(WCoef::C_S2_cs, THDM, Builtin, std::make_shared<C_S2_cs_THDM>());
+    REG(WCoef::C_T_cs,  THDM, Builtin, std::make_shared<C_T_cs_THDM>());
+
+    for (WCoef c : {WCoef::C_V1_cs, WCoef::C_V2_cs, WCoef::C_S1_cs, WCoef::C_S2_cs, WCoef::C_T_cs})
+        REG(c, Model::SM, Backend::Marty, make_marty(ctx, coef));
+
+        //TODO : marty other cases
+}
+
+void register_BCC_cd(CoefficientRegistry& reg) {
+    using enum Model; using enum Backend;
+
+    REG(WCoef::C_V1_cd, SM, Builtin, std::make_shared<C_V1_cd>());
+    REG(WCoef::C_V2_cd, SM, Builtin, std::make_shared<C_V2_cd>());
+    REG(WCoef::C_S1_cd, SM, Builtin, std::make_shared<C_S1_cd>());
+    REG(WCoef::C_S2_cd, SM, Builtin, std::make_shared<C_S2_cd>());
+    REG(WCoef::C_T_cd,  SM, Builtin, std::make_shared<C_T_cd>());
+
+    REG(WCoef::C_V1_cd, SUSY, Builtin, std::make_shared<C_V1_cd_SUSY>());
+    REG(WCoef::C_V2_cd, SUSY, Builtin, std::make_shared<C_V2_cd_SUSY>());
+    REG(WCoef::C_S1_cd, SUSY, Builtin, std::make_shared<C_S1_cd_SUSY>());
+    REG(WCoef::C_S2_cd, SUSY, Builtin, std::make_shared<C_S2_cd_SUSY>());
+    REG(WCoef::C_T_cd,  SUSY, Builtin, std::make_shared<C_T_cd_SUSY>());
+
+    REG(WCoef::C_V1_cd, THDM, Builtin, std::make_shared<C_V1_cd_THDM>());
+    REG(WCoef::C_V2_cd, THDM, Builtin, std::make_shared<C_V2_cd_THDM>());
+    REG(WCoef::C_S1_cd, THDM, Builtin, std::make_shared<C_S1_cd_THDM>());
+    REG(WCoef::C_S2_cd, THDM, Builtin, std::make_shared<C_S2_cd_THDM>());
+    REG(WCoef::C_T_cd,  THDM, Builtin, std::make_shared<C_T_cd_THDM>());
+
+    for (WCoef c : {WCoef::C_V1_cd, WCoef::C_V2_cd, WCoef::C_S1_cd, WCoef::C_S2_cd, WCoef::C_T_cd})
+        REG(c, Model::SM, Backend::Marty, make_marty(ctx, coef));
+
+        //TODO : marty other cases
+}
+
+void register_BCC_su(CoefficientRegistry& reg) {
+    using enum Model; using enum Backend;
+
+    REG(WCoef::C_V1_su, SM, Builtin, std::make_shared<C_V1_su>());
+    REG(WCoef::C_V2_su, SM, Builtin, std::make_shared<C_V2_su>());
+    REG(WCoef::C_S1_su, SM, Builtin, std::make_shared<C_S1_su>());
+    REG(WCoef::C_S2_su, SM, Builtin, std::make_shared<C_S2_su>());
+    REG(WCoef::C_T_su,  SM, Builtin, std::make_shared<C_T_su>());
+
+    REG(WCoef::C_V1_su, SUSY, Builtin, std::make_shared<C_V1_su_SUSY>());
+    REG(WCoef::C_V2_su, SUSY, Builtin, std::make_shared<C_V2_su_SUSY>());
+    REG(WCoef::C_S1_su, SUSY, Builtin, std::make_shared<C_S1_su_SUSY>());
+    REG(WCoef::C_S2_su, SUSY, Builtin, std::make_shared<C_S2_su_SUSY>());
+    REG(WCoef::C_T_su,  SUSY, Builtin, std::make_shared<C_T_su_SUSY>());
+
+    REG(WCoef::C_V1_su, THDM, Builtin, std::make_shared<C_V1_su_THDM>());
+    REG(WCoef::C_V2_su, THDM, Builtin, std::make_shared<C_V2_su_THDM>());
+    REG(WCoef::C_S1_su, THDM, Builtin, std::make_shared<C_S1_su_THDM>());
+    REG(WCoef::C_S2_su, THDM, Builtin, std::make_shared<C_S2_su_THDM>());
+    REG(WCoef::C_T_su,  THDM, Builtin, std::make_shared<C_T_su_THDM>());
+
+    for (WCoef c : {WCoef::C_V1_su, WCoef::C_V2_su, WCoef::C_S1_su, WCoef::C_S2_su, WCoef::C_T_su})
+        REG(c, Model::SM, Backend::Marty, make_marty(ctx, coef));
+
+        //TODO : marty other cases
+}
 void register_MesonMixing(CoefficientRegistry& reg) {
     using enum Backend;using enum Model;
     REG(WCoef::C_BD_1, SM, Builtin, std::make_shared<C_mix_bd_1>());
