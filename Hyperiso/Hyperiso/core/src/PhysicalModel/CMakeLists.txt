@@ -55,6 +55,8 @@ add_library(PhysicalModelLib STATIC
     domain/DChargedCurrentsWilsonGroup.cpp
     domain/KChargedCurrentWilson.cpp
     domain/KChargedCurrentsWilsonGroup.cpp
+    domain/PIChargedCurrentWilson.cpp
+    domain/PIChargedCurrentsWilsonGroup.cpp
     domain/MesonMixingWilson.cpp
     domain/MesonMixingWilsonGroup.cpp
     domain/WilsonGroup.cpp
@@ -67,6 +69,7 @@ add_library(PhysicalModelLib STATIC
     domain/GroupDef_CC_cs.cpp
     domain/GroupDef_CC_cd.cpp
     domain/GroupDef_CC_su.cpp
+    domain/GroupDef_CC_du.cpp
     domain/GroupDef_BPrime.cpp
     domain/GroupDef_BScalar.cpp
     domain/GroupDef_MesonMixing.cpp
@@ -89,6 +92,8 @@ add_library(PhysicalModelLib STATIC
     BSM/DChargedCurrentWilsonTHDM.cpp
     BSM/KChargedCurrentWilsonSUSY.cpp
     BSM/KChargedCurrentWilsonTHDM.cpp
+    BSM/PIChargedCurrentWilsonSUSY.cpp
+    BSM/PIChargedCurrentWilsonTHDM.cpp
     )
 
 set_target_properties(PhysicalModelLib PROPERTIES POSITION_INDEPENDENT_CODE ON)

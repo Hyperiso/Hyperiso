@@ -93,6 +93,11 @@ public:
     static const std::vector<WCoef>& s_ulnu_group(){
         static const std::vector<WCoef> g = { WCoef::C_V1_su, WCoef::C_V2_su, WCoef::C_S1_su, WCoef::C_S2_su, WCoef::C_T_su }; return g;
     }
+    static const std::vector<WCoef>& d_ulnu_group(){
+        static const std::vector<WCoef> g = { WCoef::C_V1_du, WCoef::C_V2_du, WCoef::C_S1_du, WCoef::C_S2_du, WCoef::C_T_du}; return g;
+    }
+
+     
     static const std::vector<WCoef>& meson_mixing_group(){
         static const std::vector<WCoef> g = {
             WCoef::C_BD_1, WCoef::C_BD_2, WCoef::C_BD_3, WCoef::C_BD_4, WCoef::C_BD_5,
@@ -116,6 +121,7 @@ public:
             case WGroup::CC_cs: return {c_slnu_group().begin(), c_slnu_group().end()};
             case WGroup::CC_cd: return {c_dlnu_group().begin(), c_dlnu_group().end()};
             case WGroup::CC_su: return {s_ulnu_group().begin(), s_ulnu_group().end()};
+            case WGroup::CC_du: return {d_ulnu_group().begin(), d_ulnu_group().end()};
             case WGroup::MESON_MIXING: return {meson_mixing_group().begin(), meson_mixing_group().end()};
             default: LOG_ERROR("Invalid WGroup","get_group couldn't find your group"); return {};
         }

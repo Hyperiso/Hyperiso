@@ -14,7 +14,7 @@ int main(){
 
     auto wi = WilsonInterface(); // Initialize interface and build the required groups
     LOG_INFO("WilsonInterface created");
-    WilsonBuildConfig config_b{{WGroup::CC_bc, WGroup::CC_cd, WGroup::CC_su, WGroup::CC_cs}, 81, 4.18, QCDOrder::NLO};
+    WilsonBuildConfig config_b{{WGroup::CC_bc, WGroup::CC_cd, WGroup::CC_su, WGroup::CC_cs, WGroup::CC_du}, 81, 4.18, QCDOrder::NLO};
 
     std::cout << "hereeee" << std::endl;
     wi.build(config_b);

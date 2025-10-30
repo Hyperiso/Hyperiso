@@ -30,6 +30,7 @@ namespace GroupDefinitions {
                 case WGroup::CC_cs:          return CC_cs();
                 case WGroup::CC_cd:          return CC_cd();
                 case WGroup::CC_su:          return CC_su();
+                case WGroup::CC_du:          return CC_du();
                 case WGroup::MESON_MIXING: return MesonMixing();
                 case WGroup::K:            return K();
                 default: break;

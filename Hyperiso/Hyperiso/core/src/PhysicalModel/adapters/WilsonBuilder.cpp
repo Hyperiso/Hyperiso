@@ -19,6 +19,7 @@ static std::shared_ptr<CoefficientRegistry> make_registry() {
     register_CC_cs(*reg);
     register_CC_cd(*reg);
     register_CC_su(*reg);
+    register_CC_du(*reg);
     register_K(*reg);
     register_MesonMixing(*reg); //TODO
     return reg;

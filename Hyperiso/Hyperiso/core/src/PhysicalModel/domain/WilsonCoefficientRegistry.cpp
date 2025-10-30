@@ -3,16 +3,19 @@
 #include "ChargedCurrentsWilsonGroup.h"
 #include "DChargedCurrentsWilsonGroup.h"
 #include "KChargedCurrentsWilsonGroup.h"
-#include "MesonMixingWilsonGroup.h" //TODO
+#include "PIChargedCurrentsWilsonGroup.h"
+#include "MesonMixingWilsonGroup.h"
 #include "MartyWilson.h"
 #include "BWilsonSUSY.h"
 #include "BWilsonTHDM.h"
 #include "ChargedCurrentWilsonTHDM.h"
 #include "DChargedCurrentWilsonTHDM.h"
 #include "KChargedCurrentWilsonTHDM.h"
+#include "PIChargedCurrentWilsonTHDM.h"
 #include "ChargedCurrentWilsonSUSY.h"
 #include "DChargedCurrentWilsonSUSY.h"
 #include "KChargedCurrentWilsonSUSY.h"
+#include "PIChargedCurrentWilsonSUSY.h"
 #include "KWilson.h"
 
 #include "Include.h"
@@ -289,6 +292,35 @@ void register_CC_su(CoefficientRegistry& reg) {
 
         //TODO : marty other cases
 }
+
+void register_CC_du(CoefficientRegistry& reg) {
+    using enum Model; using enum Backend;
+
+    REG(WCoef::C_V1_du, SM, Builtin, std::make_shared<C_V1_du>());
+    REG(WCoef::C_V2_du, SM, Builtin, std::make_shared<C_V2_du>());
+    REG(WCoef::C_S1_du, SM, Builtin, std::make_shared<C_S1_du>());
+    REG(WCoef::C_S2_du, SM, Builtin, std::make_shared<C_S2_du>());
+    REG(WCoef::C_T_du,  SM, Builtin, std::make_shared<C_T_du>());
+
+    REG(WCoef::C_V1_du, SUSY, Builtin, std::make_shared<C_V1_du_SUSY>());
+    REG(WCoef::C_V2_du, SUSY, Builtin, std::make_shared<C_V2_du_SUSY>());
+    REG(WCoef::C_S1_du, SUSY, Builtin, std::make_shared<C_S1_du_SUSY>());
+    REG(WCoef::C_S2_du, SUSY, Builtin, std::make_shared<C_S2_du_SUSY>());
+    REG(WCoef::C_T_du,  SUSY, Builtin, std::make_shared<C_T_du_SUSY>());
+
+    REG(WCoef::C_V1_du, THDM, Builtin, std::make_shared<C_V1_du_THDM>());
+    REG(WCoef::C_V2_du, THDM, Builtin, std::make_shared<C_V2_du_THDM>());
+    REG(WCoef::C_S1_du, THDM, Builtin, std::make_shared<C_S1_du_THDM>());
+    REG(WCoef::C_S2_du, THDM, Builtin, std::make_shared<C_S2_du_THDM>());
+    REG(WCoef::C_T_du,  THDM, Builtin, std::make_shared<C_T_du_THDM>());
+
+    for (WCoef c : {WCoef::C_V1_du, WCoef::C_V2_du, WCoef::C_S1_du, WCoef::C_S2_du, WCoef::C_T_du})
+        REG(c, Model::SM, Backend::Marty, make_marty(ctx, coef));
+
+        //TODO : marty other cases
+}
+
+
 void register_MesonMixing(CoefficientRegistry& reg) {
     using enum Backend;using enum Model;
     REG(WCoef::C_BD_1, SM, Builtin, std::make_shared<C_mix_bd_1>());

@@ -62,5 +62,6 @@ void register_CC_bu(CoefficientRegistry&);
 void register_CC_cs(CoefficientRegistry&);
 void register_CC_cd(CoefficientRegistry&);
 void register_CC_su(CoefficientRegistry&);
+void register_CC_du(CoefficientRegistry&);
 void register_MesonMixing(CoefficientRegistry&);
 void register_K(CoefficientRegistry& reg);

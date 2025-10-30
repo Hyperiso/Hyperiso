@@ -35,6 +35,7 @@ namespace GroupDefinitions {
     const GroupDefinition& CC_cs();
     const GroupDefinition& CC_cd();
     const GroupDefinition& CC_su();
+    const GroupDefinition& CC_du();
     const GroupDefinition& MesonMixing();
     const GroupDefinition& K();
     const GroupDefinition& get(WGroupId g);
