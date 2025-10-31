@@ -12,7 +12,12 @@
 #include "Decays/BKsllDecay.h"
 #include "Decays/BKllDecay.h"
 #include "Decays/BsPhiDecay.h"
+#include "Decays/LbLllDecay.h"
 #include "Decays/M0_Mixing.h"
 #include "Decays/KllDecay.h"
+#include "Decays/KPinunuDecay.h"
+#include "Decays/KlnuDecay.h"
+#include "Decays/DlnuDecay.h"
+#include "Decays/DslnuDecay.h"
 
 #endif // __DECAYS_H__

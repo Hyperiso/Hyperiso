@@ -7,26 +7,30 @@ ObsManager::ObsManager(std::shared_ptr<ObsWilsonBuilder>& wil_builder) {
     ObsParameterProxy smParamProxy = ObsParameterProxy(ParameterType::SM);
     
     this->decays = {
-        {DecayMapper::to_id(Decays::B__D_l_nu),      std::make_shared<BDlnuDecay>(QCDOrder::NONE, 81, obsParamProxy("FMASS", 521), wil_builder)},
-        {DecayMapper::to_id(Decays::B__Dstar_l_nu),  std::make_shared<BDstarlnuDecay>(QCDOrder::NONE, 81, obsParamProxy("FMASS", 521), wil_builder)},
-        {DecayMapper::to_id(Decays::B__Kstar_gamma), std::make_shared<BKstarGammaDecay>(QCDOrder::NONE, 81, obsParamProxy("FMASS", 511), wil_builder)},
-        {DecayMapper::to_id(Decays::B__l_l),         std::make_shared<BllDecay>(QCDOrder::NONE, 81, obsParamProxy("FMASS", 531), wil_builder)},
-        {DecayMapper::to_id(Decays::B__l_nu),        std::make_shared<BlnuDecay>(QCDOrder::NONE, 81, obsParamProxy("FMASS", 511), wil_builder)},
-        {DecayMapper::to_id(Decays::B__Xs),          std::make_shared<BXsDecay>(QCDOrder::NONE, 2 * smParamProxy("MASS", 24), smParamProxy("QCD", LhaID(5, 2)) / 2, wil_builder)},
-        {DecayMapper::to_id(Decays::B__Xs_l_l),      std::make_shared<BXsllDecay>(QCDOrder::NONE, 2 * smParamProxy("MASS", 24), smParamProxy("QCD", LhaID(5, 2)) / 2, wil_builder)},
-        {DecayMapper::to_id(Decays::M0_Mix),         std::make_shared<M0Mixing>(QCDOrder::NONE, 160, 4.16, wil_builder)},
-        {DecayMapper::to_id(Decays::B__Kstar_l_l),   std::make_shared<BKstarllDecay>(QCDOrder::NONE, 81, smParamProxy("QCD", LhaID(5, 3)), wil_builder)},
-        {DecayMapper::to_id(Decays::B__K_l_l),       std::make_shared<BKllDecay>(QCDOrder::NONE, 81, smParamProxy("QCD", LhaID(5, 3)), wil_builder)},
-        {DecayMapper::to_id(Decays::Bs__phi_l_l),    std::make_shared<BsPhiDecay>(QCDOrder::NONE, 81, smParamProxy("QCD", LhaID(5, 3)), wil_builder)},
-        {DecayMapper::to_id(Decays::K__l_l),         std::make_shared<KllDecay>(QCDOrder::NONE, 81, 2.0, wil_builder)},
+        {DecayMapper::to_id(Decays::B__D_l_nu),             std::make_shared<BDlnuDecay>(QCDOrder::NONE, 81, obsParamProxy("FMASS", 521), wil_builder)},
+        {DecayMapper::to_id(Decays::B__Dstar_l_nu),         std::make_shared<BDstarlnuDecay>(QCDOrder::NONE, 81, obsParamProxy("FMASS", 521), wil_builder)},
+        {DecayMapper::to_id(Decays::B__Kstar_gamma),        std::make_shared<BKstarGammaDecay>(QCDOrder::NONE, 81, obsParamProxy("FMASS", 511), wil_builder)},
+        {DecayMapper::to_id(Decays::B__l_l),                std::make_shared<BllDecay>(QCDOrder::NONE, 81, obsParamProxy("FMASS", 531), wil_builder)},
+        {DecayMapper::to_id(Decays::B__l_nu),               std::make_shared<BlnuDecay>(QCDOrder::NONE, 81, obsParamProxy("FMASS", 511), wil_builder)},
+        {DecayMapper::to_id(Decays::B__Xs),                 std::make_shared<BXsDecay>(QCDOrder::NONE, 2 * smParamProxy("MASS", 24), smParamProxy("QCD", LhaID(5, 2)) / 2, wil_builder)},
+        {DecayMapper::to_id(Decays::B__Xs_l_l),             std::make_shared<BXsllDecay>(QCDOrder::NONE, 2 * smParamProxy("MASS", 24), smParamProxy("QCD", LhaID(5, 2)) / 2, wil_builder)},
+        {DecayMapper::to_id(Decays::M0_Mix),                std::make_shared<M0Mixing>(QCDOrder::NONE, 160, 4.16, wil_builder)},
+        {DecayMapper::to_id(Decays::B__Kstar_l_l),          std::make_shared<BKstarllDecay>(QCDOrder::NONE, 81, smParamProxy("QCD", LhaID(5, 3)), wil_builder)},
+        {DecayMapper::to_id(Decays::B__K_l_l),              std::make_shared<BKllDecay>(QCDOrder::NONE, 81, smParamProxy("QCD", LhaID(5, 3)), wil_builder)},
+        {DecayMapper::to_id(Decays::Bs__phi_l_l),           std::make_shared<BsPhiDecay>(QCDOrder::NONE, 81, smParamProxy("QCD", LhaID(5, 3)), wil_builder)},
+        {DecayMapper::to_id(Decays::Lambda_b__Lambda_l_l),  std::make_shared<LbLllDecay>(QCDOrder::NONE, 81, smParamProxy("QCD", LhaID(5, 3)), wil_builder)},
+        {DecayMapper::to_id(Decays::K__l_l),                std::make_shared<KllDecay>(QCDOrder::NONE, 81, 2.0, wil_builder)},
+        {DecayMapper::to_id(Decays::K__pi_nu_nu),           std::make_shared<KPinunuDecay>(QCDOrder::NONE, 81, 2.0, wil_builder)},
+        {DecayMapper::to_id(Decays::K__l_nu),               std::make_shared<KlnuDecay>(QCDOrder::NONE, 81, 2.0, wil_builder)},
+        {DecayMapper::to_id(Decays::D__l_nu),               std::make_shared<DlnuDecay>(QCDOrder::NONE, 81, 3.0, wil_builder)},
+        {DecayMapper::to_id(Decays::Ds__l_nu),              std::make_shared<DslnuDecay>(QCDOrder::NONE, 81, 3.0, wil_builder)},
     };
 }
 
 ObsManager ObsManager::add_obs(ObservableId id, QCDOrder order, bool add_deps) {
-    LOG_DEBUG("Adding observable", ObservableMapper::str(id), "to manager");
-    //TODO decay mapper properly
-    //check for incorect here TODO:
-    auto dec = decays.at(DecayMapper::get_decay_id(id).value());
+    LOG_INFO("Adding observable", ObservableMapper::str(id), "to manager");
+    // LOG_INFO(DecayMapper::get_decay_id(id).value().str()); //TODO : error with get_decay_id
+    auto dec = decays.at(DecayMapper::to_id(DecayMapper::get_decay(ObservableMapper::enum_of(id).value())));
     dec->set_order(order);
     auto obs_ptr = std::make_shared<Observable>(id, dec);
     obss.emplace(id, obs_ptr);
@@ -176,7 +180,7 @@ std::shared_ptr<Observable> ObsManager::get_obs(ObservableId id){
 
 void ObsManager::select_decay(ObservableId id) {
     for (auto& [dec_id, decay] : this->decays) {
-        dec_id == DecayMapper::get_decay_id(id) ? decay->enable() : decay->disable();
+        dec_id == DecayMapper::to_id(DecayMapper::get_decay(ObservableMapper::enum_of(id).value())) ? decay->enable() : decay->disable();
     }
 }
 

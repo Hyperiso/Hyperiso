@@ -110,6 +110,13 @@ enum class Observables {
     DGAMMA_DQ2_B__K_L_L,
     A_FB_B__K_L_L,
     F_H_B__K_L_L,
+    // Lambda_b > Lambda l l
+    DGAMMA_DQ2_CP_AVG_LAMBDA_B__LAMBDA_L_L,
+    A_FB_L_LAMBDA_B__LAMBDA_L_L,
+    A_FB_H_LAMBDA_B__LAMBDA_L_L,
+    A_FB_LH_LAMBDA_B__LAMBDA_L_L,
+    F_L_LAMBDA_B__LAMBDA_L_L,
+    F_T_LAMBDA_B__LAMBDA_L_L,
     /* Neutral Meson Mixing */
     // Bd
     PHI_D,
@@ -126,7 +133,16 @@ enum class Observables {
     /* Rare K decays */
     // K_L,S > mu mu
     BR_KL__MU_MU,
-    BR_KS__MU_MU
+    BR_KS__MU_MU,
+    // K > mu nu
+    BR_K__MU_NU__BR_PI__MU_NU,
+    R_MU23,
+    // K > pi nu nu
+    BR_K__PI_NU_NU,
+    BR_KL__PI0_NU_NU,
+    /* Rare D decays */
+    BR_D__MU_NU,
+    BR_DS__MU_NU,
 };
 
 enum class Decays {
@@ -140,8 +156,13 @@ enum class Decays {
     B__K_l_l,
     B__Kstar_l_l,
     Bs__phi_l_l,
+    Lambda_b__Lambda_l_l,
     M0_Mix,
     K__l_l,
+    K__pi_nu_nu,
+    K__l_nu,
+    D__l_nu,
+    Ds__l_nu,
 };
 
 enum class QCDOrder {

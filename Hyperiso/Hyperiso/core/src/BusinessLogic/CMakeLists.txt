@@ -31,9 +31,11 @@ endif()
 add_library(BusinessLogicLib STATIC 
     domain/Calculators/BPFFCalculator.cpp
     domain/Calculators/BVFFCalculator.cpp
+    domain/Calculators/LbLFFCalculator.cpp
     domain/Calculators/BaseQCDfCalculator.cpp
     domain/Calculators/BPQCDfCalculator.cpp
     domain/Calculators/BVQCDfCalculator.cpp
+    domain/Calculators/PlnuCalculator.cpp
     domain/Decays/BKsllDecay.cpp
     domain/Decays/BKstarGammaDecay.cpp
     domain/Decays/BllDecay.cpp
@@ -44,8 +46,13 @@ add_library(BusinessLogicLib STATIC
     domain/Decays/BXsllDecay.cpp
     domain/Decays/M0_Mixing.cpp
     domain/Decays/BsPhiDecay.cpp
+    domain/Decays/LbLllDecay.cpp
     domain/Decays/BKllDecay.cpp
     domain/Decays/KllDecay.cpp
+    domain/Decays/KPinunuDecay.cpp
+    domain/Decays/KlnuDecay.cpp
+    domain/Decays/DlnuDecay.cpp
+    domain/Decays/DslnuDecay.cpp
     # domain/Wilson/WilsonObs.cpp
     domain/Compound.cpp
     domain/Observable.cpp

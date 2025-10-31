@@ -6,12 +6,12 @@ void KPinunuDecay::load_params() {
     cache.sw2 = p(ParamId{ParameterType::SM, "SMINPUTS", {7, 1}});
     cache.m_c_m_c = p(ParamId{ParameterType::SM, "MASS", 4});
     cache.lambda_c = p(ParamId{ParameterType::SM, "VCKM", {1, 0}}) * std::conj(p(ParamId{ParameterType::SM, "VCKM", {1, 1}}));
-    cache.lambda_t = p(ParamId{ParameterType::SM, "VCKM", {2, 0}}) * std::conj(p(ParamId{ParameterType::SM, "VCKM", {2, 0}}));
+    cache.lambda_t = p(ParamId{ParameterType::SM, "VCKM", {2, 0}}) * std::conj(p(ParamId{ParameterType::SM, "VCKM", {2, 1}}));
     cache.lambda = p(ParamId{ParameterType::SM, "VCKMIN", 1});
 
-    cache.kappa_L = p(ParamId{ParameterType::SM, "K_pi", 1});
-    cache.kappa_p = p(ParamId{ParameterType::SM, "K_pi", 2});
-    cache.delta_em = p(ParamId{ParameterType::SM, "K_pi", 3});
+    cache.kappa_L = p(ParamId{ParameterType::DECAY, "K_pi", 1});
+    cache.kappa_p = p(ParamId{ParameterType::DECAY, "K_pi", 2});
+    cache.delta_em = p(ParamId{ParameterType::DECAY, "K_pi", 3});
 
     cache.CL = w_proxy->getFR(WGroup::K, WCoef::CK_L, w_config.order);
 }
@@ -40,4 +40,25 @@ double KPinunuDecay::BR_p() {
         std::pow(std::imag(cache.lambda_t * cache.CL), 2)
       + std::pow(std::real(cache.lambda_t * cache.CL - cache.lambda_c * Xc / cache.sw2), 2)
     );
+}
+
+std::vector<ObservableValue> KPinunuDecay::compute_observable(Observables obs) {
+    double value;
+    switch (obs) {
+    case Observables::BR_K__PI_NU_NU:   
+        value = BR_p();
+        break;
+    case Observables::BR_KL__PI0_NU_NU:   
+        value = BR_L();
+        break;
+    default:
+        LOG_ERROR("IndexError", "Observable", ObservableMapper::str(obs), "doesn't belong to the decay", DecayMapper::str(this->id));
+    }
+
+    return {ObservableValue(ObservableMapper::to_id(obs), value)};
+}
+
+
+std::vector<ObservableValue> KPinunuDecay::compute_observable(ObservableId obs) {
+    return compute_observable(ObservableMapper::enum_of(obs).value());
 }

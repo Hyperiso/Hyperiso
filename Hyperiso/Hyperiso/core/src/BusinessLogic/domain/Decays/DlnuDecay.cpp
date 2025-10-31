@@ -13,7 +13,7 @@ double DlnuDecay::BR() {
 std::vector<ObservableValue> DlnuDecay::compute_observable(Observables obs) {
     double value;
     switch (obs) {
-    case Observables::BR_D__TAU_NU:   
+    case Observables::BR_D__MU_NU:   
         value = BR();
         break;
     default:

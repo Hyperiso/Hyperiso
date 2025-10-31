@@ -146,13 +146,13 @@ std::unordered_map<WCoef, scalar_t> BCoefficientGroup::base_2_LO_calculation (
             Ci_match_trad[k] += BRP::std_to_trad_LO[k][j] * coef_matching.at(QCDOrder::LO).at(ids[j]);
             
         }
-        printf("C_match_trad[%d] = %lf\n", k+1, Ci_match_trad[k].real());
-        printf("C_match_old[%d] = %lf\n", k+1, coef_matching.at(QCDOrder::LO).at(ids[k]).real());
+        // printf("C_match_trad[%d] = %lf\n", k+1, Ci_match_trad[k].real());
+        // printf("C_match_old[%d] = %lf\n", k+1, coef_matching.at(QCDOrder::LO).at(ids[k]).real());
     }
     Ci_match_trad[8] = src.at("WPARAM_MATCH_SM")->retrieve(1)->get_val() / (4 * PI) * coef_matching.at(QCDOrder::LO).at(WCoef::C9);
 
-    printf("alpha_muW = %lf\n", src.at("WPARAM_MATCH_SM")->retrieve(1)->get_val().real());
-    printf("alpha_mu = %lf\n", src.at("WPARAM_RUN_SM")->retrieve(1)->get_val().real());
+    // printf("alpha_muW = %lf\n", src.at("WPARAM_MATCH_SM")->retrieve(1)->get_val().real());
+    // printf("alpha_mu = %lf\n", src.at("WPARAM_RUN_SM")->retrieve(1)->get_val().real());
     std::array<complex_t, 10> Ci_run {};
 
     for (size_t k = 0; k < 8; k++) {
@@ -168,7 +168,7 @@ std::unordered_map<WCoef, scalar_t> BCoefficientGroup::base_2_LO_calculation (
     }
     for (int ie=1; ie<=8; ie++) for (int je=1; je<=8; je++)
 	{
-		printf("VO[%d][%d] = %lf\n",ie, je, V0(ie-1,je-1));
+		// printf("VO[%d][%d] = %lf\n",ie, je, V0(ie-1,je-1));
     }
     Ci_run[9] = coef_matching.at(QCDOrder::LO).at(WCoef::C10);
 

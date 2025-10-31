@@ -25,7 +25,7 @@ double KlnuDecay::R_mu23() {
 std::vector<ObservableValue> KlnuDecay::compute_observable(Observables obs) {
     double value;
     switch (obs) {
-    case Observables::BR_K__MU_NU__BR__PI_MU_NU:   
+    case Observables::BR_K__MU_NU__BR_PI__MU_NU:   
         value = BR_K_BR_pi();
         break;
     case Observables::R_MU23:   

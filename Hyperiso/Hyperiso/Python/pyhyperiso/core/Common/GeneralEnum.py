@@ -72,7 +72,7 @@ class WGroup(Enum):
     B = _CppWGroup.B
     BPrime = _CppWGroup.BPrime
     BScalar = _CppWGroup.BScalar
-    BCC = _CppWGroup.BCC
+    CC_bc = _CppWGroup.CC_bc
     
 class WilsonBasis(Enum):
     STANDARD = _CppWilsonBasis.STANDARD

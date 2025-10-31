@@ -19,12 +19,12 @@ int main() {
     for (auto& dec : DecayMapper::get_enum()) {
         if (dec == Decays::M0_Mix) continue;
 
-        if (dec != Decays::K__l_l) continue;
+        // if (dec != Decays::K__l_l) continue;
 
-        // LOG_INFO("Adding observables for decay", DecayMapper::str(dec));
+        LOG_INFO("Adding observables for decay", DecayMapper::str(dec));
         oi.add_observables(dec, order, false);
         
-        // LOG_INFO("Computing observables for decay", DecayMapper::str(dec));
+        LOG_INFO("Computing observables for decay", DecayMapper::str(dec));
         for (auto o : DecayMapper::get_observables(dec)) {
             auto obs_values = oi.compute_observable(o);
             std::stringstream ss;
