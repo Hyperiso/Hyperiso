@@ -219,7 +219,7 @@ enum class Model {
     SM,
     SUSY,
     THDM,
-    CUSTOM
+    MARTY
 };
 
 enum class WilsonBasis {

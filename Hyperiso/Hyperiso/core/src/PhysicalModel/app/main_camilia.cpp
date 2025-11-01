@@ -8,8 +8,8 @@
 int main() {
     auto hyp = HyperisoMaster();
     Config config_hyp;
-    config_hyp.flags[ExternalFlag::USE_MARTY] = true;
-    config_hyp.model = Model::CUSTOM;
+    // config_hyp.flags[ExternalFlag::USE_MARTY] = true;
+    config_hyp.model = Model::MARTY;
     config_hyp.mty_model_name = "ZPrime";
     config_hyp.mty_model_path = "/home/theo/hyperiso/Assets/input_files/marty_model/ZPrime.h";
 

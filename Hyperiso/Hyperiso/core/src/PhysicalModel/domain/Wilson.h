@@ -80,7 +80,7 @@ public:
     complex_t get_matching_value(std::string order, ContributionType cont_type, std::shared_ptr<IParameterProxy<std::string, LhaID>> wilson_p) const; 
     std::string get_name() const {return this->coeffName;}
     std::string get_storage_block() const {return this->storage_block;}
-    QCDOrder get_max_order() const {return this->max_order;}
+    // QCDOrder get_max_order() const {return this->max_order;}
     ContributionType get_type() {return this->type;}
 
     LhaID id(QCDOrder order, ContributionType typ) const;
@@ -95,7 +95,7 @@ public:
 protected:
 
     std::string coeffName{};
-    QCDOrder max_order;
+    // QCDOrder max_order;
     ContributionType type {ContributionType::SM};
     bool is_owned {false};
     std::string storage_block;

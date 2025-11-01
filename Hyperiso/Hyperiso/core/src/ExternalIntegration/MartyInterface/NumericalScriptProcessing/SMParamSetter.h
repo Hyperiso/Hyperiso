@@ -24,7 +24,7 @@ public:
         } else if (model == "MSSM" || model == "NMSSM") {
             this->model_type = Model::SUSY;
         } else {
-            this->model_type = Model::CUSTOM;
+            this->model_type = Model::MARTY;
         }
         
         if (model_type != Model::SM) {

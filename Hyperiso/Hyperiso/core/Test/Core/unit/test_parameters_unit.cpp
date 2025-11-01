@@ -28,7 +28,7 @@ int main() {
   Config cfg;
   cfg.model = Model::SM;
   cfg.flags[ExternalFlag::HAS_WILSON_INPUT] = false;
-  cfg.flags[ExternalFlag::USE_MARTY] = false;
+  // cfg.flags[ExternalFlag::USE_MARTY] = false;
 
   MemoryManager::GetInstance()->init(lha_rel.string(), cfg);
 

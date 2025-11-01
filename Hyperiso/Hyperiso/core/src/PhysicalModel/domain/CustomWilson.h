@@ -17,7 +17,7 @@ public:
         matching_info[QCDOrder::NLO] = MatchingInfo();
         matching_info[QCDOrder::NNLO] = MatchingInfo();
 
-        this->max_order = max_order;
+        // this->max_order = max_order;
         this->type = type;
     }
 
@@ -29,7 +29,7 @@ public:
     ) {
         std::cout << "here" << std::endl;
         matching_info[order] = MatchingInfo(std::move(sources), std::move(compute), std::move(lhaid));
-        if (order > max_order) max_order = order;
+        // if (order > max_order) max_order = order;
         std::cout << "here" << std::endl;
         return *this;
     }

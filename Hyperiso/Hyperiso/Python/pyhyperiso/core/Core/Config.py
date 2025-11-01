@@ -10,7 +10,7 @@ class ExternalFlag(Enum):
     IS_LHA_SPECTRUM = _CppExternalFlag.IS_LHA_SPECTRUM
     HAS_WILSON_INPUT = _CppExternalFlag.HAS_WILSON_INPUT
     HAS_TH_OBSERVABLE_INPUT = _CppExternalFlag.HAS_TH_OBSERVABLE_INPUT
-    USE_MARTY = _CppExternalFlag.USE_MARTY
+    # USE_MARTY = _CppExternalFlag.USE_MARTY
     
 
 @dataclass
@@ -20,7 +20,7 @@ class PyConfig:
         ExternalFlag.IS_LHA_SPECTRUM: False,
         ExternalFlag.HAS_WILSON_INPUT: False,
         ExternalFlag.HAS_TH_OBSERVABLE_INPUT: False,
-        ExternalFlag.USE_MARTY: False,
+        # ExternalFlag.USE_MARTY: False,
     })
     model: Model = Model.SM
     mty_model_name: Optional[str] = None

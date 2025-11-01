@@ -7,14 +7,14 @@
 int main() {
     HyperisoMaster hyp = HyperisoMaster();
     Config config;
-    config.flags[ExternalFlag::USE_MARTY] = true;
-    config.model = Model::THDM;
+    // config.flags[ExternalFlag::USE_MARTY] = true;
+    config.model = Model::MARTY;
     config.mty_model_name = "THDM";
     config.mty_model_path = project_assets_root.data() + std::string("input_files/marty_model/thdm.h");
 
     // hyp.init("default/lha/testInput.flha", config);
     // hyp.init("lha/camilia.flha", config);
-    hyp.init("lha/testinput_thdm.lha", config);
+    hyp.init("spectrum/testinput_thdm.lha", config);
     LOG_INFO("HyperisoMaster initialized");
 
     BlockProxy().log_block(ParameterType::SM, "SMINPUTS");

@@ -13,8 +13,8 @@ int main() {
 
     config_hyp.model = Model::SM; // The model we want to use, SM by default. If not THDM or SUSY, MARTY is needed.
 
-    config_hyp.mty_model_name = "ZPrime"; // Only if Config.model = Model::Custom, name of the bsm model.
-    config_hyp.mty_model_path = "/home/theo/hyperiso/Assets/input_files/marty_model/ZPrime.h"; // Only if Config.model = Model::Custom, path of the bsm model.
+    config_hyp.mty_model_name = "ZPrime"; // Only if Config.model = Model::MARTY, name of the bsm model.
+    config_hyp.mty_model_path = "/home/theo/hyperiso/Assets/input_files/marty_model/ZPrime.h"; // Only if Config.model = Model::MARTY, path of the bsm model.
 
     hyp.init("lha/camilia.flha", config_hyp); // Initialize program manager with LHA file and the config. Search in the Assets directory if relative path.
 

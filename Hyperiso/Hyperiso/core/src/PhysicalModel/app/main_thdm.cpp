@@ -7,7 +7,7 @@
 int main() {
     auto hyp = HyperisoMaster();
     Config config_hyp;
-    config_hyp.flags[ExternalFlag::USE_MARTY] = false;
+    // config_hyp.flags[ExternalFlag::USE_MARTY] = false;
     config_hyp.model = Model::THDM;
     config_hyp.mty_model_name = "THDM";
     config_hyp.mty_model_path = std::string(project_tp_root.data()) + "MARTY/src/MARTY/src/marty/models/thdm.h";

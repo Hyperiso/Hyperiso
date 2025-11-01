@@ -7,14 +7,14 @@
 
 #include "General.h"
 
-enum class ExternalFlag { IS_LHA_SPECTRUM, HAS_WILSON_INPUT, HAS_TH_OBSERVABLE_INPUT, USE_MARTY };
+enum class ExternalFlag { IS_LHA_SPECTRUM, HAS_WILSON_INPUT, HAS_TH_OBSERVABLE_INPUT};
 
 struct Config {
     std::map<ExternalFlag, bool> flags {
         {ExternalFlag::IS_LHA_SPECTRUM, false},
         {ExternalFlag::HAS_WILSON_INPUT, false},
         {ExternalFlag::HAS_TH_OBSERVABLE_INPUT, false},
-        {ExternalFlag::USE_MARTY, false},
+        // {ExternalFlag::USE_MARTY, false},
     };
     Model model {Model::SM};                    ///< Model type (current model)
     std::optional<std::string> mty_model_name;  ///< MARTY model name (name of the class in MARTY) if needed

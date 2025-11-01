@@ -7,7 +7,7 @@
 
 class UseMarty : public ICoreAPI<bool> {
 public:
-    inline bool get() override {return HyperisoMaster().check_flag(ExternalFlag::USE_MARTY);}
+    inline bool get() override {return HyperisoMaster().get_model() == Model::MARTY ? 1 : 0;}
 };
 
 #endif

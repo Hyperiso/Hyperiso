@@ -264,7 +264,7 @@ const std::map<Model, std::string>& model_mapping() {
         {Model::SM, "SM"},
         {Model::SUSY, "SUSY"},
         {Model::THDM, "THDM"},
-        {Model::CUSTOM, "CUSTOM"},
+        {Model::MARTY, "MARTY"},
     };
     return m;
 }

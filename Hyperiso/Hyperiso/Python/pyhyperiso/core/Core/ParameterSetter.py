@@ -28,7 +28,7 @@ if __name__ == "__main__":
             ExternalFlag.IS_LHA_SPECTRUM: True,
             ExternalFlag.HAS_WILSON_INPUT: False,
             ExternalFlag.HAS_TH_OBSERVABLE_INPUT: False,
-            ExternalFlag.USE_MARTY: False
+            # ExternalFlag.USE_MARTY: False
         },
         model=Model.SM,
         mty_model_name="MSSM_UFO",

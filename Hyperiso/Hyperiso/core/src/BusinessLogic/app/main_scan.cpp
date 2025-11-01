@@ -21,7 +21,7 @@ int main() {
     // Prépare HyperIso
     Config config;
     config.model = Model::THDM;
-    config.flags[ExternalFlag::USE_MARTY] = false;
+    // config.flags[ExternalFlag::USE_MARTY] = false;
     config.mty_model_name = "THDM";
     config.mty_model_path = project_assets_root.data() + std::string("input_files/marty_model/thdm.h");
     HyperisoMaster hyp;

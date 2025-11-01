@@ -34,16 +34,16 @@ int main() {
   Config cfg;
   cfg.model = Model::SM;
   cfg.flags[ExternalFlag::HAS_WILSON_INPUT] = false;
-  cfg.flags[ExternalFlag::USE_MARTY] = false;
+  // cfg.flags[ExternalFlag::USE_MARTY] = false;
 
   auto* mm = MemoryManager::GetInstance();
   mm->init(lha1.string(), cfg);
 
   auto sm1 = Parameters::GetInstance(ParameterType::SM);
   double v1 = (*sm1)("GAUGE", LhaID(1)).real();
-
+  //TODO : redo tests
   Config cfg2 = cfg;
-  cfg2.flags[ExternalFlag::USE_MARTY] = true;
+  // cfg2.flags[ExternalFlag::USE_MARTY] = true;
   mm->switch_lha(lha2.string(), cfg2);
 
   sm1->CleanupInstance(ParameterType::SM);

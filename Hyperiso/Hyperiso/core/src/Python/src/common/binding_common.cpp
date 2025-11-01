@@ -36,7 +36,7 @@ void init_common(py::module &m) {
     .value("SM", Model::SM)
     .value("SUSY", Model::SUSY)
     .value("THDM", Model::THDM)
-    .value("CUSTOM", Model::CUSTOM)
+    .value("MARTY", Model::MARTY)
     .export_values();
 
     py::enum_<ParameterType>(m, "ParameterType")

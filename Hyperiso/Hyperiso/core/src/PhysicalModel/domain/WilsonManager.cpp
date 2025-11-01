@@ -20,7 +20,7 @@ void CoefficientManager::initialize(const std::string &lhaFile,
     HyperisoMaster hyp = HyperisoMaster(); //TODO bad coupling
     Config config;
     config.flags.at(ExternalFlag::IS_LHA_SPECTRUM) = is_spectrum;
-    config.flags.at(ExternalFlag::USE_MARTY) = use_marty;
+    // config.flags.at(ExternalFlag::USE_MARTY) = use_marty;
     config.flags.at(ExternalFlag::HAS_WILSON_INPUT) = has_wilsons;
     config.flags.at(ExternalFlag::HAS_TH_OBSERVABLE_INPUT) = has_obs;
     config.model = model;
