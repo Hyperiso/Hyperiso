@@ -31,7 +31,7 @@ config = PyConfig(
         ExternalFlag.IS_LHA_SPECTRUM: False,
         ExternalFlag.HAS_WILSON_INPUT: False,
         ExternalFlag.HAS_TH_OBSERVABLE_INPUT: False,
-        ExternalFlag.USE_MARTY: False
+        # ExternalFlag.USE_MARTY: False
     },
     model=Model.THDM,
 )
@@ -125,7 +125,7 @@ def update_graphs(n_clicks, model_value, custom_name, custom_path, lha_path, mat
         ExternalFlag.IS_LHA_SPECTRUM: False,
         ExternalFlag.HAS_WILSON_INPUT: False,
         ExternalFlag.HAS_TH_OBSERVABLE_INPUT: False,
-        ExternalFlag.USE_MARTY: False
+        # ExternalFlag.USE_MARTY: False
     }, 'model': model_enum}
     if model_enum == Model.CUSTOM:
         cfg_args['mty_model_name'] = custom_name

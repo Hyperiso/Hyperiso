@@ -100,15 +100,15 @@ last_model_name = "THDM"
 last_lha_path = "lha/testinput_thdm.lha"
 
 hyp = PyHyperisoMaster()
-config = PyConfig(
-    flags={
-        ExternalFlag.IS_LHA_SPECTRUM: False,
-        ExternalFlag.HAS_WILSON_INPUT: False,
-        ExternalFlag.HAS_TH_OBSERVABLE_INPUT: False,
-        ExternalFlag.USE_MARTY: False,
-    },
-    model=getattr(type("_Model", (), {}), "THDM", None) or None,  # modèle défini dans PyConfig côté C++
-)
+# config = PyConfig(
+#     flags={
+#         ExternalFlag.IS_LHA_SPECTRUM: False,
+#         ExternalFlag.HAS_WILSON_INPUT: False,
+#         ExternalFlag.HAS_TH_OBSERVABLE_INPUT: False,
+#         ExternalFlag.USE_MARTY: False,
+#     },
+#     model=getattr(type("_Model", (), {}), "THDM", None) or None,  # modèle défini dans PyConfig côté C++
+# )
 # Si votre PyConfig attend un enum Model, on garde exactement votre snippet initial
 from pyhyperiso.core.Common.GeneralEnum import Model as _ModelEnum
 config = PyConfig(
@@ -116,7 +116,7 @@ config = PyConfig(
         ExternalFlag.IS_LHA_SPECTRUM: False,
         ExternalFlag.HAS_WILSON_INPUT: False,
         ExternalFlag.HAS_TH_OBSERVABLE_INPUT: False,
-        ExternalFlag.USE_MARTY: False,
+        # ExternalFlag.USE_MARTY: False,
     },
     model=_ModelEnum.THDM,
 )
@@ -195,7 +195,7 @@ def _switch_lha_if_needed(model_name: str, lha_path: str):
                 ExternalFlag.IS_LHA_SPECTRUM: False,
                 ExternalFlag.HAS_WILSON_INPUT: False,
                 ExternalFlag.HAS_TH_OBSERVABLE_INPUT: False,
-                ExternalFlag.USE_MARTY: False,
+                # ExternalFlag.USE_MARTY: False,
             },
             model=getattr(Model, model_name),
         )
