@@ -15,11 +15,15 @@ private:
 
 public:
     WilsonDecay(DecayId id, QCDOrder order, double matching_scale, double hadronic_scale) : DecayParentConfigurable(id, matching_scale, hadronic_scale, order) {
-        this->w_config.groups = {WGroup::B, WGroup::BPrime, WGroup::BScalar, WGroup::CC_bc, WGroup::MESON_MIXING};
+        this->w_config.groups = {GroupMapper::to_id(WGroup::B), GroupMapper::to_id(WGroup::BPrime), GroupMapper::to_id(WGroup::BScalar), GroupMapper::to_id(WGroup::CC_bc), GroupMapper::to_id(WGroup::MESON_MIXING)};
         this->max_order = QCDOrder::NNLO;
     }
 
-    void build_op_tree() override;
+    void build_op_tree();
+    void load_params() override {}
+
+    std::vector<ObservableValue> compute_observable(Observables obs) override {return {};}
+    std::vector<ObservableValue> compute_observable(ObservableId obs) override {return {};}
 };
 
 #endif // __WILSONDECAY_H__

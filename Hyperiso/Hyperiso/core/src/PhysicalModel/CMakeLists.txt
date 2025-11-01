@@ -40,40 +40,40 @@ endif()
 
 
 add_library(PhysicalModelLib STATIC 
-    domain/MesonMixingRunningParameters.cpp
-    domain/BWilsonRunningParameters.cpp
-    domain/WilsonParametersHelper.cpp
+    domain/Helper/MesonMixingRunningParameters.cpp
+    domain/Helper/BWilsonRunningParameters.cpp
+    domain/Helper/WilsonParametersHelper.cpp
     domain/Wilson.cpp
     domain/MartyWilson.cpp
-    domain/BWilson.cpp
-    domain/BWilsonGroup.cpp
-    domain/KWilson.cpp
-    domain/KWilsonGroup.cpp
-    domain/ChargedCurrentWilson.cpp
-    domain/ChargedCurrentsWilsonGroup.cpp
-    domain/DChargedCurrentWilson.cpp
-    domain/DChargedCurrentsWilsonGroup.cpp
-    domain/KChargedCurrentWilson.cpp
-    domain/KChargedCurrentsWilsonGroup.cpp
-    domain/PIChargedCurrentWilson.cpp
-    domain/PIChargedCurrentsWilsonGroup.cpp
-    domain/MesonMixingWilson.cpp
-    domain/MesonMixingWilsonGroup.cpp
+    domain/WCoef/BWilson.cpp
+    domain/WGroup/BWilsonGroup.cpp
+    domain/WCoef/KWilson.cpp
+    domain/WGroup/KWilsonGroup.cpp
+    domain/WCoef/ChargedCurrentWilson.cpp
+    domain/WGroup/ChargedCurrentsWilsonGroup.cpp
+    domain/WCoef/DChargedCurrentWilson.cpp
+    domain/WGroup/DChargedCurrentsWilsonGroup.cpp
+    domain/WCoef/KChargedCurrentWilson.cpp
+    domain/WGroup/KChargedCurrentsWilsonGroup.cpp
+    domain/WCoef/PIChargedCurrentWilson.cpp
+    domain/WGroup/PIChargedCurrentsWilsonGroup.cpp
+    domain/WCoef/MesonMixingWilson.cpp
+    domain/WGroup/MesonMixingWilsonGroup.cpp
     domain/WilsonGroup.cpp
     domain/WilsonManager.cpp
     domain/MartyWilson.cpp
-    domain/GroupDefinitions.cpp
-    domain/GroupDef_B.cpp
-    domain/GroupDef_CC_bc.cpp
-    domain/GroupDef_CC_bu.cpp
-    domain/GroupDef_CC_cs.cpp
-    domain/GroupDef_CC_cd.cpp
-    domain/GroupDef_CC_su.cpp
-    domain/GroupDef_CC_du.cpp
-    domain/GroupDef_BPrime.cpp
-    domain/GroupDef_BScalar.cpp
-    domain/GroupDef_MesonMixing.cpp
-    domain/GroupDef_K.cpp
+    domain/GroupDef/GroupDefinitions.cpp
+    domain/GroupDef/GroupDef_B.cpp
+    domain/GroupDef/GroupDef_CC_bc.cpp
+    domain/GroupDef/GroupDef_CC_bu.cpp
+    domain/GroupDef/GroupDef_CC_cs.cpp
+    domain/GroupDef/GroupDef_CC_cd.cpp
+    domain/GroupDef/GroupDef_CC_su.cpp
+    domain/GroupDef/GroupDef_CC_du.cpp
+    domain/GroupDef/GroupDef_BPrime.cpp
+    domain/GroupDef/GroupDef_BScalar.cpp
+    domain/GroupDef/GroupDef_MesonMixing.cpp
+    domain/GroupDef/GroupDef_K.cpp
     domain/WilsonCoefficientRegistry.cpp
     domain/CoefficientGroupBuilder.cpp
     adapters/ParameterProxy.cpp
@@ -82,22 +82,22 @@ add_library(PhysicalModelLib STATIC
     adapters/WilsonBuilder.cpp
     adapters/WilsonProvider.cpp
     adapters/BlockProxy.cpp
-    BSM/SUSYParametersHelper.cpp
-    BSM/THDMParametersHelper.cpp
-    BSM/BWilsonSUSY.cpp
-    BSM/BWilsonTHDM.cpp
-    BSM/ChargedCurrentWilsonSUSY.cpp
-    BSM/ChargedCurrentWilsonTHDM.cpp
-    BSM/DChargedCurrentWilsonSUSY.cpp
-    BSM/DChargedCurrentWilsonTHDM.cpp
-    BSM/KChargedCurrentWilsonSUSY.cpp
-    BSM/KChargedCurrentWilsonTHDM.cpp
-    BSM/PIChargedCurrentWilsonSUSY.cpp
-    BSM/PIChargedCurrentWilsonTHDM.cpp
+    domain/Helper/BSM/SUSYParametersHelper.cpp
+    domain/Helper/BSM/THDMParametersHelper.cpp
+    domain/WCoef/BSM/BWilsonSUSY.cpp
+    domain/WCoef/BSM/BWilsonTHDM.cpp
+    domain/WCoef/BSM/ChargedCurrentWilsonSUSY.cpp
+    domain/WCoef/BSM/ChargedCurrentWilsonTHDM.cpp
+    domain/WCoef/BSM/DChargedCurrentWilsonSUSY.cpp
+    domain/WCoef/BSM/DChargedCurrentWilsonTHDM.cpp
+    domain/WCoef/BSM/KChargedCurrentWilsonSUSY.cpp
+    domain/WCoef/BSM/KChargedCurrentWilsonTHDM.cpp
+    domain/WCoef/BSM/PIChargedCurrentWilsonSUSY.cpp
+    domain/WCoef/BSM/PIChargedCurrentWilsonTHDM.cpp
     )
 
 set_target_properties(PhysicalModelLib PROPERTIES POSITION_INDEPENDENT_CODE ON)
-set_target_properties(PhysicalModelLib PROPERTIES PUBLIC_HEADER "Interpolator.h;WilsonManager.h;Wilson.h;WilsonGroup.h;MartyWilson.h;Wilson_parameters.h;epsilon_calculator.h;susy_parameters.h;thdm_parameters;Wilson_susy.h;Wilson_THDM.h;WilsonManager.h")
+# set_target_properties(PhysicalModelLib PROPERTIES PUBLIC_HEADER "Interpolator.h;WilsonManager.h;Wilson.h;WilsonGroup.h;MartyWilson.h;Wilson_parameters.h;epsilon_calculator.h;susy_parameters.h;thdm_parameters;Wilson_susy.h;Wilson_THDM.h;WilsonManager.h")
 
 # target_include_directories(PhysicalModelLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/adapters)
 # target_include_directories(PhysicalModelLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/ports)
@@ -112,14 +112,26 @@ target_include_directories(PhysicalModelLib
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/adapters>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/ports>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/domain>
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/BSM>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/domain/GroupDef>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/domain/Helper>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/domain/Helper/BSM>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/domain/WCoef>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/domain/WCoef/BSM>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/domain/WGroup>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/domain/WGroup/BSM>
 
     # install
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/PhysicalModel>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/PhysicalModel/adapters>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/PhysicalModel/ports>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/PhysicalModel/domain>
-    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/PhysicalModel/BSM>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/PhysicalModel/domain/GroupDef>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/PhysicalModel/domain/Helper>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/PhysicalModel/domain/Helper/BSM>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/PhysicalModel/domain/WCoef>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/PhysicalModel/domain/WCoef/BSM>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/PhysicalModel/domain/WGroup>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/PhysicalModel/domain/WGroup/BSM>
   PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
 )

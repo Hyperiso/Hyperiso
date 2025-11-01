@@ -239,7 +239,7 @@ if (BUILD_WITH_MARTY)
     add_dependencies(ExternalIntegrationLib MARTY)
 
 endif()
-set_target_properties(ExternalIntegrationLib PROPERTIES PUBLIC_HEADER "2HDMC.h;Interface.h;Softsusy.h")
+# set_target_properties(ExternalIntegrationLib PROPERTIES PUBLIC_HEADER "2HDMC.h;Interface.h;Softsusy.h")
 
 # target_include_directories(ExternalIntegrationLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 

@@ -308,6 +308,11 @@ if(BUILD_WITH_SOFTSUSY)
     target_link_libraries(testSUSYCQPrimeWilson PhysicalModelLib UtilsLib)
 endif()
 
+#Observables
+
+add_executable(testObservables Observables/test_observables.cpp)
+target_link_libraries(testObservables BusinessLogicLib UtilsLib)
+
 include(CTest)
 
 

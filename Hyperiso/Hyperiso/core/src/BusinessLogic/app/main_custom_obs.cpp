@@ -29,7 +29,7 @@ int main() {
         ParamId {ParameterType::SM, "MASS", 24}
     });
 
-    LOG_INFO("C7 =", oi.compute_observable(o).real(), "+-", oi.compute_uncertainty(o).real());
+    LOG_INFO("C7 =", oi.compute_observable(o)[0].value, "+-", oi.compute_uncertainty(o));
 
     auto print_leading = [&oi] (ObservableId o, size_t n) {
         LOG_INFO("---------- Leading uncertainties for", ObservableMapper::str(o));

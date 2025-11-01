@@ -53,7 +53,7 @@ add_library(BusinessLogicLib STATIC
     domain/Decays/KlnuDecay.cpp
     domain/Decays/DlnuDecay.cpp
     domain/Decays/DslnuDecay.cpp
-    # domain/Wilson/WilsonObs.cpp
+    domain/Wilson/WilsonObs.cpp
     domain/Compound.cpp
     domain/Observable.cpp
     domain/DecayParent.cpp
@@ -86,6 +86,7 @@ target_include_directories(BusinessLogicLib
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/domain>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/domain/Calculators>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/domain/Decays>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/domain/Wilson>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/ports>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/adapters>
     # install
@@ -93,6 +94,7 @@ target_include_directories(BusinessLogicLib
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/BusinessLogic/domain>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/BusinessLogic/domain/Calculators>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/BusinessLogic/domain/Decays>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/BusinessLogic/domain/Wilson>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/BusinessLogic/ports>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/BusinessLogic/adapters>
   PRIVATE

@@ -43,7 +43,9 @@ void test_interface(ObservableInterface& interface) {
 
     // Compute observable
     auto val = interface.compute_observable(R_DSTAR);
-    std::cout << "compute_observable: " << val << "\n";
+    for (auto elem : val) {
+        std::cout << "compute_observable: " << elem.value << "\n";
+    }
 
     // Compute uncertainty
     auto unc = interface.compute_uncertainty(R_DSTAR);

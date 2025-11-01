@@ -5,6 +5,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 project(Utils)
 
+if (NOT TARGET BusinessLogicLib)
+    add_subdirectory(../../src/BusinessLogic BusinessLogicLib)
+endif()
 if (NOT TARGET PhysicalModelLib)
     add_subdirectory(../../src/PhysicalModel PhysicalModelLib)
 endif()
@@ -14,10 +17,11 @@ endif()
 
 add_library(UtilsLib STATIC 
     CompareCsv.cpp
-    WilsonUtils.cpp)
+    WilsonUtils.cpp
+    ObservablesUtils.cpp)
 
-set_target_properties(UtilsLib PROPERTIES PUBLIC_HEADER "CompareCsv.h;WilsonUtils.h")
+set_target_properties(UtilsLib PROPERTIES PUBLIC_HEADER "CompareCsv.h;WilsonUtils.h;ObservablesUtils.h")
 
 target_include_directories(UtilsLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
-target_link_libraries(UtilsLib PUBLIC PhysicalModelLib)
+target_link_libraries(UtilsLib PUBLIC BusinessLogicLib PhysicalModelLib)
