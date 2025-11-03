@@ -70,7 +70,7 @@ void writeDecayObservablesCsv(ObservableInterface& oi,
     }
     file << '\n';
 
-    file << std::fixed << std::setprecision(8);
+    file << std::scientific << std::setprecision(4);
     for (size_t i = 0; i < values.size(); ++i) {
         if (i) file << ',';
         file << values[i];

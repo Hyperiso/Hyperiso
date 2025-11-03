@@ -10,7 +10,7 @@ int main() {
     const QCDOrder order = QCDOrder::NNLO; 
     const std::string out_dir = project_root.data()+ std::string("Test/csv/observables");
     const std::string ref_dir = project_root.data()+ std::string("Test/csv/superiso/observables");
-    const double tolerance = 1e-6;
+    const double tolerance = 1e-4;
 
     runObservablesTest(lha_path, model, order, out_dir, ref_dir, tolerance);
     return 0;

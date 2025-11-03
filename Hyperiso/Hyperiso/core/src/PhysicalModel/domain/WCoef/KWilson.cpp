@@ -36,7 +36,7 @@ CK10::CK10() : WilsonCoefficient("CK10", GroupMapper::str(WGroup::K, ScaleType::
             {ParameterType::SM, "QCD", 6},     //mt 
         },
         compute_NLO,
-        get_lhaid_from_name(QCDOrder::LO)
+        get_lhaid_from_name(QCDOrder::NLO)
     };
 
 }
