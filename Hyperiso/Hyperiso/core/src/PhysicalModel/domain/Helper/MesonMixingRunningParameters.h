@@ -1,5 +1,5 @@
-#ifndef __MESONMIXINGRUNNINGPARAMETERS_H__
-#define __MESONMIXINGRUNNINGPARAMETERS_H__
+#ifndef MESONMIXINGRUNNINGPARAMETERS_H
+#define MESONMIXINGRUNNINGPARAMETERS_H
 
 #include <array>
 #include "Math.h"
@@ -54,4 +54,4 @@ struct MesonMixingRunningParameters {
     static const std::array<std::array<double, n_coefs>, n_coefs> BMU_to_SUSY;
 };
 
-#endif // __MESONMIXINGRUNNINGPARAMETERS_H__
+#endif // MESONMIXINGRUNNINGPARAMETERS_H

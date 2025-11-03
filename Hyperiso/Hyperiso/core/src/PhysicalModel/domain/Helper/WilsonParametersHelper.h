@@ -1,4 +1,6 @@
-#pragma once
+#ifndef WILSON_PARAMETER_HELPER_H
+#define WILSON_PARAMETER_HELPER_H
+
 #include <array>
 #include "IBlockComposer.h"
 #include "BWilsonRunningParameters.h"
@@ -27,3 +29,4 @@ private:
 
 };
 
+#endif

@@ -1,4 +1,6 @@
-#pragma once
+#ifndef COEFFICIENT_GROUP_BUILDER_H
+#define COEFFICIENT_GROUP_BUILDER_H
+
 #include "GroupDefinition.h"
 #include "WilsonGroup.h"
 #include "Wilson.h"
@@ -14,3 +16,5 @@ public:
 private:
     const CoefficientRegistry& reg_;
 };
+
+#endif

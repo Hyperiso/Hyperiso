@@ -27,13 +27,6 @@ CoefficientGroup::CoefficientGroup(std::map<std::string, std::shared_ptr<WilsonC
     this->insert(coeffs.begin(), coeffs.end());
     
     QCDOrder max_order = QCDOrder::NNLO;
-    // for (const auto& [_, wil] : coeffs) {
-    //     if (wil->get_max_order() > max_order) {
-    //         max_order = wil->get_max_order();
-    //     }
-
-    //     if (max_order == QCDOrder::NNLO) break; 
-    // }
 
     this->init(max_order == QCDOrder::NONE ? QCDOrder::LO : max_order);
 }

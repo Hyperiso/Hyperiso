@@ -1,3 +1,6 @@
+#ifndef WILSON_GROUP_ADAPTER_CONFIG_H
+#define WILSON_GROUP_ADAPTER_CONFIG_H
+
 #include <memory>
 
 #include "InterpretedParam.h"
@@ -23,3 +26,5 @@ struct WilsonGroupAdapterConfig {
 
     fs::path sm_path = fs::path(std::string(project_assets_root.data())+"input_files/marty_model/sm.h");
 };
+
+#endif

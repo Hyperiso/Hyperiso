@@ -1,5 +1,5 @@
-#ifndef __IPARAMSETTER_H__
-#define __IPARAMSETTER_H__
+#ifndef IPARAMSETTER_H
+#define IPARAMSETTER_H
 
 #include "ParameterSetter.h"
 
@@ -15,4 +15,4 @@ protected:
     T param;
 };
 
-#endif // __IPARAMSETTER_H__
+#endif // IPARAMSETTER_H

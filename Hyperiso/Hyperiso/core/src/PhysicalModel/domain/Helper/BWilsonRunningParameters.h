@@ -1,5 +1,5 @@
-#ifndef __BWILSONRUNNINGPARAMETERS_H__
-#define __BWILSONRUNNINGPARAMETERS_H__
+#ifndef BWILSONRUNNINGPARAMETERS_H
+#define BWILSONRUNNINGPARAMETERS_H
 
 #include <array>
 #include "Utils.h"
@@ -64,4 +64,4 @@ struct BWilsonRunningParameters {
 	static constexpr double exp_prime_running[12] = {0, 0, 0, 0, 0, 0, 16./23, 14./23, 0, 0, -12./23, -12./23};
 };
 
-#endif // __BWILSONRUNNINGPARAMETERS_H__
+#endif // BWILSONRUNNINGPARAMETERS_H

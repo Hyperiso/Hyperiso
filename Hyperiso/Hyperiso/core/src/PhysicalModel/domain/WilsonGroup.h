@@ -12,12 +12,6 @@
 #include "config.hpp"
 #include "InterpretedParam.h"
 #include "WilsonGroupAdapterConfig.h"
-// #include "BWilson.h"
-// #include "ChargedCurrentWilson.h"
-// #include "MartyWilson.h"
-// #include "ParameterProxy.h"
-// #include "UseMarty.h"
-// #include "BlockProxy.h"
 
 struct CoefficientGroupSources {
     std::unordered_map<ParameterType, std::vector<std::string>> sources {};
@@ -67,7 +61,6 @@ public:
 protected:
     void claim_coefficients();
 
-    // static complex_t ensure_coef(WCoef coef, QCDOrder order, ContributionType type, std::string matching_block);
     ContributionType wilson_type {ContributionType::SM};
     QCDOrder current_order = QCDOrder::LO;
     WGroupId id;
@@ -78,4 +71,5 @@ protected:
 
 std::ostream& operator<<(std::ostream& os, const CoefficientGroup& coeffs);
 std::ostream& operator<<(std::ostream& os, const std::shared_ptr<CoefficientGroup>& coeffs);
+
 #endif

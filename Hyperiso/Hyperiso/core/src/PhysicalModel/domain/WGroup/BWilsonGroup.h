@@ -7,8 +7,6 @@
 #include "Block.h"
 #include "BWilsonRunningParameters.h"
 #include "MartyWilson.h"
-// #include "MartyModelNameAPI.h"
-// #include "MartyModelPathAPI.h"
 
 using BRP = BWilsonRunningParameters;
 

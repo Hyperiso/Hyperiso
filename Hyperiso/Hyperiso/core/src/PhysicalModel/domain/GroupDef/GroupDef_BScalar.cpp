@@ -136,7 +136,7 @@ namespace GroupDefinitions {
         static const GroupDefinition def = []{
             GroupDefinition d;
             d.id = GroupMapper::to_id(WGroup::BScalar);
-            d.members = { WCoef::CQ1, WCoef::CQ2 };
+            d.members = WCoefMapper::get_group(WGroup::BScalar);
 
             std::map<QCDOrder, CGS> m;
             CGS lo;

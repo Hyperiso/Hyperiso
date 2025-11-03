@@ -1,5 +1,5 @@
-#ifndef __IWILSONPROVIDER_H__
-#define __IWILSONPROVIDER_H__
+#ifndef IWILSONPROVIDER_H
+#define IWILSONPROVIDER_H
 
 #include "Math.h"
 #include "AbstractConfig.h"
@@ -17,4 +17,4 @@ public:
     virtual std::shared_ptr<BuilderType> get_builder() = 0;
 };
 
-#endif // __IWILSONPROVIDER_H__
+#endif // IWILSONPROVIDER_H

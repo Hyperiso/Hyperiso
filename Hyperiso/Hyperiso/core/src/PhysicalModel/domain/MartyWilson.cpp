@@ -25,7 +25,6 @@ MartyWilson::MartyWilson(MartyWilsonConfig config)
         CSVReader csv_reader;
         DataFrame df;
 
-        // MartyInterface martyInterface;
         marty_proxy->calculate(name, marty_model, ew_scale, marty_model_path);
         df = csv_reader.read_csv(csv_path);
         df.setIndex(df.getColumn<double>("Q_match").to_string_vec());

@@ -1,5 +1,5 @@
-#ifndef __IWILSONBUILDER_H__
-#define __IWILSONBUILDER_H__
+#ifndef IWILSONBUILDER_H
+#define IWILSONBUILDER_H
 
 #include <memory>
 #include "IWilsonProvider.h"
@@ -14,4 +14,4 @@ public:
     virtual std::shared_ptr<ProviderType> get_wilson_provider() = 0;
 };
 
-#endif // __IWILSONBUILDER_H__
+#endif // IWILSONBUILDER_H

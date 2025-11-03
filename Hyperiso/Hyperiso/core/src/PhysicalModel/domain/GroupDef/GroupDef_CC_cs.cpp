@@ -8,7 +8,7 @@ namespace GroupDefinitions {
         static const GroupDefinition def = []{
             GroupDefinition d;
             d.id = GroupMapper::to_id(WGroup::CC_cs);
-            d.members = { WCoef::C_V1_cs, WCoef::C_V2_cs, WCoef::C_S1_cs, WCoef::C_S2_cs, WCoef::C_T_cs };
+            d.members = WCoefMapper::get_group(WGroup::CC_cs);
 
             std::map<QCDOrder, CGS> m;
             CGS lo;

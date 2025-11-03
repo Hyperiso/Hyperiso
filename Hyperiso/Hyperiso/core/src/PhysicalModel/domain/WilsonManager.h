@@ -1,4 +1,4 @@
-#if !defined(HYPERISO_WILSONMANAGER_H)
+#ifndef HYPERISO_WILSONMANAGER_H
 #define HYPERISO_WILSONMANAGER_H
 #include <map>
 #include <memory>
@@ -24,7 +24,6 @@ struct PortsConfig {
 
     std::shared_ptr<IBlockComposer> iblock_c;
     std::shared_ptr<IParameterProxy<std::string, LhaID>> wilson_proxy;
-    // std::shared_ptr<IParameterProxy<std::string, LhaID>> sm_proxy;
     std::shared_ptr<ICoreAPI<bool>> use_marty;
     std::shared_ptr<ICoreAPI<Model>> model_api;
     std::shared_ptr<IParamSetter<ScaleType>> scale_setter_api;
@@ -34,9 +33,7 @@ struct PortsConfig {
 class CoefficientManager {
 private:
     std::map<std::string, std::shared_ptr<CoefficientGroup>> coefficientGroups;
-    // ParameterProxy wilson_p {ParameterType::WILSON};
     PortsConfig ports_config;
-    // std::unique_ptr<IWilsonParameterHelper> wilson_param_helper;
 
     void throw_no_group_error(const std::string& groupName) const;
 

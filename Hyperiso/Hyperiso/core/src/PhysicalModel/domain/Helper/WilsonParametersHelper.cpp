@@ -5,7 +5,6 @@ void WilsonParameterHelper::init(int gen, WGroupId grp) {
 		std::cout << "wilson_param_helper already done " << std::endl;
 		return;
 	}
-	// std::cout << "Initializing WilsonParameterHelper" << std::endl;
 	LOG_DEBUG("Initializing WilsonParameterHelper");
 	init_scale_independent_block(gen);
 	init_matching_block();
@@ -77,7 +76,6 @@ void WilsonParameterHelper::init_running_parameter_blocks_B() {
 
     auto eta_powers_func = [] (const BlockSrc& src, std::shared_ptr<DependentBlock> dep_block) {
 		double eta = src.get_val("WPARAM_RUN_SM", 2);
-        // printf("eta mu : %lf\n", eta);
 		for (int i = 0; i < BRP::array_size; ++i) {
             dep_block->store_or_assign(LhaID(1, i), std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "ETA_POWS", LhaID(1, i)}, std::pow(eta, (BRP::ai)[i]), 0., 0.));
             dep_block->store_or_assign(LhaID(2, i), std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "ETA_POWS", LhaID(2, i)}, std::pow(eta, (BRP::ai2)[i]), 0., 0.));
@@ -143,7 +141,6 @@ void WilsonParameterHelper::init_running_parameter_blocks_B() {
 }
 
 void WilsonParameterHelper::init_running_parameter_blocks_MM() {
-    // WilsonParamComposer composer;
 
     LOG_DEBUG("Init running matrices blocks of Meson Mixing Coefficient group");
 	std::unordered_map<ParameterType, std::vector<std::string>> eta_powers_src = {{ParameterType::WILSON, {"WPARAM_RUN_SM"}}};
@@ -170,7 +167,6 @@ void WilsonParameterHelper::init_running_parameter_blocks_MM() {
 
         double U0, U1;
 
-        // V
         double eta_V = src.get_val("ETA_POWS_MIXING", LhaID(1, 0));
         U0 = MMRP::a0_V_5 * eta_V;
         U1 = (MMRP::a1_V_5 + MMRP::b_V_5 * eta_5) * eta_V;
@@ -179,7 +175,6 @@ void WilsonParameterHelper::init_running_parameter_blocks_MM() {
         dep_block->store_or_assign(LhaID(1, 0, 0), std::make_shared<Parameter>(pid(1, 0, 0), U1, 0., 0.));
         dep_block->store_or_assign(LhaID(1, 5, 5), std::make_shared<Parameter>(pid(1, 5, 5), U1, 0., 0.));
 
-        // LR
         std::array<double, 2> eta_LR {
             src.get_val("ETA_POWS_MIXING", LhaID(1, 1)),
             src.get_val("ETA_POWS_MIXING", LhaID(1, 2)),
@@ -197,7 +192,6 @@ void WilsonParameterHelper::init_running_parameter_blocks_MM() {
             }
         }
 
-        // S
 		std::array<double, 2> eta_S {
             src.get_val("ETA_POWS_MIXING", LhaID(1, 3)),
             src.get_val("ETA_POWS_MIXING", LhaID(1, 4)),
@@ -229,7 +223,6 @@ void WilsonParameterHelper::init_running_parameter_blocks_MM() {
 
         double U0, U1;
 
-        // V
         double eta_5_V = src.get_val("ETA_POWS_MIXING", LhaID(1, 0));
         double eta_4_V = src.get_val("ETA_POWS_MIXING", LhaID(2, 0));
         U0 = MMRP::a0_V_4 * eta_4_V * eta_5_V;
@@ -239,7 +232,6 @@ void WilsonParameterHelper::init_running_parameter_blocks_MM() {
         dep_block->store_or_assign(LhaID(1, 0, 0), std::make_shared<Parameter>(pid(1, 0, 0), U1, 0., 0.));
         dep_block->store_or_assign(LhaID(1, 5, 5), std::make_shared<Parameter>(pid(1, 5, 5), U1, 0., 0.));
 
-        // LR
         std::array<double, 2> eta_5_LR {
             src.get_val("ETA_POWS_MIXING", LhaID(1, 1)),
             src.get_val("ETA_POWS_MIXING", LhaID(1, 2)),
@@ -262,7 +254,6 @@ void WilsonParameterHelper::init_running_parameter_blocks_MM() {
             }
         }
 
-        // S
 		std::array<double, 2> eta_5_S {
             src.get_val("ETA_POWS_MIXING", LhaID(1, 3)),
             src.get_val("ETA_POWS_MIXING", LhaID(1, 4)),
@@ -306,7 +297,6 @@ void WilsonParameterHelper::init_running_block(WGroupId grp) {
 
 		int n_f_final = QCDHelper::get_nf(mu_h, MassType::MSBAR);
         double alphas_mu_h = QCDHelper::alpha_s(mu_h);
-		// std::cout << "n_f_final" << n_f_final << std::endl;
 		double eta_5 {0}, eta_4 {0}, eta_3 {0};
 		if (n_f_final == 5) {
 			eta_5 = QCDHelper::alpha_s(mu_W) / alphas_mu_h;
@@ -325,17 +315,12 @@ void WilsonParameterHelper::init_running_block(WGroupId grp) {
 			double alpha_s_mu_c = QCDHelper::alpha_s(mu_c, MassType::MSBAR);
 			eta_5 = QCDHelper::alpha_s(mu_W) / alpha_s_mu_b;
 			eta_4 = alpha_s_mu_b / alpha_s_mu_c;
-			// std::cout << "eta_5" << eta_5 << std::endl;
-			// std::cout << "eta_4" << eta_4 << std::endl;
+
 			eta_3 = alpha_s_mu_c / alphas_mu_h;
 		} else {
 			LOG_ERROR("ValueError", "In WilsonParameterHelper::init_running_block() : Hadronic mass is out of allowed range in Hyperiso.");
 		}
-        // printf("alphas_mu_W : %.14lf\n",QCDHelper::alpha_s(mu_W));
-		// printf("alphas_mu_h : %.14lf\n",alphas_mu_h);
-        // printf("eta_5 : %.14lf\n",eta_5);
-        // printf("mu_W : %.14lf\n",mu_W);
-        // printf("mu_h : %.14lf\n",mu_h);
+
 		dep_block->store_or_assign(1, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_RUN_SM", 1}, alphas_mu_h, 0., 0.));
 		dep_block->store_or_assign(2, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_RUN_SM", 2}, eta_5, 0., 0.));
 		dep_block->store_or_assign(3, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_RUN_SM", 3}, eta_4, 0., 0.));

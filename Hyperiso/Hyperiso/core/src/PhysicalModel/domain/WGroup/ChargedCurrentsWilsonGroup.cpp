@@ -6,12 +6,10 @@ std::unordered_map<WCoef, scalar_t> BclnuCoefficientGroup::base_1_LO_calculation
 ) {
     auto ids = WCoefMapper::get_group(WGroup::CC_bc);
 
-    std::cout << "eheheheh" << std::endl;
     std::unordered_map<WCoef, scalar_t> Ci_run_map {};
     for (size_t k = 0; k < ids.size(); k++) {
         Ci_run_map[ids[k]] = coef_matching.at(QCDOrder::LO).at(ids[k]);
     }
-    std::cout << "ahahahahah" << std::endl;
     return Ci_run_map;
 }
 

@@ -13,7 +13,6 @@ std::unordered_map<WCoef, scalar_t> KCoefficientGroup::base_1_LO_calculation (
     std::unordered_map<WCoef, scalar_t> Ci_run_map {};
     for (size_t k = 0; k < 10; k++) {
         Ci_run_map[ids[k]] = Ci_run[k];
-        // LOG_DEBUG("At hadronic scale:", k+1, "=", Ci_run_map[ids[k]]);
     }
 
     return Ci_run_map;

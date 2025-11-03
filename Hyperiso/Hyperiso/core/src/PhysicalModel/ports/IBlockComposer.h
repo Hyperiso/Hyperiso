@@ -1,5 +1,5 @@
-#ifndef __IBLOCKCOMPOSER_H__
-#define __IBLOCKCOMPOSER_H__
+#ifndef IBLOCKCOMPOSER_H
+#define IBLOCKCOMPOSER_H
 
 #include "Include.h"
 #include "Parameter.h"
@@ -20,4 +20,4 @@ protected:
     inline static std::unordered_set<std::string> composed_blocks;
 };
 
-#endif // __IBLOCKCOMPOSER_H__
+#endif // IBLOCKCOMPOSER_H
