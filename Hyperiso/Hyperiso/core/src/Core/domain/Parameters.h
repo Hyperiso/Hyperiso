@@ -113,7 +113,7 @@ protected:
  */
 class SMModelStrategy : public ModelStrategy {
 public:
-std::unordered_set<BlockName> initializeParameters(class Parameters& params) override;
+    std::unordered_set<BlockName> initializeParameters(class Parameters& params) override;
     void postInitialization(Parameters& params) override;
 };
 
@@ -123,10 +123,10 @@ std::unordered_set<BlockName> initializeParameters(class Parameters& params) ove
  * @brief Strategy for Beyond Standard Model parameters.
  */
 class BSMModelStrategy : public ModelStrategy {
-    public:
+public:
     std::unordered_set<BlockName> initializeParameters(class Parameters& params) override;
-        void postInitialization(Parameters& params) override {}
-    };
+    void postInitialization(Parameters& params) override;
+};
 
 // /** @class SUSYModelStrategy @brief Strategy for SUSY models. */
 // class SUSYModelStrategy : public ModelStrategy {

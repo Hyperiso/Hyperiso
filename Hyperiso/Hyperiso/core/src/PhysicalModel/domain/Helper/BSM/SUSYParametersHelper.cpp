@@ -209,7 +209,7 @@ void susy_parameters::init_epsilon_block() {
 
 void susy_parameters::init_scale_independent_block(int gen) {
 
-	std::unordered_map<ParameterType, std::vector<std::string>> src = {{ParameterType::SM, {"MASS", "GAUGE", "VCKM"}}, {ParameterType::BSM, {"MASS", "HMIX", "STOPMIX"}}};
+	std::unordered_map<ParameterType, std::vector<std::string>> src = {{ParameterType::SM, {"MASS", "GAUGE", "VCKM"}}, {ParameterType::BSM, {"MASS", "HMIX", "STOPMIX", "USQMIX"}}};
 
     auto func = [] (const BlockSrc& src, std::shared_ptr<DependentBlock> dep_block) {
         double mW = src.get_val("MASS", 24);
@@ -247,23 +247,21 @@ void susy_parameters::init_scale_independent_block(int gen) {
 		Array1D_4 Msn = {src.get_val("MASS", 1000012), src.get_val("MASS", 1000014), src.get_val("MASS", 1000016)};
 		
 		const size_t NumSquarks = 6;
-		Array2D_7x7 sU_mix; //ERROR
+		// Array2D_7x7 sU_mix; //ERROR
 		bool isNonZeroMix = true;
-		for (size_t i = 0; i < NumSquarks; ++i) {
-			double product = 1.0;
-			for (size_t j = 0; j < 6; ++j) {
-				product *= sU_mix[i][j]; //TODO, ISSUE
-			}
-			if (product == 0.0) {
+
+		for (int j = 0; j < NumSquarks; ++j) {
+			// std::cout << "su : " << src.get_val("USQMIX", {1, j+1}) << std::endl;
+			if (src.get_val("USQMIX", {1, j+1}) == 0.0) {
 				isNonZeroMix = false;
 				break;
 			}
 		}
 
 		if (isNonZeroMix) {
-			printf("eheheheh\n");
 			std::sort(MsqU.begin(), MsqU.end());
 		}
+
         int id {1};
         dep_block->store_or_assign(id++, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", id}, z, 0., 0.)); //1
 		dep_block->store_or_assign(id++, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", id}, cosb, 0., 0.)); //2
@@ -327,7 +325,7 @@ void susy_parameters::init_matching_block() {
 
     iblock_c->compose_block("WPARAM_MATCH_BSM", src, func);
 
-	std::unordered_map<ParameterType, std::vector<std::string>> src_matrix = {{ParameterType::SM, {"MASS", "VCKM", "GAUGE"}}, {ParameterType::BSM, {"UMIX", "VMIX"}},
+	std::unordered_map<ParameterType, std::vector<std::string>> src_matrix = {{ParameterType::SM, {"MASS", "VCKM", "GAUGE"}}, {ParameterType::BSM, {"UMIX", "VMIX", "USQMIX"}},
 																				{ParameterType::WILSON, {"WPARAM_SI_BSM", "WPARAM_MATCH_SM", "WPARAM_MATCH_BSM"}}};
 
     auto func_matrix = [] (const BlockSrc& src, std::shared_ptr<DependentBlock> dep_block) {
@@ -382,12 +380,13 @@ void susy_parameters::init_matching_block() {
 		double g2 = src.get_val("GAUGE", 2);
 		if (src.get_val("WPARAM_SI_BSM", 17)) {
 			std::cout << "SHOULD NOT BE HERE" << std::endl;
-			Array2D_7x7 sU_mix; //TODO : wtf
-			const size_t NumSquarks = 6;
-			for (size_t ae = 0; ae < NumSquarks; ++ae) {
-				for (size_t ie = 0; ie < 3; ++ie) {
-					Gamma_UL[ae][ie] = sU_mix[ae][ie];
-					Gamma_UR[ae][ie] = sU_mix[ae][ie + 3];
+			const int NumSquarks = 6;
+			for (int ae = 0; ae < NumSquarks; ++ae) {
+				for (int ie = 0; ie < 3; ++ie) {
+					
+					Gamma_UL[ae][ie] = src.get_val("USQMIX", {ae+1, ie+1});
+					Gamma_UR[ae][ie] = src.get_val("USQMIX", {ae+1, ie+3+1});
+
 				}
 			}
 	}

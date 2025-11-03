@@ -221,6 +221,44 @@ std::unordered_set<BlockName> BSMModelStrategy::initializeParameters(Parameters&
     return absent_blocks;
 }
 
+void BSMModelStrategy::postInitialization(Parameters& params) {
+    const auto& cache = MemoryManager::GetInstance()->getMemoryCache();
+    if (cache.config.model != Model::SUSY) return;
+
+    auto ensure_zero_7x7 = [&](const std::string& block_name) {
+        auto have = params.get_blocks_list();
+        if (have.find(block_name) != have.end()) return;
+
+        auto filler = [](const BlockSrc&, std::shared_ptr<DependentBlock> dep_block) {
+            for (int i = 1; i <= 7; ++i) {
+                for (int j = 1; j <= 7; ++j) {
+                    dep_block->store_or_assign(
+                        LhaID(i, j),
+                        std::make_shared<Parameter>(
+                            ParamId{ParameterType::BSM, dep_block->get_name(), LhaID(i, j)},
+                            0.0, 0.0, 0.0
+                        )
+                    );
+                }
+            }
+        };
+
+        DependentBlockManager::addDependentBlock(
+            block_name,
+            {},
+            ParameterType::BSM,
+            filler
+        );
+    };
+
+    ensure_zero_7x7("USQMIX");
+    ensure_zero_7x7("DSQMIX");
+
+    std::cout << "CA MARCHE !" << std::endl;
+
+    
+ }
+
 std::unordered_set<BlockName> FlavorStrategy::initializeParameters(Parameters& params) {
     auto absent_blocks = params.init_blocks(ParameterType::FLAVOR);
     return absent_blocks;

@@ -319,7 +319,204 @@ include(CTest)
 add_test(NAME TestLogger COMMAND testCommon)
 set_tests_properties(TestLogger PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "common")
 
+#Common
 
+add_test(NAME testCommon COMMAND testCommon)
+set_tests_properties(testCommon PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "common")
+
+add_test(NAME testlhaidunit COMMAND testlhaidunit)
+set_tests_properties(testlhaidunit PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "common")
+
+add_test(NAME testlhaidintegration COMMAND testlhaidintegration)
+set_tests_properties(testlhaidintegration PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "common")
+
+add_test(NAME testblocknameunit COMMAND testblocknameunit)
+set_tests_properties(testblocknameunit PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "common")
+
+add_test(NAME testblocknameintegration COMMAND testblocknameintegration)
+set_tests_properties(testblocknameintegration PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "common")
+
+add_test(NAME testparamidunit COMMAND testparamidunit)
+set_tests_properties(testparamidunit PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "common")
+
+add_test(NAME testparamidintegration COMMAND testparamidintegration)
+set_tests_properties(testparamidintegration PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "common")
+
+add_test(NAME testenummapperunit COMMAND testenummapperunit)
+set_tests_properties(testenummapperunit PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "common")
+
+add_test(NAME testenummapperintegration COMMAND testenummapperintegration)
+set_tests_properties(testenummapperintegration PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "common")
+
+#DataBase
+
+add_test(NAME testReader COMMAND testReader)
+set_tests_properties(testReader PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "database")
+
+add_test(NAME testjsonreader COMMAND testjsonreader)
+set_tests_properties(testjsonreader PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "database")
+
+add_test(NAME testmappingjson COMMAND testmappingjson)
+set_tests_properties(testmappingjson PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "database")
+
+add_test(NAME teststatjson COMMAND teststatjson)
+set_tests_properties(teststatjson PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "database")
+
+add_test(NAME testlhaelementunit COMMAND testlhaelementunit)
+set_tests_properties(testlhaelementunit PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "database")
+
+add_test(NAME testlhaelementintegration COMMAND testlhaelementintegration)
+set_tests_properties(testlhaelementintegration PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "database")
+
+add_test(NAME testdbnodeunit COMMAND testdbnodeunit)
+set_tests_properties(testdbnodeunit PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "database")
+
+add_test(NAME testdbnodeintegration COMMAND testdbnodeintegration)
+set_tests_properties(testdbnodeintegration PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "database")
+
+add_test(NAME testdbmanagerunit COMMAND testdbmanagerunit)
+set_tests_properties(testdbmanagerunit PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "database")
+
+add_test(NAME testdbmanagerintegration COMMAND testdbmanagerintegration)
+set_tests_properties(testdbmanagerintegration PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "database")
+
+add_test(NAME testlhablocksunit COMMAND testlhablocksunit)
+set_tests_properties(testlhablocksunit PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "database")
+
+add_test(NAME testlhablocksintegration COMMAND testlhablocksintegration)
+set_tests_properties(testlhablocksintegration PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "database")
+
+add_test(NAME testjsonparserunit COMMAND testjsonparserunit)
+set_tests_properties(testjsonparserunit PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "database")
+
+add_test(NAME testjsonparserintegration COMMAND testjsonparserintegration)
+set_tests_properties(testjsonparserintegration PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "database")
+
+add_test(NAME testlhaparserunit COMMAND testlhaparserunit)
+set_tests_properties(testlhaparserunit PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "database")
+
+add_test(NAME testlhaparserintegration COMMAND testlhaparserintegration)
+set_tests_properties(testlhaparserintegration PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "database")
+
+#Pandas
+
+add_test(NAME testSerieUnit COMMAND testSerieUnit)
+set_tests_properties(testSerieUnit PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "pandas")
+
+add_test(NAME testSerieIntegration COMMAND testSerieIntegration)
+set_tests_properties(testSerieIntegration PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "pandas")
+
+add_test(NAME testDataFrameUnit COMMAND testDataFrameUnit)
+set_tests_properties(testDataFrameUnit PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "pandas")
+
+add_test(NAME testDataFrameIntegration COMMAND testDataFrameIntegration)
+set_tests_properties(testDataFrameIntegration PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "pandas")
+
+#Core
+
+add_test(NAME testParameterIntegration COMMAND testParameterIntegration)
+set_tests_properties(testParameterIntegration PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "core")
+
+add_test(NAME testParameterUnit COMMAND testParameterUnit)
+set_tests_properties(testParameterUnit PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "core")
+
+add_test(NAME testBlockIntegration COMMAND testBlockIntegration)
+set_tests_properties(testBlockIntegration PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "core")
+
+add_test(NAME testBlockUnit COMMAND testBlockUnit)
+set_tests_properties(testBlockUnit PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "core")
+
+add_test(NAME testBlockAccessorIntegration COMMAND testBlockAccessorIntegration)
+set_tests_properties(testBlockAccessorIntegration PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "core")
+
+add_test(NAME testBlockAccessorUnit COMMAND testBlockAccessorUnit)
+set_tests_properties(testBlockAccessorUnit PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "core")
+
+add_test(NAME testCorrelationRepoIntegration COMMAND testCorrelationRepoIntegration)
+set_tests_properties(testCorrelationRepoIntegration PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "core")
+
+add_test(NAME testCorrelationRepoUnit COMMAND testCorrelationRepoUnit)
+set_tests_properties(testCorrelationRepoUnit PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "core")
+
+add_test(NAME testParameterRouterIntegration COMMAND testParameterRouterIntegration)
+set_tests_properties(testParameterRouterIntegration PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "core")
+
+add_test(NAME testParameterRouterUnit COMMAND testParameterRouterUnit)
+set_tests_properties(testParameterRouterUnit PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "core")
+
+add_test(NAME testDBMementoIntegration COMMAND testDBMementoIntegration)
+set_tests_properties(testDBMementoIntegration PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "core")
+
+add_test(NAME testDBMementoUnit COMMAND testDBMementoUnit)
+set_tests_properties(testDBMementoUnit PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "core")
+
+add_test(NAME testMemoryManagerIntegration COMMAND testMemoryManagerIntegration)
+set_tests_properties(testMemoryManagerIntegration PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "core")
+
+add_test(NAME testMemoryManagerUnit COMMAND testMemoryManagerUnit)
+set_tests_properties(testMemoryManagerUnit PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "core")
+
+add_test(NAME testParametersIntegration COMMAND testParametersIntegration)
+set_tests_properties(testParametersIntegration PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "core")
+
+add_test(NAME testParametersUnit COMMAND testParametersUnit)
+set_tests_properties(testParametersUnit PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "core")
+
+add_test(NAME testSMparams COMMAND testSMparams)
+set_tests_properties(testSMparams PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "core")
+
+#MartyInterface
+
+add_test(NAME testCompilerStrategyUnit COMMAND testCompilerStrategyUnit)
+set_tests_properties(testCompilerStrategyUnit PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "martyinterface")
+
+add_test(NAME testCompilerStrategyIntegration COMMAND testCompilerStrategyIntegration)
+set_tests_properties(testCompilerStrategyIntegration PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "martyinterface")
+
+add_test(NAME testModelFileChecker COMMAND testModelFileChecker)
+set_tests_properties(testModelFileChecker PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "martyinterface")
+
+add_test(NAME testGeneralModelModifierUnit COMMAND testGeneralModelModifierUnit)
+set_tests_properties(testGeneralModelModifierUnit PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "martyinterface")
+
+add_test(NAME testGeneralModelModifierIntegration COMMAND testGeneralModelModifierIntegration)
+set_tests_properties(testGeneralModelModifierIntegration PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "martyinterface")
+
+add_test(NAME testExtractorUnit COMMAND testExtractorUnit)
+set_tests_properties(testExtractorUnit PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "martyinterface")
+
+add_test(NAME testFileWriterUnit COMMAND testFileWriterUnit)
+set_tests_properties(testFileWriterUnit PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "martyinterface")
+
+add_test(NAME testLineProcessorUnit COMMAND testLineProcessorUnit)
+set_tests_properties(testLineProcessorUnit PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "martyinterface")
+
+add_test(NAME testParamWriterUnit COMMAND testParamWriterUnit)
+set_tests_properties(testParamWriterUnit PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "martyinterface")
+
+add_test(NAME testSMParamSetterUnit COMMAND testSMParamSetterUnit)
+set_tests_properties(testSMParamSetterUnit PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "martyinterface")
+
+add_test(NAME testWriterPipelineIntegration COMMAND testWriterPipelineIntegration)
+set_tests_properties(testWriterPipelineIntegration PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "martyinterface")
+
+#PhysicalModel
+
+add_test(NAME testWilsonUnit COMMAND testWilsonUnit)
+set_tests_properties(testWilsonUnit PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "physicalmodel")
+
+add_test(NAME testWilsonIntegration COMMAND testWilsonIntegration)
+set_tests_properties(testWilsonIntegration PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "physicalmodel")
+
+add_test(NAME testWilsonGroupUnit COMMAND testWilsonGroupUnit)
+set_tests_properties(testWilsonGroupUnit PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "physicalmodel")
+
+add_test(NAME testWilsonGroupIntegration COMMAND testWilsonGroupIntegration)
+set_tests_properties(testWilsonGroupIntegration PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "physicalmodel")
+
+
+
+#other testings
 add_test(NAME TestLHAReader COMMAND testReader)
 set_tests_properties(TestLHAReader PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "database")
 
