@@ -9,6 +9,7 @@
 #include "Block.h"
 #include "Parameter.h"
 #include "General.h"
+#include "SourcesView.hpp"
 
 static std::shared_ptr<Parameter> mkp(const std::string& blk, long code, double v){
     return std::make_shared<Parameter>(ParamId{ParameterType::SM, blk, LhaID(code)}, v, 0.0, 0.0);
@@ -27,8 +28,8 @@ int main(){
     auto depSum = std::make_shared<DependentBlock>(
         std::unordered_map<std::string, std::shared_ptr<Block>>{ {"SRC1", src1}, {"SRC2", src2} },
         [k](const auto& blocks, std::shared_ptr<DependentBlock> self){
-            double v = blocks.at("SRC1")->retrieve(k)->get_val()
-                     + blocks.at("SRC2")->retrieve(k)->get_val();
+            double v = blocks.get_val("SRC1",k)
+                     + blocks.get_val("SRC2",k);
             if (!self->contains(k)) self->store(k, mkp("SUM", 100, 0.0));
             self->assign(k, v);
         }
@@ -39,7 +40,7 @@ int main(){
     auto depPost = std::make_shared<DependentBlock>(
         std::unordered_map<std::string, std::shared_ptr<Block>>{ {"SUM", depSum} },
         [k](const auto& blocks, std::shared_ptr<DependentBlock> self){
-            double base = blocks.at("SUM")->retrieve(k)->get_val();
+            double base = blocks.get_val("SUM",k);
             if (!self->contains(k)) self->store(k, mkp("POST", 100, 0.0));
             self->assign(k, 3.0 * base);
         }

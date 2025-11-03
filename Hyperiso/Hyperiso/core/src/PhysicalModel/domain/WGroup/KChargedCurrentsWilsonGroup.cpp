@@ -2,7 +2,7 @@
 
 std::unordered_map<WCoef, scalar_t> KulnuCoefficientGroup::base_1_LO_calculation(
     const std::unordered_map<QCDOrder, std::unordered_map<WCoef, scalar_t>>& coef_matching,
-    const std::unordered_map<std::string, std::shared_ptr<Block>>& src
+    const BlockSrc& src
 ) {
     auto ids = WCoefMapper::get_group(WGroup::CC_su);
 

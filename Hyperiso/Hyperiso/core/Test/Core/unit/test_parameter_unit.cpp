@@ -5,6 +5,8 @@
 #include <unordered_map>
 
 #include "Parameter.h"
+#include "DependentParameter.h"
+#include "SourcesView.hpp"
 #include "General.h" 
 
 struct CountingParam : Parameter {
@@ -116,7 +118,7 @@ static void test_dependent_parameter_basic() {
 
     auto lambda = [](const auto& srcs, std::shared_ptr<DependentParameter> self) {
         double sum = 0.0;
-        for (const auto& [_, p] : srcs) sum += p->get_val();
+        for (const auto& [_, p] : srcs.raw()) sum += p->get_val();
         self->set_expected(sum);
     };
 
@@ -140,7 +142,7 @@ static void test_dependent_freeze_unfreeze_clear_above() {
     };
 
     auto lambda = [](const auto& srcs, std::shared_ptr<DependentParameter> self) {
-        self->set_expected(srcs.begin()->second->get_val() * 10.0);
+        self->set_expected(srcs.raw().begin()->second->get_val() * 10.0);
     };
 
     auto dep = std::make_shared<DependentParameter>(ParamId{ParameterType::SM, "DEP", 200}, srcs, lambda);
@@ -172,6 +174,6 @@ int main() {
     test_assignment_and_operators();
     test_dependent_parameter_basic();
     test_dependent_freeze_unfreeze_clear_above();
-    std::cout << "\n✅ Parameter unit suite passed.\n";
+    std::cout << "\n Parameter unit suite passed.\n";
     return 0;
 }

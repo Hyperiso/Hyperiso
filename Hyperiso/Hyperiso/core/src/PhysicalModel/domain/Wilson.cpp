@@ -1,7 +1,7 @@
 #include "Wilson.h"
 
 
-std::function<scalar_t(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>&)> WilsonCoefficient::get_func(QCDOrder order) {
+std::function<scalar_t(const ParamSrc&)> WilsonCoefficient::get_func(QCDOrder order) {
     return this->matching_info[order].compute;
 }
 
@@ -13,6 +13,14 @@ std::unordered_set<ParamId> WilsonCoefficient::get_sources(QCDOrder order) {
 LhaID WilsonCoefficient::get_lhaid(QCDOrder order) {
     return this->matching_info[order].lhaid;
 }
+
+LhaID WilsonCoefficient::get_lhaid_from_name(QCDOrder order) {
+    std::pair<int,int> base_id = WCoefMapper::flha_base(WCoefMapper::id_of(this->get_base_name()));
+    int cont = type == ContributionType::SM ? 0 : type == ContributionType::BSM ? 1 : 2;
+    int ord = order == QCDOrder::LO ? 0 : order == QCDOrder::NLO ? 1 : 2;
+    return LhaID(base_id.first, base_id.second, ord, cont);
+}
+
 std::string WilsonCoefficient::get_base_name() const {
     std::string name = this->coeffName;
 
@@ -24,6 +32,7 @@ std::string WilsonCoefficient::get_base_name() const {
 
     return name;
 }
+
 void WilsonCoefficient::set_owned(bool owned)
 {
     if (this->is_owned && owned) {

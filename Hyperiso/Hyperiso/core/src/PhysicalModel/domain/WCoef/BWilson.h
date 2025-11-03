@@ -29,8 +29,8 @@ public:
         return std::make_shared<C2>(*this);
     }
 
-    static double compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
-    static double compute_NNLO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
+    static double compute_LO(const ParamSrc& src);
+    static double compute_NNLO(const ParamSrc& src);
 
 };
 
@@ -46,7 +46,7 @@ public:
         return std::make_shared<C3>(*this);
     }
 
-    static double compute_NNLO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
+    static double compute_NNLO(const ParamSrc& src);
 };
 
 class C4 : public WilsonCoefficient {
@@ -61,8 +61,8 @@ public:
         return std::make_shared<C4>(*this);
     }
 
-    static double compute_NLO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
-    static double compute_NNLO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
+    static double compute_NLO(const ParamSrc& src);
+    static double compute_NNLO(const ParamSrc& src);
 };
 
 class C5 : public WilsonCoefficient {
@@ -77,7 +77,7 @@ public:
         return std::make_shared<C5>(*this);
     }
 
-    static double compute_NNLO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
+    static double compute_NNLO(const ParamSrc& src);
 };
 
 class C6 : public WilsonCoefficient {
@@ -93,7 +93,7 @@ public:
     }
 
 
-    static double compute_NNLO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
+    static double compute_NNLO(const ParamSrc& src);
 };
 
 class C7 : public WilsonCoefficient {
@@ -108,9 +108,9 @@ public:
         return std::make_shared<C7>(*this);
     }
 
-    static double compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
-    static double compute_NLO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
-    static double compute_NNLO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
+    static double compute_LO(const ParamSrc& src);
+    static double compute_NLO(const ParamSrc& src);
+    static double compute_NNLO(const ParamSrc& src);
 };
 
 class C8 : public WilsonCoefficient {
@@ -125,9 +125,9 @@ public:
         return std::make_shared<C8>(*this);
     }
 
-    static double compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
-    static double compute_NLO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
-    static double compute_NNLO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
+    static double compute_LO(const ParamSrc& src);
+    static double compute_NLO(const ParamSrc& src);
+    static double compute_NNLO(const ParamSrc& src);
 };
 
 class C9 : public WilsonCoefficient {
@@ -142,8 +142,8 @@ public:
         return std::make_shared<C9>(*this);
     }
 
-    static double compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
-    static double compute_NLO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
+    static double compute_LO(const ParamSrc& src);
+    static double compute_NLO(const ParamSrc& src);
 };
 
 class C10 : public WilsonCoefficient {
@@ -158,9 +158,9 @@ public:
         return std::make_shared<C10>(*this);
     }
 
-    static double compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
-    static double compute_NLO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
-    static double compute_NNLO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
+    static double compute_LO(const ParamSrc& src);
+    static double compute_NLO(const ParamSrc& src);
+    static double compute_NNLO(const ParamSrc& src);
 
 };
 
@@ -176,7 +176,7 @@ public:
         return std::make_shared<CQ1>(*this);
     }
 
-    static double compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
+    static double compute_LO(const ParamSrc& src);
 };
 
 class CQ2 : public WilsonCoefficient {
@@ -191,7 +191,7 @@ public:
         return std::make_shared<CQ2>(*this);
     }
 
-    static double compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
+    static double compute_LO(const ParamSrc& src);
 };
 
 class CP1 : public WilsonCoefficient {
@@ -289,7 +289,7 @@ public:
     std::shared_ptr<WilsonCoefficient> clone() const override {
         return std::make_shared<CP7>(*this);
     }
-    static double compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
+    static double compute_LO(const ParamSrc& src);
 };
 
 class CP8 : public WilsonCoefficient {
@@ -304,7 +304,7 @@ public:
         return std::make_shared<CP8>(*this);
     }
 
-    static double compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
+    static double compute_LO(const ParamSrc& src);
 };
 
 class CP9 : public WilsonCoefficient {

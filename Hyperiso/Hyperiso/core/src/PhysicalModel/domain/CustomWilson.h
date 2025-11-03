@@ -24,7 +24,7 @@ public:
     CustomWilson& set_order_info(
         QCDOrder order,
         std::unordered_set<ParamId> sources,
-        std::function<scalar_t(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>&)> compute,
+        std::function<scalar_t(const ParamSrc&)> compute,
         LhaID lhaid
     ) {
         std::cout << "here" << std::endl;

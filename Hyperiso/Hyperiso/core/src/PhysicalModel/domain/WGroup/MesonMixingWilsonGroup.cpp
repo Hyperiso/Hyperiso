@@ -32,9 +32,9 @@ void MesonMixingCoefficientGroup::init_running_parameter_blocks() {
     LOG_DEBUG("Init running matrices blocks of Meson Mixing Coefficient group");
 	std::unordered_map<ParameterType, std::vector<std::string>> eta_powers_src = {{ParameterType::WILSON, {"WPARAM_RUN_SM"}}};
 
-    auto eta_powers_func = [] (const std::unordered_map<std::string, std::shared_ptr<Block>>& src, std::shared_ptr<DependentBlock> dep_block) {
-		double eta5 = src.at("WPARAM_RUN_SM")->retrieve(2)->get_val();
-        double eta4 = src.at("WPARAM_RUN_SM")->retrieve(3)->get_val();
+    auto eta_powers_func = [] (const BlockSrc& src, std::shared_ptr<DependentBlock> dep_block) {
+		double eta5 = src.get_val("WPARAM_RUN_SM",2);
+        double eta4 = src.get_val("WPARAM_RUN_SM",3);
 
 		for (int i = 0; i < MMRP::n_pows; ++i) {
             dep_block->store_or_assign(LhaID(1, i), std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "ETA_POWS_MIXING", LhaID(1, i)}, std::pow(eta5, (MMRP::ai)[i]), 0., 0.));
@@ -44,8 +44,8 @@ void MesonMixingCoefficientGroup::init_running_parameter_blocks() {
 
     std::unordered_map<ParameterType, std::vector<std::string>> mtx_src = {{ParameterType::WILSON, {"WPARAM_RUN_SM", "ETA_POWS_MIXING"}}};
 
-    auto U_5_func = [] (const std::unordered_map<std::string, std::shared_ptr<Block>>& src, std::shared_ptr<DependentBlock> dep_block) {
-		double eta_5 = src.at("WPARAM_RUN_SM")->retrieve(2)->get_val();
+    auto U_5_func = [] (const BlockSrc& src, std::shared_ptr<DependentBlock> dep_block) {
+		double eta_5 = src.get_val("WPARAM_RUN_SM",2);
         auto pid = [] (int n, int k, int l) {
             return ParamId{ParameterType::WILSON, "UM_MATRIX_5", LhaID(n, k, l)};
         };
@@ -55,7 +55,7 @@ void MesonMixingCoefficientGroup::init_running_parameter_blocks() {
         double U0, U1;
 
         // V
-        double eta_V = src.at("ETA_POWS_MIXING")->retrieve(LhaID(1, 0))->get_val();
+        double eta_V = src.get_val("ETA_POWS_MIXING",LhaID(1, 0));
         U0 = MMRP::a0_V_5 * eta_V;
         U1 = (MMRP::a1_V_5 + MMRP::b_V_5 * eta_5) * eta_V;
         dep_block->store_or_assign(LhaID(0, 0, 0), std::make_shared<Parameter>(pid(0, 0, 0), U0, 0., 0.));
@@ -65,8 +65,8 @@ void MesonMixingCoefficientGroup::init_running_parameter_blocks() {
 
         // LR
         std::array<double, 2> eta_LR {
-            src.at("ETA_POWS_MIXING")->retrieve(LhaID(1, 1))->get_val(),
-            src.at("ETA_POWS_MIXING")->retrieve(LhaID(1, 2))->get_val(),
+            src.get_val("ETA_POWS_MIXING",LhaID(1, 1)),
+            src.get_val("ETA_POWS_MIXING",LhaID(1, 2)),
         };
 
         for (int i = 0; i < 2; ++i) {
@@ -83,8 +83,8 @@ void MesonMixingCoefficientGroup::init_running_parameter_blocks() {
 
         // S
 		std::array<double, 2> eta_S {
-            src.at("ETA_POWS_MIXING")->retrieve(LhaID(1, 3))->get_val(),
-            src.at("ETA_POWS_MIXING")->retrieve(LhaID(1, 4))->get_val(),
+            src.get_val("ETA_POWS_MIXING",LhaID(1, 3)),
+            src.get_val("ETA_POWS_MIXING",LhaID(1, 4)),
         };
 
         for (int i = 0; i < 2; ++i) {
@@ -102,9 +102,9 @@ void MesonMixingCoefficientGroup::init_running_parameter_blocks() {
         }
     };
 
-    auto U_4_func = [] (const std::unordered_map<std::string, std::shared_ptr<Block>>& src, std::shared_ptr<DependentBlock> dep_block) {
-		double eta_5 = src.at("WPARAM_RUN_SM")->retrieve(2)->get_val();
-        double eta_4 = src.at("WPARAM_RUN_SM")->retrieve(3)->get_val();
+    auto U_4_func = [] (const BlockSrc& src, std::shared_ptr<DependentBlock> dep_block) {
+		double eta_5 = src.get_val("WPARAM_RUN_SM",2);
+        double eta_4 = src.get_val("WPARAM_RUN_SM",3);
         auto pid = [] (int n, int k, int l) {
             return ParamId{ParameterType::WILSON, "UM_MATRIX_4", LhaID(n, k, l)};
         };
@@ -114,8 +114,8 @@ void MesonMixingCoefficientGroup::init_running_parameter_blocks() {
         double U0, U1;
 
         // V
-        double eta_5_V = src.at("ETA_POWS_MIXING")->retrieve(LhaID(1, 0))->get_val();
-        double eta_4_V = src.at("ETA_POWS_MIXING")->retrieve(LhaID(2, 0))->get_val();
+        double eta_5_V = src.get_val("ETA_POWS_MIXING",LhaID(1, 0));
+        double eta_4_V = src.get_val("ETA_POWS_MIXING",LhaID(2, 0));
         U0 = MMRP::a0_V_4 * eta_4_V * eta_5_V;
         U1 = (MMRP::a1_V_4 + MMRP::b_V_4 * eta_4 + MMRP::c_V_4 * eta_4 * eta_5) * eta_4_V * eta_5_V;
         dep_block->store_or_assign(LhaID(0, 0, 0), std::make_shared<Parameter>(pid(0, 0, 0), U0, 0., 0.));
@@ -125,13 +125,13 @@ void MesonMixingCoefficientGroup::init_running_parameter_blocks() {
 
         // LR
         std::array<double, 2> eta_5_LR {
-            src.at("ETA_POWS_MIXING")->retrieve(LhaID(1, 1))->get_val(),
-            src.at("ETA_POWS_MIXING")->retrieve(LhaID(1, 2))->get_val(),
+            src.get_val("ETA_POWS_MIXING",LhaID(1, 1)),
+            src.get_val("ETA_POWS_MIXING",LhaID(1, 2)),
         };
 
         std::array<double, 2> eta_4_LR {
-            src.at("ETA_POWS_MIXING")->retrieve(LhaID(2, 1))->get_val(),
-            src.at("ETA_POWS_MIXING")->retrieve(LhaID(2, 2))->get_val(),
+            src.get_val("ETA_POWS_MIXING",LhaID(2, 1)),
+            src.get_val("ETA_POWS_MIXING",LhaID(2, 2)),
         };
 
         for (int i = 0; i < 2; ++i) {
@@ -148,13 +148,13 @@ void MesonMixingCoefficientGroup::init_running_parameter_blocks() {
 
         // S
 		std::array<double, 2> eta_5_S {
-            src.at("ETA_POWS_MIXING")->retrieve(LhaID(1, 3))->get_val(),
-            src.at("ETA_POWS_MIXING")->retrieve(LhaID(1, 4))->get_val(),
+            src.get_val("ETA_POWS_MIXING",LhaID(1, 3)),
+            src.get_val("ETA_POWS_MIXING",LhaID(1, 4)),
         };
 
         std::array<double, 2> eta_4_S {
-            src.at("ETA_POWS_MIXING")->retrieve(LhaID(2, 3))->get_val(),
-            src.at("ETA_POWS_MIXING")->retrieve(LhaID(2, 4))->get_val(),
+            src.get_val("ETA_POWS_MIXING",LhaID(2, 3)),
+            src.get_val("ETA_POWS_MIXING",LhaID(2, 4)),
         };
 
         for (int i = 0; i < 2; ++i) {
@@ -180,9 +180,9 @@ void MesonMixingCoefficientGroup::init_running_parameter_blocks() {
 std::unordered_map<WCoef, scalar_t> 
 MesonMixingCoefficientGroup::base_1_LO_calculation (
     const std::unordered_map<QCDOrder, std::unordered_map<WCoef, scalar_t>>& coef_matching,
-    const std::unordered_map<std::string, std::shared_ptr<Block>>& src)
+    const BlockSrc& src)
 {
-    int n_f_final = QCDHelper::get_nf(src.at("B_SCALE")->retrieve(1)->get_val());
+    int n_f_final = QCDHelper::get_nf(src.get_val("B_SCALE",1));
     std::string src_block = n_f_final < 5 ? "UM_MATRIX_4" : "UM_MATRIX_5"; 
 
     std::array<complex_t, 32> Ci_match_BMU = {};
@@ -199,14 +199,14 @@ MesonMixingCoefficientGroup::base_1_LO_calculation (
         Ci_match_temp = MMRP::change_basis(Ci_match_temp, MMRP::BMU_to_SUSY);
     }    
 
-    double fact = 4 * PI / src.at("WPARAM_RUN_SM")->retrieve(1)->get_val();
+    double fact = 4. * PI / src.get_val("WPARAM_RUN_SM",1);
 
     std::array<complex_t, 32> Ci_run {};
 
     for (size_t k = 0; k < 8; k++) {
         for (size_t l = 0; l < 8; l++) {
-            double U0 = src.at(src_block)->contains(LhaID(0, k, l)) ? src.at(src_block)->retrieve(LhaID(0, k, l))->get_val() : scalar_t();
-            double U1 = src.at(src_block)->contains(LhaID(1, k, l)) ? src.at(src_block)->retrieve(LhaID(1, k, l))->get_val() : scalar_t();
+            double U0 = src.raw().at(src_block)->contains(LhaID(0, k, l)) ? src.raw().at(src_block)->retrieve(LhaID(0, k, l))->get_val() : scalar_t();
+            double U1 = src.raw().at(src_block)->contains(LhaID(1, k, l)) ? src.raw().at(src_block)->retrieve(LhaID(1, k, l))->get_val() : scalar_t();
             double U = U0 + fact * U1;
             Ci_run[k] += U * Ci_match_BMU[l];
             Ci_run[k + 8] += U * Ci_match_BMU[l + 8];

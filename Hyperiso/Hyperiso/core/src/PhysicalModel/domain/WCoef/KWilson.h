@@ -12,8 +12,8 @@ public:
         return std::make_shared<CK9>(*this);
     }
 
-    static double compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
-    static double compute_NLO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
+    static double compute_LO(const ParamSrc& src);
+    static double compute_NLO(const ParamSrc& src);
 };
 
 class CK10 : public WilsonCoefficient {
@@ -28,9 +28,9 @@ public:
         return std::make_shared<CK10>(*this);
     }
 
-    static double compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
-    static double compute_NLO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
-    static double compute_NNLO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
+    static double compute_LO(const ParamSrc& src);
+    static double compute_NLO(const ParamSrc& src);
+    static double compute_NNLO(const ParamSrc& src);
 
 };
 
@@ -46,7 +46,7 @@ public:
         return std::make_shared<CKQ1>(*this);
     }
 
-    static double compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
+    static double compute_LO(const ParamSrc& src);
 };
 
 class CKQ2 : public WilsonCoefficient {
@@ -61,7 +61,7 @@ public:
         return std::make_shared<CKQ2>(*this);
     }
 
-    static double compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
+    static double compute_LO(const ParamSrc& src);
 };
 
 
@@ -77,8 +77,8 @@ public:
         return std::make_shared<CPK9>(*this);
     }
 
-    static double compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
-    static double compute_NLO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
+    static double compute_LO(const ParamSrc& src);
+    static double compute_NLO(const ParamSrc& src);
 };
 
 class CPK10 : public WilsonCoefficient {
@@ -93,9 +93,9 @@ public:
         return std::make_shared<CPK10>(*this);
     }
 
-    static double compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
-    static double compute_NLO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
-    static double compute_NNLO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
+    static double compute_LO(const ParamSrc& src);
+    static double compute_NLO(const ParamSrc& src);
+    static double compute_NNLO(const ParamSrc& src);
 
 };
 
@@ -111,7 +111,7 @@ public:
         return std::make_shared<CPKQ1>(*this);
     }
 
-    static double compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
+    static double compute_LO(const ParamSrc& src);
 };
 
 class CPKQ2 : public WilsonCoefficient {
@@ -126,7 +126,7 @@ public:
         return std::make_shared<CPKQ2>(*this);
     }
 
-    static double compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
+    static double compute_LO(const ParamSrc& src);
 };
 
 class CK_L : public WilsonCoefficient {
@@ -141,6 +141,6 @@ public:
         return std::make_shared<CK_L>(*this);
     }
 
-    static double compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
-    static double compute_NLO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
+    static double compute_LO(const ParamSrc& src);
+    static double compute_NLO(const ParamSrc& src);
 };

@@ -17,6 +17,11 @@
 typedef std::complex<double> complex_t; 
 const std::numeric_limits<double> nld = *new std::numeric_limits<double>;
 
+inline bool ends_with(const std::string& str, const std::string& suffix) {
+    return str.size() >= suffix.size() &&
+           str.compare(str.size() - suffix.size(), suffix.size(), suffix) == 0;
+}
+
 inline std::vector<std::string> split(const std::string& s, char delimiter) {
     std::vector<std::string> parts;
     for (auto &&part : std::views::split(s, delimiter)) {

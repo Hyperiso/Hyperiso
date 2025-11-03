@@ -7,6 +7,7 @@
 #include "WilsonParamComposer.h"
 #include "IWilsonParameters.h"
 #include "Logger.h"
+#include "SourcesView.hpp"
 #include <iostream>
 
 class thdm_parameters : public IWilsonParameterHelper {

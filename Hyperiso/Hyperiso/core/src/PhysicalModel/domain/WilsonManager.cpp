@@ -77,7 +77,7 @@ void CoefficientManager::fill_matching_groups(const std::string& groupName, cons
             ports_config.iblock_c->compose_parameter(
                 pid_SM, 
                 std::unordered_set<ParamId> {}, 
-                [] (const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src, std::shared_ptr<DependentParameter> dep_param) {
+                [] (const ParamSrc& src, std::shared_ptr<DependentParameter> dep_param) {
                     dep_param->set_expected(0.);
                 }
             );
@@ -85,7 +85,7 @@ void CoefficientManager::fill_matching_groups(const std::string& groupName, cons
             ports_config.iblock_c->compose_parameter(
                 pid_BSM, 
                 std::unordered_set<ParamId> {}, 
-                [] (const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src, std::shared_ptr<DependentParameter> dep_param) {
+                [] (const ParamSrc& src, std::shared_ptr<DependentParameter> dep_param) {
                     dep_param->set_expected(0.);
                 }
             );
@@ -93,7 +93,7 @@ void CoefficientManager::fill_matching_groups(const std::string& groupName, cons
             ports_config.iblock_c->compose_parameter(
                 pid_TOT, 
                 std::unordered_set<ParamId> {}, 
-                [] (const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src, std::shared_ptr<DependentParameter> dep_param) {
+                [] (const ParamSrc& src, std::shared_ptr<DependentParameter> dep_param) {
                     dep_param->set_expected(0.);
                 }
             );
@@ -157,15 +157,15 @@ void CoefficientManager::init_specific_order_group_matching(const std::string& g
             ports_config.iblock_c->compose_parameter(
                 pid_dest, 
                 std::unordered_set<ParamId> {pid_src}, 
-                [pid_src] (const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src, std::shared_ptr<DependentParameter> dep_param) {
-                    dep_param->set_expected(src.at(pid_src)->get_val());
+                [pid_src] (const ParamSrc& src, std::shared_ptr<DependentParameter> dep_param) {
+                    dep_param->set_expected(src.get_val(pid_src));
                 }
             );
 
             ports_config.iblock_c->compose_parameter(
                 pid_BSM, 
                 std::unordered_set<ParamId> {}, 
-                [] (const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src, std::shared_ptr<DependentParameter> dep_param) {
+                [] (const ParamSrc& src, std::shared_ptr<DependentParameter> dep_param) {
                     dep_param->set_expected(0.);
                 }
             );
@@ -192,9 +192,9 @@ void CoefficientManager::init_specific_order_group_matching(const std::string& g
             ports_config.iblock_c->compose_parameter(
                 pid_dest, 
                 sources, 
-                [pid_sm, pid_src, marty] (const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src, std::shared_ptr<DependentParameter> dep_param) {
-                    scalar_t src_val = src.at(pid_src)->get_val();
-                    scalar_t sm_val = src.at(pid_sm)->get_val();
+                [pid_sm, pid_src, marty] (const ParamSrc& src, std::shared_ptr<DependentParameter> dep_param) {
+                    scalar_t src_val = src.get_val(pid_src);
+                    scalar_t sm_val = src.get_val(pid_sm);
                     dep_param->set_expected(marty ? src_val - sm_val : src_val + sm_val);
                 }
             );
@@ -256,15 +256,15 @@ void CoefficientManager::init_group_hadronic(const std::string& groupName, const
     std::unordered_map<ParameterType, std::vector<std::string>> src = {};
     fill_sources_for_group(groupName, order, src, basis);
     QCDOrder ord = OrderMapper::enum_elt(order);
-    std::map<QCDOrder, std::function<std::unordered_map<WCoef, scalar_t>(const std::unordered_map<QCDOrder, std::unordered_map<WCoef, scalar_t>>&, const std::unordered_map<std::string, std::shared_ptr<Block>>&)>> funcs = {
+    std::map<QCDOrder, std::function<std::unordered_map<WCoef, scalar_t>(const std::unordered_map<QCDOrder, std::unordered_map<WCoef, scalar_t>>&, const BlockSrc&)>> funcs = {
         {QCDOrder::LO, this->coefficientGroups[groupName]->get_func(QCDOrder::LO, basis)},
         {QCDOrder::NLO, this->coefficientGroups[groupName]->get_func(QCDOrder::NLO, basis)},
         {QCDOrder::NNLO, this->coefficientGroups[groupName]->get_func(QCDOrder::NNLO, basis)}
     };
 
     std::string matching_block_name = this->coefficientGroups[groupName]->get_matching_storage_block();
-    auto func = [matching_block_name, ord, funcs, groupName, basis] (const std::unordered_map<std::string, std::shared_ptr<Block>>& src, std::shared_ptr<DependentBlock> dep_block) {
-        std::map<LhaID, std::shared_ptr<Parameter>> matching_coeff = src.at(matching_block_name)->getItems();
+    auto func = [matching_block_name, ord, funcs, groupName, basis] (const BlockSrc& src, std::shared_ptr<DependentBlock> dep_block) {
+        std::map<LhaID, std::shared_ptr<Parameter>> matching_coeff = src.raw().at(matching_block_name)->getItems();
         std::unordered_map<ContributionType, std::unordered_map<QCDOrder, std::unordered_map<WCoef, scalar_t>>> matching_map;
         for (auto& coef : matching_coeff) {
             std::pair<WCoef, std::pair<QCDOrder, ContributionType>> c = lha_wilson_deserialize(coef.first);

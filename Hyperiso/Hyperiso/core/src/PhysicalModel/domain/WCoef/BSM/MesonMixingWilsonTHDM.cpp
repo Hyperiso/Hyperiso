@@ -1,6 +1,6 @@
 #include "MesonMixingWilsonTHDM.h"
 
-C_mix_bd_1_THDM::C_mix_bd_1_THDM() : WilsonCoefficient("C_BD_1", GroupMapper::str(WGroup::MESON_MIXING) + "_MATCH") {
+C_mix_bd_1_THDM::C_mix_bd_1_THDM() : WilsonCoefficient("C_BD_1", GroupMapper::str(WGroup::MESON_MIXING, ScaleType::MATCHING)) {
     matching_info[QCDOrder::LO] = {
         {
             {ParameterType::WILSON, "WPARAM_MATCH_SM", 4},           //mass_c_muW_mcrun
@@ -22,36 +22,36 @@ C_mix_bd_1_THDM::C_mix_bd_1_THDM() : WilsonCoefficient("C_BD_1", GroupMapper::st
             {ParameterType::SM, "VCKM", LhaID(2, 2)},             // V_tb
         },
         compute_LO,
-        LhaID(1050105, 4141, 0, 1)
+        get_lhaid_from_name(QCDOrder::LO)
     };
 }
 
-double C_mix_bd_1_THDM::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src) {
+double C_mix_bd_1_THDM::compute_LO(const ParamSrc& src) {
 
-    double M_H=src.at({ParameterType::BSM, "MASS", 37})->get_val();
-	double M_W=src.at({ParameterType::SM, "MASS", 24})->get_val();
+    double M_H=src.get_val(ParameterType::BSM, "MASS", 37);
+	double M_W=src.get_val(ParameterType::SM, "MASS", 24);
 	double M_H_pow_2 = pow(M_H,2.);
 	double M_W_pow_2 = pow(M_W,2.);
 	std::array<std::array<scalar_t, 3>, 3> V_CKM {};
-	double m_q = src.at({ParameterType::SM, "MASS", 1})->get_val();;
-	// if(gen==1) m_q=src.at({ParameterType::SM, "MASS", 1})->get_val();
-	// else m_q=src.at({ParameterType::SM, "MASS", 3})->get_val();
+	double m_q = src.get_val(ParameterType::SM, "MASS", 1);;
+	// if(gen==1) m_q=src.get_val(ParameterType::SM, "MASS", 1);
+	// else m_q=src.get_val(ParameterType::SM, "MASS", 3);
 	
-	double m_b= src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {5, 1}})->get_val();
-	double g_2=src.at({ParameterType::SM, "GAUGE", 2})->get_val();
-	double tbeta=src.at({ParameterType::BSM, "MINPAR", 3})->get_val(); //tan_b
+	double m_b= src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {5, 1});
+	double g_2=src.get_val(ParameterType::SM, "GAUGE", 2);
+	double tbeta=src.get_val(ParameterType::BSM, "MINPAR", 3); //tan_b
 	double m_u[4],m_u_pow_2[4];
 
     for (int i = 0; i<3; ++i) {
         for (int j = 0; j<3; j++) {
-            V_CKM[i][j] = src.at({ParameterType::SM, "VCKM", LhaID(i, j)})->get_val();
+            V_CKM[i][j] = src.get_val(ParameterType::SM, "VCKM", LhaID(i, j));
         }
     }
-	m_u[1]= src.at({ParameterType::SM, "MASS", 2})->get_val();
+	m_u[1]= src.get_val(ParameterType::SM, "MASS", 2);
 	// m_u[2]=running_mass(param->mass_c,param->mass_c,mu_t,param->mass_top_pole,param->mass_b,param); /* NM: running mass */
 	// m_u[3]=running_mass(param->mtmt,param->mtmt,mu_t,param->mass_top_pole,param->mass_b,param); /* NM: running mass */
-    m_u[2]= src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 4})->get_val();
-	m_u[3]= src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 6})->get_val();
+    m_u[2]= src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 4);
+	m_u[3]= src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 6);
 
 
 	for(int i =0;i<3;++i) {
@@ -76,7 +76,7 @@ double C_mix_bd_1_THDM::compute_LO(const std::unordered_map<ParamId, std::shared
 
 }
 
-C_mix_bd_1_tilde_THDM::C_mix_bd_1_tilde_THDM() : WilsonCoefficient("CT_BD_1", GroupMapper::str(WGroup::MESON_MIXING) + "_MATCH") {
+C_mix_bd_1_tilde_THDM::C_mix_bd_1_tilde_THDM() : WilsonCoefficient("CT_BD_1", GroupMapper::str(WGroup::MESON_MIXING, ScaleType::MATCHING)) {
     matching_info[QCDOrder::LO] = {
         {
             {ParameterType::WILSON, "WPARAM_MATCH_SM", 4},           //mass_c_muW_mcrun
@@ -98,36 +98,36 @@ C_mix_bd_1_tilde_THDM::C_mix_bd_1_tilde_THDM() : WilsonCoefficient("CT_BD_1", Gr
             {ParameterType::SM, "VCKM", LhaID(2, 2)},             // V_tb
         },
         compute_LO,
-        LhaID(1050105, 4242, 0, 1)
+        get_lhaid_from_name(QCDOrder::LO)
     };
 }
 
-double C_mix_bd_1_tilde_THDM::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src) {
+double C_mix_bd_1_tilde_THDM::compute_LO(const ParamSrc& src) {
 
-    double M_H=src.at({ParameterType::BSM, "MASS", 37})->get_val();
-	double M_W=src.at({ParameterType::SM, "MASS", 24})->get_val();
+    double M_H=src.get_val(ParameterType::BSM, "MASS", 37);
+	double M_W=src.get_val(ParameterType::SM, "MASS", 24);
 	double M_H_pow_2 = pow(M_H,2.);
 	double M_W_pow_2 = pow(M_W,2.);
 	std::array<std::array<scalar_t, 3>, 3> V_CKM {};
-	double m_q = src.at({ParameterType::SM, "MASS", 1})->get_val();
-	// if(gen==1) m_q=src.at({ParameterType::SM, "MASS", 1})->get_val();
-	// else m_q=src.at({ParameterType::SM, "MASS", 3})->get_val();
+	double m_q = src.get_val(ParameterType::SM, "MASS", 1);
+	// if(gen==1) m_q=src.get_val(ParameterType::SM, "MASS", 1);
+	// else m_q=src.get_val(ParameterType::SM, "MASS", 3);
 	
-	double m_b= src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {5, 1}})->get_val();
-	double g_2=src.at({ParameterType::SM, "GAUGE", 2})->get_val();
-	double tbeta= src.at({ParameterType::BSM, "MINPAR", 3})->get_val(); //tan_b
+	double m_b= src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {5, 1});
+	double g_2=src.get_val(ParameterType::SM, "GAUGE", 2);
+	double tbeta= src.get_val(ParameterType::BSM, "MINPAR", 3); //tan_b
 	double m_u[4],m_u_pow_2[4];
 
     for (int i = 0; i<3; ++i) {
         for (int j = 0; j<3; j++) {
-            V_CKM[i][j] = src.at({ParameterType::SM, "VCKM", LhaID(i, j)})->get_val();
+            V_CKM[i][j] = src.get_val(ParameterType::SM, "VCKM", LhaID(i, j));
         }
     }
-	m_u[1]= src.at({ParameterType::SM, "MASS", 2})->get_val();
+	m_u[1]= src.get_val(ParameterType::SM, "MASS", 2);
 	// m_u[2]=running_mass(param->mass_c,param->mass_c,mu_t,param->mass_top_pole,param->mass_b,param); /* NM: running mass */
 	// m_u[3]=running_mass(param->mtmt,param->mtmt,mu_t,param->mass_top_pole,param->mass_b,param); /* NM: running mass */
-    m_u[2]= src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 4})->get_val();
-	m_u[3]= src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 6})->get_val();
+    m_u[2]= src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 4);
+	m_u[3]= src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 6);
 
 
 	for(int i =0;i<3;++i) {
@@ -154,7 +154,7 @@ double C_mix_bd_1_tilde_THDM::compute_LO(const std::unordered_map<ParamId, std::
 
 }
 
-C_mix_bd_2_THDM::C_mix_bd_2_THDM() : WilsonCoefficient("C_BD_2", GroupMapper::str(WGroup::MESON_MIXING) + "_MATCH") {
+C_mix_bd_2_THDM::C_mix_bd_2_THDM() : WilsonCoefficient("C_BD_2", GroupMapper::str(WGroup::MESON_MIXING, ScaleType::MATCHING)) {
     matching_info[QCDOrder::LO] = {
         {
             {ParameterType::WILSON, "WPARAM_MATCH_SM", 4},           //mass_c_muW_mcrun
@@ -176,36 +176,36 @@ C_mix_bd_2_THDM::C_mix_bd_2_THDM() : WilsonCoefficient("C_BD_2", GroupMapper::st
             {ParameterType::SM, "VCKM", LhaID(2, 2)},             // V_tb
         },
         compute_LO,
-        LhaID(1050105, 3131, 0, 1)
+        get_lhaid_from_name(QCDOrder::LO)
     };
 }
 
-double C_mix_bd_2_THDM::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src) {
+double C_mix_bd_2_THDM::compute_LO(const ParamSrc& src) {
 
-    double M_H=src.at({ParameterType::BSM, "MASS", 37})->get_val();
-	double M_W=src.at({ParameterType::SM, "MASS", 24})->get_val();
+    double M_H=src.get_val(ParameterType::BSM, "MASS", 37);
+	double M_W=src.get_val(ParameterType::SM, "MASS", 24);
 	double M_H_pow_2 = pow(M_H,2.);
 	double M_W_pow_2 = pow(M_W,2.);
 	std::array<std::array<scalar_t, 3>, 3> V_CKM {};
-	double m_q = src.at({ParameterType::SM, "MASS", 1})->get_val();
-	// if(gen==1) m_q=src.at({ParameterType::SM, "MASS", 1})->get_val();
-	// else m_q=src.at({ParameterType::SM, "MASS", 3})->get_val();
+	double m_q = src.get_val(ParameterType::SM, "MASS", 1);
+	// if(gen==1) m_q=src.get_val(ParameterType::SM, "MASS", 1);
+	// else m_q=src.get_val(ParameterType::SM, "MASS", 3);
 	
-	double m_b= src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {5, 1}})->get_val();
-	double g_2=src.at({ParameterType::SM, "GAUGE", 2})->get_val();
-	double tbeta= src.at({ParameterType::BSM, "MINPAR", 3})->get_val(); //tan_b
+	double m_b= src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {5, 1});
+	double g_2=src.get_val(ParameterType::SM, "GAUGE", 2);
+	double tbeta= src.get_val(ParameterType::BSM, "MINPAR", 3); //tan_b
 	double m_u[4],m_u_pow_2[4];
 
     for (int i = 0; i<3; ++i) {
         for (int j = 0; j<3; j++) {
-            V_CKM[i][j] = src.at({ParameterType::SM, "VCKM", LhaID(i, j)})->get_val();
+            V_CKM[i][j] = src.get_val(ParameterType::SM, "VCKM", LhaID(i, j));
         }
     }
-	m_u[1]= src.at({ParameterType::SM, "MASS", 2})->get_val();
+	m_u[1]= src.get_val(ParameterType::SM, "MASS", 2);
 	// m_u[2]=running_mass(param->mass_c,param->mass_c,mu_t,param->mass_top_pole,param->mass_b,param); /* NM: running mass */
 	// m_u[3]=running_mass(param->mtmt,param->mtmt,mu_t,param->mass_top_pole,param->mass_b,param); /* NM: running mass */
-    m_u[2]= src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 4})->get_val();
-	m_u[3]= src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 6})->get_val();
+    m_u[2]= src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 4);
+	m_u[3]= src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 6);
 
 
 	for(int i =0;i<3;++i) {
@@ -230,7 +230,7 @@ double C_mix_bd_2_THDM::compute_LO(const std::unordered_map<ParamId, std::shared
 
 }
 
-C_mix_bd_2_tilde_THDM::C_mix_bd_2_tilde_THDM() : WilsonCoefficient("CT_BD_2", GroupMapper::str(WGroup::MESON_MIXING) + "_MATCH") {
+C_mix_bd_2_tilde_THDM::C_mix_bd_2_tilde_THDM() : WilsonCoefficient("CT_BD_2", GroupMapper::str(WGroup::MESON_MIXING, ScaleType::MATCHING)) {
     matching_info[QCDOrder::LO] = {
         {
             {ParameterType::WILSON, "WPARAM_MATCH_SM", 4},           //mass_c_muW_mcrun
@@ -252,36 +252,36 @@ C_mix_bd_2_tilde_THDM::C_mix_bd_2_tilde_THDM() : WilsonCoefficient("CT_BD_2", Gr
             {ParameterType::SM, "VCKM", LhaID(2, 2)},             // V_tb
         },
         compute_LO,
-        LhaID(1050105, 4242, 0, 1)
+        get_lhaid_from_name(QCDOrder::LO)
     };
 }
 
-double C_mix_bd_2_tilde_THDM::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src) {
+double C_mix_bd_2_tilde_THDM::compute_LO(const ParamSrc& src) {
 
-    double M_H=src.at({ParameterType::BSM, "MASS", 37})->get_val();
-	double M_W=src.at({ParameterType::SM, "MASS", 24})->get_val();
+    double M_H=src.get_val(ParameterType::BSM, "MASS", 37);
+	double M_W=src.get_val(ParameterType::SM, "MASS", 24);
 	double M_H_pow_2 = pow(M_H,2.);
 	double M_W_pow_2 = pow(M_W,2.);
 	std::array<std::array<scalar_t, 3>, 3> V_CKM {};
-	double m_q = src.at({ParameterType::SM, "MASS", 1})->get_val();
-	// if(gen==1) m_q=src.at({ParameterType::SM, "MASS", 1})->get_val();
-	// else m_q=src.at({ParameterType::SM, "MASS", 3})->get_val();
+	double m_q = src.get_val(ParameterType::SM, "MASS", 1);
+	// if(gen==1) m_q=src.get_val(ParameterType::SM, "MASS", 1);
+	// else m_q=src.get_val(ParameterType::SM, "MASS", 3);
 	
-	double m_b= src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {5, 1}})->get_val();
-	double g_2=src.at({ParameterType::SM, "GAUGE", 2})->get_val();
-	double tbeta= src.at({ParameterType::BSM, "MINPAR", 3})->get_val(); //tan_b
+	double m_b= src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {5, 1});
+	double g_2=src.get_val(ParameterType::SM, "GAUGE", 2);
+	double tbeta= src.get_val(ParameterType::BSM, "MINPAR", 3); //tan_b
 	double m_u[4],m_u_pow_2[4];
 
     for (int i = 0; i<3; ++i) {
         for (int j = 0; j<3; j++) {
-            V_CKM[i][j] = src.at({ParameterType::SM, "VCKM", LhaID(i, j)})->get_val();
+            V_CKM[i][j] = src.get_val(ParameterType::SM, "VCKM", LhaID(i, j));
         }
     }
-	m_u[1]= src.at({ParameterType::SM, "MASS", 2})->get_val();
+	m_u[1]= src.get_val(ParameterType::SM, "MASS", 2);
 	// m_u[2]=running_mass(param->mass_c,param->mass_c,mu_t,param->mass_top_pole,param->mass_b,param); /* NM: running mass */
 	// m_u[3]=running_mass(param->mtmt,param->mtmt,mu_t,param->mass_top_pole,param->mass_b,param); /* NM: running mass */
-    m_u[2]= src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 4})->get_val();
-	m_u[3]= src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 6})->get_val();
+    m_u[2]= src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 4);
+	m_u[3]= src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 6);
 
 
 	for(int i =0;i<3;++i) {
@@ -305,14 +305,14 @@ double C_mix_bd_2_tilde_THDM::compute_LO(const std::unordered_map<ParamId, std::
 
 }
 
-C_mix_bd_3_THDM::C_mix_bd_3_THDM() : WilsonCoefficient("C_BD_3", GroupMapper::str(WGroup::MESON_MIXING) + "_MATCH") {
+C_mix_bd_3_THDM::C_mix_bd_3_THDM() : WilsonCoefficient("C_BD_3", GroupMapper::str(WGroup::MESON_MIXING, ScaleType::MATCHING)) {
 }
 
 
-C_mix_bd_3_tilde_THDM::C_mix_bd_3_tilde_THDM() : WilsonCoefficient("CT_BD_3", GroupMapper::str(WGroup::MESON_MIXING) + "_MATCH") {
+C_mix_bd_3_tilde_THDM::C_mix_bd_3_tilde_THDM() : WilsonCoefficient("CT_BD_3", GroupMapper::str(WGroup::MESON_MIXING, ScaleType::MATCHING)) {
 }
 
-C_mix_bd_4_THDM::C_mix_bd_4_THDM() : WilsonCoefficient("C_BD_4", GroupMapper::str(WGroup::MESON_MIXING) + "_MATCH") {
+C_mix_bd_4_THDM::C_mix_bd_4_THDM() : WilsonCoefficient("C_BD_4", GroupMapper::str(WGroup::MESON_MIXING, ScaleType::MATCHING)) {
 	matching_info[QCDOrder::LO] = {
         {
             {ParameterType::WILSON, "WPARAM_MATCH_SM", 4},           //mass_c_muW_mcrun
@@ -334,36 +334,36 @@ C_mix_bd_4_THDM::C_mix_bd_4_THDM() : WilsonCoefficient("C_BD_4", GroupMapper::st
             {ParameterType::SM, "VCKM", LhaID(2, 2)},             // V_tb
         },
         compute_LO,
-        LhaID(1050105, 3132, 0, 1)
+        get_lhaid_from_name(QCDOrder::LO)
     };
 }
 
-double C_mix_bd_4_THDM::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src) {
+double C_mix_bd_4_THDM::compute_LO(const ParamSrc& src) {
 
-    double M_H=src.at({ParameterType::BSM, "MASS", 37})->get_val();
-	double M_W=src.at({ParameterType::SM, "MASS", 24})->get_val();
+    double M_H=src.get_val(ParameterType::BSM, "MASS", 37);
+	double M_W=src.get_val(ParameterType::SM, "MASS", 24);
 	double M_H_pow_2 = pow(M_H,2.);
 	double M_W_pow_2 = pow(M_W,2.);
 	std::array<std::array<scalar_t, 3>, 3> V_CKM {};
-	double m_q = src.at({ParameterType::SM, "MASS", 1})->get_val();
-	// if(gen==1) m_q=src.at({ParameterType::SM, "MASS", 1})->get_val();
-	// else m_q=src.at({ParameterType::SM, "MASS", 3})->get_val();
+	double m_q = src.get_val(ParameterType::SM, "MASS", 1);
+	// if(gen==1) m_q=src.get_val(ParameterType::SM, "MASS", 1);
+	// else m_q=src.get_val(ParameterType::SM, "MASS", 3);
 	
-	double m_b= src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {5, 1}})->get_val();
-	double g_2=src.at({ParameterType::SM, "GAUGE", 2})->get_val();
-	double tbeta= src.at({ParameterType::BSM, "MINPAR", 3})->get_val(); //tan_b
+	double m_b= src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {5, 1});
+	double g_2=src.get_val(ParameterType::SM, "GAUGE", 2);
+	double tbeta= src.get_val(ParameterType::BSM, "MINPAR", 3); //tan_b
 	double m_u[4],m_u_pow_2[4];
 
     for (int i = 0; i<3; ++i) {
         for (int j = 0; j<3; j++) {
-            V_CKM[i][j] = src.at({ParameterType::SM, "VCKM", LhaID(i, j)})->get_val();
+            V_CKM[i][j] = src.get_val(ParameterType::SM, "VCKM", LhaID(i, j));
         }
     }
-	m_u[1]= src.at({ParameterType::SM, "MASS", 2})->get_val();
+	m_u[1]= src.get_val(ParameterType::SM, "MASS", 2);
 	// m_u[2]=running_mass(param->mass_c,param->mass_c,mu_t,param->mass_top_pole,param->mass_b,param); /* NM: running mass */
 	// m_u[3]=running_mass(param->mtmt,param->mtmt,mu_t,param->mass_top_pole,param->mass_b,param); /* NM: running mass */
-    m_u[2]= src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 4})->get_val();
-	m_u[3]= src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 6})->get_val();
+    m_u[2]= src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 4);
+	m_u[3]= src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 6);
 
 
 	for(int i =0;i<3;++i) {
@@ -391,7 +391,7 @@ double C_mix_bd_4_THDM::compute_LO(const std::unordered_map<ParamId, std::shared
 
 }
 
-C_mix_bd_5_THDM::C_mix_bd_5_THDM() : WilsonCoefficient("C_BD_5", GroupMapper::str(WGroup::MESON_MIXING) + "_MATCH") {
+C_mix_bd_5_THDM::C_mix_bd_5_THDM() : WilsonCoefficient("C_BD_5", GroupMapper::str(WGroup::MESON_MIXING, ScaleType::MATCHING)) {
     matching_info[QCDOrder::LO] = {
         {
             {ParameterType::WILSON, "WPARAM_MATCH_SM", 4},           //mass_c_muW_mcrun
@@ -413,36 +413,36 @@ C_mix_bd_5_THDM::C_mix_bd_5_THDM() : WilsonCoefficient("C_BD_5", GroupMapper::st
             {ParameterType::SM, "VCKM", LhaID(2, 2)},             // V_tb
         },
         compute_LO,
-        LhaID(1050105, 7172, 0, 0)
+        get_lhaid_from_name(QCDOrder::LO)
     };
 }
 
-double C_mix_bd_5_THDM::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src) {
+double C_mix_bd_5_THDM::compute_LO(const ParamSrc& src) {
 
-    double M_H=src.at({ParameterType::BSM, "MASS", 37})->get_val();
-	double M_W=src.at({ParameterType::SM, "MASS", 24})->get_val();
+    double M_H=src.get_val(ParameterType::BSM, "MASS", 37);
+	double M_W=src.get_val(ParameterType::SM, "MASS", 24);
 	double M_H_pow_2 = pow(M_H,2.);
 	double M_W_pow_2 = pow(M_W,2.);
 	std::array<std::array<scalar_t, 3>, 3> V_CKM {};
-	double m_q = src.at({ParameterType::SM, "MASS", 1})->get_val();
-	// if(gen==1) m_q=src.at({ParameterType::SM, "MASS", 1})->get_val();
-	// else m_q=src.at({ParameterType::SM, "MASS", 3})->get_val();
+	double m_q = src.get_val(ParameterType::SM, "MASS", 1);
+	// if(gen==1) m_q=src.get_val(ParameterType::SM, "MASS", 1);
+	// else m_q=src.get_val(ParameterType::SM, "MASS", 3);
 	
-	double m_b= src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {5, 1}})->get_val();
-	double g_2=src.at({ParameterType::SM, "GAUGE", 2})->get_val();
-	double tbeta= src.at({ParameterType::BSM, "MINPAR", 3})->get_val(); //tan_b
+	double m_b= src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {5, 1});
+	double g_2=src.get_val(ParameterType::SM, "GAUGE", 2);
+	double tbeta= src.get_val(ParameterType::BSM, "MINPAR", 3); //tan_b
 	double m_u[4],m_u_pow_2[4];
 
     for (int i = 0; i<3; ++i) {
         for (int j = 0; j<3; j++) {
-            V_CKM[i][j] = src.at({ParameterType::SM, "VCKM", LhaID(i, j)})->get_val();
+            V_CKM[i][j] = src.get_val(ParameterType::SM, "VCKM", LhaID(i, j));
         }
     }
-	m_u[1]= src.at({ParameterType::SM, "MASS", 2})->get_val();
+	m_u[1]= src.get_val(ParameterType::SM, "MASS", 2);
 	// m_u[2]=running_mass(param->mass_c,param->mass_c,mu_t,param->mass_top_pole,param->mass_b,param); /* NM: running mass */
 	// m_u[3]=running_mass(param->mtmt,param->mtmt,mu_t,param->mass_top_pole,param->mass_b,param); /* NM: running mass */
-    m_u[2]= src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 4})->get_val();
-	m_u[3]= src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 6})->get_val();
+    m_u[2]= src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 4);
+	m_u[3]= src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 6);
 
 
 	for(int i =0;i<3;++i) {
@@ -465,7 +465,7 @@ double C_mix_bd_5_THDM::compute_LO(const std::unordered_map<ParamId, std::shared
 
 }
 
-C_mix_bs_1_THDM::C_mix_bs_1_THDM() : WilsonCoefficient("C_BS_1", GroupMapper::str(WGroup::MESON_MIXING) + "_MATCH") {
+C_mix_bs_1_THDM::C_mix_bs_1_THDM() : WilsonCoefficient("C_BS_1", GroupMapper::str(WGroup::MESON_MIXING, ScaleType::MATCHING)) {
     matching_info[QCDOrder::LO] = {
         {
             {ParameterType::WILSON, "WPARAM_MATCH_SM", 4},           //mass_c_muW_mcrun
@@ -487,37 +487,37 @@ C_mix_bs_1_THDM::C_mix_bs_1_THDM() : WilsonCoefficient("C_BS_1", GroupMapper::st
             {ParameterType::SM, "VCKM", LhaID(2, 2)},             // V_tb
         },
         compute_LO,
-        LhaID(3050305, 4141, 0, 1)
+        get_lhaid_from_name(QCDOrder::LO)
     };
 }
 
-double C_mix_bs_1_THDM::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src) {
+double C_mix_bs_1_THDM::compute_LO(const ParamSrc& src) {
 
-    double M_H=src.at({ParameterType::BSM, "MASS", 37})->get_val();
-	double M_W=src.at({ParameterType::SM, "MASS", 24})->get_val();
+    double M_H=src.get_val(ParameterType::BSM, "MASS", 37);
+	double M_W=src.get_val(ParameterType::SM, "MASS", 24);
 	double M_H_pow_2 = pow(M_H,2.);
 	double M_W_pow_2 = pow(M_W,2.);
 	std::array<std::array<scalar_t, 3>, 3> V_CKM {};
-	double m_q=src.at({ParameterType::SM, "MASS", 3})->get_val();
-	// if(gen==1) m_q=src.at({ParameterType::SM, "MASS", 1})->get_val();
-	// else m_q=src.at({ParameterType::SM, "MASS", 3})->get_val();
+	double m_q=src.get_val(ParameterType::SM, "MASS", 3);
+	// if(gen==1) m_q=src.get_val(ParameterType::SM, "MASS", 1);
+	// else m_q=src.get_val(ParameterType::SM, "MASS", 3);
 	
-	double m_b= src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {5, 1}})->get_val();
-	double g_2=src.at({ParameterType::SM, "GAUGE", 2})->get_val();
-	double tbeta= src.at({ParameterType::BSM, "MINPAR", 3})->get_val(); //tan_b
+	double m_b= src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {5, 1});
+	double g_2=src.get_val(ParameterType::SM, "GAUGE", 2);
+	double tbeta= src.get_val(ParameterType::BSM, "MINPAR", 3); //tan_b
 	double m_u[4],m_u_pow_2[4];
 
     for (int i = 0; i<3; ++i) {
         for (int j = 0; j<3; j++) {
-            V_CKM[i][j] = src.at({ParameterType::SM, "VCKM", LhaID(i, j)})->get_val();
+            V_CKM[i][j] = src.get_val(ParameterType::SM, "VCKM", LhaID(i, j));
         }
     }
 
-	m_u[1]= src.at({ParameterType::SM, "MASS", 2})->get_val();
+	m_u[1]= src.get_val(ParameterType::SM, "MASS", 2);
 	// m_u[2]=running_mass(param->mass_c,param->mass_c,mu_t,param->mass_top_pole,param->mass_b,param); /* NM: running mass */
 	// m_u[3]=running_mass(param->mtmt,param->mtmt,mu_t,param->mass_top_pole,param->mass_b,param); /* NM: running mass */
-    m_u[2]= src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 4})->get_val();
-	m_u[3]= src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 6})->get_val();
+    m_u[2]= src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 4);
+	m_u[3]= src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 6);
 
 
 	for(int i =0;i<3;++i) {
@@ -543,7 +543,7 @@ double C_mix_bs_1_THDM::compute_LO(const std::unordered_map<ParamId, std::shared
 
 }
 
-C_mix_bs_1_tilde_THDM::C_mix_bs_1_tilde_THDM() : WilsonCoefficient("CT_BS_1", GroupMapper::str(WGroup::MESON_MIXING) + "_MATCH") {
+C_mix_bs_1_tilde_THDM::C_mix_bs_1_tilde_THDM() : WilsonCoefficient("CT_BS_1", GroupMapper::str(WGroup::MESON_MIXING, ScaleType::MATCHING)) {
     matching_info[QCDOrder::LO] = {
         {
             {ParameterType::WILSON, "WPARAM_MATCH_SM", 4},           //mass_c_muW_mcrun
@@ -565,37 +565,37 @@ C_mix_bs_1_tilde_THDM::C_mix_bs_1_tilde_THDM() : WilsonCoefficient("CT_BS_1", Gr
             {ParameterType::SM, "VCKM", LhaID(2, 2)},             // V_tb
         },
         compute_LO,
-        LhaID(3050305, 4242, 0, 1)
+        get_lhaid_from_name(QCDOrder::LO)
     };
 }
 
-double C_mix_bs_1_tilde_THDM::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src) {
+double C_mix_bs_1_tilde_THDM::compute_LO(const ParamSrc& src) {
 
-    double M_H=src.at({ParameterType::BSM, "MASS", 37})->get_val();
-	double M_W=src.at({ParameterType::SM, "MASS", 24})->get_val();
+    double M_H=src.get_val(ParameterType::BSM, "MASS", 37);
+	double M_W=src.get_val(ParameterType::SM, "MASS", 24);
 	double M_H_pow_2 = pow(M_H,2.);
 	double M_W_pow_2 = pow(M_W,2.);
 	std::array<std::array<scalar_t, 3>, 3> V_CKM {};
-	double m_q=src.at({ParameterType::SM, "MASS", 3})->get_val();
+	double m_q=src.get_val(ParameterType::SM, "MASS", 3);
 
-	// if(gen==1) m_q=src.at({ParameterType::SM, "MASS", 1})->get_val();
-	// else m_q=src.at({ParameterType::SM, "MASS", 3})->get_val();
+	// if(gen==1) m_q=src.get_val(ParameterType::SM, "MASS", 1);
+	// else m_q=src.get_val(ParameterType::SM, "MASS", 3);
 	
-	double m_b= src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {5, 1}})->get_val();
-	double g_2=src.at({ParameterType::SM, "GAUGE", 2})->get_val();
-	double tbeta= src.at({ParameterType::BSM, "MINPAR", 3})->get_val(); //tan_b
+	double m_b= src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {5, 1});
+	double g_2=src.get_val(ParameterType::SM, "GAUGE", 2);
+	double tbeta= src.get_val(ParameterType::BSM, "MINPAR", 3); //tan_b
 	double m_u[4],m_u_pow_2[4];
 
     for (int i = 0; i<3; ++i) {
         for (int j = 0; j<3; j++) {
-            V_CKM[i][j] = src.at({ParameterType::SM, "VCKM", LhaID(i, j)})->get_val();
+            V_CKM[i][j] = src.get_val(ParameterType::SM, "VCKM", LhaID(i, j));
         }
     }
-	m_u[1]= src.at({ParameterType::SM, "MASS", 2})->get_val();
+	m_u[1]= src.get_val(ParameterType::SM, "MASS", 2);
 	// m_u[2]=running_mass(param->mass_c,param->mass_c,mu_t,param->mass_top_pole,param->mass_b,param); /* NM: running mass */
 	// m_u[3]=running_mass(param->mtmt,param->mtmt,mu_t,param->mass_top_pole,param->mass_b,param); /* NM: running mass */
-    m_u[2]= src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 4})->get_val();
-	m_u[3]= src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 6})->get_val();
+    m_u[2]= src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 4);
+	m_u[3]= src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 6);
 
 
 	for(int i =0;i<3;++i) {
@@ -622,7 +622,7 @@ double C_mix_bs_1_tilde_THDM::compute_LO(const std::unordered_map<ParamId, std::
 
 }
 
-C_mix_bs_2_THDM::C_mix_bs_2_THDM() : WilsonCoefficient("C_BS_2", GroupMapper::str(WGroup::MESON_MIXING) + "_MATCH") {
+C_mix_bs_2_THDM::C_mix_bs_2_THDM() : WilsonCoefficient("C_BS_2", GroupMapper::str(WGroup::MESON_MIXING, ScaleType::MATCHING)) {
     matching_info[QCDOrder::LO] = {
         {
             {ParameterType::WILSON, "WPARAM_MATCH_SM", 4},           //mass_c_muW_mcrun
@@ -644,36 +644,36 @@ C_mix_bs_2_THDM::C_mix_bs_2_THDM() : WilsonCoefficient("C_BS_2", GroupMapper::st
             {ParameterType::SM, "VCKM", LhaID(2, 2)},             // V_tb
         },
         compute_LO,
-        LhaID(3050305, 3131, 0, 1)
+        get_lhaid_from_name(QCDOrder::LO)
     };
 }
 
-double C_mix_bs_2_THDM::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src) {
+double C_mix_bs_2_THDM::compute_LO(const ParamSrc& src) {
 
-    double M_H=src.at({ParameterType::BSM, "MASS", 37})->get_val();
-	double M_W=src.at({ParameterType::SM, "MASS", 24})->get_val();
+    double M_H=src.get_val(ParameterType::BSM, "MASS", 37);
+	double M_W=src.get_val(ParameterType::SM, "MASS", 24);
 	double M_H_pow_2 = pow(M_H,2.);
 	double M_W_pow_2 = pow(M_W,2.);
 	std::array<std::array<scalar_t, 3>, 3> V_CKM {};
-	double m_q=src.at({ParameterType::SM, "MASS", 3})->get_val();
-	// if(gen==1) m_q=src.at({ParameterType::SM, "MASS", 1})->get_val();
-	// else m_q=src.at({ParameterType::SM, "MASS", 3})->get_val();
+	double m_q=src.get_val(ParameterType::SM, "MASS", 3);
+	// if(gen==1) m_q=src.get_val(ParameterType::SM, "MASS", 1);
+	// else m_q=src.get_val(ParameterType::SM, "MASS", 3);
 	
-	double m_b= src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {5, 1}})->get_val();
-	double g_2=src.at({ParameterType::SM, "GAUGE", 2})->get_val();
-	double tbeta= src.at({ParameterType::BSM, "MINPAR", 3})->get_val(); //tan_b
+	double m_b= src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {5, 1});
+	double g_2=src.get_val(ParameterType::SM, "GAUGE", 2);
+	double tbeta= src.get_val(ParameterType::BSM, "MINPAR", 3); //tan_b
 	double m_u[4],m_u_pow_2[4];
 
     for (int i = 0; i<3; ++i) {
         for (int j = 0; j<3; j++) {
-            V_CKM[i][j] = src.at({ParameterType::SM, "VCKM", LhaID(i, j)})->get_val();
+            V_CKM[i][j] = src.get_val(ParameterType::SM, "VCKM", LhaID(i, j));
         }
     }
-	m_u[1]= src.at({ParameterType::SM, "MASS", 2})->get_val();
+	m_u[1]= src.get_val(ParameterType::SM, "MASS", 2);
 	// m_u[2]=running_mass(param->mass_c,param->mass_c,mu_t,param->mass_top_pole,param->mass_b,param); /* NM: running mass */
 	// m_u[3]=running_mass(param->mtmt,param->mtmt,mu_t,param->mass_top_pole,param->mass_b,param); /* NM: running mass */
-    m_u[2]= src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 4})->get_val();
-	m_u[3]= src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 6})->get_val();
+    m_u[2]= src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 4);
+	m_u[3]= src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 6);
 
 
 	for(int i =0;i<3;++i) {
@@ -700,7 +700,7 @@ double C_mix_bs_2_THDM::compute_LO(const std::unordered_map<ParamId, std::shared
 
 }
 
-C_mix_bs_2_tilde_THDM::C_mix_bs_2_tilde_THDM() : WilsonCoefficient("CT_BS_2", GroupMapper::str(WGroup::MESON_MIXING) + "_MATCH") {
+C_mix_bs_2_tilde_THDM::C_mix_bs_2_tilde_THDM() : WilsonCoefficient("CT_BS_2", GroupMapper::str(WGroup::MESON_MIXING, ScaleType::MATCHING)) {
     matching_info[QCDOrder::LO] = {
         {
             {ParameterType::WILSON, "WPARAM_MATCH_SM", 4},           //mass_c_muW_mcrun
@@ -723,36 +723,36 @@ C_mix_bs_2_tilde_THDM::C_mix_bs_2_tilde_THDM() : WilsonCoefficient("CT_BS_2", Gr
             {ParameterType::SM, "VCKM", LhaID(2, 2)},             // V_tb
         },
         compute_LO,
-        LhaID(1050105, 4141, 0, 1)
+        get_lhaid_from_name(QCDOrder::LO)
     };
 }
 
-double C_mix_bs_2_tilde_THDM::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src) {
+double C_mix_bs_2_tilde_THDM::compute_LO(const ParamSrc& src) {
 
-    double M_H=src.at({ParameterType::BSM, "MASS", 37})->get_val();
-	double M_W=src.at({ParameterType::SM, "MASS", 24})->get_val();
+    double M_H=src.get_val(ParameterType::BSM, "MASS", 37);
+	double M_W=src.get_val(ParameterType::SM, "MASS", 24);
 	double M_H_pow_2 = pow(M_H,2.);
 	double M_W_pow_2 = pow(M_W,2.);
 	std::array<std::array<scalar_t, 3>, 3> V_CKM {};
-	double m_q=src.at({ParameterType::SM, "MASS", 3})->get_val();
-	// if(gen==1) m_q=src.at({ParameterType::SM, "MASS", 1})->get_val();
-	// else m_q=src.at({ParameterType::SM, "MASS", 3})->get_val();
+	double m_q=src.get_val(ParameterType::SM, "MASS", 3);
+	// if(gen==1) m_q=src.get_val(ParameterType::SM, "MASS", 1);
+	// else m_q=src.get_val(ParameterType::SM, "MASS", 3);
 	
-	double m_b= src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {5, 1}})->get_val();
-	double g_2=src.at({ParameterType::SM, "GAUGE", 2})->get_val();
-	double tbeta= src.at({ParameterType::BSM, "MINPAR", 3})->get_val(); //tan_b
+	double m_b= src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {5, 1});
+	double g_2=src.get_val(ParameterType::SM, "GAUGE", 2);
+	double tbeta= src.get_val(ParameterType::BSM, "MINPAR", 3); //tan_b
 	double m_u[4],m_u_pow_2[4];
 
     for (int i = 0; i<3; ++i) {
         for (int j = 0; j<3; j++) {
-            V_CKM[i][j] = src.at({ParameterType::SM, "VCKM", LhaID(i, j)})->get_val();
+            V_CKM[i][j] = src.get_val(ParameterType::SM, "VCKM", LhaID(i, j));
         }
     }
-	m_u[1]= src.at({ParameterType::SM, "MASS", 2})->get_val();
+	m_u[1]= src.get_val(ParameterType::SM, "MASS", 2);
 	// m_u[2]=running_mass(param->mass_c,param->mass_c,mu_t,param->mass_top_pole,param->mass_b,param); /* NM: running mass */
 	// m_u[3]=running_mass(param->mtmt,param->mtmt,mu_t,param->mass_top_pole,param->mass_b,param); /* NM: running mass */
-    m_u[2]= src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 4})->get_val();
-	m_u[3]= src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 6})->get_val();
+    m_u[2]= src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 4);
+	m_u[3]= src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 6);
 
 
 	for(int i =0;i<3;++i) {
@@ -778,16 +778,16 @@ double C_mix_bs_2_tilde_THDM::compute_LO(const std::unordered_map<ParamId, std::
 
 }
 
-C_mix_bs_3_THDM::C_mix_bs_3_THDM() : WilsonCoefficient("C_BS_3", GroupMapper::str(WGroup::MESON_MIXING) + "_MATCH") {
+C_mix_bs_3_THDM::C_mix_bs_3_THDM() : WilsonCoefficient("C_BS_3", GroupMapper::str(WGroup::MESON_MIXING, ScaleType::MATCHING)) {
 }
 
 
 
-C_mix_bs_3_tilde_THDM::C_mix_bs_3_tilde_THDM() : WilsonCoefficient("CT_BS_3", GroupMapper::str(WGroup::MESON_MIXING) + "_MATCH") {
+C_mix_bs_3_tilde_THDM::C_mix_bs_3_tilde_THDM() : WilsonCoefficient("CT_BS_3", GroupMapper::str(WGroup::MESON_MIXING, ScaleType::MATCHING)) {
 }
 
 
-C_mix_bs_4_THDM::C_mix_bs_4_THDM() : WilsonCoefficient("C_BS_4", GroupMapper::str(WGroup::MESON_MIXING) + "_MATCH") {
+C_mix_bs_4_THDM::C_mix_bs_4_THDM() : WilsonCoefficient("C_BS_4", GroupMapper::str(WGroup::MESON_MIXING, ScaleType::MATCHING)) {
     matching_info[QCDOrder::LO] = {
         {
             {ParameterType::WILSON, "WPARAM_MATCH_SM", 4},           //mass_c_muW_mcrun
@@ -809,36 +809,36 @@ C_mix_bs_4_THDM::C_mix_bs_4_THDM() : WilsonCoefficient("C_BS_4", GroupMapper::st
             {ParameterType::SM, "VCKM", LhaID(2, 2)},             // V_tb
         },
         compute_LO,
-        LhaID(3050305, 3132, 0, 1)
+        get_lhaid_from_name(QCDOrder::LO)
     };
 }
 
-double C_mix_bs_4_THDM::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src) {
+double C_mix_bs_4_THDM::compute_LO(const ParamSrc& src) {
 
-    double M_H=src.at({ParameterType::BSM, "MASS", 37})->get_val();
-	double M_W=src.at({ParameterType::SM, "MASS", 24})->get_val();
+    double M_H=src.get_val(ParameterType::BSM, "MASS", 37);
+	double M_W=src.get_val(ParameterType::SM, "MASS", 24);
 	double M_H_pow_2 = pow(M_H,2.);
 	double M_W_pow_2 = pow(M_W,2.);
 	std::array<std::array<scalar_t, 3>, 3> V_CKM {};
-	double m_q=src.at({ParameterType::SM, "MASS", 3})->get_val();
-	// if(gen==1) m_q=src.at({ParameterType::SM, "MASS", 1})->get_val();
-	// else m_q=src.at({ParameterType::SM, "MASS", 3})->get_val();
+	double m_q=src.get_val(ParameterType::SM, "MASS", 3);
+	// if(gen==1) m_q=src.get_val(ParameterType::SM, "MASS", 1);
+	// else m_q=src.get_val(ParameterType::SM, "MASS", 3);
 	
-	double m_b= src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {5, 1}})->get_val();
-	double g_2=src.at({ParameterType::SM, "GAUGE", 2})->get_val();
-	double tbeta= src.at({ParameterType::BSM, "MINPAR", 3})->get_val(); //tan_b
+	double m_b= src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {5, 1});
+	double g_2=src.get_val(ParameterType::SM, "GAUGE", 2);
+	double tbeta= src.get_val(ParameterType::BSM, "MINPAR", 3); //tan_b
 	double m_u[4],m_u_pow_2[4];
 
     for (int i = 0; i<3; ++i) {
         for (int j = 0; j<3; j++) {
-            V_CKM[i][j] = src.at({ParameterType::SM, "VCKM", LhaID(i, j)})->get_val();
+            V_CKM[i][j] = src.get_val(ParameterType::SM, "VCKM", LhaID(i, j));
         }
     }
-	m_u[1]= src.at({ParameterType::SM, "MASS", 2})->get_val();
+	m_u[1]= src.get_val(ParameterType::SM, "MASS", 2);
 	// m_u[2]=running_mass(param->mass_c,param->mass_c,mu_t,param->mass_top_pole,param->mass_b,param); /* NM: running mass */
 	// m_u[3]=running_mass(param->mtmt,param->mtmt,mu_t,param->mass_top_pole,param->mass_b,param); /* NM: running mass */
-    m_u[2]= src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 4})->get_val();
-	m_u[3]= src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 6})->get_val();
+    m_u[2]= src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 4);
+	m_u[3]= src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 6);
 
 
 	for(int i =0;i<3;++i) {
@@ -865,7 +865,7 @@ double C_mix_bs_4_THDM::compute_LO(const std::unordered_map<ParamId, std::shared
 
 }
 
-C_mix_bs_5_THDM::C_mix_bs_5_THDM() : WilsonCoefficient("C_BS_5", GroupMapper::str(WGroup::MESON_MIXING) + "_MATCH") {
+C_mix_bs_5_THDM::C_mix_bs_5_THDM() : WilsonCoefficient("C_BS_5", GroupMapper::str(WGroup::MESON_MIXING, ScaleType::MATCHING)) {
     matching_info[QCDOrder::LO] = {
         {
             {ParameterType::WILSON, "WPARAM_MATCH_SM", 4},           //mass_c_muW_mcrun
@@ -887,36 +887,36 @@ C_mix_bs_5_THDM::C_mix_bs_5_THDM() : WilsonCoefficient("C_BS_5", GroupMapper::st
             {ParameterType::SM, "VCKM", LhaID(2, 2)},             // V_tb
         },
         compute_LO,
-        LhaID(3050305, 3132, 0, 1)
+        get_lhaid_from_name(QCDOrder::LO)
     };
 }
 
-double C_mix_bs_5_THDM::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src) {
+double C_mix_bs_5_THDM::compute_LO(const ParamSrc& src) {
 
-    double M_H=src.at({ParameterType::BSM, "MASS", 37})->get_val();
-	double M_W=src.at({ParameterType::SM, "MASS", 24})->get_val();
+    double M_H=src.get_val(ParameterType::BSM, "MASS", 37);
+	double M_W=src.get_val(ParameterType::SM, "MASS", 24);
 	double M_H_pow_2 = pow(M_H,2.);
 	double M_W_pow_2 = pow(M_W,2.);
 	std::array<std::array<scalar_t, 3>, 3> V_CKM {};
-	double m_q=src.at({ParameterType::SM, "MASS", 3})->get_val();
-	// if(gen==1) m_q=src.at({ParameterType::SM, "MASS", 1})->get_val();
-	// else m_q=src.at({ParameterType::SM, "MASS", 3})->get_val();
+	double m_q=src.get_val(ParameterType::SM, "MASS", 3);
+	// if(gen==1) m_q=src.get_val(ParameterType::SM, "MASS", 1);
+	// else m_q=src.get_val(ParameterType::SM, "MASS", 3);
 	
-	double m_b= src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {5, 1}})->get_val();
-	double g_2=src.at({ParameterType::SM, "GAUGE", 2})->get_val();
-	double tbeta= src.at({ParameterType::BSM, "MINPAR", 3})->get_val(); //tan_b
+	double m_b= src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {5, 1});
+	double g_2=src.get_val(ParameterType::SM, "GAUGE", 2);
+	double tbeta= src.get_val(ParameterType::BSM, "MINPAR", 3); //tan_b
 	double m_u[4],m_u_pow_2[4];
 
     for (int i = 0; i<3; ++i) {
         for (int j = 0; j<3; j++) {
-            V_CKM[i][j] = src.at({ParameterType::SM, "VCKM", LhaID(i, j)})->get_val();
+            V_CKM[i][j] = src.get_val(ParameterType::SM, "VCKM", LhaID(i, j));
         }
     }
-	m_u[1]= src.at({ParameterType::SM, "MASS", 2})->get_val();
+	m_u[1]= src.get_val(ParameterType::SM, "MASS", 2);
 	// m_u[2]=running_mass(param->mass_c,param->mass_c,mu_t,param->mass_top_pole,param->mass_b,param); /* NM: running mass */
 	// m_u[3]=running_mass(param->mtmt,param->mtmt,mu_t,param->mass_top_pole,param->mass_b,param); /* NM: running mass */
-    m_u[2]= src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 4})->get_val();
-	m_u[3]= src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 6})->get_val();
+    m_u[2]= src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 4);
+	m_u[3]= src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 6);
 
 
 	for(int i =0;i<3;++i) {

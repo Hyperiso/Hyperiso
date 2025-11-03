@@ -16,10 +16,10 @@ MartyWilson::MartyWilson(MartyWilsonConfig config)
     ContributionType cont = this->type;
     std::shared_ptr<IMartyWilsonProxy<InterpretedParam>> marty_proxy = config.marty_proxy;
 
-    matching_info[QCDOrder::LO].compute = [&sources, name, csv_path, marty_model, marty_model_path, marty_proxy] (const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src) -> scalar_t {
+    matching_info[QCDOrder::LO].compute = [&sources, name, csv_path, marty_model, marty_model_path, marty_proxy] (const ParamSrc& src) -> scalar_t {
         LOG_DEBUG("Updating coeff", name);
         double epsi = 1e-4;
-        double ew_scale = src.at({ParameterType::WILSON, "EW_SCALE", 1})->get_val();
+        double ew_scale = src.get_val({ParameterType::WILSON, "EW_SCALE", 1});
         scalar_t result;
 
         CSVReader csv_reader;
@@ -38,7 +38,7 @@ MartyWilson::MartyWilson(MartyWilsonConfig config)
             }
         }
 
-        if (src.size() == 1) {
+        if (src.raw().size() == 1) {
             std::set<std::string> special = marty_proxy->get_special_blocks();
             for (auto &par : marty_proxy->get_dependencies(name)) {
                 if (std::find(special.begin(), special.end(),par.block) != special.end()) {
@@ -56,7 +56,7 @@ MartyWilson::MartyWilson(MartyWilsonConfig config)
 
     ParamId pid {ParameterType::WILSON, "EW_SCALE", 1};
     std::unordered_map<ParamId, std::shared_ptr<Parameter>> dummy {{pid, std::make_shared<Parameter>(pid, 1, 0, 0)}};
-    matching_info[QCDOrder::LO].compute(dummy);
+    matching_info[QCDOrder::LO].compute(ParamSrc(dummy));
 
     sources.emplace(ParamId{ParameterType::WILSON, "EW_SCALE", 1});
     matching_info[QCDOrder::LO].sources = sources;

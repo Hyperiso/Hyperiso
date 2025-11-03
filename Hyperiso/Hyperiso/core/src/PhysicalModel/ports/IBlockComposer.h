@@ -3,6 +3,7 @@
 
 #include "Include.h"
 #include "Parameter.h"
+#include "DependentParameter.h"
 #include "Block.h"
 
 class IBlockComposer {

@@ -11,7 +11,7 @@ public:
         return std::make_shared<C_V1_cs>(*this);
     }
 
-    static double compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>&);
+    static double compute_LO(const ParamSrc&);
 };
 
 class C_V2_cs : public WilsonCoefficient {
@@ -78,7 +78,7 @@ public:
         return std::make_shared<C_V1_cd>(*this);
     }
 
-    static double compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>&);
+    static double compute_LO(const ParamSrc&);
 };
 
 class C_V2_cd : public WilsonCoefficient {

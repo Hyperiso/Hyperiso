@@ -68,27 +68,7 @@ void Parameter::clear_below() {
     }
 }
 
-// void Parameter::clear_below() {
-//     this->clear_above();
-//     std::cout << "cleaning param : " << this->id.block << this->id.code << std::endl; 
-//     for (auto& obs : observers) {
-//         obs->clear_below();
-//     }
-// }
 
-void DependentParameter::clear_below() {
-    auto dependents = std::exchange(observers, {});
-
-    this->clear_above();
-
-    if (auto host = owner_block.lock()) {
-        host->erase_local(this->id.code);
-    }
-
-    for (auto& obs : dependents) {
-        if (obs) obs->clear_below();
-    }
-}
 
 Parameter& Parameter::operator=(const Parameter& other) {
     this->id = other.id;
@@ -100,112 +80,7 @@ Parameter& Parameter::operator=(const Parameter& other) {
     return *this;
 }
 
-bool DependentParameter::dependsOn(const ParamId& pid) {
-    return sources.contains(pid);
-}
 
-// void DependentParameter::clear_above() {
-//     for (auto &[name, param] : sources) {
-//         param->removeObserver(self);
-//     }
-// }
-
-void DependentParameter::clear_above() {
-    if (auto me = self.lock()) {
-        for (auto& [_, param] : sources) {
-            param->removeObserver(me);
-        }
-    }
-}
-
-// void DependentParameter::init() {
-//     self = shared_from_this();
-//     if (self) {
-//         for (auto src : sources){
-//             src.second->addObserver(self);   
-//         }
-//     } else {
-//         std::cerr << "Error: DependentBlock must be created with std::make_shared!" << std::endl;
-//     }
-// }
-
-// void DependentParameter::init() {
-//     auto me = shared_from_this();
-//     self = me;
-//     for (auto& [_, src] : sources) {
-//         src->addObserver(me);
-//     }
-// }
-
-void DependentParameter::init() {
-    auto me_base = shared_from_this();
-    auto me_dep  = std::static_pointer_cast<DependentParameter>(me_base);
-    self = me_dep; 
-
-    for (auto& [_, src] : sources) {
-        src->addObserver(me_base);
-    }
-}
-
-// void DependentParameter::update() {
-//     if (frozen) {
-//         LOG_DEBUG("DependentParameter is frozen, skipping update");
-//         this->update_at_unfreeze = true;
-//     } else if (recalculateLambda 
-//         && std::all_of(sources.begin(), sources.end(), 
-//                     [](std::pair<ParamId, std::shared_ptr<Parameter>> block) { return block.second; })) 
-//     {
-//         LOG_DEBUG("Updating dependent parameter value");
-//         if (auto self = shared_from_this()) { 
-//             recalculateLambda(sources, self);
-//         } else {
-//             std::cerr << "Error: shared_from_this() failed in update()" << std::endl;
-//         }
-//     } else {
-//         LOG_ERROR("Error", "DependentParameter::update() called without all source parameters being set");
-//     }
-// }
-
-void DependentParameter::update() {
-    if (frozen) {
-        LOG_DEBUG("DependentParameter is frozen, skipping update");
-        this->update_at_unfreeze = true;
-    } else if (recalculateLambda 
-        && std::all_of(sources.begin(), sources.end(),
-                       [](const std::pair<ParamId, std::shared_ptr<Parameter>>& p){ return p.second != nullptr; })) 
-    {
-        LOG_DEBUG("Updating dependent parameter value");
-        auto me_dep = std::static_pointer_cast<DependentParameter>(shared_from_this());
-        recalculateLambda(sources, me_dep);   // <-- signature correcte
-    } else {
-        LOG_ERROR("Error", "DependentParameter::update() called without all source parameters being set");
-    }
-}
-
-void DependentParameter::freeze() {
-    this->frozen = true;
-}
-
-void DependentParameter::unfreeze() {
-    this->frozen = false;
-    if (update_at_unfreeze) {
-        update();
-        update_at_unfreeze = false;
-    }
-}
-
-// void Parameter::notifyObservers() {
-//     for (auto& observer : observers) {
-//         LOG_DEBUG("Notifying observer", observer->id.block, observer->id.code, "from parameter", id.block, id.code);
-//         if (observer == nullptr) {
-//             LOG_INFO("Observer is null, removing from observers list");
-//             removeObserver(observer);
-//             continue;
-//         }
-//         observer->update();
-//         LOG_DEBUG("Observer", observer->id.block, observer->id.code, "updated successfully");
-//     }
-// }
 
 void Parameter::notifyObservers() {
     auto snapshot = observers;
@@ -218,9 +93,6 @@ void Parameter::notifyObservers() {
     observers.erase(std::remove(observers.begin(), observers.end(), nullptr), observers.end());
 }
 
-// void Parameter::removeObserver(std::shared_ptr<Parameter> observer) { 
-//     observers.erase(std::find(observers.begin(), observers.end(), observer));
-// }
 
 void Parameter::removeObserver(std::shared_ptr<Parameter> observer) { 
     auto it = std::find_if(observers.begin(), observers.end(),
@@ -229,23 +101,7 @@ void Parameter::removeObserver(std::shared_ptr<Parameter> observer) {
 }
 
 
-// DependentParameter::~DependentParameter() {
-//     LOG_INFO("Destruct DependentParameter at", self.get());
-//     if (self) {
-//         for (auto src : sources){
-//             src.second->removeObserver(self);   
-//         }
-//     }
-// }
 
-DependentParameter::~DependentParameter() {
-    LOG_DEBUG("Destruct DependentParameter at", self.lock().get());
-    if (auto me = self.lock()) {
-        for (auto& [_, src] : sources) {
-            src->removeObserver(me); 
-        }
-    }
-}
 
 Parameter& Parameter::operator+=(const Parameter& other) {
     this->expected       += other.expected;

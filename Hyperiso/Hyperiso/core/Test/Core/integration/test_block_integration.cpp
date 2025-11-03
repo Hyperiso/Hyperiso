@@ -7,6 +7,7 @@
 
 #include "Block.h"
 #include "Parameter.h"
+#include "SourcesView.hpp"
 #include "General.h"
 
 static std::shared_ptr<Parameter> mkp(const std::string& blk, int code, double v){
@@ -26,8 +27,8 @@ int main(){
     auto depSum = std::make_shared<DependentBlock>(
         std::unordered_map<std::string, std::shared_ptr<Block>>{ {"SRC1", src1}, {"SRC2", src2} },
         [k](const auto& blocks, std::shared_ptr<DependentBlock> self){
-            double v = blocks.at("SRC1")->retrieve(k)->get_val()
-                     + blocks.at("SRC2")->retrieve(k)->get_val();
+            double v = blocks.get_val("SRC1",k)
+                     + blocks.get_val("SRC2",k);
             if (!self->contains(k)) self->store(k, mkp("SUM", 100, 0.0));
             self->assign(k, v);
         }
@@ -41,7 +42,7 @@ int main(){
     auto depPost = std::make_shared<DependentBlock>(
         std::unordered_map<std::string, std::shared_ptr<Block>>{ {"SUM", depSum} },
         [k](const auto& blocks, std::shared_ptr<DependentBlock> self){
-            double base = blocks.at("SUM")->retrieve(k)->get_val();
+            double base = blocks.get_val("SUM",k);
             if (!self->contains(k)) self->store(k, mkp("POST", 100, 0.0));
             self->assign(k, 3.0 * base);
         }
@@ -86,7 +87,7 @@ int main(){
     auto leaf = std::make_shared<DependentBlock>(
         std::unordered_map<std::string, std::shared_ptr<Block>>{ {"POST", depPost} },
         [k](const auto& blocks, std::shared_ptr<DependentBlock> self){
-            double x = blocks.at("POST")->retrieve(k)->get_val();
+            double x = blocks.get_val("POST",k);
             if (!self->contains(k)) self->store(k, mkp("LEAF", 100, 0.0));
             self->assign(k, x + 1.0);
         }

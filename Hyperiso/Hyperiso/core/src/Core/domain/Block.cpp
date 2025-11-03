@@ -1,4 +1,5 @@
 #include "Block.h"
+#include "SourcesView.hpp"
 
 void Block::addObserver(std::shared_ptr<Block> observer) {
     // std::cout << "I am : " << blockname << std::endl;
@@ -257,7 +258,7 @@ void DependentBlock::update() {
     {
         LOG_DEBUG("Updating dependent block", blockname);
         auto me_dep = std::static_pointer_cast<DependentBlock>(shared_from_this());
-        recalculateLambda(sourceBlocks, me_dep);
+        recalculateLambda(BlockSrc(this->sourceBlocks, this->blockname), me_dep);
     } else {
         LOG_ERROR("Error", "DependentBlock::update() called without all source blocks being set");
     }

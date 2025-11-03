@@ -19,9 +19,9 @@ int main() {
     CompositeParamAdapter cpc;
     std::unordered_map<ParameterType, std::vector<std::string>> src = {{ParameterType::SM, {"SMINPUTS", "MASS"}}};
 
-    auto func = [] (const std::unordered_map<std::string, std::shared_ptr<Block>>& src, std::shared_ptr<DependentBlock> dep_block) {
+    auto func = [] (const BlockSrc& src, std::shared_ptr<DependentBlock> dep_block) {
         QCDProvider qcd;
-        auto xt = std::pow(qcd(MassConfig{6, 80, MassType::MSBAR, MassType::POLE}) / src.at("MASS")->retrieve(24)->get_val(), 2);
+        auto xt = std::pow(qcd(MassConfig{6, 80, MassType::MSBAR, MassType::POLE}) / src.get_val("MASS",24), 2);
         dep_block->store_or_assign(1, std::make_shared<Parameter>(Parameter({ParameterType::WILSON, "WPARAM", 1}, xt, 0., 0.)));
     };
     cpc.add_block_dependency("WPARAM", src, ParameterType::WILSON, func);

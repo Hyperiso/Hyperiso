@@ -4,10 +4,10 @@ C_V1_su::C_V1_su() : WilsonCoefficient("C_V1_su", GroupMapper::str(WGroup::CC_su
     matching_info[QCDOrder::LO] = {
         {},
         compute_LO,
-        WCoefMapper::flha_full(WCoef::C_V1_su, QCDOrder::LO, this->type)
+        get_lhaid_from_name(QCDOrder::LO)
     };
 }
 
-double C_V1_su::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>&) {
+double C_V1_su::compute_LO(const ParamSrc& src) {
     return 1.0;
 }

@@ -7,7 +7,7 @@ using CGS = CoefficientGroupSources;
 static std::unordered_map<WCoef, scalar_t>
 BScalar_SUSY_Base1_LO_calculation(
     const std::unordered_map<QCDOrder, std::unordered_map<WCoef, scalar_t>>& coef_matching,
-    const std::unordered_map<std::string, std::shared_ptr<Block>>& src)
+    const BlockSrc& src)
 {
     const auto ids = WCoefMapper::get_group(WGroup::BScalar);
 
@@ -20,8 +20,8 @@ BScalar_SUSY_Base1_LO_calculation(
         return (it != matchLO->end()) ? it->second : scalar_t(0);
     };
 
-    const double eta    = src.at("WPARAM_RUN_SM")->retrieve(2)->get_val();
-    const double beta_0 = src.at("WPARAM_SI_SM")->retrieve(5)->get_val(); // TODO: passer aux vrais params QCD si dispo
+    const double eta    = src.get_val("WPARAM_RUN_SM",2);
+    const double beta_0 = src.get_val("WPARAM_SI_SM",5); // TODO: passer aux vrais params QCD si dispo
 
     const double fact = std::pow(eta, -4.0 / beta_0);
 
@@ -32,9 +32,9 @@ BScalar_SUSY_Base1_LO_calculation(
     }
 
     complex_t coeff_temp2 = 0;
-    if(src.at("MASS")->retrieve(46)->get_val()!=0.||src.at("MASS")->retrieve(45)->get_val()!=0.) {
-            double mass_b_2 = src.at("QCD")->retrieve(LhaID(5, 2))->get_val();
-            double mA = src.at("MASS")->retrieve(36)->get_val();
+    if(src.get_val("MASS",46)!=0.||src.get_val("MASS",45)!=0.) {
+            double mass_b_2 = src.get_val("QCD",LhaID(5, 2));
+            double mA = src.get_val("MASS",36);
 			if(mA < mass_b_2) {	
             double lambdaNMSSM = 1;
             double lambdaSNMSSM = 1;
@@ -43,36 +43,36 @@ BScalar_SUSY_Base1_LO_calculation(
             double m_Bs = 1;
             double mass_nutl = 1;
             
-            double sw2 = src.at("WPARAM_SI_SM")->retrieve(4)->get_val();
-            double mH = src.at("MASS")->retrieve(37)->get_val();
+            double sw2 = src.get_val("WPARAM_SI_SM",4);
+            double mH = src.get_val("MASS",37);
 		    
-            double mass_top_muW = src.at("WPARAM_MATCH_SM")->retrieve(6)->get_val();
-            double g2 = src.at("GAUGE")->retrieve(2)->get_val();
-            double tanb = src.at("HMIX")->retrieve(2)->get_val();
-            double mW = src.at("MASS")->retrieve(24)->get_val();
+            double mass_top_muW = src.get_val("WPARAM_MATCH_SM",6);
+            double g2 = src.get_val("GAUGE",2);
+            double tanb = src.get_val("HMIX",2);
+            double mW = src.get_val("MASS",24);
 
             double mH0[4],mA0[3],mstop[3];
         
-            mstop[0]=src.at("MASS")->retrieve(2000002)->get_val(); //mass upr, is that right ?
-            mstop[1]=src.at("MASS")->retrieve(1000006)->get_val();
-            mstop[2]=src.at("MASS")->retrieve(2000006)->get_val();
+            mstop[0]=src.get_val("MASS",2000002); //mass upr, is that right ?
+            mstop[1]=src.get_val("MASS",1000006);
+            mstop[2]=src.get_val("MASS",2000006);
 
             complex_t CAH={0,-lambdaNMSSM*AlambdaNSSM/g2/mW*tanb*f30(mH*mH/mass_top_muW/mass_top_muW,mW*mW/mass_top_muW/mass_top_muW)};
             complex_t CAc{};
             double s=lambdaSNMSSM/lambdaNMSSM;
-            double v=sqrt(1./sqrt(2.)/src.at("SMINPUTS")->retrieve(2)->get_val());
+            double v=sqrt(1./sqrt(2.)/src.get_val("SMINPUTS",2));
             double v_deltam_s=v/s*(sqrt(2.)*AlambdaNSSM-2.*kappaNMSSM*s)/(sqrt(2.)*AlambdaNSSM+kappaNMSSM*s);
 
             double Ralj[3][3][3],Qalj[4][3][3],G1[4][4][3][3];
             double T2[4][4][4];
             std::array<std::array<double,4>,4> TU;
-            double vu=sqrt(pow(sin(atan(tanb)),2.)/sqrt(2.)/src.at("SMINPUTS")->retrieve(2)->get_val());
+            double vu=sqrt(pow(sin(atan(tanb)),2.)/sqrt(2.)/src.get_val("SMINPUTS",2));
             double vd=vu/tanb;
 
             TU[1][1]=1.;
             for(int ie=0;ie<2;ie++){
                 for(int je=0;je<2;je++) {
-                    TU[ie+1][je+1]=src.at("STOPMIX")->retrieve({ie+1, je+1})->get_val();
+                    TU[ie+1][je+1]=src.get_val("STOPMIX",{ie+1, je+1});
                 }
             }
 
@@ -80,11 +80,11 @@ BScalar_SUSY_Base1_LO_calculation(
                 for(int le=0;le<2;le++) {
                     for(int ae=0;ae<3;ae++) {
                         if (ae <3 ){
-                            Ralj[ae][le][je]=-g2/sqrt(2.)*(src.at("NMAMIX")->retrieve({ae+1, 1+1})->get_val()*src.at("UMIX")->retrieve({2+1, le+1})->get_val()*src.at("VMIX")->retrieve({2+1, je+1})->get_val()+src.at("NMAMIX")->retrieve({ae+1, 2+1})->get_val()*src.at("UMIX")->retrieve({1+1, le+1})->get_val()*src.at("VMIX")->retrieve({2+1, je+1})->get_val())-lambdaNMSSM/sqrt(2.)*src.at("NMAMIX")->retrieve({ae+1, 3+1})->get_val()*src.at("UMIX")->retrieve({2+1, le+1})->get_val()*src.at("VMIX")->retrieve({2+1, je+1})->get_val();
+                            Ralj[ae][le][je]=-g2/sqrt(2.)*(src.get_val("NMAMIX",{ae+1, 1+1})*src.get_val("UMIX",{2+1, le+1})*src.get_val("VMIX",{2+1, je+1})+src.get_val("NMAMIX",{ae+1, 2+1})*src.get_val("UMIX",{1+1, le+1})*src.get_val("VMIX",{2+1, je+1}))-lambdaNMSSM/sqrt(2.)*src.get_val("NMAMIX",{ae+1, 3+1})*src.get_val("UMIX",{2+1, le+1})*src.get_val("VMIX",{2+1, je+1});
                         }
-                        Qalj[ae][le][je]=g2/sqrt(2.)*(src.at("NMHMIX")->retrieve({ae+1,1+1})->get_val()*src.at("UMIX")->retrieve({2+1, le+1})->get_val()*src.at("VMIX")->retrieve({2+1, je+1})->get_val()+src.at("NMHMIX")->retrieve({ae+1, 2+1})->get_val()*src.at("UMIX")->retrieve({1+1, le+1})->get_val()*src.at("VMIX")->retrieve({2+1, je+1})->get_val())-lambdaNMSSM/sqrt(2.)*src.at("NMHMIX")->retrieve({ae+1, 3+1})->get_val()*src.at("UMIX")->retrieve({2+1, le+1})->get_val()*src.at("VMIX")->retrieve({2+1, je+1})->get_val();
+                        Qalj[ae][le][je]=g2/sqrt(2.)*(src.get_val("NMHMIX",{ae+1,1+1})*src.get_val("UMIX",{2+1, le+1})*src.get_val("VMIX",{2+1, je+1})+src.get_val("NMHMIX",{ae+1, 2+1})*src.get_val("UMIX",{1+1, le+1})*src.get_val("VMIX",{2+1, je+1}))-lambdaNMSSM/sqrt(2.)*src.get_val("NMHMIX",{ae+1, 3+1})*src.get_val("UMIX",{2+1, le+1})*src.get_val("VMIX",{2+1, je+1});
                         for(int ke=1;ke<=3;ke++) {
-                            G1[ae][ke][je][le]=(TU[ae][2]*TU[ke][2]-kron(ae,1)*kron(ke,1))*src.at("VMIX")->retrieve({1+1, le+1})->get_val()*src.at("UMIX")->retrieve({2+1, je+1})->get_val()-mass_top_muW/sqrt(2.)/sin(atan(tanb))/mW*TU[ae][3]*TU[ke][2]*src.at("VMIX")->retrieve({2+1, le+1})->get_val()*src.at("UMIX")->retrieve({2+1, je+1})->get_val();
+                            G1[ae][ke][je][le]=(TU[ae][2]*TU[ke][2]-kron(ae,1)*kron(ke,1))*src.get_val("VMIX",{1+1, le+1})*src.get_val("UMIX",{2+1, je+1})-mass_top_muW/sqrt(2.)/sin(atan(tanb))/mW*TU[ae][3]*TU[ke][2]*src.get_val("VMIX",{2+1, le+1})*src.get_val("UMIX",{2+1, je+1});
                         }
                     }
                 }
@@ -92,13 +92,13 @@ BScalar_SUSY_Base1_LO_calculation(
             for(int ae=0;ae<3;ae++) {
                 for(int je=0;je<2;je++) {
                     for(int le=0;le<2;le++) {
-                        CAc = complex_t(CAc.real(), CAc.imag()+(tanb)/sqrt(2.)*G1[ae][ae][je][le]*(v_deltam_s*kron(le,je)*fabs(src.at("WPARAM_SI_BSM")->retrieve(je)->get_val()/mW)*f80(pow(mstop[ae-1]/src.at("WPARAM_SI_BSM")->retrieve(je)->get_val(),2.))-(Ralj[1][je][le]*fabs(src.at("WPARAM_SI_BSM")->retrieve(je)->get_val()/src.at("WPARAM_SI_BSM")->retrieve(le)->get_val())*f30(pow(mstop[ae-1]/src.at("WPARAM_SI_BSM")->retrieve(le)->get_val(),2.),pow(src.at("WPARAM_SI_BSM")->retrieve(je)->get_val()/src.at("WPARAM_SI_BSM")->retrieve(le)->get_val(),2.))-Ralj[1][le][je]*f40(pow(mstop[ae-1]/src.at("WPARAM_SI_BSM")->retrieve(le)->get_val(),2.),pow(src.at("WPARAM_SI_BSM")->retrieve(je)->get_val()/src.at("WPARAM_SI_BSM")->retrieve(le)->get_val(),2.)))));
+                        CAc = complex_t(CAc.real(), CAc.imag()+(tanb)/sqrt(2.)*G1[ae][ae][je][le]*(v_deltam_s*kron(le,je)*fabs(src.get_val("WPARAM_SI_BSM",je)/mW)*f80(pow(mstop[ae-1]/src.get_val("WPARAM_SI_BSM",je),2.))-(Ralj[1][je][le]*fabs(src.get_val("WPARAM_SI_BSM",je)/src.get_val("WPARAM_SI_BSM",le))*f30(pow(mstop[ae-1]/src.get_val("WPARAM_SI_BSM",le),2.),pow(src.get_val("WPARAM_SI_BSM",je)/src.get_val("WPARAM_SI_BSM",le),2.))-Ralj[1][le][je]*f40(pow(mstop[ae-1]/src.get_val("WPARAM_SI_BSM",le),2.),pow(src.get_val("WPARAM_SI_BSM",je)/src.get_val("WPARAM_SI_BSM",le),2.)))));
                     }
                 }
             }
             complex_t CA=CAH+CAc;
             double width_A0=1.e-6;
-            coeff_temp2+=complex_t{v_deltam_s/2.*mass_b_2/sw2*src.at("WPARAM_SI_SM")->retrieve(3)->get_val()*CA/(m_Bs*m_Bs-mA*mA,mA*width_A0)};
+            coeff_temp2+=complex_t{v_deltam_s/2.*mass_b_2/sw2*src.get_val("WPARAM_SI_SM",3)*CA/(m_Bs*m_Bs-mA*mA,mA*width_A0)};
         }
     }
     out[WCoef::CQ2] += coeff_temp2;

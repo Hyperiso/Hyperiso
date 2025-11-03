@@ -6,15 +6,15 @@ void QCDHelper::Init() {
     LOG_DEBUG("Init QCD dependent block");
 	std::unordered_map<ParameterType, std::vector<std::string>> src = {{ParameterType::SM, {"SMINPUTS", "MASS"}}};
 
-    auto func = [] (const std::unordered_map<std::string, std::shared_ptr<Block>>& src, std::shared_ptr<DependentBlock> dep_block) {
-        double m_Z = src.at("SMINPUTS")->retrieve(4)->get_val();
-        double alpha_s_mZ = src.at("SMINPUTS")->retrieve(3)->get_val();
-        double m_b_mb = src.at("SMINPUTS")->retrieve(5)->get_val();
-        double m_t_pole = src.at("SMINPUTS")->retrieve(6)->get_val();
-        double m_c = src.at("MASS")->retrieve(4)->get_val();
-        double m_s = src.at("MASS")->retrieve(3)->get_val();
-        double m_d = src.at("MASS")->retrieve(2)->get_val();
-        double m_u = src.at("MASS")->retrieve(1)->get_val();
+    auto func = [] (const BlockSrc& src, std::shared_ptr<DependentBlock> dep_block) {
+        double m_Z = src.get_val("SMINPUTS" , 4);
+        double alpha_s_mZ = src.get_val("SMINPUTS" , 3);
+        double m_b_mb = src.get_val("SMINPUTS" , 5);
+        double m_t_pole = src.get_val("SMINPUTS" , 6);
+        double m_c = src.get_val("MASS" , 4);
+        double m_s = src.get_val("MASS" , 3);
+        double m_d = src.get_val("MASS" , 2);
+        double m_u = src.get_val("MASS" , 1);
 
         double lambda_5 = match_lambda(alpha_s_mZ, m_Z, 5);
         double lambda_6_mt_pole = match_lambda(alpha_s_explicit(m_t_pole, lambda_5, 5), m_t_pole, 6);

@@ -1,6 +1,6 @@
 #include "MesonMixingWilsonSUSY.h"
 
-C_mix_bd_1_SUSY::C_mix_bd_1_SUSY() : WilsonCoefficient("C_BD_1", GroupMapper::str(WGroup::MESON_MIXING) + "_MATCH") {
+C_mix_bd_1_SUSY::C_mix_bd_1_SUSY() : WilsonCoefficient("C_BD_1", GroupMapper::str(WGroup::MESON_MIXING, ScaleType::MATCHING)) {
     matching_info[QCDOrder::LO] = {
         {
             {ParameterType::WILSON, "WPARAM_MATCH_SM", 4},           //mass_c_muW_mcrun
@@ -46,33 +46,33 @@ C_mix_bd_1_SUSY::C_mix_bd_1_SUSY() : WilsonCoefficient("C_BD_1", GroupMapper::st
 			{ParameterType::SM, "EW_SCALE", 1}
         },
         compute_LO,
-        LhaID(1050105, 4141, 0, 1)
+        get_lhaid_from_name(QCDOrder::LO)
     };
 }
 
-double C_mix_bd_1_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src) {
+double C_mix_bd_1_SUSY::compute_LO(const ParamSrc& src) {
 
-	double mu_W = src.at({ParameterType::WILSON, "EW_SCALE", 37})->get_val();
-    double M_H=src.at({ParameterType::BSM, "MASS", 37})->get_val();
-	double M_W=src.at({ParameterType::SM, "MASS", 24})->get_val();
+	double mu_W = src.get_val(ParameterType::WILSON, "EW_SCALE", 1);
+    double M_H=src.get_val(ParameterType::BSM, "MASS", 37);
+	double M_W=src.get_val(ParameterType::SM, "MASS", 24);
 	double M_H_pow_2 = pow(M_H,2.);
 	double M_W_pow_2 = pow(M_W,2.);
 	std::array<std::array<scalar_t, 3>, 3> V_CKM {};
-	double m_q = src.at({ParameterType::SM, "MASS", 1})->get_val();
+	double m_q = src.get_val(ParameterType::SM, "MASS", 1);
 	
-	double m_b= src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {5, 1}})->get_val();
-	double g_2=src.at({ParameterType::SM, "GAUGE", 2})->get_val();
-	double tbeta = src.at({ParameterType::BSM, "HMIX", 2})->get_val();
+	double m_b= src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {5, 1});
+	double g_2=src.get_val(ParameterType::SM, "GAUGE", 2);
+	double tbeta = src.get_val(ParameterType::BSM, "HMIX", 2);
 	double m_u[4],m_u_pow_2[4];
 
     for (int i = 0; i<3; ++i) {
         for (int j = 0; j<3; j++) {
-            V_CKM[i][j] = src.at({ParameterType::SM, "VCKM", LhaID(i, j)})->get_val();
+            V_CKM[i][j] = src.get_val(ParameterType::SM, "VCKM", LhaID(i, j));
         }
     }
-	m_u[1]= src.at({ParameterType::SM, "MASS", 2})->get_val();
-    m_u[2]= src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 4})->get_val();
-	m_u[3]= src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 6})->get_val();
+	m_u[1]= src.get_val(ParameterType::SM, "MASS", 2);
+    m_u[2]= src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 4);
+	m_u[3]= src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 6);
 
 
 	for(int i =0;i<3;++i) {
@@ -102,20 +102,20 @@ double C_mix_bd_1_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared
 
 	double M_D[6],M_D_pow_2[6],dm[6]; 
 	scalar_t Z_D[6][6];
-	double Mg=src.at({ParameterType::BSM, "MASS", 1000021})->get_val();
+	double Mg=src.get_val(ParameterType::BSM, "MASS", 1000021);
 	double Mg_pow_2 = pow(Mg,2);
 	// double g_3=sqrt(4.*PI*alphas_running(mu_t,param->mass_top_pole,param->mass_b,param)); /* NM: compute from alphas instead of using g3 from SLHA file */
 	double g_3= sqrt(4.*PI*QCDHelper::alpha_s(mu_W)); //TODO : check pole or running
-	M_D[0]=src.at({ParameterType::BSM, "MASS", 1000001})->get_val();
-	M_D[1]=src.at({ParameterType::BSM, "MASS", 1000003})->get_val();
-	M_D[2]=src.at({ParameterType::BSM, "MASS", 1000005})->get_val();
-	M_D[3]=src.at({ParameterType::BSM, "MASS", 2000001})->get_val();
-	M_D[4]=src.at({ParameterType::BSM, "MASS", 2000003})->get_val();
-	M_D[5]=src.at({ParameterType::BSM, "MASS", 2000005})->get_val();
+	M_D[0]=src.get_val(ParameterType::BSM, "MASS", 1000001);
+	M_D[1]=src.get_val(ParameterType::BSM, "MASS", 1000003);
+	M_D[2]=src.get_val(ParameterType::BSM, "MASS", 1000005);
+	M_D[3]=src.get_val(ParameterType::BSM, "MASS", 2000001);
+	M_D[4]=src.get_val(ParameterType::BSM, "MASS", 2000003);
+	M_D[5]=src.get_val(ParameterType::BSM, "MASS", 2000005);
 
 	for(int i = 0; i<6; ++i) {
 		for(int j = 0; j<6; ++j) {
-			Z_D[i][j]= src.at({ParameterType::BSM, "DSQMIX", LhaID(j+1, i+1)})->get_val(); //TODO: deal with this group
+			Z_D[i][j]= src.get_val(ParameterType::BSM, "DSQMIX", LhaID(j+1, i+1)); //TODO: deal with this group
 		}
 	} // inverse matrix, because in SLHA2 the second index denotes quark flavour (dl,sl,bl,dr,sr,br)
 	for(int i = 0; i<6; ++i) {
@@ -143,19 +143,19 @@ double C_mix_bd_1_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared
 	double M_ch[2],M_ch_pow_2[2],M_U[6],M_U_pow_2[6];
 	scalar_t Z_p[2][2],Z_m[2][2],Z_U[6][6];
 	scalar_t Yd[3],Yu[3];
- 	double sw=sin(atan(src.at({ParameterType::SM, "GAUGE", 2})->get_val()/src.at({ParameterType::SM, "GAUGE", 2})->get_val()));
- 	double Q_e = (src.at({ParameterType::SM, "GAUGE", 2})->get_val())*sw;
+ 	double sw=sin(atan(src.get_val(ParameterType::SM, "GAUGE", 2)/src.get_val(ParameterType::SM, "GAUGE", 2)));
+ 	double Q_e = (src.get_val(ParameterType::SM, "GAUGE", 2))*sw;
 	double swi=1./sw;
 
-	M_ch[0]=src.at({ParameterType::BSM, "MASS", 1000024})->get_val();
-	M_ch[1]=src.at({ParameterType::BSM, "MASS", 1000037})->get_val();
+	M_ch[0]=src.get_val(ParameterType::BSM, "MASS", 1000024);
+	M_ch[1]=src.get_val(ParameterType::BSM, "MASS", 1000037);
 
-	M_U[0]=src.at({ParameterType::BSM, "MASS", 1000002})->get_val();
-	M_U[1]=src.at({ParameterType::BSM, "MASS", 1000004})->get_val();
-	M_U[2]=src.at({ParameterType::BSM, "MASS", 1000006})->get_val();
-	M_U[3]=src.at({ParameterType::BSM, "MASS", 2000002})->get_val();
-	M_U[4]=src.at({ParameterType::BSM, "MASS", 2000004})->get_val();
-	M_U[5]=src.at({ParameterType::BSM, "MASS", 2000006})->get_val();
+	M_U[0]=src.get_val(ParameterType::BSM, "MASS", 1000002);
+	M_U[1]=src.get_val(ParameterType::BSM, "MASS", 1000004);
+	M_U[2]=src.get_val(ParameterType::BSM, "MASS", 1000006);
+	M_U[3]=src.get_val(ParameterType::BSM, "MASS", 2000002);
+	M_U[4]=src.get_val(ParameterType::BSM, "MASS", 2000004);
+	M_U[5]=src.get_val(ParameterType::BSM, "MASS", 2000006);
 
 	for(int i=0; i<2; ++i){
 		M_ch_pow_2[i]=pow(M_ch[i],2);
@@ -165,38 +165,38 @@ double C_mix_bd_1_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared
 	}
 	for(int i=0; i <2; ++i) {
 		for(int j=0; j<2; ++j) {
-			Z_p[i][j]=conj(src.at({ParameterType::BSM, "VMIX", LhaID(j+1, i+1)})->get_val());
+			Z_p[i][j]=conj(src.get_val(ParameterType::BSM, "VMIX", LhaID(j+1, i+1)));
 		}
 	} /* NM: conversion from SLHA2 convention */
 	for(int i=2; i<2; ++i) {
 		for(int j=0; j<2; ++j) {
-			Z_m[i][j]=conj(src.at({ParameterType::BSM, "UMIX", LhaID(j+1, i+1)})->get_val());
+			Z_m[i][j]=conj(src.get_val(ParameterType::BSM, "UMIX", LhaID(j+1, i+1)));
 		}
 	} /* NM: conversion from SLHA2 convention */
 	for(int i=0; i<6; ++i) {
 		for(int j=0; j<6; ++j) {
-			Z_U[i][j]=conj(src.at({ParameterType::BSM, "USQMIX", LhaID(j+1, i+1)})->get_val()); //TODO: deal with this group
+			Z_U[i][j]=conj(src.get_val(ParameterType::BSM, "USQMIX", LhaID(j+1, i+1))); //TODO: deal with this group
 		}
 	} /* NM: conversion from SLHA2 convention */
 
 	double v1,v2,beta;
-	beta = atan(src.at({ParameterType::BSM, "EXTPAR", 25})->get_val());
-	v1 = 2.*(src.at({ParameterType::SM, "MASS", 24})->get_val())*cos(beta)/src.at({ParameterType::SM, "GAUGE", 2})->get_val();
+	beta = atan(src.get_val(ParameterType::BSM, "EXTPAR", 25));
+	v1 = 2.*(src.get_val(ParameterType::SM, "MASS", 24))*cos(beta)/src.get_val(ParameterType::SM, "GAUGE", 2);
 	v2 = v1*tan(beta);
   
-	double mc = src.at({ParameterType::SM, "MASS", 4})->get_val();
+	double mc = src.get_val(ParameterType::SM, "MASS", 4);
 	
 	double m_b=QCDHelper::msbar_mass(5, mu_W, MassType::MSBAR); /* NM: running mass */
 	double m_t=QCDHelper::msbar_mass(6, mu_W, MassType::MSBAR); /* NM: running mass */
 
 	double common = sqrt(2.)/v2;
-	Yu[0] = common*src.at({ParameterType::SM, "MASS", 2})->get_val();
+	Yu[0] = common*src.get_val(ParameterType::SM, "MASS", 2);
 	Yu[1] = common*QCDHelper::msbar_mass(4, mu_W, MassType::POLE); //TODO : check this to be sure
 
 	Yu[2] = common*m_t; /* NM: running mass */
 	double otherc = sqrt(2.)/v1;
-	Yd[0] = otherc*src.at({ParameterType::SM, "MASS", 1})->get_val();
-	Yd[1] = otherc*src.at({ParameterType::SM, "MASS", 3})->get_val();
+	Yd[0] = otherc*src.get_val(ParameterType::SM, "MASS", 1);
+	Yd[1] = otherc*src.get_val(ParameterType::SM, "MASS", 3);
 	Yd[2] = otherc*m_b; /* NM: running mass */
 	
 
@@ -231,14 +231,14 @@ double C_mix_bd_1_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared
 	double M_ch0[4],M_ch0_pow_2[4],M_D[6],M_D_pow_2[6];
 	scalar_t Z_N[4][4];
 
-	double cw=cos(atan(src.at({ParameterType::SM, "GAUGE", 1})->get_val()/src.at({ParameterType::SM, "GAUGE", 2})->get_val()));
+	double cw=cos(atan(src.get_val(ParameterType::SM, "GAUGE", 1)/src.get_val(ParameterType::SM, "GAUGE", 2)));
 
  	double otherc = sqrt(2.)/v1;
 
-	std::array<double,4> temp_ch0 = {src.at({ParameterType::BSM, "MASS", 1000022})->get_val(),
-					 src.at({ParameterType::BSM, "MASS", 1000023})->get_val(),
-					 src.at({ParameterType::BSM, "MASS", 1000025})->get_val(),
-					 src.at({ParameterType::BSM, "MASS", 1000035})->get_val()};
+	std::array<double,4> temp_ch0 = {src.get_val(ParameterType::BSM, "MASS", 1000022),
+					 src.get_val(ParameterType::BSM, "MASS", 1000023),
+					 src.get_val(ParameterType::BSM, "MASS", 1000025),
+					 src.get_val(ParameterType::BSM, "MASS", 1000035)};
 
 	M_ch0[0]=fabs(temp_ch0[0]);
 	M_ch0[1]=fabs(temp_ch0[1]);
@@ -258,7 +258,7 @@ double C_mix_bd_1_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared
 	
 	for(int i=0; i<4; ++i) {
 		for(int j=0; j<4; ++j) {
-			Z_N[i][j] = conj(src.at({ParameterType::BSM, "NMIX", LhaID(i+1, j+1)})->get_val()); //TODO : i,j or j,i like the others ?
+			Z_N[i][j] = conj(src.get_val(ParameterType::BSM, "NMIX", LhaID(i+1, j+1))); //TODO : i,j or j,i like the others ?
 		}
 	}
 	
@@ -304,7 +304,7 @@ double C_mix_bd_1_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared
 
 
 
-	double M_g=src.at({ParameterType::BSM, "MASS", 1000021})->get_val();
+	double M_g=src.get_val(ParameterType::BSM, "MASS", 1000021);
 	double M_g_pow_2 = pow(M_g,2.);
 
 	// } /* NM: in Buras, neutralino masses defined positive, so changed the SLHA2 neutralino mixing matrix when negative neutralino mass */
@@ -339,7 +339,7 @@ double C_mix_bd_1_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared
 
 //BD_1_tilde
 
-C_mix_bd_1_tilde_SUSY::C_mix_bd_1_tilde_SUSY() : WilsonCoefficient("CT_BD_1", GroupMapper::str(WGroup::MESON_MIXING) + "_MATCH") {
+C_mix_bd_1_tilde_SUSY::C_mix_bd_1_tilde_SUSY() : WilsonCoefficient("CT_BD_1", GroupMapper::str(WGroup::MESON_MIXING, ScaleType::MATCHING)) {
     matching_info[QCDOrder::LO] = {
         {
             {ParameterType::WILSON, "WPARAM_MATCH_SM", 4},           //mass_c_muW_mcrun
@@ -385,33 +385,33 @@ C_mix_bd_1_tilde_SUSY::C_mix_bd_1_tilde_SUSY() : WilsonCoefficient("CT_BD_1", Gr
 			{ParameterType::SM, "EW_SCALE", 1}
         },
         compute_LO,
-        LhaID(1050105, 4242, 0, 1)
+        get_lhaid_from_name(QCDOrder::LO)
     };
 }
 
-double C_mix_bd_1_tilde_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src) {
+double C_mix_bd_1_tilde_SUSY::compute_LO(const ParamSrc& src) {
 
-	double mu_W = src.at({ParameterType::WILSON, "EW_SCALE", 37})->get_val();
-    double M_H=src.at({ParameterType::BSM, "MASS", 37})->get_val();
-	double M_W=src.at({ParameterType::SM, "MASS", 24})->get_val();
+	double mu_W = src.get_val(ParameterType::WILSON, "EW_SCALE", 1);
+    double M_H=src.get_val(ParameterType::BSM, "MASS", 37);
+	double M_W=src.get_val(ParameterType::SM, "MASS", 24);
 	double M_H_pow_2 = pow(M_H,2.);
 	double M_W_pow_2 = pow(M_W,2.);
 	std::array<std::array<scalar_t, 3>, 3> V_CKM {};
-	double m_q = src.at({ParameterType::SM, "MASS", 1})->get_val();
+	double m_q = src.get_val(ParameterType::SM, "MASS", 1);
 	
-	double m_b= src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {5, 1}})->get_val();
-	double g_2=src.at({ParameterType::SM, "GAUGE", 2})->get_val();
-	double tbeta = src.at({ParameterType::BSM, "HMIX", 2})->get_val();
+	double m_b= src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {5, 1});
+	double g_2=src.get_val(ParameterType::SM, "GAUGE", 2);
+	double tbeta = src.get_val(ParameterType::BSM, "HMIX", 2);
 	double m_u[4],m_u_pow_2[4];
 
     for (int i = 0; i<3; ++i) {
         for (int j = 0; j<3; j++) {
-            V_CKM[i][j] = src.at({ParameterType::SM, "VCKM", LhaID(i, j)})->get_val();
+            V_CKM[i][j] = src.get_val(ParameterType::SM, "VCKM", LhaID(i, j));
         }
     }
-	m_u[1]= src.at({ParameterType::SM, "MASS", 2})->get_val();
-    m_u[2]= src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 4})->get_val();
-	m_u[3]= src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 6})->get_val();
+	m_u[1]= src.get_val(ParameterType::SM, "MASS", 2);
+    m_u[2]= src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 4);
+	m_u[3]= src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 6);
 
 
 	for(int i =0;i<3;++i) {
@@ -441,20 +441,20 @@ double C_mix_bd_1_tilde_SUSY::compute_LO(const std::unordered_map<ParamId, std::
 
 	double M_D[6],M_D_pow_2[6],dm[6]; 
 	scalar_t Z_D[6][6];
-	double Mg=src.at({ParameterType::BSM, "MASS", 1000021})->get_val();
+	double Mg=src.get_val(ParameterType::BSM, "MASS", 1000021);
 	double Mg_pow_2 = pow(Mg,2);
 	// double g_3=sqrt(4.*PI*alphas_running(mu_t,param->mass_top_pole,param->mass_b,param)); /* NM: compute from alphas instead of using g3 from SLHA file */
 	double g_3= sqrt(4.*PI*QCDHelper::alpha_s(mu_W)); //TODO : check pole or running
-	M_D[0]=src.at({ParameterType::BSM, "MASS", 1000001})->get_val();
-	M_D[1]=src.at({ParameterType::BSM, "MASS", 1000003})->get_val();
-	M_D[2]=src.at({ParameterType::BSM, "MASS", 1000005})->get_val();
-	M_D[3]=src.at({ParameterType::BSM, "MASS", 2000001})->get_val();
-	M_D[4]=src.at({ParameterType::BSM, "MASS", 2000003})->get_val();
-	M_D[5]=src.at({ParameterType::BSM, "MASS", 2000005})->get_val();
+	M_D[0]=src.get_val(ParameterType::BSM, "MASS", 1000001);
+	M_D[1]=src.get_val(ParameterType::BSM, "MASS", 1000003);
+	M_D[2]=src.get_val(ParameterType::BSM, "MASS", 1000005);
+	M_D[3]=src.get_val(ParameterType::BSM, "MASS", 2000001);
+	M_D[4]=src.get_val(ParameterType::BSM, "MASS", 2000003);
+	M_D[5]=src.get_val(ParameterType::BSM, "MASS", 2000005);
 
 	for(int i = 0; i<6; ++i) {
 		for(int j = 0; j<6; ++j) {
-			Z_D[i][j]= src.at({ParameterType::BSM, "DSQMIX", LhaID(j+1, i+1)})->get_val(); //TODO: deal with this group
+			Z_D[i][j]= src.get_val(ParameterType::BSM, "DSQMIX", LhaID(j+1, i+1)); //TODO: deal with this group
 		}
 	} // inverse matrix, because in SLHA2 the second index denotes quark flavour (dl,sl,bl,dr,sr,br)
 	for(int i = 0; i<6; ++i) {
@@ -484,19 +484,19 @@ double C_mix_bd_1_tilde_SUSY::compute_LO(const std::unordered_map<ParamId, std::
 	double M_ch[2],M_ch_pow_2[2],M_U[6],M_U_pow_2[6];
 	scalar_t Z_p[2][2],Z_m[2][2],Z_U[6][6];
 	scalar_t Yd[3],Yu[3];
- 	double sw=sin(atan(src.at({ParameterType::SM, "GAUGE", 2})->get_val()/src.at({ParameterType::SM, "GAUGE", 2})->get_val()));
- 	double Q_e = (src.at({ParameterType::SM, "GAUGE", 2})->get_val())*sw;
+ 	double sw=sin(atan(src.get_val(ParameterType::SM, "GAUGE", 2)/src.get_val(ParameterType::SM, "GAUGE", 2)));
+ 	double Q_e = (src.get_val(ParameterType::SM, "GAUGE", 2))*sw;
 	double swi=1./sw;
 
-	M_ch[0]=src.at({ParameterType::BSM, "MASS", 1000024})->get_val();
-	M_ch[1]=src.at({ParameterType::BSM, "MASS", 1000037})->get_val();
+	M_ch[0]=src.get_val(ParameterType::BSM, "MASS", 1000024);
+	M_ch[1]=src.get_val(ParameterType::BSM, "MASS", 1000037);
 
-	M_U[0]=src.at({ParameterType::BSM, "MASS", 1000002})->get_val();
-	M_U[1]=src.at({ParameterType::BSM, "MASS", 1000004})->get_val();
-	M_U[2]=src.at({ParameterType::BSM, "MASS", 1000006})->get_val();
-	M_U[3]=src.at({ParameterType::BSM, "MASS", 2000002})->get_val();
-	M_U[4]=src.at({ParameterType::BSM, "MASS", 2000004})->get_val();
-	M_U[5]=src.at({ParameterType::BSM, "MASS", 2000006})->get_val();
+	M_U[0]=src.get_val(ParameterType::BSM, "MASS", 1000002);
+	M_U[1]=src.get_val(ParameterType::BSM, "MASS", 1000004);
+	M_U[2]=src.get_val(ParameterType::BSM, "MASS", 1000006);
+	M_U[3]=src.get_val(ParameterType::BSM, "MASS", 2000002);
+	M_U[4]=src.get_val(ParameterType::BSM, "MASS", 2000004);
+	M_U[5]=src.get_val(ParameterType::BSM, "MASS", 2000006);
 
 	for(int i=0; i<2; ++i){
 		M_ch_pow_2[i]=pow(M_ch[i],2);
@@ -506,38 +506,38 @@ double C_mix_bd_1_tilde_SUSY::compute_LO(const std::unordered_map<ParamId, std::
 	}
 	for(int i=0; i <2; ++i) {
 		for(int j=0; j<2; ++j) {
-			Z_p[i][j]=conj(src.at({ParameterType::BSM, "VMIX", LhaID(j+1, i+1)})->get_val());
+			Z_p[i][j]=conj(src.get_val(ParameterType::BSM, "VMIX", LhaID(j+1, i+1)));
 		}
 	} /* NM: conversion from SLHA2 convention */
 	for(int i=2; i<2; ++i) {
 		for(int j=0; j<2; ++j) {
-			Z_m[i][j]=conj(src.at({ParameterType::BSM, "UMIX", LhaID(j+1, i+1)})->get_val());
+			Z_m[i][j]=conj(src.get_val(ParameterType::BSM, "UMIX", LhaID(j+1, i+1)));
 		}
 	} /* NM: conversion from SLHA2 convention */
 	for(int i=0; i<6; ++i) {
 		for(int j=0; j<6; ++j) {
-			Z_U[i][j]=conj(src.at({ParameterType::BSM, "USQMIX", LhaID(j+1, i+1)})->get_val()); //TODO: deal with this group
+			Z_U[i][j]=conj(src.get_val(ParameterType::BSM, "USQMIX", LhaID(j+1, i+1))); //TODO: deal with this group
 		}
 	} /* NM: conversion from SLHA2 convention */
 
 	double v1,v2,beta;
-	beta = atan(src.at({ParameterType::BSM, "EXTPAR", 25})->get_val());
-	v1 = 2.*(src.at({ParameterType::SM, "MASS", 24})->get_val())*cos(beta)/src.at({ParameterType::SM, "GAUGE", 2})->get_val();
+	beta = atan(src.get_val(ParameterType::BSM, "EXTPAR", 25));
+	v1 = 2.*(src.get_val(ParameterType::SM, "MASS", 24))*cos(beta)/src.get_val(ParameterType::SM, "GAUGE", 2);
 	v2 = v1*tan(beta);
   
-	double mc = src.at({ParameterType::SM, "MASS", 4})->get_val();
+	double mc = src.get_val(ParameterType::SM, "MASS", 4);
 	
 	double m_b=QCDHelper::msbar_mass(5, mu_W, MassType::MSBAR); /* NM: running mass */
 	double m_t=QCDHelper::msbar_mass(6, mu_W, MassType::MSBAR); /* NM: running mass */
 
 	double common = sqrt(2.)/v2;
-	Yu[0] = common*src.at({ParameterType::SM, "MASS", 2})->get_val();
+	Yu[0] = common*src.get_val(ParameterType::SM, "MASS", 2);
 	Yu[1] = common*QCDHelper::msbar_mass(4, mu_W, MassType::POLE); //TODO : check this to be sure
 
 	Yu[2] = common*m_t; /* NM: running mass */
 	double otherc = sqrt(2.)/v1;
-	Yd[0] = otherc*src.at({ParameterType::SM, "MASS", 1})->get_val();
-	Yd[1] = otherc*src.at({ParameterType::SM, "MASS", 3})->get_val();
+	Yd[0] = otherc*src.get_val(ParameterType::SM, "MASS", 1);
+	Yd[1] = otherc*src.get_val(ParameterType::SM, "MASS", 3);
 	Yd[2] = otherc*m_b; /* NM: running mass */
 	
 
@@ -572,14 +572,14 @@ double C_mix_bd_1_tilde_SUSY::compute_LO(const std::unordered_map<ParamId, std::
 	double M_ch0[4],M_ch0_pow_2[4],M_D[6],M_D_pow_2[6];
 	scalar_t Z_N[4][4];
 
-	double cw=cos(atan(src.at({ParameterType::SM, "GAUGE", 1})->get_val()/src.at({ParameterType::SM, "GAUGE", 2})->get_val()));
+	double cw=cos(atan(src.get_val(ParameterType::SM, "GAUGE", 1)/src.get_val(ParameterType::SM, "GAUGE", 2)));
 
  	double otherc = sqrt(2.)/v1;
 
-	std::array<double,4> temp_ch0 = {src.at({ParameterType::BSM, "MASS", 1000022})->get_val(),
-					 src.at({ParameterType::BSM, "MASS", 1000023})->get_val(),
-					 src.at({ParameterType::BSM, "MASS", 1000025})->get_val(),
-					 src.at({ParameterType::BSM, "MASS", 1000035})->get_val()};
+	std::array<double,4> temp_ch0 = {src.get_val(ParameterType::BSM, "MASS", 1000022),
+					 src.get_val(ParameterType::BSM, "MASS", 1000023),
+					 src.get_val(ParameterType::BSM, "MASS", 1000025),
+					 src.get_val(ParameterType::BSM, "MASS", 1000035)};
 
 	M_ch0[0]=fabs(temp_ch0[0]);
 	M_ch0[1]=fabs(temp_ch0[1]);
@@ -599,7 +599,7 @@ double C_mix_bd_1_tilde_SUSY::compute_LO(const std::unordered_map<ParamId, std::
 	
 	for(int i=0; i<4; ++i) {
 		for(int j=0; j<4; ++j) {
-			Z_N[i][j] = conj(src.at({ParameterType::BSM, "NMIX", LhaID(i+1, j+1)})->get_val()); //TODO : i,j or j,i like the others ?
+			Z_N[i][j] = conj(src.get_val(ParameterType::BSM, "NMIX", LhaID(i+1, j+1))); //TODO : i,j or j,i like the others ?
 		}
 	}
 	
@@ -645,7 +645,7 @@ double C_mix_bd_1_tilde_SUSY::compute_LO(const std::unordered_map<ParamId, std::
 
 
 
-	double M_g=src.at({ParameterType::BSM, "MASS", 1000021})->get_val();
+	double M_g=src.get_val(ParameterType::BSM, "MASS", 1000021);
 	double M_g_pow_2 = pow(M_g,2.);
 
 	// } /* NM: in Buras, neutralino masses defined positive, so changed the SLHA2 neutralino mixing matrix when negative neutralino mass */
@@ -677,7 +677,7 @@ double C_mix_bd_1_tilde_SUSY::compute_LO(const std::unordered_map<ParamId, std::
 
 //BD2
 
-C_mix_bd_2_SUSY::C_mix_bd_2_SUSY() : WilsonCoefficient("C_BD_2", GroupMapper::str(WGroup::MESON_MIXING) + "_MATCH") {
+C_mix_bd_2_SUSY::C_mix_bd_2_SUSY() : WilsonCoefficient("C_BD_2", GroupMapper::str(WGroup::MESON_MIXING, ScaleType::MATCHING)) {
     matching_info[QCDOrder::LO] = {
         {
             {ParameterType::WILSON, "WPARAM_MATCH_SM", 4},           //mass_c_muW_mcrun
@@ -723,33 +723,33 @@ C_mix_bd_2_SUSY::C_mix_bd_2_SUSY() : WilsonCoefficient("C_BD_2", GroupMapper::st
 			{ParameterType::SM, "EW_SCALE", 1}
         },
         compute_LO,
-        LhaID(1050105, 3131, 0, 1)
+        get_lhaid_from_name(QCDOrder::LO)
     };
 }
 
-double C_mix_bd_2_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src) {
+double C_mix_bd_2_SUSY::compute_LO(const ParamSrc& src) {
 
-	double mu_W = src.at({ParameterType::WILSON, "EW_SCALE", 37})->get_val();
-    double M_H=src.at({ParameterType::BSM, "MASS", 37})->get_val();
-	double M_W=src.at({ParameterType::SM, "MASS", 24})->get_val();
+	double mu_W = src.get_val(ParameterType::WILSON, "EW_SCALE", 1);
+    double M_H=src.get_val(ParameterType::BSM, "MASS", 37);
+	double M_W=src.get_val(ParameterType::SM, "MASS", 24);
 	double M_H_pow_2 = pow(M_H,2.);
 	double M_W_pow_2 = pow(M_W,2.);
 	std::array<std::array<scalar_t, 3>, 3> V_CKM {};
-	double m_q = src.at({ParameterType::SM, "MASS", 1})->get_val();
+	double m_q = src.get_val(ParameterType::SM, "MASS", 1);
 	
-	double m_b= src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {5, 1}})->get_val();
-	double g_2=src.at({ParameterType::SM, "GAUGE", 2})->get_val();
-	double tbeta = src.at({ParameterType::BSM, "HMIX", 2})->get_val();
+	double m_b= src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {5, 1});
+	double g_2=src.get_val(ParameterType::SM, "GAUGE", 2);
+	double tbeta = src.get_val(ParameterType::BSM, "HMIX", 2);
 	double m_u[4],m_u_pow_2[4];
 
     for (int i = 0; i<3; ++i) {
         for (int j = 0; j<3; j++) {
-            V_CKM[i][j] = src.at({ParameterType::SM, "VCKM", LhaID(i, j)})->get_val();
+            V_CKM[i][j] = src.get_val(ParameterType::SM, "VCKM", LhaID(i, j));
         }
     }
-	m_u[1]= src.at({ParameterType::SM, "MASS", 2})->get_val();
-    m_u[2]= src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 4})->get_val();
-	m_u[3]= src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 6})->get_val();
+	m_u[1]= src.get_val(ParameterType::SM, "MASS", 2);
+    m_u[2]= src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 4);
+	m_u[3]= src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 6);
 
 
 	for(int i =0;i<3;++i) {
@@ -780,20 +780,20 @@ double C_mix_bd_2_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared
 
 	double M_D[6],M_D_pow_2[6],dm[6]; 
 	scalar_t Z_D[6][6];
-	double Mg=src.at({ParameterType::BSM, "MASS", 1000021})->get_val();
+	double Mg=src.get_val(ParameterType::BSM, "MASS", 1000021);
 	double Mg_pow_2 = pow(Mg,2);
 	// double g_3=sqrt(4.*PI*alphas_running(mu_t,param->mass_top_pole,param->mass_b,param)); /* NM: compute from alphas instead of using g3 from SLHA file */
 	double g_3= sqrt(4.*PI*QCDHelper::alpha_s(mu_W)); //TODO : check pole or running
-	M_D[0]=src.at({ParameterType::BSM, "MASS", 1000001})->get_val();
-	M_D[1]=src.at({ParameterType::BSM, "MASS", 1000003})->get_val();
-	M_D[2]=src.at({ParameterType::BSM, "MASS", 1000005})->get_val();
-	M_D[3]=src.at({ParameterType::BSM, "MASS", 2000001})->get_val();
-	M_D[4]=src.at({ParameterType::BSM, "MASS", 2000003})->get_val();
-	M_D[5]=src.at({ParameterType::BSM, "MASS", 2000005})->get_val();
+	M_D[0]=src.get_val(ParameterType::BSM, "MASS", 1000001);
+	M_D[1]=src.get_val(ParameterType::BSM, "MASS", 1000003);
+	M_D[2]=src.get_val(ParameterType::BSM, "MASS", 1000005);
+	M_D[3]=src.get_val(ParameterType::BSM, "MASS", 2000001);
+	M_D[4]=src.get_val(ParameterType::BSM, "MASS", 2000003);
+	M_D[5]=src.get_val(ParameterType::BSM, "MASS", 2000005);
 
 	for(int i = 0; i<6; ++i) {
 		for(int j = 0; j<6; ++j) {
-			Z_D[i][j]= src.at({ParameterType::BSM, "DSQMIX", LhaID(j+1, i+1)})->get_val(); //TODO: deal with this group
+			Z_D[i][j]= src.get_val(ParameterType::BSM, "DSQMIX", LhaID(j+1, i+1)); //TODO: deal with this group
 		}
 	} // inverse matrix, because in SLHA2 the second index denotes quark flavour (dl,sl,bl,dr,sr,br)
 	for(int i = 0; i<6; ++i) {
@@ -822,19 +822,19 @@ double C_mix_bd_2_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared
 	double M_ch[2],M_ch_pow_2[2],M_U[6],M_U_pow_2[6];
 	scalar_t Z_p[2][2],Z_m[2][2],Z_U[6][6];
 	scalar_t Yd[3],Yu[3];
- 	double sw=sin(atan(src.at({ParameterType::SM, "GAUGE", 2})->get_val()/src.at({ParameterType::SM, "GAUGE", 2})->get_val()));
- 	double Q_e = (src.at({ParameterType::SM, "GAUGE", 2})->get_val())*sw;
+ 	double sw=sin(atan(src.get_val(ParameterType::SM, "GAUGE", 2)/src.get_val(ParameterType::SM, "GAUGE", 2)));
+ 	double Q_e = (src.get_val(ParameterType::SM, "GAUGE", 2))*sw;
 	double swi=1./sw;
 
-	M_ch[0]=src.at({ParameterType::BSM, "MASS", 1000024})->get_val();
-	M_ch[1]=src.at({ParameterType::BSM, "MASS", 1000037})->get_val();
+	M_ch[0]=src.get_val(ParameterType::BSM, "MASS", 1000024);
+	M_ch[1]=src.get_val(ParameterType::BSM, "MASS", 1000037);
 
-	M_U[0]=src.at({ParameterType::BSM, "MASS", 1000002})->get_val();
-	M_U[1]=src.at({ParameterType::BSM, "MASS", 1000004})->get_val();
-	M_U[2]=src.at({ParameterType::BSM, "MASS", 1000006})->get_val();
-	M_U[3]=src.at({ParameterType::BSM, "MASS", 2000002})->get_val();
-	M_U[4]=src.at({ParameterType::BSM, "MASS", 2000004})->get_val();
-	M_U[5]=src.at({ParameterType::BSM, "MASS", 2000006})->get_val();
+	M_U[0]=src.get_val(ParameterType::BSM, "MASS", 1000002);
+	M_U[1]=src.get_val(ParameterType::BSM, "MASS", 1000004);
+	M_U[2]=src.get_val(ParameterType::BSM, "MASS", 1000006);
+	M_U[3]=src.get_val(ParameterType::BSM, "MASS", 2000002);
+	M_U[4]=src.get_val(ParameterType::BSM, "MASS", 2000004);
+	M_U[5]=src.get_val(ParameterType::BSM, "MASS", 2000006);
 
 	for(int i=0; i<2; ++i){
 		M_ch_pow_2[i]=pow(M_ch[i],2);
@@ -844,38 +844,38 @@ double C_mix_bd_2_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared
 	}
 	for(int i=0; i <2; ++i) {
 		for(int j=0; j<2; ++j) {
-			Z_p[i][j]=conj(src.at({ParameterType::BSM, "VMIX", LhaID(j+1, i+1)})->get_val());
+			Z_p[i][j]=conj(src.get_val(ParameterType::BSM, "VMIX", LhaID(j+1, i+1)));
 		}
 	} /* NM: conversion from SLHA2 convention */
 	for(int i=2; i<2; ++i) {
 		for(int j=0; j<2; ++j) {
-			Z_m[i][j]=conj(src.at({ParameterType::BSM, "UMIX", LhaID(j+1, i+1)})->get_val());
+			Z_m[i][j]=conj(src.get_val(ParameterType::BSM, "UMIX", LhaID(j+1, i+1)));
 		}
 	} /* NM: conversion from SLHA2 convention */
 	for(int i=0; i<6; ++i) {
 		for(int j=0; j<6; ++j) {
-			Z_U[i][j]=conj(src.at({ParameterType::BSM, "USQMIX", LhaID(j+1, i+1)})->get_val()); //TODO: deal with this group
+			Z_U[i][j]=conj(src.get_val(ParameterType::BSM, "USQMIX", LhaID(j+1, i+1))); //TODO: deal with this group
 		}
 	} /* NM: conversion from SLHA2 convention */
 
 	double v1,v2,beta;
-	beta = atan(src.at({ParameterType::BSM, "EXTPAR", 25})->get_val());
-	v1 = 2.*(src.at({ParameterType::SM, "MASS", 24})->get_val())*cos(beta)/src.at({ParameterType::SM, "GAUGE", 2})->get_val();
+	beta = atan(src.get_val(ParameterType::BSM, "EXTPAR", 25));
+	v1 = 2.*(src.get_val(ParameterType::SM, "MASS", 24))*cos(beta)/src.get_val(ParameterType::SM, "GAUGE", 2);
 	v2 = v1*tan(beta);
   
-	double mc = src.at({ParameterType::SM, "MASS", 4})->get_val();
+	double mc = src.get_val(ParameterType::SM, "MASS", 4);
 	
 	double m_b=QCDHelper::msbar_mass(5, mu_W, MassType::MSBAR); /* NM: running mass */
 	double m_t=QCDHelper::msbar_mass(6, mu_W, MassType::MSBAR); /* NM: running mass */
 
 	double common = sqrt(2.)/v2;
-	Yu[0] = common*src.at({ParameterType::SM, "MASS", 2})->get_val();
+	Yu[0] = common*src.get_val(ParameterType::SM, "MASS", 2);
 	Yu[1] = common*QCDHelper::msbar_mass(4, mu_W, MassType::POLE); //TODO : check this to be sure
 
 	Yu[2] = common*m_t; /* NM: running mass */
 	double otherc = sqrt(2.)/v1;
-	Yd[0] = otherc*src.at({ParameterType::SM, "MASS", 1})->get_val();
-	Yd[1] = otherc*src.at({ParameterType::SM, "MASS", 3})->get_val();
+	Yd[0] = otherc*src.get_val(ParameterType::SM, "MASS", 1);
+	Yd[1] = otherc*src.get_val(ParameterType::SM, "MASS", 3);
 	Yd[2] = otherc*m_b; /* NM: running mass */
 	
 
@@ -911,14 +911,14 @@ double C_mix_bd_2_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared
 	double M_ch0[4],M_ch0_pow_2[4],M_D[6],M_D_pow_2[6];
 	scalar_t Z_N[4][4];
 
-	double cw=cos(atan(src.at({ParameterType::SM, "GAUGE", 1})->get_val()/src.at({ParameterType::SM, "GAUGE", 2})->get_val()));
+	double cw=cos(atan(src.get_val(ParameterType::SM, "GAUGE", 1)/src.get_val(ParameterType::SM, "GAUGE", 2)));
 
  	double otherc = sqrt(2.)/v1;
 
-	std::array<double,4> temp_ch0 = {src.at({ParameterType::BSM, "MASS", 1000022})->get_val(),
-					 src.at({ParameterType::BSM, "MASS", 1000023})->get_val(),
-					 src.at({ParameterType::BSM, "MASS", 1000025})->get_val(),
-					 src.at({ParameterType::BSM, "MASS", 1000035})->get_val()};
+	std::array<double,4> temp_ch0 = {src.get_val(ParameterType::BSM, "MASS", 1000022),
+					 src.get_val(ParameterType::BSM, "MASS", 1000023),
+					 src.get_val(ParameterType::BSM, "MASS", 1000025),
+					 src.get_val(ParameterType::BSM, "MASS", 1000035)};
 
 	M_ch0[0]=fabs(temp_ch0[0]);
 	M_ch0[1]=fabs(temp_ch0[1]);
@@ -938,7 +938,7 @@ double C_mix_bd_2_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared
 	
 	for(int i=0; i<4; ++i) {
 		for(int j=0; j<4; ++j) {
-			Z_N[i][j] = conj(src.at({ParameterType::BSM, "NMIX", LhaID(i+1, j+1)})->get_val()); //TODO : i,j or j,i like the others ?
+			Z_N[i][j] = conj(src.get_val(ParameterType::BSM, "NMIX", LhaID(i+1, j+1))); //TODO : i,j or j,i like the others ?
 		}
 	}
 	
@@ -981,7 +981,7 @@ double C_mix_bd_2_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared
 
 
 
-	double M_g=src.at({ParameterType::BSM, "MASS", 1000021})->get_val();
+	double M_g=src.get_val(ParameterType::BSM, "MASS", 1000021);
 	double M_g_pow_2 = pow(M_g,2.);
 
 	// } /* NM: in Buras, neutralino masses defined positive, so changed the SLHA2 neutralino mixing matrix when negative neutralino mass */
@@ -1012,7 +1012,7 @@ double C_mix_bd_2_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared
 
 //BD2_tild
 
-C_mix_bd_2_tilde_SUSY::C_mix_bd_2_tilde_SUSY() : WilsonCoefficient("CT_BD_2", GroupMapper::str(WGroup::MESON_MIXING) + "_MATCH") {
+C_mix_bd_2_tilde_SUSY::C_mix_bd_2_tilde_SUSY() : WilsonCoefficient("CT_BD_2", GroupMapper::str(WGroup::MESON_MIXING, ScaleType::MATCHING)) {
     matching_info[QCDOrder::LO] = {
         {
             {ParameterType::WILSON, "WPARAM_MATCH_SM", 4},           //mass_c_muW_mcrun
@@ -1058,33 +1058,33 @@ C_mix_bd_2_tilde_SUSY::C_mix_bd_2_tilde_SUSY() : WilsonCoefficient("CT_BD_2", Gr
 			{ParameterType::SM, "EW_SCALE", 1}
         },
         compute_LO,
-        LhaID(1050105, 3232, 0, 1)
+        get_lhaid_from_name(QCDOrder::LO)
     };
 }
 
-double C_mix_bd_2_tilde_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src) {
+double C_mix_bd_2_tilde_SUSY::compute_LO(const ParamSrc& src) {
 
-	double mu_W = src.at({ParameterType::WILSON, "EW_SCALE", 37})->get_val();
-    double M_H=src.at({ParameterType::BSM, "MASS", 37})->get_val();
-	double M_W=src.at({ParameterType::SM, "MASS", 24})->get_val();
+	double mu_W = src.get_val(ParameterType::WILSON, "EW_SCALE", 1);
+    double M_H=src.get_val(ParameterType::BSM, "MASS", 37);
+	double M_W=src.get_val(ParameterType::SM, "MASS", 24);
 	double M_H_pow_2 = pow(M_H,2.);
 	double M_W_pow_2 = pow(M_W,2.);
 	std::array<std::array<scalar_t, 3>, 3> V_CKM {};
-	double m_q = src.at({ParameterType::SM, "MASS", 1})->get_val();
+	double m_q = src.get_val(ParameterType::SM, "MASS", 1);
 	
-	double m_b= src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {5, 1}})->get_val();
-	double g_2=src.at({ParameterType::SM, "GAUGE", 2})->get_val();
-	double tbeta = src.at({ParameterType::BSM, "HMIX", 2})->get_val();
+	double m_b= src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {5, 1});
+	double g_2=src.get_val(ParameterType::SM, "GAUGE", 2);
+	double tbeta = src.get_val(ParameterType::BSM, "HMIX", 2);
 	double m_u[4],m_u_pow_2[4];
 
     for (int i = 0; i<3; ++i) {
         for (int j = 0; j<3; j++) {
-            V_CKM[i][j] = src.at({ParameterType::SM, "VCKM", LhaID(i, j)})->get_val();
+            V_CKM[i][j] = src.get_val(ParameterType::SM, "VCKM", LhaID(i, j));
         }
     }
-	m_u[1]= src.at({ParameterType::SM, "MASS", 2})->get_val();
-    m_u[2]= src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 4})->get_val();
-	m_u[3]= src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 6})->get_val();
+	m_u[1]= src.get_val(ParameterType::SM, "MASS", 2);
+    m_u[2]= src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 4);
+	m_u[3]= src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 6);
 
 
 	for(int i =0;i<3;++i) {
@@ -1114,20 +1114,20 @@ double C_mix_bd_2_tilde_SUSY::compute_LO(const std::unordered_map<ParamId, std::
 
 	double M_D[6],M_D_pow_2[6],dm[6]; 
 	scalar_t Z_D[6][6];
-	double Mg=src.at({ParameterType::BSM, "MASS", 1000021})->get_val();
+	double Mg=src.get_val(ParameterType::BSM, "MASS", 1000021);
 	double Mg_pow_2 = pow(Mg,2);
 	// double g_3=sqrt(4.*PI*alphas_running(mu_t,param->mass_top_pole,param->mass_b,param)); /* NM: compute from alphas instead of using g3 from SLHA file */
 	double g_3= sqrt(4.*PI*QCDHelper::alpha_s(mu_W)); //TODO : check pole or running
-	M_D[0]=src.at({ParameterType::BSM, "MASS", 1000001})->get_val();
-	M_D[1]=src.at({ParameterType::BSM, "MASS", 1000003})->get_val();
-	M_D[2]=src.at({ParameterType::BSM, "MASS", 1000005})->get_val();
-	M_D[3]=src.at({ParameterType::BSM, "MASS", 2000001})->get_val();
-	M_D[4]=src.at({ParameterType::BSM, "MASS", 2000003})->get_val();
-	M_D[5]=src.at({ParameterType::BSM, "MASS", 2000005})->get_val();
+	M_D[0]=src.get_val(ParameterType::BSM, "MASS", 1000001);
+	M_D[1]=src.get_val(ParameterType::BSM, "MASS", 1000003);
+	M_D[2]=src.get_val(ParameterType::BSM, "MASS", 1000005);
+	M_D[3]=src.get_val(ParameterType::BSM, "MASS", 2000001);
+	M_D[4]=src.get_val(ParameterType::BSM, "MASS", 2000003);
+	M_D[5]=src.get_val(ParameterType::BSM, "MASS", 2000005);
 
 	for(int i = 0; i<6; ++i) {
 		for(int j = 0; j<6; ++j) {
-			Z_D[i][j]= src.at({ParameterType::BSM, "DSQMIX", LhaID(j+1, i+1)})->get_val(); //TODO: deal with this group
+			Z_D[i][j]= src.get_val(ParameterType::BSM, "DSQMIX", LhaID(j+1, i+1)); //TODO: deal with this group
 		}
 	} // inverse matrix, because in SLHA2 the second index denotes quark flavour (dl,sl,bl,dr,sr,br)
 	for(int i = 0; i<6; ++i) {
@@ -1156,19 +1156,19 @@ double C_mix_bd_2_tilde_SUSY::compute_LO(const std::unordered_map<ParamId, std::
 	double M_ch[2],M_ch_pow_2[2],M_U[6],M_U_pow_2[6];
 	scalar_t Z_p[2][2],Z_m[2][2],Z_U[6][6];
 	scalar_t Yd[3],Yu[3];
- 	double sw=sin(atan(src.at({ParameterType::SM, "GAUGE", 2})->get_val()/src.at({ParameterType::SM, "GAUGE", 2})->get_val()));
- 	double Q_e = (src.at({ParameterType::SM, "GAUGE", 2})->get_val())*sw;
+ 	double sw=sin(atan(src.get_val(ParameterType::SM, "GAUGE", 2)/src.get_val(ParameterType::SM, "GAUGE", 2)));
+ 	double Q_e = (src.get_val(ParameterType::SM, "GAUGE", 2))*sw;
 	double swi=1./sw;
 
-	M_ch[0]=src.at({ParameterType::BSM, "MASS", 1000024})->get_val();
-	M_ch[1]=src.at({ParameterType::BSM, "MASS", 1000037})->get_val();
+	M_ch[0]=src.get_val(ParameterType::BSM, "MASS", 1000024);
+	M_ch[1]=src.get_val(ParameterType::BSM, "MASS", 1000037);
 
-	M_U[0]=src.at({ParameterType::BSM, "MASS", 1000002})->get_val();
-	M_U[1]=src.at({ParameterType::BSM, "MASS", 1000004})->get_val();
-	M_U[2]=src.at({ParameterType::BSM, "MASS", 1000006})->get_val();
-	M_U[3]=src.at({ParameterType::BSM, "MASS", 2000002})->get_val();
-	M_U[4]=src.at({ParameterType::BSM, "MASS", 2000004})->get_val();
-	M_U[5]=src.at({ParameterType::BSM, "MASS", 2000006})->get_val();
+	M_U[0]=src.get_val(ParameterType::BSM, "MASS", 1000002);
+	M_U[1]=src.get_val(ParameterType::BSM, "MASS", 1000004);
+	M_U[2]=src.get_val(ParameterType::BSM, "MASS", 1000006);
+	M_U[3]=src.get_val(ParameterType::BSM, "MASS", 2000002);
+	M_U[4]=src.get_val(ParameterType::BSM, "MASS", 2000004);
+	M_U[5]=src.get_val(ParameterType::BSM, "MASS", 2000006);
 
 	for(int i=0; i<2; ++i){
 		M_ch_pow_2[i]=pow(M_ch[i],2);
@@ -1178,38 +1178,38 @@ double C_mix_bd_2_tilde_SUSY::compute_LO(const std::unordered_map<ParamId, std::
 	}
 	for(int i=0; i <2; ++i) {
 		for(int j=0; j<2; ++j) {
-			Z_p[i][j]=conj(src.at({ParameterType::BSM, "VMIX", LhaID(j+1, i+1)})->get_val());
+			Z_p[i][j]=conj(src.get_val(ParameterType::BSM, "VMIX", LhaID(j+1, i+1)));
 		}
 	} /* NM: conversion from SLHA2 convention */
 	for(int i=2; i<2; ++i) {
 		for(int j=0; j<2; ++j) {
-			Z_m[i][j]=conj(src.at({ParameterType::BSM, "UMIX", LhaID(j+1, i+1)})->get_val());
+			Z_m[i][j]=conj(src.get_val(ParameterType::BSM, "UMIX", LhaID(j+1, i+1)));
 		}
 	} /* NM: conversion from SLHA2 convention */
 	for(int i=0; i<6; ++i) {
 		for(int j=0; j<6; ++j) {
-			Z_U[i][j]=conj(src.at({ParameterType::BSM, "USQMIX", LhaID(j+1, i+1)})->get_val()); //TODO: deal with this group
+			Z_U[i][j]=conj(src.get_val(ParameterType::BSM, "USQMIX", LhaID(j+1, i+1))); //TODO: deal with this group
 		}
 	} /* NM: conversion from SLHA2 convention */
 
 	double v1,v2,beta;
-	beta = atan(src.at({ParameterType::BSM, "EXTPAR", 25})->get_val());
-	v1 = 2.*(src.at({ParameterType::SM, "MASS", 24})->get_val())*cos(beta)/src.at({ParameterType::SM, "GAUGE", 2})->get_val();
+	beta = atan(src.get_val(ParameterType::BSM, "EXTPAR", 25));
+	v1 = 2.*(src.get_val(ParameterType::SM, "MASS", 24))*cos(beta)/src.get_val(ParameterType::SM, "GAUGE", 2);
 	v2 = v1*tan(beta);
   
-	double mc = src.at({ParameterType::SM, "MASS", 4})->get_val();
+	double mc = src.get_val(ParameterType::SM, "MASS", 4);
 	
 	double m_b=QCDHelper::msbar_mass(5, mu_W, MassType::MSBAR); /* NM: running mass */
 	double m_t=QCDHelper::msbar_mass(6, mu_W, MassType::MSBAR); /* NM: running mass */
 
 	double common = sqrt(2.)/v2;
-	Yu[0] = common*src.at({ParameterType::SM, "MASS", 2})->get_val();
+	Yu[0] = common*src.get_val(ParameterType::SM, "MASS", 2);
 	Yu[1] = common*QCDHelper::msbar_mass(4, mu_W, MassType::POLE); //TODO : check this to be sure
 
 	Yu[2] = common*m_t; /* NM: running mass */
 	double otherc = sqrt(2.)/v1;
-	Yd[0] = otherc*src.at({ParameterType::SM, "MASS", 1})->get_val();
-	Yd[1] = otherc*src.at({ParameterType::SM, "MASS", 3})->get_val();
+	Yd[0] = otherc*src.get_val(ParameterType::SM, "MASS", 1);
+	Yd[1] = otherc*src.get_val(ParameterType::SM, "MASS", 3);
 	Yd[2] = otherc*m_b; /* NM: running mass */
 	
 
@@ -1246,14 +1246,14 @@ double C_mix_bd_2_tilde_SUSY::compute_LO(const std::unordered_map<ParamId, std::
 	double M_ch0[4],M_ch0_pow_2[4],M_D[6],M_D_pow_2[6];
 	scalar_t Z_N[4][4];
 
-	double cw=cos(atan(src.at({ParameterType::SM, "GAUGE", 1})->get_val()/src.at({ParameterType::SM, "GAUGE", 2})->get_val()));
+	double cw=cos(atan(src.get_val(ParameterType::SM, "GAUGE", 1)/src.get_val(ParameterType::SM, "GAUGE", 2)));
 
  	double otherc = sqrt(2.)/v1;
 
-	std::array<double,4> temp_ch0 = {src.at({ParameterType::BSM, "MASS", 1000022})->get_val(),
-					 src.at({ParameterType::BSM, "MASS", 1000023})->get_val(),
-					 src.at({ParameterType::BSM, "MASS", 1000025})->get_val(),
-					 src.at({ParameterType::BSM, "MASS", 1000035})->get_val()};
+	std::array<double,4> temp_ch0 = {src.get_val(ParameterType::BSM, "MASS", 1000022),
+					 src.get_val(ParameterType::BSM, "MASS", 1000023),
+					 src.get_val(ParameterType::BSM, "MASS", 1000025),
+					 src.get_val(ParameterType::BSM, "MASS", 1000035)};
 
 	M_ch0[0]=fabs(temp_ch0[0]);
 	M_ch0[1]=fabs(temp_ch0[1]);
@@ -1273,7 +1273,7 @@ double C_mix_bd_2_tilde_SUSY::compute_LO(const std::unordered_map<ParamId, std::
 	
 	for(int i=0; i<4; ++i) {
 		for(int j=0; j<4; ++j) {
-			Z_N[i][j] = conj(src.at({ParameterType::BSM, "NMIX", LhaID(i+1, j+1)})->get_val()); //TODO : i,j or j,i like the others ?
+			Z_N[i][j] = conj(src.get_val(ParameterType::BSM, "NMIX", LhaID(i+1, j+1))); //TODO : i,j or j,i like the others ?
 		}
 	}
 	
@@ -1331,7 +1331,7 @@ double C_mix_bd_2_tilde_SUSY::compute_LO(const std::unordered_map<ParamId, std::
 	scalar_t Cp2_mixed=0.;
 
 
-	double M_g=src.at({ParameterType::BSM, "MASS", 1000021})->get_val();
+	double M_g=src.get_val(ParameterType::BSM, "MASS", 1000021);
 	double M_g_pow_2 = pow(M_g,2.);
 
 	// } /* NM: in Buras, neutralino masses defined positive, so changed the SLHA2 neutralino mixing matrix when negative neutralino mass */
@@ -1363,7 +1363,7 @@ double C_mix_bd_2_tilde_SUSY::compute_LO(const std::unordered_map<ParamId, std::
 
 //BD3
 
-C_mix_bd_3_SUSY::C_mix_bd_3_SUSY() : WilsonCoefficient("C_BD_3", GroupMapper::str(WGroup::MESON_MIXING) + "_MATCH") {
+C_mix_bd_3_SUSY::C_mix_bd_3_SUSY() : WilsonCoefficient("C_BD_3", GroupMapper::str(WGroup::MESON_MIXING, ScaleType::MATCHING)) {
     matching_info[QCDOrder::LO] = {
         {
             {ParameterType::WILSON, "WPARAM_MATCH_SM", 4},           //mass_c_muW_mcrun
@@ -1409,33 +1409,33 @@ C_mix_bd_3_SUSY::C_mix_bd_3_SUSY() : WilsonCoefficient("C_BD_3", GroupMapper::st
 			{ParameterType::SM, "EW_SCALE", 1}
         },
         compute_LO,
-        LhaID(1050105, 7171, 0, 1)
+        get_lhaid_from_name(QCDOrder::LO)
     };
 }
 
-double C_mix_bd_3_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src) {
+double C_mix_bd_3_SUSY::compute_LO(const ParamSrc& src) {
 
-	double mu_W = src.at({ParameterType::WILSON, "EW_SCALE", 37})->get_val();
-    double M_H=src.at({ParameterType::BSM, "MASS", 37})->get_val();
-	double M_W=src.at({ParameterType::SM, "MASS", 24})->get_val();
+	double mu_W = src.get_val(ParameterType::WILSON, "EW_SCALE", 1);
+    double M_H=src.get_val(ParameterType::BSM, "MASS", 37);
+	double M_W=src.get_val(ParameterType::SM, "MASS", 24);
 	double M_H_pow_2 = pow(M_H,2.);
 	double M_W_pow_2 = pow(M_W,2.);
 	std::array<std::array<scalar_t, 3>, 3> V_CKM {};
-	double m_q = src.at({ParameterType::SM, "MASS", 1})->get_val();
+	double m_q = src.get_val(ParameterType::SM, "MASS", 1);
 	
-	double m_b= src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {5, 1}})->get_val();
-	double g_2=src.at({ParameterType::SM, "GAUGE", 2})->get_val();
-	double tbeta = src.at({ParameterType::BSM, "HMIX", 2})->get_val();
+	double m_b= src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {5, 1});
+	double g_2=src.get_val(ParameterType::SM, "GAUGE", 2);
+	double tbeta = src.get_val(ParameterType::BSM, "HMIX", 2);
 	double m_u[4],m_u_pow_2[4];
 
     for (int i = 0; i<3; ++i) {
         for (int j = 0; j<3; j++) {
-            V_CKM[i][j] = src.at({ParameterType::SM, "VCKM", LhaID(i, j)})->get_val();
+            V_CKM[i][j] = src.get_val(ParameterType::SM, "VCKM", LhaID(i, j));
         }
     }
-	m_u[1]= src.at({ParameterType::SM, "MASS", 2})->get_val();
-    m_u[2]= src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 4})->get_val();
-	m_u[3]= src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 6})->get_val();
+	m_u[1]= src.get_val(ParameterType::SM, "MASS", 2);
+    m_u[2]= src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 4);
+	m_u[3]= src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 6);
 
 
 	for(int i =0;i<3;++i) {
@@ -1467,20 +1467,20 @@ double C_mix_bd_3_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared
 
 	double M_D[6],M_D_pow_2[6],dm[6]; 
 	scalar_t Z_D[6][6];
-	double Mg=src.at({ParameterType::BSM, "MASS", 1000021})->get_val();
+	double Mg=src.get_val(ParameterType::BSM, "MASS", 1000021);
 	double Mg_pow_2 = pow(Mg,2);
 	// double g_3=sqrt(4.*PI*alphas_running(mu_t,param->mass_top_pole,param->mass_b,param)); /* NM: compute from alphas instead of using g3 from SLHA file */
 	double g_3= sqrt(4.*PI*QCDHelper::alpha_s(mu_W)); //TODO : check pole or running
-	M_D[0]=src.at({ParameterType::BSM, "MASS", 1000001})->get_val();
-	M_D[1]=src.at({ParameterType::BSM, "MASS", 1000003})->get_val();
-	M_D[2]=src.at({ParameterType::BSM, "MASS", 1000005})->get_val();
-	M_D[3]=src.at({ParameterType::BSM, "MASS", 2000001})->get_val();
-	M_D[4]=src.at({ParameterType::BSM, "MASS", 2000003})->get_val();
-	M_D[5]=src.at({ParameterType::BSM, "MASS", 2000005})->get_val();
+	M_D[0]=src.get_val(ParameterType::BSM, "MASS", 1000001);
+	M_D[1]=src.get_val(ParameterType::BSM, "MASS", 1000003);
+	M_D[2]=src.get_val(ParameterType::BSM, "MASS", 1000005);
+	M_D[3]=src.get_val(ParameterType::BSM, "MASS", 2000001);
+	M_D[4]=src.get_val(ParameterType::BSM, "MASS", 2000003);
+	M_D[5]=src.get_val(ParameterType::BSM, "MASS", 2000005);
 
 	for(int i = 0; i<6; ++i) {
 		for(int j = 0; j<6; ++j) {
-			Z_D[i][j]= src.at({ParameterType::BSM, "DSQMIX", LhaID(j+1, i+1)})->get_val(); //TODO: deal with this group
+			Z_D[i][j]= src.get_val(ParameterType::BSM, "DSQMIX", LhaID(j+1, i+1)); //TODO: deal with this group
 		}
 	} // inverse matrix, because in SLHA2 the second index denotes quark flavour (dl,sl,bl,dr,sr,br)
 	for(int i = 0; i<6; ++i) {
@@ -1510,19 +1510,19 @@ double C_mix_bd_3_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared
 	double M_ch[2],M_ch_pow_2[2],M_U[6],M_U_pow_2[6];
 	scalar_t Z_p[2][2],Z_m[2][2],Z_U[6][6];
 	scalar_t Yd[3],Yu[3];
- 	double sw=sin(atan(src.at({ParameterType::SM, "GAUGE", 2})->get_val()/src.at({ParameterType::SM, "GAUGE", 2})->get_val()));
- 	double Q_e = (src.at({ParameterType::SM, "GAUGE", 2})->get_val())*sw;
+ 	double sw=sin(atan(src.get_val(ParameterType::SM, "GAUGE", 2)/src.get_val(ParameterType::SM, "GAUGE", 2)));
+ 	double Q_e = (src.get_val(ParameterType::SM, "GAUGE", 2))*sw;
 	double swi=1./sw;
 
-	M_ch[0]=src.at({ParameterType::BSM, "MASS", 1000024})->get_val();
-	M_ch[1]=src.at({ParameterType::BSM, "MASS", 1000037})->get_val();
+	M_ch[0]=src.get_val(ParameterType::BSM, "MASS", 1000024);
+	M_ch[1]=src.get_val(ParameterType::BSM, "MASS", 1000037);
 
-	M_U[0]=src.at({ParameterType::BSM, "MASS", 1000002})->get_val();
-	M_U[1]=src.at({ParameterType::BSM, "MASS", 1000004})->get_val();
-	M_U[2]=src.at({ParameterType::BSM, "MASS", 1000006})->get_val();
-	M_U[3]=src.at({ParameterType::BSM, "MASS", 2000002})->get_val();
-	M_U[4]=src.at({ParameterType::BSM, "MASS", 2000004})->get_val();
-	M_U[5]=src.at({ParameterType::BSM, "MASS", 2000006})->get_val();
+	M_U[0]=src.get_val(ParameterType::BSM, "MASS", 1000002);
+	M_U[1]=src.get_val(ParameterType::BSM, "MASS", 1000004);
+	M_U[2]=src.get_val(ParameterType::BSM, "MASS", 1000006);
+	M_U[3]=src.get_val(ParameterType::BSM, "MASS", 2000002);
+	M_U[4]=src.get_val(ParameterType::BSM, "MASS", 2000004);
+	M_U[5]=src.get_val(ParameterType::BSM, "MASS", 2000006);
 
 	for(int i=0; i<2; ++i){
 		M_ch_pow_2[i]=pow(M_ch[i],2);
@@ -1532,38 +1532,38 @@ double C_mix_bd_3_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared
 	}
 	for(int i=0; i <2; ++i) {
 		for(int j=0; j<2; ++j) {
-			Z_p[i][j]=conj(src.at({ParameterType::BSM, "VMIX", LhaID(j+1, i+1)})->get_val());
+			Z_p[i][j]=conj(src.get_val(ParameterType::BSM, "VMIX", LhaID(j+1, i+1)));
 		}
 	} /* NM: conversion from SLHA2 convention */
 	for(int i=2; i<2; ++i) {
 		for(int j=0; j<2; ++j) {
-			Z_m[i][j]=conj(src.at({ParameterType::BSM, "UMIX", LhaID(j+1, i+1)})->get_val());
+			Z_m[i][j]=conj(src.get_val(ParameterType::BSM, "UMIX", LhaID(j+1, i+1)));
 		}
 	} /* NM: conversion from SLHA2 convention */
 	for(int i=0; i<6; ++i) {
 		for(int j=0; j<6; ++j) {
-			Z_U[i][j]=conj(src.at({ParameterType::BSM, "USQMIX", LhaID(j+1, i+1)})->get_val()); //TODO: deal with this group
+			Z_U[i][j]=conj(src.get_val(ParameterType::BSM, "USQMIX", LhaID(j+1, i+1))); //TODO: deal with this group
 		}
 	} /* NM: conversion from SLHA2 convention */
 
 	double v1,v2,beta;
-	beta = atan(src.at({ParameterType::BSM, "EXTPAR", 25})->get_val());
-	v1 = 2.*(src.at({ParameterType::SM, "MASS", 24})->get_val())*cos(beta)/src.at({ParameterType::SM, "GAUGE", 2})->get_val();
+	beta = atan(src.get_val(ParameterType::BSM, "EXTPAR", 25));
+	v1 = 2.*(src.get_val(ParameterType::SM, "MASS", 24))*cos(beta)/src.get_val(ParameterType::SM, "GAUGE", 2);
 	v2 = v1*tan(beta);
   
-	double mc = src.at({ParameterType::SM, "MASS", 4})->get_val();
+	double mc = src.get_val(ParameterType::SM, "MASS", 4);
 	
 	double m_b=QCDHelper::msbar_mass(5, mu_W, MassType::MSBAR); /* NM: running mass */
 	double m_t=QCDHelper::msbar_mass(6, mu_W, MassType::MSBAR); /* NM: running mass */
 
 	double common = sqrt(2.)/v2;
-	Yu[0] = common*src.at({ParameterType::SM, "MASS", 2})->get_val();
+	Yu[0] = common*src.get_val(ParameterType::SM, "MASS", 2);
 	Yu[1] = common*QCDHelper::msbar_mass(4, mu_W, MassType::POLE); //TODO : check this to be sure
 
 	Yu[2] = common*m_t; /* NM: running mass */
 	double otherc = sqrt(2.)/v1;
-	Yd[0] = otherc*src.at({ParameterType::SM, "MASS", 1})->get_val();
-	Yd[1] = otherc*src.at({ParameterType::SM, "MASS", 3})->get_val();
+	Yd[0] = otherc*src.get_val(ParameterType::SM, "MASS", 1);
+	Yd[1] = otherc*src.get_val(ParameterType::SM, "MASS", 3);
 	Yd[2] = otherc*m_b; /* NM: running mass */
 	
 
@@ -1598,14 +1598,14 @@ double C_mix_bd_3_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared
 	double M_ch0[4],M_ch0_pow_2[4],M_D[6],M_D_pow_2[6];
 	scalar_t Z_N[4][4];
 
-	double cw=cos(atan(src.at({ParameterType::SM, "GAUGE", 1})->get_val()/src.at({ParameterType::SM, "GAUGE", 2})->get_val()));
+	double cw=cos(atan(src.get_val(ParameterType::SM, "GAUGE", 1)/src.get_val(ParameterType::SM, "GAUGE", 2)));
 
  	double otherc = sqrt(2.)/v1;
 
-	std::array<double,4> temp_ch0 = {src.at({ParameterType::BSM, "MASS", 1000022})->get_val(),
-					 src.at({ParameterType::BSM, "MASS", 1000023})->get_val(),
-					 src.at({ParameterType::BSM, "MASS", 1000025})->get_val(),
-					 src.at({ParameterType::BSM, "MASS", 1000035})->get_val()};
+	std::array<double,4> temp_ch0 = {src.get_val(ParameterType::BSM, "MASS", 1000022),
+					 src.get_val(ParameterType::BSM, "MASS", 1000023),
+					 src.get_val(ParameterType::BSM, "MASS", 1000025),
+					 src.get_val(ParameterType::BSM, "MASS", 1000035)};
 
 	M_ch0[0]=fabs(temp_ch0[0]);
 	M_ch0[1]=fabs(temp_ch0[1]);
@@ -1625,7 +1625,7 @@ double C_mix_bd_3_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared
 	
 	for(int i=0; i<4; ++i) {
 		for(int j=0; j<4; ++j) {
-			Z_N[i][j] = conj(src.at({ParameterType::BSM, "NMIX", LhaID(i+1, j+1)})->get_val()); //TODO : i,j or j,i like the others ?
+			Z_N[i][j] = conj(src.get_val(ParameterType::BSM, "NMIX", LhaID(i+1, j+1))); //TODO : i,j or j,i like the others ?
 		}
 	}
 	
@@ -1670,7 +1670,7 @@ double C_mix_bd_3_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared
 
 
 
-	double M_g=src.at({ParameterType::BSM, "MASS", 1000021})->get_val();
+	double M_g=src.get_val(ParameterType::BSM, "MASS", 1000021);
 	double M_g_pow_2 = pow(M_g,2.);
 
 	// } /* NM: in Buras, neutralino masses defined positive, so changed the SLHA2 neutralino mixing matrix when negative neutralino mass */
@@ -1701,7 +1701,7 @@ double C_mix_bd_3_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared
 
 //BD3_tilde
 
-C_mix_bd_3_tilde_SUSY::C_mix_bd_3_tilde_SUSY() : WilsonCoefficient("CT_BD_3", GroupMapper::str(WGroup::MESON_MIXING) + "_MATCH") {
+C_mix_bd_3_tilde_SUSY::C_mix_bd_3_tilde_SUSY() : WilsonCoefficient("CT_BD_3", GroupMapper::str(WGroup::MESON_MIXING, ScaleType::MATCHING)) {
     matching_info[QCDOrder::LO] = {
         {
             {ParameterType::WILSON, "WPARAM_MATCH_SM", 4},           //mass_c_muW_mcrun
@@ -1747,33 +1747,33 @@ C_mix_bd_3_tilde_SUSY::C_mix_bd_3_tilde_SUSY() : WilsonCoefficient("CT_BD_3", Gr
 			{ParameterType::SM, "EW_SCALE", 1}
         },
         compute_LO,
-        LhaID(1050105, 7272, 0, 1)
+        get_lhaid_from_name(QCDOrder::LO)
     };
 }
 
-double C_mix_bd_3_tilde_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src) {
+double C_mix_bd_3_tilde_SUSY::compute_LO(const ParamSrc& src) {
 
-	double mu_W = src.at({ParameterType::WILSON, "EW_SCALE", 37})->get_val();
-    double M_H=src.at({ParameterType::BSM, "MASS", 37})->get_val();
-	double M_W=src.at({ParameterType::SM, "MASS", 24})->get_val();
+	double mu_W = src.get_val(ParameterType::WILSON, "EW_SCALE", 1);
+    double M_H=src.get_val(ParameterType::BSM, "MASS", 37);
+	double M_W=src.get_val(ParameterType::SM, "MASS", 24);
 	double M_H_pow_2 = pow(M_H,2.);
 	double M_W_pow_2 = pow(M_W,2.);
 	std::array<std::array<scalar_t, 3>, 3> V_CKM {};
-	double m_q = src.at({ParameterType::SM, "MASS", 1})->get_val();
+	double m_q = src.get_val(ParameterType::SM, "MASS", 1);
 	
-	double m_b= src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {5, 1}})->get_val();
-	double g_2=src.at({ParameterType::SM, "GAUGE", 2})->get_val();
-	double tbeta = src.at({ParameterType::BSM, "HMIX", 2})->get_val();
+	double m_b= src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {5, 1});
+	double g_2=src.get_val(ParameterType::SM, "GAUGE", 2);
+	double tbeta = src.get_val(ParameterType::BSM, "HMIX", 2);
 	double m_u[4],m_u_pow_2[4];
 
     for (int i = 0; i<3; ++i) {
         for (int j = 0; j<3; j++) {
-            V_CKM[i][j] = src.at({ParameterType::SM, "VCKM", LhaID(i, j)})->get_val();
+            V_CKM[i][j] = src.get_val(ParameterType::SM, "VCKM", LhaID(i, j));
         }
     }
-	m_u[1]= src.at({ParameterType::SM, "MASS", 2})->get_val();
-    m_u[2]= src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 4})->get_val();
-	m_u[3]= src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 6})->get_val();
+	m_u[1]= src.get_val(ParameterType::SM, "MASS", 2);
+    m_u[2]= src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 4);
+	m_u[3]= src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 6);
 
 
 	for(int i =0;i<3;++i) {
@@ -1803,20 +1803,20 @@ double C_mix_bd_3_tilde_SUSY::compute_LO(const std::unordered_map<ParamId, std::
 
 	double M_D[6],M_D_pow_2[6],dm[6]; 
 	scalar_t Z_D[6][6];
-	double Mg=src.at({ParameterType::BSM, "MASS", 1000021})->get_val();
+	double Mg=src.get_val(ParameterType::BSM, "MASS", 1000021);
 	double Mg_pow_2 = pow(Mg,2);
 	// double g_3=sqrt(4.*PI*alphas_running(mu_t,param->mass_top_pole,param->mass_b,param)); /* NM: compute from alphas instead of using g3 from SLHA file */
 	double g_3= sqrt(4.*PI*QCDHelper::alpha_s(mu_W)); //TODO : check pole or running
-	M_D[0]=src.at({ParameterType::BSM, "MASS", 1000001})->get_val();
-	M_D[1]=src.at({ParameterType::BSM, "MASS", 1000003})->get_val();
-	M_D[2]=src.at({ParameterType::BSM, "MASS", 1000005})->get_val();
-	M_D[3]=src.at({ParameterType::BSM, "MASS", 2000001})->get_val();
-	M_D[4]=src.at({ParameterType::BSM, "MASS", 2000003})->get_val();
-	M_D[5]=src.at({ParameterType::BSM, "MASS", 2000005})->get_val();
+	M_D[0]=src.get_val(ParameterType::BSM, "MASS", 1000001);
+	M_D[1]=src.get_val(ParameterType::BSM, "MASS", 1000003);
+	M_D[2]=src.get_val(ParameterType::BSM, "MASS", 1000005);
+	M_D[3]=src.get_val(ParameterType::BSM, "MASS", 2000001);
+	M_D[4]=src.get_val(ParameterType::BSM, "MASS", 2000003);
+	M_D[5]=src.get_val(ParameterType::BSM, "MASS", 2000005);
 
 	for(int i = 0; i<6; ++i) {
 		for(int j = 0; j<6; ++j) {
-			Z_D[i][j]= src.at({ParameterType::BSM, "DSQMIX", LhaID(j+1, i+1)})->get_val(); //TODO: deal with this group
+			Z_D[i][j]= src.get_val(ParameterType::BSM, "DSQMIX", LhaID(j+1, i+1)); //TODO: deal with this group
 		}
 	} // inverse matrix, because in SLHA2 the second index denotes quark flavour (dl,sl,bl,dr,sr,br)
 	for(int i = 0; i<6; ++i) {
@@ -1845,19 +1845,19 @@ double C_mix_bd_3_tilde_SUSY::compute_LO(const std::unordered_map<ParamId, std::
 	double M_ch[2],M_ch_pow_2[2],M_U[6],M_U_pow_2[6];
 	scalar_t Z_p[2][2],Z_m[2][2],Z_U[6][6];
 	scalar_t Yd[3],Yu[3];
- 	double sw=sin(atan(src.at({ParameterType::SM, "GAUGE", 2})->get_val()/src.at({ParameterType::SM, "GAUGE", 2})->get_val()));
- 	double Q_e = (src.at({ParameterType::SM, "GAUGE", 2})->get_val())*sw;
+ 	double sw=sin(atan(src.get_val(ParameterType::SM, "GAUGE", 2)/src.get_val(ParameterType::SM, "GAUGE", 2)));
+ 	double Q_e = (src.get_val(ParameterType::SM, "GAUGE", 2))*sw;
 	double swi=1./sw;
 
-	M_ch[0]=src.at({ParameterType::BSM, "MASS", 1000024})->get_val();
-	M_ch[1]=src.at({ParameterType::BSM, "MASS", 1000037})->get_val();
+	M_ch[0]=src.get_val(ParameterType::BSM, "MASS", 1000024);
+	M_ch[1]=src.get_val(ParameterType::BSM, "MASS", 1000037);
 
-	M_U[0]=src.at({ParameterType::BSM, "MASS", 1000002})->get_val();
-	M_U[1]=src.at({ParameterType::BSM, "MASS", 1000004})->get_val();
-	M_U[2]=src.at({ParameterType::BSM, "MASS", 1000006})->get_val();
-	M_U[3]=src.at({ParameterType::BSM, "MASS", 2000002})->get_val();
-	M_U[4]=src.at({ParameterType::BSM, "MASS", 2000004})->get_val();
-	M_U[5]=src.at({ParameterType::BSM, "MASS", 2000006})->get_val();
+	M_U[0]=src.get_val(ParameterType::BSM, "MASS", 1000002);
+	M_U[1]=src.get_val(ParameterType::BSM, "MASS", 1000004);
+	M_U[2]=src.get_val(ParameterType::BSM, "MASS", 1000006);
+	M_U[3]=src.get_val(ParameterType::BSM, "MASS", 2000002);
+	M_U[4]=src.get_val(ParameterType::BSM, "MASS", 2000004);
+	M_U[5]=src.get_val(ParameterType::BSM, "MASS", 2000006);
 
 	for(int i=0; i<2; ++i){
 		M_ch_pow_2[i]=pow(M_ch[i],2);
@@ -1867,38 +1867,38 @@ double C_mix_bd_3_tilde_SUSY::compute_LO(const std::unordered_map<ParamId, std::
 	}
 	for(int i=0; i <2; ++i) {
 		for(int j=0; j<2; ++j) {
-			Z_p[i][j]=conj(src.at({ParameterType::BSM, "VMIX", LhaID(j+1, i+1)})->get_val());
+			Z_p[i][j]=conj(src.get_val(ParameterType::BSM, "VMIX", LhaID(j+1, i+1)));
 		}
 	} /* NM: conversion from SLHA2 convention */
 	for(int i=2; i<2; ++i) {
 		for(int j=0; j<2; ++j) {
-			Z_m[i][j]=conj(src.at({ParameterType::BSM, "UMIX", LhaID(j+1, i+1)})->get_val());
+			Z_m[i][j]=conj(src.get_val(ParameterType::BSM, "UMIX", LhaID(j+1, i+1)));
 		}
 	} /* NM: conversion from SLHA2 convention */
 	for(int i=0; i<6; ++i) {
 		for(int j=0; j<6; ++j) {
-			Z_U[i][j]=conj(src.at({ParameterType::BSM, "USQMIX", LhaID(j+1, i+1)})->get_val()); //TODO: deal with this group
+			Z_U[i][j]=conj(src.get_val(ParameterType::BSM, "USQMIX", LhaID(j+1, i+1))); //TODO: deal with this group
 		}
 	} /* NM: conversion from SLHA2 convention */
 
 	double v1,v2,beta;
-	beta = atan(src.at({ParameterType::BSM, "EXTPAR", 25})->get_val());
-	v1 = 2.*(src.at({ParameterType::SM, "MASS", 24})->get_val())*cos(beta)/src.at({ParameterType::SM, "GAUGE", 2})->get_val();
+	beta = atan(src.get_val(ParameterType::BSM, "EXTPAR", 25));
+	v1 = 2.*(src.get_val(ParameterType::SM, "MASS", 24))*cos(beta)/src.get_val(ParameterType::SM, "GAUGE", 2);
 	v2 = v1*tan(beta);
   
-	double mc = src.at({ParameterType::SM, "MASS", 4})->get_val();
+	double mc = src.get_val(ParameterType::SM, "MASS", 4);
 	
 	double m_b=QCDHelper::msbar_mass(5, mu_W, MassType::MSBAR); /* NM: running mass */
 	double m_t=QCDHelper::msbar_mass(6, mu_W, MassType::MSBAR); /* NM: running mass */
 
 	double common = sqrt(2.)/v2;
-	Yu[0] = common*src.at({ParameterType::SM, "MASS", 2})->get_val();
+	Yu[0] = common*src.get_val(ParameterType::SM, "MASS", 2);
 	Yu[1] = common*QCDHelper::msbar_mass(4, mu_W, MassType::POLE); //TODO : check this to be sure
 
 	Yu[2] = common*m_t; /* NM: running mass */
 	double otherc = sqrt(2.)/v1;
-	Yd[0] = otherc*src.at({ParameterType::SM, "MASS", 1})->get_val();
-	Yd[1] = otherc*src.at({ParameterType::SM, "MASS", 3})->get_val();
+	Yd[0] = otherc*src.get_val(ParameterType::SM, "MASS", 1);
+	Yd[1] = otherc*src.get_val(ParameterType::SM, "MASS", 3);
 	Yd[2] = otherc*m_b; /* NM: running mass */
 	
 
@@ -1931,14 +1931,14 @@ double C_mix_bd_3_tilde_SUSY::compute_LO(const std::unordered_map<ParamId, std::
 	double M_ch0[4],M_ch0_pow_2[4],M_D[6],M_D_pow_2[6];
 	scalar_t Z_N[4][4];
 
-	double cw=cos(atan(src.at({ParameterType::SM, "GAUGE", 1})->get_val()/src.at({ParameterType::SM, "GAUGE", 2})->get_val()));
+	double cw=cos(atan(src.get_val(ParameterType::SM, "GAUGE", 1)/src.get_val(ParameterType::SM, "GAUGE", 2)));
 
  	double otherc = sqrt(2.)/v1;
 
-	std::array<double,4> temp_ch0 = {src.at({ParameterType::BSM, "MASS", 1000022})->get_val(),
-					 src.at({ParameterType::BSM, "MASS", 1000023})->get_val(),
-					 src.at({ParameterType::BSM, "MASS", 1000025})->get_val(),
-					 src.at({ParameterType::BSM, "MASS", 1000035})->get_val()};
+	std::array<double,4> temp_ch0 = {src.get_val(ParameterType::BSM, "MASS", 1000022),
+					 src.get_val(ParameterType::BSM, "MASS", 1000023),
+					 src.get_val(ParameterType::BSM, "MASS", 1000025),
+					 src.get_val(ParameterType::BSM, "MASS", 1000035)};
 
 	M_ch0[0]=fabs(temp_ch0[0]);
 	M_ch0[1]=fabs(temp_ch0[1]);
@@ -1958,7 +1958,7 @@ double C_mix_bd_3_tilde_SUSY::compute_LO(const std::unordered_map<ParamId, std::
 	
 	for(int i=0; i<4; ++i) {
 		for(int j=0; j<4; ++j) {
-			Z_N[i][j] = conj(src.at({ParameterType::BSM, "NMIX", LhaID(i+1, j+1)})->get_val()); //TODO : i,j or j,i like the others ?
+			Z_N[i][j] = conj(src.get_val(ParameterType::BSM, "NMIX", LhaID(i+1, j+1))); //TODO : i,j or j,i like the others ?
 		}
 	}
 	
@@ -2001,7 +2001,7 @@ double C_mix_bd_3_tilde_SUSY::compute_LO(const std::unordered_map<ParamId, std::
 	scalar_t Cp3_mixed=0.;
 
 
-	double M_g=src.at({ParameterType::BSM, "MASS", 1000021})->get_val();
+	double M_g=src.get_val(ParameterType::BSM, "MASS", 1000021);
 	double M_g_pow_2 = pow(M_g,2.);
 
 	// } /* NM: in Buras, neutralino masses defined positive, so changed the SLHA2 neutralino mixing matrix when negative neutralino mass */
@@ -2031,7 +2031,7 @@ double C_mix_bd_3_tilde_SUSY::compute_LO(const std::unordered_map<ParamId, std::
 
 //BD4
 
-C_mix_bd_4_SUSY::C_mix_bd_4_SUSY() : WilsonCoefficient("C_BD_4", GroupMapper::str(WGroup::MESON_MIXING) + "_MATCH") {
+C_mix_bd_4_SUSY::C_mix_bd_4_SUSY() : WilsonCoefficient("C_BD_4", GroupMapper::str(WGroup::MESON_MIXING, ScaleType::MATCHING)) {
     matching_info[QCDOrder::LO] = {
         {
             {ParameterType::WILSON, "WPARAM_MATCH_SM", 4},           //mass_c_muW_mcrun
@@ -2077,33 +2077,33 @@ C_mix_bd_4_SUSY::C_mix_bd_4_SUSY() : WilsonCoefficient("C_BD_4", GroupMapper::st
 			{ParameterType::SM, "EW_SCALE", 1}
         },
         compute_LO,
-        LhaID(1050105, 3132, 0, 1)
+        get_lhaid_from_name(QCDOrder::LO)
     };
 }
 
-double C_mix_bd_4_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src) {
+double C_mix_bd_4_SUSY::compute_LO(const ParamSrc& src) {
 
-	double mu_W = src.at({ParameterType::WILSON, "EW_SCALE", 37})->get_val();
-    double M_H=src.at({ParameterType::BSM, "MASS", 37})->get_val();
-	double M_W=src.at({ParameterType::SM, "MASS", 24})->get_val();
+	double mu_W = src.get_val(ParameterType::WILSON, "EW_SCALE", 1);
+    double M_H=src.get_val(ParameterType::BSM, "MASS", 37);
+	double M_W=src.get_val(ParameterType::SM, "MASS", 24);
 	double M_H_pow_2 = pow(M_H,2.);
 	double M_W_pow_2 = pow(M_W,2.);
 	std::array<std::array<scalar_t, 3>, 3> V_CKM {};
-	double m_q = src.at({ParameterType::SM, "MASS", 1})->get_val();
+	double m_q = src.get_val(ParameterType::SM, "MASS", 1);
 	
-	double m_b= src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {5, 1}})->get_val();
-	double g_2=src.at({ParameterType::SM, "GAUGE", 2})->get_val();
-	double tbeta = src.at({ParameterType::BSM, "HMIX", 2})->get_val();
+	double m_b= src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {5, 1});
+	double g_2=src.get_val(ParameterType::SM, "GAUGE", 2);
+	double tbeta = src.get_val(ParameterType::BSM, "HMIX", 2);
 	double m_u[4],m_u_pow_2[4];
 
     for (int i = 0; i<3; ++i) {
         for (int j = 0; j<3; j++) {
-            V_CKM[i][j] = src.at({ParameterType::SM, "VCKM", LhaID(i, j)})->get_val();
+            V_CKM[i][j] = src.get_val(ParameterType::SM, "VCKM", LhaID(i, j));
         }
     }
-	m_u[1]= src.at({ParameterType::SM, "MASS", 2})->get_val();
-    m_u[2]= src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 4})->get_val();
-	m_u[3]= src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 6})->get_val();
+	m_u[1]= src.get_val(ParameterType::SM, "MASS", 2);
+    m_u[2]= src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 4);
+	m_u[3]= src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 6);
 
 
 	for(int i =0;i<3;++i) {
@@ -2134,20 +2134,20 @@ double C_mix_bd_4_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared
 
 	double M_D[6],M_D_pow_2[6],dm[6]; 
 	scalar_t Z_D[6][6];
-	double Mg=src.at({ParameterType::BSM, "MASS", 1000021})->get_val();
+	double Mg=src.get_val(ParameterType::BSM, "MASS", 1000021);
 	double Mg_pow_2 = pow(Mg,2);
 	// double g_3=sqrt(4.*PI*alphas_running(mu_t,param->mass_top_pole,param->mass_b,param)); /* NM: compute from alphas instead of using g3 from SLHA file */
 	double g_3= sqrt(4.*PI*QCDHelper::alpha_s(mu_W)); //TODO : check pole or running
-	M_D[0]=src.at({ParameterType::BSM, "MASS", 1000001})->get_val();
-	M_D[1]=src.at({ParameterType::BSM, "MASS", 1000003})->get_val();
-	M_D[2]=src.at({ParameterType::BSM, "MASS", 1000005})->get_val();
-	M_D[3]=src.at({ParameterType::BSM, "MASS", 2000001})->get_val();
-	M_D[4]=src.at({ParameterType::BSM, "MASS", 2000003})->get_val();
-	M_D[5]=src.at({ParameterType::BSM, "MASS", 2000005})->get_val();
+	M_D[0]=src.get_val(ParameterType::BSM, "MASS", 1000001);
+	M_D[1]=src.get_val(ParameterType::BSM, "MASS", 1000003);
+	M_D[2]=src.get_val(ParameterType::BSM, "MASS", 1000005);
+	M_D[3]=src.get_val(ParameterType::BSM, "MASS", 2000001);
+	M_D[4]=src.get_val(ParameterType::BSM, "MASS", 2000003);
+	M_D[5]=src.get_val(ParameterType::BSM, "MASS", 2000005);
 
 	for(int i = 0; i<6; ++i) {
 		for(int j = 0; j<6; ++j) {
-			Z_D[i][j]= src.at({ParameterType::BSM, "DSQMIX", LhaID(j+1, i+1)})->get_val(); //TODO: deal with this group
+			Z_D[i][j]= src.get_val(ParameterType::BSM, "DSQMIX", LhaID(j+1, i+1)); //TODO: deal with this group
 		}
 	} // inverse matrix, because in SLHA2 the second index denotes quark flavour (dl,sl,bl,dr,sr,br)
 	for(int i = 0; i<6; ++i) {
@@ -2177,19 +2177,19 @@ double C_mix_bd_4_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared
 	double M_ch[2],M_ch_pow_2[2],M_U[6],M_U_pow_2[6];
 	scalar_t Z_p[2][2],Z_m[2][2],Z_U[6][6];
 	scalar_t Yd[3],Yu[3];
- 	double sw=sin(atan(src.at({ParameterType::SM, "GAUGE", 2})->get_val()/src.at({ParameterType::SM, "GAUGE", 2})->get_val()));
- 	double Q_e = (src.at({ParameterType::SM, "GAUGE", 2})->get_val())*sw;
+ 	double sw=sin(atan(src.get_val(ParameterType::SM, "GAUGE", 2)/src.get_val(ParameterType::SM, "GAUGE", 2)));
+ 	double Q_e = (src.get_val(ParameterType::SM, "GAUGE", 2))*sw;
 	double swi=1./sw;
 
-	M_ch[0]=src.at({ParameterType::BSM, "MASS", 1000024})->get_val();
-	M_ch[1]=src.at({ParameterType::BSM, "MASS", 1000037})->get_val();
+	M_ch[0]=src.get_val(ParameterType::BSM, "MASS", 1000024);
+	M_ch[1]=src.get_val(ParameterType::BSM, "MASS", 1000037);
 
-	M_U[0]=src.at({ParameterType::BSM, "MASS", 1000002})->get_val();
-	M_U[1]=src.at({ParameterType::BSM, "MASS", 1000004})->get_val();
-	M_U[2]=src.at({ParameterType::BSM, "MASS", 1000006})->get_val();
-	M_U[3]=src.at({ParameterType::BSM, "MASS", 2000002})->get_val();
-	M_U[4]=src.at({ParameterType::BSM, "MASS", 2000004})->get_val();
-	M_U[5]=src.at({ParameterType::BSM, "MASS", 2000006})->get_val();
+	M_U[0]=src.get_val(ParameterType::BSM, "MASS", 1000002);
+	M_U[1]=src.get_val(ParameterType::BSM, "MASS", 1000004);
+	M_U[2]=src.get_val(ParameterType::BSM, "MASS", 1000006);
+	M_U[3]=src.get_val(ParameterType::BSM, "MASS", 2000002);
+	M_U[4]=src.get_val(ParameterType::BSM, "MASS", 2000004);
+	M_U[5]=src.get_val(ParameterType::BSM, "MASS", 2000006);
 
 	for(int i=0; i<2; ++i){
 		M_ch_pow_2[i]=pow(M_ch[i],2);
@@ -2199,38 +2199,38 @@ double C_mix_bd_4_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared
 	}
 	for(int i=0; i <2; ++i) {
 		for(int j=0; j<2; ++j) {
-			Z_p[i][j]=conj(src.at({ParameterType::BSM, "VMIX", LhaID(j+1, i+1)})->get_val());
+			Z_p[i][j]=conj(src.get_val(ParameterType::BSM, "VMIX", LhaID(j+1, i+1)));
 		}
 	} /* NM: conversion from SLHA2 convention */
 	for(int i=2; i<2; ++i) {
 		for(int j=0; j<2; ++j) {
-			Z_m[i][j]=conj(src.at({ParameterType::BSM, "UMIX", LhaID(j+1, i+1)})->get_val());
+			Z_m[i][j]=conj(src.get_val(ParameterType::BSM, "UMIX", LhaID(j+1, i+1)));
 		}
 	} /* NM: conversion from SLHA2 convention */
 	for(int i=0; i<6; ++i) {
 		for(int j=0; j<6; ++j) {
-			Z_U[i][j]=conj(src.at({ParameterType::BSM, "USQMIX", LhaID(j+1, i+1)})->get_val()); //TODO: deal with this group
+			Z_U[i][j]=conj(src.get_val(ParameterType::BSM, "USQMIX", LhaID(j+1, i+1))); //TODO: deal with this group
 		}
 	} /* NM: conversion from SLHA2 convention */
 
 	double v1,v2,beta;
-	beta = atan(src.at({ParameterType::BSM, "EXTPAR", 25})->get_val());
-	v1 = 2.*(src.at({ParameterType::SM, "MASS", 24})->get_val())*cos(beta)/src.at({ParameterType::SM, "GAUGE", 2})->get_val();
+	beta = atan(src.get_val(ParameterType::BSM, "EXTPAR", 25));
+	v1 = 2.*(src.get_val(ParameterType::SM, "MASS", 24))*cos(beta)/src.get_val(ParameterType::SM, "GAUGE", 2);
 	v2 = v1*tan(beta);
   
-	double mc = src.at({ParameterType::SM, "MASS", 4})->get_val();
+	double mc = src.get_val(ParameterType::SM, "MASS", 4);
 	
 	double m_b=QCDHelper::msbar_mass(5, mu_W, MassType::MSBAR); /* NM: running mass */
 	double m_t=QCDHelper::msbar_mass(6, mu_W, MassType::MSBAR); /* NM: running mass */
 
 	double common = sqrt(2.)/v2;
-	Yu[0] = common*src.at({ParameterType::SM, "MASS", 2})->get_val();
+	Yu[0] = common*src.get_val(ParameterType::SM, "MASS", 2);
 	Yu[1] = common*QCDHelper::msbar_mass(4, mu_W, MassType::POLE); //TODO : check this to be sure
 
 	Yu[2] = common*m_t; /* NM: running mass */
 	double otherc = sqrt(2.)/v1;
-	Yd[0] = otherc*src.at({ParameterType::SM, "MASS", 1})->get_val();
-	Yd[1] = otherc*src.at({ParameterType::SM, "MASS", 3})->get_val();
+	Yd[0] = otherc*src.get_val(ParameterType::SM, "MASS", 1);
+	Yd[1] = otherc*src.get_val(ParameterType::SM, "MASS", 3);
 	Yd[2] = otherc*m_b; /* NM: running mass */
 	
 	scalar_t C4_chargino=0.;
@@ -2264,14 +2264,14 @@ double C_mix_bd_4_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared
 	double M_ch0[4],M_ch0_pow_2[4],M_D[6],M_D_pow_2[6];
 	scalar_t Z_N[4][4];
 
-	double cw=cos(atan(src.at({ParameterType::SM, "GAUGE", 1})->get_val()/src.at({ParameterType::SM, "GAUGE", 2})->get_val()));
+	double cw=cos(atan(src.get_val(ParameterType::SM, "GAUGE", 1)/src.get_val(ParameterType::SM, "GAUGE", 2)));
 
  	double otherc = sqrt(2.)/v1;
 
-	std::array<double,4> temp_ch0 = {src.at({ParameterType::BSM, "MASS", 1000022})->get_val(),
-					 src.at({ParameterType::BSM, "MASS", 1000023})->get_val(),
-					 src.at({ParameterType::BSM, "MASS", 1000025})->get_val(),
-					 src.at({ParameterType::BSM, "MASS", 1000035})->get_val()};
+	std::array<double,4> temp_ch0 = {src.get_val(ParameterType::BSM, "MASS", 1000022),
+					 src.get_val(ParameterType::BSM, "MASS", 1000023),
+					 src.get_val(ParameterType::BSM, "MASS", 1000025),
+					 src.get_val(ParameterType::BSM, "MASS", 1000035)};
 
 	M_ch0[0]=fabs(temp_ch0[0]);
 	M_ch0[1]=fabs(temp_ch0[1]);
@@ -2291,7 +2291,7 @@ double C_mix_bd_4_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared
 	
 	for(int i=0; i<4; ++i) {
 		for(int j=0; j<4; ++j) {
-			Z_N[i][j] = conj(src.at({ParameterType::BSM, "NMIX", LhaID(i+1, j+1)})->get_val()); //TODO : i,j or j,i like the others ?
+			Z_N[i][j] = conj(src.get_val(ParameterType::BSM, "NMIX", LhaID(i+1, j+1))); //TODO : i,j or j,i like the others ?
 		}
 	}
 	
@@ -2336,7 +2336,7 @@ double C_mix_bd_4_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared
 
 
 
-	double M_g=src.at({ParameterType::BSM, "MASS", 1000021})->get_val();
+	double M_g=src.get_val(ParameterType::BSM, "MASS", 1000021);
 	double M_g_pow_2 = pow(M_g,2.);
 
 	// } /* NM: in Buras, neutralino masses defined positive, so changed the SLHA2 neutralino mixing matrix when negative neutralino mass */
@@ -2382,10 +2382,10 @@ double C_mix_bd_4_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared
 	getDelta(delta_d,Z_D,M_D,m_av,delta_d_LL,delta_d_LR,delta_d_RL,delta_d_RR);
 	getDelta(delta_u,Z_U,M_U,m_av,delta_u_LL,delta_u_LR,delta_u_RL,delta_u_RR);
 	
-	double M_A=src.at({ParameterType::BSM, "MASS", 36})->get_val();
-	double A_t=src.at({ParameterType::BSM, "AU", LhaID(3,3)})->get_val(); //A_t
-	double mu = src.at({ParameterType::BSM, "HMIX", 1})->get_val();
-	scalar_t M_2 = src.at({ParameterType::BSM, "MSOFT", 2})->get_val();
+	double M_A=src.get_val(ParameterType::BSM, "MASS", 36);
+	double A_t=src.get_val(ParameterType::BSM, "AU", LhaID(3,3)); //A_t
+	double mu = src.get_val(ParameterType::BSM, "HMIX", 1);
+	scalar_t M_2 = src.get_val(ParameterType::BSM, "MSOFT", 2);
 	double x_mu = pow(abs(mu),2)/pow(m_av,2);
 	scalar_t x_2 = pow(abs(M_2),2)/pow(m_av,2);
 	double x_g = pow(M_g,2)/pow(m_av,2);
@@ -2407,7 +2407,7 @@ double C_mix_bd_4_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared
 
 //BD_5
 
-C_mix_bd_5_SUSY::C_mix_bd_5_SUSY() : WilsonCoefficient("C_BD_5", GroupMapper::str(WGroup::MESON_MIXING) + "_MATCH") {
+C_mix_bd_5_SUSY::C_mix_bd_5_SUSY() : WilsonCoefficient("C_BD_5", GroupMapper::str(WGroup::MESON_MIXING, ScaleType::MATCHING)) {
     matching_info[QCDOrder::LO] = {
         {
             {ParameterType::WILSON, "WPARAM_MATCH_SM", 4},           //mass_c_muW_mcrun
@@ -2453,33 +2453,33 @@ C_mix_bd_5_SUSY::C_mix_bd_5_SUSY() : WilsonCoefficient("C_BD_5", GroupMapper::st
 			{ParameterType::SM, "EW_SCALE", 1}
         },
         compute_LO,
-        LhaID(1050105, 7172, 0, 1)
+        get_lhaid_from_name(QCDOrder::LO)
     };
 }
 
-double C_mix_bd_5_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src) {
+double C_mix_bd_5_SUSY::compute_LO(const ParamSrc& src) {
 
-	double mu_W = src.at({ParameterType::WILSON, "EW_SCALE", 37})->get_val();
-    double M_H=src.at({ParameterType::BSM, "MASS", 37})->get_val();
-	double M_W=src.at({ParameterType::SM, "MASS", 24})->get_val();
+	double mu_W = src.get_val(ParameterType::WILSON, "EW_SCALE", 1);
+    double M_H=src.get_val(ParameterType::BSM, "MASS", 37);
+	double M_W=src.get_val(ParameterType::SM, "MASS", 24);
 	double M_H_pow_2 = pow(M_H,2.);
 	double M_W_pow_2 = pow(M_W,2.);
 	std::array<std::array<scalar_t, 3>, 3> V_CKM {};
-	double m_q = src.at({ParameterType::SM, "MASS", 1})->get_val();
+	double m_q = src.get_val(ParameterType::SM, "MASS", 1);
 	
-	double m_b= src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {5, 1}})->get_val();
-	double g_2=src.at({ParameterType::SM, "GAUGE", 2})->get_val();
-	double tbeta = src.at({ParameterType::BSM, "HMIX", 2})->get_val();
+	double m_b= src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {5, 1});
+	double g_2=src.get_val(ParameterType::SM, "GAUGE", 2);
+	double tbeta = src.get_val(ParameterType::BSM, "HMIX", 2);
 	double m_u[4],m_u_pow_2[4];
 
     for (int i = 0; i<3; ++i) {
         for (int j = 0; j<3; j++) {
-            V_CKM[i][j] = src.at({ParameterType::SM, "VCKM", LhaID(i, j)})->get_val();
+            V_CKM[i][j] = src.get_val(ParameterType::SM, "VCKM", LhaID(i, j));
         }
     }
-	m_u[1]= src.at({ParameterType::SM, "MASS", 2})->get_val();
-    m_u[2]= src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 4})->get_val();
-	m_u[3]= src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 6})->get_val();
+	m_u[1]= src.get_val(ParameterType::SM, "MASS", 2);
+    m_u[2]= src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 4);
+	m_u[3]= src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 6);
 
 
 	for(int i =0;i<3;++i) {
@@ -2511,20 +2511,20 @@ double C_mix_bd_5_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared
 
 	double M_D[6],M_D_pow_2[6],dm[6]; 
 	scalar_t Z_D[6][6];
-	double Mg=src.at({ParameterType::BSM, "MASS", 1000021})->get_val();
+	double Mg=src.get_val(ParameterType::BSM, "MASS", 1000021);
 	double Mg_pow_2 = pow(Mg,2);
 	// double g_3=sqrt(4.*PI*alphas_running(mu_t,param->mass_top_pole,param->mass_b,param)); /* NM: compute from alphas instead of using g3 from SLHA file */
 	double g_3= sqrt(4.*PI*QCDHelper::alpha_s(mu_W)); //TODO : check pole or running
-	M_D[0]=src.at({ParameterType::BSM, "MASS", 1000001})->get_val();
-	M_D[1]=src.at({ParameterType::BSM, "MASS", 1000003})->get_val();
-	M_D[2]=src.at({ParameterType::BSM, "MASS", 1000005})->get_val();
-	M_D[3]=src.at({ParameterType::BSM, "MASS", 2000001})->get_val();
-	M_D[4]=src.at({ParameterType::BSM, "MASS", 2000003})->get_val();
-	M_D[5]=src.at({ParameterType::BSM, "MASS", 2000005})->get_val();
+	M_D[0]=src.get_val(ParameterType::BSM, "MASS", 1000001);
+	M_D[1]=src.get_val(ParameterType::BSM, "MASS", 1000003);
+	M_D[2]=src.get_val(ParameterType::BSM, "MASS", 1000005);
+	M_D[3]=src.get_val(ParameterType::BSM, "MASS", 2000001);
+	M_D[4]=src.get_val(ParameterType::BSM, "MASS", 2000003);
+	M_D[5]=src.get_val(ParameterType::BSM, "MASS", 2000005);
 
 	for(int i = 0; i<6; ++i) {
 		for(int j = 0; j<6; ++j) {
-			Z_D[i][j]= src.at({ParameterType::BSM, "DSQMIX", LhaID(j+1, i+1)})->get_val(); //TODO: deal with this group
+			Z_D[i][j]= src.get_val(ParameterType::BSM, "DSQMIX", LhaID(j+1, i+1)); //TODO: deal with this group
 		}
 	} // inverse matrix, because in SLHA2 the second index denotes quark flavour (dl,sl,bl,dr,sr,br)
 	for(int i = 0; i<6; ++i) {
@@ -2554,19 +2554,19 @@ double C_mix_bd_5_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared
 	double M_ch[2],M_ch_pow_2[2],M_U[6],M_U_pow_2[6];
 	scalar_t Z_p[2][2],Z_m[2][2],Z_U[6][6];
 	scalar_t Yd[3],Yu[3];
- 	double sw=sin(atan(src.at({ParameterType::SM, "GAUGE", 2})->get_val()/src.at({ParameterType::SM, "GAUGE", 2})->get_val()));
- 	double Q_e = (src.at({ParameterType::SM, "GAUGE", 2})->get_val())*sw;
+ 	double sw=sin(atan(src.get_val(ParameterType::SM, "GAUGE", 2)/src.get_val(ParameterType::SM, "GAUGE", 2)));
+ 	double Q_e = (src.get_val(ParameterType::SM, "GAUGE", 2))*sw;
 	double swi=1./sw;
 
-	M_ch[0]=src.at({ParameterType::BSM, "MASS", 1000024})->get_val();
-	M_ch[1]=src.at({ParameterType::BSM, "MASS", 1000037})->get_val();
+	M_ch[0]=src.get_val(ParameterType::BSM, "MASS", 1000024);
+	M_ch[1]=src.get_val(ParameterType::BSM, "MASS", 1000037);
 
-	M_U[0]=src.at({ParameterType::BSM, "MASS", 1000002})->get_val();
-	M_U[1]=src.at({ParameterType::BSM, "MASS", 1000004})->get_val();
-	M_U[2]=src.at({ParameterType::BSM, "MASS", 1000006})->get_val();
-	M_U[3]=src.at({ParameterType::BSM, "MASS", 2000002})->get_val();
-	M_U[4]=src.at({ParameterType::BSM, "MASS", 2000004})->get_val();
-	M_U[5]=src.at({ParameterType::BSM, "MASS", 2000006})->get_val();
+	M_U[0]=src.get_val(ParameterType::BSM, "MASS", 1000002);
+	M_U[1]=src.get_val(ParameterType::BSM, "MASS", 1000004);
+	M_U[2]=src.get_val(ParameterType::BSM, "MASS", 1000006);
+	M_U[3]=src.get_val(ParameterType::BSM, "MASS", 2000002);
+	M_U[4]=src.get_val(ParameterType::BSM, "MASS", 2000004);
+	M_U[5]=src.get_val(ParameterType::BSM, "MASS", 2000006);
 
 	for(int i=0; i<2; ++i){
 		M_ch_pow_2[i]=pow(M_ch[i],2);
@@ -2576,38 +2576,38 @@ double C_mix_bd_5_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared
 	}
 	for(int i=0; i <2; ++i) {
 		for(int j=0; j<2; ++j) {
-			Z_p[i][j]=conj(src.at({ParameterType::BSM, "VMIX", LhaID(j+1, i+1)})->get_val());
+			Z_p[i][j]=conj(src.get_val(ParameterType::BSM, "VMIX", LhaID(j+1, i+1)));
 		}
 	} /* NM: conversion from SLHA2 convention */
 	for(int i=2; i<2; ++i) {
 		for(int j=0; j<2; ++j) {
-			Z_m[i][j]=conj(src.at({ParameterType::BSM, "UMIX", LhaID(j+1, i+1)})->get_val());
+			Z_m[i][j]=conj(src.get_val(ParameterType::BSM, "UMIX", LhaID(j+1, i+1)));
 		}
 	} /* NM: conversion from SLHA2 convention */
 	for(int i=0; i<6; ++i) {
 		for(int j=0; j<6; ++j) {
-			Z_U[i][j]=conj(src.at({ParameterType::BSM, "USQMIX", LhaID(j+1, i+1)})->get_val()); //TODO: deal with this group
+			Z_U[i][j]=conj(src.get_val(ParameterType::BSM, "USQMIX", LhaID(j+1, i+1))); //TODO: deal with this group
 		}
 	} /* NM: conversion from SLHA2 convention */
 
 	double v1,v2,beta;
-	beta = atan(src.at({ParameterType::BSM, "EXTPAR", 25})->get_val());
-	v1 = 2.*(src.at({ParameterType::SM, "MASS", 24})->get_val())*cos(beta)/src.at({ParameterType::SM, "GAUGE", 2})->get_val();
+	beta = atan(src.get_val(ParameterType::BSM, "EXTPAR", 25));
+	v1 = 2.*(src.get_val(ParameterType::SM, "MASS", 24))*cos(beta)/src.get_val(ParameterType::SM, "GAUGE", 2);
 	v2 = v1*tan(beta);
   
-	double mc = src.at({ParameterType::SM, "MASS", 4})->get_val();
+	double mc = src.get_val(ParameterType::SM, "MASS", 4);
 	
 	double m_b=QCDHelper::msbar_mass(5, mu_W, MassType::MSBAR); /* NM: running mass */
 	double m_t=QCDHelper::msbar_mass(6, mu_W, MassType::MSBAR); /* NM: running mass */
 
 	double common = sqrt(2.)/v2;
-	Yu[0] = common*src.at({ParameterType::SM, "MASS", 2})->get_val();
+	Yu[0] = common*src.get_val(ParameterType::SM, "MASS", 2);
 	Yu[1] = common*QCDHelper::msbar_mass(4, mu_W, MassType::POLE); //TODO : check this to be sure
 
 	Yu[2] = common*m_t; /* NM: running mass */
 	double otherc = sqrt(2.)/v1;
-	Yd[0] = otherc*src.at({ParameterType::SM, "MASS", 1})->get_val();
-	Yd[1] = otherc*src.at({ParameterType::SM, "MASS", 3})->get_val();
+	Yd[0] = otherc*src.get_val(ParameterType::SM, "MASS", 1);
+	Yd[1] = otherc*src.get_val(ParameterType::SM, "MASS", 3);
 	Yd[2] = otherc*m_b; /* NM: running mass */
 	
 
@@ -2643,14 +2643,14 @@ double C_mix_bd_5_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared
 	double M_ch0[4],M_ch0_pow_2[4],M_D[6],M_D_pow_2[6];
 	scalar_t Z_N[4][4];
 
-	double cw=cos(atan(src.at({ParameterType::SM, "GAUGE", 1})->get_val()/src.at({ParameterType::SM, "GAUGE", 2})->get_val()));
+	double cw=cos(atan(src.get_val(ParameterType::SM, "GAUGE", 1)/src.get_val(ParameterType::SM, "GAUGE", 2)));
 
  	double otherc = sqrt(2.)/v1;
 
-	std::array<double,4> temp_ch0 = {src.at({ParameterType::BSM, "MASS", 1000022})->get_val(),
-					 src.at({ParameterType::BSM, "MASS", 1000023})->get_val(),
-					 src.at({ParameterType::BSM, "MASS", 1000025})->get_val(),
-					 src.at({ParameterType::BSM, "MASS", 1000035})->get_val()};
+	std::array<double,4> temp_ch0 = {src.get_val(ParameterType::BSM, "MASS", 1000022),
+					 src.get_val(ParameterType::BSM, "MASS", 1000023),
+					 src.get_val(ParameterType::BSM, "MASS", 1000025),
+					 src.get_val(ParameterType::BSM, "MASS", 1000035)};
 
 	M_ch0[0]=fabs(temp_ch0[0]);
 	M_ch0[1]=fabs(temp_ch0[1]);
@@ -2670,7 +2670,7 @@ double C_mix_bd_5_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared
 	
 	for(int i=0; i<4; ++i) {
 		for(int j=0; j<4; ++j) {
-			Z_N[i][j] = conj(src.at({ParameterType::BSM, "NMIX", LhaID(i+1, j+1)})->get_val()); //TODO : i,j or j,i like the others ?
+			Z_N[i][j] = conj(src.get_val(ParameterType::BSM, "NMIX", LhaID(i+1, j+1))); //TODO : i,j or j,i like the others ?
 		}
 	}
 	
@@ -2716,7 +2716,7 @@ double C_mix_bd_5_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared
 
 
 
-	double M_g=src.at({ParameterType::BSM, "MASS", 1000021})->get_val();
+	double M_g=src.get_val(ParameterType::BSM, "MASS", 1000021);
 	double M_g_pow_2 = pow(M_g,2.);
 
 	// } /* NM: in Buras, neutralino masses defined positive, so changed the SLHA2 neutralino mixing matrix when negative neutralino mass */
@@ -2755,7 +2755,7 @@ double C_mix_bd_5_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared
 //BS
 
 
-C_mix_bs_1_SUSY::C_mix_bs_1_SUSY() : WilsonCoefficient("C_BS_1", GroupMapper::str(WGroup::MESON_MIXING) + "_MATCH") {
+C_mix_bs_1_SUSY::C_mix_bs_1_SUSY() : WilsonCoefficient("C_BS_1", GroupMapper::str(WGroup::MESON_MIXING, ScaleType::MATCHING)) {
     matching_info[QCDOrder::LO] = {
         {
             {ParameterType::WILSON, "WPARAM_MATCH_SM", 4},           //mass_c_muW_mcrun
@@ -2801,33 +2801,33 @@ C_mix_bs_1_SUSY::C_mix_bs_1_SUSY() : WilsonCoefficient("C_BS_1", GroupMapper::st
 			{ParameterType::SM, "EW_SCALE", 1}
         },
         compute_LO,
-        LhaID(3050305, 4141, 0, 1)
+        get_lhaid_from_name(QCDOrder::LO)
     };
 }
 
-double C_mix_bs_1_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src) {
+double C_mix_bs_1_SUSY::compute_LO(const ParamSrc& src) {
 
-	double mu_W = src.at({ParameterType::WILSON, "EW_SCALE", 37})->get_val();
-    double M_H=src.at({ParameterType::BSM, "MASS", 37})->get_val();
-	double M_W=src.at({ParameterType::SM, "MASS", 24})->get_val();
+	double mu_W = src.get_val(ParameterType::WILSON, "EW_SCALE", 1);
+    double M_H=src.get_val(ParameterType::BSM, "MASS", 37);
+	double M_W=src.get_val(ParameterType::SM, "MASS", 24);
 	double M_H_pow_2 = pow(M_H,2.);
 	double M_W_pow_2 = pow(M_W,2.);
 	std::array<std::array<scalar_t, 3>, 3> V_CKM {};
-	double m_q = src.at({ParameterType::SM, "MASS", 3})->get_val();
+	double m_q = src.get_val(ParameterType::SM, "MASS", 3);
 	
-	double m_b= src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {5, 1}})->get_val();
-	double g_2=src.at({ParameterType::SM, "GAUGE", 2})->get_val();
-	double tbeta = src.at({ParameterType::BSM, "HMIX", 2})->get_val();
+	double m_b= src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {5, 1});
+	double g_2=src.get_val(ParameterType::SM, "GAUGE", 2);
+	double tbeta = src.get_val(ParameterType::BSM, "HMIX", 2);
 	double m_u[4],m_u_pow_2[4];
 
     for (int i = 0; i<3; ++i) {
         for (int j = 0; j<3; j++) {
-            V_CKM[i][j] = src.at({ParameterType::SM, "VCKM", LhaID(i, j)})->get_val();
+            V_CKM[i][j] = src.get_val(ParameterType::SM, "VCKM", LhaID(i, j));
         }
     }
-	m_u[1]= src.at({ParameterType::SM, "MASS", 2})->get_val();
-    m_u[2]= src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 4})->get_val();
-	m_u[3]= src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 6})->get_val();
+	m_u[1]= src.get_val(ParameterType::SM, "MASS", 2);
+    m_u[2]= src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 4);
+	m_u[3]= src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 6);
 
 
 	for(int i =0;i<3;++i) {
@@ -2856,20 +2856,20 @@ double C_mix_bs_1_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared
 
 	double M_D[6],M_D_pow_2[6],dm[6]; 
 	scalar_t Z_D[6][6];
-	double Mg=src.at({ParameterType::BSM, "MASS", 1000021})->get_val();
+	double Mg=src.get_val(ParameterType::BSM, "MASS", 1000021);
 	double Mg_pow_2 = pow(Mg,2);
 	// double g_3=sqrt(4.*PI*alphas_running(mu_t,param->mass_top_pole,param->mass_b,param)); /* NM: compute from alphas instead of using g3 from SLHA file */
 	double g_3= sqrt(4.*PI*QCDHelper::alpha_s(mu_W)); //TODO : check pole or running
-	M_D[0]=src.at({ParameterType::BSM, "MASS", 1000001})->get_val();
-	M_D[1]=src.at({ParameterType::BSM, "MASS", 1000003})->get_val();
-	M_D[2]=src.at({ParameterType::BSM, "MASS", 1000005})->get_val();
-	M_D[3]=src.at({ParameterType::BSM, "MASS", 2000001})->get_val();
-	M_D[4]=src.at({ParameterType::BSM, "MASS", 2000003})->get_val();
-	M_D[5]=src.at({ParameterType::BSM, "MASS", 2000005})->get_val();
+	M_D[0]=src.get_val(ParameterType::BSM, "MASS", 1000001);
+	M_D[1]=src.get_val(ParameterType::BSM, "MASS", 1000003);
+	M_D[2]=src.get_val(ParameterType::BSM, "MASS", 1000005);
+	M_D[3]=src.get_val(ParameterType::BSM, "MASS", 2000001);
+	M_D[4]=src.get_val(ParameterType::BSM, "MASS", 2000003);
+	M_D[5]=src.get_val(ParameterType::BSM, "MASS", 2000005);
 
 	for(int i = 0; i<6; ++i) {
 		for(int j = 0; j<6; ++j) {
-			Z_D[i][j]= src.at({ParameterType::BSM, "DSQMIX", LhaID(j+1, i+1)})->get_val(); //TODO: deal with this group
+			Z_D[i][j]= src.get_val(ParameterType::BSM, "DSQMIX", LhaID(j+1, i+1)); //TODO: deal with this group
 		}
 	} // inverse matrix, because in SLHA2 the second index denotes quark flavour (dl,sl,bl,dr,sr,br)
 	for(int i = 0; i<6; ++i) {
@@ -2898,19 +2898,19 @@ double C_mix_bs_1_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared
 	double M_ch[2],M_ch_pow_2[2],M_U[6],M_U_pow_2[6];
 	scalar_t Z_p[2][2],Z_m[2][2],Z_U[6][6];
 	scalar_t Yd[3],Yu[3];
- 	double sw=sin(atan(src.at({ParameterType::SM, "GAUGE", 2})->get_val()/src.at({ParameterType::SM, "GAUGE", 2})->get_val()));
- 	double Q_e = (src.at({ParameterType::SM, "GAUGE", 2})->get_val())*sw;
+ 	double sw=sin(atan(src.get_val(ParameterType::SM, "GAUGE", 2)/src.get_val(ParameterType::SM, "GAUGE", 2)));
+ 	double Q_e = (src.get_val(ParameterType::SM, "GAUGE", 2))*sw;
 	double swi=1./sw;
 
-	M_ch[0]=src.at({ParameterType::BSM, "MASS", 1000024})->get_val();
-	M_ch[1]=src.at({ParameterType::BSM, "MASS", 1000037})->get_val();
+	M_ch[0]=src.get_val(ParameterType::BSM, "MASS", 1000024);
+	M_ch[1]=src.get_val(ParameterType::BSM, "MASS", 1000037);
 
-	M_U[0]=src.at({ParameterType::BSM, "MASS", 1000002})->get_val();
-	M_U[1]=src.at({ParameterType::BSM, "MASS", 1000004})->get_val();
-	M_U[2]=src.at({ParameterType::BSM, "MASS", 1000006})->get_val();
-	M_U[3]=src.at({ParameterType::BSM, "MASS", 2000002})->get_val();
-	M_U[4]=src.at({ParameterType::BSM, "MASS", 2000004})->get_val();
-	M_U[5]=src.at({ParameterType::BSM, "MASS", 2000006})->get_val();
+	M_U[0]=src.get_val(ParameterType::BSM, "MASS", 1000002);
+	M_U[1]=src.get_val(ParameterType::BSM, "MASS", 1000004);
+	M_U[2]=src.get_val(ParameterType::BSM, "MASS", 1000006);
+	M_U[3]=src.get_val(ParameterType::BSM, "MASS", 2000002);
+	M_U[4]=src.get_val(ParameterType::BSM, "MASS", 2000004);
+	M_U[5]=src.get_val(ParameterType::BSM, "MASS", 2000006);
 
 	for(int i=0; i<2; ++i){
 		M_ch_pow_2[i]=pow(M_ch[i],2);
@@ -2920,38 +2920,38 @@ double C_mix_bs_1_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared
 	}
 	for(int i=0; i <2; ++i) {
 		for(int j=0; j<2; ++j) {
-			Z_p[i][j]=conj(src.at({ParameterType::BSM, "VMIX", LhaID(j+1, i+1)})->get_val());
+			Z_p[i][j]=conj(src.get_val(ParameterType::BSM, "VMIX", LhaID(j+1, i+1)));
 		}
 	} /* NM: conversion from SLHA2 convention */
 	for(int i=2; i<2; ++i) {
 		for(int j=0; j<2; ++j) {
-			Z_m[i][j]=conj(src.at({ParameterType::BSM, "UMIX", LhaID(j+1, i+1)})->get_val());
+			Z_m[i][j]=conj(src.get_val(ParameterType::BSM, "UMIX", LhaID(j+1, i+1)));
 		}
 	} /* NM: conversion from SLHA2 convention */
 	for(int i=0; i<6; ++i) {
 		for(int j=0; j<6; ++j) {
-			Z_U[i][j]=conj(src.at({ParameterType::BSM, "USQMIX", LhaID(j+1, i+1)})->get_val()); //TODO: deal with this group
+			Z_U[i][j]=conj(src.get_val(ParameterType::BSM, "USQMIX", LhaID(j+1, i+1))); //TODO: deal with this group
 		}
 	} /* NM: conversion from SLHA2 convention */
 
 	double v1,v2,beta;
-	beta = atan(src.at({ParameterType::BSM, "EXTPAR", 25})->get_val());
-	v1 = 2.*(src.at({ParameterType::SM, "MASS", 24})->get_val())*cos(beta)/src.at({ParameterType::SM, "GAUGE", 2})->get_val();
+	beta = atan(src.get_val(ParameterType::BSM, "EXTPAR", 25));
+	v1 = 2.*(src.get_val(ParameterType::SM, "MASS", 24))*cos(beta)/src.get_val(ParameterType::SM, "GAUGE", 2);
 	v2 = v1*tan(beta);
   
-	double mc = src.at({ParameterType::SM, "MASS", 4})->get_val();
+	double mc = src.get_val(ParameterType::SM, "MASS", 4);
 	
 	double m_b=QCDHelper::msbar_mass(5, mu_W, MassType::MSBAR); /* NM: running mass */
 	double m_t=QCDHelper::msbar_mass(6, mu_W, MassType::MSBAR); /* NM: running mass */
 
 	double common = sqrt(2.)/v2;
-	Yu[0] = common*src.at({ParameterType::SM, "MASS", 2})->get_val();
+	Yu[0] = common*src.get_val(ParameterType::SM, "MASS", 2);
 	Yu[1] = common*QCDHelper::msbar_mass(4, mu_W, MassType::POLE); //TODO : check this to be sure
 
 	Yu[2] = common*m_t; /* NM: running mass */
 	double otherc = sqrt(2.)/v1;
-	Yd[0] = otherc*src.at({ParameterType::SM, "MASS", 1})->get_val();
-	Yd[1] = otherc*src.at({ParameterType::SM, "MASS", 3})->get_val();
+	Yd[0] = otherc*src.get_val(ParameterType::SM, "MASS", 1);
+	Yd[1] = otherc*src.get_val(ParameterType::SM, "MASS", 3);
 	Yd[2] = otherc*m_b; /* NM: running mass */
 	
 
@@ -2988,14 +2988,14 @@ double C_mix_bs_1_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared
 	double M_ch0[4],M_ch0_pow_2[4],M_D[6],M_D_pow_2[6];
 	scalar_t Z_N[4][4];
 
-	double cw=cos(atan(src.at({ParameterType::SM, "GAUGE", 1})->get_val()/src.at({ParameterType::SM, "GAUGE", 2})->get_val()));
+	double cw=cos(atan(src.get_val(ParameterType::SM, "GAUGE", 1)/src.get_val(ParameterType::SM, "GAUGE", 2)));
 
  	double otherc = sqrt(2.)/v1;
 
-	std::array<double,4> temp_ch0 = {src.at({ParameterType::BSM, "MASS", 1000022})->get_val(),
-					 src.at({ParameterType::BSM, "MASS", 1000023})->get_val(),
-					 src.at({ParameterType::BSM, "MASS", 1000025})->get_val(),
-					 src.at({ParameterType::BSM, "MASS", 1000035})->get_val()};
+	std::array<double,4> temp_ch0 = {src.get_val(ParameterType::BSM, "MASS", 1000022),
+					 src.get_val(ParameterType::BSM, "MASS", 1000023),
+					 src.get_val(ParameterType::BSM, "MASS", 1000025),
+					 src.get_val(ParameterType::BSM, "MASS", 1000035)};
 
 	M_ch0[0]=fabs(temp_ch0[0]);
 	M_ch0[1]=fabs(temp_ch0[1]);
@@ -3015,7 +3015,7 @@ double C_mix_bs_1_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared
 	
 	for(int i=0; i<4; ++i) {
 		for(int j=0; j<4; ++j) {
-			Z_N[i][j] = conj(src.at({ParameterType::BSM, "NMIX", LhaID(i+1, j+1)})->get_val()); //TODO : i,j or j,i like the others ?
+			Z_N[i][j] = conj(src.get_val(ParameterType::BSM, "NMIX", LhaID(i+1, j+1))); //TODO : i,j or j,i like the others ?
 		}
 	}
 	
@@ -3063,7 +3063,7 @@ double C_mix_bs_1_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared
 
 
 
-	double M_g=src.at({ParameterType::BSM, "MASS", 1000021})->get_val();
+	double M_g=src.get_val(ParameterType::BSM, "MASS", 1000021);
 	double M_g_pow_2 = pow(M_g,2.);
 
 	// } /* NM: in Buras, neutralino masses defined positive, so changed the SLHA2 neutralino mixing matrix when negative neutralino mass */
@@ -3094,7 +3094,7 @@ double C_mix_bs_1_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared
 
 //BS_1_tilde 
 
-C_mix_bs_1_tilde_SUSY::C_mix_bs_1_tilde_SUSY() : WilsonCoefficient("CT_BS_1", GroupMapper::str(WGroup::MESON_MIXING) + "_MATCH") {
+C_mix_bs_1_tilde_SUSY::C_mix_bs_1_tilde_SUSY() : WilsonCoefficient("CT_BS_1", GroupMapper::str(WGroup::MESON_MIXING, ScaleType::MATCHING)) {
     matching_info[QCDOrder::LO] = {
         {
             {ParameterType::WILSON, "WPARAM_MATCH_SM", 4},           //mass_c_muW_mcrun
@@ -3140,33 +3140,33 @@ C_mix_bs_1_tilde_SUSY::C_mix_bs_1_tilde_SUSY() : WilsonCoefficient("CT_BS_1", Gr
 			{ParameterType::SM, "EW_SCALE", 1}
         },
         compute_LO,
-        LhaID(3050305, 4242, 0, 1)
+        get_lhaid_from_name(QCDOrder::LO)
     };
 }
 
-double C_mix_bs_1_tilde_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src) {
+double C_mix_bs_1_tilde_SUSY::compute_LO(const ParamSrc& src) {
 
-	double mu_W = src.at({ParameterType::WILSON, "EW_SCALE", 37})->get_val();
-    double M_H=src.at({ParameterType::BSM, "MASS", 37})->get_val();
-	double M_W=src.at({ParameterType::SM, "MASS", 24})->get_val();
+	double mu_W = src.get_val(ParameterType::WILSON, "EW_SCALE", 1);
+    double M_H=src.get_val(ParameterType::BSM, "MASS", 37);
+	double M_W=src.get_val(ParameterType::SM, "MASS", 24);
 	double M_H_pow_2 = pow(M_H,2.);
 	double M_W_pow_2 = pow(M_W,2.);
 	std::array<std::array<scalar_t, 3>, 3> V_CKM {};
-	double m_q = src.at({ParameterType::SM, "MASS", 3})->get_val();
+	double m_q = src.get_val(ParameterType::SM, "MASS", 3);
 	
-	double m_b= src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {5, 1}})->get_val();
-	double g_2=src.at({ParameterType::SM, "GAUGE", 2})->get_val();
-	double tbeta = src.at({ParameterType::BSM, "HMIX", 2})->get_val();
+	double m_b= src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {5, 1});
+	double g_2=src.get_val(ParameterType::SM, "GAUGE", 2);
+	double tbeta = src.get_val(ParameterType::BSM, "HMIX", 2);
 	double m_u[4],m_u_pow_2[4];
 
     for (int i = 0; i<3; ++i) {
         for (int j = 0; j<3; j++) {
-            V_CKM[i][j] = src.at({ParameterType::SM, "VCKM", LhaID(i, j)})->get_val();
+            V_CKM[i][j] = src.get_val(ParameterType::SM, "VCKM", LhaID(i, j));
         }
     }
-	m_u[1]= src.at({ParameterType::SM, "MASS", 2})->get_val();
-    m_u[2]= src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 4})->get_val();
-	m_u[3]= src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 6})->get_val();
+	m_u[1]= src.get_val(ParameterType::SM, "MASS", 2);
+    m_u[2]= src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 4);
+	m_u[3]= src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 6);
 
 
 	for(int i =0;i<3;++i) {
@@ -3198,20 +3198,20 @@ double C_mix_bs_1_tilde_SUSY::compute_LO(const std::unordered_map<ParamId, std::
 
 	double M_D[6],M_D_pow_2[6],dm[6]; 
 	scalar_t Z_D[6][6];
-	double Mg=src.at({ParameterType::BSM, "MASS", 1000021})->get_val();
+	double Mg=src.get_val(ParameterType::BSM, "MASS", 1000021);
 	double Mg_pow_2 = pow(Mg,2);
 	// double g_3=sqrt(4.*PI*alphas_running(mu_t,param->mass_top_pole,param->mass_b,param)); /* NM: compute from alphas instead of using g3 from SLHA file */
 	double g_3= sqrt(4.*PI*QCDHelper::alpha_s(mu_W)); //TODO : check pole or running
-	M_D[0]=src.at({ParameterType::BSM, "MASS", 1000001})->get_val();
-	M_D[1]=src.at({ParameterType::BSM, "MASS", 1000003})->get_val();
-	M_D[2]=src.at({ParameterType::BSM, "MASS", 1000005})->get_val();
-	M_D[3]=src.at({ParameterType::BSM, "MASS", 2000001})->get_val();
-	M_D[4]=src.at({ParameterType::BSM, "MASS", 2000003})->get_val();
-	M_D[5]=src.at({ParameterType::BSM, "MASS", 2000005})->get_val();
+	M_D[0]=src.get_val(ParameterType::BSM, "MASS", 1000001);
+	M_D[1]=src.get_val(ParameterType::BSM, "MASS", 1000003);
+	M_D[2]=src.get_val(ParameterType::BSM, "MASS", 1000005);
+	M_D[3]=src.get_val(ParameterType::BSM, "MASS", 2000001);
+	M_D[4]=src.get_val(ParameterType::BSM, "MASS", 2000003);
+	M_D[5]=src.get_val(ParameterType::BSM, "MASS", 2000005);
 
 	for(int i = 0; i<6; ++i) {
 		for(int j = 0; j<6; ++j) {
-			Z_D[i][j]= src.at({ParameterType::BSM, "DSQMIX", LhaID(j+1, i+1)})->get_val(); //TODO: deal with this group
+			Z_D[i][j]= src.get_val(ParameterType::BSM, "DSQMIX", LhaID(j+1, i+1)); //TODO: deal with this group
 		}
 	} // inverse matrix, because in SLHA2 the second index denotes quark flavour (dl,sl,bl,dr,sr,br)
 	for(int i = 0; i<6; ++i) {
@@ -3239,19 +3239,19 @@ double C_mix_bs_1_tilde_SUSY::compute_LO(const std::unordered_map<ParamId, std::
 	double M_ch[2],M_ch_pow_2[2],M_U[6],M_U_pow_2[6];
 	scalar_t Z_p[2][2],Z_m[2][2],Z_U[6][6];
 	scalar_t Yd[3],Yu[3];
- 	double sw=sin(atan(src.at({ParameterType::SM, "GAUGE", 2})->get_val()/src.at({ParameterType::SM, "GAUGE", 2})->get_val()));
- 	double Q_e = (src.at({ParameterType::SM, "GAUGE", 2})->get_val())*sw;
+ 	double sw=sin(atan(src.get_val(ParameterType::SM, "GAUGE", 2)/src.get_val(ParameterType::SM, "GAUGE", 2)));
+ 	double Q_e = (src.get_val(ParameterType::SM, "GAUGE", 2))*sw;
 	double swi=1./sw;
 
-	M_ch[0]=src.at({ParameterType::BSM, "MASS", 1000024})->get_val();
-	M_ch[1]=src.at({ParameterType::BSM, "MASS", 1000037})->get_val();
+	M_ch[0]=src.get_val(ParameterType::BSM, "MASS", 1000024);
+	M_ch[1]=src.get_val(ParameterType::BSM, "MASS", 1000037);
 
-	M_U[0]=src.at({ParameterType::BSM, "MASS", 1000002})->get_val();
-	M_U[1]=src.at({ParameterType::BSM, "MASS", 1000004})->get_val();
-	M_U[2]=src.at({ParameterType::BSM, "MASS", 1000006})->get_val();
-	M_U[3]=src.at({ParameterType::BSM, "MASS", 2000002})->get_val();
-	M_U[4]=src.at({ParameterType::BSM, "MASS", 2000004})->get_val();
-	M_U[5]=src.at({ParameterType::BSM, "MASS", 2000006})->get_val();
+	M_U[0]=src.get_val(ParameterType::BSM, "MASS", 1000002);
+	M_U[1]=src.get_val(ParameterType::BSM, "MASS", 1000004);
+	M_U[2]=src.get_val(ParameterType::BSM, "MASS", 1000006);
+	M_U[3]=src.get_val(ParameterType::BSM, "MASS", 2000002);
+	M_U[4]=src.get_val(ParameterType::BSM, "MASS", 2000004);
+	M_U[5]=src.get_val(ParameterType::BSM, "MASS", 2000006);
 
 	for(int i=0; i<2; ++i){
 		M_ch_pow_2[i]=pow(M_ch[i],2);
@@ -3261,38 +3261,38 @@ double C_mix_bs_1_tilde_SUSY::compute_LO(const std::unordered_map<ParamId, std::
 	}
 	for(int i=0; i <2; ++i) {
 		for(int j=0; j<2; ++j) {
-			Z_p[i][j]=conj(src.at({ParameterType::BSM, "VMIX", LhaID(j+1, i+1)})->get_val());
+			Z_p[i][j]=conj(src.get_val(ParameterType::BSM, "VMIX", LhaID(j+1, i+1)));
 		}
 	} /* NM: conversion from SLHA2 convention */
 	for(int i=2; i<2; ++i) {
 		for(int j=0; j<2; ++j) {
-			Z_m[i][j]=conj(src.at({ParameterType::BSM, "UMIX", LhaID(j+1, i+1)})->get_val());
+			Z_m[i][j]=conj(src.get_val(ParameterType::BSM, "UMIX", LhaID(j+1, i+1)));
 		}
 	} /* NM: conversion from SLHA2 convention */
 	for(int i=0; i<6; ++i) {
 		for(int j=0; j<6; ++j) {
-			Z_U[i][j]=conj(src.at({ParameterType::BSM, "USQMIX", LhaID(j+1, i+1)})->get_val()); //TODO: deal with this group
+			Z_U[i][j]=conj(src.get_val(ParameterType::BSM, "USQMIX", LhaID(j+1, i+1))); //TODO: deal with this group
 		}
 	} /* NM: conversion from SLHA2 convention */
 
 	double v1,v2,beta;
-	beta = atan(src.at({ParameterType::BSM, "EXTPAR", 25})->get_val());
-	v1 = 2.*(src.at({ParameterType::SM, "MASS", 24})->get_val())*cos(beta)/src.at({ParameterType::SM, "GAUGE", 2})->get_val();
+	beta = atan(src.get_val(ParameterType::BSM, "EXTPAR", 25));
+	v1 = 2.*(src.get_val(ParameterType::SM, "MASS", 24))*cos(beta)/src.get_val(ParameterType::SM, "GAUGE", 2);
 	v2 = v1*tan(beta);
   
-	double mc = src.at({ParameterType::SM, "MASS", 4})->get_val();
+	double mc = src.get_val(ParameterType::SM, "MASS", 4);
 	
 	double m_b=QCDHelper::msbar_mass(5, mu_W, MassType::MSBAR); /* NM: running mass */
 	double m_t=QCDHelper::msbar_mass(6, mu_W, MassType::MSBAR); /* NM: running mass */
 
 	double common = sqrt(2.)/v2;
-	Yu[0] = common*src.at({ParameterType::SM, "MASS", 2})->get_val();
+	Yu[0] = common*src.get_val(ParameterType::SM, "MASS", 2);
 	Yu[1] = common*QCDHelper::msbar_mass(4, mu_W, MassType::POLE); //TODO : check this to be sure
 
 	Yu[2] = common*m_t; /* NM: running mass */
 	double otherc = sqrt(2.)/v1;
-	Yd[0] = otherc*src.at({ParameterType::SM, "MASS", 1})->get_val();
-	Yd[1] = otherc*src.at({ParameterType::SM, "MASS", 3})->get_val();
+	Yd[0] = otherc*src.get_val(ParameterType::SM, "MASS", 1);
+	Yd[1] = otherc*src.get_val(ParameterType::SM, "MASS", 3);
 	Yd[2] = otherc*m_b; /* NM: running mass */
 	
 
@@ -3330,14 +3330,14 @@ double C_mix_bs_1_tilde_SUSY::compute_LO(const std::unordered_map<ParamId, std::
 	double M_ch0[4],M_ch0_pow_2[4],M_D[6],M_D_pow_2[6];
 	scalar_t Z_N[4][4];
 
-	double cw=cos(atan(src.at({ParameterType::SM, "GAUGE", 1})->get_val()/src.at({ParameterType::SM, "GAUGE", 2})->get_val()));
+	double cw=cos(atan(src.get_val(ParameterType::SM, "GAUGE", 1)/src.get_val(ParameterType::SM, "GAUGE", 2)));
 
  	double otherc = sqrt(2.)/v1;
 
-	std::array<double,4> temp_ch0 = {src.at({ParameterType::BSM, "MASS", 1000022})->get_val(),
-					 src.at({ParameterType::BSM, "MASS", 1000023})->get_val(),
-					 src.at({ParameterType::BSM, "MASS", 1000025})->get_val(),
-					 src.at({ParameterType::BSM, "MASS", 1000035})->get_val()};
+	std::array<double,4> temp_ch0 = {src.get_val(ParameterType::BSM, "MASS", 1000022),
+					 src.get_val(ParameterType::BSM, "MASS", 1000023),
+					 src.get_val(ParameterType::BSM, "MASS", 1000025),
+					 src.get_val(ParameterType::BSM, "MASS", 1000035)};
 
 	M_ch0[0]=fabs(temp_ch0[0]);
 	M_ch0[1]=fabs(temp_ch0[1]);
@@ -3357,7 +3357,7 @@ double C_mix_bs_1_tilde_SUSY::compute_LO(const std::unordered_map<ParamId, std::
 	
 	for(int i=0; i<4; ++i) {
 		for(int j=0; j<4; ++j) {
-			Z_N[i][j] = conj(src.at({ParameterType::BSM, "NMIX", LhaID(i+1, j+1)})->get_val()); //TODO : i,j or j,i like the others ?
+			Z_N[i][j] = conj(src.get_val(ParameterType::BSM, "NMIX", LhaID(i+1, j+1))); //TODO : i,j or j,i like the others ?
 		}
 	}
 	
@@ -3403,7 +3403,7 @@ double C_mix_bs_1_tilde_SUSY::compute_LO(const std::unordered_map<ParamId, std::
 
 
 
-	double M_g=src.at({ParameterType::BSM, "MASS", 1000021})->get_val();
+	double M_g=src.get_val(ParameterType::BSM, "MASS", 1000021);
 	double M_g_pow_2 = pow(M_g,2.);
 
 	// } /* NM: in Buras, neutralino masses defined positive, so changed the SLHA2 neutralino mixing matrix when negative neutralino mass */
@@ -3434,7 +3434,7 @@ double C_mix_bs_1_tilde_SUSY::compute_LO(const std::unordered_map<ParamId, std::
 
 //BS_2
 
-C_mix_bs_2_SUSY::C_mix_bs_2_SUSY() : WilsonCoefficient("C_BS_2", GroupMapper::str(WGroup::MESON_MIXING) + "_MATCH") {
+C_mix_bs_2_SUSY::C_mix_bs_2_SUSY() : WilsonCoefficient("C_BS_2", GroupMapper::str(WGroup::MESON_MIXING, ScaleType::MATCHING)) {
     matching_info[QCDOrder::LO] = {
         {
             {ParameterType::WILSON, "WPARAM_MATCH_SM", 4},           //mass_c_muW_mcrun
@@ -3480,33 +3480,33 @@ C_mix_bs_2_SUSY::C_mix_bs_2_SUSY() : WilsonCoefficient("C_BS_2", GroupMapper::st
 			{ParameterType::SM, "EW_SCALE", 1}
         },
         compute_LO,
-        LhaID(3050305, 3131, 0, 1)
+        get_lhaid_from_name(QCDOrder::LO)
     };
 }
 
-double C_mix_bs_2_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src) {
+double C_mix_bs_2_SUSY::compute_LO(const ParamSrc& src) {
 
-	double mu_W = src.at({ParameterType::WILSON, "EW_SCALE", 37})->get_val();
-    double M_H=src.at({ParameterType::BSM, "MASS", 37})->get_val();
-	double M_W=src.at({ParameterType::SM, "MASS", 24})->get_val();
+	double mu_W = src.get_val(ParameterType::WILSON, "EW_SCALE", 1);
+    double M_H=src.get_val(ParameterType::BSM, "MASS", 37);
+	double M_W=src.get_val(ParameterType::SM, "MASS", 24);
 	double M_H_pow_2 = pow(M_H,2.);
 	double M_W_pow_2 = pow(M_W,2.);
 	std::array<std::array<scalar_t, 3>, 3> V_CKM {};
-	double m_q = src.at({ParameterType::SM, "MASS", 3})->get_val();
+	double m_q = src.get_val(ParameterType::SM, "MASS", 3);
 	
-	double m_b= src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {5, 1}})->get_val();
-	double g_2=src.at({ParameterType::SM, "GAUGE", 2})->get_val();
-	double tbeta = src.at({ParameterType::BSM, "HMIX", 2})->get_val();
+	double m_b= src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {5, 1});
+	double g_2=src.get_val(ParameterType::SM, "GAUGE", 2);
+	double tbeta = src.get_val(ParameterType::BSM, "HMIX", 2);
 	double m_u[4],m_u_pow_2[4];
 
     for (int i = 0; i<3; ++i) {
         for (int j = 0; j<3; j++) {
-            V_CKM[i][j] = src.at({ParameterType::SM, "VCKM", LhaID(i, j)})->get_val();
+            V_CKM[i][j] = src.get_val(ParameterType::SM, "VCKM", LhaID(i, j));
         }
     }
-	m_u[1]= src.at({ParameterType::SM, "MASS", 2})->get_val();
-    m_u[2]= src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 4})->get_val();
-	m_u[3]= src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 6})->get_val();
+	m_u[1]= src.get_val(ParameterType::SM, "MASS", 2);
+    m_u[2]= src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 4);
+	m_u[3]= src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 6);
 
 
 	for(int i =0;i<3;++i) {
@@ -3537,20 +3537,20 @@ double C_mix_bs_2_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared
 
 	double M_D[6],M_D_pow_2[6],dm[6]; 
 	scalar_t Z_D[6][6];
-	double Mg=src.at({ParameterType::BSM, "MASS", 1000021})->get_val();
+	double Mg=src.get_val(ParameterType::BSM, "MASS", 1000021);
 	double Mg_pow_2 = pow(Mg,2);
 	// double g_3=sqrt(4.*PI*alphas_running(mu_t,param->mass_top_pole,param->mass_b,param)); /* NM: compute from alphas instead of using g3 from SLHA file */
 	double g_3= sqrt(4.*PI*QCDHelper::alpha_s(mu_W)); //TODO : check pole or running
-	M_D[0]=src.at({ParameterType::BSM, "MASS", 1000001})->get_val();
-	M_D[1]=src.at({ParameterType::BSM, "MASS", 1000003})->get_val();
-	M_D[2]=src.at({ParameterType::BSM, "MASS", 1000005})->get_val();
-	M_D[3]=src.at({ParameterType::BSM, "MASS", 2000001})->get_val();
-	M_D[4]=src.at({ParameterType::BSM, "MASS", 2000003})->get_val();
-	M_D[5]=src.at({ParameterType::BSM, "MASS", 2000005})->get_val();
+	M_D[0]=src.get_val(ParameterType::BSM, "MASS", 1000001);
+	M_D[1]=src.get_val(ParameterType::BSM, "MASS", 1000003);
+	M_D[2]=src.get_val(ParameterType::BSM, "MASS", 1000005);
+	M_D[3]=src.get_val(ParameterType::BSM, "MASS", 2000001);
+	M_D[4]=src.get_val(ParameterType::BSM, "MASS", 2000003);
+	M_D[5]=src.get_val(ParameterType::BSM, "MASS", 2000005);
 
 	for(int i = 0; i<6; ++i) {
 		for(int j = 0; j<6; ++j) {
-			Z_D[i][j]= src.at({ParameterType::BSM, "DSQMIX", LhaID(j+1, i+1)})->get_val(); //TODO: deal with this group
+			Z_D[i][j]= src.get_val(ParameterType::BSM, "DSQMIX", LhaID(j+1, i+1)); //TODO: deal with this group
 		}
 	} // inverse matrix, because in SLHA2 the second index denotes quark flavour (dl,sl,bl,dr,sr,br)
 	for(int i = 0; i<6; ++i) {
@@ -3579,19 +3579,19 @@ double C_mix_bs_2_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared
 	double M_ch[2],M_ch_pow_2[2],M_U[6],M_U_pow_2[6];
 	scalar_t Z_p[2][2],Z_m[2][2],Z_U[6][6];
 	scalar_t Yd[3],Yu[3];
- 	double sw=sin(atan(src.at({ParameterType::SM, "GAUGE", 2})->get_val()/src.at({ParameterType::SM, "GAUGE", 2})->get_val()));
- 	double Q_e = (src.at({ParameterType::SM, "GAUGE", 2})->get_val())*sw;
+ 	double sw=sin(atan(src.get_val(ParameterType::SM, "GAUGE", 2)/src.get_val(ParameterType::SM, "GAUGE", 2)));
+ 	double Q_e = (src.get_val(ParameterType::SM, "GAUGE", 2))*sw;
 	double swi=1./sw;
 
-	M_ch[0]=src.at({ParameterType::BSM, "MASS", 1000024})->get_val();
-	M_ch[1]=src.at({ParameterType::BSM, "MASS", 1000037})->get_val();
+	M_ch[0]=src.get_val(ParameterType::BSM, "MASS", 1000024);
+	M_ch[1]=src.get_val(ParameterType::BSM, "MASS", 1000037);
 
-	M_U[0]=src.at({ParameterType::BSM, "MASS", 1000002})->get_val();
-	M_U[1]=src.at({ParameterType::BSM, "MASS", 1000004})->get_val();
-	M_U[2]=src.at({ParameterType::BSM, "MASS", 1000006})->get_val();
-	M_U[3]=src.at({ParameterType::BSM, "MASS", 2000002})->get_val();
-	M_U[4]=src.at({ParameterType::BSM, "MASS", 2000004})->get_val();
-	M_U[5]=src.at({ParameterType::BSM, "MASS", 2000006})->get_val();
+	M_U[0]=src.get_val(ParameterType::BSM, "MASS", 1000002);
+	M_U[1]=src.get_val(ParameterType::BSM, "MASS", 1000004);
+	M_U[2]=src.get_val(ParameterType::BSM, "MASS", 1000006);
+	M_U[3]=src.get_val(ParameterType::BSM, "MASS", 2000002);
+	M_U[4]=src.get_val(ParameterType::BSM, "MASS", 2000004);
+	M_U[5]=src.get_val(ParameterType::BSM, "MASS", 2000006);
 
 	for(int i=0; i<2; ++i){
 		M_ch_pow_2[i]=pow(M_ch[i],2);
@@ -3601,38 +3601,38 @@ double C_mix_bs_2_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared
 	}
 	for(int i=0; i <2; ++i) {
 		for(int j=0; j<2; ++j) {
-			Z_p[i][j]=conj(src.at({ParameterType::BSM, "VMIX", LhaID(j+1, i+1)})->get_val());
+			Z_p[i][j]=conj(src.get_val(ParameterType::BSM, "VMIX", LhaID(j+1, i+1)));
 		}
 	} /* NM: conversion from SLHA2 convention */
 	for(int i=2; i<2; ++i) {
 		for(int j=0; j<2; ++j) {
-			Z_m[i][j]=conj(src.at({ParameterType::BSM, "UMIX", LhaID(j+1, i+1)})->get_val());
+			Z_m[i][j]=conj(src.get_val(ParameterType::BSM, "UMIX", LhaID(j+1, i+1)));
 		}
 	} /* NM: conversion from SLHA2 convention */
 	for(int i=0; i<6; ++i) {
 		for(int j=0; j<6; ++j) {
-			Z_U[i][j]=conj(src.at({ParameterType::BSM, "USQMIX", LhaID(j+1, i+1)})->get_val()); //TODO: deal with this group
+			Z_U[i][j]=conj(src.get_val(ParameterType::BSM, "USQMIX", LhaID(j+1, i+1))); //TODO: deal with this group
 		}
 	} /* NM: conversion from SLHA2 convention */
 
 	double v1,v2,beta;
-	beta = atan(src.at({ParameterType::BSM, "EXTPAR", 25})->get_val());
-	v1 = 2.*(src.at({ParameterType::SM, "MASS", 24})->get_val())*cos(beta)/src.at({ParameterType::SM, "GAUGE", 2})->get_val();
+	beta = atan(src.get_val(ParameterType::BSM, "EXTPAR", 25));
+	v1 = 2.*(src.get_val(ParameterType::SM, "MASS", 24))*cos(beta)/src.get_val(ParameterType::SM, "GAUGE", 2);
 	v2 = v1*tan(beta);
   
-	double mc = src.at({ParameterType::SM, "MASS", 4})->get_val();
+	double mc = src.get_val(ParameterType::SM, "MASS", 4);
 	
 	double m_b=QCDHelper::msbar_mass(5, mu_W, MassType::MSBAR); /* NM: running mass */
 	double m_t=QCDHelper::msbar_mass(6, mu_W, MassType::MSBAR); /* NM: running mass */
 
 	double common = sqrt(2.)/v2;
-	Yu[0] = common*src.at({ParameterType::SM, "MASS", 2})->get_val();
+	Yu[0] = common*src.get_val(ParameterType::SM, "MASS", 2);
 	Yu[1] = common*QCDHelper::msbar_mass(4, mu_W, MassType::POLE); //TODO : check this to be sure
 
 	Yu[2] = common*m_t; /* NM: running mass */
 	double otherc = sqrt(2.)/v1;
-	Yd[0] = otherc*src.at({ParameterType::SM, "MASS", 1})->get_val();
-	Yd[1] = otherc*src.at({ParameterType::SM, "MASS", 3})->get_val();
+	Yd[0] = otherc*src.get_val(ParameterType::SM, "MASS", 1);
+	Yd[1] = otherc*src.get_val(ParameterType::SM, "MASS", 3);
 	Yd[2] = otherc*m_b; /* NM: running mass */
 	
 
@@ -3667,14 +3667,14 @@ double C_mix_bs_2_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared
 	double M_ch0[4],M_ch0_pow_2[4],M_D[6],M_D_pow_2[6];
 	scalar_t Z_N[4][4];
 
-	double cw=cos(atan(src.at({ParameterType::SM, "GAUGE", 1})->get_val()/src.at({ParameterType::SM, "GAUGE", 2})->get_val()));
+	double cw=cos(atan(src.get_val(ParameterType::SM, "GAUGE", 1)/src.get_val(ParameterType::SM, "GAUGE", 2)));
 
  	double otherc = sqrt(2.)/v1;
 
-	std::array<double,4> temp_ch0 = {src.at({ParameterType::BSM, "MASS", 1000022})->get_val(),
-					 src.at({ParameterType::BSM, "MASS", 1000023})->get_val(),
-					 src.at({ParameterType::BSM, "MASS", 1000025})->get_val(),
-					 src.at({ParameterType::BSM, "MASS", 1000035})->get_val()};
+	std::array<double,4> temp_ch0 = {src.get_val(ParameterType::BSM, "MASS", 1000022),
+					 src.get_val(ParameterType::BSM, "MASS", 1000023),
+					 src.get_val(ParameterType::BSM, "MASS", 1000025),
+					 src.get_val(ParameterType::BSM, "MASS", 1000035)};
 
 	M_ch0[0]=fabs(temp_ch0[0]);
 	M_ch0[1]=fabs(temp_ch0[1]);
@@ -3694,7 +3694,7 @@ double C_mix_bs_2_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared
 	
 	for(int i=0; i<4; ++i) {
 		for(int j=0; j<4; ++j) {
-			Z_N[i][j] = conj(src.at({ParameterType::BSM, "NMIX", LhaID(i+1, j+1)})->get_val()); //TODO : i,j or j,i like the others ?
+			Z_N[i][j] = conj(src.get_val(ParameterType::BSM, "NMIX", LhaID(i+1, j+1))); //TODO : i,j or j,i like the others ?
 		}
 	}
 	
@@ -3739,7 +3739,7 @@ double C_mix_bs_2_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared
 
 
 
-	double M_g=src.at({ParameterType::BSM, "MASS", 1000021})->get_val();
+	double M_g=src.get_val(ParameterType::BSM, "MASS", 1000021);
 	double M_g_pow_2 = pow(M_g,2.);
 
 	// } /* NM: in Buras, neutralino masses defined positive, so changed the SLHA2 neutralino mixing matrix when negative neutralino mass */
@@ -3771,7 +3771,7 @@ double C_mix_bs_2_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared
 
 //BS_2_tilde
 
-C_mix_bs_2_tilde_SUSY::C_mix_bs_2_tilde_SUSY() : WilsonCoefficient("CT_BS_2", GroupMapper::str(WGroup::MESON_MIXING) + "_MATCH") {
+C_mix_bs_2_tilde_SUSY::C_mix_bs_2_tilde_SUSY() : WilsonCoefficient("CT_BS_2", GroupMapper::str(WGroup::MESON_MIXING, ScaleType::MATCHING)) {
     matching_info[QCDOrder::LO] = {
         {
             {ParameterType::WILSON, "WPARAM_MATCH_SM", 4},           //mass_c_muW_mcrun
@@ -3817,33 +3817,33 @@ C_mix_bs_2_tilde_SUSY::C_mix_bs_2_tilde_SUSY() : WilsonCoefficient("CT_BS_2", Gr
 			{ParameterType::SM, "EW_SCALE", 1}
         },
         compute_LO,
-        LhaID(3050305, 3232, 0, 1)
+        get_lhaid_from_name(QCDOrder::LO)
     };
 }
 
-double C_mix_bs_2_tilde_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src) {
+double C_mix_bs_2_tilde_SUSY::compute_LO(const ParamSrc& src) {
 
-	double mu_W = src.at({ParameterType::WILSON, "EW_SCALE", 37})->get_val();
-    double M_H=src.at({ParameterType::BSM, "MASS", 37})->get_val();
-	double M_W=src.at({ParameterType::SM, "MASS", 24})->get_val();
+	double mu_W = src.get_val(ParameterType::WILSON, "EW_SCALE", 1);
+    double M_H=src.get_val(ParameterType::BSM, "MASS", 37);
+	double M_W=src.get_val(ParameterType::SM, "MASS", 24);
 	double M_H_pow_2 = pow(M_H,2.);
 	double M_W_pow_2 = pow(M_W,2.);
 	std::array<std::array<scalar_t, 3>, 3> V_CKM {};
-	double m_q = src.at({ParameterType::SM, "MASS", 3})->get_val();
+	double m_q = src.get_val(ParameterType::SM, "MASS", 3);
 	
-	double m_b= src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {5, 1}})->get_val();
-	double g_2=src.at({ParameterType::SM, "GAUGE", 2})->get_val();
-	double tbeta = src.at({ParameterType::BSM, "HMIX", 2})->get_val();
+	double m_b= src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {5, 1});
+	double g_2=src.get_val(ParameterType::SM, "GAUGE", 2);
+	double tbeta = src.get_val(ParameterType::BSM, "HMIX", 2);
 	double m_u[4],m_u_pow_2[4];
 
     for (int i = 0; i<3; ++i) {
         for (int j = 0; j<3; j++) {
-            V_CKM[i][j] = src.at({ParameterType::SM, "VCKM", LhaID(i, j)})->get_val();
+            V_CKM[i][j] = src.get_val(ParameterType::SM, "VCKM", LhaID(i, j));
         }
     }
-	m_u[1]= src.at({ParameterType::SM, "MASS", 2})->get_val();
-    m_u[2]= src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 4})->get_val();
-	m_u[3]= src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 6})->get_val();
+	m_u[1]= src.get_val(ParameterType::SM, "MASS", 2);
+    m_u[2]= src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 4);
+	m_u[3]= src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 6);
 
 
 	for(int i =0;i<3;++i) {
@@ -3874,20 +3874,20 @@ double C_mix_bs_2_tilde_SUSY::compute_LO(const std::unordered_map<ParamId, std::
 
 	double M_D[6],M_D_pow_2[6],dm[6]; 
 	scalar_t Z_D[6][6];
-	double Mg=src.at({ParameterType::BSM, "MASS", 1000021})->get_val();
+	double Mg=src.get_val(ParameterType::BSM, "MASS", 1000021);
 	double Mg_pow_2 = pow(Mg,2);
 	// double g_3=sqrt(4.*PI*alphas_running(mu_t,param->mass_top_pole,param->mass_b,param)); /* NM: compute from alphas instead of using g3 from SLHA file */
 	double g_3= sqrt(4.*PI*QCDHelper::alpha_s(mu_W)); //TODO : check pole or running
-	M_D[0]=src.at({ParameterType::BSM, "MASS", 1000001})->get_val();
-	M_D[1]=src.at({ParameterType::BSM, "MASS", 1000003})->get_val();
-	M_D[2]=src.at({ParameterType::BSM, "MASS", 1000005})->get_val();
-	M_D[3]=src.at({ParameterType::BSM, "MASS", 2000001})->get_val();
-	M_D[4]=src.at({ParameterType::BSM, "MASS", 2000003})->get_val();
-	M_D[5]=src.at({ParameterType::BSM, "MASS", 2000005})->get_val();
+	M_D[0]=src.get_val(ParameterType::BSM, "MASS", 1000001);
+	M_D[1]=src.get_val(ParameterType::BSM, "MASS", 1000003);
+	M_D[2]=src.get_val(ParameterType::BSM, "MASS", 1000005);
+	M_D[3]=src.get_val(ParameterType::BSM, "MASS", 2000001);
+	M_D[4]=src.get_val(ParameterType::BSM, "MASS", 2000003);
+	M_D[5]=src.get_val(ParameterType::BSM, "MASS", 2000005);
 
 	for(int i = 0; i<6; ++i) {
 		for(int j = 0; j<6; ++j) {
-			Z_D[i][j]= src.at({ParameterType::BSM, "DSQMIX", LhaID(j+1, i+1)})->get_val(); //TODO: deal with this group
+			Z_D[i][j]= src.get_val(ParameterType::BSM, "DSQMIX", LhaID(j+1, i+1)); //TODO: deal with this group
 		}
 	} // inverse matrix, because in SLHA2 the second index denotes quark flavour (dl,sl,bl,dr,sr,br)
 	for(int i = 0; i<6; ++i) {
@@ -3917,19 +3917,19 @@ double C_mix_bs_2_tilde_SUSY::compute_LO(const std::unordered_map<ParamId, std::
 	double M_ch[2],M_ch_pow_2[2],M_U[6],M_U_pow_2[6];
 	scalar_t Z_p[2][2],Z_m[2][2],Z_U[6][6];
 	scalar_t Yd[3],Yu[3];
- 	double sw=sin(atan(src.at({ParameterType::SM, "GAUGE", 2})->get_val()/src.at({ParameterType::SM, "GAUGE", 2})->get_val()));
- 	double Q_e = (src.at({ParameterType::SM, "GAUGE", 2})->get_val())*sw;
+ 	double sw=sin(atan(src.get_val(ParameterType::SM, "GAUGE", 2)/src.get_val(ParameterType::SM, "GAUGE", 2)));
+ 	double Q_e = (src.get_val(ParameterType::SM, "GAUGE", 2))*sw;
 	double swi=1./sw;
 
-	M_ch[0]=src.at({ParameterType::BSM, "MASS", 1000024})->get_val();
-	M_ch[1]=src.at({ParameterType::BSM, "MASS", 1000037})->get_val();
+	M_ch[0]=src.get_val(ParameterType::BSM, "MASS", 1000024);
+	M_ch[1]=src.get_val(ParameterType::BSM, "MASS", 1000037);
 
-	M_U[0]=src.at({ParameterType::BSM, "MASS", 1000002})->get_val();
-	M_U[1]=src.at({ParameterType::BSM, "MASS", 1000004})->get_val();
-	M_U[2]=src.at({ParameterType::BSM, "MASS", 1000006})->get_val();
-	M_U[3]=src.at({ParameterType::BSM, "MASS", 2000002})->get_val();
-	M_U[4]=src.at({ParameterType::BSM, "MASS", 2000004})->get_val();
-	M_U[5]=src.at({ParameterType::BSM, "MASS", 2000006})->get_val();
+	M_U[0]=src.get_val(ParameterType::BSM, "MASS", 1000002);
+	M_U[1]=src.get_val(ParameterType::BSM, "MASS", 1000004);
+	M_U[2]=src.get_val(ParameterType::BSM, "MASS", 1000006);
+	M_U[3]=src.get_val(ParameterType::BSM, "MASS", 2000002);
+	M_U[4]=src.get_val(ParameterType::BSM, "MASS", 2000004);
+	M_U[5]=src.get_val(ParameterType::BSM, "MASS", 2000006);
 
 	for(int i=0; i<2; ++i){
 		M_ch_pow_2[i]=pow(M_ch[i],2);
@@ -3939,38 +3939,38 @@ double C_mix_bs_2_tilde_SUSY::compute_LO(const std::unordered_map<ParamId, std::
 	}
 	for(int i=0; i <2; ++i) {
 		for(int j=0; j<2; ++j) {
-			Z_p[i][j]=conj(src.at({ParameterType::BSM, "VMIX", LhaID(j+1, i+1)})->get_val());
+			Z_p[i][j]=conj(src.get_val(ParameterType::BSM, "VMIX", LhaID(j+1, i+1)));
 		}
 	} /* NM: conversion from SLHA2 convention */
 	for(int i=2; i<2; ++i) {
 		for(int j=0; j<2; ++j) {
-			Z_m[i][j]=conj(src.at({ParameterType::BSM, "UMIX", LhaID(j+1, i+1)})->get_val());
+			Z_m[i][j]=conj(src.get_val(ParameterType::BSM, "UMIX", LhaID(j+1, i+1)));
 		}
 	} /* NM: conversion from SLHA2 convention */
 	for(int i=0; i<6; ++i) {
 		for(int j=0; j<6; ++j) {
-			Z_U[i][j]=conj(src.at({ParameterType::BSM, "USQMIX", LhaID(j+1, i+1)})->get_val()); //TODO: deal with this group
+			Z_U[i][j]=conj(src.get_val(ParameterType::BSM, "USQMIX", LhaID(j+1, i+1))); //TODO: deal with this group
 		}
 	} /* NM: conversion from SLHA2 convention */
 
 	double v1,v2,beta;
-	beta = atan(src.at({ParameterType::BSM, "EXTPAR", 25})->get_val());
-	v1 = 2.*(src.at({ParameterType::SM, "MASS", 24})->get_val())*cos(beta)/src.at({ParameterType::SM, "GAUGE", 2})->get_val();
+	beta = atan(src.get_val(ParameterType::BSM, "EXTPAR", 25));
+	v1 = 2.*(src.get_val(ParameterType::SM, "MASS", 24))*cos(beta)/src.get_val(ParameterType::SM, "GAUGE", 2);
 	v2 = v1*tan(beta);
   
-	double mc = src.at({ParameterType::SM, "MASS", 4})->get_val();
+	double mc = src.get_val(ParameterType::SM, "MASS", 4);
 	
 	double m_b=QCDHelper::msbar_mass(5, mu_W, MassType::MSBAR); /* NM: running mass */
 	double m_t=QCDHelper::msbar_mass(6, mu_W, MassType::MSBAR); /* NM: running mass */
 
 	double common = sqrt(2.)/v2;
-	Yu[0] = common*src.at({ParameterType::SM, "MASS", 2})->get_val();
+	Yu[0] = common*src.get_val(ParameterType::SM, "MASS", 2);
 	Yu[1] = common*QCDHelper::msbar_mass(4, mu_W, MassType::POLE); //TODO : check this to be sure
 
 	Yu[2] = common*m_t; /* NM: running mass */
 	double otherc = sqrt(2.)/v1;
-	Yd[0] = otherc*src.at({ParameterType::SM, "MASS", 1})->get_val();
-	Yd[1] = otherc*src.at({ParameterType::SM, "MASS", 3})->get_val();
+	Yd[0] = otherc*src.get_val(ParameterType::SM, "MASS", 1);
+	Yd[1] = otherc*src.get_val(ParameterType::SM, "MASS", 3);
 	Yd[2] = otherc*m_b; /* NM: running mass */
 	
 	scalar_t Cp2_chargino=0.;
@@ -4004,14 +4004,14 @@ double C_mix_bs_2_tilde_SUSY::compute_LO(const std::unordered_map<ParamId, std::
 	double M_ch0[4],M_ch0_pow_2[4],M_D[6],M_D_pow_2[6];
 	scalar_t Z_N[4][4];
 
-	double cw=cos(atan(src.at({ParameterType::SM, "GAUGE", 1})->get_val()/src.at({ParameterType::SM, "GAUGE", 2})->get_val()));
+	double cw=cos(atan(src.get_val(ParameterType::SM, "GAUGE", 1)/src.get_val(ParameterType::SM, "GAUGE", 2)));
 
  	double otherc = sqrt(2.)/v1;
 
-	std::array<double,4> temp_ch0 = {src.at({ParameterType::BSM, "MASS", 1000022})->get_val(),
-					 src.at({ParameterType::BSM, "MASS", 1000023})->get_val(),
-					 src.at({ParameterType::BSM, "MASS", 1000025})->get_val(),
-					 src.at({ParameterType::BSM, "MASS", 1000035})->get_val()};
+	std::array<double,4> temp_ch0 = {src.get_val(ParameterType::BSM, "MASS", 1000022),
+					 src.get_val(ParameterType::BSM, "MASS", 1000023),
+					 src.get_val(ParameterType::BSM, "MASS", 1000025),
+					 src.get_val(ParameterType::BSM, "MASS", 1000035)};
 
 	M_ch0[0]=fabs(temp_ch0[0]);
 	M_ch0[1]=fabs(temp_ch0[1]);
@@ -4031,7 +4031,7 @@ double C_mix_bs_2_tilde_SUSY::compute_LO(const std::unordered_map<ParamId, std::
 	
 	for(int i=0; i<4; ++i) {
 		for(int j=0; j<4; ++j) {
-			Z_N[i][j] = conj(src.at({ParameterType::BSM, "NMIX", LhaID(i+1, j+1)})->get_val()); //TODO : i,j or j,i like the others ?
+			Z_N[i][j] = conj(src.get_val(ParameterType::BSM, "NMIX", LhaID(i+1, j+1))); //TODO : i,j or j,i like the others ?
 		}
 	}
 	
@@ -4076,7 +4076,7 @@ double C_mix_bs_2_tilde_SUSY::compute_LO(const std::unordered_map<ParamId, std::
 
 
 
-	double M_g=src.at({ParameterType::BSM, "MASS", 1000021})->get_val();
+	double M_g=src.get_val(ParameterType::BSM, "MASS", 1000021);
 	double M_g_pow_2 = pow(M_g,2.);
 
 	// } /* NM: in Buras, neutralino masses defined positive, so changed the SLHA2 neutralino mixing matrix when negative neutralino mass */
@@ -4110,7 +4110,7 @@ double C_mix_bs_2_tilde_SUSY::compute_LO(const std::unordered_map<ParamId, std::
 
 //B3
 
-C_mix_bs_3_SUSY::C_mix_bs_3_SUSY() : WilsonCoefficient("C_BS_3", GroupMapper::str(WGroup::MESON_MIXING) + "_MATCH") {
+C_mix_bs_3_SUSY::C_mix_bs_3_SUSY() : WilsonCoefficient("C_BS_3", GroupMapper::str(WGroup::MESON_MIXING, ScaleType::MATCHING)) {
     matching_info[QCDOrder::LO] = {
         {
             {ParameterType::WILSON, "WPARAM_MATCH_SM", 4},           //mass_c_muW_mcrun
@@ -4156,33 +4156,33 @@ C_mix_bs_3_SUSY::C_mix_bs_3_SUSY() : WilsonCoefficient("C_BS_3", GroupMapper::st
 			{ParameterType::SM, "EW_SCALE", 1}
         },
         compute_LO,
-        LhaID(3050305, 7171, 0, 1)
+        get_lhaid_from_name(QCDOrder::LO)
     };
 }
 
-double C_mix_bs_3_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src) {
+double C_mix_bs_3_SUSY::compute_LO(const ParamSrc& src) {
 
-	double mu_W = src.at({ParameterType::WILSON, "EW_SCALE", 37})->get_val();
-    double M_H=src.at({ParameterType::BSM, "MASS", 37})->get_val();
-	double M_W=src.at({ParameterType::SM, "MASS", 24})->get_val();
+	double mu_W = src.get_val(ParameterType::WILSON, "EW_SCALE", 1);
+    double M_H=src.get_val(ParameterType::BSM, "MASS", 37);
+	double M_W=src.get_val(ParameterType::SM, "MASS", 24);
 	double M_H_pow_2 = pow(M_H,2.);
 	double M_W_pow_2 = pow(M_W,2.);
 	std::array<std::array<scalar_t, 3>, 3> V_CKM {};
-	double m_q = src.at({ParameterType::SM, "MASS", 3})->get_val();
+	double m_q = src.get_val(ParameterType::SM, "MASS", 3);
 	
-	double m_b= src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {5, 1}})->get_val();
-	double g_2=src.at({ParameterType::SM, "GAUGE", 2})->get_val();
-	double tbeta = src.at({ParameterType::BSM, "HMIX", 2})->get_val();
+	double m_b= src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {5, 1});
+	double g_2=src.get_val(ParameterType::SM, "GAUGE", 2);
+	double tbeta = src.get_val(ParameterType::BSM, "HMIX", 2);
 	double m_u[4],m_u_pow_2[4];
 
     for (int i = 0; i<3; ++i) {
         for (int j = 0; j<3; j++) {
-            V_CKM[i][j] = src.at({ParameterType::SM, "VCKM", LhaID(i, j)})->get_val();
+            V_CKM[i][j] = src.get_val(ParameterType::SM, "VCKM", LhaID(i, j));
         }
     }
-	m_u[1]= src.at({ParameterType::SM, "MASS", 2})->get_val();
-    m_u[2]= src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 4})->get_val();
-	m_u[3]= src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 6})->get_val();
+	m_u[1]= src.get_val(ParameterType::SM, "MASS", 2);
+    m_u[2]= src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 4);
+	m_u[3]= src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 6);
 
 
 	for(int i =0;i<3;++i) {
@@ -4214,20 +4214,20 @@ double C_mix_bs_3_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared
 
 	double M_D[6],M_D_pow_2[6],dm[6]; 
 	scalar_t Z_D[6][6];
-	double Mg=src.at({ParameterType::BSM, "MASS", 1000021})->get_val();
+	double Mg=src.get_val(ParameterType::BSM, "MASS", 1000021);
 	double Mg_pow_2 = pow(Mg,2);
 	// double g_3=sqrt(4.*PI*alphas_running(mu_t,param->mass_top_pole,param->mass_b,param)); /* NM: compute from alphas instead of using g3 from SLHA file */
 	double g_3= sqrt(4.*PI*QCDHelper::alpha_s(mu_W)); //TODO : check pole or running
-	M_D[0]=src.at({ParameterType::BSM, "MASS", 1000001})->get_val();
-	M_D[1]=src.at({ParameterType::BSM, "MASS", 1000003})->get_val();
-	M_D[2]=src.at({ParameterType::BSM, "MASS", 1000005})->get_val();
-	M_D[3]=src.at({ParameterType::BSM, "MASS", 2000001})->get_val();
-	M_D[4]=src.at({ParameterType::BSM, "MASS", 2000003})->get_val();
-	M_D[5]=src.at({ParameterType::BSM, "MASS", 2000005})->get_val();
+	M_D[0]=src.get_val(ParameterType::BSM, "MASS", 1000001);
+	M_D[1]=src.get_val(ParameterType::BSM, "MASS", 1000003);
+	M_D[2]=src.get_val(ParameterType::BSM, "MASS", 1000005);
+	M_D[3]=src.get_val(ParameterType::BSM, "MASS", 2000001);
+	M_D[4]=src.get_val(ParameterType::BSM, "MASS", 2000003);
+	M_D[5]=src.get_val(ParameterType::BSM, "MASS", 2000005);
 
 	for(int i = 0; i<6; ++i) {
 		for(int j = 0; j<6; ++j) {
-			Z_D[i][j]= src.at({ParameterType::BSM, "DSQMIX", LhaID(j+1, i+1)})->get_val(); //TODO: deal with this group
+			Z_D[i][j]= src.get_val(ParameterType::BSM, "DSQMIX", LhaID(j+1, i+1)); //TODO: deal with this group
 		}
 	} // inverse matrix, because in SLHA2 the second index denotes quark flavour (dl,sl,bl,dr,sr,br)
 	for(int i = 0; i<6; ++i) {
@@ -4257,19 +4257,19 @@ double C_mix_bs_3_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared
 	double M_ch[2],M_ch_pow_2[2],M_U[6],M_U_pow_2[6];
 	scalar_t Z_p[2][2],Z_m[2][2],Z_U[6][6];
 	scalar_t Yd[3],Yu[3];
- 	double sw=sin(atan(src.at({ParameterType::SM, "GAUGE", 2})->get_val()/src.at({ParameterType::SM, "GAUGE", 2})->get_val()));
- 	double Q_e = (src.at({ParameterType::SM, "GAUGE", 2})->get_val())*sw;
+ 	double sw=sin(atan(src.get_val(ParameterType::SM, "GAUGE", 2)/src.get_val(ParameterType::SM, "GAUGE", 2)));
+ 	double Q_e = (src.get_val(ParameterType::SM, "GAUGE", 2))*sw;
 	double swi=1./sw;
 
-	M_ch[0]=src.at({ParameterType::BSM, "MASS", 1000024})->get_val();
-	M_ch[1]=src.at({ParameterType::BSM, "MASS", 1000037})->get_val();
+	M_ch[0]=src.get_val(ParameterType::BSM, "MASS", 1000024);
+	M_ch[1]=src.get_val(ParameterType::BSM, "MASS", 1000037);
 
-	M_U[0]=src.at({ParameterType::BSM, "MASS", 1000002})->get_val();
-	M_U[1]=src.at({ParameterType::BSM, "MASS", 1000004})->get_val();
-	M_U[2]=src.at({ParameterType::BSM, "MASS", 1000006})->get_val();
-	M_U[3]=src.at({ParameterType::BSM, "MASS", 2000002})->get_val();
-	M_U[4]=src.at({ParameterType::BSM, "MASS", 2000004})->get_val();
-	M_U[5]=src.at({ParameterType::BSM, "MASS", 2000006})->get_val();
+	M_U[0]=src.get_val(ParameterType::BSM, "MASS", 1000002);
+	M_U[1]=src.get_val(ParameterType::BSM, "MASS", 1000004);
+	M_U[2]=src.get_val(ParameterType::BSM, "MASS", 1000006);
+	M_U[3]=src.get_val(ParameterType::BSM, "MASS", 2000002);
+	M_U[4]=src.get_val(ParameterType::BSM, "MASS", 2000004);
+	M_U[5]=src.get_val(ParameterType::BSM, "MASS", 2000006);
 
 	for(int i=0; i<2; ++i){
 		M_ch_pow_2[i]=pow(M_ch[i],2);
@@ -4279,38 +4279,38 @@ double C_mix_bs_3_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared
 	}
 	for(int i=0; i <2; ++i) {
 		for(int j=0; j<2; ++j) {
-			Z_p[i][j]=conj(src.at({ParameterType::BSM, "VMIX", LhaID(j+1, i+1)})->get_val());
+			Z_p[i][j]=conj(src.get_val(ParameterType::BSM, "VMIX", LhaID(j+1, i+1)));
 		}
 	} /* NM: conversion from SLHA2 convention */
 	for(int i=2; i<2; ++i) {
 		for(int j=0; j<2; ++j) {
-			Z_m[i][j]=conj(src.at({ParameterType::BSM, "UMIX", LhaID(j+1, i+1)})->get_val());
+			Z_m[i][j]=conj(src.get_val(ParameterType::BSM, "UMIX", LhaID(j+1, i+1)));
 		}
 	} /* NM: conversion from SLHA2 convention */
 	for(int i=0; i<6; ++i) {
 		for(int j=0; j<6; ++j) {
-			Z_U[i][j]=conj(src.at({ParameterType::BSM, "USQMIX", LhaID(j+1, i+1)})->get_val()); //TODO: deal with this group
+			Z_U[i][j]=conj(src.get_val(ParameterType::BSM, "USQMIX", LhaID(j+1, i+1))); //TODO: deal with this group
 		}
 	} /* NM: conversion from SLHA2 convention */
 
 	double v1,v2,beta;
-	beta = atan(src.at({ParameterType::BSM, "EXTPAR", 25})->get_val());
-	v1 = 2.*(src.at({ParameterType::SM, "MASS", 24})->get_val())*cos(beta)/src.at({ParameterType::SM, "GAUGE", 2})->get_val();
+	beta = atan(src.get_val(ParameterType::BSM, "EXTPAR", 25));
+	v1 = 2.*(src.get_val(ParameterType::SM, "MASS", 24))*cos(beta)/src.get_val(ParameterType::SM, "GAUGE", 2);
 	v2 = v1*tan(beta);
   
-	double mc = src.at({ParameterType::SM, "MASS", 4})->get_val();
+	double mc = src.get_val(ParameterType::SM, "MASS", 4);
 	
 	double m_b=QCDHelper::msbar_mass(5, mu_W, MassType::MSBAR); /* NM: running mass */
 	double m_t=QCDHelper::msbar_mass(6, mu_W, MassType::MSBAR); /* NM: running mass */
 
 	double common = sqrt(2.)/v2;
-	Yu[0] = common*src.at({ParameterType::SM, "MASS", 2})->get_val();
+	Yu[0] = common*src.get_val(ParameterType::SM, "MASS", 2);
 	Yu[1] = common*QCDHelper::msbar_mass(4, mu_W, MassType::POLE); //TODO : check this to be sure
 
 	Yu[2] = common*m_t; /* NM: running mass */
 	double otherc = sqrt(2.)/v1;
-	Yd[0] = otherc*src.at({ParameterType::SM, "MASS", 1})->get_val();
-	Yd[1] = otherc*src.at({ParameterType::SM, "MASS", 3})->get_val();
+	Yd[0] = otherc*src.get_val(ParameterType::SM, "MASS", 1);
+	Yd[1] = otherc*src.get_val(ParameterType::SM, "MASS", 3);
 	Yd[2] = otherc*m_b; /* NM: running mass */
 	
 	scalar_t C3_chargino=0.;
@@ -4346,14 +4346,14 @@ double C_mix_bs_3_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared
 	double M_ch0[4],M_ch0_pow_2[4],M_D[6],M_D_pow_2[6];
 	scalar_t Z_N[4][4];
 
-	double cw=cos(atan(src.at({ParameterType::SM, "GAUGE", 1})->get_val()/src.at({ParameterType::SM, "GAUGE", 2})->get_val()));
+	double cw=cos(atan(src.get_val(ParameterType::SM, "GAUGE", 1)/src.get_val(ParameterType::SM, "GAUGE", 2)));
 
  	double otherc = sqrt(2.)/v1;
 
-	std::array<double,4> temp_ch0 = {src.at({ParameterType::BSM, "MASS", 1000022})->get_val(),
-					 src.at({ParameterType::BSM, "MASS", 1000023})->get_val(),
-					 src.at({ParameterType::BSM, "MASS", 1000025})->get_val(),
-					 src.at({ParameterType::BSM, "MASS", 1000035})->get_val()};
+	std::array<double,4> temp_ch0 = {src.get_val(ParameterType::BSM, "MASS", 1000022),
+					 src.get_val(ParameterType::BSM, "MASS", 1000023),
+					 src.get_val(ParameterType::BSM, "MASS", 1000025),
+					 src.get_val(ParameterType::BSM, "MASS", 1000035)};
 
 	M_ch0[0]=fabs(temp_ch0[0]);
 	M_ch0[1]=fabs(temp_ch0[1]);
@@ -4373,7 +4373,7 @@ double C_mix_bs_3_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared
 	
 	for(int i=0; i<4; ++i) {
 		for(int j=0; j<4; ++j) {
-			Z_N[i][j] = conj(src.at({ParameterType::BSM, "NMIX", LhaID(i+1, j+1)})->get_val()); //TODO : i,j or j,i like the others ?
+			Z_N[i][j] = conj(src.get_val(ParameterType::BSM, "NMIX", LhaID(i+1, j+1))); //TODO : i,j or j,i like the others ?
 		}
 	}
 	
@@ -4419,7 +4419,7 @@ double C_mix_bs_3_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared
 
 
 
-	double M_g=src.at({ParameterType::BSM, "MASS", 1000021})->get_val();
+	double M_g=src.get_val(ParameterType::BSM, "MASS", 1000021);
 	double M_g_pow_2 = pow(M_g,2.);
 
 	// } /* NM: in Buras, neutralino masses defined positive, so changed the SLHA2 neutralino mixing matrix when negative neutralino mass */
@@ -4450,7 +4450,7 @@ double C_mix_bs_3_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared
 
 //BS3_tilde
 
-C_mix_bs_3_tilde_SUSY::C_mix_bs_3_tilde_SUSY() : WilsonCoefficient("CT_BS_3", GroupMapper::str(WGroup::MESON_MIXING) + "_MATCH") {
+C_mix_bs_3_tilde_SUSY::C_mix_bs_3_tilde_SUSY() : WilsonCoefficient("CT_BS_3", GroupMapper::str(WGroup::MESON_MIXING, ScaleType::MATCHING)) {
     matching_info[QCDOrder::LO] = {
         {
             {ParameterType::WILSON, "WPARAM_MATCH_SM", 4},           //mass_c_muW_mcrun
@@ -4496,33 +4496,33 @@ C_mix_bs_3_tilde_SUSY::C_mix_bs_3_tilde_SUSY() : WilsonCoefficient("CT_BS_3", Gr
 			{ParameterType::SM, "EW_SCALE", 1}
         },
         compute_LO,
-        LhaID(3050305, 7272, 0, 1)
+        get_lhaid_from_name(QCDOrder::LO)
     };
 }
 
-double C_mix_bs_3_tilde_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src) {
+double C_mix_bs_3_tilde_SUSY::compute_LO(const ParamSrc& src) {
 
-	double mu_W = src.at({ParameterType::WILSON, "EW_SCALE", 37})->get_val();
-    double M_H=src.at({ParameterType::BSM, "MASS", 37})->get_val();
-	double M_W=src.at({ParameterType::SM, "MASS", 24})->get_val();
+	double mu_W = src.get_val(ParameterType::WILSON, "EW_SCALE", 1);
+    double M_H=src.get_val(ParameterType::BSM, "MASS", 37);
+	double M_W=src.get_val(ParameterType::SM, "MASS", 24);
 	double M_H_pow_2 = pow(M_H,2.);
 	double M_W_pow_2 = pow(M_W,2.);
 	std::array<std::array<scalar_t, 3>, 3> V_CKM {};
-	double m_q = src.at({ParameterType::SM, "MASS", 3})->get_val();
+	double m_q = src.get_val(ParameterType::SM, "MASS", 3);
 	
-	double m_b= src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {5, 1}})->get_val();
-	double g_2=src.at({ParameterType::SM, "GAUGE", 2})->get_val();
-	double tbeta = src.at({ParameterType::BSM, "HMIX", 2})->get_val();
+	double m_b= src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {5, 1});
+	double g_2=src.get_val(ParameterType::SM, "GAUGE", 2);
+	double tbeta = src.get_val(ParameterType::BSM, "HMIX", 2);
 	double m_u[4],m_u_pow_2[4];
 
     for (int i = 0; i<3; ++i) {
         for (int j = 0; j<3; j++) {
-            V_CKM[i][j] = src.at({ParameterType::SM, "VCKM", LhaID(i, j)})->get_val();
+            V_CKM[i][j] = src.get_val(ParameterType::SM, "VCKM", LhaID(i, j));
         }
     }
-	m_u[1]= src.at({ParameterType::SM, "MASS", 2})->get_val();
-    m_u[2]= src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 4})->get_val();
-	m_u[3]= src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 6})->get_val();
+	m_u[1]= src.get_val(ParameterType::SM, "MASS", 2);
+    m_u[2]= src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 4);
+	m_u[3]= src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 6);
 
 
 	for(int i =0;i<3;++i) {
@@ -4552,20 +4552,20 @@ double C_mix_bs_3_tilde_SUSY::compute_LO(const std::unordered_map<ParamId, std::
 
 	double M_D[6],M_D_pow_2[6],dm[6]; 
 	scalar_t Z_D[6][6];
-	double Mg=src.at({ParameterType::BSM, "MASS", 1000021})->get_val();
+	double Mg=src.get_val(ParameterType::BSM, "MASS", 1000021);
 	double Mg_pow_2 = pow(Mg,2);
 	// double g_3=sqrt(4.*PI*alphas_running(mu_t,param->mass_top_pole,param->mass_b,param)); /* NM: compute from alphas instead of using g3 from SLHA file */
 	double g_3= sqrt(4.*PI*QCDHelper::alpha_s(mu_W)); //TODO : check pole or running
-	M_D[0]=src.at({ParameterType::BSM, "MASS", 1000001})->get_val();
-	M_D[1]=src.at({ParameterType::BSM, "MASS", 1000003})->get_val();
-	M_D[2]=src.at({ParameterType::BSM, "MASS", 1000005})->get_val();
-	M_D[3]=src.at({ParameterType::BSM, "MASS", 2000001})->get_val();
-	M_D[4]=src.at({ParameterType::BSM, "MASS", 2000003})->get_val();
-	M_D[5]=src.at({ParameterType::BSM, "MASS", 2000005})->get_val();
+	M_D[0]=src.get_val(ParameterType::BSM, "MASS", 1000001);
+	M_D[1]=src.get_val(ParameterType::BSM, "MASS", 1000003);
+	M_D[2]=src.get_val(ParameterType::BSM, "MASS", 1000005);
+	M_D[3]=src.get_val(ParameterType::BSM, "MASS", 2000001);
+	M_D[4]=src.get_val(ParameterType::BSM, "MASS", 2000003);
+	M_D[5]=src.get_val(ParameterType::BSM, "MASS", 2000005);
 
 	for(int i = 0; i<6; ++i) {
 		for(int j = 0; j<6; ++j) {
-			Z_D[i][j]= src.at({ParameterType::BSM, "DSQMIX", LhaID(j+1, i+1)})->get_val(); //TODO: deal with this group
+			Z_D[i][j]= src.get_val(ParameterType::BSM, "DSQMIX", LhaID(j+1, i+1)); //TODO: deal with this group
 		}
 	} // inverse matrix, because in SLHA2 the second index denotes quark flavour (dl,sl,bl,dr,sr,br)
 	for(int i = 0; i<6; ++i) {
@@ -4593,19 +4593,19 @@ double C_mix_bs_3_tilde_SUSY::compute_LO(const std::unordered_map<ParamId, std::
 	double M_ch[2],M_ch_pow_2[2],M_U[6],M_U_pow_2[6];
 	scalar_t Z_p[2][2],Z_m[2][2],Z_U[6][6];
 	scalar_t Yd[3],Yu[3];
- 	double sw=sin(atan(src.at({ParameterType::SM, "GAUGE", 2})->get_val()/src.at({ParameterType::SM, "GAUGE", 2})->get_val()));
- 	double Q_e = (src.at({ParameterType::SM, "GAUGE", 2})->get_val())*sw;
+ 	double sw=sin(atan(src.get_val(ParameterType::SM, "GAUGE", 2)/src.get_val(ParameterType::SM, "GAUGE", 2)));
+ 	double Q_e = (src.get_val(ParameterType::SM, "GAUGE", 2))*sw;
 	double swi=1./sw;
 
-	M_ch[0]=src.at({ParameterType::BSM, "MASS", 1000024})->get_val();
-	M_ch[1]=src.at({ParameterType::BSM, "MASS", 1000037})->get_val();
+	M_ch[0]=src.get_val(ParameterType::BSM, "MASS", 1000024);
+	M_ch[1]=src.get_val(ParameterType::BSM, "MASS", 1000037);
 
-	M_U[0]=src.at({ParameterType::BSM, "MASS", 1000002})->get_val();
-	M_U[1]=src.at({ParameterType::BSM, "MASS", 1000004})->get_val();
-	M_U[2]=src.at({ParameterType::BSM, "MASS", 1000006})->get_val();
-	M_U[3]=src.at({ParameterType::BSM, "MASS", 2000002})->get_val();
-	M_U[4]=src.at({ParameterType::BSM, "MASS", 2000004})->get_val();
-	M_U[5]=src.at({ParameterType::BSM, "MASS", 2000006})->get_val();
+	M_U[0]=src.get_val(ParameterType::BSM, "MASS", 1000002);
+	M_U[1]=src.get_val(ParameterType::BSM, "MASS", 1000004);
+	M_U[2]=src.get_val(ParameterType::BSM, "MASS", 1000006);
+	M_U[3]=src.get_val(ParameterType::BSM, "MASS", 2000002);
+	M_U[4]=src.get_val(ParameterType::BSM, "MASS", 2000004);
+	M_U[5]=src.get_val(ParameterType::BSM, "MASS", 2000006);
 
 	for(int i=0; i<2; ++i){
 		M_ch_pow_2[i]=pow(M_ch[i],2);
@@ -4615,38 +4615,38 @@ double C_mix_bs_3_tilde_SUSY::compute_LO(const std::unordered_map<ParamId, std::
 	}
 	for(int i=0; i <2; ++i) {
 		for(int j=0; j<2; ++j) {
-			Z_p[i][j]=conj(src.at({ParameterType::BSM, "VMIX", LhaID(j+1, i+1)})->get_val());
+			Z_p[i][j]=conj(src.get_val(ParameterType::BSM, "VMIX", LhaID(j+1, i+1)));
 		}
 	} /* NM: conversion from SLHA2 convention */
 	for(int i=2; i<2; ++i) {
 		for(int j=0; j<2; ++j) {
-			Z_m[i][j]=conj(src.at({ParameterType::BSM, "UMIX", LhaID(j+1, i+1)})->get_val());
+			Z_m[i][j]=conj(src.get_val(ParameterType::BSM, "UMIX", LhaID(j+1, i+1)));
 		}
 	} /* NM: conversion from SLHA2 convention */
 	for(int i=0; i<6; ++i) {
 		for(int j=0; j<6; ++j) {
-			Z_U[i][j]=conj(src.at({ParameterType::BSM, "USQMIX", LhaID(j+1, i+1)})->get_val()); //TODO: deal with this group
+			Z_U[i][j]=conj(src.get_val(ParameterType::BSM, "USQMIX", LhaID(j+1, i+1))); //TODO: deal with this group
 		}
 	} /* NM: conversion from SLHA2 convention */
 
 	double v1,v2,beta;
-	beta = atan(src.at({ParameterType::BSM, "EXTPAR", 25})->get_val());
-	v1 = 2.*(src.at({ParameterType::SM, "MASS", 24})->get_val())*cos(beta)/src.at({ParameterType::SM, "GAUGE", 2})->get_val();
+	beta = atan(src.get_val(ParameterType::BSM, "EXTPAR", 25));
+	v1 = 2.*(src.get_val(ParameterType::SM, "MASS", 24))*cos(beta)/src.get_val(ParameterType::SM, "GAUGE", 2);
 	v2 = v1*tan(beta);
   
-	double mc = src.at({ParameterType::SM, "MASS", 4})->get_val();
+	double mc = src.get_val(ParameterType::SM, "MASS", 4);
 	
 	double m_b=QCDHelper::msbar_mass(5, mu_W, MassType::MSBAR); /* NM: running mass */
 	double m_t=QCDHelper::msbar_mass(6, mu_W, MassType::MSBAR); /* NM: running mass */
 
 	double common = sqrt(2.)/v2;
-	Yu[0] = common*src.at({ParameterType::SM, "MASS", 2})->get_val();
+	Yu[0] = common*src.get_val(ParameterType::SM, "MASS", 2);
 	Yu[1] = common*QCDHelper::msbar_mass(4, mu_W, MassType::POLE); //TODO : check this to be sure
 
 	Yu[2] = common*m_t; /* NM: running mass */
 	double otherc = sqrt(2.)/v1;
-	Yd[0] = otherc*src.at({ParameterType::SM, "MASS", 1})->get_val();
-	Yd[1] = otherc*src.at({ParameterType::SM, "MASS", 3})->get_val();
+	Yd[0] = otherc*src.get_val(ParameterType::SM, "MASS", 1);
+	Yd[1] = otherc*src.get_val(ParameterType::SM, "MASS", 3);
 	Yd[2] = otherc*m_b; /* NM: running mass */
 	
 
@@ -4679,14 +4679,14 @@ double C_mix_bs_3_tilde_SUSY::compute_LO(const std::unordered_map<ParamId, std::
 	double M_ch0[4],M_ch0_pow_2[4],M_D[6],M_D_pow_2[6];
 	scalar_t Z_N[4][4];
 
-	double cw=cos(atan(src.at({ParameterType::SM, "GAUGE", 1})->get_val()/src.at({ParameterType::SM, "GAUGE", 2})->get_val()));
+	double cw=cos(atan(src.get_val(ParameterType::SM, "GAUGE", 1)/src.get_val(ParameterType::SM, "GAUGE", 2)));
 
  	double otherc = sqrt(2.)/v1;
 
-	std::array<double,4> temp_ch0 = {src.at({ParameterType::BSM, "MASS", 1000022})->get_val(),
-					 src.at({ParameterType::BSM, "MASS", 1000023})->get_val(),
-					 src.at({ParameterType::BSM, "MASS", 1000025})->get_val(),
-					 src.at({ParameterType::BSM, "MASS", 1000035})->get_val()};
+	std::array<double,4> temp_ch0 = {src.get_val(ParameterType::BSM, "MASS", 1000022),
+					 src.get_val(ParameterType::BSM, "MASS", 1000023),
+					 src.get_val(ParameterType::BSM, "MASS", 1000025),
+					 src.get_val(ParameterType::BSM, "MASS", 1000035)};
 
 	M_ch0[0]=fabs(temp_ch0[0]);
 	M_ch0[1]=fabs(temp_ch0[1]);
@@ -4706,7 +4706,7 @@ double C_mix_bs_3_tilde_SUSY::compute_LO(const std::unordered_map<ParamId, std::
 	
 	for(int i=0; i<4; ++i) {
 		for(int j=0; j<4; ++j) {
-			Z_N[i][j] = conj(src.at({ParameterType::BSM, "NMIX", LhaID(i+1, j+1)})->get_val()); //TODO : i,j or j,i like the others ?
+			Z_N[i][j] = conj(src.get_val(ParameterType::BSM, "NMIX", LhaID(i+1, j+1))); //TODO : i,j or j,i like the others ?
 		}
 	}
 	
@@ -4749,7 +4749,7 @@ double C_mix_bs_3_tilde_SUSY::compute_LO(const std::unordered_map<ParamId, std::
 	scalar_t Cp3_mixed=0.;
 
 
-	double M_g=src.at({ParameterType::BSM, "MASS", 1000021})->get_val();
+	double M_g=src.get_val(ParameterType::BSM, "MASS", 1000021);
 	double M_g_pow_2 = pow(M_g,2.);
 
 	// } /* NM: in Buras, neutralino masses defined positive, so changed the SLHA2 neutralino mixing matrix when negative neutralino mass */
@@ -4780,7 +4780,7 @@ double C_mix_bs_3_tilde_SUSY::compute_LO(const std::unordered_map<ParamId, std::
 
 //B4
 
-C_mix_bs_4_SUSY::C_mix_bs_4_SUSY() : WilsonCoefficient("C_BS_4", GroupMapper::str(WGroup::MESON_MIXING) + "_MATCH") {
+C_mix_bs_4_SUSY::C_mix_bs_4_SUSY() : WilsonCoefficient("C_BS_4", GroupMapper::str(WGroup::MESON_MIXING, ScaleType::MATCHING)) {
     matching_info[QCDOrder::LO] = {
         {
             {ParameterType::WILSON, "WPARAM_MATCH_SM", 4},           //mass_c_muW_mcrun
@@ -4826,33 +4826,33 @@ C_mix_bs_4_SUSY::C_mix_bs_4_SUSY() : WilsonCoefficient("C_BS_4", GroupMapper::st
 			{ParameterType::SM, "EW_SCALE", 1}
         },
         compute_LO,
-        LhaID(3050305, 3132, 0, 1)
+        get_lhaid_from_name(QCDOrder::LO)
     };
 }
 
-double C_mix_bs_4_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src) {
+double C_mix_bs_4_SUSY::compute_LO(const ParamSrc& src) {
 
-	double mu_W = src.at({ParameterType::WILSON, "EW_SCALE", 37})->get_val();
-    double M_H=src.at({ParameterType::BSM, "MASS", 37})->get_val();
-	double M_W=src.at({ParameterType::SM, "MASS", 24})->get_val();
+	double mu_W = src.get_val(ParameterType::WILSON, "EW_SCALE", 1);
+    double M_H=src.get_val(ParameterType::BSM, "MASS", 37);
+	double M_W=src.get_val(ParameterType::SM, "MASS", 24);
 	double M_H_pow_2 = pow(M_H,2.);
 	double M_W_pow_2 = pow(M_W,2.);
 	std::array<std::array<scalar_t, 3>, 3> V_CKM {};
-	double m_q = src.at({ParameterType::SM, "MASS", 3})->get_val();
+	double m_q = src.get_val(ParameterType::SM, "MASS", 3);
 	
-	double m_b= src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {5, 1}})->get_val();
-	double g_2=src.at({ParameterType::SM, "GAUGE", 2})->get_val();
-	double tbeta = src.at({ParameterType::BSM, "HMIX", 2})->get_val();
+	double m_b= src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {5, 1});
+	double g_2=src.get_val(ParameterType::SM, "GAUGE", 2);
+	double tbeta = src.get_val(ParameterType::BSM, "HMIX", 2);
 	double m_u[4],m_u_pow_2[4];
 
     for (int i = 0; i<3; ++i) {
         for (int j = 0; j<3; j++) {
-            V_CKM[i][j] = src.at({ParameterType::SM, "VCKM", LhaID(i, j)})->get_val();
+            V_CKM[i][j] = src.get_val(ParameterType::SM, "VCKM", LhaID(i, j));
         }
     }
-	m_u[1]= src.at({ParameterType::SM, "MASS", 2})->get_val();
-    m_u[2]= src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 4})->get_val();
-	m_u[3]= src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 6})->get_val();
+	m_u[1]= src.get_val(ParameterType::SM, "MASS", 2);
+    m_u[2]= src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 4);
+	m_u[3]= src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 6);
 
 
 	for(int i =0;i<3;++i) {
@@ -4883,20 +4883,20 @@ double C_mix_bs_4_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared
 
 	double M_D[6],M_D_pow_2[6],dm[6]; 
 	scalar_t Z_D[6][6];
-	double Mg=src.at({ParameterType::BSM, "MASS", 1000021})->get_val();
+	double Mg=src.get_val(ParameterType::BSM, "MASS", 1000021);
 	double Mg_pow_2 = pow(Mg,2);
 	// double g_3=sqrt(4.*PI*alphas_running(mu_t,param->mass_top_pole,param->mass_b,param)); /* NM: compute from alphas instead of using g3 from SLHA file */
 	double g_3= sqrt(4.*PI*QCDHelper::alpha_s(mu_W)); //TODO : check pole or running
-	M_D[0]=src.at({ParameterType::BSM, "MASS", 1000001})->get_val();
-	M_D[1]=src.at({ParameterType::BSM, "MASS", 1000003})->get_val();
-	M_D[2]=src.at({ParameterType::BSM, "MASS", 1000005})->get_val();
-	M_D[3]=src.at({ParameterType::BSM, "MASS", 2000001})->get_val();
-	M_D[4]=src.at({ParameterType::BSM, "MASS", 2000003})->get_val();
-	M_D[5]=src.at({ParameterType::BSM, "MASS", 2000005})->get_val();
+	M_D[0]=src.get_val(ParameterType::BSM, "MASS", 1000001);
+	M_D[1]=src.get_val(ParameterType::BSM, "MASS", 1000003);
+	M_D[2]=src.get_val(ParameterType::BSM, "MASS", 1000005);
+	M_D[3]=src.get_val(ParameterType::BSM, "MASS", 2000001);
+	M_D[4]=src.get_val(ParameterType::BSM, "MASS", 2000003);
+	M_D[5]=src.get_val(ParameterType::BSM, "MASS", 2000005);
 
 	for(int i = 0; i<6; ++i) {
 		for(int j = 0; j<6; ++j) {
-			Z_D[i][j]= src.at({ParameterType::BSM, "DSQMIX", LhaID(j+1, i+1)})->get_val(); //TODO: deal with this group
+			Z_D[i][j]= src.get_val(ParameterType::BSM, "DSQMIX", LhaID(j+1, i+1)); //TODO: deal with this group
 		}
 	} // inverse matrix, because in SLHA2 the second index denotes quark flavour (dl,sl,bl,dr,sr,br)
 	for(int i = 0; i<6; ++i) {
@@ -4926,19 +4926,19 @@ double C_mix_bs_4_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared
 	double M_ch[2],M_ch_pow_2[2],M_U[6],M_U_pow_2[6];
 	scalar_t Z_p[2][2],Z_m[2][2],Z_U[6][6];
 	scalar_t Yd[3],Yu[3];
- 	double sw=sin(atan(src.at({ParameterType::SM, "GAUGE", 2})->get_val()/src.at({ParameterType::SM, "GAUGE", 2})->get_val()));
- 	double Q_e = (src.at({ParameterType::SM, "GAUGE", 2})->get_val())*sw;
+ 	double sw=sin(atan(src.get_val(ParameterType::SM, "GAUGE", 2)/src.get_val(ParameterType::SM, "GAUGE", 2)));
+ 	double Q_e = (src.get_val(ParameterType::SM, "GAUGE", 2))*sw;
 	double swi=1./sw;
 
-	M_ch[0]=src.at({ParameterType::BSM, "MASS", 1000024})->get_val();
-	M_ch[1]=src.at({ParameterType::BSM, "MASS", 1000037})->get_val();
+	M_ch[0]=src.get_val(ParameterType::BSM, "MASS", 1000024);
+	M_ch[1]=src.get_val(ParameterType::BSM, "MASS", 1000037);
 
-	M_U[0]=src.at({ParameterType::BSM, "MASS", 1000002})->get_val();
-	M_U[1]=src.at({ParameterType::BSM, "MASS", 1000004})->get_val();
-	M_U[2]=src.at({ParameterType::BSM, "MASS", 1000006})->get_val();
-	M_U[3]=src.at({ParameterType::BSM, "MASS", 2000002})->get_val();
-	M_U[4]=src.at({ParameterType::BSM, "MASS", 2000004})->get_val();
-	M_U[5]=src.at({ParameterType::BSM, "MASS", 2000006})->get_val();
+	M_U[0]=src.get_val(ParameterType::BSM, "MASS", 1000002);
+	M_U[1]=src.get_val(ParameterType::BSM, "MASS", 1000004);
+	M_U[2]=src.get_val(ParameterType::BSM, "MASS", 1000006);
+	M_U[3]=src.get_val(ParameterType::BSM, "MASS", 2000002);
+	M_U[4]=src.get_val(ParameterType::BSM, "MASS", 2000004);
+	M_U[5]=src.get_val(ParameterType::BSM, "MASS", 2000006);
 
 	for(int i=0; i<2; ++i){
 		M_ch_pow_2[i]=pow(M_ch[i],2);
@@ -4948,38 +4948,38 @@ double C_mix_bs_4_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared
 	}
 	for(int i=0; i <2; ++i) {
 		for(int j=0; j<2; ++j) {
-			Z_p[i][j]=conj(src.at({ParameterType::BSM, "VMIX", LhaID(j+1, i+1)})->get_val());
+			Z_p[i][j]=conj(src.get_val(ParameterType::BSM, "VMIX", LhaID(j+1, i+1)));
 		}
 	} /* NM: conversion from SLHA2 convention */
 	for(int i=2; i<2; ++i) {
 		for(int j=0; j<2; ++j) {
-			Z_m[i][j]=conj(src.at({ParameterType::BSM, "UMIX", LhaID(j+1, i+1)})->get_val());
+			Z_m[i][j]=conj(src.get_val(ParameterType::BSM, "UMIX", LhaID(j+1, i+1)));
 		}
 	} /* NM: conversion from SLHA2 convention */
 	for(int i=0; i<6; ++i) {
 		for(int j=0; j<6; ++j) {
-			Z_U[i][j]=conj(src.at({ParameterType::BSM, "USQMIX", LhaID(j+1, i+1)})->get_val()); //TODO: deal with this group
+			Z_U[i][j]=conj(src.get_val(ParameterType::BSM, "USQMIX", LhaID(j+1, i+1))); //TODO: deal with this group
 		}
 	} /* NM: conversion from SLHA2 convention */
 
 	double v1,v2,beta;
-	beta = atan(src.at({ParameterType::BSM, "EXTPAR", 25})->get_val());
-	v1 = 2.*(src.at({ParameterType::SM, "MASS", 24})->get_val())*cos(beta)/src.at({ParameterType::SM, "GAUGE", 2})->get_val();
+	beta = atan(src.get_val(ParameterType::BSM, "EXTPAR", 25));
+	v1 = 2.*(src.get_val(ParameterType::SM, "MASS", 24))*cos(beta)/src.get_val(ParameterType::SM, "GAUGE", 2);
 	v2 = v1*tan(beta);
   
-	double mc = src.at({ParameterType::SM, "MASS", 4})->get_val();
+	double mc = src.get_val(ParameterType::SM, "MASS", 4);
 	
 	double m_b=QCDHelper::msbar_mass(5, mu_W, MassType::MSBAR); /* NM: running mass */
 	double m_t=QCDHelper::msbar_mass(6, mu_W, MassType::MSBAR); /* NM: running mass */
 
 	double common = sqrt(2.)/v2;
-	Yu[0] = common*src.at({ParameterType::SM, "MASS", 2})->get_val();
+	Yu[0] = common*src.get_val(ParameterType::SM, "MASS", 2);
 	Yu[1] = common*QCDHelper::msbar_mass(4, mu_W, MassType::POLE); //TODO : check this to be sure
 
 	Yu[2] = common*m_t; /* NM: running mass */
 	double otherc = sqrt(2.)/v1;
-	Yd[0] = otherc*src.at({ParameterType::SM, "MASS", 1})->get_val();
-	Yd[1] = otherc*src.at({ParameterType::SM, "MASS", 3})->get_val();
+	Yd[0] = otherc*src.get_val(ParameterType::SM, "MASS", 1);
+	Yd[1] = otherc*src.get_val(ParameterType::SM, "MASS", 3);
 	Yd[2] = otherc*m_b; /* NM: running mass */
 
 	scalar_t C4_chargino=0.;
@@ -5013,14 +5013,14 @@ double C_mix_bs_4_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared
 	double M_ch0[4],M_ch0_pow_2[4],M_D[6],M_D_pow_2[6];
 	scalar_t Z_N[4][4];
 
-	double cw=cos(atan(src.at({ParameterType::SM, "GAUGE", 1})->get_val()/src.at({ParameterType::SM, "GAUGE", 2})->get_val()));
+	double cw=cos(atan(src.get_val(ParameterType::SM, "GAUGE", 1)/src.get_val(ParameterType::SM, "GAUGE", 2)));
 
  	double otherc = sqrt(2.)/v1;
 
-	std::array<double,4> temp_ch0 = {src.at({ParameterType::BSM, "MASS", 1000022})->get_val(),
-					 src.at({ParameterType::BSM, "MASS", 1000023})->get_val(),
-					 src.at({ParameterType::BSM, "MASS", 1000025})->get_val(),
-					 src.at({ParameterType::BSM, "MASS", 1000035})->get_val()};
+	std::array<double,4> temp_ch0 = {src.get_val(ParameterType::BSM, "MASS", 1000022),
+					 src.get_val(ParameterType::BSM, "MASS", 1000023),
+					 src.get_val(ParameterType::BSM, "MASS", 1000025),
+					 src.get_val(ParameterType::BSM, "MASS", 1000035)};
 
 	M_ch0[0]=fabs(temp_ch0[0]);
 	M_ch0[1]=fabs(temp_ch0[1]);
@@ -5040,7 +5040,7 @@ double C_mix_bs_4_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared
 	
 	for(int i=0; i<4; ++i) {
 		for(int j=0; j<4; ++j) {
-			Z_N[i][j] = conj(src.at({ParameterType::BSM, "NMIX", LhaID(i+1, j+1)})->get_val()); //TODO : i,j or j,i like the others ?
+			Z_N[i][j] = conj(src.get_val(ParameterType::BSM, "NMIX", LhaID(i+1, j+1))); //TODO : i,j or j,i like the others ?
 		}
 	}
 	
@@ -5086,7 +5086,7 @@ double C_mix_bs_4_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared
 
 
 
-	double M_g=src.at({ParameterType::BSM, "MASS", 1000021})->get_val();
+	double M_g=src.get_val(ParameterType::BSM, "MASS", 1000021);
 	double M_g_pow_2 = pow(M_g,2.);
 
 	// } /* NM: in Buras, neutralino masses defined positive, so changed the SLHA2 neutralino mixing matrix when negative neutralino mass */
@@ -5131,10 +5131,10 @@ double C_mix_bs_4_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared
 	getDelta(delta_d,Z_D,M_D,m_av,delta_d_LL,delta_d_LR,delta_d_RL,delta_d_RR);
 	getDelta(delta_u,Z_U,M_U,m_av,delta_u_LL,delta_u_LR,delta_u_RL,delta_u_RR);
 	
-	double M_A=src.at({ParameterType::BSM, "MASS", 36})->get_val();
-	double A_t=src.at({ParameterType::BSM, "AU", LhaID(3,3)})->get_val(); //A_t
-	double mu = src.at({ParameterType::BSM, "HMIX", 1})->get_val();
-	scalar_t M_2 = src.at({ParameterType::BSM, "MSOFT", 2})->get_val();
+	double M_A=src.get_val(ParameterType::BSM, "MASS", 36);
+	double A_t=src.get_val(ParameterType::BSM, "AU", LhaID(3,3)); //A_t
+	double mu = src.get_val(ParameterType::BSM, "HMIX", 1);
+	scalar_t M_2 = src.get_val(ParameterType::BSM, "MSOFT", 2);
 	double x_mu = pow(abs(mu),2)/pow(m_av,2);
 	scalar_t x_2 = pow(abs(M_2),2)/pow(m_av,2);
 	double x_g = pow(M_g,2)/pow(m_av,2);
@@ -5156,7 +5156,7 @@ double C_mix_bs_4_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared
 
 //BS_5
 
-C_mix_bs_5_SUSY::C_mix_bs_5_SUSY() : WilsonCoefficient("C_BS_5", GroupMapper::str(WGroup::MESON_MIXING) + "_MATCH") {
+C_mix_bs_5_SUSY::C_mix_bs_5_SUSY() : WilsonCoefficient("C_BS_5", GroupMapper::str(WGroup::MESON_MIXING, ScaleType::MATCHING)) {
     matching_info[QCDOrder::LO] = {
         {
             {ParameterType::WILSON, "WPARAM_MATCH_SM", 4},           //mass_c_muW_mcrun
@@ -5202,33 +5202,33 @@ C_mix_bs_5_SUSY::C_mix_bs_5_SUSY() : WilsonCoefficient("C_BS_5", GroupMapper::st
 			{ParameterType::SM, "EW_SCALE", 1}
         },
         compute_LO,
-        LhaID(3050305, 7172, 0, 1)
+        get_lhaid_from_name(QCDOrder::LO)
     };
 }
 
-double C_mix_bs_5_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src) {
+double C_mix_bs_5_SUSY::compute_LO(const ParamSrc& src) {
 
-	double mu_W = src.at({ParameterType::WILSON, "EW_SCALE", 37})->get_val();
-    double M_H=src.at({ParameterType::BSM, "MASS", 37})->get_val();
-	double M_W=src.at({ParameterType::SM, "MASS", 24})->get_val();
+	double mu_W = src.get_val(ParameterType::WILSON, "EW_SCALE", 1);
+    double M_H=src.get_val(ParameterType::BSM, "MASS", 37);
+	double M_W=src.get_val(ParameterType::SM, "MASS", 24);
 	double M_H_pow_2 = pow(M_H,2.);
 	double M_W_pow_2 = pow(M_W,2.);
 	std::array<std::array<scalar_t, 3>, 3> V_CKM {};
-	double m_q = src.at({ParameterType::SM, "MASS", 3})->get_val();
+	double m_q = src.get_val(ParameterType::SM, "MASS", 3);
 	
-	double m_b= src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {5, 1}})->get_val();
-	double g_2=src.at({ParameterType::SM, "GAUGE", 2})->get_val();
-	double tbeta = src.at({ParameterType::BSM, "HMIX", 2})->get_val();
+	double m_b= src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {5, 1});
+	double g_2=src.get_val(ParameterType::SM, "GAUGE", 2);
+	double tbeta = src.get_val(ParameterType::BSM, "HMIX", 2);
 	double m_u[4],m_u_pow_2[4];
 
     for (int i = 0; i<3; ++i) {
         for (int j = 0; j<3; j++) {
-            V_CKM[i][j] = src.at({ParameterType::SM, "VCKM", LhaID(i, j)})->get_val();
+            V_CKM[i][j] = src.get_val(ParameterType::SM, "VCKM", LhaID(i, j));
         }
     }
-	m_u[1]= src.at({ParameterType::SM, "MASS", 2})->get_val();
-    m_u[2]= src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 4})->get_val();
-	m_u[3]= src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 6})->get_val();
+	m_u[1]= src.get_val(ParameterType::SM, "MASS", 2);
+    m_u[2]= src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 4);
+	m_u[3]= src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 6);
 
 
 	for(int i =0;i<3;++i) {
@@ -5260,20 +5260,20 @@ double C_mix_bs_5_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared
 
 	double M_D[6],M_D_pow_2[6],dm[6]; 
 	scalar_t Z_D[6][6];
-	double Mg=src.at({ParameterType::BSM, "MASS", 1000021})->get_val();
+	double Mg=src.get_val(ParameterType::BSM, "MASS", 1000021);
 	double Mg_pow_2 = pow(Mg,2);
 	// double g_3=sqrt(4.*PI*alphas_running(mu_t,param->mass_top_pole,param->mass_b,param)); /* NM: compute from alphas instead of using g3 from SLHA file */
 	double g_3= sqrt(4.*PI*QCDHelper::alpha_s(mu_W)); //TODO : check pole or running
-	M_D[0]=src.at({ParameterType::BSM, "MASS", 1000001})->get_val();
-	M_D[1]=src.at({ParameterType::BSM, "MASS", 1000003})->get_val();
-	M_D[2]=src.at({ParameterType::BSM, "MASS", 1000005})->get_val();
-	M_D[3]=src.at({ParameterType::BSM, "MASS", 2000001})->get_val();
-	M_D[4]=src.at({ParameterType::BSM, "MASS", 2000003})->get_val();
-	M_D[5]=src.at({ParameterType::BSM, "MASS", 2000005})->get_val();
+	M_D[0]=src.get_val(ParameterType::BSM, "MASS", 1000001);
+	M_D[1]=src.get_val(ParameterType::BSM, "MASS", 1000003);
+	M_D[2]=src.get_val(ParameterType::BSM, "MASS", 1000005);
+	M_D[3]=src.get_val(ParameterType::BSM, "MASS", 2000001);
+	M_D[4]=src.get_val(ParameterType::BSM, "MASS", 2000003);
+	M_D[5]=src.get_val(ParameterType::BSM, "MASS", 2000005);
 
 	for(int i = 0; i<6; ++i) {
 		for(int j = 0; j<6; ++j) {
-			Z_D[i][j]= src.at({ParameterType::BSM, "DSQMIX", LhaID(j+1, i+1)})->get_val(); //TODO: deal with this group
+			Z_D[i][j]= src.get_val(ParameterType::BSM, "DSQMIX", LhaID(j+1, i+1)); //TODO: deal with this group
 		}
 	} // inverse matrix, because in SLHA2 the second index denotes quark flavour (dl,sl,bl,dr,sr,br)
 	for(int i = 0; i<6; ++i) {
@@ -5304,19 +5304,19 @@ double C_mix_bs_5_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared
 	double M_ch[2],M_ch_pow_2[2],M_U[6],M_U_pow_2[6];
 	scalar_t Z_p[2][2],Z_m[2][2],Z_U[6][6];
 	scalar_t Yd[3],Yu[3];
- 	double sw=sin(atan(src.at({ParameterType::SM, "GAUGE", 2})->get_val()/src.at({ParameterType::SM, "GAUGE", 2})->get_val()));
- 	double Q_e = (src.at({ParameterType::SM, "GAUGE", 2})->get_val())*sw;
+ 	double sw=sin(atan(src.get_val(ParameterType::SM, "GAUGE", 2)/src.get_val(ParameterType::SM, "GAUGE", 2)));
+ 	double Q_e = (src.get_val(ParameterType::SM, "GAUGE", 2))*sw;
 	double swi=1./sw;
 
-	M_ch[0]=src.at({ParameterType::BSM, "MASS", 1000024})->get_val();
-	M_ch[1]=src.at({ParameterType::BSM, "MASS", 1000037})->get_val();
+	M_ch[0]=src.get_val(ParameterType::BSM, "MASS", 1000024);
+	M_ch[1]=src.get_val(ParameterType::BSM, "MASS", 1000037);
 
-	M_U[0]=src.at({ParameterType::BSM, "MASS", 1000002})->get_val();
-	M_U[1]=src.at({ParameterType::BSM, "MASS", 1000004})->get_val();
-	M_U[2]=src.at({ParameterType::BSM, "MASS", 1000006})->get_val();
-	M_U[3]=src.at({ParameterType::BSM, "MASS", 2000002})->get_val();
-	M_U[4]=src.at({ParameterType::BSM, "MASS", 2000004})->get_val();
-	M_U[5]=src.at({ParameterType::BSM, "MASS", 2000006})->get_val();
+	M_U[0]=src.get_val(ParameterType::BSM, "MASS", 1000002);
+	M_U[1]=src.get_val(ParameterType::BSM, "MASS", 1000004);
+	M_U[2]=src.get_val(ParameterType::BSM, "MASS", 1000006);
+	M_U[3]=src.get_val(ParameterType::BSM, "MASS", 2000002);
+	M_U[4]=src.get_val(ParameterType::BSM, "MASS", 2000004);
+	M_U[5]=src.get_val(ParameterType::BSM, "MASS", 2000006);
 
 	for(int i=0; i<2; ++i){
 		M_ch_pow_2[i]=pow(M_ch[i],2);
@@ -5326,38 +5326,38 @@ double C_mix_bs_5_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared
 	}
 	for(int i=0; i <2; ++i) {
 		for(int j=0; j<2; ++j) {
-			Z_p[i][j]=conj(src.at({ParameterType::BSM, "VMIX", LhaID(j+1, i+1)})->get_val());
+			Z_p[i][j]=conj(src.get_val(ParameterType::BSM, "VMIX", LhaID(j+1, i+1)));
 		}
 	} /* NM: conversion from SLHA2 convention */
 	for(int i=2; i<2; ++i) {
 		for(int j=0; j<2; ++j) {
-			Z_m[i][j]=conj(src.at({ParameterType::BSM, "UMIX", LhaID(j+1, i+1)})->get_val());
+			Z_m[i][j]=conj(src.get_val(ParameterType::BSM, "UMIX", LhaID(j+1, i+1)));
 		}
 	} /* NM: conversion from SLHA2 convention */
 	for(int i=0; i<6; ++i) {
 		for(int j=0; j<6; ++j) {
-			Z_U[i][j]=conj(src.at({ParameterType::BSM, "USQMIX", LhaID(j+1, i+1)})->get_val()); //TODO: deal with this group
+			Z_U[i][j]=conj(src.get_val(ParameterType::BSM, "USQMIX", LhaID(j+1, i+1))); //TODO: deal with this group
 		}
 	} /* NM: conversion from SLHA2 convention */
 
 	double v1,v2,beta;
-	beta = atan(src.at({ParameterType::BSM, "EXTPAR", 25})->get_val());
-	v1 = 2.*(src.at({ParameterType::SM, "MASS", 24})->get_val())*cos(beta)/src.at({ParameterType::SM, "GAUGE", 2})->get_val();
+	beta = atan(src.get_val(ParameterType::BSM, "EXTPAR", 25));
+	v1 = 2.*(src.get_val(ParameterType::SM, "MASS", 24))*cos(beta)/src.get_val(ParameterType::SM, "GAUGE", 2);
 	v2 = v1*tan(beta);
   
-	double mc = src.at({ParameterType::SM, "MASS", 4})->get_val();
+	double mc = src.get_val(ParameterType::SM, "MASS", 4);
 	
 	double m_b=QCDHelper::msbar_mass(5, mu_W, MassType::MSBAR); /* NM: running mass */
 	double m_t=QCDHelper::msbar_mass(6, mu_W, MassType::MSBAR); /* NM: running mass */
 
 	double common = sqrt(2.)/v2;
-	Yu[0] = common*src.at({ParameterType::SM, "MASS", 2})->get_val();
+	Yu[0] = common*src.get_val(ParameterType::SM, "MASS", 2);
 	Yu[1] = common*QCDHelper::msbar_mass(4, mu_W, MassType::POLE); //TODO : check this to be sure
 
 	Yu[2] = common*m_t; /* NM: running mass */
 	double otherc = sqrt(2.)/v1;
-	Yd[0] = otherc*src.at({ParameterType::SM, "MASS", 1})->get_val();
-	Yd[1] = otherc*src.at({ParameterType::SM, "MASS", 3})->get_val();
+	Yd[0] = otherc*src.get_val(ParameterType::SM, "MASS", 1);
+	Yd[1] = otherc*src.get_val(ParameterType::SM, "MASS", 3);
 	Yd[2] = otherc*m_b; /* NM: running mass */
 	
 
@@ -5392,14 +5392,14 @@ double C_mix_bs_5_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared
 	double M_ch0[4],M_ch0_pow_2[4],M_D[6],M_D_pow_2[6];
 	scalar_t Z_N[4][4];
 
-	double cw=cos(atan(src.at({ParameterType::SM, "GAUGE", 1})->get_val()/src.at({ParameterType::SM, "GAUGE", 2})->get_val()));
+	double cw=cos(atan(src.get_val(ParameterType::SM, "GAUGE", 1)/src.get_val(ParameterType::SM, "GAUGE", 2)));
 
  	double otherc = sqrt(2.)/v1;
 
-	std::array<double,4> temp_ch0 = {src.at({ParameterType::BSM, "MASS", 1000022})->get_val(),
-					 src.at({ParameterType::BSM, "MASS", 1000023})->get_val(),
-					 src.at({ParameterType::BSM, "MASS", 1000025})->get_val(),
-					 src.at({ParameterType::BSM, "MASS", 1000035})->get_val()};
+	std::array<double,4> temp_ch0 = {src.get_val(ParameterType::BSM, "MASS", 1000022),
+					 src.get_val(ParameterType::BSM, "MASS", 1000023),
+					 src.get_val(ParameterType::BSM, "MASS", 1000025),
+					 src.get_val(ParameterType::BSM, "MASS", 1000035)};
 
 	M_ch0[0]=fabs(temp_ch0[0]);
 	M_ch0[1]=fabs(temp_ch0[1]);
@@ -5419,7 +5419,7 @@ double C_mix_bs_5_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared
 	
 	for(int i=0; i<4; ++i) {
 		for(int j=0; j<4; ++j) {
-			Z_N[i][j] = conj(src.at({ParameterType::BSM, "NMIX", LhaID(i+1, j+1)})->get_val()); //TODO : i,j or j,i like the others ?
+			Z_N[i][j] = conj(src.get_val(ParameterType::BSM, "NMIX", LhaID(i+1, j+1))); //TODO : i,j or j,i like the others ?
 		}
 	}
 	
@@ -5464,7 +5464,7 @@ double C_mix_bs_5_SUSY::compute_LO(const std::unordered_map<ParamId, std::shared
 
 
 
-	double M_g=src.at({ParameterType::BSM, "MASS", 1000021})->get_val();
+	double M_g=src.get_val(ParameterType::BSM, "MASS", 1000021);
 	double M_g_pow_2 = pow(M_g,2.);
 
 	// } /* NM: in Buras, neutralino masses defined positive, so changed the SLHA2 neutralino mixing matrix when negative neutralino mass */

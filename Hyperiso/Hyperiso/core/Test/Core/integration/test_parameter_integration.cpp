@@ -5,7 +5,9 @@
 #include <unordered_map>
 
 #include "Parameter.h"
+#include "DependentParameter.h"
 #include "General.h"
+#include "SourcesView.hpp"
 
 static std::shared_ptr<Parameter> make_param(double v, const char* block, int code) {
     auto p = std::make_shared<Parameter>(ParamId{ParameterType::SM, block, code}, v, 0.0, 0.0);
@@ -26,7 +28,7 @@ int main() {
             {pB->get_id(), pB}
         },
         [](const auto& srcs, std::shared_ptr<DependentParameter> self) {
-            double s = 0.0; for (auto& [_, p] : srcs) s += p->get_val();
+            double s = 0.0; for (auto& [_, p] : srcs.raw()) s += p->get_val();
             self->set_expected(s);
         }
     );
@@ -38,7 +40,7 @@ int main() {
             {depSum->get_id(), depSum}
         },
         [](const auto& srcs, std::shared_ptr<DependentParameter> self) {
-            double base = srcs.begin()->second->get_val();
+            double base = srcs.raw().begin()->second->get_val();
             self->set_expected(3.0 * base);
         }
     );

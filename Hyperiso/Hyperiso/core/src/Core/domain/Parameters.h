@@ -23,6 +23,8 @@
 #include "Interface.h"
 #include "QCDHelper.h"
 #include "config.hpp"
+#include "SourcesView.hpp"
+#include "DependentParameter.h"
 
 /**
  * @defgroup ParametersModule Parameters and Model Strategies

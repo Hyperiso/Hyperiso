@@ -6,11 +6,11 @@
 #include "Utils.h"
 #include "Parameter.h"
 #include "IParameterProxy.h"
-
+#include "SourcesView.hpp"
 
 struct MatchingInfo {
     std::unordered_set<ParamId> sources = {};
-    std::function<scalar_t(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>&)> compute =
+    std::function<scalar_t(const ParamSrc&)> compute =
         [](const auto&) { return 0.0; };
     LhaID lhaid;
 
@@ -20,7 +20,7 @@ struct MatchingInfo {
     MatchingInfo(const LhaID& id) : lhaid(id) {}
 
     MatchingInfo(std::unordered_set<ParamId> src,
-                 std::function<scalar_t(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>&)> comp,
+                 std::function<scalar_t(const ParamSrc&)> comp,
                  LhaID id)
         : sources(std::move(src)), compute(std::move(comp)), lhaid(std::move(id)) {}
 
@@ -35,12 +35,6 @@ struct MatchingInfo {
     }
 };
 
-
-//TODO : utility function
-static bool ends_with(const std::string& str, const std::string& suffix) {
-    return str.size() >= suffix.size() &&
-           str.compare(str.size() - suffix.size(), suffix.size(), suffix) == 0;
-}
 
 class WilsonCoefficient {
 public:
@@ -67,9 +61,10 @@ public:
 
 
     // TODO : Implement initialization as dependent parameter from MARTY library or from lha
-    std::function<scalar_t(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>&)> get_func(QCDOrder order);
+    std::function<scalar_t(const ParamSrc&)> get_func(QCDOrder order);
     std::unordered_set<ParamId> get_sources(QCDOrder order);
     LhaID get_lhaid(QCDOrder order);
+    LhaID get_lhaid_from_name(QCDOrder order);
     std::string get_base_name() const;
     
     void set_name(std::string name) {this->coeffName = name;}

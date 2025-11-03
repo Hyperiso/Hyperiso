@@ -4,6 +4,7 @@
 #include "Include.h"
 #include "Block.h"
 #include "Parameter.h"
+#include "DependentParameter.h"
 
 /**
  * @example dependency_management_example.cpp

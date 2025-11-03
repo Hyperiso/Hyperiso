@@ -42,7 +42,7 @@ void CoefficientGroup::init(QCDOrder max_order) {
     this->claim_coefficients();
     for (int order = 1; order <= (int)max_order; order++) {
         for (auto& coeff : *this) {
-            auto func_wrapper = [&coeff, order](const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src,
+            auto func_wrapper = [&coeff, order](const ParamSrc& src,
                                         std::shared_ptr<DependentParameter> dep_param) {
                 auto func = coeff.second->get_func((QCDOrder)order);
                 if (!func) {

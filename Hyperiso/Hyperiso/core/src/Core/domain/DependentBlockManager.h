@@ -13,7 +13,7 @@
 #include <memory>
 #include <vector>
 #include <iostream>
-
+#include "DependentParameter.h"
 #include "Block.h"
 
 /**
@@ -39,7 +39,7 @@ public:
         std::string name,
         std::unordered_map<ParameterType, std::vector<std::string>> source_names,
         ParameterType dest,
-        std::function<void(const std::unordered_map<std::string, std::shared_ptr<Block>>&, std::shared_ptr<DependentBlock>)> recalculateFunc
+        DepUpdateFunc recalculateFunc
     );
 
     /**

@@ -21,7 +21,7 @@
 
 struct CoefficientGroupSources {
     std::unordered_map<ParameterType, std::vector<std::string>> sources {};
-    std::function<std::unordered_map<WCoef, scalar_t>(const std::unordered_map<QCDOrder, std::unordered_map<WCoef, scalar_t>>&, const std::unordered_map<std::string, std::shared_ptr<Block>>&)> func =
+    std::function<std::unordered_map<WCoef, scalar_t>(const std::unordered_map<QCDOrder, std::unordered_map<WCoef, scalar_t>>&, const BlockSrc&)> func =
         [](const auto&, const auto&) { return std::unordered_map<WCoef, scalar_t>(); };
 };
 
@@ -50,7 +50,7 @@ public:
     std::unordered_set<WilsonBasis> get_bases() const {
         return get_keys(this->sources);
     }
-    std::function<std::unordered_map<WCoef, scalar_t>(const std::unordered_map<QCDOrder, std::unordered_map<WCoef, scalar_t>>&, const std::unordered_map<std::string, std::shared_ptr<Block>>&)> get_func(QCDOrder ord, WilsonBasis id) {return this->sources[id][ord].func;}
+    std::function<std::unordered_map<WCoef, scalar_t>(const std::unordered_map<QCDOrder, std::unordered_map<WCoef, scalar_t>>&, const BlockSrc&)> get_func(QCDOrder ord, WilsonBasis id) {return this->sources[id][ord].func;}
 
     WGroupId get_group_id() {return id;}
     void set_group_id(WGroupId gid) { id = gid; } //TDOO : need to check Group and GroupId

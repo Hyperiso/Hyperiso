@@ -60,9 +60,9 @@ int main() {
         src[{ParameterType::WILSON, "WPARAM_MATCH_SM", LhaID(2,1)}] = P(4.5);
 
         auto fLO = c7.get_func(QCDOrder::LO);
-        double v1 = fLO(src);
+        double v1 = fLO(ParamSrc(src));
         src[{ParameterType::WILSON, "WPARAM_MATCH_SM", LhaID(2,1)}] = P(5.0);
-        double v2 = fLO(src);
+        double v2 = fLO(ParamSrc(src));
         assert(v1 != v2);
     }
 
@@ -75,9 +75,9 @@ int main() {
         src[{ParameterType::WILSON, "EW_SCALE",        LhaID(1)}]    = P(80.0);
 
         auto fNLO = c7.get_func(QCDOrder::NLO);
-        double v1 = fNLO(src);
+        double v1 = fNLO(ParamSrc(src));
         src[{ParameterType::WILSON, "EW_SCALE", LhaID(1)}] = P(100.0);
-        double v2 = fNLO(src);
+        double v2 = fNLO(ParamSrc(src));
         assert(v1 != v2);
     }
 
@@ -93,9 +93,9 @@ int main() {
         src[{ParameterType::SM,     "MASS",            LhaID(24)}]   = P(80.379);
 
         auto fNNLO = c7.get_func(QCDOrder::NNLO);
-        double v1 = fNNLO(src);
+        double v1 = fNNLO(ParamSrc(src));
         src[{ParameterType::SM, "MASS", LhaID(24)}] = P(82.0);
-        double v2 = fNNLO(src);
+        double v2 = fNNLO(ParamSrc(src));
         assert(v1 != v2);
     }
 

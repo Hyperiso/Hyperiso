@@ -37,7 +37,7 @@ public:
 
     
      
-    static double compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
+    static double compute_LO(const ParamSrc& src);
 
     std::shared_ptr<WilsonCoefficient> clone() const override {
         return std::make_shared<C_S1_bc_SUSY>(*this);
@@ -51,7 +51,7 @@ public:
 
     
      
-    static double compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
+    static double compute_LO(const ParamSrc& src);
 
     std::shared_ptr<WilsonCoefficient> clone() const override {
         return std::make_shared<C_S2_bc_SUSY>(*this);
@@ -108,7 +108,7 @@ public:
 
     
      
-    static double compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
+    static double compute_LO(const ParamSrc& src);
 
     std::shared_ptr<WilsonCoefficient> clone() const override {
         return std::make_shared<C_S1_bu_SUSY>(*this);
@@ -122,7 +122,7 @@ public:
 
     
      
-    static double compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src);
+    static double compute_LO(const ParamSrc& src);
 
     std::shared_ptr<WilsonCoefficient> clone() const override {
         return std::make_shared<C_S2_bu_SUSY>(*this);

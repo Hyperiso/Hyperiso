@@ -4,11 +4,11 @@ C_V1_cs::C_V1_cs() : WilsonCoefficient("C_V1_cs", GroupMapper::str(WGroup::CC_cs
     matching_info[QCDOrder::LO] = {
         {},
         compute_LO,
-        WCoefMapper::flha_full(WCoef::C_V1_cs, QCDOrder::LO, this->type)
+        get_lhaid_from_name(QCDOrder::LO)
     };
 }
 
-double C_V1_cs::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>&) {
+double C_V1_cs::compute_LO(const ParamSrc& src) {
     return 1.0;
 }
 
@@ -18,10 +18,10 @@ C_V1_cd::C_V1_cd() : WilsonCoefficient("C_V1_cd", GroupMapper::str(WGroup::CC_cd
     matching_info[QCDOrder::LO] = {
         {},
         compute_LO,
-        WCoefMapper::flha_full(WCoef::C_V1_cd, QCDOrder::LO, this->type)
+        get_lhaid_from_name(QCDOrder::LO)
     };
 }
 
-double C_V1_cd::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>&) {
+double C_V1_cd::compute_LO(const ParamSrc& src) {
     return 1.0;
 }

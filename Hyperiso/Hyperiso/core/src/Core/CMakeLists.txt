@@ -49,6 +49,7 @@ add_library(CoreLib STATIC
     domain/ParameterRouter.cpp
     domain/Parameters.cpp
     domain/Parameter.cpp
+    domain/DependentParameter.cpp
     domain/MemoryManager.cpp
     domain/Block.cpp
     domain/BlockAccessor.cpp

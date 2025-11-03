@@ -16,19 +16,19 @@ void thdm_parameters::init_scale_independent_block(int gen) {
 	std::unordered_map<ParameterType, std::vector<std::string>> src = {{ParameterType::SM, {"MASS"}}, {ParameterType::BSM, {"MASS", "ALPHA", "MINPAR", "YU", "YD", "YE"}},
                                                                         {ParameterType::WILSON, {"WPARAM_SI_SM"}}};
 
-    auto func = [] (const std::unordered_map<std::string, std::shared_ptr<Block>>& src, std::shared_ptr<DependentBlock> dep_block) {
-        double xh = pow(src.at("MASS")->retrieve(25)->get_val() / src.at("MASS")->retrieve(24)->get_val(), 2);
-        double alpha = src.at("ALPHA")->retrieve(LhaID(""))->get_val();
-        double m_H = src.at("MASS")->retrieve(37)->get_val();
-        double beta = atan(src.at("MINPAR")->retrieve(3)->get_val());
-        double lu = src.at("YU")->retrieve(LhaID(2,2))->get_val();
-        double ld = src.at("YD")->retrieve(LhaID(2,2))->get_val();
-        double gen = src.at("WPARAM_SI_SM")->retrieve(2)->get_val();
-        double le = src.at("YE")->retrieve(LhaID(gen-1, gen-1))->get_val();
-        double mW = src.at("MASS")->retrieve(24)->get_val();
+    auto func = [] (const BlockSrc& src, std::shared_ptr<DependentBlock> dep_block) {
+        double xh = pow(src.get_val("MASS", 25) / src.get_val("MASS", 24), 2);
+        double alpha = src.get_val("ALPHA", LhaID(""));
+        double m_H = src.get_val("MASS" ,37);
+        double beta = atan(src.get_val("MINPAR" ,3));
+        double lu = src.get_val("YU" ,LhaID(2,2));
+        double ld = src.get_val("YD" ,LhaID(2,2));
+        double gen = src.get_val("WPARAM_SI_SM" , 2);
+        double le = src.get_val("YE" ,LhaID(gen-1, gen-1));
+        double mW = src.get_val("MASS", 24);
         double xH=pow(m_H/mW,2.);
-        double xH0=pow(src.at("MASS")->retrieve(35)->get_val() / mW, 2.);
-        double xA=pow(src.at("MASS")->retrieve(36)->get_val() / mW, 2.);
+        double xH0=pow(src.get_val("MASS" ,35) / mW, 2.);
+        double xA=pow(src.get_val("MASS" ,36) / mW, 2.);
         int id {1};
         dep_block->store_or_assign(id++, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", id}, xh, 0., 0.));
 		dep_block->store_or_assign(id++, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", id}, xH, 0., 0.));
@@ -52,8 +52,8 @@ void thdm_parameters::init_matching_block() {
         {ParameterType::WILSON, {"WPARAM_MATCH_SM"}}
     };
 
-    auto func = [] (const std::unordered_map<std::string, std::shared_ptr<Block>>& src, std::shared_ptr<DependentBlock> dep_block) {
-        double yt = pow(src.at("WPARAM_MATCH_SM")->retrieve(6)->get_val()/src.at("MASS")->retrieve(37)->get_val(),2.); // param->mass_H (25)
+    auto func = [] (const BlockSrc& src, std::shared_ptr<DependentBlock> dep_block) {
+        double yt = pow(src.get_val("WPARAM_MATCH_SM" ,6)/src.get_val("MASS" ,37),2.); // param->mass_H (25)
 		dep_block->store_or_assign(1, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_MATCH_BSM", 1}, yt, 0., 0.));
     };
 

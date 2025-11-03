@@ -98,7 +98,7 @@ static void init_group_hadronic_no_manager(std::shared_ptr<CoefficientGroup> grp
     // fonctions LO/NLO/NNLO (si absentes, la map contiendra des std::function vides -> à gérer)
     std::map<QCDOrder, std::function<std::unordered_map<WCoef, scalar_t>(
         const std::unordered_map<QCDOrder, std::unordered_map<WCoef, scalar_t>>&,
-        const std::unordered_map<std::string, std::shared_ptr<Block>>&
+        const BlockSrc&
     )>> funcs = {
         {QCDOrder::LO,   grp->get_func(QCDOrder::LO,   basis)},
         {QCDOrder::NLO,  grp->get_func(QCDOrder::NLO,  basis)},
@@ -109,11 +109,11 @@ static void init_group_hadronic_no_manager(std::shared_ptr<CoefficientGroup> grp
     std::string hadronic_block_name = GroupMapper::str(grp->get_group_id(), ScaleType::HADRONIC, basis);
 
     auto func = [matching_block_name, ord, funcs, grp, basis]
-        (const std::unordered_map<std::string, std::shared_ptr<Block>>& src,
+        (const BlockSrc& src,
          std::shared_ptr<DependentBlock> dep_block)
     {
         // 1) lire tous les matching coefs déposés dans le bloc MATCHING
-        std::map<LhaID, std::shared_ptr<Parameter>> matching_coeff = src.at(matching_block_name)->getItems();
+        std::map<LhaID, std::shared_ptr<Parameter>> matching_coeff = src.raw().at(matching_block_name)->getItems();
         std::unordered_map<ContributionType, std::unordered_map<QCDOrder, std::unordered_map<WCoef, scalar_t>>> matching_map;
 
         for (auto& kv : matching_coeff) {
@@ -129,19 +129,19 @@ static void init_group_hadronic_no_manager(std::shared_ptr<CoefficientGroup> grp
         auto call_if = [&](QCDOrder o) {
             auto f = funcs.at(o);
             if (!f) return std::unordered_map<WCoef, scalar_t>{};
-            return f(matching_map[ContributionType::SM], src); // on calcule par contrib juste après
+            return f(matching_map[ContributionType::SM], BlockSrc(src)); // on calcule par contrib juste après
         };
 
         for (auto contri : {ContributionType::SM, ContributionType::BSM, ContributionType::TOTAL}) {
             switch (ord) {
             case QCDOrder::NNLO:
-                if (funcs.at(QCDOrder::NNLO)) res[contri][QCDOrder::NNLO] = funcs.at(QCDOrder::NNLO)(matching_map[contri], src);
+                if (funcs.at(QCDOrder::NNLO)) res[contri][QCDOrder::NNLO] = funcs.at(QCDOrder::NNLO)(matching_map[contri], BlockSrc(src));
                 [[fallthrough]];
             case QCDOrder::NLO:
-                if (funcs.at(QCDOrder::NLO))  res[contri][QCDOrder::NLO]  = funcs.at(QCDOrder::NLO)(matching_map[contri], src);
+                if (funcs.at(QCDOrder::NLO))  res[contri][QCDOrder::NLO]  = funcs.at(QCDOrder::NLO)(matching_map[contri], BlockSrc(src));
                 [[fallthrough]];
             case QCDOrder::LO:
-                if (funcs.at(QCDOrder::LO))   res[contri][QCDOrder::LO]   = funcs.at(QCDOrder::LO)(matching_map[contri], src);
+                if (funcs.at(QCDOrder::LO))   res[contri][QCDOrder::LO]   = funcs.at(QCDOrder::LO)(matching_map[contri], BlockSrc(src));
                 break;
             default: break;
             }

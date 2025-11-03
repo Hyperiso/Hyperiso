@@ -64,7 +64,7 @@ int main() {
 
         auto f = w.get_func(QCDOrder::LO);
         std::unordered_map<ParamId, std::shared_ptr<Parameter>> none;
-        assert(f(none) == 0.0);  // lambda par défaut
+        assert(f(ParamSrc(none)) == 0.0);  // lambda par défaut
     }
 
     // 3) equality et is_owned

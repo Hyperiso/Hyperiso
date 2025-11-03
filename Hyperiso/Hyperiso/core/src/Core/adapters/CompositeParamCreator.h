@@ -3,6 +3,7 @@
 
 #include "IDependency.h"
 #include "DependentBlockManager.h"
+#include "DependentParameter.h"
 
 /**
  * @class CompositeParamAdapter

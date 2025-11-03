@@ -29,7 +29,7 @@ public:
         std::unordered_map<ParameterType, std::vector<std::string>> source_names,
         std::function<std::unordered_map<WCoef, scalar_t>(
             const std::unordered_map<QCDOrder, std::unordered_map<WCoef, scalar_t>>&,
-            const std::unordered_map<std::string, std::shared_ptr<Block>>&
+            const BlockSrc&
         )> running_func
     ) {
         sources[basis][order].sources = std::move(source_names);
@@ -40,7 +40,7 @@ public:
 
     static std::unordered_map<WCoef, scalar_t> identity_running(
         const std::unordered_map<QCDOrder, std::unordered_map<WCoef, scalar_t>>& coef_matching,
-        const std::unordered_map<std::string, std::shared_ptr<Block>>& /*src*/
+        const BlockSrc& /*src*/
     ) {
         QCDOrder best = QCDOrder::LO;
         if (coef_matching.count(QCDOrder::NNLO)) best = QCDOrder::NNLO;

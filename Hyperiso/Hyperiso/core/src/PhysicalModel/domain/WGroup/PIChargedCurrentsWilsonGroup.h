@@ -14,7 +14,7 @@ public:
 
     static std::unordered_map<WCoef, scalar_t> base_1_LO_calculation(
         const std::unordered_map<QCDOrder, std::unordered_map<WCoef, scalar_t>>& coef_matching,
-        const std::unordered_map<std::string, std::shared_ptr<Block>>& src
+        const BlockSrc& src
     );
 };
 

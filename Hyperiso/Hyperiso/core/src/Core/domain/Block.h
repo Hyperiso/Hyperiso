@@ -15,6 +15,7 @@
 #include "Parameter.h"
 #include "IStorage.h"
 
+class BlockSrc;
 class Block;
 class DependentBlock;
 
@@ -24,7 +25,8 @@ class DependentBlock;
  *
  * The function takes a map of source blocks and a shared pointer to the dependent block itself.
  */
-typedef std::function<void(const std::unordered_map<std::string, std::shared_ptr<Block>>&, std::shared_ptr<DependentBlock>)> DepUpdateFunc;
+typedef std::function<void(const BlockSrc&, std::shared_ptr<DependentBlock>)> DepUpdateFunc;
+
 
 /**
  * @class Block

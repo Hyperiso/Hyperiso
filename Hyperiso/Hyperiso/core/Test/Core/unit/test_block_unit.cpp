@@ -7,6 +7,7 @@
 #include "Block.h"
 #include "Parameter.h"
 #include "General.h"
+#include "SourcesView.hpp"
 
 struct CountingParameter : Parameter {
     int updates = 0;
@@ -177,7 +178,7 @@ static void test_dependent_block_lifecycle() {
     bool ran = false;
     auto recalc = [&](const auto& blocks, std::shared_ptr<DependentBlock> self){
         ran = true;
-        double v = blocks.at("SRC")->retrieve(key)->get_val();
+        double v = blocks.get_val("SRC",key);
         if (!self->contains(key)) self->store(key, std::make_shared<Parameter>(ParamId{ParameterType::SM, "DEP", 7}, 0.0, 0.0, 0.0));
         self->assign(key, v + 10.0);
     };

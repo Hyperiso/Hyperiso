@@ -17,14 +17,14 @@ void WilsonParameterHelper::init_scale_independent_block(int gen) {
 	LOG_DEBUG("Init scale-independent wparam block");
 	std::unordered_map<ParameterType, std::vector<std::string>> src = {{ParameterType::SM, {"SMINPUTS", "MASS"}}};
 
-    auto func = [gen] (const std::unordered_map<std::string, std::shared_ptr<Block>>& src, std::shared_ptr<DependentBlock> dep_block) {
-        double xh = pow(src.at("MASS")->retrieve(25)->get_val() / src.at("MASS")->retrieve(24)->get_val(), 2);
+    auto func = [gen] (const BlockSrc& src, std::shared_ptr<DependentBlock> dep_block) {
+        double xh = pow(src.get_val("MASS", 25) / src.get_val("MASS", 24), 2);
 		int nf = 5;
 		int id = 1;
         dep_block->store_or_assign(id++, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_SM", id}, xh, 0., 0.));
 		dep_block->store_or_assign(id++, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_SM", id}, gen, 0., 0.));
-		dep_block->store_or_assign(id++, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_SM", id}, src.at("MASS")->retrieve(9 + 2 * gen)->get_val(), 0., 0.));
-		dep_block->store_or_assign(id++, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_SM", id}, src.at("SMINPUTS")->retrieve({7, 1})->get_val(), 0., 0.));
+		dep_block->store_or_assign(id++, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_SM", id}, src.get_val("MASS", 9 + 2 * gen), 0., 0.));
+		dep_block->store_or_assign(id++, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_SM", id}, src.get_val("SMINPUTS", {7, 1}), 0., 0.));
 		dep_block->store_or_assign(id++, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_SM", id}, 11.-2./3.*nf, 0., 0.)); //TODO, beta0
     };
     iblock_c->compose_block("WPARAM_SI_SM", src, func);
@@ -34,18 +34,18 @@ void WilsonParameterHelper::init_matching_block() {
 	LOG_DEBUG("Init matching scale dependent wparam block");
 	std::unordered_map<ParameterType, std::vector<std::string>> src = {{ParameterType::SM, {"MASS", "QCD"}}, {ParameterType::WILSON, {"EW_SCALE"}}};
 
-    auto func = [] (const std::unordered_map<std::string, std::shared_ptr<Block>>& src, std::shared_ptr<DependentBlock> dep_block) {
-		double mu_W = src.at("EW_SCALE")->retrieve(1)->get_val();
+    auto func = [] (const BlockSrc& src, std::shared_ptr<DependentBlock> dep_block) {
+		double mu_W = src.get_val("EW_SCALE", 1);
         double alphas_muW = QCDHelper::alpha_s(mu_W);
 		double mass_top_muW = QCDHelper::msbar_mass(6, mu_W, MassType::MSBAR);
 		double mass_b_muW_mbrun = QCDHelper::msbar_mass(5, mu_W, MassType::MSBAR);
 		double mass_b_muW_mbpole = QCDHelper::msbar_mass(5, mu_W, MassType::POLE);
 		double mass_c_muW = QCDHelper::msbar_mass(4, mu_W, MassType::POLE);
-		double m_W = src.at("MASS")->retrieve(24)->get_val();
+		double m_W = src.get_val("MASS", 24);
 		double xt = pow(mass_top_muW / m_W, 2);
 		double L = log(std::pow(mu_W / m_W, 2));
 		double xtW = pow(QCDHelper::msbar_mass(6, m_W) / m_W, 2); // mass top at pole for mtot param
-		double xtt = pow(src.at("QCD")->retrieve(6)->get_val() / m_W, 2.); // 24 -> W
+		double xtt = pow(src.get_val("QCD", 6) / m_W, 2.); // 24 -> W
 
 		dep_block->store_or_assign(1, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_MATCH_SM", 1}, alphas_muW, 0., 0.));
 		dep_block->store_or_assign(LhaID(2, 1), std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_MATCH_SM", LhaID(2, 1)}, xt, 0., 0.));
@@ -75,8 +75,8 @@ void WilsonParameterHelper::init_running_parameter_blocks_B() {
     LOG_DEBUG("Init running matrices blocks of B Coefficient group");
 	std::unordered_map<ParameterType, std::vector<std::string>> eta_powers_src = {{ParameterType::WILSON, {"WPARAM_RUN_SM"}}};
 
-    auto eta_powers_func = [] (const std::unordered_map<std::string, std::shared_ptr<Block>>& src, std::shared_ptr<DependentBlock> dep_block) {
-		double eta = src.at("WPARAM_RUN_SM")->retrieve(2)->get_val();
+    auto eta_powers_func = [] (const BlockSrc& src, std::shared_ptr<DependentBlock> dep_block) {
+		double eta = src.get_val("WPARAM_RUN_SM", 2);
         // printf("eta mu : %lf\n", eta);
 		for (int i = 0; i < BRP::array_size; ++i) {
             dep_block->store_or_assign(LhaID(1, i), std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "ETA_POWS", LhaID(1, i)}, std::pow(eta, (BRP::ai)[i]), 0., 0.));
@@ -86,8 +86,8 @@ void WilsonParameterHelper::init_running_parameter_blocks_B() {
 
     std::unordered_map<ParameterType, std::vector<std::string>> mtx_src = {{ParameterType::WILSON, {"WPARAM_RUN_SM", "ETA_POWS"}}};
 
-    auto U_func = [] (const std::unordered_map<std::string, std::shared_ptr<Block>>& src, std::shared_ptr<DependentBlock> dep_block) {
-		double eta = src.at("WPARAM_RUN_SM")->retrieve(2)->get_val();
+    auto U_func = [] (const BlockSrc& src, std::shared_ptr<DependentBlock> dep_block) {
+		double eta = src.get_val("WPARAM_RUN_SM", 2);
         auto pid = [] (int n, int k, int l) {
             return ParamId{ParameterType::WILSON, "U_MATRIX", LhaID(n, k, l)};
         };
@@ -100,7 +100,7 @@ void WilsonParameterHelper::init_running_parameter_blocks_B() {
             for (int le = 0; le < BRP::array_size; ++le) {
                 U0 = U1 = U2 = 0;
                 for (int ie = 0; ie < BRP::array_size; ++ie) {
-                    eta_ai = src.at("ETA_POWS")->retrieve(LhaID(1, ie))->get_val();
+                    eta_ai = src.get_val("ETA_POWS", LhaID(1, ie));
                     U0 += BRP::m00[ke][le][ie] * eta_ai;    
                     U1 += (BRP::m10[ke][le][ie] + BRP::m11[ke][le][ie] / eta) * eta_ai;
                     U2 += (BRP::m20[ke][le][ie] + BRP::m21[ke][le][ie] / eta + BRP::m22[ke][le][ie] / (eta * eta)) * eta_ai;
@@ -112,8 +112,8 @@ void WilsonParameterHelper::init_running_parameter_blocks_B() {
         }
     };
 
-    auto V_func = [] (const std::unordered_map<std::string, std::shared_ptr<Block>>& src, std::shared_ptr<DependentBlock> dep_block) {
-		double eta = src.at("WPARAM_RUN_SM")->retrieve(2)->get_val();
+    auto V_func = [] (const BlockSrc& src, std::shared_ptr<DependentBlock> dep_block) {
+		double eta = src.get_val("WPARAM_RUN_SM", 2);
         auto pid = [] (int n, int k, int l) {
             return ParamId{ParameterType::WILSON, "V_MATRIX", LhaID(n, k, l)};
         };
@@ -125,7 +125,7 @@ void WilsonParameterHelper::init_running_parameter_blocks_B() {
             for (int le = 0; le < BRP::array_size; ++le) {
                 V0 = V1 = 0;
                 for (int ie = 0; ie < BRP::array_size; ++ie) {
-                    eta_ai = src.at("ETA_POWS")->retrieve(LhaID(1, ie))->get_val();
+                    eta_ai = src.get_val("ETA_POWS", LhaID(1, ie));
                     V0 += BRP::l00[ke][le][ie] * eta_ai;    
                     V1 += (BRP::l10[ke][le][ie] + BRP::l11[ke][le][ie] / eta) * eta_ai;
                 }
@@ -148,9 +148,9 @@ void WilsonParameterHelper::init_running_parameter_blocks_MM() {
     LOG_DEBUG("Init running matrices blocks of Meson Mixing Coefficient group");
 	std::unordered_map<ParameterType, std::vector<std::string>> eta_powers_src = {{ParameterType::WILSON, {"WPARAM_RUN_SM"}}};
 
-    auto eta_powers_func = [] (const std::unordered_map<std::string, std::shared_ptr<Block>>& src, std::shared_ptr<DependentBlock> dep_block) {
-		double eta5 = src.at("WPARAM_RUN_SM")->retrieve(2)->get_val();
-        double eta4 = src.at("WPARAM_RUN_SM")->retrieve(3)->get_val();
+    auto eta_powers_func = [] (const BlockSrc& src, std::shared_ptr<DependentBlock> dep_block) {
+		double eta5 = src.get_val("WPARAM_RUN_SM", 2);
+        double eta4 = src.get_val("WPARAM_RUN_SM", 3);
 
 		for (int i = 0; i < MMRP::n_pows; ++i) {
             dep_block->store_or_assign(LhaID(1, i), std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "ETA_POWS_MIXING", LhaID(1, i)}, std::pow(eta5, (MMRP::ai)[i]), 0., 0.));
@@ -160,8 +160,8 @@ void WilsonParameterHelper::init_running_parameter_blocks_MM() {
 
     std::unordered_map<ParameterType, std::vector<std::string>> mtx_src = {{ParameterType::WILSON, {"WPARAM_RUN_SM", "ETA_POWS_MIXING"}}};
 
-    auto U_5_func = [] (const std::unordered_map<std::string, std::shared_ptr<Block>>& src, std::shared_ptr<DependentBlock> dep_block) {
-		double eta_5 = src.at("WPARAM_RUN_SM")->retrieve(2)->get_val();
+    auto U_5_func = [] (const BlockSrc& src, std::shared_ptr<DependentBlock> dep_block) {
+		double eta_5 = src.get_val("WPARAM_RUN_SM", 2);
         auto pid = [] (int n, int k, int l) {
             return ParamId{ParameterType::WILSON, "UM_MATRIX_5", LhaID(n, k, l)};
         };
@@ -171,7 +171,7 @@ void WilsonParameterHelper::init_running_parameter_blocks_MM() {
         double U0, U1;
 
         // V
-        double eta_V = src.at("ETA_POWS_MIXING")->retrieve(LhaID(1, 0))->get_val();
+        double eta_V = src.get_val("ETA_POWS_MIXING", LhaID(1, 0));
         U0 = MMRP::a0_V_5 * eta_V;
         U1 = (MMRP::a1_V_5 + MMRP::b_V_5 * eta_5) * eta_V;
         dep_block->store_or_assign(LhaID(0, 0, 0), std::make_shared<Parameter>(pid(0, 0, 0), U0, 0., 0.));
@@ -181,8 +181,8 @@ void WilsonParameterHelper::init_running_parameter_blocks_MM() {
 
         // LR
         std::array<double, 2> eta_LR {
-            src.at("ETA_POWS_MIXING")->retrieve(LhaID(1, 1))->get_val(),
-            src.at("ETA_POWS_MIXING")->retrieve(LhaID(1, 2))->get_val(),
+            src.get_val("ETA_POWS_MIXING", LhaID(1, 1)),
+            src.get_val("ETA_POWS_MIXING", LhaID(1, 2)),
         };
 
         for (int i = 0; i < 2; ++i) {
@@ -199,8 +199,8 @@ void WilsonParameterHelper::init_running_parameter_blocks_MM() {
 
         // S
 		std::array<double, 2> eta_S {
-            src.at("ETA_POWS_MIXING")->retrieve(LhaID(1, 3))->get_val(),
-            src.at("ETA_POWS_MIXING")->retrieve(LhaID(1, 4))->get_val(),
+            src.get_val("ETA_POWS_MIXING", LhaID(1, 3)),
+            src.get_val("ETA_POWS_MIXING", LhaID(1, 4)),
         };
 
         for (int i = 0; i < 2; ++i) {
@@ -218,9 +218,9 @@ void WilsonParameterHelper::init_running_parameter_blocks_MM() {
         }
     };
 
-    auto U_4_func = [] (const std::unordered_map<std::string, std::shared_ptr<Block>>& src, std::shared_ptr<DependentBlock> dep_block) {
-		double eta_5 = src.at("WPARAM_RUN_SM")->retrieve(2)->get_val();
-        double eta_4 = src.at("WPARAM_RUN_SM")->retrieve(3)->get_val();
+    auto U_4_func = [] (const BlockSrc& src, std::shared_ptr<DependentBlock> dep_block) {
+		double eta_5 = src.get_val("WPARAM_RUN_SM", 2);
+        double eta_4 = src.get_val("WPARAM_RUN_SM", 3);
         auto pid = [] (int n, int k, int l) {
             return ParamId{ParameterType::WILSON, "UM_MATRIX_4", LhaID(n, k, l)};
         };
@@ -230,8 +230,8 @@ void WilsonParameterHelper::init_running_parameter_blocks_MM() {
         double U0, U1;
 
         // V
-        double eta_5_V = src.at("ETA_POWS_MIXING")->retrieve(LhaID(1, 0))->get_val();
-        double eta_4_V = src.at("ETA_POWS_MIXING")->retrieve(LhaID(2, 0))->get_val();
+        double eta_5_V = src.get_val("ETA_POWS_MIXING", LhaID(1, 0));
+        double eta_4_V = src.get_val("ETA_POWS_MIXING", LhaID(2, 0));
         U0 = MMRP::a0_V_4 * eta_4_V * eta_5_V;
         U1 = (MMRP::a1_V_4 + MMRP::b_V_4 * eta_4 + MMRP::c_V_4 * eta_4 * eta_5) * eta_4_V * eta_5_V;
         dep_block->store_or_assign(LhaID(0, 0, 0), std::make_shared<Parameter>(pid(0, 0, 0), U0, 0., 0.));
@@ -241,13 +241,13 @@ void WilsonParameterHelper::init_running_parameter_blocks_MM() {
 
         // LR
         std::array<double, 2> eta_5_LR {
-            src.at("ETA_POWS_MIXING")->retrieve(LhaID(1, 1))->get_val(),
-            src.at("ETA_POWS_MIXING")->retrieve(LhaID(1, 2))->get_val(),
+            src.get_val("ETA_POWS_MIXING", LhaID(1, 1)),
+            src.get_val("ETA_POWS_MIXING", LhaID(1, 2)),
         };
 
         std::array<double, 2> eta_4_LR {
-            src.at("ETA_POWS_MIXING")->retrieve(LhaID(2, 1))->get_val(),
-            src.at("ETA_POWS_MIXING")->retrieve(LhaID(2, 2))->get_val(),
+            src.get_val("ETA_POWS_MIXING", LhaID(2, 1)),
+            src.get_val("ETA_POWS_MIXING", LhaID(2, 2)),
         };
 
         for (int i = 0; i < 2; ++i) {
@@ -264,13 +264,13 @@ void WilsonParameterHelper::init_running_parameter_blocks_MM() {
 
         // S
 		std::array<double, 2> eta_5_S {
-            src.at("ETA_POWS_MIXING")->retrieve(LhaID(1, 3))->get_val(),
-            src.at("ETA_POWS_MIXING")->retrieve(LhaID(1, 4))->get_val(),
+            src.get_val("ETA_POWS_MIXING", LhaID(1, 3)),
+            src.get_val("ETA_POWS_MIXING", LhaID(1, 4)),
         };
 
         std::array<double, 2> eta_4_S {
-            src.at("ETA_POWS_MIXING")->retrieve(LhaID(2, 3))->get_val(),
-            src.at("ETA_POWS_MIXING")->retrieve(LhaID(2, 4))->get_val(),
+            src.get_val("ETA_POWS_MIXING", LhaID(2, 3)),
+            src.get_val("ETA_POWS_MIXING", LhaID(2, 4)),
         };
 
         for (int i = 0; i < 2; ++i) {
@@ -300,33 +300,33 @@ void WilsonParameterHelper::init_running_block(WGroupId grp) {
 		{ParameterType::SM, {"QCD", "MASS"}}
 	};
 
-    auto func = [] (const std::unordered_map<std::string, std::shared_ptr<Block>>& src, std::shared_ptr<DependentBlock> dep_block) {
-		double mu_W = src.at("EW_SCALE")->retrieve(1)->get_val();
-		double mu_h = src.at("B_SCALE")->retrieve(1)->get_val();
+    auto func = [] (const BlockSrc& src, std::shared_ptr<DependentBlock> dep_block) {
+		double mu_W = src.get_val("EW_SCALE", 1);
+		double mu_h = src.get_val("B_SCALE",1);
 
 		int n_f_final = QCDHelper::get_nf(mu_h, MassType::MSBAR);
         double alphas_mu_h = QCDHelper::alpha_s(mu_h);
-		std::cout << "n_f_final" << n_f_final << std::endl;
+		// std::cout << "n_f_final" << n_f_final << std::endl;
 		double eta_5 {0}, eta_4 {0}, eta_3 {0};
 		if (n_f_final == 5) {
 			eta_5 = QCDHelper::alpha_s(mu_W) / alphas_mu_h;
-			double mu_b = src.at("QCD")->retrieve({5, 1})->get_val(); //TODO : check this part
+			double mu_b = src.get_val("QCD", {5, 1}); //TODO : check this part
 			double alpha_s_mu_b = QCDHelper::alpha_s(mu_b, MassType::MSBAR);
 			eta_4 = alpha_s_mu_b / alphas_mu_h;
 		} else if (n_f_final == 4) {
-			double mu_b = src.at("QCD")->retrieve({5, 1})->get_val();
+			double mu_b = src.get_val("QCD", {5, 1});
 			double alpha_s_mu_b = QCDHelper::alpha_s(mu_b, MassType::MSBAR);
 			eta_5 = QCDHelper::alpha_s(mu_W) / alpha_s_mu_b;
 			eta_4 = alpha_s_mu_b / alphas_mu_h;
 		} else if (n_f_final == 3) {
-			double mu_b = src.at("QCD")->retrieve({5, 1})->get_val();
-			double mu_c = src.at("MASS")->retrieve(4)->get_val();
+			double mu_b = src.get_val("QCD", {5, 1});
+			double mu_c = src.get_val("MASS",4);
 			double alpha_s_mu_b = QCDHelper::alpha_s(mu_b, MassType::MSBAR);
 			double alpha_s_mu_c = QCDHelper::alpha_s(mu_c, MassType::MSBAR);
 			eta_5 = QCDHelper::alpha_s(mu_W) / alpha_s_mu_b;
 			eta_4 = alpha_s_mu_b / alpha_s_mu_c;
-			std::cout << "eta_5" << eta_5 << std::endl;
-			std::cout << "eta_4" << eta_4 << std::endl;
+			// std::cout << "eta_5" << eta_5 << std::endl;
+			// std::cout << "eta_4" << eta_4 << std::endl;
 			eta_3 = alpha_s_mu_c / alphas_mu_h;
 		} else {
 			LOG_ERROR("ValueError", "In WilsonParameterHelper::init_running_block() : Hadronic mass is out of allowed range in Hyperiso.");

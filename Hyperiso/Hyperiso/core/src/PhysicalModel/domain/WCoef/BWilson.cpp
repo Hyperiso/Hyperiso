@@ -2,16 +2,16 @@
 
 // ---------- C1 ----------
 
-C1::C1() : WilsonCoefficient("C1", GroupMapper::str(WGroup::B) + "_MATCH") {
+C1::C1() : WilsonCoefficient("C1", GroupMapper::str(WGroup::B, ScaleType::MATCHING)) {
 
-    matching_info[QCDOrder::LO] = MatchingInfo(LhaID(3040405, 6161, 0, 0));
+    matching_info[QCDOrder::LO] = MatchingInfo(get_lhaid_from_name(QCDOrder::LO));
     matching_info[QCDOrder::NLO] = {
         {{"WPARAM_MATCH_SM", 3}},  // sources
         [](const auto& src) {
-            auto L = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 3})->get_val();
+            auto L = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 3);;
             return 15. + 6. * L;
         },
-        LhaID(3040405, 6161, 1, 0)
+        get_lhaid_from_name(QCDOrder::NLO)
     };
 
     matching_info[QCDOrder::NNLO] = {
@@ -20,21 +20,21 @@ C1::C1() : WilsonCoefficient("C1", GroupMapper::str(WGroup::B) + "_MATCH") {
             {"WPARAM_MATCH_SM", LhaID(2, 1)}
         },
         [](const auto& src) {
-            auto L = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 3})->get_val();
-            auto xt = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1}})->get_val();
+            auto L = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 3);;
+            auto xt = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1});;
             return -T(xt) + 7987./72. + 17. * PI2 / 3. + 475./6. * L + 17. * L * L;
         },
-        LhaID(3040405, 6161, 2, 0)
+        get_lhaid_from_name(QCDOrder::NNLO)
     };
 }
 
 // ---------- C2 ----------
 
-C2::C2() : WilsonCoefficient("C2", GroupMapper::str(WGroup::B) + "_MATCH") {
+C2::C2() : WilsonCoefficient("C2", GroupMapper::str(WGroup::B, ScaleType::MATCHING)) {
     matching_info[QCDOrder::LO] = {
         {}, 
         compute_LO,
-        LhaID(3040405, 4141, 0, 0)
+        get_lhaid_from_name(QCDOrder::LO)
     };
 
     matching_info[QCDOrder::NLO] = MatchingInfo(LhaID(3040405, 4141, 1, 0));
@@ -44,27 +44,27 @@ C2::C2() : WilsonCoefficient("C2", GroupMapper::str(WGroup::B) + "_MATCH") {
             {"WPARAM_MATCH_SM", 3}
         },
         compute_NNLO,
-        LhaID(3040405, 4141, 2, 0)
+        get_lhaid_from_name(QCDOrder::NNLO)
     };
 }
 
-double C2::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>&) {
+double C2::compute_LO(const ParamSrc& src) {
     return 1.;
 }
 
-double C2::compute_NNLO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src) {
-    auto L = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 3})->get_val();
+double C2::compute_NNLO(const ParamSrc& src) {
+    auto L = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 3);;
     return 127. / 18. + 4. / 3. * PI2 + 46. / 3. * L + 4. * L * L;
 }
 
 
 // ---------- C3 ----------
 
-C3::C3() : WilsonCoefficient("C3", GroupMapper::str(WGroup::B) + "_MATCH") {
+C3::C3() : WilsonCoefficient("C3", GroupMapper::str(WGroup::B, ScaleType::MATCHING)) {
 
-    matching_info[QCDOrder::NLO] = MatchingInfo(LhaID(3050707, 4133, 0, 0));
+    matching_info[QCDOrder::NLO] = MatchingInfo(get_lhaid_from_name(QCDOrder::LO));
 
-    matching_info[QCDOrder::NLO] = MatchingInfo(LhaID(3050707, 4133, 1, 0));
+    matching_info[QCDOrder::NLO] = MatchingInfo(get_lhaid_from_name(QCDOrder::NLO));
 
     matching_info[QCDOrder::NNLO] = {
         {
@@ -74,15 +74,15 @@ C3::C3() : WilsonCoefficient("C3", GroupMapper::str(WGroup::B) + "_MATCH") {
             {"EW_SCALE", 1}                       // Q_match
         },
         compute_NNLO,
-        LhaID(3050707, 4133, 2, 0)
+        get_lhaid_from_name(QCDOrder::NNLO)
     };
 }
 
-double C3::compute_NNLO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src) {
-    double L = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 3})->get_val();
-    double mass_top_muW = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 6})->get_val();
-    double xt = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1}})->get_val();
-    double Q_match = src.at({ParameterType::WILSON, "EW_SCALE", 1})->get_val();
+double C3::compute_NNLO(const ParamSrc& src) {
+    double L = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 3);;
+    double mass_top_muW = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 6);;
+    double xt = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1});
+    double Q_match = src.get_val(ParameterType::WILSON, "EW_SCALE", 1);;
 
     double coeff_temp = G1t(xt, log(Q_match * Q_match / (mass_top_muW * mass_top_muW)))
                       - 680. / 243.
@@ -95,9 +95,9 @@ double C3::compute_NNLO(const std::unordered_map<ParamId, std::shared_ptr<Parame
 
 // ---------- C4 ----------
 
-C4::C4() : WilsonCoefficient("C4", GroupMapper::str(WGroup::B) + "_MATCH") {
+C4::C4() : WilsonCoefficient("C4", GroupMapper::str(WGroup::B, ScaleType::MATCHING)) {
 
-    matching_info[QCDOrder::LO] = MatchingInfo(LhaID(3050707, 6153, 0, 0));
+    matching_info[QCDOrder::LO] = MatchingInfo(get_lhaid_from_name(QCDOrder::LO));
 
     // NLO
     matching_info[QCDOrder::NLO] = {
@@ -106,7 +106,7 @@ C4::C4() : WilsonCoefficient("C4", GroupMapper::str(WGroup::B) + "_MATCH") {
             {"WPARAM_MATCH_SM", LhaID(2, 1)}      // x_t
         },
         compute_NLO,
-        LhaID(3050707, 6153, 1, 0)
+        get_lhaid_from_name(QCDOrder::NLO)
     };
 
     // NNLO
@@ -118,21 +118,21 @@ C4::C4() : WilsonCoefficient("C4", GroupMapper::str(WGroup::B) + "_MATCH") {
             {"EW_SCALE", 1}                       // Q_match
         },
         compute_NNLO,
-        LhaID(3050707, 6153, 2, 0)
+        get_lhaid_from_name(QCDOrder::NNLO)
     };
 }
 
-double C4::compute_NLO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src) {
-    double L = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 3})->get_val();
-    double xt = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1}})->get_val();
+double C4::compute_NLO(const ParamSrc& src) {
+    double L = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 3);;
+    double xt = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1});;
     return E0t(xt) - 7. / 9. + 2. / 3. * L;
 }
 
-double C4::compute_NNLO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src) {
-    double L = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 3})->get_val();
-    double xt = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1}})->get_val();
-    double mass_top_muW = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 6})->get_val();
-    double Q_match = src.at({ParameterType::WILSON, "EW_SCALE", 1})->get_val();
+double C4::compute_NNLO(const ParamSrc& src) {
+    double L = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 3);;
+    double xt = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1});;
+    double mass_top_muW = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 6);;
+    double Q_match = src.get_val(ParameterType::WILSON, "EW_SCALE", 1);;
     return E1t(xt, log(Q_match * Q_match / (mass_top_muW * mass_top_muW)))
            + 950. / 243.
            + 10. / 81. * PI2
@@ -142,11 +142,11 @@ double C4::compute_NNLO(const std::unordered_map<ParamId, std::shared_ptr<Parame
 
 // ---------- C5 ----------
 
-C5::C5() : WilsonCoefficient("C5", GroupMapper::str(WGroup::B) + "_MATCH") {
+C5::C5() : WilsonCoefficient("C5", GroupMapper::str(WGroup::B, ScaleType::MATCHING)) {
 
-    matching_info[QCDOrder::LO] = MatchingInfo(LhaID(3050707, 4536, 0, 0));
+    matching_info[QCDOrder::LO] = MatchingInfo(get_lhaid_from_name(QCDOrder::LO));
 
-    matching_info[QCDOrder::NLO] = MatchingInfo(LhaID(3050707, 4536, 1, 0));
+    matching_info[QCDOrder::NLO] = MatchingInfo(get_lhaid_from_name(QCDOrder::NLO));
 
     matching_info[QCDOrder::NNLO] = {
         {
@@ -156,15 +156,15 @@ C5::C5() : WilsonCoefficient("C5", GroupMapper::str(WGroup::B) + "_MATCH") {
             {"EW_SCALE", 1}                       // Q_match
         },
         compute_NNLO,
-        LhaID(3050707, 4536, 2, 0)
+        get_lhaid_from_name(QCDOrder::NNLO)
     };
 }
 
-double C5::compute_NNLO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src) {
-    double L = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 3})->get_val();
-    double xt = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1}})->get_val();
-    double mass_top_muW = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 6})->get_val();
-    double Q_match = src.at({ParameterType::WILSON, "EW_SCALE", 1})->get_val();
+double C5::compute_NNLO(const ParamSrc& src) {
+    double L = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 3);;
+    double xt = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1});;
+    double mass_top_muW = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 6);;
+    double Q_match = src.get_val(ParameterType::WILSON, "EW_SCALE", 1);;
 
     double coeff_temp =
         -G1t(xt, log(Q_match * Q_match / (mass_top_muW * mass_top_muW))) / 10.
@@ -179,11 +179,11 @@ double C5::compute_NNLO(const std::unordered_map<ParamId, std::shared_ptr<Parame
 
 // ---------- C6 ----------
 
-C6::C6() : WilsonCoefficient("C6", GroupMapper::str(WGroup::B) + "_MATCH") {
+C6::C6() : WilsonCoefficient("C6", GroupMapper::str(WGroup::B, ScaleType::MATCHING)) {
 
-    matching_info[QCDOrder::LO] = MatchingInfo(LhaID(3050707, 6556, 0, 0));
+    matching_info[QCDOrder::LO] = MatchingInfo(get_lhaid_from_name(QCDOrder::LO));
 
-    matching_info[QCDOrder::NLO] = MatchingInfo(LhaID(3050707, 6556, 1, 0));
+    matching_info[QCDOrder::NLO] = MatchingInfo(get_lhaid_from_name(QCDOrder::NLO));
 
     matching_info[QCDOrder::NNLO] = {
         {
@@ -193,15 +193,15 @@ C6::C6() : WilsonCoefficient("C6", GroupMapper::str(WGroup::B) + "_MATCH") {
             {"EW_SCALE", 1}                       // Q_match
         },
         compute_NNLO,
-        LhaID(3050707, 6556, 2, 0)
+        get_lhaid_from_name(QCDOrder::NNLO)
     };
 }
 
-double C6::compute_NNLO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src) {
-    double L = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 3})->get_val();
-    double xt = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1}})->get_val();
-    double mass_top_muW = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 6})->get_val();
-    double Q_match = src.at({ParameterType::WILSON, "EW_SCALE", 1})->get_val();
+double C6::compute_NNLO(const ParamSrc& src) {
+    double L = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 3);;
+    double xt = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1});;
+    double mass_top_muW = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 6);;
+    double Q_match = src.get_val(ParameterType::WILSON, "EW_SCALE", 1);;
 
     double coeff_temp =
         -3. / 16. * G1t(xt, log(Q_match * Q_match / (mass_top_muW * mass_top_muW)))
@@ -217,7 +217,7 @@ double C6::compute_NNLO(const std::unordered_map<ParamId, std::shared_ptr<Parame
 
 // ---------- C7 ----------
 
-C7::C7() : WilsonCoefficient("C7", GroupMapper::str(WGroup::B) + "_MATCH") {
+C7::C7() : WilsonCoefficient("C7", GroupMapper::str(WGroup::B, ScaleType::MATCHING)) {
     // this->max_order = QCDOrder::NNLO;
     // LO
     matching_info[QCDOrder::LO] = {
@@ -225,9 +225,10 @@ C7::C7() : WilsonCoefficient("C7", GroupMapper::str(WGroup::B) + "_MATCH") {
             {ParameterType::WILSON, "WPARAM_MATCH_SM", LhaID(2, 1)}  // x_t
         },
         compute_LO,
-        LhaID(305, 4422, 0, 0)
+        get_lhaid_from_name(QCDOrder::LO)
     };
 
+    std::cout << "matching_info LO : " << get_lhaid_from_name(QCDOrder::LO) << std::endl;
     // NLO
     matching_info[QCDOrder::NLO] = {
         {
@@ -237,7 +238,7 @@ C7::C7() : WilsonCoefficient("C7", GroupMapper::str(WGroup::B) + "_MATCH") {
             {"EW_SCALE", 1}                   // Q_match
         },
         compute_NLO,
-        LhaID(305, 4422, 1, 0)
+        get_lhaid_from_name(QCDOrder::NLO)
     };
 
     // NNLO
@@ -252,34 +253,34 @@ C7::C7() : WilsonCoefficient("C7", GroupMapper::str(WGroup::B) + "_MATCH") {
             {ParameterType::SM, "MASS", 24}   // m_W
         },
         compute_NNLO,
-        LhaID(305, 4422, 2, 0)
+        get_lhaid_from_name(QCDOrder::NNLO)
     };
 }
 
-double C7::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src) {
-    double xt = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1}})->get_val();
+double C7::compute_LO(const ParamSrc& src) {
+    double xt = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1});;
     return -0.5 * A0t(xt) - 23. / 36.;
 }
 
-double C7::compute_NLO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src) {
-    double L = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 3})->get_val();
-    double xt = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1}})->get_val();
-    double mass_top_muW = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 6})->get_val();
-    double Q_match = src.at({ParameterType::WILSON, "EW_SCALE", 1})->get_val();
+double C7::compute_NLO(const ParamSrc& src) {
+    double L = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 3);;
+    double xt = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1});;
+    double mass_top_muW = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 6);;
+    double Q_match = src.get_val(ParameterType::WILSON, "EW_SCALE", 1);;
 
     return -0.5 * A1t(xt, log(Q_match * Q_match / (mass_top_muW * mass_top_muW)))
            + 713. / 243. + 4. / 81. * L
            - 4. / 9. * (E0t(xt) - 7. / 9. + 2. / 3. * L);
 }
 
-double C7::compute_NNLO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src) {
-    double L     = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 3})->get_val();
-    double xt    = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1}})->get_val();
-    double xtW   = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 7})->get_val();
-    double xtt   = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 8})->get_val();
-    double mtop  = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 6})->get_val();
-    double Q     = src.at({ParameterType::WILSON, "EW_SCALE", 1})->get_val();
-    double mW    = src.at({ParameterType::SM, "MASS", 24})->get_val();
+double C7::compute_NNLO(const ParamSrc& src) {
+    double L     = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 3);;
+    double xt    = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1});;
+    double xtW   = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 7);;
+    double xtt   = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 8);;
+    double mtop  = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 6);;
+    double Q     = src.get_val(ParameterType::WILSON, "EW_SCALE", 1);;
+    double mW    = src.get_val(ParameterType::SM, "MASS", 24);;
 
     double logqt = log(Q * Q / (mtop * mtop));
     double logqW = log(Q * Q / (mW * mW));
@@ -306,14 +307,14 @@ double C7::compute_NNLO(const std::unordered_map<ParamId, std::shared_ptr<Parame
 
 // ---------- C8 ----------
 
-C8::C8() : WilsonCoefficient("C8", GroupMapper::str(WGroup::B) + "_MATCH") {
+C8::C8() : WilsonCoefficient("C8", GroupMapper::str(WGroup::B, ScaleType::MATCHING)) {
     // LO
     matching_info[QCDOrder::LO] = {
         {
             {"WPARAM_MATCH_SM", LhaID(2, 1)}  // x_t
         },
         compute_LO,
-        LhaID(305, 6421, 0, 0)
+        get_lhaid_from_name(QCDOrder::LO)
     };
 
     // NLO
@@ -325,7 +326,7 @@ C8::C8() : WilsonCoefficient("C8", GroupMapper::str(WGroup::B) + "_MATCH") {
             {"EW_SCALE", 1}                   // Q_match
         },
         compute_NLO,
-        LhaID(305, 6421, 1, 0)
+        get_lhaid_from_name(QCDOrder::NLO)
     };
 
     // NNLO
@@ -340,20 +341,20 @@ C8::C8() : WilsonCoefficient("C8", GroupMapper::str(WGroup::B) + "_MATCH") {
             {ParameterType::SM, "MASS", 24}   // m_W
         },
         compute_NNLO,
-        LhaID(305, 6421, 2, 0)
+        get_lhaid_from_name(QCDOrder::NNLO)
     };
 }
 
-double C8::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src) {
-    double xt = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1}})->get_val();
+double C8::compute_LO(const ParamSrc& src) {
+    double xt = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1});;
     return -0.5 * F0t(xt) - 1. / 3.;
 }
 
-double C8::compute_NLO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src) {
-    double L = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 3})->get_val();
-    double xt = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1}})->get_val();
-    double mass_top_muW = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 6})->get_val();
-    double Q_match = src.at({ParameterType::WILSON, "EW_SCALE", 1})->get_val();
+double C8::compute_NLO(const ParamSrc& src) {
+    double L = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 3);;
+    double xt = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1});;
+    double mass_top_muW = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 6);;
+    double Q_match = src.get_val(ParameterType::WILSON, "EW_SCALE", 1);;
 
     return -0.5 * F1t(xt, log(Q_match * Q_match / (mass_top_muW * mass_top_muW)))
            + 91. / 324.
@@ -361,14 +362,14 @@ double C8::compute_NLO(const std::unordered_map<ParamId, std::shared_ptr<Paramet
            - (E0t(xt) - 7. / 9. + 2. / 3. * L) / 6.;
 }
 
-double C8::compute_NNLO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src) {
-    double L     = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 3})->get_val();
-    double xt    = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1}})->get_val();
-    double xtW   = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 7})->get_val();
-    double xtt   = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 8})->get_val();
-    double mtop  = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 6})->get_val();
-    double Q     = src.at({ParameterType::WILSON, "EW_SCALE", 1})->get_val();
-    double mW    = src.at({ParameterType::SM, "MASS", 24})->get_val();
+double C8::compute_NNLO(const ParamSrc& src) {
+    double L     = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 3);;
+    double xt    = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1});;
+    double xtW   = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 7);;
+    double xtt   = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 8);;
+    double mtop  = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 6);;
+    double Q     = src.get_val(ParameterType::WILSON, "EW_SCALE", 1);;
+    double mW    = src.get_val(ParameterType::SM, "MASS", 24);;
 
     double logqt = log(Q * Q / (mtop * mtop));
     double logqW = log(Q * Q / (mW * mW));
@@ -396,7 +397,7 @@ double C8::compute_NNLO(const std::unordered_map<ParamId, std::shared_ptr<Parame
 // ---------- C9 ----------
 
 
-C9::C9() : WilsonCoefficient("C9", GroupMapper::str(WGroup::B) + "_MATCH") {
+C9::C9() : WilsonCoefficient("C9", GroupMapper::str(WGroup::B, ScaleType::MATCHING)) {
     // LO
     matching_info[QCDOrder::LO] = {
         {
@@ -405,7 +406,7 @@ C9::C9() : WilsonCoefficient("C9", GroupMapper::str(WGroup::B) + "_MATCH") {
             {"WPARAM_SI_SM", 4}               // sw2
         },
         compute_LO,
-        LhaID(3051313, 4133, 0, 0)
+        get_lhaid_from_name(QCDOrder::LO)
     };
 
     // NLO
@@ -418,17 +419,17 @@ C9::C9() : WilsonCoefficient("C9", GroupMapper::str(WGroup::B) + "_MATCH") {
             {"EW_SCALE", 1}                   // Q_match
         },
         compute_NLO,
-        LhaID(3051313, 4133, 1, 0)
+        get_lhaid_from_name(QCDOrder::NLO)
     };
 
-    matching_info[QCDOrder::NNLO] = MatchingInfo(LhaID(3051313, 4133, 2, 0));
+    matching_info[QCDOrder::NNLO] = MatchingInfo(get_lhaid_from_name(QCDOrder::NNLO));
 
 }
 
-double C9::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src) {
-    double L    = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 3})->get_val();
-    double xt   = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1}})->get_val();
-    double sw2  = src.at({ParameterType::WILSON, "WPARAM_SI_SM", 4})->get_val();
+double C9::compute_LO(const ParamSrc& src) {
+    double L    = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 3);;
+    double xt   = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1});;
+    double sw2  = src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", 4);;
 
     return (1. - 4. * sw2) / sw2 * C0t(xt)
          - B0t(xt) / sw2
@@ -438,12 +439,12 @@ double C9::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Paramete
          - 4. / 9. * L;
 }
 
-double C9::compute_NLO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src) {
-    double L    = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 3})->get_val();
-    double xt   = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1}})->get_val();
-    double mtop = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 6})->get_val();
-    double Q    = src.at({ParameterType::WILSON, "EW_SCALE", 1})->get_val();
-    double sw2  = src.at({ParameterType::WILSON, "WPARAM_SI_SM", 4})->get_val();
+double C9::compute_NLO(const ParamSrc& src) {
+    double L    = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 3);;
+    double xt   = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1});;
+    double mtop = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 6);;
+    double Q    = src.get_val(ParameterType::WILSON, "EW_SCALE", 1);;
+    double sw2  = src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", 4);;
 
     double logqt = log(Q * Q / (mtop * mtop));
 
@@ -459,7 +460,7 @@ double C9::compute_NLO(const std::unordered_map<ParamId, std::shared_ptr<Paramet
 
 // ---------- C10 ----------
 
-C10::C10() : WilsonCoefficient("C10", GroupMapper::str(WGroup::B) + "_MATCH") {
+C10::C10() : WilsonCoefficient("C10", GroupMapper::str(WGroup::B, ScaleType::MATCHING)) {
     // LO
     matching_info[QCDOrder::LO] = {
         {
@@ -467,7 +468,7 @@ C10::C10() : WilsonCoefficient("C10", GroupMapper::str(WGroup::B) + "_MATCH") {
             {"WPARAM_SI_SM", 4}               // sw2
         },
         compute_LO,
-        LhaID(3051313, 4137, 0, 0)
+        get_lhaid_from_name(QCDOrder::LO)
     };
 
     // NLO
@@ -479,7 +480,7 @@ C10::C10() : WilsonCoefficient("C10", GroupMapper::str(WGroup::B) + "_MATCH") {
             {"EW_SCALE", 1}                   // Q_match
         },
         compute_NLO,
-        LhaID(3051313, 4137, 1, 0)
+        get_lhaid_from_name(QCDOrder::NLO)
     };
 
     // NNLO
@@ -494,36 +495,36 @@ C10::C10() : WilsonCoefficient("C10", GroupMapper::str(WGroup::B) + "_MATCH") {
             {ParameterType::SM, "MASS", 24}   // m_W
         },
         compute_NNLO,
-        LhaID(3051313, 4137, 2, 0)
+        get_lhaid_from_name(QCDOrder::NNLO)
     };
 }
 
-double C10::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src) {
-    double xt  = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1}})->get_val();
-    double sw2 = src.at({ParameterType::WILSON, "WPARAM_SI_SM", 4})->get_val();
+double C10::compute_LO(const ParamSrc& src) {
+    double xt  = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1});;
+    double sw2 = src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", 4);;
 
     return (B0t(xt) - C0t(xt) - 0.25) / sw2;
 }
 
-double C10::compute_NLO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src) {
-    double xt    = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1}})->get_val();
-    double mtop  = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 6})->get_val();
-    double Q     = src.at({ParameterType::WILSON, "EW_SCALE", 1})->get_val();
-    double sw2   = src.at({ParameterType::WILSON, "WPARAM_SI_SM", 4})->get_val();
+double C10::compute_NLO(const ParamSrc& src) {
+    double xt    = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1});;
+    double mtop  = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 6);;
+    double Q     = src.get_val(ParameterType::WILSON, "EW_SCALE", 1);;
+    double sw2   = src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", 4);;
 
     double logqt = log(Q * Q / (mtop * mtop));
 
     return (B1t(xt, logqt) - C1t(xt, logqt)) / sw2 - 1. / sw2;
 }
 
-double C10::compute_NNLO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src) {
-    double xt    = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1}})->get_val();
-    double xtW   = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 7})->get_val();
-    double xtt   = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 8})->get_val();
-    double mtop  = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", 6})->get_val();
-    double Q     = src.at({ParameterType::WILSON, "EW_SCALE", 1})->get_val();
-    double mW    = src.at({ParameterType::SM, "MASS", 24})->get_val();
-    double sw2   = src.at({ParameterType::WILSON, "WPARAM_SI_SM", 4})->get_val();
+double C10::compute_NNLO(const ParamSrc& src) {
+    double xt    = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1});;
+    double xtW   = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 7);;
+    double xtt   = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 8);;
+    double mtop  = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 6);;
+    double Q     = src.get_val(ParameterType::WILSON, "EW_SCALE", 1);;
+    double mW    = src.get_val(ParameterType::SM, "MASS", 24);;
+    double sw2   = src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", 4);;
 
     double logqt = log(Q * Q / (mtop * mtop));
     double logqW = log(Q * Q / (mW * mW));
@@ -558,7 +559,7 @@ double C10::compute_NNLO(const std::unordered_map<ParamId, std::shared_ptr<Param
 
 // ---------- CQ1 ----------
 
-CQ1::CQ1() : WilsonCoefficient("CQ1", GroupMapper::str(WGroup::B) + "_MATCH") {
+CQ1::CQ1() : WilsonCoefficient("CQ1", GroupMapper::str(WGroup::BScalar, ScaleType::MATCHING)) {
     matching_info[QCDOrder::LO] = {
         {
             {"WPARAM_MATCH_SM", {2, 1}},     // x_t
@@ -569,21 +570,21 @@ CQ1::CQ1() : WilsonCoefficient("CQ1", GroupMapper::str(WGroup::B) + "_MATCH") {
             {ParameterType::SM, "MASS", 24}  // m_W
         },
         compute_LO,
-        LhaID(3051313, 3230, 0, 0)
+        get_lhaid_from_name(QCDOrder::LO)
     };
 
-    matching_info[QCDOrder::NLO] = MatchingInfo(LhaID(3051313, 3230, 1, 0));
+    matching_info[QCDOrder::NLO] = MatchingInfo(get_lhaid_from_name(QCDOrder::NLO));
 
-    matching_info[QCDOrder::NNLO] = MatchingInfo(LhaID(3051313, 3230, 2, 0));
+    matching_info[QCDOrder::NNLO] = MatchingInfo(get_lhaid_from_name(QCDOrder::NNLO));
 }
 
-double CQ1::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src) {
-    double xt     = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1}})->get_val();
-    double mb_muW = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {5, 2}})->get_val(); // TODO : Ask Nazila (check SI first) : Why {5,2} and not {5,1} ?
-    double xh     = src.at({ParameterType::WILSON, "WPARAM_SI_SM", 1})->get_val();
-    double ml     = src.at({ParameterType::WILSON, "WPARAM_SI_SM", 3})->get_val();
-    double sw2    = src.at({ParameterType::WILSON, "WPARAM_SI_SM", 4})->get_val();
-    double mW     = src.at({ParameterType::SM, "MASS", 24})->get_val();
+double CQ1::compute_LO(const ParamSrc& src) {
+    double xt     = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1});;
+    double mb_muW = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {5, 2});; // TODO : Ask Nazila (check SI first) : Why {5,2} and not {5,1} ?
+    double xh     = src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", 1);;
+    double ml     = src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", 3);;
+    double sw2    = src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", 4);;
+    double mW     = src.get_val(ParameterType::SM, "MASS", 24);;
 
     printf("xt in the SM (LO) : %.8lf\n", xt);
     printf("mb_muW in the SM (LO) : %.8lf\n", mb_muW);
@@ -604,7 +605,7 @@ double CQ1::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Paramet
 
 // ---------- CQ2 ----------
 
-CQ2::CQ2() : WilsonCoefficient("CQ2", GroupMapper::str(WGroup::B) + "_MATCH") {
+CQ2::CQ2() : WilsonCoefficient("CQ2", GroupMapper::str(WGroup::BScalar, ScaleType::MATCHING)) {
     matching_info[QCDOrder::LO] = {
         {
             {"WPARAM_MATCH_SM", {2, 1}},  // xt
@@ -617,23 +618,23 @@ CQ2::CQ2() : WilsonCoefficient("CQ2", GroupMapper::str(WGroup::B) + "_MATCH") {
             {ParameterType::SM, "MASS", 24} // m_W
         },
         compute_LO,
-        LhaID(3051313, 3233, 0, 0)
+        get_lhaid_from_name(QCDOrder::LO)
     };
 
-    matching_info[QCDOrder::NLO] = MatchingInfo(LhaID(3051313, 3233, 1, 0));
+    matching_info[QCDOrder::NLO] = MatchingInfo(get_lhaid_from_name(QCDOrder::NLO));
 
-    matching_info[QCDOrder::NNLO] = MatchingInfo(LhaID(3051313, 3233, 2, 0));
+    matching_info[QCDOrder::NNLO] = MatchingInfo(get_lhaid_from_name(QCDOrder::NNLO));
 }
 
-double CQ2::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src) {
-    double xt   = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1}})->get_val();
-    double xt2  = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 2}})->get_val();
-    double xt3  = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 3}})->get_val();
-    double xt4  = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 4}})->get_val();
-    double mb   = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {5, 1}})->get_val();
-    double ml   = src.at({ParameterType::WILSON, "WPARAM_SI_SM", 3})->get_val();
-    double sw2  = src.at({ParameterType::WILSON, "WPARAM_SI_SM", 4})->get_val();
-    double mW   = src.at({ParameterType::SM, "MASS", 24})->get_val();
+double CQ2::compute_LO(const ParamSrc& src) {
+    double xt   = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1});;
+    double xt2  = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 2});;
+    double xt3  = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 3});;
+    double xt4  = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 4});;
+    double mb   = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {5, 1});;
+    double ml   = src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", 3);;
+    double sw2  = src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", 4);;
+    double mW   = src.get_val(ParameterType::SM, "MASS", 24);;
 
     double CPc_SM =
         1. / 24. * (
@@ -652,7 +653,7 @@ double CQ2::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Paramet
 
 // ---------- C'7 ----------
 
-CP7::CP7() : WilsonCoefficient("CP7", GroupMapper::str(WGroup::B) + "_MATCH") {
+CP7::CP7() : WilsonCoefficient("CP7", GroupMapper::str(WGroup::BPrime, ScaleType::MATCHING)) {
     matching_info[QCDOrder::LO] = {
         {
             {"WPARAM_MATCH_SM", {2, 1}},     // x_t
@@ -660,18 +661,18 @@ CP7::CP7() : WilsonCoefficient("CP7", GroupMapper::str(WGroup::B) + "_MATCH") {
             {ParameterType::SM, "MASS", 3}   // m_s
         },
         compute_LO,
-        LhaID(305, 4322, 0, 0)
+        get_lhaid_from_name(QCDOrder::LO)
     };
 
-    matching_info[QCDOrder::NLO] = MatchingInfo(LhaID(305, 4322, 1, 0));
+    matching_info[QCDOrder::NLO] = MatchingInfo(get_lhaid_from_name(QCDOrder::NLO));
 
-    matching_info[QCDOrder::NNLO] = MatchingInfo(LhaID(305, 4322, 2, 0));
+    matching_info[QCDOrder::NNLO] = MatchingInfo(get_lhaid_from_name(QCDOrder::NNLO));
 }
 
-double CP7::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src) {
-    double xt     = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1}})->get_val();
-    double mb     = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {5, 1}})->get_val();
-    double ms     = src.at({ParameterType::SM, "MASS", 3})->get_val();
+double CP7::compute_LO(const ParamSrc& src) {
+    double xt     = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1});;
+    double mb     = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {5, 1});;
+    double ms     = src.get_val(ParameterType::SM, "MASS", 3);;
 
     printf("ms in SM (LO) : %.8lf\n", ms);
     printf("mb in SM (LO) : %.8lf\n", mb);
@@ -683,7 +684,7 @@ double CP7::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Paramet
 
 // ---------- C'8 ----------
 
-CP8::CP8() : WilsonCoefficient("CP8", GroupMapper::str(WGroup::B) + "_MATCH") {
+CP8::CP8() : WilsonCoefficient("CP8", GroupMapper::str(WGroup::BPrime, ScaleType::MATCHING)) {
     matching_info[QCDOrder::LO] = {
         {
             {"WPARAM_MATCH_SM", {2, 1}},     // x_t
@@ -691,18 +692,18 @@ CP8::CP8() : WilsonCoefficient("CP8", GroupMapper::str(WGroup::B) + "_MATCH") {
             {ParameterType::SM, "MASS", 3}   // m_s
         },
         compute_LO,
-        LhaID(305, 4321, 0, 0)
+        get_lhaid_from_name(QCDOrder::LO)
     };
 
-    matching_info[QCDOrder::NLO] = MatchingInfo(LhaID(305, 4321, 1, 0));
+    matching_info[QCDOrder::NLO] = MatchingInfo(get_lhaid_from_name(QCDOrder::NLO));
 
-    matching_info[QCDOrder::NNLO] = MatchingInfo(LhaID(305, 4321, 2, 0));
+    matching_info[QCDOrder::NNLO] = MatchingInfo(get_lhaid_from_name(QCDOrder::NNLO));
 }
 
-double CP8::compute_LO(const std::unordered_map<ParamId, std::shared_ptr<Parameter>>& src) {
-    double xt     = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1}})->get_val();
-    double mb     = src.at({ParameterType::WILSON, "WPARAM_MATCH_SM", {5, 1}})->get_val();
-    double ms     = src.at({ParameterType::SM, "MASS", 3})->get_val();
+double CP8::compute_LO(const ParamSrc& src) {
+    double xt     = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1});;
+    double mb     = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {5, 1});;
+    double ms     = src.get_val(ParameterType::SM, "MASS", 3);;
     printf("CP8 in SM (LO) : %.8lf\n", ms / mb * (-0.5 * F0t(xt) - 1. / 3.));
     return ms / mb * (-0.5 * F0t(xt) - 1. / 3.);
 }

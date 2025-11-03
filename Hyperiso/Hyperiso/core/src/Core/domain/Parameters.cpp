@@ -163,13 +163,13 @@ void SMModelStrategy::postInitialization(Parameters& params) {
             {ParameterType::SM, {"VCKMIN"}}
         };
     
-        auto func_ckm = [] (const std::unordered_map<std::string, std::shared_ptr<Block>>& src, std::shared_ptr<DependentBlock> dep_block) {
-            double lambda = src.at("VCKMIN")->retrieve(1)->get_val();
+        auto func_ckm = [] (const BlockSrc& src, std::shared_ptr<DependentBlock> dep_block) {
+            double lambda = src.get_val("VCKMIN", 1);
             double l2 = lambda * lambda;
             double l3 = l2 * lambda;
-            double A = src.at("VCKMIN")->retrieve(2)->get_val();
-            double rho = src.at("VCKMIN")->retrieve(3)->get_val();
-            double eta = src.at("VCKMIN")->retrieve(4)->get_val();
+            double A = src.get_val("VCKMIN", 2);
+            double rho = src.get_val("VCKMIN", 3);
+            double eta = src.get_val("VCKMIN", 4);
 
             double s_12 = lambda;
             double s_23 = A * l2;
@@ -200,8 +200,8 @@ void SMModelStrategy::postInitialization(Parameters& params) {
         {ParameterType::WILSON, {"EW_SCALE"}}
     };
 
-    auto func = [] (const std::unordered_map<std::string, std::shared_ptr<Block>>& src, std::shared_ptr<DependentBlock> dep_block) {
-        double mu_W = src.at("EW_SCALE")->retrieve(1)->get_val();
+    auto func = [] (const BlockSrc& src, std::shared_ptr<DependentBlock> dep_block) {
+        double mu_W = src.get_val("EW_SCALE", 1);
         double mass_top_muW = QCDHelper::msbar_mass(6, mu_W, MassType::MSBAR);
 		double mass_b_muW_mbrun = QCDHelper::msbar_mass(5, mu_W, MassType::MSBAR);
 		double mass_b_muW_mbpole = QCDHelper::msbar_mass(5, mu_W, MassType::POLE);
