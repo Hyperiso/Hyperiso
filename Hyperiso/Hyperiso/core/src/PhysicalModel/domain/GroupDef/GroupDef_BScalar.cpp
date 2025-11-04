@@ -4,9 +4,9 @@
 
 using CGS = CoefficientGroupSources;
 
-static std::unordered_map<WCoef, scalar_t>
+static std::unordered_map<WCoefId, scalar_t>
 BScalar_SUSY_Base1_LO_calculation(
-    const std::unordered_map<QCDOrder, std::unordered_map<WCoef, scalar_t>>& coef_matching,
+    const std::unordered_map<QCDOrder, std::unordered_map<WCoefId, scalar_t>>& coef_matching,
     const BlockSrc& src)
 {
     const auto ids = WCoefMapper::get_group(WGroup::BScalar);
@@ -14,7 +14,7 @@ BScalar_SUSY_Base1_LO_calculation(
     const auto itLO = coef_matching.find(QCDOrder::LO);
     const auto* matchLO = (itLO != coef_matching.end()) ? &itLO->second : nullptr;
 
-    auto getM = [&](WCoef c) -> scalar_t {
+    auto getM = [&](WCoefId c) -> scalar_t {
         if (!matchLO) return scalar_t(0);
         auto it = matchLO->find(c);
         return (it != matchLO->end()) ? it->second : scalar_t(0);
@@ -25,10 +25,10 @@ BScalar_SUSY_Base1_LO_calculation(
 
     const double fact = std::pow(eta, -4.0 / beta_0);
 
-    std::unordered_map<WCoef, scalar_t> out;
+    std::unordered_map<WCoefId, scalar_t> out;
     out.reserve(ids.size());
     for (auto c : ids) {
-        out[c] = fact * getM(c);
+        out[WCoefMapper::to_id(c)] = fact * getM(WCoefMapper::to_id(c));
     }
 
     complex_t coeff_temp2 = 0;
@@ -101,7 +101,7 @@ BScalar_SUSY_Base1_LO_calculation(
             coeff_temp2+=complex_t{v_deltam_s/2.*mass_b_2/sw2*src.get_val("WPARAM_SI_SM",3)*CA/(m_Bs*m_Bs-mA*mA,mA*width_A0)};
         }
     }
-    out[WCoef::CQ2] += coeff_temp2;
+    out[WCoefMapper::to_id(WCoef::CQ2)] += coeff_temp2;
     return out;
 }
 

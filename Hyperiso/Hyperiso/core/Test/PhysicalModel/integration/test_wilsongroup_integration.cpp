@@ -96,8 +96,8 @@ static void init_group_hadronic_no_manager(std::shared_ptr<CoefficientGroup> grp
     fill_sources_for_group(grp, ord, src, basis);
 
     // fonctions LO/NLO/NNLO (si absentes, la map contiendra des std::function vides -> à gérer)
-    std::map<QCDOrder, std::function<std::unordered_map<WCoef, scalar_t>(
-        const std::unordered_map<QCDOrder, std::unordered_map<WCoef, scalar_t>>&,
+    std::map<QCDOrder, std::function<std::unordered_map<WCoefId, scalar_t>(
+        const std::unordered_map<QCDOrder, std::unordered_map<WCoefId, scalar_t>>&,
         const BlockSrc&
     )>> funcs = {
         {QCDOrder::LO,   grp->get_func(QCDOrder::LO,   basis)},
@@ -114,21 +114,21 @@ static void init_group_hadronic_no_manager(std::shared_ptr<CoefficientGroup> grp
     {
         // 1) lire tous les matching coefs déposés dans le bloc MATCHING
         std::map<LhaID, std::shared_ptr<Parameter>> matching_coeff = src.raw().at(matching_block_name)->getItems();
-        std::unordered_map<ContributionType, std::unordered_map<QCDOrder, std::unordered_map<WCoef, scalar_t>>> matching_map;
+        std::unordered_map<ContributionType, std::unordered_map<QCDOrder, std::unordered_map<WCoefId, scalar_t>>> matching_map;
 
         for (auto& kv : matching_coeff) {
             auto des = lha_wilson_deserialize(kv.first);
             const WCoef& wcoef = des.first;
             const QCDOrder& order = des.second.first;
             const ContributionType& contrib = des.second.second;
-            matching_map[contrib][order][wcoef] = kv.second->get_val();
+            matching_map[contrib][order][WCoefMapper::to_id(wcoef)] = kv.second->get_val();
         }
 
         // 2) exécuter les fonctions LO..ord pour SM/BSM/TOTAL
-        std::unordered_map<ContributionType, std::unordered_map<QCDOrder,std::unordered_map<WCoef, scalar_t>>> res;
+        std::unordered_map<ContributionType, std::unordered_map<QCDOrder,std::unordered_map<WCoefId, scalar_t>>> res;
         auto call_if = [&](QCDOrder o) {
             auto f = funcs.at(o);
-            if (!f) return std::unordered_map<WCoef, scalar_t>{};
+            if (!f) return std::unordered_map<WCoefId, scalar_t>{};
             return f(matching_map[ContributionType::SM], BlockSrc(src)); // on calcule par contrib juste après
         };
 

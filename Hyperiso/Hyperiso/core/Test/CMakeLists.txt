@@ -271,6 +271,12 @@ target_link_libraries(testWilsonUnit PhysicalModelLib UtilsLib)
 add_executable(testWilsonIntegration PhysicalModel/integration/test_wilson_integration.cpp)
 target_link_libraries(testWilsonIntegration PhysicalModelLib UtilsLib)
 
+add_executable(testMartyWilsonUnit PhysicalModel/unit/test_marty_wilson_unit.cpp)
+target_link_libraries(testMartyWilsonUnit PhysicalModelLib UtilsLib)
+
+add_executable(testMartyWilsonIntegration PhysicalModel/integration/test_marty_wilson_integration.cpp)
+target_link_libraries(testMartyWilsonIntegration PhysicalModelLib UtilsLib)
+
 add_executable(testWilsonGroupUnit PhysicalModel/unit/test_wilsongroup_unit.cpp)
 target_link_libraries(testWilsonGroupUnit PhysicalModelLib UtilsLib)
 
