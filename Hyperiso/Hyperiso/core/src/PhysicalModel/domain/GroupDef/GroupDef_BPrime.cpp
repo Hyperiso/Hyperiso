@@ -1,5 +1,5 @@
 #include "GroupDefinition.h"
-#include "BWilsonGroup.h"
+#include "BPrimeWilsonGroup.h"
 
 using CGS = CoefficientGroupSources;
 

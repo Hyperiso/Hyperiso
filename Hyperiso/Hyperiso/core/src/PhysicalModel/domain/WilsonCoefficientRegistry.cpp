@@ -1,5 +1,7 @@
 #include "WilsonCoefficientRegistry.h"
 #include "BWilson.h"
+#include "BPrimeWilson.h"
+#include "BScalarWilson.h"
 #include "ChargedCurrentsWilsonGroup.h"
 #include "DChargedCurrentsWilsonGroup.h"
 #include "KChargedCurrentsWilsonGroup.h"

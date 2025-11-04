@@ -2,7 +2,7 @@
 
 void WilsonParameterHelper::init(int gen, WGroupId grp) {
 	if (initialized) {
-		std::cout << "wilson_param_helper already done " << std::endl;
+		LOG_TRACE("WilsonParameterHelper already initialized ");
 		return;
 	}
 	LOG_DEBUG("Initializing WilsonParameterHelper");
@@ -329,7 +329,7 @@ void WilsonParameterHelper::init_running_block(WGroupId grp) {
 
     iblock_c->compose_block("WPARAM_RUN_SM", src, func);
 
-	if (grp == GroupMapper::to_id(WGroup::B)) {
+	if (grp == GroupMapper::to_id(WGroup::B) || grp == GroupMapper::to_id(WGroup::BPrime) || grp == GroupMapper::to_id(WGroup::BScalar)) {
 		init_running_parameter_blocks_B();
 
 	} else if (grp == GroupMapper::to_id(WGroup::MESON_MIXING)) {

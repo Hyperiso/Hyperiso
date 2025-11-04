@@ -3,12 +3,11 @@
 
 #include <array>
 #include "IBlockComposer.h"
-#include "BWilsonRunningParameters.h"
-#include "ParameterProxy.h"
 #include "Include.h"
 #include "IWilsonParameters.h"
 #include "BWilsonRunningParameters.h"
 #include "MesonMixingRunningParameters.h"
+#include "QCDHelper.h"
 
 using BRP = BWilsonRunningParameters;
 using MMRP = MesonMixingRunningParameters;

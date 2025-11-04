@@ -28,27 +28,6 @@ public:
 };
 
 
-class BPrimeCoefficientGroup : public CoefficientGroup {
-public:
-    BPrimeCoefficientGroup(WilsonGroupAdapterConfig adapters, bool force_sm=false);
-    std::shared_ptr<CoefficientGroup> clone() const override;
-
-    std::shared_ptr<CoefficientGroup> get_sm_group() override { return std::make_shared<BPrimeCoefficientGroup>(adapters, true); }
-    static std::unordered_map<WCoef, scalar_t> base_1_LO_calculation (const std::unordered_map<QCDOrder, std::unordered_map<WCoef, scalar_t>>& coef_matching, const BlockSrc& src);
-
-};
-
-
-class BScalarCoefficientGroup : public CoefficientGroup {
-public:
-    BScalarCoefficientGroup(WilsonGroupAdapterConfig adapters, bool force_sm=false);
-    std::shared_ptr<CoefficientGroup> clone() const override;
-
-    std::shared_ptr<CoefficientGroup> get_sm_group() override { return std::make_shared<BScalarCoefficientGroup>(adapters, true); }
-    static std::unordered_map<WCoef, scalar_t> base_1_LO_calculation (const std::unordered_map<QCDOrder, std::unordered_map<WCoef, scalar_t>>& coef_matching, const BlockSrc& src);
-    static std::unordered_map<WCoef, scalar_t> base_1_NLO_calculation (const std::unordered_map<QCDOrder, std::unordered_map<WCoef, scalar_t>>& coef_matching, const BlockSrc& src);
-    
-};
 
 
 std::ostream& operator<<(std::ostream& os, const CoefficientGroup& coeffs);
