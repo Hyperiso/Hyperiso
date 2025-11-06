@@ -24,11 +24,11 @@ double CP7::compute_LO(const ParamSrc& src) {
     double mb     = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {5, 1});;
     double ms     = src.get_val(ParameterType::SM, "MASS", 3);;
 
-    printf("ms in SM (LO) : %.8lf\n", ms);
-    printf("mb in SM (LO) : %.8lf\n", mb);
-    printf("xt : %.8lf\n", xt);
+    // printf("ms in SM (LO) : %.8lf\n", ms);
+    // printf("mb in SM (LO) : %.8lf\n", mb);
+    // printf("xt : %.8lf\n", xt);
 
-    printf("CP7 in SM (LO) : %.8lf\n", ms / mb * (-0.5 * A0t(xt) - 23. / 36.));
+    // printf("CP7 in SM (LO) : %.8lf\n", ms / mb * (-0.5 * A0t(xt) - 23. / 36.));
     return ms / mb * (-0.5 * A0t(xt) - 23. / 36.);
 }
 
@@ -54,6 +54,6 @@ double CP8::compute_LO(const ParamSrc& src) {
     double xt     = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1});;
     double mb     = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {5, 1});;
     double ms     = src.get_val(ParameterType::SM, "MASS", 3);;
-    printf("CP8 in SM (LO) : %.8lf\n", ms / mb * (-0.5 * F0t(xt) - 1. / 3.));
+    // printf("CP8 in SM (LO) : %.8lf\n", ms / mb * (-0.5 * F0t(xt) - 1. / 3.));
     return ms / mb * (-0.5 * F0t(xt) - 1. / 3.);
 }
