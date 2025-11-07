@@ -10,8 +10,8 @@ std::shared_ptr<CoefficientGroup> BCoefficientGroup::clone() const {
 }
 
 
-std::unordered_map<WCoef, scalar_t> BCoefficientGroup::base_1_LO_calculation (
-    const std::unordered_map<QCDOrder, std::unordered_map<WCoef, scalar_t>>& coef_matching, 
+std::unordered_map<WCoefId, scalar_t> BCoefficientGroup::base_1_LO_calculation (
+    const std::unordered_map<QCDOrder, std::unordered_map<WCoefId, scalar_t>>& coef_matching, 
     const BlockSrc& src
 )
 {
@@ -24,7 +24,7 @@ std::unordered_map<WCoef, scalar_t> BCoefficientGroup::base_1_LO_calculation (
     std::array<complex_t, 10> Ci_match = {};
     auto ids = WCoefMapper::get_group(WGroup::B);
     for (size_t k = 0; k < 10; k++) {
-        Ci_match[k] = coef_matching.at(QCDOrder::LO).at(ids[k]);
+        Ci_match[k] = coef_matching.at(QCDOrder::LO).at(WCoefMapper::to_id(ids[k]));
     }
 
     std::array<complex_t, 10> Ci_run {};
@@ -57,16 +57,16 @@ std::unordered_map<WCoef, scalar_t> BCoefficientGroup::base_1_LO_calculation (
 
     Ci_run[9] = Ci_match[9];
     
-    std::unordered_map<WCoef, scalar_t> Ci_run_map {};
+    std::unordered_map<WCoefId, scalar_t> Ci_run_map {};
     for (size_t k = 0; k < 10; k++) {
-        Ci_run_map[ids[k]] = Ci_run[k];
+        Ci_run_map[WCoefMapper::to_id(ids[k])] = Ci_run[k];
     }
 
     return Ci_run_map;
 }
 
-std::unordered_map<WCoef, scalar_t> BCoefficientGroup::base_2_LO_calculation (
-    const std::unordered_map<QCDOrder, std::unordered_map<WCoef, scalar_t>>& coef_matching,
+std::unordered_map<WCoefId, scalar_t> BCoefficientGroup::base_2_LO_calculation (
+    const std::unordered_map<QCDOrder, std::unordered_map<WCoefId, scalar_t>>& coef_matching,
     const BlockSrc& src
 )
 {
@@ -80,11 +80,11 @@ std::unordered_map<WCoef, scalar_t> BCoefficientGroup::base_2_LO_calculation (
     auto ids = WCoefMapper::get_group(WGroup::B);
     for (size_t k = 0; k < 8; k++) {
         for (size_t j = 0; j < 8; j++) {
-            Ci_match_trad[k] += BRP::std_to_trad_LO[k][j] * coef_matching.at(QCDOrder::LO).at(ids[j]);
+            Ci_match_trad[k] += BRP::std_to_trad_LO[k][j] * coef_matching.at(QCDOrder::LO).at(WCoefMapper::to_id(ids[j]));
             
         }
     }
-    Ci_match_trad[8] = src.get_val("WPARAM_MATCH_SM",1)/ (4. * PI) * coef_matching.at(QCDOrder::LO).at(WCoef::C9);
+    Ci_match_trad[8] = src.get_val("WPARAM_MATCH_SM",1)/ (4. * PI) * coef_matching.at(QCDOrder::LO).at(WCoefMapper::to_id(WCoef::C9));
 
     std::array<complex_t, 10> Ci_run {};
 
@@ -99,18 +99,18 @@ std::unordered_map<WCoef, scalar_t> BCoefficientGroup::base_2_LO_calculation (
         Ci_run[8] += 4 * PI / src.get_val("WPARAM_RUN_SM",1)* V0(8, l) * Ci_match_trad[l];
     }
 
-    Ci_run[9] = coef_matching.at(QCDOrder::LO).at(WCoef::C10);
+    Ci_run[9] = coef_matching.at(QCDOrder::LO).at(WCoefMapper::to_id(WCoef::C10));
 
-    std::unordered_map<WCoef, scalar_t> Ci_run_map {};
+    std::unordered_map<WCoefId, scalar_t> Ci_run_map {};
     for (size_t k = 0; k < 10; k++) {
-        Ci_run_map[ids[k]] = Ci_run[k];
+        Ci_run_map[WCoefMapper::to_id(ids[k])] = Ci_run[k];
     }
 
     return Ci_run_map;
 }
 
-std::unordered_map<WCoef, scalar_t> BCoefficientGroup::base_1_NLO_calculation(
-    const std::unordered_map<QCDOrder, std::unordered_map<WCoef, scalar_t>>& coef_matching,
+std::unordered_map<WCoefId, scalar_t> BCoefficientGroup::base_1_NLO_calculation(
+    const std::unordered_map<QCDOrder, std::unordered_map<WCoefId, scalar_t>>& coef_matching,
     const BlockSrc& src
 )
 {
@@ -138,8 +138,8 @@ std::unordered_map<WCoef, scalar_t> BCoefficientGroup::base_1_NLO_calculation(
     std::array<complex_t, 10> Ci_1_match = {};
     auto ids = WCoefMapper::get_group(WGroup::B);
     for (size_t k = 0; k < 10; k++) {
-        Ci_0_match[k] = coef_matching.at(QCDOrder::LO).at(ids[k]);
-        Ci_1_match[k] = coef_matching.at(QCDOrder::NLO).at(ids[k]);
+        Ci_0_match[k] = coef_matching.at(QCDOrder::LO).at(WCoefMapper::to_id(ids[k]));
+        Ci_1_match[k] = coef_matching.at(QCDOrder::NLO).at(WCoefMapper::to_id(ids[k]));
     }
 
     std::array<complex_t, 10> Ci_run {};
@@ -161,18 +161,18 @@ std::unordered_map<WCoef, scalar_t> BCoefficientGroup::base_1_NLO_calculation(
         Ci_run[8] += 4 * PI / src.get_val("WPARAM_RUN_SM",1) * (U0(8, l) * Ci_1_match[l] + U1(8, l) * Ci_0_match[l]);
     }
 
-    Ci_run[9] = coef_matching.at(QCDOrder::NLO).at(WCoef::C10);
+    Ci_run[9] = coef_matching.at(QCDOrder::NLO).at(WCoefMapper::to_id(WCoef::C10));
         
-    std::unordered_map<WCoef, scalar_t> Ci_run_map {};
+    std::unordered_map<WCoefId, scalar_t> Ci_run_map {};
     for (size_t k = 0; k < 10; k++) {
-        Ci_run_map[ids[k]] = eta * Ci_run[k];
+        Ci_run_map[WCoefMapper::to_id(ids[k])] = eta * Ci_run[k];
     }
 
     return Ci_run_map;
 }
 
-std::unordered_map<WCoef, scalar_t> BCoefficientGroup::base_2_NLO_calculation(
-    const std::unordered_map<QCDOrder, std::unordered_map<WCoef, scalar_t>>& coef_matching,
+std::unordered_map<WCoefId, scalar_t> BCoefficientGroup::base_2_NLO_calculation(
+    const std::unordered_map<QCDOrder, std::unordered_map<WCoefId, scalar_t>>& coef_matching,
     const BlockSrc& src
 )
 {
@@ -191,14 +191,14 @@ std::unordered_map<WCoef, scalar_t> BCoefficientGroup::base_2_NLO_calculation(
     auto ids = WCoefMapper::get_group(WGroup::B);
     for (size_t k = 0; k < 8; k++) {
         for (size_t j = 0; j < 8; j++) {
-            complex_t Cj_0_match_std = coef_matching.at(QCDOrder::LO).at(ids[j]);
-            complex_t Cj_1_match_std = coef_matching.at(QCDOrder::NLO).at(ids[j]);
+            complex_t Cj_0_match_std = coef_matching.at(QCDOrder::LO).at(WCoefMapper::to_id(ids[j]));
+            complex_t Cj_1_match_std = coef_matching.at(QCDOrder::NLO).at(WCoefMapper::to_id(ids[j]));
             Ci_0_match_trad[k] += BRP::std_to_trad_LO[k][j] * Cj_0_match_std;
             Ci_1_match_trad[k] += BRP::std_to_trad_LO[k][j] * Cj_1_match_std + BRP::std_to_trad_NLO[k][j] * Cj_0_match_std;
         }
     }
-    Ci_0_match_trad[8] = src.get_val("WPARAM_MATCH_SM",1) / (4 * PI) * coef_matching.at(QCDOrder::LO).at(WCoef::C9);
-    Ci_1_match_trad[8] = src.get_val("WPARAM_MATCH_SM",1) / (4 * PI) * coef_matching.at(QCDOrder::NLO).at(WCoef::C9);
+    Ci_0_match_trad[8] = src.get_val("WPARAM_MATCH_SM",1) / (4 * PI) * coef_matching.at(QCDOrder::LO).at(WCoefMapper::to_id(WCoef::C9));
+    Ci_1_match_trad[8] = src.get_val("WPARAM_MATCH_SM",1) / (4 * PI) * coef_matching.at(QCDOrder::NLO).at(WCoefMapper::to_id(WCoef::C9));
 
     std::array<complex_t, 10> Ci_run {};
     for (size_t k = 0; k < 8; k++) {
@@ -211,19 +211,19 @@ std::unordered_map<WCoef, scalar_t> BCoefficientGroup::base_2_NLO_calculation(
         Ci_run[8] += 4 * PI / src.get_val("WPARAM_RUN_SM",1) * (V0(8, l) * Ci_1_match_trad[l] + V1(8, l) * Ci_0_match_trad[l]);
     }
 
-    Ci_run[9] = coef_matching.at(QCDOrder::NLO).at(WCoef::C10);;
+    Ci_run[9] = coef_matching.at(QCDOrder::NLO).at(WCoefMapper::to_id(WCoef::C10));
 
     double eta = src.get_val("WPARAM_RUN_SM",2);
-    std::unordered_map<WCoef, scalar_t> Ci_run_map {};
+    std::unordered_map<WCoefId, scalar_t> Ci_run_map {};
     for (size_t k = 0; k < 10; k++) {
-        Ci_run_map[ids[k]] = eta * Ci_run[k];
+        Ci_run_map[WCoefMapper::to_id(ids[k])] = eta * Ci_run[k];
     }
 
     return Ci_run_map;
 }
 
-std::unordered_map<WCoef, scalar_t> BCoefficientGroup::base_1_NNLO_calculation(
-    const std::unordered_map<QCDOrder, std::unordered_map<WCoef, scalar_t>>& coef_matching,
+std::unordered_map<WCoefId, scalar_t> BCoefficientGroup::base_1_NNLO_calculation(
+    const std::unordered_map<QCDOrder, std::unordered_map<WCoefId, scalar_t>>& coef_matching,
     const BlockSrc& src
 )
 {
@@ -238,9 +238,9 @@ std::unordered_map<WCoef, scalar_t> BCoefficientGroup::base_1_NNLO_calculation(
     std::array<complex_t, 10> Ci_2_match = {};
     auto ids = WCoefMapper::get_group(WGroup::B);
     for (size_t k = 0; k < 10; k++) {
-        Ci_0_match[k] = coef_matching.at(QCDOrder::LO).at(ids[k]);
-        Ci_1_match[k] = coef_matching.at(QCDOrder::NLO).at(ids[k]);
-        Ci_2_match[k] = coef_matching.at(QCDOrder::NNLO).at(ids[k]);
+        Ci_0_match[k] = coef_matching.at(QCDOrder::LO).at(WCoefMapper::to_id(ids[k]));
+        Ci_1_match[k] = coef_matching.at(QCDOrder::NLO).at(WCoefMapper::to_id(ids[k]));
+        Ci_2_match[k] = coef_matching.at(QCDOrder::NNLO).at(WCoefMapper::to_id(ids[k]));
     }
 
     Ci_0_match[6] = BRP::C7_eff_std(Ci_0_match);
@@ -265,14 +265,12 @@ std::unordered_map<WCoef, scalar_t> BCoefficientGroup::base_1_NNLO_calculation(
         Ci_run[8] += 4 * PI / src.get_val("WPARAM_RUN_SM",1) * (U(2, 8, l) * Ci_0_match[l] + U(1, 8, l) * Ci_1_match[l] + U(0, 8, l) * Ci_2_match[l]);
     }
 
-    Ci_run[9] = coef_matching.at(QCDOrder::NNLO).at(WCoef::C10);
-
-    printf("eta = %.5f\n", src.get_val("WPARAM_RUN_SM",2));
+    Ci_run[9] = coef_matching.at(QCDOrder::NNLO).at(WCoefMapper::to_id(WCoef::C10));
     
     double eta_sq = pow(src.get_val("WPARAM_RUN_SM",2), 2);
-    std::unordered_map<WCoef, scalar_t> Ci_run_map {};
+    std::unordered_map<WCoefId, scalar_t> Ci_run_map {};
     for (size_t k = 0; k < 10; k++) {
-        Ci_run_map[ids[k]] = eta_sq * Ci_run[k];
+        Ci_run_map[WCoefMapper::to_id(ids[k])] = eta_sq * Ci_run[k];
     }
 
     return Ci_run_map;

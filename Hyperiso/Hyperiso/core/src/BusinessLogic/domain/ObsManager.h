@@ -30,6 +30,8 @@ public:
     void add_obs_dep(ObservableId id, ParamId param);
     void add_obs_deps(ObservableId id, std::unordered_set<ParamId> params);
 
+    std::unordered_set<ParamId> get_all_ops_deps(ObservableId id);
+
     void add_all_obs_deps(Observables id);
     scalar_t get_uncertainty(Observables id);
 

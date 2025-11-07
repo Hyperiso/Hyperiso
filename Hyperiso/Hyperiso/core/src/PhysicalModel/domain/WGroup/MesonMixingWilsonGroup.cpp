@@ -165,9 +165,9 @@ void MesonMixingCoefficientGroup::init_running_parameter_blocks() {
     adapters.iblock_c->compose_block("UM_MATRIX_4", mtx_src, U_4_func);
 }
 
-std::unordered_map<WCoef, scalar_t> 
+std::unordered_map<WCoefId, scalar_t> 
 MesonMixingCoefficientGroup::base_1_LO_calculation (
-    const std::unordered_map<QCDOrder, std::unordered_map<WCoef, scalar_t>>& coef_matching,
+    const std::unordered_map<QCDOrder, std::unordered_map<WCoefId, scalar_t>>& coef_matching,
     const BlockSrc& src)
 {
     int n_f_final = QCDHelper::get_nf(src.get_val("B_SCALE",1));
@@ -178,7 +178,7 @@ MesonMixingCoefficientGroup::base_1_LO_calculation (
     auto ids = WCoefMapper::get_group(WGroup::MESON_MIXING);
     for (size_t n = 0; n < 4; n++) {
         for (size_t k = 0; k < 8; k++) {
-            Ci_match_temp[k] = coef_matching.at(QCDOrder::LO).at(ids[8 * n + k]);
+            Ci_match_temp[k] = coef_matching.at(QCDOrder::LO).at(WCoefMapper::to_id(ids[8 * n + k]));
         }
         Ci_match_temp = MMRP::change_basis(Ci_match_temp, MMRP::SUSY_to_BMU);
         for (size_t k = 0; k < 8; k++) {
@@ -203,9 +203,9 @@ MesonMixingCoefficientGroup::base_1_LO_calculation (
         }
     }
 
-    std::unordered_map<WCoef, scalar_t> Ci_run_map {};
+    std::unordered_map<WCoefId, scalar_t> Ci_run_map {};
     for (size_t k = 0; k < 32; k++) {
-        Ci_run_map[ids[k]] = Ci_run[k];
+        Ci_run_map[WCoefMapper::to_id(ids[k])] = Ci_run[k];
     }
 
     return Ci_run_map;

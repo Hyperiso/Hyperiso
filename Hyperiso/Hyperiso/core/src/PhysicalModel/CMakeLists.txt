@@ -169,6 +169,9 @@ target_link_libraries(TEST_SWITCH_LHA PhysicalModelLib)
 add_executable(custom_test app/main_custom_wilson.cpp)
 target_link_libraries(custom_test PhysicalModelLib)
 
+add_executable(CUSTOM app/main_custom.cpp)
+target_link_libraries(CUSTOM PhysicalModelLib)
+
 add_executable(kaons_test app/main_kaons.cpp)
 target_link_libraries(kaons_test PhysicalModelLib)
 

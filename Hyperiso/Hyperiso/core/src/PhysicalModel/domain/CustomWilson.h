@@ -27,10 +27,8 @@ public:
         std::function<scalar_t(const ParamSrc&)> compute,
         LhaID lhaid
     ) {
-        std::cout << "here" << std::endl;
         matching_info[order] = MatchingInfo(std::move(sources), std::move(compute), std::move(lhaid));
         // if (order > max_order) max_order = order;
-        std::cout << "here" << std::endl;
         return *this;
     }
 

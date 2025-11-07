@@ -55,7 +55,11 @@ public:
 
 
         for (auto order : {QCDOrder::LO, QCDOrder::NLO, QCDOrder::NNLO}) {
-            matching_info[order] = MatchingInfo(name + LhaID((int)order, (int)ct));
+            auto parts = name.get_parts();
+            int order_int = order == QCDOrder::LO ? 0 : order == QCDOrder::NLO ? 1 : 2;
+            int ct_int = ct == ContributionType::SM ? 0 : ct == ContributionType::BSM ? 1 : 2;
+            LhaID full(parts[0], parts[1], order_int, ct_int);
+            matching_info[order] = MatchingInfo(full);
         }
     }
 

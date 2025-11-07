@@ -6,10 +6,10 @@
 class CustomCoefficientGroup : public CoefficientGroup {
 public:
 
-    explicit CustomCoefficientGroup(WilsonGroupAdapterConfig adapters, const std::string& name,
+    explicit CustomCoefficientGroup(WilsonGroupAdapterConfig adapters, WGroupId gid, const std::string& name,
                                     ContributionType type = ContributionType::SM)
     : CoefficientGroup(adapters) {
-        this->id = GroupMapper::to_id(WGroup::CUSTOM_GROUP);
+        this->id = gid;
         this->name_grp = name;
         this->wilson_type = type;
     }
@@ -27,8 +27,8 @@ public:
         WilsonBasis basis,
         QCDOrder order,
         std::unordered_map<ParameterType, std::vector<std::string>> source_names,
-        std::function<std::unordered_map<WCoef, scalar_t>(
-            const std::unordered_map<QCDOrder, std::unordered_map<WCoef, scalar_t>>&,
+        std::function<std::unordered_map<WCoefId, scalar_t>(
+            const std::unordered_map<QCDOrder, std::unordered_map<WCoefId, scalar_t>>&,
             const BlockSrc&
         )> running_func
     ) {
@@ -38,8 +38,8 @@ public:
         return *this;
     }
 
-    static std::unordered_map<WCoef, scalar_t> identity_running(
-        const std::unordered_map<QCDOrder, std::unordered_map<WCoef, scalar_t>>& coef_matching,
+    static std::unordered_map<WCoefId, scalar_t> identity_running(
+        const std::unordered_map<QCDOrder, std::unordered_map<WCoefId, scalar_t>>& coef_matching,
         const BlockSrc& /*src*/
     ) {
         QCDOrder best = QCDOrder::LO;

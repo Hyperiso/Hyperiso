@@ -173,11 +173,11 @@ public:
         return all_exp;
     }
 
-    void set_param(const std::string& block, int code, double value, ParameterType type) {
+    void set_param(const std::string& block, LhaID code, double value, ParameterType type) {
         Parameters::GetInstance(type)->setBlockValue(block, code, value);
     }
 
-    double get_param(const std::string& block, int code, ParameterType type) {
+    double get_param(const std::string& block, LhaID code, ParameterType type) {
         return Parameters::GetInstance(type)->operator()(block, code);
     }
 
@@ -188,6 +188,15 @@ public:
     void update_gradient(ObservableId obs) {
         manager->update_gradient(obs);
     }
+
+    std::unordered_set<ParamId> get_all_ops_deps(ObservableId id) {
+        return manager->get_all_ops_deps(id);
+    }
+
+    std::unordered_set<ParamId> get_all_ops_deps(Observables id) {
+        return manager->get_all_ops_deps(ObservableMapper::to_id(id));
+    }
+
 };
 
 #endif
