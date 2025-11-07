@@ -188,6 +188,15 @@ public:
     void update_gradient(ObservableId obs) {
         manager->update_gradient(obs);
     }
+
+    std::unordered_set<ParamId> get_all_ops_deps(ObservableId id) {
+        return manager->get_all_ops_deps(id);
+    }
+
+    std::unordered_set<ParamId> get_all_ops_deps(Observables id) {
+        return manager->get_all_ops_deps(ObservableMapper::to_id(id));
+    }
+
 };
 
 #endif

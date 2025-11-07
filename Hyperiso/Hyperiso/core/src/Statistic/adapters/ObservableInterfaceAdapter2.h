@@ -8,17 +8,16 @@
 struct ParamSpec { std::string block; LhaID code; ParameterType type; };
 
 
-// Same as earlier adapter but taking Observables (the static enum you mentioned)
 class ObservableInterfaceAdapterObs final : public IModel {
 public:
-ObservableInterfaceAdapterObs(ObservableInterface& oi,
-std::vector<Observables> obs_ids,
-std::vector<ParamSpec> p_specs,
-std::vector<ParamSpec> eta_specs)
-: oi_(oi), obs_ids_(std::move(obs_ids)), p_specs_(std::move(p_specs)), eta_specs_(std::move(eta_specs)) {}
+    ObservableInterfaceAdapterObs(ObservableInterface& oi,
+    std::vector<Observables> obs_ids,
+    std::vector<ParamSpec> p_specs,
+    std::vector<ParamSpec> eta_specs)
+    : oi_(oi), obs_ids_(std::move(obs_ids)), p_specs_(std::move(p_specs)), eta_specs_(std::move(eta_specs)) {}
 
 
-std::size_t n_observables() const override { return obs_ids_.size(); }
+    std::size_t n_observables() const override { return obs_ids_.size(); }
 
 
     Vec predict(const Vec& p, const Vec& eta) const override {
@@ -40,7 +39,7 @@ std::size_t n_observables() const override { return obs_ids_.size(); }
         return out;
     }
 private:
-ObservableInterface& oi_;
-std::vector<Observables> obs_ids_;
-std::vector<ParamSpec> p_specs_, eta_specs_;
+    ObservableInterface& oi_;
+    std::vector<Observables> obs_ids_;
+    std::vector<ParamSpec> p_specs_, eta_specs_;
 };

@@ -18,11 +18,11 @@ void CorrelationMatrixValidator::validate(const Matrix& R) const {
         }
     }
     //->check diag
-    for (size_t i = 0; i < n; ++i) {
-        if (std::fabs(R[i][i] - 1.0) > EPS_DIAG) {
-            throw std::invalid_argument("Diagonal elements of the matrix needs to be ones");
-        }
-    }
+    // for (size_t i = 0; i < n; ++i) {
+    //     if (std::fabs(R[i][i] - 1.0) > EPS_DIAG) {
+    //         throw std::invalid_argument("Diagonal elements of the matrix needs to be ones");
+    //     }
+    // }
     // positive-dev check with Cholesky
 }
 

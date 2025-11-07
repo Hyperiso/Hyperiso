@@ -17,29 +17,29 @@ struct SPDMatrix {
 
 
     static SPDMatrix cholesky(const Matrix& A) {
-    const std::size_t n = A.size();
-    if (n == 0) throw std::invalid_argument("Empty matrix");
-    for (const auto& r : A) if (r.size() != n) throw std::invalid_argument("Non-square matrix");
+        const std::size_t n = A.size();
+        if (n == 0) throw std::invalid_argument("Empty matrix");
+        for (const auto& r : A) if (r.size() != n) throw std::invalid_argument("Non-square matrix");
 
 
-    gsl_matrix* M = gsl_matrix_alloc(n, n);
-    for (std::size_t i=0;i<n;++i)
-    for (std::size_t j=0;j<n;++j)
-    gsl_matrix_set(M, i, j, A[i][j]);
+        gsl_matrix* M = gsl_matrix_alloc(n, n);
+        for (std::size_t i=0;i<n;++i)
+        for (std::size_t j=0;j<n;++j)
+        gsl_matrix_set(M, i, j, A[i][j]);
 
 
-    int s = gsl_linalg_cholesky_decomp(M); // in-place, lower stored in M (strict lower + diag)
-    if (s) { gsl_matrix_free(M); throw std::runtime_error("Cholesky failed: matrix not SPD"); }
+        int s = gsl_linalg_cholesky_decomp(M); // in-place, lower stored in M (strict lower + diag)
+        if (s) { gsl_matrix_free(M); throw std::runtime_error("Cholesky failed: matrix not SPD"); }
 
 
-    SPDMatrix out; out.n = n; out.L.assign(n, Vec(n, 0.0));
-    for (std::size_t i=0;i<n;++i)
-    for (std::size_t j=0;j<=i;++j)
-    out.L[i][j] = gsl_matrix_get(M, i, j);
+        SPDMatrix out; out.n = n; out.L.assign(n, Vec(n, 0.0));
+        for (std::size_t i=0;i<n;++i)
+        for (std::size_t j=0;j<=i;++j)
+        out.L[i][j] = gsl_matrix_get(M, i, j);
 
 
-    gsl_matrix_free(M);
-        return out;
+        gsl_matrix_free(M);
+            return out;
     }
 
 

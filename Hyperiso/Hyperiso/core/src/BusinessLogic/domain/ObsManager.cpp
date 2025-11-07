@@ -125,6 +125,10 @@ void ObsManager::add_all_obs_deps(ObservableId id) {
     obss.at(ensure_present(id))->add_dependences(allowed);
 }
 
+std::unordered_set<ParamId> ObsManager::get_all_ops_deps(ObservableId id) {
+    return DependenciesHelper::get_allowed_parameters(id);
+}
+
 scalar_t ObsManager::get_uncertainty(Observables id) {
     ObservableId obs_id = ObservableMapper::to_id(id);
     return get_uncertainty(obs_id);
