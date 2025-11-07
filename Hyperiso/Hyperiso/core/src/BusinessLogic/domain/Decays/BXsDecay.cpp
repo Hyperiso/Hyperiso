@@ -2,17 +2,18 @@
 
 void BXsDecay::load_params() {
     ObsParameterProxy p;
-    cache.alpha_em = 1. / p(ParamId{ParameterType::SM, "SMINPUTS", 1});
+    cache.alpha_em = p(ParamId{ParameterType::SM, "EW", {1, 1}});
+    cache.alpha_em_0 = p(ParamId{ParameterType::SM, "EW", {1, 4}});
     cache.m_s = p(ParamId{ParameterType::SM, "MASS", 3});
     cache.m_c = p(ParamId{ParameterType::SM, "MASS", 4});
     cache.m_b_mb = p(ParamId{ParameterType::SM, "QCD", {5, 1}});
-    cache.m_b_1S = p(ParamId{ParameterType::SM, "QCD", {5, 3}});
+    cache.m_b_kin = p(ParamId{ParameterType::SM, "QCD", {5, 4}});
     cache.ckm_factor = std::pow(std::abs(std::conj(p(ParamId{ParameterType::SM, "VCKM", {2, 1}})) * p(ParamId{ParameterType::SM, "VCKM", {2, 2}}) / p(ParamId{ParameterType::SM, "VCKM", {1, 2}})), 2);
     cache.mu_b = w_config.hadronic_scale;
     cache.mu_W = w_config.matching_scale;
-    cache.beta_0 = ObsQCDProxy().get_constants()->beta[5][0]; // TODO : compute n_f based on scale ?
+    cache.beta_0 = ObsQCDProxy().get_constants()->beta[5 - 1][0]; // TODO : compute n_f based on scale ?
     cache.alpha_s_mu_b = ObsQCDProxy()(AlphasConfig(cache.mu_b, MassType::POLE, MassType::POLE));
-    cache.alpha_s_upsilon = ObsQCDProxy()(AlphasConfig(cache.m_b_1S, MassType::POLE, MassType::POLE));
+    cache.alpha_s_upsilon = ObsQCDProxy()(AlphasConfig(cache.m_b_kin, MassType::POLE, MassType::POLE));
     cache.eta = ObsQCDProxy()(AlphasConfig(cache.mu_W, MassType::POLE, MassType::POLE)) / cache.alpha_s_mu_b;
     cache.E0 = p(ParamId{ParameterType::DECAY, "B_Xs", 1});
     cache.BR_B__Xc_e_nu_exp = p(ParamId{ParameterType::DECAY, "B_Xs", 2});
@@ -23,15 +24,14 @@ void BXsDecay::load_params() {
     cache.mu_c= p(ParamId{ParameterType::DECAY, "B_Xs", 7});
     cache.z0= p(ParamId{ParameterType::DECAY, "B_Xs", 8});
     cache.z1= p(ParamId{ParameterType::DECAY, "B_Xs", 9});
-
-    cache.r_msbar_1S = ObsQCDProxy()(MassConfig(5, cache.mu_W, MassType::MSBAR, MassType::POLE)) / cache.m_b_1S; // mu_W or mu_b ????
+    cache.r_msbar_1S = ObsQCDProxy()(MassConfig(5, cache.mu_W, MassType::MSBAR, MassType::POLE)) / cache.m_b_kin; // mu_W or mu_b ????
     cache.m_c_mu_c = ObsQCDProxy()(MassConfig(4, cache.mu_c, MassType::MSBAR, MassType::POLE));
     cache.m_c_3gev = ObsQCDProxy()(MassConfig(4, 3.0, MassType::MSBAR, MassType::POLE));
-    cache.z = std::pow(cache.m_c_mu_c / cache.m_b_1S, 2);
-    cache.delta = 1 - 2 * cache.E0 / cache.m_b_1S;
-    cache.L_b = 2 * std::log(cache.mu_b / cache.m_b_1S);
-
-    cache.L_c = 2 * std::log(cache.mu_c / cache.m_c_mu_c);
+    cache.z = std::pow(cache.m_c_mu_c / cache.m_b_kin, 2);
+    cache.delta = 1 - 2 * cache.E0 / cache.m_b_kin;
+    cache.L_b = 2 * std::log(cache.mu_b / cache.m_b_kin);
+    // cache.L_c = 2 * std::log(cache.mu_c / cache.m_c_mu_c); // TODO : 0 in superiso
+    cache.L_c = 0.0;
     
     cache.C_b_LO = w_proxy->getAR(WGroup::B, QCDOrder::LO);
     auto CP_b_LO = w_proxy->getAR(WGroup::BPrime, QCDOrder::LO);
@@ -153,7 +153,7 @@ double BXsDecay::phi_88(double delta) {
     double u = 1 - delta;
     double a = delta * (delta + 2) + 4 * std::log(u);
     double b = 4 * Li2(u) - 2 * PI2 / 3 - delta * (delta + 2) * std::log(delta) + 8 * std::log(u) - 2 * std::pow(delta, 3) / 3 + 3 * std::pow(delta, 2) + 7 * delta;
-    return (-2 * std::log(cache.m_b_1S / cache.m_s) * a + b) / 27;
+    return (-2 * std::log(cache.m_b_kin / cache.m_s) * a + b) / 27;
 }
 
 std::array<std::array<double, 8>, 8> BXsDecay::phi_1(double delta, double z) {
@@ -254,7 +254,7 @@ double BXsDecay::h28(double z, double delta)
 }
 
 double BXsDecay::h88(double delta) {
-    return 4./27.*(((1.+0.5*delta)*delta*log(delta)-6.*log(1.-delta)-2.*Li2(1.-delta)+PI2/3.-16./3.*delta-5./3.*delta*delta+delta*delta*delta/9.)*log(cache.m_b_1S/cache.m_s)-2.*Li3(delta)+(5.-2.*log(delta))*(Li2(1.-delta)-PI2/6.)-PI2/12.*delta*(2.+delta)+(0.5*delta+0.25*delta*delta-log(1.-delta))*pow(log(delta),2.)+(151./18.-PI2/3.)*log(1.-delta)+(-53./12.-19./12.*delta+2./9.*delta*delta)*delta*log(delta)+787./72.*delta+227./72.*delta*delta-41./72.*delta*delta*delta);
+    return 4./27.*(((1.+0.5*delta)*delta*log(delta)-6.*log(1.-delta)-2.*Li2(1.-delta)+PI2/3.-16./3.*delta-5./3.*delta*delta+delta*delta*delta/9.)*log(cache.m_b_kin/cache.m_s)-2.*Li3(delta)+(5.-2.*log(delta))*(Li2(1.-delta)-PI2/6.)-PI2/12.*delta*(2.+delta)+(0.5*delta+0.25*delta*delta-log(1.-delta))*pow(log(delta),2.)+(151./18.-PI2/3.)*log(1.-delta)+(-53./12.-19./12.*delta+2./9.*delta*delta)*delta*log(delta)+787./72.*delta+227./72.*delta*delta-41./72.*delta*delta*delta);
 }
 
 double BXsDecay::h77(double delta) {
@@ -406,7 +406,7 @@ double BXsDecay::P22_rem() {
     auto target = [this, r21_0, r22_0, x1, x2, x5] (double z) {
         auto K_2 = K_2_rem(z);
         double y = gen_P00(K_2);
-        // printf("P22rem = %.5e\n", y);
+        // printf("P22rem = %.4e\n", y);
         double a1 = std::pow(std::abs(r2_large_z(z)), 2) - std::pow(std::abs(r21_0), 2);
         double a2 = r22_large_z(z) - r22_0;
         return y - a1 * x1 - a2 * x2 - x5;
@@ -418,22 +418,22 @@ double BXsDecay::P22_rem() {
     double y_0 = target(cache.z0);
     double y_1 = target(cache.z1);
 
-    // printf("a3 = %.5e\n", a_3_z0);
-    // printf("b3 = %.5e\n", a_3_z1);
-    // printf("a4 = %.5e\n", a_4);
-    // printf("b4 = %.5e\n", a_4);
-    // printf("a = %.5e\n", y_0);
-    // printf("b = %.5e\n", y_1);
+    // printf("a3 = %.4e\n", a_3_z0);
+    // printf("b3 = %.4e\n", a_3_z1);
+    // printf("a4 = %.4e\n", a_4);
+    // printf("b4 = %.4e\n", a_4);
+    // printf("a = %.4e\n", y_0);
+    // printf("b = %.4e\n", y_1);
 
     double x3 = (y_1 - y_0) / (a_3_z1 - a_3_z0);
     double x4 = (y_0 * a_3_z1 - y_1 * a_3_z0) / (a_4 * (a_3_z1 - a_3_z0));
     complex_t r_21 = -1666. / 243 + 2 * (a(cache.z) + b(cache.z)) - 80. * I * PI / 81.;
 
-    // printf("x1 = %.5e\n", x1);
-    // printf("x2 = %.5e\n", x2);
-    // printf("x3 = %.5e\n", x3);
-    // printf("x4 = %.5e\n", x4);
-    // printf("x5 = %.5e\n", x5);
+    // printf("x1 = %.4e\n", x1);
+    // printf("x2 = %.4e\n", x2);
+    // printf("x3 = %.4e\n", x3);
+    // printf("x4 = %.4e\n", x4);
+    // printf("x5 = %.4e\n", x5);
 
     return x1 * (std::pow(std::abs(r_21), 2) - std::pow(std::abs(r21_0), 2))
             + x2 * (r22(cache.z) - r22_0)
@@ -498,7 +498,7 @@ double BXsDecay::C() {
     double delta_as = QCDHelper::alpha_s(4.6, MassType::MSBAR) - 0.22;
     double delta_b = cache.m_b_mb - 4.18;
     double delta_c = cache.m_c_3gev - 1.0;
-    double rho = std::pow(cache.m_c_3gev / cache.m_b_1S, 2);
+    double rho = std::pow(cache.m_c_3gev / cache.m_b_kin, 2);
     double g = 1. + rho * (-8. + rho * (-12. * std::log(rho) + rho * (8. - rho)));
     return g * (0.849 - 0.92 * delta_as + 0.0596 * delta_b - 0.2237 * delta_c - 0.0167 * cache.mu_G2 - 0.203 * cache.rho_D3 + 0.004 * cache.rho_LS3);
 }
@@ -508,7 +508,7 @@ double BXsDecay::BR_B_Xs_gamma() {
     double n = this->N();
     double epsilon_em = this->epsilon_em();
     
-    return cache.BR_B__Xc_e_nu_exp * cache.ckm_factor * 6 * cache.alpha_em / (PI * C()) * (p + n + epsilon_em);
+    return cache.BR_B__Xc_e_nu_exp * cache.ckm_factor * 6 * cache.alpha_em_0 / (PI * C()) * (p + n + epsilon_em);
 }
 
 std::vector<ObservableValue> BXsDecay::compute_observable(Observables obs) {

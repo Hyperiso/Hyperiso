@@ -22,6 +22,7 @@
 #include "MemoryManager.h"
 #include "Interface.h"
 #include "QCDHelper.h"
+#include "EWHelper.h"
 #include "config.hpp"
 #include "SourcesView.hpp"
 #include "DependentParameter.h"

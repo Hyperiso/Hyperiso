@@ -20,7 +20,7 @@ private:
     static inline const std::map<LhaID, std::string> allowed_decays {
         {{511, 313}, "B_Ks"},
         {{521, 323}, "B_Ks"},
-        {{531, 331}, "B_phi"}
+        {{531, 333}, "B_phi"}
     };
 
 public:

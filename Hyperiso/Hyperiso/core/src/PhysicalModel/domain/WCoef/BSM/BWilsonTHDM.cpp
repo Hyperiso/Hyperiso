@@ -391,9 +391,9 @@ double CQ1_THDM::compute_LO(const ParamSrc& src) {
         xt / (2. * xH0) * (cos(alpha - beta) - sin(alpha - beta) * le) *
         (cos(alpha - beta) * G1 - sin(alpha - beta) * G2);
 
-        printf("first_part : %.9lf\n", xt * (F0SP(xt) + le * (ld * F1SP(xt, xH) + lu * F2SP(xt, xH)) + le * lu * F3SP(xt, xH)));
-        printf("second_part : %.9lf\n", xt / (2. * xh) * (sin(alpha - beta) + cos(alpha - beta) * le) *
-        (sin(alpha - beta) * G1 + cos(alpha - beta) * G2));
+        // printf("first_part : %.9lf\n", xt * (F0SP(xt) + le * (ld * F1SP(xt, xH) + lu * F2SP(xt, xH)) + le * lu * F3SP(xt, xH)));
+        // printf("second_part : %.9lf\n", xt / (2. * xh) * (sin(alpha - beta) + cos(alpha - beta) * le) *
+        // (sin(alpha - beta) * G1 + cos(alpha - beta) * G2));
 
     LOG_DEBUG("F0SP =", F0SP(xt));
     LOG_DEBUG("F1SP =", F1SP(xt, xH));

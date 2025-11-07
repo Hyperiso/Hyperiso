@@ -1,9 +1,5 @@
 SMINPUTS:
-  6:
-    central_value: 171.5
-    stat_error: 1.
-    syst_error: 0.
-
-SU2_LEPTONIC:
-  1:
-    central_value: .4
+  # 6:
+  #   central_value: 171.5
+  #   stat_error: 1.
+  #   syst_error: 0.

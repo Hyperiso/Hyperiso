@@ -5,7 +5,7 @@ BVFFCalculator::BVFFCalculator(int B_id, int V_id, BV_FF_Src src) {
         LOG_ERROR("ValueError", "Wrong meson PDG code in BVFFCalculator constructor:", B_id, ",", V_id);
     }
 
-    if (V_id == 331 && (src == BV_FF_Src::GKvD_SR || src == BV_FF_Src::GKvD_SR_LAT)) {
+    if (V_id == 333 && (src == BV_FF_Src::GKvD_SR || src == BV_FF_Src::GKvD_SR_LAT)) {
         LOG_WARN("GKvD formfactors are not available for Bs > phi decays. Defaulting to BFS formfactors.");
         src = src == BV_FF_Src::GKvD_SR ? BV_FF_Src::BSZ_SR : BV_FF_Src::BSZ_SR_LAT;
     }

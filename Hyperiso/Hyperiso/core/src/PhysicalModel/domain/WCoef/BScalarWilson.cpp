@@ -29,12 +29,12 @@ double CQ1::compute_LO(const ParamSrc& src) {
     double sw2    = src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", 4);;
     double mW     = src.get_val(ParameterType::SM, "MASS", 24);;
 
-    printf("xt in the SM (LO) : %.8lf\n", xt);
-    printf("mb_muW in the SM (LO) : %.8lf\n", mb_muW);
-    printf("xh in the SM (LO) : %.8lf\n", xh);
-    printf("ml in the SM (LO) : %.8lf\n", ml);
-    printf("sw2 in the SM (LO) : %.8lf\n", sw2);
-    printf("mW in the SM (LO) : %.8lf\n",mW);
+    // printf("xt in the SM (LO) : %.8lf\n", xt);
+    // printf("mb_muW in the SM (LO) : %.8lf\n", mb_muW);
+    // printf("xh in the SM (LO) : %.8lf\n", xh);
+    // printf("ml in the SM (LO) : %.8lf\n", ml);
+    // printf("sw2 in the SM (LO) : %.8lf\n", sw2);
+    // printf("mW in the SM (LO) : %.8lf\n",mW);
 
     double CSc_SM = -xt * (xt - 2.) / 12. / pow(xt - 1., 2)
                   + (xt - 2.) * (3. * xt - 1.) / 24. / pow(xt - 1., 3.) * log(xt);

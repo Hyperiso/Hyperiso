@@ -266,6 +266,8 @@ std::unordered_map<WCoef, scalar_t> BCoefficientGroup::base_1_NNLO_calculation(
     }
 
     Ci_run[9] = coef_matching.at(QCDOrder::NNLO).at(WCoef::C10);
+
+    printf("eta = %.5f\n", src.get_val("WPARAM_RUN_SM",2));
     
     double eta_sq = pow(src.get_val("WPARAM_RUN_SM",2), 2);
     std::unordered_map<WCoef, scalar_t> Ci_run_map {};

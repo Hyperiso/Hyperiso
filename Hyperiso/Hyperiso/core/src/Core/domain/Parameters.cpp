@@ -156,7 +156,8 @@ void SMModelStrategy::postInitialization(Parameters& params) {
     // TODO : Initialize derived blocks RE/IMUPMNS
     // Ask Nazila : Calculate W mass and store it somewhere
 
-    QCDHelper::Init();
+    QCDHelper::Init();  // Order matters : EWHelper needs QCDHelper to be initialized
+    EWHelper::Init();
 
     if (absent_blocks.contains("VCKM")) {
         std::unordered_map<ParameterType, std::vector<std::string>> src_ckm = {

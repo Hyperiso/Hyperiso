@@ -8,8 +8,8 @@
 #include "ObsQCDProxy.h"
 
 struct BXsDecayCache {
-    double alpha_em;
-    double m_b_mb, m_b_1S, r_msbar_1S;
+    double alpha_em, alpha_em_0;
+    double m_b_mb, m_b_kin, r_msbar_1S;
     double m_c, m_s;
     double ckm_factor;
     double mu_b, mu_W;
