@@ -6,8 +6,8 @@
 
 
 #include "INuisanceSampler.h"
-#include "RNGHelper.h" // Matrix/Vector aliases (your project)
-#include "RandomVectorGenerator.h" // your generator
+#include "RNGHelper.h"
+#include "RandomVectorGenerator.h"
 
 
 // Draws y ~ Corr(R) with unit variances using your RVG, then scales: η = μ + D y,

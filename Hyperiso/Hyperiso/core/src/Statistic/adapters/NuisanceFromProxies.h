@@ -2,11 +2,11 @@
 #include <vector>
 #include <stdexcept>
 #include <unordered_map>
-#include "StatParameterProxy.h" // your proxy
-#include "StatCorrelationProxy.h" // your proxy
+#include "StatParameterProxy.h"
+#include "StatCorrelationProxy.h"
 #include "RNGHelper.h"
 
-// Helper that builds η̄ and Σ_η from your proxies for a list of ParamId
+// Helper that builds η̄ and Σ_η from proxies for a list of ParamId
 struct NuisancePack {
 Vector mean; Matrix cov;
 };
@@ -28,7 +28,7 @@ for (std::size_t i=0;i<n;++i) pack.mean[i] = pp(ids[i], DataType::VALUE);
 
 // Fill covariance from (σ_i, ρ_ij)
 std::vector<double> sigma(n);
-for (std::size_t i=0;i<n;++i) sigma[i] = pp(ids[i], DataType::STD_COMBINED); //USE combined here
+for (std::size_t i=0;i<n;++i) sigma[i] = pp(ids[i], DataType::STD_COMBINED); //USE combined here TODO
 
 
 for (std::size_t i=0;i<n;++i) {
