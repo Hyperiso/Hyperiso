@@ -203,8 +203,8 @@ void Block::set_scale(double scale) {
 double Block::get_scale() {
     if (!this->has_scale()) 
         LOG_ERROR("LogicError", "Scale for the block ",  this->get_name() ," has not been set, cannot retrieve it.");
-
-    return this->scale.value();
+    
+    return this->scale.value_or(0.0);
 }
 
 void Block::destroy() {
@@ -252,6 +252,7 @@ void DependentBlock::update() {
     if (frozen) {
         LOG_DEBUG("DependentBlock is frozen, skipping update");
         update_at_unfreeze = true;
+        return;
     } else if (recalculateLambda 
         && std::all_of(sourceBlocks.begin(), sourceBlocks.end(),
                        [](const std::pair<std::string, std::shared_ptr<Block>>& b){ return b.second != nullptr; })) 
