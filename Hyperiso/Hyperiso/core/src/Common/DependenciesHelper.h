@@ -1,7 +1,5 @@
 #pragma once
-#include "General.h"
-#include "DecayMapper.h"
-#include "ObservableMapper.h"
+#include "Include.h"
 
 class DependenciesHelper {
 public:
@@ -13,5 +11,5 @@ public:
     
 
 private:
-    static const std::map<ObservableId, std::unordered_set<ParamId>> dep_lists;
+    static const std::map<DecayId, std::unordered_set<ParamId>> dep_lists;
 };

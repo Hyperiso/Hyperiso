@@ -8,7 +8,7 @@ C1::C1() : WilsonCoefficient("C1", GroupMapper::str(WGroup::B, ScaleType::MATCHI
     matching_info[QCDOrder::NLO] = {
         {{"WPARAM_MATCH_SM", 3}},               // L
         [](const auto& src) {
-            auto L = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 3);;
+            auto L = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 3);
             return 15. + 6. * L;
         },
         get_lhaid_from_name(QCDOrder::NLO)
@@ -20,8 +20,8 @@ C1::C1() : WilsonCoefficient("C1", GroupMapper::str(WGroup::B, ScaleType::MATCHI
             {"WPARAM_MATCH_SM", LhaID(2, 1)}     // xt
         },
         [](const auto& src) {
-            auto L = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 3);;
-            auto xt = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1});;
+            auto L = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 3);
+            auto xt = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1});
             return -T(xt) + 7987./72. + 17. * PI2 / 3. + 475./6. * L + 17. * L * L;
         },
         get_lhaid_from_name(QCDOrder::NNLO)
@@ -53,7 +53,7 @@ double C2::compute_LO(const ParamSrc& src) {
 }
 
 double C2::compute_NNLO(const ParamSrc& src) {
-    auto L = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 3);;
+    auto L = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 3);
     return 127. / 18. + 4. / 3. * PI2 + 46. / 3. * L + 4. * L * L;
 }
 
@@ -79,10 +79,10 @@ C3::C3() : WilsonCoefficient("C3", GroupMapper::str(WGroup::B, ScaleType::MATCHI
 }
 
 double C3::compute_NNLO(const ParamSrc& src) {
-    double L = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 3);;
-    double mass_top_muW = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 6);;
+    double L = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 3);
+    double mass_top_muW = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 6);
     double xt = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1});
-    double Q_match = src.get_val(ParameterType::WILSON, "EW_SCALE", 1);;
+    double Q_match = src.get_val(ParameterType::WILSON, "EW_SCALE", 1);
 
     double coeff_temp = G1t(xt, log(Q_match * Q_match / (mass_top_muW * mass_top_muW)))
                       - 680. / 243.
@@ -123,16 +123,16 @@ C4::C4() : WilsonCoefficient("C4", GroupMapper::str(WGroup::B, ScaleType::MATCHI
 }
 
 double C4::compute_NLO(const ParamSrc& src) {
-    double L = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 3);;
-    double xt = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1});;
+    double L = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 3);
+    double xt = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1});
     return E0t(xt) - 7. / 9. + 2. / 3. * L;
 }
 
 double C4::compute_NNLO(const ParamSrc& src) {
-    double L = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 3);;
-    double xt = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1});;
-    double mass_top_muW = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 6);;
-    double Q_match = src.get_val(ParameterType::WILSON, "EW_SCALE", 1);;
+    double L = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 3);
+    double xt = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1});
+    double mass_top_muW = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 6);
+    double Q_match = src.get_val(ParameterType::WILSON, "EW_SCALE", 1);
     return E1t(xt, log(Q_match * Q_match / (mass_top_muW * mass_top_muW)))
            + 950. / 243.
            + 10. / 81. * PI2
@@ -161,10 +161,10 @@ C5::C5() : WilsonCoefficient("C5", GroupMapper::str(WGroup::B, ScaleType::MATCHI
 }
 
 double C5::compute_NNLO(const ParamSrc& src) {
-    double L = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 3);;
-    double xt = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1});;
-    double mass_top_muW = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 6);;
-    double Q_match = src.get_val(ParameterType::WILSON, "EW_SCALE", 1);;
+    double L = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 3);
+    double xt = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1});
+    double mass_top_muW = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 6);
+    double Q_match = src.get_val(ParameterType::WILSON, "EW_SCALE", 1);
 
     double coeff_temp =
         -G1t(xt, log(Q_match * Q_match / (mass_top_muW * mass_top_muW))) / 10.
@@ -198,10 +198,10 @@ C6::C6() : WilsonCoefficient("C6", GroupMapper::str(WGroup::B, ScaleType::MATCHI
 }
 
 double C6::compute_NNLO(const ParamSrc& src) {
-    double L = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 3);;
-    double xt = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1});;
-    double mass_top_muW = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 6);;
-    double Q_match = src.get_val(ParameterType::WILSON, "EW_SCALE", 1);;
+    double L = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 3);
+    double xt = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1});
+    double mass_top_muW = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 6);
+    double Q_match = src.get_val(ParameterType::WILSON, "EW_SCALE", 1);
 
     double coeff_temp =
         -3. / 16. * G1t(xt, log(Q_match * Q_match / (mass_top_muW * mass_top_muW)))
@@ -227,7 +227,7 @@ C7::C7() : WilsonCoefficient("C7", GroupMapper::str(WGroup::B, ScaleType::MATCHI
         get_lhaid_from_name(QCDOrder::LO)
     };
 
-    std::cout << "matching_info LO : " << get_lhaid_from_name(QCDOrder::LO) << std::endl;
+    // std::cout << "matching_info LO : " << get_lhaid_from_name(QCDOrder::LO) << std::endl;
     // NLO
     matching_info[QCDOrder::NLO] = {
         {
@@ -257,15 +257,15 @@ C7::C7() : WilsonCoefficient("C7", GroupMapper::str(WGroup::B, ScaleType::MATCHI
 }
 
 double C7::compute_LO(const ParamSrc& src) {
-    double xt = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1});;
+    double xt = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1});
     return -0.5 * A0t(xt) - 23. / 36.;
 }
 
 double C7::compute_NLO(const ParamSrc& src) {
-    double L = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 3);;
-    double xt = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1});;
-    double mass_top_muW = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 6);;
-    double Q_match = src.get_val(ParameterType::WILSON, "EW_SCALE", 1);;
+    double L = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 3);
+    double xt = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1});
+    double mass_top_muW = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 6);
+    double Q_match = src.get_val(ParameterType::WILSON, "EW_SCALE", 1);
 
     return -0.5 * A1t(xt, log(Q_match * Q_match / (mass_top_muW * mass_top_muW)))
            + 713. / 243. + 4. / 81. * L
@@ -273,13 +273,13 @@ double C7::compute_NLO(const ParamSrc& src) {
 }
 
 double C7::compute_NNLO(const ParamSrc& src) {
-    double L     = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 3);;
-    double xt    = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1});;
-    double xtW   = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 7);;
-    double xtt   = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 8);;
-    double mtop  = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 6);;
-    double Q     = src.get_val(ParameterType::WILSON, "EW_SCALE", 1);;
-    double mW    = src.get_val(ParameterType::SM, "MASS", 24);;
+    double L     = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 3);
+    double xt    = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1});
+    double xtW   = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 7);
+    double xtt   = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 8);
+    double mtop  = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 6);
+    double Q     = src.get_val(ParameterType::WILSON, "EW_SCALE", 1);
+    double mW    = src.get_val(ParameterType::SM, "MASS", 24);
 
     double logqt = log(Q * Q / (mtop * mtop));
     double logqW = log(Q * Q / (mW * mW));
@@ -345,15 +345,15 @@ C8::C8() : WilsonCoefficient("C8", GroupMapper::str(WGroup::B, ScaleType::MATCHI
 }
 
 double C8::compute_LO(const ParamSrc& src) {
-    double xt = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1});;
+    double xt = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1});
     return -0.5 * F0t(xt) - 1. / 3.;
 }
 
 double C8::compute_NLO(const ParamSrc& src) {
-    double L = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 3);;
-    double xt = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1});;
-    double mass_top_muW = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 6);;
-    double Q_match = src.get_val(ParameterType::WILSON, "EW_SCALE", 1);;
+    double L = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 3);
+    double xt = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1});
+    double mass_top_muW = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 6);
+    double Q_match = src.get_val(ParameterType::WILSON, "EW_SCALE", 1);
 
     return -0.5 * F1t(xt, log(Q_match * Q_match / (mass_top_muW * mass_top_muW)))
            + 91. / 324.
@@ -362,13 +362,13 @@ double C8::compute_NLO(const ParamSrc& src) {
 }
 
 double C8::compute_NNLO(const ParamSrc& src) {
-    double L     = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 3);;
-    double xt    = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1});;
-    double xtW   = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 7);;
-    double xtt   = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 8);;
-    double mtop  = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 6);;
-    double Q     = src.get_val(ParameterType::WILSON, "EW_SCALE", 1);;
-    double mW    = src.get_val(ParameterType::SM, "MASS", 24);;
+    double L     = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 3);
+    double xt    = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1});
+    double xtW   = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 7);
+    double xtt   = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 8);
+    double mtop  = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 6);
+    double Q     = src.get_val(ParameterType::WILSON, "EW_SCALE", 1);
+    double mW    = src.get_val(ParameterType::SM, "MASS", 24);
 
     double logqt = log(Q * Q / (mtop * mtop));
     double logqW = log(Q * Q / (mW * mW));
@@ -426,9 +426,9 @@ C9::C9() : WilsonCoefficient("C9", GroupMapper::str(WGroup::B, ScaleType::MATCHI
 }
 
 double C9::compute_LO(const ParamSrc& src) {
-    double L    = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 3);;
-    double xt   = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1});;
-    double sw2  = src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", 4);;
+    double L    = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 3);
+    double xt   = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1});
+    double sw2  = src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", 4);
 
     return (1. - 4. * sw2) / sw2 * C0t(xt)
          - B0t(xt) / sw2
@@ -439,11 +439,11 @@ double C9::compute_LO(const ParamSrc& src) {
 }
 
 double C9::compute_NLO(const ParamSrc& src) {
-    double L    = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 3);;
-    double xt   = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1});;
-    double mtop = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 6);;
-    double Q    = src.get_val(ParameterType::WILSON, "EW_SCALE", 1);;
-    double sw2  = src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", 4);;
+    double L    = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 3);
+    double xt   = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1});
+    double mtop = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 6);
+    double Q    = src.get_val(ParameterType::WILSON, "EW_SCALE", 1);
+    double sw2  = src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", 4);
 
     double logqt = log(Q * Q / (mtop * mtop));
 
@@ -499,31 +499,50 @@ C10::C10() : WilsonCoefficient("C10", GroupMapper::str(WGroup::B, ScaleType::MAT
 }
 
 double C10::compute_LO(const ParamSrc& src) {
-    double xt  = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1});;
-    double sw2 = src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", 4);;
+    double xt  = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1});
+    double sw2 = src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", 4);
+
+    printf("x_t = %.5f\n", xt);
+    printf("sw2 = %.5f\n", sw2);
+    printf("C10_LO = %.5f\n", (B0t(xt) - C0t(xt) - 0.25) / sw2);
 
     return (B0t(xt) - C0t(xt) - 0.25) / sw2;
 }
 
 double C10::compute_NLO(const ParamSrc& src) {
-    double xt    = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1});;
-    double mtop  = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 6);;
-    double Q     = src.get_val(ParameterType::WILSON, "EW_SCALE", 1);;
-    double sw2   = src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", 4);;
+    double xt    = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1});
+    double mtop  = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 6);
+    double Q     = src.get_val(ParameterType::WILSON, "EW_SCALE", 1);
+    double sw2   = src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", 4);
+
+    printf("x_t = %.5f\n", xt);
+    printf("mtop = %.5f\n", mtop);
+    printf("mu_W = %.5f\n", Q);
+    printf("sw2 = %.5f\n", sw2);
 
     double logqt = log(Q * Q / (mtop * mtop));
+
+    printf("C10_NLO = %.5f\n", (B1t(xt, logqt) - C1t(xt, logqt)) / sw2 - 1. / sw2);
 
     return (B1t(xt, logqt) - C1t(xt, logqt)) / sw2 - 1. / sw2;
 }
 
 double C10::compute_NNLO(const ParamSrc& src) {
-    double xt    = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1});;
-    double xtW   = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 7);;
-    double xtt   = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 8);;
-    double mtop  = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 6);;
-    double Q     = src.get_val(ParameterType::WILSON, "EW_SCALE", 1);;
-    double mW    = src.get_val(ParameterType::SM, "MASS", 24);;
-    double sw2   = src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", 4);;
+    double xt    = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1});
+    double xtW   = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 7);
+    double xtt   = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 8);
+    double mtop  = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 6);
+    double Q     = src.get_val(ParameterType::WILSON, "EW_SCALE", 1);
+    double mW    = src.get_val(ParameterType::SM, "MASS", 24);
+    double sw2   = src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", 4);
+
+    printf("x_t = %.5f\n", xt);
+    printf("mtop = %.5f\n", mtop);
+    printf("mu_W = %.5f\n", Q);
+    printf("sw2 = %.5f\n", sw2);
+    printf("xtW = %.5f\n", xtW);
+    printf("xtt = %.5f\n", xtt);
+    printf("mW = %.5f\n", mW);
 
     double logqt = log(Q * Q / (mtop * mtop));
     double logqW = log(Q * Q / (mW * mW));
@@ -552,6 +571,8 @@ double C10::compute_NNLO(const ParamSrc& src) {
          )
          + C10Z2tri(xtt)
         ) * (-2. / sw2);
+
+    printf("C10_NNLO = %.5f\n", coeff_temp);
 
     return coeff_temp;
 }

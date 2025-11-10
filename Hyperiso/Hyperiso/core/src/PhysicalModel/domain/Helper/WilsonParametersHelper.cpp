@@ -34,8 +34,13 @@ void WilsonParameterHelper::init_matching_block() {
 	std::unordered_map<ParameterType, std::vector<std::string>> src = {{ParameterType::SM, {"MASS", "QCD"}}, {ParameterType::WILSON, {"EW_SCALE"}}};
 
     auto func = [] (const BlockSrc& src, std::shared_ptr<DependentBlock> dep_block) {
+        LOG_INFO("Update wilson matching block");
 		double mu_W = src.get_val("EW_SCALE", 1);
         double alphas_muW = QCDHelper::alpha_s(mu_W);
+
+        printf("mu_W = %.5f\n", mu_W);
+        printf("alpha_s(mu_W) = %.5f\n", alphas_muW);
+
 		double mass_top_muW = QCDHelper::msbar_mass(6, mu_W, MassType::MSBAR);
 		double mass_b_muW_mbrun = QCDHelper::msbar_mass(5, mu_W, MassType::MSBAR);
 		double mass_b_muW_mbpole = QCDHelper::msbar_mass(5, mu_W, MassType::POLE);
@@ -287,41 +292,21 @@ void WilsonParameterHelper::init_running_parameter_blocks_MM() {
 void WilsonParameterHelper::init_running_block(WGroupId grp) {
 	LOG_DEBUG("Init running scale dependent wparam block");
 	std::unordered_map<ParameterType, std::vector<std::string>> src = {
-		{ParameterType::WILSON, {"EW_SCALE", "B_SCALE"}},
+		{ParameterType::WILSON, {"EW_SCALE", "B_SCALE", "D_SCALE", "K_SCALE"}},
 		{ParameterType::SM, {"QCD", "MASS"}}
 	};
 
     auto func = [] (const BlockSrc& src, std::shared_ptr<DependentBlock> dep_block) {
-		double mu_W = src.get_val("EW_SCALE", 1);
-		double mu_h = src.get_val("B_SCALE",1);
+        double alphas_mu_W = QCDHelper::alpha_s(src.get_val("EW_SCALE", 1));
+        double alphas_mu_b = QCDHelper::alpha_s(src.get_val("B_SCALE", 1));
+        double alphas_mu_c = QCDHelper::alpha_s(src.get_val("D_SCALE", 1));
+        double alphas_mu_s = QCDHelper::alpha_s(src.get_val("K_SCALE", 1));
 
-		int n_f_final = QCDHelper::get_nf(mu_h, MassType::MSBAR);
-        double alphas_mu_h = QCDHelper::alpha_s(mu_h);
-		double eta_5 {0}, eta_4 {0}, eta_3 {0};
-		if (n_f_final == 5) {
-			eta_5 = QCDHelper::alpha_s(mu_W) / alphas_mu_h;
-			double mu_b = src.get_val("QCD", {5, 1}); //TODO : check this part
-			double alpha_s_mu_b = QCDHelper::alpha_s(mu_b, MassType::MSBAR);
-			eta_4 = alpha_s_mu_b / alphas_mu_h;
-		} else if (n_f_final == 4) {
-			double mu_b = src.get_val("QCD", {5, 1});
-			double alpha_s_mu_b = QCDHelper::alpha_s(mu_b, MassType::MSBAR);
-			eta_5 = QCDHelper::alpha_s(mu_W) / alpha_s_mu_b;
-			eta_4 = alpha_s_mu_b / alphas_mu_h;
-		} else if (n_f_final == 3) {
-			double mu_b = src.get_val("QCD", {5, 1});
-			double mu_c = src.get_val("MASS",4);
-			double alpha_s_mu_b = QCDHelper::alpha_s(mu_b, MassType::MSBAR);
-			double alpha_s_mu_c = QCDHelper::alpha_s(mu_c, MassType::MSBAR);
-			eta_5 = QCDHelper::alpha_s(mu_W) / alpha_s_mu_b;
-			eta_4 = alpha_s_mu_b / alpha_s_mu_c;
+        double eta_5 = alphas_mu_W / alphas_mu_b;
+        double eta_4 = alphas_mu_b / alphas_mu_c;
+        double eta_3 = alphas_mu_c / alphas_mu_s;
 
-			eta_3 = alpha_s_mu_c / alphas_mu_h;
-		} else {
-			LOG_ERROR("ValueError", "In WilsonParameterHelper::init_running_block() : Hadronic mass is out of allowed range in Hyperiso.");
-		}
-
-		dep_block->store_or_assign(1, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_RUN_SM", 1}, alphas_mu_h, 0., 0.));
+		dep_block->store_or_assign(1, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_RUN_SM", 1}, alphas_mu_b, 0., 0.));
 		dep_block->store_or_assign(2, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_RUN_SM", 2}, eta_5, 0., 0.));
 		dep_block->store_or_assign(3, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_RUN_SM", 3}, eta_4, 0., 0.));
 		dep_block->store_or_assign(4, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_RUN_SM", 4}, eta_3, 0., 0.));

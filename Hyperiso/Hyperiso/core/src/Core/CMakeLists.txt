@@ -55,6 +55,7 @@ add_library(CoreLib STATIC
     domain/BlockAccessor.cpp
     domain/DependentBlockManager.cpp
     infrastructure/QCDHelper.cpp
+    infrastructure/EWHelper.cpp
     )
 set_target_properties(CoreLib PROPERTIES POSITION_INDEPENDENT_CODE ON)
 

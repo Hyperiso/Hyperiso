@@ -4,17 +4,18 @@
 void BllDecay::load_params() {
     ObsParameterProxy p;
     cache.G_F = p(ParamId{ParameterType::SM, "SMINPUTS", 2});
-    cache.alpha_em = 1. / p(ParamId{ParameterType::SM, "SMINPUTS", 1});
+    cache.alpha_em = p(ParamId{ParameterType::SM, "EW", {1, 2}});
     cache.m_mu = p(ParamId{ParameterType::SM, "MASS", 13});
     cache.m_Bd = p(ParamId{ParameterType::FLAVOR, "FMASS", 511});
     cache.m_Bs = p(ParamId{ParameterType::FLAVOR, "FMASS", 531});
     cache.f_Bd = p(ParamId{ParameterType::FLAVOR, "FCONST", {511, 1}});
     cache.f_Bs = p(ParamId{ParameterType::FLAVOR, "FCONST", {531, 1}});
-    cache.tau_Bd = p(ParamId{ParameterType::FLAVOR, "FLIFE", 511});
-    cache.tau_Bs = p(ParamId{ParameterType::FLAVOR, "FLIFE", 531});
+    cache.tau_Bd = p(ParamId{ParameterType::FLAVOR, "FLIFE", 511}) / HBAR;
+    cache.tau_Bs = p(ParamId{ParameterType::FLAVOR, "FLIFE", 531}) / HBAR;
     cache.lambda_d = p(ParamId{ParameterType::SM, "VCKM", {2, 2}}) * std::conj(p(ParamId{ParameterType::SM, "VCKM", {2, 0}}));
     cache.lambda_s = p(ParamId{ParameterType::SM, "VCKM", {2, 2}}) * std::conj(p(ParamId{ParameterType::SM, "VCKM", {2, 1}}));
     cache.ys = p(ParamId{ParameterType::DECAY, "B_ll", 1});
+    cache.eta_BBS = p(ParamId{ParameterType::DECAY, "B_ll", 2});
     cache.x_d = cache.m_mu / cache.m_Bd;
     cache.x_s = cache.m_mu / cache.m_Bs;
     cache.r_d = cache.m_Bd / (p(ParamId{ParameterType::SM, "QCD", {5, 2}}) + p(ParamId{ParameterType::SM, "MASS", 1}));
@@ -33,11 +34,11 @@ void BllDecay::load_params() {
 double BllDecay::BR_avg_Bq_mumu(int q) {
     if (q != 1 && q != 3) LOG_ERROR("ValueError", "In Bq > mu mu, q can only be d (1) or s (3), found", q);
 
-    double pref = std::pow(cache.G_F * cache.alpha_em, 2) / (64 * HBAR * std::pow(M_PI, 3));
+    double pref = std::pow(cache.G_F * cache.alpha_em, 2) / (64 * std::pow(M_PI, 3)) * cache.eta_BBS;
     if (q == 1) {
         return pref * std::pow(cache.f_Bd * std::abs(cache.lambda_d), 2) * std::pow(cache.m_Bd, 3) * cache.tau_Bd * cache.beta_d * (
-            std::pow(cache.beta_d * std::abs(cache.r_d * cache.CQ1), 2) 
-          + std::pow(std::abs(cache.r_d * cache.CQ2 + 2 * cache.x_d * cache.C10), 2)
+            std::pow(cache.beta_d * std::abs(cache.r_d * cache.CQ1_m), 2) 
+          + std::pow(std::abs(cache.r_d * cache.CQ2_m + 2 * cache.x_d * cache.C10_m), 2)
         );
     } else {
         return pref * std::pow(cache.f_Bs * std::abs(cache.lambda_s), 2) * std::pow(cache.m_Bs, 3) * cache.tau_Bs * cache.beta_s * (

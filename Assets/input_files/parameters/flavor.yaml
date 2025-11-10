@@ -1,11 +1,5 @@
-FMASS:
-  511:
-    central_value: 5.27
-    stat_error: 0.005
-    syst_error: 0.004
-    
 FCONST:
-  323_02:  
-    central_value: 1.5
-    stat_error: 0.2
-    syst_error: 0.1
+  # 323_02:  
+  #   central_value: 1.5
+  #   stat_error: 0.2
+  #   syst_error: 0.1

@@ -4,6 +4,7 @@
 #include "ObservableInterface.h"
 #include "HyperisoMaster.h"
 #include "config.hpp"
+#include "BlockProxy.h"
 
 int main() {
     Logger::getInstance()->setLevel(Logger::LogLevel::INFO);
@@ -19,7 +20,7 @@ int main() {
     for (auto& dec : DecayMapper::get_enum()) {
         if (dec == Decays::M0_Mix) continue;
 
-        // if (dec != Decays::K__l_l) continue;
+        if (dec != Decays::B__Xs) continue;
 
         LOG_INFO("Adding observables for decay", DecayMapper::str(dec));
         oi.add_observables(dec, order, false);
@@ -29,7 +30,7 @@ int main() {
             auto obs_values = oi.compute_observable(o);
             std::stringstream ss;
             if (obs_values.size() == 1) {
-                ss << "= " << obs_values[0].value;
+                ss << std::scientific << std::setprecision(3) << "= " << obs_values[0].value;
             } else {
                 ss << ": ";
                 for (auto ov : obs_values) {
@@ -37,7 +38,7 @@ int main() {
                 }
             }
                 
-            LOG_INFO(ObservableMapper::str(o), ss.str());
+            LOG_INFO(ObservableMapper::str(o), ss.str());   
         }
     }
 

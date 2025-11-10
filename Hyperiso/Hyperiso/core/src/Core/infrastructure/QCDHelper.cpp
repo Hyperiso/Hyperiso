@@ -1,6 +1,4 @@
 #include "QCDHelper.h"
-#include <DependentBlockManager.h>
-
 
 void QCDHelper::Init() {
     LOG_DEBUG("Init QCD dependent block");
@@ -19,15 +17,18 @@ void QCDHelper::Init() {
         double lambda_5 = match_lambda(alpha_s_mZ, m_Z, 5);
         double lambda_6_mt_pole = match_lambda(alpha_s_explicit(m_t_pole, lambda_5, 5), m_t_pole, 6);
         double lambda_4_mb_mb = match_lambda(alpha_s_explicit(m_b_mb, lambda_5, 5), m_b_mb, 4);
-        double lambda_3 = match_lambda(alpha_s_explicit(m_c, lambda_4_mb_mb, 4), m_c, 3);
+        double lambda_3_mb_mb = match_lambda(alpha_s_explicit(m_c, lambda_4_mb_mb, 4), m_c, 3);
         double m_t_mt = calc_mt_mt(lambda_6_mt_pole, lambda_5);
         double lambda_6_mt_mt = match_lambda(alpha_s_explicit(m_t_mt, lambda_5, 5), m_t_mt, 6);
         double m_b_pole = calc_mb_pole(lambda_5);
         double lambda_4_mb_pole = match_lambda(alpha_s_explicit(m_b_pole, lambda_5, 5), m_b_pole, 4);
+        double lambda_3_mb_pole = match_lambda(alpha_s_explicit(m_c, lambda_4_mb_pole, 4), m_c, 3);
         double m_b_1S = calc_mb_1S(lambda_4_mb_pole, m_b_pole);
         double m_c_pole = calc_mc_pole(lambda_4_mb_mb);
+        double m_b_kin = calc_mb_kinematic(m_b_mb, lambda_3_mb_mb);
 
-        dep_block->store_or_assign(LhaID(1, 3), std::make_shared<Parameter>(ParamId{ParameterType::SM, "QCD", LhaID(1, 3)}, lambda_3, 0., 0.));
+        dep_block->store_or_assign(LhaID(1, 3, 1), std::make_shared<Parameter>(ParamId{ParameterType::SM, "QCD", LhaID(1, 3, 1)}, lambda_3_mb_mb, 0., 0.));
+        dep_block->store_or_assign(LhaID(1, 3, 2), std::make_shared<Parameter>(ParamId{ParameterType::SM, "QCD", LhaID(1, 3, 2)}, lambda_3_mb_pole, 0., 0.));
         dep_block->store_or_assign(LhaID(1, 4, 1), std::make_shared<Parameter>(ParamId{ParameterType::SM, "QCD", LhaID(1, 4, 1)}, lambda_4_mb_mb, 0., 0.));
         dep_block->store_or_assign(LhaID(1, 4, 2), std::make_shared<Parameter>(ParamId{ParameterType::SM, "QCD", LhaID(1, 4, 2)}, lambda_4_mb_pole, 0., 0.));
         dep_block->store_or_assign(LhaID(1, 5), std::make_shared<Parameter>(ParamId{ParameterType::SM, "QCD", LhaID(1, 5)}, lambda_5, 0., 0.));
@@ -37,6 +38,7 @@ void QCDHelper::Init() {
         dep_block->store_or_assign(LhaID(5, 1), std::make_shared<Parameter>(ParamId{ParameterType::SM, "QCD", LhaID(5, 1)}, m_b_mb, 0., 0.));
         dep_block->store_or_assign(LhaID(5, 2), std::make_shared<Parameter>(ParamId{ParameterType::SM, "QCD", LhaID(5, 2)}, m_b_pole, 0., 0.));
         dep_block->store_or_assign(LhaID(5, 3), std::make_shared<Parameter>(ParamId{ParameterType::SM, "QCD", LhaID(5, 3)}, m_b_1S, 0., 0.));
+        dep_block->store_or_assign(LhaID(5, 4), std::make_shared<Parameter>(ParamId{ParameterType::SM, "QCD", LhaID(5, 4)}, m_b_kin, 0., 0.));
         dep_block->store_or_assign(6, std::make_shared<Parameter>(ParamId{ParameterType::SM, "QCD", 6}, m_t_mt, 0., 0.));
     };
     
@@ -102,18 +104,41 @@ double QCDHelper::calc_mb_pole(double lambda_5) {
             + alphas_mb / PI * ((13.4434 - 1.0414 * 4. + 1.0414 * constants->C_F * (mu + md + ms + mc) / mb))));
 }
 
+// From 2005.06487
+double QCDHelper::calc_mb_kinematic(double mb_mb, double lambda_3) {
+    int nl = 3;
+    double mu = 1.0;
+    double mu_s = mb_mb;
+    double lm = std::log(std::pow(mu_s / mb_mb, 2));
+    double lm2 = lm * lm;
+    double alpha_s = alpha_s_explicit(mu_s, lambda_3, nl);
+    double r = mu / mb_mb;
+    double r2 = r * r;
+    double lmu = std::log(2 * mu / mu_s);
+    double l2 = std::log(2.);
+
+    double eps_one_loop = 4. / 3 + lm - 16. / 9 * r - 2. / 3 * r2;
+    double eps_two_loop = 307. / 32 + PI2 / 3 - ZETA3 / 6 + PI2 / 9 * l2 + 509. / 72 * lm + 47 / 24. * lm2 
+                            - nl * (71. / 144 + PI2 / 18 + 13. / 36 * lm + 1. / 12 * lm2)
+                            + r * (-860. / 27 + 8 * PI2 / 9 + 88. / 9 * lmu + nl * (128. / 81 - 16. / 27 * lmu))
+                            + r2 * (-83. / 9 + PI2 / 3 + 2. / 3 * lm + 11. / 3 * lmu + nl * (13. / 27 - 2. / 9 * lmu));
+
+    return mb_mb * (1 + alpha_s / PI * eps_one_loop + std::pow(alpha_s / PI, 2) * eps_two_loop);
+}
+
 double QCDHelper::calc_mb_1S(double lambda_4, double mb_pole) {
     double mu = (*Parameters::GetInstance())("SMINPUTS", 5) / 2.;
 	return mb_pole * (1 - 2. / 9 * pow(alpha_s_explicit(mu, lambda_4, 4), 2.));
 }
 
+// From 0906.5273
 double QCDHelper::calc_mt_mt(double lambda6_mt_pole, double lambda_5) {
     double mt_pole = (*Parameters::GetInstance())("SMINPUTS", 6);
     double alpha = alpha_s_explicit(mt_pole, lambda6_mt_pole, 6);
     double a = 307. / 32. + PI2 / 3. + PI2 / 9. * log(2.) - 1. / 6 * ZETA3 - 71. / 144. * 5.;
     double mt_mt = mt_pole / (1. + alpha / PI * (4. / 3 + alpha / PI * a));
     double lambda = match_lambda(alpha_s_explicit(mt_mt, lambda_5, 5), mt_mt, 6);
-    alpha = alpha_s_explicit(mt_pole, lambda, 6);
+    alpha = alpha_s_explicit(mt_mt, lambda, 6);
     return mt_pole / (1. + alpha / PI * (4. / 3 + alpha / PI * a));
 }
 
@@ -129,6 +154,8 @@ int QCDHelper::get_nf(double Q, MassType mass_b_type, MassType mass_t_type) {
 
 double QCDHelper::get_lambda(double mu, MassType mass_b_type, MassType mass_t_type) {
     int nf = get_nf(mu, mass_b_type, mass_t_type);
+    if (nf == 3)
+        return (*Parameters::GetInstance())("QCD", LhaID(1, 3, mass_b_type == MassType::POLE ? 2 : 1));
     if (nf == 4)
         return (*Parameters::GetInstance())("QCD", LhaID(1, 4, mass_b_type == MassType::POLE ? 2 : 1));
     if (nf == 6)

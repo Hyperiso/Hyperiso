@@ -5,6 +5,7 @@
 #include <string>
 #include "Parameters.h"
 #include "Math.h"
+#include "DependentBlockManager.h"
 
 struct QCDConstants {
     static constexpr int Nc = 3;
@@ -40,6 +41,7 @@ private:
 
     static double calc_mc_pole(double lambda_4);
     static double calc_mb_pole(double lambda_5);
+    static double calc_mb_kinematic(double mb_mb, double lambda_3);
     static double calc_mb_1S(double lambda_4, double mb_pole);
     static double calc_mt_mt(double lambda6_mt_pole, double lambda_5);
 

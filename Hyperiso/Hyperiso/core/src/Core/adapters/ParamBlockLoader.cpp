@@ -114,7 +114,7 @@ void ParamBlockLoader::load(std::shared_ptr<BlockAccessor> dest, fs::path src_fi
 
             block->store(
                 LhaID(vk.first),
-                std::make_shared<Parameter>(Parameter(ParamId(bk, std::string(vk.first)),
+                std::make_shared<Parameter>(Parameter(ParamId(bk, LhaID(vk.first)),
                                                       val_central, stat_d, syst_d))
             );
         }

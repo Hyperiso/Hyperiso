@@ -4,10 +4,10 @@ void BsPhiDecay::load_params() {
     LOG_INFO("Loading parameters for Bs > phi ll decay");
     fill_wilson_cache();
 
-    cache.ff_calculator = BVFFCalculator(531, 331, cfg.ff_src);
+    cache.ff_calculator = BVFFCalculator(531, 333, cfg.ff_src);
 
     cache.qcdf_calculator = BVQCDfCalculator(
-        531, 331,
+        531, 333,
         w_config.hadronic_scale,
         cache.C,
         std::make_shared<BVFFCalculator>(cache.ff_calculator),
@@ -26,7 +26,7 @@ void BsPhiDecay::load_params() {
     cache.m_b_PS = p(ParamId{ParameterType::SM, "QCD", {5, 2}}) - 4 * ObsQCDProxy()(AlphasConfig(p(ParamId{ParameterType::SM, "QCD", {5, 2}}), MassType::POLE, MassType::POLE)) * sqrt(cache.mu_b * p(ParamId{ParameterType::DECAY, "B_phi", 14})) / (3 * PI);
     cache.L_b = std::log(cache.mu_b / cache.m_b_PS);
     cache.m_Bs = p(ParamId{ParameterType::FLAVOR, "FMASS", 531});
-    cache.m_phi = p(ParamId{ParameterType::FLAVOR, "FMASS", 331});
+    cache.m_phi = p(ParamId{ParameterType::FLAVOR, "FMASS", 333});
     cache.lambda_hat_u = std::conj(p(ParamId{ParameterType::SM, "VCKM", {0, 1}})) * p(ParamId{ParameterType::SM, "VCKM", {0, 2}}) 
                             / (std::conj(p(ParamId{ParameterType::SM, "VCKM", {2, 1}})) * p(ParamId{ParameterType::SM, "VCKM", {2, 2}}));
     cache.kappa = 1 - 2. * cache.alpha_s_mu_b / (3. * PI) * std::log(cache.mu_b / cache.m_b_mu_b);

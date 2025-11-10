@@ -2,25 +2,25 @@
 
 void BDstarlnuDecay::load_params() {
     ObsParameterProxy p;
-    double m_b = ObsQCDProxy()(MassConfig(5, w_config.hadronic_scale, MassType::POLE, MassType::POLE));
-    double m_c = ObsQCDProxy()(MassConfig(4, w_config.hadronic_scale, MassType::POLE, MassType::POLE));
     double V_cb2 = std::pow(std::abs(p(ParamId{ParameterType::SM, "VCKM", {1, 2}})), 2);
 
     cache.G_F = p(ParamId{ParameterType::SM, "SMINPUTS", 2});
     cache.m_e = p(ParamId{ParameterType::SM, "MASS", 11});
     cache.m_tau = p(ParamId{ParameterType::SM, "MASS", 15});
-    cache.m_B = p(ParamId{ParameterType::FLAVOR, "FMASS", 521});
-    cache.m_D_star = p(ParamId{ParameterType::FLAVOR, "FMASS", 423});
-    cache.tau_B = p(ParamId{ParameterType::FLAVOR, "FLIFE", 521});
+    cache.m_B = p(ParamId{ParameterType::FLAVOR, "FMASS", 511});
+    cache.m_D_star = p(ParamId{ParameterType::FLAVOR, "FMASS", 413});
+    cache.tau_B = p(ParamId{ParameterType::FLAVOR, "FLIFE", 511});
     cache.h_A1_1 = p(ParamId{ParameterType::DECAY, "B_Dslnu", 1});
     cache.rho_D2 = p(ParamId{ParameterType::DECAY, "B_Dslnu", 2});
     cache.R_11 = p(ParamId{ParameterType::DECAY, "B_Dslnu", 3});
-    cache.R_21 = p(ParamId{ParameterType::DECAY, "B_Dslnu", 3});
+    cache.R_21 = p(ParamId{ParameterType::DECAY, "B_Dslnu", 4});
     cache.r_D = cache.m_D_star / cache.m_B;
     cache.sqrt_rD = std::sqrt(cache.r_D);
     cache.one_m_rD2 = 1. - std::pow(cache.r_D, 2);
     cache.r_e = cache.m_e / cache.m_B;
     cache.r_tau = cache.m_tau / cache.m_B;
+    double m_b = ObsQCDProxy()(MassConfig(5, cache.m_B, MassType::POLE, MassType::POLE));
+    double m_c = ObsQCDProxy()(MassConfig(4, cache.m_B, MassType::POLE, MassType::POLE));
     cache.r_qp = (m_b + m_c) / cache.m_B;
     cache.r_qm = (m_b - m_c) / cache.m_B;
     cache.w_e = w_max(cache.r_e);
@@ -38,6 +38,13 @@ void BDstarlnuDecay::load_params() {
     cache.C_T_flag = !fpeq(std::abs(cache.C_T), 0.0);
     cache.Gamma_p = 0.0;
     cache.Gamma_m = 0.0;
+
+    printf("m_B = %.4e\n", cache.m_B);
+    printf("m_D = %.4e\n", cache.m_D_star);
+    printf("hA_1(1) = %.4e\n", cache.h_A1_1);
+    printf("R1(1) = %.4e\n", cache.R_11);
+    printf("R2(1) = %.4e\n", cache.R_21);
+    // printf("R3(1) = %.4e\n", R3_1);
 }
 
 double BDstarlnuDecay::t(double w) {
@@ -72,12 +79,12 @@ double BDstarlnuDecay::R_1(double w) {
 
 double BDstarlnuDecay::R_2(double w) {
     double u = w - 1;
-    return cache.R_21 + u * (0.11 - 0.06 * u);
+    return cache.R_21 + u * (-0.11 - 0.06 * u);
 }
 
 double BDstarlnuDecay::R_3(double w) {
     double u = w - 1;
-    return 1.22 + u * (-0.052 + 0.026 * u);
+    return 0.97 + u * (-0.052 + 0.026 * u);
 }
 
 double BDstarlnuDecay::H_Vp(double w) {

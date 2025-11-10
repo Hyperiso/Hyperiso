@@ -235,26 +235,26 @@ double BDlnuDecay::P_tau() {
 
 void BDlnuDecay::load_params() {
     ObsParameterProxy p;
-    double m_b = ObsQCDProxy()(MassConfig(5, w_config.hadronic_scale, MassType::POLE, MassType::POLE));
-    double m_c = ObsQCDProxy()(MassConfig(4, w_config.hadronic_scale, MassType::POLE, MassType::POLE));
-    double V_cb2 = std::pow(std::abs(p(ParamId{ParameterType::SM, "VCKM", {1, 2}})), 2);
-
     cache.G_F = p(ParamId{ParameterType::SM, "SMINPUTS", 2});
     cache.m_e = p(ParamId{ParameterType::SM, "MASS", 11});
     cache.m_tau = p(ParamId{ParameterType::SM, "MASS", 15});
-    cache.m_B = p(ParamId{ParameterType::FLAVOR, "FMASS", 521});
-    cache.m_D = p(ParamId{ParameterType::FLAVOR, "FMASS", 421});
-    cache.tau_B = p(ParamId{ParameterType::FLAVOR, "FLIFE", 521});
+    cache.m_B = p(ParamId{ParameterType::FLAVOR, "FMASS", 511});
+    cache.m_D = p(ParamId{ParameterType::FLAVOR, "FMASS", 411});
+    cache.tau_B = p(ParamId{ParameterType::FLAVOR, "FLIFE", 511});
     cache.V11 = p(ParamId{ParameterType::DECAY, "B_Dlnu", 1});
     cache.rho_D2 = p(ParamId{ParameterType::DECAY, "B_Dlnu", 2});
     cache.Delta= p(ParamId{ParameterType::DECAY, "B_Dlnu", 3});
     cache.r_D = cache.m_D / cache.m_B;
     cache.r_e = cache.m_e / cache.m_B;
     cache.r_tau = cache.m_tau / cache.m_B;
+    double m_b = ObsQCDProxy()(MassConfig(5, cache.m_B, MassType::MSBAR, MassType::POLE));
+    double m_c = ObsQCDProxy()(MassConfig(4, cache.m_B, MassType::MSBAR, MassType::POLE));
     cache.r_qp = (m_b + m_c) / cache.m_B;
-    cache.r_qp = (m_b - m_c) / cache.m_B;
+    cache.r_qm = (m_b - m_c) / cache.m_B;
     cache.w_e = w_max(cache.r_D, cache.r_e);
     cache.w_tau = w_max(cache.r_D, cache.r_tau);
+    
+    double V_cb2 = std::pow(std::abs(p(ParamId{ParameterType::SM, "VCKM", {1, 2}})), 2);
     cache.BR_pref = std::pow(cache.G_F * cache.m_B * cache.m_B * cache.V11, 2) * cache.m_D * cache.tau_B * V_cb2 / (96 * PI3 * HBAR);
     cache.C_V = w_proxy->getFM(WGroup::CC_bc, WCoef::C_V1_bc, QCDOrder::LO) + w_proxy->getFM(WGroup::CC_bc, WCoef::C_V2_bc, QCDOrder::LO);
     cache.C_S = w_proxy->getFM(WGroup::CC_bc, WCoef::C_S1_bc, QCDOrder::LO) + w_proxy->getFM(WGroup::CC_bc, WCoef::C_S2_bc, QCDOrder::LO);
