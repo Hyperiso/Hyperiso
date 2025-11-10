@@ -36,6 +36,26 @@ public:
 
     double operator()(const ObservableId& pid_1, const ObservableId& pid_2, CorrelationType type);
 
+    /**
+     * @brief Check if correlations exist between two parameters.
+     * @param pid_1 First parameter ID.
+     * @param pid_2 Second parameter ID.
+     * @param type Type of correlation requested (stat, syst, combined).
+     * @return True if the correlation is non-zero (exist)
+     */
+    bool exists(const ParamId& pid_1, const ParamId& pid_2, CorrelationType type);
+
+    /**
+     * @brief Check if correlations exist between two observables.
+     * @param pid_1 First observable.
+     * @param pid_2 Second observable.
+     * @param type Type of correlation requested (stat, syst, combined).
+     * @return True if the correlation is non-zero (exist)
+     */
+    bool exists(const Observables& pid_1, const Observables& pid_2, CorrelationType type);
+
+    bool exists(const ObservableId& pid_1, const ObservableId& pid_2, CorrelationType type);
+
 private:
     /**
      * @brief Internal utility function to compute the correlation between two entities.

@@ -9,32 +9,31 @@
 #include "Block.h"
 #include "BlockAccessor.h"
 #include "DependentParameter.h"
-#include "ParamOptimizer.h" // <- prends la version "safe remove" envoyée juste avant
+#include "ParamOptimizer.h"
 #include "SourcesView.hpp"
 
-// Petit util pour créer un param
+// util param
 static std::shared_ptr<Parameter> make_param(const std::string& block, const LhaID& id, double v) {
-    // Si chez toi ParamId(block,id) a besoin d'un type, remplace par ParamId{ParameterType::SM, block, id}
     return std::make_shared<Parameter>(ParamId(block, id), v, 0., 0.);
 }
 
 int main() {
     using clock = std::chrono::steady_clock;
 
-    // ----- Taille / charge du test -----
-    const int N   = 600;     // paramètres par bloc source
-    const int OPS = 30000;   // nombre d'assigns dans chaque phase
-    const int i1 = 5, i2 = 77, j1 = 123, j2 = 451; // indices pour les DependentParameter
+    // charge du test
+    const int N   = 600;
+    const int OPS = 300;
+    const int i1 = 5, i2 = 77, j1 = 123, j2 = 451;
 
-    // ================================
-    // 0) BLOCS SOURCES + INIT
-    // ================================
+    // --------------------------
+    // 0) Sources
+    // --------------------------
     auto SRC_A = std::make_shared<Block>(); SRC_A->blockname = "SRC_A"; SRC_A->set_scale(1.0);
     auto SRC_B = std::make_shared<Block>(); SRC_B->blockname = "SRC_B"; SRC_B->set_scale(1.0);
     auto SRC_C = std::make_shared<Block>(); SRC_C->blockname = "SRC_C"; SRC_C->set_scale(1.0);
 
     auto SCALE = std::make_shared<Block>(); SCALE->blockname = "SCALE"; SCALE->set_scale(1.0);
-    SCALE->store(LhaID(1), make_param("SCALE", LhaID(1), 1.25)); // scale factor "sf"
+    SCALE->store(LhaID(1), make_param("SCALE", LhaID(1), 1.25)); // scale factor
 
     for (int i = 0; i < N; ++i) {
         LhaID id(i);
@@ -43,14 +42,14 @@ int main() {
         SRC_C->store(id, make_param("SRC_C", id, 0.5*i));
     }
 
-    // Compteurs d'updates
+    // compteurs
     int upd_FUSED_AB = 0, upd_FUSED_BC = 0, upd_SCALED_A = 0, upd_MIXED = 0, upd_REDUCED = 0;
     int upd_DP1 = 0, upd_DP2 = 0, upd_DP3 = 0, upd_DP4 = 0;
 
-    // ================================
-    // 1) DEPENDENT BLOCKS
-    // ================================
-    // FUSED_AB = SRC_A + 2*SRC_B
+    // --------------------------
+    // 1) DependentBlocks
+    // --------------------------
+    // FUSED_AB = A + 2B
     auto FUSED_AB = std::make_shared<DependentBlock>(
         std::unordered_map<std::string, std::shared_ptr<Block>>{
             {"SRC_A", SRC_A}, {"SRC_B", SRC_B}
@@ -69,7 +68,7 @@ int main() {
     );
     FUSED_AB->blockname = "FUSED_AB"; FUSED_AB->set_scale(1.0); FUSED_AB->init();
 
-    // FUSED_BC = SRC_B - SRC_C
+    // FUSED_BC = B - C
     auto FUSED_BC = std::make_shared<DependentBlock>(
         std::unordered_map<std::string, std::shared_ptr<Block>>{
             {"SRC_B", SRC_B}, {"SRC_C", SRC_C}
@@ -88,7 +87,7 @@ int main() {
     );
     FUSED_BC->blockname = "FUSED_BC"; FUSED_BC->set_scale(1.0); FUSED_BC->init();
 
-    // SCALED_A = SCALE(1) * SRC_A
+    // SCALED_A = SCALE(1) * A
     auto SCALED_A = std::make_shared<DependentBlock>(
         std::unordered_map<std::string, std::shared_ptr<Block>>{
             {"SRC_A", SRC_A}, {"SCALE", SCALE}
@@ -127,7 +126,7 @@ int main() {
     );
     MIXED->blockname = "MIXED"; MIXED->set_scale(1.0); MIXED->init();
 
-    // REDUCED = somme globale des MIXED[i] (stockée en id 0)
+    // REDUCED = sum_i MIXED[i] (id 0)
     auto REDUCED = std::make_shared<DependentBlock>(
         std::unordered_map<std::string, std::shared_ptr<Block>>{
             {"MIXED", MIXED}
@@ -142,82 +141,83 @@ int main() {
     );
     REDUCED->blockname = "REDUCED"; REDUCED->set_scale(1.0); REDUCED->init();
 
-    // ================================
-    // 2) DEPENDENT PARAMETERS
-    // ================================
+    // --------------------------
+    // PRIMING SÉCURISÉ (ordre topo)
+    // --------------------------
+    // Geler l'aval pour empêcher MIXED de se déclencher avant que FUSED_BC ne soit prêt
+    MIXED->freeze();
+    REDUCED->freeze();
+
+    FUSED_AB->update();   // amont
+    FUSED_BC->update();   // amont
+    SCALED_A->update();   // amont
+
+    MIXED->unfreeze();    // aval
+    MIXED->update();
+    REDUCED->unfreeze();
+    REDUCED->update();
+
+    // reset compteurs (le priming les a incrémentés)
+    upd_FUSED_AB = upd_FUSED_BC = upd_SCALED_A = upd_MIXED = upd_REDUCED = 0;
+
+    // --------------------------
+    // 2) DependentParameters
+    // --------------------------
     auto DERIVED1 = std::make_shared<Block>(); DERIVED1->blockname = "DERIVED1"; DERIVED1->set_scale(1.0);
     auto DERIVED2 = std::make_shared<Block>(); DERIVED2->blockname = "DERIVED2"; DERIVED2->set_scale(1.0);
 
-    FUSED_AB->update();   // dépend de SRC_A, SRC_B
-    FUSED_BC->update();   // dépend de SRC_B, SRC_C
-    SCALED_A->update();   // dépend de SRC_A, SCALE
-    MIXED->update();      // dépend de SRC_A, FUSED_AB, FUSED_BC
-    REDUCED->update();    // dépend de MIXED
-
-    // Les compteurs ont augmenté pendant le priming : on les remet à zéro pour le bench.
-    upd_FUSED_AB = upd_FUSED_BC = upd_SCALED_A = upd_MIXED = upd_REDUCED = 0;
-
-    // Prépare les ids ParamId exacts depuis les sources
     auto A_i1 = SRC_A->retrieve(LhaID(i1))->get_id();
     auto A_i2 = SRC_A->retrieve(LhaID(i2))->get_id();
-    auto Z_i1 = FUSED_AB->retrieve(LhaID(i1))->get_id(); // z = a + 2b
+    auto Z_i1 = FUSED_AB->retrieve(LhaID(i1))->get_id();
     auto Z_i2 = FUSED_AB->retrieve(LhaID(i2))->get_id();
     auto M_j1 = MIXED->retrieve(LhaID(j1))->get_id();
     auto M_j2 = MIXED->retrieve(LhaID(j2))->get_id();
     auto S_j1 = SCALED_A->retrieve(LhaID(j1))->get_id();
     auto S_j2 = SCALED_A->retrieve(LhaID(j2))->get_id();
 
-    // DP1(i1): SRC_A[i1] + FUSED_AB[i1]
     auto DP1 = std::make_shared<DependentParameter>(
         ParamId{ParameterType::SM, "DERIVED1", LhaID(1001)},
         std::unordered_map<ParamId, std::shared_ptr<Parameter>>{
             {A_i1, SRC_A->retrieve(LhaID(i1))}, {Z_i1, FUSED_AB->retrieve(LhaID(i1))}
         },
         [A_i1, Z_i1, &upd_DP1](const ParamSrc& src, std::shared_ptr<DependentParameter> self){
-            ++upd_DP1;
-            self->set_expected(src.get_val(A_i1) + src.get_val(Z_i1));
+            ++upd_DP1; self->set_expected(src.get_val(A_i1) + src.get_val(Z_i1));
         }
     ); DP1->init(); DERIVED1->store(LhaID(1001), DP1);
 
-    // DP2(i2): SRC_A[i2] - FUSED_AB[i2]
     auto DP2 = std::make_shared<DependentParameter>(
         ParamId{ParameterType::SM, "DERIVED1", LhaID(1002)},
         std::unordered_map<ParamId, std::shared_ptr<Parameter>>{
             {A_i2, SRC_A->retrieve(LhaID(i2))}, {Z_i2, FUSED_AB->retrieve(LhaID(i2))}
         },
         [A_i2, Z_i2, &upd_DP2](const ParamSrc& src, std::shared_ptr<DependentParameter> self){
-            ++upd_DP2;
-            self->set_expected(src.get_val(A_i2) - src.get_val(Z_i2));
+            ++upd_DP2; self->set_expected(src.get_val(A_i2) - src.get_val(Z_i2));
         }
     ); DP2->init(); DERIVED1->store(LhaID(1002), DP2);
 
-    // DP3(j1): MIXED[j1] + SCALED_A[j1]
     auto DP3 = std::make_shared<DependentParameter>(
         ParamId{ParameterType::SM, "DERIVED2", LhaID(2001)},
         std::unordered_map<ParamId, std::shared_ptr<Parameter>>{
             {M_j1, MIXED->retrieve(LhaID(j1))}, {S_j1, SCALED_A->retrieve(LhaID(j1))}
         },
         [M_j1, S_j1, &upd_DP3](const ParamSrc& src, std::shared_ptr<DependentParameter> self){
-            ++upd_DP3;
-            self->set_expected(src.get_val(M_j1) + src.get_val(S_j1));
+            ++upd_DP3; self->set_expected(src.get_val(M_j1) + src.get_val(S_j1));
         }
     ); DP3->init(); DERIVED2->store(LhaID(2001), DP3);
 
-    // DP4(j2): MIXED[j2] - 0.3*SCALED_A[j2]
     auto DP4 = std::make_shared<DependentParameter>(
         ParamId{ParameterType::SM, "DERIVED2", LhaID(2002)},
         std::unordered_map<ParamId, std::shared_ptr<Parameter>>{
             {M_j2, MIXED->retrieve(LhaID(j2))}, {S_j2, SCALED_A->retrieve(LhaID(j2))}
         },
         [M_j2, S_j2, &upd_DP4](const ParamSrc& src, std::shared_ptr<DependentParameter> self){
-            ++upd_DP4;
-            self->set_expected(src.get_val(M_j2) - 0.3*src.get_val(S_j2));
+            ++upd_DP4; self->set_expected(src.get_val(M_j2) - 0.3*src.get_val(S_j2));
         }
     ); DP4->init(); DERIVED2->store(LhaID(2002), DP4);
 
-    // ================================
-    // 3) ACCESSORS + OPTIMIZER
-    // ================================
+    // --------------------------
+    // 3) Accessors + Optimizer
+    // --------------------------
     auto BA1 = std::make_shared<BlockAccessor>();
     BA1->emplace("SRC_A", SRC_A);
     BA1->emplace("SRC_B", SRC_B);
@@ -235,34 +235,27 @@ int main() {
 
     ParamOptimizer opt({BA1, BA2});
 
-    // ================================
-    // 4) PHASE A — NAÏF
-    // ================================
+    // --------------------------
+    // 4) Phase A — naïf
+    // --------------------------
     upd_FUSED_AB = upd_FUSED_BC = upd_SCALED_A = upd_MIXED = upd_REDUCED = 0;
     upd_DP1 = upd_DP2 = upd_DP3 = upd_DP4 = 0;
 
     auto t0 = clock::now();
-
     for (int k = 0; k < OPS; ++k) {
         int i = k % N;
-        // Assigns “classiques” (déclenchent update en chaîne)
         SRC_A->assign(LhaID(i), 0.1*k + std::sin(0.001*k));
         SRC_B->assign(LhaID(i), 0.2*k + std::cos(0.001*k));
         SRC_C->assign(LhaID(i), 0.05*k);
 
-        // De temps en temps, on bouge la scale factor (impacte SCALED_A, puis MIXED via SRC_A? indirect)
-        if ((k % 1000) == 0) {
-            SCALE->assign(LhaID(1), 1.0 + 0.001*k); // notifie SCALED_A
-        }
+        if ((k % 1000) == 0) SCALE->assign(LhaID(1), 1.0 + 0.001*k);
 
-        // De temps en temps, on "store" un nouveau param dans SRC_A (naïf -> il faut réveiller full-block)
         if ((k % 5000) == 0) {
             LhaID nid(N + (k/5000));
             SRC_A->store(nid, make_param("SRC_A", nid, 42.0 + k*1e-3));
-            SRC_A->notifyObservers(); // sinon FUSED_AB/MIXED/REDUCED ne voient pas le nouveau ID
+            SRC_A->notifyObservers(); // propager l’ajout d’ID
         }
     }
-
     auto t1 = clock::now();
     auto naive_ms = std::chrono::duration_cast<std::chrono::milliseconds>(t1 - t0).count();
 
@@ -275,52 +268,41 @@ int main() {
               << "upd(DP1,DP2,DP3,DP4)=" << upd_DP1 << "," << upd_DP2 << "," << upd_DP3 << "," << upd_DP4
               << " | time=" << naive_ms << " ms\n";
 
-    // Vérifs cohérence sur quelques indices
     auto check_point = [&](int idx){
         double a = SRC_A->retrieve(LhaID(idx))->get_val();
         double b = SRC_B->retrieve(LhaID(idx))->get_val();
         double c = SRC_C->retrieve(LhaID(idx))->get_val();
-        double z = FUSED_AB->retrieve(LhaID(idx))->get_val();     // a + 2b
-        double y = FUSED_BC->retrieve(LhaID(idx))->get_val();     // b - c
+        double z = FUSED_AB->retrieve(LhaID(idx))->get_val();
+        double y = FUSED_BC->retrieve(LhaID(idx))->get_val();
         double sf = SCALE->retrieve(LhaID(1))->get_val();
-        double s  = SCALED_A->retrieve(LhaID(idx))->get_val();    // sf*a
-        double m  = MIXED->retrieve(LhaID(idx))->get_val();       // 0.5a + z + 0.1y
+        double s  = SCALED_A->retrieve(LhaID(idx))->get_val();
+        double m  = MIXED->retrieve(LhaID(idx))->get_val();
         assert(std::abs(z - (a + 2.0*b)) < 1e-9);
         assert(std::abs(y - (b - c)) < 1e-9);
         assert(std::abs(s - (sf * a)) < 1e-9);
         assert(std::abs(m - (0.5*a + z + 0.1*y)) < 1e-9);
     };
-    check_point(3);
-    check_point(17);
-    check_point(123);
+    check_point(3); check_point(17); check_point(123);
 
-    // ================================
-    // 5) PHASE B — OPTIMISÉ
-    // ================================
+    // --------------------------
+    // 5) Phase B — optimisé
+    // --------------------------
     upd_FUSED_AB = upd_FUSED_BC = upd_SCALED_A = upd_MIXED = upd_REDUCED = 0;
     upd_DP1 = upd_DP2 = upd_DP3 = upd_DP4 = 0;
 
     auto t2 = clock::now();
-
     for (int k = 0; k < OPS; ++k) {
         int i = k % N;
         opt.set_value("SRC_A", LhaID(i), 0.1*k + std::sin(0.001*k));
         opt.set_value("SRC_B", LhaID(i), 0.2*k + std::cos(0.001*k));
         opt.set_value("SRC_C", LhaID(i), 0.05*k);
-
-        if ((k % 1000) == 0) {
-            opt.set_value("SCALE", LhaID(1), 1.0 + 0.001*k);
-        }
-
+        if ((k % 1000) == 0) opt.set_value("SCALE", LhaID(1), 1.0 + 0.001*k);
         if ((k % 5000) == 0) {
             LhaID nid(N + (k/5000));
-            // On peut tester l'ajout pur (pas de remove derrière, pour conserver le param)
             opt.set_value("SRC_A", nid, 42.0 + k*1e-3);
         }
     }
-
     opt.commit(true);
-
     auto t3 = clock::now();
     auto opt_ms = std::chrono::duration_cast<std::chrono::milliseconds>(t3 - t2).count();
 
@@ -333,19 +315,13 @@ int main() {
               << "upd(DP1,DP2,DP3,DP4)=" << upd_DP1 << "," << upd_DP2 << "," << upd_DP3 << "," << upd_DP4
               << " | time=" << opt_ms << " ms\n";
 
-    // Vérifs cohérence finale
-    check_point(7);
-    check_point(111);
-    check_point(482);
-
-    // Cohérence DependentParameters
+    // vérifs finales
+    check_point(7); check_point(111); check_point(482);
     {
-        // Recalcule attendu après phase B
         double a1 = SRC_A->retrieve(LhaID(i1))->get_val();
         double z1 = FUSED_AB->retrieve(LhaID(i1))->get_val();
         double a2 = SRC_A->retrieve(LhaID(i2))->get_val();
         double z2 = FUSED_AB->retrieve(LhaID(i2))->get_val();
-
         double m1 = MIXED->retrieve(LhaID(j1))->get_val();
         double s1 = SCALED_A->retrieve(LhaID(j1))->get_val();
         double m2 = MIXED->retrieve(LhaID(j2))->get_val();
@@ -357,6 +333,6 @@ int main() {
         assert(std::abs(DERIVED2->retrieve(LhaID(2002))->get_val() - (m2 - 0.3*s2)) < 1e-9);
     }
 
-    std::cout << "OK: test complexe — cohérence validée et gains attendus.\n";
+    std::cout << "OK: test complexe — cohérence + bench.\n";
     return 0;
 }

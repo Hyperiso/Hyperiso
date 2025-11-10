@@ -12,6 +12,17 @@ double CorrelationProvider::operator()(const ObservableId &oid_1, const Observab
     return get_correlation(oid_1, oid_2, type);
 }
 
+bool CorrelationProvider::exists(const ParamId &pid_1, const ParamId &pid_2, CorrelationType type) {
+    return get_correlation(pid_1, pid_2, type) ? true : false;
+}
+
+bool CorrelationProvider::exists(const Observables &oid_1, const Observables &oid_2, CorrelationType type) {
+    return get_correlation(oid_1, oid_2, type) ? true : false;
+}
+
+bool CorrelationProvider::exists(const ObservableId &oid_1, const ObservableId &oid_2, CorrelationType type) {
+    return get_correlation(oid_1, oid_2, type) ? true : false;
+}
 
 template <typename T>
 inline double CorrelationProvider::get_correlation(const T &id_1, const T &id_2, CorrelationType type) const {

@@ -107,6 +107,10 @@ target_link_libraries(SMALL_OPTIMIZER_TEST CoreLib)
 
 add_executable(DEEP_OPTIMIZER_TEST app/main_optimizer_deeper.cpp)
 target_link_libraries(DEEP_OPTIMIZER_TEST CoreLib)
+
+add_executable(PRINT_OPTIMIZER_TEST app/main_optimizer_print.cpp)
+target_link_libraries(PRINT_OPTIMIZER_TEST CoreLib)
+
 # add_executable(TEST main_parameters.cpp)
 # target_link_libraries(TEST CoreLib)
 

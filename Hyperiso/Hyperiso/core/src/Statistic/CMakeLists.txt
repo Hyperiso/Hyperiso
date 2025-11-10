@@ -72,6 +72,9 @@ target_link_libraries(STAT_TEST StatisticLib)
 add_executable(REAL_STAT_TEST app/example_main_adapter.cpp)
 target_link_libraries(REAL_STAT_TEST StatisticLib)
 
+add_executable(ADAPTERS_TEST app/test_adapters.cpp)
+target_link_libraries(ADAPTERS_TEST StatisticLib)
+
 include(GNUInstallDirs)
 
 install(TARGETS StatisticLib
