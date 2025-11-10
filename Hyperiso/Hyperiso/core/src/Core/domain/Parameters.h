@@ -329,6 +329,15 @@ public:
     void unfreeze_param(const BlockName& blockName, const LhaID& id);
 
     /**
+     * @brief Return the BlockAcessor of the parameters.
+     *
+     * Should only be used for parameters optimization.
+     *
+     * @return The Block accessor
+     */
+    std::shared_ptr<BlockAccessor> get_block_accessor() { return this->blockAccessor;}
+
+    /**
      * @brief Print the content of a block.
      *
      * Prints the content of a block in the block accessor.

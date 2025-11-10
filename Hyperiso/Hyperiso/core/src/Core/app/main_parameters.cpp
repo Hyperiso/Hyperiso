@@ -1,13 +1,16 @@
-#include "Parametersv2.h"
+#include "Parameters.h"
 #include <iostream>
 #include <cmath>
 
 int main() {
-
+    std::cout << "here ! " << std::endl;
     auto mm = MemoryManager::GetInstance();  // Initialize program manager with LHA file containing SMINPUTS block
-    mm->init("Test/InputFiles/testInput.slha", Model::SUSY);
-    auto sm_params = Parameters::GetInstance(0); // SM Model
-    auto susy_params = Parameters::GetInstance(1); // SUSY Model
+    Config config;
+    config.model = Model::SUSY;
+    std::cout << "here ! " << std::endl;
+    mm->init("Test/InputFiles/testInput.slha", config);
+    auto sm_params = Parameters::GetInstance(ParameterType::SM); // SM Model
+    auto susy_params = Parameters::GetInstance(ParameterType::BSM); // SUSY Model
     
     try {
         

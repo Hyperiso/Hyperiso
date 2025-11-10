@@ -99,6 +99,11 @@ endif()
 add_executable(TEST_CORE app/main_core.cpp)
 target_link_libraries(TEST_CORE CoreLib)
 
+add_executable(OPTIMIZER_TEST app/test_optimizer.cpp)
+target_link_libraries(OPTIMIZER_TEST CoreLib)
+
+add_executable(SMALL_OPTIMIZER_TEST app/test_little_optimizer.cpp)
+target_link_libraries(SMALL_OPTIMIZER_TEST CoreLib)
 # add_executable(TEST main_parameters.cpp)
 # target_link_libraries(TEST CoreLib)
 
