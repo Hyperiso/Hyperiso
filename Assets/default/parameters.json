@@ -546,6 +546,11 @@
       "central_value": 0.0635,
       "stat_error": 0.014,
       "syst_error": 0
+    },
+    "2": {
+      "central_value": 0.995,
+      "stat_error": 0,
+      "syst_error": 0
     }
   },
 

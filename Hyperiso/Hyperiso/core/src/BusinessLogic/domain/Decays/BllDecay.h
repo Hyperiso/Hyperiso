@@ -18,6 +18,7 @@ struct BllDecayCache {
     complex_t lambda_d;
     complex_t lambda_s;
     double ys;
+    double eta_BBS;
     double x_d;
     double x_s;
     double r_d;
