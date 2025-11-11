@@ -1,7 +1,7 @@
 #ifndef STAT_CORRELATION_PROXY_H
 #define STAT_CORRELATION_PROXY_H
 
-#include "IStatParameterProxy.h"
+#include "IStatCorrelationProxy.h"
 #include "CorrelationProvider.h"
 #include "Include.h"
 

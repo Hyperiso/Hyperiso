@@ -1,6 +1,6 @@
 #include "ParameterProvider.h"
 
-scalar_t ParameterProvider::operator()(const ParamId &pid, DataType d_type) {
+scalar_t ParameterProvider::operator()(const ParamId &pid, DataType d_type) const {
     if (this->p_type.has_value()) {
         LOG_WARN("LogicError", "This ParameterProvider already has a type.");
     }

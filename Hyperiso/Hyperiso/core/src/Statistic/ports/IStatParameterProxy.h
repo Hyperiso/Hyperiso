@@ -5,13 +5,15 @@
 #include "CorrelationProvider.h"
 #include "Include.h"
 
-struct IStatCorrelationProxy {
-    using Type = CorrelationProvider::CorrelationType;
-    virtual ~IStatCorrelationProxy() = default;
+struct IStatParameterProxy {
+    virtual ~IStatParameterProxy() = default;
 
-    virtual double operator()(const ParamId&, const ParamId&, Type) = 0;
-    virtual double operator()(const Observables&, const Observables&, Type) = 0;
-    virtual double operator()(const ObservableId&, const ObservableId&, Type) = 0;
+    virtual std::shared_ptr<Parameter> get_param(const ParamId&) const = 0;
+    virtual std::shared_ptr<Parameter> get_param(const std::string& block, const LhaID& id) const = 0;
+    virtual scalar_t operator()(const ParamId&, DataType d_type=DataType::VALUE) const = 0;
+    virtual double operator()(const ObservableId&, DataType d_type=DataType::VALUE) const = 0;
+    virtual scalar_t operator()(const std::string& block, const LhaID& id, DataType d_type=DataType::VALUE) const = 0 ;
+    virtual std::shared_ptr<Parameter> get_obs_param(const ObservableId&) const = 0;
 };
 
 #endif

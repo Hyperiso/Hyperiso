@@ -9,6 +9,7 @@ std::vector<std::vector<double>> CovarianceTransformer::transform(std::vector<Pa
         }
         out.push_back(temp);
     }
+    return out;
 }
 
 
@@ -21,4 +22,5 @@ std::vector<std::vector<double>> CovarianceTransformer::transform(std::vector<Ob
         }
         out.push_back(temp);
     }
+    return out;
 }

@@ -4,11 +4,12 @@
 #include "IStatParameterProxy.h"
 #include "General.h"
 #include "CorrelationProvider.h" //For enum
-#include "StatCorrelationProxy.h"
+#include "IStatCorrelationProxy.h"
+#include "StatParameterProxy.h"
 
 class CovarianceTransformer {
 public:
-    CovarianceTransformer(std::shared_ptr<IStatCorrelationProxy> corr_proxy) : corr_proxy(corr_proxy) { }
+    CovarianceTransformer(std::shared_ptr<IStatCorrelationProxy> corr_proxy, std::shared_ptr<IStatParameterProxy> par_proxy) : corr_proxy(corr_proxy) { }
 
 
     std::vector<std::vector<double>> transform(std::vector<ParamId> ids);
