@@ -22,7 +22,7 @@ public:
      * @param d_type Type of data requested (value, stat error, syst error, etc.).
      * @return The requested scalar value.
      */
-    scalar_t operator()(const ParamId& pid, DataType d_type=DataType::VALUE);
+    scalar_t operator()(const ParamId& pid, DataType d_type=DataType::VALUE) const;
 
     /**
      * @brief Retrieves a parameter value based on block name and LHA ID.

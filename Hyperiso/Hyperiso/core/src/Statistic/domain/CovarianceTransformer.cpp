@@ -5,10 +5,11 @@ std::vector<std::vector<double>> CovarianceTransformer::transform(std::vector<Pa
     for (auto& elem : ids) {
         std::vector<double> temp;
         for (auto& elem2 : ids) {
-            temp.push_back(1);
+            temp.push_back((*corr_proxy)(elem, elem2, CorrelationProvider::CorrelationType::COMBINED));
         }
         out.push_back(temp);
     }
+    return out;
 }
 
 
@@ -17,8 +18,9 @@ std::vector<std::vector<double>> CovarianceTransformer::transform(std::vector<Ob
     for (auto& elem : ids) {
         std::vector<double> temp;
         for (auto& elem2 : ids) {
-            temp.push_back(1);
+            temp.push_back((*corr_proxy)(elem, elem2, CorrelationProvider::CorrelationType::COMBINED));
         }
         out.push_back(temp);
     }
+    return out;
 }

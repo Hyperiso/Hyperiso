@@ -1,18 +1,20 @@
 #ifndef OBS_PARAMETER_PROXY_H
 #define OBS_PARAMETER_PROXY_H
 
-#include "IObsParameterProxy.h"
+#include "IStatParameterProxy.h"
 #include "ParameterProvider.h"
 #include "Include.h"
 
-class StatParameterProxy : public IObsParameterProxy<std::string, LhaID> {
+class StatParameterProxy : public IStatParameterProxy {
 public:
     StatParameterProxy(ParameterType type = ParameterType::SM);
 
-    scalar_t operator()(const ParamId& pid, DataType d_type=DataType::VALUE);
+    std::shared_ptr<Parameter> get_param(const ParamId&) const;
+    std::shared_ptr<Parameter> get_param(const std::string& block, const LhaID& id) const;
+    scalar_t operator()(const ParamId&, DataType d_type=DataType::VALUE) const;
+    double operator()(const ObservableId&, DataType d_type=DataType::VALUE) const;
     scalar_t operator()(const std::string& block, const LhaID& id, DataType d_type=DataType::VALUE) const;
-    
-    std::shared_ptr<Parameter> get_parameter(const ParamId& pid) const;
+    std::shared_ptr<Parameter> get_obs_param(const ObservableId&) const;
 private:
     ParameterProvider pp;
     ParameterProvider pp_with_type;

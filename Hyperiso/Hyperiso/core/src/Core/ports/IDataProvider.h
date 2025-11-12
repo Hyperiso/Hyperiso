@@ -76,8 +76,8 @@ struct has_exists_function : std::false_type {};
  * @return True if the entry exists, false otherwise.
  */
 template <typename T, typename... Args>
-struct has_exists_function<T, std::void_t<decltype(std::declval<T>().exist(std::declval<Args>()...))>, Args...>
-    : std::is_convertible<decltype(std::declval<T>().exist(std::declval<Args>()...)), bool> {};
+struct has_exists_function<T, std::void_t<decltype(std::declval<T>().exists(std::declval<Args>()...))>, Args...>
+    : std::is_convertible<decltype(std::declval<T>().exists(std::declval<Args>()...)), bool> {};
 
 template <typename T, typename... Args>
 concept HasExistsFunction = has_exists_function<T, void, Args...>::value;
