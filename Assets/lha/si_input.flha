@@ -20,7 +20,7 @@ Block MASS
     4   1.2730
     11  0.510998995000e-3
     13  0.1056583755
-    15  1.7768600000e+00
+    15  1.77693
     23  9.115349000e+01   # MZ
     24  8.03692e+01
     25  125.20
@@ -29,6 +29,7 @@ Block FLIFE
 # PDG_code  lifetime        particle
     211     2.6033e-08      # pi+
     321     1.238e-8        # K+
+    130     5.116e-8        # K_L
     411     1.033e-12       # D+
     431     5.012e-13       # D_s+
     521     1.638e-12       # B+
@@ -38,6 +39,7 @@ Block FLIFE
 BLOCK FMASS
 # PDG_code  mass        scheme  Q   particle
     111     0.13957039  0       0   # pi0
+    113     0.770       0       0   # rho
     211     0.1349768   0       0   # pi+
     321     0.493677    0       0   # K+
     323     0.89167     0       0   # K*+
@@ -71,4 +73,4 @@ Block FCONST # Decay constant in GeV
 
 Block FCONSTRATIO # Ratio of decay constants
 # PDG_code1 code2   nb1 nb2 ratio           scheme  scale   comment
-    311     211     1   1   1.1934          0       1.0     # f_K/f_pi
+    321     211     1   1   1.1934          0       1.0     # f_K/f_pi

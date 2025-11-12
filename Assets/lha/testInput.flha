@@ -87,32 +87,33 @@ Block FBAG # Bag parameters
     511     3       2.38800000e-01  0       0       # B_3 (B_d0)
 
 Block FOBS # Flavour observables
-# ParentPDG type    value           q   NDA ID1 ID2 ID3 ... comment
-    5       1       2.83249483e-04  0   2   3   22          # BR(b->s gamma)
-    521     4       8.78354299e-02  0   2   313 22          # Delta0(B->K* gamma)
-    531     1       3.44359657e-09  0   2   13  -13         # BR(B_s->mu+ mu-)
-    521     1       9.89829667e-05  0   2   -15 16          # BR(B_u->tau nu)
-    521     2       9.81528344e-01  0   2   -15 16          # R(B_u->tau nu)
-    431     1       5.10125129e-02  0   2   -15 16          # BR(D_s->tau nu)
-    431     1       5.23481907e-03  0   2   -13 14          # BR(D_s->mu nu)
-    521     1       6.71755629e-03  0   3   421 -15 16      # BR(B->D0 tau nu)
-    521     11      2.96312243e-01  0   3   421 -15 16      # BR(B->D0 tau nu)/BR(B->D0 e nu)
-    321     11      6.34141764e-01  0   2   -13 14          # BR(K->mu nu)/BR(pi->mu nu)
-    321     12      9.99918554e-01  0   2   -13 14          # R_l23
-
+# ParentPDG type    value           q  bin_low  bin_high   NDA ID1 ID2 ID3 ... comment
+    5       1       2.83249483e-04  0  0        0           2   3   22          # BR(b->s gamma)
+    521     4       8.78354299e-02  0  0        0           2   313 22          # Delta0(B->K* gamma)
+    531     1       3.44359657e-09  0  0        0           2   13  -13         # BR(B_s->mu+ mu-)
+    521     1       9.89829667e-05  0  0        0           2   -15 16          # BR(B_u->tau nu)
+    521     2       9.81528344e-01  0  0        0           2   -15 16          # R(B_u->tau nu)
+    431     1       5.10125129e-02  0  0        0           2   -15 16          # BR(D_s->tau nu)
+    431     1       5.23481907e-03  0  0        0           2   -13 14          # BR(D_s->mu nu)
+    521     1       6.71755629e-03  0  0        0           3   421 -15 16      # BR(B->D0 tau nu)
+    521     11      2.96312243e-01  0  0        0           3   421 -15 16      # BR(B->D0 tau nu)/BR(B->D0 e nu)
+    321     11      6.34141764e-01  0  0        0           2   -13 14          # BR(K->mu nu)/BR(pi->mu nu)
+    321     12      9.99918554e-01  0  0        0           2   -13 14          # R_l23
+    521     2       2.15e-3         0  1.0      4.0         3   321 -13 13      # A_FB(B+ > K+ mu+ mu-)
+ 
 Block FOBSSM # SM predictions for flavour observables
-# ParentPDG type    value           q   NDA ID1 ID2 ID3 ... comment
-    5       1       3.10589604e-04  0   2   3   22          # BR(b->s gamma)
-    521     4       8.33856375e-02  0   2   313 22          # Delta0(B->K* gamma)
-    531     1       3.30981324e-09  0   2   13  -13         # BR(B_s->mu+ mu-)
-    521     1       1.00845755e-04  0   2   -15 16          # BR(B_u->tau nu)
-    521     2       1.00000000e+00  0   2   -15 16          # R(B_u->tau nu)
-    431     1       5.10235109e-02  0   2   -15 16          # BR(D_s->tau nu)
-    431     1       5.23594766e-03  0   2   -13 14          # BR(D_s->mu nu)
-    521     1       6.74263430e-03  0   3   421 -15 16      # BR(B->D0 tau nu)
-    521     11      2.97418437e-01  0   3   421 -15 16      # BR(B->D0 tau nu)/BR(B->D0 e nu)
-    321     11      6.34245073e-01  0   2   -13 14          # BR(K->mu nu)/BR(pi->mu nu)
-    321     12      1.00000000e+00  0   2   -13 14          # R_l23 
+# ParentPDG type    value           q   bin_low bin_high    NDA ID1 ID2 ID3 ... comment
+    5       1       3.10589604e-04  0   0       0           2   3   22          # BR(b->s gamma)
+    521     4       8.33856375e-02  0   0       0           2   313 22          # Delta0(B->K* gamma)
+    531     1       3.30981324e-09  0   0       0           2   13  -13         # BR(B_s->mu+ mu-)
+    521     1       1.00845755e-04  0   0       0           2   -15 16          # BR(B_u->tau nu)
+    521     2       1.00000000e+00  0   0       0           2   -15 16          # R(B_u->tau nu)
+    431     1       5.10235109e-02  0   0       0           2   -15 16          # BR(D_s->tau nu)
+    431     1       5.23594766e-03  0   0       0           2   -13 14          # BR(D_s->mu nu)
+    521     1       6.74263430e-03  0   0       0           3   421 -15 16      # BR(B->D0 tau nu)
+    521     11      2.97418437e-01  0   0       0           3   421 -15 16      # BR(B->D0 tau nu)/BR(B->D0 e nu)
+    321     11      6.34245073e-01  0   0       0           2   -13 14          # BR(K->mu nu)/BR(pi->mu nu)
+    321     12      1.00000000e+00  0   0       0           2   -13 14          # R_l23 
 
 Block FWCOEF Q= 1.60846e+02 # Wilson coefficients at scale Q
 #id                 order   M   value           comment
