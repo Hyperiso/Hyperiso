@@ -38,8 +38,8 @@ void WilsonParameterHelper::init_matching_block() {
 		double mu_W = src.get_val("EW_SCALE", 1);
         double alphas_muW = QCDHelper::alpha_s(mu_W);
 
-        printf("mu_W = %.5f\n", mu_W);
-        printf("alpha_s(mu_W) = %.5f\n", alphas_muW);
+        // printf("mu_W = %.5f\n", mu_W);
+        // printf("alpha_s(mu_W) = %.5f\n", alphas_muW);
 
 		double mass_top_muW = QCDHelper::msbar_mass(6, mu_W, MassType::MSBAR);
 		double mass_b_muW_mbrun = QCDHelper::msbar_mass(5, mu_W, MassType::MSBAR);

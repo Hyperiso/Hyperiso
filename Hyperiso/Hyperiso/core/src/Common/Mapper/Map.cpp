@@ -126,6 +126,7 @@ const std::map<Observables, std::string>& observable_mapping() {
         {R_MU23, "R_mu23"},
         {BR_D__MU_NU, "BR_D__mu_nu"},
         {BR_DS__MU_NU, "BR_Ds__mu_nu"},
+        {BR_DS__TAU_NU, "BR_Ds__tau_nu"},
         {TEST, "test"},
     };
     return m;
@@ -327,7 +328,7 @@ const std::map<Decays, std::vector<Observables>>& decay_observable_mapping() {
         {K__pi_nu_nu,           {BR_K__PI_NU_NU, BR_KL__PI0_NU_NU}},
         {K__l_nu,               {BR_K__MU_NU__BR_PI__MU_NU, R_MU23}},
         {D__l_nu,               {BR_D__MU_NU}},
-        {Ds__l_nu,              {BR_DS__MU_NU}},
+        {Ds__l_nu,              {BR_DS__MU_NU, BR_DS__TAU_NU}},
     };
     return m;
 }

@@ -90,8 +90,12 @@ double BPFFCalculator::F_a(BP_FF a, double q2) {
     double P = pole(q2, this->m_R.at(a));
     double Z = std::real(z(q2, this->t_p, this->t_0)) - this->z_0;
 
+    printf("P = %.4e\n", P);
+    printf("Z = %.4e\n", Z);
+
     double res {0.0};
     for (int k = 0; k < 4; k++) {
+        printf("alpha_%i = %.4e\n", k, ai[k]);
         res += ai[k] * std::pow(Z, k);
     }
 

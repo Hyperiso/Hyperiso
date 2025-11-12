@@ -143,6 +143,7 @@ enum class Observables {
     /* Rare D decays */
     BR_D__MU_NU,
     BR_DS__MU_NU,
+    BR_DS__TAU_NU,
 };
 
 enum class Decays {

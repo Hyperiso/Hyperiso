@@ -9,13 +9,19 @@ void KlnuDecay::load_params() {
     complex_t C_P_pi = w_proxy->getFM(WGroup::CC_du, WCoef::C_S2_du, QCDOrder::LO) - w_proxy->getFM(WGroup::CC_du, WCoef::C_S1_du, QCDOrder::LO);
     cache.calc_pi = PlnuCalculator(211, 13, C_A_pi, C_P_pi);
 
+    ObsParameterProxy p;
+    double f_K = p({ParameterType::FLAVOR, "FCONST", {321, 1}});
+    double f_pi = p({ParameterType::FLAVOR, "FCONST", {211, 1}});
+    double f_K__f_pi = p({ParameterType::FLAVOR, "FCONSTRATIO", {321, 211, 1, 1}});
+
+    cache.f_corr = std::pow(f_K__f_pi * f_pi / f_K, 2);
     cache.delta_em = ObsParameterProxy()({ParameterType::DECAY, "K_lnu", 1});
 }
 
 double KlnuDecay::BR_K_BR_pi() {
     double BR_K = cache.calc_K.BR_0_SM() * cache.calc_K.R_SM_BSM();
     double BR_pi = cache.calc_pi.BR_0_SM() * cache.calc_pi.R_SM_BSM();
-    return BR_K / BR_pi * (1 - cache.delta_em);
+    return BR_K / BR_pi * (1 - cache.delta_em) * cache.f_corr;
 }
 
 double KlnuDecay::R_mu23() {

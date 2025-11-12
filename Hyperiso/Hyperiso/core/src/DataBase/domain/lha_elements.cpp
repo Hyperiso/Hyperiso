@@ -30,12 +30,13 @@ struct StringConverter<std::string> {
 
 static inline void normalize_indices(const Prototype& p,
                                      const std::vector<std::string>& line,
-                                     size_t& vIdx, int& sIdx, int& rIdx)
+                                     size_t& vIdx, int& sIdx, int& rIdx, int& bIdx)
 {
     vIdx = p.valueIdx < line.size() ? p.valueIdx : (line.empty() ? 0 : line.size() - 1);
 
     sIdx = (p.scaleIdx >= 0 && static_cast<size_t>(p.scaleIdx) < line.size()) ? p.scaleIdx : -1;
     rIdx = (p.rgIdx    >= 0 && static_cast<size_t>(p.rgIdx)    < line.size()) ? p.rgIdx    : -1;
+    bIdx = (p.binIdx   >= 0 && static_cast<size_t>(p.binIdx)   < line.size()) ? p.binIdx   : -1;
 }
 
 // template<typename T>
@@ -61,8 +62,8 @@ template<typename T>
 LhaElement<T>::LhaElement(const Prototype& prototype, const std::vector<std::string>& line)
     : AbstractElement(encodeId(prototype, line))
 {
-    size_t vIdx; int sIdx, rIdx;
-    normalize_indices(prototype, line, vIdx, sIdx, rIdx);
+    size_t vIdx; int sIdx, rIdx, bIdx;
+    normalize_indices(prototype, line, vIdx, sIdx, rIdx, bIdx);
 
     if (prototype.globalScale) {
         if (line.empty()) throw std::runtime_error("Global-scale block: empty line in " + prototype.blockName);
@@ -72,6 +73,12 @@ LhaElement<T>::LhaElement(const Prototype& prototype, const std::vector<std::str
     }
     if (rIdx != -1) {
         this->rScheme.emplace(static_cast<RenormalizationScheme>(std::stoi(line.at(rIdx))));
+    }
+
+    if (bIdx != -1) {
+        LOG_INFO("In block", prototype.blockName, " : bIdx =", bIdx);
+        LOG_INFO("Binning is", std::stod(line.at(bIdx)), ",", std::stod(line.at(bIdx + 1)));
+        this->bin.emplace(std::pair(std::stod(line.at(bIdx)), std::stod(line.at(bIdx + 1))));
     }
 
     if (vIdx >= line.size())
@@ -109,12 +116,13 @@ LhaElement<T>::LhaElement(const Prototype& prototype, const std::vector<std::str
 
 template <typename T>
 LhaID LhaElement<T>::encodeId(const Prototype& prototype, const std::vector<std::string>& line) {
-    size_t vIdx; int sIdx, rIdx;
-    normalize_indices(prototype, line, vIdx, sIdx, rIdx);
+    size_t vIdx; int sIdx, rIdx, bIdx;
+    normalize_indices(prototype, line, vIdx, sIdx, rIdx, bIdx);
 
     std::vector<long> sub_ids;
     for (size_t i = 0; i < line.size(); ++i) {
         if (i == vIdx || static_cast<int>(i) == sIdx || static_cast<int>(i) == rIdx) continue;
+        if (bIdx != -1 && (static_cast<int>(i) == bIdx  || static_cast<int>(i) == bIdx + 1)) continue;
         if (prototype.globalScale && i == 0) continue;
 
         const auto& s = line[i];
@@ -153,6 +161,11 @@ std::shared_ptr<Node> LhaElement<T>::toDBNode() const {
     if (rScheme.has_value()) {
         node.set(static_cast<int>(this->getScheme()), "renormalization_scheme");
     }
+    if (bin.has_value()) {
+        auto bin = this->getBinning();
+        node.set(bin.first, "bin_low");
+        node.set(bin.second, "bin_high");
+    }  
     return std::make_shared<Node>(node);
 }
 

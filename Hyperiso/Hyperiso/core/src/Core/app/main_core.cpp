@@ -14,6 +14,7 @@ int main() {
 
     ParameterProvider sm {ParameterType::SM};
     ParameterProvider wil {ParameterType::WILSON};
+    ParameterProvider obs {ParameterType::OBSERVABLE};
     LOG_INFO(sm("SMINPUTS", 6));
 
     CompositeParamAdapter cpc;
@@ -30,6 +31,10 @@ int main() {
     LOG_INFO("Before: m_W =", sm("MASS", 24), ", x_t =", wil("WPARAM", 1));
     ps.mutate({ParameterType::SM, "MASS", 24}, 100);
     LOG_INFO("After: m_W =", sm("MASS", 24), ", x_t =", wil("WPARAM", 1));
+
+    auto obs_p = obs.get_parameter({ParameterType::OBSERVABLE, "FOBS", {521, 2, 3, 321, 13}});
+    auto bin = obs_p->get_bin();
+    LOG_INFO("A_FB(B > K mu mu) = [", bin.first, ",", bin.second, "] =", obs_p->get_val());
 
     return 0;
 }

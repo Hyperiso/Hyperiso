@@ -85,15 +85,6 @@ void ParamBlockLoader::load(std::shared_ptr<BlockAccessor> dest, fs::path src_fi
                 continue;
             }
 
-            // 3) si une scale par-entrée existe, on peut l'ignorer ou la traiter selon ton design
-            if (node->contains("scale") && !block->has_scale()) {
-                auto scale = node->get("scale");
-                if (std::holds_alternative<double>(scale))
-                    block->set_scale(std::get<double>(scale));
-                else if (std::holds_alternative<int>(scale))
-                    block->set_scale(static_cast<double>(std::get<int>(scale)));
-            }
-
             // 4) extraire la valeur centrale et erreurs
             auto value = node->get("central_value");
             if (std::holds_alternative<BlockName>(value)) {
@@ -117,6 +108,36 @@ void ParamBlockLoader::load(std::shared_ptr<BlockAccessor> dest, fs::path src_fi
                 std::make_shared<Parameter>(Parameter(ParamId(bk, LhaID(vk.first)),
                                                       val_central, stat_d, syst_d))
             );
+
+            if (node->contains("scale")) {
+                auto scale = node->get("scale");
+                if (std::holds_alternative<double>(scale))
+                    block->retrieve(LhaID(vk.first))->set_scale(std::get<double>(scale));
+                else if (std::holds_alternative<int>(scale))
+                    block->retrieve(LhaID(vk.first))->set_scale(static_cast<double>(std::get<int>(scale)));
+            }
+
+            if (node->contains("bin_low") || node->contains("bin_high")) {
+                if (!(node->contains("bin_low") && node->contains("bin_high")))
+                    LOG_ERROR("LogicError", "Missing one end of the binning.");
+
+                auto bin_low = node->get("bin_low");
+                auto bin_high = node->get("bin_high");
+                double d_bin_low, d_bin_high;
+                if (std::holds_alternative<double>(bin_low))
+                    d_bin_low = std::get<double>(bin_low);
+                else if (std::holds_alternative<int>(bin_low))
+                    d_bin_low = std::get<int>(bin_low);
+
+                if (std::holds_alternative<double>(bin_high))
+                    d_bin_high = std::get<double>(bin_high);
+                else if (std::holds_alternative<int>(bin_high))
+                    d_bin_high = std::get<int>(bin_high);
+
+                LOG_INFO(LhaID(vk.first), d_bin_low, d_bin_high);
+                block->retrieve(LhaID(vk.first))->set_bin(std::pair(d_bin_low, d_bin_high));
+                LOG_INFO(block->retrieve(LhaID(vk.first))->get_bin().first, block->retrieve(LhaID(vk.first))->get_bin().second);
+            }
         }
 
         dest->emplace(bk, block);

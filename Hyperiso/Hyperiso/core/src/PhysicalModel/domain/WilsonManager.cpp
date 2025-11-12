@@ -333,7 +333,6 @@ complex_t CoefficientManager::getRunCoefficient(const std::string& groupName, co
 
 complex_t CoefficientManager::getFullRunCoefficient(const std::string& groupName, const std::string& coeffName, const std::string& order, ContributionType cont_type, WilsonBasis basis) {
     double fact = (*ports_config.wilson_proxy)("WPARAM_RUN_SM", 1) / (4 * PI);
-    LOG_INFO("in get_full_run loop factor is", fact);
     int max_order = static_cast<int>(OrderMapper::enum_elt(order));
     complex_t c {0};
     for (size_t o = 1; o <= max_order; o++) {

@@ -7,6 +7,7 @@
 
 struct KllDecayConfig {
     int N_L_sign = 1;
+    int gen = 2;
 };
 
 struct KllDecayCache {
@@ -15,7 +16,7 @@ struct KllDecayCache {
     double alpha_em_0;
     double alpha_s_m_Z;
     double sw2;
-    double m_mu;
+    double m_l;
     double m_c_m_c;
     double m_pi;
     double m_rho;

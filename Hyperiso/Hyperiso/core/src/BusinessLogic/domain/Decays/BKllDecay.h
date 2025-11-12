@@ -18,8 +18,8 @@ struct BKllConfig : public DecayConfig {
     Lepton gen {Lepton::MU};
 
     std::vector<std::pair<double, double>> bins {
-        { 1.00,  6.00},
-        {14.18, 19.00}
+        { 1.00,  4.00},
+        {15.00, 18.00}
     };
 };
 
@@ -35,7 +35,6 @@ struct BKllCache {
     double m_B, m_K;
     double Delta_M;
     complex_t lambda_hat_u;
-    double kappa;
     double N_0;
     double q2_min, q2_max;
     double q2_low, q2_high;

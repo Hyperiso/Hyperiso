@@ -90,9 +90,9 @@ void DBManager::write_to_file(fs::path file_path, std::shared_ptr<Node> root) {
     sanitize_file(file_path);
 }
 
-void DBManager::add_lha_prototype(BlockName blockName, size_t itemCount, size_t valueIdx, int scaleIdx, int rgIdx, bool globalScale) {
+void DBManager::add_lha_prototype(BlockName blockName, size_t itemCount, size_t valueIdx, int scaleIdx, int rgIdx, int binIdx, bool globalScale) {
     blockName.to_upper();
-    Prototype new_prototype = Prototype{blockName, itemCount, valueIdx, scaleIdx, rgIdx, globalScale};
+    Prototype new_prototype = Prototype{blockName, itemCount, valueIdx, scaleIdx, rgIdx, binIdx, globalScale};
 
     auto it = std::find_if(DBManager::lha_prototypes.begin(), 
                            DBManager::lha_prototypes.end(), 

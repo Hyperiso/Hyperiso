@@ -80,16 +80,46 @@ const std::map<DecayId, std::unordered_set<ParamId>> DependenciesHelper::dep_lis
         
     }},
     {DecayMapper::to_id(Decays::D__l_nu), {
-        
+        ParamId{ParameterType::SM, "SMINPUTS", 2},
+        ParamId{ParameterType::SM, "MASS", 2},
+        ParamId{ParameterType::SM, "MASS", 4},
+        ParamId{ParameterType::SM, "MASS", 13},
+        ParamId{ParameterType::SM, "VCKM", LhaID(1, 0)},
+        ParamId{ParameterType::FLAVOR, "FMASS", 411},
+        ParamId{ParameterType::FLAVOR, "FLIFE", 411},
+        ParamId{ParameterType::FLAVOR, "FCONST", LhaID(411,1)}
+        // TODO : Wilsons C_V_12, C_S_12 in WGroup::CC_cd
     }},
     {DecayMapper::to_id(Decays::Ds__l_nu), {
-        
+        ParamId{ParameterType::SM, "SMINPUTS", 2},
+        ParamId{ParameterType::SM, "MASS", 3},
+        ParamId{ParameterType::SM, "MASS", 4},
+        ParamId{ParameterType::SM, "MASS", 13},
+        ParamId{ParameterType::SM, "MASS", 15},
+        ParamId{ParameterType::SM, "VCKM", LhaID(1, 1)},
+        ParamId{ParameterType::FLAVOR, "FMASS", 431},
+        ParamId{ParameterType::FLAVOR, "FLIFE", 431},
+        ParamId{ParameterType::FLAVOR, "FCONST", LhaID(431,1)}
+        // TODO : Wilsons C_V_12, C_S_12 in WGroup::CC_cs
     }},
     {DecayMapper::to_id(Decays::K__l_l), {
         
     }},
     {DecayMapper::to_id(Decays::K__l_nu), {
-        
+        ParamId{ParameterType::SM, "SMINPUTS", 2},
+        ParamId{ParameterType::SM, "MASS", 1},
+        ParamId{ParameterType::SM, "MASS", 2},
+        ParamId{ParameterType::SM, "MASS", 3},
+        ParamId{ParameterType::SM, "MASS", 13},
+        ParamId{ParameterType::SM, "VCKM", LhaID(0, 1)},
+        ParamId{ParameterType::SM, "VCKM", LhaID(0, 0)},
+        ParamId{ParameterType::FLAVOR, "FMASS", 321},
+        ParamId{ParameterType::FLAVOR, "FLIFE", 321},
+        ParamId{ParameterType::FLAVOR, "FCONST", LhaID(321,1)},
+        ParamId{ParameterType::FLAVOR, "FMASS", 211},
+        ParamId{ParameterType::FLAVOR, "FLIFE", 211},
+        ParamId{ParameterType::FLAVOR, "FCONST", LhaID(211,1)}
+        // TODO : Wilsons C_V_12, C_S_12 in WGroup::CC_us and CC_ud
     }},
     {DecayMapper::to_id(Decays::K__pi_nu_nu), {
         
@@ -117,7 +147,7 @@ bool DependenciesHelper::is_param_allowed(Observables id, ParamId pid) {
 std::unordered_set<ParamId> DependenciesHelper::get_allowed_parameters(ObservableId id) {
     std::optional<DecayId> did = DecayMapper::get_decay_id(id);
     if (did.has_value()) {
-        dep_lists.at(did.value());
+        return dep_lists.at(did.value());
     } else {
         LOG_ERROR("ValueError", "Observable", ObservableMapper::str(id), "doesn't belong to any declared decay.");
     }

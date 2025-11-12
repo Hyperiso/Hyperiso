@@ -21,33 +21,52 @@ void BKllDecay::load_params() {
     );
 
     ObsParameterProxy p;
-    cache.alpha_em = 1.0 / p(ParamId{ParameterType::SM, "SMINPUTS", 1});
+    cache.alpha_em = p(ParamId{ParameterType::SM, "EW", {1, 2}});
     cache.G_F = p(ParamId{ParameterType::SM, "SMINPUTS", 2});
     cache.m_l = p(ParamId{ParameterType::SM, "MASS", 11 + 2 * (int)cfg.gen});
     cache.m_s = p(ParamId{ParameterType::SM, "MASS", 3});
     cache.mu_b = w_config.hadronic_scale;
     cache.alpha_s_mu_b = ObsQCDProxy()(AlphasConfig(cache.mu_b, MassType::POLE, MassType::POLE));
-    cache.m_c_mu_b = ObsQCDProxy()(MassConfig(4, cache.mu_b, MassType::MSBAR, MassType::POLE));
+    // cache.m_c_mu_b = ObsQCDProxy()(MassConfig(4, cache.mu_b, MassType::MSBAR, MassType::POLE));
+    cache.m_c_mu_b = p(ParamId{ParameterType::SM, "MASS", 4}); // To match Superiso
     cache.m_b_mu_b = ObsQCDProxy()(MassConfig(5, cache.mu_b, MassType::MSBAR, MassType::POLE));
     double mu_f = sqrt(cache.mu_b * p(ParamId{ParameterType::DECAY, "B_K", 14}));
     cache.m_b_PS = p(ParamId{ParameterType::SM, "QCD", {5, 2}}) - 4 * ObsQCDProxy()(AlphasConfig(p(ParamId{ParameterType::SM, "QCD", {5, 2}}), MassType::POLE, MassType::POLE)) * mu_f / (3 * PI);
     cache.L_b = std::log(cache.mu_b / cache.m_b_PS);
     cache.m_B = p(ParamId{ParameterType::FLAVOR, "FMASS", cfg.charge == Charge::B_0 ? 511 : 521});
-    cache.m_K = p(ParamId{ParameterType::FLAVOR, "FMASS", cfg.charge == Charge::B_0 ? 313 : 323});
+    cache.m_K = p(ParamId{ParameterType::FLAVOR, "FMASS", cfg.charge == Charge::B_0 ? 311 : 321});
     cache.Delta_M = -6. * cache.L_b - 4. * (1 - mu_f / cache.m_b_PS);
     cache.lambda_hat_u = std::conj(p(ParamId{ParameterType::SM, "VCKM", {0, 1}})) * p(ParamId{ParameterType::SM, "VCKM", {0, 2}}) 
                             / (std::conj(p(ParamId{ParameterType::SM, "VCKM", {2, 1}})) * p(ParamId{ParameterType::SM, "VCKM", {2, 2}}));
-    cache.kappa = 1 - 2. * cache.alpha_s_mu_b / (3. * PI) * std::log(cache.mu_b / cache.m_b_mu_b);
     cache.N_0 = std::pow(std::abs(std::conj(p(ParamId{ParameterType::SM, "VCKM", {2, 1}})) * p(ParamId{ParameterType::SM, "VCKM", {2, 2}})) * cache.G_F * cache.alpha_em, 2) / (512. * std::pow(PI, 5) * std::pow(cache.m_B, 3));
     cache.q2_min = 4 * std::pow(cache.m_l, 2);
     cache.q2_max = std::pow(cache.m_B - cache.m_K, 2);
     cache.q2_low = p(ParamId{ParameterType::DECAY, "B_K", {15, 1}});
     cache.q2_high = p(ParamId{ParameterType::DECAY, "B_K", {15, 2}});
 
-    auto lam_T_P = [this] (double q2, bool bar) { return cache.qcdf_calculator.T_P(q2, bar); };
-    fill_cache(lam_T_P, cache.q2_min, cache.q2_high, cache.T_P_lookup, false); 
+    printf("alpha_em = %.4e\n", cache.alpha_em);
+    printf("m_l = %.4e\n", cache.m_l);
+    printf("m_s = %.4e\n", cache.m_s);
+    printf("mu_b = %.4e\n", cache.mu_b);
+    printf("alpha_s(mu_b) = %.4e\n", cache.alpha_s_mu_b);
+    printf("m_c(mu_b) = %.4e\n", cache.m_c_mu_b);
+    printf("m_b(mu_b) = %.4e\n", cache.m_b_mu_b);
+    printf("m_b_PS = %.4e\n", cache.m_b_PS);
+    printf("L_b = %.4e\n", cache.L_b);
+    printf("m_B = %.4e\n", cache.m_B);
+    printf("m_K = %.4e\n", cache.m_K);
+    printf("Delta_M = %.4e\n", cache.Delta_M);
+    printf("lambda_hat_u = %.4e + %.4e i\n", cache.lambda_hat_u.real(), cache.lambda_hat_u.imag());
+    printf("N_0 = %.4e\n", cache.N_0);
 
-    compute_binned_abc();
+    printf("f_0(s = 1.0 GeV²) = %.4e\n", cache.ff_calculator.get(BP_FF::F_0, 1.0));
+    printf("f_+(s = 1.0 GeV²) = %.4e\n", cache.ff_calculator.get(BP_FF::F_PLUS, 1.0));
+    printf("f_T(s = 1.0 GeV²) = %.4e\n", cache.ff_calculator.get(BP_FF::F_T, 1.0));
+
+    // auto lam_T_P = [this] (double q2, bool bar) { return cache.qcdf_calculator.T_P(q2, bar); };
+    // fill_cache(lam_T_P, cache.q2_min, cache.q2_high, cache.T_P_lookup, false); 
+
+    // compute_binned_abc();
 }
 
 void BKllDecay::fill_wilson_cache() {
@@ -231,9 +250,9 @@ double BKllDecay::c(double q2) {
 
 void BKllDecay::compute_binned_abc() {
     for (auto [q2_l, q2_u] : cfg.bins) {
-        cache.abc_binned[0].emplace_back(integrate([&] (double q2) { return a(q2); }, q2_l, q2_u, 1e-2));    
-        cache.abc_binned[1].emplace_back(integrate([&] (double q2) { return b(q2); }, q2_l, q2_u, 1e-2));
-        cache.abc_binned[2].emplace_back(integrate([&] (double q2) { return c(q2); }, q2_l, q2_u, 1e-2));
+        cache.abc_binned[0].emplace_back(integrate([&] (double q2) { return a(q2); }, q2_l, q2_u, 1e-3));    
+        cache.abc_binned[1].emplace_back(integrate([&] (double q2) { return b(q2); }, q2_l, q2_u, 1e-3));
+        cache.abc_binned[2].emplace_back(integrate([&] (double q2) { return c(q2); }, q2_l, q2_u, 1e-3));
     }
 }
 

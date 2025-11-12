@@ -49,6 +49,12 @@ public:
 
     /**
      * @brief Retrieves the energy scale of the element.
+     * @return The energy binning of the element, if defined.
+     */
+    virtual std::pair<double, double> getBinning() const = 0;
+
+    /**
+     * @brief Retrieves the energy binning of the element.
      * @return The energy scale of the element, if defined.
      */
     virtual double getScale() const = 0;
@@ -86,6 +92,7 @@ private:
     T value;                                      /**< Value of the element. */
     std::optional<RenormalizationScheme> rScheme; /**< Optional renormalization scheme. */
     std::optional<double> Q;                      /**< Optional scale value. */
+    std::optional<std::pair<double, double>> bin;         /**< Optional energy binning.  */
 
     /**
      * @brief Encodes a unique ID for the element based on its data.
@@ -121,6 +128,11 @@ public:
      */
     inline double getScale() const override { return this->Q.has_value() ? this->Q.value() : 0; }
 
+    /**
+     * @brief Retrieves the scale associated with the element.
+     * @return The scale value or `0` if not set.
+     */
+    inline std::pair<double, double> getBinning() const override { return this->bin.value_or(std::pair(-1.0, -1.0)); }
     /**
      * @brief Converts the element to a string representation.
      * @return String representing the element.

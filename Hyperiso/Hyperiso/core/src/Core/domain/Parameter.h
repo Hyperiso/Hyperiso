@@ -47,7 +47,9 @@ protected:
     scalar_t shift;                                     ///< Current shift applied to the parameter (0 if fixed).
     ParameterMode mode;                                 ///< Mode of operation (fixed or shiftable).
     std::vector<std::shared_ptr<Parameter>> observers;  ///< Observers notified when this parameter changes.
-    std::weak_ptr<Block> owner_block;
+    std::weak_ptr<Block> owner_block;                   
+    std::optional<double> scale;
+    std::optional<std::pair<double, double>> binning;
 
 public:
     /**
@@ -78,6 +80,18 @@ public:
     void set_std(scalar_t stat, scalar_t syst);
 
     /**
+     * @brief Sets the renormalization scale of the parameter.
+     * @param stat New statistical standard deviation.
+     */
+    void set_scale(double scale);
+
+    /**
+     * @brief Sets the energy binning of the parameter.
+     * @param stat New statistical standard deviation.
+     */
+    void set_bin(std::pair<double, double> bin);
+
+    /**
      * @brief Sets the identifier of the parameter.
      * @param stat New identifier.
      */
@@ -106,6 +120,18 @@ public:
      * @return A pair containing the statistical and systematic standard deviations.
      */
     std::pair<scalar_t, scalar_t> get_std() const;
+
+    /**
+     * @brief Retrieves the renormalization scale of the parameter.
+     * @return The renormalization scale.
+     */
+    double get_scale();
+
+    /**
+     * @brief Retrieves the energy binning of the parameter.
+     * @return The energy bin.
+     */
+    std::pair<double, double> get_bin();
 
 
     /**

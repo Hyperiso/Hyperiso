@@ -3,11 +3,11 @@
 void KllDecay::load_params() {
     ObsParameterProxy p;
     cache.G_F = p(ParamId{ParameterType::SM, "SMINPUTS", 2});
-    cache.alpha_em = 1. / p(ParamId{ParameterType::SM, "SMINPUTS", 1});
-    cache.alpha_em_0 = 1. / 137.04; // TODO : Running of alpha_em ?
+    cache.alpha_em = p(ParamId{ParameterType::SM, "EW", {1, 1}});
+    cache.alpha_em_0 = p(ParamId{ParameterType::SM, "EW", {1, 4}});
     cache.alpha_s_m_Z = p(ParamId{ParameterType::SM, "SMINPUTS", 3});
     cache.sw2 = p(ParamId{ParameterType::SM, "SMINPUTS", {7, 1}});
-    cache.m_mu = p(ParamId{ParameterType::SM, "MASS", 13});
+    cache.m_l = p(ParamId{ParameterType::SM, "MASS", 9 + 2 * cfg.gen});
     cache.m_c_m_c = p(ParamId{ParameterType::SM, "MASS", 4});
     cache.m_pi = p(ParamId{ParameterType::FLAVOR, "FMASS", 111});
     cache.m_rho = p(ParamId{ParameterType::FLAVOR, "FMASS", 113});
@@ -18,7 +18,7 @@ void KllDecay::load_params() {
     cache.lambda_c = p(ParamId{ParameterType::SM, "VCKM", {1, 0}}) * std::conj(p(ParamId{ParameterType::SM, "VCKM", {1, 1}}));
     cache.lambda_t = p(ParamId{ParameterType::SM, "VCKM", {2, 0}}) * std::conj(p(ParamId{ParameterType::SM, "VCKM", {2, 0}}));
     cache.lambda = p(ParamId{ParameterType::SM, "VCKMIN", 1});
-    cache.x = cache.m_mu / cache.m_K;
+    cache.x = cache.m_l / cache.m_K;
     cache.r_chi = cache.m_K / (p(ParamId{ParameterType::SM, "MASS", 1}) + p(ParamId{ParameterType::SM, "MASS", 3}));
     cache.beta = std::sqrt(1. - 4. * std::pow(cache.x, 2));
     cache.BR_KL_gg_exp = p(ParamId{ParameterType::DECAY, "K_ll", 1});
@@ -30,6 +30,10 @@ void KllDecay::load_params() {
     cache.C10 = w_proxy->getFR(WGroup::K, WCoef::CK10, w_config.order) - w_proxy->getFR(WGroup::K, WCoef::CPK10, w_config.order);
     cache.CQ1 = w_proxy->getFR(WGroup::K, WCoef::CKQ1, w_config.order) - w_proxy->getFR(WGroup::K, WCoef::CPKQ1, w_config.order);
     cache.CQ2 = w_proxy->getFR(WGroup::K, WCoef::CKQ2, w_config.order) - w_proxy->getFR(WGroup::K, WCoef::CPKQ2, w_config.order);
+
+    printf("C10m = %.5e\n", cache.C10);
+	printf("CQ1m = %.5e\n", cache.CQ1);
+	printf("CQ2m = %.5e\n", cache.CQ2);
 }
 
 complex_t KllDecay::C_gg(double b) {
@@ -39,21 +43,23 @@ complex_t KllDecay::C_gg(double b) {
 
 complex_t KllDecay::N_L() {
     double sign = this->cfg.N_L_sign / std::abs(this->cfg.N_L_sign);
-    double L_mu_rho = std::log(cache.m_mu / cache.m_rho);
+    double L_mu_rho = std::log(cache.m_l / cache.m_rho);
     double chi_gg = -3 * cache.alpha_exp + std::pow(cache.m_K / cache.m_rho, 2) * (1. / 3 + cache.alpha_exp * (1 + 12 * L_mu_rho) / 18) - cache.delta_lambda;
     complex_t chi = chi_gg - 2.5 + 3.0 * L_mu_rho + C_gg(cache.beta);
-    double N0 = 4 * cache.alpha_em_0 * cache.m_mu / (PI * cache.f_K * std::pow(cache.m_K, 2)) 
+    double N0 = 4 * cache.alpha_em_0 * cache.m_l / (PI * cache.f_K * std::pow(cache.m_K, 2)) 
                     * std::sqrt(2 * PI * cache.BR_KL_gg_exp / (cache.m_K * cache.tau_L));
+
     return sign * N0 * chi;
 }
 
 complex_t KllDecay::N_S() {
     complex_t I_S_mu = {-2.821, 1.216}; // TODO : perform integration over 3D space (VEGAS)
     complex_t I_S_e = {2.11, -40.41}; // TODO : perform integration over 3D space (VEGAS)
+    complex_t I_S = cfg.gen == 1 ? I_S_e : I_S_mu;
     double r_pi = cache.m_pi / cache.m_K;
-    double N0 = 2 * cache.alpha_em_0 * cache.m_mu / (PI * cache.f_K * std::pow(cache.m_K, 2) * std::abs(KP::H(0.0, r_pi)))
+    double N0 = 2 * cache.alpha_em_0 * cache.m_l / (PI * cache.f_K * std::pow(cache.m_K, 2) * std::abs(KP::H(0.0, r_pi)))
                     * std::sqrt(2 * PI * cache.BR_KS_gg_exp / (cache.m_K * cache.tau_S));
-    return N0 * I_S_mu;
+    return N0 * I_S;
 }
 
 double KllDecay::P_c() {

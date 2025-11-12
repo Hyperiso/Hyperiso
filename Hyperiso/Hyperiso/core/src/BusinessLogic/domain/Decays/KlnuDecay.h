@@ -8,6 +8,7 @@
 
 struct KlnuDecayCache {
     double delta_em;
+    double f_corr;
 
     PlnuCalculator calc_K;
     PlnuCalculator calc_pi;

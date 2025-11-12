@@ -502,9 +502,8 @@ double C10::compute_LO(const ParamSrc& src) {
     double xt  = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1});
     double sw2 = src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", 4);
 
-    printf("x_t = %.5f\n", xt);
-    printf("sw2 = %.5f\n", sw2);
-    printf("C10_LO = %.5f\n", (B0t(xt) - C0t(xt) - 0.25) / sw2);
+    // printf("x_t = %.5f\n", xt);
+    // printf("sw2 = %.5f\n", sw2);
 
     return (B0t(xt) - C0t(xt) - 0.25) / sw2;
 }
@@ -515,15 +514,12 @@ double C10::compute_NLO(const ParamSrc& src) {
     double Q     = src.get_val(ParameterType::WILSON, "EW_SCALE", 1);
     double sw2   = src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", 4);
 
-    printf("x_t = %.5f\n", xt);
-    printf("mtop = %.5f\n", mtop);
-    printf("mu_W = %.5f\n", Q);
-    printf("sw2 = %.5f\n", sw2);
+    // printf("x_t = %.5f\n", xt);
+    // printf("mtop = %.5f\n", mtop);
+    // printf("mu_W = %.5f\n", Q);
+    // printf("sw2 = %.5f\n", sw2);
 
     double logqt = log(Q * Q / (mtop * mtop));
-
-    printf("C10_NLO = %.5f\n", (B1t(xt, logqt) - C1t(xt, logqt)) / sw2 - 1. / sw2);
-
     return (B1t(xt, logqt) - C1t(xt, logqt)) / sw2 - 1. / sw2;
 }
 
@@ -536,13 +532,13 @@ double C10::compute_NNLO(const ParamSrc& src) {
     double mW    = src.get_val(ParameterType::SM, "MASS", 24);
     double sw2   = src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", 4);
 
-    printf("x_t = %.5f\n", xt);
-    printf("mtop = %.5f\n", mtop);
-    printf("mu_W = %.5f\n", Q);
-    printf("sw2 = %.5f\n", sw2);
-    printf("xtW = %.5f\n", xtW);
-    printf("xtt = %.5f\n", xtt);
-    printf("mW = %.5f\n", mW);
+    // printf("x_t = %.5f\n", xt);
+    // printf("mtop = %.5f\n", mtop);
+    // printf("mu_W = %.5f\n", Q);
+    // printf("sw2 = %.5f\n", sw2);
+    // printf("xtW = %.5f\n", xtW);
+    // printf("xtt = %.5f\n", xtt);
+    // printf("mW = %.5f\n", mW);
 
     double logqt = log(Q * Q / (mtop * mtop));
     double logqW = log(Q * Q / (mW * mW));
@@ -571,8 +567,6 @@ double C10::compute_NNLO(const ParamSrc& src) {
          )
          + C10Z2tri(xtt)
         ) * (-2. / sw2);
-
-    printf("C10_NNLO = %.5f\n", coeff_temp);
 
     return coeff_temp;
 }

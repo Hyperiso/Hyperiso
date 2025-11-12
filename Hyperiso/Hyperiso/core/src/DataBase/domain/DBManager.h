@@ -36,9 +36,10 @@ public:
      * @param valueIdx Index of the value column.
      * @param scaleIdx Index of the scale column.
      * @param rgIdx Index of the renormalization group column.
+     * @param binIdx Index of the binning lower bound column.
      * @param globalScale Flag indicating if the block uses a global scale.
      */
-    void add_lha_prototype(BlockName blockName, size_t itemCount=2, size_t valueIdx=1, int scaleIdx=-1, int rgIdx=-1, bool globalScale=false);
+    void add_lha_prototype(BlockName blockName, size_t itemCount=2, size_t valueIdx=1, int scaleIdx=-1, int rgIdx=-1, int binIdx=-1, bool globalScale=false);
 
     friend class NodeProviderFactory;
 };

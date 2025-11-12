@@ -18,6 +18,14 @@ void Parameter::set_std(scalar_t stat, scalar_t syst) {
     this->deviation_syst = syst;
 }
 
+void Parameter::set_scale(double scale) {
+    this->scale.emplace(scale);
+}
+
+void Parameter::set_bin(std::pair<double, double> bin) {
+    this->binning.emplace(bin);
+}
+
 scalar_t Parameter::get_val() const {
     return this->mode == ParameterMode::FIXED ? expected : expected + shift;
 }
@@ -41,7 +49,16 @@ std::pair<scalar_t, scalar_t> Parameter::get_std() const {
     return std::make_pair(deviation_stat, deviation_syst);
 }
 
-ParamId Parameter::get_id() const {
+double Parameter::get_scale() {
+    return this->scale.value_or(-1.0);
+}
+
+std::pair<double, double> Parameter::get_bin() {
+    return this->binning.value_or(std::pair(-1.0, -1.0));
+}
+
+ParamId Parameter::get_id() const
+{
     return id;
 }
 
@@ -77,10 +94,10 @@ Parameter& Parameter::operator=(const Parameter& other) {
     this->deviation_syst = other.deviation_syst;
     this->mode = other.mode;
     this->shift = other.shift;
+    this->scale = other.scale;
+    this->binning = other.binning;
     return *this;
 }
-
-
 
 void Parameter::notifyObservers() {
     auto snapshot = observers;
@@ -99,8 +116,6 @@ void Parameter::removeObserver(std::shared_ptr<Parameter> observer) {
         [&](const std::shared_ptr<Parameter>& p){ return p.get() == observer.get(); });
     if (it != observers.end()) observers.erase(it);
 }
-
-
 
 
 Parameter& Parameter::operator+=(const Parameter& other) {
