@@ -213,7 +213,12 @@ public:
      * @return The output stream.
      */
     friend std::ostream& operator<<(std::ostream& os, const Parameter& p) {
-        os << "Parameter " << p.id.block << "," << p.id.code << "=" << p.expected << "+-" << p.deviation_syst << "+-" << p.deviation_stat << std::endl;
+        os << "Parameter " << p.id.block << "," << p.id.code;
+        if (p.binning.has_value()) {
+            os << " [" << p.binning.value().first << "," << p.binning.value().second << "] ";
+        }
+        
+        os << "=" << p.expected << "+-" << p.deviation_syst << "+-" << p.deviation_stat << std::endl;
         return os;
     }
 

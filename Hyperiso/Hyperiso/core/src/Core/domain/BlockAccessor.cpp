@@ -187,7 +187,7 @@ std::shared_ptr<BlockAccessor> operator>>(std::shared_ptr<BlockAccessor> lhs, st
     for (const auto &b : lhs->get_block_names()) {
         if (res->contains(b)) {
             for (const auto& id : lhs->at(b)->getAllIDs()) {
-                res->setValue(b, id, lhs->getValue(b, id));
+                res->setParameter(b, id, lhs->getParameter(b, id));
             }
         } else {
             res->emplace(b, std::make_shared<Block>(lhs->at(b)));
