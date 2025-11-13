@@ -68,7 +68,7 @@ std::shared_ptr<Parameter> Block::retrieve(const LhaID& id) {
 
 void Block::store(const LhaID& id, std::shared_ptr<Parameter> param) {
     if (this->contains(id)) {
-        LOG_WARN("Block", blockname, "already contains a parameter with id", id.to_string());
+        LOG_DEBUG("Block", blockname, "already contains a parameter with id", id.to_string());
     } else {
         auto w = weak_from_this();
         if (!w.expired()) param->set_owner_block(w);

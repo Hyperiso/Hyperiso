@@ -74,8 +74,6 @@ void MemoryManager::read_lha_input(const std::string& lhaFile, const Config& con
 
     auto lha_ba = std::make_shared<BlockAccessor>();
     dl_ba->load(lha_ba, spectrum_path);
-    std::cout << "mmh : "<< *lha_ba->at("FOBS")->retrieve({521, 2, 3, 321, 13}) << std::endl;
-    std::cout << (*lha_ba->at("FOBS")->retrieve({521, 2, 3, 321, 13})).get_bin().first << std::endl;
     input_cache = lha_ba >> input_cache;
     save_input_cache();
 
@@ -133,8 +131,6 @@ void MemoryManager::init(const std::string& lhaFile, Config config) {
     this->read_default_input();
     this->read_user_input();
     this->read_lha_input(lhaFile, config);
-    std::cout << "mmh : "<< *input_cache->at("FOBS")->retrieve({521, 2, 3, 321, 13}) << std::endl;
-    std::cout << (*input_cache->at("FOBS")->retrieve({521, 2, 3, 321, 13})).get_bin().first << std::endl;
     cache.lha_path = lhaFile;
     cache.config = config;
     cache.thread_id = std::this_thread::get_id();

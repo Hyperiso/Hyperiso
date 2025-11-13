@@ -76,8 +76,6 @@ LhaElement<T>::LhaElement(const Prototype& prototype, const std::vector<std::str
     }
 
     if (bIdx != -1) {
-        LOG_INFO("In block", prototype.blockName, " : bIdx =", bIdx);
-        LOG_INFO("Binning is", std::stod(line.at(bIdx)), ",", std::stod(line.at(bIdx + 1)));
         this->bin.emplace(std::pair(std::stod(line.at(bIdx)), std::stod(line.at(bIdx + 1))));
     }
 

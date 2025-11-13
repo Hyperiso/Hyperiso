@@ -134,9 +134,7 @@ void ParamBlockLoader::load(std::shared_ptr<BlockAccessor> dest, fs::path src_fi
                 else if (std::holds_alternative<int>(bin_high))
                     d_bin_high = std::get<int>(bin_high);
 
-                LOG_INFO("ahah : ", LhaID(vk.first), d_bin_low, d_bin_high);
                 block->retrieve(LhaID(vk.first))->set_bin(std::pair(d_bin_low, d_bin_high));
-                LOG_INFO("here : ", block->retrieve(LhaID(vk.first))->get_bin().first, block->retrieve(LhaID(vk.first))->get_bin().second);
             }
         }
 
