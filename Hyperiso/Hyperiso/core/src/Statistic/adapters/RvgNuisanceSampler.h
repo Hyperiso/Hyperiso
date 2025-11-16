@@ -37,6 +37,7 @@ public:
         // }
         // y ~ Corr(R) with unit variances
         Vector y = rvg_.generate(cov);
+
         // scale to covariance Σ and add mean
         Vec eta(n);
         // for (std::size_t i=0;i<n;++i) eta[i] = mean[i] + sigma[i]*y[i];

@@ -197,6 +197,13 @@ public:
         return manager->get_all_ops_deps(ObservableMapper::to_id(id));
     }
 
+    void reload_params() {
+        manager->reload_params();
+    }
+
+    void enable_obs() {
+        manager->enable_obs();
+    }
 };
 
 #endif

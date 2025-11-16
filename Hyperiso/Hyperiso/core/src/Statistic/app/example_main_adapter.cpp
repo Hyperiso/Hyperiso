@@ -14,7 +14,9 @@
 #include "RandomVectorGenerator.h"
 #include "HyperisoMaster.h"
 #include "BlockProxy.h"
-
+#include "StatParameterProxy.h"
+#include "CovarianceTransformer.h"
+#include "StatCorrelationProxy.h"
 
 int main() {
 
@@ -22,7 +24,7 @@ int main() {
     Config config;
     config.model = Model::SM;
 
-    hyp.init("lha/testInput.flha", config);
+    hyp.init("lha/si_input.flha", config);
 
     std::vector<Observables> obs_ids = {
         Observables::BR_BS_MUMU,
@@ -34,9 +36,9 @@ int main() {
     ObservableInterface oi;
     for (auto oid : obs_ids) oi.add_observable(oid, QCDOrder::LO, /*add_dependencies=*/true);
 
-    for (auto id : oi.get_all_ops_deps(Observables::BR_BS_MUMU)) {
-        std::cout << id << std::endl;
-    }
+    // for (auto id : oi.get_all_ops_deps(Observables::BR_BS_MUMU)) {
+    //     std::cout << id << std::endl;
+    // }
 
     //Build experimental vector/covariance
     Vec Oexp{3.52e-9, 3.52e-9, 1.3e-10}; 
@@ -57,20 +59,51 @@ int main() {
         {0,0,0,0, 0.00019*0.00019}
     };
 
-    std::vector<ParamSpec> p_specs = {
-        {"BCoefficients_B_SCALE_STANDARD", LhaID(3051313,4137,0,2), ParameterType::WILSON}, // C10
-        {"BPrimeCoefficients_B_SCALE_STANDARD", LhaID(3051313,4234,0,2), ParameterType::WILSON} // C10'
+    std::vector<ParamId> p_specs = {
+        {ParameterType::WILSON, "BCoefficients_B_SCALE_STANDARD", LhaID(3051313,4137,0,2)}, // C10
+        {ParameterType::WILSON, "BPrimeCoefficients_B_SCALE_STANDARD", LhaID(3051313,4234,0,2)} // C10'
     };
-    std::vector<ParamSpec> eta_specs = {
-        {"FCONST", /*code_fBd*/ 521, ParameterType::FLAVOR},
-        {"FCONST", /*code_fBs*/ 531, ParameterType::FLAVOR},
-        {"B_ll", /*code_y_s*/ 1, ParameterType::DECAY},
-        {"VCKM", /*code_Vts*/ LhaID(2,1), ParameterType::SM},
-        {"VCKM", /*code_Vtd*/ LhaID(2,0), ParameterType::SM}
+    std::vector<ParamId> eta_specs = {
+        {ParameterType::FLAVOR, "FCONST", /*code_fBd*/ 521},
+        {ParameterType::FLAVOR, "FCONST", /*code_fBs*/ 531},
+        {ParameterType::DECAY, "B_ll", /*code_y_s*/ 1},
+        {ParameterType::SM, "VCKM", /*code_Vts*/ LhaID(2,1)},
+        {ParameterType::SM, "VCKM", /*code_Vtd*/ LhaID(2,0)}
     };
 
+    StatParameterProxy spp = StatParameterProxy();
+    std::vector<ParamId> eta_specs_real;
+    Vec eta_mean_real;
+    for (auto elem : obs_ids) {
+        for (auto _ : oi.get_all_ops_deps(elem))
+        if (!(std::find(eta_specs_real.begin(), eta_specs_real.end(), _) != eta_specs_real.end())) {
+            eta_specs_real.push_back(_);
+        }
+    }
 
-    ObservableInterfaceAdapterObs model(oi, obs_ids, p_specs, eta_specs);
+    
+    std::shared_ptr<IStatCorrelationProxy> pscp = std::make_shared<StatCorrelationProxy>();
+    std::shared_ptr<IStatParameterProxy> pspp = std::make_shared<StatParameterProxy>();
+
+    CovarianceTransformer ct = CovarianceTransformer(pscp, pspp);
+    std::vector<ParamId> eta_specs_real_with_corr = ct.check_if_corr(eta_specs_real);
+
+    for (auto elem : eta_specs_real_with_corr) {
+        // std::cout << elem << std::endl;
+        eta_mean_real.push_back(spp(elem, DataType::VALUE));
+    }
+
+    Matrix SigmaEtaReal = ct.transform(eta_specs_real_with_corr);
+
+    for (int i = 0; i < eta_specs_real_with_corr.size(); i++) {
+        for (int j = 0; j < eta_specs_real_with_corr.size(); j++) {
+            std::cout << "[" << eta_specs_real_with_corr[i] << ", " << eta_specs_real_with_corr[j] << "] = " << SigmaEtaReal[i][j] << " | ";
+            // std::cout << "[" << i << ", " << j << "] = " << SigmaEtaReal[i][j] << " | ";
+        }
+        std::cout << std::endl;
+    }
+
+    ObservableInterfaceAdapterObs model(oi, obs_ids, p_specs, eta_specs_real_with_corr);
 
     std::cout << "creating RandomVectorGenerator" << std::endl;
 
@@ -87,7 +120,7 @@ int main() {
     std::cout << "Creating MonteCarloPredictor" << std::endl;
 
     // MC prediction with pluggable sampler
-    MonteCarloPredictor2 mc(model, sampler, eta_mean, SigmaEta, {10, 0.2});
+    MonteCarloPredictor2 mc(model, sampler, eta_mean_real, SigmaEtaReal, {10, 0.2});
     std::mt19937 rng(1234);
 
     std::cout << "MonteCarloPredictor created" << std::endl;
@@ -106,12 +139,12 @@ int main() {
     std::cout << "Now doing likelihood : " << std::endl; 
     // Likelihood/MLE/intervals
     SPDMatrix SO = SPDMatrix::cholesky(SigmaO);
-    SPDMatrix SE = SPDMatrix::cholesky(SigmaEta);
-    LikelihoodContext ctx{Oexp, SO, eta_mean, SE};
+    SPDMatrix SE = SPDMatrix::cholesky(SigmaEtaReal);
+    LikelihoodContext ctx{Oexp, SO, eta_mean_real, SE};
     MLEstimator est(ctx, [&model](const Vec& p, const Vec& eta){ return model.predict(p, eta); });
 
     std::cout << "Now doing MLE : " << std::endl; 
-    Vec p0{-4.5, 0.0}; Vec eta0 = eta_mean;
+    Vec p0{-4.5, 0.0}; Vec eta0 = eta_mean_real;
     auto fr = est.fit(p0, eta0, 100);
 
     std::cout << "MLE fit done: " << std::endl; 

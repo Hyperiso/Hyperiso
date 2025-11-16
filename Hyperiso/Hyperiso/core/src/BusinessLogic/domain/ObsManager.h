@@ -55,6 +55,9 @@ public:
 
     void select_decay(ObservableId id);
 
+    void reload_params();
+
+    void enable_obs();
 private:
     std::unordered_map<DecayId, std::shared_ptr<DecayParent>> decays;
     std::unordered_map<ObservableId, std::shared_ptr<Observable>> obss;

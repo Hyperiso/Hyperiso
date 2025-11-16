@@ -1,5 +1,5 @@
-#ifndef OBS_PARAMETER_PROXY_H
-#define OBS_PARAMETER_PROXY_H
+#ifndef STAT_PARAMETER_PROXY_H
+#define STAT_PARAMETER_PROXY_H
 
 #include "IStatParameterProxy.h"
 #include "ParameterProvider.h"

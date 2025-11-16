@@ -38,6 +38,7 @@ add_library(StatisticLib STATIC
     domain/RandomVectorGenerator.cpp
     domain/Fit.cpp
     domain/Likelihood.cpp
+    domain/CovarianceTransformer.cpp
     domain/Distribution/DistributionFactory.cpp
     domain/Distribution/StandardNormal.cpp
 )

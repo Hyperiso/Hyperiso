@@ -205,3 +205,20 @@ ObservableId ObsManager::ensure_present(ObservableId id, bool critical) {
     }
     return id;
 }
+
+void ObsManager::reload_params() {
+    for (auto& elem: this->decays) {
+        elem.second->load_params();
+    }
+}
+
+void ObsManager::enable_obs() {
+    for (auto& elem: this->obss) {
+        auto id = DecayMapper::get_decay_id(elem.first);
+        if (!id.has_value()) {
+            LOG_ERROR("ValueError", "DecayId does not exist for", elem.first.str());
+        }
+        this->decays[id.value()]->disable();
+        this->decays[id.value()]->enable(); //TODO : avoid double enabling (two obs of same decay) please
+    }
+}

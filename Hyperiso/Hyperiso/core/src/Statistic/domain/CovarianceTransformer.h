@@ -9,14 +9,16 @@
 
 class CovarianceTransformer {
 public:
-    CovarianceTransformer(std::shared_ptr<IStatCorrelationProxy> corr_proxy, std::shared_ptr<IStatParameterProxy> par_proxy) : corr_proxy(corr_proxy) { }
+    CovarianceTransformer(std::shared_ptr<IStatCorrelationProxy> corr_proxy, std::shared_ptr<IStatParameterProxy> par_proxy) : corr_proxy(corr_proxy), par_proxy(par_proxy) { }
 
 
     std::vector<std::vector<double>> transform(std::vector<ParamId> ids);
     std::vector<std::vector<double>> transform(std::vector<ObservableId> ids);
 
+    std::vector<ParamId> check_if_corr(std::vector<ParamId> ids);
 private:
     std::shared_ptr<IStatCorrelationProxy> corr_proxy;
+    std::shared_ptr<IStatParameterProxy> par_proxy;
 };
 
 #endif

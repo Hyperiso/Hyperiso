@@ -158,6 +158,7 @@ void WilsonBuilder::add(WilsonBuildConfig config) {
         this->cm->init_group_matching(group_name, OrderMapper::str(config.order));
         LOG_INFO("Initializing group at hardronic scale", group_name);
         this->cm->init_group_hadronic_all_bases(group_name, OrderMapper::str(config.order));
+        LOG_INFO("done");
     }
 }
 

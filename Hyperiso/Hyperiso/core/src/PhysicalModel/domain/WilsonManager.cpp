@@ -243,7 +243,7 @@ void CoefficientManager::init_group_hadronic(const std::string& groupName, const
         {QCDOrder::NLO, this->coefficientGroups[groupName]->get_func(QCDOrder::NLO, basis)},
         {QCDOrder::NNLO, this->coefficientGroups[groupName]->get_func(QCDOrder::NNLO, basis)}
     };
-
+    std::cout << "eeeeh" << std::endl;
     std::string matching_block_name = this->coefficientGroups[groupName]->get_matching_storage_block();
     auto func = [matching_block_name, ord, funcs, groupName, basis] (const BlockSrc& src, std::shared_ptr<DependentBlock> dep_block) {
         std::map<LhaID, std::shared_ptr<Parameter>> matching_coeff = src.raw().at(matching_block_name)->getItems();

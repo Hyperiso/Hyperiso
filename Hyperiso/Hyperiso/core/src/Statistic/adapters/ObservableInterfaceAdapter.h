@@ -11,9 +11,9 @@
 // calls evaluate_all(), and returns the observables in a fixed order.
 
 
-struct ParamSpec {
-std::string block; int code; int type; // ParameterType as int to avoid header deps here
-};
+// struct ParamSpec {
+// std::string block; int code; int type; // ParameterType as int to avoid header deps here
+// };
 
 
 class ObservableInterfaceAdapter final : public IModel {
@@ -23,8 +23,8 @@ public:
 // eta_specs : how to set each component of eta into Parameters
 ObservableInterfaceAdapter(ObservableInterface& oi,
 std::vector<ObservableId> obs_ids,
-std::vector<ParamSpec> p_specs,
-std::vector<ParamSpec> eta_specs)
+std::vector<ParamId> p_specs,
+std::vector<ParamId> eta_specs)
 : oi_(oi), obs_ids_(std::move(obs_ids)), p_specs_(std::move(p_specs)), eta_specs_(std::move(eta_specs)) {}
 
 
@@ -39,12 +39,12 @@ throw std::invalid_argument("(p,eta) vector sizes do not match specs");
 // set p
 for (std::size_t i=0;i<p.size();++i) {
 const auto& s = p_specs_[i];
-oi_.set_param(s.block, s.code, p[i], static_cast<ParameterType>(s.type));
+oi_.set_param(s.block, s.code, p[i], s.type.value_or(ParameterType::SM)); //TODO check value_or
 }
 // set eta
 for (std::size_t i=0;i<eta.size();++i) {
 const auto& s = eta_specs_[i];
-oi_.set_param(s.block, s.code, eta[i], static_cast<ParameterType>(s.type));
+oi_.set_param(s.block, s.code, eta[i], s.type.value_or(ParameterType::SM)); //TODO check value_or
 }
 
 
@@ -63,6 +63,6 @@ return out;
 private:
 ObservableInterface& oi_;
 std::vector<ObservableId> obs_ids_;
-std::vector<ParamSpec> p_specs_;
-std::vector<ParamSpec> eta_specs_;
+std::vector<ParamId> p_specs_;
+std::vector<ParamId> eta_specs_;
 };
