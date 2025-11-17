@@ -31,7 +31,7 @@ std::vector<ParamId> eta_specs)
 std::size_t n_observables() const override { return obs_ids_.size(); }
 
 
-Vec predict(const Vec& p, const Vec& eta) const override {
+Vec predict(const Vec& p, const Vec& eta) override {
 if (p.size()!=p_specs_.size() || eta.size()!=eta_specs_.size())
 throw std::invalid_argument("(p,eta) vector sizes do not match specs");
 

@@ -26,15 +26,15 @@ int main() {
 
     hyp.init("lha/si_input.flha", config);
 
-    std::vector<Observables> obs_ids = {
-        Observables::BR_BS_MUMU,
-        Observables::BR_BS_MUMU_UNTAG,
-        Observables::BR_BD_MUMU
+    std::map<ObservableId, QCDOrder> obs_ids = {
+        {ObservableMapper::to_id(Observables::BR_BS_MUMU), QCDOrder::LO},
+        {ObservableMapper::to_id(Observables::BR_BS_MUMU_UNTAG), QCDOrder::LO},
+        {ObservableMapper::to_id(Observables::BR_BD_MUMU), QCDOrder::LO}
     };
 
 
-    ObservableInterface oi;
-    for (auto oid : obs_ids) oi.add_observable(oid, QCDOrder::LO, /*add_dependencies=*/true);
+    // ObservableInterface oi;
+    // for (auto oid : obs_ids) oi.add_observable(oid, QCDOrder::LO, /*add_dependencies=*/true);
 
     // for (auto id : oi.get_all_ops_deps(Observables::BR_BS_MUMU)) {
     //     std::cout << id << std::endl;
@@ -103,7 +103,7 @@ int main() {
         std::cout << std::endl;
     }
 
-    ObservableInterfaceAdapterObs model(oi, obs_ids, p_specs, eta_specs_real_with_corr);
+    ObservableInterfaceAdapterObs model(obs_ids, p_specs, eta_specs_real_with_corr);
 
     std::cout << "creating RandomVectorGenerator" << std::endl;
 

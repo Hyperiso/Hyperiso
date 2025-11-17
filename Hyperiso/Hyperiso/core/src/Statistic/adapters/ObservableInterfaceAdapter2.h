@@ -10,17 +10,36 @@
 
 class ObservableInterfaceAdapterObs final : public IModel {
 public:
-    ObservableInterfaceAdapterObs(ObservableInterface& oi,
-    std::vector<Observables> obs_ids,
+    ObservableInterfaceAdapterObs(
+    std::map<ObservableId, QCDOrder> obs_ids,
     std::vector<ParamId> p_specs,
     std::vector<ParamId> eta_specs)
-    : oi_(oi), obs_ids_(std::move(obs_ids)), p_specs_(std::move(p_specs)), eta_specs_(std::move(eta_specs)) {}
+    : p_specs_(std::move(p_specs)), eta_specs_(std::move(eta_specs)) {
+        oi_ = ObservableInterface();
+
+        oi_.add_observables(obs_ids, true);
+
+        for (auto elem : obs_ids) {
+            obs_ids_.push_back(elem.first);
+        }
+    }
 
 
     std::size_t n_observables() const override { return obs_ids_.size(); }
 
+    void add_observables(std::map<ObservableId, QCDOrder> obs_ids) override {
+        oi_.add_observables(obs_ids, true);
 
-    Vec predict(const Vec& p, const Vec& eta) const override {
+        for (auto elem : obs_ids) {
+            obs_ids_.push_back(elem.first);
+        }
+    }
+
+    std::unordered_set<ParamId> get_obs_deps(ObservableId id) override {
+        return oi_.get_all_ops_deps(id);
+    }
+
+    Vec predict(const Vec& p, const Vec& eta) override {
         auto obs = oi_.get_current_observables();
         oi_.enable_obs();
 
@@ -42,7 +61,7 @@ public:
         return out;
     }
 private:
-    ObservableInterface& oi_;
-    std::vector<Observables> obs_ids_;
+    ObservableInterface oi_;
+    std::vector<ObservableId> obs_ids_;
     std::vector<ParamId> p_specs_, eta_specs_;
 };
