@@ -15,12 +15,12 @@ struct MCPredictConfig {
 
 class MonteCarloPredictor {
 public:
-    MonteCarloPredictor(const IModel& model, Vec eta_mean, Matrix eta_cov, MCPredictConfig cfg)
+    MonteCarloPredictor(IModel& model, Vec eta_mean, Matrix eta_cov, MCPredictConfig cfg)
     : model_(model), mu_(std::move(eta_mean)), Sigma_(std::move(eta_cov)), cfg_(cfg), Sigma_chol_(SPDMatrix::cholesky(Sigma_)) {}
 
 
     // Sample nuisances and return samples of O_th
-    Samples sample_predictions(const Vec& p, std::mt19937& rng) const {
+    Samples sample_predictions(const Vec& p, std::mt19937& rng) {
         std::normal_distribution<double> N01(0.0, 1.0);
         const std::size_t ne = mu_.size();
         const std::size_t N = cfg_.draws;
@@ -40,14 +40,14 @@ public:
 
 
     // Return Gaussian summaries per observable and a flag for approx validity
-    std::vector<GaussianSummary> summarize(const Vec& p, std::mt19937& rng) const {
+    std::vector<GaussianSummary> summarize(const Vec& p, std::mt19937& rng) {
     auto S = sample_predictions(p, rng);
     return gaussian_or_warn(S, cfg_.skew_abs_threshold);
     }
 
 
 private:
-    const IModel& model_;
+    IModel& model_;
     Vec mu_;
     Matrix Sigma_;
     MCPredictConfig cfg_;

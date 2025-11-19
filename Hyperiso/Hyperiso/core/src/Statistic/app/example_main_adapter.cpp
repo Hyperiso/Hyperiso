@@ -33,15 +33,16 @@ int main() {
     };
 
 
-    // ObservableInterface oi;
+    ObservableInterface oi;
     // for (auto oid : obs_ids) oi.add_observable(oid, QCDOrder::LO, /*add_dependencies=*/true);
+    oi.add_observables(obs_ids, true);
 
-    // for (auto id : oi.get_all_ops_deps(Observables::BR_BS_MUMU)) {
-    //     std::cout << id << std::endl;
-    // }
+    for (auto id : oi.get_all_ops_deps(Observables::BR_BS_MUMU)) {
+        std::cout << id << std::endl;
+    }
 
     //Build experimental vector/covariance
-    Vec Oexp{3.52e-9, 3.52e-9, 1.3e-10}; 
+    Vec Oexp{3.52e-9, 3.52e-9, 1.3e-10};
     Matrix SigmaO = {
         { (1.2e-10)*(1.2e-10), -0.2*(1.2e-10)*(1.2e-10), -0.2*(1.2e-10)*(0.2e-10) },
         { -0.2*(1.2e-10)*(1.2e-10), (1.2e-10)*(1.2e-10), 0.0 },
@@ -49,7 +50,7 @@ int main() {
     };
 
 
-    // Nuisances 
+    // Nuisances
     Vec eta_mean{0.194, 0.234, 0.0635, 0.04111, 0.00858};
     Matrix SigmaEta = {
         {0.010*0.010, 0,0,0,0},
@@ -75,13 +76,13 @@ int main() {
     std::vector<ParamId> eta_specs_real;
     Vec eta_mean_real;
     for (auto elem : obs_ids) {
-        for (auto _ : oi.get_all_ops_deps(elem))
+        for (auto _ : oi.get_all_ops_deps(elem.first))
         if (!(std::find(eta_specs_real.begin(), eta_specs_real.end(), _) != eta_specs_real.end())) {
             eta_specs_real.push_back(_);
         }
     }
 
-    
+
     std::shared_ptr<IStatCorrelationProxy> pscp = std::make_shared<StatCorrelationProxy>();
     std::shared_ptr<IStatParameterProxy> pspp = std::make_shared<StatParameterProxy>();
 
@@ -103,8 +104,9 @@ int main() {
         std::cout << std::endl;
     }
 
-    ObservableInterfaceAdapterObs model(obs_ids, p_specs, eta_specs_real_with_corr);
+    std::shared_ptr<ObservableInterfaceAdapterObs> model = std::make_shared<ObservableInterfaceAdapterObs> (obs_ids, p_specs, eta_specs_real_with_corr);
 
+    // model->add_observables(obs_ids);
     std::cout << "creating RandomVectorGenerator" << std::endl;
 
     unsigned int seed = std::random_device{}();
@@ -128,7 +130,7 @@ int main() {
     Vec p_test{-4.5, 0.0};
     auto sums = mc.summarize(p_test, rng);
 
-    std::cout << "summarize ented" << std::endl; 
+    std::cout << "summarize ented" << std::endl;
 
     std::cout << "Skewness[0]=" << sums[0].skew << " ok=" << sums[0].approx_ok << std::endl;
 
@@ -136,26 +138,26 @@ int main() {
         std::cout << "value = " << sum.mu << " +- " << sum.sigma << std::endl;
     }
 
-    std::cout << "Now doing likelihood : " << std::endl; 
+    std::cout << "Now doing likelihood : " << std::endl;
     // Likelihood/MLE/intervals
     SPDMatrix SO = SPDMatrix::cholesky(SigmaO);
     SPDMatrix SE = SPDMatrix::cholesky(SigmaEtaReal);
     LikelihoodContext ctx{Oexp, SO, eta_mean_real, SE};
-    MLEstimator est(ctx, [&model](const Vec& p, const Vec& eta){ return model.predict(p, eta); });
+    MLEstimator est(ctx, [&model](const Vec& p, const Vec& eta){ return model->predict(p, eta); });
 
-    std::cout << "Now doing MLE : " << std::endl; 
+    std::cout << "Now doing MLE : " << std::endl;
     Vec p0{-4.5, 0.0}; Vec eta0 = eta_mean_real;
     auto fr = est.fit(p0, eta0, 100);
 
-    std::cout << "MLE fit done: " << std::endl; 
+    std::cout << "MLE fit done: " << std::endl;
 
     std::cout << "MLE: C10=" << fr.p_hat[0] << ", Cp10=" << fr.p_hat[1]
     << ", ell_hat=" << fr.ell_hat << std::endl;
 
-    std::cout << "finding thr95 " << std::endl; 
+    std::cout << "finding thr95 " << std::endl;
     const double thr95 = gsl_cdf_chisq_Pinv(0.95, 1);
 
-    std::cout << "thr95 : " << thr95 << std::endl; 
+    std::cout << "thr95 : " << thr95 << std::endl;
 
     auto T = [&](double c10){ return est.test_statistic(Vec{c10, 0.0}, fr, eta0); };
     double a=-7,b=-1; int N=10; double left=std::nan(""), right=std::nan("");

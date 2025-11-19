@@ -13,6 +13,27 @@ std::vector<std::vector<double>> CovarianceTransformer::transform(std::vector<Pa
     return out;
 }
 
+std::map<ParamId, std::map<ParamId, double>> CovarianceTransformer::transform(std::map<ParamId, double> ids) {
+    std::map<ParamId, std::map<ParamId, double>> out;
+    for (auto& elem : ids) {
+        for (auto& elem2 : ids) {
+            double _ = (*corr_proxy)(elem.first, elem2.first, CorrelationProvider::CorrelationType::COMBINED) * (*par_proxy)(elem.first, DataType::STD_COMBINED) * (*par_proxy)(elem2.first, DataType::STD_COMBINED);
+            out[elem.first][elem2.first] = _;
+        }
+    }
+    return out;
+}
+
+std::map<ObservableId, std::map<ObservableId, double>> CovarianceTransformer::transform(std::map<ObservableId, double> ids) {
+    std::map<ObservableId, std::map<ObservableId, double>> out;
+    for (auto& elem : ids) {
+        for (auto& elem2 : ids) {
+            double _ = (*corr_proxy)(elem.first, elem2.first, CorrelationProvider::CorrelationType::COMBINED) * (*par_proxy)(elem.first, DataType::STD_COMBINED) * (*par_proxy)(elem2.first, DataType::STD_COMBINED);
+            out[elem.first][elem2.first] = _;
+        }
+    }
+    return out;
+}
 
 std::vector<std::vector<double>> CovarianceTransformer::transform(std::vector<ObservableId> ids) {
     std::vector<std::vector<double>> out;

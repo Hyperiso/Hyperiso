@@ -60,6 +60,28 @@ public:
         }
         return out;
     }
+
+    std::map<ObservableId, double> predict(const std::map<ParamId, double>& p, const std::map<ParamId, double>& eta) override {
+        auto obs = oi_.get_current_observables();
+        oi_.enable_obs();
+
+        if (p.size()!=p_specs_.size() || eta.size()!=eta_specs_.size())
+        throw std::invalid_argument("(p,eta) sizes do not match specs");
+        for (std::size_t i=0;i<p.size();++i) {
+            const auto& s = p_specs_[i];
+            oi_.set_param(s.block, s.code, p.at(s), s.type.value_or(ParameterType::SM)); //TODO check value_or
+        }
+        for (std::size_t i=0;i<eta.size();++i) {
+            const auto& s = eta_specs_[i];
+            oi_.set_param(s.block, s.code, eta.at(s), s.type.value_or(ParameterType::SM)); //TODO check value_or
+        }
+        // auto all = oi_.compute_all();
+        std::map<ObservableId, double> out;
+        for (auto oid : obs_ids_) {
+            out[oid] = oi_.compute_observable(oid).front().value; // or from compute_all()
+        }
+        return out;
+    }
 private:
     ObservableInterface oi_;
     std::vector<ObservableId> obs_ids_;
