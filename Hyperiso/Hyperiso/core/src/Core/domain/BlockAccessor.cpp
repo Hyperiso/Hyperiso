@@ -207,3 +207,89 @@ std::ostream &operator<<(std::ostream &os, std::shared_ptr<BlockAccessor> ba) {
     }
     return os;
 }
+
+std::unordered_map<std::string, std::shared_ptr<Block>> BlockAccessor::get_block_sources(const BlockName& block_name) const {
+    auto it = std::find_if(
+        this->begin(),
+        this->end(),
+        [&](const auto& pair) { return pair.first == block_name; }
+    );
+
+    if (it == this->end()) {
+        std::cout << std::make_shared<BlockAccessor>(*this) << std::endl;
+        LOG_ERROR("Block", block_name, "not found in BlockAccessor");
+    }
+    return it->second->get_source_blocks();
+
+}
+
+std::unordered_map<ParamId, std::shared_ptr<Parameter>> BlockAccessor::get_parameter_sources(const BlockName& block_name, LhaID id) const {
+    auto it = std::find_if(
+        this->begin(),
+        this->end(),
+        [&](const auto& pair) { return pair.first == block_name; }
+    );
+
+    if (it == this->end()) {
+        std::cout << std::make_shared<BlockAccessor>(*this) << std::endl;
+        LOG_ERROR("Block", block_name, "not found in BlockAccessor");
+    }
+    return it->second->retrieve(id)->get_source_parameters();
+}
+
+std::unordered_set<ParamId>
+BlockAccessor::get_all_source_parameters(const std::unordered_set<ParamId>& param_ids) const
+{
+    std::unordered_set<ParamId> result;
+    std::unordered_set<ParamId> visited;
+
+    std::function<void(const ParamId&)> dfs =
+        [&](const ParamId& pid)
+        {
+            if (!visited.insert(pid).second) {
+                return;
+            }
+
+            if (!this->has_param(pid.block, pid.code)) {
+                result.insert(pid);
+                return;
+            }
+
+            bool has_sources = false;
+
+            auto param_sources = this->get_parameter_sources(pid.block, pid.code);
+            if (!param_sources.empty()) {
+                has_sources = true;
+                for (const auto& [src_id, _] : param_sources) {
+                    dfs(src_id);
+                }
+            }
+
+            auto block_sources = this->get_block_sources(pid.block);
+            if (!block_sources.empty()) {
+                has_sources = true;
+
+                for (const auto& [src_block_name, src_block] : block_sources) {
+                    if (!src_block) continue;
+
+
+                    const auto& items = src_block->getItems();
+                    for (const auto& [lha_id, param_ptr] : items) {
+                        if (!param_ptr) continue;
+                        dfs(param_ptr->get_id());
+                    }
+                }
+            }
+
+
+            if (!has_sources) {
+                result.insert(pid);
+            }
+        };
+
+    for (const auto& pid : param_ids) {
+        dfs(pid);
+    }
+
+    return result;
+}

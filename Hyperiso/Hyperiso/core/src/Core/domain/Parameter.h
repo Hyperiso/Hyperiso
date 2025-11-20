@@ -195,6 +195,9 @@ public:
      */
     virtual void clear_below();
 
+    virtual std::unordered_map<ParamId, std::shared_ptr<Parameter>> get_source_parameters() const {
+        return {};
+    }
 
     void set_owner_block(std::weak_ptr<Block> owner) { owner_block = std::move(owner); }
     std::weak_ptr<Block> get_owner_block() const { return owner_block; }

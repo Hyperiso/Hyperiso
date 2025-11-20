@@ -66,10 +66,18 @@ public:
     void clear_below() override;
 
     /**
+     * @brief Retrieves all the source blocks of the dependent block.
+     * @return A map of source block names to their shared pointers.
+     */
+    std::unordered_map<ParamId, std::shared_ptr<Parameter>> get_source_parameters() const override {
+        return this->sources_raw;
+    }
+
+    /**
      * @brief Destructor. Cleans up dependency links.
      */
     ~DependentParameter();
-
+    
 private:
     std::weak_ptr<DependentParameter> self;                           ///< Self-reference used for observer management.
     std::unordered_map<ParamId, std::shared_ptr<Parameter>> sources_raw;    ///< Source parameters.

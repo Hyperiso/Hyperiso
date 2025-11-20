@@ -33,11 +33,11 @@ int main() {
     };
 
 
-    ObservableInterface oi;
+    std::shared_ptr<ObservableInterface> oi = std::make_shared<ObservableInterface>();
     // for (auto oid : obs_ids) oi.add_observable(oid, QCDOrder::LO, /*add_dependencies=*/true);
-    oi.add_observables(obs_ids, true);
+    oi->add_observables(obs_ids, true);
 
-    for (auto id : oi.get_all_ops_deps(Observables::BR_BS_MUMU)) {
+    for (auto id : oi->get_all_ops_deps(Observables::BR_BS_MUMU)) {
         std::cout << id << std::endl;
     }
 
@@ -76,7 +76,7 @@ int main() {
     std::vector<ParamId> eta_specs_real;
     Vec eta_mean_real;
     for (auto elem : obs_ids) {
-        for (auto _ : oi.get_all_ops_deps(elem.first))
+        for (auto _ : oi->get_all_ops_deps(elem.first))
         if (!(std::find(eta_specs_real.begin(), eta_specs_real.end(), _) != eta_specs_real.end())) {
             eta_specs_real.push_back(_);
         }
@@ -104,7 +104,7 @@ int main() {
         std::cout << std::endl;
     }
 
-    std::shared_ptr<ObservableInterfaceAdapterObs> model = std::make_shared<ObservableInterfaceAdapterObs> (obs_ids, p_specs, eta_specs_real_with_corr);
+    std::shared_ptr<ObservableInterfaceAdapterObs> model = std::make_shared<ObservableInterfaceAdapterObs> (oi, obs_ids, p_specs, eta_specs_real_with_corr);
 
     // model->add_observables(obs_ids);
     std::cout << "creating RandomVectorGenerator" << std::endl;

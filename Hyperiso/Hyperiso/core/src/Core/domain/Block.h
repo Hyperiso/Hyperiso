@@ -177,6 +177,14 @@ public:
     void erase_local(const LhaID& id);
 
     /**
+     * @brief Retrieves all the source blocks of the dependent block.
+     * @return A map of source block names to their shared pointers.
+     */
+    virtual std::unordered_map<std::string, std::shared_ptr<Block>> get_source_blocks() const {
+        return {};
+    }
+
+    /**
      * @brief Destructor. Notifies observers when the block is destroyed.
      */
     ~Block() {}
@@ -254,7 +262,7 @@ public:
      * @brief Retrieves all the source blocks of the dependent block.
      * @return A map of source block names to their shared pointers.
      */
-    std::unordered_map<std::string, std::shared_ptr<Block>> get_source_blocks() const {
+    std::unordered_map<std::string, std::shared_ptr<Block>> get_source_blocks() const override {
         return this->sourceBlocks;
     }
 

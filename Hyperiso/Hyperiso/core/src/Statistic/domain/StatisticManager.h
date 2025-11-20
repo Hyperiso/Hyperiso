@@ -24,7 +24,8 @@ struct StatCache {
 
 class StatisticManager {
 public:
-    StatisticManager(StatisticConfig config, std::shared_ptr<IModel> obs_int, std::shared_ptr<IStatCorrelationProxy> pscp, std::shared_ptr<IStatParameterProxy> pspp) : config(config) {
+    StatisticManager(StatisticConfig config, std::shared_ptr<IModel> obs_int, std::shared_ptr<IStatCorrelationProxy> pscp, std::shared_ptr<IStatParameterProxy> pspp) 
+    : config(config), obs_int(obs_int), pscp(pscp), pspp(pspp) {
         obs_int->add_observables(config.obss);
 
     }
@@ -50,23 +51,61 @@ public:
 
         // Vec p_test{-4.5, 0.0};
         auto sums = mc.summarize(this->cache.p_specs, rng);
+
+        std::map<ObservableId, double> out;
+        return out;
     }
     void fill_cache() {
         cache.eta_specs_real = this->get_all_obss_deps();
+
+        for (auto elem : cache.eta_specs_real) {
+            std::cout << " eta_specs_real : " << elem.first << " = " << elem.second;
+        }
+        std::cout << std::endl;
         cache.SigmaEta = this->get_all_correlations();
+
+        for (auto elem : cache.SigmaEta) {
+            for (auto elem2 : elem.second) {
+                std::cout << " SigmaEta : " << elem.first << " | " << elem2.first << " = " << elem2.second;
+            }
+            std::cout << std::endl;
+        }
         cache.exp_obs = this->get_obs_exp();
+        for (auto elem : cache.exp_obs) {
+            std::cout << " exp_obs : " << elem.first.str() << " = " << elem.second;
+        }
+
+        std::cout << std::endl;
         cache.SigmaObs = this->get_all_obs_correlations();
         cache.p_specs = this->get_p_specs();
     }
+    // std::map<ParamId, double> get_all_obss_deps() {
+    //     std::map<ParamId, double> eta_specs_real;
+    //     Vec eta_mean_real;
+    //     for (auto elem : config.obss) {
+    //         for (auto _ : obs_int->get_obs_deps(elem.first))
+    //         if (!(std::find(eta_specs_real.begin(), eta_specs_real.end(), _) != eta_specs_real.end())) {
+    //             if (pspp->get_param(_)->get_combined_std().real() > pspp->get_param(_)->get_val() *1e-6) { //TODO bad harcoded
+    //                 eta_specs_real[_] = pspp->get_param(_)->get_val();
+    //             }
+    //         }
+    //     }
+    //     return eta_specs_real;
+    // }
 
     std::map<ParamId, double> get_all_obss_deps() {
         std::map<ParamId, double> eta_specs_real;
         Vec eta_mean_real;
-        for (auto elem : config.obss) {
-            for (auto _ : obs_int->get_obs_deps(elem.first))
-            if (!(std::find(eta_specs_real.begin(), eta_specs_real.end(), _) != eta_specs_real.end())) {
-                if (pspp->get_param(_)->get_combined_std().real() > pspp->get_param(_)->get_val() *1e-6) { //TODO bad harcoded
-                    eta_specs_real[_] = pspp->get_param(_)->get_val();
+        std::cout<< "here" << std::endl;
+        for (const auto& [obsId, qcdOrder] : config.obss) {
+            for (auto paramId : obs_int->get_obs_deps(obsId)) {
+                // si la clé n'est pas déjà dans la map
+                if (eta_specs_real.find(paramId) == eta_specs_real.end()) {
+                    std::cout<< paramId << std::endl;
+                    if (pspp->get_param(paramId)->get_combined_std().real() >
+                        pspp->get_param(paramId)->get_val() * 1e-6) { // TODO: hardcode à nettoyer
+                        eta_specs_real[paramId] = pspp->get_param(paramId)->get_val();
+                    }
                 }
             }
         }

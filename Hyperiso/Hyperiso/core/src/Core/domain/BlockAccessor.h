@@ -99,6 +99,12 @@ public:
 
     bool has_scale(const BlockName& block_name) const;
 
+    std::unordered_map<std::string, std::shared_ptr<Block>> get_block_sources(const BlockName& block_name) const;
+    std::unordered_map<ParamId, std::shared_ptr<Parameter>> get_parameter_sources(const BlockName& block_name, LhaID id) const;
+
+    std::unordered_set<ParamId>
+    get_all_source_parameters(const std::unordered_set<ParamId>& param_ids) const;
+    
     std::shared_ptr<Block>& at(const BlockName& block_name);
     const std::shared_ptr<Block>& at(const BlockName& block_name) const;
 
