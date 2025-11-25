@@ -45,6 +45,7 @@ add_library(CoreLib STATIC
     adapters/ParameterShifter.cpp
     adapters/Freezer.cpp
     adapters/BlockProvider.cpp
+    adapters/ParamSourcesProvider.cpp
     domain/CorrelationRepo.cpp
     domain/ParameterRouter.cpp
     domain/Parameters.cpp

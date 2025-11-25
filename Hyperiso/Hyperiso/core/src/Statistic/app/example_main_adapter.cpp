@@ -17,6 +17,7 @@
 #include "StatParameterProxy.h"
 #include "CovarianceTransformer.h"
 #include "StatCorrelationProxy.h"
+#include "ParamSourcesProvider.h"
 
 int main() {
 
@@ -82,7 +83,22 @@ int main() {
         }
     }
 
+    std::unordered_set<ParamId> good;
 
+    for (auto elem : eta_specs_real) {
+        std::cout << "FIIIRST : " << elem << std::endl;
+        good.insert(elem);
+    }
+    std::unordered_set<ParamId> truc = ParamSourcesProvider().get_all_leaf_sources(good);
+
+    std::vector<ParamId> good_all;
+
+    for (auto elem : truc) {
+        good_all.push_back(elem);
+    }
+    for (ParamId elem : truc) {
+        std::cout << "WHAAATS : " << elem << std::endl;
+    }
     std::shared_ptr<IStatCorrelationProxy> pscp = std::make_shared<StatCorrelationProxy>();
     std::shared_ptr<IStatParameterProxy> pspp = std::make_shared<StatParameterProxy>();
 

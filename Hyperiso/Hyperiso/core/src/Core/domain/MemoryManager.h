@@ -249,6 +249,12 @@ public:
      * @return A const reference to the CorrelationRepository.
      */
     const CorrelationRepository& get_correlation_repository();
+    
+    /**
+     * @brief Retrieves the current correlation repository.
+     * @return A const reference to the CorrelationRepository.
+     */
+    std::unordered_set<ParamId> get_all_source_parameters(const std::unordered_set<ParamId>& param_ids) const;
 
     MemoryManager(const MemoryManager&) = delete;
     MemoryManager& operator=(const MemoryManager&) = delete;

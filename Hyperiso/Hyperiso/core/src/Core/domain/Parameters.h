@@ -19,7 +19,6 @@
 
 #include "ParameterRouter.h"
 #include "BlockAccessor.h"
-#include "MemoryManager.h"
 #include "Interface.h"
 #include "QCDHelper.h"
 #include "EWHelper.h"
