@@ -3,6 +3,7 @@
 #include "StatCorrelationProxy.h"
 #include "StatParameterProxy.h"
 #include "ObservableInterface.h"
+#include "StatParamSourcesProxy.h"
 
 int main(int argc, char** argv) {
 
@@ -22,7 +23,7 @@ int main(int argc, char** argv) {
 
     std::shared_ptr<ObservableInterface> oi = std::make_shared<ObservableInterface>();
 
-    StatisticManager stat(config, std::make_shared<ObservableInterfaceAdapterObs>(oi), std::make_shared<StatCorrelationProxy>(), std::make_shared<StatParameterProxy>());
+    StatisticManager stat(config, std::make_shared<ObservableInterfaceAdapterObs>(oi), std::make_shared<StatCorrelationProxy>(), std::make_shared<StatParameterProxy>(), std::make_shared<StatParamSourcesProxy>());
 
     stat.fill_cache();
 

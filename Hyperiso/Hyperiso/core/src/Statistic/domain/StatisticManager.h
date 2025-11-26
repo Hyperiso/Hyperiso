@@ -3,6 +3,7 @@
 #include "IModel.h"
 #include "IStatCorrelationProxy.h"
 #include "IStatParameterProxy.h"
+#include "IStatSourcesProxy.h"
 #include "CovarianceTransformer.h"
 #include "RandomVectorGenerator.h"
 #include "RvgNuisanceSampler.h"
@@ -24,8 +25,10 @@ struct StatCache {
 
 class StatisticManager {
 public:
-    StatisticManager(StatisticConfig config, std::shared_ptr<IModel> obs_int, std::shared_ptr<IStatCorrelationProxy> pscp, std::shared_ptr<IStatParameterProxy> pspp) 
-    : config(config), obs_int(obs_int), pscp(pscp), pspp(pspp) {
+    StatisticManager(StatisticConfig config, std::shared_ptr<IModel> obs_int, 
+        std::shared_ptr<IStatCorrelationProxy> pscp, std::shared_ptr<IStatParameterProxy> pspp,
+        std::shared_ptr<IStatSourcesProxy> sp) 
+    : config(config), obs_int(obs_int), pscp(pscp), pspp(pspp), sp(sp) {
         obs_int->add_observables(config.obss);
 
     }
@@ -94,22 +97,32 @@ public:
     // }
 
     std::map<ParamId, double> get_all_obss_deps() {
-        std::map<ParamId, double> eta_specs_real;
-        Vec eta_mean_real;
-        std::cout<< "here" << std::endl;
+        std::unordered_set<ParamId> eta_infos;
+
         for (const auto& [obsId, qcdOrder] : config.obss) {
             for (auto paramId : obs_int->get_obs_deps(obsId)) {
-                // si la clé n'est pas déjà dans la map
-                if (eta_specs_real.find(paramId) == eta_specs_real.end()) {
-                    std::cout<< paramId << std::endl;
+                if (eta_infos.find(paramId) == eta_infos.end()) {
                     if (pspp->get_param(paramId)->get_combined_std().real() >
                         pspp->get_param(paramId)->get_val() * 1e-6) { // TODO: hardcode à nettoyer
-                        eta_specs_real[paramId] = pspp->get_param(paramId)->get_val();
+                        eta_infos.insert(paramId);
                     }
                 }
             }
         }
-        return eta_specs_real;
+
+        std::unordered_set<ParamId> eta_infos_leaf = this->sp->get_all_leaf_sources(eta_infos);
+        std::map<ParamId, double> eta_specs_real_leaf;
+
+        for (auto& paramId : eta_infos_leaf) {
+            scalar_t value = pspp->get_param(paramId)->get_val();
+            if (pspp->get_param(paramId)->get_combined_std().real() > value.real() * 1e-6) {
+                eta_specs_real_leaf[paramId] = value.real();
+
+            } else {
+                std::cout << paramId << " does not have real uncertainty" << std::endl;
+            }
+        }
+        return eta_specs_real_leaf;
     }
 
     std::map<ParamId, double> get_p_specs() {
@@ -147,6 +160,7 @@ private:
     std::shared_ptr<IModel> obs_int;
     std::shared_ptr<IStatCorrelationProxy> pscp;
     std::shared_ptr<IStatParameterProxy> pspp;
+    std::shared_ptr<IStatSourcesProxy> sp;
     StatisticConfig config;
     StatCache cache;
 };

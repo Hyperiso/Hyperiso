@@ -1,12 +1,12 @@
-#ifndef ISOURCES_PROVIDER_H
-#define ISOURCES_PROVIDER_H
+#ifndef ISTAT_SOURCES_PROXY_H
+#define ISTAT_SOURCES_PROXY_H
 
 #include <unordered_set>
 #include "Include.h"
 
-class ISourcesProvider {
+class IStatSourcesProxy {
 public:
-    virtual ~ISourcesProvider() = default;
+    virtual ~IStatSourcesProxy() = default;
 
     virtual std::unordered_set<ParamId> get_all_leaf_sources(const std::unordered_set<ParamId>& param_ids) 
                                       const = 0;
