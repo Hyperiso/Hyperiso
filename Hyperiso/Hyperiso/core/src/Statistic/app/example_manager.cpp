@@ -27,5 +27,7 @@ int main(int argc, char** argv) {
 
     stat.fill_cache();
 
+    stat.compute_uncertainties();
+
     return 0;
 }

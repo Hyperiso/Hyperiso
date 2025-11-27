@@ -25,7 +25,7 @@ inline std::vector<GaussianSummary> gaussian_or_warn(const Samples_old& S, doubl
 
 inline std::vector<GaussianSummary> gaussian_or_warn(const Samples& S, double skew_abs_threshold=0.2) {
     const auto cols = summarize_columns_obs(S);
-    std::vector<GaussianSummary> out(cols.size());
+    std::vector<GaussianSummary> out;
     for (const auto& col : cols) {
         out.push_back(GaussianSummary{col.first, cols.at(col.first).mean, cols.at(col.first).std_unbiased, cols.at(col.first).skewness,
                                 std::fabs(cols.at(col.first).skewness) <= skew_abs_threshold});

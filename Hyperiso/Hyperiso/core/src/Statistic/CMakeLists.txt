@@ -35,6 +35,7 @@ add_library(StatisticLib STATIC
     adapters/StatCorrelationProxy.cpp
     adapters/StatParameterProxy.cpp
     adapters/StatParamSourcesProxy.cpp
+    adapters/StatParamOptimizerProxy.cpp
     domain/RNGHelper.cpp
     domain/RandomVectorGenerator.cpp
     domain/Fit.cpp

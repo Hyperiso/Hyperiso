@@ -37,7 +37,6 @@ public:
     }
 
     std::unordered_set<ParamId> get_obs_deps(ObservableId id) override {
-        std::cout<< "here" << std::endl;
         return oi_->get_all_ops_deps(id);
     }
 
@@ -67,15 +66,15 @@ public:
         auto obs = oi_->get_current_observables();
         oi_->enable_obs();
 
-        if (p.size()!=p_specs_.size() || eta.size()!=eta_specs_.size())
-        throw std::invalid_argument("(p,eta) sizes do not match specs");
-        for (std::size_t i=0;i<p.size();++i) {
-            const auto& s = p_specs_[i];
-            oi_->set_param(s.block, s.code, p.at(s), s.type.value_or(ParameterType::SM)); //TODO check value_or
+        // if (p.size()!=p_specs_.size() || eta.size()!=eta_specs_.size())
+        // throw std::invalid_argument("(p,eta) sizes do not match specs");
+        for (auto p_elem : p) {
+            const auto& s = p_elem.first;
+            oi_->set_param(s.block, s.code, p_elem.second, s.type.value_or(ParameterType::SM)); //TODO check value_or
         }
-        for (std::size_t i=0;i<eta.size();++i) {
-            const auto& s = eta_specs_[i];
-            oi_->set_param(s.block, s.code, eta.at(s), s.type.value_or(ParameterType::SM)); //TODO check value_or
+        for (auto eta_elem : eta) {
+            const auto& s = eta_elem.first;
+            oi_->set_param(s.block, s.code, eta_elem.second, s.type.value_or(ParameterType::SM)); //TODO check value_or
         }
         // auto all = oi_.compute_all();
         std::map<ObservableId, double> out;

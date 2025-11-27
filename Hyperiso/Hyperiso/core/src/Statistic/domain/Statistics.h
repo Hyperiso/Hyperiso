@@ -52,16 +52,17 @@ inline std::vector<ColumnStats> summarize_columns(const Samples_old& S) {
 }
 
 inline std::map<ObservableId, ColumnStats> summarize_columns_obs(const Samples& S) {
+
     if (S.empty()) throw std::invalid_argument("No samples");
     const std::size_t N = S.size();
     const std::size_t D = S[0].size();
-    std::vector<ObservableId> ids(D);
+    std::vector<ObservableId> ids;
+    
     for (const auto& v : S[0]) {
         ids.push_back(v.first);
     }
     for (const auto& v : S) {
-        if (v.size()!=D) throw std::invalid_argument("Jagged samples");
-        
+        if (v.size()!=D) throw std::invalid_argument("Jagged samples");        
     }
     std::map<ObservableId, ColumnStats> out;
     // means

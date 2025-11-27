@@ -55,9 +55,18 @@ public:
         // Vec p_test{-4.5, 0.0};
         auto sums = mc.summarize(this->cache.p_specs, rng);
 
+        std::cout << "summarize ented" << std::endl;
+
+        std::cout << "Skewness[0]=" << sums[0].skew << " ok=" << sums[0].approx_ok << std::endl;
+
+        for (auto sum : sums) {
+            std::cout << "value = " << sum.mu << " +- " << sum.sigma << std::endl;
+        }
+
         std::map<ObservableId, double> out;
         return out;
     }
+
     void fill_cache() {
         cache.eta_specs_real = this->get_all_obss_deps();
 
@@ -80,21 +89,26 @@ public:
 
         std::cout << std::endl;
         cache.SigmaObs = this->get_all_obs_correlations();
+
+        for (auto elem : cache.SigmaObs) {
+            for (auto elem2 : elem.second) {
+                std::cout << " SigmaObs : " << elem.first.str() << " | " << elem2.first.str() << " = " << elem2.second;
+            }
+            std::cout << std::endl;
+        }
+
         cache.p_specs = this->get_p_specs();
+
+        for (auto elem : cache.p_specs) {
+            std::cout << " p_specs : " << elem.first << " = " << elem.second;
+        }
+
+        std::cout << "eta size : " << this->cache.eta_specs_real.size() << std::endl;
+        std::cout << "etasigma size : " << this->cache.eta_specs_real.size() << " | " << this->cache.SigmaEta.at(ParamId(ParameterType::SM, "VCKMIN", 1)).size() << std::endl;
+        std::cout << "p_specs size : " << this->cache.p_specs.size() << std::endl;
+        std::cout << "exp_obs : " << this->cache.exp_obs.size() << std::endl;
+        std::cout << "SigmaObs size : " << this->cache.SigmaObs.size() << " | " << this->cache.SigmaObs[ObservableMapper::to_id(Observables::BR_BD_MUMU)].size() << std::endl;
     }
-    // std::map<ParamId, double> get_all_obss_deps() {
-    //     std::map<ParamId, double> eta_specs_real;
-    //     Vec eta_mean_real;
-    //     for (auto elem : config.obss) {
-    //         for (auto _ : obs_int->get_obs_deps(elem.first))
-    //         if (!(std::find(eta_specs_real.begin(), eta_specs_real.end(), _) != eta_specs_real.end())) {
-    //             if (pspp->get_param(_)->get_combined_std().real() > pspp->get_param(_)->get_val() *1e-6) { //TODO bad harcoded
-    //                 eta_specs_real[_] = pspp->get_param(_)->get_val();
-    //             }
-    //         }
-    //     }
-    //     return eta_specs_real;
-    // }
 
     std::map<ParamId, double> get_all_obss_deps() {
         std::unordered_set<ParamId> eta_infos;

@@ -37,10 +37,11 @@ public:
         Samples out; 
         // out.reserve(cfg_.draws);
         for (std::size_t s=0; s<cfg_.draws; ++s) {
+            std::cout << "s : " << s << std::endl;
             std::map<ParamId, double> eta = sampler_.sample(mu_, Sigma_, rng);
             std::map<ObservableId, double> value = model_->predict(p, eta);
             for (auto val : value) {
-                std::cout << val.second << std::endl;
+                std::cout << val.first.str() << " : " << val.second << std::endl;
             }
             out.emplace_back(value);
         }
