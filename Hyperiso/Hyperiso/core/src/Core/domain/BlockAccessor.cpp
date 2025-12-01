@@ -43,7 +43,7 @@ void BlockAccessor::setValue(const BlockName& blockName, LhaID id, scalar_t valu
 
 void BlockAccessor::setParameter(const BlockName &blockName, LhaID id, std::shared_ptr<Parameter> source) {
     if (this->contains(blockName)) {
-        this->at(blockName)->store(id, source);
+        this->at(blockName)->store_or_assign(id, source);
     } else {
         throw std::invalid_argument("Block not found : " + blockName);
     }

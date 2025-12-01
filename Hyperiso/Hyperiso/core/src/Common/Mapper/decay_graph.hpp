@@ -1,12 +1,10 @@
-// decay_graph.hpp
 #pragma once
-#include "dynamic_registry.hpp"   // for SymbolId
+#include "dynamic_registry.hpp"
 #include <unordered_map>
 #include <vector>
 #include <string>
 #include <mutex>
 
-// Forward declarations to break include cycle
 struct DecayTag;
 struct ObservableTag;
 

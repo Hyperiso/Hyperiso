@@ -6,8 +6,8 @@
 #include "CustomWilsonGroup.h"
 
 #include "GroupMapper.h"
-#include "QCDOrderMapper.h"
-#include "WCoeffMapper.h"
+#include "qcdorder_ids.hpp"
+#include "wcoef_ids.hpp"
 #include "WilsonParamComposer.h"
 #include "ScaleSetter.h"
 #include "ModelAPI.h"

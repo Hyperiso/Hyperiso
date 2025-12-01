@@ -1,11 +1,9 @@
-// group_ids.hpp
 #pragma once
 #include "generic_mapper.hpp"
 #include "Map.h"
 #include "scaletype_ids.hpp"
 #include "wilsonbasis_ids.hpp"
 
-// Optional external-key map for groups (empty by default)
 inline const std::map<WGroup, std::string>& group_external_mapping(){
     static const std::map<WGroup, std::string> empty{};
     return empty;

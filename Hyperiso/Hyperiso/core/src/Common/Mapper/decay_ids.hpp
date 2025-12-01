@@ -1,40 +1,8 @@
-// #pragma once
-// #include "generic_mapper.hpp"
-// #include "Map.h"
-
-// struct DecayTag {};
-// using DecayId = IdOf<DecayTag>;
-
-// class DecayMapper
-// : public GenericMapperNoExt<DecayTag, Decays, decays_mapping>
-// {
-// public:
-//     using Base = GenericMapperNoExt<DecayTag, Decays, decays_mapping>;
-//     using Base::init_builtins;
-//     using Base::id_of;
-//     using Base::str;
-//     using Base::to_id;
-//     using Base::enum_of;
-//     using Base::list_all;
-
-//     static std::vector<Observables> get_observables(Decays d) {
-//         return decay_observable_mapping().at(d);
-//     }
-
-//     static Decays get_decay(Observables obs) {
-//         for (const auto& [d, vec] : decay_observable_mapping()) {
-//             if (std::find(vec.begin(), vec.end(), obs) != vec.end()) return d;
-//         }
-//         throw std::runtime_error("Observable not mapped to any decay");
-//     }
-// };
-
-// decay_ids.hpp
 #pragma once
 #include "generic_mapper.hpp"
 #include "Map.h"
-#include "General.h"   // on choisit LhaID comme clé externe des decays (modifiable)
-#include "ObservableMapper.h"
+#include "General.h" 
+#include "observable_ids.hpp"
 
 struct DecayTag {};
 using DecayId = IdOf<DecayTag>;
