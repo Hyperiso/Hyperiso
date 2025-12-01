@@ -18,16 +18,16 @@ public:
     using ModelFn = ProfiledLikelihood::ModelFn;
 
 
-    MLEstimator(LikelihoodContext ctx, ModelFn model)
-        : like_(std::move(ctx), std::move(model)) {}
+    MLEstimator(LikelihoodContext ctx, ModelFn model, std::size_t max_iter=1000, double tol=1e-6)
+        : like_(std::move(ctx), std::move(model)), max_iter(max_iter), tol(tol) {}
 
 
-    FitResult fit(const Vec& p0, const Vec& eta0, std::size_t max_iter=1000, double tol=1e-6) const;
+    FitResult fit(const Vec& p0, const Vec& eta0) const;
 
 
     // T(p) = \tilde{ℓ}(p) − ℓ(\^p, \^η)
     double test_statistic(const Vec& p, const FitResult& fr, const Vec& eta_init) const {
-        double lprof = like_.ell_profiled(p, eta_init);
+        double lprof = like_.ell_profiled(p, eta_init, max_iter, tol);
         return lprof - fr.ell_hat;
     }
 
@@ -47,4 +47,6 @@ public:
 
 private:
     ProfiledLikelihood like_;
+    std::size_t max_iter;
+    double tol;
 };

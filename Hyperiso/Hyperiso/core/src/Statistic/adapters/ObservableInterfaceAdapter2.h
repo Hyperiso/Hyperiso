@@ -2,10 +2,8 @@
 #include <vector>
 #include <stdexcept>
 #include "ports/IModel.h"
-#include "ObservableInterface.h" // your API
-
-
-// struct ParamSpec { std::string block; LhaID code; ParameterType type; };
+#include "ObservableInterface.h"
+#include "StatParamOptimizerProxy.h"
 
 
 class ObservableInterfaceAdapterObs final : public IModel {
@@ -76,6 +74,33 @@ public:
             const auto& s = eta_elem.first;
             oi_->set_param(s.block, s.code, eta_elem.second, s.type.value_or(ParameterType::SM)); //TODO check value_or
         }
+        // auto all = oi_.compute_all();
+        std::map<ObservableId, double> out;
+        for (auto oid : obs_ids_) {
+            out[oid] = oi_->compute_observable(oid).front().value; // or from compute_all()
+        }
+        return out;
+    }
+
+    std::map<ObservableId, double> predict_optimized(const std::map<ParamId, double>& p, const std::map<ParamId, double>& eta) override {
+        StatParamOptimizerProxy spop = StatParamOptimizerProxy();
+
+        auto obs = oi_->get_current_observables();
+        oi_->enable_obs();
+
+        // if (p.size()!=p_specs_.size() || eta.size()!=eta_specs_.size())
+        // throw std::invalid_argument("(p,eta) sizes do not match specs");
+        for (auto p_elem : p) {
+            const auto& s = p_elem.first;
+            spop.set_value(s.block, s.code, p_elem.second);
+            // oi_->set_param(s.block, s.code, p_elem.second, s.type.value_or(ParameterType::SM)); //TODO check value_or
+        }
+        for (auto eta_elem : eta) {
+            const auto& s = eta_elem.first;
+            spop.set_value(s.block, s.code, eta_elem.second);
+            // oi_->set_param(s.block, s.code, eta_elem.second, s.type.value_or(ParameterType::SM)); //TODO check value_or
+        }
+        spop.commit();
         // auto all = oi_.compute_all();
         std::map<ObservableId, double> out;
         for (auto oid : obs_ids_) {

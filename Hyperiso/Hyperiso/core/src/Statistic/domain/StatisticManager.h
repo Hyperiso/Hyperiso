@@ -9,10 +9,23 @@
 #include "RvgNuisanceSampler.h"
 #include "MonteCarloPredictorGeneric.h"
 #include "DistributionFactory.h"
+#include "Fit.h"
 
 struct StatisticConfig {
     std::map<ObservableId, QCDOrder> obss;
     std::vector<ParamId> p_specs;
+
+    std::size_t MC_draws = 100;
+    double skew_abs_threshold=0.2;
+
+    std::size_t MLE_max_iter = 100;
+    double MLE_tol = 1e-6;
+};
+
+struct FitResultWithMaps {
+    std::map<ParamId, double> p_hat;
+    std::map<ParamId, double> eta_hat;
+    double ell_hat{0.0};
 };
 
 struct StatCache {
@@ -21,7 +34,11 @@ struct StatCache {
     std::map<ParamId, double> p_specs;
     std::map<ParamId, std::map<ParamId, double>> SigmaEta;
     std::map<ObservableId, std::map<ObservableId, double>> SigmaObs;
+
+    FitResultWithMaps mle_result;
 };
+
+
 
 class StatisticManager {
 public:
@@ -31,6 +48,205 @@ public:
     : config(config), obs_int(obs_int), pscp(pscp), pspp(pspp), sp(sp) {
         obs_int->add_observables(config.obss);
 
+    }
+
+    std::pair<double,double> compute_CI_1d_95(
+        const ParamId& pid_to_scan,
+        double p_min, double p_max,
+        int grid_points
+    ) {
+
+        std::vector<ObservableId> obs_order;
+        obs_order.reserve(cache.exp_obs.size());
+        for (const auto& [oid, val] : cache.exp_obs) {
+            obs_order.push_back(oid);
+        }
+
+        std::vector<ParamId> eta_order;
+        eta_order.reserve(cache.eta_specs_real.size());
+        for (const auto& [pid, val] : cache.eta_specs_real) {
+            eta_order.push_back(pid);
+        }
+
+        std::vector<ParamId> p_order;
+        p_order.reserve(cache.p_specs.size());
+        for (const auto& [pid, val] : cache.p_specs) {
+            p_order.push_back(pid);
+        }
+
+        auto vec_from_param_map = [](const std::map<ParamId, double>& m,
+                                    const std::vector<ParamId>& order) {
+            Vec v(order.size());
+            for (std::size_t i = 0; i < order.size(); ++i) {
+                auto it = m.find(order[i]);
+                if (it == m.end())
+                    throw std::runtime_error("vec_from_param_map: missing ParamId in map");
+                v[i] = it->second;
+            }
+            return v;
+        };
+
+        auto vec_from_obs_map = [](const std::map<ObservableId, double>& m,
+                                const std::vector<ObservableId>& order) {
+            Vec v(order.size());
+            for (std::size_t i = 0; i < order.size(); ++i) {
+                auto it = m.find(order[i]);
+                if (it == m.end())
+                    throw std::runtime_error("vec_from_obs_map: missing ObservableId in map");
+                v[i] = it->second;
+            }
+            return v;
+        };
+
+        auto mat_from_eta_cov_map =
+            [&](const std::map<ParamId, std::map<ParamId, double>>& cov,
+                const std::vector<ParamId>& order) {
+                Matrix M(order.size(), Vec(order.size(), 0.0));
+                for (std::size_t i = 0; i < order.size(); ++i) {
+                    for (std::size_t j = 0; j < order.size(); ++j) {
+                        auto it_row = cov.find(order[i]);
+                        if (it_row != cov.end()) {
+                            auto it_col = it_row->second.find(order[j]);
+                            if (it_col != it_row->second.end()) {
+                                M[i][j] = it_col->second;
+                            } else {
+                                M[i][j] = 0.0;
+                            }
+                        } else {
+                            M[i][j] = 0.0;
+                        }
+                    }
+                }
+                return M;
+            };
+
+        auto mat_from_obs_cov_map =
+            [&](const std::map<ObservableId, std::map<ObservableId, double>>& cov,
+                const std::vector<ObservableId>& order) {
+                Matrix M(order.size(), Vec(order.size(), 0.0));
+                for (std::size_t i = 0; i < order.size(); ++i) {
+                    for (std::size_t j = 0; j < order.size(); ++j) {
+                        auto it_row = cov.find(order[i]);
+                        if (it_row != cov.end()) {
+                            auto it_col = it_row->second.find(order[j]);
+                            if (it_col != it_row->second.end()) {
+                                M[i][j] = it_col->second;
+                            } else {
+                                M[i][j] = 0.0;
+                            }
+                        } else {
+                            M[i][j] = 0.0;
+                        }
+                    }
+                }
+                return M;
+            };
+
+
+        Vec Oexp_vec    = vec_from_obs_map(cache.exp_obs,          obs_order);
+        Vec eta_bar_vec = vec_from_param_map(cache.eta_specs_real, eta_order);
+
+        Matrix SigmaO_mat   = mat_from_obs_cov_map(cache.SigmaObs,  obs_order);
+        Matrix SigmaEta_mat = mat_from_eta_cov_map(cache.SigmaEta,  eta_order);
+
+        SPDMatrix SO = SPDMatrix::cholesky(SigmaO_mat);
+        SPDMatrix SE = SPDMatrix::cholesky(SigmaEta_mat);
+
+        LikelihoodContext ctx{Oexp_vec, SO, eta_bar_vec, SE};
+
+
+        auto model_fn = [this, obs_order, p_order, eta_order]
+                        (const Vec& p_vec, const Vec& eta_vec) -> Vec {
+            std::map<ParamId, double> p_map;
+            for (std::size_t i = 0; i < p_order.size(); ++i) {
+                p_map[p_order[i]] = p_vec[i];
+            }
+
+            std::map<ParamId, double> eta_map;
+            for (std::size_t i = 0; i < eta_order.size(); ++i) {
+                eta_map[eta_order[i]] = eta_vec[i];
+            }
+
+            auto pred_map = this->obs_int->predict(p_map, eta_map);
+
+            Vec pred_vec(obs_order.size());
+            for (std::size_t i = 0; i < obs_order.size(); ++i) {
+                auto it = pred_map.find(obs_order[i]);
+                if (it == pred_map.end()) {
+                    throw std::runtime_error("model_fn: missing prediction for observable");
+                }
+                pred_vec[i] = it->second;
+            }
+
+            return pred_vec;
+        };
+
+        MLEstimator est(ctx, model_fn);
+
+
+        const FitResultWithMaps& fr_map = this->cache.mle_result;
+
+        FitResult fr_vec;
+        fr_vec.p_hat   = vec_from_param_map(fr_map.p_hat,   p_order);
+        fr_vec.eta_hat = vec_from_param_map(fr_map.eta_hat, eta_order);
+        fr_vec.ell_hat = fr_map.ell_hat;
+
+        std::cout << "MLE fit done (from cache), ell_hat = " << fr_vec.ell_hat << std::endl;
+
+        std::cout << "finding thr95 " << std::endl;
+        const double thr95 = gsl_cdf_chisq_Pinv(0.95, 1);
+        std::cout << "thr95 : " << thr95 << std::endl;
+
+
+        int idx_scan = -1;
+        for (std::size_t i = 0; i < p_order.size(); ++i) {
+            if (p_order[i] == pid_to_scan) {
+                idx_scan = static_cast<int>(i);
+                break;
+            }
+        }
+        if (idx_scan < 0) {
+            throw std::runtime_error("compute_CI_1d_95: pid_to_scan not found in p_order");
+        }
+
+
+        Vec eta_init = eta_bar_vec;
+
+        auto T = [&](double p_scan_value) {
+            Vec p_test = fr_vec.p_hat;  
+            p_test[idx_scan] = p_scan_value; 
+            return est.test_statistic(p_test, fr_vec, eta_init);
+        };
+
+
+        double a = p_min;
+        double b = p_max;
+        int N = grid_points;
+
+        double left  = std::nan("");
+        double right = std::nan("");
+
+        double prev  = a;
+        double prevT = T(prev);
+
+        for (int i = 1; i <= N; ++i) {
+            double x = a + (b - a) * i / double(N);
+            double t = T(x);
+
+            if (std::isnan(left) && (prevT - thr95) * (t - thr95) <= 0.0)
+                left = prev;
+
+            if ((prevT - thr95) * (t - thr95) <= 0.0)
+                right = x;
+
+            prev  = x;
+            prevT = t;
+        }
+
+        std::cout << "95% CI for param " << pid_to_scan
+                << ": [" << left << "," << right << "]" << std::endl;
+
+        return {left, right};
     }
 
     std::map<ObservableId, double> compute_uncertainties() {
@@ -46,13 +262,11 @@ public:
 
         std::cout << "Creating MonteCarloPredictor" << std::endl;
 
-        // MC prediction with pluggable sampler
-        MonteCarloPredictor2 mc(this->obs_int, sampler, cache.eta_specs_real, cache.SigmaEta, {10, 0.2});
+        MonteCarloPredictor2 mc(this->obs_int, sampler, cache.eta_specs_real, cache.SigmaEta, {this->config.MC_draws, this->config.skew_abs_threshold});
         std::mt19937 rng(1234);
 
         std::cout << "MonteCarloPredictor created" << std::endl;
 
-        // Vec p_test{-4.5, 0.0};
         auto sums = mc.summarize(this->cache.p_specs, rng);
 
         std::cout << "summarize ented" << std::endl;
@@ -64,6 +278,173 @@ public:
         }
 
         std::map<ObservableId, double> out;
+        return out;
+    }
+
+    FitResultWithMaps compute_MLE() {
+
+        std::vector<ObservableId> obs_order;
+        obs_order.reserve(cache.exp_obs.size());
+        for (const auto& [oid, val] : cache.exp_obs) {
+            obs_order.push_back(oid);
+        }
+
+        std::vector<ParamId> eta_order;
+        eta_order.reserve(cache.eta_specs_real.size());
+        for (const auto& [pid, val] : cache.eta_specs_real) {
+            eta_order.push_back(pid);
+        }
+
+        std::vector<ParamId> p_order;
+        p_order.reserve(cache.p_specs.size());
+        for (const auto& [pid, val] : cache.p_specs) {
+            p_order.push_back(pid);
+        }
+
+
+        auto vec_from_param_map = [](const std::map<ParamId, double>& m,
+                                    const std::vector<ParamId>& order) {
+            Vec v(order.size());
+            for (std::size_t i = 0; i < order.size(); ++i) {
+                auto it = m.find(order[i]);
+                if (it == m.end())
+                    throw std::runtime_error("vec_from_param_map: missing ParamId in map");
+                v[i] = it->second;
+            }
+            return v;
+        };
+
+        auto vec_from_obs_map = [](const std::map<ObservableId, double>& m,
+                                const std::vector<ObservableId>& order) {
+            Vec v(order.size());
+            for (std::size_t i = 0; i < order.size(); ++i) {
+                auto it = m.find(order[i]);
+                if (it == m.end())
+                    throw std::runtime_error("vec_from_obs_map: missing ObservableId in map");
+                v[i] = it->second;
+            }
+            return v;
+        };
+
+        auto mat_from_eta_cov_map =
+            [&](const std::map<ParamId, std::map<ParamId, double>>& cov,
+                const std::vector<ParamId>& order) {
+                Matrix M(order.size(), Vec(order.size(), 0.0));
+                for (std::size_t i = 0; i < order.size(); ++i) {
+                    for (std::size_t j = 0; j < order.size(); ++j) {
+                        auto it_row = cov.find(order[i]);
+                        if (it_row != cov.end()) {
+                            auto it_col = it_row->second.find(order[j]);
+                            if (it_col != it_row->second.end()) {
+                                M[i][j] = it_col->second;
+                            } else {
+                                M[i][j] = 0.0; // pas de corr renseignée => 0
+                            }
+                        } else {
+                            M[i][j] = 0.0;
+                        }
+                    }
+                }
+                return M;
+            };
+
+        auto mat_from_obs_cov_map =
+            [&](const std::map<ObservableId, std::map<ObservableId, double>>& cov,
+                const std::vector<ObservableId>& order) {
+                Matrix M(order.size(), Vec(order.size(), 0.0));
+                for (std::size_t i = 0; i < order.size(); ++i) {
+                    for (std::size_t j = 0; j < order.size(); ++j) {
+                        auto it_row = cov.find(order[i]);
+                        if (it_row != cov.end()) {
+                            auto it_col = it_row->second.find(order[j]);
+                            if (it_col != it_row->second.end()) {
+                                M[i][j] = it_col->second;
+                            } else {
+                                M[i][j] = 0.0;
+                            }
+                        } else {
+                            M[i][j] = 0.0;
+                        }
+                    }
+                }
+                return M;
+            };
+
+
+        Vec Oexp_vec     = vec_from_obs_map(cache.exp_obs,         obs_order);
+        Vec eta_bar_vec  = vec_from_param_map(cache.eta_specs_real, eta_order);
+
+        Matrix SigmaO_mat    = mat_from_obs_cov_map(cache.SigmaObs,   obs_order);
+        Matrix SigmaEta_mat  = mat_from_eta_cov_map(cache.SigmaEta,   eta_order);
+
+        SPDMatrix SO = SPDMatrix::cholesky(SigmaO_mat);
+        SPDMatrix SE = SPDMatrix::cholesky(SigmaEta_mat);
+
+        LikelihoodContext ctx{Oexp_vec, SO, eta_bar_vec, SE};
+
+        auto model_fn = [this, obs_order, p_order, eta_order]
+                        (const Vec& p_vec, const Vec& eta_vec) -> Vec {
+            std::map<ParamId, double> p_map;
+            for (std::size_t i = 0; i < p_order.size(); ++i) {
+                p_map[p_order[i]] = p_vec[i];
+            }
+
+            std::map<ParamId, double> eta_map;
+            for (std::size_t i = 0; i < eta_order.size(); ++i) {
+                eta_map[eta_order[i]] = eta_vec[i];
+            }
+
+            auto pred_map = this->obs_int->predict(p_map, eta_map);
+
+            Vec pred_vec(obs_order.size());
+            for (std::size_t i = 0; i < obs_order.size(); ++i) {
+                auto it = pred_map.find(obs_order[i]);
+                if (it == pred_map.end()) {
+                    throw std::runtime_error("model_fn: missing prediction for observable");
+                }
+                pred_vec[i] = it->second;
+            }
+
+            return pred_vec;
+        };
+
+        MLEstimator est(ctx, model_fn, this->config.MLE_max_iter, this->config.MLE_tol);
+
+        std::cout << "Now doing MLE : " << std::endl;
+
+
+        Vec p0    = vec_from_param_map(cache.p_specs,        p_order);
+        Vec eta0  = vec_from_param_map(cache.eta_specs_real, eta_order);
+
+        FitResult fr = est.fit(p0, eta0);
+
+        std::cout << "MLE fit done: ell_hat = " << fr.ell_hat << std::endl;
+
+
+        std::map<ParamId, double> p_hat_map;
+        for (std::size_t i = 0; i < p_order.size(); ++i) {
+            p_hat_map[p_order[i]] = fr.p_hat[i];
+        }
+
+        std::map<ParamId, double> eta_hat_map;
+        for (std::size_t i = 0; i < eta_order.size(); ++i) {
+            eta_hat_map[eta_order[i]] = fr.eta_hat[i];
+        }
+
+        for (const auto& [pid, val] : p_hat_map) {
+            std::cout << "p_hat[" << pid << "] = " << val << std::endl;
+        }
+        for (const auto& [pid, val] : eta_hat_map) {
+            std::cout << "eta_hat[" << pid << "] = " << val << std::endl;
+        }
+
+        FitResultWithMaps out;
+        out.p_hat   = std::move(p_hat_map);
+        out.eta_hat = std::move(eta_hat_map);
+        out.ell_hat = fr.ell_hat;
+
+        this->cache.mle_result = out;
+
         return out;
     }
 

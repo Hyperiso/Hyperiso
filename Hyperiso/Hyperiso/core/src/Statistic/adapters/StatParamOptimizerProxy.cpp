@@ -1,6 +1,6 @@
 #include "StatParamOptimizerProxy.h"
 
-StatParamOptimizerProxy::StatParamOptimizerProxy() : poa({ParameterType::SM, ParameterType::FLAVOR}) { //TODO : add the good parameterType
+StatParamOptimizerProxy::StatParamOptimizerProxy() : poa({ParameterType::SM, ParameterType::FLAVOR, ParameterType::DECAY}) { //TODO : add the good parameterType
     
 }
 

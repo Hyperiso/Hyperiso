@@ -159,11 +159,11 @@ int main() {
     SPDMatrix SO = SPDMatrix::cholesky(SigmaO);
     SPDMatrix SE = SPDMatrix::cholesky(SigmaEtaReal);
     LikelihoodContext ctx{Oexp, SO, eta_mean_real, SE};
-    MLEstimator est(ctx, [&model](const Vec& p, const Vec& eta){ return model->predict(p, eta); });
+    MLEstimator est(ctx, [&model](const Vec& p, const Vec& eta){ return model->predict(p, eta); }, 100);
 
     std::cout << "Now doing MLE : " << std::endl;
     Vec p0{-4.5, 0.0}; Vec eta0 = eta_mean_real;
-    auto fr = est.fit(p0, eta0, 100);
+    auto fr = est.fit(p0, eta0);
 
     std::cout << "MLE fit done: " << std::endl;
 

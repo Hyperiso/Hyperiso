@@ -39,7 +39,8 @@ public:
         for (std::size_t s=0; s<cfg_.draws; ++s) {
             std::cout << "s : " << s << std::endl;
             std::map<ParamId, double> eta = sampler_.sample(mu_, Sigma_, rng);
-            std::map<ObservableId, double> value = model_->predict(p, eta);
+            // std::map<ObservableId, double> value = model_->predict(p, eta);
+            std::map<ObservableId, double> value = model_->predict_optimized(p, eta);
             for (auto val : value) {
                 std::cout << val.first.str() << " : " << val.second << std::endl;
             }
