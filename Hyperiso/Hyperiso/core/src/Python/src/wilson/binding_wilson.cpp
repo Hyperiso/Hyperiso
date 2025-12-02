@@ -5,8 +5,8 @@
 #include "WilsonManager.h"
 #include "MartyWilson.h"
 #include "WilsonInterface.h"
-#include "Wilson_SUSY.h"
-#include "Wilson_THDM.h"
+#include "BWilsonSUSY.h"
+#include "BWilsonTHDM.h"
 namespace py = pybind11;
 
 // Initialisation des groupes de coefficients

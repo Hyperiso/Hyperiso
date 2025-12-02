@@ -176,7 +176,6 @@ const std::map<WGroup, std::string>& group_mapping() {
         {CC_su, "KuChargedCurrentCoefficients"},
         {CC_du, "PIuChargedCurrentCoefficients"},
         {MESON_MIXING, "MesonMixing"},
-        {CUSTOM_GROUP, "Custom_Group"},
         {K, "K"},
     };
     return m;
