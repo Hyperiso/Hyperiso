@@ -13,7 +13,6 @@
 #include "CoefficientGroupBuilder.h"
 #include "WilsonCoefficientRegistry.h"
 
-// ====== Dummies / Spies ======
 class DummyBoolAPI    : public ICoreAPI<bool>      { public: bool get() override { return false; } };
 class DummyStringAPI  : public ICoreAPI<std::string>{ public: std::string get() override { return "SM"; } };
 class DummyPathAPI    : public ICoreAPI<fs::path>  { public: fs::path get() override { return fs::path("/dev/null"); } };
@@ -51,14 +50,11 @@ public:
     void remove_all_composed_blocks() override {}
 };
 
-// ====== Registry : makers pour B (SM builtin + Marty si besoin) ======
 extern void register_B(CoefficientRegistry& reg);
 
-// -------- helpers “mini-manager” (hadronic only) --------
 
-// dé-sérialise un LhaID wilson -> (WCoef, (QCDOrder, ContributionType))
 static std::pair<WCoef, std::pair<QCDOrder, ContributionType>> lha_wilson_deserialize(LhaID id) {
-    auto parts = id.get_parts(); // [w1, w2, order, contrib]
+    auto parts = id.get_parts();
     auto w_id = std::make_pair<int, int>(parts[0], parts[1]);
     if (!WCoefMapper::inverse_flha_mapping().contains(w_id)) {
         LOG_ERROR("ValueError", "bad lha id for wilson conversion");
@@ -69,7 +65,6 @@ static std::pair<WCoef, std::pair<QCDOrder, ContributionType>> lha_wilson_deseri
     return {coef, {order, part}};
 }
 
-// merge des sources LO..ord pour un basis donné
 static void fill_sources_for_group(std::shared_ptr<CoefficientGroup> grp,
                                    QCDOrder ord,
                                    std::unordered_map<ParameterType, std::vector<std::string>>& src,
@@ -86,7 +81,6 @@ static void fill_sources_for_group(std::shared_ptr<CoefficientGroup> grp,
     if (ord >= QCDOrder::NNLO)merge(QCDOrder::NNLO);
 }
 
-// composition du bloc hadronic pour un basis (copie light du Manager)
 static void init_group_hadronic_no_manager(std::shared_ptr<CoefficientGroup> grp,
                                            WilsonGroupAdapterConfig& adapters,
                                            QCDOrder ord,
@@ -95,7 +89,6 @@ static void init_group_hadronic_no_manager(std::shared_ptr<CoefficientGroup> grp
     std::unordered_map<ParameterType, std::vector<std::string>> src;
     fill_sources_for_group(grp, ord, src, basis);
 
-    // fonctions LO/NLO/NNLO (si absentes, la map contiendra des std::function vides -> à gérer)
     std::map<QCDOrder, std::function<std::unordered_map<WCoefId, scalar_t>(
         const std::unordered_map<QCDOrder, std::unordered_map<WCoefId, scalar_t>>&,
         const BlockSrc&
@@ -112,7 +105,6 @@ static void init_group_hadronic_no_manager(std::shared_ptr<CoefficientGroup> grp
         (const BlockSrc& src,
          std::shared_ptr<DependentBlock> dep_block)
     {
-        // 1) lire tous les matching coefs déposés dans le bloc MATCHING
         std::map<LhaID, std::shared_ptr<Parameter>> matching_coeff = src.raw().at(matching_block_name)->getItems();
         std::unordered_map<ContributionType, std::unordered_map<QCDOrder, std::unordered_map<WCoefId, scalar_t>>> matching_map;
 
@@ -124,12 +116,11 @@ static void init_group_hadronic_no_manager(std::shared_ptr<CoefficientGroup> grp
             matching_map[contrib][order][WCoefMapper::to_id(wcoef)] = kv.second->get_val();
         }
 
-        // 2) exécuter les fonctions LO..ord pour SM/BSM/TOTAL
         std::unordered_map<ContributionType, std::unordered_map<QCDOrder,std::unordered_map<WCoefId, scalar_t>>> res;
         auto call_if = [&](QCDOrder o) {
             auto f = funcs.at(o);
             if (!f) return std::unordered_map<WCoefId, scalar_t>{};
-            return f(matching_map[ContributionType::SM], BlockSrc(src)); // on calcule par contrib juste après
+            return f(matching_map[ContributionType::SM], BlockSrc(src));
         };
 
         for (auto contri : {ContributionType::SM, ContributionType::BSM, ContributionType::TOTAL}) {
@@ -147,7 +138,6 @@ static void init_group_hadronic_no_manager(std::shared_ptr<CoefficientGroup> grp
             }
         }
 
-        // 3) write dans le bloc hadronic
         for (auto& [c_type, order_map] : res) {
             for (auto& [order, coef_map] : order_map) {
                 for (auto& [coef_id, coef_val] : coef_map) {
@@ -169,20 +159,17 @@ static void init_group_hadronic_no_manager(std::shared_ptr<CoefficientGroup> grp
 int main() {
     std::cout << "== INTEGRATION (no manager) ==\n";
 
-    // --- Adapters ---
     auto proxy   = std::make_shared<SpyProxy>();
     auto comp    = std::make_shared<SpyComposer>();
-    auto use_mty = std::make_shared<DummyBoolAPI>(); // false ⇒ Backend::Builtin
+    auto use_mty = std::make_shared<DummyBoolAPI>();
     auto mname   = std::make_shared<DummyStringAPI>();
     auto mpath   = std::make_shared<DummyPathAPI>();
     WilsonGroupAdapterConfig adapters(proxy, comp, use_mty, mname, mpath);
 
-    // --- Registry + Builder ---
     CoefficientRegistry reg;
-    register_B(reg); // enregistre C1..C10 pour SM Builtin (+ Marty SM si tu l’as mis)
+    register_B(reg);
     CoefficientGroupBuilder builder(reg);
 
-    // --- Construit le groupe B via GroupDefinitions + Registry (SANS init) ---
     BuildContext ctx{
         .adapters = adapters,
         .model    = Model::SM,
@@ -193,11 +180,9 @@ int main() {
     auto grp = builder.build(ctx);
     assert(grp->size() == 10);
 
-    // --- Matching seulement (comme avant, sans manager)
     grp->init(QCDOrder::LO);
 
-    // vérif dépendance C7@LO sur WPARAM_MATCH_SM
-    const auto match_blk = GroupMapper::str(WGroup::B, ScaleType::MATCHING); // même nom qu’avant
+    const auto match_blk = GroupMapper::str(WGroup::B, ScaleType::MATCHING);
     auto c7 = grp->at("C7");
     auto c7_lo = c7->get_lhaid(QCDOrder::LO);
 
@@ -210,10 +195,8 @@ int main() {
     }
     assert(saw_c7_lo_dep);
 
-    // --- “mini-manager” pour hadronic (sinon, pas de bloc hadronic composé)
     init_group_hadronic_no_manager(grp, adapters, QCDOrder::LO, WilsonBasis::B_STANDARD);
 
-    // --- Lecture run
     proxy->ret = 9.0;
     auto vr = grp->get_running_coefficient("C10", "LO", ContributionType::SM, WilsonBasis::B_STANDARD);
     assert(std::abs(vr.real() - 9.0) < 1e-12);
@@ -222,6 +205,6 @@ int main() {
     assert(proxy->last_block == had_blk);
     assert(proxy->last_id == grp->at("C10")->id(QCDOrder::LO, ContributionType::SM));
 
-    std::cout << "✅ INTEGRATION OK (no manager)\n";
+    std::cout << " INTEGRATION OK (no manager)\n";
     return 0;
 }

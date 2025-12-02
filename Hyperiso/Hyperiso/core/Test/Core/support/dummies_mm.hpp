@@ -136,6 +136,16 @@ struct DummyBA : public IDataLoader<BlockAccessor> {
         few->store(1, std::make_shared<Parameter>(ParamId("EW_SCALE", 1), 81., 0.0, 0.0));
         few->set_scale(80.0);
 
+        auto fb = std::make_shared<Block>();
+        fb->blockname = "B_SCALE";
+        fb->store(1, std::make_shared<Parameter>(ParamId("EW_SCALE", 1), 4.18, 0.0, 0.0));
+        fb->set_scale(80.0);
+
+        auto fd = std::make_shared<Block>();
+        fd->blockname = "D_SCALE";
+        fd->store(1, std::make_shared<Parameter>(ParamId("EW_SCALE", 1), 0.5, 0.0, 0.0));
+        fd->set_scale(80.0);
+
         dest->emplace("MASS",  mass);
         dest->emplace("GAUGE", gauge);
         dest->emplace("SMINPUTS", sminputs);
@@ -144,6 +154,8 @@ struct DummyBA : public IDataLoader<BlockAccessor> {
         dest->emplace("FOBS",  fobs);
         dest->emplace("FWCOEF",fw);
         dest->emplace("EW_SCALE",few);
+        dest->emplace("B_SCALE",fb);
+        dest->emplace("D_SCALE",fd);
     }
 };
 
