@@ -17,7 +17,7 @@ class Model(Enum):
     SM = _CppModel.SM
     SUSY = _CppModel.SUSY
     THDM = _CppModel.THDM
-    CUSTOM = _CppModel.CUSTOM
+    MARTY = _CppModel.MARTY
 
 
 class ParameterType(Enum):
@@ -61,11 +61,81 @@ class WCoeff(Enum):
     CP10 = _CppWCoef.CP10
     CPQ1 = _CppWCoef.CPQ1
     CPQ2 = _CppWCoef.CPQ2
-    C_V1 = _CppWCoef.C_V1
-    C_V2 = _CppWCoef.C_V2
-    C_S1 = _CppWCoef.C_S1
-    C_S2 = _CppWCoef.C_S2
-    C_T = _CppWCoef.C_T
+    C_V1_bc = _CppWCoef.C_V1_bc
+    C_V2_bc = _CppWCoef.C_V2_bc
+    C_S1_bc = _CppWCoef.C_S1_bc
+    C_S2_bc = _CppWCoef.C_S2_bc
+    C_T_bc = _CppWCoef.C_T_bc
+    C_V1_bu = _CppWCoef.C_V1_bu
+    C_V2_bu = _CppWCoef.C_V2_bu
+    C_S1_bu = _CppWCoef.C_S1_bu
+    C_S2_bu = _CppWCoef.C_S2_bu
+    C_T_bu = _CppWCoef.C_T_bu
+    C_V1_cs = _CppWCoef.C_V1_cs
+    C_V2_cs = _CppWCoef.C_V2_cs
+    C_S1_cs = _CppWCoef.C_S1_cs
+    C_S2_cs = _CppWCoef.C_S2_cs
+    C_T_cs = _CppWCoef.C_T_cs
+    C_V1_cd = _CppWCoef.C_V1_cd
+    C_V2_cd = _CppWCoef.C_V2_cd
+    C_S1_cd = _CppWCoef.C_S1_cd
+    C_S2_cd = _CppWCoef.C_S2_cd
+    C_T_cd = _CppWCoef.C_T_cd
+    C_V1_su = _CppWCoef.C_V1_su
+    C_V2_su = _CppWCoef.C_V2_su
+    C_S1_su = _CppWCoef.C_S1_su
+    C_S2_su = _CppWCoef.C_S2_su
+    C_T_su = _CppWCoef.C_T_su
+    C_V1_du = _CppWCoef.C_V1_du
+    C_V2_du = _CppWCoef.C_V2_du
+    C_S1_du = _CppWCoef.C_S1_du
+    C_S2_du = _CppWCoef.C_S2_du
+    C_T_du = _CppWCoef.C_T_du
+    C_BD_1 = _CppWCoef.C_BD_1
+    CT_BD_1 = _CppWCoef.CT_BD_1
+    C_BD_2 = _CppWCoef.C_BD_2
+    CT_BD_2 = _CppWCoef.CT_BD_2
+    C_BD_3 = _CppWCoef.C_BD_3
+    CT_BD_3 = _CppWCoef.CT_BD_3
+    C_BD_4 = _CppWCoef.C_BD_4
+    C_BD_5 = _CppWCoef.C_BD_5
+    
+    C_BS_1 = _CppWCoef.C_BS_1
+    CT_BS_1 = _CppWCoef.CT_BS_1
+    C_BS_2 = _CppWCoef.C_BS_2
+    CT_BS_2 = _CppWCoef.CT_BS_2
+    C_BS_3 = _CppWCoef.C_BS_3
+    CT_BS_3 = _CppWCoef.CT_BS_3
+    C_BS_4 = _CppWCoef.C_BS_4
+    C_BS_5 = _CppWCoef.C_BS_5
+    
+    C_SD_1 = _CppWCoef.C_SD_1
+    CT_SD_1 = _CppWCoef.CT_SD_1
+    C_SD_2 = _CppWCoef.C_SD_2
+    CT_SD_2 = _CppWCoef.CT_SD_2
+    C_SD_3 = _CppWCoef.C_SD_3
+    CT_SD_3 = _CppWCoef.CT_SD_3
+    C_SD_4 = _CppWCoef.C_SD_4
+    C_SD_5 = _CppWCoef.C_SD_5
+    
+    C_CU_1 = _CppWCoef.C_CU_1
+    CT_CU_1 = _CppWCoef.CT_CU_1
+    C_CU_2 = _CppWCoef.C_CU_2
+    CT_CU_2 = _CppWCoef.CT_CU_2
+    C_CU_3 = _CppWCoef.C_CU_3
+    CT_CU_3 = _CppWCoef.CT_CU_3
+    C_CU_4 = _CppWCoef.C_CU_4
+    C_CU_5 = _CppWCoef.C_CU_5
+    
+    CK9 = _CppWCoef.CK9
+    CPK9 = _CppWCoef.CPK9
+    CK10 = _CppWCoef.CK10
+    CPK10 = _CppWCoef.CPK10
+    CKQ1 = _CppWCoef.CKQ1
+    CKQ2 = _CppWCoef.CKQ2
+    CPKQ1 = _CppWCoef.CPKQ1
+    CPKQ2 = _CppWCoef.CPKQ2
+    CK_L = _CppWCoef.CK_L
 
 
 class WGroup(Enum):

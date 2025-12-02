@@ -1,6 +1,7 @@
 from pyhyperiso.phyperiso.pyhyperiso.core import HyperisoMaster as _CppHyperisoMaster
 from pyhyperiso.core.Common.GeneralEnum import Model
 from pyhyperiso.core.Core.Config import PyConfig, ExternalFlag
+import os
 
 class PyHyperisoMaster:
     """High-level Python wrapper for the C++ HyperisoMaster class.
@@ -21,6 +22,10 @@ class PyHyperisoMaster:
             config (PyConfig, optional): Config object with Hyperiso input flags. If not provided,
                 a default config will be used.
         """
+        print("hein ?")
+        if not os.path.isabs(lha_file):
+            lha_file = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "..", "Assets", lha_file))
+            print(lha_file)
         if config is not None:
             self._cpp_obj.init(lha_file, config.to_cpp())
             self.config = config
@@ -100,6 +105,5 @@ if __name__ == "__main__":
 
     print("✅ Current model:", hyp.model.name)
     print("✅ Flag IS_LHA_SPECTRUM:", hyp.check_flag(ExternalFlag.IS_LHA_SPECTRUM))
-    print("✅ Flag USE_MARTY:", hyp.check_flag(ExternalFlag.USE_MARTY))
 
     hyp.switch_lha("lha/testinput_thdm.lha",config)

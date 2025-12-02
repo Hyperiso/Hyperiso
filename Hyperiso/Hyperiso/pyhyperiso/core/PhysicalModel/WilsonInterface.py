@@ -156,17 +156,17 @@ if __name__ == "__main__":
     coefs_primes = {WCoeff.CP1, WCoeff.CP2, WCoeff.CP3, WCoeff.CP4, WCoeff.CP5, WCoeff.CP6, WCoeff.CP7, WCoeff.CP8, WCoeff.CP9, WCoeff.CP10, WCoeff.CPQ1, WCoeff.CPQ2}
     coefs_scalar = {WCoeff.CQ1, WCoeff.CQ2}
     for coef in coefs:
-        print(coef.name, " : ", interface.get_sep_order_matching(WGroup.B, coef, ContributionType.BSM))
+        print(coef.name, " : ", interface.get_sep_order_matching(WGroup.B, coef, ContributionType.TOTAL))
     
     print("\n\n\n")
 
     for coef in coefs_primes:
-        print(coef.name, " : ", interface.get_sep_order_matching(WGroup.BPrime, coef, ContributionType.BSM))
+        print(coef.name, " : ", interface.get_sep_order_matching(WGroup.BPrime, coef, ContributionType.TOTAL))
 
     print("\n\n\n")
 
     for coef in coefs_scalar:
-        print(coef.name, " : ", interface.get_sep_order_matching(WGroup.BScalar, coef, ContributionType.BSM))
+        print(coef.name, " : ", interface.get_sep_order_matching(WGroup.BScalar, coef, ContributionType.TOTAL))
 
     
     # print(interface.get_sep_order_matching(WGroup.B, WCoeff.C7, ContributionType.BSM))

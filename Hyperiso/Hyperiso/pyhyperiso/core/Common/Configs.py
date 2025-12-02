@@ -6,7 +6,7 @@ from pyhyperiso.phyperiso.pyhyperiso.common import (
     AlphasConfig as _CppAlphasConfig,
     MassConfig as _CppMassConfig,
 )
-
+from pyhyperiso.core.Common.Mapper import GroupMapper
 from pyhyperiso.core.Common.GeneralEnum import (
     QCDOrder, WGroup, WCoeff, ContributionType, ScaleType, MassType, WilsonBasis
 )
@@ -23,7 +23,7 @@ class PyWilsonBuildConfig:
     def to_cpp(self) -> _CppWilsonBuildConfig:
         """Converts the Python wrapper to a native C++ WilsonBuildConfig object."""
         cpp = _CppWilsonBuildConfig()
-        cpp.groups = {g.value for g in self.groups}
+        cpp.groups = {GroupMapper().id_of(g) for g in self.groups}
         cpp.matching_scale = self.matching_scale
         cpp.hadronic_scale = self.hadronic_scale
         cpp.order = self.order.value

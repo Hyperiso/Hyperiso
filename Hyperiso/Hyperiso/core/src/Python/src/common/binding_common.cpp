@@ -483,6 +483,12 @@ void init_common(py::module &m) {
     //     .def_static("get_str", &GroupMapper::get_str)
     //     .def_static("get_enum", &GroupMapper::get_enum);
 
+    py::class_<WGroupId>(m, "WGroupId")
+        .def(py::init<>())
+        // pour que str(id) marche en Python
+        .def("__str__", &WGroupId::str)
+        .def("str", &WGroupId::str);
+
     py::class_<GroupMapper, std::shared_ptr<GroupMapper>>(m, "GroupMapper")
         // str(enum) et str(enum, scale, basis)
         .def_static("str", py::overload_cast<WGroup>(&GroupMapper::str), py::arg("group"))

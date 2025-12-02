@@ -71,7 +71,7 @@ skip = "pp* *-musllinux*"
 [tool.cibuildwheel.linux]
 archs = ["x86_64"]          # tu pourras ajouter "aarch64" plus tard
 before-all = "yum install -y eigen3-devel"
-manylinux-x86_64-image = "manylinux_2_28"
+#manylinux-x86_64-image = "manylinux_2_28"
 
 [tool.cibuildwheel.macos]
 skip = "*"
