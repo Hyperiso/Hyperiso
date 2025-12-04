@@ -1,5 +1,5 @@
-#ifndef __HYPERISO_UTILS_H__
-#define __HYPERISO_UTILS_H__
+#ifndef HYPERISO_UTILS_H
+#define HYPERISO_UTILS_H
 
 #include <algorithm>
 #include <complex>
@@ -137,4 +137,4 @@ T lerp(U x, const std::array<T, cache_size>& lookup, double a=0.0, double b=1.0)
 }
 
 
-#endif // __HYPERISO_UTILS_H__
+#endif // HYPERISO_UTILS_H

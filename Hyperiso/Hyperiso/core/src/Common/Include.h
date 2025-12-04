@@ -1,5 +1,5 @@
-#ifndef __INCLUDE_H__
-#define __INCLUDE_H__
+#ifndef INCLUDE_H
+#define INCLUDE_H
 
 #include <memory>
 #include <string>
@@ -14,4 +14,4 @@
 #include "registry_init.hpp"
 #include "DependenciesHelper.h"
 
-#endif // __INCLUDE_H__
+#endif // INCLUDE_H

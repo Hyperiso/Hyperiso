@@ -1,8 +1,8 @@
-#ifndef __ABSTRACTCONFIG_H__
-#define __ABSTRACTCONFIG_H__
+#ifndef ABSTRACTCONFIG_H
+#define ABSTRACTCONFIG_H
 
 struct AbstractConfig {
     virtual ~AbstractConfig() = default;
 };
 
-#endif // __ABSTRACTCONFIG_H__
+#endif // ABSTRACTCONFIG_H

@@ -14,10 +14,6 @@ add_library(CommonLib STATIC
     Mapper/observable_ids.cpp)
 
 set_target_properties(CommonLib PROPERTIES POSITION_INDEPENDENT_CODE ON)
-# set_target_properties(CommonLib PROPERTIES PUBLIC_HEADER "Logger.h;General.h;Utils.h")
-
-# target_include_directories(CommonLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-# target_include_directories(CommonLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/Mapper)
 
 
 target_include_directories(CommonLib
@@ -32,14 +28,6 @@ target_include_directories(CommonLib
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/Mapper
 )
-
-
-
-
-
-add_executable(aaaah aaaah.cpp)
-
-target_link_libraries(aaaah CommonLib)
 
 install(TARGETS CommonLib
   EXPORT HyperisoTargets

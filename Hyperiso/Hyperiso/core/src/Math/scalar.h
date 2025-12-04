@@ -1,5 +1,5 @@
-#ifndef __SCALAR_H__
-#define __SCALAR_H__
+#ifndef SCALAR_H
+#define SCALAR_H
 
 #include <cmath>
 #include "Utils.h"
@@ -10,7 +10,6 @@ std::enable_if_t<not std::numeric_limits<T>::is_integer, bool> fpeq(T, T, std::s
 
 class scalar_t : public complex_t {
 public:
-    // scalar_t(double re = 0.0, double im = 0.0);
     constexpr scalar_t(double re = 0.0, double im = 0.0) : complex_t(re, im) {};
     scalar_t(complex_t z);
     
@@ -154,4 +153,4 @@ using std::imag;
 
 #include "scalar.tpp"
 
-#endif // __SCALAR_H__
+#endif // SCALAR_H

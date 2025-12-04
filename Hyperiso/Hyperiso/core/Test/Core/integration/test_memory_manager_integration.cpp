@@ -66,6 +66,8 @@ int main() {
     assert(slice2->contains("MASS"));
     assert(slice2->contains("GAUGE"));
     double v2 = firstVal(slice2, "GAUGE");
+    std::cout << "v1 "<< v1 << std::endl;
+    std::cout << "v2 " << v2 << std::endl; 
     assert(v1 != v2);
 
     {
