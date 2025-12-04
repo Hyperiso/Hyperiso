@@ -165,6 +165,122 @@ class Observables(Enum):
     P_TAU_B__DSTAR_TAU_NU = _CppObservables.P_TAU_B__DSTAR_TAU_NU
     P_D_B__DSTAR_TAU_NU = _CppObservables.P_D_B__DSTAR_TAU_NU
     R_DSTAR = _CppObservables.R_DSTAR
+
+    BR_B__KSTAR_GAMMA = _CppObservables.BR_B__KSTAR_GAMMA
+
+    BR_B__Xs_mu_mu__LOW_Q2 = _CppObservables.BR_B__Xs_mu_mu__LOW_Q2
+    BR_B__Xs_mu_mu__HIGH_Q2 = _CppObservables.BR_B__Xs_mu_mu__HIGH_Q2
+    BR_B__Xs_tau_tau__HIGH_Q2 = _CppObservables.BR_B__Xs_tau_tau__HIGH_Q2
+
+    DGAMMA_DQ2_B__KSTAR_L_L = _CppObservables.DGAMMA_DQ2_B__KSTAR_L_L
+    DGAMMA_BAR_DQ2_B__KSTAR_L_L = _CppObservables.DGAMMA_BAR_DQ2_B__KSTAR_L_L
+    A_FB_B__KSTAR_L_L = _CppObservables.A_FB_B__KSTAR_L_L
+    Q0_A_FB_B__KSTAR_L_L = _CppObservables.Q0_A_FB_B__KSTAR_L_L
+    A_CP_B__KSTAR_L_L = _CppObservables.A_CP_B__KSTAR_L_L
+    F_L_B__KSTAR_L_L = _CppObservables.F_L_B__KSTAR_L_L
+    F_T_B__KSTAR_L_L = _CppObservables.F_T_B__KSTAR_L_L
+    A_T_1_B__KSTAR_L_L = _CppObservables.A_T_1_B__KSTAR_L_L
+    A_T_2_B__KSTAR_L_L = _CppObservables.A_T_2_B__KSTAR_L_L
+    A_T_3_B__KSTAR_L_L = _CppObservables.A_T_3_B__KSTAR_L_L
+    A_T_4_B__KSTAR_L_L = _CppObservables.A_T_4_B__KSTAR_L_L
+    A_T_5_B__KSTAR_L_L = _CppObservables.A_T_5_B__KSTAR_L_L
+    A_T_RE_B__KSTAR_L_L = _CppObservables.A_T_RE_B__KSTAR_L_L
+    A_T_RE_CPV_B__KSTAR_L_L = _CppObservables.A_T_RE_CPV_B__KSTAR_L_L
+    A_IM_B__KSTAR_L_L = _CppObservables.A_IM_B__KSTAR_L_L
+    ALPHA_K_B__KSTAR_L_L = _CppObservables.ALPHA_K_B__KSTAR_L_L
+    H_T_1_B__KSTAR_L_L = _CppObservables.H_T_1_B__KSTAR_L_L
+    H_T_2_B__KSTAR_L_L = _CppObservables.H_T_2_B__KSTAR_L_L
+    H_T_3_B__KSTAR_L_L = _CppObservables.H_T_3_B__KSTAR_L_L
+    P_2_B__KSTAR_L_L = _CppObservables.P_2_B__KSTAR_L_L
+    P_3_B__KSTAR_L_L = _CppObservables.P_3_B__KSTAR_L_L
+    P_6_B__KSTAR_L_L = _CppObservables.P_6_B__KSTAR_L_L
+    P_8_B__KSTAR_L_L = _CppObservables.P_8_B__KSTAR_L_L
+    P_PRIME_4_B__KSTAR_L_L = _CppObservables.P_PRIME_4_B__KSTAR_L_L
+    P_PRIME_5_B__KSTAR_L_L = _CppObservables.P_PRIME_5_B__KSTAR_L_L
+    P_PRIME_6_B__KSTAR_L_L = _CppObservables.P_PRIME_6_B__KSTAR_L_L
+    P_PRIME_8_B__KSTAR_L_L = _CppObservables.P_PRIME_8_B__KSTAR_L_L
+    S_3_B__KSTAR_L_L = _CppObservables.S_3_B__KSTAR_L_L
+    S_4_B__KSTAR_L_L = _CppObservables.S_4_B__KSTAR_L_L
+    S_5_B__KSTAR_L_L = _CppObservables.S_5_B__KSTAR_L_L
+    S_6C_B__KSTAR_L_L = _CppObservables.S_6C_B__KSTAR_L_L
+    S_7_B__KSTAR_L_L = _CppObservables.S_7_B__KSTAR_L_L
+    S_8_B__KSTAR_L_L = _CppObservables.S_8_B__KSTAR_L_L
+    S_9_B__KSTAR_L_L = _CppObservables.S_9_B__KSTAR_L_L
+    A_3_B__KSTAR_L_L = _CppObservables.A_3_B__KSTAR_L_L
+    A_4_B__KSTAR_L_L = _CppObservables.A_4_B__KSTAR_L_L
+    A_5_B__KSTAR_L_L = _CppObservables.A_5_B__KSTAR_L_L
+    A_6S_B__KSTAR_L_L = _CppObservables.A_6S_B__KSTAR_L_L
+    A_7_B__KSTAR_L_L = _CppObservables.A_7_B__KSTAR_L_L
+    A_8_B__KSTAR_L_L = _CppObservables.A_8_B__KSTAR_L_L
+    A_9_B__KSTAR_L_L = _CppObservables.A_9_B__KSTAR_L_L
+    P_1_CPV_B__KSTAR_L_L = _CppObservables.P_1_CPV_B__KSTAR_L_L
+    P_2_CPV_B__KSTAR_L_L = _CppObservables.P_2_CPV_B__KSTAR_L_L
+    P_3_CPV_B__KSTAR_L_L = _CppObservables.P_3_CPV_B__KSTAR_L_L
+    P_PRIME_4_CPV_B__KSTAR_L_L = _CppObservables.P_PRIME_4_CPV_B__KSTAR_L_L
+    P_PRIME_5_CPV_B__KSTAR_L_L = _CppObservables.P_PRIME_5_CPV_B__KSTAR_L_L
+    P_PRIME_6_CPV_B__KSTAR_L_L = _CppObservables.P_PRIME_6_CPV_B__KSTAR_L_L
+    P_PRIME_8_CPV_B__KSTAR_L_L = _CppObservables.P_PRIME_8_CPV_B__KSTAR_L_L
+
+    DGAMMA_DQ2_BS__PHI_L_L = _CppObservables.DGAMMA_DQ2_BS__PHI_L_L
+    DGAMMA_BAR_DQ2_BS__PHI_L_L = _CppObservables.DGAMMA_BAR_DQ2_BS__PHI_L_L
+    A_FB_CPV_BS__PHI_L_L = _CppObservables.A_FB_CPV_BS__PHI_L_L
+    F_L_BS_PHI_L_L = _CppObservables.F_L_BS_PHI_L_L
+    A_T_2_BS_PHI_L_L = _CppObservables.A_T_2_BS_PHI_L_L
+    A_T_RE_CPV_BS_PHI_L_L = _CppObservables.A_T_RE_CPV_BS_PHI_L_L
+    A_T_IM_CPV_BS_PHI_L_L = _CppObservables.A_T_IM_CPV_BS_PHI_L_L
+    P_PRIME_4_BS_PHI_L_L = _CppObservables.P_PRIME_4_BS_PHI_L_L
+    P_PRIME_6_BS_PHI_L_L = _CppObservables.P_PRIME_6_BS_PHI_L_L
+    S_2S_BS_PHI_L_L = _CppObservables.S_2S_BS_PHI_L_L
+    S_3_BS_PHI_L_L = _CppObservables.S_3_BS_PHI_L_L
+    S_4_BS_PHI_L_L = _CppObservables.S_4_BS_PHI_L_L
+    S_7_BS_PHI_L_L = _CppObservables.S_7_BS_PHI_L_L
+    A_5_BS_PHI_L_L = _CppObservables.A_5_BS_PHI_L_L
+    A_6C_BS_PHI_L_L = _CppObservables.A_6C_BS_PHI_L_L
+    A_8_BS_PHI_L_L = _CppObservables.A_8_BS_PHI_L_L
+    A_9_BS_PHI_L_L = _CppObservables.A_9_BS_PHI_L_L
+    P_2_CPV_BS_PHI_L_L = _CppObservables.P_2_CPV_BS_PHI_L_L
+    P_3_CPV_BS_PHI_L_L = _CppObservables.P_3_CPV_BS_PHI_L_L
+    P_PRIME_5_CPV_BS_PHI_L_L = _CppObservables.P_PRIME_5_CPV_BS_PHI_L_L
+    P_PRIME_8_CPV_BS_PHI_L_L = _CppObservables.P_PRIME_8_CPV_BS_PHI_L_L
+    Q_8M_BS_PHI_L_L = _CppObservables.Q_8M_BS_PHI_L_L
+    Q_8P_BS_PHI_L_L = _CppObservables.Q_8P_BS_PHI_L_L
+    Q_9_BS_PHI_L_L = _CppObservables.Q_9_BS_PHI_L_L
+
+    DGAMMA_DQ2_B__K_L_L = _CppObservables.DGAMMA_DQ2_B__K_L_L
+    A_FB_B__K_L_L = _CppObservables.A_FB_B__K_L_L
+    F_H_B__K_L_L = _CppObservables.F_H_B__K_L_L
+
+    DGAMMA_DQ2_CP_AVG_LAMBDA_B__LAMBDA_L_L = _CppObservables.DGAMMA_DQ2_CP_AVG_LAMBDA_B__LAMBDA_L_L
+    A_FB_L_LAMBDA_B__LAMBDA_L_L = _CppObservables.A_FB_L_LAMBDA_B__LAMBDA_L_L
+    A_FB_H_LAMBDA_B__LAMBDA_L_L = _CppObservables.A_FB_H_LAMBDA_B__LAMBDA_L_L
+    A_FB_LH_LAMBDA_B__LAMBDA_L_L = _CppObservables.A_FB_LH_LAMBDA_B__LAMBDA_L_L
+    F_L_LAMBDA_B__LAMBDA_L_L = _CppObservables.F_L_LAMBDA_B__LAMBDA_L_L
+    F_T_LAMBDA_B__LAMBDA_L_L = _CppObservables.F_T_LAMBDA_B__LAMBDA_L_L
+
+    PHI_D = _CppObservables.PHI_D
+    DELTA_M_BD = _CppObservables.DELTA_M_BD
+
+    PHI_S = _CppObservables.PHI_S
+    DELTA_M_BS = _CppObservables.DELTA_M_BS
+    A_FS = _CppObservables.A_FS
+
+    DELTA_M_K = _CppObservables.DELTA_M_K
+    ABS_EPSILON_K = _CppObservables.ABS_EPSILON_K
+
+    X_D = _CppObservables.X_D
+
+    BR_KL__MU_MU = _CppObservables.BR_KL__MU_MU
+    BR_KS__MU_MU = _CppObservables.BR_KS__MU_MU
+
+    BR_K__MU_NU__BR_PI__MU_NU = _CppObservables.BR_K__MU_NU__BR_PI__MU_NU
+    R_MU23 = _CppObservables.R_MU23
+
+    BR_K__PI_NU_NU = _CppObservables.BR_K__PI_NU_NU
+    BR_KL__PI0_NU_NU = _CppObservables.BR_KL__PI0_NU_NU
+
+    BR_D__MU_NU = _CppObservables.BR_D__MU_NU
+    BR_DS__MU_NU = _CppObservables.BR_DS__MU_NU
+    BR_DS__TAU_NU = _CppObservables.BR_DS__TAU_NU
     
 class Decays(Enum):
     B__D_l_nu = _CppDecays.B__D_l_nu

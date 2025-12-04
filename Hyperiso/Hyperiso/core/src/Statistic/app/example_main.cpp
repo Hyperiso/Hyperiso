@@ -10,6 +10,7 @@
 // #include "MonteCarloPredictor.h"
 #include "Fit.h"
 
+#include "StatisticInterface.h"
 
 int main() {
 // // Experimental inputs (vector + covariance)
@@ -89,6 +90,24 @@ int main() {
 // }
 // std::cout << "95% CI for C10 (Cp10=0 profiled): [" << left << ", " << right << "]\n";
 
+    HyperisoMaster hyp = HyperisoMaster();
+    Config confighyp;
+    confighyp.model = Model::SM;
 
-return 0;
+    hyp.init("lha/si_input.flha", confighyp);
+    StatisticConfig config;
+
+    config.obss = {
+        {ObservableMapper::to_id(Observables::BR_BS_MUMU), QCDOrder::LO},
+        {ObservableMapper::to_id(Observables::BR_BS_MUMU_UNTAG), QCDOrder::LO},
+        {ObservableMapper::to_id(Observables::BR_BD_MUMU), QCDOrder::LO}
+    };
+    StatisticInterface inter = StatisticInterface(config);
+
+    std::map<ObservableId, double> res = inter.compute_uncertainties();
+
+    for (auto elem : res) {
+        std::cout << elem.first.str() << " : " << elem.second << std::endl;
+    }
+    return 0;
 }

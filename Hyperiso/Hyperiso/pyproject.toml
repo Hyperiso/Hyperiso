@@ -52,11 +52,11 @@ build.verbose = true
 source-dir = "core/src/Python"
 
 # Type de build par défaut
-build-type = "Release"
+build-type = "Debug"
 
 # Options CMake (via des "dotted keys")
 define.CMAKE_INTERPROCEDURAL_OPTIMIZATION = "OFF"
-define.CMAKE_CXX_FLAGS_RELEASE = "-O2"
+define.CMAKE_CXX_FLAGS_RELEASE = "-O0"
 
 # ----------------------------
 # cibuildwheel : wheels Linux multi-Python

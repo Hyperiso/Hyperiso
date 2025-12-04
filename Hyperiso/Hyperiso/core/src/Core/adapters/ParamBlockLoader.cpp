@@ -42,6 +42,15 @@
 //     LOG_INFO("Parameter blocks loaded");
 // }
 
+static double value_to_double(const Node::Value& v, double fallback = 0.0)
+{
+    if (std::holds_alternative<double>(v))
+        return std::get<double>(v);
+    if (std::holds_alternative<int>(v))
+        return static_cast<double>(std::get<int>(v));
+    return fallback;
+}
+
 void ParamBlockLoader::load(std::shared_ptr<BlockAccessor> dest, fs::path src_file) {
     LOG_DEBUG("Loading parameter blocks from", src_file.string());
     auto np  = NodeProviderFactory::createNodeProvider(src_file);
@@ -123,16 +132,9 @@ void ParamBlockLoader::load(std::shared_ptr<BlockAccessor> dest, fs::path src_fi
 
                 auto bin_low = node->get("bin_low");
                 auto bin_high = node->get("bin_high");
-                double d_bin_low, d_bin_high;
-                if (std::holds_alternative<double>(bin_low))
-                    d_bin_low = std::get<double>(bin_low);
-                else if (std::holds_alternative<int>(bin_low))
-                    d_bin_low = std::get<int>(bin_low);
 
-                if (std::holds_alternative<double>(bin_high))
-                    d_bin_high = std::get<double>(bin_high);
-                else if (std::holds_alternative<int>(bin_high))
-                    d_bin_high = std::get<int>(bin_high);
+                double d_bin_low  = value_to_double(bin_low);
+                double d_bin_high = value_to_double(bin_high);
 
                 block->retrieve(LhaID(vk.first))->set_bin(std::pair(d_bin_low, d_bin_high));
             }

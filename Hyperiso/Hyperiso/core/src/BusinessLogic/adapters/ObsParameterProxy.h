@@ -5,7 +5,7 @@
 #include "ParameterProvider.h"
 #include "Include.h"
 
-class ObsParameterProxy : public IObsParameterProxy<std::string, LhaID> {
+class ObsParameterProxy : public IObsParameterProxy<ObsParameterProxy, LhaID> {
 public:
     ObsParameterProxy(ParameterType type = ParameterType::SM);
 

@@ -387,6 +387,11 @@ void init_common(py::module &m) {
     // BIND_ENUM_MAPPER(ScaleTypeMapper, ScaleType)
     // BIND_ENUM_MAPPER(DecayMapper, Decays)
 
+    py::class_<ObservableId>(m, "ObservableId")
+        .def(py::init<>())
+        .def("__str__", &ObservableId::str)
+        .def("str", &ObservableId::str);
+
     py::class_<ObservableMapper, std::shared_ptr<ObservableMapper>>(m, "ObservableMapper")
         .def_static("str",
             py::overload_cast<Observables>(&ObservableMapper::str),

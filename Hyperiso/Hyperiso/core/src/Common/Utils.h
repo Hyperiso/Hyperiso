@@ -24,9 +24,18 @@ inline bool ends_with(const std::string& str, const std::string& suffix) {
 
 inline std::vector<std::string> split(const std::string& s, char delimiter) {
     std::vector<std::string> parts;
-    for (auto &&part : std::views::split(s, delimiter)) {
-        parts.emplace_back(std::string_view{&*part.begin(), static_cast<size_t>(std::ranges::distance(part))});
+    std::string::size_type start = 0;
+
+    while (true) {
+        auto pos = s.find(delimiter, start);
+        if (pos == std::string::npos) {
+            parts.emplace_back(s.substr(start));
+            break;
+        }
+        parts.emplace_back(s.substr(start, pos - start));
+        start = pos + 1;
     }
+
     return parts;
 }
 

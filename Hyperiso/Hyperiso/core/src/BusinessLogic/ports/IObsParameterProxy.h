@@ -3,6 +3,7 @@
 
 #include "Math.h"
 #include "ParameterProvider.h"
+#include <concepts>
 
 template<typename T, typename V>
 class IObsParameterProxy {

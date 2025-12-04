@@ -515,6 +515,7 @@ public:
 
             } else {
                 std::cout << paramId << " does not have real uncertainty" << std::endl;
+                std::cout << pspp->get_param(paramId)->get_combined_std().real() << std::endl;
             }
         }
         return eta_specs_real_leaf;
