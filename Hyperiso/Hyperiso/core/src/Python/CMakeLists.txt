@@ -38,10 +38,10 @@ if (NOT TARGET BusinessLogicLib)
     add_subdirectory(../BusinessLogic BusinessLogicLib)
 endif()
 
-# ❌ À VIRER : on laisse scikit-build-core gérer l’output
-# set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ...)
+if (NOT TARGET StatisticLib)
+    add_subdirectory(../Statistic StatisticLib)
+endif()
 
-# Tu peux garder add_library(MODULE), ou utiliser pybind11_add_module si tu préfères
 add_library(pyhyperiso MODULE
     src/pyhyperiso.cpp
     src/common/binding_common.cpp
@@ -49,6 +49,7 @@ add_library(pyhyperiso MODULE
     src/core/binding_core.cpp
     src/wilson/binding_wilson.cpp
     src/observable/binding_observable.cpp
+    src/statistic/binding_statistic.cpp
 )
 
 target_link_libraries(pyhyperiso PRIVATE
@@ -56,6 +57,7 @@ target_link_libraries(pyhyperiso PRIVATE
     CoreLib
     PhysicalModelLib
     BusinessLogicLib
+    StatisticLib
 )
 
 set_target_properties(pyhyperiso PROPERTIES
