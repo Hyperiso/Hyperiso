@@ -112,7 +112,7 @@ int main() {
 
     auto merged = (lhs >> rhs);
     assert(merged->contains("GAUGE") && merged->contains("X"));
-    assert(std::abs(merged->getValue("GAUGE", k3) - 1.0) < 1e-12); 
+    assert(std::abs(merged->getValue("GAUGE", k3) - 123.0) < 1e-12); 
     assert(std::abs(merged->getValue("X", LhaID(7)) - 7.0) < 1e-12);
 
     auto sub = ba[ std::unordered_set<BlockName>{"GAUGE"} ];

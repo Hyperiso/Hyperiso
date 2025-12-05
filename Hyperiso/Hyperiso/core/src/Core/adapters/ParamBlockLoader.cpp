@@ -61,13 +61,12 @@ void ParamBlockLoader::load(std::shared_ptr<BlockAccessor> dest, fs::path src_fi
         block->blockname = bk;
         LOG_DEBUG("Loading block", bk);
 
-        auto group = src->getGroup({bk});  // map<BlockName, Node::Value>
+        auto group = src->getGroup({bk});  
 
         for (auto &vk : group) {
             const auto& key = vk.first;
             const auto& val = vk.second;
 
-            // 1) gérer la scale du bloc si présente ici
             if (key == "scale") {
                 if (!block->has_scale()) {
                     if (std::holds_alternative<double>(val)) {
@@ -78,10 +77,9 @@ void ParamBlockLoader::load(std::shared_ptr<BlockAccessor> dest, fs::path src_fi
                         LOG_WARN("ParamBlockLoader", "Non-numeric block scale under ", bk);
                     }
                 }
-                continue; // très important: ne pas traiter "scale" comme une entrée
+                continue; 
             }
 
-            // 2) les vraies entrées doivent être des noeuds
             if (!std::holds_alternative<std::shared_ptr<Node>>(val)) {
                 LOG_WARN("ParamBlockLoader", "Unexpected non-node entry under ", bk, " key ", key, " — skipping");
                 continue;
@@ -94,10 +92,9 @@ void ParamBlockLoader::load(std::shared_ptr<BlockAccessor> dest, fs::path src_fi
                 continue;
             }
 
-            // 4) extraire la valeur centrale et erreurs
             auto value = node->get("central_value");
             if (std::holds_alternative<BlockName>(value)) {
-                continue; // ignore les labels éventuels
+                continue;
             }
 
             double val_central = std::get<double>(value);

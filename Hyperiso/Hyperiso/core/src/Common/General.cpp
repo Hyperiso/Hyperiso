@@ -19,8 +19,13 @@ std::ostream &operator<<(std::ostream &os, const LhaID &id) {
 }
 
 LhaID::LhaID(const std::string &str_id) {
-    for (const auto &num : split(str_id, '_')) {
-        parts.emplace_back(std::stol(num));
+    std::cout << "herhe : " << str_id << " : " << str_id.size() << std::endl;
+    if (str_id.size() == 0) {
+        parts = {};
+    } else {
+        for (const auto &num : split(str_id, '_')) {
+            parts.emplace_back(std::stol(num));
+        }
     }
 }
 

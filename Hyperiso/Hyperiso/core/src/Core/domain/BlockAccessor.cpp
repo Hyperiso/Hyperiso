@@ -197,6 +197,60 @@ bool BlockAccessor::has_scale(const BlockName& block_name) const {
 //     return res;
 // }
 
+// std::shared_ptr<BlockAccessor> operator>>(
+//     std::shared_ptr<BlockAccessor> lhs,
+//     std::shared_ptr<BlockAccessor> rhs
+// ) {
+//     auto res = std::make_shared<BlockAccessor>();
+
+//     for (const auto& b : rhs->get_block_names()) {
+//         res->emplace(b, std::make_shared<Block>(rhs->at(b)));
+//     }
+
+//     for (const auto& b : lhs->get_block_names()) {
+//         auto lhsBlock = lhs->at(b);
+
+//         if (!res->contains(b)) {
+//             res->emplace(b, std::make_shared<Block>(*lhsBlock));
+//             continue;
+//         }
+
+//         auto rhsBlock = rhs->at(b);
+//         auto resBlock = res->at(b);
+
+//         const auto rhsIds = rhsBlock->getAllIDs();
+
+//         for (const auto& id : lhsBlock->getAllIDs()) {
+//             auto pLhs = lhs->getParameter(b, id);
+
+//             bool inRhs = std::find(rhsIds.begin(), rhsIds.end(), id) != rhsIds.end();
+
+//             if (!inRhs) {
+//                 res->setParameter(b, id, pLhs);
+//                 continue;
+//             }
+
+//             auto pRhs = rhs->getParameter(b, id);
+
+//             auto [statR, systR] = pRhs->get_std();
+//             bool rhsHasNoUncert = (statR == 0 && systR == 0);
+
+//             if (!rhsHasNoUncert) {
+//                 continue;
+//             }
+
+//             auto [statL, systL] = pLhs->get_std();
+
+//             auto merged = std::make_shared<Parameter>(*pRhs);
+//             merged->set_std(statL, systL);
+
+//             res->setParameter(b, id, merged);
+//         }
+//     }
+
+//     return res;
+// }
+
 std::shared_ptr<BlockAccessor> operator>>(
     std::shared_ptr<BlockAccessor> lhs,
     std::shared_ptr<BlockAccessor> rhs
@@ -232,17 +286,18 @@ std::shared_ptr<BlockAccessor> operator>>(
 
             auto pRhs = rhs->getParameter(b, id);
 
-            auto [statR, systR] = pRhs->get_std();
-            bool rhsHasNoUncert = (statR == 0 && systR == 0);
+            auto [statL, systL] = pLhs->get_std();
+            bool lhsHasNoUncert = (statL == 0 && systL == 0);
 
-            if (!rhsHasNoUncert) {
+            if (!lhsHasNoUncert) {
+                res->setParameter(b, id, pLhs);
                 continue;
             }
 
-            auto [statL, systL] = pLhs->get_std();
+            auto [statR, systR] = pRhs->get_std();
 
-            auto merged = std::make_shared<Parameter>(*pRhs);
-            merged->set_std(statL, systL);
+            auto merged = std::make_shared<Parameter>(*pLhs);
+            merged->set_std(statR, systR); 
 
             res->setParameter(b, id, merged);
         }

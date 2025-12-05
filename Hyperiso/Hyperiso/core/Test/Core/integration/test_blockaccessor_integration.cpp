@@ -94,7 +94,7 @@ int main(){
 
     auto prio = (acc >> acc3);
     assert(prio->contains("SRC1"));
-    assert(std::abs(prio->getValue("SRC1", k) - 1.0) < 1e-12);
+    assert(std::abs(prio->getValue("SRC1", k) - 10.0) < 1e-12);
 
     prio->remove_item("SRC1", k);
     assert(!prio->has_param("SRC1", k));

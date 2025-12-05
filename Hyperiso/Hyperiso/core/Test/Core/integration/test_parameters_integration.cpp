@@ -50,7 +50,7 @@ int main() {
   auto sm2 = Parameters::GetInstance(ParameterType::SM);
 
   double v2 = (*sm2)("GAUGE", LhaID(1)).real();
-
+  std::cout << v1 << " " << v2 << std::endl;
   assert(v1 != v2);
 
   auto blist = sm2->get_blocks_list();

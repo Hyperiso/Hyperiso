@@ -127,6 +127,7 @@ LhaID LhaElement<T>::encodeId(const Prototype& prototype, const std::vector<std:
         if (s.find_first_of(".eEdD") != std::string::npos) continue;
 
         try {
+            std::cout << "truc: " <<  s << std::endl;
             sub_ids.emplace_back(std::stol(s));
         } catch (...) {
            LOG_WARN("Non-integer ID token in ", prototype.blockName, ": '", s, "'");
