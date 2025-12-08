@@ -13,7 +13,7 @@
 #include <stdexcept>
 #include <algorithm>
 
-#include "General.h"
+#include "BlockName.h"
 
 /**
  * @brief A hierarchical data structure with JSON and YAML serialization capabilities.

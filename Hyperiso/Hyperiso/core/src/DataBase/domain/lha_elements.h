@@ -11,7 +11,7 @@
 #include <limits>
 
 #include "Logger.h"
-#include "General.h"
+#include "LhaID.h"
 #include "LhaBlockPrototype.h"
 #include "DBNode.h"
 

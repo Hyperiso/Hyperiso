@@ -5,7 +5,7 @@
 #include <optional>
 #include <filesystem>
 
-#include "General.h"
+#include "Include.h"
 
 enum class ExternalFlag { IS_LHA_SPECTRUM, HAS_WILSON_INPUT, HAS_TH_OBSERVABLE_INPUT};
 

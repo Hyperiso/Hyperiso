@@ -6,7 +6,7 @@
 
 #include "Block.h"
 #include "Parameter.h"
-#include "General.h"
+#include "Include.h"
 #include "SourcesView.hpp"
 
 struct CountingParameter : Parameter {

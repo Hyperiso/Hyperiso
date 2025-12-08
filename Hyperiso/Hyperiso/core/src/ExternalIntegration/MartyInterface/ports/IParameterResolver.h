@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 #include "Extractor.h"
-#include "General.h"
+#include "LhaID.h"
 
 struct ResolvedParam {
     std::string block;

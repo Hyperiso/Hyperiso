@@ -2,7 +2,6 @@
 #define BLNUDECAY_H
 
 #include "DecayParent.h"
-#include "General.h"
 #include "DefaultConfig.h"
 #include "PlnuCalculator.h"
 

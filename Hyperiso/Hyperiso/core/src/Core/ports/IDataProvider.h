@@ -5,7 +5,6 @@
 #include <string>
 #include <concepts>
 #include <type_traits>
-#include "General.h"
 #include "scalar.h"
 #include <utility>
 

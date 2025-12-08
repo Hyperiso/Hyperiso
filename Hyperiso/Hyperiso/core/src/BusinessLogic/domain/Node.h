@@ -10,7 +10,7 @@
 #include <chrono>
 
 #include "ObsParameterProxy.h"
-#include "General.h"
+#include "ParamID.h"
 #include "Math.h"
 
 using std::chrono::high_resolution_clock;

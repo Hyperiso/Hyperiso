@@ -3,9 +3,8 @@
 #include <pybind11/complex.h>
 #include <optional>
 #include <filesystem>
-#include "General.h"
-// #include "MemoryManager.h"
-// #include "Parameters.h"
+#include "Include.h"
+
 #include "HyperisoMaster.h"
 #include "Config.h"
 #include "ParameterSetter.h"

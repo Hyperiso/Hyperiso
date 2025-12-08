@@ -1,5 +1,4 @@
-// test_lhaid_integration.cpp
-#include "General.h"
+#include "Include.h"
 #include <cassert>
 #include <iostream>
 #include <vector>
@@ -19,7 +18,6 @@ static std::string join(const std::vector<LhaID>& v) {
 int main() {
     std::cout << "== Running INTEGRATION tests for LhaID ==\n";
 
-    // 1) Tri lexicographique
     {
         std::vector<LhaID> ids = {
             LhaID(2),
@@ -29,9 +27,7 @@ int main() {
             LhaID(1,2,3)
         };
         std::sort(ids.begin(), ids.end());
-        // Ordre attendu : 1_1_1 < 1_2 < 1_2_3 < 1_3 < 2
         auto seq = join(ids);
-        // Vérification souple (contient dans cet ordre)
         auto pos = seq.find("1_1_1");
         assert(pos != std::string::npos);
         pos = seq.find("1_2", pos);
@@ -44,12 +40,11 @@ int main() {
         assert(pos != std::string::npos);
     }
 
-    // 2) unordered_map & map
     {
         std::unordered_map<LhaID, const char*> U;
         U[LhaID(1,2)] = "A";
         U[LhaID(1,3)] = "B";
-        U[LhaID(1,2)] = "A2"; // écrase
+        U[LhaID(1,2)] = "A2"; 
         assert(std::string(U[LhaID(1,2)]) == "A2");
         assert(std::string(U[LhaID(1,3)]) == "B");
 
@@ -57,13 +52,12 @@ int main() {
         M[LhaID(1,2)] = 12;
         M[LhaID(1,3)] = 13;
         M[LhaID(2)]   = 2;
-        // ordre : 1_2, 1_3, 2
         auto it = M.begin();
         assert(it->first == LhaID(1,2)); ++it;
         assert(it->first == LhaID(1,3)); ++it;
         assert(it->first == LhaID(2));
     }
 
-    std::cout << "\n✅ LhaID integration tests passed!\n";
+    std::cout << "\n LhaID integration tests passed!\n";
     return 0;
 }

@@ -8,7 +8,7 @@
 #include "BlockAccessor.h"
 #include "Block.h"
 #include "Parameter.h"
-#include "General.h"
+#include "Include.h"
 
 static std::shared_ptr<Block> make_block(const BlockName& name,
                                          const std::vector<std::pair<long,double>>& vals) {

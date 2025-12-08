@@ -3,11 +3,11 @@
 #include <iostream>
 #include <vector>
 
-#include "General.h"          // LhaID
+#include "LhaID.h"          // LhaID
 #include "GeneralEnum.h"      // enums (WCoef, Observables, Decays, etc.)
 #include "registry_init.hpp"  // init_all_builtins()
 #include "mapper_hub.hpp"     // unified access helpers
-#include "decay_graph.hpp"    // DecayGraph::instance()
+#include "decay_graph.h"    // DecayGraph::instance()
 
 int main() {
     std::cout << "== Dynamic registry demo ==\n";

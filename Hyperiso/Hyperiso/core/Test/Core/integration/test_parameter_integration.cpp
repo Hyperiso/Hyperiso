@@ -6,7 +6,7 @@
 
 #include "Parameter.h"
 #include "DependentParameter.h"
-#include "General.h"
+#include "Include.h"
 #include "SourcesView.hpp"
 
 static std::shared_ptr<Parameter> make_param(double v, const char* block, int code) {

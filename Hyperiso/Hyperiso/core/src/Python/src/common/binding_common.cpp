@@ -5,7 +5,7 @@
 #include "GeneralEnum.h"
 #include "EnumMapper.h"
 #include "Map.h"
-#include "General.h"
+#include "Include.h"
 #include "Configs.h"
 
 using DH = DependenciesHelper;

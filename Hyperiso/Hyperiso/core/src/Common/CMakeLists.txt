@@ -10,8 +10,14 @@ add_library(CommonLib STATIC
     General.cpp
     Observer.cpp
     DependenciesHelper.cpp
+    BlockName.cpp
+    LhaID.cpp
+    ParamID.cpp
+    LhaParamsHelper.cpp
+    Utils.cpp
     Mapper/Map.cpp
-    Mapper/observable_ids.cpp)
+    Mapper/observable_ids.cpp
+    Mapper/decay_graph.cpp)
 
 set_target_properties(CommonLib PROPERTIES POSITION_INDEPENDENT_CODE ON)
 

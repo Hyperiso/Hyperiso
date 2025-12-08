@@ -3,7 +3,7 @@
 
 #include <string>
 #include <unordered_set>
-#include "General.h"
+#include "BlockName.h"
 
 /**
  * @struct Prototype

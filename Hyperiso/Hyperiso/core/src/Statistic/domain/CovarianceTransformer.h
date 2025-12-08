@@ -2,7 +2,7 @@
 #define COVARIANCE_TRANSFORMER_H
 
 #include "IStatParameterProxy.h"
-#include "General.h"
+#include "ParamID.h"
 #include "CorrelationProvider.h" //For enum
 #include "IStatCorrelationProxy.h"
 #include "StatParameterProxy.h"

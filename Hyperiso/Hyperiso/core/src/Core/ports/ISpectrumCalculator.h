@@ -3,7 +3,7 @@
 
 #include <filesystem>
 
-#include "General.h"
+#include "Include.h"
 
 /**
  * @example spectrum_calculator_example.cpp

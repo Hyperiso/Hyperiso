@@ -7,6 +7,10 @@
 #include <vector>
 #include "Logger.h"
 #include "General.h"
+#include "LhaID.h"
+#include "BlockName.h"
+#include "ParamID.h"
+#include "LhaParamsHelper.h"
 #include "AbstractConfig.h"
 #include "EnumMapper.h"
 #include "GeneralEnum.h"

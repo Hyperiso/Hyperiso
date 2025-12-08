@@ -4,7 +4,7 @@
 #include <memory>
 #include <map>
 
-#include "General.h"
+#include "ParamID.h"
 #include "Observable.h"
 #include "ModelEvaluator.h"
 #include "Decays.h"

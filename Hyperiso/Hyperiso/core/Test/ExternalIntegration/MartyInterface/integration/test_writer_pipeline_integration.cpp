@@ -19,7 +19,7 @@
 #include "IParameterResolver.h"
 #include "ICoreAPI.h"
 #include "Extractor.h"
-#include "General.h"
+#include "Include.h"
 
 namespace fs = std::filesystem;
 

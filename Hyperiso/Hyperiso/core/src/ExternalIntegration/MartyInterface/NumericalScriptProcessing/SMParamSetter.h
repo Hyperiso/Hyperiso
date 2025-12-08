@@ -2,7 +2,7 @@
 #define SMPARAMSETTER_H
 
 #include "config.hpp"
-#include "General.h"
+#include "LhaID.h"
 #include "Interpreter.h"
 #include <cmath>
 #include <set>

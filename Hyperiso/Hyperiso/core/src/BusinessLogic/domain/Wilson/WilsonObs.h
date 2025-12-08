@@ -2,7 +2,7 @@
 #define WILSONDECAY_H
 
 #include "DecayParent.h"
-#include "General.h"
+#include "Include.h"
 
 /**
  * @brief "Decay parent" to compute uncertainty on Wilson Coefficients. 
