@@ -191,6 +191,10 @@ void ObsManager::select_decay(ObservableId id) {
     }
 }
 
+void ObsManager::set_decay_config(Decays dec, std::any config) {
+    this->decays.at(DecayMapper::to_id(dec))->set_config(config);
+}
+
 ObservableId ObsManager::ensure_present(Observables id, bool critical) {
     ObservableId obs_id = ObservableMapper::to_id(id);
     return ensure_present(obs_id);

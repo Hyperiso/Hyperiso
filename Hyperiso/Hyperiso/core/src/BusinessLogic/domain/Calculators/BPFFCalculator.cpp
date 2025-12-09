@@ -56,7 +56,7 @@ void BPFFCalculator::load_FF_params(BP_FF_Src src) {
     this->L_chi = 1.0;
 
     if (src == BP_FF_Src::AS) {
-        this->alpha_ai[BP_FF::F_0][3] = (2 * this->alpha_ai[BP_FF::F_0][2] - this->alpha_ai[BP_FF::F_0][1]) / 3;
+        this->alpha_ai[BP_FF::F_PLUS][3] = (2 * this->alpha_ai[BP_FF::F_PLUS][2] - this->alpha_ai[BP_FF::F_PLUS][1]) / 3;
         this->alpha_ai[BP_FF::F_T][3] = (2 * this->alpha_ai[BP_FF::F_T][2] - this->alpha_ai[BP_FF::F_T][1]) / 3;
         this->m_R[BP_FF::F_PLUS] += m_B;
         this->m_R[BP_FF::F_T] += m_B;
@@ -90,12 +90,12 @@ double BPFFCalculator::F_a(BP_FF a, double q2) {
     double P = pole(q2, this->m_R.at(a));
     double Z = std::real(z(q2, this->t_p, this->t_0)) - this->z_0;
 
-    printf("P = %.4e\n", P);
-    printf("Z = %.4e\n", Z);
+    // printf("P = %.4e\n", P);
+    // printf("Z = %.4e\n", Z);
 
     double res {0.0};
     for (int k = 0; k < 4; k++) {
-        printf("alpha_%i = %.4e\n", k, ai[k]);
+        // printf("alpha_%i = %.4e\n", k, ai[k]);
         res += ai[k] * std::pow(Z, k);
     }
 

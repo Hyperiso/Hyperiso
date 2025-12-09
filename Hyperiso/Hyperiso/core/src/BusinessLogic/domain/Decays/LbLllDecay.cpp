@@ -11,9 +11,21 @@ void LbLllDecay::load_params() {
     cache.m_Lb = p(ParamId{ParameterType::FLAVOR, "FMASS", 5122});
     cache.m_L = p(ParamId{ParameterType::FLAVOR, "FMASS", 3122});
     cache.alpha_L = p(ParamId{ParameterType::DECAY, "Lb_L", 8});
-    cache.N_0 = std::conj(p(ParamId{ParameterType::SM, "VCKM", {2, 1}})) * p(ParamId{ParameterType::SM, "VCKM", {2, 2}}) * p(ParamId{ParameterType::SM, "SMINPUTS", 2}) / (p(ParamId{ParameterType::SM, "SMINPUTS", 1}) * std::sqrt(6144. * std::pow(PI, 5) * std::pow(cache.m_Lb, 3)));
+    cache.N_0 = std::conj(p(ParamId{ParameterType::SM, "VCKM", {2, 1}})) * p(ParamId{ParameterType::SM, "VCKM", {2, 2}}) * p(ParamId{ParameterType::SM, "SMINPUTS", 2}) * p(ParamId{ParameterType::SM, "EW", {1, 2}}) / (std::sqrt(6144. * std::pow(PI, 5) * std::pow(cache.m_Lb, 3)));
     cache.q2_min = 4 * std::pow(cache.m_l, 2);
     cache.q2_max = std::pow(cache.m_Lb - cache.m_L, 2);
+
+    printf("alpha_em = %.4e\n", p(ParamId{ParameterType::SM, "EW", {1, 2}}).real());
+    printf("N0 = %.4e + %.4e i\n", cache.N_0.real(), cache.N_0.imag());
+
+    printf("f_perp = %.4e\n", cache.ff_calculator.get(LbL_FF::F_PERP, 1.0));
+    printf("h_perp = %.4e\n", cache.ff_calculator.get(LbL_FF::H_PERP, 1.0));
+    printf("g_perp = %.4e\n", cache.ff_calculator.get(LbL_FF::G_PERP, 1.0));
+    printf("f_+ = %.4e\n", cache.ff_calculator.get(LbL_FF::F_PLUS, 1.0));
+    printf("h_+ = %.4e\n", cache.ff_calculator.get(LbL_FF::H_PLUS, 1.0));
+    printf("g_+ = %.4e\n", cache.ff_calculator.get(LbL_FF::G_PLUS, 1.0));
+    printf("h_tilde_perp = %.4e\n", cache.ff_calculator.get(LbL_FF::H_TILDE_PERP, 1.0));
+    printf("h_tilde_+ = %.4e\n", cache.ff_calculator.get(LbL_FF::H_TILDE_PLUS, 1.0));
 
     compute_binned_K_i();
 }
@@ -74,7 +86,7 @@ complex_t LbLllDecay::A_par_1(double q2, double sign, bool bar) {
     }
     complex_t HAplus = -cache.ff_calculator.get(LbL_FF::G_PERP, q2) * std::sqrt(2 * s_p(q2));
     complex_t HT5plus = -cache.ff_calculator.get(LbL_FF::H_TILDE_PERP, q2) * (cache.m_Lb - cache.m_L) * std::sqrt(2 * s_p(q2));
-    return -RT2 * N(q2, bar) * (C_A * HAplus - 2 * cache.m_b_mu_b / q2 * C_TA * HT5plus);
+    return -RT2 * N(q2, bar) * (C_A * HAplus + 2 * cache.m_b_mu_b / q2 * C_TA * HT5plus);
 }
 
 complex_t LbLllDecay::A_perp_0(double q2, double sign, bool bar) {
@@ -98,7 +110,7 @@ complex_t LbLllDecay::A_par_0(double q2, double sign, bool bar) {
     }
     complex_t HA0 = cache.ff_calculator.get(LbL_FF::G_PLUS, q2) * (cache.m_Lb - cache.m_L) * std::sqrt(s_p(q2) / q2);
     complex_t HT50 = cache.ff_calculator.get(LbL_FF::H_TILDE_PLUS, q2) * std::sqrt(q2 * s_p(q2));
-    return -RT2 * N(q2, bar) * (C_A * HA0 - 2 * cache.m_b_mu_b / q2 * C_TA * HT50);
+    return -RT2 * N(q2, bar) * (C_A * HA0 + 2 * cache.m_b_mu_b / q2 * C_TA * HT50);
 }
 
 double LbLllDecay::K1ss(double q2, bool bar) {

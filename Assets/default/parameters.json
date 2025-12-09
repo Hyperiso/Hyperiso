@@ -761,107 +761,107 @@
       "syst_error": 0
     },
     "1_1_0": {
-      "central_value": 0.369,
+      "central_value": 0.369196,
       "stat_error": 0.029,
       "syst_error": 0
     },
     "1_1_1": {
-      "central_value": -1.37,
+      "central_value": -1.36584,
       "stat_error": 0.26,
       "syst_error": 0
     },
     "1_1_2": {
-      "central_value": 0.1,
+      "central_value": 0.128191,
       "stat_error": 1.6,
       "syst_error": 0
     },
     "1_2_0": {
-      "central_value": 0.297,
+      "central_value": 0.29725,
       "stat_error": 0.026,
       "syst_error": 0
     },
     "1_2_1": {
-      "central_value": 0.39,
+      "central_value": 0.392378,
       "stat_error": 0.19,
       "syst_error": 0
     },
     "1_2_2": {
-      "central_value": 1.2,
+      "central_value": 1.18916,
       "stat_error": 1.0,
       "syst_error": 0
     },
     "1_3_0": {
-      "central_value": 0.265,
+      "central_value": 0.265375,
       "stat_error": 0.021,
       "syst_error": 0
     },
     "1_3_1": {
-      "central_value": 0.53,
+      "central_value": 0.533638,
       "stat_error": 0.13,
       "syst_error": 0
     },
     "1_3_2": {
-      "central_value": 0.48,
+      "central_value": 0.483166,
       "stat_error": 0.65,
       "syst_error": 0
     },
     "1_4_0": {
-      "central_value": 0.376,
+      "central_value": 0.376313,
       "stat_error": 0.033,
       "syst_error": 0
     },
     "1_4_1": {
-      "central_value": -1.17,
+      "central_value": -1.16597,
       "stat_error": 0.26,
       "syst_error": 0
     },
     "1_4_2": {
-      "central_value": 2.4,
+      "central_value": 2.42443,
       "stat_error": 1.5,
       "syst_error": 0
     },
     "1_5_0": {
-      "central_value": 0.312,
+      "central_value": 0.312055,
       "stat_error": 0.027,
       "syst_error": 0
     },
     "1_5_1": {
-      "central_value": -1.01,
+      "central_value": -1.00893,
       "stat_error": 0.19,
       "syst_error": 0
     },
     "1_5_2": {
-      "central_value": 1.5,
+      "central_value": 1.5272,
       "stat_error": 1.6,
       "syst_error": 0
     },
     "1_6_0": {
-      "central_value": 0.312,
+      "central_value": 0.312055,
       "stat_error": 0.027,
       "syst_error": 0
     },
     "1_6_1": {
-      "central_value": 0.50,
+      "central_value": 0.496846,
       "stat_error": 0.17,
       "syst_error": 0
     },
     "1_6_2": {
-      "central_value": 1.61,
+      "central_value": 1.61431,
       "stat_error": 0.80,
       "syst_error": 0
     },
     "1_7_0": {
-      "central_value": 0.667,
+      "central_value": 0.667412,
       "stat_error": 0.063,
       "syst_error": 0
     },
     "1_7_1": {
-      "central_value": 1.32,
+      "central_value": 1.31812,
       "stat_error": 0.22,
       "syst_error": 0
     },
     "1_7_2": {
-      "central_value": 3.8,
+      "central_value": 3.82334,
       "stat_error": 2.2,
       "syst_error": 0
     },
@@ -959,107 +959,107 @@
       "syst_error": 0
     },
     "1_1_0": {
-      "central_value": 0.42,
+      "central_value": 0.421328,
       "stat_error": 0.02,
       "syst_error": 0
     },
     "1_1_1": {
-      "central_value": -0.98,
+      "central_value": -0.976454,
       "stat_error": 0.24,
       "syst_error": 0
     },
     "1_1_2": {
-      "central_value": 3.27,
+      "central_value": 3.2714,
       "stat_error": 1.36,
       "syst_error": 0
     },
     "1_2_0": {
-      "central_value": 0.29,
+      "central_value": 0.28807,
       "stat_error": 0.01,
       "syst_error": 0
     },
     "1_2_1": {
-      "central_value": 0.35,
+      "central_value": 0.350826,
       "stat_error": 0.10,
       "syst_error": 0
     },
     "1_2_2": {
-      "central_value": 1.70,
+      "central_value": 1.69688,
       "stat_error": 0.79,
       "syst_error": 0
     },
     "1_3_0": {
-      "central_value": 0.27,
+      "central_value": 0.267053,
       "stat_error": 0.02,
       "syst_error": 0
     },
     "1_3_1": {
-      "central_value": 0.95,
+      "central_value": 0.954402,
       "stat_error": 0.13,
       "syst_error": 0
     },
     "1_3_2": {
-      "central_value": 2.15,
+      "central_value": 2.15263,
       "stat_error": 0.48,
       "syst_error": 0
     },
     "1_4_0": {
-      "central_value": 0.36,
+      "central_value": 0.364478,
       "stat_error": 0.01,
       "syst_error": 0
     },
     "1_4_1": {
-      "central_value": -1.22,
+      "central_value": -1.22389,
       "stat_error": 0.16,
       "syst_error": 0
     },
     "1_4_2": {
-      "central_value": 3.74,
+      "central_value": 3.74061,
       "stat_error": 1.73,
       "syst_error": 0
     },
     "1_5_0": {
-      "central_value": 0.30,
+      "central_value": 0.299475,
       "stat_error": 0.01,
       "syst_error": 0
     },
     "1_5_1": {
-      "central_value": -1.10,
+      "central_value": -1.1013,
       "stat_error": 0.08,
       "syst_error": 0
     },
     "1_5_2": {
-      "central_value": 0.58,
+      "central_value": 0.58459,
       "stat_error": 1.00,
       "syst_error": 0
     },
     "1_6_0": {
-      "central_value": 0.30,
+      "central_value": 0.299475,
       "stat_error": 0.01,
       "syst_error": 0
     },
     "1_6_1": {
-      "central_value": 0.40,
+      "central_value": 0.403564,
       "stat_error": 0.08,
       "syst_error": 0
     },
     "1_6_2": {
-      "central_value": 1.04,
+      "central_value": 1.03987,
       "stat_error": 0.61,
       "syst_error": 0
     },
     "1_7_0": {
-      "central_value": 0.65,
+      "central_value": 0.65233,
       "stat_error": 0.04,
       "syst_error": 0
     },
     "1_7_1": {
-      "central_value": 2.10,
+      "central_value": 2.09622,
       "stat_error": 0.33,
       "syst_error": 0
     },
     "1_7_2": {
-      "central_value": 6.74,
+      "central_value": 6.73572,
       "stat_error": 1.80,
       "syst_error": 0
     },
@@ -1255,122 +1255,122 @@
       "syst_error": 0
     },
     "1_1_0": {
-      "central_value": 0.5148,
+      "central_value": 0.514815,
       "stat_error": 0.0353,
       "syst_error": 0
     },
     "1_1_1": {
-      "central_value": -1.4781,
+      "central_value": -1.47811,
       "stat_error": 0.4030,
       "syst_error": 0
     },
     "1_1_2": {
-      "central_value": 1.2496,
+      "central_value": 1.24964,
       "stat_error": 1.6396,
       "syst_error": 0
     },
     "1_2_0": {
-      "central_value": 0.3745,
+      "central_value": 0.374496,
       "stat_error": 0.0313,
       "syst_error": 0
     },
     "1_2_1": {
-      "central_value": -0.9439,
+      "central_value": -0.943936,
       "stat_error": 0.2766,
       "syst_error": 0
     },
     "1_2_2": {
-      "central_value": 1.1606,
+      "central_value": 1.16058,
       "stat_error": 1.0757,
       "syst_error": 0
     },
     "1_3_0": {
-      "central_value": 0.3522,
+      "central_value": 0.352156,
       "stat_error": 0.0205,
       "syst_error": 0
     },
     "1_3_1": {
-      "central_value": -1.3607,
+      "central_value": -1.36073,
       "stat_error": 0.2949,
       "syst_error": 0
     },
     "1_3_2": {
-      "central_value": 2.4621,
+      "central_value": 2.46213,
       "stat_error": 1.3711,
       "syst_error": 0
     },
     "1_4_0": {
-      "central_value": 0.4229,
+      "central_value": 0.422899,
       "stat_error": 0.0274,
       "syst_error": 0
     },
     "1_4_1": {
-      "central_value": -1.3728,
+      "central_value": -1.37281,
       "stat_error": 0.3068,
       "syst_error": 0
     },
     "1_4_2": {
-      "central_value": 1.7972,
+      "central_value": 1.79720,
       "stat_error": 1.1506,
       "syst_error": 0
     },
     "1_5_0": {
-      "central_value": 0.4753,
+      "central_value": 0.475314,
       "stat_error": 0.0423,
       "syst_error": 0
     },
     "1_5_1": {
-      "central_value": -0.8840,
+      "central_value": -0.883985,
       "stat_error": 0.3997,
       "syst_error": 0
     },
     "1_5_2": {
-      "central_value": -0.8190,
+      "central_value": -0.819016,
       "stat_error": 1.6760,
       "syst_error": 0
     },
     "1_6_0": {
-      "central_value": 0.3522,
+      "central_value": 0.352156,
       "stat_error": 0.0205,
       "syst_error": 0
     },
     "1_6_1": {
-      "central_value": -1.2968,
+      "central_value": -1.29677,
       "stat_error": 0.2732,
       "syst_error": 0
     },
     "1_6_2": {
-      "central_value": 2.7106,
+      "central_value": 2.71059,
       "stat_error": 1.0665,
       "syst_error": 0
     },
     "1_7_0": {
-      "central_value": 0.3256,
+      "central_value": 0.325580,
       "stat_error": 0.0248,
       "syst_error": 0
     },
     "1_7_1": {
-      "central_value": -0.9634,
+      "central_value": -0.963386,
       "stat_error": 0.2268,
       "syst_error": 0
     },
     "1_7_2": {
-      "central_value": 2.4782,
+      "central_value": 2.47823,
       "stat_error": 0.9549,
       "syst_error": 0
     },
     "1_8_0": {
-      "central_value": 0.3256,
+      "central_value": 0.325580,
       "stat_error": 0.0248,
       "syst_error": 0
     },
     "1_8_1": {
-      "central_value": -0.9603,
+      "central_value": -0.960313,
       "stat_error": 0.2303,
       "syst_error": 0
     },
     "1_8_2": {
-      "central_value": 2.9780,
+      "central_value": 2.97798,
       "stat_error": 1.0041,
       "syst_error": 0
     },

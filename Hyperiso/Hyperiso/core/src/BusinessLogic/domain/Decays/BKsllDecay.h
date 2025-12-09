@@ -33,6 +33,7 @@ struct BKstarllCache {
     double G_F, alpha_em;
     double mu_b, L_b;
     double m_l, m_s, m_c_mu_b, m_b_PS, m_b_mu_b;
+    double Delta_M;
     double alpha_s_mu_b;
     double m_B, m_Ks;
     complex_t lambda_hat_u;
@@ -73,8 +74,8 @@ struct BKstarllCache {
     std::array<scalar_t, LOOKUP_SIZE> T_perp_m_bar_lookup;
     std::array<scalar_t, LOOKUP_SIZE> T_par_m_bar_lookup;
 
-    std::array<std::vector<double>, 14> J_i_binned;
-    std::array<std::vector<double>, 14> J_i_bar_binned; 
+    std::array<std::vector<double>, 15> J_i_binned;
+    std::array<std::vector<double>, 15> J_i_bar_binned; 
 };
 
 /**

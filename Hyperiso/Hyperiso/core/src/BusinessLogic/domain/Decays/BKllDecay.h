@@ -30,7 +30,7 @@ struct BKllCache {
 
     double G_F, alpha_em;
     double mu_b, L_b;
-    double m_l, m_s, m_c_mu_b, m_b_PS, m_b_mu_b;
+    double m_l, m_s, m_c_mu_b, m_b_PS, m_b_mu_b, m_b_m_b;
     double alpha_s_mu_b;
     double m_B, m_K;
     double Delta_M;

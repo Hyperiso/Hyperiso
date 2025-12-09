@@ -20,9 +20,9 @@ CP7::CP7() : WilsonCoefficient("CP7", GroupMapper::str(WGroup::BPrime, ScaleType
 }
 
 double CP7::compute_LO(const ParamSrc& src) {
-    double xt     = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1});;
-    double mb     = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {5, 1});;
-    double ms     = src.get_val(ParameterType::SM, "MASS", 3);;
+    double xt     = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1});
+    double mb     = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {5, 1});
+    double ms     = src.get_val(ParameterType::SM, "MASS", 3);
 
     // printf("ms in SM (LO) : %.8lf\n", ms);
     // printf("mb in SM (LO) : %.8lf\n", mb);
@@ -53,7 +53,7 @@ CP8::CP8() : WilsonCoefficient("CP8", GroupMapper::str(WGroup::BPrime, ScaleType
 double CP8::compute_LO(const ParamSrc& src) {
     double xt     = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1});;
     double mb     = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {5, 1});;
-    double ms     = src.get_val(ParameterType::SM, "MASS", 3);;
+    double ms     = src.get_val(ParameterType::SM, "MASS", 3);
     // printf("CP8 in SM (LO) : %.8lf\n", ms / mb * (-0.5 * F0t(xt) - 1. / 3.));
     return ms / mb * (-0.5 * F0t(xt) - 1. / 3.);
 }

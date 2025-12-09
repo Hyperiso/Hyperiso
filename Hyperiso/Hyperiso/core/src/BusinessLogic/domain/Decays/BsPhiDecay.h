@@ -34,6 +34,7 @@ struct BsPhiDecayCache {
     double m_Bs, m_phi;
     complex_t lambda_hat_u;
     double kappa;
+    double Delta_M;
     complex_t N_0;
     double q2_min, q2_max;
     double q2_low, q2_high;

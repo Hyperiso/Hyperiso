@@ -54,6 +54,8 @@ BLOCK FMASS
     521     5.27941     0       0   # B+
     511     5.27972     0       0   # B0
     531     5.36693     0       0   # B_s0
+    3122    1.115683    0       0   # Lambda
+    5122    5.6195      0       0   # Lambda_b
 
 Block FCONST # Decay constant in GeV
 # PDG_code  number  decay_constant  scheme  scale   particle

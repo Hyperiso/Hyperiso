@@ -430,6 +430,17 @@ double C9::compute_LO(const ParamSrc& src) {
     double xt   = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1});
     double sw2  = src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", 4);
 
+    // printf("L = %.5f\n", L);
+    // printf("x_t = %.5f\n", xt);
+    // printf("sw2 = %.5f\n", sw2);
+
+    // printf("C9_LO = %.5f\n", (1. - 4. * sw2) / sw2 * C0t(xt)
+    //      - B0t(xt) / sw2
+    //      - D0t(xt)
+    //      + 1. / (4. * sw2)
+    //      + 38. / 27.
+    //      - 4. / 9. * L);
+
     return (1. - 4. * sw2) / sw2 * C0t(xt)
          - B0t(xt) / sw2
          - D0t(xt)
@@ -446,6 +457,22 @@ double C9::compute_NLO(const ParamSrc& src) {
     double sw2  = src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", 4);
 
     double logqt = log(Q * Q / (mtop * mtop));
+
+    // printf("L = %.5f\n", L);
+    // printf("x_t = %.5f\n", xt);
+    // printf("mtop = %.5f\n", mtop);
+    // printf("Q = %.5f\n", Q);
+    // printf("sw2 = %.5f\n", sw2);
+    // printf("logqt = %.5f\n", logqt);
+
+    // printf("C9_NLO = %.5f\n", (1. - 4. * sw2) / sw2 * C1t(xt, logqt)
+    //      - B1t(xt, logqt) / sw2
+    //      - D1t(xt, logqt)
+    //      + 1. / sw2
+    //      + 524. / 729.
+    //      - 128. / 243. * PI2
+    //      - 16. / 3. * L
+    //      - 128. / 81. * L * L);
 
     return (1. - 4. * sw2) / sw2 * C1t(xt, logqt)
          - B1t(xt, logqt) / sw2

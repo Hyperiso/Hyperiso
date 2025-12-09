@@ -49,7 +49,7 @@ double QCDHelper::alpha_s(double mu, MassType mass_b_type, MassType mass_t_type)
     if (mu < (*Parameters::GetInstance())("MASS", 3)) {
         LOG_ERROR("Scale Error", "Renormalisation scale for alpha_s calculation (", mu, ") is below strange mass.");
     }
-    
+
     return alpha_s_explicit(mu, get_lambda(mu, mass_b_type, mass_t_type), get_nf(mu, mass_b_type, mass_t_type));
 }
 
@@ -69,18 +69,18 @@ double QCDHelper::msbar_mass(int pdg_code, double mu, MassType mass_b_type, Mass
         return quark_mass;
 
     while (n_i > n_f) {
-        quark_mass = runMass(quark_mass, Qinit, Q_bounds.at(n_i - 1), n_i);
+        quark_mass = runMass(quark_mass, Qinit, Q_bounds.at(n_i - 1), n_i, mass_b_type, mass_t_type);
         Qinit = Q_bounds.at(n_i - 1);
         --n_i;
     }
 
     while (n_i < n_f) {
-        quark_mass = runMass(quark_mass, Qinit, Q_bounds.at(n_i), n_i);
+        quark_mass = runMass(quark_mass, Qinit, Q_bounds.at(n_i), n_i, mass_b_type, mass_t_type);
         Qinit = Q_bounds.at(n_i);
         ++n_i;
     }
 
-    return runMass(quark_mass, Qinit, mu, n_f);
+    return runMass(quark_mass, Qinit, mu, n_f, mass_b_type, mass_t_type);
 }
 
 double QCDHelper::calc_mc_pole(double lambda_4) {
@@ -144,12 +144,14 @@ double QCDHelper::calc_mt_mt(double lambda6_mt_pole, double lambda_5) {
 
 int QCDHelper::get_nf(double Q, MassType mass_b_type, MassType mass_t_type) {
     auto masses = getOrderedMasses(mass_b_type, mass_t_type);
-    for (size_t i = 0; i < masses.size(); ++i) {
-        if (1 - Q / masses.at(i) > 1e-4) {
-            return i;
-        }
-    }
-    return 6;
+    // for (size_t i = 0; i < masses.size(); ++i) {
+        // if (1 - Q / masses.at(i) > 1e-4)
+        //     return i;
+    // }
+
+    int nf = 0;
+    while (Q >= masses.at(nf)) nf++;
+    return nf;
 }
 
 double QCDHelper::get_lambda(double mu, MassType mass_b_type, MassType mass_t_type) {
@@ -210,7 +212,7 @@ double QCDHelper::alpha_s_explicit(double mu, double lambda, int nf) {
     return 4 * PI * (1 - 2 * b1 * LL / (b02 * L) + 4 * b12 * (std::pow(LL - .5, 2) + b2 * b0 / 8 / b12 - 1.25) / std::pow(b02 * L, 2)) / (b0 * L);
 }
 
-double QCDHelper::runMass(double mass, double Q_i, double Q_f, int nf) {
+double QCDHelper::runMass(double mass, double Q_i, double Q_f, int nf, MassType m_b_type, MassType m_t_type) {
     return mass * R(alpha_s(Q_f, m_b_type, m_t_type), nf) 
                     / R(alpha_s(Q_i, m_b_type, m_t_type), nf);
 }

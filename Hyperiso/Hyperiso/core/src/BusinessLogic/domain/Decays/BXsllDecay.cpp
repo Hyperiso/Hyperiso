@@ -9,7 +9,7 @@ void BXsllDecay::load_params() {
     cache.q2_high_bound = {14.4, 22.};
 
     ObsParameterProxy p;
-    cache.alpha_em = 1. / p(ParamId{ParameterType::SM, "SMINPUTS", 1});
+    cache.alpha_em = p(ParamId{ParameterType::SM, "EW", {1, 1}});
     double m_c = p(ParamId{ParameterType::SM, "MASS", 4});
     cache.m_b_1S = p(ParamId{ParameterType::SM, "QCD", {5, 3}});
     complex_t V_tb = p(ParamId{ParameterType::SM, "VCKM", {2, 2}});
@@ -60,6 +60,63 @@ void BXsllDecay::load_params() {
     auto bound_func = std::bind(&BXsllDecay::delta_bremB_base, &*this, std::placeholders::_1);
     fill_cache(bound_func, cache.s_hat_low_bound.first, cache.s_hat_low_bound.second, cache.delta_brems_lookup_low);
     fill_cache(bound_func, cache.s_hat_high_bound.first, cache.s_hat_high_bound.second, cache.delta_brems_lookup_high);
+
+    // printf("alpha = %.5e\n", cache.alpha_em);
+    // printf("m_b_1S = %.5e\n", cache.m_b_1S);
+    // printf("z = %.5e\n", cache.z);
+    // printf("m_D = %.5e\n", cache.m_D_hat * cache.m_b_1S);
+
+    // double s = 0.8;
+    // double w = 0.5;
+    // printf("pref dB_ds = %.5e\n", cache.pref_dB_ds);
+    // printf("pref dB0_ds = %.5e\n", cache.pref_dB0_ds);
+    // printf("pref dB_mb2 = %.5e\n", cache.pref_dB_ds * cache.pref_delta_mb2 / p(ParamId{ParameterType::DECAY, "B_Xs", 2}).real());
+    // printf("pref dB_mb3 = %.5e\n", cache.pref_dB_ds * cache.pref_delta_mb3 / p(ParamId{ParameterType::DECAY, "B_Xs", 2}).real());
+    // printf("pref dB_mc2 = %.5e\n", cache.pref_dB_ds * cache.pref_delta_mc2 / p(ParamId{ParameterType::DECAY, "B_Xs", 2}).real());
+    // printf("pref dB_brems = %.5e\n", cache.pref_dB_ds * cache.pref_delta_brems);
+    // printf("pref dB_em = %.5e\n", cache.pref_dB_ds * cache.pref_delta_em / p(ParamId{ParameterType::DECAY, "B_Xs", 2}).real());
+
+    // printf("C7_new = %.4e + %.4e i\n", real(C7_new(s, false)), imag(C7_new(s, false)));
+    // printf("C9_new = %.4e + %.4e i\n", real(C9_new(s, false)), imag(C9_new(s, false)));
+    // printf("C10_new = %.4e + %.4e i\n", real(C10_new(s, false)), imag(C10_new(s, false)));
+
+    // printf("f(z) = %.4e\n", f(cache.z));
+    // printf("h(z) = %.4e\n", h(cache.z));
+    // printf("g_rho(z) = %.4e\n", g_rho(cache.z));
+    // printf("g_lambda(z) = %.4e\n", g_lambda(cache.z));
+    // printf("kappa(z) = %.4e\n", kappa(cache.z));
+    // printf("f_7(s) = %.4e\n", f_7(s));
+    // printf("f_9(s) = %.4e\n", f_9(s));
+    // printf("Gm1 = %.4e + %.4e i\n", real(Gm1(s / cache.z)), imag(Gm1(s / cache.z)));
+    // printf("G0 = %.4e + %.4e i\n", real(G0(s / cache.z)), imag(G0(s / cache.z)));
+    // printf("Delta_i_23 = %.4e + %.4e i\n", real(Delta_i_23(s, cache.z, w)), imag(Delta_i_23(s, cache.z, w)));
+    // printf("Delta_i_27 = %.4e + %.4e i\n", real(Delta_i_27(s, cache.z, w)), imag(Delta_i_27(s, cache.z, w)));
+    // printf("tau_22 = %.4e + %.4e i\n", real(tau_22(s, w, Delta_i_23(s, cache.z, w), Delta_i_27(s, cache.z, w))), imag(tau_22(s, w, Delta_i_23(s, cache.z, w), Delta_i_27(s, cache.z, w))));
+    // printf("tau_27 = %.4e + %.4e i\n", real(tau_27(s, w, Delta_i_23(s, cache.z, w), Delta_i_27(s, cache.z, w))), imag(tau_27(s, w, Delta_i_23(s, cache.z, w), Delta_i_27(s, cache.z, w))));
+    // printf("tau_28 = %.4e + %.4e i\n", real(tau_28(s, w, Delta_i_23(s, cache.z, w), Delta_i_27(s, cache.z, w))), imag(tau_28(s, w, Delta_i_23(s, cache.z, w), Delta_i_27(s, cache.z, w))));
+    // printf("tau_29 = %.4e + %.4e i\n", real(tau_29(s, w, Delta_i_23(s, cache.z, w), Delta_i_27(s, cache.z, w))), imag(tau_29(s, w, Delta_i_23(s, cache.z, w), Delta_i_27(s, cache.z, w))));
+    // printf("tau_210 = %.4e + %.4e i\n", real(tau_210(s, cache.z)), imag(tau_210(s, cache.z)));
+    // printf("tau_77(s) = %.4e\n", tau_77(s));
+    // printf("tau_78(s) = %.4e\n", tau_78(s));
+    // printf("tau_79(s) = %.4e\n", tau_79(s));
+    // printf("tau_710(s) = %.4e\n", tau_710(s));
+    // printf("tau_88(s) = %.4e\n", tau_88(s));
+    // printf("tau_89(s) = %.4e\n", tau_89(s));
+    // printf("tau_810(s) = %.4e\n", tau_810(s));
+    // printf("tau_99(s) = %.4e\n", tau_99(s));
+    // printf("tau_910(s) = %.4e\n", tau_910(s));
+    // printf("sigma(s) = %.4e\n", sigma(s));
+    // printf("sigma_9(s) = %.4e\n", sigma_9(s));
+    // printf("sigma_7(s) = %.4e\n", sigma_7(s, cache.L_b));
+    // printf("F(s/z) = %.4e + %.4e i\n", real(F(s / cache.z)), imag(F(s / cache.z)));
+
+    // printf("dB0_ds (s = %.4f) = %.4e\n", s, cache.pref_dB_ds * cache.pref_dB0_ds * dB0_ds(s, cache.m_mu_hat));
+    // printf("dB_mb2 (s = %.4f) = %.4e\n", s, cache.pref_dB_ds * cache.pref_delta_mb2 * delta_mb2(s));
+    // printf("dB_mb3 (s = %.4f) = %.4e\n", s, cache.pref_dB_ds * cache.pref_delta_mb3 * delta_mb3(s));
+    // printf("dB_mc2 (s = %.4f) = %.4e\n", s, cache.pref_dB_ds * cache.pref_delta_mc2 * delta_mc2(s));
+    // printf("dB_brems A (s = %.4f) = %.4e\n", s, cache.pref_dB_ds * cache.pref_delta_brems * (delta_bremA(s)));
+    // printf("dB_brems B (s = %.4f) = %.4e\n", s, cache.pref_dB_ds * cache.pref_delta_brems * (delta_bremB(s)));
+    // printf("dB_em (s = %.4f) = %.4e\n", s, cache.pref_dB_ds * cache.pref_delta_em * delta_em(s, cache.L_l_mu));
 }
 
 double BXsllDecay::f(double z) {
@@ -104,13 +161,13 @@ double BXsllDecay::f_9(double s) {
 }
 
 complex_t BXsllDecay::Gm1(double t) {
-    complex_t L = log((sqrt((complex_t)t)+sqrt((complex_t)t-4.))/2.);
-    return -2.*I*PI*L-PI2/2.+2.*pow(L,2.);
+    if(t>4.) return -2.*I*PI*log((sqrt(t)+sqrt(t-4.))/2.)-PI2/2.+2.*pow(log((sqrt(t)+sqrt(t-4.))/2.),2.);
+	else return 2.*PI*atan(sqrt((4.-t)/t))-PI2/2.-2.*pow(atan(sqrt((4.-t)/t)),2.);
 }
 
 complex_t BXsllDecay::G0(double t) {
-    complex_t rt = sqrt(((complex_t)t-4.)/(complex_t)t);
-    return -I*PI*rt-2.+2.*rt*log((sqrt((complex_t)t)+sqrt((complex_t)t-4.))/2.);
+    if(t>4.) return -I*PI*sqrt((t-4.)/t)-2.+2.*sqrt((t-4.)/t)*log((sqrt(t)+sqrt(t-4.))/2.);
+	else return PI*sqrt((4.-t)/t)-2.-2.*sqrt((4.-t)/t)*atan(sqrt((4.-t)/t));
 }
 
 complex_t BXsllDecay::Delta_i_23(double s, double z, double w) {
@@ -129,7 +186,7 @@ double BXsllDecay::tau_22(double s, double w, complex_t Delta_23, complex_t Delt
 
 complex_t BXsllDecay::tau_27(double s, double w, complex_t Delta_23, complex_t Delta_27) {
     return 8./3./s/w*(((1.-w)*(4.*s*s-s*w+w*w)+s*w*(4.+s-w)*log(w))*Delta_23
-	-4.*s*s*(1.-w)+s*w*(4.+s-w)*log(w)*Delta_27);
+	-(4.*s*s*(1.-w)+s*w*(4.+s-w)*log(w))*Delta_27);
 }
 
 complex_t BXsllDecay::tau_28(double s, double w, complex_t Delta_23, complex_t Delta_27) {
@@ -373,12 +430,12 @@ double BXsllDecay::PV_breit_wigner(double s, double m_V, double br, double gamma
     double gamma_had_hat = gamma_had / cache.m_b_1S; 
     double den = (pow(s - pow(m_V_hat, 2), 2) + pow(m_V_hat * gamma_tot_hat, 2));
     double B = breit_wigner(s, m_V, br, gamma_tot, gamma_had);
-    return 9. * s / pow(cache.alpha_em, 2) * B * (0.5 * log(den / pow(s_c - s, 2)) + (s - m_V_hat2) / gamma_tot_hat * m_V_hat * (atan((s_c - m_V_hat2) / gamma_tot_hat * m_V_hat) - PI / 2.));
+    return 9. / pow(cache.alpha_em, 2) * B * (0.5 * log(den / pow(s_c - s, 2)) + (s - m_V_hat2) / gamma_tot_hat * m_V_hat * (atan((s_c - m_V_hat2) / gamma_tot_hat * m_V_hat) - PI / 2.));
 }
 
 double BXsllDecay::PV_R_cc_cont(double s) {
     double s_c = 4 * pow(cache.m_D_hat, 2);
-    return 1 / 3. * ((11.33 * s - 6.8) * log(abs((0.69 - s) / (s_c - s))) - 1.02 * log(abs(0.69 - s)) - 6.8 * log(s_c) - 2.902017); 
+    return 1 / s * ((11.33 * s - 6.8) * log(abs((0.69 - s) / (s_c - s))) - 1.02 * log(abs(0.69 - s)) - 6.8 * log(s_c) - 2.90171798847631); 
 }
 
 double BXsllDecay::PV_R_cc(double s) {
@@ -392,7 +449,10 @@ double BXsllDecay::PV_R_cc(double s) {
 }
 
 complex_t BXsllDecay::g_ld(double z, double s) {
-    // LOG_INFO(R_cc(s));
+    // printf("g(z, 0) = %.4e + %.4e i\n", real(g(z, 0)), imag(g(z, 0)));
+    // printf("PV_R_cc(s = %.3f) = %.4e + %.4e i\n", s, real(PV_R_cc(s)), imag(PV_R_cc(s)));
+    // printf("R_cc(s = %.3f) = %.4e + %.4e i\n", s, real(R_cc(s)), imag(R_cc(s)));
+
     return g(z, 0) + (s * PV_R_cc(s) + I * PI * R_cc(s)) / 3.;
 }
 
@@ -404,10 +464,12 @@ complex_t BXsllDecay::C9_eff(double s, QCDOrder order, bool prime) {
     complex_t g_1 = g(1, s);
     complex_t g_mc = g_ld(cache.m_c_hat, s);
 
-    // LOG_INFO("g_mc =", g_mc);
-
+    // printf("g_0(s = %.3f) = %.4e + %.4e i\n", s, real(g_0), imag(g_0));
+    // printf("g_1(s = %.3f) = %.4e + %.4e i\n", s, real(g_1), imag(g_1));
+    // printf("g_mc(s = %.3f) = %.4e + %.4e i\n", s, real(g_mc), imag(g_mc));
+    
     return C[C_ids[8]]
-	        +(-32./27.*C[C_ids[0]]-8./9.*C[C_ids[1]]-16./9.*C[C_ids[2]]+32./27.*C[C_ids[3]]-112./9.*C[C_ids[4]]+512./27.*C[C_ids[5]]) * cache.L_b
+	        -(-32./27.*C[C_ids[0]]-8./9.*C[C_ids[1]]-16./9.*C[C_ids[2]]+32./27.*C[C_ids[3]]-112./9.*C[C_ids[4]]+512./27.*C[C_ids[5]]) * cache.L_b
 	        +4./3.*C[C_ids[2]]+64./9.*C[C_ids[4]]+64./27.*C[C_ids[5]]
 	        +g_mc*(4./3.*C[C_ids[0]]+C[C_ids[1]]+6.*C[C_ids[2]]+60.*C[C_ids[4]])
 	        +g_1*(-7./2.*C[C_ids[2]]-2./3.*C[C_ids[3]]-38.*C[C_ids[4]]-32./3.*C[C_ids[5]])
@@ -446,9 +508,13 @@ complex_t BXsllDecay::C7_new(double s, bool prime) {
 complex_t BXsllDecay::C9_new(double s, bool prime) {
     if (abs(s - 1) < 1e-6) s = 1;
     auto C_0 = cache.C_LO;
-    // LOG_INFO("C9_eff =", C9_eff(s, this->w_config.order, prime));
+    // printf("C9_eff = %.4e + %.4e i\n", real(C9_eff(s, this->w_config.order, prime)), imag(C9_eff(s, this->w_config.order, prime)));
+    // printf("F_19 = %.4e + %.4e i\n", real(F_19(s)), imag(F_19(s)));
+    // printf("F_29 = %.4e + %.4e i\n", real(F_29(s)), imag(F_29(s)));
+    // printf("F_89 = %.4e + %.4e i\n", real(BV::f_89(s)), imag(BV::f_89(s)));
+    
     return (1.+cache.alpha_s_mu_b/PI*sigma_9(s))*C9_eff(s, this->w_config.order, prime)
-	        -cache.alpha_s_mu_b/4./PI*(C_0.at(prime ? WCoef::CP1 :WCoef::C1)*F_19(s)+C_0.at(prime ? WCoef::CP2 :WCoef::C2)*F_29(s)+C_0.at(prime ? WCoef::CP8 :WCoef::C8)*BV::f_89(s));
+	        -cache.alpha_s_mu_b/4./PI*(C_0.at(prime ? WCoef::CP1 :WCoef::C1)*F_19(s)+C_0.at(prime ? WCoef::CP2 : WCoef::C2)*F_29(s)+C_0.at(prime ? WCoef::CP8 :WCoef::C8)*BV::f_89(s));
 }
 
 complex_t BXsllDecay::C10_new(double s, bool prime) {
@@ -562,12 +628,19 @@ double BXsllDecay::delta_bremA(double s) {
     complex_t CP8_0 = cache.C_LO[WCoef::CP8];
     complex_t C9_0 = C9_eff(s, QCDOrder::LO, false);
     complex_t CP9_0 = C9_eff(s, QCDOrder::LO, true);
+    
+    // printf("C9_0_eff (s = %.4f) = %.5e + %.5e i\n", s, real(C9_0), imag(C9_0));
+    // printf("CP9_0_eff (s = %.4f) = %.5e + %.5e i\n", s, real(CP9_0), imag(CP9_0));
 
     complex_t c_78 = ObsQCDProxy().get_constants()->C_F * (C7_0 * conj(C8_0) + CP7_0 * conj(CP8_0));
     complex_t c_88 = ObsQCDProxy().get_constants()->C_F * (C8_0 * conj(C8_0) + CP8_0 * conj(CP8_0));
     complex_t c_89 = ObsQCDProxy().get_constants()->C_F * (C8_0 * conj(C9_0) + CP8_0 * conj(CP9_0));
 
-    return 2 * real(c_78 * tau_78(s) + c_89 * tau_89(s) + c_88 * tau_88(s));
+    // printf("c_78 (s = %.4f) = %.4e + %.4e i\n", s, real(c_78), imag(c_78));
+    // printf("c_88 (s = %.4f) = %.4e + %.4e i\n", s, real(c_88), imag(c_88));
+    // printf("c_78 (s = %.4f) = %.4e + %.4e i\n", s, real(c_89), imag(c_89));
+
+    return 2. * real(c_78 * tau_78(s) + c_89 * tau_89(s) + 0.5 * c_88 * tau_88(s));
 }
 
 double BXsllDecay::delta_bremB_base(double s) {
@@ -577,8 +650,8 @@ double BXsllDecay::delta_bremB_base(double s) {
     complex_t CP9_0 = C9_eff(s, QCDOrder::LO, true);
 
     double C_f = ObsQCDProxy().get_constants()->C_F;
-    double C_tau_1 = C_f / (4 * pow(ObsQCDProxy().get_constants()->Nc, 2));
-    double C_tau_2 = -C_f / (2 * ObsQCDProxy().get_constants()->Nc);
+    double C_tau_1 = C_f / (4. * pow(ObsQCDProxy().get_constants()->Nc, 2));
+    double C_tau_2 = -C_f / (2. * ObsQCDProxy().get_constants()->Nc);
 
     complex_t c_11 = C_tau_1 * (C_0[WCoef::C1] * conj(C_0[WCoef::C1]) + CP_0[WCoef::CP1] * conj(CP_0[WCoef::CP1]));
 	complex_t c_12 = 2 * C_tau_2 * real((C_0[WCoef::C1]*conj(C_0[WCoef::C2])) + CP_0[WCoef::CP1] * conj(CP_0[WCoef::CP2]));
@@ -594,6 +667,11 @@ double BXsllDecay::delta_bremB_base(double s) {
     complex_t w_27 = c_17 + c_27;
     complex_t w_28 = c_18 + c_28;
     complex_t w_29 = c_19 + c_29;
+
+    // printf("c_2 (s = %.4f) = %.4e + %.4e i\n", s, real(w_22), imag(w_22));
+    // printf("c_7 (s = %.4f) = %.4e + %.4e i\n", s, real(w_27), imag(w_27));
+    // printf("c_8 (s = %.4f) = %.4e + %.4e i\n", s, real(w_28), imag(w_28));
+    // printf("c_9 (s = %.4f) = %.4e + %.4e i\n", s, real(w_29), imag(w_29));
 
     auto f = [&] (double w) -> double {
         complex_t D23 = Delta_i_23(s, cache.z, w);
@@ -678,13 +756,18 @@ double BXsllDecay::A_FB(double s, double ml_hat, double L_l) {
             cache.pref_delta_em * delta_A_em(s, L_l);
 }
 
-double BXsllDecay::dB_ds(double s, double ml_hat, double L_l) {   
-    return cache.pref_dB0_ds * dB0_ds(s, ml_hat) +
-            cache.pref_delta_mb2 * delta_mb2(s) + 
-            cache.pref_delta_mb3 * delta_mb3(s) + 
-            cache.pref_delta_mc2 * delta_mc2(s) +
+double BXsllDecay::dB_ds(double s, double ml_hat, double L_l, int gen) {  
+    double dB = cache.pref_dB0_ds * dB0_ds(s, ml_hat) +
             cache.pref_delta_brems * (delta_bremA(s) + delta_bremB(s)) +
             cache.pref_delta_em * delta_em(s, L_l);
+    
+    if (gen != 3) {
+        dB += cache.pref_delta_mb2 * delta_mb2(s) + 
+            cache.pref_delta_mb3 * delta_mb3(s) + 
+            cache.pref_delta_mc2 * delta_mc2(s);
+    }
+
+    return dB;
 }
 
 double BXsllDecay::BR_B_Xsll(double s_min, double s_max, int gen) {
@@ -692,7 +775,7 @@ double BXsllDecay::BR_B_Xsll(double s_min, double s_max, int gen) {
     double L_l = gen == 2 ? cache.L_l_mu : cache.L_l_tau;
 
     auto f = [&] (double s) {
-        return dB_ds(s, ml_hat, L_l);
+        return dB_ds(s, ml_hat, L_l, gen);
     };
 
     double res = cache.pref_dB_ds * integrate(f, s_min, s_max, 1e-3);

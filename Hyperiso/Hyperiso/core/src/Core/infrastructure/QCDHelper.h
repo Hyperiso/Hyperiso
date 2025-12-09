@@ -36,7 +36,7 @@ private:
     static std::vector<double> getOrderedMasses(MassType mass_b_type, MassType mass_t_type);
     static double match_lambda(double target_alpha, double Q, int nf);
     static double alpha_s_explicit(double mu, double lambda, int nf);
-    static double runMass(double mass, double Q_i, double Q_f, int nf);
+    static double runMass(double mass, double Q_i, double Q_f, int nf, MassType m_b_type, MassType m_t_type);
     static double R(double alpha, int nf);
 
     static double calc_mc_pole(double lambda_4);

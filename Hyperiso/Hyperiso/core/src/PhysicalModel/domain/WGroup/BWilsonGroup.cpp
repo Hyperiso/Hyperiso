@@ -29,13 +29,9 @@ std::unordered_map<WCoefId, scalar_t> BCoefficientGroup::base_1_LO_calculation (
 
     std::array<complex_t, 10> Ci_run {};
 
-    for (size_t k = 0; k < 8; k++) {
-        Ci_run[8] += U0(8,k) * Ci_match[k];
-    }
-
     Ci_match[6] = BRP::C7_eff_std(Ci_match); 
     Ci_match[7] = BRP::C8_eff_std(Ci_match);
-    Ci_match[8] *= src.get_val("WPARAM_MATCH_SM",1)/ (4. * PI);
+    Ci_match[8] *= src.get_val("WPARAM_MATCH_SM", 1)/ (4. * PI);
 
 
     for (size_t k = 0; k < 8; k++) {
@@ -47,7 +43,6 @@ std::unordered_map<WCoefId, scalar_t> BCoefficientGroup::base_1_LO_calculation (
     for (size_t l = 0; l < 9; l++) {
         Ci_run[8] += 4 * PI / src.get_val("WPARAM_RUN_SM",1) * U0(8, l) * Ci_match[l];
     }
-
 
     // C10
     // Ask Nazila : Pourquoi les N et NNLO dans le running de C10 à LO et pas séparé en plusieurs ordres ?

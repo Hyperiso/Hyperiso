@@ -98,6 +98,11 @@ double BVFFCalculator::T_3(double q2) {
 }
 
 double BVFFCalculator::xi_perp(double q2) {
+    // Defining xi_perp(0) in terms of T_1(0) to ensure self-consistency in B > V gamma 
+    if (fpeq(q2, 0.0)) { 
+        return F_a(BV_FF::T1, 0.0); // At LO (should NLO alpha_s corrections [0412400] be taken into account ?)
+    }
+
     return this->m_B * F_a(BV_FF::V, q2) / (this->m_B + this->m_V);
 }
 

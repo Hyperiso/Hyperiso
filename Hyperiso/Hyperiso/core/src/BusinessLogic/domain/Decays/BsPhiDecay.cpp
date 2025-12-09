@@ -15,7 +15,7 @@ void BsPhiDecay::load_params() {
     );
 
     ObsParameterProxy p;
-    cache.alpha_em = 1.0 / p(ParamId{ParameterType::SM, "SMINPUTS", 1});
+    cache.alpha_em = p(ParamId{ParameterType::SM, "EW", {1, 2}});
     cache.G_F = p(ParamId{ParameterType::SM, "SMINPUTS", 2});
     cache.m_l = p(ParamId{ParameterType::SM, "MASS", 11 + 2 * (int)cfg.gen});
     cache.m_s = p(ParamId{ParameterType::SM, "MASS", 3});
@@ -30,6 +30,7 @@ void BsPhiDecay::load_params() {
     cache.lambda_hat_u = std::conj(p(ParamId{ParameterType::SM, "VCKM", {0, 1}})) * p(ParamId{ParameterType::SM, "VCKM", {0, 2}}) 
                             / (std::conj(p(ParamId{ParameterType::SM, "VCKM", {2, 1}})) * p(ParamId{ParameterType::SM, "VCKM", {2, 2}}));
     cache.kappa = 1 - 2. * cache.alpha_s_mu_b / (3. * PI) * std::log(cache.mu_b / cache.m_b_mu_b);
+    cache.Delta_M = -6. * cache.L_b - 4. * (1 - sqrt(cache.mu_b * p(ParamId{ParameterType::DECAY, "B_phi", 14})) / cache.m_b_PS);
     cache.N_0 = std::conj(p(ParamId{ParameterType::SM, "VCKM", {2, 1}})) * p(ParamId{ParameterType::SM, "VCKM", {2, 2}}) * cache.G_F * cache.alpha_em / (std::sqrt(3072. * std::pow(PI, 5) * std::pow(cache.m_Bs, 3)));
     cache.q2_min = 4 * std::pow(cache.m_l, 2);
     cache.q2_max = std::pow(cache.m_Bs - cache.m_phi, 2);
@@ -54,6 +55,59 @@ void BsPhiDecay::load_params() {
     auto lam_T_par_m = [this] (double q2, bool bar) { return cache.qcdf_calculator.T_par_m(q2, bar); };
     fill_cache(lam_T_par_m, cache.q2_min, cache.q2_high, cache.T_par_m_lookup, false); 
     fill_cache(lam_T_par_m, cache.q2_min, cache.q2_high, cache.T_par_m_bar_lookup, true);
+
+    double q2 = 1.0;
+    double u = 0.5;
+    complex_t Tperpp = cache.qcdf_calculator.T_perp_p(q2, false);
+    complex_t Tperpm = cache.qcdf_calculator.T_perp_m(q2, false);
+    complex_t Tparm = cache.qcdf_calculator.T_par_m(q2, false);
+
+    // printf("T_perp_p(s = %.3f) = %.4e + %.4e i\n", q2, std::real(Tperpp), std::imag(Tperpp));
+    // printf("T_perp_m(s = %.3f) = %.4e + %.4e i\n", q2, std::real(Tperpm), std::imag(Tperpm));
+    // printf("T_par_m(s = %.3f) = %.4e + %.4e i\n", q2, std::real(Tparm), std::imag(Tparm));
+    // exit(0);
+
+    // complex_t ALperp = A_perp(q2, -1, false);
+    // complex_t ARperp = A_perp(q2, 1, false);
+    // complex_t ALpar = A_par(q2, -1, false);
+    // complex_t ARpar = A_par(q2, 1, false);
+    // complex_t AL0 = A_0(q2, -1, false);
+    // complex_t AR0 = A_0(q2, 1, false);
+    // complex_t At = A_t(q2, false);
+    // complex_t AS = A_S(q2, false);
+
+    // complex_t ALperp = A_perp(q2, -1, true);
+    // complex_t ARperp = A_perp(q2, 1, true);
+    // complex_t ALpar = A_par(q2, -1, true);
+    // complex_t ARpar = A_par(q2, 1, true);
+    // complex_t AL0 = A_0(q2, -1, true);
+    // complex_t AR0 = A_0(q2, 1, true);
+    // complex_t At = A_t(q2, true);
+    // complex_t AS = A_S(q2, true);
+
+    // printf("A_L_perp(s = %.3f) = %.4e + %.4e i\n", q2, std::real(ALperp), std::imag(ALperp));
+	// printf("A_R_perp(s = %.3f) = %.4e + %.4e i\n", q2, std::real(ARperp), std::imag(ARperp));
+	// printf("A_L_par(s = %.3f) = %.4e + %.4e i\n", q2, std::real(ALpar), std::imag(ALpar));
+	// printf("A_R_par(s = %.3f) = %.4e + %.4e i\n", q2, std::real(ARpar), std::imag(ARpar));
+	// printf("A_L_0(s = %.3f) = %.4e + %.4e i\n", q2, std::real(AL0), std::imag(AL0));
+	// printf("A_R_0(s = %.3f) = %.4e + %.4e i\n", q2, std::real(AR0), std::imag(AR0));
+	// printf("A_t(s = %.3f) = %.4e + %.4e i\n", q2, std::real(At), std::imag(At));
+	// printf("A_S(s = %.3f) = %.4e + %.4e i\n", q2, std::real(AS), std::imag(AS));
+    // exit(0);
+    
+    // printf("J_1c(s = %.3f) = %.4e\n", q2, J1c(q2, false));
+    // printf("J_1s(s = %.3f) = %.4e\n", q2, J1s(q2, false));
+    // printf("J_2c(s = %.3f) = %.4e\n", q2, J2c(q2, false));
+    // printf("J_2s(s = %.3f) = %.4e\n", q2, J2s(q2, false));
+    // printf("J_3(s = %.3f) = %.4e\n", q2, J3(q2, false));
+    // printf("J_4(s = %.3f) = %.4e\n", q2, J4(q2, false));
+    // printf("J_5(s = %.3f) = %.4e\n", q2, J5(q2, false));
+    // printf("J_6c(s = %.3f) = %.4e\n", q2, J6c(q2, false));
+    // printf("J_6s(s = %.3f) = %.4e\n", q2, J6s(q2, false));
+    // printf("J_7(s = %.3f) = %.4e\n", q2, J7(q2, false));
+    // printf("J_8(s = %.3f) = %.4e\n", q2, J8(q2, false));
+    // printf("J_9(s = %.3f) = %.4e\n", q2, J9(q2, false));
+    // exit(0);
 
     compute_binned_J_i();
 }
@@ -113,6 +167,7 @@ complex_t BsPhiDecay::A_perp_low(double q2, double sign, bool bar) {
     complex_t F, F_T;
     complex_t delta_A {0.0};
     complex_t had_err_factor {1.0};
+    double m_b_local;
 
     if (cfg.ff_type == B_FF_Type::SOFT) {
         complex_t w = cache.C[WCoef::C9] + cache.C[WCoef::CP9] + sign * (cache.C[WCoef::C10] + cache.C[WCoef::CP10]);
@@ -121,6 +176,7 @@ complex_t BsPhiDecay::A_perp_low(double q2, double sign, bool bar) {
         F_T = T_perp_p_cached(q2, bar);
         size_t id = size_t (0.5 * (1 + sign));
         had_err_factor = 1.0 + cache.A_had_err_low_0[id] + cache.A_had_err_low_1[id] * q2 / 6.0;
+        m_b_local = cache.m_b_PS;
     } else {
         F_T = (cache.C[WCoef::C7] + cache.C[WCoef::CP7]) * cache.ff_calculator.get(BV_FF::T1, q2);
         complex_t w = cache.C[WCoef::C9] + cache.C[WCoef::CP9] + sign * (cache.C[WCoef::C10] + cache.C[WCoef::CP10]);
@@ -131,15 +187,17 @@ complex_t BsPhiDecay::A_perp_low(double q2, double sign, bool bar) {
         w += cache.qcdf_calculator.Y(q2);
         F = w * cache.ff_calculator.get(BV_FF::V, q2) / (cache.m_Bs + cache.m_phi);
         delta_A = delta_A_perp(q2, sign, bar);
+        m_b_local = cache.m_b_PS + cache.alpha_s_mu_b * cache.Delta_M / (3 * PI);
     }
 
-    return (N(q2, bar) * std::sqrt(2 * lambda(q2)) * (F + 2. * cache.m_b_PS * F_T / q2) + delta_A) * had_err_factor;
+    return (N(q2, bar) * std::sqrt(2 * lambda(q2)) * (F + 2. * m_b_local * F_T / q2) + delta_A) * had_err_factor;
 }
 
 complex_t BsPhiDecay::A_par_low(double q2, double sign, bool bar) {
     complex_t F, F_T;
     complex_t delta_A {0.0};
     complex_t had_err_factor {1.0};
+    double m_b_local;
 
     if (cfg.ff_type == B_FF_Type::SOFT) {
         complex_t w = cache.C[WCoef::C9] - cache.C[WCoef::CP9] + sign * (cache.C[WCoef::C10] - cache.C[WCoef::CP10]);
@@ -148,6 +206,7 @@ complex_t BsPhiDecay::A_par_low(double q2, double sign, bool bar) {
         F_T = 2. * cache.ff_calculator.E(q2) * T_perp_m_cached(q2, bar) / cache.m_Bs;
         size_t id = 2 + size_t (0.5 * (1 + sign));
         had_err_factor = 1.0 + cache.A_had_err_low_0[id] + cache.A_had_err_low_1[id] * q2 / 6.0;
+        m_b_local = cache.m_b_PS;
     } else {
         F_T = (cache.C[WCoef::C7] - cache.C[WCoef::CP7]) * cache.ff_calculator.get(BV_FF::T2, q2);
         complex_t w = cache.C[WCoef::C9] - cache.C[WCoef::CP9] + sign * (cache.C[WCoef::C10] - cache.C[WCoef::CP10]);
@@ -158,9 +217,10 @@ complex_t BsPhiDecay::A_par_low(double q2, double sign, bool bar) {
         w += cache.qcdf_calculator.Y(q2);
         F = w * cache.ff_calculator.get(BV_FF::A1, q2) / (cache.m_Bs - cache.m_phi);
         delta_A = delta_A_par(q2, sign, bar);
+        m_b_local = cache.m_b_PS + cache.alpha_s_mu_b * cache.Delta_M / (3 * PI);
     }
 
-    return (-N(q2, bar) * std::sqrt(2.) * (cache.m_Bs * cache.m_Bs - cache.m_phi * cache.m_phi) * (F + 2. * cache.m_b_PS * F_T / q2) + delta_A) * had_err_factor;
+    return (-N(q2, bar) * std::sqrt(2.) * (cache.m_Bs * cache.m_Bs - cache.m_phi * cache.m_phi) * (F + 2. * m_b_local * F_T / q2) + delta_A) * had_err_factor;
 }
 
 complex_t BsPhiDecay::A_0_low(double q2, double sign, bool bar) {
@@ -169,6 +229,7 @@ complex_t BsPhiDecay::A_0_low(double q2, double sign, bool bar) {
     complex_t F, F_T;
     complex_t delta_A {0.0};
     complex_t had_err_factor {1.0};
+    double m_b_local;
 
     if (cfg.ff_type == B_FF_Type::SOFT) {
         complex_t w = cache.C[WCoef::C9] - cache.C[WCoef::CP9] + sign * (cache.C[WCoef::C10] - cache.C[WCoef::CP10]);
@@ -177,6 +238,7 @@ complex_t BsPhiDecay::A_0_low(double q2, double sign, bool bar) {
         F_T = 2. * cache.ff_calculator.E(q2) * (mB2 + 3. * mK2 - q2) * T_perp_m_cached(q2, bar) - lambda(q2) * (T_perp_m_cached(q2, bar) + T_par_m_cached(q2, bar)) / (mB2 - mK2);
         size_t id = 4 + size_t (0.5 * (1 + sign));
         had_err_factor = 1.0 + cache.A_had_err_low_0[id] + cache.A_had_err_low_1[id] * q2 / 6.0;
+        m_b_local = cache.m_b_PS;
     } else {
         F_T = (cache.C[WCoef::C7] - cache.C[WCoef::CP7]) * 8. * cache.m_Bs * mK2 / (cache.m_Bs + cache.m_phi) * cache.ff_calculator.get(BV_FF::T23, q2);
         complex_t w = cache.C[WCoef::C9] - cache.C[WCoef::CP9] + sign * (cache.C[WCoef::C10] - cache.C[WCoef::CP10]);
@@ -187,9 +249,10 @@ complex_t BsPhiDecay::A_0_low(double q2, double sign, bool bar) {
         w += cache.qcdf_calculator.Y(q2);
         F = w * 16. * cache.m_Bs * mK2 * cache.ff_calculator.get(BV_FF::A12, q2);
         delta_A = delta_A_par(q2, sign, bar);
+        m_b_local = cache.m_b_PS + cache.alpha_s_mu_b * cache.Delta_M / (3 * PI);
     }
 
-    return (-N(q2, bar) / (2. * cache.m_phi * std::sqrt(q2)) * (F + 2. * cache.m_b_PS * F_T) + delta_A) * had_err_factor;
+    return (-N(q2, bar) / (2. * cache.m_phi * std::sqrt(q2)) * (F + 2. * m_b_local * F_T) + delta_A) * had_err_factor;
 }
 
 complex_t BsPhiDecay::A_t_low(double q2, bool bar) {
@@ -207,7 +270,7 @@ complex_t BsPhiDecay::A_t_low(double q2, bool bar) {
         F = cache.ff_calculator.get(BV_FF::A0, q2);
     }
 
-    return N(q2, bar) * std::sqrt(lambda(q2) / q2) * ((C10 + q2 / (cache.m_l * (cache.m_b_mu_b + cache.m_s)) * CQ2)) * F;
+    return N(q2, bar) * std::sqrt(lambda(q2) / q2) * ((2. * C10 + q2 / (cache.m_l * (cache.m_b_mu_b + cache.m_s)) * CQ2)) * F;
 }
 
 complex_t BsPhiDecay::A_S_low(double q2, bool bar) {
@@ -317,34 +380,34 @@ complex_t BsPhiDecay::interpolate(double q2, complex_t val_low, complex_t val_hi
 }
 
 complex_t BsPhiDecay::A_perp(double q2, double sign, bool bar) {
-    return interpolate(q2, A_perp_low(q2, sign, bar), A_perp_high(q2, sign, bar));
+    return interpolate(q2, A_perp_low(q2, sign, !bar), A_perp_high(q2, sign, !bar));
 }
 
 complex_t BsPhiDecay::A_par(double q2, double sign, bool bar) {
-    return interpolate(q2, A_par_low(q2, sign, bar), A_par_high(q2, sign, bar));
+    return interpolate(q2, A_par_low(q2, sign, !bar), A_par_high(q2, sign, !bar));
 }
 
 complex_t BsPhiDecay::A_0(double q2, double sign, bool bar) {
-    return interpolate(q2, A_0_low(q2, sign, bar), A_0_high(q2, sign, bar));
+    return interpolate(q2, A_0_low(q2, sign, !bar), A_0_high(q2, sign, !bar));
 }
 
 complex_t BsPhiDecay::A_t(double q2, bool bar) {
-    return interpolate(q2, A_t_low(q2, bar), A_t_high(q2, bar));
+    return interpolate(q2, A_t_low(q2, !bar), A_t_high(q2, !bar));
 }
 
 complex_t BsPhiDecay::A_S(double q2, bool bar) {
-    return interpolate(q2, A_S_low(q2, bar), A_S_high(q2, bar));
+    return interpolate(q2, A_S_low(q2, !bar), A_S_high(q2, !bar));
 }
 
 double BsPhiDecay::J1s(double q2, bool bar) {
     return (2. + std::pow(beta_l(q2), 2)) / 4. * (
         std::pow(std::abs(A_perp(q2, -1, bar)), 2) 
       + std::pow(std::abs(A_perp(q2, 1, bar)), 2)
-      + std::pow(std::abs(A_perp(q2, -1, bar)), 2)
-      + std::pow(std::abs(A_perp(q2, 1, bar)), 2)
+      + std::pow(std::abs(A_par(q2, -1, bar)), 2)
+      + std::pow(std::abs(A_par(q2, 1, bar)), 2)
     ) + std::pow(2. * cache.m_l, 2) / q2 * std::real(
         A_perp(q2, -1, bar) * std::conj(A_perp(q2, 1, bar))
-      + A_perp(q2, -1, bar) * std::conj(A_perp(q2, 1, bar))
+      + A_par(q2, -1, bar) * std::conj(A_par(q2, 1, bar))
     );
 }
 
@@ -361,8 +424,8 @@ double BsPhiDecay::J2s(double q2, bool bar) {
     return std::pow(beta_l(q2), 2) / 4. * (
         std::pow(std::abs(A_perp(q2, -1, bar)), 2) 
       + std::pow(std::abs(A_perp(q2, 1, bar)), 2)
-      + std::pow(std::abs(A_perp(q2, -1, bar)), 2)
-      + std::pow(std::abs(A_perp(q2, 1, bar)), 2)
+      + std::pow(std::abs(A_par(q2, -1, bar)), 2)
+      + std::pow(std::abs(A_par(q2, 1, bar)), 2)
     );
 }
 
@@ -384,8 +447,8 @@ double BsPhiDecay::J3(double q2, bool bar) {
 
 double BsPhiDecay::J4(double q2, bool bar) {
     return std::pow(beta_l(q2), 2) / std::sqrt(2.) * (
-        std::real(A_0(q2, -1, bar) * std::conj(A_perp(q2, -1, bar))) 
-      + std::real(A_0(q2, 1, bar) * std::conj(A_perp(q2, 1, bar)))
+        std::real(A_0(q2, -1, bar) * std::conj(A_par(q2, -1, bar))) 
+      + std::real(A_0(q2, 1, bar) * std::conj(A_par(q2, 1, bar)))
     );
 }
 
@@ -393,14 +456,14 @@ double BsPhiDecay::J5(double q2, bool bar) {
     return beta_l(q2) * std::sqrt(2.) * (
         std::real(A_0(q2, -1, bar) * std::conj(A_perp(q2, -1, bar))) 
       - std::real(A_0(q2, 1, bar) * std::conj(A_perp(q2, 1, bar)))
-      - cache.m_l / std::sqrt(q2) * std::real((A_perp(q2, -1, bar) + A_perp(q2, 1, bar)) * std::conj(A_S(q2, bar)))
+      - cache.m_l / std::sqrt(q2) * std::real((A_par(q2, -1, bar) + A_par(q2, 1, bar)) * std::conj(A_S(q2, bar)))
     );
 }
 
 double BsPhiDecay::J6s(double q2, bool bar) {
     return 2. * beta_l(q2) * (
-        std::real(A_perp(q2, -1, bar) * std::conj(A_perp(q2, -1, bar))) 
-      - std::real(A_perp(q2, 1, bar) * std::conj(A_perp(q2, 1, bar))) 
+        std::real(A_par(q2, -1, bar) * std::conj(A_perp(q2, -1, bar))) 
+      - std::real(A_par(q2, 1, bar) * std::conj(A_perp(q2, 1, bar))) 
     );
 }
 
@@ -410,8 +473,8 @@ double BsPhiDecay::J6c(double q2, bool bar) {
 
 double BsPhiDecay::J7(double q2, bool bar) {
     return beta_l(q2) * std::sqrt(2.) * (
-        std::imag(A_0(q2, -1, bar) * std::conj(A_perp(q2, -1, bar))) 
-      - std::imag(A_0(q2, 1, bar) * std::conj(A_perp(q2, 1, bar)))
+        std::imag(A_0(q2, -1, bar) * std::conj(A_par(q2, -1, bar))) 
+      - std::imag(A_0(q2, 1, bar) * std::conj(A_par(q2, 1, bar)))
       + cache.m_l / std::sqrt(q2) * std::imag((A_perp(q2, -1, bar) + A_perp(q2, 1, bar)) * std::conj(A_S(q2, bar)))
     );
 }
@@ -771,7 +834,7 @@ std::vector<ObservableValue> BsPhiDecay::compute_observable(Observables obs) {
     case Observables::A_T_RE_CPV_BS_PHI_L_L:   
         return A_T_Re_CPV();
     case Observables::A_T_IM_CPV_BS_PHI_L_L:   
-        return A_T_Re_CPV();
+        return A_T_Im_CPV();
     case Observables::P_PRIME_4_BS_PHI_L_L:   
         return Pp_4();
     case Observables::P_PRIME_6_BS_PHI_L_L:   

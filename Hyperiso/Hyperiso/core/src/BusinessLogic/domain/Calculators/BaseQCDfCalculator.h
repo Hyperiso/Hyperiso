@@ -18,11 +18,12 @@ protected:
     double e_q;
     double Lambda_h;
     double alpha_s_mu_f, alpha_s_mu_b;
+    double loop_f_mu_f, loop_f_mu_b;
     double a_1_perp {0}, a_2_perp {0}, a_1_par, a_2_par;
     double zeta_3_A {0}, zeta_3_V {0}, omega_10_A {0}, delta_t_p {0}, delta_t_m {0};
     double lambda_B_p;
     double pref_perp {0}, pref_par;
-    complex_t T_par_m_0;
+    complex_t n_T_par_m_0, n_T_par_m_0_bar;
     complex_t lambda_hat_u;
     std::map<WCoef, complex_t> C;
     std::map<WCoef, complex_t> C_bar;
@@ -79,6 +80,7 @@ protected:
 
     complex_t t_perp(double u, double m_q, double q2, double E_Kstar);
     complex_t t_par(double u, double m_q, double q2, double E_Kstar);
+    complex_t T_par_m_0(bool bar);
     complex_t T_par_p_p_f(double u, double q2, bool bar);
     complex_t T_par_p_m_f(double u, double q2, bool bar);
     complex_t T_perp_p_p_f(double u, double q2, bool bar);

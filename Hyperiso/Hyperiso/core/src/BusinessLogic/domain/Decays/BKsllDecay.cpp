@@ -21,16 +21,19 @@ void BKstarllDecay::load_params() {
     );
 
     ObsParameterProxy p;
-    cache.alpha_em = 1.0 / p(ParamId{ParameterType::SM, "SMINPUTS", 1});
+    cache.alpha_em = p(ParamId{ParameterType::SM, "EW", {1, 2}});
     cache.G_F = p(ParamId{ParameterType::SM, "SMINPUTS", 2});
     cache.m_l = p(ParamId{ParameterType::SM, "MASS", 11 + 2 * (int)cfg.gen});
     cache.m_s = p(ParamId{ParameterType::SM, "MASS", 3});
     cache.mu_b = w_config.hadronic_scale;
     cache.alpha_s_mu_b = ObsQCDProxy()(AlphasConfig(cache.mu_b, MassType::POLE, MassType::POLE));
-    cache.m_c_mu_b = ObsQCDProxy()(MassConfig(4, cache.mu_b, MassType::MSBAR, MassType::POLE));
+    // cache.m_c_mu_b = ObsQCDProxy()(MassConfig(4, cache.mu_b, MassType::MSBAR, MassType::POLE));
+    cache.m_c_mu_b = p(ParamId{ParameterType::SM, "MASS", 4}); // NF : To match SI, should probably be m_c(mu_b) instead
     cache.m_b_mu_b = ObsQCDProxy()(MassConfig(5, cache.mu_b, MassType::MSBAR, MassType::POLE));
-    cache.m_b_PS = p(ParamId{ParameterType::SM, "QCD", {5, 2}}) - 4 * ObsQCDProxy()(AlphasConfig(p(ParamId{ParameterType::SM, "QCD", {5, 2}}), MassType::POLE, MassType::POLE)) * sqrt(cache.mu_b * p(ParamId{ParameterType::DECAY, "B_Ks", 14})) / (3 * PI);
+    double mu_f = sqrt(cache.mu_b * p(ParamId{ParameterType::DECAY, "B_Ks", 14}));
+    cache.m_b_PS = p(ParamId{ParameterType::SM, "QCD", {5, 2}}) - 4 * ObsQCDProxy()(AlphasConfig(p(ParamId{ParameterType::SM, "QCD", {5, 2}}), MassType::POLE, MassType::POLE)) * mu_f / (3 * PI);
     cache.L_b = std::log(cache.mu_b / cache.m_b_PS);
+    cache.Delta_M = -6. * cache.L_b - 4. * (1 - mu_f / cache.m_b_PS);
     cache.m_B = p(ParamId{ParameterType::FLAVOR, "FMASS", cfg.charge == Charge::B_0 ? 511 : 521});
     cache.m_Ks = p(ParamId{ParameterType::FLAVOR, "FMASS", cfg.charge == Charge::B_0 ? 313 : 323});
     cache.lambda_hat_u = std::conj(p(ParamId{ParameterType::SM, "VCKM", {0, 1}})) * p(ParamId{ParameterType::SM, "VCKM", {0, 2}}) 
@@ -41,6 +44,10 @@ void BKstarllDecay::load_params() {
     cache.q2_max = std::pow(cache.m_B - cache.m_Ks, 2);
     cache.q2_low = p(ParamId{ParameterType::DECAY, "B_Ks", {15, 1}});
     cache.q2_high = p(ParamId{ParameterType::DECAY, "B_Ks", {15, 2}});
+
+    // printf("alpha_em = %.4e\n", cache.alpha_em);
+    // printf("kappa = %.4e\n", cache.kappa);
+    // printf("N_0 = %.4e + %.4e i\n", std::real(cache.N_0), std::imag(cache.N_0));
 
     if (cfg.ff_type == B_FF_Type::SOFT || cfg.power_corr_impl == BKstarllConfig::Power_Corrections_Impl::BFS) {
         auto lam_T_perp_p = [this] (double q2, bool bar) { return cache.qcdf_calculator.T_perp_p(q2, bar); };
@@ -55,6 +62,59 @@ void BKstarllDecay::load_params() {
         fill_cache(lam_T_par_m, cache.q2_min, cache.q2_high, cache.T_par_m_lookup, false); 
         fill_cache(lam_T_par_m, cache.q2_min, cache.q2_high, cache.T_par_m_bar_lookup, true);
     }
+
+    
+    // double q2 = 1.0;
+    // complex_t Tperpp = cache.qcdf_calculator.T_perp_p(q2, false);
+    // complex_t Tperpm = cache.qcdf_calculator.T_perp_m(q2, false);
+    // complex_t Tparm = cache.qcdf_calculator.T_par_m(q2, false);
+
+    // printf("T_perp_p(s = %.3f) = %.4e + %.4e i\n", q2, std::real(Tperpp), std::imag(Tperpp));
+    // printf("T_perp_m(s = %.3f) = %.4e + %.4e i\n", q2, std::real(Tperpm), std::imag(Tperpm));
+    // printf("T_par_m(s = %.3f) = %.4e + %.4e i\n", q2, std::real(Tparm), std::imag(Tparm));
+    // exit(0);
+
+    // complex_t ALperp = A_perp(q2, -1, false);
+    // complex_t ARperp = A_perp(q2, 1, false);
+    // complex_t ALpar = A_par(q2, -1, false);
+    // complex_t ARpar = A_par(q2, 1, false);
+    // complex_t AL0 = A_0(q2, -1, false);
+    // complex_t AR0 = A_0(q2, 1, false);
+    // complex_t At = A_t(q2, false);
+    // complex_t AS = A_S(q2, false);
+
+    // complex_t ALperp = A_perp(q2, -1, true);
+    // complex_t ARperp = A_perp(q2, 1, true);
+    // complex_t ALpar = A_par(q2, -1, true);
+    // complex_t ARpar = A_par(q2, 1, true);
+    // complex_t AL0 = A_0(q2, -1, true);
+    // complex_t AR0 = A_0(q2, 1, true);
+    // complex_t At = A_t(q2, true);
+    // complex_t AS = A_S(q2, true);
+
+    // printf("A_L_perp(s = %.3f) = %.4e + %.4e i\n", q2, std::real(ALperp), std::imag(ALperp));
+	// printf("A_R_perp(s = %.3f) = %.4e + %.4e i\n", q2, std::real(ARperp), std::imag(ARperp));
+	// printf("A_L_par(s = %.3f) = %.4e + %.4e i\n", q2, std::real(ALpar), std::imag(ALpar));
+	// printf("A_R_par(s = %.3f) = %.4e + %.4e i\n", q2, std::real(ARpar), std::imag(ARpar));
+	// printf("A_L_0(s = %.3f) = %.4e + %.4e i\n", q2, std::real(AL0), std::imag(AL0));
+	// printf("A_R_0(s = %.3f) = %.4e + %.4e i\n", q2, std::real(AR0), std::imag(AR0));
+	// printf("A_t(s = %.3f) = %.4e + %.4e i\n", q2, std::real(At), std::imag(At));
+	// printf("A_S(s = %.3f) = %.4e + %.4e i\n", q2, std::real(AS), std::imag(AS));
+    // exit(0);
+    
+    // printf("J_1c(s = %.3f) = %.4e\n", q2, J1c(q2, false));
+    // printf("J_1s(s = %.3f) = %.4e\n", q2, J1s(q2, false));
+    // printf("J_2c(s = %.3f) = %.4e\n", q2, J2c(q2, false));
+    // printf("J_2s(s = %.3f) = %.4e\n", q2, J2s(q2, false));
+    // printf("J_3(s = %.3f) = %.4e\n", q2, J3(q2, false));
+    // printf("J_4(s = %.3f) = %.4e\n", q2, J4(q2, false));
+    // printf("J_5(s = %.3f) = %.4e\n", q2, J5(q2, false));
+    // printf("J_6c(s = %.3f) = %.4e\n", q2, J6c(q2, false));
+    // printf("J_6s(s = %.3f) = %.4e\n", q2, J6s(q2, false));
+    // printf("J_7(s = %.3f) = %.4e\n", q2, J7(q2, false));
+    // printf("J_8(s = %.3f) = %.4e\n", q2, J8(q2, false));
+    // printf("J_9(s = %.3f) = %.4e\n", q2, J9(q2, false));
+    // exit(0);
 
     compute_binned_J_i();
 }
@@ -110,7 +170,7 @@ complex_t BKstarllDecay::delta_A_perp_QCDf(double q2, double sign, bool bar) {
         guesstimate_err = 1.0 + cache.A_had_err_low_0[id] + cache.A_had_err_low_1[id] * q2 / 6.0;
     }
 
-    return 2 * RT2 * cache.m_b_PS * N(q2, bar) * std::sqrt(lambda(q2)) / q2 * T_perp_p_cached(q2, bar) * guesstimate_err + delta_A;
+    return 2 * RT2 * (cache.m_b_PS + cache.alpha_s_mu_b * cache.Delta_M / (3 * PI)) * N(q2, bar) * std::sqrt(lambda(q2)) / q2 * T_perp_p_cached(q2, bar) * guesstimate_err + delta_A;
 }
 
 complex_t BKstarllDecay::delta_A_perp_vD(double q2, bool bar) {
@@ -152,7 +212,7 @@ complex_t BKstarllDecay::delta_A_par_QCDf(double q2, double sign, bool bar) {
         guesstimate_err = 1.0 + cache.A_had_err_low_0[id] + cache.A_had_err_low_1[id] * q2 / 6.0;
     }
 
-    return -4 * RT2 * cache.m_b_PS * N(q2, bar) * (cache.m_B * cache.m_B - cache.m_Ks * cache.m_Ks) * cache.ff_calculator.E(q2) / (q2 * cache.m_B) * T_perp_m_cached(q2, bar) * guesstimate_err + delta_A;
+    return -4 * RT2 * (cache.m_b_PS + cache.alpha_s_mu_b * cache.Delta_M / (3 * PI)) * N(q2, bar) * (cache.m_B * cache.m_B - cache.m_Ks * cache.m_Ks) * cache.ff_calculator.E(q2) / (q2 * cache.m_B) * T_perp_m_cached(q2, bar) * guesstimate_err + delta_A;
 }
 
 complex_t BKstarllDecay::delta_A_par_vD(double q2, bool bar) {
@@ -172,6 +232,7 @@ complex_t BKstarllDecay::A_perp_low(double q2, double sign, bool bar) {
     complex_t F, F_T;
     complex_t delta_A {0.0};
     complex_t had_err_factor {1.0};
+    double m_b_local;
 
     if (cfg.ff_type == B_FF_Type::SOFT) {
         complex_t w = cache.C[WCoef::C9] + cache.C[WCoef::CP9] + sign * (cache.C[WCoef::C10] + cache.C[WCoef::CP10]);
@@ -180,6 +241,7 @@ complex_t BKstarllDecay::A_perp_low(double q2, double sign, bool bar) {
         F_T = T_perp_p_cached(q2, bar);
         size_t id = size_t (0.5 * (1 + sign));
         had_err_factor = 1.0 + cache.A_had_err_low_0[id] + cache.A_had_err_low_1[id] * q2 / 6.0;
+        m_b_local = cache.m_b_PS;
     } else {
         F_T = (cache.C[WCoef::C7] + cache.C[WCoef::CP7]) * cache.ff_calculator.get(BV_FF::T1, q2);
         complex_t w = cache.C[WCoef::C9] + cache.C[WCoef::CP9] + sign * (cache.C[WCoef::C10] + cache.C[WCoef::CP10]);
@@ -190,23 +252,32 @@ complex_t BKstarllDecay::A_perp_low(double q2, double sign, bool bar) {
         if (cfg.power_corr_impl == BKstarllConfig::Power_Corrections_Impl::BFS) w += cache.qcdf_calculator.Y(q2);
         F = w * cache.ff_calculator.get(BV_FF::V, q2) / (cache.m_B + cache.m_Ks);
         delta_A = delta_A_perp(q2, sign, bar);
+        m_b_local = cache.m_b_PS + cache.alpha_s_mu_b * cache.Delta_M / (3 * PI);
     }
 
-    return (N(q2, bar) * std::sqrt(2 * lambda(q2)) * (F + 2. * cache.m_b_PS * F_T / q2) + delta_A) * had_err_factor;
+    // printf("----- A_perp -----\n");
+    // printf("pref = %.4e + %.4e i\n", real(N(q2, bar) * std::sqrt(2 * lambda(q2))), imag(N(q2, bar) * std::sqrt(2 * lambda(q2))));
+    // printf("F_V = %.4e + %.4e i\n", real(F), imag(F));
+    // printf("F_T = %.4e + %.4e i\n", real(F_T), imag(F_T));
+    // printf("delta_A = %.4e + %.4e i\n", real(delta_A), imag(delta_A));
+
+    return (N(q2, bar) * std::sqrt(2 * lambda(q2)) * (F + 2. * m_b_local * F_T / q2) + delta_A) * had_err_factor;
 }
 
 complex_t BKstarllDecay::A_par_low(double q2, double sign, bool bar) {
     complex_t F, F_T;
     complex_t delta_A {0.0};
     complex_t had_err_factor {1.0};
+    double m_b_local;
 
     if (cfg.ff_type == B_FF_Type::SOFT) {
         complex_t w = cache.C[WCoef::C9] - cache.C[WCoef::CP9] + sign * (cache.C[WCoef::C10] - cache.C[WCoef::CP10]);
         if (bar) w = std::conj(w);
-        F = w * cache.ff_calculator.get(BV_FF::A1, q2) / (cache.m_B - cache.m_Ks);
+        F = w * cache.ff_calculator.get(BV_FF::XI_PERP, q2) * 2. * cache.ff_calculator.E(q2) / (cache.m_B * cache.m_B - cache.m_Ks * cache.m_Ks);
         F_T = 2. * cache.ff_calculator.E(q2) * T_perp_m_cached(q2, bar) / cache.m_B;
         size_t id = 2 + size_t (0.5 * (1 + sign));
         had_err_factor = 1.0 + cache.A_had_err_low_0[id] + cache.A_had_err_low_1[id] * q2 / 6.0;
+        m_b_local = cache.m_b_PS;
     } else {
         F_T = (cache.C[WCoef::C7] - cache.C[WCoef::CP7]) * cache.ff_calculator.get(BV_FF::T2, q2);
         complex_t w = cache.C[WCoef::C9] - cache.C[WCoef::CP9] + sign * (cache.C[WCoef::C10] - cache.C[WCoef::CP10]);
@@ -217,9 +288,16 @@ complex_t BKstarllDecay::A_par_low(double q2, double sign, bool bar) {
         if (cfg.power_corr_impl == BKstarllConfig::Power_Corrections_Impl::BFS) w += cache.qcdf_calculator.Y(q2);
         F = w * cache.ff_calculator.get(BV_FF::A1, q2) / (cache.m_B - cache.m_Ks);
         delta_A = delta_A_par(q2, sign, bar);
+        m_b_local = cache.m_b_PS + cache.alpha_s_mu_b * cache.Delta_M / (3 * PI);
     }
 
-    return (-N(q2, bar) * std::sqrt(2.) * (cache.m_B * cache.m_B - cache.m_Ks * cache.m_Ks) * (F + 2. * cache.m_b_PS * F_T / q2) + delta_A) * had_err_factor;
+    // printf("----- A_par -----\n");
+    // printf("pref = %.4e + %.4e i\n", real(-N(q2, bar) * std::sqrt(2.) * (cache.m_B * cache.m_B - cache.m_Ks * cache.m_Ks)), imag(-N(q2, bar) * std::sqrt(2.) * (cache.m_B * cache.m_B - cache.m_Ks * cache.m_Ks)));
+    // printf("F_V = %.4e + %.4e i\n", real(F), imag(F));
+    // printf("F_T = %.4e + %.4e i\n", real(F_T), imag(F_T));
+    // printf("delta_A = %.4e + %.4e i\n", real(delta_A), imag(delta_A));
+
+    return (-N(q2, bar) * std::sqrt(2.) * (cache.m_B * cache.m_B - cache.m_Ks * cache.m_Ks) * (F + 2. * m_b_local * F_T / q2) + delta_A) * had_err_factor;
 }
 
 complex_t BKstarllDecay::A_0_low(double q2, double sign, bool bar) {
@@ -228,14 +306,19 @@ complex_t BKstarllDecay::A_0_low(double q2, double sign, bool bar) {
     complex_t F, F_T;
     complex_t delta_A {0.0};
     complex_t had_err_factor {1.0};
+    double m_b_local;
 
     if (cfg.ff_type == B_FF_Type::SOFT) {
         complex_t w = cache.C[WCoef::C9] - cache.C[WCoef::CP9] + sign * (cache.C[WCoef::C10] - cache.C[WCoef::CP10]);
         if (bar) w = std::conj(w);
-        F = w * 16. * cache.m_B * mK2 * cache.ff_calculator.get(BV_FF::A12, q2);
-        F_T = 2. * cache.ff_calculator.E(q2) * (mB2 + 3. * mK2 - q2) * T_perp_m_cached(q2, bar) - lambda(q2) * (T_perp_m_cached(q2, bar) + T_par_m_cached(q2, bar)) / (mB2 - mK2);
+        F = w * (
+            (2 * cache.ff_calculator.E(q2) * (mB2 - mK2 - q2) - lambda(q2) * cache.m_B / (mB2 - mK2)) * cache.ff_calculator.get(BV_FF::XI_PERP, q2) 
+          + (lambda(q2) * cache.m_B / (mB2 - mK2)) * cache.ff_calculator.get(BV_FF::XI_PAR, q2)
+        );
+        F_T = 2. * cache.ff_calculator.E(q2) * (mB2 + 3. * mK2 - q2) / cache.m_B * T_perp_m_cached(q2, bar) - lambda(q2) * (T_perp_m_cached(q2, bar) + T_par_m_cached(q2, bar)) / (mB2 - mK2);
         size_t id = 4 + size_t (0.5 * (1 + sign));
         had_err_factor = 1.0 + cache.A_had_err_low_0[id] + cache.A_had_err_low_1[id] * q2 / 6.0;
+        m_b_local = cache.m_b_PS;
     } else {
         F_T = (cache.C[WCoef::C7] - cache.C[WCoef::CP7]) * 8. * cache.m_B * mK2 / (cache.m_B + cache.m_Ks) * cache.ff_calculator.get(BV_FF::T23, q2);
         complex_t w = cache.C[WCoef::C9] - cache.C[WCoef::CP9] + sign * (cache.C[WCoef::C10] - cache.C[WCoef::CP10]);
@@ -245,10 +328,17 @@ complex_t BKstarllDecay::A_0_low(double q2, double sign, bool bar) {
         } 
         if (cfg.power_corr_impl == BKstarllConfig::Power_Corrections_Impl::BFS) w += cache.qcdf_calculator.Y(q2);
         F = w * 16. * cache.m_B * mK2 * cache.ff_calculator.get(BV_FF::A12, q2);
-        delta_A = delta_A_par(q2, sign, bar);
+        delta_A = delta_A_0(q2, sign, bar);
+        m_b_local = cache.m_b_PS + cache.alpha_s_mu_b * cache.Delta_M / (3 * PI);
     }
 
-    return (-N(q2, bar) / (2. * cache.m_Ks * std::sqrt(q2)) * (F + 2. * cache.m_b_PS * F_T) + delta_A) * had_err_factor;
+    // printf("----- A_0 -----\n");
+    // printf("pref = %.4e + %.4e i\n", real(-N(q2, bar) / (2. * cache.m_Ks * std::sqrt(q2))), imag(-N(q2, bar) / (2. * cache.m_Ks * std::sqrt(q2))));
+    // printf("F_V = %.4e + %.4e i\n", real(F), imag(F));
+    // printf("F_T = %.4e + %.4e i\n", real(F_T), imag(F_T));
+    // printf("delta_A = %.4e + %.4e i\n", real(delta_A), imag(delta_A));
+
+    return (-N(q2, bar) / (2. * cache.m_Ks * std::sqrt(q2)) * (F + 2. * m_b_local * F_T) + delta_A) * had_err_factor;
 }
 
 complex_t BKstarllDecay::A_t_low(double q2, bool bar) {
@@ -266,7 +356,7 @@ complex_t BKstarllDecay::A_t_low(double q2, bool bar) {
         F = cache.ff_calculator.get(BV_FF::A0, q2);
     }
 
-    return N(q2, bar) * std::sqrt(lambda(q2) / q2) * ((C10 + q2 / (cache.m_l * (cache.m_b_mu_b + cache.m_s)) * CQ2)) * F;
+    return N(q2, bar) * std::sqrt(lambda(q2) / q2) * ((2. * C10 + q2 / (cache.m_l * (cache.m_b_mu_b + cache.m_s)) * CQ2)) * F;
 }
 
 complex_t BKstarllDecay::A_S_low(double q2, bool bar) {
@@ -312,9 +402,9 @@ complex_t BKstarllDecay::delta_A_0_QCDf(double q2, double sign, bool bar) {
     double mB3 = cache.m_B * mB2;
     double mK2 = cache.m_Ks * cache.m_Ks;
     double f = lambda(q2) / ((mB2 - mK2) * mB2);
-    complex_t delta_A_QCDf = -N(q2, bar) * cache.m_b_PS * mB2 / (std::sqrt(q2) * cache.m_Ks) * (
-        (2 * (mB2 + 3 * mK2 - q2) * cache.ff_calculator.E(q2) / mB3 - f) * T_perp_m_cached(q2, bar)
-      - f * T_par_m_cached(q2, bar)
+    complex_t delta_A_QCDf = -N(q2, bar) * (cache.m_b_PS + cache.alpha_s_mu_b * cache.Delta_M / (3 * PI)) * mB2 / (std::sqrt(q2) * cache.m_Ks) * (
+        (2 * (mB2 + 3 * mK2 - q2) * cache.ff_calculator.E(q2) / mB3 - f) * cache.qcdf_calculator.T_perp_m(q2, bar)
+      - f * cache.qcdf_calculator.T_par_m(q2, bar)
     );
     return delta_A_QCDf * guesstimate_err + delta_A_PC;
 }
@@ -349,7 +439,7 @@ complex_t BKstarllDecay::delta_A_0(double q2, double sign, bool bar) {
 complex_t BKstarllDecay::C7_eff(double q2, bool bar) {
     double s_hat = q2 / std::pow(cache.m_b_PS, 2);
     complex_t A = BV::A_Seidel(s_hat, cache.L_b);
-    return (bar ? std::conj(cache.C[WCoef::C7]) : cache.C[WCoef::C7]) + cache.alpha_s_mu_b / (4. * PI) * ((cache.C[WCoef::C1]-6.*cache.C[WCoef::C2])*A-cache.C[WCoef::C8]*BV::f_87(q2 / (cache.m_B * cache.m_B), cache.L_b));
+    return (bar ? std::conj(cache.C[WCoef::C7]) : cache.C[WCoef::C7]) + cache.alpha_s_mu_b / (4. * PI) * ((cache.C[WCoef::C1]-6.*cache.C[WCoef::C2])*A-cache.C[WCoef::C8]*BV::f_87(s_hat, cache.L_b));
 }
 
 complex_t BKstarllDecay::C9_eff(double q2, bool bar) {
@@ -368,7 +458,7 @@ complex_t BKstarllDecay::C9_eff(double q2, bool bar) {
          + BV::h(q2, 0., cache.mu_b) * C_h0
          + BV::h(q2, cache.m_b_PS, cache.mu_b) * C_hb
          + C_0
-         + cache.alpha_s_mu_b / (4. * PI) * (cache.C[WCoef::C1]*(B + 4. * C) - 3. * cache.C[WCoef::C2] * (2. * B - C) - cache.C[WCoef::C8] * BV::f_89(q2 / (cache.m_B * cache.m_B)))
+         + cache.alpha_s_mu_b / (4. * PI) * (cache.C[WCoef::C1]*(B + 4. * C) - 3. * cache.C[WCoef::C2] * (2. * B - C) - cache.C[WCoef::C8] * BV::f_89(s_hat))
          + std::pow(cache.m_c_mu_b, 2) / q2 * C_mc;
 }
 
@@ -377,6 +467,11 @@ complex_t BKstarllDecay::A_perp_high(double q2, double sign, bool bar) {
     complex_t C9 = C9_eff(q2, bar) + (bar ? std::conj(cache.C[WCoef::CP9]) : cache.C[WCoef::CP9]);
     complex_t C10 = cache.C[WCoef::C10] + cache.C[WCoef::CP10];
     if (bar) C10 = std::conj(C10);
+
+    // printf("C7eff = %.4e + %.4e i\n", std::real(C7_eff(q2, bar)), std::imag(C7_eff(q2, bar)));
+    // printf("C9eff = %.4e + %.4e i\n", std::real(C9_eff(q2, bar)), std::imag(C9_eff(q2, bar)));
+    // printf("f_perp = %.4e\n", cache.ff_calculator.get(BV_FF::F_PERP, q2));
+
     return N(q2, bar) * (C9 + sign * C10 + 2. * cache.kappa * cache.m_b_mu_b * cache.m_B / q2 * C7) * cache.ff_calculator.get(BV_FF::F_PERP, q2) * (1 + cache.A_had_err_high[size_t (0.5 * (1 + sign))]);
 }
 
@@ -403,7 +498,7 @@ complex_t BKstarllDecay::A_t_high(double q2, bool bar) {
         C10 = std::conj(C10);
         CQ2 = std::conj(CQ2);
     }
-    return N(q2, bar) / sqrt(q2 * lambda(q2)) * (2. * C10 + q2 / cache.m_l * CQ2 / (cache.m_b_mu_b + cache.m_s)) * cache.ff_calculator.get(BV_FF::A0, q2) * (1 + cache.A_had_err_high[6]);
+    return N(q2, bar) * sqrt(lambda(q2) / q2) * (2. * C10 + q2 / cache.m_l * CQ2 / (cache.m_b_mu_b + cache.m_s)) * cache.ff_calculator.get(BV_FF::A0, q2) * (1 + cache.A_had_err_high[6]);
 }
 
 complex_t BKstarllDecay::A_S_high(double q2, bool bar) {
@@ -447,11 +542,11 @@ double BKstarllDecay::J1s(double q2, bool bar) {
     return (2. + std::pow(beta_l(q2), 2)) / 4. * (
         std::pow(std::abs(A_perp(q2, -1, bar)), 2) 
       + std::pow(std::abs(A_perp(q2, 1, bar)), 2)
-      + std::pow(std::abs(A_perp(q2, -1, bar)), 2)
-      + std::pow(std::abs(A_perp(q2, 1, bar)), 2)
+      + std::pow(std::abs(A_par(q2, -1, bar)), 2)
+      + std::pow(std::abs(A_par(q2, 1, bar)), 2)
     ) + std::pow(2. * cache.m_l, 2) / q2 * std::real(
         A_perp(q2, -1, bar) * std::conj(A_perp(q2, 1, bar))
-      + A_perp(q2, -1, bar) * std::conj(A_perp(q2, 1, bar))
+      + A_par(q2, -1, bar) * std::conj(A_par(q2, 1, bar))
     );
 }
 
@@ -468,8 +563,8 @@ double BKstarllDecay::J2s(double q2, bool bar) {
     return std::pow(beta_l(q2), 2) / 4. * (
         std::pow(std::abs(A_perp(q2, -1, bar)), 2) 
       + std::pow(std::abs(A_perp(q2, 1, bar)), 2)
-      + std::pow(std::abs(A_perp(q2, -1, bar)), 2)
-      + std::pow(std::abs(A_perp(q2, 1, bar)), 2)
+      + std::pow(std::abs(A_par(q2, -1, bar)), 2)
+      + std::pow(std::abs(A_par(q2, 1, bar)), 2)
     );
 }
 
@@ -491,8 +586,8 @@ double BKstarllDecay::J3(double q2, bool bar) {
 
 double BKstarllDecay::J4(double q2, bool bar) {
     return std::pow(beta_l(q2), 2) / std::sqrt(2.) * (
-        std::real(A_0(q2, -1, bar) * std::conj(A_perp(q2, -1, bar))) 
-      + std::real(A_0(q2, 1, bar) * std::conj(A_perp(q2, 1, bar)))
+        std::real(A_0(q2, -1, bar) * std::conj(A_par(q2, -1, bar))) 
+      + std::real(A_0(q2, 1, bar) * std::conj(A_par(q2, 1, bar)))
     );
 }
 
@@ -500,14 +595,14 @@ double BKstarllDecay::J5(double q2, bool bar) {
     return beta_l(q2) * std::sqrt(2.) * (
         std::real(A_0(q2, -1, bar) * std::conj(A_perp(q2, -1, bar))) 
       - std::real(A_0(q2, 1, bar) * std::conj(A_perp(q2, 1, bar)))
-      - cache.m_l / std::sqrt(q2) * std::real((A_perp(q2, -1, bar) + A_perp(q2, 1, bar)) * std::conj(A_S(q2, bar)))
+      - cache.m_l / std::sqrt(q2) * std::real((A_par(q2, -1, bar) + A_par(q2, 1, bar)) * std::conj(A_S(q2, bar)))
     );
 }
 
 double BKstarllDecay::J6s(double q2, bool bar) {
     return 2. * beta_l(q2) * (
-        std::real(A_perp(q2, -1, bar) * std::conj(A_perp(q2, -1, bar))) 
-      - std::real(A_perp(q2, 1, bar) * std::conj(A_perp(q2, 1, bar))) 
+        std::real(A_par(q2, -1, bar) * std::conj(A_perp(q2, -1, bar))) 
+      - std::real(A_par(q2, 1, bar) * std::conj(A_perp(q2, 1, bar))) 
     );
 }
 
@@ -517,8 +612,8 @@ double BKstarllDecay::J6c(double q2, bool bar) {
 
 double BKstarllDecay::J7(double q2, bool bar) {
     return beta_l(q2) * std::sqrt(2.) * (
-        std::imag(A_0(q2, -1, bar) * std::conj(A_perp(q2, -1, bar))) 
-      - std::imag(A_0(q2, 1, bar) * std::conj(A_perp(q2, 1, bar)))
+        std::imag(A_0(q2, -1, bar) * std::conj(A_par(q2, -1, bar))) 
+      - std::imag(A_0(q2, 1, bar) * std::conj(A_par(q2, 1, bar)))
       + cache.m_l / std::sqrt(q2) * std::imag((A_perp(q2, -1, bar) + A_perp(q2, 1, bar)) * std::conj(A_S(q2, bar)))
     );
 }
@@ -538,9 +633,9 @@ double BKstarllDecay::J9(double q2, bool bar) {
 }
 
 void BKstarllDecay::compute_binned_J_i() {
-    auto fill_binned = [&] (std::array<std::vector<double>, 14>& dest, bool bar) {
+    auto fill_binned = [&] (std::array<std::vector<double>, 15>& dest, bool bar) {
         for (auto [q2_l, q2_u] : cfg.bins) {
-            dest[0].emplace_back(integrate([&] (double q2) { return 2 * J1s(q2, bar) + J1c(q2, bar); }, q2_l, q2_u, 1e-2));
+            dest[0].emplace_back(integrate([&] (double q2) { return 2. * J1s(q2, bar) + J1c(q2, bar); }, q2_l, q2_u, 1e-2));
             dest[1].emplace_back(integrate([&] (double q2) { return J2s(q2, bar); }, q2_l, q2_u, 1e-2));
             dest[2].emplace_back(integrate([&] (double q2) { return J2c(q2, bar); }, q2_l, q2_u, 1e-2));
             dest[3].emplace_back(integrate([&] (double q2) { return J3(q2, bar); }, q2_l, q2_u, 1e-2));
@@ -554,6 +649,7 @@ void BKstarllDecay::compute_binned_J_i() {
             dest[11].emplace_back(integrate([&] (double q2) { return beta_l(q2) * J7(q2, bar); }, q2_l, q2_u, 1e-2));
             dest[12].emplace_back(integrate([&] (double q2) { return J8(q2, bar); }, q2_l, q2_u, 1e-2));
             dest[13].emplace_back(integrate([&] (double q2) { return J9(q2, bar); }, q2_l, q2_u, 1e-2));
+            dest[14].emplace_back(integrate([&] (double q2) { return J1c(q2, bar); }, q2_l, q2_u, 1e-2));
         }
     };
 
@@ -618,10 +714,9 @@ std::vector<ObservableValue> BKstarllDecay::A_CP_binned() {
 
 std::vector<ObservableValue> BKstarllDecay::F_L_binned() {
     std::vector<ObservableValue> out;
-    std::vector<ObservableValue> f_t = F_T_binned();
     ObservableId id = ObservableMapper::to_id(Observables::F_L_B__KSTAR_L_L);
     for (size_t i = 0; i < cfg.bins.size(); i++) {
-        double res = 1. - f_t[i].value; 
+        double res = (0.75 * (cache.J_i_binned[14][i] + cache.J_i_bar_binned[14][i]) - 0.25 * (cache.J_i_binned[2][i] + cache.J_i_bar_binned[2][i])) / dG_dq2_avg_bin(i); 
         out.emplace_back(id, res, cfg.bins[i]);
     }   
     return out;
@@ -674,7 +769,7 @@ std::vector<ObservableValue> BKstarllDecay::A_T_3_binned() {
         double J3cp = cache.J_i_binned[3][i] + cache.J_i_bar_binned[3][i];
         double J4cp = cache.J_i_binned[4][i] + cache.J_i_bar_binned[4][i];
         double J7cp = cache.J_i_binned[11][i] + cache.J_i_bar_binned[11][i];
-        double res = std::sqrt((4 * J4cp * J4cp + J7cp * J7cp) / std::abs(2 * J2ccp * (2 * J2scp + J3cp)));
+        double res = std::sqrt((4 * J4cp * J4cp + J7cp * J7cp) / std::abs(-2 * J2ccp * (2 * J2scp + J3cp)));
         out.emplace_back(id, res, cfg.bins[i]);
     }   
     return out;
@@ -696,17 +791,23 @@ std::vector<ObservableValue> BKstarllDecay::A_T_4_binned() {
 
 std::vector<ObservableValue> BKstarllDecay::A_T_5_binned() {
     auto num_f = [this] (double q2) {
-        complex_t AperpApar = A_perp(q2, 1, false) * std::conj(A_par(q2, -1, false)) + A_perp(q2, -1, false) * std::conj(A_par(q2, 1, false));
-        complex_t AperpApar_bar = A_perp(q2, 1, true) * std::conj(A_par(q2, -1, true)) + A_perp(q2, -1, true) * std::conj(A_par(q2, 1, true));
-        return std::pow(beta_l(q2), 2) * std::abs(AperpApar + AperpApar_bar);
+        complex_t AperpApar = A_par(q2, 1, false) * std::conj(A_perp(q2, -1, false)) + A_perp(q2, 1, false) * std::conj(A_par(q2, -1, false));
+        complex_t AperpApar_bar = A_par(q2, 1, true) * std::conj(A_perp(q2, -1, true)) + A_perp(q2, 1, true) * std::conj(A_par(q2, -1, true));
+        return std::abs(AperpApar + AperpApar_bar);
+    };
+
+    auto den_f = [this] (double q2) {
+        double Aperp2Apar2 = (std::pow(std::abs(A_perp(q2, -1, false)), 2) + std::pow(std::abs(A_perp(q2, 1, false)), 2) + std::pow(std::abs(A_par(q2, -1, false)), 2) + std::pow(std::abs(A_par(q2, 1, false)), 2));
+        double Aperp2Apar2bar = (std::pow(std::abs(A_perp(q2, -1, true)), 2) + std::pow(std::abs(A_perp(q2, 1, true)), 2) + std::pow(std::abs(A_par(q2, -1, true)), 2) + std::pow(std::abs(A_par(q2, 1, true)), 2));
+        return Aperp2Apar2 + Aperp2Apar2bar;
     };
 
     std::vector<ObservableValue> out;
     ObservableId id = ObservableMapper::to_id(Observables::A_T_5_B__KSTAR_L_L);
     for (size_t i = 0; i < cfg.bins.size(); i++) {
-        double J2scpa = cache.J_i_binned[1][i] + cache.J_i_bar_binned[1][i];
         double num = integrate(num_f, cfg.bins[i].first, cfg.bins[i].second, 1e-2);
-        double res = 0.25 * num / J2scpa; 
+        double den = integrate(den_f, cfg.bins[i].first, cfg.bins[i].second, 1e-2);
+        double res = num / den; 
         out.emplace_back(id, res, cfg.bins[i]);
     }   
     return out;
@@ -870,7 +971,7 @@ std::vector<ObservableValue> BKstarllDecay::Pp_i_binned(size_t i, bool cpv) {
         double J2scp = cache.J_i_binned[1][j] + cache.J_i_bar_binned[1][j];
         double J2ccp = cache.J_i_binned[2][j] + cache.J_i_bar_binned[2][j];
         double Jicp = cache.J_i_binned[J_idx[i]][j] + sign * cache.J_i_bar_binned[J_idx[i]][j];
-        double res = Jicp / std::sqrt(std::abs(J2ccp * J2scp));
+        double res = factors[i] * Jicp / std::sqrt(std::abs(J2ccp * J2scp));
         out.emplace_back(id, res, cfg.bins[j]);
     }   
     return out;
@@ -879,9 +980,7 @@ std::vector<ObservableValue> BKstarllDecay::Pp_i_binned(size_t i, bool cpv) {
 std::vector<ObservableValue> BKstarllDecay::S_i_binned(size_t i, bool cpv) {
     if (i < 3 || i > 9) LOG_ERROR("Value Error", "S_i(B > K*ll) is not defined for i =", i);
 
-    if (i == 6) i = 9;
-    else if (i == 7) i = 10;
-    else if (i >= 8) i += 4;
+    std::map<size_t, size_t> J_idx = {{3, 3}, {4, 4}, {5, 5}, {6, cpv ? 7 : 9}, {7, 10}, {8, 12}, {9, 13}};
 
     std::map<size_t, Observables> ids = {
         {3, cpv ? Observables::A_3_B__KSTAR_L_L : Observables::S_3_B__KSTAR_L_L},
@@ -898,8 +997,8 @@ std::vector<ObservableValue> BKstarllDecay::S_i_binned(size_t i, bool cpv) {
     std::vector<ObservableValue> out;
     ObservableId id = ObservableMapper::to_id(ids[i]);
     for (size_t j = 0; j < cfg.bins.size(); j++) {
-        double res = (cache.J_i_binned[i][j] + sign * cache.J_i_bar_binned[i][j]) / dG_dq2_avg_bin(j); 
-        out.emplace_back(id, res, cfg.bins[j]);
+        double res = (cache.J_i_binned[J_idx[i]][j] + sign * cache.J_i_bar_binned[J_idx[i]][j]) / dG_dq2_avg_bin(j); 
+        out.emplace_back(id, i == 6 ? -res : res, cfg.bins[j]);
     }   
     return out;
 }
@@ -920,7 +1019,7 @@ std::vector<ObservableValue> BKstarllDecay::P_i_CPV_binned(size_t i) {
     for (size_t j = 0; j < cfg.bins.size(); j++) {
         double J2scp = cache.J_i_binned[1][j] + cache.J_i_bar_binned[1][j];
         double Jicpv = cache.J_i_binned[J_idx[i]][j] - cache.J_i_bar_binned[J_idx[i]][j];
-        double res = Jicpv / J2scp;
+        double res = factors[i] * Jicpv / J2scp;
         out.emplace_back(id, res, cfg.bins[j]);
     }   
     return out;
@@ -1011,8 +1110,8 @@ void BKstarllDecay::test_J() {
     };
 
     size_t n = 200;
-    double dq2 = (cache.q2_max - cache.q2_min) / n;
-    double q2 = cache.q2_min;
+    double dq2 = (cfg.bins[0].second - cfg.bins[0].first) / n;
+    double q2 = cfg.bins[0].first;
 
     for (size_t i = 0; i <= n; i++) {
         write_line(q2);
@@ -1060,7 +1159,7 @@ void BKstarllDecay::test_binned_obs() {
 std::vector<ObservableValue> BKstarllDecay::compute_observable(Observables obs) {
     switch (obs) {
     case Observables::TEST:   
-        test_binned_obs();
+        test_J();
         return {};
     case Observables::DGAMMA_DQ2_B__KSTAR_L_L:   
         return dG_dq2_binned(false);

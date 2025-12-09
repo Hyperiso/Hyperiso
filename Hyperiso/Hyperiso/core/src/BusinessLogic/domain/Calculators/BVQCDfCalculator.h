@@ -28,7 +28,7 @@ public:
 
     complex_t I_HSA_1(double q2, bool bar);
     complex_t I_HSA_2(double q2, bool bar);
-    complex_t delta_T_perp_WA(double q2);
+    complex_t delta_T_perp_WA(double q2, bool bar);
     complex_t delta_T_perp_HSA(double q2, bool bar);
 };
 

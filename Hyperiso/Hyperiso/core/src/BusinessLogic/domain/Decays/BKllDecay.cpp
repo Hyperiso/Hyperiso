@@ -30,6 +30,7 @@ void BKllDecay::load_params() {
     // cache.m_c_mu_b = ObsQCDProxy()(MassConfig(4, cache.mu_b, MassType::MSBAR, MassType::POLE));
     cache.m_c_mu_b = p(ParamId{ParameterType::SM, "MASS", 4}); // To match Superiso
     cache.m_b_mu_b = ObsQCDProxy()(MassConfig(5, cache.mu_b, MassType::MSBAR, MassType::POLE));
+    cache.m_b_m_b = p(ParamId{ParameterType::SM, "QCD", {5, 1}}); // To match SI at high q² : why not m_b(mu_b) ?
     double mu_f = sqrt(cache.mu_b * p(ParamId{ParameterType::DECAY, "B_K", 14}));
     cache.m_b_PS = p(ParamId{ParameterType::SM, "QCD", {5, 2}}) - 4 * ObsQCDProxy()(AlphasConfig(p(ParamId{ParameterType::SM, "QCD", {5, 2}}), MassType::POLE, MassType::POLE)) * mu_f / (3 * PI);
     cache.L_b = std::log(cache.mu_b / cache.m_b_PS);
@@ -44,36 +45,43 @@ void BKllDecay::load_params() {
     cache.q2_low = p(ParamId{ParameterType::DECAY, "B_K", {15, 1}});
     cache.q2_high = p(ParamId{ParameterType::DECAY, "B_K", {15, 2}});
 
-    printf("alpha_em = %.4e\n", cache.alpha_em);
-    printf("m_l = %.4e\n", cache.m_l);
-    printf("m_s = %.4e\n", cache.m_s);
-    printf("mu_b = %.4e\n", cache.mu_b);
-    printf("alpha_s(mu_b) = %.4e\n", cache.alpha_s_mu_b);
-    printf("m_c(mu_b) = %.4e\n", cache.m_c_mu_b);
-    printf("m_b(mu_b) = %.4e\n", cache.m_b_mu_b);
-    printf("m_b_PS = %.4e\n", cache.m_b_PS);
-    printf("L_b = %.4e\n", cache.L_b);
-    printf("m_B = %.4e\n", cache.m_B);
-    printf("m_K = %.4e\n", cache.m_K);
-    printf("Delta_M = %.4e\n", cache.Delta_M);
-    printf("lambda_hat_u = %.4e + %.4e i\n", cache.lambda_hat_u.real(), cache.lambda_hat_u.imag());
-    printf("N_0 = %.4e\n", cache.N_0);
+    // printf("alpha_em = %.4e\n", cache.alpha_em);
+    // printf("m_l = %.4e\n", cache.m_l);
+    // printf("m_s = %.4e\n", cache.m_s);
+    // printf("mu_b = %.4e\n", cache.mu_b);
+    // printf("alpha_s(mu_b) = %.4e\n", cache.alpha_s_mu_b);
+    // printf("m_c(mu_b) = %.4e\n", cache.m_c_mu_b);
+    // printf("m_b(mu_b) = %.4e\n", cache.m_b_mu_b);
+    // printf("m_b_PS = %.4e\n", cache.m_b_PS);
+    // printf("L_b = %.4e\n", cache.L_b);
+    // printf("m_B = %.4e\n", cache.m_B);
+    // printf("m_K = %.4e\n", cache.m_K);
+    // printf("Delta_M = %.4e\n", cache.Delta_M);
+    // printf("lambda_hat_u = %.4e + %.4e i\n", cache.lambda_hat_u.real(), cache.lambda_hat_u.imag());
+    // printf("N_0 = %.4e\n", cache.N_0);
 
-    printf("f_0(s = 1.0 GeV²) = %.4e\n", cache.ff_calculator.get(BP_FF::F_0, 1.0));
-    printf("f_+(s = 1.0 GeV²) = %.4e\n", cache.ff_calculator.get(BP_FF::F_PLUS, 1.0));
-    printf("f_T(s = 1.0 GeV²) = %.4e\n", cache.ff_calculator.get(BP_FF::F_T, 1.0));
+    // printf("f_0(s = 1.0 GeV²) = %.4e\n", cache.ff_calculator.get(BP_FF::F_0, 1.0));
+    // printf("f_+(s = 1.0 GeV²) = %.4e\n", cache.ff_calculator.get(BP_FF::F_PLUS, 1.0));
+    // printf("f_T(s = 1.0 GeV²) = %.4e\n", cache.ff_calculator.get(BP_FF::F_T, 1.0));
 
-    // auto lam_T_P = [this] (double q2, bool bar) { return cache.qcdf_calculator.T_P(q2, bar); };
-    // fill_cache(lam_T_P, cache.q2_min, cache.q2_high, cache.T_P_lookup, false); 
+    auto lam_T_P = [this] (double q2, bool bar) { return cache.qcdf_calculator.T_P(q2, bar); };
+    fill_cache(lam_T_P, cache.q2_min, cache.q2_high, cache.T_P_lookup, false); 
 
-    // compute_binned_abc();
+    printf("T_P = %.4e + %.4e i\n", real(cache.qcdf_calculator.T_P(1.0, false)), imag(cache.qcdf_calculator.T_P(1.0, false)));
+
+    printf("F_A(s = 1.0 GeV²) = %.4e + %.4e i\n", real(F_A(1.0)), imag(F_A(1.0)));
+    printf("F_V(s = 1.0 GeV²) = %.4e + %.4e i\n", real(F_V(1.0)), imag(F_V(1.0)));
+    printf("F_S(s = 1.0 GeV²) = %.4e + %.4e i\n", real(F_S(1.0)), imag(F_S(1.0)));
+    printf("F_P(s = 1.0 GeV²) = %.4e + %.4e i\n", real(F_P(1.0)), imag(F_P(1.0)));
+
+    compute_binned_abc();
 }
 
 void BKllDecay::fill_wilson_cache() {
     auto b_wilsons = w_proxy->getAFR(WGroup::B, this->w_config.order);
     auto bp_wilsons = w_proxy->getAFR(WGroup::BPrime, this->w_config.order);
     auto bq_wilsons = w_proxy->getAFR(WGroup::BScalar, this->w_config.order);
-    WCoef bp_cached[5] {WCoef::CP7, WCoef::CP9, WCoef::CP10, WCoef::CPQ1, WCoef::CPQ2};
+    WCoef bp_cached[6] {WCoef::CP7, WCoef::CP8, WCoef::CP9, WCoef::CP10, WCoef::CPQ1, WCoef::CPQ2};
 
     for (auto p : b_wilsons) cache.C.emplace(p); 
     for (auto p : bq_wilsons) cache.C.emplace(p);
@@ -115,6 +123,14 @@ complex_t BKllDecay::F_V_low(double q2) {
         m_b_local = cache.m_b_PS + cache.alpha_s_mu_b * cache.Delta_M / (3 * PI);
     }
 
+    // printf("C7 = %.4e\n", real(cache.C[WCoef::C7]));
+    // printf("C9 = %.4e\n", real(cache.C[WCoef::C9]));
+    // printf("C'7 = %.4e\n", real(cache.C[WCoef::CP7]));
+    // printf("C'9 = %.4e\n", real(cache.C[WCoef::CP9]));
+    // printf("m_b_local = %.4e\n", m_b_local);
+    // printf("F = %.4e + %.4e i\n", real(F), imag(F));
+    // printf("F_T = %.4e + %.4e i\n", real(F_T), imag(F_T));
+
     return (F + 2. * m_b_local / (cache.m_B + cache.m_K) * F_T) * had_err_factor;
 }
 
@@ -135,11 +151,14 @@ complex_t BKllDecay::F_P_low(double q2) {
 
     if (cfg.ff_type == B_FF_Type::SOFT) {
         f_p = cache.ff_calculator.get(BP_FF::XI_P, q2);
-        f0_fp = 2. * (std::pow(cache.m_B, 2) + std::pow(cache.m_K, 2) - q2) / (2 * std::pow(cache.m_B, 2)) * cache.qcdf_calculator.Delta_P_0(q2);
+        f0_fp = (std::pow(cache.m_B, 2) + std::pow(cache.m_K, 2) - q2) / std::pow(cache.m_B, 2) * cache.qcdf_calculator.Delta_P_0(q2);
     } else {
         f_p = cache.ff_calculator.get(BP_FF::F_PLUS, q2);
         f0_fp = cache.ff_calculator.get(BP_FF::F_0, q2) / f_p;
     }
+
+    printf("Delta_P_0(s = %.5f GeV²) = %.4e\n", q2, cache.qcdf_calculator.Delta_P_0(q2));
+	printf("f0_fp(s = %.5f GeV²) = %.4e\n", q2, f0_fp);
 
     return f_p * ((std::pow(cache.m_B, 2) - std::pow(cache.m_K, 2)) / (2 * (cache.m_b_mu_b - cache.m_s)) * f0_fp * (cache.C[WCoef::CQ2] + cache.C[WCoef::CPQ2])
                     - cache.m_l * (cache.C[WCoef::C10] + cache.C[WCoef::CP10]) * (1. - (std::pow(cache.m_B, 2) - std::pow(cache.m_K, 2)) / q2 * (f0_fp - 1.)));
@@ -161,7 +180,7 @@ complex_t BKllDecay::F_S_low(double q2) {
 complex_t BKllDecay::C7_eff(double q2) {
     double s_hat = q2 / std::pow(cache.m_b_PS, 2);
     complex_t A = BV::A_Seidel(s_hat, cache.L_b);
-    return cache.C[WCoef::C7] + cache.alpha_s_mu_b / (4. * PI) * ((cache.C[WCoef::C1]-6.*cache.C[WCoef::C2])*A-cache.C[WCoef::C8]*BV::f_87(q2 / (cache.m_B * cache.m_B), cache.L_b));
+    return cache.C[WCoef::C7] + cache.alpha_s_mu_b / (4. * PI) * ((cache.C[WCoef::C1]-6.*cache.C[WCoef::C2])*A-cache.C[WCoef::C8]*BV::f_87(s_hat, cache.L_b));
 }
 
 complex_t BKllDecay::C9_eff(double q2) {
@@ -179,13 +198,13 @@ complex_t BKllDecay::C9_eff(double q2) {
          + BV::h(q2, 0., cache.mu_b) * C_h0
          + BV::h(q2, cache.m_b_PS, cache.mu_b) * C_hb
          + C_0
-         + cache.alpha_s_mu_b / (4. * PI) * (cache.C[WCoef::C1]*(B + 4. * C) - 3. * cache.C[WCoef::C2] * (2. * B - C) - cache.C[WCoef::C8] * BV::f_89(q2 / (cache.m_B * cache.m_B)))
+         + cache.alpha_s_mu_b / (4. * PI) * (cache.C[WCoef::C1]*(B + 4. * C) - 3. * cache.C[WCoef::C2] * (2. * B - C) - cache.C[WCoef::C8] * BV::f_89(s_hat))
          + std::pow(cache.m_c_mu_b, 2) / q2 * C_mc;
 }
 
 complex_t BKllDecay::F_V_high(double q2) {
     return (C9_eff(q2) + cache.C[WCoef::CP9]) * cache.ff_calculator.get(BP_FF::F_PLUS, q2) 
-            + 2. * cache.m_b_mu_b / (cache.m_B + cache.m_K) * (C7_eff(q2) + cache.C[WCoef::CP7]) * cache.ff_calculator.get(BP_FF::F_T, q2);
+            + 2. * cache.m_b_m_b / (cache.m_B + cache.m_K) * (C7_eff(q2) + cache.C[WCoef::CP7]) * cache.ff_calculator.get(BP_FF::F_T, q2);
 }
 
 complex_t BKllDecay::F_A_high(double q2) {
@@ -195,13 +214,13 @@ complex_t BKllDecay::F_A_high(double q2) {
 complex_t BKllDecay::F_P_high(double q2) {
     double f_p = cache.ff_calculator.get(BP_FF::F_PLUS, q2);
     double f0_fp = cache.ff_calculator.get(BP_FF::F_0, q2) / f_p;
-    return f_p * ((std::pow(cache.m_B, 2) - std::pow(cache.m_K, 2)) / (2 * (cache.m_b_mu_b - cache.m_s)) * f0_fp * (cache.C[WCoef::CQ2] + cache.C[WCoef::CPQ2])
+    return f_p * ((std::pow(cache.m_B, 2) - std::pow(cache.m_K, 2)) / (2 * (cache.m_b_m_b - cache.m_s)) * f0_fp * (cache.C[WCoef::CQ2] + cache.C[WCoef::CPQ2])
                     - cache.m_l * (cache.C[WCoef::C10] + cache.C[WCoef::CP10]) * (1. - (std::pow(cache.m_B, 2) - std::pow(cache.m_K, 2)) / q2 * (f0_fp - 1.)));
 }
 
 complex_t BKllDecay::F_S_high(double q2) {
     double ff = cache.ff_calculator.get(BP_FF::F_0, q2);
-    return (std::pow(cache.m_B, 2) - std::pow(cache.m_K, 2)) / (2 * (cache.m_b_mu_b - cache.m_s)) * (cache.C[WCoef::CQ1] + cache.C[WCoef::CPQ1]) * ff;
+    return (std::pow(cache.m_B, 2) - std::pow(cache.m_K, 2)) / (2 * (cache.m_b_m_b - cache.m_s)) * (cache.C[WCoef::CQ1] + cache.C[WCoef::CPQ1]) * ff;
 }
 
 complex_t BKllDecay::interpolate(double q2, complex_t val_low, complex_t val_high) {

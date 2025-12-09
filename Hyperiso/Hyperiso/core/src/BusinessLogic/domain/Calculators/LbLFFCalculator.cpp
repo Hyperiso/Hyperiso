@@ -3,7 +3,7 @@
 LbLFFCalculator::LbLFFCalculator(LbL_FF_Src src) {
     ObsParameterProxy p(ParameterType::FLAVOR);
     double m_B = p("FMASS", 521);
-    double m_K = p("FMASS", 311);
+    double m_K = p("FMASS", 321);
     this->m_Lb = p("FMASS", 5122);
     this->m_L = p("FMASS", 3122);
     this->t_p = std::pow(m_B + m_K, 2);

@@ -132,7 +132,7 @@ protected:
     double delta_bremB_base(double s);
     double delta_bremB(double s);
     double delta_em(double s, double L_l);
-    double dB_ds(double s, double ml_hat, double L_l);
+    double dB_ds(double s, double ml_hat, double L_l, int gen);
 
     double A_FB_0(double s, double ml_hat);
     double delta_A_mb2(double s);
