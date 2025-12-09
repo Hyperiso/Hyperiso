@@ -6,6 +6,7 @@ void init_math(py::module &);
 void init_core(py::module &);
 void init_wilson(py::module &);
 void init_observable(py::module &);
+void init_statistic(py::module &);
 
 PYBIND11_MODULE(pyhyperiso, m) {
     m.doc() = "Python interface for hyperiso project";
@@ -24,4 +25,7 @@ PYBIND11_MODULE(pyhyperiso, m) {
 
     auto observable = m.def_submodule("observable", "Observable computation");
     init_observable(observable);
+
+    auto statistic = m.def_submodule("statistic", "Statistic computation");
+    init_statistic(statistic);
 }

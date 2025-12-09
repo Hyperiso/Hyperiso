@@ -34,7 +34,7 @@ void WilsonParameterHelper::init_matching_block() {
 	std::unordered_map<ParameterType, std::vector<std::string>> src = {{ParameterType::SM, {"MASS", "QCD"}}, {ParameterType::WILSON, {"EW_SCALE"}}};
 
     auto func = [] (const BlockSrc& src, std::shared_ptr<DependentBlock> dep_block) {
-        LOG_INFO("Update wilson matching block");
+        LOG_DEBUG("Update wilson matching block");
 		double mu_W = src.get_val("EW_SCALE", 1);
         double alphas_muW = QCDHelper::alpha_s(mu_W);
 

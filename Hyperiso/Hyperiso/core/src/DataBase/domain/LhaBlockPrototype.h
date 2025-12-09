@@ -1,9 +1,9 @@
-#ifndef __LHABLOCKPROTOTYPE_H__
-#define __LHABLOCKPROTOTYPE_H__
+#ifndef LHABLOCKPROTOTYPE_H
+#define LHABLOCKPROTOTYPE_H
 
 #include <string>
 #include <unordered_set>
-#include "General.h"
+#include "BlockName.h"
 
 /**
  * @struct Prototype
@@ -96,4 +96,4 @@ const Prototype FPARAM = Prototype{"FPARAM", 9, 2, 3};
 const std::unordered_set<Prototype> FLHA_BLOCKS = {FCINFO, FMODSEL, FMASS, FLIFE, FCONST, FCONSTRATIO, FBAG, FWCOEF, IMFWCOEF, FOBS, FOBSERR, FOBSSM, FDIPOLE, FPARAM};
 
 
-#endif // __LHABLOCKPROTOTYPE_H__
+#endif // LHABLOCKPROTOTYPE_H

@@ -1,5 +1,6 @@
 #include "Parameters.h"
 #include "DependentBlockManager.h"
+#include "MemoryManager.h"
 
 std::map<ParameterType, std::shared_ptr<Parameters>> Parameters::instances;
 std::map<ParameterType, std::shared_ptr<Parameters>> ParametersFactory::instances;

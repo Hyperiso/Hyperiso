@@ -34,10 +34,13 @@ endif()
 add_library(StatisticLib STATIC 
     adapters/StatCorrelationProxy.cpp
     adapters/StatParameterProxy.cpp
+    adapters/StatParamSourcesProxy.cpp
+    adapters/StatParamOptimizerProxy.cpp
     domain/RNGHelper.cpp
     domain/RandomVectorGenerator.cpp
     domain/Fit.cpp
     domain/Likelihood.cpp
+    domain/CovarianceTransformer.cpp
     domain/Distribution/DistributionFactory.cpp
     domain/Distribution/StandardNormal.cpp
 )
@@ -74,6 +77,9 @@ target_link_libraries(REAL_STAT_TEST StatisticLib)
 
 add_executable(ADAPTERS_TEST app/test_adapters.cpp)
 target_link_libraries(ADAPTERS_TEST StatisticLib)
+
+add_executable(MANAGER_STAT app/example_manager.cpp)
+target_link_libraries(MANAGER_STAT StatisticLib)
 
 include(GNUInstallDirs)
 

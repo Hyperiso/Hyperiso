@@ -6,7 +6,7 @@
 #include <algorithm>
 
 // Adapte ces includes à ton arborescence :
-#include "General.h"     // devrait fournir ParameterType et souvent BlockName/LhaID/ParamId
+#include "Include.h"     // devrait fournir ParameterType et souvent BlockName/LhaID/ParamId
 
 static bool is_nullopt(const std::optional<ParameterType>& t) {
     return !t.has_value();

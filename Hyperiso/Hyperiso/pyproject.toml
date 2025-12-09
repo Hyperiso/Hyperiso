@@ -1,0 +1,80 @@
+[build-system]
+# scikit-build-core gère CMake + Ninja pour nous
+requires = [
+  "scikit-build-core>=0.10",
+  "pybind11>=2.8.0",
+]
+build-backend = "scikit_build_core.build"
+
+[project]
+name = "pyhyperiso"                 # Nom du package PyPI (pip install pyhyperiso)
+version = "0.1.0"
+description = "Hyperiso Python binding (C++ backend via pybind11)"
+readme = "README.md"
+requires-python = ">=3.9"
+authors = [
+  { name = "Théo Reymermier" },
+  { name = "Niels Fardeau" },
+]
+license = { text = "MIT" }
+
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Operating System :: POSIX :: Linux",
+  "Programming Language :: C++",
+  "Topic :: Scientific/Engineering",
+]
+
+[project.urls]
+Homepage = "https://github.com/Hyperiso/Hyperiso"
+Source   = "https://github.com/Hyperiso/Hyperiso"
+
+# ----------------------------
+# scikit-build-core (CMake + wheel)
+# ----------------------------
+[tool.scikit-build]
+minimum-version = "0.10"
+
+# Paquet Python à inclure dans le wheel (dossier pyhyperiso/)
+wheel.packages = ["pyhyperiso"]
+
+# Pour voir les commandes CMake/Ninja
+build.verbose = true
+
+# Sous-table CMake (une seule fois)
+[tool.scikit-build.cmake]
+# CMakeLists.txt du binding C++ (RELATIF à ce pyproject.toml)
+source-dir = "core/src/Python"
+
+# Type de build par défaut
+build-type = "Debug"
+
+# Options CMake (via des "dotted keys")
+define.CMAKE_INTERPROCEDURAL_OPTIMIZATION = "OFF"
+define.CMAKE_CXX_FLAGS_RELEASE = "-O0"
+
+# ----------------------------
+# cibuildwheel : wheels Linux multi-Python
+# ----------------------------
+[tool.cibuildwheel]
+# On ne build que pour CPython 3.9+ (Linux)
+build = "cp39-* cp310-* cp311-* cp312-*"
+
+# On ignore PyPy et musllinux pour commencer
+skip = "pp* *-musllinux*"
+
+[tool.cibuildwheel.linux]
+archs = ["x86_64"]          # tu pourras ajouter "aarch64" plus tard
+before-all = "yum install -y eigen3-devel"
+#manylinux-x86_64-image = "manylinux_2_28"
+
+[tool.cibuildwheel.macos]
+skip = "*"
+
+[tool.cibuildwheel.windows]
+skip = "*"

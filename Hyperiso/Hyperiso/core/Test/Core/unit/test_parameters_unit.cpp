@@ -4,7 +4,7 @@
 #include "MemoryManager.h"
 #include "Config.h"
 #include "Paths.h"
-#include "General.h"
+#include "Include.h"
 #include "dummies_mm.hpp"
 
 static bool contains(const std::unordered_set<BlockName>& s, const BlockName& b){

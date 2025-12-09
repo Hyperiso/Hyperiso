@@ -45,74 +45,88 @@ std::vector<Token> LhaParser::tokenize(const std::string &src) const {
     return tokens;
 }
 
-std::map<BlockName, std::vector<std::vector<std::string>>> LhaParser::parse_tokens(std::vector<Token> tokens, bool comments) const {
-    bool newBlock = false;
-    bool hasGlobalScale = false;
-    bool isQ = false;
-    bool skipBlock = false;
-    bool decay = false;
-    std::string globalQ;
-    BlockName cBlock;
 
-    int cCol = INT_MAX;
+std::map<BlockName, std::vector<std::vector<std::string>>>
+LhaParser::parse_tokens(std::vector<Token> tokens, bool comments) const
+{
+    bool newBlock       = false;
+    bool hasGlobalScale = false;
+    bool isQ            = false;
+    bool skipBlock      = false;
+    bool decay          = false;
+
+    std::string globalQ;
+    BlockName   cBlock;
+    int         cCol = INT_MAX;
 
     std::map<BlockName, std::vector<std::vector<std::string>>> rawBlocks;
+    auto current_block_it = rawBlocks.end();
 
     for (const Token& t : tokens) {
         if (newBlock) {
             auto prototype = this->findPrototype(t.value);
             if (prototype.blockName != "") {
                 LOG_DEBUG("LHA reader: Block ", prototype.blockName, " found.");
-                rawBlocks[prototype.blockName] = std::vector<std::vector<std::string>> {};
-                cBlock = prototype.blockName;
-                hasGlobalScale = prototype.globalScale;
-                skipBlock = false;
-            } else if (decay) {
-                LOG_DEBUG("LHA reader: Decay block found. Skipping.");
-                skipBlock = true;
-                decay = false;
-            } else {
-                LOG_WARN("LHA reader: Unknown block " + t.value + " encountered. Skipping.");
-                skipBlock = true;
+
+                cBlock        = prototype.blockName;
+                hasGlobalScale= prototype.globalScale;
+                skipBlock     = false;
+                decay         = false;
+                globalQ.clear();
+                cCol = INT_MAX;
+
+                auto [it, inserted] =
+                    rawBlocks.emplace(cBlock, std::vector<std::vector<std::string>>{});
+                current_block_it = it;
             }
-            newBlock = false;
-        } else if (t.type == TokenType::BLOCK) {
-            newBlock = true;
-        } else if (t.type == TokenType::DECAY) {
-            decay = true;
-            newBlock = true;
-        } else if (!comments && t.type == TokenType::COMMENT) {
-            continue;
-        } else if (hasGlobalScale && t.type == TokenType::WORD && !skipBlock) {
-            isQ = (t.value == "Q=" || t.value == "q=");
-        } else if (!skipBlock) {
-            if (isQ) {
-                globalQ = t.value;
-                isQ = false;
+            else if (decay) {
+                LOG_DEBUG("LHA reader: Decay block found. Skipping.");
+                skipBlock        = true;
+                hasGlobalScale   = false;
+                current_block_it = rawBlocks.end();
+                decay            = false;
             }
             else {
-                LOG_VERBOSE("Token : [", (int)t.type, ", ", t.value, "]");
-                if (t.col <= cCol) {   
-                    rawBlocks[cBlock].emplace_back(std::vector<std::string> {});
-                    if(hasGlobalScale)
-                        rawBlocks[cBlock].back().emplace_back(globalQ != "" ? globalQ : "-1");
+                LOG_WARN("LHA reader: Unknown block " + t.value + " encountered. Skipping.");
+                skipBlock        = true;
+                hasGlobalScale   = false;
+                current_block_it = rawBlocks.end();
+            }
+            newBlock = false;
+        }
+        else if (t.type == TokenType::BLOCK) {
+            newBlock = true;
+        }
+        else if (t.type == TokenType::DECAY) {
+            decay    = true;
+            newBlock = true;
+        }
+        else if (!comments && t.type == TokenType::COMMENT) {
+            continue;
+        }
+        else if (hasGlobalScale && t.type == TokenType::WORD && !skipBlock) {
+            isQ = (t.value == "Q=" || t.value == "q=");
+        }
+        else if (!skipBlock && current_block_it != rawBlocks.end()) {
+            if (isQ) {
+                globalQ = t.value;
+                isQ     = false;
+            }
+            else {
+                LOG_VERBOSE("Token : [", static_cast<int>(t.type), ", ", t.value, "]");
+                auto& rows = current_block_it->second;
+
+                if (t.col <= cCol) {
+                    rows.emplace_back(std::vector<std::string>{});
+                    if (hasGlobalScale)
+                        rows.back().emplace_back(!globalQ.empty() ? globalQ : "-1");
                 }
-                rawBlocks[cBlock].back().emplace_back(t.value);
+                rows.back().emplace_back(t.value);
                 cCol = t.col;
             }
         }
     }
-    // std::cout << "------------------------------" << std::endl;
-    // for (auto _ : rawBlocks) {
-    //     if (_.first == "FWCOEF") {
-    //         for (auto elem : _.second) {
-    //             for (auto eelem : elem) {
-    //                 std::cout << eelem << std::endl;
-    //             }
-    //         }
-    //     }
-    // }
-    // std::cout << "------------------------------" << std::endl;
+
     return rawBlocks;
 }
 
@@ -153,44 +167,6 @@ void LhaParser::set_prototypes(const std::unordered_set<Prototype> &prototypes)
     this->blockPrototypes = prototypes;
 }
 
-// std::shared_ptr<Node> LhaParser::toDBNode(std::map<BlockName, std::shared_ptr<LhaBlock>> blocks) const {
-//     Node node;
-//     for (const auto& block : blocks) {
-//         auto block_node = block.second->toDBNode();
-//         node.set(block_node->get(block_node->get_keys().at(0)), block_node->get_keys().at(0));
-//     }
-//     return std::make_shared<Node>(node);
-// }
-
-// TODO : proposition chatGPT pour la scale
-// std::shared_ptr<Node> LhaParser::toDBNode(std::map<BlockName, std::shared_ptr<LhaBlock>> blocks) const {
-//     Node root;
-
-//     for (const auto& [blockName, blockPtr] : blocks) {
-//         auto block_node = blockPtr->toDBNode();
-
-//         // 1) Récupère le groupe d’entrées du bloc
-//         auto group = block_node->getGroup({blockName});
-
-//         // 2) Construit un sous-noeud "propre" qui contiendra:
-//         //    - les entrées du bloc
-//         //    - (optionnel) le scale global directement SOUS le block
-//         Node sub;
-//         sub.setGroup({blockName}, group);
-
-//         if (block_node->contains("scale")) {
-//             // Copie le scale global sous <BlockName>/scale
-//             auto sval = block_node->get("scale"); // Value (double généralement)
-//             sub.set(sval, blockName, "scale");
-//         }
-
-//         // 3) Pose le sous-noeud au niveau racine sous la clé <BlockName>
-//         //    On ne “flatten” plus rien : tout le contenu reste sous le block.
-//         root.set(sub.get(blockName), blockName);
-//     }
-
-//     return std::make_shared<Node>(root);
-// }
 
 std::shared_ptr<Node> LhaParser::toDBNode(std::map<BlockName, std::shared_ptr<LhaBlock>> blocks) const {
     Node root;
@@ -215,35 +191,3 @@ std::shared_ptr<Node> LhaParser::toDBNode(std::map<BlockName, std::shared_ptr<Lh
 
     return std::make_shared<Node>(root);
 }
-
-// std::shared_ptr<Node> LhaParser::toDBNode(
-//     std::map<BlockName, std::shared_ptr<LhaBlock>> blocks) const
-// {
-//     Node root;
-
-//     for (const auto& [blockName, blockPtr] : blocks) {
-//         auto block_node = blockPtr->toDBNode();
-
-//         // 1) Récupère le groupe d’entrées id -> shared_ptr<Node> sous <BlockName>
-//         auto group = block_node->getGroup({blockName}); // map<BlockName, Node::Value>
-
-//         // 2) Pose directement ce groupe sous root/<BlockName>
-//         root.setGroup({blockName}, group);
-
-//         // 3) Si le bloc a une scale globale, copie-la explicitement (unwrapped) sous root/<BlockName>/scale
-//         if (block_node->contains("scale")) {
-//             auto sval = block_node->get("scale");  // Node::Value
-//             if (std::holds_alternative<double>(sval)) {
-//                 root.set(std::get<double>(sval), blockName, "scale");
-//             } else if (std::holds_alternative<int>(sval)) {
-//                 // au cas improbable où "scale" aurait atterri en int
-//                 root.set(static_cast<double>(std::get<int>(sval)), blockName, "scale");
-//             } else {
-//                 // Optionnel: tracer au lieu de planter
-//                 LOG_WARN("Expected numeric 'scale' for block ", blockName, " but got another type.");
-//             }
-//         }
-//     }
-
-//     return std::make_shared<Node>(root);
-// }

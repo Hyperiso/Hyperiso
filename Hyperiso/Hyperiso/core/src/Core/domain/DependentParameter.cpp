@@ -1,5 +1,5 @@
 #include "DependentParameter.h"
-#include "SourcesView.hpp" //avoid loops
+#include "SourcesView.h" //avoid loops
 
 DependentParameter::DependentParameter(
     ParamId pid,
@@ -16,11 +16,6 @@ bool DependentParameter::dependsOn(const ParamId& pid) {
     return (*sources).raw().contains(pid);
 }
 
-// void DependentParameter::clear_above() {
-//     for (auto &[name, param] : sources) {
-//         param->removeObserver(self);
-//     }
-// }
 
 void DependentParameter::clear_above() {
     if (auto me = self.lock()) {
@@ -54,40 +49,33 @@ void DependentParameter::init() {
     }
 }
 
-// void DependentParameter::update() {
-//     if (frozen) {
-//         LOG_DEBUG("DependentParameter is frozen, skipping update");
-//         this->update_at_unfreeze = true;
-//     } else if (recalculateLambda 
-//         && std::all_of(sources.begin(), sources.end(), 
-//                     [](std::pair<ParamId, std::shared_ptr<Parameter>> block) { return block.second; })) 
-//     {
-//         LOG_DEBUG("Updating dependent parameter value");
-//         if (auto self = shared_from_this()) { 
-//             recalculateLambda(sources, self);
-//         } else {
-//             std::cerr << "Error: shared_from_this() failed in update()" << std::endl;
-//         }
-//     } else {
-//         LOG_ERROR("Error", "DependentParameter::update() called without all source parameters being set");
-//     }
-// }
 
 void DependentParameter::update() {
     if (frozen) {
         LOG_DEBUG("DependentParameter is frozen, skipping update");
-        this->update_at_unfreeze = true;
-    } else if (recalculateLambda 
-        && std::all_of((*sources).raw().begin(), (*sources).raw().end(),
-                       [](const std::pair<ParamId, std::shared_ptr<Parameter>>& p){ return p.second != nullptr; })) 
-    {
-        LOG_DEBUG("Updating dependent parameter value");
-        auto me_dep = std::static_pointer_cast<DependentParameter>(shared_from_this());
-        recalculateLambda(*sources, me_dep); 
-    } else {
-        LOG_ERROR("Error", "DependentParameter::update() called without all source parameters being set");
+        update_at_unfreeze = true;
+        return;
     }
+
+    if (!recalculateLambda) {
+        LOG_ERROR("Error", "DependentParameter::update() called without recalculateLambda set");
+        return;
+    }
+
+    for (const auto& [pid, param_ptr] : sources->raw()) {
+        if (!param_ptr) {
+            LOG_ERROR("Error",
+                      "DependentParameter::update() called with a null source parameter for ",
+                      pid.code);
+            return;
+        }
+    }
+
+    LOG_DEBUG("Updating dependent parameter value");
+    auto me_dep = std::static_pointer_cast<DependentParameter>(shared_from_this());
+    recalculateLambda(*sources, me_dep);
 }
+
 
 void DependentParameter::freeze() {
     this->frozen = true;
@@ -100,30 +88,6 @@ void DependentParameter::unfreeze() {
         update_at_unfreeze = false;
     }
 }
-
-// void Parameter::notifyObservers() {
-//     for (auto& observer : observers) {
-//         LOG_DEBUG("Notifying observer", observer->id.block, observer->id.code, "from parameter", id.block, id.code);
-//         if (observer == nullptr) {
-//             LOG_INFO("Observer is null, removing from observers list");
-//             removeObserver(observer);
-//             continue;
-//         }
-//         observer->update();
-//         LOG_DEBUG("Observer", observer->id.block, observer->id.code, "updated successfully");
-//     }
-// }
-
-
-
-// DependentParameter::~DependentParameter() {
-//     LOG_INFO("Destruct DependentParameter at", self.get());
-//     if (self) {
-//         for (auto src : sources){
-//             src.second->removeObserver(self);   
-//         }
-//     }
-// }
 
 DependentParameter::~DependentParameter() {
     LOG_DEBUG("Destruct DependentParameter at", self.lock().get());

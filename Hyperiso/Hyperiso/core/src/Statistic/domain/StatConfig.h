@@ -1,5 +1,5 @@
 #include "AbstractConfig.h"
-#include "General.h"
+#include "ParamID.h"
 
 class StatConfig : public AbstractConfig {
     std::vector<ParamId> nuisances;

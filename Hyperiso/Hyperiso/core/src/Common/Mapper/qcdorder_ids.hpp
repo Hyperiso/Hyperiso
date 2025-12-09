@@ -1,7 +1,16 @@
-#pragma once
-#include "generic_mapper.hpp"
+#ifndef QCD_ORDER_IDS_H
+#define QCD_ORDER_IDS_H
+
+#include "generic_mapper.h"
 #include "Map.h"
 
+/**
+ * @file OrderMapper.h
+ * @brief Mapper for QCDOrder <-> string identifiers.
+ *
+ * Extends the default mapping with a custom enum lookup method that
+ * searches the legacy naming style (case-insensitive).
+ */
 struct QCDOrderTag {};
 using QCDOrderId = IdOf<QCDOrderTag>;
 
@@ -18,6 +27,10 @@ public:
     using Base::list_all;
     using Base::init_builtins;
 
+    /**
+     * @brief Legacy lookup: converts a string into a QCDOrder enum.
+     * Performs a case-insensitive search over the builtin mapping.
+     */
     static QCDOrder enum_elt(std::string_view s) {
         const auto key = normalize_key(s);
         for (const auto& [e, name] : order_mapping()) {
@@ -26,3 +39,5 @@ public:
         throw std::out_of_range("Unknown QCD order: " + std::string(s));
     }
 };
+
+#endif

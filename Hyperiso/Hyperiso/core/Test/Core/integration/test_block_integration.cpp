@@ -1,4 +1,3 @@
-// tests/test_block_integration.cpp
 #include <cassert>
 #include <cmath>
 #include <iostream>
@@ -8,7 +7,7 @@
 #include "Block.h"
 #include "Parameter.h"
 #include "SourcesView.hpp"
-#include "General.h"
+#include "Include.h"
 
 static std::shared_ptr<Parameter> mkp(const std::string& blk, int code, double v){
     return std::make_shared<Parameter>(ParamId{ParameterType::SM, blk, code}, v, 0.0, 0.0);

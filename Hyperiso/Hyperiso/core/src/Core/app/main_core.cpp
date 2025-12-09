@@ -1,6 +1,6 @@
 #include "HyperisoMaster.h"
 #include "ParameterProvider.h"
-#include "General.h"
+#include "Include.h"
 #include "Logger.h"
 #include "CompositeParamCreator.h"
 #include "QCDProvider.h"
@@ -15,6 +15,20 @@ int main() {
     ParameterProvider sm {ParameterType::SM};
     ParameterProvider wil {ParameterType::WILSON};
     ParameterProvider obs {ParameterType::OBSERVABLE};
+
+    auto obs_p = obs.get_parameter({ParameterType::OBSERVABLE, "FOBS", {521, 2, 3, 321, 13}});
+    LOG_INFO(*obs_p);
+    auto bin = obs_p->get_bin();
+    LOG_INFO("A_FB(B > K mu mu) = [", bin.first, ",", bin.second, "] =", obs_p->get_val());
+    
+
+    // 521_11_3_423_-15_16
+
+    auto obs_p2 = obs.get_parameter({ParameterType::OBSERVABLE, "FOBS", {521, 11, 3, 423, -15, 16}});
+    LOG_INFO(*obs_p2);
+    auto bin2 = obs_p2->get_bin();
+    LOG_INFO("A_FB(B > K mu mu) = [", bin2.first, ",", bin2.second, "] =", obs_p2->get_val());
+
     LOG_INFO(sm("SMINPUTS", 6));
 
     CompositeParamAdapter cpc;
@@ -32,9 +46,7 @@ int main() {
     ps.mutate({ParameterType::SM, "MASS", 24}, 100);
     LOG_INFO("After: m_W =", sm("MASS", 24), ", x_t =", wil("WPARAM", 1));
 
-    auto obs_p = obs.get_parameter({ParameterType::OBSERVABLE, "FOBS", {521, 2, 3, 321, 13}});
-    auto bin = obs_p->get_bin();
-    LOG_INFO("A_FB(B > K mu mu) = [", bin.first, ",", bin.second, "] =", obs_p->get_val());
+    
 
     return 0;
 }

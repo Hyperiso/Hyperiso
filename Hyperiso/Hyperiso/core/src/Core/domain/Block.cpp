@@ -1,16 +1,10 @@
 #include "Block.h"
-#include "SourcesView.hpp"
+#include "SourcesView.h"
 
 void Block::addObserver(std::shared_ptr<Block> observer) {
-    // std::cout << "I am : " << blockname << std::endl;
-    // std::cout << "new obs : " << observer->blockname << std::endl;
     observers.push_back(observer);
 }
 
-// void Block::removeObserver(std::shared_ptr<Block> observer) {
-//     auto it = std::find(observers.begin(), observers.end(), observer);
-//     if (it != observers.end()) observers.erase(it);
-// }
 
 void Block::removeObserver(std::shared_ptr<Block> observer) {
     auto it = std::find_if(observers.begin(), observers.end(),
@@ -26,6 +20,10 @@ void Block::notifyObservers() {
         observer->update();
     }
     observers.erase(std::remove(observers.begin(), observers.end(), nullptr), observers.end());
+}
+
+std::vector<std::shared_ptr<Block>> Block::getObservers() const {
+    return observers;
 }
 
 void Block::update() {
@@ -58,17 +56,9 @@ std::shared_ptr<Parameter> Block::retrieve(const LhaID& id) {
     return this->items.at(id);
 }
 
-// void Block::store(const LhaID& id, std::shared_ptr<Parameter> param) {
-//     if (this->contains(id)) {
-//         LOG_WARN("Block", blockname, "already contains a parameter with id", id.to_string());
-//     } else {
-//         this->items.emplace(id, param);
-//     }
-// }
-
 void Block::store(const LhaID& id, std::shared_ptr<Parameter> param) {
     if (this->contains(id)) {
-        LOG_WARN("Block", blockname, "already contains a parameter with id", id.to_string());
+        LOG_DEBUG("Block", blockname, "already contains a parameter with id", id.to_string());
     } else {
         auto w = weak_from_this();
         if (!w.expired()) param->set_owner_block(w);
@@ -112,18 +102,6 @@ bool Block::contains(const LhaID& id) const {
     return this->items.contains(id);
 }
 
-// void Block::remove(const LhaID& id) {
-//     if (!this->items.contains(id)) {
-//         LOG_ERROR("Cannot remove non-existing parameter", id, "in block", blockname);
-//     }
-//     this->items.at(id)->clear_below();
-//     this->items.erase(id);
-
-//     for (auto& obs : observers) {
-//         if (obs) obs->destroy();
-//     }
-// }
-
 void Block::remove(const LhaID& id) {
     if (!this->items.contains(id)) {
         LOG_ERROR("Cannot remove non-existing parameter", id, "in block", blockname);
@@ -147,14 +125,6 @@ std::unordered_set<LhaID> Block::getAllIDs() {
     return get_keys(this->items);
 }
 
-// void Block::copy(std::shared_ptr<Block> other) {
-//     this->items = other->getItems();
-//     this->blockname = other->blockname;
-//     if (other->has_scale()) {
-//         this->set_scale(other->get_scale());
-//     }
-// }
-
 void Block::copy(std::shared_ptr<Block> other) {
     this->items = other->getItems();
     this->blockname = other->blockname;
@@ -171,12 +141,6 @@ void Block::clear_above() {
         param.second->clear_above();
     }
 }
-
-// void Block::clear_below() {
-//     for (auto& param: this->items) {
-//         param.second->clear_below();
-//     }
-// }
 
 void Block::clear_below() {
     std::vector<std::shared_ptr<Parameter>> snapshot;
@@ -221,11 +185,9 @@ void Block::destroy() {
     }
 }
 
-// void DependentBlock::init() {
-//     auto me = shared_from_this();
-//     self = me;
-//     for (auto& [_, src] : sourceBlocks) src->addObserver(me);
-// }
+std::unordered_map<std::string, std::shared_ptr<Block>> Block::get_source_blocks() const {
+    return {};
+}
 
 void DependentBlock::init() {
     auto me_base = shared_from_this();     
@@ -234,19 +196,6 @@ void DependentBlock::init() {
 
     for (auto& [_, src] : sourceBlocks) src->addObserver(me_base);
 }
-
-// void DependentBlock::init() {
-//     self = shared_from_this();
-//     if (self) {
-//         LOG_DEBUG("Adding observer to", sourceBlocks.size(), "source blocks");
-//         for (auto src : sourceBlocks){
-//             LOG_DEBUG(src.second->blockname);
-//             src.second->addObserver(self);   
-//         }
-//     } else {
-//         std::cerr << "Error: DependentBlock must be created with std::make_shared!" << std::endl;
-//     }
-// }
 
 void DependentBlock::update() {
     if (frozen) {
@@ -267,27 +216,6 @@ void DependentBlock::update() {
     notifyObservers();
 }
 
-// void DependentBlock::update() {
-//     if (frozen) {
-//         LOG_DEBUG("DependentBlock is frozen, skipping update");
-//         update_at_unfreeze = true;
-//     } else if (recalculateLambda 
-//         && std::all_of(sourceBlocks.begin(), sourceBlocks.end(), 
-//                        [](std::pair<std::string, std::shared_ptr<Block>> block) { return block.second; })) 
-//     {
-//         LOG_DEBUG("Updating dependent block", blockname);
-//         if (auto self = shared_from_this()) { 
-//             recalculateLambda(sourceBlocks, self);
-//         } else {
-//             std::cerr << "Error: shared_from_this() failed in update()" << std::endl;
-//         }
-//     } else {
-//         LOG_ERROR("Error", "DependentBlock::update() called without all source blocks being set");
-//     }
-//     LOG_DEBUG("Call to notifyObservers from DependentBlock::update() of", blockname);
-//     notifyObservers();
-// }
-
 void DependentBlock::freeze() {
     this->frozen = true;
 }
@@ -299,15 +227,6 @@ void DependentBlock::unfreeze() {
         this->update_at_unfreeze = false;
     }
 }
-
-// DependentBlock::~DependentBlock() {
-//     LOG_DEBUG("Destruct dependentBlock at", self.lock().get());
-//     if (auto me = self.lock()) {
-//         for (auto src : sourceBlocks){
-//             src.second->removeObserver(me);   
-//         }
-//     }
-// }
 
 DependentBlock::~DependentBlock() {
     LOG_DEBUG("Destruct dependentBlock at", self.lock().get());
@@ -336,11 +255,9 @@ void DependentBlock::assign(const LhaID &key, double value) {
     this->items.at(key)->set_expected(value);
 }
 
-// void DependentBlock::clear_above() {
-//     for (auto &[name, block] : sourceBlocks) {
-//         block->removeObserver(self.lock());
-//     }
-// }
+std::unordered_map<std::string, std::shared_ptr<Block>> DependentBlock::get_source_blocks() const {
+    return this->sourceBlocks;
+}
 
 void DependentBlock::clear_above() {
     if (auto me = self.lock()) {
@@ -364,33 +281,6 @@ void DependentBlock::clear_below() {
 bool DependentBlock::dependsOn(const std::string& blockName) {
     return sourceBlocks.contains(blockName) && sourceBlocks.at(blockName) != nullptr;
 }
-
-// void DependentBlock::destroy() {
-//     std::cout << "destroying (depblock) :" << this->blockname << std::endl;
-//     clear_below();
-//     std::cout << "......" << std::endl;
-//     for (auto item : items) {
-//         std::cout << *item.second << std::endl;
-//     }
-//     items.clear();
-//     std::cout << "-----------" << std::endl;
-//     for (auto item : items) {
-//         std::cout << *item.second << std::endl;
-//     }
-//     std::cout << "......" << std::endl;
-//     for (auto& obs : observers) {
-//         std::cout << "jsppp " << std::endl;
-//         if (obs) {
-//             std::cout << obs->blockname << " ee" << std::endl;
-//             obs->destroy();
-//         }
-//     }
-//     observers.clear();
-    
-//     for (auto &[name, block] : sourceBlocks) {
-//         block->removeObserver(self.lock());
-//     }
-// }
 
 void DependentBlock::destroy() {
     LOG_DEBUG("destroying (depblock) :", this->blockname);

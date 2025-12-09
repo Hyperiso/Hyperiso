@@ -32,18 +32,9 @@ void BlockAccessor::setValue(const BlockName& blockName, LhaID id, scalar_t valu
     }
 }
 
-// void BlockAccessor::setMode(const std::string& blockName, LhaID id, ParameterMode mode) {
-//     auto it = this->find(blockName);
-//     if (it != this->end()) {
-//         it->second->setMode(id, mode);
-//     } else {
-//         throw std::invalid_argument("Block not found");
-//     }
-// }
-
 void BlockAccessor::setParameter(const BlockName &blockName, LhaID id, std::shared_ptr<Parameter> source) {
     if (this->contains(blockName)) {
-        this->at(blockName)->store(id, source);
+        this->at(blockName)->store_or_assign(id, source);
     } else {
         throw std::invalid_argument("Block not found : " + blockName);
     }
@@ -177,20 +168,55 @@ bool BlockAccessor::has_scale(const BlockName& block_name) const {
     return it->second->has_scale();
 }
 
-
-std::shared_ptr<BlockAccessor> operator>>(std::shared_ptr<BlockAccessor> lhs, std::shared_ptr<BlockAccessor> rhs) {
+std::shared_ptr<BlockAccessor> operator>>(
+    std::shared_ptr<BlockAccessor> lhs,
+    std::shared_ptr<BlockAccessor> rhs
+) {
     auto res = std::make_shared<BlockAccessor>();
-    for (const auto &b : rhs->get_block_names()) {
+
+    for (const auto& b : rhs->get_block_names()) {
         res->emplace(b, std::make_shared<Block>(rhs->at(b)));
     }
 
-    for (const auto &b : lhs->get_block_names()) {
-        if (res->contains(b)) {
-            for (const auto& id : lhs->at(b)->getAllIDs()) {
-                res->setValue(b, id, lhs->getValue(b, id));
+    for (const auto& b : lhs->get_block_names()) {
+        auto lhsBlock = lhs->at(b);
+
+        if (!res->contains(b)) {
+            res->emplace(b, std::make_shared<Block>(*lhsBlock));
+            continue;
+        }
+
+        auto rhsBlock = rhs->at(b);
+        auto resBlock = res->at(b);
+
+        const auto rhsIds = rhsBlock->getAllIDs();
+
+        for (const auto& id : lhsBlock->getAllIDs()) {
+            auto pLhs = lhs->getParameter(b, id);
+
+            bool inRhs = std::find(rhsIds.begin(), rhsIds.end(), id) != rhsIds.end();
+
+            if (!inRhs) {
+                res->setParameter(b, id, pLhs);
+                continue;
             }
-        } else {
-            res->emplace(b, std::make_shared<Block>(lhs->at(b)));
+
+            auto pRhs = rhs->getParameter(b, id);
+
+            auto [statL, systL] = pLhs->get_std();
+            bool lhsHasNoUncert = (statL == 0 && systL == 0);
+
+            if (!lhsHasNoUncert) {
+                res->setParameter(b, id, pLhs);
+                continue;
+            }
+
+            auto [statR, systR] = pRhs->get_std();
+
+            auto merged = std::make_shared<Parameter>(*pLhs);
+            merged->set_std(statR, systR); 
+
+            res->setParameter(b, id, merged);
         }
     }
 
@@ -206,4 +232,90 @@ std::ostream &operator<<(std::ostream &os, std::shared_ptr<BlockAccessor> ba) {
         os << '\n';
     }
     return os;
+}
+
+std::unordered_map<std::string, std::shared_ptr<Block>> BlockAccessor::get_block_sources(const BlockName& block_name) const {
+    auto it = std::find_if(
+        this->begin(),
+        this->end(),
+        [&](const auto& pair) { return pair.first == block_name; }
+    );
+
+    if (it == this->end()) {
+        std::cout << std::make_shared<BlockAccessor>(*this) << std::endl;
+        LOG_ERROR("Block", block_name, "not found in BlockAccessor");
+    }
+    return it->second->get_source_blocks();
+
+}
+
+std::unordered_map<ParamId, std::shared_ptr<Parameter>> BlockAccessor::get_parameter_sources(const BlockName& block_name, LhaID id) const {
+    auto it = std::find_if(
+        this->begin(),
+        this->end(),
+        [&](const auto& pair) { return pair.first == block_name; }
+    );
+
+    if (it == this->end()) {
+        std::cout << std::make_shared<BlockAccessor>(*this) << std::endl;
+        LOG_ERROR("Block", block_name, "not found in BlockAccessor");
+    }
+    return it->second->retrieve(id)->get_source_parameters();
+}
+
+std::unordered_set<ParamId>
+BlockAccessor::get_all_source_parameters(const std::unordered_set<ParamId>& param_ids) const
+{
+    std::unordered_set<ParamId> result;
+    std::unordered_set<ParamId> visited;
+
+    std::function<void(const ParamId&)> dfs =
+        [&](const ParamId& pid)
+        {
+            if (!visited.insert(pid).second) {
+                return;
+            }
+
+            if (!this->has_param(pid.block, pid.code)) {
+                result.insert(pid);
+                return;
+            }
+
+            bool has_sources = false;
+
+            auto param_sources = this->get_parameter_sources(pid.block, pid.code);
+            if (!param_sources.empty()) {
+                has_sources = true;
+                for (const auto& [src_id, _] : param_sources) {
+                    dfs(src_id);
+                }
+            }
+
+            auto block_sources = this->get_block_sources(pid.block);
+            if (!block_sources.empty()) {
+                has_sources = true;
+
+                for (const auto& [src_block_name, src_block] : block_sources) {
+                    if (!src_block) continue;
+
+
+                    const auto& items = src_block->getItems();
+                    for (const auto& [lha_id, param_ptr] : items) {
+                        if (!param_ptr) continue;
+                        dfs(param_ptr->get_id());
+                    }
+                }
+            }
+
+
+            if (!has_sources) {
+                result.insert(pid);
+            }
+        };
+
+    for (const auto& pid : param_ids) {
+        dfs(pid);
+    }
+
+    return result;
 }

@@ -45,6 +45,8 @@ add_library(CoreLib STATIC
     adapters/ParameterShifter.cpp
     adapters/Freezer.cpp
     adapters/BlockProvider.cpp
+    adapters/ParamSourcesProvider.cpp
+    adapters/ParamOptimizerAdapter.cpp
     domain/CorrelationRepo.cpp
     domain/ParameterRouter.cpp
     domain/Parameters.cpp
@@ -53,7 +55,9 @@ add_library(CoreLib STATIC
     domain/MemoryManager.cpp
     domain/Block.cpp
     domain/BlockAccessor.cpp
+    domain/SourceView.cpp
     domain/DependentBlockManager.cpp
+    domain/ParamOptimizer.cpp
     infrastructure/QCDHelper.cpp
     infrastructure/EWHelper.cpp
     )
@@ -111,8 +115,8 @@ target_link_libraries(DEEP_OPTIMIZER_TEST CoreLib)
 add_executable(PRINT_OPTIMIZER_TEST app/main_optimizer_print.cpp)
 target_link_libraries(PRINT_OPTIMIZER_TEST CoreLib)
 
-# add_executable(TEST main_parameters.cpp)
-# target_link_libraries(TEST CoreLib)
+add_executable(TEST_MMH app/main_parameters.cpp)
+target_link_libraries(TEST_MMH CoreLib)
 
 include(GNUInstallDirs)
 

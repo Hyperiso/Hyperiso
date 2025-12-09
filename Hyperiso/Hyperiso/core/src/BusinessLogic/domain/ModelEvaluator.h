@@ -3,7 +3,7 @@
 
 #include "Compound.h"
 #include "Observable.h"
-#include "General.h"
+#include "Include.h"
 #include "Matrix.h"
 #include "CorrelationProxy.h"
 #include <vector>

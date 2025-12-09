@@ -1,6 +1,6 @@
 #include "HyperisoMaster.h"
 #include "ParameterProvider.h"
-#include "General.h"
+#include "Include.h"
 #include "Logger.h"
 #include "CompositeParamCreator.h"
 #include "QCDProvider.h"

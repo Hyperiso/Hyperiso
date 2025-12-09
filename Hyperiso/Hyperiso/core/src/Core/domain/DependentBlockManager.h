@@ -1,10 +1,3 @@
-/**
- * @file DependentBlockManager.h
- * @brief Provides static utilities to create, manage, and update dependent blocks and dependent parameters.
- *
- * This file defines the DependentBlockManager class, which offers functions to automate the creation of
- * DependentBlock and DependentParameter instances, mainly interacting with the Parameters singleton.
- */
 #ifndef DEPENDENT_BLOCK_MANAGER_H
 #define DEPENDENT_BLOCK_MANAGER_H
 
@@ -13,8 +6,17 @@
 #include <memory>
 #include <vector>
 #include <iostream>
+
 #include "DependentParameter.h"
 #include "Block.h"
+
+/**
+ * @file DependentBlockManager.h
+ * @brief Provides static utilities to create, manage, and update dependent blocks and dependent parameters.
+ *
+ * This file defines the DependentBlockManager class, which offers functions to automate the creation of
+ * DependentBlock and DependentParameter instances, mainly interacting with the Parameters singleton.
+ */
 
 /**
  * @class DependentBlockManager

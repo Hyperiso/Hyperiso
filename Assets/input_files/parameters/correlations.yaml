@@ -7,8 +7,8 @@ correlations:
     syst_correlation: -0.1
     
   - block_1: FCONST
-    id_1: 323|1
+    id_1: 323_1
     block_2: FCONST
-    id_2: 323|2
+    id_2: 323_2
     stat_correlation: -0.1
     syst_correlation: -0.1

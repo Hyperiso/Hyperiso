@@ -3,6 +3,7 @@
 
 #include "IDataMutator.h"
 #include "Parameters.h"
+#include "MemoryManager.h"
 #include "Math.h"
 
 /**

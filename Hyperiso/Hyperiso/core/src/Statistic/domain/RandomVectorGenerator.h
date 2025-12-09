@@ -15,19 +15,21 @@
 #include "RNGHelper.h"
 #include "IDecomposition.h"
 #include "IDistribution.h"
-
+#include "Include.h"
 
 
 
 class CorrelationMatrixValidator {
 public:
     void validate(const Matrix& R) const;
+    void validate(const std::map<ParamId, std::map<ParamId, double>>& R) const;
 };
 
 // Cholesky 
 class CholeskyDecomposition final : public IDecomposition {
 public:
     Matrix factorize(const Matrix& R) override;
+    std::map<ParamId, std::map<ParamId, double>> factorize(const std::map<ParamId, std::map<ParamId, double>>& R);
 };
 
 
@@ -41,6 +43,7 @@ public:
 
     // y = L * z, z ~ i.i.d. (E=0, Var=1). Cov(y) = L L^T = R.
     Vector generate(const Matrix& correlation) const;
+    std::map<ParamId, double> generate(const std::map<ParamId, std::map<ParamId, double>>& correlation) const;
 
 private:
     std::unique_ptr<IDistribution> dist_;

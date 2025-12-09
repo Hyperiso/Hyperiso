@@ -4,7 +4,7 @@
 #include <memory>
 #include <map>
 
-#include "General.h"
+#include "ParamID.h"
 #include "Observable.h"
 #include "ModelEvaluator.h"
 #include "Decays.h"
@@ -55,6 +55,9 @@ public:
 
     void select_decay(ObservableId id);
 
+    void reload_params();
+
+    void enable_obs();
     void set_decay_config(Decays dec, std::any config);
 
 private:

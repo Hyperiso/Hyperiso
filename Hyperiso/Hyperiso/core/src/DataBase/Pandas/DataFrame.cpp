@@ -1,6 +1,29 @@
 #include "DataFrame.h"
 #include <iostream>
 
+std::ostream& operator<<(std::ostream& os, const std::vector<std::string>& vec) {
+    std::string result{};
+    result.append("[");
+    for (const auto& elem : vec) {
+        result.append(elem + ", ");
+    }
+    result.replace(result.size()-2,2, "");
+    result.append("]");
+    os << result;
+    return os;
+}
+std::ostream& operator<<(std::ostream& os, const std::array<int,2>& vec) {
+    std::string result{};
+    result.append("[");
+    for (const auto& elem : vec) {
+        result.append(std::to_string(elem) + ", ");
+    }
+    result.replace(result.size()-2,2, "");
+    result.append("]");
+    os << result;
+    return os;
+}
+
 void DataFrame::print() const {
     if (!index.empty()) {
         std::cout << "Index\t";
@@ -211,3 +234,11 @@ void DataFrame::setIndex(const std::vector<std::string>& newIndex) {
         }
     }
 }
+
+void DataFrame::_set_csv_options(const CSVOptions& options) {
+        this->csvOptions.hasIndex = options.hasIndex;
+
+        if (!options.columnTypes.empty()) {
+            this->csvOptions.columnTypes = options.columnTypes;
+        }
+    }

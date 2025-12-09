@@ -95,13 +95,6 @@ void DependentBlockManager::removeDependentBlock(const std::string &name,
     std::shared_ptr<Block> dep_block = Parameters::GetInstance(src)->blockAccessor->at(name);
     dep_block->clear_above();
 
-    // for (auto& src : dep_block->get_source_blocks()) {
-    //     src.second->removeObserver(dep_block);
-    // }
-
-    // for (auto& observer : dep_block->getObservers()) {
-    //     removeDependentBlock(observer->get_name(), src);
-    // }
 
     Parameters::GetInstance(src)->blockAccessor->erase(name);
 }

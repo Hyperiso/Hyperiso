@@ -283,6 +283,36 @@ target_link_libraries(testWilsonGroupUnit PhysicalModelLib UtilsLib)
 add_executable(testWilsonGroupIntegration PhysicalModel/integration/test_wilsongroup_integration.cpp)
 target_link_libraries(testWilsonGroupIntegration PhysicalModelLib UtilsLib)
 
+add_executable(testWilsonRegistryUnit PhysicalModel/unit/test_wilson_registry_unit.cpp)
+target_link_libraries(testWilsonRegistryUnit PhysicalModelLib UtilsLib)
+
+add_executable(testWilsonRegistryIntegration PhysicalModel/integration/test_wilson_registry_integration.cpp)
+target_link_libraries(testWilsonRegistryIntegration PhysicalModelLib UtilsLib)
+
+add_executable(testCoefficientGroupBuilderUnit PhysicalModel/unit/test_coefficient_group_builder_unit.cpp)
+target_link_libraries(testCoefficientGroupBuilderUnit PhysicalModelLib UtilsLib)
+
+add_executable(testCoefficientGroupBuilderIntegration PhysicalModel/integration/test_coefficient_group_builder_integration.cpp)
+target_link_libraries(testCoefficientGroupBuilderIntegration PhysicalModelLib UtilsLib)
+
+add_executable(testGroupDefinitionUnit PhysicalModel/unit/test_group_definition_unit.cpp)
+target_link_libraries(testGroupDefinitionUnit PhysicalModelLib UtilsLib)
+
+add_executable(testGroupDefinitionIntegration PhysicalModel/integration/test_group_definition_integration.cpp)
+target_link_libraries(testGroupDefinitionIntegration PhysicalModelLib UtilsLib)
+
+add_executable(testCustomWilsonUnit PhysicalModel/unit/test_custom_wilson_unit.cpp)
+target_link_libraries(testCustomWilsonUnit PhysicalModelLib UtilsLib)
+
+add_executable(testCustomWilsonIntegration PhysicalModel/integration/test_custom_wilson_integration.cpp)
+target_link_libraries(testCustomWilsonIntegration PhysicalModelLib UtilsLib)
+
+add_executable(testWilsonManagerUnit PhysicalModel/unit/test_wilson_manager_unit.cpp)
+target_link_libraries(testWilsonManagerUnit PhysicalModelLib UtilsLib)
+
+add_executable(testWilsonManagerIntegration PhysicalModel/integration/test_wilson_manager_integration.cpp)
+target_link_libraries(testWilsonManagerIntegration PhysicalModelLib UtilsLib)
+
 #Wilson
 
 
@@ -520,6 +550,36 @@ set_tests_properties(testWilsonGroupUnit PROPERTIES ENVIRONMENT "DISABLE_LOGGER=
 add_test(NAME testWilsonGroupIntegration COMMAND testWilsonGroupIntegration)
 set_tests_properties(testWilsonGroupIntegration PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "physicalmodel")
 
+
+add_test(NAME testWilsonRegistryUnit COMMAND testWilsonRegistryUnit)
+set_tests_properties(testWilsonRegistryUnit PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "physicalmodel")
+
+add_test(NAME testWilsonRegistryIntegration COMMAND testWilsonRegistryIntegration)
+set_tests_properties(testWilsonRegistryIntegration PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "physicalmodel")
+
+add_test(NAME testCoefficientGroupBuilderUnit COMMAND testCoefficientGroupBuilderUnit)
+set_tests_properties(testCoefficientGroupBuilderUnit PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "physicalmodel")
+
+add_test(NAME testCoefficientGroupBuilderIntegration COMMAND testCoefficientGroupBuilderIntegration)
+set_tests_properties(testCoefficientGroupBuilderIntegration PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "physicalmodel")
+
+add_test(NAME testGroupDefinitionUnit COMMAND testGroupDefinitionUnit)
+set_tests_properties(testGroupDefinitionUnit PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "physicalmodel")
+
+add_test(NAME testGroupDefinitionIntegration COMMAND testGroupDefinitionIntegration)
+set_tests_properties(testGroupDefinitionIntegration PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "physicalmodel")
+
+add_test(NAME testCustomWilsonUnit COMMAND testCustomWilsonUnit)
+set_tests_properties(testCustomWilsonUnit PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "physicalmodel")
+
+add_test(NAME testCustomWilsonIntegration COMMAND testCustomWilsonIntegration)
+set_tests_properties(testCustomWilsonIntegration PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "physicalmodel")
+
+add_test(NAME testWilsonManagerUnit COMMAND testWilsonManagerUnit)
+set_tests_properties(testWilsonManagerUnit PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "physicalmodel")
+
+add_test(NAME testWilsonManagerIntegration COMMAND testWilsonManagerIntegration)
+set_tests_properties(testWilsonManagerIntegration PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "physicalmodel")
 
 
 #other testings

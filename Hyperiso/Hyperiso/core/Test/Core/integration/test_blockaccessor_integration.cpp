@@ -8,7 +8,7 @@
 #include "BlockAccessor.h"
 #include "Block.h"
 #include "Parameter.h"
-#include "General.h"
+#include "Include.h"
 #include "SourcesView.hpp"
 
 static std::shared_ptr<Parameter> mkp(const std::string& blk, long code, double v){

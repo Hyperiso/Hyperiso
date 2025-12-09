@@ -1,5 +1,5 @@
 // test_lhaid_unit.cpp
-#include "General.h"      // ou le bon chemin d’en-tête où ta struct est déclarée
+#include "Include.h"      // ou le bon chemin d’en-tête où ta struct est déclarée
 #include <cassert>
 #include <iostream>
 #include <vector>

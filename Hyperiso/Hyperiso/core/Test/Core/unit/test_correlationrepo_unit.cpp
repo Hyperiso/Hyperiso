@@ -4,7 +4,7 @@
 #include <memory>
 
 #include "CorrelationRepo.h"
-#include "General.h"
+#include "Include.h"
 
 static ParamId pid(const std::string& block, long code){
     return ParamId{ParameterType::SM, block, LhaID(code)};

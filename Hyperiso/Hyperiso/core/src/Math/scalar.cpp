@@ -1,8 +1,5 @@
 #include "scalar.h"
 
-// scalar_t::scalar_t(double re, double im) : complex_t(re, im) {}
-// constexpr scalar_t::scalar_t(double re, double im) 
-
 scalar_t::scalar_t(complex_t z) : complex_t(z) {}
 
 scalar_t::scalar_t(const scalar_t& k) : complex_t(static_cast<complex_t>(k)) {}

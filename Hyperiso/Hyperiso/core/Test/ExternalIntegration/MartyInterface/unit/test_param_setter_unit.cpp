@@ -5,7 +5,7 @@
 #include <set>
 #include "SMParamSetter.h"
 #include "IMartyParameterProxy.h"
-#include "General.h"
+#include "Include.h"
 
 class DummySMProxy : public IMartyParameterProxy<std::string, LhaID> {
 public:

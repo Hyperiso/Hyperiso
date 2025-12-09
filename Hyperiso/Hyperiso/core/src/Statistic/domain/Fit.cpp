@@ -19,7 +19,7 @@ static double f_full(const gsl_vector* x, void* params) {
 }
 
 
-FitResult MLEstimator::fit(const Vec& p0, const Vec& eta0, std::size_t max_iter, double tol) const {
+FitResult MLEstimator::fit(const Vec& p0, const Vec& eta0) const {
     const std::size_t np = p0.size();
     const std::size_t ne = eta0.size();
     gsl_multimin_function f; f.n = np+ne; f.f = &f_full;

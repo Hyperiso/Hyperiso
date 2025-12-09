@@ -1,3 +1,9 @@
+#ifndef IDATALOADER_H
+#define IDATALOADER_H
+
+#include <memory>
+#include <filesystem>
+
 /**
  * @file IDataLoader.h
  * @brief Defines a generic interface for data loading operations.
@@ -5,11 +11,6 @@
  * This file declares the abstract template class IDataLoader, which provides
  * a common interface for loading data from a file into a destination object.
  */
-#ifndef IDATALOADER_H
-#define IDATALOADER_H
-
-#include <memory>
-#include <filesystem>
 
 /**
  * @defgroup DataLoadersModule Data Loading System
@@ -61,7 +62,8 @@ public:
 
     /**
      * @brief Loads data from a file into a destination object.
-     * @param dest Shared pointer to the destination object.
+     *
+     * @param dest     Shared pointer to the destination object.
      * @param src_file Path to the source file to load from.
      */
     virtual void load(std::shared_ptr<T> dest, fs::path src_file) = 0;

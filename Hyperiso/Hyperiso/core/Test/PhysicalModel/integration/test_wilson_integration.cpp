@@ -4,18 +4,16 @@
 #include <memory>
 #include <cmath>
 
-#include "Wilson.h"   // inclut la base
+#include "Wilson.h"  
 #include "Parameter.h"
 #include "IParameterProxy.h"
 #include "Math.h"
-#include "BWilson.h"       // ton header C7
+#include "BWilson.h" 
 
-// petit helper
 static std::shared_ptr<Parameter> P(double x) {
     return std::make_shared<Parameter>(ParamId("DUMMY", 0), x, 0.0, 0.0);
 }
 
-// Proxy espion pour valider le passage (block,id) dans get_matching_value()
 class SpyProxy : public IParameterProxy<std::string, LhaID> {
 public:
     mutable std::string last_block;
@@ -36,7 +34,6 @@ int main() {
 
     C7 c7;
 
-    // 1) Les sources attendues à chaque ordre existent
     {
         auto sLO   = c7.get_sources(QCDOrder::LO);
         auto sNLO  = c7.get_sources(QCDOrder::NLO);
@@ -54,7 +51,6 @@ int main() {
         assert(sNNLO.count({ParameterType::SM,     "MASS",            LhaID(24)}) == 1);
     }
 
-    // 2) LO : varier xt change le résultat
     {
         std::unordered_map<ParamId, std::shared_ptr<Parameter>> src;
         src[{ParameterType::WILSON, "WPARAM_MATCH_SM", LhaID(2,1)}] = P(4.5);
@@ -66,7 +62,6 @@ int main() {
         assert(v1 != v2);
     }
 
-    // 3) NLO : varier Q_match uniquement change le résultat (via log(Q^2/mtop^2))
     {
         std::unordered_map<ParamId, std::shared_ptr<Parameter>> src;
         src[{ParameterType::WILSON, "WPARAM_MATCH_SM", LhaID(3)}]    = P(0.1);
@@ -81,7 +76,6 @@ int main() {
         assert(v1 != v2);
     }
 
-    // 4) NNLO : varier mW change le résultat (log(Q^2/mW^2))
     {
         std::unordered_map<ParamId, std::shared_ptr<Parameter>> src;
         src[{ParameterType::WILSON, "WPARAM_MATCH_SM", LhaID(3)}]    = P(0.1);
@@ -99,14 +93,12 @@ int main() {
         assert(v1 != v2);
     }
 
-    // 5) LHA IDs codés dans C7
     {
         assert(c7.get_lhaid(QCDOrder::LO)   == LhaID(305, 4422, 0, 0));
         assert(c7.get_lhaid(QCDOrder::NLO)  == LhaID(305, 4422, 1, 0));
         assert(c7.get_lhaid(QCDOrder::NNLO) == LhaID(305, 4422, 2, 0));
     }
 
-    // 6) get_matching_value() : vérifie (block,id) passés au proxy + valeur retournée
     {
         SpyProxy sp;
         sp.ret = 7.0;
@@ -114,13 +106,12 @@ int main() {
         assert(std::abs(v.real() - 7.0) < 1e-12);
         assert(std::abs(v.imag()) < 1e-12);
 
-        // espionnage précis avec un objet persistant
         auto spy = std::make_shared<SpyProxy>();
         (void)c7.get_matching_value("NLO", ContributionType::SM, spy);
         assert(spy->last_block == c7.get_storage_block());
         assert(spy->last_id    == c7.id(QCDOrder::NLO, ContributionType::SM));
     }
 
-    std::cout << "✅ INTEGRATION OK\n";
+    std::cout << " INTEGRATION OK\n";
     return 0;
 }

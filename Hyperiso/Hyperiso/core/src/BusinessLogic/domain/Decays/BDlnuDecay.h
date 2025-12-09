@@ -2,7 +2,6 @@
 #define BDLNUDECAY_H
 
 #include "DecayParent.h"
-#include "General.h"
 #include "ObsWilsonProxy.h"
 #include "ObsQCDProxy.h"
 #include "DefaultConfig.h"

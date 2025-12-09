@@ -1,4 +1,3 @@
-// test_blockname_integration.cpp
 #include <cassert>
 #include <iostream>
 #include <vector>
@@ -7,40 +6,33 @@
 #include <unordered_map>
 #include <algorithm>
 
-// adapte l'include si besoin
-#include "General.h"
+#include "Include.h"
 
 int main() {
     std::cout << "== Running INTEGRATION tests for BlockName ==\n";
 
-    // 1) Utilisation comme clé de std::map (tri OK)
     {
         std::map<BlockName, int> M;
         M[BlockName{"SMINPUTS"}] = 1;
         M[BlockName{"GAUGE"}]    = 2;
         M[BlockName{"MASS"}]     = 3;
 
-        // lecture
         assert(M.find(BlockName{"MASS"})    != M.end());
         assert(M.find(BlockName{"GAUGE"})   != M.end());
         assert(M.find(BlockName{"SMINPUTS"})!= M.end());
     }
 
-    // 2) Démonstration en unordered_set : 2 objets "égaux" (au sens operator==) peuvent coexister
-    //    car leur hash diffère (hash combine toutes les aliases).
     {
         BlockName a{"YU","UCOUPL"};
-        BlockName b{"UCOUPL","XYZ"}; // a == b (intersection "UCOUPL")
+        BlockName b{"UCOUPL","XYZ"};
 
         std::unordered_set<BlockName> S;
         S.insert(a);
-        S.insert(b); // coexiste souvent car hash(a) != hash(b)
+        S.insert(b);
 
-        // Ce test documente le comportement actuel (S.size() peut être 2)
         assert(S.size() >= 1);
     }
 
-    // 3) unordered_map : clés distinctes si alias-set différent
     {
         BlockName a{"YU","UCOUPL"};
         BlockName b{"UCOUPL","XYZ"}; // a == b
@@ -49,10 +41,7 @@ int main() {
         U[a] = 10;
         U[b] = 20;
 
-        // Avec l’égalité actuelle et le hash actuel, on obtient 2 entrées.
         assert(U.size() >= 1);
-        // Si on récupère avec une nouvelle clé "YU", on obtient potentiellement une nouvelle entrée
-        // car le hash peut différer → on évite d’asserter ici, on documente le piège.
     }
 
     std::cout << "\n✅ BlockName integration tests passed (avec note sur unordered_*).\n";

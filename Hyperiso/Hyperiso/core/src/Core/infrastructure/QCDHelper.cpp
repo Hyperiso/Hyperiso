@@ -47,7 +47,7 @@ void QCDHelper::Init() {
 
 double QCDHelper::alpha_s(double mu, MassType mass_b_type, MassType mass_t_type) {
     if (mu < (*Parameters::GetInstance())("MASS", 3)) {
-        LOG_ERROR("Scale Error", "Renormalisation scale for alpha_s calculation (", mu, ") is below strange mass.");
+        LOG_ERROR("Scale Error", "Renormalisation scale for alpha_s calculation (", mu, ") is below strange mass (" , (*Parameters::GetInstance())("MASS", 3), ").");
     }
 
     return alpha_s_explicit(mu, get_lambda(mu, mass_b_type, mass_t_type), get_nf(mu, mass_b_type, mass_t_type));
@@ -145,13 +145,11 @@ double QCDHelper::calc_mt_mt(double lambda6_mt_pole, double lambda_5) {
 int QCDHelper::get_nf(double Q, MassType mass_b_type, MassType mass_t_type) {
     auto masses = getOrderedMasses(mass_b_type, mass_t_type);
     // for (size_t i = 0; i < masses.size(); ++i) {
-        // if (1 - Q / masses.at(i) > 1e-4)
+        // if (1 - Q / std::abs(masses.at(i)) > 1e-4) {
         //     return i;
+        // }
     // }
-
-    int nf = 0;
-    while (Q >= masses.at(nf)) nf++;
-    return nf;
+    return 6;
 }
 
 double QCDHelper::get_lambda(double mu, MassType mass_b_type, MassType mass_t_type) {

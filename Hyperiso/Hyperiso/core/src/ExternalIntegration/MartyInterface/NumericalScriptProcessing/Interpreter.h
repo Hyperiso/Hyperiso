@@ -2,7 +2,7 @@
 #define INTERPRETER_H
 
 #include "Extractor.h"
-#include "General.h"
+#include "LhaID.h"
 #include <string>
 #include <unordered_map>
 #include <memory>

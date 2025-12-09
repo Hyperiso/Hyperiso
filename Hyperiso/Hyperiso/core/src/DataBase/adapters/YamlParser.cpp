@@ -168,17 +168,6 @@ bool YAMLParser::isListNode(const std::shared_ptr<Node>& node) const {
     return true;
 }
 
-// size_t YAMLParser::countLeadingSpaces(const std::string& line) const {
-//     size_t count = 0;
-//     while (count < line.size() && isspace(line[count])) count++;
-//     return count;
-// }
-
-// void YAMLParser::trim(std::string& str) const {
-//     while (!str.empty() && isspace(str.front())) str.erase(str.begin());
-//     while (!str.empty() && isspace(str.back())) str.pop_back();
-// }
-
 Node::Value YAMLParser::parseValue(const std::string& value) const {
     if (value.empty()) return "";  
 

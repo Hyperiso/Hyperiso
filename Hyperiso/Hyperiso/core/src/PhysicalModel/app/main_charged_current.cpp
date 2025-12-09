@@ -14,12 +14,13 @@ int main(){
 
     auto wi = WilsonInterface(); // Initialize interface and build the required groups
     LOG_INFO("WilsonInterface created");
-    WilsonBuildConfig config_b{{WGroup::CC_bc, WGroup::CC_cd, WGroup::CC_su, WGroup::CC_cs, WGroup::CC_du}, 81, 4.18, QCDOrder::NLO};
+    WilsonBuildConfig config_b{{WGroup::CC_bc, WGroup::CC_cd, WGroup::CC_su, WGroup::CC_du}, 81, 4.18, QCDOrder::NNLO};
 
     std::cout << "hereeee" << std::endl;
     wi.build(config_b);
+    wi.addWilsonGroup({{WGroup::CC_cs}, 81, 4.18, QCDOrder::NNLO});
 
-    WilsonBuildConfig config_k{{WGroup::CC_bu}, 81, 4.18, QCDOrder::NLO};
+    WilsonBuildConfig config_k{{WGroup::CC_bu}, 81, 4.18, QCDOrder::NNLO};
 
     std::cout << "here" << std::endl;
     wi.addWilsonGroup(config_k);
@@ -28,7 +29,7 @@ int main(){
     
     LOG_INFO("Interface built");
 
-    BlockProxy().log_all_blocks(ParameterType::WILSON);
+    // BlockProxy().log_all_blocks(ParameterType::WILSON);
     
     LOG_INFO("C_S1_bc(mu_W) at LO =", wi.getM(WGroup::CC_bc, WCoef::C_S1_bc, QCDOrder::LO, ContributionType::SM));
     LOG_INFO("C_S2_bc(mu_W) at LO =", wi.getM(WGroup::CC_bc, WCoef::C_S2_bc, QCDOrder::LO, ContributionType::SM));

@@ -1,5 +1,5 @@
-#ifndef __INCLUDE_H__
-#define __INCLUDE_H__
+#ifndef INCLUDE_H
+#define INCLUDE_H
 
 #include <memory>
 #include <string>
@@ -7,6 +7,10 @@
 #include <vector>
 #include "Logger.h"
 #include "General.h"
+#include "LhaID.h"
+#include "BlockName.h"
+#include "ParamID.h"
+#include "LhaParamsHelper.h"
 #include "AbstractConfig.h"
 #include "EnumMapper.h"
 #include "GeneralEnum.h"
@@ -14,4 +18,4 @@
 #include "registry_init.hpp"
 #include "DependenciesHelper.h"
 
-#endif // __INCLUDE_H__
+#endif // INCLUDE_H

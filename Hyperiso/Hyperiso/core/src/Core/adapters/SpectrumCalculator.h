@@ -16,9 +16,10 @@ public:
 
     /**
      * @brief Calculates the physics spectrum by calling the appropriate external calculator.
-     * @param in_lha_path Path to the input LHA file.
-     * @param out_spectrum_path Path where the output spectrum should be saved.
-     * @param model The model to be used for the calculation (e.g., THDM, SUSY).
+     *
+     * @param in_lha_path         Path to the input LHA file.
+     * @param out_spectrum_path   Path where the output spectrum should be saved.
+     * @param model               The model to be used for the calculation (e.g., THDM, SUSY).
      */
     void calculate_spectrum(fs::path in_lha_path, fs::path out_spectrum_path, Model model) override;
 };

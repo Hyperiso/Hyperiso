@@ -197,6 +197,13 @@ public:
         return manager->get_all_ops_deps(ObservableMapper::to_id(id));
     }
 
+    void reload_params() {
+        manager->reload_params();
+    }
+
+    void enable_obs() {
+        manager->enable_obs();
+    }
     void set_decay_config(Decays dec, std::any config) {
         manager->set_decay_config(dec, config);  
     };

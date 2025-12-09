@@ -2,7 +2,7 @@
 #define __CORRELATIONPROVIDER_H__
 
 #include "IDataProvider.h"
-#include "General.h"
+#include "ParamID.h"
 #include "Parameter.h"
 #include "CorrelationRepo.h"
 #include "MemoryManager.h"

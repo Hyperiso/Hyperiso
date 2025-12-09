@@ -3,9 +3,8 @@
 #include <pybind11/complex.h>
 #include <optional>
 #include <filesystem>
-#include "General.h"
-// #include "MemoryManager.h"
-// #include "Parameters.h"
+#include "Include.h"
+
 #include "HyperisoMaster.h"
 #include "Config.h"
 #include "ParameterSetter.h"
@@ -117,7 +116,7 @@ void init_core(py::module &m) {
     .def(py::init<ParameterType>(), py::arg("type"))
 
     .def("__call__",
-         py::overload_cast<const ParamId&, DataType>(&ParameterProvider::operator()),
+         py::overload_cast<const ParamId&, DataType>(&ParameterProvider::operator(), py::const_),
          py::arg("pid"), py::arg("d_type") = DataType::VALUE)
 
     .def("__call__",

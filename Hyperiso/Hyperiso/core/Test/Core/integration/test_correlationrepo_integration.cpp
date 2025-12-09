@@ -4,7 +4,6 @@
 #include <memory>
 
 #include "CorrelationRepo.h"
-#include "General.h"
 #include "Include.h"
 
 #include "registry_init.hpp"

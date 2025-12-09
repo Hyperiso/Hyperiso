@@ -85,6 +85,13 @@ void Parameter::clear_below() {
     }
 }
 
+std::unordered_map<ParamId, std::shared_ptr<Parameter>> Parameter::get_source_parameters() const {
+    return {};
+}
+
+void Parameter::set_owner_block(std::weak_ptr<Block> owner) { owner_block = std::move(owner); }
+
+std::weak_ptr<Block> Parameter::get_owner_block() const { return owner_block; }
 
 
 Parameter& Parameter::operator=(const Parameter& other) {
@@ -117,6 +124,15 @@ void Parameter::removeObserver(std::shared_ptr<Parameter> observer) {
     if (it != observers.end()) observers.erase(it);
 }
 
+std::ostream& operator<<(std::ostream& os, const Parameter& p) {
+    os << "Parameter " << p.id.block << "," << p.id.code;
+    if (p.binning.has_value()) {
+        os << " [" << p.binning.value().first << "," << p.binning.value().second << "] ";
+    }
+    
+    os << "=" << p.expected << "+-" << p.deviation_syst << "+-" << p.deviation_stat << std::endl;
+    return os;
+}
 
 Parameter& Parameter::operator+=(const Parameter& other) {
     this->expected       += other.expected;

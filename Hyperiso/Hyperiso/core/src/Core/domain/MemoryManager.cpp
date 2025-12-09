@@ -1,4 +1,5 @@
 #include "MemoryManager.h"
+#include "Parameters.h"
 
 MemoryManager* MemoryManager::instance = nullptr;
 
@@ -72,7 +73,6 @@ void MemoryManager::read_lha_input(const std::string& lhaFile, const Config& con
     fs::path lha_path = this->format_lha_path(lhaFile);
     fs::path spectrum_path = calculate_spectrum(lha_path, config);
 
-    // ParamBlockLoader p_loader;
     auto lha_ba = std::make_shared<BlockAccessor>();
     dl_ba->load(lha_ba, spectrum_path);
     input_cache = lha_ba >> input_cache;
@@ -132,7 +132,6 @@ void MemoryManager::init(const std::string& lhaFile, Config config) {
     this->read_default_input();
     this->read_user_input();
     this->read_lha_input(lhaFile, config);
-
     cache.lha_path = lhaFile;
     cache.config = config;
     cache.thread_id = std::this_thread::get_id();
@@ -209,4 +208,40 @@ void MemoryManager::switch_model(Model model, bool use_marty) {
     this->deduce_parameter_types(this->cache.config);
 
     this->cache.flags[InternalFlag::PARAMS_CHANGED] = true;
+}
+
+std::unordered_set<ParamId>
+MemoryManager::get_all_source_parameters(const std::unordered_set<ParamId>& param_ids) const
+{
+
+    auto global_ba = std::make_shared<BlockAccessor>();
+
+    for (auto type : cache.parameter_types)
+    {
+        auto params = Parameters::GetInstance(type);
+        if (!params)
+            continue;
+
+        auto ba = params->get_block_accessor();
+        if (!ba)
+            continue;
+
+        for (const auto& [block_name, block_ptr] : *ba)
+        {
+            global_ba->emplace(block_name, block_ptr);
+        }
+    }
+
+    if (input_cache)
+    {
+        for (const auto& [block_name, block_ptr] : *input_cache)
+        {
+            if (!global_ba->contains(block_name))
+            {
+                global_ba->emplace(block_name, block_ptr);
+            }
+        }
+    }
+
+    return global_ba->get_all_source_parameters(param_ids);
 }

@@ -201,7 +201,6 @@ enum class WGroup {
     CC_su,
     CC_du,
     MESON_MIXING,
-    CUSTOM_GROUP,
     K
 };
 

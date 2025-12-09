@@ -6,7 +6,7 @@
 #include "Utils.h"
 #include "Parameter.h"
 #include "IParameterProxy.h"
-#include "SourcesView.hpp"
+#include "SourcesView.h"
 
 struct MatchingInfo {
     std::unordered_set<ParamId> sources = {};

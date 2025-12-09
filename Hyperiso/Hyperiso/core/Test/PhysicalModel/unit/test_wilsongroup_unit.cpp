@@ -115,6 +115,6 @@ int main() {
     assert(gcopy->at("C7").get() != grp.at("C7").get());
     assert(gcopy->at("C7")->get_storage_block() == grp.at("C7")->get_storage_block());
 
-    std::cout << "✅ UNIT OK\n";
+    std::cout << "UNIT OK\n";
     return 0;
 }

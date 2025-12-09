@@ -12,4 +12,5 @@ class INuisanceSampler {
 public:
 virtual ~INuisanceSampler() = default;
 virtual Vec sample(const Vec& mean, const Matrix& cov, std::mt19937& rng) const = 0;
+virtual std::map<ParamId, double> sample(const std::map<ParamId, double>& mean, const std::map<ParamId, std::map<ParamId, double>>& cov, std::mt19937&) const = 0;
 };

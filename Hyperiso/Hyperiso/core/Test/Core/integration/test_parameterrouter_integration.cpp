@@ -7,7 +7,7 @@
 #include "BlockAccessor.h"
 #include "Block.h"
 #include "Parameter.h"
-#include "General.h"
+#include "Include.h"
 
 static std::shared_ptr<Parameter> mkp(const BlockName& blk, long code, double v){
     return std::make_shared<Parameter>(ParamId{ParameterType::SM, blk, LhaID(code)}, v, 0.0, 0.0);

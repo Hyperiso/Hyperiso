@@ -1,10 +1,3 @@
-# cmake_minimum_required(VERSION 3.20)
-
-# set(CMAKE_CXX_STANDARD 20)
-# set(CMAKE_CXX_STANDARD_REQUIRED True)
-
-# project(ConfiguredModule)
-
 if (NOT DEFINED PROJECT_ROOT)
     get_filename_component(PROJECT_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/../../" ABSOLUTE)
     if(NOT PROJECT_ROOT MATCHES "/$")
@@ -32,8 +25,6 @@ configure_file(
     config.hpp.in
     "${CMAKE_BINARY_DIR}/configured_files/include/config.hpp" ESCAPE_QUOTES
 )
-
-# target_include_directories(ConfiguredModule INTERFACE "${CMAKE_BINARY_DIR}/configured_files/include")
 
 target_include_directories(ConfiguredModule
   PUBLIC
