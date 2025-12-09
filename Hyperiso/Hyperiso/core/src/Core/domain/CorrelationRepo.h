@@ -1,12 +1,3 @@
-/**
- * @file CorrelationRepo.h
- * @brief Defines structures and classes to manage statistical and systematic correlations between parameters and observables.
- *
- * This file introduces:
- * - CorrelationMatrixPair: a structure to hold both statistical and systematic correlation matrices.
- * - CorrelationRepository: a class to access, set, and merge correlation data.
- */
-
 #ifndef CORRELATIONREPO_H
 #define CORRELATIONREPO_H
 
@@ -15,9 +6,22 @@
 
 /**
  * @struct CorrelationMatrixPair
- * @brief Stores a pair of correlation matrices (statistical and systematic) for a given type.
+ * @brief Stores a pair of correlation matrices (statistical and systematic)
+ *        for a given key type.
  *
- * @tparam T The type used as keys in the correlation matrices (e.g., ParamId or Observables).
+ * The template parameter @p T is the type used as keys in the correlation
+ * matrices (e.g. ParamId or ObservableId). Internally this relies on
+ * SparseMatrix<T>, which behaves like an associative container:
+ *
+ *   - `contains(key)` tests presence of an entry.
+ *   - `at(key)`       retrieves the stored double value.
+ *   - iteration       yields pairs `(std::pair<T,T>, double)`.
+ *
+ * Symmetry:
+ *   The helper `emplace` below automatically inserts entries both for
+ *   (a,b) and (b,a), enforcing a symmetric correlation structure.
+ *
+ * @tparam T Key type used to index the correlation entries.
  */
 template<typename T>
 struct CorrelationMatrixPair {
@@ -27,8 +31,11 @@ struct CorrelationMatrixPair {
     /**
      * @brief Retrieves the correlation values for a given pair.
      *
-     * @param key A pair of objects (T, T) representing two parameters/observables.
-     * @return A pair containing (statistical value, systematic value).
+     * If a given (T,T) pair is not present in one of the matrices, the
+     * corresponding correlation component is assumed to be 0.0.
+     *
+     * @param key A pair of keys (T, T) representing two parameters/observables.
+     * @return A pair `(stat_value, syst_value)` for the requested key.
      */
     std::pair<double, double> at(const std::pair<T, T>& key) const {
         double statv = stat.contains(key) ? stat.at(key) : 0;
@@ -37,13 +44,19 @@ struct CorrelationMatrixPair {
     };
 
     /**
-     * @brief Inserts a new entry into both the statistical and systematic matrices.
+     * @brief Inserts a new entry into both the statistical and systematic
+     *        matrices, enforcing symmetry.
      *
-     * Automatically enforces symmetry (inserts both (A,B) and (B,A)).
+     * This function:
+     *   - stores (key.first,  key.second) → stat_val / syst_val
+     *   - stores (key.second, key.first) → stat_val / syst_val
      *
-     * @param key The pair of keys (T, T).
-     * @param stat_val Statistical correlation value.
-     * @param syst_val Systematic correlation value.
+     * so that the resulting correlation matrices are symmetric by
+     * construction.
+     *
+     * @param key       The pair of keys (T, T).
+     * @param stat_val  Statistical correlation value.
+     * @param syst_val  Systematic correlation value.
      */
     void emplace(std::pair<T, T>&& key, double stat_val, double syst_val) {
         stat.emplace(key, stat_val);
@@ -55,10 +68,16 @@ struct CorrelationMatrixPair {
     /**
      * @brief Stream output operator for a CorrelationMatrixPair.
      *
-     * Prints all correlations contained in the statistical matrix, along with systematic values.
+     * The output iterates over all entries in the statistical matrix and
+     * prints them together with their corresponding systematic values:
      *
-     * @tparam U Type of the key.
-     * @param os Output stream.
+     *   (i, j): rho_stat + rho_syst
+     *
+     * The format is intended for debugging/logging rather than for
+     * machine parsing.
+     *
+     * @tparam U Key type.
+     * @param os  Output stream.
      * @param cmp The CorrelationMatrixPair to print.
      * @return The output stream.
      */
@@ -71,7 +90,20 @@ struct CorrelationMatrixPair {
  * @class CorrelationRepository
  * @brief Manages correlations between parameters and between observables.
  *
- * Provides utilities to retrieve, set, merge, and print correlation matrices.
+ * This class acts as a central repository of correlation information.
+ * It stores:
+ *   - Parameter-level correlations: CorrelationMatrixPair<ParamId>
+ *   - Observable-level correlations: CorrelationMatrixPair<ObservableId>
+ *
+ * Typical usage:
+ *   - Call `set_correlation_matrix(...)` once to install initial matrices.
+ *   - Optionally call `merge_correlation_matrix(...)` to overlay new
+ *     entries (overwriting any existing ones with the same key).
+ *   - Query correlations via `get_correlation(...)` and
+ *     `get_combined_correlation(...)`.
+ *
+ * Note: The repository expects its internal shared_ptr members to be set
+ * before any `get_correlation` calls are made.
  */
 class CorrelationRepository {
 public:
@@ -80,32 +112,48 @@ public:
      *
      * @param p1 First parameter ID.
      * @param p2 Second parameter ID.
-     * @return A pair containing (statistical correlation, systematic correlation).
+     * @return A pair `(rho_stat, rho_syst)` with statistical and systematic
+     *         correlation respectively.
+     *
+     * @pre `parameter_correlations` must be non-null and properly initialized.
      */
     std::pair<double, double> get_correlation(ParamId p1, ParamId p2) const;
 
     /**
-     * @brief Retrieves the correlation between two observables.
+     * @brief Retrieves the correlation between two observables given as enum.
      *
-     * @param o1 First observable.
-     * @param o2 Second observable.
-     * @return A pair containing (statistical correlation, systematic correlation).
+     * This overload converts the enum values to ObservableId using
+     * ObservableMapper::to_id, then delegates to the (ObservableId,ObservableId)
+     * overload.
+     *
+     * @param o1 First observable (enum).
+     * @param o2 Second observable (enum).
+     * @return A pair `(rho_stat, rho_syst)`.
      */
     std::pair<double, double> get_correlation(Observables o1, Observables o2) const;
 
     /**
-     * @brief Retrieves the correlation between two observables.
+     * @brief Retrieves the correlation between two observables given as IDs.
      *
-     * @param o1 First observable.
-     * @param o2 Second observable.
-     * @return A pair containing (statistical correlation, systematic correlation).
+     * @param o1 First observable ID.
+     * @param o2 Second observable ID.
+     * @return A pair `(rho_stat, rho_syst)`.
+     *
+     * @pre `observable_correlations` must be non-null and properly initialized.
      */
     std::pair<double, double> get_correlation(ObservableId o1, ObservableId o2) const;
 
     /**
-     * @brief Computes the combined correlation (hypotenuse) between two entities.
+     * @brief Computes the combined correlation (quadratic sum) between two
+     *        entities of the same type.
      *
-     * @tparam T The type of entity (ParamId or Observables).
+     * The combined correlation is defined as:
+     *
+     *   sqrt( rho_stat^2 + rho_syst^2 )
+     *
+     * which is simply `std::hypot(rho_stat, rho_syst)`.
+     *
+     * @tparam T Entity type (e.g. ParamId or Observables).
      * @param p1 First entity.
      * @param p2 Second entity.
      * @return The combined correlation.
@@ -117,45 +165,65 @@ public:
     }
     
     /**
-     * @brief Sets the correlation matrix for parameters.
+     * @brief Sets (replaces) the correlation matrix for parameters.
      *
-     * @param correlation_matrices Shared pointer to the parameter correlation matrices.
+     * @param correlation_matrices Shared pointer to the parameter
+     *        correlation matrices.
      */
     void set_correlation_matrix(std::shared_ptr<CorrelationMatrixPair<ParamId>> correlation_matrices);
 
     /**
-     * @brief Sets the correlation matrix for observables.
+     * @brief Sets (replaces) the correlation matrix for observables.
      *
-     * @param correlation_matrix Shared pointer to the observable correlation matrices.
+     * @param correlation_matrix Shared pointer to the observable
+     *        correlation matrices.
      */
     void set_correlation_matrix(std::shared_ptr<CorrelationMatrixPair<ObservableId>> correlation_matrix);
 
     /**
-     * @brief Merges a new correlation matrix into the existing parameter correlations.
+     * @brief Merges a new correlation matrix into the existing parameter
+     *        correlations.
      *
-     * Existing entries will be overwritten if keys overlap.
+     * For each entry in `correlation_matrix->stat` and `correlation_matrix->syst`,
+     * any existing entry in `parameter_correlations` with the same key is
+     * overwritten via `insert_or_assign`.
      *
-     * @param correlation_matrix Shared pointer to the new parameter correlation matrix.
+     * @param correlation_matrix Shared pointer to the new parameter
+     *        correlation matrix.
+     *
+     * @pre `parameter_correlations` must be non-null.
      */
     void merge_correlation_matrix(std::shared_ptr<CorrelationMatrixPair<ParamId>> correlation_matrix);
 
     /**
-     * @brief Merges a new correlation matrix into the existing observable correlations.
+     * @brief Merges a new correlation matrix into the existing observable
+     *        correlations.
      *
-     * Existing entries will be overwritten if keys overlap.
+     * Same semantics as the parameter version, but applied to
+     * `observable_correlations`.
      *
-     * @param correlation_matrix Shared pointer to the new observable correlation matrix.
+     * @param correlation_matrix Shared pointer to the new observable
+     *        correlation matrix.
+     *
+     * @pre `observable_correlations` must be non-null.
      */
     void merge_correlation_matrix(std::shared_ptr<CorrelationMatrixPair<ObservableId>> correlation_matrix);
 
     /**
      * @brief Prints the current content of parameter and observable correlations.
+     *
+     * Uses the LOGGER macros to print:
+     *   - all stored parameter correlations
+     *   - all stored observable correlations
+     *
+     * in a diagnostic-friendly format (using the overloaded operator<< on
+     * CorrelationMatrixPair).
      */
     void print_content() const;
 
 private:
     std::shared_ptr<CorrelationMatrixPair<ParamId>> parameter_correlations;         ///< Parameter correlation matrices.
-    std::shared_ptr<CorrelationMatrixPair<ObservableId>> observable_correlations;    ///< Observable correlation matrices.
+    std::shared_ptr<CorrelationMatrixPair<ObservableId>> observable_correlations;   ///< Observable correlation matrices.
 };
 
 #endif // CORRELATIONREPO_H

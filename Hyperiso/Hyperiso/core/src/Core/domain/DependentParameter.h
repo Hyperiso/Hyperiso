@@ -1,68 +1,101 @@
 #ifndef DEPENDENT_PARAMETER_H
 #define DEPENDENT_PARAMETER_H
 
+#include <functional>
+#include <memory>
+#include <unordered_map>
+
 #include "Parameter.h"
 
 class ParamSrc;
-
 class DependentParameter;
 
 /**
  * @typedef DepParamUpdateFunc
  * @brief Function signature for updating a DependentParameter.
  *
- * Takes a map of source parameters and a shared pointer to the dependent parameter.
+ * The callback receives:
+ *   - a ParamSrc view giving access to all source parameters
+ *   - a shared pointer to the DependentParameter to update
+ *
+ * The lambda is expected to *modify* the dependent parameter in-place
+ * (e.g. via set_expected / set_std / etc.).
  */
-// using DepParamUpdateFunc = std::function<scalar_t(const ParamSrc&)>;
 typedef std::function<void(const ParamSrc&, std::shared_ptr<DependentParameter>)> DepParamUpdateFunc;
 
 /**
  * @class DependentParameter
- * @brief Represents a parameter whose value is dynamically computed from other parameters.
+ * @brief Parameter whose value is dynamically computed from other parameters.
  *
- * Automatically updates itself when any of its source parameters changes.
+ * This class implements a simple observer pattern:
+ *   - It registers itself as an observer of its source parameters in init().
+ *   - When any source parameter changes, it receives update(), and calls
+ *     the provided DepParamUpdateFunc to recompute its own value.
+ *   - It can be frozen/unfrozen to postpone updates.
  */
 class DependentParameter : public Parameter {
 public:
     /**
-     * @brief Constructs a DependentParameter from a set of source parameters and a recalculation function.
-     * @param pid ID of the dependent parameter.
-     * @param sources Map of source parameters.
-     * @param recalculateFunc Lambda function to compute the value based on sources.
+     * @brief Constructs a DependentParameter.
+     *
+     * @param pid   ID of the dependent parameter.
+     * @param sources Map of source parameters (by ParamId).
+     * @param recalculateFunc Lambda used to recompute the parameter's value.
+     *                        It will be called from update().
      */
     explicit DependentParameter(ParamId pid, std::unordered_map<ParamId, std::shared_ptr<Parameter>> sources, DepParamUpdateFunc recalculateFunc);
 
     /**
-     * @brief Checks if the dependent parameter depends on a given parameter.
+     * @brief Checks if this dependent parameter depends on a given source.
      * @param pid ID of the parameter to check.
-     * @return True if dependency exists, false otherwise.
+     * @return True if pid is among the sources, false otherwise.
      */
     bool dependsOn(const ParamId& pid);
 
     /**
      * @brief Initializes dependency tracking and observer registration.
      *
-     * Must be called after construction.
+     * Must be called once after construction, when the DependentParameter is
+     * already owned by a std::shared_ptr (so shared_from_this() is valid).
      */
     void init();
 
     /**
-     * @brief Updates the dependent parameter by recomputing its value.
+     * @brief Recomputes the dependent parameter based on its sources.
+     *
+     * If frozen, the update is delayed until unfreeze() is called.
+     * If some source is null or the recalculate lambda is not set,
+     * logs an error and does nothing.
      */
     void update() override;
 
     /**
-     * @brief Freezes the dependent parameter (prevents update until unfreeze).
+     * @brief Freezes the dependent parameter (defers updates).
+     *
+     * Any update requested while frozen will set a flag and be executed
+     * once unfreeze() is called.
      */
     void freeze() override;
 
     /**
-     * @brief Unfreezes the dependent parameter (updates if needed).
+     * @brief Unfreezes the parameter and triggers a pending update if any.
      */
     void unfreeze() override;
 
+    /**
+     * @brief Breaks links from this parameter to its sources.
+     *
+     * Removes this DependentParameter as an observer from all its sources.
+     */
     void clear_above() override;
 
+    /**
+     * @brief Recursively clears this parameter and all its dependents.
+     *
+     * - Unregisters from sources (clear_above())
+     * - Requests its owning Block (if any) to erase this parameter
+     * - Recursively calls clear_below() on its own observers.
+     */
     void clear_below() override;
 
     /**
@@ -74,28 +107,32 @@ public:
     }
 
     /**
-     * @brief Destructor. Cleans up dependency links.
+     * @brief Returns the raw map of source parameters.
      */
     ~DependentParameter();
     
 private:
-    std::weak_ptr<DependentParameter> self;                           ///< Self-reference used for observer management.
-    std::unordered_map<ParamId, std::shared_ptr<Parameter>> sources_raw;    ///< Source parameters.
-    std::unique_ptr<ParamSrc> sources;                                      ///< Source parameters.
-    DepParamUpdateFunc recalculateLambda;                               ///< Recalculation function.
-    bool frozen {false};                                                ///< If true, update is delayed.
-    bool update_at_unfreeze {false};                                    ///< If true, an update is triggered upon unfreezing.
+    std::weak_ptr<DependentParameter> self;                                 ///< Self-reference used for safe observer management in destructor / clear_*.
+    std::unordered_map<ParamId, std::shared_ptr<Parameter>> sources_raw;    ///< Raw source parameters, keyed by ParamId.
+    std::unique_ptr<ParamSrc> sources;                                      ///< View wrapper around sources_raw (with context string for nicer errors).
+    DepParamUpdateFunc recalculateLambda;                                   ///< /// Lambda used to recompute the value of this parameter.
+    bool frozen {false};                                                    ///< If true, update is delayed.
+    bool update_at_unfreeze {false};                                        ///< If true, an update is triggered upon unfreezing.
 };
 
 /**
- * @brief Overloads the += operator for shared pointers to Parameter.
+ * @brief Overloads the += operator for shared_ptr<Parameter>.
  *
- * If both shared pointers are non-null, this function adds the contents
- * of rhs to lhs using the Parameter's += operator.
+ * Behaviour:
+ *   - If rhs is null: do nothing.
+ *   - If lhs is non-null and has the same ParamId as rhs:
+ *       *lhs += *rhs;
+ *   - Else:
+ *       lhs is replaced by a new Parameter copied from *rhs.
  *
  * @param lhs Shared pointer to the Parameter to be modified.
  * @param rhs Shared pointer to the Parameter to add.
- * @return Reference to lhs after the addition.
+ * @return Reference to lhs after the operation.
  */
 inline std::shared_ptr<Parameter>& operator+=(std::shared_ptr<Parameter>& lhs, const std::shared_ptr<Parameter>& rhs) {
     if (rhs) {
@@ -109,12 +146,15 @@ inline std::shared_ptr<Parameter>& operator+=(std::shared_ptr<Parameter>& lhs, c
 }
 
 /**
- * @brief Overloads the * operator for a shared pointer to Parameter.
+ * @brief Overloads the * operator for shared_ptr<Parameter> and a scalar factor.
  *
- * If the shared pointer is non-null, this function scales the contents
- * of rhs by lhs using the Parameter's *= operator.
+ * Behaviour:
+ *   - If rhs (scale factor) is non-zero, scales *lhs in-place using
+ *     Parameter::operator*=.
+ *   - If lhs is null, behaviour is undefined (same as dereferencing a null
+ *     shared_ptr elsewhere).
  *
- * @param lhs Shared pointer to the Parameter to be modified.
+ * @param lhs Shared pointer to the Parameter to be scaled.
  * @param rhs Scale factor.
  * @return Reference to lhs after scaling.
  */

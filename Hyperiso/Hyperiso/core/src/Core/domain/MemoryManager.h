@@ -1,3 +1,19 @@
+#ifndef HYPERISO_MEMORY_MANAGER_H
+#define HYPERISO_MEMORY_MANAGER_H
+
+#include <unordered_map>
+#include <thread>
+
+#include "config.hpp"
+#include "Include.h"
+#include "BlockAccessor.h"
+#include "DBMemento.h"
+#include "CorrelationRepo.h"
+#include "ISpectrumCalculator.h"
+#include "IDataLoader.h"
+#include "IPathsProvider.h"
+#include "Config.h"
+
 /**
  * @file MemoryManager.h
  * @brief Manages memory caching, parameter blocks, and LHA reader instances.
@@ -6,25 +22,9 @@
  * - Memory caching (parameters, blocks, correlations)
  * - LHA file loading and reloading
  * - Spectrum calculations
- * 
+ *
  * It must be initialized before using any parameter-dependent functionality.
  */
-#ifndef HYPERISO_MEMORY_MANAGER_H
-#define HYPERISO_MEMORY_MANAGER_H
-
-#include <unordered_map>
-#include <thread>
-#include "config.hpp"
-#include "Include.h"
-#include "BlockAccessor.h"
-// #include "ParamBlockLoader.h"
-#include "DBMemento.h"
-#include "CorrelationRepo.h"
-// #include "CorrelationAdapter.h"
-#include "ISpectrumCalculator.h"
-#include "IDataLoader.h"
-#include "IPathsProvider.h"
-#include "Config.h"
 
 /**
  * @enum InternalFlag
@@ -46,6 +46,11 @@ struct MemoryCache {
 
 };
 
+/**
+ * @brief RAII guard to toggle the "ready" flag while performing unsafe operations.
+ *
+ * Sets the flag to false on construction, restores it to true on destruction.
+ */
 struct ReadyGuard {
     bool& flag;
     ReadyGuard(bool& f) : flag(f) { flag = false; }
@@ -60,24 +65,24 @@ struct ReadyGuard {
  */
 class MemoryManager {
 private:
-    static MemoryManager* instance;                 ///< Singleton instance pointer.
-    MemoryCache cache;                              ///< Internal memory cache for session data.
-    std::shared_ptr<BlockAccessor> input_cache;     ///< Cached parameters and blocks.
-    DBMemento memento;                              ///< Memento to save and restore input cache.
-    CorrelationRepository correlation_repository;   ///< Repository for parameter and observable correlations.
-    std::shared_ptr<ISpectrumCalculator> sc;
-    std::shared_ptr<IDataLoader<BlockAccessor>> dl_ba;
-    std::shared_ptr<IDataLoader<CorrelationMatrixPair<ParamId>>> dl_cmp_p;
-    std::shared_ptr<IDataLoader<CorrelationMatrixPair<ObservableId>>> dl_cmp_o;
-    std::shared_ptr<IPathsProvider> paths_provider;
+    static MemoryManager* instance;                                             ///< Singleton instance pointer.
+    MemoryCache cache;                                                          ///< Internal memory cache for session data.
+    std::shared_ptr<BlockAccessor> input_cache;                                 ///< Cached parameters and blocks.
+    DBMemento memento;                                                          ///< Memento to save and restore input cache.
+    CorrelationRepository correlation_repository;                               ///< Repository for parameter and observable correlations.
+    std::shared_ptr<ISpectrumCalculator> sc;                                    ///< Spectrum calculator (may be null).
+    std::shared_ptr<IDataLoader<BlockAccessor>> dl_ba;                          ///< Loader for parameter blocks.
+    std::shared_ptr<IDataLoader<CorrelationMatrixPair<ParamId>>> dl_cmp_p;      ///< Loader for parameter correlations.
+    std::shared_ptr<IDataLoader<CorrelationMatrixPair<ObservableId>>> dl_cmp_o; ///< Loader for observable correlations.
+    std::shared_ptr<IPathsProvider> paths_provider;                             ///< Provider for filesystem paths.
 
     /**
-     * @brief Private constructor to enforce singleton pattern.
+     * @brief Private default constructor to enforce singleton pattern.
      */
     MemoryManager();
 
     /**
-     * @brief Private constructor to enforce singleton pattern. Special constructor to build ports to db.
+     * @brief Private constructor for dependency injection (ports to DB/loaders).
      */
     MemoryManager(std::shared_ptr<IDataLoader<BlockAccessor>> loader, 
         std::shared_ptr<IDataLoader<CorrelationMatrixPair<ParamId>>> param_corr, 
@@ -94,30 +99,22 @@ private:
     /**
      * @brief Reads and loads default input files (parameters, observables, correlations).
      *
-     * This method is used during the initialization process to load standard inputs
-     * from predefined file paths into the input cache.
-     * @param loader Pointer to the DataLoader to use to get parameters from default input (JSON).
-     * @param param_corr Pointer to the DataLoader to use to get parameters correlations from default inputs (JSON).
-     * @param obs_corr Pointer to the DataLoader to use to get observables correlations from default inputs (JSON).
+     * Uses internal loaders and paths provider to populate the initial cache.
      */
     void read_default_input();
 
     /**
      * @brief Reads and loads user-specific input files (overrides or complements defaults).
      *
-     * Loads user-provided parameter and observable blocks from input files, merging them
-     * into the current input cache.
-     * @param loader Pointer to the DataLoader to use to get parameters from user inputs (YAML).
-     * @param param_corr Pointer to the DataLoader to use to get parameters correlations from user inputs (YAML).
-     * @param obs_corr Pointer to the DataLoader to use to get observables correlations from user inputs (YAML).
+     * Merges user-provided blocks and correlations into the current input cache.
      */
     void read_user_input();
 
     /**
      * @brief Reads a LHA input file and updates the memory cache accordingly.
      *
-     * @param lhaFile Path to the LHA input file.
-     * @param config Configuration options for the reading process.
+     * @param lhaFile Path to the LHA input file (relative to assets or absolute).
+     * @param config  Configuration options for the reading process.
      */
     void read_lha_input(const std::string& lhaFile, const Config& config);
 
@@ -138,7 +135,7 @@ private:
      * If necessary (depending on the model and config flags), invokes the external spectrum calculator.
      *
      * @param input_lha_path Path to the initial LHA file.
-     * @param config Configuration options to control spectrum generation.
+     * @param config         Configuration options to control spectrum generation.
      * @return Path to the new LHA file containing the calculated spectrum.
      */
     fs::path calculate_spectrum(fs::path input_lha_path, const Config& config);
@@ -146,8 +143,7 @@ private:
     /**
      * @brief Determines the list of parameter types to manage based on the configuration.
      *
-     * Fills the internal list of ParameterTypes (`cache.parameter_types`) based on the model
-     * and flags present in the Config object.
+     * Fills cache.parameter_types based on the model and flags present in the Config object.
      *
      * @param config Configuration options to interpret.
      */
@@ -156,8 +152,7 @@ private:
     /**
      * @brief Saves a snapshot of the current input cache.
      *
-     * Stores the current state of the input cache to allow future restoration
-     * (used when switching LHA files or reloading user input).
+     * Stores the current state of the input cache to allow future restoration.
      */
     void save_input_cache();
 
@@ -169,8 +164,10 @@ public:
     static MemoryManager* GetInstance();
     
     /**
-     * @brief Retrieves the singleton instance of MemoryManager. Use to create MemoryManager in the adapters
-     * @return Pointer to MemoryManager instance.
+     * @brief Retrieves/creates the singleton instance of MemoryManager with injected dependencies.
+     *
+     * Intended to be used by adapters/factories that wire loaders, spectrum calculator
+     * and path providers.
      */
     static MemoryManager* Create(std::shared_ptr<IDataLoader<BlockAccessor>> loader, 
         std::shared_ptr<IDataLoader<CorrelationMatrixPair<ParamId>>> param_corr, 
@@ -184,38 +181,32 @@ public:
      * Must be called before using any Parameters instances.
      *
      * @param lhaFile Path to the input LHA file.
-     * @param config Configuration settings to use.
-     * @param loader Pointer to the DataLoader to use to get parameters from inputs.
-     * @param param_corr Pointer to the DataLoader to use to get parameters correlations from inputs.
-     * @param obs_corr Pointer to the DataLoader to use to get observables correlations from inputs.
+     * @param config  Configuration settings to use.
      */
     void init(const std::string &lhaFile, Config config);
 
     /**
      * @brief Switches to a different LHA file, reloading associated parameters and spectrum.
+     *
      * @param lhaFile Path to the new LHA file.
-     * @param config New configuration to apply.
+     * @param config  New configuration to apply.
      */
     void switch_lha(const std::string& lhaFile, Config config);
 
     /**
      * @brief Reloads user-specific input files.
      *
-     * Useful for reapplying user customizations without reloading the full LHA file.
+     * Useful for reapplying user customizations without changing the LHA file.
+     *
      * @param config New configuration to apply.
-     * @param loader Pointer to the DataLoader to use to get parameters from user inputs (YAML).
-     * @param param_corr Pointer to the DataLoader to use to get parameters correlations from user inputs (YAML).
-     * @param obs_corr Pointer to the DataLoader to use to get observables correlations from user inputs (YAML).
      */
     void reload_user_input(Config config);
 
     /**
      * @brief Reloads user-specific input files with a different LHA file.
+     *
      * @param lhaFile Path to the LHA file.
-     * @param config New configuration to apply.
-     * @param loader Pointer to the DataLoader to use to get parameters from user inputs (YAML).
-     * @param param_corr Pointer to the DataLoader to use to get parameters correlations from user inputs (YAML).
-     * @param obs_corr Pointer to the DataLoader to use to get observables correlations from user inputs (YAML).
+     * @param config  New configuration to apply.
      */
     void reload_user_input(const std::string &lhaFile, Config config);
 
@@ -224,14 +215,14 @@ public:
      *
      * Must be compatible with the loaded LHA file.
      *
-     * @param model The new model to switch to (default is SM).
-     * @param use_marty Whether to use external MARTY spectrum calculation.
+     * @param model    The new model to switch to (default is SM).
+     * @param use_marty Whether to use external MARTY spectrum calculation (currently just a flag).
      */
     void switch_model(Model model = Model::SM, bool use_marty = false);
 
     /**
      * @brief Retrieves the current memory cache.
-     * 
+     *
      * @return A const reference to the internal MemoryCache.
      */
     inline const MemoryCache& getMemoryCache() { check_if_ready(); return cache; }
@@ -251,8 +242,12 @@ public:
     const CorrelationRepository& get_correlation_repository();
     
     /**
-     * @brief Retrieves the current correlation repository.
-     * @return A const reference to the CorrelationRepository.
+     * @brief Computes all ultimate "source" parameters for a given set of parameter IDs.
+     *
+     * This walks through dependent parameters and dependent blocks to find leaf sources.
+     *
+     * @param param_ids Set of parameter IDs to analyze.
+     * @return Set of source ParamId.
      */
     std::unordered_set<ParamId> get_all_source_parameters(const std::unordered_set<ParamId>& param_ids) const;
 

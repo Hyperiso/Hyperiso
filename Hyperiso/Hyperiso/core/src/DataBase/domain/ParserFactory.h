@@ -1,5 +1,5 @@
-#ifndef __PARSERFACTORY_H__
-#define __PARSERFACTORY_H__
+#ifndef PARSERFACTORY_H
+#define PARSERFACTORY_H
 
 #include <memory>
 #include "IParser.h"
@@ -35,4 +35,4 @@ inline std::shared_ptr<IParser> ParserFactory::createParser(Type type) {
     }
 }
 
-#endif // __PARSERFACTORY_H__
+#endif // PARSERFACTORY_H

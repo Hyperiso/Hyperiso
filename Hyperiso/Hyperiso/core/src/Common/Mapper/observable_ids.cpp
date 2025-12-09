@@ -24,9 +24,9 @@ std::optional<LhaID>        ObservableMapper::flha_of(const ObservableId& id){ r
 LhaID        ObservableMapper::flha(const Observables& id){ return observable_mapping().at(id); }
 
 bool ObservableMapper::register_custom(const std::string& canonical,
-                        std::vector<std::string> aliases = {},
-                        std::optional<LhaID> ext = std::nullopt,
-                        std::optional<DecayId> parent_decay = std::nullopt)
+                        std::vector<std::string> aliases,
+                        std::optional<LhaID> ext,
+                        std::optional<DecayId> parent_decay)
 {
     const bool ok = Base::register_custom(canonical, aliases, ext);
     if (ok && parent_decay) {

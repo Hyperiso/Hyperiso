@@ -2,12 +2,19 @@
 #define HYPERISO_IPATHSPROVIDER_H
 
 #include <filesystem>
+
 namespace fs = std::filesystem;
 
+/**
+ * @brief Interface providing all filesystem paths used by HyperISO.
+ *
+ * Implementations define where default/user inputs and outputs (spectrum, templates, mappings)
+ * are located on disk.
+ */
 struct IPathsProvider {
     virtual ~IPathsProvider() = default;
 
-    // racine Assets (sert à résoudre chemins relatifs de LHA)
+    /// Root directory for all assets.
     virtual fs::path assets_root() const = 0;
 
     // defaults

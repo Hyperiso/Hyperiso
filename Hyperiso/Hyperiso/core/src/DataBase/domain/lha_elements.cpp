@@ -39,25 +39,6 @@ static inline void normalize_indices(const Prototype& p,
     bIdx = (p.binIdx   >= 0 && static_cast<size_t>(p.binIdx)   < line.size()) ? p.binIdx   : -1;
 }
 
-// template<typename T>
-// LhaElement<T>::LhaElement(const Prototype& prototype, const std::vector<std::string>& line)
-//     : AbstractElement(encodeId(prototype, line))
-// {
-//     size_t vIdx; int sIdx, rIdx;
-//     normalize_indices(prototype, line, vIdx, sIdx, rIdx);
-
-//     if (prototype.globalScale) {
-//         if (line.empty()) throw std::runtime_error("Global-scale block: empty line in " + prototype.blockName);
-//         this->Q.emplace(std::stod(line.at(0)));
-//     } else if (sIdx != -1) {
-//         this->Q.emplace(std::stod(line.at(sIdx)));
-//     }
-
-//     if (vIdx >= line.size())
-//         throw std::runtime_error("valueIdx out of range in " + prototype.blockName);
-//     this->value = StringConverter<T>::convert(line.at(vIdx));
-// }
-
 template<typename T>
 LhaElement<T>::LhaElement(const Prototype& prototype, const std::vector<std::string>& line)
     : AbstractElement(encodeId(prototype, line))
@@ -83,34 +64,6 @@ LhaElement<T>::LhaElement(const Prototype& prototype, const std::vector<std::str
         throw std::runtime_error("valueIdx out of range in " + prototype.blockName);
     this->value = StringConverter<T>::convert(line.at(vIdx));
 }
-
-// template<typename T>
-// LhaElement<T>::LhaElement(const Prototype& prototype, const std::vector<std::string>& line) 
-//         : AbstractElement(encodeId(prototype, line)) {
-//     if (prototype.scaleIdx != -1) {
-//         this->Q.emplace(std::stod(line.at(prototype.scaleIdx)));
-//         if (prototype.rgIdx != -1) {
-//             // WRONG !!! To be corrected.
-//             this->rScheme.emplace(static_cast<RenormalizationScheme>(stoi(line.at(prototype.rgIdx))));
-//         }
-//     } else if (prototype.globalScale) {
-//         this->Q.emplace(std::stod(line.at(0)));
-//     }
-
-//     this->value = StringConverter<T>::convert(line.at(prototype.valueIdx));
-// }
-
-// template <typename T>
-// LhaID LhaElement<T>::encodeId(const Prototype& prototype, const std::vector<std::string>& line) {
-//     std::vector<long> sub_ids;
-//     for (size_t i=0; i!=line.size(); ++i) {
-//         if (i != prototype.valueIdx && i != prototype.scaleIdx && i != prototype.rgIdx) {
-//             if (prototype.globalScale && i == 0) continue;
-//             sub_ids.emplace_back(std::stol(line.at(i)));
-//         }
-//     }
-//     return LhaID(sub_ids);
-// }
 
 template <typename T>
 LhaID LhaElement<T>::encodeId(const Prototype& prototype, const std::vector<std::string>& line) {

@@ -24,6 +24,15 @@ T Series<T>::iat(size_t idx) const {
 }
 
 template <typename T>
+T Series<T>::at(const std::string& idx) const {
+        auto it = std::find(index->begin(), index->end(), idx);
+        if (it != index->end()) {
+            size_t pos = std::distance(index->begin(), it);
+            return data.at(pos);
+        }
+        throw std::invalid_argument("Index not found");
+    }
+template <typename T>
 size_t Series<T>::size() const {
     return data.size();
 }

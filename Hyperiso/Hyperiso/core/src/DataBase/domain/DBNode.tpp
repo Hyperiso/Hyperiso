@@ -44,27 +44,6 @@ void Node::set(T value, Key&& key, Rest&&... rest) {
     }
 }
 
-// template <typename Key, typename... Rest>
-// Node::Value Node::getRecursive(const std::map<BlockName, Value>& map, Key&& key, Rest&&... rest) {
-//     BlockName blockKey = BlockName(std::forward<Key>(key));
-    
-//     auto it = std::find_if(map.begin(), map.end(),
-//         [&](const auto& pair) {
-//             return pair.first == blockKey;
-//         });
-    
-//     if (it == map.end()) {
-//         throw std::runtime_error("Key not found");
-//     }
-
-//     if constexpr (sizeof...(rest) == 0) {
-//         return it->second;
-//     } else {
-//         auto node = std::get<std::shared_ptr<Node>>(it->second);
-//         return node->get(std::forward<Rest>(rest)...);
-//     }
-// }
-
 static inline bool is_unsigned_number(const std::string& s) {
     if (s.empty()) return false;
     for (char c : s) if (!std::isdigit(static_cast<unsigned char>(c))) return false;

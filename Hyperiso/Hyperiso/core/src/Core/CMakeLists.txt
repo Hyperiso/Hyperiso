@@ -55,6 +55,7 @@ add_library(CoreLib STATIC
     domain/MemoryManager.cpp
     domain/Block.cpp
     domain/BlockAccessor.cpp
+    domain/SourceView.cpp
     domain/DependentBlockManager.cpp
     infrastructure/QCDHelper.cpp
     infrastructure/EWHelper.cpp

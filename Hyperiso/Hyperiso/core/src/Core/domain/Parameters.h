@@ -1,14 +1,3 @@
-/**
- * @file Parameters.h
- * @brief Defines strategies for different physics models and manages parameter instances.
- *
- * This file declares:
- * - ModelStrategy: abstract base class for model-specific strategies.
- * - Concrete strategies (e.g., SMModelStrategy, BSMModelStrategy, etc.).
- * - Parameters: singleton class to manage parameter values and blocks for different models.
- * - ParametersFactory: factory class to create and manage Parameters instances.
- */
-
 #ifndef PARAMETERS_H
 #define PARAMETERS_H
 
@@ -23,8 +12,22 @@
 #include "QCDHelper.h"
 #include "EWHelper.h"
 #include "config.hpp"
-#include "SourcesView.hpp"
+#include "SourcesView.h"
 #include "DependentParameter.h"
+
+// Forward declaration for strategy interface
+class Parameters;
+
+/**
+ * @file Parameters.h
+ * @brief Defines strategies for different physics models and manages parameter instances.
+ *
+ * This file declares:
+ * - ModelStrategy: abstract base class for model-specific strategies.
+ * - Concrete strategies (e.g., SMModelStrategy, BSMModelStrategy, etc.).
+ * - Parameters: singleton class to manage parameter values and blocks for different models.
+ * - ParametersFactory: factory class to create and manage Parameters instances.
+ */
 
 /**
  * @defgroup ParametersModule Parameters and Model Strategies
@@ -65,13 +68,11 @@
  * - @ref PassthroughStrategy
  */
 
-
 /**
  * @class ModelStrategy
  * @ingroup ParametersModule
  * @brief Abstract base class for different physics model strategies.
  */
-
 class ModelStrategy {
 public:
     /**
@@ -106,7 +107,7 @@ protected:
     std::unordered_set<BlockName> absent_blocks;  ///< List of blocks missing from initialization.
 };
 
-/** 
+/**
  * @class SMModelStrategy
  * @ingroup ParametersModule
  * @brief Strategy for Standard Model parameters.
@@ -117,7 +118,7 @@ public:
     void postInitialization(Parameters& params) override;
 };
 
-/** 
+/**
  * @class BSMModelStrategy
  * @ingroup ParametersModule
  * @brief Strategy for Beyond Standard Model parameters.
@@ -127,18 +128,6 @@ public:
     std::unordered_set<BlockName> initializeParameters(class Parameters& params) override;
     void postInitialization(Parameters& params) override;
 };
-
-// /** @class SUSYModelStrategy @brief Strategy for SUSY models. */
-// class SUSYModelStrategy : public ModelStrategy {
-// public:
-//     void initializeParameters(class Parameters& params) override;
-// };
-
-// /** @class THDMModelStrategy @brief Strategy for Two-Higgs-Doublet Models. */
-// class THDMModelStrategy : public ModelStrategy {
-// public:
-//     void initializeParameters(class Parameters& params) override;
-// };
 
 /** 
  * @class FlavorStrategy
@@ -255,7 +244,6 @@ public:
      * @param name Block name.
      * @param pdgCode PDG code.
      * @param value Value to assign.
-     * @param force If true, forces the overwrite (default false).
      */
     void setBlockValue(const BlockName& name, LhaID pdgCode, scalar_t value);
 
@@ -328,11 +316,11 @@ public:
     void unfreeze_param(const BlockName& blockName, const LhaID& id);
 
     /**
-     * @brief Return the BlockAcessor of the parameters.
+     * @brief Return the BlockAccessor of the parameters.
      *
      * Should only be used for parameters optimization.
      *
-     * @return The Block accessor
+     * @return The BlockAccessor.
      */
     std::shared_ptr<BlockAccessor> get_block_accessor() { return this->blockAccessor;}
 
@@ -341,7 +329,7 @@ public:
      *
      * Prints the content of a block in the block accessor.
      *
-     * @param blockname Name of the block to print
+     * @param blockname Name of the block to print.
      */
     void print_block(const std::string blockname);
     
@@ -351,7 +339,7 @@ public:
      * Prints the content of the block accessor.
      *
      * @param os Output stream.
-     * @param ba Shared pointer to the BlockAccessor to print.
+     * @param instance Shared pointer to the Parameters to print.
      * @return The output stream.
      */
     friend std::ostream& operator<<(std::ostream&, std::shared_ptr<Parameters>);
@@ -362,9 +350,13 @@ public:
     ~Parameters() { LOG_DEBUG("Parameters at ", this); }
 
 private:
+    /**
+     * @brief Sets the owner type for all parameters in the accessor.
+     * @param type ParameterType to assign as owner.
+     */
     void claim_parameters(ParameterType type);
     
-    /** 
+    /**
      * @brief Private constructor for Parameters.
      * @param modelStrategy Strategy associated with this instance.
      */

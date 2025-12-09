@@ -1,5 +1,5 @@
 #include "DependentParameter.h"
-#include "SourcesView.hpp" //avoid loops
+#include "SourcesView.h" //avoid loops
 
 DependentParameter::DependentParameter(
     ParamId pid,
@@ -50,22 +50,6 @@ void DependentParameter::init() {
 }
 
 
-// void DependentParameter::update() {
-//     if (frozen) {
-//         LOG_DEBUG("DependentParameter is frozen, skipping update");
-//         this->update_at_unfreeze = true;
-//     } else if (recalculateLambda 
-//         && std::all_of((*sources).raw().begin(), (*sources).raw().end(),
-//                        [](const std::pair<ParamId, std::shared_ptr<Parameter>>& p){ return p.second != nullptr; })) 
-//     {
-//         LOG_DEBUG("Updating dependent parameter value");
-//         auto me_dep = std::static_pointer_cast<DependentParameter>(shared_from_this());
-//         recalculateLambda(*sources, me_dep); 
-//     } else {
-//         LOG_ERROR("Error", "DependentParameter::update() called without all source parameters being set");
-//     }
-// }
-
 void DependentParameter::update() {
     if (frozen) {
         LOG_DEBUG("DependentParameter is frozen, skipping update");
@@ -104,10 +88,6 @@ void DependentParameter::unfreeze() {
         update_at_unfreeze = false;
     }
 }
-
-
-
-
 
 DependentParameter::~DependentParameter() {
     LOG_DEBUG("Destruct DependentParameter at", self.lock().get());

@@ -190,19 +190,6 @@ void Node::printYAML(int level) const {
     }
 }
 
-
-// bool Node::isListNode(const std::shared_ptr<Node>& node) const {
-//     for (const auto& [key, _] : node->data_) {
-//         if (!std::all_of(key.begin(), key.end(), ::isdigit)) {
-//             return false;
-//         }
-//     }
-//     return true;
-// }
-// bool Node::isListNode(const std::shared_ptr<Node>& node) const {
-//     return std::holds_alternative<std::vector<std::shared_ptr<Node>>>(node->data_.begin()->second);
-// }
-
 bool Node::isListNode(const std::shared_ptr<Node>& node) const {
     if (!node || node->data_.empty()) return false;
     return std::holds_alternative<std::vector<std::shared_ptr<Node>>>(node->data_.begin()->second);
