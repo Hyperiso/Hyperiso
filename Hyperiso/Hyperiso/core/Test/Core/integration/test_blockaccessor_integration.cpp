@@ -9,7 +9,7 @@
 #include "Block.h"
 #include "Parameter.h"
 #include "Include.h"
-#include "SourcesView.hpp"
+#include "SourcesView.h"
 
 static std::shared_ptr<Parameter> mkp(const std::string& blk, long code, double v){
     return std::make_shared<Parameter>(ParamId{ParameterType::SM, blk, LhaID(code)}, v, 0.0, 0.0);

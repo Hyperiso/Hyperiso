@@ -11,9 +11,8 @@
 #include "BlockAccessor.h"
 #include "DependentParameter.h"
 #include "ParamOptimizer.h"
-#include "SourcesView.hpp"
+#include "SourcesView.h"
 
-// --------- helpers d'affichage ----------
 static void print_header(const std::string& title) {
     std::cout << "\n==== " << title << " ====\n";
 }
@@ -24,7 +23,6 @@ static std::string fmt(double x) {
     std::ostringstream oss; oss << std::setprecision(10) << x; return oss.str();
 }
 static std::shared_ptr<Parameter> make_param(const std::string& block, const LhaID& id, double v) {
-    // Si chez toi ParamId doit porter un type, remplace par ParamId{ParameterType::SM, block, id}
     return std::make_shared<Parameter>(ParamId(block, id), v, 0., 0.);
 }
 static void dump_block_subset(const std::string& name,
@@ -41,7 +39,7 @@ static void dump_block_subset(const std::string& name,
     }
     std::cout << " }\n";
 }
-// Forcer un bloc dépendant à contenir une liste d'IDs avant de s'en servir
+
 static void ensure_ready(const std::shared_ptr<Block>& b,
                          const std::vector<LhaID>& ids,
                          const std::string& tag,
@@ -56,34 +54,26 @@ static void ensure_ready(const std::shared_ptr<Block>& b,
             std::cout << "[ensure_ready] " << tag << " OK (try " << t << ")\n";
             return;
         }
-        // Essaye de (re)calculer
         if (auto dep = std::dynamic_pointer_cast<DependentBlock>(b)) dep->update();
         else break;
     }
     std::cerr << "[ensure_ready] " << tag << " KO — IDs manquants : ";
     for (auto& id : ids) if (!b->contains(id)) std::cerr << id << " ";
     std::cerr << "\n";
-    // On laisse continuer: les asserts plus bas détecteront une incohérence
 }
-// --------- fin helpers ----------
 
 int main() {
     using clock = std::chrono::steady_clock;
 
-    // Tu peux changer ces deux constantes librement
-    const int N   = 12;     // nb d’éléments par bloc source
-    const int OPS = 2000;   // nb d’assigns dans chaque phase
+    const int N   = 12;   
+    const int OPS = 2000; 
 
-    // Indices repères (pris modulo N → toujours valides)
     const int i1_raw = 5,   i2_raw = 77,  j1_raw = 3,  j2_raw = 10;
     const int i1 = (N ? (i1_raw % N) : 0);
     const int i2 = (N ? (i2_raw % N) : 0);
     const int j1 = (N ? (j1_raw % N) : 0);
     const int j2 = (N ? (j2_raw % N) : 0);
 
-    // --------------------------
-    // 0) Blocs sources
-    // --------------------------
     auto SRC_A = std::make_shared<Block>(); SRC_A->blockname = "SRC_A"; SRC_A->set_scale(1.0);
     auto SRC_B = std::make_shared<Block>(); SRC_B->blockname = "SRC_B"; SRC_B->set_scale(1.0);
     auto SRC_C = std::make_shared<Block>(); SRC_C->blockname = "SRC_C"; SRC_C->set_scale(1.0);
@@ -98,14 +88,9 @@ int main() {
         SRC_C->store(id, make_param("SRC_C", id, 0.5*i));
     }
 
-    // compteurs “update”
     int upd_FUSED_AB = 0, upd_FUSED_BC = 0, upd_SCALED_A = 0, upd_MIXED = 0, upd_REDUCED = 0, upd_META = 0;
     int upd_DP_AZ_1 = 0, upd_DP_AZ_2 = 0, upd_DP_MS_1 = 0, upd_DP_MS_2 = 0, upd_DP_META = 0;
 
-    // --------------------------
-    // 1) DependentBlocks
-    // --------------------------
-    // FUSED_AB[i] = A[i] + 2*B[i]
     auto FUSED_AB = std::make_shared<DependentBlock>(
         std::unordered_map<std::string, std::shared_ptr<Block>>{
             {"SRC_A", SRC_A}, {"SRC_B", SRC_B}
@@ -124,7 +109,6 @@ int main() {
     );
     FUSED_AB->blockname = "FUSED_AB"; FUSED_AB->set_scale(1.0); FUSED_AB->init();
 
-    // FUSED_BC[i] = B[i] - C[i]
     auto FUSED_BC = std::make_shared<DependentBlock>(
         std::unordered_map<std::string, std::shared_ptr<Block>>{
             {"SRC_B", SRC_B}, {"SRC_C", SRC_C}
@@ -143,7 +127,6 @@ int main() {
     );
     FUSED_BC->blockname = "FUSED_BC"; FUSED_BC->set_scale(1.0); FUSED_BC->init();
 
-    // SCALED_A[i] = SCALE(1) * A[i]
     auto SCALED_A = std::make_shared<DependentBlock>(
         std::unordered_map<std::string, std::shared_ptr<Block>>{
             {"SRC_A", SRC_A}, {"SCALE", SCALE}
@@ -162,7 +145,6 @@ int main() {
     );
     SCALED_A->blockname = "SCALED_A"; SCALED_A->set_scale(1.0); SCALED_A->init();
 
-    // AVG[i] = (A[i] + B[i] + C[i]) / 3
     auto AVG = std::make_shared<DependentBlock>(
         std::unordered_map<std::string, std::shared_ptr<Block>>{
             {"SRC_A", SRC_A}, {"SRC_B", SRC_B}, {"SRC_C", SRC_C}
@@ -181,7 +163,6 @@ int main() {
     );
     AVG->blockname = "AVG"; AVG->set_scale(1.0); AVG->init();
 
-    // MIXED[i] = 0.5*A[i] + FUSED_AB[i] + 0.1*FUSED_BC[i] - AVG[i]
     auto MIXED = std::make_shared<DependentBlock>(
         std::unordered_map<std::string, std::shared_ptr<Block>>{
             {"SRC_A", SRC_A}, {"FUSED_AB", FUSED_AB}, {"FUSED_BC", FUSED_BC}, {"AVG", AVG}
@@ -202,7 +183,6 @@ int main() {
     );
     MIXED->blockname = "MIXED"; MIXED->set_scale(1.0); MIXED->init();
 
-    // REDUCED[0] = sum_i MIXED[i]
     auto REDUCED = std::make_shared<DependentBlock>(
         std::unordered_map<std::string, std::shared_ptr<Block>>{
             {"MIXED", MIXED}
@@ -217,9 +197,6 @@ int main() {
     );
     REDUCED->blockname = "REDUCED"; REDUCED->set_scale(1.0); REDUCED->init();
 
-    // --------------------------
-    // PRIMING SAFE (ordre topo)
-    // --------------------------
     MIXED->freeze();
     REDUCED->freeze();
 
@@ -231,22 +208,16 @@ int main() {
     MIXED->unfreeze();   MIXED->update();
     REDUCED->unfreeze(); REDUCED->update();
 
-    // IMPORTANT : vérifie que les blocs amont sont pleins AVANT de construire des DP
     ensure_ready(FUSED_AB, {LhaID(i1), LhaID(i2)}, "FUSED_AB needs i1/i2");
     ensure_ready(FUSED_BC, {LhaID(i1), LhaID(i2)}, "FUSED_BC needs i1/i2");
     ensure_ready(SCALED_A, {LhaID(j1), LhaID(j2)}, "SCALED_A needs j1/j2");
     ensure_ready(MIXED,    {LhaID(j1), LhaID(j2)}, "MIXED needs j1/j2");
 
-    // reset compteurs après priming
     upd_FUSED_AB = upd_FUSED_BC = upd_SCALED_A = upd_MIXED = upd_REDUCED = 0;
 
-    // --------------------------
-    // 2) Blocs contenant des DependentParameters
-    // --------------------------
     auto DERIVED1 = std::make_shared<Block>(); DERIVED1->blockname = "DERIVED1"; DERIVED1->set_scale(1.0);
     auto DERIVED2 = std::make_shared<Block>(); DERIVED2->blockname = "DERIVED2"; DERIVED2->set_scale(1.0);
 
-    // ParamIds depuis les blocs (maintenant sûrs d’exister)
     auto A_i1 = SRC_A->retrieve(LhaID(i1))->get_id();
     auto A_i2 = SRC_A->retrieve(LhaID(i2))->get_id();
     auto Z_i1 = FUSED_AB->retrieve(LhaID(i1))->get_id();
@@ -256,7 +227,6 @@ int main() {
     auto S_j1 = SCALED_A->retrieve(LhaID(j1))->get_id();
     auto S_j2 = SCALED_A->retrieve(LhaID(j2))->get_id();
 
-    // DERIVED1 : DP_AZ_1 = A[i1] + FUSED_AB[i1]; DP_AZ_2 = A[i2] - FUSED_AB[i2]
     auto DP_AZ_1 = std::make_shared<DependentParameter>(
         ParamId{ParameterType::SM, "DERIVED1", LhaID(1001)},
         std::unordered_map<ParamId, std::shared_ptr<Parameter>>{
@@ -277,7 +247,6 @@ int main() {
         }
     ); DP_AZ_2->init(); DERIVED1->store(LhaID(1002), DP_AZ_2);
 
-    // DERIVED2 : DP_MS_1 = MIXED[j1] + SCALED_A[j1]; DP_MS_2 = MIXED[j2] - 0.3*SCALED_A[j2]
     auto DP_MS_1 = std::make_shared<DependentParameter>(
         ParamId{ParameterType::SM, "DERIVED2", LhaID(2001)},
         std::unordered_map<ParamId, std::shared_ptr<Parameter>>{
@@ -298,7 +267,6 @@ int main() {
         }
     ); DP_MS_2->init(); DERIVED2->store(LhaID(2002), DP_MS_2);
 
-    // META : lit DP_AZ_1, DP_AZ_2 et REDUCED[0] → META[0]
     auto META = std::make_shared<DependentBlock>(
         std::unordered_map<std::string, std::shared_ptr<Block>>{
             {"DERIVED1", DERIVED1}, {"REDUCED", REDUCED}
@@ -315,7 +283,6 @@ int main() {
     META->blockname = "META"; META->set_scale(1.0); META->init();
     META->update();
 
-    // DERIVED_META : DP_META = META[0] + SCALED_A[i1]
     auto DERIVED_META = std::make_shared<Block>(); DERIVED_META->blockname = "DERIVED_META"; DERIVED_META->set_scale(1.0);
     auto META0_id = ParamId("META", LhaID(0));
     auto S_i1     = SCALED_A->retrieve(LhaID(i1))->get_id();
@@ -332,9 +299,7 @@ int main() {
         }
     ); DP_META->init(); DERIVED_META->store(LhaID(3001), DP_META);
 
-    // --------------------------
-    // Snapshots INIT
-    // --------------------------
+
     print_header("INIT (après priming)");
     dump_block_subset("SRC_A",     SRC_A,     {0,1,2,i1,i2});
     dump_block_subset("SRC_B",     SRC_B,     {0,1,2,i1,i2});
@@ -346,9 +311,6 @@ int main() {
     dump_block_subset("MIXED",     MIXED,     {0,1,2,j1,j2});
     std::cout << "REDUCED[0] = " << fmt(REDUCED->retrieve(LhaID(0))->get_val()) << "\n";
 
-    // --------------------------
-    // 3) Accessors + Optimizer
-    // --------------------------
     auto BA1 = std::make_shared<BlockAccessor>();
     BA1->emplace("SRC_A", SRC_A);
     BA1->emplace("SRC_B", SRC_B);
@@ -369,9 +331,6 @@ int main() {
 
     ParamOptimizer opt({BA1, BA2});
 
-    // --------------------------
-    // 4) Phase A — Naïf (avec checkpoints)
-    // --------------------------
     auto t0 = clock::now();
     for (int k = 0; k < OPS; ++k) {
         int idx = (N ? (k % N) : 0);
@@ -405,9 +364,6 @@ int main() {
     dump_block_subset("MIXED (post-naif)", MIXED, {j1,j2});
     std::cout << "REDUCED[0] (post-naif) = " << fmt(REDUCED->retrieve(LhaID(0))->get_val()) << "\n";
 
-    // --------------------------
-    // 5) Phase B — Optimizer
-    // --------------------------
     upd_FUSED_AB = upd_FUSED_BC = upd_SCALED_A = upd_MIXED = upd_REDUCED = upd_META = 0;
     upd_DP_AZ_1 = upd_DP_AZ_2 = upd_DP_MS_1 = upd_DP_MS_2 = upd_DP_META = 0;
 
@@ -436,9 +392,6 @@ int main() {
     dump_block_subset("MIXED (post-opt)", MIXED, {j1,j2});
     std::cout << "REDUCED[0] (post-opt) = " << fmt(REDUCED->retrieve(LhaID(0))->get_val()) << "\n";
 
-    // --------------------------
-    // 6) Sanity checks + affichage final
-    // --------------------------
     auto check_point = [&](int raw){
         if (N == 0) return;
         int idx = ((raw % N) + N) % N;

@@ -7,7 +7,7 @@
 #include "Block.h"
 #include "Parameter.h"
 #include "Include.h"
-#include "SourcesView.hpp"
+#include "SourcesView.h"
 
 struct CountingParameter : Parameter {
     int updates = 0;

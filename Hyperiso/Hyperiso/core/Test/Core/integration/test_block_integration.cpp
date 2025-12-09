@@ -6,7 +6,7 @@
 
 #include "Block.h"
 #include "Parameter.h"
-#include "SourcesView.hpp"
+#include "SourcesView.h"
 #include "Include.h"
 
 static std::shared_ptr<Parameter> mkp(const std::string& blk, int code, double v){

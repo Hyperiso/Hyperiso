@@ -14,7 +14,7 @@
 #include "IMartyWilsonProxy.h"
 #include "InterpretedParam.h"
 #include "Block.h"
-#include "SourcesView.hpp"
+#include "SourcesView.h"
 
 namespace {
 

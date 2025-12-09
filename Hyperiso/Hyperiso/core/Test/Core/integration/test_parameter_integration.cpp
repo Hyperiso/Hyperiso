@@ -7,7 +7,7 @@
 #include "Parameter.h"
 #include "DependentParameter.h"
 #include "Include.h"
-#include "SourcesView.hpp"
+#include "SourcesView.h"
 
 static std::shared_ptr<Parameter> make_param(double v, const char* block, int code) {
     auto p = std::make_shared<Parameter>(ParamId{ParameterType::SM, block, code}, v, 0.0, 0.0);
