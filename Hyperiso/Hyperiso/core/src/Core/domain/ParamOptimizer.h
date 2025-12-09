@@ -1,4 +1,6 @@
-#pragma once
+#ifndef PARAM_OPTIMIZER_H
+#define PARAM_OPTIMIZER_H
+
 #include <vector>
 #include <unordered_map>
 #include <unordered_set>
@@ -12,7 +14,35 @@
 #include "Block.h"
 #include "Parameter.h"
 
+/**
+ * @file ParamOptimizer.h
+ * @brief Defines the ParamOptimizer class to apply batched updates to parameters.
+ *
+ * This file declares:
+ * - BAKeyHash: hash functor for (block, id) pairs.
+ * - ParamOptimizer: a helper class to queue and commit parameter modifications
+ *   across one or several BlockAccessor scopes, with coalescing and freeze/unfreeze
+ *   of dependent structures.
+ *
+ * @ingroup ParametersModule
+ * @see BlockAccessor
+ * @see Block
+ * @see Parameter
+ */
+
+ /**
+ * @struct BAKeyHash
+ * @brief Hash functor for (block name, parameter id string) pairs.
+ *
+ * Used internally by ParamOptimizer to keep track of operations
+ * keyed by (BlockName, LhaID.to_string()).
+ */
 struct BAKeyHash {
+    /**
+     * @brief Computes the hash of a pair of strings.
+     * @param k Pair (block name, id string).
+     * @return Combined hash value.
+     */
     std::size_t operator()(const std::pair<std::string,std::string>& k) const noexcept {
         std::size_t h1 = std::hash<std::string>()(k.first);
         std::size_t h2 = std::hash<std::string>()(k.second);
@@ -20,134 +50,170 @@ struct BAKeyHash {
     }
 };
 
+/**
+ * @class ParamOptimizer
+ * @brief Helper class to batch parameter updates on one or several BlockAccessor scopes.
+ *
+ * ParamOptimizer is designed to:
+ * - Queue operations on parameters (set value, set full Parameter, remove).
+ * - Optionally coalesce multiple operations on the same (block, id) into the last one.
+ * - Apply all operations in a single commit, with:
+ *   - freezing of all involved blocks before changes,
+ *   - performing assignments / stores / removals,
+ *   - a single notification per block when new parameters are stored,
+ *   - unfreezing at the end.
+ *
+ * Typical usage:
+ * @code
+ * auto ba = Parameters::GetInstance(ParameterType::SM)->get_block_accessor();
+ * ParamOptimizer opt(ba);
+ * opt.set_value("MASS", LhaID(5), 4.8);
+ * opt.set_value("MASS", LhaID(6), 173.0);
+ * opt.commit();  // applies changes, notifies dependents
+ * @endcode
+ */
 class ParamOptimizer {
 public:
-    explicit ParamOptimizer(std::shared_ptr<BlockAccessor> scope)
-        : scopes_{std::move(scope)} {}
-    explicit ParamOptimizer(std::vector<std::shared_ptr<BlockAccessor>> scopes)
-        : scopes_{std::move(scopes)} {}
+    /**
+     * @brief Constructs a ParamOptimizer operating on a single BlockAccessor scope.
+     * @param scope Shared pointer to the BlockAccessor to be modified.
+     */
+    explicit ParamOptimizer(std::shared_ptr<BlockAccessor> scope);
 
-    void set_value(const BlockName& block, const LhaID& id, scalar_t v) {
-        ops_.push_back(OpSetValue{block, id, v});
-    }
-    void set_param(const BlockName& block, const LhaID& id, std::shared_ptr<Parameter> p) {
-        ops_.push_back(OpSetParam{block, id, std::move(p)});
-    }
-    void remove(const BlockName& block, const LhaID& id) {
-        ops_.push_back(OpRemove{block, id});
-    }
+    /**
+     * @brief Constructs a ParamOptimizer operating on multiple BlockAccessor scopes.
+     *
+     * This is useful when parameters are distributed over several
+     * BlockAccessor instances (for example, several Parameters objects)
+     * but blocks must remain unambiguous (a given block name must resolve
+     * to the same Block in all scopes where it appears).
+     *
+     * @param scopes Vector of shared pointers to BlockAccessor scopes.
+     */
+    explicit ParamOptimizer(std::vector<std::shared_ptr<BlockAccessor>> scopes);
 
-    void commit(bool coalesce = true) {
-        if (ops_.empty()) return;
+    /**
+     * @brief Queue a simple numerical value assignment for a parameter.
+     *
+     * If the parameter already exists, it will be updated. Otherwise, it will be created
+     * as a new Parameter with zero uncertainties.
+     *
+     * @param block Name of the block.
+     * @param id LHA identifier of the parameter.
+     * @param v New value to set.
+     */
+    void set_value(const BlockName& block, const LhaID& id, scalar_t v);
 
-        freeze_all_();
+    /**
+     * @brief Queue a full Parameter object assignment.
+     *
+     * If the parameter already exists, it will be overwritten (via Block::assign).
+     * Otherwise, it will be stored (via Block::store).
+     *
+     * @param block Name of the block.
+     * @param id LHA identifier of the parameter.
+     * @param p Shared pointer to the Parameter object to use.
+     */
+    void set_param(const BlockName& block, const LhaID& id, std::shared_ptr<Parameter> p);
 
-        const auto plan = coalesce ? coalesce_ops_() : ops_;
+    /**
+     * @brief Queue a removal operation for a parameter.
+     *
+     * If the parameter does not exist initially in the block, the operation is ignored.
+     *
+     * @param block Name of the block.
+     * @param id LHA identifier of the parameter to remove.
+     */
+    void remove(const BlockName& block, const LhaID& id);
 
-        // initial existence before modif (by block/id)
-        std::unordered_map<std::pair<std::string,std::string>, bool, BAKeyHash> existed;
-        existed.reserve(plan.size());
-        for (const auto& v : plan) {
-            std::visit([&](auto&& op){
-                auto blk = find_block_(op.block);
-                existed[{op.block, op.id.to_string()}] = blk->contains(op.id);
-            }, v);
-        }
+    /**
+     * @brief Applies all queued operations.
+     *
+     * The algorithm is:
+     * - Freeze all blocks in all scopes.
+     * - Coalesce operations if requested (only the last op per (block, id) is kept).
+     * - For each operation:
+     *   - If it is a SetValue / SetParam and the parameter already existed, use Block::assign.
+     *   - If it is a SetValue / SetParam on a new parameter, use Block::store and mark the
+     *     block for notification.
+     *   - If it is a Remove and the parameter existed initially, remove it (Block::remove).
+     * - Notify observers once per block that received new parameters.
+     * - Unfreeze all blocks.
+     * - Clear the internal operation queue.
+     *
+     * @param coalesce If true (default), only the last operation per (block, id) is applied.
+     */
+    void commit(bool coalesce = true);
 
-        std::unordered_set<std::shared_ptr<Block>> blocks_needing_notify;
-
-        for (const auto& v : plan) {
-            std::visit([&](auto&& op) {
-                using T = std::decay_t<decltype(op)>;
-                auto blk = find_block_(op.block);
-                const bool had = existed.at({op.block, op.id.to_string()});
-
-                if constexpr (std::is_same_v<T, OpSetValue>) {
-                    if (had) {
-                        blk->assign(op.id, op.value);          // notify but frozen
-                    } else {
-                        blk->store(op.id, std::make_shared<Parameter>(ParamId(blk->get_name(), op.id), op.value, 0., 0.));
-                        blocks_needing_notify.insert(blk);      // store does not notify, notify block at the end
-                    }
-                } else if constexpr (std::is_same_v<T, OpSetParam>) {
-                    if (had) {
-                        blk->assign(op.id, op.param);           // notify but frozen
-                    } else {
-                        blk->store(op.id, op.param);
-                        blocks_needing_notify.insert(blk);
-                    }
-                } else if constexpr (std::is_same_v<T, OpRemove>) {
-                    if (!had) {
-                        //remove of key which wasn't here initialy, ignore
-                        return;
-                    }
-                    // real remove, destroy obs, no notif planned then
-                    blk->remove(op.id);
-                }
-            }, v);
-        }
-
-        //1 notif per block
-        for (const auto& blk : blocks_needing_notify) {
-            if (blk) blk->notifyObservers();
-        }
-
-        unfreeze_all_();
-        ops_.clear();
-    }
-
-    void clear() { ops_.clear(); }
+    /**
+     * @brief Clears the pending operation queue without applying changes.
+     */
+    void clear();
 
 private:
+    /// @brief Internal operation: set a numeric value.
     struct OpSetValue { BlockName block; LhaID id; scalar_t value; };
+
+    /// @brief Internal operation: set a full Parameter object.
     struct OpSetParam { BlockName block; LhaID id; std::shared_ptr<Parameter> param; };
+
+    /// @brief Internal operation: remove a parameter.
     struct OpRemove   { BlockName block; LhaID id; };
+
+    /// @brief Variant type collecting all possible operations.
     using Op = std::variant<OpSetValue, OpSetParam, OpRemove>;
 
-    std::vector<Op> coalesce_ops_() const {
-        std::unordered_map<std::pair<std::string,std::string>, std::size_t, BAKeyHash> last;
-        last.reserve(ops_.size());
-        for (std::size_t i = 0; i < ops_.size(); ++i) {
-            const auto& v = ops_[i];
-            std::visit([&](auto&& op){
-                last[{op.block, op.id.to_string()}] = i; // last winning
-            }, v);
-        }
-        std::vector<std::size_t> idx; idx.reserve(last.size());
-        for (auto& kv : last) idx.push_back(kv.second);
-        std::sort(idx.begin(), idx.end());
-        std::vector<Op> res; res.reserve(idx.size());
-        for (auto i : idx) res.push_back(ops_[i]);
-        return res;
-    }
+    /**
+     * @brief Coalesces the internal operation list by (block, id).
+     *
+     * Only the last operation per (block, id) pair is kept, preserving
+     * the relative order of the surviving operations.
+     *
+     * @return A vector of coalesced operations.
+     */
+    std::vector<Op> coalesce_ops_() const;
 
-    std::shared_ptr<Block> find_block_(const BlockName& name) const {
-        std::shared_ptr<Block> found;
-        bool ambiguous = false;
-        for (const auto& ba : scopes_) {
-            if (!ba) continue;
-            if (ba->contains(name)) {
-                auto b = ba->at(name);
-                if (!found) found = b;
-                else if (found.get() != b.get()) ambiguous = true;
-            }
-        }
-        if (!found) throw std::invalid_argument("ParamOptimizer: block introuvable: " + name);
-        if (ambiguous) throw std::invalid_argument("ParamOptimizer: block '" + name + "' trouvé dans plusieurs scopes.");
-        return found;
-    }
+    /**
+     * @brief Finds the Block corresponding to the given block name in the configured scopes.
+     *
+     * The lookup rules are:
+     * - Search all scopes in order.
+     * - If no scope contains the block, throws std::invalid_argument.
+     * - If more than one scope contains the block, and they point to different Block
+     *   instances, throws std::invalid_argument (ambiguous block).
+     *
+     * @param name Name of the block to find.
+     * @return Shared pointer to the resolved Block.
+     */
+    std::shared_ptr<Block> find_block_(const BlockName& name) const;
 
-    void freeze_all_() {
-        for (auto& ba : scopes_) if (ba) {
-            for (const auto& bn : ba->get_block_names()) ba->at(bn)->freeze();
-        }
-    }
-    void unfreeze_all_() {
-        for (auto& ba : scopes_) if (ba) {
-            for (const auto& bn : ba->get_block_names()) ba->at(bn)->unfreeze();
-        }
-    }
+    /**
+     * @brief Freezes all blocks in all scopes.
+     *
+     * Calls Block::freeze() on every block reachable from all BlockAccessor scopes.
+     */
+    void freeze_all_();
 
+    /**
+     * @brief Unfreezes all blocks in all scopes.
+     *
+     * Calls Block::unfreeze() on every block reachable from all BlockAccessor scopes.
+     */
+    void unfreeze_all_();
+
+    /**
+     * @brief BlockAccessor scopes on which operations will be applied.
+     *
+     * Each scope must provide consistent access to blocks; if a given block name
+     * is present in multiple scopes, they must resolve to the same Block instance,
+     * otherwise an ambiguity error is raised.
+     */
     std::vector<std::shared_ptr<BlockAccessor>> scopes_;
+
+    /**
+     * @brief Internal list of queued operations.
+     */
     std::vector<Op> ops_;
 };
+
+#endif
