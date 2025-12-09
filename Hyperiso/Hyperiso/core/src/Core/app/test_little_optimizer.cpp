@@ -8,7 +8,7 @@
 #include "BlockAccessor.h"
 #include "DependentParameter.h"
 #include "ParamOptimizer.h"
-#include "SourcesView.hpp"
+#include "SourcesView.h"
 
 static std::shared_ptr<Parameter> make_param(const std::string& block, const LhaID& id, double v) {
     return std::make_shared<Parameter>(ParamId(block, id), v, 0., 0.);

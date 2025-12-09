@@ -7,7 +7,7 @@
 #include "GroupDefinition.h"
 #include "GroupMapper.h"
 #include "wcoef_ids.hpp"
-#include "SourcesView.hpp"
+#include "SourcesView.h"
 #include "Block.h"
 
 #include "stubs.hpp"

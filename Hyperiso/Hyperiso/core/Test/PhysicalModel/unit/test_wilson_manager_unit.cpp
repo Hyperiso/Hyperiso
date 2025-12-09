@@ -9,7 +9,7 @@
 #include "CustomWilsonGroup.h"
 #include "GroupMapper.h"
 #include "wcoef_ids.hpp"
-#include "SourcesView.hpp"
+#include "SourcesView.h"
 #include "Block.h"
 #include "WilsonGroupAdapterConfig.h"
 #include "IMartyWilsonProxy.h"
