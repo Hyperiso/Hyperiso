@@ -450,12 +450,14 @@ double BXsDecay::P() {
     double p32 = gen_P01(K_1());
     double p22 = gen_P00(K_2_b0()) + P22_rem();
 
-    // LOG_INFO("p0", p0);
-    // LOG_INFO("p11", p11);
-    // LOG_INFO("p12", p12);
-    // LOG_INFO("p21", p21);
-    // LOG_INFO("p32", p32);
-    // LOG_INFO("p22", p22);
+    printf("C7_LO = %.4e + %.4e i\n", cache.C_b_LO[WCoef::C7].real(), cache.C_b_LO[WCoef::C7].imag());
+
+    printf("p0 = %.4e\n", p0);
+    printf("p11 = %.4e\n", p11);
+    printf("p12 = %.4e\n", p12);
+    printf("p21 = %.4e\n", p21);
+    printf("p32 = %.4e\n", p32);
+    printf("p22 = %.4e\n", p22);
     
     double k = cache.alpha_s_mu_b / (4 * PI);
     return p0 + k * ((p11 + p21) + k * (p12 + p22 + p32));

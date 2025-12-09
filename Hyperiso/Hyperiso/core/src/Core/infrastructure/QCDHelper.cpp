@@ -149,6 +149,12 @@ int QCDHelper::get_nf(double Q, MassType mass_b_type, MassType mass_t_type) {
         //     return i;
         // }
     // }
+
+    for (size_t i = 0; i < masses.size(); ++i) {
+        if (Q < masses.at(i))
+            return i;
+    }
+
     return 6;
 }
 

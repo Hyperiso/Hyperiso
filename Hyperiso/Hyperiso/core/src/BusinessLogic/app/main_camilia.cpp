@@ -16,13 +16,13 @@ int main() {
     QCDOrder order = QCDOrder::NNLO;
     ObservableInterface oi;
 
-    Decays dec = Decays::Lambda_b__Lambda_l_l;
-    LbLllConfig dec_cfg;
-    dec_cfg.gen = LbLllConfig::Lepton::MU;
-    dec_cfg.ff_src = LbL_FF_Src::DM;
-    dec_cfg.bins = {{1.0, 4.0}};
+    Decays dec = Decays::B__Xs;
+    // LbLllConfig dec_cfg;
+    // dec_cfg.gen = LbLllConfig::Lepton::MU;
+    // dec_cfg.ff_src = LbL_FF_Src::DM;
+    // dec_cfg.bins = {{1.0, 4.0}};
 
-    oi.set_decay_config(dec, dec_cfg);
+    // oi.set_decay_config(dec, dec_cfg);
     // oi.add_observable(Observables::TEST, order);
     // oi.compute_observable(Observables::TEST);
 

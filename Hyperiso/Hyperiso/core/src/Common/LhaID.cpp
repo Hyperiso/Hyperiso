@@ -6,7 +6,7 @@ std::ostream &operator<<(std::ostream &os, const LhaID &id) {
 }
 
 LhaID::LhaID(const std::string &str_id) {
-    std::cout << "herhe : " << str_id << " : " << str_id.size() << std::endl;
+    // std::cout << "herhe : " << str_id << " : " << str_id.size() << std::endl;
     if (str_id.size() == 0) {
         parts = {};
     } else {
