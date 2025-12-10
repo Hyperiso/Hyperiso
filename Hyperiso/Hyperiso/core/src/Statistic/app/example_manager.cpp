@@ -43,7 +43,7 @@ int main(int argc, char** argv) {
 
     // auto interval = stat.compute_CI_1d_95(pid, -7.0, -1.0, 50);
 
-    auto interval = stat.compute_CI_1d_95(pid, 0.004, 0.005, 10);
+    auto interval = stat.compute_CI_1d_95(pid, 0.001, 0.09, 10);
 
     std::cout << "IC 95% sur " << pid << " = ["
             << interval.first << ", " << interval.second << "]\n";

@@ -167,7 +167,7 @@ public:
                 eta_map[eta_order[i]] = eta_vec[i];
             }
 
-            auto pred_map = this->obs_int->predict(p_map, eta_map);
+            auto pred_map = this->obs_int->predict_optimized(p_map, eta_map);
 
             Vec pred_vec(obs_order.size());
             for (std::size_t i = 0; i < obs_order.size(); ++i) {
@@ -181,7 +181,7 @@ public:
             return pred_vec;
         };
 
-        MLEstimator est(ctx, model_fn);
+        MLEstimator est(ctx, model_fn, this->config.MLE_max_iter, this->config.MLE_tol);
 
 
         const FitResultWithMaps& fr_map = this->cache.mle_result;
@@ -394,7 +394,7 @@ public:
                 eta_map[eta_order[i]] = eta_vec[i];
             }
 
-            auto pred_map = this->obs_int->predict(p_map, eta_map);
+            auto pred_map = this->obs_int->predict_optimized(p_map, eta_map);
 
             Vec pred_vec(obs_order.size());
             for (std::size_t i = 0; i < obs_order.size(); ++i) {
@@ -416,6 +416,51 @@ public:
         Vec p0    = vec_from_param_map(cache.p_specs,        p_order);
         Vec eta0  = vec_from_param_map(cache.eta_specs_real, eta_order);
 
+        auto debug_scan_around_start = [&](MLEstimator& est,
+                                    const Vec& p0, const Vec& eta0,
+                                    const std::vector<ParamId>& p_order,
+                                    const std::vector<ParamId>& eta_order) {
+        std::cout << "\n=== DEBUG scan around starting point ===\n";
+        double ell0 = est.like().ell(p0, eta0);
+        std::cout << "ell(p0, eta0) = " << ell0 << "\n";
+
+        // scan sur les p
+        for (std::size_t i = 0; i < p0.size(); ++i) {
+            Vec p_plus = p0;
+            Vec p_minus = p0;
+            double delta = 0.1 * std::abs(p0[i]); // par ex 10% de la valeur
+            if (delta == 0.0) delta = 1e-3;       // fallback
+
+            p_plus[i]  += delta;
+            p_minus[i] -= delta;
+
+            double ell_plus  = est.like().ell(p_plus, eta0);
+            double ell_minus = est.like().ell(p_minus, eta0);
+
+            std::cout << "Param " << p_order[i]
+                    << " : ell(+delta)=" << ell_plus
+                    << ", ell(-delta)=" << ell_minus << "\n";
+        }
+
+        // scan sur les eta
+        for (std::size_t j = 0; j < eta0.size(); ++j) {
+            Vec eta_plus = eta0;
+            Vec eta_minus = eta0;
+            double delta = 0.1 * std::abs(eta0[j]);
+            if (delta == 0.0) delta = 1e-3;
+
+            eta_plus[j]  += delta;
+            eta_minus[j] -= delta;
+
+            double ell_plus  = est.like().ell(p0, eta_plus);
+            double ell_minus = est.like().ell(p0, eta_minus);
+
+            std::cout << "Eta " << eta_order[j]
+                    << " : ell(+delta)=" << ell_plus
+                    << ", ell(-delta)=" << ell_minus << "\n";
+        }
+    };
+        debug_scan_around_start(est, p0, eta0, p_order, eta_order);
         FitResult fr = est.fit(p0, eta0);
 
         std::cout << "MLE fit done: ell_hat = " << fr.ell_hat << std::endl;

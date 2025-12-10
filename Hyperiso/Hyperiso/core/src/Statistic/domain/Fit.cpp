@@ -33,9 +33,22 @@ FitResult MLEstimator::fit(const Vec& p0, const Vec& eta0) const {
 
     gsl_vector* x = gsl_vector_alloc(f.n);
     gsl_vector* step = gsl_vector_alloc(f.n);
-    for (std::size_t i=0;i<np;++i) { gsl_vector_set(x, i, p0[i]); gsl_vector_set(step, i, 0.2); }
-    for (std::size_t j=0;j<ne;++j) { gsl_vector_set(x, np+j, eta0[j]); gsl_vector_set(step, np+j, 0.2); }
+    // for (std::size_t i=0;i<np;++i) { gsl_vector_set(x, i, p0[i]); gsl_vector_set(step, i, 0.2); }
+    // for (std::size_t j=0;j<ne;++j) { gsl_vector_set(x, np+j, eta0[j]); gsl_vector_set(step, np+j, 0.2); }
 
+    for (std::size_t i = 0; i < np; ++i) {
+        double x0 = p0[i];
+        double step_i = std::max(0.1 * std::abs(x0), 1e-3);
+        gsl_vector_set(x, i, x0);
+        gsl_vector_set(step, i, step_i);
+    }
+
+    for (std::size_t j = 0; j < ne; ++j) {
+        double x0 = eta0[j];
+        double step_j = std::max(0.1 * std::abs(x0), 1e-3);
+        gsl_vector_set(x, np + j, x0);
+        gsl_vector_set(step, np + j, step_j);
+    }
 
     gsl_multimin_fminimizer_set(s.get(), &f, x, step);
 
