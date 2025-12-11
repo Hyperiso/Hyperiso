@@ -47,7 +47,7 @@ public:
      * @param bsm_proxy      Optional proxy to access BSM parameters; only used
      *                       if the deduced model type is not ::Model::SM.
      */
-    SMParamSetter(const std::string& model, std::set<std::string> special_blocks, std::shared_ptr<IMartyParameterProxy<std::string, LhaID>> sm_proxy, std::shared_ptr<IMartyParameterProxy<std::string, LhaID>> bsm_proxy = nullptr) : special_blocks(special_blocks);
+    SMParamSetter(const std::string& model, std::set<std::string> special_blocks, std::shared_ptr<IMartyParameterProxy<std::string, LhaID>> sm_proxy, std::shared_ptr<IMartyParameterProxy<std::string, LhaID>> bsm_proxy = nullptr);
 
     /**
      * @brief Produces MARTY input values for a given interpreted parameter.

@@ -1,6 +1,6 @@
 #include "SMParamSetter.h"
 
-SMParamSetter::SMParamSetter(const std::string& model, std::set<std::string> special_blocks, std::shared_ptr<IMartyParameterProxy<std::string, LhaID>> sm_proxy, std::shared_ptr<IMartyParameterProxy<std::string, LhaID>> bsm_proxy = nullptr) : special_blocks(special_blocks) {
+SMParamSetter::SMParamSetter(const std::string& model, std::set<std::string> special_blocks, std::shared_ptr<IMartyParameterProxy<std::string, LhaID>> sm_proxy, std::shared_ptr<IMartyParameterProxy<std::string, LhaID>> bsm_proxy) : special_blocks(special_blocks) {
     std::string root_path = project_assets_root.data();
     this->sm_proxy = sm_proxy;
 
