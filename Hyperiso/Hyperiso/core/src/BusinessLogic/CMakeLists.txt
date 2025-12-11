@@ -115,6 +115,9 @@ target_link_libraries(BSLL_FF BusinessLogicLib)
 add_executable(TEST_CUSTOM_OBS app/main_custom_obs.cpp)
 target_link_libraries(TEST_CUSTOM_OBS BusinessLogicLib)
 
+add_executable(SPEED app/speeeed.cpp)
+target_link_libraries(SPEED BusinessLogicLib)
+
 include(GNUInstallDirs)
 
 install(TARGETS BusinessLogicLib

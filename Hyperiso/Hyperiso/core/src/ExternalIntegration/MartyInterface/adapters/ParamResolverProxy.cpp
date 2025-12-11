@@ -1,4 +1,4 @@
-#include "ParamResolverProxy.h"
+#include "ParameterResolverProxy.h"
 
 ParameterResolverProxy::ParameterResolverProxy(std::shared_ptr<IMappingDatabasePort> sm,
                         std::shared_ptr<IMappingDatabasePort> model)

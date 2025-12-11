@@ -34,13 +34,6 @@
  *
  * @ingroup SpectrumCalculationModule
  */
- *  - reads an LHA-like input file describing a THDM point,
- *  - delegates to 2HDMC (via ::THDM) to interpret the file,
- *  - writes out a spectrum / SLHA-style output.
- *
- * It is created by ::GeneralCalculatorFactory when ::CalculatorType::TwoHDM
- * is requested.
- */
 class TwoHDMCalculator : public ICalculator {
 public:
     /**
