@@ -1,11 +1,3 @@
-/**
- * @file CinematicExtractor.h
- * @brief Definition of the CinematicExtractor class and the utility function countMatchInRegex.
- * 
- * Here we defines a class that extracts the cinematic of a given process in Marty (for wilson calculation).
- * It also includes a utility function to count occurrences of a regex pattern in a string.
- */
-
 #ifndef CINEMATIC_EXTRACTOR_H
 #define CINEMATIC_EXTRACTOR_H
 
@@ -13,6 +5,14 @@
 #include <utility>
 #include <regex>
 #include <fstream>
+
+/**
+ * @file CinematicExtractor.h
+ * @brief Definition of the CinematicExtractor class and the utility function countMatchInRegex.
+ * 
+ * Here we defines a class that extracts the cinematic of a given process in Marty (for wilson calculation).
+ * It also includes a utility function to count occurrences of a regex pattern in a string.
+ */
 
 /**
  * @brief Counts the number of occurrences of a regex pattern in a given string.

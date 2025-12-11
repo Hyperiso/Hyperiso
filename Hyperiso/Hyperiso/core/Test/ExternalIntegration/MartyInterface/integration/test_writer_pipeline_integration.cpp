@@ -9,7 +9,7 @@
 #include "FileNameManager.h"
 #include "GeneralNumModelModifier.h"
 #include "TemplateManager.h"
-#include "IncludeManager.h"
+#include "IncludeManager.hpp"
 #include "LineProcessor.h"
 #include "ModelWriter.h"
 #include "FileWriter.h"

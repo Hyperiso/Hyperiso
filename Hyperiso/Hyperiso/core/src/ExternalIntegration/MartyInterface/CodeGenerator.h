@@ -1,3 +1,10 @@
+#ifndef CODE_GENERATOR_H
+#define CODE_GENERATOR_H
+
+#include <memory>
+
+#include "TemplateManager.h"
+
 /**
  * @file CodeGenerator.h
  * @brief Definition of the CodeGenerator class.
@@ -7,12 +14,7 @@
  * and generate output files.
  */
 
-#ifndef CODE_GENERATOR_H
-#define CODE_GENERATOR_H
-
-#include "TemplateManager.h"
-#include <memory>
-
+ 
 /**
  * @class CodeGenerator
  * @brief A class that generates code using a template manager.

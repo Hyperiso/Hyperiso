@@ -2,24 +2,17 @@
 #include <iostream>
 #include <fstream>
 #include <filesystem>
-#include <cstdlib> // For system()
+#include <cstdlib>
 #include "Logger.h"
 #include "SoftSusy.h"
 #include <sstream>
 
 namespace fs = std::filesystem;
 
-/**
- * @brief Executes the spectrum calculation using SOFTSUSY.
- * 
- * @param inputFilePath Path to the input file containing model parameters.
- * @param outputFilePath Path where the calculated spectrum will be written.
- */
 void SoftsusyCalculator::calculateSpectrum(const std::string& inputFilePath, const std::string& outputFilePath) {
 
     std::string root_tp_file = project_tp_root.data();
     std::string root_assets_file = project_assets_root.data();
-    // Example system call to SOFTSUSY - replace with actual implementation
     std::string command;
     if (inputFilePath.starts_with("/")) {
         command = root_tp_file + "SOFTSUSY/src/SOFTSUSY/softpoint.x leshouches < " + inputFilePath + " > " + outputFilePath;

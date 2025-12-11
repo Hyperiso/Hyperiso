@@ -2,7 +2,6 @@
 #include "2HDMC.h"
 #include "THDM.h"
 #include "Constraints.h"
-// #include "MemoryManager.h"
 #include "config.hpp"
 
 void TwoHDMCalculator::calculateSpectrum(const std::string& inputFilePath, const std::string& outputFilePath) {

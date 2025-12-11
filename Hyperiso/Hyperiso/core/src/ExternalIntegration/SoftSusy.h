@@ -1,68 +1,51 @@
 #ifdef BUILD_WITH_SOFTSUSY
+#ifndef SOFT_SUSY_H
+#define SOFT_SUSY_H
 
 #include <string>
-#include <functional> // Pour std::function
+#include <functional> 
 #include <unordered_map> 
-#pragma once
-// #include "MemoryManager.h"
+
 #include "Interface.h"
 #include "config.hpp"
 
 /**
+ * @file SoftSusy.h
+ * @brief Declares the SoftsusyCalculator concrete spectrum calculator.
+ *
+ * This header defines ::SoftsusyCalculator, a concrete implementation of
+ * ::ICalculator that wraps the SOFTSUSY executable (or library) to
+ * compute SUSY spectra from an SLHA / Les Houches input.
+ *
+ * @ingroup SpectrumCalculationModule
+ */
+
+/**
  * @class SoftsusyCalculator
+ * @ingroup SpectrumCalculationModule
  * @brief Concrete implementation of ICalculator for SOFTSUSY.
  *
- * Implements the spectrum calculation using the SOFTSUSY library or executable.
+ * SoftsusyCalculator builds and executes a SOFTSUSY command line, taking
+ * into account the project’s third-party and assets root paths. It is
+ * typically instantiated through ::GeneralCalculatorFactory when
+ * ::CalculatorType::Softsusy is requested.
  */
 class SoftsusyCalculator : public ICalculator {
 public:
     /**
-     * Calculates the particle spectrum using SOFTSUSY with the given input and output file paths.
-     * 
-     * @param inputFilePath The path to the input file containing the model parameters.
-     * @param outputFilePath The path where the calculated spectrum should be written.
+     * @brief Calculates the particle spectrum using SOFTSUSY.
+     *
+     * The method:
+     *  - builds a shell command pointing to `softpoint.x`,
+     *  - feeds @p inputFilePath as stdin (possibly prefixed by assets root),
+     *  - redirects stdout to @p outputFilePath,
+     *  - checks the exit code and logs an error on failure.
+     *
+     * @param inputFilePath   Path to the input file containing model parameters.
+     * @param outputFilePath  Path where the calculated spectrum should be written.
      */
     void calculateSpectrum(const std::string& inputFilePath, const std::string& outputFilePath) override;
 };
 
-
-// /**
-//  * @class CalculateSpectrumCommand
-//  * @brief Command to calculate the spectrum using a given calculator.
-//  *
-//  * Encapsulates a request to calculate the particle spectrum, allowing the
-//  * command to be parameterized with different calculators and input/output paths.
-//  */
-// class CalculateSpectrumCommand : public ICommand {
-// private:
-//     SoftsusyCalculator& calculator;
-//     std::string inputFilePath;
-//     std::string outputFilePath;
-
-// public:
-//     /**
-//      * Construct a new Calculate Spectrum Command object.
-//      * 
-//      * @param calculator Reference to the SoftsusyCalculator.
-//      * @param inputFilePath Path to the input file.
-//      * @param outputFilePath Path to the output file.
-//      */
-//     CalculateSpectrumCommand(SoftsusyCalculator& calculator, std::string inputFilePath, std::string outputFilePath)
-//         : calculator(calculator), inputFilePath(std::move(inputFilePath)), outputFilePath(std::move(outputFilePath)) {}
-
-//     /**
-//      * Execute the command to calculate the spectrum.
-//      */
-//     void execute() override {
-//         calculator.calculateSpectrum(inputFilePath, outputFilePath);
-//     }
-// };
-
-
-
-
-
-
-
-
+#endif
 #endif

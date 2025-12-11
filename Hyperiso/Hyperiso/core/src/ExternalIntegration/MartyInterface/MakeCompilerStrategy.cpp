@@ -1,5 +1,4 @@
 #include "MakeCompilerStrategy.h"
-#include "MartyMassRunner.h"
 #include <cstdlib>
 #include <iostream>
 #include <string>

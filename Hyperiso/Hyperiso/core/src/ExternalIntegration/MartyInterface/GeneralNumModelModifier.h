@@ -9,7 +9,7 @@
 #include "Interpreter.h"
 #include "SMParamSetter.h"
 #include "ParamWriter.h"
-#include "IncludeManager.h"
+#include "IncludeManager.hpp"
 #include "LineProcessor.h"
 #include "ModelWriter.h"
 #include "FileWriter.h"

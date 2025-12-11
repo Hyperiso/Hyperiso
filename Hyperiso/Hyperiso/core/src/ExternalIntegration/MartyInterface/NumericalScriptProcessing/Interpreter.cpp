@@ -1,7 +1,15 @@
 #include "Interpreter.h"
 #include <iostream>
 
-
+Interpreter::Interpreter(const std::string& model,
+                        std::shared_ptr<ICoreAPI<Model>> api,
+                        std::shared_ptr<IInterpreterPortsFactory> ports)
+: marty_api(std::move(api))
+{
+    const auto modelPath = FileNameManager::getInstance("C1", model)->getjsondbmodel();
+    const auto smPath    = FileNameManager::getInstance("C1", "SM")->getjsondbmodel();
+    resolver = ports->makeResolver(model, modelPath, smPath);
+}
 
 std::unordered_map<std::string, InterpretedParam>
 Interpreter::interpret(std::vector<Extractor::Parameter>& params) {

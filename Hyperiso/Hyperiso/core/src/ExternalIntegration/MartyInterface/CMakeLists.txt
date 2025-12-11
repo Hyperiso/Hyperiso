@@ -42,8 +42,13 @@ add_library(MartyInterfaceLib STATIC
     MartyInterface.cpp
     TemplateManager.cpp
     NumericalScriptProcessing/Extractor.cpp
+    NumericalScriptProcessing/FileWriter.cpp
     NumericalScriptProcessing/Interpreter.cpp
     NumericalScriptProcessing/SMParamSetter.cpp
+    NumericalScriptProcessing/LineProcessor.cpp
+    NumericalScriptProcessing/ModelFileChecker.cpp
+    NumericalScriptProcessing/ModelWriter.cpp
+    NumericalScriptProcessing/ParamWriter.cpp
     FileNameManager.cpp
     GeneralModelModifier.cpp
     GeneralNumModelModifier.cpp
@@ -51,6 +56,7 @@ add_library(MartyInterfaceLib STATIC
     CinematicExtractor.cpp
     adapters/MartyParameterProxy.cpp
     adapters/MappingDatabaseProxy.cpp
+    adapters/ParamResolverProxy.cpp
     adapters/DefaultInterpreterPortsFactory.cpp
     )
 

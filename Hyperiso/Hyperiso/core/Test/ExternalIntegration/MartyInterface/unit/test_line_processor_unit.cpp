@@ -8,7 +8,7 @@
 #include "LineProcessor.h"
 #include "ModelWriter.h"
 #include "FileWriter.h"
-#include "IncludeManager.h"
+#include "IncludeManager.hpp"
 #include "FileNameManager.h"
 
 namespace fs = std::filesystem;

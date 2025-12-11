@@ -1,5 +1,24 @@
 #include "SMParamSetter.h"
 
+SMParamSetter::SMParamSetter(const std::string& model, std::set<std::string> special_blocks, std::shared_ptr<IMartyParameterProxy<std::string, LhaID>> sm_proxy, std::shared_ptr<IMartyParameterProxy<std::string, LhaID>> bsm_proxy = nullptr) : special_blocks(special_blocks) {
+    std::string root_path = project_assets_root.data();
+    this->sm_proxy = sm_proxy;
+
+    if (model == "SM") {
+        this->model_type = Model::SM;
+    } else if (model == "THDM") {
+        this->model_type = Model::THDM;
+    } else if (model == "MSSM" || model == "NMSSM") {
+        this->model_type = Model::SUSY;
+    } else {
+        this->model_type = Model::MARTY;
+    }
+    
+    if (model_type != Model::SM) {
+        this->bsm_proxy = bsm_proxy;
+    }
+}
+
 std::unordered_map<std::string, double> SMParamSetter::setParam(const std::string& name, const InterpretedParam& interpretedParam) {
 
     std::unordered_map<std::string, double> params {};

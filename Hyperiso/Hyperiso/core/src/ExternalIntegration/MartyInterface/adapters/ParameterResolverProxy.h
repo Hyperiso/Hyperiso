@@ -12,42 +12,13 @@
 class ParameterResolverProxy final : public IParameterResolver {
 public:
     ParameterResolverProxy(std::shared_ptr<IMappingDatabasePort> sm,
-                           std::shared_ptr<IMappingDatabasePort> model)
-        : sm_(std::move(sm)), model_(std::move(model)) {}
+                           std::shared_ptr<IMappingDatabasePort> model);
 
     std::unordered_map<std::string, ResolvedParam>
     resolve(const std::vector<Extractor::Parameter>& params,
-            bool modelIsSM) const override
-    {
-        std::unordered_map<std::string, ResolvedParam> out;
-        auto smMap    = sm_->getParams();
-        auto modelMap = model_->getParams();
-        
-        for (const auto& p : params) {
-            const auto& name = p.name;
-            auto it = smMap.find(name);
-            if (it != smMap.end()) {
-                
-                out[name] = { it->second.block, it->second.code, p.complex, false };
-                continue;
-            }
-            it = modelMap.find(name);
-            if (it != modelMap.end()) {
-                if (modelIsSM) {
-                    LOG_ERROR("LogicError",
-                        "Accès à un paramètre BSM pendant un calcul SM. Vérifie les fichiers de mapping MARTY.");
-                }
-                out[name] = { it->second.block, it->second.code, p.complex, true };
-            } else {
-                LOG_ERROR("Mapping", std::string("Paramètre introuvable: ") + name);
-            }
-        }
-        return out;
-    }
+            bool modelIsSM) const override;
 
-    std::unique_ptr<IParameterResolver> clone() const override {
-        return std::make_unique<ParameterResolverProxy>(sm_, model_);
-    }
+    std::unique_ptr<IParameterResolver> clone() const override;
 
 private:
     std::shared_ptr<IMappingDatabasePort> sm_;

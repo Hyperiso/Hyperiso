@@ -1,29 +1,55 @@
+#ifndef MODEL_FILE_CHECKER_H
+#define MODEL_FILE_CHECKER_H
+
 #include <string>
 #include <fstream>
 #include <iostream>
 #include <regex>
 
+/**
+ * @file ModelFileChecker.h
+ * @brief Declares a small utility to detect MARTY model templates in C++ files.
+ *
+ * This header defines ::ModelFileChecker, a helper that inspects a C++
+ * source file and determines whether it contains a MARTY-like template
+ * model class definition.
+ */
+
+/**
+ * @class ModelFileChecker
+ * @ingroup CodeGenerationModule
+ * @brief Checks if a given C++ file defines a MARTY-style model template.
+ *
+ * The class scans the file contents and looks for a pattern of the form:
+ * `template <...> class Xxx_Model : public Namespace::BaseModel`.
+ *
+ * It is mostly used to distinguish between generic helper files and
+ * actual MARTY model implementations.
+ */
 class ModelFileChecker {
 public:
-    ModelFileChecker(const std::string& filePath) : filePath(filePath) {}
+    /**
+     * @brief Constructs a checker for a given file path.
+     * @param filePath Path to the C++ source file to inspect.
+     */
+    ModelFileChecker(const std::string& filePath);
 
-    bool isAnyModelTemplate() const {
-        std::ifstream file(filePath);
-        if (!file.is_open()) {
-            throw std::runtime_error("Cannot open file: " + filePath);
-        }
-
-        std::string contents((std::istreambuf_iterator<char>(file)), {});
-        contents.erase(std::remove(contents.begin(), contents.end(), '\r'), contents.end());
-
-
-        static const std::regex re(
-            R"(template\s*<[^>]*>\s*class\s+[A-Za-z_]\w*_Model\s*:\s*public\s+[A-Za-z_]\w*::[A-Za-z_]\w+)",
-            std::regex::ECMAScript
-        );
-        return std::regex_search(contents, re);
-    }
+    /**
+     * @brief Tests whether the file contains a MARTY model template.
+     *
+     * This method reads the entire file, removes carriage returns, and
+     * runs a regular expression that searches for a `template <...> class
+     * *_Model : public Something::Something` pattern.
+     *
+     * @return `true` if a model template is found, `false` otherwise.
+     *
+     * @throws std::runtime_error If the file cannot be opened.
+     */
+    bool isAnyModelTemplate() const;
 
 private:
+    /// Path to the file to inspect.
     std::string filePath;
 };
+
+#endif

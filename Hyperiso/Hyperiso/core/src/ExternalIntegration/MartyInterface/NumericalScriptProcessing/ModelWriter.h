@@ -1,4 +1,6 @@
-#pragma once
+#ifndef MODEL_WRITER_H
+#define MODEL_WRITER_H
+
 #include "LineProcessor.h"
 #include "ParamWriter.h"
 #include <fstream>
@@ -9,16 +11,11 @@ private:
     ParamWriter paramwriter;
 
 public:
-    ModelWriter(LineProcessor& lineProcessor, ParamWriter& paramwriter) : lineProcessor(lineProcessor), paramwriter(paramwriter) {}
+    ModelWriter(LineProcessor& lineProcessor, ParamWriter& paramwriter);
 
-    void writeModel(std::ifstream& inputFile, std::ofstream& outputFile) {
-        std::string line;
-        while (std::getline(inputFile, line)) {
-            lineProcessor.processLine(outputFile, line);
-        }
-    }
+    void writeModel(std::ifstream& inputFile, std::ofstream& outputFile);
 
-    void writeParam(std::ofstream& paramFile, const std::unordered_map<std::string, double>& params) {
-        paramwriter.writeParams(paramFile, params);
-    }
+    void writeParam(std::ofstream& paramFile, const std::unordered_map<std::string, double>& params);
 };
+
+#endif

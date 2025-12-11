@@ -2,7 +2,7 @@
 #include "GeneralNumModelModifier.h"
 #include "Extractor.h"
 #include "Interpreter.h"
-#include "IncludeManager.h"
+#include "IncludeManager.hpp"
 #include "LineProcessor.h"
 #include "ModelWriter.h"
 #include "SMParamSetter.h"
