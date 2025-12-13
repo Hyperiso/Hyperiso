@@ -54,14 +54,27 @@ int main(){
     acc->emplace(depSum->blockname, depSum);
     acc->emplace(depPost->blockname, depPost);
 
+    std::cout << acc->getValue("SUM",  k) << std::endl;
+    std::cout << acc->getValue("SRC1",  100) << std::endl;
+    std::cout << acc->getValue("SRC2",  100) << std::endl;
     acc->setValue("SRC1", k, 1.0);
     assert(std::abs(acc->getValue("SUM",  k) - 3.0) < 1e-12);
     assert(std::abs(acc->getValue("POST", k) - 9.0) < 1e-12);
 
+    std::cout << acc->getValue("SUM",  k) << std::endl;
+    std::cout << acc->getValue("SRC1",  100) << std::endl;
+    std::cout << acc->getValue("SRC2",  100) << std::endl;
+
     acc->setValue("SRC2", k, 5.0);
+
+    std::cout << acc->getValue("SUM",  k) << std::endl;
+    std::cout << acc->getValue("SRC1",  100) << std::endl;
+    std::cout << acc->getValue("SRC2",  100) << std::endl;
+    
     assert(std::abs(acc->getValue("SUM",  k) - 6.0) < 1e-12);
     assert(std::abs(acc->getValue("POST", k) - 18.0) < 1e-12);
 
+    
     acc->at("SUM")->freeze();
     acc->setValue("SRC1", k, 10.0);
     assert(std::abs(acc->getValue("SUM",  k) - 6.0)  < 1e-12);

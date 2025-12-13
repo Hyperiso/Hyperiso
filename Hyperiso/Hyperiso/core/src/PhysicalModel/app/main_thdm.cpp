@@ -3,6 +3,7 @@
 #include "MemoryManager.h"
 #include "Parameters.h"
 #include "WilsonInterface.h"
+#include "BlockProxy.h"
 
 int main() {
     auto hyp = HyperisoMaster();
@@ -15,13 +16,15 @@ int main() {
     hyp.init("lha/testinput_thdm.lha", config_hyp); // Initialize program manager with LHA file
 
     auto wi = WilsonInterface(); // Initialize interface and build the required groups
-
+    std::cout << "here " << std::endl;
     WilsonBuildConfig config({GroupMapper::to_id(WGroup::BScalar), GroupMapper::to_id(WGroup::B), GroupMapper::to_id(WGroup::BPrime)}, 81, 42, QCDOrder::NNLO);
-
+    std::cout << "here " << std::endl;
     wi.build(config);
-
+    std::cout << "here " << std::endl;
     // BlockProxy().log_block(ParameterType::WILSON, "BCoefficients_B_SCALE_STANDARD");
-
+    BlockProxy().log_all_blocks(ParameterType::WILSON);
+    BlockProxy().log_all_blocks(ParameterType::SM);
+    BlockProxy().log_all_blocks(ParameterType::BSM);
     for (auto elem : {WCoef::CQ1, WCoef::CQ2}) {
         LOG_INFO(WCoefMapper::str(elem), "(MW) at LO =", wi.getM(WGroup::BScalar, elem, QCDOrder::LO, ContributionType::BSM));
         LOG_INFO(WCoefMapper::str(elem), "(MW) at NLO =", wi.getM(WGroup::BScalar, elem, QCDOrder::NLO, ContributionType::BSM));

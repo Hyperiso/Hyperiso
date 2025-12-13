@@ -36,6 +36,10 @@ void Parameter::set_expected(scalar_t val) {
     notifyObservers();
 }
 
+void Parameter::set_expected_silent(scalar_t val) {
+    expected = val;
+}
+
 void Parameter::set_id(ParamId id) {
     this-> id = id;
 }
@@ -96,7 +100,7 @@ std::weak_ptr<Block> Parameter::get_owner_block() const { return owner_block; }
 
 Parameter& Parameter::operator=(const Parameter& other) {
     this->id = other.id;
-    this->set_expected(other.expected);
+    this->expected = other.expected;
     this->deviation_stat = other.deviation_stat;
     this->deviation_syst = other.deviation_syst;
     this->mode = other.mode;
@@ -106,9 +110,20 @@ Parameter& Parameter::operator=(const Parameter& other) {
     return *this;
 }
 
+// void Parameter::notifyObservers() {
+//     auto snapshot = observers;
+//     for (auto& observer : snapshot) {
+//         if (!observer) continue;
+//         LOG_DEBUG("Notifying observer", observer->id.block, observer->id.code,
+//                   "from parameter", id.block, id.code);
+//         observer->update();
+//     }
+//     observers.erase(std::remove(observers.begin(), observers.end(), nullptr), observers.end());
+// }
+
 void Parameter::notifyObservers() {
-    auto snapshot = observers;
-    for (auto& observer : snapshot) {
+    for (size_t i = 0; i < observers.size(); ++i) {
+        auto& observer = observers[i];
         if (!observer) continue;
         LOG_DEBUG("Notifying observer", observer->id.block, observer->id.code,
                   "from parameter", id.block, id.code);
@@ -116,7 +131,6 @@ void Parameter::notifyObservers() {
     }
     observers.erase(std::remove(observers.begin(), observers.end(), nullptr), observers.end());
 }
-
 
 void Parameter::removeObserver(std::shared_ptr<Parameter> observer) { 
     auto it = std::find_if(observers.begin(), observers.end(),

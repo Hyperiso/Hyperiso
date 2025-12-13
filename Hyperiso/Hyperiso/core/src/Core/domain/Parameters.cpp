@@ -44,8 +44,19 @@ std::shared_ptr<Parameter> Parameters::get_parameter(const BlockName &block,
     return blockAccessor->at(block)->retrieve(pdgCode);
 }
 
+// bool Parameters::exist(const BlockName& block, LhaID id) {
+//     return blockAccessor->has_param(block, id);
+// }
+
+//TODO
 bool Parameters::exist(const BlockName& block, LhaID id) {
-    return blockAccessor->has_param(block, id);
+    if (!blockAccessor->contains(block)) return false;
+    try {
+        blockAccessor->at(block)->retrieve(id);
+        return true;
+    } catch (...) {
+        return false;
+    }
 }
 
 void Parameters::setBlockValue(const BlockName& name, LhaID id, scalar_t value) {

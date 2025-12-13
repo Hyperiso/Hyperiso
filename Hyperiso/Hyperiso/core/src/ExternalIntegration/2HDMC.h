@@ -1,6 +1,4 @@
 #ifdef BUILD_WITH_2HDMC
-#ifndef T2HDMC_H
-#define T2HDMC_H
 
 #include <unordered_map>
 #include <functional>
@@ -50,5 +48,4 @@ public:
     void calculateSpectrum(const std::string& inputFilePath, const std::string& outputFilePath) override;
 };
 
-#endif
 #endif

@@ -195,11 +195,18 @@ static void test_dependent_block_lifecycle() {
     src->assign(key, 5.0);
     assert(!ran);
 
-    dep->unfreeze();
-    assert(ran);
-    assert(dep->contains(key));
-    assert(std::abs(dep->retrieve(key)->get_val() - 15.0) < 1e-12);
+    // dep->unfreeze();
+    // assert(ran);
+    // assert(dep->contains(key));
+    // assert(std::abs(dep->retrieve(key)->get_val() - 15.0) < 1e-12);
 
+    dep->unfreeze();
+
+    // Lazy: le recalcul arrive au premier accès
+    auto v = dep->retrieve(key)->get_val();
+    assert(ran);
+    assert(std::abs(v - 15.0) < 1e-12);
+    
     ran = false;
     dep->clear_above();
     src->assign(key, 9.0);

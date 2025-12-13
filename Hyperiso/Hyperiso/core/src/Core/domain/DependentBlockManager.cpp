@@ -53,16 +53,28 @@ void DependentBlockManager::addDependentParameter(
 
     for (const auto& id : source_pids) {
         auto ba = Parameters::GetInstance(id.type.value())->blockAccessor;
-        if (!ba->contains(id.block)) {
-            missing.push_back("Block " + ParameterTypeMapper::str(id.type.value()) + "::" + id.block);
-            continue;
-        }
+        // if (!ba->contains(id.block)) {
+        //     missing.push_back("Block " + ParameterTypeMapper::str(id.type.value()) + "::" + id.block);
+        //     continue;
+        // }
+        // auto blk = ba->at(id.block);
+        // if (!blk->contains(id.code)) {
+        //     missing.push_back("Param " + ParameterTypeMapper::str(id.type.value()) + "::" + id.block + "::" + id.code.to_string());
+        //     continue;
+        // }
+        // sources.emplace(id, blk->retrieve(id.code));
+
         auto blk = ba->at(id.block);
-        if (!blk->contains(id.code)) {
-            missing.push_back("Param " + ParameterTypeMapper::str(id.type.value()) + "::" + id.block + "::" + id.code.to_string());
+
+        try {
+            // retrieve() doit déclencher le lazy ensure_up_to_date() côté block
+            auto p = blk->retrieve(id.code);
+            sources.emplace(id, p);
+        } catch (...) {
+            missing.push_back("Param " + ParameterTypeMapper::str(id.type.value()) +
+                            "::" + id.block + "::" + id.code.to_string());
             continue;
         }
-        sources.emplace(id, blk->retrieve(id.code));
     }
 
     if (!missing.empty()) {

@@ -121,13 +121,16 @@ public:
      *
      * @return The current parameter value.
      */
-    scalar_t get_val() const;
+    virtual scalar_t get_val() const;
 
     /**
      * @brief Sets the expected (central) value of the parameter and notifies observers.
      * @param val New expected value.
      */
     void set_expected(scalar_t val);
+
+    void set_expected_silent(scalar_t val);
+    //TODO ::
 
     /**
      * @brief Retrieves the combined standard deviation.
@@ -334,6 +337,7 @@ public:
      */
     Parameter& operator*=(const scalar_t& scale);
 
+    virtual ~Parameter() = default;
 };
 
 

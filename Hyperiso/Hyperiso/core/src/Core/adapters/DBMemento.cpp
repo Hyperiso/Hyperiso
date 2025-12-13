@@ -43,7 +43,7 @@ size_t DBMemento::stack_size() {
 void DBMemento::Overwrite(std::shared_ptr<BlockAccessor> &reciever, std::shared_ptr<BlockAccessor> source) {
     for (const auto& block_name : reciever->get_block_names()) {
         if (!source->contains(block_name)) {
-            reciever->erase(block_name);
+            reciever->erase_block(block_name);
             continue;
         } 
         for (const auto& id : reciever->at(block_name)->getAllIDs()) {

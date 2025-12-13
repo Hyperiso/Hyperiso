@@ -35,8 +35,12 @@
  * It is primarily used by higher-level parameter containers (e.g. a
  * Parameters class) to manipulate multiple physics blocks consistently.
  */
-class BlockAccessor : public std::unordered_map<BlockName, std::shared_ptr<Block>> {
+class BlockAccessor : public std::unordered_map<std::string, std::shared_ptr<Block>> {
 public:
+
+    using base_t = std::unordered_map<std::string, std::shared_ptr<Block>>;
+    using base_t::operator[];
+
     /**
      * @brief Checks if a block exists with a given parameter.
      *
@@ -132,7 +136,7 @@ public:
      *
      * @return An unordered_set of BlockName keys.
      */
-    std::unordered_set<BlockName> get_block_names();
+    std::unordered_set<BlockName> get_block_names() const;
 
     /**
      * @brief Removes a parameter from a specified block.
@@ -313,6 +317,88 @@ public:
      * @return The output stream.
      */
     friend std::ostream& operator<<(std::ostream&, std::shared_ptr<BlockAccessor>);
+
+    // std::shared_ptr<Block> at(const BlockName& q) const;
+
+    // bool contains(const std::string& name) const;
+    void emplace(const BlockName& name, std::shared_ptr<Block> blk);
+    
+    void erase_block(std::string_view alias_or_key);
+    void erase_block(const BlockName& name);
+
+    bool contains(const std::string& name) const { return contains(std::string_view{name}); }
+    bool contains(const char* name) const { return contains(std::string_view{name}); }
+
+    std::shared_ptr<Block>& at(const std::string& name) { return at(std::string_view{name}); }
+    const std::shared_ptr<Block>& at(const std::string& name) const { return at(std::string_view{name}); }
+    std::shared_ptr<Block>& at(const char* name) { return at(std::string_view{name}); }
+    const std::shared_ptr<Block>& at(const char* name) const { return at(std::string_view{name}); }
+
+    void emplace(const std::string& name, std::shared_ptr<Block> blk) { emplace(BlockName(name), std::move(blk)); }
+    void emplace(const char* name, std::shared_ptr<Block> blk) { emplace(BlockName(name), std::move(blk)); }
+
+    bool has_param(const std::string& block, const LhaID& id) const { return has_param(std::string_view{block}, id); }
+    bool has_param(const char* block, const LhaID& id) const { return has_param(std::string_view{block}, id); }
+
+    scalar_t getValue(const std::string& block, const LhaID& id) const { return getValue(std::string_view{block}, id); }
+    scalar_t getValue(const char* block, const LhaID& id) const { return getValue(std::string_view{block}, id); }
+
+    void setValue(const std::string& block, const LhaID& id, scalar_t v) { setValue(std::string_view{block}, id, v); }
+    void setValue(const char* block, const LhaID& id, scalar_t v) { setValue(std::string_view{block}, id, v); }
+
+    void remove_item(const std::string& block, const LhaID& id) { remove_item(std::string_view{block}, id); }
+    void remove_item(const char* block, const LhaID& id) { remove_item(std::string_view{block}, id); }
+
+    bool has_scale(const std::string& block) const { return has_scale(std::string_view{block}); }
+    bool has_scale(const char* block) const { return has_scale(std::string_view{block}); }
+
+    double get_scale(const std::string& block) const { return get_scale(std::string_view{block}); }
+    double get_scale(const char* block) const { return get_scale(std::string_view{block}); }
+
+
+    // std::unordered_set<BlockName> get_block_names() const;
+
+    std::unordered_map<std::string, std::string> alias_to_key_;
+
+    // internal key -> complete BlockName (union of aliases)
+    std::unordered_map<std::string, BlockName> key_to_name_;
+
+    // internal key -> block
+    // std::unordered_map<std::string, std::shared_ptr<Block>> key_to_block_;
+//TODO ::
+private:
+
+    bool has_scale(std::string_view block) const;
+    double get_scale(std::string_view block) const;
+
+    bool contains(std::string_view name) const;
+    void emplace(std::string_view name, std::shared_ptr<Block> blk) {
+        emplace(BlockName(std::string(name)), std::move(blk));
+    }
+    std::shared_ptr<Block>& at(std::string_view name);
+    const std::shared_ptr<Block>& at(std::string_view name) const;
+
+    bool has_param(std::string_view block, const LhaID& id) const;
+    scalar_t getValue(std::string_view block, const LhaID& id) const;
+    void setValue(std::string_view block, const LhaID& id, scalar_t value);
+    void remove_item(std::string_view block, const LhaID& id);
+
+
+    static std::unordered_set<std::string> norm_aliases(const BlockName& n);
+    static std::string choose_key(const std::unordered_set<std::string>& aliases_norm);
+    static std::string normalize(std::string_view s);
+
+    // retourne "" si pas trouvé
+    std::string key_for(std::string_view alias) const;
+    std::string key_for(const BlockName& name) const;
+    std::string key_for(const std::string& name) const;
+    
+    std::string resolve_key(std::string_view name) const;
+    std::string resolve_key(const BlockName& name) const;
+    void merge_name_into_key(const std::string& key, const BlockName& name);
+
+    std::unordered_map<std::string, std::shared_ptr<Block>> blocks_;      // canon -> block
+    std::unordered_map<std::string, std::string> alias_to_canon_;         // alias_norm -> canon_norm
 };
 
 #endif

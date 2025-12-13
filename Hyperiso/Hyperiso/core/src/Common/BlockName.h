@@ -13,6 +13,7 @@
 #include <ranges>
 #include <concepts>
 #include <variant>
+
 #include "Logger.h"
 #include "Utils.h"
 #include "GeneralEnum.h"
@@ -64,15 +65,50 @@ private:
      * this block. The container is unordered; no ordering guarantees are given.
      */
     std::unordered_set<std::string> block_names;
+    std::string primary; //TODO
+    
+    static inline std::string upper_copy(std::string s) {
+        std::transform(s.begin(), s.end(), s.begin(),
+                       [](unsigned char c){ return static_cast<char>(std::toupper(c)); });
+        return s;
+    }
 
-public:
+    static inline std::unordered_set<std::string> split_aliases(const std::string& s) {
+        std::unordered_set<std::string> out;
+        std::string cur;
+        for (char ch : s) {
+            if (ch == '/') {
+                if (!cur.empty()) out.insert(cur);
+                cur.clear();
+            } else cur.push_back(ch);
+        }
+        if (!cur.empty()) out.insert(cur);
+        return out;
+    }
+
+    static std::unordered_set<std::string> split_slash_aliases(const std::string& s) {
+        std::unordered_set<std::string> out;
+        std::string cur;
+        cur.reserve(s.size());
+        for (char c : s) {
+            if (c == '/') {
+                if (!cur.empty()) { out.insert(cur); cur.clear(); }
+            } else {
+                cur.push_back(c);
+            }
+        }
+        if (!cur.empty()) out.insert(cur);
+        return out;
+    }
+    //TODO
+    public:
     /**
      * @brief Default constructor.
      *
      * Creates an empty BlockName without any aliases.
      */
     BlockName() = default;
-
+    
     /**
      * @brief Constructs a BlockName from a single std::string.
      *
@@ -81,7 +117,7 @@ public:
      * @param name Initial block name / alias.
      */
     BlockName(const std::string& name);
-
+    
     /**
      * @brief Constructs a BlockName from a C-style string.
      *
@@ -105,7 +141,7 @@ public:
      * @param names List of aliases to associate with the block.
      */
     BlockName(std::initializer_list<std::string> names);
-
+    
     /**
      * @brief Constructs a BlockName from an existing set of aliases.
      *
@@ -114,7 +150,7 @@ public:
      * @param names Set of aliases for the block.
      */
     BlockName(const std::unordered_set<std::string>& names);
-
+    
     /**
      * @brief Returns the set of aliases associated with this block.
      *
@@ -124,7 +160,9 @@ public:
      * @return A copy of the internal alias set.
      */
     std::unordered_set<std::string> get_alias() const;
-
+    
+    const std::string& canonical() const;//TODO
+    
     /**
      * @brief Implicit conversion to std::string.
      *
@@ -217,6 +255,8 @@ public:
 
     BlockName& addAlias(const std::string& alias);
 
+    BlockName& addAliases(const std::unordered_set<std::string>& as);
+
     /**
      * @brief Concatenation operator between a prefix string and a BlockName.
      *
@@ -307,6 +347,9 @@ inline bool operator!=(const std::string& lhs, const BlockName& rhs) {
     return !(rhs == lhs);
 }
 
+// inline bool operator==(const std::string& lhs, const BlockName& rhs) { return rhs.hasAlias(lhs); }
+// inline bool operator!=(const std::string& lhs, const BlockName& rhs) { return !(lhs == rhs); }
+
 namespace std {
     /**
      * @brief Hash functor specialization for BlockName.
@@ -328,13 +371,27 @@ namespace std {
          * @param p BlockName to hash.
          * @return Combined hash value.
          */
-        std::size_t operator()(const BlockName& p) const noexcept {
+        // std::size_t operator()(const BlockName& p) const noexcept {
+        //     size_t h = 0;
+        //     for (const auto& name : p.get_alias()) {
+        //         h ^= std::hash<std::string>{}(name) + 0x9e3779b9 + (h << 6) + (h >> 2); // boost-style hash combine
+        //     }
+        //     return h;
+        // }
+        // size_t operator()(const BlockName& b) const noexcept {
+        //     return std::hash<std::string>{}(b.canonical());
+        // }
+         std::size_t operator()(const BlockName& p) const noexcept {
+            // hash order-independent sur tous les aliases
             size_t h = 0;
             for (const auto& name : p.get_alias()) {
-                h ^= std::hash<std::string>{}(name) + 0x9e3779b9 + (h << 6) + (h >> 2); // boost-style hash combine
+                h ^= std::hash<std::string>{}(name) + 0x9e3779b9 + (h << 6) + (h >> 2);
             }
             return h;
         }
+        // size_t operator()(const BlockName& p) const noexcept {
+        //     return std::hash<std::string>{}(p.canonical());
+        // }
     };
 }
 

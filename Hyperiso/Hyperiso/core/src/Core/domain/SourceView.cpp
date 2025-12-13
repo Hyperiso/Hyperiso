@@ -40,17 +40,20 @@ const std::shared_ptr<Block>& BlockSrc::block(std::string_view name) const {
 }
 
 std::shared_ptr<Parameter> BlockSrc::get_param(std::string_view blk, const LhaID& code) const {
+    // auto& b = block(blk);
+    // if (!b->contains(code)) {
+    //     std::cout << "here ?" << std::endl;
+    //     std::vector<std::string> ids;
+    //     for (auto& id : b->getAllIDs()) ids.push_back(to_string(id));
+    //     std::ostringstream oss;
+    //     oss << "Missing parameter " << to_string(code)
+    //         << " in Block '" << blk << "'";
+    //     if (!ctx_.empty()) oss << " (context: " << ctx_ << ")";
+    //     oss << ". Available IDs: [" << join(ids) << "].";
+    //     throw std::invalid_argument(oss.str());
+    // }
+    // return b->retrieve(code);
     auto& b = block(blk);
-    if (!b->contains(code)) {
-        std::vector<std::string> ids;
-        for (auto& id : b->getAllIDs()) ids.push_back(to_string(id));
-        std::ostringstream oss;
-        oss << "Missing parameter " << to_string(code)
-            << " in Block '" << blk << "'";
-        if (!ctx_.empty()) oss << " (context: " << ctx_ << ")";
-        oss << ". Available IDs: [" << join(ids) << "].";
-        throw std::invalid_argument(oss.str());
-    }
     return b->retrieve(code);
 }
 

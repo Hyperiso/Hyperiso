@@ -106,6 +106,12 @@ public:
         return this->sources_raw;
     }
 
+    //TODO ::
+    scalar_t get_val() const override;
+    
+    void mark_dirty();
+    void ensure_up_to_date();
+
     /**
      * @brief Returns the raw map of source parameters.
      */
@@ -118,6 +124,7 @@ private:
     DepParamUpdateFunc recalculateLambda;                                   ///< /// Lambda used to recompute the value of this parameter.
     bool frozen {false};                                                    ///< If true, update is delayed.
     bool update_at_unfreeze {false};                                        ///< If true, an update is triggered upon unfreezing.
+    bool dirty = true;
 };
 
 /**

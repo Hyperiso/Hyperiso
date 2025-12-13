@@ -10,7 +10,7 @@ DependentParameter::DependentParameter(
   // si ParamSrc a un ctor (map, who):
   sources(std::make_unique<ParamSrc>(sources_raw, ParameterTypeMapper::str(pid.type.value()) + "::" + pid.block)),
   recalculateLambda(std::move(recalculateFunc)),
-  frozen(false) {}
+  frozen(false) { dirty = true; }
 
 bool DependentParameter::dependsOn(const ParamId& pid) {
     return (*sources).raw().contains(pid);
@@ -50,32 +50,118 @@ void DependentParameter::init() {
 }
 
 
+// void DependentParameter::update() {
+//     if (frozen) {
+//         LOG_DEBUG("DependentParameter is frozen, skipping update");
+//         update_at_unfreeze = true;
+//         return;
+//     }
+
+//     if (!recalculateLambda) {
+//         LOG_ERROR("Error", "DependentParameter::update() called without recalculateLambda set");
+//         return;
+//     }
+
+//     for (const auto& [pid, param_ptr] : sources->raw()) {
+//         if (!param_ptr) {
+//             LOG_ERROR("Error",
+//                       "DependentParameter::update() called with a null source parameter for ",
+//                       pid.code);
+//             return;
+//         }
+//     }
+
+//     LOG_DEBUG("Updating dependent parameter value");
+//     auto me_dep = std::static_pointer_cast<DependentParameter>(shared_from_this());
+//     recalculateLambda(*sources, me_dep);
+// }
+
+// void DependentParameter::update() {
+//     if (frozen) {
+//         LOG_DEBUG("DependentParameter is frozen, skipping update");
+//         update_at_unfreeze = true;
+//         return;
+//     }
+
+//     if (!recalculateLambda) {
+//         LOG_ERROR("Error", "DependentParameter::update() called without recalculateLambda set");
+//         return;
+//     }
+
+//     for (const auto& [pid, param_ptr] : sources->raw()) {
+//         if (!param_ptr) {
+//             LOG_ERROR("Error",
+//                       "DependentParameter::update() called with a null source parameter for ",
+//                       pid.code);
+//             return;
+//         }
+//     }
+//     dirty = true;
+// }
+
+void DependentParameter::mark_dirty() {
+    dirty = true;
+}
+
 void DependentParameter::update() {
     if (frozen) {
-        LOG_DEBUG("DependentParameter is frozen, skipping update");
         update_at_unfreeze = true;
         return;
     }
+    dirty = true; // ✅ lazy: on ne recalcule pas ici
+}
+
+scalar_t DependentParameter::get_val() const {
+    // std::cout << "DP get_val: " << id.block << " " << id.code.to_string() << "\n";
+    const_cast<DependentParameter*>(this)->ensure_up_to_date();
+    // std::cout << expected << std::endl;
+    return expected;
+}
+
+void DependentParameter::ensure_up_to_date() {
+    if (!dirty) return;
+    if (frozen) return;
+
+    // pull sources (et donc pull des DependentBlock/DependentParam en cascade)
+    for (const auto& [pid, src] : sources->raw()) {
+        if (!src) LOG_ERROR("Error", "Null source param for", pid.code);
+        (void)src->get_val();
+    }
 
     if (!recalculateLambda) {
-        LOG_ERROR("Error", "DependentParameter::update() called without recalculateLambda set");
-        return;
+        LOG_ERROR("Error", "DependentParameter has no recalculateLambda");
     }
 
-    for (const auto& [pid, param_ptr] : sources->raw()) {
-        if (!param_ptr) {
-            LOG_ERROR("Error",
-                      "DependentParameter::update() called with a null source parameter for ",
-                      pid.code);
-            return;
-        }
-    }
-
-    LOG_DEBUG("Updating dependent parameter value");
+    dirty = false;
     auto me_dep = std::static_pointer_cast<DependentParameter>(shared_from_this());
     recalculateLambda(*sources, me_dep);
 }
 
+// scalar_t DependentParameter::get_val() const {
+//     const_cast<DependentParameter*>(this)->ensure_up_to_date();
+//     return expected;
+// }
+
+// void DependentParameter::ensure_up_to_date() {
+//     if (!dirty) return;
+
+//     for (auto& [pid, src] : this->sources_raw) {
+//         if (!src) {
+//             LOG_ERROR("DependentParameter", id.code,
+//                       "missing source", pid.code);
+//         }
+
+//         src->get_val();
+//     }
+
+//     dirty = false;
+//     if (!recalculateLambda) {
+//         LOG_ERROR("DependentParameter", id.code,
+//                   "has no recalculateLambda");
+//     }
+//     auto me_dep = std::static_pointer_cast<DependentParameter>(shared_from_this());
+//     recalculateLambda(*sources, me_dep);
+// }
 
 void DependentParameter::freeze() {
     this->frozen = true;

@@ -317,6 +317,8 @@ public:
      */
     virtual std::unordered_map<std::string, std::shared_ptr<Block>> get_source_blocks() const;
 
+    //TODO 
+    virtual void ensure_up_to_date() {}
     /**
      * @brief Destructor.
      *
@@ -470,7 +472,14 @@ public:
      */
     void destroy() override;
 
+    // TODO :: 
+    bool dirty = true;
+    void mark_dirty();
+    void ensure_up_to_date() override { ensure_up_to_date_impl(); }
+
 private:
+    void ensure_up_to_date_impl();
+
     std::weak_ptr<DependentBlock> self;                                     ///< Self-reference for observer management.
     std::unordered_map<std::string, std::shared_ptr<Block>> sourceBlocks;   ///< Source blocks for dependencies.
     DepUpdateFunc recalculateLambda;                                        ///< Function used to recalculate this block's content.

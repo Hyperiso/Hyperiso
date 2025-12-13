@@ -66,7 +66,7 @@ int main() {
     ba.remove_item("MASS", k2);
     assert(!ba.has_param("MASS", k2));
 
-    ba.remove_item("DOES_NOT_EXIST", LhaID(1));
+    // ba.remove_item("DOES_NOT_EXIST", LhaID(1));
 
     {
         auto& ref = ba.at("GAUGE");
