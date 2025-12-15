@@ -107,13 +107,36 @@ void Block::erase_local(const LhaID& id) {
     this->items.erase(id);
 }
 
+// void Block::assign(const LhaID& key, std::shared_ptr<Parameter> param) {
+//     if (!this->contains(key)) {
+//         LOG_ERROR("KeyError", "Cannot update non-existing parameter", key.to_string(), "in block", this->blockname);
+//     }
+
+//     *(this->items.at(key)) = *param;
+//     LOG_DEBUG("Call to notifyObservers from Block::assign(const LhaID&, std::shared_ptr<Parameter>) of", blockname);
+//     notifyObservers();
+// }
+
 void Block::assign(const LhaID& key, std::shared_ptr<Parameter> param) {
-    if (!this->contains(key)) {
-        LOG_ERROR("KeyError", "Cannot update non-existing parameter", key.to_string(), "in block", this->blockname);
+    auto it = items.find(key);
+    if (it == items.end()) {
+        LOG_ERROR("KeyError", "Cannot update non-existing parameter", key.to_string(),
+                  "in block", this->blockname);
     }
 
-    *(this->items.at(key)) = *param;
-    LOG_DEBUG("Call to notifyObservers from Block::assign(const LhaID&, std::shared_ptr<Parameter>) of", blockname);
+    // (optionnel mais safe) : si l’ancien param est dépendant, il s’était abonné à des sources
+    if (it->second) {
+        it->second->clear_above();
+    }
+
+    // rattache au block
+    auto w = weak_from_this();
+    if (!w.expired()) param->set_owner_block(w);
+
+    // le point crucial : on remplace le pointeur
+    it->second = std::move(param);
+
+    LOG_DEBUG("Call to notifyObservers from Block::assign(const LhaID&, shared_ptr<Parameter>) of", blockname);
     notifyObservers();
 }
 
@@ -135,25 +158,33 @@ void Block::assign(const LhaID &key, scalar_t value) {
 //     }
 // }
 
+// void Block::store_or_assign(const LhaID& id, std::shared_ptr<Parameter> param) {
+//     auto it = items.find(id);
+//     if (it == items.end()) {
+//         // première fois : on stocke le pointeur
+//         store(id, std::move(param));
+//         return;
+//     }
+
+//     this->assign(id, param);
+//     // // ✅ IMPORTANT : on garde le pointeur existant, on met juste à jour les champs
+//     // auto& existing = it->second;
+//     // if (!existing) {
+//     //     existing = std::move(param);
+//     //     return;
+//     // }
+
+//     // // valeur + erreurs (si tu veux)
+//     // existing->set_expected(param->get_val());
+//     // existing->set_std(param->get_std().first, param->get_std().second);  // si tu as cette API
+// }
+
 void Block::store_or_assign(const LhaID& id, std::shared_ptr<Parameter> param) {
-    auto it = items.find(id);
-    if (it == items.end()) {
-        // première fois : on stocke le pointeur
+    if (!contains(id)) {
         store(id, std::move(param));
-        return;
+    } else {
+        assign(id, std::move(param)); // rebind => DependentParameter conservé
     }
-
-    this->assign(id, param);
-    // // ✅ IMPORTANT : on garde le pointeur existant, on met juste à jour les champs
-    // auto& existing = it->second;
-    // if (!existing) {
-    //     existing = std::move(param);
-    //     return;
-    // }
-
-    // // valeur + erreurs (si tu veux)
-    // existing->set_expected(param->get_val());
-    // existing->set_std(param->get_std().first, param->get_std().second);  // si tu as cette API
 }
 
 bool Block::contains(const LhaID& id) const {

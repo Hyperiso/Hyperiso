@@ -8,6 +8,7 @@
 #include "CompareCsv.h"
 #include "Configs.h"
 #include <unordered_set>
+#include "BlockProxy.h"
 
 void writeCoefficientsToFile(const std::string& strat_name, const std::string& fileName, double Q_match, const std::string& model) {
     std::ofstream file(fileName);
@@ -56,8 +57,11 @@ void writeCoefficientsToFile(const std::string& strat_name, const std::string& f
         } else {
             C = wi->getMatchingCoefficient(WGroup::B,WCoefMapper::enum_of(WCoefMapper::enum_elt(coeff)).value(), OrderMapper::enum_elt(strat_name), ContributionType::BSM );
         }
+        std::cout << coeff << std::endl;
         std::cout << std::fixed << std::setprecision(8);
+        std::cout << C << std::endl;
         file     << std::fixed << std::setprecision(8);
+        // BlockProxy().log_all_blocks(ParameterType::WILSON);
         file << "," << C.real() << "," << C.imag();
     }
     file << "\n"; 

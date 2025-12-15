@@ -1,39 +1,64 @@
 #include "BlockAccessor.h"
 
 
+// scalar_t BlockAccessor::getValue(const BlockName& blockName, LhaID id) const {
+//     return this->at(blockName)->retrieve(id)->get_val();
+//     auto it = this->find(blockName);
+//     std::cout << "LAAA" << std::endl;
+//     if (it != this->end()) {
+//         return it->second->retrieve(id)->get_val();
+//     }
+//     throw std::invalid_argument("Block " + blockName + " not found (LhaID: " + id.to_string() + ")");
+// }
+
+// std::shared_ptr<Parameter> BlockAccessor::getParameter(const BlockName& blockName, LhaID id) const {
+//     return this->at(blockName)->retrieve(id);
+//     auto it = this->find(blockName);
+//     std::cout << "LAAA" << std::endl;
+//     if (it != this->end()) {
+//         std::cout << "ICIII" << std::endl;
+//         return it->second->retrieve(id);
+//     }
+//     throw std::invalid_argument("Block " + blockName + " not found (LhaID: " + id.to_string() + ").");
+// }
+
 scalar_t BlockAccessor::getValue(const BlockName& blockName, LhaID id) const {
+    // Alias-aware lookup
     return this->at(blockName)->retrieve(id)->get_val();
-    auto it = this->find(blockName);
-    std::cout << "LAAA" << std::endl;
-    if (it != this->end()) {
-        return it->second->retrieve(id)->get_val();
-    }
-    throw std::invalid_argument("Block " + blockName + " not found (LhaID: " + id.to_string() + ")");
 }
 
 std::shared_ptr<Parameter> BlockAccessor::getParameter(const BlockName& blockName, LhaID id) const {
     return this->at(blockName)->retrieve(id);
-    auto it = this->find(blockName);
-    std::cout << "LAAA" << std::endl;
-    if (it != this->end()) {
-        std::cout << "ICIII" << std::endl;
-        return it->second->retrieve(id);
-    }
-    throw std::invalid_argument("Block " + blockName + " not found (LhaID: " + id.to_string() + ").");
 }
+
+// bool BlockAccessor::has_param(const BlockName& blockName, LhaID id) const {
+//     auto it = this->find(blockName);
+//     return (it != this->end()) && it->second->contains(id);
+// }
 
 bool BlockAccessor::has_param(const BlockName& blockName, LhaID id) const {
-    auto it = this->find(blockName);
-    return (it != this->end()) && it->second->contains(id);
+    if (!this->contains(blockName)) return false;
+    return this->at(blockName)->contains(id);
 }
 
+// void BlockAccessor::setValue(const BlockName& blockName, LhaID id, scalar_t value) {
+//     auto it = this->find(blockName);
+//     if (it == this->end()) {
+//         throw std::invalid_argument("Block not found " + blockName);
+//     }
+//     auto& blk = it->second;
+//     if (blk->contains(id)) {
+//         blk->assign(id, value);
+//     } else {
+//         blk->store(id, std::make_shared<Parameter>(ParamId(blockName, id), value, 0., 0.));
+//     }
+// }
 
 void BlockAccessor::setValue(const BlockName& blockName, LhaID id, scalar_t value) {
-    auto it = this->find(blockName);
-    if (it == this->end()) {
-        throw std::invalid_argument("Block not found " + blockName);
+    if (!this->contains(blockName)) {
+        throw std::invalid_argument("Block not found " + blockName.to_string());
     }
-    auto& blk = it->second;
+    auto& blk = this->at(blockName);
     if (blk->contains(id)) {
         blk->assign(id, value);
     } else {
@@ -115,25 +140,36 @@ std::shared_ptr<BlockAccessor> operator+(std::shared_ptr<BlockAccessor> lhs, std
     return res;
 }
 
+// double BlockAccessor::get_scale(const BlockName& block_name) const {
+//     auto it = this->find(block_name);
+//     if (it == this->end()) {
+//         LOG_ERROR("Block", block_name, "not found in BlockAccessor");
+//     }
+//     if (!it->second->has_scale()) {
+//         LOG_ERROR("Block", block_name, "has no scale");
+//     }
+//     return it->second->get_scale();
+// }
+
 double BlockAccessor::get_scale(const BlockName& block_name) const {
-    auto it = this->find(block_name);
-    if (it == this->end()) {
-        LOG_ERROR("Block", block_name, "not found in BlockAccessor");
-    }
-    if (!it->second->has_scale()) {
+    const auto& blk = this->at(block_name);
+    if (!blk->has_scale()) {
         LOG_ERROR("Block", block_name, "has no scale");
     }
-    return it->second->get_scale();
+    return blk->get_scale();
 }
 
 
+// bool BlockAccessor::has_scale(const BlockName& block_name) const {
+//     auto it = this->find(block_name);
+//     if (it == this->end()) {
+//         LOG_ERROR("Block", block_name, "not found in BlockAccessor");
+//     }
+//     return it->second->has_scale();
+// }
 
 bool BlockAccessor::has_scale(const BlockName& block_name) const {
-    auto it = this->find(block_name);
-    if (it == this->end()) {
-        LOG_ERROR("Block", block_name, "not found in BlockAccessor");
-    }
-    return it->second->has_scale();
+    return this->at(block_name)->has_scale();
 }
 
 std::shared_ptr<BlockAccessor> operator>>(
@@ -217,13 +253,18 @@ std::ostream &operator<<(std::ostream &os, std::shared_ptr<BlockAccessor> ba) {
 
 // }
 
+// std::unordered_map<std::string, std::shared_ptr<Block>>
+// BlockAccessor::get_block_sources(const BlockName& block_name) const {
+//     auto it = this->find(block_name);
+//     if (it == this->end()) {
+//         LOG_ERROR("Block", block_name, "not found in BlockAccessor");
+//     }
+//     return it->second->get_source_blocks();
+// }
+
 std::unordered_map<std::string, std::shared_ptr<Block>>
 BlockAccessor::get_block_sources(const BlockName& block_name) const {
-    auto it = this->find(block_name);
-    if (it == this->end()) {
-        LOG_ERROR("Block", block_name, "not found in BlockAccessor");
-    }
-    return it->second->get_source_blocks();
+    return this->at(block_name)->get_source_blocks();
 }
 
 // std::unordered_map<ParamId, std::shared_ptr<Parameter>> BlockAccessor::get_parameter_sources(const BlockName& block_name, LhaID id) const {
@@ -240,13 +281,18 @@ BlockAccessor::get_block_sources(const BlockName& block_name) const {
 //     return it->second->retrieve(id)->get_source_parameters();
 // }
 
+// std::unordered_map<ParamId, std::shared_ptr<Parameter>>
+// BlockAccessor::get_parameter_sources(const BlockName& block_name, LhaID id) const {
+//     auto it = this->find(block_name);
+//     if (it == this->end()) {
+//         LOG_ERROR("Block", block_name, "not found in BlockAccessor");
+//     }
+//     return it->second->retrieve(id)->get_source_parameters();
+// }
+
 std::unordered_map<ParamId, std::shared_ptr<Parameter>>
 BlockAccessor::get_parameter_sources(const BlockName& block_name, LhaID id) const {
-    auto it = this->find(block_name);
-    if (it == this->end()) {
-        LOG_ERROR("Block", block_name, "not found in BlockAccessor");
-    }
-    return it->second->retrieve(id)->get_source_parameters();
+    return this->at(block_name)->retrieve(id)->get_source_parameters();
 }
 
 std::unordered_set<ParamId>
@@ -479,7 +525,7 @@ void BlockAccessor::erase_block(std::string_view alias_or_key) {
     auto itn = key_to_name_.find(key);
     if (itn != key_to_name_.end()) {
         for (const auto& a : itn->second.get_alias()) {
-            auto ita = alias_to_key_.find(a);
+            auto ita = alias_to_key_.find(normalize(a));
             if (ita != alias_to_key_.end() && ita->second == key) {
                 alias_to_key_.erase(ita);
             }

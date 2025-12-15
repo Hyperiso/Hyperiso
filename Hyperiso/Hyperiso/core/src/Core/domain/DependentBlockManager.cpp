@@ -95,7 +95,8 @@ void DependentBlockManager::addDependentParameter(
         ba->emplace(pid.block, std::make_shared<Block>());
         ba->at(pid.block)->blockname = pid.block;
     }
-    ba->at(pid.block)->store(pid.code, dependentParam);
+    std::cout << "setting dep param : " << pid.block << " : " << pid.code << " = "<< *dependentParam << std::endl;
+    ba->at(pid.block)->store_or_assign(pid.code, dependentParam);
 }
 
 void DependentBlockManager::removeDependentBlock(const std::string &name,
