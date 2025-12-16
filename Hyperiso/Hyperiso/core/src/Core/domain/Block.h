@@ -350,7 +350,6 @@ protected:
 
     std::weak_ptr<Block> self_weak() {
         if (auto s = self_.lock()) return self_;
-        // fallback si jamais bind_self pas encore appelé
         try { return shared_from_this(); } catch (...) { return {}; }
     }
 };

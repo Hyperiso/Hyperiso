@@ -126,7 +126,7 @@ int main() {
     std::cout << "creating RandomVectorGenerator" << std::endl;
 
     unsigned int seed = std::random_device{}();
-    auto dist = DistributionFactory::create("gaussian", seed);
+    auto dist = DistributionFactory::create(DistributionType::GAUSSIAN, seed);
     auto decomp = std::make_unique<CholeskyDecomposition>();
 
     RandomVectorGenerator rvg(std::move(dist), std::move(decomp));

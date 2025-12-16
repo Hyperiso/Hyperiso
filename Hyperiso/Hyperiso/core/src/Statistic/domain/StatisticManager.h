@@ -15,6 +15,7 @@ struct StatisticConfig {
     std::map<ObservableId, QCDOrder> obss;
     std::vector<ParamId> p_specs;
 
+    std::map<ParamId, DistributionType> special_nuisance_distribution {};
     std::size_t MC_draws = 100;
     double skew_abs_threshold=0.2;
 
@@ -251,7 +252,7 @@ public:
 
     std::map<ObservableId, double> compute_uncertainties() {
         unsigned int seed = std::random_device{}();
-        auto dist = DistributionFactory::create("gaussian", seed);
+        auto dist = DistributionFactory::create(DistributionType::GAUSSIAN, seed);
         auto decomp = std::make_unique<CholeskyDecomposition>();
 
         RandomVectorGenerator rvg(std::move(dist), std::move(decomp));
@@ -423,7 +424,7 @@ public:
         std::cout << "\n=== DEBUG scan around starting point ===\n";
         double ell0 = est.like().ell(p0, eta0);
         std::cout << "ell(p0, eta0) = " << ell0 << "\n";
-
+        std::cout << std::setprecision(17);
         // scan sur les p
         for (std::size_t i = 0; i < p0.size(); ++i) {
             Vec p_plus = p0;

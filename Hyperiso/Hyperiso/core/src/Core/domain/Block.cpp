@@ -255,8 +255,7 @@ void DependentBlock::assign(const LhaID& key, std::shared_ptr<Parameter> param)
     }
 
     auto& dst = this->items.at(key);
-    dst->overwrite_payload_from(*param);   // ✅ ne touche pas owner_block / std / scale / binning
-    // surtout PAS de notify ici: DependentBlock::ensure_up_to_date_impl() notifie après recalc
+    dst->overwrite_payload_from(*param);
 }
 
 

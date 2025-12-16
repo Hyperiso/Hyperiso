@@ -5,11 +5,12 @@
 #include <random>
 #include <algorithm>
 
+#include "DistributionType.h"
 #include "IDistribution.h"
 
 class DistributionFactory {
 public:
-    static std::unique_ptr<IDistribution> create(const std::string& name,
+    static std::unique_ptr<IDistribution> create(DistributionType name,
                                                  unsigned int seed = std::random_device{}());
 };
 

@@ -102,23 +102,19 @@ void DependentParameter::rebind(
     std::unordered_map<ParamId, std::shared_ptr<Parameter>> new_sources,
     DepParamUpdateFunc new_lambda)
 {
-    // 1) se détacher des anciennes sources
     clear_above();
 
-    // 2) remplacer sources + lambda (en gardant *this)
     sources_raw = std::move(new_sources);
     sources = std::make_unique<ParamSrc>(sources_raw,
         ParameterTypeMapper::str(id.type.value()) + "::" + id.block);
     recalculateLambda = std::move(new_lambda);
 
-    // 3) se rattacher aux nouvelles sources
     if (auto me = self.lock()) {
         for (auto& [_, src] : sources->raw()) {
             if (src) src->addObserver(me);
         }
     }
 
-    // 4) lazy invalidation
     dirty = true;
     notifyObservers();
 }

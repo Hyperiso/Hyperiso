@@ -25,7 +25,7 @@ int main(int argc, char** argv) {
 
         Matrix R = readMatrixFromStdin();
 
-        auto dist = DistributionFactory::create(distName, seed);
+        auto dist = DistributionFactory::create(DistributionType::GAUSSIAN, seed);
         auto decomp = std::make_unique<CholeskyDecomposition>();
 
         RandomVectorGenerator generator(std::move(dist), std::move(decomp));

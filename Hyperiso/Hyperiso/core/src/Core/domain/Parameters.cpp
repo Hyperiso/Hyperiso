@@ -51,7 +51,6 @@ std::shared_ptr<Parameter> Parameters::get_parameter(const BlockName &block,
 //TODO
 bool Parameters::exist(const BlockName& block, LhaID id) {
     if (!blockAccessor->contains(block)) return false;
-    std::cout << "here ? ; " << blockAccessor->contains(block) << " = " << blockAccessor->at(block)->getItems().contains(id) << std::endl;
     return blockAccessor->at(block)->contains(id);
     // try {
     //     blockAccessor->at(block)->retrieve(id);
@@ -269,7 +268,6 @@ void BSMModelStrategy::postInitialization(Parameters& params) {
     ensure_zero_7x7("USQMIX");
     ensure_zero_7x7("DSQMIX");
 
-    std::cout << "CA MARCHE !" << std::endl;
 
     
  }
@@ -410,7 +408,6 @@ std::shared_ptr<ModelStrategy> ParametersFactory::createStrategy(ParameterType i
         case ParameterType::DECAY:
             return std::make_shared<DecayStrategy>(DecayStrategy());
         case ParameterType::OBSERVABLE:
-            std::cout << "fck" << std::endl;
             return std::make_shared<ObservableStrategy>(ObservableStrategy());
         case ParameterType::PASSTHROUGH:
             return std::make_shared<PassthroughStrategy>(PassthroughStrategy());

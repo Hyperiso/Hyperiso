@@ -64,9 +64,7 @@ complex_t CoefficientGroup::get_running_coefficient(std::string coeff, std::stri
         throw std::out_of_range("Coefficient '" + coeff + "' not found in group '" + GroupMapper::str(this->id) + "'");
     }
     auto& c = it->second;
-    std::cout << "here 2!" << std::endl;
-    std::cout << (*adapters.wilson_proxy).exist(GroupMapper::str(this->id, ScaleType::HADRONIC, basis),
-        c->id(OrderMapper::enum_elt(order), cont_type)) << std::endl;
+
     if (!(*adapters.wilson_proxy).exist(GroupMapper::str(this->id, ScaleType::HADRONIC, basis),
         c->id(OrderMapper::enum_elt(order), cont_type))) {
             std::cout << "here 3!" << std::endl;
