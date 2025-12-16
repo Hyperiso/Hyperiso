@@ -224,25 +224,57 @@ public:
         double b = p_max;
         int N = grid_points;
 
-        double left  = std::nan("");
-        double right = std::nan("");
+        auto find_crossing = [&](double lo, double hi, int N, bool want_left) -> double {
 
-        double prev  = a;
+        double prev = want_left ? hi : lo;
         double prevT = T(prev);
 
         for (int i = 1; i <= N; ++i) {
-            double x = a + (b - a) * i / double(N);
+            double x;
+            if (want_left) {
+                x = hi - (hi - lo) * i / double(N);
+            } else {
+                x = lo + (hi - lo) * i / double(N);
+            }
+
             double t = T(x);
 
-            if (std::isnan(left) && (prevT - thr95) * (t - thr95) <= 0.0)
-                left = prev;
+            if ((prevT - thr95) * (t - thr95) <= 0.0) {
+                return x;
+            }
 
-            if ((prevT - thr95) * (t - thr95) <= 0.0)
-                right = x;
-
-            prev  = x;
+            prev = x;
             prevT = t;
         }
+
+        return std::nan("");
+    };
+
+        // double left  = std::nan("");
+        // double right = std::nan("");
+
+        // double prev  = a;
+        // double prevT = T(prev);
+
+        // for (int i = 1; i <= N; ++i) {
+        //     double x = a + (b - a) * i / double(N);
+        //     double t = T(x);
+
+        //     if (std::isnan(left) && (prevT - thr95) * (t - thr95) <= 0.0)
+        //         left = prev;
+
+        //     if ((prevT - thr95) * (t - thr95) <= 0.0)
+        //         right = x;
+
+        //     prev  = x;
+        //     prevT = t;
+        //     std::cout << "scan p=" << x << "  T(p)=" << t << "\n";
+        // }
+
+        double phat = fr_vec.p_hat[idx_scan];
+        
+        double left  = find_crossing(p_min, phat, N, true);
+        double right = find_crossing(phat, p_max, N, false);
 
         std::cout << "95% CI for param " << pid_to_scan
                 << ": [" << left << "," << right << "]" << std::endl;
@@ -430,8 +462,9 @@ public:
             Vec p_plus = p0;
             Vec p_minus = p0;
             double delta = 0.1 * std::abs(p0[i]); // par ex 10% de la valeur
-            if (delta == 0.0) delta = 1e-3;       // fallback
-
+            // if (delta == 0.0) delta = 1e-3;       // fallback
+            double floor = 1000.0 * std::numeric_limits<double>::epsilon() * (std::abs(p0[i]) + 1.0);
+            delta = std::max(delta, floor);
             p_plus[i]  += delta;
             p_minus[i] -= delta;
 
@@ -495,8 +528,12 @@ public:
     }
 
     void fill_cache() {
-        cache.eta_specs_real = this->get_all_obss_deps();
 
+        cache.p_specs = this->get_p_specs();
+        cache.eta_specs_real = this->get_all_obss_deps();
+        for (const auto& [pid, _] : cache.p_specs) {
+            cache.eta_specs_real.erase(pid);
+        }
         for (auto elem : cache.eta_specs_real) {
             std::cout << " eta_specs_real : " << elem.first << " = " << elem.second;
         }
@@ -524,7 +561,7 @@ public:
             std::cout << std::endl;
         }
 
-        cache.p_specs = this->get_p_specs();
+        // cache.p_specs = this->get_p_specs();
 
         for (auto elem : cache.p_specs) {
             std::cout << " p_specs : " << elem.first << " = " << elem.second;

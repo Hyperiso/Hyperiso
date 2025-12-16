@@ -22,6 +22,8 @@ int main(int argc, char** argv) {
     };
 
     config.p_specs = {ParamId(ParameterType::DECAY, "B_ll", 1)};
+        // config.p_specs = {ParamId(ParameterType::SM, "MASS", 1)};
+
     std::shared_ptr<ObservableInterface> oi = std::make_shared<ObservableInterface>();
 
     StatisticManager stat(config, std::make_shared<ObservableInterfaceAdapterObs>(oi), std::make_shared<StatCorrelationProxy>(), std::make_shared<StatParameterProxy>(), std::make_shared<StatParamSourcesProxy>());
@@ -43,7 +45,7 @@ int main(int argc, char** argv) {
 
     // auto interval = stat.compute_CI_1d_95(pid, -7.0, -1.0, 50);
 
-    auto interval = stat.compute_CI_1d_95(pid, 0, 1, 10);
+    auto interval = stat.compute_CI_1d_95(pid, 0, 1, 100);
 
     std::cout << "IC 95% sur " << pid << " = ["
             << interval.first << ", " << interval.second << "]\n";

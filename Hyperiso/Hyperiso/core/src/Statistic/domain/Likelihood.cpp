@@ -6,13 +6,21 @@
 namespace {
     struct ProfilePayload { const ProfiledLikelihood* self; Vec p; };
 
+static double step_from(double x0) {
+    const double rel = 0.1 * std::abs(x0);
+    const double floor_abs =
+        1000.0 * std::numeric_limits<double>::epsilon() * (std::abs(x0) + 1.0);
+    return std::max(rel, floor_abs);
+}
 
 static double f_eta_profile(const gsl_vector* x, void* params) {
     auto* pay = static_cast<ProfilePayload*>(params);
     const std::size_t m = x->size;
     Vec eta(m);
     for (std::size_t i=0;i<m;++i) eta[i] = gsl_vector_get(x, i);
-    return pay->self->ell(pay->p, eta);
+    double v = pay->self->ell(pay->p, eta);
+    if (!std::isfinite(v)) return 1e300;
+    return v;
 }
 }
 
@@ -30,7 +38,7 @@ double ProfiledLikelihood::ell_profiled(const Vec& p, const Vec& eta0, std::size
 
     gsl_vector* x = gsl_vector_alloc(m);
     gsl_vector* step = gsl_vector_alloc(m);
-    for (std::size_t i=0;i<m;++i) { gsl_vector_set(x, i, eta0[i]); gsl_vector_set(step, i, 0.1); }
+    for (std::size_t i=0;i<m;++i) { gsl_vector_set(x, i, eta0[i]); gsl_vector_set(step, i, step_from(eta0[i])); }
 
 
     gsl_multimin_fminimizer_set(s.get(), &f, x, step);
