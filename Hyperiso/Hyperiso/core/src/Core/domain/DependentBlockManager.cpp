@@ -86,17 +86,35 @@ void DependentBlockManager::addDependentParameter(
         throw std::invalid_argument(oss.str());
     }
 
-    auto dependentParam = std::make_shared<DependentParameter>(pid, sources, recalculateFunc);
-    dependentParam->init();
-    dependentParam->update();
+    // auto dependentParam = std::make_shared<DependentParameter>(pid, sources, recalculateFunc);
+    // dependentParam->init();
+    // dependentParam->update();
 
     auto ba = Parameters::GetInstance(pid.type.value())->blockAccessor;
     if (!ba->contains(pid.block)) {
         ba->emplace(pid.block, std::make_shared<Block>());
         ba->at(pid.block)->blockname = pid.block;
     }
-    std::cout << "setting dep param : " << pid.block << " : " << pid.code << " = "<< *dependentParam << std::endl;
-    ba->at(pid.block)->store_or_assign(pid.code, dependentParam);
+    // std::cout << "setting dep param : " << pid.block << " : " << pid.code << " = "<< *dependentParam << std::endl;
+    // ba->at(pid.block)->store_or_assign(pid.code, dependentParam);
+    auto blk = ba->at(pid.block);
+
+    if (blk->contains(pid.code)) {
+        auto existing = blk->retrieve(pid.code);
+        if (auto dep = std::dynamic_pointer_cast<DependentParameter>(existing)) {
+            dep->rebind(std::move(sources), recalculateFunc);
+            // pas besoin de dep->update() : rebind met dirty + notify
+            return;
+        }
+        // sinon: cas dangereux (placeholder non-dependent). On peut soit throw, soit overwrite payload.
+        // throw std::logic_error("Expected placeholder DependentParameter for " + pid.code.to_string());
+    }
+
+    // sinon il n'existe pas => création normale
+    auto dependentParam = std::make_shared<DependentParameter>(pid, std::move(sources), recalculateFunc);
+    dependentParam->init();
+    dependentParam->update();
+    blk->store(pid.code, dependentParam);
 }
 
 void DependentBlockManager::removeDependentBlock(const std::string &name,

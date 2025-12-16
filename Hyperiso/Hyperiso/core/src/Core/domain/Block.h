@@ -166,7 +166,7 @@ public:
      *
      * @return Const reference to the items map.
      */
-    const std::map<LhaID, std::shared_ptr<Parameter>>& getItems() { return this->items; };
+    const std::map<LhaID, std::shared_ptr<Parameter>>& getItems();
 
     /**
      * @brief Sets the owner type (ParameterType) for all parameters in the block.
@@ -319,6 +319,9 @@ public:
 
     //TODO 
     virtual void ensure_up_to_date() {}
+
+    void bind_self(std::shared_ptr<Block> self) { self_ = std::move(self); }
+
     /**
      * @brief Destructor.
      *
@@ -342,6 +345,14 @@ protected:
     std::vector<std::shared_ptr<Block>> observers;      ///< List of observer blocks.
     std::map<LhaID, std::shared_ptr<Parameter>> items;  ///< Map of parameters stored in this block.
     std::optional<double> scale;                        ///< Optional global scale associated with this block.
+
+    std::weak_ptr<Block> self_;
+
+    std::weak_ptr<Block> self_weak() {
+        if (auto s = self_.lock()) return self_;
+        // fallback si jamais bind_self pas encore appelé
+        try { return shared_from_this(); } catch (...) { return {}; }
+    }
 };
 
 /**

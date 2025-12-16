@@ -281,6 +281,8 @@ public:
      */
     std::weak_ptr<Block> get_owner_block() const;
 
+    void overwrite_payload_from(const Parameter& other);
+    
     /**
      * @brief Assignment operator.
      *

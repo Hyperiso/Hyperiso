@@ -61,5 +61,9 @@ bool WilsonCoefficient::operator==(const WilsonCoefficient &other) const {
 }
 
 complex_t WilsonCoefficient::get_matching_value(std::string order, ContributionType cont_type, std::shared_ptr<IParameterProxy<std::string, LhaID>> wilson_p) const {
+    if (!(*wilson_p).exist(storage_block, this->id(OrderMapper::enum_elt(order), cont_type))) {
+        std::cout << "here !" << std::endl;
+            return complex_t(0.,0.);
+    }
     return complex_t((*wilson_p)(storage_block, this->id(OrderMapper::enum_elt(order), cont_type)));
 }

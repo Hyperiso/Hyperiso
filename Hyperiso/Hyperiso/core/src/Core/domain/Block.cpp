@@ -12,16 +12,6 @@ void Block::removeObserver(std::shared_ptr<Block> observer) {
     if (it != observers.end()) observers.erase(it);
 }
 
-// void Block::notifyObservers() {
-//     auto snapshot = observers;
-//     for (auto& observer : snapshot) {
-//         if (!observer) continue;
-//         LOG_DEBUG("Notifying observer", observer->blockname, "from source block", blockname);
-//         observer->update();
-//     }
-//     observers.erase(std::remove(observers.begin(), observers.end(), nullptr), observers.end());
-// }
-
 void Block::notifyObservers() {
     for (size_t i = 0; i < observers.size(); ++i) {
         auto& observer = observers[i];
@@ -59,31 +49,7 @@ Block::Block(std::shared_ptr<Block> other) {
     this->copy(other);
 }
 
-// std::shared_ptr<Parameter> Block::retrieve(const LhaID& id) {
-//     if (!this->contains(id)) {
-//         LOG_ERROR("KeyError", "Block", this->blockname, "doesn't contain parameter", id.to_string(), ". Available keys are", std::make_shared<Block>(*this));
-//     }
-//     if (auto dep = std::dynamic_pointer_cast<DependentBlock>(shared_from_this())) {
-//         dep->ensure_up_to_date();
-//     }
-//     return this->items.at(id);
-// }
-
-// std::shared_ptr<Parameter> Block::retrieve(const LhaID& id) {
-//     if (auto dep = std::dynamic_pointer_cast<DependentBlock>(shared_from_this())) {
-//         dep->ensure_up_to_date();
-//     }
-
-//     if (!this->contains(id)) {
-//         LOG_ERROR("KeyError", "Block", this->blockname, "doesn't contain parameter",
-//                   id.to_string(), ". Available keys are", std::make_shared<Block>(*this));
-//     }
-
-//     return this->items.at(id);
-// }
-
 std::shared_ptr<Parameter> Block::retrieve(const LhaID& id) {
-    // ✅ plus de shared_from_this()
     this->ensure_up_to_date();
 
     if (!this->contains(id)) {
@@ -97,8 +63,9 @@ void Block::store(const LhaID& id, std::shared_ptr<Parameter> param) {
     if (this->contains(id)) {
         LOG_DEBUG("Block", blockname, "already contains a parameter with id", id.to_string());
     } else {
-        auto w = weak_from_this();
+        auto w = self_weak();
         if (!w.expired()) param->set_owner_block(w);
+
         this->items.emplace(id, std::move(param));
     }
 }
@@ -107,36 +74,18 @@ void Block::erase_local(const LhaID& id) {
     this->items.erase(id);
 }
 
-// void Block::assign(const LhaID& key, std::shared_ptr<Parameter> param) {
-//     if (!this->contains(key)) {
-//         LOG_ERROR("KeyError", "Cannot update non-existing parameter", key.to_string(), "in block", this->blockname);
-//     }
-
-//     *(this->items.at(key)) = *param;
-//     LOG_DEBUG("Call to notifyObservers from Block::assign(const LhaID&, std::shared_ptr<Parameter>) of", blockname);
-//     notifyObservers();
-// }
-
 void Block::assign(const LhaID& key, std::shared_ptr<Parameter> param) {
-    auto it = items.find(key);
-    if (it == items.end()) {
-        LOG_ERROR("KeyError", "Cannot update non-existing parameter", key.to_string(),
-                  "in block", this->blockname);
+    if (!this->contains(key)) {
+        LOG_ERROR("KeyError", "Cannot update non-existing parameter", key.to_string(), "in block", this->blockname);
     }
 
-    // (optionnel mais safe) : si l’ancien param est dépendant, il s’était abonné à des sources
-    if (it->second) {
-        it->second->clear_above();
-    }
+    auto& dst = this->items.at(key);
 
-    // rattache au block
-    auto w = weak_from_this();
-    if (!w.expired()) param->set_owner_block(w);
+    dst->overwrite_payload_from(*param);
 
-    // le point crucial : on remplace le pointeur
-    it->second = std::move(param);
+    dst->notifyObservers();
 
-    LOG_DEBUG("Call to notifyObservers from Block::assign(const LhaID&, shared_ptr<Parameter>) of", blockname);
+    LOG_DEBUG("Call to notifyObservers from Block::assign(const LhaID&, std::shared_ptr<Parameter>) of", blockname);
     notifyObservers();
 }
 
@@ -145,49 +94,28 @@ void Block::assign(const LhaID &key, scalar_t value) {
         LOG_ERROR("KeyError", "Cannot update non-existing parameter", key.to_string(), "in block", this->blockname);
     }
 
-    this->items.at(key)->set_expected(value);
+    auto& p = this->items.at(key);
+
+    p->set_expected(value);
+
+    p->notifyObservers();
+
     LOG_DEBUG("Call to notifyObservers from Block::assign(const LhaID&, double) of", blockname);
     notifyObservers();
 }
-
-// void Block::store_or_assign(const LhaID &key, std::shared_ptr<Parameter> param) {
-//     if (this->contains(key)) {
-//         this->assign(key, param);
-//     } else {
-//         this->store(key, param);
-//     }
-// }
-
-// void Block::store_or_assign(const LhaID& id, std::shared_ptr<Parameter> param) {
-//     auto it = items.find(id);
-//     if (it == items.end()) {
-//         // première fois : on stocke le pointeur
-//         store(id, std::move(param));
-//         return;
-//     }
-
-//     this->assign(id, param);
-//     // // ✅ IMPORTANT : on garde le pointeur existant, on met juste à jour les champs
-//     // auto& existing = it->second;
-//     // if (!existing) {
-//     //     existing = std::move(param);
-//     //     return;
-//     // }
-
-//     // // valeur + erreurs (si tu veux)
-//     // existing->set_expected(param->get_val());
-//     // existing->set_std(param->get_std().first, param->get_std().second);  // si tu as cette API
-// }
 
 void Block::store_or_assign(const LhaID& id, std::shared_ptr<Parameter> param) {
     if (!contains(id)) {
         store(id, std::move(param));
     } else {
-        assign(id, std::move(param)); // rebind => DependentParameter conservé
+        assign(id, std::move(param));
     }
 }
 
 bool Block::contains(const LhaID& id) const {
+
+    const_cast<Block*>(this)->ensure_up_to_date();
+
     return this->items.contains(id);
 }
 
@@ -211,15 +139,21 @@ void Block::set_owner(ParameterType type) {
 }
 
 std::unordered_set<LhaID> Block::getAllIDs() {
+    ensure_up_to_date();
     return get_keys(this->items);
 }
+
+const std::map<LhaID, std::shared_ptr<Parameter>>& Block::getItems() {
+    ensure_up_to_date();
+    return this->items;
+};
 
 void Block::copy(std::shared_ptr<Block> other) {
     this->items = other->getItems();
     this->blockname = other->blockname;
     if (other->has_scale()) this->set_scale(other->get_scale());
 
-    auto w = weak_from_this();
+    auto w = self_weak();
     if (!w.expired()) {
         for (auto& [id, p] : items) if (p) p->set_owner_block(w);
     }
@@ -286,31 +220,17 @@ void DependentBlock::init() {
     for (auto& [_, src] : sourceBlocks) src->addObserver(me_base);
 }
 
-// void DependentBlock::update() {
-//     if (frozen) {
-//         LOG_DEBUG("DependentBlock is frozen, skipping update");
-//         update_at_unfreeze = true;
-//         return;
-//     } else if (recalculateLambda 
-//         && std::all_of(sourceBlocks.begin(), sourceBlocks.end(),
-//                        [](const std::pair<std::string, std::shared_ptr<Block>>& b){ return b.second != nullptr; })) 
-//     {
-//         LOG_DEBUG("Updating dependent block", blockname);
-//         auto me_dep = std::static_pointer_cast<DependentBlock>(shared_from_this());
-//         recalculateLambda(BlockSrc(this->sourceBlocks, this->blockname), me_dep);
-//     } else {
-//         LOG_ERROR("Error", "DependentBlock::update() called without all source blocks being set");
-//     }
-//     LOG_DEBUG("Call to notifyObservers from DependentBlock::update() of", blockname);
-//     notifyObservers();
-// }
-
 void DependentBlock::freeze() {
     this->frozen = true;
+    Block::freeze();
 }
+
 
 void DependentBlock::unfreeze() {
     this->frozen = false;
+
+    Block::unfreeze();
+
     if (this->update_at_unfreeze) {
         this->update();
         this->update_at_unfreeze = false;
@@ -327,31 +247,27 @@ DependentBlock::~DependentBlock() {
     }
 }
 
-void DependentBlock::assign(const LhaID &key, std::shared_ptr<Parameter> param)
+
+void DependentBlock::assign(const LhaID& key, std::shared_ptr<Parameter> param)
 {
     if (!this->contains(key)) {
         LOG_ERROR("KeyError", "Cannot update non-existing parameter", key.to_string(), "in block", this->blockname);
     }
 
-    *(this->items.at(key)) = *param;
+    auto& dst = this->items.at(key);
+    dst->overwrite_payload_from(*param);   // ✅ ne touche pas owner_block / std / scale / binning
+    // surtout PAS de notify ici: DependentBlock::ensure_up_to_date_impl() notifie après recalc
 }
 
-// void DependentBlock::assign(const LhaID &key, double value) {
-//     if (!this->contains(key)) {
-//         LOG_ERROR("KeyError", "Cannot update non-existing parameter", key.to_string(), "in block", this->blockname);
-//     }
 
-//     this->items.at(key)->set_expected(value);
-// }
+
 
 void DependentBlock::assign(const LhaID &key, double value) {
     if (!this->contains(key)) {
         LOG_ERROR("KeyError", "Cannot update non-existing parameter", key.to_string(), "in block", this->blockname);
     }
-    // this->items.at(key)->set_expected_silent(value);
     this->items.at(key)->set_expected(value);
 }
-
 
 std::unordered_map<std::string, std::shared_ptr<Block>> DependentBlock::get_source_blocks() const {
     return this->sourceBlocks;
@@ -397,52 +313,26 @@ void DependentBlock::destroy() {
     }
 }
 
-//TODO ::
 void DependentBlock::mark_dirty() {
     if (dirty) return;
     dirty = true;
-    // propager "dirty" vers les blocks dépendants SANS recalcul
+
     for (auto& obs : observers) {
         if (auto dep = std::dynamic_pointer_cast<DependentBlock>(obs)) {
             dep->mark_dirty();
         } else if (obs) {
-            // fallback: si c’est un Block non-dependent, tu peux soit l’ignorer,
-            // soit garder l’ancien comportement.
+
         }
     }
 }
 
-// remplace update() par: si appelé via notify, on marque dirty
 void DependentBlock::update() {
     if (frozen) { update_at_unfreeze = true; return; }
     mark_dirty();
 }
 
-// void DependentBlock::ensure_up_to_date() {
-//     if (!dirty) return;
-//     dirty = false;
-//     if (!recalculateLambda) LOG_ERROR("Error", "DependentBlock has no recalculateLambda");
-//     auto me_dep = std::static_pointer_cast<DependentBlock>(shared_from_this());
-//     recalculateLambda(BlockSrc(this->sourceBlocks, this->blockname), me_dep);
-// }
-
-// void DependentBlock::ensure_up_to_date() {
-//     if (!dirty) return;
-
-//     for (auto& [name, src] : sourceBlocks) {
-//         if (!src) continue;
-//         if (auto depSrc = std::dynamic_pointer_cast<DependentBlock>(src)) {
-//             depSrc->ensure_up_to_date();
-//         }
-//     }
-
-//     dirty = false;
-//     if (!recalculateLambda) LOG_ERROR("Error", "DependentBlock has no recalculateLambda");
-//     auto me_dep = std::static_pointer_cast<DependentBlock>(shared_from_this());
-//     recalculateLambda(BlockSrc(this->sourceBlocks, this->blockname), me_dep);
-// }
-
 void DependentBlock::ensure_up_to_date_impl() {
+    if (frozen) return;
     if (!dirty) return;
 
     for (auto& [name, src] : sourceBlocks) {
@@ -458,11 +348,9 @@ void DependentBlock::ensure_up_to_date_impl() {
     auto me_dep = std::static_pointer_cast<DependentBlock>(shared_from_this());
     recalculateLambda(BlockSrc(this->sourceBlocks, this->blockname), me_dep);
 
-    // ✅ IMPORTANT: propager l’invalidation vers les DependentParameter dépendants
     for (auto& [_, p] : items) {
-        if (p) p->notifyObservers(); // eux vont juste dirty=true (rapide)
+        if (p) p->notifyObservers();
     }
-    // std::cout << this << std::endl;
 }
 
 std::ostream &operator<<(std::ostream &os, std::shared_ptr<Block> ba) {

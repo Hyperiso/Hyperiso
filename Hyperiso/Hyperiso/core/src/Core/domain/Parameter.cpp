@@ -27,6 +27,9 @@ void Parameter::set_bin(std::pair<double, double> bin) {
 }
 
 scalar_t Parameter::get_val() const {
+    if (auto b = owner_block.lock()) {
+        b->ensure_up_to_date();
+    }
     return this->mode == ParameterMode::FIXED ? expected : expected + shift;
 }
 
@@ -110,16 +113,15 @@ Parameter& Parameter::operator=(const Parameter& other) {
     return *this;
 }
 
-// void Parameter::notifyObservers() {
-//     auto snapshot = observers;
-//     for (auto& observer : snapshot) {
-//         if (!observer) continue;
-//         LOG_DEBUG("Notifying observer", observer->id.block, observer->id.code,
-//                   "from parameter", id.block, id.code);
-//         observer->update();
-//     }
-//     observers.erase(std::remove(observers.begin(), observers.end(), nullptr), observers.end());
-// }
+void Parameter::overwrite_payload_from(const Parameter& other) {
+    expected        = other.expected;
+    deviation_stat  = other.deviation_stat;
+    deviation_syst  = other.deviation_syst;
+    shift           = other.shift;
+    mode            = other.mode;
+    scale           = other.scale;
+    binning         = other.binning;
+}
 
 void Parameter::notifyObservers() {
     for (size_t i = 0; i < observers.size(); ++i) {
@@ -130,6 +132,10 @@ void Parameter::notifyObservers() {
         observer->update();
     }
     observers.erase(std::remove(observers.begin(), observers.end(), nullptr), observers.end());
+
+    if (auto b = owner_block.lock()) {
+        b->notifyObservers();
+    }
 }
 
 void Parameter::removeObserver(std::shared_ptr<Parameter> observer) { 

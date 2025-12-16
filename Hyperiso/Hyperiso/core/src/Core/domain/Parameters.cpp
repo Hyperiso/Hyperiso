@@ -51,12 +51,14 @@ std::shared_ptr<Parameter> Parameters::get_parameter(const BlockName &block,
 //TODO
 bool Parameters::exist(const BlockName& block, LhaID id) {
     if (!blockAccessor->contains(block)) return false;
-    try {
-        blockAccessor->at(block)->retrieve(id);
-        return true;
-    } catch (...) {
-        return false;
-    }
+    std::cout << "here ? ; " << blockAccessor->contains(block) << " = " << blockAccessor->at(block)->getItems().contains(id) << std::endl;
+    return blockAccessor->at(block)->contains(id);
+    // try {
+    //     blockAccessor->at(block)->retrieve(id);
+    //     return true;
+    // } catch (...) {
+    //     return false;
+    // }
 }
 
 void Parameters::setBlockValue(const BlockName& name, LhaID id, scalar_t value) {

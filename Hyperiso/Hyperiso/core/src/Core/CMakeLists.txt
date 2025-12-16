@@ -118,6 +118,12 @@ target_link_libraries(PRINT_OPTIMIZER_TEST CoreLib)
 add_executable(TEST_MMH app/main_parameters.cpp)
 target_link_libraries(TEST_MMH CoreLib)
 
+add_executable(LAZY_TEST app/main_lazy.cpp)
+target_link_libraries(LAZY_TEST CoreLib)
+
+add_executable(LAZY_TEST_2 app/main_more_lazy.cpp)
+target_link_libraries(LAZY_TEST_2 CoreLib)
+
 include(GNUInstallDirs)
 
 install(TARGETS CoreLib

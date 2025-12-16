@@ -57,9 +57,9 @@ void writeCoefficientsToFile(const std::string& strat_name, const std::string& f
         } else {
             C = wi->getMatchingCoefficient(WGroup::B,WCoefMapper::enum_of(WCoefMapper::enum_elt(coeff)).value(), OrderMapper::enum_elt(strat_name), ContributionType::BSM );
         }
-        std::cout << coeff << std::endl;
+        // std::cout << coeff << std::endl;
         std::cout << std::fixed << std::setprecision(8);
-        std::cout << C << std::endl;
+        // std::cout << C << std::endl;
         file     << std::fixed << std::setprecision(8);
         // BlockProxy().log_all_blocks(ParameterType::WILSON);
         file << "," << C.real() << "," << C.imag();

@@ -318,14 +318,12 @@ public:
      */
     friend std::ostream& operator<<(std::ostream&, std::shared_ptr<BlockAccessor>);
 
-    // std::shared_ptr<Block> at(const BlockName& q) const;
-
-    // bool contains(const std::string& name) const;
     void emplace(const BlockName& name, std::shared_ptr<Block> blk);
     
-    void erase_block(std::string_view alias_or_key);
+    
     void erase_block(const BlockName& name);
-
+    void erase_block(const std::string& name) { return erase_block(std::string_view{name}); }
+    void erase_block(const char* name) { return erase_block(std::string_view{name}); }
     bool contains(const std::string& name) const { return contains(std::string_view{name}); }
     bool contains(const char* name) const { return contains(std::string_view{name}); }
 
@@ -356,16 +354,11 @@ public:
     double get_scale(const char* block) const { return get_scale(std::string_view{block}); }
 
 
-    // std::unordered_set<BlockName> get_block_names() const;
 
     std::unordered_map<std::string, std::string> alias_to_key_;
 
-    // internal key -> complete BlockName (union of aliases)
     std::unordered_map<std::string, BlockName> key_to_name_;
 
-    // internal key -> block
-    // std::unordered_map<std::string, std::shared_ptr<Block>> key_to_block_;
-//TODO ::
 private:
 
     bool has_scale(std::string_view block) const;
@@ -382,13 +375,12 @@ private:
     scalar_t getValue(std::string_view block, const LhaID& id) const;
     void setValue(std::string_view block, const LhaID& id, scalar_t value);
     void remove_item(std::string_view block, const LhaID& id);
-
+    void erase_block(std::string_view alias_or_key);
 
     static std::unordered_set<std::string> norm_aliases(const BlockName& n);
     static std::string choose_key(const std::unordered_set<std::string>& aliases_norm);
     static std::string normalize(std::string_view s);
 
-    // retourne "" si pas trouvé
     std::string key_for(std::string_view alias) const;
     std::string key_for(const BlockName& name) const;
     std::string key_for(const std::string& name) const;
@@ -397,8 +389,8 @@ private:
     std::string resolve_key(const BlockName& name) const;
     void merge_name_into_key(const std::string& key, const BlockName& name);
 
-    std::unordered_map<std::string, std::shared_ptr<Block>> blocks_;      // canon -> block
-    std::unordered_map<std::string, std::string> alias_to_canon_;         // alias_norm -> canon_norm
+    std::unordered_map<std::string, std::shared_ptr<Block>> blocks_;
+    std::unordered_map<std::string, std::string> alias_to_canon_; 
 };
 
 #endif

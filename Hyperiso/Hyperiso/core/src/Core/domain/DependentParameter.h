@@ -111,7 +111,9 @@ public:
     
     void mark_dirty();
     void ensure_up_to_date();
-
+    void rebind(std::unordered_map<ParamId, std::shared_ptr<Parameter>> new_sources,
+            DepParamUpdateFunc new_lambda);
+            
     /**
      * @brief Returns the raw map of source parameters.
      */
