@@ -50,61 +50,140 @@ void CorrelationMatrixValidator::validate(const std::map<ParamId, std::map<Param
     // positive-dev check with Cholesky
 }
 
+// Matrix CholeskyDecomposition::factorize(const Matrix& R) {
+//     const size_t n = R.size();
+//     Matrix L(n, std::vector<double>(n, 0.0));
+
+//     for (size_t i = 0; i < n; ++i) {
+//         for (size_t j = 0; j <= i; ++j) {
+//             double sum = R[i][j];
+//             for (size_t k = 0; k < j; ++k) {
+//                 sum -= L[i][k] * L[j][k];
+//             }
+//             if (i == j) {
+//                 if (sum <= 0.0) {
+//                     throw std::invalid_argument(
+//                         "Matrix is not positive-définie (for Cholesky).");
+//                 }
+//                 L[i][j] = std::sqrt(sum);
+//             } else {
+//                 L[i][j] = sum / L[j][j];
+//             }
+//         }
+//     }
+//     return L;
+// }
+
+// std::map<ParamId, std::map<ParamId, double>> CholeskyDecomposition::factorize(const std::map<ParamId, std::map<ParamId, double>>& R) {
+//     const size_t n = R.size();
+//     std::map<ParamId, std::map<ParamId, double>> L;
+//     std::vector<ParamId> ids;
+//     for (auto& elem : R) {
+//         ids.push_back(elem.first);
+//         for (auto& elem2 : R) {
+//             L[elem.first][elem2.first] = 0.;
+//         }
+//     }
+
+//     for (size_t i = 0; i < n; ++i) {
+//         for (size_t j = 0; j <= i; ++j) {
+//             double sum = R.at(ids[i]).at(ids[j]);
+//             for (size_t k = 0; k < j; ++k) {
+//                 sum -= L[ids[i]][ids[k]] * L[ids[j]][ids[k]];
+//             }
+//             if (i == j) {
+//                 if (sum <= 0.0) {
+//                     throw std::invalid_argument(
+//                         "Matrix is not positive-définie (for Cholesky).");
+//                 }
+//                 L[ids[i]][ids[j]] = std::sqrt(sum);
+//             } else {
+//                 L[ids[i]][ids[j]] = sum / L[ids[j]][ids[j]];
+//             }
+//         }
+//     }
+//     return L;
+// }
+
 Matrix CholeskyDecomposition::factorize(const Matrix& R) {
     const size_t n = R.size();
+    if (n == 0) throw std::invalid_argument("Invalid matrix.");
+
+    for (const auto& row : R) {
+        if (row.size() != n) throw std::invalid_argument("Non squared matrix.");
+    }
+
+    // Copie dans une gsl_matrix
+    gsl_matrix* A = gsl_matrix_alloc(n, n);
+    if (!A) throw std::runtime_error("gsl_matrix_alloc failed");
+
+    for (size_t i = 0; i < n; ++i) {
+        for (size_t j = 0; j < n; ++j) {
+            gsl_matrix_set(A, i, j, R[i][j]);
+        }
+    }
+
+    // Cholesky in-place: A devient (triangle inférieur = L), triangle supérieur indéfini
+    const int status = gsl_linalg_cholesky_decomp(A);
+    if (status != 0) {
+        gsl_matrix_free(A);
+        throw std::invalid_argument("Matrix is not positive definite (GSL Cholesky).");
+    }
+
     Matrix L(n, std::vector<double>(n, 0.0));
-
     for (size_t i = 0; i < n; ++i) {
         for (size_t j = 0; j <= i; ++j) {
-            double sum = R[i][j];
-            for (size_t k = 0; k < j; ++k) {
-                sum -= L[i][k] * L[j][k];
-            }
-            if (i == j) {
-                if (sum <= 0.0) {
-                    throw std::invalid_argument(
-                        "Matrix is not positive-définie (for Cholesky).");
-                }
-                L[i][j] = std::sqrt(sum);
-            } else {
-                L[i][j] = sum / L[j][j];
-            }
+            L[i][j] = gsl_matrix_get(A, i, j);
         }
     }
+
+    gsl_matrix_free(A);
     return L;
 }
 
-std::map<ParamId, std::map<ParamId, double>> CholeskyDecomposition::factorize(const std::map<ParamId, std::map<ParamId, double>>& R) {
+std::map<ParamId, std::map<ParamId, double>>
+CholeskyDecomposition::factorize(const std::map<ParamId, std::map<ParamId, double>>& R) {
+
     const size_t n = R.size();
-    std::map<ParamId, std::map<ParamId, double>> L;
-    std::vector<ParamId> ids;
-    for (auto& elem : R) {
-        ids.push_back(elem.first);
-        for (auto& elem2 : R) {
-            L[elem.first][elem2.first] = 0.;
-        }
+    if (n == 0) throw std::invalid_argument("Invalid matrix.");
+    for (const auto& row : R) {
+        if (row.second.size() != n) throw std::invalid_argument("Non squared matrix.");
     }
+
+    std::vector<ParamId> ids;
+    ids.reserve(n);
+    for (const auto& kv : R) ids.push_back(kv.first);
+
+    gsl_matrix* A = gsl_matrix_alloc(n, n);
+    if (!A) throw std::runtime_error("gsl_matrix_alloc failed");
 
     for (size_t i = 0; i < n; ++i) {
-        for (size_t j = 0; j <= i; ++j) {
-            double sum = R.at(ids[i]).at(ids[j]);
-            for (size_t k = 0; k < j; ++k) {
-                sum -= L[ids[i]][ids[k]] * L[ids[j]][ids[k]];
-            }
-            if (i == j) {
-                if (sum <= 0.0) {
-                    throw std::invalid_argument(
-                        "Matrix is not positive-définie (for Cholesky).");
-                }
-                L[ids[i]][ids[j]] = std::sqrt(sum);
-            } else {
-                L[ids[i]][ids[j]] = sum / L[ids[j]][ids[j]];
-            }
+        for (size_t j = 0; j < n; ++j) {
+            gsl_matrix_set(A, i, j, R.at(ids[i]).at(ids[j]));
         }
     }
+
+    const int status = gsl_linalg_cholesky_decomp(A);
+    if (status != 0) {
+        gsl_matrix_free(A);
+        throw std::invalid_argument("Matrix is not positive definite (GSL Cholesky).");
+    }
+
+    std::map<ParamId, std::map<ParamId, double>> L;
+    for (size_t i = 0; i < n; ++i) {
+        for (size_t j = 0; j < n; ++j) {
+            L[ids[i]][ids[j]] = 0.0;
+        }
+    }
+    for (size_t i = 0; i < n; ++i) {
+        for (size_t j = 0; j <= i; ++j) {
+            L[ids[i]][ids[j]] = gsl_matrix_get(A, i, j);
+        }
+    }
+
+    gsl_matrix_free(A);
     return L;
 }
-
 
 RandomVectorGenerator::RandomVectorGenerator(std::unique_ptr<IDistribution> dist,
                         std::unique_ptr<IDecomposition> decomp)

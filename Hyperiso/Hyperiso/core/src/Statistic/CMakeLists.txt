@@ -43,6 +43,8 @@ add_library(StatisticLib STATIC
     domain/CovarianceTransformer.cpp
     domain/Distribution/DistributionFactory.cpp
     domain/Distribution/StandardNormal.cpp
+    domain/Distribution/LikelihoodDiscrete.cpp
+    domain/Distribution/StandardFlat.cpp
 )
 set_target_properties(StatisticLib PROPERTIES POSITION_INDEPENDENT_CODE ON)
 

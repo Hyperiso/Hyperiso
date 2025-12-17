@@ -12,6 +12,9 @@
 #include <string>
 #include <vector>
 #include <algorithm>
+#include <gsl/gsl_matrix.h>
+#include <gsl/gsl_linalg.h>
+
 #include "RNGHelper.h"
 #include "IDecomposition.h"
 #include "IDistribution.h"
