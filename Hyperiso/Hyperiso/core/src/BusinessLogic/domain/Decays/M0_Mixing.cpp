@@ -35,14 +35,25 @@ void M0Mixing::load_params() {
     populate_Q_from_bag(cache.Q_Bd, B, p(ParamId{ParameterType::DECAY, "M0_Mix", 1}), mf2, true);
 
     B = {
+        p(ParamId{ParameterType::FLAVOR, "FBAG", LhaID(531, 1)}),
+        p(ParamId{ParameterType::FLAVOR, "FBAG", LhaID(531, 2)}),
+        p(ParamId{ParameterType::FLAVOR, "FBAG", LhaID(531, 3)}),
+        p(ParamId{ParameterType::FLAVOR, "FBAG", LhaID(531, 4)}),
+        p(ParamId{ParameterType::FLAVOR, "FBAG", LhaID(531, 5)}),
+    };
+    mf2 = pow(cache.m_Bs * p(ParamId{ParameterType::FLAVOR, "FCONST", {531, 1}}), 2);
+    populate_Q_from_bag(cache.Q_Bs, B, p(ParamId{ParameterType::DECAY, "M0_Mix", 2}), mf2, true);
+
+    B = {
         p(ParamId{ParameterType::FLAVOR, "FBAG", LhaID(311, 1)}),
         p(ParamId{ParameterType::FLAVOR, "FBAG", LhaID(311, 2)}),
         p(ParamId{ParameterType::FLAVOR, "FBAG", LhaID(311, 3)}),
         p(ParamId{ParameterType::FLAVOR, "FBAG", LhaID(311, 4)}),
         p(ParamId{ParameterType::FLAVOR, "FBAG", LhaID(311, 5)}),
     };
-    mf2 = pow(cache.m_K * p(ParamId{ParameterType::FLAVOR, "FCONST", {311, 1}}), 2);
-    populate_Q_from_bag(cache.Q_K, B, p(ParamId{ParameterType::DECAY, "M0_Mix", 2}), mf2, true);
+    double f_K = p(ParamId{ParameterType::FLAVOR, "FCONST", {211, 1}}) * p(ParamId{ParameterType::FLAVOR, "FCONSTRATIO", {321, 211, 1, 1}});
+    mf2 = pow(cache.m_K * f_K, 2);
+    populate_Q_from_bag(cache.Q_K, B, p(ParamId{ParameterType::DECAY, "M0_Mix", 3}), mf2, true);
 
     cache.Q_D = {
         p(ParamId{ParameterType::DECAY, "M0_Mix", LhaID(4, 1)}),
@@ -62,7 +73,7 @@ void M0Mixing::load_params() {
 }
 
 double M0Mixing::S_18(double x) {
-    return -(64.-68.*x-17.*x*x+11.*x*x*x)/(4.*pow(1.-x,2.)) + (32.-68.*x+32.*x*x-28.*x*x*x+3.*pow(x,4.))/(2.*pow(1.-x,3.))*log(x) + x*x*(4.-7.*x+7.*x*x-2.*x*x*x)/(2.*pow(1.-x,4.))*pow(log(x),2.) + 2.*x*(4. - 7.*x - 7.*x*x + x*x*x) / pow(1.-x,3.) * Li2(1.-x) + 16./x*(PI2/6. - Li2(1.-x));;
+    return -(64.-68.*x-17.*x*x+11.*x*x*x)/(4.*pow(1.-x,2.)) + (32.-68.*x+32.*x*x-28.*x*x*x+3.*pow(x,4.))/(2.*pow(1.-x,3.))*log(x) + x*x*(4.-7.*x+7.*x*x-2.*x*x*x)/(2.*pow(1.-x,4.))*pow(log(x),2.) + 2.*x*(4. - 7.*x - 7.*x*x + x*x*x) / pow(1.-x,3.) * Li2(1.-x) + 16./x*(PI2/6. - Li2(1.-x));
 }
 
 double M0Mixing::S_11(double x) {
@@ -119,7 +130,11 @@ complex_t M0Mixing::M_12_NP(const std::array<complex_t, 8>& C, const std::array<
 complex_t M0Mixing::M_12_B_SM(int gen) {
     double eta_2B = std::pow(cache.alpha_s_mu_W, 6./23) * (1 + cache.alpha_s_mu_W / (4 * PI) * ((S_1t(cache.x_t) + F_S1(cache.x_t, cache.m_W, cache.mu_W, cache.mu_W)) / S0(cache.x_t) + B_t - J_5));
     double c_RGI_B = std::pow(cache.alpha_s_mu_b, -6./23) * (1 + cache.alpha_s_mu_b * J_5 / (4 * PI));
-    return gen == 1 ? cache.C1_Bd_SM * eta_2B * c_RGI_B * cache.Q_Bd[0] / (2 * cache.m_Bd) : cache.C1_Bs_SM * eta_2B * c_RGI_B * cache.Q_Bs[0] / (2 * cache.m_Bs);
+
+    // NF : Ad-hoc shift from 1912.07621 to match HI (TODO : Ask Nazila or Siavash why needed ?)
+    double shift = (gen == 1 ? 0.06e12 : 2.7e12) / 2 * HBAR; 
+
+    return gen == 1 ? (cache.C1_Bd_SM * eta_2B * c_RGI_B * cache.Q_Bd[0] / (2. * cache.m_Bd) + shift) : (cache.C1_Bs_SM * eta_2B * c_RGI_B * cache.Q_Bs[0] / (2 * cache.m_Bs) + shift);
 }
 
 complex_t M0Mixing::M_12_K_SM() {
@@ -147,7 +162,7 @@ double M0Mixing::phi_q(int gen) {
 
 double M0Mixing::a_fs() {
     complex_t M_12 = M_12_NP(cache.C_Bs, cache.Q_Bs, cache.m_Bs) + M_12_B_SM(2);
-    return std::tan(std::arg(-M_12 / cache.G12_s)) * cache.delta_G_s / (2 * std::abs(M_12));
+    return std::tan(std::arg(-M_12 / cache.G12_s)) * cache.delta_G_s / (2 * std::abs(M_12) / HBAR * 1e-12);
 }
 
 // K mixing observables

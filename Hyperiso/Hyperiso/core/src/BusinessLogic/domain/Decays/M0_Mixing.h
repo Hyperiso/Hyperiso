@@ -42,7 +42,7 @@ private:
     static constexpr double J_5 = 5165. / 3174.;
     static constexpr double J_4 = 6719. / 3750.;
     static constexpr double J_3 = 307. / 162.;
-    static constexpr double B_t = 6.5;
+    static constexpr double B_t = 17. / 3;
 
 protected:
     double S_18(double x);

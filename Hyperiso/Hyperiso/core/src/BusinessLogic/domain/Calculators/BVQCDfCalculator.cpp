@@ -177,6 +177,8 @@ complex_t BVQCDfCalculator::delta_T_perp_WA(double q2, bool bar) {
     
     double s_hat = q2 / (this->m_B * this->m_B);
 
+    // printf("pref_1(s = %.3f) = %.4e\n", q2, pref * -2. * this->f_X_perp);
+    // printf("W_perp(s = %.3f) = %.4e + %.4e i\n", q2, real(W_perp), imag(W_perp));
     // printf("F_perp(s = %.3f) = %.4e\n", q2, F_perp(s_hat));
 
     return pref * (

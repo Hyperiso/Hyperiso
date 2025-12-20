@@ -10,7 +10,7 @@
 struct BXsDecayCache {
     double alpha_em, alpha_em_0;
     double m_b_mb, m_b_kin, r_msbar_1S;
-    double m_c, m_s;
+    double m_c, m_s, m_W;
     double ckm_factor;
     double mu_b, mu_W;
     double beta_0;
@@ -40,8 +40,8 @@ private:
     BXsDecayCache cache;
 
 protected:
-    static constexpr std::array<double, 8> gamma_i7 {-0.8556, 5.1358, -2.1728, -0.6255, -77.432, 19.029, 10.667, -3.5556};
-    static constexpr std::array<double, 8> a_i {0.6086, 0.6956, 0.2609, -0.5217, 0.4086, -0.4230, -0.8994, 0.1456};
+    static constexpr std::array<double, 8> gamma_i7 {-0.85596, 5.1358, -2.1728, -0.6255, -77.432, 19.029, 10.667, -3.5556};
+    static constexpr std::array<double, 8> a_i {0.608696, 0.695652, 0.2608696, -0.521739, 0.4086, -0.4230, -0.8994, 0.1456};
     static constexpr std::array<double, 8> d_i {1.4107, -0.8380, -0.4286, -0.0714, -0.6494, -0.0380, -0.0185, -0.0057};
 
     // Utility
@@ -51,7 +51,7 @@ protected:
     // P_21 and P_32
     double a(double z);
     double b(double z);
-    scalar_t G(double t);
+    complex_t G(double t);
     double phi_22(double z, double delta); 
     double phi_27(double z, double delta);  
     double phi_47(double delta); 
@@ -93,7 +93,7 @@ protected:
     // Electromagnetic corrections
     double C2_em(double eta);
     double C8_em(double eta);
-    scalar_t C7_em(double eta);
+    complex_t C7_em(double eta);
     double epsilon_em();
 
     // Branching Ratio

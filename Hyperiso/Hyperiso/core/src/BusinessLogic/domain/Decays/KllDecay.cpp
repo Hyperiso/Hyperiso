@@ -16,7 +16,7 @@ void KllDecay::load_params() {
     cache.tau_L = p(ParamId{ParameterType::FLAVOR, "FLIFE", 130}) / HBAR;
     cache.tau_S = p(ParamId{ParameterType::FLAVOR, "FLIFE", 310}) / HBAR;
     cache.lambda_c = p(ParamId{ParameterType::SM, "VCKM", {1, 0}}) * std::conj(p(ParamId{ParameterType::SM, "VCKM", {1, 1}}));
-    cache.lambda_t = p(ParamId{ParameterType::SM, "VCKM", {2, 0}}) * std::conj(p(ParamId{ParameterType::SM, "VCKM", {2, 0}}));
+    cache.lambda_t = p(ParamId{ParameterType::SM, "VCKM", {2, 0}}) * std::conj(p(ParamId{ParameterType::SM, "VCKM", {2, 1}}));
     cache.lambda = p(ParamId{ParameterType::SM, "VCKMIN", 1});
     cache.x = cache.m_l / cache.m_K;
     cache.r_chi = cache.m_K / (p(ParamId{ParameterType::SM, "MASS", 1}) + p(ParamId{ParameterType::SM, "MASS", 3}));
@@ -31,9 +31,12 @@ void KllDecay::load_params() {
     cache.CQ1 = w_proxy->getFR(WGroup::K, WCoef::CKQ1, w_config.order) - w_proxy->getFR(WGroup::K, WCoef::CPKQ1, w_config.order);
     cache.CQ2 = w_proxy->getFR(WGroup::K, WCoef::CKQ2, w_config.order) - w_proxy->getFR(WGroup::K, WCoef::CPKQ2, w_config.order);
 
-    printf("C10m = %.5e\n", cache.C10);
-	printf("CQ1m = %.5e\n", cache.CQ1);
-	printf("CQ2m = %.5e\n", cache.CQ2);
+
+    cache.C10 = -4.01480;
+
+    // printf("C10m = %.5e\n", cache.C10);
+	// printf("CQ1m = %.5e\n", cache.CQ1);
+	// printf("CQ2m = %.5e\n", cache.CQ2);
 }
 
 complex_t KllDecay::C_gg(double b) {
@@ -84,6 +87,24 @@ double KllDecay::P_c() {
 }
 
 double KllDecay::BR_L() {
+    complex_t C_A = (cache.G_F * cache.alpha_em) / RT2 / PI * (-cache.lambda_c * std::pow(cache.lambda, 4) * P_c() / cache.sw2 + cache.lambda_t * cache.C10);
+    complex_t A_L = RT2 * PI / (cache.G_F * cache.alpha_em) * N_L()
+          - 2 * cache.x * std::real(-cache.lambda_c * std::pow(cache.lambda, 4) * P_c() / cache.sw2 + cache.lambda_t * cache.C10)
+          - cache.r_chi * std::real(cache.lambda_t * cache.CQ2);
+
+    complex_t B_L = cache.r_chi * std::imag(cache.lambda_t * cache.CQ1);
+
+    printf("lambda_c = %.4e + %.4e i\n", real(cache.lambda_c), imag(cache.lambda_c));
+    printf("lambda_t = %.4e + %.4e i\n", real(cache.lambda_t), imag(cache.lambda_t));
+    printf("lambda = %.4e + %.4e i\n", real(cache.lambda), imag(cache.lambda));
+    printf("P_c = %.4e + %.4e i\n", real(P_c()), imag(P_c()));
+
+    printf("N_L = %.4e + %.4e i\n", real(N_L()), imag(N_L()));
+    printf("A_L = %.4e + %.4e i\n", real(A_L), imag(A_L));
+    printf("B_L = %.4e + %.4e i\n", real(B_L), imag(B_L));
+
+    printf("C_A = %.4e + %.4e i\n", real(C_A), imag(C_A));
+
     return cache.tau_L * std::pow(cache.f_K * cache.G_F * cache.alpha_em, 2) * std::pow(cache.m_K, 3) * cache.beta / (32 * PI3) * (
         std::pow(cache.beta * std::abs(
             cache.r_chi * std::imag(cache.lambda_t * cache.CQ1)

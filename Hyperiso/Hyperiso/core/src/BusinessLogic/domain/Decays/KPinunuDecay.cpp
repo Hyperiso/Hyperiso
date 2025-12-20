@@ -14,6 +14,8 @@ void KPinunuDecay::load_params() {
     cache.delta_em = p(ParamId{ParameterType::DECAY, "K_pi", 3});
 
     cache.CL = w_proxy->getFR(WGroup::K, WCoef::CK_L, w_config.order);
+
+    printf("C_L = %.5e + %.5e i\n", real(cache.CL), imag(cache.CL));
 }
 
 double KPinunuDecay::P_c() {

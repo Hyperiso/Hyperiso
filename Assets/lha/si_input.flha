@@ -59,6 +59,7 @@ BLOCK FMASS
 
 Block FCONST # Decay constant in GeV
 # PDG_code  number  decay_constant  scheme  scale   particle
+    211     1       0.1302          0       1.0     # pi+
     311     1       0.1557          0       1.0     # K0
     321     1       0.1557          0       1.0     # K+
     323     1       0.204           0       1.0     # Ks+_par
