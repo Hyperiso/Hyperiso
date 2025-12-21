@@ -27,7 +27,7 @@ struct PortsConfig {
     std::shared_ptr<ICoreAPI<bool>> use_marty;
     std::shared_ptr<ICoreAPI<Model>> model_api;
     std::shared_ptr<IParamSetter<ScaleType>> scale_setter_api;
-    std::function<std::shared_ptr<CoefficientGroup>(WGroupId, Model, bool, ContributionType)> build_group;
+    std::function<std::shared_ptr<CoefficientGroup>(WGroupId, Model, bool, ContributionType, std::string)> build_group;
 };
 
 class CoefficientManager {
@@ -47,6 +47,30 @@ public:
     void set_matching_scale(double mu_W);
     void set_hadronic_scale(double mu_h);
 
+    void ensure_sm_intermediate_and_copy_to_final(
+        const std::string& groupName,
+        QCDOrder order,
+        PortsConfig& ports_config
+    );
+    void compose_missing_from_calculation(
+        const std::string& groupName,
+        QCDOrder order,
+        PortsConfig& ports_config
+    );
+
+    void compose_from_fwcoef(
+        const std::string& groupName,
+        QCDOrder order,
+        PortsConfig& ports_config
+    );
+    void ensure_matching_triplet_zeroed(
+        const std::string& groupName,
+        QCDOrder o
+    );
+    void ensure_sm_model_triplet_in_matching(
+        const std::string& groupName,
+        QCDOrder max_order
+    );
     void registerCoefficientGroup(const std::string& groupName, std::shared_ptr<CoefficientGroup> group);
     void init_group_matching(const std::string& groupName, const std::string& order);
     void init_group_hadronic(const std::string& groupName, const std::string& order, WilsonBasis id);

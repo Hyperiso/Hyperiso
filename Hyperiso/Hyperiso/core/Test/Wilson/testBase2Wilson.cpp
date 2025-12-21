@@ -19,7 +19,7 @@ int main() {
     // auto nnloStrategy = std::make_shared<SM_NNLO_Strategy>();
 
     double tolerance = 0.01;
-    std::cout << "CA MARRARCHE0" << std::endl;
+
     runTest("LO", root_file + "Test/csv/sm/Run2WilsonCoefficients_LO.csv", root_file + "Test/csv/superiso/sm/Run2WilsonCoefficients_LO.csv", "SM", tolerance, false, 2);
     runTest("NLO", root_file + "Test/csv/sm/Run2WilsonCoefficients_NLO.csv", root_file + "Test/csv/superiso/sm/Run2WilsonCoefficients_NLO.csv", "SM",tolerance, false, 2);
     runTest("NNLO", root_file + "Test/csv/sm/Run2WilsonCoefficients_NNLO.csv", root_file + "Test/csv/superiso/sm/Run2WilsonCoefficients_NNLO.csv", "SM",tolerance, false, 2);

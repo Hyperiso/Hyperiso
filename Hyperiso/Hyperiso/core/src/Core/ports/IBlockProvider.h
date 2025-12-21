@@ -58,6 +58,15 @@ public:
     virtual void log_block(T type, U blockname) = 0;
 
     /**
+     * @brief Retrieve the content of a specific block for a given category/model.
+     *
+     * @param type Category / model identifier.
+     * @param blockname Name of the block to log.
+     * @return std::map<LhaID, scalar_t>, The content of the block.
+     */
+    virtual std::map<LhaID, scalar_t> get_block(ParameterType type, const std::string& blockname) = 0;
+
+    /**
      * @brief Virtual destructor.
      */
     virtual ~IBlockProvider() = default;

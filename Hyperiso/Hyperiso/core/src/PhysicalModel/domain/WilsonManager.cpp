@@ -1,4 +1,22 @@
 #include "WilsonManager.h"
+#include "WilsonBlockNames.h"
+#include "HasWilsonAPI.h"
+
+static int qcd_index(QCDOrder o) {
+    switch (o) {
+        case QCDOrder::LO:   return 0;
+        case QCDOrder::NLO:  return 1;
+        case QCDOrder::NNLO: return 2;
+    }
+    return 0;
+}
+
+static std::vector<QCDOrder> orders_up_to(QCDOrder max) {
+    std::vector<QCDOrder> out{QCDOrder::LO};
+    if (max >= QCDOrder::NLO)  out.push_back(QCDOrder::NLO);
+    if (max >= QCDOrder::NNLO) out.push_back(QCDOrder::NNLO);
+    return out;
+}
 
 void CoefficientManager::throw_no_group_error(const std::string &groupName) const {
     std::stringstream ss;
@@ -9,177 +27,310 @@ void CoefficientManager::throw_no_group_error(const std::string &groupName) cons
     LOG_ERROR("KeyError", ss.str());
 }
 
+void CoefficientManager::ensure_sm_intermediate_and_copy_to_final(
+    const std::string& groupName,
+    QCDOrder order,
+    PortsConfig& ports_config
+) {
+    WGroupId gid = GroupMapper::enum_elt(groupName);
+    const std::string sm_block    = WilsonBlockNames::sm_matching(gid);
+    const std::string final_block = WilsonBlockNames::matching(gid);
+
+    std::shared_ptr<CoefficientGroup> sm_group_ptr;
+
+    if (ports_config.build_group) {
+        const bool marty_backend = ports_config.use_marty->get();
+
+        sm_group_ptr = ports_config.build_group(
+            gid,
+            Model::SM,
+            marty_backend,
+            ContributionType::SM,
+            sm_block
+        );
+    } else {
+        sm_group_ptr = this->coefficientGroups.at(groupName)->get_sm_group();
+        sm_group_ptr->set_matching_storage_block(sm_block);
+    }
+
+    if (!sm_group_ptr) {
+        LOG_ERROR("LogicError", "No SM group found for " + groupName);
+    }
+
+    if (!this->coefficientGroups.contains(sm_block)) {
+        this->registerCoefficientGroup(sm_block, sm_group_ptr);
+    }
+
+    sm_group_ptr->init(order);
+
+    for (auto wcoef_enum : WCoefMapper::get_group(GroupMapper::enum_of(gid).value())) { //TODO
+        auto base = WCoefMapper::flha_base(wcoef_enum);
+
+        LhaID id_sm_src(base.first, base.second, qcd_index(order), /*SM*/0);
+        LhaID id_sm_dst(base.first, base.second, qcd_index(order), /*SM*/0);
+
+        ParamId pid_src { ParameterType::WILSON, sm_block,    id_sm_src };
+        ParamId pid_dst { ParameterType::WILSON, final_block, id_sm_dst };
+
+        ports_config.iblock_c->compose_parameter(
+            pid_dst,
+            std::unordered_set<ParamId>{ pid_src },
+            [pid_src](const ParamSrc& src, std::shared_ptr<DependentParameter> dep) {
+                dep->set_expected(src.get_val(pid_src));
+            }
+        );
+    }
+}
 
 std::string CoefficientManager::getModel() {
     return ModelMapper::str(ports_config.model_api->get());
 }
 
 void CoefficientManager::init_group_matching(const std::string& groupName, const std::string& order) {
-    int only_total = 0;
-    switch (OrderMapper::enum_elt(order))
-    {
-    case QCDOrder::NNLO:
-        init_specific_order_group_matching(groupName, OrderMapper::str(QCDOrder::NNLO), only_total++);
-        [[fallthrough]];
-        
-    case QCDOrder::NLO:
-        init_specific_order_group_matching(groupName, OrderMapper::str(QCDOrder::NLO), only_total++);
-        [[fallthrough]];
+    init_specific_order_group_matching(groupName, order, /*only_total=*/false);
 
-    case QCDOrder::LO:
-        init_specific_order_group_matching(groupName, OrderMapper::str(QCDOrder::LO), only_total++);
-        break;
+}
+void CoefficientManager::ensure_matching_triplet_zeroed(
+    const std::string& groupName,
+    QCDOrder o
+) {
+    std::string storage_block = this->coefficientGroups.at(groupName)->get_matching_storage_block();
 
-    default:
-        break;
+    for (auto& coeff : *this->coefficientGroups.at(groupName)) {
+        auto base = WCoefMapper::enum_elt(coeff.second->get_base_name());
+
+        ParamId pid_SM  { storage_block, WCoefMapper::flha_full(base, o, ContributionType::SM) };
+        ParamId pid_BSM { storage_block, WCoefMapper::flha_full(base, o, ContributionType::BSM) };
+        ParamId pid_TOT { storage_block, WCoefMapper::flha_full(base, o, ContributionType::TOTAL) };
+
+        auto zero = [] (const ParamSrc&, std::shared_ptr<DependentParameter> dep) {
+            dep->set_expected(0.);
+        };
+
+        ports_config.iblock_c->compose_parameter(pid_SM,  {}, zero);
+        ports_config.iblock_c->compose_parameter(pid_BSM, {}, zero);
+        ports_config.iblock_c->compose_parameter(pid_TOT, {}, zero);
     }
 }
 
-void CoefficientManager::fill_matching_groups(const std::string& groupName, const std::string& order) {
-    std::string storage_block = this->coefficientGroups.at(groupName)->get_matching_storage_block();
-    std::vector<QCDOrder> orders = order == "LO" ? std::vector({QCDOrder::NLO, QCDOrder::NNLO}) : std::vector({QCDOrder::NNLO});
-    for (auto o : orders) {
-        for (auto& coeff : *this->coefficientGroups.at(groupName)) {
-            ParamId pid_SM {
-                storage_block,
-                WCoefMapper::flha_full(WCoefMapper::enum_elt(coeff.second->get_base_name()), o, ContributionType::SM)
-            };
+void CoefficientManager::fill_matching_groups(const std::string& groupName, const std::string& orderStr) {
+    QCDOrder max = OrderMapper::enum_elt(orderStr);
 
-            ParamId pid_BSM {
-                storage_block,
-                WCoefMapper::flha_full(WCoefMapper::enum_elt(coeff.second->get_base_name()), o, ContributionType::BSM)
-            };
+    if (max == QCDOrder::LO) {
+        ensure_matching_triplet_zeroed(groupName, QCDOrder::NLO);
+        ensure_matching_triplet_zeroed(groupName, QCDOrder::NNLO);
+    } else if (max == QCDOrder::NLO) {
+        ensure_matching_triplet_zeroed(groupName, QCDOrder::NNLO);
+    } else {
+    }
+}
 
-            ParamId pid_TOT {
-                storage_block,
-                WCoefMapper::flha_full(WCoefMapper::enum_elt(coeff.second->get_base_name()), o, ContributionType::TOTAL)
-            };
 
+void CoefficientManager::compose_from_fwcoef(
+    const std::string& groupName,
+    QCDOrder order,
+    PortsConfig& ports_config
+) {
+    WGroupId gid = GroupMapper::enum_elt(groupName);
+    const std::string sm_block    = WilsonBlockNames::sm_matching(gid);
+    const std::string final_block = WilsonBlockNames::matching(gid);
+    const std::string fw_block    = WilsonBlockNames::fwcoef();
+
+    auto wp = ports_config.wilson_proxy;
+    
+    for (auto wcoef_enum : WCoefMapper::get_group(GroupMapper::enum_of(gid).value())) { //TODO
+        auto base = WCoefMapper::flha_base(wcoef_enum);
+
+        LhaID id_sm (base.first, base.second, qcd_index(order), 0);
+        LhaID id_bsm(base.first, base.second, qcd_index(order), 1);
+        LhaID id_tot(base.first, base.second, qcd_index(order), 2);
+
+        ParamId fw_sm  { ParameterType::WILSON, fw_block, id_sm  };
+        ParamId fw_bsm { ParameterType::WILSON, fw_block, id_bsm };
+        ParamId fw_tot { ParameterType::WILSON, fw_block, id_tot };
+
+        const bool fw_has_sm  = wp->exist(fw_block, id_sm);
+        const bool fw_has_bsm = wp->exist(fw_block, id_bsm);
+        const bool fw_has_tot = wp->exist(fw_block, id_tot);
+
+
+        ParamId sm_inter { ParameterType::WILSON, sm_block, id_sm };
+
+        if (fw_has_sm) {
             ports_config.iblock_c->compose_parameter(
-                pid_SM, 
-                std::unordered_set<ParamId> {}, 
-                [] (const ParamSrc& src, std::shared_ptr<DependentParameter> dep_param) {
-                    dep_param->set_expected(0.);
+                sm_inter,
+                std::unordered_set<ParamId>{ fw_sm },
+                [fw_sm](const ParamSrc& src, std::shared_ptr<DependentParameter> dep) {
+                    dep->set_expected(src.get_val(fw_sm));
                 }
             );
-
+        } else if (fw_has_tot && fw_has_bsm) {
             ports_config.iblock_c->compose_parameter(
-                pid_BSM, 
-                std::unordered_set<ParamId> {}, 
-                [] (const ParamSrc& src, std::shared_ptr<DependentParameter> dep_param) {
-                    dep_param->set_expected(0.);
+                sm_inter,
+                std::unordered_set<ParamId>{ fw_tot, fw_bsm },
+                [fw_tot, fw_bsm](const ParamSrc& src, std::shared_ptr<DependentParameter> dep) {
+                    dep->set_expected(src.get_val(fw_tot) - src.get_val(fw_bsm));
                 }
             );
+        }
 
+        ParamId final_sm  { ParameterType::WILSON, final_block, id_sm  };
+        ParamId final_bsm { ParameterType::WILSON, final_block, id_bsm };
+        ParamId final_tot { ParameterType::WILSON, final_block, id_tot };
+
+        if (fw_has_bsm) {
             ports_config.iblock_c->compose_parameter(
-                pid_TOT, 
-                std::unordered_set<ParamId> {}, 
-                [] (const ParamSrc& src, std::shared_ptr<DependentParameter> dep_param) {
-                    dep_param->set_expected(0.);
+                final_bsm,
+                std::unordered_set<ParamId>{ fw_bsm },
+                [fw_bsm](const ParamSrc& src, std::shared_ptr<DependentParameter> dep) {
+                    dep->set_expected(src.get_val(fw_bsm));
+                }
+            );
+        }
+        if (fw_has_tot) {
+            ports_config.iblock_c->compose_parameter(
+                final_tot,
+                std::unordered_set<ParamId>{ fw_tot },
+                [fw_tot](const ParamSrc& src, std::shared_ptr<DependentParameter> dep) {
+                    dep->set_expected(src.get_val(fw_tot));
+                }
+            );
+        }
+
+        if (fw_has_tot && !fw_has_bsm) {
+            ports_config.iblock_c->compose_parameter(
+                final_bsm,
+                std::unordered_set<ParamId>{ final_tot, final_sm },
+                [final_tot, final_sm](const ParamSrc& src, std::shared_ptr<DependentParameter> dep) {
+                    dep->set_expected(src.get_val(final_tot) - src.get_val(final_sm));
+                }
+            );
+        } else if (fw_has_bsm && !fw_has_tot) {
+            ports_config.iblock_c->compose_parameter(
+                final_tot,
+                std::unordered_set<ParamId>{ final_sm, final_bsm },
+                [final_sm, final_bsm](const ParamSrc& src, std::shared_ptr<DependentParameter> dep) {
+                    dep->set_expected(src.get_val(final_sm) + src.get_val(final_bsm));
                 }
             );
         }
     }
 }
 
-void CoefficientManager::init_specific_order_group_matching(const std::string& groupName, const std::string& order, bool only_total) {
+void CoefficientManager::compose_missing_from_calculation(
+    const std::string& groupName,
+    QCDOrder order,
+    PortsConfig& ports_config
+) {
+    WGroupId gid = GroupMapper::enum_elt(groupName);
+    const std::string final_block = WilsonBlockNames::matching(gid);
+    const bool marty_backend = ports_config.use_marty->get();
+
+    for (auto wcoef_enum : WCoefMapper::get_group(GroupMapper::enum_of(gid).value())) {//TODO
+        auto base = WCoefMapper::flha_base(wcoef_enum);
+
+        LhaID id_sm (base.first, base.second, qcd_index(order), 0);
+        LhaID id_bsm(base.first, base.second, qcd_index(order), 1);
+        LhaID id_tot(base.first, base.second, qcd_index(order), 2);
+
+        ParamId pid_sm  { ParameterType::WILSON, final_block, id_sm  };
+        ParamId pid_bsm { ParameterType::WILSON, final_block, id_bsm };
+        ParamId pid_tot { ParameterType::WILSON, final_block, id_tot };
+
+        if (marty_backend) {
+            ports_config.iblock_c->compose_parameter(
+                pid_bsm,
+                std::unordered_set<ParamId>{ pid_tot, pid_sm },
+                [pid_tot, pid_sm](const ParamSrc& src, std::shared_ptr<DependentParameter> dep) {
+                    dep->set_expected(src.get_val(pid_tot) - src.get_val(pid_sm));
+                }
+            );
+        } else {
+            ports_config.iblock_c->compose_parameter(
+                pid_tot,
+                std::unordered_set<ParamId>{ pid_sm, pid_bsm },
+                [pid_sm, pid_bsm](const ParamSrc& src, std::shared_ptr<DependentParameter> dep) {
+                    dep->set_expected(src.get_val(pid_sm) + src.get_val(pid_bsm));
+                }
+            );
+        }
+    }
+}
+
+void CoefficientManager::ensure_sm_model_triplet_in_matching(
+    const std::string& groupName,
+    QCDOrder max_order
+) {
+    WGroupId gid = GroupMapper::enum_elt(groupName);
+    const std::string final_block = WilsonBlockNames::matching(gid);
+
+    auto maybe_g = GroupMapper::enum_of(gid);
+    if (!maybe_g) LOG_ERROR("LogicError", "Bad group id for " + groupName);
+    const auto members = WCoefMapper::get_group(*maybe_g);
+
+    for (auto o : orders_up_to(max_order)) {
+        for (auto wcoef_enum : members) {
+            auto base = WCoefMapper::flha_base(wcoef_enum);
+
+            LhaID id_sm (base.first, base.second, qcd_index(o), 0);
+            LhaID id_bsm(base.first, base.second, qcd_index(o), 1);
+            LhaID id_tot(base.first, base.second, qcd_index(o), 2);
+
+            ParamId pid_sm  { ParameterType::WILSON, final_block, id_sm  };
+            ParamId pid_bsm { ParameterType::WILSON, final_block, id_bsm };
+            ParamId pid_tot { ParameterType::WILSON, final_block, id_tot };
+
+            ports_config.iblock_c->compose_parameter(
+                pid_bsm,
+                std::unordered_set<ParamId>{},
+                [](const ParamSrc&, std::shared_ptr<DependentParameter> dep) {
+                    dep->set_expected(0.);
+                }
+            );
+
+            ports_config.iblock_c->compose_parameter(
+                pid_tot,
+                std::unordered_set<ParamId>{ pid_sm },
+                [pid_sm](const ParamSrc& src, std::shared_ptr<DependentParameter> dep) {
+                    dep->set_expected(src.get_val(pid_sm));
+                }
+            );
+        }
+    }
+}
+
+void CoefficientManager::init_specific_order_group_matching(const std::string& groupName,
+                                                            const std::string& orderStr,
+                                                            bool only_total)
+{
     if (!this->coefficientGroups.contains(groupName)) {
         throw_no_group_error(groupName);
     }
 
-    bool marty = ports_config.use_marty->get();
-    bool SM = ports_config.model_api->get() == Model::SM;
-    
-    if (!only_total) {
-        this->coefficientGroups.at(groupName)->init(OrderMapper::enum_elt(order));
-        if (!SM) {
-            LOG_DEBUG("Computing SM contribution");
-            std::string sm_group = groupName + "_SM";
+    const bool has_input = HasWilsonAPI().get();
+    const bool marty = ports_config.use_marty->get();
+    const bool SM_model = (ports_config.model_api->get() == Model::SM);
 
-            std::shared_ptr<CoefficientGroup> sm_group_ptr;
-            if (ports_config.build_group) {
-                WGroupId gid = GroupMapper::enum_elt(groupName);
-                sm_group_ptr = ports_config.build_group(gid, Model::SM, marty, ContributionType::SM);
-            } else {
-                sm_group_ptr = this->coefficientGroups[groupName]->get_sm_group();
-            }
+    QCDOrder order = OrderMapper::enum_elt(orderStr);
 
-            if (!sm_group_ptr)
-                LOG_ERROR("LogicError", "No SM group found for " + groupName);
-            
-            this->registerCoefficientGroup(sm_group, sm_group_ptr);
-            sm_group_ptr->init(OrderMapper::enum_elt(order));
+    if (!has_input) {
+        if (!only_total) {
+            this->coefficientGroups.at(groupName)->init(order);
         }
-    }
 
-    QCDOrder enum_order = OrderMapper::enum_elt(order);
-    std::string storage_block = this->coefficientGroups.at(groupName)->get_matching_storage_block();
-
-    for (auto& coeff : *this->coefficientGroups.at(groupName)) {
-        if (SM) {
-            ContributionType c_type = marty ? ContributionType::SM : ContributionType::TOTAL;
-
-            ParamId pid_src {
-                ParameterType::WILSON, 
-                storage_block, 
-                coeff.second->id(enum_order, coeff.second->get_type())
-            };
-
-            ParamId pid_dest {
-                storage_block,
-                WCoefMapper::flha_full(WCoefMapper::enum_elt(coeff.second->get_base_name()), enum_order, c_type)
-            };
-
-            ParamId pid_BSM {
-                storage_block,
-                WCoefMapper::flha_full(WCoefMapper::enum_elt(coeff.second->get_base_name()), enum_order, ContributionType::BSM)
-            };
-
-            ports_config.iblock_c->compose_parameter(
-                pid_dest, 
-                std::unordered_set<ParamId> {pid_src}, 
-                [pid_src] (const ParamSrc& src, std::shared_ptr<DependentParameter> dep_param) {
-                    dep_param->set_expected(src.get_val(pid_src));
-                }
-            );
-
-            ports_config.iblock_c->compose_parameter(
-                pid_BSM, 
-                std::unordered_set<ParamId> {}, 
-                [] (const ParamSrc& src, std::shared_ptr<DependentParameter> dep_param) {
-                    dep_param->set_expected(0.);
-                }
-            );
-        } else {
-            ContributionType c_type = marty ? ContributionType::BSM : ContributionType::TOTAL;
-            ParamId pid_dest {
-                ParameterType::WILSON,
-                this->coefficientGroups.at(groupName)->get_matching_storage_block(),
-                WCoefMapper::flha_full(WCoefMapper::enum_elt(coeff.second->get_base_name()), enum_order, c_type)
-            };
-            ParamId pid_sm {
-                ParameterType::WILSON,
-                this->coefficientGroups.at(groupName)->get_matching_storage_block(),
-                WCoefMapper::flha_full(WCoefMapper::enum_elt(coeff.second->get_base_name()), enum_order, ContributionType::SM)
-            };
-
-            ParamId pid_src {
-                ParameterType::WILSON,
-                storage_block, 
-                coeff.second->id(enum_order, coeff.second->get_type())
-            };
-
-            std::unordered_set<ParamId> sources {pid_sm, pid_src};
-            ports_config.iblock_c->compose_parameter(
-                pid_dest, 
-                sources, 
-                [pid_sm, pid_src, marty] (const ParamSrc& src, std::shared_ptr<DependentParameter> dep_param) {
-                    scalar_t src_val = src.get_val(pid_src);
-                    scalar_t sm_val = src.get_val(pid_sm);
-                    dep_param->set_expected(marty ? src_val - sm_val : src_val + sm_val);
-                }
-            );
+        if (SM_model) {
+            ensure_sm_model_triplet_in_matching(groupName, order);
+            return;
         }
+
+        ensure_sm_intermediate_and_copy_to_final(groupName, order, ports_config);
+        if (!only_total) compose_missing_from_calculation(groupName, order, ports_config);
+
+    } else {
+        ensure_sm_intermediate_and_copy_to_final(groupName, order, ports_config);
+
+        compose_from_fwcoef(groupName, order, ports_config);
+
     }
 }
 
@@ -230,7 +381,6 @@ std::pair<WCoefId, std::pair<QCDOrder, ContributionType>> lha_wilson_deserialize
     return ret;
 }
 
-//TODO : manage id correctly, use base ENUM.
 void CoefficientManager::init_group_hadronic(const std::string& groupName, const std::string& order, WilsonBasis basis) {
     if (!this->coefficientGroups.contains(groupName)) {
         throw_no_group_error(groupName);
@@ -247,6 +397,7 @@ void CoefficientManager::init_group_hadronic(const std::string& groupName, const
     std::string matching_block_name = this->coefficientGroups[groupName]->get_matching_storage_block();
     auto func = [matching_block_name, ord, funcs, groupName, basis] (const BlockSrc& src, std::shared_ptr<DependentBlock> dep_block) {
         std::map<LhaID, std::shared_ptr<Parameter>> matching_coeff = src.raw().at(matching_block_name)->getItems();
+
         std::unordered_map<ContributionType, std::unordered_map<QCDOrder, std::unordered_map<WCoefId, scalar_t>>> matching_map;
         for (auto& coef : matching_coeff) {
             std::pair<WCoefId, std::pair<QCDOrder, ContributionType>> c = lha_wilson_deserialize(coef.first);

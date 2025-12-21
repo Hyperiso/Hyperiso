@@ -72,13 +72,14 @@ void WilsonBuilder::build(WilsonBuildConfig config) {
     WilsonGroupAdapterConfig adapters(wilson_proxy, iblock_c, use_marty, marty_model_name, marty_model_path, marty_proxy);
 
     auto reg_ptr = make_registry();
-    auto build_group_fn = [reg_ptr, adapters](WGroupId gid, Model mdl, bool useMarty, ContributionType ct) -> std::shared_ptr<CoefficientGroup> {
+    auto build_group_fn = [reg_ptr, adapters](WGroupId gid, Model mdl, bool useMarty, ContributionType ct, std::string group_name = "") -> std::shared_ptr<CoefficientGroup> {
         BuildContext ctx{
             .adapters = adapters,
             .model    = mdl,
             .backend  = useMarty ? Backend::Marty : Backend::Builtin,
             .contrib  = ct,
-            .group_id = gid
+            .group_id = gid,
+            .group_name = std::move(group_name)
         };
         CoefficientGroupBuilder b{*reg_ptr};
         return b.build(ctx);

@@ -38,7 +38,8 @@ public:
     complex_t get_matching_coefficient(std::string coeff, std::string order, ContributionType cont_type) const;
     complex_t get_running_coefficient(std::string coeff, std::string order, ContributionType cont_type, WilsonBasis basis = WilsonBasis::B_STANDARD) const;
     QCDOrder get_order();
-    std::string get_matching_storage_block() const { return GroupMapper::str(this->id, ScaleType::MATCHING); }
+    std::string get_matching_storage_block() const { return block_name; } //TODO to change
+    void set_matching_storage_block(std::string);
     ContributionType get_type() {return this->wilson_type;}
     std::unordered_map<ParameterType, std::vector<std::string>> get_sources(QCDOrder ord, WilsonBasis id) {return this->sources[id][ord].sources;}
     std::unordered_set<WilsonBasis> get_bases() const {
@@ -64,6 +65,7 @@ protected:
     ContributionType wilson_type {ContributionType::SM};
     QCDOrder current_order = QCDOrder::LO;
     WGroupId id;
+    std::string block_name;
     std::map<WilsonBasis, std::map<QCDOrder, CoefficientGroupSources>> sources;
 
     WilsonGroupAdapterConfig adapters;

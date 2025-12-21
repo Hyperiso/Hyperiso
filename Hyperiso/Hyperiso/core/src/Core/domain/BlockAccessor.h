@@ -34,6 +34,10 @@
  *
  * It is primarily used by higher-level parameter containers (e.g. a
  * Parameters class) to manipulate multiple physics blocks consistently.
+ * @note Although the class publicly derives from an unordered_map, it also
+ *       maintains an aliasing layer (alias_to_key_/key_to_name_) and stores
+ *       blocks under a canonical key derived from block aliases.
+ *       The public API should be used instead of raw map access.
  */
 class BlockAccessor : public std::unordered_map<std::string, std::shared_ptr<Block>> {
 public:
@@ -135,6 +139,9 @@ public:
      * @brief Retrieves the set of all block names present in the accessor.
      *
      * @return An unordered_set of BlockName keys.
+     * @note This returns the set of BlockName objects tracked in key_to_name_
+     *       (alias table). Direct mutation of the underlying unordered_map base
+     *       may desynchronize these structures
      */
     std::unordered_set<BlockName> get_block_names() const;
 
@@ -145,12 +152,14 @@ public:
      * exist, a warning is logged and no action is taken.
      *
      * @param block_name The name of the block.
-     * @param id         The LhaID of the parameter to remove.
+     * @param id         The LhaID of the parameter to remove.*
+     * @note Only the BlockName overload logs a warning and returns if the block
+    *       does not exist. The string/string_view overloads call at(...) and throw.
      */
     void remove_item(const BlockName& block_name, LhaID id);
 
     /**
-     * @brief Checks if a given block exists in the accessor.
+     * @brief Checks if a given block exists (by key or any alias).
      *
      * This hides the base-class contains(key) logic because BlockName has
      * custom comparison; it uses a helper to scan keys.
@@ -229,7 +238,7 @@ public:
     get_all_source_parameters(const std::unordered_set<ParamId>& param_ids) const;
     
     /**
-     * @brief Accessor to a block by name (non-const).
+     * @brief Accessor to a block by name (alias-aware).
      *
      * This performs a linear search over the underlying map, using BlockName
      * equality semantics. If the block is not found, the current accessor
@@ -284,17 +293,18 @@ public:
      * @param lhs First BlockAccessor instance (priority).
      * @param rhs Second BlockAccessor instance.
      * @return A shared pointer to a new BlockAccessor containing merged blocks.
+     * @note Parameters present only in rhs are kept as-is (rhs is copied first).
+     *       The merge loop iterates over lhs IDs only.
      */
     friend std::shared_ptr<BlockAccessor> operator>>(std::shared_ptr<BlockAccessor> lhs, std::shared_ptr<BlockAccessor> rhs);
 
     /**
-     * @brief Extracts a subset of blocks from the accessor.
+     * @brief Extracts a subset of blocks (shallow copy of shared_ptrs).
      *
-     * Only blocks listed in @p block_names are inserted in the result.
-     * If any requested block does not exist, an error is logged.
+     * The returned accessor shares ownership of the same Block instances
+     * (no deep copy is performed).
      *
-     * @param block_names A set of block names to retrieve.
-     * @return A shared pointer to a new BlockAccessor containing the requested blocks.
+     * @throws If a requested block does not exist (LOG_ERROR).
      */
     std::shared_ptr<BlockAccessor> operator[](std::unordered_set<BlockName> block_names);
     
@@ -318,69 +328,125 @@ public:
      */
     friend std::ostream& operator<<(std::ostream&, std::shared_ptr<BlockAccessor>);
 
+    /**
+     * @brief Inserts or replaces a block under a canonical key derived from its aliases.
+     *
+     * This updates alias tables (alias_to_key_, key_to_name_), stores the block
+     * in the underlying map, and calls Block::bind_self() so the block can later
+     * obtain a valid weak self pointer.
+     *
+     * @param name BlockName (with aliases).
+     * @param blk  Block instance.
+     */
     void emplace(const BlockName& name, std::shared_ptr<Block> blk);
     
-    
+    /**
+     * @brief Erases a block by name/alias and removes all associated aliases.
+     *
+     * If the block cannot be resolved, this is a no-op.
+     *
+     * @param name Block name/alias.
+     */
     void erase_block(const BlockName& name);
+
+    /**
+     * @name Convenience overloads (std::string / const char*)
+     * @brief Thin wrappers around the std::string_view / BlockName API.
+     *
+     * These overloads exist purely for ergonomics so callers can pass
+     * `std::string` or C-strings directly. They forward to the corresponding
+     * `std::string_view` or `BlockName` implementations.
+     *
+     * @note All semantics (alias resolution, exceptions, logging) are defined by the
+     *       forwarded-to overloads. In particular:
+     *       - at(...) will throw std::invalid_argument if the block cannot be resolved;
+     *       - contains(...) returns false if the name/alias cannot be resolved;
+     *       - erase_block(...) is a no-op if the name/alias cannot be resolved.
+     *
+     * @warning The `std::string_view` overloads do not own storage. These wrappers
+     *          are safe because they create the string_view from arguments whose
+     *          lifetime extends through the call.
+     */
+    ///@{
+
+    /// Erase by name/alias (std::string overload).
     void erase_block(const std::string& name) { return erase_block(std::string_view{name}); }
+    /// Erase by name/alias (C-string overload).
     void erase_block(const char* name) { return erase_block(std::string_view{name}); }
+
+    /// Alias-aware existence check (std::string overload).
     bool contains(const std::string& name) const { return contains(std::string_view{name}); }
+    /// Alias-aware existence check (C-string overload).
     bool contains(const char* name) const { return contains(std::string_view{name}); }
 
+    /// Alias-aware block access (std::string overload).
     std::shared_ptr<Block>& at(const std::string& name) { return at(std::string_view{name}); }
+    /// Alias-aware block access (std::string overload, const).
     const std::shared_ptr<Block>& at(const std::string& name) const { return at(std::string_view{name}); }
+    /// Alias-aware block access (C-string overload).
     std::shared_ptr<Block>& at(const char* name) { return at(std::string_view{name}); }
+    /// Alias-aware block access (C-string overload, const).
     const std::shared_ptr<Block>& at(const char* name) const { return at(std::string_view{name}); }
 
+    /// Insert/replace a block using a raw string name (converted to BlockName).
     void emplace(const std::string& name, std::shared_ptr<Block> blk) { emplace(BlockName(name), std::move(blk)); }
+    /// Insert/replace a block using a C-string name (converted to BlockName).
     void emplace(const char* name, std::shared_ptr<Block> blk) { emplace(BlockName(name), std::move(blk)); }
 
+    /// Parameter existence check (std::string overload).
     bool has_param(const std::string& block, const LhaID& id) const { return has_param(std::string_view{block}, id); }
+    /// Parameter existence check (C-string overload).
     bool has_param(const char* block, const LhaID& id) const { return has_param(std::string_view{block}, id); }
 
+    /// Value getter (std::string overload).
     scalar_t getValue(const std::string& block, const LhaID& id) const { return getValue(std::string_view{block}, id); }
+    /// Value getter (C-string overload).
     scalar_t getValue(const char* block, const LhaID& id) const { return getValue(std::string_view{block}, id); }
 
+    /// Value setter (std::string overload).
     void setValue(const std::string& block, const LhaID& id, scalar_t v) { setValue(std::string_view{block}, id, v); }
+    /// Value setter (C-string overload).
     void setValue(const char* block, const LhaID& id, scalar_t v) { setValue(std::string_view{block}, id, v); }
 
+    /// Remove parameter (std::string overload).
     void remove_item(const std::string& block, const LhaID& id) { remove_item(std::string_view{block}, id); }
+    /// Remove parameter (C-string overload).
     void remove_item(const char* block, const LhaID& id) { remove_item(std::string_view{block}, id); }
 
+    /// Scale existence check (std::string overload).
     bool has_scale(const std::string& block) const { return has_scale(std::string_view{block}); }
+    /// Scale existence check (C-string overload).
     bool has_scale(const char* block) const { return has_scale(std::string_view{block}); }
 
+    /// Scale getter (std::string overload).
     double get_scale(const std::string& block) const { return get_scale(std::string_view{block}); }
+    /// Scale getter (C-string overload).
     double get_scale(const char* block) const { return get_scale(std::string_view{block}); }
 
-
-
-    std::unordered_map<std::string, std::string> alias_to_key_;
-
-    std::unordered_map<std::string, BlockName> key_to_name_;
-
+    ///@}
+    
 private:
-
+    
     bool has_scale(std::string_view block) const;
     double get_scale(std::string_view block) const;
-
+    
     bool contains(std::string_view name) const;
     void emplace(std::string_view name, std::shared_ptr<Block> blk) {
         emplace(BlockName(std::string(name)), std::move(blk));
     }
     std::shared_ptr<Block>& at(std::string_view name);
     const std::shared_ptr<Block>& at(std::string_view name) const;
-
+    
     bool has_param(std::string_view block, const LhaID& id) const;
     scalar_t getValue(std::string_view block, const LhaID& id) const;
     void setValue(std::string_view block, const LhaID& id, scalar_t value);
     void remove_item(std::string_view block, const LhaID& id);
     void erase_block(std::string_view alias_or_key);
-
+    
     static std::unordered_set<std::string> norm_aliases(const BlockName& n);
     static std::string choose_key(const std::unordered_set<std::string>& aliases_norm);
     static std::string normalize(std::string_view s);
-
+    
     std::string key_for(std::string_view alias) const;
     std::string key_for(const BlockName& name) const;
     std::string key_for(const std::string& name) const;
@@ -388,9 +454,12 @@ private:
     std::string resolve_key(std::string_view name) const;
     std::string resolve_key(const BlockName& name) const;
     void merge_name_into_key(const std::string& key, const BlockName& name);
+    
+    /// Maps normalized alias -> canonical key used in the underlying unordered_map.
+    std::unordered_map<std::string, std::string> alias_to_key_;
 
-    std::unordered_map<std::string, std::shared_ptr<Block>> blocks_;
-    std::unordered_map<std::string, std::string> alias_to_canon_; 
+    /// Maps canonical key -> full BlockName (with all known aliases merged).
+    std::unordered_map<std::string, BlockName> key_to_name_;
 };
 
 #endif

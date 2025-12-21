@@ -13,6 +13,7 @@ struct BuildContext {
     Backend backend = Backend::Builtin;
     ContributionType contrib = ContributionType::SM;
     WGroupId group_id{};
+    std::string group_name = "";
 };
 
 inline constexpr const char* MATCHING_BLOCK_PLACEHOLDER = "$MATCHING_BLOCK$";

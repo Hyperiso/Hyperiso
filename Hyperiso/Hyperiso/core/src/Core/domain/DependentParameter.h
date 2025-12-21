@@ -25,76 +25,116 @@ typedef std::function<void(const ParamSrc&, std::shared_ptr<DependentParameter>)
 
 /**
  * @class DependentParameter
- * @brief Parameter whose value is dynamically computed from other parameters.
+ * @brief Parameter whose value is computed from other parameters (lazy / cached).
  *
- * This class implements a simple observer pattern:
- *   - It registers itself as an observer of its source parameters in init().
- *   - When any source parameter changes, it receives update(), and calls
- *     the provided DepParamUpdateFunc to recompute its own value.
- *   - It can be frozen/unfrozen to postpone updates.
+ * A DependentParameter stores a set of *source* parameters and a user-provided
+ * recomputation lambda (@ref DepParamUpdateFunc). It implements an observer
+ * mechanism:
+ *  - In @ref init(), it registers itself as observer of each source parameter.
+ *  - When a source changes, @ref update() is called:
+ *      - it does NOT recompute immediately,
+ *      - it marks the parameter as dirty and notifies its own observers.
+ *  - The actual recomputation happens on demand in @ref ensure_up_to_date(),
+ *    typically triggered by calling @ref get_val().
+ *
+ * Freezing:
+ *  - When frozen, updates are deferred (a flag is set) and no recomputation is
+ *    performed until @ref unfreeze() is called.
+ *
+ * Lifetime / safety notes:
+ *  - @ref init() must be called once after construction, when managed by a
+ *    std::shared_ptr (so shared_from_this() is valid).
+ *  - The class stores a weak self-reference to safely unregister from sources
+ *    in destructor / clear logic.
  */
 class DependentParameter : public Parameter {
 public:
     /**
-     * @brief Constructs a DependentParameter.
+     * @brief Constructs a dependent parameter with given sources and recomputation rule.
      *
-     * @param pid   ID of the dependent parameter.
-     * @param sources Map of source parameters (by ParamId).
-     * @param recalculateFunc Lambda used to recompute the parameter's value.
-     *                        It will be called from update().
+     * Internally initializes the base @ref Parameter with:
+     *  - expected = 0, stat = 0, syst = 0
+     * and stores:
+     *  - the raw source map,
+     *  - a @ref ParamSrc view wrapper (used for convenient access / error context),
+     *  - the recomputation lambda.
+     *
+     * @note Dependency registration is NOT performed here. Call @ref init()
+     *       once the object is owned by a std::shared_ptr.
+     *
+     * @param pid             ID of the dependent parameter.
+     * @param sources         Source parameters keyed by ParamId.
+     * @param recalculateFunc Lambda that recomputes this parameter in-place.
      */
     explicit DependentParameter(ParamId pid, std::unordered_map<ParamId, std::shared_ptr<Parameter>> sources, DepParamUpdateFunc recalculateFunc);
 
     /**
-     * @brief Checks if this dependent parameter depends on a given source.
-     * @param pid ID of the parameter to check.
-     * @return True if pid is among the sources, false otherwise.
+     * @brief Checks if this dependent parameter depends on the given parameter id.
+     *
+     * @param pid ID of the source parameter.
+     * @return True if pid is present in the source map, false otherwise.
      */
     bool dependsOn(const ParamId& pid);
 
     /**
      * @brief Initializes dependency tracking and observer registration.
      *
-     * Must be called once after construction, when the DependentParameter is
-     * already owned by a std::shared_ptr (so shared_from_this() is valid).
+     * This method:
+     *  - stores a weak self-reference (for safe unregistration later),
+     *  - registers this parameter as an observer of each non-null source parameter
+     *    using @ref Parameter::addObserver().
+     *
+     * @warning Must be called exactly once after construction, and only when this
+     *          object is already managed by std::shared_ptr (shared_from_this valid).
      */
     void init();
 
     /**
-     * @brief Recomputes the dependent parameter based on its sources.
+     * @brief Marks the parameter as dirty and propagates change downstream.
      *
-     * If frozen, the update is delayed until unfreeze() is called.
-     * If some source is null or the recalculate lambda is not set,
-     * logs an error and does nothing.
+     * This override implements a *lazy* update strategy:
+     *  - If frozen: sets a flag so an update will be triggered at unfreeze time,
+     *    then notifies observers immediately.
+     *  - Otherwise: marks the parameter dirty and notifies observers.
+     *
+     * Actual recomputation is deferred to @ref ensure_up_to_date(), typically
+     * called by @ref get_val().
      */
     void update() override;
 
     /**
-     * @brief Freezes the dependent parameter (defers updates).
+     * @brief Freezes this parameter (disables recomputation).
      *
-     * Any update requested while frozen will set a flag and be executed
-     * once unfreeze() is called.
+     * While frozen:
+     *  - @ref ensure_up_to_date() will not recompute,
+     *  - @ref update() will only set a pending-update flag and notify observers.
      */
     void freeze() override;
 
     /**
-     * @brief Unfreezes the parameter and triggers a pending update if any.
+     * @brief Unfreezes this parameter and triggers a pending update if any.
+     *
+     * If updates occurred while frozen, a call to @ref update() is triggered once,
+     * which marks the parameter dirty and propagates to observers.
      */
     void unfreeze() override;
 
     /**
-     * @brief Breaks links from this parameter to its sources.
+     * @brief Unregisters this DependentParameter from all its source parameters.
      *
-     * Removes this DependentParameter as an observer from all its sources.
+     * Removes this parameter from each source observer list.
+     * Safe even if already detached.
      */
     void clear_above() override;
 
     /**
-     * @brief Recursively clears this parameter and all its dependents.
+     * @brief Clears this parameter and all downstream dependents.
      *
-     * - Unregisters from sources (clear_above())
-     * - Requests its owning Block (if any) to erase this parameter
-     * - Recursively calls clear_below() on its own observers.
+     * Steps:
+     *  - detaches from all sources via @ref clear_above(),
+     *  - asks the owning Block (if any) to erase this local parameter entry
+     *    via Block::erase_local(code),
+     *  - recursively calls clear_below() on its observers.
      */
     void clear_below() override;
 
@@ -106,16 +146,63 @@ public:
         return this->sources_raw;
     }
 
-    //TODO ::
+    /**
+     * @brief Returns the current value, recomputing it on demand if needed.
+     *
+     * This method forces recomputation through @ref ensure_up_to_date() if the
+     * parameter is marked dirty and not frozen.
+     *
+     * @return Current expected value (cached after recomputation).
+     */
     scalar_t get_val() const override;
     
+    /**
+     * @brief Marks the cached value as invalid.
+     *
+     * The next call to @ref ensure_up_to_date() (or @ref get_val()) will recompute
+     * the value (unless frozen).
+     */
     void mark_dirty();
+
+    /**
+     * @brief Ensures the cached value is up-to-date by recomputing if needed.
+     *
+     * If not dirty, does nothing.
+     * If frozen, does nothing.
+     *
+     * Otherwise:
+     *  - touches each source via src->get_val() to ensure sources are up-to-date,
+     *  - calls the recomputation lambda to update this parameter in-place
+     *    (expected/std/etc.),
+     *  - clears the dirty flag.
+     *
+     * @note If a source pointer is null or the lambda is not set, an error is logged.
+     */
     void ensure_up_to_date();
+
+    /**
+     * @brief Replaces the dependency set and recomputation rule at runtime.
+     *
+     * This method:
+     *  - detaches from current sources (clear_above),
+     *  - replaces the source map and the ParamSrc wrapper,
+     *  - replaces the recomputation lambda,
+     *  - re-registers as observer of the new sources (if already initialized),
+     *  - marks the parameter dirty and notifies observers.
+     *
+     * @param new_sources New source parameter map.
+     * @param new_lambda  New recomputation lambda.
+     */
     void rebind(std::unordered_map<ParamId, std::shared_ptr<Parameter>> new_sources,
             DepParamUpdateFunc new_lambda);
             
     /**
-     * @brief Returns the raw map of source parameters.
+     * @brief Destructor: unregisters from sources if still initialized.
+     *
+     * If @ref init() has been called and the self weak pointer can be locked,
+     * removes this dependent parameter from each source observer list.
+     *
+     * This prevents dangling observer entries in source parameters.
      */
     ~DependentParameter();
     
@@ -123,10 +210,10 @@ private:
     std::weak_ptr<DependentParameter> self;                                 ///< Self-reference used for safe observer management in destructor / clear_*.
     std::unordered_map<ParamId, std::shared_ptr<Parameter>> sources_raw;    ///< Raw source parameters, keyed by ParamId.
     std::unique_ptr<ParamSrc> sources;                                      ///< View wrapper around sources_raw (with context string for nicer errors).
-    DepParamUpdateFunc recalculateLambda;                                   ///< /// Lambda used to recompute the value of this parameter.
+    DepParamUpdateFunc recalculateLambda;                                   ///< Lambda used to recompute the value of this parameter.
     bool frozen {false};                                                    ///< If true, update is delayed.
     bool update_at_unfreeze {false};                                        ///< If true, an update is triggered upon unfreezing.
-    bool dirty = true;
+    bool dirty = true;                                                      ///< True if cached value is invalid and must be recomputed on demand.
 };
 
 /**
