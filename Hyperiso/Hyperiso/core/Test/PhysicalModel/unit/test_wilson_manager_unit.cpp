@@ -122,10 +122,11 @@ int main() {
     auto iblock_c     = std::make_shared<RecordingBlockComposer>();
     auto wilson_proxy = std::make_shared<DummyParamProxy>();
     auto use_marty    = std::make_shared<DummyCoreAPI<bool>>(false);
+    auto has_wilson_api    = std::make_shared<DummyCoreAPI<bool>>(false);
     auto model_api    = std::make_shared<DummyCoreAPI<Model>>(Model::SM);
     auto scale_setter = std::make_shared<DummyScaleSetter>();
 
-    PortsConfig ports{iblock_c, wilson_proxy, use_marty, model_api, scale_setter};
+    PortsConfig ports{iblock_c, wilson_proxy, use_marty, has_wilson_api, model_api, scale_setter};
     ports.build_group = nullptr;
 
     CoefficientManager manager{ports};

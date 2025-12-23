@@ -61,6 +61,7 @@ void WilsonBuilder::build(WilsonBuildConfig config) {
     std::shared_ptr<IParameterProxy<std::string, LhaID>> wilson_proxy = std::make_shared<ParameterProxy>(ParameterType::WILSON);
     std::shared_ptr<IParameterProxy<std::string, LhaID>> sm_proxy = std::make_shared<ParameterProxy>(ParameterType::SM);
     std::shared_ptr<ICoreAPI<bool>> use_marty = std::make_shared<UseMarty>();
+    std::shared_ptr<ICoreAPI<bool>> has_wilson = std::make_shared<HasWilsonAPI>();
     std::shared_ptr<ICoreAPI<Model>> model_api = std::make_shared<ModelAPI>();
     std::shared_ptr<IParamSetter<ScaleType>> scale_setter_api = std::make_shared<ScaleSetter>(ScaleType::MATCHING);
     std::shared_ptr<ICoreAPI<std::string>> marty_model_name = std::make_shared<MartyModelNameAPI>();
@@ -106,7 +107,7 @@ void WilsonBuilder::build(WilsonBuildConfig config) {
         config.order = QCDOrder::LO;
     }
 
-    PortsConfig port_config{iblock_c, wilson_proxy, use_marty, model_api, scale_setter_api};
+    PortsConfig port_config{iblock_c, wilson_proxy, use_marty, has_wilson, model_api, scale_setter_api};
     port_config.build_group = build_group_fn;
 
     this->cm = CoefficientManager::Builder(ModelMapper::str(model), groups, config.matching_scale, config.hadronic_scale, OrderMapper::str(config.order), port_config, wilson_param_helpers);

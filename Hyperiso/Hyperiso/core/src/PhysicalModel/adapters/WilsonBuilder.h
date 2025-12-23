@@ -1,5 +1,5 @@
-#ifndef __WILSONBUILDER_H__
-#define __WILSONBUILDER_H__
+#ifndef WILSONBUILDER_H
+#define WILSONBUILDER_H
 
 #include "IWilsonBuilder.h"
 #include "WilsonProvider.h"
@@ -12,6 +12,7 @@
 #include "WilsonParametersHelper.h"
 #include "ModelAPI.h"
 #include "UseMarty.h"
+#include "HasWilsonAPI.h"
 #include "SUSYParametersHelper.h"
 #include "THDMParametersHelper.h"
 #include "MartyWilsonProxy.h"
@@ -35,4 +36,4 @@ private:
     std::shared_ptr<CoefficientManager> cm;
 };
 
-#endif // __IWILSONBUILDER_H__
+#endif // IWILSONBUILDER_H
