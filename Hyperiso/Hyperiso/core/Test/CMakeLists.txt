@@ -313,6 +313,12 @@ target_link_libraries(testWilsonManagerUnit PhysicalModelLib UtilsLib)
 add_executable(testWilsonManagerIntegration PhysicalModel/integration/test_wilson_manager_integration.cpp)
 target_link_libraries(testWilsonManagerIntegration PhysicalModelLib UtilsLib)
 
+add_executable(testHasWilsonUnit PhysicalModel/unit/test_has_wilson_unit.cpp)
+target_link_libraries(testHasWilsonUnit PhysicalModelLib UtilsLib)
+
+add_executable(testHasWilsonIntegration PhysicalModel/integration/test_has_wilson_integration.cpp)
+target_link_libraries(testHasWilsonIntegration PhysicalModelLib UtilsLib)
+
 #Wilson
 
 
@@ -581,6 +587,11 @@ set_tests_properties(testWilsonManagerUnit PROPERTIES ENVIRONMENT "DISABLE_LOGGE
 add_test(NAME testWilsonManagerIntegration COMMAND testWilsonManagerIntegration)
 set_tests_properties(testWilsonManagerIntegration PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "physicalmodel")
 
+add_test(NAME testHasWilsonUnit COMMAND testHasWilsonUnit)
+set_tests_properties(testHasWilsonUnit PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "physicalmodel")
+
+add_test(NAME testHasWilsonIntegration COMMAND testHasWilsonIntegration)
+set_tests_properties(testHasWilsonIntegration PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "physicalmodel")
 
 #other testings
 add_test(NAME TestLHAReader COMMAND testReader)

@@ -21,54 +21,69 @@ int main() {
     auto pA = make_param(1.0, "A", 1);
     auto pB = make_param(2.0, "B", 2);
 
+    int runsSum = 0;
     auto depSum = std::make_shared<DependentParameter>(
         ParamId{ParameterType::SM, "SUM", 10},
         std::unordered_map<ParamId, std::shared_ptr<Parameter>>{
             {pA->get_id(), pA},
             {pB->get_id(), pB}
         },
-        [](const auto& srcs, std::shared_ptr<DependentParameter> self) {
-            double s = 0.0; for (auto& [_, p] : srcs.raw()) s += p->get_val();
+        [&](const auto& srcs, std::shared_ptr<DependentParameter> self) {
+            ++runsSum;
+            double s = 0.0;
+            for (auto& [_, p] : srcs.raw()) s += p->get_val();
             self->set_expected(s);
         }
     );
     depSum->init();
 
+    int runsScaled = 0;
     auto depScaled = std::make_shared<DependentParameter>(
         ParamId{ParameterType::SM, "SCALED", 20},
         std::unordered_map<ParamId, std::shared_ptr<Parameter>>{
             {depSum->get_id(), depSum}
         },
-        [](const auto& srcs, std::shared_ptr<DependentParameter> self) {
+        [&](const auto& srcs, std::shared_ptr<DependentParameter> self) {
+            ++runsScaled;
             double base = srcs.raw().begin()->second->get_val();
             self->set_expected(3.0 * base);
         }
     );
     depScaled->init();
 
-    depSum->update();
-    depScaled->update();
-    assert(std::abs(depSum->get_val()    - (1.0 + 2.0)) < 1e-12);
+    assert(runsSum == 0);
+    assert(runsScaled == 0);
+
     assert(std::abs(depScaled->get_val() - 3.0 * (1.0 + 2.0)) < 1e-12);
+    assert(std::abs(depSum->get_val() - (1.0 + 2.0)) < 1e-12);
+    assert(runsSum == 1);
+    assert(runsScaled == 1);
 
     pB->set_expected(5.0);
-    assert(std::abs(depSum->get_val()    - (1.0 + 5.0)) < 1e-12);
+    assert(runsSum == 1);
+    assert(runsScaled == 1);
+
     assert(std::abs(depScaled->get_val() - 3.0 * (1.0 + 5.0)) < 1e-12);
+    assert(std::abs(depSum->get_val() - (1.0 + 5.0)) < 1e-12);
+    assert(runsSum == 2);
+    assert(runsScaled == 2);
 
     depSum->freeze();
     pA->set_expected(7.0);
 
-    assert(std::abs(depSum->get_val()    - (1.0 + 5.0)) < 1e-12);
+    assert(std::abs(depSum->get_val() - (1.0 + 5.0)) < 1e-12);
+
     assert(std::abs(depScaled->get_val() - 3.0 * (1.0 + 5.0)) < 1e-12);
 
     depSum->unfreeze();
-    assert(std::abs(depSum->get_val()    - (7.0 + 5.0)) < 1e-12);
     assert(std::abs(depScaled->get_val() - 3.0 * (7.0 + 5.0)) < 1e-12);
+    assert(std::abs(depSum->get_val() - (7.0 + 5.0)) < 1e-12);
 
     depScaled->clear_above();
+
     pB->set_expected(6.0);
 
-    assert(std::abs(depSum->get_val()    - (7.0 + 6.0)) < 1e-12);
+    assert(std::abs(depSum->get_val() - (7.0 + 6.0)) < 1e-12);
     assert(std::abs(depScaled->get_val() - 3.0 * (7.0 + 5.0)) < 1e-12);
 
     std::cout << "\n Parameter integration suite passed.\n";

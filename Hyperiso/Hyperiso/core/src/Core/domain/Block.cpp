@@ -86,7 +86,7 @@ void Block::assign(const LhaID& key, std::shared_ptr<Parameter> param) {
     dst->notifyObservers();
 
     LOG_DEBUG("Call to notifyObservers from Block::assign(const LhaID&, std::shared_ptr<Parameter>) of", blockname);
-    notifyObservers();
+    // notifyObservers();
 }
 
 void Block::assign(const LhaID &key, scalar_t value) {
@@ -98,10 +98,10 @@ void Block::assign(const LhaID &key, scalar_t value) {
 
     p->set_expected(value);
 
-    p->notifyObservers();
+    // p->notifyObservers();
 
     LOG_DEBUG("Call to notifyObservers from Block::assign(const LhaID&, double) of", blockname);
-    notifyObservers();
+    // notifyObservers();
 }
 
 void Block::store_or_assign(const LhaID& id, std::shared_ptr<Parameter> param) {
