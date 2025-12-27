@@ -1,5 +1,14 @@
 #include "CoefficientGroupBuilder.h"
 
+/**
+ * @file CoefficientGroupBuilder.cpp
+ * @brief Implementation of @ref CoefficientGroupBuilder.
+ *
+ * The implementation follows the build steps documented in the header.
+ * In particular, it performs placeholder substitution for sources and
+ * executes model-specific setup hooks after all members are created.
+ */
+
 std::shared_ptr<CoefficientGroup> CoefficientGroupBuilder::build(const BuildContext& ctx) const {
     const auto& def = GroupDefinitions::get(ctx.group_id);
 
@@ -30,6 +39,7 @@ std::shared_ptr<CoefficientGroup> CoefficientGroupBuilder::build(const BuildCont
         auto coef = reg_.create(ctx, c);
         grp->insert({ WCoefMapper::str(c), std::move(coef) });
     }
+    
     if (auto it = def.setup.find(ctx.model); it != def.setup.end()) {
         for (auto& hook : it->second) hook(ctx, *grp);
     }

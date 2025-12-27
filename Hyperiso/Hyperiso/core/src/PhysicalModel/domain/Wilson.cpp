@@ -1,5 +1,28 @@
 #include "Wilson.h"
 
+WilsonCoefficient::WilsonCoefficient(const std::string& name, const std::string& storage_block) : coeffName(name), storage_block(storage_block) {
+    if (ends_with(coeffName, "_THDM") || ends_with(coeffName, "_SUSY")) {
+        type = ContributionType::BSM;
+    }
+
+
+    for (auto order : {QCDOrder::LO, QCDOrder::NLO, QCDOrder::NNLO}) {
+        matching_info[order] = MatchingInfo(this->id(order, type));
+    }
+    }
+
+WilsonCoefficient::WilsonCoefficient(const LhaID &name, const std::string& storage_block, ContributionType ct) : coeffName(name.to_string()), storage_block(storage_block) {
+    type = ct;
+
+
+    for (auto order : {QCDOrder::LO, QCDOrder::NLO, QCDOrder::NNLO}) {
+        auto parts = name.get_parts();
+        int order_int = order == QCDOrder::LO ? 0 : order == QCDOrder::NLO ? 1 : 2;
+        int ct_int = ct == ContributionType::SM ? 0 : ct == ContributionType::BSM ? 1 : 2;
+        LhaID full(parts[0], parts[1], order_int, ct_int);
+        matching_info[order] = MatchingInfo(full);
+    }
+}
 
 std::function<scalar_t(const ParamSrc&)> WilsonCoefficient::get_func(QCDOrder order) {
     return this->matching_info[order].compute;
