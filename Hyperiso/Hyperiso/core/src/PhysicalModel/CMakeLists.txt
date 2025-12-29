@@ -86,6 +86,7 @@ add_library(PhysicalModelLib STATIC
     adapters/WilsonBuilder.cpp
     adapters/WilsonProvider.cpp
     adapters/BlockProxy.cpp
+    adapters/WilsonInterface.cpp
     domain/Helper/BSM/SUSYParametersHelper.cpp
     domain/Helper/BSM/THDMParametersHelper.cpp
     domain/WCoef/BSM/BWilsonSUSY.cpp

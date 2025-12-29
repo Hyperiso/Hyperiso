@@ -1,215 +1,245 @@
 #ifndef WILSONINTERFACE_H
 #define WILSONINTERFACE_H
 
+#include <map>
+
 #include "Include.h"
 #include "WilsonManager.h"
 #include "AbstractConfig.h"
 #include "WilsonBuilder.h"
 
-#include <map>
-
+/**
+ * @brief User-facing API to build and query Wilson coefficients at matching and hadronic scales.
+ *
+ * @details
+ * This is the *main* entry point for end users. It provides:
+ *
+ * 1) Lifecycle:
+ *    - @ref build() to initialize the Wilson pipeline (groups, helpers, scales, blocks),
+ *    - @ref addWilsonGroup() to extend an already built instance with additional groups,
+ *    - @ref set_matching_scale() / @ref set_hadronic_scale() to update active scales.
+ *
+ * 2) Queries at MATCHING scale:
+ *    - @ref getMatchingCoefficient() / @ref getM() :
+ *        returns the coefficient at a given QCD order (LO/NLO/NNLO) for a contribution component.
+ *    - @ref getFullMatchingCoefficient() / @ref getFM() :
+ *        returns the coefficient including the perturbative sum up to the requested order.
+ *
+ * 3) Queries at HADRONIC (running) scale:
+ *    - @ref getRunCoefficient() / @ref getR() :
+ *        returns the evolved coefficient at a given QCD order (basis-dependent).
+ *    - @ref getFullRunCoefficient() / @ref getFR() :
+ *        returns the evolved coefficient including perturbative sum up to requested order.
+ *
+ * 4) Bulk convenience helpers:
+ *    - per-order maps: @ref getSepOrderMatchingCoefficient() (@ref getSM),
+ *                      @ref getSepOrderRunCoefficient() (@ref getSR)
+ *    - full group maps: @ref getAllMatchingCoefficients() (@ref getAM),
+ *                       @ref getAllRunCoefficients() (@ref getAR),
+ *                       @ref getAllFullMatchingCoefficients() (@ref getAFM),
+ *                       @ref getAllFullRunCoefficients() (@ref getAFR)
+ *
+ * Contribution semantics:
+ * - @ref ContributionType::SM    : SM-only component.
+ * - @ref ContributionType::BSM   : BSM-only component.
+ * - @ref ContributionType::TOTAL : SM + BSM (composed by the manager depending on backend/input).
+ *
+ * Backend / MARTY caveat:
+ * - When MARTY is enabled, the current pipeline computes Wilson coefficients at LO only.
+ *   Requests at NLO/NNLO are expected to be downgraded to LO by the underlying provider.
+ *   (The helper method ensure_mty_compat() exists, but the actual downgrade is enforced in WilsonProvider.)
+ *
+ * Threading / mutability:
+ * - This interface mutates global-ish scale parameters through @ref ScaleSetter.
+ *   If using multiple instances concurrently, ensure scale setters and the underlying parameter storage
+ *   are safe for your execution model.
+ *
+ * Typical usage:
+ * @code
+ *   WilsonInterface W;
+ *   WilsonBuildConfig cfg;
+ *   cfg.groups = { GroupMapper::to_id(WGroup::B) };
+ *   cfg.matching_scale = 160.0;
+ *   cfg.hadronic_scale = 4.8;
+ *   cfg.order = QCDOrder::NNLO;
+ *   W.build(cfg);
+ *
+ *   auto C7_sm = W.getM(WGroup::B, WCoef::C7, QCDOrder::NNLO, ContributionType::SM);
+ *   auto C7_tot_full = W.getFM(WGroup::B, WCoef::C7, QCDOrder::NNLO, ContributionType::TOTAL);
+ * @endcode
+ *
+ * @see WilsonBuilder
+ * @see WilsonProvider
+ * @see CoefficientManager
+ * @see WilsonRequest
+ */
 class WilsonInterface {
 private:
     std::shared_ptr<WilsonBuilder> builder;
     std::shared_ptr<WilsonProvider> provider;
 
-    QCDOrder ensure_mty_compat(QCDOrder order) {
-        if (UseMarty().get() && !(order == QCDOrder::LO)) {
-            LOG_WARN("Using MARTY defaults all calculations to LO in QCD.");
-            return QCDOrder::LO;
-        }
-        return order;
-    }
+    /**
+     * @brief Ensures requested QCD order is compatible with MARTY limitations.
+     *
+     * Current implementation of this helper logs and returns LO if MARTY is enabled
+     * and a higher order is requested.
+     *
+     * Note: In the provided implementation, order downgrading is actually enforced
+     * in @ref WilsonProvider::get() as well.
+     */
+    QCDOrder ensure_mty_compat(QCDOrder order);
 
+    /// Whether build() has been called successfully.
     bool built {false};
 
 public:
     WilsonInterface() = default;
 
-    void build(WilsonBuildConfig config) {
-        this->builder = std::make_shared<WilsonBuilder>(config);
-        this->provider = this->builder->get_wilson_provider();
-        built = true;
-    }
+    /**
+     * @brief Builds the full Wilson pipeline and makes queries available.
+     *
+     * This constructs a @ref WilsonBuilder with the provided config and retrieves
+     * the corresponding @ref WilsonProvider.
+     *
+     * After calling build(), all query methods become valid.
+     */
+    void build(WilsonBuildConfig config);
 
-    void addWilsonGroup(WilsonBuildConfig config) {
-        if (!this->builder) {
-            LOG_ERROR("AccessError", "Please build the interface first before adding groups");
-        }
-        this->builder->add(config);
-    }
+    /**
+     * @brief Adds one or more Wilson groups to an existing built interface.
+     *
+     * Requires @ref build() to have been called first.
+     * Delegates to @ref WilsonBuilder::add().
+     */
+    void addWilsonGroup(WilsonBuildConfig config);
 
-    void set_matching_scale(double mu_W) {
-        ScaleSetter(ScaleType::MATCHING).set(mu_W);
-    }
+    /**
+     * @brief Sets the matching scale (mu_W) in the global parameter system.
+     *
+     * This updates the value of the scale parameter corresponding to @ref ScaleType::MATCHING.
+     * It does not automatically rebuild/combine blocks; dependent blocks will update on demand.
+     */
+    void set_matching_scale(double mu_W);
 
-    void set_hadronic_scale(double mu_h) {
-        ScaleSetter(ScaleType::HADRONIC).set(mu_h);
-    }
+    /**
+     * @brief Sets the hadronic scale (mu_h) in the global parameter system.
+     *
+     * This updates the value of the scale parameter corresponding to @ref ScaleType::HADRONIC.
+     * It does not automatically rebuild/combine blocks; dependent blocks will update on demand.
+     */
+    void set_hadronic_scale(double mu_h);
 
-    scalar_t getMatchingCoefficient(WGroup group, WCoef coeff, QCDOrder order, ContributionType cont_type) {
-        if (!built) {
-            LOG_ERROR("LogicError", "Interface has not been built");
-        }
+    /**
+     * @name Matching-scale single coefficient accessors
+     * @{
+     */
 
-        WilsonRequest request {
-            group,
-            coeff,
-            order,
-            cont_type,
-            ScaleType::MATCHING,
-            false // sum_qcd_orders
-        };
-        return this->provider->get(std::make_shared<WilsonRequest>(request));
-    }
+    /// Returns the matching-scale coefficient at the requested QCD order (no QCD-order summation).
+    scalar_t getMatchingCoefficient(WGroup group, WCoef coeff, QCDOrder order, ContributionType cont_type);
 
-    scalar_t getM(WGroup group, WCoef coeff, QCDOrder order, ContributionType cont_type) {
-        return getMatchingCoefficient(group, coeff, order, cont_type);
-    }
+    /// Alias for @ref getMatchingCoefficient.
+    scalar_t getM(WGroup group, WCoef coeff, QCDOrder order, ContributionType cont_type);
 
-    scalar_t getFullMatchingCoefficient(WGroup group, WCoef coeff, QCDOrder order, ContributionType cont_type) {
-        if (!built) {
-            LOG_ERROR("LogicError", "Interface has not been built");
-        }
+    /**
+     * @brief Returns the matching coefficient with perturbative summation up to `order`.
+     *
+     * The summation convention is implemented in the manager:
+     *  C_full = Sum_{n=LO..order} C^{(n)} * (alpha_s(mu_W)/(4*pi))^(n-1).
+     */
+    scalar_t getFullMatchingCoefficient(WGroup group, WCoef coeff, QCDOrder order, ContributionType cont_type);
 
-        WilsonRequest request {
-            group,
-            coeff,
-            order,
-            cont_type,
-            ScaleType::MATCHING,
-            true // sum_qcd_orders
-        };
-        return this->provider->get(std::make_shared<WilsonRequest>(request));
-    }
+    /// Alias for @ref getFullMatchingCoefficient.
+    scalar_t getFM(WGroup group, WCoef coeff, QCDOrder order, ContributionType cont_type);
 
-    scalar_t getFM(WGroup group, WCoef coeff, QCDOrder order, ContributionType cont_type) {
-        return getFullMatchingCoefficient(group, coeff, order, cont_type);
-    }
+    /** @} */
 
-    scalar_t getRunCoefficient(WGroup group, WCoef coeff, QCDOrder order, ContributionType cont_type, WilsonBasis basis=WilsonBasis::B_STANDARD) {
-        if (!built) {
-            LOG_ERROR("LogicError", "Interface has not been built");
-        }
+    /**
+     * @name Hadronic-scale (running) single coefficient accessors
+     * @{
+     */
 
-        WilsonRequest request {
-            group,
-            coeff,
-            order,
-            cont_type,
-            ScaleType::HADRONIC,
-            false // sum_qcd_orders
-        };
-        request.basis = basis;
-        return this->provider->get(std::make_shared<WilsonRequest>(request));
-    }
+    /**
+     * @brief Returns the hadronic (“run”) coefficient at the requested order (no QCD-order summation).
+     *
+     * @param basis Operator basis used for hadronic coefficients (defaults to B_STANDARD).
+     */
+    scalar_t getRunCoefficient(WGroup group, WCoef coeff, QCDOrder order, ContributionType cont_type, WilsonBasis basis=WilsonBasis::B_STANDARD);
 
-    scalar_t getR(WGroup group, WCoef coeff, QCDOrder order, ContributionType cont_type, WilsonBasis basis=WilsonBasis::B_STANDARD) {
-        return getRunCoefficient(group, coeff, order, cont_type);
-    }
+    /// Alias for @ref getRunCoefficient.
+    scalar_t getR(WGroup group, WCoef coeff, QCDOrder order, ContributionType cont_type, WilsonBasis basis=WilsonBasis::B_STANDARD);
 
-    scalar_t getFullRunCoefficient(WGroup group, WCoef coeff, QCDOrder order, ContributionType cont_type, WilsonBasis basis=WilsonBasis::B_STANDARD) {
-        if (!built) {
-            LOG_ERROR("LogicError", "Interface has not been built");
-        }
+    /**
+     * @brief Returns the hadronic (“run”) coefficient with perturbative summation up to `order`.
+     *
+     * The summation convention is implemented in the manager:
+     *  C_full = Sum_{n=LO..order} C^{(n)} * (alpha_s(mu_b)/(4*pi))^(n-1).
+     *
+     * @param basis Operator basis used for hadronic coefficients (defaults to B_STANDARD).
+     */
+    scalar_t getFullRunCoefficient(WGroup group, WCoef coeff, QCDOrder order, ContributionType cont_type, WilsonBasis basis=WilsonBasis::B_STANDARD);
 
-        WilsonRequest request {
-            group,
-            coeff,
-            order,
-            cont_type,
-            ScaleType::HADRONIC,
-            true // sum_qcd_orders
-        };
-        request.basis = basis;
-        return this->provider->get(std::make_shared<WilsonRequest>(request));
-    }
+    /// Alias for @ref getFullRunCoefficient.
+    scalar_t getFR(WGroup group, WCoef coeff, QCDOrder order, ContributionType cont_type, WilsonBasis basis=WilsonBasis::B_STANDARD);
 
-    scalar_t getFR(WGroup group, WCoef coeff, QCDOrder order, ContributionType cont_type, WilsonBasis basis=WilsonBasis::B_STANDARD) {
-        return getFullRunCoefficient(group, coeff, order, cont_type);
-    }
+    /** @} */
 
-    std::map<QCDOrder, scalar_t> getSepOrderMatchingCoefficient(WGroup group, WCoef coeff, ContributionType cont_type) {
-        std::map<QCDOrder, scalar_t> C {{
-            {QCDOrder::LO, getMatchingCoefficient(group, coeff, QCDOrder::LO, cont_type)},
-            {QCDOrder::NLO, getMatchingCoefficient(group, coeff, QCDOrder::NLO, cont_type)},
-            {QCDOrder::NNLO, getMatchingCoefficient(group, coeff, QCDOrder::NNLO, cont_type)}
-        }};
-        return C;
-    }
+    /**
+     * @name Convenience: per-order maps for a fixed coefficient
+     * @{
+     */
 
-    std::map<QCDOrder, scalar_t> getSM(WGroup group, WCoef coeff, ContributionType cont_type) {
-        return getSepOrderMatchingCoefficient(group, coeff, cont_type);
-    }
+    /**
+     * @brief Returns a map {LO,NLO,NNLO} -> matching coefficient (no summation) for a fixed coefficient.
+     *
+     * Note: If MARTY is enabled, higher orders may effectively behave like LO depending on backend policy.
+     */
+    std::map<QCDOrder, scalar_t> getSepOrderMatchingCoefficient(WGroup group, WCoef coeff, ContributionType cont_type);
 
-    std::map<QCDOrder, scalar_t> getSepOrderRunCoefficient(WGroup group, WCoef coeff, ContributionType cont_type, WilsonBasis basis=WilsonBasis::B_STANDARD) {
-        std::map<QCDOrder, scalar_t> C {{
-            {QCDOrder::LO, getRunCoefficient(group, coeff, QCDOrder::LO, cont_type)},
-            {QCDOrder::NLO, getRunCoefficient(group, coeff, QCDOrder::NLO, cont_type)},
-            {QCDOrder::NNLO, getRunCoefficient(group, coeff, QCDOrder::NNLO, cont_type)}
-        }};
-        return C;
-    }
+    /// Alias for @ref getSepOrderMatchingCoefficient.
+    std::map<QCDOrder, scalar_t> getSM(WGroup group, WCoef coeff, ContributionType cont_type);
 
-    std::map<QCDOrder, scalar_t> getSR(WGroup group, WCoef coeff, ContributionType cont_type, WilsonBasis basis=WilsonBasis::B_STANDARD) {
-        return getSepOrderRunCoefficient(group, coeff, cont_type);
-    }
+    /**
+     * @brief Returns a map {LO,NLO,NNLO} -> hadronic coefficient (no summation) for a fixed coefficient.
+     *
+     * @param basis Operator basis used for hadronic coefficients.
+     */
+    std::map<QCDOrder, scalar_t> getSepOrderRunCoefficient(WGroup group, WCoef coeff, ContributionType cont_type, WilsonBasis basis=WilsonBasis::B_STANDARD);
 
-    std::map<WCoef, scalar_t> getAllMatchingCoefficients(WGroup group, QCDOrder order, ContributionType cont_type) {
-        std::vector<WCoef> ids = WCoefMapper::get_group(group);
-        std::map<WCoef, scalar_t> Cs;
-        for (auto c : ids) {
-            Cs.emplace(c, getMatchingCoefficient(group, c, order, cont_type));
-        }
+    /// Alias for @ref getSepOrderRunCoefficient.
+    std::map<QCDOrder, scalar_t> getSR(WGroup group, WCoef coeff, ContributionType cont_type, WilsonBasis basis=WilsonBasis::B_STANDARD);
 
-        return Cs;
-    }
+    /** @} */
 
-    std::map<WCoef, scalar_t> getAM(WGroup group, QCDOrder order, ContributionType cont_type) {
-        return getAllMatchingCoefficients(group, order, cont_type);
-    }
+    /**
+     * @name Convenience: full group maps (iterate all coefficients in the group)
+     * @{
+     */
 
-    std::map<WCoef, scalar_t> getAllRunCoefficients(WGroup group, QCDOrder order, ContributionType cont_type, WilsonBasis basis=WilsonBasis::B_STANDARD) {
-        std::vector<WCoef> ids = WCoefMapper::get_group(group);
-        std::map<WCoef, scalar_t> Cs;
-        for (auto c : ids) {
-            Cs.emplace(c, getRunCoefficient(group, c, order, cont_type));
-        }
+    /// Returns {coef -> matching coefficient} for all coefficients in the group at a given order.
+    std::map<WCoef, scalar_t> getAllMatchingCoefficients(WGroup group, QCDOrder order, ContributionType cont_type);
 
-        return Cs;
-    }
+    /// Alias for @ref getAllMatchingCoefficients.
+    std::map<WCoef, scalar_t> getAM(WGroup group, QCDOrder order, ContributionType cont_type);
 
-    std::map<WCoef, scalar_t> getAR(WGroup group, QCDOrder order, ContributionType cont_type, WilsonBasis basis=WilsonBasis::B_STANDARD) {
-        return getAllRunCoefficients(group, order, cont_type);
-    }
+    /// Returns {coef -> hadronic coefficient} for all coefficients in the group at a given order and basis.
+    std::map<WCoef, scalar_t> getAllRunCoefficients(WGroup group, QCDOrder order, ContributionType cont_type, WilsonBasis basis=WilsonBasis::B_STANDARD);
 
-    std::map<WCoef, scalar_t> getAllFullMatchingCoefficients(WGroup group, QCDOrder order, ContributionType cont_type) {
-        std::vector<WCoef> ids = WCoefMapper::get_group(group);
-        std::map<WCoef, scalar_t> Cs;
-        for (auto c : ids) {
-            Cs.emplace(c, getFullMatchingCoefficient(group, c, order, cont_type));
-        }
+    /// Alias for @ref getAllRunCoefficients.
+    std::map<WCoef, scalar_t> getAR(WGroup group, QCDOrder order, ContributionType cont_type, WilsonBasis basis=WilsonBasis::B_STANDARD);
 
-        return Cs;
-    }
+    /// Returns {coef -> full matching coefficient} (summed up to order) for all coefficients in the group.
+    std::map<WCoef, scalar_t> getAllFullMatchingCoefficients(WGroup group, QCDOrder order, ContributionType cont_type);
 
-    std::map<WCoef, scalar_t> getAFM(WGroup group, QCDOrder order, ContributionType cont_type) {
-        return getAllFullMatchingCoefficients(group, order, cont_type);
-    }
+    /// Alias for @ref getAllFullMatchingCoefficients.
+    std::map<WCoef, scalar_t> getAFM(WGroup group, QCDOrder order, ContributionType cont_type);
 
-    std::map<WCoef, scalar_t> getAllFullRunCoefficients(WGroup group, QCDOrder order, ContributionType cont_type, WilsonBasis basis=WilsonBasis::B_STANDARD) {
-        std::vector<WCoef> ids = WCoefMapper::get_group(group);
-        std::map<WCoef, scalar_t> Cs;
-        for (auto c : ids) {
-            Cs.emplace(c, getFullRunCoefficient(group, c, order, cont_type));
-        }
+    /// Returns {coef -> full hadronic coefficient} (summed up to order) for all coefficients in the group.
+    std::map<WCoef, scalar_t> getAllFullRunCoefficients(WGroup group, QCDOrder order, ContributionType cont_type, WilsonBasis basis=WilsonBasis::B_STANDARD);
 
-        return Cs;
-    }
+    /// Alias for @ref getAllFullRunCoefficients.
+    std::map<WCoef, scalar_t> getAFR(WGroup group, QCDOrder order, ContributionType cont_type, WilsonBasis basis=WilsonBasis::B_STANDARD);
 
-    std::map<WCoef, scalar_t> getAFR(WGroup group, QCDOrder order, ContributionType cont_type, WilsonBasis basis=WilsonBasis::B_STANDARD) {
-        return getAllFullRunCoefficients(group, order, cont_type);
-    }
+    /** @} */
 };
 
-#endif // __WILSONINTERFACE_H__
+#endif // WILSONINTERFACE_H

@@ -138,7 +138,7 @@ struct Harness {
     std::shared_ptr<DummyCoreAPI<Model>>    model_api;
     std::shared_ptr<DummyScaleSetter>       scale_setter;
 
-    PortsConfig ports;
+    WilsonPortsConfig ports;
     CoefficientManager mgr;
 
     WGroupId gid;

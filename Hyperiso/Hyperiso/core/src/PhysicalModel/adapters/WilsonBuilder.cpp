@@ -44,13 +44,13 @@ void WilsonBuilder::build(WilsonBuildConfig config) {
 
     //TODO :: better
     if (model == Model::THDM) {
-        wilson_param_helpers[model] = std::make_shared<thdm_parameters>(iblock_c);
+        wilson_param_helpers[model] = std::make_shared<THDMParameterHelper>(iblock_c);
         for (const auto& elem : config.groups) {
             wilson_param_helpers[model]->init(2, elem);
 
         }
     } else if (model == Model::SUSY) {
-        wilson_param_helpers[model] = std::make_shared<susy_parameters>(iblock_c);
+        wilson_param_helpers[model] = std::make_shared<SUSYParameterHelper>(iblock_c);
         for (const auto& elem : config.groups) {
             wilson_param_helpers[model]->init(2, elem);
         }
@@ -107,7 +107,7 @@ void WilsonBuilder::build(WilsonBuildConfig config) {
         config.order = QCDOrder::LO;
     }
 
-    PortsConfig port_config{iblock_c, wilson_proxy, use_marty, has_wilson, model_api, scale_setter_api};
+    WilsonPortsConfig port_config{iblock_c, wilson_proxy, use_marty, has_wilson, model_api, scale_setter_api};
     port_config.build_group = build_group_fn;
 
     this->cm = CoefficientManager::Builder(ModelMapper::str(model), groups, config.matching_scale, config.hadronic_scale, OrderMapper::str(config.order), port_config, wilson_param_helpers);

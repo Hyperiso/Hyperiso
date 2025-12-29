@@ -126,7 +126,7 @@ int main() {
     auto model_api    = std::make_shared<DummyCoreAPI<Model>>(Model::SM);
     auto scale_setter = std::make_shared<DummyScaleSetter>();
 
-    PortsConfig ports{iblock_c, wilson_proxy, use_marty, has_wilson_api, model_api, scale_setter};
+    WilsonPortsConfig ports{iblock_c, wilson_proxy, use_marty, has_wilson_api, model_api, scale_setter};
     ports.build_group = nullptr;
 
     CoefficientManager manager{ports};

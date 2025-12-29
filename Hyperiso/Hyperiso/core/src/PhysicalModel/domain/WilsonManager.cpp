@@ -69,7 +69,7 @@ void CoefficientManager::ensure_final_triplet_defaults_zero(
 void CoefficientManager::ensure_sm_intermediate_and_copy_to_final(
     const std::string& groupName,
     QCDOrder max_order,
-    PortsConfig& ports_config
+    WilsonPortsConfig& ports_config
 ) {
     WGroupId gid = GroupMapper::enum_elt(groupName);
     const std::string sm_block    = WilsonBlockNames::sm_matching(gid);
@@ -175,7 +175,7 @@ void CoefficientManager::fill_matching_groups(const std::string& groupName, cons
 void CoefficientManager::compose_from_fwcoef(
     const std::string& groupName,
     QCDOrder max_order,
-    PortsConfig& ports_config
+    WilsonPortsConfig& ports_config
 ) {
     WGroupId gid = GroupMapper::enum_elt(groupName);
     const std::string sm_block    = WilsonBlockNames::sm_matching(gid);
@@ -288,7 +288,7 @@ void CoefficientManager::compose_from_fwcoef(
 void CoefficientManager::compose_missing_from_calculation(
     const std::string& groupName,
     QCDOrder order,
-    PortsConfig& ports_config
+    WilsonPortsConfig& ports_config
 ) {
     WGroupId gid = GroupMapper::enum_elt(groupName);
     const std::string final_block = WilsonBlockNames::matching(gid);
@@ -599,7 +599,7 @@ void CoefficientManager::update(std::string group, double mu_W, double mu_h) {
     this->set_hadronic_scale(mu_h);
 }
 
-std::shared_ptr<CoefficientManager> CoefficientManager::Builder(std::string model, std::map<std::string, std::shared_ptr<CoefficientGroup>> groups, double mu_W, double mu_h, std::string order, PortsConfig portconfig, std::map<Model, std::shared_ptr<IWilsonParameterHelper>> wilson_param_helpers) {
+std::shared_ptr<CoefficientManager> CoefficientManager::Builder(std::string model, std::map<std::string, std::shared_ptr<CoefficientGroup>> groups, double mu_W, double mu_h, std::string order, WilsonPortsConfig portconfig, std::map<Model, std::shared_ptr<IWilsonParameterHelper>> wilson_param_helpers) {
     
     for (auto& helper : wilson_param_helpers) {
         if (!helper.second->is_init()) {

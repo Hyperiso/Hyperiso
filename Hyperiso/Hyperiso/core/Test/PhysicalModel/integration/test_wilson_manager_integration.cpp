@@ -139,7 +139,7 @@ int main() {
     auto scale_setter = std::make_shared<DummyScaleSetter>();
     auto has_wilson_api    = std::make_shared<DummyCoreAPI<bool>>(false);
 
-    PortsConfig ports{iblock_c, wilson_proxy, use_marty, has_wilson_api, model_api, scale_setter};
+    WilsonPortsConfig ports{iblock_c, wilson_proxy, use_marty, has_wilson_api, model_api, scale_setter};
     ports.build_group = nullptr;
 
     std::map<std::string, std::shared_ptr<CoefficientGroup>> groups;

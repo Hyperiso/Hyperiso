@@ -2,10 +2,25 @@
 #define BWILSONRUNNINGPARAMETERS_H
 
 #include <array>
+#include <cstddef>
+
 #include "Utils.h"
 
+/**
+ * @file BWilsonRunningParameters.h
+ * @brief Constants and helper functions for B-physics Wilson coefficient running.
+ *
+ * This struct stores the numerical matrices used to build the evolution matrices
+ * (U, V, eta powers, etc.) for B-type Wilson coefficient groups.
+ *
+ * Large tables are defined in the corresponding .cpp file.
+ */
 struct BWilsonRunningParameters {
     static constexpr int array_size {10};
+
+	// -------------------------------------------------------------------------
+    // Evolution matrices (defined in .cpp)
+    // -------------------------------------------------------------------------
 
     static const std::array<std::array<std::array<double, array_size>, array_size>, array_size> m00;
     static const std::array<std::array<std::array<double, array_size>, array_size>, array_size> m10;
@@ -18,6 +33,10 @@ struct BWilsonRunningParameters {
     static const std::array<std::array<std::array<double, array_size>, array_size>, array_size> l01;
     static const std::array<std::array<std::array<double, array_size>, array_size>, array_size> l10;
     static const std::array<std::array<std::array<double, array_size>, array_size>, array_size> l11;
+
+	// -------------------------------------------------------------------------
+    // Exponents used for eta powers
+    // -------------------------------------------------------------------------
 
     static constexpr std::array<double, array_size> ai = {14.0 / 23.0, 16.0 / 23.0, 6.0 / 23.0, -12.0 / 23.0, 0.408619, -0.422989, -0.899395, 0.145649, -1.0, -1.0};
     static constexpr std::array<double, array_size> ai2 = {6./23., -12./23., 0.4086, -0.4230, -0.8994, 0.1456, 16./23., 14./23., 11./23., 29./23.}; 
@@ -39,6 +58,10 @@ struct BWilsonRunningParameters {
 	static constexpr double e_5[8]={0.19550,-0.93249,0.37858,0.,0.39909,0.05921,0.,-0.09989};
 	static constexpr double e_6[8]={-0.17154,0.39616,0.01201,0.,-0.19423,0.00357,0.,-0.04597};
 
+	// -------------------------------------------------------------------------
+    // Effective coefficients helpers (standard basis)
+    // -------------------------------------------------------------------------
+
 	static constexpr double y_std[8] = {0, 0, -1./3, -4./9, -20./3, -80./9, 1, 0};
 	static constexpr double z_std[8] = {0, 0, 1, -1./6, 20, -10./3, 0, 1};
 
@@ -58,6 +81,10 @@ struct BWilsonRunningParameters {
             return C;
 	}
 
+	// -------------------------------------------------------------------------
+    // Basis change matrices (defined in .cpp)
+    // -------------------------------------------------------------------------
+	
 	static const std::array<std::array<double, 8>, 8> std_to_trad_LO;
 	static const std::array<std::array<double, 8>, 8> std_to_trad_NLO;
 
