@@ -29,16 +29,16 @@ int main() {
         ParamId {ParameterType::SM, "MASS", 24}
     });
 
-    LOG_INFO("C7 =", oi.compute_observable(o)[0].value, "+-", oi.compute_uncertainty(o));
+    // LOG_INFO("C7 =", oi.compute_observable(o)[0].value, "+-", oi.compute_uncertainty(o));
 
-    auto print_leading = [&oi] (ObservableId o, size_t n) {
-        LOG_INFO("---------- Leading uncertainties for", ObservableMapper::str(o));
-        for (const auto& [pid, u] : oi.compute_leading_uncertainties(o, n)) {
-            LOG_INFO("\t-", pid, ":", u.real());
-        }
-    };
+    // auto print_leading = [&oi] (ObservableId o, size_t n) {
+    //     LOG_INFO("---------- Leading uncertainties for", ObservableMapper::str(o));
+    //     for (const auto& [pid, u] : oi.compute_leading_uncertainties(o, n)) {
+    //         LOG_INFO("\t-", pid, ":", u.real());
+    //     }
+    // };
 
-    print_leading(o, 4);
+    // print_leading(o, 4);
 
     return 0;
 }

@@ -82,29 +82,6 @@ public:
         return manager->evaluate(obs);
     }
 
-    scalar_t compute_uncertainty(Observables obs, UncertaintyType u_type=UncertaintyType::COMBINED) const {
-        return manager->get_uncertainty(obs);
-    }
-
-    scalar_t compute_uncertainty(ObservableId obs, UncertaintyType u_type=UncertaintyType::COMBINED) const {
-        return manager->get_uncertainty(obs);
-    }
-
-    std::unordered_map<ParamId, scalar_t> compute_leading_uncertainties(Observables obs, size_t n, UncertaintyType u_type=UncertaintyType::COMBINED) const {
-        return manager->get_leading_uncertainties(obs, n);
-    }
-
-    std::unordered_map<ParamId, scalar_t> compute_leading_uncertainties(ObservableId obs, size_t n, UncertaintyType u_type=UncertaintyType::COMBINED) const {
-        return manager->get_leading_uncertainties(obs, n);
-    }
-
-    std::unordered_map<ObservableId, scalar_t> compute_all_uncertainties() const {
-        return manager->get_all_uncertainties();
-    }
-
-    double compute_chi2() const {
-        return manager->get_chi2();
-    }
 
     void remove_observable(Observables id) {
         manager->remove_obs(id);
@@ -179,14 +156,6 @@ public:
 
     double get_param(const std::string& block, LhaID code, ParameterType type) {
         return Parameters::GetInstance(type)->operator()(block, code);
-    }
-
-    void update_gradient(Observables obs) {
-        manager->update_gradient(obs);
-    }
-
-    void update_gradient(ObservableId obs) {
-        manager->update_gradient(obs);
     }
 
     std::unordered_set<ParamId> get_all_ops_deps(ObservableId id) {

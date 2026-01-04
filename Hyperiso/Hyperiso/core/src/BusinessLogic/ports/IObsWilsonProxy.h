@@ -23,4 +23,4 @@ public:
     virtual std::unordered_set<WilsonBasis> get_bases(WGroupId) = 0;
 };
 
-#endif // __IOBSWILSONPROXY_H__
+#endif // IOBSWILSONPROXY_H

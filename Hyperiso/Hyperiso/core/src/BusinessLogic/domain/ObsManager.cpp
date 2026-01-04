@@ -37,7 +37,7 @@ ObsManager ObsManager::add_obs(ObservableId id, QCDOrder order, bool add_deps) {
     dec->set_order(order);
     auto obs_ptr = std::make_shared<Observable>(id, dec);
     obss.emplace(id, obs_ptr);
-    me.add_observable(obs_ptr);
+    // me.add_observable(obs_ptr);
     if (add_deps) {
         add_all_obs_deps(id);
     }
@@ -57,7 +57,7 @@ ObsManager ObsManager::remove_obs(Observables id) {
 ObsManager ObsManager::remove_obs(ObservableId id) {
     id = ensure_present(id, false);
     obss.erase(id);
-    me.remove_observable(id);
+    // me.remove_observable(id);
 
     return *this;
 }
@@ -132,48 +132,8 @@ std::unordered_set<ParamId> ObsManager::get_all_ops_deps(ObservableId id) {
     return DependenciesHelper::get_allowed_parameters(id);
 }
 
-scalar_t ObsManager::get_uncertainty(Observables id) {
-    ObservableId obs_id = ObservableMapper::to_id(id);
-    return get_uncertainty(obs_id);
-}
-
-scalar_t ObsManager::get_uncertainty(ObservableId id) {
-    return std::sqrt(obss.at(ensure_present(id))->variance());
-}
-
-std::unordered_map<ObservableId, scalar_t> ObsManager::get_all_uncertainties() {
-    std::unordered_map<ObservableId, scalar_t> all_vars;
-    for (auto &[k, _] : obss) {
-        all_vars.emplace(k, get_uncertainty(k));
-    }
-    return all_vars;
-}
-
-std::unordered_map<ParamId, scalar_t> ObsManager::get_leading_uncertainties(ObservableId id, size_t n) {
-    return obss.at(ensure_present(id))->get_leading_uncertainties(n);
-}
-
-std::unordered_map<ParamId, scalar_t> ObsManager::get_leading_uncertainties(Observables id, size_t n) {
-    ObservableId obs_id = ObservableMapper::to_id(id);
-    return get_leading_uncertainties(obs_id, n);
-}
-
-double ObsManager::get_chi2() {
-    return me.chi2();
-}
-
 std::unordered_set<ObservableId> ObsManager::get_current_obss() {
     return get_keys(this->obss);
-}
-
-void ObsManager::update_gradient(ObservableId id) {
-    obss.at(ensure_present(id))->update_gradient();
-}
-
-void ObsManager::update_gradient(Observables id) {
-    ObservableId obs_id = ObservableMapper::to_id(id);
-
-    update_gradient(obs_id);
 }
 
 std::shared_ptr<Observable> ObsManager::get_obs(Observables id){

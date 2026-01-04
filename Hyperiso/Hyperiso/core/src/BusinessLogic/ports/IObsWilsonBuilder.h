@@ -1,5 +1,5 @@
-#ifndef __IOBSWILSONBUILDER_H__
-#define __IOBSWILSONBUILDER_H__
+#ifndef IOBSWILSONBUILDER_H
+#define IOBSWILSONBUILDER_H
 
 #include "AbstractConfig.h"
 #include <memory>
@@ -10,8 +10,8 @@ public:
     virtual ~IObsWilsonBuilder() = default;	
 
     virtual void build(std::shared_ptr<AbstractConfig>) = 0;
-    // virtual void switch_basis(IdType) = 0;
+
     virtual std::shared_ptr<ProxyType> get_proxy() = 0;
 };
 
-#endif // __IOBSWILSONBUILDER_H__
+#endif // IOBSWILSONBUILDER_H
