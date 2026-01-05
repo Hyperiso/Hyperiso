@@ -32,4 +32,4 @@ public:
 
 };
 
-#endif // __BLNUDECAY_H__
+#endif // BLNUDECAY_H

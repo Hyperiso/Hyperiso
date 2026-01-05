@@ -88,9 +88,9 @@ void test_interface(ObservableInterface& interface) {
     auto estimates = interface.compute_all();
     std::cout << "compute_all size: " << estimates.size() << "\n";
 
-    // get_all_exp
-    auto all_exp = interface.get_all_exp();
-    std::cout << "get_all_exp size: " << all_exp.size() << "\n";
+    // // get_all_exp
+    // auto all_exp = interface.get_all_exp();
+    // std::cout << "get_all_exp size: " << all_exp.size() << "\n";
 }
 
 

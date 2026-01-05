@@ -6,7 +6,6 @@
 
 #include "ParamID.h"
 #include "Observable.h"
-#include "ModelEvaluator.h"
 #include "Decays.h"
 
 class ObsManager {
@@ -21,7 +20,7 @@ public:
 
     std::vector<ObservableValue> evaluate(Observables id);
     std::vector<ObservableValue> evaluate(ObservableId id);
-    std::unordered_map<ObservableId, Estimate> evaluate_all();
+    std::unordered_map<ObservableId, std::vector<ObservableValue>> evaluate_all();
 
     void add_custom_decay(DecayId id, std::shared_ptr<DecayParent> ptr);
 
@@ -61,4 +60,4 @@ private:
     std::shared_ptr<ObsWilsonBuilder> wil_builder;
 };
 
-#endif // __OBSERVABLEMANAGER_H__
+#endif // OBSERVABLEMANAGER_H

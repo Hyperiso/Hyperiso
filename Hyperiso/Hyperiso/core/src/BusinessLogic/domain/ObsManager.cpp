@@ -72,10 +72,10 @@ std::vector<ObservableValue> ObsManager::evaluate(Observables id) {
     return evaluate(obs_id);
 }
 
-std::unordered_map<ObservableId, Estimate> ObsManager::evaluate_all() {
-    std::unordered_map<ObservableId, Estimate> all_ests;
+std::unordered_map<ObservableId, std::vector<ObservableValue>> ObsManager::evaluate_all() {
+    std::unordered_map<ObservableId, std::vector<ObservableValue>> all_ests;
     for (auto &[k, k_ptr] : obss) {
-        all_ests.emplace(k, k_ptr->get_estimate());
+        all_ests.emplace(k, k_ptr->compute());
     }
     return all_ests;
 }

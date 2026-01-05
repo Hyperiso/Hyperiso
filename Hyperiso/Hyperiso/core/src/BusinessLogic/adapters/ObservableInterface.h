@@ -10,7 +10,6 @@
 #include <cmath>
 
 #include "Include.h"
-#include "ModelEvaluator.h"
 #include "Decays.h"
 #include "ObsManager.h"
 
@@ -131,24 +130,10 @@ public:
         return manager->get_current_obss();
     }
 
-    std::unordered_map<ObservableId, Estimate> compute_all() {
+    std::unordered_map<ObservableId, std::vector<ObservableValue>> compute_all() {
         return manager->evaluate_all();
     }
 
-    std::unordered_map<ObservableId, Estimate> get_all_exp() {
-        std::unordered_map<ObservableId, Estimate> all_exp;
-        for (ObservableId id : get_current_observables()) {
-            all_exp.emplace(
-                id, 
-                Estimate {
-                    get_exp_value(id),
-                    get_exp_uncertainty(id, UncertaintyType::STAT),
-                    get_exp_uncertainty(id, UncertaintyType::SYST), 
-                }
-            );
-        }
-        return all_exp;
-    }
 
     void set_param(const std::string& block, LhaID code, double value, ParameterType type) {
         Parameters::GetInstance(type)->setBlockValue(block, code, value);

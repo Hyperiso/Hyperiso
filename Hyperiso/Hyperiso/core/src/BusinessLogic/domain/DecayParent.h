@@ -5,7 +5,6 @@
 #include <string>
 #include "Include.h"
 #include "WilsonInterface.h"
-#include "Node.h"
 #include "ObsUseMarty.h"
 #include "ObsWilsonBuilder.h"
 #include "ObsWilsonProxy.h"
@@ -17,6 +16,7 @@
 #include <any>
 #include "DefaultConfig.h"
 #include "ObservableValue.h"
+#include "ObsParameterProxy.h"
 
 using std::chrono::high_resolution_clock;
 using std::chrono::duration;
@@ -86,4 +86,4 @@ public:
     }
 };
 
-#endif // __DECAYPARENT_H__
+#endif // DECAYPARENT_H

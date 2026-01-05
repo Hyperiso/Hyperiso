@@ -54,11 +54,8 @@ add_library(BusinessLogicLib STATIC
     domain/Decays/DlnuDecay.cpp
     domain/Decays/DslnuDecay.cpp
     domain/Wilson/WilsonObs.cpp
-    domain/Compound.cpp
     domain/Observable.cpp
     domain/DecayParent.cpp
-    domain/Node.cpp
-    domain/ModelEvaluator.cpp
     domain/ObsManager.cpp
     domain/ObsWilsonHelper.cpp
     adapters/CorrelationProxy.cpp
