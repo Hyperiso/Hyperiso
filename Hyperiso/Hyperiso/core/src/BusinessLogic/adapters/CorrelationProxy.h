@@ -1,7 +1,7 @@
-#ifndef CORRELATION_PROXY_H
-#define CORRELATION_PROXY_H
+#ifndef OBS_CORRELATION_PROXY_H
+#define OBS_CORRELATION_PROXY_H
 
-#include "IObsParameterProxy.h"
+#include "IObsCorrelationProxy.h"
 #include "ParameterProvider.h"
 #include "CorrelationProvider.h"
 #include "HyperisoMaster.h"
@@ -32,7 +32,7 @@
  * @see CorrelationProvider
  * @see IObsParameterProxy
  */
-class CorrelationProxy : public IObsParameterProxy<std::string, LhaID> {
+class CorrelationProxy : public IObsCorrelationProxy<ParamId, Observables, ObservableId, CorrelationProvider::CorrelationType> {
 public:
     /**
      * @brief Returns correlation-like quantity for two parameters identified by ParamId.

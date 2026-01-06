@@ -1,5 +1,5 @@
-#ifndef __OBSERVABELEVALUE_H__
-#define __OBSERVABELEVALUE_H__
+#ifndef OBSERVABELEVALUE_H
+#define OBSERVABELEVALUE_H
 
 #include "Include.h"
 #include <optional>
@@ -14,4 +14,4 @@ struct ObservableValue {
     ObservableValue(ObservableId id, double value, std::pair<double, double> bin) : ObservableValue(id, value) { this->bin = bin; };
 };
 
-#endif // __OBSERVABELEVALUE_H__
+#endif // OBSERVABELEVALUE_H

@@ -7,6 +7,55 @@
 #include "ParamID.h"
 #include "Observable.h"
 #include "Decays.h"
+#include "IObsParameterProxy.h"
+
+struct ObservablePortsConfig {
+    /**
+     * @brief Constructs the port bundle.
+     *
+     * @param iblock_c         Block composer used to register dependent blocks/parameters.
+     * @param wilson_proxy     Proxy to read/write Wilson parameters by (block, LhaID).
+     * @param use_marty        Runtime flag: whether Marty backend is enabled.
+     * @param has_wilson       Runtime flag: whether an input FWCOEF block is present.
+     * @param model_api        Runtime access to the currently selected physics model.
+     * @param scale_setter_api Runtime setter for switching and setting the active scale.
+     */
+    ObservablePortsConfig(std::shared_ptr<IObsWilsonBuilder<ObsWilsonProxy, WGroup>> iobswb, std::shared_ptr<IObsWilsonProxy<ObsWilsonBuilder>> iobswp, std::shared_ptr<IObsParameterProxy<ParamId, DataType, std::string, LhaID>> iobspp, std::shared_ptr<IObsQCDProxy> iobs_qcdp, std::shared_ptr<IObsCoreAPI<bool>> iobs_use_marty, std::shared_ptr<IWilsonFreezer<WGroupId>> iobs_wfreezer) :
+        iobswb(iobswb), iobswp(iobswp), 
+        iobspp(iobspp), iobs_qcdp(iobs_qcdp),
+        iobs_use_marty(iobs_use_marty), iobs_wfreezer(iobs_wfreezer) {}
+
+    /// Dependency engine used to compose derived blocks/parameters.
+    std::shared_ptr<IObsWilsonBuilder<ObsWilsonProxy, WGroup>> iobswb;
+
+    /// Read-only access to existing blocks/parameters (FWCOEF, matching blocks, etc.).
+    std::shared_ptr<IObsWilsonProxy<ObsWilsonBuilder>> iobswp;
+
+    /// Backend selector: true => Marty, false => builtin.
+    std::shared_ptr<IObsParameterProxy<ParamId, DataType, std::string, LhaID>> iobspp;
+
+    /// Whether an input Wilson block exists (FWCOEF-style input present).
+    std::shared_ptr<IObsQCDProxy> iobs_qcdp;
+
+    /// Current model selector (SM/SUSY/THDM...).
+    std::shared_ptr<IObsCoreAPI<bool>> iobs_use_marty;
+
+    /// Scale setter used to switch and set mu_W / mu_h.
+    std::shared_ptr<IWilsonFreezer<WGroupId>> iobs_wfreezer;
+
+    /**
+     * @brief Optional group builder hook.
+     *
+     * Signature: (group id, model, use_marty, contribution type, storage block name) -> group instance.
+     *
+     * When provided, the manager uses it to build:
+     *  - SM-only intermediate groups (stored in a block name like "<MATCHING>_SM"),
+     *  - possibly other specializations depending on the application.
+     *
+     * If null, the manager falls back to cloning existing groups via @ref CoefficientGroup::get_sm_group().
+     */
+    std::function<std::shared_ptr<CoefficientGroup>(WGroupId, Model, bool, ContributionType, std::string)> build_group;
+};
 
 class ObsManager {
 public:

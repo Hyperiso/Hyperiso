@@ -38,7 +38,7 @@
  * @see ParameterProvider
  * @see IObsParameterProxy
  */
-class ObsParameterProxy : public IObsParameterProxy<ObsParameterProxy, LhaID> {
+class ObsParameterProxy : public IObsParameterProxy<ParamId, DataType, std::string, LhaID> {
 public:
     /**
      * @brief Construct a proxy limited to a given parameter type.
@@ -61,7 +61,7 @@ public:
      * @param d_type Which value to return (central/value, error, etc.).
      * @return The requested scalar value (or default if missing Wilson parameter).
      */
-    scalar_t operator()(const ParamId& pid, DataType d_type=DataType::VALUE);
+    scalar_t operator()(const ParamId& pid, DataType d_type=DataType::VALUE) override;
 
     /**
      * @brief Access a parameter by block name and LHA-like id.
@@ -74,14 +74,14 @@ public:
      * @param d_type Which value to return (central/value, error, etc.).
      * @return The requested scalar value (or default if missing Wilson parameter).
      */
-    scalar_t operator()(const std::string& block, const LhaID& id, DataType d_type=DataType::VALUE) const;
+    scalar_t operator()(const std::string& block, const LhaID& id, DataType d_type=DataType::VALUE) const override;
     
     /**
      * @brief Returns the underlying Parameter object (shared_ptr) for a given id.
      * @param pid Typed parameter identifier.
      * @return Shared pointer to the parameter (may be null depending on provider policy).
      */
-    std::shared_ptr<Parameter> get_parameter(const ParamId& pid) const;
+    std::shared_ptr<Parameter> get_parameter(const ParamId& pid) const override;
 private:
     /// Generic provider (can access typed ParamId as-is).
     ParameterProvider pp;
