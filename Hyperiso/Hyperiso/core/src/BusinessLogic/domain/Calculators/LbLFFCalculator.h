@@ -20,7 +20,7 @@ private:
     };
 
 public:
-    LbLFFCalculator(LbL_FF_Src src=LbL_FF_Src::DM);
+    LbLFFCalculator(std::shared_ptr<IObsParameterProxy<ParamId, DataType, std::string, LhaID>> iobspp_sm, LbL_FF_Src src=LbL_FF_Src::DM);
 
     complex_t z(double t, double t_p, double t_0);
     double get(LbL_FF a, double q2) override;

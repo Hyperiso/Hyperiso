@@ -8,32 +8,31 @@ void BXsllDecay::load_params() {
     cache.q2_low_bound = {1., 6.};
     cache.q2_high_bound = {14.4, 22.};
 
-    ObsParameterProxy p;
-    cache.alpha_em = p(ParamId{ParameterType::SM, "EW", {1, 1}});
-    double m_c = p(ParamId{ParameterType::SM, "MASS", 4});
-    cache.m_b_1S = p(ParamId{ParameterType::SM, "QCD", {5, 3}});
-    complex_t V_tb = p(ParamId{ParameterType::SM, "VCKM", {2, 2}});
-    complex_t V_ts = p(ParamId{ParameterType::SM, "VCKM", {2, 1}});
-    complex_t V_cb = p(ParamId{ParameterType::SM, "VCKM", {1, 2}});
-    complex_t V_cs = p(ParamId{ParameterType::SM, "VCKM", {1, 1}});
-    cache.m_mu_hat = p(ParamId{ParameterType::SM, "MASS", 13}) / cache.m_b_1S;
-    cache.m_tau_hat = p(ParamId{ParameterType::SM, "MASS", 15}) / cache.m_b_1S;
+    cache.alpha_em = (*p)(ParamId{ParameterType::SM, "EW", {1, 1}}, DataType::VALUE);
+    double m_c = (*p)(ParamId{ParameterType::SM, "MASS", 4}, DataType::VALUE);
+    cache.m_b_1S = (*p)(ParamId{ParameterType::SM, "QCD", {5, 3}}, DataType::VALUE);
+    complex_t V_tb = (*p)(ParamId{ParameterType::SM, "VCKM", {2, 2}}, DataType::VALUE);
+    complex_t V_ts = (*p)(ParamId{ParameterType::SM, "VCKM", {2, 1}}, DataType::VALUE);
+    complex_t V_cb = (*p)(ParamId{ParameterType::SM, "VCKM", {1, 2}}, DataType::VALUE);
+    complex_t V_cs = (*p)(ParamId{ParameterType::SM, "VCKM", {1, 1}}, DataType::VALUE);
+    cache.m_mu_hat = (*p)(ParamId{ParameterType::SM, "MASS", 13}, DataType::VALUE) / cache.m_b_1S;
+    cache.m_tau_hat = (*p)(ParamId{ParameterType::SM, "MASS", 15}, DataType::VALUE) / cache.m_b_1S;
     cache.m_c_hat = m_c / cache.m_b_1S;
-    cache.m_D_hat = p(ParamId{ParameterType::FLAVOR, "FMASS", 421}) / cache.m_b_1S;
-    cache.alpha_s_mu_b = ObsQCDProxy()(AlphasConfig(w_config.hadronic_scale, MassType::POLE, MassType::POLE));
+    cache.m_D_hat = (*p)(ParamId{ParameterType::FLAVOR, "FMASS", 421}, DataType::VALUE) / cache.m_b_1S;
+    cache.alpha_s_mu_b = (*iobs_qcdp)(AlphasConfig(w_config.hadronic_scale, MassType::POLE, MassType::POLE));
     cache.z = std::pow(cache.m_c_hat, 2);
     cache.L_b = std::log(w_config.hadronic_scale / cache.m_b_1S);
     cache.L_b_5GeV = std::log(w_config.hadronic_scale / 5.0);
     cache.L_l_mu = -2 * std::log(cache.m_mu_hat);
     cache.L_l_tau = -2 * std::log(cache.m_tau_hat);
 
-    cache.pref_dB0_ds = 1. + 3. * p(ParamId{ParameterType::DECAY, "B_Xs", 6}) * g_lambda(cache.z) / (2. * pow(cache.m_b_1S, 2) * f(cache.z)) - p(ParamId{ParameterType::DECAY, "B_Xsll", 2}) * g_rho(cache.z) / (6. * pow(cache.m_b_1S, 3) * f(cache.z));
-    cache.pref_dB_ds = p(ParamId{ParameterType::DECAY, "B_Xs", 2}) * std::pow(std::abs(V_tb * std::conj(V_ts) / V_cb), 2) / (std::pow(2 * PI / cache.alpha_em, 2) * f(cache.z) * kappa(cache.z));
-    cache.pref_A0_0 = 1 + 3 * p(ParamId{ParameterType::DECAY, "B_Xs", 6}) * g_lambda(cache.z) / (2 * std::pow(cache.m_b_1S, 2) * f(cache.z));
-    cache.pref_A0_1 = 4 * p(ParamId{ParameterType::DECAY, "B_Xsll", 1}) / (3 * std::pow(cache.m_b_1S, 2));
-    cache.pref_delta_mb2 = 3. * p(ParamId{ParameterType::DECAY, "B_Xs", 6}) / (2. * std::pow(cache.m_b_1S * std::abs(V_tb), 2));
-    cache.pref_delta_mb3 = -p(ParamId{ParameterType::DECAY, "B_Xsll", 2}) / (pow(cache.m_b_1S, 3) * std::pow(std::abs(V_tb), 2));
-    cache.pref_delta_mc2 = 8. * p(ParamId{ParameterType::DECAY, "B_Xs", 6}) / (9. * std::pow(m_c, 2)) * std::abs(std::conj(V_cs) * V_cb / (std::conj(V_ts) * std::pow(V_tb, 3)));
+    cache.pref_dB0_ds = 1. + 3. * (*p)(ParamId{ParameterType::DECAY, "B_Xs", 6}, DataType::VALUE) * g_lambda(cache.z) / (2. * pow(cache.m_b_1S, 2) * f(cache.z)) - (*p)(ParamId{ParameterType::DECAY, "B_Xsll", 2}, DataType::VALUE) * g_rho(cache.z) / (6. * pow(cache.m_b_1S, 3) * f(cache.z));
+    cache.pref_dB_ds = (*p)(ParamId{ParameterType::DECAY, "B_Xs", 2}, DataType::VALUE) * std::pow(std::abs(V_tb * std::conj(V_ts) / V_cb), 2) / (std::pow(2 * PI / cache.alpha_em, 2) * f(cache.z) * kappa(cache.z));
+    cache.pref_A0_0 = 1 + 3 * (*p)(ParamId{ParameterType::DECAY, "B_Xs", 6}, DataType::VALUE) * g_lambda(cache.z) / (2 * std::pow(cache.m_b_1S, 2) * f(cache.z));
+    cache.pref_A0_1 = 4 * (*p)(ParamId{ParameterType::DECAY, "B_Xsll", 1}, DataType::VALUE) / (3 * std::pow(cache.m_b_1S, 2));
+    cache.pref_delta_mb2 = 3. * (*p)(ParamId{ParameterType::DECAY, "B_Xs", 6}, DataType::VALUE) / (2. * std::pow(cache.m_b_1S * std::abs(V_tb), 2));
+    cache.pref_delta_mb3 = -(*p)(ParamId{ParameterType::DECAY, "B_Xsll", 2}, DataType::VALUE) / (pow(cache.m_b_1S, 3) * std::pow(std::abs(V_tb), 2));
+    cache.pref_delta_mc2 = 8. * (*p)(ParamId{ParameterType::DECAY, "B_Xs", 6}, DataType::VALUE) / (9. * std::pow(m_c, 2)) * std::abs(std::conj(V_cs) * V_cb / (std::conj(V_ts) * std::pow(V_tb, 3)));
     cache.pref_delta_brems = cache.alpha_s_mu_b / (4. * PI);
     cache.pref_delta_em = cache.alpha_em / (4. * PI);
 
@@ -70,11 +69,11 @@ void BXsllDecay::load_params() {
     // double w = 0.5;
     // printf("pref dB_ds = %.5e\n", cache.pref_dB_ds);
     // printf("pref dB0_ds = %.5e\n", cache.pref_dB0_ds);
-    // printf("pref dB_mb2 = %.5e\n", cache.pref_dB_ds * cache.pref_delta_mb2 / p(ParamId{ParameterType::DECAY, "B_Xs", 2}).real());
-    // printf("pref dB_mb3 = %.5e\n", cache.pref_dB_ds * cache.pref_delta_mb3 / p(ParamId{ParameterType::DECAY, "B_Xs", 2}).real());
-    // printf("pref dB_mc2 = %.5e\n", cache.pref_dB_ds * cache.pref_delta_mc2 / p(ParamId{ParameterType::DECAY, "B_Xs", 2}).real());
+    // printf("pref dB_mb2 = %.5e\n", cache.pref_dB_ds * cache.pref_delta_mb2 / (*p)(ParamId{ParameterType::DECAY, "B_Xs", 2}).real());
+    // printf("pref dB_mb3 = %.5e\n", cache.pref_dB_ds * cache.pref_delta_mb3 / (*p)(ParamId{ParameterType::DECAY, "B_Xs", 2}).real());
+    // printf("pref dB_mc2 = %.5e\n", cache.pref_dB_ds * cache.pref_delta_mc2 / (*p)(ParamId{ParameterType::DECAY, "B_Xs", 2}).real());
     // printf("pref dB_brems = %.5e\n", cache.pref_dB_ds * cache.pref_delta_brems);
-    // printf("pref dB_em = %.5e\n", cache.pref_dB_ds * cache.pref_delta_em / p(ParamId{ParameterType::DECAY, "B_Xs", 2}).real());
+    // printf("pref dB_em = %.5e\n", cache.pref_dB_ds * cache.pref_delta_em / (*p)(ParamId{ParameterType::DECAY, "B_Xs", 2}).real());
 
     // printf("C7_new = %.4e + %.4e i\n", real(C7_new(s, false)), imag(C7_new(s, false)));
     // printf("C9_new = %.4e + %.4e i\n", real(C9_new(s, false)), imag(C9_new(s, false)));
@@ -632,9 +631,9 @@ double BXsllDecay::delta_bremA(double s) {
     // printf("C9_0_eff (s = %.4f) = %.5e + %.5e i\n", s, real(C9_0), imag(C9_0));
     // printf("CP9_0_eff (s = %.4f) = %.5e + %.5e i\n", s, real(CP9_0), imag(CP9_0));
 
-    complex_t c_78 = ObsQCDProxy().get_constants()->C_F * (C7_0 * conj(C8_0) + CP7_0 * conj(CP8_0));
-    complex_t c_88 = ObsQCDProxy().get_constants()->C_F * (C8_0 * conj(C8_0) + CP8_0 * conj(CP8_0));
-    complex_t c_89 = ObsQCDProxy().get_constants()->C_F * (C8_0 * conj(C9_0) + CP8_0 * conj(CP9_0));
+    complex_t c_78 = (*iobs_qcdp).get_constants()->C_F * (C7_0 * conj(C8_0) + CP7_0 * conj(CP8_0));
+    complex_t c_88 = (*iobs_qcdp).get_constants()->C_F * (C8_0 * conj(C8_0) + CP8_0 * conj(CP8_0));
+    complex_t c_89 = (*iobs_qcdp).get_constants()->C_F * (C8_0 * conj(C9_0) + CP8_0 * conj(CP9_0));
 
     // printf("c_78 (s = %.4f) = %.4e + %.4e i\n", s, real(c_78), imag(c_78));
     // printf("c_88 (s = %.4f) = %.4e + %.4e i\n", s, real(c_88), imag(c_88));
@@ -649,9 +648,9 @@ double BXsllDecay::delta_bremB_base(double s) {
     complex_t C9_0 = C9_eff(s, QCDOrder::LO, false);
     complex_t CP9_0 = C9_eff(s, QCDOrder::LO, true);
 
-    double C_f = ObsQCDProxy().get_constants()->C_F;
-    double C_tau_1 = C_f / (4. * pow(ObsQCDProxy().get_constants()->Nc, 2));
-    double C_tau_2 = -C_f / (2. * ObsQCDProxy().get_constants()->Nc);
+    double C_f = (*iobs_qcdp).get_constants()->C_F;
+    double C_tau_1 = C_f / (4. * pow((*iobs_qcdp).get_constants()->Nc, 2));
+    double C_tau_2 = -C_f / (2. * (*iobs_qcdp).get_constants()->Nc);
 
     complex_t c_11 = C_tau_1 * (C_0[WCoef::C1] * conj(C_0[WCoef::C1]) + CP_0[WCoef::CP1] * conj(CP_0[WCoef::CP1]));
 	complex_t c_12 = 2 * C_tau_2 * real((C_0[WCoef::C1]*conj(C_0[WCoef::C2])) + CP_0[WCoef::CP1] * conj(CP_0[WCoef::CP2]));
@@ -706,7 +705,7 @@ double BXsllDecay::delta_em(double s, double L_l) {
     auto C = cache.C;
     auto Cp = cache.C;
 
-    double C_F = ObsQCDProxy().get_constants()->C_F;
+    double C_F = (*iobs_qcdp).get_constants()->C_F;
     complex_t W_2 = pow(abs(C[WCoef::C2] + C_F * C[WCoef::C1]), 2) + pow(abs(Cp[WCoef::CP2] + C_F * Cp[WCoef::CP1]), 2);
     complex_t W_7 = pow(abs(C[WCoef::C7]), 2) + pow(abs(Cp[WCoef::CP7]), 2);
     complex_t W_9 = pow(abs(C[WCoef::C9]), 2) + pow(abs(Cp[WCoef::CP9]), 2);
@@ -734,7 +733,7 @@ double BXsllDecay::delta_A_em(double s, double L_l) {
     auto C = cache.C;
     auto Cp = cache.C;
 
-    double C_F = ObsQCDProxy().get_constants()->C_F;
+    double C_F = (*iobs_qcdp).get_constants()->C_F;
     complex_t W_210 = (C[WCoef::C2] + C_F * C[WCoef::C1]) * conj(C[WCoef::C10]) + (Cp[WCoef::CP2] + C_F * Cp[WCoef::CP1]) * conj(Cp[WCoef::CP10]);
     complex_t W_710 = C[WCoef::C7] * conj(C[WCoef::C10]) + Cp[WCoef::CP7] * conj(Cp[WCoef::CP10]);
     complex_t W_910 = C[WCoef::C9] * conj(C[WCoef::C10]) + Cp[WCoef::CP9] * conj(Cp[WCoef::CP10]);

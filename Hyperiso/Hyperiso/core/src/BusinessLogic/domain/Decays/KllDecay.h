@@ -59,7 +59,7 @@ protected:
     double BR_S();
 
 public:
-    KllDecay(QCDOrder order, double matching_scale, double hadronic_scale, std::shared_ptr<ObsWilsonBuilder>& wilson_builder) : DecayParentConfigurable(DecayMapper::to_id(Decays::K__l_l), matching_scale, hadronic_scale, order, wilson_builder) {
+    KllDecay(QCDOrder order, double matching_scale, double hadronic_scale, ObservablePortsConfig& ports) : DecayParentConfigurable(DecayMapper::to_id(Decays::K__l_l), matching_scale, hadronic_scale, order, ports) {
         this->w_config.groups = {GroupMapper::to_id(WGroup::K)};
         this->max_order = QCDOrder::NNLO;
     }

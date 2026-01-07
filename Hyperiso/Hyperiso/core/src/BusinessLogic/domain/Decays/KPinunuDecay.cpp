@@ -1,17 +1,16 @@
 #include "KPinunuDecay.h"
 
 void KPinunuDecay::load_params() {
-    ObsParameterProxy p;
-    cache.alpha_s_m_Z = p(ParamId{ParameterType::SM, "SMINPUTS", 3});
-    cache.sw2 = p(ParamId{ParameterType::SM, "SMINPUTS", {7, 1}});
-    cache.m_c_m_c = p(ParamId{ParameterType::SM, "MASS", 4});
-    cache.lambda_c = p(ParamId{ParameterType::SM, "VCKM", {1, 0}}) * std::conj(p(ParamId{ParameterType::SM, "VCKM", {1, 1}}));
-    cache.lambda_t = p(ParamId{ParameterType::SM, "VCKM", {2, 0}}) * std::conj(p(ParamId{ParameterType::SM, "VCKM", {2, 1}}));
-    cache.lambda = p(ParamId{ParameterType::SM, "VCKMIN", 1});
+    cache.alpha_s_m_Z = (*p)(ParamId{ParameterType::SM, "SMINPUTS", 3}, DataType::VALUE);
+    cache.sw2 = (*p)(ParamId{ParameterType::SM, "SMINPUTS", {7, 1}}, DataType::VALUE);
+    cache.m_c_m_c = (*p)(ParamId{ParameterType::SM, "MASS", 4}, DataType::VALUE);
+    cache.lambda_c = (*p)(ParamId{ParameterType::SM, "VCKM", {1, 0}}, DataType::VALUE) * std::conj((*p)(ParamId{ParameterType::SM, "VCKM", {1, 1}}, DataType::VALUE));
+    cache.lambda_t = (*p)(ParamId{ParameterType::SM, "VCKM", {2, 0}}, DataType::VALUE) * std::conj((*p)(ParamId{ParameterType::SM, "VCKM", {2, 1}}, DataType::VALUE));
+    cache.lambda = (*p)(ParamId{ParameterType::SM, "VCKMIN", 1}, DataType::VALUE);
 
-    cache.kappa_L = p(ParamId{ParameterType::DECAY, "K_pi", 1});
-    cache.kappa_p = p(ParamId{ParameterType::DECAY, "K_pi", 2});
-    cache.delta_em = p(ParamId{ParameterType::DECAY, "K_pi", 3});
+    cache.kappa_L = (*p)(ParamId{ParameterType::DECAY, "K_pi", 1}, DataType::VALUE);
+    cache.kappa_p = (*p)(ParamId{ParameterType::DECAY, "K_pi", 2}, DataType::VALUE);
+    cache.delta_em = (*p)(ParamId{ParameterType::DECAY, "K_pi", 3}, DataType::VALUE);
 
     cache.CL = w_proxy->getFR(WGroup::K, WCoef::CK_L, w_config.order);
 

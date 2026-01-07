@@ -4,43 +4,44 @@ void BsPhiDecay::load_params() {
     LOG_INFO("Loading parameters for Bs > phi ll decay");
     fill_wilson_cache();
 
-    cache.ff_calculator = BVFFCalculator(531, 333, cfg.ff_src);
+    cache.ff_calculator = BVFFCalculator(531, 333, p, cfg.ff_src);
 
     cache.qcdf_calculator = BVQCDfCalculator(
         531, 333,
         w_config.hadronic_scale,
         cache.C,
         std::make_shared<BVFFCalculator>(cache.ff_calculator),
-        cfg.ff_type
+        cfg.ff_type,
+        p,
+        iobs_qcdp
     );
 
-    ObsParameterProxy p;
-    cache.alpha_em = p(ParamId{ParameterType::SM, "EW", {1, 2}});
-    cache.G_F = p(ParamId{ParameterType::SM, "SMINPUTS", 2});
-    cache.m_l = p(ParamId{ParameterType::SM, "MASS", 11 + 2 * (int)cfg.gen});
-    cache.m_s = p(ParamId{ParameterType::SM, "MASS", 3});
+    cache.alpha_em = (*p)(ParamId{ParameterType::SM, "EW", {1, 2}}, DataType::VALUE);
+    cache.G_F = (*p)(ParamId{ParameterType::SM, "SMINPUTS", 2}, DataType::VALUE);
+    cache.m_l = (*p)(ParamId{ParameterType::SM, "MASS", 11 + 2 * (int)cfg.gen}, DataType::VALUE);
+    cache.m_s = (*p)(ParamId{ParameterType::SM, "MASS", 3}, DataType::VALUE);
     cache.mu_b = w_config.hadronic_scale;
-    cache.alpha_s_mu_b = ObsQCDProxy()(AlphasConfig(cache.mu_b, MassType::POLE, MassType::POLE));
-    cache.m_c_m_c = p(ParamId{ParameterType::SM, "MASS", 4});
-    cache.m_b_mu_b = ObsQCDProxy()(MassConfig(5, cache.mu_b, MassType::MSBAR, MassType::POLE));
-    cache.m_b_m_b = p(ParamId{ParameterType::SM, "SMINPUTS", 5});
-    cache.m_b_PS = p(ParamId{ParameterType::SM, "QCD", {5, 2}}) - 4 * ObsQCDProxy()(AlphasConfig(p(ParamId{ParameterType::SM, "QCD", {5, 2}}), MassType::POLE, MassType::POLE)) * sqrt(cache.mu_b * p(ParamId{ParameterType::DECAY, "B_phi", 14})) / (3 * PI);
+    cache.alpha_s_mu_b = (*iobs_qcdp)(AlphasConfig(cache.mu_b, MassType::POLE, MassType::POLE));
+    cache.m_c_m_c = (*p)(ParamId{ParameterType::SM, "MASS", 4}, DataType::VALUE);
+    cache.m_b_mu_b = (*iobs_qcdp)(MassConfig(5, cache.mu_b, MassType::MSBAR, MassType::POLE));
+    cache.m_b_m_b = (*p)(ParamId{ParameterType::SM, "SMINPUTS", 5}, DataType::VALUE);
+    cache.m_b_PS = (*p)(ParamId{ParameterType::SM, "QCD", {5, 2}}, DataType::VALUE) - 4 * (*iobs_qcdp)(AlphasConfig((*p)(ParamId{ParameterType::SM, "QCD", {5, 2}}, DataType::VALUE), MassType::POLE, MassType::POLE)) * sqrt(cache.mu_b * (*p)(ParamId{ParameterType::DECAY, "B_phi", 14}, DataType::VALUE)) / (3 * PI);
     cache.L_b = std::log(cache.mu_b / cache.m_b_PS);
-    cache.m_Bs = p(ParamId{ParameterType::FLAVOR, "FMASS", 531});
-    cache.m_phi = p(ParamId{ParameterType::FLAVOR, "FMASS", 333});
-    cache.lambda_hat_u = std::conj(p(ParamId{ParameterType::SM, "VCKM", {0, 1}})) * p(ParamId{ParameterType::SM, "VCKM", {0, 2}}) 
-                            / (std::conj(p(ParamId{ParameterType::SM, "VCKM", {2, 1}})) * p(ParamId{ParameterType::SM, "VCKM", {2, 2}}));
+    cache.m_Bs = (*p)(ParamId{ParameterType::FLAVOR, "FMASS", 531}, DataType::VALUE);
+    cache.m_phi = (*p)(ParamId{ParameterType::FLAVOR, "FMASS", 333}, DataType::VALUE);
+    cache.lambda_hat_u = std::conj((*p)(ParamId{ParameterType::SM, "VCKM", {0, 1}}, DataType::VALUE)) * (*p)(ParamId{ParameterType::SM, "VCKM", {0, 2}}, DataType::VALUE) 
+                            / (std::conj((*p)(ParamId{ParameterType::SM, "VCKM", {2, 1}}, DataType::VALUE)) * (*p)(ParamId{ParameterType::SM, "VCKM", {2, 2}}, DataType::VALUE));
     cache.kappa = 1 - 2. * cache.alpha_s_mu_b / (3. * PI) * std::log(cache.mu_b / cache.m_b_m_b);
-    cache.Delta_M = -6. * cache.L_b - 4. * (1 - sqrt(cache.mu_b * p(ParamId{ParameterType::DECAY, "B_phi", 14})) / cache.m_b_PS);
-    cache.N_0 = std::conj(p(ParamId{ParameterType::SM, "VCKM", {2, 1}})) * p(ParamId{ParameterType::SM, "VCKM", {2, 2}}) * cache.G_F * cache.alpha_em / (std::sqrt(3072. * std::pow(PI, 5) * std::pow(cache.m_Bs, 3)));
+    cache.Delta_M = -6. * cache.L_b - 4. * (1 - sqrt(cache.mu_b * (*p)(ParamId{ParameterType::DECAY, "B_phi", 14}, DataType::VALUE)) / cache.m_b_PS);
+    cache.N_0 = std::conj((*p)(ParamId{ParameterType::SM, "VCKM", {2, 1}}, DataType::VALUE)) * (*p)(ParamId{ParameterType::SM, "VCKM", {2, 2}}, DataType::VALUE) * cache.G_F * cache.alpha_em / (std::sqrt(3072. * std::pow(PI, 5) * std::pow(cache.m_Bs, 3)));
     cache.q2_min = 4 * std::pow(cache.m_l, 2);
     cache.q2_max = std::pow(cache.m_Bs - cache.m_phi, 2);
-    cache.q2_low = p(ParamId{ParameterType::DECAY, "B_phi", {15, 1}});
-    cache.q2_high = p(ParamId{ParameterType::DECAY, "B_phi", {15, 2}});
-    cache.ys = p(ParamId{ParameterType::DECAY, "B_ll", 1});
+    cache.q2_low = (*p)(ParamId{ParameterType::DECAY, "B_phi", {15, 1}}, DataType::VALUE);
+    cache.q2_high = (*p)(ParamId{ParameterType::DECAY, "B_phi", {15, 2}}, DataType::VALUE);
+    cache.ys = (*p)(ParamId{ParameterType::DECAY, "B_ll", 1}, DataType::VALUE);
     // TODO : hardcoded in SI
-    // double beta_s = std::arg(-std::conj(p(ParamId{ParameterType::SM, "VCKM", {2, 2}})) * p(ParamId{ParameterType::SM, "VCKM", {2, 1}}) 
-    //                         / (std::conj(p(ParamId{ParameterType::SM, "VCKM", {1, 2}})) * p(ParamId{ParameterType::SM, "VCKM", {1, 1}})));
+    // double beta_s = std::arg(-std::conj((*p)(ParamId{ParameterType::SM, "VCKM", {2, 2}})) * (*p)(ParamId{ParameterType::SM, "VCKM", {2, 1}}) 
+    //                         / (std::conj((*p)(ParamId{ParameterType::SM, "VCKM", {1, 2}})) * (*p)(ParamId{ParameterType::SM, "VCKM", {1, 1}})));
     // cache.phi_s = 2 * beta_s;
     // cache.up = std::exp(I * cache.phi_s);
     // cache.um = std::exp(-I * cache.phi_s);

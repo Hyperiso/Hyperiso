@@ -9,12 +9,12 @@
 
 class ObsWilsonHelper {
 public:
-    static void build(WilsonBuildConfig config, std::shared_ptr<ObsWilsonBuilder>& wil_builder);
+    static void build(WilsonBuildConfig config, std::shared_ptr<IObsWilsonBuilder>& wil_builder, std::shared_ptr<IWilsonFreezer<WGroupId>> iobs_wfreezer);
     ObsWilsonHelper(bool reset) {reset ? state = {} : state;}
     ObsWilsonHelper() = default;
 private:
     static std::unordered_set<WGroupId> get_all_groups(const std::unordered_set<WGroupId>& needed);
-    static std::unordered_set<WGroupId> update_state(const std::unordered_set<WGroupId>& needed, std::shared_ptr<ObsWilsonBuilder>& wil_builder);
+    static std::unordered_set<WGroupId> update_state(const std::unordered_set<WGroupId>& needed, std::shared_ptr<IObsWilsonBuilder>& wil_builder, std::shared_ptr<IWilsonFreezer<WGroupId>> iobs_wfreezer);
     static inline std::unordered_map<WGroupId, bool> state;
 };
 

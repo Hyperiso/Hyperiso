@@ -1,13 +1,14 @@
 #include "BPFFCalculator.h"
 
-BPFFCalculator::BPFFCalculator(int B_id, int P_id, BP_FF_Src src) {
+BPFFCalculator::BPFFCalculator(int B_id, int P_id,
+                        std::shared_ptr<IObsParameterProxy<ParamId, DataType, std::string, LhaID>> p,
+                        BP_FF_Src src) {
     if (!this->allowed_decays.contains({B_id, P_id})) {
         LOG_ERROR("ValueError", "Wrong meson PDG code in BPFFCalculator constructor:", B_id, ",", P_id);
     }
 
-    ObsParameterProxy p(ParameterType::FLAVOR);
-    this->m_B = p("FMASS", B_id);
-    this->m_P = p("FMASS", P_id);
+    this->m_B = (*p)({ParameterType::FLAVOR, "FMASS", B_id}, DataType::VALUE);
+    this->m_P = (*p)({ParameterType::FLAVOR, "FMASS", P_id}, DataType::VALUE);
     this->t_p = std::pow(this->m_B + this->m_P, 2);
     this->t_m = std::pow(this->m_B - this->m_P, 2);
     this->t_0 = src == BP_FF_Src::HPQCD22 ? 0. : this->t_p * (1. - std::sqrt(1 - this->t_m / this->t_p));

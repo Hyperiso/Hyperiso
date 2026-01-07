@@ -8,7 +8,7 @@
 
 class ObsWilsonBuilder;
 
-class ObsWilsonProxy : public IObsWilsonProxy<ObsWilsonBuilder> {
+class ObsWilsonProxy : public IObsWilsonProxy {
 public:
     ObsWilsonProxy(std::shared_ptr<WilsonProvider> wilson_provider) : wil_p(wilson_provider) {}
 
@@ -23,9 +23,9 @@ public:
     std::map<WCoef, complex_t> getAFM(WGroup group, QCDOrder order, ContributionType contribution=ContributionType::TOTAL);
     std::map<WCoef, complex_t> getAFR(WGroup group, QCDOrder order, ContributionType contribution=ContributionType::TOTAL);
 
-    std::shared_ptr<ObsWilsonBuilder> get_builder() override;
+    std::shared_ptr<IObsWilsonBuilder> get_builder() override;
     std::unordered_set<WilsonBasis> get_bases(WGroupId) override;
-    void set_basis(WilsonBasis basis);
+    void set_basis(WilsonBasis basis) override;
 
 private:
     std::shared_ptr<WilsonProvider> wil_p;

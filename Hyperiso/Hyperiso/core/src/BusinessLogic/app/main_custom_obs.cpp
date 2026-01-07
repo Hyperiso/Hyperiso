@@ -18,7 +18,7 @@ int main() {
     ObservableInterface oi;
 
     DecayMapper::register_custom("Wilson");
-    auto wilson_decay = std::make_shared<WilsonDecay>(DecayMapper::id_of("Wilson"), order, 81, 5);
+    auto wilson_decay = std::make_shared<WilsonDecay>(DecayMapper::id_of("Wilson"), order, 81, 5, oi.get_ports());
     oi.add_custom_decay(DecayMapper::id_of("Wilson"), wilson_decay);
     ObservableId o = ObservableMapper::id_of("C7");
     oi.add_observable(o, order, false);

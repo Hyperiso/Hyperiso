@@ -1,13 +1,11 @@
 #include "Observable.h"
 
 scalar_t Observable::get_exp_val() const {
-    ObsParameterProxy opp {ParameterType::OBSERVABLE};
-    return opp("FOBS", ObservableMapper::flha_of(this->id).value(), DataType::VALUE);
+    return (*iobspp_obs)(ParamId(ParameterType::OBSERVABLE, "FOBS", ObservableMapper::flha_of(this->id).value()), DataType::VALUE);
 }
 
 scalar_t Observable::get_exp_uncertainty(UncertaintyType u_type) const {
-    ObsParameterProxy opp {ParameterType::OBSERVABLE};
-    return opp("FOBS", ObservableMapper::flha_of(this->id).value(), UncertaintyTypeMapper::d_type(u_type));
+    return (*iobspp_obs)(ParamId(ParameterType::OBSERVABLE, "FOBS", ObservableMapper::flha_of(this->id).value()), UncertaintyTypeMapper::d_type(u_type));
 }
 
 std::vector<ObservableValue> Observable::compute() const {

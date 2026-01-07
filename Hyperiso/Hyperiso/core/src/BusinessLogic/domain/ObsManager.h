@@ -8,31 +8,11 @@
 #include "Observable.h"
 #include "Decays.h"
 #include "IObsParameterProxy.h"
-
-struct ObservablePortsConfig {
-
-    ObservablePortsConfig(std::shared_ptr<IObsWilsonBuilder<ObsWilsonProxy, WGroup>> iobswb, std::shared_ptr<IObsWilsonProxy<ObsWilsonBuilder>> iobswp, std::shared_ptr<IObsParameterProxy<ParamId, DataType, std::string, LhaID>> iobspp, std::shared_ptr<IObsQCDProxy> iobs_qcdp, std::shared_ptr<IObsCoreAPI<bool>> iobs_use_marty, std::shared_ptr<IWilsonFreezer<WGroupId>> iobs_wfreezer) :
-        iobswb(iobswb), iobswp(iobswp), 
-        iobspp(iobspp), iobs_qcdp(iobs_qcdp),
-        iobs_use_marty(iobs_use_marty), iobs_wfreezer(iobs_wfreezer) {}
-
-    std::shared_ptr<IObsWilsonBuilder<ObsWilsonProxy, WGroup>> iobswb;
-
-    std::shared_ptr<IObsWilsonProxy<ObsWilsonBuilder>> iobswp;
-
-    std::shared_ptr<IObsParameterProxy<ParamId, DataType, std::string, LhaID>> iobspp;
-
-    std::shared_ptr<IObsQCDProxy> iobs_qcdp;
-
-    std::shared_ptr<IObsCoreAPI<bool>> iobs_use_marty;
-
-    std::shared_ptr<IWilsonFreezer<WGroupId>> iobs_wfreezer;
-
-};
+#include "ObsPortsConfig.h"
 
 class ObsManager {
 public:
-    ObsManager(std::shared_ptr<ObsWilsonBuilder>& wil_builder);
+    ObsManager(ObservablePortsConfig obs_port_conf);
 
     ObsManager add_obs(Observables id, QCDOrder order, bool add_deps=false);
     ObsManager remove_obs(Observables id);
@@ -64,6 +44,8 @@ public:
 
     std::shared_ptr<Observable> get_obs(ObservableId id);
 
+    ObservablePortsConfig& get_ports() {return obs_port_conf;}
+    
     void select_decay(ObservableId id);
 
     void reload_params();
@@ -79,7 +61,7 @@ private:
     ObservableId ensure_present(Observables id, bool critical=true);
     ObservableId ensure_present(ObservableId id, bool critical=true);
 
-    std::shared_ptr<ObsWilsonBuilder> wil_builder;
+    ObservablePortsConfig obs_port_conf;
 };
 
 #endif // OBSERVABLEMANAGER_H

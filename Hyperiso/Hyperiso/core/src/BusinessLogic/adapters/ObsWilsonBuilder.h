@@ -8,12 +8,12 @@
 #include "Configs.h"
 #include "Include.h"
 
-class ObsWilsonBuilder : public IObsWilsonBuilder<ObsWilsonProxy, WGroup> {
+class ObsWilsonBuilder : public IObsWilsonBuilder {
 public:
     ObsWilsonBuilder(std::shared_ptr<WilsonBuilder> wil_builder) : wil_builder(std::move(wil_builder)) {}
 
     void build(std::shared_ptr<AbstractConfig> config) override;
-    std::shared_ptr<ObsWilsonProxy> get_proxy() override;
+    std::shared_ptr<IObsWilsonProxy> get_proxy() override;
 
 private:
     std::shared_ptr<WilsonBuilder> wil_builder;

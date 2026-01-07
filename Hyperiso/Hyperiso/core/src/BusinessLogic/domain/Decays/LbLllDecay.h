@@ -20,6 +20,7 @@ struct LbLllConfig {
 };
 
 struct LbLllDecayCache {
+    LbLllDecayCache(std::shared_ptr<IObsParameterProxy<ParamId, DataType, std::string, LhaID>> iobspp_sm) : ff_calculator(iobspp_sm) {}
     std::map<WCoef, complex_t> C;
     LbLFFCalculator ff_calculator;
 
@@ -38,7 +39,7 @@ struct LbLllDecayCache {
  */
 class LbLllDecay : public DecayParentConfigurable<LbLllConfig> {
 private:
-    LbLllDecayCache cache {};
+    LbLllDecayCache cache;
     LbLllConfig cfg {};
 
 protected:
@@ -77,7 +78,7 @@ protected:
     std::vector<ObservableValue> F_T();
 
 public:
-    LbLllDecay(QCDOrder order, double matching_scale, double hadronic_scale, std::shared_ptr<ObsWilsonBuilder>& wilson_builder) : DecayParentConfigurable(DecayMapper::to_id(Decays::Lambda_b__Lambda_l_l), matching_scale, hadronic_scale, order, wilson_builder) {
+    LbLllDecay(QCDOrder order, double matching_scale, double hadronic_scale, ObservablePortsConfig& ports) : cache(ports.iobspp_sm), DecayParentConfigurable(DecayMapper::to_id(Decays::Lambda_b__Lambda_l_l), matching_scale, hadronic_scale, order, ports) {
         this->w_config.groups = {GroupMapper::to_id(WGroup::B), GroupMapper::to_id(WGroup::BPrime)};
         this->max_order = QCDOrder::NNLO;
     }

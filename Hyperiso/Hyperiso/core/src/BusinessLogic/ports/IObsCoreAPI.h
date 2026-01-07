@@ -18,6 +18,7 @@
 template <typename T>
 class IObsCoreAPI{
 public:
+    virtual ~IObsCoreAPI() = default;
     /**
      * @brief Returns the current value of the underlying core state.
      */

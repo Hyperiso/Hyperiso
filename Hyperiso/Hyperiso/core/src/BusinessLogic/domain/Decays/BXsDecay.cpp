@@ -1,33 +1,32 @@
 #include "BXsDecay.h"
 
 void BXsDecay::load_params() {
-    ObsParameterProxy p;
-    cache.alpha_em = p(ParamId{ParameterType::SM, "EW", {1, 1}});
-    cache.alpha_em_0 = p(ParamId{ParameterType::SM, "EW", {1, 4}});
-    cache.m_s = p(ParamId{ParameterType::SM, "MASS", 3});
-    cache.m_c = p(ParamId{ParameterType::SM, "MASS", 4});
-    cache.m_W = p(ParamId{ParameterType::SM, "MASS", 24});
-    cache.m_b_mb = p(ParamId{ParameterType::SM, "QCD", {5, 1}});
-    cache.m_b_kin = p(ParamId{ParameterType::SM, "QCD", {5, 4}});
-    cache.ckm_factor = std::pow(std::abs(std::conj(p(ParamId{ParameterType::SM, "VCKM", {2, 1}})) * p(ParamId{ParameterType::SM, "VCKM", {2, 2}}) / p(ParamId{ParameterType::SM, "VCKM", {1, 2}})), 2);
+    cache.alpha_em = (*p)(ParamId{ParameterType::SM, "EW", {1, 1}}, DataType::VALUE);
+    cache.alpha_em_0 = (*p)(ParamId{ParameterType::SM, "EW", {1, 4}}, DataType::VALUE);
+    cache.m_s = (*p)(ParamId{ParameterType::SM, "MASS", 3}, DataType::VALUE);
+    cache.m_c = (*p)(ParamId{ParameterType::SM, "MASS", 4}, DataType::VALUE);
+    cache.m_W = (*p)(ParamId{ParameterType::SM, "MASS", 24}, DataType::VALUE);
+    cache.m_b_mb = (*p)(ParamId{ParameterType::SM, "QCD", {5, 1}}, DataType::VALUE);
+    cache.m_b_kin = (*p)(ParamId{ParameterType::SM, "QCD", {5, 4}}, DataType::VALUE);
+    cache.ckm_factor = std::pow(std::abs(std::conj((*p)(ParamId{ParameterType::SM, "VCKM", {2, 1}}, DataType::VALUE)) * (*p)(ParamId{ParameterType::SM, "VCKM", {2, 2}}, DataType::VALUE) / (*p)(ParamId{ParameterType::SM, "VCKM", {1, 2}}, DataType::VALUE)), 2);
     cache.mu_b = w_config.hadronic_scale;
     cache.mu_W = w_config.matching_scale;
-    cache.beta_0 = ObsQCDProxy().get_constants()->beta[5 - 1][0]; // TODO : compute n_f based on scale ?
-    cache.alpha_s_mu_b = ObsQCDProxy()(AlphasConfig(cache.mu_b, MassType::POLE, MassType::POLE));
-    cache.alpha_s_upsilon = ObsQCDProxy()(AlphasConfig(cache.m_b_kin, MassType::POLE, MassType::POLE));
-    cache.eta = ObsQCDProxy()(AlphasConfig(cache.mu_W, MassType::POLE, MassType::POLE)) / cache.alpha_s_mu_b;
-    cache.E0 = p(ParamId{ParameterType::DECAY, "B_Xs", 1});
-    cache.BR_B__Xc_e_nu_exp = p(ParamId{ParameterType::DECAY, "B_Xs", 2});
-    cache.mu_G2 = p(ParamId{ParameterType::DECAY, "B_Xs", 3});
-    cache.rho_D3= p(ParamId{ParameterType::DECAY, "B_Xs", 4});
-    cache.rho_LS3= p(ParamId{ParameterType::DECAY, "B_Xs", 5});
-    cache.lambda_2= p(ParamId{ParameterType::DECAY, "B_Xs", 6});
-    cache.mu_c= p(ParamId{ParameterType::DECAY, "B_Xs", 7});
-    cache.z0= p(ParamId{ParameterType::DECAY, "B_Xs", 8});
-    cache.z1= p(ParamId{ParameterType::DECAY, "B_Xs", 9});
-    cache.r_msbar_1S = ObsQCDProxy()(MassConfig(5, cache.mu_W, MassType::MSBAR, MassType::POLE)) / cache.m_b_kin; // mu_W or mu_b ????
-    cache.m_c_mu_c = ObsQCDProxy()(MassConfig(4, cache.mu_c, MassType::MSBAR, MassType::POLE));
-    cache.m_c_3gev = ObsQCDProxy()(MassConfig(4, 3.0, MassType::MSBAR, MassType::POLE));
+    cache.beta_0 = (*iobs_qcdp).get_constants()->beta[5 - 1][0]; // TODO : compute n_f based on scale ?
+    cache.alpha_s_mu_b = (*iobs_qcdp)(AlphasConfig(cache.mu_b, MassType::POLE, MassType::POLE));
+    cache.alpha_s_upsilon = (*iobs_qcdp)(AlphasConfig(cache.m_b_kin, MassType::POLE, MassType::POLE));
+    cache.eta = (*iobs_qcdp)(AlphasConfig(cache.mu_W, MassType::POLE, MassType::POLE)) / cache.alpha_s_mu_b;
+    cache.E0 = (*p)(ParamId{ParameterType::DECAY, "B_Xs", 1}, DataType::VALUE);
+    cache.BR_B__Xc_e_nu_exp = (*p)(ParamId{ParameterType::DECAY, "B_Xs", 2}, DataType::VALUE);
+    cache.mu_G2 = (*p)(ParamId{ParameterType::DECAY, "B_Xs", 3}, DataType::VALUE);
+    cache.rho_D3= (*p)(ParamId{ParameterType::DECAY, "B_Xs", 4}, DataType::VALUE);
+    cache.rho_LS3= (*p)(ParamId{ParameterType::DECAY, "B_Xs", 5}, DataType::VALUE);
+    cache.lambda_2= (*p)(ParamId{ParameterType::DECAY, "B_Xs", 6}, DataType::VALUE);
+    cache.mu_c= (*p)(ParamId{ParameterType::DECAY, "B_Xs", 7}, DataType::VALUE);
+    cache.z0= (*p)(ParamId{ParameterType::DECAY, "B_Xs", 8}, DataType::VALUE);
+    cache.z1= (*p)(ParamId{ParameterType::DECAY, "B_Xs", 9}, DataType::VALUE);
+    cache.r_msbar_1S = (*iobs_qcdp)(MassConfig(5, cache.mu_W, MassType::MSBAR, MassType::POLE)) / cache.m_b_kin; // mu_W or mu_b ????
+    cache.m_c_mu_c = (*iobs_qcdp)(MassConfig(4, cache.mu_c, MassType::MSBAR, MassType::POLE));
+    cache.m_c_3gev = (*iobs_qcdp)(MassConfig(4, 3.0, MassType::MSBAR, MassType::POLE));
     cache.z = std::pow(cache.m_c_mu_c / cache.m_b_kin, 2);
     // cache.z = 5.9322e-2;
     cache.delta = 1. - 2. * cache.E0 / cache.m_b_kin;

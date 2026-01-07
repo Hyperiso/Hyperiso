@@ -37,7 +37,7 @@ public:
      * @brief Construct a freezer using an observable Wilson builder.
      * @param wil_builder Builder used to obtain the Wilson proxy and discover bases.
      */
-    WilsonFreezer(const std::shared_ptr<ObsWilsonBuilder> &wil_builder) {
+    WilsonFreezer(const std::shared_ptr<IObsWilsonBuilder> &wil_builder) {
         this->w_proxy = wil_builder->get_proxy();
     }
 
@@ -52,7 +52,7 @@ public:
     void unfreeze(WGroupId group) override;
 
 private:
-    std::shared_ptr<ObsWilsonProxy> w_proxy;
+    std::shared_ptr<IObsWilsonProxy> w_proxy;
 };
 
 #endif // WILSONFREEZER_H

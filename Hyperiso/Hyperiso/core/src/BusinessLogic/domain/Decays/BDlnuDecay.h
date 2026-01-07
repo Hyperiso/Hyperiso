@@ -70,7 +70,7 @@ protected:
     double P_tau();
 
 public:
-    BDlnuDecay(QCDOrder order, double matching_scale, double hadronic_scale, std::shared_ptr<ObsWilsonBuilder>& wilson_builder) : DecayParentConfigurable(DecayMapper::to_id(Decays::B__D_l_nu), matching_scale, hadronic_scale, order, wilson_builder) {
+    BDlnuDecay(QCDOrder order, double matching_scale, double hadronic_scale, ObservablePortsConfig& ports) : DecayParentConfigurable(DecayMapper::to_id(Decays::B__D_l_nu), matching_scale, hadronic_scale, order, ports) {
         this->w_config.groups = {GroupMapper::to_id(WGroup::CC_bc)};
         this->max_order = QCDOrder::LO;
     }

@@ -10,9 +10,10 @@ protected:
     const ObservableId id;
     std::shared_ptr<DecayParent> decay_parent;
     std::unordered_set<ParamId> dependences;
+    std::shared_ptr<IObsParameterProxy<ParamId, DataType, std::string, LhaID>> iobspp_obs;
 
 public:
-    Observable(ObservableId id, std::shared_ptr<DecayParent> decay_parent) : id(id), decay_parent(decay_parent) {}
+    Observable(ObservableId id, std::shared_ptr<DecayParent> decay_parent, std::shared_ptr<IObsParameterProxy<ParamId, DataType, std::string, LhaID>> iobspp_obs) : id(id), decay_parent(decay_parent), iobspp_obs(iobspp_obs) {}
 
     ObservableId getId() const { return id; }
     scalar_t get_exp_val() const;

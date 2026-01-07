@@ -10,6 +10,6 @@ void ObsWilsonBuilder::build(std::shared_ptr<AbstractConfig> config) {
     }
 }
 
-std::shared_ptr<ObsWilsonProxy> ObsWilsonBuilder::get_proxy() {
+std::shared_ptr<IObsWilsonProxy> ObsWilsonBuilder::get_proxy() {
     return std::make_shared<ObsWilsonProxy>(wil_builder->get_wilson_provider());
 }

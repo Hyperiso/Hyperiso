@@ -26,7 +26,7 @@ protected:
     double BR_K_BR_pi();
 
 public:
-    KlnuDecay(QCDOrder order, double matching_scale, double hadronic_scale, std::shared_ptr<ObsWilsonBuilder>& wilson_builder) : DecayParentConfigurable(DecayMapper::to_id(Decays::K__l_nu), matching_scale, hadronic_scale, order, wilson_builder) {
+    KlnuDecay(QCDOrder order, double matching_scale, double hadronic_scale, ObservablePortsConfig& ports) : DecayParentConfigurable(DecayMapper::to_id(Decays::K__l_nu), matching_scale, hadronic_scale, order, ports) {
         this->w_config.groups = {GroupMapper::to_id(WGroup::CC_su), GroupMapper::to_id(WGroup::CC_du)};
         this->max_order = QCDOrder::LO;
     }

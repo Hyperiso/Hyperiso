@@ -12,10 +12,12 @@
 #include "Include.h"
 #include "Decays.h"
 #include "ObsManager.h"
+#include "ObsUseMarty.h"
 
 class ObservableInterface {
 private:
     std::shared_ptr<ObsManager> manager;
+    std::shared_ptr<ObservablePortsConfig> ports;
 
 public:
     ObservableInterface();
@@ -27,7 +29,7 @@ public:
         return *this;
     }
 
-    ObservableInterface& add_observable(ObservableId obs, QCDOrder order, bool add_dependencies=false) {  
+    ObservableInterface& add_observable(ObservableId obs, QCDOrder order, bool add_dependencies=false) { 
         manager->add_obs(obs, order, add_dependencies);
         return *this;
     }
@@ -40,6 +42,7 @@ public:
 
     void add_observables(std::map<ObservableId, QCDOrder> obss, bool add_dependencies=false) {  
         for (auto &[k, v] : obss) {
+
             add_observable(k, v, add_dependencies);
         }
     }
@@ -162,6 +165,7 @@ public:
         manager->set_decay_config(dec, config);  
     };
 
+    ObservablePortsConfig& get_ports() {return this->manager->get_ports();}
 };
 
 #endif

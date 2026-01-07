@@ -71,7 +71,6 @@ complex_t CoefficientGroup::get_running_coefficient(std::string coeff, std::stri
 
     if (!(*adapters.wilson_proxy).exist(GroupMapper::str(this->id, ScaleType::HADRONIC, basis),
         c->id(OrderMapper::enum_elt(order), cont_type))) {
-            std::cout << "here 3!" << std::endl;
             return complex_t(0.,0.);
     }
 
