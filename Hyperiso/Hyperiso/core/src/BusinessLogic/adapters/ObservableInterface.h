@@ -13,6 +13,7 @@
 #include "Decays.h"
 #include "ObsManager.h"
 #include "ObsUseMarty.h"
+#include "WilsonFreezer.h"
 
 class ObservableInterface {
 private:

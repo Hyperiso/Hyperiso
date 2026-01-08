@@ -1,11 +1,10 @@
-#ifndef __OBSWILSONHELPER_H__
-#define __OBSWILSONHELPER_H__
+#ifndef OBSWILSONHELPER_H
+#define OBSWILSONHELPER_H
 
 #include "Include.h"
-#include "WilsonFreezer.h"
-#include "ObsWilsonBuilder.h"
 #include "Configs.h"
-#include "ObsWilsonProxy.h"
+#include "IObsWilsonBuilder.h"
+#include "IWilsonFreezer.h"
 
 class ObsWilsonHelper {
 public:
@@ -18,4 +17,4 @@ private:
     static inline std::unordered_map<WGroupId, bool> state;
 };
 
-#endif // __OBSWILSONHELPER_H__
+#endif // OBSWILSONHELPER_H

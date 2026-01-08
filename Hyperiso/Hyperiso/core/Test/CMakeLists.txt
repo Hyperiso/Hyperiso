@@ -319,6 +319,32 @@ target_link_libraries(testHasWilsonUnit PhysicalModelLib UtilsLib)
 add_executable(testHasWilsonIntegration PhysicalModel/integration/test_has_wilson_integration.cpp)
 target_link_libraries(testHasWilsonIntegration PhysicalModelLib UtilsLib)
 
+#BusinessLogic
+
+add_executable(testObsWilsonHelperUnit BusinessLogic/unit/test_obswilsonhelper_unit.cpp)
+target_link_libraries(testObsWilsonHelperUnit BusinessLogicLib UtilsLib)
+
+add_executable(testObsWilsonHelperIntegration BusinessLogic/integration/test_obswilsonhelper_integration.cpp)
+target_link_libraries(testObsWilsonHelperIntegration BusinessLogicLib UtilsLib)
+
+add_executable(testDecayParentUnit BusinessLogic/unit/test_decayparent_unit.cpp)
+target_link_libraries(testDecayParentUnit BusinessLogicLib UtilsLib)
+
+add_executable(testDecayParentIntegration BusinessLogic/integration/test_decayparent_integration.cpp)
+target_link_libraries(testDecayParentIntegration BusinessLogicLib UtilsLib)
+
+add_executable(testObservableUnit BusinessLogic/unit/test_observable_unit.cpp)
+target_link_libraries(testObservableUnit BusinessLogicLib UtilsLib)
+
+add_executable(testObservableIntegration BusinessLogic/integration/test_observable_integration.cpp)
+target_link_libraries(testObservableIntegration BusinessLogicLib UtilsLib)
+
+add_executable(testObsManagerUnit BusinessLogic/unit/test_obsmanager_unit.cpp)
+target_link_libraries(testObsManagerUnit BusinessLogicLib UtilsLib)
+
+add_executable(testObsManagerIntegration BusinessLogic/integration/test_obsmanager_integration.cpp)
+target_link_libraries(testObsManagerIntegration BusinessLogicLib UtilsLib)
+
 #Wilson
 
 

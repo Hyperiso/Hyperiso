@@ -12,7 +12,7 @@
 
 class ObsManager {
 public:
-    ObsManager(ObservablePortsConfig obs_port_conf);
+    ObsManager(ObservablePortsConfig obs_port_conf, bool init_default_decays=true);
 
     ObsManager add_obs(Observables id, QCDOrder order, bool add_deps=false);
     ObsManager remove_obs(Observables id);
