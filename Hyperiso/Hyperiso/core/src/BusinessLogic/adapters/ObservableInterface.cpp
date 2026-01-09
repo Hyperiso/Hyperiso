@@ -24,3 +24,132 @@ ObservableInterface::ObservableInterface() {
 void ObservableInterface::add_custom_decay(DecayId id, std::shared_ptr<DecayParent> ptr) {
     manager->add_custom_decay(id, ptr);
 }
+
+ObservableInterface& ObservableInterface::add_observable(Observables obs, QCDOrder order, bool add_dependencies=false) {
+    manager->add_obs(obs, order, add_dependencies);
+    return *this;
+}
+
+ObservableInterface& ObservableInterface::add_observable(ObservableId obs, QCDOrder order, bool add_dependencies=false) { 
+    manager->add_obs(obs, order, add_dependencies);
+    return *this;
+}
+
+void ObservableInterface::add_observables(std::map<Observables, QCDOrder> obss, bool add_dependencies=false) {  
+    for (auto &[k, v] : obss) {
+        add_observable(k, v, add_dependencies);
+    }
+}
+
+void ObservableInterface::add_observables(std::map<ObservableId, QCDOrder> obss, bool add_dependencies=false) {  
+    for (auto &[k, v] : obss) {
+
+        add_observable(k, v, add_dependencies);
+    }
+}
+
+void ObservableInterface::add_observables(Decays decay, QCDOrder order, bool add_dependencies=false) {  
+    for (auto &obs : DecayMapper::get_observables(decay)) {
+        add_observable(obs, order, add_dependencies);
+    }
+}
+
+void ObservableInterface::add_observable_parameter(Observables obs, ParamId pid) {
+    manager->add_obs_dep(obs, pid);
+}
+
+void ObservableInterface::add_observable_parameter(ObservableId obs, ParamId pid) {
+    manager->add_obs_dep(obs, pid);
+}
+
+void ObservableInterface::add_observable_parameters(Observables obs, std::unordered_set<ParamId> pids) {
+    manager->add_obs_deps(obs, pids);
+}
+
+void ObservableInterface::add_observable_parameters(ObservableId obs, std::unordered_set<ParamId> pids) {
+    manager->add_obs_deps(obs, pids);
+}
+
+std::vector<ObservableValue> ObservableInterface::compute_observable(Observables obs) const {
+    return manager->evaluate(obs);
+}
+
+std::vector<ObservableValue> ObservableInterface::compute_observable(ObservableId obs) const {
+    return manager->evaluate(obs);
+}
+
+
+void ObservableInterface::remove_observable(Observables id) {
+    manager->remove_obs(id);
+}
+
+void ObservableInterface::remove_observable(ObservableId id) {
+    manager->remove_obs(id);
+}
+
+void ObservableInterface::remove_observables(std::unordered_set<Observables> ids) {
+    for (Observables id : ids) {
+        remove_observable(id);
+    }
+};
+
+
+void ObservableInterface::remove_observables(Decays dec) {
+    for (Observables id : DecayMapper::get_observables(dec)) {
+        remove_observable(id);
+    }
+};
+
+scalar_t ObservableInterface::get_exp_value(Observables id) {
+    return manager->get_obs(id)->get_exp_val();
+};
+
+scalar_t ObservableInterface::get_exp_value(ObservableId id) {
+    return manager->get_obs(id)->get_exp_val();
+};
+
+scalar_t ObservableInterface::get_exp_uncertainty(Observables id, UncertaintyType u_type=UncertaintyType::COMBINED) {
+    return manager->get_obs(id)->get_exp_uncertainty(u_type);
+}
+
+scalar_t ObservableInterface::get_exp_uncertainty(ObservableId id, UncertaintyType u_type=UncertaintyType::COMBINED) {
+    return manager->get_obs(id)->get_exp_uncertainty(u_type);
+}
+
+std::unordered_set<ObservableId> ObservableInterface::get_current_observables() {
+    return manager->get_current_obss();
+}
+
+std::unordered_map<ObservableId, std::vector<ObservableValue>> ObservableInterface::compute_all() {
+    return manager->evaluate_all();
+}
+
+
+void ObservableInterface::set_param(const std::string& block, LhaID code, double value, ParameterType type) {
+    Parameters::GetInstance(type)->setBlockValue(block, code, value);
+}
+
+double ObservableInterface::get_param(const std::string& block, LhaID code, ParameterType type) {
+    return Parameters::GetInstance(type)->operator()(block, code);
+}
+
+std::unordered_set<ParamId> ObservableInterface::get_all_ops_deps(ObservableId id) {
+    return manager->get_all_ops_deps(id);
+}
+
+std::unordered_set<ParamId> ObservableInterface::get_all_ops_deps(Observables id) {
+    return manager->get_all_ops_deps(ObservableMapper::to_id(id));
+}
+
+void ObservableInterface::reload_params() {
+    manager->reload_params();
+}
+
+void ObservableInterface::enable_obs() {
+    manager->enable_obs();
+}
+void ObservableInterface::set_decay_config(Decays dec, std::any config) {
+    manager->set_decay_config(dec, config);  
+}
+
+ObservablePortsConfig& ObservableInterface::get_ports() {return this->manager->get_ports();}

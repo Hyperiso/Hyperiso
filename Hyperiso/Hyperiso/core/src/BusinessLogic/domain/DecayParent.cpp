@@ -18,13 +18,6 @@ DecayParent::DecayParent(DecayId id, double matching_scale, double hadronic_scal
     this->w_config.order = check_max_order(order);
 }
 
-// DecayParent::DecayParent(DecayId custom_id, double matching_scale, double hadronic_scale, QCDOrder order) {
-//     this->id = custom_id;
-//     this->w_config.matching_scale = matching_scale;
-//     this->w_config.hadronic_scale = hadronic_scale;
-//     this->w_config.order = check_max_order(order);
-// }
-
 void DecayParent::bind_wilson_builder(std::shared_ptr<IObsWilsonBuilder> &wilson_builder) {
     this->w_builder = wilson_builder;
 }
