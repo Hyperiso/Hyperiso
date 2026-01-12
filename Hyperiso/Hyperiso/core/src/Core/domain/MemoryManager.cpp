@@ -69,7 +69,7 @@ void MemoryManager::read_user_input() {
     LOG_INFO("User input files loaded");
 }
 
-void MemoryManager::read_lha_input(const std::string& lhaFile, const Config& config) {
+void MemoryManager::read_lha_input(const std::string& lhaFile, const HyperisoConfig& config) {
     fs::path lha_path = this->format_lha_path(lhaFile);
     fs::path spectrum_path = calculate_spectrum(lha_path, config);
 
@@ -81,7 +81,7 @@ void MemoryManager::read_lha_input(const std::string& lhaFile, const Config& con
     LOG_INFO("LHA file loaded");
 }
 
-fs::path MemoryManager::calculate_spectrum(fs::path input_lha_path, const Config &config) {
+fs::path MemoryManager::calculate_spectrum(fs::path input_lha_path, const HyperisoConfig &config) {
     if (!(config.model == Model::THDM || config.model == Model::SUSY)) {
         return input_lha_path;
     }
@@ -122,7 +122,7 @@ MemoryManager* MemoryManager::Create(std::shared_ptr<IDataLoader<BlockAccessor>>
     return MemoryManager::instance;
 }
 
-void MemoryManager::init(const std::string& lhaFile, Config config) {
+void MemoryManager::init(const std::string& lhaFile, HyperisoConfig config) {
     if (cache.is_ready) {
         LOG_WARN("MemoryManager has already been initialized.");
         return;
@@ -141,7 +141,7 @@ void MemoryManager::init(const std::string& lhaFile, Config config) {
     LOG_DEBUG("Hyperiso successfully initialized !");
 }
 
-void MemoryManager::deduce_parameter_types(const Config &config) {
+void MemoryManager::deduce_parameter_types(const HyperisoConfig &config) {
     cache.parameter_types = {ParameterType::SM,
                              ParameterType::FLAVOR,
                              ParameterType::DECAY,
@@ -153,7 +153,7 @@ void MemoryManager::deduce_parameter_types(const Config &config) {
     }
 }
 
-void MemoryManager::switch_lha(const std::string& lhaFile, Config config) {
+void MemoryManager::switch_lha(const std::string& lhaFile, HyperisoConfig config) {
     ReadyGuard guard(cache.is_ready);
     memento.restore();
     this->read_lha_input(lhaFile, config);
@@ -163,11 +163,11 @@ void MemoryManager::switch_lha(const std::string& lhaFile, Config config) {
     this->cache.flags[InternalFlag::PARAMS_CHANGED] = true;
 }
 
-void MemoryManager::reload_user_input(Config config) {
+void MemoryManager::reload_user_input(HyperisoConfig config) {
     reload_user_input(cache.lha_path, config);
 }
 
-void MemoryManager::reload_user_input(const std::string &lhaFile, Config config) {
+void MemoryManager::reload_user_input(const std::string &lhaFile, HyperisoConfig config) {
     ReadyGuard guard(cache.is_ready);
     memento.restore(2);
     this->read_user_input();

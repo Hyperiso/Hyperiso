@@ -34,7 +34,7 @@ int main() {
     std::cout << "== FWCOEF integration (TOT-only) ==\n";
 
     auto hyp = HyperisoMaster();
-    Config cfg;
+    HyperisoConfig cfg;
     cfg.flags[ExternalFlag::HAS_WILSON_INPUT] = true;
 
     fs::path flha = write_temp_fwcoef_tot_only();

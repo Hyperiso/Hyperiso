@@ -5,7 +5,7 @@
 int main() {
 
     HyperisoMaster hyp;
-    Config config;
+    HyperisoConfig config;
     config.model = Model::SM;
     hyp.init("lha/si_input.flha", config);
 

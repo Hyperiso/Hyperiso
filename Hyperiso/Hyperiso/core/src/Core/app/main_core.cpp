@@ -9,7 +9,7 @@
 
 int main() {
     Logger::getInstance()->setLevel(Logger::LogLevel::INFO);
-    Config config;
+    HyperisoConfig config;
     config.model = Model::SM;
 
     config.flags[ExternalFlag::HAS_WILSON_INPUT] = true;

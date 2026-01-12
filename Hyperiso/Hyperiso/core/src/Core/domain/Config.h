@@ -20,7 +20,7 @@ enum class ExternalFlag {
  * @struct Config
  * @brief Configuration object controlling model and input flags.
  */
-struct Config {
+struct HyperisoConfig {
     /// External flags describing the nature of the inputs.
     std::map<ExternalFlag, bool> flags {
         {ExternalFlag::IS_LHA_SPECTRUM, false},

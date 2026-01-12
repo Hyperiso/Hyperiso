@@ -5,7 +5,7 @@
 
 int main() {
 
-    Config config;
+    HyperisoConfig config;
     config.model = Model::THDM;
 
     HyperisoMaster hi;

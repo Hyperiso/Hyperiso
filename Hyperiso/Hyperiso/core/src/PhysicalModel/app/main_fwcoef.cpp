@@ -7,7 +7,7 @@
 
 int main() {
     auto hyp = HyperisoMaster();
-    Config config_hyp;
+    HyperisoConfig config_hyp;
     config_hyp.flags[ExternalFlag::HAS_WILSON_INPUT] = true;
     hyp.init("Test/InputFiles/testInput.flha", config_hyp); // Initialize program manager with LHA file
 

@@ -1,6 +1,6 @@
 #include "HyperisoMaster.h"
 
-void HyperisoMaster::init(const std::string &lhaFile, Config config) {
+void HyperisoMaster::init(const std::string &lhaFile, HyperisoConfig config) {
     std::shared_ptr<ParamBlockLoader> pbl = std::make_shared<ParamBlockLoader>();
     std::shared_ptr<CorrelationLoader<ParamId>> cl_param = std::make_shared<CorrelationLoader<ParamId>>();
     std::shared_ptr<CorrelationLoader<ObservableId>> cl_obs = std::make_shared<CorrelationLoader<ObservableId>>();
@@ -11,7 +11,7 @@ void HyperisoMaster::init(const std::string &lhaFile, Config config) {
 }
 
 void HyperisoMaster::init(const std::string &lhaFile) {
-    init(lhaFile, Config());
+    init(lhaFile, HyperisoConfig());
 }
 
 bool HyperisoMaster::check_flag(ExternalFlag flag) {
@@ -22,7 +22,7 @@ Model HyperisoMaster::get_model() {
     return MemoryManager::GetInstance()->getMemoryCache().config.model;
 }
 
-void HyperisoMaster::switch_lha(const std::string &lhaFile, Config config) {
+void HyperisoMaster::switch_lha(const std::string &lhaFile, HyperisoConfig config) {
     std::shared_ptr<ParamBlockLoader> pbl = std::make_shared<ParamBlockLoader>();
     MemoryManager::GetInstance()->switch_lha(lhaFile, config);
 }

@@ -8,7 +8,7 @@
 int main() {
     Logger::getInstance()->setLevel(Logger::LogLevel::INFO);
     HyperisoMaster hyp; // Create the interface for hyperiso (reading/writing in the lha and all the options we want to use)
-    Config config; // Config struct where we can put all the options we want for Hyperiso (general options)
+    HyperisoConfig config; // Config struct where we can put all the options we want for Hyperiso (general options)
     config.model = Model::SM; // The model we want to use, SM by default. If not THDM or SUSY, MARTY is needed.
     hyp.init("lha/si_input.flha", config); // Initialize program manager with LHA file and the config. Search in the Assets directory if relative path.
     LOG_INFO("HyperisoMaster initialized");

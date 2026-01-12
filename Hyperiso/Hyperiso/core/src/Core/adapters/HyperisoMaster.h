@@ -68,7 +68,7 @@ public:
      * @param lhaFile Path to the LHA input file.
      * @param config Configuration settings to drive initialization.
      */
-    void init(const std::string &lhaFile, Config config);
+    void init(const std::string &lhaFile, HyperisoConfig config);
 
     /**
      * @brief Initializes Hyperiso with only the LHA file, using default config.
@@ -113,7 +113,7 @@ public:
      * @param lhaFile Path to the LHA input file.
      * @param config Configuration to use for Hyperiso.
      */
-    void switch_lha(const std::string &lhaFile, Config config);
+    void switch_lha(const std::string &lhaFile, HyperisoConfig config);
 };
 
 #endif // CONFIGPROVIDER_H

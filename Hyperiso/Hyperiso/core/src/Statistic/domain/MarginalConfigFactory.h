@@ -13,10 +13,10 @@ using MarginalConfig = std::variant<FlatMarginalCfg, GaussianMarginalCfg, SplitG
 
 class MarginalConfigFactory {
 public:
-    static MarginalConfig create(ParamId pid, MarginalType marginal);
+    MarginalConfig create(ParamId pid, MarginalType marginal);
 
 private:
-    static inline const StatParameterProxy p {};
+    const StatParameterProxy p {};
 };
 
 #endif // __MARGINALCONFIGFACTORY_H__

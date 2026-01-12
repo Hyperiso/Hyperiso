@@ -13,7 +13,7 @@
  * @ref ICoreAPI returning the active @ref Model enum value.
  *
  * @see HyperisoMaster
- * @see Config
+ * @see HyperisoConfig
  * @see Model
  */
 

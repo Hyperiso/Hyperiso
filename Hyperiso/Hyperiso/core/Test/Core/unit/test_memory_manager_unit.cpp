@@ -26,7 +26,7 @@ int main() {
     (void)MemoryManager::Create(ba, cp, co, spec, paths);
 
     HyperisoMaster master;
-    Config cfg;
+    HyperisoConfig cfg;
     cfg.model = Model::SM;
     cfg.flags[ExternalFlag::HAS_WILSON_INPUT] = true;
     // cfg.flags[ExternalFlag::USE_MARTY] = false;
@@ -43,7 +43,7 @@ int main() {
     master.init(lha_rel.string());
     assert(master.get_model() == Model::SM);
 
-    Config cfg2 = cfg;
+    HyperisoConfig cfg2 = cfg;
     // cfg2.flags[ExternalFlag::USE_MARTY] = true;
     master.switch_lha(lha_rel.string(), cfg2);
     // assert(master.check_flag(ExternalFlag::USE_MARTY) == true);

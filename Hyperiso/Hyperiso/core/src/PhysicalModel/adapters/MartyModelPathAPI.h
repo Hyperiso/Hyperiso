@@ -14,11 +14,11 @@
  * (typically a `.h` file).
  *
  * The path is resolved through @ref MartyAdapter and ultimately comes
- * from the active @ref Config used to initialize Hyperiso.
+ * from the active @ref HyperisoConfig used to initialize Hyperiso.
  *
  * @see ICoreAPI
  * @see MartyAdapter
- * @see Config
+ * @see HyperisoConfig
  */
 
 /**

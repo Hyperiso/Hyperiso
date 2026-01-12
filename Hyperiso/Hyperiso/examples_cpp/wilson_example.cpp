@@ -7,7 +7,7 @@
 int main() {
     auto hyp = HyperisoMaster(); // Create the interface for hyperiso (reading/writing in the lha and all the options we want to use)
 
-    Config config_hyp; // Config struct where we can put all the options we want for Hyperiso (general options)
+    HyperisoConfig config_hyp; // Config struct where we can put all the options we want for Hyperiso (general options)
 
     config_hyp.flags[ExternalFlag::USE_MARTY] = false; // Rather we want to use MARTY (mandatory for new models) or hardcoded function (for THDM, SUSY and SM)
 

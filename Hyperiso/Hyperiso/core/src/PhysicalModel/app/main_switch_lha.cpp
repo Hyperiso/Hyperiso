@@ -7,7 +7,7 @@
 
 int main() {
     auto hyp = HyperisoMaster();
-    Config config_hyp;
+    HyperisoConfig config_hyp;
     // config_hyp.flags[ExternalFlag::USE_MARTY] = false;
     config_hyp.model = Model::THDM;
     config_hyp.mty_model_name = "ZPrime";
@@ -31,7 +31,7 @@ int main() {
     
     LOG_INFO("C9(mu_h) full =", wi.getFR(WGroup::B, WCoef::C9, QCDOrder::NNLO, ContributionType::TOTAL));
 
-    Config config_v2;
+    HyperisoConfig config_v2;
 
     BlockProxy().log_all_blocks(ParameterType::WILSON);
     // LOG_INFO("changing config");

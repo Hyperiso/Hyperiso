@@ -5,13 +5,13 @@
 
 #include "ObservableInterface.h"
 #include "ObservableInterfaceAdapter2.h"
-#include "adapters/RvgNuisanceSampler.h"
-#include "MonteCarloPredictorGeneric.h"
+#include "RvgNuisanceSampler.h"
+#include "MCEngine.h"
 #include "Fit.h"
 #include "BToMuMuToy.h"
 #include "LinearAlgebra.h"
-#include "DistributionFactory.h"
-#include "RandomVectorGenerator.h"
+#include "MarginalFactory.h"
+#include "RvgNuisanceSampler.h"
 #include "HyperisoMaster.h"
 #include "BlockProxy.h"
 #include "StatParameterProxy.h"
@@ -22,7 +22,7 @@
 int main() {
 
     HyperisoMaster hyp = HyperisoMaster();
-    Config config;
+    HyperisoConfig config;
     config.model = Model::SM;
 
     hyp.init("lha/si_input.flha", config);
@@ -138,7 +138,7 @@ int main() {
     std::cout << "Creating MonteCarloPredictor" << std::endl;
 
     // MC prediction with pluggable sampler
-    MonteCarloPredictor2 mc(model, sampler, eta_mean_real, SigmaEtaReal, {10, 0.2});
+    MonteCarloEngine mc(model, sampler, eta_mean_real, SigmaEtaReal, {10, 0.2});
     std::mt19937 rng(1234);
 
     std::cout << "MonteCarloPredictor created" << std::endl;

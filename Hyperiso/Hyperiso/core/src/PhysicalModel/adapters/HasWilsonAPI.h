@@ -18,7 +18,7 @@
  * to certain matching scales, or changing initialization flows).
  *
  * @see HyperisoMaster
- * @see Config
+ * @see HyperisoConfig
  * @see ExternalFlag
  */
 
@@ -38,7 +38,7 @@
  *   HyperisoMaster().check_flag(ExternalFlag::HAS_WILSON_INPUT);
  * @endcode
  *
- * @note This reads the flag from the active Config (stored in the framework cache).
+ * @note This reads the flag from the active HyperisoConfig (stored in the framework cache).
  */
 class HasWilsonAPI : public ICoreAPI<bool> {
 public:

@@ -18,7 +18,7 @@ int main() {
     HyperisoMaster hyp = HyperisoMaster();
     // MemoryManager* mm = MemoryManager::GetInstance();
     std::string base_path = project_root.data();
-    Config config;
+    HyperisoConfig config;
     config.model = Model::SM;
     hyp.init(base_path + "Test/InputFiles/testinput_thdm.lha", config);
     // auto truc = FileNameManager::getInstance("C7", "SM");

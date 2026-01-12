@@ -12,7 +12,7 @@ int main() {
     std::string root_data_file = project_assets_root.data();
     auto mm = HyperisoMaster();
 
-    Config config;
+    HyperisoConfig config;
     config.model = Model::SM;
     mm.init(root_data_file + "Test/InputFiles/testInput.flha", config);
     auto sm_provider = ParameterProvider(ParameterType::SM);

@@ -39,36 +39,77 @@ inline std::map<ObservableId, ColumnStats> summarize_columns_obs(const Samples& 
     std::vector<double> w (N - Delta, 0.0);
     std::vector<double> theta (Delta, 0.0);
     for (size_t d = 0; d < D; d++) {
-        for (const auto& v : S) x.emplace_back(v.at(ids[d]));   // Retrieve sample values
+        for (const auto& v : S) x.push_back(v.at(ids[d]));
         std::sort(x.begin(), x.end());
         
         double mean {0.0};
         for (double x_i : x)  mean += x_i;
-        mean /= N;
+        mean /= static_cast<double>(N);
         
-        double s, m3;
+        double s = 0., m3 = 0.;
         for (double x_i : x) {
-            double r = x_i - mean;
+            const double r = x_i - mean;
             s += r * r;
             m3 += r * r * r;
         }
 
-        for (size_t j = 0; j < N - Delta; j++) {
-            w[j] = x[j + Delta] - x[j];
-        }
-        std::size_t J = std::distance(w.begin(), std::min_element(w.begin(), w.end()));
-
-        for (size_t k = J; k < J + Delta; k++) {
-            theta[k] = std::abs((double) k / N - (x[k] - x[J]) / w[J]);
-        }
-        std::size_t K = std::distance(theta.begin(), std::min_element(theta.begin(), theta.end()));
-
         out[ids[d]].mean = mean;
-        out[ids[d]].std_unbiased = std::sqrt(s / (N - 1));
-        out[ids[d]].b1_skew = m3 / (N * std::pow(s, 3));
-        out[ids[d]].mode = x[K];
-        out[ids[d]].std_m = x[K] - x[J];
-        out[ids[d]].std_p = x[J + Delta] - x[K];
+        out[ids[d]].std_unbiased = std::sqrt(s / static_cast<double>(N - 1));
+
+        const double m2 = s / static_cast<double>(N);
+        if (m2 > 0.0) {
+            const double m3bar = m3 / static_cast<double>(N);
+            out[ids[d]].b1_skew = m3bar / std::pow(m2, 1.5);
+        } else {
+            out[ids[d]].b1_skew = 0.0;
+        }
+
+        for (std::size_t j = 0; j < N - Delta; j++)
+            w[j] = x[j + Delta] - x[j];
+
+        const std::size_t J = static_cast<std::size_t>(
+            std::distance(w.begin(), std::min_element(w.begin(), w.end()))
+        );
+
+         const double width = w[J];
+        if (width <= 0.0) {
+            // degenerate, all equal in window
+            const std::size_t K = J;
+            out[ids[d]].mode  = x[K];
+            out[ids[d]].std_m = 0.0;
+            out[ids[d]].std_p = 0.0;
+            continue;
+        }
+
+        for (std::size_t t = 0; t < Delta; t++) {
+            const std::size_t k = J + t;
+            theta[t] = std::abs(
+                static_cast<double>(k) / static_cast<double>(N)
+                - (x[k] - x[J]) / width
+            );
+        }
+
+        const std::size_t tmin = static_cast<std::size_t>(
+            std::distance(theta.begin(), std::min_element(theta.begin(), theta.end()))
+        );
+        const std::size_t K = J + tmin;
+
+        out[ids[d]].mode  = x[K];
+        out[ids[d]].std_m = x[K] - x[J];          // >= 0
+        out[ids[d]].std_p = x[J + Delta] - x[K];  // >= 0
+
+        // for (size_t k = J; k < J + Delta; k++) {
+        //     theta[k] = std::abs((double) k / N - (x[k] - x[J]) / w[J]);
+        // }
+        // std::size_t K = std::distance(theta.begin(), std::min_element(theta.begin(), theta.end()));
+
+        // out[ids[d]].mean = mean;
+        // out[ids[d]].std_unbiased = std::sqrt(s / (N - 1));
+        // out[ids[d]].b1_skew = m3 / (N * std::pow(s, 3));
+        // out[ids[d]].mode = x[K];
+        // out[ids[d]].std_m = x[K] - x[J];
+        // out[ids[d]].std_p = x[J + Delta] - x[K];
+        x.clear();
     }
     
     return out;

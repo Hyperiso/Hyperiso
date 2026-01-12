@@ -6,7 +6,7 @@
 int main() {
     std::cout << "here ! " << std::endl;
     auto hyp = HyperisoMaster();  // Initialize program manager with LHA file containing SMINPUTS block
-    Config config;
+    HyperisoConfig config;
     config.model = Model::SM;
     std::cout << "here ! " << std::endl;
     hyp.init("Test/InputFiles/testInput.slha", config);

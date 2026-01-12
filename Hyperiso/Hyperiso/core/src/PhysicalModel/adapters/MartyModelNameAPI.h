@@ -15,12 +15,12 @@
  *
  * The returned value corresponds to:
  * - the MARTY class name (e.g. "THDM", "MSSM", etc.),
- * - typically provided through the Config object and accessed via
+ * - typically provided through the HyperisoConfig object and accessed via
  *   higher-level adapters.
  *
  * @see ICoreAPI
  * @see MartyAdapter
- * @see Config
+ * @see HyperisoConfig
  */
 
 /**

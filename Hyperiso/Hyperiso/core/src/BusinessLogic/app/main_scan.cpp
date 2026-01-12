@@ -19,7 +19,7 @@ int main() {
     ofs << "lha_file,M_Hp,BR,u(BR)\n";
 
     // Prépare HyperIso
-    Config config;
+    HyperisoConfig config;
     config.model = Model::THDM;
     // config.flags[ExternalFlag::USE_MARTY] = false;
     config.mty_model_name = "THDM";

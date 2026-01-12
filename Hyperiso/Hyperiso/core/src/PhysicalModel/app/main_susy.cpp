@@ -6,7 +6,7 @@
 
 int main() {
     auto hyp = HyperisoMaster();
-    Config config_hyp;
+    HyperisoConfig config_hyp;
     // config_hyp.flags[ExternalFlag::USE_MARTY] = false;
     config_hyp.model = Model::SUSY;
     config_hyp.mty_model_name = "ZPrime";

@@ -7,7 +7,7 @@
 
 int main() {
     auto hyp = HyperisoMaster();
-    Config config_hyp;
+    HyperisoConfig config_hyp;
     hyp.init("Test/InputFiles/testInput.flha", config_hyp); // Initialize program manager with LHA file
 
     auto wi = WilsonInterface(); // Initialize interface and build the required groups

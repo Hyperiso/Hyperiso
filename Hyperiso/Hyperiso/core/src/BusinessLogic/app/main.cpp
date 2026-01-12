@@ -97,7 +97,7 @@ void test_interface(ObservableInterface& interface) {
 int main() {
     Logger::getInstance()->setLevel(Logger::LogLevel::INFO);
     HyperisoMaster hyperiso;
-    Config config;
+    HyperisoConfig config;
     config.model = Model::SM;
     hyperiso.init("default/lha/testInput.flha", config);
     LOG_INFO("HyperisoMaster initialized");

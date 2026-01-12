@@ -294,6 +294,10 @@ public:
         }
 
         for (auto& [pid, mt] : config.override_nuisance_marginals) {
+            for (auto elem : nuisance_marginals) {
+                std::cout << elem.first << std::endl;
+                std::cout << ParameterTypeMapper::str(elem.first.type.value_or(ParameterType::WILSON)) << std::endl;
+            }
             if (!nuisance_marginals.contains(pid)) {
                 LOG_WARN("Parameter", pid, "is not a nuisance for the selected observables");
             }
@@ -305,7 +309,7 @@ public:
         std::vector<std::unique_ptr<IMarginalDistribution>> marginals;
 
         for (auto& [pid, mt] : nuisance_marginals) {
-            MarginalConfig cfg = MarginalConfigFactory::create(pid, mt);
+            MarginalConfig cfg = MarginalConfigFactory().create(pid, mt);
             auto m_ptr = DistributionFactory::create(mt, cfg, seed);
             marginals.emplace_back(std::move(m_ptr));
         }

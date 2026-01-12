@@ -99,7 +99,7 @@ void runObservablesTest(const std::string& lha_path,
                         double tolerance)
 {
     HyperisoMaster hyp;
-    Config cfg;
+    HyperisoConfig cfg;
     cfg.model = model;
     hyp.init(lha_path, cfg);
 

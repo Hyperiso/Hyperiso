@@ -8,7 +8,7 @@
 int main(int argc, char** argv) {
 
     HyperisoMaster hyp;
-    Config config_hyp;
+    HyperisoConfig config_hyp;
     config_hyp.model = Model::SM;
 
     LOG_INFO("YO");
@@ -24,7 +24,7 @@ int main(int argc, char** argv) {
     };
 
     config.override_nuisance_marginals = {
-        {{ParameterType::SM, "B_ll", 1}, MarginalType::FLAT}
+        {{ParameterType::DECAY, "B_ll", 1}, MarginalType::FLAT}
     };
 
     // config.p_specs = {ParamId(ParameterType::DECAY, "B_ll", 1)};

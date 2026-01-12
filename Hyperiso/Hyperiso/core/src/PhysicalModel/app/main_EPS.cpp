@@ -5,7 +5,7 @@
 
 int main() {
     HyperisoMaster hyp = HyperisoMaster();
-    Config config;
+    HyperisoConfig config;
     config.model = Model::THDM;
     // config.flags[ExternalFlag::USE_MARTY] = false; // TODO : Théo not happy
     config.mty_model_name = "THDM";

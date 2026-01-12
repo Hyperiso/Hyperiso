@@ -37,7 +37,7 @@ enum class InternalFlag { PARAMS_CHANGED };
  * @brief Stores memory cache details for parameter management and runtime state.
  */
 struct MemoryCache {
-    Config config;                                                              ///< Config struct for various flags and runtime information
+    HyperisoConfig config;                                                              ///< Config struct for various flags and runtime information
     std::map<InternalFlag, bool> flags {{InternalFlag::PARAMS_CHANGED, false}}; ///< Internal status flags.
     fs::path lha_path;                                                          ///< Path to the currently loaded LHA file.
     std::vector<ParameterType> parameter_types;                                 ///< List of parameter types currently managed.
@@ -116,7 +116,7 @@ private:
      * @param lhaFile Path to the LHA input file (relative to assets or absolute).
      * @param config  Configuration options for the reading process.
      */
-    void read_lha_input(const std::string& lhaFile, const Config& config);
+    void read_lha_input(const std::string& lhaFile, const HyperisoConfig& config);
 
     /**
      * @brief Formats and resolves the full path to an LHA input file.
@@ -138,7 +138,7 @@ private:
      * @param config         Configuration options to control spectrum generation.
      * @return Path to the new LHA file containing the calculated spectrum.
      */
-    fs::path calculate_spectrum(fs::path input_lha_path, const Config& config);
+    fs::path calculate_spectrum(fs::path input_lha_path, const HyperisoConfig& config);
 
     /**
      * @brief Determines the list of parameter types to manage based on the configuration.
@@ -147,7 +147,7 @@ private:
      *
      * @param config Configuration options to interpret.
      */
-    void deduce_parameter_types(const Config &config);
+    void deduce_parameter_types(const HyperisoConfig &config);
 
     /**
      * @brief Saves a snapshot of the current input cache.
@@ -183,7 +183,7 @@ public:
      * @param lhaFile Path to the input LHA file.
      * @param config  Configuration settings to use.
      */
-    void init(const std::string &lhaFile, Config config);
+    void init(const std::string &lhaFile, HyperisoConfig config);
 
     /**
      * @brief Switches to a different LHA file, reloading associated parameters and spectrum.
@@ -191,7 +191,7 @@ public:
      * @param lhaFile Path to the new LHA file.
      * @param config  New configuration to apply.
      */
-    void switch_lha(const std::string& lhaFile, Config config);
+    void switch_lha(const std::string& lhaFile, HyperisoConfig config);
 
     /**
      * @brief Reloads user-specific input files.
@@ -200,7 +200,7 @@ public:
      *
      * @param config New configuration to apply.
      */
-    void reload_user_input(Config config);
+    void reload_user_input(HyperisoConfig config);
 
     /**
      * @brief Reloads user-specific input files with a different LHA file.
@@ -208,7 +208,7 @@ public:
      * @param lhaFile Path to the LHA file.
      * @param config  New configuration to apply.
      */
-    void reload_user_input(const std::string &lhaFile, Config config);
+    void reload_user_input(const std::string &lhaFile, HyperisoConfig config);
 
     /**
      * @brief Switches the model used for spectrum and parameters.

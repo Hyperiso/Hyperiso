@@ -78,7 +78,7 @@ public:
     /**
      * @brief Retrieves the name of the MARTY model currently configured.
      *
-     * Typically comes from Config::mty_model_name stored in MemoryManager's cache.
+     * Typically comes from HyperisoConfig::mty_model_name stored in MemoryManager's cache.
      *
      * @return The name of the MARTY model, or an empty string if not set.
      */

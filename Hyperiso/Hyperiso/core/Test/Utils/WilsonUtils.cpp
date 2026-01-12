@@ -20,7 +20,7 @@ void writeCoefficientsToFile(const std::string& strat_name, const std::string& f
     file << "\n";
     std::shared_ptr<HyperisoMaster> hyperiso = std::make_shared<HyperisoMaster>();
     
-    Config config;
+    HyperisoConfig config;
     if (model == "SM") {
         config.model = Model::SM;
         hyperiso->init(root_data_file + "Test/InputFiles/testinput_thdm.lha", config);
@@ -86,7 +86,7 @@ void writeCoefficientsPrimeCQToFile(const std::string& strat_name, const std::st
     std::shared_ptr<HyperisoMaster> hyperiso = std::make_shared<HyperisoMaster>();
     std::shared_ptr<WilsonInterface> wi;
 
-    Config config;
+    HyperisoConfig config;
     if (model == "SM") {
         config.model = Model::SM;
         hyperiso->init(root_data_file + "Test/InputFiles/testinput_thdm.lha", config);
@@ -157,7 +157,7 @@ void writeRunCoefficientsToFile(const std::string& strat_name, const std::string
     std::shared_ptr<HyperisoMaster> hyperiso = std::make_shared<HyperisoMaster>();
     std::shared_ptr<WilsonInterface> wi;
 
-    Config config;
+    HyperisoConfig config;
 
     if (model == "SM") {
         config.model = Model::SM;

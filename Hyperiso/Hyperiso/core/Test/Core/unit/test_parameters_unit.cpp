@@ -25,7 +25,7 @@ int main() {
   auto tpp = std::make_shared<TestPathsProvider>(sandbox);
   (void)MemoryManager::Create(ba, cp, co, spec, tpp);
 
-  Config cfg;
+  HyperisoConfig cfg;
   cfg.model = Model::SM;
   cfg.flags[ExternalFlag::HAS_WILSON_INPUT] = false;
   // cfg.flags[ExternalFlag::USE_MARTY] = false;
