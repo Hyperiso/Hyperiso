@@ -31,5 +31,6 @@ double FlatMarginal::mean() {
 }
 
 double FlatMarginal::std() {
-    return std::pow(b - a, 2) / 12.;
+    return (b - a) / std::sqrt(12.); // TODO Theo : variance before no ?
+    // return std::pow(b - a, 2) / 12.;
 }

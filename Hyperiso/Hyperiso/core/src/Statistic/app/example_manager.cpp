@@ -16,7 +16,7 @@ int main(int argc, char** argv) {
     hyp.init("lha/si_input.flha", config_hyp);
 
     StatisticConfig config;
-
+    config.MC_draws = 1000;
     config.obss = {
         {ObservableMapper::to_id(Observables::BR_BS_MUMU), QCDOrder::LO},
         {ObservableMapper::to_id(Observables::BR_BS_MUMU_UNTAG), QCDOrder::LO},
