@@ -21,9 +21,9 @@ public:
         return manager->compute_uncertainties();
     }
     
-    FitResultWithMaps compute_MLE() {
-        return manager->compute_MLE();
-    }
+    // FitResultWithMaps compute_MLE() {
+    //     return manager->compute_MLE();
+    // }
 
 private:
     std::shared_ptr<StatisticManager> manager;

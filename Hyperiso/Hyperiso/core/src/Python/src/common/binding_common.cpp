@@ -194,7 +194,7 @@ void init_common(py::module &m) {
         .value("B__Kstar", Decays::B__Kstar_gamma)
         .value("B__l_l", Decays::B__l_l)
         .value("B__l_nu", Decays::B__l_nu)
-        .value("B__Xs", Decays::B__Xs)
+        .value("B__Xs_gamma", Decays::B__Xs_gamma)
         .value("B__Xs_l_l", Decays::B__Xs_l_l)
         .value("B__K_l_l", Decays::B__K_l_l)
         .value("B__Kstar_l_l", Decays::B__Kstar_l_l)

@@ -82,21 +82,21 @@ void init_core(py::module &m) {
         .def("dependsOn", &DependentParameter::dependsOn);
 
     // Config class
-    py::class_<Config>(m, "Config")
+    py::class_<HyperisoConfig>(m, "HyperisoConfig")
     .def(py::init<>())
-    .def_readwrite("flags", &Config::flags)
-    .def_readwrite("model", &Config::model)
-    .def_readwrite("mty_model_name", &Config::mty_model_name)
-    .def_readwrite("mty_model_path", &Config::mty_model_path);
+    .def_readwrite("flags", &HyperisoConfig::flags)
+    .def_readwrite("model", &HyperisoConfig::model)
+    .def_readwrite("mty_model_name", &HyperisoConfig::mty_model_name)
+    .def_readwrite("mty_model_path", &HyperisoConfig::mty_model_path);
 
     // HyperisoMaster
     py::class_<HyperisoMaster, std::shared_ptr<HyperisoMaster>>(m, "HyperisoMaster")
     .def(py::init<>())
-    .def("init", py::overload_cast<const std::string&, Config>(&HyperisoMaster::init))
+    .def("init", py::overload_cast<const std::string&, HyperisoConfig>(&HyperisoMaster::init))
     .def("init", py::overload_cast<const std::string&>(&HyperisoMaster::init))
     .def("check_flag", &HyperisoMaster::check_flag)
     .def("get_model", &HyperisoMaster::get_model)
-    .def("switch_lha",  py::overload_cast<const std::string&, Config>(&HyperisoMaster::switch_lha));
+    .def("switch_lha",  py::overload_cast<const std::string&, HyperisoConfig>(&HyperisoMaster::switch_lha));
 
     // ParameterSetter
     py::class_<ParameterShifter, std::shared_ptr<ParameterShifter>>(m, "ParameterShifter")

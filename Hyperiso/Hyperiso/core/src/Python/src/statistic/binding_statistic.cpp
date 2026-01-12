@@ -22,6 +22,6 @@ void init_statistic(py::module &m) {
      .def(py::init<StatisticConfig>(), py::arg("config"))
 
      .def("compute_uncertainties", &StatisticInterface::compute_uncertainties)
-     .def("compute_MLE", &StatisticInterface::compute_MLE);
+    //  .def("compute_MLE", &StatisticInterface::compute_MLE);
     
 }
