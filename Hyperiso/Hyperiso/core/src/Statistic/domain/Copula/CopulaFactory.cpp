@@ -1,7 +1,7 @@
 #include "CopulaFactory.h"
 
 std::unique_ptr<ICopula> make(unsigned int seed, CopulaConfig cfg) {
-    return std::visit([](auto&& c) -> std::unique_ptr<ICopula> {
+    return std::visit([seed](auto&& c) -> std::unique_ptr<ICopula> {
         using T = std::decay_t<decltype(c)>;
         if constexpr (std::is_same_v<T, GaussianCopulaConfig>)
             return std::make_unique<GaussianCopula>(seed, c.R);

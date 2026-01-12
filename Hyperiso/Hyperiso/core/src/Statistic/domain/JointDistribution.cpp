@@ -7,7 +7,10 @@ JointDistribution::JointDistribution(
 {}
 
 std::vector<Vector> JointDistribution::sample(std::size_t n) const {
+    LOG_INFO("Sampling copula");
     std::vector<Vector> u = this->copula_->sample_u(n);
+
+    LOG_INFO("Applying inverse quantile function");
     std::vector<Vector> x (n, Vector(u[0].size(), 0.0));
 
     for (size_t i = 0; i < marginals_.size(); i++) {

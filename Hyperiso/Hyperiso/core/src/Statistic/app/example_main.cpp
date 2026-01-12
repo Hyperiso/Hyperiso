@@ -91,7 +91,7 @@ int main() {
 // std::cout << "95% CI for C10 (Cp10=0 profiled): [" << left << ", " << right << "]\n";
 
     HyperisoMaster hyp = HyperisoMaster();
-    Config confighyp;
+    MarginalConfig confighyp;
     confighyp.model = Model::SM;
 
     hyp.init("lha/si_input.flha", confighyp);

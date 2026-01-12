@@ -9,11 +9,11 @@
 #include "SplitGaussianMarginal.h"
 #include "LikelihoodMarginal.h"
 
-using Config = std::variant<FlatMarginalCfg, GaussianMarginalCfg, SplitGaussianMarginalCfg, LikelihoodMarginalCfg>;
+using MarginalConfig = std::variant<FlatMarginalCfg, GaussianMarginalCfg, SplitGaussianMarginalCfg, LikelihoodMarginalCfg>;
 
 class MarginalConfigFactory {
 public:
-    static Config create(ParamId pid, MarginalType marginal);
+    static MarginalConfig create(ParamId pid, MarginalType marginal);
 
 private:
     static inline const StatParameterProxy p {};

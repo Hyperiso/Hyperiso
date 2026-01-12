@@ -3,6 +3,7 @@
 
 #include <random>
 #include "IMarginalDistribution.h"
+#include "AbstractConfig.h"
 
 struct GaussianMarginalCfg : public AbstractConfig {
     double mu;
@@ -13,7 +14,7 @@ struct GaussianMarginalCfg : public AbstractConfig {
 
 class GaussianMarginal final : public IMarginalDistribution {
 public:
-    explicit GaussianMarginal(unsigned int seed = std::random_device{}(), double mu, double sigma);
+    explicit GaussianMarginal(double mu, double sigma, unsigned int seed = std::random_device{}());
 
     Vector rvs(std::size_t n) override;
     double logpdf(double x) override;

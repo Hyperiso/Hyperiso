@@ -16,7 +16,7 @@ ObsManager::ObsManager(ObservablePortsConfig obs_port_conf, bool init_default_de
             {DecayMapper::to_id(Decays::B__Kstar_gamma),        std::make_shared<BKstarGammaDecay>  (QCDOrder::NONE, mu_W, mu_b, obs_port_conf)},
             {DecayMapper::to_id(Decays::B__l_l),                std::make_shared<BllDecay>          (QCDOrder::NONE, mu_W, mu_b, obs_port_conf)},
             {DecayMapper::to_id(Decays::B__l_nu),               std::make_shared<BlnuDecay>         (QCDOrder::NONE, mu_W, mu_b, obs_port_conf)},
-            {DecayMapper::to_id(Decays::B__Xs),                 std::make_shared<BXsDecay>          (QCDOrder::NONE, mu_W, mu_b, obs_port_conf)},
+            {DecayMapper::to_id(Decays::B__Xs_gamma),           std::make_shared<BXsDecay>          (QCDOrder::NONE, mu_W, mu_b, obs_port_conf)},
             {DecayMapper::to_id(Decays::B__Xs_l_l),             std::make_shared<BXsllDecay>        (QCDOrder::NONE, mu_W, mu_b, obs_port_conf)},
             {DecayMapper::to_id(Decays::M0_Mix),                std::make_shared<M0Mixing>          (QCDOrder::NONE, mu_W, mu_b, obs_port_conf)},
             {DecayMapper::to_id(Decays::B__Kstar_l_l),          std::make_shared<BKstarllDecay>     (QCDOrder::NONE, mu_W, mu_b, obs_port_conf)},

@@ -7,9 +7,11 @@
 
 int main(int argc, char** argv) {
 
-    HyperisoMaster hyp = HyperisoMaster();
+    HyperisoMaster hyp;
     Config config_hyp;
     config_hyp.model = Model::SM;
+
+    LOG_INFO("YO");
 
     hyp.init("lha/si_input.flha", config_hyp);
 
@@ -21,8 +23,12 @@ int main(int argc, char** argv) {
         {ObservableMapper::to_id(Observables::BR_BD_MUMU), QCDOrder::LO}
     };
 
-    config.p_specs = {ParamId(ParameterType::DECAY, "B_ll", 1)};
-        // config.p_specs = {ParamId(ParameterType::SM, "MASS", 1)};
+    config.override_nuisance_marginals = {
+        {{ParameterType::SM, "B_ll", 1}, MarginalType::FLAT}
+    };
+
+    // config.p_specs = {ParamId(ParameterType::DECAY, "B_ll", 1)};
+    // config.p_specs = {ParamId(ParameterType::SM, "MASS", 1)};
 
     std::shared_ptr<ObservableInterface> oi = std::make_shared<ObservableInterface>();
 
@@ -37,18 +43,18 @@ int main(int argc, char** argv) {
     auto us = std::chrono::duration_cast<std::chrono::microseconds>(stop - start).count();
     std::cout << "Temps : " << us << " µs\n";
 
-    auto res = stat.compute_MLE();
+    // auto res = stat.compute_MLE();
 
-    std::cout << "Temps : " << res.ell_hat << " µs\n";
+    // std::cout << "Temps : " << res.ell_hat << " µs\n";
 
-    ParamId pid = config.p_specs[0];
+    // ParamId pid = config.p_specs[0];
 
     // auto interval = stat.compute_CI_1d_95(pid, -7.0, -1.0, 50);
 
-    auto interval = stat.compute_CI_1d_95(pid, 0, 1, 100);
+    // auto interval = stat.compute_CI_1d_95(pid, 0, 1, 100);
 
-    std::cout << "IC 95% sur " << pid << " = ["
-            << interval.first << ", " << interval.second << "]\n";
+    // std::cout << "IC 95% sur " << pid << " = ["
+    //         << interval.first << ", " << interval.second << "]\n";
 
     // std::cout << "Temps : " << res.eta_hat[0] << " µs\n";
     // std::cout << "Temps : " << res.p_hat[0] << " µs\n";

@@ -4,6 +4,8 @@
 #include <random>
 #include <cmath>
 #include "IMarginalDistribution.h"
+#include "Include.h"
+#include "AbstractConfig.h"
 
 struct FlatMarginalCfg : public AbstractConfig {
     double a;
@@ -14,7 +16,7 @@ struct FlatMarginalCfg : public AbstractConfig {
 
 class FlatMarginal final : public IMarginalDistribution {
 public:
-    explicit FlatMarginal(unsigned int seed = std::random_device{}(), double a, double b);
+    explicit FlatMarginal(double a, double b, unsigned int seed = std::random_device{}());
 
     Vector rvs(std::size_t n) override;
     double logpdf(double x) override;

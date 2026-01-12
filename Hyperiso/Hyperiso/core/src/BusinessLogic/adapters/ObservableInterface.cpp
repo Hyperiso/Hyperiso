@@ -25,30 +25,30 @@ void ObservableInterface::add_custom_decay(DecayId id, std::shared_ptr<DecayPare
     manager->add_custom_decay(id, ptr);
 }
 
-ObservableInterface& ObservableInterface::add_observable(Observables obs, QCDOrder order, bool add_dependencies=false) {
+ObservableInterface& ObservableInterface::add_observable(Observables obs, QCDOrder order, bool add_dependencies) {
     manager->add_obs(obs, order, add_dependencies);
     return *this;
 }
 
-ObservableInterface& ObservableInterface::add_observable(ObservableId obs, QCDOrder order, bool add_dependencies=false) { 
+ObservableInterface& ObservableInterface::add_observable(ObservableId obs, QCDOrder order, bool add_dependencies) { 
     manager->add_obs(obs, order, add_dependencies);
     return *this;
 }
 
-void ObservableInterface::add_observables(std::map<Observables, QCDOrder> obss, bool add_dependencies=false) {  
+void ObservableInterface::add_observables(std::map<Observables, QCDOrder> obss, bool add_dependencies) {  
     for (auto &[k, v] : obss) {
         add_observable(k, v, add_dependencies);
     }
 }
 
-void ObservableInterface::add_observables(std::map<ObservableId, QCDOrder> obss, bool add_dependencies=false) {  
+void ObservableInterface::add_observables(std::map<ObservableId, QCDOrder> obss, bool add_dependencies) {  
     for (auto &[k, v] : obss) {
 
         add_observable(k, v, add_dependencies);
     }
 }
 
-void ObservableInterface::add_observables(Decays decay, QCDOrder order, bool add_dependencies=false) {  
+void ObservableInterface::add_observables(Decays decay, QCDOrder order, bool add_dependencies) {  
     for (auto &obs : DecayMapper::get_observables(decay)) {
         add_observable(obs, order, add_dependencies);
     }
@@ -108,11 +108,11 @@ scalar_t ObservableInterface::get_exp_value(ObservableId id) {
     return manager->get_obs(id)->get_exp_val();
 };
 
-scalar_t ObservableInterface::get_exp_uncertainty(Observables id, UncertaintyType u_type=UncertaintyType::COMBINED) {
+scalar_t ObservableInterface::get_exp_uncertainty(Observables id, UncertaintyType u_type) {
     return manager->get_obs(id)->get_exp_uncertainty(u_type);
 }
 
-scalar_t ObservableInterface::get_exp_uncertainty(ObservableId id, UncertaintyType u_type=UncertaintyType::COMBINED) {
+scalar_t ObservableInterface::get_exp_uncertainty(ObservableId id, UncertaintyType u_type) {
     return manager->get_obs(id)->get_exp_uncertainty(u_type);
 }
 

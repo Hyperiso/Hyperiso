@@ -1,20 +1,20 @@
 #include "MarginalFactory.h"
 
-std::unique_ptr<IMarginalDistribution> make(unsigned int seed, Config cfg) {
-    return std::visit([](auto&& c) -> std::unique_ptr<IMarginalDistribution> {
+std::unique_ptr<IMarginalDistribution> make(unsigned int seed, MarginalConfig cfg) {
+    return std::visit([seed](auto&& c) -> std::unique_ptr<IMarginalDistribution> {
         using T = std::decay_t<decltype(c)>;
         if constexpr (std::is_same_v<T, FlatMarginalCfg>)
-            return std::make_unique<FlatMarginal>(seed, c.a, c.b);
+            return std::make_unique<FlatMarginal>(c.a, c.b, seed);
         else if constexpr (std::is_same_v<T, GaussianMarginalCfg>)
-            return std::make_unique<GaussianMarginal>(seed, c.mu, c.sigma);
+            return std::make_unique<GaussianMarginal>(c.mu, c.sigma, seed);
         else if constexpr (std::is_same_v<T, SplitGaussianMarginalCfg>)
-            return std::make_unique<SplitGaussianMarginal>(seed, c.mu, c.sigma_p, c.sigma_m);
+            return std::make_unique<SplitGaussianMarginal>(c.mu, c.sigma_p, c.sigma_m, seed);
         else if constexpr (std::is_same_v<T, LikelihoodMarginalCfg>)
-            return std::make_unique<LikelihoodMarginal>(seed, c.values, c.weights, true);
+            return std::make_unique<LikelihoodMarginal>(c.values, c.weights, seed, true);
     }, cfg);
 }
 
-std::unique_ptr<IMarginalDistribution> DistributionFactory::create(MarginalType name, Config cfg, unsigned int seed) {
+std::unique_ptr<IMarginalDistribution> DistributionFactory::create(MarginalType name, MarginalConfig cfg, unsigned int seed) {
     switch (name) {
         case MarginalType::GAUSSIAN:
             return make(seed, cfg);

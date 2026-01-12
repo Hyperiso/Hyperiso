@@ -1,9 +1,6 @@
 #include "SplitGaussianMarginal.h"
 
-SplitGaussianMarginal::SplitGaussianMarginal(unsigned int seed,
-                                             double mu,
-                                             double sigma_p,
-                                             double sigma_m)
+SplitGaussianMarginal::SplitGaussianMarginal(double mu, double sigma_p, double sigma_m, unsigned int seed)
     : mu(mu), sigma_p(sigma_p), sigma_m(sigma_m)
 {
     N = 2.0 / (sigma_p + sigma_m);

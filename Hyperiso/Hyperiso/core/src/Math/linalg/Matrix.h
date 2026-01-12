@@ -13,34 +13,31 @@
 
 // Minimal RAII for GSL pointers
 
-using gsl_matrix_ptr = std::unique_ptr<gsl_matrix, decltype(&gsl_matrix_free)>;
-using gsl_vector_ptr = std::unique_ptr<gsl_vector, decltype(&gsl_vector_free)>;
-using gsl_permutation_ptr = std::unique_ptr<gsl_permutation, decltype(&gsl_permutation_free)>;
-using gsl_eigen_workspace_ptr = std::unique_ptr<gsl_eigen_symmv_workspace, decltype(&gsl_eigen_symmv_free)>;
+using gsl_matrix_sptr = std::unique_ptr<gsl_matrix, decltype(&gsl_matrix_free)>;
+using gsl_vector_sptr = std::unique_ptr<gsl_vector, decltype(&gsl_vector_free)>;
+using gsl_permutation_sptr = std::unique_ptr<gsl_permutation, decltype(&gsl_permutation_free)>;
+using gsl_eigen_workspace_sptr = std::unique_ptr<gsl_eigen_symmv_workspace, decltype(&gsl_eigen_symmv_free)>;
 
-inline gsl_matrix_ptr make_gsl_matrix(size_t rows, size_t cols) {
-    return gsl_matrix_ptr(gsl_matrix_alloc(rows, cols), &gsl_matrix_free);
+inline gsl_matrix_sptr make_gsl_matrix(size_t rows, size_t cols) {
+    return gsl_matrix_sptr(gsl_matrix_alloc(rows, cols), &gsl_matrix_free);
 }
 
-inline gsl_vector_ptr make_gsl_vector(size_t size) {
-    return gsl_vector_ptr(gsl_vector_alloc(size), &gsl_vector_free);
+inline gsl_vector_sptr make_gsl_vector(size_t size) {
+    return gsl_vector_sptr(gsl_vector_alloc(size), &gsl_vector_free);
 }
 
-inline gsl_permutation_ptr make_gsl_permutation(size_t size) {
-    return gsl_permutation_ptr(gsl_permutation_alloc(size), &gsl_permutation_free);
+inline gsl_permutation_sptr make_gsl_permutation(size_t size) {
+    return gsl_permutation_sptr(gsl_permutation_alloc(size), &gsl_permutation_free);
 }
 
-inline gsl_eigen_workspace_ptr make_eigen_workspace(size_t n) {
+inline gsl_eigen_workspace_sptr make_eigen_workspace(size_t n) {
     return { gsl_eigen_symmv_alloc(n), &gsl_eigen_symmv_free };
 }
 
 
 // -------------------------------------------------------
 
-struct EigenSystem {
-    RealMatrix D;
-    RealMatrix P;
-};
+struct EigenSystem; 
 
 struct SignedLogDet {
     double logdet;
@@ -67,7 +64,7 @@ public:
     // GSL support
 
     static RealMatrix from_gsl_copy(const gsl_matrix* A);
-    gsl_matrix_ptr to_gsl_matrix() const;
+    gsl_matrix_sptr to_gsl_matrix() const;
 
     // Linear algebra
 
@@ -121,8 +118,13 @@ private:
     std::size_t rows_, cols_;
 };
 
+struct EigenSystem {
+    RealMatrix D;
+    RealMatrix P;
+};
+
 RealMatrix eye(std::size_t n);
-RealMatrix diag(gsl_vector* X);
+RealMatrix diag(const gsl_vector* X);
 RealMatrix nearest_psd(RealMatrix R, double thr = 1e-12);
 RealMatrix cholesky_L(RealMatrix R);
 

@@ -7,6 +7,7 @@
 #include <stdexcept>
 #include <cmath>
 #include "IMarginalDistribution.h"
+#include "AbstractConfig.h"
 
 struct LikelihoodMarginalCfg : public AbstractConfig {
     Vector values;
@@ -17,12 +18,17 @@ struct LikelihoodMarginalCfg : public AbstractConfig {
 // values[i] drawn with probability proportional to weights[i].
 class LikelihoodMarginal final : public IMarginalDistribution {
 public:
-    LikelihoodMarginal(unsigned int seed = std::random_device{}(),
-                       Vector values,
+    LikelihoodMarginal(Vector values,
                        Vector weights,
+                       unsigned int seed = std::random_device{}(),
                        bool standardize = false);
 
     Vector rvs(std::size_t n) override;
+    double logpdf(double x) override { return 0.0; }
+    double cdf(double x) override { return 0.0; }
+    double ppf(double p) override { return 0.0; }
+    double mean() override { return 0.0; }
+    double std() override { return 0.0; }
 
 private:
     void build_alias_tables(std::vector<double> weights);

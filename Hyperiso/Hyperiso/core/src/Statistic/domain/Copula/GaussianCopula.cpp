@@ -8,11 +8,10 @@ GaussianCopula::GaussianCopula(unsigned int seed, RealMatrix R) : GenericCopula(
 }
 
 std::vector<Vector> GaussianCopula::sample_u(std::size_t n) {
-    std::size_t d = R.cols();
+    std::size_t d = L.cols();
     std::vector<std::vector<double>> U;
 
     RealMatrix z (d, 1);
-    std::vector<Vector> U;
     for (std::size_t i = 0; i < n; i++) {
         for (std::size_t j = 0; j < d; j++) {
             z.at(j, 0) = gsl_ran_ugaussian(eng_);   // z follows MN(0, 1)

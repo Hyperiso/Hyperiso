@@ -1,6 +1,6 @@
 #include "GaussianMarginal.h"
 
-GaussianMarginal::GaussianMarginal(unsigned int seed, double mu, double sigma)
+GaussianMarginal::GaussianMarginal(double mu, double sigma, unsigned int seed)
     : mu(mu), sigma(sigma)
 {
     eng_ = gsl_rng_alloc(rng_tp);

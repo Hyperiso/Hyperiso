@@ -3,6 +3,7 @@
 
 #include "GenericCopula.h"
 #include "Matrix.h"
+#include "AbstractConfig.h"
 
 struct GaussianCopulaConfig : public AbstractConfig {
     RealMatrix R;

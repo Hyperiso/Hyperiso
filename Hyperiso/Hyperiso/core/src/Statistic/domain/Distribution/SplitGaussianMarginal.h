@@ -4,6 +4,7 @@
 #include <random>
 #include "IMarginalDistribution.h"
 #include "Math.h"
+#include "AbstractConfig.h"
 
 struct SplitGaussianMarginalCfg : public AbstractConfig {
     double mu {0.0};
@@ -13,7 +14,7 @@ struct SplitGaussianMarginalCfg : public AbstractConfig {
 
 class SplitGaussianMarginal final : public IMarginalDistribution {
 public:
-    explicit SplitGaussianMarginal(unsigned int seed = std::random_device{}(), double mu, double sigma_p, double sigma_m);
+    explicit SplitGaussianMarginal(double mu, double sigma_p, double sigma_m, unsigned int seed = std::random_device{}());
 
     Vector rvs(std::size_t n) override;
     double logpdf(double x) override;

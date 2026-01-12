@@ -13,11 +13,11 @@
 #include "LikelihoodMarginal.h"
 #include "SplitGaussianMarginal.h"
 
-using Config = std::variant<FlatMarginalCfg, GaussianMarginalCfg, SplitGaussianMarginalCfg, LikelihoodMarginalCfg>;
+using MarginalConfig = std::variant<FlatMarginalCfg, GaussianMarginalCfg, SplitGaussianMarginalCfg, LikelihoodMarginalCfg>;
 
 class DistributionFactory {
 public:
-    static std::unique_ptr<IMarginalDistribution> create(MarginalType name, Config cfg, unsigned int seed = std::random_device{}());
+    static std::unique_ptr<IMarginalDistribution> create(MarginalType name, MarginalConfig cfg, unsigned int seed = std::random_device{}());
 };
 
 #endif

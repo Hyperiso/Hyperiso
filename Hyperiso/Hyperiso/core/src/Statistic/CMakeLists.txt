@@ -37,14 +37,22 @@ add_library(StatisticLib STATIC
     adapters/StatParamSourcesProxy.cpp
     adapters/StatParamOptimizerProxy.cpp
     domain/RNGHelper.cpp
-    domain/RandomVectorGenerator.cpp
+    domain/JointDistribution.cpp
     domain/Fit.cpp
     domain/Likelihood.cpp
     domain/CovarianceTransformer.cpp
-    domain/Distribution/DistributionFactory.cpp
-    domain/Distribution/StandardNormal.cpp
-    domain/Distribution/LikelihoodDiscrete.cpp
-    domain/Distribution/StandardFlat.cpp
+    domain/MarginalConfigFactory.cpp
+    domain/MCEngine.cpp
+    domain/RvgNuisanceSampler.cpp
+    domain/Distribution/MarginalFactory.cpp
+    domain/Distribution/GaussianMarginal.cpp
+    domain/Distribution/SplitGaussianMarginal.cpp
+    domain/Distribution/LikelihoodMarginal.cpp
+    domain/Distribution/FlatMarginal.cpp
+    domain/Copula/CopulaFactory.cpp
+    domain/Copula/GaussianCopula.cpp
+    domain/Copula/GenericCopula.cpp
+    domain/Copula/StudentTCopula.cpp
 )
 set_target_properties(StatisticLib PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
@@ -54,12 +62,14 @@ target_include_directories(StatisticLib
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/domain>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/domain/Distribution>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/domain/Copula>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/ports>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/adapters>
     # install
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/Statistic>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/Statistic/domain>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/Statistic/domain/Distribution>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/Statistic/domain/Copula>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/Statistic/ports>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/Statistic/adapters>
   PRIVATE
@@ -82,6 +92,9 @@ target_link_libraries(ADAPTERS_TEST StatisticLib)
 
 add_executable(MANAGER_STAT app/example_manager.cpp)
 target_link_libraries(MANAGER_STAT StatisticLib)
+
+add_executable(COPULA_TEST app/test_copulas.cpp)
+target_link_libraries(COPULA_TEST StatisticLib)
 
 include(GNUInstallDirs)
 

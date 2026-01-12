@@ -84,7 +84,7 @@ UnzipResult1D<T, U> unzip(const std::map<T, U>& indexed) {
 
 template<typename T>
 UnzipResult2D<T> unzip(const std::map<T, std::map<T, double>>& indexed) {
-    td::vector<T> ids;
+    std::vector<T> ids;
     std::vector<std::vector<double>> vals;
 
     for (auto& [id, row]: indexed) {

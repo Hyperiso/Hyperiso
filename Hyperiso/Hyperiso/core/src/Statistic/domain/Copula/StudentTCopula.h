@@ -3,6 +3,7 @@
 
 #include "GenericCopula.h"
 #include "Matrix.h"
+#include "AbstractConfig.h"
 #include <gsl/gsl_sf.h>
 
 struct StudentTCopulaConfig : public AbstractConfig {

@@ -33,13 +33,13 @@ public:
 
 
     // 1D scan: find interval {p | T(p) ≤ χ²_{1−α, dof}}, using coarse grid then refine
-    std::pair<double,double> confidence_interval_1d(
-        const FitResult& fr,
-        double p_min, double p_max,
-        int grid_points,
-        double alpha, // e.g. 0.05 → 95%
-        const Vec& eta_init
-    ) const;
+    // std::pair<double,double> confidence_interval_1d(
+    //     const FitResult& fr,
+    //     double p_min, double p_max,
+    //     int grid_points,
+    //     double alpha, // e.g. 0.05 → 95%
+    //     const Vec& eta_init
+    // ) const;
 
 
     const ProfiledLikelihood& like() const { return like_; }

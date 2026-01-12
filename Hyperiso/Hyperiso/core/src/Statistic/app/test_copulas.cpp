@@ -1,4 +1,4 @@
-#include "RandomVectorGenerator.h"
+#include "JointDistribution.h"
 #include "MarginalFactory.h"
 #include "CopulaFactory.h"
 #include "Matrix.h"
@@ -12,22 +12,30 @@ int main() {
     unsigned int seed = 123456789;
 
     RealMatrix R ({
-        {1.0, 0.5}, 
-        {0.5, 1.0}}
+        {1.0, 0.8}, 
+        {0.8, 1.0}}
     );
 
-    GaussianCopulaConfig c_cfg {R};
+    StudentTCopulaConfig c_cfg;
+    c_cfg.R = R;
+    c_cfg.nu = 4;
 
-    GaussianMarginalCfg m_cfg_1 {1.0, 2.0};
-    FlatMarginalCfg m_cfg_2 {3.0, 4.0}; 
+    GaussianMarginalCfg m_cfg_1 {1.0, 0.2};
+    GaussianMarginalCfg m_cfg_2 {3.0, 0.5}; 
 
     auto m_1 = DistributionFactory::create(MarginalType::GAUSSIAN, m_cfg_1, seed);
-    auto m_2 = DistributionFactory::create(MarginalType::FLAT, m_cfg_2, seed);
-    auto cop = CopulaFactory::create(CopulaType::GAUSSIAN, c_cfg, seed);
+    auto m_2 = DistributionFactory::create(MarginalType::GAUSSIAN, m_cfg_2, seed);
+    auto cop = CopulaFactory::create(CopulaType::STUDENT_T, c_cfg, seed);
 
-    JointDistribution rvg {{std::move(m_1), std::move(m_2)}, std::move(cop)};
+    std::vector<std::unique_ptr<IMarginalDistribution>> marginals;
+    marginals.push_back(std::move(m_1));
+    marginals.push_back(std::move(m_2));
 
-    std::vector<Vector> smpl = rvg.sample(1000);
+    JointDistribution rvg(std::move(marginals), std::move(cop));
+
+    LOG_INFO("JointDistribution initialized");
+
+    std::vector<Vector> smpl = rvg.sample(10000);
     
     std::ofstream os;
     os.open("sample.csv");

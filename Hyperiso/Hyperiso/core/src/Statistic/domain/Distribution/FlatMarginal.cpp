@@ -1,6 +1,6 @@
 #include "FlatMarginal.h"
 
-FlatMarginal::FlatMarginal(unsigned int seed, double a, double b)
+FlatMarginal::FlatMarginal(double a, double b, unsigned int seed)
     : a(a), b(b)
 {
     eng_ = gsl_rng_alloc(rng_tp);
