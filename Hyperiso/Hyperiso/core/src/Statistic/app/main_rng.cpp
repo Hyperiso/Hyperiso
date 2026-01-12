@@ -25,10 +25,10 @@ int main(int argc, char** argv) {
 
         Matrix R = readMatrixFromStdin();
 
-        auto dist = DistributionFactory::create(DistributionType::GAUSSIAN, seed);
+        auto dist = DistributionFactory::create(MarginalType::GAUSSIAN, seed);
         auto decomp = std::make_unique<CholeskyDecomposition>();
 
-        RandomVectorGenerator generator(std::move(dist), std::move(decomp));
+        JointDistribution generator(std::move(dist), std::move(decomp));
         Vector y = generator.generate(R);
 
         printVector(y);

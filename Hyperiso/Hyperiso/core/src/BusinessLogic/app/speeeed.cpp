@@ -12,7 +12,7 @@ int main() {
     QCDOrder order = QCDOrder::NNLO;
     ObservableInterface oi;
 
-    Decays dec = Decays::B__Xs;
+    Decays dec = Decays::B__Xs_gamma;
     // LbLllConfig dec_cfg;
     // dec_cfg.gen = LbLllConfig::Lepton::MU;
     // dec_cfg.ff_src = LbL_FF_Src::DM;

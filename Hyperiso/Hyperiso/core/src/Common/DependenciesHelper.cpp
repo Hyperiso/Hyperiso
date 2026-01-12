@@ -73,7 +73,7 @@ const std::map<DecayId, std::unordered_set<ParamId>> DependenciesHelper::dep_lis
     {DecayMapper::to_id(Decays::Bs__phi_l_l), {
         
     }},
-    {DecayMapper::to_id(Decays::B__Xs), {
+    {DecayMapper::to_id(Decays::B__Xs_gamma), {
         
     }},
     {DecayMapper::to_id(Decays::B__Xs_l_l), {

@@ -5,17 +5,20 @@
 #include "IStatParameterProxy.h"
 #include "IStatSourcesProxy.h"
 #include "CovarianceTransformer.h"
-#include "RandomVectorGenerator.h"
+#include "JointDistribution.h"
 #include "RvgNuisanceSampler.h"
-#include "MonteCarloPredictorGeneric.h"
-#include "DistributionFactory.h"
+#include "MCEngine.h"
+#include "MarginalFactory.h"
+#include "CopulaFactory.h"
 #include "Fit.h"
+#include "MarginalConfigFactory.h"
 
 struct StatisticConfig {
     std::map<ObservableId, QCDOrder> obss;
     std::vector<ParamId> p_specs;
 
-    std::map<ParamId, DistributionType> special_nuisance_distribution {};
+    std::map<ParamId, MarginalType> nuisance_marginals {};
+    CopulaType copula_type;
     std::size_t MC_draws = 100;
     double skew_abs_threshold=0.2;
 
@@ -39,8 +42,6 @@ struct StatCache {
     FitResultWithMaps mle_result;
 };
 
-
-
 class StatisticManager {
 public:
     StatisticManager(StatisticConfig config, std::shared_ptr<IModel> obs_int, 
@@ -48,7 +49,6 @@ public:
         std::shared_ptr<IStatSourcesProxy> sp) 
     : config(config), obs_int(obs_int), pscp(pscp), pspp(pspp), sp(sp) {
         obs_int->add_observables(config.obss);
-
     }
 
     std::pair<double,double> compute_CI_1d_95(
@@ -282,36 +282,55 @@ public:
         return {left, right};
     }
 
-    std::map<ObservableId, double> compute_uncertainties() {
-        unsigned int seed = std::random_device{}();
-        auto dist = DistributionFactory::create(DistributionType::GAUSSIAN, seed);
-        auto decomp = std::make_unique<CholeskyDecomposition>();
+    std::map<ObservableId, GaussianSummary> compute_uncertainties() {
 
-        RandomVectorGenerator rvg(std::move(dist), std::move(decomp));
+        // Build RVG and pass to NuisanceSampler
+
+        unsigned int seed = std::random_device{}();
+        auto unzipped = unzip(config.nuisance_marginals);
+        std::vector<ParamId> nuisance_ids = unzipped.ids;
+        std::vector<std::unique_ptr<IMarginalDistribution>> marginals;
+
+        for (auto& [pid, mt] : config.nuisance_marginals) {
+            Config cfg = MarginalConfigFactory::create(pid, mt);
+            auto m_ptr = DistributionFactory::create(mt, cfg, seed);
+            marginals.emplace_back(std::move(m_ptr));
+        }
+
+        std::unique_ptr<ICopula> copula;
+        if (config.copula_type == CopulaType::GAUSSIAN) {
+            GaussianCopulaConfig copula_cfg;
+            copula_cfg.R = RealMatrix(unzip(cache.SigmaEta).vals);
+            copula = CopulaFactory::create(config.copula_type, copula_cfg, seed);
+        } else if (config.copula_type == CopulaType::STUDENT_T) {
+            StudentTCopulaConfig copula_cfg;
+            copula_cfg.R = RealMatrix(unzip(cache.SigmaEta).vals);
+            copula_cfg.nu = config.obss.size() - 1;
+            copula = CopulaFactory::create(config.copula_type, copula_cfg, seed);
+        }
+
+        auto rvg = std::make_unique<JointDistribution>(std::move(marginals), std::move(copula));
 
         std::cout << "RandomVectorGenerator created" << std::endl;
 
-        RvgNuisanceSampler sampler(rvg);
+        RvgNuisanceSampler sampler(nuisance_ids, std::move(rvg));
 
-        std::cout << "Creating MonteCarloPredictor" << std::endl;
+        std::cout << "Creating Monte Carlo Engine" << std::endl;
 
-        MonteCarloPredictor2 mc(this->obs_int, sampler, cache.eta_specs_real, cache.SigmaEta, {this->config.MC_draws, this->config.skew_abs_threshold});
-        std::mt19937 rng(1234);
+        MonteCarloEngine mc(this->obs_int, sampler, {this->config.MC_draws, this->config.skew_abs_threshold});
 
-        std::cout << "MonteCarloPredictor created" << std::endl;
+        std::cout << "Monte Carlo Engine created" << std::endl;
 
-        auto sums = mc.summarize(this->cache.p_specs, rng);
+        auto sums = mc.summarize(this->cache.p_specs);
 
-        std::cout << "summarize ented" << std::endl;
-
-        std::cout << "Skewness[0]=" << sums[0].skew << " ok=" << sums[0].approx_ok << std::endl;
+        std::cout << "summarize ended" << std::endl;
+        std::cout << "Skewness[0]=" << sums[0].skew << " ok = " << std::boolalpha << sums[0].symmetric << std::endl;
 
         for (auto sum : sums) {
-            std::cout << "value = " << sum.mu << " +- " << sum.sigma << std::endl;
+            std::cout << sum << std::endl;
         }
 
-        std::map<ObservableId, double> out;
-        return out;
+        return zip(unzip(config.obss).ids, sums);
     }
 
     FitResultWithMaps compute_MLE() {

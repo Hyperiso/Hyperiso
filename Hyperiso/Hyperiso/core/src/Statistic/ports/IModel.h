@@ -8,7 +8,6 @@
 
 using Vec = std::vector<double>;
 
-
 class IModel {
 public:
 virtual ~IModel() = default;

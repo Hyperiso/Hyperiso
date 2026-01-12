@@ -6,18 +6,23 @@
 #include <numeric>
 #include <stdexcept>
 #include <cmath>
-#include "IDistribution.h"
+#include "IMarginalDistribution.h"
+
+struct LikelihoodMarginalCfg : public AbstractConfig {
+    Vector values;
+    Vector weights;
+};
 
 // Discrete likelihood sampler using Vose's alias method.
 // values[i] drawn with probability proportional to weights[i].
-class LikelihoodDiscrete final : public IDistribution {
+class LikelihoodMarginal final : public IMarginalDistribution {
 public:
-    LikelihoodDiscrete(std::vector<double> values,
-                       std::vector<double> weights,
-                       unsigned int seed = std::random_device{}(),
+    LikelihoodMarginal(unsigned int seed = std::random_device{}(),
+                       Vector values,
+                       Vector weights,
                        bool standardize = false);
 
-    Vector sample(std::size_t n) override;
+    Vector rvs(std::size_t n) override;
 
 private:
     void build_alias_tables(std::vector<double> weights);

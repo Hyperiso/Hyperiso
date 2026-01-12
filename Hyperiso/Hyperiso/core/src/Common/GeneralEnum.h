@@ -147,15 +147,15 @@ enum class Observables {
 };
 
 enum class Decays {
-    B__D_l_nu,
-    B__Dstar_l_nu,
-    B__Kstar_gamma,
-    B__l_l,
-    B__l_nu,
-    B__Xs,
-    B__Xs_l_l,
-    B__K_l_l,
-    B__Kstar_l_l,
+    B__D_l_nu, //
+    B__Dstar_l_nu, //
+    B__Kstar_gamma, //
+    B__l_l, //
+    B__l_nu, //
+    B__Xs_gamma, //
+    B__Xs_l_l, //
+    B__K_l_l, //
+    B__Kstar_l_l, //
     Bs__phi_l_l,
     Lambda_b__Lambda_l_l,
     M0_Mix,

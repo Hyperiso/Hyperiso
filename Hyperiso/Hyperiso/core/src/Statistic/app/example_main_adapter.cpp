@@ -126,10 +126,10 @@ int main() {
     std::cout << "creating RandomVectorGenerator" << std::endl;
 
     unsigned int seed = std::random_device{}();
-    auto dist = DistributionFactory::create(DistributionType::GAUSSIAN, seed);
+    auto dist = DistributionFactory::create(MarginalType::GAUSSIAN, seed);
     auto decomp = std::make_unique<CholeskyDecomposition>();
 
-    RandomVectorGenerator rvg(std::move(dist), std::move(decomp));
+    JointDistribution rvg(std::move(dist), std::move(decomp));
 
     std::cout << "RandomVectorGenerator created" << std::endl;
 

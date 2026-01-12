@@ -41,8 +41,8 @@ void printVector(const Vector& v) {
     std::cout << "\n";
 }
 
-struct IDistribution {
-    virtual ~IDistribution() = default;
+struct IMarginalDistribution {
+    virtual ~IMarginalDistribution() = default;
 
     virtual Vector sample(std::size_t n) = 0;
 };
@@ -108,9 +108,9 @@ public:
     }
 };
 
-class StandardNormal final : public IDistribution {
+class GaussianMarginal final : public IMarginalDistribution {
 public:
-    explicit StandardNormal(unsigned int seed = std::random_device{}())
+    explicit GaussianMarginal(unsigned int seed = std::random_device{}())
         : eng_(seed), dist_(0.0, 1.0) {}
 
     Vector sample(std::size_t n) override {
@@ -126,7 +126,7 @@ private:
 
 class DistributionFactory {
 public:
-    static std::unique_ptr<IDistribution> create(const std::string& name,
+    static std::unique_ptr<IMarginalDistribution> create(const std::string& name,
                                                  unsigned int seed = std::random_device{}()) {
         std::string lower = name;
         std::transform(lower.begin(), lower.end(), lower.begin(), [](unsigned char c) {
@@ -134,7 +134,7 @@ public:
         });
 
         if (lower == "gaussian" || lower == "normal" || lower == "gauss") {
-            return std::make_unique<StandardNormal>(seed);
+            return std::make_unique<GaussianMarginal>(seed);
         }
 
         throw std::invalid_argument("Unkwown distribution: " + name +
@@ -142,9 +142,9 @@ public:
     }
 };
 
-class RandomVectorGenerator {
+class JointDistribution {
 public:
-    RandomVectorGenerator(std::unique_ptr<IDistribution> dist,
+    JointDistribution(std::unique_ptr<IMarginalDistribution> dist,
                           std::unique_ptr<IDecomposition> decomp)
         : dist_(std::move(dist)), decomp_(std::move(decomp)) {}
 
@@ -168,7 +168,7 @@ public:
     }
 
 private:
-    std::unique_ptr<IDistribution> dist_;
+    std::unique_ptr<IMarginalDistribution> dist_;
     std::unique_ptr<IDecomposition> decomp_;
 };
 
@@ -212,7 +212,7 @@ int main(int argc, char** argv) {
         auto dist = DistributionFactory::create(distName, seed);
         auto decomp = std::make_unique<CholeskyDecomposition>();
 
-        RandomVectorGenerator generator(std::move(dist), std::move(decomp));
+        JointDistribution generator(std::move(dist), std::move(decomp));
         Vector y = generator.generate(R);
 
         printVector(y);

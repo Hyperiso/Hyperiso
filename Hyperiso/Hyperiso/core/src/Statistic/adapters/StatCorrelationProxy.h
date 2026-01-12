@@ -5,8 +5,7 @@
 #include "CorrelationProvider.h"
 #include "Include.h"
 
-class StatCorrelationProxy  : public IStatCorrelationProxy
-{
+class StatCorrelationProxy  : public IStatCorrelationProxy {
 public:
     using Type = CorrelationProvider::CorrelationType;
 

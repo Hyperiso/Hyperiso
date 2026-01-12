@@ -1,6 +1,6 @@
-#include "LikelihoodDiscrete.h"
+#include "LikelihoodMarginal.h"
 
-LikelihoodDiscrete::LikelihoodDiscrete(std::vector<double> values,
+LikelihoodMarginal::LikelihoodMarginal(std::vector<double> values,
                                        std::vector<double> weights,
                                        unsigned int seed,
                                        bool standardize)
@@ -34,7 +34,7 @@ LikelihoodDiscrete::LikelihoodDiscrete(std::vector<double> values,
     build_alias_tables(std::move(weights));
 }
 
-void LikelihoodDiscrete::build_alias_tables(std::vector<double> weights) {
+void LikelihoodMarginal::build_alias_tables(std::vector<double> weights) {
     const std::size_t n = values_.size();
     prob_.assign(n, 0.0);
     alias_.assign(n, 0);
@@ -78,7 +78,7 @@ void LikelihoodDiscrete::build_alias_tables(std::vector<double> weights) {
     }
 }
 
-Vector LikelihoodDiscrete::sample(std::size_t n) {
+Vector LikelihoodMarginal::rvs(std::size_t n) {
     Vector out(n);
     const std::size_t m = values_.size();
     std::uniform_int_distribution<std::size_t> uid(0, m - 1);

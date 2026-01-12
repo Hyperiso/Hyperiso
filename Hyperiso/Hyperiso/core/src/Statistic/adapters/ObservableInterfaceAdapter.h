@@ -53,7 +53,7 @@ auto all = oi_.compute_all();
 Vec out; out.reserve(obs_ids_.size());
 for (ObservableId oid : obs_ids_) {
 auto it = all.find(oid);
-if (it==all.end()) throw std::runtime_error("ObservableId missing in compute_all()");
+if (it==all.end()) throw std::runtime_error("Missing ObservableId in compute_all()");
 out.push_back(it->second.central_value);
 }
 return out;

@@ -1,5 +1,5 @@
-#ifndef MATRIX_H
-#define MATRIX_H
+#ifndef SPARSEMATRIX_H
+#define SPARSEMATRIX_H
 
 #include <iostream>
 #include <map>
@@ -283,4 +283,4 @@ public:
 };
 
 
-#endif // __MATRIX_H__
+#endif // __SPARSEMATRIX_H__

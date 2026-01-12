@@ -1,16 +1,14 @@
 #pragma once
 #include <vector>
 #include <random>
+#include "Matrix.h"
 
 
 using Vec = std::vector<double>;
-using Matrix = std::vector<std::vector<double>>;
-
 
 // Port: any sampler that can draw η ~ P(η; η̄, Σ)
 class INuisanceSampler {
 public:
-virtual ~INuisanceSampler() = default;
-virtual Vec sample(const Vec& mean, const Matrix& cov, std::mt19937& rng) const = 0;
-virtual std::map<ParamId, double> sample(const std::map<ParamId, double>& mean, const std::map<ParamId, std::map<ParamId, double>>& cov, std::mt19937&) const = 0;
+    virtual ~INuisanceSampler() = default;
+    virtual std::map<ParamId, double> sample() const = 0;
 };

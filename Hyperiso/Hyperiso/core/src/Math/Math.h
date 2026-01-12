@@ -11,7 +11,7 @@
 #include <limits>
 #include <type_traits>
 #include "Utils.h"
-#include "Matrix.h"
+#include "SparseMatrix.h"
 #include "Logger.h"
 #include "scalar.h"
 
@@ -20,16 +20,17 @@ using cIntegrand = std::function<scalar_t(double)>;
 
 /* Constants */
 
-constexpr double PI =       3.1415926535897932;
-constexpr double PI2 =      9.869604401089358;
-constexpr double PI3 =      31.006276680299816;
-constexpr double INV_PI =   0.318309886183791;
-constexpr double INV_PI2 =  0.101321183642338;
-constexpr double INV_PI3 =  0.032251534433199;
-constexpr double E =        2.7182818284590452;
-constexpr double ZETA3 =    1.2020569031595942;
-constexpr double RT2 =      1.414213562373095;
-constexpr double INV_RT2 =  0.707106781186547;
+constexpr double PI =           3.1415926535897932;
+constexpr double PI2 =          9.869604401089358;
+constexpr double PI3 =          31.006276680299816;
+constexpr double INV_PI =       0.318309886183791;
+constexpr double INV_PI2 =      0.101321183642338;
+constexpr double INV_PI3 =      0.032251534433199;
+constexpr double E =            2.7182818284590452;
+constexpr double ZETA3 =        1.2020569031595942;
+constexpr double RT2 =          1.414213562373095;
+constexpr double INV_RT2 =      0.707106781186547;
+constexpr double ERF_INV_RT2 =  0.682689492137085;
 
 constexpr double HBAR =     6.58211889e-25;  // GeV.s
 constexpr double G_NEWT =   6.67428e-8;  // cm^3.g^-1.s^-2
@@ -550,7 +551,7 @@ double X1(double xt, double mu, double mass_W);
 */
 
 /**
- * @brief Performs numerical integration of a real-valued function.
+ * @brief Performs numerical integration of a real-valued function of a real variable.
  * @param f Function to integrate.
  * @param l Lower bound of integration.
  * @param u Upper bound of integration.
@@ -560,20 +561,7 @@ double X1(double xt, double mu, double mass_W);
 double integrate(Integrand f, double l, double u, double prec);
 
 /**
- * @brief Computes the Cauchy principal value of a real-valued function with a given pole.
- * @param f Function to integrate.
- * @param l Lower bound of integration.
- * @param u Upper bound of integration.
- * @param pole Location of the pole.
- * @param prec Desired relative precision.
- * @return Numerical integral result.
- */
-double cauchy_principal_value(Integrand f, double l, double u, double pole, double prec);
-
-double cauchy_principal_value_s(Integrand f, double l, double u, double pole, std::vector<double> s, double prec);
-
-/**
- * @brief Performs numerical integration of a complex-valued function.
+ * @brief Performs numerical integration of a complex-valued function of a real variable.
  * @param f Complex function to integrate.
  * @param l Lower bound of integration.
  * @param u Upper bound of integration.
