@@ -15,3 +15,7 @@ void BlockProxy::log_block(ParameterType pt, const std::string& blockname) {
 std::unordered_set<BlockName> BlockProxy::get_block_list(ParameterType pt) {
     return api.get_blocks_list(pt);
 }
+
+std::map<LhaID, scalar_t> BlockProxy::get_block(ParameterType pt, const std::string& blockname) {
+    return bp.get_block(pt, blockname);
+}

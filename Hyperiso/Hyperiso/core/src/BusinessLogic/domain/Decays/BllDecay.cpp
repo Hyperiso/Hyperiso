@@ -2,24 +2,23 @@
 
 
 void BllDecay::load_params() {
-    ObsParameterProxy p;
-    cache.G_F = p(ParamId{ParameterType::SM, "SMINPUTS", 2});
-    cache.alpha_em = p(ParamId{ParameterType::SM, "EW", {1, 2}});
-    cache.m_mu = p(ParamId{ParameterType::SM, "MASS", 13});
-    cache.m_Bd = p(ParamId{ParameterType::FLAVOR, "FMASS", 511});
-    cache.m_Bs = p(ParamId{ParameterType::FLAVOR, "FMASS", 531});
-    cache.f_Bd = p(ParamId{ParameterType::FLAVOR, "FCONST", {511, 1}});
-    cache.f_Bs = p(ParamId{ParameterType::FLAVOR, "FCONST", {531, 1}});
-    cache.tau_Bd = p(ParamId{ParameterType::FLAVOR, "FLIFE", 511}) / HBAR;
-    cache.tau_Bs = p(ParamId{ParameterType::FLAVOR, "FLIFE", 531}) / HBAR;
-    cache.lambda_d = p(ParamId{ParameterType::SM, "VCKM", {2, 2}}) * std::conj(p(ParamId{ParameterType::SM, "VCKM", {2, 0}}));
-    cache.lambda_s = p(ParamId{ParameterType::SM, "VCKM", {2, 2}}) * std::conj(p(ParamId{ParameterType::SM, "VCKM", {2, 1}}));
-    cache.ys = p(ParamId{ParameterType::DECAY, "B_ll", 1});
-    cache.eta_BBS = p(ParamId{ParameterType::DECAY, "B_ll", 2});
+    cache.G_F = (*p)(ParamId{ParameterType::SM, "SMINPUTS", 2}, DataType::VALUE);
+    cache.alpha_em = (*p)(ParamId{ParameterType::SM, "EW", {1, 2}}, DataType::VALUE);
+    cache.m_mu = (*p)(ParamId{ParameterType::SM, "MASS", 13}, DataType::VALUE);
+    cache.m_Bd = (*p)(ParamId{ParameterType::FLAVOR, "FMASS", 511}, DataType::VALUE);
+    cache.m_Bs = (*p)(ParamId{ParameterType::FLAVOR, "FMASS", 531}, DataType::VALUE);
+    cache.f_Bd = (*p)(ParamId{ParameterType::FLAVOR, "FCONST", {511, 1}}, DataType::VALUE);
+    cache.f_Bs = (*p)(ParamId{ParameterType::FLAVOR, "FCONST", {531, 1}}, DataType::VALUE);
+    cache.tau_Bd = (*p)(ParamId{ParameterType::FLAVOR, "FLIFE", 511}, DataType::VALUE) / HBAR;
+    cache.tau_Bs = (*p)(ParamId{ParameterType::FLAVOR, "FLIFE", 531}, DataType::VALUE) / HBAR;
+    cache.lambda_d = (*p)(ParamId{ParameterType::SM, "VCKM", {2, 2}}, DataType::VALUE) * std::conj((*p)(ParamId{ParameterType::SM, "VCKM", {2, 0}}, DataType::VALUE));
+    cache.lambda_s = (*p)(ParamId{ParameterType::SM, "VCKM", {2, 2}}, DataType::VALUE) * std::conj((*p)(ParamId{ParameterType::SM, "VCKM", {2, 1}}, DataType::VALUE));
+    cache.ys = (*p)(ParamId{ParameterType::DECAY, "B_ll", 1}, DataType::VALUE);
+    cache.eta_BBS = (*p)(ParamId{ParameterType::DECAY, "B_ll", 2}, DataType::VALUE);
     cache.x_d = cache.m_mu / cache.m_Bd;
     cache.x_s = cache.m_mu / cache.m_Bs;
-    cache.r_d = cache.m_Bd / (p(ParamId{ParameterType::SM, "QCD", {5, 2}}) + p(ParamId{ParameterType::SM, "MASS", 1}));
-    cache.r_s = cache.m_Bs / (p(ParamId{ParameterType::SM, "QCD", {5, 2}}) + p(ParamId{ParameterType::SM, "MASS", 3}));
+    cache.r_d = cache.m_Bd / ((*p)(ParamId{ParameterType::SM, "QCD", {5, 2}}, DataType::VALUE) + (*p)(ParamId{ParameterType::SM, "MASS", 1}, DataType::VALUE));
+    cache.r_s = cache.m_Bs / ((*p)(ParamId{ParameterType::SM, "QCD", {5, 2}}, DataType::VALUE) + (*p)(ParamId{ParameterType::SM, "MASS", 3}, DataType::VALUE));
     cache.beta_d = std::sqrt(1. - 4. * std::pow(cache.x_d, 2));
     cache.beta_s = std::sqrt(1. - 4. * std::pow(cache.x_s, 2));
     cache.C10_SM = w_proxy->getFR(WGroup::B, WCoef::C10, w_config.order, ContributionType::SM);

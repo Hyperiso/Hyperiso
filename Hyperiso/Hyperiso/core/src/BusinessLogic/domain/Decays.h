@@ -20,4 +20,4 @@
 #include "Decays/DlnuDecay.h"
 #include "Decays/DslnuDecay.h"
 
-#endif // __DECAYS_H__
+#endif // DECAYS_H

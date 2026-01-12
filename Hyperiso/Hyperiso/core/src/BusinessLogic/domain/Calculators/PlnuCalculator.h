@@ -22,7 +22,8 @@ private:
 
 public:
     PlnuCalculator() = default;
-    PlnuCalculator(int P_id, int l_id, complex_t C_A, complex_t C_P);
+    PlnuCalculator(int P_id, int l_id, complex_t C_A, complex_t C_P,
+        std::shared_ptr<IObsParameterProxy<ParamId, DataType, std::string, LhaID>> iobspp_sm);
 
     double BR_0_SM();
     double R_SM_BSM();

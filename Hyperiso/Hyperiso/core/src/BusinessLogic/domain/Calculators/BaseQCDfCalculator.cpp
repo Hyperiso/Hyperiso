@@ -4,7 +4,9 @@ double BaseQCDfCalculator::E(double q2) {
     return (m_B * m_B + m_X * m_X - q2) / (2 * m_B);
 }
 
-BaseQCDfCalculator::BaseQCDfCalculator(int B_id, int X_id, double mu_b, const std::map<WCoef, complex_t> &C, B_FF_Type ff_tp) :
+BaseQCDfCalculator::BaseQCDfCalculator(int B_id, int X_id, double mu_b, const std::map<WCoef, complex_t> &C, B_FF_Type ff_tp,
+                        std::shared_ptr<IObsParameterProxy<ParamId, DataType, std::string, LhaID>> p,
+                        std::shared_ptr<IObsQCDProxy> iobs_qcdp) :
     mu_b(mu_b), C(C), ff_tp(ff_tp)
 {
     if (!this->allowed_decays.contains({B_id, X_id})) {
@@ -15,33 +17,32 @@ BaseQCDfCalculator::BaseQCDfCalculator(int B_id, int X_id, double mu_b, const st
     this->delta_qu = double (B_id == 521);
     this->fill_wilson_bar_cache();
 
-    ObsParameterProxy p;
     double beta_0 = ObsQCDProxy().get_constants()->beta[4][0];
     auto run = [this, beta_0] (double value_1gev, double eta, double gamma) { return value_1gev * pow(eta, gamma / beta_0); };
 
-    this->Lambda_h = p(ParamId{ParameterType::DECAY, this->src_block, 14});
+    this->Lambda_h = (*p)(ParamId{ParameterType::DECAY, this->src_block, 14}, DataType::VALUE);
     double mu_f = sqrt(this->mu_b * this->Lambda_h);
     this->alpha_s_mu_b = ObsQCDProxy()(AlphasConfig(this->mu_b, MassType::POLE, MassType::POLE));
     this->alpha_s_mu_f = ObsQCDProxy()(AlphasConfig(mu_f, MassType::POLE, MassType::POLE));
     this->loop_f_mu_f = this->alpha_s_mu_f * QCDProvider().get_constants()->C_F / (4 * PI);
     this->loop_f_mu_b = this->alpha_s_mu_b * QCDProvider().get_constants()->C_F / (4 * PI);
-    // this->m_c_pole = p(ParamId{ParameterType::SM, "QCD", 4});
+    // this->m_c_pole = (*p)(ParamId{ParameterType::SM, "QCD", 4});
     this->m_c_pole = 1.4790; // TODO : 1-loop value of m_c_pole to match superiso : implement in QCDHelper
-    // this->m_b_pole = p(ParamId{ParameterType::SM, "QCD", {5, 2}});
+    // this->m_b_pole = (*p)(ParamId{ParameterType::SM, "QCD", {5, 2}});
     this->m_b_pole = 4.5806; // TODO : 1-loop value of m_b_pole to match superiso : implement in QCDHelper
     double eta_f = this->alpha_s_mu_f / ObsQCDProxy()(AlphasConfig(1.0, MassType::POLE, MassType::POLE));
-    double m_b_pole_2loop = p(ParamId{ParameterType::SM, "QCD", {5, 2}});
+    double m_b_pole_2loop = (*p)(ParamId{ParameterType::SM, "QCD", {5, 2}}, DataType::VALUE);
     this->m_b_PS = m_b_pole_2loop - 4 * ObsQCDProxy()(AlphasConfig(m_b_pole_2loop, MassType::POLE, MassType::POLE)) * mu_f / (3 * PI);
-    this->m_B = p(ParamId{ParameterType::FLAVOR, "FMASS", B_id});
-    this->m_X = p(ParamId{ParameterType::FLAVOR, "FMASS", X_id});
-    this->f_B = p(ParamId{ParameterType::FLAVOR, "FCONST", {B_id, 1}});
-    this->f_X_par = p(ParamId{ParameterType::FLAVOR, "FCONST", {X_id, 1}});
-    this->lambda_B_p = p(ParamId{ParameterType::DECAY, this->src_block, 13}) / (1. - this->alpha_s_mu_f * log(pow(mu_f, 2)) * 1.8 / (3. * PI));
-    this->lambda_hat_u = std::conj(p(ParamId{ParameterType::SM, "VCKM", {0, 1}})) * p(ParamId{ParameterType::SM, "VCKM", {0, 2}}) 
-                            / (std::conj(p(ParamId{ParameterType::SM, "VCKM", {2, 1}})) * p(ParamId{ParameterType::SM, "VCKM", {2, 2}}));
+    this->m_B = (*p)(ParamId{ParameterType::FLAVOR, "FMASS", B_id}, DataType::VALUE);
+    this->m_X = (*p)(ParamId{ParameterType::FLAVOR, "FMASS", X_id}, DataType::VALUE);
+    this->f_B = (*p)(ParamId{ParameterType::FLAVOR, "FCONST", {B_id, 1}}, DataType::VALUE);
+    this->f_X_par = (*p)(ParamId{ParameterType::FLAVOR, "FCONST", {X_id, 1}}, DataType::VALUE);
+    this->lambda_B_p = (*p)(ParamId{ParameterType::DECAY, this->src_block, 13}, DataType::VALUE) / (1. - this->alpha_s_mu_f * log(pow(mu_f, 2)) * 1.8 / (3. * PI));
+    this->lambda_hat_u = std::conj((*p)(ParamId{ParameterType::SM, "VCKM", {0, 1}}, DataType::VALUE)) * (*p)(ParamId{ParameterType::SM, "VCKM", {0, 2}}, DataType::VALUE) 
+                            / (std::conj((*p)(ParamId{ParameterType::SM, "VCKM", {2, 1}}, DataType::VALUE)) * (*p)(ParamId{ParameterType::SM, "VCKM", {2, 2}}, DataType::VALUE));
     // this->lambda_hat_u = 0.0; // TODO : Why neglected in SI for B > K l l ?
-    this->a_1_par = run(p(ParamId{ParameterType::DECAY, this->src_block, {8, 1}}), eta_f, gamma_par(1));
-    this->a_2_par = run(p(ParamId{ParameterType::DECAY, this->src_block, {8, 2}}), eta_f, gamma_par(2));
+    this->a_1_par = run((*p)(ParamId{ParameterType::DECAY, this->src_block, {8, 1}}, DataType::VALUE), eta_f, gamma_par(1));
+    this->a_2_par = run((*p)(ParamId{ParameterType::DECAY, this->src_block, {8, 2}}, DataType::VALUE), eta_f, gamma_par(2));
 
     // printf("a1par = %.4e\n", a_1_par);
     // printf("a2par = %.4e\n", a_2_par);
@@ -68,20 +69,20 @@ BaseQCDfCalculator::BaseQCDfCalculator(int B_id, int X_id, double mu_b, const st
     if (isV) {
         // printf("gamma1 = %.4e\n", gamma_perp(1));
         // printf("gamma2 = %.4e\n", gamma_perp(2));
-        // printf("a10 = %.4e\n", std::real(p(ParamId{ParameterType::DECAY, this->src_block, {7, 1}})));
-        // printf("a20 = %.4e\n", std::real(p(ParamId{ParameterType::DECAY, this->src_block, {7, 2}})));
-        this->f_X_perp = run(p(ParamId{ParameterType::FLAVOR, "FCONST", {X_id, 2}}), eta_f, ObsQCDProxy().get_constants()->C_F);
-        this->a_1_perp = run(p(ParamId{ParameterType::DECAY, this->src_block, {7, 1}}), eta_f, gamma_perp(1));
-        this->a_2_perp = run(p(ParamId{ParameterType::DECAY, this->src_block, {7, 2}}), eta_f, gamma_perp(2));
+        // printf("a10 = %.4e\n", std::real((*p)(ParamId{ParameterType::DECAY, this->src_block, {7, 1}})));
+        // printf("a20 = %.4e\n", std::real((*p)(ParamId{ParameterType::DECAY, this->src_block, {7, 2}})));
+        this->f_X_perp = run((*p)(ParamId{ParameterType::FLAVOR, "FCONST", {X_id, 2}}, DataType::VALUE), eta_f, ObsQCDProxy().get_constants()->C_F);
+        this->a_1_perp = run((*p)(ParamId{ParameterType::DECAY, this->src_block, {7, 1}}, DataType::VALUE), eta_f, gamma_perp(1));
+        this->a_2_perp = run((*p)(ParamId{ParameterType::DECAY, this->src_block, {7, 2}}, DataType::VALUE), eta_f, gamma_perp(2));
 
         
         // printf("a_1_perp = %.4e\n", a_1_perp);
         // printf("a_2_perp = %.4e\n", a_2_perp);
-        this->zeta_3_A = p(ParamId{ParameterType::DECAY, this->src_block, 9});
-        this->zeta_3_V = p(ParamId{ParameterType::DECAY, this->src_block, 10});
-        this->omega_10_A = p(ParamId{ParameterType::DECAY, this->src_block, 11});
-        this->delta_t_p = p(ParamId{ParameterType::DECAY, this->src_block, {12, 1}});
-        this->delta_t_m = p(ParamId{ParameterType::DECAY, this->src_block, {12, 2}});
+        this->zeta_3_A = (*p)(ParamId{ParameterType::DECAY, this->src_block, 9}, DataType::VALUE);
+        this->zeta_3_V = (*p)(ParamId{ParameterType::DECAY, this->src_block, 10}, DataType::VALUE);
+        this->omega_10_A = (*p)(ParamId{ParameterType::DECAY, this->src_block, 11}, DataType::VALUE);
+        this->delta_t_p = (*p)(ParamId{ParameterType::DECAY, this->src_block, {12, 1}}, DataType::VALUE);
+        this->delta_t_m = (*p)(ParamId{ParameterType::DECAY, this->src_block, {12, 2}}, DataType::VALUE);
         this->pref_perp = PI2 * this->f_B * this->f_X_perp / (Nc * this->m_B);
     }
 

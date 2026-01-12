@@ -86,6 +86,7 @@ add_library(PhysicalModelLib STATIC
     adapters/WilsonBuilder.cpp
     adapters/WilsonProvider.cpp
     adapters/BlockProxy.cpp
+    adapters/WilsonInterface.cpp
     domain/Helper/BSM/SUSYParametersHelper.cpp
     domain/Helper/BSM/THDMParametersHelper.cpp
     domain/WCoef/BSM/BWilsonSUSY.cpp
@@ -181,6 +182,8 @@ target_link_libraries(mixing_test PhysicalModelLib)
 add_executable(charged_test app/main_charged_current.cpp)
 target_link_libraries(charged_test PhysicalModelLib)
 
+add_executable(INPUT_WILSON app/main_fwcoef.cpp)
+target_link_libraries(INPUT_WILSON PhysicalModelLib)
 
 # add_executable(test_martywilson main.cpp)
 # target_link_libraries(test_martywilson PhysicalModelLib MartyInterfaceLib)

@@ -1,6 +1,6 @@
 #include "BVFFCalculator.h"
 
-BVFFCalculator::BVFFCalculator(int B_id, int V_id, BV_FF_Src src) {
+BVFFCalculator::BVFFCalculator(int B_id, int V_id, std::shared_ptr<IObsParameterProxy<ParamId, DataType, std::string, LhaID>> p, BV_FF_Src src) {
     if (!this->allowed_decays.contains({B_id, V_id})) {
         LOG_ERROR("ValueError", "Wrong meson PDG code in BVFFCalculator constructor:", B_id, ",", V_id);
     }
@@ -10,11 +10,10 @@ BVFFCalculator::BVFFCalculator(int B_id, int V_id, BV_FF_Src src) {
         src = src == BV_FF_Src::GKvD_SR ? BV_FF_Src::BSZ_SR : BV_FF_Src::BSZ_SR_LAT;
     }
 
-    ObsParameterProxy p(ParameterType::FLAVOR);
-    this->m_B = p("FMASS", B_id);
+    this->m_B = (*p)({ParameterType::FLAVOR, "FMASS", B_id}, DataType::VALUE);
     this->m_B2 = std::pow(this->m_B, 2);
     this->m_B4 = std::pow(this->m_B2, 2);
-    this->m_V = p("FMASS", V_id);
+    this->m_V = (*p)({ParameterType::FLAVOR, "FMASS", V_id}, DataType::VALUE);
     this->m_V2 = std::pow(this->m_V, 2);
     this->m_V4 = std::pow(this->m_V2, 2);
     this->t_p = std::pow(this->m_B + this->m_V, 2);

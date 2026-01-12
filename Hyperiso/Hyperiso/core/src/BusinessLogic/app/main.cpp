@@ -47,21 +47,21 @@ void test_interface(ObservableInterface& interface) {
         std::cout << "compute_observable: " << elem.value << "\n";
     }
 
-    // Compute uncertainty
-    auto unc = interface.compute_uncertainty(R_DSTAR);
-    std::cout << "compute_uncertainty: " << unc << "\n";
+    // // Compute uncertainty
+    // auto unc = interface.compute_uncertainty(R_DSTAR);
+    // std::cout << "compute_uncertainty: " << unc << "\n";
 
-    // Leading uncertainties
-    auto leading_uncs = interface.compute_leading_uncertainties(BR_BS_MUMU, 2);
-    std::cout << "compute_leading_uncertainties size: " << leading_uncs.size() << "\n";
+    // // Leading uncertainties
+    // auto leading_uncs = interface.compute_leading_uncertainties(BR_BS_MUMU, 2);
+    // std::cout << "compute_leading_uncertainties size: " << leading_uncs.size() << "\n";
 
-    // All uncertainties
-    auto all_uncs = interface.compute_all_uncertainties();
-    std::cout << "compute_all_uncertainties size: " << all_uncs.size() << "\n";
+    // // All uncertainties
+    // auto all_uncs = interface.compute_all_uncertainties();
+    // std::cout << "compute_all_uncertainties size: " << all_uncs.size() << "\n";
 
-    // Chi2
-    double chi2 = interface.compute_chi2();
-    std::cout << "compute_chi2: " << chi2 << "\n";
+    // // Chi2
+    // double chi2 = interface.compute_chi2();
+    // std::cout << "compute_chi2: " << chi2 << "\n";
 
     // Remove single observable
     interface.remove_observable(BR_BS_MUMU);
@@ -88,9 +88,9 @@ void test_interface(ObservableInterface& interface) {
     auto estimates = interface.compute_all();
     std::cout << "compute_all size: " << estimates.size() << "\n";
 
-    // get_all_exp
-    auto all_exp = interface.get_all_exp();
-    std::cout << "get_all_exp size: " << all_exp.size() << "\n";
+    // // get_all_exp
+    // auto all_exp = interface.get_all_exp();
+    // std::cout << "get_all_exp size: " << all_exp.size() << "\n";
 }
 
 

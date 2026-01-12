@@ -3,8 +3,8 @@
 void DslnuDecay::load_params() {
     complex_t C_A = w_proxy->getFM(WGroup::CC_cs, WCoef::C_V2_cs, QCDOrder::LO) - w_proxy->getFM(WGroup::CC_cs, WCoef::C_V1_cs, QCDOrder::LO);
     complex_t C_P = w_proxy->getFM(WGroup::CC_cs, WCoef::C_S2_cs, QCDOrder::LO) - w_proxy->getFM(WGroup::CC_cs, WCoef::C_S1_cs, QCDOrder::LO);
-    cache.calc_mu = PlnuCalculator(431, 13, C_A, C_P);
-    cache.calc_tau = PlnuCalculator(431, 15, C_A, C_P);
+    cache.calc_mu = PlnuCalculator(431, 13, C_A, C_P, p);
+    cache.calc_tau = PlnuCalculator(431, 15, C_A, C_P, p);
 }
 
 double DslnuDecay::BR(int gen) {

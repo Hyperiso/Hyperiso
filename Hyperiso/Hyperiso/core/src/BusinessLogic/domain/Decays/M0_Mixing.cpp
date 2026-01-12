@@ -1,75 +1,74 @@
 #include "M0_Mixing.h"
 
 void M0Mixing::load_params() {
-    ObsParameterProxy p;
-    cache.G_F = p(ParamId{ParameterType::SM, "SMINPUTS", 2});
-    cache.m_W = p(ParamId{ParameterType::SM, "MASS", 24});
+    cache.G_F = (*p)(ParamId{ParameterType::SM, "SMINPUTS", 2}, DataType::VALUE);
+    cache.m_W = (*p)(ParamId{ParameterType::SM, "MASS", 24}, DataType::VALUE);
     cache.mu_W = w_config.matching_scale;
-    cache.x_c = pow(p(ParamId{ParameterType::SM, "MASS", 4}) / cache.m_W, 2);
-    cache.x_t = std::pow(ObsQCDProxy()(MassConfig{6, cache.mu_W, MassType::POLE, MassType::POLE}) / cache.m_W, 2);
-    cache.lambda_c = std::conj(p(ParamId{ParameterType::SM, "VCKM", {1, 0}})) * p(ParamId{ParameterType::SM, "VCKM", {1, 1}});
-    cache.lambda_t = std::conj(p(ParamId{ParameterType::SM, "VCKM", {2, 0}})) * p(ParamId{ParameterType::SM, "VCKM", {2, 1}});
+    cache.x_c = pow((*p)(ParamId{ParameterType::SM, "MASS", 4}, DataType::VALUE) / cache.m_W, 2);
+    cache.x_t = std::pow((*iobs_qcdp)(MassConfig{6, cache.mu_W, MassType::POLE, MassType::POLE}) / cache.m_W, 2);
+    cache.lambda_c = std::conj((*p)(ParamId{ParameterType::SM, "VCKM", {1, 0}}, DataType::VALUE)) * (*p)(ParamId{ParameterType::SM, "VCKM", {1, 1}}, DataType::VALUE);
+    cache.lambda_t = std::conj((*p)(ParamId{ParameterType::SM, "VCKM", {2, 0}}, DataType::VALUE)) * (*p)(ParamId{ParameterType::SM, "VCKM", {2, 1}}, DataType::VALUE);
 
-    cache.m_Bd = p(ParamId{ParameterType::FLAVOR, "FMASS", 511});
-    cache.m_Bs = p(ParamId{ParameterType::FLAVOR, "FMASS", 531});
-    cache.m_K = p(ParamId{ParameterType::FLAVOR, "FMASS", 311});
-    cache.m_D = p(ParamId{ParameterType::FLAVOR, "FMASS", 421});
-    cache.tau_D = p(ParamId{ParameterType::FLAVOR, "FLIFE", 421});
-    cache.G12_s = p(ParamId{ParameterType::DECAY, "M0_Mix", {5, 1}}) * std::exp(I * p(ParamId{ParameterType::DECAY, "M0_Mix", {5, 2}}));
-    cache.delta_G_s = p(ParamId{ParameterType::DECAY, "M0_Mix", 6});
-    cache.kappa_e = p(ParamId{ParameterType::DECAY, "M0_Mix", 7});
-    cache.eta_cc = p(ParamId{ParameterType::DECAY, "M0_Mix", 11});
-    cache.eta_ct = p(ParamId{ParameterType::DECAY, "M0_Mix", 12});
-    cache.alpha_s_mu_W = ObsQCDProxy()(AlphasConfig{cache.mu_W, MassType::POLE, MassType::POLE});
-    cache.alpha_s_mu_b = ObsQCDProxy()(AlphasConfig{p(ParamId{ParameterType::DECAY, "M0_Mix", 8}), MassType::POLE, MassType::POLE});
-    cache.alpha_s_mu_c = ObsQCDProxy()(AlphasConfig{p(ParamId{ParameterType::DECAY, "M0_Mix", 9}), MassType::POLE, MassType::POLE});
+    cache.m_Bd = (*p)(ParamId{ParameterType::FLAVOR, "FMASS", 511}, DataType::VALUE);
+    cache.m_Bs = (*p)(ParamId{ParameterType::FLAVOR, "FMASS", 531}, DataType::VALUE);
+    cache.m_K = (*p)(ParamId{ParameterType::FLAVOR, "FMASS", 311}, DataType::VALUE);
+    cache.m_D = (*p)(ParamId{ParameterType::FLAVOR, "FMASS", 421}, DataType::VALUE);
+    cache.tau_D = (*p)(ParamId{ParameterType::FLAVOR, "FLIFE", 421}, DataType::VALUE);
+    cache.G12_s = (*p)(ParamId{ParameterType::DECAY, "M0_Mix", {5, 1}}, DataType::VALUE) * std::exp(I * (*p)(ParamId{ParameterType::DECAY, "M0_Mix", {5, 2}}, DataType::VALUE));
+    cache.delta_G_s = (*p)(ParamId{ParameterType::DECAY, "M0_Mix", 6}, DataType::VALUE);
+    cache.kappa_e = (*p)(ParamId{ParameterType::DECAY, "M0_Mix", 7}, DataType::VALUE);
+    cache.eta_cc = (*p)(ParamId{ParameterType::DECAY, "M0_Mix", 11}, DataType::VALUE);
+    cache.eta_ct = (*p)(ParamId{ParameterType::DECAY, "M0_Mix", 12}, DataType::VALUE);
+    cache.alpha_s_mu_W = (*iobs_qcdp)(AlphasConfig{cache.mu_W, MassType::POLE, MassType::POLE});
+    cache.alpha_s_mu_b = (*iobs_qcdp)(AlphasConfig{(*p)(ParamId{ParameterType::DECAY, "M0_Mix", 8}, DataType::VALUE), MassType::POLE, MassType::POLE});
+    cache.alpha_s_mu_c = (*iobs_qcdp)(AlphasConfig{(*p)(ParamId{ParameterType::DECAY, "M0_Mix", 9}, DataType::VALUE), MassType::POLE, MassType::POLE});
 
     std::array<double, 5> B {
-        p(ParamId{ParameterType::FLAVOR, "FBAG", LhaID(511, 1)}),
-        p(ParamId{ParameterType::FLAVOR, "FBAG", LhaID(511, 2)}),
-        p(ParamId{ParameterType::FLAVOR, "FBAG", LhaID(511, 3)}),
-        p(ParamId{ParameterType::FLAVOR, "FBAG", LhaID(511, 4)}),
-        p(ParamId{ParameterType::FLAVOR, "FBAG", LhaID(511, 5)}),
+        (*p)(ParamId{ParameterType::FLAVOR, "FBAG", LhaID(511, 1)}, DataType::VALUE),
+        (*p)(ParamId{ParameterType::FLAVOR, "FBAG", LhaID(511, 2)}, DataType::VALUE),
+        (*p)(ParamId{ParameterType::FLAVOR, "FBAG", LhaID(511, 3)}, DataType::VALUE),
+        (*p)(ParamId{ParameterType::FLAVOR, "FBAG", LhaID(511, 4)}, DataType::VALUE),
+        (*p)(ParamId{ParameterType::FLAVOR, "FBAG", LhaID(511, 5)}, DataType::VALUE),
     };
-    double mf2 = pow(cache.m_Bd * p(ParamId{ParameterType::FLAVOR, "FCONST", {511, 1}}), 2);
-    populate_Q_from_bag(cache.Q_Bd, B, p(ParamId{ParameterType::DECAY, "M0_Mix", 1}), mf2, true);
+    double mf2 = pow(cache.m_Bd * (*p)(ParamId{ParameterType::FLAVOR, "FCONST", {511, 1}}, DataType::VALUE), 2);
+    populate_Q_from_bag(cache.Q_Bd, B, (*p)(ParamId{ParameterType::DECAY, "M0_Mix", 1}, DataType::VALUE), mf2, true);
 
     B = {
-        p(ParamId{ParameterType::FLAVOR, "FBAG", LhaID(531, 1)}),
-        p(ParamId{ParameterType::FLAVOR, "FBAG", LhaID(531, 2)}),
-        p(ParamId{ParameterType::FLAVOR, "FBAG", LhaID(531, 3)}),
-        p(ParamId{ParameterType::FLAVOR, "FBAG", LhaID(531, 4)}),
-        p(ParamId{ParameterType::FLAVOR, "FBAG", LhaID(531, 5)}),
+        (*p)(ParamId{ParameterType::FLAVOR, "FBAG", LhaID(531, 1)}, DataType::VALUE),
+        (*p)(ParamId{ParameterType::FLAVOR, "FBAG", LhaID(531, 2)}, DataType::VALUE),
+        (*p)(ParamId{ParameterType::FLAVOR, "FBAG", LhaID(531, 3)}, DataType::VALUE),
+        (*p)(ParamId{ParameterType::FLAVOR, "FBAG", LhaID(531, 4)}, DataType::VALUE),
+        (*p)(ParamId{ParameterType::FLAVOR, "FBAG", LhaID(531, 5)}, DataType::VALUE),
     };
-    mf2 = pow(cache.m_Bs * p(ParamId{ParameterType::FLAVOR, "FCONST", {531, 1}}), 2);
-    populate_Q_from_bag(cache.Q_Bs, B, p(ParamId{ParameterType::DECAY, "M0_Mix", 2}), mf2, true);
+    mf2 = pow(cache.m_Bs * (*p)(ParamId{ParameterType::FLAVOR, "FCONST", {531, 1}}, DataType::VALUE), 2);
+    populate_Q_from_bag(cache.Q_Bs, B, (*p)(ParamId{ParameterType::DECAY, "M0_Mix", 2}, DataType::VALUE), mf2, true);
 
     B = {
-        p(ParamId{ParameterType::FLAVOR, "FBAG", LhaID(311, 1)}),
-        p(ParamId{ParameterType::FLAVOR, "FBAG", LhaID(311, 2)}),
-        p(ParamId{ParameterType::FLAVOR, "FBAG", LhaID(311, 3)}),
-        p(ParamId{ParameterType::FLAVOR, "FBAG", LhaID(311, 4)}),
-        p(ParamId{ParameterType::FLAVOR, "FBAG", LhaID(311, 5)}),
+        (*p)(ParamId{ParameterType::FLAVOR, "FBAG", LhaID(311, 1)}, DataType::VALUE),
+        (*p)(ParamId{ParameterType::FLAVOR, "FBAG", LhaID(311, 2)}, DataType::VALUE),
+        (*p)(ParamId{ParameterType::FLAVOR, "FBAG", LhaID(311, 3)}, DataType::VALUE),
+        (*p)(ParamId{ParameterType::FLAVOR, "FBAG", LhaID(311, 4)}, DataType::VALUE),
+        (*p)(ParamId{ParameterType::FLAVOR, "FBAG", LhaID(311, 5)}, DataType::VALUE),
     };
-    double f_K = p(ParamId{ParameterType::FLAVOR, "FCONST", {211, 1}}) * p(ParamId{ParameterType::FLAVOR, "FCONSTRATIO", {321, 211, 1, 1}});
+    double f_K = (*p)(ParamId{ParameterType::FLAVOR, "FCONST", {211, 1}}, DataType::VALUE) * (*p)(ParamId{ParameterType::FLAVOR, "FCONSTRATIO", {321, 211, 1, 1}}, DataType::VALUE);
     mf2 = pow(cache.m_K * f_K, 2);
-    populate_Q_from_bag(cache.Q_K, B, p(ParamId{ParameterType::DECAY, "M0_Mix", 3}), mf2, true);
+    populate_Q_from_bag(cache.Q_K, B, (*p)(ParamId{ParameterType::DECAY, "M0_Mix", 3}, DataType::VALUE), mf2, true);
 
     cache.Q_D = {
-        p(ParamId{ParameterType::DECAY, "M0_Mix", LhaID(4, 1)}),
-        p(ParamId{ParameterType::DECAY, "M0_Mix", LhaID(4, 2)}),
-        p(ParamId{ParameterType::DECAY, "M0_Mix", LhaID(4, 3)}),
-        p(ParamId{ParameterType::DECAY, "M0_Mix", LhaID(4, 4)}),
-        p(ParamId{ParameterType::DECAY, "M0_Mix", LhaID(4, 5)}),
+        (*p)(ParamId{ParameterType::DECAY, "M0_Mix", LhaID(4, 1)}, DataType::VALUE),
+        (*p)(ParamId{ParameterType::DECAY, "M0_Mix", LhaID(4, 2)}, DataType::VALUE),
+        (*p)(ParamId{ParameterType::DECAY, "M0_Mix", LhaID(4, 3)}, DataType::VALUE),
+        (*p)(ParamId{ParameterType::DECAY, "M0_Mix", LhaID(4, 4)}, DataType::VALUE),
+        (*p)(ParamId{ParameterType::DECAY, "M0_Mix", LhaID(4, 5)}, DataType::VALUE),
     };
 
-    populate_C(cache.C_Bd, p(ParamId{ParameterType::DECAY, "M0_Mix", 8}), 0);
-    populate_C(cache.C_Bs, p(ParamId{ParameterType::DECAY, "M0_Mix", 8}), 8);
-    populate_C(cache.C_K, p(ParamId{ParameterType::DECAY, "M0_Mix", 9}), 16);
-    populate_C(cache.C_D, p(ParamId{ParameterType::DECAY, "M0_Mix", 10}), 24);
+    populate_C(cache.C_Bd, (*p)(ParamId{ParameterType::DECAY, "M0_Mix", 8}, DataType::VALUE), 0);
+    populate_C(cache.C_Bs, (*p)(ParamId{ParameterType::DECAY, "M0_Mix", 8}, DataType::VALUE), 8);
+    populate_C(cache.C_K, (*p)(ParamId{ParameterType::DECAY, "M0_Mix", 9}, DataType::VALUE), 16);
+    populate_C(cache.C_D, (*p)(ParamId{ParameterType::DECAY, "M0_Mix", 10}, DataType::VALUE), 24);
 
-    cache.C1_Bd_SM = std::pow(cache.G_F * cache.m_W * std::conj(p(ParamId{ParameterType::SM, "VCKM", {2, 0}})) * p(ParamId{ParameterType::SM, "VCKM", {2, 2}}), 2) * S0(cache.x_t) / (4 * PI2);
-    cache.C1_Bs_SM = std::pow(cache.G_F * cache.m_W * std::conj(p(ParamId{ParameterType::SM, "VCKM", {2, 1}})) * p(ParamId{ParameterType::SM, "VCKM", {2, 2}}), 2) * S0(cache.x_t) / (4 * PI2);
+    cache.C1_Bd_SM = std::pow(cache.G_F * cache.m_W * std::conj((*p)(ParamId{ParameterType::SM, "VCKM", {2, 0}}, DataType::VALUE)) * (*p)(ParamId{ParameterType::SM, "VCKM", {2, 2}}, DataType::VALUE), 2) * S0(cache.x_t) / (4 * PI2);
+    cache.C1_Bs_SM = std::pow(cache.G_F * cache.m_W * std::conj((*p)(ParamId{ParameterType::SM, "VCKM", {2, 1}}, DataType::VALUE)) * (*p)(ParamId{ParameterType::SM, "VCKM", {2, 2}}, DataType::VALUE), 2) * S0(cache.x_t) / (4 * PI2);
 }
 
 double M0Mixing::S_18(double x) {

@@ -39,6 +39,23 @@ static CoefPtr make_marty(const BuildContext& ctx, WCoef c) {
     return std::make_shared<MartyWilson>(cfg);
 }
 
+CoefPtr CoefficientRegistry::create(const BuildContext& ctx, WCoef c) const {
+    if (auto it = table_.find(key(c, ctx.model, ctx.backend)); it != table_.end())
+        return it->second(ctx, c);
+
+    // fallback Marty -> Builtin
+    if (ctx.backend == Backend::Marty) {
+        if (auto it2 = table_.find(key(c, ctx.model, Backend::Builtin)); it2 != table_.end())
+            return it2->second(ctx, c);
+    }
+    // fallback modèle -> SM
+    if (ctx.model != Model::SM) {
+        if (auto it3 = table_.find(key(c, Model::SM, ctx.backend)); it3 != table_.end())
+            return it3->second(ctx, c);
+    }
+    throw std::runtime_error("No factory registered for coefficient");
+}
+
 void register_B(CoefficientRegistry& reg) {
     using enum Model; using enum Backend;
 

@@ -43,7 +43,6 @@ void writeDecayObservablesCsv(ObservableInterface& oi,
 
     for (auto& o : DecayMapper::get_observables(dec)) {
         const auto obs_vals = oi.compute_observable(o);
-
         if (obs_vals.size() == 1) {
             std::string h = ObservableMapper::str(o);
             headers.push_back(h);

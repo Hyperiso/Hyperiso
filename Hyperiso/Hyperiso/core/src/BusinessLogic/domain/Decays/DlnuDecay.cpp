@@ -3,7 +3,7 @@
 void DlnuDecay::load_params() {
     complex_t C_A = w_proxy->getFM(WGroup::CC_cd, WCoef::C_V2_cd, QCDOrder::LO) - w_proxy->getFM(WGroup::CC_cd, WCoef::C_V1_cd, QCDOrder::LO);
     complex_t C_P = w_proxy->getFM(WGroup::CC_cd, WCoef::C_S2_cd, QCDOrder::LO) - w_proxy->getFM(WGroup::CC_cd, WCoef::C_S1_cd, QCDOrder::LO);
-    cache.calc = PlnuCalculator(411, 13, C_A, C_P);
+    cache.calc = PlnuCalculator(411, 13, C_A, C_P, p);
 }
 
 double DlnuDecay::BR() {

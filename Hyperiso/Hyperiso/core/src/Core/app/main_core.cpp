@@ -5,13 +5,20 @@
 #include "CompositeParamCreator.h"
 #include "QCDProvider.h"
 #include "ParameterSetter.h"
+#include "BlockProvider.h"
 
 int main() {
     Logger::getInstance()->setLevel(Logger::LogLevel::INFO);
+    Config config;
+    config.model = Model::SM;
+
+    config.flags[ExternalFlag::HAS_WILSON_INPUT] = true;
 
     HyperisoMaster hi;
-    hi.init("lha/testInput.flha");
+    hi.init("lha/testInput.flha", config);
 
+    BlockProvider().log_all_blocks(ParameterType::WILSON);
+    
     ParameterProvider sm {ParameterType::SM};
     ParameterProvider wil {ParameterType::WILSON};
     ParameterProvider obs {ParameterType::OBSERVABLE};

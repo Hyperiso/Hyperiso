@@ -11,7 +11,9 @@ private:
 
 public:
     BVQCDfCalculator() = default;
-    BVQCDfCalculator(int B_id, int V_id, double mu_b, const std::map<WCoef, complex_t>& C, std::shared_ptr<BVFFCalculator> ff_calculator, B_FF_Type ff_tp);
+    BVQCDfCalculator(int B_id, int V_id, double mu_b, const std::map<WCoef, complex_t>& C, std::shared_ptr<BVFFCalculator> ff_calculator, B_FF_Type ff_tp,
+                        std::shared_ptr<IObsParameterProxy<ParamId, DataType, std::string, LhaID>> iobspp_sm,
+                        std::shared_ptr<IObsQCDProxy> iobs_qcdp);
 
     double F_perp(double s_hat);
     double X_perp(double s_hat);

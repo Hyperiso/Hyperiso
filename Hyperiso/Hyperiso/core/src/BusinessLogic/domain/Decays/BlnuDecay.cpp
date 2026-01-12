@@ -3,7 +3,7 @@
 void BlnuDecay::load_params() {
     complex_t C_A = w_proxy->getFM(WGroup::CC_bu, WCoef::C_V2_bu, QCDOrder::LO) - w_proxy->getFM(WGroup::CC_bu, WCoef::C_V1_bu, QCDOrder::LO);
     complex_t C_P = w_proxy->getFM(WGroup::CC_bu, WCoef::C_S2_bu, QCDOrder::LO) - w_proxy->getFM(WGroup::CC_bu, WCoef::C_S1_bu, QCDOrder::LO);
-    cache.calc = PlnuCalculator(521, 15, C_A, C_P);
+    cache.calc = PlnuCalculator(521, 15, C_A, C_P, p);
 }
 
 scalar_t BlnuDecay::R() {

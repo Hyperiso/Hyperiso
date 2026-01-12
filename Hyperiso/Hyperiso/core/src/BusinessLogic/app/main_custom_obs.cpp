@@ -18,7 +18,7 @@ int main() {
     ObservableInterface oi;
 
     DecayMapper::register_custom("Wilson");
-    auto wilson_decay = std::make_shared<WilsonDecay>(DecayMapper::id_of("Wilson"), order, 81, 5);
+    auto wilson_decay = std::make_shared<WilsonDecay>(DecayMapper::id_of("Wilson"), order, 81, 5, oi.get_ports());
     oi.add_custom_decay(DecayMapper::id_of("Wilson"), wilson_decay);
     ObservableId o = ObservableMapper::id_of("C7");
     oi.add_observable(o, order, false);
@@ -29,16 +29,16 @@ int main() {
         ParamId {ParameterType::SM, "MASS", 24}
     });
 
-    LOG_INFO("C7 =", oi.compute_observable(o)[0].value, "+-", oi.compute_uncertainty(o));
+    // LOG_INFO("C7 =", oi.compute_observable(o)[0].value, "+-", oi.compute_uncertainty(o));
 
-    auto print_leading = [&oi] (ObservableId o, size_t n) {
-        LOG_INFO("---------- Leading uncertainties for", ObservableMapper::str(o));
-        for (const auto& [pid, u] : oi.compute_leading_uncertainties(o, n)) {
-            LOG_INFO("\t-", pid, ":", u.real());
-        }
-    };
+    // auto print_leading = [&oi] (ObservableId o, size_t n) {
+    //     LOG_INFO("---------- Leading uncertainties for", ObservableMapper::str(o));
+    //     for (const auto& [pid, u] : oi.compute_leading_uncertainties(o, n)) {
+    //         LOG_INFO("\t-", pid, ":", u.real());
+    //     }
+    // };
 
-    print_leading(o, 4);
+    // print_leading(o, 4);
 
     return 0;
 }

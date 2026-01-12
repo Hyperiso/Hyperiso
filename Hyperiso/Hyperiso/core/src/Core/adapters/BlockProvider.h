@@ -64,6 +64,16 @@ public:
      */
     void log_block(ParameterType type, const std::string& blockname) override;
 
+    /**
+     * @brief Retrieve the content of a single block for a given ParameterType.
+     *
+     * Internally calls Parameters::GetInstance(type)->get_block_infos(blockname).
+     *
+     * @param type ParameterType owning the block.
+     * @param blockname Name of the block to retrieve.
+     * @return std::map<LhaID, scalar_t>, the block content
+     */
+    std::map<LhaID, scalar_t> get_block(ParameterType type, const std::string& blockname) override;
     
 };
 

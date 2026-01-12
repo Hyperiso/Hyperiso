@@ -1,6 +1,4 @@
 #include "GroupDefinition.h"
-#include <unordered_map>
-#include <stdexcept>
 
 namespace {
     static std::unordered_map<WGroupId, GroupDefinition> kCustomDefs;

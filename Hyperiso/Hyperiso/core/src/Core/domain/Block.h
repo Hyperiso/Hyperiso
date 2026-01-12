@@ -92,21 +92,27 @@ public:
     void store(const LhaID& id, std::shared_ptr<Parameter> param) override;
 
     /**
-     * @brief Assigns a new Parameter object to an existing entry.
+     * @brief Overwrites the numerical payload of an existing entry.
      *
-     * This replaces the content of the existing parameter (via operator=),
-     * and then notifies all observer blocks.
+     * This does NOT replace the stored shared_ptr. Instead it calls
+     * Parameter::overwrite_payload_from() on the existing parameter, i.e. it copies
+     * expected/std/shift/mode/scale/binning, but keeps identity (pointer), id,
+     * observers, and owner_block of the destination object.
      *
-     * @param key   The LHA ID of the parameter.
-     * @param param Shared pointer to the new Parameter.
+     * After overwriting:
+     *  - notifies parameter observers via dst->notifyObservers(),
+     *  - then notifies block observers via Block::notifyObservers().
      */
     void assign(const LhaID& key, std::shared_ptr<Parameter> param) override;
 
     /**
      * @brief Assigns a new numerical value to an existing parameter.
      *
-     * This updates the expected value via @ref Parameter::set_expected()
-     * and notifies all observer blocks.
+     * Implementation note (current behavior):
+     *  - calls Parameter::set_expected(value) which already triggers parameter-level
+     *    observer notifications (and may notify the owning block via owner_block),
+     *  - then explicitly calls Parameter::notifyObservers() again,
+     *  - then notifies observer blocks via Block::notifyObservers().
      *
      * @param key   The LHA ID of the parameter.
      * @param value The new central value to assign.
@@ -116,11 +122,8 @@ public:
     /**
      * @brief Stores or assigns a parameter depending on whether it already exists.
      *
-     * - If the key exists, behaves like @ref assign(const LhaID&, std::shared_ptr<Parameter>).
-     * - Otherwise, behaves like @ref store(const LhaID&, std::shared_ptr<Parameter>).
-     *
-     * @param key   The LHA ID of the parameter.
-     * @param param Shared pointer to the Parameter.
+     * Note: when storing a new parameter, this block will set the parameter's
+     * owner_block (if a valid self weak pointer is available).
      */
     void store_or_assign(const LhaID& key, std::shared_ptr<Parameter> param) override;
 
@@ -132,13 +135,12 @@ public:
     bool contains(const LhaID& key) const override;
 
     /**
-     * @brief Retrieves a parameter by ID.
+     * @brief Retrieves a parameter by ID (ensures the block is up-to-date first).
      *
-     * If the parameter does not exist, an error is logged and the call
-     * will throw when accessing the map.
-     *
-     * @param id The LHA ID of the parameter.
-     * @return Shared pointer to the Parameter.
+     * Calls ensure_up_to_date() before lookup.
+     * If the key is missing, an error is logged; depending on the logging policy,
+     * the program may abort/throw. The subsequent items.at(id) would also throw
+     * std::out_of_range if reached.
      */
     std::shared_ptr<Parameter> retrieve(const LhaID& id) override;
 
@@ -223,11 +225,15 @@ public:
     virtual void update();
 
     /**
-     * @brief Destroys the block and its dependency subtree.
+     * @brief Destroys this block and its dependency subtree.
      *
-     * Default behavior:
-     *  - clears all parameters (after calling clear_below() on each),
-     *  - destroys all dependent blocks (observers) by calling their destroy().
+     * Current order:
+     *  - takes ownership of the observer list (dependents),
+     *  - calls clear_below() on all parameters (snapshot-based),
+     *  - clears the local items map,
+     *  - recursively calls destroy() on dependent blocks.
+     *
+     * @note This function prints to std::cout (currently).
      */
     virtual void destroy();
     
@@ -270,7 +276,10 @@ public:
     /**
      * @brief Clears dependencies below all parameters in this block.
      *
-     * By default, calls @ref Parameter::clear_below() on each stored parameter.
+     * Implementation detail:
+     *  - builds a snapshot vector of the current parameter pointers,
+     *    then calls clear_below() on each pointer.
+     * This avoids iterator invalidation if dependency clearing mutates structures.
      */
     virtual void clear_below();
 
@@ -394,13 +403,14 @@ public:
     void init() override;
 
     /**
-     * @brief Updates the dependent block from its sources.
+     * @brief Marks the block as dirty (lazy update).
      *
-     * Behavior:
-     *  - If frozen, sets a flag to perform the update at unfreeze and returns.
-     *  - Otherwise, checks that all sources are non-null and calls the
-     *    @ref recalculateLambda with a BlockSrc view and `shared_from_this()`.
-     *  - After recomputation, notifies all observer blocks via @ref notifyObservers().
+     * This override does not recompute immediately.
+     *  - If frozen: sets a pending flag and returns.
+     *  - Otherwise: propagates dirtiness to dependent DependentBlocks via mark_dirty().
+     *
+     * Actual recomputation is performed on demand in ensure_up_to_date_impl(),
+     * typically triggered by calling Block::retrieve/contains/getItems/getAllIDs.
      */
     void update() override;
 
@@ -426,14 +436,10 @@ public:
     ~DependentBlock();
 
     /**
-     * @brief Assigns a new parameter to an existing entry (no notifications).
+     * @brief Overwrites payload of an existing local parameter (no notifications).
      *
-     * Similar to @ref Block::assign(const LhaID&, std::shared_ptr<Parameter>),
-     * but does not notify observers. This is typically used inside the
-     * recomputation logic of the DependentBlock.
-     *
-     * @param key   The LHA ID of the parameter.
-     * @param param Shared pointer to the new Parameter.
+     * Calls Parameter::overwrite_payload_from() on the destination entry.
+     * Does not notify parameter observers nor block observers.
      */
     void assign(const LhaID& key, std::shared_ptr<Parameter> param);
 
@@ -466,10 +472,11 @@ public:
     void clear_above() override;
 
     /**
-     * @brief Clears dependencies below this block.
+     * @brief Clears dependencies below this block (block graph only).
      *
-     * First calls @ref clear_above() to detach from sources, then recursively
-     * clears all dependent blocks (observers).
+     * Detaches from sources (clear_above()) and then calls clear_below() on
+     * dependent blocks (observers). This function does not erase local parameters;
+     * use destroy() for full teardown.
      */
     void clear_below() override;
 
@@ -482,9 +489,23 @@ public:
      */
     void destroy() override;
 
-    // TODO :: 
-    bool dirty = true;
+    /**
+     * @brief Marks the block content as invalid and propagates downstream.
+     *
+     * If already dirty, does nothing. Otherwise sets dirty=true and recursively
+     * marks DependentBlock observers dirty as well.
+     */
     void mark_dirty();
+
+    /**
+     * @brief Ensures this block is up-to-date (lazy recomputation).
+     *
+     * Calls the internal implementation that:
+     *  - returns immediately if frozen or not dirty,
+     *  - ensures upstream DependentBlock sources are up-to-date,
+     *  - calls the recomputation lambda to rebuild/update local parameters,
+     *  - then notifies parameter observers for each stored parameter.
+     */
     void ensure_up_to_date() override { ensure_up_to_date_impl(); }
 
 private:
@@ -495,6 +516,7 @@ private:
     DepUpdateFunc recalculateLambda;                                        ///< Function used to recalculate this block's content.
     bool frozen = false;                                                    ///< Indicates if the block is frozen (no update).
     bool update_at_unfreeze = false;                                        ///< Indicates if an update is pending after unfreezing.
+    bool dirty = true;                                                      ///< True if cached value is invalid and must be recomputed on demand.
 };
 
 #endif

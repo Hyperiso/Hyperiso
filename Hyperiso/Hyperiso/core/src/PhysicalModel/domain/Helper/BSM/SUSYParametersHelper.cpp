@@ -1,6 +1,6 @@
 #include "SUSYParametersHelper.h"
 
-void susy_parameters::init(int gen, WGroupId grp) {
+void SUSYParameterHelper::init(int gen, WGroupId grp) {
 
 	if (initialized) {
 		return;
@@ -17,7 +17,7 @@ void susy_parameters::init(int gen, WGroupId grp) {
 	initialized = true;
 }
 
-void susy_parameters::init_epsilon_block() {
+void SUSYParameterHelper::init_epsilon_block() {
     std::unordered_map<ParameterType, std::vector<std::string>> src = {
         {ParameterType::SM, {"MASS", "SMINPUTS"}}, 
         {ParameterType::BSM, {"MASS", "GAUGE", "HMIX", "MSOFT", "AD", "AU", "YD", "YU", "SBOTMIX", "STOPMIX", "UMIX", "VMIX", "NMIX", "ALPHA"}},
@@ -207,7 +207,7 @@ void susy_parameters::init_epsilon_block() {
     iblock_c->compose_block("EPSILON_SUSY", src, func);
 }
 
-void susy_parameters::init_scale_independent_block(int gen) {
+void SUSYParameterHelper::init_scale_independent_block(int gen) {
 
 	std::unordered_map<ParameterType, std::vector<std::string>> src = {{ParameterType::SM, {"MASS", "GAUGE", "VCKM"}}, {ParameterType::BSM, {"MASS", "HMIX", "STOPMIX", "USQMIX"}}};
 
@@ -304,7 +304,7 @@ void susy_parameters::init_scale_independent_block(int gen) {
 
 }
 
-void susy_parameters::init_matching_block() {
+void SUSYParameterHelper::init_matching_block() {
 	std::unordered_map<ParameterType, std::vector<std::string>> src = {{ParameterType::SM, {"MASS"}}, {ParameterType::BSM, {"MASS"}},
 																	{ParameterType::WILSON, {"WPARAM_MATCH_SM"}}};
 

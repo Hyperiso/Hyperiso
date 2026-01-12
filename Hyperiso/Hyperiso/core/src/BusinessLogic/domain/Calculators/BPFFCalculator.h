@@ -34,7 +34,9 @@ private:
 
 public:
     BPFFCalculator() = default;
-    BPFFCalculator(int B_id, int P_id, BP_FF_Src src=BP_FF_Src::GKvD_SR_LAT);
+    BPFFCalculator(int B_id, int P_id,
+                        std::shared_ptr<IObsParameterProxy<ParamId, DataType, std::string, LhaID>> iobspp_sm,
+                        BP_FF_Src src=BP_FF_Src::GKvD_SR_LAT);
 
     complex_t z(double t, double t_p, double t_0);
     double E(double q2);

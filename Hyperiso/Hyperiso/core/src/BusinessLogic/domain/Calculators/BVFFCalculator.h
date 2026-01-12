@@ -25,7 +25,7 @@ private:
 
 public:
     BVFFCalculator() = default;
-    BVFFCalculator(int B_id, int V_id, BV_FF_Src src=BV_FF_Src::BSZ_SR_LAT);
+    BVFFCalculator(int B_id, int V_id, std::shared_ptr<IObsParameterProxy<ParamId, DataType, std::string, LhaID>> iobspp_sm, BV_FF_Src src=BV_FF_Src::BSZ_SR_LAT);
 
     complex_t z(double t, double t_p, double t_0);
     double E(double q2);

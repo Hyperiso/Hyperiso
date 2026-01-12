@@ -1,30 +1,29 @@
 #include "KllDecay.h"
 
 void KllDecay::load_params() {
-    ObsParameterProxy p;
-    cache.G_F = p(ParamId{ParameterType::SM, "SMINPUTS", 2});
-    cache.alpha_em = p(ParamId{ParameterType::SM, "EW", {1, 1}});
-    cache.alpha_em_0 = p(ParamId{ParameterType::SM, "EW", {1, 4}});
-    cache.alpha_s_m_Z = p(ParamId{ParameterType::SM, "SMINPUTS", 3});
-    cache.sw2 = p(ParamId{ParameterType::SM, "SMINPUTS", {7, 1}});
-    cache.m_l = p(ParamId{ParameterType::SM, "MASS", 9 + 2 * cfg.gen});
-    cache.m_c_m_c = p(ParamId{ParameterType::SM, "MASS", 4});
-    cache.m_pi = p(ParamId{ParameterType::FLAVOR, "FMASS", 111});
-    cache.m_rho = p(ParamId{ParameterType::FLAVOR, "FMASS", 113});
-    cache.m_K = p(ParamId{ParameterType::FLAVOR, "FMASS", 311});
-    cache.f_K = p(ParamId{ParameterType::FLAVOR, "FCONST", {311, 1}});
-    cache.tau_L = p(ParamId{ParameterType::FLAVOR, "FLIFE", 130}) / HBAR;
-    cache.tau_S = p(ParamId{ParameterType::FLAVOR, "FLIFE", 310}) / HBAR;
-    cache.lambda_c = p(ParamId{ParameterType::SM, "VCKM", {1, 0}}) * std::conj(p(ParamId{ParameterType::SM, "VCKM", {1, 1}}));
-    cache.lambda_t = p(ParamId{ParameterType::SM, "VCKM", {2, 0}}) * std::conj(p(ParamId{ParameterType::SM, "VCKM", {2, 1}}));
-    cache.lambda = p(ParamId{ParameterType::SM, "VCKMIN", 1});
+    cache.G_F = (*p)(ParamId{ParameterType::SM, "SMINPUTS", 2}, DataType::VALUE);
+    cache.alpha_em = (*p)(ParamId{ParameterType::SM, "EW", {1, 1}}, DataType::VALUE);
+    cache.alpha_em_0 = (*p)(ParamId{ParameterType::SM, "EW", {1, 4}}, DataType::VALUE);
+    cache.alpha_s_m_Z = (*p)(ParamId{ParameterType::SM, "SMINPUTS", 3}, DataType::VALUE);
+    cache.sw2 = (*p)(ParamId{ParameterType::SM, "SMINPUTS", {7, 1}}, DataType::VALUE);
+    cache.m_l = (*p)(ParamId{ParameterType::SM, "MASS", 9 + 2 * cfg.gen}, DataType::VALUE);
+    cache.m_c_m_c = (*p)(ParamId{ParameterType::SM, "MASS", 4}, DataType::VALUE);
+    cache.m_pi = (*p)(ParamId{ParameterType::FLAVOR, "FMASS", 111}, DataType::VALUE);
+    cache.m_rho = (*p)(ParamId{ParameterType::FLAVOR, "FMASS", 113}, DataType::VALUE);
+    cache.m_K = (*p)(ParamId{ParameterType::FLAVOR, "FMASS", 311}, DataType::VALUE);
+    cache.f_K = (*p)(ParamId{ParameterType::FLAVOR, "FCONST", {311, 1}}, DataType::VALUE);
+    cache.tau_L = (*p)(ParamId{ParameterType::FLAVOR, "FLIFE", 130}, DataType::VALUE) / HBAR;
+    cache.tau_S = (*p)(ParamId{ParameterType::FLAVOR, "FLIFE", 310}, DataType::VALUE) / HBAR;
+    cache.lambda_c = (*p)(ParamId{ParameterType::SM, "VCKM", {1, 0}}, DataType::VALUE) * std::conj((*p)(ParamId{ParameterType::SM, "VCKM", {1, 1}}, DataType::VALUE));
+    cache.lambda_t = (*p)(ParamId{ParameterType::SM, "VCKM", {2, 0}}, DataType::VALUE) * std::conj((*p)(ParamId{ParameterType::SM, "VCKM", {2, 1}}, DataType::VALUE));
+    cache.lambda = (*p)(ParamId{ParameterType::SM, "VCKMIN", 1}, DataType::VALUE);
     cache.x = cache.m_l / cache.m_K;
-    cache.r_chi = cache.m_K / (p(ParamId{ParameterType::SM, "MASS", 1}) + p(ParamId{ParameterType::SM, "MASS", 3}));
+    cache.r_chi = cache.m_K / ((*p)(ParamId{ParameterType::SM, "MASS", 1}, DataType::VALUE) + (*p)(ParamId{ParameterType::SM, "MASS", 3}, DataType::VALUE));
     cache.beta = std::sqrt(1. - 4. * std::pow(cache.x, 2));
-    cache.BR_KL_gg_exp = p(ParamId{ParameterType::DECAY, "K_ll", 1});
-    cache.BR_KS_gg_exp = p(ParamId{ParameterType::DECAY, "K_ll", 2});
-    cache.alpha_exp = p(ParamId{ParameterType::DECAY, "K_ll", 3});
-    cache.delta_lambda = p(ParamId{ParameterType::DECAY, "K_ll", 4});
+    cache.BR_KL_gg_exp = (*p)(ParamId{ParameterType::DECAY, "K_ll", 1}, DataType::VALUE);
+    cache.BR_KS_gg_exp = (*p)(ParamId{ParameterType::DECAY, "K_ll", 2}, DataType::VALUE);
+    cache.alpha_exp = (*p)(ParamId{ParameterType::DECAY, "K_ll", 3}, DataType::VALUE);
+    cache.delta_lambda = (*p)(ParamId{ParameterType::DECAY, "K_ll", 4}, DataType::VALUE);
     cache.mu_b = 5 + 1e-10; // TODO : promote as decay param ?
 
     cache.C10 = w_proxy->getFR(WGroup::K, WCoef::CK10, w_config.order) - w_proxy->getFR(WGroup::K, WCoef::CPK10, w_config.order);

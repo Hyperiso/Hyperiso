@@ -129,8 +129,19 @@ public:
      */
     void set_expected(scalar_t val);
 
+        /**
+     * @brief Sets the expected (central) value without notifying observers.
+     *
+     * This method updates the internal expected value but deliberately
+     * skips observer notification. It is intended for internal use
+     * (e.g. batch updates, reconstruction, deserialization).
+     *
+     * @warning Using this method may leave dependent parameters in an
+     *          inconsistent state if observers are not updated manually.
+     *
+     * @param val New expected value.
+     */
     void set_expected_silent(scalar_t val);
-    //TODO ::
 
     /**
      * @brief Retrieves the combined standard deviation.
@@ -204,16 +215,28 @@ public:
     void addObserver(std::shared_ptr<Parameter> observer) { observers.push_back(observer); }
 
     /**
-     * @brief Removes an observer parameter, if present.
+     * @brief Removes an observer from the observer list.
+     *
+     * The observer is matched by pointer identity.
+     * If the observer is not present, this function has no effect.
+     *
      * @param observer Shared pointer to the observer to remove.
      */
     void removeObserver(std::shared_ptr<Parameter> observer);
 
     /**
-     * @brief Notifies all observers of a change.
+     * @brief Notifies all observer parameters of a change.
      *
-     * Calls @ref update() on each non-null observer, and cleans up any
-     * expired/null entries in the observer list.
+     * For each registered observer:
+     *  - calls observer->update(),
+     *  - ignores null observers,
+     *  - removes expired/null entries from the observer list.
+     *
+     * After notifying parameter observers, the owning Block (if any)
+     * is also notified via Block::notifyObservers().
+     *
+     * This method is automatically called after state-changing operations
+     * such as @ref set_expected().
      */
     void notifyObservers();
 
@@ -249,23 +272,28 @@ public:
     virtual void clear_above() {}
 
     /**
-     * @brief Recursively clears this parameter and its dependents (downstream).
+     * @brief Recursively clears this parameter and all downstream dependents.
      *
-     * The default implementation:
-     *  - takes ownership of the current observer list,
-     *  - calls @ref clear_above() on this instance,
-     *  - then calls clear_below() on each observer.
+     * The clearing procedure is:
+     *  - move the current observer list to a local container,
+     *  - call @ref clear_above() on this parameter,
+     *  - recursively call clear_below() on each observer.
+     *
+     * This is typically used to invalidate cached or derived quantities
+     * in a dependency graph.
      */
     virtual void clear_below();
 
     /**
-     * @brief Returns the set of source parameters this one depends on.
+     * @brief Returns the parameters this parameter depends on.
      *
-     * For a plain @ref Parameter, there are no dependencies and the
-     * default implementation returns an empty map. Derived classes
-     * (e.g. for dependent/composite parameters) can override this.
+     * For a plain Parameter, there are no dependencies and an empty
+     * map is returned.
      *
-     * @return A map from ParamId to the corresponding source Parameter.
+     * Derived classes representing computed or composite parameters
+     * should override this method to expose their dependency graph.
+     *
+     * @return Map of ParamId → source Parameter.
      */
     virtual std::unordered_map<ParamId, std::shared_ptr<Parameter>> get_source_parameters() const;
 
@@ -280,62 +308,88 @@ public:
      * @return Weak pointer to the owning Block.
      */
     std::weak_ptr<Block> get_owner_block() const;
-
+    
+    /**
+     * @brief Overwrites the numerical payload from another Parameter.
+     *
+     * Copies only the physical content:
+     *  - expected value,
+     *  - statistical and systematic uncertainties,
+     *  - shift,
+     *  - mode,
+     *  - scale,
+     *  - binning.
+     *
+     * The following are NOT modified:
+     *  - parameter ID,
+     *  - observers,
+     *  - owning Block.
+     *
+     * @param other Parameter to copy the payload from.
+     */
     void overwrite_payload_from(const Parameter& other);
     
     /**
      * @brief Assignment operator.
      *
-     * Copies all data fields from @p other:
-     *  - id, expected, deviations, mode, shift, scale, binning.
-     * Observers and owner_block are not cloned (they remain as in this instance).
+     * Copies all physical and configuration fields from @p other:
+     *  - id,
+     *  - expected value,
+     *  - uncertainties,
+     *  - mode,
+     *  - shift,
+     *  - scale,
+     *  - binning.
      *
-     * @param other The parameter to copy.
-     * @return Reference to this parameter after copy.
+     * Observer relationships and owning Block are intentionally
+     * NOT copied.
+     *
+     * @param other Parameter to copy from.
+     * @return Reference to this instance.
      */
     Parameter& operator=(const Parameter& other);
 
     /**
-     * @brief Overloaded stream insertion operator for printing the parameter details.
+     * @brief Prints a human-readable representation of the parameter.
      *
-     * Format example:
-     * @code
-     * Parameter BLOCK,ID [bin_low,bin_high] = value +- syst +- stat
-     * @endcode
+     * Output format:
+     *   Parameter BLOCK,ID [bin_low,bin_high] = value +- syst +- stat
+     *
+     * The bin information is omitted if no binning is defined.
      *
      * @param os Output stream.
-     * @param p  The parameter to print.
-     * @return The output stream.
+     * @param p  Parameter to print.
+     * @return Output stream.
      */
     friend std::ostream& operator<<(std::ostream& os, const Parameter& p);
 
     /**
-     * @brief Overloads the += operator to add another Parameter to this one.
+     * @brief Adds another parameter to this one.
      *
-     * Numerical fields are combined as follows:
+     * Numerical fields are combined as:
      *  - expected       ← expected + other.expected
      *  - deviation_stat ← sqrt(stat^2 + other.stat^2)
      *  - deviation_syst ← sqrt(syst^2 + other.syst^2)
      *  - shift          ← shift + other.shift
      *
-     * Other metadata (id, mode, scale, binning, observers) is not modified.
+     * Metadata (ID, mode, scale, binning, observers) is unchanged.
      *
-     * @param other The Parameter to add.
-     * @return Reference to this Parameter after addition.
+     * @param other Parameter to add.
+     * @return Reference to this parameter.
      */
     Parameter& operator+=(const Parameter& other);
 
     /**
-     * @brief Overloads the *= operator to scale a parameter by a scalar.
+     * @brief Scales the parameter by a scalar factor.
      *
-     * Numerical fields are scaled as:
+     * Scaling rules:
      *  - expected       ← expected * factor
      *  - deviation_stat ← deviation_stat * |factor|
      *  - deviation_syst ← deviation_syst * |factor|
      *  - shift          ← shift * factor
      *
-     * @param scale The scalar factor to scale by.
-     * @return Reference to this Parameter after scaling.
+     * @param scale Scalar factor.
+     * @return Reference to this parameter.
      */
     Parameter& operator*=(const scalar_t& scale);
 

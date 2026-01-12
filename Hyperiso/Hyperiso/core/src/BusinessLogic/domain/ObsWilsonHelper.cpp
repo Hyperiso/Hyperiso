@@ -1,7 +1,7 @@
 #include "ObsWilsonHelper.h"
 
-void ObsWilsonHelper::build(WilsonBuildConfig config, std::shared_ptr<ObsWilsonBuilder>& wil_builder) {
-    config.groups = update_state(config.groups, wil_builder);
+void ObsWilsonHelper::build(WilsonBuildConfig config, std::shared_ptr<IObsWilsonBuilder>& wil_builder, std::shared_ptr<IWilsonFreezer<WGroupId>> iobs_wfreezer) {
+    config.groups = update_state(config.groups, wil_builder, iobs_wfreezer);
     if (config.groups.empty()) {
         return;
     }
@@ -21,17 +21,17 @@ std::unordered_set<WGroupId> ObsWilsonHelper::get_all_groups(const std::unordere
     return all_groups;
 }
 
-std::unordered_set<WGroupId> ObsWilsonHelper::update_state(const std::unordered_set<WGroupId> &needed, std::shared_ptr<ObsWilsonBuilder> &wil_builder) {
+std::unordered_set<WGroupId> ObsWilsonHelper::update_state(const std::unordered_set<WGroupId> &needed, std::shared_ptr<IObsWilsonBuilder> &wil_builder, std::shared_ptr<IWilsonFreezer<WGroupId>> iobs_wfreezer) {
     std::unordered_set<WGroupId> to_build;
     for (auto group : get_all_groups(needed)) {
         if (!needed.contains(group)) {
-            WilsonFreezer(wil_builder).freeze(group);
+            iobs_wfreezer->freeze(group);
             state[group] = true;
         } else if (!state.contains(group)) {
             to_build.emplace(group);
             state[group] = false;
         } else if (state[group]) {
-            WilsonFreezer(wil_builder).unfreeze(group);
+            iobs_wfreezer->unfreeze(group);
             state[group] = false;
         }
     }

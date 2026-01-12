@@ -1,7 +1,9 @@
 #include "BPQCDfCalculator.h"
 
-BPQCDfCalculator::BPQCDfCalculator(int B_id, int V_id, double mu_b, const std::map<WCoef, complex_t> &C, std::shared_ptr<BPFFCalculator> ff_calculator, B_FF_Type ff_tp) : 
-    BaseQCDfCalculator(B_id, V_id, mu_b, C, ff_tp)
+BPQCDfCalculator::BPQCDfCalculator(int B_id, int V_id, double mu_b, const std::map<WCoef, complex_t> &C, std::shared_ptr<BPFFCalculator> ff_calculator, B_FF_Type ff_tp,
+                        std::shared_ptr<IObsParameterProxy<ParamId, DataType, std::string, LhaID>> p,
+                        std::shared_ptr<IObsQCDProxy> iobs_qcdp) : 
+    BaseQCDfCalculator(B_id, V_id, mu_b, C, ff_tp, p, iobs_qcdp)
 {
     this->ff_calculator = ff_calculator;
 }

@@ -3,7 +3,7 @@
 void CoefficientGroup::claim_coefficients() {
     for (auto& [_, coeff]: *this) {
         coeff->set_owned(true);
-        coeff->set_storage_block(GroupMapper::str(this->id, ScaleType::MATCHING));
+        coeff->set_storage_block(this->get_matching_storage_block());
         coeff->set_contribution_type(this->wilson_type);
     }
 }
@@ -21,6 +21,7 @@ CoefficientGroup::CoefficientGroup(const CoefficientGroup& other)
     wilson_type = other.wilson_type;
     current_order = other.current_order;
     id = other.id;
+    block_name = GroupMapper::str(this->id, ScaleType::MATCHING);
 }
 
 CoefficientGroup::CoefficientGroup(std::map<std::string, std::shared_ptr<WilsonCoefficient>>& coeffs, WilsonGroupAdapterConfig adapters) : CoefficientGroup(adapters) {
@@ -50,6 +51,9 @@ void CoefficientGroup::init(QCDOrder max_order) {
     this->current_order = max_order;
 }
 
+void CoefficientGroup::set_matching_storage_block(std::string name) {
+    block_name = name;
+}
 complex_t CoefficientGroup::get_matching_coefficient(std::string coeff, std::string order, ContributionType cont_type) const {
     auto it = this->find(coeff);
     if (it == this->end()) {
@@ -67,7 +71,6 @@ complex_t CoefficientGroup::get_running_coefficient(std::string coeff, std::stri
 
     if (!(*adapters.wilson_proxy).exist(GroupMapper::str(this->id, ScaleType::HADRONIC, basis),
         c->id(OrderMapper::enum_elt(order), cont_type))) {
-            std::cout << "here 3!" << std::endl;
             return complex_t(0.,0.);
     }
 

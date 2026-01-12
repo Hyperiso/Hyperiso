@@ -17,3 +17,7 @@ void BlockProvider::log_all_blocks(ParameterType type) {
 void BlockProvider::log_block(ParameterType type, const std::string& blockname) {
     Parameters::GetInstance(type)->print_block(blockname);
 }
+
+std::map<LhaID, scalar_t> BlockProvider::get_block(ParameterType type, const std::string& blockname) {
+    return Parameters::GetInstance(type)->get_block_infos(blockname);
+}

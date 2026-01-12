@@ -142,6 +142,35 @@ public:
     }
 
     /**
+     * @brief Deserialize the id of a Wilson coefficient into (WCoefId, QCDOrder, ContributionType) using lha convention.
+     *
+     * The resulting object has components:
+     *   std::pair<WCoefId, std::pair<QCDOrder, ContributionType>>
+     * where:
+     *   - WCoefId is the base id of the Wilson Coefficient (int,int)
+     *   - QCDOrder the order of the coefficient (LO, NLO, NNLO)
+     *   - ContributionType = SM, BSM or TOT (SM+BSM).
+     *
+     * @param id LhaID of the coefficient.
+     */
+    static std::pair<WCoefId, std::pair<QCDOrder, ContributionType>> lha_wilson_deserialize(LhaID id) {
+        auto parts = id.get_parts();
+        auto w_id = std::make_pair<int, int>(parts[0], parts[1]);
+
+        auto maybe = WCoefMapper::from_flha_key(w_id.first, w_id.second);
+        if (!maybe) {
+            LOG_ERROR("ValueError", "bad lha id for wilson conversion (unknown custom/base key)");
+        }
+        WCoefId coef = *maybe;
+        QCDOrder order = parts[2] ? ((parts[2] -1) ? QCDOrder::NNLO : QCDOrder::NLO) : QCDOrder::LO;
+        ContributionType part = parts[3] ? parts[3] -1 ? ContributionType::TOTAL : ContributionType::BSM : ContributionType::SM;
+
+        std::pair<WCoefId, std::pair<QCDOrder, ContributionType>> ret;
+        ret = {coef, {order, part}};
+
+        return ret;
+    }
+    /**
      * @brief Builds a full FLHA LhaID for a given WCoefId, order and contribution.
      *
      * Uses the external base key attached to the id. If none is found,

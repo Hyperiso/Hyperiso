@@ -1,11 +1,11 @@
 #include "LbLFFCalculator.h"
 
-LbLFFCalculator::LbLFFCalculator(LbL_FF_Src src) {
-    ObsParameterProxy p(ParameterType::FLAVOR);
-    double m_B = p("FMASS", 521);
-    double m_K = p("FMASS", 321);
-    this->m_Lb = p("FMASS", 5122);
-    this->m_L = p("FMASS", 3122);
+LbLFFCalculator::LbLFFCalculator(std::shared_ptr<IObsParameterProxy<ParamId, DataType, std::string, LhaID>> p, LbL_FF_Src src) {
+
+                            double m_B = (*p)({ParameterType::FLAVOR, "FMASS", 521}, DataType::VALUE);
+    double m_K = (*p)({ParameterType::FLAVOR, "FMASS", 321}, DataType::VALUE);
+    this->m_Lb = (*p)({ParameterType::FLAVOR, "FMASS", 5122}, DataType::VALUE);
+    this->m_L = (*p)({ParameterType::FLAVOR, "FMASS", 3122}, DataType::VALUE);
     this->t_p = std::pow(m_B + m_K, 2);
     this->t_0 = std::pow(this->m_Lb - this->m_L, 2);
     this->load_FF_params(src);
