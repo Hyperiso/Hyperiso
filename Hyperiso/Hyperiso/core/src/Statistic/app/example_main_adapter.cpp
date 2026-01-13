@@ -126,29 +126,34 @@ int main() {
     std::cout << "creating RandomVectorGenerator" << std::endl;
 
     unsigned int seed = std::random_device{}();
-    auto dist = DistributionFactory::create(MarginalType::GAUSSIAN, seed);
-    auto decomp = std::make_unique<CholeskyDecomposition>();
+    auto dist = DistributionFactory::create(MarginalType::GAUSSIAN, GaussianMarginalCfg(0, 1));
+    // auto decomp = std::make_unique<CholeskyDecomposition>();
+    auto copul = CopulaFactory::create(CopulaType::GAUSSIAN, GaussianCopulaConfig());
 
-    JointDistribution rvg(std::move(dist), std::move(decomp));
+    std::vector<std::unique_ptr<IMarginalDistribution>> truc2{};
+
+    truc2.emplace_back(std::move(dist));
+
+    std::unique_ptr<JointDistribution> rvg = std::make_unique<JointDistribution>(std::move(truc2), std::move(copul));
 
     std::cout << "RandomVectorGenerator created" << std::endl;
 
-    RvgNuisanceSampler sampler(rvg);
+    RvgNuisanceSampler sampler(eta_specs_real_with_corr, std::move(rvg));
 
     std::cout << "Creating MonteCarloPredictor" << std::endl;
 
     // MC prediction with pluggable sampler
-    MonteCarloEngine mc(model, sampler, eta_mean_real, SigmaEtaReal, {10, 0.2});
+    MonteCarloEngine mc(model, sampler, {10, 0.2});
     std::mt19937 rng(1234);
 
     std::cout << "MonteCarloPredictor created" << std::endl;
 
-    Vec p_test{-4.5, 0.0};
-    auto sums = mc.summarize(p_test, rng);
+    std::map<ParamId, double> p_test{{ParamId(ParameterType::WILSON, "WILSON", 10), -4.5}, {ParamId(ParameterType::WILSON, "WILSON_p", 10), 0.0}};
+    auto sums = mc.summarize(p_test);
 
     std::cout << "summarize ented" << std::endl;
 
-    std::cout << "Skewness[0]=" << sums[0].skew << " ok=" << sums[0].approx_ok << std::endl;
+    std::cout << "Skewness[0]=" << sums[0].skew << " ok=" << sums[0].symmetric << std::endl;
 
     for (auto sum : sums) {
         std::cout << "value = " << sum.mu << " +- " << sum.sigma << std::endl;

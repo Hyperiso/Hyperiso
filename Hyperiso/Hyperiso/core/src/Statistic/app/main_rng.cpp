@@ -1,5 +1,6 @@
-#include "RandomVectorGenerator.h"
-#include "DistributionFactory.h"
+#include "JointDistribution.h"
+#include "MarginalFactory.h"
+#include "CopulaFactory.h"
 
 int main(int argc, char** argv) {
     try {
@@ -25,11 +26,16 @@ int main(int argc, char** argv) {
 
         Matrix R = readMatrixFromStdin();
 
-        auto dist = DistributionFactory::create(MarginalType::GAUSSIAN, seed);
-        auto decomp = std::make_unique<CholeskyDecomposition>();
+        auto dist = DistributionFactory::create(MarginalType::GAUSSIAN, GaussianMarginalCfg(0., 1.), seed);
+        // auto decomp = std::make_unique<CholeskyDecomposition>();
+        auto copul = CopulaFactory::create(CopulaType::GAUSSIAN, GaussianCopulaConfig());
 
-        JointDistribution generator(std::move(dist), std::move(decomp));
-        Vector y = generator.generate(R);
+        std::vector<std::unique_ptr<IMarginalDistribution>> truc{};
+
+        truc.emplace_back(std::move(dist));
+
+        JointDistribution generator(std::move(truc), std::move(copul));
+        Vector y = generator.sample();
 
         printVector(y);
         return 0;

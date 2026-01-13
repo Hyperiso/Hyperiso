@@ -5,6 +5,7 @@
 #include <map>
 #include <algorithm>
 #include "Include.h"
+#include "Math.h"
 
 using Vec = std::vector<double>;
 using Samples = std::vector<std::map<ObservableId, double>>; // shape: N x D (N samples of D-dim vector)
