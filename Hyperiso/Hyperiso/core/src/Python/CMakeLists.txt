@@ -3,6 +3,7 @@ project(phyperiso LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_FLAGS "-O3 -Wall -Wextra")
 
 # pybind11 via pybind11-config (OK tant que le package pybind11 est installé via pip)
 execute_process(
