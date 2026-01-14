@@ -1,13 +1,14 @@
-    cmake_minimum_required(VERSION 3.20)
+cmake_minimum_required(VERSION 3.20)
 
-    set(CMAKE_CXX_STANDARD 20)
-    set(CMAKE_CXX_STANDARD_REQUIRED True)
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED True)
+set(CMAKE_CXX_FLAGS "-O3 -Wall -Wextra")
 
-    project(Math)
+project(Math)
 
-    if (NOT TARGET CommonLib)
-        add_subdirectory(../Common CommonLib)
-    endif()
+if (NOT TARGET CommonLib)
+    add_subdirectory(../Common CommonLib)
+endif()
 
     add_library(MathLib STATIC 
         scalar.cpp
@@ -25,11 +26,11 @@
         ObsMath.cpp
         )
 
-    set_target_properties(MathLib PROPERTIES POSITION_INDEPENDENT_CODE ON)
-    find_package(GSL REQUIRED)
+set_target_properties(MathLib PROPERTIES POSITION_INDEPENDENT_CODE ON)
+find_package(GSL REQUIRED)
 
 
-    target_include_directories(MathLib PRIVATE ${GSL_INCLUDE_DIRS})
+target_include_directories(MathLib PRIVATE ${GSL_INCLUDE_DIRS})
 
     target_include_directories(MathLib
     PUBLIC
@@ -49,22 +50,22 @@
         ${CMAKE_CURRENT_SOURCE_DIR}/linalg
     )
 
-    if (TARGET GSL::gsl)
+if (TARGET GSL::gsl)
     target_link_libraries(MathLib PUBLIC CommonLib GSL::gsl)
     else()
     target_include_directories(MathLib PUBLIC ${GSL_INCLUDE_DIRS})
     target_link_libraries(MathLib PUBLIC CommonLib ${GSL_LIBRARIES})
-    endif()
+endif()
 
 
-    include(GNUInstallDirs)
+include(GNUInstallDirs)
 
-    install(TARGETS MathLib
+install(TARGETS MathLib
     EXPORT HyperisoTargets
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-    )
+)
 
 
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/

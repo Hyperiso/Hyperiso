@@ -824,7 +824,7 @@ scalar_t hpl4(int i1, int i2, int i3, int i4, scalar_t x) {
 
 
 template <size_t MAX_N, size_t MAX_M, size_t MAX_LE, size_t MAX_NC>
-void initialize_constants(std::array<std::array<double, MAX_M>, MAX_N> &s1, std::array<std::array<double, MAX_M>, MAX_N> &c, std::array<std::array<double, MAX_LE>, MAX_NC> &a) {
+void initialize_constants(std::array<std::array<double, MAX_M>, MAX_N> &s1, std::array<std::array<double, MAX_M>, MAX_N> &c, std::array<std::array<double, MAX_NC>, MAX_LE> &a) {
     // Initialisation des constantes s1
     s1[1][1] = 1.6449340668482;
     s1[1][2] = 1.2020569031596;
@@ -1114,7 +1114,7 @@ scalar_t polylog(int n, int m, double x) {
     const int MAX_NC = 11;
 
     std::array<std::array<double, MAX_M>, MAX_N> s1, c;
-    std::array<std::array<double, MAX_LE>, MAX_NC> a;
+    std::array<std::array<double, MAX_NC>, MAX_LE> a;
 
     initialize_constants<MAX_N, MAX_M, MAX_LE, MAX_NC>(s1, c, a);
 
@@ -1184,7 +1184,7 @@ scalar_t polylog(int n, int m, double x) {
             sj += v[je] * c[n - je][m];
         }
 
-        scalar_t z = sgn[n] *1.* sk + sgn[m]*1. * (sj + v[n + m]);
+        z = sgn[n] *1.* sk + sgn[m]*1. * (sj + v[n + m]);
     } else if (x>hf) {
         // Logique pour x > 0.5
         double x1 = 1.0 - x;
