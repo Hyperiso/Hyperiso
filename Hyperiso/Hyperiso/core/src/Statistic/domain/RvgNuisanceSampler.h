@@ -16,6 +16,7 @@ class RvgNuisanceSampler final : public INuisanceSampler {
 public:
     explicit RvgNuisanceSampler(const std::vector<ParamId>& ids, std::unique_ptr<JointDistribution> rvg);
     std::map<ParamId, double> sample() const override;
+    std::vector<std::map<ParamId, double>> sample(std::size_t n) const override;
 
 private:
     std::unique_ptr<JointDistribution> rvg_;

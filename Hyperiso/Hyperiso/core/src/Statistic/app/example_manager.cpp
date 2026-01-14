@@ -23,12 +23,13 @@ int main(int argc, char** argv) {
         {ObservableMapper::to_id(Observables::BR_BD_MUMU), QCDOrder::LO}
     };
 
-    config.override_nuisance_marginals = {
-        {{ParameterType::DECAY, "B_ll", 1}, MarginalType::FLAT}
-    };
+    // config.override_nuisance_marginals = {
+    //     {{ParameterType::DECAY, "B_ll", 1}, MarginalType::FLAT}
+    // };
 
     // config.p_specs = {ParamId(ParameterType::DECAY, "B_ll", 1)};
     // config.p_specs = {ParamId(ParameterType::SM, "MASS", 1)};
+    config.p_specs = {ParamId(ParameterType::DECAY, "B_ll", 1)};
 
     std::shared_ptr<ObservableInterface> oi = std::make_shared<ObservableInterface>();
 
@@ -41,7 +42,13 @@ int main(int argc, char** argv) {
     auto stop  = std::chrono::steady_clock::now();
 
     auto us = std::chrono::duration_cast<std::chrono::microseconds>(stop - start).count();
-    std::cout << "Temps : " << us << " µs\n";
+    std::cout << "Uncertainty estimation time : " << us << " µs\n";
+
+    start = std::chrono::steady_clock::now();
+    stat.compute_MLE();
+    stop  = std::chrono::steady_clock::now();
+    us = std::chrono::duration_cast<std::chrono::microseconds>(stop - start).count();
+    std::cout << "MLE fitting time : " << us << " µs\n";
 
     // auto res = stat.compute_MLE();
 

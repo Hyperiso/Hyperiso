@@ -1,12 +1,6 @@
-#include <cmath>
-#include <functional>
-#include <stdexcept>
-#include <limits>
-#include <iostream>
-#include <vector>
-#include "Math.h"
+#include "analysis.h"
 
-bool find_bracket(const std::function<double(double)>& f,
+bool find_bracket(const RealValuedFunction& f,
                          double x_min, double x_max,
                          double &a, double &b,
                          int n_samples)
@@ -31,11 +25,11 @@ bool find_bracket(const std::function<double(double)>& f,
     return false;
 }
 
-double brent_root(const std::function<double(double)>& f,
-                         double a, double b,
-                         double xtol,
-                         double ftol,
-                         int max_it)
+double brent_root(const RealValuedFunction& f,
+                    double a, double b,
+                    double xtol,
+                    double ftol,
+                    int max_it)
 {
     double fa = f(a);
     double fb = f(b);

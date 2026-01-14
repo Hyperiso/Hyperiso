@@ -14,6 +14,7 @@ using MarginalConfig = std::variant<FlatMarginalCfg, GaussianMarginalCfg, SplitG
 class MarginalConfigFactory {
 public:
     MarginalConfig create(ParamId pid, MarginalType marginal);
+    MarginalConfig create(ObservableId pid, MarginalType marginal);
 
 private:
     const StatParameterProxy p {};

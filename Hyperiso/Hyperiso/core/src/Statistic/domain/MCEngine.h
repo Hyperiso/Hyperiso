@@ -15,16 +15,36 @@ public:
 
     Samples sample_predictions(const std::map<ParamId, double>& p) const {
         Samples out; 
-        for (std::size_t s = 0; s < cfg_.draws; ++s) {
-            std::map<ParamId, double> eta = sampler_.sample();
-            std::map<ObservableId, double> value = model_->predict_optimized(p, eta);
+        out.reserve(cfg_.draws);
+
+        // auto start_smpl = std::chrono::steady_clock::now();
+        auto samples = sampler_.sample(cfg_.draws);
+        // auto stop_smpl  = std::chrono::steady_clock::now();
+        // auto time_sampling_ms = std::chrono::duration_cast<std::chrono::milliseconds>(stop_smpl - start_smpl).count();
+        // LOG_INFO("Sampling distribution took", time_sampling_ms, "ms.");
+
+        // auto start_pred = std::chrono::steady_clock::now();
+        for (const auto& s : samples) {
+            std::map<ObservableId, double> value = model_->predict_optimized(p, s);
             out.emplace_back(std::move(value));
         }
+        // auto stop_pred  = std::chrono::steady_clock::now();
+        // auto time_prediction_ms = std::chrono::duration_cast<std::chrono::milliseconds>(stop_pred - start_pred).count();
+        // LOG_INFO("Predicting for sampled nuisances took", time_prediction_ms, "ms.");
+
         return out;
     }
 
     std::vector<GaussianSummary> summarize(const std::map<ParamId, double>& p) const {
-        return gaussian_fit(sample_predictions(p), cfg_.skew_abs_threshold);
+        auto smpl = sample_predictions(p);
+
+        // auto start_sum = std::chrono::steady_clock::now();
+        auto summary = gaussian_fit(smpl, cfg_.skew_abs_threshold);
+        // auto stop_sum  = std::chrono::steady_clock::now();
+        // auto time_summarize_ms = std::chrono::duration_cast<std::chrono::milliseconds>(stop_sum - start_sum).count();
+        // LOG_INFO("Summarizing samples took", time_summarize_ms, "ms.");
+
+        return summary;
     }
 
 private:

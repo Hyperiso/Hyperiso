@@ -69,7 +69,7 @@ int main() {
 
 
 // // Profile T(C10) with Cp10 fixed at 0, confidence interval @95%
-// auto T = [&](double c10){ return est.test_statistic(Vec{c10, 0.0}, fr, eta0); };
+// auto T = [&](double c10){ return est.wilks_T(Vec{c10, 0.0}, fr, eta0); };
 
 
 // const double thr95 = gsl_cdf_chisq_Pinv(0.95, 1);

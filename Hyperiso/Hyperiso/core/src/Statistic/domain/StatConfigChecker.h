@@ -1,0 +1,6 @@
+#ifndef __STATCONFIGCHECKER_H__
+#define __STATCONFIGCHECKER_H__
+
+
+
+#endif // __STATCONFIGCHECKER_H__

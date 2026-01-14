@@ -1,62 +1,62 @@
 #include "Likelihood.h"
-#include <gsl/gsl_multimin.h>
-#include <memory>
 
-
-namespace {
-    struct ProfilePayload { const ProfiledLikelihood* self; Vec p; };
-
-static double step_from(double x0) {
-    const double rel = 0.1 * std::abs(x0);
-    const double floor_abs =
-        1000.0 * std::numeric_limits<double>::epsilon() * (std::abs(x0) + 1.0);
-    return std::max(rel, floor_abs);
+ProfiledLikelihood::ProfiledLikelihood(LikelihoodContext ctx, ModelFn model) : ctx_(std::move(ctx)), model_(std::move(model)) {
+    update_step_sizes();
+    min_ctx_.max_iter = 500;
+    min_ctx_.tol = 1e-3;
 }
 
-static double f_eta_profile(const gsl_vector* x, void* params) {
-    auto* pay = static_cast<ProfilePayload*>(params);
-    const std::size_t m = x->size;
-    Vec eta(m);
-    for (std::size_t i=0;i<m;++i) eta[i] = gsl_vector_get(x, i);
-    double v = pay->self->ell(pay->p, eta);
-    if (!std::isfinite(v)) return 1e300;
-    return v;
-}
+double ProfiledLikelihood::nll(const Vector &p, const Vector &eta) const {
+    Vector r = residual_obs(p, eta);
+    double ell_obs = ctx_.exp_obs_dist->logpdf(r);
+    double ell_eta = ctx_.nuisance_dist->logpdf(eta);
+    return ell_obs + ell_eta;
 }
 
+double ProfiledLikelihood::nll_profiled(const Vector &p) const {
+    auto f = [this, p] (Vector eta) -> double {
+        double v = nll(p, eta);
+        return std::isfinite(v) ? v : 1e300;
+    };
 
-double ProfiledLikelihood::ell_profiled(const Vec& p, const Vec& eta0, std::size_t max_iter, double tol) const {
-    const std::size_t m = eta0.size();
-    gsl_multimin_function f; f.n = m; f.f = &f_eta_profile;
-    ProfilePayload payload{this, p}; f.params = &payload;
+    return minimize(f, ctx_.nuisance_central_values, min_ctx_).min;
+}
 
+void ProfiledLikelihood::set_minimizer_max_iter(std::size_t max_iter) {
+    if (max_iter < 1) 
+        LOG_ERROR("Invalid Argument", "Maximum number of iterations should be at least 1.");
 
-    std::unique_ptr<gsl_multimin_fminimizer, void(*)(gsl_multimin_fminimizer*)>
-        s(gsl_multimin_fminimizer_alloc(gsl_multimin_fminimizer_nmsimplex2, m),
-                                    gsl_multimin_fminimizer_free);
+    this->min_ctx_.max_iter = max_iter;
+}
 
+void ProfiledLikelihood::set_minimizer_tolerance(double tol) {
+    if (tol < 0 || tol > 1) 
+        LOG_ERROR("Invalid Argument", "Tolerance should be between 0 and 1.");
 
-    gsl_vector* x = gsl_vector_alloc(m);
-    gsl_vector* step = gsl_vector_alloc(m);
-    for (std::size_t i=0;i<m;++i) { gsl_vector_set(x, i, eta0[i]); gsl_vector_set(step, i, step_from(eta0[i])); }
+    this->min_ctx_.tol = tol;
+}
 
+Vector ProfiledLikelihood::get_eta_steps() const {
+    return min_ctx_.step_sizes;
+}
 
-    gsl_multimin_fminimizer_set(s.get(), &f, x, step);
+Vector ProfiledLikelihood::get_eta_central_values() const {
+    return ctx_.nuisance_central_values;
+}
 
+void ProfiledLikelihood::update_step_sizes() {
+    std::size_t dim = ctx_.nuisance_central_values.size();
+    Vector step_sizes = Vector(dim);
 
-    std::size_t iter=0; int status; double size;
-    do {
-        ++iter; status = gsl_multimin_fminimizer_iterate(s.get());
-        if (status) break; // cannot improve
-        size = gsl_multimin_fminimizer_size(s.get());
-        status = gsl_multimin_test_size(size, tol);
-    } while (status == GSL_CONTINUE && iter < max_iter);
+    auto step_from = [] (double x0) {
+        const double rel = 0.05 * std::abs(x0);
+        const double floor_abs = 1000.0 * std::numeric_limits<double>::epsilon() * (std::abs(x0) + 1.0);
+        return std::max(rel, floor_abs);
+    };
 
+    for (size_t i = 0; i < dim; i++) {
+        step_sizes[i] = step_from(ctx_.nuisance_central_values[i]);
+    }
 
-    Vec eta_hat(m);
-    for (std::size_t i=0;i<m;++i) eta_hat[i] = gsl_vector_get(s->x, i);
-
-
-    gsl_vector_free(x); gsl_vector_free(step);
-    return ell(p, eta_hat);
+    min_ctx_.step_sizes = step_sizes;
 }

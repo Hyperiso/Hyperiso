@@ -28,6 +28,7 @@ public:
     std::vector<Vector> sample(std::size_t n) const;
     Vector sample() const;
     double logpdf(Vector x) const;
+    std::size_t dim();
 
 private:
     std::vector<std::unique_ptr<IMarginalDistribution>> marginals_;

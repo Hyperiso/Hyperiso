@@ -1,4 +1,9 @@
+#ifndef __STATISTIC_MANAGER_H__
+#define __STATISTIC_MANAGER_H__
+
 #include <vector>
+#include <iomanip>
+#include <iostream>
 #include "Include.h"
 #include "IModel.h"
 #include "IStatCorrelationProxy.h"
@@ -18,12 +23,14 @@ struct StatisticConfig {
     std::vector<ParamId> p_specs;
 
     std::map<ParamId, MarginalType> override_nuisance_marginals {};
-    CopulaType copula_type = CopulaType::GAUSSIAN;
+    std::map<ObservableId, MarginalType> override_exp_data_marginals {};
+    CopulaType nuisance_copula_type = CopulaType::GAUSSIAN;
+    CopulaType exp_data_copula_type = CopulaType::GAUSSIAN;
     std::size_t MC_draws = 100;
     double skew_abs_threshold=0.2;
 
     std::size_t MLE_max_iter = 100;
-    double MLE_tol = 1e-6;
+    double MLE_tol = 1e-8;
 };
 
 struct FitResultWithMaps {
@@ -50,6 +57,9 @@ public:
     : config(config), obs_int(obs_int), pscp(pscp), pspp(pspp), sp(sp) {
         obs_int->add_observables(config.obss);
     }
+
+    std::unique_ptr<JointDistribution> build_nuisance_distribution();
+    std::unique_ptr<JointDistribution> build_exp_data_distribution();
 
     // std::pair<double,double> compute_CI_1d_95(
     //     const ParamId& pid_to_scan,
@@ -216,7 +226,7 @@ public:
     //     auto T = [&](double p_scan_value) {
     //         Vec p_test = fr_vec.p_hat;  
     //         p_test[idx_scan] = p_scan_value; 
-    //         return est.test_statistic(p_test, fr_vec, eta_init);
+    //         return est.wilks_T(p_test, fr_vec, eta_init);
     //     };
 
 
@@ -283,66 +293,14 @@ public:
     // }
 
     std::map<ObservableId, GaussianSummary> compute_uncertainties() {
-
-        // Build RVG and pass to NuisanceSampler
-
-        unsigned int seed = std::random_device{}();
-        std::map<ParamId, MarginalType> nuisance_marginals;
-
-        for (auto& [pid, v] : cache.eta_specs_real) {
-            nuisance_marginals.emplace(pid, MarginalType::GAUSSIAN);
-        }
-
-        for (auto& [pid, mt] : config.override_nuisance_marginals) {
-            for (auto elem : nuisance_marginals) {
-                std::cout << elem.first << std::endl;
-                std::cout << ParameterTypeMapper::str(elem.first.type.value_or(ParameterType::WILSON)) << std::endl;
-            }
-            if (!nuisance_marginals.contains(pid)) {
-                LOG_WARN("Parameter", pid, "is not a nuisance for the selected observables");
-            }
-            nuisance_marginals.at(pid) = mt;
-        }
-
-        auto unzipped = unzip(nuisance_marginals);
-        std::vector<ParamId> nuisance_ids = unzipped.ids;
-        std::vector<std::unique_ptr<IMarginalDistribution>> marginals;
-
-        for (auto& [pid, mt] : nuisance_marginals) {
-            MarginalConfig cfg = MarginalConfigFactory().create(pid, mt);
-            auto m_ptr = DistributionFactory::create(mt, cfg, seed);
-            marginals.emplace_back(std::move(m_ptr));
-        }
-
-        std::unique_ptr<ICopula> copula;
-        if (config.copula_type == CopulaType::GAUSSIAN) {
-            GaussianCopulaConfig copula_cfg;
-            copula_cfg.R = RealMatrix(unzip(cache.SigmaEta).vals);
-            copula = CopulaFactory::create(config.copula_type, copula_cfg, seed);
-        } else if (config.copula_type == CopulaType::STUDENT_T) {
-            StudentTCopulaConfig copula_cfg;
-            copula_cfg.R = RealMatrix(unzip(cache.SigmaEta).vals);
-            copula_cfg.nu = config.obss.size() - 1;
-            copula = CopulaFactory::create(config.copula_type, copula_cfg, seed);
-        }
-
-        auto rvg = std::make_unique<JointDistribution>(std::move(marginals), std::move(copula));
-
-        std::cout << "RandomVectorGenerator created" << std::endl;
-
+        auto rvg = build_nuisance_distribution();
+        std::vector<ParamId> nuisance_ids = unzip(cache.eta_specs_real).ids;
         RvgNuisanceSampler sampler(nuisance_ids, std::move(rvg));
-
-        std::cout << "Creating Monte Carlo Engine" << std::endl;
-
         MonteCarloEngine mc(this->obs_int, sampler, {this->config.MC_draws, this->config.skew_abs_threshold});
-
-        std::cout << "Monte Carlo Engine created" << std::endl;
 
         auto sums = mc.summarize(this->cache.p_specs);
 
-        std::cout << "summarize ended" << std::endl;
-        std::cout << "Skewness[0]=" << sums[0].skew << " ok = " << std::boolalpha << sums[0].symmetric << std::endl;
-
+        // Debug print
         for (auto sum : sums) {
             std::cout << sum << std::endl;
         }
@@ -350,218 +308,114 @@ public:
         return zip(unzip(config.obss).ids, sums);
     }
 
-    // FitResultWithMaps compute_MLE() {
+    FitResultWithMaps compute_MLE() {
 
-    //     std::vector<ObservableId> obs_order;
-    //     obs_order.reserve(cache.exp_obs.size());
-    //     for (const auto& [oid, val] : cache.exp_obs) {
-    //         obs_order.push_back(oid);
-    //     }
+        // Build Likelihood context
 
-    //     std::vector<ParamId> eta_order;
-    //     eta_order.reserve(cache.eta_specs_real.size());
-    //     for (const auto& [pid, val] : cache.eta_specs_real) {
-    //         eta_order.push_back(pid);
-    //     }
+        auto unzipped_fit_params = unzip(cache.p_specs);
+        auto unzipped_nuisances = unzip(cache.eta_specs_real);
+        auto unzipped_exp_obs = unzip(cache.exp_obs);
 
-    //     std::vector<ParamId> p_order;
-    //     p_order.reserve(cache.p_specs.size());
-    //     for (const auto& [pid, val] : cache.p_specs) {
-    //         p_order.push_back(pid);
-    //     }
+        std::vector<ParamId> p_ids = unzipped_fit_params.ids;
+        std::vector<ParamId> eta_ids = unzipped_nuisances.ids;
+        std::vector<ObservableId> obs_ids = unzipped_exp_obs.ids;
+        
+        LikelihoodContext ctx;
+        ctx.nuisance_dist = std::move(build_nuisance_distribution());
+        ctx.exp_obs_dist = std::move(build_exp_data_distribution());
+        ctx.nuisance_central_values = unzipped_nuisances.vals;
+        ctx.exp_obs_values = unzipped_exp_obs.vals;
 
+        auto model_fn = [this, obs_ids, p_ids, eta_ids] (const Vec& p_vec, const Vec& eta_vec) -> Vec {
+            auto pred_map = this->obs_int->predict_optimized(zip(p_ids, p_vec), zip(eta_ids, eta_vec));
 
-    //     auto vec_from_param_map = [](const std::map<ParamId, double>& m,
-    //                                 const std::vector<ParamId>& order) {
-    //         Vec v(order.size());
-    //         for (std::size_t i = 0; i < order.size(); ++i) {
-    //             auto it = m.find(order[i]);
-    //             if (it == m.end())
-    //                 throw std::runtime_error("vec_from_param_map: missing ParamId in map");
-    //             v[i] = it->second;
-    //         }
-    //         return v;
-    //     };
+            Vec pred_vec(obs_ids.size());
+            for (std::size_t i = 0; i < obs_ids.size(); ++i) {
+                if (!pred_map.contains(obs_ids[i]))
+                    throw std::runtime_error("model_fn: missing prediction for observable");
+                
+                pred_vec[i] = pred_map[obs_ids[i]];
+            }
 
-    //     auto vec_from_obs_map = [](const std::map<ObservableId, double>& m,
-    //                             const std::vector<ObservableId>& order) {
-    //         Vec v(order.size());
-    //         for (std::size_t i = 0; i < order.size(); ++i) {
-    //             auto it = m.find(order[i]);
-    //             if (it == m.end())
-    //                 throw std::runtime_error("vec_from_obs_map: missing ObservableId in map");
-    //             v[i] = it->second;
-    //         }
-    //         return v;
-    //     };
+            return pred_vec;
+        };
 
-    //     auto mat_from_eta_cov_map =
-    //         [&](const std::map<ParamId, std::map<ParamId, double>>& cov,
-    //             const std::vector<ParamId>& order) {
-    //             Matrix M(order.size(), Vec(order.size(), 0.0));
-    //             for (std::size_t i = 0; i < order.size(); ++i) {
-    //                 for (std::size_t j = 0; j < order.size(); ++j) {
-    //                     auto it_row = cov.find(order[i]);
-    //                     if (it_row != cov.end()) {
-    //                         auto it_col = it_row->second.find(order[j]);
-    //                         if (it_col != it_row->second.end()) {
-    //                             M[i][j] = it_col->second;
-    //                         } else {
-    //                             M[i][j] = 0.0; // pas de corr renseignée => 0
-    //                         }
-    //                     } else {
-    //                         M[i][j] = 0.0;
-    //                     }
-    //                 }
-    //             }
-    //             return M;
-    //         };
+        MLEstimator est(std::move(ctx), model_fn, this->config.MLE_max_iter, this->config.MLE_tol);
 
-    //     auto mat_from_obs_cov_map =
-    //         [&](const std::map<ObservableId, std::map<ObservableId, double>>& cov,
-    //             const std::vector<ObservableId>& order) {
-    //             Matrix M(order.size(), Vec(order.size(), 0.0));
-    //             for (std::size_t i = 0; i < order.size(); ++i) {
-    //                 for (std::size_t j = 0; j < order.size(); ++j) {
-    //                     auto it_row = cov.find(order[i]);
-    //                     if (it_row != cov.end()) {
-    //                         auto it_col = it_row->second.find(order[j]);
-    //                         if (it_col != it_row->second.end()) {
-    //                             M[i][j] = it_col->second;
-    //                         } else {
-    //                             M[i][j] = 0.0;
-    //                         }
-    //                     } else {
-    //                         M[i][j] = 0.0;
-    //                     }
-    //                 }
-    //             }
-    //             return M;
-    //         };
+        std::cout << "Now doing MLE : " << std::endl;
 
+        /*
+        auto debug_scan_around_start = [&](MLEstimator& est,
+                                    const Vec& p0, const Vec& eta0,
+                                    const std::vector<ParamId>& p_order,
+                                    const std::vector<ParamId>& eta_order) {
+            std::cout << "\n=== DEBUG scan around starting point ===\n";
+            double ell0 = est.like().ell(p0, eta0);
+            std::cout << "ell(p0, eta0) = " << ell0 << "\n";
+            std::cout << std::setprecision(17);
+            // scan sur les p
+            for (std::size_t i = 0; i < p0.size(); ++i) {
+                Vec p_plus = p0;
+                Vec p_minus = p0;
+                double delta = 0.1 * std::abs(p0[i]); // par ex 10% de la valeur
+                // if (delta == 0.0) delta = 1e-3;       // fallback
+                double floor = 1000.0 * std::numeric_limits<double>::epsilon() * (std::abs(p0[i]) + 1.0);
+                delta = std::max(delta, floor);
+                p_plus[i]  += delta;
+                p_minus[i] -= delta;
 
-    //     Vec Oexp_vec     = vec_from_obs_map(cache.exp_obs,         obs_order);
-    //     Vec eta_bar_vec  = vec_from_param_map(cache.eta_specs_real, eta_order);
+                double ell_plus  = est.like().ell(p_plus, eta0);
+                double ell_minus = est.like().ell(p_minus, eta0);
 
-    //     Matrix SigmaO_mat    = mat_from_obs_cov_map(cache.SigmaObs,   obs_order);
-    //     Matrix SigmaEta_mat  = mat_from_eta_cov_map(cache.SigmaEta,   eta_order);
+                std::cout << "Param " << p_order[i]
+                        << " : ell(+delta)=" << ell_plus
+                        << ", ell(-delta)=" << ell_minus << "\n";
+            }
 
-    //     SPDMatrix SO = SPDMatrix::cholesky(SigmaO_mat);
-    //     SPDMatrix SE = SPDMatrix::cholesky(SigmaEta_mat);
+            // scan sur les eta
+            for (std::size_t j = 0; j < eta0.size(); ++j) {
+                Vec eta_plus = eta0;
+                Vec eta_minus = eta0;
+                double delta = 0.1 * std::abs(eta0[j]);
+                if (delta == 0.0) delta = 1e-3;
 
-    //     LikelihoodContext ctx{Oexp_vec, SO, eta_bar_vec, SE};
+                eta_plus[j]  += delta;
+                eta_minus[j] -= delta;
 
-    //     auto model_fn = [this, obs_order, p_order, eta_order]
-    //                     (const Vec& p_vec, const Vec& eta_vec) -> Vec {
-    //         std::map<ParamId, double> p_map;
-    //         for (std::size_t i = 0; i < p_order.size(); ++i) {
-    //             p_map[p_order[i]] = p_vec[i];
-    //         }
+                double ell_plus  = est.like().ell(p0, eta_plus);
+                double ell_minus = est.like().ell(p0, eta_minus);
 
-    //         std::map<ParamId, double> eta_map;
-    //         for (std::size_t i = 0; i < eta_order.size(); ++i) {
-    //             eta_map[eta_order[i]] = eta_vec[i];
-    //         }
+                std::cout << "Eta " << eta_order[j]
+                        << " : ell(+delta)=" << ell_plus
+                        << ", ell(-delta)=" << ell_minus << "\n";
+            }
+        };
+        debug_scan_around_start(est, p0, eta0, p_order, eta_order);
+        */
 
-    //         auto pred_map = this->obs_int->predict_optimized(p_map, eta_map);
+        FitResult fr = est.fit(unzipped_fit_params.vals);
 
-    //         Vec pred_vec(obs_order.size());
-    //         for (std::size_t i = 0; i < obs_order.size(); ++i) {
-    //             auto it = pred_map.find(obs_order[i]);
-    //             if (it == pred_map.end()) {
-    //                 throw std::runtime_error("model_fn: missing prediction for observable");
-    //             }
-    //             pred_vec[i] = it->second;
-    //         }
+        std::cout << "MLE fit done: ell_hat = " << std::setprecision(5) << fr.ell_hat << std::endl;
 
-    //         return pred_vec;
-    //     };
+        std::map<ParamId, double> p_hat_map = zip(p_ids, fr.p_hat);
+        std::map<ParamId, double> eta_hat_map = zip(eta_ids, fr.eta_hat);
 
-    //     MLEstimator est(ctx, model_fn, this->config.MLE_max_iter, this->config.MLE_tol);
+        for (const auto& [pid, val] : p_hat_map) {
+            std::cout << "p_hat[" << pid << "] = " << val << std::endl;
+        }
+        for (const auto& [pid, val] : eta_hat_map) {
+            std::cout << "eta_hat[" << pid << "] = " << val << std::endl;
+        }
 
-    //     std::cout << "Now doing MLE : " << std::endl;
+        FitResultWithMaps out;
+        out.p_hat   = std::move(p_hat_map);
+        out.eta_hat = std::move(eta_hat_map);
+        out.ell_hat = fr.ell_hat;
 
+        this->cache.mle_result = out;
 
-    //     Vec p0    = vec_from_param_map(cache.p_specs,        p_order);
-    //     Vec eta0  = vec_from_param_map(cache.eta_specs_real, eta_order);
-
-    //     auto debug_scan_around_start = [&](MLEstimator& est,
-    //                                 const Vec& p0, const Vec& eta0,
-    //                                 const std::vector<ParamId>& p_order,
-    //                                 const std::vector<ParamId>& eta_order) {
-    //     std::cout << "\n=== DEBUG scan around starting point ===\n";
-    //     double ell0 = est.like().ell(p0, eta0);
-    //     std::cout << "ell(p0, eta0) = " << ell0 << "\n";
-    //     std::cout << std::setprecision(17);
-    //     // scan sur les p
-    //     for (std::size_t i = 0; i < p0.size(); ++i) {
-    //         Vec p_plus = p0;
-    //         Vec p_minus = p0;
-    //         double delta = 0.1 * std::abs(p0[i]); // par ex 10% de la valeur
-    //         // if (delta == 0.0) delta = 1e-3;       // fallback
-    //         double floor = 1000.0 * std::numeric_limits<double>::epsilon() * (std::abs(p0[i]) + 1.0);
-    //         delta = std::max(delta, floor);
-    //         p_plus[i]  += delta;
-    //         p_minus[i] -= delta;
-
-    //         double ell_plus  = est.like().ell(p_plus, eta0);
-    //         double ell_minus = est.like().ell(p_minus, eta0);
-
-    //         std::cout << "Param " << p_order[i]
-    //                 << " : ell(+delta)=" << ell_plus
-    //                 << ", ell(-delta)=" << ell_minus << "\n";
-    //     }
-
-    //     // scan sur les eta
-    //     for (std::size_t j = 0; j < eta0.size(); ++j) {
-    //         Vec eta_plus = eta0;
-    //         Vec eta_minus = eta0;
-    //         double delta = 0.1 * std::abs(eta0[j]);
-    //         if (delta == 0.0) delta = 1e-3;
-
-    //         eta_plus[j]  += delta;
-    //         eta_minus[j] -= delta;
-
-    //         double ell_plus  = est.like().ell(p0, eta_plus);
-    //         double ell_minus = est.like().ell(p0, eta_minus);
-
-    //         std::cout << "Eta " << eta_order[j]
-    //                 << " : ell(+delta)=" << ell_plus
-    //                 << ", ell(-delta)=" << ell_minus << "\n";
-    //     }
-    // };
-    //     debug_scan_around_start(est, p0, eta0, p_order, eta_order);
-    //     FitResult fr = est.fit(p0, eta0);
-
-    //     std::cout << "MLE fit done: ell_hat = " << fr.ell_hat << std::endl;
-
-
-    //     std::map<ParamId, double> p_hat_map;
-    //     for (std::size_t i = 0; i < p_order.size(); ++i) {
-    //         p_hat_map[p_order[i]] = fr.p_hat[i];
-    //     }
-
-    //     std::map<ParamId, double> eta_hat_map;
-    //     for (std::size_t i = 0; i < eta_order.size(); ++i) {
-    //         eta_hat_map[eta_order[i]] = fr.eta_hat[i];
-    //     }
-
-    //     for (const auto& [pid, val] : p_hat_map) {
-    //         std::cout << "p_hat[" << pid << "] = " << val << std::endl;
-    //     }
-    //     for (const auto& [pid, val] : eta_hat_map) {
-    //         std::cout << "eta_hat[" << pid << "] = " << val << std::endl;
-    //     }
-
-    //     FitResultWithMaps out;
-    //     out.p_hat   = std::move(p_hat_map);
-    //     out.eta_hat = std::move(eta_hat_map);
-    //     out.ell_hat = fr.ell_hat;
-
-    //     this->cache.mle_result = out;
-
-    //     return out;
-    // }
+        return out;
+    }
 
     void fill_cache() {
 
@@ -603,6 +457,7 @@ public:
             std::cout << " p_specs : " << elem.first << " = " << elem.second;
         }
 
+        std::cout << std::endl;
         std::cout << "eta size : " << this->cache.eta_specs_real.size() << std::endl;
         std::cout << "etasigma size : " << this->cache.eta_specs_real.size() << " | " << this->cache.SigmaEta.at(ParamId(ParameterType::SM, "VCKMIN", 1)).size() << std::endl;
         std::cout << "p_specs size : " << this->cache.p_specs.size() << std::endl;
@@ -679,3 +534,5 @@ private:
     StatisticConfig config;
     StatCache cache;
 };
+
+#endif

@@ -16,6 +16,7 @@ public:
     explicit StudentTCopula(unsigned int seed, RealMatrix R, int nu);
 
     std::vector<Vector> sample_u(std::size_t n) override;
+    Vector sample_u() override;
     double log_density(Vector u) override;
 
 private:

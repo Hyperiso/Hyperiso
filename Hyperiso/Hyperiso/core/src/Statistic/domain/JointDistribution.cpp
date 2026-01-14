@@ -7,10 +7,7 @@ JointDistribution::JointDistribution(
 {}
 
 std::vector<Vector> JointDistribution::sample(std::size_t n) const {
-    LOG_INFO("Sampling copula");
     std::vector<Vector> u = this->copula_->sample_u(n);
-
-    LOG_INFO("Applying inverse quantile function");
     std::vector<Vector> x (n, Vector(u[0].size(), 0.0));
 
     for (size_t i = 0; i < marginals_.size(); i++) {
@@ -23,7 +20,14 @@ std::vector<Vector> JointDistribution::sample(std::size_t n) const {
 }
 
 Vector JointDistribution::sample() const {
-    return sample(1)[0];
+    Vector u = this->copula_->sample_u();
+    Vector x (u.size(), 0.0);
+
+    for (size_t i = 0; i < marginals_.size(); i++) {
+        x[i] = marginals_.at(i)->ppf(u[i]);
+    }
+    
+    return x;
 }
 
 double JointDistribution::logpdf(Vector x) const {
@@ -39,4 +43,8 @@ double JointDistribution::logpdf(Vector x) const {
     }
 
     return log_marg + copula_->log_density(u);    
+}
+
+std::size_t JointDistribution::dim() {
+    return marginals_.size();
 }

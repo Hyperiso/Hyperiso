@@ -19,8 +19,9 @@
         MathBSM/wilson_susy.cpp
         MathBSM/wilson_THDM.cpp
         linalg/Matrix.cpp
-        integration.cpp
-        root_finding.cpp
+        analysis/integration.cpp
+        analysis/root_finding.cpp
+        analysis/minimize.cpp
         ObsMath.cpp
         )
 
@@ -36,10 +37,12 @@
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/MathBSM>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/linalg>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/analysis>
         # install
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/Math>
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/Math/MathBSM>
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/Math/linalg>
+        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/Math/analysis>
     PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${CMAKE_CURRENT_SOURCE_DIR}/MathBSM

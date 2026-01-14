@@ -14,6 +14,7 @@ public:
     explicit GaussianCopula(unsigned int seed, RealMatrix R);
 
     std::vector<Vector> sample_u(std::size_t n) override;
+    Vector sample_u() override;
     double log_density(Vector u) override;
 
 private:

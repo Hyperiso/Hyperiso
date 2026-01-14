@@ -5,7 +5,7 @@ std::vector<std::vector<double>> CovarianceTransformer::transform(std::vector<Pa
     for (auto& elem : ids) {
         std::vector<double> temp;
         for (auto& elem2 : ids) {
-            double _ = (*corr_proxy)(elem, elem2, CorrelationProvider::CorrelationType::COMBINED) * (*par_proxy)(elem, DataType::STD_COMBINED) * (*par_proxy)(elem2, DataType::STD_COMBINED);
+            double _ = (*corr_proxy)(elem, elem2, CorrelationProvider::CorrelationType::COMBINED);
             temp.push_back(_);
         }
         out.push_back(temp);
@@ -17,8 +17,6 @@ std::map<ParamId, std::map<ParamId, double>> CovarianceTransformer::transform(st
     std::map<ParamId, std::map<ParamId, double>> out;
     for (auto& elem : ids) {
         for (auto& elem2 : ids) {
-            double _ = (*corr_proxy)(elem.first, elem2.first, CorrelationProvider::CorrelationType::COMBINED) * (*par_proxy)(elem.first, DataType::STD_COMBINED) * (*par_proxy)(elem2.first, DataType::STD_COMBINED);
-            out[elem.first][elem2.first] = _;
             out[elem.first][elem2.first] = (*corr_proxy)(elem.first, elem2.first, CorrelationProvider::CorrelationType::COMBINED); // TODO Theo : correlation for copula
         }
     }
@@ -29,8 +27,6 @@ std::map<ObservableId, std::map<ObservableId, double>> CovarianceTransformer::tr
     std::map<ObservableId, std::map<ObservableId, double>> out;
     for (auto& elem : ids) {
         for (auto& elem2 : ids) {
-            double _ = (*corr_proxy)(elem.first, elem2.first, CorrelationProvider::CorrelationType::COMBINED) * (*par_proxy)(elem.first, DataType::STD_COMBINED) * (*par_proxy)(elem2.first, DataType::STD_COMBINED);
-            out[elem.first][elem2.first] = _;
             out[elem.first][elem2.first] = (*corr_proxy)(elem.first, elem2.first, CorrelationProvider::CorrelationType::COMBINED); // TODO Theo : correlation for copula
         }
     }
@@ -42,7 +38,7 @@ std::vector<std::vector<double>> CovarianceTransformer::transform(std::vector<Ob
     for (auto& elem : ids) {
         std::vector<double> temp;
         for (auto& elem2 : ids) {
-            double _ = (*corr_proxy)(elem, elem2, CorrelationProvider::CorrelationType::COMBINED) * (*par_proxy)(elem, DataType::STD_COMBINED) * (*par_proxy)(elem2, DataType::STD_COMBINED);
+            double _ = (*corr_proxy)(elem, elem2, CorrelationProvider::CorrelationType::COMBINED);
             temp.push_back(_) ;
         }
         out.push_back(temp);

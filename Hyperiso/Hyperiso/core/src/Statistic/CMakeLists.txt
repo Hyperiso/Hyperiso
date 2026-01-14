@@ -44,6 +44,7 @@ add_library(StatisticLib STATIC
     domain/MarginalConfigFactory.cpp
     domain/MCEngine.cpp
     domain/RvgNuisanceSampler.cpp
+    domain/StatisticManager.cpp
     domain/Distribution/MarginalFactory.cpp
     domain/Distribution/GaussianMarginal.cpp
     domain/Distribution/SplitGaussianMarginal.cpp

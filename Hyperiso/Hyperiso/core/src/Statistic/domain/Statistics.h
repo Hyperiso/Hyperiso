@@ -99,17 +99,6 @@ inline std::map<ObservableId, ColumnStats> summarize_columns_obs(const Samples& 
         out[ids[d]].std_m = x[K] - x[J];          // >= 0
         out[ids[d]].std_p = x[J + Delta] - x[K];  // >= 0
 
-        // for (size_t k = J; k < J + Delta; k++) {
-        //     theta[k] = std::abs((double) k / N - (x[k] - x[J]) / w[J]);
-        // }
-        // std::size_t K = std::distance(theta.begin(), std::min_element(theta.begin(), theta.end()));
-
-        // out[ids[d]].mean = mean;
-        // out[ids[d]].std_unbiased = std::sqrt(s / (N - 1));
-        // out[ids[d]].b1_skew = m3 / (N * std::pow(s, 3));
-        // out[ids[d]].mode = x[K];
-        // out[ids[d]].std_m = x[K] - x[J];
-        // out[ids[d]].std_p = x[J + Delta] - x[K];
         x.clear();
     }
     

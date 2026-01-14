@@ -1,3 +1,4 @@
+#pragma once
 #include "StatisticManager.h"
 #include "ObservableInterfaceAdapter2.h"
 #include "StatCorrelationProxy.h"

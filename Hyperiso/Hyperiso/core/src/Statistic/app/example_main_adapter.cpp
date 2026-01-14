@@ -180,7 +180,7 @@ int main() {
 
     std::cout << "thr95 : " << thr95 << std::endl;
 
-    auto T = [&](double c10){ return est.test_statistic(Vec{c10, 0.0}, fr, eta0); };
+    auto T = [&](double c10){ return est.wilks_T(Vec{c10, 0.0}, fr, eta0); };
     double a=-7,b=-1; int N=10; double left=std::nan(""), right=std::nan("");
     double prev=a, prevT=T(prev);
     for(int i=1;i<=N;++i){ double x=a+(b-a)*i/double(N); double t=T(x);

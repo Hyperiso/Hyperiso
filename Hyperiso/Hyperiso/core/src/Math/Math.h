@@ -14,9 +14,7 @@
 #include "SparseMatrix.h"
 #include "Logger.h"
 #include "scalar.h"
-
-using Integrand = std::function<double(double)>;
-using cIntegrand = std::function<scalar_t(double)>;
+#include "analysis.h"
 
 /* Constants */
 
@@ -547,30 +545,6 @@ double X0(double xt);
 double X1(double xt, double mu, double mass_W);
 
 /*
-    Integration routines
-*/
-
-/**
- * @brief Performs numerical integration of a real-valued function of a real variable.
- * @param f Function to integrate.
- * @param l Lower bound of integration.
- * @param u Upper bound of integration.
- * @param prec Desired precision.
- * @return Numerical integral result.
- */
-double integrate(Integrand f, double l, double u, double prec);
-
-/**
- * @brief Performs numerical integration of a complex-valued function of a real variable.
- * @param f Complex function to integrate.
- * @param l Lower bound of integration.
- * @param u Upper bound of integration.
- * @param prec Desired precision.
- * @return Complex-valued result of the integral.
- */
-scalar_t c_integrate(cIntegrand f, double l, double u, double prec);
-
-/*
 *   Numerical constants for flavor observables 
 */ 
 
@@ -584,31 +558,6 @@ static double psi(int n) {
     }
     return sum - GAMMA;
 }
-
-// Root finding and minimization algorithms
-
-bool find_bracket(const std::function<double(double)>& f,
-                  double x_min, double x_max,
-                  double &a, double &b,
-                  int n_samples = 100);
-
-                  
-/*
- * brent_root: Brent's method for root finding.
- *
- * f       : function<double(double)> to find root of (must be continuous)
- * a, b    : initial bracket with f(a) and f(b) of opposite signs
- * xtol    : absolute/relative tolerance stopping criterion for x
- * ftol    : tolerance for |f(x)|
- * max_it  : max iterations
- *
- * returns approximate root x (throws on invalid bracket or failure)
- */
-double brent_root(const std::function<double(double)>& f,
-                  double a, double b,
-                  double xtol = 1e-6,
-                  double ftol = 1e-6,
-                  int max_it = 100);
 
 
 /*****************************************

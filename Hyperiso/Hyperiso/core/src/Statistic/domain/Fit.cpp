@@ -1,104 +1,47 @@
 #include "Fit.h"
-#include <memory>
-#include <limits>
-#include <iostream>
-#include <algorithm>
-#include <cmath>
-#include <iomanip>
-
-namespace {
-struct FullPayload { const ProfiledLikelihood* like; std::size_t np; };
-
-static double f_full(const gsl_vector* x, void* params) {
-    auto* pay = static_cast<FullPayload*>(params);
-    const std::size_t n  = x->size;
-    const std::size_t np = pay->np;
-
-    Vec p(np), eta(n - np);
-    for (std::size_t i = 0; i < np; ++i)     p[i]   = gsl_vector_get(x, i);
-    for (std::size_t j = 0; j < n - np; ++j) eta[j] = gsl_vector_get(x, np + j);
-
-    double v = pay->like->ell(p, eta);
-    if (!std::isfinite(v)) return 1e300;
-    return v;
-}
 
 static double step_from(double x0) {
-    // 10%
-    const double rel = 0.1 * std::abs(x0);
-
-    // ~ 1e-13 si x0 ~ 1e-12 ; ~ 1e-14 si x0 ~ 0 ; ~ 1e-13..1e-12 si x0 ~ 1..10
-    const double floor_abs =
-        1000.0 * std::numeric_limits<double>::epsilon() * (std::abs(x0) + 1.0);
-
+    const double rel = 0.01 * std::abs(x0);
+    const double floor_abs = 1000.0 * std::numeric_limits<double>::epsilon() * (std::abs(x0) + 1.0);
     return std::max(rel, floor_abs);
 }
-} 
 
-FitResult MLEstimator::fit(const Vec& p0, const Vec& eta0) const {
-    const std::size_t np = p0.size();
-    const std::size_t ne = eta0.size();
+FitResult MLEstimator::fit(const Vector& p0) const {
+    std::size_t p_dim = p0.size();
 
-    gsl_multimin_function f;
-    f.n = np + ne;
-    f.f = &f_full;
+    auto f = [this, p_dim] (Vector p_and_eta) -> double {
+        auto p_first = p_and_eta.begin();
+        auto p_last = p_first + p_dim;
+        std::vector<double> p (p_first, p_last);
+        std::vector<double> eta (p_last, p_and_eta.end());
+        double v = this->like_.nll(p, eta);
+        return std::isfinite(v) ? v : 1e300;
+    };
 
-    FullPayload payload{&like_, np};
-    f.params = &payload;
-
-    std::unique_ptr<gsl_multimin_fminimizer, void(*)(gsl_multimin_fminimizer*)>
-        s(gsl_multimin_fminimizer_alloc(gsl_multimin_fminimizer_nmsimplex2, f.n),
-          gsl_multimin_fminimizer_free);
-
-    gsl_vector* x    = gsl_vector_alloc(f.n);
-    gsl_vector* step = gsl_vector_alloc(f.n);
-
-    // init x + step
-    for (std::size_t i = 0; i < np; ++i) {
-        gsl_vector_set(x, i, p0[i]);
-        gsl_vector_set(step, i, step_from(p0[i]));
-    }
-    for (std::size_t j = 0; j < ne; ++j) {
-        gsl_vector_set(x, np + j, eta0[j]);
-        gsl_vector_set(step, np + j, step_from(eta0[j]));
+    MinimizationContext min_ctx;
+    min_ctx.max_iter = max_iter;
+    min_ctx.tol = tol;
+    
+    Vector step_sizes;
+    for (double p : p0) {
+        step_sizes.emplace_back(step_from(p));
     }
 
-    int status = gsl_multimin_fminimizer_set(s.get(), &f, x, step);
-    if (status != GSL_SUCCESS) {
-        std::cout << "GSL set status=" << status << " (failed to init simplex)\n";
-    }
+    Vector eta_steps = like_.get_eta_steps();
+    step_sizes.insert(step_sizes.end(), eta_steps.begin(), eta_steps.end());
+    min_ctx.step_sizes = step_sizes;
 
-    std::size_t iter = 0;
-    double size = 0.0;
+    Vector start = p0;
+    Vector eta_start = like_.get_eta_central_values();
+    start.insert(start.end(), eta_start.begin(), eta_start.end());
 
+    MinimizationResult min_res = minimize(f, start, min_ctx);
 
-    do {
-        ++iter;
+    auto p_and_eta_hat = min_res.argmin;
+    auto first = p_and_eta_hat.begin();
+    auto last = first + p_dim;
+    std::vector<double> p_hat (first, last);
+    std::vector<double> eta_hat (last, p_and_eta_hat.end());
 
-        status = gsl_multimin_fminimizer_iterate(s.get());
-        if (status != GSL_SUCCESS) {
-            std::cout << "GSL iterate status=" << status << " at iter=" << iter << "\n";
-            break;
-        }
-
-        size = gsl_multimin_fminimizer_size(s.get());
-        const double fval = s->fval; // "best" point
-
-        status = gsl_multimin_test_size(size, tol);
-
-    } while (status == GSL_CONTINUE && iter < max_iter);
-
-    FitResult fr;
-    fr.p_hat.resize(np);
-    fr.eta_hat.resize(ne);
-
-    for (std::size_t i = 0; i < np; ++i) fr.p_hat[i] = gsl_vector_get(s->x, i);
-    for (std::size_t j = 0; j < ne; ++j) fr.eta_hat[j] = gsl_vector_get(s->x, np + j);
-
-    // IMPORTANT : ell_hat cohérent with (p_hat, eta_hat)
-    fr.ell_hat = like_.ell(fr.p_hat, fr.eta_hat);
-
-    gsl_vector_free(x);
-    gsl_vector_free(step);
-    return fr;
+    return FitResult {p_hat, eta_hat, min_res.min};
 }
