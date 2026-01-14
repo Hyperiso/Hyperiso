@@ -90,33 +90,32 @@ double f_17_re(double sh, double L_mu, double z, size_t maxpow) {
       24.0247*pow(lz,2)*pow(sh,3)*pow(z,3) - 
       5.925925*Lsh*pow(lz,2)*pow(sh,3)*pow(z,3);
    }  else  {
-         if(0<=maxpow)  {
-            if(sh<.900001) {
-               res += (-0.8559670781893004*L_mu - 
-                  0.2962962962962963*sh*pow(ash,2)*pow(-1. + sh,-4) - 
-                  0.00823045267489712*Lsh*
-                     (29. - 18.*Lshb*(-1. + sh) - 47.*sh)*sh*
-                     pow(-1. + sh,-2) + 0.14814814814814814*Li2sh*sh*
-                     pow(-1. + sh,-1) - 0.07407407407407407*pow(Lsh,2)*
-                     pow(-1. + sh,-3)*pow(sh,3) - 
-                  0.01646090534979424*ash*sqrt4sh*sqrtsh*pow(-1. + sh,-3)*
-                     pow(sh,-1)*(-4. + 9.*sh - 15.*pow(sh,2) + 
-                     4.*pow(sh,3)) - 0.0013717421124828531*
-                     pow(-1. + sh,-4)*(785. - 
-                     2.*sh*(1585. + 12.*PI2) + 
-                     6.*(803. + 9.*PI2)*pow(sh,2) - 
-                     2.*(1633. + 27.*PI2)*
-                        pow(sh,3) + (833. + 18.*PI2)*
-                        pow(sh,4)))*1.;
-            }
-            else  {
-               res += (-0.7509911973035993 - 0.21726138504882622*(1. - 1.*sh) - 
-                  0.8559670781893004*L_mu - 
-                  0.0659657518981201*pow(1. - 1.*sh,2) - 
-                  0.03129640614981805*pow(1. - 1.*sh,3) - 
-                  0.017719628843137502*pow(1. - 1.*sh,4))*1.;
-            }
+         if(sh<.900001) {
+            res += (-0.8559670781893004*L_mu - 
+               0.2962962962962963*sh*pow(ash,2)*pow(-1. + sh,-4) - 
+               0.00823045267489712*Lsh*
+                  (29. - 18.*Lshb*(-1. + sh) - 47.*sh)*sh*
+                  pow(-1. + sh,-2) + 0.14814814814814814*Li2sh*sh*
+                  pow(-1. + sh,-1) - 0.07407407407407407*pow(Lsh,2)*
+                  pow(-1. + sh,-3)*pow(sh,3) - 
+               0.01646090534979424*ash*sqrt4sh*sqrtsh*pow(-1. + sh,-3)*
+                  pow(sh,-1)*(-4. + 9.*sh - 15.*pow(sh,2) + 
+                  4.*pow(sh,3)) - 0.0013717421124828531*
+                  pow(-1. + sh,-4)*(785. - 
+                  2.*sh*(1585. + 12.*PI2) + 
+                  6.*(803. + 9.*PI2)*pow(sh,2) - 
+                  2.*(1633. + 27.*PI2)*
+                     pow(sh,3) + (833. + 18.*PI2)*
+                     pow(sh,4)))*1.;
          }
+         else  {
+            res += (-0.7509911973035993 - 0.21726138504882622*(1. - 1.*sh) - 
+               0.8559670781893004*L_mu - 
+               0.0659657518981201*pow(1. - 1.*sh,2) - 
+               0.03129640614981805*pow(1. - 1.*sh,3) - 
+               0.017719628843137502*pow(1. - 1.*sh,4))*1.;
+         }
+
          if(1<=maxpow)  {
             if(sh<.900001)
                res += 0.;
@@ -1900,20 +1899,20 @@ double f_17_re(double sh, double L_mu, double z, size_t maxpow) {
 }
 
 
-double f_17_im(double sh, double L_mu, double z, size_t maxpow)   {
+double f_17_im(double sh, double z, size_t maxpow)   {
    double lz = log(z);
 
    double Lsh = log(sh);
    double Lshb = log(1.-sh);
    double Li2sh = real(CLi2(sh));
    double Li3sh = real(CLi3(sh));
-   double Li3shb = real(CLi3(1.-sh));
-   double Li4sh = real(CLi4(sh));
-   double sqrtsh = sqrt(sh);
-   double sqrt4sh = sqrt(4.-sh);
-   double ash = asin(sqrtsh/2.);
-   double cl2 = Cl2(2.*ash);
-   double cl3 = Cl3(2.*ash);
+   // double Li3shb = real(CLi3(1.-sh));
+   // double Li4sh = real(CLi4(sh));
+   // double sqrtsh = sqrt(sh);
+   // double sqrt4sh = sqrt(4.-sh);
+   // double ash = asin(sqrtsh/2.);
+   // double cl2 = Cl2(2.*ash);
+   // double cl3 = Cl3(2.*ash);
 
 
    double res=0;
@@ -1958,19 +1957,19 @@ double f_17_im(double sh, double L_mu, double z, size_t maxpow)   {
       37.2337*Lsh*lz*pow(sh,3)*pow(z,3);
    }
    else  {
-      if(0<=maxpow)  {
-         if(sh<.900001) {
-            res += (0.4654211338651545*Lsh*sh*(-1. + 2.*sh)*pow(-1. + sh,-3) - 
-               0.025856729659175254*pow(-1. + sh,-2)*
-                  (20. - 49.*sh + 47.*pow(sh,2)))*1.;
-         }
-         else  {
-            res += (-0.8274153490936081 + 0.11635528346628862*(1. - 1.*sh) + 
-               0.054299132284268026*pow(1. - 1.*sh,2) + 
-               0.031028075591010302*pow(1. - 1.*sh,3) + 
-               0.019946620022792336*pow(1. - 1.*sh,4))*1.;
-         }
+
+      if(sh<.900001) {
+         res += (0.4654211338651545*Lsh*sh*(-1. + 2.*sh)*pow(-1. + sh,-3) - 
+            0.025856729659175254*pow(-1. + sh,-2)*
+               (20. - 49.*sh + 47.*pow(sh,2)))*1.;
       }
+      else  {
+         res += (-0.8274153490936081 + 0.11635528346628862*(1. - 1.*sh) + 
+            0.054299132284268026*pow(1. - 1.*sh,2) + 
+            0.031028075591010302*pow(1. - 1.*sh,3) + 
+            0.019946620022792336*pow(1. - 1.*sh,4))*1.;
+      }
+
 
       if(1<=maxpow)  {
          if(sh<.900001) {
@@ -2642,52 +2641,50 @@ double f_19_re(double sh, double L_mu, double z, size_t maxpow)   {
          19.753075*Lsh*pow(lz,2)*pow(sh,3)*pow(z,3);
    }
    else  {
-      if(0<=maxpow)   {
-         if(sh<.900001) {
-            res += (11.39728026699467 - 1.0534979423868314*pow(L_mu,2) - 
-               0.03292181069958848*Li2sh*(-8. + 17.*sh)*
-                  pow(-1. + sh,-1) - 0.03292181069958848*cl2*(2. + sh)*
-                  sqrt4sh*sqrtsh*pow(sh,-2) - 
-               1.*L_mu*(-1.1193415637860082*Lsh + 
-                  0.13168724279835392*ash*(2. + sh)*sqrt4sh*sqrtsh*
-                     pow(sh,-2) + 0.13168724279835392*(-2. + 29.*sh)*
-                     pow(sh,-1)) + 0.14814814814814814*pow(Lsh,2)*
-                  pow(-1. + sh,-3)*pow(sh,2) - 
-               1.*Lsh*(0.03292181069958848*ash*(2. + sh)*sqrt4sh*
-                     sqrtsh*pow(sh,-2) + 
-                  0.01646090534979424*pow(-1. + sh,-2)*
-                     (-168. + 307.*sh - 121.*pow(sh,2) + 
-                     2.*Lshb*(8. - 25.*sh + 17.*pow(sh,2)))) - 
-               0.03292181069958848*ash*sqrt4sh*sqrtsh*pow(-1. + sh,-3)*
-                  pow(sh,-2)*(-4. + 3.*sh + 18.*pow(sh,2) - 
-                  16.*pow(sh,3) + 5.*pow(sh,4)) - 
-               0.09876543209876543*pow(ash,2)*pow(-1. + sh,-4)*
-                  pow(sh,-1)*(12. - 33.*sh + 18.*pow(sh,2) - 
-                  4.*pow(sh,4) + pow(sh,5)) + 
-               0.001828989483310471*pow(-1. + sh,-4)*pow(sh,-1)*
-                  (144. + 2.*sh*(-2068. + 
-                     75.*PI2) + 
-                  (15077. - 618.*PI2)*
-                     pow(sh,2) + 102.*
-                     (-214. + 9.*PI2)*pow(sh,3) + 
-                  (14249. - 615.*PI2)*
-                     pow(sh,4) + 2.*(-1753. + 
-                     78.*PI2)*pow(sh,5)))*
-               1.;
-         }
-         else  {
-            res += 1.*(5.605483340182181 - 
-               1.9301201034078073*(1. - 1.*sh) - 
-               1.1708211541924651*pow(1. - 1.*sh,2) - 
-               0.8303057591438543*pow(1. - 1.*sh,3) + 
-               L_mu*(-3.9138369114536733 - 
-                  1.136144688522592*(1. - 1.*sh) - 
-                  0.5573265536192934*pow(1. - 1.*sh,2) - 
-                  0.37357014711105585*pow(1. - 1.*sh,3) - 
-                  0.27973271946953165*pow(1. - 1.*sh,4)) - 
-               0.6410250317311895*pow(1. - 1.*sh,4) - 
-               1.0534979423868314*pow(L_mu,2));
-         }
+      if(sh<.900001) {
+         res += (11.39728026699467 - 1.0534979423868314*pow(L_mu,2) - 
+            0.03292181069958848*Li2sh*(-8. + 17.*sh)*
+               pow(-1. + sh,-1) - 0.03292181069958848*cl2*(2. + sh)*
+               sqrt4sh*sqrtsh*pow(sh,-2) - 
+            1.*L_mu*(-1.1193415637860082*Lsh + 
+               0.13168724279835392*ash*(2. + sh)*sqrt4sh*sqrtsh*
+                  pow(sh,-2) + 0.13168724279835392*(-2. + 29.*sh)*
+                  pow(sh,-1)) + 0.14814814814814814*pow(Lsh,2)*
+               pow(-1. + sh,-3)*pow(sh,2) - 
+            1.*Lsh*(0.03292181069958848*ash*(2. + sh)*sqrt4sh*
+                  sqrtsh*pow(sh,-2) + 
+               0.01646090534979424*pow(-1. + sh,-2)*
+                  (-168. + 307.*sh - 121.*pow(sh,2) + 
+                  2.*Lshb*(8. - 25.*sh + 17.*pow(sh,2)))) - 
+            0.03292181069958848*ash*sqrt4sh*sqrtsh*pow(-1. + sh,-3)*
+               pow(sh,-2)*(-4. + 3.*sh + 18.*pow(sh,2) - 
+               16.*pow(sh,3) + 5.*pow(sh,4)) - 
+            0.09876543209876543*pow(ash,2)*pow(-1. + sh,-4)*
+               pow(sh,-1)*(12. - 33.*sh + 18.*pow(sh,2) - 
+               4.*pow(sh,4) + pow(sh,5)) + 
+            0.001828989483310471*pow(-1. + sh,-4)*pow(sh,-1)*
+               (144. + 2.*sh*(-2068. + 
+                  75.*PI2) + 
+               (15077. - 618.*PI2)*
+                  pow(sh,2) + 102.*
+                  (-214. + 9.*PI2)*pow(sh,3) + 
+               (14249. - 615.*PI2)*
+                  pow(sh,4) + 2.*(-1753. + 
+                  78.*PI2)*pow(sh,5)))*
+            1.;
+      }
+      else  {
+         res += 1.*(5.605483340182181 - 
+            1.9301201034078073*(1. - 1.*sh) - 
+            1.1708211541924651*pow(1. - 1.*sh,2) - 
+            0.8303057591438543*pow(1. - 1.*sh,3) + 
+            L_mu*(-3.9138369114536733 - 
+               1.136144688522592*(1. - 1.*sh) - 
+               0.5573265536192934*pow(1. - 1.*sh,2) - 
+               0.37357014711105585*pow(1. - 1.*sh,3) - 
+               0.27973271946953165*pow(1. - 1.*sh,4)) - 
+            0.6410250317311895*pow(1. - 1.*sh,4) - 
+            1.0534979423868314*pow(L_mu,2));
       }
 
       if(1<=maxpow){
@@ -4733,13 +4730,13 @@ double f_19_im(double sh, double L_mu, double z, size_t maxpow)   {
    double Lshb = log(1.-sh);
    double Li2sh = real(CLi2(sh));
    double Li3sh = real(CLi3(sh));
-   double Li3shb = real(CLi3(1.-sh));
-   double Li4sh = real(CLi4(sh));
-   double sqrtsh = sqrt(sh);
-   double sqrt4sh = sqrt(4.-sh);
-   double ash = asin(sqrtsh/2.);
-   double cl2 = Cl2(2.*ash);
-   double cl3 = Cl3(2.*ash);
+   // double Li3shb = real(CLi3(1.-sh));
+   // double Li4sh = real(CLi4(sh));
+   // double sqrtsh = sqrt(sh);
+   // double sqrt4sh = sqrt(4.-sh);
+   // double ash = asin(sqrtsh/2.);
+   // double cl2 = Cl2(2.*ash);
+   // double cl3 = Cl3(2.*ash);
 
 
    double res=0;
@@ -4790,22 +4787,20 @@ double f_19_im(double sh, double L_mu, double z, size_t maxpow)   {
       124.1125*Lsh*lz*pow(sh,3)*pow(z,3);
    }
    else{
-      if(0<=maxpow)  {
-         if(sh<.900001) {
-            res += (-3.5165152336478345*L_mu - 
-               0.05171345931835051*pow(-1. + sh,-2)*
-                  (130. - 269.*sh + 121.*pow(sh,2)) + 
-               0.10342691863670102*Lsh*pow(-1. + sh,-3)*
-                  (-8. + 33.*sh - 51.*pow(sh,2) + 17.*pow(sh,3)))*
-               1.;
-         }
-         else  {
-            res += (-5.636767065700205 - 1.3704066719362884*(1. - 1.*sh) - 
-               3.5165152336478345*L_mu - 
-               0.5998761280928658*pow(1. - 1.*sh,2) - 
-               0.36888934313756694*pow(1. - 1.*sh,3) - 
-               0.26226111511449185*pow(1. - 1.*sh,4))*1.;
-         }
+      if(sh<.900001) {
+         res += (-3.5165152336478345*L_mu - 
+            0.05171345931835051*pow(-1. + sh,-2)*
+               (130. - 269.*sh + 121.*pow(sh,2)) + 
+            0.10342691863670102*Lsh*pow(-1. + sh,-3)*
+               (-8. + 33.*sh - 51.*pow(sh,2) + 17.*pow(sh,3)))*
+            1.;
+      }
+      else  {
+         res += (-5.636767065700205 - 1.3704066719362884*(1. - 1.*sh) - 
+            3.5165152336478345*L_mu - 
+            0.5998761280928658*pow(1. - 1.*sh,2) - 
+            0.36888934313756694*pow(1. - 1.*sh,3) - 
+            0.26226111511449185*pow(1. - 1.*sh,4))*1.;
       }
 
       if(1<=maxpow)  {
@@ -5449,7 +5444,7 @@ double delta_f_19_re(double sh, double L_mu, double z, size_t maxpow)   {
    double lz = log(z);
 
    double Lsh = log(sh);
-   double Lshb = log(1.-sh);
+   // double Lshb = log(1.-sh);
 
 
    double res=0;
@@ -5460,9 +5455,7 @@ double delta_f_19_re(double sh, double L_mu, double z, size_t maxpow)   {
          21.*sh*pow(z,-1));
    }
    else{
-      if(0<=maxpow)  {
-         res += 0.;
-      }
+      res += 0.;
 
       if(1<=maxpow)  {
          res += 0.;
@@ -5613,8 +5606,8 @@ double delta_f_19_re(double sh, double L_mu, double z, size_t maxpow)   {
 double delta_f_19_im(double sh, double L_mu, double z, size_t maxpow)   {
    double lz = log(z);
 
-   double Lsh = log(sh);
-   double Lshb = log(1.-sh);
+   // double Lsh = log(sh);
+   // double Lshb = log(1.-sh);
 
 
    double res=0;
@@ -5623,9 +5616,7 @@ double delta_f_19_im(double sh, double L_mu, double z, size_t maxpow)   {
       res = 0.;
    }
    else{
-      if(0<=maxpow){
-         res += 0.;
-      }
+      res += 0.;
 
       if(1<=maxpow){
          res += 0.;
@@ -5819,32 +5810,30 @@ double f_27_re(double sh, double L_mu, double z, size_t maxpow) {
          35.5555*Lsh*pow(lz,2)*pow(sh,3)*pow(z,3);
    }
    else{
-      if(0<=maxpow)  {
-         if(sh<.900001) {
-            res += (5.135802469135802*L_mu + 
-               1.7777777777777777*sh*pow(ash,2)*pow(-1. + sh,-4) - 
-               0.04938271604938271*Lsh*sh*
-                  (-29. + 18.*Lshb*(-1. + sh) + 47.*sh)*pow(-1. + sh,-2)\
-                  - 0.8888888888888888*Li2sh*sh*pow(-1. + sh,-1) + 
-               0.4444444444444444*pow(Lsh,2)*pow(-1. + sh,-3)*
-                  pow(sh,3) + 0.09876543209876543*ash*sqrt4sh*sqrtsh*
-                  pow(-1. + sh,-3)*pow(sh,-1)*
-                  (-4. + 9.*sh - 15.*pow(sh,2) + 4.*pow(sh,3)) + 
-               0.00823045267489712*pow(-1. + sh,-4)*
-                  (pow(-1. + sh,2)*(785. - 1600.*sh + 833.*pow(sh,2)) + 
-                  6.*sh*PI2*
-                     (-4. + 9.*sh - 9.*pow(sh,2) + 3.*pow(sh,3))))*
-               1.;
-         }
-         else  {
-            res += (4.505947183821596 + 1.3035683102929574*(1. - 1.*sh) + 
-               5.135802469135802*L_mu + 
-               0.39579451138872057*pow(1. - 1.*sh,2) + 
-               0.18777843689890833*pow(1. - 1.*sh,3) + 
-               0.10631777305882502*pow(1. - 1.*sh,4))*1.;
-         }
-      
+      if(sh<.900001) {
+         res += (5.135802469135802*L_mu + 
+            1.7777777777777777*sh*pow(ash,2)*pow(-1. + sh,-4) - 
+            0.04938271604938271*Lsh*sh*
+               (-29. + 18.*Lshb*(-1. + sh) + 47.*sh)*pow(-1. + sh,-2)\
+               - 0.8888888888888888*Li2sh*sh*pow(-1. + sh,-1) + 
+            0.4444444444444444*pow(Lsh,2)*pow(-1. + sh,-3)*
+               pow(sh,3) + 0.09876543209876543*ash*sqrt4sh*sqrtsh*
+               pow(-1. + sh,-3)*pow(sh,-1)*
+               (-4. + 9.*sh - 15.*pow(sh,2) + 4.*pow(sh,3)) + 
+            0.00823045267489712*pow(-1. + sh,-4)*
+               (pow(-1. + sh,2)*(785. - 1600.*sh + 833.*pow(sh,2)) + 
+               6.*sh*PI2*
+                  (-4. + 9.*sh - 9.*pow(sh,2) + 3.*pow(sh,3))))*
+            1.;
       }
+      else  {
+         res += (4.505947183821596 + 1.3035683102929574*(1. - 1.*sh) + 
+            5.135802469135802*L_mu + 
+            0.39579451138872057*pow(1. - 1.*sh,2) + 
+            0.18777843689890833*pow(1. - 1.*sh,3) + 
+            0.10631777305882502*pow(1. - 1.*sh,4))*1.;
+      }
+
 
       if(1<=maxpow)  {
          if(sh<.900001) {
@@ -7595,20 +7584,20 @@ double f_27_re(double sh, double L_mu, double z, size_t maxpow) {
 }
 
 
-double f_27_im(double sh, double L_mu, double z, size_t maxpow)   {
+double f_27_im(double sh, double z, size_t maxpow)   {
    double lz = log(z);
 
    double Lsh = log(sh);
    double Lshb = log(1.-sh);
    double Li2sh = real(CLi2(sh));
    double Li3sh = real(CLi3(sh));
-   double Li3shb = real(CLi3(1.-sh));
-   double Li4sh = real(CLi4(sh));
-   double sqrtsh = sqrt(sh);
-   double sqrt4sh = sqrt(4.-sh);
-   double ash = asin(sqrtsh/2.);
-   double cl2 = Cl2(2.*ash);
-   double cl3 = Cl3(2.*ash);
+   // double Li3shb = real(CLi3(1.-sh));
+   // double Li4sh = real(CLi4(sh));
+   // double sqrtsh = sqrt(sh);
+   // double sqrt4sh = sqrt(4.-sh);
+   // double ash = asin(sqrtsh/2.);
+   // double cl2 = Cl2(2.*ash);
+   // double cl3 = Cl3(2.*ash);
 
 
    double res=0;
@@ -7653,18 +7642,16 @@ double f_27_im(double sh, double L_mu, double z, size_t maxpow)   {
          223.402*Lsh*lz*pow(sh,3)*pow(z,3);
    }
    else{
-      if(0<=maxpow)  {
-         if(sh<.900001) {
-            res += (-2.792526803190927*Lsh*sh*(-1. + 2.*sh)*pow(-1. + sh,-3) + 
-               0.1551403779550515*pow(-1. + sh,-2)*
-                  (20. - 49.*sh + 47.*pow(sh,2)))*1.;
-         }
-         else  {
-            res += (4.964492094561648 - 0.6981317007977318*(1. - 1.*sh) - 
-               0.32579479370560815*pow(1. - 1.*sh,2) - 
-               0.18616845354606182*pow(1. - 1.*sh,3) - 
-               0.11967972013675403*pow(1. - 1.*sh,4))*1.;
-         }
+      if(sh<.900001) {
+         res += (-2.792526803190927*Lsh*sh*(-1. + 2.*sh)*pow(-1. + sh,-3) + 
+            0.1551403779550515*pow(-1. + sh,-2)*
+               (20. - 49.*sh + 47.*pow(sh,2)))*1.;
+      }
+      else  {
+         res += (4.964492094561648 - 0.6981317007977318*(1. - 1.*sh) - 
+            0.32579479370560815*pow(1. - 1.*sh,2) - 
+            0.18616845354606182*pow(1. - 1.*sh,3) - 
+            0.11967972013675403*pow(1. - 1.*sh,4))*1.;
       }
 
       if(1<=maxpow)  {
@@ -8333,51 +8320,49 @@ double f_29_re(double sh, double L_mu, double z, size_t maxpow)   {
          118.5185*Lsh*pow(lz,2)*pow(sh,3)*pow(z,3);
    }
    else{
-      if(0<=maxpow)  {
-         if(sh<.900001) {
-            res += (8.547960200246003 + 6.320987654320987*pow(L_mu,2) + 
-               0.19753086419753085*Li2sh*(-8. + 17.*sh)*
-                  pow(-1. + sh,-1) + 0.19753086419753085*cl2*(2. + sh)*
-                  sqrt4sh*sqrtsh*pow(sh,-2) - 
-               1.*L_mu*(6.716049382716049*Lsh - 
-                  0.7901234567901234*ash*(2. + sh)*sqrt4sh*sqrtsh*
-                     pow(sh,-2) + 0.3950617283950617*(4. - 31.*sh)*
-                     pow(sh,-1)) - 0.8888888888888888*pow(Lsh,2)*
-                  pow(-1. + sh,-3)*pow(sh,2) - 
-               1.*Lsh*(-0.19753086419753085*ash*(2. + sh)*sqrt4sh*
-                     sqrtsh*pow(sh,-2) - 
-                  0.09876543209876543*pow(-1. + sh,-2)*
-                     (-114. + 199.*sh - 67.*pow(sh,2) + 
-                     2.*Lshb*(8. - 25.*sh + 17.*pow(sh,2)))) + 
-               0.19753086419753085*ash*sqrt4sh*sqrtsh*pow(-1. + sh,-3)*
-                  pow(sh,-2)*(-4. + 3.*sh + 18.*pow(sh,2) - 
-                  16.*pow(sh,3) + 5.*pow(sh,4)) + 
-               0.5925925925925926*pow(ash,2)*pow(-1. + sh,-4)*
-                  pow(sh,-1)*(12. - 33.*sh + 18.*pow(sh,2) - 
-                  4.*pow(sh,4) + pow(sh,5)) - 
-               0.0054869684499314125*pow(-1. + sh,-4)*pow(sh,-1)*
-                  (288. + 5.*sh*(79. + 60.*PI2) - 
-                  2.*(2257. + 618.*PI2)*
-                     pow(sh,2) + 6.*(1391. + 
-                     306.*PI2)*pow(sh,3) - 
-                  10.*(617. + 123.*PI2)*
-                     pow(sh,4) + (1655. + 
-                     312.*PI2)*pow(sh,5)))*
-               1.;
-         }
-         else  {
-            res += 1.*(-4.256813794434612 + 
-               6.247387287113509*(1. - 1.*sh) + 
-               4.358260258488125*pow(1. - 1.*sh,2) + 
-               3.2040567770853476*pow(1. - 1.*sh,3) + 
-               2.512816857053804*pow(1. - 1.*sh,4) + 
-               L_mu*(12.81635480205537 + 
-                  6.816868131135554*(1. - 1.*sh) + 
-                  3.34395932171576*pow(1. - 1.*sh,2) + 
-                  2.241420882666335*pow(1. - 1.*sh,3) + 
-                  1.6783963168171898*pow(1. - 1.*sh,4)) + 
-               6.320987654320987*pow(L_mu,2));
-         }
+      if(sh<.900001) {
+         res += (8.547960200246003 + 6.320987654320987*pow(L_mu,2) + 
+            0.19753086419753085*Li2sh*(-8. + 17.*sh)*
+               pow(-1. + sh,-1) + 0.19753086419753085*cl2*(2. + sh)*
+               sqrt4sh*sqrtsh*pow(sh,-2) - 
+            1.*L_mu*(6.716049382716049*Lsh - 
+               0.7901234567901234*ash*(2. + sh)*sqrt4sh*sqrtsh*
+                  pow(sh,-2) + 0.3950617283950617*(4. - 31.*sh)*
+                  pow(sh,-1)) - 0.8888888888888888*pow(Lsh,2)*
+               pow(-1. + sh,-3)*pow(sh,2) - 
+            1.*Lsh*(-0.19753086419753085*ash*(2. + sh)*sqrt4sh*
+                  sqrtsh*pow(sh,-2) - 
+               0.09876543209876543*pow(-1. + sh,-2)*
+                  (-114. + 199.*sh - 67.*pow(sh,2) + 
+                  2.*Lshb*(8. - 25.*sh + 17.*pow(sh,2)))) + 
+            0.19753086419753085*ash*sqrt4sh*sqrtsh*pow(-1. + sh,-3)*
+               pow(sh,-2)*(-4. + 3.*sh + 18.*pow(sh,2) - 
+               16.*pow(sh,3) + 5.*pow(sh,4)) + 
+            0.5925925925925926*pow(ash,2)*pow(-1. + sh,-4)*
+               pow(sh,-1)*(12. - 33.*sh + 18.*pow(sh,2) - 
+               4.*pow(sh,4) + pow(sh,5)) - 
+            0.0054869684499314125*pow(-1. + sh,-4)*pow(sh,-1)*
+               (288. + 5.*sh*(79. + 60.*PI2) - 
+               2.*(2257. + 618.*PI2)*
+                  pow(sh,2) + 6.*(1391. + 
+                  306.*PI2)*pow(sh,3) - 
+               10.*(617. + 123.*PI2)*
+                  pow(sh,4) + (1655. + 
+                  312.*PI2)*pow(sh,5)))*
+            1.;
+      }
+      else  {
+         res += 1.*(-4.256813794434612 + 
+            6.247387287113509*(1. - 1.*sh) + 
+            4.358260258488125*pow(1. - 1.*sh,2) + 
+            3.2040567770853476*pow(1. - 1.*sh,3) + 
+            2.512816857053804*pow(1. - 1.*sh,4) + 
+            L_mu*(12.81635480205537 + 
+               6.816868131135554*(1. - 1.*sh) + 
+               3.34395932171576*pow(1. - 1.*sh,2) + 
+               2.241420882666335*pow(1. - 1.*sh,3) + 
+               1.6783963168171898*pow(1. - 1.*sh,4)) + 
+            6.320987654320987*pow(L_mu,2));
       }
 
       if(1<=maxpow)  {
@@ -10355,13 +10340,13 @@ double f_29_im(double sh, double L_mu, double z, size_t maxpow)   {
    double Lshb = log(1.-sh);
    double Li2sh = real(CLi2(sh));
    double Li3sh = real(CLi3(sh));
-   double Li3shb = real(CLi3(1.-sh));
-   double Li4sh = real(CLi4(sh));
-   double sqrtsh = sqrt(sh);
-   double sqrt4sh = sqrt(4.-sh);
-   double ash = asin(sqrtsh/2.);
-   double cl2 = Cl2(2.*ash);
-   double cl3 = Cl3(2.*ash);
+   // double Li3shb = real(CLi3(1.-sh));
+   // double Li4sh = real(CLi4(sh));
+   // double sqrtsh = sqrt(sh);
+   // double sqrt4sh = sqrt(4.-sh);
+   // double ash = asin(sqrtsh/2.);
+   // double cl2 = Cl2(2.*ash);
+   // double cl3 = Cl3(2.*ash);
 
 
    double res=0;
@@ -10411,22 +10396,20 @@ double f_29_im(double sh, double L_mu, double z, size_t maxpow)   {
          744.675*Lsh*lz*pow(sh,3)*pow(z,3);
    }
    else{
-      if(0<=maxpow)  {
-         if(sh<.900001) {
-            res += (21.099091401887005*L_mu + 
-               0.310280755910103*pow(-1. + sh,-2)*
-                  (76. - 161.*sh + 67.*pow(sh,2)) - 
-               0.620561511820206*Lsh*pow(-1. + sh,-3)*
-                  (-8. + 33.*sh - 51.*pow(sh,2) + 17.*pow(sh,3)))*
-               1.;
-         }
-         else  {
-            res += (17.065441575055665 + 8.22244003161773*(1. - 1.*sh) + 
-               21.099091401887005*L_mu + 
-               3.5992567685571952*pow(1. - 1.*sh,2) + 
-               2.2133360588254014*pow(1. - 1.*sh,3) + 
-               1.573566690686951*pow(1. - 1.*sh,4))*1.;
-         }
+      if(sh<.900001) {
+         res += (21.099091401887005*L_mu + 
+            0.310280755910103*pow(-1. + sh,-2)*
+               (76. - 161.*sh + 67.*pow(sh,2)) - 
+            0.620561511820206*Lsh*pow(-1. + sh,-3)*
+               (-8. + 33.*sh - 51.*pow(sh,2) + 17.*pow(sh,3)))*
+            1.;
+      }
+      else  {
+         res += (17.065441575055665 + 8.22244003161773*(1. - 1.*sh) + 
+            21.099091401887005*L_mu + 
+            3.5992567685571952*pow(1. - 1.*sh,2) + 
+            2.2133360588254014*pow(1. - 1.*sh,3) + 
+            1.573566690686951*pow(1. - 1.*sh,4))*1.;
       }
 
       if(1<=maxpow)  {
@@ -11063,7 +11046,7 @@ double delta_f_29_re(double sh, double L_mu, double z, size_t maxpow)   {
    double lz = log(z);
 
    double Lsh = log(sh);
-   double Lshb = log(1.-sh);
+   // double Lshb = log(1.-sh);
 
 
    double res=0;
@@ -11074,9 +11057,7 @@ double delta_f_29_re(double sh, double L_mu, double z, size_t maxpow)   {
          21.*sh*pow(z,-1));
    }
    else{
-      if(0<=maxpow)  {
-         res += 0.;
-      }
+      res += 0.;
 
       if(1<=maxpow)  {
          res += 0.;
@@ -11222,8 +11203,8 @@ double delta_f_29_re(double sh, double L_mu, double z, size_t maxpow)   {
 double delta_f_29_im(double sh, double L_mu, double z, size_t maxpow)   {
    double lz = log(z);
 
-   double Lsh = log(sh);
-   double Lshb = log(1.-sh);
+   // double Lsh = log(sh);
+   // double Lshb = log(1.-sh);
 
 
    double res=0;
@@ -11232,9 +11213,7 @@ double delta_f_29_im(double sh, double L_mu, double z, size_t maxpow)   {
       res = 0.;
    }
    else{
-      if(0<=maxpow)  {
-         res += 0.;
-      }
+      res += 0.;
 
       if(1<=maxpow)  {
          res += 0.;
@@ -11420,7 +11399,7 @@ complex_t BV::C_Seidel(double s, double mu_b) {
 }
 
 complex_t BV::f_17(double s, double L_b, double z, size_t max_pow) {
-    return {f_17_re(s, L_b, z, max_pow), f_17_im(s, L_b, z, max_pow)};
+    return {f_17_re(s, L_b, z, max_pow), f_17_im(s, z, max_pow)};
 }
 
 complex_t BV::f_27(double s, double L_b, double z, size_t max_pow) {
@@ -11443,7 +11422,7 @@ complex_t BV::f_27(double s, double L_b, double z, size_t max_pow) {
       return {re_f27_0, im_f27_0};
    }
 
-    return {f_27_re(s, L_b, z, max_pow), f_27_im(s, L_b, z, max_pow)};
+    return {f_27_re(s, L_b, z, max_pow), f_27_im(s, z, max_pow)};
 }
 
 complex_t BV::f_27_u(double s_hat, double L_b) {

@@ -1184,7 +1184,7 @@ scalar_t polylog(int n, int m, double x) {
             sj += v[je] * c[n - je][m];
         }
 
-        scalar_t z = sgn[n] *1.* sk + sgn[m]*1. * (sj + v[n + m]);
+        z = sgn[n] *1.* sk + sgn[m]*1. * (sj + v[n + m]);
     } else if (x>hf) {
         // Logique pour x > 0.5
         double x1 = 1.0 - x;
