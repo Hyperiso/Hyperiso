@@ -29,8 +29,8 @@ struct StatisticConfig {
     std::size_t MC_draws = 100;
     double skew_abs_threshold=0.2;
 
-    std::size_t MLE_max_iter = 100;
-    double MLE_tol = 1e-8;
+    std::size_t MLE_max_iter = 500;
+    double MLE_tol = 1e-6;
 };
 
 struct FitResultWithMaps {

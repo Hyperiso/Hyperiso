@@ -72,11 +72,11 @@ std::unique_ptr<JointDistribution> StatisticManager::build_exp_data_distribution
     }
 
     std::unique_ptr<ICopula> copula;
-    if (config.nuisance_copula_type == CopulaType::GAUSSIAN) {
+    if (config.exp_data_copula_type == CopulaType::GAUSSIAN) {
         GaussianCopulaConfig copula_cfg;
         copula_cfg.R = RealMatrix(unzip(cache.SigmaObs).vals);
         copula = CopulaFactory::create(config.nuisance_copula_type, copula_cfg, seed);
-    } else if (config.nuisance_copula_type == CopulaType::STUDENT_T) {
+    } else if (config.exp_data_copula_type == CopulaType::STUDENT_T) {
         StudentTCopulaConfig copula_cfg;
         copula_cfg.R = RealMatrix(unzip(cache.SigmaObs).vals);
         copula_cfg.nu = config.obss.size() - 1;

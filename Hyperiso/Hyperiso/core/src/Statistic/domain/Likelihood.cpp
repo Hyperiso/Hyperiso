@@ -3,14 +3,19 @@
 ProfiledLikelihood::ProfiledLikelihood(LikelihoodContext ctx, ModelFn model) : ctx_(std::move(ctx)), model_(std::move(model)) {
     update_step_sizes();
     min_ctx_.max_iter = 500;
-    min_ctx_.tol = 1e-3;
+    min_ctx_.tol = 1e-6;
 }
 
 double ProfiledLikelihood::nll(const Vector &p, const Vector &eta) const {
     Vector r = residual_obs(p, eta);
     double ell_obs = ctx_.exp_obs_dist->logpdf(r);
     double ell_eta = ctx_.nuisance_dist->logpdf(eta);
-    return ell_obs + ell_eta;
+
+    // printVector(r);
+    // printf("ll_obs = %.5e\n", ell_obs);
+    // printf("ll_eta = %.5e\n", ell_eta);
+
+    return -(ell_obs + ell_eta);
 }
 
 double ProfiledLikelihood::nll_profiled(const Vector &p) const {
@@ -49,7 +54,7 @@ void ProfiledLikelihood::update_step_sizes() {
     Vector step_sizes = Vector(dim);
 
     auto step_from = [] (double x0) {
-        const double rel = 0.05 * std::abs(x0);
+        const double rel = 0.5 * std::abs(x0);
         const double floor_abs = 1000.0 * std::numeric_limits<double>::epsilon() * (std::abs(x0) + 1.0);
         return std::max(rel, floor_abs);
     };

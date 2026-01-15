@@ -4,6 +4,7 @@
 #include <random>
 #include "IMarginalDistribution.h"
 #include "AbstractConfig.h"
+#include "Math.h"
 
 struct GaussianMarginalCfg : public AbstractConfig {
     double mu;

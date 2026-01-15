@@ -15,7 +15,8 @@ Vector GaussianMarginal::rvs(std::size_t n) {
 }
 
 double GaussianMarginal::logpdf(double x) {
-    return std::log(gsl_ran_gaussian_pdf(x - mu, sigma));
+    // return -0.5 * (std::log(2 * PI * sigma * sigma) + std::pow((x - mu) / sigma, 2));
+    return -0.5 * std::pow((x - mu) / sigma, 2);
 }
 
 double GaussianMarginal::cdf(double x) {

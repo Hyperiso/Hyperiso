@@ -17,7 +17,7 @@ Matrix readMatrixFromStdin() {
 }
 
 void printVector(const Vector& v) {
-    std::cout << std::fixed << std::setprecision(6);
+    std::cout << std::fixed << std::setprecision(15);
     for (size_t i = 0; i < v.size(); ++i) {
         if (i) std::cout << " ";
         std::cout << v[i];
@@ -36,4 +36,17 @@ void printUsage(const char* prog) {
         << "  - Distribution supportee: gaussian|normal\n"
         << "Exemple:\n"
         << "  " << prog << " gaussian 12345 < my_corr.txt\n";
+}
+
+void printRealMatrix(const RealMatrix &A) {
+    std::cout << std::scientific << std::setprecision(5);
+    for (size_t i = 0; i < A.rows(); ++i) {
+        std::cout << "[";
+        for (size_t j = 0; j < A.cols(); j++) {
+            std::cout << A.at(i, j);
+            if (j != A.cols() - 1)
+                std::cout << ", ";
+        }
+        std::cout << "]\n";
+    }
 }

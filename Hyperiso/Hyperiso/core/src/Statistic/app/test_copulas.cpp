@@ -12,20 +12,20 @@ int main() {
     unsigned int seed = 123456789;
 
     RealMatrix R ({
-        {1.0, 0.8}, 
-        {0.8, 1.0}}
+        {1.0, 0.7}, 
+        {0.7, 1.0}}
     );
 
-    StudentTCopulaConfig c_cfg;
+    GaussianCopulaConfig c_cfg;
     c_cfg.R = R;
-    c_cfg.nu = 4;
+    // c_cfg.nu = 4;
 
-    GaussianMarginalCfg m_cfg_1 {1.0, 0.2};
-    GaussianMarginalCfg m_cfg_2 {3.0, 0.5}; 
+    FlatMarginalCfg m_cfg_1 {1.0, 2.0};
+    FlatMarginalCfg m_cfg_2 {2.0, 4.0}; 
 
-    auto m_1 = DistributionFactory::create(MarginalType::GAUSSIAN, m_cfg_1, seed);
-    auto m_2 = DistributionFactory::create(MarginalType::GAUSSIAN, m_cfg_2, seed);
-    auto cop = CopulaFactory::create(CopulaType::STUDENT_T, c_cfg, seed);
+    auto m_1 = DistributionFactory::create(MarginalType::FLAT, m_cfg_1, seed);
+    auto m_2 = DistributionFactory::create(MarginalType::FLAT, m_cfg_2, seed);
+    auto cop = CopulaFactory::create(CopulaType::GAUSSIAN, c_cfg, seed);
 
     std::vector<std::unique_ptr<IMarginalDistribution>> marginals;
     marginals.push_back(std::move(m_1));
@@ -35,6 +35,7 @@ int main() {
 
     LOG_INFO("JointDistribution initialized");
 
+    // Sampling joint distribution
     std::vector<Vector> smpl = rvg.sample(10000);
     
     std::ofstream os;
@@ -46,5 +47,28 @@ int main() {
 
     os.close();
 
+    // Scanning pdf
+    double x_1 {0.0}, x_2 {1.0};
+    double dx = 1e-2;
+    double x1_max {2.0};
+    double x2_max {5.0};
+    std::size_t n1 = x1_max / dx;
+    std::size_t n2 = x2_max / dx;
+
+    printf("(%i,%i)\n", n1, n2);
+
+    os.open("logpdf.csv");
+
+    for (size_t i = 0; i < n1; i++) {
+        x_2 = 0.0;
+        for (size_t j = 0; j < n2; j++) {
+            os << x_1 << "," << x_2 << "," << rvg.logpdf({x_1, x_2}) << "\n"; 
+            x_2 += dx;            
+        }
+        x_1 += dx;
+    }
+
+    os.close();
+    
     return 0;
 }

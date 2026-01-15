@@ -26,18 +26,16 @@ MarginalConfig MarginalConfigFactory::create(ParamId pid, MarginalType marginal)
 
 MarginalConfig MarginalConfigFactory::create(ObservableId oid,
                                              MarginalType marginal) {
-    double mu, sigma;
+    double sigma;
 
     switch (marginal) {
     case MarginalType::GAUSSIAN:
-        mu = 0.0;
         sigma = p(oid, DataType::STD_COMBINED);
-        return GaussianMarginalCfg {mu, sigma};
+        return GaussianMarginalCfg {0.0, sigma};
         break;
     case MarginalType::FLAT:
-        mu = 0.0;
         sigma = p(oid, DataType::STD_COMBINED);
-        return FlatMarginalCfg {mu - sigma * std::sqrt(3), mu + sigma * std::sqrt(3)};
+        return FlatMarginalCfg {-sigma * std::sqrt(3), sigma * std::sqrt(3)};
         break;
     case MarginalType::HALF_GAUSSIAN:
         // TODO

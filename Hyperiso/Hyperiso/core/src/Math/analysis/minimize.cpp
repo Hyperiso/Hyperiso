@@ -11,9 +11,16 @@ MinimizationResult minimize(
     gsl_f.f = &unwrap_lambda_multidim;
     gsl_f.params = &f;
 
+    printf("Tolerance: %.2e\n", context.tol);
+    printf("max_iter: %i\n", context.max_iter);
+
     std::unique_ptr<gsl_multimin_fminimizer, void(*)(gsl_multimin_fminimizer*)>
         s(gsl_multimin_fminimizer_alloc(gsl_multimin_fminimizer_nmsimplex2, d),
                                     gsl_multimin_fminimizer_free);
+
+    if (!context.step_sizes.empty() && context.step_sizes.size() != d) {
+        throw std::invalid_argument("minimize_scaled: step_sizes dimension mismatch");
+    }
 
     gsl_vector* x = gsl_vector_alloc(d);
     gsl_vector* step = gsl_vector_alloc(d);
@@ -21,7 +28,7 @@ MinimizationResult minimize(
         gsl_vector_set(x, i, x_start[i]); 
         gsl_vector_set(step, i, context.step_sizes[i]); 
 
-        printf("eta_0 = %.4e, step = %.4e\n", x_start[i], context.step_sizes[i]);
+        // printf("eta_0 = %.4e, step = %.4e\n", x_start[i], context.step_sizes[i]);
     }
 
     int st = gsl_multimin_fminimizer_set(s.get(), &gsl_f, x, step);

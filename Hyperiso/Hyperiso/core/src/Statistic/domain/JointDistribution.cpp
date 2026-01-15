@@ -37,10 +37,20 @@ double JointDistribution::logpdf(Vector x) const {
     Vector u = Vector(x.size(), 0.0);
     double log_marg {0.0};
 
+    // printf("size(x) = %i\n", x.size());
+
     for (size_t i = 0; i < marginals_.size(); i++) {
-        u[i] = marginals_[i]->cdf(x[i]);
+        u[i] = std::clamp(marginals_[i]->cdf(x[i]), 1e-13, 1 - 1e-13);
         log_marg += marginals_[i]->logpdf(x[i]);
+        // printf("x_i = %.5e\n", x[i]);
+        // printf("marginals_i mean = %.5e\n", marginals_[i]->mean());
+        // printf("marginals_i std = %.5e\n", marginals_[i]->std());
+        // printf("log_marg_i = %.5e\n", marginals_[i]->logpdf(x[i]));
     }
+
+    // printVector(x);
+    // printf("log_marg = %.5e\n", log_marg);
+    // printf("log_copula = %.5e\n", copula_->log_density(u));
 
     return log_marg + copula_->log_density(u);    
 }

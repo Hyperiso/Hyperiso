@@ -1,7 +1,7 @@
 #include "Fit.h"
 
 static double step_from(double x0) {
-    const double rel = 0.01 * std::abs(x0);
+    const double rel = 0.1 * std::abs(x0);
     const double floor_abs = 1000.0 * std::numeric_limits<double>::epsilon() * (std::abs(x0) + 1.0);
     return std::max(rel, floor_abs);
 }
@@ -35,41 +35,41 @@ FitResult MLEstimator::fit(const Vector& p0) const {
     Vector eta_start = like_.get_eta_central_values();
     start.insert(start.end(), eta_start.begin(), eta_start.end());
 
-    {
-        Vector eta0 = like_.get_eta_central_values();
-        Vector p = p0;
+    // {
+    //     Vector eta0 = like_.get_eta_central_values();
+    //     Vector p = p0;
 
-        double f0 = like_.nll(p, eta0);
+    //     double f0 = like_.nll(p, eta0);
 
-        double dp = step_from(p0[0]);
-        p[0] = p0[0] + dp;
-        double f_plus = like_.nll(p, eta0);
+    //     double dp = step_from(p0[0]);
+    //     p[0] = p0[0] + dp;
+    //     double f_plus = like_.nll(p, eta0);
 
-        p[0] = p0[0] - dp;
-        double f_minus = like_.nll(p, eta0);
+    //     p[0] = p0[0] - dp;
+    //     double f_minus = like_.nll(p, eta0);
 
-        p[0] = p0[0] + 100.0 * dp;
-        double f_big = like_.nll(p, eta0);
+    //     p[0] = p0[0] + 100.0 * dp;
+    //     double f_big = like_.nll(p, eta0);
 
-        std::cout << "[DBG] nll(p0,eta0)=" << f0
-                << " nll(p0+dp)=" << f_plus
-                << " nll(p0-dp)=" << f_minus
-                << " nll(p0+100dp)=" << f_big
-                << " (dp=" << dp << ")"
-                << std::endl;
-    }
+    //     std::cout << "[DBG] nll(p0,eta0)=" << f0
+    //             << " nll(p0+dp)=" << f_plus
+    //             << " nll(p0-dp)=" << f_minus
+    //             << " nll(p0+100dp)=" << f_big
+    //             << " (dp=" << dp << ")"
+    //             << std::endl;
+    // }
 
     // --- DEBUG scan profiled ---
-    {
-        Vector p = p0;
-        double dp = step_from(p0[0]);
+    // {
+    //     Vector p = p0;
+    //     double dp = step_from(p0[0]);
 
-        for (int k = -5; k <= 5; ++k) {
-            p[0] = p0[0] + k * dp;
-            double v = like_.nll_profiled(p);
-            std::cout << "[DBG] k=" << k << " p=" << p[0] << " nll_prof=" << v << "\n";
-        }
-    }
+    //     for (int k = -5; k <= 5; ++k) {
+    //         p[0] = p0[0] + k * dp;
+    //         double v = like_.nll_profiled(p);
+    //         std::cout << "[DBG] k=" << k << " p=" << p[0] << " nll_prof=" << v << "\n";
+    //     }
+    // }
 
     // MinimizationResult min_res = minimize(f, start, min_ctx);
     MinimizationResult min_res = minimize_scaled(f, start, min_ctx);

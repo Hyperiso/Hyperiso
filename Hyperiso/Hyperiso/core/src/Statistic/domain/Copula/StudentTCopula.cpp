@@ -47,7 +47,7 @@ double StudentTCopula::log_density(Vector u) {
 
     double log_t1 {0.0};
     for (size_t i = 0; i < d; i++) {
-        z.at(i, 0) = gsl_cdf_tdist_Pinv(u[i], nu);
+        z.at(i, 0) = gsl_cdf_tdist_Pinv(std::clamp(u[i], 1e-15, 1. - 1e-15), nu);
         log_t1 += std::log(gsl_ran_tdist_pdf(z.at(i, 0), nu));
     }
 

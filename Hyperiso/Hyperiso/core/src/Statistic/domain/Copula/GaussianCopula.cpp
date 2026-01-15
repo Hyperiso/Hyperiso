@@ -39,8 +39,9 @@ double GaussianCopula::log_density(Vector u) {
     RealMatrix z (d, 1);
 
     for (size_t i = 0; i < d; i++) {
-        z.at(i, 0) = gsl_cdf_ugaussian_Pinv(u[i]);
+        z.at(i, 0) = gsl_cdf_ugaussian_Pinv(std::clamp(u[i], 1e-13, 1. - 1e-13));
     }
 
-    return -0.5 * logdet - 0.5 * (z.transpose() * (R_inv - eye(d)) * z).at(0, 0);
+    // return -0.5 * logdet - 0.5 * (z.transpose() * (R_inv - eye(d)) * z).at(0, 0);
+    return -0.5 * (z.transpose() * (R_inv - eye(d)) * z).at(0, 0);
 }
