@@ -18,8 +18,8 @@ double ProfiledLikelihood::nll_profiled(const Vector &p) const {
         double v = nll(p, eta);
         return std::isfinite(v) ? v : 1e300;
     };
-
-    return minimize(f, ctx_.nuisance_central_values, min_ctx_).min;
+    return minimize_scaled(f, ctx_.nuisance_central_values, min_ctx_).min;
+    // return minimize(f, ctx_.nuisance_central_values, min_ctx_).min;
 }
 
 void ProfiledLikelihood::set_minimizer_max_iter(std::size_t max_iter) {

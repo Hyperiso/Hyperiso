@@ -551,13 +551,7 @@ double X1(double xt, double mu, double mass_W);
 constexpr double GAMMA = 0.5772156649015328;
 
 // Digamma function for integer inputs
-double psi(int n) {
-    double sum = 0;
-    for (int k = 1; k < n; k++) {
-        sum += 1. / k;
-    }
-    return sum - GAMMA;
-}
+double psi(int n);
 
 
 /*****************************************

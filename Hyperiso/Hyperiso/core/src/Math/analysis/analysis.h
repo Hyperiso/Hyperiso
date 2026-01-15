@@ -94,4 +94,10 @@ MinimizationResult minimize(
     const MinimizationContext& context
 );
 
+MinimizationResult minimize_scaled(
+    RealValuedForm f,
+    const std::vector<double>& x0,
+    const MinimizationContext& context
+);
+
 #endif // __ANALYSIS_H__

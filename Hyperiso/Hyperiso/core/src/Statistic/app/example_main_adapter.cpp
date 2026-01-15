@@ -9,7 +9,7 @@
 #include "MCEngine.h"
 #include "Fit.h"
 #include "BToMuMuToy.h"
-#include "LinearAlgebra.h"
+// #include "LinearAlgebra.h"
 #include "MarginalFactory.h"
 #include "RvgNuisanceSampler.h"
 #include "HyperisoMaster.h"
@@ -161,31 +161,31 @@ int main() {
 
     std::cout << "Now doing likelihood : " << std::endl;
     // Likelihood/MLE/intervals
-    SPDMatrix SO = SPDMatrix::cholesky(SigmaO);
-    SPDMatrix SE = SPDMatrix::cholesky(SigmaEtaReal);
-    LikelihoodContext ctx{Oexp, SO, eta_mean_real, SE};
-    MLEstimator est(ctx, [&model](const Vec& p, const Vec& eta){ return model->predict(p, eta); }, 100);
+    // SPDMatrix SO = SPDMatrix::cholesky(SigmaO);
+    // SPDMatrix SE = SPDMatrix::cholesky(SigmaEtaReal);
+    // LikelihoodContext ctx{Oexp, SO, eta_mean_real, SE};
+    // MLEstimator est(ctx, [&model](const Vec& p, const Vec& eta){ return model->predict(p, eta); }, 100);
 
-    std::cout << "Now doing MLE : " << std::endl;
-    Vec p0{-4.5, 0.0}; Vec eta0 = eta_mean_real;
-    auto fr = est.fit(p0, eta0);
+    // std::cout << "Now doing MLE : " << std::endl;
+    // Vec p0{-4.5, 0.0}; Vec eta0 = eta_mean_real;
+    // auto fr = est.fit(p0, eta0);
 
-    std::cout << "MLE fit done: " << std::endl;
+    // std::cout << "MLE fit done: " << std::endl;
 
-    std::cout << "MLE: C10=" << fr.p_hat[0] << ", Cp10=" << fr.p_hat[1]
-    << ", ell_hat=" << fr.ell_hat << std::endl;
+    // std::cout << "MLE: C10=" << fr.p_hat[0] << ", Cp10=" << fr.p_hat[1]
+    // << ", ell_hat=" << fr.ell_hat << std::endl;
 
-    std::cout << "finding thr95 " << std::endl;
-    const double thr95 = gsl_cdf_chisq_Pinv(0.95, 1);
+    // std::cout << "finding thr95 " << std::endl;
+    // const double thr95 = gsl_cdf_chisq_Pinv(0.95, 1);
 
-    std::cout << "thr95 : " << thr95 << std::endl;
+    // std::cout << "thr95 : " << thr95 << std::endl;
 
-    auto T = [&](double c10){ return est.wilks_T(Vec{c10, 0.0}, fr, eta0); };
-    double a=-7,b=-1; int N=10; double left=std::nan(""), right=std::nan("");
-    double prev=a, prevT=T(prev);
-    for(int i=1;i<=N;++i){ double x=a+(b-a)*i/double(N); double t=T(x);
-    if (std::isnan(left) && (prevT-thr95)*(t-thr95)<=0) left=prev; if ((prevT-thr95)*(t-thr95)<=0) right=x; prev=x; prevT=t; }
-    std::cout << "95% CI C10|Cp10=0: ["<<left<<","<<right<<"]";
+    // auto T = [&](double c10){ return est.wilks_T(Vec{c10, 0.0}, fr, eta0); };
+    // double a=-7,b=-1; int N=10; double left=std::nan(""), right=std::nan("");
+    // double prev=a, prevT=T(prev);
+    // for(int i=1;i<=N;++i){ double x=a+(b-a)*i/double(N); double t=T(x);
+    // if (std::isnan(left) && (prevT-thr95)*(t-thr95)<=0) left=prev; if ((prevT-thr95)*(t-thr95)<=0) right=x; prev=x; prevT=t; }
+    // std::cout << "95% CI C10|Cp10=0: ["<<left<<","<<right<<"]";
 
 
     return 0;

@@ -15,3 +15,11 @@ double expcor(double x) {
 double kron(int x, int y) {
     return (x == y) ? 1.0 : 0.0;
 }
+
+double psi(int n) {
+    double sum = 0;
+    for (int k = 1; k < n; k++) {
+        sum += 1. / k;
+    }
+    return sum - GAMMA;
+}
