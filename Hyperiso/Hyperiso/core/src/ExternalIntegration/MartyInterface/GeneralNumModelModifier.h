@@ -45,6 +45,18 @@
  */
 class GeneralNumModelModifier {
 private:
+    std::string wilson;     ///< Wilson basis name.
+    std::string model;      ///< Model name (e.g. "SM", "THDM", ...).
+    bool forceMode; ///< If true, forces rewriting even if marker `//42` is found.
+    
+    Interpreter                 interpreter;
+    std::unique_ptr<SMParamSetter> paramSetter;
+    FileWriter                  fileWriter;
+    LineProcessor               lineProcessor;
+    ModelWriter                 modelWriter;
+    ParamWriter                 paramWriter;
+    IncludeManager              includeManager;
+    
     /// Optional mapping from user names to internal parameter names.
     std::map<std::string, std::string> paramMap;
 
@@ -53,19 +65,7 @@ private:
 
     /// Map from parameter name to interpreted mapping (block, LhaID, flags).
     std::unordered_map<std::string, InterpretedParam> interpreted_params;
-    bool done = false;      ///< Internal flag (unused in the current implementation).
-    bool forceMode = false; ///< If true, forces rewriting even if marker `//42` is found.
-    int count = 0;          ///< Reserved for debug / statistics.
-    std::string wilson;     ///< Wilson basis name.
-    std::string model;      ///< Model name (e.g. "SM", "THDM", ...).
 
-    Interpreter                 interpreter;
-    std::unique_ptr<SMParamSetter> paramSetter;
-    ParamWriter                 paramWriter;
-    FileWriter                  fileWriter;
-    IncludeManager              includeManager;
-    LineProcessor               lineProcessor;
-    ModelWriter                 modelWriter;
 
 public:
     /**
@@ -73,14 +73,13 @@ public:
      *
      * @param wilson          Name of the Wilson basis (e.g. "C1").
      * @param model           Name of the model (e.g. "SM", "THDM").
-     * @param special_blocks  Set of blocks requiring special handling in ::SMParamSetter.
      * @param param_setter    Preconfigured SMParamSetter, moved into this object.
      * @param api             Core API giving access to the active ::Model.
      * @param ports           Factory used to build an ::IParameterResolver for the interpreter.
      * @param force           If true, forces regeneration even when the output file
      *                        appears to be already processed (marker `//42`).
      */
-    GeneralNumModelModifier(const std::string& wilson, const std::string& model, std::set<std::string>& special_blocks, std::unique_ptr<SMParamSetter> param_setter, std::shared_ptr<ICoreAPI<Model>> api, std::shared_ptr<IInterpreterPortsFactory> ports, bool force = false)
+    GeneralNumModelModifier(const std::string& wilson, const std::string& model, std::unique_ptr<SMParamSetter> param_setter, std::shared_ptr<ICoreAPI<Model>> api, std::shared_ptr<IInterpreterPortsFactory> ports, bool force = false)
         : wilson(wilson), model(model), forceMode(force), interpreter(model, api, ports), paramSetter(std::move(param_setter)), fileWriter(wilson, model), 
           lineProcessor(includeManager, fileWriter, force), modelWriter(lineProcessor, paramWriter) {
         
@@ -91,21 +90,19 @@ public:
      * @brief Copy constructor used to duplicate the whole modification pipeline.
      */
     inline GeneralNumModelModifier(const GeneralNumModelModifier& other)
-    : paramMap(other.paramMap),
-      params(other.params),
-      interpreted_params(other.interpreted_params),
-      done(other.done),
-      forceMode(other.forceMode),
-      count(other.count),
-      wilson(other.wilson),
+    : wilson(other.wilson),
       model(other.model),
+      forceMode(other.forceMode),
       interpreter(other.interpreter),
       paramSetter(other.paramSetter ? std::make_unique<SMParamSetter>(*other.paramSetter) : nullptr),
-      paramWriter(other.paramWriter),
       fileWriter(other.wilson, other.model),
-      includeManager(other.includeManager),
       lineProcessor(includeManager, fileWriter, other.forceMode),
-      modelWriter(lineProcessor, paramWriter)
+      modelWriter(lineProcessor, paramWriter),
+      paramWriter(other.paramWriter),
+      includeManager(other.includeManager),
+      paramMap(other.paramMap),
+      params(other.params),
+      interpreted_params(other.interpreted_params)
 {}
 
     /**

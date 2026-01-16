@@ -2,8 +2,8 @@
 
 BPFFCalculator::BPFFCalculator(int B_id, int P_id,
                         std::shared_ptr<IObsParameterProxy<ParamId, DataType, std::string, LhaID>> p,
-                        BP_FF_Src src) {
-    if (!this->allowed_decays.contains({B_id, P_id})) {
+                        BP_FF_Src src) : iobspp_sm(p){
+    if (!this->allowed_decays.contains({B_id, P_id}))  {
         LOG_ERROR("ValueError", "Wrong meson PDG code in BPFFCalculator constructor:", B_id, ",", P_id);
     }
 
@@ -42,7 +42,7 @@ void BPFFCalculator::load_FF_params(BP_FF_Src src) {
     int order = this->sse_order.at(src);
     std::string src_block = this->src_block;
     
-    auto get_m = [ff_id, src_block] (int i) { return ObsParameterProxy()(ParamId{ParameterType::DECAY, src_block, {ff_id, 0, i}}); };
+    auto get_m = [this, ff_id, src_block] (int i) { return (*iobspp_sm)(ParamId{ParameterType::DECAY, src_block, {ff_id, 0, i}}, DataType::VALUE); };
     this->m_R[BP_FF::F_PLUS] = get_m(1);
     this->m_R[BP_FF::F_0] = get_m(2);
     this->m_R[BP_FF::F_T] = get_m(3);
@@ -50,7 +50,7 @@ void BPFFCalculator::load_FF_params(BP_FF_Src src) {
     for (int i = 1; i <= 3; i++) {
         for (int j = 0; j <= order; j++) {
             ParamId PId {ParameterType::DECAY, src_block, {ff_id, i, j}};
-            this->alpha_ai[(BP_FF)(i - 1)][j] = ObsParameterProxy()(PId);
+            this->alpha_ai[(BP_FF)(i - 1)][j] = (*iobspp_sm)(PId, DataType::VALUE);
         }
     }
 
@@ -72,7 +72,7 @@ void BPFFCalculator::load_FF_params(BP_FF_Src src) {
     if (src == BP_FF_Src::HPQCD22) {
         this->alpha_ai[BP_FF::F_PLUS][3] = (2 * this->alpha_ai[BP_FF::F_PLUS][2] - this->alpha_ai[BP_FF::F_PLUS][1]) / 3;
         this->alpha_ai[BP_FF::F_T][3] = (2 * this->alpha_ai[BP_FF::F_T][2] + this->alpha_ai[BP_FF::F_T][1]) / 3;
-        this->L_chi = ObsParameterProxy(ParameterType::DECAY)(this->src_block, 16);
+        this->L_chi = (*iobspp_sm)({ParameterType::DECAY, this->src_block, 16}, DataType::VALUE);
     }
 }
 

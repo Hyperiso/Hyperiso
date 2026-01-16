@@ -13,12 +13,12 @@ using BRP = BWilsonRunningParameters;
 
 class BCoefficientGroup : public CoefficientGroup {
 public:
-    BCoefficientGroup(WilsonGroupAdapterConfig adapters, bool force_sm=false);
+    BCoefficientGroup(WilsonGroupAdapterConfig adapters);
 
-    void set_gen(int new_gen) {}
+    void set_gen(int) {}
     std::shared_ptr<CoefficientGroup> clone() const override;
     
-    std::shared_ptr<CoefficientGroup> get_sm_group() override { return std::make_shared<BCoefficientGroup>(adapters, true); }
+    std::shared_ptr<CoefficientGroup> get_sm_group() override { return std::make_shared<BCoefficientGroup>(adapters); }
     static std::unordered_map<WCoefId, scalar_t> base_1_LO_calculation (const std::unordered_map<QCDOrder, std::unordered_map<WCoefId, scalar_t>>& coef_matching, const BlockSrc& src);
     static std::unordered_map<WCoefId, scalar_t> base_2_LO_calculation   (const std::unordered_map<QCDOrder, std::unordered_map<WCoefId, scalar_t>>& coef_matching, const BlockSrc& src);
     static std::unordered_map<WCoefId, scalar_t> base_1_NLO_calculation  (const std::unordered_map<QCDOrder, std::unordered_map<WCoefId, scalar_t>>& coef_matching, const BlockSrc& src);

@@ -1,6 +1,6 @@
 #include "BPrimeWilsonGroup.h"
 
-BPrimeCoefficientGroup::BPrimeCoefficientGroup(WilsonGroupAdapterConfig adapters, bool force_sm) : CoefficientGroup(adapters) {
+BPrimeCoefficientGroup::BPrimeCoefficientGroup(WilsonGroupAdapterConfig adapters) : CoefficientGroup(adapters) {
     LOG_TRACE("In BPrimeCoefficientGroup constructor");
     this->id = GroupMapper::to_id(WGroup::BPrime);
 }

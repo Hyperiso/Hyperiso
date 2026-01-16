@@ -65,7 +65,22 @@ std::shared_ptr<Parameter> BlockSrc::get_param(std::string_view blk, std::pair<i
 }
 
 scalar_t BlockSrc::get_val(std::string_view blk, std::initializer_list<long> code) const {
-    return get_param(blk, code)->get_val();
+    return get_param(blk, LhaID{std::vector<long>(code)})->get_val();
+}
+
+scalar_t BlockSrc::get_val(std::string_view blk,
+                           std::initializer_list<std::size_t> code) const {
+    std::vector<long> v;
+    v.reserve(code.size());
+    for (auto x : code) v.push_back(static_cast<long>(x));
+    return get_param(blk, LhaID{std::move(v)})->get_val();
+}
+
+scalar_t BlockSrc::get_val(std::string_view blk, std::initializer_list<int> code) const {
+    std::vector<long> v;
+    v.reserve(code.size());
+    for (int x : code) v.push_back(static_cast<long>(x));
+    return get_val(blk, LhaID{std::move(v)});
 }
 
 double BlockSrc::get_val(std::string_view blk, const LhaID& code) const {
@@ -109,7 +124,8 @@ std::shared_ptr<Parameter> ParamSrc::get_param(const ParamId& id) const { return
 scalar_t ParamSrc::get_val(const ParamId& id) const { return require(id)->get_val(); }
 
 scalar_t ParamSrc::get_val(ParameterType t, std::string_view block, std::initializer_list<long> code) const {
-    return get_val(ParamId{t, std::string(block), code});
+    LhaID id{std::vector<long>(code)};
+    return get_val(ParamId{t, std::string(block), id});
 }
 scalar_t ParamSrc::get_val(ParameterType t, std::string_view block, const LhaID& code) const {
     return get_val(ParamId{t, std::string(block), code});

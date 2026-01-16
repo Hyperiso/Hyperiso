@@ -149,12 +149,11 @@ private:
      *  - unfrozen if previously frozen but needed again.
      *
      * @param needed        Groups required by the current observable.
-     * @param wil_builder   Observable Wilson builder.
      * @param iobs_wfreezer Wilson freezer.
      * @return Set of groups that must be newly built.
      */
 
-    static std::unordered_set<WGroupId> update_state(const std::unordered_set<WGroupId>& needed, std::shared_ptr<IObsWilsonBuilder>& wil_builder, std::shared_ptr<IWilsonFreezer<WGroupId>> iobs_wfreezer);
+    static std::unordered_set<WGroupId> update_state(const std::unordered_set<WGroupId>& needed, std::shared_ptr<IWilsonFreezer<WGroupId>> iobs_wfreezer);
 
     /// Internal static state tracking frozen/active Wilson groups.
     static inline std::unordered_map<WGroupId, bool> state;

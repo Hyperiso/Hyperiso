@@ -2,7 +2,7 @@
 
 std::unordered_map<WCoefId, scalar_t> KulnuCoefficientGroup::base_1_LO_calculation(
     const std::unordered_map<QCDOrder, std::unordered_map<WCoefId, scalar_t>>& coef_matching,
-    const BlockSrc& src
+    const BlockSrc&
 ) {
     auto ids = WCoefMapper::get_group(WGroup::CC_su);
 
@@ -14,7 +14,7 @@ std::unordered_map<WCoefId, scalar_t> KulnuCoefficientGroup::base_1_LO_calculati
     return Ci_run_map;
 }
 
-KulnuCoefficientGroup::KulnuCoefficientGroup(WilsonGroupAdapterConfig adapters, bool force_sm) : CoefficientGroup(adapters) {
+KulnuCoefficientGroup::KulnuCoefficientGroup(WilsonGroupAdapterConfig adapters) : CoefficientGroup(adapters) {
     this->id = GroupMapper::to_id(WGroup::CC_su);
 }
 

@@ -66,21 +66,25 @@
 struct MartyWilsonConfig {
     /// MARTY model class name (e.g. "SM", or user model name).
     std::string model_name{"SM"};
-
-    /// Path to the MARTY model header file.
-    fs::path model_path{project_assets_root.data() + std::string() + "/input_files/marty_model/sm.h"};
-
-    /// Absolute path to the CSV output produced by MARTY for this model.
-    std::string csv_path{project_assets_root.data() + std::string() + +"/MartyTemp/SM_wilson.csv"};
-
+    
     /// Full coefficient id used to store the matching value (including order/type parts).
     LhaID coeff_id;
 
     /// Name of the block where matching coefficients are stored (e.g. "WC_B_MATCH").
     std::string storage_block;
 
+    /// Path to the MARTY model header file.
+    fs::path model_path{project_assets_root.data() + std::string() + "/input_files/marty_model/sm.h"};
+
     /// Proxy used to run MARTY and retrieve dependencies/special blocks.
     std::shared_ptr<IMartyWilsonProxy<InterpretedParam>> marty_proxy;
+    
+
+
+    /// Absolute path to the CSV output produced by MARTY for this model.
+    std::string csv_path{project_assets_root.data() + std::string() + +"/MartyTemp/SM_wilson.csv"};
+
+
 
     /**
      * @brief Constructs config for a coefficient with a provided model path and proxy.

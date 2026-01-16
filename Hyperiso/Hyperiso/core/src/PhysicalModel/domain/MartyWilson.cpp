@@ -13,7 +13,7 @@ MartyWilson::MartyWilson(MartyWilsonConfig config)
     std::string csv_path = config.csv_path;
     std::string marty_model = config.model_name;
     std::string marty_model_path = config.model_path;
-    ContributionType cont = this->type;
+
     std::shared_ptr<IMartyWilsonProxy<InterpretedParam>> marty_proxy = config.marty_proxy;
 
     matching_info[QCDOrder::LO].compute = [&sources, name, csv_path, marty_model, marty_model_path, marty_proxy] (const ParamSrc& src) -> scalar_t {

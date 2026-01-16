@@ -10,11 +10,11 @@
 
 class MesonMixingCoefficientGroup : public CoefficientGroup {
 public:
-    MesonMixingCoefficientGroup(WilsonGroupAdapterConfig adapters, bool force_sm=false);
+    MesonMixingCoefficientGroup(WilsonGroupAdapterConfig adapters);
 
     std::shared_ptr<CoefficientGroup> clone() const override;
     
-    std::shared_ptr<CoefficientGroup> get_sm_group() override { return std::make_shared<MesonMixingCoefficientGroup>(adapters, true); }
+    std::shared_ptr<CoefficientGroup> get_sm_group() override { return std::make_shared<MesonMixingCoefficientGroup>(adapters); }
     static std::unordered_map<WCoefId, scalar_t> base_1_LO_calculation (const std::unordered_map<QCDOrder, std::unordered_map<WCoefId, scalar_t>>& coef_matching, const BlockSrc& src);
     
 private:

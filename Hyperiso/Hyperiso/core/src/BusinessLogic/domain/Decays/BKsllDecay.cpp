@@ -452,7 +452,7 @@ complex_t BKstarllDecay::C9_eff(double q2, bool bar) {
     complex_t C_mc = 8. * ((4./9.*cache.C[WCoef::C1]+1./3.*cache.C[WCoef::C2])*(1.+l_u)+2.*cache.C[WCoef::C3]+20.*cache.C[WCoef::C5]);
 
     double s_hat = q2 / std::pow(cache.m_b_PS, 2);
-    complex_t A = BV::A_Seidel(s_hat, cache.L_b);
+    // complex_t A = BV::A_Seidel(s_hat, cache.L_b); //TODO : Niels ?
     complex_t B = BV::B_Seidel(s_hat, cache.L_b);
     complex_t C = BV::C_Seidel(q2, cache.mu_b);
 

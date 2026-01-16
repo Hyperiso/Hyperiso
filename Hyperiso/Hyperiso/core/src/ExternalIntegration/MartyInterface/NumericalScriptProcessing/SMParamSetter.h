@@ -74,11 +74,10 @@ private:
      *  - `"REGPROP"`     : regularization parameters,
      *  - `"BETA"`        : mixing angles in BSM models.
      *
-     * @param name             Logical MARTY parameter name.
      * @param interpretedParam Parameter meta-information.
      * @return The computed scalar value.
      */
-    scalar_t calculateValue(const std::string& name, const InterpretedParam& interpretedParam);
+    scalar_t calculateValue(const InterpretedParam& interpretedParam);
 
     Model model_type;   ///< Deduced model type from the string passed to the ctor.
 

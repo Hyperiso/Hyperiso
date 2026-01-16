@@ -23,7 +23,10 @@
 #include "Include.h"
 
 #define REG(c,m,b,body) \
-  reg.register_creator((c),(m),(b), [](const BuildContext& ctx, WCoef coef) -> CoefPtr { return (body); })
+  reg.register_creator((c),(m),(b), \
+    []([[maybe_unused]] const BuildContext& ctx, [[maybe_unused]] WCoef coef) -> CoefPtr { \
+      return (body); \
+    })
 
 
 static LhaID flhaid(WCoef c, QCDOrder ord, ContributionType ct) {

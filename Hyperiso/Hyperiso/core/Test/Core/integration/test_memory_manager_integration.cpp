@@ -76,7 +76,7 @@ int main() {
         assert(!hasType(types, ParameterType::BSM));
     }
 
-    mm->switch_model(Model::THDM, /*use_marty*/false);
+    mm->switch_model(Model::THDM);
     {
         const auto& types = mm->getMemoryCache().parameter_types;
         assert(hasType(types, ParameterType::WILSON));

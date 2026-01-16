@@ -2,7 +2,7 @@
 
 std::unordered_map<WCoefId, scalar_t> DslnuCoefficientGroup::base_1_LO_calculation(
     const std::unordered_map<QCDOrder, std::unordered_map<WCoefId, scalar_t>>& coef_matching,
-    const BlockSrc& src
+    const BlockSrc&
 ) {
     auto ids = WCoefMapper::get_group(WGroup::CC_cs);
 
@@ -14,7 +14,7 @@ std::unordered_map<WCoefId, scalar_t> DslnuCoefficientGroup::base_1_LO_calculati
     return Ci_run_map;
 }
 
-DslnuCoefficientGroup::DslnuCoefficientGroup(WilsonGroupAdapterConfig adapters, bool force_sm) : CoefficientGroup(adapters) {
+DslnuCoefficientGroup::DslnuCoefficientGroup(WilsonGroupAdapterConfig adapters) : CoefficientGroup(adapters) {
     this->id = GroupMapper::to_id(WGroup::CC_cs);
 }
 
@@ -25,7 +25,7 @@ std::shared_ptr<CoefficientGroup> DslnuCoefficientGroup::clone() const {
 
 std::unordered_map<WCoefId, scalar_t> DdlnuCoefficientGroup::base_1_LO_calculation(
     const std::unordered_map<QCDOrder, std::unordered_map<WCoefId, scalar_t>>& coef_matching,
-    const BlockSrc& src
+    const BlockSrc&
 ) {
     auto ids = WCoefMapper::get_group(WGroup::CC_cd);
 
@@ -37,7 +37,7 @@ std::unordered_map<WCoefId, scalar_t> DdlnuCoefficientGroup::base_1_LO_calculati
     return Ci_run_map;
 }
 
-DdlnuCoefficientGroup::DdlnuCoefficientGroup(WilsonGroupAdapterConfig adapters, bool force_sm) : CoefficientGroup(adapters) {
+DdlnuCoefficientGroup::DdlnuCoefficientGroup(WilsonGroupAdapterConfig adapters) : CoefficientGroup(adapters) {
     this->id = GroupMapper::to_id(WGroup::CC_cd);
 }
 

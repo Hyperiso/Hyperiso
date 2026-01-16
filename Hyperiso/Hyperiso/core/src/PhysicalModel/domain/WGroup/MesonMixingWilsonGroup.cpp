@@ -2,7 +2,7 @@
 
 using MMRP = MesonMixingRunningParameters;
 
-MesonMixingCoefficientGroup::MesonMixingCoefficientGroup(WilsonGroupAdapterConfig adapters, bool force_sm) : CoefficientGroup(adapters) {
+MesonMixingCoefficientGroup::MesonMixingCoefficientGroup(WilsonGroupAdapterConfig adapters) : CoefficientGroup(adapters) {
     this->id = GroupMapper::to_id(WGroup::MESON_MIXING);
 
 }

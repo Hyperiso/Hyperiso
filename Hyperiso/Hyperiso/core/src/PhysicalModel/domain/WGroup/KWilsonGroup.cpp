@@ -1,8 +1,8 @@
 #include "KWilsonGroup.h"
 
 std::unordered_map<WCoefId, scalar_t> KCoefficientGroup::base_1_LO_calculation (
-    const std::unordered_map<QCDOrder, std::unordered_map<WCoefId, scalar_t>>& coef_matching, 
-    const BlockSrc& src
+    const std::unordered_map<QCDOrder, std::unordered_map<WCoefId, scalar_t>>&, 
+    const BlockSrc&
 )
 {
 

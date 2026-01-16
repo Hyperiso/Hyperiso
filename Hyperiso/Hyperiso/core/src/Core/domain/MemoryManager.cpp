@@ -201,10 +201,9 @@ fs::path MemoryManager::format_lha_path(const std::string &path) {
 }
 
 //TODO careful with use_marty, no need for bool but path and model_name 
-void MemoryManager::switch_model(Model model, bool use_marty) {
+void MemoryManager::switch_model(Model model) {
     // this->cache.config.flags[ExternalFlag::USE_MARTY] = use_marty;
     this->cache.config.model = model;
-
     this->deduce_parameter_types(this->cache.config);
 
     this->cache.flags[InternalFlag::PARAMS_CHANGED] = true;

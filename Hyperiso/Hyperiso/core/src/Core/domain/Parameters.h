@@ -137,7 +137,7 @@ public:
 class FlavorStrategy : public ModelStrategy {
 public:
 std::unordered_set<BlockName> initializeParameters(class Parameters& params) override;
-    void postInitialization(Parameters& params) override {}
+    void postInitialization(Parameters&) override {}
 };
 
 /** 
@@ -148,7 +148,7 @@ std::unordered_set<BlockName> initializeParameters(class Parameters& params) ove
 class GeneralModelStrategy : public ModelStrategy {
 public:
 std::unordered_set<BlockName> initializeParameters(class Parameters& params) override;
-    void postInitialization(Parameters& params) override {}
+    void postInitialization(Parameters&) override {}
 };
 
 /** 
@@ -170,7 +170,7 @@ public:
 class DecayStrategy : public ModelStrategy {
 public:
 std::unordered_set<BlockName> initializeParameters(class Parameters& params) override;
-    void postInitialization(Parameters& params) override {}
+    void postInitialization(Parameters&) override {}
 };
 
 /** 
@@ -181,7 +181,7 @@ std::unordered_set<BlockName> initializeParameters(class Parameters& params) ove
 class ObservableStrategy : public ModelStrategy {
 public:
 std::unordered_set<BlockName> initializeParameters(class Parameters& params) override;
-    void postInitialization(Parameters& params) override {}
+    void postInitialization(Parameters&) override {}
 };
 
 /** 
@@ -192,7 +192,7 @@ std::unordered_set<BlockName> initializeParameters(class Parameters& params) ove
 class PassthroughStrategy : public ModelStrategy {
 public:
 std::unordered_set<BlockName> initializeParameters(class Parameters& params) override;
-    void postInitialization(Parameters& params) override {}
+    void postInitialization(Parameters&) override {}
 };
 
 /**

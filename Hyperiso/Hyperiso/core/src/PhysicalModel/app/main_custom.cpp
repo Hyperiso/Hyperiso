@@ -57,14 +57,14 @@ int main() {
     def.setup[Model::SM].push_back([=](const BuildContext& ctx, CoefficientGroup& grp){
         const auto blk = GroupMapper::str(ctx.group_id, ScaleType::MATCHING);
 
-        auto w1 = std::make_shared<CustomWilson>(LhaID(9001,1,0,(int)ctx.contrib), blk, QCDOrder::LO, ctx.contrib);
+        auto w1 = std::make_shared<CustomWilson>(LhaID(9001,1,0,(int)ctx.contrib), blk, ctx.contrib);
         w1->set_name("C_NP1");
         w1->set_contribution_type(ctx.contrib);
         w1->set_order_info(QCDOrder::LO, /*sources*/{},
             [](const ParamSrc&){ return scalar_t(1.234); },
             LhaID(9001,1,0,(int)ctx.contrib));
 
-        auto w2 = std::make_shared<CustomWilson>(LhaID(9001,2,0,(int)ctx.contrib), blk, QCDOrder::LO, ctx.contrib);
+        auto w2 = std::make_shared<CustomWilson>(LhaID(9001,2,0,(int)ctx.contrib), blk, ctx.contrib);
         w2->set_name("C_NP2");
         w2->set_contribution_type(ctx.contrib);
         w2->set_order_info(QCDOrder::LO, /*sources*/{},

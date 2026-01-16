@@ -48,7 +48,7 @@ int main() {
             std::ofstream ofs(out);
             for (auto line : input) {
                 mod.modifyLine(line);
-                mod.addLine(ofs, line, false);
+                mod.addLine(ofs, line);
             }
         }
         const std::string s = slurp(out);
@@ -67,7 +67,7 @@ int main() {
             std::ofstream ofs(out);
             for (auto line : input) {
                 mod.modifyLine(line);
-                mod.addLine(ofs, line, false);
+                mod.addLine(ofs, line);
             }
         }
         const std::string s = slurp(out);

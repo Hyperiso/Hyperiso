@@ -2,18 +2,18 @@
 
 
 template<typename T>
-void Logger::logMessage(std::ostream& os, T value) {
+void Logger::logMessage(std::ostream& os, const T& value) {
     os << value;
 }
 
 template<typename T, typename... Args>
-void Logger::logMessage(std::ostream& os, T value, Args... args) {
+void Logger::logMessage(std::ostream& os, const T& value, const Args&... args) {
     os << value << " ";
     logMessage(os, args...);
 }
 
 template<typename... Args>
-void Logger::logToFile(std::ostream& os, LogLevel messageLevel, const char* file, int line, const char* func, const char* errorType, Args... args) {
+void Logger::logToFile(std::ostream& os, LogLevel messageLevel, const char* file, int line, const char* func, const char* errorType, const Args&... args) {
     os << "[" << currentDateTime() << "] [" << toString(messageLevel) << "] [" 
        << file << ":" << line << " " << func << "] [Thread " << this->threadId << "] ";
     if (messageLevel == LogLevel::ERROR) {
@@ -23,7 +23,7 @@ void Logger::logToFile(std::ostream& os, LogLevel messageLevel, const char* file
 }
 
 template<typename... Args>
-void Logger::logToTerminal(std::ostream& os, LogLevel messageLevel, const char* errorType, Args... args) {
+void Logger::logToTerminal(std::ostream& os, LogLevel messageLevel, const char* errorType, const Args&... args) {
     os << "[" << currentDateTime() << "] [" << toString(messageLevel) << "] ";
     if (messageLevel == LogLevel::ERROR) {
         os << "[" << errorType << "] ";
@@ -32,7 +32,7 @@ void Logger::logToTerminal(std::ostream& os, LogLevel messageLevel, const char* 
 }
 
 template<typename... Args>
-void Logger::log(LogLevel messageLevel, const char* file, int line, const char* func, const char* errorType, Args... args) {
+void Logger::log(LogLevel messageLevel, const char* file, int line, const char* func, const char* errorType, const Args&... args) {
     if (!enabled || messageLevel < level) {
         return;
     }

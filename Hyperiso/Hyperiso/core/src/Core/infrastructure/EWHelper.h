@@ -107,10 +107,9 @@ private:
      * @param mu        Renormalization scale.
      * @param m_q_pole  Pole mass of the heavy quark.
      * @param n_l       Number of light flavors.
-     * @param alpha     \f$\alpha_{\text{em}}\f$ used in the correction.
      * @return Mixed light–heavy contribution.
      */
-    static double pi_light_heavy(double mu, double m_q_pole, double n_l, double alpha);
+    static double pi_light_heavy(double mu, double m_q_pole, double n_l);
 
     /**
      * @brief Computes \f$\alpha_{\text{em}}\f$ at \f$\mu_b\f$ with 5 active flavors.

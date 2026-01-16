@@ -10,9 +10,9 @@ void QCDHelper::Init() {
         double m_b_mb = src.get_val("SMINPUTS" , 5);
         double m_t_pole = src.get_val("SMINPUTS" , 6);
         double m_c = src.get_val("MASS" , 4);
-        double m_s = src.get_val("MASS" , 3);
-        double m_d = src.get_val("MASS" , 2);
-        double m_u = src.get_val("MASS" , 1);
+        // double m_s = src.get_val("MASS" , 3);
+        // double m_d = src.get_val("MASS" , 2);
+        // double m_u = src.get_val("MASS" , 1);
 
         double lambda_5 = match_lambda(alpha_s_mZ, m_Z, 5);
         double lambda_6_mt_pole = match_lambda(alpha_s_explicit(m_t_pole, lambda_5, 5), m_t_pole, 6);
@@ -175,22 +175,22 @@ std::vector<double> QCDHelper::getOrderedMasses(MassType mass_b_type, MassType m
     double mc = (*Parameters::GetInstance())("MASS", 4);
     double mu = (*Parameters::GetInstance())("MASS", 2);
     double md = (*Parameters::GetInstance())("MASS", 1);
-    double ms = (*Parameters::GetInstance())("MASS", 3);
+    // double ms = (*Parameters::GetInstance())("MASS", 3); //Niels, wtf ?
     return {md, mu, md, mc, m_b, m_t};
 }
 
 double QCDHelper::match_lambda(double target_alpha, double Q, int nf) {
-    auto f = [&](double L) { return alpha_s_explicit(Q, L, nf) - target_alpha; };
+    // auto f = [&](double L) { return alpha_s_explicit(Q, L, nf) - target_alpha; };
     double L_min = 1e-3;
     double L_max = 1.;
     double L_moy = L_min;
     double alphas_min=0;
-    double alphas_max=0;
+    // double alphas_max=0; //TODO : Niels ? wtf ?
     double alphas_moy = alphas_min;
 
     while ((std::abs(1.- L_min / L_max) > 1e-5)&& (std::abs(1. - alphas_min / target_alpha) > 1e-4) ){
         alphas_min = alpha_s_explicit(Q, L_min, nf);
-        alphas_max = alpha_s_explicit(Q, L_max, nf);
+        // alphas_max = alpha_s_explicit(Q, L_max, nf);
         L_moy = (L_min + L_max) / 2;
         alphas_moy = alpha_s_explicit(Q, L_moy, nf);
 

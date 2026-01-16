@@ -1,9 +1,9 @@
-#ifndef __BASEQCDFCALCULATOR_H__
-#define __BASEQCDFCALCULATOR_H__
+#ifndef BASEQCDFCALCULATOR_H
+#define BASEQCDFCALCULATOR_H
 
 #include "Include.h"
-#include "ObsQCDProxy.h"
-#include "ObsParameterProxy.h"
+#include "IObsQCDProxy.h"
+#include "IObsParameterProxy.h"
 
 enum class B_FF_Type {FULL, SOFT};
 
@@ -31,6 +31,8 @@ protected:
     double delta_qu;
     B_FF_Type ff_tp;
     std::string src_block;
+
+    std::shared_ptr<IObsQCDProxy> iobs_qcdp;
 
     static inline constexpr double e_u = 2. / 3;
     static inline constexpr double e_d = -1. / 3;
@@ -62,8 +64,8 @@ public:
     complex_t Y(double q2);
 
 protected:
-    double gamma_perp(int n) { return 4. * ObsQCDProxy().get_constants()->C_F * (psi(n + 1) + GAMMA - 1. + 1. / (n + 1)); };
-    double gamma_par(int n) { return 4. * ObsQCDProxy().get_constants()->C_F * (psi(n + 2) + GAMMA - .75 - 1. /(2. * (n + 1) * (n + 2))); };
+    double gamma_perp(int n) { return 4. * iobs_qcdp->get_constants()->C_F * (psi(n + 1) + GAMMA - 1. + 1. / (n + 1)); };
+    double gamma_par(int n) { return 4. * iobs_qcdp->get_constants()->C_F * (psi(n + 2) + GAMMA - .75 - 1. /(2. * (n + 1) * (n + 2))); };
 
     double E(double q2);
     double phi_X(double u, double a1, double a2);
@@ -97,4 +99,4 @@ protected:
     complex_t I_par_m(double q2, bool bar);
 };
 
-#endif // __BASEQCDFCALCULATOR_H__
+#endif // BASEQCDFCALCULATOR_H

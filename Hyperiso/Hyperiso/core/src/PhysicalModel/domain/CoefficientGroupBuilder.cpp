@@ -10,7 +10,7 @@
  */
 
 std::shared_ptr<CoefficientGroup> CoefficientGroupBuilder::build(const BuildContext& ctx) const {
-    const auto& def = GroupDefinitions::get(ctx.group_id);
+    auto def = GroupDefinitions::get(ctx.group_id);
 
     auto grp = std::make_shared<GenericCoefficientGroup>(ctx.adapters);
     grp->set_group_id(def.id);

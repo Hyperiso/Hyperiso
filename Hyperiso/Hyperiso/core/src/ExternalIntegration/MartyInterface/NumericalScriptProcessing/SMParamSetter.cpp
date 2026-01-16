@@ -26,7 +26,7 @@ std::unordered_map<std::string, double> SMParamSetter::setParam(const std::strin
     LOG_DEBUG("setting parameter", name, interpretedParam.block, interpretedParam.code);
     std::set<std::string> special = this->special_blocks;
     if (special.find(interpretedParam.block) != special.end()) {
-        params[name] = calculateValue(name, interpretedParam);
+        params[name] = calculateValue(interpretedParam);
     } else if (interpretedParam.block == "MASS" && (interpretedParam.code == LhaID(5) || interpretedParam.code == LhaID(6))) {
         if (interpretedParam.code == LhaID(5)) {
             params[name] = (*sm_proxy)("MASS_EW_SCALE", LhaID(5, 1));
@@ -53,7 +53,7 @@ std::unordered_map<std::string, double> SMParamSetter::setParam(const std::strin
     return params;
 }
 
-scalar_t SMParamSetter::calculateValue(const std::string& name, const InterpretedParam& interpretedParam) {
+scalar_t SMParamSetter::calculateValue(const InterpretedParam& interpretedParam) {
     if (interpretedParam.block == "KIN") {
         if (interpretedParam.code == LhaID(34)) {
             return -pow((*sm_proxy)("MASS", 13), 2.);

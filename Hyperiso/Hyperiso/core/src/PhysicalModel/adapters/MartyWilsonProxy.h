@@ -36,7 +36,7 @@ public:
     MartyWilsonProxy() {martyAdapter = MartyWilsonAdapter();}
 
     /// @copydoc IMartyWilsonProxy::calculate
-    void calculate(std::string wilson, std::string model, double Q_match, std::string model_path, bool new_params = false) override {martyAdapter.calculate(wilson, model, Q_match, model_path, new_params);}
+    void calculate(std::string wilson, std::string model, double Q_match, std::string model_path) override {martyAdapter.calculate(wilson, model, Q_match, model_path);}
 
     /// @copydoc IMartyWilsonProxy::get_special_blocks
     std::set<std::string>  get_special_blocks() override {return martyAdapter.get_special_blocks();}

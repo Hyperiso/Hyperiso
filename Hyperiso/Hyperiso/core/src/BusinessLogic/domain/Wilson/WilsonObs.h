@@ -22,8 +22,8 @@ public:
     void build_op_tree();
     void load_params() override {}
 
-    std::vector<ObservableValue> compute_observable(Observables obs) override {return {};}
-    std::vector<ObservableValue> compute_observable(ObservableId obs) override {return {};}
+    std::vector<ObservableValue> compute_observable(Observables) override {return {};}
+    std::vector<ObservableValue> compute_observable(ObservableId) override {return {};}
 };
 
 #endif // __WILSONDECAY_H__

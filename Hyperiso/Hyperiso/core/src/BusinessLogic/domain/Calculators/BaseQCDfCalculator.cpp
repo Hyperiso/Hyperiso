@@ -7,7 +7,7 @@ double BaseQCDfCalculator::E(double q2) {
 BaseQCDfCalculator::BaseQCDfCalculator(int B_id, int X_id, double mu_b, const std::map<WCoef, complex_t> &C, B_FF_Type ff_tp,
                         std::shared_ptr<IObsParameterProxy<ParamId, DataType, std::string, LhaID>> p,
                         std::shared_ptr<IObsQCDProxy> iobs_qcdp) :
-    mu_b(mu_b), C(C), ff_tp(ff_tp)
+    mu_b(mu_b), C(C), ff_tp(ff_tp), iobs_qcdp(iobs_qcdp)
 {
     if (!this->allowed_decays.contains({B_id, X_id})) {
         LOG_ERROR("ValueError", "Wrong meson PDG code in BaseQCDfCalculator constructor:", B_id, ",", X_id);
@@ -17,22 +17,22 @@ BaseQCDfCalculator::BaseQCDfCalculator(int B_id, int X_id, double mu_b, const st
     this->delta_qu = double (B_id == 521);
     this->fill_wilson_bar_cache();
 
-    double beta_0 = ObsQCDProxy().get_constants()->beta[4][0];
+    double beta_0 = iobs_qcdp->get_constants()->beta[4][0];
     auto run = [this, beta_0] (double value_1gev, double eta, double gamma) { return value_1gev * pow(eta, gamma / beta_0); };
 
     this->Lambda_h = (*p)(ParamId{ParameterType::DECAY, this->src_block, 14}, DataType::VALUE);
     double mu_f = sqrt(this->mu_b * this->Lambda_h);
-    this->alpha_s_mu_b = ObsQCDProxy()(AlphasConfig(this->mu_b, MassType::POLE, MassType::POLE));
-    this->alpha_s_mu_f = ObsQCDProxy()(AlphasConfig(mu_f, MassType::POLE, MassType::POLE));
-    this->loop_f_mu_f = this->alpha_s_mu_f * QCDProvider().get_constants()->C_F / (4 * PI);
-    this->loop_f_mu_b = this->alpha_s_mu_b * QCDProvider().get_constants()->C_F / (4 * PI);
+    this->alpha_s_mu_b = (*iobs_qcdp)(AlphasConfig(this->mu_b, MassType::POLE, MassType::POLE));
+    this->alpha_s_mu_f = (*iobs_qcdp)(AlphasConfig(mu_f, MassType::POLE, MassType::POLE));
+    this->loop_f_mu_f = this->alpha_s_mu_f * iobs_qcdp->get_constants()->C_F / (4 * PI);
+    this->loop_f_mu_b = this->alpha_s_mu_b * iobs_qcdp->get_constants()->C_F / (4 * PI);
     // this->m_c_pole = (*p)(ParamId{ParameterType::SM, "QCD", 4});
     this->m_c_pole = 1.4790; // TODO : 1-loop value of m_c_pole to match superiso : implement in QCDHelper
     // this->m_b_pole = (*p)(ParamId{ParameterType::SM, "QCD", {5, 2}});
     this->m_b_pole = 4.5806; // TODO : 1-loop value of m_b_pole to match superiso : implement in QCDHelper
-    double eta_f = this->alpha_s_mu_f / ObsQCDProxy()(AlphasConfig(1.0, MassType::POLE, MassType::POLE));
+    double eta_f = this->alpha_s_mu_f / (*iobs_qcdp)(AlphasConfig(1.0, MassType::POLE, MassType::POLE));
     double m_b_pole_2loop = (*p)(ParamId{ParameterType::SM, "QCD", {5, 2}}, DataType::VALUE);
-    this->m_b_PS = m_b_pole_2loop - 4 * ObsQCDProxy()(AlphasConfig(m_b_pole_2loop, MassType::POLE, MassType::POLE)) * mu_f / (3 * PI);
+    this->m_b_PS = m_b_pole_2loop - 4 * (*iobs_qcdp)(AlphasConfig(m_b_pole_2loop, MassType::POLE, MassType::POLE)) * mu_f / (3 * PI);
     this->m_B = (*p)(ParamId{ParameterType::FLAVOR, "FMASS", B_id}, DataType::VALUE);
     this->m_X = (*p)(ParamId{ParameterType::FLAVOR, "FMASS", X_id}, DataType::VALUE);
     this->f_B = (*p)(ParamId{ParameterType::FLAVOR, "FCONST", {B_id, 1}}, DataType::VALUE);
@@ -51,7 +51,7 @@ BaseQCDfCalculator::BaseQCDfCalculator(int B_id, int X_id, double mu_b, const st
     this->z_c = std::pow(this->m_c_pole / this->m_b_PS, 2);
     this->L_b = std::log(this->mu_b / this->m_b_PS);
     this->Delta_M = -6. * this->L_b - 4. * (1. - mu_f / this->m_b_PS);
-    int Nc = ObsQCDProxy().get_constants()->Nc;
+    int Nc = iobs_qcdp->get_constants()->Nc;
     this->pref_par = PI2 * this->f_B * this->f_X_par / (Nc * this->m_B);
 
     if (X_id == 333) {
@@ -71,7 +71,7 @@ BaseQCDfCalculator::BaseQCDfCalculator(int B_id, int X_id, double mu_b, const st
         // printf("gamma2 = %.4e\n", gamma_perp(2));
         // printf("a10 = %.4e\n", std::real((*p)(ParamId{ParameterType::DECAY, this->src_block, {7, 1}})));
         // printf("a20 = %.4e\n", std::real((*p)(ParamId{ParameterType::DECAY, this->src_block, {7, 2}})));
-        this->f_X_perp = run((*p)(ParamId{ParameterType::FLAVOR, "FCONST", {X_id, 2}}, DataType::VALUE), eta_f, ObsQCDProxy().get_constants()->C_F);
+        this->f_X_perp = run((*p)(ParamId{ParameterType::FLAVOR, "FCONST", {X_id, 2}}, DataType::VALUE), eta_f, iobs_qcdp->get_constants()->C_F);
         this->a_1_perp = run((*p)(ParamId{ParameterType::DECAY, this->src_block, {7, 1}}, DataType::VALUE), eta_f, gamma_perp(1));
         this->a_2_perp = run((*p)(ParamId{ParameterType::DECAY, this->src_block, {7, 2}}, DataType::VALUE), eta_f, gamma_perp(2));
 
@@ -266,7 +266,7 @@ complex_t BaseQCDfCalculator::C_perp_nf(double q2, bool bar) {
     complex_t F_27 = BV::f_27(s_hat, this->L_b, this->z_c) * (1. + l_u) + BV::f_27_u(s_hat, this->L_b) * l_u;
 
     if (fpeq(q2, 0.0))
-        return -(this->C_bar[WCoef::C2] * F_27 + this->C[WCoef::C8] * BV::f_87(s_hat, this->L_b)) / ObsQCDProxy().get_constants()->C_F;
+        return -(this->C_bar[WCoef::C2] * F_27 + this->C[WCoef::C8] * BV::f_87(s_hat, this->L_b)) / iobs_qcdp->get_constants()->C_F;
 
     complex_t F_19 = BV::f_19_PS(s_hat, this->L_b, this->z_c) * (1. + l_u) + BV::f_19_u(s_hat, this->L_b) * l_u;
     complex_t F_29 = BV::f_29_PS(s_hat, this->L_b, this->z_c) * (1. + l_u) + BV::f_29_u(s_hat, this->L_b) * l_u;
@@ -279,7 +279,7 @@ complex_t BaseQCDfCalculator::C_perp_nf(double q2, bool bar) {
           + 2. * this->C_bar[WCoef::C1] * F_19
           + this->C[WCoef::C8] * BV::f_89(s_hat)
         )
-    ) / ObsQCDProxy().get_constants()->C_F;
+    ) / iobs_qcdp->get_constants()->C_F;
 }
 
 complex_t BaseQCDfCalculator::C_par_nf(double q2, bool bar) {
@@ -296,7 +296,7 @@ complex_t BaseQCDfCalculator::C_par_nf(double q2, bool bar) {
             (this->C_bar[WCoef::C2] + this->C_bar[WCoef::C1] / 3.) * F_29
            + 2. * this->C_bar[WCoef::C1] * F_19
            + this->C[WCoef::C8] * BV::f_89(s_hat))
-    ) / ObsQCDProxy().get_constants()->C_F;
+    ) / iobs_qcdp->get_constants()->C_F;
 }
 
 complex_t BaseQCDfCalculator::T_par_p_p_f(double u, double q2, bool bar) {

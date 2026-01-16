@@ -426,7 +426,7 @@ double BXsllDecay::PV_breit_wigner(double s, double m_V, double br, double gamma
     double m_V_hat = m_V / cache.m_b_1S;
     double m_V_hat2 = pow(m_V_hat, 2);
     double gamma_tot_hat = gamma_tot / cache.m_b_1S;
-    double gamma_had_hat = gamma_had / cache.m_b_1S; 
+    // double gamma_had_hat = gamma_had / cache.m_b_1S; //TODO : niels ?
     double den = (pow(s - pow(m_V_hat, 2), 2) + pow(m_V_hat * gamma_tot_hat, 2));
     double B = breit_wigner(s, m_V, br, gamma_tot, gamma_had);
     return 9. / pow(cache.alpha_em, 2) * B * (0.5 * log(den / pow(s_c - s, 2)) + (s - m_V_hat2) / gamma_tot_hat * m_V_hat * (atan((s_c - m_V_hat2) / gamma_tot_hat * m_V_hat) - PI / 2.));
@@ -646,7 +646,7 @@ double BXsllDecay::delta_bremB_base(double s) {
     auto C_0 = cache.C_LO;
     auto CP_0 = cache.C_LO;
     complex_t C9_0 = C9_eff(s, QCDOrder::LO, false);
-    complex_t CP9_0 = C9_eff(s, QCDOrder::LO, true);
+    // complex_t CP9_0 = C9_eff(s, QCDOrder::LO, true); //TODO : niels ?
 
     double C_f = (*iobs_qcdp).get_constants()->C_F;
     double C_tau_1 = C_f / (4. * pow((*iobs_qcdp).get_constants()->Nc, 2));

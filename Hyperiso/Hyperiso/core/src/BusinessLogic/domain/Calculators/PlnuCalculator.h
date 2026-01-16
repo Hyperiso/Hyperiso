@@ -1,11 +1,12 @@
-#ifndef __PLNUCALCULATOR_H__
-#define __PLNUCALCULATOR_H__
+#ifndef PLNUCALCULATOR_H
+#define PLNUCALCULATOR_H
 
 #include "Include.h"
 #include "ObsParameterProxy.h"
 
 class PlnuCalculator {
 private:
+    std::shared_ptr<IObsParameterProxy<ParamId, DataType, std::string, LhaID>> iobspp_sm;
     double m_P, tau_P, f_P;
     double m_l, m_qu, m_qd;
     double V_sq;
@@ -29,4 +30,4 @@ public:
     double R_SM_BSM();
 };
 
-#endif // __PLNUCALCULATOR_H__
+#endif // PLNUCALCULATOR_H

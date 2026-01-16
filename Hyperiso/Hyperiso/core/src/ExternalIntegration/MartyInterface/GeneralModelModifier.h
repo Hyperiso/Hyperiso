@@ -45,7 +45,7 @@ public:
     void modifyLine(std::string& line) override;
 
     /// @copydoc ModelModifier::addLine()
-    void addLine(std::ofstream& outputFile, const std::string& currentLine, bool addBefore) override;
+    void addLine(std::ofstream& outputFile, const std::string& currentLine) override;
 
 private:
     std::string model{};        ///< Target model name.

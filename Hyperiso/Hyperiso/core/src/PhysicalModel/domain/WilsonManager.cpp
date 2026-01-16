@@ -6,6 +6,7 @@ static int qcd_index(QCDOrder o) {
         case QCDOrder::LO:   return 0;
         case QCDOrder::NLO:  return 1;
         case QCDOrder::NNLO: return 2;
+        case QCDOrder::NONE: LOG_ERROR("ValueError", "Cannot handle QCDOrder::None as qcd index");
     }
     return 0;
 }
@@ -376,7 +377,7 @@ void CoefficientManager::init_specific_order_group_matching(const std::string& g
     }
 
     const bool has_input = ports_config.has_wilson->get();
-    const bool marty = ports_config.use_marty->get();
+    // const bool marty = ports_config.use_marty->get();
     const bool SM_model = (ports_config.model_api->get() == Model::SM);
 
     QCDOrder order = OrderMapper::enum_elt(orderStr);
@@ -537,7 +538,7 @@ complex_t CoefficientManager::getMatchingCoefficient(const std::string& groupNam
 
 complex_t CoefficientManager::getFullMatchingCoefficient(const std::string& groupName, const std::string& coeffName, const std::string& order, ContributionType cont_type) {
     double fact = (*ports_config.wilson_proxy)("WPARAM_MATCH_SM", 1) / (4 * PI);
-    int max_order = static_cast<int>(OrderMapper::enum_elt(order));
+    size_t max_order = static_cast<size_t>(OrderMapper::enum_elt(order));
     complex_t c {0};
     for (size_t o = 1; o <= max_order; o++) {
         c += this->getMatchingCoefficient(groupName, coeffName, OrderMapper::str(static_cast<QCDOrder>(o)), cont_type) * std::pow(fact, o - 1);
@@ -556,7 +557,7 @@ complex_t CoefficientManager::getRunCoefficient(const std::string& groupName, co
 
 complex_t CoefficientManager::getFullRunCoefficient(const std::string& groupName, const std::string& coeffName, const std::string& order, ContributionType cont_type, WilsonBasis basis) {
     double fact = (*ports_config.wilson_proxy)("WPARAM_RUN_SM", 1) / (4 * PI);
-    int max_order = static_cast<int>(OrderMapper::enum_elt(order));
+    size_t max_order = static_cast<size_t>(OrderMapper::enum_elt(order));
     complex_t c {0};
     for (size_t o = 1; o <= max_order; o++) {
         c += this->getRunCoefficient(groupName, coeffName, OrderMapper::str(static_cast<QCDOrder>(o)), cont_type, basis) * std::pow(fact, o - 1);
@@ -594,12 +595,12 @@ CoefficientManager::~CoefficientManager() {
 
 }
 
-void CoefficientManager::update(std::string group, double mu_W, double mu_h) {
+void CoefficientManager::update(double mu_W, double mu_h) {
     this->set_matching_scale(mu_W);
     this->set_hadronic_scale(mu_h);
 }
 
-std::shared_ptr<CoefficientManager> CoefficientManager::Builder(std::string model, std::map<std::string, std::shared_ptr<CoefficientGroup>> groups, double mu_W, double mu_h, std::string order, WilsonPortsConfig portconfig, std::map<Model, std::shared_ptr<IWilsonParameterHelper>> wilson_param_helpers) {
+std::shared_ptr<CoefficientManager> CoefficientManager::Builder( std::map<std::string, std::shared_ptr<CoefficientGroup>> groups, double mu_W, double mu_h, std::string order, WilsonPortsConfig portconfig, std::map<Model, std::shared_ptr<IWilsonParameterHelper>> wilson_param_helpers) {
     
     for (auto& helper : wilson_param_helpers) {
         if (!helper.second->is_init()) {

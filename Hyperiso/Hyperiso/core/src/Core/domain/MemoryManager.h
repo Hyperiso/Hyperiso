@@ -216,9 +216,8 @@ public:
      * Must be compatible with the loaded LHA file.
      *
      * @param model    The new model to switch to (default is SM).
-     * @param use_marty Whether to use external MARTY spectrum calculation (currently just a flag).
      */
-    void switch_model(Model model = Model::SM, bool use_marty = false);
+    void switch_model(Model model = Model::SM);
 
     /**
      * @brief Retrieves the current memory cache.

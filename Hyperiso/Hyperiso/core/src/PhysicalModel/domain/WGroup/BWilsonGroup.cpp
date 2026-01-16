@@ -1,6 +1,6 @@
 #include "BWilsonGroup.h"
 
-BCoefficientGroup::BCoefficientGroup(WilsonGroupAdapterConfig adapters, bool force_sm) : CoefficientGroup(adapters) {
+BCoefficientGroup::BCoefficientGroup(WilsonGroupAdapterConfig adapters) : CoefficientGroup(adapters) {
     LOG_TRACE("In BCoefficientGroup constructor");
     this->id = GroupMapper::to_id(WGroup::B);
 }

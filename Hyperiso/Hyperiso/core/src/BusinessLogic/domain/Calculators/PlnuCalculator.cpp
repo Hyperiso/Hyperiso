@@ -1,7 +1,7 @@
 #include "PlnuCalculator.h"
 
 PlnuCalculator::PlnuCalculator(int P_id, int l_id, complex_t C_A, complex_t C_P, 
-    std::shared_ptr<IObsParameterProxy<ParamId, DataType, std::string, LhaID>> p) {
+    std::shared_ptr<IObsParameterProxy<ParamId, DataType, std::string, LhaID>> p) : iobspp_sm(p) {
     if (!allowed_P.contains(P_id)) {
         LOG_ERROR("Logic Error", P_id, "is not a pseudoscalar meson");
     }
@@ -18,7 +18,7 @@ PlnuCalculator::PlnuCalculator(int P_id, int l_id, complex_t C_A, complex_t C_P,
 }
 
 double PlnuCalculator::BR_0_SM() {
-    double G_F = ObsParameterProxy()(ParamId{ParameterType::SM, "SMINPUTS", 2});
+    double G_F = (*iobspp_sm)(ParamId{ParameterType::SM, "SMINPUTS", 2}, DataType::VALUE);
     double r_l = std::pow(m_l / m_P, 2);
 
     return std::pow(G_F * f_P * m_l * (1 - r_l), 2) * V_sq * m_P * tau_P / (8 * PI);

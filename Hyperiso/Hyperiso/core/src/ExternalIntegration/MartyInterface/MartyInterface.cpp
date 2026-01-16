@@ -37,10 +37,10 @@ void MartyInterface::generate(std::string wilson, std::string model, std::string
     codeGenerator.generate(wilson, FileNameManager::getInstance(wilson, model)->getGeneratedFileName());
 }
 
-void MartyInterface::generate_numlib(std::string wilson, std::string model, double Q_match) {
+void MartyInterface::generate_numlib(std::string wilson, std::string model) {
     bool forceMode = false;
     std::unique_ptr<SMParamSetter> sm_p_setter = std::make_unique<SMParamSetter>(model, specials_block, param_proxy_sm, param_proxy_bsm);
-    std::unique_ptr<GeneralNumModelModifier> ModelModifier = std::make_unique<GeneralNumModelModifier>(wilson, model,this->specials_block, std::move(sm_p_setter), core_api, ports, forceMode);
+    std::unique_ptr<GeneralNumModelModifier> ModelModifier = std::make_unique<GeneralNumModelModifier>(wilson, model, std::move(sm_p_setter), core_api, ports, forceMode);
     
     std::unique_ptr<TemplateManagerBase> templateManager = std::make_unique<NumericTemplateManager>(FileNameManager::getInstance(wilson, model)->getLibDir());
     templateManager->setModelAndWilson(model, wilson);
@@ -58,11 +58,11 @@ void MartyInterface::compile_run_libs(std::string wilson, std::string model, dou
     compiler.compile_run(FileNameManager::getInstance(wilson, model)->getLibDir(), FileNameManager::getInstance(wilson,model)->getNumExecutableFileName());
 }
 
-void MartyInterface::calculate(std::string wilson, std::string model, double Q_match, std::string model_path, bool new_params) {
+void MartyInterface::calculate(std::string wilson, std::string model, double Q_match, std::string model_path) {
 
     generate(wilson, model, model_path);
     compile_run(wilson, model);
-    generate_numlib(wilson, model, Q_match);
+    generate_numlib(wilson, model);
     compile_run_libs(wilson, model, Q_match);
 }
 

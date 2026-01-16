@@ -38,7 +38,7 @@ public:
     explicit FakeMartyProxy(const fs::path& csv) : csv_path(csv) {}
 
     void calculate(std::string wilson, std::string model, double Q_match,
-                   std::string model_path, bool /*new_params*/ = false) override
+                   std::string model_path) override
     {
         last_wilson = wilson; last_model = model; last_Q = Q_match; last_model_path = model_path;
 

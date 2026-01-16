@@ -41,7 +41,7 @@ BScalar_SUSY_Base1_LO_calculation(
             double AlambdaNSSM = 1;
             double kappaNMSSM = 1;
             double m_Bs = 1;
-            double mass_nutl = 1;
+            // double mass_nutl = 1;
             
             double sw2 = src.get_val("WPARAM_SI_SM",4);
             double mH = src.get_val("MASS",37);
@@ -51,8 +51,9 @@ BScalar_SUSY_Base1_LO_calculation(
             double tanb = src.get_val("HMIX",2);
             double mW = src.get_val("MASS",24);
 
-            double mH0[4],mA0[3],mstop[3];
-        
+            // double mH0[4],mA0[3],mstop[3];
+            double mstop[3];
+
             mstop[0]=src.get_val("MASS",2000002); //mass upr, is that right ?
             mstop[1]=src.get_val("MASS",1000006);
             mstop[2]=src.get_val("MASS",2000006);
@@ -63,11 +64,12 @@ BScalar_SUSY_Base1_LO_calculation(
             double v=sqrt(1./sqrt(2.)/src.get_val("SMINPUTS",2));
             double v_deltam_s=v/s*(sqrt(2.)*AlambdaNSSM-2.*kappaNMSSM*s)/(sqrt(2.)*AlambdaNSSM+kappaNMSSM*s);
 
-            double Ralj[3][3][3],Qalj[4][3][3],G1[4][4][3][3];
-            double T2[4][4][4];
+            // double Ralj[3][3][3],Qalj[4][3][3],G1[4][4][3][3];
+            double Ralj[3][3][3],G1[4][4][3][3];
+            // double T2[4][4][4];
             std::array<std::array<double,4>,4> TU;
-            double vu=sqrt(pow(sin(atan(tanb)),2.)/sqrt(2.)/src.get_val("SMINPUTS",2));
-            double vd=vu/tanb;
+            // double vu=sqrt(pow(sin(atan(tanb)),2.)/sqrt(2.)/src.get_val("SMINPUTS",2));
+            // double vd=vu/tanb;
 
             TU[1][1]=1.;
             for(int ie=0;ie<2;ie++){
@@ -82,7 +84,7 @@ BScalar_SUSY_Base1_LO_calculation(
                         if (ae <3 ){
                             Ralj[ae][le][je]=-g2/sqrt(2.)*(src.get_val("NMAMIX",{ae+1, 1+1})*src.get_val("UMIX",{2+1, le+1})*src.get_val("VMIX",{2+1, je+1})+src.get_val("NMAMIX",{ae+1, 2+1})*src.get_val("UMIX",{1+1, le+1})*src.get_val("VMIX",{2+1, je+1}))-lambdaNMSSM/sqrt(2.)*src.get_val("NMAMIX",{ae+1, 3+1})*src.get_val("UMIX",{2+1, le+1})*src.get_val("VMIX",{2+1, je+1});
                         }
-                        Qalj[ae][le][je]=g2/sqrt(2.)*(src.get_val("NMHMIX",{ae+1,1+1})*src.get_val("UMIX",{2+1, le+1})*src.get_val("VMIX",{2+1, je+1})+src.get_val("NMHMIX",{ae+1, 2+1})*src.get_val("UMIX",{1+1, le+1})*src.get_val("VMIX",{2+1, je+1}))-lambdaNMSSM/sqrt(2.)*src.get_val("NMHMIX",{ae+1, 3+1})*src.get_val("UMIX",{2+1, le+1})*src.get_val("VMIX",{2+1, je+1});
+                        // Qalj[ae][le][je]=g2/sqrt(2.)*(src.get_val("NMHMIX",{ae+1,1+1})*src.get_val("UMIX",{2+1, le+1})*src.get_val("VMIX",{2+1, je+1})+src.get_val("NMHMIX",{ae+1, 2+1})*src.get_val("UMIX",{1+1, le+1})*src.get_val("VMIX",{2+1, je+1}))-lambdaNMSSM/sqrt(2.)*src.get_val("NMHMIX",{ae+1, 3+1})*src.get_val("UMIX",{2+1, le+1})*src.get_val("VMIX",{2+1, je+1});
                         for(int ke=1;ke<=3;ke++) {
                             G1[ae][ke][je][le]=(TU[ae][2]*TU[ke][2]-kron(ae,1)*kron(ke,1))*src.get_val("VMIX",{1+1, le+1})*src.get_val("UMIX",{2+1, je+1})-mass_top_muW/sqrt(2.)/sin(atan(tanb))/mW*TU[ae][3]*TU[ke][2]*src.get_val("VMIX",{2+1, le+1})*src.get_val("UMIX",{2+1, je+1});
                         }
@@ -98,7 +100,14 @@ BScalar_SUSY_Base1_LO_calculation(
             }
             complex_t CA=CAH+CAc;
             double width_A0=1.e-6;
-            coeff_temp2+=complex_t{v_deltam_s/2.*mass_b_2/sw2*src.get_val("WPARAM_SI_SM",3)*CA/(m_Bs*m_Bs-mA*mA,mA*width_A0)};
+            auto denom = complex_t{ m_Bs*m_Bs - mA*mA, mA*width_A0 };
+
+            auto num = v_deltam_s/2. * mass_b_2 / sw2
+                    * src.get_val("WPARAM_SI_SM", 3)
+                    * CA;
+
+            coeff_temp2 += num / denom;
+            // coeff_temp2+=complex_t{v_deltam_s/2.*mass_b_2/sw2*src.get_val("WPARAM_SI_SM",3)*CA/(m_Bs*m_Bs-mA*mA,mA*width_A0)};
         }
     }
     out[WCoefMapper::to_id(WCoef::CQ2)] += coeff_temp2;

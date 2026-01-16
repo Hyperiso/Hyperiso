@@ -118,7 +118,7 @@ public:
      * @throws std::runtime_error If logging to file fails.
      */
     template<typename... Args>
-    void log(LogLevel messageLevel, const char* file, int line, const char* func, const char* errorType, Args... args) noexcept(false);
+    void log(LogLevel messageLevel, const char* file, int line, const char* func, const char* errorType, const Args&... args) noexcept(false);
     
     /**
      * @brief Destructor for Logger, ensures graceful shutdown of logging.
@@ -170,15 +170,15 @@ private:
     
 
     template<typename T>
-    void logMessage(std::ostream& os, T value);
+    void logMessage(std::ostream& os, const T& value);
     template<typename T, typename... Args>
-    void logMessage(std::ostream& os, T value, Args... args);
+    void logMessage(std::ostream& os, const T& value, const Args&... args);
 
     template<typename... Args>
-    void logToFile(std::ostream& os, LogLevel messageLevel, const char* file, int line, const char* func, const char* errorType, Args... args);
+    void logToFile(std::ostream& os, LogLevel messageLevel, const char* file, int line, const char* func, const char* errorType, const Args&... args);
 
     template<typename... Args> 
-    void logToTerminal(std::ostream& os, LogLevel messageLevel, const char* errorType, Args... args); 
+    void logToTerminal(std::ostream& os, LogLevel messageLevel, const char* errorType, const Args&... args); 
 
     std::queue<std::string> logQueue; /**< Queue for holding log messages before writing to file. */
     std::thread loggingThread; /**< Thread for processing log queue asynchronously. */

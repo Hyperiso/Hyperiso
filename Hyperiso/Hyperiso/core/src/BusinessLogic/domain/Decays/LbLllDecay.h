@@ -78,7 +78,7 @@ protected:
     std::vector<ObservableValue> F_T();
 
 public:
-    LbLllDecay(QCDOrder order, double matching_scale, double hadronic_scale, ObservablePortsConfig& ports) : cache(ports.iobspp_sm), DecayParentConfigurable(DecayMapper::to_id(Decays::Lambda_b__Lambda_l_l), matching_scale, hadronic_scale, order, ports) {
+    LbLllDecay(QCDOrder order, double matching_scale, double hadronic_scale, ObservablePortsConfig& ports) :  DecayParentConfigurable(DecayMapper::to_id(Decays::Lambda_b__Lambda_l_l), matching_scale, hadronic_scale, order, ports), cache(ports.iobspp_sm) {
         this->w_config.groups = {GroupMapper::to_id(WGroup::B), GroupMapper::to_id(WGroup::BPrime)};
         this->max_order = QCDOrder::NNLO;
     }

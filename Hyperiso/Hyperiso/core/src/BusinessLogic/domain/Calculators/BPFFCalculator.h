@@ -1,8 +1,8 @@
-#ifndef __BPFFCALCULATOR_H__
-#define __BPFFCALCULATOR_H__
+#ifndef BPFFCALCULATOR_H
+#define BPFFCALCULATOR_H
 
 #include "Include.h"
-#include "ObsParameterProxy.h"
+#include "IObsParameterProxy.h"
 #include "IFFCalculator.h"
 
 enum class BP_FF {F_PLUS, F_0, F_T, XI_P};
@@ -10,6 +10,7 @@ enum class BP_FF_Src {AS, GRvDV, GKvD_SR_LAT, GKvD_SR, FLAG24, HPQCD22};
 
 class BPFFCalculator : public IFFCalculator<BP_FF> {
 private:
+    std::shared_ptr<IObsParameterProxy<ParamId, DataType, std::string, LhaID>> iobspp_sm;
     double m_B;
     double m_P;
     double t_p, t_m, t_0, z_0;
@@ -49,4 +50,4 @@ private:
 
 };
 
-#endif // __BPFFCALCULATOR_H__
+#endif // BPFFCALCULATOR_H

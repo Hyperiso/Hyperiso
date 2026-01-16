@@ -59,8 +59,8 @@ int main() {
         {
             std::ofstream f(out);
             std::string l = "#include <iostream>";
-            mod.addLine(f, l, /*addBefore*/false);
-            mod.addLine(f, "// nothing", false);
+            mod.addLine(f, l);
+            mod.addLine(f, "// nothing");
         }
         std::ifstream ifs(out);
         std::stringstream buf; buf << ifs.rdbuf();

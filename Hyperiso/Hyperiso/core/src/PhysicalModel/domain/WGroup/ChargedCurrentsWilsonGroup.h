@@ -8,9 +8,9 @@
 
 class BclnuCoefficientGroup : public CoefficientGroup {
 public:
-    BclnuCoefficientGroup(WilsonGroupAdapterConfig adapters, bool force_sm=false);
+    BclnuCoefficientGroup(WilsonGroupAdapterConfig adapters);
     std::shared_ptr<CoefficientGroup> clone() const override;
-    std::shared_ptr<CoefficientGroup> get_sm_group() override { return std::make_shared<BclnuCoefficientGroup>(adapters, true); }
+    std::shared_ptr<CoefficientGroup> get_sm_group() override { return std::make_shared<BclnuCoefficientGroup>(adapters); }
 
     static std::unordered_map<WCoefId, scalar_t> base_1_LO_calculation(
         const std::unordered_map<QCDOrder, std::unordered_map<WCoefId, scalar_t>>& coef_matching,
@@ -20,9 +20,9 @@ public:
 
 class BulnuCoefficientGroup : public CoefficientGroup {
 public:
-    BulnuCoefficientGroup(WilsonGroupAdapterConfig adapters, bool force_sm=false);
+    BulnuCoefficientGroup(WilsonGroupAdapterConfig adapters);
     std::shared_ptr<CoefficientGroup> clone() const override;
-    std::shared_ptr<CoefficientGroup> get_sm_group() override { return std::make_shared<BulnuCoefficientGroup>(adapters, true); }
+    std::shared_ptr<CoefficientGroup> get_sm_group() override { return std::make_shared<BulnuCoefficientGroup>(adapters); }
 
     static std::unordered_map<WCoefId, scalar_t> base_1_LO_calculation(
         const std::unordered_map<QCDOrder, std::unordered_map<WCoefId, scalar_t>>& coef_matching,

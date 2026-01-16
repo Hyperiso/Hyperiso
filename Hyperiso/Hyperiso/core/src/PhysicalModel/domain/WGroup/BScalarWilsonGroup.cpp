@@ -4,7 +4,7 @@ std::shared_ptr<CoefficientGroup> BScalarCoefficientGroup::clone() const {
     return std::make_shared<BScalarCoefficientGroup>(*this);
 }
 
-BScalarCoefficientGroup::BScalarCoefficientGroup(WilsonGroupAdapterConfig adapters, bool force_sm) : CoefficientGroup(adapters) {
+BScalarCoefficientGroup::BScalarCoefficientGroup(WilsonGroupAdapterConfig adapters) : CoefficientGroup(adapters) {
     LOG_TRACE("In BScalarCoefficientGroup constructor");
     this->id = GroupMapper::to_id(WGroup::BScalar);
 }

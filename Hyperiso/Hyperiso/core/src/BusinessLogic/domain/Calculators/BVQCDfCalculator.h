@@ -1,5 +1,5 @@
-#ifndef __BVQDCFCALCULATOR_H__
-#define __BVQDCFCALCULATOR_H__
+#ifndef BVQDCFCALCULATOR_H
+#define BVQDCFCALCULATOR_H
 
 #include "Include.h"
 #include "BVFFCalculator.h"
@@ -35,4 +35,4 @@ public:
 };
 
 
-#endif // __BVQDCFCALCULATOR_H__
+#endif // BVQDCFCALCULATOR_H

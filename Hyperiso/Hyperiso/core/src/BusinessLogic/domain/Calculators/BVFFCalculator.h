@@ -1,8 +1,8 @@
-#ifndef __BVCOMMON_H__
-#define __BVCOMMON_H__
+#ifndef BVCOMMON_H
+#define BVCOMMON_H
 
 #include "Include.h"
-#include "ObsParameterProxy.h"
+#include "IObsParameterProxy.h"
 #include "IFFCalculator.h"
 
 enum class BV_FF {A0, A1, A12, V, T1, T2, T23, A2, T3, XI_PERP, XI_PAR, F_PERP, F_PAR, F_0};
@@ -10,6 +10,7 @@ enum class BV_FF_Src {BSZ_SR_LAT, BSZ_SR, GRvDV, GKvD_SR_LAT, GKvD_SR, HLMW};
 
 class BVFFCalculator : public IFFCalculator<BV_FF> {
 private:
+    std::shared_ptr<IObsParameterProxy<ParamId, DataType, std::string, LhaID>> iobspp_sm;
     double m_B, m_B2, m_B4;
     double m_V, m_V2, m_V4;
     double t_p, t_m, t_0, z_0;
@@ -44,4 +45,4 @@ private:
     double f_0(double q2);
 };
 
-#endif // __BVCOMMON_H__
+#endif // BVCOMMON_H

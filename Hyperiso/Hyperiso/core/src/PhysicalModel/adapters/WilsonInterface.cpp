@@ -88,7 +88,7 @@ scalar_t WilsonInterface::getRunCoefficient(WGroup group, WCoef coeff, QCDOrder 
 }
 
 scalar_t WilsonInterface::getR(WGroup group, WCoef coeff, QCDOrder order, ContributionType cont_type, WilsonBasis basis) {
-    return getRunCoefficient(group, coeff, order, cont_type);
+    return getRunCoefficient(group, coeff, order, cont_type, basis);
 }
 
 scalar_t WilsonInterface::getFullRunCoefficient(WGroup group, WCoef coeff, QCDOrder order, ContributionType cont_type, WilsonBasis basis) {
@@ -109,7 +109,7 @@ scalar_t WilsonInterface::getFullRunCoefficient(WGroup group, WCoef coeff, QCDOr
 }
 
 scalar_t WilsonInterface::getFR(WGroup group, WCoef coeff, QCDOrder order, ContributionType cont_type, WilsonBasis basis) {
-    return getFullRunCoefficient(group, coeff, order, cont_type);
+    return getFullRunCoefficient(group, coeff, order, cont_type, basis);
 }
 
 std::map<QCDOrder, scalar_t> WilsonInterface::getSepOrderMatchingCoefficient(WGroup group, WCoef coeff, ContributionType cont_type) {
@@ -127,15 +127,15 @@ std::map<QCDOrder, scalar_t> WilsonInterface::getSM(WGroup group, WCoef coeff, C
 
 std::map<QCDOrder, scalar_t> WilsonInterface::getSepOrderRunCoefficient(WGroup group, WCoef coeff, ContributionType cont_type, WilsonBasis basis) {
     std::map<QCDOrder, scalar_t> C {{
-        {QCDOrder::LO, getRunCoefficient(group, coeff, QCDOrder::LO, cont_type)},
-        {QCDOrder::NLO, getRunCoefficient(group, coeff, QCDOrder::NLO, cont_type)},
-        {QCDOrder::NNLO, getRunCoefficient(group, coeff, QCDOrder::NNLO, cont_type)}
+        {QCDOrder::LO, getRunCoefficient(group, coeff, QCDOrder::LO, cont_type, basis)},
+        {QCDOrder::NLO, getRunCoefficient(group, coeff, QCDOrder::NLO, cont_type, basis)},
+        {QCDOrder::NNLO, getRunCoefficient(group, coeff, QCDOrder::NNLO, cont_type, basis)}
     }};
     return C;
 }
 
 std::map<QCDOrder, scalar_t> WilsonInterface::getSR(WGroup group, WCoef coeff, ContributionType cont_type, WilsonBasis basis) {
-    return getSepOrderRunCoefficient(group, coeff, cont_type);
+    return getSepOrderRunCoefficient(group, coeff, cont_type, basis);
 }
 
 std::map<WCoef, scalar_t> WilsonInterface::getAllMatchingCoefficients(WGroup group, QCDOrder order, ContributionType cont_type) {
@@ -156,14 +156,14 @@ std::map<WCoef, scalar_t> WilsonInterface::getAllRunCoefficients(WGroup group, Q
     std::vector<WCoef> ids = WCoefMapper::get_group(group);
     std::map<WCoef, scalar_t> Cs;
     for (auto c : ids) {
-        Cs.emplace(c, getRunCoefficient(group, c, order, cont_type));
+        Cs.emplace(c, getRunCoefficient(group, c, order, cont_type, basis));
     }
 
     return Cs;
 }
 
 std::map<WCoef, scalar_t> WilsonInterface::getAR(WGroup group, QCDOrder order, ContributionType cont_type, WilsonBasis basis) {
-    return getAllRunCoefficients(group, order, cont_type);
+    return getAllRunCoefficients(group, order, cont_type, basis);
 }
 
 std::map<WCoef, scalar_t> WilsonInterface::getAllFullMatchingCoefficients(WGroup group, QCDOrder order, ContributionType cont_type) {
@@ -184,12 +184,12 @@ std::map<WCoef, scalar_t> WilsonInterface::getAllFullRunCoefficients(WGroup grou
     std::vector<WCoef> ids = WCoefMapper::get_group(group);
     std::map<WCoef, scalar_t> Cs;
     for (auto c : ids) {
-        Cs.emplace(c, getFullRunCoefficient(group, c, order, cont_type));
+        Cs.emplace(c, getFullRunCoefficient(group, c, order, cont_type, basis));
     }
 
     return Cs;
 }
 
 std::map<WCoef, scalar_t> WilsonInterface::getAFR(WGroup group, QCDOrder order, ContributionType cont_type, WilsonBasis basis) {
-    return getAllFullRunCoefficients(group, order, cont_type);
+    return getAllFullRunCoefficients(group, order, cont_type, basis);
 }

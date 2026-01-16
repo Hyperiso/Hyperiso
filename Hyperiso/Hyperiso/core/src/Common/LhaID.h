@@ -102,19 +102,20 @@ struct LhaID {
      *
      * @param sub_ids Sub-identifiers of the element.
      */
-    LhaID(const std::vector<long>& sub_ids) : parts(std::move(sub_ids)) {}
+    LhaID(const std::vector<long>& sub_ids) : parts(sub_ids) {}
+    LhaID(std::vector<long>&& sub_ids) : parts(std::move(sub_ids)) {}
 
-    /**
-     * @brief Constructs an LhaID from an initializer list of sub-ids.
-     *
-     * This is especially convenient for brace-initialization:
-     * @code
-     * LhaID id{5, 2};
-     * @endcode
-     *
-     * @param sub_ids Sub-identifiers of the element.
-     */
-    LhaID(std::initializer_list<long> sub_ids) : parts(sub_ids) {}
+    // /**
+    //  * @brief Constructs an LhaID from an initializer list of sub-ids.
+    //  *
+    //  * This is especially convenient for brace-initialization:
+    //  * @code
+    //  * LhaID id{5, 2};
+    //  * @endcode
+    //  *
+    //  * @param sub_ids Sub-identifiers of the element.
+    //  */
+    // LhaID(std::initializer_list<long> sub_ids) : parts(sub_ids) {}
 
     /**
      * @brief Constructs an LhaID with a single identifier.

@@ -51,10 +51,8 @@ public:
      *
      * @param outputFile  Output stream to write to.
      * @param currentLine Line to be written.
-     * @param addBefore   Hint that the hook may use to insert content
-     *                    before this line (default implementation ignores it).
      */
-    virtual void addLine(std::ofstream& outputFile, const std::string& currentLine, bool addBefore) {outputFile << currentLine << "\n";};
+    virtual void addLine(std::ofstream& outputFile, const std::string& currentLine) {outputFile << currentLine << "\n";};
 
 protected:
     /// Name of the Wilson operator basis used in the model.

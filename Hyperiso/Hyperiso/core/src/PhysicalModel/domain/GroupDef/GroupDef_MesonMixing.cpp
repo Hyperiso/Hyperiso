@@ -3,8 +3,7 @@
 
 using CGS = CoefficientGroupSources;
 
-static void Setup_Mixing_RunningMatrices(const BuildContext& ctx, CoefficientGroup& grp) {
-    (void)grp;
+static void Setup_Mixing_RunningMatrices([[maybe_unused]] const BuildContext& ctx, [[maybe_unused]] CoefficientGroup& grp) {
     // TODO : compose ETA_POWS_MIXING, UM_MATRIX_5, UM_MATRIX_4 avec ctx.adapters.iblock_c->compose_block(...)
 }
 

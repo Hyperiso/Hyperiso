@@ -48,7 +48,7 @@ C2::C2() : WilsonCoefficient("C2", GroupMapper::str(WGroup::B, ScaleType::MATCHI
     };
 }
 
-double C2::compute_LO(const ParamSrc& src) {
+double C2::compute_LO(const ParamSrc&) {
     return 1.;
 }
 
@@ -243,7 +243,7 @@ C7::C7() : WilsonCoefficient("C7", GroupMapper::str(WGroup::B, ScaleType::MATCHI
     // NNLO
     matching_info[QCDOrder::NNLO] = {
         {
-            {"WPARAM_MATCH_SM", 3},           // L
+            // {"WPARAM_MATCH_SM", 3},           // L
             {"WPARAM_MATCH_SM", 6},           // mass_top_muW
             {"WPARAM_MATCH_SM", LhaID(2, 1)}, // x_t
             {"WPARAM_MATCH_SM", 7},           // xtW (top pole)
@@ -273,7 +273,7 @@ double C7::compute_NLO(const ParamSrc& src) {
 }
 
 double C7::compute_NNLO(const ParamSrc& src) {
-    double L     = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 3);
+    // double L     = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 3);
     double xt    = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1});
     double xtW   = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 7);
     double xtt   = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 8);
@@ -331,7 +331,7 @@ C8::C8() : WilsonCoefficient("C8", GroupMapper::str(WGroup::B, ScaleType::MATCHI
     // NNLO
     matching_info[QCDOrder::NNLO] = {
         {
-            {"WPARAM_MATCH_SM", 3},           // L
+            // {"WPARAM_MATCH_SM", 3},           // L
             {"WPARAM_MATCH_SM", 6},           // mass_top_muW
             {"WPARAM_MATCH_SM", LhaID(2, 1)}, // x_t
             {"WPARAM_MATCH_SM", 7},           // xtW
@@ -362,7 +362,7 @@ double C8::compute_NLO(const ParamSrc& src) {
 }
 
 double C8::compute_NNLO(const ParamSrc& src) {
-    double L     = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 3);
+    // double L     = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 3);
     double xt    = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1});
     double xtW   = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 7);
     double xtt   = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 8);

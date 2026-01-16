@@ -151,7 +151,7 @@ std::unordered_set<BlockName> SMModelStrategy::initializeParameters(Parameters& 
     return absent_blocks;
 }
 
-void SMModelStrategy::postInitialization(Parameters& params) {
+void SMModelStrategy::postInitialization(Parameters&) {
     // Ask Nazila : Which value to use ? BSM (i.e. from spectrum ?) or SMINPUTS-derived (dependent block) ?
     // auto gauge_update_func = [](std::shared_ptr<Block> src, std::shared_ptr<DependentBlock> dep_block) {
     //     double e_em = std::sqrt(4 * PI / src->getValue(1));
@@ -369,8 +369,9 @@ std::unordered_set<BlockName> PassthroughStrategy::initializeParameters(Paramete
 }
 
 
-void Parameters::changeParameterMode(const ParamId &param_id, ParameterMode new_mode) {
+void Parameters::changeParameterMode(const ParamId &, ParameterMode) {
     // blockAccessor->setMode(param_id.block, param_id.code, new_mode);
+    //TODO ?
 }
 
 void Parameters::shiftParameter(const ParamId &param_id, scalar_t shift_value) {

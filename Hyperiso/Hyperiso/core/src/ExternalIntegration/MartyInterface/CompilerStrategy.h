@@ -100,10 +100,10 @@ public:
     virtual bool check_if_compile(const std::string& outputBinary);
 
 protected:
-    /// Wilson basis / label name.
-    std::string wilson{};
     /// Model name.
-    std::string model{};
+    std::string model;
+    /// Wilson basis / label name.
+    std::string wilson;
 };
 
 #endif

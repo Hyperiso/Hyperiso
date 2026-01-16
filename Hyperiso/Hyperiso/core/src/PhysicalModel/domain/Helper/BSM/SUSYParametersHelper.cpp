@@ -1,6 +1,6 @@
 #include "SUSYParametersHelper.h"
 
-void SUSYParameterHelper::init(int gen, WGroupId grp) {
+void SUSYParameterHelper::init(int gen, WGroupId) {
 
 	if (initialized) {
 		return;
@@ -26,22 +26,22 @@ void SUSYParameterHelper::init_epsilon_block() {
 
     auto func = [] (const BlockSrc& src, std::shared_ptr<DependentBlock> dep_block) {
 
-        src.get_val("ALPHA", {});
+        src.get_val("ALPHA", LhaID());
 
         double g2 = src.get_val("GAUGE", 2);
         double alpha_em = src.get_val("SMINPUTS", 1);
 
-        double m_ds = src.get_val("MASS", 1000001);
-        double m_us = src.get_val("MASS", 1000002);
+        // double m_ds = src.get_val("MASS", 1000001);
+        // double m_us = src.get_val("MASS", 1000002);
         double m_ss = src.get_val("MASS", 1000003);
-        double m_cs = src.get_val("MASS", 1000004);
+        // double m_cs = src.get_val("MASS", 1000004);
         double m_bs = src.get_val("MASS", 1000005);
         double m_ts = src.get_val("MASS", 1000006);
 
-        double m_d2s = src.get_val("MASS", 2000001);
-        double m_u2s = src.get_val("MASS", 2000002);
-        double m_s2s = src.get_val("MASS", 2000003);
-        double m_c2s = src.get_val("MASS", 2000004);
+        // double m_d2s = src.get_val("MASS", 2000001);
+        // double m_u2s = src.get_val("MASS", 2000002);
+        // double m_s2s = src.get_val("MASS", 2000003);
+        // double m_c2s = src.get_val("MASS", 2000004);
         double m_b2s = src.get_val("MASS", 2000005);
         double m_t2s = src.get_val("MASS", 2000006);
 
@@ -207,7 +207,7 @@ void SUSYParameterHelper::init_epsilon_block() {
     iblock_c->compose_block("EPSILON_SUSY", src, func);
 }
 
-void SUSYParameterHelper::init_scale_independent_block(int gen) {
+void SUSYParameterHelper::init_scale_independent_block(int) {
 
 	std::unordered_map<ParameterType, std::vector<std::string>> src = {{ParameterType::SM, {"MASS", "GAUGE", "VCKM"}}, {ParameterType::BSM, {"MASS", "HMIX", "STOPMIX", "USQMIX"}}};
 
@@ -250,9 +250,9 @@ void SUSYParameterHelper::init_scale_independent_block(int gen) {
 		// Array2D_7x7 sU_mix; //ERROR
 		bool isNonZeroMix = true;
 
-		for (int j = 0; j < NumSquarks; ++j) {
+		for (size_t j = 0; j < NumSquarks; ++j) {
 			// std::cout << "su : " << src.get_val("USQMIX", {1, j+1}) << std::endl;
-			if (src.get_val("USQMIX", {1, j+1}) == 0.0) {
+			if (src.get_val("USQMIX", {size_t(1), j+1}) == 0.0) {
 				isNonZeroMix = false;
 				break;
 			}
@@ -262,41 +262,40 @@ void SUSYParameterHelper::init_scale_independent_block(int gen) {
 			std::sort(MsqU.begin(), MsqU.end());
 		}
 
-        int id {1};
-        dep_block->store_or_assign(id++, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", id}, z, 0., 0.)); //1
-		dep_block->store_or_assign(id++, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", id}, cosb, 0., 0.)); //2
-		dep_block->store_or_assign(id++, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", id}, sinb, 0., 0.)); //3
-		dep_block->store_or_assign(id++, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", id}, ct, 0., 0.)); //4
-		dep_block->store_or_assign(id++, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", id}, st, 0., 0.)); //5
-        dep_block->store_or_assign(id++, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", id}, beta, 0., 0.)); //6
-        dep_block->store_or_assign(id++, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", id}, lu, 0., 0.)); //7
-        dep_block->store_or_assign(id++, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", id}, ld, 0., 0.)); //8
-        dep_block->store_or_assign(id++, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", id}, alphas_mg, 0., 0.)); //9
-        dep_block->store_or_assign(id++, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", id}, ag, 0., 0.)); //10
-		dep_block->store_or_assign(id++, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", id}, aY, 0., 0.)); //11
-		dep_block->store_or_assign({id, 0}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM",{id, 0}}, ME[0], 0., 0.)); //12
-		dep_block->store_or_assign({id, 1}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", {id, 1}}, ME[1], 0., 0.)); //12
-		dep_block->store_or_assign({id++, 2}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", {id, 2}}, ME[2], 0., 0.)); //12
-		dep_block->store_or_assign({id, 0}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM",{id, 0}}, Mch[0], 0., 0.)); //13
-		dep_block->store_or_assign({id++, 1}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", {id, 1}}, Mch[1], 0., 0.)); //13
-		dep_block->store_or_assign({id, 0}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM",{id, 0}}, MsqU[0], 0., 0.)); //14
-		dep_block->store_or_assign({id, 1}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM",{id, 1}}, MsqU[1], 0., 0.)); //14
-		dep_block->store_or_assign({id, 2}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM",{id, 2}}, MsqU[2], 0., 0.)); //14
-		dep_block->store_or_assign({id, 3}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM",{id, 3}}, MsqU[3], 0., 0.)); //14
-		dep_block->store_or_assign({id, 4}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM",{id, 4}}, MsqU[4], 0., 0.)); //14
-		dep_block->store_or_assign({id++, 5}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", {id, 5}}, MsqU[5], 0., 0.)); //14
-		dep_block->store_or_assign({id, 0}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM",{id, 0}}, MsqD[0], 0., 0.)); //15
-		dep_block->store_or_assign({id, 1}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM",{id, 1}}, MsqD[1], 0., 0.)); //15
-		dep_block->store_or_assign({id, 2}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM",{id, 2}}, MsqD[2], 0., 0.)); //15
-		dep_block->store_or_assign({id, 3}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM",{id, 3}}, MsqD[3], 0., 0.)); //15
-		dep_block->store_or_assign({id, 4}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM",{id, 4}}, MsqD[4], 0., 0.)); //15
-		dep_block->store_or_assign({id++, 5}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", {id, 5}}, MsqD[5], 0., 0.)); //15
-		dep_block->store_or_assign({id, 0}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM",{id, 0}}, Msn[0], 0., 0.)); //16
-		dep_block->store_or_assign({id, 1}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", {id, 1}}, Msn[1], 0., 0.)); //16
-		dep_block->store_or_assign({id++, 2}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", {id, 2}}, Msn[2], 0., 0.)); //16
-		dep_block->store_or_assign(id++, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", id}, (double)isNonZeroMix, 0., 0.)); //17
-		dep_block->store_or_assign(id++, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", id}, kappaFactor, 0., 0.)); //18
-		dep_block->store_or_assign(id++, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", id}, kappa, 0., 0.)); //19
+        dep_block->store_or_assign(1, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", 1}, z, 0., 0.)); //1
+		dep_block->store_or_assign(2, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", 2}, cosb, 0., 0.)); //2
+		dep_block->store_or_assign(3, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", 3}, sinb, 0., 0.)); //3
+		dep_block->store_or_assign(4, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", 4}, ct, 0., 0.)); //4
+		dep_block->store_or_assign(5, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", 5}, st, 0., 0.)); //5
+        dep_block->store_or_assign(6, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", 6}, beta, 0., 0.)); //6
+        dep_block->store_or_assign(7, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", 7}, lu, 0., 0.)); //7
+        dep_block->store_or_assign(8, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", 8}, ld, 0., 0.)); //8
+        dep_block->store_or_assign(9, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", 9}, alphas_mg, 0., 0.)); //9
+        dep_block->store_or_assign(10, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", 10}, ag, 0., 0.)); //10
+		dep_block->store_or_assign(11, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", 11}, aY, 0., 0.)); //11
+		dep_block->store_or_assign({12, 0}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM",{12, 0}}, ME[0], 0., 0.)); //12
+		dep_block->store_or_assign({12, 1}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", {12, 1}}, ME[1], 0., 0.)); //12
+		dep_block->store_or_assign({12, 2}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", {12, 2}}, ME[2], 0., 0.)); //12
+		dep_block->store_or_assign({13, 0}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM",{13, 0}}, Mch[0], 0., 0.)); //13
+		dep_block->store_or_assign({13, 1}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", {13, 1}}, Mch[1], 0., 0.)); //13
+		dep_block->store_or_assign({14, 0}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM",{14, 0}}, MsqU[0], 0., 0.)); //14
+		dep_block->store_or_assign({14, 1}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM",{14, 1}}, MsqU[1], 0., 0.)); //14
+		dep_block->store_or_assign({14, 2}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM",{14, 2}}, MsqU[2], 0., 0.)); //14
+		dep_block->store_or_assign({14, 3}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM",{14, 3}}, MsqU[3], 0., 0.)); //14
+		dep_block->store_or_assign({14, 4}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM",{14, 4}}, MsqU[4], 0., 0.)); //14
+		dep_block->store_or_assign({14, 5}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", {14, 5}}, MsqU[5], 0., 0.)); //14
+		dep_block->store_or_assign({15, 0}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM",{15, 0}}, MsqD[0], 0., 0.)); //15
+		dep_block->store_or_assign({15, 1}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM",{15, 1}}, MsqD[1], 0., 0.)); //15
+		dep_block->store_or_assign({15, 2}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM",{15, 2}}, MsqD[2], 0., 0.)); //15
+		dep_block->store_or_assign({15, 3}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM",{15, 3}}, MsqD[3], 0., 0.)); //15
+		dep_block->store_or_assign({15, 4}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM",{15, 4}}, MsqD[4], 0., 0.)); //15
+		dep_block->store_or_assign({15, 5}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", {15, 5}}, MsqD[5], 0., 0.)); //15
+		dep_block->store_or_assign({16, 0}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM",{16, 0}}, Msn[0], 0., 0.)); //16
+		dep_block->store_or_assign({16, 1}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", {16, 1}}, Msn[1], 0., 0.)); //16
+		dep_block->store_or_assign({16, 2}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", {16, 2}}, Msn[2], 0., 0.)); //16
+		dep_block->store_or_assign(17, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", 17}, (double)isNonZeroMix, 0., 0.)); //17
+		dep_block->store_or_assign(18, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", 18}, kappaFactor, 0., 0.)); //18
+		dep_block->store_or_assign(19, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", 19}, kappa, 0., 0.)); //19
     };
 
     iblock_c->compose_block("WPARAM_SI_BSM", src, func);
@@ -353,7 +352,6 @@ void SUSYParameterHelper::init_matching_block() {
 		complex_t c32 = src.get_val("VCKM", {2,1});
 		complex_t c33 = src.get_val("VCKM", {2,2});
 
-		complex_t complexTerm = -(c32 * c33 + c22 * c23) / c12;
 
 		Array2D_4x4_I VCKM = {{
 			{
@@ -374,7 +372,6 @@ void SUSYParameterHelper::init_matching_block() {
 		}};
 
 		double B0c1 = 0.0, B0c2 = 0.0, B90c = 0.0, B100c = 0.0, C90c = 0.0, D90c = 0.0;
-    	bool test;
 
         double mW = src.get_val("MASS", 24);
 		double g2 = src.get_val("GAUGE", 2);
@@ -456,24 +453,9 @@ void SUSYParameterHelper::init_matching_block() {
 			}
 		}
 
-		
-		auto computeContributions = [&](int ie, auto func, double additionalFactor = 1.0) {
-			double result = 0.0;
-			for (int ae = 0; ae < 6; ++ae) {
-				double msqOverMchSquared = std::pow(src.get_val("WPARAM_SI_BSM", {14, ae}) / src.get_val("WPARAM_SI_BSM", {13, ie}), 2.0);
-				result += (X_UL[ie][ae][0] * X_UL[ie][ae][1] * func(msqOverMchSquared) + 
-				src.get_val("WPARAM_SI_BSM", {13, ie}) / src.get_val("WPARAM_MATCH_SM", {5,1}) * X_UL[ie][ae][0] * X_UR[ie][ae][1] * func(msqOverMchSquared)) * additionalFactor;
-			}
-			return result;
-		};
 
 
-		auto hFunc10 = [](double x) { return h10(x); };
-		auto hFunc20 = [](double x) { return h20(x); };
-		auto hFunc50 = [](double x) { return h50(x); };
-		auto hFunc60 = [](double x) { return h60(x); };
-
-		double kappaFactor = -0.5 * src.get_val("WPARAM_SI_BSM", 6);
+		// double kappaFactor = -0.5 * src.get_val("WPARAM_SI_BSM", 6);
 
 		
 		for (int ie = 0; ie < 2; ++ie) {
@@ -512,26 +494,27 @@ void SUSYParameterHelper::init_matching_block() {
 		B100c = (B0c1 + B0c2) * src.get_val("WPARAM_SI_BSM", 19) * std::pow(mW, 2.0) / (2.0 * std::pow(g2, 2.0));
 		C90c *= -src.get_val("WPARAM_SI_BSM", 19) / 8.0;
 		D90c *= src.get_val("WPARAM_SI_BSM", 19);
+		
+		//TODO : to check 
+		// bool test = true;
+		// for (int ae = 0; ae < 6; ++ae) {
+		// 	if (!(std::fabs(src.get_val("WPARAM_SI_BSM", {14, ae})) > mW / 2. && std::fabs(src.get_val("WPARAM_SI_BSM", {15, ae})) > mW / 2.)) {
+		// 		test = false;
+		// 		break;
+		// 	}
+		// }
 
-		test = true;
-		for (int ae = 0; ae < 6; ++ae) {
-			if (!(std::fabs(src.get_val("WPARAM_SI_BSM", {14, ae})) > mW / 2. && std::fabs(src.get_val("WPARAM_SI_BSM", {15, ae})) > mW / 2.)) {
-				test = false;
-				break;
-			}
-		}
 
-
-		for (int i = 0; i < Gamma_UL.size(); ++i) {
-			for (int j = 0; j < Gamma_UL[i].size(); ++j) {
+		for (size_t i = 0; i < Gamma_UL.size(); ++i) {
+			for (size_t j = 0; j < Gamma_UL[i].size(); ++j) {
 				dep_block->store_or_assign({1,i,j}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "MATRIX_BSM", {1,i,j}}, Gamma_UL[i][j], 0., 0.)); //1
 				dep_block->store_or_assign({2,i,j}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "MATRIX_BSM", {2,i,j}}, Gamma_UR[i][j], 0., 0.)); //2
 			}
 		}
 
-		for (int i = 0; i < X_UL.size(); ++i) {
-			for (int j = 0; j < X_UL[i].size(); ++j) {
-				for (int k = 0; k < X_UL[i][j].size(); ++k) {
+		for (size_t i = 0; i < X_UL.size(); ++i) {
+			for (size_t j = 0; j < X_UL[i].size(); ++j) {
+				for (size_t k = 0; k < X_UL[i][j].size(); ++k) {
 					dep_block->store_or_assign({3,i,j,k}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "MATRIX_BSM", {3,i,j,k}}, X_UL[i][j][k], 0., 0.)); //3
 					dep_block->store_or_assign({4,i,j,k}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "MATRIX_BSM", {4,i,j,k}}, X_UR[i][j][k], 0., 0.)); //4
 					dep_block->store_or_assign({5,i,j,k}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "MATRIX_BSM", {5,i,j,k}}, X_NL[i][j][k], 0., 0.)); //5
@@ -540,25 +523,25 @@ void SUSYParameterHelper::init_matching_block() {
 			}
 		}
 
-		for (int i = 0; i < Gamma_U.size(); ++i) {
-			for (int j = 0; j < Gamma_U[i].size(); ++j) {
+		for (size_t i = 0; i < Gamma_U.size(); ++i) {
+			for (size_t j = 0; j < Gamma_U[i].size(); ++j) {
 				dep_block->store_or_assign({7,i,j}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "MATRIX_BSM", {7,i,j}}, Gamma_U[i][j], 0., 0.)); //7
 				dep_block->store_or_assign({8,i,j}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "MATRIX_BSM", {8,i,j}}, I_LR[i][j], 0., 0.)); //8
 				dep_block->store_or_assign({9,i,j}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "MATRIX_BSM", {9,i,j}}, P_U[i][j], 0., 0.)); //9
 			}
 		}
 
-		for (int i = 0; i < Gamma_NL.size(); ++i) {
-			for (int j = 0; j < Gamma_NL[i].size(); ++j) {
+		for (size_t i = 0; i < Gamma_NL.size(); ++i) {
+			for (size_t j = 0; j < Gamma_NL[i].size(); ++j) {
 				dep_block->store_or_assign({10,i,j}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "MATRIX_BSM", {10,i,j}}, Gamma_NL[i][j], 0., 0.)); //10
 				dep_block->store_or_assign({11,i,j}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "MATRIX_BSM", {11,i,j}}, Gamma_NR[i][j], 0., 0.)); //11
 			}
 		}
 
-		for (int i = 0; i < G_aimn.size(); ++i) {
-			for (int j = 0; j < G_aimn[i].size(); ++j) {
-				for (int k = 0; k < G_aimn[i][j].size(); ++k) {
-					for (int l = 0; l < G_aimn[i][j][k].size(); ++l) {
+		for (size_t i = 0; i < G_aimn.size(); ++i) {
+			for (size_t j = 0; j < G_aimn[i].size(); ++j) {
+				for (size_t k = 0; k < G_aimn[i][j].size(); ++k) {
+					for (size_t l = 0; l < G_aimn[i][j][k].size(); ++l) {
 						dep_block->store_or_assign({12, i, j, k, l}, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "MATRIX_BSM", {12, i, j, k, l}}, G_aimn[i][j][k][l], 0., 0.)); //12
 					}
 				}

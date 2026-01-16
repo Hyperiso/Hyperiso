@@ -116,7 +116,7 @@ public:
      * @param Q_match  Matching scale (GeV) used later by libraries (currently
      *                 forwarded to compilation stage).
      */
-    void generate_numlib(std::string wilson, std::string model, double Q_match);
+    void generate_numlib(std::string wilson, std::string model);
 
     /**
      * @brief Compiles and runs the numeric libraries.
@@ -144,9 +144,8 @@ public:
      * @param model       Model name.
      * @param Q_match     Matching scale for numeric libraries.
      * @param model_path  Path to the C++ model header.
-     * @param new_params  Reserved for future use (currently ignored).
      */
-    void calculate(std::string wilson, std::string model, double Q_match, std::string model_path, bool new_params=false);
+    void calculate(std::string wilson, std::string model, double Q_match, std::string model_path);
 
     /**
      * @brief Retrieves the set of parameter dependencies for a given Wilson basis.
@@ -212,11 +211,12 @@ private:
     /// Core API used to retrieve the current ::Model.
     std::shared_ptr<ICoreAPI<Model>> core_api;
 
+    /// Proxy to SM parameters.
+    std::shared_ptr<IMartyParameterProxy<std::string, LhaID>> param_proxy_sm;
+    
     /// Factory for building interpreter ports (resolvers, mapping adapters).
     std::shared_ptr<IInterpreterPortsFactory> ports;
 
-    /// Proxy to SM parameters.
-    std::shared_ptr<IMartyParameterProxy<std::string, LhaID>> param_proxy_sm;
 
     /// Optional proxy to BSM parameters (may be null if unused).
     std::shared_ptr<IMartyParameterProxy<std::string, LhaID>> param_proxy_bsm = nullptr;

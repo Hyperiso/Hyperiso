@@ -1,7 +1,7 @@
 #include "THDMParametersHelper.h"
 
 
-void THDMParameterHelper::init(int gen, WGroupId grp) {
+void THDMParameterHelper::init(int gen, WGroupId) {
     if (initialized) {
 		return;
 	}
@@ -12,7 +12,7 @@ void THDMParameterHelper::init(int gen, WGroupId grp) {
     initialized = true;
 }
 
-void THDMParameterHelper::init_scale_independent_block(int gen) {
+void THDMParameterHelper::init_scale_independent_block(int) {
 	std::unordered_map<ParameterType, std::vector<std::string>> src = {{ParameterType::SM, {"MASS"}}, {ParameterType::BSM, {"MASS", "ALPHA", "MINPAR", "YU", "YD", "YE"}},
                                                                         {ParameterType::WILSON, {"WPARAM_SI_SM"}}};
 
@@ -29,17 +29,17 @@ void THDMParameterHelper::init_scale_independent_block(int gen) {
         double xH=pow(m_H/mW,2.);
         double xH0=pow(src.get_val("MASS" ,35) / mW, 2.);
         double xA=pow(src.get_val("MASS" ,36) / mW, 2.);
-        int id {1};
-        dep_block->store_or_assign(id++, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", id}, xh, 0., 0.));
-		dep_block->store_or_assign(id++, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", id}, xH, 0., 0.));
-		dep_block->store_or_assign(id++, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", id}, xH0, 0., 0.));
-		dep_block->store_or_assign(id++, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", id}, xA, 0., 0.));
-		dep_block->store_or_assign(id++, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", id}, m_H, 0., 0.));
-        dep_block->store_or_assign(id++, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", id}, beta, 0., 0.)); 
-        dep_block->store_or_assign(id++, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", id}, lu, 0., 0.));
-        dep_block->store_or_assign(id++, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", id}, ld, 0., 0.));
-        dep_block->store_or_assign(id++, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", id}, alpha, 0., 0.));
-        dep_block->store_or_assign(id++, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", id}, le, 0., 0.)); 
+
+        dep_block->store_or_assign(1, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", 1}, xh, 0., 0.));
+		dep_block->store_or_assign(2, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", 2}, xH, 0., 0.));
+		dep_block->store_or_assign(3, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", 3}, xH0, 0., 0.));
+		dep_block->store_or_assign(4, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", 4}, xA, 0., 0.));
+		dep_block->store_or_assign(5, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", 5}, m_H, 0., 0.));
+        dep_block->store_or_assign(6, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", 6}, beta, 0., 0.)); 
+        dep_block->store_or_assign(7, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", 7}, lu, 0., 0.));
+        dep_block->store_or_assign(8, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", 8}, ld, 0., 0.));
+        dep_block->store_or_assign(9, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", 9}, alpha, 0., 0.));
+        dep_block->store_or_assign(10, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", 10}, le, 0., 0.)); 
     };
 
     iblock_c->compose_block("WPARAM_SI_BSM", src, func);

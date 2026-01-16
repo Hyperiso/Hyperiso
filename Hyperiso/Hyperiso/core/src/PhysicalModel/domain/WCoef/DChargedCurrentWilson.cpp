@@ -8,7 +8,7 @@ C_V1_cs::C_V1_cs() : WilsonCoefficient("C_V1_cs", GroupMapper::str(WGroup::CC_cs
     };
 }
 
-double C_V1_cs::compute_LO(const ParamSrc& src) {
+double C_V1_cs::compute_LO(const ParamSrc&) {
     return 1.0;
 }
 
@@ -22,6 +22,6 @@ C_V1_cd::C_V1_cd() : WilsonCoefficient("C_V1_cd", GroupMapper::str(WGroup::CC_cd
     };
 }
 
-double C_V1_cd::compute_LO(const ParamSrc& src) {
+double C_V1_cd::compute_LO(const ParamSrc&) {
     return 1.0;
 }

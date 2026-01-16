@@ -1,5 +1,5 @@
-#ifndef __IFFCALCULATOR_H__
-#define __IFFCALCULATOR_H__
+#ifndef IFFCALCULATOR_H
+#define IFFCALCULATOR_H
 
 template<typename FFType>
 class IFFCalculator {

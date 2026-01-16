@@ -66,11 +66,11 @@ void BsPhiDecay::load_params() {
     fill_cache(lam_T_par_m, cache.q2_min, cache.q2_high, cache.T_par_m_lookup, false); 
     fill_cache(lam_T_par_m, cache.q2_min, cache.q2_high, cache.T_par_m_bar_lookup, true);
 
-    double q2 = 15.0;
-    double u = 0.5;
-    complex_t Tperpp = cache.qcdf_calculator.T_perp_p(q2, false);
-    complex_t Tperpm = cache.qcdf_calculator.T_perp_m(q2, false);
-    complex_t Tparm = cache.qcdf_calculator.T_par_m(q2, false);
+    // double q2 = 15.0; //TODO : niels ?
+    // double u = 0.5; //TODO : niels ?
+    // complex_t Tperpp = cache.qcdf_calculator.T_perp_p(q2, false);//TODO : niels ?
+    // complex_t Tperpm = cache.qcdf_calculator.T_perp_m(q2, false);//TODO : niels ?
+    // complex_t Tparm = cache.qcdf_calculator.T_par_m(q2, false);//TODO : niels ?
 
     // printf("T_perp_p(s = %.3f) = %.4e + %.4e i\n", q2, std::real(Tperpp), std::imag(Tperpp));
     // printf("T_perp_m(s = %.3f) = %.4e + %.4e i\n", q2, std::real(Tperpm), std::imag(Tperpm));
@@ -365,7 +365,7 @@ complex_t BsPhiDecay::C9_eff(double q2, bool bar) {
     complex_t C_mc = 8. * ((4./9.*cache.C[WCoef::C1]+1./3.*cache.C[WCoef::C2])*(1.+l_u)+2.*cache.C[WCoef::C3]+20.*cache.C[WCoef::C5]);
 
     double s_hat = q2 / std::pow(cache.m_b_PS, 2);
-    complex_t A = BV::A_Seidel(s_hat, cache.L_b);
+    // complex_t A = BV::A_Seidel(s_hat, cache.L_b); //TODO : niels ?
     complex_t B = BV::B_Seidel(s_hat, cache.L_b);
     complex_t C = BV::C_Seidel(q2, cache.mu_b);
 

@@ -70,12 +70,12 @@ complex_t BVQCDfCalculator::H_2() {
     // printf("T1(0) = %.4e\n", ff_calculator->get(BV_FF::T1, 0.0));
     // printf("lambda_B = %.4e\n", lambda_B_p);
 
-    double Nc = ObsQCDProxy().get_constants()->Nc;
+    double Nc = iobs_qcdp->get_constants()->Nc;
     return -2 * PI2 * f_B * f_X_perp / (3 * Nc * m_B * lambda_B_p * ff_calculator->get(BV_FF::T1, 0.0)) * c_integrate(iH2_perp, 0, 1, 1e-4);
 }
 
 double BVQCDfCalculator::H_8() {
-    double Nc = ObsQCDProxy().get_constants()->Nc;
+    double Nc = iobs_qcdp->get_constants()->Nc;
     return 4. * PI2 * f_B * f_X_perp / (Nc * m_B * lambda_B_p * ff_calculator->get(BV_FF::T1, 0.0)) * (1 - a_1_perp + a_2_perp);
 }
 
@@ -97,7 +97,7 @@ complex_t BVQCDfCalculator::T_perp_p(double q2, bool bar) {
     if (fpeq(q2, 0.0)) {
         // Eq. (8) of BFS 0412400
         xi_perp = this->ff_calculator->get(BV_FF::T1, 0.0) * (1 - this->loop_f_mu_b)
-                    + this->loop_f_mu_f * 12 * PI2 * this->f_B * this->f_X_perp / (ObsQCDProxy().get_constants()->Nc * this->m_B * this->lambda_B_p) * F_perp(0.0);
+                    + this->loop_f_mu_f * 12 * PI2 * this->f_B * this->f_X_perp / (iobs_qcdp->get_constants()->Nc * this->m_B * this->lambda_B_p) * F_perp(0.0);
     } else {
         xi_perp = this->ff_calculator->get(BV_FF::XI_PERP, q2);
     }
@@ -116,8 +116,8 @@ complex_t BVQCDfCalculator::T_perp_m(double q2, bool bar) {
 
     double xi_perp;
     if (fpeq(q2, 0.0)) {
-        xi_perp = this->ff_calculator->get(BV_FF::T1, 0.0) * (1 - this->alpha_s_mu_b * ObsQCDProxy().get_constants()->C_F / (4 * PI))
-                    + this->alpha_s_mu_f * ObsQCDProxy().get_constants()->C_F / (4 * PI) * 4 * PI2 * this->f_B * this->f_X_perp / (ObsQCDProxy().get_constants()->Nc * this->m_B * this->lambda_B_p) * 3 * F_perp(0.0);
+        xi_perp = this->ff_calculator->get(BV_FF::T1, 0.0) * (1 - this->alpha_s_mu_b * iobs_qcdp->get_constants()->C_F / (4 * PI))
+                    + this->alpha_s_mu_f * iobs_qcdp->get_constants()->C_F / (4 * PI) * 4 * PI2 * this->f_B * this->f_X_perp / (iobs_qcdp->get_constants()->Nc * this->m_B * this->lambda_B_p) * 3 * F_perp(0.0);
     } else {
         xi_perp = this->ff_calculator->get(BV_FF::XI_PERP, q2);
     }
@@ -142,7 +142,7 @@ complex_t BVQCDfCalculator::T_par_m(double q2, bool bar) {
 
 complex_t BVQCDfCalculator::Delta_par(double q2) {
     return 1. + 2 * this->loop_f_mu_b * (
-        L(q2) - 1 - 3. * PI2 * q2 * this->f_B * this->f_X_par * this->m_X / (ObsQCDProxy().get_constants()->Nc * this->m_B * this->lambda_B_p * this->ff_calculator->get(BV_FF::XI_PAR, q2) * std::pow(this->E(q2), 3)) * F_perp(0.0)
+        L(q2) - 1 - 3. * PI2 * q2 * this->f_B * this->f_X_par * this->m_X / (iobs_qcdp->get_constants()->Nc * this->m_B * this->lambda_B_p * this->ff_calculator->get(BV_FF::XI_PAR, q2) * std::pow(this->E(q2), 3)) * F_perp(0.0)
     );
 }
 
@@ -190,7 +190,7 @@ complex_t BVQCDfCalculator::delta_T_perp_WA(double q2, bool bar) {
 }
 
 complex_t BVQCDfCalculator::delta_T_perp_HSA(double q2, bool bar) {
-    double pref = this->e_q * this->loop_f_mu_f * 4 * PI2 * this->f_B / (ObsQCDProxy().get_constants()->Nc * this->m_b_PS * this->m_B);
+    double pref = this->e_q * this->loop_f_mu_f * 4 * PI2 * this->f_B / (iobs_qcdp->get_constants()->Nc * this->m_b_PS * this->m_B);
     double s_hat = q2 / (this->m_B * this->m_B);
 
     // printf("X_perp = %.4e + %.4e i\n", std::real(X_perp(s_hat)), std::imag(X_perp(s_hat)));

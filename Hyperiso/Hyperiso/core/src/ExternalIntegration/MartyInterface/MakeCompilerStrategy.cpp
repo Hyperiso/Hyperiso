@@ -11,7 +11,7 @@ void MakeCompilerStrategy::compile_run(const std::string& sourceFile, const std:
     executeCommand(command_run);
 }
 
-void MakeCompilerStrategy::compile(const std::string& sourceFile, const std::string& outputBinary) {
+void MakeCompilerStrategy::compile(const std::string& sourceFile, const std::string&) {
     std::string command = "cd " + sourceFile + " && make";
     executeCommand(command);
 }

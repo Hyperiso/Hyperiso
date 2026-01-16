@@ -150,8 +150,8 @@ class MemoryManager:
     def switch_lha(self, lhaFile : str, model : Model, use_marty : bool = False, is_spectrum : bool = False, has_wilsons : bool = False, has_obs : bool = False):
         self._manager.switch_lha(lhaFile, model.value, use_marty, is_spectrum, has_wilsons, has_obs)
 
-    def switch_model(self, model : Model, use_marty : bool = False):
-        self._manager.switch_model(model.value, use_marty)
+    def switch_model(self, model : Model):
+        self._manager.switch_model(model.value)
 
     def get_blocks_list(self, paramtype : ParameterType = ParameterType.SM):
         return self._manager.get_blocks_list(paramtype.value)

@@ -192,7 +192,7 @@ complex_t BKllDecay::C9_eff(double q2) {
     complex_t C_mc = 8. * ((4./9.*cache.C[WCoef::C1]+1./3.*cache.C[WCoef::C2])*(1.+cache.lambda_hat_u)+2.*cache.C[WCoef::C3]+20.*cache.C[WCoef::C5]);
 
     double s_hat = q2 / std::pow(cache.m_b_PS, 2);
-    complex_t A = BV::A_Seidel(s_hat, cache.L_b);
+    // complex_t A = BV::A_Seidel(s_hat, cache.L_b);//TODO : niels ?
     complex_t B = BV::B_Seidel(s_hat, cache.L_b);
     complex_t C = BV::C_Seidel(q2, cache.mu_b);
 

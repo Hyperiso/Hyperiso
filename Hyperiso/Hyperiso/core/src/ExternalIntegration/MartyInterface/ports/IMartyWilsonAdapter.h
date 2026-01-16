@@ -45,10 +45,8 @@ public:
      * @param model       Model name.
      * @param Q_match     Matching scale used in the numeric library.
      * @param model_path  Path to the model header used for template adaptation.
-     * @param new_params  Optional flag for extended behavior (currently
-     *                    typically unused).
      */
-    virtual void calculate(std::string wilson, std::string model, double Q_match, std::string model_path, bool new_params = false) = 0;
+    virtual void calculate(std::string wilson, std::string model, double Q_match, std::string model_path) = 0;
 
     /**
      * @brief Returns the set of block names requiring special handling.

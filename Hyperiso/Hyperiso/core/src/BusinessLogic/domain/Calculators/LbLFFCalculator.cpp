@@ -1,6 +1,6 @@
 #include "LbLFFCalculator.h"
 
-LbLFFCalculator::LbLFFCalculator(std::shared_ptr<IObsParameterProxy<ParamId, DataType, std::string, LhaID>> p, LbL_FF_Src src) {
+LbLFFCalculator::LbLFFCalculator(std::shared_ptr<IObsParameterProxy<ParamId, DataType, std::string, LhaID>> p, LbL_FF_Src src) : iobspp_sm(p) {
 
                             double m_B = (*p)({ParameterType::FLAVOR, "FMASS", 521}, DataType::VALUE);
     double m_K = (*p)({ParameterType::FLAVOR, "FMASS", 321}, DataType::VALUE);
@@ -26,14 +26,14 @@ void LbLFFCalculator::load_FF_params(LbL_FF_Src src) {
     int sse_order = this->sse_order.at(src);
     std::string src_block = "Lb_L";
     
-    auto get_m = [ff_id, src_block] (int i) { return ObsParameterProxy()(ParamId{ParameterType::DECAY, src_block, {ff_id, 0, i}}); };
+    auto get_m = [this, ff_id, src_block] (int i) { return (*iobspp_sm)(ParamId{ParameterType::DECAY, src_block, {ff_id, 0, i}}, DataType::VALUE); };
     this->m_R[LbL_FF::F_PLUS] = this->m_R[LbL_FF::F_PERP] = this->m_R[LbL_FF::H_PLUS] = this->m_R[LbL_FF::H_PERP] = get_m(1);
     this->m_R[LbL_FF::G_PLUS] = this->m_R[LbL_FF::G_PERP] = this->m_R[LbL_FF::H_TILDE_PLUS] = this->m_R[LbL_FF::H_TILDE_PERP] = get_m(2);
 
     for (int i = 1; i <= 8; i++) {
         for (int j = 0; j <= sse_order; j++) {
             ParamId PId {ParameterType::DECAY, src_block, {ff_id, i, j}};
-            this->alpha_ai[(LbL_FF)(i - 1)][j] = ObsParameterProxy()(PId);
+            this->alpha_ai[(LbL_FF)(i - 1)][j] = (*iobspp_sm)(PId, DataType::VALUE);
         }
     }
 }

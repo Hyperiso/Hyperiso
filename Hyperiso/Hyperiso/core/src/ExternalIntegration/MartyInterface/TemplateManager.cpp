@@ -15,7 +15,7 @@ std::string joinLines(const std::vector<std::string>& lines) {
     return ss.str();
 }
 
-void NumericTemplateManager::generateTemplateImpl(const std::string& templateName,
+void NumericTemplateManager::generateTemplateImpl(const std::string&,
                                                   const std::string& outputPath) {
     namespace fs = std::filesystem;
 
@@ -81,14 +81,13 @@ void NonNumericTemplateManager::generateTemplateImpl(const std::string& template
     std::string line;
     std::getline(templateFile, line);
 
-    modelModifier->addLine(outputFile, line, true);
+    modelModifier->addLine(outputFile, line);
     outputFile << "//42" << "\n";
 
     while (std::getline(templateFile, line)) {
         if (modelModifier) {
-            bool addBefore = true;
             modelModifier->modifyLine(line);
-            modelModifier->addLine(outputFile, line, addBefore);
+            modelModifier->addLine(outputFile, line);
         } else {
             outputFile << line << "\n";
         }

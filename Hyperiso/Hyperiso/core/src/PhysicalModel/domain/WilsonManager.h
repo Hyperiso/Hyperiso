@@ -187,7 +187,6 @@ public:
      *  - sets matching/hadronic scales,
      *  - initializes matching + hadronic blocks for each group up to the requested QCD order.
      *
-     * @param model Human-readable model string (currently not the canonical model source; see model_api).
      * @param groups Map of groupName -> group instance.
      * @param mu_W Matching scale.
      * @param mu_h Hadronic scale.
@@ -195,7 +194,7 @@ public:
      * @param portconfig Services and hooks needed by the manager.
      * @param wilson_param_helpers Optional per-model helpers that compose WPARAM blocks/matrices.
      */
-    static std::shared_ptr<CoefficientManager> Builder(std::string model, std::map<std::string, std::shared_ptr<CoefficientGroup>> groups, double mu_W, double mu_h, std::string order, WilsonPortsConfig portconfig, std::map<Model, std::shared_ptr<IWilsonParameterHelper>> wilson_param_helpers = {});
+    static std::shared_ptr<CoefficientManager> Builder(std::map<std::string, std::shared_ptr<CoefficientGroup>> groups, double mu_W, double mu_h, std::string order, WilsonPortsConfig portconfig, std::map<Model, std::shared_ptr<IWilsonParameterHelper>> wilson_param_helpers = {});
 
     /// Switches to matching scale context and sets mu_W via scale_setter_api.
     void set_matching_scale(double mu_W);
@@ -293,7 +292,7 @@ public:
     void init_specific_order_group_matching(const std::string& groupName, const std::string& order, bool only_total);
 
     /// Updates the manager by changing scales (delegates to set_matching_scale / set_hadronic_scale).
-    void update(std::string group, double mu_W, double mu_h);
+    void update(double mu_W, double mu_h);
     
     /**
      * @brief Gathers source block names needed to build hadronic/running block dependencies.

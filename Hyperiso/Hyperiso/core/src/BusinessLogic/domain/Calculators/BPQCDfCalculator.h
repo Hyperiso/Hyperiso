@@ -1,5 +1,5 @@
-#ifndef __BPQCDFCALCULATOR_H__
-#define __BPQCDFCALCULATOR_H__
+#ifndef BPQCDFCALCULATOR_H
+#define BPQCDFCALCULATOR_H
 
 #include "Include.h"
 #include "BPFFCalculator.h"
@@ -20,4 +20,4 @@ public:
     double Delta_P_T(double q2);
 };
 
-#endif // __BPQCDFCALCULATOR_H__
+#endif // BPQCDFCALCULATOR_H

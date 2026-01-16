@@ -97,7 +97,7 @@ protected:
 	/**
      * @brief Builds SUSY running-scale helper blocks.
      */
-	void init_running_block(WGroupId grp) override {};
+	void init_running_block(WGroupId) override {};
 };
 
 #endif

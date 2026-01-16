@@ -41,7 +41,7 @@ public:
      *
      * Delegates directly to ::MartyInterface::calculate.
      */
-    void calculate(std::string wilson, std::string model, double Q_match, std::string model_path, bool new_params = false) override {martyInterface.calculate(wilson, model, Q_match, model_path, new_params);}
+    void calculate(std::string wilson, std::string model, double Q_match, std::string model_path) override {martyInterface.calculate(wilson, model, Q_match, model_path);}
 
     /**
      * @brief Returns the set of special blocks requiring custom handling.

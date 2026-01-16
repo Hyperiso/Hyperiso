@@ -28,7 +28,7 @@ void GeneralModelModifier::modifyLine(std::string& line) {
     }
 }
 
-void GeneralModelModifier::addLine(std::ofstream& outputFile, const std::string& currentLine, bool addBefore) {
+void GeneralModelModifier::addLine(std::ofstream& outputFile, const std::string& currentLine) {
     if (currentLine.find("<iostream>") != std::string::npos) {
         outputFile << currentLine << "\n";
         std::string model_l = this->model;

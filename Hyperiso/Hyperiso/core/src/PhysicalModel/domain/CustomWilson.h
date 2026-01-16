@@ -54,12 +54,10 @@ public:
      *
      * @param name          Base identifier for the coefficient (full LHA id).
      * @param storage_block Block where the coefficient is stored.
-     * @param max_order     Highest order intended to be used (informational in current implementation).
      * @param type          Contribution type (SM/BSM/TOTAL).
      */
     CustomWilson(const LhaID& name,
                  const std::string& storage_block,
-                 QCDOrder max_order = QCDOrder::LO,
                  ContributionType type = ContributionType::SM)
     : WilsonCoefficient(name, storage_block, type)
     {

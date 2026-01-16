@@ -107,7 +107,7 @@ std::string to_lowercase(const std::string& str);
 template<typename T, typename U>
 inline std::unordered_set<T> get_keys(const std::map<T, U>& map) {
     std::unordered_set<T> keys;
-    for (const std::pair<T, U>& item : map) {
+    for (const std::pair<const  T, U>& item : map) {
         keys.emplace(item.first);
     }
     return keys;
@@ -124,7 +124,7 @@ inline std::unordered_set<T> get_keys(const std::map<T, U>& map) {
 template<typename T, typename U>
 inline std::unordered_set<T> get_keys(const std::unordered_map<T, U>& map) {
     std::unordered_set<T> keys;
-    for (const std::pair<T, U>& item : map) {
+    for (const std::pair<const T, U>& item : map) {
         keys.emplace(item.first);
     }
     return keys;

@@ -110,7 +110,7 @@ void WilsonBuilder::build(WilsonBuildConfig config) {
     WilsonPortsConfig port_config{iblock_c, wilson_proxy, use_marty, has_wilson, model_api, scale_setter_api};
     port_config.build_group = build_group_fn;
 
-    this->cm = CoefficientManager::Builder(ModelMapper::str(model), groups, config.matching_scale, config.hadronic_scale, OrderMapper::str(config.order), port_config, wilson_param_helpers);
+    this->cm = CoefficientManager::Builder(groups, config.matching_scale, config.hadronic_scale, OrderMapper::str(config.order), port_config, wilson_param_helpers);
 }
 
 //TODO : deal with new wilson_parameters

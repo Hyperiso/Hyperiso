@@ -43,9 +43,8 @@ public:
      * @param model       Model name (SM, THDM, MSSM, etc.).
      * @param Q_match     Matching scale.
      * @param model_path  Path to the model definition file.
-     * @param new_params  Whether parameters should be regenerated.
      */
-    virtual void calculate(std::string wilson, std::string model, double Q_match, std::string model_path, bool new_params = false) = 0;
+    virtual void calculate(std::string wilson, std::string model, double Q_match, std::string model_path) = 0;
 
     /**
      * @brief Returns the set of special parameter blocks.

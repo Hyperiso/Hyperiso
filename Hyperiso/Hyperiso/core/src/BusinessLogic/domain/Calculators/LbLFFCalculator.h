@@ -1,5 +1,5 @@
-#ifndef __LBLFFCALCULATOR_H__
-#define __LBLFFCALCULATOR_H__
+#ifndef LBLFFCALCULATOR_H
+#define LBLFFCALCULATOR_H
 
 #include "Include.h"
 #include "ObsParameterProxy.h"
@@ -10,6 +10,7 @@ enum class LbL_FF_Src {DM};
 
 class LbLFFCalculator : public IFFCalculator<LbL_FF> {
 private:
+    std::shared_ptr<IObsParameterProxy<ParamId, DataType, std::string, LhaID>> iobspp_sm;
     double m_Lb, m_L;
     double t_p, t_0;
     std::map<LbL_FF, std::array<double, 3>> alpha_ai {};
@@ -32,4 +33,4 @@ private:
 
 };
 
-#endif // __LBLFFCALCULATOR_H__
+#endif // LBLFFCALCULATOR_H

@@ -51,7 +51,7 @@ void DBMemento::Overwrite(std::shared_ptr<BlockAccessor> &reciever, std::shared_
                 reciever->remove_item(block_name, id);
             } else {
                 reciever->remove_item(block_name, id);
-                reciever->setParameter(block_name, id, std::move(source->getParameter(block_name, id)));
+                reciever->setParameter(block_name, id, source->getParameter(block_name, id));
             }
         }
     }

@@ -73,8 +73,8 @@ public:
     void add_input_reader(std::ofstream& outputFile);
 
 private:
-    std::string model;  ///< Model name associated with the generated code.
     std::string wilson; ///< Wilson basis / identifier.
+    std::string model;  ///< Model name associated with the generated code.
 };
 
 #endif

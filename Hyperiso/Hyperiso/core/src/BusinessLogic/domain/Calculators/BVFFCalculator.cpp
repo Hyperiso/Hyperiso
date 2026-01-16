@@ -1,6 +1,6 @@
 #include "BVFFCalculator.h"
 
-BVFFCalculator::BVFFCalculator(int B_id, int V_id, std::shared_ptr<IObsParameterProxy<ParamId, DataType, std::string, LhaID>> p, BV_FF_Src src) {
+BVFFCalculator::BVFFCalculator(int B_id, int V_id, std::shared_ptr<IObsParameterProxy<ParamId, DataType, std::string, LhaID>> p, BV_FF_Src src) : iobspp_sm(p) {
     if (!this->allowed_decays.contains({B_id, V_id})) {
         LOG_ERROR("ValueError", "Wrong meson PDG code in BVFFCalculator constructor:", B_id, ",", V_id);
     }
@@ -56,7 +56,7 @@ void BVFFCalculator::load_FF_params(BV_FF_Src src) {
     int sse_order = src == BV_FF_Src::HLMW ? 1 : 2;
     std::string src_block = this->src_block;
     
-    auto get_m = [ff_id, src_block] (int i) { return ObsParameterProxy()(ParamId{ParameterType::DECAY, src_block, {ff_id, 0, i}}); };
+    auto get_m = [this, ff_id, src_block] (int i) { return (*iobspp_sm)(ParamId{ParameterType::DECAY, src_block, {ff_id, 0, i}}, DataType::VALUE); };
     this->m_R[BV_FF::A0] = get_m(1);
     this->m_R[BV_FF::V] = this->m_R[BV_FF::T1] = get_m(2);
     this->m_R[BV_FF::A1] = this->m_R[BV_FF::A12] = this->m_R[BV_FF::T2] = this->m_R[BV_FF::T23] = get_m(3);
@@ -64,7 +64,7 @@ void BVFFCalculator::load_FF_params(BV_FF_Src src) {
     for (int i = 1; i <= 7; i++) {
         for (int j = 0; j <= sse_order; j++) {
             ParamId PId {ParameterType::DECAY, src_block, {ff_id, i, j}};
-            this->alpha_ai[(BV_FF)(i - 1)][j] = ObsParameterProxy()(PId);
+            this->alpha_ai[(BV_FF)(i - 1)][j] = (*iobspp_sm)(PId, DataType::VALUE);
         }
     }
 }

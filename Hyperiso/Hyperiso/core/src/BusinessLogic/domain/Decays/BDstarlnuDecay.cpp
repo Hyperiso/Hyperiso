@@ -337,7 +337,7 @@ double BDstarlnuDecay::G_V0_S(double rl, double w_m) {
 }
 
 double BDstarlnuDecay::G_V0_T0(double rl, double w_m) {
-    if (!(cache.C_V1_flag && cache.C_T_flag || cache.C_V2_flag && cache.C_T_flag)) return 0;
+    if (!((cache.C_V1_flag && cache.C_T_flag) || (cache.C_V2_flag && cache.C_T_flag))) return 0;
     
     auto f = [this, rl] (double w) {
         return phi(rl, w) * std::sqrt(x_l(rl, w)) * H_V0(w) * H_T0(w);
@@ -357,7 +357,7 @@ double BDstarlnuDecay::G_Vt_S(double rl, double w_m) {
 }
 
 double BDstarlnuDecay::G_Vt_T0(double rl, double w_m) {
-    if (!(cache.C_V1_flag && cache.C_T_flag || cache.C_V2_flag && cache.C_T_flag)) return 0;
+    if (!((cache.C_V1_flag && cache.C_T_flag) || (cache.C_V2_flag && cache.C_T_flag))) return 0;
     
     auto f = [this, rl] (double w) {
         return phi(rl, w) * std::sqrt(x_l(rl, w)) * H_Vt(w) * H_T0(w);

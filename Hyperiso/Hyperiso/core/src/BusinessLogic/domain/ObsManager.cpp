@@ -5,7 +5,6 @@ ObsManager::ObsManager(ObservablePortsConfig obs_port_conf, bool init_default_de
 
 
     auto& sm = *obs_port_conf.iobspp_sm;
-    auto& flav = *obs_port_conf.iobspp_flav;
 
     double mu_W = 2. * sm(ParamId{ParameterType::SM, "MASS", 24}, DataType::VALUE); // 2 * m_W
     double mu_b = sm(ParamId{ParameterType::SM, "QCD", LhaID(5, 2)}, DataType::VALUE) / 2; // m_b(pole) / 2
@@ -157,7 +156,7 @@ void ObsManager::set_decay_config(Decays dec, std::any config) {
     this->decays.at(DecayMapper::to_id(dec))->set_config(config);
 }
 
-ObservableId ObsManager::ensure_present(Observables id, bool critical) {
+ObservableId ObsManager::ensure_present(Observables id, bool) {
     ObservableId obs_id = ObservableMapper::to_id(id);
     return ensure_present(obs_id);
 }

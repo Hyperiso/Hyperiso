@@ -153,6 +153,41 @@ public:
      * @throws std::invalid_argument if the block or parameter is missing.
      */
     scalar_t get_val(std::string_view blk, std::initializer_list<long> code) const;
+    
+    /**
+     * @brief Retrieves the value of a parameter given as an initializer_list.
+     *
+     * Example:
+     * @code
+     * auto v = src.get_val("MASS", {25});        // H mass
+     * auto v2 = src.get_val("YU", {3,3});       // Yukawa entry
+     * @endcode
+     *
+     * @param blk  Name of the block.
+     * @param code List of positive integer components used to build an LhaID.
+     * @return The current parameter value (scalar_t).
+     *
+     * @throws std::invalid_argument if the block or parameter is missing.
+     */
+    scalar_t get_val(std::string_view blk,
+                           std::initializer_list<std::size_t> code) const;
+    
+    /**
+     * @brief Retrieves the value of a parameter given as an initializer_list.
+     *
+     * Example:
+     * @code
+     * auto v = src.get_val("MASS", {25});        // H mass
+     * auto v2 = src.get_val("YU", {3,3});       // Yukawa entry
+     * @endcode
+     *
+     * @param blk  Name of the block.
+     * @param code List of positive integer components used to build an LhaID.
+     * @return The current parameter value (scalar_t).
+     *
+     * @throws std::invalid_argument if the block or parameter is missing.
+     */
+    scalar_t get_val(std::string_view blk, std::initializer_list<int> code) const;
 
     /**
      * @brief Retrieves the value of a parameter identified by an LhaID.
