@@ -33,10 +33,10 @@ struct InterpretedParam {
     LhaID code;
 
     /// True if this parameter belongs to the BSM part of the model.
-    bool is_bsm;
+    bool is_bsm{false};
 
     /// True if the parameter is interpreted as complex-valued.
-    bool is_complex;
+    bool is_complex{false};
 
      /**
      * @brief Equality comparison operator.

@@ -34,8 +34,8 @@ namespace std {
     struct hash<Prototype> {
         std::size_t operator()(const Prototype& p) const noexcept {
             std::size_t h1 = std::hash<BlockName>{}(p.blockName);
-            std::size_t h2 = std::hash<int>{}(p.itemCount);
-            std::size_t h3 = std::hash<int>{}(p.valueIdx);
+            std::size_t h2 = std::hash<size_t>{}(p.itemCount);
+            std::size_t h3 = std::hash<size_t>{}(p.valueIdx);
             std::size_t h4 = std::hash<int>{}(p.scaleIdx);
             std::size_t h5 = std::hash<int>{}(p.rgIdx);
             std::size_t h6 = std::hash<bool>{}(p.globalScale);

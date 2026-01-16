@@ -7,7 +7,6 @@ Node::Value Node::get(Keys&&... keys) const {
 
 template <typename T, typename Key, typename... Rest>
 void Node::set(T value, Key&& key, Rest&&... rest) {
-    using KeyType = std::decay_t<Key>;
     BlockName blockKey = BlockName(std::forward<Key>(key));
 
     if constexpr (sizeof...(rest) == 0) {
