@@ -88,7 +88,7 @@ struct DummyScaleSetter : IParamSetter<ScaleType> {
 };
 
 struct DummyMartyProxy : IMartyWilsonProxy<InterpretedParam> {
-    void calculate(std::string, std::string, double, std::string, bool = false) override {}
+    void calculate(std::string, std::string, double, std::string) override {}
     std::set<std::string>  get_special_blocks() override { return {}; }
     std::unordered_set<InterpretedParam> get_dependencies(std::string) override { return {}; }
 };
@@ -151,7 +151,6 @@ int main() {
     std::string order = "LO";
 
     auto manager = CoefficientManager::Builder(
-        "SM",
         groups,
         mu_W,
         mu_h,
@@ -196,7 +195,7 @@ int main() {
     }
     assert(found_hadronic && "Hadronic block for B_STANDARD should have been composed");
 
-    manager->update(group_name, 100.0, 2.0);
+    manager->update(100.0, 2.0);
     assert(scale_setter->switches.size() == 4);
     assert(scale_setter->values.size()   == 4);
 

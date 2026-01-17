@@ -45,7 +45,7 @@ public:
      *
      * @param prototype Prototype defining the block structure.
      */
-    inline explicit LhaBlock(const Prototype& prototype) : prototype(prototype) {}
+    inline explicit LhaBlock(const Prototype& prototype_) : prototype(prototype_) {}
 
     /**
      * @brief Reads data and populates the block with elements from raw lines.

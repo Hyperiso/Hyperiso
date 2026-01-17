@@ -1,6 +1,9 @@
 #ifndef INCLUDE_H
 #define INCLUDE_H
 
+#include <concepts>
+#include <ostream>
+#include <complex>
 #include <memory>
 #include <string>
 #include <map>

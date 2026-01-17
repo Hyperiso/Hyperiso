@@ -104,14 +104,14 @@ MemoryManager* MemoryManager::GetInstance() {
     return MemoryManager::instance;
 }
 
-MemoryManager::MemoryManager(std::shared_ptr<IDataLoader<BlockAccessor>> loader, std::shared_ptr<IDataLoader<CorrelationMatrixPair<ParamId>>> param_corr, std::shared_ptr<IDataLoader<CorrelationMatrixPair<ObservableId>>> obs_corr, std::shared_ptr<ISpectrumCalculator> spectrum_c, std::shared_ptr<IPathsProvider> paths_provider) : memento(DBMemento()) {
+MemoryManager::MemoryManager(std::shared_ptr<IDataLoader<BlockAccessor>> loader, std::shared_ptr<IDataLoader<CorrelationMatrixPair<ParamId>>> param_corr, std::shared_ptr<IDataLoader<CorrelationMatrixPair<ObservableId>>> obs_corr, std::shared_ptr<ISpectrumCalculator> spectrum_c, std::shared_ptr<IPathsProvider> paths_provider_) : memento(DBMemento()) {
     this->sc = spectrum_c;
     
     this->dl_ba = loader;
     this->dl_cmp_p = param_corr;
     this->dl_cmp_o = obs_corr;
 
-    this->paths_provider = paths_provider;
+    this->paths_provider = paths_provider_;
     this->cache.is_ready = false;
 }
 

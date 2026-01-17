@@ -47,8 +47,8 @@ struct SignedLogDet {
 class RealMatrix {
 public:
     RealMatrix() = default;
-    RealMatrix(std::vector<double> data, std::size_t rows, std::size_t cols);
-    RealMatrix(std::vector<std::vector<double>> data);
+    RealMatrix(std::vector<double> data_, std::size_t rows, std::size_t cols);
+    RealMatrix(std::vector<std::vector<double>> data_);
     RealMatrix(std::size_t rows, std::size_t cols);
 
     // io

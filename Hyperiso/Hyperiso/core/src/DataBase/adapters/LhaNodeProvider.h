@@ -32,7 +32,7 @@ public:
      *
      * @param src_path Path to an LHA / SLHA / FLHA file.
      */
-    LhaNodeProvider(fs::path src_path) : INodeProvider(src_path) {}
+    LhaNodeProvider(fs::path src_path_) : INodeProvider(src_path_) {}
 
     /**
      * @brief Loads the underlying LHA file and returns it as a Node tree.

@@ -75,7 +75,7 @@ RealMatrix cholesky_L(RealMatrix R) {
     return L;
 }
 
-RealMatrix::RealMatrix(std::vector<double> data, std::size_t rows, std::size_t cols) : data(data), rows_(rows), cols_(cols) {
+RealMatrix::RealMatrix(std::vector<double> data_, std::size_t rows, std::size_t cols) : data(data_), rows_(rows), cols_(cols) {
     if (data.size() != rows * cols)
         throw std::invalid_argument("Data size does not match matrix shape.");
 }

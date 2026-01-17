@@ -19,6 +19,6 @@ double integrate(RealValuedFunction f, double l, double u, double prec) {
 }
 
 scalar_t c_integrate(ComplexValuedFunction f, double l, double u, double prec) {
-    return scalar_t(integrate([f] (double u) -> double { return f(u).real(); }, l, u, prec),
-                     integrate([f] (double u) -> double { return f(u).imag(); }, l, u, prec));
+    return scalar_t(integrate([f] (double x) -> double { return f(x).real(); }, l, u, prec),
+                     integrate([f] (double x) -> double { return f(x).imag(); }, l, u, prec));
 }

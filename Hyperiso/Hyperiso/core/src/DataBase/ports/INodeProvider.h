@@ -38,7 +38,7 @@ public:
      *
      * @param src_path Location of the backing resource to read from.
      */
-    INodeProvider(fs::path src_path) : src_path(src_path) {}
+    INodeProvider(fs::path src_path_) : src_path(src_path_) {}
     
     virtual ~INodeProvider() = default;
 

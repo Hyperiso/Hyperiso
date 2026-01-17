@@ -88,7 +88,7 @@ private:
         std::shared_ptr<IDataLoader<CorrelationMatrixPair<ParamId>>> param_corr, 
         std::shared_ptr<IDataLoader<CorrelationMatrixPair<ObservableId>>> obs_corr, 
         std::shared_ptr<ISpectrumCalculator> spectrum_c,
-        std::shared_ptr<IPathsProvider> paths_provider);
+        std::shared_ptr<IPathsProvider> paths_provider_);
 
     /**
      * @brief Ensures the memory manager is initialized before usage.

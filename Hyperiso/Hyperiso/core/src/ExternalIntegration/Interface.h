@@ -116,8 +116,8 @@ public:
      * @param inputFilePath    Path to the input model file.
      * @param outputFilePath   Path to the file where the spectrum will be written.
      */
-    CalculateSpectrumCommand(ICalculator& calculator, std::string inputFilePath, std::string outputFilePath)
-        : calculator(calculator), inputFilePath(std::move(inputFilePath)), outputFilePath(std::move(outputFilePath)) {}
+    CalculateSpectrumCommand(ICalculator& calculator_, std::string inputFilePath_, std::string outputFilePath_)
+        : calculator(calculator_), inputFilePath(std::move(inputFilePath_)), outputFilePath(std::move(outputFilePath_)) {}
 
     /**
      * @brief Executes the command to calculate the spectrum.

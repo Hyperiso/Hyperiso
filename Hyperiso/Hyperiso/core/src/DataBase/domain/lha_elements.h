@@ -47,7 +47,7 @@ public:
      *
      * @param id Unique LhaID associated with this element.
      */
-    inline explicit AbstractElement(const LhaID& id) : id(id) {}
+    inline explicit AbstractElement(const LhaID& id_) : id(id_) {}
 
     /**
      * @brief Returns the identifier of the element.

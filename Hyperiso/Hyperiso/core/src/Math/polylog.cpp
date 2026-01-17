@@ -1106,7 +1106,7 @@ void initialize_constants(std::array<std::array<double, MAX_M>, MAX_N> &s1, std:
 
 
 
-scalar_t polylog(int n, int m, double x) {
+scalar_t polylog(size_t n, size_t m, double x) {
 
     const int MAX_N = 5;
     const int MAX_M = 5;
@@ -1123,8 +1123,8 @@ scalar_t polylog(int n, int m, double x) {
     double u[5];
     const int fct[5] = {1, 1, 2, 6, 24};
     const int sgn[5] = {1, -1, 1, -1, 1};
-    const int index[32] = {0, 1, 2, 3, 4, 0, 0, 0, 0, 0, 0, 5, 6, 7, 0, 0, 0, 0, 0, 0, 0, 8, 9, 0, 0, 0, 0, 0, 0, 0, 0, 10};
-    const int nc[11] = {0, 24, 26, 28, 30, 22, 24, 26, 19, 22, 17};
+    const size_t index[32] = {0, 1, 2, 3, 4, 0, 0, 0, 0, 0, 0, 5, 6, 7, 0, 0, 0, 0, 0, 0, 0, 8, 9, 0, 0, 0, 0, 0, 0, 0, 0, 10};
+    const size_t nc[11] = {0, 24, 26, 28, 30, 22, 24, 26, 19, 22, 17};
 
     scalar_t z = 0.0;
     scalar_t v[6] = {0.0};
@@ -1149,24 +1149,25 @@ scalar_t polylog(int n, int m, double x) {
         v[0] = 1.0;
         v[1] = log(-x);
 
-        for (int le = 2; le <= n + m; le++) {
+        for (size_t le = 2; le <= n + m; le++) {
             v[le] = v[1] * v[le - 1] / (le*1.);
         }
 
 
-        for (int ke = 0; ke <= m - 1; ke++) {
-            int m1 = m - ke;
+        for (size_t ke = 0; ke <= m - 1; ke++) {
+            size_t m1 = m - ke;
             double r = pow(x1, m1) / ((fct[m1] * fct[n - 1])*1.);
             sj = 0.0;
 
-            for (int je = 0; je <= ke; je++) {
-                int n1 = n + ke - je;
-                int le = index[10 * n1 + m1 - 10];
+            for (size_t je = 0; je <= ke; je++) {
+                size_t n1 = n + ke - je;
+                size_t le = index[10 * n1 + m1 - 10];
                 double b1 = 0.0;
                 double b2 = 0.0;
 
-                for (int it = nc[le]; it >= 0; it--) {
-                    b0 = a[it][le] + alfa * b1 - b2;
+                auto nc_le = nc[le]; // size_t
+                for (std::ptrdiff_t it = static_cast<std::ptrdiff_t>(nc_le); it >= 0; --it) {
+                    b0 = a[le][static_cast<std::size_t>(it)] + alfa * b1 - b2;
                     b2 = b1;
                     b1 = b0;
                 }
@@ -1180,7 +1181,7 @@ scalar_t polylog(int n, int m, double x) {
 
 
 
-        for (int je = 0; je <= n - 1; je++) {
+        for (size_t je = 0; je <= n - 1; je++) {
             sj += v[je] * c[n - je][m];
         }
 
@@ -1195,28 +1196,29 @@ scalar_t polylog(int n, int m, double x) {
         v[1] = log(x1);
         u[1] = log(x);
 
-        for (int le = 2; le <= m; le++) {
+        for (size_t le = 2; le <= m; le++) {
             v[le] = v[1] * v[le - 1] / (1.*le);
         }
 
-        for (int le = 2; le <= n; le++) {
+        for (size_t le = 2; le <= n; le++) {
             u[le] = u[1] * u[le - 1] / le;
         }
 
         sk = 0.0;
 
-        for (int ke = 0; ke <= n - 1; ke++) {
-            int m1 = n - ke;
+        for (size_t ke = 0; ke <= n - 1; ke++) {
+            size_t m1 = n - ke;
             double r = pow(x1, m1) / fct[m1];
 
-            for (int je = 0; je <= m - 1; je++) {
-                int n1 = m - je;
-                int le = index[10 * n1 + m1 - 10];
+            for (size_t je = 0; je <= m - 1; je++) {
+                size_t n1 = m - je;
+                size_t le = index[10 * n1 + m1 - 10];
                 double b1 = 0.0;
                 double b2 = 0.0;
 
-                for (int it = nc[le]; it >= 0; it--) {
-                    b0 = a[it][le] + alfa * b1 - b2;
+                auto nc_le = nc[le]; // size_t
+                for (std::ptrdiff_t it = static_cast<std::ptrdiff_t>(nc_le); it >= 0; --it) {
+                    b0 = a[le][static_cast<std::size_t>(it)] + alfa * b1 - b2;
                     b2 = b1;
                     b1 = b0;
                 }
@@ -1231,14 +1233,15 @@ scalar_t polylog(int n, int m, double x) {
         z = sk + sgn[m] * u[n] * v[m];
     } else {
         // Logique pour les autres cas
-        int le = index[10 * n + m - 10];
+        size_t le = index[10 * n + m - 10];
         double h = 4.0 / 3.0 * x + 1.0 / 3.0;
         double alfa = h + h;
         double b1 = 0.0;
         double b2 = 0.0;
 
-        for (int it = nc[le]; it >= 0; it--) {
-            b0 = a[it][le] + alfa * b1 - b2;
+        auto nc_le = nc[le]; // size_t
+        for (std::ptrdiff_t it = static_cast<std::ptrdiff_t>(nc_le); it >= 0; --it) {
+            b0 = a[le][static_cast<std::size_t>(it)] + alfa * b1 - b2;
             b2 = b1;
             b1 = b0;
         }

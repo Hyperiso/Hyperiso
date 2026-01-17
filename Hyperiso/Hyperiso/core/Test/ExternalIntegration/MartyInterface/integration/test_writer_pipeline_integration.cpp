@@ -143,7 +143,7 @@ int main() {
 
     std::unique_ptr<SMParamSetter> setter = std::make_unique<SMParamSetter>(model, specials, smp, bsmp);
 
-    auto numMod = std::make_unique<GeneralNumModelModifier>(wilson, model, specials, std::move(setter), api, ports, /*force=*/false);
+    auto numMod = std::make_unique<GeneralNumModelModifier>(wilson, model, std::move(setter), api, ports, /*force=*/false);
 
     NumericTemplateManager tm(mgr->getLibDir());
     tm.setModelAndWilson(model, wilson);

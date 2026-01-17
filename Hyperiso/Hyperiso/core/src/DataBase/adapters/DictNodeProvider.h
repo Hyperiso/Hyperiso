@@ -25,7 +25,7 @@ public:
      *
      * @param src_path Path to the input configuration file.
      */
-    DictNodeProvider(fs::path src_path) : INodeProvider(src_path) {}
+    DictNodeProvider(fs::path src_path_) : INodeProvider(src_path_) {}
 
     /**
      * @brief Loads the underlying file and returns it as a Node tree.

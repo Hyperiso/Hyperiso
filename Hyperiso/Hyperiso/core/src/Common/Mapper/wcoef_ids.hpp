@@ -155,7 +155,7 @@ public:
      */
     static std::pair<WCoefId, std::pair<QCDOrder, ContributionType>> lha_wilson_deserialize(LhaID id) {
         auto parts = id.get_parts();
-        auto w_id = std::make_pair<int, int>(parts[0], parts[1]);
+        auto w_id = std::make_pair(parts[0], parts[1]);
 
         auto maybe = WCoefMapper::from_flha_key(w_id.first, w_id.second);
         if (!maybe) {
