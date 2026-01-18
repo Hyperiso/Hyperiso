@@ -191,7 +191,7 @@ void init_common(py::module &m) {
     py::enum_<Decays>(m, "Decays")
         .value("B__D_l_nu", Decays::B__D_l_nu)
         .value("B__Dstar_l_nu", Decays::B__Dstar_l_nu)
-        .value("B__Kstar", Decays::B__Kstar_gamma)
+        .value("B__Kstar_gamma", Decays::B__Kstar_gamma)
         .value("B__l_l", Decays::B__l_l)
         .value("B__l_nu", Decays::B__l_nu)
         .value("B__Xs_gamma", Decays::B__Xs_gamma)
@@ -387,10 +387,17 @@ void init_common(py::module &m) {
     // BIND_ENUM_MAPPER(ScaleTypeMapper, ScaleType)
     // BIND_ENUM_MAPPER(DecayMapper, Decays)
 
+
     py::class_<ObservableId>(m, "ObservableId")
         .def(py::init<>())
         .def("__str__", &ObservableId::str)
-        .def("str", &ObservableId::str);
+        .def("str", &ObservableId::str)
+        .def("__repr__", [](const ObservableId& id){
+            return "<ObservableId '" + id.str() + "'>";
+        })
+        .def("__hash__", [](const ObservableId& id){
+            return py::hash(py::str(id.str()));
+        });
 
     py::class_<ObservableMapper, std::shared_ptr<ObservableMapper>>(m, "ObservableMapper")
         .def_static("str",

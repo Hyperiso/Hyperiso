@@ -2,7 +2,7 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from pyhyperiso.core.Core.HyperisoMaster import PyHyperisoMaster
-from pyhyperiso.core.Core.Config import PyConfig, ExternalFlag
+from pyhyperiso.core.Core.Config import PyHyperisoConfig, ExternalFlag
 from pyhyperiso.core.Common.GeneralEnum import Model
 from pathlib import Path
 
@@ -10,7 +10,7 @@ router = APIRouter()
 
 hyperiso = PyHyperisoMaster()
 
-DEFAULT_CONFIG = PyConfig(
+DEFAULT_CONFIG = PyHyperisoConfig(
     flags={
         ExternalFlag.IS_LHA_SPECTRUM: True,
         ExternalFlag.HAS_WILSON_INPUT: False,

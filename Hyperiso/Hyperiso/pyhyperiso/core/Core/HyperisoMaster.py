@@ -1,6 +1,6 @@
 from pyhyperiso.phyperiso.pyhyperiso.core import HyperisoMaster as _CppHyperisoMaster
 from pyhyperiso.core.Common.GeneralEnum import Model
-from pyhyperiso.core.Core.Config import PyConfig, ExternalFlag
+from Hyperiso.Hyperiso.pyhyperiso.core.Core.HyperisoConfig import PyHyperisoConfig, ExternalFlag
 import os
 
 class PyHyperisoMaster:
@@ -14,12 +14,12 @@ class PyHyperisoMaster:
         self._cpp_obj = _CppHyperisoMaster()
         self._config = None
         
-    def init(self, lha_file: str, config: PyConfig = None):
+    def init(self, lha_file: str, config: PyHyperisoConfig = None):
         """Initializes Hyperiso with an LHA file and an optional config.
 
         Args:
             lha_file (str): Path to the LHA input file.
-            config (PyConfig, optional): Config object with Hyperiso input flags. If not provided,
+            config (PyHyperisoConfig, optional): Config object with Hyperiso input flags. If not provided,
                 a default config will be used.
         """
         print("hein ?")
@@ -31,14 +31,14 @@ class PyHyperisoMaster:
             self.config = config
         else:
             self._cpp_obj.init(lha_file)
-            self.config = PyConfig()
+            self.config = PyHyperisoConfig()
 
-    def switch_lha(self, lha_file: str, config: PyConfig = None):
+    def switch_lha(self, lha_file: str, config: PyHyperisoConfig = None):
         """Initializes Hyperiso with an LHA file and an optional config.
 
         Args:
             lha_file (str): Path to the LHA input file.
-            config (PyConfig, optional): Basic Config with hyperiso flags inputs. If not provided,
+            config (PyHyperisoConfig, optional): Basic Config with hyperiso flags inputs. If not provided,
                 a default config will be used.
         """
         if config is not None:
@@ -80,9 +80,9 @@ class PyHyperisoMaster:
 if __name__ == "__main__":
     from pathlib import Path
 
-    print("🔧 Initializing PyHyperisoMaster with custom PyConfig...")
+    print("🔧 Initializing PyHyperisoMaster with custom PyHyperisoConfig...")
 
-    config = PyConfig(
+    config = PyHyperisoConfig(
         flags={
             ExternalFlag.IS_LHA_SPECTRUM: True,
             ExternalFlag.HAS_WILSON_INPUT: False,
@@ -94,7 +94,7 @@ if __name__ == "__main__":
         mty_model_path=Path("/my/custom/marty/path")
     )
 
-    print("🔧 PyConfig content:")
+    print("🔧 PyHyperisoConfig content:")
     print(config)
 
     hyp = PyHyperisoMaster()

@@ -55,10 +55,10 @@ if __name__ == "__main__" :
     
     from pyhyperiso.core.Core.HyperisoMaster import PyHyperisoMaster
     from pathlib import Path
-    from pyhyperiso.core.Core.Config import PyConfig, ExternalFlag
-    print("🔧 Initializing PyHyperisoMaster with custom PyConfig...")
+    from Hyperiso.Hyperiso.pyhyperiso.core.Core.HyperisoConfig import PyHyperisoConfig, ExternalFlag
+    print("🔧 Initializing PyHyperisoMaster with custom PyHyperisoConfig...")
 
-    config = PyConfig(
+    config = PyHyperisoConfig(
         flags={
             ExternalFlag.IS_LHA_SPECTRUM: True,
             ExternalFlag.HAS_WILSON_INPUT: False,
@@ -70,7 +70,7 @@ if __name__ == "__main__" :
         mty_model_path=Path("/my/custom/marty/path")
     )
 
-    print("🔧 PyConfig content:")
+    print("🔧 PyHyperisoConfig content:")
     print(config)
 
     hyp = PyHyperisoMaster()

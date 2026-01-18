@@ -281,14 +281,28 @@ class Observables(Enum):
     BR_D__MU_NU = _CppObservables.BR_D__MU_NU
     BR_DS__MU_NU = _CppObservables.BR_DS__MU_NU
     BR_DS__TAU_NU = _CppObservables.BR_DS__TAU_NU
-    
+
+from pyhyperiso.phyperiso.pyhyperiso import common
+print("COMMON LOADED FROM:", common.__file__)
+print("DECAYS MEMBERS:", list(common.Decays.__members__.keys()))
 class Decays(Enum):
     B__D_l_nu = _CppDecays.B__D_l_nu
     B__Dstar_l_nu = _CppDecays.B__Dstar_l_nu
-    B__Kstar = _CppDecays.B__Kstar
+    B__Kstar_gamma = _CppDecays.B__Kstar_gamma
     B__l_l = _CppDecays.B__l_l
     B__l_nu = _CppDecays.B__l_nu
-    B__Xs = _CppDecays.B__Xs
+    B__Xs_gamma = _CppDecays.B__Xs_gamma
+    B__Xs_l_l = _CppDecays.B__Xs_l_l
+    B__K_l_l = _CppDecays.B__K_l_l
+    B__Kstar_l_l = _CppDecays.B__Kstar_l_l
+    Bs__phi_l_l = _CppDecays.Bs__phi_l_l
+    Lambda_b__Lambda_l_l = _CppDecays.Lambda_b__Lambda_l_l
+    M0_Mix = _CppDecays.M0_Mix
+    K__l_l = _CppDecays.K__l_l
+    K__pi_nu_nu = _CppDecays.K__pi_nu_nu
+    K__l_nu = _CppDecays.K__l_nu
+    D__l_nu = _CppDecays.D__l_nu
+    Ds__l_nu = _CppDecays.Ds__l_nu
     
 class MassType(Enum):
     POLE = _CppMassType.POLE

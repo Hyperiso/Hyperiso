@@ -15,10 +15,10 @@ class StatisticInterface:
 if __name__ == "__main__":
     
     from pyhyperiso.core.Core.HyperisoMaster import PyHyperisoMaster
-    from pyhyperiso.core.Core.Config import PyConfig, ExternalFlag
+    from Hyperiso.Hyperiso.pyhyperiso.core.Core.HyperisoConfig import PyHyperisoConfig, ExternalFlag
     from pyhyperiso.core.Common.GeneralEnum import Model, Observables, QCDOrder
     from pathlib import Path
-    config = PyConfig(
+    config = PyHyperisoConfig(
         flags={
             ExternalFlag.IS_LHA_SPECTRUM: False,
             ExternalFlag.HAS_WILSON_INPUT: False,

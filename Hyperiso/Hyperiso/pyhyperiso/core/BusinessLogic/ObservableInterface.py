@@ -2,8 +2,9 @@ from pyhyperiso.phyperiso.pyhyperiso.observable import ObservableInterface as _C
 from pyhyperiso.core.Common.GeneralEnum import Observables, Decays, QCDOrder
 from pyhyperiso.core.Common.General import PyParamId
 from pyhyperiso.core.Math.scalar import Scalar
-from pyhyperiso.core.BusinessLogic.compounds import Estimate
-from typing import Dict, Set
+from pyhyperiso.core.BusinessLogic.ObservableValue import PyObservableValue, _key_to_cpp_obs_arg, ObsLike, _cpp_id_to_python_key
+# from pyhyperiso.core.BusinessLogic.compounds import Estimate
+from typing import Dict, Set, List
 
 class PyObservableInterface:
     def __init__(self):
@@ -24,34 +25,40 @@ class PyObservableInterface:
     def add_observable_parameters(self, obs_name: Observables, pids: Set[PyParamId]):
         self._cpp_obj.add_observable_parameters(obs_name.value, {p._cpp_obj for p in pids})
 
-    def compute_observable(self, obs_name: Observables):
-        return Scalar.from_cpp(self._cpp_obj.compute_observable(obs_name.value))
 
-    def compute_uncertainty(self, obs_name: Observables):
-        return Scalar.from_cpp(self._cpp_obj.compute_uncertainty(obs_name.value))
+    def compute_observable(self, obs: Observables) -> List[PyObservableValue]:
+        cpp_vals = self._cpp_obj.compute_observable(_key_to_cpp_obs_arg(obs))  # vector<ObservableValue>
+        return [PyObservableValue.from_cpp(v) for v in cpp_vals]
+    
+    
+    def compute_observable_central(self, obs: ObsLike) -> float:
+        """Convenience: pour les non-binnés typiques (vector de taille 1)."""
+        vals = self.compute_observable(obs)
+        if not vals:
+            raise RuntimeError("compute_observable a renvoyé une liste vide.")
+        if len(vals) != 1:
+            raise RuntimeError("Observable binné: utilisez compute_observable() pour obtenir toutes les bins.")
+        return vals[0].value
 
-    def compute_leading_uncertainties(self, obs_name: Observables, n: int):
-        return {PyParamId(k): Scalar.from_cpp(v) for k, v in self._cpp_obj.compute_leading_uncertainties(obs_name.value, n).items()}
+    def compute_all(self) -> Dict[ObsLike, List[PyObservableValue]]:
+        """Nécessite que tu exposes .def("compute_all", &ObservableInterface::compute_all) côté binding."""
+        cpp_map = self._cpp_obj.compute_all()  # unordered_map<ObservableId, vector<ObservableValue>>
+        out: Dict[ObsLike, List[PyObservableValue]] = {}
+        for k, vec in cpp_map.items():
+            out[_cpp_id_to_python_key(k)] = [PyObservableValue.from_cpp(v) for v in vec]
+        return out
 
-    def compute_all_uncertainties(self):
-        return {Observables(k): Scalar.from_cpp(v) for k, v in self._cpp_obj.compute_all_uncertainties().items()}
-
-    def compute_all(self):
-        return {Observables(k): v for k, v in self._cpp_obj.compute_all().items()}
-
-    def compute_chi2(self):
-        return self._cpp_obj.compute_chi2()
     
     
 if __name__ == "__main__":
     from pyhyperiso.core.Core.HyperisoMaster import PyHyperisoMaster
     from pathlib import Path
-    from pyhyperiso.core.Core.Config import PyConfig, ExternalFlag
+    from Hyperiso.Hyperiso.pyhyperiso.core.Core.HyperisoConfig import PyHyperisoConfig, ExternalFlag
     from pyhyperiso.core.Common.GeneralEnum import Model
     from pyhyperiso.core.Core.ParamaterProvider import PyParameterProvider
-    print("🔧 Initializing PyHyperisoMaster with custom PyConfig...")
+    print("🔧 Initializing PyHyperisoMaster with custom PyHyperisoConfig...")
 
-    config = PyConfig(
+    config = PyHyperisoConfig(
         flags={
             ExternalFlag.IS_LHA_SPECTRUM: True,
             ExternalFlag.HAS_WILSON_INPUT: False,
@@ -63,7 +70,7 @@ if __name__ == "__main__":
         mty_model_path=Path("/my/custom/marty/path")
     )
 
-    print("🔧 PyConfig content:")
+    print("🔧 PyHyperisoConfig content:")
     print(config)
 
     hyp = PyHyperisoMaster()
@@ -82,7 +89,8 @@ if __name__ == "__main__":
     interface.add_observable(Observables.ISOSPIN_ASYMMETRY_B_KSTAR_GAMMA, QCDOrder.NNLO, True)
     
     print(interface.compute_observable(Observables.BR_B_XS_GAMMA))  # Scalar(...)
-    print("chi2 : ", interface.compute_chi2())
+    
+    print(interface.compute_all())
     # test_values = []
     # from pyhyperiso.core.Core.ParameterSetter import PyParameterSetter, PyParamId, ParameterType
     # py_set = PyParameterSetter()

@@ -5,18 +5,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 project(BusinessLogic)
 
-include(CMakePrintHelpers)
-
-cmake_print_variables(CMAKE_CXX_COMPILER_ID)
-
-if (CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
-    message(STATUS "I'm here")
-  set(CMAKE_CXX_FLAGS_DEBUG
-      "${CMAKE_CXX_FLAGS_DEBUG} -O0 -g3 -Wall -Wextra -Wpedantic \
-       -Wshadow -Wconversion -Wsign-conversion -Wnull-dereference \
-       -Wformat=2 -Wnon-virtual-dtor -Woverloaded-virtual \
-       -fsanitize=address,undefined -fno-omit-frame-pointer")
-endif()
 
 if (NOT DEFINED BUILD_WITH_SOFTSUSY)
     option(BUILD_WITH_SOFTSUSY "Build project with SOFTSUSY support" OFF)

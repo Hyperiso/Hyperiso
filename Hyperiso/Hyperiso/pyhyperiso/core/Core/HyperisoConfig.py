@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 from typing import Dict, Optional
 from pathlib import Path
 from enum import Enum
-from pyhyperiso.phyperiso.pyhyperiso.core import Config as _CppConfig
+from pyhyperiso.phyperiso.pyhyperiso.core import HyperisoConfig as _CppHyperisoConfig
 from pyhyperiso.phyperiso.pyhyperiso.core import ExternalFlag as _CppExternalFlag
 from pyhyperiso.core.Common.GeneralEnum import Model
 
@@ -14,7 +14,7 @@ class ExternalFlag(Enum):
     
 
 @dataclass
-class PyConfig:
+class PyHyperisoConfig:
     """Python wrapper for the C++ Config struct."""
     flags: Dict[ExternalFlag, bool] = field(default_factory=lambda: {
         ExternalFlag.IS_LHA_SPECTRUM: False,
@@ -26,9 +26,9 @@ class PyConfig:
     mty_model_name: Optional[str] = None
     mty_model_path: Optional[Path] = None
 
-    def to_cpp(self) -> _CppConfig:
+    def to_cpp(self) -> _CppHyperisoConfig:
         """Converts this Python wrapper to a C++ Config object."""
-        cpp = _CppConfig()
+        cpp = _CppHyperisoConfig()
         cpp.flags = {flag.value: val for flag, val in self.flags.items()}
         cpp.model = self.model.value
 
@@ -41,4 +41,4 @@ class PyConfig:
         return cpp
     
     def __repr__(self):
-        return f"PyConfig(model={self.model}, flags={self.flags})"
+        return f"PyHyperisoConfig(model={self.model}, flags={self.flags})"

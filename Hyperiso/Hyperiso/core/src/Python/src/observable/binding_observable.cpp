@@ -20,6 +20,36 @@ void init_observable(py::module &m) {
      //                return oss.str();
      //           }
      //      );
+    
+    py::class_<ObservableValue>(m, "ObservableValue")
+        .def(py::init<ObservableId, double>(),
+             py::arg("id"), py::arg("value"))
+        .def(py::init<ObservableId, double, std::pair<double,double>>(),
+             py::arg("id"), py::arg("value"), py::arg("bin"))
+
+        .def_readwrite("id", &ObservableValue::id)
+        .def_readwrite("value", &ObservableValue::value)
+
+        .def_property(
+            "bin",
+            [](const ObservableValue &ov) -> py::object {
+                if (ov.bin) return py::cast(*ov.bin);
+                return py::none();
+            },
+            [](ObservableValue &ov, py::object b) {
+                if (b.is_none()) ov.bin.reset();
+                else ov.bin = b.cast<std::pair<double,double>>();
+            })
+
+        .def("__repr__", [](const ObservableValue &ov) {
+            std::ostringstream oss;
+            oss << "ObservableValue(id=";
+            oss << py::str(py::cast(ov.id)).cast<std::string>();
+            oss << ", value=" << ov.value;
+            if (ov.bin) oss << ", bin=(" << ov.bin->first << ", " << ov.bin->second << ")";
+            oss << ")";
+            return oss.str();
+        });
 
     py::class_<ObservableInterface, std::shared_ptr<ObservableInterface>>(m, "ObservableInterface")
      .def(py::init<>())
@@ -57,7 +87,7 @@ void init_observable(py::module &m) {
      .def("compute_observable",
           py::overload_cast<ObservableId>(&ObservableInterface::compute_observable, py::const_),
           py::arg("obs"))
-
+     .def("compute_all", &ObservableInterface::compute_all)
      // // compute_uncertainty(…) const
      // .def("compute_uncertainty",
      //      py::overload_cast<Observables, UncertaintyType>(&ObservableInterface::compute_uncertainty, py::const_),
