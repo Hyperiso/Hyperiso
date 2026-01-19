@@ -282,9 +282,6 @@ class Observables(Enum):
     BR_DS__MU_NU = _CppObservables.BR_DS__MU_NU
     BR_DS__TAU_NU = _CppObservables.BR_DS__TAU_NU
 
-from pyhyperiso.phyperiso.pyhyperiso import common
-print("COMMON LOADED FROM:", common.__file__)
-print("DECAYS MEMBERS:", list(common.Decays.__members__.keys()))
 class Decays(Enum):
     B__D_l_nu = _CppDecays.B__D_l_nu
     B__Dstar_l_nu = _CppDecays.B__Dstar_l_nu
