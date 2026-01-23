@@ -13,7 +13,8 @@
 enum class ExternalFlag { 
     IS_LHA_SPECTRUM,            ///< Input LHA file already contains a spectrum.
     HAS_WILSON_INPUT,           ///< User provided Wilson coefficient input.
-    HAS_TH_OBSERVABLE_INPUT     ///< User provided theoretical observable input
+    HAS_TH_OBSERVABLE_INPUT,    ///< User provided theoretical observable input
+    HYP_AS_SM_MARTY             ///< If true, use Hyperiso as SM values for Wilson Coeficients (up to NNLO).
 };
 
 /**
@@ -25,7 +26,8 @@ struct HyperisoConfig {
     std::map<ExternalFlag, bool> flags {
         {ExternalFlag::IS_LHA_SPECTRUM, false},
         {ExternalFlag::HAS_WILSON_INPUT, false},
-        {ExternalFlag::HAS_TH_OBSERVABLE_INPUT, false}
+        {ExternalFlag::HAS_TH_OBSERVABLE_INPUT, false},
+        {ExternalFlag::HYP_AS_SM_MARTY, true}
     };
     Model model {Model::SM};                    ///< Model type (current model)
     std::optional<std::string> mty_model_name;  ///< MARTY model name (name of the class in MARTY) if needed

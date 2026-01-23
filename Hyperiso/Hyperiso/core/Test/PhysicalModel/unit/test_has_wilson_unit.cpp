@@ -135,6 +135,7 @@ struct Harness {
     std::shared_ptr<FWExistProxy>           fwproxy;
     std::shared_ptr<DummyCoreAPI<bool>>     use_marty;
     std::shared_ptr<DummyCoreAPI<bool>>     has_input;
+    std::shared_ptr<DummyCoreAPI<bool>>     hyp_as_sm;
     std::shared_ptr<DummyCoreAPI<Model>>    model_api;
     std::shared_ptr<DummyScaleSetter>       scale_setter;
 
@@ -154,9 +155,10 @@ struct Harness {
         , fwproxy(std::make_shared<FWExistProxy>())
         , use_marty(std::make_shared<DummyCoreAPI<bool>>(false))
         , has_input(std::make_shared<DummyCoreAPI<bool>>(true))
+        , hyp_as_sm(std::make_shared<DummyCoreAPI<bool>>(true))
         , model_api(std::make_shared<DummyCoreAPI<Model>>(model))
         , scale_setter(std::make_shared<DummyScaleSetter>())
-        , ports(rec, fwproxy, use_marty, has_input, model_api, scale_setter)
+        , ports(rec, fwproxy, use_marty, has_input, model_api, scale_setter, hyp_as_sm)
         , mgr(ports)
         , gid(GroupMapper::to_id(WGroup::B))
         , groupName(GroupMapper::str(gid))

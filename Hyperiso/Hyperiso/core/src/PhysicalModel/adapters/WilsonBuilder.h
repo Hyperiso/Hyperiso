@@ -19,6 +19,7 @@
 #include "MartyWilsonProxy.h"
 #include "MartyModelNameAPI.h"
 #include "MartyModelPathAPI.h"
+#include "SMFromHypProxy.h"
 
 /**
  * @brief High-level factory assembling a complete Wilson computation pipeline.

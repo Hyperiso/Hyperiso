@@ -15,6 +15,51 @@ static constexpr std::array<QCDOrder, 3> ALL_ORDERS = {
     QCDOrder::LO, QCDOrder::NLO, QCDOrder::NNLO
 };
 
+static bool hard_coded_lo_enabled(const WilsonPortsConfig& pc) {
+    return pc.hard_coded_lo && pc.hard_coded_lo->get();
+}
+
+static void compose_sm_only_triplet_for_order(
+    const std::string& groupName,
+    QCDOrder order,
+    WilsonPortsConfig& ports_config
+) {
+    WGroupId gid = GroupMapper::enum_elt(groupName);
+    const std::string final_block = WilsonBlockNames::matching(gid);
+
+    auto maybe_g = GroupMapper::enum_of(gid);
+    if (!maybe_g) LOG_ERROR("LogicError", "Bad group id for " + groupName);
+    const auto members = WCoefMapper::get_group(*maybe_g);
+
+    for (auto wcoef_enum : members) {
+        auto base = WCoefMapper::flha_base(wcoef_enum);
+
+        LhaID id_sm (base.first, base.second, qcd_index(order), 0);
+        LhaID id_bsm(base.first, base.second, qcd_index(order), 1);
+        LhaID id_tot(base.first, base.second, qcd_index(order), 2);
+
+        ParamId pid_sm  { ParameterType::WILSON, final_block, id_sm  };
+        ParamId pid_bsm { ParameterType::WILSON, final_block, id_bsm };
+        ParamId pid_tot { ParameterType::WILSON, final_block, id_tot };
+
+        ports_config.iblock_c->compose_parameter(
+            pid_bsm,
+            std::unordered_set<ParamId>{},
+            [](const ParamSrc&, std::shared_ptr<DependentParameter> dep) {
+                dep->set_expected(0.);
+            }
+        );
+
+        ports_config.iblock_c->compose_parameter(
+            pid_tot,
+            std::unordered_set<ParamId>{ pid_sm },
+            [pid_sm](const ParamSrc& src, std::shared_ptr<DependentParameter> dep) {
+                dep->set_expected(src.get_val(pid_sm));
+            }
+        );
+    }
+}
+
 static std::vector<QCDOrder> orders_up_to(QCDOrder max) {
     std::vector<QCDOrder> out{QCDOrder::LO};
     if (max >= QCDOrder::NLO)  out.push_back(QCDOrder::NLO);
@@ -67,6 +112,68 @@ void CoefficientManager::ensure_final_triplet_defaults_zero(
     }
 }
 
+// void CoefficientManager::ensure_sm_intermediate_and_copy_to_final(
+//     const std::string& groupName,
+//     QCDOrder max_order,
+//     WilsonPortsConfig& ports_config
+// ) {
+//     WGroupId gid = GroupMapper::enum_elt(groupName);
+//     const std::string sm_block    = WilsonBlockNames::sm_matching(gid);
+//     const std::string final_block = WilsonBlockNames::matching(gid);
+
+//     std::shared_ptr<CoefficientGroup> sm_group_ptr;
+
+//     if (ports_config.build_group) {
+//         const bool marty_backend = ports_config.use_marty->get();
+//         sm_group_ptr = ports_config.build_group(
+//             gid,
+//             Model::SM,
+//             marty_backend,
+//             ContributionType::SM,
+//             sm_block
+//         );
+//     } else {
+//         sm_group_ptr = this->coefficientGroups.at(groupName)->get_sm_group();
+//         sm_group_ptr->set_matching_storage_block(sm_block);
+//     }
+
+//     if (!sm_group_ptr) {
+//         LOG_ERROR("LogicError", "No SM group found for " + groupName);
+//     }
+
+//     if (!this->coefficientGroups.contains(sm_block)) {
+//         this->registerCoefficientGroup(sm_block, sm_group_ptr);
+//     }
+
+//     // IMPORTANT: init au max => compose LO+NLO(+NNLO) côté SM
+//     sm_group_ptr->init(max_order);
+
+//     // Copie SM (par ordre) : sm_block -> final_block
+//     auto maybe_g = GroupMapper::enum_of(gid);
+//     if (!maybe_g) LOG_ERROR("LogicError", "Bad group id for " + groupName);
+
+//     for (auto o : ALL_ORDERS) {
+//         if (qcd_index(o) > qcd_index(max_order)) continue;
+
+//         for (auto wcoef_enum : WCoefMapper::get_group(*maybe_g)) {
+//             auto base = WCoefMapper::flha_base(wcoef_enum);
+
+//             LhaID id_sm(base.first, base.second, qcd_index(o), 0);
+
+//             ParamId pid_src { ParameterType::WILSON, sm_block,    id_sm };
+//             ParamId pid_dst { ParameterType::WILSON, final_block, id_sm };
+
+//             ports_config.iblock_c->compose_parameter(
+//                 pid_dst,
+//                 std::unordered_set<ParamId>{ pid_src },
+//                 [pid_src](const ParamSrc& src, std::shared_ptr<DependentParameter> dep) {
+//                     dep->set_expected(src.get_val(pid_src));
+//                 }
+//             );
+//         }
+//     }
+// }
+
 void CoefficientManager::ensure_sm_intermediate_and_copy_to_final(
     const std::string& groupName,
     QCDOrder max_order,
@@ -78,12 +185,29 @@ void CoefficientManager::ensure_sm_intermediate_and_copy_to_final(
 
     std::shared_ptr<CoefficientGroup> sm_group_ptr;
 
+    const bool marty_backend = ports_config.use_marty->get();
+    const bool hard_lo = hard_coded_lo_enabled(ports_config);
+
+    bool allow_hardcoded_sm = (marty_backend && hard_lo && (max_order > QCDOrder::LO));
+    if (allow_hardcoded_sm && !ports_config.build_group) {
+        LOG_WARN(
+            "(CoefficientManager) hard_coded_lo=true but no ports_config.build_group provided; "
+            "cannot build a hardcoded SM group. Falling back to LO-only SM."
+        );
+        allow_hardcoded_sm = false;
+    }
+
+    const bool sm_use_marty = allow_hardcoded_sm ? false : marty_backend;
+
+    const QCDOrder sm_max_order = (marty_backend && (max_order > QCDOrder::LO) && !allow_hardcoded_sm)
+        ? QCDOrder::LO
+        : max_order;
+
     if (ports_config.build_group) {
-        const bool marty_backend = ports_config.use_marty->get();
         sm_group_ptr = ports_config.build_group(
             gid,
             Model::SM,
-            marty_backend,
+            sm_use_marty,
             ContributionType::SM,
             sm_block
         );
@@ -100,15 +224,13 @@ void CoefficientManager::ensure_sm_intermediate_and_copy_to_final(
         this->registerCoefficientGroup(sm_block, sm_group_ptr);
     }
 
-    // IMPORTANT: init au max => compose LO+NLO(+NNLO) côté SM
-    sm_group_ptr->init(max_order);
+    sm_group_ptr->init(sm_max_order);
 
-    // Copie SM (par ordre) : sm_block -> final_block
     auto maybe_g = GroupMapper::enum_of(gid);
     if (!maybe_g) LOG_ERROR("LogicError", "Bad group id for " + groupName);
 
     for (auto o : ALL_ORDERS) {
-        if (qcd_index(o) > qcd_index(max_order)) continue;
+        if (qcd_index(o) > qcd_index(sm_max_order)) continue;
 
         for (auto wcoef_enum : WCoefMapper::get_group(*maybe_g)) {
             auto base = WCoefMapper::flha_base(wcoef_enum);
@@ -368,6 +490,41 @@ void CoefficientManager::ensure_sm_model_triplet_in_matching(
     }
 }
 
+// void CoefficientManager::init_specific_order_group_matching(const std::string& groupName,
+//                                                             const std::string& orderStr,
+//                                                             bool only_total)
+// {
+//     if (!this->coefficientGroups.contains(groupName)) {
+//         throw_no_group_error(groupName);
+//     }
+
+//     const bool has_input = ports_config.has_wilson->get();
+//     // const bool marty = ports_config.use_marty->get();
+//     const bool SM_model = (ports_config.model_api->get() == Model::SM);
+
+//     QCDOrder order = OrderMapper::enum_elt(orderStr);
+
+//     if (!has_input) {
+//         if (!only_total) {
+//             this->coefficientGroups.at(groupName)->init(order);
+//         }
+
+//         if (SM_model) {
+//             ensure_sm_model_triplet_in_matching(groupName, order);
+//             return;
+//         }
+
+//         ensure_sm_intermediate_and_copy_to_final(groupName, order, ports_config);
+//         if (!only_total) compose_missing_from_calculation(groupName, order, ports_config);
+
+//     } else {
+//         ensure_sm_intermediate_and_copy_to_final(groupName, order, ports_config);
+
+//         compose_from_fwcoef(groupName, order, ports_config);
+
+//     }
+// }
+
 void CoefficientManager::init_specific_order_group_matching(const std::string& groupName,
                                                             const std::string& orderStr,
                                                             bool only_total)
@@ -376,30 +533,78 @@ void CoefficientManager::init_specific_order_group_matching(const std::string& g
         throw_no_group_error(groupName);
     }
 
-    const bool has_input = ports_config.has_wilson->get();
-    // const bool marty = ports_config.use_marty->get();
-    const bool SM_model = (ports_config.model_api->get() == Model::SM);
+    const bool has_input     = ports_config.has_wilson->get();
+    const bool marty_backend = ports_config.use_marty->get();
+    const bool hard_lo       = hard_coded_lo_enabled(ports_config);
+    const bool SM_model      = (ports_config.model_api->get() == Model::SM);
 
-    QCDOrder order = OrderMapper::enum_elt(orderStr);
+    const QCDOrder requested = OrderMapper::enum_elt(orderStr);
+
+    const bool mixed_orders = marty_backend
+        && hard_lo
+        && (requested > QCDOrder::LO)
+        && static_cast<bool>(ports_config.build_group);
+
+    const QCDOrder marty_calc_order = (marty_backend && (requested > QCDOrder::LO))
+        ? QCDOrder::LO
+        : requested;
 
     if (!has_input) {
         if (!only_total) {
-            this->coefficientGroups.at(groupName)->init(order);
+            this->coefficientGroups.at(groupName)->init(marty_calc_order);
         }
 
         if (SM_model) {
-            ensure_sm_model_triplet_in_matching(groupName, order);
+            ensure_sm_model_triplet_in_matching(groupName, marty_calc_order);
+
+            for (auto o : ALL_ORDERS) {
+                if (qcd_index(o) > qcd_index(requested)) continue;
+                if (qcd_index(o) <= qcd_index(marty_calc_order)) continue;
+                ensure_matching_triplet_zeroed(groupName, o);
+            }
             return;
         }
 
-        ensure_sm_intermediate_and_copy_to_final(groupName, order, ports_config);
-        if (!only_total) compose_missing_from_calculation(groupName, order, ports_config);
+        ensure_sm_intermediate_and_copy_to_final(groupName, requested, ports_config);
+
+        if (!only_total) {
+            if (marty_backend && (requested > QCDOrder::LO)) {
+                compose_missing_from_calculation(groupName, QCDOrder::LO, ports_config);
+
+                if (mixed_orders) {
+                    // >LO : BSM=0 ; TOTAL=SM
+                    for (auto o : ALL_ORDERS) {
+                        if (o == QCDOrder::LO) continue;
+                        if (qcd_index(o) > qcd_index(requested)) continue;
+                        compose_sm_only_triplet_for_order(groupName, o, ports_config);
+                    }
+                } else {
+                    for (auto o : ALL_ORDERS) {
+                        if (o == QCDOrder::LO) continue;
+                        if (qcd_index(o) > qcd_index(requested)) continue;
+                        ensure_matching_triplet_zeroed(groupName, o);
+                    }
+
+                    if (hard_lo && !ports_config.build_group) {
+                        LOG_WARN(
+                            "(CoefficientManager) hard_coded_lo=true requested but ports_config.build_group is not set; "
+                            "cannot compute SM beyond LO. Higher orders are zero-filled."
+                        );
+                    } else if (!hard_lo) {
+                        LOG_WARN(
+                            "(CoefficientManager) Marty backend does not support QCD orders beyond LO; "
+                            "higher orders are zero-filled. Set hard_coded_lo=true (with build_group hook) to keep SM up to the requested order."
+                        );
+                    }
+                }
+            } else {
+                compose_missing_from_calculation(groupName, requested, ports_config);
+            }
+        }
 
     } else {
-        ensure_sm_intermediate_and_copy_to_final(groupName, order, ports_config);
-
-        compose_from_fwcoef(groupName, order, ports_config);
-
+        ensure_sm_intermediate_and_copy_to_final(groupName, requested, ports_config);
+        compose_from_fwcoef(groupName, requested, ports_config);
     }
 }
 

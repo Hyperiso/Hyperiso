@@ -87,10 +87,13 @@ struct WilsonPortsConfig {
      * @param model_api        Runtime access to the currently selected physics model.
      * @param scale_setter_api Runtime setter for switching and setting the active scale.
      */
-    WilsonPortsConfig(std::shared_ptr<IBlockComposer> iblock_c, std::shared_ptr<IParameterProxy<std::string, LhaID>> wilson_proxy, std::shared_ptr<ICoreAPI<bool>> use_marty, std::shared_ptr<ICoreAPI<bool>> has_wilson, std::shared_ptr<ICoreAPI<Model>> model_api, std::shared_ptr<IParamSetter<ScaleType>> scale_setter_api) :
+    WilsonPortsConfig(std::shared_ptr<IBlockComposer> iblock_c, std::shared_ptr<IParameterProxy<std::string, LhaID>> wilson_proxy, 
+                    std::shared_ptr<ICoreAPI<bool>> use_marty, std::shared_ptr<ICoreAPI<bool>> has_wilson, std::shared_ptr<ICoreAPI<Model>> model_api, 
+                    std::shared_ptr<IParamSetter<ScaleType>> scale_setter_api, std::shared_ptr<ICoreAPI<bool>> hard_coded_lo) :
         iblock_c(iblock_c), wilson_proxy(wilson_proxy), 
         use_marty(use_marty), has_wilson(has_wilson),
-        model_api(model_api), scale_setter_api(scale_setter_api) {}
+        model_api(model_api), scale_setter_api(scale_setter_api),
+        hard_coded_lo(hard_coded_lo) {}
 
     /// Dependency engine used to compose derived blocks/parameters.
     std::shared_ptr<IBlockComposer> iblock_c;
@@ -110,6 +113,8 @@ struct WilsonPortsConfig {
     /// Scale setter used to switch and set mu_W / mu_h.
     std::shared_ptr<IParamSetter<ScaleType>> scale_setter_api;
 
+    // Choice of SM Marty mixed-order
+    std::shared_ptr<ICoreAPI<bool>> hard_coded_lo;
     /**
      * @brief Optional group builder hook.
      *

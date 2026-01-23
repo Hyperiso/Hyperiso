@@ -67,6 +67,8 @@ void WilsonBuilder::build(WilsonBuildConfig config) {
     std::shared_ptr<ICoreAPI<std::string>> marty_model_name = std::make_shared<MartyModelNameAPI>();
     std::shared_ptr<ICoreAPI<fs::path>> marty_model_path = std::make_shared<MartyModelPathAPI>();
     std::shared_ptr<IMartyWilsonProxy<InterpretedParam>> marty_proxy = nullptr;
+    std::shared_ptr<ICoreAPI<bool>> hard_coded_lo =
+    std::make_shared<SMFromHypProxy>();
     if (use_marty->get()) {
         marty_proxy = std::make_shared<MartyWilsonProxy>(); 
     }
@@ -101,13 +103,15 @@ void WilsonBuilder::build(WilsonBuildConfig config) {
         groups.emplace(GroupMapper::str(g_id), std::move(grp));
 
     }
-    if (UseMarty().get() && config.order > QCDOrder::LO) {
-        // TODO : Use QCDOrder > LO as a flag for SM calculation. 
-        LOG_WARN("Using MARTY defaults all calculations to LO.");
+    if (use_marty->get()
+        && config.order > QCDOrder::LO
+        && !(hard_coded_lo && hard_coded_lo->get()))
+    {
+        // Marty pur => LO-only global (comportement historique)
         config.order = QCDOrder::LO;
     }
 
-    WilsonPortsConfig port_config{iblock_c, wilson_proxy, use_marty, has_wilson, model_api, scale_setter_api};
+    WilsonPortsConfig port_config{iblock_c, wilson_proxy, use_marty, has_wilson, model_api, scale_setter_api, hard_coded_lo};
     port_config.build_group = build_group_fn;
 
     this->cm = CoefficientManager::Builder(groups, config.matching_scale, config.hadronic_scale, OrderMapper::str(config.order), port_config, wilson_param_helpers);
@@ -136,6 +140,7 @@ void WilsonBuilder::add(WilsonBuildConfig config) {
     std::shared_ptr<ICoreAPI<std::string>> marty_model_name = std::make_shared<MartyModelNameAPI>();
     std::shared_ptr<ICoreAPI<fs::path>> marty_model_path = std::make_shared<MartyModelPathAPI>();
     std::shared_ptr<IMartyWilsonProxy<InterpretedParam>> marty_proxy = nullptr;
+
     if (use_marty->get()) {
         marty_proxy = std::make_shared<MartyWilsonProxy>(); 
     }
