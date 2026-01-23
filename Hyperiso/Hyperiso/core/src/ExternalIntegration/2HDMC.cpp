@@ -7,7 +7,7 @@
 void TwoHDMCalculator::calculateSpectrum(const std::string& inputFilePath, const std::string& outputFilePath) {
 
     THDM model;
-    // bool pset = model.read_LesHouches((inputFilePath).c_str());
+    model.read_LesHouches((inputFilePath).c_str());
     model.write_LesHouches((outputFilePath).c_str(), true, true, true);
 
 }

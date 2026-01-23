@@ -8,14 +8,14 @@ int main() {
     HyperisoMaster hyp = HyperisoMaster();
     HyperisoConfig config;
     // config.flags[ExternalFlag::USE_MARTY] = true;
-    config.model = Model::MARTY;
+    config.model = Model::THDM;
     config.mty_model_name = "THDM";
     config.mty_model_path = project_assets_root.data() + std::string("input_files/marty_model/thdm.h");
 
     // hyp.init("default/lha/testInput.flha", config);
     // hyp.init("lha/camilia.flha", config);
-    hyp.init("spectrum/testinput_thdm.lha", config);
-    // hyp.init("lha/testinput_thdm.lha", config);
+    // hyp.init("spectrum/testinput_thdm.lha", config);
+    hyp.init("lha/testinput_thdm.lha", config);
     // hyp.init("lha/testInput.slha", config);
     LOG_INFO("HyperisoMaster initialized");
 
