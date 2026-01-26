@@ -27,6 +27,9 @@ class PyWilsonBuildConfig:
         cpp.matching_scale = self.matching_scale
         cpp.hadronic_scale = self.hadronic_scale
         cpp.order = self.order.value
+        print(cpp)
+        print("cpp.order ", cpp.order)
+        print("cpp.groups ", cpp.groups)
         return cpp
 
 

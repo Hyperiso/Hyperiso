@@ -55,7 +55,7 @@ int main() {
     std::size_t n1 = x1_max / dx;
     std::size_t n2 = x2_max / dx;
 
-    printf("(%i,%i)\n", n1, n2);
+    printf("(%li,%li)\n", n1, n2);
 
     os.open("logpdf.csv");
 

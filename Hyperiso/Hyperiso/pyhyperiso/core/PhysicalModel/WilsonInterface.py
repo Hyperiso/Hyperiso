@@ -1,9 +1,9 @@
 from pyhyperiso.phyperiso.pyhyperiso.wilson.wilson_interface import WilsonInterface as _CppWilsonInterface
 from pyhyperiso.core.Common.General import PyParamId
-from pyhyperiso.core.Common.GeneralEnum import Model, QCDOrder, WCoeff, WGroup, ContributionType, WilsonBasis
+from pyhyperiso.core.Common.GeneralEnum import Model, QCDOrder, WCoeff, WGroup, ContributionType, WilsonBasis, ParameterType
 from pyhyperiso.core.Common.Configs import PyWilsonBuildConfig, PyWilsonRequest
 from pyhyperiso.core.Math.scalar import Scalar
-
+from pyhyperiso.core.Core.BlockProvider import PyBlockLogger
 class PyWilsonInterface:
     """User-facing Python wrapper for the C++ WilsonInterface class."""
 
@@ -12,6 +12,7 @@ class PyWilsonInterface:
 
     def build(self, config: PyWilsonBuildConfig):
         """Initializes the WilsonInterface with a build config."""
+        print(config.to_cpp())
         self._cpp_obj.build(config.to_cpp())
 
     def add_wilson_group(self, config: PyWilsonBuildConfig):
@@ -105,7 +106,7 @@ class PyWilsonInterface:
 if __name__ == "__main__":
     from pyhyperiso.core.Core.HyperisoMaster import PyHyperisoMaster
     from pathlib import Path
-    from Hyperiso.Hyperiso.pyhyperiso.core.Core.HyperisoConfig import PyHyperisoConfig, ExternalFlag
+    from pyhyperiso.core.Core.HyperisoConfig import PyHyperisoConfig, ExternalFlag
     from pyhyperiso.core.Core.ParamaterProvider import PyParameterProvider
     print("🔧 Initializing PyHyperisoMaster with custom PyHyperisoConfig...")
 
@@ -114,7 +115,7 @@ if __name__ == "__main__":
             ExternalFlag.IS_LHA_SPECTRUM: False,
             ExternalFlag.HAS_WILSON_INPUT: False,
             ExternalFlag.HAS_TH_OBSERVABLE_INPUT: False,
-            # ExternalFlag.USE_MARTY: False
+            ExternalFlag.HYP_AS_SM_MARTY: True,
         },
         model=Model.SM,
         mty_model_name="MSSM_UFO",
@@ -135,8 +136,28 @@ if __name__ == "__main__":
         groups={WGroup.B, WGroup.BScalar},
         matching_scale=81.0,
         hadronic_scale=2.0,
-        order=QCDOrder.NNLO
+        order=QCDOrder.LO
     )
+    # config = PyWilsonBuildConfig(
+    #     groups={WGroup.B},
+    #     matching_scale=81.0,
+    #     hadronic_scale=2.0,
+    #     order=QCDOrder.LO
+    # )
+    # config = PyWilsonBuildConfig(
+    #     groups={},
+    #     matching_scale=81.0,
+    #     hadronic_scale=2.0,
+    #     order=QCDOrder.LO
+    # )
+    import pyhyperiso
+    import pyhyperiso.phyperiso.pyhyperiso.common as common
+    import pyhyperiso.phyperiso.pyhyperiso.wilson.wilson_interface as wil
+
+    print("common:", common.__file__)
+    print("wilson:", wil.__file__)
+        
+    PyBlockLogger().log_all_blocks(ParameterType.WILSON)
     print("trying to build wilsoninterface")
     interface = PyWilsonInterface()
     interface.build(config)

@@ -10,7 +10,7 @@
 struct FlatMarginalCfg : public AbstractConfig {
     double a;
     double b;
-
+    FlatMarginalCfg() = default;
     FlatMarginalCfg(double a, double b) : a(a), b(b) {}
 };
 

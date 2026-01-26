@@ -204,6 +204,9 @@ class PyParamId:
         instance.code = PyLhaID(cpp_obj.code)
         return instance
     
+    def to_cpp(self):
+        return self._cpp_obj
+    
     def __repr__(self):
         """Returns a string representation for debugging.
 

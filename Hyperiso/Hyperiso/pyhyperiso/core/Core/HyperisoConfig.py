@@ -10,6 +10,7 @@ class ExternalFlag(Enum):
     IS_LHA_SPECTRUM = _CppExternalFlag.IS_LHA_SPECTRUM
     HAS_WILSON_INPUT = _CppExternalFlag.HAS_WILSON_INPUT
     HAS_TH_OBSERVABLE_INPUT = _CppExternalFlag.HAS_TH_OBSERVABLE_INPUT
+    HYP_AS_SM_MARTY = _CppExternalFlag.HYP_AS_SM_MARTY
     # USE_MARTY = _CppExternalFlag.USE_MARTY
     
 
@@ -20,6 +21,7 @@ class PyHyperisoConfig:
         ExternalFlag.IS_LHA_SPECTRUM: False,
         ExternalFlag.HAS_WILSON_INPUT: False,
         ExternalFlag.HAS_TH_OBSERVABLE_INPUT: False,
+        ExternalFlag.HYP_AS_SM_MARTY: True,
         # ExternalFlag.USE_MARTY: False,
     })
     model: Model = Model.SM

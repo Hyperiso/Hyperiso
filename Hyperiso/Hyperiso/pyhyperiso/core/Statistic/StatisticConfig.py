@@ -1,13 +1,14 @@
 from typing import Dict, List
 from dataclasses import dataclass, field
 from pyhyperiso.core.Common.GeneralEnum import QCDOrder, Observables
+from pyhyperiso.core.Common.General import PyParamId
 from pyhyperiso.core.Common.Mapper import ObservableMapper
 from pyhyperiso.phyperiso.pyhyperiso.statistic import StatisticConfig as _CppStatisticConfig
 
 @dataclass
 class StatisticConfig:
     obss : Dict[Observables, QCDOrder]= field(default_factory=lambda: {})
-    p_specs : List = field(default_factory=lambda: {})
+    p_specs : List[PyParamId] = field(default_factory=list)
     MC_draws : int = 100
     skew_abs_threshold : float = 0.2
     
@@ -18,7 +19,7 @@ class StatisticConfig:
         """Converts this Python wrapper to a C++ Config object."""
         cpp = _CppStatisticConfig()
         cpp.obss = {ObservableMapper().id_of(x):y.value for x,y in self.obss.items()}
-        cpp.p_specs = {p for p in self.p_specs}
+        cpp.p_specs = {p._cpp_obj for p in self.p_specs}
         cpp.MC_draws = self.MC_draws
         cpp.skew_abs_threshold = self.skew_abs_threshold
         cpp.MLE_max_iter = self.MLE_max_iter
@@ -35,3 +36,11 @@ if __name__ == "__main__":
     print(a)
     
     a.to_cpp()
+    
+    import pyhyperiso.phyperiso.pyhyperiso.common as cA
+    import pyhyperiso.phyperiso.pyhyperiso.common as cB
+
+    print("A:", cA.__file__)
+    print("B:", cB.__file__)
+    print("same QCDOrder object?", cA.QCDOrder is cB.QCDOrder)
+    print("same LO?", cA.QCDOrder.LO == cB.QCDOrder.LO)

@@ -58,6 +58,7 @@ void init_core(py::module &m) {
     .value("IS_LHA_SPECTRUM", ExternalFlag::IS_LHA_SPECTRUM)
     .value("HAS_WILSON_INPUT", ExternalFlag::HAS_WILSON_INPUT)
     .value("HAS_TH_OBSERVABLE_INPUT", ExternalFlag::HAS_TH_OBSERVABLE_INPUT)
+    .value("HYP_AS_SM_MARTY", ExternalFlag::HYP_AS_SM_MARTY)
     // .value("USE_MARTY", ExternalFlag::USE_MARTY)
     .export_values();
 

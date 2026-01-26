@@ -7,9 +7,10 @@
 #include "Math.h"
 
 struct GaussianMarginalCfg : public AbstractConfig {
-    double mu;
-    double sigma;
+    double mu {0.};
+    double sigma {1.};
 
+    GaussianMarginalCfg() = default;
     GaussianMarginalCfg(double mu, double sigma) : mu(mu), sigma(sigma) {}
 };
 

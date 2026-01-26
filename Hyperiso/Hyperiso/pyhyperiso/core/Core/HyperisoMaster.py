@@ -1,6 +1,6 @@
 from pyhyperiso.phyperiso.pyhyperiso.core import HyperisoMaster as _CppHyperisoMaster
 from pyhyperiso.core.Common.GeneralEnum import Model
-from Hyperiso.Hyperiso.pyhyperiso.core.Core.HyperisoConfig import PyHyperisoConfig, ExternalFlag
+from pyhyperiso.core.Core.HyperisoConfig import PyHyperisoConfig, ExternalFlag
 import os
 
 class PyHyperisoMaster:

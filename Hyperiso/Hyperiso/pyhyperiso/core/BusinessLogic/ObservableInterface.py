@@ -53,7 +53,7 @@ class PyObservableInterface:
 if __name__ == "__main__":
     from pyhyperiso.core.Core.HyperisoMaster import PyHyperisoMaster
     from pathlib import Path
-    from Hyperiso.Hyperiso.pyhyperiso.core.Core.HyperisoConfig import PyHyperisoConfig, ExternalFlag
+    from pyhyperiso.core.Core.HyperisoConfig import PyHyperisoConfig, ExternalFlag
     from pyhyperiso.core.Common.GeneralEnum import Model
     from pyhyperiso.core.Core.ParamaterProvider import PyParameterProvider
     print("🔧 Initializing PyHyperisoMaster with custom PyHyperisoConfig...")
@@ -63,6 +63,7 @@ if __name__ == "__main__":
             ExternalFlag.IS_LHA_SPECTRUM: True,
             ExternalFlag.HAS_WILSON_INPUT: False,
             ExternalFlag.HAS_TH_OBSERVABLE_INPUT: False,
+            ExternalFlag.HYP_AS_SM_MARTY: True,
             # ExternalFlag.USE_MARTY: False
         },
         model=Model.SM,
@@ -74,7 +75,7 @@ if __name__ == "__main__":
     print(config)
 
     hyp = PyHyperisoMaster()
-    lha_file_path = "lha/camilia.flha" 
+    lha_file_path = "lha/si_input.flha" 
 
     print("\n🚀 Calling init with config...")
     hyp.init(lha_file=lha_file_path, config=config)

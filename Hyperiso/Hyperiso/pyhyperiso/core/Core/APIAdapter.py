@@ -44,7 +44,7 @@ class PyAPIAdapter:
 if __name__ == "__main__":
     from pyhyperiso.core.Core.HyperisoMaster import PyHyperisoMaster
     from pathlib import Path
-    from Hyperiso.Hyperiso.pyhyperiso.core.Core.HyperisoConfig import PyHyperisoConfig, ExternalFlag
+    from pyhyperiso.core.Core.HyperisoConfig import PyHyperisoConfig, ExternalFlag
     from pyhyperiso.core.Core.ParamaterProvider import PyParameterProvider
     print("🔧 Initializing PyHyperisoMaster with custom PyHyperisoConfig...")
 
