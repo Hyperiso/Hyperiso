@@ -1,7 +1,8 @@
 #include "StatisticManager.h"
 
 std::unique_ptr<JointDistribution> StatisticManager::build_nuisance_distribution() {
-    unsigned int seed = std::random_device{}();
+    // unsigned int seed = std::random_device{}();
+    unsigned int seed = 123456u; //TODO : Niels ta faute
     std::map<ParamId, MarginalType> nuisance_marginals;
 
     for (auto& [pid, v] : cache.eta_specs_real) {
@@ -75,12 +76,12 @@ std::unique_ptr<JointDistribution> StatisticManager::build_exp_data_distribution
     if (config.exp_data_copula_type == CopulaType::GAUSSIAN) {
         GaussianCopulaConfig copula_cfg;
         copula_cfg.R = RealMatrix(unzip(cache.SigmaObs).vals);
-        copula = CopulaFactory::create(config.nuisance_copula_type, copula_cfg, seed);
+        copula = CopulaFactory::create(config.exp_data_copula_type, copula_cfg, seed);
     } else if (config.exp_data_copula_type == CopulaType::STUDENT_T) {
         StudentTCopulaConfig copula_cfg;
         copula_cfg.R = RealMatrix(unzip(cache.SigmaObs).vals);
         copula_cfg.nu = config.obss.size() - 1;
-        copula = CopulaFactory::create(config.nuisance_copula_type, copula_cfg, seed);
+        copula = CopulaFactory::create(config.exp_data_copula_type, copula_cfg, seed);
     }
 
     return std::make_unique<JointDistribution>(std::move(marginals), std::move(copula));

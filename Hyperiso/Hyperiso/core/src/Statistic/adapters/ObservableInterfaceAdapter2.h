@@ -101,6 +101,15 @@ public:
             // oi_->set_param(s.block, s.code, eta_elem.second, s.type.value_or(ParameterType::SM)); //TODO check value_or
         }
         spop.commit();
+        auto v1 = oi_->compute_observable(obs_ids_[0]).front().value;
+        auto v2 = oi_->compute_observable(obs_ids_[0]).front().value;
+
+
+        double a = oi_->compute_observable(obs_ids_[0]).front().value;
+        double b = oi_->compute_observable(obs_ids_[1]).front().value;
+        // recompute le premier après avoir calculé le second
+        double a2 = oi_->compute_observable(obs_ids_[0]).front().value;
+
         // auto all = oi_.compute_all();
         std::map<ObservableId, double> out;
         for (auto oid : obs_ids_) {

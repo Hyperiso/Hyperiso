@@ -71,6 +71,27 @@ FitResult MLEstimator::fit(const Vector& p0) const {
     //     }
     // }
 
+    auto p = p0;
+    auto eta = like_.get_eta_central_values();
+    double a = like_.nll(p, eta);
+    double b = like_.nll(p, eta);
+    std::cout << std::setprecision(17)
+            << "nll repeat diff = " << (a-b) << "\n";
+
+
+    {
+        std::vector<double> p(p0.begin(), p0.end());
+        std::vector<double> eta = like_.get_eta_central_values();
+
+        double n1 = like_.nll(p, eta);
+        double n2 = like_.nll(p, eta);
+
+        std::cout << std::setprecision(17)
+                << "[DBG] fixed-point nll1=" << n1
+                << " nll2=" << n2
+                << " diff=" << (n1 - n2) << "\n";
+    }
+
     // MinimizationResult min_res = minimize(f, start, min_ctx);
     MinimizationResult min_res = minimize_scaled(f, start, min_ctx);
 
