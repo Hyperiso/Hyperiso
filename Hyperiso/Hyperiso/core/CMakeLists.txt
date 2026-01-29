@@ -147,6 +147,8 @@ endif()
 
 add_library(Hyperiso INTERFACE)
 
+add_library(Hyperiso::Hyperiso ALIAS Hyperiso)
+
 target_link_libraries(Hyperiso INTERFACE
     CommonLib
     ConfiguredModule
@@ -163,6 +165,7 @@ target_link_libraries(Hyperiso INTERFACE
 # Inclure src/ pendant le build (pour #include <hyperiso/...>)
 target_include_directories(Hyperiso
     INTERFACE
+        $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
         $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src>
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
@@ -196,7 +199,7 @@ foreach(MOD IN LISTS HYPERISO_MODULES)
 endforeach()
 
 # Installe l’umbrella header
-install(FILES ${PROJECT_SOURCE_DIR}/include/hyperiso/hyperiso.hpp
+install(FILES ${PROJECT_SOURCE_DIR}/include/hyperiso.hpp
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/hyperiso)
 
 # # Installe la cible meta et les libs
@@ -213,7 +216,14 @@ install(FILES ${PROJECT_SOURCE_DIR}/include/hyperiso/hyperiso.hpp
 #     BusinessLogicLib
 #     UserInterfaceLib
 #     EXPORT HyperisoTargets
+#     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+#     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+#     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 # )
+
+install(TARGETS Hyperiso
+    EXPORT HyperisoTargets
+)
 
 # Export pour find_package()
 install(EXPORT HyperisoTargets

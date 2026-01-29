@@ -10,6 +10,8 @@ set(HYPERISO_WITH_MARTY    @BUILD_WITH_MARTY@)
 #    Laisse commenté si tu vends/installe les libs avec Hyperiso.
 include(CMakeFindDependencyMacro)
 
+find_dependency(GSL REQUIRED)
+
 # Exemple : 2HDMC utilise GSL. Si tu ne la vends pas, décommente :
 # if(HYPERISO_WITH_2HDMC)
 #   find_dependency(GSL REQUIRED)
