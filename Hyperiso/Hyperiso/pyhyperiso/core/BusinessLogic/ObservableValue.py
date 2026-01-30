@@ -6,7 +6,7 @@ from typing import Dict, Optional, Set, Tuple, Union
 from pyhyperiso.phyperiso.pyhyperiso.observable import ObservableValue as _CppObservableValue
 from pyhyperiso.phyperiso.pyhyperiso.common import ObservableMapper as _CppObservableMapper
 from pyhyperiso.core.Common.GeneralEnum import Observables, Decays, QCDOrder
-from pyhyperiso.core.Common.General import PyParamId
+from pyhyperiso.core.Common.General import ParamId
 from pyhyperiso.core.Math.scalar import Scalar
 
 

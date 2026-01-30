@@ -1,9 +1,9 @@
 import pytest
 from pyhyperiso.core.Common.Configs import (
-    PyWilsonBuildConfig,
-    PyWilsonRequest,
-    PyAlphasConfig,
-    PyMassConfig
+    WilsonBuildConfig,
+    WilsonRequest,
+    AlphasConfig,
+    MassConfig
 )
 from pyhyperiso.core.Common.GeneralEnum import (
     WGroup, WCoeff, QCDOrder, ContributionType, ScaleType, MassType
@@ -11,7 +11,7 @@ from pyhyperiso.core.Common.GeneralEnum import (
 from pyhyperiso.core.Common.Mapper import GroupMapper
 
 def test_wilson_build_config_to_cpp():
-    config = PyWilsonBuildConfig(
+    config = WilsonBuildConfig(
         groups={WGroup.B, WGroup.BScalar},
         matching_scale=1000.0,
         hadronic_scale=2.0,
@@ -27,7 +27,7 @@ def test_wilson_build_config_to_cpp():
 
 
 def test_wilson_request_to_cpp():
-    request = PyWilsonRequest(
+    request = WilsonRequest(
         group=WGroup.B,
         coefficient=WCoeff.C9,
         order=QCDOrder.LO,
@@ -46,7 +46,7 @@ def test_wilson_request_to_cpp():
 
 
 def test_alphas_config_to_cpp():
-    config = PyAlphasConfig(
+    config = AlphasConfig(
         scale=91.1876,
         m_b_type=MassType.MSBAR,
         m_t_type=MassType.POLE
@@ -58,7 +58,7 @@ def test_alphas_config_to_cpp():
 
 
 def test_mass_config_to_cpp():
-    config = PyMassConfig(
+    config = MassConfig(
         pdg_id=6,
         scale=173.0,
         m_b_type=MassType.POLE,

@@ -2,7 +2,7 @@
 from fastapi import APIRouter
 from pydantic import BaseModel
 from pyhyperiso.core.Common.GeneralEnum import WGroup, WCoeff, QCDOrder, ContributionType
-from pyhyperiso.core.Common.Configs import PyWilsonRequest
+from pyhyperiso.core.Common.Configs import WilsonRequest
 from pyhyperiso.phyperiso.pyhyperiso.wilson.wilson_interface import WilsonInterface
 
 router = APIRouter()
@@ -18,7 +18,7 @@ class WilsonQuery(BaseModel):
 @router.post("/get_M")
 def get_m(req: WilsonQuery):
     interface.set_matching_scale(req.mu_W)
-    wilson_req = PyWilsonRequest(
+    wilson_req = WilsonRequest(
         group=WGroup[req.group],
         coefficient=WCoeff[req.coefficient],
         order=QCDOrder[req.order],

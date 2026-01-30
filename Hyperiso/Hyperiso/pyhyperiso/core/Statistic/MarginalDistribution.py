@@ -1,7 +1,7 @@
 from pyhyperiso.phyperiso.pyhyperiso import statistic as st
 from typing import Any, List, Optional, Sequence, Union, cast
 from pyhyperiso.core.Statistic.MarginalConfig import MarginalKind, MarginalConfig, FlatMarginalConfig, GaussianMarginalConfig, LikelihoodMarginalConfig, SplitGaussianMarginalConfig, _config_from_cpp
-from pyhyperiso.core.Common.General import PyParamId
+from pyhyperiso.core.Common.General import ParamId
 from pyhyperiso.core.Common.GeneralEnum import ParameterType
 class MarginalDistribution:
 
@@ -182,6 +182,6 @@ if __name__ == "__main__":
     s = dist.std()                # float
 
     mcf = MarginalConfigFactoryWrapper()
-    pid = PyParamId(ParameterType.SM, block = "MASS", code = 1)
+    pid = ParamId(ParameterType.SM, block = "MASS", code = 1)
     py_cfg = mcf.create_from_param(pid, MarginalKind.FLAT)
     dist2 = DistributionFactoryWrapper.create(MarginalKind.FLAT, py_cfg)

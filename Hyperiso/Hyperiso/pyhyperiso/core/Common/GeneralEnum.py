@@ -324,3 +324,4 @@ class UncertaintyType(Enum):
     STAT = _CppUncertaintyType.STAT
     SYST = _CppUncertaintyType.SYST
     COMBINED = _CppUncertaintyType.COMBINED
+    

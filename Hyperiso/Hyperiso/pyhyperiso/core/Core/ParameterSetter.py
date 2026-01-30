@@ -1,5 +1,5 @@
 from pyhyperiso.phyperiso.pyhyperiso.core import ParameterSetter as _CppParameterSetter
-from pyhyperiso.core.Common.General import PyParamId
+from pyhyperiso.core.Common.General import ParamId
 from pyhyperiso.core.Common.GeneralEnum import Model, ParameterType
 from pyhyperiso.core.Math.scalar import Scalar, _to_scalar
 from pyhyperiso.core.Core.Parameter import ParameterMode
@@ -10,10 +10,10 @@ class PyParameterSetter:
     def __init__(self):
         self._cpp_obj = _CppParameterSetter()
 
-    def mutate(self, pid: PyParamId, value: float):
+    def mutate(self, pid: ParamId, value: float):
         self._cpp_obj.mutate(pid._cpp_obj, _to_scalar(value)._cpp_obj)
 
-    def change_mode(self, pid: PyParamId, mode: ParameterMode):
+    def change_mode(self, pid: ParamId, mode: ParameterMode):
         self._cpp_obj.change_mode(pid._cpp_obj, mode.value)
         
 if __name__ == "__main__":
@@ -48,6 +48,6 @@ if __name__ == "__main__":
     param_prov = PyParameterProvider(ParameterType.SM)
     
     print("param before mutate : ", param_prov.get_by_block("MASS", 24))
-    param_shifter.mutate(PyParamId(ParameterType.SM, "MASS", 24), 82)
+    param_shifter.mutate(ParamId(ParameterType.SM, "MASS", 24), 82)
     print("param before mutate at 82: ", param_prov.get_by_block("MASS", 24))
     

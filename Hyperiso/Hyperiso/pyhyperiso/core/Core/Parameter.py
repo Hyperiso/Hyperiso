@@ -1,7 +1,7 @@
 from pyhyperiso.phyperiso.pyhyperiso.core import Parameter as _CppParameter
 from pyhyperiso.phyperiso.pyhyperiso.core import ParameterMode as _CppParameterMode
 
-from pyhyperiso.core.Common.General import PyParamId
+from pyhyperiso.core.Common.General import ParamId
 from pyhyperiso.core.Common.GeneralEnum import ParameterType
 from pyhyperiso.core.Math.scalar import Scalar, pow_scalar, sqrt, _to_scalar
 from pyhyperiso.phyperiso.pyhyperiso.core import DependentParameter as _CppDependentParameter
@@ -15,7 +15,7 @@ class ParameterMode(Enum):
 class PyParameter:
     def __init__(
         self,
-        pid: PyParamId,
+        pid: ParamId,
         expected: Union[float, complex, Scalar],
         stat: Union[float, complex, Scalar],
         syst: Union[float, complex, Scalar],
@@ -41,8 +41,8 @@ class PyParameter:
         return Scalar.from_cpp(self._cpp_obj.get_combined_std())
 
     @property
-    def pid(self) -> PyParamId:
-        return PyParamId.from_cpp(self._cpp_obj.get_id())
+    def pid(self) -> ParamId:
+        return ParamId.from_cpp(self._cpp_obj.get_id())
 
     def set_expected(self, val: Union[float, complex, Scalar]):
         self._cpp_obj.set_expected(_to_scalar(val)._cpp_obj)
@@ -69,7 +69,7 @@ class PyDependentParameter(PyParameter):
         super().__init__(cpp_obj)
         self._cpp_obj = cpp_obj
 
-    def depends_on(self, pid: PyParamId) -> bool:
+    def depends_on(self, pid: ParamId) -> bool:
         return self._cpp_obj.dependsOn(pid._cpp_obj)
 
     def init(self):
@@ -103,7 +103,7 @@ if __name__ == "__main__":
     e = sqrt(b)
     print(f"sqrt({b}) =", e)
     
-    pid = PyParamId(type=ParameterType.SM, block="MASS", code=25)
+    pid = ParamId(type=ParameterType.SM, block="MASS", code=25)
     param = PyParameter(pid, 125.0, 0.1, 0.2)
 
     print("Initial:", param)

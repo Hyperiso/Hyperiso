@@ -1,6 +1,6 @@
 from pyhyperiso.phyperiso.pyhyperiso.core import CorrelationProvider as _CppCorrelationProvider
 from pyhyperiso.phyperiso.pyhyperiso.core import CorrelationType as _CppCorrelationType
-from pyhyperiso.core.Common.General import PyParamId
+from pyhyperiso.core.Common.General import ParamId
 from pyhyperiso.core.Common.GeneralEnum import Model, ParameterType, Observables
 from enum import Enum
 
@@ -15,7 +15,7 @@ class PyCorrelationProvider:
     def __init__(self):
         self._cpp_obj = _CppCorrelationProvider()
 
-    def correlation_from_paramid(self, pid_1: PyParamId, pid_2 : PyParamId, corr_type : CorrelationType):
+    def correlation_from_paramid(self, pid_1: ParamId, pid_2 : ParamId, corr_type : CorrelationType):
         return self._cpp_obj.correlation_from_paramid(pid_1._cpp_obj, pid_2._cpp_obj, corr_type.value)
 
     def correlation_from_observable(self, obs_1 : Observables, obs_2 : Observables, corr_type : CorrelationType):

@@ -1,6 +1,6 @@
 from pyhyperiso.core.Statistic.StatisticConfig import StatisticConfig
 from pyhyperiso.phyperiso.pyhyperiso.statistic import StatisticInterface as _CppStatisticInterface
-from pyhyperiso.core.Common.General import PyParamId
+from pyhyperiso.core.Common.General import ParamId
 from pyhyperiso.core.Common.GeneralEnum import ParameterType
 
 class StatisticInterface:
@@ -39,7 +39,7 @@ if __name__ == "__main__":
     
     obs = {Observables.BR_BS_MUMU : QCDOrder.LO, Observables.BR_BS_MUMU_UNTAG : QCDOrder.LO, Observables.BR_BD_MUMU : QCDOrder.LO}
     config_stat = StatisticConfig(obss = obs)
-    config_stat.p_specs = [PyParamId(ParameterType.DECAY, "B_ll", 1)]
+    config_stat.p_specs = [ParamId(ParameterType.DECAY, "B_ll", 1)]
 
     si = StatisticInterface(config_stat)
     

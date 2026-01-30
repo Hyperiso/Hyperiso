@@ -1,6 +1,6 @@
 from pyhyperiso.phyperiso.pyhyperiso.core import ParameterProvider as _CppParameterProvider
 from pyhyperiso.core.Common.GeneralEnum import ParameterType, DataType, Model
-from pyhyperiso.core.Common.General import PyLhaID, PyParamId
+from pyhyperiso.core.Common.General import LhaID, ParamId
 from pyhyperiso.core.Core.Parameter import PyParameter
 from typing import Dict, Optional, Union
 
@@ -19,27 +19,27 @@ class PyParameterProvider:
                          if param_type is not None else
                          _CppParameterProvider())
 
-    def get_by_pid(self, pid: PyParamId, dtype: DataType = DataType.VALUE) -> float:
-        """Get parameter value using a PyParamId."""
+    def get_by_pid(self, pid: ParamId, dtype: DataType = DataType.VALUE) -> float:
+        """Get parameter value using a ParamId."""
         return self._cpp_obj(pid._cpp_obj, dtype.value)
 
-    def get_by_block(self, block: str, code: Union[int, str, list, PyLhaID], dtype: DataType = DataType.VALUE) -> float:
+    def get_by_block(self, block: str, code: Union[int, str, list, LhaID], dtype: DataType = DataType.VALUE) -> float:
         """Get parameter value using block name and code."""
-        if not isinstance(code, PyLhaID):
-            code = PyLhaID(code)
+        if not isinstance(code, LhaID):
+            code = LhaID(code)
         return self._cpp_obj(block, code._cpp_obj, dtype.value)
 
-    def exists_by_pid(self, pid: PyParamId) -> bool:
-        """Check if a parameter exists via PyParamId."""
+    def exists_by_pid(self, pid: ParamId) -> bool:
+        """Check if a parameter exists via ParamId."""
         return self._cpp_obj.exists(pid._cpp_obj)
 
-    def exists_by_block(self, block: str, code: Union[int, str, list, PyLhaID]) -> bool:
+    def exists_by_block(self, block: str, code: Union[int, str, list, LhaID]) -> bool:
         """Check if a parameter exists using block name and code."""
-        if not isinstance(code, PyLhaID):
-            code = PyLhaID(code)
+        if not isinstance(code, LhaID):
+            code = LhaID(code)
         return self._cpp_obj.exists(block, code._cpp_obj)
 
-    def get_parameter(self, pid: PyParamId) -> PyParameter:
+    def get_parameter(self, pid: ParamId) -> PyParameter:
         """Calls the `get_parameter` method (different from __call__)."""
         return self._cpp_obj.get_parameter(pid._cpp_obj)
 
@@ -80,9 +80,9 @@ if __name__ == "__main__" :
     hyp.init(lha_file=lha_file_path, config=config)
     
     provider = PyParameterProvider(ParameterType.SM)
-    pid = PyParamId(type=ParameterType.SM, block="MASS", code=24)
+    pid = ParamId(type=ParameterType.SM, block="MASS", code=24)
 
-    print("🔍 By PyParamId")
+    print("🔍 By ParamId")
     print("exists:", provider.exists_by_pid(pid))
     print("value:", provider.get_by_pid(pid))
     print("stored (get_parameter):", provider.get_parameter(pid))

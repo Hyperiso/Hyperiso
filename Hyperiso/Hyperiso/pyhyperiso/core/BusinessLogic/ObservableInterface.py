@@ -1,6 +1,6 @@
 from pyhyperiso.phyperiso.pyhyperiso.observable import ObservableInterface as _CppObservableInterface
 from pyhyperiso.core.Common.GeneralEnum import Observables, Decays, QCDOrder
-from pyhyperiso.core.Common.General import PyParamId
+from pyhyperiso.core.Common.General import ParamId
 from pyhyperiso.core.Math.scalar import Scalar
 from pyhyperiso.core.BusinessLogic.ObservableValue import PyObservableValue, _key_to_cpp_obs_arg, ObsLike, _cpp_id_to_python_key
 # from pyhyperiso.core.BusinessLogic.compounds import Estimate
@@ -19,10 +19,10 @@ class PyObservableInterface:
     def add_observables_from_decay(self, decay: Decays, qcd_order: QCDOrder, add_dependencies: bool = False):
         self._cpp_obj.add_observables(decay.value, qcd_order.value, add_dependencies)
 
-    def add_observable_parameter(self, obs_name: Observables, pid: PyParamId):
+    def add_observable_parameter(self, obs_name: Observables, pid: ParamId):
         self._cpp_obj.add_observable_parameter(obs_name.value, pid._cpp_obj)
 
-    def add_observable_parameters(self, obs_name: Observables, pids: Set[PyParamId]):
+    def add_observable_parameters(self, obs_name: Observables, pids: Set[ParamId]):
         self._cpp_obj.add_observable_parameters(obs_name.value, {p._cpp_obj for p in pids})
 
 
@@ -93,11 +93,11 @@ if __name__ == "__main__":
     
     print(interface.compute_all())
     # test_values = []
-    # from pyhyperiso.core.Core.ParameterSetter import PyParameterSetter, PyParamId, ParameterType
+    # from pyhyperiso.core.Core.ParameterSetter import PyParameterSetter, ParamId, ParameterType
     # py_set = PyParameterSetter()
     # for i in range(1, 81):
-    #     py_set.mutate(PyParamId(ParameterType.WILSON, "B_SCALE", 1), i)
-    #     test_values.append(interface.get_R(PyWilsonRequest(WGroup.B, WCoeff.C9, QCDOrder.LO, ContributionType.TOTAL)))
+    #     py_set.mutate(ParamId(ParameterType.WILSON, "B_SCALE", 1), i)
+    #     test_values.append(interface.get_R(WilsonRequest(WGroup.B, WCoeff.C9, QCDOrder.LO, ContributionType.TOTAL)))
     
     # import matplotlib
     # matplotlib.use("TkAgg")

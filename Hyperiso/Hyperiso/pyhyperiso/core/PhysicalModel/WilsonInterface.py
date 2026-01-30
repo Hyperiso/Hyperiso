@@ -1,7 +1,7 @@
 from pyhyperiso.phyperiso.pyhyperiso.wilson.wilson_interface import WilsonInterface as _CppWilsonInterface
-from pyhyperiso.core.Common.General import PyParamId
+from pyhyperiso.core.Common.General import ParamId
 from pyhyperiso.core.Common.GeneralEnum import Model, QCDOrder, WCoeff, WGroup, ContributionType, WilsonBasis, ParameterType
-from pyhyperiso.core.Common.Configs import PyWilsonBuildConfig, PyWilsonRequest
+from pyhyperiso.core.Common.Configs import WilsonBuildConfig, WilsonRequest
 from pyhyperiso.core.Math.scalar import Scalar
 from pyhyperiso.core.Core.BlockProvider import PyBlockLogger
 class PyWilsonInterface:
@@ -10,12 +10,12 @@ class PyWilsonInterface:
     def __init__(self):
         self._cpp_obj = _CppWilsonInterface()
 
-    def build(self, config: PyWilsonBuildConfig):
+    def build(self, config: WilsonBuildConfig):
         """Initializes the WilsonInterface with a build config."""
         print(config.to_cpp())
         self._cpp_obj.build(config.to_cpp())
 
-    def add_wilson_group(self, config: PyWilsonBuildConfig):
+    def add_wilson_group(self, config: WilsonBuildConfig):
         self._cpp_obj.add_wilson_group(config.to_cpp())
         
     def set_matching_scale(self, mu_W: float):
@@ -26,7 +26,7 @@ class PyWilsonInterface:
         """Sets the hadronic scale (μ_h)."""
         self._cpp_obj.set_hadronic_scale(mu_h)
 
-    def get_M(self, req: PyWilsonRequest) -> Scalar:
+    def get_M(self, req: WilsonRequest) -> Scalar:
         """Gets the matching coefficient (alias: getM)."""
         return Scalar.from_cpp(
             self._cpp_obj.get_M(
@@ -37,7 +37,7 @@ class PyWilsonInterface:
             )
         )
 
-    def get_FM(self, req: PyWilsonRequest) -> Scalar:
+    def get_FM(self, req: WilsonRequest) -> Scalar:
         """Gets the full matching coefficient (alias: getFM)."""
         return Scalar.from_cpp(
             self._cpp_obj.get_FM(
@@ -48,7 +48,7 @@ class PyWilsonInterface:
             )
         )
 
-    def get_R(self, req: PyWilsonRequest) -> Scalar:
+    def get_R(self, req: WilsonRequest) -> Scalar:
         """Gets the running coefficient (alias: getR)."""
         return Scalar.from_cpp(
             self._cpp_obj.get_R(
@@ -60,7 +60,7 @@ class PyWilsonInterface:
             )
         )
 
-    def get_FR(self, req: PyWilsonRequest) -> Scalar:
+    def get_FR(self, req: WilsonRequest) -> Scalar:
         """Gets the full running coefficient (alias: getFR)."""
         return Scalar.from_cpp(
             self._cpp_obj.get_FR(
@@ -132,19 +132,19 @@ if __name__ == "__main__":
     hyp.init(lha_file=lha_file_path, config=config)
     
     
-    config = PyWilsonBuildConfig(
+    config = WilsonBuildConfig(
         groups={WGroup.B, WGroup.BScalar},
         matching_scale=81.0,
         hadronic_scale=2.0,
         order=QCDOrder.LO
     )
-    # config = PyWilsonBuildConfig(
+    # config = WilsonBuildConfig(
     #     groups={WGroup.B},
     #     matching_scale=81.0,
     #     hadronic_scale=2.0,
     #     order=QCDOrder.LO
     # )
-    # config = PyWilsonBuildConfig(
+    # config = WilsonBuildConfig(
     #     groups={},
     #     matching_scale=81.0,
     #     hadronic_scale=2.0,
@@ -167,7 +167,7 @@ if __name__ == "__main__":
     config.groups = [WGroup.BPrime]
     interface.add_wilson_group(config)
      
-    req = PyWilsonRequest(
+    req = WilsonRequest(
         group=WGroup.B,
         coefficient=WCoeff.C9,
         order=QCDOrder.NNLO,
@@ -195,11 +195,11 @@ if __name__ == "__main__":
     print(value)  # Scalar(...)
     
     # test_values = []
-    # from pyhyperiso.core.Core.ParameterSetter import PyParameterSetter, PyParamId, ParameterType
+    # from pyhyperiso.core.Core.ParameterSetter import PyParameterSetter, ParamId, ParameterType
     # py_set = PyParameterSetter()
     # for i in range(1, 81):
-    #     py_set.mutate(PyParamId(ParameterType.WILSON, "B_SCALE", 1), i)
-    #     test_values.append(interface.get_FR(PyWilsonRequest(WGroup.B, WCoeff.C9, QCDOrder.NNLO, ContributionType.TOTAL)))
+    #     py_set.mutate(ParamId(ParameterType.WILSON, "B_SCALE", 1), i)
+    #     test_values.append(interface.get_FR(WilsonRequest(WGroup.B, WCoeff.C9, QCDOrder.NNLO, ContributionType.TOTAL)))
     
     # import matplotlib
     # matplotlib.use("TkAgg")

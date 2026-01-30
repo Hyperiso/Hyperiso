@@ -2,9 +2,9 @@
 
 from pyhyperiso.phyperiso.pyhyperiso.core import APIAdapter as _CppAPIAdapter
 from pyhyperiso.phyperiso.pyhyperiso.core import APIPath as _CppAPIPath
-from pyhyperiso.core.Common.General import PyBlockName, PyLhaID
+from pyhyperiso.core.Common.General import BlockName, LhaID
 from pyhyperiso.core.Common.GeneralEnum import Model, ParameterType
-from pyhyperiso.core.Common.Configs import PyMassConfig, PyAlphasConfig
+from pyhyperiso.core.Common.Configs import MassConfig, AlphasConfig
 from pyhyperiso.core.Core.QCDConstants import PyQCDConstants
 from pyhyperiso.core.Core.HyperisoMaster import ExternalFlag
 from enum import Enum
@@ -26,18 +26,18 @@ class PyAPIAdapter:
     
     def get_all_blocks(self):
         raw_blocks = self._cpp_obj.get_all_blocks()
-        return {PyBlockName(x) for x in raw_blocks}
+        return {BlockName(x) for x in raw_blocks}
     
     def get_blocks_list(self, param_type : ParameterType = ParameterType.SM):
         raw_blocks = self._cpp_obj.get_blocks_list(param_type.value)
-        return {PyBlockName(x) for x in raw_blocks}
+        return {BlockName(x) for x in raw_blocks}
     
     def get_block_infos(self, block_name : str, param_type : ParameterType = ParameterType.SM):
-        raw_block_infos = self._cpp_obj.get_block_infos(PyBlockName(block_name)._cpp_obj, param_type.value)
-        return {PyLhaID(x) : Scalar().from_cpp(y) for x,y in raw_block_infos.items()}
+        raw_block_infos = self._cpp_obj.get_block_infos(BlockName(block_name)._cpp_obj, param_type.value)
+        return {LhaID(x) : Scalar().from_cpp(y) for x,y in raw_block_infos.items()}
     
     def get_type_of_block(self, block_name : str):
-        cpp_result = self._cpp_obj.get_type_of_block(PyBlockName(block_name)._cpp_obj)
+        cpp_result = self._cpp_obj.get_type_of_block(BlockName(block_name)._cpp_obj)
         return [ParameterType(item) for item in cpp_result]
     
      

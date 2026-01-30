@@ -1,7 +1,7 @@
 from pyhyperiso.phyperiso.pyhyperiso.core import QCDProvider as _CppQCDProvider
-from pyhyperiso.core.Common.General import PyParamId
+from pyhyperiso.core.Common.General import ParamId
 from pyhyperiso.core.Common.GeneralEnum import Model, MassType
-from pyhyperiso.core.Common.Configs import PyMassConfig, PyAlphasConfig
+from pyhyperiso.core.Common.Configs import MassConfig, AlphasConfig
 from pyhyperiso.core.Core.QCDConstants import PyQCDConstants
     
 class PyQCDProvider:
@@ -10,10 +10,10 @@ class PyQCDProvider:
     def __init__(self):
         self._cpp_obj = _CppQCDProvider()
 
-    def get_alphas(self, alpha_config : PyAlphasConfig):
+    def get_alphas(self, alpha_config : AlphasConfig):
         return self._cpp_obj.compute_alphas(alpha_config.to_cpp())
 
-    def get_qcd_masses(self, mass_config : PyMassConfig):
+    def get_qcd_masses(self, mass_config : MassConfig):
         return self._cpp_obj.compute_mass(mass_config.to_cpp())
     
     def get_qcd_constants(self):
@@ -50,9 +50,9 @@ if __name__ == "__main__":
     
     qcd_params = PyQCDProvider()
 
-    print("alphas_s at 42 GeV : ", qcd_params.get_alphas(PyAlphasConfig(42)))
+    print("alphas_s at 42 GeV : ", qcd_params.get_alphas(AlphasConfig(42)))
     
-    print("mass at 5 GeV : ", qcd_params.get_qcd_masses(PyMassConfig(5, pdg_id=6)))
+    print("mass at 5 GeV : ", qcd_params.get_qcd_masses(MassConfig(5, pdg_id=6)))
     
     consts = qcd_params.get_qcd_constants()
 

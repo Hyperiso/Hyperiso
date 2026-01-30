@@ -1,14 +1,14 @@
 from typing import Dict, List
 from dataclasses import dataclass, field
 from pyhyperiso.core.Common.GeneralEnum import QCDOrder, Observables
-from pyhyperiso.core.Common.General import PyParamId
+from pyhyperiso.core.Common.General import ParamId
 from pyhyperiso.core.Common.Mapper import ObservableMapper
 from pyhyperiso.phyperiso.pyhyperiso.statistic import StatisticConfig as _CppStatisticConfig
 
 @dataclass
 class StatisticConfig:
     obss : Dict[Observables, QCDOrder]= field(default_factory=lambda: {})
-    p_specs : List[PyParamId] = field(default_factory=list)
+    p_specs : List[ParamId] = field(default_factory=list)
     MC_draws : int = 100
     skew_abs_threshold : float = 0.2
     
