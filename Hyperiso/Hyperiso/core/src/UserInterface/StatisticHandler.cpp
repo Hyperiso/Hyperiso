@@ -23,7 +23,7 @@ void print_wilson_usage() {
               << "  --help/-h                             : Display this help message\n";
 }
 //TODO : refactor
-int handleWilsonOptions(int argc, char* argv[]) {
+int handleStatisticOptions(int argc, char* argv[]) {
     // std::string model_name;
     // std::string coefficient_name;
     // std::string group_name;

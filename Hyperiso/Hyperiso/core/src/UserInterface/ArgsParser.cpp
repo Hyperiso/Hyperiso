@@ -1,5 +1,11 @@
 #include "ArgsParser.h"
 
+static bool looksLikeNumber(const std::string& s) {
+    if (s.empty()) return false;
+    char* end = nullptr;
+    std::strtod(s.c_str(), &end);
+    return end && *end == '\0';
+}
 
 Argument::Argument(const std::string& longName, const std::string& shortName, const std::string& helpText,
                    ArgType type, bool isRequired, bool allowsMultiple,
@@ -133,7 +139,7 @@ void ArgParser::parse(int argc, char* argv[]) {
             Argument& option = *it;
             if (option.allowsMultipleValues()) {
                 std::vector<std::string> values;
-                while (i + 1 < argc && argv[i + 1][0] != '-') {
+                while (i + 1 < argc && (argv[i + 1][0] != '-') || looksLikeNumber(argv[i + 1])) {
                     std::string value = argv[++i];
                     option.validate(value);
                     values.push_back(value);
@@ -143,7 +149,11 @@ void ArgParser::parse(int argc, char* argv[]) {
                 }
                 parsedValues[option.getLongName()] = values;
             } else {
-                if (i + 1 < argc && argv[i + 1][0] != '-') {
+                if (option.getLongName() == "help") {
+                    parsedValues[option.getLongName()] = {"true"};
+                    continue;
+                }
+                if (i + 1 < argc && (argv[i + 1][0] != '-') || looksLikeNumber(argv[i + 1])) {
                     std::string value = argv[++i];
                     option.validate(value);
                     parsedValues[option.getLongName()] = {value};
