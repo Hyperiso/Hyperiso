@@ -6,6 +6,11 @@
 #include "QCDProvider.h"
 #include "ParameterSetter.h"
 #include "BlockProvider.h"
+#include "ParamBlockWriter.h"
+#include "JsonParser.h"
+#include "YamlParser.h"
+#include "LhaParser.h"
+#include "FileWriter.h"
 
 int main() {
     Logger::getInstance()->setLevel(Logger::LogLevel::INFO);
@@ -53,7 +58,18 @@ int main() {
     ps.mutate({ParameterType::SM, "MASS", 24}, 100);
     LOG_INFO("After: m_W =", sm("MASS", 24), ", x_t =", wil("WPARAM", 1));
 
-    
+    std::shared_ptr<DBNode> node = std::make_shared<DBNode>();
+    std::shared_ptr<BlockAccessor> acc = MemoryManager::GetInstance()->extract_block_accessor();
+    ParamBlockWriter().write(node, acc);
 
+    std::cout << "writing to file.." << std::endl;
+    hi.switch_lha("lha/si_input.flha", config);
+    JSONParser().writeToFile("test.json", node);
+    YAMLParser().writeToFile("test.yaml", node);
+    LhaParser().writeToFile("test.flha", node);
+
+    FileWriter().write("test2.json");
+    FileWriter().write("test2.yaml");
+    FileWriter().write("test2.flha");
     return 0;
 }

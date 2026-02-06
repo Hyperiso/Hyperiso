@@ -22,9 +22,9 @@ add_library(DataBaseLib STATIC
     adapters/JsonParser.cpp
     adapters/LhaParser.cpp
     adapters/YamlParser.cpp
-    adapters/DictNodeProvider.cpp
-    adapters/LhaNodeProvider.cpp
-    adapters/NodeProviderFactory.cpp
+    adapters/DictDBNodeProvider.cpp
+    adapters/LhaDBNodeProvider.cpp
+    adapters/DBNodeProviderFactory.cpp
     adapters/JsonParamMappingAdapter.cpp
 )
 

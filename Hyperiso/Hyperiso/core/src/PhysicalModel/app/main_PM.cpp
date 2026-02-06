@@ -7,7 +7,7 @@
 int main(){
     HyperisoMaster hyp = HyperisoMaster();
     HyperisoConfig config;
-    config.model = Model::SUSY;
+    config.model = Model::SM;
 
     hyp.init("lha/testInput.slha", config);
     LOG_INFO("HyperisoMaster initialized");
@@ -16,28 +16,14 @@ int main(){
     LOG_INFO("WilsonInterface created");
 
     
-    // wi.addWilsonGroup(WGroup::B);
-    // std::cout << "niiice" << std::endl;
-    // wi.init_group_matching(WGroup::B, QCDOrder::LO);
-    // std::cout << "niiice" << std::endl;
-    // wi.init_group_hadronic(WGroup::B, QCDOrder::LO);
+    wi.build(
+        WilsonBuildConfig{{WGroup::B},                            // Coefficient groups
+        81,     // Matching scale
+        4.7,                             // Hadronic scale
+        QCDOrder::NNLO}                                          // QCD Order
+    );
 
-    // std::cout << "niiice" << std::endl;
-    // wi.addWilsonGroup(WGroup::BScalar);
-    // wi.init_group_matching(WGroup::BScalar, QCDOrder::LO);
-    // wi.init_group_hadronic(WGroup::BScalar, QCDOrder::LO);
-
-    // wi.addWilsonGroup(WGroup::BPrime);
-    // wi.init_group_matching(WGroup::BPrime, QCDOrder::LO);
-    // wi.init_group_hadronic(WGroup::BPrime, QCDOrder::LO);
-    // wi.build(
-    //     WilsonBuildConfig{{WGroup::B},                            // Coefficient groups
-    //     81,     // Matching scale
-    //     4.7,                             // Hadronic scale
-    //     QCDOrder::NNLO}                                          // QCD Order
-    // );
-
-    
+    BlockProxy().log_all_blocks(ParameterType::WILSON);
     LOG_INFO("Interface built");
 
     // BlockProxy().log_all_blocks(ParameterType::WILSON);

@@ -19,9 +19,9 @@
  * @file DBNode.h
  * @brief Hierarchical key–value tree with JSON/YAML serialization.
  *
- * Node represents a generic hierarchical data structure:
+ * DBNode represents a generic hierarchical data structure:
  *   - keys are BlockName objects,
- *   - values are scalars (int, double, bool, BlockName) or nested Node
+ *   - values are scalars (int, double, bool, BlockName) or nested DBNode
  *     instances, including lists of nodes.
  *
  * The class provides:
@@ -30,7 +30,7 @@
  *   - JSON and YAML pretty-printers (to stdout or to an arbitrary stream),
  *   - simple structural queries (contains(), countChildren(), isList()).
  */
-class Node {
+class DBNode {
 public:
     /**
      * @brief Variant type used to store values in the tree.
@@ -38,11 +38,11 @@ public:
      * A value can be:
      *   - BlockName          : named scalar value,
      *   - int, double, bool  : numeric / boolean scalar,
-     *   - std::shared_ptr<Node>                    : nested object,
-     *   - std::vector<std::shared_ptr<Node>>       : list of objects
+     *   - std::shared_ptr<DBNode>                    : nested object,
+     *   - std::vector<std::shared_ptr<DBNode>>       : list of objects
      *                                               (used for arrays).
      */
-    using Value = std::variant<BlockName, int, double, bool, std::shared_ptr<Node>, std::vector<std::shared_ptr<Node>>>;
+    using Value = std::variant<BlockName, int, double, bool, std::shared_ptr<DBNode>, std::vector<std::shared_ptr<DBNode>>>;
 
 
     /**
@@ -50,28 +50,28 @@ public:
      *
      * Constructs an empty node with no children.
      */
-    Node();
+    DBNode();
 
     /**
      * @brief Retrieves a value from the node using a sequence of keys.
      *
      * This is a generic hierarchical accessor:
      * @code
-     *   Node root;
+     *   DBNode root;
      *   // ...
      *   auto v = root.get("BLOCK", "SUBBLOCK", "ENTRY");
      * @endcode
      *
      * The provided keys are interpreted as a path: at each step, the
-     * corresponding child must be a nested Node (stored in a
-     * std::shared_ptr<Node>) until the final element is reached.
+     * corresponding child must be a nested DBNode (stored in a
+     * std::shared_ptr<DBNode>) until the final element is reached.
      *
      * @tparam Keys Types of the keys (typically BlockName, std::string, const char*).
      * @param keys  Path of keys leading to the desired value.
      * @return The stored Value at the end of the path.
      *
      * @throws std::runtime_error If the path does not exist or the structure
-     *         along the way is not compatible (e.g. non-Node where a Node is expected).
+     *         along the way is not compatible (e.g. non-DBNode where a DBNode is expected).
      */
     template <typename... Keys>
     Value get(Keys&&... keys) const;
@@ -90,7 +90,7 @@ public:
      * @brief Sets a value in the node using a sequence of keys.
      *
      * Intermediate nodes on the path are created as needed and stored as
-     * std::shared_ptr<Node>. The last key in the sequence is associated
+     * std::shared_ptr<DBNode>. The last key in the sequence is associated
      * with the provided value.
      *
      * @tparam T    Type of the value to store (compatible with Value).
@@ -114,7 +114,7 @@ public:
      * @return Map of key–value pairs stored at the target node.
      *
      * @throws std::runtime_error If the path does not exist or does not
-     *         terminate on a Node.
+     *         terminate on a DBNode.
      */
     std::map<BlockName, Value> getGroup(const std::vector<BlockName>& keys) const;
 
@@ -188,7 +188,7 @@ public:
      * @brief Returns true if this node represents a "list" node.
      *
      * A node is considered a list node if its first stored value is a
-     * std::vector<std::shared_ptr<Node>>. This is a heuristic used
+     * std::vector<std::shared_ptr<DBNode>>. This is a heuristic used
      * internally to differentiate arrays from objects during printing.
      */
     bool isList() const;
@@ -210,8 +210,8 @@ private:
     /**
      * @brief Recursive case of the getter: key followed by more keys.
      *
-     * Looks up @p key in @p map, expects the value to be a nested Node
-     * (std::shared_ptr<Node>), and continues the lookup on that child
+     * Looks up @p key in @p map, expects the value to be a nested DBNode
+     * (std::shared_ptr<DBNode>), and continues the lookup on that child
      * with the remaining keys.
      */
     template <typename Map, typename Key, typename Next, typename... Rest>
@@ -235,9 +235,9 @@ private:
      * @brief Helper to test if a child node should be treated as a list node.
      *
      * A node is considered a list node if it is non-null, non-empty, and its
-     * first stored value is a std::vector<std::shared_ptr<Node>>.
+     * first stored value is a std::vector<std::shared_ptr<DBNode>>.
      */
-    bool isListNode(const std::shared_ptr<Node>& node) const;
+    bool isListDBNode(const std::shared_ptr<DBNode>& node) const;
 };
 
 #include "DBNode.tpp"

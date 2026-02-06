@@ -49,15 +49,12 @@ static void test_read_modify_write_and_reload_json() {
     DBManager db;
     auto node = db.read_from_file(in);
 
-    // Vérif lecture
     assert(std::get<BlockName>(node->get("model", "type")) == "SM");
     assert(std::abs(std::get<double>(node->get("parameters", "alpha_s")) - 0.118) < 1e-6);
 
-    // Modifs
     node->set("2HDM", "model", "type");
     node->set(125.0, "model", "MH");
 
-    // ⚠️ DBManager::write_to_file exige "SMINPUTS"
     node->set(1, "SMINPUTS");
 
     db.write_to_file(out, node);
@@ -101,7 +98,7 @@ static void test_yaml_read_modify_write_reload() {
     fs::remove(output_file);
 }
 
-static double as_double_or_string(const Node::Value& v) {
+static double as_double_or_string(const DBNode::Value& v) {
     if (std::holds_alternative<double>(v)) {
         return std::get<double>(v);
     }
@@ -112,15 +109,15 @@ static double as_double_or_string(const Node::Value& v) {
     throw std::runtime_error("Expected numeric (double/string), got non-scalar");
 }
 
-static double as_number(const Node::Value& v) {
+static double as_number(const DBNode::Value& v) {
     if (std::holds_alternative<double>(v)) {
         return std::get<double>(v);
     }
     if (std::holds_alternative<BlockName>(v)) {
         return std::stod(std::get<BlockName>(v));
     }
-    if (std::holds_alternative<std::shared_ptr<Node>>(v)) {
-        auto sub = std::get<std::shared_ptr<Node>>(v);
+    if (std::holds_alternative<std::shared_ptr<DBNode>>(v)) {
+        auto sub = std::get<std::shared_ptr<DBNode>>(v);
         // lecture directe de central_value (double ou string)
         auto cv = sub->get("central_value");
         if (std::holds_alternative<double>(cv)) {
@@ -165,6 +162,6 @@ int main() {
     test_read_modify_write_and_reload_json();
     test_yaml_read_modify_write_reload();
     test_flha_read_and_extract_mass();
-    std::cout << "\n✅ DBManager integration test passed!\n";
+    std::cout << "\n DBManager integration test passed!\n";
     return 0;
 }

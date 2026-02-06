@@ -3,39 +3,39 @@
 
 #include <string>
 
-#include "INodeProvider.h"
+#include "IDBNodeProvider.h"
 #include "DBManager.h"
 
 /**
- * @file LhaNodeProvider.h
- * @brief INodeProvider implementation backed by an LHA/SLHA/FLHA file.
+ * @file LhaDBNodeProvider.h
+ * @brief IDBNodeProvider implementation backed by an LHA/SLHA/FLHA file.
  *
- * LhaNodeProvider uses DBManager under the hood to:
+ * LhaDBNodeProvider uses DBManager under the hood to:
  *   - parse the given LHA-like file,
- *   - obtain a Node tree representation,
+ *   - obtain a DBNode tree representation,
  *   - optionally extend the set of known LHA block prototypes.
  */
 
 /**
- * @class LhaNodeProvider
- * @brief Node provider for LHA / SLHA / FLHA sources.
+ * @class LhaDBNodeProvider
+ * @brief DBNode provider for LHA / SLHA / FLHA sources.
  *
  * This provider delegates the heavy lifting to DBManager:
  *   - DBManager::read_from_file() for parsing,
  *   - DBManager::add_lha_prototype() for enriching the set of block
  *     prototypes used by the LHA parser.
  */
-class LhaNodeProvider : public INodeProvider {
+class LhaDBNodeProvider : public IDBNodeProvider {
 public:
     /**
      * @brief Constructs a provider bound to a specific source path.
      *
      * @param src_path Path to an LHA / SLHA / FLHA file.
      */
-    LhaNodeProvider(fs::path src_path_) : INodeProvider(src_path_) {}
+    LhaDBNodeProvider(fs::path src_path_) : IDBNodeProvider(src_path_) {}
 
     /**
-     * @brief Loads the underlying LHA file and returns it as a Node tree.
+     * @brief Loads the underlying LHA file and returns it as a DBNode tree.
      *
      * Internally this is equivalent to:
      * @code
@@ -43,11 +43,11 @@ public:
      *   return db.read_from_file(src_path);
      * @endcode
      *
-     * @return Shared pointer to the root Node representing the LHA content.
+     * @return Shared pointer to the root DBNode representing the LHA content.
      *
      * @throws std::runtime_error if file or parsing errors occur.
      */
-    std::shared_ptr<Node> provide_db_as_node() override;
+    std::shared_ptr<DBNode> provide_db_as_node() override;
 
     /**
      * @brief Adds a new LHA block prototype to the global set.

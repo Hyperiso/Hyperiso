@@ -154,11 +154,11 @@ public:
      *       "scale" : <double>    (taken from the first entry)
      *   - Under a child block named prototype.blockName, each entry is
      *     stored as:
-     *       "<id>" : <Node>       (Node produced by entry->toDBNode())
+     *       "<id>" : <DBNode>       (DBNode produced by entry->toDBNode())
      *
-     * @return Shared pointer to the root Node representing this block.
+     * @return Shared pointer to the root DBNode representing this block.
      */
-    std::shared_ptr<Node> toDBNode() const;
+    std::shared_ptr<DBNode> toDBNode() const;
 
     /**
      * @brief Destructor for LhaBlock.

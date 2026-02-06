@@ -9,7 +9,7 @@
 
 /**
  * @file JsonParamMappingAdapter.h
- * @brief Adapter to load parameter mappings from a JSON/YAML-like Node tree.
+ * @brief Adapter to load parameter mappings from a JSON/YAML-like DBNode tree.
  *
  * This adapter uses an IParser implementation (typically JSONParser) to read
  * a mapping file, and exposes it as a collection of InterpretedParam entries
@@ -52,7 +52,7 @@ public:
      * @param filePath Path to the JSON/YAML mapping file.
      * @return Map from parameter name to InterpretedParam.
      *
-     * @throws std::runtime_error if the parser is null, the root Node is null,
+     * @throws std::runtime_error if the parser is null, the root DBNode is null,
      *         or the file cannot be parsed.
      */
     std::unordered_map<std::string, InterpretedParam>
@@ -60,7 +60,7 @@ public:
 
 private:
     /**
-     * @brief Converts a scalar Node::Value to a string.
+     * @brief Converts a scalar DBNode::Value to a string.
      *
      * Supported variants:
      *   - BlockName -> its string alias,
@@ -70,10 +70,10 @@ private:
      *
      * Any non-scalar variant triggers a runtime error.
      *
-     * @param v Node::Value to convert.
+     * @param v DBNode::Value to convert.
      * @return String representation of the value.
      */
-    static std::string asString(const Node::Value& v) {
+    static std::string asString(const DBNode::Value& v) {
         if (auto s = std::get_if<BlockName>(&v)) return *s;
         if (auto i = std::get_if<int>(&v))      return std::to_string(*i);
         if (auto d = std::get_if<double>(&v))   return std::to_string(*d);

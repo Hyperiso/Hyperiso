@@ -5,7 +5,7 @@
 
 #include "IDataLoader.h"
 #include "BlockAccessor.h"
-#include "NodeProviderFactory.h"
+#include "DBNodeProviderFactory.h"
 
 /**
  * @file ParamBlockLoader.h

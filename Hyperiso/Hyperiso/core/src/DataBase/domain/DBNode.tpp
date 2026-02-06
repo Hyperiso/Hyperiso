@@ -1,12 +1,12 @@
 #include "DBNode.h"
 
 template <typename... Keys>
-Node::Value Node::get(Keys&&... keys) const {
+DBNode::Value DBNode::get(Keys&&... keys) const {
     return getRecursive(data_, std::forward<Keys>(keys)...);
 }
 
 template <typename T, typename Key, typename... Rest>
-void Node::set(T value, Key&& key, Rest&&... rest) {
+void DBNode::set(T value, Key&& key, Rest&&... rest) {
     BlockName blockKey = BlockName(std::forward<Key>(key));
 
     if constexpr (sizeof...(rest) == 0) {
@@ -27,7 +27,7 @@ void Node::set(T value, Key&& key, Rest&&... rest) {
             });
 
         if (it == data_.end()) {
-            data_[blockKey] = std::make_shared<Node>();
+            data_[blockKey] = std::make_shared<DBNode>();
             it = std::find_if(data_.begin(), data_.end(),
                 [&](const auto& pair) {
                     return pair.first == blockKey;
@@ -35,11 +35,11 @@ void Node::set(T value, Key&& key, Rest&&... rest) {
         }
 
         auto& node = it->second;
-        if (!std::holds_alternative<std::shared_ptr<Node>>(node)) {
-            node = std::make_shared<Node>();
+        if (!std::holds_alternative<std::shared_ptr<DBNode>>(node)) {
+            node = std::make_shared<DBNode>();
         }
-        auto& childNode = std::get<std::shared_ptr<Node>>(node);
-        childNode->set(std::forward<T>(value), std::forward<Rest>(rest)...);
+        auto& childDBNode = std::get<std::shared_ptr<DBNode>>(node);
+        childDBNode->set(std::forward<T>(value), std::forward<Rest>(rest)...);
     }
 }
 
@@ -51,7 +51,7 @@ static inline bool is_unsigned_number(const std::string& s) {
 
 
 template <typename Map, typename Key>
-Node::Value Node::getRecursive(const Map& map, Key&& key) const {
+DBNode::Value DBNode::getRecursive(const Map& map, Key&& key) const {
     BlockName blockKey = BlockName(std::forward<Key>(key));
     auto it = std::find_if(map.begin(), map.end(), [&](const auto& pair){ return pair.first == blockKey; });
     if (it == map.end()) {
@@ -63,7 +63,7 @@ Node::Value Node::getRecursive(const Map& map, Key&& key) const {
 }
 
 template <typename Map, typename Key, typename Next, typename... Rest>
-Node::Value Node::getRecursive(const Map& map, Key&& key, Next&& next, Rest&&... rest) const {
+DBNode::Value DBNode::getRecursive(const Map& map, Key&& key, Next&& next, Rest&&... rest) const {
     BlockName blockKey = BlockName(std::forward<Key>(key));
     auto it = std::find_if(map.begin(), map.end(), [&](const auto& pair){ return pair.first == blockKey; });
     if (it == map.end()) {
@@ -72,8 +72,8 @@ Node::Value Node::getRecursive(const Map& map, Key&& key, Next&& next, Rest&&...
         throw std::runtime_error(os.str());
     }
 
-    if (std::holds_alternative<std::shared_ptr<Node>>(it->second)) {
-        auto node = std::get<std::shared_ptr<Node>>(it->second);
+    if (std::holds_alternative<std::shared_ptr<DBNode>>(it->second)) {
+        auto node = std::get<std::shared_ptr<DBNode>>(it->second);
         if (!node) {
             std::ostringstream os; os << "Null node at '" << std::string(blockKey) << "'";
             throw std::runtime_error(os.str());
@@ -81,8 +81,8 @@ Node::Value Node::getRecursive(const Map& map, Key&& key, Next&& next, Rest&&...
         return node->get(std::forward<Next>(next), std::forward<Rest>(rest)...);
     }
 
-    if (std::holds_alternative<std::vector<std::shared_ptr<Node>>>(it->second)) {
-        const auto& vec = std::get<std::vector<std::shared_ptr<Node>>>(it->second);
+    if (std::holds_alternative<std::vector<std::shared_ptr<DBNode>>>(it->second)) {
+        const auto& vec = std::get<std::vector<std::shared_ptr<DBNode>>>(it->second);
         BlockName nextKey = BlockName(std::forward<Next>(next));
         std::string nk = std::string(nextKey);
 
@@ -106,7 +106,7 @@ Node::Value Node::getRecursive(const Map& map, Key&& key, Next&& next, Rest&&...
             throw std::runtime_error(os.str());
         }
         if constexpr (sizeof...(Rest) == 0) {
-            return std::static_pointer_cast<Node>(node);
+            return std::static_pointer_cast<DBNode>(node);
         } else {
             return node->get(std::forward<Rest>(rest)...);
         }

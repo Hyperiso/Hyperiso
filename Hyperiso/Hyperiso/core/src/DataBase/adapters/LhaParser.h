@@ -12,18 +12,23 @@
 #include <vector>
 #include <algorithm>
 #include <unordered_set>
+#include <iomanip>
+
+#include "Include.h"
+#include "LhaBlockPrototype.h" 
 #include "IParser.h"
 #include "lha_blocks.h"
 #include "lha_elements.h"
 #include "Logger.h"
+#include "DBNode.h"
 
 /**
  * @file LhaParser.h
- * @brief Parser for LHA / FLHA-style files into LhaBlock structures and Node trees.
+ * @brief Parser for LHA / FLHA-style files into LhaBlock structures and DBNode trees.
  *
  * LhaParser decodes a textual LHA (or FLHA) file into:
  *   - a set of LhaBlock objects (one per block),
- *   - then a Node tree suitable for use by the rest of the framework.
+ *   - then a DBNode tree suitable for use by the rest of the framework.
  *
  * It uses:
  *   - a regex-based tokenizer,
@@ -93,14 +98,14 @@ struct Token {
 
 /**
  * @class LhaParser
- * @brief Parser for LHA/FLHA files, producing blocks and a Node representation.
+ * @brief Parser for LHA/FLHA files, producing blocks and a DBNode representation.
  *
  * LhaParser implements the IParser interface using the LHA/FLHA conventions:
  *   - BLOCK sections are recognized via the "Block" keyword,
  *   - DECAY sections are recognized via the "Decay" keyword (and currently skipped),
  *   - each block is associated to a Prototype (block layout),
  *   - each line in a block is converted into an LhaElement<T>,
- *   - all blocks are then converted into a top-level Node tree.
+ *   - all blocks are then converted into a top-level DBNode tree.
  *
  * The set of known prototypes can be configured via set_prototypes()
  * (e.g. using LHA_BLOCKS, SLHA_BLOCKS, FLHA_BLOCKS).
@@ -179,33 +184,33 @@ private:
     Prototype findPrototype(BlockName name) const;
 
     /**
-     * @brief Converts a set of parsed blocks into a top-level Node tree.
+     * @brief Converts a set of parsed blocks into a top-level DBNode tree.
      *
      * For each block:
-     *   - blockPtr->toDBNode() is called to obtain the block-level Node,
+     *   - blockPtr->toDBNode() is called to obtain the block-level DBNode,
      *   - the internal group under the block name is copied to @p root,
      *   - if the block node exposes a "scale" entry, a top-level
      *     "<BLOCKNAME>.scale" is also added as a numeric field.
      *
      * @param blocks Map from block name to LhaBlock instances.
-     * @return Shared pointer to the root Node representing the whole LHA file.
+     * @return Shared pointer to the root DBNode representing the whole LHA file.
      */
-    std::shared_ptr<Node> toDBNode(std::map<BlockName, std::shared_ptr<LhaBlock>> blocks) const;
+    std::shared_ptr<DBNode> toDBNode(std::map<BlockName, std::shared_ptr<LhaBlock>> blocks) const;
 
 public:
     /**
-     * @brief Parses an LHA/FLHA file from disk and returns its Node representation.
+     * @brief Parses an LHA/FLHA file from disk and returns its DBNode representation.
      *
      * This implementation:
      *   - loads the file into memory,
      *   - delegates to parse(src).
      *
      * @param input_file Path to the LHA/FLHA file to read.
-     * @return Shared pointer to the root Node representation.
+     * @return Shared pointer to the root DBNode representation.
      *
      * @throws std::runtime_error if the file cannot be opened or parsing fails.
      */
-    std::shared_ptr<Node> readFromFile(const std::string& input_file) const override;
+    std::shared_ptr<DBNode> readFromFile(const std::string& input_file) const override;
 
     /**
      * @brief Parses LHA/FLHA content from an in-memory string.
@@ -214,26 +219,26 @@ public:
      *   - tokenize(src),
      *   - parse_tokens(...),
      *   - construct LhaBlocks for all recognized blocks,
-     *   - convert them to a Node via toDBNode().
+     *   - convert them to a DBNode via toDBNode().
      *
      * @param src Raw LHA/FLHA text.
-     * @return Shared pointer to the root Node representation.
+     * @return Shared pointer to the root DBNode representation.
      *
      * @throws std::runtime_error on lexical or structural errors.
      */
-    std::shared_ptr<Node> parse(const std::string& src) const override;
+    std::shared_ptr<DBNode> parse(const std::string& src) const override;
 
     /**
-     * @brief Serializes a Node structure back to an LHA-like file.
+     * @brief Serializes a DBNode structure back to an LHA-like file.
      *
      * Currently marked as TODO in the implementation. The intended design
      * is to invert the toDBNode/LhaBlock/LhaElement pipeline in order to
-     * reconstruct a valid LHA/FLHA text file from a Node tree.
+     * reconstruct a valid LHA/FLHA text file from a DBNode tree.
      *
      * @param filename Target file name.
-     * @param root     Root Node to serialize.
+     * @param root     Root DBNode to serialize.
      */
-    void writeToFile(const std::string& filename, const std::shared_ptr<Node>& root) const;
+    void writeToFile(const std::string& filename, const std::shared_ptr<DBNode>& root) const;
 
     /**
      * @brief Sets the set of block prototypes used by the parser.

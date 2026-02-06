@@ -104,8 +104,8 @@ std::string LhaElement<T>::toString() const {
 }
 
 template <typename T>
-std::shared_ptr<Node> LhaElement<T>::toDBNode() const {
-    Node node;
+std::shared_ptr<DBNode> LhaElement<T>::toDBNode() const {
+    DBNode node;
     node.set(this->getValue(), "central_value");
     if (Q.has_value()) {
         node.set(this->getScale(), "scale");
@@ -118,7 +118,7 @@ std::shared_ptr<Node> LhaElement<T>::toDBNode() const {
         node.set(bin.first, "bin_low");
         node.set(bin.second, "bin_high");
     }  
-    return std::make_shared<Node>(node);
+    return std::make_shared<DBNode>(node);
 }
 
 std::shared_ptr<AbstractElement> LhaElementFactory::createElement(const Prototype& prototype, const std::vector<std::string>& line) {

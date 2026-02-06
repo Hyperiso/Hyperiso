@@ -23,9 +23,9 @@ std::string LhaBlock::toString() const {
     return stream.str();
 }
 
-std::shared_ptr<Node> LhaBlock::toDBNode() const {
-    Node node;
-    std::map<BlockName, Node::Value> elts_as_nodes;
+std::shared_ptr<DBNode> LhaBlock::toDBNode() const {
+    DBNode node;
+    std::map<BlockName, DBNode::Value> elts_as_nodes;
     for (const auto& elt : this->entries) {
         elts_as_nodes.emplace(elt->getId().to_string(), elt->toDBNode());
     }
@@ -34,7 +34,7 @@ std::shared_ptr<Node> LhaBlock::toDBNode() const {
         node.set(scale, "scale");
     }
     node.setGroup({this->prototype.blockName}, elts_as_nodes);
-    return std::make_shared<Node>(node);
+    return std::make_shared<DBNode>(node);
 }
 
 void LhaBlock::addElement(const std::vector<std::string> &line) {

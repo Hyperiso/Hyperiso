@@ -52,7 +52,7 @@ void DBManager::sanitize_file(const fs::path& file_path) {
     }
 }
 
-std::shared_ptr<Node> DBManager::read_from_file(fs::path file_path) {
+std::shared_ptr<DBNode> DBManager::read_from_file(fs::path file_path) {
     sanitize_file(file_path);
     ParserFactory::Type parser_type = deduce_parser_type(file_path);
     auto parser = ParserFactory::createParser(parser_type);
@@ -65,7 +65,7 @@ std::shared_ptr<Node> DBManager::read_from_file(fs::path file_path) {
     return root;
 }
 
-void DBManager::sanitize_tree(const std::shared_ptr<Node>& root, const std::vector<BlockName>& required_keys) {
+void DBManager::sanitize_tree(const std::shared_ptr<DBNode>& root, const std::vector<BlockName>& required_keys) {
     if (!root) {
         throw std::runtime_error("Tree is null.");
     }
@@ -82,7 +82,7 @@ void DBManager::sanitize_tree(const std::shared_ptr<Node>& root, const std::vect
 }
 
 
-void DBManager::write_to_file(fs::path file_path, std::shared_ptr<Node> root) {
+void DBManager::write_to_file(fs::path file_path, std::shared_ptr<DBNode> root) {
     sanitize_tree(root, { "SMINPUTS" });
     ParserFactory::Type parser_type = deduce_parser_type(file_path);
     auto parser = ParserFactory::createParser(parser_type);

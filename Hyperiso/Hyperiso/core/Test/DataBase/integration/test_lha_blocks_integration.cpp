@@ -12,11 +12,11 @@
 #include "lha_elements.h"
 #include "DBNode.h"
 
-static double as_number_from_value(const Node::Value& v) {
+static double as_number_from_value(const DBNode::Value& v) {
     if (std::holds_alternative<double>(v)) return std::get<double>(v);
     if (std::holds_alternative<BlockName>(v)) return std::stod(std::get<BlockName>(v));
-    if (std::holds_alternative<std::shared_ptr<Node>>(v)) {
-        auto sub = std::get<std::shared_ptr<Node>>(v);
+    if (std::holds_alternative<std::shared_ptr<DBNode>>(v)) {
+        auto sub = std::get<std::shared_ptr<DBNode>>(v);
         auto cv = sub->get("central_value");
         if (std::holds_alternative<double>(cv)) return std::get<double>(cv);
         if (std::holds_alternative<BlockName>(cv)) return std::stod(std::get<BlockName>(cv));
@@ -94,8 +94,8 @@ int main() {
         int ok = 0;
         for (auto& [k, v] : g) {
             // pour string, "central_value" est un BlockName (string)
-            if (std::holds_alternative<std::shared_ptr<Node>>(v)) {
-                auto sub = std::get<std::shared_ptr<Node>>(v);
+            if (std::holds_alternative<std::shared_ptr<DBNode>>(v)) {
+                auto sub = std::get<std::shared_ptr<DBNode>>(v);
                 auto cv = sub->get("central_value");
                 if (std::holds_alternative<BlockName>(cv)) {
                     auto s = std::get<BlockName>(cv);

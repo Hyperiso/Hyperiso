@@ -17,6 +17,38 @@ std::shared_ptr<BlockAccessor> MemoryManager::extract_blocks(std::unordered_set<
     return (*input_cache)[block_names];
 }
 
+std::shared_ptr<BlockAccessor> MemoryManager::extract_block_accessor() {
+    auto global_ba = std::make_shared<BlockAccessor>();
+
+    for (auto type : cache.parameter_types)
+    {
+        auto params = Parameters::GetInstance(type);
+        if (!params)
+            continue;
+
+        auto ba = params->get_block_accessor();
+        if (!ba)
+            continue;
+
+        for (const auto& [block_name, block_ptr] : *ba)
+        {
+            global_ba->emplace(block_name, block_ptr);
+        }
+    }
+
+    if (input_cache)
+    {
+        for (const auto& [block_name, block_ptr] : *input_cache)
+        {
+            if (!global_ba->contains(block_name))
+            {
+                global_ba->emplace(block_name, block_ptr);
+            }
+        }
+    }
+    return global_ba;
+}
+
 const CorrelationRepository &MemoryManager::get_correlation_repository() {
     check_if_ready();
     return correlation_repository;

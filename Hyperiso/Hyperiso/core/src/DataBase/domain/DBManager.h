@@ -12,13 +12,13 @@ namespace fs = std::filesystem;
 
 /**
  * @file DBManager.h
- * @brief High-level interface to load and save Node trees from/to various file formats.
+ * @brief High-level interface to load and save DBNodetrees from/to various file formats.
  *
  * DBManager provides a unified entry point for:
  *   - detecting the appropriate parser based on the file extension,
  *   - running basic file validity checks (existence, non-emptiness, encoding),
  *   - configuring LHA/FLHA block prototypes when needed,
- *   - sanitizing the resulting Node tree.
+ *   - sanitizing the resulting DBNodetree.
  *
  * Supported formats are determined by ParserFactory::Type and the EXTENSIONS table:
  *   - JSON (.json)
@@ -28,12 +28,12 @@ namespace fs = std::filesystem;
 
 /**
  * @class DBManager
- * @brief Front-end for reading and writing structured data as Node trees.
+ * @brief Front-end for reading and writing structured data as DBNodetrees.
  *
  * A DBManager instance encapsulates:
  *   - a static mapping between parser types and supported file extensions,
  *   - a static set of LHA/SLHA/FLHA block prototypes used by LhaParser,
- *   - helper methods to sanitize files and Node trees.
+ *   - helper methods to sanitize files and DBNodetrees.
  *
  * Typical usage:
  * @code
@@ -108,24 +108,24 @@ private:
     void sanitize_file(const fs::path& file_path);
 
     /**
-     * @brief Performs basic validity checks on a Node tree.
+     * @brief Performs basic validity checks on a DBNodetree.
      *
      * This helper ensures:
-     *   - the root Node is non-null,
+     *   - the root DBNodeis non-null,
      *   - the root contains at least one child,
      *   - all keys in @p required_keys are present at the root level.
      *
-     * @param root          Root Node to check.
+     * @param root          Root DBNodeto check.
      * @param required_keys Optional list of keys that must be present.
      *
      * @throws std::runtime_error if the tree is null, empty, or missing
      *         any required key.
      */
-    void sanitize_tree(const std::shared_ptr<Node>& root, const std::vector<BlockName>& required_keys = {});
+    void sanitize_tree(const std::shared_ptr<DBNode>& root, const std::vector<BlockName>& required_keys = {});
 
 public:
     /**
-     * @brief Reads a structured file and returns its Node representation.
+     * @brief Reads a structured file and returns its DBNoderepresentation.
      *
      * The pipeline is:
      *   - sanitize_file(file_path),
@@ -136,15 +136,15 @@ public:
      *   - sanitize_tree(root).
      *
      * @param file_path Path to the file to be read.
-     * @return Shared pointer to the root Node.
+     * @return Shared pointer to the root DBNode.
      *
      * @throws std::runtime_error for file errors, parser errors, or tree
      *         validation errors.
      */
-    std::shared_ptr<Node> read_from_file(fs::path file_path);
+    std::shared_ptr<DBNode> read_from_file(fs::path file_path);
 
     /**
-     * @brief Writes a Node tree to disk using the appropriate format.
+     * @brief Writes a DBNodetree to disk using the appropriate format.
      *
      * The pipeline is:
      *   - sanitize_tree(root, {"SMINPUTS"}) to ensure minimal consistency,
@@ -157,11 +157,11 @@ public:
      * expectation that any physical input set at least carries this block.
      *
      * @param file_path Path where the file should be written.
-     * @param root      Root Node to serialize.
+     * @param root      Root DBNodeto serialize.
      *
      * @throws std::runtime_error if validation fails or writing fails.
      */
-    void write_to_file(fs::path file_path, std::shared_ptr<Node> root);
+    void write_to_file(fs::path file_path, std::shared_ptr<DBNode> root);
 
     /**
      * @brief Adds or overrides an LHA block prototype used by LhaParser.
@@ -185,7 +185,7 @@ public:
      */
     void add_lha_prototype(BlockName blockName, size_t itemCount=2, size_t valueIdx=1, int scaleIdx=-1, int rgIdx=-1, int binIdx=-1, bool globalScale=false);
 
-    friend class NodeProviderFactory;
+    friend class DBNodeProviderFactory;
 };
 
 

@@ -18,7 +18,7 @@ static bool contains_all(const std::string& s, const std::vector<std::string>& n
 int main() {
     std::cout << "== Running INTEGRATION tests for Node ==\n";
 
-    Node root;
+    DBNode root;
 
     // Section "model"
     root.set(std::string("SM"), "model", "type");
@@ -35,21 +35,21 @@ int main() {
 
     // Observables : final list (valeurs simples stockées sous "" dans chaque élément)
     {
-        std::vector<std::shared_ptr<Node>> obs_list;
-        auto o1 = std::make_shared<Node>(); o1->set("BR(B→X_s γ)", "");
-        auto o2 = std::make_shared<Node>(); o2->set("R(D*)", "");
+        std::vector<std::shared_ptr<DBNode>> obs_list;
+        auto o1 = std::make_shared<DBNode>(); o1->set("BR(B→X_s γ)", "");
+        auto o2 = std::make_shared<DBNode>(); o2->set("R(D*)", "");
         obs_list.push_back(o1); obs_list.push_back(o2);
         root.set(obs_list, "observables");
     }
 
     // Observables détaillées : liste d’objets
     {
-        std::vector<std::shared_ptr<Node>> det;
-        auto n1 = std::make_shared<Node>();
+        std::vector<std::shared_ptr<DBNode>> det;
+        auto n1 = std::make_shared<DBNode>();
         n1->set("R_K", "name");
         n1->set(0.846, "value");
         n1->set(0.05, "unc");
-        auto n2 = std::make_shared<Node>();
+        auto n2 = std::make_shared<DBNode>();
         n2->set("R_K*", "name");
         n2->set(0.90, "value");
         n2->set(0.06, "unc");
@@ -112,6 +112,6 @@ int main() {
             }
         }
     }
-    std::cout << "\n✅ All Node integration tests passed!\n";
+    std::cout << "\n All DBNode integration tests passed!\n";
     return 0;
 }

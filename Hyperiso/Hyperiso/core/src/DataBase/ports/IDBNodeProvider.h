@@ -9,26 +9,26 @@
 namespace fs = std::filesystem;
 
 /**
- * @file INodeProvider.h
- * @brief Interface for objects that expose a database/configuration as a Node tree.
+ * @file IDBNodeProvider.h
+ * @brief Interface for objects that expose a database/configuration as a DBNode tree.
  *
- * Node providers are small adaptors that know how to obtain a Node
+ * DBNode providers are small adaptors that know how to obtain a DBNode
  * representation of some backing data source (file, DB, etc.).
  */
 
 /**
- * @class INodeProvider
+ * @class IDBNodeProvider
  * @brief Abstract provider of Node-based views of external data.
  *
- * An INodeProvider typically:
+ * An IDBNodeProvider typically:
  *   - stores the location of the underlying data (e.g. a file path),
- *   - offers a single method to materialize that data as a Node tree.
+ *   - offers a single method to materialize that data as a DBNode tree.
  *
  * Concrete implementations in this project:
  *   - DictNodeProvider: for JSON/YAML configuration files,
  *   - LhaNodeProvider: for LHA/SLHA/FLHA input files.
  */
-class INodeProvider {
+class IDBNodeProvider {
 protected:
     fs::path src_path;
 
@@ -38,24 +38,24 @@ public:
      *
      * @param src_path Location of the backing resource to read from.
      */
-    INodeProvider(fs::path src_path_) : src_path(src_path_) {}
+    IDBNodeProvider(fs::path src_path_) : src_path(src_path_) {}
     
-    virtual ~INodeProvider() = default;
+    virtual ~IDBNodeProvider() = default;
 
     /**
-     * @brief Returns the underlying data as a Node tree.
+     * @brief Returns the underlying data as a DBNode tree.
      *
-     * Implementations are free to choose how they obtain the Node:
+     * Implementations are free to choose how they obtain the DBNode:
      *   - parsing a file (via DBManager),
      *   - querying a database,
      *   - composing multiple sources, etc.
      *
-     * @return Shared pointer to the root Node representing the data.
+     * @return Shared pointer to the root NDBode representing the data.
      *
      * @throws std::runtime_error or implementation-specific exceptions
      *         in case of I/O or parsing failures.
      */
-    virtual std::shared_ptr<Node> provide_db_as_node() = 0; 
+    virtual std::shared_ptr<DBNode> provide_db_as_node() = 0; 
 };
 
 #endif // INODEPROVIDER_H

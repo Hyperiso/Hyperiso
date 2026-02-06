@@ -14,7 +14,7 @@
 
 /**
  * @file JsonParser.h
- * @brief Lightweight JSON parser/serializer for Node trees.
+ * @brief Lightweight JSON parser/serializer for DBNode trees.
  *
  * JSONParser implements the IParser interface for a small, well-defined
  * subset of JSON:
@@ -22,8 +22,8 @@
  *   - arrays:  [ value, value, ... ]
  *   - scalars: strings, numbers, booleans (true/false)
  *
- * Parsed data is stored in the generic Node hierarchy, using:
- *   - keys mapped directly to Node children,
+ * Parsed data is stored in the generic DBNode hierarchy, using:
+ *   - keys mapped directly to DBNode children,
  *   - arrays encoded as nodes with numeric string keys ("0", "1", ...).
  */
 
@@ -32,9 +32,9 @@
  * @brief JSON implementation of the IParser interface.
  *
  * JSONParser can:
- *   - parse a JSON string into a Node tree,
- *   - serialize a Node tree to JSON and write it to a file (via Node::printJSONToStream),
- *   - read JSON from a file and convert it back into a Node tree.
+ *   - parse a JSON string into a DBNode tree,
+ *   - serialize a DBNode tree to JSON and write it to a file (via DBNode::printJSONToStream),
+ *   - read JSON from a file and convert it back into a DBNode tree.
  *
  * The parser is intentionally simple and does not support the full JSON
  * standard (e.g. no null literal, no escape sequences in strings).
@@ -47,58 +47,58 @@ public:
      * The top-level JSON value is expected to be an object (`{ ... }`).
      *
      * @param input JSON text buffer.
-     * @return Shared pointer to the root Node representing the JSON object.
+     * @return Shared pointer to the root DBNode representing the JSON object.
      *
      * @throws std::runtime_error on malformed JSON or conversion errors.
      */
-    std::shared_ptr<Node> parse(const std::string& input) const override;
+    std::shared_ptr<DBNode> parse(const std::string& input) const override;
 
     /**
-     * @brief Serializes a Node tree to a JSON file.
+     * @brief Serializes a DBNode tree to a JSON file.
      *
-     * Internally uses Node::printJSONToStream() to produce a JSON-like
+     * Internally uses DBNode::printJSONToStream() to produce a JSON-like
      * representation and writes it to @p filename.
      *
      * @param filename Target file name.
-     * @param root     Root Node to serialize.
+     * @param root     Root DBNode to serialize.
      *
      * @throws std::runtime_error if the file cannot be opened or a write error occurs.
      */
-    void writeToFile(const std::string& filename, const std::shared_ptr<Node>& root) const override;
+    void writeToFile(const std::string& filename, const std::shared_ptr<DBNode>& root) const override;
 
     /**
-     * @brief Reads a JSON file and parses it into a Node tree.
+     * @brief Reads a JSON file and parses it into a DBNode tree.
      *
      * The entire file content is loaded into memory and passed to parse().
      *
      * @param filename Source file name.
-     * @return Shared pointer to the root Node representing the JSON document.
+     * @return Shared pointer to the root DBNode representing the JSON document.
      *
      * @throws std::runtime_error if the file cannot be opened or parsing fails.
      */
-    std::shared_ptr<Node> readFromFile(const std::string& filename) const override;
+    std::shared_ptr<DBNode> readFromFile(const std::string& filename) const override;
 
     /**
      * @brief Parses a JSON object starting at the given index.
      *
      * Expects input[index] to point to a '{', and consumes the entire
-     * object, returning a Node where each key becomes a child entry.
+     * object, returning a DBNode where each key becomes a child entry.
      *
      * Example JSON:
      *   { "a": 1, "b": true }
      *
-     * becomes a Node with:
+     * becomes a DBNode with:
      *   - key "a" -> 1
      *   - key "b" -> true
      *
      * @param input JSON string.
      * @param index Reference to the current position in the string;
      *              advanced past the closing '}' on success.
-     * @return Shared pointer to the Node representing the object.
+     * @return Shared pointer to the DBNode representing the object.
      *
      * @throws std::runtime_error on invalid syntax.
      */
-    std::shared_ptr<Node> parseObject(const std::string& input, size_t& index) const;
+    std::shared_ptr<DBNode> parseObject(const std::string& input, size_t& index) const;
 
     /**
      * @brief Parses a JSON string literal.
@@ -126,18 +126,18 @@ public:
      *   - number:   integer or floating-point
      *   - boolean:  true / false
      *
-     * The result is converted into a Node::Value:
-     *   - objects and arrays become Node subtrees,
+     * The result is converted into a DBNode::Value:
+     *   - objects and arrays become DBNode subtrees,
      *   - scalars become int/double/bool/string stored in the variant.
      *
      * @param input JSON string.
      * @param index Reference to the current position; advanced past
      *              the parsed value on success.
-     * @return Parsed Node::Value.
+     * @return Parsed DBNode::Value.
      *
      * @throws std::runtime_error if the value is invalid or unsupported.
      */
-    Node::Value parseValue(const std::string& input, size_t& index) const;
+    DBNode::Value parseValue(const std::string& input, size_t& index) const;
 
     /**
      * @brief Parses a JSON number (integer or floating point).
@@ -172,18 +172,18 @@ public:
      * @brief Parses a JSON array starting at the current position.
      *
      * Expects input[index] to point to '['. Elements are parsed using
-     * parseValue() and stored in a Node with numeric string keys:
+     * parseValue() and stored in a DBNode with numeric string keys:
      *   0, 1, 2, ...
      *
      * On return, @p index is advanced past the closing ']'.
      *
      * @param input JSON string.
      * @param index Reference to the current position; advanced as parsing proceeds.
-     * @return Shared pointer to the Node representing the array.
+     * @return Shared pointer to the DBNode representing the array.
      *
      * @throws std::runtime_error on invalid syntax.
      */
-    std::shared_ptr<Node> parseArray(const std::string& input, size_t& index) const;
+    std::shared_ptr<DBNode> parseArray(const std::string& input, size_t& index) const;
 
 };
 

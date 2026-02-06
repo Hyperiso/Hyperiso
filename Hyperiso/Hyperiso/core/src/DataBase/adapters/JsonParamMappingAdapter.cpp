@@ -11,7 +11,7 @@ JsonParamMappingAdapter::loadFromFile(const std::string& filePath) const {
 
     auto root = parser_->readFromFile(filePath);
     if (!root) {
-        throw std::runtime_error("JsonParamMappingAdapter: Node root nul");
+        throw std::runtime_error("JsonParamMappingAdapter: DBNode root nul");
     }
 
     auto keys = root->get_keys();

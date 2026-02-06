@@ -10,11 +10,11 @@
 
 namespace fs = std::filesystem;
 
-static double as_num(const Node::Value& v) {
+static double as_num(const DBNode::Value& v) {
     if (std::holds_alternative<double>(v)) return std::get<double>(v);
     if (std::holds_alternative<BlockName>(v)) return std::stod(std::get<BlockName>(v));
-    if (std::holds_alternative<std::shared_ptr<Node>>(v)) {
-        auto sub = std::get<std::shared_ptr<Node>>(v);
+    if (std::holds_alternative<std::shared_ptr<DBNode>>(v)) {
+        auto sub = std::get<std::shared_ptr<DBNode>>(v);
         auto cv = sub->get("central_value");
         if (std::holds_alternative<double>(cv)) return std::get<double>(cv);
         if (std::holds_alternative<BlockName>(cv)) return std::stod(std::get<BlockName>(cv));
@@ -47,25 +47,25 @@ int main() {
     auto root = p.readFromFile(file.string());
 
     // GAUGE
-    auto GA = std::get<std::shared_ptr<Node>>(root->get("GAUGE"));
+    auto GA = std::get<std::shared_ptr<DBNode>>(root->get("GAUGE"));
     assert(std::abs(as_num(GA->get("1")) - 0.3573) < 1e-4);
     assert(std::abs(as_num(GA->get("2")) - 0.6464) < 1e-4);
     assert(std::abs(as_num(GA->get("3")) - 1.217)  < 1e-6);
     assert(std::abs(std::get<double>(GA->get("scale")) - 1000.0) < 1e-9);
 
     // MASS
-    auto MA = std::get<std::shared_ptr<Node>>(root->get("MASS"));
+    auto MA = std::get<std::shared_ptr<DBNode>>(root->get("MASS"));
     assert(std::abs(as_num(MA->get("25")) - 125.0) < 1e-2);
 
-    // FMASS (scale par-élément)
-    auto FM = std::get<std::shared_ptr<Node>>(root->get("FMASS"));
-    auto mu = std::get<std::shared_ptr<Node>>(FM->get("13"));
+    // FMASS
+    auto FM = std::get<std::shared_ptr<DBNode>>(root->get("FMASS"));
+    auto mu = std::get<std::shared_ptr<DBNode>>(FM->get("13"));
     assert(std::abs(std::get<double>(mu->get("central_value")) - 1.234) < 1e-12);
     assert(std::abs(std::get<double>(mu->get("scale")) - 91.1876) < 1e-6);
     assert(std::get<int>(mu->get("renormalization_scheme")) == 1);
 
     fs::remove(file);
 
-    std::cout << "\n✅ LhaParser integration tests passed!\n";
+    std::cout << "\n LhaParser integration tests passed!\n";
     return 0;
 }

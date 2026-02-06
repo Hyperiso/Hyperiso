@@ -1,8 +1,8 @@
 #include "DBNode.h"
 
-Node::Node() = default;
+DBNode::DBNode() = default;
 
-std::vector<BlockName> Node::get_keys() {
+std::vector<BlockName> DBNode::get_keys() {
     std::vector<BlockName> keys;
     for (auto& [k, _] : this->data_)
         keys.emplace_back(k);
@@ -10,57 +10,57 @@ std::vector<BlockName> Node::get_keys() {
 }
 
 
-std::map<BlockName, Node::Value> Node::getGroup(const std::vector<BlockName>& keys) const {
-    const Node* currentNode = this;
+std::map<BlockName, DBNode::Value> DBNode::getGroup(const std::vector<BlockName>& keys) const {
+    const DBNode* currentDBNode = this;
     for (const auto& key : keys) {
-        auto it = std::find_if(currentNode->data_.begin(), currentNode->data_.end(),
+        auto it = std::find_if(currentDBNode->data_.begin(), currentDBNode->data_.end(),
         [&](const auto& pair) {
             return pair.first == key;
         });
-        if (it == currentNode->data_.end() || !std::holds_alternative<std::shared_ptr<Node>>(it->second)) {
+        if (it == currentDBNode->data_.end() || !std::holds_alternative<std::shared_ptr<DBNode>>(it->second)) {
             std::stringstream path;
             for(auto& k : keys) path << k << " ";
             throw std::runtime_error("Key path not found: " + path.str());
         }
-        currentNode = std::get<std::shared_ptr<Node>>(it->second).get();
+        currentDBNode = std::get<std::shared_ptr<DBNode>>(it->second).get();
     }
-    return currentNode->data_;
+    return currentDBNode->data_;
 }
 
-void Node::setGroup(const std::vector<BlockName>& keys, const std::map<BlockName, Value>& groupData) {
-    Node* currentNode = this;
+void DBNode::setGroup(const std::vector<BlockName>& keys, const std::map<BlockName, Value>& groupData) {
+    DBNode* currentDBNode = this;
     for (const auto& key : keys) {
-        auto it = std::find_if(currentNode->data_.begin(), currentNode->data_.end(),
+        auto it = std::find_if(currentDBNode->data_.begin(), currentDBNode->data_.end(),
         [&](const auto& pair) {
             return pair.first == key;
         });
 
-    if (it == currentNode->data_.end()) {
-        currentNode->data_[key] = std::make_shared<Node>();
-        it = std::find_if(currentNode->data_.begin(), currentNode->data_.end(),
+    if (it == currentDBNode->data_.end()) {
+        currentDBNode->data_[key] = std::make_shared<DBNode>();
+        it = std::find_if(currentDBNode->data_.begin(), currentDBNode->data_.end(),
             [&](const auto& pair) {
                 return pair.first == key;
             });
     }
 
     auto& value = it->second;
-        if (!std::holds_alternative<std::shared_ptr<Node>>(value)) {
-            value = std::make_shared<Node>();
+        if (!std::holds_alternative<std::shared_ptr<DBNode>>(value)) {
+            value = std::make_shared<DBNode>();
         }
-        currentNode = std::get<std::shared_ptr<Node>>(value).get();
+        currentDBNode = std::get<std::shared_ptr<DBNode>>(value).get();
     }
-    currentNode->data_ = groupData;
+    currentDBNode->data_ = groupData;
 }
 
-void Node::printJSON(int level) const {
+void DBNode::printJSON(int level) const {
     std::cout << "{\n";
     for (auto it = data_.begin(); it != data_.end(); ++it) {
         const auto& [key, value] = *it;
         
         std::cout << std::string(level + 2, ' ') << "\"" << key << "\": ";
 
-        if (std::holds_alternative<std::vector<std::shared_ptr<Node>>>(value)) {
-            const auto& list = std::get<std::vector<std::shared_ptr<Node>>>(value);
+        if (std::holds_alternative<std::vector<std::shared_ptr<DBNode>>>(value)) {
+            const auto& list = std::get<std::vector<std::shared_ptr<DBNode>>>(value);
 
             bool isFinalList = true;
             for (const auto& node : list) {
@@ -102,7 +102,7 @@ void Node::printJSON(int level) const {
 
 
 
-void Node::printJSONToStream(std::ostream& os, int level) const {
+void DBNode::printJSONToStream(std::ostream& os, int level) const {
     os << "{\n";
     for (auto it = data_.begin(); it != data_.end(); ++it) {
         const auto& key = it->first;
@@ -110,8 +110,8 @@ void Node::printJSONToStream(std::ostream& os, int level) const {
 
         os << std::string(level + 2, ' ') << "\"" << key << "\": ";
 
-        if (std::holds_alternative<std::vector<std::shared_ptr<Node>>>(value)) {
-            const auto& list = std::get<std::vector<std::shared_ptr<Node>>>(value);
+        if (std::holds_alternative<std::vector<std::shared_ptr<DBNode>>>(value)) {
+            const auto& list = std::get<std::vector<std::shared_ptr<DBNode>>>(value);
 
             bool isFinalList = true;
             for (const auto& node : list) {
@@ -145,10 +145,10 @@ void Node::printJSONToStream(std::ostream& os, int level) const {
     os << std::string(level, ' ') << "}";
 }
 
-void Node::printYAML(int level) const {
+void DBNode::printYAML(int level) const {
     for (const auto& [key, value] : data_) {
-        if (std::holds_alternative<std::vector<std::shared_ptr<Node>>>(value)) {
-            const auto& list = std::get<std::vector<std::shared_ptr<Node>>>(value);
+        if (std::holds_alternative<std::vector<std::shared_ptr<DBNode>>>(value)) {
+            const auto& list = std::get<std::vector<std::shared_ptr<DBNode>>>(value);
             std::cout << std::string(level, ' ') << key << ":\n";
 
             bool isFinalList = true;
@@ -176,8 +176,8 @@ void Node::printYAML(int level) const {
             continue;
         }
 
-        if (std::holds_alternative<std::shared_ptr<Node>>(value)) {
-            auto child = std::get<std::shared_ptr<Node>>(value);
+        if (std::holds_alternative<std::shared_ptr<DBNode>>(value)) {
+            auto child = std::get<std::shared_ptr<DBNode>>(value);
             std::cout << std::string(level, ' ') << key << ":\n";
             if (child) child->printYAML(level + 2);
             else       std::cout << std::string(level + 2, ' ') << "null\n";
@@ -190,13 +190,13 @@ void Node::printYAML(int level) const {
     }
 }
 
-bool Node::isListNode(const std::shared_ptr<Node>& node) const {
+bool DBNode::isListDBNode(const std::shared_ptr<DBNode>& node) const {
     if (!node || node->data_.empty()) return false;
-    return std::holds_alternative<std::vector<std::shared_ptr<Node>>>(node->data_.begin()->second);
+    return std::holds_alternative<std::vector<std::shared_ptr<DBNode>>>(node->data_.begin()->second);
 }
 
 
-void Node::printValue(const Value& value, int level) const {
+void DBNode::printValue(const Value& value, int level) const {
     if (std::holds_alternative<BlockName>(value)) {
         std::cout << "\"" << std::get<BlockName>(value) << "\"";
     } else if (std::holds_alternative<int>(value)) {
@@ -205,10 +205,10 @@ void Node::printValue(const Value& value, int level) const {
         std::cout << std::get<double>(value);
     } else if (std::holds_alternative<bool>(value)) {
         std::cout << (std::get<bool>(value) ? "true" : "false");
-    } else if (std::holds_alternative<std::shared_ptr<Node>>(value)) {
-        std::get<std::shared_ptr<Node>>(value)->printJSON(level + 2);
-    } else if (std::holds_alternative<std::vector<std::shared_ptr<Node>>>(value)) {
-        const auto& list = std::get<std::vector<std::shared_ptr<Node>>>(value);
+    } else if (std::holds_alternative<std::shared_ptr<DBNode>>(value)) {
+        std::get<std::shared_ptr<DBNode>>(value)->printJSON(level + 2);
+    } else if (std::holds_alternative<std::vector<std::shared_ptr<DBNode>>>(value)) {
+        const auto& list = std::get<std::vector<std::shared_ptr<DBNode>>>(value);
         std::cout << "[\n";
         for (size_t i = 0; i < list.size(); ++i) {
             std::cout << std::string(level + 2, ' ');
@@ -221,7 +221,7 @@ void Node::printValue(const Value& value, int level) const {
 }
 
 
-void Node::printValueToStream(std::ostream& os, const Value& value, int level) const {
+void DBNode::printValueToStream(std::ostream& os, const Value& value, int level) const {
     if (std::holds_alternative<BlockName>(value)) {
         os << "\"" << std::get<BlockName>(value) << "\"";
     } else if (std::holds_alternative<int>(value)) {
@@ -230,12 +230,12 @@ void Node::printValueToStream(std::ostream& os, const Value& value, int level) c
         os << std::get<double>(value);
     } else if (std::holds_alternative<bool>(value)) {
         os << (std::get<bool>(value) ? "true" : "false");
-    } else if (std::holds_alternative<std::shared_ptr<Node>>(value)) {
-        auto ptr = std::get<std::shared_ptr<Node>>(value);
+    } else if (std::holds_alternative<std::shared_ptr<DBNode>>(value)) {
+        auto ptr = std::get<std::shared_ptr<DBNode>>(value);
         if (ptr) ptr->printJSONToStream(os, level + 2);
         else     os << "null";
-    } else if (std::holds_alternative<std::vector<std::shared_ptr<Node>>>(value)) {
-        const auto& list = std::get<std::vector<std::shared_ptr<Node>>>(value);
+    } else if (std::holds_alternative<std::vector<std::shared_ptr<DBNode>>>(value)) {
+        const auto& list = std::get<std::vector<std::shared_ptr<DBNode>>>(value);
         os << "[\n";
         for (size_t i = 0; i < list.size(); ++i) {
             os << std::string(level + 2, ' ');
@@ -248,7 +248,7 @@ void Node::printValueToStream(std::ostream& os, const Value& value, int level) c
     }
 }
 
-void Node::printScalarYAML(const Value& value) const {
+void DBNode::printScalarYAML(const Value& value) const {
     if (std::holds_alternative<BlockName>(value)) {
         std::cout << std::get<BlockName>(value);
     } else if (std::holds_alternative<int>(value)) {
@@ -260,18 +260,18 @@ void Node::printScalarYAML(const Value& value) const {
     }
 }
 
-bool Node::contains(const BlockName& key) const {
+bool DBNode::contains(const BlockName& key) const {
     return std::any_of(data_.begin(), data_.end(),
         [&](const auto& pair) {
             return pair.first == key;
         });
 }
 
-int Node::countChildren() const {
+int DBNode::countChildren() const {
     return data_.size();
 }
 
-void Node::printScalarYAMLToStream(std::ostream& os, const Value& value) const {
+void DBNode::printScalarYAMLToStream(std::ostream& os, const Value& value) const {
     if (std::holds_alternative<BlockName>(value)) {
         os << std::get<BlockName>(value);
     } else if (std::holds_alternative<int>(value)) {
@@ -283,10 +283,10 @@ void Node::printScalarYAMLToStream(std::ostream& os, const Value& value) const {
     }
 }
 
-void Node::printYAMLToStream(std::ostream& os, int level) const {
+void DBNode::printYAMLToStream(std::ostream& os, int level) const {
     for (const auto& [key, value] : data_) {
-        if (std::holds_alternative<std::vector<std::shared_ptr<Node>>>(value)) {
-            const auto& list = std::get<std::vector<std::shared_ptr<Node>>>(value);
+        if (std::holds_alternative<std::vector<std::shared_ptr<DBNode>>>(value)) {
+            const auto& list = std::get<std::vector<std::shared_ptr<DBNode>>>(value);
             os << std::string(level, ' ') << key << ":\n";
 
             bool isFinalList = true;
@@ -314,8 +314,8 @@ void Node::printYAMLToStream(std::ostream& os, int level) const {
             continue;
         }
 
-        if (std::holds_alternative<std::shared_ptr<Node>>(value)) {
-            auto child = std::get<std::shared_ptr<Node>>(value);
+        if (std::holds_alternative<std::shared_ptr<DBNode>>(value)) {
+            auto child = std::get<std::shared_ptr<DBNode>>(value);
             os << std::string(level, ' ') << key << ":\n";
             if (child) child->printYAMLToStream(os, level + 2);
             else       os << std::string(level + 2, ' ') << "null\n";

@@ -6,7 +6,7 @@
 #include "IDataLoader.h"
 #include "CorrelationRepo.h"
 #include "DBNode.h"
-#include "NodeProviderFactory.h"
+#include "DBNodeProviderFactory.h"
 
 /**
  * @file CorrelationLoader.h
@@ -40,9 +40,9 @@ private:
      * @brief Inserts a correlation entry into a correlation matrix.
      *
      * @param corr_matrices Shared pointer to the correlation matrix pair.
-     * @param leaf          Node containing correlation data.
+     * @param leaf          DBNode containing correlation data.
      */
-    static void emplace_correlation(std::shared_ptr<CorrelationMatrixPair<T>> corr_matrices, std::shared_ptr<Node> leaf);
+    static void emplace_correlation(std::shared_ptr<CorrelationMatrixPair<T>> corr_matrices, std::shared_ptr<DBNode> leaf);
 };
 
 #endif // CORRELATIONCREATOR_H

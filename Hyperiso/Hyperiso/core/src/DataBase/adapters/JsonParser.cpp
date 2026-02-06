@@ -1,13 +1,13 @@
 #include "JsonParser.h"
 
-std::shared_ptr<Node> JSONParser::parse(const std::string& input) const {
+std::shared_ptr<DBNode> JSONParser::parse(const std::string& input) const {
     size_t index = 0;
     return parseObject(input, index);
 
 }
 
-std::shared_ptr<Node> JSONParser::parseObject(const std::string& input, size_t& index) const {
-    auto root = std::make_shared<Node>();
+std::shared_ptr<DBNode> JSONParser::parseObject(const std::string& input, size_t& index) const {
+    auto root = std::make_shared<DBNode>();
     if (input[index] != '{') throw std::runtime_error("Invalid JSON");
     ++index;
 
@@ -40,7 +40,7 @@ std::string JSONParser::parseString(const std::string& input, size_t& index) con
     return result;
 }
 
-Node::Value JSONParser::parseValue(const std::string& input, size_t& index) const {
+DBNode::Value JSONParser::parseValue(const std::string& input, size_t& index) const {
     skipWhitespace(input, index);
 
     if (input[index] == '{') return parseObject(input, index);
@@ -54,8 +54,8 @@ Node::Value JSONParser::parseValue(const std::string& input, size_t& index) cons
 }
 
 
-std::shared_ptr<Node> JSONParser::parseArray(const std::string& input, size_t& index) const {
-    auto listNode = std::make_shared<Node>();
+std::shared_ptr<DBNode> JSONParser::parseArray(const std::string& input, size_t& index) const {
+    auto listDBNode = std::make_shared<DBNode>();
     ++index; // Skip '['
 
     int elementIndex = 0;
@@ -63,12 +63,12 @@ std::shared_ptr<Node> JSONParser::parseArray(const std::string& input, size_t& i
         skipWhitespace(input, index);
         if (input[index] == ']') { ++index; break; }
 
-        listNode->set(parseValue(input, index), std::to_string(elementIndex++));
+        listDBNode->set(parseValue(input, index), std::to_string(elementIndex++));
         skipWhitespace(input, index);
 
         if (input[index] == ',') ++index;
     }
-    return listNode;
+    return listDBNode;
 }
 
 double JSONParser::parseNumber(const std::string& input, size_t& index) const {
@@ -100,7 +100,7 @@ void JSONParser::skipWhitespace(const std::string& input, size_t& index) const {
     while (index < input.size() && isspace(input[index])) ++index;
 }
 
-void JSONParser::writeToFile(const std::string& filename, const std::shared_ptr<Node>& root) const {
+void JSONParser::writeToFile(const std::string& filename, const std::shared_ptr<DBNode>& root) const {
     std::ofstream file(filename);
     if (!file.is_open()) throw std::runtime_error("Unable to open file for writing");
 
@@ -110,7 +110,7 @@ void JSONParser::writeToFile(const std::string& filename, const std::shared_ptr<
     file.close();
 }
 
-std::shared_ptr<Node> JSONParser::readFromFile(const std::string& filename) const {
+std::shared_ptr<DBNode> JSONParser::readFromFile(const std::string& filename) const {
     std::ifstream file(filename);
     LOG_DEBUG("File path:", filename);
     if (!file.is_open()) throw std::runtime_error("Unable to open file for reading");

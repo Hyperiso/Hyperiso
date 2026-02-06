@@ -100,9 +100,9 @@ public:
      *   - "renormalization_scheme"  : scheme (if available),
      *   - "bin_low", "bin_high"     : bin edges (if available).
      *
-     * @return Shared pointer to a newly created Node.
+     * @return Shared pointer to a newly created DBNode.
      */
-    virtual std::shared_ptr<Node> toDBNode() const = 0;
+    virtual std::shared_ptr<DBNode> toDBNode() const = 0;
 
     /**
      * @brief Virtual destructor.
@@ -225,16 +225,16 @@ public:
     /**
      * @brief Converts the element to a DBNode representation.
      *
-     * The returned Node contains at least:
+     * The returned DBNode contains at least:
      *   - "central_value" : T
      * and optionally:
      *   - "scale"                 : double,
      *   - "renormalization_scheme": int,
      *   - "bin_low", "bin_high"   : double.
      *
-     * @return Shared pointer to a new Node containing the element data.
+     * @return Shared pointer to a new DBNode containing the element data.
      */
-    std::shared_ptr<Node> toDBNode() const override;
+    std::shared_ptr<DBNode> toDBNode() const override;
     
 };
 

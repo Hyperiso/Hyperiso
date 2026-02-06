@@ -13,7 +13,7 @@
 
 /**
  * @file YamlParser.h
- * @brief Lightweight YAML parser/serializer for Node trees.
+ * @brief Lightweight YAML parser/serializer for DBNode trees.
  *
  * YAMLParser implements the IParser interface using a simple,
  * indentation-based subset of YAML. It supports:
@@ -21,7 +21,7 @@
  *   - sequences introduced by '-' items,
  *   - scalar values (int, double, bool, string).
  *
- * The resulting structure is stored in the generic Node container.
+ * The resulting structure is stored in the generic DBNode container.
  */
 
 /**
@@ -29,9 +29,9 @@
  * @brief YAML implementation of the IParser interface.
  *
  * YAMLParser can:
- *   - parse a YAML-like string into a Node hierarchy,
- *   - write a Node hierarchy to a YAML file,
- *   - read a Node hierarchy back from a YAML file.
+ *   - parse a YAML-like string into a DBNode hierarchy,
+ *   - write a DBNode hierarchy to a YAML file,
+ *   - read a DBNode hierarchy back from a YAML file.
  *
  * The parser is intentionally minimal and focuses on the subset of YAML
  * needed by the project (indentation-based maps and lists).
@@ -39,19 +39,19 @@
 class YAMLParser : public IParser {
 public:
     /**
-     * @brief Parses a YAML string into a Node hierarchy.
+     * @brief Parses a YAML string into a DBNode hierarchy.
      *
      * @param input YAML text buffer.
-     * @return Shared pointer to the root Node of the parsed document.
+     * @return Shared pointer to the root DBNode of the parsed document.
      *
      * @throws std::runtime_error on syntax or conversion errors.
      */
-    std::shared_ptr<Node> parse(const std::string& input) const override;
+    std::shared_ptr<DBNode> parse(const std::string& input) const override;
 
     /**
-     * @brief Writes a Node hierarchy to a YAML file.
+     * @brief Writes a DBNode hierarchy to a YAML file.
      *
-     * This uses Node::printYAMLToStream() to serialize the tree in a
+     * This uses DBNode::printYAMLToStream() to serialize the tree in a
      * readable YAML-like format.
      *
      * @param filename Target file name.
@@ -59,7 +59,7 @@ public:
      *
      * @throws std::runtime_error if the file cannot be opened or writing fails.
      */
-    void writeToFile(const std::string& filename, const std::shared_ptr<Node>& root) const override;
+    void writeToFile(const std::string& filename, const std::shared_ptr<DBNode>& root) const override;
 
     /**
      * @brief Reads and parses YAML data from a file.
@@ -67,11 +67,11 @@ public:
      * The file contents are loaded into memory and passed to parse().
      *
      * @param filename Source file name.
-     * @return Shared pointer to the root Node of the parsed document.
+     * @return Shared pointer to the root DBNode of the parsed document.
      *
      * @throws std::runtime_error if the file cannot be opened or parsing fails.
      */
-    std::shared_ptr<Node> readFromFile(const std::string& filename) const override;
+    std::shared_ptr<DBNode> readFromFile(const std::string& filename) const override;
 
 private:
     /**
@@ -97,7 +97,7 @@ private:
      * @param nodeStack   Stack of nodes corresponding to nested mappings.
      * @param indentStack Parallel stack of indentation levels.
      */
-    void adjustIndentation(size_t indent, std::vector<std::shared_ptr<Node>>& nodeStack, std::vector<int>& indentStack) const;
+    void adjustIndentation(size_t indent, std::vector<std::shared_ptr<DBNode>>& nodeStack, std::vector<int>& indentStack) const;
 
     /**
      * @brief Recursively parses a YAML node from a stream.
@@ -109,23 +109,23 @@ private:
      *
      * @param stream      Input stream (already loaded with YAML content).
      * @param indentLevel Current indentation level for this node.
-     * @return Shared pointer to the parsed Node.
+     * @return Shared pointer to the parsed DBNode.
      */
-    static std::shared_ptr<Node> parseYAMLNode(std::istringstream& stream, int indentLevel);
+    static std::shared_ptr<DBNode> parseYAMLDBNode(std::istringstream& stream, int indentLevel);
 
     /**
-     * @brief Processes a "key: value" line and attaches it to a Node.
+     * @brief Processes a "key: value" line and attaches it to a DBNode.
      *
      * If the value is empty, a nested node is parsed at the next
      * indentation level. Otherwise, the scalar is parsed and stored
      * directly under the key.
      *
      * @param line        Current YAML line ("key: value" form).
-     * @param node        Node to which the key/value is attached.
+     * @param node        DBNode to which the key/value is attached.
      * @param stream      Input stream for reading nested content.
      * @param indentLevel Indentation to use for nested nodes.
      */
-    static void processKeyValue(const std::string& line, std::shared_ptr<Node>& node, std::istringstream& stream, int indentLevel);
+    static void processKeyValue(const std::string& line, std::shared_ptr<DBNode>& node, std::istringstream& stream, int indentLevel);
 
     /**
      * @brief Processes a YAML list (sequence) under the current node.
@@ -137,12 +137,12 @@ private:
      * The resulting list is encoded as a group with numeric string keys
      * ("0", "1", ...) inside the target node.
      *
-     * @param node        Node to which the list is attached.
+     * @param node        DBNode to which the list is attached.
      * @param stream      Input stream for reading further list items.
      * @param indentLevel Expected indentation for items.
      * @param firstLine   Optional first line already read (starting with '-').
      */
-    static void processList(std::shared_ptr<Node>& node, std::istringstream& stream, int indentLevel, std::string firstLine = "");
+    static void processList(std::shared_ptr<DBNode>& node, std::istringstream& stream, int indentLevel, std::string firstLine = "");
 
     /**
      * @brief Trims leading and trailing spaces and tabs from a string.
@@ -164,16 +164,16 @@ private:
     static int countLeadingSpaces(const std::string& str);
 
     /**
-     * @brief Detects whether a Node represents a "list-like" structure.
+     * @brief Detects whether a DBNode represents a "list-like" structure.
      *
      * A node is considered list-like if all of its keys are numeric
      * strings (e.g. "0", "1", "2"...). This is useful when deciding
-     * how to render or interpret a Node.
+     * how to render or interpret a DBNode.
      *
-     * @param node Node to inspect.
+     * @param node DBNode to inspect.
      * @return true if the node looks like a list, false otherwise.
      */
-    bool isListNode(const std::shared_ptr<Node>& node) const;
+    bool isListDBNode(const std::shared_ptr<DBNode>& node) const;
 
     /**
      * @brief Parses a numeric string as a double.
@@ -186,7 +186,7 @@ private:
     double parseNumber(const std::string& value) const;
 
     /**
-     * @brief Parses a scalar YAML value into a Node::Value.
+     * @brief Parses a scalar YAML value into a DBNode::Value.
      *
      * The order of detection is:
      *   - integer,
@@ -195,9 +195,9 @@ private:
      *   - otherwise: string.
      *
      * @param value Raw scalar text.
-     * @return Parsed Node::Value.
+     * @return Parsed DBNode::Value.
      */
-    static Node::Value parseScalar(const std::string& value);
+    static DBNode::Value parseScalar(const std::string& value);
 
     /**
      * @brief Higher-level scalar parsing used in some code paths.
@@ -206,9 +206,9 @@ private:
      * logic (e.g. looking for '.', 'e', 'E' to detect floating point).
      *
      * @param value Raw scalar text.
-     * @return Parsed Node::Value.
+     * @return Parsed DBNode::Value.
      */
-    Node::Value parseValue(const std::string& value) const;
+    DBNode::Value parseValue(const std::string& value) const;
 
     /**
      * @brief Checks if a string represents an integer.

@@ -233,6 +233,13 @@ public:
      * @return Shared pointer to a new BlockAccessor containing the requested blocks.
      */
     std::shared_ptr<BlockAccessor> extract_blocks(std::unordered_set<BlockName> block_names);
+    
+    /**
+     * @brief Extracts all blocks from the cached input.
+     *
+     * @return Shared pointer to the BlockAccessor containing all the blocks.
+     */
+    std::shared_ptr<BlockAccessor> extract_block_accessor();
 
     /**
      * @brief Retrieves the current correlation repository.

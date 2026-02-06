@@ -2,30 +2,30 @@
 #define NODEPROVIDERFACTORY_H
 
 #include <memory>
-#include "INodeProvider.h"
-#include "DictNodeProvider.h"
-#include "LhaNodeProvider.h"
+#include "IDBNodeProvider.h"
+#include "DictDBNodeProvider.h"
+#include "LhaDBNodeProvider.h"
 #include "DBManager.h"
 
 /**
- * @file NodeProviderFactory.h
- * @brief Factory for creating INodeProvider instances from a file path.
+ * @file DBNodeProviderFactory.h
+ * @brief Factory for creating IDBNodeProvider instances from a file path.
  *
  * This factory inspects the file extension and chooses the appropriate
- * INodeProvider implementation:
- *   - DictNodeProvider for JSON / YAML files,
- *   - LhaNodeProvider  for LHA / SLHA / FLHA files.
+ * IDBNodeProvider implementation:
+ *   - DictDBNodeProvider for JSON / YAML files,
+ *   - LhaDBNodeProvider  for LHA / SLHA / FLHA files.
  */
 
 /**
- * @class NodeProviderFactory
- * @brief Central factory for building concrete INodeProvider objects.
+ * @class DBNodeProviderFactory
+ * @brief Central factory for building concrete IDBNodeProvider objects.
  *
- * NodeProviderFactory hides the logic of choosing which provider to use
+ * DBNodeProviderFactory hides the logic of choosing which provider to use
  * for a given source path. It relies on DBManager::EXTENSIONS to map
  * file extensions to parser families.
  */
-class NodeProviderFactory {
+class DBNodeProviderFactory {
 public:
     /**
      * @brief High-level type of node provider.
@@ -37,20 +37,20 @@ public:
     enum class Type { DICT, LHA };
 
     /**
-     * @brief Creates an INodeProvider for a given file path.
+     * @brief Creates an IDBNodeProvider for a given file path.
      *
      * The extension of @p src_path is inspected and compared against the
      * extension sets registered in DBManager::EXTENSIONS:
-     *   - JSON or YAML -> DictNodeProvider,
-     *   - LHA / SLHA / FLHA -> LhaNodeProvider.
+     *   - JSON or YAML -> DictDBNodeProvider,
+     *   - LHA / SLHA / FLHA -> LhaDBNodeProvider.
      *
      * If the extension cannot be recognized, a fatal error is logged.
      *
      * @param src_path Path to the source file whose contents should be exposed
-     *                 via an INodeProvider.
-     * @return Shared pointer to a concrete INodeProvider.
+     *                 via an IDBNodeProvider.
+     * @return Shared pointer to a concrete IDBNodeProvider.
      */
-    static std::shared_ptr<INodeProvider> createNodeProvider(fs::path src_path);
+    static std::shared_ptr<IDBNodeProvider> createDBNodeProvider(fs::path src_path);
 };
 
 #endif // NODEPROVIDERFACTORY_H

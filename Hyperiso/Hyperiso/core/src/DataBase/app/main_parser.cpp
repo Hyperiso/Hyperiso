@@ -67,7 +67,7 @@ skills:
         std::cerr << "❌ Error: " << e.what() << "\n";
     }
 
-    std::map<BlockName, Node::Value> newGroup = {
+    std::map<BlockName, DBNode::Value> newGroup = {
         {{"hobby","hobbies"}, "cycling"},
         {"job", "engineer"}
     };
@@ -145,19 +145,19 @@ details:
     nodeYaml->printJSON();
 
     std::cout << "\n🔹 Testing Node Manipulations:\n";
-    auto root = std::make_shared<Node>();
+    auto root = std::make_shared<DBNode>();
     root->set("Alice", "name");
     root->set(1.5e-2, "age");
     root->set(true, "isAdmin");
     root->set("Paris", "address", "city");
     root->set(75001, "address", "zip");
-    auto listNode = std::make_shared<Node>();
+    auto listNode = std::make_shared<DBNode>();
     listNode->set("C++", "0");
     listNode->set("Python", "1");
     listNode->set("YAML", "2");
     root->set(listNode, "skills");
 
-    std::cout << "✅ Generated JSON from Node:\n";
+    std::cout << " Generated JSON from DBNode:\n";
     root->printJSON();
 
     try {
@@ -199,7 +199,7 @@ details:
         std::cerr << "❌ Error: " << e.what() << "\n";
     }
 
-    std::map<BlockName, Node::Value> newGroup = {
+    std::map<BlockName, DBNode::Value> newGroup = {
         {"newKey1", "newValue1"},
         {"newKey2", 12345},
         {"newKey3", false},

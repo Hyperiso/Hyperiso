@@ -1,4 +1,4 @@
-#include "LhaNodeProvider.h"
+#include "LhaDBNodeProvider.h"
 
 static bool valid_opt_idx(int idx, size_t itemCount) {
     return idx == -1 || (idx >= 0 && static_cast<size_t>(idx) < itemCount);
@@ -12,11 +12,11 @@ static bool conflicts(int a, int b) {
     return a >= 0 && b >= 0 && a == b;
 }
 
-std::shared_ptr<Node> LhaNodeProvider::provide_db_as_node() {
+std::shared_ptr<DBNode> LhaDBNodeProvider::provide_db_as_node() {
     return DBManager().read_from_file(this->src_path);
 }
 
-void LhaNodeProvider::add_lha_prototype(BlockName blockName,
+void LhaDBNodeProvider::add_lha_prototype(BlockName blockName,
                                         size_t itemCount,
                                         size_t valueIdx,
                                         int scaleIdx,

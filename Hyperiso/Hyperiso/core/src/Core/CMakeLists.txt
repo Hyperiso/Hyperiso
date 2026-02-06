@@ -34,6 +34,8 @@ endif()
 add_library(CoreLib STATIC 
     adapters/DBMemento.cpp
     adapters/ParamBlockLoader.cpp
+    adapters/ParamBlockWriter.cpp
+    adapters/FileWriter.cpp
     adapters/APIAdapter.cpp
     adapters/MartyAdapter.cpp
     adapters/HyperisoMaster.cpp

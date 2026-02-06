@@ -1,6 +1,6 @@
 #include "ParamBlockLoader.h"
 
-static double value_to_double(const Node::Value& v, double fallback = 0.0)
+static double value_to_double(const DBNode::Value& v, double fallback = 0.0)
 {
     if (std::holds_alternative<double>(v))
         return std::get<double>(v);
@@ -11,7 +11,7 @@ static double value_to_double(const Node::Value& v, double fallback = 0.0)
 
 void ParamBlockLoader::load(std::shared_ptr<BlockAccessor> dest, fs::path src_file) {
     LOG_DEBUG("Loading parameter blocks from", src_file.string());
-    auto np  = NodeProviderFactory::createNodeProvider(src_file);
+    auto np  = DBNodeProviderFactory::createDBNodeProvider(src_file);
     auto src = np->provide_db_as_node();
 
     for (auto &bk : src->get_keys()) {
@@ -38,15 +38,15 @@ void ParamBlockLoader::load(std::shared_ptr<BlockAccessor> dest, fs::path src_fi
                 continue; 
             }
 
-            if (!std::holds_alternative<std::shared_ptr<Node>>(val)) {
+            if (!std::holds_alternative<std::shared_ptr<DBNode>>(val)) {
                 LOG_WARN("ParamBlockLoader", "Unexpected non-node entry under ", bk, " key ", key, " — skipping");
                 continue;
             }
 
-            auto node = std::get<std::shared_ptr<Node>>(val);
+            auto node = std::get<std::shared_ptr<DBNode>>(val);
 
             if (!node->contains("central_value")) {
-                LOG_ERROR("ParamBlockLoader", "Node doesn't have all necessary keys (central_value).");
+                LOG_ERROR("ParamBlockLoader", "DBNode doesn't have all necessary keys (central_value).");
                 continue;
             }
 
@@ -57,8 +57,8 @@ void ParamBlockLoader::load(std::shared_ptr<BlockAccessor> dest, fs::path src_fi
 
             double val_central = std::get<double>(value);
 
-            auto stat = node->contains("stat_error") ? node->get("stat_error") : Node::Value{0.0};
-            auto syst = node->contains("syst_error") ? node->get("syst_error") : Node::Value{0.0};
+            auto stat = node->contains("stat_error") ? node->get("stat_error") : DBNode::Value{0.0};
+            auto syst = node->contains("syst_error") ? node->get("syst_error") : DBNode::Value{0.0};
 
             double stat_d = std::holds_alternative<double>(stat) ? std::get<double>(stat)
                              : std::holds_alternative<int>(stat) ? static_cast<double>(std::get<int>(stat))

@@ -1,4 +1,3 @@
-// test_lha_blocks_unit.cpp
 #include <cassert>
 #include <iostream>
 #include <vector>
@@ -18,11 +17,11 @@ static bool contains_all(const std::string& s, const std::vector<std::string>& n
     return true;
 }
 
-static double as_number_from_value(const Node::Value& v) {
+static double as_number_from_value(const DBNode::Value& v) {
     if (std::holds_alternative<double>(v)) return std::get<double>(v);
     if (std::holds_alternative<BlockName>(v)) return std::stod(std::get<BlockName>(v));
-    if (std::holds_alternative<std::shared_ptr<Node>>(v)) {
-        auto sub = std::get<std::shared_ptr<Node>>(v);
+    if (std::holds_alternative<std::shared_ptr<DBNode>>(v)) {
+        auto sub = std::get<std::shared_ptr<DBNode>>(v);
         auto cv = sub->get("central_value");
         if (std::holds_alternative<double>(cv)) return std::get<double>(cv);
         if (std::holds_alternative<BlockName>(cv)) return std::stod(std::get<BlockName>(cv));
@@ -33,17 +32,14 @@ static double as_number_from_value(const Node::Value& v) {
 int main() {
     std::cout << "== Running UNIT tests for LhaBlock ==\n";
 
-    // 1) Bloc sans échelle globale : SMINPUTS
     {
-        LhaBlock blk(SMINPUTS); // itemCount=2, valueIdx=1
+        LhaBlock blk(SMINPUTS);
         blk.addElement({"1", "0.118"});
         blk.addElement({"2", "173.1"});
 
-        // entries
         auto entries = blk.getEntries();
         assert(entries && entries->size() == 2);
 
-        // hasElement / get
         assert(blk.hasElement(LhaID({1})));
         assert(blk.hasElement(LhaID({2})));
         assert(!blk.hasElement(LhaID({3})));
@@ -52,21 +48,18 @@ int main() {
         auto e2 = blk.get(LhaID({2}));
         assert(e1 && e2);
 
-        // prototype renvoyé
         auto p = blk.getPrototype();
         assert(p.blockName == "SMINPUTS");
 
-        // toString : contient au moins l’en-tête et les valeurs
         auto s = blk.toString();
         assert(contains_all(s, {"Block SMINPUTS", "0.118", "173.1"}));
 
-        // toDBNode : pas de clé "scale", group SMINPUTS présent
         auto n = blk.toDBNode();
         assert(n && !n->contains("scale"));
         auto g = n->getGroup({"SMINPUTS"});
-        // Deux éléments, valeurs récupérables
+
         assert(g.size() == 2);
-        // On ne dépend pas du format de la clé (LhaID.to_string()), on lit juste les valeurs
+
         int seen = 0;
         for (auto& [k, v] : g) {
             double x = as_number_from_value(v);
@@ -76,19 +69,16 @@ int main() {
         assert(seen == 2);
     }
 
-    // 2) Bloc avec échelle globale : HMIX (globalScale=true)
     {
-        LhaBlock blk(HMIX); // itemCount=3, valueIdx=2, globalScale=true
-        // Q (=col 0) dans chaque ligne
+        LhaBlock blk(HMIX);
+
         blk.addElement({"1000.0", "1", "0.5"});
         blk.addElement({"1000.0", "2", "1.2"});
 
-        // toDBNode : "scale" présent et = première échelle
         auto n = blk.toDBNode();
         assert(n && n->contains("scale"));
         assert(std::abs(std::get<double>(n->get("scale")) - 1000.0) < 1e-12);
 
-        // group HMIX a 2 éléments, valeurs ok
         auto g = n->getGroup({"HMIX"});
         assert(g.size() == 2);
         int seen = 0;
@@ -100,7 +90,6 @@ int main() {
         assert(seen == 2);
     }
 
-    // 3) readData() ignore les lignes vides
     {
         LhaBlock blk(SMINPUTS);
         std::vector<std::vector<std::string>> lines = {
@@ -110,13 +99,12 @@ int main() {
         assert(blk.getEntries()->size() == 2);
     }
 
-    // 4) get() renvoie nullptr si absent
     {
         LhaBlock blk(MASS);
         blk.addElement({"25", "125.0"});
         assert(blk.get(LhaID({24})) == nullptr);
     }
 
-    std::cout << "\n✅ All LhaBlock unit tests passed!\n";
+    std::cout << "\n All LhaBlock unit tests passed!\n";
     return 0;
 }

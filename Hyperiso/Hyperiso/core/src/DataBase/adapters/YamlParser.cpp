@@ -18,13 +18,13 @@ bool parseBool(const std::string& s) {
     return s == "true";
 }
 
-std::shared_ptr<Node> YAMLParser::parse(const std::string& input) const {
+std::shared_ptr<DBNode> YAMLParser::parse(const std::string& input) const {
     std::istringstream stream(input);
-    return parseYAMLNode(stream, 0);
+    return parseYAMLDBNode(stream, 0);
 }
 
-std::shared_ptr<Node> YAMLParser::parseYAMLNode(std::istringstream& stream, int indentLevel) {
-    auto node = std::make_shared<Node>();
+std::shared_ptr<DBNode> YAMLParser::parseYAMLDBNode(std::istringstream& stream, int indentLevel) {
+    auto node = std::make_shared<DBNode>();
     std::string line;
 
     while (std::getline(stream, line)) {
@@ -49,30 +49,30 @@ std::shared_ptr<Node> YAMLParser::parseYAMLNode(std::istringstream& stream, int 
     return node;
 }
 
-void YAMLParser::processKeyValue(const std::string& line, std::shared_ptr<Node>& node, std::istringstream& stream, int indentLevel) {
+void YAMLParser::processKeyValue(const std::string& line, std::shared_ptr<DBNode>& node, std::istringstream& stream, int indentLevel) {
     size_t colonPos = line.find(":");
     std::string key = trim(line.substr(0, colonPos));
     std::string value = trim(line.substr(colonPos + 1));
     if (value.empty()) {
-        auto childNode = parseYAMLNode(stream, indentLevel);
-        node->set(childNode, key);
+        auto childDBNode = parseYAMLDBNode(stream, indentLevel);
+        node->set(childDBNode, key);
     } else {
         node->set(parseScalar(value), key);
     }
 }
 
-void YAMLParser::processList(std::shared_ptr<Node>& node, std::istringstream& stream, int indentLevel, std::string firstLine) {
-    std::map<BlockName, Node::Value> listData;
+void YAMLParser::processList(std::shared_ptr<DBNode>& node, std::istringstream& stream, int indentLevel, std::string firstLine) {
+    std::map<BlockName, DBNode::Value> listData;
     size_t index = 0;
     std::string line = firstLine;
     bool first {true};
 
-    Node::Value currentNode;
-    auto tempNode = std::make_shared<Node>();
+    DBNode::Value currentDBNode;
+    auto tempDBNode = std::make_shared<DBNode>();
 
     while (true) {
         if (!first && !std::getline(stream, line)){
-            listData[std::to_string(index)] = tempNode->countChildren() != 0 ? tempNode : currentNode;
+            listData[std::to_string(index)] = tempDBNode->countChildren() != 0 ? tempDBNode : currentDBNode;
             break;
         }
 
@@ -82,19 +82,19 @@ void YAMLParser::processList(std::shared_ptr<Node>& node, std::istringstream& st
 
         if (!first && countLeadingSpaces(line) < indentLevel) {
             stream.seekg(-static_cast<int>(line.size()) - 1, std::ios_base::cur);
-            listData[std::to_string(index)] = tempNode->countChildren() != 0 ? tempNode : currentNode;
+            listData[std::to_string(index)] = tempDBNode->countChildren() != 0 ? tempDBNode : currentDBNode;
             break;
         }
 
         line = trim(line);
         if (line[0] == '-') {
             if (!first) {
-                if (tempNode->countChildren() != 0) {
-                    currentNode = tempNode;
-                    tempNode = std::make_shared<Node>();
+                if (tempDBNode->countChildren() != 0) {
+                    currentDBNode = tempDBNode;
+                    tempDBNode = std::make_shared<DBNode>();
                 }
-                listData[std::to_string(index)] = currentNode;
-                currentNode = Node::Value();
+                listData[std::to_string(index)] = currentDBNode;
+                currentDBNode = DBNode::Value();
                 index++;
             } else {
                 first = false;
@@ -108,13 +108,13 @@ void YAMLParser::processList(std::shared_ptr<Node>& node, std::istringstream& st
             std::string key = trim(line.substr(0, colonPos));
             std::string value = trim(line.substr(colonPos + 1));
             if (value.empty()) {
-                auto childNode = parseYAMLNode(stream, indentLevel + 2);
-                tempNode->set(childNode, key);
+                auto childDBNode = parseYAMLDBNode(stream, indentLevel + 2);
+                tempDBNode->set(childDBNode, key);
             } else {
-                tempNode->set(parseScalar(value), key);
+                tempDBNode->set(parseScalar(value), key);
             }
         } else {
-            currentNode = parseScalar(trim(line));
+            currentDBNode = parseScalar(trim(line));
         }
     }
 
@@ -123,7 +123,7 @@ void YAMLParser::processList(std::shared_ptr<Node>& node, std::istringstream& st
 
 
 
-Node::Value YAMLParser::parseScalar(const std::string& value) {
+DBNode::Value YAMLParser::parseScalar(const std::string& value) {
     if (isInteger(value)) {
         return std::stoi(value);
     } else if (isDouble(value)) {
@@ -157,7 +157,7 @@ bool YAMLParser::isDouble(const std::string& str) {
 }
 
 
-bool YAMLParser::isListNode(const std::shared_ptr<Node>& node) const {
+bool YAMLParser::isListDBNode(const std::shared_ptr<DBNode>& node) const {
     for (const auto& [key, _] : node->getGroup({})) {
         std::string keyStr = key.to_string();
 
@@ -168,7 +168,7 @@ bool YAMLParser::isListNode(const std::shared_ptr<Node>& node) const {
     return true;
 }
 
-Node::Value YAMLParser::parseValue(const std::string& value) const {
+DBNode::Value YAMLParser::parseValue(const std::string& value) const {
     if (value.empty()) return "";  
 
     if (!value.empty() && std::all_of(value.begin(), value.end(), ::isdigit)) {
@@ -195,7 +195,7 @@ double YAMLParser::parseNumber(const std::string& value) const {
     }
 }
 
-void YAMLParser::writeToFile(const std::string& filename, const std::shared_ptr<Node>& root) const {
+void YAMLParser::writeToFile(const std::string& filename, const std::shared_ptr<DBNode>& root) const {
     std::ofstream file(filename);
     if (!file.is_open())
         throw std::runtime_error("Unable to open file for writing: " + filename);
@@ -206,7 +206,7 @@ void YAMLParser::writeToFile(const std::string& filename, const std::shared_ptr<
         throw std::runtime_error("Error while writing YAML file: " + filename);
 }
 
-std::shared_ptr<Node> YAMLParser::readFromFile(const std::string& filename) const {
+std::shared_ptr<DBNode> YAMLParser::readFromFile(const std::string& filename) const {
     std::ifstream file(filename);
     if (!file.is_open()) throw std::runtime_error("Unable to open file for reading");
 
