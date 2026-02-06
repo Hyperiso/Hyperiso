@@ -1,4 +1,6 @@
-from pyhyperiso.core.Common.General import ParameterType, ParamId, LhaID
+from pyhyperiso.core.Common.GeneralEnum import ParameterType
+from pyhyperiso.core.Common.ParamId import ParamId
+from pyhyperiso.core.Common.LhaID import LhaID
 import pytest
 
 
