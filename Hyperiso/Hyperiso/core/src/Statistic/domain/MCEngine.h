@@ -7,18 +7,22 @@
 #include "GaussianApprox.h"
 
 struct MCConfig { std::size_t draws=10000; double skew_abs_threshold=0.2; };
+struct MCRealization {
+    ObsSamples sampled_obss;
+    NuisanceSamples sampled_params;
+};
 
 class MonteCarloEngine {
 public:
     MonteCarloEngine(const std::shared_ptr<IModel>& model, const INuisanceSampler& sampler, MCConfig cfg)
     : model_(model), sampler_(sampler), cfg_(cfg) {}
 
-    Samples sample_predictions(const std::map<ParamId, double>& p) const {
-        Samples out; 
+    MCRealization sample_predictions(const std::map<ParamId, double>& p) const {
+        ObsSamples out; 
         out.reserve(cfg_.draws);
 
         // auto start_smpl = std::chrono::steady_clock::now();
-        auto samples = sampler_.sample(cfg_.draws);
+        NuisanceSamples samples = sampler_.sample(cfg_.draws);
         // auto stop_smpl  = std::chrono::steady_clock::now();
         // auto time_sampling_ms = std::chrono::duration_cast<std::chrono::milliseconds>(stop_smpl - start_smpl).count();
         // LOG_INFO("Sampling distribution took", time_sampling_ms, "ms.");
@@ -32,14 +36,14 @@ public:
         // auto time_prediction_ms = std::chrono::duration_cast<std::chrono::milliseconds>(stop_pred - start_pred).count();
         // LOG_INFO("Predicting for sampled nuisances took", time_prediction_ms, "ms.");
 
-        return out;
+        return MCRealization {out, samples};
     }
 
     std::vector<GaussianSummary> summarize(const std::map<ParamId, double>& p) const {
         auto smpl = sample_predictions(p);
 
         // auto start_sum = std::chrono::steady_clock::now();
-        auto summary = gaussian_fit(smpl, cfg_.skew_abs_threshold);
+        auto summary = gaussian_fit(smpl.sampled_obss, cfg_.skew_abs_threshold);
         // auto stop_sum  = std::chrono::steady_clock::now();
         // auto time_summarize_ms = std::chrono::duration_cast<std::chrono::milliseconds>(stop_sum - start_sum).count();
         // LOG_INFO("Summarizing samples took", time_summarize_ms, "ms.");

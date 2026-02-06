@@ -7,6 +7,7 @@
 #include <gsl/gsl_multimin.h>
 #include <gsl/gsl_integration.h>
 #include "scalar.h"
+#include "Matrix.h"
 
 using RealValuedFunction = std::function<double(double)>;
 using RealValuedForm = std::function<double(std::vector<double>)>;
@@ -99,5 +100,12 @@ MinimizationResult minimize_scaled(
     const std::vector<double>& x0,
     const MinimizationContext& context
 );
+
+/*
+    Differentiation
+*/
+
+std::vector<double> gradient(RealValuedForm f, const std::vector<double>& x);
+RealMatrix hessian(RealValuedForm f, const std::vector<double>& x);
 
 #endif // __ANALYSIS_H__

@@ -8,7 +8,8 @@
 #include "Math.h"
 
 using Vec = std::vector<double>;
-using Samples = std::vector<std::map<ObservableId, double>>; // shape: N x D (N samples of D-dim vector)
+using ObsSamples = std::vector<std::map<ObservableId, double>>; // shape: N x D (N samples of D-dim vector)
+using NuisanceSamples = std::vector<std::map<ParamId, double>>; // shape: N x D (N samples of D-dim vector)
 
 struct ColumnStats {
     double mean {0.0};
@@ -19,7 +20,7 @@ struct ColumnStats {
     double mode {0.0};
 };
 
-inline std::map<ObservableId, ColumnStats> summarize_columns_obs(const Samples& S) {
+inline std::map<ObservableId, ColumnStats> summarize_columns_obs(const ObsSamples& S) {
     if (S.empty()) throw std::invalid_argument("No samples");
 
     const std::size_t N = S.size();

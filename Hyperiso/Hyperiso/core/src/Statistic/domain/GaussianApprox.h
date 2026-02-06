@@ -24,7 +24,7 @@ inline std::ostream& operator<<(std::ostream& os, const GaussianSummary& gs) {
     return os;
 }
 
-inline std::vector<GaussianSummary> gaussian_fit(const Samples& S, double skew_abs_threshold=0.2) {
+inline std::vector<GaussianSummary> gaussian_fit(const ObsSamples& S, double skew_abs_threshold=0.2) {
     const auto cols = summarize_columns_obs(S);
     std::vector<GaussianSummary> out;
     for (const auto& col : cols) {
