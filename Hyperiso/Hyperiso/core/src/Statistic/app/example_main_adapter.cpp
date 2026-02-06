@@ -153,9 +153,9 @@ int main() {
 
     std::cout << "summarize ented" << std::endl;
 
-    std::cout << "Skewness[0]=" << sums[0].skew << " ok=" << sums[0].symmetric << std::endl;
+    std::cout << "Skewness[0]=" << sums.summary[0].skew << " ok=" << sums.summary[0].symmetric << std::endl;
 
-    for (auto sum : sums) {
+    for (auto sum : sums.summary) {
         std::cout << "value = " << sum.mu << " +- " << sum.sigma << std::endl;
     }
 

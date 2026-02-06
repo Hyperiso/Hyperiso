@@ -5,6 +5,7 @@
 #include <functional>
 #include "JointDistribution.h"
 #include "Math.h"
+#include "analysis.h"
 
 struct LikelihoodContext {
     std::unique_ptr<JointDistribution> nuisance_dist;

@@ -12,6 +12,11 @@ struct MCRealization {
     NuisanceSamples sampled_params;
 };
 
+struct MCResult {
+    MCRealization mc_real;
+    std::vector<GaussianSummary> summary;
+};
+
 class MonteCarloEngine {
 public:
     MonteCarloEngine(const std::shared_ptr<IModel>& model, const INuisanceSampler& sampler, MCConfig cfg)
@@ -39,7 +44,7 @@ public:
         return MCRealization {out, samples};
     }
 
-    std::vector<GaussianSummary> summarize(const std::map<ParamId, double>& p) const {
+    MCResult summarize(const std::map<ParamId, double>& p) const {
         auto smpl = sample_predictions(p);
 
         // auto start_sum = std::chrono::steady_clock::now();
@@ -48,7 +53,7 @@ public:
         // auto time_summarize_ms = std::chrono::duration_cast<std::chrono::milliseconds>(stop_sum - start_sum).count();
         // LOG_INFO("Summarizing samples took", time_summarize_ms, "ms.");
 
-        return summary;
+        return MCResult {smpl, summary};
     }
 
 private:

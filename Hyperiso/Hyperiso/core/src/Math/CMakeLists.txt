@@ -47,6 +47,7 @@ target_include_directories(MathLib PRIVATE ${GSL_INCLUDE_DIRS})
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${CMAKE_CURRENT_SOURCE_DIR}/MathBSM
         ${CMAKE_CURRENT_SOURCE_DIR}/linalg
+        ${CMAKE_CURRENT_SOURCE_DIR}/analysis
     )
 
 if (TARGET GSL::gsl)

@@ -14,7 +14,7 @@
 #include "SparseMatrix.h"
 #include "Logger.h"
 #include "scalar.h"
-#include "analysis.h"
+// #include "analysis.h"
 
 /* Constants */
 

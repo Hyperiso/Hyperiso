@@ -6,6 +6,7 @@
 
 #include "Parameters.h"
 #include "Math.h"
+#include "analysis.h"
 #include "QCDHelper.h"
 
 /**

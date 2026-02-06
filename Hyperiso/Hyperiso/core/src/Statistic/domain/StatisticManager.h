@@ -63,6 +63,17 @@ public:
     std::unique_ptr<JointDistribution> build_exp_data_distribution();
 
     std::map<ObservableId, GaussianSummary> compute_uncertainties() {
+        auto sums = this->compute_uncertainties_and_sampling();
+
+        // Debug print
+        for (auto sum : sums.summary) {
+            std::cout << sum << std::endl;
+        }
+
+        return zip(unzip(config.obss).ids, sums.summary);
+    }
+
+    MCResult compute_uncertainties_and_sampling() {
         auto rvg = build_nuisance_distribution();
         std::vector<ParamId> nuisance_ids = unzip(cache.eta_specs_real).ids;
         RvgNuisanceSampler sampler(nuisance_ids, std::move(rvg));
@@ -70,14 +81,9 @@ public:
 
         auto sums = mc.summarize(this->cache.p_specs);
 
-        // Debug print
-        for (auto sum : sums) {
-            std::cout << sum << std::endl;
-        }
-
-        return zip(unzip(config.obss).ids, sums);
+        return sums;
     }
-
+    
     FitResultWithMaps compute_MLE() {
 
         // Build Likelihood context
