@@ -5,9 +5,9 @@
 #include <map>
 #include <memory>
 #include <vector>
-#include "WilsonManager.h"
 #include "MartyWilson.h"
 #include "ArgsParser.h"
+#include "WilsonInterface.h"
 
 static void print_wilson_usage() {
     std::cout << "Usage: ./main wilson [options]\n"
@@ -230,6 +230,50 @@ int handleWilsonOptions(int argc, char* argv[]) {
         
         hyp.init(lha_path, config);
         
+        WilsonInterface wi;
+        WilsonBuildConfig wbc;
+
+        wbc.matching_scale = parser.get<double>("Q_match");
+        wbc.hadronic_scale = parser.get<double>("Q");
+        wbc.order = OrderMapper::enum_elt(parser.getValue("order"));
+
+        std::unordered_set<WCoefId> coefs;
+
+        if (parser.exists("wilson")) {
+            for (auto w : parser.getValues("wilson")) {
+                coefs.emplace(WCoefMapper::id_of(w));
+                auto w_enum = WCoefMapper::id_of(w);
+                auto group = WCoefMapper::group_of(w_enum);
+                wbc.groups.emplace(GroupMapper::to_id(group));
+            }
+        } else if (parser.exists("group")) {
+            WGroupId grp = GroupMapper::id_of(parser.getValue("group"));
+            wbc.groups.emplace(grp);
+            auto coefs_temp = WCoefMapper::get_group(GroupMapper::enum_of(grp).value());
+            for (auto coef : coefs_temp) {
+                coefs.emplace(WCoefMapper::to_id(coef));
+            }
+        } else {
+            std::cout << "error" << std::endl;
+        }
+
+        wi.build(wbc);
+        std::cout << std::endl;
+        
+        for (auto coef : coefs) {
+            std::cout << "SM Wilson Coefficient " << WCoefMapper::str(coef) << " at LO : "<< wi.getM(WCoefMapper::group_of(coef), WCoefMapper::enum_of(coef).value(), QCDOrder::LO, ContributionType::SM) << std::endl;
+            std::cout << "BSM Wilson Coefficient " << WCoefMapper::str(coef) << " at LO : "<< wi.getM(WCoefMapper::group_of(coef), WCoefMapper::enum_of(coef).value(), QCDOrder::LO, ContributionType::BSM) << std::endl;
+
+            if (wbc.order > QCDOrder::LO) {
+                std::cout << "SM Wilson Coefficient " << WCoefMapper::str(coef) << " at NLO : "<< wi.getM(WCoefMapper::group_of(coef), WCoefMapper::enum_of(coef).value(), QCDOrder::NLO, ContributionType::SM) << std::endl;
+                std::cout << "BSM Wilson Coefficient " << WCoefMapper::str(coef) << " at NLO : "<< wi.getM(WCoefMapper::group_of(coef), WCoefMapper::enum_of(coef).value(), QCDOrder::NLO, ContributionType::BSM) << std::endl;
+                if (wbc.order > QCDOrder::NLO) {
+                    std::cout << "SM Wilson Coefficient " << WCoefMapper::str(coef) << " at NNLO : "<< wi.getM(WCoefMapper::group_of(coef), WCoefMapper::enum_of(coef).value(), QCDOrder::NNLO, ContributionType::SM) << std::endl;
+                    std::cout << "BSM Wilson Coefficient " << WCoefMapper::str(coef) << " at NNLO : "<< wi.getM(WCoefMapper::group_of(coef), WCoefMapper::enum_of(coef).value(), QCDOrder::NNLO, ContributionType::BSM) << std::endl;
+                }
+            }
+            std::cout << std::endl;
+        }
         return 0;
     } catch (const std::exception& e) {
         std::cerr << "Error: " << e.what() << "\n\n";

@@ -114,6 +114,16 @@ Argument ArgumentBuilder::build() {
     return arg;
 }
 
+const Argument* ArgParser::findArgumentByLongName(const std::string& name) const {
+    auto it = std::find_if(arguments.begin(), arguments.end(),
+        [&](const Argument& a){ return a.getLongName() == name; });
+    return (it == arguments.end()) ? nullptr : &(*it);
+}
+
+bool ArgParser::exists(const std::string& name) const {
+    return parsedValues.find(name) != parsedValues.end();
+}
+
 void ArgParser::addArgument(const Argument& arg) {
     if (arg.isPositionalArg()) {
         positional_arguments.push_back(arg);
@@ -139,7 +149,7 @@ void ArgParser::parse(int argc, char* argv[]) {
             Argument& option = *it;
             if (option.allowsMultipleValues()) {
                 std::vector<std::string> values;
-                while (i + 1 < argc && (argv[i + 1][0] != '-') || looksLikeNumber(argv[i + 1])) {
+                while (i + 1 < argc && ((argv[i + 1][0] != '-') || looksLikeNumber(argv[i + 1]))) {
                     std::string value = argv[++i];
                     option.validate(value);
                     values.push_back(value);
@@ -153,7 +163,7 @@ void ArgParser::parse(int argc, char* argv[]) {
                     parsedValues[option.getLongName()] = {"true"};
                     continue;
                 }
-                if (i + 1 < argc && (argv[i + 1][0] != '-') || looksLikeNumber(argv[i + 1])) {
+                if (i + 1 < argc && ((argv[i + 1][0] != '-') || looksLikeNumber(argv[i + 1]))) {
                     std::string value = argv[++i];
                     option.validate(value);
                     parsedValues[option.getLongName()] = {value};

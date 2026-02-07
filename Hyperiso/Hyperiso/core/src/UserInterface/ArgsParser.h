@@ -168,8 +168,29 @@ public:
     std::string getValue(const std::string& name) const;
     std::vector<std::string> getValues(const std::string& name) const;
     std::vector<std::string> getPositionalValues() const;
+    bool exists(const std::string& name) const;
+
+    template<typename T>
+    T get(const std::string& name) const;
+
+    template<typename T>
+    T getOr(const std::string& name, const T& defaultValue) const;
+
+    template<typename T>
+    std::vector<T> getMany(const std::string& name) const;
+
+    template<typename T>
+    std::vector<T> getManyOr(const std::string& name, const std::vector<T>& defaultValues) const;
+
     void displayHelp() const;
+
+private:
+    template<typename T>
+    static T convertFromString(const std::string& s);
+
+    const Argument* findArgumentByLongName(const std::string& name) const;
 };
 
+#include "ArgsParser.tpp"
 
 #endif // ARG_PARSER_H

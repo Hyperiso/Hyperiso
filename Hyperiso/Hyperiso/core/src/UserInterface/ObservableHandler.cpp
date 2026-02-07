@@ -20,13 +20,22 @@ int handleObservableOptions(int argc, char* argv[]) {
     try {
         ArgParser parser;
 
-        // parser.addArgument(ArgumentBuilder()
-        //                        .setLongName("observables")
-        //                        .setShortName("os")
-        //                        .setHelpText("Comma-separated list of observable names")
-        //                        .setType(ArgType::STRING)
-        //                        .setAllowsMultiple(true)
-        //                        .build());
+        parser.addArgument(ArgumentBuilder()
+                               .setLongName("observables")
+                               .setShortName("os")
+                               .setHelpText("Comma-separated list of observable names")
+                               .setType(ArgType::STRING)
+                               .setAllowsMultiple(true)
+                               .build());
+
+        parser.addArgument(ArgumentBuilder()
+                               .setLongName("decay")
+                               .setShortName("d")
+                               .setHelpText("Decay name to get all the observables concerned (use if no observables have been provided)")
+                               .setType(ArgType::STRING)
+                               .setAllowsMultiple(false)
+                               .setRequired(false)
+                               .build());
 
         parser.addArgument(ArgumentBuilder()
                             .setLongName("input_file")
@@ -59,27 +68,6 @@ int handleObservableOptions(int argc, char* argv[]) {
                     .build()
             );
 
-        parser.addArgument(
-                ArgumentBuilder()
-                    .setLongName("model")
-                    .setShortName("m")
-                    .setHelpText("Specify the model (SM, THDM, MSSM, ...)")
-                    .setType(ArgType::STRING)
-                    .setRequired(false)
-                    .setDefaultValue("SM")
-                    .build()
-            );
-
-        parser.addArgument(
-                ArgumentBuilder()
-                    .setLongName("model")
-                    .setShortName("m")
-                    .setHelpText("Specify the model (SM, THDM, MSSM, ...)")
-                    .setType(ArgType::STRING)
-                    .setRequired(false)
-                    .setDefaultValue("SM")
-                    .build()
-            );
 
         parser.addArgument(ArgumentBuilder()
                             .setLongName("help")
@@ -120,16 +108,14 @@ int handleObservableOptions(int argc, char* argv[]) {
 
         try { std::cout << "  model         = " << parser.getValue("model") << "\n"; } catch (...) {}
         try {
-            auto ws = parser.getValues("wilson");
+            auto ws = parser.getValues("observable");
             std::cout << "  observable        = ";
             for (size_t i = 0; i < ws.size(); ++i) std::cout << ws[i] << (i + 1 < ws.size() ? ", " : "");
             std::cout << "\n";
-        } catch (...) {}
+        } catch (...) {std::cout << "error" << std::endl;}
 
+        try { std::cout << "  decay         = " << parser.getValue("decay") << "\n"; } catch (...) {std::cout << std::endl;}
         try { std::cout << "  observable         = " << parser.getValue("observable") << "\n"; } catch (...) {std::cout << std::endl;}
-        try { std::cout << "  group         = " << parser.getValue("group") << "\n"; } catch (...) {std::cout << std::endl;}
-        try { std::cout << "  Q_match       = " << parser.getValue("Q_match") << "\n"; } catch (...) {std::cout << std::endl;}
-        try { std::cout << "  Q             = " << parser.getValue("Q") << "\n"; } catch (...) {std::cout << std::endl;}
         try { std::cout << "  martypath     = " << parser.getValue("martypath") << "\n"; } catch (...) {std::cout << std::endl;}
         try { std::cout << "  input_file    = " << parser.getValue("input_file") << "\n"; } catch (...) {std::cout << std::endl;}
         try { std::cout << "  order         = " << parser.getValue("order") << "\n"; } catch (...) {std::cout << std::endl;}
