@@ -23,7 +23,7 @@ int handleObservableOptions(int argc, char* argv[]) {
         parser.addArgument(ArgumentBuilder()
                                .setLongName("observables")
                                .setShortName("os")
-                               .setHelpText("Comma-separated list of observable names")
+                               .setHelpText("List of observable names")
                                .setType(ArgType::STRING)
                                .setAllowsMultiple(true)
                                .build());
@@ -68,7 +68,20 @@ int handleObservableOptions(int argc, char* argv[]) {
                     .build()
             );
 
-
+        parser.addArgument(
+            ArgumentBuilder()
+                .setLongName("order")
+                .setShortName("o")
+                .setHelpText("Specify the calculation order (LO|NLO|NNLO)")
+                .setType(ArgType::STRING)
+                .setRequired(false)
+                .setDefaultValue("LO")
+                .addValidator(std::make_shared<AllowedValuesValidator>(
+                    std::vector<std::string>{"LO","NLO","NNLO"}, ArgType::STRING
+                ))
+                .build()
+        );
+        
         parser.addArgument(ArgumentBuilder()
                             .setLongName("help")
                             .setShortName("h")
@@ -146,6 +159,29 @@ int handleObservableOptions(int argc, char* argv[]) {
         
         hyp.init(lha_path, config);
         
+        ObservableInterface oi;
+
+        auto obs_str = parser.getValues("observables");
+        auto order = OrderMapper::enum_elt(parser.getValue("order"));
+        std::map<ObservableId, QCDOrder> obs;
+
+        for (auto elem : obs_str) {
+            obs[ObservableMapper::id_of(elem)] = order;
+            
+        }
+        oi.add_observables(obs);
+
+        for (auto elem : oi.get_current_observables()) {
+            auto val = oi.compute_observable(elem);
+
+            if (val.size() < 2) {
+                std::cout << "Observable " << elem.str() << " = " << val[0].value << std::endl;
+            } else {
+                for (auto v : val) {
+                    std::cout << "Observable " << elem.str() << " bin["<< v.bin.value().first << "," << v.bin.value().second << "] = " << v.value << std::endl;
+                }
+            }
+        }
         return 0;
     } catch (const std::exception& e) {
         std::cerr << "Error: " << e.what() << "\n\n";
