@@ -5,9 +5,9 @@
 #include <map>
 #include <memory>
 #include <vector>
-#include "WilsonManager.h"
-#include "MartyWilson.h"
 #include "ArgsParser.h"
+#include "StatisticInterface.h"
+#include "YamlInputReader.h"
 
 void print_statistic_usage() {
     std::cout << "Usage: ./main statistic [options]\n"
@@ -169,6 +169,42 @@ int handleStatisticOptions(int argc, char* argv[]) {
         
         hyp.init(lha_path, config);
         
+        StatisticConfig stat_conf;
+
+        // StatisticInterface si {stat_conf};
+
+
+        try {
+            std::string filename = (argc > 1) ? argv[1] : "input.yml";
+
+            YamlInputReader reader(filename);
+
+            auto inputs = reader.get_input_params();
+            auto scans  = reader.get_scan_params();
+
+            std::cout << "=== p_specs ===\n";
+            for (const auto& p : inputs) {
+                std::cout << "block=" << p.block_name
+                        << " code=" << p.pdg_code.to_string()
+                        << "\n";
+            }
+
+            std::cout << "\n=== scan_params ===\n";
+            for (const auto& s : scans) {
+                std::cout << "block=" << s.block_name
+                        << " code=" << s.pdg_code.to_string()
+                        << " min=" << s.min_val
+                        << " max=" << s.max_val
+                        << " step=" << s.step_val
+                        << "\n";
+            }
+
+            return 0;
+        } catch (const std::exception& e) {
+            std::cerr << "ERROR: " << e.what() << "\n";
+            return 1;
+        }
+
         return 0;
     } catch (const std::exception& e) {
         std::cerr << "Error: " << e.what() << "\n\n";
@@ -176,6 +212,5 @@ int handleStatisticOptions(int argc, char* argv[]) {
         return 1;
     }
 
-    return 0;
     return 0;
 }
