@@ -26,7 +26,6 @@ public:
     void set_minimizer_max_iter(std::size_t max_iter);
     void set_minimizer_tolerance(double tol);
 
-    Vector get_eta_steps() const;
     Vector get_eta_central_values() const;
 
 private:
@@ -37,8 +36,6 @@ private:
         for (std::size_t i=0;i<pred.size();++i) r[i] = pred[i] - ctx_.exp_obs_values[i];
         return r;
     }
-
-    void update_step_sizes();
 
     LikelihoodContext ctx_;
     ModelFn model_;

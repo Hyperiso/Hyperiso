@@ -22,6 +22,8 @@ endif()
         analysis/integration.cpp
         analysis/root_finding.cpp
         analysis/minimize.cpp
+        analysis/differentiate.cpp
+        analysis/contour.cpp
         ObsMath.cpp
         )
 
