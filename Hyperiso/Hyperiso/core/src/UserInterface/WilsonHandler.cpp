@@ -5,132 +5,281 @@
 #include <map>
 #include <memory>
 #include <vector>
-#include "WilsonManager.h"
 #include "MartyWilson.h"
+#include "ArgsParser.h"
+#include "WilsonInterface.h"
 
-void print_wilson_usage() {
+static void print_wilson_usage() {
     std::cout << "Usage: ./main wilson [options]\n"
               << "\nOptions:\n"
-              << "  --model/-m <model_name>               : Specify the model (SM, THDM, MSSM, ...)\n"
-              << "  --wilson/-w <coefficient_name>        : Specify the Wilson coefficient (e.g., C1, C2, ..., CQ1)\n"
-              << "  --group/-g <group_name>               : Specify the group if multiple coefficients are provided (e.g., BCoefficientGroup)\n"
-              << "  --Q_match/-q <value>                  : Set Q_match scale\n"
-              << "  --Q/-Q <value>                        : Set Q scale\n"
-              << "  --n_flavor/-f <value> (optional)      : Set the number of flavors (optional)\n"
-              << "  --Marty/-M <true|false>               : Use Marty groups (default: false)\n"
+              << "  --model/-m <model_name>                    : Specify the model (SM, THDM, MSSM, ...)\n"
+              << "  --wilson/-w <coefficient_name>             : Specify the Wilson coefficient (e.g., C1, C2, ..., CQ1)\n"
+              << "  --group/-g <group_name>                    : Specify the group if multiple coefficients are provided\n"
+              << "  --Q_match/-q <value>                       : Set Q_match scale\n"
+              << "  --Q/-Q <value>                             : Set Q scale\n"
+              << "  --martypath/-M <marty_model_path>          : Marty Model path (default: None)\n"
               << "  --input_file/-if <slha_name>               : input file for parameters spectrum\n"
-              << "  --order/-o <LO|NLO|NNLO>              : Specify the calculation order (default: LO)\n"
-              << "  --help/-h                             : Display this help message\n";
+              << "  --order/-o <LO|NLO|NNLO>                   : Specify the calculation order (default: LO)\n"
+              << "  --write_to_flha/-F <path|None>             : Write output to file (default: None)\n"
+              << "  --help/-h                                  : Display this help message\n";
 }
-//TODO : refactor
+
 int handleWilsonOptions(int argc, char* argv[]) {
-    // std::string model_name;
-    // std::string coefficient_name;
-    // std::string group_name;
-    // double Q_match = 0.0;
-    // double Q = 0.0;
-    // int n_flavor = 5;
-    // bool use_marty = false;
-    // std::string order = "LO";
-    // std::string input_file = "Test/InputFiles/testinput_thdm.lha";
-    // std::vector<std::string> Bcoefficient = {"C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9", "C10"};
-    // std::vector<std::string> BPrimecoefficient = {"CP1", "CP2", "CP3", "CP4", "CP5", "CP6", "CP7", "CP8", "CP9", "CP10", "CPQ1", "CPQ2"};
-    // std::vector<std::string> BScalarcoefficient = {"CQ1", "CQ2"};
-    // for (int i = 1; i < argc; ++i) {
-    //     std::string arg = argv[i];
-    //     if ((arg == "--model" || arg == "-m") && i + 1 < argc) {
-    //         model_name = argv[++i];
-    //     } else if ((arg == "--wilson" || arg == "-w") && i + 1 < argc) {
-    //         coefficient_name = argv[++i];
-    //     } else if ((arg == "--group" || arg == "-g") && i + 1 < argc) {
-    //         group_name = argv[++i];
-    //     } else if ((arg == "--Q_match" || arg == "-q") && i + 1 < argc) {
-    //         Q_match = std::stod(argv[++i]);
-    //     } else if ((arg == "--Q" || arg == "-Q") && i + 1 < argc) {
-    //         Q = std::stod(argv[++i]);
-    //     } else if ((arg == "--n_flavor" || arg == "-f") && i + 1 < argc) {
-    //         n_flavor = std::stoi(argv[++i]);
-    //     } else if ((arg == "--Marty" || arg == "-M") && i + 1 < argc) {
-    //         use_marty = (std::string(argv[++i]) == "true");
-    //     } else if ((arg == "--input_file" || arg == "-if") && i + 1 < argc) {
-    //         input_file = argv[++i];
-    //     } else if ((arg == "--order" || arg == "-o") && i + 1 < argc) {
-    //         order = argv[++i];
-    //         if (use_marty && order != "LO") {
-    //             std::cerr << "Error: When --Marty is true, --order can only be LO." << std::endl;
-    //             return 1;
-    //         }
-    //     } else if (arg == "--help" || arg == "-h") {
-    //         print_wilson_usage();
-    //         return 0;
-    //     } else {
-    //         std::cerr << "Unknown option: " << arg << std::endl;
-    //         print_wilson_usage();
-    //         return 1;
-    //     }
-    // }
+    try {
+        ArgParser parser;
 
-    // try {
-    //     MemoryManager::GetInstance()->init(input_file, Model::SM);
-    //     auto manager = CoefficientManager::GetInstance();
+        // Sous-commande positionnelle: "wilson"
+        // parser.addArgument(
+        //     ArgumentBuilder()
+        //         .setLongName("command")
+        //         .setHelpText("Subcommand (wilson)")
+        //         .setPositional(true)
+        //         .setRequired(true)
+        //         .build()
+        // );
+
+        // --model/-m
+        parser.addArgument(
+            ArgumentBuilder()
+                .setLongName("model")
+                .setShortName("m")
+                .setHelpText("Specify the model (SM, THDM, MSSM, ...)")
+                .setType(ArgType::STRING)
+                .setRequired(false)
+                .setDefaultValue("SM")
+                .build()
+        );
+
+        // --wilson/-w (multi)
+        parser.addArgument(
+            ArgumentBuilder()
+                .setLongName("wilson")
+                .setShortName("w")
+                .setHelpText("Specify Wilson coefficient(s) (e.g., C1, C2, ..., CQ1)")
+                .setType(ArgType::STRING)
+                .setAllowsMultiple(true)
+                .setRequired(false)
+                .build()
+        );
+
+        // --group/-g
+        parser.addArgument(
+            ArgumentBuilder()
+                .setLongName("group")
+                .setShortName("g")
+                .setHelpText("Group name if multiple coefficients are provided")
+                .setType(ArgType::STRING)
+                .setRequired(false)
+                .build()
+        );
+
+        // --Q_match/-q
+        parser.addArgument(
+            ArgumentBuilder()
+                .setLongName("Q_match")
+                .setShortName("q")
+                .setHelpText("Set Q_match scale")
+                .setType(ArgType::DOUBLE)
+                .setRequired(false)
+                .setDefaultValue("81")
+                .build()
+        );
+
+        // --Q/-Q (oui shortName="Q" est OK)
+        parser.addArgument(
+            ArgumentBuilder()
+                .setLongName("Q")
+                .setShortName("Q")
+                .setHelpText("Set Q scale")
+                .setType(ArgType::DOUBLE)
+                .setRequired(false)
+                .setDefaultValue("4.18")
+                .build()
+        );
+
+        // --martypath/-M (default None)
+        parser.addArgument(
+            ArgumentBuilder()
+                .setLongName("martypath")
+                .setShortName("M")
+                .setHelpText("Marty Model path")
+                .setType(ArgType::STRING)
+                .setRequired(false)
+                .setDefaultValue("None")
+                .build()
+        );
+
+        // --input_file/-if
+        parser.addArgument(
+            ArgumentBuilder()
+                .setLongName("input_file")
+                .setShortName("if") // ton parser supporte les shortName multi-caractères
+                .setHelpText("Input file for parameters spectrum")
+                .setType(ArgType::STRING)
+                .setRequired(false)
+                .build()
+        );
+
+        // --order/-o (default LO) avec AllowedValuesValidator
+        parser.addArgument(
+            ArgumentBuilder()
+                .setLongName("order")
+                .setShortName("o")
+                .setHelpText("Specify the calculation order (LO|NLO|NNLO)")
+                .setType(ArgType::STRING)
+                .setRequired(false)
+                .setDefaultValue("LO")
+                .addValidator(std::make_shared<AllowedValuesValidator>(
+                    std::vector<std::string>{"LO","NLO","NNLO"}, ArgType::STRING
+                ))
+                .build()
+        );
+
+        // --write_to_flha/-F (default None)
+        parser.addArgument(
+            ArgumentBuilder()
+                .setLongName("write_to_flha")
+                .setShortName("F")
+                .setHelpText("Write output to given file path or None")
+                .setType(ArgType::STRING)
+                .setRequired(false)
+                .setDefaultValue("None")
+                .build()
+        );
+
+        // --help/-h
+        parser.addArgument(
+            ArgumentBuilder()
+                .setLongName("help")
+                .setShortName("h")
+                .setHelpText("Display help")
+                .setType(ArgType::STRING)     // ton parser ne gère pas encore les flags sans valeur
+                .setRequired(false)
+                .setDefaultValue("false")     // astuce: si l'utilisateur met --help true
+                .build()
+        );
+
+        parser.parse(argc, argv);
+
+        // Vérifier la sous-commande
+        const auto pos = parser.getPositionalValues();
+        const std::string cmd = pos.empty() ? "" : pos[0];
+
+        // Gestion help simple
+        // (Avec ton parser actuel, il faut passer une valeur: --help true)
+        bool wantHelp = false;
+        try {
+            wantHelp = (parser.getValue("help") == "true" || parser.getValue("help") == "1");
+        } catch (...) {
+            // ignore si absent
+        }
+
+        if (wantHelp) {
+            print_wilson_usage();
+            if (!cmd.empty()) {
+                std::cerr << "\nUnknown subcommand: " << cmd << "\n";
+                return 1;
+            }
+            return 0;
+        }
+
+        // ---- Ici tu mettras le fonctionnement réel plus tard ----
+        // Pour l'instant, on montre juste ce qui a été parsé.
+
+        std::cout << "[wilson] parsed options:\n";
+
+        try { std::cout << "  model         = " << parser.getValue("model") << "\n"; } catch (...) {}
+        try {
+            auto ws = parser.getValues("wilson");
+            std::cout << "  wilson        = ";
+            for (size_t i = 0; i < ws.size(); ++i) std::cout << ws[i] << (i + 1 < ws.size() ? ", " : "");
+            std::cout << "\n";
+        } catch (...) {}
+
+        try { std::cout << "  wilson         = " << parser.getValue("wilson") << "\n"; } catch (...) {std::cout << std::endl;}
+        try { std::cout << "  group         = " << parser.getValue("group") << "\n"; } catch (...) {std::cout << std::endl;}
+        try { std::cout << "  Q_match       = " << parser.getValue("Q_match") << "\n"; } catch (...) {std::cout << std::endl;}
+        try { std::cout << "  Q             = " << parser.getValue("Q") << "\n"; } catch (...) {std::cout << std::endl;}
+        try { std::cout << "  martypath     = " << parser.getValue("martypath") << "\n"; } catch (...) {std::cout << std::endl;}
+        try { std::cout << "  input_file    = " << parser.getValue("input_file") << "\n"; } catch (...) {std::cout << std::endl;}
+        try { std::cout << "  order         = " << parser.getValue("order") << "\n"; } catch (...) {std::cout << std::endl;}
+        try { std::cout << "  write_to_flha = " << parser.getValue("write_to_flha") << "\n"; } catch (...) {std::cout << std::endl;}
+
+
+        HyperisoMaster hyp = HyperisoMaster();
+
+        HyperisoConfig config;
+
+        if (parser.getValue("martypath") == "None") {
+            std::cout << parser.getValue("model") << std::endl;
+            if (parser.getValue("model") == "SM") {
+                config.model = Model::SM;
+            } else if (parser.getValue("model") == "THDM") {
+                config.model = Model::THDM;
+            } else if (parser.getValue("model") == "MSSM") {
+                config.model = Model::SUSY;
+            } else if (parser.getValue("model") == "NMSSM") {
+                config.model = Model::SUSY;
+            } else {
+                std::cout << "error" << std::endl;
+            }
+        } else { 
+            config.model = Model::MARTY;
+        }
+        std::string lha_path = parser.getValue("input_file");
         
-    //     if (group_name.empty()) {
-    //         if (std::find(Bcoefficient.begin(), Bcoefficient.end(), coefficient_name) != Bcoefficient.end()) {
-    //             group_name = "BCoefficientGroup";
-    //         } else if (std::find(BPrimecoefficient.begin(), BPrimecoefficient.end(), coefficient_name) != BPrimecoefficient.end()) {
-    //             group_name = "BPrimeCoefficientGroup";
-    //         } else if (std::find(BScalarcoefficient.begin(), BScalarcoefficient.end(), coefficient_name) != BScalarcoefficient.end()) {
-    //             group_name = "BScalarCoefficientGroup";
-    //         } else {
-    //             throw std::invalid_argument("Invalid coefficient name: not found in any group.");
-    //         }
-    //     }
-    //     if (use_marty) {
-    //         group_name += "Marty";
-    //     }
+        hyp.init(lha_path, config);
         
-    //     if (group_name == "BCoefficientGroup" || group_name == "BCoefficientGroupMarty") {
-    //         manager->registerCoefficientGroup(group_name, std::make_shared<BCoefficientGroup>());
-    //     } else if (group_name == "BPrimeCoefficientGroup" || group_name == "BPrimeCoefficientGroupMarty") {
-    //         manager->registerCoefficientGroup(group_name, std::make_shared<BPrimeCoefficientGroup>());
-    //     } else if (group_name == "BScalarCoefficientGroup" || group_name == "BScalarCoefficientGroupMarty") {
-    //         manager->registerCoefficientGroup(group_name, std::make_shared<BScalarCoefficientGroup>());
-    //     } else {
-    //         throw std::invalid_argument("Invalid group name specified.");
-    //     }
+        WilsonInterface wi;
+        WilsonBuildConfig wbc;
 
-    //     manager->set_matching_scale(group_name, Q_match);
-    //     manager->init_group(group_name, order);
-    //     manager->set_hadronic_scale(group_name, Q);
-    //     manager->setRunCoefficient(group_name, order);
-    //     auto group = manager->getCoefficientGroup(group_name);
-    //     if (coefficient_name.empty()) {
-    //         for (const auto& elem : *group) {
-    //             complex_t coeff_M = elem.second->get_matching_value(order);
-    //             complex_t coeff_Q = elem.second->get_CoefficientRunValue(order);
-    //             std::cout << "Coefficient " << elem.first << " at Q_match = " << Q_match
-    //                       << ": " << coeff_M.real() << " + " << coeff_M.imag() << "i\n";
-    //             std::cout << "Coefficient " << elem.first << " at Q = " << Q
-    //                       << ": " << coeff_Q.real() << " + " << coeff_Q.imag() << "i\n";
-    //         }
-    //     } else {
-    //         auto it = group->find(coefficient_name);
-    //         if (it != group->end()) {
-    //             complex_t coeff_M = it->second->get_matching_value(order);
-    //             complex_t coeff_Q = it->second->get_CoefficientRunValue(order);
-    //             std::cout << "Coefficient " << coefficient_name << " at Q_match = " << Q_match
-    //                       << ": " << coeff_M.real() << " + " << coeff_M.imag() << "i\n";
-    //             std::cout << "Coefficient " << coefficient_name << " at Q = " << Q
-    //                       << ": " << coeff_Q.real() << " + " << coeff_Q.imag() << "i\n";
-    //         } else {
-    //             std::cerr << "Error: Specified coefficient not found in the group." << std::endl;
-    //             return 1;
-    //         }
-    //     }
-    // } catch (const std::exception& ex) {
-    //     std::cerr << "An error occurred: " << ex.what() << std::endl;
-    //     return 1;
-    // }
+        wbc.matching_scale = parser.get<double>("Q_match");
+        wbc.hadronic_scale = parser.get<double>("Q");
+        wbc.order = OrderMapper::enum_elt(parser.getValue("order"));
 
-    return 0;
+        std::unordered_set<WCoefId> coefs;
+
+        if (parser.exists("wilson")) {
+            for (auto w : parser.getValues("wilson")) {
+                coefs.emplace(WCoefMapper::id_of(w));
+                auto w_enum = WCoefMapper::id_of(w);
+                auto group = WCoefMapper::group_of(w_enum);
+                wbc.groups.emplace(GroupMapper::to_id(group));
+            }
+        } else if (parser.exists("group")) {
+            WGroupId grp = GroupMapper::id_of(parser.getValue("group"));
+            wbc.groups.emplace(grp);
+            auto coefs_temp = WCoefMapper::get_group(GroupMapper::enum_of(grp).value());
+            for (auto coef : coefs_temp) {
+                coefs.emplace(WCoefMapper::to_id(coef));
+            }
+        } else {
+            std::cout << "error" << std::endl;
+        }
+
+        wi.build(wbc);
+        std::cout << std::endl;
+        
+        for (auto coef : coefs) {
+            std::cout << "SM Wilson Coefficient " << WCoefMapper::str(coef) << " at LO : "<< wi.getM(WCoefMapper::group_of(coef), WCoefMapper::enum_of(coef).value(), QCDOrder::LO, ContributionType::SM) << std::endl;
+            std::cout << "BSM Wilson Coefficient " << WCoefMapper::str(coef) << " at LO : "<< wi.getM(WCoefMapper::group_of(coef), WCoefMapper::enum_of(coef).value(), QCDOrder::LO, ContributionType::BSM) << std::endl;
+
+            if (wbc.order > QCDOrder::LO) {
+                std::cout << "SM Wilson Coefficient " << WCoefMapper::str(coef) << " at NLO : "<< wi.getM(WCoefMapper::group_of(coef), WCoefMapper::enum_of(coef).value(), QCDOrder::NLO, ContributionType::SM) << std::endl;
+                std::cout << "BSM Wilson Coefficient " << WCoefMapper::str(coef) << " at NLO : "<< wi.getM(WCoefMapper::group_of(coef), WCoefMapper::enum_of(coef).value(), QCDOrder::NLO, ContributionType::BSM) << std::endl;
+                if (wbc.order > QCDOrder::NLO) {
+                    std::cout << "SM Wilson Coefficient " << WCoefMapper::str(coef) << " at NNLO : "<< wi.getM(WCoefMapper::group_of(coef), WCoefMapper::enum_of(coef).value(), QCDOrder::NNLO, ContributionType::SM) << std::endl;
+                    std::cout << "BSM Wilson Coefficient " << WCoefMapper::str(coef) << " at NNLO : "<< wi.getM(WCoefMapper::group_of(coef), WCoefMapper::enum_of(coef).value(), QCDOrder::NNLO, ContributionType::BSM) << std::endl;
+                }
+            }
+            std::cout << std::endl;
+        }
+        return 0;
+    } catch (const std::exception& e) {
+        std::cerr << "Error: " << e.what() << "\n\n";
+        print_wilson_usage();
+        return 1;
+    }
+
+
 }

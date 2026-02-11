@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 
 project(UserInterface)
-add_library(UserInterfaceLib WilsonHandler.cpp ArgsParser.cpp ObservableHandler.cpp)
+add_library(UserInterfaceLib WilsonHandler.cpp ArgsParser.cpp ObservableHandler.cpp StatisticHandler.cpp YamlInputReader.cpp)
 
 # set_target_properties(UserInterfaceLib PROPERTIES PUBLIC_HEADER "ObservableHandler.h;ArgsParser.h;WilsonHandler.h;HyperisoInterface.h")
 
@@ -16,6 +16,10 @@ target_include_directories(UserInterfaceLib
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/UserInterface>
 )
+
+if (NOT TARGET StatisticLib)
+    add_subdirectory(../Statistic StatisticLib)
+endif()
 
 if (NOT TARGET BusinessLogicLib)
     add_subdirectory(../BusinessLogic BusinessLogicLib)
@@ -38,7 +42,7 @@ if (NOT TARGET CoreLib)
     add_subdirectory(../Core CoreLib)
 endif()
 
-target_link_libraries(UserInterfaceLib PUBLIC BusinessLogicLib PhysicalModelLib CommonLib ConfiguredModule MathLib CoreLib)
+target_link_libraries(UserInterfaceLib PUBLIC StatisticLib BusinessLogicLib PhysicalModelLib CommonLib ConfiguredModule MathLib CoreLib)
 
 if(${ENABLE_CLANG_TIDY})
     add_clang_tidy_to_target(UserInterfaceLib)

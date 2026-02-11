@@ -21,6 +21,10 @@ public:
     std::map<ObservableId, GaussianSummary> compute_uncertainties() {
         return manager->compute_uncertainties();
     }
+
+    MCResult compute_uncertainties_and_sampling() {
+        return manager->compute_uncertainties_and_sampling();
+    }
     
     // FitResultWithMaps compute_MLE() {
     //     return manager->compute_MLE();

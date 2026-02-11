@@ -5,6 +5,7 @@
 #include <pybind11/functional.h>
 #include "Math.h"
 #include "Matrix.h"
+#include "analysis.h"
 
 namespace py = pybind11;
 

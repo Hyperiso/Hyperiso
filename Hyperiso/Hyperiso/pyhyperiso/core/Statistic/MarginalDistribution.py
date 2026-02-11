@@ -1,7 +1,7 @@
 from pyhyperiso.phyperiso.pyhyperiso import statistic as st
 from typing import Any, List, Optional, Sequence, Union, cast
 from pyhyperiso.core.Statistic.MarginalConfig import MarginalKind, MarginalConfig, FlatMarginalConfig, GaussianMarginalConfig, LikelihoodMarginalConfig, SplitGaussianMarginalConfig, _config_from_cpp
-from pyhyperiso.core.Common.General import ParamId
+from pyhyperiso.core.Common.ParamId import ParamId
 from pyhyperiso.core.Common.GeneralEnum import ParameterType
 class MarginalDistribution:
 

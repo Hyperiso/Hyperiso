@@ -1,7 +1,7 @@
 from typing import Dict, List
 from dataclasses import dataclass, field
 from pyhyperiso.core.Common.GeneralEnum import QCDOrder, Observables
-from pyhyperiso.core.Common.General import ParamId
+from pyhyperiso.core.Common.ParamId import ParamId
 from pyhyperiso.core.Common.Mapper import ObservableMapper
 from pyhyperiso.phyperiso.pyhyperiso.statistic import StatisticConfig as _CppStatisticConfig
 

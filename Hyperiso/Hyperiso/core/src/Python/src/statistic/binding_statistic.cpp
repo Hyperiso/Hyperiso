@@ -474,6 +474,16 @@ void init_statistic(py::module &m) {
             return oss.str();
         });
         
+    py::class_<MCRealization>(m, "MCRealization")
+        .def(py::init<>())
+        .def_readwrite("sampled_obss", &MCRealization::sampled_obss)
+        .def_readwrite("sampled_params", &MCRealization::sampled_params);
+
+    py::class_<MCResult>(m, "MCResult")
+        .def(py::init<>())
+        .def_readwrite("mc_real", &MCResult::mc_real)
+        .def_readwrite("summary", &MCResult::summary);
+        
     py::class_<StatisticConfig>(m, "StatisticConfig")
     .def(py::init<>())
     .def_readwrite("obss", &StatisticConfig::obss)
@@ -488,7 +498,9 @@ void init_statistic(py::module &m) {
     py::class_<StatisticInterface, std::shared_ptr<StatisticInterface>>(m, "StatisticInterface")
      .def(py::init<StatisticConfig>(), py::arg("config"))
 
-     .def("compute_uncertainties", &StatisticInterface::compute_uncertainties);
+     .def("compute_uncertainties", &StatisticInterface::compute_uncertainties)
+     .def("compute_uncertainties_and_sampling",
+         &StatisticInterface::compute_uncertainties_and_sampling);
     //  .def("compute_MLE", &StatisticInterface::compute_MLE);
     
 }

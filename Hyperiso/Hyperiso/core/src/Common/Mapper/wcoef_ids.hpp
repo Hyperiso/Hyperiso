@@ -306,6 +306,68 @@ public:
             default: LOG_ERROR("Invalid WGroup","get_group couldn't find your group"); return {};
         }
     }
+
+    /**
+     * @brief Returns the WGroup to which a given Wilson coefficient belongs.
+     *
+     * Uses a static inverse map built once from the group definitions.
+     *
+     * @param c Wilson coefficient.
+     * @return The corresponding WGroup.
+     *
+     * @throws std::out_of_range if the coefficient is not assigned to any group.
+     */
+    static WGroup group_of(WCoef c){
+        static const std::map<WCoef, WGroup> inv = []{
+            std::map<WCoef, WGroup> m;
+
+            auto add = [&](WGroup g, const std::vector<WCoef>& v){
+                for (auto e : v) {
+                    // optional safety: detect duplicates across groups
+                    if (m.find(e) != m.end())
+                        throw std::runtime_error("WCoef appears in multiple WGroups");
+                    m.emplace(e, g);
+                }
+            };
+
+            add(WGroup::B,            B_group());
+            add(WGroup::BPrime,       B_prime_group());
+            add(WGroup::BScalar,      B_scalar_group());
+            add(WGroup::CC_bc,        b_clnu_group());
+            add(WGroup::CC_bu,        b_ulnu_group());
+            add(WGroup::CC_cs,        c_slnu_group());
+            add(WGroup::CC_cd,        c_dlnu_group());
+            add(WGroup::CC_su,        s_ulnu_group());
+            add(WGroup::CC_du,        d_ulnu_group());
+            add(WGroup::K,            k_group());
+            add(WGroup::MESON_MIXING, meson_mixing_group());
+
+            return m;
+        }();
+
+        auto it = inv.find(c);
+        if (it == inv.end()) throw std::out_of_range("WCoef not assigned to any WGroup");
+        return it->second;
+    }
+
+    /**
+     * @brief Optional version: returns std::nullopt if not in any group.
+     */
+    static std::optional<WGroup> group_of_opt(WCoef c){
+        try { return group_of(c); }
+        catch (...) { return std::nullopt; }
+    }
+
+    /**
+     * @brief Convenience overload for identifiers.
+     *
+     * @throws std::runtime_error if id cannot be converted to an enum.
+     */
+    static WGroup group_of(const WCoefId& id){
+        auto e = enum_of(id);
+        if (!e) throw std::runtime_error("Unknown WCoefId: " + id.str());
+        return group_of(*e);
+    }
 };
 
 #endif
