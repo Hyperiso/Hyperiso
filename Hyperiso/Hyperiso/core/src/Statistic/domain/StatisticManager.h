@@ -34,10 +34,12 @@ struct StatisticConfig {
 };
 
 struct FitResultWithMaps {
+    bool fit_ok {false};
     std::map<ParamId, double> p_hat;
     std::map<ParamId, double> eta_hat;
-    std::map<std::pair<ParamId, ParamId>, double> p_correlations;
-    double ell_hat{0.0};
+    std::map<ParamId, double> p_hat_std;
+    std::map<ParamId, std::map<ParamId, double>> p_correlations;
+    double ell_hat {0.0};
 };
 
 struct StatCache {
@@ -50,6 +52,11 @@ struct StatCache {
     FitResultWithMaps mle_result;
 };
 
+enum class CLMethod {
+    SLICE,
+    PROJECT
+};
+
 class StatisticManager {
 public:
     StatisticManager(StatisticConfig config, std::shared_ptr<IModel> obs_int, 
@@ -59,6 +66,7 @@ public:
         obs_int->add_observables(config.obss);
     }
 
+    std::vector<std::unique_ptr<IMarginalDistribution>> build_nuisance_marginal_distributions();
     std::unique_ptr<JointDistribution> build_nuisance_distribution();
     std::unique_ptr<JointDistribution> build_exp_data_distribution();
 
@@ -104,141 +112,40 @@ public:
 
         auto model_fn = [this, obs_ids, p_ids, eta_ids] (const Vec& p_vec, const Vec& eta_vec) -> Vec {
             auto pred_map = this->obs_int->predict_optimized(zip(p_ids, p_vec), zip(eta_ids, eta_vec));
-
-            Vec pred_vec(obs_ids.size());
-            for (std::size_t i = 0; i < obs_ids.size(); ++i) {
-                if (!pred_map.contains(obs_ids[i]))
-                    throw std::runtime_error("model_fn: missing prediction for observable");
-                
-                pred_vec[i] = pred_map[obs_ids[i]];
-            }
-
-            return pred_vec;
+            return unzip(pred_map).vals;
         };
 
         MLEstimator est(std::move(ctx), model_fn, this->config.MLE_max_iter, this->config.MLE_tol);
 
-        std::cout << "Now doing MLE : " << std::endl;
-
-        /*
-        auto debug_scan_around_start = [&](MLEstimator& est,
-                                    const Vec& p0, const Vec& eta0,
-                                    const std::vector<ParamId>& p_order,
-                                    const std::vector<ParamId>& eta_order) {
-            std::cout << "\n=== DEBUG scan around starting point ===\n";
-            double ell0 = est.like().ell(p0, eta0);
-            std::cout << "ell(p0, eta0) = " << ell0 << "\n";
-            std::cout << std::setprecision(17);
-            // scan sur les p
-            for (std::size_t i = 0; i < p0.size(); ++i) {
-                Vec p_plus = p0;
-                Vec p_minus = p0;
-                double delta = 0.1 * std::abs(p0[i]); // par ex 10% de la valeur
-                // if (delta == 0.0) delta = 1e-3;       // fallback
-                double floor = 1000.0 * std::numeric_limits<double>::epsilon() * (std::abs(p0[i]) + 1.0);
-                delta = std::max(delta, floor);
-                p_plus[i]  += delta;
-                p_minus[i] -= delta;
-
-                double ell_plus  = est.like().ell(p_plus, eta0);
-                double ell_minus = est.like().ell(p_minus, eta0);
-
-                std::cout << "Param " << p_order[i]
-                        << " : ell(+delta)=" << ell_plus
-                        << ", ell(-delta)=" << ell_minus << "\n";
-            }
-
-            // scan sur les eta
-            for (std::size_t j = 0; j < eta0.size(); ++j) {
-                Vec eta_plus = eta0;
-                Vec eta_minus = eta0;
-                double delta = 0.1 * std::abs(eta0[j]);
-                if (delta == 0.0) delta = 1e-3;
-
-                eta_plus[j]  += delta;
-                eta_minus[j] -= delta;
-
-                double ell_plus  = est.like().ell(p0, eta_plus);
-                double ell_minus = est.like().ell(p0, eta_minus);
-
-                std::cout << "Eta " << eta_order[j]
-                        << " : ell(+delta)=" << ell_plus
-                        << ", ell(-delta)=" << ell_minus << "\n";
-            }
-        };
-        debug_scan_around_start(est, p0, eta0, p_order, eta_order);
-        */
-
         FitResult fr = est.fit(unzipped_fit_params.vals);
-
-        std::cout << "MLE fit done: ell_hat = " << std::setprecision(5) << fr.ell_hat << std::endl;
-
         std::map<ParamId, double> p_hat_map = zip(p_ids, fr.p_hat);
         std::map<ParamId, double> eta_hat_map = zip(eta_ids, fr.eta_hat);
-
-        for (const auto& [pid, val] : p_hat_map) {
-            std::cout << "p_hat[" << pid << "] = " << val << std::endl;
-        }
-        for (const auto& [pid, val] : eta_hat_map) {
-            std::cout << "eta_hat[" << pid << "] = " << val << std::endl;
-        }
+        std::map<ParamId, double> p_hat_std_map = zip(p_ids, fr.p_hat_std);
+        std::map<ParamId, std::map<ParamId, double>> p_hat_corr_map = zip(p_ids, fr.p_hat_correlations);
 
         FitResultWithMaps out;
         out.p_hat   = std::move(p_hat_map);
         out.eta_hat = std::move(eta_hat_map);
         out.ell_hat = fr.ell_hat;
-
+        out.p_hat_std = std::move(p_hat_std_map);
+        out.p_correlations = std::move(p_hat_corr_map);
+        out.fit_ok = true;
         this->cache.mle_result = out;
 
         return out;
     }
 
-    void fill_cache() {
+    std::set<std::vector<std::pair<double, double>>> confidence_contour(ParamId p1, ParamId p2, double z, std::array<double, 4> bounds, CLMethod method = CLMethod::PROJECT);
 
+    void fill_cache() {
         cache.p_specs = this->get_p_specs();
         cache.eta_specs_real = this->get_all_obss_deps();
-        for (const auto& [pid, _] : cache.p_specs) {
+        for (const auto& [pid, _] : cache.p_specs)
             cache.eta_specs_real.erase(pid);
-        }
-        for (auto elem : cache.eta_specs_real) {
-            std::cout << " eta_specs_real : " << elem.first << " = " << elem.second;
-        }
-        std::cout << std::endl;
+        
         cache.SigmaEta = this->get_all_correlations();
-
-        for (auto elem : cache.SigmaEta) {
-            for (auto elem2 : elem.second) {
-                std::cout << " SigmaEta : " << elem.first << " | " << elem2.first << " = " << elem2.second;
-            }
-            std::cout << std::endl;
-        }
         cache.exp_obs = this->get_obs_exp();
-        for (auto elem : cache.exp_obs) {
-            std::cout << " exp_obs : " << elem.first.str() << " = " << elem.second;
-        }
-
-        std::cout << std::endl;
         cache.SigmaObs = this->get_all_obs_correlations();
-
-        for (auto elem : cache.SigmaObs) {
-            for (auto elem2 : elem.second) {
-                std::cout << " SigmaObs : " << elem.first.str() << " | " << elem2.first.str() << " = " << elem2.second;
-            }
-            std::cout << std::endl;
-        }
-
-        // cache.p_specs = this->get_p_specs();
-
-        for (auto elem : cache.p_specs) {
-            std::cout << " p_specs : " << elem.first << " = " << elem.second;
-        }
-
-        std::cout << std::endl;
-        std::cout << "eta size : " << this->cache.eta_specs_real.size() << std::endl;
-        std::cout << "etasigma size : " << this->cache.eta_specs_real.size() << " | " << this->cache.SigmaEta.at(ParamId(ParameterType::SM, "VCKMIN", 1)).size() << std::endl;
-        std::cout << "p_specs size : " << this->cache.p_specs.size() << std::endl;
-        std::cout << "exp_obs : " << this->cache.exp_obs.size() << std::endl;
-        std::cout << "SigmaObs size : " << this->cache.SigmaObs.size() << " | " << this->cache.SigmaObs[ObservableMapper::to_id(Observables::BR_BD_MUMU)].size() << std::endl;
     }
 
     std::map<ParamId, double> get_all_obss_deps() {
@@ -301,6 +208,8 @@ public:
         }
         return out;
     }
+
+    void print_cache();
 
 private:
     std::shared_ptr<IModel> obs_int;

@@ -1,6 +1,21 @@
 #include "Matrix.h"
 
-RealMatrix eye(std::size_t n) {
+std::ostream &operator<<(std::ostream &os, RealMatrix A) {
+    os << "[";
+    for (size_t i = 0; i < A.rows(); i++) {
+        os << (i == 0 ? "[ " : " [ ");
+        for (size_t j = 0; j < A.cols(); j++) {
+            os << A.at(i, j) << (j == A.cols() - 1 ? " " : ", ");
+        }
+        if (i != A.rows() - 1)
+            os << "]" << std::endl;
+    }
+    os << "]]" << std::endl;
+    return os;
+}
+
+RealMatrix eye(std::size_t n)
+{
     std::vector<double> new_data(n * n, 0.0);
 
     for (size_t i = 0; i < n; ++i) {
@@ -75,6 +90,32 @@ RealMatrix cholesky_L(RealMatrix R) {
     return L;
 }
 
+RealMatrix block_diag(const std::vector<RealMatrix> &blocks) {
+    if (blocks.empty())
+        return RealMatrix{};
+
+    std::size_t total_dim = 0;
+
+    for (const auto& B : blocks) {
+        if (B.rows() != B.cols())
+            throw std::invalid_argument("block_diag: matrices must be square");
+        total_dim += B.rows();
+    }
+
+    RealMatrix M(total_dim, total_dim);
+
+    std::size_t offset = 0;
+    for (const auto& B : blocks) {
+        const std::size_t n = B.rows();
+        for (std::size_t i = 0; i < n; ++i)
+            for (std::size_t j = 0; j < n; ++j)
+                M.unchecked_at(offset + i, offset + j) = B.unchecked_at(i, j);
+        offset += n;
+    }
+
+    return M;
+}
+
 RealMatrix::RealMatrix(std::vector<double> data_, std::size_t rows, std::size_t cols) : data(data_), rows_(rows), cols_(cols) {
     if (data.size() != rows * cols)
         throw std::invalid_argument("Data size does not match matrix shape.");
@@ -127,6 +168,54 @@ std::size_t RealMatrix::rows() const {
 
 std::size_t RealMatrix::cols() const {
     return this->cols_;
+}
+
+void RealMatrix::remove_row(std::size_t row_idx) {
+    std::vector<double> new_data = std::vector<double>((this->rows_ - 1) * this->cols_, 0.0);
+
+    for (size_t i = 0; i < this->rows_; i++) {
+        if (i == row_idx) continue;
+        std::size_t new_i = i < row_idx ? i : i - 1;
+        for (size_t j = 0; j < this->cols_; j++) {
+            new_data[new_i * this->cols_ + j] = this->at(i, j);
+        }
+    }
+
+    this->data = std::move(new_data);
+    this->rows_--;
+}
+
+void RealMatrix::remove_column(std::size_t col_idx) {
+    std::vector<double> new_data = std::vector<double>(this->rows_ * (this->cols_ - 1), 0.0);
+
+    for (size_t j = 0; j < this->cols_; j++) {
+        if (j == col_idx) continue;
+        std::size_t new_j = j < col_idx ? j : j - 1;
+        for (size_t i = 0; i < this->rows_; i++) {
+            new_data[i * (this->cols_ - 1) + new_j] = this->at(i, j);
+        }
+    }
+
+    this->data = std::move(new_data);
+    this->cols_--;
+}
+
+void RealMatrix::remove_row_and_column(std::size_t dim_idx) {
+    std::vector<double> new_data = std::vector<double>((this->rows_ - 1) * (this->cols_ - 1), 0.0);
+
+    for (size_t i = 0; i < this->rows_; i++) {
+        if (i == dim_idx) continue;
+        std::size_t new_i = i < dim_idx ? i : i - 1;
+        for (size_t j = 0; j < this->cols_; j++) {
+            if (j == dim_idx) continue;
+            std::size_t new_j = j < dim_idx ? j : j - 1;
+            new_data[new_i * this->cols_ + j] = this->at(i, j);
+        }
+    }
+
+    this->data = std::move(new_data);
+    this->rows_--;
+    this->cols_--;
 }
 
 RealMatrix RealMatrix::from_gsl_copy(const gsl_matrix* A) {

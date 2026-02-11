@@ -61,6 +61,12 @@ public:
     std::size_t rows() const;
     std::size_t cols() const;
 
+    // Row / column manipulation
+
+    void remove_row(std::size_t row_idx);
+    void remove_column(std::size_t col_idx);
+    void remove_row_and_column(std::size_t dim_idx);
+
     // GSL support
 
     static RealMatrix from_gsl_copy(const gsl_matrix* A);
@@ -112,6 +118,8 @@ public:
         lhs /= scalar;
         return lhs;
     }
+
+    friend std::ostream& operator<<(std::ostream& os, RealMatrix A);
     
 private:
     std::vector<double> data;
@@ -127,5 +135,11 @@ RealMatrix eye(std::size_t n);
 RealMatrix diag(const gsl_vector* X);
 RealMatrix nearest_psd(RealMatrix R, double thr = 1e-12);
 RealMatrix cholesky_L(RealMatrix R);
+RealMatrix block_diag(const std::vector<RealMatrix>& blocks);
+
+template<typename... Ms>
+RealMatrix block_diag(const Ms&... ms) {
+    return block_diag(std::vector<RealMatrix>{ms...});
+}
 
 #endif // __MATRIX_H__
