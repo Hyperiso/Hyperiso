@@ -38,19 +38,22 @@ target_include_directories(MathLib PRIVATE ${GSL_INCLUDE_DIRS})
     PUBLIC
         # build
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/MathBSM>
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/linalg>
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/analysis>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/domain>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/domain/special>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/domain/linalg>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/domain/analysis>
         # install
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/Math>
-        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/Math/MathBSM>
-        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/Math/linalg>
-        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/Math/analysis>
+        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/Math/domain/special>
+        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/Math/domain>
+        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/Math/domain/linalg>
+        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/Math/domain/analysis>
     PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}
-        ${CMAKE_CURRENT_SOURCE_DIR}/MathBSM
-        ${CMAKE_CURRENT_SOURCE_DIR}/linalg
-        ${CMAKE_CURRENT_SOURCE_DIR}/analysis
+        ${CMAKE_CURRENT_SOURCE_DIR}/domain
+        ${CMAKE_CURRENT_SOURCE_DIR}/domain/special
+        ${CMAKE_CURRENT_SOURCE_DIR}/domain/linalg
+        ${CMAKE_CURRENT_SOURCE_DIR}/domain/analysis
     )
 
 if (TARGET GSL::gsl)

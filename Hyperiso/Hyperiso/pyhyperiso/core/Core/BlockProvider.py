@@ -1,5 +1,5 @@
 from pyhyperiso.phyperiso.pyhyperiso.core import BlockProvider as _CppBlockProvider
-from pyhyperiso.core.Common.General import ParamId
+from pyhyperiso.core.Common.ParamId import ParamId
 from pyhyperiso.core.Common.GeneralEnum import Model, ParameterType
 
 class PyBlockLogger:

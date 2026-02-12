@@ -1,6 +1,6 @@
 from pyhyperiso.phyperiso.pyhyperiso.core import ParameterProvider as _CppParameterProvider
 from pyhyperiso.core.Common.GeneralEnum import ParameterType, DataType, Model
-from pyhyperiso.core.Common.General import LhaID, ParamId
+from pyhyperiso.core.Common.ParamId import LhaID, ParamId
 from pyhyperiso.core.Core.Parameter import PyParameter
 from typing import Dict, Optional, Union
 

@@ -4,7 +4,7 @@
 #include "WilsonGroup.h"
 #include "BWilsonGroup.h"
 #include "THDMParametersHelper.h"
-#include "Math_THDM.h"
+#include "Math.h"
 #include "Utils.h"
 #include "ChargedCurrentsWilsonGroup.h"
 

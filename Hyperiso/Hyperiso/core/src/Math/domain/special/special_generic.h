@@ -1,8 +1,8 @@
-#ifndef __SPECIAL_GENERIC_H__
-#define __SPECIAL_GENERIC_H__
+#ifndef SPECIAL_GENERIC_H
+#define SPECIAL_GENERIC_H
 
 #include <cmath>
-#include "../linalg/scalar.h"
+#include "scalar.h"
 
 /**
  * @brief Computes the exponential integral function Ei(x).
@@ -112,4 +112,4 @@ fpeq(T x, T y, std::size_t n) {
     return std::fabs(x - y) <= n * std::ldexp(std::numeric_limits<T>::epsilon(), exp);
 }
 
-#endif // __SPECIAL_GENERIC_H__
+#endif // SPECIAL_GENERIC_H

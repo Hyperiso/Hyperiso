@@ -3,8 +3,9 @@
 
 #include "constants.h"
 #include "special.h"
-#include "./domain/linalg/Matrix.h"
-#include "./domain/linalg/scalar.h"
-#include "./domain/analysis/analysis.h"
+#include "Matrix.h"
+#include "SparseMatrix.h"
+#include "scalar.h"
+#include "analysis.h"
 
 #endif // MATH_H

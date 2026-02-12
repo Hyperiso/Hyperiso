@@ -1,6 +1,6 @@
 #include "GroupDefinition.h"
 #include "BScalarWilsonGroup.h"
-#include "Math_SUSY.h"
+#include "Math.h"
 
 using CGS = CoefficientGroupSources;
 

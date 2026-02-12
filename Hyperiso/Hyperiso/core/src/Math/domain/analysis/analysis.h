@@ -1,9 +1,9 @@
-#ifndef __ANALYSIS_H__
-#define __ANALYSIS_H__
+#ifndef ANALYSIS_H
+#define ANALYSIS_H
 
 #include "contour.h"
 #include "diffcalc.h"
 #include "integration.h"
 #include "optimization.h"
 
-#endif // __ANALYSIS_H__
+#endif // ANALYSIS_H

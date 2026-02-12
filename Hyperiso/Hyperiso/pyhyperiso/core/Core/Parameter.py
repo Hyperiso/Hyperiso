@@ -1,7 +1,7 @@
 from pyhyperiso.phyperiso.pyhyperiso.core import Parameter as _CppParameter
 from pyhyperiso.phyperiso.pyhyperiso.core import ParameterMode as _CppParameterMode
 
-from pyhyperiso.core.Common.General import ParamId
+from pyhyperiso.core.Common.ParamId import ParamId
 from pyhyperiso.core.Common.GeneralEnum import ParameterType
 from pyhyperiso.core.Math.scalar import Scalar, pow_scalar, sqrt, _to_scalar
 from pyhyperiso.phyperiso.pyhyperiso.core import DependentParameter as _CppDependentParameter

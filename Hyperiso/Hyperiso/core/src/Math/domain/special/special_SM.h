@@ -1,9 +1,9 @@
-#ifndef __SPECIAL_SM_H__
-#define __SPECIAL_SM_H__
+#ifndef SPECIAL_SM_H
+#define SPECIAL_SM_H
 
-#include "../linalg/scalar.h"
+#include "scalar.h"
 #include "special_generic.h"
-#include "../constants.h"
+#include "constants.h"
 
 /**
  * @brief Computes the two-variable function H2(x, y).
@@ -454,4 +454,4 @@ namespace KP {
 }; // namespace KP
 
 
-#endif // __SPECIAL_SM_H__
+#endif // SPECIAL_SM_H

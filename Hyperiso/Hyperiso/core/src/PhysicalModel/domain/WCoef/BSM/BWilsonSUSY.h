@@ -3,7 +3,7 @@
 #include "Wilson.h"
 #include "BWilsonGroup.h"
 #include "SUSYParametersHelper.h"
-#include "Math_THDM.h"
+#include "Math.h"
 #include "Utils.h"
 #include "ChargedCurrentsWilsonGroup.h"
 

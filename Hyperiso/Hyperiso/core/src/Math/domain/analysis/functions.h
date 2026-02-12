@@ -1,11 +1,11 @@
-#ifndef __FUNCTIONS_H__
-#define __FUNCTIONS_H__
+#ifndef FUNCTIONS_H
+#define FUNCTIONS_H
 
 #include <vector>
 #include <functional>
 #include <limits>
 #include <algorithm>
-#include "../linalg/scalar.h"
+#include "scalar.h"
 
 using RealValuedFunction = std::function<double(double)>;
 using RealValuedForm = std::function<double(std::vector<double>)>;
@@ -20,4 +20,4 @@ struct ScaledForm {
     double operator()(const std::vector<double>& t) const;
 };
 
-#endif // __FUNCTIONS_H__
+#endif // FUNCTIONS_H

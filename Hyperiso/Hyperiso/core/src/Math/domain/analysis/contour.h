@@ -1,5 +1,5 @@
-#ifndef __CONTOUR_H__
-#define __CONTOUR_H__
+#ifndef CONTOUR_H
+#define CONTOUR_H
 
 #include <vector>
 #include <array>
@@ -104,4 +104,4 @@ namespace std {
     };
 }
 
-#endif // __CONTOUR_H__
+#endif // CONTOUR_H

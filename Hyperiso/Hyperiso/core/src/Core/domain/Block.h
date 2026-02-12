@@ -329,7 +329,14 @@ public:
     //TODO 
     virtual void ensure_up_to_date() {}
 
-    void bind_self(std::shared_ptr<Block> self) { self_ = std::move(self); }
+    void bind_self(std::shared_ptr<Block> self) { 
+        self_ = self;
+
+        auto w = std::weak_ptr<Block>(self);
+        for (auto& [_, p] : items) {
+            if (p) p->set_owner_block(w);
+        }
+     }
 
     /**
      * @brief Destructor.

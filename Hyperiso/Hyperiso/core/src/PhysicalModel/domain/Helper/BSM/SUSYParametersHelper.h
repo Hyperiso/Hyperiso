@@ -5,7 +5,7 @@
 #include <array>
 #include <functional>
 
-#include "Math_SUSY.h"
+#include "Math.h"
 #include "Logger.h"
 #include "ParameterProxy.h"
 #include "WilsonParamComposer.h"

@@ -1,9 +1,9 @@
-#ifndef __SPECIAL_H__
-#define __SPECIAL_H__
+#ifndef SPECIAL_H
+#define SPECIAL_H
 
 #include "special_generic.h"
 #include "special_SM.h"
 #include "special_THDM.h"
 #include "special_SUSY.h"
 
-#endif // __SPECIAL_H__
+#endif // SPECIAL_H

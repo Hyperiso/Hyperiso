@@ -1,5 +1,5 @@
-#ifndef __OPTIMIZATION_H__
-#define __OPTIMIZATION_H__
+#ifndef OPTIMIZATION_H
+#define OPTIMIZATION_H
 
 #include <gsl/gsl_multimin.h>
 #include "functions.h"
@@ -25,4 +25,4 @@ double brent_root(const RealValuedFunction& f, double a, double b, double xtol =
 MinimizationResult minimize_NM(RealValuedForm f, const std::vector<double> x_start, const MinimizationContext& context);
 MinimizationResult minimize_BFGS(RealValuedForm f, const std::vector<double>& x0, const MinimizationContext& context);
 
-#endif // __OPTIMIZATION_H__
+#endif // OPTIMIZATION_H

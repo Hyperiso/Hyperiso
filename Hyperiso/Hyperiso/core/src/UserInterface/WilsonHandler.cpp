@@ -291,6 +291,7 @@ int handleWilsonOptions(int argc, char* argv[]) {
         }
 
         wi.build(wbc);
+        
         std::cout << std::endl;
         if (scan_params.size() == 0) {
             for (auto coef : coefs) {
@@ -315,6 +316,21 @@ int handleWilsonOptions(int argc, char* argv[]) {
             } else {
                 upp = std::make_shared<UserParameterProxy>(std::vector<ParameterType>{ParameterType::SM, ParameterType::BSM, ParameterType::WILSON});
             }
+
+            auto before = wi.getM(WGroup::B, WCoefMapper::enum_of(WCoefMapper::id_of("C7")).value(),
+                      QCDOrder::LO, ContributionType::SM);
+
+            upp->set_value("MASS", 1, 0.0047);
+            upp->set_value("EW_SCALE", 1, 100.0);
+
+            // Important: relis le proxy tout de suite
+            std::cout << "proxy MASS:1 = " << upp->get_value("MASS", 1).value_or(-1) << "\n";
+            std::cout << "proxy EW_SCALE:1 = " << upp->get_value("EW_SCALE", 1).value_or(-1) << "\n";
+
+            auto after = wi.getM(WGroup::B, WCoefMapper::enum_of(WCoefMapper::id_of("C7")).value(),
+                                QCDOrder::LO, ContributionType::SM);
+
+            std::cout << "C7 before=" << before << " after=" << after << "\n";
 
             for (auto param : scan_params) {
                 double cache_val = upp->get_value(param.block_name, param.pdg_code).value_or(0);
@@ -343,17 +359,31 @@ int handleWilsonOptions(int argc, char* argv[]) {
             ds2.meta["Q"] = wbc.hadronic_scale;
             ds2.meta["qcd_order"] = std::string("LO");
 
-            {
-                auto w = make_writer(OutputFormat::CSV, "wilson_scan.csv");
+            std::string output_format = parser.getValue("output");
+
+            if (output_format.ends_with("csv")) {
+                auto w = make_writer(OutputFormat::CSV, output_format);
                 w->write(ds2, spec2);
-                std::cout << "Wrote wilson_scan.csv\n";
+                std::cout << "Wrote output_format\n";
+            } else if (output_format.ends_with("json")) {
+                auto w = make_writer(OutputFormat::JSON, output_format);
+                w->write(ds2, spec2);
+                std::cout << "Wrote output_format\n";
+            } else {
+                std::cout << "bonjour" << std::endl;
             }
 
-            {
-                auto w = make_writer(OutputFormat::JSON, "wilson_scan.json");
-                w->write(ds2, spec2);
-                std::cout << "Wrote wilson_scan.json\n";
-            }
+            // {
+            //     auto w = make_writer(OutputFormat::CSV, "wilson_scan.csv");
+            //     w->write(ds2, spec2);
+            //     std::cout << "Wrote wilson_scan.csv\n";
+            // }
+
+            // {
+            //     auto w = make_writer(OutputFormat::JSON, "wilson_scan.json");
+            //     w->write(ds2, spec2);
+            //     std::cout << "Wrote wilson_scan.json\n";
+            // }
             
         }
 

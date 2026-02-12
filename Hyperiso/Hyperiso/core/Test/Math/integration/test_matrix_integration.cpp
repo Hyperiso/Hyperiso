@@ -7,7 +7,7 @@
 #include <iomanip>
 #include <sstream>
 
-#include "Matrix.h"
+#include "SparseMatrix.h"
 
 template <typename T>
 static bool dapprox(double a, double b, double eps = 1e-12) {

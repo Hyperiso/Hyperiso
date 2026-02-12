@@ -1,5 +1,5 @@
 from pyhyperiso.phyperiso.pyhyperiso.core import ParameterSetter as _CppParameterSetter
-from pyhyperiso.core.Common.General import ParamId
+from pyhyperiso.core.Common.ParamId import ParamId
 from pyhyperiso.core.Common.GeneralEnum import Model, ParameterType
 from pyhyperiso.core.Math.scalar import Scalar, _to_scalar
 from pyhyperiso.core.Core.Parameter import ParameterMode

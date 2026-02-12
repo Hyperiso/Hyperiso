@@ -103,6 +103,7 @@ void DependentBlockManager::addDependentParameter(
         auto existing = blk->retrieve(pid.code);
         if (auto dep = std::dynamic_pointer_cast<DependentParameter>(existing)) {
             dep->rebind(std::move(sources), recalculateFunc);
+            dep->init();
             // pas besoin de dep->update() : rebind met dirty + notify
             return;
         }

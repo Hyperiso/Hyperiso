@@ -257,6 +257,7 @@ C7::C7() : WilsonCoefficient("C7", GroupMapper::str(WGroup::B, ScaleType::MATCHI
 }
 
 double C7::compute_LO(const ParamSrc& src) {
+    std::cout << "modify c7" << std::endl;
     double xt = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1});
     return -0.5 * A0t(xt) - 23. / 36.;
 }

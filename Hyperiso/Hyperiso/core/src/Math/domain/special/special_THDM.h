@@ -1,8 +1,8 @@
-#ifndef __SPECIAL_THDM_H__
-#define __SPECIAL_THDM_H__
+#ifndef SPECIAL_THDM_H
+#define SPECIAL_THDM_H
 
 #include "special_generic.h"
-#include "../constants.h"
+#include "constants.h"
 
 double F1SP(double xt, double xH);
 double F2SP(double xt, double xH);
@@ -23,6 +23,6 @@ double C8H2(double yt, double lu, double ld, double L);
 double CSc_2HDM(double xH, double xt, double lu, double ld, double ll);
 double CPc_2HDM(double xH, double xt, double lu, double ld, double ll, double sw2);
 
-#endif // __SPECIAL_THDM_H__
+#endif // SPECIAL_THDM_H
 
 

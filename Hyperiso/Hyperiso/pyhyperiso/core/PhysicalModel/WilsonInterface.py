@@ -1,5 +1,5 @@
 from pyhyperiso.phyperiso.pyhyperiso.wilson.wilson_interface import WilsonInterface as _CppWilsonInterface
-from pyhyperiso.core.Common.General import ParamId
+from pyhyperiso.core.Common.ParamId import ParamId
 from pyhyperiso.core.Common.GeneralEnum import Model, QCDOrder, WCoeff, WGroup, ContributionType, WilsonBasis, ParameterType
 from pyhyperiso.core.Common.Configs import WilsonBuildConfig, WilsonRequest
 from pyhyperiso.core.Math.scalar import Scalar
@@ -150,12 +150,8 @@ if __name__ == "__main__":
     #     hadronic_scale=2.0,
     #     order=QCDOrder.LO
     # )
-    import pyhyperiso
-    import pyhyperiso.phyperiso.pyhyperiso.common as common
-    import pyhyperiso.phyperiso.pyhyperiso.wilson.wilson_interface as wil
 
-    print("common:", common.__file__)
-    print("wilson:", wil.__file__)
+
         
     PyBlockLogger().log_all_blocks(ParameterType.WILSON)
     print("trying to build wilsoninterface")
@@ -194,17 +190,17 @@ if __name__ == "__main__":
     value = interface.get_M(req)
     print(value)  # Scalar(...)
     
-    # test_values = []
-    # from pyhyperiso.core.Core.ParameterSetter import PyParameterSetter, ParamId, ParameterType
-    # py_set = PyParameterSetter()
-    # for i in range(1, 81):
-    #     py_set.mutate(ParamId(ParameterType.WILSON, "B_SCALE", 1), i)
-    #     test_values.append(interface.get_FR(WilsonRequest(WGroup.B, WCoeff.C9, QCDOrder.NNLO, ContributionType.TOTAL)))
+    test_values = []
+    from pyhyperiso.core.Core.ParameterSetter import PyParameterSetter, ParamId, ParameterType
+    py_set = PyParameterSetter()
+    for i in range(1, 81):
+        py_set.mutate(ParamId(ParameterType.WILSON, "EW_SCALE", 1), i)
+        test_values.append(interface.get_FM(WilsonRequest(WGroup.B, WCoeff.C7, QCDOrder.NNLO, ContributionType.TOTAL)))
     
-    # import matplotlib
-    # matplotlib.use("TkAgg")
-    # import matplotlib.pyplot as plt
+    import matplotlib
+    matplotlib.use("TkAgg")
+    import matplotlib.pyplot as plt
     
-    # plt.scatter(range(1, 81), test_values)
+    plt.scatter(range(1, 81), test_values)
     
-    # plt.show()
+    plt.show()

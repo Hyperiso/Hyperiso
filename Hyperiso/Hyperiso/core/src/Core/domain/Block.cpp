@@ -74,35 +74,64 @@ void Block::erase_local(const LhaID& id) {
     this->items.erase(id);
 }
 
+// void Block::assign(const LhaID& key, std::shared_ptr<Parameter> param) {
+//     if (!this->contains(key)) {
+//         LOG_ERROR("KeyError", "Cannot update non-existing parameter", key.to_string(), "in block", this->blockname);
+//     }
+
+//     auto& dst = this->items.at(key);
+
+//     dst->overwrite_payload_from(*param);
+
+//     dst->notifyObservers();
+
+//     LOG_DEBUG("Call to notifyObservers from Block::assign(const LhaID&, std::shared_ptr<Parameter>) of", blockname);
+//     // notifyObservers();
+// }
+
 void Block::assign(const LhaID& key, std::shared_ptr<Parameter> param) {
     if (!this->contains(key)) {
         LOG_ERROR("KeyError", "Cannot update non-existing parameter", key.to_string(), "in block", this->blockname);
     }
 
     auto& dst = this->items.at(key);
-
     dst->overwrite_payload_from(*param);
 
+    // notifier param observers si tu veux (pas obligatoire pour DependentBlock)
     dst->notifyObservers();
 
-    LOG_DEBUG("Call to notifyObservers from Block::assign(const LhaID&, std::shared_ptr<Parameter>) of", blockname);
-    // notifyObservers();
+    // MAIS surtout notifier block observers
+    LOG_DEBUG("Call to notifyObservers from Block::assign(shared_ptr) of", blockname);
+    notifyObservers();
 }
 
-void Block::assign(const LhaID &key, scalar_t value) {
+void Block::assign(const LhaID& key, scalar_t value) {
     if (!this->contains(key)) {
         LOG_ERROR("KeyError", "Cannot update non-existing parameter", key.to_string(), "in block", this->blockname);
     }
 
     auto& p = this->items.at(key);
+    p->set_expected(value);   // ça notifie déjà les observers du param
 
-    p->set_expected(value);
-
-    // p->notifyObservers();
-
+    // IMPORTANT: notifier les observers du BLOCK (DependentBlock observe le block)
     LOG_DEBUG("Call to notifyObservers from Block::assign(const LhaID&, double) of", blockname);
-    // notifyObservers();
+    notifyObservers();
 }
+
+// void Block::assign(const LhaID &key, scalar_t value) {
+//     if (!this->contains(key)) {
+//         LOG_ERROR("KeyError", "Cannot update non-existing parameter", key.to_string(), "in block", this->blockname);
+//     }
+
+//     auto& p = this->items.at(key);
+
+//     p->set_expected(value);
+
+//     // p->notifyObservers();
+
+//     LOG_DEBUG("Call to notifyObservers from Block::assign(const LhaID&, double) of", blockname);
+//     // notifyObservers();
+// }
 
 void Block::store_or_assign(const LhaID& id, std::shared_ptr<Parameter> param) {
     if (!contains(id)) {

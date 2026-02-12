@@ -1,5 +1,5 @@
-#ifndef __INTEGRATION_H__
-#define __INTEGRATION_H__
+#ifndef INTEGRATION_H
+#define INTEGRATION_H
 
 #include <gsl/gsl_integration.h>
 #include "functions.h"
@@ -25,4 +25,4 @@ double integrate(RealValuedFunction f, double l, double u, double prec);
  */
 scalar_t c_integrate(ComplexValuedFunction f, double l, double u, double prec);
 
-#endif // __INTEGRATION_H__
+#endif // INTEGRATION_H

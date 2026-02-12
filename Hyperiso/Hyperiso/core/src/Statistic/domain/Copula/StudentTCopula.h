@@ -2,7 +2,7 @@
 #define __STUDENTTCOPULA_H__
 
 #include "GenericCopula.h"
-#include "Matrix.h"
+#include "Math.h"
 #include "AbstractConfig.h"
 #include <gsl/gsl_sf.h>
 
