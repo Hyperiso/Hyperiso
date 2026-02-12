@@ -154,7 +154,7 @@ std::set<std::pair<int, int>> MarchingSquaresExtractor::get_crossed_edges(Cell *
         mask = fc * cell->values[0] > 0 ? 5 : 10;
     }   
 
-    return MASK[mask];
+    return MASK_LOOKUP[mask];
 }
 
 bool MarchingSquaresExtractor::point_on_boundary(Point xy, double tol) const {

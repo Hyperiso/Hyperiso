@@ -9,7 +9,7 @@
 #include <memory>
 #include <stdexcept>
 #include <algorithm>
-#include "Math.h"
+#include "../special/special_generic.h"
 
 // Minimal RAII for GSL pointers
 

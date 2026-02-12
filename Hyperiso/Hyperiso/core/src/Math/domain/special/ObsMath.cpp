@@ -1,4 +1,4 @@
-#include "Math.h"
+#include "special_SM.h"
 
 // B > V
 
@@ -11566,31 +11566,33 @@ complex_t BV::I_1(double u, double s_hat, double m_q_hat) {
 }
 
 complex_t BV::G(double xbar, double z) {
-    complex_t alpha = complex_t(z, -EPSILON);
+   double EPSILON = 1e-5;
+   complex_t alpha = complex_t(z, -EPSILON);
 
-    if (xbar < EPSILON)
-        return -2. * log(alpha) / 3.;
+   if (xbar < EPSILON)
+      return -2. * log(alpha) / 3.;
 
-    complex_t A = (xbar + 2. * alpha) * sqrt(xbar - 4. * alpha) / pow(xbar, 1.5);
-    return 10. / 9 - 2. * log(alpha) / 3. + 8. * alpha / (3 * xbar) + 2. * A * log(-(xbar * (1. - A) + 2. * alpha) / (xbar * (1. + A) + 2. * alpha)) / 3.;
+   complex_t A = (xbar + 2. * alpha) * sqrt(xbar - 4. * alpha) / pow(xbar, 1.5);
+   return 10. / 9 - 2. * log(alpha) / 3. + 8. * alpha / (3 * xbar) + 2. * A * log(-(xbar * (1. - A) + 2. * alpha) / (xbar * (1. + A) + 2. * alpha)) / 3.;
 }
 
 complex_t BV::hard_kernel(double u, double z) {
-    complex_t rt = sqrt((u - 4 * z + I * EPSILON) / u);
-    return (4 * z * (CLi2(2. / (1. - rt)) + CLi2(2. / (1. + rt))) / u - 2.) / u;
+   double EPSILON = 1e-5;
+   complex_t rt = sqrt((u - 4 * z + I * EPSILON) / u);
+   return (4 * z * (CLi2(2. / (1. - rt)) + CLi2(2. / (1. + rt))) / u - 2.) / u;
 }
 
 complex_t BV::G2(double z, double L_b) {
-    double lz = log(z);
-    double lz2 = lz * lz;
-    double lz3 = lz * lz2;
-    complex_t a_0 {-833. / 162., -20. * PI / 27.};
-    complex_t a_1 = 48. - 5. * PI2 - 36. * ZETA3 + I * (30. * PI - 2. * PI3) + (36. - 9. * PI2 + 6. * PI * I) * lz + (3. + 6. * PI * I) * lz2 + lz3;
-    complex_t a_2 = 18. + 2. * PI2 - 2. * PI3 * I + (12. - 6. * PI2) * lz + 6. * PI * I * lz2 + lz3;
-    complex_t a_3 = -9. - 14. * PI2 + 112. * PI * I + (182. - 48. * PI * I) * lz - 126. * lz2;
-    complex_t g_2 = a_0 + 2. * (z * a_1 + z * z * a_2) / 9. + z * z * z * a_3 / 27. + 8. * PI2 * pow(z, 1.5) / 9.;
-    
-    return 8 * L_b / 3 + g_2;
+   double lz = log(z);
+   double lz2 = lz * lz;
+   double lz3 = lz * lz2;
+   complex_t a_0 {-833. / 162., -20. * PI / 27.};
+   complex_t a_1 = 48. - 5. * PI2 - 36. * ZETA3 + I * (30. * PI - 2. * PI3) + (36. - 9. * PI2 + 6. * PI * I) * lz + (3. + 6. * PI * I) * lz2 + lz3;
+   complex_t a_2 = 18. + 2. * PI2 - 2. * PI3 * I + (12. - 6. * PI2) * lz + 6. * PI * I * lz2 + lz3;
+   complex_t a_3 = -9. - 14. * PI2 + 112. * PI * I + (182. - 48. * PI * I) * lz - 126. * lz2;
+   complex_t g_2 = a_0 + 2. * (z * a_1 + z * z * a_2) / 9. + z * z * z * a_3 / 27. + 8. * PI2 * pow(z, 1.5) / 9.;
+   
+   return 8 * L_b / 3 + g_2;
 }
 
 complex_t BV::G8(double L_b) {

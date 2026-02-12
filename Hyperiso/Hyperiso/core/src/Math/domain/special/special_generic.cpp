@@ -1,4 +1,8 @@
-#include <cmath>
+#include "special_generic.h"
+
+double kron(int x, int y) {
+    return (x == y) ? 1.0 : 0.0;
+}
 
 double I0(double x) {
     double y;
@@ -152,9 +156,3 @@ double K2exp(double x,double z)
 {
 	return K0exp(x,z)+2./x*K1exp(x,z);
 }
-
-
-
-
-
-

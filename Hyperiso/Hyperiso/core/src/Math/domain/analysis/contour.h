@@ -8,14 +8,14 @@
 #include <stack>
 #include <optional>
 #include <memory>
-#include "analysis.h"
+#include "functions.h"
 
 using Point = std::pair<double, double>;
 using Segment = std::pair<Point, Point>;
 using Index = std::pair<int, int>;
 using Path = std::vector<Point>;
 
-inline const std::vector<std::set<std::pair<int, int>>> MASK {
+inline const std::vector<std::set<Index>> MASK_LOOKUP {
     {},
     {{3, 0}},
     {{0, 1}},

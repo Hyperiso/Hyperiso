@@ -10,22 +10,23 @@ if (NOT TARGET CommonLib)
 endif()
 
     add_library(MathLib STATIC 
-        scalar.cpp
-        bessel_function.cpp
-        exponential_integral.cpp
-        others_functions.cpp
-        polylog.cpp
-        wilson_math.cpp
-        MathBSM/wilson_susy.cpp
-        MathBSM/wilson_THDM.cpp
-        linalg/Matrix.cpp
-        analysis/integration.cpp
-        analysis/root_finding.cpp
-        analysis/minimize.cpp
-        analysis/differentiate.cpp
-        analysis/contour.cpp
-        ObsMath.cpp
-        )
+        domain/analysis/contour.cpp
+        domain/analysis/diffcalc.cpp
+        domain/analysis/functions.cpp
+        domain/analysis/gsl_wrappers.cpp
+        domain/analysis/integration.cpp
+        domain/analysis/optimization.cpp
+        domain/linalg/Matrix.cpp
+        domain/linalg/scalar.cpp
+        domain/linalg/scalar.tpp
+        domain/special/exponential_integral.cpp
+        domain/special/ObsMath.cpp
+        domain/special/polylog.cpp
+        domain/special/special_generic.cpp
+        domain/special/special_SM.cpp
+        domain/special/special_THDM.cpp
+        domain/special/special_SUSY.cpp     
+    )
 
 set_target_properties(MathLib PROPERTIES POSITION_INDEPENDENT_CODE ON)
 find_package(GSL REQUIRED)

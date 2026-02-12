@@ -1,5 +1,6 @@
 #include <cmath>
-#include "Math.h"
+#include "special_SUSY.h"
+
 double C7H2lulumt(double r)
 {
 	double ubar=1.-r;

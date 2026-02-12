@@ -1,5 +1,8 @@
-#include <cmath>
-#include "Math.h"
+#include "special_SM.h"
+#include "special_SUSY.h"
+#include "special_THDM.h"
+
+// TODO : Complete separation between SM and THDM/SUSY according to headers
 
 /*--------------------------------------------------------------------*/
 
@@ -1298,4 +1301,12 @@ double X1(double xt, double mu, double mass_W)
 	return -(29.*xt - xt*xt - 4.*pow(xt,3.))/(3.*pow(1.-xt,2.)) - (xt + 9.*xt*xt - pow(xt,3.) - pow(xt,4.))/(pow(1.-xt,3.)) * log(xt)
 	+ (8.*xt + 4.*xt*xt + xt*xt*xt - pow(xt,4.))/(2*pow(1.-xt,3)) * log(xt)*log(xt) - (4.*xt - pow(xt,3.))/(pow(1.-xt,2.)) * Li2(1.-xt)
 	+ 8.*xt*( (8. - 9.*xt + pow(xt,3.) +6.*log(xt))/(8.*pow(-1+xt,3.)) )*log(mu*mu/(mass_W*mass_W));
+}
+
+double psi(int n) {
+    double sum = 0;
+    for (int k = 1; k < n; k++) {
+        sum += 1. / k;
+    }
+    return sum - GAMMA;
 }

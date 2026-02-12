@@ -1,4 +1,4 @@
-#include "analysis.h"
+#include "diffcalc.h"
 
 std::vector<double> gradient(const RealValuedForm& f, const std::vector<double>& x) {
     ScaledForm f_scaled(f, x);

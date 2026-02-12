@@ -1,8 +1,4 @@
-#include "analysis.h"
-
-/*
-    Integration helper functions
-*/
+#include "integration.h"
 
 double integrate(RealValuedFunction f, double l, double u, double prec) {
     double res, err;

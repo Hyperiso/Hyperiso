@@ -2,7 +2,7 @@
 #include <complex>
 #include <array>
 #include <vector>
-#include "Math.h"
+#include "special_generic.h"
 #include "gsl/gsl_sf_dilog.h"
 #include "gsl/gsl_sf_clausen.h"
 

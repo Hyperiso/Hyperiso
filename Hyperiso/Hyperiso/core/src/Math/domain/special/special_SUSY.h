@@ -1,3 +1,8 @@
+#ifndef __SPECIAL_SUSY_H__
+#define __SPECIAL_SUSY_H__
+
+#include "special_generic.h"
+#include "../constants.h"
 
 double f20(double x);
 double f30(double x, double y);
@@ -50,6 +55,4 @@ double q41(double x, double y);
 double q51(double x, double y);
 double q61(double x, double y);
 
-
-// double C7H2(double yt, double lu, double ld, double L);
-// double C8H2(double yt, double lu, double ld, double L);
+#endif // __SPECIAL_SUSY_H__
