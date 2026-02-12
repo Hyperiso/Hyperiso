@@ -8,6 +8,14 @@
 #include "MartyWilson.h"
 #include "ArgsParser.h"
 #include "WilsonInterface.h"
+#include "YamlInputReader.h"
+#include "UserParameterProxy.h"
+#include "ObjectsOutputs.h"
+#include "WilsonExtractor.h"
+#include "CsvWriter.h"
+#include "JsonWriter.h"
+#include "ScanRunner.h"
+#include "MakeWriter.h"
 
 static void print_wilson_usage() {
     std::cout << "Usage: ./main wilson [options]\n"
@@ -19,7 +27,7 @@ static void print_wilson_usage() {
               << "  --Q/-Q <value>                             : Set Q scale\n"
               << "  --martypath/-M <marty_model_path>          : Marty Model path (default: None)\n"
               << "  --input_file/-if <slha_name>               : input file for parameters spectrum\n"
-              << "  --order/-o <LO|NLO|NNLO>                   : Specify the calculation order (default: LO)\n"
+              << "  --order/-q <LO|NLO|NNLO>                   : Specify the calculation order (default: LO)\n"
               << "  --write_to_flha/-F <path|None>             : Write output to file (default: None)\n"
               << "  --help/-h                                  : Display this help message\n";
 }
@@ -123,9 +131,9 @@ int handleWilsonOptions(int argc, char* argv[]) {
         // --order/-o (default LO) avec AllowedValuesValidator
         parser.addArgument(
             ArgumentBuilder()
-                .setLongName("order")
-                .setShortName("o")
-                .setHelpText("Specify the calculation order (LO|NLO|NNLO)")
+                .setLongName("qcd_order")
+                .setShortName("q")
+                .setHelpText("Specify the calculation order in QCD (LO|NLO|NNLO)")
                 .setType(ArgType::STRING)
                 .setRequired(false)
                 .setDefaultValue("LO")
@@ -147,31 +155,51 @@ int handleWilsonOptions(int argc, char* argv[]) {
                 .build()
         );
 
+        parser.addArgument(
+            ArgumentBuilder()
+                .setLongName("scan")
+                .setShortName("s")
+                .setHelpText("Is the calculation a scan, if set, a path to an input file (.yaml/.yml) need to be provided, with the format min/max/step for each parameter.")
+                .setType(ArgType::STRING)
+                .setRequired(false)
+                .setDefaultValue("None")
+                .build()
+        );
+
+
+        parser.addArgument(
+            ArgumentBuilder()
+                .setLongName("output")
+                .setShortName("o")
+                .setHelpText("In which format you want the output (single point or scan). Options are terminal (default), csv, json, lha.")
+                .setType(ArgType::STRING)
+                .setRequired(false)
+                .setDefaultValue("terminal")
+                .build()
+        );
+
         // --help/-h
         parser.addArgument(
             ArgumentBuilder()
                 .setLongName("help")
                 .setShortName("h")
                 .setHelpText("Display help")
-                .setType(ArgType::STRING)     // ton parser ne gère pas encore les flags sans valeur
+                .setType(ArgType::STRING)   
                 .setRequired(false)
-                .setDefaultValue("false")     // astuce: si l'utilisateur met --help true
+                .setDefaultValue("false")
                 .build()
         );
 
         parser.parse(argc, argv);
 
-        // Vérifier la sous-commande
         const auto pos = parser.getPositionalValues();
         const std::string cmd = pos.empty() ? "" : pos[0];
 
-        // Gestion help simple
-        // (Avec ton parser actuel, il faut passer une valeur: --help true)
+
         bool wantHelp = false;
         try {
             wantHelp = (parser.getValue("help") == "true" || parser.getValue("help") == "1");
         } catch (...) {
-            // ignore si absent
         }
 
         if (wantHelp) {
@@ -182,9 +210,6 @@ int handleWilsonOptions(int argc, char* argv[]) {
             }
             return 0;
         }
-
-        // ---- Ici tu mettras le fonctionnement réel plus tard ----
-        // Pour l'instant, on montre juste ce qui a été parsé.
 
         std::cout << "[wilson] parsed options:\n";
 
@@ -202,7 +227,7 @@ int handleWilsonOptions(int argc, char* argv[]) {
         try { std::cout << "  Q             = " << parser.getValue("Q") << "\n"; } catch (...) {std::cout << std::endl;}
         try { std::cout << "  martypath     = " << parser.getValue("martypath") << "\n"; } catch (...) {std::cout << std::endl;}
         try { std::cout << "  input_file    = " << parser.getValue("input_file") << "\n"; } catch (...) {std::cout << std::endl;}
-        try { std::cout << "  order         = " << parser.getValue("order") << "\n"; } catch (...) {std::cout << std::endl;}
+        try { std::cout << "  qcd_order         = " << parser.getValue("qcd_order") << "\n"; } catch (...) {std::cout << std::endl;}
         try { std::cout << "  write_to_flha = " << parser.getValue("write_to_flha") << "\n"; } catch (...) {std::cout << std::endl;}
 
 
@@ -230,12 +255,20 @@ int handleWilsonOptions(int argc, char* argv[]) {
         
         hyp.init(lha_path, config);
         
+        std::string scan_yaml_path = parser.getValue("scan");
+
+        std::vector<YamlScanParam> scan_params;
+        if (scan_yaml_path != "None") {
+            scan_params = YamlInputReader(scan_yaml_path).get_scan_params();
+        }
+        std::cout << scan_yaml_path << " hey : " << std::endl;
+
         WilsonInterface wi;
         WilsonBuildConfig wbc;
 
         wbc.matching_scale = parser.get<double>("Q_match");
         wbc.hadronic_scale = parser.get<double>("Q");
-        wbc.order = OrderMapper::enum_elt(parser.getValue("order"));
+        wbc.order = OrderMapper::enum_elt(parser.getValue("qcd_order"));
 
         std::unordered_set<WCoefId> coefs;
 
@@ -259,21 +292,71 @@ int handleWilsonOptions(int argc, char* argv[]) {
 
         wi.build(wbc);
         std::cout << std::endl;
-        
-        for (auto coef : coefs) {
-            std::cout << "SM Wilson Coefficient " << WCoefMapper::str(coef) << " at LO : "<< wi.getM(WCoefMapper::group_of(coef), WCoefMapper::enum_of(coef).value(), QCDOrder::LO, ContributionType::SM) << std::endl;
-            std::cout << "BSM Wilson Coefficient " << WCoefMapper::str(coef) << " at LO : "<< wi.getM(WCoefMapper::group_of(coef), WCoefMapper::enum_of(coef).value(), QCDOrder::LO, ContributionType::BSM) << std::endl;
-
-            if (wbc.order > QCDOrder::LO) {
-                std::cout << "SM Wilson Coefficient " << WCoefMapper::str(coef) << " at NLO : "<< wi.getM(WCoefMapper::group_of(coef), WCoefMapper::enum_of(coef).value(), QCDOrder::NLO, ContributionType::SM) << std::endl;
-                std::cout << "BSM Wilson Coefficient " << WCoefMapper::str(coef) << " at NLO : "<< wi.getM(WCoefMapper::group_of(coef), WCoefMapper::enum_of(coef).value(), QCDOrder::NLO, ContributionType::BSM) << std::endl;
-                if (wbc.order > QCDOrder::NLO) {
-                    std::cout << "SM Wilson Coefficient " << WCoefMapper::str(coef) << " at NNLO : "<< wi.getM(WCoefMapper::group_of(coef), WCoefMapper::enum_of(coef).value(), QCDOrder::NNLO, ContributionType::SM) << std::endl;
-                    std::cout << "BSM Wilson Coefficient " << WCoefMapper::str(coef) << " at NNLO : "<< wi.getM(WCoefMapper::group_of(coef), WCoefMapper::enum_of(coef).value(), QCDOrder::NNLO, ContributionType::BSM) << std::endl;
+        if (scan_params.size() == 0) {
+            for (auto coef : coefs) {
+                std::cout << "SM Wilson Coefficient " << WCoefMapper::str(coef) << " at LO : "<< wi.getM(WCoefMapper::group_of(coef), WCoefMapper::enum_of(coef).value(), QCDOrder::LO, ContributionType::SM) << std::endl;
+                std::cout << "BSM Wilson Coefficient " << WCoefMapper::str(coef) << " at LO : "<< wi.getM(WCoefMapper::group_of(coef), WCoefMapper::enum_of(coef).value(), QCDOrder::LO, ContributionType::BSM) << std::endl;
+    
+                if (wbc.order > QCDOrder::LO) {
+                    std::cout << "SM Wilson Coefficient " << WCoefMapper::str(coef) << " at NLO : "<< wi.getM(WCoefMapper::group_of(coef), WCoefMapper::enum_of(coef).value(), QCDOrder::NLO, ContributionType::SM) << std::endl;
+                    std::cout << "BSM Wilson Coefficient " << WCoefMapper::str(coef) << " at NLO : "<< wi.getM(WCoefMapper::group_of(coef), WCoefMapper::enum_of(coef).value(), QCDOrder::NLO, ContributionType::BSM) << std::endl;
+                    if (wbc.order > QCDOrder::NLO) {
+                        std::cout << "SM Wilson Coefficient " << WCoefMapper::str(coef) << " at NNLO : "<< wi.getM(WCoefMapper::group_of(coef), WCoefMapper::enum_of(coef).value(), QCDOrder::NNLO, ContributionType::SM) << std::endl;
+                        std::cout << "BSM Wilson Coefficient " << WCoefMapper::str(coef) << " at NNLO : "<< wi.getM(WCoefMapper::group_of(coef), WCoefMapper::enum_of(coef).value(), QCDOrder::NNLO, ContributionType::BSM) << std::endl;
+                    }
                 }
+                std::cout << std::endl;
             }
-            std::cout << std::endl;
+        } else {
+            std::cout << "doing scan now.." << std::endl;
+            std::shared_ptr<UserParameterProxy> upp;
+            if (config.model == Model::SM) {
+                upp = std::make_shared<UserParameterProxy>(std::vector<ParameterType>{ParameterType::SM, ParameterType::WILSON});
+            } else {
+                upp = std::make_shared<UserParameterProxy>(std::vector<ParameterType>{ParameterType::SM, ParameterType::BSM, ParameterType::WILSON});
+            }
+
+            for (auto param : scan_params) {
+                double cache_val = upp->get_value(param.block_name, param.pdg_code).value_or(0);
+                for (double x = param.min_val; x<param.max_val; x+=param.step_val) {
+                    upp->set_value(param.block_name, param.pdg_code, x);
+                    std::cout << param.block_name << " " << param.pdg_code << " = " << x << std::endl;
+                    std::cout << upp->get_value(param.block_name, param.pdg_code).value_or(0) << std::endl;
+                }
+                upp->set_value(param.block_name, param.pdg_code, cache_val);
+            }
+
+            auto wilsonExtractor = std::make_shared<WilsonCoeffExtractor>(wi, wbc, coefs);
+
+            OutputSpec spec2;
+            spec2.csv_write_header = true;
+
+            std::vector<YamlScanParam> scan_params = YamlInputReader("scan.yml").get_scan_params();
+
+
+            ScanRunner runner(*upp, scan_params, wilsonExtractor);
+
+            DataSet ds2 = runner.run(spec2);
+
+            ds2.meta["model"] = std::string("SM"); 
+            ds2.meta["Q_match"] = wbc.matching_scale;
+            ds2.meta["Q"] = wbc.hadronic_scale;
+            ds2.meta["qcd_order"] = std::string("LO");
+
+            {
+                auto w = make_writer(OutputFormat::CSV, "wilson_scan.csv");
+                w->write(ds2, spec2);
+                std::cout << "Wrote wilson_scan.csv\n";
+            }
+
+            {
+                auto w = make_writer(OutputFormat::JSON, "wilson_scan.json");
+                w->write(ds2, spec2);
+                std::cout << "Wrote wilson_scan.json\n";
+            }
+            
         }
+
         return 0;
     } catch (const std::exception& e) {
         std::cerr << "Error: " << e.what() << "\n\n";
