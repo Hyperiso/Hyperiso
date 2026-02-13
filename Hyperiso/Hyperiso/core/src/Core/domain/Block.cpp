@@ -354,9 +354,20 @@ void DependentBlock::mark_dirty() {
     }
 }
 
+// void DependentBlock::update() {
+//     if (frozen) { update_at_unfreeze = true; return; }
+//     mark_dirty();
+// }
+
 void DependentBlock::update() {
     if (frozen) { update_at_unfreeze = true; return; }
+
     mark_dirty();
+
+    for (auto& [_, p] : items) {
+        if (!p) continue;
+        p->notifyObservers(); 
+    }
 }
 
 void DependentBlock::ensure_up_to_date_impl() {

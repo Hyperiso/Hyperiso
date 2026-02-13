@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 
 project(UserInterface)
-add_library(UserInterfaceLib WilsonHandler.cpp ArgsParser.cpp ObservableHandler.cpp StatisticHandler.cpp YamlInputReader.cpp UserParameterProxy.cpp CsvWriter.cpp JsonWriter.cpp ScanRunner.cpp WilsonExtractor.cpp)
+add_library(UserInterfaceLib WilsonHandler.cpp ArgsParser.cpp ObservableHandler.cpp StatisticHandler.cpp YamlInputReader.cpp UserParameterProxy.cpp CsvWriter.cpp JsonWriter.cpp ScanRunner.cpp WilsonExtractor.cpp ObservableExtractor.cpp)
 
 # set_target_properties(UserInterfaceLib PROPERTIES PUBLIC_HEADER "ObservableHandler.h;ArgsParser.h;WilsonHandler.h;HyperisoInterface.h")
 

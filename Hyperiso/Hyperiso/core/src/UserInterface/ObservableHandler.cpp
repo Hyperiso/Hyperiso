@@ -1,11 +1,17 @@
 #include "ObservableHandler.h"
+#include "YamlInputReader.h"
+#include "UserParameterProxy.h"
+#include "ObjectsOutputs.h"
+#include "ScanRunner.h"
+#include "MakeWriter.h"
+#include "ObservableExtractor.h"
 
 static void print_observable_usage() {
     std::cout << "Usage: ./main observable [options]\n"
               << "\nOptions:\n"
               << "  --model/-m <model_name>                    : Specify the model (SM, THDM, MSSM, ...)\n"
-              << "  --wilson/-w <coefficient_name>             : Specify the Wilson coefficient (e.g., C1, C2, ..., CQ1)\n"
-              << "  --group/-g <group_name>                    : Specify the group if multiple coefficients are provided\n"
+              << "  --observables/-os <observable_name>             : Specify the Wilson coefficient (e.g., C1, C2, ..., CQ1)\n"
+              << "  --decay/-d <group_name>                    : Specify the group if multiple coefficients are provided\n"
               << "  --Q_match/-q <value>                       : Set Q_match scale\n"
               << "  --Q/-Q <value>                             : Set Q scale\n"
               << "  --martypath/-M <marty_model_path>          : Marty Model path (default: None)\n"
@@ -70,8 +76,8 @@ int handleObservableOptions(int argc, char* argv[]) {
 
         parser.addArgument(
             ArgumentBuilder()
-                .setLongName("order")
-                .setShortName("o")
+                .setLongName("qcd_order")
+                .setShortName("q")
                 .setHelpText("Specify the calculation order (LO|NLO|NNLO)")
                 .setType(ArgType::STRING)
                 .setRequired(false)
@@ -82,6 +88,29 @@ int handleObservableOptions(int argc, char* argv[]) {
                 .build()
         );
         
+        parser.addArgument(
+            ArgumentBuilder()
+                .setLongName("scan")
+                .setShortName("s")
+                .setHelpText("Is the calculation a scan, if set, a path to an input file (.yaml/.yml) need to be provided, with the format min/max/step for each parameter.")
+                .setType(ArgType::STRING)
+                .setRequired(false)
+                .setDefaultValue("None")
+                .build()
+        );
+
+
+        parser.addArgument(
+            ArgumentBuilder()
+                .setLongName("output")
+                .setShortName("o")
+                .setHelpText("In which format you want the output (single point or scan). Options are terminal (default), csv, json, lha.")
+                .setType(ArgType::STRING)
+                .setRequired(false)
+                .setDefaultValue("terminal")
+                .build()
+        );
+
         parser.addArgument(ArgumentBuilder()
                             .setLongName("help")
                             .setShortName("h")
@@ -92,17 +121,14 @@ int handleObservableOptions(int argc, char* argv[]) {
 
         parser.parse(argc, argv);
 
-        // Vérifier la sous-commande
         const auto pos = parser.getPositionalValues();
         const std::string cmd = pos.empty() ? "" : pos[0];
 
-        // Gestion help simple
-        // (Avec ton parser actuel, il faut passer une valeur: --help true)
+
         bool wantHelp = false;
         try {
             wantHelp = (parser.getValue("help") == "true" || parser.getValue("help") == "1");
         } catch (...) {
-            // ignore si absent
         }
 
         if (wantHelp) {
@@ -113,9 +139,6 @@ int handleObservableOptions(int argc, char* argv[]) {
             }
             return 0;
         }
-
-        // ---- Ici tu mettras le fonctionnement réel plus tard ----
-        // Pour l'instant, on montre juste ce qui a été parsé.
 
         std::cout << "[observable] parsed options:\n";
 
@@ -131,7 +154,7 @@ int handleObservableOptions(int argc, char* argv[]) {
         try { std::cout << "  observable         = " << parser.getValue("observable") << "\n"; } catch (...) {std::cout << std::endl;}
         try { std::cout << "  martypath     = " << parser.getValue("martypath") << "\n"; } catch (...) {std::cout << std::endl;}
         try { std::cout << "  input_file    = " << parser.getValue("input_file") << "\n"; } catch (...) {std::cout << std::endl;}
-        try { std::cout << "  order         = " << parser.getValue("order") << "\n"; } catch (...) {std::cout << std::endl;}
+        try { std::cout << "  order         = " << parser.getValue("qcd_order") << "\n"; } catch (...) {std::cout << std::endl;}
         try { std::cout << "  write_to_flha = " << parser.getValue("write_to_flha") << "\n"; } catch (...) {std::cout << std::endl;}
 
 
@@ -162,7 +185,7 @@ int handleObservableOptions(int argc, char* argv[]) {
         ObservableInterface oi;
 
         auto obs_str = parser.getValues("observables");
-        auto order = OrderMapper::enum_elt(parser.getValue("order"));
+        auto order = OrderMapper::enum_elt(parser.getValue("qcd_order"));
         std::map<ObservableId, QCDOrder> obs;
 
         for (auto elem : obs_str) {
@@ -171,15 +194,66 @@ int handleObservableOptions(int argc, char* argv[]) {
         }
         oi.add_observables(obs);
 
-        for (auto elem : oi.get_current_observables()) {
-            auto val = oi.compute_observable(elem);
+        std::string scan_yaml_path = parser.getValue("scan");
 
-            if (val.size() < 2) {
-                std::cout << "Observable " << elem.str() << " = " << val[0].value << std::endl;
-            } else {
-                for (auto v : val) {
-                    std::cout << "Observable " << elem.str() << " bin["<< v.bin.value().first << "," << v.bin.value().second << "] = " << v.value << std::endl;
+        std::vector<YamlScanParam> scan_params;
+        if (scan_yaml_path != "None") {
+            scan_params = YamlInputReader(scan_yaml_path).get_scan_params();
+        }
+        std::cout << scan_yaml_path << " hey : " << std::endl;
+
+        if (scan_params.size() == 0) {
+            for (auto elem : oi.get_current_observables()) {
+                auto val = oi.compute_observable(elem);
+
+                if (val.size() < 2) {
+                    std::cout << "Observable " << elem.str() << " = " << val[0].value << std::endl;
+                } else {
+                    for (auto v : val) {
+                        std::cout << "Observable " << elem.str() << " bin["<< v.bin.value().first << "," << v.bin.value().second << "] = " << v.value << std::endl;
+                    }
                 }
+            }
+        } else {
+            std::cout << "doing scan now.." << std::endl;
+            std::shared_ptr<UserParameterProxy> upp;
+            if (config.model == Model::SM) {
+                upp = std::make_shared<UserParameterProxy>(std::vector<ParameterType>{ParameterType::SM, ParameterType::WILSON});
+            } else {
+                upp = std::make_shared<UserParameterProxy>(std::vector<ParameterType>{ParameterType::SM, ParameterType::BSM, ParameterType::WILSON});
+            }
+
+            auto order = OrderMapper::enum_elt(parser.getValue("qcd_order"));
+
+            auto wilsonExtractor = std::make_shared<ObservableExtractor>(oi, order);
+
+            OutputSpec spec2;
+            spec2.csv_write_header = true;
+
+            std::vector<YamlScanParam> scan_params = YamlInputReader("scan.yml").get_scan_params();
+
+
+            ScanRunner runner(*upp, scan_params, wilsonExtractor);
+
+            DataSet ds2 = runner.run(spec2);
+
+            ds2.meta["model"] = std::string("SM"); 
+            // ds2.meta["Q_match"] = wbc.matching_scale;
+            // ds2.meta["Q"] = wbc.hadronic_scale;
+            ds2.meta["qcd_order"] = std::string("LO");
+
+            std::string output_format = parser.getValue("output");
+
+            if (output_format.ends_with("csv")) {
+                auto w = make_writer(OutputFormat::CSV, output_format);
+                w->write(ds2, spec2);
+                std::cout << "Wrote output_format\n";
+            } else if (output_format.ends_with("json")) {
+                auto w = make_writer(OutputFormat::JSON, output_format);
+                w->write(ds2, spec2);
+                std::cout << "Wrote output_format\n";
+            } else {
+                std::cout << "bonjour" << std::endl;
             }
         }
         return 0;

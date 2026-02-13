@@ -23,7 +23,7 @@ static void print_wilson_usage() {
               << "  --model/-m <model_name>                    : Specify the model (SM, THDM, MSSM, ...)\n"
               << "  --wilson/-w <coefficient_name>             : Specify the Wilson coefficient (e.g., C1, C2, ..., CQ1)\n"
               << "  --group/-g <group_name>                    : Specify the group if multiple coefficients are provided\n"
-              << "  --Q_match/-q <value>                       : Set Q_match scale\n"
+              << "  --Q_match/-QM <value>                       : Set Q_match scale\n"
               << "  --Q/-Q <value>                             : Set Q scale\n"
               << "  --martypath/-M <marty_model_path>          : Marty Model path (default: None)\n"
               << "  --input_file/-if <slha_name>               : input file for parameters spectrum\n"
@@ -35,16 +35,6 @@ static void print_wilson_usage() {
 int handleWilsonOptions(int argc, char* argv[]) {
     try {
         ArgParser parser;
-
-        // Sous-commande positionnelle: "wilson"
-        // parser.addArgument(
-        //     ArgumentBuilder()
-        //         .setLongName("command")
-        //         .setHelpText("Subcommand (wilson)")
-        //         .setPositional(true)
-        //         .setRequired(true)
-        //         .build()
-        // );
 
         // --model/-m
         parser.addArgument(
@@ -85,7 +75,7 @@ int handleWilsonOptions(int argc, char* argv[]) {
         parser.addArgument(
             ArgumentBuilder()
                 .setLongName("Q_match")
-                .setShortName("q")
+                .setShortName("QM")
                 .setHelpText("Set Q_match scale")
                 .setType(ArgType::DOUBLE)
                 .setRequired(false)
@@ -93,7 +83,7 @@ int handleWilsonOptions(int argc, char* argv[]) {
                 .build()
         );
 
-        // --Q/-Q (oui shortName="Q" est OK)
+        // --Q/-Q
         parser.addArgument(
             ArgumentBuilder()
                 .setLongName("Q")
@@ -121,14 +111,14 @@ int handleWilsonOptions(int argc, char* argv[]) {
         parser.addArgument(
             ArgumentBuilder()
                 .setLongName("input_file")
-                .setShortName("if") // ton parser supporte les shortName multi-caractères
+                .setShortName("if")
                 .setHelpText("Input file for parameters spectrum")
                 .setType(ArgType::STRING)
                 .setRequired(false)
                 .build()
         );
 
-        // --order/-o (default LO) avec AllowedValuesValidator
+        // --order/-o (default LO)
         parser.addArgument(
             ArgumentBuilder()
                 .setLongName("qcd_order")
@@ -317,31 +307,6 @@ int handleWilsonOptions(int argc, char* argv[]) {
                 upp = std::make_shared<UserParameterProxy>(std::vector<ParameterType>{ParameterType::SM, ParameterType::BSM, ParameterType::WILSON});
             }
 
-            auto before = wi.getM(WGroup::B, WCoefMapper::enum_of(WCoefMapper::id_of("C7")).value(),
-                      QCDOrder::LO, ContributionType::SM);
-
-            upp->set_value("MASS", 1, 0.0047);
-            upp->set_value("EW_SCALE", 1, 100.0);
-
-            // Important: relis le proxy tout de suite
-            std::cout << "proxy MASS:1 = " << upp->get_value("MASS", 1).value_or(-1) << "\n";
-            std::cout << "proxy EW_SCALE:1 = " << upp->get_value("EW_SCALE", 1).value_or(-1) << "\n";
-
-            auto after = wi.getM(WGroup::B, WCoefMapper::enum_of(WCoefMapper::id_of("C7")).value(),
-                                QCDOrder::LO, ContributionType::SM);
-
-            std::cout << "C7 before=" << before << " after=" << after << "\n";
-
-            for (auto param : scan_params) {
-                double cache_val = upp->get_value(param.block_name, param.pdg_code).value_or(0);
-                for (double x = param.min_val; x<param.max_val; x+=param.step_val) {
-                    upp->set_value(param.block_name, param.pdg_code, x);
-                    std::cout << param.block_name << " " << param.pdg_code << " = " << x << std::endl;
-                    std::cout << upp->get_value(param.block_name, param.pdg_code).value_or(0) << std::endl;
-                }
-                upp->set_value(param.block_name, param.pdg_code, cache_val);
-            }
-
             auto wilsonExtractor = std::make_shared<WilsonCoeffExtractor>(wi, wbc, coefs);
 
             OutputSpec spec2;
@@ -373,17 +338,6 @@ int handleWilsonOptions(int argc, char* argv[]) {
                 std::cout << "bonjour" << std::endl;
             }
 
-            // {
-            //     auto w = make_writer(OutputFormat::CSV, "wilson_scan.csv");
-            //     w->write(ds2, spec2);
-            //     std::cout << "Wrote wilson_scan.csv\n";
-            // }
-
-            // {
-            //     auto w = make_writer(OutputFormat::JSON, "wilson_scan.json");
-            //     w->write(ds2, spec2);
-            //     std::cout << "Wrote wilson_scan.json\n";
-            // }
             
         }
 
