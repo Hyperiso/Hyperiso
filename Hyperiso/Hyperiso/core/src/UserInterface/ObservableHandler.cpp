@@ -218,9 +218,9 @@ int handleObservableOptions(int argc, char* argv[]) {
             std::cout << "doing scan now.." << std::endl;
             std::shared_ptr<UserParameterProxy> upp;
             if (config.model == Model::SM) {
-                upp = std::make_shared<UserParameterProxy>(std::vector<ParameterType>{ParameterType::SM, ParameterType::WILSON});
+                upp = std::make_shared<UserParameterProxy>(std::vector<ParameterType>{ParameterType::SM, ParameterType::WILSON, ParameterType::FLAVOR, ParameterType::DECAY});
             } else {
-                upp = std::make_shared<UserParameterProxy>(std::vector<ParameterType>{ParameterType::SM, ParameterType::BSM, ParameterType::WILSON});
+                upp = std::make_shared<UserParameterProxy>(std::vector<ParameterType>{ParameterType::SM, ParameterType::BSM, ParameterType::WILSON, ParameterType::FLAVOR, ParameterType::DECAY});
             }
 
             auto order = OrderMapper::enum_elt(parser.getValue("qcd_order"));

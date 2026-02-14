@@ -11,25 +11,8 @@
 #include "ObservableInterface.h"
 #include "Include.h" // pour QCDOrder, OrderMapper, Value, etc.
 
-// clé output
-inline std::string obs_key(const std::string& obsName,
-                           QCDOrder ord,
-                           const std::optional<std::pair<double,double>>& bin)
-{
-    std::string k = "OBS:";
-    k += obsName;
-    k += ":";
-    k += OrderMapper::str(ord);
-
-    if (bin.has_value()) {
-        k += ":BIN[";
-        k += std::to_string(bin->first);
-        k += ",";
-        k += std::to_string(bin->second);
-        k += "]";
-    }
-    return k;
-}
+std::string obs_key(const ObservableId& obs, QCDOrder ord);
+std::string obs_key_bin(const ObservableId& obs, QCDOrder ord, double bmin, double bmax);
 
 class ObservableExtractor : public IOutputExtractor {
 public:
