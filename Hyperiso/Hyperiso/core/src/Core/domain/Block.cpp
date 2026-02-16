@@ -74,20 +74,6 @@ void Block::erase_local(const LhaID& id) {
     this->items.erase(id);
 }
 
-// void Block::assign(const LhaID& key, std::shared_ptr<Parameter> param) {
-//     if (!this->contains(key)) {
-//         LOG_ERROR("KeyError", "Cannot update non-existing parameter", key.to_string(), "in block", this->blockname);
-//     }
-
-//     auto& dst = this->items.at(key);
-
-//     dst->overwrite_payload_from(*param);
-
-//     dst->notifyObservers();
-
-//     LOG_DEBUG("Call to notifyObservers from Block::assign(const LhaID&, std::shared_ptr<Parameter>) of", blockname);
-//     // notifyObservers();
-// }
 
 void Block::assign(const LhaID& key, std::shared_ptr<Parameter> param) {
     if (!this->contains(key)) {
@@ -97,10 +83,8 @@ void Block::assign(const LhaID& key, std::shared_ptr<Parameter> param) {
     auto& dst = this->items.at(key);
     dst->overwrite_payload_from(*param);
 
-    // notifier param observers si tu veux (pas obligatoire pour DependentBlock)
     dst->notifyObservers();
 
-    // MAIS surtout notifier block observers
     LOG_DEBUG("Call to notifyObservers from Block::assign(shared_ptr) of", blockname);
     notifyObservers();
 }
@@ -111,27 +95,11 @@ void Block::assign(const LhaID& key, scalar_t value) {
     }
 
     auto& p = this->items.at(key);
-    p->set_expected(value);   // ça notifie déjà les observers du param
+    p->set_expected(value);
 
-    // IMPORTANT: notifier les observers du BLOCK (DependentBlock observe le block)
     LOG_DEBUG("Call to notifyObservers from Block::assign(const LhaID&, double) of", blockname);
     notifyObservers();
 }
-
-// void Block::assign(const LhaID &key, scalar_t value) {
-//     if (!this->contains(key)) {
-//         LOG_ERROR("KeyError", "Cannot update non-existing parameter", key.to_string(), "in block", this->blockname);
-//     }
-
-//     auto& p = this->items.at(key);
-
-//     p->set_expected(value);
-
-//     // p->notifyObservers();
-
-//     LOG_DEBUG("Call to notifyObservers from Block::assign(const LhaID&, double) of", blockname);
-//     // notifyObservers();
-// }
 
 void Block::store_or_assign(const LhaID& id, std::shared_ptr<Parameter> param) {
     if (!contains(id)) {
@@ -230,7 +198,6 @@ void Block::destroy() {
     
     clear_below();
     items.clear();
-
 
     for (auto& obs : dependents) {
         if (obs) obs->destroy();
@@ -341,6 +308,7 @@ void DependentBlock::destroy() {
     }
 }
 
+
 void DependentBlock::mark_dirty() {
     if (dirty) return;
     dirty = true;
@@ -348,26 +316,19 @@ void DependentBlock::mark_dirty() {
     for (auto& obs : observers) {
         if (auto dep = std::dynamic_pointer_cast<DependentBlock>(obs)) {
             dep->mark_dirty();
-        } else if (obs) {
-
         }
     }
-}
 
-// void DependentBlock::update() {
-//     if (frozen) { update_at_unfreeze = true; return; }
-//     mark_dirty();
-// }
+    for (auto& [_, p] : items) {
+        if (p) p->notifyObservers();
+    }
+
+    return;
+}
 
 void DependentBlock::update() {
     if (frozen) { update_at_unfreeze = true; return; }
-
     mark_dirty();
-
-    for (auto& [_, p] : items) {
-        if (!p) continue;
-        p->notifyObservers(); 
-    }
 }
 
 void DependentBlock::ensure_up_to_date_impl() {
