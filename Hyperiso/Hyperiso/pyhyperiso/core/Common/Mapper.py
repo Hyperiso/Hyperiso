@@ -10,6 +10,9 @@ from pyhyperiso.phyperiso.pyhyperiso.common import WCoefMapper as _CppWCoefMappe
 from pyhyperiso.phyperiso.pyhyperiso.common import ObservableMapper as _CppObservableMapper
 from pyhyperiso.phyperiso.pyhyperiso.common import DecayMapper as _CppDecayMapper
 from pyhyperiso.core.Common.GeneralEnum import WGroup, Observables, QCDOrder, ParameterType, Model, WilsonBasis, ContributionType, MassType, ScaleType, Decays
+from pyhyperiso.core.Common.LhaID import LhaID
+from pyhyperiso.core.Common.SymbolId import ObservableId, _unwrap_optional
+from typing import AnyStr
 
 class OrderMapper:
     def __init__(self):
@@ -190,21 +193,60 @@ class ObservableMapper:
     def __init__(self):
         pass
     
-    def str(self, obs_id : Observables):
+    @staticmethod
+    def str(obs_id : Observables):
         return _CppObservableMapper.str(obs_id.value)
     
-    def id_of(self, obs_id: Observables):
-        return _CppObservableMapper.id_of(self.str(obs_id))
+    @staticmethod
+    def id_of(name: AnyStr) -> ObservableId:
+        # return _CppObservableMapper.id_of(self.str(obs_id))
+        cpp_id = _CppObservableMapper.id_of(name)  # retourne _CppObservableId
+        return ObservableId(str(cpp_id))           # wrap python pur
     
-    def get_str(self):
+    @staticmethod
+    def to_id(obs : Observables) -> ObservableId:
+        cpp_id = _CppObservableMapper.to_id(obs)
+        return ObservableId(str(cpp_id))
+    
+    @staticmethod
+    def canonical(obs_id: ObservableId) -> str:
+        return _CppObservableMapper.canonical(obs_id._to_cpp())
+    
+    @staticmethod
+    def get_str():
         return _CppObservableMapper.get_str()
     
-    def get_str_all(self):
+    @staticmethod
+    def get_str_all():
         return _CppObservableMapper.get_str_all()
     
-    def get_enum(self):
-        return [x for x in _CppObservableMapper.get_enum()]
+    @staticmethod
+    def get_enum():
+        # si _CppObservableMapper.get_enum() renvoie une liste d'enums C++ (ou d'int)
+        return [Observables(x) for x in _CppObservableMapper.get_enum()]
     
+    @staticmethod
+    def from_flha(flha_id: LhaID) -> ObservableId:
+        # binding C++: from_flha(LhaID) -> optional<ObservableId> -> None ou _CppObservableId
+        cpp_opt = _CppObservableMapper.from_flha(flha_id._cpp_obj)
+        cpp_id = _unwrap_optional(cpp_opt, "ObservableId from FLHA")
+        return ObservableId(str(cpp_id))
+    
+    @staticmethod
+    def flha(obs) -> LhaID:
+        """
+        obs peut être:
+          - Observables  -> appelle flha(Observables)
+          - ObservableId -> appelle flha(ObservableId) (celle qui throw si pas d'ext)
+        """
+        if isinstance(obs, Observables):
+            cpp_lha = _CppObservableMapper.flha(obs.value)  # returns cpp LhaID
+            return LhaID(cpp_lha)                  # à adapter à ton wrapper LhaID
+        elif isinstance(obs, ObservableId):
+            cpp_lha = _CppObservableMapper.flha(obs._to_cpp())
+            return LhaID(cpp_lha)
+        else:
+            raise TypeError("flha() expects Observables or ObservableId")
     
 class DecayMapper:
     def __init__(self):
@@ -255,8 +297,8 @@ if __name__ == "__main__":
     
     print(om.str(Observables.A_FB_B__D_TAU_NU))
     
-    print(om.id_of(Observables.A_FB_B__D_TAU_NU))
-    print(type(om.id_of(Observables.A_FB_B__D_TAU_NU)))
+    print(om.flha(Observables.BR_BU_TAU_NU))
+    print(type(om.flha(Observables.BR_BU_TAU_NU)))
     
     decaymapper = DecayMapper()
     

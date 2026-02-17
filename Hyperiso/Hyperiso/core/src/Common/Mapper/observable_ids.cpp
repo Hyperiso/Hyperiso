@@ -21,7 +21,7 @@ std::optional<ObservableId> ObservableMapper::from_flha(const LhaID& ext){ retur
 
 std::optional<LhaID>        ObservableMapper::flha_of(const ObservableId& id){ return external_of(id); }
 
-LhaID        ObservableMapper::flha(const Observables& id){ return observable_mapping().at(id); }
+LhaID        ObservableMapper::flha(const Observables& id){ return observable_flha_mapping().at(id); }
 
 bool ObservableMapper::register_custom(const std::string& canonical,
                         std::vector<std::string> aliases,

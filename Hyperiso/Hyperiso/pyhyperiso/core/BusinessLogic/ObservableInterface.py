@@ -1,6 +1,6 @@
 from pyhyperiso.phyperiso.pyhyperiso.observable import ObservableInterface as _CppObservableInterface
 from pyhyperiso.core.Common.GeneralEnum import Observables, Decays, QCDOrder
-from pyhyperiso.core.Common.General import ParamId
+from pyhyperiso.core.Common.ParamId import ParamId
 from pyhyperiso.core.Math.scalar import Scalar
 from pyhyperiso.core.BusinessLogic.ObservableValue import PyObservableValue, _key_to_cpp_obs_arg, ObsLike, _cpp_id_to_python_key
 # from pyhyperiso.core.BusinessLogic.compounds import Estimate
@@ -26,7 +26,7 @@ class PyObservableInterface:
         self._cpp_obj.add_observable_parameters(obs_name.value, {p._cpp_obj for p in pids})
 
 
-    def compute_observable(self, obs: Observables) -> List[PyObservableValue]:
+    def compute_observable(self, obs: ObsLike) -> List[PyObservableValue]:
         cpp_vals = self._cpp_obj.compute_observable(_key_to_cpp_obs_arg(obs))  # vector<ObservableValue>
         return [PyObservableValue.from_cpp(v) for v in cpp_vals]
     

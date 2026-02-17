@@ -32,6 +32,25 @@ using DH = DependenciesHelper;
 
 namespace py = pybind11;
 
+template <class IdT>
+void bind_symbol_id(py::module_& m, const char* py_name)
+{
+    py::class_<IdT>(m, py_name)
+        .def(py::init<>())
+        .def(py::init<std::string>(), py::arg("name"))
+        .def_property_readonly("name", [](const IdT& id){ return id.str(); })
+        .def("__str__", [](const IdT& id){ return id.str(); })
+        .def("__repr__", [py_name](const IdT& id){
+            return std::string("<") + py_name + " '" + id.str() + "'>";
+        })
+        .def("__hash__", [](const IdT& id){
+            return py::hash(py::str(id.str()));
+        })
+        .def("__eq__", [](const IdT& a, const IdT& b){
+            return a.str() == b.str();
+        });
+}
+
 void init_common(py::module &m) {
 
     py::enum_<Model>(m, "Model")
@@ -388,17 +407,19 @@ void init_common(py::module &m) {
     // BIND_ENUM_MAPPER(DecayMapper, Decays)
 
 
-    py::class_<ObservableId>(m, "ObservableId")
-        .def(py::init<>())
-        .def("__str__", &ObservableId::str)
-        .def("str", &ObservableId::str)
-        .def("__repr__", [](const ObservableId& id){
-            return "<ObservableId '" + id.str() + "'>";
-        })
-        .def("__hash__", [](const ObservableId& id){
-            return py::hash(py::str(id.str()));
-        });
+    // py::class_<ObservableId>(m, "ObservableId")
+    //     .def(py::init<>())
+    //     .def("__str__", &ObservableId::str)
+    //     .def("str", &ObservableId::str)
+    //     .def("__repr__", [](const ObservableId& id){
+    //         return "<ObservableId '" + id.str() + "'>";
+    //     })
+    //     .def("__hash__", [](const ObservableId& id){
+    //         return py::hash(py::str(id.str()));
+    //     });
 
+    bind_symbol_id<ObservableId>(m, "_CppObservableId");
+    bind_symbol_id<DecayId>(m, "_CppDecayId");
     py::class_<ObservableMapper, std::shared_ptr<ObservableMapper>>(m, "ObservableMapper")
         .def_static("str",
             py::overload_cast<Observables>(&ObservableMapper::str),
@@ -409,6 +430,7 @@ void init_common(py::module &m) {
         .def_static("get_str_all",&ObservableMapper::get_str_all)
 
         // runtime id/ext
+        .def_static("to_id",        &ObservableMapper::to_id,        py::arg("name"))
         .def_static("id_of",        &ObservableMapper::id_of,         py::arg("name"))
         .def_static("canonical",
             py::overload_cast<const ObservableId&>(&ObservableMapper::str),
@@ -418,8 +440,10 @@ void init_common(py::module &m) {
         // ⬇️ DISAMBIGUATION: bind the "id -> LhaID" overload
         .def_static("flha",
             py::overload_cast<const ObservableId&>(&ObservableMapper::flha),
+            py::arg("id"))
+        .def_static("flha",
+            py::overload_cast<const Observables&>(&ObservableMapper::flha),
             py::arg("id"));
-
     // py::class_<WCoefMapper, std::shared_ptr<WCoefMapper>>(m, "WCoefMapper")
     //     .def_static("str", &WCoefMapper::str, py::arg("coef"))
     //     .def_static("enum_elt", &WCoefMapper::enum_elt, py::arg("name"))
@@ -452,6 +476,7 @@ void init_common(py::module &m) {
 
         // runtime id API
         .def_static("id_of",        &WCoefMapper::id_of,        py::arg("name"))
+        .def_static("to_id",        &WCoefMapper::to_id,        py::arg("name"))
         .def_static("canonical",
             py::overload_cast<const WCoefId&>(&WCoefMapper::str),
             py::arg("id"))
@@ -512,7 +537,7 @@ void init_common(py::module &m) {
         .def_static("get_str",      &GroupMapper::get_str)
         .def_static("get_enum",     &GroupMapper::get_enum)
         .def_static("get_str_all",  &GroupMapper::get_str_all)
-
+        .def_static("to_id",        &GroupMapper::to_id,        py::arg("name"))
         // (optionnel) runtime id API
         .def_static("id_of",     &GroupMapper::id_of,     py::arg("name"))
         .def_static("canonical", py::overload_cast<const WGroupId&>(&GroupMapper::str), py::arg("id"));
@@ -556,6 +581,7 @@ void init_common(py::module &m) {
         .def_static("get_decay",       &DecayMapper::get_decay,       py::arg("observable"))
 
         // (optionnel) runtime id/ext
+        .def_static("to_id",        &DecayMapper::to_id,        py::arg("name"))
         .def_static("id_of",        &DecayMapper::id_of,         py::arg("name"))
         .def_static("canonical",    py::overload_cast<const DecayId&>(&DecayMapper::str), py::arg("id"))
         .def_static("from_external",&DecayMapper::from_external, py::arg("lha"))

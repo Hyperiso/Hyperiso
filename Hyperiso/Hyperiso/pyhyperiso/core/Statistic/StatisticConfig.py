@@ -18,7 +18,7 @@ class StatisticConfig:
     def to_cpp(self) -> _CppStatisticConfig:
         """Converts this Python wrapper to a C++ Config object."""
         cpp = _CppStatisticConfig()
-        cpp.obss = {ObservableMapper().id_of(x):y.value for x,y in self.obss.items()}
+        cpp.obss = {ObservableMapper.to_id(x)._to_cpp():y.value for x,y in self.obss.items()}
         cpp.p_specs = {p._cpp_obj for p in self.p_specs}
         cpp.MC_draws = self.MC_draws
         cpp.skew_abs_threshold = self.skew_abs_threshold
