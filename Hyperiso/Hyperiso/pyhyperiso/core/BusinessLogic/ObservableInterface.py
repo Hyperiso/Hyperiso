@@ -27,7 +27,11 @@ class PyObservableInterface:
 
 
     def compute_observable(self, obs: ObsLike) -> List[PyObservableValue]:
-        cpp_vals = self._cpp_obj.compute_observable(_key_to_cpp_obs_arg(obs))  # vector<ObservableValue>
+        print("truc : ", obs)
+        print(_key_to_cpp_obs_arg(obs))
+        print(type(_key_to_cpp_obs_arg(obs)))
+        # cpp_vals = self._cpp_obj.compute_observable(_key_to_cpp_obs_arg(obs))  # vector<ObservableValue>
+        cpp_vals = self._cpp_obj.compute_observable(obs.value)  # vector<ObservableValue>
         return [PyObservableValue.from_cpp(v) for v in cpp_vals]
     
     
@@ -90,7 +94,7 @@ if __name__ == "__main__":
     interface.add_observable(Observables.ISOSPIN_ASYMMETRY_B_KSTAR_GAMMA, QCDOrder.NNLO, True)
     
     print(interface.compute_observable(Observables.BR_B_XS_GAMMA))  # Scalar(...)
-    
+    print(interface.compute_observable(Observables.BR_BS_MUMU))  # Scalar(...)
     print(interface.compute_all())
     # test_values = []
     # from pyhyperiso.core.Core.ParameterSetter import PyParameterSetter, ParamId, ParameterType

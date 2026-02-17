@@ -205,7 +205,7 @@ class ObservableMapper:
     
     @staticmethod
     def to_id(obs : Observables) -> ObservableId:
-        cpp_id = _CppObservableMapper.to_id(obs)
+        cpp_id = _CppObservableMapper.to_id(obs.value)
         return ObservableId(str(cpp_id))
     
     @staticmethod

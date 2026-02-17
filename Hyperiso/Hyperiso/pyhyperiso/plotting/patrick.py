@@ -57,7 +57,7 @@ class Point:
 # Build exp/theory points
 # -------------------------------------------------------------------
 def exp_point_from_fobs(provider: PyParameterProvider, lhaid: LhaID) -> Point:
-    pid = ParamId(type=ParameterType.FOBS, block="FOBS", code=lhaid)
+    pid = ParamId(type=ParameterType.OBSERVABLE, block="FOBS", code=lhaid)
     p = provider.get_parameter(pid)
     stat, syst = p.std
 
@@ -142,14 +142,39 @@ def normalize_summaries_keys(summaries: Dict[Any, GaussianSummary]) -> Dict[Obse
 # Main plotting function
 # -------------------------------------------------------------------
 def anomalies_plot(
-    hyp_interface: PyObservableInterface,
-    stat_interface: StatisticInterface,
-    exp_provider: PyParameterProvider,
+    # hyp_interface: PyObservableInterface,
+    # stat_interface: StatisticInterface,
+    # exp_provider: PyParameterProvider,
     flip: bool = True,
 ):
-    # 1) incertitudes théoriques
+    selected = [
+        Observables.BR_BS_MUMU,
+        Observables.BR_BD_MUMU,
+        Observables.BR_BU_TAU_NU,
+    ]
+    # 2) Statistic interface (incertitude théorie)
+    stat_cfg = StatisticConfig(
+        obss={o: QCDOrder.NNLO for o in selected},
+        p_specs=[],
+        MC_draws=200,  # tu peux monter
+        skew_abs_threshold=0.2,
+    )
+    stat_interface = StatisticInterface(stat_cfg)
+
+    # 3) Exp provider (FOBS)
+    exp_provider = PyParameterProvider(ParameterType.OBSERVABLE)
+    
+    # # 1) incertitudes théoriques
     summaries_raw = stat_interface.compute_uncertainties()
     summaries = normalize_summaries_keys(summaries_raw)
+    
+    # obs_interface = PyObservableInterface()
+    
+
+    # for o in selected:
+    #     obs_interface.add_observable(o, QCDOrder.NNLO, add_dependencies=True)
+
+    
 
     labels: List[str] = [""]
     points = []  # (label, expPoint, theoPoint)
@@ -159,9 +184,14 @@ def anomalies_plot(
         lhaid: LhaID = ObservableMapper.flha(obs)
         exp = exp_point_from_fobs(exp_provider, lhaid)
 
+        # obs_interface.add_observable(obs, QCDOrder.NNLO)
+        print(obs)
+        # print("aaah : ", obs_interface._cpp_obj.get_current_observables())
         # THEO central
-        theo_val = hyp_interface.compute_observable_central(obs)
-
+        # theo_val = hyp_interface.compute_observable_central(obs)
+        # theo_val = obs_interface.compute_observable(obs)
+        theo_val = summaries[ObservableMapper.to_id(obs)].mu
+        print(theo_val)
         # THEO uncertainty id
         gid: ObservableId = ObservableMapper.id_of(ObservableMapper.str(obs))
         if gid not in summaries:
@@ -176,8 +206,10 @@ def anomalies_plot(
 
         g = summaries[gid]
         th = theory_point_from_stats(theo_val, g)
-
+        # th = Point()
+        # th.obs = theo_val[0].value
         labels.append(latex_label)
+        # points.append((latex_label, exp, th))
         points.append((latex_label, exp, th))
 
     # ---- Ajoute ici ta sélection d'observables (PK-style) ----
@@ -199,8 +231,14 @@ def anomalies_plot(
     # style
     nsigma = 6
     labels.append("")
-    ax.set_yticks(ax.get_yticks().tolist())
-    ax.set_yticklabels(labels)
+    # ax.set_yticks(ax.get_yticks().tolist())
+    # ax.set_yticklabels(labels)
+    n = len(points)
+    ypos = np.arange(n)
+
+    ax.set_yticks(ypos)
+    ax.set_yticklabels([lbl for (lbl, _, _) in points])
+    ax.invert_yaxis()
     ax.grid(axis="x")
     ax.set_xlabel(r"Pull in $\sigma$")
     ax.set_xlim((-0.99, nsigma) if flip else (-nsigma, nsigma))
@@ -231,33 +269,33 @@ def main():
     hyp.init(lha_file=lha_file_path, config=config)
 
     # 1) Observable interface (théorie)
-    obs_interface = PyObservableInterface()
-    selected = [
-        Observables.BR_BS_MUMU,
-        Observables.BR_BD_MUMU,
-        Observables.BR_BU_TAU_NU,
-    ]
+    # obs_interface = PyObservableInterface()
+    # selected = [
+    #     Observables.BR_BS_MUMU,
+    #     Observables.BR_BD_MUMU,
+    #     Observables.BR_BU_TAU_NU,
+    # ]
 
-    for o in selected:
-        obs_interface.add_observable(o, QCDOrder.NNLO, add_dependencies=True)
+    # for o in selected:
+    #     obs_interface.add_observable(o, QCDOrder.NNLO, add_dependencies=True)
 
-    # 2) Statistic interface (incertitude théorie)
-    stat_cfg = StatisticConfig(
-        obss={o: QCDOrder.NNLO for o in selected},
-        p_specs=[],
-        MC_draws=200,  # tu peux monter
-        skew_abs_threshold=0.2,
-    )
-    stat_interface = StatisticInterface(stat_cfg)
+    # # 2) Statistic interface (incertitude théorie)
+    # stat_cfg = StatisticConfig(
+    #     obss={o: QCDOrder.NNLO for o in selected},
+    #     p_specs=[],
+    #     MC_draws=200,  # tu peux monter
+    #     skew_abs_threshold=0.2,
+    # )
+    # stat_interface = StatisticInterface(stat_cfg)
 
-    # 3) Exp provider (FOBS)
-    exp_provider = PyParameterProvider(ParameterType.FOBS)
+    # # 3) Exp provider (FOBS)
+    # exp_provider = PyParameterProvider(ParameterType.OBSERVABLE)
 
     # 4) Plot
     fig = anomalies_plot(
-        hyp_interface=obs_interface,
-        stat_interface=stat_interface,
-        exp_provider=exp_provider,
+        # hyp_interface=obs_interface,
+        # stat_interface=stat_interface,
+        # exp_provider=exp_provider,
         flip=True,
     )
 

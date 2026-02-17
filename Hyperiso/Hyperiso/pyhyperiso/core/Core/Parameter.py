@@ -5,7 +5,7 @@ from pyhyperiso.core.Common.ParamId import ParamId
 from pyhyperiso.core.Common.GeneralEnum import ParameterType
 from pyhyperiso.core.Math.scalar import Scalar, pow_scalar, sqrt, _to_scalar
 from pyhyperiso.phyperiso.pyhyperiso.core import DependentParameter as _CppDependentParameter
-from typing import Dict, Tuple, Union
+from typing import Dict, Tuple, Union, List
 from enum import Enum
 
 class ParameterMode(Enum):
@@ -19,6 +19,8 @@ class PyParameter:
         expected: Union[float, complex, Scalar],
         stat: Union[float, complex, Scalar],
         syst: Union[float, complex, Scalar],
+        scale: float = None,
+        bin: List = None
     ):
         self._cpp_obj = _CppParameter(
             pid._cpp_obj,
@@ -26,6 +28,10 @@ class PyParameter:
             _to_scalar(stat)._cpp_obj,
             _to_scalar(syst)._cpp_obj,
         )
+        if scale is not None:
+            self._cpp_obj.set_scale(scale)
+        if bin is not None:
+            self._cpp_obj.set_bin(bin)
 
     @property
     def value(self) -> Scalar:
@@ -61,6 +67,12 @@ class PyParameter:
             f"<PyParameter pid={self.pid}, value={self.value}, "
             f"std={self.std}, combined_std={self.combined_std}>"
         )
+    
+    @staticmethod
+    def from_cpp(cpp_obj):
+        param = PyParameter(ParamId(), 0, 0, 0)
+        param._cpp_obj = cpp_obj
+        return param
 
 class PyDependentParameter(PyParameter):
     """Python wrapper around DependentParameter."""

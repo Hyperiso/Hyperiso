@@ -796,7 +796,7 @@ void CoefficientManager::printGroupCoefficients(const std::string& groupName) co
 
 CoefficientManager::~CoefficientManager() {
     LOG_TRACE("Call to CoefficientManager destructor");
-    ports_config.iblock_c->remove_all_composed_blocks();
+    // ports_config.iblock_c->remove_all_composed_blocks();
 
 }
 

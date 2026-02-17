@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from pyhyperiso.phyperiso.pyhyperiso.common import _CppObservableId
 from pyhyperiso.phyperiso.pyhyperiso.common import _CppDecayId
+
 @dataclass(frozen=True)
 class _SymbolId:
     _name: str

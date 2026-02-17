@@ -41,7 +41,9 @@ class PyParameterProvider:
 
     def get_parameter(self, pid: ParamId) -> PyParameter:
         """Calls the `get_parameter` method (different from __call__)."""
-        return self._cpp_obj.get_parameter(pid._cpp_obj)
+        _cpp_param = self._cpp_obj.get_parameter(pid._cpp_obj)
+        
+        return PyParameter.from_cpp(_cpp_param)
 
     def get_type(self) -> ParameterType:
         """Returns the ParameterType of this provider."""

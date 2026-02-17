@@ -29,11 +29,15 @@ void declare_parameter(py::module &m, const std::string &name) {
         .def("get_combined_std", &T::get_combined_std)
         .def("get_std", &T::get_std)
         .def("get_id", &T::get_id)
+        .def("get_scale", &T::get_scale)
+        .def("get_bin", &T::get_bin)
         .def("set_expected", &T::set_expected)
         .def("set_std", &T::set_std)
         .def("set_shift", &T::set_shift)
         .def("set_id", &T::set_id)
         .def("set_mode", &T::set_mode)
+        .def("set_scale", &T::set_scale)
+        .def("set_bin", &T::set_bin)
         .def("set_owner", &T::set_owner);
 }
 

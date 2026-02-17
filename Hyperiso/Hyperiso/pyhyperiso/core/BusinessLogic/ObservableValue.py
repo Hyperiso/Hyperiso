@@ -15,6 +15,7 @@ ObsLike = Union[Observables, str]
 def _key_to_cpp_obs_arg(key: ObsLike):
     """Retourne soit un _CppObservables (pour l'overload Observables),
     soit un _CppObservableId (pour l'overload ObservableId)."""
+    print("key : ", key)
     if isinstance(key, Observables):
         return key.value  # -> _CppObservables
     if isinstance(key, str):
