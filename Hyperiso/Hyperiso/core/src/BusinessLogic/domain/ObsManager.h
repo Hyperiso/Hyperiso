@@ -351,6 +351,9 @@ private:
 
     /// Ports used by all decays/observables built by this manager.
     ObservablePortsConfig obs_port_conf;
+
+    //TODO : change this
+    std::optional<DecayId> active_decay;
 };
 
 #endif // OBSERVABLEMANAGER_H

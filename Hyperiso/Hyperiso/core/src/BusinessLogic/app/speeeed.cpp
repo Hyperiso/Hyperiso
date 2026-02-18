@@ -24,12 +24,19 @@ int main() {
     ParameterSetter ps;
     oi.add_observables(dec, order, false);
 
+    oi.add_observable(Observables::BR_BS_MUMU, QCDOrder::LO);
+    oi.add_observable(Observables::BR_BS_MUMU_UNTAG, QCDOrder::LO);
+    oi.add_observable(Observables::BR_BD_MUMU, QCDOrder::LO);
+
     auto start = std::chrono::steady_clock::now();
     int i = 0;
     for (double elem = 4.0e-3; elem < 5.0e-3; elem+=0.01e-3) {
         i++;
         ps.mutate({ParameterType::SM, "MASS", 1}, elem);
-        std::cout << oi.compute_observable(Observables::BR_B_XS_GAMMA)[0].value << std::endl;
+        std::cout << "Bs_gamma : " << oi.compute_observable(Observables::BR_B_XS_GAMMA)[0].value << std::endl;
+        std::cout << "BR_BS_MUMU : " << oi.compute_observable(Observables::BR_BS_MUMU)[0].value << std::endl;
+        // std::cout << "BR_BS_MUMU_UNTAG : " << oi.compute_observable(Observables::BR_BS_MUMU_UNTAG)[0].value << std::endl;
+        // std::cout << "BR_BD_MUMU : " << oi.compute_observable(Observables::BR_BD_MUMU)[0].value << std::endl;
     }
     auto stop  = std::chrono::steady_clock::now();
 

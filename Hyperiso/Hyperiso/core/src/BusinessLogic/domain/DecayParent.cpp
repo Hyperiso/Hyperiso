@@ -32,8 +32,9 @@ void DecayParent::enable() {
     this->enabled = true;
 }
 
+//TODO : do better than this
 void DecayParent::disable() {
-    this->enabled = false;
+    // this->enabled = false;
 }
 
 //TODO : everything here, just for make it works
