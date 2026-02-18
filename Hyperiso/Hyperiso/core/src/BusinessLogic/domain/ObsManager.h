@@ -353,7 +353,7 @@ private:
     ObservablePortsConfig obs_port_conf;
 
     //TODO : change this
-    std::optional<DecayId> active_decay;
+    // std::optional<DecayId> active_decay;
 };
 
 #endif // OBSERVABLEMANAGER_H
