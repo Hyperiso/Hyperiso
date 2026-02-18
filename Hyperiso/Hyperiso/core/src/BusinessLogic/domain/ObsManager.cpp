@@ -146,24 +146,25 @@ std::shared_ptr<Observable> ObsManager::get_obs(ObservableId id){
     return this->obss.at(ensure_present(id));
 }
 
-// void ObsManager::select_decay(ObservableId id) {
-//     for (auto& [dec_id, decay] : this->decays) {
-//         dec_id == DecayMapper::to_id(DecayMapper::get_decay(ObservableMapper::enum_of(id).value())) ? decay->enable() : decay->disable();
-//     }
-// }
-
 //TODO : better than this
 void ObsManager::select_decay(ObservableId id) {
-    auto wanted = DecayMapper::to_id(DecayMapper::get_decay(ObservableMapper::enum_of(id).value()));
-    if (active_decay.has_value() && active_decay.value() == wanted) return;
-
-    if (active_decay.has_value()) {
-        decays.at(active_decay.value())->disable();
+    for (auto& [dec_id, decay] : this->decays) {
+        dec_id == DecayMapper::to_id(DecayMapper::get_decay(ObservableMapper::enum_of(id).value())) ? decay->enable() : decay->disable();
     }
-
-    decays.at(wanted)->enable();
-    active_decay = wanted;
 }
+
+
+// void ObsManager::select_decay(ObservableId id) {
+//     auto wanted = DecayMapper::to_id(DecayMapper::get_decay(ObservableMapper::enum_of(id).value()));
+//     if (active_decay.has_value() && active_decay.value() == wanted) return;
+
+//     if (active_decay.has_value()) {
+//         decays.at(active_decay.value())->disable();
+//     }
+
+//     decays.at(wanted)->enable();
+//     active_decay = wanted;
+// }
 
 
 void ObsManager::set_decay_config(Decays dec, std::any config) {
