@@ -27,6 +27,7 @@ public:
     void set_minimizer_tolerance(double tol);
 
     Vector get_eta_central_values() const;
+    Vector get_eta_standard_devs() const;
 
 private:
     Vector residual_obs(const Vector& p, const Vector& eta) const {

@@ -13,7 +13,7 @@ double StatCorrelationProxy::operator()(const Observables& pid_1, const Observab
     return this->cp(pid_1, pid_2, type);
 }
 
-double StatCorrelationProxy::operator()(const ObservableId& pid_1, const ObservableId& pid_2, CorrelationProvider::CorrelationType type) {
+double StatCorrelationProxy::operator()(const BinnedObservableId& pid_1, const BinnedObservableId& pid_2, CorrelationProvider::CorrelationType type) {
     // if (!this->cp.exists(pid_1, pid_2, type)) {
     //     return 0;
     // }

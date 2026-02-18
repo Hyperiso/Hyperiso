@@ -22,7 +22,7 @@ struct MinimizationResult {
 bool find_bracket(const RealValuedFunction& f, double x_min, double x_max, double &a, double &b, int n_samples = 100);   
 double brent_root(const RealValuedFunction& f, double a, double b, double xtol = 1e-6, double ftol = 1e-6, int max_it = 100);
 
-MinimizationResult minimize_NM(RealValuedForm f, const std::vector<double> x_start, const MinimizationContext& context);
-MinimizationResult minimize_BFGS(RealValuedForm f, const std::vector<double>& x0, const MinimizationContext& context);
+MinimizationResult minimize_NM(RealValuedForm f, const std::vector<double> x_start, const std::vector<double>& scales, const MinimizationContext& context);
+MinimizationResult minimize_BFGS(RealValuedForm f, const std::vector<double>& x0, const std::vector<double>& scales, const MinimizationContext& context);
 
 #endif // OPTIMIZATION_H

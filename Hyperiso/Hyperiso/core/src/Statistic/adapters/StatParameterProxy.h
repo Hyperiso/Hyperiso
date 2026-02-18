@@ -4,6 +4,7 @@
 #include "IStatParameterProxy.h"
 #include "ParameterProvider.h"
 #include "Include.h"
+#include "BinnedObservableId.h"
 
 class StatParameterProxy : public IStatParameterProxy {
 public:
@@ -14,7 +15,7 @@ public:
     scalar_t operator()(const ParamId&, DataType d_type=DataType::VALUE) const;
     double operator()(const ObservableId&, DataType d_type=DataType::VALUE) const;
     scalar_t operator()(const std::string& block, const LhaID& id, DataType d_type=DataType::VALUE) const;
-    std::shared_ptr<Parameter> get_obs_param(const ObservableId&) const;
+    std::shared_ptr<Parameter> get_obs_param(const BinnedObservableId&) const;
 private:
     ParameterProvider pp;
     ParameterProvider pp_with_type;

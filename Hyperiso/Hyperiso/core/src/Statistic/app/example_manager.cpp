@@ -15,36 +15,36 @@ void print_vec(const std::vector<double>& vec) {
 }
 
 int main(int argc, char** argv) {
-    RealValuedForm F_gauss_nll = [](const Vec& p) {
-        // mean
-        double mu0 = 1e-12;
-        double mu1 = 1e3;
+    // RealValuedForm F_gauss_nll = [](const Vec& p) {
+    //     // mean
+    //     double mu0 = 1e-12;
+    //     double mu1 = 1e3;
 
-        // covariance
-        double s0 = 1e-13;
-        double s1 = 1e2;
-        double rho = 0.3;
+    //     // covariance
+    //     double s0 = 1e-13;
+    //     double s1 = 1e2;
+    //     double rho = 0.3;
 
-        double det = s0*s0*s1*s1*(1 - rho*rho);
+    //     double det = s0*s0*s1*s1*(1 - rho*rho);
 
-        // inverse covariance
-        double a =  1.0/(s0*s0*(1-rho*rho));
-        double b = -rho/(s0*s1*(1-rho*rho));
-        double c =  1.0/(s1*s1*(1-rho*rho));
+    //     // inverse covariance
+    //     double a =  1.0/(s0*s0*(1-rho*rho));
+    //     double b = -rho/(s0*s1*(1-rho*rho));
+    //     double c =  1.0/(s1*s1*(1-rho*rho));
 
-        double d0 = p[0] - mu0;
-        double d1 = p[1] - mu1;
+    //     double d0 = p[0] - mu0;
+    //     double d1 = p[1] - mu1;
 
-        return 0.5 * (a*d0*d0 + 2*b*d0*d1 + c*d1*d1);
-    };
+    //     return 0.5 * (a*d0*d0 + 2*b*d0*d1 + c*d1*d1);
+    // };
 
-    Vec p_hat = {1e-12, 1e3};
-    auto H = hessian(F_gauss_nll, p_hat);
-    auto H_inv = inverse_hessian(F_gauss_nll, p_hat);
+    // Vec p_hat = {1e-12, 1e3};
+    // auto H = hessian(F_gauss_nll, p_hat);
+    // auto H_inv = inverse_hessian(F_gauss_nll, p_hat);
 
-    std::cout << H << std::endl;
-    std::cout << H_inv << std::endl;
-    std::cout << H * H_inv << std::endl;
+    // std::cout << H << std::endl;
+    // std::cout << H_inv << std::endl;
+    // std::cout << H * H_inv << std::endl;
 
     HyperisoMaster hyp;
     HyperisoConfig config_hyp;
@@ -55,7 +55,7 @@ int main(int argc, char** argv) {
     hyp.init("lha/si_input.flha", config_hyp);
 
     StatisticConfig config;
-    config.MC_draws = 10000;
+    config.MC_draws = 100;
     config.obss = {
         {ObservableMapper::to_id(Observables::BR_BS_MUMU), QCDOrder::LO},
         {ObservableMapper::to_id(Observables::BR_BS_MUMU_UNTAG), QCDOrder::LO},
@@ -66,22 +66,23 @@ int main(int argc, char** argv) {
         {{ParameterType::DECAY, "B_ll", 1}, MarginalType::FLAT}
     };
 
-    config.p_specs = {ParamId(ParameterType::DECAY, "B_ll", 1)};
-    config.p_specs = {ParamId(ParameterType::SM, "MASS", 1)};
+    // config.p_specs = {ParamId(ParameterType::DECAY, "B_ll", 1)};
+    // config.p_specs = {ParamId(ParameterType::SM, "MASS", 1)};
     config.p_specs = {
-        ParamId(ParameterType::SM, "VCKMIN", 1),
-        ParamId(ParameterType::SM, "VCKMIN", 2),
+        // ParamId(ParameterType::SM, "VCKMIN", 1),
+        // ParamId(ParameterType::SM, "VCKMIN", 2),
         ParamId(ParameterType::SM, "VCKMIN", 3),
-        ParamId(ParameterType::SM, "VCKMIN", 4)};
+        ParamId(ParameterType::SM, "VCKMIN", 4)
+    };
 
     std::shared_ptr<ObservableInterface> oi = std::make_shared<ObservableInterface>();
 
     StatisticManager stat(config, std::make_shared<ObservableInterfaceAdapterObs>(oi), std::make_shared<StatCorrelationProxy>(), std::make_shared<StatParameterProxy>(), std::make_shared<StatParamSourcesProxy>());
     LOG_INFO("YO1");
     stat.fill_cache();
-    LOG_INFO("YO2");
+    // LOG_INFO("YO2");
     auto start = std::chrono::steady_clock::now();
-    stat.compute_uncertainties();
+    // stat.compute_uncertainties();
     auto stop  = std::chrono::steady_clock::now();
     LOG_INFO("YO3");
     auto us = std::chrono::duration_cast<std::chrono::microseconds>(stop - start).count();

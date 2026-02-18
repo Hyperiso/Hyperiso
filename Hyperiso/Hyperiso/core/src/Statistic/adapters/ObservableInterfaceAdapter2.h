@@ -82,11 +82,9 @@ public:
         return out;
     }
 
-    std::map<ObservableId, double> predict_optimized(const std::map<ParamId, double>& p, const std::map<ParamId, double>& eta) override {
+    std::map<ObservableId, std::vector<ObservableValue>> predict_optimized(const std::map<ParamId, double>& p, const std::map<ParamId, double>& eta) override {
         StatParamOptimizerProxy spop = StatParamOptimizerProxy();
-
         auto obs = oi_->get_current_observables();
-        oi_->enable_obs();
 
         // if (p.size()!=p_specs_.size() || eta.size()!=eta_specs_.size())
         // throw std::invalid_argument("(p,eta) sizes do not match specs");
@@ -101,22 +99,25 @@ public:
             // oi_->set_param(s.block, s.code, eta_elem.second, s.type.value_or(ParameterType::SM)); //TODO check value_or
         }
         spop.commit();
-        auto v1 = oi_->compute_observable(obs_ids_[0]).front().value;
-        auto v2 = oi_->compute_observable(obs_ids_[0]).front().value;
+        
+        // oi_->enable_obs();
+        // auto v1 = oi_->compute_observable(obs_ids_[0]).front().value;
+        // auto v2 = oi_->compute_observable(obs_ids_[0]).front().value;
 
 
-        double a = oi_->compute_observable(obs_ids_[0]).front().value;
-        double b = oi_->compute_observable(obs_ids_[1]).front().value;
-        // recompute le premier après avoir calculé le second
-        double a2 = oi_->compute_observable(obs_ids_[0]).front().value;
+        // double a = oi_->compute_observable(obs_ids_[0]).front().value;
+        // double b = oi_->compute_observable(obs_ids_[1]).front().value;
+        // // recompute le premier après avoir calculé le second
+        // double a2 = oi_->compute_observable(obs_ids_[0]).front().value;
 
-        // auto all = oi_.compute_all();
-        std::map<ObservableId, double> out;
-        for (auto oid : obs_ids_) {
-            out[oid] = oi_->compute_observable(oid).front().value; // or from compute_all()
-        }
-        return out;
+        // oi_->compute_all();
+        // std::map<ObservableId, double> out;
+        // for (auto oid : obs_ids_) {
+        //     out[oid] = oi_->compute_observable(oid).front().value; // or from compute_all()
+        // }
+        return oi_->compute_all();
     }
+
 private:
     std::shared_ptr<ObservableInterface> oi_;
     std::vector<ObservableId> obs_ids_;

@@ -23,8 +23,10 @@ void DecayParent::bind_wilson_builder(std::shared_ptr<IObsWilsonBuilder> &wilson
 }
 
 void DecayParent::enable() {
-    if (this->enabled)
+    if (this->enabled) {
+        load_params();
         return;
+    }
     ObsWilsonHelper::build(this->w_config, this->w_builder, iobs_wfreezer);
     this->w_proxy = this->w_builder->get_proxy();
     this->w_proxy->set_basis(WilsonBasis::B_STANDARD);

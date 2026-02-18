@@ -33,7 +33,7 @@ std::map<ObservableId, std::map<ObservableId, double>> CovarianceTransformer::tr
     return out;
 }
 
-std::vector<std::vector<double>> CovarianceTransformer::transform(std::vector<ObservableId> ids) {
+std::vector<std::vector<double>> CovarianceTransformer::transform(std::vector<BinnedObservableId> ids) {
     std::vector<std::vector<double>> out;
     for (auto& elem : ids) {
         std::vector<double> temp;

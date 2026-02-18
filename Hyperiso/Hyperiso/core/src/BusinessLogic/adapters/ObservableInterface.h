@@ -306,7 +306,7 @@ public:
      * @return Map (observable id -> vector of predicted values).
      * @note Each observable may return multiple entries (binned results).
      */
-    std::unordered_map<ObservableId, std::vector<ObservableValue>> compute_all();
+    std::map<ObservableId, std::vector<ObservableValue>> compute_all();
 
     /**
      * @brief Set an input parameter in a given parameter space.

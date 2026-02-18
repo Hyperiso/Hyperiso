@@ -57,6 +57,12 @@ const std::map<DecayId, std::unordered_set<ParamId>> DependenciesHelper::dep_lis
         ParamId{ParameterType::FLAVOR, "FCONST", {531, 1}},
         ParamId{ParameterType::DECAY, "B_ll", 1},
         ParamId{ParameterType::DECAY, "B_ll", 2},
+        // ParamId{ParameterType::WILSON, "BCoefficients_B_SCALE_STANDARD", {3051313, 4137, 0, 2}},
+        // ParamId{ParameterType::WILSON, "BCoefficients_B_SCALE_STANDARD", {3051313, 4137, 1, 2}},
+        // ParamId{ParameterType::WILSON, "BCoefficients_B_SCALE_STANDARD", {3051313, 4137, 2, 2}},
+        // ParamId{ParameterType::WILSON, "BPrimeCoefficients_B_SCALE_STANDARD", {3051313, 4234, 0, 2}},
+        // ParamId{ParameterType::WILSON, "BPrimeCoefficients_B_SCALE_STANDARD", {3051313, 4234, 1, 2}},
+        // ParamId{ParameterType::WILSON, "BPrimeCoefficients_B_SCALE_STANDARD", {3051313, 4234, 2, 2}},
         // TODO : Wilsons C10, CQ1, CQ2 + primes at all orders
     }},
     {DecayMapper::to_id(Decays::B__l_nu), {

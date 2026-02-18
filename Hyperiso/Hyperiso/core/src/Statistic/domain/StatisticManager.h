@@ -19,11 +19,11 @@
 #include "MarginalConfigFactory.h"
 
 struct StatisticConfig {
-    std::map<ObservableId, QCDOrder> obss;
+    std::map<BinnedObservableId, QCDOrder> obss;
     std::vector<ParamId> p_specs;
 
     std::map<ParamId, MarginalType> override_nuisance_marginals {};
-    std::map<ObservableId, MarginalType> override_exp_data_marginals {};
+    std::map<BinnedObservableId, MarginalType> override_exp_data_marginals {};
     CopulaType nuisance_copula_type = CopulaType::GAUSSIAN;
     CopulaType exp_data_copula_type = CopulaType::GAUSSIAN;
     std::size_t MC_draws = 100;
@@ -43,11 +43,11 @@ struct FitResultWithMaps {
 };
 
 struct StatCache {
-    std::map<ObservableId, double> exp_obs;
+    std::map<BinnedObservableId, double> exp_obs;
     std::map<ParamId, double> eta_specs_real;
     std::map<ParamId, double> p_specs;
     std::map<ParamId, std::map<ParamId, double>> SigmaEta;
-    std::map<ObservableId, std::map<ObservableId, double>> SigmaObs;
+    std::map<BinnedObservableId, std::map<BinnedObservableId, double>> SigmaObs;
 
     FitResultWithMaps mle_result;
 };
@@ -63,14 +63,20 @@ public:
         std::shared_ptr<IStatCorrelationProxy> pscp, std::shared_ptr<IStatParameterProxy> pspp,
         std::shared_ptr<IStatSourcesProxy> sp) 
     : config(config), obs_int(obs_int), pscp(pscp), pspp(pspp), sp(sp) {
-        obs_int->add_observables(config.obss);
+        std::map<ObservableId, QCDOrder> unique_obss;
+        for (auto &&[boid, order] : config.obss) {
+            if (unique_obss.contains(boid.s)) continue;
+            unique_obss.emplace(std::pair{boid.s, order});
+        }
+        
+        obs_int->add_observables(unique_obss);
     }
 
     std::vector<std::unique_ptr<IMarginalDistribution>> build_nuisance_marginal_distributions();
     std::unique_ptr<JointDistribution> build_nuisance_distribution();
     std::unique_ptr<JointDistribution> build_exp_data_distribution();
 
-    std::map<ObservableId, GaussianSummary> compute_uncertainties() {
+    std::map<BinnedObservableId, GaussianSummary> compute_uncertainties() {
         auto sums = this->compute_uncertainties_and_sampling();
 
         // Debug print
@@ -102,7 +108,7 @@ public:
 
         std::vector<ParamId> p_ids = unzipped_fit_params.ids;
         std::vector<ParamId> eta_ids = unzipped_nuisances.ids;
-        std::vector<ObservableId> obs_ids = unzipped_exp_obs.ids;
+        std::vector<BinnedObservableId> obs_ids = unzipped_exp_obs.ids;
         
         LikelihoodContext ctx;
         ctx.nuisance_dist = std::move(build_nuisance_distribution());
@@ -111,7 +117,11 @@ public:
         ctx.exp_obs_values = unzipped_exp_obs.vals;
 
         auto model_fn = [this, obs_ids, p_ids, eta_ids] (const Vec& p_vec, const Vec& eta_vec) -> Vec {
+            auto start = std::chrono::steady_clock::now();
             auto pred_map = this->obs_int->predict_optimized(zip(p_ids, p_vec), zip(eta_ids, eta_vec));
+            auto stop  = std::chrono::steady_clock::now();
+            auto us = std::chrono::duration_cast<std::chrono::microseconds>(stop - start).count();
+            std::cout << "Predict took " << us << " µs" << std::endl;
             return unzip(pred_map).vals;
         };
 
@@ -142,7 +152,6 @@ public:
         cache.eta_specs_real = this->get_all_obss_deps();
         for (const auto& [pid, _] : cache.p_specs)
             cache.eta_specs_real.erase(pid);
-        
         cache.SigmaEta = this->get_all_correlations();
         cache.exp_obs = this->get_obs_exp();
         cache.SigmaObs = this->get_all_obs_correlations();
@@ -152,35 +161,51 @@ public:
         std::unordered_set<ParamId> eta_infos;
 
         for (const auto& [obsId, qcdOrder] : config.obss) {
-            for (auto paramId : obs_int->get_obs_deps(obsId)) {
-                if (eta_infos.find(paramId) == eta_infos.end()) {
-                    if (pspp->get_param(paramId)->get_combined_std().real() >
-                        pspp->get_param(paramId)->get_val() * 1e-6) { // TODO: hardcode à nettoyer
-                        eta_infos.insert(paramId);
-                    }
-                }
+            for (auto paramId : obs_int->get_obs_deps(obsId.s)) {
+                eta_infos.insert(paramId);
             }
         }
 
         std::unordered_set<ParamId> eta_infos_leaf = this->sp->get_all_leaf_sources(eta_infos);
         std::map<ParamId, double> eta_specs_real_leaf;
+        std::map<ParamId, double> delta_rel;
 
         for (auto& paramId : eta_infos_leaf) {
-            scalar_t value = pspp->get_param(paramId)->get_val();
-            if (pspp->get_param(paramId)->get_combined_std().real() > value.real() * 1e-6) {
-                eta_specs_real_leaf[paramId] = value.real();
-
-            } else {
-                std::cout << paramId << " does not have real uncertainty" << std::endl;
-                std::cout << pspp->get_param(paramId)->get_combined_std().real() << std::endl;
-            }
+            double u = pspp->get_param(paramId)->get_combined_std().real();
+            if (!std::isfinite(u) || fpeq(std::abs(u), 0.0))
+                delta_rel[paramId] = 0;
+            else
+                delta_rel[paramId] = std::abs(u / pspp->get_param(paramId)->get_val());
         }
+            
+        
+        using T = std::pair<ParamId, double>;
+        double delta_rel_max = std::max_element(
+            delta_rel.begin(), delta_rel.end(), 
+            [] (const T& p, const T& q) { return p.second < q.second; }
+        )->second;
+
+        for (auto& paramId : eta_infos_leaf) {
+            LOG_INFO("Compared to max relative uncertainty", paramId, delta_rel[paramId] / delta_rel_max);
+        }
+
+        double tol = 1e-2; // TODO : make it a parameter
+        for (auto& paramId : eta_infos_leaf) {
+            if (delta_rel[paramId] / delta_rel_max > tol)
+                eta_specs_real_leaf[paramId] = pspp->get_param(paramId)->get_val();
+        }
+
+        LOG_INFO("Significant nuisances");
+        for (const auto& [pid, val] : eta_specs_real_leaf) {
+            LOG_INFO(pid, val);
+        }
+
         return eta_specs_real_leaf;
     }
 
     std::map<ParamId, double> get_p_specs() {
         std::map<ParamId, double> out;
-        for (auto elem : config.p_specs) {
+        for (auto elem : config.p_specs) {            
             out[elem] = pspp->get_param(elem)->get_val();
         }
         return out;
@@ -192,16 +217,16 @@ public:
         return res;
     }
     
-    std::map<ObservableId, std::map<ObservableId, double>> get_all_obs_correlations() {
-        std::map<ObservableId, std::map<ObservableId, double>> res;
+    std::map<BinnedObservableId, std::map<BinnedObservableId, double>> get_all_obs_correlations() {
+        std::map<BinnedObservableId, std::map<BinnedObservableId, double>> res;
         CovarianceTransformer ct = CovarianceTransformer(pscp, pspp);
 
         res = ct.transform(this->cache.exp_obs);
         return res;
     }
 
-    std::map<ObservableId, double> get_obs_exp() {
-        std::map<ObservableId, double> out;
+    std::map<BinnedObservableId, double> get_obs_exp() {
+        std::map<BinnedObservableId, double> out;
 
         for (auto obs : this->config.obss) {
             out[obs.first] = pspp->get_obs_param(obs.first)->get_val();

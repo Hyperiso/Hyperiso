@@ -120,7 +120,7 @@ std::unordered_set<ObservableId> ObservableInterface::get_current_observables() 
     return manager->get_current_obss();
 }
 
-std::unordered_map<ObservableId, std::vector<ObservableValue>> ObservableInterface::compute_all() {
+std::map<ObservableId, std::vector<ObservableValue>> ObservableInterface::compute_all() {
     return manager->evaluate_all();
 }
 

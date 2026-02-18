@@ -16,7 +16,7 @@ struct ScaledForm {
     std::vector<double> x0;
     std::vector<double> s;
 
-    ScaledForm(const RealValuedForm& f, const std::vector<double>& x0);
+    ScaledForm(const RealValuedForm& f, const std::vector<double>& x0, const std::vector<double>& scales);
     double operator()(const std::vector<double>& t) const;
 };
 

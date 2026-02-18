@@ -1,7 +1,7 @@
 #include "diffcalc.h"
 
-std::vector<double> gradient(const RealValuedForm& f, const std::vector<double>& x) {
-    ScaledForm f_scaled(f, x);
+std::vector<double> gradient(const RealValuedForm& f, const std::vector<double>& x, const std::vector<double>& scales) {
+    ScaledForm f_scaled(f, x, scales);
     std::vector<double> g = gradient(f_scaled, std::vector<double>(x.size(), 0.0));
     
     for (size_t i = 0; i < g.size(); i++)
@@ -26,8 +26,8 @@ std::vector<double> gradient(const ScaledForm &f, const std::vector<double> &t) 
     return grad;
 }
 
-RealMatrix hessian(const RealValuedForm& f, const std::vector<double>& x) {
-    ScaledForm f_scaled(f, x);
+RealMatrix hessian(const RealValuedForm& f, const std::vector<double>& x, const std::vector<double>& scales) {
+    ScaledForm f_scaled(f, x, scales);
     RealMatrix H = hessian(f_scaled, std::vector<double>(x.size(), 0.0));
     
     for (size_t i = 0; i < H.rows(); i++) 
@@ -87,8 +87,8 @@ RealMatrix hessian(const ScaledForm& f, const std::vector<double>& t) {
     return 0.5 * (H + H.transpose());
 }
 
-RealMatrix inverse_hessian(const RealValuedForm& f, const std::vector<double>& x) {
-    ScaledForm f_scaled(f, x);
+RealMatrix inverse_hessian(const RealValuedForm& f, const std::vector<double>& x, const std::vector<double>& scales) {
+    ScaledForm f_scaled(f, x, scales);
     RealMatrix H = hessian(f_scaled, std::vector<double>(x.size(), 0.0));
     RealMatrix inv_H = H.inv();
 

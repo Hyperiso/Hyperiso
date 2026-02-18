@@ -11,7 +11,7 @@ struct IStatCorrelationProxy {
 
     virtual double operator()(const ParamId&, const ParamId&, Type) = 0;
     virtual double operator()(const Observables&, const Observables&, Type) = 0;
-    virtual double operator()(const ObservableId&, const ObservableId&, Type) = 0;
+    virtual double operator()(const BinnedObservableId&, const BinnedObservableId&, Type) = 0;
 };
 
 #endif

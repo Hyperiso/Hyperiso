@@ -45,7 +45,7 @@ double ProfiledLikelihood::nll_profiled(const Vector &p) const {
         double v = nll(p, eta);
         return std::isfinite(v) ? v : 1e300;
     };
-    return minimize_BFGS(f, ctx_.nuisance_central_values, min_ctx_).min;
+    return minimize_NM(f, ctx_.nuisance_central_values, get_eta_standard_devs(), min_ctx_).min;
 }
 
 void ProfiledLikelihood::set_minimizer_max_iter(std::size_t max_iter) {
@@ -64,4 +64,8 @@ void ProfiledLikelihood::set_minimizer_tolerance(double tol) {
 
 Vector ProfiledLikelihood::get_eta_central_values() const {
     return ctx_.nuisance_central_values;
+}
+
+Vector ProfiledLikelihood::get_eta_standard_devs() const {
+    return ctx_.nuisance_dist->get_stds();
 }

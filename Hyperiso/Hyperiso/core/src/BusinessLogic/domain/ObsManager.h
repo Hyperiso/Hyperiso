@@ -163,7 +163,7 @@ public:
      *
      * @return Map from ObservableId to computed values.
      */
-    std::unordered_map<ObservableId, std::vector<ObservableValue>> evaluate_all();
+    std::map<ObservableId, std::vector<ObservableValue>> evaluate_all();
 
     /**
      * @brief Register a custom decay implementation.

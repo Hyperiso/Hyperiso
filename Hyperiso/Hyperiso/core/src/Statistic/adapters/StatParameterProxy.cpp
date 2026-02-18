@@ -32,8 +32,8 @@ scalar_t StatParameterProxy::operator()(const std::string& block, const LhaID& i
     scalar_t value = pp_with_type(block, id, d_type);
     return value;
 }
-std::shared_ptr<Parameter> StatParameterProxy::get_obs_param(const ObservableId& id) const {
-    return pp.get_parameter(ParamId(ParameterType::OBSERVABLE, "FOBS", ObservableMapper::flha(id)));
+std::shared_ptr<Parameter> StatParameterProxy::get_obs_param(const BinnedObservableId& id) const {
+    return pp.get_parameter(ParamId(ParameterType::OBSERVABLE, "FOBS", id.flha()));
 }
 
 StatParameterProxy::StatParameterProxy(ParameterType type) { 

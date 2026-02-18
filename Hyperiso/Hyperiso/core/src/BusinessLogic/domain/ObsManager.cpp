@@ -73,8 +73,9 @@ std::vector<ObservableValue> ObsManager::evaluate(Observables id) {
     return evaluate(obs_id);
 }
 
-std::unordered_map<ObservableId, std::vector<ObservableValue>> ObsManager::evaluate_all() {
-    std::unordered_map<ObservableId, std::vector<ObservableValue>> all_ests;
+std::map<ObservableId, std::vector<ObservableValue>> ObsManager::evaluate_all() {
+    this->enable_obs();
+    std::map<ObservableId, std::vector<ObservableValue>> all_ests;
     for (auto &[k, k_ptr] : obss) {
         all_ests.emplace(k, k_ptr->compute());
     }
@@ -193,12 +194,15 @@ void ObsManager::reload_params() {
 }
 
 void ObsManager::enable_obs() {
+    std::unordered_set<DecayId> unique_decays;
     for (auto& elem: this->obss) {
         auto id = DecayMapper::get_decay_id(elem.first);
         if (!id.has_value()) {
             LOG_ERROR("ValueError", "DecayId does not exist for", elem.first.str());
         }
-        this->decays[id.value()]->disable();
-        this->decays[id.value()]->enable(); //TODO : avoid double enabling (two obs of same decay) please
+        unique_decays.emplace(id.value());
     }
+
+    for (auto& did : unique_decays)
+        this->decays[did]->enable(); //TODO : avoid double enabling (two obs of same decay) please
 }

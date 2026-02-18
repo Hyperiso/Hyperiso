@@ -14,7 +14,7 @@ public:
     std::vector<std::vector<double>> transform(std::vector<ParamId> ids);
     std::map<ParamId, std::map<ParamId, double>> transform(std::map<ParamId, double> ids);
     std::map<ObservableId, std::map<ObservableId, double>> transform(std::map<ObservableId, double> ids);
-    std::vector<std::vector<double>> transform(std::vector<ObservableId> ids);
+    std::vector<std::vector<double>> transform(std::vector<BinnedObservableId> ids);
 
     std::vector<ParamId> check_if_corr(std::vector<ParamId> ids);
 private:

@@ -9,7 +9,6 @@ scalar_t Observable::get_exp_uncertainty(UncertaintyType u_type) const {
 }
 
 std::vector<ObservableValue> Observable::compute() const {
-    decay_parent->enable();
     return decay_parent->compute_observable(id);
 }
 

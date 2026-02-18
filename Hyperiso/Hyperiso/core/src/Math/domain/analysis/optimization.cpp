@@ -100,9 +100,9 @@ double brent_root(const RealValuedFunction& f,
     throw std::runtime_error("brent_root: maximum iterations exceeded");
 }
 
-MinimizationResult minimize_NM(RealValuedForm f, const std::vector<double> x_start, const MinimizationContext& context) {
+MinimizationResult minimize_NM(RealValuedForm f, const std::vector<double> x_start, const std::vector<double>& scales, const MinimizationContext& context) {
     const std::size_t d = x_start.size();
-    ScaledForm f_scaled(f, x_start);
+    ScaledForm f_scaled(f, x_start, scales);
 
     gsl_multimin_function gsl_f; 
     gsl_f.n = d; 
@@ -129,9 +129,10 @@ MinimizationResult minimize_NM(RealValuedForm f, const std::vector<double> x_sta
         if (status) break;
         size = gsl_multimin_fminimizer_size(s.get());
         status = gsl_multimin_test_size(size, context.tol);
-        // std::cerr << "[minimize] iter=" << iter << " status=" << gsl_strerror(status) << " size=" << size << std::endl;
+        std::cout << "[minimize] iter=" << iter << " status=" << gsl_strerror(status) << " size=" << size << std::endl;
     } while (status == GSL_CONTINUE && iter < context.max_iter);
 
+    std::cout << "Minimization converged in " << iter << " iterations." << std::endl;
     gsl_vector* gsl_argmin = gsl_multimin_fminimizer_x(s.get());
     std::vector<double> argmin(d);
     for (std::size_t i = 0; i < d; ++i) 
@@ -148,11 +149,11 @@ MinimizationResult minimize_NM(RealValuedForm f, const std::vector<double> x_sta
     return mr;
 }
 
-MinimizationResult minimize_BFGS(RealValuedForm f, const std::vector<double> &x0, const MinimizationContext &context) {
+MinimizationResult minimize_BFGS(RealValuedForm f, const std::vector<double> &x0, const std::vector<double>& scales, const MinimizationContext &context) {
     const std::size_t d = x0.size();
     gsl_multimin_function_fdf gsl_f; 
 
-    ScaledForm f_scaled(f, x0);
+    ScaledForm f_scaled(f, x0, scales);
 
     gsl_f.n = d; 
     gsl_f.f = &unwrap_lambda_multidim;
@@ -177,6 +178,7 @@ MinimizationResult minimize_BFGS(RealValuedForm f, const std::vector<double> &x0
         if (status) break; // cannot improve
         g = gsl_multimin_fdfminimizer_gradient(s.get());
         status = gsl_multimin_test_gradient(g, context.tol);
+        std::cout << "Status: " << status << std::endl;
     } while (status == GSL_CONTINUE && iter < context.max_iter);
 
     std::cout << "Minimization converged in " << iter << " iterations." << std::endl;

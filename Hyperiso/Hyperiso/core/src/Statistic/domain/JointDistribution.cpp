@@ -58,3 +58,11 @@ double JointDistribution::logpdf(Vector x) const {
 std::size_t JointDistribution::dim() {
     return marginals_.size();
 }
+
+Vector JointDistribution::get_stds() {
+    Vector stds;
+    for (auto& m : this->marginals_)
+        stds.emplace_back(m->std());
+
+    return stds;
+}
