@@ -5,47 +5,25 @@ using Charge = BKllConfig::B_Charge;
 void BKllDecay::load_params() {
     fill_wilson_cache();
 
-    cache.ff_calculator = BPFFCalculator(
-        cfg.charge == Charge::B_0 ? 511 : 521,
-        cfg.charge == Charge::B_0 ? 311 : 321,
-        p,
-        cfg.ff_src
-    );
-
-    cache.qcdf_calculator = BPQCDfCalculator(
-        cfg.charge == Charge::B_0 ? 511 : 521,
-        cfg.charge == Charge::B_0 ? 311 : 321,
-        w_config.hadronic_scale,
-        cache.C,
-        std::make_shared<BPFFCalculator>(cache.ff_calculator),
-        cfg.ff_type,
-        p,
-        iobs_qcdp
-    );
-
     cache.alpha_em = (*p)(ParamId{ParameterType::SM, "EW", {1, 2}}, DataType::VALUE);
     cache.G_F = (*p)(ParamId{ParameterType::SM, "SMINPUTS", 2}, DataType::VALUE);
-    cache.m_l = (*p)(ParamId{ParameterType::SM, "MASS", 11 + 2 * (int)cfg.gen}, DataType::VALUE);
     cache.m_s = (*p)(ParamId{ParameterType::SM, "MASS", 3}, DataType::VALUE);
     cache.mu_b = w_config.hadronic_scale;
     cache.alpha_s_mu_b = (*iobs_qcdp)(AlphasConfig(cache.mu_b, MassType::POLE, MassType::POLE));
-    // cache.m_c_mu_b = (*ports.iobs_qcdp)(MassConfig(4, cache.mu_b, MassType::MSBAR, MassType::POLE));
+    // cache.m_c_mu_b = (*iobs_qcdp)(MassConfig(4, cache.mu_b, MassType::MSBAR, MassType::POLE));
     cache.m_c_mu_b = (*p)(ParamId{ParameterType::SM, "MASS", 4}, DataType::VALUE); // To match Superiso
     cache.m_b_mu_b = (*iobs_qcdp)(MassConfig(5, cache.mu_b, MassType::MSBAR, MassType::POLE));
     cache.m_b_m_b = (*p)(ParamId{ParameterType::SM, "QCD", {5, 1}}, DataType::VALUE); // To match SI at high q² : why not m_b(mu_b) ?
     double mu_f = sqrt(cache.mu_b * (*p)(ParamId{ParameterType::DECAY, "B_K", 14}, DataType::VALUE));
     cache.m_b_PS = (*p)(ParamId{ParameterType::SM, "QCD", {5, 2}}, DataType::VALUE) - 4 * (*iobs_qcdp)(AlphasConfig((*p)(ParamId{ParameterType::SM, "QCD", {5, 2}}, DataType::VALUE), MassType::POLE, MassType::POLE)) * mu_f / (3 * PI);
     cache.L_b = std::log(cache.mu_b / cache.m_b_PS);
-    cache.m_B = (*p)(ParamId{ParameterType::FLAVOR, "FMASS", cfg.charge == Charge::B_0 ? 511 : 521}, DataType::VALUE);
-    cache.m_K = (*p)(ParamId{ParameterType::FLAVOR, "FMASS", cfg.charge == Charge::B_0 ? 311 : 321}, DataType::VALUE);
     cache.Delta_M = -6. * cache.L_b - 4. * (1 - mu_f / cache.m_b_PS);
     cache.lambda_hat_u = std::conj((*p)(ParamId{ParameterType::SM, "VCKM", {0, 1}}, DataType::VALUE)) * (*p)(ParamId{ParameterType::SM, "VCKM", {0, 2}}, DataType::VALUE) 
                             / (std::conj((*p)(ParamId{ParameterType::SM, "VCKM", {2, 1}}, DataType::VALUE)) * (*p)(ParamId{ParameterType::SM, "VCKM", {2, 2}}, DataType::VALUE));
-    cache.N_0 = std::pow(std::abs(std::conj((*p)(ParamId{ParameterType::SM, "VCKM", {2, 1}}, DataType::VALUE)) * (*p)(ParamId{ParameterType::SM, "VCKM", {2, 2}}, DataType::VALUE)) * cache.G_F * cache.alpha_em, 2) / (512. * std::pow(PI, 5) * std::pow(cache.m_B, 3));
-    cache.q2_min = 4 * std::pow(cache.m_l, 2);
-    cache.q2_max = std::pow(cache.m_B - cache.m_K, 2);
     cache.q2_low = (*p)(ParamId{ParameterType::DECAY, "B_K", {15, 1}}, DataType::VALUE);
     cache.q2_high = (*p)(ParamId{ParameterType::DECAY, "B_K", {15, 2}}, DataType::VALUE);
+
+    load_cfg_dependent_params();
 
     // printf("alpha_em = %.4e\n", cache.alpha_em);
     // printf("m_l = %.4e\n", cache.m_l);
@@ -66,17 +44,12 @@ void BKllDecay::load_params() {
     // printf("f_+(s = 1.0 GeV²) = %.4e\n", cache.ff_calculator.get(BP_FF::F_PLUS, 1.0));
     // printf("f_T(s = 1.0 GeV²) = %.4e\n", cache.ff_calculator.get(BP_FF::F_T, 1.0));
 
-    auto lam_T_P = [this] (double q2, bool bar) { return cache.qcdf_calculator.T_P(q2, bar); };
-    fill_cache(lam_T_P, cache.q2_min, cache.q2_high, cache.T_P_lookup, false); 
+    // printf("T_P = %.4e + %.4e i\n", real(cache.qcdf_calculator.T_P(1.0, false)), imag(cache.qcdf_calculator.T_P(1.0, false)));
 
-    printf("T_P = %.4e + %.4e i\n", real(cache.qcdf_calculator.T_P(1.0, false)), imag(cache.qcdf_calculator.T_P(1.0, false)));
-
-    printf("F_A(s = 1.0 GeV²) = %.4e + %.4e i\n", real(F_A(1.0)), imag(F_A(1.0)));
-    printf("F_V(s = 1.0 GeV²) = %.4e + %.4e i\n", real(F_V(1.0)), imag(F_V(1.0)));
-    printf("F_S(s = 1.0 GeV²) = %.4e + %.4e i\n", real(F_S(1.0)), imag(F_S(1.0)));
-    printf("F_P(s = 1.0 GeV²) = %.4e + %.4e i\n", real(F_P(1.0)), imag(F_P(1.0)));
-
-    compute_binned_abc();
+    // printf("F_A(s = 1.0 GeV²) = %.4e + %.4e i\n", real(F_A(1.0)), imag(F_A(1.0)));
+    // printf("F_V(s = 1.0 GeV²) = %.4e + %.4e i\n", real(F_V(1.0)), imag(F_V(1.0)));
+    // printf("F_S(s = 1.0 GeV²) = %.4e + %.4e i\n", real(F_S(1.0)), imag(F_S(1.0)));
+    // printf("F_P(s = 1.0 GeV²) = %.4e + %.4e i\n", real(F_P(1.0)), imag(F_P(1.0)));
 }
 
 void BKllDecay::fill_wilson_cache() {
@@ -88,6 +61,47 @@ void BKllDecay::fill_wilson_cache() {
     for (auto p : b_wilsons) cache.C.emplace(p); 
     for (auto p : bq_wilsons) cache.C.emplace(p);
     for (auto id : bp_cached) cache.C.emplace(std::pair{id, bp_wilsons.at(id)});
+}
+
+void BKllDecay::load_cfg_dependent_params() {
+    cache.ff_calculator = BPFFCalculator(
+        cfg.charge == Charge::B_0 ? 511 : 521,
+        cfg.charge == Charge::B_0 ? 311 : 321,
+        p,
+        cfg.ff_src
+    );
+
+    cache.qcdf_calculator = BPQCDfCalculator(
+        cfg.charge == Charge::B_0 ? 511 : 521,
+        cfg.charge == Charge::B_0 ? 311 : 321,
+        w_config.hadronic_scale,
+        cache.C,
+        std::make_shared<BPFFCalculator>(cache.ff_calculator),
+        cfg.ff_type,
+        p,
+        iobs_qcdp
+    );
+
+    cache.m_l = (*p)(ParamId{ParameterType::SM, "MASS", 11 + 2 * (int)cfg.gen}, DataType::VALUE);
+    cache.m_B = (*p)(ParamId{ParameterType::FLAVOR, "FMASS", cfg.charge == Charge::B_0 ? 511 : 521}, DataType::VALUE);
+    cache.m_K = (*p)(ParamId{ParameterType::FLAVOR, "FMASS", cfg.charge == Charge::B_0 ? 311 : 321}, DataType::VALUE);
+    cache.q2_min = 4 * std::pow(cache.m_l, 2);
+    cache.q2_max = std::pow(cache.m_B - cache.m_K, 2);
+    cache.N_0 = std::pow(std::abs(std::conj((*p)(ParamId{ParameterType::SM, "VCKM", {2, 1}}, DataType::VALUE)) * (*p)(ParamId{ParameterType::SM, "VCKM", {2, 2}}, DataType::VALUE)) * cache.G_F * cache.alpha_em, 2) / (512. * std::pow(PI, 5) * std::pow(cache.m_B, 3));
+
+    auto lam_T_P = [this] (double q2, bool bar) { return cache.qcdf_calculator.T_P(q2, bar); };
+    fill_cache(lam_T_P, cache.q2_min, cache.q2_high, cache.T_P_lookup, false); 
+
+    compute_binned_abc();
+}
+
+void BKllDecay::set_lepton_gen_and_charge(BKllConfig::Lepton gen, BKllConfig::B_Charge charge) {
+    bool changed = cfg.gen != gen || cfg.charge != charge;
+    if (changed) {
+        cfg.gen = gen;  
+        cfg.charge = charge;
+        load_cfg_dependent_params();
+    }
 }
 
 complex_t BKllDecay::T_P_cached(double q2) {

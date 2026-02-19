@@ -66,6 +66,7 @@ public:
 
     void set_config_spe(BKllConfig config) override {this->cfg = config;}
 
+
 private:
     BKllConfig cfg {};
     BKllCache cache;
@@ -73,6 +74,8 @@ private:
 protected:
     // Auxiliary
     void fill_wilson_cache();
+    void load_cfg_dependent_params();
+    void set_lepton_gen_and_charge(BKllConfig::Lepton gen, BKllConfig::B_Charge charge);
 
     // QCDf
     complex_t T_P_cached(double q2);
