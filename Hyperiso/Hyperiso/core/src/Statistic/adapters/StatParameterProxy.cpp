@@ -25,6 +25,10 @@ double StatParameterProxy::operator()(const ObservableId& id, DataType d_type) c
     return pp(ParamId(ParameterType::OBSERVABLE, "FOBS", ObservableMapper::flha(id)), d_type);
 }
 
+double StatParameterProxy::operator()(const BinnedObservableId &id, DataType d_type) const {
+    return pp(ParamId(ParameterType::OBSERVABLE, "FOBS", id.flha()), d_type);
+}
+
 scalar_t StatParameterProxy::operator()(const std::string& block, const LhaID& id, DataType d_type) const {
     if (pp_with_type.get_type() == ParameterType::WILSON) {
         return pp_with_type.exists(block, id) ? pp_with_type(block, id, d_type) : scalar_t();

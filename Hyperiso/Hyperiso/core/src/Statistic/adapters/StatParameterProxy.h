@@ -14,6 +14,7 @@ public:
     std::shared_ptr<Parameter> get_param(const std::string& block, const LhaID& id) const;
     scalar_t operator()(const ParamId&, DataType d_type=DataType::VALUE) const;
     double operator()(const ObservableId&, DataType d_type=DataType::VALUE) const;
+    double operator()(const BinnedObservableId&, DataType d_type=DataType::VALUE) const;
     scalar_t operator()(const std::string& block, const LhaID& id, DataType d_type=DataType::VALUE) const;
     std::shared_ptr<Parameter> get_obs_param(const BinnedObservableId&) const;
 private:

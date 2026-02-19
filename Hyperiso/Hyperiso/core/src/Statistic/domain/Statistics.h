@@ -8,7 +8,7 @@
 #include "Math.h"
 
 using Vec = std::vector<double>;
-using ObsSamples = std::vector<std::map<ObservableId, double>>; // shape: N x D (N samples of D-dim vector)
+using ObsSamples = std::vector<std::map<BinnedObservableId, double>>; // shape: N x D (N samples of D-dim vector)
 using NuisanceSamples = std::vector<std::map<ParamId, double>>; // shape: N x D (N samples of D-dim vector)
 
 struct ColumnStats {
@@ -20,7 +20,7 @@ struct ColumnStats {
     double mode {0.0};
 };
 
-inline std::map<ObservableId, ColumnStats> summarize_columns_obs(const ObsSamples& S) {
+inline std::map<BinnedObservableId, ColumnStats> summarize_columns_obs(const ObsSamples& S) {
     if (S.empty()) throw std::invalid_argument("No samples");
 
     const std::size_t N = S.size();
@@ -31,11 +31,11 @@ inline std::map<ObservableId, ColumnStats> summarize_columns_obs(const ObsSample
         if (v.size()!=D) throw std::invalid_argument("Jagged samples");        
     }
 
-    std::vector<ObservableId> ids;
+    std::vector<BinnedObservableId> ids;
     for (const auto& v : S[0]) {
         ids.push_back(v.first);
     }
-    std::map<ObservableId, ColumnStats> out;
+    std::map<BinnedObservableId, ColumnStats> out;
 
     std::vector<double> x;
     std::vector<double> w (N - Delta, 0.0);

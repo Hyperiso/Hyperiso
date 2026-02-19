@@ -99,7 +99,7 @@ Block FOBS # Flavour observables
     521     11      2.96312243e-01  0  0        0           3   421 -15 16      # BR(B->D0 tau nu)/BR(B->D0 e nu)
     321     11      6.34141764e-01  0  0        0           2   -13 14          # BR(K->mu nu)/BR(pi->mu nu)
     321     12      9.99918554e-01  0  0        0           2   -13 14          # R_l23
-    521     2       2.15e-3         0  1.0      4.0         3   321 -13 13      # A_FB(B+ > K+ mu+ mu-)
+    521     2       2.15e-3         0  1000     4000        3   321 -13 13      # A_FB(B+ > K+ mu+ mu-)
  
 Block FOBSSM # SM predictions for flavour observables
 # ParentPDG type    value           q   bin_low bin_high    NDA ID1 ID2 ID3 ... comment

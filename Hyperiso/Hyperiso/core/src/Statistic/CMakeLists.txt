@@ -4,6 +4,7 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 project(Statistic)
+add_compile_options(-O3)
 
 if (NOT DEFINED BUILD_WITH_SOFTSUSY)
     option(BUILD_WITH_SOFTSUSY "Build project with SOFTSUSY support" OFF)
@@ -107,6 +108,7 @@ target_link_libraries(ADAPTERS_TEST StatisticLib)
 
 add_executable(MANAGER_STAT app/example_manager.cpp)
 target_link_libraries(MANAGER_STAT StatisticLib)
+target_compile_options(MANAGER_STAT PUBLIC -O3)
 
 add_executable(COPULA_TEST app/test_copulas.cpp)
 target_link_libraries(COPULA_TEST StatisticLib)

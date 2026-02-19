@@ -23,6 +23,10 @@ struct BinnedObservableId {
     ObservableId s;
     std::pair<double,double> p;
 
+    BinnedObservableId() = default;
+    BinnedObservableId(ObservableId id) : s(id), p({0, 0}) {}
+    BinnedObservableId(ObservableId id, std::pair<double, double> bin) : s(id), p(bin) {}
+
     bool operator==(BinnedObservableId const& o) const noexcept {
         return s == o.s
             && norm_zero(p.first)  == norm_zero(o.p.first)
@@ -68,7 +72,7 @@ struct BinnedObservableId {
         parts.erase(parts.begin() + 2, parts.begin() + 4);
         LhaID unbinned_id(parts);
 
-
+        LOG_INFO(unbinned_id);
         auto obs_opt = ObservableMapper::from_flha(unbinned_id);
         if (!obs_opt.has_value())
             throw std::runtime_error("from_flha: flha to ObservableId mapping unknown");
@@ -78,6 +82,12 @@ struct BinnedObservableId {
         out.p = { static_cast<double>(bin0) / 1000.0,
                   static_cast<double>(bin1) / 1000.0 };
         return out;
+    }
+
+    std::string str() const {
+        std::stringstream ss;
+        ss << s.str() << " [" << p.first << ", " << p.second << "]";
+        return ss.str();
     }
 };
 

@@ -23,8 +23,8 @@ std::map<ParamId, std::map<ParamId, double>> CovarianceTransformer::transform(st
     return out;
 }
 
-std::map<ObservableId, std::map<ObservableId, double>> CovarianceTransformer::transform(std::map<ObservableId, double> ids) {
-    std::map<ObservableId, std::map<ObservableId, double>> out;
+std::map<BinnedObservableId, std::map<BinnedObservableId, double>> CovarianceTransformer::transform(std::map<BinnedObservableId, double> ids) {
+    std::map<BinnedObservableId, std::map<BinnedObservableId, double>> out;
     for (auto& elem : ids) {
         for (auto& elem2 : ids) {
             out[elem.first][elem2.first] = (*corr_proxy)(elem.first, elem2.first, CorrelationProvider::CorrelationType::COMBINED); // TODO Theo : correlation for copula

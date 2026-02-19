@@ -122,7 +122,7 @@ public:
             auto stop  = std::chrono::steady_clock::now();
             auto us = std::chrono::duration_cast<std::chrono::microseconds>(stop - start).count();
             std::cout << "Predict took " << us << " µs" << std::endl;
-            return unzip(pred_map).vals;
+            return flatten(pred_map).vals;
         };
 
         MLEstimator est(std::move(ctx), model_fn, this->config.MLE_max_iter, this->config.MLE_tol);

@@ -4,7 +4,7 @@
 #include "Statistics.h"
 
 struct GaussianSummary {
-    ObservableId id;
+    BinnedObservableId id;
     double mu {};           // population mean
     double sigma {};        // population std
     double sigma_p {};      // population right std
@@ -15,7 +15,7 @@ struct GaussianSummary {
 };
 
 inline std::ostream& operator<<(std::ostream& os, const GaussianSummary& gs) {
-    os << ObservableMapper::str(gs.id) << " = ";
+    os << ObservableMapper::str(gs.id.s) << " = ";
     if (gs.symmetric) {
         os << std::setprecision(4) << gs.mu << " +- " << gs.sigma << " (skew = " << std::setprecision(2) << gs.skew << ")";
     } else {

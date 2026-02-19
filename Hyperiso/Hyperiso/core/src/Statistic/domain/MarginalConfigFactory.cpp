@@ -24,7 +24,7 @@ MarginalConfig MarginalConfigFactory::create(ParamId pid, MarginalType marginal)
     }
 }
 
-MarginalConfig MarginalConfigFactory::create(ObservableId oid,
+MarginalConfig MarginalConfigFactory::create(BinnedObservableId oid,
                                              MarginalType marginal) {
     double sigma;
 

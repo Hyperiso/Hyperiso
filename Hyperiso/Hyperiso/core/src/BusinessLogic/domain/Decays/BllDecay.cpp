@@ -4,10 +4,6 @@
 void BllDecay::load_params() {
     auto start = std::chrono::steady_clock::now();
     cache.G_F = (*p)(ParamId{ParameterType::SM, "SMINPUTS", 2}, DataType::VALUE);
-    auto stop  = std::chrono::steady_clock::now();
-    auto us = std::chrono::duration_cast<std::chrono::microseconds>(stop - start).count();
-    LOG_INFO("ObsParameterProxy retrieve time = ", us, " µs");
-
     cache.alpha_em = (*p)(ParamId{ParameterType::SM, "EW", {1, 2}}, DataType::VALUE);
     cache.m_mu = (*p)(ParamId{ParameterType::SM, "MASS", 13}, DataType::VALUE);
     cache.m_Bd = (*p)(ParamId{ParameterType::FLAVOR, "FMASS", 511}, DataType::VALUE);
@@ -29,16 +25,15 @@ void BllDecay::load_params() {
 
     start = std::chrono::steady_clock::now();
     cache.C10_SM = w_proxy->getFR(WGroup::B, WCoef::C10, w_config.order, ContributionType::SM);
-    stop  = std::chrono::steady_clock::now();
-    us = std::chrono::duration_cast<std::chrono::microseconds>(stop - start).count();
-    LOG_INFO("ObsWilsonProxy retrieve time = ", us, " µs");
-
     cache.C10 = w_proxy->getFR(WGroup::B, WCoef::C10, w_config.order);
     cache.CQ1 = w_proxy->getFR(WGroup::BScalar, WCoef::CQ1, w_config.order);
     cache.CQ2 = w_proxy->getFR(WGroup::BScalar, WCoef::CQ2, w_config.order);
     cache.C10_m = cache.C10 - w_proxy->getFR(WGroup::BPrime, WCoef::CP10, w_config.order);
     cache.CQ1_m = cache.CQ1 - w_proxy->getFR(WGroup::BPrime, WCoef::CPQ1, w_config.order);
     cache.CQ2_m = cache.CQ2 - w_proxy->getFR(WGroup::BPrime, WCoef::CPQ2, w_config.order);
+    auto stop  = std::chrono::steady_clock::now();
+    auto us = std::chrono::duration_cast<std::chrono::microseconds>(stop - start).count();
+    LOG_INFO("load_params took", us, " µs");
 }
 
 double BllDecay::BR_avg_Bq_mumu(int q) {

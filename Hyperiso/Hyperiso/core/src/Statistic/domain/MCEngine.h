@@ -5,6 +5,7 @@
 #include "ports/IModel.h"
 #include "Statistics.h"
 #include "GaussianApprox.h"
+#include "Indexing.h"
 
 struct MCConfig { std::size_t draws=10000; double skew_abs_threshold=0.2; };
 struct MCRealization {
@@ -34,7 +35,9 @@ public:
 
         // auto start_pred = std::chrono::steady_clock::now();
         for (const auto& s : samples) {
-            std::map<ObservableId, double> value = model_->predict_optimized(p, s);
+            auto res = model_->predict_optimized(p, s);
+            auto unzipped_res = flatten(res);
+            std::map<BinnedObservableId, double> value = zip(unzipped_res.ids, unzipped_res.vals);
             out.emplace_back(std::move(value));
         }
         // auto stop_pred  = std::chrono::steady_clock::now();

@@ -58,7 +58,7 @@ std::unique_ptr<JointDistribution> StatisticManager::build_nuisance_distribution
 
 std::unique_ptr<JointDistribution> StatisticManager::build_exp_data_distribution() {
     unsigned int seed = std::random_device{}();
-    std::map<ObservableId, MarginalType> exp_data_marginals;
+    std::map<BinnedObservableId, MarginalType> exp_data_marginals;
 
     for (auto& [oid, v] : cache.exp_obs) {
         exp_data_marginals.emplace(oid, MarginalType::GAUSSIAN);
@@ -66,14 +66,14 @@ std::unique_ptr<JointDistribution> StatisticManager::build_exp_data_distribution
 
     for (auto& [oid, mt] : config.override_exp_data_marginals) {
         if (!exp_data_marginals.contains(oid)) {
-            LOG_WARN("Observable", ObservableMapper::str(oid), "is not a taken into account in this fit.");
+            LOG_WARN("Observable", ObservableMapper::str(oid.s), "is not a taken into account in this fit.");
             continue;
         }
         exp_data_marginals.at(oid) = mt;
     }
 
     auto unzipped = unzip(exp_data_marginals);
-    std::vector<ObservableId> obs_ids = unzipped.ids;
+    std::vector<BinnedObservableId> obs_ids = unzipped.ids;
     std::vector<std::unique_ptr<IMarginalDistribution>> marginals;
 
     for (auto& [oid, mt] : exp_data_marginals) {
@@ -158,12 +158,12 @@ std::set<std::vector<std::pair<double, double>>> StatisticManager::confidence_co
     auto unzipped_nuisances = unzip(cache.eta_specs_real);
     auto unzipped_exp_obs = unzip(cache.exp_obs);
     std::vector<ParamId> eta_ids = unzipped_nuisances.ids;
-    std::vector<ObservableId> obs_ids = unzipped_exp_obs.ids; 
+    std::vector<BinnedObservableId> obs_ids = unzipped_exp_obs.ids; 
     eta_ids.insert(eta_ids.end(), p_ids.begin(), p_ids.end());
 
     auto model_fn = [this, obs_ids, p_ids, eta_ids] (const Vec& p_vec, const Vec& eta_vec) -> Vec {
         auto pred_map = this->obs_int->predict_optimized(zip(p_ids, p_vec), zip(eta_ids, eta_vec));
-        return unzip(pred_map).vals;
+        return flatten(pred_map).vals;
     };
 
     // Create likelihood
