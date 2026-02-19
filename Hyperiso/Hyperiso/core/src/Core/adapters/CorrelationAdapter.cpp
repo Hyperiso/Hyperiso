@@ -1,7 +1,7 @@
 #include "CorrelationAdapter.h"
 
 template void CorrelationLoader<ParamId>::load(std::shared_ptr<CorrelationMatrixPair<ParamId>>, fs::path);
-template void CorrelationLoader<ObservableId>::load(std::shared_ptr<CorrelationMatrixPair<ObservableId>>, fs::path);
+template void CorrelationLoader<BinnedObservableId>::load(std::shared_ptr<CorrelationMatrixPair<BinnedObservableId>>, fs::path);
 
 template <typename T>
 void CorrelationLoader<T>::load(std::shared_ptr<CorrelationMatrixPair<T>> dest, fs::path src_file) { 
@@ -42,14 +42,15 @@ void CorrelationLoader<ParamId>::emplace_correlation(std::shared_ptr<Correlation
     corr_matrices->emplace(std::make_pair(pid_1, pid_2), stat_value, syst_value);
 }
 
+//TODO :: better than this ? or safer ?
 template<>
-void CorrelationLoader<ObservableId>::emplace_correlation(std::shared_ptr<CorrelationMatrixPair<ObservableId>> corr_matrices, std::shared_ptr<DBNode> leaf) {
+void CorrelationLoader<BinnedObservableId>::emplace_correlation(std::shared_ptr<CorrelationMatrixPair<BinnedObservableId>> corr_matrices, std::shared_ptr<DBNode> leaf) {
     if (!leaf->contains("id_1") || !leaf->contains("id_2") || !leaf->contains("stat_correlation")) {
         LOG_ERROR("CorrelationLoader", "DBNode doesn't have all necessary keys for observable correlation.");
     }
     //TODO : do some checking with value()
-    ObservableId obs_1 = ObservableMapper::from_flha(LhaID(std::get<BlockName>(leaf->get("id_1")))).value();
-    ObservableId obs_2 = ObservableMapper::from_flha(LhaID(std::get<BlockName>(leaf->get("id_2")))).value();
+    BinnedObservableId obs_1 = BinnedObservableId::from_flha(LhaID(std::get<BlockName>(leaf->get("id_1"))));
+    BinnedObservableId obs_2 = BinnedObservableId::from_flha(LhaID(std::get<BlockName>(leaf->get("id_2"))));
     auto stat_value = std::get<double>(leaf->get("stat_correlation"));
     auto syst_value = leaf->contains("syst_correlation") ? std::get<double>(leaf->get("syst_correlation")) : 0;
 

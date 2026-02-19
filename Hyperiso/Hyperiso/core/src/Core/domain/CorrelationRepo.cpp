@@ -13,6 +13,13 @@ std::pair<double, double> CorrelationRepository::get_correlation(Observables id1
 }
 
 std::pair<double, double> CorrelationRepository::get_correlation(ObservableId id1, ObservableId id2) const {
+    BinnedObservableId id1_b{id1, {0.,0.}};
+    BinnedObservableId id2_b{id2, {0.,0.}};
+    auto key = std::make_pair(id1_b, id2_b);
+    return observable_correlations->at(key);
+}
+
+std::pair<double, double> CorrelationRepository::get_correlation(BinnedObservableId id1, BinnedObservableId id2) const {
     auto key = std::make_pair(id1, id2);
     return observable_correlations->at(key);
 }
@@ -21,7 +28,7 @@ void CorrelationRepository::set_correlation_matrix(std::shared_ptr<CorrelationMa
     parameter_correlations = correlation_matrices;
 }
 
-void CorrelationRepository::set_correlation_matrix(std::shared_ptr<CorrelationMatrixPair<ObservableId>> correlation_matrices) {
+void CorrelationRepository::set_correlation_matrix(std::shared_ptr<CorrelationMatrixPair<BinnedObservableId>> correlation_matrices) {
     observable_correlations = correlation_matrices;
 }
 
@@ -35,7 +42,7 @@ void CorrelationRepository::merge_correlation_matrix(std::shared_ptr<Correlation
     }
 }
 
-void CorrelationRepository::merge_correlation_matrix(std::shared_ptr<CorrelationMatrixPair<ObservableId>> correlation_matrices) {
+void CorrelationRepository::merge_correlation_matrix(std::shared_ptr<CorrelationMatrixPair<BinnedObservableId>> correlation_matrices) {
     for (const auto &corr: correlation_matrices->stat) {
         observable_correlations->stat.insert_or_assign(corr.first, corr.second);
     }

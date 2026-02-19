@@ -20,5 +20,6 @@
 #include "Map.h"
 #include "registry_init.hpp"
 #include "DependenciesHelper.h"
+#include "BinnedObservableId.h"
 
 #endif // INCLUDE_H

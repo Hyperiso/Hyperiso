@@ -86,6 +86,16 @@ public:
     double operator()(const ObservableId& pid_1, const ObservableId& pid_2, CorrelationType type);
 
     /**
+     * @brief Retrieves a correlation between two observables specified by BinnedObservableId.
+     *
+     * @param pid_1 First observable ID.
+     * @param pid_2 Second observable ID.
+     * @param type  Type of correlation requested (stat, syst, combined).
+     * @return The requested correlation value.
+     */
+    double operator()(const BinnedObservableId& pid_1, const BinnedObservableId& pid_2, CorrelationType type);
+
+    /**
      * @brief Checks if a correlation between two parameters is non-zero.
      *
      * Internally calls the corresponding operator() and tests whether the
@@ -117,6 +127,16 @@ public:
      * @return True if the correlation is non-zero, false otherwise.
      */
     bool exists(const ObservableId& pid_1, const ObservableId& pid_2, CorrelationType type);
+
+    /**
+     * @brief Checks if a correlation between two observables (BinnedObservableId) is non-zero.
+     *
+     * @param pid_1 First observable ID.
+     * @param pid_2 Second observable ID.
+     * @param type  Type of correlation requested (stat, syst, combined).
+     * @return True if the correlation is non-zero, false otherwise.
+     */
+    bool exists(const BinnedObservableId& pid_1, const BinnedObservableId& pid_2, CorrelationType type);
 
 private:
     /**

@@ -7,7 +7,7 @@
 #include <string>
 #include <tuple>
 #include <functional>
-#include "Include.h"
+#include "observable_ids.hpp"
 
 static inline double norm_zero(double x) noexcept {
     // Rend -0.0 et +0.0 identiques
@@ -30,12 +30,16 @@ struct BinnedObservableId {
     }
 
     bool operator<(BinnedObservableId const& o) const noexcept {
-        return std::tie(s,
-                        bits_norm_zero(p.first),
-                        bits_norm_zero(p.second))
-             < std::tie(o.s,
-                        bits_norm_zero(o.p.first),
-                        bits_norm_zero(o.p.second));
+        std::uint64_t a = bits_norm_zero(p.first);
+        std::uint64_t b = bits_norm_zero(p.second);
+        std::uint64_t c =  bits_norm_zero(o.p.first);
+        std::uint64_t d = bits_norm_zero(o.p.second);
+        return std::tie(s,a
+                        ,b
+                        )
+             < std::tie(o.s,c
+                       ,d)
+                        ;
     }
 
     LhaID flha() const {
@@ -50,6 +54,30 @@ struct BinnedObservableId {
         auto parts = unbinned_id.get_parts();
         parts.insert(parts.begin() + 2, bin.begin(), bin.end());
         return LhaID(parts);
+    }
+
+    static BinnedObservableId from_flha(LhaID const& id) {
+        auto parts = id.get_parts();
+
+        if (parts.size() < 4)
+            throw std::runtime_error("from_flha: LhaID has not enough parts to contain binning");
+
+        const long bin0 = parts.at(2);
+        const long bin1 = parts.at(3);
+
+        parts.erase(parts.begin() + 2, parts.begin() + 4);
+        LhaID unbinned_id(parts);
+
+
+        auto obs_opt = ObservableMapper::from_flha(unbinned_id);
+        if (!obs_opt.has_value())
+            throw std::runtime_error("from_flha: flha to ObservableId mapping unknown");
+
+        BinnedObservableId out;
+        out.s = obs_opt.value();
+        out.p = { static_cast<double>(bin0) / 1000.0,
+                  static_cast<double>(bin1) / 1000.0 };
+        return out;
     }
 };
 

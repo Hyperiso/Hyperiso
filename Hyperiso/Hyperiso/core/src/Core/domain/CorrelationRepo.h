@@ -144,6 +144,17 @@ public:
     std::pair<double, double> get_correlation(ObservableId o1, ObservableId o2) const;
 
     /**
+     * @brief Retrieves the correlation between two observables given as IDs (binned).
+     *
+     * @param o1 First observable ID.
+     * @param o2 Second observable ID.
+     * @return A pair `(rho_stat, rho_syst)`.
+     *
+     * @pre `observable_correlations` must be non-null and properly initialized.
+     */
+    std::pair<double, double> get_correlation(BinnedObservableId o1, BinnedObservableId o2) const;
+
+    /**
      * @brief Computes the combined correlation (quadratic sum) between two
      *        entities of the same type.
      *
@@ -178,7 +189,7 @@ public:
      * @param correlation_matrix Shared pointer to the observable
      *        correlation matrices.
      */
-    void set_correlation_matrix(std::shared_ptr<CorrelationMatrixPair<ObservableId>> correlation_matrix);
+    void set_correlation_matrix(std::shared_ptr<CorrelationMatrixPair<BinnedObservableId>> correlation_matrix);
 
     /**
      * @brief Merges a new correlation matrix into the existing parameter
@@ -207,7 +218,7 @@ public:
      *
      * @pre `observable_correlations` must be non-null.
      */
-    void merge_correlation_matrix(std::shared_ptr<CorrelationMatrixPair<ObservableId>> correlation_matrix);
+    void merge_correlation_matrix(std::shared_ptr<CorrelationMatrixPair<BinnedObservableId>> correlation_matrix);
 
     /**
      * @brief Prints the current content of parameter and observable correlations.
@@ -223,7 +234,7 @@ public:
 
 private:
     std::shared_ptr<CorrelationMatrixPair<ParamId>> parameter_correlations;         ///< Parameter correlation matrices.
-    std::shared_ptr<CorrelationMatrixPair<ObservableId>> observable_correlations;   ///< Observable correlation matrices.
+    std::shared_ptr<CorrelationMatrixPair<BinnedObservableId>> observable_correlations;   ///< Observable correlation matrices.
 };
 
 #endif // CORRELATIONREPO_H

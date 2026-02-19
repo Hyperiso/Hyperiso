@@ -147,7 +147,9 @@ def anomalies_plot(
     # exp_provider: PyParameterProvider,
     flip: bool = True,
 ):
+    Observables.PHI
     selected = [
+        Observables.BR_KL__MU_MU,
         Observables.BR_BS_MUMU,
         Observables.BR_BD_MUMU,
         Observables.BR_BU_TAU_NU,
