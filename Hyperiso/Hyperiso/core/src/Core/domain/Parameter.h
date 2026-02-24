@@ -212,7 +212,7 @@ public:
      *
      * @param observer Shared pointer to the observer.
      */
-    void addObserver(std::shared_ptr<Parameter> observer) { observers.push_back(observer); }
+    void addObserver(std::shared_ptr<Parameter> observer);
 
     /**
      * @brief Removes an observer from the observer list.
@@ -239,6 +239,14 @@ public:
      * such as @ref set_expected().
      */
     void notifyObservers();
+
+    /**
+     * @brief Notify only parameter observers (does NOT notify owner block).
+     *
+     * Use this to propagate dirtiness to DependentParameters without causing
+     * DependentBlocks (which observe the owner Block) to be spammed N times.
+     */
+    void notifyParamObserversOnly();
 
     /**
      * @brief Virtual hook called when a source parameter has changed.

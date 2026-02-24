@@ -128,6 +128,9 @@ target_link_libraries(LAZY_TEST CoreLib)
 add_executable(LAZY_TEST_2 app/main_more_lazy.cpp)
 target_link_libraries(LAZY_TEST_2 CoreLib)
 
+add_executable(MORE_SPEED app/main_speed.cpp)
+target_link_libraries(MORE_SPEED CoreLib)
+
 include(GNUInstallDirs)
 
 install(TARGETS CoreLib
