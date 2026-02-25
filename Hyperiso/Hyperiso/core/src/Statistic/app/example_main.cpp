@@ -104,7 +104,7 @@ int main() {
     };
     StatisticInterface inter = StatisticInterface(config);
 
-    std::map<ObservableId, GaussianSummary> res = inter.compute_uncertainties();
+    std::map<BinnedObservableId, GaussianSummary> res = inter.compute_uncertainties();
 
     for (auto elem : res) {
         std::cout << elem.first.str() << " : " << elem.second << std::endl;

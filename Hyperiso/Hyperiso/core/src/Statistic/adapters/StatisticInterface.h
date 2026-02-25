@@ -18,7 +18,7 @@ public:
         manager->fill_cache();
     }
 
-    std::map<ObservableId, GaussianSummary> compute_uncertainties() {
+    std::map<BinnedObservableId, GaussianSummary> compute_uncertainties() {
         return manager->compute_uncertainties();
     }
 

@@ -19,9 +19,9 @@ int main(int argc, char** argv) {
 
     std::cout << el << std::endl;
 
-    std::cout << "Corr between A_3_B__KSTAR_L_L and Observables::A_4_B__KSTAR_L_L : "<< stat_corr(Observables::A_3_B__KSTAR_L_L, Observables::A_4_B__KSTAR_L_L, StatCorrelationProxy::Type::COMBINED) << std::endl;
+    std::cout << "Corr between A_3_B__KSTAR_L_L and Observables::A_4_B__KSTAR_L_L : "<< stat_corr(Observables::A_3_B__KSTAR_MU_MU, Observables::A_3_B__KSTAR_MU_MU, StatCorrelationProxy::Type::COMBINED) << std::endl;
 
-    std::cout << "Corr between same param : "<< stat_corr(Observables::A_3_B__KSTAR_L_L, Observables::A_3_B__KSTAR_L_L, StatCorrelationProxy::Type::COMBINED) << std::endl;
+    std::cout << "Corr between same param : "<< stat_corr(Observables::A_3_B__KSTAR_MU_MU, Observables::A_3_B__KSTAR_MU_MU, StatCorrelationProxy::Type::COMBINED) << std::endl;
 
     BlockProxy().log_all_blocks(ParameterType::OBSERVABLE);
 

@@ -90,8 +90,8 @@ if __name__ == "__main__":
     interface.add_observable(Observables.BR_B_XS_GAMMA, QCDOrder.NNLO, True)
     interface.add_observable(Observables.BR_BS_MUMU, QCDOrder.NNLO, True)
     interface.add_observable(Observables.BR_BD_MUMU, QCDOrder.NNLO, True)
-    interface.add_observable(Observables.BR_B__D_TAU_NU, QCDOrder.NNLO, True)
-    interface.add_observable(Observables.ISOSPIN_ASYMMETRY_B_KSTAR_GAMMA, QCDOrder.NNLO, True)
+    interface.add_observable(Observables.BR_B0__D_TAU_NU, QCDOrder.NNLO, True)
+    interface.add_observable(Observables.BR_B__KSTAR_GAMMA, QCDOrder.NNLO, True)
     
     print(interface.compute_observable(Observables.BR_B_XS_GAMMA))  # Scalar(...)
     print(interface.compute_observable(Observables.BR_BS_MUMU))  # Scalar(...)

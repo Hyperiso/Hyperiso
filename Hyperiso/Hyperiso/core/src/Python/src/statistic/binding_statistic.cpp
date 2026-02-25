@@ -191,7 +191,7 @@ void init_marginal_config_factory(py::module_ &m) {
 
         .def(
             "create",
-            py::overload_cast<ObservableId, MarginalType>(&MarginalConfigFactory::create),
+            py::overload_cast<BinnedObservableId, MarginalType>(&MarginalConfigFactory::create),
             py::arg("oid"),
             py::arg("marginal"),
             "Create a MarginalConfig from an ObservableId + marginal type."

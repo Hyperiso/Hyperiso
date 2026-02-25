@@ -4,27 +4,27 @@ from dataclasses import dataclass
 from typing import Any
 
 from pyhyperiso.phyperiso.pyhyperiso import statistic as _cpp_stat
-from pyhyperiso.core.Common.GeneralEnum import Observables  # adapte si ton wrapper s'appelle autrement
+from pyhyperiso.core.Common.BinnedObservableId import BinnedObservableId  # adapte l'import
 
 
 @dataclass
 class GaussianSummary:
     """Summary statistics of a (possibly split) Gaussian approximation.
 
-    This is a Python wrapper around the C++ ``GaussianSummary`` struct.
+    Python wrapper around the C++ ``GaussianSummary`` struct.
 
     Attributes:
-        id: Observable identifier.
-        mu: Population mean.
-        sigma: Population standard deviation.
-        sigma_p: Right-side population std (for split Gaussian).
-        sigma_m: Left-side population std (for split Gaussian).
-        mode: Population mode.
-        skew: Sample skewness.
-        symmetric: Whether the distribution is considered symmetric.
+        id (BinnedObservableId): Binned observable identifier (wrapper).
+        mu (float): Population mean.
+        sigma (float): Population standard deviation.
+        sigma_p (float): Right-side population std (split Gaussian).
+        sigma_m (float): Left-side population std (split Gaussian).
+        mode (float): Population mode.
+        skew (float): Sample skewness.
+        symmetric (bool): Whether the distribution is considered symmetric.
     """
 
-    id: ObservableId
+    id: BinnedObservableId
     mu: float = 0.0
     sigma: float = 0.0
     sigma_p: float = 0.0
@@ -37,7 +37,7 @@ class GaussianSummary:
     def from_cpp(cls, cpp_obj: Any) -> "GaussianSummary":
         """Wrap a bound C++ ``GaussianSummary`` instance."""
         return cls(
-            id=cpp_obj.id,
+            id=BinnedObservableId.from_cpp(cpp_obj.id),
             mu=float(cpp_obj.mu),
             sigma=float(cpp_obj.sigma),
             sigma_p=float(cpp_obj.sigma_p),
@@ -50,7 +50,7 @@ class GaussianSummary:
     def to_cpp(self):
         """Convert this wrapper into a bound C++ ``GaussianSummary`` instance."""
         cpp = _cpp_stat.GaussianSummary()
-        cpp.id = self.id
+        cpp.id = self.id.to_cpp()
         cpp.mu = float(self.mu)
         cpp.sigma = float(self.sigma)
         cpp.sigma_p = float(self.sigma_p)

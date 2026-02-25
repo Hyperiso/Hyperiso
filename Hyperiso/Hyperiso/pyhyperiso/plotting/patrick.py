@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 from pyhyperiso.core.Common.GeneralEnum import Observables, QCDOrder, ParameterType, DataType, Model
 from pyhyperiso.core.Common.ParamId import ParamId, LhaID
 from pyhyperiso.core.Common.SymbolId import ObservableId
+from pyhyperiso.core.Common.BinnedObservableId import BinnedObservableId
 
 from pyhyperiso.core.Core.HyperisoMaster import PyHyperisoMaster
 from pyhyperiso.core.Core.HyperisoConfig import PyHyperisoConfig, ExternalFlag
@@ -127,14 +128,14 @@ def draw_two_points(ax, y: float, exp_and_theo):
 # -------------------------------------------------------------------
 # Normalize summaries keys (important si les clés viennent en type C++ pybind)
 # -------------------------------------------------------------------
-def normalize_summaries_keys(summaries: Dict[Any, GaussianSummary]) -> Dict[ObservableId, GaussianSummary]:
-    out: Dict[ObservableId, GaussianSummary] = {}
+def normalize_summaries_keys(summaries: Dict[Any, GaussianSummary]) -> Dict[BinnedObservableId, GaussianSummary]:
+    out: Dict[BinnedObservableId, GaussianSummary] = {}
     for k, v in summaries.items():
-        if isinstance(k, ObservableId):
+        if isinstance(k, BinnedObservableId):
             out[k] = v
         else:
             # typiquement: k est un _CppObservableId ou un truc str()-able
-            out[ObservableId(str(k))] = v
+            out[BinnedObservableId(str(k))] = v
     return out
 
 
@@ -147,7 +148,7 @@ def anomalies_plot(
     # exp_provider: PyParameterProvider,
     flip: bool = True,
 ):
-    Observables.PHI
+    # Observables.PHI
     selected = [
         Observables.BR_KL__MU_MU,
         Observables.BR_BS_MUMU,
@@ -168,8 +169,9 @@ def anomalies_plot(
     
     # # 1) incertitudes théoriques
     summaries_raw = stat_interface.compute_uncertainties()
+    print("raw : ", summaries_raw)
     summaries = normalize_summaries_keys(summaries_raw)
-    
+    # summaries = {BinnedObservableId(gs._cpp_type): GaussianSummary.from_cpp(gs) for gs in summaries}
     # obs_interface = PyObservableInterface()
     
 
@@ -183,7 +185,8 @@ def anomalies_plot(
 
     def add_nonbinned(obs: Observables, latex_label: str):
         # EXP: via FOBS / LhaID
-        lhaid: LhaID = ObservableMapper.flha(obs)
+        obs_2 = BinnedObservableId(ObservableMapper().to_id(obs))
+        lhaid: LhaID = obs_2.flha()
         exp = exp_point_from_fobs(exp_provider, lhaid)
 
         # obs_interface.add_observable(obs, QCDOrder.NNLO)
@@ -192,11 +195,16 @@ def anomalies_plot(
         # THEO central
         # theo_val = hyp_interface.compute_observable_central(obs)
         # theo_val = obs_interface.compute_observable(obs)
-        theo_val = summaries[ObservableMapper.to_id(obs)].mu
+        print("the sum : ", summaries)
+        
+        bid = BinnedObservableId(ObservableMapper.to_id(obs))   # (0,0) par défaut
+        theo_val = summaries[bid].mu
         print(theo_val)
         # THEO uncertainty id
         gid: ObservableId = ObservableMapper.id_of(ObservableMapper.str(obs))
-        if gid not in summaries:
+        gobs_2 = BinnedObservableId(gid)
+        glhaid: LhaID = gobs_2.flha()
+        if glhaid not in summaries:
             keys_preview = list(summaries.keys())[:10]
             raise KeyError(
                 f"[anomalies_plot] ObservableId {gid} absent de summaries.\n"
@@ -206,7 +214,7 @@ def anomalies_plot(
                 f"ou si l'id construit n'est pas exactement celui utilisé côté C++."
             )
 
-        g = summaries[gid]
+        g = summaries[glhaid]
         th = theory_point_from_stats(theo_val, g)
         # th = Point()
         # th.obs = theo_val[0].value
