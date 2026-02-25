@@ -32,6 +32,7 @@ struct BsPhiDecayCache {
     double m_l, m_s, m_c_m_c, m_b_PS, m_b_mu_b, m_b_m_b;
     double alpha_s_mu_b;
     double m_Bs, m_phi;
+    double life_Bs;
     complex_t lambda_hat_u;
     double kappa;
     double Delta_M;
@@ -69,6 +70,8 @@ private:
 protected:
     // Auxiliary
     void fill_wilson_cache();
+    void set_cfg_flags(BsPhiConfig::Lepton gen);
+    void load_cfg_dep_params();
 
     // QCDf 
     complex_t T_perp_p_cached(double q2, bool bar);
@@ -138,24 +141,24 @@ protected:
 
     void compute_binned_J_i();
 
-    std::vector<ObservableValue> dG_dq2_binned(bool bar);
+    std::vector<ObservableValue> dBR_dq2_binned(bool bar, Observables id);
     double dG_dq2_avg_bin(size_t bin);
-    std::vector<ObservableValue> F_L();
-    std::vector<ObservableValue> A_T_2();
-    std::vector<ObservableValue> A_T_Re_CPV();
-    std::vector<ObservableValue> A_T_Im_CPV();
-    std::vector<ObservableValue> Pp_4();
-    std::vector<ObservableValue> Pp_6();
-    std::vector<ObservableValue> S_i(int i);
-    std::vector<ObservableValue> A_i(int i);
-    std::vector<ObservableValue> A_FB_CPV();
-    std::vector<ObservableValue> P_2_CPV();
-    std::vector<ObservableValue> P_3_CPV();
-    std::vector<ObservableValue> Pp_5_CPV();
-    std::vector<ObservableValue> Pp_8_CPV();
-    std::vector<ObservableValue> Q_8_m();
-    std::vector<ObservableValue> Q_8_p();
-    std::vector<ObservableValue> Q_9();
+    std::vector<ObservableValue> F_L(Observables id);
+    std::vector<ObservableValue> A_T_2(Observables id);
+    std::vector<ObservableValue> A_T_Re_CPV(Observables id);
+    std::vector<ObservableValue> A_T_Im_CPV(Observables id);
+    std::vector<ObservableValue> Pp_4(Observables id);
+    std::vector<ObservableValue> Pp_6(Observables id);
+    std::vector<ObservableValue> S_i(int i, Observables id);
+    std::vector<ObservableValue> A_i(int i, Observables id);
+    std::vector<ObservableValue> A_FB_CPV(Observables id);
+    std::vector<ObservableValue> P_2_CPV(Observables id);
+    std::vector<ObservableValue> P_3_CPV(Observables id);
+    std::vector<ObservableValue> Pp_5_CPV(Observables id);
+    std::vector<ObservableValue> Pp_8_CPV(Observables id);
+    std::vector<ObservableValue> Q_8_m(Observables id);
+    std::vector<ObservableValue> Q_8_p(Observables id);
+    std::vector<ObservableValue> Q_9(Observables id);
 
 public:
     BsPhiDecay(QCDOrder order, double matching_scale, double hadronic_scale, ObservablePortsConfig& ports) : DecayParentConfigurable(DecayMapper::to_id(Decays::B__l_nu), matching_scale, hadronic_scale, order, ports) {

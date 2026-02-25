@@ -6,10 +6,13 @@
 #include "gsl_wrappers.h"
 
 struct MinimizationContext {
-    std::size_t max_iter {500};
-    double tol {1e-5};
-    double step_size {0.1};
-    double line_search_tol {0.1};
+    std::size_t simplex_max_iter {500};
+    std::size_t bfgs_max_iter {500};
+    double switch_tol {1e-3};
+    double final_tol {1e-5};
+    double simplex_initial_step_size {0.1};
+    double bfgs_line_search_tol {0.1};
+    double bfgs_initial_step_size {0.01};
 };
 
 struct MinimizationResult {
@@ -22,7 +25,10 @@ struct MinimizationResult {
 bool find_bracket(const RealValuedFunction& f, double x_min, double x_max, double &a, double &b, int n_samples = 100);   
 double brent_root(const RealValuedFunction& f, double a, double b, double xtol = 1e-6, double ftol = 1e-6, int max_it = 100);
 
-MinimizationResult minimize_NM(RealValuedForm f, const std::vector<double> x_start, const std::vector<double>& scales, const MinimizationContext& context);
+MinimizationResult minimize_NM(RealValuedForm f, const std::vector<double>& x0, const std::vector<double>& scales, const MinimizationContext& context);
 MinimizationResult minimize_BFGS(RealValuedForm f, const std::vector<double>& x0, const std::vector<double>& scales, const MinimizationContext& context);
+MinimizationResult minimize_NM(ScaledForm f, const std::vector<double>& t0, const MinimizationContext& context);
+MinimizationResult minimize_BFGS(ScaledForm f, const std::vector<double>& t0, const MinimizationContext& context);
+MinimizationResult minimize_combined(RealValuedForm f, const std::vector<double>& x0, const std::vector<double>& scales, const MinimizationContext& context);
 
 #endif // OPTIMIZATION_H

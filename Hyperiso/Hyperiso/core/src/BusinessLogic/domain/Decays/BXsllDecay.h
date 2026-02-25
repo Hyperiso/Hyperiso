@@ -7,12 +7,22 @@
 #include "Math.h"
 #include "DefaultConfig.h"
 
+struct BXsllConfig : public DecayConfig {
+    enum class Lepton {E, MU, TAU};
+
+    Lepton gen {Lepton::MU};
+    std::vector<std::pair<double, double>> bins {
+        { 1.00,  6.00},
+        {14.40, 22.00}
+    };
+};
+
 struct BXsllDecayCache {
     double alpha_em;
     double m_b_1S;
-    double m_mu_hat, m_tau_hat, m_c_hat, m_D_hat;
+    double m_l_hat, m_c_hat, m_D_hat;
     double z;
-    double L_b, L_b_5GeV, L_l_mu, L_l_tau;
+    double L_b, L_b_5GeV, L_l;
     double alpha_s_mu_b;
     double pref_dB0_ds, pref_dB_ds;
     double pref_A0_0, pref_A0_1;
@@ -21,17 +31,11 @@ struct BXsllDecayCache {
     std::map<WCoef, complex_t> C;
     std::map<WCoef, complex_t> C_LO;
 
-    std::pair<double, double> q2_low_bound;
-    std::pair<double, double> q2_high_bound;
-    std::pair<double, double> s_hat_low_bound;
-    std::pair<double, double> s_hat_high_bound;
-
     std::array<complex_t, 100> F_17_lookup;
     std::array<complex_t, 100> F_27_lookup;
     std::array<complex_t, 100> F_19_lookup;
     std::array<complex_t, 100> F_29_lookup;
-    std::array<double, 100> delta_brems_lookup_low;
-    std::array<double, 100> delta_brems_lookup_high;
+    std::array<double, 100> delta_brems_lookup;
 
     std::array<double, 6> cc_res_mass;
     std::array<double, 6> cc_res_br;
@@ -42,12 +46,18 @@ struct BXsllDecayCache {
 /**
  * @brief Decay parent for the inclusive B > X_s l+ l- decays. Implements the integrated branching ratio in both q² \in [1, 6] GeV² and q² > 14.4 GeV², as well as the forward-backward asymmetry of the decay. 
  */
-class BXsllDecay : public DecayParentConfigurable<DecayConfig> {
+class BXsllDecay : public DecayParentConfigurable<BXsllConfig> {
 
 private:
     BXsllDecayCache cache;
+    BXsllConfig cfg;
 
 protected:
+    // utility
+    void set_cfg_flags(BXsllConfig::Lepton gen);
+    void fill_wilson_cache();
+    void load_cfg_dep_params();
+
     double f(double z);
     double h(double z);
     double g_rho(double z);
@@ -132,7 +142,7 @@ protected:
     double delta_bremB_base(double s);
     double delta_bremB(double s);
     double delta_em(double s, double L_l);
-    double dB_ds(double s, double ml_hat, double L_l, int gen);
+    double dB_ds(double s, double ml_hat, double L_l);
 
     double A_FB_0(double s, double ml_hat);
     double delta_A_mb2(double s);
@@ -141,7 +151,8 @@ protected:
     double delta_A_em(double s, double L_l);
     double A_FB(double s, double ml_hat, double L_l);
 
-    double BR_B_Xsll(double q2_min, double q2_max, int gen);
+    std::vector<ObservableValue> BR_B_Xsll(Observables oid);
+    std::vector<ObservableValue> A_FB_B_Xsll(Observables oid);
 
 public:
     BXsllDecay(QCDOrder order, double matching_scale, double hadronic_scale, ObservablePortsConfig& ports) : DecayParentConfigurable(DecayMapper::to_id(Decays::B__Xs_l_l), matching_scale, hadronic_scale, order, ports) {
@@ -153,6 +164,7 @@ public:
     void load_params() override;
     std::vector<ObservableValue> compute_observable(Observables obs) override;
     std::vector<ObservableValue> compute_observable(ObservableId obs) override;
+    void set_config_spe(BXsllConfig config) override {this->cfg = config;}
 };
 
 #endif // __BXSLLDECAY_H__

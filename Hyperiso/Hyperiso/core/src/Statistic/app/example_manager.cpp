@@ -38,6 +38,14 @@ int main(int argc, char** argv) {
     //     return 0.5 * (a*d0*d0 + 2*b*d0*d1 + c*d1*d1);
     // };
 
+    // MinimizationContext ctx;
+    // ctx.max_iter = 500;
+    // ctx.step_size = 0.1;
+    // ctx.tol = 1e-4;
+    // MinimizationResult mr = minimize_NM(F_gauss_nll, {3e-12, 250}, {1e-13, 1e2}, ctx);
+    // std::cout << mr.min << std::endl;
+    // std::cout << mr.argmin[0] << ", " << mr.argmin[1] << std::endl;
+    
     // Vec p_hat = {1e-12, 1e3};
     // auto H = hessian(F_gauss_nll, p_hat);
     // auto H_inv = inverse_hessian(F_gauss_nll, p_hat);
@@ -57,20 +65,15 @@ int main(int argc, char** argv) {
     StatisticConfig config;
     config.MC_draws = 100;
     config.obss = {
-        {ObservableMapper::to_id(Observables::BR_BS_MUMU), QCDOrder::LO},
         {ObservableMapper::to_id(Observables::BR_BS_MUMU_UNTAG), QCDOrder::LO},
         {ObservableMapper::to_id(Observables::BR_BD_MUMU), QCDOrder::LO}
     };
+    config.MLE_max_iter = 1000;
+    config.MLE_tol = 1e-6;
 
-    config.override_nuisance_marginals = {
-        {{ParameterType::DECAY, "B_ll", 1}, MarginalType::FLAT}
-    };
-
-    // config.p_specs = {ParamId(ParameterType::DECAY, "B_ll", 1)};
-    // config.p_specs = {ParamId(ParameterType::SM, "MASS", 1)};
     config.p_specs = {
-        // ParamId(ParameterType::SM, "VCKMIN", 1),
-        // ParamId(ParameterType::SM, "VCKMIN", 2),
+        ParamId(ParameterType::SM, "VCKMIN", 1),
+        ParamId(ParameterType::SM, "VCKMIN", 2),
         ParamId(ParameterType::SM, "VCKMIN", 3),
         ParamId(ParameterType::SM, "VCKMIN", 4)
     };
@@ -103,19 +106,19 @@ int main(int argc, char** argv) {
 
     std::cout << fr.p_correlations << std::endl;
 
-    auto paths = stat.confidence_contour(
-        ParamId(ParameterType::SM, "VCKMIN", 3),
-        ParamId(ParameterType::SM, "VCKMIN", 4),
-        1,
-        {{0.13, 0.19, 0.34, 0.38}}
-    );
+    // auto paths = stat.confidence_contour(
+    //     ParamId(ParameterType::SM, "VCKMIN", 3),
+    //     ParamId(ParameterType::SM, "VCKMIN", 4),
+    //     1,
+    //     {{0.13, 0.19, 0.34, 0.38}}
+    // );
     
-    for (auto &p : paths) {
-        for (auto& xy: p) {
-            std::cout << xy.first << " " << xy.second << std::endl;
-        }
-        std::cout << std::endl;
-    }
+    // for (auto &p : paths) {
+    //     for (auto& xy: p) {
+    //         std::cout << xy.first << " " << xy.second << std::endl;
+    //     }
+    //     std::cout << std::endl;
+    // }
 
     return 0;
 }

@@ -4,29 +4,27 @@ void LbLllDecay::load_params() {
     fill_wilson_cache();
 
     cache.ff_calculator = LbLFFCalculator(p, cfg.ff_src);
-
-    cache.m_l = (*p)(ParamId{ParameterType::SM, "MASS", 11 + 2 * (int)cfg.gen}, DataType::VALUE);
     cache.m_b_mu_b = (*iobs_qcdp)(MassConfig(5, w_config.hadronic_scale, MassType::MSBAR, MassType::POLE));
     cache.m_Lb = (*p)(ParamId{ParameterType::FLAVOR, "FMASS", 5122}, DataType::VALUE);
     cache.m_L = (*p)(ParamId{ParameterType::FLAVOR, "FMASS", 3122}, DataType::VALUE);
+    cache.life_L = (*p)(ParamId{ParameterType::FLAVOR, "FLIFE", 5122}, DataType::VALUE);
     cache.alpha_L = (*p)(ParamId{ParameterType::DECAY, "Lb_L", 8}, DataType::VALUE);
     cache.N_0 = std::conj((*p)(ParamId{ParameterType::SM, "VCKM", {2, 1}}, DataType::VALUE)) * (*p)(ParamId{ParameterType::SM, "VCKM", {2, 2}}, DataType::VALUE) * (*p)(ParamId{ParameterType::SM, "SMINPUTS", 2}, DataType::VALUE) * (*p)(ParamId{ParameterType::SM, "EW", {1, 2}}, DataType::VALUE) / (std::sqrt(6144. * std::pow(PI, 5) * std::pow(cache.m_Lb, 3)));
-    cache.q2_min = 4 * std::pow(cache.m_l, 2);
     cache.q2_max = std::pow(cache.m_Lb - cache.m_L, 2);
 
-    printf("alpha_em = %.4e\n", (*p)(ParamId{ParameterType::SM, "EW", {1, 2}}, DataType::VALUE).real());
-    printf("N0 = %.4e + %.4e i\n", cache.N_0.real(), cache.N_0.imag());
+    load_cfg_dep_params();
 
-    printf("f_perp = %.4e\n", cache.ff_calculator.get(LbL_FF::F_PERP, 1.0));
-    printf("h_perp = %.4e\n", cache.ff_calculator.get(LbL_FF::H_PERP, 1.0));
-    printf("g_perp = %.4e\n", cache.ff_calculator.get(LbL_FF::G_PERP, 1.0));
-    printf("f_+ = %.4e\n", cache.ff_calculator.get(LbL_FF::F_PLUS, 1.0));
-    printf("h_+ = %.4e\n", cache.ff_calculator.get(LbL_FF::H_PLUS, 1.0));
-    printf("g_+ = %.4e\n", cache.ff_calculator.get(LbL_FF::G_PLUS, 1.0));
-    printf("h_tilde_perp = %.4e\n", cache.ff_calculator.get(LbL_FF::H_TILDE_PERP, 1.0));
-    printf("h_tilde_+ = %.4e\n", cache.ff_calculator.get(LbL_FF::H_TILDE_PLUS, 1.0));
+    // printf("alpha_em = %.4e\n", (*p)(ParamId{ParameterType::SM, "EW", {1, 2}}, DataType::VALUE).real());
+    // printf("N0 = %.4e + %.4e i\n", cache.N_0.real(), cache.N_0.imag());
 
-    compute_binned_K_i();
+    // printf("f_perp = %.4e\n", cache.ff_calculator.get(LbL_FF::F_PERP, 1.0));
+    // printf("h_perp = %.4e\n", cache.ff_calculator.get(LbL_FF::H_PERP, 1.0));
+    // printf("g_perp = %.4e\n", cache.ff_calculator.get(LbL_FF::G_PERP, 1.0));
+    // printf("f_+ = %.4e\n", cache.ff_calculator.get(LbL_FF::F_PLUS, 1.0));
+    // printf("h_+ = %.4e\n", cache.ff_calculator.get(LbL_FF::H_PLUS, 1.0));
+    // printf("g_+ = %.4e\n", cache.ff_calculator.get(LbL_FF::G_PLUS, 1.0));
+    // printf("h_tilde_perp = %.4e\n", cache.ff_calculator.get(LbL_FF::H_TILDE_PERP, 1.0));
+    // printf("h_tilde_+ = %.4e\n", cache.ff_calculator.get(LbL_FF::H_TILDE_PLUS, 1.0));
 }
 
 void LbLllDecay::fill_wilson_cache() {
@@ -39,6 +37,19 @@ void LbLllDecay::fill_wilson_cache() {
     cache.C.emplace(WCoef::CP7, b_wilsons[WCoef::CP7]);
     cache.C.emplace(WCoef::CP9, b_wilsons[WCoef::CP9]);
     cache.C.emplace(WCoef::CP10, b_wilsons[WCoef::CP10]);
+}
+
+void LbLllDecay::set_cfg_flags(LbLllConfig::Lepton gen) {
+    if (cfg.gen != gen) {
+        cfg.gen = gen;
+        load_cfg_dep_params();
+    }
+}
+
+void LbLllDecay::load_cfg_dep_params() {
+    cache.m_l = (*p)(ParamId{ParameterType::SM, "MASS", 11 + 2 * (int)cfg.gen}, DataType::VALUE);
+    cache.q2_min = 4 * std::pow(cache.m_l, 2);
+    compute_binned_K_i();
 }
 
 double LbLllDecay::beta_l(double q2) {
@@ -216,14 +227,13 @@ void LbLllDecay::compute_binned_K_i() {
     fill_binned(cache.K_i_bar_binned, true);
 }
 
-std::vector<ObservableValue> LbLllDecay::dG_dq2_binned() {
+std::vector<ObservableValue> LbLllDecay::dBR_dq2_binned(Observables oid) {
     std::vector<ObservableValue> out;
-    ObservableId id = ObservableMapper::to_id(Observables::DGAMMA_DQ2_CP_AVG_LAMBDA_B__LAMBDA_L_L);
     for (size_t i = 0; i < cfg.bins.size(); i++) {
         double K1ss = cache.K_i_binned[0][i] + cache.K_i_bar_binned[0][i];
         double K1cc = cache.K_i_binned[1][i] + cache.K_i_bar_binned[1][i];
-        double res = (2 * K1ss + K1cc) / 2;
-        out.emplace_back(id, res, cfg.bins[i]);
+        double res = (2 * K1ss + K1cc) / 2 * cache.life_L;
+        out.emplace_back(ObservableMapper::to_id(oid), res, cfg.bins[i]);
     }   
     return out;
 }
@@ -234,80 +244,114 @@ double LbLllDecay::dG_dq2_avg_bin(size_t bin) {
     return (2 * K1ss + K1cc) / 2;
 }
 
-std::vector<ObservableValue> LbLllDecay::A_FB_l() {
+std::vector<ObservableValue> LbLllDecay::A_FB_l(Observables oid) {
     std::vector<ObservableValue> out;
-    ObservableId id = ObservableMapper::to_id(Observables::A_FB_L_LAMBDA_B__LAMBDA_L_L);
     for (size_t i = 0; i < cfg.bins.size(); i++) {
         double K1c = cache.K_i_binned[2][i] + cache.K_i_bar_binned[2][i];
         double res = 0.75 * K1c / dG_dq2_avg_bin(i);
-        out.emplace_back(id, res, cfg.bins[i]);
+        out.emplace_back(ObservableMapper::to_id(oid), res, cfg.bins[i]);
     }   
     return out;
 }
 
-std::vector<ObservableValue> LbLllDecay::A_FB_h() {
+std::vector<ObservableValue> LbLllDecay::A_FB_h(Observables oid) {
     std::vector<ObservableValue> out;
-    ObservableId id = ObservableMapper::to_id(Observables::A_FB_H_LAMBDA_B__LAMBDA_L_L);
     for (size_t i = 0; i < cfg.bins.size(); i++) {
         double K2ss = cache.K_i_binned[3][i] + cache.K_i_bar_binned[3][i];
         double K2cc = cache.K_i_binned[4][i] + cache.K_i_bar_binned[4][i];
         double res = 0.25 * (2 * K2ss + K2cc) / dG_dq2_avg_bin(i);
-        out.emplace_back(id, res, cfg.bins[i]);
+        out.emplace_back(ObservableMapper::to_id(oid), res, cfg.bins[i]);
     }   
     return out;
 }
 
-std::vector<ObservableValue> LbLllDecay::A_FB_lh() {
+std::vector<ObservableValue> LbLllDecay::A_FB_lh(Observables oid) {
     std::vector<ObservableValue> out;
-    ObservableId id = ObservableMapper::to_id(Observables::A_FB_LH_LAMBDA_B__LAMBDA_L_L);
     for (size_t i = 0; i < cfg.bins.size(); i++) {
         double K2c = cache.K_i_binned[5][i] + cache.K_i_bar_binned[5][i];
         double res = 0.375 * K2c / dG_dq2_avg_bin(i);
-        out.emplace_back(id, res, cfg.bins[i]);
+        out.emplace_back(ObservableMapper::to_id(oid), res, cfg.bins[i]);
     }   
     return out;
 }
 
-std::vector<ObservableValue> LbLllDecay::F_L() {
+std::vector<ObservableValue> LbLllDecay::F_L(Observables oid) {
     std::vector<ObservableValue> out;
-    ObservableId id = ObservableMapper::to_id(Observables::F_L_LAMBDA_B__LAMBDA_L_L);
     for (size_t i = 0; i < cfg.bins.size(); i++) {
         double K1ss = cache.K_i_binned[0][i] + cache.K_i_bar_binned[0][i];
         double K1cc = cache.K_i_binned[1][i] + cache.K_i_bar_binned[1][i];
         double res = 0.5 * (2 * K1ss - K1cc) / dG_dq2_avg_bin(i);
-        out.emplace_back(id, res, cfg.bins[i]);
+        out.emplace_back(ObservableMapper::to_id(oid), res, cfg.bins[i]);
     }   
     return out;
 }
 
-std::vector<ObservableValue> LbLllDecay::F_T() {
+std::vector<ObservableValue> LbLllDecay::F_T(Observables oid) {
     std::vector<ObservableValue> out;
-    ObservableId id = ObservableMapper::to_id(Observables::F_T_LAMBDA_B__LAMBDA_L_L);
     for (size_t i = 0; i < cfg.bins.size(); i++) {
         double K1cc = cache.K_i_binned[1][i] + cache.K_i_bar_binned[1][i];
         double res = K1cc / dG_dq2_avg_bin(i);
-        out.emplace_back(id, res, cfg.bins[i]);
+        out.emplace_back(ObservableMapper::to_id(oid), res, cfg.bins[i]);
     }   
     return out;
 }
 
 std::vector<ObservableValue> LbLllDecay::compute_observable(Observables obs) {
     switch (obs) {
-    case Observables::TEST:   
-        // test();
-        return {};
-    case Observables::DGAMMA_DQ2_CP_AVG_LAMBDA_B__LAMBDA_L_L:   
-        return dG_dq2_binned();
-    case Observables::A_FB_L_LAMBDA_B__LAMBDA_L_L:   
-        return A_FB_l();
-    case Observables::A_FB_H_LAMBDA_B__LAMBDA_L_L:   
-        return A_FB_h();
-    case Observables::A_FB_LH_LAMBDA_B__LAMBDA_L_L:   
-        return A_FB_lh();
-    case Observables::F_L_LAMBDA_B__LAMBDA_L_L:   
-        return F_L();
-    case Observables::F_T_LAMBDA_B__LAMBDA_L_L:   
-        return F_T();
+    case Observables::DBR_DQ2_LAMBDA_B__LAMBDA_E_E:   
+        set_cfg_flags(LbLllConfig::Lepton::E);
+        return dBR_dq2_binned(obs);
+    case Observables::A_FB_L_LAMBDA_B__LAMBDA_E_E:   
+        set_cfg_flags(LbLllConfig::Lepton::E);
+        return A_FB_l(obs);
+    case Observables::A_FB_H_LAMBDA_B__LAMBDA_E_E:
+        set_cfg_flags(LbLllConfig::Lepton::E);
+        return A_FB_h(obs);
+    case Observables::A_FB_LH_LAMBDA_B__LAMBDA_E_E:
+        set_cfg_flags(LbLllConfig::Lepton::E);
+        return A_FB_lh(obs);
+    case Observables::F_L_LAMBDA_B__LAMBDA_E_E:
+        set_cfg_flags(LbLllConfig::Lepton::E);
+        return F_L(obs);
+    case Observables::F_T_LAMBDA_B__LAMBDA_E_E:
+        set_cfg_flags(LbLllConfig::Lepton::E);
+        return F_T(obs);
+    case Observables::DBR_DQ2_LAMBDA_B__LAMBDA_MU_MU:
+        set_cfg_flags(LbLllConfig::Lepton::MU);
+        return dBR_dq2_binned(obs);
+    case Observables::A_FB_L_LAMBDA_B__LAMBDA_MU_MU:
+        set_cfg_flags(LbLllConfig::Lepton::MU);
+        return A_FB_l(obs);
+    case Observables::A_FB_H_LAMBDA_B__LAMBDA_MU_MU:
+        set_cfg_flags(LbLllConfig::Lepton::MU);   
+        return A_FB_h(obs);
+    case Observables::A_FB_LH_LAMBDA_B__LAMBDA_MU_MU:
+        set_cfg_flags(LbLllConfig::Lepton::MU);   
+        return A_FB_lh(obs);
+    case Observables::F_L_LAMBDA_B__LAMBDA_MU_MU:
+        set_cfg_flags(LbLllConfig::Lepton::MU);   
+        return F_L(obs);
+    case Observables::F_T_LAMBDA_B__LAMBDA_MU_MU:
+        set_cfg_flags(LbLllConfig::Lepton::MU);   
+        return F_T(obs);
+    case Observables::DBR_DQ2_LAMBDA_B__LAMBDA_TAU_TAU:
+        set_cfg_flags(LbLllConfig::Lepton::TAU);   
+        return dBR_dq2_binned(obs);
+    case Observables::A_FB_L_LAMBDA_B__LAMBDA_TAU_TAU:
+        set_cfg_flags(LbLllConfig::Lepton::TAU);   
+        return A_FB_l(obs);
+    case Observables::A_FB_H_LAMBDA_B__LAMBDA_TAU_TAU:
+        set_cfg_flags(LbLllConfig::Lepton::TAU);   
+        return A_FB_h(obs);
+    case Observables::A_FB_LH_LAMBDA_B__LAMBDA_TAU_TAU:
+        set_cfg_flags(LbLllConfig::Lepton::TAU);   
+        return A_FB_lh(obs);
+    case Observables::F_L_LAMBDA_B__LAMBDA_TAU_TAU:
+        set_cfg_flags(LbLllConfig::Lepton::TAU);   
+        return F_L(obs);
+    case Observables::F_T_LAMBDA_B__LAMBDA_TAU_TAU:
+        set_cfg_flags(LbLllConfig::Lepton::TAU);   
+        return F_T(obs);
     default:
         LOG_ERROR("IndexError", "Observable", ObservableMapper::str(obs), "doesn't belong to the decay", DecayMapper::str(this->id));
     }

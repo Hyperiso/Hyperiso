@@ -1,18 +1,51 @@
 #include "BDstarlnuDecay.h"
 
+void BDstarlnuDecay::set_cfg_flags(BDstarlnuConfig::B_Charge charge) {
+    if (cfg.charge != charge) {
+        cfg.charge = charge;
+        load_cfg_dep_params();
+    }
+}
+
 void BDstarlnuDecay::load_params() {
-    double V_cb2 = std::pow(std::abs((*p)(ParamId{ParameterType::SM, "VCKM", {1, 2}}, DataType::VALUE)), 2);
+    fill_wilson_cache();
 
     cache.G_F = (*p)(ParamId{ParameterType::SM, "SMINPUTS", 2}, DataType::VALUE);
     cache.m_e = (*p)(ParamId{ParameterType::SM, "MASS", 11}, DataType::VALUE);
     cache.m_tau = (*p)(ParamId{ParameterType::SM, "MASS", 15}, DataType::VALUE);
-    cache.m_B = (*p)(ParamId{ParameterType::FLAVOR, "FMASS", 511}, DataType::VALUE);
-    cache.m_D_star = (*p)(ParamId{ParameterType::FLAVOR, "FMASS", 413}, DataType::VALUE);
-    cache.tau_B = (*p)(ParamId{ParameterType::FLAVOR, "FLIFE", 511}, DataType::VALUE);
     cache.h_A1_1 = (*p)(ParamId{ParameterType::DECAY, "B_Dslnu", 1}, DataType::VALUE);
     cache.rho_D2 = (*p)(ParamId{ParameterType::DECAY, "B_Dslnu", 2}, DataType::VALUE);
     cache.R_11 = (*p)(ParamId{ParameterType::DECAY, "B_Dslnu", 3}, DataType::VALUE);
     cache.R_21 = (*p)(ParamId{ParameterType::DECAY, "B_Dslnu", 4}, DataType::VALUE);
+
+    load_cfg_dep_params();
+
+    // printf("m_B = %.4e\n", cache.m_B);
+    // printf("m_D = %.4e\n", cache.m_D_star);
+    // printf("hA_1(1) = %.4e\n", cache.h_A1_1);
+    // printf("R1(1) = %.4e\n", cache.R_11);
+    // printf("R2(1) = %.4e\n", cache.R_21);
+    // printf("R3(1) = %.4e\n", R3_1);
+}
+
+void BDstarlnuDecay::fill_wilson_cache() {
+    cache.C_V1 = w_proxy->getFM(WGroup::CC_bc, WCoef::C_V1_bc, QCDOrder::LO);
+    cache.C_V2 = w_proxy->getFM(WGroup::CC_bc, WCoef::C_V2_bc, QCDOrder::LO);
+    cache.C_A = cache.C_V1 - cache.C_V2;
+    cache.C_P = w_proxy->getFM(WGroup::CC_bc, WCoef::C_S1_bc, QCDOrder::LO) - w_proxy->getFM(WGroup::CC_bc, WCoef::C_S2_bc, QCDOrder::LO);
+    cache.C_T = w_proxy->getFM(WGroup::CC_bc, WCoef::C_T_bc, QCDOrder::LO);
+    cache.C_V1_flag = !fpeq(std::abs(cache.C_V1), 0.0);
+    cache.C_V2_flag = !fpeq(std::abs(cache.C_V2), 0.0);
+    cache.C_A_flag = !fpeq(std::abs(cache.C_A), 0.0);
+    cache.C_P_flag = !fpeq(std::abs(cache.C_P), 0.0);
+    cache.C_T_flag = !fpeq(std::abs(cache.C_T), 0.0);
+}
+
+void BDstarlnuDecay::load_cfg_dep_params() {
+    double V_cb2 = std::pow(std::abs((*p)(ParamId{ParameterType::SM, "VCKM", {1, 2}}, DataType::VALUE)), 2);
+    cache.m_B = (*p)(ParamId{ParameterType::FLAVOR, "FMASS", cfg.charge == BDstarlnuConfig::B_Charge::B_0 ? 511 : 521}, DataType::VALUE);
+    cache.m_D_star = (*p)(ParamId{ParameterType::FLAVOR, "FMASS", cfg.charge == BDstarlnuConfig::B_Charge::B_0 ? 413 : 423}, DataType::VALUE);
+    cache.tau_B = (*p)(ParamId{ParameterType::FLAVOR, "FLIFE", cfg.charge == BDstarlnuConfig::B_Charge::B_0 ? 511 : 521}, DataType::VALUE);
     cache.r_D = cache.m_D_star / cache.m_B;
     cache.sqrt_rD = std::sqrt(cache.r_D);
     cache.one_m_rD2 = 1. - std::pow(cache.r_D, 2);
@@ -25,25 +58,8 @@ void BDstarlnuDecay::load_params() {
     cache.w_e = w_max(cache.r_e);
     cache.w_tau = w_max(cache.r_tau);
     cache.BR_pref = std::pow(cache.G_F * cache.m_B * cache.m_B * cache.h_A1_1, 2) * cache.m_D_star * cache.tau_B * V_cb2 / (96 * PI3 * HBAR);
-    cache.C_V1 = w_proxy->getFM(WGroup::CC_bc, WCoef::C_V1_bc, QCDOrder::LO);
-    cache.C_V2 = w_proxy->getFM(WGroup::CC_bc, WCoef::C_V2_bc, QCDOrder::LO);
-    cache.C_A = cache.C_V1 - cache.C_V2;
-    cache.C_P = w_proxy->getFM(WGroup::CC_bc, WCoef::C_S1_bc, QCDOrder::LO) - w_proxy->getFM(WGroup::CC_bc, WCoef::C_S2_bc, QCDOrder::LO);
-    cache.C_T = w_proxy->getFM(WGroup::CC_bc, WCoef::C_T_bc, QCDOrder::LO);
-    cache.C_V1_flag = !fpeq(std::abs(cache.C_V1), 0.0);
-    cache.C_V2_flag = !fpeq(std::abs(cache.C_V2), 0.0);
-    cache.C_A_flag = !fpeq(std::abs(cache.C_A), 0.0);
-    cache.C_P_flag = !fpeq(std::abs(cache.C_P), 0.0);
-    cache.C_T_flag = !fpeq(std::abs(cache.C_T), 0.0);
     cache.Gamma_p = 0.0;
     cache.Gamma_m = 0.0;
-
-    printf("m_B = %.4e\n", cache.m_B);
-    printf("m_D = %.4e\n", cache.m_D_star);
-    printf("hA_1(1) = %.4e\n", cache.h_A1_1);
-    printf("R1(1) = %.4e\n", cache.R_11);
-    printf("R2(1) = %.4e\n", cache.R_21);
-    // printf("R3(1) = %.4e\n", R3_1);
 }
 
 double BDstarlnuDecay::t(double w) {
@@ -497,19 +513,44 @@ double BDstarlnuDecay::P_D() {
 std::vector<ObservableValue> BDstarlnuDecay::compute_observable(Observables obs) {
     double value;
     switch (obs) {
-    case Observables::BR_B__DSTAR_TAU_NU:   
+    case Observables::BR_B__DSTAR0_TAU_NU:   
+        set_cfg_flags(BDstarlnuConfig::B_Charge::B_PLUS);
         value = BR();
         break;
-    case Observables::A_FB_B__DSTAR_TAU_NU:   
+    case Observables::A_FB_B__DSTAR0_TAU_NU:   
+        set_cfg_flags(BDstarlnuConfig::B_Charge::B_PLUS);   
+        value = A_FB();
+        break;
+    case Observables::R_DSTAR0:   
+        set_cfg_flags(BDstarlnuConfig::B_Charge::B_PLUS);   
+        value = R_Dstar();
+        break;
+    case Observables::P_TAU_B__DSTAR0_TAU_NU:   
+        set_cfg_flags(BDstarlnuConfig::B_Charge::B_PLUS);   
+        value = P_tau();
+        break;
+    case Observables::P_D_B__DSTAR0_TAU_NU:   
+        set_cfg_flags(BDstarlnuConfig::B_Charge::B_PLUS);   
+        value = P_D();
+        break;
+    case Observables::BR_B0__DSTAR_TAU_NU:   
+        set_cfg_flags(BDstarlnuConfig::B_Charge::B_0);   
+        value = BR();
+        break;
+    case Observables::A_FB_B0__DSTAR_TAU_NU:   
+        set_cfg_flags(BDstarlnuConfig::B_Charge::B_0);     
         value = A_FB();
         break;
     case Observables::R_DSTAR:   
+        set_cfg_flags(BDstarlnuConfig::B_Charge::B_0);     
         value = R_Dstar();
         break;
-    case Observables::P_TAU_B__DSTAR_TAU_NU:   
+    case Observables::P_TAU_B0__DSTAR_TAU_NU:   
+        set_cfg_flags(BDstarlnuConfig::B_Charge::B_0);     
         value = P_tau();
         break;
-    case Observables::P_D_B__DSTAR_TAU_NU:   
+    case Observables::P_D_B0__DSTAR_TAU_NU:   
+        set_cfg_flags(BDstarlnuConfig::B_Charge::B_0);     
         value = P_D();
         break;
     default:

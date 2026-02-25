@@ -2,7 +2,7 @@
 
 
 void BllDecay::load_params() {
-    auto start = std::chrono::steady_clock::now();
+    // auto start = std::chrono::steady_clock::now();
     cache.G_F = (*p)(ParamId{ParameterType::SM, "SMINPUTS", 2}, DataType::VALUE);
     cache.alpha_em = (*p)(ParamId{ParameterType::SM, "EW", {1, 2}}, DataType::VALUE);
     cache.m_mu = (*p)(ParamId{ParameterType::SM, "MASS", 13}, DataType::VALUE);
@@ -23,7 +23,7 @@ void BllDecay::load_params() {
     cache.beta_d = std::sqrt(1. - 4. * std::pow(cache.x_d, 2));
     cache.beta_s = std::sqrt(1. - 4. * std::pow(cache.x_s, 2));
 
-    start = std::chrono::steady_clock::now();
+    // start = std::chrono::steady_clock::now();
     cache.C10_SM = w_proxy->getFR(WGroup::B, WCoef::C10, w_config.order, ContributionType::SM);
     cache.C10 = w_proxy->getFR(WGroup::B, WCoef::C10, w_config.order);
     cache.CQ1 = w_proxy->getFR(WGroup::BScalar, WCoef::CQ1, w_config.order);
@@ -31,9 +31,9 @@ void BllDecay::load_params() {
     cache.C10_m = cache.C10 - w_proxy->getFR(WGroup::BPrime, WCoef::CP10, w_config.order);
     cache.CQ1_m = cache.CQ1 - w_proxy->getFR(WGroup::BPrime, WCoef::CPQ1, w_config.order);
     cache.CQ2_m = cache.CQ2 - w_proxy->getFR(WGroup::BPrime, WCoef::CPQ2, w_config.order);
-    auto stop  = std::chrono::steady_clock::now();
-    auto us = std::chrono::duration_cast<std::chrono::microseconds>(stop - start).count();
-    LOG_INFO("load_params took", us, " µs");
+    // auto stop  = std::chrono::steady_clock::now();
+    // auto us = std::chrono::duration_cast<std::chrono::microseconds>(stop - start).count();
+    // LOG_INFO("load_params took", us, " µs");
 }
 
 double BllDecay::BR_avg_Bq_mumu(int q) {

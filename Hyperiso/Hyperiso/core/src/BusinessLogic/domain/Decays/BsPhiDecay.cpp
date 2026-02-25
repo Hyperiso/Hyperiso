@@ -1,7 +1,7 @@
 #include "BsPhiDecay.h"
 
 void BsPhiDecay::load_params() {
-    LOG_INFO("Loading parameters for Bs > phi ll decay");
+    // LOG_INFO("Loading parameters for Bs > phi ll decay");
     fill_wilson_cache();
 
     cache.ff_calculator = BVFFCalculator(531, 333, p, cfg.ff_src);
@@ -18,7 +18,6 @@ void BsPhiDecay::load_params() {
 
     cache.alpha_em = (*p)(ParamId{ParameterType::SM, "EW", {1, 2}}, DataType::VALUE);
     cache.G_F = (*p)(ParamId{ParameterType::SM, "SMINPUTS", 2}, DataType::VALUE);
-    cache.m_l = (*p)(ParamId{ParameterType::SM, "MASS", 11 + 2 * (int)cfg.gen}, DataType::VALUE);
     cache.m_s = (*p)(ParamId{ParameterType::SM, "MASS", 3}, DataType::VALUE);
     cache.mu_b = w_config.hadronic_scale;
     cache.alpha_s_mu_b = (*iobs_qcdp)(AlphasConfig(cache.mu_b, MassType::POLE, MassType::POLE));
@@ -29,12 +28,12 @@ void BsPhiDecay::load_params() {
     cache.L_b = std::log(cache.mu_b / cache.m_b_PS);
     cache.m_Bs = (*p)(ParamId{ParameterType::FLAVOR, "FMASS", 531}, DataType::VALUE);
     cache.m_phi = (*p)(ParamId{ParameterType::FLAVOR, "FMASS", 333}, DataType::VALUE);
+    cache.life_Bs = (*p)(ParamId{ParameterType::FLAVOR, "FLIFE", 531}, DataType::VALUE);
     cache.lambda_hat_u = std::conj((*p)(ParamId{ParameterType::SM, "VCKM", {0, 1}}, DataType::VALUE)) * (*p)(ParamId{ParameterType::SM, "VCKM", {0, 2}}, DataType::VALUE) 
                             / (std::conj((*p)(ParamId{ParameterType::SM, "VCKM", {2, 1}}, DataType::VALUE)) * (*p)(ParamId{ParameterType::SM, "VCKM", {2, 2}}, DataType::VALUE));
     cache.kappa = 1 - 2. * cache.alpha_s_mu_b / (3. * PI) * std::log(cache.mu_b / cache.m_b_m_b);
     cache.Delta_M = -6. * cache.L_b - 4. * (1 - sqrt(cache.mu_b * (*p)(ParamId{ParameterType::DECAY, "B_phi", 14}, DataType::VALUE)) / cache.m_b_PS);
     cache.N_0 = std::conj((*p)(ParamId{ParameterType::SM, "VCKM", {2, 1}}, DataType::VALUE)) * (*p)(ParamId{ParameterType::SM, "VCKM", {2, 2}}, DataType::VALUE) * cache.G_F * cache.alpha_em / (std::sqrt(3072. * std::pow(PI, 5) * std::pow(cache.m_Bs, 3)));
-    cache.q2_min = 4 * std::pow(cache.m_l, 2);
     cache.q2_max = std::pow(cache.m_Bs - cache.m_phi, 2);
     cache.q2_low = (*p)(ParamId{ParameterType::DECAY, "B_phi", {15, 1}}, DataType::VALUE);
     cache.q2_high = (*p)(ParamId{ParameterType::DECAY, "B_phi", {15, 2}}, DataType::VALUE);
@@ -50,21 +49,10 @@ void BsPhiDecay::load_params() {
     cache.up = 1. + cache.phi_s * I;
     cache.um = 1. - cache.phi_s * I;
 
+    load_cfg_dep_params();
     // printf("y_s = %.4e\n", cache.ys);
 	// printf("up = %.4e + %.4e i\n", real(cache.up), imag(cache.up));
 	// printf("um = %.4e + %.4e i\n", real(cache.um), imag(cache.um));
-
-    auto lam_T_perp_p = [this] (double q2, bool bar) { return cache.qcdf_calculator.T_perp_p(q2, bar); };
-    fill_cache(lam_T_perp_p, cache.q2_min, cache.q2_high, cache.T_perp_p_lookup, false); 
-    fill_cache(lam_T_perp_p, cache.q2_min, cache.q2_high, cache.T_perp_p_bar_lookup, true); 
-
-    auto lam_T_perp_m = [this] (double q2, bool bar) { return cache.qcdf_calculator.T_perp_m(q2, bar); };
-    fill_cache(lam_T_perp_m, cache.q2_min, cache.q2_high, cache.T_perp_m_lookup, false); 
-    fill_cache(lam_T_perp_m, cache.q2_min, cache.q2_high, cache.T_perp_m_bar_lookup, true);
-
-    auto lam_T_par_m = [this] (double q2, bool bar) { return cache.qcdf_calculator.T_par_m(q2, bar); };
-    fill_cache(lam_T_par_m, cache.q2_min, cache.q2_high, cache.T_par_m_lookup, false); 
-    fill_cache(lam_T_par_m, cache.q2_min, cache.q2_high, cache.T_par_m_bar_lookup, true);
 
     // double q2 = 15.0; //TODO : niels ?
     // double u = 0.5; //TODO : niels ?
@@ -134,8 +122,6 @@ void BsPhiDecay::load_params() {
     // printf("s_8(s = %.3f) = %.4e\n", q2, s8(q2));
     // printf("s_9(s = %.3f) = %.4e\n", q2, s9(q2));
     // exit(0);
-
-    compute_binned_J_i();
 }
 
 void BsPhiDecay::fill_wilson_cache() {
@@ -147,6 +133,32 @@ void BsPhiDecay::fill_wilson_cache() {
     for (auto p : b_wilsons) cache.C.emplace(p); 
     for (auto p : bq_wilsons) cache.C.emplace(p);
     for (auto id : bp_cached) cache.C.emplace(std::pair{id, bp_wilsons.at(id)});
+}
+
+void BsPhiDecay::set_cfg_flags(BsPhiConfig::Lepton gen) {
+    if (cfg.gen != gen) {
+        cfg.gen = gen;
+        load_cfg_dep_params();
+    }
+}
+
+void BsPhiDecay::load_cfg_dep_params() {
+    cache.m_l = (*p)(ParamId{ParameterType::SM, "MASS", 11 + 2 * (int)cfg.gen}, DataType::VALUE);
+    cache.q2_min = 4 * std::pow(cache.m_l, 2);
+
+    auto lam_T_perp_p = [this] (double q2, bool bar) { return cache.qcdf_calculator.T_perp_p(q2, bar); };
+    fill_cache(lam_T_perp_p, cache.q2_min, cache.q2_high, cache.T_perp_p_lookup, false); 
+    fill_cache(lam_T_perp_p, cache.q2_min, cache.q2_high, cache.T_perp_p_bar_lookup, true); 
+
+    auto lam_T_perp_m = [this] (double q2, bool bar) { return cache.qcdf_calculator.T_perp_m(q2, bar); };
+    fill_cache(lam_T_perp_m, cache.q2_min, cache.q2_high, cache.T_perp_m_lookup, false); 
+    fill_cache(lam_T_perp_m, cache.q2_min, cache.q2_high, cache.T_perp_m_bar_lookup, true);
+
+    auto lam_T_par_m = [this] (double q2, bool bar) { return cache.qcdf_calculator.T_par_m(q2, bar); };
+    fill_cache(lam_T_par_m, cache.q2_min, cache.q2_high, cache.T_par_m_lookup, false); 
+    fill_cache(lam_T_par_m, cache.q2_min, cache.q2_high, cache.T_par_m_bar_lookup, true);
+
+    compute_binned_J_i();
 }
 
 complex_t BsPhiDecay::T_perp_p_cached(double q2, bool bar) {
@@ -679,13 +691,12 @@ void BsPhiDecay::compute_binned_J_i() {
     }
 }
 
-std::vector<ObservableValue> BsPhiDecay::dG_dq2_binned(bool bar) {
+std::vector<ObservableValue> BsPhiDecay::dBR_dq2_binned(bool bar, Observables id) {
     std::vector<ObservableValue> out;
     size_t idx = bar ? 1 : 0;
-    ObservableId id = bar ? ObservableMapper::to_id(Observables::DGAMMA_BAR_DQ2_BS__PHI_L_L) : ObservableMapper::to_id(Observables::DGAMMA_DQ2_BS__PHI_L_L);
     for (size_t i = 0; i < cfg.bins.size(); i++) {
-        double res = 0.75 * cache.f_J_i_binned[idx][i] / (1 - cache.ys * cache.ys); 
-        out.emplace_back(id, res, cfg.bins[i]);
+        double res = 0.75 * cache.f_J_i_binned[idx][i] / (1 - cache.ys * cache.ys) * cache.life_Bs; 
+        out.emplace_back(ObservableMapper::to_id(id), res, cfg.bins[i]);
     }   
     return out;
 }
@@ -694,240 +705,368 @@ double BsPhiDecay::dG_dq2_avg_bin(size_t bin) {
     return 0.75 * (cache.f_J_i_binned[0][bin] + cache.f_J_i_binned[1][bin]);
 }
 
-std::vector<ObservableValue> BsPhiDecay::F_L() {
+std::vector<ObservableValue> BsPhiDecay::F_L(Observables id) {
     std::vector<ObservableValue> out;
-    ObservableId id = ObservableMapper::to_id(Observables::F_L_BS_PHI_L_L);
     for (size_t i = 0; i < cfg.bins.size(); i++) {
         double res = -cache.f_J_i_binned[3][i] / dG_dq2_avg_bin(i); 
-        out.emplace_back(id, res, cfg.bins[i]);
+        out.emplace_back(ObservableMapper::to_id(id), res, cfg.bins[i]);
     }   
     return out;
 }
 
-std::vector<ObservableValue> BsPhiDecay::A_T_2() {
+std::vector<ObservableValue> BsPhiDecay::A_T_2(Observables id) {
     std::vector<ObservableValue> out;
-    ObservableId id = ObservableMapper::to_id(Observables::A_T_2_BS_PHI_L_L);
     for (size_t i = 0; i < cfg.bins.size(); i++) {
         double res = 0.5 * cache.f_J_i_binned[4][i] / cache.f_J_i_binned[2][i]; 
-        out.emplace_back(id, res, cfg.bins[i]);
+        out.emplace_back(ObservableMapper::to_id(id), res, cfg.bins[i]);
     }   
     return out;
 }
 
-std::vector<ObservableValue> BsPhiDecay::A_T_Re_CPV() {
+std::vector<ObservableValue> BsPhiDecay::A_T_Re_CPV(Observables id) {
     std::vector<ObservableValue> out;
-    ObservableId id = ObservableMapper::to_id(Observables::A_T_RE_CPV_BS_PHI_L_L);
     for (size_t i = 0; i < cfg.bins.size(); i++) {
         double res = 0.25 * cache.f_J_i_binned[8][i] / cache.f_J_i_binned[2][i]; 
-        out.emplace_back(id, res, cfg.bins[i]);
+        out.emplace_back(ObservableMapper::to_id(id), res, cfg.bins[i]);
     }   
     return out;
 }
 
-std::vector<ObservableValue> BsPhiDecay::A_T_Im_CPV() {
+std::vector<ObservableValue> BsPhiDecay::A_T_Im_CPV(Observables id) {
     std::vector<ObservableValue> out;
-    ObservableId id = ObservableMapper::to_id(Observables::A_T_IM_CPV_BS_PHI_L_L);
     for (size_t i = 0; i < cfg.bins.size(); i++) {
         double res = 0.5 * cache.f_J_i_binned[12][i] / cache.f_J_i_binned[2][i]; 
-        out.emplace_back(id, res, cfg.bins[i]);
+        out.emplace_back(ObservableMapper::to_id(id), res, cfg.bins[i]);
     }   
     return out;
 }
 
-std::vector<ObservableValue> BsPhiDecay::Pp_4() {
+std::vector<ObservableValue> BsPhiDecay::Pp_4(Observables id) {
     std::vector<ObservableValue> out;
-    ObservableId id = ObservableMapper::to_id(Observables::P_PRIME_4_BS_PHI_L_L);
     for (size_t i = 0; i < cfg.bins.size(); i++) {
         double res = cache.f_J_i_binned[5][i] / std::sqrt(std::abs(cache.f_J_i_binned[2][i] * cache.f_J_i_binned[3][i])); 
-        out.emplace_back(id, res, cfg.bins[i]);
+        out.emplace_back(ObservableMapper::to_id(id), res, cfg.bins[i]);
     }   
     return out;
 }
 
-std::vector<ObservableValue> BsPhiDecay::Pp_6() {
+std::vector<ObservableValue> BsPhiDecay::Pp_6(Observables id) {
     std::vector<ObservableValue> out;
-    ObservableId id = ObservableMapper::to_id(Observables::P_PRIME_6_BS_PHI_L_L);
     for (size_t i = 0; i < cfg.bins.size(); i++) {
         double res = -0.5 * cache.f_J_i_binned[10][i] / std::sqrt(std::abs(cache.f_J_i_binned[2][i] * cache.f_J_i_binned[3][i])); 
-        out.emplace_back(id, res, cfg.bins[i]);
+        out.emplace_back(ObservableMapper::to_id(id), res, cfg.bins[i]);
     }   
     return out;
 }
 
-std::vector<ObservableValue> BsPhiDecay::S_i(int i) {
+std::vector<ObservableValue> BsPhiDecay::S_i(int i, Observables id) {
     if (!(i == 2 || i == 3 || i == 4 || i == 7)) LOG_ERROR("Value Error", "S_i(Bs > phi ll) is not defined for i =", i);
 
     std::map<size_t, size_t> J_idx = {{2, 2}, {3, 4}, {4, 5}, {7, 10}};
-    std::map<size_t, Observables> ids = {
-        {2, Observables::S_2S_BS_PHI_L_L},
-        {3, Observables::S_3_BS_PHI_L_L},
-        {4, Observables::S_4_BS_PHI_L_L},
-        {7, Observables::S_7_BS_PHI_L_L}
-    };
 
     std::vector<ObservableValue> out;
-    ObservableId id = ObservableMapper::to_id(ids[i]);
     for (size_t j = 0; j < cfg.bins.size(); j++) {
         double res = cache.f_J_i_binned[J_idx[i]][j] / dG_dq2_avg_bin(j);
-        out.emplace_back(id, res, cfg.bins[j]);
+        out.emplace_back(ObservableMapper::to_id(id), res, cfg.bins[j]);
     }   
     return out;
 }
 
-std::vector<ObservableValue> BsPhiDecay::A_i(int i) {
+std::vector<ObservableValue> BsPhiDecay::A_i(int i, Observables id) {
     if (!(i == 5 || i == 6 || i == 8 || i == 9)) LOG_ERROR("Value Error", "A_i(Bs > phi ll) is not defined for i =", i);
 
     std::map<size_t, size_t> J_idx = {{5, 6}, {6, 9}, {8, 11}, {9, 12}};
-    std::map<size_t, Observables> ids = {
-        {5, Observables::A_5_BS_PHI_L_L},
-        {6, Observables::A_6C_BS_PHI_L_L},
-        {8, Observables::A_8_BS_PHI_L_L},
-        {9, Observables::A_9_BS_PHI_L_L}
-    };
     double sign = i == 6 ? -1 : 1;
 
     std::vector<ObservableValue> out;
-    ObservableId id = ObservableMapper::to_id(ids[i]);
     for (size_t j = 0; j < cfg.bins.size(); j++) {
         double res = sign * cache.f_J_i_binned[J_idx[i]][j] / dG_dq2_avg_bin(j);
-        out.emplace_back(id, res, cfg.bins[j]);
+        out.emplace_back(ObservableMapper::to_id(id), res, cfg.bins[j]);
     }   
     return out;
 }
 
-std::vector<ObservableValue> BsPhiDecay::A_FB_CPV() {
+std::vector<ObservableValue> BsPhiDecay::A_FB_CPV(Observables id) {
     std::vector<ObservableValue> out;
-    ObservableId id = ObservableMapper::to_id(Observables::A_FB_CPV_BS__PHI_L_L);
     for (size_t i = 0; i < cfg.bins.size(); i++) {
         double res = -0.375 * (2 * cache.f_J_i_binned[7][i] + cache.f_J_i_binned[9][i]) / dG_dq2_avg_bin(i); 
-        out.emplace_back(id, res, cfg.bins[i]);
+        out.emplace_back(ObservableMapper::to_id(id), res, cfg.bins[i]);
     }   
     return out;
 }
 
-std::vector<ObservableValue> BsPhiDecay::P_2_CPV() {
+std::vector<ObservableValue> BsPhiDecay::P_2_CPV(Observables id) {
     std::vector<ObservableValue> out;
-    ObservableId id = ObservableMapper::to_id(Observables::P_2_CPV_BS_PHI_L_L);
     for (size_t i = 0; i < cfg.bins.size(); i++) {
         double res = 0.125 * cache.f_J_i_binned[7][i] / cache.f_J_i_binned[2][i]; 
-        out.emplace_back(id, res, cfg.bins[i]);
+        out.emplace_back(ObservableMapper::to_id(id), res, cfg.bins[i]);
     }   
     return out;
 }
 
-std::vector<ObservableValue> BsPhiDecay::P_3_CPV() {
+std::vector<ObservableValue> BsPhiDecay::P_3_CPV(Observables id) {
     std::vector<ObservableValue> out;
-    ObservableId id = ObservableMapper::to_id(Observables::P_3_CPV_BS_PHI_L_L);
     for (size_t i = 0; i < cfg.bins.size(); i++) {
         double res = -0.25 * cache.f_J_i_binned[12][i] / cache.f_J_i_binned[2][i]; 
-        out.emplace_back(id, res, cfg.bins[i]);
+        out.emplace_back(ObservableMapper::to_id(id), res, cfg.bins[i]);
     }   
     return out;
 }
 
-std::vector<ObservableValue> BsPhiDecay::Pp_5_CPV() {
+std::vector<ObservableValue> BsPhiDecay::Pp_5_CPV(Observables id) {
     std::vector<ObservableValue> out;
-    ObservableId id = ObservableMapper::to_id(Observables::P_PRIME_5_CPV_BS_PHI_L_L);
     for (size_t i = 0; i < cfg.bins.size(); i++) {
         double res = 0.5 * cache.f_J_i_binned[6][i] / std::sqrt(std::abs(cache.f_J_i_binned[2][i] * cache.f_J_i_binned[3][i])); 
-        out.emplace_back(id, res, cfg.bins[i]);
+        out.emplace_back(ObservableMapper::to_id(id), res, cfg.bins[i]);
     }   
     return out;
 }
 
-std::vector<ObservableValue> BsPhiDecay::Pp_8_CPV() {
+std::vector<ObservableValue> BsPhiDecay::Pp_8_CPV(Observables id) {
     std::vector<ObservableValue> out;
-    ObservableId id = ObservableMapper::to_id(Observables::P_PRIME_8_CPV_BS_PHI_L_L);
     for (size_t i = 0; i < cfg.bins.size(); i++) {
         double res = -cache.f_J_i_binned[11][i] / std::sqrt(std::abs(cache.f_J_i_binned[2][i] * cache.f_J_i_binned[3][i])); 
-        out.emplace_back(id, res, cfg.bins[i]);
+        out.emplace_back(ObservableMapper::to_id(id), res, cfg.bins[i]);
     }   
     return out;
 }
 
-std::vector<ObservableValue> BsPhiDecay::Q_8_m() {
+std::vector<ObservableValue> BsPhiDecay::Q_8_m(Observables id) {
     std::vector<ObservableValue> out;
-    ObservableId id = ObservableMapper::to_id(Observables::Q_8M_BS_PHI_L_L);
     for (size_t i = 0; i < cfg.bins.size(); i++) {
         double res = cache.f_J_i_binned[13][i] / std::sqrt(std::abs(2 * cache.f_J_i_binned[3][i] * (cache.f_J_i_binned[2][i] - cache.f_J_i_binned[4][i]))); 
-        out.emplace_back(id, res, cfg.bins[i]);
+        out.emplace_back(ObservableMapper::to_id(id), res, cfg.bins[i]);
     }   
     return out;
 }
 
-std::vector<ObservableValue> BsPhiDecay::Q_8_p() {
+std::vector<ObservableValue> BsPhiDecay::Q_8_p(Observables id) {
     std::vector<ObservableValue> out;
-    ObservableId id = ObservableMapper::to_id(Observables::Q_8P_BS_PHI_L_L);
     for (size_t i = 0; i < cfg.bins.size(); i++) {
         double res = cache.f_J_i_binned[13][i] / std::sqrt(std::abs(2 * cache.f_J_i_binned[3][i] * (cache.f_J_i_binned[2][i] + cache.f_J_i_binned[4][i]))); 
-        out.emplace_back(id, res, cfg.bins[i]);
+        out.emplace_back(ObservableMapper::to_id(id), res, cfg.bins[i]);
     }   
     return out;
 }
 
-std::vector<ObservableValue> BsPhiDecay::Q_9() {
+std::vector<ObservableValue> BsPhiDecay::Q_9(Observables id) {
     std::vector<ObservableValue> out;
-    ObservableId id = ObservableMapper::to_id(Observables::Q_9_BS_PHI_L_L);
     for (size_t i = 0; i < cfg.bins.size(); i++) {
         double res = 0.5 * cache.f_J_i_binned[14][i] / cache.f_J_i_binned[2][i]; 
-        out.emplace_back(id, res, cfg.bins[i]);
+        out.emplace_back(ObservableMapper::to_id(id), res, cfg.bins[i]);
     }   
     return out;
 }
 
 std::vector<ObservableValue> BsPhiDecay::compute_observable(Observables obs) {
     switch (obs) {
-    case Observables::TEST:   
-        // test_binned_obs();
-        return {};
-    case Observables::DGAMMA_DQ2_BS__PHI_L_L:   
-        return dG_dq2_binned(false);
-    case Observables::DGAMMA_BAR_DQ2_BS__PHI_L_L:   
-        return dG_dq2_binned(true);
-    case Observables::F_L_BS_PHI_L_L:   
-        return F_L();
-    case Observables::A_T_2_BS_PHI_L_L:   
-        return A_T_2();
-    case Observables::A_T_RE_CPV_BS_PHI_L_L:   
-        return A_T_Re_CPV();
-    case Observables::A_T_IM_CPV_BS_PHI_L_L:   
-        return A_T_Im_CPV();
-    case Observables::P_PRIME_4_BS_PHI_L_L:   
-        return Pp_4();
-    case Observables::P_PRIME_6_BS_PHI_L_L:   
-        return Pp_6();
-    case Observables::S_2S_BS_PHI_L_L:   
-        return S_i(2);
-    case Observables::S_3_BS_PHI_L_L:   
-        return S_i(3);
-    case Observables::S_4_BS_PHI_L_L:   
-        return S_i(4);
-    case Observables::S_7_BS_PHI_L_L:   
-        return S_i(7);
-    case Observables::A_5_BS_PHI_L_L:   
-        return A_i(5);
-    case Observables::A_6C_BS_PHI_L_L:   
-        return A_i(6);
-    case Observables::A_8_BS_PHI_L_L:   
-        return A_i(8);
-    case Observables::A_9_BS_PHI_L_L:   
-        return A_i(9);
-    case Observables::A_FB_CPV_BS__PHI_L_L:   
-        return A_FB_CPV();
-    case Observables::P_2_CPV_BS_PHI_L_L:   
-        return P_2_CPV();
-    case Observables::P_3_CPV_BS_PHI_L_L:   
-        return P_3_CPV();
-    case Observables::P_PRIME_5_CPV_BS_PHI_L_L:   
-        return Pp_5_CPV();
-    case Observables::P_PRIME_8_CPV_BS_PHI_L_L:   
-        return Pp_8_CPV();
-    case Observables::Q_8M_BS_PHI_L_L:   
-        return Q_8_m();
-    case Observables::Q_8P_BS_PHI_L_L:   
-        return Q_8_p();
-    case Observables::Q_9_BS_PHI_L_L:   
-        return Q_9();
+    case Observables::DBR_DQ2_BS__PHI_E_E:   
+        set_cfg_flags(BsPhiConfig::Lepton::E);
+        return dBR_dq2_binned(false, obs);
+    case Observables::F_L_BS_PHI_E_E:   
+        set_cfg_flags(BsPhiConfig::Lepton::E);   
+        return F_L(obs);
+    case Observables::A_T_2_BS_PHI_E_E:   
+        set_cfg_flags(BsPhiConfig::Lepton::E);   
+        return A_T_2(obs);
+    case Observables::A_T_RE_CPV_BS_PHI_E_E:   
+        set_cfg_flags(BsPhiConfig::Lepton::E);   
+        return A_T_Re_CPV(obs);
+    case Observables::A_T_IM_CPV_BS_PHI_E_E:   
+        set_cfg_flags(BsPhiConfig::Lepton::E);   
+        return A_T_Im_CPV(obs);
+    case Observables::P_PRIME_4_BS_PHI_E_E:      
+        set_cfg_flags(BsPhiConfig::Lepton::E);
+        return Pp_4(obs);
+    case Observables::P_PRIME_6_BS_PHI_E_E:      
+        set_cfg_flags(BsPhiConfig::Lepton::E);
+        return Pp_6(obs);
+    case Observables::S_2S_BS_PHI_E_E:      
+        set_cfg_flags(BsPhiConfig::Lepton::E);
+        return S_i(2, obs);
+    case Observables::S_3_BS_PHI_E_E:      
+        set_cfg_flags(BsPhiConfig::Lepton::E);
+        return S_i(3, obs);
+    case Observables::S_4_BS_PHI_E_E:      
+        set_cfg_flags(BsPhiConfig::Lepton::E);
+        return S_i(4, obs);
+    case Observables::S_7_BS_PHI_E_E:      
+        set_cfg_flags(BsPhiConfig::Lepton::E);
+        return S_i(7, obs);
+    case Observables::A_5_BS_PHI_E_E:   
+        set_cfg_flags(BsPhiConfig::Lepton::E);   
+        return A_i(5, obs);
+    case Observables::A_6C_BS_PHI_E_E:     
+        set_cfg_flags(BsPhiConfig::Lepton::E); 
+        return A_i(6, obs);
+    case Observables::A_8_BS_PHI_E_E:   
+        set_cfg_flags(BsPhiConfig::Lepton::E);   
+        return A_i(8, obs);
+    case Observables::A_9_BS_PHI_E_E:    
+        set_cfg_flags(BsPhiConfig::Lepton::E);  
+        return A_i(9, obs);
+    case Observables::A_FB_CPV_BS__PHI_E_E:   
+        set_cfg_flags(BsPhiConfig::Lepton::E);   
+        return A_FB_CPV(obs);
+    case Observables::P_2_CPV_BS_PHI_E_E:    
+        set_cfg_flags(BsPhiConfig::Lepton::E);  
+        return P_2_CPV(obs);
+    case Observables::P_3_CPV_BS_PHI_E_E:   
+        set_cfg_flags(BsPhiConfig::Lepton::E);   
+        return P_3_CPV(obs);
+    case Observables::P_PRIME_5_CPV_BS_PHI_E_E:   
+        set_cfg_flags(BsPhiConfig::Lepton::E);   
+        return Pp_5_CPV(obs);
+    case Observables::P_PRIME_8_CPV_BS_PHI_E_E:    
+        set_cfg_flags(BsPhiConfig::Lepton::E);  
+        return Pp_8_CPV(obs);
+    case Observables::Q_8M_BS_PHI_E_E:     
+        set_cfg_flags(BsPhiConfig::Lepton::E); 
+        return Q_8_m(obs);
+    case Observables::Q_8P_BS_PHI_E_E:     
+        set_cfg_flags(BsPhiConfig::Lepton::E); 
+        return Q_8_p(obs);
+    case Observables::Q_9_BS_PHI_E_E:    
+        set_cfg_flags(BsPhiConfig::Lepton::E);  
+        return Q_9(obs);
+    case Observables::DBR_DQ2_BS__PHI_MU_MU:   
+        set_cfg_flags(BsPhiConfig::Lepton::MU);
+        return dBR_dq2_binned(false, obs);
+    case Observables::F_L_BS_PHI_MU_MU:   
+        set_cfg_flags(BsPhiConfig::Lepton::MU);   
+        return F_L(obs);
+    case Observables::A_T_2_BS_PHI_MU_MU:   
+        set_cfg_flags(BsPhiConfig::Lepton::MU);   
+        return A_T_2(obs);
+    case Observables::A_T_RE_CPV_BS_PHI_MU_MU:   
+        set_cfg_flags(BsPhiConfig::Lepton::MU);   
+        return A_T_Re_CPV(obs);
+    case Observables::A_T_IM_CPV_BS_PHI_MU_MU:   
+        set_cfg_flags(BsPhiConfig::Lepton::MU);   
+        return A_T_Im_CPV(obs);
+    case Observables::P_PRIME_4_BS_PHI_MU_MU:      
+        set_cfg_flags(BsPhiConfig::Lepton::MU);
+        return Pp_4(obs);
+    case Observables::P_PRIME_6_BS_PHI_MU_MU:      
+        set_cfg_flags(BsPhiConfig::Lepton::MU);
+        return Pp_6(obs);
+    case Observables::S_2S_BS_PHI_MU_MU:      
+        set_cfg_flags(BsPhiConfig::Lepton::MU);
+        return S_i(2, obs);
+    case Observables::S_3_BS_PHI_MU_MU:      
+        set_cfg_flags(BsPhiConfig::Lepton::MU);
+        return S_i(3, obs);
+    case Observables::S_4_BS_PHI_MU_MU:      
+        set_cfg_flags(BsPhiConfig::Lepton::MU);
+        return S_i(4, obs);
+    case Observables::S_7_BS_PHI_MU_MU:      
+        set_cfg_flags(BsPhiConfig::Lepton::MU);
+        return S_i(7, obs);
+    case Observables::A_5_BS_PHI_MU_MU:   
+        set_cfg_flags(BsPhiConfig::Lepton::MU);   
+        return A_i(5, obs);
+    case Observables::A_6C_BS_PHI_MU_MU:     
+        set_cfg_flags(BsPhiConfig::Lepton::MU); 
+        return A_i(6, obs);
+    case Observables::A_8_BS_PHI_MU_MU:   
+        set_cfg_flags(BsPhiConfig::Lepton::MU);   
+        return A_i(8, obs);
+    case Observables::A_9_BS_PHI_MU_MU:    
+        set_cfg_flags(BsPhiConfig::Lepton::MU);  
+        return A_i(9, obs);
+    case Observables::A_FB_CPV_BS__PHI_MU_MU:   
+        set_cfg_flags(BsPhiConfig::Lepton::MU);   
+        return A_FB_CPV(obs);
+    case Observables::P_2_CPV_BS_PHI_MU_MU:    
+        set_cfg_flags(BsPhiConfig::Lepton::MU);  
+        return P_2_CPV(obs);
+    case Observables::P_3_CPV_BS_PHI_MU_MU:   
+        set_cfg_flags(BsPhiConfig::Lepton::MU);   
+        return P_3_CPV(obs);
+    case Observables::P_PRIME_5_CPV_BS_PHI_MU_MU:   
+        set_cfg_flags(BsPhiConfig::Lepton::MU);   
+        return Pp_5_CPV(obs);
+    case Observables::P_PRIME_8_CPV_BS_PHI_MU_MU:    
+        set_cfg_flags(BsPhiConfig::Lepton::MU);  
+        return Pp_8_CPV(obs);
+    case Observables::Q_8M_BS_PHI_MU_MU:     
+        set_cfg_flags(BsPhiConfig::Lepton::MU); 
+        return Q_8_m(obs);
+    case Observables::Q_8P_BS_PHI_MU_MU:     
+        set_cfg_flags(BsPhiConfig::Lepton::MU); 
+        return Q_8_p(obs);
+    case Observables::Q_9_BS_PHI_MU_MU:    
+        set_cfg_flags(BsPhiConfig::Lepton::MU);  
+        return Q_9(obs);
+    case Observables::DBR_DQ2_BS__PHI_TAU_TAU:   
+        set_cfg_flags(BsPhiConfig::Lepton::TAU);
+        return dBR_dq2_binned(false, obs);
+    case Observables::F_L_BS_PHI_TAU_TAU:   
+        set_cfg_flags(BsPhiConfig::Lepton::TAU);   
+        return F_L(obs);
+    case Observables::A_T_2_BS_PHI_TAU_TAU:   
+        set_cfg_flags(BsPhiConfig::Lepton::TAU);   
+        return A_T_2(obs);
+    case Observables::A_T_RE_CPV_BS_PHI_TAU_TAU:   
+        set_cfg_flags(BsPhiConfig::Lepton::TAU);   
+        return A_T_Re_CPV(obs);
+    case Observables::A_T_IM_CPV_BS_PHI_TAU_TAU:   
+        set_cfg_flags(BsPhiConfig::Lepton::TAU);   
+        return A_T_Im_CPV(obs);
+    case Observables::P_PRIME_4_BS_PHI_TAU_TAU:      
+        set_cfg_flags(BsPhiConfig::Lepton::TAU);
+        return Pp_4(obs);
+    case Observables::P_PRIME_6_BS_PHI_TAU_TAU:      
+        set_cfg_flags(BsPhiConfig::Lepton::TAU);
+        return Pp_6(obs);
+    case Observables::S_2S_BS_PHI_TAU_TAU:      
+        set_cfg_flags(BsPhiConfig::Lepton::TAU);
+        return S_i(2, obs);
+    case Observables::S_3_BS_PHI_TAU_TAU:      
+        set_cfg_flags(BsPhiConfig::Lepton::TAU);
+        return S_i(3, obs);
+    case Observables::S_4_BS_PHI_TAU_TAU:      
+        set_cfg_flags(BsPhiConfig::Lepton::TAU);
+        return S_i(4, obs);
+    case Observables::S_7_BS_PHI_TAU_TAU:      
+        set_cfg_flags(BsPhiConfig::Lepton::TAU);
+        return S_i(7, obs);
+    case Observables::A_5_BS_PHI_TAU_TAU:   
+        set_cfg_flags(BsPhiConfig::Lepton::TAU);   
+        return A_i(5, obs);
+    case Observables::A_6C_BS_PHI_TAU_TAU:     
+        set_cfg_flags(BsPhiConfig::Lepton::TAU); 
+        return A_i(6, obs);
+    case Observables::A_8_BS_PHI_TAU_TAU:   
+        set_cfg_flags(BsPhiConfig::Lepton::TAU);   
+        return A_i(8, obs);
+    case Observables::A_9_BS_PHI_TAU_TAU:    
+        set_cfg_flags(BsPhiConfig::Lepton::TAU);  
+        return A_i(9, obs);
+    case Observables::A_FB_CPV_BS__PHI_TAU_TAU:   
+        set_cfg_flags(BsPhiConfig::Lepton::TAU);   
+        return A_FB_CPV(obs);
+    case Observables::P_2_CPV_BS_PHI_TAU_TAU:    
+        set_cfg_flags(BsPhiConfig::Lepton::TAU);  
+        return P_2_CPV(obs);
+    case Observables::P_3_CPV_BS_PHI_TAU_TAU:   
+        set_cfg_flags(BsPhiConfig::Lepton::TAU);   
+        return P_3_CPV(obs);
+    case Observables::P_PRIME_5_CPV_BS_PHI_TAU_TAU:   
+        set_cfg_flags(BsPhiConfig::Lepton::TAU);   
+        return Pp_5_CPV(obs);
+    case Observables::P_PRIME_8_CPV_BS_PHI_TAU_TAU:    
+        set_cfg_flags(BsPhiConfig::Lepton::TAU);  
+        return Pp_8_CPV(obs);
+    case Observables::Q_8M_BS_PHI_TAU_TAU:     
+        set_cfg_flags(BsPhiConfig::Lepton::TAU); 
+        return Q_8_m(obs);
+    case Observables::Q_8P_BS_PHI_TAU_TAU:     
+        set_cfg_flags(BsPhiConfig::Lepton::TAU); 
+        return Q_8_p(obs);
+    case Observables::Q_9_BS_PHI_TAU_TAU:    
+        set_cfg_flags(BsPhiConfig::Lepton::TAU);  
+        return Q_9(obs);
     default:
         LOG_ERROR("IndexError", "Observable", ObservableMapper::str(obs), "doesn't belong to the decay", DecayMapper::str(this->id));
     }

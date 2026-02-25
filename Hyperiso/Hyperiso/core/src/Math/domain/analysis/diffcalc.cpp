@@ -51,8 +51,8 @@ RealMatrix hessian(const ScaledForm& f, const std::vector<double>& t) {
         for (int sign : {-1, 1}) {
             t_shift = t;
             t_shift[i] += sign * h;
-            for (double t : t_shift) std::cout << t << " ";
-            std::cout << std::endl;
+            // for (double t : t_shift) std::cout << t << " ";
+            // std::cout << std::endl;
             Hii += f(t_shift);
         }
         Hii = (Hii - 2 * ft) / std::pow(h, 2);
@@ -68,9 +68,9 @@ RealMatrix hessian(const ScaledForm& f, const std::vector<double>& t) {
                 t_shift = t;
                 t_shift[i] += ss.first * h;
                 t_shift[j] += ss.second * h;
-                for (double t : t_shift) std::cout << t << " ";
-                std::cout << std::endl;
-                std::cout << f(t_shift) << std::endl;
+                // for (double t : t_shift) std::cout << t << " ";
+                // std::cout << std::endl;
+                // std::cout << f(t_shift) << std::endl;
                 Hij += ss.first * ss.second * f(t_shift);
             }
             

@@ -61,6 +61,8 @@ private:
 protected:
     // Auxiliary
     void fill_wilson_cache();
+    void load_cfg_dependent_params();
+    void set_cfg_flags(BKstarGammaConfig::B_Charge charge);
 
     // Helicity amplitudes
     complex_t H_V(double sign, bool bar);

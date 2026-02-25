@@ -33,6 +33,7 @@ struct BKllCache {
     double m_l, m_s, m_c_mu_b, m_b_PS, m_b_mu_b, m_b_m_b;
     double alpha_s_mu_b;
     double m_B, m_K;
+    double life_B;
     double Delta_M;
     complex_t lambda_hat_u;
     double N_0;
@@ -70,6 +71,11 @@ public:
 private:
     BKllConfig cfg {};
     BKllCache cache;
+
+    const static std::unordered_set<ObservableId> dG_dq2_ids;
+    const static std::unordered_set<ObservableId> A_FB_ids;
+    const static std::unordered_set<ObservableId> F_H_ids;
+    const static std::map<Observables, std::pair<BKllConfig::Lepton, BKllConfig::B_Charge>> cfg_map;
 
 protected:
     // Auxiliary
@@ -112,9 +118,9 @@ protected:
     void compute_binned_abc();
 
     // Observables
-    std::vector<ObservableValue> dG_dq2();
-    std::vector<ObservableValue> A_FB();
-    std::vector<ObservableValue> F_H();
+    std::vector<ObservableValue> dBR_dq2(Observables oid);
+    std::vector<ObservableValue> A_FB(Observables oid);
+    std::vector<ObservableValue> F_H(Observables oid);
 };
 
 

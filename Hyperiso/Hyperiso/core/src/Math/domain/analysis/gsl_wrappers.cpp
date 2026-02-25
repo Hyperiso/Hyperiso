@@ -35,7 +35,7 @@ void unwrap_lambda_func_and_gradient(const gsl_vector *t, void *params, double *
     *f = (*fun)(args);
     auto grad = gradient(*fun, args);
     for (size_t i = 0; i < grad.size(); i++) {
-        std::cout << "d_" << i << "f = " << grad[i] << std::endl;
+        // std::cout << "d_" << i << "f = " << grad[i] << std::endl;
         gsl_vector_set(g, i, grad[i]);
     }
 }

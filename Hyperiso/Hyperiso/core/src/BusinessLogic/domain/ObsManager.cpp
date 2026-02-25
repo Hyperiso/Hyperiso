@@ -204,5 +204,5 @@ void ObsManager::enable_obs() {
     }
 
     for (auto& did : unique_decays)
-        this->decays[did]->enable(); //TODO : avoid double enabling (two obs of same decay) please
+        this->decays[did]->enable();
 }

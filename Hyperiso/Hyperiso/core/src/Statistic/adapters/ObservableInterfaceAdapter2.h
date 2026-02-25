@@ -84,7 +84,7 @@ public:
 
     std::map<ObservableId, std::vector<ObservableValue>> predict_optimized(const std::map<ParamId, double>& p, const std::map<ParamId, double>& eta) override {
         StatParamOptimizerProxy spop = StatParamOptimizerProxy();
-        auto obs = oi_->get_current_observables();
+        // auto obs = oi_->get_current_observables();
 
         // if (p.size()!=p_specs_.size() || eta.size()!=eta_specs_.size())
         // throw std::invalid_argument("(p,eta) sizes do not match specs");

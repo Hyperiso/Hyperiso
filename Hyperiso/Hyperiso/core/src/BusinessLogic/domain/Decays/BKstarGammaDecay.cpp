@@ -6,33 +6,15 @@ void BKstarGammaDecay::load_params() {
     cache.mu_b = w_config.hadronic_scale;
     cache.mu_h = sqrt(cache.mu_b * (*p)(ParamId{ParameterType::DECAY, "B_Ks", 14}, DataType::VALUE));
     fill_wilson_cache();
-    cache.ff_calculator = BVFFCalculator(
-        cfg.charge == Charge::B_0 ? 511 : 521,
-        cfg.charge == Charge::B_0 ? 313 : 323,
-        p,
-        cfg.ff_src
-    );
-    cache.qcdf_calculator = BVQCDfCalculator(
-        cfg.charge == Charge::B_0 ? 511 : 521,
-        cfg.charge == Charge::B_0 ? 313 : 323,
-        w_config.hadronic_scale,
-        cache.C,
-        std::make_shared<BVFFCalculator>(cache.ff_calculator),
-        B_FF_Type::FULL,
-        p,
-        iobs_qcdp
-    );
+    
     cache.alpha_em = (*p)(ParamId{ParameterType::SM, "EW", {1, 2}}, DataType::VALUE);
     cache.m_b_m_b = (*p)(ParamId{ParameterType::SM, "SMINPUTS", 5}, DataType::VALUE);
-    cache.tau_B = (*p)(ParamId{ParameterType::FLAVOR, "FLIFE", cfg.charge == Charge::B_0 ? 511 : 521}, DataType::VALUE) / HBAR;
-    cache.m_B = (*p)(ParamId{ParameterType::FLAVOR, "FMASS", cfg.charge == Charge::B_0 ? 511 : 521}, DataType::VALUE);
-    cache.m_Ks = (*p)(ParamId{ParameterType::FLAVOR, "FMASS", cfg.charge == Charge::B_0 ? 313 : 323}, DataType::VALUE);
-    cache.N_prime = -(*p)(ParamId{ParameterType::SM, "SMINPUTS", 2}, DataType::VALUE) * cache.m_B * std::conj((*p)(ParamId{ParameterType::SM, "VCKM", {2, 1}}, DataType::VALUE)) * (*p)(ParamId{ParameterType::SM, "VCKM", {2, 2}}, DataType::VALUE) * cache.alpha_em / (PI * RT2);
+    
     cache.lambda_hat_u = std::conj((*p)(ParamId{ParameterType::SM, "VCKM", {0, 1}}, DataType::VALUE)) * (*p)(ParamId{ParameterType::SM, "VCKM", {0, 2}}, DataType::VALUE) 
                             / (std::conj((*p)(ParamId{ParameterType::SM, "VCKM", {1, 1}}, DataType::VALUE)) * (*p)(ParamId{ParameterType::SM, "VCKM", {1, 2}}, DataType::VALUE));
     cache.m_b_mu_b = (*iobs_qcdp)(MassConfig(5, cache.mu_b, MassType::MSBAR, MassType::POLE));
     // cache.z = std::pow((*ports.iobs_qcdp)(MassConfig(4, cache.mu_b, MassType::MSBAR, MassType::POLE)) / cache.m_b_mu_b, 2);
-    cache.z = 9.9551e-02; // NF : Need to homogeneize with QCDfCalculator
+    cache.z = 9.9551e-02; // TODO : Need to homogeneize with QCDfCalculator
     cache.f_Ks_par = (*p)(ParamId{ParameterType::FLAVOR, "FCONST", {323, 1}}, DataType::VALUE);
     cache.f_B = (*p)(ParamId{ParameterType::FLAVOR, "FCONST", {521, 1}}, DataType::VALUE);
     cache.alpha_s_mu_b = (*iobs_qcdp)(AlphasConfig(cache.mu_b, MassType::POLE, MassType::POLE));
@@ -47,6 +29,9 @@ void BKstarGammaDecay::load_params() {
     cache.n_f = 5.0; // TODO : Link with get_nf vs. hard-coded ?
     double eta = cache.alpha_s_mu_h / (*iobs_qcdp)(AlphasConfig(1.0, MassType::POLE, MassType::POLE));
     cache.f_Ks_perp = (*p)(ParamId{ParameterType::FLAVOR, "FCONST", {323, 2}}, DataType::VALUE) * pow(eta, cache.C_F / (*iobs_qcdp).get_constants()->beta[4][0]);
+    
+    load_cfg_dependent_params();
+    
     // printf("mu_b = %.4e\n", cache.mu_b);
     // printf("mu_h = %.4e\n", cache.mu_h);
     // printf("alpha_em = %.4e\n", cache.alpha_em);
@@ -66,32 +51,42 @@ void BKstarGammaDecay::load_params() {
     // printf("alpha_s(mu_h) = %.4e\n", cache.alpha_s_mu_h);
     // printf("mu_0 = %.4e\n", cache.mu_0);
 
-    complex_t HVp = H_V(1, false);
-    complex_t HVm = H_V(-1, false);
-    complex_t HVpbar = H_V(1, true);
-    complex_t HVmbar = H_V(-1, true);
-    complex_t T_perp_p = cache.qcdf_calculator.T_perp_p(0.0, false);
-    complex_t T_perp_m = cache.qcdf_calculator.T_perp_m(0.0, false);
-    complex_t pref = 2. * I * cache.N_prime * cache.m_b_m_b * (std::pow(cache.m_B, 2) - std::pow(cache.m_Ks, 2)) / (cache.m_B * std::sqrt(4 * PI * cache.alpha_em));
-    printf("T_perp_p = %.4e + %.4e i\n", T_perp_p.real(), T_perp_p.imag());
-    printf("T_perp_m = %.4e + %.4e i\n", T_perp_m.real(), T_perp_m.imag());
-    printf("T_1(0) = %.4e\n", cache.ff_calculator.get(BV_FF::T1, 0.0));
+    // complex_t HVp = H_V(1, false);
+    // complex_t HVm = H_V(-1, false);
+    // complex_t HVpbar = H_V(1, true);
+    // complex_t HVmbar = H_V(-1, true);
+    // complex_t T_perp_p = cache.qcdf_calculator.T_perp_p(0.0, false);
+    // complex_t T_perp_m = cache.qcdf_calculator.T_perp_m(0.0, false);
+    // complex_t pref = 2. * I * cache.N_prime * cache.m_b_m_b * (std::pow(cache.m_B, 2) - std::pow(cache.m_Ks, 2)) / (cache.m_B * std::sqrt(4 * PI * cache.alpha_em));
+    // printf("T_perp_p = %.4e + %.4e i\n", T_perp_p.real(), T_perp_p.imag());
+    // printf("T_perp_m = %.4e + %.4e i\n", T_perp_m.real(), T_perp_m.imag());
+    // printf("T_1(0) = %.4e\n", cache.ff_calculator.get(BV_FF::T1, 0.0));
     
-    printf("pref = %.4e + %.4e i\n", pref.real(), pref.imag());
+    // printf("pref = %.4e + %.4e i\n", pref.real(), pref.imag());
 
-    printf("HV+ = %.4e + %.4e i\n", HVp.real(), HVp.imag());
-    printf("HV- = %.4e + %.4e i\n", HVm.real(), HVm.imag());
-    printf("HV+bar = %.4e + %.4e i\n", HVpbar.real(), HVpbar.imag());
-    printf("HV-bar = %.4e + %.4e i\n", HVmbar.real(), HVmbar.imag());
+    // printf("HV+ = %.4e + %.4e i\n", HVp.real(), HVp.imag());
+    // printf("HV- = %.4e + %.4e i\n", HVm.real(), HVm.imag());
+    // printf("HV+bar = %.4e + %.4e i\n", HVpbar.real(), HVpbar.imag());
+    // printf("HV-bar = %.4e + %.4e i\n", HVmbar.real(), HVmbar.imag());
 }
 
 std::vector<ObservableValue> BKstarGammaDecay::compute_observable(Observables obs) {
     double value;
     switch (obs) {
-    case Observables::BR_B__KSTAR_GAMMA:   
+    case Observables::BR_B0__KSTAR0_GAMMA:   
+        set_cfg_flags(BKstarGammaConfig::B_Charge::B_0);
         value = BR();
         break;
-    case Observables::ISOSPIN_ASYMMETRY_B_KSTAR_GAMMA:   
+    case Observables::IA_B0__KSTAR0_GAMMA:   
+        set_cfg_flags(BKstarGammaConfig::B_Charge::B_0);
+        value = delta_0();
+        break;
+    case Observables::BR_B__KSTAR_GAMMA:   
+        set_cfg_flags(BKstarGammaConfig::B_Charge::B_PLUS);
+        value = BR();
+        break;
+    case Observables::IA_B__KSTAR_GAMMA:  
+        set_cfg_flags(BKstarGammaConfig::B_Charge::B_PLUS); 
         value = delta_0();
         break;
     default:
@@ -141,6 +136,38 @@ void BKstarGammaDecay::fill_wilson_cache() {
 
     cache.C2_h = 9.8536e-1;
     cache.C8_h = -1.7263e-1;
+}
+
+void BKstarGammaDecay::load_cfg_dependent_params() {
+    cache.ff_calculator = BVFFCalculator(
+        cfg.charge == Charge::B_0 ? 511 : 521,
+        cfg.charge == Charge::B_0 ? 313 : 323,
+        p,
+        cfg.ff_src
+    );
+
+    cache.qcdf_calculator = BVQCDfCalculator(
+        cfg.charge == Charge::B_0 ? 511 : 521,
+        cfg.charge == Charge::B_0 ? 313 : 323,
+        w_config.hadronic_scale,
+        cache.C,
+        std::make_shared<BVFFCalculator>(cache.ff_calculator),
+        B_FF_Type::FULL,
+        p,
+        iobs_qcdp
+    );
+
+    cache.tau_B = (*p)(ParamId{ParameterType::FLAVOR, "FLIFE", cfg.charge == Charge::B_0 ? 511 : 521}, DataType::VALUE) / HBAR;
+    cache.m_B = (*p)(ParamId{ParameterType::FLAVOR, "FMASS", cfg.charge == Charge::B_0 ? 511 : 521}, DataType::VALUE);
+    cache.m_Ks = (*p)(ParamId{ParameterType::FLAVOR, "FMASS", cfg.charge == Charge::B_0 ? 313 : 323}, DataType::VALUE);
+    cache.N_prime = -(*p)(ParamId{ParameterType::SM, "SMINPUTS", 2}, DataType::VALUE) * cache.m_B * std::conj((*p)(ParamId{ParameterType::SM, "VCKM", {2, 1}}, DataType::VALUE)) * (*p)(ParamId{ParameterType::SM, "VCKM", {2, 2}}, DataType::VALUE) * cache.alpha_em / (PI * RT2);
+}
+
+void BKstarGammaDecay::set_cfg_flags(BKstarGammaConfig::B_Charge charge) {
+    if (cfg.charge != charge) {
+        cfg.charge = charge;
+        load_cfg_dependent_params();
+    }
 }
 
 complex_t BKstarGammaDecay::H_V(double sign, bool bar) {

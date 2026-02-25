@@ -5,27 +5,8 @@ using Charge = BKstarllConfig::B_Charge;
 void BKstarllDecay::load_params() {
     fill_wilson_cache();
 
-    cache.ff_calculator = BVFFCalculator(
-        cfg.charge == Charge::B_0 ? 511 : 521,
-        cfg.charge == Charge::B_0 ? 313 : 323,
-        p,
-        cfg.ff_src
-    );
-
-    cache.qcdf_calculator = BVQCDfCalculator(
-        cfg.charge == Charge::B_0 ? 511 : 521,
-        cfg.charge == Charge::B_0 ? 313 : 323,
-        w_config.hadronic_scale,
-        cache.C,
-        std::make_shared<BVFFCalculator>(cache.ff_calculator),
-        cfg.ff_type,
-        p,
-        iobs_qcdp
-    );
-
     cache.alpha_em = (*p)(ParamId{ParameterType::SM, "EW", {1, 2}}, DataType::VALUE);
     cache.G_F = (*p)(ParamId{ParameterType::SM, "SMINPUTS", 2}, DataType::VALUE);
-    cache.m_l = (*p)(ParamId{ParameterType::SM, "MASS", 11 + 2 * (int)cfg.gen}, DataType::VALUE);
     cache.m_s = (*p)(ParamId{ParameterType::SM, "MASS", 3}, DataType::VALUE);
     cache.mu_b = w_config.hadronic_scale;
     cache.alpha_s_mu_b = (*iobs_qcdp)(AlphasConfig(cache.mu_b, MassType::POLE, MassType::POLE));
@@ -36,34 +17,17 @@ void BKstarllDecay::load_params() {
     cache.m_b_PS = (*p)(ParamId{ParameterType::SM, "QCD", {5, 2}}, DataType::VALUE) - 4 * (*iobs_qcdp)(AlphasConfig((*p)(ParamId{ParameterType::SM, "QCD", {5, 2}}, DataType::VALUE), MassType::POLE, MassType::POLE)) * mu_f / (3 * PI);
     cache.L_b = std::log(cache.mu_b / cache.m_b_PS);
     cache.Delta_M = -6. * cache.L_b - 4. * (1 - mu_f / cache.m_b_PS);
-    cache.m_B = (*p)(ParamId{ParameterType::FLAVOR, "FMASS", cfg.charge == Charge::B_0 ? 511 : 521}, DataType::VALUE);
-    cache.m_Ks = (*p)(ParamId{ParameterType::FLAVOR, "FMASS", cfg.charge == Charge::B_0 ? 313 : 323}, DataType::VALUE);
     cache.lambda_hat_u = std::conj((*p)(ParamId{ParameterType::SM, "VCKM", {0, 1}}, DataType::VALUE)) * (*p)(ParamId{ParameterType::SM, "VCKM", {0, 2}}, DataType::VALUE) 
                             / (std::conj((*p)(ParamId{ParameterType::SM, "VCKM", {2, 1}}, DataType::VALUE)) * (*p)(ParamId{ParameterType::SM, "VCKM", {2, 2}}, DataType::VALUE));
     cache.kappa = 1 - 2. * cache.alpha_s_mu_b / (3. * PI) * std::log(cache.mu_b / cache.m_b_mu_b);
-    cache.N_0 = std::conj((*p)(ParamId{ParameterType::SM, "VCKM", {2, 1}}, DataType::VALUE)) * (*p)(ParamId{ParameterType::SM, "VCKM", {2, 2}}, DataType::VALUE) * cache.G_F * cache.alpha_em / (std::sqrt(3072. * std::pow(PI, 5) * std::pow(cache.m_B, 3)));
-    cache.q2_min = 4 * std::pow(cache.m_l, 2);
-    cache.q2_max = std::pow(cache.m_B - cache.m_Ks, 2);
     cache.q2_low = (*p)(ParamId{ParameterType::DECAY, "B_Ks", {15, 1}}, DataType::VALUE);
     cache.q2_high = (*p)(ParamId{ParameterType::DECAY, "B_Ks", {15, 2}}, DataType::VALUE);
+
+    load_cfg_dependent_params();
 
     // printf("alpha_em = %.4e\n", cache.alpha_em);
     // printf("kappa = %.4e\n", cache.kappa);
     // printf("N_0 = %.4e + %.4e i\n", std::real(cache.N_0), std::imag(cache.N_0));
-
-    if (cfg.ff_type == B_FF_Type::SOFT || cfg.power_corr_impl == BKstarllConfig::Power_Corrections_Impl::BFS) {
-        auto lam_T_perp_p = [this] (double q2, bool bar) { return cache.qcdf_calculator.T_perp_p(q2, bar); };
-        fill_cache(lam_T_perp_p, cache.q2_min, cache.q2_high, cache.T_perp_p_lookup, false); 
-        fill_cache(lam_T_perp_p, cache.q2_min, cache.q2_high, cache.T_perp_p_bar_lookup, true); 
-
-        auto lam_T_perp_m = [this] (double q2, bool bar) { return cache.qcdf_calculator.T_perp_m(q2, bar); };
-        fill_cache(lam_T_perp_m, cache.q2_min, cache.q2_high, cache.T_perp_m_lookup, false); 
-        fill_cache(lam_T_perp_m, cache.q2_min, cache.q2_high, cache.T_perp_m_bar_lookup, true);
-
-        auto lam_T_par_m = [this] (double q2, bool bar) { return cache.qcdf_calculator.T_par_m(q2, bar); };
-        fill_cache(lam_T_par_m, cache.q2_min, cache.q2_high, cache.T_par_m_lookup, false); 
-        fill_cache(lam_T_par_m, cache.q2_min, cache.q2_high, cache.T_par_m_bar_lookup, true);
-    }
 
     
     // double q2 = 1.0;
@@ -118,7 +82,6 @@ void BKstarllDecay::load_params() {
     // printf("J_9(s = %.3f) = %.4e\n", q2, J9(q2, false));
     // exit(0);
 
-    compute_binned_J_i();
 }
 
 void BKstarllDecay::fill_wilson_cache() {
@@ -130,6 +93,59 @@ void BKstarllDecay::fill_wilson_cache() {
     for (auto p : b_wilsons) cache.C.emplace(p); 
     for (auto p : bq_wilsons) cache.C.emplace(p);
     for (auto id : bp_cached) cache.C.emplace(std::pair{id, bp_wilsons.at(id)});
+}
+
+void BKstarllDecay::load_cfg_dependent_params() {
+    cache.ff_calculator = BVFFCalculator(
+        cfg.charge == Charge::B_0 ? 511 : 521,
+        cfg.charge == Charge::B_0 ? 313 : 323,
+        p,
+        cfg.ff_src
+    );
+
+    cache.qcdf_calculator = BVQCDfCalculator(
+        cfg.charge == Charge::B_0 ? 511 : 521,
+        cfg.charge == Charge::B_0 ? 313 : 323,
+        w_config.hadronic_scale,
+        cache.C,
+        std::make_shared<BVFFCalculator>(cache.ff_calculator),
+        cfg.ff_type,
+        p,
+        iobs_qcdp
+    );
+
+    cache.m_l = (*p)(ParamId{ParameterType::SM, "MASS", 11 + 2 * (int)cfg.gen}, DataType::VALUE);
+    cache.m_B = (*p)(ParamId{ParameterType::FLAVOR, "FMASS", cfg.charge == Charge::B_0 ? 511 : 521}, DataType::VALUE);
+    cache.life_B = (*p)(ParamId{ParameterType::FLAVOR, "FLIFE", cfg.charge == Charge::B_0 ? 511 : 521}, DataType::VALUE);
+    cache.m_Ks = (*p)(ParamId{ParameterType::FLAVOR, "FMASS", cfg.charge == Charge::B_0 ? 313 : 323}, DataType::VALUE);
+    cache.N_0 = std::conj((*p)(ParamId{ParameterType::SM, "VCKM", {2, 1}}, DataType::VALUE)) * (*p)(ParamId{ParameterType::SM, "VCKM", {2, 2}}, DataType::VALUE) * cache.G_F * cache.alpha_em / (std::sqrt(3072. * std::pow(PI, 5) * std::pow(cache.m_B, 3)));
+    cache.q2_min = 4 * std::pow(cache.m_l, 2);
+    cache.q2_max = std::pow(cache.m_B - cache.m_Ks, 2);
+
+    if (cfg.ff_type == B_FF_Type::SOFT || cfg.power_corr_impl == BKstarllConfig::Power_Corrections_Impl::BFS) {
+        auto lam_T_perp_p = [this] (double q2, bool bar) { return cache.qcdf_calculator.T_perp_p(q2, bar); };
+        fill_cache(lam_T_perp_p, cache.q2_min, cache.q2_high, cache.T_perp_p_lookup, false); 
+        fill_cache(lam_T_perp_p, cache.q2_min, cache.q2_high, cache.T_perp_p_bar_lookup, true); 
+
+        auto lam_T_perp_m = [this] (double q2, bool bar) { return cache.qcdf_calculator.T_perp_m(q2, bar); };
+        fill_cache(lam_T_perp_m, cache.q2_min, cache.q2_high, cache.T_perp_m_lookup, false); 
+        fill_cache(lam_T_perp_m, cache.q2_min, cache.q2_high, cache.T_perp_m_bar_lookup, true);
+
+        auto lam_T_par_m = [this] (double q2, bool bar) { return cache.qcdf_calculator.T_par_m(q2, bar); };
+        fill_cache(lam_T_par_m, cache.q2_min, cache.q2_high, cache.T_par_m_lookup, false); 
+        fill_cache(lam_T_par_m, cache.q2_min, cache.q2_high, cache.T_par_m_bar_lookup, true);
+    }
+
+    compute_binned_J_i();
+}
+
+void BKstarllDecay::set_lepton_gen_and_charge(BKstarllConfig::Lepton gen, BKstarllConfig::B_Charge charge) {
+    bool changed = cfg.gen != gen || cfg.charge != charge;
+    if (changed) {
+        cfg.gen = gen;  
+        cfg.charge = charge;
+        load_cfg_dependent_params();
+    }
 }
 
 complex_t BKstarllDecay::T_perp_p_cached(double q2, bool bar) {
@@ -659,13 +675,12 @@ void BKstarllDecay::compute_binned_J_i() {
     fill_binned(cache.J_i_bar_binned, true);
 }
 
-std::vector<ObservableValue> BKstarllDecay::dG_dq2_binned(bool bar) {
+std::vector<ObservableValue> BKstarllDecay::dBR_dq2_binned(bool bar, Observables id) {
     std::vector<ObservableValue> out;
     auto J_i = bar ? cache.J_i_bar_binned : cache.J_i_binned;
-    ObservableId id = bar ? ObservableMapper::to_id(Observables::DGAMMA_BAR_DQ2_B__KSTAR_L_L) : ObservableMapper::to_id(Observables::DGAMMA_DQ2_B__KSTAR_L_L);
     for (size_t i = 0; i < cfg.bins.size(); i++) {
-        double res = 0.75 * (J_i[0][i] - (2 * J_i[1][i] + J_i[2][i]) / 3.); 
-        out.emplace_back(id, res, cfg.bins[i]);
+        double res = 0.75 * (cache.J_i_binned[0][i] + cache.J_i_bar_binned[0][i] - (2 * (cache.J_i_binned[1][i] + cache.J_i_bar_binned[1][i]) + cache.J_i_binned[2][i] + cache.J_i_bar_binned[2][i]) / 3.) * cache.life_B; 
+        out.emplace_back(ObservableMapper::to_id(id), res, cfg.bins[i]);
     }   
     return out;
 }
@@ -674,67 +689,62 @@ double BKstarllDecay::dG_dq2_avg_bin(size_t bin) {
     return 0.75 * (cache.J_i_binned[0][bin] + cache.J_i_bar_binned[0][bin] - (2 * (cache.J_i_binned[1][bin] + cache.J_i_bar_binned[1][bin]) + cache.J_i_binned[2][bin] + cache.J_i_bar_binned[2][bin]) / 3.);
 }
 
-std::vector<ObservableValue> BKstarllDecay::A_FB_binned() {
+std::vector<ObservableValue> BKstarllDecay::A_FB_binned(Observables id) {
     std::vector<ObservableValue> out;
-    ObservableId id = ObservableMapper::to_id(Observables::A_FB_B__KSTAR_L_L);
     for (size_t i = 0; i < cfg.bins.size(); i++) {
         double J6 = 2 * cache.J_i_binned[7][i] + cache.J_i_binned[9][i];
         double J6bar = 2 * cache.J_i_bar_binned[7][i] + cache.J_i_bar_binned[9][i];
         double res = -0.375 * (J6 + J6bar) / dG_dq2_avg_bin(i); 
-        out.emplace_back(id, res, cfg.bins[i]);
+        out.emplace_back(ObservableMapper::to_id(id), res, cfg.bins[i]);
     }   
     return out;
 }
 
-ObservableValue BKstarllDecay::q0() {
+ObservableValue BKstarllDecay::q0(Observables id) {
     auto f = [this] (double q2) {
         return 2 * (J6s(q2, true) + J6s(q2, false)) + J6c(q2, true) + J6c(q2, false); 
     };
 
-    ObservableId id = ObservableMapper::to_id(Observables::Q0_A_FB_B__KSTAR_L_L);
     double q2a, q2b;
     bool found_bracket = find_bracket(f, 1.01 * cache.q2_min, 0.99 * cache.q2_max, q2a, q2b);
     if (!found_bracket) {
         LOG_WARN("Forwards-Backwards asymmetry in B > K*ll doesn't cross 0.");
-        return ObservableValue(id, NAN);
+        return ObservableValue(ObservableMapper::to_id(id), NAN);
     } 
 
-    return ObservableValue(id, brent_root(f, q2a, q2b));
+    return ObservableValue(ObservableMapper::to_id(id), brent_root(f, q2a, q2b));
 }
 
-std::vector<ObservableValue> BKstarllDecay::A_CP_binned() {
+std::vector<ObservableValue> BKstarllDecay::A_CP_binned(Observables id) {
     std::vector<ObservableValue> out;
-    ObservableId id = ObservableMapper::to_id(Observables::A_CP_B__KSTAR_L_L);
     for (size_t i = 0; i < cfg.bins.size(); i++) {
         double dG = cache.J_i_binned[0][i] - (2 * cache.J_i_binned[1][i] + cache.J_i_binned[2][i]) / 3.;
         double dGbar = cache.J_i_bar_binned[0][i] - (2 * cache.J_i_bar_binned[1][i] + cache.J_i_bar_binned[2][i]) / 3.;
         double res = (dG - dGbar) / (dG + dGbar); 
-        out.emplace_back(id, res, cfg.bins[i]);
+        out.emplace_back(ObservableMapper::to_id(id), res, cfg.bins[i]);
     }   
     return out;
 }
 
-std::vector<ObservableValue> BKstarllDecay::F_L_binned() {
+std::vector<ObservableValue> BKstarllDecay::F_L_binned(Observables id) {
     std::vector<ObservableValue> out;
-    ObservableId id = ObservableMapper::to_id(Observables::F_L_B__KSTAR_L_L);
     for (size_t i = 0; i < cfg.bins.size(); i++) {
         double res = (0.75 * (cache.J_i_binned[14][i] + cache.J_i_bar_binned[14][i]) - 0.25 * (cache.J_i_binned[2][i] + cache.J_i_bar_binned[2][i])) / dG_dq2_avg_bin(i); 
-        out.emplace_back(id, res, cfg.bins[i]);
+        out.emplace_back(ObservableMapper::to_id(id), res, cfg.bins[i]);
     }   
     return out;
 }
 
-std::vector<ObservableValue> BKstarllDecay::F_T_binned() {
+std::vector<ObservableValue> BKstarllDecay::F_T_binned(Observables id) {
     std::vector<ObservableValue> out;
-    ObservableId id = ObservableMapper::to_id(Observables::F_T_B__KSTAR_L_L);
     for (size_t i = 0; i < cfg.bins.size(); i++) {
         double res = 4.0 * (cache.J_i_binned[1][i] + cache.J_i_bar_binned[1][i]) / dG_dq2_avg_bin(i); 
-        out.emplace_back(id, res, cfg.bins[i]);
+        out.emplace_back(ObservableMapper::to_id(id), res, cfg.bins[i]);
     }   
     return out;
 }
 
-std::vector<ObservableValue> BKstarllDecay::A_T_1_binned() {
+std::vector<ObservableValue> BKstarllDecay::A_T_1_binned(Observables id) {
     auto num_f = [this] (double q2) {
         double AperpApar = std::real(A_par(q2, 1, false) * std::conj(A_perp(q2, 1, false)) + A_par(q2, -1, false) * std::conj(A_perp(q2, -1, false)));
         double AperpApar_bar = std::real(A_par(q2, 1, true) * std::conj(A_perp(q2, 1, true)) + A_par(q2, -1, true) * std::conj(A_perp(q2, -1, true)));
@@ -742,29 +752,26 @@ std::vector<ObservableValue> BKstarllDecay::A_T_1_binned() {
     };
 
     std::vector<ObservableValue> out;
-    ObservableId id = ObservableMapper::to_id(Observables::A_T_1_B__KSTAR_L_L);
     for (size_t i = 0; i < cfg.bins.size(); i++) {
         double J2scpa = cache.J_i_binned[1][i] + cache.J_i_bar_binned[1][i];
         double num = integrate(num_f, cfg.bins[i].first, cfg.bins[i].second, 1e-2);
         double res = -0.5 * num / J2scpa; 
-        out.emplace_back(id, res, cfg.bins[i]);
+        out.emplace_back(ObservableMapper::to_id(id), res, cfg.bins[i]);
     }   
     return out;
 }
 
-std::vector<ObservableValue> BKstarllDecay::A_T_2_binned() {
+std::vector<ObservableValue> BKstarllDecay::A_T_2_binned(Observables id) {
     std::vector<ObservableValue> out;
-    ObservableId id = ObservableMapper::to_id(Observables::A_T_2_B__KSTAR_L_L);
     for (size_t i = 0; i < cfg.bins.size(); i++) {
         double res = 0.5 * (cache.J_i_binned[3][i] + cache.J_i_bar_binned[3][i]) / (cache.J_i_binned[1][i] + cache.J_i_bar_binned[1][i]); 
-        out.emplace_back(id, res, cfg.bins[i]);
+        out.emplace_back(ObservableMapper::to_id(id), res, cfg.bins[i]);
     }   
     return out;
 }
 
-std::vector<ObservableValue> BKstarllDecay::A_T_3_binned() {
+std::vector<ObservableValue> BKstarllDecay::A_T_3_binned(Observables id) {
     std::vector<ObservableValue> out;
-    ObservableId id = ObservableMapper::to_id(Observables::A_T_3_B__KSTAR_L_L);
     for (size_t i = 0; i < cfg.bins.size(); i++) {
         double J2scp = cache.J_i_binned[1][i] + cache.J_i_bar_binned[1][i];
         double J2ccp = cache.J_i_binned[2][i] + cache.J_i_bar_binned[2][i];
@@ -772,26 +779,25 @@ std::vector<ObservableValue> BKstarllDecay::A_T_3_binned() {
         double J4cp = cache.J_i_binned[4][i] + cache.J_i_bar_binned[4][i];
         double J7cp = cache.J_i_binned[11][i] + cache.J_i_bar_binned[11][i];
         double res = std::sqrt((4 * J4cp * J4cp + J7cp * J7cp) / std::abs(-2 * J2ccp * (2 * J2scp + J3cp)));
-        out.emplace_back(id, res, cfg.bins[i]);
+        out.emplace_back(ObservableMapper::to_id(id), res, cfg.bins[i]);
     }   
     return out;
 }
 
-std::vector<ObservableValue> BKstarllDecay::A_T_4_binned() {
+std::vector<ObservableValue> BKstarllDecay::A_T_4_binned(Observables id) {
     std::vector<ObservableValue> out;
-    ObservableId id = ObservableMapper::to_id(Observables::A_T_4_B__KSTAR_L_L);
     for (size_t i = 0; i < cfg.bins.size(); i++) {
         double J4cp = cache.J_i_binned[4][i] + cache.J_i_bar_binned[4][i];
         double J5cp = cache.J_i_binned[6][i] + cache.J_i_bar_binned[6][i];
         double J7cp = cache.J_i_binned[11][i] + cache.J_i_bar_binned[11][i];
         double J8cp = cache.J_i_binned[12][i] + cache.J_i_bar_binned[12][i];
         double res = std::sqrt((J5cp * J5cp + 4 * J8cp * J8cp) / (J7cp * J7cp + 4 * J4cp * J4cp));
-        out.emplace_back(id, res, cfg.bins[i]);
+        out.emplace_back(ObservableMapper::to_id(id), res, cfg.bins[i]);
     }   
     return out;
 }
 
-std::vector<ObservableValue> BKstarllDecay::A_T_5_binned() {
+std::vector<ObservableValue> BKstarllDecay::A_T_5_binned(Observables id) {
     auto num_f = [this] (double q2) {
         complex_t AperpApar = A_par(q2, 1, false) * std::conj(A_perp(q2, -1, false)) + A_perp(q2, 1, false) * std::conj(A_par(q2, -1, false));
         complex_t AperpApar_bar = A_par(q2, 1, true) * std::conj(A_perp(q2, -1, true)) + A_perp(q2, 1, true) * std::conj(A_par(q2, -1, true));
@@ -805,224 +811,187 @@ std::vector<ObservableValue> BKstarllDecay::A_T_5_binned() {
     };
 
     std::vector<ObservableValue> out;
-    ObservableId id = ObservableMapper::to_id(Observables::A_T_5_B__KSTAR_L_L);
     for (size_t i = 0; i < cfg.bins.size(); i++) {
         double num = integrate(num_f, cfg.bins[i].first, cfg.bins[i].second, 1e-2);
         double den = integrate(den_f, cfg.bins[i].first, cfg.bins[i].second, 1e-2);
         double res = num / den; 
-        out.emplace_back(id, res, cfg.bins[i]);
+        out.emplace_back(ObservableMapper::to_id(id), res, cfg.bins[i]);
     }   
     return out;
 }
 
-std::vector<ObservableValue> BKstarllDecay::A_T_Re_binned() {
+std::vector<ObservableValue> BKstarllDecay::A_T_Re_binned(Observables id) {
     std::vector<ObservableValue> out;
-    ObservableId id = ObservableMapper::to_id(Observables::A_T_RE_B__KSTAR_L_L);
     for (size_t i = 0; i < cfg.bins.size(); i++) {
         double J2scp = cache.J_i_binned[1][i] + cache.J_i_bar_binned[1][i];
         double J6scp = cache.J_i_binned[8][i] + cache.J_i_bar_binned[8][i];
         double res = 0.25 * J6scp / J2scp;
-        out.emplace_back(id, res, cfg.bins[i]);
+        out.emplace_back(ObservableMapper::to_id(id), res, cfg.bins[i]);
     }   
     return out;
 }
 
-std::vector<ObservableValue> BKstarllDecay::A_T_Re_CPV_binned() {
+std::vector<ObservableValue> BKstarllDecay::A_T_Re_CPV_binned(Observables id) {
     std::vector<ObservableValue> out;
-    ObservableId id = ObservableMapper::to_id(Observables::A_T_RE_CPV_B__KSTAR_L_L);
     for (size_t i = 0; i < cfg.bins.size(); i++) {
         double J2scp = cache.J_i_binned[1][i] + cache.J_i_bar_binned[1][i];
         double J6scpa = cache.J_i_binned[8][i] - cache.J_i_bar_binned[8][i];
         double res = 0.25 * J6scpa / J2scp;
-        out.emplace_back(id, res, cfg.bins[i]);
+        out.emplace_back(ObservableMapper::to_id(id), res, cfg.bins[i]);
     }   
     return out;
 }
 
-std::vector<ObservableValue> BKstarllDecay::A_Im_binned() {
+std::vector<ObservableValue> BKstarllDecay::A_Im_binned(Observables id) {
     std::vector<ObservableValue> out;
-    ObservableId id = ObservableMapper::to_id(Observables::A_IM_B__KSTAR_L_L);
     for (size_t i = 0; i < cfg.bins.size(); i++) {
         double res = (cache.J_i_binned[13][i] + cache.J_i_bar_binned[13][i]) / dG_dq2_avg_bin(i); 
-        out.emplace_back(id, res, cfg.bins[i]);
+        out.emplace_back(ObservableMapper::to_id(id), res, cfg.bins[i]);
     }   
     return out;
 }
 
-std::vector<ObservableValue> BKstarllDecay::alpha_K_binned() {
+std::vector<ObservableValue> BKstarllDecay::alpha_K_binned(Observables id) {
     std::vector<ObservableValue> out;
-    ObservableId id = ObservableMapper::to_id(Observables::ALPHA_K_B__KSTAR_L_L);
     for (size_t i = 0; i < cfg.bins.size(); i++) {
         double J2scp = cache.J_i_binned[1][i] + cache.J_i_bar_binned[1][i];
         double J2ccp = cache.J_i_binned[2][i] + cache.J_i_bar_binned[2][i];
         double res = -0.5 * (2 * J2scp + J2ccp) / J2scp;
-        out.emplace_back(id, res, cfg.bins[i]);
+        out.emplace_back(ObservableMapper::to_id(id), res, cfg.bins[i]);
     }   
     return out;
 }
 
-std::vector<ObservableValue> BKstarllDecay::H_T_1_binned() {
+std::vector<ObservableValue> BKstarllDecay::H_T_1_binned(Observables id) {
     std::vector<ObservableValue> out;
-    ObservableId id = ObservableMapper::to_id(Observables::H_T_1_B__KSTAR_L_L);
     for (size_t i = 0; i < cfg.bins.size(); i++) {
         double J2scp = cache.J_i_binned[1][i] + cache.J_i_bar_binned[1][i];
         double J2ccp = cache.J_i_binned[2][i] + cache.J_i_bar_binned[2][i];
         double J3cp = cache.J_i_binned[3][i] + cache.J_i_bar_binned[3][i];
         double J4cp = cache.J_i_binned[4][i] + cache.J_i_bar_binned[4][i];
         double res = RT2 * J4cp / std::sqrt(std::abs(J2ccp * (J2scp - J3cp)));
-        out.emplace_back(id, res, cfg.bins[i]);
+        out.emplace_back(ObservableMapper::to_id(id), res, cfg.bins[i]);
     }   
     return out;
 }
 
-std::vector<ObservableValue> BKstarllDecay::H_T_2_binned() {
+std::vector<ObservableValue> BKstarllDecay::H_T_2_binned(Observables id) {
     std::vector<ObservableValue> out;
-    ObservableId id = ObservableMapper::to_id(Observables::H_T_2_B__KSTAR_L_L);
     for (size_t i = 0; i < cfg.bins.size(); i++) {
         double J2scp = cache.J_i_binned[1][i] + cache.J_i_bar_binned[1][i];
         double J2ccp = cache.J_i_binned[2][i] + cache.J_i_bar_binned[2][i];
         double J3cp = cache.J_i_binned[3][i] + cache.J_i_bar_binned[3][i];
         double J5cp = cache.J_i_binned[6][i] + cache.J_i_bar_binned[6][i];
         double res = J5cp / std::sqrt(std::abs(2 * J2ccp * (2 * J2scp + J3cp)));
-        out.emplace_back(id, res, cfg.bins[i]);
+        out.emplace_back(ObservableMapper::to_id(id), res, cfg.bins[i]);
     }   
     return out;
 }
 
-std::vector<ObservableValue> BKstarllDecay::H_T_3_binned() {
+std::vector<ObservableValue> BKstarllDecay::H_T_3_binned(Observables id) {
     std::vector<ObservableValue> out;
-    ObservableId id = ObservableMapper::to_id(Observables::H_T_3_B__KSTAR_L_L);
     for (size_t i = 0; i < cfg.bins.size(); i++) {
         double J2scp = cache.J_i_binned[1][i] + cache.J_i_bar_binned[1][i];
         double J3cp = cache.J_i_binned[3][i] + cache.J_i_bar_binned[3][i];
         double J6cp = (2 * (cache.J_i_binned[7][i] + cache.J_i_bar_binned[7][i]) + cache.J_i_binned[9][i] + cache.J_i_bar_binned[9][i]);
         double res = 0.5 * J6cp / std::sqrt(std::abs(4 * J2scp * J2scp - J3cp * J3cp));
-        out.emplace_back(id, res, cfg.bins[i]);
+        out.emplace_back(ObservableMapper::to_id(id), res, cfg.bins[i]);
     }   
     return out;
 }
 
-std::vector<ObservableValue> BKstarllDecay::P_2_binned() {
+std::vector<ObservableValue> BKstarllDecay::P_2_binned(Observables id) {
     std::vector<ObservableValue> out;
-    ObservableId id = ObservableMapper::to_id(Observables::P_2_B__KSTAR_L_L);
     for (size_t i = 0; i < cfg.bins.size(); i++) {
         double J2scp = cache.J_i_binned[1][i] + cache.J_i_bar_binned[1][i];
         double J6scp = cache.J_i_binned[7][i] + cache.J_i_bar_binned[7][i];
         double res = 0.125 * J6scp / J2scp;
-        out.emplace_back(id, res, cfg.bins[i]);
+        out.emplace_back(ObservableMapper::to_id(id), res, cfg.bins[i]);
     }   
     return out;
 }
 
-std::vector<ObservableValue> BKstarllDecay::P_3_binned() {
+std::vector<ObservableValue> BKstarllDecay::P_3_binned(Observables id) {
     std::vector<ObservableValue> out;
-    ObservableId id = ObservableMapper::to_id(Observables::P_3_B__KSTAR_L_L);
     for (size_t i = 0; i < cfg.bins.size(); i++) {
         double J2scp = cache.J_i_binned[1][i] + cache.J_i_bar_binned[1][i];
         double J9cp = cache.J_i_binned[13][i] + cache.J_i_bar_binned[13][i];
         double res = -0.25 * J9cp / J2scp;
-        out.emplace_back(id, res, cfg.bins[i]);
+        out.emplace_back(ObservableMapper::to_id(id), res, cfg.bins[i]);
     }   
     return out;
 }
 
-std::vector<ObservableValue> BKstarllDecay::P_6_binned() {
+std::vector<ObservableValue> BKstarllDecay::P_6_binned(Observables id) {
     std::vector<ObservableValue> out;
-    ObservableId id = ObservableMapper::to_id(Observables::P_6_B__KSTAR_L_L);
     for (size_t i = 0; i < cfg.bins.size(); i++) {
         double J2scp = cache.J_i_binned[1][i] + cache.J_i_bar_binned[1][i];
         double J2ccp = cache.J_i_binned[2][i] + cache.J_i_bar_binned[2][i];
         double J3cp = cache.J_i_binned[3][i] + cache.J_i_bar_binned[3][i];
         double J7cp = cache.J_i_binned[11][i] + cache.J_i_bar_binned[11][i];
         double res = -J7cp / std::sqrt(std::abs(2 * J2ccp * (2 * J2scp - J3cp)));
-        out.emplace_back(id, res, cfg.bins[i]);
+        out.emplace_back(ObservableMapper::to_id(id), res, cfg.bins[i]);
     }   
     return out;
 }
 
-std::vector<ObservableValue> BKstarllDecay::P_8_binned() {
+std::vector<ObservableValue> BKstarllDecay::P_8_binned(Observables id) {
     std::vector<ObservableValue> out;
-    ObservableId id = ObservableMapper::to_id(Observables::P_8_B__KSTAR_L_L);
     for (size_t i = 0; i < cfg.bins.size(); i++) {
         double J2scp = cache.J_i_binned[1][i] + cache.J_i_bar_binned[1][i];
         double J2ccp = cache.J_i_binned[2][i] + cache.J_i_bar_binned[2][i];
         double J3cp = cache.J_i_binned[3][i] + cache.J_i_bar_binned[3][i];
         double J8cp = cache.J_i_binned[12][i] + cache.J_i_bar_binned[12][i];
         double res = -RT2 * J8cp / std::sqrt(std::abs(J2ccp * (2 * J2scp - J3cp)));
-        out.emplace_back(id, res, cfg.bins[i]);
+        out.emplace_back(ObservableMapper::to_id(id), res, cfg.bins[i]);
     }   
     return out;
 }
 
-std::vector<ObservableValue> BKstarllDecay::Pp_i_binned(size_t i, bool cpv) {
+std::vector<ObservableValue> BKstarllDecay::Pp_i_binned(size_t i, bool cpv, Observables id) {
     if (!(i == 4 || i == 5 || i == 6 || i == 8)) LOG_ERROR("Value Error", "P'_i(B > K*ll) is not defined for i =", i);
 
     std::map<size_t, double> factors = {{4, 1.0}, {5, 0.5}, {6, -0.5}, {8, -1.0}};
     std::map<size_t, size_t> J_idx = {{4, 4}, {5, 5}, {6, 10}, {8, 12}};
-    std::map<size_t, Observables> ids = {
-        {4, cpv ? Observables::P_PRIME_4_CPV_B__KSTAR_L_L : Observables::P_PRIME_4_B__KSTAR_L_L},
-        {5, cpv ? Observables::P_PRIME_5_CPV_B__KSTAR_L_L : Observables::P_PRIME_5_B__KSTAR_L_L},
-        {6, cpv ? Observables::P_PRIME_6_CPV_B__KSTAR_L_L : Observables::P_PRIME_6_B__KSTAR_L_L},
-        {8, cpv ? Observables::P_PRIME_8_CPV_B__KSTAR_L_L : Observables::P_PRIME_8_B__KSTAR_L_L}
-    };
     double sign = cpv ? -1 : 1;
 
     std::vector<ObservableValue> out;
-    ObservableId id = ObservableMapper::to_id(ids[i]);
     for (size_t j = 0; j < cfg.bins.size(); j++) {
         double J2scp = cache.J_i_binned[1][j] + cache.J_i_bar_binned[1][j];
         double J2ccp = cache.J_i_binned[2][j] + cache.J_i_bar_binned[2][j];
         double Jicp = cache.J_i_binned[J_idx[i]][j] + sign * cache.J_i_bar_binned[J_idx[i]][j];
         double res = factors[i] * Jicp / std::sqrt(std::abs(J2ccp * J2scp));
-        out.emplace_back(id, res, cfg.bins[j]);
+        out.emplace_back(ObservableMapper::to_id(id), res, cfg.bins[j]);
     }   
     return out;
 }
 
-std::vector<ObservableValue> BKstarllDecay::S_i_binned(size_t i, bool cpv) {
+std::vector<ObservableValue> BKstarllDecay::S_i_binned(size_t i, bool cpv, Observables id) {
     if (i < 3 || i > 9) LOG_ERROR("Value Error", "S_i(B > K*ll) is not defined for i =", i);
 
     std::map<size_t, size_t> J_idx = {{3, 3}, {4, 4}, {5, 5}, {6, cpv ? 7 : 9}, {7, 10}, {8, 12}, {9, 13}};
-
-    std::map<size_t, Observables> ids = {
-        {3, cpv ? Observables::A_3_B__KSTAR_L_L : Observables::S_3_B__KSTAR_L_L},
-        {4, cpv ? Observables::A_4_B__KSTAR_L_L : Observables::S_4_B__KSTAR_L_L},
-        {5, cpv ? Observables::A_5_B__KSTAR_L_L : Observables::S_5_B__KSTAR_L_L},
-        {6, cpv ? Observables::A_6S_B__KSTAR_L_L : Observables::S_6C_B__KSTAR_L_L},
-        {7, cpv ? Observables::A_7_B__KSTAR_L_L : Observables::S_7_B__KSTAR_L_L},
-        {8, cpv ? Observables::A_8_B__KSTAR_L_L : Observables::S_8_B__KSTAR_L_L},
-        {9, cpv ? Observables::A_9_B__KSTAR_L_L : Observables::S_9_B__KSTAR_L_L}
-    };
-
     double sign = cpv ? -1 : 1;
 
     std::vector<ObservableValue> out;
-    ObservableId id = ObservableMapper::to_id(ids[i]);
     for (size_t j = 0; j < cfg.bins.size(); j++) {
         double res = (cache.J_i_binned[J_idx[i]][j] + sign * cache.J_i_bar_binned[J_idx[i]][j]) / dG_dq2_avg_bin(j); 
-        out.emplace_back(id, i == 6 ? -res : res, cfg.bins[j]);
+        out.emplace_back(ObservableMapper::to_id(id), i == 6 ? -res : res, cfg.bins[j]);
     }   
     return out;
 }
 
-std::vector<ObservableValue> BKstarllDecay::P_i_CPV_binned(size_t i) {
+std::vector<ObservableValue> BKstarllDecay::P_i_CPV_binned(size_t i, Observables id) {
    if (i < 1 || i > 3) LOG_ERROR("Value Error", "P_i_CPV(B > K*ll) is not defined for i =", i);
 
     std::map<size_t, double> factors = {{1, 0.5}, {2, 0.125}, {3, -0.25}};
     std::map<size_t, size_t> J_idx = {{1, 3}, {2, 7}, {3, 13}};
-    std::map<size_t, Observables> ids = {
-        {1, Observables::P_1_CPV_B__KSTAR_L_L},
-        {2, Observables::P_2_CPV_B__KSTAR_L_L},
-        {3, Observables::P_3_CPV_B__KSTAR_L_L}
-    };
 
     std::vector<ObservableValue> out;
-    ObservableId id = ObservableMapper::to_id(ids[i]);
     for (size_t j = 0; j < cfg.bins.size(); j++) {
         double J2scp = cache.J_i_binned[1][j] + cache.J_i_bar_binned[1][j];
         double Jicpv = cache.J_i_binned[J_idx[i]][j] - cache.J_i_bar_binned[J_idx[i]][j];
         double res = factors[i] * Jicpv / J2scp;
-        out.emplace_back(id, res, cfg.bins[j]);
+        out.emplace_back(ObservableMapper::to_id(id), res, cfg.bins[j]);
     }   
     return out;
 }
@@ -1121,144 +1090,891 @@ void BKstarllDecay::test_J() {
     }
 }
 
-void BKstarllDecay::test_binned_obs() {
-    std::ofstream fs;
-    fs.open("B_Ksll_obs.csv");
-    fs << "q2_min,q2_max,dG,dGbar,afb,fl,ft,cpa,pp4,pp5,pp6,pp8\n";
+// void BKstarllDecay::test_binned_obs() {
+//     std::ofstream fs;
+//     fs.open("B_Ksll_obs.csv");
+//     fs << "q2_min,q2_max,dG,dGbar,afb,fl,ft,cpa,pp4,pp5,pp6,pp8\n";
 
-    auto dG = dG_dq2_binned(false);
-    auto dGbar = dG_dq2_binned(true);
-    auto afb = A_FB_binned();
-    auto fl = F_L_binned();
-    auto ft = F_T_binned();
-    auto cpa = A_CP_binned();
-    auto pp4 = Pp_i_binned(4);
-    auto pp5 = Pp_i_binned(5);
-    auto pp6 = Pp_i_binned(6);
-    auto pp8 = Pp_i_binned(8);
+//     auto dG = dG_dq2_binned(false);
+//     auto dGbar = dG_dq2_binned(true);
+//     auto afb = A_FB_binned();
+//     auto fl = F_L_binned();
+//     auto ft = F_T_binned();
+//     auto cpa = A_CP_binned();
+//     auto pp4 = Pp_i_binned(4);
+//     auto pp5 = Pp_i_binned(5);
+//     auto pp6 = Pp_i_binned(6);
+//     auto pp8 = Pp_i_binned(8);
 
-    auto write_line = [&] (size_t i) {
-        fs << cfg.bins[i].first 
-        << "," << cfg.bins[i].second 
-        << "," << dG[i].value
-        << "," << dGbar[i].value
-        << "," << afb[i].value
-        << "," << fl[i].value
-        << "," << ft[i].value
-        << "," << cpa[i].value
-        << "," << pp4[i].value
-        << "," << pp5[i].value
-        << "," << pp6[i].value
-        << "," << pp8[i].value
-        << "\n";
-    };
+//     auto write_line = [&] (size_t i) {
+//         fs << cfg.bins[i].first 
+//         << "," << cfg.bins[i].second 
+//         << "," << dG[i].value
+//         << "," << dGbar[i].value
+//         << "," << afb[i].value
+//         << "," << fl[i].value
+//         << "," << ft[i].value
+//         << "," << cpa[i].value
+//         << "," << pp4[i].value
+//         << "," << pp5[i].value
+//         << "," << pp6[i].value
+//         << "," << pp8[i].value
+//         << "\n";
+//     };
 
-    for (size_t i = 0; i < cfg.bins.size(); i++) {
-        write_line(i);
-    }
-}
+//     for (size_t i = 0; i < cfg.bins.size(); i++) {
+//         write_line(i);
+//     }
+// }
 
 std::vector<ObservableValue> BKstarllDecay::compute_observable(Observables obs) {
     switch (obs) {
-    case Observables::TEST:   
-        test_J();
-        return {};
-    case Observables::DGAMMA_DQ2_B__KSTAR_L_L:   
-        return dG_dq2_binned(false);
-    case Observables::DGAMMA_BAR_DQ2_B__KSTAR_L_L:   
-        return dG_dq2_binned(true);
-    case Observables::A_FB_B__KSTAR_L_L:   
-        return A_FB_binned();
-    case Observables::Q0_A_FB_B__KSTAR_L_L:   
-        return {q0()};
-    case Observables::A_CP_B__KSTAR_L_L:   
-        return A_CP_binned();
-    case Observables::F_L_B__KSTAR_L_L:   
-        return F_L_binned();
-    case Observables::F_T_B__KSTAR_L_L:   
-        return F_T_binned();
-    case Observables::A_T_1_B__KSTAR_L_L:   
-        return A_T_1_binned();
-    case Observables::A_T_2_B__KSTAR_L_L:   
-        return A_T_2_binned();
-    case Observables::A_T_3_B__KSTAR_L_L:   
-        return A_T_3_binned();
-    case Observables::A_T_4_B__KSTAR_L_L:   
-        return A_T_4_binned();
-    case Observables::A_T_5_B__KSTAR_L_L:   
-        return A_T_5_binned();
-    case Observables::A_T_RE_B__KSTAR_L_L:   
-        return A_T_Re_binned();
-    case Observables::A_T_RE_CPV_B__KSTAR_L_L:   
-        return A_T_Re_CPV_binned();
-    case Observables::A_IM_B__KSTAR_L_L:   
-        return A_Im_binned();
-    case Observables::ALPHA_K_B__KSTAR_L_L:   
-        return alpha_K_binned();
-    case Observables::H_T_1_B__KSTAR_L_L:   
-        return H_T_1_binned();
-    case Observables::H_T_2_B__KSTAR_L_L:   
-        return H_T_2_binned();
-    case Observables::H_T_3_B__KSTAR_L_L:   
-        return H_T_3_binned();
-    case Observables::P_2_B__KSTAR_L_L:   
-        return P_2_binned();
-    case Observables::P_3_B__KSTAR_L_L:   
-        return P_3_binned();
-    case Observables::P_6_B__KSTAR_L_L:   
-        return P_6_binned();
-    case Observables::P_8_B__KSTAR_L_L:   
-        return P_8_binned();
-    case Observables::P_PRIME_4_B__KSTAR_L_L:   
-        return Pp_i_binned(4);
-    case Observables::P_PRIME_5_B__KSTAR_L_L:   
-        return Pp_i_binned(5);
-    case Observables::P_PRIME_6_B__KSTAR_L_L:   
-        return Pp_i_binned(6);
-    case Observables::P_PRIME_8_B__KSTAR_L_L:   
-        return Pp_i_binned(8);
-    case Observables::S_3_B__KSTAR_L_L:   
-        return S_i_binned(3);
-    case Observables::S_4_B__KSTAR_L_L:   
-        return S_i_binned(4);
-    case Observables::S_5_B__KSTAR_L_L:   
-        return S_i_binned(5);
-    case Observables::S_6C_B__KSTAR_L_L:   
-        return S_i_binned(6);
-    case Observables::S_7_B__KSTAR_L_L:   
-        return S_i_binned(7);
-    case Observables::S_8_B__KSTAR_L_L:   
-        return S_i_binned(8);
-    case Observables::S_9_B__KSTAR_L_L:   
-        return S_i_binned(9);
-    case Observables::A_3_B__KSTAR_L_L:   
-        return S_i_binned(3, true);
-    case Observables::A_4_B__KSTAR_L_L:   
-        return S_i_binned(4, true);
-    case Observables::A_5_B__KSTAR_L_L:   
-        return S_i_binned(5, true);
-    case Observables::A_6S_B__KSTAR_L_L:   
-        return S_i_binned(6, true);
-    case Observables::A_7_B__KSTAR_L_L:   
-        return S_i_binned(7, true);
-    case Observables::A_8_B__KSTAR_L_L:   
-        return S_i_binned(8, true);
-    case Observables::A_9_B__KSTAR_L_L:   
-        return S_i_binned(9, true);
-    case Observables::P_1_CPV_B__KSTAR_L_L:   
-        return P_i_CPV_binned(1);
-    case Observables::P_2_CPV_B__KSTAR_L_L:   
-        return P_i_CPV_binned(2);
-    case Observables::P_3_CPV_B__KSTAR_L_L:   
-        return P_i_CPV_binned(3);
-    case Observables::P_PRIME_4_CPV_B__KSTAR_L_L:   
-        return Pp_i_binned(4, true);
-    case Observables::P_PRIME_5_CPV_B__KSTAR_L_L:   
-        return Pp_i_binned(5, true);
-    case Observables::P_PRIME_6_CPV_B__KSTAR_L_L:   
-        return Pp_i_binned(6, true);
-    case Observables::P_PRIME_8_CPV_B__KSTAR_L_L:   
-        return Pp_i_binned(8, true);
+    case Observables::DBR_DQ2_B__KSTAR_E_E:   
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::E, BKstarllConfig::B_Charge::B_PLUS);
+        return dBR_dq2_binned(false, obs);   
+    case Observables::A_FB_B__KSTAR_E_E:      
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::E, BKstarllConfig::B_Charge::B_PLUS);
+        return A_FB_binned(obs);
+    case Observables::Q0_A_FB_B__KSTAR_E_E:    
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::E, BKstarllConfig::B_Charge::B_PLUS);  
+        return {q0(obs)};
+    case Observables::A_CP_B__KSTAR_E_E:      
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::E, BKstarllConfig::B_Charge::B_PLUS);
+        return A_CP_binned(obs);
+    case Observables::F_L_B__KSTAR_E_E:      
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::E, BKstarllConfig::B_Charge::B_PLUS);
+        return F_L_binned(obs);
+    case Observables::F_T_B__KSTAR_E_E:      
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::E, BKstarllConfig::B_Charge::B_PLUS);
+        return F_T_binned(obs);
+    case Observables::A_T_1_B__KSTAR_E_E:   
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::E, BKstarllConfig::B_Charge::B_PLUS);   
+        return A_T_1_binned(obs);
+    case Observables::A_T_2_B__KSTAR_E_E:   
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::E, BKstarllConfig::B_Charge::B_PLUS);   
+        return A_T_2_binned(obs);
+    case Observables::A_T_3_B__KSTAR_E_E:   
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::E, BKstarllConfig::B_Charge::B_PLUS);   
+        return A_T_3_binned(obs);
+    case Observables::A_T_4_B__KSTAR_E_E:    
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::E, BKstarllConfig::B_Charge::B_PLUS);  
+        return A_T_4_binned(obs);
+    case Observables::A_T_5_B__KSTAR_E_E:     
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::E, BKstarllConfig::B_Charge::B_PLUS); 
+        return A_T_5_binned(obs);
+    case Observables::A_T_RE_B__KSTAR_E_E:    
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::E, BKstarllConfig::B_Charge::B_PLUS);  
+        return A_T_Re_binned(obs);
+    case Observables::A_T_RE_CPV_B__KSTAR_E_E:     
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::E, BKstarllConfig::B_Charge::B_PLUS); 
+        return A_T_Re_CPV_binned(obs);
+    case Observables::A_IM_B__KSTAR_E_E:      
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::E, BKstarllConfig::B_Charge::B_PLUS);
+        return A_Im_binned(obs);
+    case Observables::ALPHA_K_B__KSTAR_E_E:     
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::E, BKstarllConfig::B_Charge::B_PLUS); 
+        return alpha_K_binned(obs);
+    case Observables::H_T_1_B__KSTAR_E_E:     
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::E, BKstarllConfig::B_Charge::B_PLUS); 
+        return H_T_1_binned(obs);
+    case Observables::H_T_2_B__KSTAR_E_E:     
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::E, BKstarllConfig::B_Charge::B_PLUS); 
+        return H_T_2_binned(obs);
+    case Observables::H_T_3_B__KSTAR_E_E:      
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::E, BKstarllConfig::B_Charge::B_PLUS);
+        return H_T_3_binned(obs);
+    case Observables::P_2_B__KSTAR_E_E:      
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::E, BKstarllConfig::B_Charge::B_PLUS);
+        return P_2_binned(obs);
+    case Observables::P_3_B__KSTAR_E_E:   
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::E, BKstarllConfig::B_Charge::B_PLUS);   
+        return P_3_binned(obs);
+    case Observables::P_6_B__KSTAR_E_E:   
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::E, BKstarllConfig::B_Charge::B_PLUS);   
+        return P_6_binned(obs);
+    case Observables::P_8_B__KSTAR_E_E:    
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::E, BKstarllConfig::B_Charge::B_PLUS);  
+        return P_8_binned(obs);
+    case Observables::P_PRIME_4_B__KSTAR_E_E:     
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::E, BKstarllConfig::B_Charge::B_PLUS); 
+        return Pp_i_binned(4, false, obs);
+    case Observables::P_PRIME_5_B__KSTAR_E_E:    
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::E, BKstarllConfig::B_Charge::B_PLUS);  
+        return Pp_i_binned(5, false, obs);
+    case Observables::P_PRIME_6_B__KSTAR_E_E:    
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::E, BKstarllConfig::B_Charge::B_PLUS);  
+        return Pp_i_binned(6, false, obs);
+    case Observables::P_PRIME_8_B__KSTAR_E_E:     
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::E, BKstarllConfig::B_Charge::B_PLUS); 
+        return Pp_i_binned(8, false, obs);
+    case Observables::S_3_B__KSTAR_E_E:      
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::E, BKstarllConfig::B_Charge::B_PLUS);
+        return S_i_binned(3, false, obs);
+    case Observables::S_4_B__KSTAR_E_E:      
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::E, BKstarllConfig::B_Charge::B_PLUS);
+        return S_i_binned(4, false, obs);
+    case Observables::S_5_B__KSTAR_E_E:      
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::E, BKstarllConfig::B_Charge::B_PLUS);
+        return S_i_binned(5, false, obs);
+    case Observables::S_6C_B__KSTAR_E_E:    
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::E, BKstarllConfig::B_Charge::B_PLUS);  
+        return S_i_binned(6, false, obs);
+    case Observables::S_7_B__KSTAR_E_E:      
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::E, BKstarllConfig::B_Charge::B_PLUS);
+        return S_i_binned(7, false, obs);
+    case Observables::S_8_B__KSTAR_E_E:     
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::E, BKstarllConfig::B_Charge::B_PLUS); 
+        return S_i_binned(8, false, obs);
+    case Observables::S_9_B__KSTAR_E_E:      
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::E, BKstarllConfig::B_Charge::B_PLUS);
+        return S_i_binned(9, false, obs);
+    case Observables::A_3_B__KSTAR_E_E:      
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::E, BKstarllConfig::B_Charge::B_PLUS);
+        return S_i_binned(3, true, obs);
+    case Observables::A_4_B__KSTAR_E_E:     
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::E, BKstarllConfig::B_Charge::B_PLUS); 
+        return S_i_binned(4, true, obs);
+    case Observables::A_5_B__KSTAR_E_E:     
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::E, BKstarllConfig::B_Charge::B_PLUS); 
+        return S_i_binned(5, true, obs);
+    case Observables::A_6S_B__KSTAR_E_E:     
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::E, BKstarllConfig::B_Charge::B_PLUS); 
+        return S_i_binned(6, true, obs);
+    case Observables::A_7_B__KSTAR_E_E:     
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::E, BKstarllConfig::B_Charge::B_PLUS); 
+        return S_i_binned(7, true, obs);
+    case Observables::A_8_B__KSTAR_E_E:     
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::E, BKstarllConfig::B_Charge::B_PLUS); 
+        return S_i_binned(8, true, obs);
+    case Observables::A_9_B__KSTAR_E_E:     
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::E, BKstarllConfig::B_Charge::B_PLUS); 
+        return S_i_binned(9, true, obs);
+    case Observables::P_1_CPV_B__KSTAR_E_E:    
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::E, BKstarllConfig::B_Charge::B_PLUS);  
+        return P_i_CPV_binned(1, obs);
+    case Observables::P_2_CPV_B__KSTAR_E_E:      
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::E, BKstarllConfig::B_Charge::B_PLUS);
+        return P_i_CPV_binned(2, obs);
+    case Observables::P_3_CPV_B__KSTAR_E_E:     
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::E, BKstarllConfig::B_Charge::B_PLUS); 
+        return P_i_CPV_binned(3, obs);
+    case Observables::P_PRIME_4_CPV_B__KSTAR_E_E:    
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::E, BKstarllConfig::B_Charge::B_PLUS);  
+        return Pp_i_binned(4, true, obs);
+    case Observables::P_PRIME_5_CPV_B__KSTAR_E_E:    
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::E, BKstarllConfig::B_Charge::B_PLUS);  
+        return Pp_i_binned(5, true, obs);
+    case Observables::P_PRIME_6_CPV_B__KSTAR_E_E:     
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::E, BKstarllConfig::B_Charge::B_PLUS); 
+        return Pp_i_binned(6, true, obs);
+    case Observables::P_PRIME_8_CPV_B__KSTAR_E_E:     
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::E, BKstarllConfig::B_Charge::B_PLUS); 
+        return Pp_i_binned(8, true, obs);
+    case Observables::DBR_DQ2_B__KSTAR_MU_MU:   
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_PLUS);
+        return dBR_dq2_binned(false, obs);   
+    case Observables::A_FB_B__KSTAR_MU_MU:      
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_PLUS);
+        return A_FB_binned(obs);
+    case Observables::Q0_A_FB_B__KSTAR_MU_MU:    
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_PLUS);  
+        return {q0(obs)};
+    case Observables::A_CP_B__KSTAR_MU_MU:      
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_PLUS);
+        return A_CP_binned(obs);
+    case Observables::F_L_B__KSTAR_MU_MU:      
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_PLUS);
+        return F_L_binned(obs);
+    case Observables::F_T_B__KSTAR_MU_MU:      
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_PLUS);
+        return F_T_binned(obs);
+    case Observables::A_T_1_B__KSTAR_MU_MU:   
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_PLUS);   
+        return A_T_1_binned(obs);
+    case Observables::A_T_2_B__KSTAR_MU_MU:   
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_PLUS);   
+        return A_T_2_binned(obs);
+    case Observables::A_T_3_B__KSTAR_MU_MU:   
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_PLUS);   
+        return A_T_3_binned(obs);
+    case Observables::A_T_4_B__KSTAR_MU_MU:    
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_PLUS);  
+        return A_T_4_binned(obs);
+    case Observables::A_T_5_B__KSTAR_MU_MU:     
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_PLUS); 
+        return A_T_5_binned(obs);
+    case Observables::A_T_RE_B__KSTAR_MU_MU:    
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_PLUS);  
+        return A_T_Re_binned(obs);
+    case Observables::A_T_RE_CPV_B__KSTAR_MU_MU:     
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_PLUS); 
+        return A_T_Re_CPV_binned(obs);
+    case Observables::A_IM_B__KSTAR_MU_MU:      
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_PLUS);
+        return A_Im_binned(obs);
+    case Observables::ALPHA_K_B__KSTAR_MU_MU:     
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_PLUS); 
+        return alpha_K_binned(obs);
+    case Observables::H_T_1_B__KSTAR_MU_MU:     
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_PLUS); 
+        return H_T_1_binned(obs);
+    case Observables::H_T_2_B__KSTAR_MU_MU:     
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_PLUS); 
+        return H_T_2_binned(obs);
+    case Observables::H_T_3_B__KSTAR_MU_MU:      
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_PLUS);
+        return H_T_3_binned(obs);
+    case Observables::P_2_B__KSTAR_MU_MU:      
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_PLUS);
+        return P_2_binned(obs);
+    case Observables::P_3_B__KSTAR_MU_MU:   
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_PLUS);   
+        return P_3_binned(obs);
+    case Observables::P_6_B__KSTAR_MU_MU:   
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_PLUS);   
+        return P_6_binned(obs);
+    case Observables::P_8_B__KSTAR_MU_MU:    
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_PLUS);  
+        return P_8_binned(obs);
+    case Observables::P_PRIME_4_B__KSTAR_MU_MU:     
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_PLUS); 
+        return Pp_i_binned(4, false, obs);
+    case Observables::P_PRIME_5_B__KSTAR_MU_MU:    
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_PLUS);  
+        return Pp_i_binned(5, false, obs);
+    case Observables::P_PRIME_6_B__KSTAR_MU_MU:    
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_PLUS);  
+        return Pp_i_binned(6, false, obs);
+    case Observables::P_PRIME_8_B__KSTAR_MU_MU:     
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_PLUS); 
+        return Pp_i_binned(8, false, obs);
+    case Observables::S_3_B__KSTAR_MU_MU:      
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_PLUS);
+        return S_i_binned(3, false, obs);
+    case Observables::S_4_B__KSTAR_MU_MU:      
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_PLUS);
+        return S_i_binned(4, false, obs);
+    case Observables::S_5_B__KSTAR_MU_MU:      
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_PLUS);
+        return S_i_binned(5, false, obs);
+    case Observables::S_6C_B__KSTAR_MU_MU:    
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_PLUS);  
+        return S_i_binned(6, false, obs);
+    case Observables::S_7_B__KSTAR_MU_MU:      
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_PLUS);
+        return S_i_binned(7, false, obs);
+    case Observables::S_8_B__KSTAR_MU_MU:     
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_PLUS); 
+        return S_i_binned(8, false, obs);
+    case Observables::S_9_B__KSTAR_MU_MU:      
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_PLUS);
+        return S_i_binned(9, false, obs);
+    case Observables::A_3_B__KSTAR_MU_MU:      
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_PLUS);
+        return S_i_binned(3, true, obs);
+    case Observables::A_4_B__KSTAR_MU_MU:     
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_PLUS); 
+        return S_i_binned(4, true, obs);
+    case Observables::A_5_B__KSTAR_MU_MU:     
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_PLUS); 
+        return S_i_binned(5, true, obs);
+    case Observables::A_6S_B__KSTAR_MU_MU:     
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_PLUS); 
+        return S_i_binned(6, true, obs);
+    case Observables::A_7_B__KSTAR_MU_MU:     
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_PLUS); 
+        return S_i_binned(7, true, obs);
+    case Observables::A_8_B__KSTAR_MU_MU:     
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_PLUS); 
+        return S_i_binned(8, true, obs);
+    case Observables::A_9_B__KSTAR_MU_MU:     
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_PLUS); 
+        return S_i_binned(9, true, obs);
+    case Observables::P_1_CPV_B__KSTAR_MU_MU:    
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_PLUS);  
+        return P_i_CPV_binned(1, obs);
+    case Observables::P_2_CPV_B__KSTAR_MU_MU:      
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_PLUS);
+        return P_i_CPV_binned(2, obs);
+    case Observables::P_3_CPV_B__KSTAR_MU_MU:     
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_PLUS); 
+        return P_i_CPV_binned(3, obs);
+    case Observables::P_PRIME_4_CPV_B__KSTAR_MU_MU:    
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_PLUS);  
+        return Pp_i_binned(4, true, obs);
+    case Observables::P_PRIME_5_CPV_B__KSTAR_MU_MU:    
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_PLUS);  
+        return Pp_i_binned(5, true, obs);
+    case Observables::P_PRIME_6_CPV_B__KSTAR_MU_MU:     
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_PLUS); 
+        return Pp_i_binned(6, true, obs);
+    case Observables::P_PRIME_8_CPV_B__KSTAR_MU_MU:     
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_PLUS); 
+        return Pp_i_binned(8, true, obs);
+    case Observables::DBR_DQ2_B__KSTAR_TAU_TAU:   
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::TAU, BKstarllConfig::B_Charge::B_PLUS);
+        return dBR_dq2_binned(false, obs);   
+    case Observables::A_FB_B__KSTAR_TAU_TAU:      
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::TAU, BKstarllConfig::B_Charge::B_PLUS);
+        return A_FB_binned(obs);
+    case Observables::Q0_A_FB_B__KSTAR_TAU_TAU:    
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::TAU, BKstarllConfig::B_Charge::B_PLUS);  
+        return {q0(obs)};
+    case Observables::A_CP_B__KSTAR_TAU_TAU:      
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::TAU, BKstarllConfig::B_Charge::B_PLUS);
+        return A_CP_binned(obs);
+    case Observables::F_L_B__KSTAR_TAU_TAU:      
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::TAU, BKstarllConfig::B_Charge::B_PLUS);
+        return F_L_binned(obs);
+    case Observables::F_T_B__KSTAR_TAU_TAU:      
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::TAU, BKstarllConfig::B_Charge::B_PLUS);
+        return F_T_binned(obs);
+    case Observables::A_T_1_B__KSTAR_TAU_TAU:   
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::TAU, BKstarllConfig::B_Charge::B_PLUS);   
+        return A_T_1_binned(obs);
+    case Observables::A_T_2_B__KSTAR_TAU_TAU:   
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::TAU, BKstarllConfig::B_Charge::B_PLUS);   
+        return A_T_2_binned(obs);
+    case Observables::A_T_3_B__KSTAR_TAU_TAU:   
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::TAU, BKstarllConfig::B_Charge::B_PLUS);   
+        return A_T_3_binned(obs);
+    case Observables::A_T_4_B__KSTAR_TAU_TAU:    
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::TAU, BKstarllConfig::B_Charge::B_PLUS);  
+        return A_T_4_binned(obs);
+    case Observables::A_T_5_B__KSTAR_TAU_TAU:     
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::TAU, BKstarllConfig::B_Charge::B_PLUS); 
+        return A_T_5_binned(obs);
+    case Observables::A_T_RE_B__KSTAR_TAU_TAU:    
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::TAU, BKstarllConfig::B_Charge::B_PLUS);  
+        return A_T_Re_binned(obs);
+    case Observables::A_T_RE_CPV_B__KSTAR_TAU_TAU:     
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::TAU, BKstarllConfig::B_Charge::B_PLUS); 
+        return A_T_Re_CPV_binned(obs);
+    case Observables::A_IM_B__KSTAR_TAU_TAU:      
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::TAU, BKstarllConfig::B_Charge::B_PLUS);
+        return A_Im_binned(obs);
+    case Observables::ALPHA_K_B__KSTAR_TAU_TAU:     
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::TAU, BKstarllConfig::B_Charge::B_PLUS); 
+        return alpha_K_binned(obs);
+    case Observables::H_T_1_B__KSTAR_TAU_TAU:     
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::TAU, BKstarllConfig::B_Charge::B_PLUS); 
+        return H_T_1_binned(obs);
+    case Observables::H_T_2_B__KSTAR_TAU_TAU:     
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::TAU, BKstarllConfig::B_Charge::B_PLUS); 
+        return H_T_2_binned(obs);
+    case Observables::H_T_3_B__KSTAR_TAU_TAU:      
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::TAU, BKstarllConfig::B_Charge::B_PLUS);
+        return H_T_3_binned(obs);
+    case Observables::P_2_B__KSTAR_TAU_TAU:      
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::TAU, BKstarllConfig::B_Charge::B_PLUS);
+        return P_2_binned(obs);
+    case Observables::P_3_B__KSTAR_TAU_TAU:   
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::TAU, BKstarllConfig::B_Charge::B_PLUS);   
+        return P_3_binned(obs);
+    case Observables::P_6_B__KSTAR_TAU_TAU:   
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::TAU, BKstarllConfig::B_Charge::B_PLUS);   
+        return P_6_binned(obs);
+    case Observables::P_8_B__KSTAR_TAU_TAU:    
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::TAU, BKstarllConfig::B_Charge::B_PLUS);  
+        return P_8_binned(obs);
+    case Observables::P_PRIME_4_B__KSTAR_TAU_TAU:     
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::TAU, BKstarllConfig::B_Charge::B_PLUS); 
+        return Pp_i_binned(4, false, obs);
+    case Observables::P_PRIME_5_B__KSTAR_TAU_TAU:    
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::TAU, BKstarllConfig::B_Charge::B_PLUS);  
+        return Pp_i_binned(5, false, obs);
+    case Observables::P_PRIME_6_B__KSTAR_TAU_TAU:    
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::TAU, BKstarllConfig::B_Charge::B_PLUS);  
+        return Pp_i_binned(6, false, obs);
+    case Observables::P_PRIME_8_B__KSTAR_TAU_TAU:     
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::TAU, BKstarllConfig::B_Charge::B_PLUS); 
+        return Pp_i_binned(8, false, obs);
+    case Observables::S_3_B__KSTAR_TAU_TAU:      
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::TAU, BKstarllConfig::B_Charge::B_PLUS);
+        return S_i_binned(3, false, obs);
+    case Observables::S_4_B__KSTAR_TAU_TAU:      
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::TAU, BKstarllConfig::B_Charge::B_PLUS);
+        return S_i_binned(4, false, obs);
+    case Observables::S_5_B__KSTAR_TAU_TAU:      
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::TAU, BKstarllConfig::B_Charge::B_PLUS);
+        return S_i_binned(5, false, obs);
+    case Observables::S_6C_B__KSTAR_TAU_TAU:    
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::TAU, BKstarllConfig::B_Charge::B_PLUS);  
+        return S_i_binned(6, false, obs);
+    case Observables::S_7_B__KSTAR_TAU_TAU:      
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::TAU, BKstarllConfig::B_Charge::B_PLUS);
+        return S_i_binned(7, false, obs);
+    case Observables::S_8_B__KSTAR_TAU_TAU:     
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::TAU, BKstarllConfig::B_Charge::B_PLUS); 
+        return S_i_binned(8, false, obs);
+    case Observables::S_9_B__KSTAR_TAU_TAU:      
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::TAU, BKstarllConfig::B_Charge::B_PLUS);
+        return S_i_binned(9, false, obs);
+    case Observables::A_3_B__KSTAR_TAU_TAU:      
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::TAU, BKstarllConfig::B_Charge::B_PLUS);
+        return S_i_binned(3, true, obs);
+    case Observables::A_4_B__KSTAR_TAU_TAU:     
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::TAU, BKstarllConfig::B_Charge::B_PLUS); 
+        return S_i_binned(4, true, obs);
+    case Observables::A_5_B__KSTAR_TAU_TAU:     
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::TAU, BKstarllConfig::B_Charge::B_PLUS); 
+        return S_i_binned(5, true, obs);
+    case Observables::A_6S_B__KSTAR_TAU_TAU:     
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::TAU, BKstarllConfig::B_Charge::B_PLUS); 
+        return S_i_binned(6, true, obs);
+    case Observables::A_7_B__KSTAR_TAU_TAU:     
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::TAU, BKstarllConfig::B_Charge::B_PLUS); 
+        return S_i_binned(7, true, obs);
+    case Observables::A_8_B__KSTAR_TAU_TAU:     
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::TAU, BKstarllConfig::B_Charge::B_PLUS); 
+        return S_i_binned(8, true, obs);
+    case Observables::A_9_B__KSTAR_TAU_TAU:     
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::TAU, BKstarllConfig::B_Charge::B_PLUS); 
+        return S_i_binned(9, true, obs);
+    case Observables::P_1_CPV_B__KSTAR_TAU_TAU:    
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::TAU, BKstarllConfig::B_Charge::B_PLUS);  
+        return P_i_CPV_binned(1, obs);
+    case Observables::P_2_CPV_B__KSTAR_TAU_TAU:      
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::TAU, BKstarllConfig::B_Charge::B_PLUS);
+        return P_i_CPV_binned(2, obs);
+    case Observables::P_3_CPV_B__KSTAR_TAU_TAU:     
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::TAU, BKstarllConfig::B_Charge::B_PLUS); 
+        return P_i_CPV_binned(3, obs);
+    case Observables::P_PRIME_4_CPV_B__KSTAR_TAU_TAU:    
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::TAU, BKstarllConfig::B_Charge::B_PLUS);  
+        return Pp_i_binned(4, true, obs);
+    case Observables::P_PRIME_5_CPV_B__KSTAR_TAU_TAU:    
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::TAU, BKstarllConfig::B_Charge::B_PLUS);  
+        return Pp_i_binned(5, true, obs);
+    case Observables::P_PRIME_6_CPV_B__KSTAR_TAU_TAU:     
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::TAU, BKstarllConfig::B_Charge::B_PLUS); 
+        return Pp_i_binned(6, true, obs);
+    case Observables::P_PRIME_8_CPV_B__KSTAR_TAU_TAU:     
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::TAU, BKstarllConfig::B_Charge::B_PLUS); 
+        return Pp_i_binned(8, true, obs);
+    case Observables::DGAMMA_DQ2_B0__KSTAR0_E_E:   
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::E, BKstarllConfig::B_Charge::B_0);
+        return dBR_dq2_binned(false, obs);   
+    case Observables::A_FB_B0__KSTAR0_E_E:      
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::E, BKstarllConfig::B_Charge::B_0);
+        return A_FB_binned(obs);
+    case Observables::Q0_A_FB_B0__KSTAR0_E_E:    
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::E, BKstarllConfig::B_Charge::B_0);  
+        return {q0(obs)};
+    case Observables::A_CP_B0__KSTAR0_E_E:      
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::E, BKstarllConfig::B_Charge::B_0);
+        return A_CP_binned(obs);
+    case Observables::F_L_B0__KSTAR0_E_E:      
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::E, BKstarllConfig::B_Charge::B_0);
+        return F_L_binned(obs);
+    case Observables::F_T_B0__KSTAR0_E_E:      
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::E, BKstarllConfig::B_Charge::B_0);
+        return F_T_binned(obs);
+    case Observables::A_T_1_B0__KSTAR0_E_E:   
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::E, BKstarllConfig::B_Charge::B_0);   
+        return A_T_1_binned(obs);
+    case Observables::A_T_2_B0__KSTAR0_E_E:   
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::E, BKstarllConfig::B_Charge::B_0);   
+        return A_T_2_binned(obs);
+    case Observables::A_T_3_B0__KSTAR0_E_E:   
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::E, BKstarllConfig::B_Charge::B_0);   
+        return A_T_3_binned(obs);
+    case Observables::A_T_4_B0__KSTAR0_E_E:    
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::E, BKstarllConfig::B_Charge::B_0);  
+        return A_T_4_binned(obs);
+    case Observables::A_T_5_B0__KSTAR0_E_E:     
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::E, BKstarllConfig::B_Charge::B_0); 
+        return A_T_5_binned(obs);
+    case Observables::A_T_RE_B0__KSTAR0_E_E:    
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::E, BKstarllConfig::B_Charge::B_0);  
+        return A_T_Re_binned(obs);
+    case Observables::A_T_RE_CPV_B0__KSTAR0_E_E:     
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::E, BKstarllConfig::B_Charge::B_0); 
+        return A_T_Re_CPV_binned(obs);
+    case Observables::A_IM_B0__KSTAR0_E_E:      
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::E, BKstarllConfig::B_Charge::B_0);
+        return A_Im_binned(obs);
+    case Observables::ALPHA_K_B0__KSTAR0_E_E:     
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::E, BKstarllConfig::B_Charge::B_0); 
+        return alpha_K_binned(obs);
+    case Observables::H_T_1_B0__KSTAR0_E_E:     
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::E, BKstarllConfig::B_Charge::B_0); 
+        return H_T_1_binned(obs);
+    case Observables::H_T_2_B0__KSTAR0_E_E:     
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::E, BKstarllConfig::B_Charge::B_0); 
+        return H_T_2_binned(obs);
+    case Observables::H_T_3_B0__KSTAR0_E_E:      
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::E, BKstarllConfig::B_Charge::B_0);
+        return H_T_3_binned(obs);
+    case Observables::P_2_B0__KSTAR0_E_E:      
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::E, BKstarllConfig::B_Charge::B_0);
+        return P_2_binned(obs);
+    case Observables::P_3_B0__KSTAR0_E_E:   
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::E, BKstarllConfig::B_Charge::B_0);   
+        return P_3_binned(obs);
+    case Observables::P_6_B0__KSTAR0_E_E:   
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::E, BKstarllConfig::B_Charge::B_0);   
+        return P_6_binned(obs);
+    case Observables::P_8_B0__KSTAR0_E_E:    
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::E, BKstarllConfig::B_Charge::B_0);  
+        return P_8_binned(obs);
+    case Observables::P_PRIME_4_B0__KSTAR0_E_E:     
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::E, BKstarllConfig::B_Charge::B_0); 
+        return Pp_i_binned(4, false, obs);
+    case Observables::P_PRIME_5_B0__KSTAR0_E_E:    
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::E, BKstarllConfig::B_Charge::B_0);  
+        return Pp_i_binned(5, false, obs);
+    case Observables::P_PRIME_6_B0__KSTAR0_E_E:    
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::E, BKstarllConfig::B_Charge::B_0);  
+        return Pp_i_binned(6, false, obs);
+    case Observables::P_PRIME_8_B0__KSTAR0_E_E:     
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::E, BKstarllConfig::B_Charge::B_0); 
+        return Pp_i_binned(8, false, obs);
+    case Observables::S_3_B0__KSTAR0_E_E:      
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::E, BKstarllConfig::B_Charge::B_0);
+        return S_i_binned(3, false, obs);
+    case Observables::S_4_B0__KSTAR0_E_E:      
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::E, BKstarllConfig::B_Charge::B_0);
+        return S_i_binned(4, false, obs);
+    case Observables::S_5_B0__KSTAR0_E_E:      
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::E, BKstarllConfig::B_Charge::B_0);
+        return S_i_binned(5, false, obs);
+    case Observables::S_6C_B0__KSTAR0_E_E:    
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::E, BKstarllConfig::B_Charge::B_0);  
+        return S_i_binned(6, false, obs);
+    case Observables::S_7_B0__KSTAR0_E_E:      
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::E, BKstarllConfig::B_Charge::B_0);
+        return S_i_binned(7, false, obs);
+    case Observables::S_8_B0__KSTAR0_E_E:     
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::E, BKstarllConfig::B_Charge::B_0); 
+        return S_i_binned(8, false, obs);
+    case Observables::S_9_B0__KSTAR0_E_E:      
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::E, BKstarllConfig::B_Charge::B_0);
+        return S_i_binned(9, false, obs);
+    case Observables::A_3_B0__KSTAR0_E_E:      
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::E, BKstarllConfig::B_Charge::B_0);
+        return S_i_binned(3, true, obs);
+    case Observables::A_4_B0__KSTAR0_E_E:     
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::E, BKstarllConfig::B_Charge::B_0); 
+        return S_i_binned(4, true, obs);
+    case Observables::A_5_B0__KSTAR0_E_E:     
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::E, BKstarllConfig::B_Charge::B_0); 
+        return S_i_binned(5, true, obs);
+    case Observables::A_6S_B0__KSTAR0_E_E:     
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::E, BKstarllConfig::B_Charge::B_0); 
+        return S_i_binned(6, true, obs);
+    case Observables::A_7_B0__KSTAR0_E_E:     
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::E, BKstarllConfig::B_Charge::B_0); 
+        return S_i_binned(7, true, obs);
+    case Observables::A_8_B0__KSTAR0_E_E:     
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::E, BKstarllConfig::B_Charge::B_0); 
+        return S_i_binned(8, true, obs);
+    case Observables::A_9_B0__KSTAR0_E_E:     
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::E, BKstarllConfig::B_Charge::B_0); 
+        return S_i_binned(9, true, obs);
+    case Observables::P_1_CPV_B0__KSTAR0_E_E:    
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::E, BKstarllConfig::B_Charge::B_0);  
+        return P_i_CPV_binned(1, obs);
+    case Observables::P_2_CPV_B0__KSTAR0_E_E:      
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::E, BKstarllConfig::B_Charge::B_0);
+        return P_i_CPV_binned(2, obs);
+    case Observables::P_3_CPV_B0__KSTAR0_E_E:     
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::E, BKstarllConfig::B_Charge::B_0); 
+        return P_i_CPV_binned(3, obs);
+    case Observables::P_PRIME_4_CPV_B0__KSTAR0_E_E:    
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::E, BKstarllConfig::B_Charge::B_0);  
+        return Pp_i_binned(4, true, obs);
+    case Observables::P_PRIME_5_CPV_B0__KSTAR0_E_E:    
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::E, BKstarllConfig::B_Charge::B_0);  
+        return Pp_i_binned(5, true, obs);
+    case Observables::P_PRIME_6_CPV_B0__KSTAR0_E_E:     
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::E, BKstarllConfig::B_Charge::B_0); 
+        return Pp_i_binned(6, true, obs);
+    case Observables::P_PRIME_8_CPV_B0__KSTAR0_E_E:     
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::E, BKstarllConfig::B_Charge::B_0); 
+        return Pp_i_binned(8, true, obs);
+    case Observables::DGAMMA_DQ2_B0__KSTAR0_MU_MU:   
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_0);
+        return dBR_dq2_binned(false, obs);   
+    case Observables::A_FB_B0__KSTAR0_MU_MU:      
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_0);
+        return A_FB_binned(obs);
+    case Observables::Q0_A_FB_B0__KSTAR0_MU_MU:    
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_0);  
+        return {q0(obs)};
+    case Observables::A_CP_B0__KSTAR0_MU_MU:      
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_0);
+        return A_CP_binned(obs);
+    case Observables::F_L_B0__KSTAR0_MU_MU:      
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_0);
+        return F_L_binned(obs);
+    case Observables::F_T_B0__KSTAR0_MU_MU:      
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_0);
+        return F_T_binned(obs);
+    case Observables::A_T_1_B0__KSTAR0_MU_MU:   
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_0);   
+        return A_T_1_binned(obs);
+    case Observables::A_T_2_B0__KSTAR0_MU_MU:   
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_0);   
+        return A_T_2_binned(obs);
+    case Observables::A_T_3_B0__KSTAR0_MU_MU:   
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_0);   
+        return A_T_3_binned(obs);
+    case Observables::A_T_4_B0__KSTAR0_MU_MU:    
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_0);  
+        return A_T_4_binned(obs);
+    case Observables::A_T_5_B0__KSTAR0_MU_MU:     
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_0); 
+        return A_T_5_binned(obs);
+    case Observables::A_T_RE_B0__KSTAR0_MU_MU:    
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_0);  
+        return A_T_Re_binned(obs);
+    case Observables::A_T_RE_CPV_B0__KSTAR0_MU_MU:     
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_0); 
+        return A_T_Re_CPV_binned(obs);
+    case Observables::A_IM_B0__KSTAR0_MU_MU:      
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_0);
+        return A_Im_binned(obs);
+    case Observables::ALPHA_K_B0__KSTAR0_MU_MU:     
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_0); 
+        return alpha_K_binned(obs);
+    case Observables::H_T_1_B0__KSTAR0_MU_MU:     
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_0); 
+        return H_T_1_binned(obs);
+    case Observables::H_T_2_B0__KSTAR0_MU_MU:     
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_0); 
+        return H_T_2_binned(obs);
+    case Observables::H_T_3_B0__KSTAR0_MU_MU:      
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_0);
+        return H_T_3_binned(obs);
+    case Observables::P_2_B0__KSTAR0_MU_MU:      
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_0);
+        return P_2_binned(obs);
+    case Observables::P_3_B0__KSTAR0_MU_MU:   
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_0);   
+        return P_3_binned(obs);
+    case Observables::P_6_B0__KSTAR0_MU_MU:   
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_0);   
+        return P_6_binned(obs);
+    case Observables::P_8_B0__KSTAR0_MU_MU:    
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_0);  
+        return P_8_binned(obs);
+    case Observables::P_PRIME_4_B0__KSTAR0_MU_MU:     
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_0); 
+        return Pp_i_binned(4, false, obs);
+    case Observables::P_PRIME_5_B0__KSTAR0_MU_MU:    
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_0);  
+        return Pp_i_binned(5, false, obs);
+    case Observables::P_PRIME_6_B0__KSTAR0_MU_MU:    
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_0);  
+        return Pp_i_binned(6, false, obs);
+    case Observables::P_PRIME_8_B0__KSTAR0_MU_MU:     
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_0); 
+        return Pp_i_binned(8, false, obs);
+    case Observables::S_3_B0__KSTAR0_MU_MU:      
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_0);
+        return S_i_binned(3, false, obs);
+    case Observables::S_4_B0__KSTAR0_MU_MU:      
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_0);
+        return S_i_binned(4, false, obs);
+    case Observables::S_5_B0__KSTAR0_MU_MU:      
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_0);
+        return S_i_binned(5, false, obs);
+    case Observables::S_6C_B0__KSTAR0_MU_MU:    
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_0);  
+        return S_i_binned(6, false, obs);
+    case Observables::S_7_B0__KSTAR0_MU_MU:      
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_0);
+        return S_i_binned(7, false, obs);
+    case Observables::S_8_B0__KSTAR0_MU_MU:     
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_0); 
+        return S_i_binned(8, false, obs);
+    case Observables::S_9_B0__KSTAR0_MU_MU:      
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_0);
+        return S_i_binned(9, false, obs);
+    case Observables::A_3_B0__KSTAR0_MU_MU:      
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_0);
+        return S_i_binned(3, true, obs);
+    case Observables::A_4_B0__KSTAR0_MU_MU:     
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_0); 
+        return S_i_binned(4, true, obs);
+    case Observables::A_5_B0__KSTAR0_MU_MU:     
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_0); 
+        return S_i_binned(5, true, obs);
+    case Observables::A_6S_B0__KSTAR0_MU_MU:     
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_0); 
+        return S_i_binned(6, true, obs);
+    case Observables::A_7_B0__KSTAR0_MU_MU:     
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_0); 
+        return S_i_binned(7, true, obs);
+    case Observables::A_8_B0__KSTAR0_MU_MU:     
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_0); 
+        return S_i_binned(8, true, obs);
+    case Observables::A_9_B0__KSTAR0_MU_MU:     
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_0); 
+        return S_i_binned(9, true, obs);
+    case Observables::P_1_CPV_B0__KSTAR0_MU_MU:    
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_0);  
+        return P_i_CPV_binned(1, obs);
+    case Observables::P_2_CPV_B0__KSTAR0_MU_MU:      
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_0);
+        return P_i_CPV_binned(2, obs);
+    case Observables::P_3_CPV_B0__KSTAR0_MU_MU:     
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_0); 
+        return P_i_CPV_binned(3, obs);
+    case Observables::P_PRIME_4_CPV_B0__KSTAR0_MU_MU:    
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_0);  
+        return Pp_i_binned(4, true, obs);
+    case Observables::P_PRIME_5_CPV_B0__KSTAR0_MU_MU:    
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_0);  
+        return Pp_i_binned(5, true, obs);
+    case Observables::P_PRIME_6_CPV_B0__KSTAR0_MU_MU:     
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_0); 
+        return Pp_i_binned(6, true, obs);
+    case Observables::P_PRIME_8_CPV_B0__KSTAR0_MU_MU:     
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_0); 
+        return Pp_i_binned(8, true, obs);
+    case Observables::DGAMMA_DQ2_B0__KSTAR0_TAU_TAU:   
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::TAU, BKstarllConfig::B_Charge::B_0);
+        return dBR_dq2_binned(false, obs);   
+    case Observables::A_FB_B0__KSTAR0_TAU_TAU:      
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::TAU, BKstarllConfig::B_Charge::B_0);
+        return A_FB_binned(obs);
+    case Observables::Q0_A_FB_B0__KSTAR0_TAU_TAU:    
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::TAU, BKstarllConfig::B_Charge::B_0);  
+        return {q0(obs)};
+    case Observables::A_CP_B0__KSTAR0_TAU_TAU:      
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::TAU, BKstarllConfig::B_Charge::B_0);
+        return A_CP_binned(obs);
+    case Observables::F_L_B0__KSTAR0_TAU_TAU:      
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::TAU, BKstarllConfig::B_Charge::B_0);
+        return F_L_binned(obs);
+    case Observables::F_T_B0__KSTAR0_TAU_TAU:      
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::TAU, BKstarllConfig::B_Charge::B_0);
+        return F_T_binned(obs);
+    case Observables::A_T_1_B0__KSTAR0_TAU_TAU:   
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::TAU, BKstarllConfig::B_Charge::B_0);   
+        return A_T_1_binned(obs);
+    case Observables::A_T_2_B0__KSTAR0_TAU_TAU:   
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::TAU, BKstarllConfig::B_Charge::B_0);   
+        return A_T_2_binned(obs);
+    case Observables::A_T_3_B0__KSTAR0_TAU_TAU:   
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::TAU, BKstarllConfig::B_Charge::B_0);   
+        return A_T_3_binned(obs);
+    case Observables::A_T_4_B0__KSTAR0_TAU_TAU:    
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::TAU, BKstarllConfig::B_Charge::B_0);  
+        return A_T_4_binned(obs);
+    case Observables::A_T_5_B0__KSTAR0_TAU_TAU:     
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::TAU, BKstarllConfig::B_Charge::B_0); 
+        return A_T_5_binned(obs);
+    case Observables::A_T_RE_B0__KSTAR0_TAU_TAU:    
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::TAU, BKstarllConfig::B_Charge::B_0);  
+        return A_T_Re_binned(obs);
+    case Observables::A_T_RE_CPV_B0__KSTAR0_TAU_TAU:     
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::TAU, BKstarllConfig::B_Charge::B_0); 
+        return A_T_Re_CPV_binned(obs);
+    case Observables::A_IM_B0__KSTAR0_TAU_TAU:      
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::TAU, BKstarllConfig::B_Charge::B_0);
+        return A_Im_binned(obs);
+    case Observables::ALPHA_K_B0__KSTAR0_TAU_TAU:     
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::TAU, BKstarllConfig::B_Charge::B_0); 
+        return alpha_K_binned(obs);
+    case Observables::H_T_1_B0__KSTAR0_TAU_TAU:     
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::TAU, BKstarllConfig::B_Charge::B_0); 
+        return H_T_1_binned(obs);
+    case Observables::H_T_2_B0__KSTAR0_TAU_TAU:     
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::TAU, BKstarllConfig::B_Charge::B_0); 
+        return H_T_2_binned(obs);
+    case Observables::H_T_3_B0__KSTAR0_TAU_TAU:      
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::TAU, BKstarllConfig::B_Charge::B_0);
+        return H_T_3_binned(obs);
+    case Observables::P_2_B0__KSTAR0_TAU_TAU:      
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::TAU, BKstarllConfig::B_Charge::B_0);
+        return P_2_binned(obs);
+    case Observables::P_3_B0__KSTAR0_TAU_TAU:   
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::TAU, BKstarllConfig::B_Charge::B_0);   
+        return P_3_binned(obs);
+    case Observables::P_6_B0__KSTAR0_TAU_TAU:   
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::TAU, BKstarllConfig::B_Charge::B_0);   
+        return P_6_binned(obs);
+    case Observables::P_8_B0__KSTAR0_TAU_TAU:    
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::TAU, BKstarllConfig::B_Charge::B_0);  
+        return P_8_binned(obs);
+    case Observables::P_PRIME_4_B0__KSTAR0_TAU_TAU:     
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::TAU, BKstarllConfig::B_Charge::B_0); 
+        return Pp_i_binned(4, false, obs);
+    case Observables::P_PRIME_5_B0__KSTAR0_TAU_TAU:    
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::TAU, BKstarllConfig::B_Charge::B_0);  
+        return Pp_i_binned(5, false, obs);
+    case Observables::P_PRIME_6_B0__KSTAR0_TAU_TAU:    
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::TAU, BKstarllConfig::B_Charge::B_0);  
+        return Pp_i_binned(6, false, obs);
+    case Observables::P_PRIME_8_B0__KSTAR0_TAU_TAU:     
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::TAU, BKstarllConfig::B_Charge::B_0); 
+        return Pp_i_binned(8, false, obs);
+    case Observables::S_3_B0__KSTAR0_TAU_TAU:      
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::TAU, BKstarllConfig::B_Charge::B_0);
+        return S_i_binned(3, false, obs);
+    case Observables::S_4_B0__KSTAR0_TAU_TAU:      
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::TAU, BKstarllConfig::B_Charge::B_0);
+        return S_i_binned(4, false, obs);
+    case Observables::S_5_B0__KSTAR0_TAU_TAU:      
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::TAU, BKstarllConfig::B_Charge::B_0);
+        return S_i_binned(5, false, obs);
+    case Observables::S_6C_B0__KSTAR0_TAU_TAU:    
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::TAU, BKstarllConfig::B_Charge::B_0);  
+        return S_i_binned(6, false, obs);
+    case Observables::S_7_B0__KSTAR0_TAU_TAU:      
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::TAU, BKstarllConfig::B_Charge::B_0);
+        return S_i_binned(7, false, obs);
+    case Observables::S_8_B0__KSTAR0_TAU_TAU:     
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::TAU, BKstarllConfig::B_Charge::B_0); 
+        return S_i_binned(8, false, obs);
+    case Observables::S_9_B0__KSTAR0_TAU_TAU:      
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::TAU, BKstarllConfig::B_Charge::B_0);
+        return S_i_binned(9, false, obs);
+    case Observables::A_3_B0__KSTAR0_TAU_TAU:      
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::TAU, BKstarllConfig::B_Charge::B_0);
+        return S_i_binned(3, true, obs);
+    case Observables::A_4_B0__KSTAR0_TAU_TAU:     
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::TAU, BKstarllConfig::B_Charge::B_0); 
+        return S_i_binned(4, true, obs);
+    case Observables::A_5_B0__KSTAR0_TAU_TAU:     
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::TAU, BKstarllConfig::B_Charge::B_0); 
+        return S_i_binned(5, true, obs);
+    case Observables::A_6S_B0__KSTAR0_TAU_TAU:     
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::TAU, BKstarllConfig::B_Charge::B_0); 
+        return S_i_binned(6, true, obs);
+    case Observables::A_7_B0__KSTAR0_TAU_TAU:     
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::TAU, BKstarllConfig::B_Charge::B_0); 
+        return S_i_binned(7, true, obs);
+    case Observables::A_8_B0__KSTAR0_TAU_TAU:     
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::TAU, BKstarllConfig::B_Charge::B_0); 
+        return S_i_binned(8, true, obs);
+    case Observables::A_9_B0__KSTAR0_TAU_TAU:     
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::TAU, BKstarllConfig::B_Charge::B_0); 
+        return S_i_binned(9, true, obs);
+    case Observables::P_1_CPV_B0__KSTAR0_TAU_TAU:    
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::TAU, BKstarllConfig::B_Charge::B_0);  
+        return P_i_CPV_binned(1, obs);
+    case Observables::P_2_CPV_B0__KSTAR0_TAU_TAU:      
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::TAU, BKstarllConfig::B_Charge::B_0);
+        return P_i_CPV_binned(2, obs);
+    case Observables::P_3_CPV_B0__KSTAR0_TAU_TAU:     
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::TAU, BKstarllConfig::B_Charge::B_0); 
+        return P_i_CPV_binned(3, obs);
+    case Observables::P_PRIME_4_CPV_B0__KSTAR0_TAU_TAU:    
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::TAU, BKstarllConfig::B_Charge::B_0);  
+        return Pp_i_binned(4, true, obs);
+    case Observables::P_PRIME_5_CPV_B0__KSTAR0_TAU_TAU:    
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::TAU, BKstarllConfig::B_Charge::B_0);  
+        return Pp_i_binned(5, true, obs);
+    case Observables::P_PRIME_6_CPV_B0__KSTAR0_TAU_TAU:     
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::TAU, BKstarllConfig::B_Charge::B_0); 
+        return Pp_i_binned(6, true, obs);
+    case Observables::P_PRIME_8_CPV_B0__KSTAR0_TAU_TAU:     
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::TAU, BKstarllConfig::B_Charge::B_0); 
+        return Pp_i_binned(8, true, obs);
     default:
         LOG_ERROR("IndexError", "Observable", ObservableMapper::str(obs), "doesn't belong to the decay", DecayMapper::str(this->id));
     }

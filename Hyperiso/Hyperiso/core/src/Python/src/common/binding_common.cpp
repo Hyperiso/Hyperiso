@@ -78,7 +78,7 @@ void init_common(py::module &m) {
         .value("BR_BD_MUMU", Observables::BR_BD_MUMU)
         .value("R_TAU_NU", Observables::R_TAU_NU)
         .value("BR_BU_TAU_NU", Observables::BR_BU_TAU_NU)
-        .value("ISOSPIN_ASYMMETRY_B_KSTAR_GAMMA", Observables::ISOSPIN_ASYMMETRY_B_KSTAR_GAMMA)
+        .value("IA_B__KSTAR_GAMMA", Observables::IA_B__KSTAR_GAMMA)
         .value("BR_B__KSTAR_GAMMA", Observables::BR_B__KSTAR_GAMMA)
         .value("BR_B_XS_GAMMA", Observables::BR_B_XS_GAMMA)
         .value("BR_B__D_TAU_NU", Observables::BR_B__D_TAU_NU)

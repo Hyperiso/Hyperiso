@@ -15,7 +15,7 @@ Vector FlatMarginal::rvs(std::size_t n) {
 }
 
 double FlatMarginal::logpdf(double x) {
-    return std::log(gsl_ran_flat_pdf(x, a, b));
+    return (x > a && x < b) ? std::log(gsl_ran_flat_pdf(x, a, b)) : -1e100;
 }
 
 double FlatMarginal::cdf(double x) {

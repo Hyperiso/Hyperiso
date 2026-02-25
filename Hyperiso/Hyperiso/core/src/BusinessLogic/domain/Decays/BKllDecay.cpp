@@ -2,6 +2,54 @@
 
 using Charge = BKllConfig::B_Charge;
 
+const std::unordered_set<ObservableId> BKllDecay::dG_dq2_ids = {
+    ObservableMapper::to_id(Observables::DBR_DQ2_B0__K0_E_E), 
+    ObservableMapper::to_id(Observables::DBR_DQ2_B0__K0_MU_MU), 
+    ObservableMapper::to_id(Observables::DBR_DQ2_B0__K0_TAU_TAU), 
+    ObservableMapper::to_id(Observables::DBR_DQ2_B__K_E_E), 
+    ObservableMapper::to_id(Observables::DBR_DQ2_B__K_MU_MU), 
+    ObservableMapper::to_id(Observables::DBR_DQ2_B__K_TAU_TAU)
+};
+
+const std::unordered_set<ObservableId> BKllDecay::A_FB_ids = {
+    ObservableMapper::to_id(Observables::A_FB_B0__K0_E_E), 
+    ObservableMapper::to_id(Observables::A_FB_B0__K0_MU_MU), 
+    ObservableMapper::to_id(Observables::A_FB_B0__K0_TAU_TAU), 
+    ObservableMapper::to_id(Observables::A_FB_B__K_E_E), 
+    ObservableMapper::to_id(Observables::A_FB_B__K_MU_MU), 
+    ObservableMapper::to_id(Observables::A_FB_B__K_TAU_TAU)
+};
+
+const std::unordered_set<ObservableId> BKllDecay::F_H_ids = {
+    ObservableMapper::to_id(Observables::F_H_B0__K0_E_E), 
+    ObservableMapper::to_id(Observables::F_H_B0__K0_MU_MU), 
+    ObservableMapper::to_id(Observables::F_H_B0__K0_TAU_TAU), 
+    ObservableMapper::to_id(Observables::F_H_B__K_E_E), 
+    ObservableMapper::to_id(Observables::F_H_B__K_MU_MU), 
+    ObservableMapper::to_id(Observables::F_H_B__K_TAU_TAU)
+};
+
+const std::map<Observables, std::pair<BKllConfig::Lepton, BKllConfig::B_Charge>> BKllDecay::cfg_map {
+    {Observables::DBR_DQ2_B0__K0_E_E, {BKllConfig::Lepton::E, BKllConfig::B_Charge::B_0}},
+    {Observables::A_FB_B0__K0_E_E, {BKllConfig::Lepton::E, BKllConfig::B_Charge::B_0}},
+    {Observables::F_H_B0__K0_E_E, {BKllConfig::Lepton::E, BKllConfig::B_Charge::B_0}},
+    {Observables::DBR_DQ2_B__K_E_E, {BKllConfig::Lepton::E, BKllConfig::B_Charge::B_PLUS}},
+    {Observables::A_FB_B__K_E_E, {BKllConfig::Lepton::E, BKllConfig::B_Charge::B_PLUS}},
+    {Observables::F_H_B__K_E_E, {BKllConfig::Lepton::E, BKllConfig::B_Charge::B_PLUS}},
+    {Observables::DBR_DQ2_B0__K0_MU_MU, {BKllConfig::Lepton::MU, BKllConfig::B_Charge::B_0}},
+    {Observables::A_FB_B0__K0_MU_MU, {BKllConfig::Lepton::MU, BKllConfig::B_Charge::B_0}},
+    {Observables::F_H_B0__K0_MU_MU, {BKllConfig::Lepton::MU, BKllConfig::B_Charge::B_0}},
+    {Observables::DBR_DQ2_B__K_MU_MU, {BKllConfig::Lepton::MU, BKllConfig::B_Charge::B_PLUS}},
+    {Observables::A_FB_B__K_MU_MU, {BKllConfig::Lepton::MU, BKllConfig::B_Charge::B_PLUS}},
+    {Observables::F_H_B__K_MU_MU, {BKllConfig::Lepton::MU, BKllConfig::B_Charge::B_PLUS}},
+    {Observables::DBR_DQ2_B0__K0_TAU_TAU, {BKllConfig::Lepton::TAU, BKllConfig::B_Charge::B_0}},
+    {Observables::A_FB_B0__K0_TAU_TAU, {BKllConfig::Lepton::TAU, BKllConfig::B_Charge::B_0}},
+    {Observables::F_H_B0__K0_TAU_TAU, {BKllConfig::Lepton::TAU, BKllConfig::B_Charge::B_0}},
+    {Observables::DBR_DQ2_B__K_TAU_TAU, {BKllConfig::Lepton::TAU, BKllConfig::B_Charge::B_PLUS}},
+    {Observables::A_FB_B__K_TAU_TAU, {BKllConfig::Lepton::TAU, BKllConfig::B_Charge::B_PLUS}},
+    {Observables::F_H_B__K_TAU_TAU, {BKllConfig::Lepton::TAU, BKllConfig::B_Charge::B_PLUS}},
+};
+
 void BKllDecay::load_params() {
     fill_wilson_cache();
 
@@ -85,6 +133,7 @@ void BKllDecay::load_cfg_dependent_params() {
     cache.m_l = (*p)(ParamId{ParameterType::SM, "MASS", 11 + 2 * (int)cfg.gen}, DataType::VALUE);
     cache.m_B = (*p)(ParamId{ParameterType::FLAVOR, "FMASS", cfg.charge == Charge::B_0 ? 511 : 521}, DataType::VALUE);
     cache.m_K = (*p)(ParamId{ParameterType::FLAVOR, "FMASS", cfg.charge == Charge::B_0 ? 311 : 321}, DataType::VALUE);
+    cache.life_B = (*p)(ParamId{ParameterType::FLAVOR, "FLIFE", cfg.charge == Charge::B_0 ? 511 : 521}, DataType::VALUE);
     cache.q2_min = 4 * std::pow(cache.m_l, 2);
     cache.q2_max = std::pow(cache.m_B - cache.m_K, 2);
     cache.N_0 = std::pow(std::abs(std::conj((*p)(ParamId{ParameterType::SM, "VCKM", {2, 1}}, DataType::VALUE)) * (*p)(ParamId{ParameterType::SM, "VCKM", {2, 2}}, DataType::VALUE)) * cache.G_F * cache.alpha_em, 2) / (512. * std::pow(PI, 5) * std::pow(cache.m_B, 3));
@@ -173,8 +222,8 @@ complex_t BKllDecay::F_P_low(double q2) {
         f0_fp = cache.ff_calculator.get(BP_FF::F_0, q2) / f_p;
     }
 
-    printf("Delta_P_0(s = %.5f GeV²) = %.4e\n", q2, cache.qcdf_calculator.Delta_P_0(q2));
-	printf("f0_fp(s = %.5f GeV²) = %.4e\n", q2, f0_fp);
+    // printf("Delta_P_0(s = %.5f GeV²) = %.4e\n", q2, cache.qcdf_calculator.Delta_P_0(q2));
+	// printf("f0_fp(s = %.5f GeV²) = %.4e\n", q2, f0_fp);
 
     return f_p * ((std::pow(cache.m_B, 2) - std::pow(cache.m_K, 2)) / (2 * (cache.m_b_mu_b - cache.m_s)) * f0_fp * (cache.C[WCoef::CQ2] + cache.C[WCoef::CPQ2])
                     - cache.m_l * (cache.C[WCoef::C10] + cache.C[WCoef::CP10]) * (1. - (std::pow(cache.m_B, 2) - std::pow(cache.m_K, 2)) / q2 * (f0_fp - 1.)));
@@ -206,7 +255,6 @@ complex_t BKllDecay::C9_eff(double q2) {
     complex_t C_mc = 8. * ((4./9.*cache.C[WCoef::C1]+1./3.*cache.C[WCoef::C2])*(1.+cache.lambda_hat_u)+2.*cache.C[WCoef::C3]+20.*cache.C[WCoef::C5]);
 
     double s_hat = q2 / std::pow(cache.m_b_PS, 2);
-    // complex_t A = BV::A_Seidel(s_hat, cache.L_b);//TODO : niels ?
     complex_t B = BV::B_Seidel(s_hat, cache.L_b);
     complex_t C = BV::C_Seidel(q2, cache.mu_b);
 
@@ -291,49 +339,47 @@ void BKllDecay::compute_binned_abc() {
     }
 }
 
-std::vector<ObservableValue> BKllDecay::dG_dq2() {
+std::vector<ObservableValue> BKllDecay::dBR_dq2(Observables oid) {
     std::vector<ObservableValue> out;
-    ObservableId id = ObservableMapper::to_id(Observables::DGAMMA_DQ2_B__K_L_L);
     for (size_t i = 0; i < cfg.bins.size(); i++) {
-        double res = 2 * (cache.abc_binned[0][i] + cache.abc_binned[2][i] / 3.); 
-        out.emplace_back(id, res, cfg.bins[i]);
+        double res = 2 * (cache.abc_binned[0][i] + cache.abc_binned[2][i] / 3.) * cache.life_B; 
+        out.emplace_back(ObservableMapper::to_id(oid), res, cfg.bins[i]);
     }   
     return out;
 }
 
-std::vector<ObservableValue> BKllDecay::A_FB() {
+std::vector<ObservableValue> BKllDecay::A_FB(Observables oid) {
     std::vector<ObservableValue> out;
-    ObservableId id = ObservableMapper::to_id(Observables::A_FB_B__K_L_L);
     for (size_t i = 0; i < cfg.bins.size(); i++) {
         double res = cache.abc_binned[1][i] / (2 * (cache.abc_binned[0][i] + cache.abc_binned[2][i] / 3.)); 
-        out.emplace_back(id, res, cfg.bins[i]);
+        out.emplace_back(ObservableMapper::to_id(oid), res, cfg.bins[i]);
     }   
     return out;
 }
 
-std::vector<ObservableValue> BKllDecay::F_H() {
+std::vector<ObservableValue> BKllDecay::F_H(Observables oid) {
     std::vector<ObservableValue> out;
-    ObservableId id = ObservableMapper::to_id(Observables::F_H_B__K_L_L);
     for (size_t i = 0; i < cfg.bins.size(); i++) {
         double res = (cache.abc_binned[0][i] + cache.abc_binned[2][i]) / (cache.abc_binned[0][i] + cache.abc_binned[2][i] / 3.); 
-        out.emplace_back(id, res, cfg.bins[i]);
+        out.emplace_back(ObservableMapper::to_id(oid), res, cfg.bins[i]);
     }   
     return out;
 }
 
 std::vector<ObservableValue> BKllDecay::compute_observable(Observables obs) {
-    switch (obs) {
-    case Observables::TEST:
-        return {};
-    case Observables::DGAMMA_DQ2_B__K_L_L:   
-        return dG_dq2();
-    case Observables::A_FB_B__K_L_L:   
-        return A_FB();
-    case Observables::F_H_B__K_L_L:   
-        return F_H();
-    default:
-        LOG_ERROR("IndexError", "Observable", ObservableMapper::str(obs), "doesn't belong to the decay", DecayMapper::str(this->id));
-    }
+    auto flags = BKllDecay::cfg_map.at(obs);
+    set_lepton_gen_and_charge(flags.first, flags.second);
+
+    if (BKllDecay::dG_dq2_ids.contains(ObservableMapper::to_id(obs))) 
+        return dBR_dq2(obs);
+
+    if (BKllDecay::A_FB_ids.contains(ObservableMapper::to_id(obs))) 
+        return A_FB(obs);
+
+    if (BKllDecay::F_H_ids.contains(ObservableMapper::to_id(obs))) 
+        return F_H(obs);
+
+    LOG_ERROR("IndexError", "Observable", ObservableMapper::str(obs), "doesn't belong to the decay", DecayMapper::str(this->id));
 }
 
 std::vector<ObservableValue> BKllDecay::compute_observable(ObservableId obs) {

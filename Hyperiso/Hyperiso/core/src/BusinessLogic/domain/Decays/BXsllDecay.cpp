@@ -1,12 +1,12 @@
 #include "BXsllDecay.h"
 
 void BXsllDecay::load_params() {
-    cache.cc_res_mass = {3.096916, 3.68609,   3.77292, 4.039 , 4.153  , 4.421 };
-    cache.cc_res_br = {5.93e-2 , 7.7e-3 ,   1.1e-5 , 1.4e-5, 1.0e-5 , 1.1e-5};
-    cache.cc_res_width_tot = {9.29e-5 , 3.04e-4,   2.73e-2, 8.0e-2, 1.03e-1, 6.2e-2};
-    cache.cc_res_width_had = {8.147e-5, 2.9746e-4, 2.36e-2, 5.2e-2, 7.8e-2 , 4.3e-2};
-    cache.q2_low_bound = {1., 6.};
-    cache.q2_high_bound = {14.4, 22.};
+    cache.cc_res_mass =         {3.096916, 3.68609,   3.77292, 4.039 , 4.153  , 4.421 };
+    cache.cc_res_br =           {5.93e-2 , 7.7e-3 ,   1.1e-5 , 1.4e-5, 1.0e-5 , 1.1e-5};
+    cache.cc_res_width_tot =    {9.29e-5 , 3.04e-4,   2.73e-2, 8.0e-2, 1.03e-1, 6.2e-2};
+    cache.cc_res_width_had =    {8.147e-5, 2.9746e-4, 2.36e-2, 5.2e-2, 7.8e-2 , 4.3e-2};
+
+    fill_wilson_cache();
 
     cache.alpha_em = (*p)(ParamId{ParameterType::SM, "EW", {1, 1}}, DataType::VALUE);
     double m_c = (*p)(ParamId{ParameterType::SM, "MASS", 4}, DataType::VALUE);
@@ -15,16 +15,12 @@ void BXsllDecay::load_params() {
     complex_t V_ts = (*p)(ParamId{ParameterType::SM, "VCKM", {2, 1}}, DataType::VALUE);
     complex_t V_cb = (*p)(ParamId{ParameterType::SM, "VCKM", {1, 2}}, DataType::VALUE);
     complex_t V_cs = (*p)(ParamId{ParameterType::SM, "VCKM", {1, 1}}, DataType::VALUE);
-    cache.m_mu_hat = (*p)(ParamId{ParameterType::SM, "MASS", 13}, DataType::VALUE) / cache.m_b_1S;
-    cache.m_tau_hat = (*p)(ParamId{ParameterType::SM, "MASS", 15}, DataType::VALUE) / cache.m_b_1S;
     cache.m_c_hat = m_c / cache.m_b_1S;
     cache.m_D_hat = (*p)(ParamId{ParameterType::FLAVOR, "FMASS", 421}, DataType::VALUE) / cache.m_b_1S;
     cache.alpha_s_mu_b = (*iobs_qcdp)(AlphasConfig(w_config.hadronic_scale, MassType::POLE, MassType::POLE));
     cache.z = std::pow(cache.m_c_hat, 2);
     cache.L_b = std::log(w_config.hadronic_scale / cache.m_b_1S);
     cache.L_b_5GeV = std::log(w_config.hadronic_scale / 5.0);
-    cache.L_l_mu = -2 * std::log(cache.m_mu_hat);
-    cache.L_l_tau = -2 * std::log(cache.m_tau_hat);
 
     cache.pref_dB0_ds = 1. + 3. * (*p)(ParamId{ParameterType::DECAY, "B_Xs", 6}, DataType::VALUE) * g_lambda(cache.z) / (2. * pow(cache.m_b_1S, 2) * f(cache.z)) - (*p)(ParamId{ParameterType::DECAY, "B_Xsll", 2}, DataType::VALUE) * g_rho(cache.z) / (6. * pow(cache.m_b_1S, 3) * f(cache.z));
     cache.pref_dB_ds = (*p)(ParamId{ParameterType::DECAY, "B_Xs", 2}, DataType::VALUE) * std::pow(std::abs(V_tb * std::conj(V_ts) / V_cb), 2) / (std::pow(2 * PI / cache.alpha_em, 2) * f(cache.z) * kappa(cache.z));
@@ -36,29 +32,18 @@ void BXsllDecay::load_params() {
     cache.pref_delta_brems = cache.alpha_s_mu_b / (4. * PI);
     cache.pref_delta_em = cache.alpha_em / (4. * PI);
 
-    cache.C = w_proxy->getAFR(WGroup::B, w_config.order);
-    auto C_P = w_proxy->getAFR(WGroup::BPrime, w_config.order);
-    auto C_S = w_proxy->getAFR(WGroup::BScalar, w_config.order);
-    cache.C.insert(C_P.begin(), C_P.end());
-    cache.C.insert(C_S.begin(), C_S.end());
-
-    cache.C_LO = w_proxy->getAR(WGroup::B, QCDOrder::LO);
-    auto C_P_LO = w_proxy->getAR(WGroup::BPrime, QCDOrder::LO);
-    cache.C_LO.insert(C_P_LO.begin(), C_P_LO.end());
-
     size_t ff_order {20};
     fill_cache(BV::f_17, 0, 1, cache.F_17_lookup, cache.L_b, cache.z, ff_order);
     fill_cache(BV::f_27, 0, 1, cache.F_27_lookup, cache.L_b, cache.z, ff_order);
     fill_cache(BV::f_19_1S, 0, 1, cache.F_19_lookup, cache.L_b, cache.z, ff_order);
     fill_cache(BV::f_29_1S, 0, 1, cache.F_29_lookup, cache.L_b, cache.z, ff_order);
 
-    auto hatify = [this] (double q2) { return q2 / pow(cache.m_b_1S, 2); };
-    cache.s_hat_low_bound = {hatify(cache.q2_low_bound.first), hatify(cache.q2_low_bound.second)};
-    cache.s_hat_high_bound = {hatify(cache.q2_high_bound.first), hatify(cache.q2_high_bound.second)};
-
     auto bound_func = std::bind(&BXsllDecay::delta_bremB_base, &*this, std::placeholders::_1);
-    fill_cache(bound_func, cache.s_hat_low_bound.first, cache.s_hat_low_bound.second, cache.delta_brems_lookup_low);
-    fill_cache(bound_func, cache.s_hat_high_bound.first, cache.s_hat_high_bound.second, cache.delta_brems_lookup_high);
+    fill_cache(bound_func, 0, 1, cache.delta_brems_lookup);
+
+    load_cfg_dep_params();
+
+    // auto hatify = [this] (double q2) { return q2 / pow(cache.m_b_1S, 2); };
 
     // printf("alpha = %.5e\n", cache.alpha_em);
     // printf("m_b_1S = %.5e\n", cache.m_b_1S);
@@ -116,6 +101,30 @@ void BXsllDecay::load_params() {
     // printf("dB_brems A (s = %.4f) = %.4e\n", s, cache.pref_dB_ds * cache.pref_delta_brems * (delta_bremA(s)));
     // printf("dB_brems B (s = %.4f) = %.4e\n", s, cache.pref_dB_ds * cache.pref_delta_brems * (delta_bremB(s)));
     // printf("dB_em (s = %.4f) = %.4e\n", s, cache.pref_dB_ds * cache.pref_delta_em * delta_em(s, cache.L_l_mu));
+}
+
+void BXsllDecay::set_cfg_flags(BXsllConfig::Lepton gen) {
+    if (cfg.gen != gen) {
+        cfg.gen = gen;
+        load_cfg_dep_params();  
+    }
+}
+
+void BXsllDecay::fill_wilson_cache() {
+    cache.C = w_proxy->getAFR(WGroup::B, w_config.order);
+    auto C_P = w_proxy->getAFR(WGroup::BPrime, w_config.order);
+    auto C_S = w_proxy->getAFR(WGroup::BScalar, w_config.order);
+    cache.C.insert(C_P.begin(), C_P.end());
+    cache.C.insert(C_S.begin(), C_S.end());
+
+    cache.C_LO = w_proxy->getAR(WGroup::B, QCDOrder::LO);
+    auto C_P_LO = w_proxy->getAR(WGroup::BPrime, QCDOrder::LO);
+    cache.C_LO.insert(C_P_LO.begin(), C_P_LO.end());
+}
+
+void BXsllDecay::load_cfg_dep_params() {
+    cache.m_l_hat = (*p)(ParamId{ParameterType::SM, "MASS", 11 + 2 * (int)cfg.gen}, DataType::VALUE) / cache.m_b_1S;
+    cache.L_l = -2 * std::log(cache.m_l_hat);
 }
 
 double BXsllDecay::f(double z) {
@@ -682,11 +691,7 @@ double BXsllDecay::delta_bremB_base(double s) {
 }
 
 double BXsllDecay::delta_bremB(double s) {
-    if (s < 0.5) {
-        return lerp(s, cache.delta_brems_lookup_low, cache.s_hat_low_bound.first, cache.s_hat_low_bound.second);
-    } else {
-        return lerp(s, cache.delta_brems_lookup_high, cache.s_hat_high_bound.first, cache.s_hat_high_bound.second);
-    }
+    return lerp(s, cache.delta_brems_lookup, 0, 1);
 }
 
 double BXsllDecay::delta_A_brem(double s) {
@@ -755,12 +760,12 @@ double BXsllDecay::A_FB(double s, double ml_hat, double L_l) {
             cache.pref_delta_em * delta_A_em(s, L_l);
 }
 
-double BXsllDecay::dB_ds(double s, double ml_hat, double L_l, int gen) {  
+double BXsllDecay::dB_ds(double s, double ml_hat, double L_l) {  
     double dB = cache.pref_dB0_ds * dB0_ds(s, ml_hat) +
             cache.pref_delta_brems * (delta_bremA(s) + delta_bremB(s)) +
             cache.pref_delta_em * delta_em(s, L_l);
     
-    if (gen != 3) {
+    if (cfg.gen != BXsllConfig::Lepton::TAU) {
         dB += cache.pref_delta_mb2 * delta_mb2(s) + 
             cache.pref_delta_mb3 * delta_mb3(s) + 
             cache.pref_delta_mc2 * delta_mc2(s);
@@ -769,16 +774,36 @@ double BXsllDecay::dB_ds(double s, double ml_hat, double L_l, int gen) {
     return dB;
 }
 
-double BXsllDecay::BR_B_Xsll(double s_min, double s_max, int gen) {
-    double ml_hat = gen == 2 ? cache.m_mu_hat : cache.m_tau_hat;
-    double L_l = gen == 2 ? cache.L_l_mu : cache.L_l_tau;
-
+std::vector<ObservableValue> BXsllDecay::BR_B_Xsll(Observables oid) {
+    std::vector<ObservableValue> out;
     auto f = [&] (double s) {
-        return dB_ds(s, ml_hat, L_l, gen);
+        return dB_ds(s, cache.m_l_hat, cache.L_l);
     };
 
-    double res = cache.pref_dB_ds * integrate(f, s_min, s_max, 1e-3);
-    return res;
+    for (size_t i = 0; i < cfg.bins.size(); i++) {
+        double s_min = cfg.bins[i].first / std::pow(cache.m_b_1S, 2);
+        double s_max = cfg.bins[i].second / std::pow(cache.m_b_1S, 2);
+        double res = cache.pref_dB_ds * integrate(f, s_min, s_max, 1e-3); 
+        out.emplace_back(ObservableMapper::to_id(oid), res, cfg.bins[i]);
+    }   
+
+    return out;
+}
+
+std::vector<ObservableValue> BXsllDecay::A_FB_B_Xsll(Observables oid) {
+    std::vector<ObservableValue> out;
+    auto f = [&] (double s) {
+        return A_FB(s, cache.m_l_hat, cache.L_l);
+    };
+
+    for (size_t i = 0; i < cfg.bins.size(); i++) {
+        double s_min = cfg.bins[i].first / std::pow(cache.m_b_1S, 2);
+        double s_max = cfg.bins[i].second / std::pow(cache.m_b_1S, 2);
+        double res = cache.pref_dB_ds * integrate(f, s_min, s_max, 1e-3); 
+        out.emplace_back(ObservableMapper::to_id(oid), res, cfg.bins[i]);
+    }   
+
+    return out;
 }
 
 // double BXsllDecay::BR_B_Xsll(double s_min, double s_max, int gen) {
@@ -818,22 +843,34 @@ double BXsllDecay::BR_B_Xsll(double s_min, double s_max, int gen) {
 
 
 std::vector<ObservableValue> BXsllDecay::compute_observable(Observables obs) {
-    double value;
     switch (obs) {
-    case Observables::BR_B__Xs_mu_mu__LOW_Q2:   
-        value = BR_B_Xsll(cache.s_hat_low_bound.first, cache.s_hat_low_bound.second, 2);
+    case Observables::BR_B__Xs_e_e:   
+        set_cfg_flags(BXsllConfig::Lepton::E);
+        return BR_B_Xsll(obs);
         break;
-    case Observables::BR_B__Xs_mu_mu__HIGH_Q2:   
-        value = BR_B_Xsll(cache.s_hat_high_bound.first, cache.s_hat_high_bound.second, 2);
+    case Observables::BR_B__Xs_mu_mu:   
+        set_cfg_flags(BXsllConfig::Lepton::MU);
+        return BR_B_Xsll(obs);
         break;
-    case Observables::BR_B__Xs_tau_tau__HIGH_Q2:   
-        value = BR_B_Xsll(cache.s_hat_high_bound.first, cache.s_hat_high_bound.second, 3);
+    case Observables::BR_B__Xs_tau_tau:   
+        set_cfg_flags(BXsllConfig::Lepton::TAU);
+        return BR_B_Xsll(obs);
+        break;
+    case Observables::A_FB_B__Xs_e_e:   
+        set_cfg_flags(BXsllConfig::Lepton::E);
+        return A_FB_B_Xsll(obs);
+        break;
+    case Observables::A_FB_B__Xs_mu_mu:   
+        set_cfg_flags(BXsllConfig::Lepton::MU);
+        return A_FB_B_Xsll(obs);
+        break;
+    case Observables::A_FB_B__Xs_tau_tau:   
+        set_cfg_flags(BXsllConfig::Lepton::TAU);
+        return A_FB_B_Xsll(obs);
         break;
     default:
         LOG_ERROR("IndexError", "Observable", ObservableMapper::str(obs), "doesn't belong to the decay", DecayMapper::str(this->id));
     }
-
-    return {ObservableValue(ObservableMapper::to_id(obs), value)};
 }
 
 std::vector<ObservableValue> BXsllDecay::compute_observable(ObservableId obs) {

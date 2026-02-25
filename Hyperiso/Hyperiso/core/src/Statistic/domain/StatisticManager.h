@@ -121,7 +121,13 @@ public:
             auto pred_map = this->obs_int->predict_optimized(zip(p_ids, p_vec), zip(eta_ids, eta_vec));
             auto stop  = std::chrono::steady_clock::now();
             auto us = std::chrono::duration_cast<std::chrono::microseconds>(stop - start).count();
-            std::cout << "Predict took " << us << " µs" << std::endl;
+            // std::cout << "Predict took " << us << " µs" << std::endl;
+            // for (auto pred : pred_map) {
+            //     std::cout << ObservableMapper::str(pred.first) << ": ";
+            //     for (auto ov : pred.second) 
+            //         std::cout << ov.value << " ";
+            //     std::cout << std::endl; 
+            // }
             return flatten(pred_map).vals;
         };
 
@@ -153,6 +159,11 @@ public:
         for (const auto& [pid, _] : cache.p_specs)
             cache.eta_specs_real.erase(pid);
         cache.SigmaEta = this->get_all_correlations();
+
+        // TODO : FOR TESTING PURPOSES ONLY, REMOVE AFTER !
+        // ParamId pid {ParameterType::SM, "VCKMIN", 2};
+        // cache.SigmaEta = {{pid, {{pid, pspp->get_param(pid)->get_combined_std()}}}};
+
         cache.exp_obs = this->get_obs_exp();
         cache.SigmaObs = this->get_all_obs_correlations();
     }
@@ -194,6 +205,10 @@ public:
             if (delta_rel[paramId] / delta_rel_max > tol)
                 eta_specs_real_leaf[paramId] = pspp->get_param(paramId)->get_val();
         }
+
+        // TODO : FOR TESTING PURPOSES ONLY, REMOVE AFTER !
+        // ParamId pid {ParameterType::SM, "VCKMIN", 2};
+        // eta_specs_real_leaf = {{pid, pspp->get_param(pid)->get_val()}};
 
         LOG_INFO("Significant nuisances");
         for (const auto& [pid, val] : eta_specs_real_leaf) {

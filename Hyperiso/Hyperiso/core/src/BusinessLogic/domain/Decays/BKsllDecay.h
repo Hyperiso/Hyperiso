@@ -36,6 +36,7 @@ struct BKstarllCache {
     double Delta_M;
     double alpha_s_mu_b;
     double m_B, m_Ks;
+    double life_B;
     complex_t lambda_hat_u;
     double kappa;
     complex_t N_0;
@@ -101,6 +102,8 @@ private:
 protected:
     // Auxiliary
     void fill_wilson_cache();
+    void load_cfg_dependent_params();
+    void set_lepton_gen_and_charge(BKstarllConfig::Lepton gen, BKstarllConfig::B_Charge charge);
 
     // QCDf
     complex_t T_perp_p_cached(double q2, bool bar);
@@ -165,32 +168,32 @@ protected:
 
     void compute_binned_J_i();
 
-    std::vector<ObservableValue> dG_dq2_binned(bool bar);
+    std::vector<ObservableValue> dBR_dq2_binned(bool bar, Observables id);
     double dG_dq2_avg_bin(size_t bin);
-    std::vector<ObservableValue> A_FB_binned();
-    ObservableValue q0();
-    std::vector<ObservableValue> A_CP_binned();
-    std::vector<ObservableValue> F_L_binned();
-    std::vector<ObservableValue> F_T_binned();
-    std::vector<ObservableValue> A_T_1_binned();
-    std::vector<ObservableValue> A_T_2_binned();
-    std::vector<ObservableValue> A_T_3_binned();
-    std::vector<ObservableValue> A_T_4_binned();
-    std::vector<ObservableValue> A_T_5_binned();
-    std::vector<ObservableValue> A_T_Re_binned();
-    std::vector<ObservableValue> A_T_Re_CPV_binned();
-    std::vector<ObservableValue> A_Im_binned();
-    std::vector<ObservableValue> alpha_K_binned();
-    std::vector<ObservableValue> H_T_1_binned();
-    std::vector<ObservableValue> H_T_2_binned();
-    std::vector<ObservableValue> H_T_3_binned();
-    std::vector<ObservableValue> P_2_binned();
-    std::vector<ObservableValue> P_3_binned();
-    std::vector<ObservableValue> P_6_binned();
-    std::vector<ObservableValue> P_8_binned();
-    std::vector<ObservableValue> Pp_i_binned(size_t i, bool cpv=false);
-    std::vector<ObservableValue> S_i_binned(size_t i, bool cpv=false);
-    std::vector<ObservableValue> P_i_CPV_binned(size_t i);
+    std::vector<ObservableValue> A_FB_binned(Observables id);
+    ObservableValue q0(Observables id);
+    std::vector<ObservableValue> A_CP_binned(Observables id);
+    std::vector<ObservableValue> F_L_binned(Observables id);
+    std::vector<ObservableValue> F_T_binned(Observables id);
+    std::vector<ObservableValue> A_T_1_binned(Observables id);
+    std::vector<ObservableValue> A_T_2_binned(Observables id);
+    std::vector<ObservableValue> A_T_3_binned(Observables id);
+    std::vector<ObservableValue> A_T_4_binned(Observables id);
+    std::vector<ObservableValue> A_T_5_binned(Observables id);
+    std::vector<ObservableValue> A_T_Re_binned(Observables id);
+    std::vector<ObservableValue> A_T_Re_CPV_binned(Observables id);
+    std::vector<ObservableValue> A_Im_binned(Observables id);
+    std::vector<ObservableValue> alpha_K_binned(Observables id);
+    std::vector<ObservableValue> H_T_1_binned(Observables id);
+    std::vector<ObservableValue> H_T_2_binned(Observables id);
+    std::vector<ObservableValue> H_T_3_binned(Observables id);
+    std::vector<ObservableValue> P_2_binned(Observables id);
+    std::vector<ObservableValue> P_3_binned(Observables id);
+    std::vector<ObservableValue> P_6_binned(Observables id);
+    std::vector<ObservableValue> P_8_binned(Observables id);
+    std::vector<ObservableValue> Pp_i_binned(size_t i, bool cpv, Observables id);
+    std::vector<ObservableValue> S_i_binned(size_t i, bool cpv, Observables id);
+    std::vector<ObservableValue> P_i_CPV_binned(size_t i, Observables id);
 
     // Tests
     void test_ff();

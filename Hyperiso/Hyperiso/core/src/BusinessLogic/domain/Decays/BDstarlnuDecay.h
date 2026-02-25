@@ -5,6 +5,11 @@
 #include "DefaultConfig.h"
 #include "ObsQCDProxy.h"
 
+struct BDstarlnuConfig : public DecayConfig {
+    enum class B_Charge {B_0, B_PLUS};
+    B_Charge charge {B_Charge::B_PLUS};
+};
+
 struct BDstarlnuDecayCache {
     double G_F;
     double m_e, m_tau;
@@ -30,11 +35,17 @@ struct BDstarlnuDecayCache {
  *     - P_tau = (Γ(s_tau = +1/2) - Γ(s_tau = -1/2)) / Γ
  *     - P_D* = Γ(l_D = 0) / Γ
  */
-class BDstarlnuDecay : public DecayParentConfigurable<DecayConfig> {
+class BDstarlnuDecay : public DecayParentConfigurable<BDstarlnuConfig> {
 private:
     BDstarlnuDecayCache cache;
+    BDstarlnuConfig cfg;
 
 protected:
+    // Utility
+    void set_cfg_flags(BDstarlnuConfig::B_Charge charge);
+    void fill_wilson_cache();
+    void load_cfg_dep_params();
+
     // Kinematics
     double t        (double w);
     double lambda_D (double w);
@@ -107,6 +118,7 @@ public:
     void load_params() override;
     std::vector<ObservableValue> compute_observable(Observables obs) override;
     std::vector<ObservableValue> compute_observable(ObservableId obs) override;
+    void set_config_spe(BDstarlnuConfig config) override {this->cfg = config;}
 
 };
 

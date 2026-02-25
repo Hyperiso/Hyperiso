@@ -26,6 +26,7 @@ struct LbLllDecayCache {
 
     double m_l, m_b_mu_b;
     double m_Lb, m_L;
+    double life_L;
     complex_t N_0;
     double alpha_L;
     double q2_min, q2_max;
@@ -45,6 +46,8 @@ private:
 protected:
     // Auxiliary
     void fill_wilson_cache();
+    void set_cfg_flags(LbLllConfig::Lepton gen);
+    void load_cfg_dep_params();
 
     // Kinematics
     double beta_l(double q2);
@@ -69,13 +72,13 @@ protected:
 
     void compute_binned_K_i();
 
-    std::vector<ObservableValue> dG_dq2_binned();
+    std::vector<ObservableValue> dBR_dq2_binned(Observables oid);
     double dG_dq2_avg_bin(size_t bin);
-    std::vector<ObservableValue> A_FB_l();
-    std::vector<ObservableValue> A_FB_h();
-    std::vector<ObservableValue> A_FB_lh();
-    std::vector<ObservableValue> F_L();
-    std::vector<ObservableValue> F_T();
+    std::vector<ObservableValue> A_FB_l(Observables oid);
+    std::vector<ObservableValue> A_FB_h(Observables oid);
+    std::vector<ObservableValue> A_FB_lh(Observables oid);
+    std::vector<ObservableValue> F_L(Observables oid);
+    std::vector<ObservableValue> F_T(Observables oid);
 
 public:
     LbLllDecay(QCDOrder order, double matching_scale, double hadronic_scale, ObservablePortsConfig& ports) :  DecayParentConfigurable(DecayMapper::to_id(Decays::Lambda_b__Lambda_l_l), matching_scale, hadronic_scale, order, ports), cache(ports.iobspp_sm) {
