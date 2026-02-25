@@ -15,37 +15,40 @@ void print_vec(const std::vector<double>& vec) {
 }
 
 int main(int argc, char** argv) {
-    // RealValuedForm F_gauss_nll = [](const Vec& p) {
-    //     // mean
-    //     double mu0 = 1e-12;
-    //     double mu1 = 1e3;
+    RealValuedForm F_gauss_nll = [](const Vec& p) {
+        // mean
+        double mu0 = 1e-12;
+        double mu1 = 1e3;
+        double mu2 = 1e-4;
 
-    //     // covariance
-    //     double s0 = 1e-13;
-    //     double s1 = 1e2;
-    //     double rho = 0.3;
+        double s0 = 1e-13;
+        double s1 = 1e2;
+        double s2 = 1e-6;
 
-    //     double det = s0*s0*s1*s1*(1 - rho*rho);
+        RealMatrix corr ({
+            {1, 0.2, -0.5},
+            {0.2, 1, 0.7},
+            {-0.5, 0.7, 1}
+        });
 
-    //     // inverse covariance
-    //     double a =  1.0/(s0*s0*(1-rho*rho));
-    //     double b = -rho/(s0*s1*(1-rho*rho));
-    //     double c =  1.0/(s1*s1*(1-rho*rho));
+        RealMatrix z ({
+            Vector {(p[0] - mu0) / s0},
+            Vector {(p[1] - mu1) / s1},
+            Vector {(p[2] - mu2) / s2}
+        });
 
-    //     double d0 = p[0] - mu0;
-    //     double d1 = p[1] - mu1;
+        return 0.5 * (2 * PI * corr.slogdet().logdet + (z.transpose() * corr.inv() * z).at(0, 0));
+    };
 
-    //     return 0.5 * (a*d0*d0 + 2*b*d0*d1 + c*d1*d1);
-    // };
-
-    // MinimizationContext ctx;
-    // ctx.max_iter = 500;
-    // ctx.step_size = 0.1;
-    // ctx.tol = 1e-4;
-    // MinimizationResult mr = minimize_NM(F_gauss_nll, {3e-12, 250}, {1e-13, 1e2}, ctx);
-    // std::cout << mr.min << std::endl;
-    // std::cout << mr.argmin[0] << ", " << mr.argmin[1] << std::endl;
+    MinimizationContext ctx;
+    ctx.final_tol = 1e-8;
+    ctx.switch_tol = 1e-3;
+    ctx.simplex_initial_step_size = 0.2;
+    MinimizationResult mr = minimize_combined(F_gauss_nll, {3e-12, 250, 0.0002}, {1e-13, 1e2, 1e-6}, ctx);
+    std::cout << mr.min << std::endl;
+    std::cout << mr.argmin[0] << ", " << mr.argmin[1] << ", " << mr.argmin[2] << std::endl;
     
+    exit(0);
     // Vec p_hat = {1e-12, 1e3};
     // auto H = hessian(F_gauss_nll, p_hat);
     // auto H_inv = inverse_hessian(F_gauss_nll, p_hat);
