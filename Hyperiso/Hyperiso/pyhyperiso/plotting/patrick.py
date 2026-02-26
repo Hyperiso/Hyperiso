@@ -150,11 +150,15 @@ def anomalies_plot(
 ):
     # Observables.PHI
     selected = [
-        Observables.BR_KL__MU_MU,
         Observables.BR_BS_MUMU,
         Observables.BR_BD_MUMU,
         Observables.BR_BU_TAU_NU,
+        Observables.R_D,
+        Observables.R_DSTAR
     ]
+    selected = [BinnedObservableId(ObservableMapper.to_id(x)) for x in selected]
+    
+    selected.append(BinnedObservableId(ObservableId(ObservableMapper.str(Observables.DBR_DQ2_B__K_MU_MU)), (1.1, 6)))
     # 2) Statistic interface (incertitude théorie)
     stat_cfg = StatisticConfig(
         obss={o: QCDOrder.NNLO for o in selected},
@@ -204,7 +208,7 @@ def anomalies_plot(
         gid: ObservableId = ObservableMapper.id_of(ObservableMapper.str(obs))
         gobs_2 = BinnedObservableId(gid)
         glhaid: LhaID = gobs_2.flha()
-        if glhaid not in summaries:
+        if gobs_2 not in summaries:
             keys_preview = list(summaries.keys())[:10]
             raise KeyError(
                 f"[anomalies_plot] ObservableId {gid} absent de summaries.\n"
@@ -214,7 +218,7 @@ def anomalies_plot(
                 f"ou si l'id construit n'est pas exactement celui utilisé côté C++."
             )
 
-        g = summaries[glhaid]
+        g = summaries[gobs_2]
         th = theory_point_from_stats(theo_val, g)
         # th = Point()
         # th.obs = theo_val[0].value
@@ -223,9 +227,12 @@ def anomalies_plot(
         points.append((latex_label, exp, th))
 
     # ---- Ajoute ici ta sélection d'observables (PK-style) ----
+    add_nonbinned(Observables.DBR_DQ2_B__K_MU_MU, r"${\cal B}(B^+\toK^+\mu^+\mu^-)$")
     add_nonbinned(Observables.BR_BS_MUMU, r"${\cal B}(B_s^0\to\mu^+\mu^-)$")
     add_nonbinned(Observables.BR_BD_MUMU, r"${\cal B}(B^0\to\mu^+\mu^-)$")
     add_nonbinned(Observables.BR_BU_TAU_NU, r"${\cal B}(B^+\to\tau^+\nu)$")
+    add_nonbinned(Observables.R_D, r"$R_D$")
+    add_nonbinned(Observables.R_DSTAR, r"$R_D^*$")
     # Ajoute les autres de ton choix...
 
     # ---- Plot ----

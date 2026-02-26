@@ -1,13 +1,14 @@
 from typing import Dict, List
 from dataclasses import dataclass, field
 from pyhyperiso.core.Common.GeneralEnum import QCDOrder, Observables
+from pyhyperiso.core.Common.BinnedObservableId import BinnedObservableId
 from pyhyperiso.core.Common.ParamId import ParamId
 from pyhyperiso.core.Common.Mapper import ObservableMapper
 from pyhyperiso.phyperiso.pyhyperiso.statistic import StatisticConfig as _CppStatisticConfig
 
 @dataclass
 class StatisticConfig:
-    obss : Dict[Observables, QCDOrder]= field(default_factory=lambda: {})
+    obss : Dict[BinnedObservableId, QCDOrder]= field(default_factory=lambda: {})
     p_specs : List[ParamId] = field(default_factory=list)
     MC_draws : int = 100
     skew_abs_threshold : float = 0.2
@@ -18,7 +19,7 @@ class StatisticConfig:
     def to_cpp(self) -> _CppStatisticConfig:
         """Converts this Python wrapper to a C++ Config object."""
         cpp = _CppStatisticConfig()
-        cpp.obss = {ObservableMapper.to_id(x)._to_cpp():y.value for x,y in self.obss.items()}
+        cpp.obss = {x.to_cpp():y.value for x,y in self.obss.items()}
         cpp.p_specs = {p._cpp_obj for p in self.p_specs}
         cpp.MC_draws = self.MC_draws
         cpp.skew_abs_threshold = self.skew_abs_threshold

@@ -1,9 +1,11 @@
 from __future__ import annotations
 
-from typing import Any, List
+from typing import Any, List, Dict
 
 from pyhyperiso.core.Statistic.StatisticConfig import StatisticConfig
 from pyhyperiso.phyperiso.pyhyperiso.statistic import StatisticInterface as _CppStatisticInterface
+
+from pyhyperiso.core.Common.BinnedObservableId import BinnedObservableId
 
 from pyhyperiso.core.Statistic.MCResult import MCResult
 from pyhyperiso.core.Statistic.GaussianSummary import GaussianSummary
@@ -31,7 +33,7 @@ class StatisticInterface:
         """
         cpp_res = self._cpp.compute_uncertainties()
 
-        return{x:GaussianSummary.from_cpp(y) for x,y in cpp_res.items()}
+        return{BinnedObservableId.from_cpp(x):GaussianSummary.from_cpp(y) for x,y in cpp_res.items()}
 
     def compute_uncertainties_and_sampling(self) -> MCResult:
         """Compute uncertainties and also return a Monte Carlo realization.
