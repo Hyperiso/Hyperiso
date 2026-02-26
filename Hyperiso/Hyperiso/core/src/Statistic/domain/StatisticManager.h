@@ -83,7 +83,13 @@ public:
         for (auto sum : sums.summary) {
             std::cout << sum << std::endl;
         }
+        for (auto _ : unzip(config.obss).ids) {
+            std::cout << _.str() << std::endl;
+        }
 
+        for (auto _ : unzip(config.obss).vals) {
+            std::cout << OrderMapper::str(_) << std::endl;
+        }
         return zip(unzip(config.obss).ids, sums.summary);
     }
 

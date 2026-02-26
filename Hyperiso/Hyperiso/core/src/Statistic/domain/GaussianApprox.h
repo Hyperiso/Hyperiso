@@ -15,7 +15,7 @@ struct GaussianSummary {
 };
 
 inline std::ostream& operator<<(std::ostream& os, const GaussianSummary& gs) {
-    os << ObservableMapper::str(gs.id.s) << " = ";
+    os << ObservableMapper::str(gs.id.s) << "[" << gs.id.p.first << "," <<gs.id.p.second << "] = ";
     if (gs.symmetric) {
         os << std::setprecision(4) << gs.mu << " +- " << gs.sigma << " (skew = " << std::setprecision(2) << gs.skew << ")";
     } else {

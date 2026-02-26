@@ -48,7 +48,7 @@ int main(int argc, char** argv) {
     std::cout << mr.min << std::endl;
     std::cout << mr.argmin[0] << ", " << mr.argmin[1] << ", " << mr.argmin[2] << std::endl;
     
-    exit(0);
+    // exit(0);
     // Vec p_hat = {1e-12, 1e3};
     // auto H = hessian(F_gauss_nll, p_hat);
     // auto H_inv = inverse_hessian(F_gauss_nll, p_hat);
@@ -69,7 +69,8 @@ int main(int argc, char** argv) {
     config.MC_draws = 100;
     config.obss = {
         {ObservableMapper::to_id(Observables::BR_BS_MUMU_UNTAG), QCDOrder::LO},
-        {ObservableMapper::to_id(Observables::BR_BD_MUMU), QCDOrder::LO}
+        {ObservableMapper::to_id(Observables::BR_BD_MUMU), QCDOrder::LO},
+        // {BinnedObservableId(ObservableMapper::to_id(Observables::DBR_DQ2_B__K_MU_MU), Point(1.1, 6)), QCDOrder::LO}
     };
     config.MLE_max_iter = 1000;
     config.MLE_tol = 1e-6;
@@ -88,7 +89,7 @@ int main(int argc, char** argv) {
     stat.fill_cache();
     // LOG_INFO("YO2");
     auto start = std::chrono::steady_clock::now();
-    // stat.compute_uncertainties();
+    stat.compute_uncertainties();
     auto stop  = std::chrono::steady_clock::now();
     LOG_INFO("YO3");
     auto us = std::chrono::duration_cast<std::chrono::microseconds>(stop - start).count();
