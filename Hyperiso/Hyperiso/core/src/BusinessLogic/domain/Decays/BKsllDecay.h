@@ -18,11 +18,6 @@ struct BKstarllConfig : public DecayConfig {
     Power_Corrections_Impl power_corr_impl {Power_Corrections_Impl::BFS};
     B_Charge charge {B_Charge::B_PLUS};
     Lepton gen {Lepton::MU};
-
-    std::vector<std::pair<double, double>> bins {
-        { 1.00,  6.00},
-        {14.18, 19.00}
-    };
 };
 
 struct BKstarllCache {

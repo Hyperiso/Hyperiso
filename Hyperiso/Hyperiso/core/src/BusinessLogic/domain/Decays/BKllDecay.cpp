@@ -332,7 +332,7 @@ double BKllDecay::c(double q2) {
 }
 
 void BKllDecay::compute_binned_abc() {
-    for (auto [q2_l, q2_u] : cfg.bins) {
+    for (auto [q2_l, q2_u] : this->bins.value()) {
         cache.abc_binned[0].emplace_back(integrate([&] (double q2) { return a(q2); }, q2_l, q2_u, 1e-3));    
         cache.abc_binned[1].emplace_back(integrate([&] (double q2) { return b(q2); }, q2_l, q2_u, 1e-3));
         cache.abc_binned[2].emplace_back(integrate([&] (double q2) { return c(q2); }, q2_l, q2_u, 1e-3));
@@ -341,27 +341,27 @@ void BKllDecay::compute_binned_abc() {
 
 std::vector<ObservableValue> BKllDecay::dBR_dq2(Observables oid) {
     std::vector<ObservableValue> out;
-    for (size_t i = 0; i < cfg.bins.size(); i++) {
+    for (size_t i = 0; i < this->bins.value().size(); i++) {
         double res = 2 * (cache.abc_binned[0][i] + cache.abc_binned[2][i] / 3.) * cache.life_B; 
-        out.emplace_back(ObservableMapper::to_id(oid), res, cfg.bins[i]);
+        out.emplace_back(ObservableMapper::to_id(oid), res, this->bins.value()[i]);
     }   
     return out;
 }
 
 std::vector<ObservableValue> BKllDecay::A_FB(Observables oid) {
     std::vector<ObservableValue> out;
-    for (size_t i = 0; i < cfg.bins.size(); i++) {
+    for (size_t i = 0; i < this->bins.value().size(); i++) {
         double res = cache.abc_binned[1][i] / (2 * (cache.abc_binned[0][i] + cache.abc_binned[2][i] / 3.)); 
-        out.emplace_back(ObservableMapper::to_id(oid), res, cfg.bins[i]);
+        out.emplace_back(ObservableMapper::to_id(oid), res, this->bins.value()[i]);
     }   
     return out;
 }
 
 std::vector<ObservableValue> BKllDecay::F_H(Observables oid) {
     std::vector<ObservableValue> out;
-    for (size_t i = 0; i < cfg.bins.size(); i++) {
+    for (size_t i = 0; i < this->bins.value().size(); i++) {
         double res = (cache.abc_binned[0][i] + cache.abc_binned[2][i]) / (cache.abc_binned[0][i] + cache.abc_binned[2][i] / 3.); 
-        out.emplace_back(ObservableMapper::to_id(oid), res, cfg.bins[i]);
+        out.emplace_back(ObservableMapper::to_id(oid), res, this->bins.value()[i]);
     }   
     return out;
 }

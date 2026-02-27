@@ -17,7 +17,7 @@ FitResult MLEstimator::fit(const Vector& p0) const {
     // min_ctx.final_tol = tol;
     min_ctx.final_tol = 1e-8;
     min_ctx.switch_tol = 1e-3;
-    min_ctx.simplex_initial_step_size = 0.2;
+    min_ctx.simplex_initial_step_size = 0.1;
     min_ctx.simplex_max_iter = 1000;
 
     Vector start = p0;

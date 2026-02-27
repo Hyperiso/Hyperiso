@@ -119,6 +119,9 @@ protected:
     /// Unique decay identifier.
     DecayId id;
 
+    /// Optional q^2 bins
+    std::optional<std::vector<std::pair<double, double>>> bins;
+
     /**
      * @brief Clamp a requested QCD order to this decay's supported maximum.
      *
@@ -229,6 +232,25 @@ public:
      * @throws std::bad_any_cast if the derived class expects a different type.
      */
     virtual void set_config(std::any cfg) = 0;
+
+    /**
+     * @brief Set the binning for the observables related to this decay.
+     *
+     * @param new_bins Desired binning in the form of {{q²_min, q²_max}, ...}
+     */
+    void set_bins(std::vector<std::pair<double, double>> new_bins);
+
+    /**
+     * @brief Adds a bin to the observables related to this decay.
+     *
+     * @param new_bins Desired bin in the form of {q²_min, q²_max}
+     */
+    void add_bin(std::pair<double, double> new_bin);
+
+    /**
+     * @brief Returns the current binning of the decay.
+     */
+    std::optional<std::vector<std::pair<double, double>>> get_bins();
 
     /**
      * @brief Return the decay identifier.

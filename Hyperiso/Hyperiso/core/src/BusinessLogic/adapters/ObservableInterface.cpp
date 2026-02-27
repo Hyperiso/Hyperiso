@@ -35,7 +35,17 @@ ObservableInterface& ObservableInterface::add_observable(ObservableId obs, QCDOr
     return *this;
 }
 
-void ObservableInterface::add_observables(std::map<Observables, QCDOrder> obss, bool add_dependencies) {  
+ObservableInterface &ObservableInterface::add_observable(BinnedObservableId obs,
+                                                         QCDOrder order,
+                                                         bool add_dependencies)
+{
+    manager->add_obs(obs, order, add_dependencies);
+    return *this;
+}
+
+void ObservableInterface::add_observables(std::map<Observables, QCDOrder> obss,
+                                          bool add_dependencies)
+{
     for (auto &[k, v] : obss) {
         add_observable(k, v, add_dependencies);
     }
@@ -116,7 +126,7 @@ scalar_t ObservableInterface::get_exp_uncertainty(ObservableId id, UncertaintyTy
     return manager->get_obs(id)->get_exp_uncertainty(u_type);
 }
 
-std::unordered_set<ObservableId> ObservableInterface::get_current_observables() {
+std::vector<BinnedObservableId> ObservableInterface::get_current_observables() {
     return manager->get_current_obss();
 }
 

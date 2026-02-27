@@ -90,7 +90,7 @@ std::unique_ptr<JointDistribution> StatisticManager::build_exp_data_distribution
     } else if (config.exp_data_copula_type == CopulaType::STUDENT_T) {
         StudentTCopulaConfig copula_cfg;
         copula_cfg.R = RealMatrix(unzip(cache.SigmaObs).vals);
-        copula_cfg.nu = config.obss.size() - 1;
+        copula_cfg.nu = obs_int->n_observables() - 1;
         copula = CopulaFactory::create(config.exp_data_copula_type, copula_cfg, seed);
     }
 

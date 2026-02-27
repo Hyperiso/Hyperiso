@@ -144,6 +144,17 @@ public:
     ObservableInterface& add_observable(ObservableId obs, QCDOrder order, bool add_dependencies=false);
 
     /**
+     * @brief Add a binned observable to the manager (internal id API).
+     *
+     * @param obs             Observable internal id.
+     * @param order           Maximum QCD order requested for this decay.
+     * @param add_dependencies If true, automatically adds the full allowed parameter
+     *                         dependence set for this observable.
+     * @return Reference to `*this` for chaining.
+     */
+    ObservableInterface& add_observable(BinnedObservableId obs, QCDOrder order, bool add_dependencies=false);
+
+    /**
      * @brief Add multiple observables at once (enum map).
      *
      * @param obss            Map (observable -> QCD order).
@@ -298,7 +309,7 @@ public:
      * @brief Return the set of currently registered observables.
      * @return Set of observable ids currently stored in the manager.
      */
-    std::unordered_set<ObservableId> get_current_observables();
+    std::vector<BinnedObservableId> get_current_observables();
 
     /**
      * @brief Compute all currently registered observables.

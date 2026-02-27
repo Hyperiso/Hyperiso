@@ -213,7 +213,7 @@ double LbLllDecay::K2c(double q2, bool bar) {
 
 void LbLllDecay::compute_binned_K_i() {
     auto fill_binned = [&] (std::array<std::vector<double>, 6>& dest, bool bar) {
-        for (auto [q2_l, q2_u] : cfg.bins) {
+        for (auto [q2_l, q2_u] : this->bins.value()) {
             dest[0].emplace_back(integrate([&] (double q2) { return K1ss(q2, bar); }, q2_l, q2_u, 1e-2));
             dest[1].emplace_back(integrate([&] (double q2) { return K1cc(q2, bar); }, q2_l, q2_u, 1e-2));
             dest[2].emplace_back(integrate([&] (double q2) { return K1c(q2, bar); }, q2_l, q2_u, 1e-2));
@@ -229,11 +229,11 @@ void LbLllDecay::compute_binned_K_i() {
 
 std::vector<ObservableValue> LbLllDecay::dBR_dq2_binned(Observables oid) {
     std::vector<ObservableValue> out;
-    for (size_t i = 0; i < cfg.bins.size(); i++) {
+    for (size_t i = 0; i < this->bins.value().size(); i++) {
         double K1ss = cache.K_i_binned[0][i] + cache.K_i_bar_binned[0][i];
         double K1cc = cache.K_i_binned[1][i] + cache.K_i_bar_binned[1][i];
         double res = (2 * K1ss + K1cc) / 2 * cache.life_L;
-        out.emplace_back(ObservableMapper::to_id(oid), res, cfg.bins[i]);
+        out.emplace_back(ObservableMapper::to_id(oid), res, this->bins.value()[i]);
     }   
     return out;
 }
@@ -246,52 +246,52 @@ double LbLllDecay::dG_dq2_avg_bin(size_t bin) {
 
 std::vector<ObservableValue> LbLllDecay::A_FB_l(Observables oid) {
     std::vector<ObservableValue> out;
-    for (size_t i = 0; i < cfg.bins.size(); i++) {
+    for (size_t i = 0; i < this->bins.value().size(); i++) {
         double K1c = cache.K_i_binned[2][i] + cache.K_i_bar_binned[2][i];
         double res = 0.75 * K1c / dG_dq2_avg_bin(i);
-        out.emplace_back(ObservableMapper::to_id(oid), res, cfg.bins[i]);
+        out.emplace_back(ObservableMapper::to_id(oid), res, this->bins.value()[i]);
     }   
     return out;
 }
 
 std::vector<ObservableValue> LbLllDecay::A_FB_h(Observables oid) {
     std::vector<ObservableValue> out;
-    for (size_t i = 0; i < cfg.bins.size(); i++) {
+    for (size_t i = 0; i < this->bins.value().size(); i++) {
         double K2ss = cache.K_i_binned[3][i] + cache.K_i_bar_binned[3][i];
         double K2cc = cache.K_i_binned[4][i] + cache.K_i_bar_binned[4][i];
         double res = 0.25 * (2 * K2ss + K2cc) / dG_dq2_avg_bin(i);
-        out.emplace_back(ObservableMapper::to_id(oid), res, cfg.bins[i]);
+        out.emplace_back(ObservableMapper::to_id(oid), res, this->bins.value()[i]);
     }   
     return out;
 }
 
 std::vector<ObservableValue> LbLllDecay::A_FB_lh(Observables oid) {
     std::vector<ObservableValue> out;
-    for (size_t i = 0; i < cfg.bins.size(); i++) {
+    for (size_t i = 0; i < this->bins.value().size(); i++) {
         double K2c = cache.K_i_binned[5][i] + cache.K_i_bar_binned[5][i];
         double res = 0.375 * K2c / dG_dq2_avg_bin(i);
-        out.emplace_back(ObservableMapper::to_id(oid), res, cfg.bins[i]);
+        out.emplace_back(ObservableMapper::to_id(oid), res, this->bins.value()[i]);
     }   
     return out;
 }
 
 std::vector<ObservableValue> LbLllDecay::F_L(Observables oid) {
     std::vector<ObservableValue> out;
-    for (size_t i = 0; i < cfg.bins.size(); i++) {
+    for (size_t i = 0; i < this->bins.value().size(); i++) {
         double K1ss = cache.K_i_binned[0][i] + cache.K_i_bar_binned[0][i];
         double K1cc = cache.K_i_binned[1][i] + cache.K_i_bar_binned[1][i];
         double res = 0.5 * (2 * K1ss - K1cc) / dG_dq2_avg_bin(i);
-        out.emplace_back(ObservableMapper::to_id(oid), res, cfg.bins[i]);
+        out.emplace_back(ObservableMapper::to_id(oid), res, this->bins.value()[i]);
     }   
     return out;
 }
 
 std::vector<ObservableValue> LbLllDecay::F_T(Observables oid) {
     std::vector<ObservableValue> out;
-    for (size_t i = 0; i < cfg.bins.size(); i++) {
+    for (size_t i = 0; i < this->bins.value().size(); i++) {
         double K1cc = cache.K_i_binned[1][i] + cache.K_i_bar_binned[1][i];
         double res = K1cc / dG_dq2_avg_bin(i);
-        out.emplace_back(ObservableMapper::to_id(oid), res, cfg.bins[i]);
+        out.emplace_back(ObservableMapper::to_id(oid), res, this->bins.value()[i]);
     }   
     return out;
 }

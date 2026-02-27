@@ -16,11 +16,6 @@ struct BKllConfig : public DecayConfig {
     B_FF_Type ff_type {B_FF_Type::FULL};
     B_Charge charge {B_Charge::B_PLUS};
     Lepton gen {Lepton::MU};
-
-    std::vector<std::pair<double, double>> bins {
-        { 1.00,  4.00},
-        {15.00, 18.00}
-    };
 };
 
 struct BKllCache {

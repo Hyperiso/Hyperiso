@@ -12,11 +12,6 @@ struct LbLllConfig {
 
     LbL_FF_Src ff_src {LbL_FF_Src::DM};
     Lepton gen {Lepton::MU};
-
-    std::vector<std::pair<double, double>> bins {
-        { 1.00,  6.00},
-        {14.00, 18.00}
-    };
 };
 
 struct LbLllDecayCache {

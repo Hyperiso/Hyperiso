@@ -780,11 +780,11 @@ std::vector<ObservableValue> BXsllDecay::BR_B_Xsll(Observables oid) {
         return dB_ds(s, cache.m_l_hat, cache.L_l);
     };
 
-    for (size_t i = 0; i < cfg.bins.size(); i++) {
-        double s_min = cfg.bins[i].first / std::pow(cache.m_b_1S, 2);
-        double s_max = cfg.bins[i].second / std::pow(cache.m_b_1S, 2);
+    for (size_t i = 0; i < this->bins.value().size(); i++) {
+        double s_min = this->bins.value()[i].first / std::pow(cache.m_b_1S, 2);
+        double s_max = this->bins.value()[i].second / std::pow(cache.m_b_1S, 2);
         double res = cache.pref_dB_ds * integrate(f, s_min, s_max, 1e-3); 
-        out.emplace_back(ObservableMapper::to_id(oid), res, cfg.bins[i]);
+        out.emplace_back(ObservableMapper::to_id(oid), res, this->bins.value()[i]);
     }   
 
     return out;
@@ -796,11 +796,11 @@ std::vector<ObservableValue> BXsllDecay::A_FB_B_Xsll(Observables oid) {
         return A_FB(s, cache.m_l_hat, cache.L_l);
     };
 
-    for (size_t i = 0; i < cfg.bins.size(); i++) {
-        double s_min = cfg.bins[i].first / std::pow(cache.m_b_1S, 2);
-        double s_max = cfg.bins[i].second / std::pow(cache.m_b_1S, 2);
+    for (size_t i = 0; i < this->bins.value().size(); i++) {
+        double s_min = this->bins.value()[i].first / std::pow(cache.m_b_1S, 2);
+        double s_max = this->bins.value()[i].second / std::pow(cache.m_b_1S, 2);
         double res = cache.pref_dB_ds * integrate(f, s_min, s_max, 1e-3); 
-        out.emplace_back(ObservableMapper::to_id(oid), res, cfg.bins[i]);
+        out.emplace_back(ObservableMapper::to_id(oid), res, this->bins.value()[i]);
     }   
 
     return out;

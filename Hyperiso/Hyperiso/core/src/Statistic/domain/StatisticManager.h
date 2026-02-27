@@ -19,9 +19,7 @@
 #include "MarginalConfigFactory.h"
 
 struct StatisticConfig {
-    std::map<BinnedObservableId, QCDOrder> obss;
     std::vector<ParamId> p_specs;
-
     std::map<ParamId, MarginalType> override_nuisance_marginals {};
     std::map<BinnedObservableId, MarginalType> override_exp_data_marginals {};
     CopulaType nuisance_copula_type = CopulaType::GAUSSIAN;
@@ -62,15 +60,7 @@ public:
     StatisticManager(StatisticConfig config, std::shared_ptr<IModel> obs_int, 
         std::shared_ptr<IStatCorrelationProxy> pscp, std::shared_ptr<IStatParameterProxy> pspp,
         std::shared_ptr<IStatSourcesProxy> sp) 
-    : config(config), obs_int(obs_int), pscp(pscp), pspp(pspp), sp(sp) {
-        std::map<ObservableId, QCDOrder> unique_obss;
-        for (auto &&[boid, order] : config.obss) {
-            if (unique_obss.contains(boid.s)) continue;
-            unique_obss.emplace(std::pair{boid.s, order});
-        }
-        
-        obs_int->add_observables(unique_obss);
-    }
+    : config(config), obs_int(obs_int), pscp(pscp), pspp(pspp), sp(sp) {}
 
     std::vector<std::unique_ptr<IMarginalDistribution>> build_nuisance_marginal_distributions();
     std::unique_ptr<JointDistribution> build_nuisance_distribution();
@@ -83,14 +73,14 @@ public:
         for (auto sum : sums.summary) {
             std::cout << sum << std::endl;
         }
-        for (auto _ : unzip(config.obss).ids) {
-            std::cout << _.str() << std::endl;
-        }
+        // for (auto _ : unzip(config.obss).ids) {
+        //     std::cout << _.str() << std::endl;
+        // }
 
-        for (auto _ : unzip(config.obss).vals) {
-            std::cout << OrderMapper::str(_) << std::endl;
-        }
-        return zip(unzip(config.obss).ids, sums.summary);
+        // for (auto _ : unzip(config.obss).vals) {
+        //     std::cout << OrderMapper::str(_) << std::endl;
+        // }
+        return zip(obs_int->get_obs_ids(), sums.summary);
     }
 
     MCResult compute_uncertainties_and_sampling() {
@@ -177,7 +167,7 @@ public:
     std::map<ParamId, double> get_all_obss_deps() {
         std::unordered_set<ParamId> eta_infos;
 
-        for (const auto& [obsId, qcdOrder] : config.obss) {
+        for (const auto& obsId : obs_int->get_obs_ids()) {
             for (auto paramId : obs_int->get_obs_deps(obsId.s)) {
                 eta_infos.insert(paramId);
             }
@@ -206,7 +196,7 @@ public:
             LOG_INFO("Compared to max relative uncertainty", paramId, delta_rel[paramId] / delta_rel_max);
         }
 
-        double tol = 1e-2; // TODO : make it a parameter
+        double tol = 1e-1; // TODO : make it a parameter
         for (auto& paramId : eta_infos_leaf) {
             if (delta_rel[paramId] / delta_rel_max > tol)
                 eta_specs_real_leaf[paramId] = pspp->get_param(paramId)->get_val();
@@ -249,8 +239,8 @@ public:
     std::map<BinnedObservableId, double> get_obs_exp() {
         std::map<BinnedObservableId, double> out;
 
-        for (auto obs : this->config.obss) {
-            out[obs.first] = pspp->get_obs_param(obs.first)->get_val();
+        for (const auto& obsId : obs_int->get_obs_ids()) {
+            out[obsId] = pspp->get_obs_param(obsId)->get_val();
         }
         return out;
     }

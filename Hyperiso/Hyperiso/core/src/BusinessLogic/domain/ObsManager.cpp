@@ -55,7 +55,17 @@ ObsManager ObsManager::remove_obs(Observables id) {
     return remove_obs(obs_id);
 }
 
-ObsManager ObsManager::remove_obs(ObservableId id) {
+ObsManager ObsManager::add_obs(BinnedObservableId id, QCDOrder order, bool add_deps) {
+    if (!this->obss.contains(id.s))
+        add_obs(id.s, order, add_deps);
+
+    DecayId dec_id = DecayMapper::get_decay_id(id.s).value();
+    this->decays.at(dec_id)->add_bin(id.p);
+    return *this;
+}
+
+ObsManager ObsManager::remove_obs(ObservableId id)
+{
     id = ensure_present(id, false);
     obss.erase(id);
     // me.remove_observable(id);
@@ -134,8 +144,19 @@ std::unordered_set<ParamId> ObsManager::get_all_ops_deps(ObservableId id) {
     return DependenciesHelper::get_allowed_parameters(id);
 }
 
-std::unordered_set<ObservableId> ObsManager::get_current_obss() {
-    return get_keys(this->obss);
+std::vector<BinnedObservableId> ObsManager::get_current_obss() {
+    std::vector<BinnedObservableId> ids;
+    for (const auto& [oid, _] : this->obss) {
+        DecayId dec_id = DecayMapper::get_decay_id(oid).value();
+        auto bins = this->decays.at(dec_id)->get_bins();
+        if (!bins.has_value()) {
+            ids.emplace_back(oid);
+            continue;
+        }
+        for (auto bin : bins.value())
+            ids.emplace_back(oid, bin);
+    }
+    return ids;
 }
 
 std::shared_ptr<Observable> ObsManager::get_obs(Observables id){

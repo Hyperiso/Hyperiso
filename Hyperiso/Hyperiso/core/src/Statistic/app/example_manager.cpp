@@ -60,31 +60,27 @@ int main(int argc, char** argv) {
     HyperisoMaster hyp;
     HyperisoConfig config_hyp;
     config_hyp.model = Model::SM;
-
-    LOG_INFO("YO");
-
     hyp.init("lha/si_input.flha", config_hyp);
+
+    std::shared_ptr<ObservableInterface> oint = std::make_shared<ObservableInterface>();
+    oint->add_observable(ObservableMapper::to_id(Observables::BR_BS_MUMU_UNTAG), QCDOrder::LO, true)
+        .add_observable(ObservableMapper::to_id(Observables::BR_BD_MUMU), QCDOrder::LO, true);
+        // .add_observable(BinnedObservableId(ObservableMapper::to_id(Observables::DBR_DQ2_B__K_MU_MU), Point(1.1, 6)), QCDOrder::LO, true);
+        // .add_observable(BinnedObservableId(ObservableMapper::to_id(Observables::DBR_DQ2_B__K_MU_MU), Point(11, 13)), QCDOrder::LO, true);
 
     StatisticConfig config;
     config.MC_draws = 100;
-    config.obss = {
-        {ObservableMapper::to_id(Observables::BR_BS_MUMU_UNTAG), QCDOrder::LO},
-        {ObservableMapper::to_id(Observables::BR_BD_MUMU), QCDOrder::LO},
-        // {BinnedObservableId(ObservableMapper::to_id(Observables::DBR_DQ2_B__K_MU_MU), Point(1.1, 6)), QCDOrder::LO}
-    };
     config.MLE_max_iter = 1000;
     config.MLE_tol = 1e-6;
 
     config.p_specs = {
-        ParamId(ParameterType::SM, "VCKMIN", 1),
-        ParamId(ParameterType::SM, "VCKMIN", 2),
+        // ParamId(ParameterType::SM, "VCKMIN", 1),
+        // ParamId(ParameterType::SM, "VCKMIN", 2),
         ParamId(ParameterType::SM, "VCKMIN", 3),
         ParamId(ParameterType::SM, "VCKMIN", 4)
     };
 
-    std::shared_ptr<ObservableInterface> oi = std::make_shared<ObservableInterface>();
-
-    StatisticManager stat(config, std::make_shared<ObservableInterfaceAdapterObs>(oi), std::make_shared<StatCorrelationProxy>(), std::make_shared<StatParameterProxy>(), std::make_shared<StatParamSourcesProxy>());
+    StatisticManager stat(config, std::make_shared<ObservableInterfaceAdapterObs>(oint), std::make_shared<StatCorrelationProxy>(), std::make_shared<StatParameterProxy>(), std::make_shared<StatParamSourcesProxy>());
     LOG_INFO("YO1");
     stat.fill_cache();
     // LOG_INFO("YO2");

@@ -672,7 +672,7 @@ void BsPhiDecay::compute_binned_J_i() {
         return std::abs(x) < tol ? 0.0 : x;
     };
 
-    for (auto [q2_l, q2_u] : cfg.bins) {
+    for (auto [q2_l, q2_u] : this->bins.value()) {
         cache.f_J_i_binned[ 0].emplace_back(integrate([&] (double q2) { return 2 * (J1s(q2, false) - cache.ys * h1s(q2) / 2) + J1c(q2, false) - cache.ys * h1c(q2) / 2 - (2 * (J2s(q2, false) - cache.ys * h2s(q2) / 2) + J2c(q2, false) - cache.ys * h2c(q2) / 2) / 3.; }, q2_l, q2_u, 1e-2));    
         cache.f_J_i_binned[ 1].emplace_back(integrate([&] (double q2) { return 2 * (J1s(q2, true ) - cache.ys * h1s(q2) / 2) + J1c(q2, true ) - cache.ys * h1c(q2) / 2 - (2 * (J2s(q2, true ) - cache.ys * h2s(q2) / 2) + J2c(q2, true ) - cache.ys * h2c(q2) / 2) / 3.; }, q2_l, q2_u, 1e-2));
         cache.f_J_i_binned[ 2].emplace_back(integrate([&] (double q2) { return J2s(q2, true) + J2s(q2, false) - cache.ys * h2s(q2); },  q2_l, q2_u, 1e-2));
@@ -694,9 +694,9 @@ void BsPhiDecay::compute_binned_J_i() {
 std::vector<ObservableValue> BsPhiDecay::dBR_dq2_binned(bool bar, Observables id) {
     std::vector<ObservableValue> out;
     size_t idx = bar ? 1 : 0;
-    for (size_t i = 0; i < cfg.bins.size(); i++) {
+    for (size_t i = 0; i < this->bins.value().size(); i++) {
         double res = 0.75 * cache.f_J_i_binned[idx][i] / (1 - cache.ys * cache.ys) * cache.life_Bs; 
-        out.emplace_back(ObservableMapper::to_id(id), res, cfg.bins[i]);
+        out.emplace_back(ObservableMapper::to_id(id), res, this->bins.value()[i]);
     }   
     return out;
 }
@@ -707,54 +707,54 @@ double BsPhiDecay::dG_dq2_avg_bin(size_t bin) {
 
 std::vector<ObservableValue> BsPhiDecay::F_L(Observables id) {
     std::vector<ObservableValue> out;
-    for (size_t i = 0; i < cfg.bins.size(); i++) {
+    for (size_t i = 0; i < this->bins.value().size(); i++) {
         double res = -cache.f_J_i_binned[3][i] / dG_dq2_avg_bin(i); 
-        out.emplace_back(ObservableMapper::to_id(id), res, cfg.bins[i]);
+        out.emplace_back(ObservableMapper::to_id(id), res, this->bins.value()[i]);
     }   
     return out;
 }
 
 std::vector<ObservableValue> BsPhiDecay::A_T_2(Observables id) {
     std::vector<ObservableValue> out;
-    for (size_t i = 0; i < cfg.bins.size(); i++) {
+    for (size_t i = 0; i < this->bins.value().size(); i++) {
         double res = 0.5 * cache.f_J_i_binned[4][i] / cache.f_J_i_binned[2][i]; 
-        out.emplace_back(ObservableMapper::to_id(id), res, cfg.bins[i]);
+        out.emplace_back(ObservableMapper::to_id(id), res, this->bins.value()[i]);
     }   
     return out;
 }
 
 std::vector<ObservableValue> BsPhiDecay::A_T_Re_CPV(Observables id) {
     std::vector<ObservableValue> out;
-    for (size_t i = 0; i < cfg.bins.size(); i++) {
+    for (size_t i = 0; i < this->bins.value().size(); i++) {
         double res = 0.25 * cache.f_J_i_binned[8][i] / cache.f_J_i_binned[2][i]; 
-        out.emplace_back(ObservableMapper::to_id(id), res, cfg.bins[i]);
+        out.emplace_back(ObservableMapper::to_id(id), res, this->bins.value()[i]);
     }   
     return out;
 }
 
 std::vector<ObservableValue> BsPhiDecay::A_T_Im_CPV(Observables id) {
     std::vector<ObservableValue> out;
-    for (size_t i = 0; i < cfg.bins.size(); i++) {
+    for (size_t i = 0; i < this->bins.value().size(); i++) {
         double res = 0.5 * cache.f_J_i_binned[12][i] / cache.f_J_i_binned[2][i]; 
-        out.emplace_back(ObservableMapper::to_id(id), res, cfg.bins[i]);
+        out.emplace_back(ObservableMapper::to_id(id), res, this->bins.value()[i]);
     }   
     return out;
 }
 
 std::vector<ObservableValue> BsPhiDecay::Pp_4(Observables id) {
     std::vector<ObservableValue> out;
-    for (size_t i = 0; i < cfg.bins.size(); i++) {
+    for (size_t i = 0; i < this->bins.value().size(); i++) {
         double res = cache.f_J_i_binned[5][i] / std::sqrt(std::abs(cache.f_J_i_binned[2][i] * cache.f_J_i_binned[3][i])); 
-        out.emplace_back(ObservableMapper::to_id(id), res, cfg.bins[i]);
+        out.emplace_back(ObservableMapper::to_id(id), res, this->bins.value()[i]);
     }   
     return out;
 }
 
 std::vector<ObservableValue> BsPhiDecay::Pp_6(Observables id) {
     std::vector<ObservableValue> out;
-    for (size_t i = 0; i < cfg.bins.size(); i++) {
+    for (size_t i = 0; i < this->bins.value().size(); i++) {
         double res = -0.5 * cache.f_J_i_binned[10][i] / std::sqrt(std::abs(cache.f_J_i_binned[2][i] * cache.f_J_i_binned[3][i])); 
-        out.emplace_back(ObservableMapper::to_id(id), res, cfg.bins[i]);
+        out.emplace_back(ObservableMapper::to_id(id), res, this->bins.value()[i]);
     }   
     return out;
 }
@@ -765,9 +765,9 @@ std::vector<ObservableValue> BsPhiDecay::S_i(int i, Observables id) {
     std::map<size_t, size_t> J_idx = {{2, 2}, {3, 4}, {4, 5}, {7, 10}};
 
     std::vector<ObservableValue> out;
-    for (size_t j = 0; j < cfg.bins.size(); j++) {
+    for (size_t j = 0; j < this->bins.value().size(); j++) {
         double res = cache.f_J_i_binned[J_idx[i]][j] / dG_dq2_avg_bin(j);
-        out.emplace_back(ObservableMapper::to_id(id), res, cfg.bins[j]);
+        out.emplace_back(ObservableMapper::to_id(id), res, this->bins.value()[j]);
     }   
     return out;
 }
@@ -779,81 +779,81 @@ std::vector<ObservableValue> BsPhiDecay::A_i(int i, Observables id) {
     double sign = i == 6 ? -1 : 1;
 
     std::vector<ObservableValue> out;
-    for (size_t j = 0; j < cfg.bins.size(); j++) {
+    for (size_t j = 0; j < this->bins.value().size(); j++) {
         double res = sign * cache.f_J_i_binned[J_idx[i]][j] / dG_dq2_avg_bin(j);
-        out.emplace_back(ObservableMapper::to_id(id), res, cfg.bins[j]);
+        out.emplace_back(ObservableMapper::to_id(id), res, this->bins.value()[j]);
     }   
     return out;
 }
 
 std::vector<ObservableValue> BsPhiDecay::A_FB_CPV(Observables id) {
     std::vector<ObservableValue> out;
-    for (size_t i = 0; i < cfg.bins.size(); i++) {
+    for (size_t i = 0; i < this->bins.value().size(); i++) {
         double res = -0.375 * (2 * cache.f_J_i_binned[7][i] + cache.f_J_i_binned[9][i]) / dG_dq2_avg_bin(i); 
-        out.emplace_back(ObservableMapper::to_id(id), res, cfg.bins[i]);
+        out.emplace_back(ObservableMapper::to_id(id), res, this->bins.value()[i]);
     }   
     return out;
 }
 
 std::vector<ObservableValue> BsPhiDecay::P_2_CPV(Observables id) {
     std::vector<ObservableValue> out;
-    for (size_t i = 0; i < cfg.bins.size(); i++) {
+    for (size_t i = 0; i < this->bins.value().size(); i++) {
         double res = 0.125 * cache.f_J_i_binned[7][i] / cache.f_J_i_binned[2][i]; 
-        out.emplace_back(ObservableMapper::to_id(id), res, cfg.bins[i]);
+        out.emplace_back(ObservableMapper::to_id(id), res, this->bins.value()[i]);
     }   
     return out;
 }
 
 std::vector<ObservableValue> BsPhiDecay::P_3_CPV(Observables id) {
     std::vector<ObservableValue> out;
-    for (size_t i = 0; i < cfg.bins.size(); i++) {
+    for (size_t i = 0; i < this->bins.value().size(); i++) {
         double res = -0.25 * cache.f_J_i_binned[12][i] / cache.f_J_i_binned[2][i]; 
-        out.emplace_back(ObservableMapper::to_id(id), res, cfg.bins[i]);
+        out.emplace_back(ObservableMapper::to_id(id), res, this->bins.value()[i]);
     }   
     return out;
 }
 
 std::vector<ObservableValue> BsPhiDecay::Pp_5_CPV(Observables id) {
     std::vector<ObservableValue> out;
-    for (size_t i = 0; i < cfg.bins.size(); i++) {
+    for (size_t i = 0; i < this->bins.value().size(); i++) {
         double res = 0.5 * cache.f_J_i_binned[6][i] / std::sqrt(std::abs(cache.f_J_i_binned[2][i] * cache.f_J_i_binned[3][i])); 
-        out.emplace_back(ObservableMapper::to_id(id), res, cfg.bins[i]);
+        out.emplace_back(ObservableMapper::to_id(id), res, this->bins.value()[i]);
     }   
     return out;
 }
 
 std::vector<ObservableValue> BsPhiDecay::Pp_8_CPV(Observables id) {
     std::vector<ObservableValue> out;
-    for (size_t i = 0; i < cfg.bins.size(); i++) {
+    for (size_t i = 0; i < this->bins.value().size(); i++) {
         double res = -cache.f_J_i_binned[11][i] / std::sqrt(std::abs(cache.f_J_i_binned[2][i] * cache.f_J_i_binned[3][i])); 
-        out.emplace_back(ObservableMapper::to_id(id), res, cfg.bins[i]);
+        out.emplace_back(ObservableMapper::to_id(id), res, this->bins.value()[i]);
     }   
     return out;
 }
 
 std::vector<ObservableValue> BsPhiDecay::Q_8_m(Observables id) {
     std::vector<ObservableValue> out;
-    for (size_t i = 0; i < cfg.bins.size(); i++) {
+    for (size_t i = 0; i < this->bins.value().size(); i++) {
         double res = cache.f_J_i_binned[13][i] / std::sqrt(std::abs(2 * cache.f_J_i_binned[3][i] * (cache.f_J_i_binned[2][i] - cache.f_J_i_binned[4][i]))); 
-        out.emplace_back(ObservableMapper::to_id(id), res, cfg.bins[i]);
+        out.emplace_back(ObservableMapper::to_id(id), res, this->bins.value()[i]);
     }   
     return out;
 }
 
 std::vector<ObservableValue> BsPhiDecay::Q_8_p(Observables id) {
     std::vector<ObservableValue> out;
-    for (size_t i = 0; i < cfg.bins.size(); i++) {
+    for (size_t i = 0; i < this->bins.value().size(); i++) {
         double res = cache.f_J_i_binned[13][i] / std::sqrt(std::abs(2 * cache.f_J_i_binned[3][i] * (cache.f_J_i_binned[2][i] + cache.f_J_i_binned[4][i]))); 
-        out.emplace_back(ObservableMapper::to_id(id), res, cfg.bins[i]);
+        out.emplace_back(ObservableMapper::to_id(id), res, this->bins.value()[i]);
     }   
     return out;
 }
 
 std::vector<ObservableValue> BsPhiDecay::Q_9(Observables id) {
     std::vector<ObservableValue> out;
-    for (size_t i = 0; i < cfg.bins.size(); i++) {
+    for (size_t i = 0; i < this->bins.value().size(); i++) {
         double res = 0.5 * cache.f_J_i_binned[14][i] / cache.f_J_i_binned[2][i]; 
-        out.emplace_back(ObservableMapper::to_id(id), res, cfg.bins[i]);
+        out.emplace_back(ObservableMapper::to_id(id), res, this->bins.value()[i]);
     }   
     return out;
 }

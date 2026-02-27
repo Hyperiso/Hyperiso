@@ -15,11 +15,6 @@ struct BsPhiConfig {
     BV_FF_Src ff_src {BV_FF_Src::BSZ_SR_LAT};
     B_FF_Type ff_type {B_FF_Type::FULL};
     Lepton gen {Lepton::MU};
-
-    std::vector<std::pair<double, double>> bins {
-        { 1.00,  6.00},
-        {16.00, 18.00}
-    };
 };
 
 struct BsPhiDecayCache {

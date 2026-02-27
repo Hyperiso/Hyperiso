@@ -652,7 +652,7 @@ double BKstarllDecay::J9(double q2, bool bar) {
 
 void BKstarllDecay::compute_binned_J_i() {
     auto fill_binned = [&] (std::array<std::vector<double>, 15>& dest, bool bar) {
-        for (auto [q2_l, q2_u] : cfg.bins) {
+        for (auto [q2_l, q2_u] : this->bins.value()) {
             dest[0].emplace_back(integrate([&] (double q2) { return 2. * J1s(q2, bar) + J1c(q2, bar); }, q2_l, q2_u, 1e-2));
             dest[1].emplace_back(integrate([&] (double q2) { return J2s(q2, bar); }, q2_l, q2_u, 1e-2));
             dest[2].emplace_back(integrate([&] (double q2) { return J2c(q2, bar); }, q2_l, q2_u, 1e-2));
@@ -678,9 +678,9 @@ void BKstarllDecay::compute_binned_J_i() {
 std::vector<ObservableValue> BKstarllDecay::dBR_dq2_binned(bool bar, Observables id) {
     std::vector<ObservableValue> out;
     auto J_i = bar ? cache.J_i_bar_binned : cache.J_i_binned;
-    for (size_t i = 0; i < cfg.bins.size(); i++) {
+    for (size_t i = 0; i < this->bins.value().size(); i++) {
         double res = 0.75 * (cache.J_i_binned[0][i] + cache.J_i_bar_binned[0][i] - (2 * (cache.J_i_binned[1][i] + cache.J_i_bar_binned[1][i]) + cache.J_i_binned[2][i] + cache.J_i_bar_binned[2][i]) / 3.) * cache.life_B; 
-        out.emplace_back(ObservableMapper::to_id(id), res, cfg.bins[i]);
+        out.emplace_back(ObservableMapper::to_id(id), res, this->bins.value()[i]);
     }   
     return out;
 }
@@ -691,11 +691,11 @@ double BKstarllDecay::dG_dq2_avg_bin(size_t bin) {
 
 std::vector<ObservableValue> BKstarllDecay::A_FB_binned(Observables id) {
     std::vector<ObservableValue> out;
-    for (size_t i = 0; i < cfg.bins.size(); i++) {
+    for (size_t i = 0; i < this->bins.value().size(); i++) {
         double J6 = 2 * cache.J_i_binned[7][i] + cache.J_i_binned[9][i];
         double J6bar = 2 * cache.J_i_bar_binned[7][i] + cache.J_i_bar_binned[9][i];
         double res = -0.375 * (J6 + J6bar) / dG_dq2_avg_bin(i); 
-        out.emplace_back(ObservableMapper::to_id(id), res, cfg.bins[i]);
+        out.emplace_back(ObservableMapper::to_id(id), res, this->bins.value()[i]);
     }   
     return out;
 }
@@ -717,29 +717,29 @@ ObservableValue BKstarllDecay::q0(Observables id) {
 
 std::vector<ObservableValue> BKstarllDecay::A_CP_binned(Observables id) {
     std::vector<ObservableValue> out;
-    for (size_t i = 0; i < cfg.bins.size(); i++) {
+    for (size_t i = 0; i < this->bins.value().size(); i++) {
         double dG = cache.J_i_binned[0][i] - (2 * cache.J_i_binned[1][i] + cache.J_i_binned[2][i]) / 3.;
         double dGbar = cache.J_i_bar_binned[0][i] - (2 * cache.J_i_bar_binned[1][i] + cache.J_i_bar_binned[2][i]) / 3.;
         double res = (dG - dGbar) / (dG + dGbar); 
-        out.emplace_back(ObservableMapper::to_id(id), res, cfg.bins[i]);
+        out.emplace_back(ObservableMapper::to_id(id), res, this->bins.value()[i]);
     }   
     return out;
 }
 
 std::vector<ObservableValue> BKstarllDecay::F_L_binned(Observables id) {
     std::vector<ObservableValue> out;
-    for (size_t i = 0; i < cfg.bins.size(); i++) {
+    for (size_t i = 0; i < this->bins.value().size(); i++) {
         double res = (0.75 * (cache.J_i_binned[14][i] + cache.J_i_bar_binned[14][i]) - 0.25 * (cache.J_i_binned[2][i] + cache.J_i_bar_binned[2][i])) / dG_dq2_avg_bin(i); 
-        out.emplace_back(ObservableMapper::to_id(id), res, cfg.bins[i]);
+        out.emplace_back(ObservableMapper::to_id(id), res, this->bins.value()[i]);
     }   
     return out;
 }
 
 std::vector<ObservableValue> BKstarllDecay::F_T_binned(Observables id) {
     std::vector<ObservableValue> out;
-    for (size_t i = 0; i < cfg.bins.size(); i++) {
+    for (size_t i = 0; i < this->bins.value().size(); i++) {
         double res = 4.0 * (cache.J_i_binned[1][i] + cache.J_i_bar_binned[1][i]) / dG_dq2_avg_bin(i); 
-        out.emplace_back(ObservableMapper::to_id(id), res, cfg.bins[i]);
+        out.emplace_back(ObservableMapper::to_id(id), res, this->bins.value()[i]);
     }   
     return out;
 }
@@ -752,47 +752,47 @@ std::vector<ObservableValue> BKstarllDecay::A_T_1_binned(Observables id) {
     };
 
     std::vector<ObservableValue> out;
-    for (size_t i = 0; i < cfg.bins.size(); i++) {
+    for (size_t i = 0; i < this->bins.value().size(); i++) {
         double J2scpa = cache.J_i_binned[1][i] + cache.J_i_bar_binned[1][i];
-        double num = integrate(num_f, cfg.bins[i].first, cfg.bins[i].second, 1e-2);
+        double num = integrate(num_f, this->bins.value()[i].first, this->bins.value()[i].second, 1e-2);
         double res = -0.5 * num / J2scpa; 
-        out.emplace_back(ObservableMapper::to_id(id), res, cfg.bins[i]);
+        out.emplace_back(ObservableMapper::to_id(id), res, this->bins.value()[i]);
     }   
     return out;
 }
 
 std::vector<ObservableValue> BKstarllDecay::A_T_2_binned(Observables id) {
     std::vector<ObservableValue> out;
-    for (size_t i = 0; i < cfg.bins.size(); i++) {
+    for (size_t i = 0; i < this->bins.value().size(); i++) {
         double res = 0.5 * (cache.J_i_binned[3][i] + cache.J_i_bar_binned[3][i]) / (cache.J_i_binned[1][i] + cache.J_i_bar_binned[1][i]); 
-        out.emplace_back(ObservableMapper::to_id(id), res, cfg.bins[i]);
+        out.emplace_back(ObservableMapper::to_id(id), res, this->bins.value()[i]);
     }   
     return out;
 }
 
 std::vector<ObservableValue> BKstarllDecay::A_T_3_binned(Observables id) {
     std::vector<ObservableValue> out;
-    for (size_t i = 0; i < cfg.bins.size(); i++) {
+    for (size_t i = 0; i < this->bins.value().size(); i++) {
         double J2scp = cache.J_i_binned[1][i] + cache.J_i_bar_binned[1][i];
         double J2ccp = cache.J_i_binned[2][i] + cache.J_i_bar_binned[2][i];
         double J3cp = cache.J_i_binned[3][i] + cache.J_i_bar_binned[3][i];
         double J4cp = cache.J_i_binned[4][i] + cache.J_i_bar_binned[4][i];
         double J7cp = cache.J_i_binned[11][i] + cache.J_i_bar_binned[11][i];
         double res = std::sqrt((4 * J4cp * J4cp + J7cp * J7cp) / std::abs(-2 * J2ccp * (2 * J2scp + J3cp)));
-        out.emplace_back(ObservableMapper::to_id(id), res, cfg.bins[i]);
+        out.emplace_back(ObservableMapper::to_id(id), res, this->bins.value()[i]);
     }   
     return out;
 }
 
 std::vector<ObservableValue> BKstarllDecay::A_T_4_binned(Observables id) {
     std::vector<ObservableValue> out;
-    for (size_t i = 0; i < cfg.bins.size(); i++) {
+    for (size_t i = 0; i < this->bins.value().size(); i++) {
         double J4cp = cache.J_i_binned[4][i] + cache.J_i_bar_binned[4][i];
         double J5cp = cache.J_i_binned[6][i] + cache.J_i_bar_binned[6][i];
         double J7cp = cache.J_i_binned[11][i] + cache.J_i_bar_binned[11][i];
         double J8cp = cache.J_i_binned[12][i] + cache.J_i_bar_binned[12][i];
         double res = std::sqrt((J5cp * J5cp + 4 * J8cp * J8cp) / (J7cp * J7cp + 4 * J4cp * J4cp));
-        out.emplace_back(ObservableMapper::to_id(id), res, cfg.bins[i]);
+        out.emplace_back(ObservableMapper::to_id(id), res, this->bins.value()[i]);
     }   
     return out;
 }
@@ -811,139 +811,139 @@ std::vector<ObservableValue> BKstarllDecay::A_T_5_binned(Observables id) {
     };
 
     std::vector<ObservableValue> out;
-    for (size_t i = 0; i < cfg.bins.size(); i++) {
-        double num = integrate(num_f, cfg.bins[i].first, cfg.bins[i].second, 1e-2);
-        double den = integrate(den_f, cfg.bins[i].first, cfg.bins[i].second, 1e-2);
+    for (size_t i = 0; i < this->bins.value().size(); i++) {
+        double num = integrate(num_f, this->bins.value()[i].first, this->bins.value()[i].second, 1e-2);
+        double den = integrate(den_f, this->bins.value()[i].first, this->bins.value()[i].second, 1e-2);
         double res = num / den; 
-        out.emplace_back(ObservableMapper::to_id(id), res, cfg.bins[i]);
+        out.emplace_back(ObservableMapper::to_id(id), res, this->bins.value()[i]);
     }   
     return out;
 }
 
 std::vector<ObservableValue> BKstarllDecay::A_T_Re_binned(Observables id) {
     std::vector<ObservableValue> out;
-    for (size_t i = 0; i < cfg.bins.size(); i++) {
+    for (size_t i = 0; i < this->bins.value().size(); i++) {
         double J2scp = cache.J_i_binned[1][i] + cache.J_i_bar_binned[1][i];
         double J6scp = cache.J_i_binned[8][i] + cache.J_i_bar_binned[8][i];
         double res = 0.25 * J6scp / J2scp;
-        out.emplace_back(ObservableMapper::to_id(id), res, cfg.bins[i]);
+        out.emplace_back(ObservableMapper::to_id(id), res, this->bins.value()[i]);
     }   
     return out;
 }
 
 std::vector<ObservableValue> BKstarllDecay::A_T_Re_CPV_binned(Observables id) {
     std::vector<ObservableValue> out;
-    for (size_t i = 0; i < cfg.bins.size(); i++) {
+    for (size_t i = 0; i < this->bins.value().size(); i++) {
         double J2scp = cache.J_i_binned[1][i] + cache.J_i_bar_binned[1][i];
         double J6scpa = cache.J_i_binned[8][i] - cache.J_i_bar_binned[8][i];
         double res = 0.25 * J6scpa / J2scp;
-        out.emplace_back(ObservableMapper::to_id(id), res, cfg.bins[i]);
+        out.emplace_back(ObservableMapper::to_id(id), res, this->bins.value()[i]);
     }   
     return out;
 }
 
 std::vector<ObservableValue> BKstarllDecay::A_Im_binned(Observables id) {
     std::vector<ObservableValue> out;
-    for (size_t i = 0; i < cfg.bins.size(); i++) {
+    for (size_t i = 0; i < this->bins.value().size(); i++) {
         double res = (cache.J_i_binned[13][i] + cache.J_i_bar_binned[13][i]) / dG_dq2_avg_bin(i); 
-        out.emplace_back(ObservableMapper::to_id(id), res, cfg.bins[i]);
+        out.emplace_back(ObservableMapper::to_id(id), res, this->bins.value()[i]);
     }   
     return out;
 }
 
 std::vector<ObservableValue> BKstarllDecay::alpha_K_binned(Observables id) {
     std::vector<ObservableValue> out;
-    for (size_t i = 0; i < cfg.bins.size(); i++) {
+    for (size_t i = 0; i < this->bins.value().size(); i++) {
         double J2scp = cache.J_i_binned[1][i] + cache.J_i_bar_binned[1][i];
         double J2ccp = cache.J_i_binned[2][i] + cache.J_i_bar_binned[2][i];
         double res = -0.5 * (2 * J2scp + J2ccp) / J2scp;
-        out.emplace_back(ObservableMapper::to_id(id), res, cfg.bins[i]);
+        out.emplace_back(ObservableMapper::to_id(id), res, this->bins.value()[i]);
     }   
     return out;
 }
 
 std::vector<ObservableValue> BKstarllDecay::H_T_1_binned(Observables id) {
     std::vector<ObservableValue> out;
-    for (size_t i = 0; i < cfg.bins.size(); i++) {
+    for (size_t i = 0; i < this->bins.value().size(); i++) {
         double J2scp = cache.J_i_binned[1][i] + cache.J_i_bar_binned[1][i];
         double J2ccp = cache.J_i_binned[2][i] + cache.J_i_bar_binned[2][i];
         double J3cp = cache.J_i_binned[3][i] + cache.J_i_bar_binned[3][i];
         double J4cp = cache.J_i_binned[4][i] + cache.J_i_bar_binned[4][i];
         double res = RT2 * J4cp / std::sqrt(std::abs(J2ccp * (J2scp - J3cp)));
-        out.emplace_back(ObservableMapper::to_id(id), res, cfg.bins[i]);
+        out.emplace_back(ObservableMapper::to_id(id), res, this->bins.value()[i]);
     }   
     return out;
 }
 
 std::vector<ObservableValue> BKstarllDecay::H_T_2_binned(Observables id) {
     std::vector<ObservableValue> out;
-    for (size_t i = 0; i < cfg.bins.size(); i++) {
+    for (size_t i = 0; i < this->bins.value().size(); i++) {
         double J2scp = cache.J_i_binned[1][i] + cache.J_i_bar_binned[1][i];
         double J2ccp = cache.J_i_binned[2][i] + cache.J_i_bar_binned[2][i];
         double J3cp = cache.J_i_binned[3][i] + cache.J_i_bar_binned[3][i];
         double J5cp = cache.J_i_binned[6][i] + cache.J_i_bar_binned[6][i];
         double res = J5cp / std::sqrt(std::abs(2 * J2ccp * (2 * J2scp + J3cp)));
-        out.emplace_back(ObservableMapper::to_id(id), res, cfg.bins[i]);
+        out.emplace_back(ObservableMapper::to_id(id), res, this->bins.value()[i]);
     }   
     return out;
 }
 
 std::vector<ObservableValue> BKstarllDecay::H_T_3_binned(Observables id) {
     std::vector<ObservableValue> out;
-    for (size_t i = 0; i < cfg.bins.size(); i++) {
+    for (size_t i = 0; i < this->bins.value().size(); i++) {
         double J2scp = cache.J_i_binned[1][i] + cache.J_i_bar_binned[1][i];
         double J3cp = cache.J_i_binned[3][i] + cache.J_i_bar_binned[3][i];
         double J6cp = (2 * (cache.J_i_binned[7][i] + cache.J_i_bar_binned[7][i]) + cache.J_i_binned[9][i] + cache.J_i_bar_binned[9][i]);
         double res = 0.5 * J6cp / std::sqrt(std::abs(4 * J2scp * J2scp - J3cp * J3cp));
-        out.emplace_back(ObservableMapper::to_id(id), res, cfg.bins[i]);
+        out.emplace_back(ObservableMapper::to_id(id), res, this->bins.value()[i]);
     }   
     return out;
 }
 
 std::vector<ObservableValue> BKstarllDecay::P_2_binned(Observables id) {
     std::vector<ObservableValue> out;
-    for (size_t i = 0; i < cfg.bins.size(); i++) {
+    for (size_t i = 0; i < this->bins.value().size(); i++) {
         double J2scp = cache.J_i_binned[1][i] + cache.J_i_bar_binned[1][i];
         double J6scp = cache.J_i_binned[7][i] + cache.J_i_bar_binned[7][i];
         double res = 0.125 * J6scp / J2scp;
-        out.emplace_back(ObservableMapper::to_id(id), res, cfg.bins[i]);
+        out.emplace_back(ObservableMapper::to_id(id), res, this->bins.value()[i]);
     }   
     return out;
 }
 
 std::vector<ObservableValue> BKstarllDecay::P_3_binned(Observables id) {
     std::vector<ObservableValue> out;
-    for (size_t i = 0; i < cfg.bins.size(); i++) {
+    for (size_t i = 0; i < this->bins.value().size(); i++) {
         double J2scp = cache.J_i_binned[1][i] + cache.J_i_bar_binned[1][i];
         double J9cp = cache.J_i_binned[13][i] + cache.J_i_bar_binned[13][i];
         double res = -0.25 * J9cp / J2scp;
-        out.emplace_back(ObservableMapper::to_id(id), res, cfg.bins[i]);
+        out.emplace_back(ObservableMapper::to_id(id), res, this->bins.value()[i]);
     }   
     return out;
 }
 
 std::vector<ObservableValue> BKstarllDecay::P_6_binned(Observables id) {
     std::vector<ObservableValue> out;
-    for (size_t i = 0; i < cfg.bins.size(); i++) {
+    for (size_t i = 0; i < this->bins.value().size(); i++) {
         double J2scp = cache.J_i_binned[1][i] + cache.J_i_bar_binned[1][i];
         double J2ccp = cache.J_i_binned[2][i] + cache.J_i_bar_binned[2][i];
         double J3cp = cache.J_i_binned[3][i] + cache.J_i_bar_binned[3][i];
         double J7cp = cache.J_i_binned[11][i] + cache.J_i_bar_binned[11][i];
         double res = -J7cp / std::sqrt(std::abs(2 * J2ccp * (2 * J2scp - J3cp)));
-        out.emplace_back(ObservableMapper::to_id(id), res, cfg.bins[i]);
+        out.emplace_back(ObservableMapper::to_id(id), res, this->bins.value()[i]);
     }   
     return out;
 }
 
 std::vector<ObservableValue> BKstarllDecay::P_8_binned(Observables id) {
     std::vector<ObservableValue> out;
-    for (size_t i = 0; i < cfg.bins.size(); i++) {
+    for (size_t i = 0; i < this->bins.value().size(); i++) {
         double J2scp = cache.J_i_binned[1][i] + cache.J_i_bar_binned[1][i];
         double J2ccp = cache.J_i_binned[2][i] + cache.J_i_bar_binned[2][i];
         double J3cp = cache.J_i_binned[3][i] + cache.J_i_bar_binned[3][i];
         double J8cp = cache.J_i_binned[12][i] + cache.J_i_bar_binned[12][i];
         double res = -RT2 * J8cp / std::sqrt(std::abs(J2ccp * (2 * J2scp - J3cp)));
-        out.emplace_back(ObservableMapper::to_id(id), res, cfg.bins[i]);
+        out.emplace_back(ObservableMapper::to_id(id), res, this->bins.value()[i]);
     }   
     return out;
 }
@@ -956,12 +956,12 @@ std::vector<ObservableValue> BKstarllDecay::Pp_i_binned(size_t i, bool cpv, Obse
     double sign = cpv ? -1 : 1;
 
     std::vector<ObservableValue> out;
-    for (size_t j = 0; j < cfg.bins.size(); j++) {
+    for (size_t j = 0; j < this->bins.value().size(); j++) {
         double J2scp = cache.J_i_binned[1][j] + cache.J_i_bar_binned[1][j];
         double J2ccp = cache.J_i_binned[2][j] + cache.J_i_bar_binned[2][j];
         double Jicp = cache.J_i_binned[J_idx[i]][j] + sign * cache.J_i_bar_binned[J_idx[i]][j];
         double res = factors[i] * Jicp / std::sqrt(std::abs(J2ccp * J2scp));
-        out.emplace_back(ObservableMapper::to_id(id), res, cfg.bins[j]);
+        out.emplace_back(ObservableMapper::to_id(id), res, this->bins.value()[j]);
     }   
     return out;
 }
@@ -973,9 +973,9 @@ std::vector<ObservableValue> BKstarllDecay::S_i_binned(size_t i, bool cpv, Obser
     double sign = cpv ? -1 : 1;
 
     std::vector<ObservableValue> out;
-    for (size_t j = 0; j < cfg.bins.size(); j++) {
+    for (size_t j = 0; j < this->bins.value().size(); j++) {
         double res = (cache.J_i_binned[J_idx[i]][j] + sign * cache.J_i_bar_binned[J_idx[i]][j]) / dG_dq2_avg_bin(j); 
-        out.emplace_back(ObservableMapper::to_id(id), i == 6 ? -res : res, cfg.bins[j]);
+        out.emplace_back(ObservableMapper::to_id(id), i == 6 ? -res : res, this->bins.value()[j]);
     }   
     return out;
 }
@@ -987,11 +987,11 @@ std::vector<ObservableValue> BKstarllDecay::P_i_CPV_binned(size_t i, Observables
     std::map<size_t, size_t> J_idx = {{1, 3}, {2, 7}, {3, 13}};
 
     std::vector<ObservableValue> out;
-    for (size_t j = 0; j < cfg.bins.size(); j++) {
+    for (size_t j = 0; j < this->bins.value().size(); j++) {
         double J2scp = cache.J_i_binned[1][j] + cache.J_i_bar_binned[1][j];
         double Jicpv = cache.J_i_binned[J_idx[i]][j] - cache.J_i_bar_binned[J_idx[i]][j];
         double res = factors[i] * Jicpv / J2scp;
-        out.emplace_back(ObservableMapper::to_id(id), res, cfg.bins[j]);
+        out.emplace_back(ObservableMapper::to_id(id), res, this->bins.value()[j]);
     }   
     return out;
 }
@@ -1081,8 +1081,8 @@ void BKstarllDecay::test_J() {
     };
 
     size_t n = 200;
-    double dq2 = (cfg.bins[0].second - cfg.bins[0].first) / n;
-    double q2 = cfg.bins[0].first;
+    double dq2 = (this->bins.value()[0].second - this->bins.value()[0].first) / n;
+    double q2 = this->bins.value()[0].first;
 
     for (size_t i = 0; i <= n; i++) {
         write_line(q2);
@@ -1107,8 +1107,8 @@ void BKstarllDecay::test_J() {
 //     auto pp8 = Pp_i_binned(8);
 
 //     auto write_line = [&] (size_t i) {
-//         fs << cfg.bins[i].first 
-//         << "," << cfg.bins[i].second 
+//         fs << this->bins.value()[i].first 
+//         << "," << this->bins.value()[i].second 
 //         << "," << dG[i].value
 //         << "," << dGbar[i].value
 //         << "," << afb[i].value
@@ -1122,7 +1122,7 @@ void BKstarllDecay::test_J() {
 //         << "\n";
 //     };
 
-//     for (size_t i = 0; i < cfg.bins.size(); i++) {
+//     for (size_t i = 0; i < this->bins.value().size(); i++) {
 //         write_line(i);
 //     }
 // }

@@ -122,6 +122,17 @@ public:
     ObsManager add_obs(ObservableId id, QCDOrder order, bool add_deps=false);
 
     /**
+     * @brief Add a binned observable (internal ObservableId) to the manager, or adds a bin to an already existing observable.
+     *
+     *
+     * @param id Observable internal id.
+     * @param order Requested QCD order for the underlying decay. May be downgraded by the decay.
+     * @param add_deps If true, attaches all allowed parameter dependencies to the observable.
+     * @return A copy of the manager (builder-like chaining). Note: this returns by value.
+     */
+    ObsManager add_obs(BinnedObservableId id, QCDOrder order, bool add_deps=false);
+
+    /**
      * @brief Remove an observable (internal ObservableId) from the manager.
      *
      * If the observable is not present, a warning may be logged (non-critical path).
@@ -255,7 +266,7 @@ public:
      * @brief Get the set of observable ids currently registered in the manager.
      * @return Set of ObservableId keys from @ref obss.
      */
-    std::unordered_set<ObservableId> get_current_obss();
+    std::vector<BinnedObservableId> get_current_obss();
 
     /**
      * @brief Retrieve an observable (public enum).
@@ -321,7 +332,7 @@ private:
     std::unordered_map<DecayId, std::shared_ptr<DecayParent>> decays;
 
     /// Registry of currently selected observables.
-    std::unordered_map<ObservableId, std::shared_ptr<Observable>> obss;
+    std::map<ObservableId, std::shared_ptr<Observable>> obss;
 
     /**
      * @brief Ensure a public enum observable is present in the manager.

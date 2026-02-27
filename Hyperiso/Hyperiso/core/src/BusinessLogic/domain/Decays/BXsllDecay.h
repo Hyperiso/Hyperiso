@@ -9,12 +9,7 @@
 
 struct BXsllConfig : public DecayConfig {
     enum class Lepton {E, MU, TAU};
-
     Lepton gen {Lepton::MU};
-    std::vector<std::pair<double, double>> bins {
-        { 1.00,  6.00},
-        {14.40, 22.00}
-    };
 };
 
 struct BXsllDecayCache {

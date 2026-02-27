@@ -229,10 +229,10 @@ MinimizationResult minimize_combined(RealValuedForm f, const std::vector<double>
     if (interm.status != GSL_SUCCESS)
         return interm;
 
-    MinimizationResult mr_scaled = minimize_BFGS(f_scaled, interm.argmin, context);
+    MinimizationResult mr_final = minimize_BFGS(f_scaled, interm.argmin, context);
 
     for (std::size_t i = 0; i < x0.size(); ++i) 
-        mr_scaled.argmin[i] = f_scaled.x0[i] + f_scaled.s[i] * mr_scaled.argmin[i];
+        mr_final.argmin[i] = f_scaled.x0[i] + f_scaled.s[i] * mr_final.argmin[i];
 
-    return mr_scaled;
+    return mr_final;
 }
