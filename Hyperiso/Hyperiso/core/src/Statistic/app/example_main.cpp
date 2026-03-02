@@ -96,13 +96,13 @@ int main() {
 
     hyp.init("lha/si_input.flha", confighyp);
     StatisticConfig config;
-
-    config.obss = {
-        {ObservableMapper::to_id(Observables::BR_BS_MUMU), QCDOrder::LO},
-        {ObservableMapper::to_id(Observables::BR_BS_MUMU_UNTAG), QCDOrder::LO},
-        {ObservableMapper::to_id(Observables::BR_BD_MUMU), QCDOrder::LO}
-    };
-    StatisticInterface inter = StatisticInterface(config);
+    std::shared_ptr<ObservableInterface> oint = std::make_shared<ObservableInterface>();
+    // config.obss = {
+    //     {ObservableMapper::to_id(Observables::BR_BS_MUMU), QCDOrder::LO},
+    //     {ObservableMapper::to_id(Observables::BR_BS_MUMU_UNTAG), QCDOrder::LO},
+    //     {ObservableMapper::to_id(Observables::BR_BD_MUMU), QCDOrder::LO}
+    // };
+    StatisticInterface inter = StatisticInterface(config, oint);
 
     std::map<BinnedObservableId, GaussianSummary> res = inter.compute_uncertainties();
 

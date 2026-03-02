@@ -30,8 +30,11 @@ FitResult MLEstimator::fit(const Vector& p0) const {
     Vector scales;
     scales.insert(scales.end(), p_scales.begin(), p_scales.end());
     scales.insert(scales.end(), eta_scales.begin(), eta_scales.end());
-
+    std::cout << std::setprecision(17);
     LOG_INFO("First minimization in fit");
+    std::cout << "start="; for (auto v : start) std::cout << v << " ";
+    std::cout << "\nscales="; for (auto v : scales) std::cout << v << " ";
+    std::cout << "\n";
     MinimizationResult min_res = minimize_combined(f, start, scales, min_ctx);
 
     for (auto v : p0) std::cout << v << " ";
@@ -112,6 +115,14 @@ FitResult MLEstimator::fit(const Vector& p0) const {
 
     std::cout << corr << std::endl;
         
+    double nll_joint = like_.nll(p_hat, eta_hat);
+double nll_prof  = like_.nll_profiled(p_hat);
+
+// std::cout << std::setprecision(17);
+// std::cout << "[TEST C] nll(p_hat, eta_hat) = " << nll_joint << "\n";
+// std::cout << "[TEST C] nll_profiled(p_hat) = " << nll_prof << "\n";
+// std::cout << "[TEST C] diff = " << (nll_joint - nll_prof) << "\n";
+
     return FitResult {p_hat, eta_hat, p_std, corr, min_res.min}; 
 }
 

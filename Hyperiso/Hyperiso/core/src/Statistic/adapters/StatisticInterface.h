@@ -8,8 +8,8 @@
 
 class StatisticInterface {
 public:
-    StatisticInterface(StatisticConfig config) {
-        std::shared_ptr<ObservableInterface> oi = std::make_shared<ObservableInterface>();
+    StatisticInterface(StatisticConfig config, std::shared_ptr<ObservableInterface> oi_) {
+        std::shared_ptr<ObservableInterface> oi = oi_;
         std::shared_ptr<IModel> oia= std::make_shared<ObservableInterfaceAdapterObs>(oi);
         std::shared_ptr<IStatCorrelationProxy> pscp = std::make_shared<StatCorrelationProxy>();
         std::shared_ptr<IStatParameterProxy> pspp = std::make_shared<StatParameterProxy>();

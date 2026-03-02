@@ -71,6 +71,31 @@ double ProfiledLikelihood::nll(const Vector &p, const Vector &eta) const {
     // std::cout << "ell_obs = " << ell_obs << std::endl;
     // std::cout << "ell_nuis = " << ell_eta << std::endl;
 
+    double ell_eta_wrong = ctx_.nuisance_dist->logpdf(eta);
+double ell_eta_right = ctx_.nuisance_dist->logpdf(r_eta);
+
+// static int c = 0;
+// if (c++ < 5) {
+//     std::cout << std::setprecision(17);
+//     std::cout << "[TEST B] ell_eta_wrong=" << ell_eta_wrong
+//               << " ell_eta_right=" << ell_eta_right << "\n";
+// }
+
+//     static bool once = true;
+// if (once) {
+//     once = false;
+//     auto eta0 = ctx_.nuisance_central_values;
+//     auto eta_zero = Vector(eta0.size(), 0.0);
+
+//     auto r0 = Vector(eta0.size());
+//     for (size_t i=0;i<eta0.size();++i) r0[i] = eta0[i] - eta0[i]; // =0
+
+//     std::cout << std::setprecision(17);
+//     std::cout << "[TEST A] logpdf(eta0)  = " << ctx_.nuisance_dist->logpdf(eta0) << "\n";
+//     std::cout << "[TEST A] logpdf(0)     = " << ctx_.nuisance_dist->logpdf(eta_zero) << "\n";
+//     std::cout << "[TEST A] logpdf(r_eta0)= " << ctx_.nuisance_dist->logpdf(r0) << " (r_eta0 should be 0)\n";
+// }
+
     return -(ell_obs + ell_eta);
 }
 

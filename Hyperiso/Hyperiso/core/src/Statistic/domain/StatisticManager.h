@@ -112,19 +112,42 @@ public:
         ctx.nuisance_central_values = unzipped_nuisances.vals;
         ctx.exp_obs_values = unzipped_exp_obs.vals;
 
-        auto model_fn = [this, obs_ids, p_ids, eta_ids] (const Vec& p_vec, const Vec& eta_vec) -> Vec {
-            auto start = std::chrono::steady_clock::now();
+        // auto model_fn = [this, obs_ids, p_ids, eta_ids] (const Vec& p_vec, const Vec& eta_vec) -> Vec {
+        //     auto start = std::chrono::steady_clock::now();
+        //     auto pred_map = this->obs_int->predict_optimized(zip(p_ids, p_vec), zip(eta_ids, eta_vec));
+        //     auto stop  = std::chrono::steady_clock::now();
+        //     auto us = std::chrono::duration_cast<std::chrono::microseconds>(stop - start).count();
+        //     // std::cout << "Predict took " << us << " µs" << std::endl;
+        //     // for (auto pred : pred_map) {
+        //     //     std::cout << ObservableMapper::str(pred.first) << ": ";
+        //     //     for (auto ov : pred.second) 
+        //     //         std::cout << ov.value << " ";
+        //     //     std::cout << std::endl; 
+        //     // }
+        //     return flatten(pred_map).vals;
+        // };
+
+        auto model_fn = [this, obs_ids, p_ids, eta_ids](const Vec& p_vec, const Vec& eta_vec) -> Vec {
             auto pred_map = this->obs_int->predict_optimized(zip(p_ids, p_vec), zip(eta_ids, eta_vec));
-            auto stop  = std::chrono::steady_clock::now();
-            auto us = std::chrono::duration_cast<std::chrono::microseconds>(stop - start).count();
-            // std::cout << "Predict took " << us << " µs" << std::endl;
-            // for (auto pred : pred_map) {
-            //     std::cout << ObservableMapper::str(pred.first) << ": ";
-            //     for (auto ov : pred.second) 
-            //         std::cout << ov.value << " ";
-            //     std::cout << std::endl; 
-            // }
-            return flatten(pred_map).vals;
+
+
+            Vec out;
+            out.reserve(obs_ids.size());
+
+            for (const auto& bid : obs_ids) {
+                // bid.s = ObservableId, bid.p = bin (pair<double,double>)
+                const auto& vec = pred_map.at(bid.s);
+
+                // retrouver la bonne entrée dans vec
+                // si non binned : bin = {0,0} chez toi, donc match direct
+                auto it = std::find_if(vec.begin(), vec.end(), [&](const ObservableValue& ov){
+                    auto bin = ov.bin.value_or(std::pair<double,double>{0.,0.});
+                    return bin == bid.p; // ou fpeq sur doubles si nécessaire
+                });
+                if (it == vec.end()) throw std::runtime_error("Missing predicted observable/bin");
+                out.push_back(it->value);
+            }
+            return out;
         };
 
         MLEstimator est(std::move(ctx), model_fn, this->config.MLE_max_iter, this->config.MLE_tol);
@@ -143,6 +166,18 @@ public:
         out.p_correlations = std::move(p_hat_corr_map);
         out.fit_ok = true;
         this->cache.mle_result = out;
+
+        auto& like = est.like();              // ou stat.get_estimator().like()
+        double ell_hat = fr.ell_hat;
+        Vector p = fr.p_hat;
+
+        // std::cout << "Scan p2:\n";
+        // for (int k=0; k<=40; ++k) {
+        //     double p2 = 0.0 + k * 0.01;      // adapte le range !
+        //     Vector pp = {p[0], p2};
+        //     double d = like.nll_profiled(pp) - ell_hat;
+        //     std::cout << p2 << " " << d << "\n";
+        // }
 
         return out;
     }

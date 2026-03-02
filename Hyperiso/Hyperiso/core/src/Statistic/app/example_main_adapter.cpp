@@ -120,7 +120,7 @@ int main() {
         std::cout << std::endl;
     }
 
-    std::shared_ptr<ObservableInterfaceAdapterObs> model = std::make_shared<ObservableInterfaceAdapterObs> (oi, obs_ids, p_specs, eta_specs_real_with_corr);
+    std::shared_ptr<ObservableInterfaceAdapterObs> model = std::make_shared<ObservableInterfaceAdapterObs> (oi, p_specs, eta_specs_real_with_corr);
 
     // model->add_observables(obs_ids);
     std::cout << "creating RandomVectorGenerator" << std::endl;

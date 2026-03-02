@@ -486,7 +486,7 @@ void init_statistic(py::module &m) {
         
     py::class_<StatisticConfig>(m, "StatisticConfig")
     .def(py::init<>())
-    .def_readwrite("obss", &StatisticConfig::obss)
+    // .def_readwrite("obss", &StatisticConfig::obss)
     .def_readwrite("p_specs", &StatisticConfig::p_specs)
     .def_readwrite("MC_draws", &StatisticConfig::MC_draws)
     .def_readwrite("skew_abs_threshold", &StatisticConfig::skew_abs_threshold)
@@ -496,7 +496,7 @@ void init_statistic(py::module &m) {
     py::class_<FitResultWithMaps>(m, "FitResultWithMaps");
 
     py::class_<StatisticInterface, std::shared_ptr<StatisticInterface>>(m, "StatisticInterface")
-     .def(py::init<StatisticConfig>(), py::arg("config"))
+     .def(py::init<StatisticConfig, std::shared_ptr<ObservableInterface>>(), py::arg("config"), py::arg("ObservableInterface"))
 
      .def("compute_uncertainties", &StatisticInterface::compute_uncertainties)
      .def("compute_uncertainties_and_sampling",

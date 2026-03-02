@@ -13,7 +13,7 @@ BToMuMuToy() = default;
 std::size_t n_observables() const override { return 2; }
 
 
-Vec predict(const Vec& p, const Vec& eta) override {
+Vec predict(const Vec& p, const Vec& eta) {
 // p: [C10, Cp10]
 const double C10 = p.at(0);
 const double Cp10 = p.at(1);
@@ -47,7 +47,7 @@ const double BR_d = k * f_d*f_d * tau_Bd * m_Bd * m_mu*m_mu * Vtd*Vtd * abs_Vtb*
 return Vec{BR_s_untag, BR_d};
 }
 
-std::map<ObservableId, double> predict(const std::map<ParamId, double>& p, const std::map<ParamId, double>& eta) override {
+std::map<ObservableId, double> predict(const std::map<ParamId, double>& p, const std::map<ParamId, double>& eta) {
 // p: [C10, Cp10]
 // const double C10 = p.at(0);
 // const double Cp10 = p.at(1);
@@ -82,6 +82,6 @@ std::map<ObservableId, double> predict(const std::map<ParamId, double>& p, const
 return std::map<ObservableId, double>{};
 }
 
-void add_observables(std::map<ObservableId, QCDOrder> obs_ids) override {};
+void add_observables(std::map<ObservableId, QCDOrder> obs_ids) {};
 std::unordered_set<ParamId> get_obs_deps(ObservableId id) override {return std::unordered_set<ParamId>{};}
 };
