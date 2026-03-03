@@ -231,7 +231,7 @@ public:
             LOG_INFO("Compared to max relative uncertainty", paramId, delta_rel[paramId] / delta_rel_max);
         }
 
-        double tol = 1e-1; // TODO : make it a parameter
+        double tol = 1e-2; // TODO : make it a parameter
         for (auto& paramId : eta_infos_leaf) {
             if (delta_rel[paramId] / delta_rel_max > tol)
                 eta_specs_real_leaf[paramId] = pspp->get_param(paramId)->get_val();

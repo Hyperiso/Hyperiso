@@ -18,7 +18,7 @@ FitResult MLEstimator::fit(const Vector& p0) const {
     min_ctx.final_tol = 1e-8;
     min_ctx.switch_tol = 1e-3;
     min_ctx.simplex_initial_step_size = 0.1;
-    min_ctx.simplex_max_iter = 1000;
+    min_ctx.simplex_max_iter = this->max_iter;
 
     Vector start = p0;
     Vector eta_start = like_.get_eta_central_values();
@@ -87,18 +87,26 @@ FitResult MLEstimator::fit(const Vector& p0) const {
 
     // fs.close();
 
-    // RealMatrix H = hessian(f_pr, p_hat);
+    // std::cout << "Hessian : " << std::endl;
+
+    // RealMatrix H = hessian(f_pr, p_hat, p_scales);
 
     // std::cout << H << std::endl;
 
     RealMatrix H_inv = inverse_hessian(f_pr, p_hat, p_scales);
 
+    std::cout << "H_inv : " << std::endl;
     // debug
-    // std::cout << H_inv << std::endl;
+    std::cout << H_inv << std::endl;
+
+    // std::cout << "product : " << std::endl;
+
+    // std::cout << H_inv * H << std::endl;
 
     double delta_chi2 = gsl_cdf_chisq_Pinv(0.682689492137, p_dim);
     // std::cout << delta_chi2 << std::endl;
     RealMatrix cov = 2 * delta_chi2 * H_inv;
+    std::cout << "Covariance matrix : " << std::endl;
     std::cout << cov << std::endl;
 
     Vector p_std (p_dim, 0.0);

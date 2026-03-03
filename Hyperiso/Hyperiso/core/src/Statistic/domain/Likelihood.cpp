@@ -4,6 +4,7 @@ ProfiledLikelihood::ProfiledLikelihood(LikelihoodContext ctx, ModelFn model) : c
     min_ctx_.final_tol = 1e-8;
     min_ctx_.switch_tol = 1e-3;
     min_ctx_.simplex_initial_step_size = 0.2;
+    min_ctx_.simplex_max_iter = 10000; //TODO
 }
 
 double ProfiledLikelihood::nll(const Vector &p, const Vector &eta) const {
