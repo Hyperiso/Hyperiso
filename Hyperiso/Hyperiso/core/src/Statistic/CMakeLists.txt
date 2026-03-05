@@ -48,26 +48,30 @@ endif()
 
 include(FetchContent)
 
-if(NOT TARGET minuit-cpp AND NOT TARGET minuit-cpp-static)
-  FetchContent_Declare(minuit_cpp
-    GIT_REPOSITORY https://github.com/doughague/minuit-cpp.git
-    GIT_TAG b5f2558
-    GIT_SHALLOW TRUE
-  )
-  FetchContent_Populate(minuit_cpp)
+FetchContent_Declare(minuit_cpp
+  GIT_REPOSITORY https://github.com/doughague/minuit-cpp.git
+  GIT_TAG b5f2558
+  GIT_SHALLOW TRUE
+)
 
-  add_subdirectory(${minuit_cpp_SOURCE_DIR} ${minuit_cpp_BINARY_DIR} EXCLUDE_FROM_ALL)
-endif()
+FetchContent_MakeAvailable(minuit_cpp)
 
-if(NOT TARGET MinuitCpp::MinuitCpp)
-  add_library(MinuitCpp::MinuitCpp INTERFACE)
+if(NOT TARGET MinuitCpp)
+  add_library(MinuitCpp INTERFACE)
 
-  target_link_libraries(MinuitCpp::MinuitCpp INTERFACE minuit-cpp)         # shared
-  # target_link_libraries(MinuitCpp::MinuitCpp INTERFACE minuit-cpp-static) # static
+  if(TARGET minuit-cpp)
+    target_link_libraries(MinuitCpp INTERFACE minuit-cpp)          # shared
+  elseif(TARGET minuit-cpp-static)
+    target_link_libraries(MinuitCpp INTERFACE minuit-cpp-static)   # static
+  else()
+    message(FATAL_ERROR "Targets minuit-cpp introuvables (minuit-cpp / minuit-cpp-static).")
+  endif()
 
-  target_include_directories(MinuitCpp::MinuitCpp INTERFACE
+  target_include_directories(MinuitCpp INTERFACE
     ${minuit_cpp_SOURCE_DIR}/include
   )
+
+  add_library(MinuitCpp::MinuitCpp ALIAS MinuitCpp)
 endif()
 
 add_library(StatisticLib STATIC 
