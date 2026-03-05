@@ -144,6 +144,9 @@ target_link_libraries(COPULA_TEST StatisticLib)
 add_executable(MINUIT_TEST app/test_minuit.cpp)
 target_link_libraries(MINUIT_TEST StatisticLib)
 
+add_executable(MINUIT_PIPELINE_TEST app/test_minuit_pipeline.cpp)
+target_link_libraries(MINUIT_PIPELINE_TEST StatisticLib)
+
 include(GNUInstallDirs)
 
 install(TARGETS StatisticLib
