@@ -70,12 +70,12 @@ int main(int argc, char** argv) {
 
     StatisticConfig config;
     config.MC_draws = 100;
-    config.MLE_max_iter = 1000;
+    config.MLE_max_iter = 10000;
     config.MLE_tol = 1e-6;
 
     config.p_specs = {
-        // ParamId(ParameterType::SM, "VCKMIN", 1),
-        // ParamId(ParameterType::SM, "VCKMIN", 2),
+        ParamId(ParameterType::SM, "VCKMIN", 1),
+        ParamId(ParameterType::SM, "VCKMIN", 2),
         ParamId(ParameterType::SM, "VCKMIN", 3),
         ParamId(ParameterType::SM, "VCKMIN", 4)
     };
@@ -104,7 +104,7 @@ int main(int argc, char** argv) {
     //     std::cout << k << " = " << v << "(" << p_hat_std.at(k) << ")" << std::endl;
     // }
 
-    std::cout << fr.p_correlations << std::endl;
+    // std::cout << fr.p_correlations << std::endl;
 
     // auto paths = stat.confidence_contour(
     //     ParamId(ParameterType::SM, "VCKMIN", 3),
@@ -119,6 +119,6 @@ int main(int argc, char** argv) {
     //     }
     //     std::cout << std::endl;
     // }
-
+    std::cout << *StatParameterProxy(ParameterType::OBSERVABLE).get_param("FOBS", LhaID("511_1_0_0_2_13_-13")) << std::endl;
     return 0;
 }
