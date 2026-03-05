@@ -141,6 +141,9 @@ target_compile_options(MANAGER_STAT PUBLIC -O3)
 add_executable(COPULA_TEST app/test_copulas.cpp)
 target_link_libraries(COPULA_TEST StatisticLib)
 
+add_executable(MINUIT_TEST app/test_minuit.cpp)
+target_link_libraries(MINUIT_TEST StatisticLib)
+
 include(GNUInstallDirs)
 
 install(TARGETS StatisticLib
