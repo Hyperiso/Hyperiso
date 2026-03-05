@@ -46,6 +46,30 @@ if (NOT TARGET CoreLib)
     add_subdirectory(../Core CoreLib)
 endif()
 
+include(FetchContent)
+
+if(NOT TARGET minuit-cpp AND NOT TARGET minuit-cpp-static)
+  FetchContent_Declare(minuit_cpp
+    GIT_REPOSITORY https://github.com/doughague/minuit-cpp.git
+    GIT_TAG b5f2558
+    GIT_SHALLOW TRUE
+  )
+  FetchContent_Populate(minuit_cpp)
+
+  add_subdirectory(${minuit_cpp_SOURCE_DIR} ${minuit_cpp_BINARY_DIR} EXCLUDE_FROM_ALL)
+endif()
+
+if(NOT TARGET MinuitCpp::MinuitCpp)
+  add_library(MinuitCpp::MinuitCpp INTERFACE)
+
+  target_link_libraries(MinuitCpp::MinuitCpp INTERFACE minuit-cpp)         # shared
+  # target_link_libraries(MinuitCpp::MinuitCpp INTERFACE minuit-cpp-static) # static
+
+  target_include_directories(MinuitCpp::MinuitCpp INTERFACE
+    ${minuit_cpp_SOURCE_DIR}/include
+  )
+endif()
+
 add_library(StatisticLib STATIC 
     adapters/StatCorrelationProxy.cpp
     adapters/StatParameterProxy.cpp
@@ -92,7 +116,7 @@ target_include_directories(StatisticLib
     ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-target_link_libraries(StatisticLib PUBLIC BusinessLogicLib PhysicalModelLib CoreLib CommonLib ConfiguredModule MathLib)
+target_link_libraries(StatisticLib PUBLIC BusinessLogicLib PhysicalModelLib CoreLib CommonLib ConfiguredModule MathLib MinuitCpp::MinuitCpp)
 
 add_executable(RNG_TEST app/main_rng.cpp)
 target_link_libraries(RNG_TEST StatisticLib)
