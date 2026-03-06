@@ -266,6 +266,22 @@ void BlockAccessor::emplace(const BlockName& name, std::shared_ptr<Block> block)
     merge_name_into_key(key, name);
 }
 
+void BlockAccessor::detach_block(const BlockName& block_name) {
+    auto blk = this->at(block_name);
+
+    if (auto dep = std::dynamic_pointer_cast<DependentBlock>(blk)) {
+        dep->detach();
+    }
+}
+
+void BlockAccessor::detach_parameter(const BlockName& block_name, LhaID id) {
+    auto p = this->at(block_name)->retrieve(id);
+
+    if (auto dep = std::dynamic_pointer_cast<DependentParameter>(p)) {
+        dep->detach();
+    }
+}
+
 std::string BlockAccessor::normalize(std::string_view s) {
     std::string out;
     out.reserve(s.size());

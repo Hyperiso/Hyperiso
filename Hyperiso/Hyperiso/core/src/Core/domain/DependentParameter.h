@@ -195,7 +195,10 @@ public:
      */
     void rebind(std::unordered_map<ParamId, std::shared_ptr<Parameter>> new_sources,
             DepParamUpdateFunc new_lambda);
-            
+        
+    //TODO : docstring
+    void detach();
+
     /**
      * @brief Destructor: unregisters from sources if still initialized.
      *

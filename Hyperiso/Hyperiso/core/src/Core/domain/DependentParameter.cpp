@@ -119,6 +119,26 @@ void DependentParameter::rebind(
     notifyObservers();
 }
 
+void DependentParameter::detach()
+{
+    ensure_up_to_date();
+
+    clear_above();
+
+    sources_raw.clear();
+    sources = std::make_unique<ParamSrc>(
+        sources_raw,
+        ParameterTypeMapper::str(id.type.value()) + "::" + id.block
+    );
+
+    recalculateLambda = {};
+    dirty = false;
+    frozen = false;
+    update_at_unfreeze = false;
+
+    notifyObservers();
+}
+
 DependentParameter::~DependentParameter() {
     LOG_DEBUG("Destruct DependentParameter at", self.lock().get());
     if (auto me = self.lock()) {

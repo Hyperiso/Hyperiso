@@ -6,6 +6,7 @@
 
 #include "Include.h"
 #include "Block.h"
+#include "DependentParameter.h"
 
 /**
  * @file BlockAccessor.h
@@ -340,6 +341,11 @@ public:
      */
     void emplace(const BlockName& name, std::shared_ptr<Block> blk);
     
+    //TODO: docstring
+    void detach_block(const BlockName& block_name);
+
+    void detach_parameter(const BlockName& block_name, LhaID id);
+
     /**
      * @brief Erases a block by name/alias and removes all associated aliases.
      *

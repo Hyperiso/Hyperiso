@@ -434,6 +434,9 @@ public:
      */
     void unfreeze() override;
 
+    //TODO : docstring
+    void detach();
+    
     /**
      * @brief Destructor.
      *

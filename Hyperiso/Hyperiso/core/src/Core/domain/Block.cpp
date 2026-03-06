@@ -352,6 +352,28 @@ void DependentBlock::destroy() {
 //     return;
 // }
 
+void DependentBlock::detach()
+{
+    ensure_up_to_date();
+
+    clear_above();
+
+    sourceBlocks.clear();
+    recalculateLambda = {};
+    dirty = false;
+    frozen = false;
+    update_at_unfreeze = false;
+
+
+    for (auto& [_, p] : items) {
+        if (auto dp = std::dynamic_pointer_cast<DependentParameter>(p)) {
+            dp->detach();
+        }
+    }
+
+    notifyObservers();
+}
+
 void DependentBlock::mark_dirty() {
     if (dirty) return;
     dirty = true;
