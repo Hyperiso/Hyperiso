@@ -352,24 +352,51 @@ void DependentBlock::destroy() {
 //     return;
 // }
 
-void DependentBlock::detach()
-{
+void DependentBlock::detach() {
+    if (dependency_detached) return;
+
     ensure_up_to_date();
 
     clear_above();
-
-    sourceBlocks.clear();
-    recalculateLambda = {};
-    dirty = false;
-    frozen = false;
-    update_at_unfreeze = false;
-
 
     for (auto& [_, p] : items) {
         if (auto dp = std::dynamic_pointer_cast<DependentParameter>(p)) {
             dp->detach();
         }
     }
+
+    sourceBlocks.clear();
+    recalculateLambda = {};
+    dirty = false;
+    frozen = false;
+    update_at_unfreeze = false;
+    dependency_detached = true;
+
+    notifyObservers();
+}
+
+void DependentBlock::reattach() {
+    if (!dependency_detached) return;
+
+    sourceBlocks = saved_sourceBlocks;
+    recalculateLambda = saved_recalculateLambda;
+
+    for (auto& [_, p] : items) {
+        if (auto dp = std::dynamic_pointer_cast<DependentParameter>(p)) {
+            dp->reattach();
+        }
+    }
+
+    if (auto me = self.lock()) {
+        for (auto& [_, src] : sourceBlocks) {
+            if (src) src->addObserver(me);
+        }
+    }
+
+    dirty = true;
+    frozen = false;
+    update_at_unfreeze = false;
+    dependency_detached = false;
 
     notifyObservers();
 }

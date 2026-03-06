@@ -343,8 +343,10 @@ public:
     
     //TODO: docstring
     void detach_block(const BlockName& block_name);
+    void reattach_block(const BlockName& block_name);
 
     void detach_parameter(const BlockName& block_name, LhaID id);
+    void reattach_parameter(const BlockName& block_name, LhaID id);
 
     /**
      * @brief Erases a block by name/alias and removes all associated aliases.

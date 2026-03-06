@@ -198,6 +198,7 @@ public:
         
     //TODO : docstring
     void detach();
+    void reattach();
 
     /**
      * @brief Destructor: unregisters from sources if still initialized.
@@ -217,6 +218,11 @@ private:
     bool frozen {false};                                                    ///< If true, update is delayed.
     bool update_at_unfreeze {false};                                        ///< If true, an update is triggered upon unfreezing.
     bool dirty = true;                                                      ///< True if cached value is invalid and must be recomputed on demand.
+
+    //TODO
+    std::unordered_map<ParamId, std::shared_ptr<Parameter>> saved_sources_raw;
+    DepParamUpdateFunc saved_recalculateLambda;
+    bool dependency_detached = false;
 };
 
 /**

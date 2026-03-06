@@ -391,8 +391,14 @@ public:
      * @param sources        Map from block names to shared pointers of source Blocks.
      * @param recalculateFunc Function used to recompute this block from its sources.
      */
-    explicit DependentBlock(const std::unordered_map<std::string, std::shared_ptr<Block>>& sources, DepUpdateFunc recalculateFunc) 
-        : sourceBlocks(std::move(sources)), recalculateLambda(std::move(recalculateFunc)), frozen(false) {}
+    explicit DependentBlock(
+    const std::unordered_map<std::string, std::shared_ptr<Block>>& sources,
+    DepUpdateFunc recalculateFunc)
+    : sourceBlocks(sources),
+      recalculateLambda(recalculateFunc),
+      saved_sourceBlocks(sources),
+      saved_recalculateLambda(recalculateFunc),
+      frozen(false) {}
 
     /**
      * @brief Checks if this block depends on a specific source block.
@@ -436,7 +442,8 @@ public:
 
     //TODO : docstring
     void detach();
-    
+    void reattach();
+
     /**
      * @brief Destructor.
      *
@@ -527,6 +534,11 @@ private:
     bool frozen = false;                                                    ///< Indicates if the block is frozen (no update).
     bool update_at_unfreeze = false;                                        ///< Indicates if an update is pending after unfreezing.
     bool dirty = true;                                                      ///< True if cached value is invalid and must be recomputed on demand.
+
+    //TODO : docstring
+    std::unordered_map<std::string, std::shared_ptr<Block>> saved_sourceBlocks;
+    DepUpdateFunc saved_recalculateLambda;
+    bool dependency_detached = false;
 };
 
 #endif

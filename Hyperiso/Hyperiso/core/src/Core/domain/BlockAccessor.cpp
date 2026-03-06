@@ -269,17 +269,51 @@ void BlockAccessor::emplace(const BlockName& name, std::shared_ptr<Block> block)
 void BlockAccessor::detach_block(const BlockName& block_name) {
     auto blk = this->at(block_name);
 
-    if (auto dep = std::dynamic_pointer_cast<DependentBlock>(blk)) {
-        dep->detach();
+    auto dep = std::dynamic_pointer_cast<DependentBlock>(blk);
+    if (!dep) {
+        throw std::invalid_argument(
+            "Block " + block_name.to_string() + " is not a DependentBlock");
     }
+
+    dep->detach();
+}
+
+void BlockAccessor::reattach_block(const BlockName& block_name) {
+    auto blk = this->at(block_name);
+
+    auto dep = std::dynamic_pointer_cast<DependentBlock>(blk);
+    if (!dep) {
+        throw std::invalid_argument(
+            "Block " + block_name.to_string() + " is not a DependentBlock");
+    }
+
+    dep->reattach();
 }
 
 void BlockAccessor::detach_parameter(const BlockName& block_name, LhaID id) {
-    auto p = this->at(block_name)->retrieve(id);
+    auto param = this->at(block_name)->retrieve(id);
 
-    if (auto dep = std::dynamic_pointer_cast<DependentParameter>(p)) {
-        dep->detach();
+    auto dep = std::dynamic_pointer_cast<DependentParameter>(param);
+    if (!dep) {
+        throw std::invalid_argument(
+            "Parameter " + id.to_string() + " in block " + block_name.to_string()
+            + " is not a DependentParameter");
     }
+
+    dep->detach();
+}
+
+void BlockAccessor::reattach_parameter(const BlockName& block_name, LhaID id) {
+    auto param = this->at(block_name)->retrieve(id);
+
+    auto dep = std::dynamic_pointer_cast<DependentParameter>(param);
+    if (!dep) {
+        throw std::invalid_argument(
+            "Parameter " + id.to_string() + " in block " + block_name.to_string()
+            + " is not a DependentParameter");
+    }
+
+    dep->reattach();
 }
 
 std::string BlockAccessor::normalize(std::string_view s) {

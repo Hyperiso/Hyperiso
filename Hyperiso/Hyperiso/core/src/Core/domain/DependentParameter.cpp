@@ -6,10 +6,15 @@ DependentParameter::DependentParameter(
     std::unordered_map<ParamId, std::shared_ptr<Parameter>> sources_in,
     DepParamUpdateFunc recalculateFunc)
 : Parameter(pid, 0, 0, 0),
-  sources_raw(std::move(sources_in)),
+  sources_raw(sources_in),
   sources(std::make_unique<ParamSrc>(sources_raw, ParameterTypeMapper::str(pid.type.value()) + "::" + pid.block)),
-  recalculateLambda(std::move(recalculateFunc)),
-  frozen(false) { dirty = true; }
+  recalculateLambda(recalculateFunc),
+  saved_sources_raw(std::move(sources_in)),
+  saved_recalculateLambda(recalculateFunc),
+  frozen(false)
+{
+    dirty = true;
+}
 
 bool DependentParameter::dependsOn(const ParamId& pid) {
     return (*sources).raw().contains(pid);
@@ -98,15 +103,41 @@ void DependentParameter::unfreeze() {
     }
 }
 
+// void DependentParameter::rebind(
+//     std::unordered_map<ParamId, std::shared_ptr<Parameter>> new_sources,
+//     DepParamUpdateFunc new_lambda)
+// {
+//     clear_above();
+
+//     sources_raw = std::move(new_sources);
+//     sources = std::make_unique<ParamSrc>(sources_raw,
+//         ParameterTypeMapper::str(id.type.value()) + "::" + id.block);
+//     recalculateLambda = std::move(new_lambda);
+
+//     if (auto me = self.lock()) {
+//         for (auto& [_, src] : sources->raw()) {
+//             if (src) src->addObserver(me);
+//         }
+//     }
+
+//     dirty = true;
+//     notifyObservers();
+// }
+
 void DependentParameter::rebind(
     std::unordered_map<ParamId, std::shared_ptr<Parameter>> new_sources,
     DepParamUpdateFunc new_lambda)
 {
     clear_above();
 
+    saved_sources_raw = new_sources;
+    saved_recalculateLambda = new_lambda;
+
     sources_raw = std::move(new_sources);
-    sources = std::make_unique<ParamSrc>(sources_raw,
-        ParameterTypeMapper::str(id.type.value()) + "::" + id.block);
+    sources = std::make_unique<ParamSrc>(
+        sources_raw,
+        ParameterTypeMapper::str(id.type.value()) + "::" + id.block
+    );
     recalculateLambda = std::move(new_lambda);
 
     if (auto me = self.lock()) {
@@ -116,13 +147,15 @@ void DependentParameter::rebind(
     }
 
     dirty = true;
+    dependency_detached = false;
     notifyObservers();
 }
 
 void DependentParameter::detach()
 {
-    ensure_up_to_date();
+    if (dependency_detached) return;
 
+    ensure_up_to_date();
     clear_above();
 
     sources_raw.clear();
@@ -133,9 +166,30 @@ void DependentParameter::detach()
 
     recalculateLambda = {};
     dirty = false;
-    frozen = false;
-    update_at_unfreeze = false;
+    dependency_detached = true;
 
+    notifyObservers();
+}
+
+void DependentParameter::reattach()
+{
+    if (!dependency_detached) return;
+
+    sources_raw = saved_sources_raw;
+    sources = std::make_unique<ParamSrc>(
+        sources_raw,
+        ParameterTypeMapper::str(id.type.value()) + "::" + id.block
+    );
+    recalculateLambda = saved_recalculateLambda;
+
+    if (auto me = self.lock()) {
+        for (auto& [_, src] : sources->raw()) {
+            if (src) src->addObserver(me);
+        }
+    }
+
+    dirty = true;
+    dependency_detached = false;
     notifyObservers();
 }
 

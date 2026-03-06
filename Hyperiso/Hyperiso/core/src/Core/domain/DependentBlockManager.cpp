@@ -38,9 +38,9 @@ void DependentBlockManager::addDependentBlock(
 
     auto dependentBlock = std::make_shared<DependentBlock>(sources, recalculateFunc);
     dependentBlock->blockname = name;
+    Parameters::GetInstance(dest)->blockAccessor->emplace(name, dependentBlock);
     dependentBlock->init();
     dependentBlock->update();
-    Parameters::GetInstance(dest)->blockAccessor->emplace(name, dependentBlock);
 }
 
 void DependentBlockManager::addDependentParameter(
