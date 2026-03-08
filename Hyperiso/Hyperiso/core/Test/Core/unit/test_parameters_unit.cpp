@@ -20,7 +20,7 @@ int main() {
 
     auto ba   = std::make_shared<DummyBA>();
   auto cp   = std::make_shared<DummyCorr<ParamId>>();
-  auto co   = std::make_shared<DummyCorr<ObservableId>>();
+  auto co   = std::make_shared<DummyCorr<BinnedObservableId>>();
   auto spec = std::make_shared<DummySpectrum>();
   auto tpp = std::make_shared<TestPathsProvider>(sandbox);
   (void)MemoryManager::Create(ba, cp, co, spec, tpp);

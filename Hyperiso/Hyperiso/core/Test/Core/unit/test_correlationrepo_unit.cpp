@@ -73,7 +73,7 @@ int main(){
     }
 
 
-    CorrelationMatrixPair<ObservableId> cmpO;
+    CorrelationMatrixPair<BinnedObservableId> cmpO;
 
     auto o1 = oid("OBS_A");
     auto o2 = oid("OBS_B");
@@ -84,7 +84,7 @@ int main(){
     cmpO.emplace({o1, o2}, 0.33, 0.44);
 
     auto repoObs = std::make_unique<CorrelationRepository>();
-    repoObs->set_correlation_matrix(std::make_shared<CorrelationMatrixPair<ObservableId>>(cmpO));
+    repoObs->set_correlation_matrix(std::make_shared<CorrelationMatrixPair<BinnedObservableId>>(cmpO));
 
     {
         auto v = repoObs->get_correlation(o1, o2);
@@ -94,7 +94,7 @@ int main(){
         assert(std::abs(comb - std::hypot(0.33, 0.44)) < 1e-12);
     }
 
-    auto addO = std::make_shared<CorrelationMatrixPair<ObservableId>>();
+    auto addO = std::make_shared<CorrelationMatrixPair<BinnedObservableId>>();
     auto o3 = oid("OBS_C");
     addO->emplace({o1, o2}, 0.7, 0.0);
     addO->emplace({o2, o3}, 0.1, 0.2);

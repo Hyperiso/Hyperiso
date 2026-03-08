@@ -20,7 +20,7 @@ int main(){
     auto o2 = ObservableMapper::to_id(Observables::BR_BD_MUMU);
     auto o3 = ObservableMapper::to_id(Observables::R_D);
 
-    auto obsMat = std::make_shared<CorrelationMatrixPair<ObservableId>>();
+    auto obsMat = std::make_shared<CorrelationMatrixPair<BinnedObservableId>>();
     obsMat->emplace({o1, o2}, 0.30, 0.40);
     repo->set_correlation_matrix(obsMat);
 
@@ -32,7 +32,7 @@ int main(){
         assert(std::abs(comb - std::hypot(0.30, 0.40)) < 1e-12);
     }
 
-    auto obsMat2 = std::make_shared<CorrelationMatrixPair<ObservableId>>();
+    auto obsMat2 = std::make_shared<CorrelationMatrixPair<BinnedObservableId>>();
     obsMat2->emplace({o1, o2}, 0.95, 0.05);
     obsMat2->emplace({o2, o3}, 0.10, 0.20); 
     repo->merge_correlation_matrix(obsMat2);

@@ -147,6 +147,12 @@ target_link_libraries(MINUIT_TEST StatisticLib)
 add_executable(MINUIT_PIPELINE_TEST app/test_minuit_pipeline.cpp)
 target_link_libraries(MINUIT_PIPELINE_TEST StatisticLib)
 
+add_executable(CONTOUR_TEST app/test_contour_minuit.cpp)
+target_link_libraries(CONTOUR_TEST StatisticLib)
+
+add_executable(CONTOUR_TEST2 app/test_contour_minuit2.cpp)
+target_link_libraries(CONTOUR_TEST2 StatisticLib)
+
 include(GNUInstallDirs)
 
 install(TARGETS StatisticLib
