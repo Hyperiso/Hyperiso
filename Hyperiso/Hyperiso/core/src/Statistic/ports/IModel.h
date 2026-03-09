@@ -20,6 +20,7 @@ virtual std::size_t n_observables() const = 0;
 // virtual void add_observables(std::map<ObservableId, QCDOrder> obs_ids) = 0;
 virtual std::unordered_set<ParamId> get_obs_deps(ObservableId id) = 0;
 virtual std::vector<BinnedObservableId> get_obs_ids() = 0;
+virtual void compute_observables() const = 0;
 };
 
 #endif

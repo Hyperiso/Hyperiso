@@ -316,6 +316,32 @@ public:
     void unfreeze_param(const BlockName& blockName, const LhaID& id);
 
     /**
+     * @brief Detaches an entire block from the dependency structure (allowing for silent updates).
+     * @param blockName Name of the block to detach.
+     */
+    void detach_block(const BlockName& blockName);
+
+    /**
+     * @brief Reattaches a block to the dependency structure
+     * @param blockName Name of the block to reattach.
+     */
+    void reattach_block(const BlockName& blockName);
+
+    /**
+     * @brief Detaches a specific parameter within a block from the dependency structure (allowing for silent updates).
+     * @param blockName Name of the block.
+     * @param id LHA ID of the parameter.
+     */
+    void detach_param(const BlockName& blockName, const LhaID& id);
+
+    /**
+     * @brief Reattaches a specific parameter to the dependency structure.
+     * @param blockName Name of the block.
+     * @param id LHA ID of the parameter.
+     */
+    void reattach_param(const BlockName& blockName, const LhaID& id);
+
+    /**
      * @brief Return the BlockAccessor of the parameters.
      *
      * Should only be used for parameters optimization.

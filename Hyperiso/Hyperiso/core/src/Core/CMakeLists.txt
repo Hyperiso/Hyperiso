@@ -51,6 +51,7 @@ add_library(CoreLib STATIC
     adapters/BlockProvider.cpp
     adapters/ParamSourcesProvider.cpp
     adapters/ParamOptimizerAdapter.cpp
+    adapters/DependencyPruner.cpp
     domain/CorrelationRepo.cpp
     domain/ParameterRouter.cpp
     domain/Parameters.cpp

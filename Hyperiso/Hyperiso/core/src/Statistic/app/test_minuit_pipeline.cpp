@@ -16,6 +16,7 @@
 #include "StatParameterProxy.h"
 #include "ObservableInterface.h"
 #include "StatParamSourcesProxy.h"
+#include "StatDependencyPruner.h"
 
 #include "minuit-cpp/FCNBase.hh"
 #include "minuit-cpp/FunctionMinimum.hh"
@@ -24,6 +25,8 @@
 #include "minuit-cpp/MnUserCovariance.hh"
 #include "minuit-cpp/MnUserParameters.hh"
 #include "minuit-cpp/MnUserParameterState.hh"
+
+#include "BlockProxy.h"
 
 namespace M2 = MinuitCpp;
 
@@ -266,11 +269,8 @@ int main(int argc, char** argv) {
     config.MLE_max_iter = 10000;
     config.MLE_tol      = 1e-6; 
 
-    config.p_specs = {
-        ParamId(ParameterType::SM, "VCKMIN", 1),
-        ParamId(ParameterType::SM, "VCKMIN", 2),
-        ParamId(ParameterType::SM, "VCKMIN", 3),
-        ParamId(ParameterType::SM, "VCKMIN", 4)
+    std::vector<ParamId> p_specs = {
+        ParamId(ParameterType::WILSON, GroupMapper::str(WGroup::B, ScaleType::MATCHING), WCoefMapper::flha_full(WCoef::C10, QCDOrder::LO, ContributionType::SM))
     };
 
     auto model = std::make_shared<ObservableInterfaceAdapterObs>(oint);
@@ -280,11 +280,15 @@ int main(int argc, char** argv) {
         model,
         std::make_shared<StatCorrelationProxy>(),
         std::make_shared<StatParameterProxy>(),
-        std::make_shared<StatParamSourcesProxy>()
+        std::make_shared<StatParamSourcesProxy>(),
+        std::make_shared<StatDependencyPruner>()
     );
 
     LOG_INFO("YO1");
-    stat.fill_cache();
+    stat.update_cache(p_specs);
+
+    BlockProxy bp;
+    bp.log_all_blocks(ParameterType::WILSON);
 
     auto start_u = std::chrono::steady_clock::now();
     stat.compute_uncertainties();
@@ -294,9 +298,9 @@ int main(int argc, char** argv) {
     std::cout << "Uncertainty estimation time : " << us_u << " µs\n";
 
 
-    stat.fill_cache();
+    stat.update_cache(p_specs);
 
-    auto p_specs_map = stat.get_p_specs();
+    auto p_specs_map = stat.get_p_specs(p_specs);
     auto eta_specs_real = stat.get_all_obss_deps();
     for (const auto& [pid, _] : p_specs_map) eta_specs_real.erase(pid);
     auto exp_obs_map = stat.get_obs_exp();
@@ -368,9 +372,9 @@ int main(int argc, char** argv) {
 
     std::cout << "p_hat_correlations:\n" << fr.p_hat_correlations << "\n";
 
-    std::cout << *StatParameterProxy(ParameterType::OBSERVABLE)
-                     .get_param("FOBS", LhaID("511_1_0_0_2_13_-13"))
-              << std::endl;
+    // std::cout << *StatParameterProxy(ParameterType::OBSERVABLE)
+    //                  .get_param("FOBS", LhaID("511_1_0_0_2_13_-13"))
+    //           << std::endl;
 
     return 0;
 }

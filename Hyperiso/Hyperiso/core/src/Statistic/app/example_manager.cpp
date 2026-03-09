@@ -82,7 +82,7 @@ int main(int argc, char** argv) {
 
     StatisticManager stat(config, std::make_shared<ObservableInterfaceAdapterObs>(oint), std::make_shared<StatCorrelationProxy>(), std::make_shared<StatParameterProxy>(), std::make_shared<StatParamSourcesProxy>());
     LOG_INFO("YO1");
-    stat.fill_cache();
+    stat.update_cache();
     // LOG_INFO("YO2");
     auto start = std::chrono::steady_clock::now();
     stat.compute_uncertainties();

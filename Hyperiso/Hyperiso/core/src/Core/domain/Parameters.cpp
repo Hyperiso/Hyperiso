@@ -141,6 +141,22 @@ void Parameters::unfreeze_param(const BlockName &blockName, const LhaID &id) {
     return this->blockAccessor->at(blockName)->retrieve(id)->unfreeze();
 }
 
+void Parameters::detach_block(const BlockName &blockName) {
+    this->blockAccessor->detach_block(blockName);
+}
+
+void Parameters::reattach_block(const BlockName &blockName) {
+    this->blockAccessor->reattach_block(blockName);
+}
+
+void Parameters::detach_param(const BlockName &blockName, const LhaID &id) {
+    this->blockAccessor->detach_parameter(blockName, id);
+}
+
+void Parameters::reattach_param(const BlockName &blockName, const LhaID &id) {
+    this->blockAccessor->reattach_parameter(blockName, id);
+}
+
 std::ostream &operator<<(std::ostream &os, std::shared_ptr<Parameters> instance) {
     os << instance->blockAccessor;
     return os;

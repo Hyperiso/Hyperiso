@@ -15,7 +15,7 @@ public:
         std::shared_ptr<IStatParameterProxy> pspp = std::make_shared<StatParameterProxy>();
         std::shared_ptr<IStatSourcesProxy> sp = std::make_shared<StatParamSourcesProxy>();
         manager = std::make_shared<StatisticManager>(config, oia, pscp, pspp, sp);
-        manager->fill_cache();
+        manager->update_cache();
     }
 
     std::map<BinnedObservableId, GaussianSummary> compute_uncertainties() {

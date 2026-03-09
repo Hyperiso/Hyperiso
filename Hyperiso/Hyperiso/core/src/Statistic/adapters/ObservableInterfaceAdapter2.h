@@ -115,6 +115,10 @@ public:
         return oi_->compute_all();
     }
 
+    void compute_observables() const {
+        oi_->compute_all();
+    };
+
 private:
     std::shared_ptr<ObservableInterface> oi_;
     std::vector<ParamId> p_specs_, eta_specs_;

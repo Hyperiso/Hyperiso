@@ -9,6 +9,7 @@
 #include "IStatCorrelationProxy.h"
 #include "IStatParameterProxy.h"
 #include "IStatSourcesProxy.h"
+#include "IStatDependencyPruner.h"
 #include "CovarianceTransformer.h"
 #include "JointDistribution.h"
 #include "RvgNuisanceSampler.h"
@@ -59,8 +60,10 @@ class StatisticManager {
 public:
     StatisticManager(StatisticConfig config, std::shared_ptr<IModel> obs_int, 
         std::shared_ptr<IStatCorrelationProxy> pscp, std::shared_ptr<IStatParameterProxy> pspp,
-        std::shared_ptr<IStatSourcesProxy> sp) 
-    : config(config), obs_int(obs_int), pscp(pscp), pspp(pspp), sp(sp) {}
+        std::shared_ptr<IStatSourcesProxy> sp, std::shared_ptr<IStatDependencyPruner> dp) 
+    : config(config), obs_int(obs_int), pscp(pscp), pspp(pspp), sp(sp), dp(dp) {
+        obs_int->compute_observables();
+    }
 
     std::vector<std::unique_ptr<IMarginalDistribution>> build_nuisance_marginal_distributions();
     std::unique_ptr<JointDistribution> build_nuisance_distribution();
@@ -84,6 +87,7 @@ public:
     }
 
     MCResult compute_uncertainties_and_sampling() {
+        update_cache();
         auto rvg = build_nuisance_distribution();
         std::vector<ParamId> nuisance_ids = unzip(cache.eta_specs_real).ids;
         RvgNuisanceSampler sampler(nuisance_ids, std::move(rvg));
@@ -94,8 +98,8 @@ public:
         return sums;
     }
     
-    FitResultWithMaps compute_MLE() {
-
+    FitResultWithMaps compute_MLE(const std::vector<ParamId>& p_specs) {
+        update_cache(std::move(p_specs));
         // Build Likelihood context
 
         auto unzipped_fit_params = unzip(cache.p_specs);
@@ -184,17 +188,14 @@ public:
 
     std::set<std::vector<std::pair<double, double>>> confidence_contour(ParamId p1, ParamId p2, double z, std::array<double, 4> bounds, CLMethod method = CLMethod::PROJECT);
 
-    void fill_cache() {
-        cache.p_specs = this->get_p_specs();
+    void update_cache(const std::vector<ParamId>& p_specs = std::vector<ParamId>()) {
+        cache.p_specs = this->get_p_specs(p_specs);
+        for (const auto& [pid, _] : cache.p_specs)
+            dp->detach_parameter(pid.type.value(), pid.block, pid.code);
         cache.eta_specs_real = this->get_all_obss_deps();
         for (const auto& [pid, _] : cache.p_specs)
             cache.eta_specs_real.erase(pid);
         cache.SigmaEta = this->get_all_correlations();
-
-        // TODO : FOR TESTING PURPOSES ONLY, REMOVE AFTER !
-        // ParamId pid {ParameterType::SM, "VCKMIN", 2};
-        // cache.SigmaEta = {{pid, {{pid, pspp->get_param(pid)->get_combined_std()}}}};
-
         cache.exp_obs = this->get_obs_exp();
         cache.SigmaObs = this->get_all_obs_correlations();
     }
@@ -237,10 +238,6 @@ public:
                 eta_specs_real_leaf[paramId] = pspp->get_param(paramId)->get_val();
         }
 
-        // TODO : FOR TESTING PURPOSES ONLY, REMOVE AFTER !
-        // ParamId pid {ParameterType::SM, "VCKMIN", 2};
-        // eta_specs_real_leaf = {{pid, pspp->get_param(pid)->get_val()}};
-
         LOG_INFO("Significant nuisances");
         for (const auto& [pid, val] : eta_specs_real_leaf) {
             LOG_INFO(pid, val);
@@ -249,9 +246,9 @@ public:
         return eta_specs_real_leaf;
     }
 
-    std::map<ParamId, double> get_p_specs() {
+    std::map<ParamId, double> get_p_specs(const std::vector<ParamId>& p_specs) {
         std::map<ParamId, double> out;
-        for (auto elem : config.p_specs) {            
+        for (auto elem : p_specs) {            
             out[elem] = pspp->get_param(elem)->get_val();
         }
         return out;
@@ -287,6 +284,7 @@ private:
     std::shared_ptr<IStatCorrelationProxy> pscp;
     std::shared_ptr<IStatParameterProxy> pspp;
     std::shared_ptr<IStatSourcesProxy> sp;
+    std::shared_ptr<IStatDependencyPruner> dp;
     StatisticConfig config;
     StatCache cache;
 };
