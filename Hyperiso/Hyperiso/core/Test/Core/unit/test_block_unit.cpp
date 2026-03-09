@@ -233,6 +233,58 @@ static void test_dependent_block_lifecycle_lazy_dirty_freeze_clear_above() {
     assert(std::abs(v2 - 15.0) < 1e-12);
 }
 
+static void test_dependent_block_detach_reattach() {
+    std::cout << "\n-- [Unit] DependentBlock detach/reattach --\n";
+
+    auto src = std::make_shared<Block>();
+    src->blockname = "SRCD";
+    src->bind_self(src);
+
+    LhaID key(8);
+    src->store(key, std::make_shared<Parameter>(
+        ParamId{ParameterType::SM, "SRCD", 8}, 2.0, 0.0, 0.0
+    ));
+
+    int runs = 0;
+    auto recalc = [&](const auto& blocks, std::shared_ptr<DependentBlock> self) {
+        ++runs;
+        double v = blocks.get_val("SRCD", key);
+        if (!self->contains(key)) {
+            self->store(key, std::make_shared<Parameter>(
+                ParamId{ParameterType::SM, "DETD", 8}, 0.0, 0.0, 0.0
+            ));
+        }
+        self->assign(key, v + 100.0);
+    };
+
+    auto dep = std::make_shared<DependentBlock>(
+        std::unordered_map<std::string, std::shared_ptr<Block>>{{"SRCD", src}},
+        recalc
+    );
+    dep->blockname = "DETD";
+    dep->bind_self(dep);
+    dep->init();
+
+    assert(std::abs(dep->retrieve(key)->get_val() - 102.0) < 1e-12);
+    assert(runs == 1);
+
+    dep->detach();
+
+    src->assign(key, 5.0);
+
+    assert(std::abs(dep->retrieve(key)->get_val() - 102.0) < 1e-12);
+    assert(runs == 1);
+
+    dep->reattach();
+
+    assert(std::abs(dep->retrieve(key)->get_val() - 105.0) < 1e-12);
+    assert(runs == 2);
+
+    src->assign(key, 9.0);
+    assert(std::abs(dep->retrieve(key)->get_val() - 109.0) < 1e-12);
+    assert(runs == 3);
+}
+
 int main() {
     std::cout << "== Running Block unit tests ==\n";
     test_basic_store_retrieve_assign_remove_contains();
@@ -242,6 +294,7 @@ int main() {
     test_copy_ctor_and_copy_method_and_scale();
     test_clear_above_below();
     test_dependent_block_lifecycle_lazy_dirty_freeze_clear_above();
+    test_dependent_block_detach_reattach();
     std::cout << "\n Block unit suite passed.\n";
     return 0;
 }

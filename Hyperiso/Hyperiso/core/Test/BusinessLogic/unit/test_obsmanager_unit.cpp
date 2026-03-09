@@ -173,12 +173,12 @@ int main() {
     assert(contains_pid(pp_spy->called_pids, pid_mb));
 
     {
-        const auto oid = ObservableMapper::to_id(Observables::BR_BS_MUMU);
+        const auto oid = BinnedObservableId(ObservableMapper::to_id(Observables::BR_BS_MUMU));
 
         mgr.add_obs(Observables::BR_BS_MUMU, QCDOrder::LO, /*add_deps*/false);
 
         auto cur = mgr.get_current_obss();
-        assert(cur.count(oid) == 1);
+        assert(std::count(cur.begin(), cur.end(), oid) == 1);
 
         auto obs_ptr = mgr.get_obs(Observables::BR_BS_MUMU);
         assert(obs_ptr != nullptr);
@@ -186,11 +186,11 @@ int main() {
     }
 
     {
-        const auto oid = ObservableMapper::to_id(Observables::BR_BS_MUMU);
+        const auto oid = BinnedObservableId(ObservableMapper::to_id(Observables::BR_BS_MUMU));
         mgr.remove_obs(Observables::BR_BS_MUMU);
 
         auto cur = mgr.get_current_obss();
-        assert(cur.count(oid) == 0);
+        assert(std::count(cur.begin(), cur.end(), oid) == 1);
     }
 
     {

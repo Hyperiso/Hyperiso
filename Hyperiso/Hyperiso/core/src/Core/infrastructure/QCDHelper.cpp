@@ -175,12 +175,20 @@ std::vector<double> QCDHelper::getOrderedMasses(MassType mass_b_type, MassType m
     double mc = (*Parameters::GetInstance())("MASS", 4);
     double mu = (*Parameters::GetInstance())("MASS", 2);
     double md = (*Parameters::GetInstance())("MASS", 1);
+    // // double ms = (*Parameters::GetInstance())("MASS", 3); //Niels, wtf ?
+    // return {md, mu, ms, mc, m_b, m_t};
     // double ms = (*Parameters::GetInstance())("MASS", 3); //Niels, wtf ?
     return {md, mu, md, mc, m_b, m_t};
 }
 
 double QCDHelper::match_lambda(double target_alpha, double Q, int nf) {
     // auto f = [&](double L) { return alpha_s_explicit(Q, L, nf) - target_alpha; };
+    if (!std::isfinite(target_alpha) || target_alpha <= 0.0 || target_alpha > 1.0) {
+        throw std::domain_error(
+            "match_lambda: unphysical target_alpha=" + std::to_string(target_alpha)
+        );
+    }
+
     double L_min = 1e-3;
     double L_max = 1.;
     double L_moy = L_min;
@@ -198,8 +206,11 @@ double QCDHelper::match_lambda(double target_alpha, double Q, int nf) {
     }
 
     if (std::abs(1-L_min/L_max) <= 1e-5) {
-        LOG_ERROR("ValueError", "Unable to find suitable QCD Lambda value to match alpha_s = " + std::to_string(target_alpha) 
-                 + " at scale " + std::to_string(Q) + " GeV with " + std::to_string(nf) + " active flavors.");
+        throw std::domain_error(
+            "match_lambda: target alpha outside bracket, alpha=" + std::to_string(target_alpha)
+        );
+        // LOG_ERROR("ValueError", "Unable to find suitable QCD Lambda value to match alpha_s = " + std::to_string(target_alpha) 
+        //          + " at scale " + std::to_string(Q) + " GeV with " + std::to_string(nf) + " active flavors.");
         return -1;
     }
 

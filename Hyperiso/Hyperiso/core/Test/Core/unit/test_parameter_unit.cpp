@@ -183,6 +183,49 @@ static void test_dependent_freeze_unfreeze_clear_above() {
     assert(runs == 2);
 }
 
+static void test_dependent_parameter_detach_reattach() {
+    std::cout << "\n-- [Unit] DependentParameter detach/reattach --\n";
+
+    auto p = std::make_shared<Parameter>(ParamId{ParameterType::SM, "SRC", 1}, 2.0, 0.0, 0.0);
+
+    std::unordered_map<ParamId, std::shared_ptr<Parameter>> srcs = {
+        {p->get_id(), p}
+    };
+
+    int runs = 0;
+    auto lambda = [&](const auto& srcs, std::shared_ptr<DependentParameter> self) {
+        ++runs;
+        double x = srcs.raw().begin()->second->get_val();
+        self->set_expected_silent(10.0 * x);
+    };
+
+    auto dep = std::make_shared<DependentParameter>(
+        ParamId{ParameterType::SM, "DEP", 300},
+        srcs,
+        lambda
+    );
+    dep->init();
+
+    assert(std::abs(dep->get_val() - 20.0) < 1e-12);
+    assert(runs == 1);
+
+    dep->detach();
+
+    p->set_expected(3.0);
+
+    assert(std::abs(dep->get_val() - 20.0) < 1e-12);
+    assert(runs == 1);
+
+    dep->reattach();
+
+    assert(std::abs(dep->get_val() - 30.0) < 1e-12);
+    assert(runs == 2);
+
+    p->set_expected(4.0);
+    assert(std::abs(dep->get_val() - 40.0) < 1e-12);
+    assert(runs == 3);
+}
+
 int main() {
     std::cout << "== Running Parameter unit tests ==\n";
     test_construct_and_std_and_mode();
@@ -191,6 +234,7 @@ int main() {
     test_assignment_and_operators();
     test_dependent_parameter_lazy_dirty_basic();
     test_dependent_freeze_unfreeze_clear_above();
+    test_dependent_parameter_detach_reattach();
     std::cout << "\n Parameter unit suite passed.\n";
     return 0;
 }
