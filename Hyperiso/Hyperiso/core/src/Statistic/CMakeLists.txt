@@ -12,6 +12,12 @@ endif()
 if (NOT DEFINED BUILD_WITH_2HDMC)
     option(BUILD_WITH_2HDMC "Build project with 2HDMC support" OFF)
 endif()
+if (NOT DEFINED BUILD_WITH_MARTY)
+    option(BUILD_WITH_MARTY "Build project with MARTY support" OFF)
+endif()
+if (NOT DEFINED BUILD_WITH_MINUIT2)
+    option(BUILD_WITH_MINUIT2 "Build project with Minuit2 support" OFF)
+endif()
 
 # option(ENABLE_SANITIZERS "Enable ASan/UBSan" ON)
 
@@ -46,33 +52,33 @@ if (NOT TARGET CoreLib)
     add_subdirectory(../Core CoreLib)
 endif()
 
-include(FetchContent)
+# include(FetchContent)
 
-FetchContent_Declare(minuit_cpp
-  GIT_REPOSITORY https://github.com/doughague/minuit-cpp.git
-  GIT_TAG b5f2558
-  GIT_SHALLOW TRUE
-)
+# FetchContent_Declare(minuit_cpp
+#   GIT_REPOSITORY https://github.com/doughague/minuit-cpp.git
+#   GIT_TAG b5f2558
+#   GIT_SHALLOW TRUE
+# )
 
-FetchContent_MakeAvailable(minuit_cpp)
+# FetchContent_MakeAvailable(minuit_cpp)
 
-if(NOT TARGET MinuitCpp)
-  add_library(MinuitCpp INTERFACE)
+# if(NOT TARGET MinuitCpp)
+#   add_library(MinuitCpp INTERFACE)
 
-  if(TARGET minuit-cpp)
-    target_link_libraries(MinuitCpp INTERFACE minuit-cpp)          # shared
-  elseif(TARGET minuit-cpp-static)
-    target_link_libraries(MinuitCpp INTERFACE minuit-cpp-static)   # static
-  else()
-    message(FATAL_ERROR "Targets minuit-cpp introuvables (minuit-cpp / minuit-cpp-static).")
-  endif()
+#   if(TARGET minuit-cpp)
+#     target_link_libraries(MinuitCpp INTERFACE minuit-cpp)          # shared
+#   elseif(TARGET minuit-cpp-static)
+#     target_link_libraries(MinuitCpp INTERFACE minuit-cpp-static)   # static
+#   else()
+#     message(FATAL_ERROR "Targets minuit-cpp introuvables (minuit-cpp / minuit-cpp-static).")
+#   endif()
 
-  target_include_directories(MinuitCpp INTERFACE
-    ${minuit_cpp_SOURCE_DIR}/include
-  )
+#   target_include_directories(MinuitCpp INTERFACE
+#     ${minuit_cpp_SOURCE_DIR}/include
+#   )
 
-  add_library(MinuitCpp::MinuitCpp ALIAS MinuitCpp)
-endif()
+#   add_library(MinuitCpp::MinuitCpp ALIAS MinuitCpp)
+# endif()
 
 add_library(StatisticLib STATIC 
     adapters/StatCorrelationProxy.cpp
@@ -153,6 +159,12 @@ target_link_libraries(CONTOUR_TEST StatisticLib)
 
 add_executable(CONTOUR_TEST2 app/test_contour_minuit2.cpp)
 target_link_libraries(CONTOUR_TEST2 StatisticLib)
+
+add_executable(REFACTORED_MINUIT app/test_contour_minuit_refactored.cpp)
+target_link_libraries(REFACTORED_MINUIT StatisticLib)
+
+add_executable(GAUSSIAN_CONTOUR app/test_gaussian_contour.cpp)
+target_link_libraries(GAUSSIAN_CONTOUR StatisticLib)
 
 include(GNUInstallDirs)
 

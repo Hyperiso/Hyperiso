@@ -14,11 +14,16 @@ endif()
 if (NOT DEFINED BUILD_WITH_MARTY)
     option(BUILD_WITH_MARTY "Build project with MARTY support" OFF)
 endif()
+if (NOT DEFINED BUILD_WITH_MINUIT2)
+    option(BUILD_WITH_MINUIT2 "Build project with Minuit2 support" OFF)
+endif()
 
 if (NOT TARGET CommonLib)
     add_subdirectory(../Common CommonLib)
 endif()
-
+if (NOT TARGET MathLib)
+    add_subdirectory(../Math MathLib)
+endif()
 if (NOT TARGET ConfiguredModule)
     add_subdirectory(../Configured Configured)
 endif()
@@ -26,7 +31,8 @@ endif()
 add_library(ExternalIntegrationLib STATIC 
     Interface.cpp
     2HDMC.cpp
-    SoftSusy.cpp)
+    SoftSusy.cpp
+    MinuitCppBackend.cpp)
 set_target_properties(ExternalIntegrationLib PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
 # set(THIRD_PARTY_DIR "${PROJECT_SOURCE_DIR}/Third_party")
@@ -246,6 +252,7 @@ endif()
 
 target_link_libraries(ExternalIntegrationLib PUBLIC CommonLib)
 target_link_libraries(ExternalIntegrationLib PUBLIC ConfiguredModule)
+target_link_libraries(ExternalIntegrationLib PUBLIC MathLib)
 
 target_include_directories(ExternalIntegrationLib
   PUBLIC
@@ -272,3 +279,34 @@ install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
     PATTERN "*.cpp" EXCLUDE
     PATTERN "CMakeFiles" EXCLUDE
 )
+
+include(FetchContent)
+
+FetchContent_Declare(minuit_cpp
+  GIT_REPOSITORY https://github.com/doughague/minuit-cpp.git
+  GIT_TAG b5f2558
+  GIT_SHALLOW TRUE
+)
+
+
+FetchContent_MakeAvailable(minuit_cpp)
+
+if(NOT TARGET MinuitCpp)
+  add_library(MinuitCpp INTERFACE)
+
+  if(TARGET minuit-cpp)
+    target_link_libraries(MinuitCpp INTERFACE minuit-cpp)          # shared
+  elseif(TARGET minuit-cpp-static)
+    target_link_libraries(MinuitCpp INTERFACE minuit-cpp-static)   # static
+  else()
+    message(FATAL_ERROR "Targets minuit-cpp introuvables (minuit-cpp / minuit-cpp-static).")
+  endif()
+
+  target_include_directories(MinuitCpp INTERFACE
+    ${minuit_cpp_SOURCE_DIR}/include
+  )
+
+  add_library(MinuitCpp::MinuitCpp ALIAS MinuitCpp)
+endif()
+
+target_link_libraries(ExternalIntegrationLib PUBLIC MinuitCpp::MinuitCpp)

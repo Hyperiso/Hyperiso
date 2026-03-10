@@ -12,6 +12,7 @@
 #include "../special/special_generic.h"
 
 // Minimal RAII for GSL pointers
+using Vector = std::vector<double>;
 
 using gsl_matrix_sptr = std::unique_ptr<gsl_matrix, decltype(&gsl_matrix_free)>;
 using gsl_vector_sptr = std::unique_ptr<gsl_vector, decltype(&gsl_vector_free)>;
