@@ -129,21 +129,6 @@ void Parameter::overwrite_payload_from(const Parameter& other) {
     binning         = other.binning;
 }
 
-// void Parameter::notifyObservers() {
-//     for (size_t i = 0; i < observers.size(); ++i) {
-//         auto& observer = observers[i];
-//         if (!observer) continue;
-//         LOG_DEBUG("Notifying observer", observer->id.block, observer->id.code,
-//                   "from parameter", id.block, id.code);
-//         observer->update();
-//     }
-//     observers.erase(std::remove(observers.begin(), observers.end(), nullptr), observers.end());
-
-//     if (auto b = owner_block.lock()) {
-//         b->notifyObservers();
-//     }
-// }
-
 void Parameter::notifyParamObserversOnly() {
     for (size_t i = 0; i < observers.size(); ++i) {
         auto& observer = observers[i];
@@ -154,9 +139,9 @@ void Parameter::notifyParamObserversOnly() {
 }
 
 void Parameter::notifyObservers() {
-    notifyParamObserversOnly();             // ✅ param observers
+    notifyParamObserversOnly(); 
     if (auto b = owner_block.lock()) {
-        b->notifyObservers();               // ✅ block observers (once per PARAM update)
+        b->notifyObservers();          
     }
 }
 

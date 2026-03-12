@@ -20,71 +20,95 @@ class Parameters;
 
 /**
  * @file Parameters.h
- * @brief Defines strategies for different physics models and manages parameter instances.
+ * @brief Model-dependent parameter repository and initialization strategies.
  *
- * This file declares:
- * - ModelStrategy: abstract base class for model-specific strategies.
- * - Concrete strategies (e.g., SMModelStrategy, BSMModelStrategy, etc.).
- * - Parameters: singleton class to manage parameter values and blocks for different models.
- * - ParametersFactory: factory class to create and manage Parameters instances.
+ * This header defines the main runtime parameter layer used throughout HyperISO.
+ *
+ * It contains:
+ * - @ref ModelStrategy, the abstract interface used to initialize one parameter domain,
+ * - concrete strategies for each @ref ParameterType
+ *   (SM, BSM, FLAVOR, WILSON, DECAY, OBSERVABLE, PASSTHROUGH),
+ * - @ref Parameters, the main block-based repository for one parameter domain,
+ * - @ref ParametersFactory, the singleton-style factory ensuring one repository
+ *   per @ref ParameterType.
+ *
+ * ## General architecture
+ *
+ * A @ref Parameters instance owns a @ref BlockAccessor containing all blocks
+ * for one parameter namespace (SM, BSM, WILSON, ...). The actual content is
+ * initialized through a model-specific @ref ModelStrategy:
+ *
+ * @code
+ *   Parameters::GetInstance(ParameterType::SM)
+ *       -> ParametersFactory::GetParameters(ParameterType::SM)
+ *       -> createStrategy(ParameterType::SM)
+ *       -> strategy->initializeParameters(...)
+ *       -> strategy->postInitialization(...)
+ * @endcode
+ *
+ * Blocks are usually extracted from the @ref MemoryManager input cache, then
+ * enriched with dependent blocks / derived quantities during post-initialization.
+ *
+ * ## Responsibilities
+ *
+ * @ref Parameters provides:
+ * - block and parameter lookup,
+ * - manual value updates,
+ * - parameter/block freezing,
+ * - dependency detachment / reattachment,
+ * - access to the underlying @ref BlockAccessor for advanced operations.
+ *
+ * @see Parameters
+ * @see ParametersFactory
+ * @see ModelStrategy
+ * @see BlockAccessor
+ * @see MemoryManager
  */
 
 /**
- * @defgroup ParametersModule Parameters and Model Strategies
- * @brief Management of parameters and model-specific initialization.
+ * @defgroup ParametersModule Parameters and model strategies
+ * @brief Management of physics parameters and model-specific initialization logic.
  *
- * This module defines and manages:
- * - ModelStrategy classes for different physics models (SM, BSM, Flavor, Wilson, etc.)
- * - The Parameters singleton that holds all parameter values.
- * - The ParametersFactory that ensures proper instance creation and destruction.
- *
- * ## Overview
- *
- * The Parameters system relies on a flexible architecture:
- * - Each model type (Standard Model, BSM, etc.) uses a dedicated **ModelStrategy** to load its parameters.
- * - **Parameters** holds the blocks and parameters for each model instance.
- * - **ParametersFactory** guarantees that only one Parameters instance per model exists.
- *
- * ## Structure
- *
- * ```
- * [Input files / MemoryManager]
- *       ↓
- *    [BlockAccessor]
- *       ↓
- * [Parameters instance] ← ModelStrategy
- * ```
- *
- * ## Related Classes
- * - @ref Parameters
- * - @ref ParametersFactory
- * - @ref ModelStrategy
- * - @ref SMModelStrategy
- * - @ref BSMModelStrategy
- * - @ref FlavorStrategy
- * - @ref WilsonInputStrategy
- * - @ref ObservableStrategy
- * - @ref DecayStrategy
- * - @ref PassthroughStrategy
+ * This module groups the parameter repositories and the initialization strategies
+ * used to populate them from the input cache and derived helper computations.
  */
 
 /**
  * @class ModelStrategy
  * @ingroup ParametersModule
- * @brief Abstract base class for different physics model strategies.
+ * @brief Abstract initialization strategy for one parameter namespace.
+ *
+ * A ModelStrategy is responsible for two phases:
+ * - @ref initializeParameters: load the initial set of blocks for a given
+ *   parameter type,
+ * - @ref postInitialization: build extra derived blocks / helper quantities
+ *   after the raw blocks have been loaded.
+ *
+ * It also stores the set of blocks that were absent during initialization.
  */
 class ModelStrategy {
 public:
     /**
-     * @brief Initializes model-specific parameters.
-     * @param params Reference to Parameters object.
-     * @return Set of block names that were absent during initialization.
+     * @brief Initializes the block set for the target parameter repository.
+     *
+     * Typical implementations call @ref Parameters::init_blocks with the
+     * appropriate @ref ParameterType and return the set of missing blocks.
+     *
+     * @param params Parameter repository being initialized.
+     * @return Set of block names that were expected but absent from the input.
      */
     virtual std::unordered_set<BlockName> initializeParameters(class Parameters& params) = 0;
 
     /**
-     * @brief Executes additional initialization tasks after main parameter loading.
-     * @param params Reference to Parameters object.
+     * @brief Performs additional initialization after raw blocks are loaded.
+     *
+     * This hook is typically used to:
+     * - initialize helper modules,
+     * - create derived / dependent blocks,
+     * - add fallback blocks when some inputs are absent,
+     * - synchronize scales or helper quantities.
+     *
+     * @param params Parameter repository being post-initialized.
      */
     virtual void postInitialization(Parameters& params) = 0;
 
@@ -94,8 +118,8 @@ public:
     virtual ~ModelStrategy() = default;
 
     /**
-     * @brief Sets the list of absent blocks for the model strategy.
-     * @param _ Set of absent block names.
+     * @brief Stores the set of blocks absent during initialization.
+     * @param _ Set of missing block names.
      */
     void add_absent_block(std::unordered_set<BlockName> _) {absent_blocks = _;};
 
@@ -104,325 +128,557 @@ public:
      */
     void remove_absent_block() {absent_blocks = std::unordered_set<BlockName>();}
 protected:
-    std::unordered_set<BlockName> absent_blocks;  ///< List of blocks missing from initialization.
+    std::unordered_set<BlockName> absent_blocks;  /// Set of blocks that were expected but not present in the input cache.
 };
 
 /**
  * @class SMModelStrategy
  * @ingroup ParametersModule
- * @brief Strategy for Standard Model parameters.
+ * @brief Strategy responsible for Standard Model parameters.
+ *
+ * Raw SM blocks are loaded from the input cache through
+ * @ref Parameters::init_blocks(ParameterType::SM).
+ *
+ * Post-initialization currently:
+ * - initializes @ref QCDHelper and @ref EWHelper,
+ * - creates a derived `VCKM` block from `VCKMIN` if `VCKM` is absent,
+ * - ensures the Wilson parameter repository exists,
+ * - creates a derived `MASS_EW_SCALE` block using `EW_SCALE` and QCD running masses.
  */
 class SMModelStrategy : public ModelStrategy {
 public:
+    /**
+     * @copydoc ModelStrategy::initializeParameters
+     */
     std::unordered_set<BlockName> initializeParameters(class Parameters& params) override;
+
+    /**
+     * @copydoc ModelStrategy::postInitialization
+     */
     void postInitialization(Parameters& params) override;
 };
 
 /**
  * @class BSMModelStrategy
  * @ingroup ParametersModule
- * @brief Strategy for Beyond Standard Model parameters.
+ * @brief Strategy responsible for BSM parameters.
+ *
+ * Raw BSM blocks are loaded from the input cache through
+ * @ref Parameters::init_blocks(ParameterType::BSM).
+ *
+ * In the current implementation, post-initialization contains SUSY-specific
+ * fallback logic: if some squark-mixing blocks are absent, zero-filled
+ * dependent 7x7 blocks are created.
  */
 class BSMModelStrategy : public ModelStrategy {
 public:
+    /**
+     * @copydoc ModelStrategy::initializeParameters
+     */
     std::unordered_set<BlockName> initializeParameters(class Parameters& params) override;
+
+    /**
+     * @copydoc ModelStrategy::postInitialization
+     */
     void postInitialization(Parameters& params) override;
 };
 
-/** 
+/**
  * @class FlavorStrategy
  * @ingroup ParametersModule
- * @brief Strategy for flavor parameters (mesons mass, lifetime, etc.).
+ * @brief Strategy responsible for flavor-sector input blocks.
+ *
+ * This strategy loads the FLAVOR parameter namespace from the input cache.
+ * It currently has no extra post-initialization step.
  */
 class FlavorStrategy : public ModelStrategy {
 public:
-std::unordered_set<BlockName> initializeParameters(class Parameters& params) override;
+    /**
+     * @copydoc ModelStrategy::initializeParameters
+     */
+    std::unordered_set<BlockName> initializeParameters(class Parameters& params) override;
+
+    /**
+     * @copydoc ModelStrategy::postInitialization
+     *
+     * Current implementation does nothing.
+     */
     void postInitialization(Parameters&) override {}
 };
 
-/** 
+/**
  * @class GeneralModelStrategy
  * @ingroup ParametersModule
- * @brief Strategy for TODO ??.
+ * @brief Placeholder / generic strategy class.
+ *
+ * This strategy is declared in the interface but its behavior is not shown in
+ * the implementation snippet provided here. It appears intended as a generic
+ * or catch-all strategy for model-specific blocks outside the standard sets.
+ *
+ * @warning If kept in the public API, its implementation should be documented
+ *          and provided consistently.
  */
 class GeneralModelStrategy : public ModelStrategy {
 public:
-std::unordered_set<BlockName> initializeParameters(class Parameters& params) override;
+    /**
+     * @copydoc ModelStrategy::initializeParameters
+     */
+    std::unordered_set<BlockName> initializeParameters(class Parameters& params) override;
+
+    /**
+     * @copydoc ModelStrategy::postInitialization
+     *
+     * Current implementation does nothing.
+     */
     void postInitialization(Parameters&) override {}
 };
 
-/** 
+/**
  * @class WilsonInputStrategy
  * @ingroup ParametersModule
- * @brief Strategy for Wilson parameters (and wilson itself).
+ * @brief Strategy responsible for Wilson-coefficient input blocks.
+ *
+ * This strategy loads the WILSON namespace from the input cache.
+ *
+ * In the current implementation, post-initialization additionally synchronizes
+ * the helper block `EW_SCALE` with the scale carried by the `FWCOEF` block,
+ * but only if the configuration flag
+ * @ref ExternalFlag::HAS_WILSON_INPUT is enabled.
  */
 class WilsonInputStrategy : public ModelStrategy {
 public:
+    /**
+     * @copydoc ModelStrategy::initializeParameters
+     */
     std::unordered_set<BlockName> initializeParameters(class Parameters& params) override;
+
+    /**
+     * @copydoc ModelStrategy::postInitialization
+     */
     void postInitialization(Parameters& params) override;
 };
 
-/** 
+/**
  * @class DecayStrategy
  * @ingroup ParametersModule
- * @brief Strategy for decay parameters.
+ * @brief Strategy responsible for decay-related parameter blocks.
+ *
+ * This strategy loads the DECAY namespace from the input cache and performs
+ * no extra post-initialization step in the current implementation.
  */
 class DecayStrategy : public ModelStrategy {
 public:
-std::unordered_set<BlockName> initializeParameters(class Parameters& params) override;
+    /**
+     * @copydoc ModelStrategy::initializeParameters
+     */
+    std::unordered_set<BlockName> initializeParameters(class Parameters& params) override;
+
+    /**
+     * @copydoc ModelStrategy::postInitialization
+     *
+     * Current implementation does nothing.
+     */
     void postInitialization(Parameters&) override {}
 };
 
-/** 
+/**
  * @class ObservableStrategy
  * @ingroup ParametersModule
- * @brief Strategy for observables parameters (and observables themself).
+ * @brief Strategy responsible for observable-related blocks.
+ *
+ * This strategy loads the OBSERVABLE namespace from the input cache and
+ * currently performs no additional post-initialization.
  */
 class ObservableStrategy : public ModelStrategy {
 public:
-std::unordered_set<BlockName> initializeParameters(class Parameters& params) override;
+    /**
+     * @copydoc ModelStrategy::initializeParameters
+     */
+    std::unordered_set<BlockName> initializeParameters(class Parameters& params) override;
+
+    /**
+     * @copydoc ModelStrategy::postInitialization
+     *
+     * Current implementation does nothing.
+     */
     void postInitialization(Parameters&) override {}
 };
 
-/** 
+/**
  * @class PassthroughStrategy
  * @ingroup ParametersModule
- * @brief Strategy for passthrough parameters (not needed at runtime but must be in the output).
+ * @brief Strategy responsible for passthrough / output-preserved blocks.
+ *
+ * This namespace is intended for blocks that are not actively used by the
+ * runtime logic but still need to be carried through the framework and/or
+ * reproduced in outputs.
  */
 class PassthroughStrategy : public ModelStrategy {
 public:
-std::unordered_set<BlockName> initializeParameters(class Parameters& params) override;
+    /**
+     * @copydoc ModelStrategy::initializeParameters
+     */
+    std::unordered_set<BlockName> initializeParameters(class Parameters& params) override;
+
+    /**
+     * @copydoc ModelStrategy::postInitialization
+     *
+     * Current implementation does nothing.
+     */
     void postInitialization(Parameters&) override {}
 };
 
 /**
  * @class Parameters
  * @ingroup ParametersModule
- * @brief Singleton class to manage parameter values, blocks, and model-specific strategies.
+ * @brief Block-based parameter repository for one @ref ParameterType namespace.
+ *
+ * A Parameters instance owns the complete block set for one parameter domain
+ * (SM, BSM, FLAVOR, WILSON, ...), together with the strategy that initialized it.
+ *
+ * Responsibilities include:
+ * - accessing scalar values and full Parameter objects,
+ * - mutating values,
+ * - freezing/unfreezing blocks and parameters,
+ * - detaching/reattaching dependencies,
+ * - listing blocks,
+ * - exposing the underlying @ref BlockAccessor for advanced workflows.
+ *
+ * Instances are obtained through @ref GetInstance and are managed through
+ * @ref ParametersFactory, effectively giving one repository per @ref ParameterType.
  */
 class Parameters {
 public:
     /**
-     * @brief Retrieves the singleton instance for a given model.
-     * @param id ParameterType (default: SM).
-     * @return Shared pointer to the Parameters instance.
+     * @brief Returns the singleton-like repository for a given parameter type.
+     *
+     * This first checks whether the requested parameter type is enabled in the
+     * current @ref MemoryManager cache, then delegates creation/retrieval to
+     * @ref ParametersFactory.
+     *
+     * @param id Parameter namespace to retrieve (default: SM).
+     * @return Shared pointer to the repository.
+     *
+     * @throws Via logging/error handling if the parameter type is not allowed
+     *         by the current memory cache.
      */
     static std::shared_ptr<Parameters> GetInstance(ParameterType id = ParameterType::SM);
 
     /**
-     * @brief Cleans up an instance of Parameters for a given model.
-     * @param id ParameterType to remove.
+     * @brief Removes one repository instance from the factory cache.
+     *
+     * This is a thin wrapper around @ref ParametersFactory::removeParameters.
+     *
+     * @param id Parameter namespace to remove.
      */
     void CleanupInstance(ParameterType id = ParameterType::SM);
 
     /**
-     * @brief Checks if a parameter exists in a specified block.
+     * @brief Checks whether a parameter exists in a given block.
+     *
+     * Current implementation:
+     * - returns false if the block does not exist,
+     * - otherwise delegates to `Block::contains(id)`.
+     *
      * @param block Block name.
-     * @param pdgCode PDG code identifier.
-     * @return True if parameter exists, false otherwise.
+     * @param pdgCode Parameter identifier inside the block.
+     * @return True if the parameter exists, false otherwise.
      */
     bool exist(const BlockName& block, LhaID pdgCode);
     
     /**
-     * @brief Retrieves a parameter value (operator syntax).
+     * @brief Reads the current scalar value of a parameter.
+     *
+     * This is a convenience wrapper over the underlying @ref BlockAccessor.
+     *
      * @param block Block name.
-     * @param pdgCode PDG code identifier.
-     * @return The corresponding parameter value.
+     * @param pdgCode Parameter identifier.
+     * @return Current scalar value.
      */
     scalar_t operator()(const BlockName& block, LhaID pdgCode) const;
 
     /**
-     * @brief Retrieves a shared pointer to a Parameter.
+     * @brief Returns the full @ref Parameter object for one entry.
+     *
      * @param block Block name.
-     * @param pdgCode PDG code identifier.
-     * @return Shared pointer to the parameter.
+     * @param pdgCode Parameter identifier.
+     * @return Shared pointer to the stored parameter.
      */
     std::shared_ptr<Parameter> get_parameter(const BlockName& block, LhaID pdgCode);
 
     /**
-     * @brief Sets a parameter value manually.
+     * @brief Sets or creates a scalar value inside a block.
+     *
+     * Delegates to `BlockAccessor::setValue(...)`.
+     *
      * @param name Block name.
-     * @param pdgCode PDG code.
-     * @param value Value to assign.
+     * @param pdgCode Parameter identifier.
+     * @param value Value to set.
      */
     void setBlockValue(const BlockName& name, LhaID pdgCode, scalar_t value);
 
     /**
-     * @brief Retrieves all parameter values for a given block.
+     * @brief Returns all scalar values stored in one block.
+     *
      * @param blockName Block name.
-     * @return Map of LHA IDs to parameter values.
+     * @return Map of `LhaID -> scalar_t`.
      */
     std::map<LhaID, scalar_t> get_block_infos(BlockName blockName);
 
     /**
-     * @brief Retrieves the energy scale of a block, if defined.
+     * @brief Returns the scale attached to a block.
+     *
+     * This directly delegates to `Block::get_scale()`.
+     *
      * @param blockName Block name.
-     * @return Energy scale of the block.
+     * @return Block scale.
+     *
+     * @throws If the block does not exist or the block has no scale set.
      */
     double get_block_scale(BlockName blockName) const;
     
 
     /**
-     * @brief Retrieves the list of available parameter blocks.
+     * @brief Returns the list of blocks currently held in this repository.
+     *
      * @return Set of block names.
      */
     std::unordered_set<BlockName> get_blocks_list();
 
     /**
-     * @brief Changes the operational mode of a parameter (fixed/shiftable).
-     * @param param_id Identifier of the parameter.
-     * @param new_mode New mode to apply.
+     * @brief Changes the mode of one parameter.
+     *
+     * @warning This is currently not implemented in the provided `.cpp`
+     *          (the method body is effectively a TODO/no-op).
+     *
+     * @param param_id Parameter identifier.
+     * @param new_mode New parameter mode.
      */
     void changeParameterMode(const ParamId& param_id, ParameterMode new_mode);
 
     /**
-     * @brief Applies a shift to a parameter value.
-     * @param param_id Identifier of the parameter.
-     * @param shift_value Value to shift.
+     * @brief Applies an additive shift to a parameter by rewriting its value.
+     *
+     * Current implementation simply does:
+     * @code
+     * value <- current_value + shift_value
+     * @endcode
+     * through the accessor, rather than using `Parameter::set_shift()`.
+     *
+     * @param param_id Parameter identifier.
+     * @param shift_value Additive shift.
      */
     void shiftParameter(const ParamId& param_id, scalar_t shift_value);
 
     /**
-     * @brief Initializes parameter blocks for a given model type.
-     * @param type Model type.
+     * @brief Loads the raw blocks for one parameter namespace from MemoryManager.
+     *
+     * This method:
+     * - compares the expected blocks from `ParameterBlockRepartition::BLOCKS`
+     *   against the input cache,
+     * - separates present and missing blocks,
+     * - applies a few policy adjustments (e.g. FWCOEF handling),
+     * - extracts the present blocks through `MemoryManager::extract_blocks(...)`,
+     * - tags all extracted parameters with the correct owner type.
+     *
+     * @param type Parameter namespace being initialized.
      * @return Set of missing blocks.
      */
     std::unordered_set<BlockName> init_blocks(ParameterType type);
 
     /**
-     * @brief Freezes an entire block (preventing parameter updates).
-     * @param blockName Name of the block to freeze.
+     * @brief Freezes one whole block.
+     *
+     * Delegates to `Block::freeze()` after checking existence.
+     *
+     * @param blockName Block to freeze.
      */
     void freeze_block(const BlockName& blockName);
 
     /**
-     * @brief Unfreezes an entire block.
-     * @param blockName Name of the block to unfreeze.
+     * @brief Freezes one whole block.
+     *
+     * Delegates to `Block::freeze()` after checking existence.
+     *
+     * @param blockName Block to freeze.
      */
     void unfreeze_block(const BlockName& blockName);
 
     /**
-     * @brief Freezes a specific parameter within a block.
-     * @param blockName Name of the block.
-     * @param id LHA ID of the parameter.
+     * @brief Freezes one parameter inside a block.
+     *
+     * @param blockName Block containing the parameter.
+     * @param id Parameter identifier.
      */
     void freeze_param(const BlockName& blockName, const LhaID& id);
 
     /**
-     * @brief Unfreezes a specific parameter within a block.
-     * @param blockName Name of the block.
-     * @param id LHA ID of the parameter.
+     * @brief Unfreezes one parameter inside a block.
+     *
+     * @param blockName Block containing the parameter.
+     * @param id Parameter identifier.
      */
     void unfreeze_param(const BlockName& blockName, const LhaID& id);
 
     /**
-     * @brief Detaches an entire block from the dependency structure (allowing for silent updates).
-     * @param blockName Name of the block to detach.
+     * @brief Detaches one dependent block from its upstream dependency graph.
+     *
+     * Delegates to `BlockAccessor::detach_block(...)`.
+     *
+     * @param blockName Block to detach.
      */
     void detach_block(const BlockName& blockName);
 
     /**
-     * @brief Reattaches a block to the dependency structure
-     * @param blockName Name of the block to reattach.
+     * @brief Reattaches one previously detached dependent block.
+     *
+     * Delegates to `BlockAccessor::reattach_block(...)`.
+     *
+     * @param blockName Block to reattach.
      */
     void reattach_block(const BlockName& blockName);
 
     /**
-     * @brief Detaches a specific parameter within a block from the dependency structure (allowing for silent updates).
-     * @param blockName Name of the block.
-     * @param id LHA ID of the parameter.
+     * @brief Detaches one dependent parameter from its upstream dependencies.
+     *
+     * Delegates to `BlockAccessor::detach_parameter(...)`.
+     *
+     * @param blockName Block containing the parameter.
+     * @param id Parameter identifier.
      */
     void detach_param(const BlockName& blockName, const LhaID& id);
 
     /**
-     * @brief Reattaches a specific parameter to the dependency structure.
-     * @param blockName Name of the block.
-     * @param id LHA ID of the parameter.
+     * @brief Reattaches one previously detached dependent parameter.
+     *
+     * Delegates to `BlockAccessor::reattach_parameter(...)`.
+     *
+     * @param blockName Block containing the parameter.
+     * @param id Parameter identifier.
      */
     void reattach_param(const BlockName& blockName, const LhaID& id);
 
     /**
-     * @brief Return the BlockAccessor of the parameters.
+     * @brief Returns the underlying block accessor.
      *
-     * Should only be used for parameters optimization.
+     * This is mainly intended for advanced / optimization-oriented workflows.
      *
-     * @return The BlockAccessor.
+     * @return Shared pointer to the block accessor.
      */
     std::shared_ptr<BlockAccessor> get_block_accessor() { return this->blockAccessor;}
 
     /**
-     * @brief Print the content of a block.
+     * @brief Prints one block to stdout.
      *
-     * Prints the content of a block in the block accessor.
+     * Internally streams the block object resolved by name through
+     * the block accessor.
      *
      * @param blockname Name of the block to print.
      */
     void print_block(const std::string blockname);
     
     /**
-     * @brief Stream output operator for Parameters instance.
+     * @brief Stream output operator for the whole repository.
      *
-     * Prints the content of the block accessor.
+     * Prints the underlying @ref BlockAccessor.
      *
      * @param os Output stream.
-     * @param instance Shared pointer to the Parameters to print.
-     * @return The output stream.
+     * @param instance Repository instance to print.
+     * @return Output stream.
      */
     friend std::ostream& operator<<(std::ostream&, std::shared_ptr<Parameters>);
     
     /**
-     * @brief Destructor. Logs when a Parameters instance is destroyed.
+     * @brief Destructor.
+     *
+     * Only logs destruction in the current implementation.
      */
     ~Parameters() { LOG_DEBUG("Parameters at ", this); }
 
 private:
     /**
-     * @brief Sets the owner type for all parameters in the accessor.
-     * @param type ParameterType to assign as owner.
+     * @brief Tags all currently stored parameters with the given owner type.
+     *
+     * This iterates through all blocks and calls `Block::set_owner(type)`.
+     *
+     * @param type Parameter owner type to assign.
      */
     void claim_parameters(ParameterType type);
     
     /**
-     * @brief Private constructor for Parameters.
-     * @param modelStrategy Strategy associated with this instance.
+     * @brief Constructs a repository using a model strategy.
+     *
+     * The constructor immediately calls `strategy->initializeParameters(*this)`
+     * and stores the returned missing-block set into the strategy.
+     *
+     * @param modelStrategy Strategy used to initialize this repository.
      */
     explicit Parameters(std::shared_ptr<ModelStrategy> modelStrategy);
 
-    static std::map<ParameterType, std::shared_ptr<Parameters>> instances;  ///< Static map of instances.
-    std::shared_ptr<ModelStrategy> strategy;                                ///< Strategy object for this instance.
-    std::shared_ptr<BlockAccessor> blockAccessor;                           ///< Accessor for blocks and parameters.
+    static std::map<ParameterType, std::shared_ptr<Parameters>> instances;  /// Static cache of repository instances (declared here, factory-managed in practice).
+    std::shared_ptr<ModelStrategy> strategy;                                /// Initialization strategy associated with this repository.
+    std::shared_ptr<BlockAccessor> blockAccessor;                           /// Underlying storage/access layer for all parameter blocks.
 
     /** @brief Factory friend. */
-    friend class ParametersFactory;
-    friend class DependentBlockManager;
+    friend class ParametersFactory;                                          /// Factory is allowed to construct/remove repositories.
+    friend class DependentBlockManager;                                      /// Dependent block manager may access internals when wiring derived blocks.
 };
 
 /**
  * @class ParametersFactory
  * @ingroup ParametersModule
- * @brief Factory class for creating and managing Parameters instances.
+ * @brief Factory/cache for @ref Parameters instances.
+ *
+ * This class ensures that at most one repository exists per @ref ParameterType.
+ * It is responsible for:
+ * - creating the matching @ref ModelStrategy,
+ * - constructing the repository,
+ * - calling strategy post-initialization,
+ * - caching the result for later reuse.
  */
 class ParametersFactory {
 public:
     /**
-     * @brief Retrieves the Parameters instance for a given model.
-     * @param id ParameterType.
-     * @return Shared pointer to Parameters.
+     * @brief Returns the cached repository for one parameter type.
+     *
+     * If it does not exist yet:
+     * - creates the appropriate strategy,
+     * - constructs the repository,
+     * - runs post-initialization,
+     * - stores it in the static cache.
+     *
+     * @param id Parameter namespace to retrieve.
+     * @return Shared pointer to the corresponding repository.
      */
     static std::shared_ptr<Parameters> GetParameters(ParameterType id);
 
     /**
-     * @brief Removes a Parameters instance for a given model.
-     * @param id ParameterType.
+     * @brief Removes one cached repository.
+     *
+     * @param id Parameter namespace to remove.
+     *
+     * @throws Via logging/error handling if the repository does not exist.
      */
     static void removeParameters(ParameterType id);
 private:
-    static std::map<ParameterType, std::shared_ptr<Parameters>> instances;  ///< Static map of instances.
+    static std::map<ParameterType, std::shared_ptr<Parameters>> instances;  /// Static cache of repositories indexed by parameter type.
 
     /**
-     * @brief Creates the correct ModelStrategy for a given ParameterType.
-     * @param id Model type.
-     * @return Shared pointer to ModelStrategy.
+     * @brief Creates the concrete strategy associated with a parameter type.
+     *
+     * Current mapping:
+     * - SM          -> @ref SMModelStrategy
+     * - BSM         -> @ref BSMModelStrategy
+     * - FLAVOR      -> @ref FlavorStrategy
+     * - WILSON      -> @ref WilsonInputStrategy
+     * - DECAY       -> @ref DecayStrategy
+     * - OBSERVABLE  -> @ref ObservableStrategy
+     * - PASSTHROUGH -> @ref PassthroughStrategy
+     *
+     * @param id Parameter namespace.
+     * @return Shared pointer to the matching strategy.
+     *
+     * @throws std::invalid_argument for unsupported parameter types.
      */
     static std::shared_ptr<ModelStrategy> createStrategy(ParameterType id);
 };

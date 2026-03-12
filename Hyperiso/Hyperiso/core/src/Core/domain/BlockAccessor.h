@@ -10,302 +10,316 @@
 
 /**
  * @file BlockAccessor.h
- * @brief Provides an accessor for multiple parameter blocks.
+ * @brief Alias-aware façade for accessing and manipulating multiple parameter blocks.
  *
- * This file defines the BlockAccessor class, which manages multiple blocks
- * and provides a unified interface for accessing and modifying parameters
- * across blocks.
+ * This file defines @ref BlockAccessor, a high-level container built on top of
+ * a map of block names to @ref Block instances.
+ *
+ * Compared to using raw blocks directly, BlockAccessor adds:
+ * - alias-aware block lookup,
+ * - convenience getters/setters for parameter values and Parameter objects,
+ * - support for dependency introspection (block sources and parameter sources),
+ * - utilities to detach / reattach dependent blocks and dependent parameters,
+ * - merge operators for combining several block collections,
+ * - extraction of sub-accessors on a subset of blocks.
+ *
+ * The class publicly derives from
+ * `std::unordered_map<std::string, std::shared_ptr<Block>>`, but callers are
+ * expected to use the provided API instead of raw map operations because the
+ * class maintains an internal alias-resolution layer:
+ * - `alias_to_key_` maps normalized aliases to a canonical storage key,
+ * - `key_to_name_` maps canonical keys back to the full @ref BlockName object.
+ *
+ * @see Block
+ * @see DependentBlock
+ * @see Parameter
+ * @see DependentParameter
  */
 
 /**
  * @class BlockAccessor
- * @brief A container / façade over multiple parameter blocks.
+ * @brief Alias-aware container / façade over several parameter blocks.
  *
- * This class derives from
- * `std::unordered_map<BlockName, std::shared_ptr<Block>>` and provides
- * convenience methods to:
+ * A BlockAccessor stores blocks under canonical internal keys while exposing a
+ * more user-friendly interface based on @ref BlockName aliases.
  *
- *   - check whether a parameter exists in a given block,
- *   - get / set parameter values,
- *   - insert or update full Parameter objects,
- *   - query all values of a block,
- *   - remove parameters (with proper dependency cleanup through Block::remove),
- *   - query scales and sources (both at block and parameter level),
- *   - merge several BlockAccessor instances with or without priority.
+ * Main features:
+ * - check whether a block or parameter exists,
+ * - read/write scalar values,
+ * - read/write full @ref Parameter objects,
+ * - retrieve all values from a block,
+ * - remove parameters with proper dependency cleanup,
+ * - inspect source blocks / source parameters,
+ * - recursively find leaf source parameters,
+ * - merge several accessors,
+ * - detach/reattach dependent blocks or dependent parameters.
  *
- * It is primarily used by higher-level parameter containers (e.g. a
- * Parameters class) to manipulate multiple physics blocks consistently.
- * @note Although the class publicly derives from an unordered_map, it also
- *       maintains an aliasing layer (alias_to_key_/key_to_name_) and stores
- *       blocks under a canonical key derived from block aliases.
- *       The public API should be used instead of raw map access.
+ * @note Although this class publicly inherits from `std::unordered_map`, direct
+ *       manipulation of the base map may desynchronize alias metadata
+ *       (`alias_to_key_`, `key_to_name_`). Prefer the dedicated API.
  */
 class BlockAccessor : public std::unordered_map<std::string, std::shared_ptr<Block>> {
 public:
 
+    /// Underlying associative container type.
     using base_t = std::unordered_map<std::string, std::shared_ptr<Block>>;
+
+    /// Re-expose the base `operator[]` for internal / advanced use.
     using base_t::operator[];
 
     /**
-     * @brief Checks if a block exists with a given parameter.
+     * @brief Checks whether a given parameter exists inside a named block.
      *
-     * The function returns true if:
-     *  - a block with name @p blockName exists in the accessor, and
-     *  - this block contains a parameter with ID @p pdgCode.
+     * This method first resolves the block name through the alias system, then
+     * delegates to `Block::contains(id)`.
      *
-     * @param blockName The name of the block.
-     * @param pdgCode   The LhaID (PDG-style identifier) of the parameter.
-     * @return True if the parameter exists in the block, false otherwise.
+     * @param blockName Name (or alias set) of the block.
+     * @param pdgCode   LHA identifier of the parameter inside the block.
+     * @return True if the block exists and contains the parameter, false otherwise.
      */
+
     bool has_param(const BlockName& blockName, LhaID pdgCode) const;
 
     /**
-     * @brief Sets the value of a parameter in a specified block.
+     * @brief Sets the value of a parameter inside an existing block.
      *
      * Behavior:
-     *  - If the block exists and already contains the parameter, its expected
-     *    value is updated via Block::assign(id, value).
-     *  - If the block exists but the parameter does not, a new Parameter is
-     *    created with zero uncertainties and stored in the block.
-     *  - If the block does not exist, an exception is thrown.
+     * - if the block exists and the parameter already exists, delegates to
+     *   `Block::assign(id, value)`,
+     * - if the block exists but the parameter does not, creates a new
+     *   @ref Parameter with zero uncertainties and stores it,
+     * - if the block does not exist, throws `std::invalid_argument`.
      *
-     * @param blockName The name of the block.
-     * @param pdgCode   The LhaID of the parameter.
-     * @param value     The new central value to set.
+     * @param blockName Name of the target block.
+     * @param pdgCode   LHA identifier of the parameter.
+     * @param value     New scalar value.
      */
     void setValue(const BlockName& blockName, LhaID pdgCode, scalar_t value);
 
-    // /**
-    //  * @brief Sets the mode of a parameter in a specified block.
-    //  * @param blockName The name of the block.
-    //  * @param pdgCode   The PDG code of the parameter.
-    //  * @param mode      The mode to set.
-    //  */
-    // void setMode(const std::string& blockName, LhaID pdgCode, ParameterMode mode);
-
     /**
-     * @brief Retrieves the value of a parameter from a specified block.
+     * @brief Retrieves the current value of a parameter from a block.
      *
-     * @param blockName The name of the block.
-     * @param pdgCode   The LhaID of the parameter.
-     * @return The current value of the parameter (including any shift).
+     * This is equivalent to:
+     * @code
+     * at(blockName)->retrieve(pdgCode)->get_val();
+     * @endcode
      *
-     * @throws std::invalid_argument if the block does not exist.
+     * @param blockName Name of the block.
+     * @param pdgCode   LHA identifier of the parameter.
+     * @return Current parameter value.
+     *
+     * @throws std::invalid_argument if the block cannot be resolved.
      *         If the block exists but the parameter does not, the underlying
-     *         Block::retrieve may log and/or throw.
+     *         `Block::retrieve()` may log and/or throw.
      */
     scalar_t getValue(const BlockName& blockName, LhaID pdgCode) const;
 
     /**
-     * @brief Retrieves a parameter object from a specified block.
+     * @brief Retrieves the full @ref Parameter object stored in a block.
      *
-     * @param blockName The name of the block.
-     * @param id        The LhaID of the parameter.
-     * @return Shared pointer to the Parameter.
+     * @param blockName Name of the block.
+     * @param id        LHA identifier of the parameter.
+     * @return Shared pointer to the stored parameter.
      *
-     * @throws std::invalid_argument if the block does not exist.
+     * @throws std::invalid_argument if the block cannot be resolved.
      *         If the block exists but the parameter does not, the underlying
-     *         Block::retrieve may log and/or throw.
+     *         `Block::retrieve()` may log and/or throw.
      */
     std::shared_ptr<Parameter> getParameter(const BlockName& blockName, LhaID id) const;
 
     /**
-     * @brief Inserts or replaces a Parameter in a specified block.
+     * @brief Inserts or updates a full @ref Parameter object in a block.
      *
-     * Calls Block::store_or_assign on the underlying block. If the block
-     * does not exist, an exception is thrown.
+     * Delegates to `Block::store_or_assign(id, source)` on the resolved block.
      *
-     * @param blockName The name of the block.
-     * @param id        The LhaID of the parameter.
-     * @param source    Shared pointer to the source Parameter.
+     * @param blockName Name of the block.
+     * @param id        LHA identifier of the parameter.
+     * @param source    Shared pointer to the source parameter object.
      *
      * @throws std::invalid_argument if the block does not exist.
      */
     void setParameter(const BlockName& blockName, LhaID id, std::shared_ptr<Parameter> source);
 
     /**
-     * @brief Retrieves all values from a specified block.
+     * @brief Returns all current scalar values stored in a block.
      *
-     * Iterates over all parameters in the block and returns a map from
-     * LhaID to current value (Parameter::get_val()).
+     * Each stored parameter is converted to its current scalar value through
+     * `Parameter::get_val()`.
      *
-     * @param blockName The name of the block.
-     * @return A map of LhaID to scalar_t values.
+     * @param blockName Name of the block.
+     * @return Ordered map of `LhaID -> scalar_t`.
      *
      * @throws std::invalid_argument if the block does not exist.
      */
     std::map<LhaID, scalar_t> getAllValues(BlockName blockName);
 
     /**
-     * @brief Retrieves the set of all block names present in the accessor.
+     * @brief Returns the set of all known block names.
      *
-     * @return An unordered_set of BlockName keys.
-     * @note This returns the set of BlockName objects tracked in key_to_name_
-     *       (alias table). Direct mutation of the underlying unordered_map base
-     *       may desynchronize these structures
+     * This returns the values stored in the alias metadata table
+     * `key_to_name_`, not the raw keys of the underlying unordered_map.
+     *
+     * @return Set of block names with aliases preserved.
      */
     std::unordered_set<BlockName> get_block_names() const;
 
     /**
-     * @brief Removes a parameter from a specified block.
+     * @brief Removes one parameter from a block.
      *
-     * Calls Block::remove(id) on the underlying block. If the block does not
-     * exist, a warning is logged and no action is taken.
+     * Delegates to `Block::remove(id)` which performs proper dependency cleanup.
      *
-     * @param block_name The name of the block.
-     * @param id         The LhaID of the parameter to remove.*
-     * @note Only the BlockName overload logs a warning and returns if the block
-    *       does not exist. The string/string_view overloads call at(...) and throw.
+     * Behavior of this overload:
+     * - if the block exists, the parameter is removed,
+     * - if the block does not exist, a warning is logged and nothing happens.
+     *
+     * @param block_name Name of the block.
+     * @param id         LHA identifier of the parameter to remove.
      */
     void remove_item(const BlockName& block_name, LhaID id);
 
     /**
-     * @brief Checks if a given block exists (by key or any alias).
+     * @brief Checks whether a block exists (alias-aware).
      *
-     * This hides the base-class contains(key) logic because BlockName has
-     * custom comparison; it uses a helper to scan keys.
+     * This method resolves aliases through the internal alias map instead of
+     * using the raw underlying map lookup.
      *
-     * @param block_name The block name to test.
-     * @return True if the accessor contains a block with this name.
+     * @param block_name Name (or aliases) of the block.
+     * @return True if the block exists, false otherwise.
      */
     bool contains(const BlockName& block_name) const;
 
     /**
-     * @brief Retrieves the scale associated with a given block.
+     * @brief Returns the scale attached to a given block.
      *
-     * Internally forwards to Block::get_scale() after checking that:
-     *  - the block exists, and
-     *  - the block has a scale set (via Block::has_scale()).
+     * Delegates to `Block::get_scale()` after resolving the block.
      *
-     * @param block_name The name of the block.
-     * @return The scale value.
+     * @param block_name Name of the block.
+     * @return Block scale.
      *
-     * @throws If the block does not exist or has no scale. Errors are logged.
+     * @throws If the block does not exist or if the block has no scale set.
      */
     double get_scale(const BlockName& block_name) const;
 
     /**
-     * @brief Checks whether a specific block has an associated scale.
+     * @brief Checks whether a given block has a scale attached.
      *
-     * @param block_name The name of the block.
+     * @param block_name Name of the block.
      * @return True if the block exists and has a scale, false otherwise.
      *
-     * @throws If the block does not exist (error is logged).
+     * @throws If the block does not exist.
      */
     bool has_scale(const BlockName& block_name) const;
 
     /**
      * @brief Returns the source blocks of a given block.
      *
-     * This is a thin wrapper around Block::get_source_blocks() for the
-     * block named @p block_name.
+     * For plain @ref Block objects, this is usually an empty map.
+     * For @ref DependentBlock objects, this returns the actual dependency map.
      *
-     * @param block_name The name of the block.
-     * @return A map of source block names to their shared pointers.
+     * @param block_name Name of the block.
+     * @return Map of source block names to source block pointers.
      *
-     * @throws If the block does not exist. Errors are logged.
+     * @throws If the block does not exist.
      */
     std::unordered_map<std::string, std::shared_ptr<Block>> get_block_sources(const BlockName& block_name) const;
 
     /**
-     * @brief Returns the source parameters contributing to a given parameter.
+     * @brief Returns the source parameters of a given parameter.
      *
-     * This forwards to Parameter::get_source_parameters() for the parameter
-     * identified by (block_name, id).
+     * For plain @ref Parameter objects, this is usually an empty map.
+     * For @ref DependentParameter objects, this returns the actual source parameters.
      *
-     * @param block_name The name of the block.
-     * @param id         The LhaID of the parameter.
-     * @return A map of ParamId to shared_ptr<Parameter> describing the sources.
+     * @param block_name Name of the block containing the parameter.
+     * @param id         LHA identifier of the parameter.
+     * @return Map of source ParamId to Parameter pointer.
      *
-     * @throws If the block or parameter does not exist. Errors are logged.
+     * @throws If the block or parameter does not exist.
      */
     std::unordered_map<ParamId, std::shared_ptr<Parameter>> get_parameter_sources(const BlockName& block_name, LhaID id) const;
 
     /**
-     * @brief Recursively collects all "root" source parameters for a given set.
+     * @brief Recursively finds all leaf source parameters behind a set of parameters.
      *
-     * For each input ParamId, this method:
-     *  - follows parameter-level sources (Parameter::get_source_parameters()),
-     *  - follows block-level sources (Block::get_source_blocks()),
-     *  - recurses until no further sources are found.
+     * Starting from each input @ref ParamId, this method recursively explores:
+     * - parameter-level dependencies via `Parameter::get_source_parameters()`,
+     * - block-level dependencies via `Block::get_source_blocks()`.
      *
-     * Any parameter ID that cannot be resolved in the current accessor or
-     * has no sources is added to the result set.
+     * A parameter is considered a leaf if:
+     * - it cannot be resolved in this accessor, or
+     * - it has no parameter/block sources.
      *
-     * @param param_ids Set of parameter IDs from which to start the search.
-     * @return Set of all leaf / root ParamId sources.
+     * @param param_ids Initial set of parameters to inspect.
+     * @return Set of leaf/root source parameters.
      */
     std::unordered_set<ParamId>
     get_all_source_parameters(const std::unordered_set<ParamId>& param_ids) const;
     
     /**
-     * @brief Accessor to a block by name (alias-aware).
+     * @brief Alias-aware mutable access to a block.
      *
-     * This performs a linear search over the underlying map, using BlockName
-     * equality semantics. If the block is not found, the current accessor
-     * is printed and an error is logged before throwing.
+     * @param block_name Name or alias of the block.
+     * @return Reference to the stored block shared pointer.
      *
-     * @param block_name Name of the block.
-     * @return Reference to the shared_ptr<Block> stored under this name.
+     * @throws std::invalid_argument if the block cannot be resolved.
      */
     std::shared_ptr<Block>& at(const BlockName& block_name);
 
     /**
-     * @brief Accessor to a block by name (const overload).
+     * @brief Alias-aware const access to a block.
      *
-     * Same semantics as the non-const overload.
+     * @param block_name Name or alias of the block.
+     * @return Const reference to the stored block shared pointer.
      *
-     * @param block_name Name of the block.
-     * @return Const reference to the shared_ptr<Block> stored under this name.
+     * @throws std::invalid_argument if the block cannot be resolved.
      */
     const std::shared_ptr<Block>& at(const BlockName& block_name) const;
 
     /**
-     * @brief Merges two BlockAccessor instances without resolving conflicts.
+     * @brief Merges two block accessors with no conflict allowed.
      *
-     * For each block in @p lhs and @p rhs, a deep copy is made via the
-     * `Block(std::shared_ptr<Block>)` copy constructor, and stored into
-     * the resulting accessor.
+     * All blocks from @p lhs and @p rhs are deep-copied into a new accessor
+     * using the `Block(std::shared_ptr<Block>)` constructor.
      *
-     * If both accessors contain a block with the same name, an error is
-     * logged and the operation is considered invalid.
+     * If both accessors contain a block with the same resolved name, this is
+     * considered an error.
      *
-     * @param lhs First BlockAccessor instance.
-     * @param rhs Second BlockAccessor instance.
-     * @return A shared pointer to a new BlockAccessor containing all unique blocks.
+     * @param lhs Left-hand accessor.
+     * @param rhs Right-hand accessor.
+     * @return New accessor containing all blocks from both operands.
      *
-     * @throws If overlapping blocks are found (error is logged and the call
-     *         terminates via LOG_ERROR mechanics).
+     * @throws Via logging/error handling if overlapping block names are found.
      */
     friend std::shared_ptr<BlockAccessor> operator+(std::shared_ptr<BlockAccessor> lhs, std::shared_ptr<BlockAccessor> rhs);
 
     /**
-     * @brief Merges two BlockAccessor instances with priority given to @p lhs.
+     * @brief Merges two accessors with priority given to @p lhs.
      *
      * Semantics:
-     *  - All blocks from @p rhs are copied into the result first.
-     *  - Blocks from @p lhs are then merged in:
-     *      * if a block exists only in lhs, it is copied in whole;
-     *      * if a block exists in both, parameters from lhs are merged on top:
-     *          - parameters only in lhs are added;
-     *          - parameters in both are combined, with lhs central value kept,
-     *            but uncertainties optionally taken from rhs if lhs has none.
+     * - all rhs blocks are copied first,
+     * - lhs blocks are then merged on top,
+     * - if a block exists only in lhs, it is copied entirely,
+     * - if a parameter exists in both lhs and rhs:
+     *   - lhs central value is kept,
+     *   - if lhs uncertainties are non-zero, lhs is kept unchanged,
+     *   - if lhs has zero stat+syst uncertainties, rhs uncertainties are copied into
+     *     a copy of lhs.
      *
-     * @param lhs First BlockAccessor instance (priority).
-     * @param rhs Second BlockAccessor instance.
-     * @return A shared pointer to a new BlockAccessor containing merged blocks.
-     * @note Parameters present only in rhs are kept as-is (rhs is copied first).
-     *       The merge loop iterates over lhs IDs only.
+     * @param lhs Priority accessor.
+     * @param rhs Secondary accessor.
+     * @return New merged accessor.
      */
     friend std::shared_ptr<BlockAccessor> operator>>(std::shared_ptr<BlockAccessor> lhs, std::shared_ptr<BlockAccessor> rhs);
 
     /**
-     * @brief Extracts a subset of blocks (shallow copy of shared_ptrs).
+     * @brief Extracts a subset of blocks into a new accessor.
      *
-     * The returned accessor shares ownership of the same Block instances
-     * (no deep copy is performed).
+     * This operation performs a shallow copy of block shared pointers:
+     * the returned accessor points to the same underlying @ref Block objects.
      *
-     * @throws If a requested block does not exist (LOG_ERROR).
+     * @param block_names Set of block names to extract.
+     * @return New accessor containing the requested subset.
+     *
+     * @throws If one requested block does not exist.
      */
     std::shared_ptr<BlockAccessor> operator[](std::unordered_set<BlockName> block_names);
     
@@ -330,30 +344,75 @@ public:
     friend std::ostream& operator<<(std::ostream&, std::shared_ptr<BlockAccessor>);
 
     /**
-     * @brief Inserts or replaces a block under a canonical key derived from its aliases.
+     * @brief Inserts or replaces a block, updating alias metadata.
      *
-     * This updates alias tables (alias_to_key_, key_to_name_), stores the block
-     * in the underlying map, and calls Block::bind_self() so the block can later
-     * obtain a valid weak self pointer.
+     * The block is stored under a canonical internal key chosen from its aliases
+     * (or merged into an existing key if one alias is already known).
      *
-     * @param name BlockName (with aliases).
-     * @param blk  Block instance.
+     * After insertion, `Block::bind_self()` is called on the stored block so it
+     * can later retrieve a valid weak self reference.
+     *
+     * @param name Logical block name (possibly with several aliases).
+     * @param blk  Block instance to store.
      */
     void emplace(const BlockName& name, std::shared_ptr<Block> blk);
     
-    //TODO: docstring
+    /**
+     * @brief Detaches a dependent block from its upstream dependencies.
+     *
+     * This method resolves the block, checks that it is actually a
+     * @ref DependentBlock, and then calls `DependentBlock::detach()`.
+     *
+     * Detaching keeps the current cached contents of the block but removes the
+     * active dependency links to source blocks until reattachment.
+     *
+     * @param block_name Name of the block to detach.
+     * If the resolved block is not a DependentBlock, do nothing.
+     */
     void detach_block(const BlockName& block_name);
+
+    /**
+     * @brief Reattaches a previously detached dependent block to its saved sources.
+     *
+     * This method resolves the block, checks that it is a @ref DependentBlock,
+     * and then calls `DependentBlock::reattach()`.
+     *
+     * @param block_name Name of the block to reattach.
+     * If the resolved block is not a DependentBlock, do nothing.
+     */
+
     void reattach_block(const BlockName& block_name);
 
+    /**
+     * @brief Detaches a dependent parameter from its upstream dependencies.
+     *
+     * The target parameter is retrieved from the given block, dynamically cast to
+     * @ref DependentParameter, and then `DependentParameter::detach()` is called.
+     *
+     * @param block_name Name of the block containing the parameter.
+     * @param id         LHA identifier of the parameter to detach.
+     * If the resolved parameter is not a DependentParameter, do nothing.
+     */
     void detach_parameter(const BlockName& block_name, LhaID id);
+
+    /**
+     * @brief Reattaches a previously detached dependent parameter.
+     *
+     * The target parameter is retrieved from the given block, dynamically cast to
+     * @ref DependentParameter, and then `DependentParameter::reattach()` is called.
+     *
+     * @param block_name Name of the block containing the parameter.
+     * @param id         LHA identifier of the parameter to reattach.
+     * If the resolved parameter is not a DependentParameter, do nothing.
+     */
     void reattach_parameter(const BlockName& block_name, LhaID id);
 
     /**
-     * @brief Erases a block by name/alias and removes all associated aliases.
+     * @brief Erases a block and removes all associated aliases from metadata.
      *
-     * If the block cannot be resolved, this is a no-op.
+     * If the name cannot be resolved, this is a no-op.
      *
-     * @param name Block name/alias.
+     * @param name Block name or alias.
      */
     void erase_block(const BlockName& name);
 
@@ -435,38 +494,116 @@ public:
     
 private:
     
+    /// Alias-aware scale existence check on a raw name/alias.
     bool has_scale(std::string_view block) const;
+
+    /// Alias-aware scale getter on a raw name/alias.
     double get_scale(std::string_view block) const;
     
+    /// Alias-aware existence check on a raw name/alias.
     bool contains(std::string_view name) const;
+
+    /// Convenience insertion overload from raw string view.
     void emplace(std::string_view name, std::shared_ptr<Block> blk) {
         emplace(BlockName(std::string(name)), std::move(blk));
     }
+
+    /// Alias-aware mutable lookup by raw name/alias.
     std::shared_ptr<Block>& at(std::string_view name);
+
+    /// Alias-aware const lookup by raw name/alias.
     const std::shared_ptr<Block>& at(std::string_view name) const;
     
+    /// Alias-aware parameter existence check.
     bool has_param(std::string_view block, const LhaID& id) const;
+
+    /// Alias-aware value getter.
     scalar_t getValue(std::string_view block, const LhaID& id) const;
+
+    /// Alias-aware value setter.
     void setValue(std::string_view block, const LhaID& id, scalar_t value);
+
+    /// Alias-aware parameter removal.
     void remove_item(std::string_view block, const LhaID& id);
+
+    /// Alias-aware block erasure by name/key.
     void erase_block(std::string_view alias_or_key);
     
+    /**
+     * @brief Returns the normalized alias set of a BlockName.
+     *
+     * Normalization is uppercase-based through @ref normalize().
+     */
     static std::unordered_set<std::string> norm_aliases(const BlockName& n);
+
+    /**
+     * @brief Returns the normalized alias set of a BlockName.
+     *
+     * Normalization is uppercase-based through @ref normalize().
+     */
     static std::string choose_key(const std::unordered_set<std::string>& aliases_norm);
+
+    /**
+     * @brief Normalizes one block alias.
+     *
+     * Current normalization policy converts characters to uppercase.
+     *
+     * @param s Raw alias.
+     * @return Normalized alias.
+     */
     static std::string normalize(std::string_view s);
     
+    /**
+     * @brief Returns the canonical key corresponding to an alias, if known.
+     *
+     * @param alias Alias/name candidate.
+     * @return Canonical storage key, or empty string if unresolved.
+     */
     std::string key_for(std::string_view alias) const;
+
+    /**
+     * @brief Returns the canonical key corresponding to a BlockName, if known.
+     *
+     * Tries all aliases carried by the BlockName.
+     *
+     * @param name Block name object.
+     * @return Canonical storage key, or empty string if unresolved.
+     */
     std::string key_for(const BlockName& name) const;
+
+    /**
+     * @brief Returns the canonical key corresponding to a std::string alias.
+     *
+     * @param name Alias/name candidate.
+     * @return Canonical storage key, or empty string if unresolved.
+     */
     std::string key_for(const std::string& name) const;
     
+    /**
+     * @brief Resolves a raw alias/name into a canonical key.
+     */
     std::string resolve_key(std::string_view name) const;
+
+    /**
+     * @brief Resolves a raw alias/name into a canonical key.
+     */
     std::string resolve_key(const BlockName& name) const;
+
+    /**
+     * @brief Merges a new BlockName into the metadata of an existing canonical key.
+     *
+     * All aliases from @p name are added to the metadata entry stored under @p key,
+     * and alias-to-key mappings are updated accordingly.
+     *
+     * @param key  Canonical key already present in storage.
+     * @param name New block name / aliases to merge.
+     */
     void merge_name_into_key(const std::string& key, const BlockName& name);
     
-    /// Maps normalized alias -> canonical key used in the underlying unordered_map.
+    /// Maps normalized aliases to canonical storage keys.
     std::unordered_map<std::string, std::string> alias_to_key_;
 
-    /// Maps canonical key -> full BlockName (with all known aliases merged).
+    /// Maps canonical storage keys back to full logical BlockName objects.
     std::unordered_map<std::string, BlockName> key_to_name_;
 };
 

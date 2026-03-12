@@ -103,27 +103,6 @@ void DependentParameter::unfreeze() {
     }
 }
 
-// void DependentParameter::rebind(
-//     std::unordered_map<ParamId, std::shared_ptr<Parameter>> new_sources,
-//     DepParamUpdateFunc new_lambda)
-// {
-//     clear_above();
-
-//     sources_raw = std::move(new_sources);
-//     sources = std::make_unique<ParamSrc>(sources_raw,
-//         ParameterTypeMapper::str(id.type.value()) + "::" + id.block);
-//     recalculateLambda = std::move(new_lambda);
-
-//     if (auto me = self.lock()) {
-//         for (auto& [_, src] : sources->raw()) {
-//             if (src) src->addObserver(me);
-//         }
-//     }
-
-//     dirty = true;
-//     notifyObservers();
-// }
-
 void DependentParameter::rebind(
     std::unordered_map<ParamId, std::shared_ptr<Parameter>> new_sources,
     DepParamUpdateFunc new_lambda)
@@ -168,7 +147,7 @@ void DependentParameter::detach()
     dirty = false;
     dependency_detached = true;
 
-    notifyObservers();
+    // notifyObservers();
 }
 
 void DependentParameter::reattach()

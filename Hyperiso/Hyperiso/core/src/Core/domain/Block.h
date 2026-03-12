@@ -10,17 +10,29 @@
 
 /**
  * @file Block.h
- * @brief Defines classes for managing parameter blocks and their dependencies.
+ * @brief Defines classes used to store parameters and to build derived/dependent parameter blocks.
  *
- * This file declares a hierarchy of classes used to store, manage, and update
- * parameter values across different parameter instances. It includes:
+ * This file declares two main abstractions:
+ * - @ref Block: a generic container of @ref Parameter objects indexed by @ref LhaID,
+ * - @ref DependentBlock: a derived block whose content is recomputed from one or more source blocks.
  *
- * - Block:      a container of parameters identified by LHA IDs.
- * - DependentBlock: a Block whose content is computed from one or more source Blocks.
+ * These classes form one of the core layers of the dependency/update system:
+ * - a block stores parameters,
+ * - parameters may notify dependent parameters,
+ * - blocks may notify dependent blocks,
+ * - dependent blocks may lazily recompute their content from upstream blocks.
  *
- * Blocks support ownership tagging, global scales, a simple observer mechanism
- * (between blocks and between parameters), and dependency propagation with
- * freeze/unfreeze semantics.
+ * Main features provided here:
+ * - storage/retrieval of parameters,
+ * - optional block-wide scale,
+ * - observer registration between blocks,
+ * - block/parameter freeze-unfreeze semantics,
+ * - explicit dependency clearing and destruction,
+ * - lazy recomputation for dependent blocks.
+ *
+ * @see Parameter
+ * @see DependentParameter
+ * @see IStorage
  */
 
 class BlockSrc;
@@ -29,306 +41,356 @@ class DependentBlock;
 
 /**
  * @typedef DepUpdateFunc
- * @brief Function type used to update a DependentBlock from its sources.
+ * @brief Function type used to recompute a @ref DependentBlock from its sources.
  *
  * The function receives:
- *  - a BlockSrc view over the source blocks,
- *  - a shared pointer to the DependentBlock being updated.
+ * - a @ref BlockSrc view exposing the source blocks and their values,
+ * - a shared pointer to the dependent block being recomputed.
  *
- * It is responsible for recomputing the content of the dependent block
- * (e.g. filling parameters, updating values, etc.).
+ * The callback is expected to update the dependent block in place, typically through
+ * calls such as `store_or_assign(...)`.
+ *
+ * @see BlockSrc
+ * @see DependentBlock
  */
 typedef std::function<void(const BlockSrc&, std::shared_ptr<DependentBlock>)> DepUpdateFunc;
 
 
 /**
- * @class Block
- * @brief Container for a collection of parameters identified by LHA IDs.
+ * @typedef DepUpdateFunc
+ * @brief Function type used to recompute a @ref DependentBlock from its sources.
  *
- * A Block:
- *  - stores parameters in a map keyed by @ref LhaID,
- *  - implements the @ref IStorage interface,
- *  - can notify other blocks (observers) when its content changes,
- *  - can propagate freeze/unfreeze/update calls down to its parameters,
- *  - can carry an optional global renormalization scale.
+ * The function receives:
+ * - a @ref BlockSrc view exposing the source blocks and their values,
+ * - a shared pointer to the dependent block being recomputed.
  *
- * Blocks are typically grouped by @ref BlockName (e.g. an SLHA or FLHA block).
+ * The callback is expected to update the dependent block in place, typically through
+ * calls such as `store_or_assign(...)`.
+ *
+ * @see BlockSrc
+ * @see DependentBlock
  */
 class Block : public IStorage<LhaID, Parameter>, public std::enable_shared_from_this<Block> {
 public:
     /// Name of the block (e.g. "SMINPUTS", "MASS", "FWCOEF"...)
     BlockName blockname {""};
 
-    /// Default constructor (empty block with empty name).
+    /**
+     * @brief Default constructor.
+     *
+     * Constructs an empty block with no parameters, no observers, and no scale.
+     */
     Block() = default;
 
     /**
      * @brief Copy-like constructor from another block.
      *
-     * Copies:
-     *  - items map,
-     *  - block name,
-     *  - scale (if present),
-     * and re-assigns the owner_block pointer of each parameter to this new block.
+     * This constructor copies the content and metadata of @p other by delegating
+     * to @ref copy(). Stored parameter pointers are copied as shared pointers.
      *
-     * @param other Shared pointer to the source block.
+     * After the copy, parameter owner-block links are rebound to this new block
+     * whenever a valid self reference is available.
+     *
+     * @param other Block to copy from.
      */
     Block(std::shared_ptr<Block> other);
 
     /**
-     * @brief Returns the block name.
+     * @brief Returns the name of the block.
+     * @return Block name.
      */
     BlockName get_name() const { return this->blockname; }
 
     /**
-     * @brief Stores a new parameter in the block.
+     * @brief Stores a new parameter under the given LHA id.
      *
      * If the key already exists, the parameter is not overwritten and a debug
-     * message is logged.
+     * message is emitted.
      *
-     * @param id    The LHA ID of the parameter.
-     * @param param Shared pointer to the Parameter to store.
+     * If the block has been bound to itself through @ref bind_self(), the stored
+     * parameter receives this block as owner block.
+     *
+     * @param id    LHA identifier of the parameter.
+     * @param param Parameter object to store.
      */
     void store(const LhaID& id, std::shared_ptr<Parameter> param) override;
 
     /**
-     * @brief Overwrites the numerical payload of an existing entry.
+     * @brief Replaces the payload of an existing parameter from another parameter object.
      *
-     * This does NOT replace the stored shared_ptr. Instead it calls
-     * Parameter::overwrite_payload_from() on the existing parameter, i.e. it copies
-     * expected/std/shift/mode/scale/binning, but keeps identity (pointer), id,
-     * observers, and owner_block of the destination object.
+     * This does not replace the shared pointer stored in the block. Instead, it copies
+     * the numerical/configuration payload into the already stored destination parameter
+     * using `Parameter::overwrite_payload_from(...)`.
      *
-     * After overwriting:
-     *  - notifies parameter observers via dst->notifyObservers(),
-     *  - then notifies block observers via Block::notifyObservers().
+     * Current notification behavior:
+     * - the destination parameter notifies its own observers,
+     * - block-level observers are reached indirectly through the parameter/owner-block chain,
+     * - no extra explicit `Block::notifyObservers()` call is performed here.
+     *
+     * @param key   Identifier of the parameter to overwrite.
+     * @param param Source parameter whose payload is copied.
      */
     void assign(const LhaID& key, std::shared_ptr<Parameter> param) override;
 
     /**
-     * @brief Assigns a new numerical value to an existing parameter.
+     * @brief Sets the expected value of an existing parameter.
      *
-     * Implementation note (current behavior):
-     *  - calls Parameter::set_expected(value) which already triggers parameter-level
-     *    observer notifications (and may notify the owning block via owner_block),
-     *  - then explicitly calls Parameter::notifyObservers() again,
-     *  - then notifies observer blocks via Block::notifyObservers().
+     * This calls `Parameter::set_expected(value)` on the stored parameter.
      *
-     * @param key   The LHA ID of the parameter.
-     * @param value The new central value to assign.
+     * Current notification behavior:
+     * - notifications are delegated to the parameter layer,
+     * - no extra explicit `Block::notifyObservers()` is triggered here.
+     *
+     * @param key   Identifier of the parameter to update.
+     * @param value New value.
      */
     void assign(const LhaID& key, scalar_t value);
 
     /**
-     * @brief Stores or assigns a parameter depending on whether it already exists.
+     * @brief Stores a parameter if absent, otherwise assigns into the existing one.
      *
-     * Note: when storing a new parameter, this block will set the parameter's
-     * owner_block (if a valid self weak pointer is available).
+     * This is a convenience method:
+     * - calls @ref store() if the key is not present,
+     * - calls @ref assign(const LhaID&, std::shared_ptr<Parameter>) otherwise.
+     *
+     * @param key   Identifier of the parameter.
+     * @param param Parameter to store or assign.
      */
     void store_or_assign(const LhaID& key, std::shared_ptr<Parameter> param) override;
 
     /**
-     * @brief Checks if a parameter exists in the block.
-     * @param key The LHA ID of the parameter.
-     * @return True if the parameter exists, false otherwise.
+     * @brief Checks whether the block contains a parameter with the given id.
+     *
+     * Before the lookup, the block is forced up-to-date through
+     * `ensure_up_to_date()`. For a plain @ref Block this is a no-op, but for
+     * @ref DependentBlock this may trigger lazy recomputation.
+     *
+     * @param key LHA identifier.
+     * @return True if the parameter exists.
      */
     bool contains(const LhaID& key) const override;
 
     /**
-     * @brief Retrieves a parameter by ID (ensures the block is up-to-date first).
+     * @brief Retrieves a stored parameter by id.
      *
-     * Calls ensure_up_to_date() before lookup.
-     * If the key is missing, an error is logged; depending on the logging policy,
-     * the program may abort/throw. The subsequent items.at(id) would also throw
-     * std::out_of_range if reached.
+     * The block is first ensured up-to-date.
+     * If the id is missing, an error is logged.
+     *
+     * @param id LHA identifier to retrieve.
+     * @return Shared pointer to the stored parameter.
      */
     std::shared_ptr<Parameter> retrieve(const LhaID& id) override;
 
     /**
-     * @brief Removes a parameter and clears its dependency tree.
+     * @brief Removes a parameter and clears its downstream dependency subtree.
      *
-     * The removed parameter has its @ref Parameter::clear_below() called,
-     * then it is erased from the block. Afterwards, all dependent blocks
-     * (observers) are destroyed recursively.
+     * The parameter is first asked to clear its own downstream dependencies via
+     * `Parameter::clear_below()`, then removed from the block.
      *
-     * @param key The LHA ID of the parameter to remove.
+     * After that, all observer blocks currently attached to this block are destroyed
+     * recursively.
+     *
+     * @param key Identifier of the parameter to remove.
      */
     void remove(const LhaID& key) override;
 
     /**
-     * @brief Retrieves the set of all parameter IDs stored in the block.
-     * @return Set of LhaID keys.
+     * @brief Returns the set of all parameter ids stored in the block.
+     *
+     * The block is ensured up-to-date before extracting the ids.
+     *
+     * @return Set of stored ids.
      */
     std::unordered_set<LhaID> getAllIDs();
 
     /**
-     * @brief Provides access to the internal map of stored parameters.
+     * @brief Returns the internal parameter map.
      *
-     * Used mainly for iteration, debugging, and printing.
+     * The block is ensured up-to-date before returning the map.
      *
-     * @return Const reference to the items map.
+     * @return Const reference to the internal storage map.
      */
     const std::map<LhaID, std::shared_ptr<Parameter>>& getItems();
 
     /**
-     * @brief Sets the owner type (ParameterType) for all parameters in the block.
+     * @brief Sets the owner ParameterType on all contained parameters.
      *
-     * Internally calls @ref Parameter::set_owner() on each entry.
+     * This is forwarded to each stored parameter via `Parameter::set_owner(type)`.
      *
-     * @param type The ParameterType to set as owner.
+     * @param type Owner type to apply.
      */
     void set_owner(ParameterType type);
 
     /**
-     * @brief Adds an observer block that will be notified on updates.
+     * @brief Adds a block observer if not already present.
      *
-     * The observer's @ref Block::update() method is called by @ref notifyObservers().
+     * Observer uniqueness is checked by pointer identity.
      *
-     * @param observer Shared pointer to the observer block.
+     * @param observer Observer block to add.
      */
     void addObserver(std::shared_ptr<Block> observer);
 
     /**
-     * @brief Removes an observer block if present.
-     * @param observer Shared pointer to the observer block.
+     * @brief Removes a previously registered observer block.
+     *
+     * Removal is performed by pointer identity.
+     *
+     * @param observer Observer block to remove.
      */
     void removeObserver(std::shared_ptr<Block> observer);
 
     /**
-     * @brief Notifies all observer blocks that this block has been updated.
+     * @brief Notifies all observer blocks that this block has changed.
      *
-     * For each non-null observer, calls @ref Block::update().
-     * Null observers are cleaned up from the list.
+     * For each non-null observer, `observer->update()` is called.
+     * Null observer entries are cleaned afterward.
      */
     void notifyObservers();
 
     /**
-     * @brief Retrieves the list of observer blocks.
-     * @return Vector of shared pointers to observer blocks.
+     * @brief Returns the current list of observer blocks.
+     * @return Observer list.
      */
     std::vector<std::shared_ptr<Block>> getObservers() const;
 
     /**
-     * @brief Virtual hook to initialize the block.
+     * @brief Initialization hook.
      *
-     * Default behavior: do nothing. Derived classes may override to
-     * perform initial filling, dependency wiring, etc.
+     * Plain blocks do nothing by default. Derived classes may override this
+     * to register dependencies or pre-fill content.
      */
     virtual void init() {};
     
     /**
-     * @brief Updates the block content.
+     * @brief Updates the block.
      *
-     * Default behavior: calls @ref Parameter::update() on all stored parameters.
-     * DependentBlock overrides this to recompute its content from source blocks.
+     * Default behavior: calls `update()` on every contained parameter.
+     *
+     * For plain blocks this is an eager propagation method. Dependent blocks
+     * override this with lazy dirty-marking semantics.
      */
     virtual void update();
 
     /**
-     * @brief Destroys this block and its dependency subtree.
+     * @brief Destroys the block and its downstream block dependencies.
      *
-     * Current order:
-     *  - takes ownership of the observer list (dependents),
-     *  - calls clear_below() on all parameters (snapshot-based),
-     *  - clears the local items map,
-     *  - recursively calls destroy() on dependent blocks.
+     * Current behavior:
+     * - snapshots and detaches block observers,
+     * - clears parameter-side downstream dependencies,
+     * - clears local storage,
+     * - recursively destroys dependent observer blocks.
      *
-     * @note This function prints to std::cout (currently).
+     * @note This is explicit graph teardown logic; it is not automatically called
+     * by the destructor.
      */
     virtual void destroy();
     
     /**
-     * @brief Freezes all parameters in the block.
+     * @brief Freezes all parameters contained in the block.
      *
-     * Default behavior: calls @ref Parameter::freeze() on each stored parameter.
-     * Derived classes may extend this behavior.
+     * This delegates to `Parameter::freeze()` on each stored parameter.
      */
     virtual void freeze();
 
     /**
-     * @brief Unfreezes all parameters in the block.
+     * @brief Unfreezes all parameters contained in the block.
      *
-     * Default behavior: calls @ref Parameter::unfreeze() on each stored parameter.
+     * This delegates to `Parameter::unfreeze()` on each stored parameter.
      */
     virtual void unfreeze();
 
     /**
      * @brief Copies the content and metadata from another block.
      *
-     * Copies:
-     *  - items map (shared_ptr<Parameter>),
-     *  - blockname,
-     *  - scale (if present).
+     * Copied elements:
+     * - storage map,
+     * - block name,
+     * - scale if present.
      *
-     * Also updates each parameter's owner_block to this block.
+     * Stored parameter pointers are copied as shared pointers. If this block is already
+     * self-bound, copied parameters have their owner-block link rebound to this block.
      *
-     * @param other Shared pointer to the source block.
+     * @param other Source block.
      */
     void copy(std::shared_ptr<Block> other);
 
     /**
-     * @brief Clears dependencies above all parameters in this block.
+     * @brief Clears parameter dependencies above this block.
      *
-     * By default, calls @ref Parameter::clear_above() on each stored parameter.
+     * Delegates `clear_above()` to all contained parameters.
      */
     virtual void clear_above();
 
     /**
-     * @brief Clears dependencies below all parameters in this block.
+     * @brief Clears parameter dependencies below this block.
      *
-     * Implementation detail:
-     *  - builds a snapshot vector of the current parameter pointers,
-     *    then calls clear_below() on each pointer.
-     * This avoids iterator invalidation if dependency clearing mutates structures.
+     * A snapshot of current parameter pointers is built first to avoid iterator
+     * invalidation during recursive dependency clearing.
      */
     virtual void clear_below();
 
     /**
-     * @brief Checks whether the block has a defined global scale.
-     * @return True if the scale is set, false otherwise.
+     * @brief Returns whether the block has an associated scale.
+     * @return True if a scale is set.
      */
     bool has_scale();
 
     /**
-     * @brief Sets the global scale of the block.
+     * @brief Sets the block-wide scale.
      *
-     * @param scale Scale value to set.
-     * @throws If a scale is already set, logs a logic error.
+     * @param scale Scale to assign.
+     *
+     * @note Setting the scale twice is considered a logic error.
      */
     void set_scale(double scale);
 
     /**
-     * @brief Retrieves the global scale of the block.
-     *
+     * @brief Returns the block-wide scale.
      * @return The scale value.
-     * @throws If no scale is set, logs a logic error.
+     *
+     * @note Accessing an unset scale is considered a logic error.
      */
     double get_scale();
 
     /**
-     * @brief Erases a parameter without touching its dependencies.
+     * @brief Erases an entry from the local storage map only.
      *
-     * Unlike @ref remove(), this does not call clear_below() on the
-     * parameter nor destroy dependent blocks. It strictly erases the
-     * entry in the local items map.
+     * Unlike @ref remove(), this does not clear any dependency relationships and
+     * does not destroy downstream blocks. It is a pure local erase.
      *
-     * @param id LhaID of the parameter to erase.
+     * @param id Identifier to erase.
      */
     void erase_local(const LhaID& id);
 
     /**
      * @brief Returns the source blocks of this block.
      *
-     * For a plain Block, there are no source blocks and the default
-     * implementation returns an empty map. DependentBlock overrides this.
+     * Plain blocks have no source blocks, so the default implementation returns
+     * an empty map.
      *
-     * @return Map of source block names to their shared pointers.
+     * @return Source block map.
      */
     virtual std::unordered_map<std::string, std::shared_ptr<Block>> get_source_blocks() const;
 
-    //TODO 
+    /**
+     * @brief Ensures that the block content is up to date.
+     *
+     * For a plain @ref Block this is a no-op.
+     * @ref DependentBlock overrides it to implement lazy recomputation.
+     */ 
     virtual void ensure_up_to_date() {}
 
+    /**
+     * @brief Binds an explicit self shared_ptr to the block.
+     *
+     * This is used to make owner-block links available even in situations where
+     * `shared_from_this()` is not yet safe or convenient.
+     *
+     * After binding, all currently stored parameters are rebound to this block
+     * as their owner block.
+     *
+     * @param self Shared pointer referring to this block instance.
+     */
     void bind_self(std::shared_ptr<Block> self) {
         self_ = self;
 
@@ -341,29 +403,43 @@ public:
     /**
      * @brief Destructor.
      *
-     * Does not automatically destroy dependencies; explicit @ref destroy()
-     * is used for that. Kept virtual through inheritance.
+     * The destructor itself does not perform dependency teardown.
+     * Use @ref destroy() when graph-level destruction is required.
      */
     ~Block() {}
 
     /**
-     * @brief Pretty-print utility for a Block.
+     * @brief Stream output operator for a block.
      *
-     * Outputs:
+     * Prints block content in a human-readable form:
      * @code
-     * Block NAME:
-     *     id: value
-     *     ...
+     * Block MASS:
+     *     6: 172.5
+     *     24: 80.379
      * @endcode
+     *
+     * @param os Output stream.
+     * @param ba Block to print.
+     * @return Output stream.
      */
     friend std::ostream& operator<<(std::ostream&, std::shared_ptr<Block>);
 protected:
-    std::vector<std::shared_ptr<Block>> observers;      ///< List of observer blocks.
-    std::map<LhaID, std::shared_ptr<Parameter>> items;  ///< Map of parameters stored in this block.
-    std::optional<double> scale;                        ///< Optional global scale associated with this block.
+    std::vector<std::shared_ptr<Block>> observers;      /// List of observing blocks notified through @ref notifyObservers().
+    std::map<LhaID, std::shared_ptr<Parameter>> items;  /// Internal storage of parameters indexed by LHA id.
+    std::optional<double> scale;                        /// Optional block-wide scale.
 
-    std::weak_ptr<Block> self_;
+    std::weak_ptr<Block> self_;                         /// Optional explicit self-reference used to rebind owner_block on contained parameters.
 
+    /**
+     * @brief Returns the best available weak self-reference.
+     *
+     * Priority:
+     * - explicit binding through @ref bind_self(),
+     * - fallback to `shared_from_this()` when available,
+     * - empty weak_ptr otherwise.
+     *
+     * @return Weak self-reference.
+     */
     std::weak_ptr<Block> self_weak() {
         if (auto s = self_.lock()) return self_;
         try { return shared_from_this(); } catch (...) { return {}; }
@@ -372,24 +448,36 @@ protected:
 
 /**
  * @class DependentBlock
- * @brief Block whose content depends on one or more source Blocks.
+ * @brief Block whose content is derived from one or more source blocks.
  *
- * A DependentBlock:
- *  - keeps a map of source blocks (@ref sourceBlocks),
- *  - registers itself as observer of its sources,
- *  - recomputes its own content via a user-supplied @ref DepUpdateFunc,
- *  - supports freeze/unfreeze logic with deferred updates.
+ * A DependentBlock is a lazily recomputed block:
+ * - it observes one or more source blocks,
+ * - when sources change, it becomes dirty,
+ * - actual recomputation is deferred until a read-style access forces it
+ *   (e.g. @ref retrieve(), @ref contains(), @ref getItems(), @ref getAllIDs()).
  *
- * It is typically used to represent derived quantities (e.g. running parameters,
- * translated bases, combined uncertainties, etc.) built from primary blocks.
+ * The actual recomputation logic is provided by a user callback of type
+ * @ref DepUpdateFunc.
+ *
+ * Additional features:
+ * - freeze/unfreeze support with deferred update,
+ * - detach/reattach support to temporarily disable the dependency graph,
+ * - recursive dirty propagation to downstream dependent blocks and parameters.
+ *
+ * @see Block
+ * @see DepUpdateFunc
+ * @see BlockSrc
  */
 class DependentBlock : public Block {
 public:
     /**
-     * @brief Constructs a DependentBlock.
+     * @brief Constructs a dependent block from source blocks and a recomputation callback.
      *
-     * @param sources        Map from block names to shared pointers of source Blocks.
-     * @param recalculateFunc Function used to recompute this block from its sources.
+     * The constructor only stores the dependency data. Actual observer registration
+     * is performed later by @ref init().
+     *
+     * @param sources Source blocks used as inputs.
+     * @param recalculateFunc Callback used to rebuild/update this block.
      */
     explicit DependentBlock(
     const std::unordered_map<std::string, std::shared_ptr<Block>>& sources,
@@ -401,143 +489,201 @@ public:
       frozen(false) {}
 
     /**
-     * @brief Checks if this block depends on a specific source block.
-     * @param blockName Name of the source block.
-     * @return True if a non-null source block with this name exists, false otherwise.
+     * @brief Checks whether this dependent block uses a given source block name.
+     *
+     * @param blockName Source block name.
+     * @return True if the source exists and is non-null.
      */
     bool dependsOn(const std::string& blockName);
 
     /**
-     * @brief Initializes dependency tracking.
+     * @brief Initializes the dependency graph for this block.
      *
-     * Must be called after construction. Registers this DependentBlock as an
-     * observer of all source blocks.
+     * Registers this block as observer of all current source blocks.
+     * Must be called before the dependency graph is expected to function.
      */
     void init() override;
 
     /**
-     * @brief Marks the block as dirty (lazy update).
+     * @brief Marks the block as dirty.
      *
-     * This override does not recompute immediately.
-     *  - If frozen: sets a pending flag and returns.
-     *  - Otherwise: propagates dirtiness to dependent DependentBlocks via mark_dirty().
+     * Current behavior:
+     * - if frozen, records that an update must happen upon unfreeze,
+     * - otherwise propagates dirtiness downstream using @ref mark_dirty().
      *
-     * Actual recomputation is performed on demand in ensure_up_to_date_impl(),
-     * typically triggered by calling Block::retrieve/contains/getItems/getAllIDs.
+     * This method does not recompute immediately.
      */
     void update() override;
 
     /**
-     * @brief Freezes the block (no updates will be performed).
+     * @brief Freezes the block and all contained parameters.
      *
-     * While frozen, calls to @ref update() will only set a flag indicating
-     * that an update is pending.
+     * While frozen, updates are deferred.
      */
     void freeze() override;
 
     /**
-     * @brief Unfreezes the block and triggers an update if one was pending.
+     * @brief Unfreezes the block and contained parameters.
+     *
+     * If an update was requested while frozen, the block is marked dirty again
+     * upon unfreeze.
      */
     void unfreeze() override;
 
-    //TODO : docstring
+    /**
+     * @brief Temporarily detaches this block from its dependency graph.
+     *
+     * Current behavior:
+     * - ensures the block is up to date before detaching,
+     * - unregisters this block from its source observers,
+     * - detaches dependent parameters when applicable,
+     * - clears source/recalculation state from the active dependency graph,
+     * - preserves a saved copy of the original dependency definition,
+     * - notifies downstream observers.
+     *
+     * After detachment, the block behaves like a frozen snapshot of its current content.
+     *
+     * @see reattach
+     */
     void detach();
+
+    /**
+     * @brief Reattaches a previously detached dependent block.
+     *
+     * Restores:
+     * - source blocks,
+     * - recomputation callback,
+     * - parameter dependency state,
+     * - observer registration to sources.
+     *
+     * The block is then marked dirty again so that future accesses recompute
+     * from restored sources.
+     *
+     * @see detach
+     */
     void reattach();
 
     /**
      * @brief Destructor.
      *
-     * Unregisters this block from all its source blocks (removes itself
-     * as an observer).
+     * Unregisters this dependent block from its source blocks when still attached.
      */
     ~DependentBlock();
 
     /**
-     * @brief Overwrites payload of an existing local parameter (no notifications).
+     * @brief Overwrites the payload of a local parameter without triggering block-level notification.
      *
-     * Calls Parameter::overwrite_payload_from() on the destination entry.
-     * Does not notify parameter observers nor block observers.
+     * This is a lighter-weight internal assign than @ref Block::assign(...):
+     * the destination parameter payload is overwritten, but this method does not
+     * explicitly notify downstream blocks.
+     *
+     * @param key   Identifier to overwrite.
+     * @param param Source parameter payload.
      */
     void assign(const LhaID& key, std::shared_ptr<Parameter> param);
 
     /**
-     * @brief Assigns a new value to an existing parameter (no notifications).
+     * @brief Assigns a new scalar value to a local parameter.
      *
-     * Similar to @ref Block::assign(const LhaID&, scalar_t),
-     * but does not trigger a cascade of updates.
+     * This is the dependent-block-local variant used during recomputation.
      *
-     * @param key   The LHA ID of the parameter.
-     * @param value The new value to assign.
+     * @param key   Identifier to update.
+     * @param value New value.
      */
     void assign(const LhaID& key, double value);
 
     /**
-     * @brief Returns the source blocks of this dependent block.
-     *
-     * Overrides @ref Block::get_source_blocks().
-     *
-     * @return Map of source block names to their shared pointers.
+     * @brief Returns the map of source blocks for this dependent block.
+     * @return Source block map.
      */
     std::unordered_map<std::string, std::shared_ptr<Block>> get_source_blocks() const override;
 
     /**
-     * @brief Clears dependencies above this block.
+     * @brief Clears upstream block dependencies.
      *
-     * Unregisters this DependentBlock from all source blocks (removes it
-     * from their observer lists).
+     * Unregisters this block from all current source blocks.
      */
     void clear_above() override;
 
     /**
-     * @brief Clears dependencies below this block (block graph only).
+     * @brief Clears downstream block dependencies.
      *
-     * Detaches from sources (clear_above()) and then calls clear_below() on
-     * dependent blocks (observers). This function does not erase local parameters;
-     * use destroy() for full teardown.
+     * This first detaches from sources, then recursively asks observing blocks to
+     * clear their own downstream dependencies.
      */
     void clear_below() override;
 
     /**
-     * @brief Destroys this DependentBlock and its dependents.
+     * @brief Destroys this dependent block and its downstream block dependencies.
      *
-     * Logs a debug message, clears links to source blocks, clears all local
-     * parameters (after clearing their dependency trees), and recursively
-     * destroys observer blocks.
+     * Current behavior:
+     * - detaches from sources,
+     * - clears downstream parameter dependencies,
+     * - clears local items,
+     * - recursively destroys observing blocks.
      */
     void destroy() override;
 
     /**
-     * @brief Marks the block content as invalid and propagates downstream.
+     * @brief Marks this block dirty and propagates the dirty state downstream.
      *
-     * If already dirty, does nothing. Otherwise sets dirty=true and recursively
-     * marks DependentBlock observers dirty as well.
+     * If the block is already dirty, nothing is done.
+     *
+     * Propagation rules:
+     * - downstream @ref DependentBlock observers receive `mark_dirty()`,
+     * - downstream dependent parameters are notified through
+     *   `Parameter::notifyParamObserversOnly()`.
      */
     void mark_dirty();
 
     /**
-     * @brief Ensures this block is up-to-date (lazy recomputation).
+     * @brief Ensures this dependent block is up to date.
      *
-     * Calls the internal implementation that:
-     *  - returns immediately if frozen or not dirty,
-     *  - ensures upstream DependentBlock sources are up-to-date,
-     *  - calls the recomputation lambda to rebuild/update local parameters,
-     *  - then notifies parameter observers for each stored parameter.
+     * If the block is dirty and not frozen, upstream dependent blocks are first
+     * ensured up to date, then the recomputation callback is executed, and finally
+     * downstream parameter/block observers are notified in a controlled way.
      */
     void ensure_up_to_date() override { ensure_up_to_date_impl(); }
 
 private:
+    /**
+     * @brief Internal lazy recomputation routine.
+     *
+     * This method implements the actual on-demand update policy for dependent blocks.
+     */
     void ensure_up_to_date_impl();
 
-    std::weak_ptr<DependentBlock> self;                                     ///< Self-reference for observer management.
-    std::unordered_map<std::string, std::shared_ptr<Block>> sourceBlocks;   ///< Source blocks for dependencies.
-    DepUpdateFunc recalculateLambda;                                        ///< Function used to recalculate this block's content.
+    std::weak_ptr<DependentBlock> self;                                     /// Weak self-reference specialized as DependentBlock for source observer management.
+    std::unordered_map<std::string, std::shared_ptr<Block>> sourceBlocks;   /// Active source blocks currently used by the dependency graph.
+    DepUpdateFunc recalculateLambda;                                        /// Active recomputation callback.
     bool frozen = false;                                                    ///< Indicates if the block is frozen (no update).
-    bool update_at_unfreeze = false;                                        ///< Indicates if an update is pending after unfreezing.
-    bool dirty = true;                                                      ///< True if cached value is invalid and must be recomputed on demand.
+    bool update_at_unfreeze = false;                                        /// True if an update request happened while frozen and should be replayed after unfreeze.
+    bool dirty = true;                                                      /// True if the cached content is invalid and must be recomputed on next access.
 
-    //TODO : docstring
+    /**
+     * @brief Saved source blocks used to restore dependencies after @ref detach().
+     *
+     * These are not necessarily the currently active source blocks. They represent
+     * the dependency definition that should be restored by @ref reattach().
+     */
     std::unordered_map<std::string, std::shared_ptr<Block>> saved_sourceBlocks;
+
+    /**
+     * @brief Saved recomputation callback used to restore dependencies after @ref detach().
+     *
+     * This mirrors @ref saved_sourceBlocks and allows the dependent block to resume
+     * its original update logic after reattachment.
+     */
     DepUpdateFunc saved_recalculateLambda;
+
+    /**
+     * @brief Indicates whether the dependency graph is currently detached.
+     *
+     * When true:
+     * - the block no longer observes upstream blocks,
+     * - active sources/callback may be cleared,
+     * - the block behaves as a detached snapshot until @ref reattach() is called.
+     */
     bool dependency_detached = false;
 };
 

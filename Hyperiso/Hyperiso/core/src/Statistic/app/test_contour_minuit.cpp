@@ -19,6 +19,8 @@
 #include "StatParameterProxy.h"
 #include "ObservableInterface.h"
 #include "StatParamSourcesProxy.h"
+#include "StatDependencyPruner.h"
+
 #include "Fit.h"
 #include "Likelihood.h"
 
@@ -40,12 +42,12 @@ namespace fit_app {
 // Small utilities
 // -----------------------------------------------------------------------------
 
-template <class T>
-std::string to_string_any(const T& x) {
-    std::ostringstream oss;
-    oss << x;
-    return oss.str();
-}
+// template <class T>
+// std::string to_string_any(const T& x) {
+//     std::ostringstream oss;
+//     oss << x;
+//     return oss.str();
+// }
 
 void print_vec(const std::vector<double>& vec) {
     std::cout << "[ ";
@@ -56,29 +58,29 @@ void print_vec(const std::vector<double>& vec) {
     std::cout << "]\n";
 }
 
-std::vector<double> linspace(double a, double b, std::size_t n) {
-    std::vector<double> out(n);
-    if (n == 0) return out;
-    if (n == 1) {
-        out[0] = a;
-        return out;
-    }
-    for (std::size_t i = 0; i < n; ++i) {
-        out[i] = a + (b - a) * double(i) / double(n - 1);
-    }
-    return out;
-}
+// std::vector<double> linspace(double a, double b, std::size_t n) {
+//     std::vector<double> out(n);
+//     if (n == 0) return out;
+//     if (n == 1) {
+//         out[0] = a;
+//         return out;
+//     }
+//     for (std::size_t i = 0; i < n; ++i) {
+//         out[i] = a + (b - a) * double(i) / double(n - 1);
+//     }
+//     return out;
+// }
 
-double safe_step(double value, double scale_hint) {
-    double a = std::fabs(value);
-    double s = std::fabs(scale_hint);
+// double safe_step(double value, double scale_hint) {
+//     double a = std::fabs(value);
+//     double s = std::fabs(scale_hint);
 
-    double step = 0.0;
-    if (std::isfinite(s) && s > 0.0) step = 0.05 * s;
-    if (std::isfinite(a) && a > 0.0) step = std::max(step, 0.01 * a);
-    if (!std::isfinite(step) || step <= 0.0) step = 1e-3;
-    return step;
-}
+//     double step = 0.0;
+//     if (std::isfinite(s) && s > 0.0) step = 0.05 * s;
+//     if (std::isfinite(a) && a > 0.0) step = std::max(step, 0.01 * a);
+//     if (!std::isfinite(step) || step <= 0.0) step = 1e-3;
+//     return step;
+// }
 
 // -----------------------------------------------------------------------------
 // CSV export
@@ -781,7 +783,7 @@ BuiltProblem build_problem(StatisticManager& stat,
                            const StatisticConfig& config,
                            const std::shared_ptr<ObservableInterfaceAdapterObs>& model) {
     LOG_INFO("fill_cache #1");
-    stat.fill_cache();
+    // stat.fill_cache();
 
     auto start_u = std::chrono::steady_clock::now();
     stat.compute_uncertainties();
@@ -790,9 +792,9 @@ BuiltProblem build_problem(StatisticManager& stat,
     std::cout << "Uncertainty estimation time: " << us_u << " us\n";
 
     LOG_INFO("fill_cache #2");
-    stat.fill_cache();
+    // stat.fill_cache();
 
-    auto p_specs_map = stat.get_p_specs();
+    auto p_specs_map = stat.get_p_specs(config.p_specs);
     auto eta_specs_real = stat.get_all_obss_deps();
     for (const auto& [pid, _] : p_specs_map) eta_specs_real.erase(pid);
     auto exp_obs_map = stat.get_obs_exp();
@@ -857,7 +859,8 @@ int main(int argc, char** argv) {
         model,
         std::make_shared<StatCorrelationProxy>(),
         std::make_shared<StatParameterProxy>(),
-        std::make_shared<StatParamSourcesProxy>()
+        std::make_shared<StatParamSourcesProxy>(),
+        std::make_shared<StatDependencyPruner>()
     );
 
     BuiltProblem built = build_problem(stat, config, model);

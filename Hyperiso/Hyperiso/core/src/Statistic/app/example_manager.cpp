@@ -4,6 +4,7 @@
 #include "StatParameterProxy.h"
 #include "ObservableInterface.h"
 #include "StatParamSourcesProxy.h"
+#include "StatDependencyPruner.h"
 #include <cassert>
 
 void print_vec(const std::vector<double>& vec) {
@@ -80,7 +81,7 @@ int main(int argc, char** argv) {
         ParamId(ParameterType::SM, "VCKMIN", 4)
     };
 
-    StatisticManager stat(config, std::make_shared<ObservableInterfaceAdapterObs>(oint), std::make_shared<StatCorrelationProxy>(), std::make_shared<StatParameterProxy>(), std::make_shared<StatParamSourcesProxy>());
+    StatisticManager stat(config, std::make_shared<ObservableInterfaceAdapterObs>(oint), std::make_shared<StatCorrelationProxy>(), std::make_shared<StatParameterProxy>(), std::make_shared<StatParamSourcesProxy>(), std::make_shared<StatDependencyPruner>());
     LOG_INFO("YO1");
     stat.update_cache();
     // LOG_INFO("YO2");
@@ -92,7 +93,12 @@ int main(int argc, char** argv) {
     std::cout << "Uncertainty estimation time : " << us << " µs\n";
 
     // auto start = std::chrono::steady_clock::now();
-    auto fr = stat.compute_MLE();
+    auto fr = stat.compute_MLE({
+        ParamId(ParameterType::SM, "VCKMIN", 1),
+        ParamId(ParameterType::SM, "VCKMIN", 2),
+        ParamId(ParameterType::SM, "VCKMIN", 3),
+        ParamId(ParameterType::SM, "VCKMIN", 4)
+    });
     // auto stop  = std::chrono::steady_clock::now();
     // auto us = std::chrono::duration_cast<std::chrono::microseconds>(stop - start).count();
     std::cout << "MLE fitting time : " << us << " µs\n";

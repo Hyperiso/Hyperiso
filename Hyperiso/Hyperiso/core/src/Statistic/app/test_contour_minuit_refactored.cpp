@@ -19,6 +19,7 @@
 #include "StatParameterProxy.h"
 #include "ObservableInterface.h"
 #include "StatParamSourcesProxy.h"
+#include "StatDependencyPruner.h"
 #include "Fit.h"
 #include "Likelihood.h"
 
@@ -692,7 +693,7 @@ BuiltProblem build_problem(StatisticManager& stat,
                            const StatisticConfig& config,
                            const std::shared_ptr<ObservableInterfaceAdapterObs>& model) {
     LOG_INFO("fill_cache #1");
-    stat.fill_cache();
+    // stat.fill_cache();
 
     auto start_u = std::chrono::steady_clock::now();
     stat.compute_uncertainties();
@@ -701,9 +702,9 @@ BuiltProblem build_problem(StatisticManager& stat,
     std::cout << "Uncertainty estimation time: " << us_u << " us\n";
 
     LOG_INFO("fill_cache #2");
-    stat.fill_cache();
+    stat.update_cache(config.p_specs);
 
-    auto p_specs_map = stat.get_p_specs();
+    auto p_specs_map = stat.get_p_specs(config.p_specs);
     auto eta_specs_real = stat.get_all_obss_deps();
     for (const auto& [pid, _] : p_specs_map) eta_specs_real.erase(pid);
     auto exp_obs_map = stat.get_obs_exp();
@@ -768,7 +769,8 @@ int main(int argc, char** argv) {
         model,
         std::make_shared<StatCorrelationProxy>(),
         std::make_shared<StatParameterProxy>(),
-        std::make_shared<StatParamSourcesProxy>()
+        std::make_shared<StatParamSourcesProxy>(),
+        std::make_shared<StatDependencyPruner>()
     );
 
     BuiltProblem built = build_problem(stat, config, model);
