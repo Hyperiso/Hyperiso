@@ -14,7 +14,7 @@
 
 #include "Matrix.h"
 
-namespace contour_app {
+namespace fit_app {
 
 struct ParameterDefinition {
     std::string name;
@@ -154,4 +154,4 @@ inline double safe_step(double value, double scale_hint) {
     return step;
 }
 
-} // namespace contour_app
+} // namespace fit_app

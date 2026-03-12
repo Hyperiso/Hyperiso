@@ -25,7 +25,7 @@
 #include "FitAbstraction.h"
 
 
-namespace contour_app {
+namespace fit_app {
 
 // -----------------------------------------------------------------------------
 // Small utilities
@@ -738,10 +738,10 @@ BuiltProblem build_problem(StatisticManager& stat,
     };
 }
 
-} // namespace contour_app
+} // namespace fit_app
 
 int main(int argc, char** argv) {
-    using namespace contour_app;
+    using namespace fit_app;
 
     HyperisoMaster hyp;
     HyperisoConfig config_hyp;

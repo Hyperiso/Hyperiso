@@ -5,5 +5,6 @@
 #include "diffcalc.h"
 #include "integration.h"
 #include "optimization.h"
+#include "FitAbstraction.h"
 
 #endif // ANALYSIS_H

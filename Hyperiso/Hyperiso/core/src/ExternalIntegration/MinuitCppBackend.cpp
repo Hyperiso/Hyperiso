@@ -13,7 +13,7 @@
 
 namespace M2 = MinuitCpp;
 
-namespace contour_app {
+namespace fit_app {
 namespace {
 
 class MinuitObjective final : public M2::FCNBase {
@@ -229,4 +229,4 @@ std::unique_ptr<IFitBackend> make_minuit_backend() {
     return std::make_unique<MinuitCppBackend>();
 }
 
-} // namespace contour_app
+} // namespace fit_app
