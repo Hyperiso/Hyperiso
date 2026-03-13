@@ -14,7 +14,7 @@
 #include "JointDistribution.h"
 #include "RvgNuisanceSampler.h"
 #include "MCEngine.h"
-#include "MarginalFactory.h"
+#include "DistributionFactory.h"
 #include "CopulaFactory.h"
 #include "Fit.h"
 #include "MarginalConfigFactory.h"

@@ -5,12 +5,82 @@
 #include "CorrelationProvider.h"
 #include "Include.h"
 
+/**
+ * @file IStatCorrelationProxy.h
+ * @brief Statistical-layer port for read-only access to correlation coefficients.
+ *
+ * This interface defines the contract used by the statistics module to query
+ * correlations between:
+ * - generic parameters identified by @ref ParamId,
+ * - public observable enums identified by @ref Observables,
+ * - binned observables identified by @ref BinnedObservableId.
+ *
+ * The exact quantity returned is selected through
+ * @ref CorrelationProvider::CorrelationType:
+ * - @ref CorrelationProvider::CorrelationType::STAT     for statistical correlation,
+ * - @ref CorrelationProvider::CorrelationType::SYST     for systematic correlation,
+ * - @ref CorrelationProvider::CorrelationType::COMBINED for combined correlation.
+ *
+ * Implementations are expected to be read-only adapters over the internal
+ * correlation repository / provider layer.
+ *
+ * @see StatCorrelationProxy
+ * @see CorrelationProvider
+ * @see CorrelationRepository
+ */
+
+/**
+ * @struct IStatCorrelationProxy
+ * @brief Abstract read-only interface for correlation queries in the statistics module.
+ *
+ * This port provides a uniform callable API so higher-level statistical code
+ * can request correlation coefficients without depending directly on the
+ * storage/backend layer.
+ */
 struct IStatCorrelationProxy {
+    /// Alias for the correlation selector type used by the backend provider.
     using Type = CorrelationProvider::CorrelationType;
+
+    /**
+     * @brief Virtual destructor.
+     */
     virtual ~IStatCorrelationProxy() = default;
 
+    /**
+     * @brief Returns the correlation coefficient between two parameters.
+     *
+     * Both parameters are identified by fully typed @ref ParamId objects.
+     *
+     * @param lhs  First parameter identifier.
+     * @param rhs  Second parameter identifier.
+     * @param type Kind of correlation requested (statistical, systematic, combined).
+     * @return Requested correlation coefficient.
+     */
     virtual double operator()(const ParamId&, const ParamId&, Type) = 0;
+
+    /**
+     * @brief Returns the correlation coefficient between two observables.
+     *
+     * This overload is intended for the public observable enum API.
+     *
+     * @param lhs  First observable.
+     * @param rhs  Second observable.
+     * @param type Kind of correlation requested (statistical, systematic, combined).
+     * @return Requested correlation coefficient.
+     */
     virtual double operator()(const Observables&, const Observables&, Type) = 0;
+
+    /**
+     * @brief Returns the correlation coefficient between two binned observables.
+     *
+     * This overload is intended for observable entries carrying an explicit
+     * bin definition through @ref BinnedObservableId.
+     *
+     * @param lhs  First binned observable identifier.
+     * @param rhs  Second binned observable identifier.
+     * @param type Kind of correlation requested (statistical, systematic, combined).
+     * @return Requested correlation coefficient.
+     */
     virtual double operator()(const BinnedObservableId&, const BinnedObservableId&, Type) = 0;
 };
 

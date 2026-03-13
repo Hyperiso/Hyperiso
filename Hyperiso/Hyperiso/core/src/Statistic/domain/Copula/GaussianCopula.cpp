@@ -1,10 +1,10 @@
 #include "GaussianCopula.h"
 
 GaussianCopula::GaussianCopula(unsigned int seed, RealMatrix R) : GenericCopula(seed) {
-    R = nearest_psd(R);
-    L = cholesky_L(R);
-    logdet = R.slogdet().logdet;
-    R_inv = R.inv();
+    this->R = nearest_psd(R);
+    this->L = cholesky_L(this->R);
+    this->logdet = this->R.slogdet().logdet;
+    this->R_inv = this->R.inv();
 }
 
 std::vector<Vector> GaussianCopula::sample_u(std::size_t n) {
@@ -22,7 +22,7 @@ Vector GaussianCopula::sample_u() {
 
     RealMatrix z (d, 1);
     for (std::size_t j = 0; j < d; j++) {
-        z.at(j, 0) = gsl_ran_ugaussian(eng_);   // z follows MN(0, 1)
+        z.at(j, 0) = gsl_ran_ugaussian(eng_.get());   // z follows MN(0, 1)
     }
 
     z = L * z; // z follows MN(0, R)

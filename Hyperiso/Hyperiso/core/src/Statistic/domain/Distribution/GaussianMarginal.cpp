@@ -3,14 +3,13 @@
 GaussianMarginal::GaussianMarginal(double mu, double sigma, unsigned int seed)
     : mu(mu), sigma(sigma)
 {
-    eng_ = gsl_rng_alloc(rng_tp);
-    gsl_rng_set(eng_, seed);
+    gsl_rng_set(eng_.get(), seed);
 }
 
 Vector GaussianMarginal::rvs(std::size_t n) {
     Vector z(n);
     for (std::size_t i = 0; i < n; ++i) 
-        z[i] = mu + gsl_ran_gaussian(eng_, sigma);
+        z[i] = mu + gsl_ran_gaussian(eng_.get(), sigma);
     return z;
 }
 

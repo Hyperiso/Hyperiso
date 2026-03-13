@@ -5,6 +5,9 @@ project(TestHyperiso)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
+if (NOT TARGET StatisticLib)
+    add_subdirectory(../src/Statistic StatisticLib)
+endif()
 if (NOT TARGET UtilsLib)
     add_subdirectory(Utils UtilsLib)
 endif()
@@ -345,7 +348,16 @@ target_link_libraries(testObsManagerUnit BusinessLogicLib UtilsLib)
 add_executable(testObsManagerIntegration BusinessLogic/integration/test_obsmanager_integration.cpp)
 target_link_libraries(testObsManagerIntegration BusinessLogicLib UtilsLib)
 
-#Wilson
+#Statistic
+
+add_executable(testMarginalsUnit Statistic/unit/test_marginals_unit.cpp)
+target_link_libraries(testMarginalsUnit StatisticLib UtilsLib)
+
+add_executable(testMarginalsIntegration Statistic/integration/test_marginals_integration.cpp)
+target_link_libraries(testMarginalsIntegration StatisticLib UtilsLib)
+
+
+# --------- Wilson ---------
 
 
 add_executable(testSMWilson Wilson/testSMWilson.cpp)

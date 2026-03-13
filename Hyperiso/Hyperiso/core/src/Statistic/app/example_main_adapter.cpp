@@ -10,7 +10,7 @@
 #include "Fit.h"
 #include "BToMuMuToy.h"
 // #include "LinearAlgebra.h"
-#include "MarginalFactory.h"
+#include "DistributionFactory.h"
 #include "RvgNuisanceSampler.h"
 #include "HyperisoMaster.h"
 #include "BlockProxy.h"

@@ -3,14 +3,13 @@
 FlatMarginal::FlatMarginal(double a, double b, unsigned int seed)
     : a(a), b(b)
 {
-    eng_ = gsl_rng_alloc(rng_tp);
-    gsl_rng_set(eng_, seed);
+    gsl_rng_set(eng_.get(), seed);
 }
 
 Vector FlatMarginal::rvs(std::size_t n) {
     Vector z(n);
     for (std::size_t i = 0; i < n; ++i) 
-        z[i] = gsl_ran_flat(eng_, a, b);
+        z[i] = gsl_ran_flat(eng_.get(), a, b);
     return z;
 }
 

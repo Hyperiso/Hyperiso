@@ -1,5 +1,15 @@
 #include "CopulaFactory.h"
 
+/**
+ * @brief Internal helper constructing a copula from the active variant alternative.
+ *
+ * This helper dispatches on the active type stored in @p cfg and creates the
+ * corresponding concrete @ref ICopula implementation.
+ *
+ * @param seed RNG seed forwarded to the concrete copula constructor.
+ * @param cfg  Active copula configuration variant.
+ * @return Newly constructed copula.
+ */
 std::unique_ptr<ICopula> make(unsigned int seed, CopulaConfig cfg) {
     return std::visit([seed](auto&& c) -> std::unique_ptr<ICopula> {
         using T = std::decay_t<decltype(c)>;

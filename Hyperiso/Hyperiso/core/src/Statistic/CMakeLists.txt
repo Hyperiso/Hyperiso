@@ -95,7 +95,7 @@ add_library(StatisticLib STATIC
     domain/MCEngine.cpp
     domain/RvgNuisanceSampler.cpp
     domain/StatisticManager.cpp
-    domain/Distribution/MarginalFactory.cpp
+    domain/Distribution/DistributionFactory.cpp
     domain/Distribution/GaussianMarginal.cpp
     domain/Distribution/SplitGaussianMarginal.cpp
     domain/Distribution/LikelihoodMarginal.cpp

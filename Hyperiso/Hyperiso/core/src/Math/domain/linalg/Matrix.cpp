@@ -201,15 +201,16 @@ void RealMatrix::remove_column(std::size_t col_idx) {
 }
 
 void RealMatrix::remove_row_and_column(std::size_t dim_idx) {
-    std::vector<double> new_data = std::vector<double>((this->rows_ - 1) * (this->cols_ - 1), 0.0);
+    std::vector<double> new_data((this->rows_ - 1) * (this->cols_ - 1), 0.0);
 
     for (size_t i = 0; i < this->rows_; i++) {
         if (i == dim_idx) continue;
         std::size_t new_i = i < dim_idx ? i : i - 1;
+
         for (size_t j = 0; j < this->cols_; j++) {
             if (j == dim_idx) continue;
             std::size_t new_j = j < dim_idx ? j : j - 1;
-            new_data[new_i * this->cols_ + j] = this->at(i, j);
+            new_data[new_i * (this->cols_ - 1) + new_j] = this->at(i, j);
         }
     }
 

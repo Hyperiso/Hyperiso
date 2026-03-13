@@ -1,4 +1,4 @@
-#include "MarginalFactory.h"
+#include "DistributionFactory.h"
 
 std::unique_ptr<IMarginalDistribution> make(unsigned int seed, MarginalConfig cfg) {
     return std::visit([seed](auto&& c) -> std::unique_ptr<IMarginalDistribution> {

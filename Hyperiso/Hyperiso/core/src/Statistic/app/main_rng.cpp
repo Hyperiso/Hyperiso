@@ -1,5 +1,5 @@
 #include "JointDistribution.h"
-#include "MarginalFactory.h"
+#include "DistributionFactory.h"
 #include "CopulaFactory.h"
 
 int main(int argc, char** argv) {
