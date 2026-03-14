@@ -356,6 +356,11 @@ target_link_libraries(testMarginalsUnit StatisticLib UtilsLib)
 add_executable(testMarginalsIntegration Statistic/integration/test_marginals_integration.cpp)
 target_link_libraries(testMarginalsIntegration StatisticLib UtilsLib)
 
+add_executable(testCopulasUnit Statistic/unit/test_copulas_unit.cpp)
+target_link_libraries(testCopulasUnit StatisticLib UtilsLib)
+
+add_executable(testCopulasIntegration Statistic/integration/test_copulas_integration.cpp)
+target_link_libraries(testCopulasIntegration StatisticLib UtilsLib)
 
 # --------- Wilson ---------
 
