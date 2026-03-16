@@ -66,7 +66,7 @@ public:
      * @param dest     Shared pointer to the destination object.
      * @param src_file Path to the source file to load from.
      */
-    virtual void load(std::shared_ptr<T> dest, fs::path src_file) = 0;
+    virtual void load(std::shared_ptr<T> dest, fs::path src_file, bool block_in_blocks=false) = 0;
 
     /**
      * @brief Virtual destructor.

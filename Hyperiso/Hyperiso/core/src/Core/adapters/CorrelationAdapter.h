@@ -33,7 +33,7 @@ public:
      * @param dest     Shared pointer to destination CorrelationMatrixPair.
      * @param src_file Path to the source file.
      */
-    void load(std::shared_ptr<CorrelationMatrixPair<T>> dest, fs::path src_file) override;
+    void load(std::shared_ptr<CorrelationMatrixPair<T>> dest, fs::path src_file, bool block_in_blocks=false) override;
 
 private:
     /**

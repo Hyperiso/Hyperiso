@@ -1,10 +1,10 @@
 #include "CorrelationAdapter.h"
 
-template void CorrelationLoader<ParamId>::load(std::shared_ptr<CorrelationMatrixPair<ParamId>>, fs::path);
-template void CorrelationLoader<BinnedObservableId>::load(std::shared_ptr<CorrelationMatrixPair<BinnedObservableId>>, fs::path);
+template void CorrelationLoader<ParamId>::load(std::shared_ptr<CorrelationMatrixPair<ParamId>>, fs::path, bool);
+template void CorrelationLoader<BinnedObservableId>::load(std::shared_ptr<CorrelationMatrixPair<BinnedObservableId>>, fs::path, bool);
 
 template <typename T>
-void CorrelationLoader<T>::load(std::shared_ptr<CorrelationMatrixPair<T>> dest, fs::path src_file) { 
+void CorrelationLoader<T>::load(std::shared_ptr<CorrelationMatrixPair<T>> dest, fs::path src_file, bool block_in_blocks) { 
     auto np = DBNodeProviderFactory::createDBNodeProvider(src_file);
     auto src = np->provide_db_as_node();
 

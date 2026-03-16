@@ -61,7 +61,7 @@ void MemoryManager::save_input_cache() {
 void MemoryManager::read_default_input() {
     dl_ba->load(input_cache, paths_provider->default_param_values()); 
     auto obs_blocks = std::make_shared<BlockAccessor>();
-    dl_ba->load(obs_blocks, paths_provider->default_obs_values()); 
+    dl_ba->load(obs_blocks, paths_provider->default_obs_values(), true); 
     input_cache = input_cache >> obs_blocks;
     save_input_cache();
     LOG_DEBUG("Default cache stored");
@@ -80,15 +80,20 @@ void MemoryManager::read_default_input() {
 
 void MemoryManager::read_user_input() {
     // ParamBlockLoader p_loader;
-    fs::path ui_paths[4] = {
+    fs::path ui_paths[3] = {
         paths_provider->user_sm_params(), paths_provider->user_flavor_params(),
-        paths_provider->user_decay_params(), paths_provider->user_obs_values()
+        paths_provider->user_decay_params()
     };
     for (auto& path : ui_paths) {
         auto ui_ba = std::make_shared<BlockAccessor>();
         dl_ba->load(ui_ba, path); 
         input_cache = ui_ba >> input_cache;
     }
+
+    auto ui_ba_obs = std::make_shared<BlockAccessor>();
+    dl_ba->load(ui_ba_obs, paths_provider->user_obs_values(), true); 
+    input_cache = ui_ba_obs >> input_cache;
+
     save_input_cache();
 
     auto user_param_corr = std::make_shared<CorrelationMatrixPair<ParamId>>();
