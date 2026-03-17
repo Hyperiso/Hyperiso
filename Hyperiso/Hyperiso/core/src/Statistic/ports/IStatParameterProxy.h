@@ -86,19 +86,19 @@ public:
     virtual scalar_t operator()(const ParamId&, DataType d_type=DataType::VALUE) const = 0;
 
     /**
-     * @brief Returns a scalar quantity for an observable identified by @ref ObservableId.
+     * @brief Returns a vector of scalar quantities (for each experiments) for an observable identified by @ref ObservableId.
      *
      * This is typically used for experimental observable entries stored in
      * the observable parameter blocks.
      *
      * @param id     Observable identifier.
      * @param d_type Requested quantity type.
-     * @return Requested scalar quantity.
+     * @return Requested vector of scalar quantities.
      */
-    virtual double operator()(const ObservableId&, DataType d_type=DataType::VALUE) const = 0;
+    virtual std::vector<double> operator()(const ObservableId&, DataType d_type=DataType::VALUE) const = 0;
 
     /**
-     * @brief Returns a scalar quantity for a binned observable entry.
+     * @brief Returns a vector of scalar quantities (for each experiments) for a binned observable entry.
      *
      * This overload is used when the observable is identified not only by its
      * base observable id but also by a bin definition encoded in
@@ -106,9 +106,9 @@ public:
      *
      * @param id     Binned observable identifier.
      * @param d_type Requested quantity type.
-     * @return Requested scalar quantity.
+     * @return Requested vector of scalar quantities.
      */
-    virtual double operator()(const BinnedObservableId& id, DataType d_type = DataType::VALUE) const = 0;
+    virtual std::vector<double> operator()(const BinnedObservableId& id, DataType d_type = DataType::VALUE) const = 0;
 
     /**
      * @brief Returns a scalar quantity for a parameter identified by block and LHA id.
@@ -124,15 +124,15 @@ public:
     virtual scalar_t operator()(const std::string& block, const LhaID& id, DataType d_type=DataType::VALUE) const = 0;
 
     /**
-     * @brief Returns the underlying parameter object for a binned observable entry.
+     * @brief Returns a vector of the underlying parameter objects for a binned observable entry.
      *
      * This is useful when the caller needs access to the full parameter metadata
      * associated with a binned observable, such as uncertainties or binning info.
      *
      * @param id Binned observable identifier.
-     * @return Shared pointer to the corresponding @ref Parameter.
+     * @return Vector of shared pointer to the corresponding @ref Parameter.
      */
-    virtual std::shared_ptr<Parameter> get_obs_param(const BinnedObservableId&) const = 0;
+    virtual std::vector<std::shared_ptr<Parameter>> get_obs_param(const BinnedObservableId&) const = 0;
 };
 
 #endif

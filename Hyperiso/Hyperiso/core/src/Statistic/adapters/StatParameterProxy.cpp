@@ -52,15 +52,31 @@ scalar_t StatParameterProxy::operator()(const ParamId& pid, DataType d_type) con
 /**
  * @copydoc IStatParameterProxy::operator()(const ObservableId&, DataType) const
  */
-double StatParameterProxy::operator()(const ObservableId& id, DataType d_type) const {
-    return pp(ParamId(ParameterType::OBSERVABLE, "FOBS", ObservableMapper::flha(id)), d_type);
+std::vector<double> StatParameterProxy::operator()(const ObservableId& id, DataType d_type) const {
+    
+
+    std::unordered_set<std::string> blocks = BlockProvider().get_all_blocks(ParameterType::OBSERVABLE);
+    std::vector<double> out;
+    for (auto block : blocks) {
+        out.push_back(pp(ParamId(ParameterType::OBSERVABLE, block, ObservableMapper::flha(id)), d_type));
+    }
+    return out;
+    // return pp(PKCaramId(ParameterType::OBSERVABLE, "FOBS", ObservableMapper::flha(id)), d_type);
 }
 
 /**
  * @copydoc IStatParameterProxy::operator()(const BinnedObservableId&, DataType) const
  */
-double StatParameterProxy::operator()(const BinnedObservableId &id, DataType d_type) const {
-    return pp(ParamId(ParameterType::OBSERVABLE, "FOBS", id.flha()), d_type);
+std::vector<double> StatParameterProxy::operator()(const BinnedObservableId &id, DataType d_type) const {
+
+    std::unordered_set<std::string> blocks = BlockProvider().get_all_blocks(ParameterType::OBSERVABLE);
+
+    std::vector<double> out;
+    for (auto block : blocks) {
+        out.push_back(pp(ParamId(ParameterType::OBSERVABLE, block, id.flha()), d_type));
+    }
+    return out;
+    // return pp(ParamId(ParameterType::OBSERVABLE, "FOBS", id.flha()), d_type);
 }
 
 /**
@@ -77,6 +93,14 @@ scalar_t StatParameterProxy::operator()(const std::string& block, const LhaID& i
 /**
  * @copydoc IStatParameterProxy::get_obs_param(const BinnedObservableId&) const
  */
-std::shared_ptr<Parameter> StatParameterProxy::get_obs_param(const BinnedObservableId& id) const {
-    return pp.get_parameter(ParamId(ParameterType::OBSERVABLE, "FOBS", id.flha()));
+std::vector<std::shared_ptr<Parameter>> StatParameterProxy::get_obs_param(const BinnedObservableId& id) const {
+
+    std::unordered_set<std::string> blocks = BlockProvider().get_all_blocks(ParameterType::OBSERVABLE);
+
+    std::vector<std::shared_ptr<Parameter>> out;
+    for (auto block : blocks) {
+        out.push_back(pp.get_parameter(ParamId(ParameterType::OBSERVABLE, block, id.flha())));
+    }
+    return out;
+    // return pp.get_parameter(ParamId(ParameterType::OBSERVABLE, "FOBS", id.flha()));
 }

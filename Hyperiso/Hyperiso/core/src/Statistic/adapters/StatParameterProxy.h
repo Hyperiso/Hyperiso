@@ -9,6 +9,7 @@
 #include "ParameterProvider.h"
 #include "Include.h"
 #include "BinnedObservableId.h"
+#include "BlockProvider.h"
 
 /**
  * @file StatParameterProxy.h
@@ -111,7 +112,7 @@ public:
      * @param d_type Requested quantity type.
      * @return Requested scalar quantity.
      */
-    double operator()(const ObservableId&, DataType d_type=DataType::VALUE) const override;
+    std::vector<double> operator()(const ObservableId&, DataType d_type=DataType::VALUE) const override;
 
     /**
      * @brief Returns a scalar quantity for a binned observable entry.
@@ -123,7 +124,7 @@ public:
      * @param d_type Requested quantity type.
      * @return Requested scalar quantity.
      */
-    double operator()(const BinnedObservableId&, DataType d_type=DataType::VALUE) const override;
+    std::vector<double> operator()(const BinnedObservableId&, DataType d_type=DataType::VALUE) const override;
 
     /**
      * @brief Returns a scalar quantity for a parameter identified by block and LHA id.
@@ -149,7 +150,7 @@ public:
      * @param id Binned observable identifier.
      * @return Shared pointer to the corresponding observable @ref Parameter.
      */
-    std::shared_ptr<Parameter> get_obs_param(const BinnedObservableId&) const override;
+    std::vector<std::shared_ptr<Parameter>> get_obs_param(const BinnedObservableId&) const override;
 private:
     ParameterProvider pp;                                               /// Generic provider used for fully typed ParamId access.
     ParameterProvider pp_with_type;                                     /// Provider bound to a specific ParameterType, used for (block, LhaID) access.

@@ -67,6 +67,19 @@ public:
     virtual std::map<LhaID, scalar_t> get_block(ParameterType type, const std::string& blockname) = 0;
 
     /**
+     * @brief return all blocks for a given ParameterType.
+     *
+     * Internally calls:
+     * @code
+     * Parameters::GetInstance(type)->get_blocks_list();
+     * @endcode
+     *
+     * @param type ParameterType whose blocks should be returned.
+     * @return std::unordered_set<std::string>, the names of the block
+     */
+    virtual std::unordered_set<std::string> get_all_blocks(ParameterType type) = 0;
+
+    /**
      * @brief Virtual destructor.
      */
     virtual ~IBlockProvider() = default;

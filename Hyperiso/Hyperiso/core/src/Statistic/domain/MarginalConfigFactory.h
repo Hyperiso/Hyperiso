@@ -90,7 +90,7 @@ public:
     MarginalConfig create(ParamId pid, MarginalType marginal);
 
     /**
-     * @brief Builds a marginal configuration from a binned observable identifier.
+     * @brief Builds a vector of marginal configurations from a binned observable identifier.
      *
      * Current convention for observables:
      * - the marginal is centered at 0,
@@ -101,12 +101,12 @@ public:
      *
      * @param pid      Binned observable identifier.
      * @param marginal Requested marginal family.
-     * @return A @ref MarginalConfig variant containing the matching config type.
+     * @return A vector of @ref MarginalConfig variant containing the matching config type.
      *
      * @throws std::runtime_error for currently unsupported marginals.
      * @throws std::invalid_argument if the marginal type is unknown.
      */
-    MarginalConfig create(BinnedObservableId pid, MarginalType marginal);
+    std::vector<MarginalConfig> create(BinnedObservableId pid, MarginalType marginal);
 
 private:
     /// Statistical parameter proxy used to fetch central values and uncertainties.
