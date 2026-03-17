@@ -24,22 +24,22 @@ MarginalConfig MarginalConfigFactory::create(ParamId pid, MarginalType marginal)
     }
 }
 //TODO : checkkkkkk
-std::vector<MarginalConfig> MarginalConfigFactory::create(BinnedObservableId oid,
+MarginalConfig MarginalConfigFactory::create(ExperimentObs oid,
                                              MarginalType marginal) {
-    std::vector<double> sigma;
-    std::vector<MarginalConfig> out;
+    std::map<ExperimentObs, double> sigma;
+    std::map<ExperimentObs, MarginalConfig> out;
     switch (marginal) {
     case MarginalType::GAUSSIAN:
         sigma = p(oid, DataType::STD_COMBINED);
         for (auto s : sigma) {
-            out.push_back(GaussianMarginalCfg (0.0, s));
+            out[s.first] = GaussianMarginalCfg (0.0, s.second);
         }
         return out;
         break;
     case MarginalType::FLAT:
         sigma = p(oid, DataType::STD_COMBINED);
         for (auto s : sigma) {
-            out.push_back(FlatMarginalCfg {-s * std::sqrt(3), s * std::sqrt(3)});
+            out[s.first] = FlatMarginalCfg {-s.second * std::sqrt(3), s.second * std::sqrt(3)};
         }
         return out;
         break;

@@ -73,7 +73,7 @@ private:
     std::shared_ptr<ISpectrumCalculator> sc;                                    ///< Spectrum calculator (may be null).
     std::shared_ptr<IDataLoader<BlockAccessor>> dl_ba;                          ///< Loader for parameter blocks.
     std::shared_ptr<IDataLoader<CorrelationMatrixPair<ParamId>>> dl_cmp_p;      ///< Loader for parameter correlations.
-    std::shared_ptr<IDataLoader<CorrelationMatrixPair<BinnedObservableId>>> dl_cmp_o; ///< Loader for observable correlations.
+    std::shared_ptr<IDataLoader<CorrelationMatrixPair<ExperimentObs>>> dl_cmp_o; ///< Loader for observable correlations.
     std::shared_ptr<IPathsProvider> paths_provider;                             ///< Provider for filesystem paths.
 
     /**
@@ -86,7 +86,7 @@ private:
      */
     MemoryManager(std::shared_ptr<IDataLoader<BlockAccessor>> loader, 
         std::shared_ptr<IDataLoader<CorrelationMatrixPair<ParamId>>> param_corr, 
-        std::shared_ptr<IDataLoader<CorrelationMatrixPair<BinnedObservableId>>> obs_corr, 
+        std::shared_ptr<IDataLoader<CorrelationMatrixPair<ExperimentObs>>> obs_corr, 
         std::shared_ptr<ISpectrumCalculator> spectrum_c,
         std::shared_ptr<IPathsProvider> paths_provider_);
 
@@ -171,7 +171,7 @@ public:
      */
     static MemoryManager* Create(std::shared_ptr<IDataLoader<BlockAccessor>> loader, 
         std::shared_ptr<IDataLoader<CorrelationMatrixPair<ParamId>>> param_corr, 
-        std::shared_ptr<IDataLoader<CorrelationMatrixPair<BinnedObservableId>>> obs_corr, 
+        std::shared_ptr<IDataLoader<CorrelationMatrixPair<ExperimentObs>>> obs_corr, 
         std::shared_ptr<ISpectrumCalculator> spectrum_c,
         std::shared_ptr<IPathsProvider> paths_provider);
 

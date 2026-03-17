@@ -3,6 +3,7 @@
 
 #include "Math.h"
 #include "Include.h"
+#include "ExperimentObs.h"
 
 /**
  * @struct CorrelationMatrixPair
@@ -10,7 +11,7 @@
  *        for a given key type.
  *
  * The template parameter @p T is the type used as keys in the correlation
- * matrices (e.g. ParamId or ObservableId). Internally this relies on
+ * matrices (e.g. ParamId or ExperimentObs). Internally this relies on
  * SparseMatrix<T>, which behaves like an associative container:
  *
  *   - `contains(key)` tests presence of an entry.
@@ -38,8 +39,8 @@ struct CorrelationMatrixPair {
      * @return A pair `(stat_value, syst_value)` for the requested key.
      */
     std::pair<double, double> at(const std::pair<T, T>& key) const {
-        double statv = stat.contains(key) ? stat.at(key) : 0;
-        double systv = syst.contains(key) ? syst.at(key) : 0;
+        double statv = stat.contains(key) ? stat.at(key) : 0.0;
+        double systv = syst.contains(key) ? syst.at(key) : 0.0;
         return std::make_pair(statv, systv);
     };
 
@@ -85,15 +86,18 @@ struct CorrelationMatrixPair {
     friend std::ostream& operator<<(std::ostream&, const CorrelationMatrixPair<U>&);
 };
 
-
 /**
  * @class CorrelationRepository
- * @brief Manages correlations between parameters and between observables.
+ * @brief Manages correlations between parameters and experiment-scoped observables.
  *
  * This class acts as a central repository of correlation information.
  * It stores:
  *   - Parameter-level correlations: CorrelationMatrixPair<ParamId>
- *   - Observable-level correlations: CorrelationMatrixPair<ObservableId>
+ *   - Observable-level correlations: CorrelationMatrixPair<ExperimentObs>
+ *
+ * Observable correlations are indexed by @ref ExperimentObs, i.e. by the pair
+ * `(experiment, observable)`. This makes it possible to store different
+ * correlation values for the same observable pair across different experiments.
  *
  * Typical usage:
  *   - Call `set_correlation_matrix(...)` once to install initial matrices.
@@ -120,39 +124,94 @@ public:
     std::pair<double, double> get_correlation(ParamId p1, ParamId p2) const;
 
     /**
-     * @brief Retrieves the correlation between two observables given as enum.
+     * @brief Retrieves the correlation between two experiment-scoped observables.
+     *
+     * This is the most explicit observable overload. Each observable is
+     * represented by an @ref ExperimentObs, which combines:
+     *   - the experiment name,
+     *   - the corresponding BinnedObservableId.
+     *
+     * @param o1 First experiment-scoped observable.
+     * @param o2 Second experiment-scoped observable.
+     * @return A pair `(rho_stat, rho_syst)`.
+     *
+     * @pre `observable_correlations` must be non-null and properly initialized.
+     */
+    std::pair<double, double> get_correlation(const ExperimentObs& o1,
+                                              const ExperimentObs& o2) const;
+
+    /**
+     * @brief Retrieves the correlation between two observables given as enum,
+     *        within the same experiment.
      *
      * This overload converts the enum values to ObservableId using
-     * ObservableMapper::to_id, then delegates to the (ObservableId,ObservableId)
-     * overload.
+     * ObservableMapper::to_id, then delegates to the corresponding
+     * `(experiment, ObservableId, ObservableId)` overload.
      *
+     * @param experiment Experiment name used to scope both observables.
      * @param o1 First observable (enum).
      * @param o2 Second observable (enum).
      * @return A pair `(rho_stat, rho_syst)`.
      */
-    std::pair<double, double> get_correlation(Observables o1, Observables o2) const;
+    std::pair<double, double> get_correlation(const std::string& experiment,
+                                              Observables o1,
+                                              Observables o2) const;
 
     /**
-     * @brief Retrieves the correlation between two observables given as IDs.
+     * @brief Retrieves the correlation between two observables given as IDs,
+     *        within the same experiment.
      *
+     * This overload wraps each ObservableId into a default BinnedObservableId
+     * using a dummy bin range `{0., 0.}`, then delegates to the
+     * `(experiment, BinnedObservableId, BinnedObservableId)` overload.
+     *
+     * @param experiment Experiment name used to scope both observables.
      * @param o1 First observable ID.
      * @param o2 Second observable ID.
      * @return A pair `(rho_stat, rho_syst)`.
      *
      * @pre `observable_correlations` must be non-null and properly initialized.
      */
-    std::pair<double, double> get_correlation(ObservableId o1, ObservableId o2) const;
+    std::pair<double, double> get_correlation(const std::string& experiment,
+                                              ObservableId o1,
+                                              ObservableId o2) const;
 
     /**
-     * @brief Retrieves the correlation between two observables given as IDs (binned).
+     * @brief Retrieves the correlation between two binned observables,
+     *        within the same experiment.
      *
-     * @param o1 First observable ID.
-     * @param o2 Second observable ID.
+     * @param experiment Experiment name used to scope both observables.
+     * @param o1 First binned observable ID.
+     * @param o2 Second binned observable ID.
      * @return A pair `(rho_stat, rho_syst)`.
      *
      * @pre `observable_correlations` must be non-null and properly initialized.
      */
-    std::pair<double, double> get_correlation(BinnedObservableId o1, BinnedObservableId o2) const;
+    std::pair<double, double> get_correlation(const std::string& experiment,
+                                              const BinnedObservableId& o1,
+                                              const BinnedObservableId& o2) const;
+
+    /**
+     * @brief Retrieves the correlation between two binned observables coming
+     *        from possibly different experiments.
+     *
+     * This overload is useful when one wants to explicitly query the entry
+     * corresponding to:
+     *   - `(exp1, o1)`
+     *   - `(exp2, o2)`
+     *
+     * @param exp1 Experiment name associated with the first observable.
+     * @param o1   First binned observable ID.
+     * @param exp2 Experiment name associated with the second observable.
+     * @param o2   Second binned observable ID.
+     * @return A pair `(rho_stat, rho_syst)`.
+     *
+     * @pre `observable_correlations` must be non-null and properly initialized.
+     */
+    std::pair<double, double> get_correlation(const std::string& exp1,
+                                              const BinnedObservableId& o1,
+                                              const std::string& exp2,
+                                              const BinnedObservableId& o2) const;
 
     /**
      * @brief Computes the combined correlation (quadratic sum) between two
@@ -164,7 +223,11 @@ public:
      *
      * which is simply `std::hypot(rho_stat, rho_syst)`.
      *
-     * @tparam T Entity type (e.g. ParamId or Observables).
+     * This helper is intended for homogeneous key types, such as:
+     *   - ParamId
+     *   - ExperimentObs
+     *
+     * @tparam T Entity type.
      * @param p1 First entity.
      * @param p2 Second entity.
      * @return The combined correlation.
@@ -174,7 +237,7 @@ public:
         auto corr = get_correlation(p1, p2);
         return std::hypot(corr.first, corr.second);
     }
-    
+
     /**
      * @brief Sets (replaces) the correlation matrix for parameters.
      *
@@ -184,12 +247,12 @@ public:
     void set_correlation_matrix(std::shared_ptr<CorrelationMatrixPair<ParamId>> correlation_matrices);
 
     /**
-     * @brief Sets (replaces) the correlation matrix for observables.
+     * @brief Sets (replaces) the correlation matrix for experiment-scoped observables.
      *
      * @param correlation_matrix Shared pointer to the observable
-     *        correlation matrices.
+     *        correlation matrices keyed by @ref ExperimentObs.
      */
-    void set_correlation_matrix(std::shared_ptr<CorrelationMatrixPair<BinnedObservableId>> correlation_matrix);
+    void set_correlation_matrix(std::shared_ptr<CorrelationMatrixPair<ExperimentObs>> correlation_matrix);
 
     /**
      * @brief Merges a new correlation matrix into the existing parameter
@@ -211,14 +274,14 @@ public:
      *        correlations.
      *
      * Same semantics as the parameter version, but applied to
-     * `observable_correlations`.
+     * `observable_correlations`, whose keys are @ref ExperimentObs.
      *
      * @param correlation_matrix Shared pointer to the new observable
      *        correlation matrix.
      *
      * @pre `observable_correlations` must be non-null.
      */
-    void merge_correlation_matrix(std::shared_ptr<CorrelationMatrixPair<BinnedObservableId>> correlation_matrix);
+    void merge_correlation_matrix(std::shared_ptr<CorrelationMatrixPair<ExperimentObs>> correlation_matrix);
 
     /**
      * @brief Prints the current content of parameter and observable correlations.
@@ -233,8 +296,8 @@ public:
     void print_content() const;
 
 private:
-    std::shared_ptr<CorrelationMatrixPair<ParamId>> parameter_correlations;         ///< Parameter correlation matrices.
-    std::shared_ptr<CorrelationMatrixPair<BinnedObservableId>> observable_correlations;   ///< Observable correlation matrices.
+    std::shared_ptr<CorrelationMatrixPair<ParamId>> parameter_correlations;   ///< Parameter correlation matrices.
+    std::shared_ptr<CorrelationMatrixPair<ExperimentObs>> observable_correlations; ///< Observable correlation matrices keyed by experiment + observable.
 };
 
 #endif // CORRELATIONREPO_H

@@ -10,6 +10,7 @@
 #include "FlatMarginal.h"
 #include "SplitGaussianMarginal.h"
 #include "LikelihoodMarginal.h"
+#include "ExperimentObs.h"
 
 /**
  * @file MarginalConfigFactory.h
@@ -99,14 +100,14 @@ public:
      * This is useful when the marginal describes a fluctuation / nuisance-like
      * variable rather than an absolute physical central value.
      *
-     * @param pid      Binned observable identifier.
+     * @param pid      ExperimentObs observable identifier.
      * @param marginal Requested marginal family.
-     * @return A vector of @ref MarginalConfig variant containing the matching config type.
+     * @return A @ref MarginalConfig variant containing the matching config type.
      *
      * @throws std::runtime_error for currently unsupported marginals.
      * @throws std::invalid_argument if the marginal type is unknown.
      */
-    std::vector<MarginalConfig> create(BinnedObservableId pid, MarginalType marginal);
+    MarginalConfig create(ExperimentObs pid, MarginalType marginal);
 
 private:
     /// Statistical parameter proxy used to fetch central values and uncertainties.

@@ -10,6 +10,7 @@
 #include "Include.h"
 #include "BinnedObservableId.h"
 #include "BlockProvider.h"
+#include "ExperimentObs.h"
 
 /**
  * @file StatParameterProxy.h
@@ -110,9 +111,9 @@ public:
      *
      * @param id     Observable identifier.
      * @param d_type Requested quantity type.
-     * @return Requested scalar quantity.
+     * @return vector of the requested scalar quantities.
      */
-    std::vector<double> operator()(const ObservableId&, DataType d_type=DataType::VALUE) const override;
+    std::map<ExperimentObs, double> operator()(const ObservableId&, DataType d_type=DataType::VALUE) const override;
 
     /**
      * @brief Returns a scalar quantity for a binned observable entry.
@@ -122,9 +123,9 @@ public:
      *
      * @param id     Binned observable identifier.
      * @param d_type Requested quantity type.
-     * @return Requested scalar quantity.
+     * @return vector of the requested scalar quantities.
      */
-    std::vector<double> operator()(const BinnedObservableId&, DataType d_type=DataType::VALUE) const override;
+    std::map<ExperimentObs, double> operator()(const BinnedObservableId&, DataType d_type=DataType::VALUE) const override;
 
     /**
      * @brief Returns a scalar quantity for a parameter identified by block and LHA id.
@@ -148,9 +149,9 @@ public:
      * The binned observable is resolved to the `FOBS` observable block.
      *
      * @param id Binned observable identifier.
-     * @return Shared pointer to the corresponding observable @ref Parameter.
+     * @return a map of shared pointer to the corresponding observable @ref Parameter.
      */
-    std::vector<std::shared_ptr<Parameter>> get_obs_param(const BinnedObservableId&) const override;
+    std::map<ExperimentObs, std::shared_ptr<Parameter>> get_obs_param(const BinnedObservableId&) const override;
 private:
     ParameterProvider pp;                                               /// Generic provider used for fully typed ParamId access.
     ParameterProvider pp_with_type;                                     /// Provider bound to a specific ParameterType, used for (block, LhaID) access.

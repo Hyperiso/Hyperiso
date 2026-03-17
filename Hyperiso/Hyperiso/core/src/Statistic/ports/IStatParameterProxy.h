@@ -6,6 +6,7 @@
 
 #include "CorrelationProvider.h"
 #include "Include.h"
+#include "ExperimentObs.h"
 
 /**
  * @file IStatParameterProxy.h
@@ -93,9 +94,9 @@ public:
      *
      * @param id     Observable identifier.
      * @param d_type Requested quantity type.
-     * @return Requested vector of scalar quantities.
+     * @return Requested map of scalar quantities.
      */
-    virtual std::vector<double> operator()(const ObservableId&, DataType d_type=DataType::VALUE) const = 0;
+    virtual std::map<ExperimentObs, double> operator()(const ObservableId&, DataType d_type=DataType::VALUE) const = 0;
 
     /**
      * @brief Returns a vector of scalar quantities (for each experiments) for a binned observable entry.
@@ -106,9 +107,9 @@ public:
      *
      * @param id     Binned observable identifier.
      * @param d_type Requested quantity type.
-     * @return Requested vector of scalar quantities.
+     * @return Requested map of scalar quantities.
      */
-    virtual std::vector<double> operator()(const BinnedObservableId& id, DataType d_type = DataType::VALUE) const = 0;
+    virtual std::map<ExperimentObs, double> operator()(const BinnedObservableId& id, DataType d_type = DataType::VALUE) const = 0;
 
     /**
      * @brief Returns a scalar quantity for a parameter identified by block and LHA id.
@@ -130,9 +131,9 @@ public:
      * associated with a binned observable, such as uncertainties or binning info.
      *
      * @param id Binned observable identifier.
-     * @return Vector of shared pointer to the corresponding @ref Parameter.
+     * @return Map of shared pointer to the corresponding @ref Parameter.
      */
-    virtual std::vector<std::shared_ptr<Parameter>> get_obs_param(const BinnedObservableId&) const = 0;
+    virtual std::map<ExperimentObs, std::shared_ptr<Parameter>> get_obs_param(const BinnedObservableId&) const = 0;
 };
 
 #endif

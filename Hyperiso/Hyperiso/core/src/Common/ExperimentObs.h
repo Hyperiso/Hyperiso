@@ -1,3 +1,6 @@
+#ifndef EXPERIMENT_OBS_H
+#define EXPERIMENT_OBS_H
+
 #include "Include.h"
 
 struct ExperimentObs {
@@ -26,6 +29,11 @@ struct ExperimentObs {
     }
 };
 
+inline std::ostream& operator<<(std::ostream& os, ExperimentObs const& x) {
+    os << x.experiment << " :: " << x.obs.str();
+    return os;
+}
+
 template<>
 struct std::hash<ExperimentObs> {
     std::size_t operator()(ExperimentObs const& x) const noexcept {
@@ -39,3 +47,5 @@ struct std::hash<ExperimentObs> {
         return h;
     }
 };
+
+#endif
