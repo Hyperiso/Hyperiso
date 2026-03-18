@@ -77,36 +77,55 @@ std::unordered_set<BlockName> Parameters::get_blocks_list()
     return blockAccessor->get_block_names();
 }
 
+auto matches_block = [](const BlockName& expected, const BlockName& actual) {
+    if (expected == actual) {
+        return true;
+    }
+
+    if (expected == "FOBS") {
+        return actual.to_string().starts_with("FOBS_");
+    }
+
+    return false;
+};
+
 std::unordered_set<BlockName> Parameters::init_blocks(ParameterType type) {
     LOG_DEBUG("Init blocks for parameter type", ParameterTypeMapper::str(type));
-    std::unordered_set<BlockName> existing, missing;
-    
-    std::ranges::partition_copy(
-        ParameterBlockRepartition::BLOCKS.at(type),
-        std::inserter(existing, existing.end()),
-        std::inserter(missing, missing.end()),
-        [&](const BlockName& s) {
-            auto data_ = MemoryManager::GetInstance()->input_cache->get_block_names();
-            return std::any_of(
-                data_.begin(),
-                data_.end(),
-                [&](const auto& bn) { return bn == s; }
-            );
-        }
-    );
 
-    if (type == ParameterType::WILSON && !MemoryManager::GetInstance()->cache.config.flags[ExternalFlag::HAS_WILSON_INPUT]) {
-        existing.erase("FWCOEF");
-        existing.erase("IMFWCOEF");
+    std::unordered_set<BlockName> blocks_to_extract;
+    std::unordered_set<BlockName> missing;
+
+    const auto available_blocks =
+        MemoryManager::GetInstance()->input_cache->get_block_names();
+
+    for (const auto& expected : ParameterBlockRepartition::BLOCKS.at(type)) {
+        bool found = false;
+
+        for (const auto& actual : available_blocks) {
+            if (matches_block(expected, actual)) {
+                found = true;
+                blocks_to_extract.insert(actual);
+            }
+        }
+
+        if (!found) {
+            missing.insert(expected);
+        }
     }
 
-    // TODO v1.1 : manage case of theoretical obs in lha. For now, assume only exp is given. 
-    if (type == ParameterType::OBSERVABLE && MemoryManager::GetInstance()->cache.config.flags[ExternalFlag::HAS_TH_OBSERVABLE_INPUT]) {
+    if (type == ParameterType::WILSON &&
+        !MemoryManager::GetInstance()->cache.config.flags[ExternalFlag::HAS_WILSON_INPUT]) {
+        blocks_to_extract.erase("FWCOEF");
+        blocks_to_extract.erase("IMFWCOEF");
+    }
+
+    // TODO v1.1 : manage case of theoretical obs in lha. For now, assume only exp is given.
+    if (type == ParameterType::OBSERVABLE &&
+        MemoryManager::GetInstance()->cache.config.flags[ExternalFlag::HAS_TH_OBSERVABLE_INPUT]) {
         return missing;
     }
-    
-    this->blockAccessor = MemoryManager::GetInstance()->extract_blocks(existing);
-    // LOG_INFO(this->blockAccessor);
+
+    this->blockAccessor = MemoryManager::GetInstance()->extract_blocks(blocks_to_extract);
     claim_parameters(type);
     return missing;
 }

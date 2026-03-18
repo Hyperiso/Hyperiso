@@ -1,5 +1,12 @@
 FOBS:
-  511_1_0_0_2_13_-13:
-    central_value: 1.3e-10
-    stat_error: 0.5e-11
-    syst_error: 0
+  DEFAULT:
+    511_1_0_0_2_13_-13:
+      central_value: 1.3e-10
+      stat_error: 0.5e-11
+      syst_error: 0
+
+  DEFAULT_WOOW:
+    511_1_0_0_2_13_-13:
+      central_value: 1.3e-10
+      stat_error: 0.5e-11
+      syst_error: 0

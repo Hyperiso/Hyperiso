@@ -3,7 +3,7 @@
 Matrix readMatrixFromStdin() {
     int n;
     if (!(std::cin >> n) || n <= 0) {
-        throw std::runtime_error("Impossible to read n (matrix size).");
+        throw std::runtime_error("Failed to read matrix size n.");
     }
     Matrix A(static_cast<size_t>(n), std::vector<double>(static_cast<size_t>(n)));
     for (int i = 0; i < n; ++i) {
@@ -27,14 +27,14 @@ void printVector(const Vector& v) {
 
 void printUsage(const char* prog) {
     std::cerr
-        << "Usage: " << prog << " [distribution=gaussian] [seed (optionnel)] < matrice.txt\n"
-        << "  - La matrice d'entree est lue sur stdin au format:\n"
-        << "      n\\n\n"
-        << "      r11 r12 ... r1n\\n\n"
-        << "      ...\\n"
-        << "      rn1 rn2 ... rnn\\n\n"
-        << "  - Distribution supportee: gaussian|normal\n"
-        << "Exemple:\n"
+        << "Usage: " << prog << " [distribution=gaussian] [optional seed] < matrix.txt\n"
+        << "  - The input matrix is read from standard input with the format:\n"
+        << "      n\n"
+        << "      r11 r12 ... r1n\n"
+        << "      ...\n"
+        << "      rn1 rn2 ... rnn\n"
+        << "  - Supported distributions: gaussian | normal\n"
+        << "Example:\n"
         << "  " << prog << " gaussian 12345 < my_corr.txt\n";
 }
 

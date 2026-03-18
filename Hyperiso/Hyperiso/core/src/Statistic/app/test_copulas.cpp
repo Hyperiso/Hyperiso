@@ -1,5 +1,5 @@
 #include "JointDistribution.h"
-#include "MarginalFactory.h"
+#include "DistributionFactory.h"
 #include "CopulaFactory.h"
 #include "Matrix.h"
 #include "FlatMarginal.h"

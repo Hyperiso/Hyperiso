@@ -8,7 +8,7 @@
 #include "RNGHelper.h"
 #include "JointDistribution.h"
 #include "MarginalType.h"
-#include "MarginalFactory.h"
+#include "DistributionFactory.h"
 #include "CopulaFactory.h"
 #include "Indexing.h"
 

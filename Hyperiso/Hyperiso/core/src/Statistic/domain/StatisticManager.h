@@ -14,7 +14,7 @@
 #include "JointDistribution.h"
 #include "RvgNuisanceSampler.h"
 #include "MCEngine.h"
-#include "MarginalFactory.h"
+#include "DistributionFactory.h"
 #include "CopulaFactory.h"
 #include "Fit.h"
 #include "MarginalConfigFactory.h"
@@ -22,7 +22,7 @@
 struct StatisticConfig {
     std::vector<ParamId> p_specs;
     std::map<ParamId, MarginalType> override_nuisance_marginals {};
-    std::map<BinnedObservableId, MarginalType> override_exp_data_marginals {};
+    std::map<ExperimentObs, MarginalType> override_exp_data_marginals {};
     CopulaType nuisance_copula_type = CopulaType::GAUSSIAN;
     CopulaType exp_data_copula_type = CopulaType::GAUSSIAN;
     std::size_t MC_draws = 100;
@@ -42,11 +42,11 @@ struct FitResultWithMaps {
 };
 
 struct StatCache {
-    std::map<BinnedObservableId, double> exp_obs;
+    std::map<ExperimentObs, double> exp_obs;
     std::map<ParamId, double> eta_specs_real;
     std::map<ParamId, double> p_specs;
     std::map<ParamId, std::map<ParamId, double>> SigmaEta;
-    std::map<BinnedObservableId, std::map<BinnedObservableId, double>> SigmaObs;
+    std::map<ExperimentObs, std::map<ExperimentObs, double>> SigmaObs;
 
     FitResultWithMaps mle_result;
 };
@@ -106,9 +106,9 @@ public:
         // auto unzipped_nuisances = unzip(cache.eta_specs_real);
         // auto unzipped_exp_obs = unzip(cache.exp_obs);
 
-        // std::vector<ParamId> p_ids = unzipped_fit_params.ids;
-        // std::vector<ParamId> eta_ids = unzipped_nuisances.ids;
-        // std::vector<BinnedObservableId> obs_ids = unzipped_exp_obs.ids;
+        std::vector<ParamId> p_ids = unzipped_fit_params.ids;
+        std::vector<ParamId> eta_ids = unzipped_nuisances.ids;
+        std::vector<ExperimentObs> obs_ids = unzipped_exp_obs.ids;
         
         // LikelihoodContext ctx;
         // ctx.nuisance_dist = std::move(build_nuisance_distribution());
@@ -133,26 +133,46 @@ public:
 
         // auto model_fn = [this, obs_ids, p_ids, eta_ids](const Vec& p_vec, const Vec& eta_vec) -> Vec {
         //     auto pred_map = this->obs_int->predict_optimized(zip(p_ids, p_vec), zip(eta_ids, eta_vec));
-
-
-        //     Vec out;
-        //     out.reserve(obs_ids.size());
-
-        //     for (const auto& bid : obs_ids) {
-        //         // bid.s = ObservableId, bid.p = bin (pair<double,double>)
-        //         const auto& vec = pred_map.at(bid.s);
-
-        //         // retrouver la bonne entrée dans vec
-        //         // si non binned : bin = {0,0} chez toi, donc match direct
-        //         auto it = std::find_if(vec.begin(), vec.end(), [&](const ObservableValue& ov){
-        //             auto bin = ov.bin.value_or(std::pair<double,double>{0.,0.});
-        //             return bin == bid.p; // ou fpeq sur doubles si nécessaire
-        //         });
-        //         if (it == vec.end()) throw std::runtime_error("Missing predicted observable/bin");
-        //         out.push_back(it->value);
-        //     }
-        //     return out;
+        //     auto stop  = std::chrono::steady_clock::now();
+        //     auto us = std::chrono::duration_cast<std::chrono::microseconds>(stop - start).count();
+        //     // std::cout << "Predict took " << us << " µs" << std::endl;
+        //     // for (auto pred : pred_map) {
+        //     //     std::cout << ObservableMapper::str(pred.first) << ": ";
+        //     //     for (auto ov : pred.second) 
+        //     //         std::cout << ov.value << " ";
+        //     //     std::cout << std::endl; 
+        //     // }
+        //     return flatten(pred_map).vals;
         // };
+
+        auto model_fn = [this, obs_ids, p_ids, eta_ids](const Vec& p_vec, const Vec& eta_vec) -> Vec {
+            auto pred_map = this->obs_int->predict_optimized(zip(p_ids, p_vec), zip(eta_ids, eta_vec));
+
+
+            Vec out;
+            std::map<BinnedObservableId, double> reserve;
+            out.reserve(obs_ids.size());
+            std::set<BinnedObservableId> already_done {};
+            for (const auto& bid : obs_ids) {
+                if (already_done.contains(bid.obs)) {
+                    out.push_back(reserve[bid.obs]);
+                    continue;
+                }
+                // bid.s = ObservableId, bid.p = bin (pair<double,double>)
+                const auto& vec = pred_map.at(bid.obs.s);
+
+                // retrouver la bonne entrée dans vec
+                // si non binned : bin = {0,0} chez toi, donc match direct
+                auto it = std::find_if(vec.begin(), vec.end(), [&](const ObservableValue& ov){
+                    auto bin = ov.bin.value_or(std::pair<double,double>{0.,0.});
+                    return bin == bid.obs.p; // ou fpeq sur doubles si nécessaire
+                });
+                if (it == vec.end()) throw std::runtime_error("Missing predicted observable/bin");
+                out.push_back(it->value);
+                reserve[bid.obs] = it->value;
+            }
+            return out;
+        };
 
         // MLEstimator est(std::move(ctx), model_fn, this->config.MLE_max_iter, this->config.MLE_tol);
 
@@ -260,19 +280,23 @@ public:
         return res;
     }
     
-    std::map<BinnedObservableId, std::map<BinnedObservableId, double>> get_all_obs_correlations() {
-        std::map<BinnedObservableId, std::map<BinnedObservableId, double>> res;
+    std::map<ExperimentObs, std::map<ExperimentObs, double>> get_all_obs_correlations() {
+        std::map<ExperimentObs, std::map<ExperimentObs, double>> res;
         CovarianceTransformer ct = CovarianceTransformer(pscp, pspp);
 
         res = ct.transform(this->cache.exp_obs);
         return res;
     }
 
-    std::map<BinnedObservableId, double> get_obs_exp() {
-        std::map<BinnedObservableId, double> out;
+    std::map<ExperimentObs, double> get_obs_exp() {
+        std::map<ExperimentObs, double> out;
 
         for (const auto& obsId : obs_int->get_obs_ids()) {
-            out[obsId] = pspp->get_obs_param(obsId)->get_val();
+            auto _ = pspp->get_obs_param(obsId);
+            for (auto _2 : _) {
+                out[_2.first] = _2.second->get_val(); 
+            }
+            // out[obsId] = pspp->get_obs_param(obsId)->get_val();
         }
         return out;
     }

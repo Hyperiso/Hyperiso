@@ -771,7 +771,7 @@ private:
 struct BuiltProblem {
     std::vector<ParamId> p_ids;
     std::vector<ParamId> eta_ids;
-    std::vector<BinnedObservableId> obs_ids;
+    std::vector<ExperimentObs> obs_ids;
     LikelihoodContext ctx;
     std::shared_ptr<ObservableInterfaceAdapterObs> model;
     Vector p0;
@@ -781,7 +781,7 @@ BuiltProblem build_problem(StatisticManager& stat,
                            const StatisticConfig& config,
                            const std::shared_ptr<ObservableInterfaceAdapterObs>& model) {
     LOG_INFO("fill_cache #1");
-    stat.fill_cache();
+    // stat.fill_cache();
 
     auto start_u = std::chrono::steady_clock::now();
     stat.compute_uncertainties();
@@ -790,9 +790,9 @@ BuiltProblem build_problem(StatisticManager& stat,
     std::cout << "Uncertainty estimation time: " << us_u << " us\n";
 
     LOG_INFO("fill_cache #2");
-    stat.fill_cache();
+    // stat.fill_cache();
 
-    auto p_specs_map = stat.get_p_specs();
+    auto p_specs_map = stat.get_p_specs(config.p_specs);
     auto eta_specs_real = stat.get_all_obss_deps();
     for (const auto& [pid, _] : p_specs_map) eta_specs_real.erase(pid);
     auto exp_obs_map = stat.get_obs_exp();

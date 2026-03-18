@@ -6,14 +6,13 @@ SplitGaussianMarginal::SplitGaussianMarginal(double mu, double sigma_p, double s
     N = 2.0 / (sigma_p + sigma_m);
     w = sigma_m / (sigma_p + sigma_m);
 
-    eng_ = gsl_rng_alloc(rng_tp);
-    gsl_rng_set(eng_, seed);
+    gsl_rng_set(eng_.get(), seed);
 }
 
 Vector SplitGaussianMarginal::rvs(std::size_t n) {
     Vector z(n);
     for (std::size_t i = 0; i < n; ++i) 
-        z[i] = ppf(gsl_ran_flat(eng_, 0, 1));
+        z[i] = ppf(gsl_ran_flat(eng_.get(), 0, 1));
     return z;
 }
 

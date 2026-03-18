@@ -1,5 +1,6 @@
 #include "Parameters.h"
 #include "HyperisoMaster.h"
+#include "BlockProvider.h"
 #include <iostream>
 #include <cmath>
 
@@ -50,6 +51,6 @@ int main() {
     // mm2->init();
     // auto thdm_params = Parameters::GetInstance(2); // THDM Model
     // std::cout << "THDM matrice yu : " << (*thdm_params)("YU", 22) << std::endl;
-
+    BlockProvider().log_all_blocks(ParameterType::OBSERVABLE);
     return 0;
 }

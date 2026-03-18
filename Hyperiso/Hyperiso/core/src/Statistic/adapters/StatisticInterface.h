@@ -5,6 +5,7 @@
 #include "StatParameterProxy.h"
 #include "ObservableInterface.h"
 #include "StatParamSourcesProxy.h"
+#include "StatDependencyPruner.h"
 
 class StatisticInterface {
 public:
@@ -14,7 +15,8 @@ public:
         std::shared_ptr<IStatCorrelationProxy> pscp = std::make_shared<StatCorrelationProxy>();
         std::shared_ptr<IStatParameterProxy> pspp = std::make_shared<StatParameterProxy>();
         std::shared_ptr<IStatSourcesProxy> sp = std::make_shared<StatParamSourcesProxy>();
-        manager = std::make_shared<StatisticManager>(config, oia, pscp, pspp, sp);
+        std::shared_ptr<IStatDependencyPruner> sdp = std::make_shared<StatDependencyPruner>();
+        manager = std::make_shared<StatisticManager>(config, oia, pscp, pspp, sp, sdp);
         manager->update_cache();
     }
 

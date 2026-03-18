@@ -23,19 +23,29 @@ MarginalConfig MarginalConfigFactory::create(ParamId pid, MarginalType marginal)
         throw std::invalid_argument("Unknown marginal type");
     }
 }
-
-MarginalConfig MarginalConfigFactory::create(BinnedObservableId oid,
+//TODO : checkkkkkk
+MarginalConfig MarginalConfigFactory::create(ExperimentObs oid,
                                              MarginalType marginal) {
-    double sigma;
-
+    std::map<ExperimentObs, double> sigma = p(oid.obs, DataType::STD_COMBINED);;
+    MarginalConfig out;
     switch (marginal) {
     case MarginalType::GAUSSIAN:
-        sigma = p(oid, DataType::STD_COMBINED);
-        return GaussianMarginalCfg {0.0, sigma};
+        for (auto s : sigma) {
+            if (s.first == oid) {
+                out = GaussianMarginalCfg (0.0, s.second);
+            }
+            // out[s.first] = GaussianMarginalCfg (0.0, s.second);
+        }
+        return out;
         break;
     case MarginalType::FLAT:
-        sigma = p(oid, DataType::STD_COMBINED);
-        return FlatMarginalCfg {-sigma * std::sqrt(3), sigma * std::sqrt(3)};
+        for (auto s : sigma) {
+            if (s.first == oid) {
+                out = FlatMarginalCfg {-s.second * std::sqrt(3), s.second * std::sqrt(3)};
+            }
+            // out[s.first] = FlatMarginalCfg {-s.second * std::sqrt(3), s.second * std::sqrt(3)};
+        }
+        return out;
         break;
     case MarginalType::HALF_GAUSSIAN:
         // TODO

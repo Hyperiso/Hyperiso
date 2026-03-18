@@ -28,7 +28,7 @@ public:
      * @param dest     Shared pointer to destination BlockAccessor.
      * @param src_file Path to the source file.
      */
-    void load(std::shared_ptr<BlockAccessor> dest, fs::path src_file) override;
+    void load(std::shared_ptr<BlockAccessor> dest, fs::path src_file, bool block_in_blocks=false) override;
 };
 
 #endif // BLOCKSCREATOR_H

@@ -18,6 +18,8 @@
 #include "StatParameterProxy.h"
 #include "ObservableInterface.h"
 #include "StatParamSourcesProxy.h"
+#include "StatDependencyPruner.h"
+
 #include "Fit.h"
 #include "Likelihood.h"
 
@@ -553,11 +555,12 @@ int main(int argc, char** argv) {
         model,
         std::make_shared<StatCorrelationProxy>(),
         std::make_shared<StatParameterProxy>(),
-        std::make_shared<StatParamSourcesProxy>()
+        std::make_shared<StatParamSourcesProxy>(),
+        std::make_shared<StatDependencyPruner>()
     );
 
     LOG_INFO("fill_cache #1");
-    stat.fill_cache();
+    // stat.fill_cache();
 
     auto start_u = std::chrono::steady_clock::now();
     stat.compute_uncertainties();
@@ -567,9 +570,9 @@ int main(int argc, char** argv) {
     std::cout << "Uncertainty estimation time: " << us_u << " us\n";
 
     LOG_INFO("fill_cache #2");
-    stat.fill_cache();
+    // stat.fill_cache();
 
-    auto p_specs_map = stat.get_p_specs();
+    auto p_specs_map = stat.get_p_specs(config.p_specs);
     auto eta_specs_real = stat.get_all_obss_deps();
     for (const auto& [pid, _] : p_specs_map) eta_specs_real.erase(pid);
     auto exp_obs_map = stat.get_obs_exp();
@@ -580,7 +583,7 @@ int main(int argc, char** argv) {
 
     std::vector<ParamId> p_ids = unz_p.ids;
     std::vector<ParamId> eta_ids = unz_eta.ids;
-    std::vector<BinnedObservableId> obs_ids = unz_obs.ids;
+    std::vector<ExperimentObs> obs_ids = unz_obs.ids;
 
     auto nuisance_dist = stat.build_nuisance_distribution();
     auto exp_obs_dist  = stat.build_exp_data_distribution();
@@ -610,11 +613,11 @@ int main(int argc, char** argv) {
         out.reserve(obs_ids.size());
 
         for (const auto& bid : obs_ids) {
-            const auto& vec = pred_map.at(bid.s);
+            const auto& vec = pred_map.at(bid.obs.s);
 
             auto it = std::find_if(vec.begin(), vec.end(), [&](const ObservableValue& ov) {
                 auto bin = ov.bin.value_or(std::pair<double, double>{0., 0.});
-                return bin == bid.p;
+                return bin == bid.obs.p;
             });
 
             if (it == vec.end()) {

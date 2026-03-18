@@ -26,11 +26,11 @@ Vector StudentTCopula::sample_u() {
 
     RealMatrix z (d, 1);
     for (std::size_t j = 0; j < d; j++) {
-        z.at(j, 0) = gsl_ran_ugaussian(eng_);   // z follows MN(0, 1)
+        z.at(j, 0) = gsl_ran_ugaussian(eng_.get());   // z follows MN(0, 1)
     }
 
     z = L * z; // z follows MN(0, R)
-    double w = gsl_ran_chisq(eng_, nu);
+    double w = gsl_ran_chisq(eng_.get(), nu);
     z /= std::sqrt(w / nu); // z follows Mt(R, nu)
 
     Vector u (d, 0.0);

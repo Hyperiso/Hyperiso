@@ -61,7 +61,7 @@ void MemoryManager::save_input_cache() {
 void MemoryManager::read_default_input() {
     dl_ba->load(input_cache, paths_provider->default_param_values()); 
     auto obs_blocks = std::make_shared<BlockAccessor>();
-    dl_ba->load(obs_blocks, paths_provider->default_obs_values()); 
+    dl_ba->load(obs_blocks, paths_provider->default_obs_values(), true); 
     input_cache = input_cache >> obs_blocks;
     save_input_cache();
     LOG_DEBUG("Default cache stored");
@@ -69,7 +69,7 @@ void MemoryManager::read_default_input() {
     auto default_param_corr = std::make_shared<CorrelationMatrixPair<ParamId>>();
     dl_cmp_p->load(default_param_corr, paths_provider->default_param_corr().string());
     LOG_DEBUG("Default param correlations loaded");
-    auto default_obs_corr = std::make_shared<CorrelationMatrixPair<BinnedObservableId>>();
+    auto default_obs_corr = std::make_shared<CorrelationMatrixPair<ExperimentObs>>();
     dl_cmp_o->load(default_obs_corr, paths_provider->default_obs_corr().string());
     LOG_DEBUG("Default observable correlations loaded");
     correlation_repository.set_correlation_matrix(default_param_corr);
@@ -80,20 +80,25 @@ void MemoryManager::read_default_input() {
 
 void MemoryManager::read_user_input() {
     // ParamBlockLoader p_loader;
-    fs::path ui_paths[4] = {
+    fs::path ui_paths[3] = {
         paths_provider->user_sm_params(), paths_provider->user_flavor_params(),
-        paths_provider->user_decay_params(), paths_provider->user_obs_values()
+        paths_provider->user_decay_params()
     };
     for (auto& path : ui_paths) {
         auto ui_ba = std::make_shared<BlockAccessor>();
         dl_ba->load(ui_ba, path); 
         input_cache = ui_ba >> input_cache;
     }
+
+    auto ui_ba_obs = std::make_shared<BlockAccessor>();
+    dl_ba->load(ui_ba_obs, paths_provider->user_obs_values(), true); 
+    input_cache = ui_ba_obs >> input_cache;
+
     save_input_cache();
 
     auto user_param_corr = std::make_shared<CorrelationMatrixPair<ParamId>>();
     dl_cmp_p->load(user_param_corr, paths_provider->user_param_corr().string());
-    auto user_obs_corr = std::make_shared<CorrelationMatrixPair<BinnedObservableId>>();
+    auto user_obs_corr = std::make_shared<CorrelationMatrixPair<ExperimentObs>>();
     dl_cmp_o->load(user_obs_corr, paths_provider->user_obs_corr().string());
     correlation_repository.merge_correlation_matrix(user_param_corr);
     correlation_repository.merge_correlation_matrix(user_obs_corr);
@@ -136,7 +141,7 @@ MemoryManager* MemoryManager::GetInstance() {
     return MemoryManager::instance;
 }
 
-MemoryManager::MemoryManager(std::shared_ptr<IDataLoader<BlockAccessor>> loader, std::shared_ptr<IDataLoader<CorrelationMatrixPair<ParamId>>> param_corr, std::shared_ptr<IDataLoader<CorrelationMatrixPair<BinnedObservableId>>> obs_corr, std::shared_ptr<ISpectrumCalculator> spectrum_c, std::shared_ptr<IPathsProvider> paths_provider_) : memento(DBMemento()) {
+MemoryManager::MemoryManager(std::shared_ptr<IDataLoader<BlockAccessor>> loader, std::shared_ptr<IDataLoader<CorrelationMatrixPair<ParamId>>> param_corr, std::shared_ptr<IDataLoader<CorrelationMatrixPair<ExperimentObs>>> obs_corr, std::shared_ptr<ISpectrumCalculator> spectrum_c, std::shared_ptr<IPathsProvider> paths_provider_) : memento(DBMemento()) {
     this->sc = spectrum_c;
     
     this->dl_ba = loader;
@@ -147,7 +152,7 @@ MemoryManager::MemoryManager(std::shared_ptr<IDataLoader<BlockAccessor>> loader,
     this->cache.is_ready = false;
 }
 
-MemoryManager* MemoryManager::Create(std::shared_ptr<IDataLoader<BlockAccessor>> loader, std::shared_ptr<IDataLoader<CorrelationMatrixPair<ParamId>>> param_corr, std::shared_ptr<IDataLoader<CorrelationMatrixPair<BinnedObservableId>>> obs_corr, std::shared_ptr<ISpectrumCalculator> spectrum_c, std::shared_ptr<IPathsProvider> paths_provider) {
+MemoryManager* MemoryManager::Create(std::shared_ptr<IDataLoader<BlockAccessor>> loader, std::shared_ptr<IDataLoader<CorrelationMatrixPair<ParamId>>> param_corr, std::shared_ptr<IDataLoader<CorrelationMatrixPair<ExperimentObs>>> obs_corr, std::shared_ptr<ISpectrumCalculator> spectrum_c, std::shared_ptr<IPathsProvider> paths_provider) {
     if (!MemoryManager::instance) {
         MemoryManager::instance = new MemoryManager(loader, param_corr, obs_corr, spectrum_c, paths_provider);
     }
