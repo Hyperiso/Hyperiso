@@ -4,8 +4,8 @@
 template void CorrelationLoader<ParamId>::load(
     std::shared_ptr<CorrelationMatrixPair<ParamId>>, fs::path, bool);
 
-template void CorrelationLoader<ExperimentObs>::load(
-    std::shared_ptr<CorrelationMatrixPair<ExperimentObs>>, fs::path, bool);
+// template void CorrelationLoader<ExperimentObs>::load(
+//     std::shared_ptr<CorrelationMatrixPair<ExperimentObs>>, fs::path, bool);
 
 template <typename T>
 void CorrelationLoader<T>::load(std::shared_ptr<CorrelationMatrixPair<T>> dest,

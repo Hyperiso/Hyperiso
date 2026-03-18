@@ -22,7 +22,7 @@ std::map<LhaID, scalar_t> BlockProvider::get_block(ParameterType type, const std
     return Parameters::GetInstance(type)->get_block_infos(blockname);
 }
 
-std::unordered_set<std::string> get_all_blocks(ParameterType type) {
+std::unordered_set<std::string> BlockProvider::get_all_blocks(ParameterType type) {
     auto blocks_list = Parameters::GetInstance(type)->get_blocks_list();
     std::unordered_set<std::string> out;
     for (auto& elem: blocks_list) {

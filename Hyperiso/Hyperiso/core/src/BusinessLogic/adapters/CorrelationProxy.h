@@ -6,66 +6,148 @@
 #include "CorrelationProvider.h"
 #include "HyperisoMaster.h"
 #include "Include.h"
+#include "ExperimentObs.h"
+#include "BinnedObservableId.h"
 
 /**
  * @file CorrelationProxy.h
- * @brief Proxy “user-facing” to retrieve correlations/covariances between observables.
+ * @brief Proxy “user-facing” to retrieve correlations between parameters or experiment-scoped observables.
  *
  * This class is a thin wrapper around @ref CorrelationProvider, exposed through
  * a simple call-operator API so it can be used like a function.
  *
  * It supports multiple identifier types:
- *  - @ref ParamId     : generic typed parameter identifier (block + code + type)
- *  - @ref Observables : observable enum (high-level public API)
- *  - @ref ObservableId: internal observable identifier (when available)
+ *  - @ref ParamId            : generic typed parameter identifier,
+ *  - @ref ExperimentObs      : fully explicit experiment-scoped observable identifier,
+ *  - @ref Observables        : observable enum, together with an experiment name,
+ *  - @ref ObservableId       : internal observable identifier, together with an experiment name,
+ *  - @ref BinnedObservableId : binned observable identifier, together with an experiment name.
  *
- * The @ref CorrelationProvider::CorrelationType selects which correlation-like object
- * is requested (e.g. correlation coefficient, covariance, etc. depending on the provider).
+ * Observable correlations are experiment-scoped. Therefore, when querying
+ * correlations between observables, one must either:
+ *  - pass the experiment explicitly, or
+ *  - use fully explicit @ref ExperimentObs objects.
+ *
+ * The @ref CorrelationProvider::CorrelationType selects which quantity is requested:
+ *  - statistical correlation,
+ *  - systematic correlation,
+ *  - combined correlation.
  *
  * Typical usage:
  * @code
  *   CorrelationProxy corr;
- *   double rho = corr(Observables::BR_B_to_Xs_gamma, Observables::ACP_B_to_Xs_gamma,
- *                     CorrelationProvider::CorrelationType::CORRELATION);
+ *
+ *   double rho_param =
+ *       corr(pid1, pid2, CorrelationProvider::CorrelationType::STAT);
+ *
+ *   double rho_obs =
+ *       corr("LHCb", obs1, obs2, CorrelationProvider::CorrelationType::COMBINED);
+ *
+ *   double rho_explicit =
+ *       corr(ExperimentObs{"LHCb", b1}, ExperimentObs{"Belle", b2},
+ *            CorrelationProvider::CorrelationType::STAT);
  * @endcode
  *
  * @see CorrelationProvider
- * @see IObsParameterProxy
+ * @see IObsCorrelationProxy
  */
-class CorrelationProxy : public IObsCorrelationProxy<ParamId, Observables, ObservableId, CorrelationProvider::CorrelationType> {
+class CorrelationProxy : public IObsCorrelationProxy<
+    ParamId,
+    ExperimentObs,
+    Observables,
+    ObservableId,
+    BinnedObservableId,
+    CorrelationProvider::CorrelationType> {
 public:
-    /**
-     * @brief Returns correlation-like quantity for two parameters identified by ParamId.
-     * @param pid_1 First parameter id.
-     * @param pid_2 Second parameter id.
-     * @param type  Correlation quantity requested (provider-defined).
-     * @return Requested correlation quantity.
-     */
-    double operator()(const ParamId& pid_1, const ParamId& pid_2, CorrelationProvider::CorrelationType type);
+    /// Alias for the correlation selector type.
+    using Type = CorrelationProvider::CorrelationType;
 
     /**
-     * @brief Returns correlation-like quantity for two observables (public enum IDs).
-     * @param pid_1 First observable (enum).
-     * @param pid_2 Second observable (enum).
-     * @param type  Correlation quantity requested (provider-defined).
+     * @brief Returns the requested correlation quantity for two parameters.
+     *
+     * @param pid_1 First parameter identifier.
+     * @param pid_2 Second parameter identifier.
+     * @param type  Correlation quantity requested.
      * @return Requested correlation quantity.
      */
-
-    double operator()(const Observables& pid_1, const Observables& pid_2, CorrelationProvider::CorrelationType type);
+    double operator()(const ParamId& pid_1, const ParamId& pid_2, Type type) override;
 
     /**
-     * @brief Returns correlation-like quantity for two internal observable identifiers.
-     * @param pid_1 First observable id.
-     * @param pid_2 Second observable id.
-     * @param type  Correlation quantity requested (provider-defined).
+     * @brief Returns the requested correlation quantity for two fully explicit
+     *        experiment-scoped observables.
+     *
+     * @param oid_1 First experiment-scoped observable.
+     * @param oid_2 Second experiment-scoped observable.
+     * @param type  Correlation quantity requested.
      * @return Requested correlation quantity.
      */
-    double operator()(const ObservableId& pid_1, const ObservableId& pid_2, CorrelationProvider::CorrelationType type);
+    double operator()(const ExperimentObs& oid_1, const ExperimentObs& oid_2, Type type) override;
 
-    
+    /**
+     * @brief Returns the requested correlation quantity for two observables
+     *        identified by enum in the same experiment.
+     *
+     * @param experiment Experiment name used to scope both observables.
+     * @param oid_1 First observable (enum).
+     * @param oid_2 Second observable (enum).
+     * @param type  Correlation quantity requested.
+     * @return Requested correlation quantity.
+     */
+    double operator()(const std::string& experiment,
+                      const Observables& oid_1,
+                      const Observables& oid_2,
+                      Type type) override;
+
+    /**
+     * @brief Returns the requested correlation quantity for two internal
+     *        observable identifiers in the same experiment.
+     *
+     * @param experiment Experiment name used to scope both observables.
+     * @param oid_1 First observable identifier.
+     * @param oid_2 Second observable identifier.
+     * @param type  Correlation quantity requested.
+     * @return Requested correlation quantity.
+     */
+    double operator()(const std::string& experiment,
+                      const ObservableId& oid_1,
+                      const ObservableId& oid_2,
+                      Type type) override;
+
+    /**
+     * @brief Returns the requested correlation quantity for two binned
+     *        observables in the same experiment.
+     *
+     * @param experiment Experiment name used to scope both observables.
+     * @param oid_1 First binned observable identifier.
+     * @param oid_2 Second binned observable identifier.
+     * @param type  Correlation quantity requested.
+     * @return Requested correlation quantity.
+     */
+    double operator()(const std::string& experiment,
+                      const BinnedObservableId& oid_1,
+                      const BinnedObservableId& oid_2,
+                      Type type) override;
+
+    /**
+     * @brief Returns the requested correlation quantity for two binned
+     *        observables coming from possibly different experiments.
+     *
+     * @param exp_1 Experiment associated with the first observable.
+     * @param oid_1 First binned observable identifier.
+     * @param exp_2 Experiment associated with the second observable.
+     * @param oid_2 Second binned observable identifier.
+     * @param type  Correlation quantity requested.
+     * @return Requested correlation quantity.
+     */
+    double operator()(const std::string& exp_1,
+                      const BinnedObservableId& oid_1,
+                      const std::string& exp_2,
+                      const BinnedObservableId& oid_2,
+                      Type type) override;
+
 private:
-    /// Underlying provider that actually computes/looks up correlations.
+    /// Underlying provider that actually computes / looks up correlations.
     CorrelationProvider cp;
 };
 
-#endif 
+#endif // OBS_CORRELATION_PROXY_H

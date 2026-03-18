@@ -77,11 +77,9 @@ std::unique_ptr<JointDistribution> StatisticManager::build_exp_data_distribution
     std::vector<std::unique_ptr<IMarginalDistribution>> marginals;
 
     for (auto& [oid, mt] : exp_data_marginals) {//TODO : checkkkkkk
-        std::map<ExperimentObs, MarginalConfig> cfg = MarginalConfigFactory().create(oid, mt);
-        for (auto marg : cfg) {
-            auto m_ptr = DistributionFactory::create(mt, marg, seed);
-            marginals.emplace_back(std::move(m_ptr));
-        }
+        MarginalConfig cfg = MarginalConfigFactory().create(oid, mt);
+        auto m_ptr = DistributionFactory::create(mt, cfg, seed);
+        marginals.emplace_back(std::move(m_ptr));
     }
 
     std::unique_ptr<ICopula> copula;

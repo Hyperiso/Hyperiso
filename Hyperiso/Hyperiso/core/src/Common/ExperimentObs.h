@@ -12,6 +12,12 @@ struct ExperimentObs {
     ExperimentObs(std::string exp, BinnedObservableId o)
         : experiment(std::move(exp)), obs(std::move(o)) {}
 
+    ExperimentObs(std::string exp, ObservableId o)
+        : experiment(std::move(exp)), obs(BinnedObservableId(o, {0.,0.})) {}
+
+    ExperimentObs(std::string exp, Observables o)
+        : experiment(std::move(exp)), obs(BinnedObservableId(ObservableMapper::to_id(o), {0.,0.})) {}
+
     bool operator==(ExperimentObs const& other) const noexcept {
         return experiment == other.experiment
             && obs == other.obs;

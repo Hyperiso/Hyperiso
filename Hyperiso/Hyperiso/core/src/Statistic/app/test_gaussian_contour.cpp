@@ -771,7 +771,7 @@ private:
 struct BuiltProblem {
     std::vector<ParamId> p_ids;
     std::vector<ParamId> eta_ids;
-    std::vector<BinnedObservableId> obs_ids;
+    std::vector<ExperimentObs> obs_ids;
     LikelihoodContext ctx;
     std::shared_ptr<ObservableInterfaceAdapterObs> model;
     Vector p0;

@@ -266,8 +266,8 @@ public:
         return res;
     }
     
-    std::map<BinnedObservableId, std::map<BinnedObservableId, double>> get_all_obs_correlations() {
-        std::map<BinnedObservableId, std::map<BinnedObservableId, double>> res;
+    std::map<ExperimentObs, std::map<ExperimentObs, double>> get_all_obs_correlations() {
+        std::map<ExperimentObs, std::map<ExperimentObs, double>> res;
         CovarianceTransformer ct = CovarianceTransformer(pscp, pspp);
 
         res = ct.transform(this->cache.exp_obs);

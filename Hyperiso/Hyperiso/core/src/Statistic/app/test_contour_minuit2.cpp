@@ -583,7 +583,7 @@ int main(int argc, char** argv) {
 
     std::vector<ParamId> p_ids = unz_p.ids;
     std::vector<ParamId> eta_ids = unz_eta.ids;
-    std::vector<BinnedObservableId> obs_ids = unz_obs.ids;
+    std::vector<ExperimentObs> obs_ids = unz_obs.ids;
 
     auto nuisance_dist = stat.build_nuisance_distribution();
     auto exp_obs_dist  = stat.build_exp_data_distribution();
@@ -613,11 +613,11 @@ int main(int argc, char** argv) {
         out.reserve(obs_ids.size());
 
         for (const auto& bid : obs_ids) {
-            const auto& vec = pred_map.at(bid.s);
+            const auto& vec = pred_map.at(bid.obs.s);
 
             auto it = std::find_if(vec.begin(), vec.end(), [&](const ObservableValue& ov) {
                 auto bin = ov.bin.value_or(std::pair<double, double>{0., 0.});
-                return bin == bid.p;
+                return bin == bid.obs.p;
             });
 
             if (it == vec.end()) {

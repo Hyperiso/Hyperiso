@@ -683,7 +683,7 @@ private:
 struct BuiltProblem {
     std::vector<ParamId> p_ids;
     std::vector<ParamId> eta_ids;
-    std::vector<BinnedObservableId> obs_ids;
+    std::vector<ExperimentObs> obs_ids;
     LikelihoodContext ctx;
     std::shared_ptr<ObservableInterfaceAdapterObs> model;
     Vector p0;
@@ -784,10 +784,10 @@ int main(int argc, char** argv) {
         out.reserve(obs_ids.size());
 
         for (const auto& bid : obs_ids) {
-            const auto& vec = pred_map.at(bid.s);
+            const auto& vec = pred_map.at(bid.obs.s);
             auto it = std::find_if(vec.begin(), vec.end(), [&](const ObservableValue& ov) {
                 auto bin = ov.bin.value_or(std::pair<double, double>{0., 0.});
-                return bin == bid.p;
+                return bin == bid.obs.p;
             });
 
             if (it == vec.end()) {
