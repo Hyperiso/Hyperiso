@@ -1,22 +1,28 @@
 #ifndef __ICONTOUREXTRACTOR_H__
 #define __ICONTOUREXTRACTOR_H__
 
+#include "Math.h"
 #include <vector>
-#include <map>
+#include <set>
 #include <memory>
+#include <functional>
 
-struct Contour {
-    std::vector<std::pair<double, double>> points;
-    std::array<double, 4> bounds;
+struct ContourRequest {
     double level;
-    bool success {false};
+    std::array<double, 4> bounds;
+    std::size_t resolution = 40;
 };
 
+struct Contour {
+    std::set<Path> paths;
+    double level;
+    bool success = false;
+};
 
 class IContourExtractor {
 public:
     virtual ~IContourExtractor() = default;
-    virtual void extract(std::shared_ptr<Contour>) = 0;
+    virtual Contour extract(const ScalarField2D& field, const ContourRequest& cr) = 0;
 };
 
 

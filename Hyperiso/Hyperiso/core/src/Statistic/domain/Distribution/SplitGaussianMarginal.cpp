@@ -19,7 +19,8 @@ Vector SplitGaussianMarginal::rvs(std::size_t n) {
 
 double SplitGaussianMarginal::logpdf(double x) {
     double sigma_local = x > mu ? sigma_p : sigma_m;
-    return std::log(N) - 0.5 * std::log(2 * PI) - 0.5 * std::pow((x - mu) / sigma_local, 2);
+    // return std::log(N) - 0.5 * std::log(2 * PI) - 0.5 * std::pow((x - mu) / sigma_local, 2);
+    return -0.5 * std::pow((x - mu) / sigma_local, 2);
 }
 
 double SplitGaussianMarginal::cdf(double x) {

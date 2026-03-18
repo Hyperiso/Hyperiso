@@ -1,6 +1,6 @@
 #include "contour.h"
 
-MarchingSquaresExtractor::MarchingSquaresExtractor(RealValuedForm f, std::array<double, 4> bounds, size_t max_depth) :
+MarchingSquaresExtractor::MarchingSquaresExtractor(const ScalarField2D& f, std::array<double, 4> bounds, size_t max_depth) :
     f(f), max_depth(max_depth)
 {
     this->xmin = bounds[0];
@@ -25,8 +25,17 @@ std::unique_ptr<Cell> MarchingSquaresExtractor::build(int i, int j, int depth, i
     for (size_t i = 0; i < 4; i++)
         vals[i] = this->vertex_value(verts[i]);
 
+    std::cout << "Vertex values: ";
+    for (auto &&v : vals) {
+        std::cout << v << ",";
+    }
+    std::cout << std::endl;
+    
+
     auto positive = [] (double a) { return a > 0; };
     bool topology = !std::all_of(vals.begin(), vals.end(), positive) && std::any_of(vals.begin(), vals.end(), positive);
+
+    std::cout << std::boolalpha << "Topology = " << topology << std::endl;
 
     if (!topology && depth == this->max_depth)
         return std::make_unique<Cell>(verts, vals, depth, CellStatus::EMPTY_LEAF);
@@ -54,9 +63,11 @@ std::unique_ptr<Cell> MarchingSquaresExtractor::build(int i, int j, int depth, i
         refine = refine || inside_loop;
     }
 
-    if (!refine || depth == this->max_depth) 
+    if (!refine || depth == this->max_depth) {
+        std::cout << (topology ? "Active" : "Empty") << " leaf" << std::endl;
         return std::make_unique<Cell>(verts, vals, depth, topology ? CellStatus::ACTIVE_LEAF : CellStatus::EMPTY_LEAF);
-    
+    }
+        
     std::array<std::unique_ptr<Cell>, 4> children;
     std::array<Index, 4> deltas {{{0, 0}, {1, 0}, {1, 1}, {0, 1}}};
     for (size_t k = 0; k < 4; k++)
@@ -96,7 +107,7 @@ std::array<Index, 4> MarchingSquaresExtractor::cell_vertices(Index ij, std::size
 double MarchingSquaresExtractor::vertex_value(Index ij) {
     if (!this->vertices.contains(ij)) {
         Point xy = idx_to_point(ij);
-        this->vertices.emplace(ij, this->f({xy.first, xy.second}) - this->k);
+        this->vertices.emplace(ij, this->f(xy.first, xy.second) - this->k);
     }
 
     return this->vertices.at(ij);
@@ -171,12 +182,13 @@ void MarchingSquaresExtractor::set_iso_value(double lvl) {
     this->k = lvl;
     this->vertices.clear();
     this->root = this->build(0, 0, 0);
+    this->active_cells.clear();
     this->update_active_cells(this->root.get());
+
+    std::cout << "Active cells: " << this->active_cells.size() << std::endl;
 }
 
 void MarchingSquaresExtractor::update_active_cells(Cell *cell) {
-    this->active_cells.clear();
-
     if (cell->status == CellStatus::EMPTY_LEAF)
         return;
 

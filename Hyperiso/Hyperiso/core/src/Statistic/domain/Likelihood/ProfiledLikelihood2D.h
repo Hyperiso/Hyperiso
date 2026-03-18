@@ -7,6 +7,7 @@
 
 class ProfiledLikelihood2D {
 public:
+    ProfiledLikelihood2D() = default;
     ProfiledLikelihood2D(
         std::shared_ptr<ILikelihood> base, 
         std::shared_ptr<Profiler> profiler, 

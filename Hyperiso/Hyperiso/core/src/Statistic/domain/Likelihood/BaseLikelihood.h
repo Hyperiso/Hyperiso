@@ -19,7 +19,7 @@ struct LikelihoodContext {
 
 class BaseLikelihood : public ILikelihood {
 public:
-    BaseLikelihood(const ModelFn& model, LikelihoodContext ctx, size_t p_dim);
+    BaseLikelihood(const ModelFn& model, LikelihoodContext& ctx, size_t p_dim);
     double nll(const Vector& theta) const override;
 
     std::vector<fit_app::ParameterDefinition> get_param_defs() const override {
@@ -27,6 +27,8 @@ public:
         p_defs.insert(p_defs.end(), ctx.nuis_defs.begin(), ctx.nuis_defs.end());
         return p_defs;
     }
+
+    std::size_t dim() const override;
 
 protected:
     LikelihoodContext ctx;

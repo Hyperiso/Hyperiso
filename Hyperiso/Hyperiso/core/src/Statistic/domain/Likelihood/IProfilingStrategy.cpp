@@ -32,6 +32,18 @@ ProfileRequest SliceProfilingStrategy::build_request(
     return pr;
 }
 
+std::map<std::size_t, double> SliceProfilingStrategy::init_warm_start() const {
+    std::map<std::size_t, double> start;
+    std::size_t dim_p = fr.p_hat.size();
+    std::size_t dim_nuis = fr.eta_hat.size();
+
+    for (size_t i = 0; i < dim_nuis; i++) {
+        start[dim_p + i] = fr.eta_hat.at(i);
+    }
+
+    return start;
+}
+
 ProfileRequest ProjectionProfilingStrategy::build_request(
     double px, double py,
     const std::map<std::size_t, double> &current_argmin) const
@@ -60,4 +72,19 @@ ProfileRequest ProjectionProfilingStrategy::build_request(
     pr.start = unzip(current_argmin).vals;
 
     return pr;
+}
+
+std::map<std::size_t, double> ProjectionProfilingStrategy::init_warm_start() const {
+    std::map<std::size_t, double> start;
+    std::size_t dim_p = fr.p_hat.size();
+    std::size_t dim_nuis = fr.eta_hat.size();
+
+    for (size_t i = 0; i < dim_p + dim_nuis; i++) {
+        start[i] = i < dim_p ? fr.p_hat.at(i) : fr.eta_hat.at(i - dim_p);
+    }
+
+    start.erase(x_id);
+    start.erase(y_id);
+
+    return start;
 }

@@ -8,11 +8,7 @@ public:
     virtual ~ILikelihood() = default;
     virtual double nll(const Vector& theta) const = 0;
     virtual std::vector<fit_app::ParameterDefinition> get_param_defs() const = 0;
-
-    std::size_t dim() const { return this->dim_; }
-
-protected:
-    std::size_t dim_;
+    virtual std::size_t dim() const = 0;
 };
 
 #endif // __ILIKELIHOOD_H__

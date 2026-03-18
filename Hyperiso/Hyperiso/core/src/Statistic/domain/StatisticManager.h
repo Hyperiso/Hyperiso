@@ -99,91 +99,91 @@ public:
     }
     
     FitResultWithMaps compute_MLE(const std::vector<ParamId>& p_specs) {
-        update_cache(std::move(p_specs));
-        // Build Likelihood context
+        // update_cache(std::move(p_specs));
+        // // Build Likelihood context
 
-        auto unzipped_fit_params = unzip(cache.p_specs);
-        auto unzipped_nuisances = unzip(cache.eta_specs_real);
-        auto unzipped_exp_obs = unzip(cache.exp_obs);
+        // auto unzipped_fit_params = unzip(cache.p_specs);
+        // auto unzipped_nuisances = unzip(cache.eta_specs_real);
+        // auto unzipped_exp_obs = unzip(cache.exp_obs);
 
-        std::vector<ParamId> p_ids = unzipped_fit_params.ids;
-        std::vector<ParamId> eta_ids = unzipped_nuisances.ids;
-        std::vector<BinnedObservableId> obs_ids = unzipped_exp_obs.ids;
+        // std::vector<ParamId> p_ids = unzipped_fit_params.ids;
+        // std::vector<ParamId> eta_ids = unzipped_nuisances.ids;
+        // std::vector<BinnedObservableId> obs_ids = unzipped_exp_obs.ids;
         
-        LikelihoodContext ctx;
-        ctx.nuisance_dist = std::move(build_nuisance_distribution());
-        ctx.exp_obs_dist = std::move(build_exp_data_distribution());
-        ctx.nuisance_central_values = unzipped_nuisances.vals;
-        ctx.exp_obs_values = unzipped_exp_obs.vals;
+        // LikelihoodContext ctx;
+        // ctx.nuisance_dist = std::move(build_nuisance_distribution());
+        // ctx.exp_obs_dist = std::move(build_exp_data_distribution());
+        // ctx.nuisance_central_values = unzipped_nuisances.vals;
+        // ctx.exp_obs_values = unzipped_exp_obs.vals;
 
-        // auto model_fn = [this, obs_ids, p_ids, eta_ids] (const Vec& p_vec, const Vec& eta_vec) -> Vec {
-        //     auto start = std::chrono::steady_clock::now();
+        // // auto model_fn = [this, obs_ids, p_ids, eta_ids] (const Vec& p_vec, const Vec& eta_vec) -> Vec {
+        // //     auto start = std::chrono::steady_clock::now();
+        // //     auto pred_map = this->obs_int->predict_optimized(zip(p_ids, p_vec), zip(eta_ids, eta_vec));
+        // //     auto stop  = std::chrono::steady_clock::now();
+        // //     auto us = std::chrono::duration_cast<std::chrono::microseconds>(stop - start).count();
+        // //     // std::cout << "Predict took " << us << " µs" << std::endl;
+        // //     // for (auto pred : pred_map) {
+        // //     //     std::cout << ObservableMapper::str(pred.first) << ": ";
+        // //     //     for (auto ov : pred.second) 
+        // //     //         std::cout << ov.value << " ";
+        // //     //     std::cout << std::endl; 
+        // //     // }
+        // //     return flatten(pred_map).vals;
+        // // };
+
+        // auto model_fn = [this, obs_ids, p_ids, eta_ids](const Vec& p_vec, const Vec& eta_vec) -> Vec {
         //     auto pred_map = this->obs_int->predict_optimized(zip(p_ids, p_vec), zip(eta_ids, eta_vec));
-        //     auto stop  = std::chrono::steady_clock::now();
-        //     auto us = std::chrono::duration_cast<std::chrono::microseconds>(stop - start).count();
-        //     // std::cout << "Predict took " << us << " µs" << std::endl;
-        //     // for (auto pred : pred_map) {
-        //     //     std::cout << ObservableMapper::str(pred.first) << ": ";
-        //     //     for (auto ov : pred.second) 
-        //     //         std::cout << ov.value << " ";
-        //     //     std::cout << std::endl; 
-        //     // }
-        //     return flatten(pred_map).vals;
+
+
+        //     Vec out;
+        //     out.reserve(obs_ids.size());
+
+        //     for (const auto& bid : obs_ids) {
+        //         // bid.s = ObservableId, bid.p = bin (pair<double,double>)
+        //         const auto& vec = pred_map.at(bid.s);
+
+        //         // retrouver la bonne entrée dans vec
+        //         // si non binned : bin = {0,0} chez toi, donc match direct
+        //         auto it = std::find_if(vec.begin(), vec.end(), [&](const ObservableValue& ov){
+        //             auto bin = ov.bin.value_or(std::pair<double,double>{0.,0.});
+        //             return bin == bid.p; // ou fpeq sur doubles si nécessaire
+        //         });
+        //         if (it == vec.end()) throw std::runtime_error("Missing predicted observable/bin");
+        //         out.push_back(it->value);
+        //     }
+        //     return out;
         // };
 
-        auto model_fn = [this, obs_ids, p_ids, eta_ids](const Vec& p_vec, const Vec& eta_vec) -> Vec {
-            auto pred_map = this->obs_int->predict_optimized(zip(p_ids, p_vec), zip(eta_ids, eta_vec));
+        // MLEstimator est(std::move(ctx), model_fn, this->config.MLE_max_iter, this->config.MLE_tol);
 
+        // FitResult fr = est.fit(unzipped_fit_params.vals);
+        // std::map<ParamId, double> p_hat_map = zip(p_ids, fr.p_hat);
+        // std::map<ParamId, double> eta_hat_map = zip(eta_ids, fr.eta_hat);
+        // std::map<ParamId, double> p_hat_std_map = zip(p_ids, fr.p_hat_std);
+        // std::map<ParamId, std::map<ParamId, double>> p_hat_corr_map = zip(p_ids, fr.p_hat_correlations);
 
-            Vec out;
-            out.reserve(obs_ids.size());
+        // FitResultWithMaps out;
+        // out.p_hat   = std::move(p_hat_map);
+        // out.eta_hat = std::move(eta_hat_map);
+        // out.ell_hat = fr.ell_hat;
+        // out.p_hat_std = std::move(p_hat_std_map);
+        // out.p_correlations = std::move(p_hat_corr_map);
+        // out.fit_ok = true;
+        // this->cache.mle_result = out;
 
-            for (const auto& bid : obs_ids) {
-                // bid.s = ObservableId, bid.p = bin (pair<double,double>)
-                const auto& vec = pred_map.at(bid.s);
+        // auto& like = est.like();              // ou stat.get_estimator().like()
+        // double ell_hat = fr.ell_hat;
+        // Vector p = fr.p_hat;
 
-                // retrouver la bonne entrée dans vec
-                // si non binned : bin = {0,0} chez toi, donc match direct
-                auto it = std::find_if(vec.begin(), vec.end(), [&](const ObservableValue& ov){
-                    auto bin = ov.bin.value_or(std::pair<double,double>{0.,0.});
-                    return bin == bid.p; // ou fpeq sur doubles si nécessaire
-                });
-                if (it == vec.end()) throw std::runtime_error("Missing predicted observable/bin");
-                out.push_back(it->value);
-            }
-            return out;
-        };
+        // // std::cout << "Scan p2:\n";
+        // // for (int k=0; k<=40; ++k) {
+        // //     double p2 = 0.0 + k * 0.01;      // adapte le range !
+        // //     Vector pp = {p[0], p2};
+        // //     double d = like.nll_profiled(pp) - ell_hat;
+        // //     std::cout << p2 << " " << d << "\n";
+        // // }
 
-        MLEstimator est(std::move(ctx), model_fn, this->config.MLE_max_iter, this->config.MLE_tol);
-
-        FitResult fr = est.fit(unzipped_fit_params.vals);
-        std::map<ParamId, double> p_hat_map = zip(p_ids, fr.p_hat);
-        std::map<ParamId, double> eta_hat_map = zip(eta_ids, fr.eta_hat);
-        std::map<ParamId, double> p_hat_std_map = zip(p_ids, fr.p_hat_std);
-        std::map<ParamId, std::map<ParamId, double>> p_hat_corr_map = zip(p_ids, fr.p_hat_correlations);
-
-        FitResultWithMaps out;
-        out.p_hat   = std::move(p_hat_map);
-        out.eta_hat = std::move(eta_hat_map);
-        out.ell_hat = fr.ell_hat;
-        out.p_hat_std = std::move(p_hat_std_map);
-        out.p_correlations = std::move(p_hat_corr_map);
-        out.fit_ok = true;
-        this->cache.mle_result = out;
-
-        auto& like = est.like();              // ou stat.get_estimator().like()
-        double ell_hat = fr.ell_hat;
-        Vector p = fr.p_hat;
-
-        // std::cout << "Scan p2:\n";
-        // for (int k=0; k<=40; ++k) {
-        //     double p2 = 0.0 + k * 0.01;      // adapte le range !
-        //     Vector pp = {p[0], p2};
-        //     double d = like.nll_profiled(pp) - ell_hat;
-        //     std::cout << p2 << " " << d << "\n";
-        // }
-
-        return out;
+        // return out;
     }
 
     std::set<std::vector<std::pair<double, double>>> confidence_contour(ParamId p1, ParamId p2, double z, std::array<double, 4> bounds, CLMethod method = CLMethod::PROJECT);

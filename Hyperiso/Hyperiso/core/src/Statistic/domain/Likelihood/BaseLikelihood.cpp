@@ -1,9 +1,8 @@
 #include "BaseLikelihood.h"
 
-BaseLikelihood::BaseLikelihood(const ModelFn& model, LikelihoodContext ctx, size_t p_dim) : p_dim(p_dim) {
+BaseLikelihood::BaseLikelihood(const ModelFn& model, LikelihoodContext& ctx, size_t p_dim) : p_dim(p_dim) {
     this->ctx = std::move(ctx);
     this->model = model;
-    this->dim_ = ctx.nuisance_dist->dim() + p_dim;
 }
 
 double BaseLikelihood::nll(const Vector& theta) const {
@@ -18,4 +17,8 @@ double BaseLikelihood::nll(const Vector& theta) const {
     double ell_nuis = this->ctx.nuisance_dist->logpdf(eta);
  
     return -(ell_obs + ell_nuis);
+}
+
+std::size_t BaseLikelihood::dim() const {
+    return this->ctx.nuisance_dist->dim() + this->p_dim;
 }

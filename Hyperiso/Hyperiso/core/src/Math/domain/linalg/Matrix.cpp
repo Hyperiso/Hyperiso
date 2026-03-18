@@ -209,7 +209,7 @@ void RealMatrix::remove_row_and_column(std::size_t dim_idx) {
         for (size_t j = 0; j < this->cols_; j++) {
             if (j == dim_idx) continue;
             std::size_t new_j = j < dim_idx ? j : j - 1;
-            new_data[new_i * this->cols_ + j] = this->at(i, j);
+            new_data[new_i * this->cols_ + new_j] = this->at(i, j);
         }
     }
 

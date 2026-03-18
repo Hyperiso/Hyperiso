@@ -2,7 +2,14 @@
 #define __IPROFILINGSTRATEGY_H__
 
 #include "Profiler.h"
-#include "Fit.h"
+
+struct FitResult {
+    Vector p_hat; // MLE estimators
+    Vector eta_hat; // profiled-at-MLE nuisances
+    Vector p_hat_std;
+    RealMatrix p_hat_correlations;
+    double ell_hat {0.0}; // minimum NLL
+};
 
 class IProfilingStrategy {
 public:
@@ -10,6 +17,7 @@ public:
 
     virtual ~IProfilingStrategy() = default;
     virtual ProfileRequest build_request(double px, double py, const std::map<std::size_t, double>& current_argmin) const = 0;
+    virtual std::map<std::size_t, double> init_warm_start() const = 0;
 
 protected:
     std::size_t x_id, y_id;
@@ -20,12 +28,14 @@ class SliceProfilingStrategy : public IProfilingStrategy {
 public:
     SliceProfilingStrategy(std::size_t x_id, std::size_t y_id, const FitResult& fr) : IProfilingStrategy(x_id, y_id, fr) {}
     ProfileRequest build_request(double px, double py, const std::map<std::size_t, double>& current_argmin) const override;
+    std::map<std::size_t, double> init_warm_start() const override;
 };
 
 class ProjectionProfilingStrategy : public IProfilingStrategy {
 public:
     ProjectionProfilingStrategy(std::size_t x_id, std::size_t y_id, const FitResult& fr) : IProfilingStrategy(x_id, y_id, fr) {}
     ProfileRequest build_request(double px, double py, const std::map<std::size_t, double>& current_argmin) const override;
+    std::map<std::size_t, double> init_warm_start() const override;
 };
 
 #endif // __IPROFILINGSTRATEGY_H__

@@ -25,3 +25,7 @@ double WithGaussianConstraints::nll(const Vector &theta) const {
 std::vector<fit_app::ParameterDefinition> WithGaussianConstraints::get_param_defs() const {
     return base->get_param_defs();
 }
+
+std::size_t WithGaussianConstraints::dim() const {
+    return this->base->dim();
+}

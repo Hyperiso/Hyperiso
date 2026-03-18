@@ -104,6 +104,14 @@ add_library(StatisticLib STATIC
     domain/Copula/GaussianCopula.cpp
     domain/Copula/GenericCopula.cpp
     domain/Copula/StudentTCopula.cpp
+    domain/Likelihood/BaseLikelihood.cpp
+    domain/Likelihood/IProfilingStrategy.cpp
+    domain/Likelihood/ProfiledLikelihood2D.cpp
+    domain/Likelihood/Profiler.cpp
+    domain/Likelihood/WithGaussianConstraints.cpp
+    domain/Contour/AMSContourExtractor.cpp
+    domain/Contour/ContourEngine.cpp
+    domain/Contour/MnContourExtractor.cpp
 )
 set_target_properties(StatisticLib PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
@@ -114,6 +122,8 @@ target_include_directories(StatisticLib
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/domain>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/domain/Distribution>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/domain/Copula>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/domain/Likelihood>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/domain/Contour>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/ports>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/adapters>
     # install
@@ -121,6 +131,8 @@ target_include_directories(StatisticLib
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/Statistic/domain>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/Statistic/domain/Distribution>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/Statistic/domain/Copula>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/Statistic/domain/Likelihood>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/Statistic/domain/Contour>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/Statistic/ports>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/Statistic/adapters>
   PRIVATE
@@ -165,6 +177,9 @@ target_link_libraries(REFACTORED_MINUIT StatisticLib)
 
 add_executable(GAUSSIAN_CONTOUR app/test_gaussian_contour.cpp)
 target_link_libraries(GAUSSIAN_CONTOUR StatisticLib)
+
+add_executable(PROFILING_TEST app/test_profiling.cpp)
+target_link_libraries(PROFILING_TEST StatisticLib)
 
 include(GNUInstallDirs)
 

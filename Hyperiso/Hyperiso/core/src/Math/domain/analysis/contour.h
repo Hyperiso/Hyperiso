@@ -14,6 +14,7 @@ using Point = std::pair<double, double>;
 using Segment = std::pair<Point, Point>;
 using Index = std::pair<int, int>;
 using Path = std::vector<Point>;
+using ScalarField2D = std::function<double(double, double)>;
 
 inline const std::vector<std::set<Index>> MASK_LOOKUP {
     {},
@@ -57,7 +58,7 @@ struct MSGraph {
 
 class MarchingSquaresExtractor {
 public:
-    MarchingSquaresExtractor(RealValuedForm f, std::array<double, 4> bounds, size_t max_depth = 7);
+    MarchingSquaresExtractor(const ScalarField2D& f, std::array<double, 4> bounds, size_t max_depth = 7);
 
     std::set<Path> find_iso_contour(double lvl);
 
@@ -89,7 +90,7 @@ private:
     std::map<Index, double> vertices;
     std::set<Cell*> active_cells;
     std::unique_ptr<Cell> root;
-    RealValuedForm f;
+    ScalarField2D f;
     double k;
 };
 

@@ -52,9 +52,11 @@ double StudentTCopula::log_density(Vector u) {
     }
 
     double quad = (z.transpose() * R_inv * z).at(0, 0);
-    double log_td = gsl_sf_lngamma((nu + d) / 2) - gsl_sf_lngamma(nu / 2)
-                    - (d / 2) * std::log(nu * PI) - 0.5 * logdet
-                    - (nu + d) / 2 * gsl_sf_log_1plusx(quad / nu);
+    // double log_td = gsl_sf_lngamma((nu + d) / 2) - gsl_sf_lngamma(nu / 2)
+    //                 - (d / 2) * std::log(nu * PI) - 0.5 * logdet
+    //                 - (nu + d) / 2 * gsl_sf_log_1plusx(quad / nu);
+
+    double log_td = -(nu + d) / 2 * gsl_sf_log_1plusx(quad / nu);
 
     return log_t1 + log_td;
 }

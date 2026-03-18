@@ -5,7 +5,7 @@ Profiler::Profiler(std::shared_ptr<fit_app::IFitBackend> minimizer)
 
 ProfileResult Profiler::profile(std::shared_ptr<ILikelihood> base, const ProfileRequest& pr) const {
     if (pr.fixed_params.size() + pr.free_params.size() != base->dim()) 
-        LOG_ERROR("InvalidArgument", "Dimension mismatch in profiler.");
+        LOG_ERROR("InvalidArgument", "Dimension mismatch in profiler. Fit dimension is", base->dim(), ", found", pr.fixed_params.size(), "fixed params and", pr.free_params.size(), "free.");
 
     auto unzipped = unzip(pr.fixed_params);
     std::vector<std::size_t> fixed_idx = unzipped.ids;
@@ -18,7 +18,7 @@ ProfileResult Profiler::profile(std::shared_ptr<ILikelihood> base, const Profile
     
     fit_app::FitOptions opt;
     opt.run_hesse = false;
-    opt.verbose = true; // TODO : for now, remove later
+    opt.verbose = false; // TODO : for now, remove later
 
     auto res = minimizer->minimize_with_fixed(f, base->get_param_defs(), opt, fixed_idx, fixed_vals);
 
@@ -27,7 +27,8 @@ ProfileResult Profiler::profile(std::shared_ptr<ILikelihood> base, const Profile
 
     ProfileResult pres;
     pres.nll_hat = res.diagnostics.fmin;
-    pres.theta_hat = zip(pr.free_params, res.values);
+    for (std::size_t i : pr.free_params) 
+        pres.theta_hat[i] = res.values[i];
     pres.converged = res.diagnostics.ok;
 
     return pres;
