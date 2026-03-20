@@ -21,7 +21,8 @@
 #include "StatParamSourcesProxy.h"
 #include "StatDependencyPruner.h"
 #include "Fit.h"
-#include "Likelihood.h"
+#include "BaseLikelihood.h"
+#include "IProfilingStrategy.h"
 
 #include "FitAbstraction.h"
 
@@ -252,7 +253,7 @@ struct JointFitOutput {
 
 class MinuitMLEstimatorLocal {
 public:
-    using ModelFn = ProfiledLikelihood::ModelFn;
+    using ModelFn = std::function<Vector(const Vector& p, const Vector& eta)>;
 
     MinuitMLEstimatorLocal(const IFitBackend& backend,
                            LikelihoodContext ctx,
@@ -279,7 +280,10 @@ public:
                                          const std::vector<ParamId>& eta_ids,
                                          const Vector& p0) const {
         const std::size_t p_dim = p0.size();
-        Vector eta0 = like_.nuisance_central_values;
+        Vector eta0;
+        for (auto eta_def : like_.nuis_defs) {
+            eta0.emplace_back(eta_def.value);
+        }
         Vector eta_scales = like_.nuisance_dist->get_stds();
 
         if (eta0.size() != eta_scales.size()) {
@@ -726,7 +730,8 @@ BuiltProblem build_problem(StatisticManager& stat,
     LikelihoodContext ctx;
     ctx.nuisance_dist = std::move(nuisance_dist);
     ctx.exp_obs_dist  = std::move(exp_obs_dist);
-    ctx.nuisance_central_values = unz_eta.vals;
+    ctx.nuis_defs = 
+    ctx.fp_defs = 
     ctx.exp_obs_values = unz_obs.vals;
 
     return BuiltProblem{

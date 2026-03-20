@@ -91,7 +91,7 @@ add_library(StatisticLib STATIC
     domain/Fit.cpp
     domain/Likelihood.cpp
     domain/CovarianceTransformer.cpp
-    domain/MarginalConfigFactory.cpp
+    domain/Distribution/MarginalConfigFactory.cpp
     domain/MCEngine.cpp
     domain/RvgNuisanceSampler.cpp
     domain/StatisticManager.cpp

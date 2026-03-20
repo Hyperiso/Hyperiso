@@ -20,7 +20,7 @@
 #include "ObservableInterface.h"
 #include "StatParamSourcesProxy.h"
 #include "Fit.h"
-#include "Likelihood.h"
+#include "BaseLikelihood.h"
 
 #include "minuit-cpp/FCNBase.hh"
 #include "minuit-cpp/FunctionMinimum.hh"

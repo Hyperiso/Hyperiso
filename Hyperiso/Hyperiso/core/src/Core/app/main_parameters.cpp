@@ -1,6 +1,7 @@
 #include "Parameters.h"
 #include "HyperisoMaster.h"
 #include "BlockProvider.h"
+#include "CorrelationProvider.h"
 #include <iostream>
 #include <cmath>
 
@@ -52,5 +53,7 @@ int main() {
     // auto thdm_params = Parameters::GetInstance(2); // THDM Model
     // std::cout << "THDM matrice yu : " << (*thdm_params)("YU", 22) << std::endl;
     BlockProvider().log_all_blocks(ParameterType::OBSERVABLE);
+    LOG_INFO(CorrelationProvider()("DEFAULT", Observables::BR_BS_MUMU_UNTAG, Observables::BR_BD_MUMU, CorrelationProvider::CorrelationType::COMBINED));
+    LOG_INFO(CorrelationProvider()("DEFAULT2", Observables::BR_BS_MUMU_UNTAG, Observables::BR_BD_MUMU, CorrelationProvider::CorrelationType::COMBINED));
     return 0;
 }

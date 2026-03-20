@@ -1,3 +1,4 @@
+#include "Fit.h"
 // #include "Fit.h"
 
 // FitResult MLEstimator::fit(const Vector& p0) const {
@@ -147,3 +148,41 @@
 //     double delta_T = gsl_cdf_chisq_Pinv(gsl_sf_erf(z / RT2), 2);
 //     return extractor.find_iso_contour(delta_T);
 // }
+
+MLFitter::MLFitter(const LikelihoodContext &ctx, const ModelFn &model) {
+    this->like_ = std::make_unique<BaseLikelihood>(model, ctx, ctx.fp_defs.size());
+}
+
+FitResult MLFitter::maximum_likelihood_fit(const Vector &p0) const {
+    std::unique_ptr<fit_app::IFitBackend> minimizer = fit_app::make_minuit_backend();
+
+    auto f = fit_app::LambdaObjectiveFunction(
+        [this] (Vector theta) { return like_->nll(theta); },
+        0.5
+    );
+    
+    fit_app::FitOptions opt;
+    opt.run_hesse = false;
+    opt.verbose = false;
+
+    std::vector<fit_app::ParameterDefinition> theta_0 = this->like_->get_param_defs();
+    for (size_t i = 0; i < p0.size(); i++)
+        theta_0[i].value = p0[i];
+
+    fit_app::BackendFitResult master_fit_res = minimizer->minimize(f, theta_0, opt);
+
+    if (!master_fit_res.diagnostics.ok)
+        LOG_WARN("Initial ML fit failed to converge. Fit result is probably wrong.");
+
+    opt.run_hesse = true;
+    std::vector<std::size_t> fixed_ids;
+    std::vector<double> fixed_vals;
+
+    for (size_t i = 0; i < p0.size(); i++) {
+        fixed_ids.push_back(i);
+        fixed_vals.push_back(master_fit_res.values[i]);
+    }
+
+    fit_app::BackendFitResult master_fit_res = minimizer->minimize_with_fixed(f, theta_0, opt, fixed_ids, fixed_vals);
+    
+}

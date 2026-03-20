@@ -5,8 +5,6 @@
 #include <gsl/gsl_cdf.h>
 #include <gsl/gsl_rng.h>
 
-#include "RNGHelper.h"
-
 /**
  * @file IMarginalDistribution.h
  * @brief Interface for one-dimensional marginal probability distributions.

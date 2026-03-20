@@ -106,9 +106,9 @@ public:
         // auto unzipped_nuisances = unzip(cache.eta_specs_real);
         // auto unzipped_exp_obs = unzip(cache.exp_obs);
 
-        std::vector<ParamId> p_ids = unzipped_fit_params.ids;
-        std::vector<ParamId> eta_ids = unzipped_nuisances.ids;
-        std::vector<ExperimentObs> obs_ids = unzipped_exp_obs.ids;
+        // std::vector<ParamId> p_ids = unzipped_fit_params.ids;
+        // std::vector<ParamId> eta_ids = unzipped_nuisances.ids;
+        // std::vector<ExperimentObs> obs_ids = unzipped_exp_obs.ids;
         
         // LikelihoodContext ctx;
         // ctx.nuisance_dist = std::move(build_nuisance_distribution());
@@ -131,48 +131,51 @@ public:
         // //     return flatten(pred_map).vals;
         // // };
 
+        /*
+            // auto model_fn = [this, obs_ids, p_ids, eta_ids](const Vec& p_vec, const Vec& eta_vec) -> Vec {
+            //     auto pred_map = this->obs_int->predict_optimized(zip(p_ids, p_vec), zip(eta_ids, eta_vec));
+            //     auto stop  = std::chrono::steady_clock::now();
+            //     auto us = std::chrono::duration_cast<std::chrono::microseconds>(stop - start).count();
+            //     // std::cout << "Predict took " << us << " µs" << std::endl;
+            //     // for (auto pred : pred_map) {
+            //     //     std::cout << ObservableMapper::str(pred.first) << ": ";
+            //     //     for (auto ov : pred.second) 
+            //     //         std::cout << ov.value << " ";
+            //     //     std::cout << std::endl; 
+            //     // }
+            //     return flatten(pred_map).vals;
+            // };
+        */
+
+        // // Need to keep this one. This one is the one. The right one. I mean, the RIGHT one.
         // auto model_fn = [this, obs_ids, p_ids, eta_ids](const Vec& p_vec, const Vec& eta_vec) -> Vec {
         //     auto pred_map = this->obs_int->predict_optimized(zip(p_ids, p_vec), zip(eta_ids, eta_vec));
-        //     auto stop  = std::chrono::steady_clock::now();
-        //     auto us = std::chrono::duration_cast<std::chrono::microseconds>(stop - start).count();
-        //     // std::cout << "Predict took " << us << " µs" << std::endl;
-        //     // for (auto pred : pred_map) {
-        //     //     std::cout << ObservableMapper::str(pred.first) << ": ";
-        //     //     for (auto ov : pred.second) 
-        //     //         std::cout << ov.value << " ";
-        //     //     std::cout << std::endl; 
-        //     // }
-        //     return flatten(pred_map).vals;
+
+
+        //     Vec out;
+        //     std::map<BinnedObservableId, double> reserve;
+        //     out.reserve(obs_ids.size());
+        //     std::set<BinnedObservableId> already_done {};
+        //     for (const auto& bid : obs_ids) {
+        //         if (already_done.contains(bid.obs)) {
+        //             out.push_back(reserve[bid.obs]);
+        //             continue;
+        //         }
+        //         // bid.s = ObservableId, bid.p = bin (pair<double,double>)
+        //         const auto& vec = pred_map.at(bid.obs.s);
+
+        //         // retrouver la bonne entrée dans vec
+        //         // si non binned : bin = {0,0} chez toi, donc match direct
+        //         auto it = std::find_if(vec.begin(), vec.end(), [&](const ObservableValue& ov){
+        //             auto bin = ov.bin.value_or(std::pair<double,double>{0.,0.});
+        //             return bin == bid.obs.p; // ou fpeq sur doubles si nécessaire
+        //         });
+        //         if (it == vec.end()) throw std::runtime_error("Missing predicted observable/bin");
+        //         out.push_back(it->value);
+        //         reserve[bid.obs] = it->value;
+        //     }
+        //     return out;
         // };
-
-        auto model_fn = [this, obs_ids, p_ids, eta_ids](const Vec& p_vec, const Vec& eta_vec) -> Vec {
-            auto pred_map = this->obs_int->predict_optimized(zip(p_ids, p_vec), zip(eta_ids, eta_vec));
-
-
-            Vec out;
-            std::map<BinnedObservableId, double> reserve;
-            out.reserve(obs_ids.size());
-            std::set<BinnedObservableId> already_done {};
-            for (const auto& bid : obs_ids) {
-                if (already_done.contains(bid.obs)) {
-                    out.push_back(reserve[bid.obs]);
-                    continue;
-                }
-                // bid.s = ObservableId, bid.p = bin (pair<double,double>)
-                const auto& vec = pred_map.at(bid.obs.s);
-
-                // retrouver la bonne entrée dans vec
-                // si non binned : bin = {0,0} chez toi, donc match direct
-                auto it = std::find_if(vec.begin(), vec.end(), [&](const ObservableValue& ov){
-                    auto bin = ov.bin.value_or(std::pair<double,double>{0.,0.});
-                    return bin == bid.obs.p; // ou fpeq sur doubles si nécessaire
-                });
-                if (it == vec.end()) throw std::runtime_error("Missing predicted observable/bin");
-                out.push_back(it->value);
-                reserve[bid.obs] = it->value;
-            }
-            return out;
-        };
 
         // MLEstimator est(std::move(ctx), model_fn, this->config.MLE_max_iter, this->config.MLE_tol);
 

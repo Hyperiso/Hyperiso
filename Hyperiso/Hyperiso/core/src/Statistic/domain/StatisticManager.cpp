@@ -154,12 +154,12 @@ std::set<std::vector<std::pair<double, double>>> StatisticManager::confidence_co
     // auto combined_distribution = std::make_unique<JointDistribution>(std::move(marginals), std::move(copula));
 
     // Dispatch ids
-    std::vector<ParamId> p_ids_2 {p1, p2};
-    auto unzipped_nuisances = unzip(cache.eta_specs_real);
-    auto unzipped_exp_obs = unzip(cache.exp_obs);
-    std::vector<ParamId> eta_ids = unzipped_nuisances.ids;
-    std::vector<ExperimentObs> obs_ids = unzipped_exp_obs.ids; 
-    eta_ids.insert(eta_ids.end(), p_ids.begin(), p_ids.end());
+    // std::vector<ParamId> p_ids_2 {p1, p2};
+    // auto unzipped_nuisances = unzip(cache.eta_specs_real);
+    // auto unzipped_exp_obs = unzip(cache.exp_obs);
+    // std::vector<ParamId> eta_ids = unzipped_nuisances.ids;
+    // std::vector<ExperimentObs> obs_ids = unzipped_exp_obs.ids; 
+    // eta_ids.insert(eta_ids.end(), p_ids.begin(), p_ids.end());
 
     // auto model_fn = [this, obs_ids, p_ids, eta_ids] (const Vec& p_vec, const Vec& eta_vec) -> Vec {
     //     auto pred_map = this->obs_int->predict_optimized(zip(p_ids, p_vec), zip(eta_ids, eta_vec));

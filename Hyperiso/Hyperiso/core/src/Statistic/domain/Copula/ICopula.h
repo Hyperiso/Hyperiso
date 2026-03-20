@@ -1,8 +1,6 @@
 #ifndef ICOPULA_H
 #define ICOPULA_H
 
-#include "RNGHelper.h"
-
 /**
  * @file ICopula.h
  * @brief Abstract interface for multivariate copulas.
