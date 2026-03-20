@@ -15,6 +15,7 @@ public:
     );
     
     double profiled_nll(double px, double py);
+    std::array<fit_app::ParameterDefinition, 2> get_param_defs() const;
 
 private:
     std::shared_ptr<ILikelihood> base;

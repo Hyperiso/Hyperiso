@@ -36,8 +36,8 @@
  * weights are interpreted up to an overall normalization factor.
  */
 struct LikelihoodMarginalCfg : public AbstractConfig {
-    Vector values;  /// Support points of the discrete distribution.
-    Vector weights; /// Non-negative weights associated with each support point.
+    std::vector<double> values;  /// Support points of the discrete distribution.
+    std::vector<double> weights; /// Non-negative weights associated with each support point.
 };
 
 /**
@@ -79,13 +79,13 @@ public:
      * - a weight is invalid,
      * - the total weight is non-positive.
      */
-    LikelihoodMarginal(Vector values,
-                       Vector weights,
+    LikelihoodMarginal(std::vector<double> values,
+                       std::vector<double> weights,
                        unsigned int seed = std::random_device{}(),
                        bool standardize = false);
     
     /// \copydoc IMarginalDistribution::rvs
-    Vector rvs(std::size_t n) override;
+    std::vector<double> rvs(std::size_t n) override;
 
     /**
      * @brief Placeholder log-density implementation.

@@ -7,7 +7,7 @@
 class WithGaussianConstraints : public ILikelihood {
 public:
     WithGaussianConstraints(std::shared_ptr<ILikelihood> base, std::shared_ptr<JointDistribution> constraints_dist, std::vector<std::size_t> constrained_params);
-    double nll(const Vector& theta) const override;
+    double nll(const std::vector<double>& theta) const override;
     std::vector<fit_app::ParameterDefinition> get_param_defs() const override;
     std::size_t dim() const override;
 

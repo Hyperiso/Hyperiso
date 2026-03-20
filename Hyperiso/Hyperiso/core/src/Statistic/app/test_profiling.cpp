@@ -62,15 +62,15 @@ int main() {
     std::unique_ptr<ICopula> obs_copula = std::make_unique<GaussianCopula>(seed, R_obs);
     std::unique_ptr<JointDistribution> obs_dist = std::make_unique<JointDistribution>(std::move(obs_marginals), std::move(obs_copula));
 
-    LikelihoodContext ctx;
-    ctx.exp_obs_dist = std::move(obs_dist);
-    ctx.nuisance_dist = std::move(nuis_dist);
-    ctx.exp_obs_values = {5, 0, 3, -1, 2, -1, 9, 1};
-    ctx.nuis_defs = {
+    std::shared_ptr<LikelihoodContext> ctx = std::make_shared<LikelihoodContext>();
+    ctx->exp_obs_dist = std::move(obs_dist);
+    ctx->nuisance_dist = std::move(nuis_dist);
+    ctx->exp_obs_values = {5, 0, 3, -1, 2, -1, 9, 1};
+    ctx->nuis_defs = {
         fit_app::ParameterDefinition {"d",  3.0, 1.0},
         fit_app::ParameterDefinition {"e", -1.0, 0.5}
     };
-    ctx.fp_defs = {
+    ctx->fp_defs = {
         fit_app::ParameterDefinition {"a"},
         fit_app::ParameterDefinition {"b"},
         fit_app::ParameterDefinition {"c"}
@@ -155,7 +155,8 @@ int main() {
     cc.x_id = 0;
     cc.y_id = 1;
     cc.primary_contour_method = ContourAlgorithm::AMS;
-    cc.profiling_method = ProfilingMethod::PRIOR_CONSTRAINED_PROJECTION;
+    // cc.fallback_contour_method = ContourAlgorithm::AMS;
+    cc.profiling_method = ProfilingMethod::SLICE;
 
     ContourEngine ce(base, cc);
     Contour cl = ce.compute_contour(1.0, {1.8, 2.2, 0.8, 1.2}, 200);

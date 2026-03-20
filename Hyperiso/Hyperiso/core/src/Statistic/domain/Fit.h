@@ -7,16 +7,19 @@
 #include "IProfilingStrategy.h"
 #include "IContourExtractor.h"
 #include "Math.h"
+#include "ContourEngine.h"
 
 class MLFitter {
 public:
-    MLFitter(const LikelihoodContext& ctx, const ModelFn& model);
+    MLFitter(std::shared_ptr<LikelihoodContext> ctx, const ModelFn& model);
 
-    FitResult maximum_likelihood_fit(const Vector& p0) const;
-    Contour contour(double z, std::array<double, 4> bounds) const;
+    FitResult maximum_likelihood_fit(const std::vector<double>& p0);
+    Contour contour(std::size_t x_id, std::size_t y_id, double z, std::array<double, 4> bounds, ProfilingMethod method = ProfilingMethod::SLICE) const;
 
 private:
-    std::unique_ptr<BaseLikelihood> like_;
+    std::shared_ptr<BaseLikelihood> like_;
+    FitResult master_fit_result;
+    bool master_fit_success = false;
 };
 
 #endif // __FIT_H__

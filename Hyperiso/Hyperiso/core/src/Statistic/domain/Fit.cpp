@@ -1,10 +1,10 @@
 #include "Fit.h"
 // #include "Fit.h"
 
-// FitResult MLEstimator::fit(const Vector& p0) const {
+// FitResult MLEstimator::fit(const std::vector<double>& p0) const {
 //     std::size_t p_dim = p0.size();
 
-//     auto f = [this, p_dim] (Vector p_and_eta) -> double {
+//     auto f = [this, p_dim] (std::vector<double>p_and_eta) -> double {
 //         auto p_first = p_and_eta.begin();
 //         auto p_last = p_first + p_dim;
 //         std::vector<double> p (p_first, p_last);
@@ -21,14 +21,14 @@
 //     min_ctx.simplex_initial_step_size = 0.1;
 //     min_ctx.simplex_max_iter = this->max_iter;
 
-//     Vector start = p0;
-//     Vector eta_start = like_.get_eta_central_values();
+//     std::vector<double>start = p0;
+//     std::vector<double>eta_start = like_.get_eta_central_values();
 //     start.insert(start.end(), eta_start.begin(), eta_start.end());
 
-//     Vector p_scales (p0);
+//     std::vector<double>p_scales (p0);
 //     std::transform(p_scales.begin(), p_scales.end(), p_scales.begin(), [] (double x) { return std::abs(x); });
-//     Vector eta_scales = like_.get_eta_standard_devs();
-//     Vector scales;
+//     std::vector<double>eta_scales = like_.get_eta_standard_devs();
+//     std::vector<double>scales;
 //     scales.insert(scales.end(), p_scales.begin(), p_scales.end());
 //     scales.insert(scales.end(), eta_scales.begin(), eta_scales.end());
 //     std::cout << std::setprecision(17);
@@ -57,7 +57,7 @@
 //     // double f_end   = min_res.min;
 //     // std::cout << "[DBG] f_start=" << f_start << " f_end=" << f_end << std::endl;
 
-//     auto f_pr = [this, p_dim] (Vector p) -> double {
+//     auto f_pr = [this, p_dim] (std::vector<double>p) -> double {
 //         double v = this->like_.nll_profiled(p);
 //         return std::isfinite(v) ? v : 1e300;
 //     };
@@ -110,7 +110,7 @@
 //     std::cout << "Covariance matrix : " << std::endl;
 //     std::cout << cov << std::endl;
 
-//     Vector p_std (p_dim, 0.0);
+//     std::vector<double>p_std (p_dim, 0.0);
 //     for (size_t i = 0; i < p_dim; i++) {
 //         p_std[i] = std::sqrt(cov.at(i, i));
 //     }
@@ -140,7 +140,7 @@
 //     // if (this->dim != 2)
 //         // throw std::runtime_error("Contour routines are only available for 2-dimensional fitting systems.")
 
-//     auto f = [this, ell_hat] (Vector p) {
+//     auto f = [this, ell_hat] (std::vector<double>p) {
 //         return this->wilks_T(p, ell_hat);
 //     };
 
@@ -149,15 +149,29 @@
 //     return extractor.find_iso_contour(delta_T);
 // }
 
-MLFitter::MLFitter(const LikelihoodContext &ctx, const ModelFn &model) {
-    this->like_ = std::make_unique<BaseLikelihood>(model, ctx, ctx.fp_defs.size());
+MLFitter::MLFitter(std::shared_ptr<LikelihoodContext> ctx, const ModelFn &model) {
+    this->like_ = std::make_shared<BaseLikelihood>(model, std::move(ctx), ctx->fp_defs.size());
 }
 
-FitResult MLFitter::maximum_likelihood_fit(const Vector &p0) const {
-    std::unique_ptr<fit_app::IFitBackend> minimizer = fit_app::make_minuit_backend();
+FitResult MLFitter::maximum_likelihood_fit(const std::vector<double>&p0) {
+    std::shared_ptr<Profiler> profiler = std::make_shared<Profiler>(fit_app::make_minuit_backend());
+    ProfileRequest pr_model;
+    for (size_t i = p0.size(); i < like_->dim(); i++) {
+        pr_model.free_params.push_back(i);
+        pr_model.start.push_back(this->like_->get_param_defs().at(i).value);
+    }
 
     auto f = fit_app::LambdaObjectiveFunction(
-        [this] (Vector theta) { return like_->nll(theta); },
+        [this, profiler, pr_model] (const std::vector<double>& p) { 
+            ProfileRequest pr;
+            pr.free_params = pr_model.free_params;
+            pr.start = pr_model.start;
+
+            for (size_t i = 0; i < p.size(); i++)
+                pr.fixed_params[i] = p[i];
+            
+            return profiler->profile(this->like_, pr).nll_hat;
+        },
         0.5
     );
     
@@ -165,24 +179,55 @@ FitResult MLFitter::maximum_likelihood_fit(const Vector &p0) const {
     opt.run_hesse = false;
     opt.verbose = false;
 
-    std::vector<fit_app::ParameterDefinition> theta_0 = this->like_->get_param_defs();
+    std::vector<fit_app::ParameterDefinition> theta_0 = std::vector(
+        this->like_->get_param_defs().begin(),
+        this->like_->get_param_defs().begin() + p0.size()
+    );
+
     for (size_t i = 0; i < p0.size(); i++)
         theta_0[i].value = p0[i];
 
+    std::unique_ptr<fit_app::IFitBackend> minimizer = fit_app::make_minuit_backend();
     fit_app::BackendFitResult master_fit_res = minimizer->minimize(f, theta_0, opt);
 
     if (!master_fit_res.diagnostics.ok)
         LOG_WARN("Initial ML fit failed to converge. Fit result is probably wrong.");
 
-    opt.run_hesse = true;
-    std::vector<std::size_t> fixed_ids;
-    std::vector<double> fixed_vals;
-
-    for (size_t i = 0; i < p0.size(); i++) {
-        fixed_ids.push_back(i);
-        fixed_vals.push_back(master_fit_res.values[i]);
-    }
-
-    fit_app::BackendFitResult master_fit_res = minimizer->minimize_with_fixed(f, theta_0, opt, fixed_ids, fixed_vals);
+    FitResult fr;
+    fr.ell_hat = master_fit_res.diagnostics.fmin;
+    fr.p_hat = master_fit_res.values;
     
+    RealMatrix cov = master_fit_res.covariance;
+    for (size_t i = 0; i < cov.rows(); i++)
+        fr.p_hat_std.emplace_back(std::sqrt(cov.at(i, i)));
+
+    fr.p_hat_correlations = RealMatrix(cov);
+    for (size_t i = 0; i < cov.rows(); i++) {
+        for (size_t j = 0; j < cov.cols(); j++) {
+            fr.p_hat_correlations.at(i, j) /= (fr.p_hat_std.at(i) * fr.p_hat_std.at(j));
+        }
+    }
+    
+    this->master_fit_success = master_fit_res.diagnostics.ok;
+    this->master_fit_result = fr;
+    return fr;
+}
+
+Contour MLFitter::contour(std::size_t x_id, std::size_t y_id, double z, std::array<double, 4> bounds, ProfilingMethod method = ProfilingMethod::SLICE) const {
+    if (this->master_fit_success)
+        LOG_ERROR("InvalidState", "ML fi must have converged before contour computation is available.");
+
+    // TODO : Make resolution and contouring algorithms available as options to the user.
+    ContourConfig cc;
+    cc.fr = this->master_fit_result;
+    cc.x_id = x_id;
+    cc.y_id = y_id;
+    cc.primary_contour_method = ContourAlgorithm::MINUIT;
+    cc.fallback_contour_method = ContourAlgorithm::AMS;
+    cc.profiling_method = method;
+
+    ContourEngine ce(this->like_, cc);
+    Contour cl = ce.compute_contour(z * z / 2, bounds, 200);
+
+    return cl;
 }

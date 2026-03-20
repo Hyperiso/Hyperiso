@@ -15,7 +15,7 @@
  * Typical workflow:
  * @code
  *   std::unique_ptr<ICopula> cop = ...;
- *   Vector u = cop->sample_u();
+ *   std::vector<double> u = cop->sample_u();
  *   double logc = cop->log_density(u);
  * @endcode
  *
@@ -38,14 +38,14 @@ public:
      * @param n Number of samples to generate.
      * @return A vector of samples, each of dimension equal to the copula dimension.
      */
-    virtual std::vector<Vector> sample_u(std::size_t n) = 0;
+    virtual std::vector<std::vector<double>> sample_u(std::size_t n) = 0;
 
     /**
      * @brief Draws a single sample from the copula.
      *
      * @return One dependent uniform sample in \f$[0,1]^d\f$.
      */
-    virtual Vector sample_u() = 0;
+    virtual std::vector<double> sample_u() = 0;
 
     /**
      * @brief Evaluates the log-density of the copula at a point in the unit cube.
@@ -53,7 +53,7 @@ public:
      * @param u Point in \f$[0,1]^d\f$.
      * @return \f$\log c(u)\f$, where \f$c\f$ is the copula density.
      */
-    virtual double log_density(Vector u) = 0;
+    virtual double log_density(std::vector<double> u) = 0;
 };
 
 #endif // ICOPULA_H

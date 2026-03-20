@@ -82,7 +82,7 @@ public:
     explicit FlatMarginal(double a, double b, unsigned int seed = std::random_device{}());
 
     /// \copydoc IMarginalDistribution::rvs
-    Vector rvs(std::size_t n) override;
+    std::vector<double> rvs(std::size_t n) override;
 
     /// \copydoc IMarginalDistribution::logpdf
     double logpdf(double x) override;

@@ -82,7 +82,7 @@ public:
 
         try {
             MinuitObjective minuit_objective(objective);
-            M2::MnContours mn_contours(minuit_objective, state->minimum(), 2);
+            M2::MnContours mn_contours(minuit_objective, state->minimum(), options.strategy);
             out.points = mn_contours(static_cast<unsigned>(x_index), static_cast<unsigned>(y_index), options.npoints);
             out.success = out.points.size() >= 4;
         } catch (...) {

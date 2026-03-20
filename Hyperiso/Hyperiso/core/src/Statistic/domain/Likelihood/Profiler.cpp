@@ -9,10 +9,10 @@ ProfileResult Profiler::profile(std::shared_ptr<ILikelihood> base, const Profile
 
     auto unzipped = unzip(pr.fixed_params);
     std::vector<std::size_t> fixed_idx = unzipped.ids;
-    Vector fixed_vals = unzipped.vals;
+    std::vector<double>fixed_vals = unzipped.vals;
 
     auto f = fit_app::LambdaObjectiveFunction(
-        [base] (Vector theta) { return base->nll(theta); },
+        [base] (std::vector<double>theta) { return base->nll(theta); },
         0.5
     );
     

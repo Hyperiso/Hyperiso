@@ -6,8 +6,8 @@ FlatMarginal::FlatMarginal(double a, double b, unsigned int seed)
     gsl_rng_set(eng_.get(), seed);
 }
 
-Vector FlatMarginal::rvs(std::size_t n) {
-    Vector z(n);
+std::vector<double> FlatMarginal::rvs(std::size_t n) {
+    std::vector<double> z(n);
     for (std::size_t i = 0; i < n; ++i) 
         z[i] = gsl_ran_flat(eng_.get(), a, b);
     return z;

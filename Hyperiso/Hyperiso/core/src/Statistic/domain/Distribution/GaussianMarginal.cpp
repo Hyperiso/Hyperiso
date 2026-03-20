@@ -6,8 +6,8 @@ GaussianMarginal::GaussianMarginal(double mu, double sigma, unsigned int seed)
     gsl_rng_set(eng_.get(), seed);
 }
 
-Vector GaussianMarginal::rvs(std::size_t n) {
-    Vector z(n);
+std::vector<double> GaussianMarginal::rvs(std::size_t n) {
+    std::vector<double> z(n);
     for (std::size_t i = 0; i < n; ++i) 
         z[i] = mu + gsl_ran_gaussian(eng_.get(), sigma);
     return z;

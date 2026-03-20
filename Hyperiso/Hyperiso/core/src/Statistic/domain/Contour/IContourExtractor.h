@@ -10,6 +10,7 @@
 struct ContourRequest {
     double level;
     std::array<double, 4> bounds;
+    std::array<fit_app::ParameterDefinition, 2> p_defs;
     std::size_t resolution = 40;
 };
 

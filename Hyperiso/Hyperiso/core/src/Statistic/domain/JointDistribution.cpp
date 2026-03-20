@@ -6,9 +6,9 @@ JointDistribution::JointDistribution(
     marginals_(std::move(marginals)), copula_(std::move(copula))
 {}
 
-std::vector<Vector> JointDistribution::sample(std::size_t n) const {
-    std::vector<Vector> u = this->copula_->sample_u(n);
-    std::vector<Vector> x (n, Vector(u[0].size(), 0.0));
+std::vector<std::vector<double>> JointDistribution::sample(std::size_t n) const {
+    std::vector<std::vector<double>> u = this->copula_->sample_u(n);
+    std::vector<std::vector<double>> x (n, std::vector<double>(u[0].size(), 0.0));
 
     for (size_t i = 0; i < marginals_.size(); i++) {
         for (size_t j = 0; j < n; j++) {
@@ -19,9 +19,9 @@ std::vector<Vector> JointDistribution::sample(std::size_t n) const {
     return x;
 }
 
-Vector JointDistribution::sample() const {
-    Vector u = this->copula_->sample_u();
-    Vector x (u.size(), 0.0);
+std::vector<double> JointDistribution::sample() const {
+    std::vector<double> u = this->copula_->sample_u();
+    std::vector<double> x (u.size(), 0.0);
 
     for (size_t i = 0; i < marginals_.size(); i++) {
         x[i] = marginals_.at(i)->ppf(u[i]);
@@ -30,11 +30,11 @@ Vector JointDistribution::sample() const {
     return x;
 }
 
-double JointDistribution::logpdf(Vector x) const {
+double JointDistribution::logpdf(std::vector<double> x) const {
     if (x.size() != marginals_.size()) 
         throw std::invalid_argument("Wrong size of random vector.");
 
-    Vector u = Vector(x.size(), 0.0);
+    std::vector<double> u = std::vector<double>(x.size(), 0.0);
     double log_marg {0.0};
 
     // printf("size(x) = %i\n", x.size());
@@ -48,7 +48,7 @@ double JointDistribution::logpdf(Vector x) const {
         // printf("log_marg_i = %.5e\n", marginals_[i]->logpdf(x[i]));
     }
 
-    // printVector(x);
+    // printstd::vector<double>(x);
     // printf("log_marg = %.5e\n", log_marg);
     // printf("log_copula = %.5e\n", copula_->log_density(u));
 
@@ -59,8 +59,8 @@ std::size_t JointDistribution::dim() {
     return marginals_.size();
 }
 
-Vector JointDistribution::get_stds() {
-    Vector stds;
+std::vector<double> JointDistribution::get_stds() {
+    std::vector<double> stds;
     for (auto& m : this->marginals_)
         stds.emplace_back(m->std());
 

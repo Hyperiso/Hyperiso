@@ -17,3 +17,11 @@ double ProfiledLikelihood2D::profiled_nll(double px, double py) {
 
     return res.nll_hat;
 }
+
+std::array<fit_app::ParameterDefinition, 2> ProfiledLikelihood2D::get_param_defs() const {
+    auto all_p_defs = this->base->get_param_defs();
+    return {
+        all_p_defs[this->profiling_strategy->get_x_id()],
+        all_p_defs[this->profiling_strategy->get_y_id()]
+    };
+}

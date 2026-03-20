@@ -11,7 +11,7 @@ StudentTCopula::StudentTCopula(unsigned int seed, RealMatrix R, int nu) : Generi
     this->R_inv = R.inv();
 }
 
-std::vector<Vector> StudentTCopula::sample_u(std::size_t n) {
+std::vector<std::vector<double>> StudentTCopula::sample_u(std::size_t n) {
     std::vector<std::vector<double>> U;
     
     for (std::size_t i = 0; i < n; i++) {
@@ -21,7 +21,7 @@ std::vector<Vector> StudentTCopula::sample_u(std::size_t n) {
     return U;
 }
 
-Vector StudentTCopula::sample_u() {
+std::vector<double> StudentTCopula::sample_u() {
     std::size_t d = R.cols();
 
     RealMatrix z (d, 1);
@@ -33,7 +33,7 @@ Vector StudentTCopula::sample_u() {
     double w = gsl_ran_chisq(eng_.get(), nu);
     z /= std::sqrt(w / nu); // z follows Mt(R, nu)
 
-    Vector u (d, 0.0);
+    std::vector<double> u (d, 0.0);
     for (std::size_t j = 0; j < d; j++) {
         u[j] = std::clamp(gsl_cdf_tdist_P(z.at(j, 0), nu), CLIP_U, 1 - CLIP_U);   // u follows C(R, nu)
     }
@@ -41,7 +41,7 @@ Vector StudentTCopula::sample_u() {
     return u;
 }
 
-double StudentTCopula::log_density(Vector u) {
+double StudentTCopula::log_density(std::vector<double> u) {
     std::size_t d = u.size();
     RealMatrix z (d, 1);
 

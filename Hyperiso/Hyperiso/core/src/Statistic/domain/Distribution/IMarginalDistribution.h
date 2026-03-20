@@ -58,9 +58,9 @@ struct IMarginalDistribution {
      * @brief Draws random samples from the marginal distribution.
      *
      * @param n Number of samples to generate.
-     * @return Vector of size @p n containing iid draws.
+     * @return std::vector<double> of size @p n containing iid draws.
      */
-    virtual Vector rvs(std::size_t n) = 0;
+    virtual std::vector<double> rvs(std::size_t n) = 0;
 
     /**
      * @brief Evaluates the logarithm of the probability density at @p x.

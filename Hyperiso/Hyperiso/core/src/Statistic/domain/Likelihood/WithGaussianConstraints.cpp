@@ -9,7 +9,7 @@ WithGaussianConstraints::WithGaussianConstraints(
         constrained_params(std::move(constrained_params))
 {}
 
-double WithGaussianConstraints::nll(const Vector &theta) const {
+double WithGaussianConstraints::nll(const std::vector<double> &theta) const {
     double base_nll = this->base->nll(theta);
 
     std::vector<double> constrained_vals;

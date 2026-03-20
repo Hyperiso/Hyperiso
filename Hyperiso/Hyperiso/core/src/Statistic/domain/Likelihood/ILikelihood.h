@@ -6,7 +6,7 @@
 class ILikelihood {
 public:
     virtual ~ILikelihood() = default;
-    virtual double nll(const Vector& theta) const = 0;
+    virtual double nll(const std::vector<double>& theta) const = 0;
     virtual std::vector<fit_app::ParameterDefinition> get_param_defs() const = 0;
     virtual std::size_t dim() const = 0;
 };

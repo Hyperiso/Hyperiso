@@ -196,12 +196,12 @@ public:
 
         // auto& like = est.like();              // ou stat.get_estimator().like()
         // double ell_hat = fr.ell_hat;
-        // Vector p = fr.p_hat;
+        // std::vector<double> p = fr.p_hat;
 
         // // std::cout << "Scan p2:\n";
         // // for (int k=0; k<=40; ++k) {
         // //     double p2 = 0.0 + k * 0.01;      // adapte le range !
-        // //     Vector pp = {p[0], p2};
+        // //     std::vector<double> pp = {p[0], p2};
         // //     double d = like.nll_profiled(pp) - ell_hat;
         // //     std::cout << p2 << " " << d << "\n";
         // // }

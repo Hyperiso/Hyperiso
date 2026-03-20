@@ -9,8 +9,8 @@ SplitGaussianMarginal::SplitGaussianMarginal(double mu, double sigma_p, double s
     gsl_rng_set(eng_.get(), seed);
 }
 
-Vector SplitGaussianMarginal::rvs(std::size_t n) {
-    Vector z(n);
+std::vector<double> SplitGaussianMarginal::rvs(std::size_t n) {
+    std::vector<double> z(n);
     for (std::size_t i = 0; i < n; ++i) 
         z[i] = ppf(gsl_ran_flat(eng_.get(), 0, 1));
     return z;

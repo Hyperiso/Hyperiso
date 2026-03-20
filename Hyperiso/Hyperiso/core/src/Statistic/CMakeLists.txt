@@ -86,10 +86,10 @@ add_library(StatisticLib STATIC
     adapters/StatParamSourcesProxy.cpp
     adapters/StatParamOptimizerProxy.cpp
     adapters/StatDependencyPruner.cpp
-    domain/RNGHelper.cpp
+    # domain/RNGHelper.cpp
     domain/JointDistribution.cpp
     domain/Fit.cpp
-    domain/Likelihood.cpp
+    # domain/Likelihood.cpp
     domain/CovarianceTransformer.cpp
     domain/Distribution/MarginalConfigFactory.cpp
     domain/MCEngine.cpp

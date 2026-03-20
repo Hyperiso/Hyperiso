@@ -78,8 +78,8 @@ void LikelihoodMarginal::build_alias_tables(std::vector<double> weights) {
     }
 }
 
-Vector LikelihoodMarginal::rvs(std::size_t n) {
-    Vector out(n);
+std::vector<double> LikelihoodMarginal::rvs(std::size_t n) {
+    std::vector<double> out(n);
     const std::size_t m = values_.size();
     std::uniform_int_distribution<std::size_t> uid(0, m - 1);
 

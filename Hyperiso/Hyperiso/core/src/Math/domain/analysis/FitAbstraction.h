@@ -63,7 +63,7 @@ public:
 };
 
 struct BackendFitResult {
-    Vector values;
+    std::vector<double>values;
     std::vector<double> errors;
     RealMatrix covariance;
     FitDiagnostics diagnostics;

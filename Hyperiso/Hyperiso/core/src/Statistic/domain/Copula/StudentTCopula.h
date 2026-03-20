@@ -77,15 +77,15 @@ public:
     /**
      * @copydoc ICopula::sample_u(std::size_t)
      */
-    std::vector<Vector> sample_u(std::size_t n) override;
+    std::vector<std::vector<double>> sample_u(std::size_t n) override;
 
     /**
      * @copydoc ICopula::sample_u()
      */
-    Vector sample_u() override;
+    std::vector<double> sample_u() override;
 
     /**
-     * @copydoc ICopula::log_density(Vector)
+     * @copydoc ICopula::log_density(std::vector<double>)
      *
      * The implementation:
      * - transforms \f$u_i\f$ to Student-t quantiles,
@@ -93,7 +93,7 @@ public:
      * - subtracts the sum of marginal log-densities,
      * yielding the copula log-density.
      */
-    double log_density(Vector u) override;
+    double log_density(std::vector<double> u) override;
 
 private:
     int nu;                 /// Degrees of freedom of the latent Student-t vector.

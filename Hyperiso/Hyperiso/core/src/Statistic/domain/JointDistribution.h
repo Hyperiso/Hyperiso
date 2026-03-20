@@ -24,11 +24,11 @@ public:
     JointDistribution(std::vector<std::unique_ptr<IMarginalDistribution>> marginals,
                           std::unique_ptr<ICopula> copula);
 
-    std::vector<Vector> sample(std::size_t n) const;
-    Vector sample() const;
-    double logpdf(Vector x) const;
+    std::vector<std::vector<double>> sample(std::size_t n) const;
+    std::vector<double> sample() const;
+    double logpdf(std::vector<double> x) const;
     std::size_t dim();
-    Vector get_stds();
+    std::vector<double> get_stds();
 
 private:
     std::vector<std::unique_ptr<IMarginalDistribution>> marginals_;
