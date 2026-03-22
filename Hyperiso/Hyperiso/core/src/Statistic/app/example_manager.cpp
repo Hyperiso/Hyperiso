@@ -1,130 +1,191 @@
+#include <chrono>
+#include <fstream>
+#include <iomanip>
+#include <iostream>
+#include <map>
+#include <memory>
+#include <set>
+#include <string>
+#include <utility>
+#include <vector>
+
 #include "StatisticManager.h"
+#include "ObservableInterface.h"
 #include "ObservableInterfaceAdapter2.h"
 #include "StatCorrelationProxy.h"
 #include "StatParameterProxy.h"
-#include "ObservableInterface.h"
 #include "StatParamSourcesProxy.h"
 #include "StatDependencyPruner.h"
-#include <cassert>
+#include "FitAbstraction.h"
 
-void print_vec(const std::vector<double>& vec) {
-    std::cout << "[ ";
-    for (size_t i = 0; i < vec.size(); i++) {
-        std::cout << vec.at(i) << (i == vec.size() - 1 ? " " : ", ");
+namespace {
+
+using Path = std::vector<std::pair<double, double>>;
+
+void print_fit_result(const FitResultWithMaps& fit) {
+    std::cout << std::setprecision(17);
+    std::cout << "fit_ok  = " << fit.fit_ok << "\n";
+    std::cout << "ell_hat = " << fit.ell_hat << "\n";
+
+    std::cout << "\np_hat:\n";
+    for (const auto& [pid, val] : fit.p_hat) {
+        std::cout << "  " << fit_app::to_string_any(pid) << " = " << val << "\n";
     }
-    std::cout << "]" << std::endl;
+
+    std::cout << "\neta_hat:\n";
+    for (const auto& [pid, val] : fit.eta_hat) {
+        std::cout << "  " << fit_app::to_string_any(pid) << " = " << val << "\n";
+    }
+
+    std::cout << "\np_hat_std:\n";
+    for (const auto& [pid, val] : fit.p_hat_std) {
+        std::cout << "  " << fit_app::to_string_any(pid) << " = " << val << "\n";
+    }
+
+    std::cout << "\np_correlations:\n";
+    for (const auto& [pi, row] : fit.p_correlations) {
+        for (const auto& [pj, corr] : row) {
+            std::cout << "  corr(" << fit_app::to_string_any(pi)
+                      << ", " << fit_app::to_string_any(pj)
+                      << ") = " << corr << "\n";
+        }
+    }
 }
 
-int main(int argc, char** argv) {
-    RealValuedForm F_gauss_nll = [](const Vec& p) {
-        // mean
-        double mu0 = 1e-12;
-        double mu1 = 1e3;
-        double mu2 = 1e-4;
+void save_bestfit_csv(const std::string& path, const FitResultWithMaps& fit) {
+    std::ofstream out(path);
+    out << "name,value,error\n";
 
-        double s0 = 1e-13;
-        double s1 = 1e2;
-        double s2 = 1e-6;
+    for (const auto& [pid, val] : fit.p_hat) {
+        double err = 0.0;
+        auto it = fit.p_hat_std.find(pid);
+        if (it != fit.p_hat_std.end()) {
+            err = it->second;
+        }
 
-        RealMatrix corr ({
-            {1, 0.2, -0.5},
-            {0.2, 1, 0.7},
-            {-0.5, 0.7, 1}
-        });
+        out << fit_app::to_string_any(pid) << ","
+            << std::setprecision(17) << val << ","
+            << err << "\n";
+    }
+}
 
-        RealMatrix z ({
-            Vector {(p[0] - mu0) / s0},
-            Vector {(p[1] - mu1) / s1},
-            Vector {(p[2] - mu2) / s2}
-        });
+void save_contour_csv(const std::string& path,
+                      const std::string& xname,
+                      const std::string& yname,
+                      const std::set<Path>& contour68,
+                      const std::set<Path>& contour95) {
+    std::ofstream out(path);
+    out << "# x=" << xname << "\n";
+    out << "# y=" << yname << "\n";
+    out << "cl,path_id,x,y\n";
 
-        return 0.5 * (2 * PI * corr.slogdet().logdet + (z.transpose() * corr.inv() * z).at(0, 0));
-    };
+    std::size_t path_id = 0;
+    for (const auto& path_pts : contour68) {
+        for (const auto& p : path_pts) {
+            out << "0.683," << path_id << ","
+                << std::setprecision(17) << p.first << ","
+                << p.second << "\n";
+        }
+        ++path_id;
+    }
 
-    MinimizationContext ctx;
-    ctx.final_tol = 1e-8;
-    ctx.switch_tol = 1e-3;
-    ctx.simplex_initial_step_size = 0.2;
-    MinimizationResult mr = minimize_combined(F_gauss_nll, {3e-12, 250, 0.0002}, {1e-13, 1e2, 1e-6}, ctx);
-    std::cout << mr.min << std::endl;
-    std::cout << mr.argmin[0] << ", " << mr.argmin[1] << ", " << mr.argmin[2] << std::endl;
-    
-    // exit(0);
-    // Vec p_hat = {1e-12, 1e3};
-    // auto H = hessian(F_gauss_nll, p_hat);
-    // auto H_inv = inverse_hessian(F_gauss_nll, p_hat);
+    path_id = 0;
+    for (const auto& path_pts : contour95) {
+        for (const auto& p : path_pts) {
+            out << "0.95," << path_id << ","
+                << std::setprecision(17) << p.first << ","
+                << p.second << "\n";
+        }
+        ++path_id;
+    }
+}
 
-    // std::cout << H << std::endl;
-    // std::cout << H_inv << std::endl;
-    // std::cout << H * H_inv << std::endl;
+} 
+
+int main() {
+    using namespace fit_app;
 
     HyperisoMaster hyp;
     HyperisoConfig config_hyp;
     config_hyp.model = Model::SM;
     hyp.init("lha/si_input.flha", config_hyp);
 
-    std::shared_ptr<ObservableInterface> oint = std::make_shared<ObservableInterface>();
+    auto oint = std::make_shared<ObservableInterface>();
     oint->add_observable(ObservableMapper::to_id(Observables::BR_BS_MUMU_UNTAG), QCDOrder::LO, true)
         .add_observable(ObservableMapper::to_id(Observables::BR_BD_MUMU), QCDOrder::LO, true);
-        // .add_observable(BinnedObservableId(ObservableMapper::to_id(Observables::DBR_DQ2_B__K_MU_MU), Point(1.1, 6)), QCDOrder::LO, true);
-        // .add_observable(BinnedObservableId(ObservableMapper::to_id(Observables::DBR_DQ2_B__K_MU_MU), Point(11, 13)), QCDOrder::LO, true);
+
+    auto model = std::make_shared<ObservableInterfaceAdapterObs>(oint);
 
     StatisticConfig config;
     config.MC_draws = 100;
-    config.MLE_max_iter = 10000;
-    config.MLE_tol = 1e-6;
+    config.MLE_max_iter = 120000;
+    config.MLE_tol = 0.2;
 
     config.p_specs = {
-        ParamId(ParameterType::SM, "VCKMIN", 1),
-        ParamId(ParameterType::SM, "VCKMIN", 2),
-        ParamId(ParameterType::SM, "VCKMIN", 3),
-        ParamId(ParameterType::SM, "VCKMIN", 4)
+        ParamId{ParameterType::FLAVOR, "FCONST", {511, 1}},
+        ParamId{ParameterType::FLAVOR, "FCONST", {531, 1}}
     };
 
-    StatisticManager stat(config, std::make_shared<ObservableInterfaceAdapterObs>(oint), std::make_shared<StatCorrelationProxy>(), std::make_shared<StatParameterProxy>(), std::make_shared<StatParamSourcesProxy>(), std::make_shared<StatDependencyPruner>());
-    LOG_INFO("YO1");
-    stat.update_cache();
-    // LOG_INFO("YO2");
-    auto start = std::chrono::steady_clock::now();
-    stat.compute_uncertainties();
-    auto stop  = std::chrono::steady_clock::now();
-    LOG_INFO("YO3");
-    auto us = std::chrono::duration_cast<std::chrono::microseconds>(stop - start).count();
-    std::cout << "Uncertainty estimation time : " << us << " µs\n";
+    StatisticManager stat(
+        config,
+        model,
+        std::make_shared<StatCorrelationProxy>(),
+        std::make_shared<StatParameterProxy>(),
+        std::make_shared<StatParamSourcesProxy>(),
+        std::make_shared<StatDependencyPruner>()
+    );
 
-    // auto start = std::chrono::steady_clock::now();
-    auto fr = stat.compute_MLE({
-        ParamId(ParameterType::SM, "VCKMIN", 1),
-        ParamId(ParameterType::SM, "VCKMIN", 2),
-        ParamId(ParameterType::SM, "VCKMIN", 3),
-        ParamId(ParameterType::SM, "VCKMIN", 4)
-    });
-    // auto stop  = std::chrono::steady_clock::now();
-    // auto us = std::chrono::duration_cast<std::chrono::microseconds>(stop - start).count();
-    std::cout << "MLE fitting time : " << us << " µs\n";
+    auto t0 = std::chrono::steady_clock::now();
+    auto unc = stat.compute_uncertainties();
+    auto t1 = std::chrono::steady_clock::now();
+    std::cout << "Uncertainty pass done in "
+              << std::chrono::duration_cast<std::chrono::milliseconds>(t1 - t0).count()
+              << " ms\n";
+    std::cout << "Number of summarized observables = " << unc.size() << "\n";
 
-    auto p_hat2 = fr.p_hat;
-    auto p_hat_std = fr.p_hat_std;
+    auto t2 = std::chrono::steady_clock::now();
+    FitResultWithMaps fit = stat.compute_MLE(config.p_specs);
+    auto t3 = std::chrono::steady_clock::now();
 
-    // for (auto [k, v] : p_hat) {
-    //     std::cout << k << " = " << v << "(" << p_hat_std.at(k) << ")" << std::endl;
-    // }
+    std::cout << "\nMLE done in "
+              << std::chrono::duration_cast<std::chrono::milliseconds>(t3 - t2).count()
+              << " ms\n\n";
 
-    // std::cout << fr.p_correlations << std::endl;
+    if (!fit.fit_ok) {
+        std::cerr << "[ERROR] MLE fit failed.\n";
+        return 5;
+    }
 
-    // auto paths = stat.confidence_contour(
-    //     ParamId(ParameterType::SM, "VCKMIN", 3),
-    //     ParamId(ParameterType::SM, "VCKMIN", 4),
-    //     1,
-    //     {{0.13, 0.19, 0.34, 0.38}}
-    // );
-    
-    // for (auto &p : paths) {
-    //     for (auto& xy: p) {
-    //         std::cout << xy.first << " " << xy.second << std::endl;
-    //     }
-    //     std::cout << std::endl;
-    // }
-    std::cout << *StatParameterProxy(ParameterType::OBSERVABLE).get_param("FOBS", LhaID("511_1_0_0_2_13_-13")) << std::endl;
+    print_fit_result(fit);
+    save_bestfit_csv("bestfit.csv", fit);
+    std::cout << "[INFO] Wrote bestfit.csv\n";
+
+    if (config.p_specs.size() == 2) {
+        const ParamId p1 = config.p_specs[0];
+        const ParamId p2 = config.p_specs[1];
+
+        std::array<double, 4> bounds = {0.05, 0.35, 0.05, 0.35};
+
+        //   68.3%  -> delta_chi2 = 2.30 -> delta_nll = 1.15 -> z = sqrt(2.30)
+        //   95%    -> delta_chi2 = 5.99 -> delta_nll = 2.995 -> z = sqrt(5.99)
+        const double z68_2d = std::sqrt(2.30);
+        const double z95_2d = std::sqrt(5.99);
+
+        auto c68 = stat.confidence_contour(p1, p2, z68_2d, bounds, CLMethod::PROJECT);
+        auto c95 = stat.confidence_contour(p1, p2, z95_2d, bounds, CLMethod::PROJECT);
+
+        std::cout << "[INFO] contour 68% paths = " << c68.size() << "\n";
+        std::cout << "[INFO] contour 95% paths = " << c95.size() << "\n";
+
+        save_contour_csv(
+            "contours.csv",
+            fit_app::to_string_any(p1),
+            fit_app::to_string_any(p2),
+            c68,
+            c95
+        );
+        std::cout << "[INFO] Wrote contours.csv\n";
+    }
+
     return 0;
 }

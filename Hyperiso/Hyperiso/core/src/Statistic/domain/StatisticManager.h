@@ -53,7 +53,8 @@ struct StatCache {
 
 enum class CLMethod {
     SLICE,
-    PROJECT
+    PROJECT,
+    PRIOR_PROJECT
 };
 
 class StatisticManager {
@@ -98,116 +99,7 @@ public:
         return sums;
     }
     
-    FitResultWithMaps compute_MLE(const std::vector<ParamId>& p_specs) {
-        // update_cache(std::move(p_specs));
-        // // Build Likelihood context
-
-        // auto unzipped_fit_params = unzip(cache.p_specs);
-        // auto unzipped_nuisances = unzip(cache.eta_specs_real);
-        // auto unzipped_exp_obs = unzip(cache.exp_obs);
-
-        // std::vector<ParamId> p_ids = unzipped_fit_params.ids;
-        // std::vector<ParamId> eta_ids = unzipped_nuisances.ids;
-        // std::vector<ExperimentObs> obs_ids = unzipped_exp_obs.ids;
-        
-        // LikelihoodContext ctx;
-        // ctx.nuisance_dist = std::move(build_nuisance_distribution());
-        // ctx.exp_obs_dist = std::move(build_exp_data_distribution());
-        // ctx.nuisance_central_values = unzipped_nuisances.vals;
-        // ctx.exp_obs_values = unzipped_exp_obs.vals;
-
-        // // auto model_fn = [this, obs_ids, p_ids, eta_ids] (const Vec& p_vec, const Vec& eta_vec) -> Vec {
-        // //     auto start = std::chrono::steady_clock::now();
-        // //     auto pred_map = this->obs_int->predict_optimized(zip(p_ids, p_vec), zip(eta_ids, eta_vec));
-        // //     auto stop  = std::chrono::steady_clock::now();
-        // //     auto us = std::chrono::duration_cast<std::chrono::microseconds>(stop - start).count();
-        // //     // std::cout << "Predict took " << us << " µs" << std::endl;
-        // //     // for (auto pred : pred_map) {
-        // //     //     std::cout << ObservableMapper::str(pred.first) << ": ";
-        // //     //     for (auto ov : pred.second) 
-        // //     //         std::cout << ov.value << " ";
-        // //     //     std::cout << std::endl; 
-        // //     // }
-        // //     return flatten(pred_map).vals;
-        // // };
-
-        /*
-            // auto model_fn = [this, obs_ids, p_ids, eta_ids](const Vec& p_vec, const Vec& eta_vec) -> Vec {
-            //     auto pred_map = this->obs_int->predict_optimized(zip(p_ids, p_vec), zip(eta_ids, eta_vec));
-            //     auto stop  = std::chrono::steady_clock::now();
-            //     auto us = std::chrono::duration_cast<std::chrono::microseconds>(stop - start).count();
-            //     // std::cout << "Predict took " << us << " µs" << std::endl;
-            //     // for (auto pred : pred_map) {
-            //     //     std::cout << ObservableMapper::str(pred.first) << ": ";
-            //     //     for (auto ov : pred.second) 
-            //     //         std::cout << ov.value << " ";
-            //     //     std::cout << std::endl; 
-            //     // }
-            //     return flatten(pred_map).vals;
-            // };
-        */
-
-        // // Need to keep this one. This one is the one. The right one. I mean, the RIGHT one.
-        // auto model_fn = [this, obs_ids, p_ids, eta_ids](const Vec& p_vec, const Vec& eta_vec) -> Vec {
-        //     auto pred_map = this->obs_int->predict_optimized(zip(p_ids, p_vec), zip(eta_ids, eta_vec));
-
-
-        //     Vec out;
-        //     std::map<BinnedObservableId, double> reserve;
-        //     out.reserve(obs_ids.size());
-        //     std::set<BinnedObservableId> already_done {};
-        //     for (const auto& bid : obs_ids) {
-        //         if (already_done.contains(bid.obs)) {
-        //             out.push_back(reserve[bid.obs]);
-        //             continue;
-        //         }
-        //         // bid.s = ObservableId, bid.p = bin (pair<double,double>)
-        //         const auto& vec = pred_map.at(bid.obs.s);
-
-        //         // retrouver la bonne entrée dans vec
-        //         // si non binned : bin = {0,0} chez toi, donc match direct
-        //         auto it = std::find_if(vec.begin(), vec.end(), [&](const ObservableValue& ov){
-        //             auto bin = ov.bin.value_or(std::pair<double,double>{0.,0.});
-        //             return bin == bid.obs.p; // ou fpeq sur doubles si nécessaire
-        //         });
-        //         if (it == vec.end()) throw std::runtime_error("Missing predicted observable/bin");
-        //         out.push_back(it->value);
-        //         reserve[bid.obs] = it->value;
-        //     }
-        //     return out;
-        // };
-
-        // MLEstimator est(std::move(ctx), model_fn, this->config.MLE_max_iter, this->config.MLE_tol);
-
-        // FitResult fr = est.fit(unzipped_fit_params.vals);
-        // std::map<ParamId, double> p_hat_map = zip(p_ids, fr.p_hat);
-        // std::map<ParamId, double> eta_hat_map = zip(eta_ids, fr.eta_hat);
-        // std::map<ParamId, double> p_hat_std_map = zip(p_ids, fr.p_hat_std);
-        // std::map<ParamId, std::map<ParamId, double>> p_hat_corr_map = zip(p_ids, fr.p_hat_correlations);
-
-        // FitResultWithMaps out;
-        // out.p_hat   = std::move(p_hat_map);
-        // out.eta_hat = std::move(eta_hat_map);
-        // out.ell_hat = fr.ell_hat;
-        // out.p_hat_std = std::move(p_hat_std_map);
-        // out.p_correlations = std::move(p_hat_corr_map);
-        // out.fit_ok = true;
-        // this->cache.mle_result = out;
-
-        // auto& like = est.like();              // ou stat.get_estimator().like()
-        // double ell_hat = fr.ell_hat;
-        // std::vector<double> p = fr.p_hat;
-
-        // // std::cout << "Scan p2:\n";
-        // // for (int k=0; k<=40; ++k) {
-        // //     double p2 = 0.0 + k * 0.01;      // adapte le range !
-        // //     std::vector<double> pp = {p[0], p2};
-        // //     double d = like.nll_profiled(pp) - ell_hat;
-        // //     std::cout << p2 << " " << d << "\n";
-        // // }
-
-        // return out;
-    }
+    FitResultWithMaps compute_MLE(const std::vector<ParamId>& p_specs);
 
     std::set<std::vector<std::pair<double, double>>> confidence_contour(ParamId p1, ParamId p2, double z, std::array<double, 4> bounds, CLMethod method = CLMethod::PROJECT);
 
@@ -314,6 +206,15 @@ private:
     std::shared_ptr<IStatDependencyPruner> dp;
     StatisticConfig config;
     StatCache cache;
+
+    std::shared_ptr<LikelihoodContext> last_ctx_;
+    std::shared_ptr<BaseLikelihood> last_like_;
+    std::shared_ptr<MLFitter> last_fitter_;
+    FitResult last_fit_raw_;
+
+    std::vector<ParamId> last_fit_param_ids_;
+    std::vector<ParamId> last_nuisance_ids_;
+    std::map<ParamId, std::size_t> last_fit_param_index_;
 };
 
 #endif

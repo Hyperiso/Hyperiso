@@ -1,5 +1,125 @@
 #include "StatisticManager.h"
 
+namespace {
+
+std::string param_name(const ParamId& pid) {
+    std::ostringstream oss;
+    oss << pid;
+    return oss.str();
+}
+
+fit_app::ParameterDefinition make_param_def(const ParamId& pid, double value, double sigma_hint) {
+    fit_app::ParameterDefinition out;
+    out.name = param_name(pid);
+    out.value = value;
+
+    if (std::isfinite(sigma_hint) && sigma_hint > 0.0) {
+        out.step_hint = sigma_hint;
+    } else {
+        out.step_hint = std::max(1e-3, 0.01 * std::abs(value));
+    }
+
+    return out;
+}
+
+fit_app::ParameterDefinition make_fit_param_def(const ParamId& pid, double value, double sigma_hint) {
+    fit_app::ParameterDefinition out;
+    out.name = param_name(pid);
+    out.value = value;
+    out.step_hint = (std::isfinite(sigma_hint) && sigma_hint > 0.0)
+        ? sigma_hint
+        : std::max(1e-3, 0.01 * std::abs(value));
+
+    const std::string& nm = out.name;
+
+    if (nm.find("FCONST") != std::string::npos) {
+        out.limits = std::make_pair(0.05, 0.35);
+    }
+
+    return out;
+}
+
+fit_app::ParameterDefinition make_nuisance_param_def(const ParamId& pid, double value, double sigma_hint) {
+    fit_app::ParameterDefinition out;
+    out.name = param_name(pid);
+    out.value = value;
+
+    const double s = (std::isfinite(sigma_hint) && sigma_hint > 0.0)
+        ? std::abs(sigma_hint)
+        : std::max(1e-3, 0.01 * std::abs(value));
+
+    out.step_hint = s;
+
+    const std::string& nm = out.name;
+
+    if (nm.find("SMINPUTS:3") != std::string::npos) {
+        out.limits = std::make_pair(0.05, 0.30);
+    } else if (nm.find("MASS:") != std::string::npos ||
+               nm.find("FLIFE:") != std::string::npos ||
+               nm.find("FCONST:") != std::string::npos ||
+               nm.find("FMASS:") != std::string::npos ||
+               nm.find("SMINPUTS:5") != std::string::npos ||
+               nm.find("SMINPUTS:6") != std::string::npos) {
+        out.limits = std::make_pair(std::max(1e-12, value - 5.0 * s), value + 5.0 * s);
+    }
+
+    return out;
+}
+
+ProfilingMethod to_profiling_method(CLMethod method) {
+    switch (method) {
+        case CLMethod::SLICE:
+            return ProfilingMethod::SLICE;
+        case CLMethod::PROJECT:
+            return ProfilingMethod::FREE_PROJECTION;
+        case CLMethod::PRIOR_PROJECT:
+            return ProfilingMethod::PRIOR_CONSTRAINED_PROJECTION;
+        default:
+            throw std::invalid_argument("Unknown CLMethod.");
+    }
+}
+
+std::map<ParamId, std::map<ParamId, double>> matrix_to_corr_map(
+    const std::vector<ParamId>& ids,
+    const RealMatrix& corr)
+{
+    std::map<ParamId, std::map<ParamId, double>> out;
+    for (std::size_t i = 0; i < ids.size(); ++i) {
+        for (std::size_t j = 0; j < ids.size(); ++j) {
+            out[ids[i]][ids[j]] = corr.at(i, j);
+        }
+    }
+    return out;
+}
+
+template <class PredMapT>
+std::vector<double> ordered_prediction_vector(
+    const std::vector<ExperimentObs>& obs_ids,
+    const PredMapT& pred_map)
+{
+    std::vector<double> out;
+    out.reserve(obs_ids.size());
+
+    for (const auto& bid : obs_ids) {
+        const auto& vec = pred_map.at(bid.obs.s);
+
+        auto it = std::find_if(vec.begin(), vec.end(), [&](const auto& ov) {
+            auto bin = ov.bin.value_or(std::pair<double, double>{0.0, 0.0});
+            return bin == bid.obs.p;
+        });
+
+        if (it == vec.end()) {
+            throw std::runtime_error("Missing predicted observable/bin.");
+        }
+
+        out.push_back(it->value);
+    }
+
+    return out;
+}
+
+}
+
 std::vector<std::unique_ptr<IMarginalDistribution>> StatisticManager::build_nuisance_marginal_distributions() {
     // unsigned int seed = std::random_device{}(); TODO : investigate how random seed leads to unstable results
     unsigned int seed = 123456u;
@@ -97,87 +217,117 @@ std::unique_ptr<JointDistribution> StatisticManager::build_exp_data_distribution
     return std::make_unique<JointDistribution>(std::move(marginals), std::move(copula));
 }
 
+FitResultWithMaps StatisticManager::compute_MLE(const std::vector<ParamId>& p_specs) {
+    update_cache(p_specs.empty() ? config.p_specs : p_specs);
+
+    if (cache.p_specs.empty()) {
+        throw std::invalid_argument("compute_MLE called with an empty fit parameter list.");
+    }
+
+    auto unzipped_fit_params = unzip(cache.p_specs);
+    auto unzipped_nuisances  = unzip(cache.eta_specs_real);
+    auto unzipped_exp_obs    = unzip(cache.exp_obs);
+
+    const std::vector<ParamId> p_ids = unzipped_fit_params.ids;
+    const std::vector<double> p0 = unzipped_fit_params.vals;
+
+    const std::vector<ParamId> eta_ids = unzipped_nuisances.ids;
+    const std::vector<double> eta0 = unzipped_nuisances.vals;
+
+    const std::vector<ExperimentObs> obs_ids = unzipped_exp_obs.ids;
+    const std::vector<double> exp_obs_vals = unzipped_exp_obs.vals;
+
+    auto ctx = std::make_shared<LikelihoodContext>();
+    ctx->nuisance_dist = build_nuisance_distribution();
+    ctx->exp_obs_dist = build_exp_data_distribution();
+    ctx->exp_obs_values = exp_obs_vals;
+
+    // ctx->fp_defs.reserve(p_ids.size());
+    // for (std::size_t i = 0; i < p_ids.size(); ++i) {
+    //     double sigma = std::abs(pspp->get_param(p_ids[i])->get_combined_std().real());
+    //     ctx->fp_defs.emplace_back(make_param_def(p_ids[i], p0[i], sigma));
+    // }
+
+    // ctx->nuis_defs.reserve(eta_ids.size());
+    // for (std::size_t i = 0; i < eta_ids.size(); ++i) {
+    //     double sigma = std::abs(pspp->get_param(eta_ids[i])->get_combined_std().real());
+    //     ctx->nuis_defs.emplace_back(make_param_def(eta_ids[i], eta0[i], sigma));
+    // }
+
+    ctx->fp_defs.reserve(p_ids.size());
+    for (std::size_t i = 0; i < p_ids.size(); ++i) {
+        double sigma = std::abs(pspp->get_param(p_ids[i])->get_combined_std().real());
+        ctx->fp_defs.emplace_back(make_fit_param_def(p_ids[i], p0[i], sigma));
+    }
+
+    ctx->nuis_defs.reserve(eta_ids.size());
+    for (std::size_t i = 0; i < eta_ids.size(); ++i) {
+        double sigma = std::abs(pspp->get_param(eta_ids[i])->get_combined_std().real());
+        ctx->nuis_defs.emplace_back(make_nuisance_param_def(eta_ids[i], eta0[i], sigma));
+    }
+
+    auto model_fn = [this, obs_ids, p_ids, eta_ids](
+        const std::vector<double>& p_vec,
+        const std::vector<double>& eta_vec) -> std::vector<double>
+    {
+        auto pred_map = this->obs_int->predict_optimized(
+            zip(p_ids, p_vec),
+            zip(eta_ids, eta_vec)
+        );
+
+        return ordered_prediction_vector(obs_ids, pred_map);
+    };
+
+    last_ctx_ = ctx;
+    last_like_ = std::make_shared<BaseLikelihood>(model_fn, ctx, p_ids.size());
+    last_fitter_ = std::make_shared<MLFitter>(ctx, model_fn);
+
+    last_fit_raw_ = last_fitter_->maximum_likelihood_fit(p0);
+
+    last_fit_param_ids_ = p_ids;
+    last_nuisance_ids_ = eta_ids;
+    last_fit_param_index_.clear();
+    for (std::size_t i = 0; i < p_ids.size(); ++i) {
+        last_fit_param_index_[p_ids[i]] = i;
+    }
+
+    FitResultWithMaps out;
+    out.fit_ok = !last_fit_raw_.p_hat.empty();
+    out.ell_hat = last_fit_raw_.ell_hat;
+    out.p_hat = zip(p_ids, last_fit_raw_.p_hat);
+    out.eta_hat = zip(eta_ids, last_fit_raw_.eta_hat);
+    out.p_hat_std = zip(p_ids, last_fit_raw_.p_hat_std);
+    out.p_correlations = matrix_to_corr_map(p_ids, last_fit_raw_.p_hat_correlations);
+
+    cache.mle_result = out;
+    return out;
+}
+
 std::set<std::vector<std::pair<double, double>>> StatisticManager::confidence_contour(ParamId p1, ParamId p2, double z, std::array<double, 4> bounds, CLMethod method) {
-    // if (!(this->cache.p_specs.contains(p1) && this->cache.p_specs.contains(p2)))
-    //     throw std::invalid_argument("Invalid parameter for confidence level.");
+    if (!cache.mle_result.fit_ok || !last_fitter_) {
+        throw std::runtime_error("Please run compute_MLE before requesting a confidence contour.");
+    }
 
-    // if (!this->cache.mle_result.fit_ok)
-    //     throw std::runtime_error("Please perform MLE fit before extracting contours");
+    if (!last_fit_param_index_.contains(p1) || !last_fit_param_index_.contains(p2)) {
+        throw std::invalid_argument("Contour requested for parameters that are not in the last fitted parameter set.");
+    }
 
-    // // Build joint distribution (gaussian marginals + gaussian copula) for the remaining fit parameters
-    // unsigned int seed = 123456u;
+    if (p1 == p2) {
+        throw std::invalid_argument("Contour requires two distinct parameters.");
+    }
 
-    // // Marginals
-    // std::vector<std::unique_ptr<IMarginalDistribution>> marginals;
-    // for (auto& [p, _] : cache.p_specs) {
-    //     if (p == p1 || p == p2) continue;
+    const std::size_t x_id = last_fit_param_index_.at(p1);
+    const std::size_t y_id = last_fit_param_index_.at(p2);
 
-    //     GaussianMarginalCfg cfg(cache.mle_result.p_hat.at(p), cache.mle_result.p_hat_std.at(p));
-    //     auto m_ptr = DistributionFactory::create(MarginalType::GAUSSIAN, cfg, seed);
-    //     marginals.emplace_back(std::move(m_ptr));
-    // }
+    Contour cl = last_fitter_->contour(
+        x_id,
+        y_id,
+        z,
+        bounds,
+        to_profiling_method(method)
+    );
 
-    // auto nuisance_marginals = build_nuisance_marginal_distributions();
-    // marginals.insert(
-    //     marginals.end(),
-    //     std::make_move_iterator(nuisance_marginals.begin()),
-    //     std::make_move_iterator(nuisance_marginals.end())
-    // );
-
-    // // Copula
-    // auto p_ids = unzip(cache.p_specs).ids;
-    // RealMatrix R = unzip(cache.mle_result.p_correlations).vals;
-    // std::vector<std::vector<ParamId>::iterator> to_erase;
-    // for (auto& p : {p1, p2}) {
-    //     std::ptrdiff_t idx = std::distance(p_ids.begin(), std::find(p_ids.begin(), p_ids.end(), p));
-    //     to_erase.emplace_back(p_ids.begin() + idx);
-    //     R.remove_row_and_column(idx);
-    // }
-
-    // for (auto& it : to_erase)
-    //     p_ids.erase(it);
-
-    // RealMatrix combined_R = block_diag(RealMatrix(unzip(cache.SigmaEta).vals), R);
-
-    // std::unique_ptr<ICopula> copula;
-    // if (config.nuisance_copula_type == CopulaType::GAUSSIAN) {
-    //     GaussianCopulaConfig copula_cfg;
-    //     copula_cfg.R = combined_R;
-    //     copula = CopulaFactory::create(config.nuisance_copula_type, copula_cfg, seed);
-    // } else if (config.nuisance_copula_type == CopulaType::STUDENT_T) {
-    //     StudentTCopulaConfig copula_cfg;
-    //     copula_cfg.R = combined_R;
-    //     copula_cfg.nu = combined_R.rows();
-    //     copula = CopulaFactory::create(config.nuisance_copula_type, copula_cfg, seed);
-    // }
-
-    // auto combined_distribution = std::make_unique<JointDistribution>(std::move(marginals), std::move(copula));
-
-    // Dispatch ids
-    // std::vector<ParamId> p_ids_2 {p1, p2};
-    // auto unzipped_nuisances = unzip(cache.eta_specs_real);
-    // auto unzipped_exp_obs = unzip(cache.exp_obs);
-    // std::vector<ParamId> eta_ids = unzipped_nuisances.ids;
-    // std::vector<ExperimentObs> obs_ids = unzipped_exp_obs.ids; 
-    // eta_ids.insert(eta_ids.end(), p_ids.begin(), p_ids.end());
-
-    // auto model_fn = [this, obs_ids, p_ids, eta_ids] (const Vec& p_vec, const Vec& eta_vec) -> Vec {
-    //     auto pred_map = this->obs_int->predict_optimized(zip(p_ids, p_vec), zip(eta_ids, eta_vec));
-    //     return flatten(pred_map).vals;
-    // };
-
-    // // Create likelihood
-    // LikelihoodContext ctx;
-    // ctx.exp_obs_dist = std::move(build_exp_data_distribution());
-    // ctx.nuisance_dist = std::move(combined_distribution);
-    // ctx.exp_obs_values = unzipped_exp_obs.vals;
-    // ctx.nuisance_central_values = unzipped_nuisances.vals;
-
-    // for (auto& pid : p_ids)
-    //     ctx.nuisance_central_values.emplace_back(cache.mle_result.p_hat.at(pid));
-
-    // MLEstimator fitter(std::move(ctx), model_fn);
-    // return fitter.contour(z, bounds, this->cache.mle_result.ell_hat);
+    return cl.paths;
 }
 
 void StatisticManager::print_cache()

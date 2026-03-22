@@ -19,6 +19,9 @@
 #include "StatCorrelationProxy.h"
 #include "ParamSourcesProvider.h"
 
+
+using Matrix = std::vector<std::vector<double>>;
+
 int main() {
 
     HyperisoMaster hyp = HyperisoMaster();

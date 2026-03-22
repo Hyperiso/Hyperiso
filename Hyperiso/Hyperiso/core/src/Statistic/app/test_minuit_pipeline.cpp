@@ -17,6 +17,7 @@
 #include "ObservableInterface.h"
 #include "StatParamSourcesProxy.h"
 #include "StatDependencyPruner.h"
+#include "BaseLikelihood.h"
 
 #include "minuit-cpp/FCNBase.hh"
 #include "minuit-cpp/FunctionMinimum.hh"
@@ -124,7 +125,7 @@ static MinuitJointFit minuit_migrad_hesse(
 
 class MinuitMLEstimatorLocal {
 public:
-    using ModelFn = ProfiledLikelihood::ModelFn;
+    // using ModelFn = ProfiledLikelihood::ModelFn;
 
     MinuitMLEstimatorLocal(LikelihoodContext ctx, ModelFn model, std::size_t max_fcn, double tol_edm)
         : like_(std::move(ctx)), model_(std::move(model)), max_fcn_(max_fcn), tol_edm_(tol_edm) {}
@@ -132,7 +133,11 @@ public:
     FitResult fit_joint(const Vector& p0) const {
         const std::size_t p_dim = p0.size();
 
-        Vector eta0 = like_.nuisance_central_values;
+        // Vector eta0 = like_.nuisance_central_values;
+        Vector eta0;
+        for (auto elem : like_.nuis_defs) {
+            eta0.push_back(elem.value);
+        }
         Vector eta_scales = like_.nuisance_dist->get_stds();
 
         if (eta0.size() != eta_scales.size()) {
@@ -331,7 +336,8 @@ int main(int argc, char** argv) {
     LikelihoodContext ctx;
     ctx.nuisance_dist = std::move(nuisance_dist);
     ctx.exp_obs_dist  = std::move(exp_obs_dist);
-    ctx.nuisance_central_values = unz_eta.vals;
+    Vec _ = unz_eta.vals;
+    // ctx.nuisance_central_values = unz_eta.vals;
     ctx.exp_obs_values          = unz_obs.vals;
 
     auto model_fn = [model, obs_ids, p_ids, eta_ids](const Vec& p_vec, const Vec& eta_vec) -> Vec {

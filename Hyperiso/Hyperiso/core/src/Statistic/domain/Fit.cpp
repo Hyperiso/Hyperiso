@@ -149,43 +149,66 @@
 //     return extractor.find_iso_contour(delta_T);
 // }
 
-MLFitter::MLFitter(std::shared_ptr<LikelihoodContext> ctx, const ModelFn &model) {
-    this->like_ = std::make_shared<BaseLikelihood>(model, std::move(ctx), ctx->fp_defs.size());
+// MLFitter::MLFitter(std::shared_ptr<LikelihoodContext> ctx, const ModelFn &model) {
+//     this->like_ = std::make_shared<BaseLikelihood>(model, std::move(ctx), ctx->fp_defs.size());
+// }
+
+//TODO : Niels : avoid std::move and ctx-> in the same line
+MLFitter::MLFitter(std::shared_ptr<LikelihoodContext> ctx, const ModelFn& model) {
+    const std::size_t p_dim = ctx->fp_defs.size();
+    this->like_ = std::make_shared<BaseLikelihood>(model, ctx, p_dim);
 }
 
-FitResult MLFitter::maximum_likelihood_fit(const std::vector<double>&p0) {
+//TODO : Niels : Did that because of segfault (only nuisance but ProfileRequest::start want all theta)
+FitResult MLFitter::maximum_likelihood_fit(const std::vector<double>& p0) {
     std::shared_ptr<Profiler> profiler = std::make_shared<Profiler>(fit_app::make_minuit_backend());
+
+    const auto all_defs = this->like_->get_param_defs();
+    const std::size_t total_dim = all_defs.size();
+    const std::size_t p_dim = p0.size();
+
     ProfileRequest pr_model;
-    for (size_t i = p0.size(); i < like_->dim(); i++) {
+    pr_model.start.resize(total_dim);
+
+    for (std::size_t i = 0; i < p_dim; ++i) {
+        pr_model.start[i] = p0[i];
+    }
+    for (std::size_t i = p_dim; i < total_dim; ++i) {
         pr_model.free_params.push_back(i);
-        pr_model.start.push_back(this->like_->get_param_defs().at(i).value);
+        pr_model.start[i] = all_defs[i].value;
     }
 
     auto f = fit_app::LambdaObjectiveFunction(
-        [this, profiler, pr_model] (const std::vector<double>& p) { 
+        [this, profiler, pr_model, total_dim](const std::vector<double>& p) {
             ProfileRequest pr;
             pr.free_params = pr_model.free_params;
             pr.start = pr_model.start;
 
-            for (size_t i = 0; i < p.size(); i++)
+            for (std::size_t i = 0; i < p.size(); ++i) {
                 pr.fixed_params[i] = p[i];
-            
+                pr.start[i] = p[i];
+            }
+
+            if (pr.start.size() != total_dim) {
+                throw std::runtime_error("MLFitter::maximum_likelihood_fit: invalid profile start dimension");
+            }
+
             return profiler->profile(this->like_, pr).nll_hat;
         },
         0.5
     );
-    
+
     fit_app::FitOptions opt;
     opt.run_hesse = false;
     opt.verbose = false;
 
-    std::vector<fit_app::ParameterDefinition> theta_0 = std::vector(
-        this->like_->get_param_defs().begin(),
-        this->like_->get_param_defs().begin() + p0.size()
+    std::vector<fit_app::ParameterDefinition> theta_0(
+        all_defs.begin(),
+        all_defs.begin() + p_dim
     );
-
-    for (size_t i = 0; i < p0.size(); i++)
+    for (std::size_t i = 0; i < p_dim; ++i) {
         theta_0[i].value = p0[i];
+    }
 
     std::unique_ptr<fit_app::IFitBackend> minimizer = fit_app::make_minuit_backend();
     fit_app::BackendFitResult master_fit_res = minimizer->minimize(f, theta_0, opt);
@@ -196,25 +219,114 @@ FitResult MLFitter::maximum_likelihood_fit(const std::vector<double>&p0) {
     FitResult fr;
     fr.ell_hat = master_fit_res.diagnostics.fmin;
     fr.p_hat = master_fit_res.values;
-    
+
     RealMatrix cov = master_fit_res.covariance;
-    for (size_t i = 0; i < cov.rows(); i++)
+    for (std::size_t i = 0; i < cov.rows(); ++i)
         fr.p_hat_std.emplace_back(std::sqrt(cov.at(i, i)));
 
     fr.p_hat_correlations = RealMatrix(cov);
-    for (size_t i = 0; i < cov.rows(); i++) {
-        for (size_t j = 0; j < cov.cols(); j++) {
+    for (std::size_t i = 0; i < cov.rows(); ++i) {
+        for (std::size_t j = 0; j < cov.cols(); ++j) {
             fr.p_hat_correlations.at(i, j) /= (fr.p_hat_std.at(i) * fr.p_hat_std.at(j));
         }
     }
-    
+
+    // Profilage final des nuisances à p_hat
+    if (total_dim > p_dim) {
+        ProfileRequest pr_eta;
+        pr_eta.start = all_defs.empty() ? std::vector<double>{} : std::vector<double>(total_dim);
+
+        for (std::size_t i = 0; i < p_dim; ++i) {
+            pr_eta.fixed_params[i] = fr.p_hat[i];
+            pr_eta.start[i] = fr.p_hat[i];
+        }
+        for (std::size_t i = p_dim; i < total_dim; ++i) {
+            pr_eta.free_params.push_back(i);
+            pr_eta.start[i] = all_defs[i].value;
+        }
+
+        ProfileResult eta_res = profiler->profile(this->like_, pr_eta);
+
+        fr.eta_hat.resize(total_dim - p_dim);
+        if (eta_res.converged) {
+            for (std::size_t i = p_dim; i < total_dim; ++i) {
+                fr.eta_hat[i - p_dim] = eta_res.theta_hat.at(i);
+            }
+        } else {
+            LOG_WARN("Final nuisance profiling at p_hat failed. Falling back to nuisance central values.");
+            for (std::size_t i = p_dim; i < total_dim; ++i) {
+                fr.eta_hat[i - p_dim] = all_defs[i].value;
+            }
+        }
+    }
+
     this->master_fit_success = master_fit_res.diagnostics.ok;
     this->master_fit_result = fr;
     return fr;
 }
 
-Contour MLFitter::contour(std::size_t x_id, std::size_t y_id, double z, std::array<double, 4> bounds, ProfilingMethod method = ProfilingMethod::SLICE) const {
-    if (this->master_fit_success)
+// FitResult MLFitter::maximum_likelihood_fit(const std::vector<double>&p0) {
+//     std::shared_ptr<Profiler> profiler = std::make_shared<Profiler>(fit_app::make_minuit_backend());
+//     ProfileRequest pr_model;
+//     for (size_t i = p0.size(); i < like_->dim(); i++) {
+//         pr_model.free_params.push_back(i);
+//         pr_model.start.push_back(this->like_->get_param_defs().at(i).value);
+//     }
+
+//     auto f = fit_app::LambdaObjectiveFunction(
+//         [this, profiler, pr_model] (const std::vector<double>& p) { 
+//             ProfileRequest pr;
+//             pr.free_params = pr_model.free_params;
+//             pr.start = pr_model.start;
+
+//             for (size_t i = 0; i < p.size(); i++)
+//                 pr.fixed_params[i] = p[i];
+            
+//             return profiler->profile(this->like_, pr).nll_hat;
+//         },
+//         0.5
+//     );
+    
+//     fit_app::FitOptions opt;
+//     opt.run_hesse = false;
+//     opt.verbose = false;
+
+//     std::vector<fit_app::ParameterDefinition> theta_0 = std::vector(
+//         this->like_->get_param_defs().begin(),
+//         this->like_->get_param_defs().begin() + p0.size()
+//     );
+
+//     for (size_t i = 0; i < p0.size(); i++)
+//         theta_0[i].value = p0[i];
+
+//     std::unique_ptr<fit_app::IFitBackend> minimizer = fit_app::make_minuit_backend();
+//     fit_app::BackendFitResult master_fit_res = minimizer->minimize(f, theta_0, opt);
+
+//     if (!master_fit_res.diagnostics.ok)
+//         LOG_WARN("Initial ML fit failed to converge. Fit result is probably wrong.");
+
+//     FitResult fr;
+//     fr.ell_hat = master_fit_res.diagnostics.fmin;
+//     fr.p_hat = master_fit_res.values;
+    
+//     RealMatrix cov = master_fit_res.covariance;
+//     for (size_t i = 0; i < cov.rows(); i++)
+//         fr.p_hat_std.emplace_back(std::sqrt(cov.at(i, i)));
+
+//     fr.p_hat_correlations = RealMatrix(cov);
+//     for (size_t i = 0; i < cov.rows(); i++) {
+//         for (size_t j = 0; j < cov.cols(); j++) {
+//             fr.p_hat_correlations.at(i, j) /= (fr.p_hat_std.at(i) * fr.p_hat_std.at(j));
+//         }
+//     }
+    
+//     this->master_fit_success = master_fit_res.diagnostics.ok;
+//     this->master_fit_result = fr;
+//     return fr;
+// }
+
+Contour MLFitter::contour(std::size_t x_id, std::size_t y_id, double z, std::array<double, 4> bounds, ProfilingMethod method) const {
+    if (!this->master_fit_success) //TODO : Niels -> Euh je suppose c'est l'inverse ? (x c'est  bizarre un fit sucess True qui donne erreur)
         LOG_ERROR("InvalidState", "ML fi must have converged before contour computation is available.");
 
     // TODO : Make resolution and contouring algorithms available as options to the user.
@@ -227,7 +339,7 @@ Contour MLFitter::contour(std::size_t x_id, std::size_t y_id, double z, std::arr
     cc.profiling_method = method;
 
     ContourEngine ce(this->like_, cc);
-    Contour cl = ce.compute_contour(z * z / 2, bounds, 200);
+    Contour cl = ce.compute_contour(z, bounds, 200); // before z was z * z / 2
 
     return cl;
 }

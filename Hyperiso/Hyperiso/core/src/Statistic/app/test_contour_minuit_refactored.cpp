@@ -730,8 +730,8 @@ BuiltProblem build_problem(StatisticManager& stat,
     LikelihoodContext ctx;
     ctx.nuisance_dist = std::move(nuisance_dist);
     ctx.exp_obs_dist  = std::move(exp_obs_dist);
-    ctx.nuis_defs = 
-    ctx.fp_defs = 
+    // ctx.nuis_defs = 
+    // ctx.fp_defs = 
     ctx.exp_obs_values = unz_obs.vals;
 
     return BuiltProblem{

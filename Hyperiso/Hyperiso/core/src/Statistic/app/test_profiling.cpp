@@ -154,7 +154,7 @@ int main() {
     cc.fr = fr;
     cc.x_id = 0;
     cc.y_id = 1;
-    cc.primary_contour_method = ContourAlgorithm::AMS;
+    cc.primary_contour_method = ContourAlgorithm::MINUIT;
     // cc.fallback_contour_method = ContourAlgorithm::AMS;
     cc.profiling_method = ProfilingMethod::SLICE;
 

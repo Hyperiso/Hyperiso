@@ -38,6 +38,19 @@ ContourEngine::ContourEngine(std::shared_ptr<ILikelihood> base, const ContourCon
     }
 }
 
+// Contour ContourEngine::compute_contour(double z, std::array<double, 4> bounds, std::size_t resolution) {
+//     ScalarField2D field = [this] (double x, double y) {
+//         return this->likelihood.profiled_nll(x, y) - this->cfg.fr.ell_hat;
+//     };
+
+//     ContourRequest cr;
+//     cr.bounds = bounds;
+//     cr.level = z * z / 2; 
+//     cr.resolution = resolution;
+
+//     return this->extractor->extract(field, cr);
+// }
+
 Contour ContourEngine::compute_contour(double z, std::array<double, 4> bounds, std::size_t resolution) {
     ScalarField2D field = [this] (double x, double y) {
         return this->likelihood.profiled_nll(x, y) - this->cfg.fr.ell_hat;
@@ -45,8 +58,22 @@ Contour ContourEngine::compute_contour(double z, std::array<double, 4> bounds, s
 
     ContourRequest cr;
     cr.bounds = bounds;
-    cr.level = z * z / 2; // TODO : check !
+    cr.level = z * z / 2.0;// TODO : Niels -> On envoi déjà z * z /2 depuis MLEFitter::contour donc ca sert à rien non ?
     cr.resolution = resolution;
+
+    //TODO : Niels -> L'erreur c'était qu'on ne def pas les p ici
+    auto defs = this->likelihood.get_param_defs();
+
+    defs[0].value = cfg.fr.p_hat.at(cfg.x_id);
+    defs[0].step_hint = std::max(cfg.fr.p_hat_std.at(cfg.x_id), 1e-3);
+    defs[0].limits = std::make_pair(bounds[0], bounds[1]);
+
+    defs[1].value = cfg.fr.p_hat.at(cfg.y_id);
+    defs[1].step_hint = std::max(cfg.fr.p_hat_std.at(cfg.y_id), 1e-3);
+    defs[1].limits = std::make_pair(bounds[2], bounds[3]);
+
+    cr.p_defs[0] = defs[0];
+    cr.p_defs[1] = defs[1];
 
     return this->extractor->extract(field, cr);
 }

@@ -6,15 +6,17 @@ ProfiledLikelihood2D::ProfiledLikelihood2D(std::shared_ptr<ILikelihood> base, st
     this->last = this->profiling_strategy->init_warm_start();
 }
 
+//TODO : Niels penality if failed to converge
 double ProfiledLikelihood2D::profiled_nll(double px, double py) {
     ProfileRequest pr = profiling_strategy->build_request(px, py, this->last);
     ProfileResult res = profiler->profile(base, pr);
     
     if (res.converged)
         this->last = res.theta_hat;
-    else
+    else {
         LOG_WARN("Profiling failed to converge. Check results.");
-
+        return 1e300;
+    }
     return res.nll_hat;
 }
 

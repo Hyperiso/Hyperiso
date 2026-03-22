@@ -9,7 +9,7 @@ Contour MnContourExtractor::extract(const ScalarField2D &field, const ContourReq
 
     auto f = fit_app::LambdaObjectiveFunction(
         [field] (std::vector<double>theta) { return field(theta[0], theta[1]); },
-        0.5
+        cr.level //TODO : Niels j'ai mis cr.level plutôt que 0.5 en hardcodé tu en penses quoi ?
     );
 
     fit_app::FitOptions fopt;
