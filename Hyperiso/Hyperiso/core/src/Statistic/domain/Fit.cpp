@@ -326,7 +326,7 @@ FitResult MLFitter::maximum_likelihood_fit(const std::vector<double>& p0) {
 // }
 
 Contour MLFitter::contour(std::size_t x_id, std::size_t y_id, double z, std::array<double, 4> bounds, ProfilingMethod method) const {
-    if (!this->master_fit_success) //TODO : Niels -> Euh je suppose c'est l'inverse ? (x c'est  bizarre un fit sucess True qui donne erreur)
+    if (!this->master_fit_success)
         LOG_ERROR("InvalidState", "ML fi must have converged before contour computation is available.");
 
     // TODO : Make resolution and contouring algorithms available as options to the user.
