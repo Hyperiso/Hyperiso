@@ -33,6 +33,12 @@ ProfileResult Profiler::profile(std::shared_ptr<ILikelihood> base, const Profile
         }
     }
 
+    std::cout << "pr.start = (";
+    for (size_t i = 0; i < pr.start.size(); i++) {
+        std::cout << pr.start[i] << ", ";
+    }
+    std::cout << ")" << std::endl;
+
     auto res = minimizer->minimize_with_fixed(f, defs, opt, fixed_idx, fixed_vals);
 
     if (!res.diagnostics.ok)

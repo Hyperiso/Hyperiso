@@ -11,8 +11,8 @@
       {
         "id_1": "531_15_0_0_2_13_-13",
         "id_2": "511_1_0_0_2_13_-13",
-        "stat_correlation": -0.7,
-        "syst_correlation": 0.1
+        "stat_correlation": 0,
+        "syst_correlation": 0
       }
     ]
   }

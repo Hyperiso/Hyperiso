@@ -161,106 +161,77 @@ MLFitter::MLFitter(std::shared_ptr<LikelihoodContext> ctx, const ModelFn& model)
 
 //TODO : Niels : Did that because of segfault (only nuisance but ProfileRequest::start want all theta)
 FitResult MLFitter::maximum_likelihood_fit(const std::vector<double>& p0) {
-    std::shared_ptr<Profiler> profiler = std::make_shared<Profiler>(fit_app::make_minuit_backend());
-
-    const auto all_defs = this->like_->get_param_defs();
-    const std::size_t total_dim = all_defs.size();
+    const auto defs = like_->get_param_defs();   // contient déjà p_defs + nuis_defs
     const std::size_t p_dim = p0.size();
+    const std::size_t dim = defs.size();
 
-    ProfileRequest pr_model;
-    pr_model.start.resize(total_dim);
-
+    std::vector<fit_app::ParameterDefinition> theta0 = defs;
     for (std::size_t i = 0; i < p_dim; ++i) {
-        pr_model.start[i] = p0[i];
-    }
-    for (std::size_t i = p_dim; i < total_dim; ++i) {
-        pr_model.free_params.push_back(i);
-        pr_model.start[i] = all_defs[i].value;
+        theta0[i].value = p0[i];
     }
 
     auto f = fit_app::LambdaObjectiveFunction(
-        [this, profiler, pr_model, total_dim](const std::vector<double>& p) {
-            ProfileRequest pr;
-            pr.free_params = pr_model.free_params;
-            pr.start = pr_model.start;
-
-            for (std::size_t i = 0; i < p.size(); ++i) {
-                pr.fixed_params[i] = p[i];
-                pr.start[i] = p[i];
-            }
-
-            if (pr.start.size() != total_dim) {
-                throw std::runtime_error("MLFitter::maximum_likelihood_fit: invalid profile start dimension");
-            }
-
-            return profiler->profile(this->like_, pr).nll_hat;
+        [this](const std::vector<double>& theta) {
+            return like_->nll(theta);
         },
         0.5
     );
 
     fit_app::FitOptions opt;
-    opt.run_hesse = false;
+    opt.run_hesse = true;
     opt.verbose = false;
 
-    std::vector<fit_app::ParameterDefinition> theta_0(
-        all_defs.begin(),
-        all_defs.begin() + p_dim
-    );
-    for (std::size_t i = 0; i < p_dim; ++i) {
-        theta_0[i].value = p0[i];
-    }
-
     std::unique_ptr<fit_app::IFitBackend> minimizer = fit_app::make_minuit_backend();
-    fit_app::BackendFitResult master_fit_res = minimizer->minimize(f, theta_0, opt);
-
-    if (!master_fit_res.diagnostics.ok)
-        LOG_WARN("Initial ML fit failed to converge. Fit result is probably wrong.");
+    fit_app::BackendFitResult res = minimizer->minimize(f, theta0, opt);
 
     FitResult fr;
-    fr.ell_hat = master_fit_res.diagnostics.fmin;
-    fr.p_hat = master_fit_res.values;
+    fr.ell_hat = res.diagnostics.fmin;
+    fr.p_hat.assign(res.values.begin(), res.values.begin() + p_dim);
+    fr.eta_hat.assign(res.values.begin() + p_dim, res.values.end());
 
-    RealMatrix cov = master_fit_res.covariance;
-    for (std::size_t i = 0; i < cov.rows(); ++i)
-        fr.p_hat_std.emplace_back(std::sqrt(cov.at(i, i)));
+    // bloc p×p de la covariance complète
+    RealMatrix H = res.covariance.inv();
+    RealMatrix H_p_p(p_dim, p_dim);
+    RealMatrix H_p_eta(p_dim, dim - p_dim);
+    RealMatrix H_eta_eta(dim - p_dim, dim - p_dim);
 
-    fr.p_hat_correlations = RealMatrix(cov);
-    for (std::size_t i = 0; i < cov.rows(); ++i) {
-        for (std::size_t j = 0; j < cov.cols(); ++j) {
-            fr.p_hat_correlations.at(i, j) /= (fr.p_hat_std.at(i) * fr.p_hat_std.at(j));
+    for (std::size_t i = 0; i < p_dim; ++i) {
+        for (std::size_t j = 0; j < p_dim; ++j) {
+            H_p_p.at(i, j) = H.at(i, j);
         }
     }
 
-    // Profilage final des nuisances à p_hat
-    if (total_dim > p_dim) {
-        ProfileRequest pr_eta;
-        pr_eta.start = all_defs.empty() ? std::vector<double>{} : std::vector<double>(total_dim);
-
-        for (std::size_t i = 0; i < p_dim; ++i) {
-            pr_eta.fixed_params[i] = fr.p_hat[i];
-            pr_eta.start[i] = fr.p_hat[i];
-        }
-        for (std::size_t i = p_dim; i < total_dim; ++i) {
-            pr_eta.free_params.push_back(i);
-            pr_eta.start[i] = all_defs[i].value;
-        }
-
-        ProfileResult eta_res = profiler->profile(this->like_, pr_eta);
-
-        fr.eta_hat.resize(total_dim - p_dim);
-        if (eta_res.converged) {
-            for (std::size_t i = p_dim; i < total_dim; ++i) {
-                fr.eta_hat[i - p_dim] = eta_res.theta_hat.at(i);
-            }
-        } else {
-            LOG_WARN("Final nuisance profiling at p_hat failed. Falling back to nuisance central values.");
-            for (std::size_t i = p_dim; i < total_dim; ++i) {
-                fr.eta_hat[i - p_dim] = all_defs[i].value;
-            }
+    for (std::size_t i = 0; i < p_dim; ++i) {
+        for (std::size_t j = p_dim; j < dim; ++j) {
+            H_p_eta.at(i, j - p_dim) = H.at(i, j);
         }
     }
 
-    this->master_fit_success = master_fit_res.diagnostics.ok;
+    for (std::size_t i = p_dim; i < dim; ++i) {
+        for (std::size_t j = p_dim; j < dim; ++j) {
+            H_eta_eta.at(i - p_dim, j - p_dim) = H.at(i, j);
+        }
+    }
+
+    RealMatrix H_prof = H_p_p - H_p_eta * H_eta_eta.inv() * H_p_eta.transpose();
+    RealMatrix cov_prof = H_prof.inv();
+
+    fr.p_hat_std.resize(p_dim);
+    fr.p_hat_correlations = RealMatrix(p_dim, p_dim);
+
+    for (std::size_t i = 0; i < p_dim; ++i) {
+        fr.p_hat_std[i] = std::sqrt(std::max(0.0, cov_prof.at(i, i)));
+    }
+    for (std::size_t i = 0; i < p_dim; ++i) {
+        for (std::size_t j = 0; j < p_dim; ++j) {
+            const double si = fr.p_hat_std[i];
+            const double sj = fr.p_hat_std[j];
+            fr.p_hat_correlations.at(i, j) =
+                (si > 0.0 && sj > 0.0) ? cov_prof.at(i, j) / (si * sj) : 0.0;
+        }
+    }
+
+    this->master_fit_success = res.diagnostics.ok;
     this->master_fit_result = fr;
     return fr;
 }
