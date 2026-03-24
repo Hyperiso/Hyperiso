@@ -14,8 +14,10 @@ ProfileResult Profiler::profile(std::shared_ptr<ILikelihood> base, const Profile
     std::vector<std::size_t> fixed_idx = unzipped.ids;
     std::vector<double> fixed_vals = unzipped.vals;
 
+    auto base_nll = [base](std::vector<double> theta) { return base->nll(theta); };
+
     auto f = fit_app::LambdaObjectiveFunction(
-        [base](std::vector<double> theta) { return base->nll(theta); },
+        base_nll,
         0.5
     );
 
@@ -41,8 +43,8 @@ ProfileResult Profiler::profile(std::shared_ptr<ILikelihood> base, const Profile
 
     auto res = minimizer->minimize_with_fixed(f, defs, opt, fixed_idx, fixed_vals);
 
-    if (!res.diagnostics.ok)
-        LOG_WARN("Profiling failed to converge, check results.");
+    // if (!res.diagnostics.ok)
+    //     LOG_WARN("Profiling failed to converge, check results.");
 
     ProfileResult pres;
     pres.nll_hat = res.diagnostics.fmin;

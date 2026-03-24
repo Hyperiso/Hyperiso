@@ -305,12 +305,12 @@ Contour MLFitter::contour(std::size_t x_id, std::size_t y_id, double z, std::arr
     cc.fr = this->master_fit_result;
     cc.x_id = x_id;
     cc.y_id = y_id;
-    cc.primary_contour_method = ContourAlgorithm::MINUIT;
-    cc.fallback_contour_method = ContourAlgorithm::AMS;
+    cc.primary_contour_method = ContourAlgorithm::AMS;
+    cc.fallback_contour_method = ContourAlgorithm::MINUIT;
     cc.profiling_method = method;
 
     ContourEngine ce(this->like_, cc);
-    Contour cl = ce.compute_contour(z, bounds, 200); // before z was z * z / 2
+    Contour cl = ce.compute_contour(z, bounds, 10); // before z was z * z / 2
 
     return cl;
 }
