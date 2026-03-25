@@ -42,16 +42,37 @@ struct ContourOptions {
     double tolerance = 0.2;
 };
 
+// struct FitDiagnostics {
+//     double fmin = std::numeric_limits<double>::quiet_NaN();
+//     double edm = std::numeric_limits<double>::quiet_NaN();
+//     int nfcn = -1;
+
+//     bool ok = false;
+//     bool has_valid_covar = false;
+//     bool has_posdef_covar = false;
+//     bool has_accurate_covar = false;
+//     bool made_posdef = false;
+
+//     std::vector<double> cov_eigs;
+//     double cond_number = std::numeric_limits<double>::infinity();
+// };
+
 struct FitDiagnostics {
     double fmin = std::numeric_limits<double>::quiet_NaN();
     double edm = std::numeric_limits<double>::quiet_NaN();
     int nfcn = -1;
 
     bool ok = false;
+
+    bool has_valid_parameters = false;
     bool has_valid_covar = false;
     bool has_posdef_covar = false;
     bool has_accurate_covar = false;
     bool made_posdef = false;
+    bool hesse_failed = false;
+
+    bool reached_call_limit = false;
+    bool above_max_edm = false;
 
     std::vector<double> cov_eigs;
     double cond_number = std::numeric_limits<double>::infinity();

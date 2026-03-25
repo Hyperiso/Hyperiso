@@ -181,6 +181,9 @@ target_link_libraries(GAUSSIAN_CONTOUR StatisticLib)
 add_executable(PROFILING_TEST app/test_profiling.cpp)
 target_link_libraries(PROFILING_TEST StatisticLib)
 
+add_executable(JPP app/jpp.cpp)
+target_link_libraries(JPP StatisticLib)
+
 include(GNUInstallDirs)
 
 install(TARGETS StatisticLib

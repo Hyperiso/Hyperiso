@@ -310,7 +310,7 @@ Contour MLFitter::contour(std::size_t x_id, std::size_t y_id, double z, std::arr
     cc.profiling_method = method;
 
     ContourEngine ce(this->like_, cc);
-    Contour cl = ce.compute_contour(z, bounds, 10); // before z was z * z / 2
+    Contour cl = ce.compute_contour(z, bounds, 50); // before z was z * z / 2
 
     return cl;
 }

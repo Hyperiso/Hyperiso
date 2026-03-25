@@ -145,10 +145,14 @@ private:
         out.diagnostics.edm = minimum.Edm();
         out.diagnostics.nfcn = minimum.NFcn();
         out.diagnostics.ok = minimum.IsValid();
+        out.diagnostics.has_valid_parameters = minimum.HasValidParameters();
+        out.diagnostics.hesse_failed = minimum.HesseFailed();
         out.diagnostics.has_valid_covar = minimum.HasValidCovariance();
         out.diagnostics.has_posdef_covar = minimum.HasPosDefCovar();
         out.diagnostics.has_accurate_covar = minimum.HasAccurateCovar();
         out.diagnostics.made_posdef = minimum.HasMadePosDefCovar();
+        out.diagnostics.reached_call_limit = minimum.HasReachedCallLimit();
+        out.diagnostics.above_max_edm = minimum.IsAboveMaxEdm();
 
         const auto& state = minimum.UserState();
         for (std::size_t i = 0; i < parameters.size(); ++i) {
@@ -156,14 +160,20 @@ private:
             out.errors[i] = parameters[i].fixed ? 0.0 : state.Error(parameters[i].name.c_str());
         }
 
-        if (!extract_full_covariance || !minimum.HasValidCovariance()) {
-            out.diagnostics.has_valid_covar = false;
-            out.diagnostics.has_posdef_covar = false;
-            out.diagnostics.has_accurate_covar = false;
-            out.diagnostics.made_posdef = false;
+        // if (!extract_full_covariance || !minimum.HasValidCovariance()) {
+        //     out.diagnostics.has_valid_covar = false;
+        //     out.diagnostics.has_posdef_covar = false;
+        //     out.diagnostics.has_accurate_covar = false;
+        //     out.diagnostics.made_posdef = false;
+        //     return out;
+        // }
+        if (!minimum.HasValidCovariance()) {
             return out;
         }
 
+        if (!extract_full_covariance) {
+            return out;
+        }
         const auto& cov = state.Covariance();
         for (std::size_t i = 0; i < parameters.size(); ++i) {
             for (std::size_t j = 0; j < parameters.size(); ++j) {
