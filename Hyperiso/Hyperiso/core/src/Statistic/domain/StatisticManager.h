@@ -20,7 +20,6 @@
 #include "MarginalConfigFactory.h"
 
 struct StatisticConfig {
-    std::vector<ParamId> p_specs;
     std::map<ParamId, MarginalType> override_nuisance_marginals {};
     std::map<ExperimentObs, MarginalType> override_exp_data_marginals {};
     CopulaType nuisance_copula_type = CopulaType::GAUSSIAN;
@@ -30,6 +29,8 @@ struct StatisticConfig {
 
     std::size_t MLE_max_iter = 500;
     double MLE_tol = 1e-6;
+
+    double nuisance_relevance_cutoff = 1e-2;
 };
 
 struct FitResultWithMaps {
@@ -49,12 +50,6 @@ struct StatCache {
     std::map<ExperimentObs, std::map<ExperimentObs, double>> SigmaObs;
 
     FitResultWithMaps mle_result;
-};
-
-enum class CLMethod {
-    SLICE,
-    PROJECT,
-    PRIOR_PROJECT
 };
 
 class StatisticManager {
@@ -101,7 +96,7 @@ public:
     
     FitResultWithMaps compute_MLE(const std::vector<ParamId>& p_specs);
 
-    std::set<std::vector<std::pair<double, double>>> confidence_contour(ParamId p1, ParamId p2, double z, std::array<double, 4> bounds, CLMethod method = CLMethod::PROJECT);
+    Contour confidence_contour(ParamId p1, ParamId p2, double z, std::array<double, 4> bounds, ContourOptions options);
 
     void update_cache(const std::vector<ParamId>& p_specs = std::vector<ParamId>()) {
         cache.p_specs = this->get_p_specs(p_specs);
@@ -147,9 +142,8 @@ public:
             LOG_INFO("Compared to max relative uncertainty", paramId, delta_rel[paramId] / delta_rel_max);
         }
 
-        double tol = 1e-2; // TODO : make it a parameter
         for (auto& paramId : eta_infos_leaf) {
-            if (delta_rel[paramId] / delta_rel_max > tol)
+            if (delta_rel[paramId] / delta_rel_max > config.nuisance_relevance_cutoff)
                 eta_specs_real_leaf[paramId] = pspp->get_param(paramId)->get_val();
         }
 

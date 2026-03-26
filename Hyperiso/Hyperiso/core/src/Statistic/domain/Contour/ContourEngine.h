@@ -36,7 +36,7 @@ struct ContourConfig {
 class ContourEngine {
 public:
     ContourEngine(std::shared_ptr<ILikelihood> base, const ContourConfig& cfg);
-    Contour compute_contour(double z, std::array<double, 4> bounds, std::size_t resolution=50);
+    Contour compute_contour(double z, std::array<double, 4> bounds, std::size_t resolution);
 
 private:
     std::shared_ptr<JointDistribution> build_constraints_distribution();

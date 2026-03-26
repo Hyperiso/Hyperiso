@@ -52,6 +52,7 @@ fit_app::ParameterDefinition make_nuisance_param_def(const ParamId& pid, double 
 
     const std::string& nm = out.name;
 
+    // TODO : Very ugly
     if (nm.find("SMINPUTS:3") != std::string::npos) {
         out.limits = std::make_pair(0.05, 0.30);
     } else if (nm.find("MASS:") != std::string::npos ||
@@ -63,32 +64,6 @@ fit_app::ParameterDefinition make_nuisance_param_def(const ParamId& pid, double 
         out.limits = std::make_pair(std::max(1e-12, value - 5.0 * s), value + 5.0 * s);
     }
 
-    return out;
-}
-
-ProfilingMethod to_profiling_method(CLMethod method) {
-    switch (method) {
-        case CLMethod::SLICE:
-            return ProfilingMethod::SLICE;
-        case CLMethod::PROJECT:
-            return ProfilingMethod::FREE_PROJECTION;
-        case CLMethod::PRIOR_PROJECT:
-            return ProfilingMethod::PRIOR_CONSTRAINED_PROJECTION;
-        default:
-            throw std::invalid_argument("Unknown CLMethod.");
-    }
-}
-
-std::map<ParamId, std::map<ParamId, double>> matrix_to_corr_map(
-    const std::vector<ParamId>& ids,
-    const RealMatrix& corr)
-{
-    std::map<ParamId, std::map<ParamId, double>> out;
-    for (std::size_t i = 0; i < ids.size(); ++i) {
-        for (std::size_t j = 0; j < ids.size(); ++j) {
-            out[ids[i]][ids[j]] = corr.at(i, j);
-        }
-    }
     return out;
 }
 
@@ -218,7 +193,7 @@ std::unique_ptr<JointDistribution> StatisticManager::build_exp_data_distribution
 }
 
 FitResultWithMaps StatisticManager::compute_MLE(const std::vector<ParamId>& p_specs) {
-    update_cache(p_specs.empty() ? config.p_specs : p_specs);
+    update_cache(p_specs);
 
     if (cache.p_specs.empty()) {
         throw std::invalid_argument("compute_MLE called with an empty fit parameter list.");
@@ -297,13 +272,13 @@ FitResultWithMaps StatisticManager::compute_MLE(const std::vector<ParamId>& p_sp
     out.p_hat = zip(p_ids, last_fit_raw_.p_hat);
     out.eta_hat = zip(eta_ids, last_fit_raw_.eta_hat);
     out.p_hat_std = zip(p_ids, last_fit_raw_.p_hat_std);
-    out.p_correlations = matrix_to_corr_map(p_ids, last_fit_raw_.p_hat_correlations);
+    out.p_correlations = zip(p_ids, last_fit_raw_.p_hat_correlations);
 
     cache.mle_result = out;
     return out;
 }
 
-std::set<std::vector<std::pair<double, double>>> StatisticManager::confidence_contour(ParamId p1, ParamId p2, double z, std::array<double, 4> bounds, CLMethod method) {
+Contour StatisticManager::confidence_contour(ParamId p1, ParamId p2, double z, std::array<double, 4> bounds, ContourOptions options) {
     if (!cache.mle_result.fit_ok || !last_fitter_) {
         throw std::runtime_error("Please run compute_MLE before requesting a confidence contour.");
     }
@@ -324,10 +299,10 @@ std::set<std::vector<std::pair<double, double>>> StatisticManager::confidence_co
         y_id,
         z,
         bounds,
-        to_profiling_method(method)
+        options
     );
 
-    return cl.paths;
+    return cl;
 }
 
 void StatisticManager::print_cache()

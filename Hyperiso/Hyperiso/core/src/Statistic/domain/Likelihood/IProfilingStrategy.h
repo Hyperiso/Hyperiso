@@ -16,8 +16,8 @@ public:
     IProfilingStrategy(std::size_t x_id, std::size_t y_id, const FitResult& fr);
 
     virtual ~IProfilingStrategy() = default;
-    virtual ProfileRequest build_request(double px, double py, const std::map<std::size_t, double>& current_argmin) const = 0;
-    virtual std::map<std::size_t, double> init_warm_start() const = 0;
+    virtual ProfileRequest build_request(double px, double py) const = 0;
+    virtual std::map<std::size_t, double> get_start() const = 0;
 
     std::size_t get_x_id() { return x_id; };
     std::size_t get_y_id() { return y_id; };
@@ -30,15 +30,15 @@ protected:
 class SliceProfilingStrategy : public IProfilingStrategy {
 public:
     SliceProfilingStrategy(std::size_t x_id, std::size_t y_id, const FitResult& fr) : IProfilingStrategy(x_id, y_id, fr) {}
-    ProfileRequest build_request(double px, double py, const std::map<std::size_t, double>& current_argmin) const override;
-    std::map<std::size_t, double> init_warm_start() const override;
+    ProfileRequest build_request(double px, double py) const override;
+    std::map<std::size_t, double> get_start() const override;
 };
 
 class ProjectionProfilingStrategy : public IProfilingStrategy {
 public:
     ProjectionProfilingStrategy(std::size_t x_id, std::size_t y_id, const FitResult& fr) : IProfilingStrategy(x_id, y_id, fr) {}
-    ProfileRequest build_request(double px, double py, const std::map<std::size_t, double>& current_argmin) const override;
-    std::map<std::size_t, double> init_warm_start() const override;
+    ProfileRequest build_request(double px, double py) const override;
+    std::map<std::size_t, double> get_start() const override;
 };
 
 #endif // __IPROFILINGSTRATEGY_H__

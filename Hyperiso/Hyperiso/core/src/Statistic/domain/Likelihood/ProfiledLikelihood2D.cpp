@@ -2,49 +2,21 @@
 
 ProfiledLikelihood2D::ProfiledLikelihood2D(std::shared_ptr<ILikelihood> base, std::shared_ptr<Profiler> profiler, std::shared_ptr<IProfilingStrategy> profiling_strategy)
 : base(std::move(base)), profiler(std::move(profiler)), profiling_strategy(std::move(profiling_strategy))
-{
-    this->last = this->profiling_strategy->init_warm_start();
-}
-
-// //TODO : Niels penality if failed to converge
-// double ProfiledLikelihood2D::profiled_nll(double px, double py) {
-//     ProfileRequest pr = profiling_strategy->build_request(px, py, this->last);
-//     ProfileResult res = profiler->profile(base, pr);
-    
-//     if (res.converged)
-//         this->last = res.theta_hat;
-//     else {
-//         // LOG_WARN("Profiling failed to converge. Check results.");
-//         std::cout << "[PROFILED_NLL] rejected point (" << px << ", " << py
-//               << "), fallback penalty\n";
-//         return 1e300;
-//     }
-//     return res.nll_hat;
-// }
+{}
 
 double ProfiledLikelihood2D::profiled_nll(double px, double py) {
-    // Pour un champ de contour, il vaut mieux être déterministe
-    auto fresh = this->profiling_strategy->init_warm_start();
-    ProfileRequest pr = profiling_strategy->build_request(px, py, fresh);
-
+    ProfileRequest pr = profiling_strategy->build_request(px, py);
     ProfileResult res = profiler->profile(base, pr);
 
-    if (res.converged) {
-        this->last = res.theta_hat;
+    if (res.converged)
         return res.nll_hat;
-    }
 
-    // On garde la valeur finie si elle existe ; on ne met 1e300 que pour un vrai crash numérique
     if (std::isfinite(res.nll_hat)) {
-        std::cout << "[PROFILED_NLL] weak profile at ("
-                  << px << ", " << py
-                  << "), using finite value " << res.nll_hat << "\n";
+        LOG_VERBOSE("[PROFILED_NLL] weak profile at (", px, ',', py, "), using finite value", res.nll_hat);
         return res.nll_hat;
     }
 
-    std::cout << "[PROFILED_NLL] rejected point ("
-              << px << ", " << py
-              << "), fallback penalty\n";
+    LOG_VERBOSE("[PROFILED_NLL] rejected point (", px, ',', py, "), using fallback penalty");
     return 1e300;
 }
 

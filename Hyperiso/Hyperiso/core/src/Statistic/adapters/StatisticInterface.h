@@ -28,9 +28,13 @@ public:
         return manager->compute_uncertainties_and_sampling();
     }
     
-    // FitResultWithMaps compute_MLE() {
-    //     return manager->compute_MLE();
-    // }
+    FitResultWithMaps compute_MLE(const std::vector<ParamId>& p_specs) {
+        return manager->compute_MLE(p_specs);
+    }
+
+    Contour compute_confidence_contour(ParamId p1, ParamId p2, double z, std::array<double, 4> bounds, ContourOptions options) {
+        return manager->confidence_contour(p1, p2, z, bounds, options);
+    }
 
 private:
     std::shared_ptr<StatisticManager> manager;
