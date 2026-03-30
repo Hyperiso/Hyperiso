@@ -156,12 +156,12 @@ static std::vector<fit_app::ParameterDefinition> make_parameter_definitions(
 static BuiltProblem build_problem(
     StatisticManager& stat,
     const StatisticConfig& config,
-    const std::shared_ptr<ObservableInterfaceAdapterObs>& model)
+    const std::shared_ptr<ObservableInterfaceAdapterObs>& model, std::vector<ParamId> p_specs)
 {
     stat.compute_uncertainties();
-    stat.update_cache(config.p_specs);
+    stat.update_cache(p_specs);
 
-    auto p_specs_map = stat.get_p_specs(config.p_specs);
+    auto p_specs_map = stat.get_p_specs(p_specs);
     auto eta_specs_real = stat.get_all_obss_deps();
     for (const auto& [pid, _] : p_specs_map) eta_specs_real.erase(pid);
     auto exp_obs_map = stat.get_obs_exp();
@@ -325,7 +325,7 @@ int main() {
     config.MC_draws = 100;
     config.MLE_max_iter = 120000;
     config.MLE_tol = 0.2;
-    config.p_specs = {
+    std::vector<ParamId> p_specs = {
         ParamId{ParameterType::FLAVOR, "FCONST", {511, 1}},
         ParamId{ParameterType::FLAVOR, "FCONST", {531, 1}}
     };
@@ -341,7 +341,7 @@ int main() {
         std::make_shared<StatDependencyPruner>()
     );
 
-    BuiltProblem bp = build_problem(stat, config, model);
+    BuiltProblem bp = build_problem(stat, config, model, p_specs);
 
     // MLE jointe actuelle
     auto fitter = std::make_shared<MLFitter>(bp.ctx, [model, obs_ids = bp.obs_ids, p_ids = bp.p_ids, eta_ids = bp.eta_ids]

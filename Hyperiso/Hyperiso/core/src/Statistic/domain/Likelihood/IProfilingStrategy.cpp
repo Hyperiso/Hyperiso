@@ -4,12 +4,14 @@ IProfilingStrategy::IProfilingStrategy(std::size_t x_id, std::size_t y_id, const
     : x_id(x_id), y_id(y_id), fr(fr)
 {}
 
-ProfileRequest SliceProfilingStrategy::build_request(double px, double py) const
-{
-    std::size_t dim_p = fr.p_hat.size();
-    std::size_t dim_nuis = fr.eta_hat.size();
-    std::size_t dim = dim_p + dim_nuis;
-    std::map<std::size_t, double> start = this->get_start();
+ProfileRequest SliceProfilingStrategy::build_request(
+    double px,
+    double py,
+    const std::map<std::size_t, double>& current_argmin
+) const {
+    const std::size_t dim_p = fr.p_hat.size();
+    const std::size_t dim_nuis = fr.eta_hat.size();
+    const std::size_t dim = dim_p + dim_nuis;
 
     ProfileRequest pr;
     pr.start.resize(dim);
@@ -23,33 +25,41 @@ ProfileRequest SliceProfilingStrategy::build_request(double px, double py) const
     }
 
     for (std::size_t i = 0; i < dim_nuis; ++i) {
-        std::size_t idx = dim_p + i;
+        const std::size_t idx = dim_p + i;
         pr.free_params.push_back(idx);
-        pr.start[idx] = start.at(i);
+
+        auto it = current_argmin.find(idx);
+        if (it == current_argmin.end()) {
+            throw std::runtime_error("SliceProfilingStrategy: missing warm-start entry for nuisance index "
+                                     + std::to_string(idx));
+        }
+        pr.start[idx] = it->second;
     }
 
     return pr;
 }
 
 
-std::map<std::size_t, double> SliceProfilingStrategy::get_start() const {
+std::map<std::size_t, double> SliceProfilingStrategy::init_warm_start() const {
     std::map<std::size_t, double> start;
-    std::size_t dim_p = fr.p_hat.size();
-    std::size_t dim_nuis = fr.eta_hat.size();
+    const std::size_t dim_p = fr.p_hat.size();
+    const std::size_t dim_nuis = fr.eta_hat.size();
 
-    for (size_t i = 0; i < dim_nuis; i++) {
+    for (std::size_t i = 0; i < dim_nuis; ++i) {
         start[dim_p + i] = fr.eta_hat.at(i);
     }
 
     return start;
 }
 
-ProfileRequest ProjectionProfilingStrategy::build_request(double px, double py) const
-{
-    std::size_t dim_p = fr.p_hat.size();
-    std::size_t dim_nuis = fr.eta_hat.size();
-    std::size_t dim = dim_p + dim_nuis;
-    std::map<std::size_t, double> start = this->get_start();
+ProfileRequest ProjectionProfilingStrategy::build_request(
+    double px,
+    double py,
+    const std::map<std::size_t, double>& current_argmin
+) const {
+    const std::size_t dim_p = fr.p_hat.size();
+    const std::size_t dim_nuis = fr.eta_hat.size();
+    const std::size_t dim = dim_p + dim_nuis;
 
     ProfileRequest pr;
     pr.start.resize(dim);
@@ -63,20 +73,26 @@ ProfileRequest ProjectionProfilingStrategy::build_request(double px, double py) 
             pr.start[i] = py;
         } else {
             pr.free_params.push_back(i);
-            pr.start[i] = start.at(i);
+
+            auto it = current_argmin.find(i);
+            if (it == current_argmin.end()) {
+                throw std::runtime_error("ProjectionProfilingStrategy: missing warm-start entry for free index "
+                                         + std::to_string(i));
+            }
+            pr.start[i] = it->second;
         }
     }
 
     return pr;
 }
 
-std::map<std::size_t, double> ProjectionProfilingStrategy::get_start() const {
+std::map<std::size_t, double> ProjectionProfilingStrategy::init_warm_start() const {
     std::map<std::size_t, double> start;
-    std::size_t dim_p = fr.p_hat.size();
-    std::size_t dim_nuis = fr.eta_hat.size();
+    const std::size_t dim_p = fr.p_hat.size();
+    const std::size_t dim_nuis = fr.eta_hat.size();
 
-    for (size_t i = 0; i < dim_p + dim_nuis; i++) {
-        start[i] = i < dim_p ? fr.p_hat.at(i) : fr.eta_hat.at(i - dim_p);
+    for (std::size_t i = 0; i < dim_p + dim_nuis; ++i) {
+        start[i] = (i < dim_p) ? fr.p_hat.at(i) : fr.eta_hat.at(i - dim_p);
     }
 
     start.erase(x_id);

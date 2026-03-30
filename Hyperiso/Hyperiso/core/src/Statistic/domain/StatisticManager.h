@@ -69,9 +69,9 @@ public:
         auto sums = this->compute_uncertainties_and_sampling();
 
         // Debug print
-        for (auto sum : sums.summary) {
-            std::cout << sum << std::endl;
-        }
+        // for (auto sum : sums.summary) {
+        //     std::cout << sum << std::endl;
+        // }
         // for (auto _ : unzip(config.obss).ids) {
         //     std::cout << _.str() << std::endl;
         // }
@@ -79,7 +79,15 @@ public:
         // for (auto _ : unzip(config.obss).vals) {
         //     std::cout << OrderMapper::str(_) << std::endl;
         // }
-        return zip(obs_int->get_obs_ids(), sums.summary);
+        // auto sums = this->compute_uncertainties_and_sampling();
+
+        std::map<BinnedObservableId, GaussianSummary> out;
+        for (const auto& gs : sums.summary) {
+            out[gs.id] = gs;
+            std::cout << gs << std::endl;
+        }
+        return out;
+        // return zip(obs_int->get_obs_ids(), sums.summary);
     }
 
     MCResult compute_uncertainties_and_sampling() {

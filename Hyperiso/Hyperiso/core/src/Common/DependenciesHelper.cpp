@@ -34,7 +34,7 @@ const std::map<DecayId, std::unordered_set<ParamId>> DependenciesHelper::dep_lis
         
     }},
     {DecayMapper::to_id(Decays::B__Kstar_l_l), {
-        ParamId{ParameterType::SM, "SMINPUTS", {1, 2}},
+        ParamId{ParameterType::SM, "EW", {1, 2}},
         ParamId{ParameterType::SM, "SMINPUTS", 2},
         ParamId{ParameterType::SM, "MASS", 11},
         ParamId{ParameterType::SM, "MASS", 13},
