@@ -104,7 +104,7 @@ void save_contour_csv(const std::string& path,
 
 int main() {
     using namespace fit_app;
-
+    // Logger::getInstance()->setLevel(Logger::LogLevel::VERBOSE);
     HyperisoMaster hyp;
     HyperisoConfig config_hyp;
     config_hyp.model = Model::SM;
@@ -121,7 +121,7 @@ int main() {
     config.MLE_max_iter = 120000;
     config.MLE_tol = 0.2;
 
-    config.p_specs = {
+    std::vector<ParamId> p_specs = {
         ParamId{ParameterType::FLAVOR, "FCONST", {511, 1}},
         ParamId{ParameterType::FLAVOR, "FCONST", {531, 1}}
     };
@@ -144,7 +144,7 @@ int main() {
     std::cout << "Number of summarized observables = " << unc.size() << "\n";
 
     auto t2 = std::chrono::steady_clock::now();
-    FitResultWithMaps fit = stat.compute_MLE(config.p_specs);
+    FitResultWithMaps fit = stat.compute_MLE(p_specs);
     auto t3 = std::chrono::steady_clock::now();
 
     std::cout << "\nMLE done in "
@@ -160,9 +160,9 @@ int main() {
     save_bestfit_csv("bestfit.csv", fit);
     std::cout << "[INFO] Wrote bestfit.csv\n";
 
-    if (config.p_specs.size() == 2) {
-        const ParamId p1 = config.p_specs[0];
-        const ParamId p2 = config.p_specs[1];
+    if (p_specs.size() == 2) {
+        const ParamId p1 = p_specs[0];
+        const ParamId p2 = p_specs[1];
 
         std::array<double, 4> bounds = {0.05, 0.35, 0.05, 0.35};
 
@@ -171,18 +171,22 @@ int main() {
         const double z68_2d = std::sqrt(2.30);
         const double z95_2d = std::sqrt(5.99);
 
-        auto c68 = stat.confidence_contour(p1, p2, z68_2d, bounds, CLMethod::PROJECT);
-        auto c95 = stat.confidence_contour(p1, p2, z95_2d, bounds, CLMethod::PROJECT);
+        ContourOptions  opt;
 
-        std::cout << "[INFO] contour 68% paths = " << c68.size() << "\n";
-        std::cout << "[INFO] contour 95% paths = " << c95.size() << "\n";
+        opt.fallback_contour_method = ContourAlgorithm::AMS;
+
+        auto c68 = stat.confidence_contour(p1, p2, z68_2d, bounds, opt);
+        auto c95 = stat.confidence_contour(p1, p2, z95_2d, bounds, opt);
+
+        std::cout << "[INFO] contour 68% paths = " << c68.level << "\n";
+        std::cout << "[INFO] contour 95% paths = " << c95.level << "\n";
 
         save_contour_csv(
             "contours.csv",
             fit_app::to_string_any(p1),
             fit_app::to_string_any(p2),
-            c68,
-            c95
+            c68.paths,
+            c95.paths
         );
         std::cout << "[INFO] Wrote contours.csv\n";
     }

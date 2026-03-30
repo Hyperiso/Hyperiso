@@ -3,7 +3,7 @@
 Contour MnContourExtractor::extract(const ScalarField2D &field, const ContourRequest &cr) {
     auto minuit_backend = fit_app::make_minuit_backend();
 
-    fit_app::ContourOptions co;
+    fit_app::ContourOptionsBackEnd co;
     co.npoints = 4 * cr.resolution;
     co.up = cr.level;
 

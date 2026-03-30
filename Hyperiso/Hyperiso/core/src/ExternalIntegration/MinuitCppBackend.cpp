@@ -74,7 +74,7 @@ public:
                                  const BackendFitResult& reference_fit,
                                  std::size_t x_index,
                                  std::size_t y_index,
-                                 const ContourOptions& options) const override {
+                                 const ContourOptionsBackEnd& options) const override {
         BackendContourResult out;
 
         auto state = std::dynamic_pointer_cast<const MinuitState>(reference_fit.state);

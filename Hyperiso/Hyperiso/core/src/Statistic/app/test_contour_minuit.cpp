@@ -785,7 +785,7 @@ struct BuiltProblem {
 
 BuiltProblem build_problem(StatisticManager& stat,
                            const StatisticConfig& config,
-                           const std::shared_ptr<ObservableInterfaceAdapterObs>& model) {
+                           const std::shared_ptr<ObservableInterfaceAdapterObs>& model, std::vector<ParamId> p_specs) {
     LOG_INFO("fill_cache #1");
     // stat.fill_cache();
 
@@ -798,7 +798,7 @@ BuiltProblem build_problem(StatisticManager& stat,
     LOG_INFO("fill_cache #2");
     // stat.fill_cache();
 
-    auto p_specs_map = stat.get_p_specs(config.p_specs);
+    auto p_specs_map = stat.get_p_specs(p_specs);
     auto eta_specs_real = stat.get_all_obss_deps();
     for (const auto& [pid, _] : p_specs_map) eta_specs_real.erase(pid);
     auto exp_obs_map = stat.get_obs_exp();
@@ -851,7 +851,7 @@ int main(int argc, char** argv) {
     config.MC_draws = 100;
     config.MLE_max_iter = 120000;
     config.MLE_tol = 0.2;
-    config.p_specs = {
+    std::vector<ParamId> p_specs = {
         ParamId{ParameterType::FLAVOR, "FCONST", {511, 1}},
         ParamId{ParameterType::FLAVOR, "FCONST", {531, 1}}
     };
@@ -867,7 +867,7 @@ int main(int argc, char** argv) {
         std::make_shared<StatDependencyPruner>()
     );
 
-    BuiltProblem built = build_problem(stat, config, model);
+    BuiltProblem built = build_problem(stat, config, model, p_specs);
 
     auto model_fn = [model, obs_ids = built.obs_ids, p_ids = built.p_ids, eta_ids = built.eta_ids]
                     (const Vec& p_vec, const Vec& eta_vec) -> Vec {

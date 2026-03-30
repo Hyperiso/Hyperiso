@@ -783,7 +783,7 @@ struct BuiltProblem {
 
 BuiltProblem build_problem(StatisticManager& stat,
                            const StatisticConfig& config,
-                           const std::shared_ptr<ObservableInterfaceAdapterObs>& model) {
+                           const std::shared_ptr<ObservableInterfaceAdapterObs>& model, std::vector<ParamId> p_specs) {
     LOG_INFO("fill_cache #1");
     // stat.fill_cache();
 
@@ -796,7 +796,7 @@ BuiltProblem build_problem(StatisticManager& stat,
     LOG_INFO("fill_cache #2");
     // stat.fill_cache();
 
-    auto p_specs_map = stat.get_p_specs(config.p_specs);
+    auto p_specs_map = stat.get_p_specs(p_specs);
     auto eta_specs_real = stat.get_all_obss_deps();
     for (const auto& [pid, _] : p_specs_map) eta_specs_real.erase(pid);
     auto exp_obs_map = stat.get_obs_exp();

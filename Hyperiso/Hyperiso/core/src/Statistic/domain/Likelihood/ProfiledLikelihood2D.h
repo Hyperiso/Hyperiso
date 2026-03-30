@@ -21,6 +21,7 @@ private:
     std::shared_ptr<ILikelihood> base;
     std::shared_ptr<Profiler> profiler;
     std::shared_ptr<IProfilingStrategy> profiling_strategy;
+    std::map<std::size_t, double> last;
 };
 
 #endif // __PROFILEDLIKELIHOOD2D_H__

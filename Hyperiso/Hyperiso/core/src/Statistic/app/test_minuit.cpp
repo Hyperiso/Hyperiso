@@ -1,149 +1,177 @@
-#include <cmath>
-#include <fstream>
+#include "Logger.h"
 #include <iostream>
-#include <random>
-#include <string>
-#include <utility>
-#include <vector>
-#include <iomanip>
+#include <cassert>
+#include "ObservableInterface.h"
+#include "HyperisoMaster.h"
+#include "config.hpp"
+#include "BlockProxy.h"
+#include "StatisticInterface.h"
 
-#include "minuit-cpp/FCNBase.hh"
-#include "minuit-cpp/FunctionMinimum.hh"
-#include "minuit-cpp/MnContours.hh"
-#include "minuit-cpp/MnHesse.hh"
-#include "minuit-cpp/MnMigrad.hh"
-#include "minuit-cpp/MnUserParameters.hh"
-
-namespace M2 = MinuitCpp;
-
-// NLL gaussien : sum_i [ 0.5*((x_i-mu)/sigma)^2 + log(sigma) ] (+const)
-class GaussianNLL final : public M2::FCNBase {
-public:
-  GaussianNLL(std::vector<double> data, double up) : data_(std::move(data)), up_(up) {}
-
-  double operator()(const std::vector<double>& p) const override {
-    const double mu = p.at(0);
-    const double logSigma = p.at(1);
-    const double sigma = std::exp(logSigma);
-    if (!std::isfinite(sigma) || sigma <= 0.0) return 1e300;
-
-    double nll = 0.0;
-    for (double x : data_) {
-      const double z = (x - mu) / sigma;
-      nll += 0.5 * z * z + logSigma;
-    }
-    return nll;
-  }
-
-  // Up (= error definition) :
-  // - pour -logL : 0.5 correspond aux erreurs 1D à 1σ
-  // - pour contours 2D, on met Up = ΔNLL voulu (ex: 1.15, 2.995)
-  double Up() const override { return up_; }
-
-private:
-  std::vector<double> data_;
-  double up_;
+struct ObservableUncertainty {
+    double err_down; // erreur vers le bas
+    double err_up;   // erreur vers le haut
 };
 
-static void write_bestfit_csv(const std::string& path,
-                              double mu, double muErr,
-                              double logSig, double logSigErr) {
-  const double sig = std::exp(logSig);
-  const double sigErr = std::fabs(sig * logSigErr); // propagation approx
+static ObservableUncertainty uncertainty_from_summary(const GaussianSummary& gs) {
+    ObservableUncertainty out{};
 
-  std::ofstream out(path);
-  out << "name,value,error\n";
-  out << "mu," << std::setprecision(17) << mu << "," << muErr << "\n";
-  out << "sigma," << std::setprecision(17) << sig << "," << sigErr << "\n";
-  out << "logSigma," << std::setprecision(17) << logSig << "," << logSigErr << "\n";
+    if (gs.symmetric) {
+        out.err_down = std::abs(gs.sigma);
+        out.err_up   = std::abs(gs.sigma);
+    } else {
+        // Convention naturelle :
+        // sigma_m = erreur vers le bas
+        // sigma_p = erreur vers le haut
+        out.err_down = std::abs(gs.sigma_m);
+        out.err_up   = std::abs(gs.sigma_p);
+
+        // Sécurité si jamais sigma_m/p sont nuls mais sigma existe
+        if (out.err_down == 0.0 && out.err_up == 0.0 && gs.sigma != 0.0) {
+            out.err_down = std::abs(gs.sigma);
+            out.err_up   = std::abs(gs.sigma);
+        }
+    }
+
+    return out;
 }
 
-static void write_contours_csv(const std::string& path,
-                               const std::vector<std::pair<double,double>>& c68,
-                               const std::vector<std::pair<double,double>>& c95) {
-  std::ofstream out(path);
-  out << "cl,mu,logSigma,sigma\n";
-  auto dump = [&](double cl, const std::vector<std::pair<double,double>>& c) {
-    for (auto [mu, logSig] : c) {
-      out << cl << "," << std::setprecision(17) << mu << "," << logSig << "," << std::exp(logSig) << "\n";
+
+static void write_observables_to_csv(
+    const std::string& filename,
+    const std::vector<ObservableValue>& obs_val,
+    const std::vector<ObservableUncertainty>& uncertainties
+) {
+    if (obs_val.size() != uncertainties.size()) {
+        throw std::runtime_error("obs_val et uncertainties n'ont pas la même taille");
     }
-  };
-  dump(0.683, c68);
-  dump(0.95,  c95);
+
+    std::ofstream out(filename);
+    if (!out) {
+        throw std::runtime_error("Impossible d'ouvrir le fichier CSV: " + filename);
+    }
+
+    out << "bin_low,bin_high,value,err_down,err_up\n";
+    out << std::setprecision(17);
+
+    for (std::size_t i = 0; i < obs_val.size(); ++i) {
+        const auto& obs = obs_val[i];
+        const auto& unc = uncertainties[i];
+
+        if (!obs.bin.has_value()) {
+            continue;
+        }
+
+        out << obs.bin->first  << ","
+            << obs.bin->second << ","
+            << obs.value       << ","
+            << unc.err_down    << ","
+            << unc.err_up      << "\n";
+    }
 }
 
 int main() {
-  // ---- Data synthétique ----
-  constexpr double trueMu = 1.5;
-  constexpr double trueSigma = 0.8;
+    Logger::getInstance()->setLevel(Logger::LogLevel::INFO);
+    HyperisoMaster hyp;
+    HyperisoConfig config;
+    config.model = Model::SM;
+    hyp.init("lha/si_input.flha", config);
 
-  std::mt19937 rng(42);
-  std::normal_distribution<double> gauss(trueMu, trueSigma);
+    QCDOrder order = QCDOrder::NNLO;
+    std::shared_ptr<ObservableInterface> oi = std::make_shared<ObservableInterface>();
 
-  std::vector<double> data;
-  data.reserve(400);
-  for (int i = 0; i < 400; ++i) data.push_back(gauss(rng));
+    Decays dec = Decays::K__pi_nu_nu;
+    // KllDecayConfig dec_cfg;
+    // dec_cfg.gen = 1;
+    // dec_cfg.N_L_sign = -1;
 
-  // ---- Fit : Up=0.5 (NLL) ----
-  GaussianNLL fcn_fit(data, /*up=*/0.5);
+    // oi.set_decay_config(dec, dec_cfg);
+    // oi.add_observable(Observables::TEST, order);
+    // oi.compute_observable(Observables::TEST);
+    std::vector<double> squares;
 
-  M2::MnUserParameters upar;
-  upar.Add("mu", 0.0, 0.1);
-  upar.Add("logSigma", std::log(1.0), 0.05);
+    for (double x = 0.05; x<8.1; x+=0.5) {
+        squares.push_back(x);
+    }
+    for (auto elem : squares) {
+        oi->add_observable(BinnedObservableId(ObservableMapper::to_id(Observables::F_L_B__KSTAR_MU_MU), {elem, elem+0.1}), QCDOrder::NNLO, false);
+    }
+    
+    std::vector<ObservableValue> obs_val = oi->compute_observable(Observables::F_L_B__KSTAR_MU_MU);
 
-  // (Optionnel) limites pour éviter logSigma extrême
-  upar.SetLimits("logSigma", std::log(1e-6), std::log(1e6));
+    StatisticConfig sc = StatisticConfig();
 
-  M2::MnMigrad migrad(fcn_fit, upar);
-  M2::FunctionMinimum min = migrad(/*maxfcn=*/20000, /*tolerance=*/1e-8);
+    StatisticInterface si = StatisticInterface(sc, oi);
 
-  // HESSE (améliore la covariance/erreurs)
-  M2::MnHesse hesse;
-  hesse(fcn_fit, min);
+    std::map<BinnedObservableId, GaussianSummary> unc_map = si.compute_uncertainties();
 
-  if (!min.IsValid()) {
-    std::cerr << "Minimisation invalide (min.IsValid()==false)\n";
-    // std::cerr << min << "\n";
-    return 2;
-  }
+    std::vector<ObservableUncertainty> uncertainties;
+    uncertainties.reserve(obs_val.size());
 
-  const auto& st = min.UserState();
-  const double muHat = st.Value("mu");
-  const double muErr = st.Error("mu");
-  const double logSigmaHat = st.Value("logSigma");
-  const double logSigmaErr = st.Error("logSigma");
+    for (const auto& obs : obs_val) {
+        if (!obs.bin.has_value()) {
+            uncertainties.push_back({0.0, 0.0});
+            continue;
+        }
 
-  std::cout << "=== Fit result (MLE) ===\n";
-  std::cout << "mu       = " << muHat << " +- " << muErr << "\n";
-  std::cout << "sigma    = " << std::exp(logSigmaHat) << "  (logSigma=" << logSigmaHat
-            << " +- " << logSigmaErr << ")\n";
-  std::cout << "NLL(min) = " << min.Fval() << "\n";
-  std::cout << "EDM      = " << min.Edm() << "\n";
-  std::cout << "NFcn     = " << min.NFcn() << "\n";
+        BinnedObservableId key(obs.id, *obs.bin);
 
-  // ---- Contours (2 paramètres => indices 0 et 1) ----
-  // Wilks 2D : Δχ²(68.3%)=2.30, Δχ²(95%)=5.99, donc ΔNLL = Δχ²/2 :contentReference[oaicite:2]{index=2}
-  const double up68 = 2.30 / 2.0;   // 1.15
-  const double up95 = 5.99 / 2.0;   // 2.995
-  const unsigned px = 0;
-  const unsigned py = 1;
-  const unsigned npoints = 80;
+        auto it = unc_map.find(key);
+        std::cout
+          << "OBS  [" << obs.bin->first << ", " << obs.bin->second << "] "
+          << " value=" << obs.value
+          << " | GS.id=[" << it->second.id.p.first << ", " << it->second.id.p.second << "]"
+          << " mu=" << it->second.mu
+          << " sigma=" << it->second.sigma
+          << " sigma_m=" << it->second.sigma_m
+          << " sigma_p=" << it->second.sigma_p
+          << " skew=" << it->second.skew
+          << " symmetric=" << it->second.symmetric
+          << "\n";
+        if (it == unc_map.end()) {
+            std::cerr << "Warning: uncertainty not found for bin ["
+                      << obs.bin->first << ", " << obs.bin->second << "]\n";
 
-  GaussianNLL fcn68(data, up68);
-  GaussianNLL fcn95(data, up95);
+            // Tu peux choisir 0, ou bien throw si tu veux que ça casse tout de suite
+            uncertainties.push_back({0.0, 0.0});
+            continue;
+        }
 
-  M2::MnContours contours68(fcn68, min);
-  M2::MnContours contours95(fcn95, min);
+        uncertainties.push_back(uncertainty_from_summary(it->second));
+    }
 
-  auto c68 = contours68(px, py, npoints);
-  auto c95 = contours95(px, py, npoints);
+    write_observables_to_csv("dgamma_dq2.csv", obs_val, uncertainties);
 
-  std::cout << "Contour sizes: 68%=" << c68.size() << "  95%=" << c95.size() << "\n";
+    std::cout << "CSV écrit dans dgamma_dq2.csv\n";
+    return 0;
 
-  // ---- CSV ----
-  write_bestfit_csv("bestfit.csv", muHat, muErr, logSigmaHat, logSigmaErr);
-  write_contours_csv("contours.csv", c68, c95);
-  std::cout << "Wrote bestfit.csv and contours.csv\n";
+    // oi.add_observables(dec, order, false);
+    // for (auto o : DecayMapper::get_observables(dec)) {
+    //     if (o == Observables::TEST) continue;
 
-  return 0;
+    //     // if (o == Observables::A_FB_B__KSTAR_L_L || o == Observables::F_L_B__KSTAR_L_L) {
+    //         auto obs_values = oi.compute_observable(o);
+    //     std::stringstream ss;
+    //     ss << std::scientific << std::setprecision(3);
+    //     if (obs_values.size() == 1) {
+    //         ss << "= " << obs_values[0].value;
+    //     } else {
+    //         ss << ": ";
+    //         for (auto ov : obs_values) {
+    //             ss << "[" << ov.bin.value().first << ", " << ov.bin.value().second << "] = " << ov.value << ", ";
+    //         }
+    //     }
+            
+    //     LOG_INFO(ObservableMapper::str(o), ss.str());   
+    //     // }
+    // }
+
+    // auto Gamma = oi.compute_observable(Observables::DGAMMA_DQ2_BS__PHI_L_L)[0].value;
+    // auto Gamma_bar = oi.compute_observable(Observables::DGAMMA_BAR_DQ2_BS__PHI_L_L)[0].value;
+
+    // std::stringstream ss;
+    // ss << std::scientific << std::setprecision(3);
+    // ss << "= " << (Gamma + Gamma_bar) / 2;
+    // LOG_INFO("BR(Bs > phi mu mu)", ss.str());   
+
+    return 0;
 }

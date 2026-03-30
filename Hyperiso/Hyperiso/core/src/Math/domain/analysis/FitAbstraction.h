@@ -34,7 +34,7 @@ struct FitOptions {
     bool verbose = true;
 };
 
-struct ContourOptions {
+struct ContourOptionsBackEnd {
     double up = 0.5;
     unsigned npoints = 80;
     unsigned strategy = 2;
@@ -139,7 +139,7 @@ public:
                                          const BackendFitResult& reference_fit,
                                          std::size_t x_index,
                                          std::size_t y_index,
-                                         const ContourOptions& options) const = 0;
+                                         const ContourOptionsBackEnd& options) const = 0;
 };
 
 std::unique_ptr<IFitBackend> make_minuit_backend();
