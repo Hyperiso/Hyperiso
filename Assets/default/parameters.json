@@ -939,6 +939,21 @@
       "central_value": -1,
       "stat_error": 0,
       "syst_error": 0
+    },
+    "18_1": {
+      "central_value": 0,
+      "stat_error": 0.1,
+      "syst_error": 0
+    },
+    "18_2": {
+      "central_value": 0,
+      "stat_error": 0.25,
+      "syst_error": 0
+    },
+    "18_3": {
+      "central_value": 0,
+      "stat_error": 0.1,
+      "syst_error": 0
     }
   },
 

@@ -449,6 +449,6 @@ complex_t BaseQCDfCalculator::I_par_m(double q2, bool bar) {
             complex_t i2 = phi * (T_par_m_0(bar) + this->loop_f_mu_f * T_par_m_nf(u, q2, bar));
             return this->loop_f_mu_f / this->lambda_B_p * i1 + this->e_q * inv_lambda_B_m(q2) * i2;
         };
-        return c_integrate(f_full, 0, 1, 1e-3);
+        return c_integrate(f_full, 0, 1, 1e-2);
     }
 }

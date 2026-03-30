@@ -23,6 +23,15 @@ void BKstarllDecay::load_params() {
     cache.q2_low = (*p)(ParamId{ParameterType::DECAY, "B_Ks", {15, 1}}, DataType::VALUE);
     cache.q2_high = (*p)(ParamId{ParameterType::DECAY, "B_Ks", {15, 2}}, DataType::VALUE);
 
+    for (size_t i = 0; i < 6; i++) {
+        cache.A_had_err_low_0[i] = (*p)(ParamId{ParameterType::DECAY, "B_Ks", {18, 1}}, DataType::VALUE);
+        cache.A_had_err_low_1[i] = (*p)(ParamId{ParameterType::DECAY, "B_Ks", {18, 2}}, DataType::VALUE);
+    }
+
+    for (size_t i = 0; i < 8; i++) {
+        cache.A_had_err_high[i] = (*p)(ParamId{ParameterType::DECAY, "B_Ks", {18, 3}}, DataType::VALUE);
+    }
+
     load_cfg_dependent_params();
 
     // printf("alpha_em = %.4e\n", cache.alpha_em);
