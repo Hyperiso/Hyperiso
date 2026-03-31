@@ -949,6 +949,8 @@ MANUAL_LEGACY_ALIASES = {
     "dGamma/dq2_Bsphiee": 'DBR_DQ2_BS__PHI_E_E',
     "dGamma/dq2_Bsphimumu": 'DBR_DQ2_BS__PHI_MU_MU',
     "dGamma/dq2_LambdabLambdamumu": 'DBR_DQ2_LAMBDA_B__LAMBDA_MU_MU',
+    "S1c_B0Kstar0mumu": "S_1C_B0__KSTAR0_MU_MU",
+    "S2s_B0Kstar0mumu": "S_2S_B0__KSTAR0_MU_MU",
 }
 
 MISSING_IN_FLHA = ['A_FB_B0__K0_TAU_TAU', 'A_FB_B__K_TAU_TAU', 'BR_K__MU_NU__BR_PI__MU_NU', 'DBR_DQ2_B0__K0_TAU_TAU', 'DBR_DQ2_B__K_TAU_TAU', 'DGAMMA_BAR_DQ2_B0__KSTAR0_E_E', 'DGAMMA_BAR_DQ2_B0__KSTAR0_MU_MU', 'DGAMMA_BAR_DQ2_B0__KSTAR0_TAU_TAU', 'F_H_B0__K0_TAU_TAU', 'F_H_B__K_TAU_TAU', 'R_MU23', 'TEST']
