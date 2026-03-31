@@ -186,52 +186,68 @@ BlockAccessor::get_parameter_sources(const BlockName& block_name, LhaID id) cons
 std::unordered_set<ParamId>
 BlockAccessor::get_all_source_parameters(const std::unordered_set<ParamId>& param_ids) const
 {
+    enum class VisitState {
+        Visiting,
+        Done
+    };
+
     std::unordered_set<ParamId> result;
-    std::unordered_set<ParamId> visited;
+    std::unordered_map<ParamId, VisitState> state;
 
-    std::function<void(const ParamId&)> dfs =
-        [&](const ParamId& pid)
-        {
-            if (!visited.insert(pid).second) {
-                return;
+    std::function<void(const ParamId&)> dfs = [&](const ParamId& pid)
+    {
+        auto it = state.find(pid);
+        if (it != state.end()) {
+            if (it->second == VisitState::Visiting) {
+                LOG_WARN("Cycle detected while resolving source parameters for",
+                         pid.block, pid.code);
             }
+            return;
+        }
 
-            if (!this->has_param(pid.block, pid.code)) {
-                result.insert(pid);
-                return;
+        state.emplace(pid, VisitState::Visiting);
+
+        if (!this->has_param(pid.block, pid.code)) {
+            result.insert(pid);
+            state[pid] = VisitState::Done;
+            return;
+        }
+
+        std::vector<ParamId> next_ids;
+
+        const auto param_sources = this->get_parameter_sources(pid.block, pid.code);
+        for (const auto& [src_id, src_ptr] : param_sources) {
+            if (src_ptr) {
+                next_ids.push_back(src_id);
             }
+        }
 
-            bool has_sources = false;
-
-            auto param_sources = this->get_parameter_sources(pid.block, pid.code);
-            if (!param_sources.empty()) {
-                has_sources = true;
-                for (const auto& [src_id, _] : param_sources) {
-                    dfs(src_id);
+        if (next_ids.empty()) {
+            const auto block_sources = this->get_block_sources(pid.block);
+            for (const auto& [src_block_name, src_block] : block_sources) {
+                if (!src_block) {
+                    continue;
                 }
-            }
 
-            auto block_sources = this->get_block_sources(pid.block);
-            if (!block_sources.empty()) {
-                has_sources = true;
-
-                for (const auto& [src_block_name, src_block] : block_sources) {
-                    if (!src_block) continue;
-
-
-                    const auto& items = src_block->getItems();
-                    for (const auto& [lha_id, param_ptr] : items) {
-                        if (!param_ptr) continue;
-                        dfs(param_ptr->get_id());
+                for (const auto& [lha_id, param_ptr] : src_block->getItems()) {
+                    if (!param_ptr) {
+                        continue;
                     }
+                    next_ids.push_back(param_ptr->get_id());
                 }
             }
+        }
 
-
-            if (!has_sources) {
-                result.insert(pid);
+        if (next_ids.empty()) {
+            result.insert(pid);
+        } else {
+            for (const auto& next_pid : next_ids) {
+                dfs(next_pid);
             }
-        };
+        }
+
+        state[pid] = VisitState::Done;
+    };
 
     for (const auto& pid : param_ids) {
         dfs(pid);
