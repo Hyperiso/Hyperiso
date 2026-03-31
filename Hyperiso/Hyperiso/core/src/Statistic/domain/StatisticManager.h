@@ -133,10 +133,16 @@ public:
 
         for (auto& paramId : eta_infos_leaf) {
             double u = pspp->get_param(paramId)->get_combined_std().real();
+            double val = pspp->get_param(paramId)->get_val().real();
+            if (fpeq(val, 0.0) && !fpeq(u, 0.0)) {
+                eta_specs_real_leaf[paramId] = val;
+                continue;
+            }
+                
             if (!std::isfinite(u) || fpeq(std::abs(u), 0.0))
                 delta_rel[paramId] = 0;
             else
-                delta_rel[paramId] = std::abs(u / pspp->get_param(paramId)->get_val());
+                delta_rel[paramId] = std::abs(u / val);
         }
             
         

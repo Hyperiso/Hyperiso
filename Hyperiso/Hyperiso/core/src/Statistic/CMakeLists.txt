@@ -184,6 +184,9 @@ target_link_libraries(PROFILING_TEST StatisticLib)
 add_executable(JPP app/jpp.cpp)
 target_link_libraries(JPP StatisticLib)
 
+add_executable(TEST_BKSLL app/test_contour_BKstarmumu.cpp)
+target_link_libraries(TEST_BKSLL StatisticLib)
+
 include(GNUInstallDirs)
 
 install(TARGETS StatisticLib
