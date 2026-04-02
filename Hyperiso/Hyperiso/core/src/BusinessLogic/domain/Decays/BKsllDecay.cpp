@@ -1704,7 +1704,7 @@ std::vector<ObservableValue> BKstarllDecay::compute_observable(Observables obs) 
     case Observables::P_PRIME_8_CPV_B__KSTAR_TAU_TAU:     
         set_lepton_gen_and_charge(BKstarllConfig::Lepton::TAU, BKstarllConfig::B_Charge::B_PLUS); 
         return Pp_i_binned(8, true, obs);
-    case Observables::DGAMMA_DQ2_B0__KSTAR0_E_E:   
+    case Observables::DBR_DQ2_B0__KSTAR0_E_E:   
         set_lepton_gen_and_charge(BKstarllConfig::Lepton::E, BKstarllConfig::B_Charge::B_0);
         return dBR_dq2_binned(false, obs);   
     case Observables::A_FB_B0__KSTAR0_E_E:      
@@ -1878,7 +1878,7 @@ std::vector<ObservableValue> BKstarllDecay::compute_observable(Observables obs) 
     case Observables::P_PRIME_8_CPV_B0__KSTAR0_E_E:     
         set_lepton_gen_and_charge(BKstarllConfig::Lepton::E, BKstarllConfig::B_Charge::B_0); 
         return Pp_i_binned(8, true, obs);
-    case Observables::DGAMMA_DQ2_B0__KSTAR0_MU_MU:   
+    case Observables::DBR_DQ2_B0__KSTAR0_MU_MU:   
         set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_0);
         return dBR_dq2_binned(false, obs);   
     case Observables::A_FB_B0__KSTAR0_MU_MU:      
@@ -2052,7 +2052,7 @@ std::vector<ObservableValue> BKstarllDecay::compute_observable(Observables obs) 
     case Observables::P_PRIME_8_CPV_B0__KSTAR0_MU_MU:     
         set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_0); 
         return Pp_i_binned(8, true, obs);
-    case Observables::DGAMMA_DQ2_B0__KSTAR0_TAU_TAU:   
+    case Observables::DBR_DQ2_B0__KSTAR0_TAU_TAU:   
         set_lepton_gen_and_charge(BKstarllConfig::Lepton::TAU, BKstarllConfig::B_Charge::B_0);
         return dBR_dq2_binned(false, obs);   
     case Observables::A_FB_B0__KSTAR0_TAU_TAU:      
