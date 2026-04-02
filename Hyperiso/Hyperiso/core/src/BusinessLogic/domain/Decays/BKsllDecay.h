@@ -165,7 +165,7 @@ protected:
 
     std::vector<ObservableValue> dBR_dq2_binned(bool bar, Observables id);
     double dG_dq2_avg_bin(size_t bin);
-    std::vector<ObservableValue> A_FB_binned(Observables id);
+    std::vector<ObservableValue> A_FB_binned(Observables id, bool cpv);
     ObservableValue q0(Observables id);
     std::vector<ObservableValue> A_CP_binned(Observables id);
     std::vector<ObservableValue> F_L_binned(Observables id);
