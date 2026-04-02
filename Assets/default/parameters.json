@@ -317,6 +317,11 @@
       "stat_error": 0.00007,
       "syst_error": 0
     },
+    "443": {
+      "central_value": 3.096900,
+      "stat_error": 0.000006,
+      "syst_error": 0
+    },
     "511": {
       "central_value": 5.27972,
       "stat_error": 0.00008,
@@ -340,6 +345,11 @@
     "5122": {
       "central_value": 5.61957,
       "stat_error": 0.00016,
+      "syst_error": 0
+    },
+    "100443": {
+      "central_value": 3.686097,
+      "stat_error": 0.000010,
       "syst_error": 0
     }
   },

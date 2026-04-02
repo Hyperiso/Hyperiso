@@ -22,6 +22,7 @@ BVFFCalculator::BVFFCalculator(int B_id, int V_id, std::shared_ptr<IObsParameter
     this->z_0 = std::real(z(0.0, this->t_p, this->t_0));
     this->src_block = allowed_decays.at({B_id, V_id});
     this->load_FF_params(src);
+    this->syst_err = src == BV_FF_Src::HLMW ? std::real((*p)({ParameterType::FLAVOR, this->src_block, 6}, DataType::VALUE)) : 0.0;
 }
 
 complex_t BVFFCalculator::z(double t, double t_p, double t_0) {
@@ -81,7 +82,9 @@ double BVFFCalculator::F_a(BV_FF a, double q2) {
     auto ai = this->alpha_ai.at(a);
     double P = pole(q2, this->m_R.at(a));
     double Z = std::real(z(q2, this->t_p, this->t_0)) - this->z_0;
-    return P * (ai[0] + Z * (ai[1] + Z * ai[2]));
+
+    // NF : Here all FFs have the same syst_err : correlation = 1 between every FF. I think it would be more accurate to generate a random gaussian number with 0 mean and syst_err standard dev so that each FF error is independent.
+    return P * (ai[0] + Z * (ai[1] + Z * ai[2])) * (1 + this->syst_err);
 }
 
 double BVFFCalculator::A_2(double q2) {

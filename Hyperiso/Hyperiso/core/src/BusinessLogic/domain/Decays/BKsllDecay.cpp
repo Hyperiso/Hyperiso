@@ -145,6 +145,47 @@ void BKstarllDecay::load_cfg_dependent_params() {
         fill_cache(lam_T_par_m, cache.q2_min, cache.q2_high, cache.T_par_m_bar_lookup, true);
     }
 
+    if (cfg.power_corr_impl == BKstarllConfig::Power_Corrections_Impl::BCvDV) {
+        double m_D0 = (*p)(ParamId{ParameterType::FLAVOR, "FMASS", 421}, DataType::VALUE);
+        double m_Jpsi = (*p)(ParamId{ParameterType::FLAVOR, "FMASS", 443}, DataType::VALUE);
+        double m_psi_2S = (*p)(ParamId{ParameterType::FLAVOR, "FMASS", 100443}, DataType::VALUE);
+        cache.tp_nf = 4. * std::pow(m_D0, 2);
+        cache.t0_nf = cache.tp_nf - std::sqrt(cache.tp_nf * (cache.tp_nf - std::pow(m_psi_2S, 2)));
+        cache.z0_nf = (sqrt(cache.tp_nf) - sqrt(cache.tp_nf - cache.t0_nf)) / (sqrt(cache.tp_nf) + sqrt(cache.tp_nf - cache.t0_nf));
+        cache.z_Jpsi_nf = (sqrt(cache.tp_nf - std::pow(m_Jpsi, 2)) - sqrt(cache.tp_nf - cache.t0_nf)) / (sqrt(cache.tp_nf - std::pow(m_Jpsi, 2)) + sqrt(cache.tp_nf - cache.t0_nf));
+        cache.z_psi2S_nf = (sqrt(cache.tp_nf - std::pow(m_psi_2S, 2)) - sqrt(cache.tp_nf - cache.t0_nf)) / (sqrt(cache.tp_nf - std::pow(m_psi_2S, 2)) + sqrt(cache.tp_nf - cache.t0_nf));
+
+        for (size_t i = 0; i < 3; i++) {
+            cache.alpha_perp[i] = complex_t {
+                (*p)(ParamId{ParameterType::DECAY, "B_Ks", {19, 1, 1, i}}, DataType::VALUE),
+                (*p)(ParamId{ParameterType::DECAY, "B_Ks", {19, 2, 1, i}}, DataType::VALUE)
+            };
+
+            cache.alpha_par[i] = complex_t {
+                (*p)(ParamId{ParameterType::DECAY, "B_Ks", {19, 1, 2, i}}, DataType::VALUE),
+                (*p)(ParamId{ParameterType::DECAY, "B_Ks", {19, 2, 2, i}}, DataType::VALUE)
+            };
+        }
+        
+        for (size_t i = 0; i < 2; i++) {
+            cache.alpha_0[i] = complex_t {
+                (*p)(ParamId{ParameterType::DECAY, "B_Ks", {19, 1, 3, i}}, DataType::VALUE),
+                (*p)(ParamId{ParameterType::DECAY, "B_Ks", {19, 2, 3, i}}, DataType::VALUE)
+            };
+        }
+    }
+
+    if (cfg.power_corr_impl == BKstarllConfig::Power_Corrections_Impl::KMPW) {
+        cache.q2_bar = 1.0;
+        cache.q2_Jpsi = std::pow(std::real((*p)(ParamId{ParameterType::FLAVOR, "FMASS", 443}, DataType::VALUE)), 2);
+
+        for (size_t i = 0; i < 3; i++) {
+            cache.DeltaC9_M_qbar[i] = (*p)(ParamId{ParameterType::DECAY, "B_Ks", {20, i}}, DataType::VALUE);
+            cache.r1_M[i] = (*p)(ParamId{ParameterType::DECAY, "B_Ks", {21, 1, i}}, DataType::VALUE);
+            cache.r2_M[i] = (*p)(ParamId{ParameterType::DECAY, "B_Ks", {21, 2, i}}, DataType::VALUE);
+        }
+    }
+
     compute_binned_J_i();
 }
 

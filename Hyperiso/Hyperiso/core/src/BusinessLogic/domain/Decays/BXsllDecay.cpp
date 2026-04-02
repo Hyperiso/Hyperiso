@@ -125,6 +125,9 @@ void BXsllDecay::fill_wilson_cache() {
 void BXsllDecay::load_cfg_dep_params() {
     cache.m_l_hat = (*p)(ParamId{ParameterType::SM, "MASS", 11 + 2 * (int)cfg.gen}, DataType::VALUE) / cache.m_b_1S;
     cache.L_l = -2 * std::log(cache.m_l_hat);
+    
+    for (size_t i = 0; i < 3; i++)
+        cache.rand_err[i] = (*p)(ParamId{ParameterType::SM, "B_Xsll", {3, 11 + 2 * (int)cfg.gen, i}}, DataType::VALUE);
 }
 
 double BXsllDecay::f(double z) {
@@ -781,6 +784,7 @@ std::vector<ObservableValue> BXsllDecay::BR_B_Xsll(Observables oid) {
     };
 
     for (size_t i = 0; i < this->bins.value().size(); i++) {
+        double rand_err = this->bins.value()[i].second < 8.0 ? cache.rand_err[0] : this->bins.value()[i].first < 12.0 ? cache.rand_err[1] : cache.rand_err[2];
         double s_min = this->bins.value()[i].first / std::pow(cache.m_b_1S, 2);
         double s_max = this->bins.value()[i].second / std::pow(cache.m_b_1S, 2);
         double res = cache.pref_dB_ds * integrate(f, s_min, s_max, 1e-3); 

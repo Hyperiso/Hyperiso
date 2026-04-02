@@ -14,6 +14,7 @@ private:
     double m_B, m_B2, m_B4;
     double m_V, m_V2, m_V4;
     double t_p, t_m, t_0, z_0;
+    double syst_err;
     std::map<BV_FF, std::array<double, 3>> alpha_ai;
     std::map<BV_FF, double> m_R;
     std::string src_block;

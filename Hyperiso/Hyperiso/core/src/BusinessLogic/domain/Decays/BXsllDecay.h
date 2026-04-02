@@ -22,6 +22,8 @@ struct BXsllDecayCache {
     double pref_dB0_ds, pref_dB_ds;
     double pref_A0_0, pref_A0_1;
     double pref_delta_mb2, pref_delta_mb3, pref_delta_mc2, pref_delta_brems, pref_delta_em;
+
+    std::array<double, 3> rand_err;
     
     std::map<WCoef, complex_t> C;
     std::map<WCoef, complex_t> C_LO;

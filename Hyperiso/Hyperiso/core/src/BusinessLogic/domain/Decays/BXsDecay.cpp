@@ -33,6 +33,7 @@ void BXsDecay::load_params() {
     cache.L_b = 2 * std::log(cache.mu_b / cache.m_b_kin);
     // cache.L_c = 2 * std::log(cache.mu_c / cache.m_c_mu_c); // TODO : 0 in superiso
     cache.L_c = 0.0;
+    cache.rand_err = (*p)(ParamId{ParameterType::DECAY, "B_Xs", 10}, DataType::VALUE);
     
     cache.C_b_LO = w_proxy->getAR(WGroup::B, QCDOrder::LO);
     auto CP_b_LO = w_proxy->getAR(WGroup::BPrime, QCDOrder::LO);
@@ -563,7 +564,7 @@ double BXsDecay::BR_B_Xs_gamma() {
     // printf("N_E0 = %.4e\n", n);
     // printf("C = %.4e\n", C());
 
-    return cache.BR_B__Xc_e_nu_exp * cache.ckm_factor * 6 * cache.alpha_em_0 / (PI * C()) * (p + n + epsilon_em);
+    return cache.BR_B__Xc_e_nu_exp * cache.ckm_factor * 6 * cache.alpha_em_0 / (PI * C()) * (p + n + epsilon_em) * (1 + cache.rand_err);
 }
 
 std::vector<ObservableValue> BXsDecay::compute_observable(Observables obs) {

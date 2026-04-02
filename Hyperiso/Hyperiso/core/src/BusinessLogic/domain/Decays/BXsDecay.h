@@ -25,6 +25,7 @@ struct BXsDecayCache {
     double m_c_mu_c, m_c_3gev;
     double L_b, L_c;
     const double X_b {-0.168440839756};
+    double rand_err;
 
     std::map<WCoef, complex_t> C_b_LO;
     std::map<WCoef, complex_t> C_b_NLO;
