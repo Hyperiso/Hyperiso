@@ -86,6 +86,7 @@ add_library(StatisticLib STATIC
     adapters/StatParamSourcesProxy.cpp
     adapters/StatParamOptimizerProxy.cpp
     adapters/StatDependencyPruner.cpp
+    domain/NuisanceReader.cpp
     # domain/RNGHelper.cpp
     domain/JointDistribution.cpp
     domain/Fit.cpp
@@ -183,6 +184,9 @@ target_link_libraries(PROFILING_TEST StatisticLib)
 
 add_executable(JPP app/jpp.cpp)
 target_link_libraries(JPP StatisticLib)
+
+add_executable(READER app/test_reader.cpp)
+target_link_libraries(READER StatisticLib)
 
 include(GNUInstallDirs)
 

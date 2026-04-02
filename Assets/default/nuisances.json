@@ -1,0 +1,18 @@
+{
+  "nuisances": [
+    {
+      "block": "WILSON",
+      "code": "2_3_5",
+      "min_val": 1.0,
+      "max_val": 5.5,
+      "distribution": "gaussian"
+    },
+    {
+      "block": "WILSON",
+      "code": "2_3_6",
+      "min_val": 1.0,
+      "max_val": 5.5,
+      "distribution": "gaussian"
+    }
+  ]
+}
