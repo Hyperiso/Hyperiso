@@ -194,8 +194,6 @@ struct BinnedObservableId {
         parts.erase(parts.begin() + 2, parts.begin() + 8);
         LhaID unbinned_id(parts);
 
-        LOG_INFO(unbinned_id);
-
         auto obs_opt = ObservableMapper::from_flha(unbinned_id);
         if (!obs_opt.has_value()) {
             std::cout << unbinned_id << std::endl;

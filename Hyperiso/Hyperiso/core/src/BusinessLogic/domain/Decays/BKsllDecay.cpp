@@ -1,8 +1,31 @@
 #include "BKsllDecay.h"
 
+#include <chrono>
+#include <iostream>
+
+struct ScopedTimer {
+    std::string name;
+    std::chrono::steady_clock::time_point t0;
+    ScopedTimer(std::string n) : name(std::move(n)), t0(std::chrono::steady_clock::now()) {}
+    ~ScopedTimer() {
+        auto t1 = std::chrono::steady_clock::now();
+        double ms = std::chrono::duration<double, std::milli>(t1 - t0).count();
+        std::cerr << "[TIMER] " << name << " : " << ms << " ms\n";
+    }
+};
+
+struct CallCounter {
+    static inline long long A_perp_calls = 0;
+    static inline long long A_par_calls  = 0;
+    static inline long long A_0_calls    = 0;
+    static inline long long A_t_calls    = 0;
+    static inline long long A_S_calls    = 0;
+};
+
 using Charge = BKstarllConfig::B_Charge;
 
 void BKstarllDecay::load_params() {
+    ScopedTimer t("BKstarllDecay::load_params");
     fill_wilson_cache();
 
     cache.alpha_em = (*p)(ParamId{ParameterType::SM, "EW", {1, 2}}, DataType::VALUE);
@@ -105,6 +128,7 @@ void BKstarllDecay::fill_wilson_cache() {
 }
 
 void BKstarllDecay::load_cfg_dependent_params() {
+    ScopedTimer t("BKstarllDecay::load_cfg_dependent_params");
     cache.ff_calculator = BVFFCalculator(
         cfg.charge == Charge::B_0 ? 511 : 521,
         cfg.charge == Charge::B_0 ? 313 : 323,
@@ -470,9 +494,13 @@ complex_t BKstarllDecay::delta_A_0_QCDf(double q2, double sign, bool bar) {
     double mB3 = cache.m_B * mB2;
     double mK2 = cache.m_Ks * cache.m_Ks;
     double f = lambda(q2) / ((mB2 - mK2) * mB2);
+    // complex_t delta_A_QCDf = -N(q2, bar) * (cache.m_b_PS + cache.alpha_s_mu_b * cache.Delta_M / (3 * PI)) * mB2 / (std::sqrt(q2) * cache.m_Ks) * (
+    //     (2 * (mB2 + 3 * mK2 - q2) * cache.ff_calculator.E(q2) / mB3 - f) * cache.qcdf_calculator.T_perp_m(q2, bar)
+    //   - f * cache.qcdf_calculator.T_par_m(q2, bar)
+    // );
     complex_t delta_A_QCDf = -N(q2, bar) * (cache.m_b_PS + cache.alpha_s_mu_b * cache.Delta_M / (3 * PI)) * mB2 / (std::sqrt(q2) * cache.m_Ks) * (
-        (2 * (mB2 + 3 * mK2 - q2) * cache.ff_calculator.E(q2) / mB3 - f) * cache.qcdf_calculator.T_perp_m(q2, bar)
-      - f * cache.qcdf_calculator.T_par_m(q2, bar)
+        (2 * (mB2 + 3 * mK2 - q2) * cache.ff_calculator.E(q2) / mB3 - f) * T_perp_m_cached(q2, bar)
+    - f * T_par_m_cached(q2, bar)
     );
     return delta_A_QCDf * guesstimate_err + delta_A_PC;
 }
@@ -587,22 +615,27 @@ complex_t BKstarllDecay::interpolate(double q2, complex_t val_low, complex_t val
 }
 
 complex_t BKstarllDecay::A_perp(double q2, double sign, bool bar) {
+    ++CallCounter::A_perp_calls;
     return interpolate(q2, A_perp_low(q2, sign, bar), A_perp_high(q2, sign, bar));
 }
 
 complex_t BKstarllDecay::A_par(double q2, double sign, bool bar) {
+    ++CallCounter::A_par_calls;
     return interpolate(q2, A_par_low(q2, sign, bar), A_par_high(q2, sign, bar));
 }
 
 complex_t BKstarllDecay::A_0(double q2, double sign, bool bar) {
+    ++CallCounter::A_0_calls;
     return interpolate(q2, A_0_low(q2, sign, bar), A_0_high(q2, sign, bar));
 }
 
 complex_t BKstarllDecay::A_t(double q2, bool bar) {
+    ++CallCounter::A_t_calls;
     return interpolate(q2, A_t_low(q2, bar), A_t_high(q2, bar));
 }
 
 complex_t BKstarllDecay::A_S(double q2, bool bar) {
+    ++CallCounter::A_S_calls;
     return interpolate(q2, A_S_low(q2, bar), A_S_high(q2, bar));
 }
 
@@ -701,8 +734,11 @@ double BKstarllDecay::J9(double q2, bool bar) {
 }
 
 void BKstarllDecay::compute_binned_J_i() {
+    ScopedTimer t_all("BKstarllDecay::compute_binned_J_i");
     auto fill_binned = [&] (std::array<std::vector<double>, 15>& dest, bool bar) {
+        std::size_t ibin = 0;
         for (auto [q2_l, q2_u] : this->bins.value()) {
+            auto t_bin0 = std::chrono::steady_clock::now();
             dest[0].emplace_back(integrate([&] (double q2) { return 2. * J1s(q2, bar) + J1c(q2, bar); }, q2_l, q2_u, 1e-2));
             dest[1].emplace_back(integrate([&] (double q2) { return J2s(q2, bar); }, q2_l, q2_u, 1e-2));
             dest[2].emplace_back(integrate([&] (double q2) { return J2c(q2, bar); }, q2_l, q2_u, 1e-2));
@@ -718,11 +754,29 @@ void BKstarllDecay::compute_binned_J_i() {
             dest[12].emplace_back(integrate([&] (double q2) { return J8(q2, bar); }, q2_l, q2_u, 1e-2));
             dest[13].emplace_back(integrate([&] (double q2) { return J9(q2, bar); }, q2_l, q2_u, 1e-2));
             dest[14].emplace_back(integrate([&] (double q2) { return J1c(q2, bar); }, q2_l, q2_u, 1e-2));
+
+            auto t_bin1 = std::chrono::steady_clock::now();
+            double ms = std::chrono::duration<double, std::milli>(t_bin1 - t_bin0).count();
+
+            if (ibin % 50 == 0) {
+                std::cerr << "[BIN] bar=" << bar
+                          << " i=" << ibin
+                          << " [" << q2_l << "," << q2_u << "] "
+                          << ms << " ms\n";
+            }
+            ++ibin;
         }
     };
 
     fill_binned(cache.J_i_binned, false);
     fill_binned(cache.J_i_bar_binned, true);
+
+    std::cerr << "[CALLS] A_perp=" << CallCounter::A_perp_calls
+          << " A_par=" << CallCounter::A_par_calls
+          << " A_0=" << CallCounter::A_0_calls
+          << " A_t=" << CallCounter::A_t_calls
+          << " A_S=" << CallCounter::A_S_calls
+          << "\n";
 }
 
 std::vector<ObservableValue> BKstarllDecay::dBR_dq2_binned(bool bar, Observables id) {

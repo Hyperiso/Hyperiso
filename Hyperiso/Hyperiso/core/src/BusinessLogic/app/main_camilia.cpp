@@ -1,3 +1,17 @@
+#include <chrono>
+#include <iostream>
+
+struct ScopedTimer {
+    std::string name;
+    std::chrono::steady_clock::time_point t0;
+    ScopedTimer(std::string n) : name(std::move(n)), t0(std::chrono::steady_clock::now()) {}
+    ~ScopedTimer() {
+        auto t1 = std::chrono::steady_clock::now();
+        double ms = std::chrono::duration<double, std::milli>(t1 - t0).count();
+        std::cerr << "[TIMER] " << name << " : " << ms << " ms\n";
+    }
+};
+
 #include "Logger.h"
 #include <iostream>
 #include <cassert>
@@ -50,11 +64,14 @@ void write_observables_to_csv(
 }
 
 int main() {
+    ScopedTimer total("main total");
     Logger::getInstance()->setLevel(Logger::LogLevel::INFO);
     HyperisoMaster hyp;
     HyperisoConfig config;
     config.model = Model::SM;
-    hyp.init("lha/si_input.flha", config);
+    {
+        ScopedTimer t("hyp.init");
+        hyp.init("lha/si_input.flha", config);}
 
     QCDOrder order = QCDOrder::NNLO;
     ObservableInterface oi;
@@ -69,14 +86,20 @@ int main() {
     // oi.compute_observable(Observables::TEST);
     std::vector<double> squares;
 
-    for (double x = 0.01; x<8.1; x+=0.01) {
+    for (double x = 0.1; x<8.1; x+=0.1) {
         squares.push_back(x);
     }
-    for (auto elem : squares) {
+    {
+        ScopedTimer t("add_observable loop");
+        for (auto elem : squares) {
         oi.add_observable(BinnedObservableId(ObservableMapper::to_id(Observables::F_L_B__KSTAR_MU_MU), {elem, elem+0.1}), QCDOrder::NNLO, false);
+        }
     }
-    
-    std::vector<ObservableValue> obs_val = oi.compute_observable(Observables::F_L_B__KSTAR_MU_MU);
+    std::vector<ObservableValue> obs_val;
+    {
+        ScopedTimer t("compute_observable(F_L)");
+        obs_val = oi.compute_observable(Observables::F_L_B__KSTAR_MU_MU);
+    }
 
     std::vector<ObservableUncertainty> uncertainties;
     uncertainties.reserve(obs_val.size());
@@ -86,39 +109,11 @@ int main() {
         uncertainties.push_back({sigma, sigma});
     }
 
-    write_observables_to_csv("dgamma_dq2.csv", obs_val, uncertainties);
+    {
+        ScopedTimer t("write csv");
+        write_observables_to_csv("dgamma_dq2.csv", obs_val, uncertainties);
+    }
 
     std::cout << "CSV écrit dans dgamma_dq2.csv\n";
-    return 0;
-
-    // oi.add_observables(dec, order, false);
-    // for (auto o : DecayMapper::get_observables(dec)) {
-    //     if (o == Observables::TEST) continue;
-
-    //     // if (o == Observables::A_FB_B__KSTAR_L_L || o == Observables::F_L_B__KSTAR_L_L) {
-    //         auto obs_values = oi.compute_observable(o);
-    //     std::stringstream ss;
-    //     ss << std::scientific << std::setprecision(3);
-    //     if (obs_values.size() == 1) {
-    //         ss << "= " << obs_values[0].value;
-    //     } else {
-    //         ss << ": ";
-    //         for (auto ov : obs_values) {
-    //             ss << "[" << ov.bin.value().first << ", " << ov.bin.value().second << "] = " << ov.value << ", ";
-    //         }
-    //     }
-            
-    //     LOG_INFO(ObservableMapper::str(o), ss.str());   
-    //     // }
-    // }
-
-    // auto Gamma = oi.compute_observable(Observables::DGAMMA_DQ2_BS__PHI_L_L)[0].value;
-    // auto Gamma_bar = oi.compute_observable(Observables::DGAMMA_BAR_DQ2_BS__PHI_L_L)[0].value;
-
-    // std::stringstream ss;
-    // ss << std::scientific << std::setprecision(3);
-    // ss << "= " << (Gamma + Gamma_bar) / 2;
-    // LOG_INFO("BR(Bs > phi mu mu)", ss.str());   
-
     return 0;
 }
