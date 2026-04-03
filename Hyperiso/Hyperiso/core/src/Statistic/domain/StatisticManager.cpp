@@ -8,20 +8,6 @@ std::string param_name(const ParamId& pid) {
     return oss.str();
 }
 
-fit_app::ParameterDefinition make_param_def(const ParamId& pid, double value, double sigma_hint) {
-    fit_app::ParameterDefinition out;
-    out.name = param_name(pid);
-    out.value = value;
-
-    if (std::isfinite(sigma_hint) && sigma_hint > 0.0) {
-        out.step_hint = sigma_hint;
-    } else {
-        out.step_hint = std::max(1e-3, 0.01 * std::abs(value));
-    }
-
-    return out;
-}
-
 fit_app::ParameterDefinition make_fit_param_def(const ParamId& pid, double value, double sigma_hint) {
     fit_app::ParameterDefinition out;
     out.name = param_name(pid);
@@ -95,35 +81,74 @@ std::vector<double> ordered_prediction_vector(
 
 }
 
+StatisticManager::StatisticManager(StatisticConfig config,
+                                   std::shared_ptr<IModel> obs_int,
+                                   std::shared_ptr<IStatCorrelationProxy> pscp,
+                                   std::shared_ptr<IStatParameterProxy> pspp,
+                                   std::shared_ptr<IStatSourcesProxy> sp,
+                                   std::shared_ptr<IStatDependencyPruner> dp,
+                                   std::shared_ptr<INuisanceReader> nuisance_reader)
+    : obs_int(std::move(obs_int)),
+      pscp(std::move(pscp)),
+      pspp(std::move(pspp)),
+      sp(std::move(sp)),
+      dp(std::move(dp)),
+      nuisance_reader_(std::move(nuisance_reader)),
+      config(std::move(config))
+{
+    if (!nuisance_reader_) {
+        throw std::invalid_argument("StatisticManager: nuisance_reader is null");
+    }
+
+    this->obs_int->compute_observables();
+    reload_nuisance_specs();
+    invalidate_fit_state();
+}
+
+// std::vector<std::unique_ptr<IMarginalDistribution>> StatisticManager::build_nuisance_marginal_distributions() {
+//     // unsigned int seed = std::random_device{}(); TODO : investigate how random seed leads to unstable results
+//     unsigned int seed = 123456u;
+//     std::map<ParamId, MarginalType> nuisance_marginals;
+
+//     for (auto& [pid, v] : cache.eta_specs_real) {
+//         nuisance_marginals.emplace(pid, MarginalType::GAUSSIAN);
+//     }
+
+//     for (auto& [pid, mt] : config.override_nuisance_marginals) {
+//         for (auto elem : nuisance_marginals) {
+//             std::cout << elem.first << std::endl;
+//             std::cout << ParameterTypeMapper::str(elem.first.type.value_or(ParameterType::WILSON)) << std::endl;
+//         }
+//         if (!nuisance_marginals.contains(pid)) {
+//             LOG_WARN("Parameter", pid, "is not a nuisance for the selected observables");
+//             continue;
+//         }
+//         nuisance_marginals.at(pid) = mt;
+//     }
+
+//     auto unzipped = unzip(nuisance_marginals);
+//     std::vector<ParamId> nuisance_ids = unzipped.ids;
+//     std::vector<std::unique_ptr<IMarginalDistribution>> marginals;
+
+//     for (auto& [pid, mt] : nuisance_marginals) {
+//         MarginalConfig cfg = MarginalConfigFactory().create(pid, mt);
+//         auto m_ptr = DistributionFactory::create(mt, cfg, seed);
+//         marginals.emplace_back(std::move(m_ptr));
+//     }
+
+//     return marginals;
+// }
+
 std::vector<std::unique_ptr<IMarginalDistribution>> StatisticManager::build_nuisance_marginal_distributions() {
-    // unsigned int seed = std::random_device{}(); TODO : investigate how random seed leads to unstable results
     unsigned int seed = 123456u;
-    std::map<ParamId, MarginalType> nuisance_marginals;
-
-    for (auto& [pid, v] : cache.eta_specs_real) {
-        nuisance_marginals.emplace(pid, MarginalType::GAUSSIAN);
-    }
-
-    for (auto& [pid, mt] : config.override_nuisance_marginals) {
-        for (auto elem : nuisance_marginals) {
-            std::cout << elem.first << std::endl;
-            std::cout << ParameterTypeMapper::str(elem.first.type.value_or(ParameterType::WILSON)) << std::endl;
-        }
-        if (!nuisance_marginals.contains(pid)) {
-            LOG_WARN("Parameter", pid, "is not a nuisance for the selected observables");
-            continue;
-        }
-        nuisance_marginals.at(pid) = mt;
-    }
-
-    auto unzipped = unzip(nuisance_marginals);
-    std::vector<ParamId> nuisance_ids = unzipped.ids;
     std::vector<std::unique_ptr<IMarginalDistribution>> marginals;
 
-    for (auto& [pid, mt] : nuisance_marginals) {
-        MarginalConfig cfg = MarginalConfigFactory().create(pid, mt);
-        auto m_ptr = DistributionFactory::create(mt, cfg, seed);
-        marginals.emplace_back(std::move(m_ptr));
+    marginals.reserve(cache.eta_specs_real.size());
+
+    for (const auto& [pid, _] : cache.eta_specs_real) {
+        const MarginalType mt = resolve_nuisance_marginal_type(pid);
+        MarginalConfig cfg = make_nuisance_marginal_config(pid, mt);
+        marginals.emplace_back(DistributionFactory::create(mt, cfg, seed));
     }
 
     return marginals;
@@ -235,10 +260,17 @@ FitResultWithMaps StatisticManager::compute_MLE(const std::vector<ParamId>& p_sp
         ctx->fp_defs.emplace_back(make_fit_param_def(p_ids[i], p0[i], sigma));
     }
 
+    // ctx->nuis_defs.reserve(eta_ids.size());
+    // for (std::size_t i = 0; i < eta_ids.size(); ++i) {
+    //     double sigma = std::abs(pspp->get_param(eta_ids[i])->get_combined_std().real());
+    //     ctx->nuis_defs.emplace_back(make_nuisance_param_def(eta_ids[i], eta0[i], sigma));
+    // }
     ctx->nuis_defs.reserve(eta_ids.size());
     for (std::size_t i = 0; i < eta_ids.size(); ++i) {
         double sigma = std::abs(pspp->get_param(eta_ids[i])->get_combined_std().real());
-        ctx->nuis_defs.emplace_back(make_nuisance_param_def(eta_ids[i], eta0[i], sigma));
+        ctx->nuis_defs.emplace_back(
+            make_nuisance_parameter_definition(eta_ids[i], eta0[i], sigma)
+        );
     }
 
     auto model_fn = [this, obs_ids, p_ids, eta_ids](
@@ -341,4 +373,197 @@ void StatisticManager::print_cache()
     std::cout << "p_specs size : " << this->cache.p_specs.size() << std::endl;
     std::cout << "exp_obs : " << this->cache.exp_obs.size() << std::endl;
     std::cout << "SigmaObs size : " << this->cache.SigmaObs.size() << " | " << this->cache.SigmaObs.begin()->second.size() << std::endl;
+}
+
+void StatisticManager::reload_nuisance_specs() {
+    default_nuisance_specs_ = nuisance_reader_->load_default();
+
+    if (current_user_nuisance_file_.has_value()) {
+        user_nuisance_specs_ = nuisance_reader_->load_user(*current_user_nuisance_file_);
+    } else {
+        user_nuisance_specs_ = nuisance_reader_->load_user();
+    }
+
+    rebuild_merged_nuisance_specs();
+    invalidate_fit_state();
+}
+
+void StatisticManager::set_nuisance_user_file(const fs::path& user_yaml_path) {
+    current_user_nuisance_file_ = user_yaml_path;
+    reload_nuisance_specs();
+}
+
+void StatisticManager::clear_nuisance_user_file() {
+    current_user_nuisance_file_.reset();
+    reload_nuisance_specs();
+}
+
+void StatisticManager::rebuild_merged_nuisance_specs() {
+    merged_nuisance_specs_ = default_nuisance_specs_;
+    for (const auto& [pid, spec] : user_nuisance_specs_) {
+        merged_nuisance_specs_[pid] = spec;
+    }
+}
+
+void StatisticManager::invalidate_fit_state() {
+    cache.mle_result = FitResultWithMaps{};
+
+    last_ctx_.reset();
+    last_like_.reset();
+    last_fitter_.reset();
+
+    last_fit_param_ids_.clear();
+    last_nuisance_ids_.clear();
+    last_fit_param_index_.clear();
+}
+
+const NuisanceSpec* StatisticManager::find_nuisance_spec(const ParamId& pid) const {
+    auto it = merged_nuisance_specs_.find(pid);
+    if (it == merged_nuisance_specs_.end()) {
+        return nullptr;
+    }
+    return &it->second;
+}
+
+MarginalType StatisticManager::resolve_nuisance_marginal_type(const ParamId& pid) const {
+    MarginalType mt = MarginalType::GAUSSIAN;
+
+    if (const auto* spec = find_nuisance_spec(pid)) {
+        mt = spec->marginal;
+    }
+
+    if (config.override_nuisance_marginals.contains(pid)) {
+        mt = config.override_nuisance_marginals.at(pid);
+    }
+
+    return mt;
+}
+
+fit_app::ParameterDefinition StatisticManager::make_nuisance_parameter_definition(const ParamId& pid,
+                                                                                  double value,
+                                                                                  double sigma_hint) const
+{
+    fit_app::ParameterDefinition out;
+    out.name = param_name(pid);
+    out.value = value;
+
+    const double s = (std::isfinite(sigma_hint) && sigma_hint > 0.0)
+        ? std::abs(sigma_hint)
+        : std::max(1e-3, 0.01 * std::abs(value));
+
+    out.step_hint = s;
+
+    if (const auto* spec = find_nuisance_spec(pid)) {
+        out.limits = spec->bounds;
+        return out;
+    }
+
+    const std::string& nm = out.name;
+    if (nm.find("SMINPUTS:3") != std::string::npos) {
+        out.limits = std::make_pair(0.05, 0.30);
+    } else if (nm.find("MASS:") != std::string::npos ||
+               nm.find("FLIFE:") != std::string::npos ||
+               nm.find("FCONST:") != std::string::npos ||
+               nm.find("FMASS:") != std::string::npos ||
+               nm.find("SMINPUTS:5") != std::string::npos ||
+               nm.find("SMINPUTS:6") != std::string::npos) {
+        out.limits = std::make_pair(std::max(1e-12, value - 5.0 * s), value + 5.0 * s);
+    }
+
+    return out;
+}
+
+MarginalConfig StatisticManager::make_nuisance_marginal_config(const ParamId& pid,
+                                                               MarginalType mt) const
+{
+    // if (const auto* spec = find_nuisance_spec(pid)) {
+    //     return MarginalConfigFactory().create(pid, mt, *spec);
+    // }
+    return MarginalConfigFactory().create(pid, mt);
+}
+
+std::map<ParamId, double> StatisticManager::get_all_obss_deps() {
+    std::unordered_set<ParamId> eta_infos;
+
+    for (const auto& obsId : obs_int->get_obs_ids()) {
+        for (auto paramId : obs_int->get_obs_deps(obsId.s)) {
+            eta_infos.insert(paramId);
+        }
+    }
+
+    std::unordered_set<ParamId> eta_infos_leaf = this->sp->get_all_leaf_sources(eta_infos);
+    std::map<ParamId, double> eta_specs_real_leaf;
+    std::map<ParamId, double> delta_rel;
+
+    for (auto& paramId : eta_infos_leaf) {
+        double u = pspp->get_param(paramId)->get_combined_std().real();
+        double val = pspp->get_param(paramId)->get_val().real();
+        if (fpeq(val, 0.0) && !fpeq(u, 0.0)) {
+            eta_specs_real_leaf[paramId] = val;
+            continue;
+        }
+            
+        if (!std::isfinite(u) || fpeq(std::abs(u), 0.0))
+            delta_rel[paramId] = 0;
+        else
+            delta_rel[paramId] = std::abs(u / val);
+    }
+        
+    
+    using T = std::pair<ParamId, double>;
+    double delta_rel_max = std::max_element(
+        delta_rel.begin(), delta_rel.end(), 
+        [] (const T& p, const T& q) { return p.second < q.second; }
+    )->second;
+
+    for (auto& paramId : eta_infos_leaf) {
+        LOG_INFO("Compared to max relative uncertainty", paramId, delta_rel[paramId] / delta_rel_max);
+    }
+
+    for (auto& paramId : eta_infos_leaf) {
+        if (delta_rel[paramId] / delta_rel_max > config.nuisance_relevance_cutoff)
+            eta_specs_real_leaf[paramId] = pspp->get_param(paramId)->get_val();
+    }
+
+    LOG_INFO("Significant nuisances");
+    for (const auto& [pid, val] : eta_specs_real_leaf) {
+        LOG_INFO(pid, val);
+    }
+
+    return eta_specs_real_leaf;
+}
+
+std::map<ParamId, double> StatisticManager::get_p_specs(const std::vector<ParamId>& p_specs) {
+    std::map<ParamId, double> out;
+    for (auto elem : p_specs) {            
+        out[elem] = pspp->get_param(elem)->get_val();
+    }
+    return out;
+}
+std::map<ParamId, std::map<ParamId, double>> StatisticManager::get_all_correlations() {
+    std::map<ParamId, std::map<ParamId, double>> res;
+    CovarianceTransformer ct = CovarianceTransformer(pscp, pspp);
+    res = ct.transform(this->cache.eta_specs_real);
+    return res;
+}
+
+std::map<ExperimentObs, std::map<ExperimentObs, double>> StatisticManager::get_all_obs_correlations() {
+    std::map<ExperimentObs, std::map<ExperimentObs, double>> res;
+    CovarianceTransformer ct = CovarianceTransformer(pscp, pspp);
+
+    res = ct.transform(this->cache.exp_obs);
+    return res;
+}
+
+std::map<ExperimentObs, double> StatisticManager::get_obs_exp() {
+    std::map<ExperimentObs, double> out;
+
+    for (const auto& obsId : obs_int->get_obs_ids()) {
+        auto _ = pspp->get_obs_param(obsId);
+        for (auto _2 : _) {
+            out[_2.first] = _2.second->get_val(); 
+        }
+        // out[obsId] = pspp->get_obs_param(obsId)->get_val();
+    }
+    return out;
 }

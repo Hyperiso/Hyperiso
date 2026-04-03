@@ -3,7 +3,6 @@
 
 #include <filesystem>
 #include <memory>
-#include <optional>
 #include <string>
 #include <unordered_set>
 #include <initializer_list>
@@ -11,29 +10,26 @@
 #include "DBNode.h"
 #include "DBNodeProviderFactory.h"
 #include "INuisancePathsProvider.h"
+#include "INuisanceReader.h"
 #include "NuisanceSpec.h"
 
 namespace fs = std::filesystem;
 
-
-class NuisanceReader {
+class NuisanceReader : public INuisanceReader {
 public:
     explicit NuisanceReader(std::shared_ptr<INuisancePathsProvider> paths_provider);
 
-    void set_user_path(const fs::path& user_path);
-
-    void clear_user_path();
+    NuisanceRegistry load_default() const override;
+    NuisanceRegistry load_user() const override;
+    NuisanceRegistry load_user(const fs::path& user_path) const override;
 
     NuisanceRegistry load() const;
 
-    std::unordered_set<ParamId> load_param_ids() const;
-
     fs::path default_path() const;
-    fs::path resolved_user_path() const;
+    fs::path user_path() const;
 
 private:
     std::shared_ptr<INuisancePathsProvider> paths_provider_;
-    std::optional<fs::path> explicit_user_path_;
 
 private:
     void merge_file_into_registry(const fs::path& path, NuisanceRegistry& registry) const;

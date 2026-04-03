@@ -24,6 +24,8 @@
 #include "Profiler.h"
 #include "IProfilingStrategy.h"
 #include "FitAbstraction.h"
+#include "NuisanceReader.h"
+#include "DefaultNuisancePathsProvider.h"
 
 namespace fit_app {
 
@@ -332,13 +334,16 @@ int main() {
 
     auto model = std::make_shared<ObservableInterfaceAdapterObs>(oint);
 
+    std::shared_ptr<INuisancePathsProvider> npp = std::make_shared<DefaultNuisancePathsProvider>();
+
     StatisticManager stat(
         config,
         model,
         std::make_shared<StatCorrelationProxy>(),
         std::make_shared<StatParameterProxy>(),
         std::make_shared<StatParamSourcesProxy>(),
-        std::make_shared<StatDependencyPruner>()
+        std::make_shared<StatDependencyPruner>(),
+        std::make_shared<NuisanceReader>(npp)
     );
 
     BuiltProblem bp = build_problem(stat, config, model, p_specs);

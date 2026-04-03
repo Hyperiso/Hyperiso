@@ -22,6 +22,8 @@
 
 #include "Fit.h"
 #include "BaseLikelihood.h"
+#include "NuisanceReader.h"
+#include "DefaultNuisancePathsProvider.h"
 
 #include "minuit-cpp/FCNBase.hh"
 #include "minuit-cpp/FunctionMinimum.hh"
@@ -554,13 +556,16 @@ int main(int argc, char** argv) {
 
     auto model = std::make_shared<ObservableInterfaceAdapterObs>(oint);
 
+    std::shared_ptr<INuisancePathsProvider> npp = std::make_shared<DefaultNuisancePathsProvider>();
+
     StatisticManager stat(
         config,
         model,
         std::make_shared<StatCorrelationProxy>(),
         std::make_shared<StatParameterProxy>(),
         std::make_shared<StatParamSourcesProxy>(),
-        std::make_shared<StatDependencyPruner>()
+        std::make_shared<StatDependencyPruner>(),
+        std::make_shared<NuisanceReader>(npp)
     );
 
     LOG_INFO("fill_cache #1");

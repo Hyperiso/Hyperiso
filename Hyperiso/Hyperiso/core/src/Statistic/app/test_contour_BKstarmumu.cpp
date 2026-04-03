@@ -17,6 +17,8 @@
 #include "StatParamSourcesProxy.h"
 #include "StatDependencyPruner.h"
 #include "FitAbstraction.h"
+#include "NuisanceReader.h"
+#include "DefaultNuisancePathsProvider.h"
 
 namespace {
 
@@ -157,13 +159,16 @@ int main() {
 
     LOG_INFO("Creating StatisticManager.");
 
+    std::shared_ptr<INuisancePathsProvider> npp = std::make_shared<DefaultNuisancePathsProvider>();
+
     StatisticManager stat(
         config,
         model,
         std::make_shared<StatCorrelationProxy>(),
         std::make_shared<StatParameterProxy>(),
         std::make_shared<StatParamSourcesProxy>(),
-        std::make_shared<StatDependencyPruner>()
+        std::make_shared<StatDependencyPruner>(),
+        std::make_shared<NuisanceReader>(npp)
     );
 
     LOG_INFO("StatisticManager created.");

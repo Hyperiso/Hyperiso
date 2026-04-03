@@ -18,6 +18,7 @@
 #include "StatParamSourcesProxy.h"
 #include "StatDependencyPruner.h"
 #include "BaseLikelihood.h"
+#include "DefaultNuisancePathsProvider.h"
 
 #include "minuit-cpp/FCNBase.hh"
 #include "minuit-cpp/FunctionMinimum.hh"
@@ -28,6 +29,7 @@
 #include "minuit-cpp/MnUserParameterState.hh"
 
 #include "BlockProxy.h"
+#include "NuisanceReader.h"
 
 namespace M2 = MinuitCpp;
 
@@ -280,13 +282,16 @@ int main(int argc, char** argv) {
 
     auto model = std::make_shared<ObservableInterfaceAdapterObs>(oint);
 
+    std::shared_ptr<INuisancePathsProvider> npp = std::make_shared<DefaultNuisancePathsProvider>();
+
     StatisticManager stat(
         config,
         model,
         std::make_shared<StatCorrelationProxy>(),
         std::make_shared<StatParameterProxy>(),
         std::make_shared<StatParamSourcesProxy>(),
-        std::make_shared<StatDependencyPruner>()
+        std::make_shared<StatDependencyPruner>(),
+        std::make_shared<NuisanceReader>(npp)
     );
 
     LOG_INFO("YO1");

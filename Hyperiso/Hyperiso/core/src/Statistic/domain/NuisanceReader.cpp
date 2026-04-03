@@ -97,64 +97,59 @@ NuisanceReader::NuisanceReader(std::shared_ptr<INuisancePathsProvider> paths_pro
     }
 }
 
-void NuisanceReader::set_user_path(const fs::path& user_path) {
-    explicit_user_path_ = user_path;
-}
-
-void NuisanceReader::clear_user_path() {
-    explicit_user_path_.reset();
-}
-
 fs::path NuisanceReader::default_path() const {
     return paths_provider_->default_nuisances_path();
 }
 
-fs::path NuisanceReader::resolved_user_path() const {
-    if (explicit_user_path_.has_value()) {
-        return *explicit_user_path_;
-    }
+fs::path NuisanceReader::user_path() const {
     return paths_provider_->user_nuisances_path();
 }
 
-NuisanceRegistry NuisanceReader::load() const {
+NuisanceRegistry NuisanceReader::load_default() const {
     NuisanceRegistry registry;
+    const fs::path path = default_path();
 
-    const fs::path default_cfg = default_path();
-    if (default_cfg.empty()) {
+    if (path.empty()) {
         throw std::runtime_error("NuisanceReader: default path is empty");
     }
-    if (!fs::exists(default_cfg)) {
-        throw std::runtime_error("NuisanceReader: default file not found: " + default_cfg.string());
+    if (!fs::exists(path)) {
+        throw std::runtime_error("NuisanceReader: default file not found: " + path.string());
     }
 
-    merge_file_into_registry(default_cfg, registry);
+    merge_file_into_registry(path, registry);
+    return registry;
+}
 
-    const fs::path user_cfg = resolved_user_path();
-    if (!user_cfg.empty()) {
-        if (explicit_user_path_.has_value() && !fs::exists(user_cfg)) {
-            throw std::runtime_error("NuisanceReader: explicit user file not found: " + user_cfg.string());
-        }
+NuisanceRegistry NuisanceReader::load_user() const {
+    return load_user(user_path());
+}
 
-        if (fs::exists(user_cfg)) {
-            merge_file_into_registry(user_cfg, registry);
-        }
+NuisanceRegistry NuisanceReader::load_user(const fs::path& path) const {
+    NuisanceRegistry registry;
+
+    if (path.empty()) {
+        return registry;
+    }
+
+    if (!fs::exists(path)) {
+        throw std::runtime_error("NuisanceReader: user file not found: " + path.string());
+    }
+
+    merge_file_into_registry(path, registry);
+    return registry;
+}
+
+NuisanceRegistry NuisanceReader::load() const {
+    NuisanceRegistry registry = load_default();
+    NuisanceRegistry user_registry = load_user();
+
+    for (const auto& [pid, spec] : user_registry) {
+        registry[pid] = spec;
     }
 
     return registry;
 }
 
-std::unordered_set<ParamId> NuisanceReader::load_param_ids() const {
-    const auto registry = load();
-
-    std::unordered_set<ParamId> out;
-    out.reserve(registry.size());
-
-    for (const auto& [param_id, _] : registry) {
-        out.insert(param_id);
-    }
-
-    return out;
-}
 
 void NuisanceReader::merge_file_into_registry(const fs::path& path,
                                               NuisanceRegistry& registry) const

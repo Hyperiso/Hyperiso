@@ -198,6 +198,7 @@ struct BinnedObservableId {
 
         auto obs_opt = ObservableMapper::from_flha(unbinned_id);
         if (!obs_opt.has_value()) {
+            std::cout << unbinned_id << std::endl;
             throw std::runtime_error("from_flha: flha to ObservableId mapping unknown");
         }
 

@@ -20,6 +20,8 @@
 #include "ObservableInterface.h"
 #include "StatParamSourcesProxy.h"
 #include "StatDependencyPruner.h"
+#include "NuisanceReader.h"
+#include "DefaultNuisancePathsProvider.h"
 
 #include "Fit.h"
 #include "BaseLikelihood.h"
@@ -858,13 +860,16 @@ int main(int argc, char** argv) {
 
     auto model = std::make_shared<ObservableInterfaceAdapterObs>(oint);
 
+    std::shared_ptr<INuisancePathsProvider> npp = std::make_shared<DefaultNuisancePathsProvider>();
+
     StatisticManager stat(
         config,
         model,
         std::make_shared<StatCorrelationProxy>(),
         std::make_shared<StatParameterProxy>(),
         std::make_shared<StatParamSourcesProxy>(),
-        std::make_shared<StatDependencyPruner>()
+        std::make_shared<StatDependencyPruner>(),
+        std::make_shared<NuisanceReader>(npp)
     );
 
     BuiltProblem built = build_problem(stat, config, model, p_specs);

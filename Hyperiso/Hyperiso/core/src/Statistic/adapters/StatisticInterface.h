@@ -6,6 +6,8 @@
 #include "ObservableInterface.h"
 #include "StatParamSourcesProxy.h"
 #include "StatDependencyPruner.h"
+#include "DefaultNuisancePathsProvider.h"
+#include "NuisanceReader.h"
 
 class StatisticInterface {
 public:
@@ -16,7 +18,9 @@ public:
         std::shared_ptr<IStatParameterProxy> pspp = std::make_shared<StatParameterProxy>();
         std::shared_ptr<IStatSourcesProxy> sp = std::make_shared<StatParamSourcesProxy>();
         std::shared_ptr<IStatDependencyPruner> sdp = std::make_shared<StatDependencyPruner>();
-        manager = std::make_shared<StatisticManager>(config, oia, pscp, pspp, sp, sdp);
+        std::shared_ptr<INuisancePathsProvider> npp = std::make_shared<DefaultNuisancePathsProvider>();
+        std::shared_ptr<INuisanceReader> nr = std::make_shared<NuisanceReader>(npp);
+        manager = std::make_shared<StatisticManager>(config, oia, pscp, pspp, sp, sdp, nr);
         manager->update_cache();
     }
 
