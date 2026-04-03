@@ -2,13 +2,22 @@
 
 using Charge = BKllConfig::B_Charge;
 
-const std::unordered_set<ObservableId> BKllDecay::dG_dq2_ids = {
+const std::unordered_set<ObservableId> BKllDecay::dBR_dq2_ids = {
     ObservableMapper::to_id(Observables::DBR_DQ2_B0__K0_E_E), 
     ObservableMapper::to_id(Observables::DBR_DQ2_B0__K0_MU_MU), 
     ObservableMapper::to_id(Observables::DBR_DQ2_B0__K0_TAU_TAU), 
     ObservableMapper::to_id(Observables::DBR_DQ2_B__K_E_E), 
     ObservableMapper::to_id(Observables::DBR_DQ2_B__K_MU_MU), 
     ObservableMapper::to_id(Observables::DBR_DQ2_B__K_TAU_TAU)
+};
+
+const std::unordered_set<ObservableId> BKllDecay::dG_dq2_ids = {
+    ObservableMapper::to_id(Observables::DGAMMA_DQ2_B0__K0_E_E), 
+    ObservableMapper::to_id(Observables::DGAMMA_DQ2_B0__K0_MU_MU), 
+    ObservableMapper::to_id(Observables::DGAMMA_DQ2_B0__K0_TAU_TAU), 
+    ObservableMapper::to_id(Observables::DGAMMA_DQ2_B__K_E_E), 
+    ObservableMapper::to_id(Observables::DGAMMA_DQ2_B__K_MU_MU), 
+    ObservableMapper::to_id(Observables::DGAMMA_DQ2_B__K_TAU_TAU)
 };
 
 const std::unordered_set<ObservableId> BKllDecay::A_FB_ids = {
@@ -339,10 +348,11 @@ void BKllDecay::compute_binned_abc() {
     }
 }
 
-std::vector<ObservableValue> BKllDecay::dBR_dq2(Observables oid) {
+std::vector<ObservableValue> BKllDecay::dBR_dq2(Observables oid, bool br) {
     std::vector<ObservableValue> out;
+    double br_factor = br ? cache.life_B : 1.0;
     for (size_t i = 0; i < this->bins.value().size(); i++) {
-        double res = 2 * (cache.abc_binned[0][i] + cache.abc_binned[2][i] / 3.) * cache.life_B; 
+        double res = 2 * (cache.abc_binned[0][i] + cache.abc_binned[2][i] / 3.) * br_factor; 
         out.emplace_back(ObservableMapper::to_id(oid), res, this->bins.value()[i]);
     }   
     return out;
@@ -366,18 +376,45 @@ std::vector<ObservableValue> BKllDecay::F_H(Observables oid) {
     return out;
 }
 
+std::vector<ObservableValue> BKllDecay::Rm1_BK(Observables id, BKllConfig::B_Charge charge) {
+    std::vector<ObservableValue> out;
+    std::vector<double> Gamma_mu;
+    std::vector<double> Gamma_e;
+
+    set_lepton_gen_and_charge(BKllConfig::Lepton::MU, charge);
+
+    for (size_t i = 0; i < this->bins.value().size(); i++)
+        Gamma_mu.emplace_back(2 * (cache.abc_binned[0][i] + cache.abc_binned[2][i] / 3.));
+
+    set_lepton_gen_and_charge(BKllConfig::Lepton::E, charge);
+
+    for (size_t i = 0; i < this->bins.value().size(); i++)
+        Gamma_e.emplace_back(2 * (cache.abc_binned[0][i] + cache.abc_binned[2][i] / 3.));
+
+    for (size_t i = 0; i < this->bins.value().size(); i++)
+        out.emplace_back(ObservableMapper::to_id(id), Gamma_mu[i] / Gamma_e[i] - 1, this->bins.value()[i]);
+    
+    return out;
+}
+
 std::vector<ObservableValue> BKllDecay::compute_observable(Observables obs) {
     auto flags = BKllDecay::cfg_map.at(obs);
     set_lepton_gen_and_charge(flags.first, flags.second);
 
+    if (BKllDecay::dBR_dq2_ids.contains(ObservableMapper::to_id(obs))) 
+        return dBR_dq2(obs, true);
+
     if (BKllDecay::dG_dq2_ids.contains(ObservableMapper::to_id(obs))) 
-        return dBR_dq2(obs);
+        return dBR_dq2(obs, false);
 
     if (BKllDecay::A_FB_ids.contains(ObservableMapper::to_id(obs))) 
         return A_FB(obs);
 
     if (BKllDecay::F_H_ids.contains(ObservableMapper::to_id(obs))) 
         return F_H(obs);
+
+    if (obs == Observables::R_1_B__K_L_L) 
+        return Rm1_BK(obs, BKllConfig::B_Charge::B_PLUS);
 
     LOG_ERROR("IndexError", "Observable", ObservableMapper::str(obs), "doesn't belong to the decay", DecayMapper::str(this->id));
 }

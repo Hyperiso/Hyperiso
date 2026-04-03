@@ -136,7 +136,7 @@ protected:
 
     void compute_binned_J_i();
 
-    std::vector<ObservableValue> dBR_dq2_binned(bool bar, Observables id);
+    std::vector<ObservableValue> dBR_dq2_binned(bool bar, Observables id, bool br = true);
     double dG_dq2_avg_bin(size_t bin);
     std::vector<ObservableValue> F_L(Observables id);
     std::vector<ObservableValue> A_T_2(Observables id);
@@ -154,6 +154,7 @@ protected:
     std::vector<ObservableValue> Q_8_m(Observables id);
     std::vector<ObservableValue> Q_8_p(Observables id);
     std::vector<ObservableValue> Q_9(Observables id);
+    std::vector<ObservableValue> Rm1_BsPhi(Observables id);
 
 public:
     BsPhiDecay(QCDOrder order, double matching_scale, double hadronic_scale, ObservablePortsConfig& ports) : DecayParentConfigurable(DecayMapper::to_id(Decays::B__l_nu), matching_scale, hadronic_scale, order, ports) {

@@ -68,6 +68,7 @@ private:
     BKllCache cache;
 
     const static std::unordered_set<ObservableId> dG_dq2_ids;
+    const static std::unordered_set<ObservableId> dBR_dq2_ids;
     const static std::unordered_set<ObservableId> A_FB_ids;
     const static std::unordered_set<ObservableId> F_H_ids;
     const static std::map<Observables, std::pair<BKllConfig::Lepton, BKllConfig::B_Charge>> cfg_map;
@@ -113,9 +114,10 @@ protected:
     void compute_binned_abc();
 
     // Observables
-    std::vector<ObservableValue> dBR_dq2(Observables oid);
+    std::vector<ObservableValue> dBR_dq2(Observables oid, bool br);
     std::vector<ObservableValue> A_FB(Observables oid);
     std::vector<ObservableValue> F_H(Observables oid);
+    std::vector<ObservableValue> Rm1_BK(Observables id, BKllConfig::B_Charge charge);
 };
 
 

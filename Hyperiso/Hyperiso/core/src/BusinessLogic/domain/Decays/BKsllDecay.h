@@ -163,7 +163,7 @@ protected:
 
     void compute_binned_J_i();
 
-    std::vector<ObservableValue> dBR_dq2_binned(bool bar, Observables id);
+    std::vector<ObservableValue> dBR_dq2_binned(bool bar, Observables id, bool br=true);
     double dG_dq2_avg_bin(size_t bin);
     std::vector<ObservableValue> A_FB_binned(Observables id, bool cpv);
     ObservableValue q0(Observables id);
@@ -189,6 +189,7 @@ protected:
     std::vector<ObservableValue> Pp_i_binned(size_t i, bool cpv, Observables id);
     std::vector<ObservableValue> S_i_binned(size_t i, bool cpv, Observables id);
     std::vector<ObservableValue> P_i_CPV_binned(size_t i, Observables id);
+    std::vector<ObservableValue> Rm1_BKstar(Observables id, BKstarllConfig::B_Charge charge);
 
     // Tests
     void test_ff();

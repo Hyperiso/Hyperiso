@@ -691,11 +691,12 @@ void BsPhiDecay::compute_binned_J_i() {
     }
 }
 
-std::vector<ObservableValue> BsPhiDecay::dBR_dq2_binned(bool bar, Observables id) {
+std::vector<ObservableValue> BsPhiDecay::dBR_dq2_binned(bool bar, Observables id, bool br) {
     std::vector<ObservableValue> out;
     size_t idx = bar ? 1 : 0;
+    double br_factor = br ? cache.life_Bs : 1.0;
     for (size_t i = 0; i < this->bins.value().size(); i++) {
-        double res = 0.75 * cache.f_J_i_binned[idx][i] / (1 - cache.ys * cache.ys) * cache.life_Bs; 
+        double res = 0.75 * cache.f_J_i_binned[idx][i] / (1 - cache.ys * cache.ys) * br_factor; 
         out.emplace_back(ObservableMapper::to_id(id), res, this->bins.value()[i]);
     }   
     return out;
@@ -858,8 +859,32 @@ std::vector<ObservableValue> BsPhiDecay::Q_9(Observables id) {
     return out;
 }
 
+std::vector<ObservableValue> BsPhiDecay::Rm1_BsPhi(Observables id) {
+    std::vector<ObservableValue> out;
+    std::vector<double> Gamma_mu;
+    std::vector<double> Gamma_e;
+
+    set_cfg_flags(BsPhiConfig::Lepton::MU);
+
+    for (size_t i = 0; i < this->bins.value().size(); i++)
+        Gamma_mu.emplace_back(dG_dq2_avg_bin(i));
+
+    set_cfg_flags(BsPhiConfig::Lepton::E);
+
+    for (size_t i = 0; i < this->bins.value().size(); i++)
+        Gamma_e.emplace_back(dG_dq2_avg_bin(i));
+
+    for (size_t i = 0; i < this->bins.value().size(); i++)
+        out.emplace_back(ObservableMapper::to_id(id), Gamma_mu[i] / Gamma_e[i] - 1, this->bins.value()[i]);
+    
+    return out;
+}
+
 std::vector<ObservableValue> BsPhiDecay::compute_observable(Observables obs) {
     switch (obs) {
+    case Observables::DGAMMA_DQ2_BS__PHI_E_E:   
+        set_cfg_flags(BsPhiConfig::Lepton::E);
+        return dBR_dq2_binned(false, obs, false);
     case Observables::DBR_DQ2_BS__PHI_E_E:   
         set_cfg_flags(BsPhiConfig::Lepton::E);
         return dBR_dq2_binned(false, obs);
@@ -929,6 +954,9 @@ std::vector<ObservableValue> BsPhiDecay::compute_observable(Observables obs) {
     case Observables::Q_9_BS_PHI_E_E:    
         set_cfg_flags(BsPhiConfig::Lepton::E);  
         return Q_9(obs);
+    case Observables::DGAMMA_DQ2_BS__PHI_MU_MU:   
+        set_cfg_flags(BsPhiConfig::Lepton::MU);
+        return dBR_dq2_binned(false, obs, false);
     case Observables::DBR_DQ2_BS__PHI_MU_MU:   
         set_cfg_flags(BsPhiConfig::Lepton::MU);
         return dBR_dq2_binned(false, obs);
@@ -998,6 +1026,9 @@ std::vector<ObservableValue> BsPhiDecay::compute_observable(Observables obs) {
     case Observables::Q_9_BS_PHI_MU_MU:    
         set_cfg_flags(BsPhiConfig::Lepton::MU);  
         return Q_9(obs);
+    case Observables::DGAMMA_DQ2_BS__PHI_TAU_TAU:   
+        set_cfg_flags(BsPhiConfig::Lepton::TAU);
+        return dBR_dq2_binned(false, obs, false);
     case Observables::DBR_DQ2_BS__PHI_TAU_TAU:   
         set_cfg_flags(BsPhiConfig::Lepton::TAU);
         return dBR_dq2_binned(false, obs);
@@ -1067,6 +1098,8 @@ std::vector<ObservableValue> BsPhiDecay::compute_observable(Observables obs) {
     case Observables::Q_9_BS_PHI_TAU_TAU:    
         set_cfg_flags(BsPhiConfig::Lepton::TAU);  
         return Q_9(obs);
+    case Observables::R_1_BS__PHI_L_L:
+        return Rm1_BsPhi(obs);
     default:
         LOG_ERROR("IndexError", "Observable", ObservableMapper::str(obs), "doesn't belong to the decay", DecayMapper::str(this->id));
     }
