@@ -9,6 +9,9 @@ enum class Observables {
     BR_BS_MUMU,
     BR_BS_MUMU_UNTAG,
     BR_BD_MUMU,
+    BR_BS_EE,
+    BR_BS_EE_UNTAG,
+    BR_BD_EE,
     // B > l nu
     R_TAU_NU,
     BR_BU_TAU_NU,

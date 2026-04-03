@@ -139,9 +139,9 @@ int main() {
         uncertainties.push_back(uncertainty_from_summary(it->second));
     }
 
-    write_observables_to_csv("dgamma_dq2.csv", obs_val, uncertainties);
+    write_observables_to_csv("K__pi_nu_nu.csv", obs_val, uncertainties);
 
-    std::cout << "CSV écrit dans dgamma_dq2.csv\n";
+    std::cout << "CSV écrit dans K__pi_nu_nu.csv\n";
     return 0;
 
     // oi.add_observables(dec, order, false);
