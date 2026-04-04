@@ -89,7 +89,10 @@ int main() {
     // oi.compute_observable(Observables::TEST);
     std::vector<double> squares;
 
-    for (double x = 0.05; x<8.1; x+=0.5) {
+    for (double x = 0.05; x<8.1; x+=0.01) {
+        squares.push_back(x);
+    }
+    for (double x = 15; x<20; x+=0.01) {
         squares.push_back(x);
     }
     for (auto elem : squares) {
@@ -99,7 +102,7 @@ int main() {
     std::vector<ObservableValue> obs_val = oi->compute_observable(Observables::F_L_B__KSTAR_MU_MU);
 
     StatisticConfig sc = StatisticConfig();
-
+    sc.MC_draws = 500;
     StatisticInterface si = StatisticInterface(sc, oi);
 
     std::map<BinnedObservableId, GaussianSummary> unc_map = si.compute_uncertainties();

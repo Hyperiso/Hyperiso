@@ -86,7 +86,7 @@ int main() {
     // oi.compute_observable(Observables::TEST);
     std::vector<double> squares;
 
-    for (double x = 0.1; x<8.1; x+=0.1) {
+    for (double x = 0.05; x<8.1; x+=0.1) {
         squares.push_back(x);
     }
     {
