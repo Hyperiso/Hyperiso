@@ -188,6 +188,9 @@ target_link_libraries(JPP StatisticLib)
 add_executable(READER app/test_reader.cpp)
 target_link_libraries(READER StatisticLib)
 
+add_executable(BKSTARMUMU app/test_contour_BKstarmumu.cpp)
+target_link_libraries(BKSTARMUMU StatisticLib)
+
 include(GNUInstallDirs)
 
 install(TARGETS StatisticLib
