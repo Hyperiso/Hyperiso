@@ -88,7 +88,7 @@ inline double hash_to_double(const fs::path& p) {
 }
 
 struct DummyBA : public IDataLoader<BlockAccessor> {
-    void load(std::shared_ptr<BlockAccessor> dest, fs::path src_file) override {
+    void load(std::shared_ptr<BlockAccessor> dest, fs::path src_file, bool block_in_blocks=false) override {
 
         double base = hash_to_double(src_file);
 
@@ -161,7 +161,7 @@ struct DummyBA : public IDataLoader<BlockAccessor> {
 
 template<typename T>
 struct DummyCorr : public IDataLoader<CorrelationMatrixPair<T>> {
-    void load(std::shared_ptr<CorrelationMatrixPair<T>> dest, fs::path /*src_file*/) override {
+    void load(std::shared_ptr<CorrelationMatrixPair<T>> dest, fs::path /*src_file*/, bool block_in_blocks=false) override {
         (void)dest;
     }
 };
