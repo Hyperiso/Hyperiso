@@ -416,17 +416,102 @@
       "stat_error": 0,
       "syst_error": 0
     },
-    "18_1": {
+    "18_1_1": {
       "central_value": 0,
       "stat_error": 0.1,
       "syst_error": 0
     },
-    "18_2": {
+    "18_1_2": {
+      "central_value": 0,
+      "stat_error": 0.1,
+      "syst_error": 0
+    },
+    "18_1_3": {
+      "central_value": 0,
+      "stat_error": 0.1,
+      "syst_error": 0
+    },
+    "18_1_4": {
+      "central_value": 0,
+      "stat_error": 0.1,
+      "syst_error": 0
+    },
+    "18_1_5": {
+      "central_value": 0,
+      "stat_error": 0.1,
+      "syst_error": 0
+    },
+    "18_1_6": {
+      "central_value": 0,
+      "stat_error": 0.1,
+      "syst_error": 0
+    },
+    "18_2_1": {
       "central_value": 0,
       "stat_error": 0.25,
       "syst_error": 0
     },
-    "18_3": {
+    "18_2_2": {
+      "central_value": 0,
+      "stat_error": 0.25,
+      "syst_error": 0
+    },
+    "18_2_3": {
+      "central_value": 0,
+      "stat_error": 0.25,
+      "syst_error": 0
+    },
+    "18_2_4": {
+      "central_value": 0,
+      "stat_error": 0.25,
+      "syst_error": 0
+    },
+    "18_2_5": {
+      "central_value": 0,
+      "stat_error": 0.25,
+      "syst_error": 0
+    },
+    "18_2_6": {
+      "central_value": 0,
+      "stat_error": 0.25,
+      "syst_error": 0
+    },
+    "18_3_1": {
+      "central_value": 0,
+      "stat_error": 0.1,
+      "syst_error": 0
+    },
+    "18_3_2": {
+      "central_value": 0,
+      "stat_error": 0.1,
+      "syst_error": 0
+    },
+    "18_3_3": {
+      "central_value": 0,
+      "stat_error": 0.1,
+      "syst_error": 0
+    },
+    "18_3_4": {
+      "central_value": 0,
+      "stat_error": 0.1,
+      "syst_error": 0
+    },
+    "18_3_5": {
+      "central_value": 0,
+      "stat_error": 0.1,
+      "syst_error": 0
+    },
+    "18_3_6": {
+      "central_value": 0,
+      "stat_error": 0.1,
+      "syst_error": 0
+    },
+    "18_3_7": {
+      "central_value": 0,
+      "stat_error": 0.1,
+      "syst_error": 0
+    },
+    "18_3_8": {
       "central_value": 0,
       "stat_error": 0.1,
       "syst_error": 0

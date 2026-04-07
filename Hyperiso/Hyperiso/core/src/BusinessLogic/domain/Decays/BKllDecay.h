@@ -36,9 +36,9 @@ struct BKllCache {
     double q2_low, q2_high;
 
     // Power corrections, guesstimate
-    std::array<double, 4> A_had_err_low_0;
-    std::array<double, 4> A_had_err_low_1;
-    std::array<double, 4> A_had_err_high;
+    std::array<complex_t, 4> A_had_err_low_0;
+    std::array<complex_t, 4> A_had_err_low_1;
+    std::array<complex_t, 4> A_had_err_high;
 
     // Lookups
     static inline constexpr size_t LOOKUP_SIZE = 50;

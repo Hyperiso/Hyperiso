@@ -2359,13 +2359,15 @@ void BKstarllDecay::load_params() {
     cache.q2_low = (*p)(ParamId{ParameterType::DECAY, "B_Ks", {15, 1}}, DataType::VALUE);
     cache.q2_high = (*p)(ParamId{ParameterType::DECAY, "B_Ks", {15, 2}}, DataType::VALUE);
 
+    complex_t eipi4 = std::exp(I * PI / 4.0);
+
     for (size_t i = 0; i < 6; i++) {
-        cache.A_had_err_low_0[i] = (*p)(ParamId{ParameterType::DECAY, "B_Ks", {18, 1}}, DataType::VALUE);
-        cache.A_had_err_low_1[i] = (*p)(ParamId{ParameterType::DECAY, "B_Ks", {18, 2}}, DataType::VALUE);
+        cache.A_had_err_low_0[i] = (*p)(ParamId{ParameterType::DECAY, "B_Ks", {18, 1, i + 1}}, DataType::VALUE) * eipi4;
+        cache.A_had_err_low_1[i] = (*p)(ParamId{ParameterType::DECAY, "B_Ks", {18, 2, i + 1}}, DataType::VALUE) * eipi4;
     }
 
     for (size_t i = 0; i < 8; i++) {
-        cache.A_had_err_high[i] = (*p)(ParamId{ParameterType::DECAY, "B_Ks", {18, 3}}, DataType::VALUE);
+        cache.A_had_err_high[i] = (*p)(ParamId{ParameterType::DECAY, "B_Ks", {18, 3, i + 1}}, DataType::VALUE) * eipi4;
     }
 
     load_cfg_dependent_params();
@@ -2562,7 +2564,7 @@ complex_t BKstarllDecay::N(double q2, bool bar) {
 }
 
 complex_t BKstarllDecay::delta_A_perp_QCDf(double q2, double sign, bool bar) {
-    double guesstimate_err = 1.0;
+    complex_t guesstimate_err = 1.0;
     complex_t delta_A = 0.0;
 
     if (!fpeq(std::abs(cache.h_p_fit[0]), 0.0)) {
@@ -2604,7 +2606,7 @@ complex_t BKstarllDecay::delta_A_perp(double q2, double sign, bool bar) {
 }
 
 complex_t BKstarllDecay::delta_A_par_QCDf(double q2, double sign, bool bar) {
-    double guesstimate_err = 1.0;
+    complex_t guesstimate_err = 1.0;
     complex_t delta_A = 0.0;
 
     if (!fpeq(std::abs(cache.h_p_fit[0]), 0.0)) {
@@ -2791,7 +2793,7 @@ complex_t BKstarllDecay::delta_A_par(double q2, double sign, bool bar) {
 }
 
 complex_t BKstarllDecay::delta_A_0_QCDf(double q2, double sign, bool bar) {
-    double guesstimate_err = 1.0;
+    complex_t guesstimate_err = 1.0;
     complex_t delta_A_PC = 0.0;
 
     if (!fpeq(std::abs(cache.h_p_fit[0]), 0.0)) {
@@ -2885,7 +2887,7 @@ complex_t BKstarllDecay::A_perp_high(double q2, double sign, bool bar) {
     // printf("C9eff = %.4e + %.4e i\n", std::real(C9_eff(q2, bar)), std::imag(C9_eff(q2, bar)));
     // printf("f_perp = %.4e\n", cache.ff_calculator.get(BV_FF::F_PERP, q2));
 
-    return N(q2, bar) * (C9 + sign * C10 + 2. * cache.kappa * cache.m_b_mu_b * cache.m_B / q2 * C7) * cache.ff_calculator.get(BV_FF::F_PERP, q2) * (1 + cache.A_had_err_high[size_t (0.5 * (1 + sign))]);
+    return N(q2, bar) * (C9 + sign * C10 + 2. * cache.kappa * cache.m_b_mu_b * cache.m_B / q2 * C7) * cache.ff_calculator.get(BV_FF::F_PERP, q2) * (1. + cache.A_had_err_high[size_t (0.5 * (1 + sign))]);
 }
 
 complex_t BKstarllDecay::A_par_high(double q2, double sign, bool bar) {
@@ -2893,7 +2895,7 @@ complex_t BKstarllDecay::A_par_high(double q2, double sign, bool bar) {
     complex_t C9 = C9_eff(q2, bar) - (bar ? std::conj(cache.C[WCoef::CP9]) : cache.C[WCoef::CP9]);
     complex_t C10 = cache.C[WCoef::C10] - cache.C[WCoef::CP10];
     if (bar) C10 = std::conj(C10);
-    return -N(q2, bar) * (C9 + sign * C10 + 2. * cache.kappa * cache.m_b_mu_b * cache.m_B / q2 * C7) * cache.ff_calculator.get(BV_FF::F_PAR, q2) * (1 + cache.A_had_err_high[2 + size_t (0.5 * (1 + sign))]);
+    return -N(q2, bar) * (C9 + sign * C10 + 2. * cache.kappa * cache.m_b_mu_b * cache.m_B / q2 * C7) * cache.ff_calculator.get(BV_FF::F_PAR, q2) * (1. + cache.A_had_err_high[2 + size_t (0.5 * (1 + sign))]);
 }
 
 complex_t BKstarllDecay::A_0_high(double q2, double sign, bool bar) {
@@ -2901,7 +2903,7 @@ complex_t BKstarllDecay::A_0_high(double q2, double sign, bool bar) {
     complex_t C9 = C9_eff(q2, bar) - (bar ? std::conj(cache.C[WCoef::CP9]) : cache.C[WCoef::CP9]);
     complex_t C10 = cache.C[WCoef::C10] - cache.C[WCoef::CP10];
     if (bar) C10 = std::conj(C10);
-    return -N(q2, bar) * (C9 + sign * C10 + 2. * cache.kappa * cache.m_b_mu_b * cache.m_B / q2 * C7) * cache.ff_calculator.get(BV_FF::F_0, q2)  * (1 + cache.A_had_err_high[4 + size_t (0.5 * (1 + sign))]);
+    return -N(q2, bar) * (C9 + sign * C10 + 2. * cache.kappa * cache.m_b_mu_b * cache.m_B / q2 * C7) * cache.ff_calculator.get(BV_FF::F_0, q2)  * (1. + cache.A_had_err_high[4 + size_t (0.5 * (1 + sign))]);
 }
 
 complex_t BKstarllDecay::A_t_high(double q2, bool bar) {
@@ -2911,13 +2913,13 @@ complex_t BKstarllDecay::A_t_high(double q2, bool bar) {
         C10 = std::conj(C10);
         CQ2 = std::conj(CQ2);
     }
-    return N(q2, bar) * sqrt(lambda(q2) / q2) * (2. * C10 + q2 / cache.m_l * CQ2 / (cache.m_b_mu_b + cache.m_s)) * cache.ff_calculator.get(BV_FF::A0, q2) * (1 + cache.A_had_err_high[6]);
+    return N(q2, bar) * sqrt(lambda(q2) / q2) * (2. * C10 + q2 / cache.m_l * CQ2 / (cache.m_b_mu_b + cache.m_s)) * cache.ff_calculator.get(BV_FF::A0, q2) * (1. + cache.A_had_err_high[6]);
 }
 
 complex_t BKstarllDecay::A_S_high(double q2, bool bar) {
     complex_t CQ1 = cache.C[WCoef::CQ1] - cache.C[WCoef::CPQ1];
     if (bar) CQ1 = std::conj(CQ1);
-    return -2. * N(q2, bar) * sqrt(lambda(q2)) * CQ1 / (cache.m_b_mu_b + cache.m_s) * cache.ff_calculator.get(BV_FF::A0, q2) * (1 + cache.A_had_err_high[7]);
+    return -2. * N(q2, bar) * sqrt(lambda(q2)) * CQ1 / (cache.m_b_mu_b + cache.m_s) * cache.ff_calculator.get(BV_FF::A0, q2) * (1. + cache.A_had_err_high[7]);
 }
 
 complex_t BKstarllDecay::interpolate(double q2, complex_t val_low, complex_t val_high) {

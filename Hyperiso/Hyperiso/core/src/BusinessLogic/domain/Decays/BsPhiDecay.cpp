@@ -49,6 +49,17 @@ void BsPhiDecay::load_params() {
     cache.up = 1. + cache.phi_s * I;
     cache.um = 1. - cache.phi_s * I;
 
+    complex_t eipi4 = std::exp(I * PI / 4.0);
+
+    for (size_t i = 0; i < 6; i++) {
+        cache.A_had_err_low_0[i] = (*p)(ParamId{ParameterType::DECAY, "B_phi", {18, 1, i + 1}}, DataType::VALUE) * eipi4;
+        cache.A_had_err_low_1[i] = (*p)(ParamId{ParameterType::DECAY, "B_phi", {18, 2, i + 1}}, DataType::VALUE) * eipi4;
+    }
+
+    for (size_t i = 0; i < 8; i++) {
+        cache.A_had_err_high[i] = (*p)(ParamId{ParameterType::DECAY, "B_phi", {18, 3, i + 1}}, DataType::VALUE) * eipi4;
+    }
+
     load_cfg_dep_params();
     // printf("y_s = %.4e\n", cache.ys);
 	// printf("up = %.4e + %.4e i\n", real(cache.up), imag(cache.up));
@@ -190,14 +201,14 @@ complex_t BsPhiDecay::N(double q2, bool bar) {
 
 complex_t BsPhiDecay::delta_A_perp(double q2, double sign, bool bar) {
     size_t id = size_t (0.5 * (1 + sign));
-    double guesstimate_err = 1.0 + cache.A_had_err_low_0[id] + cache.A_had_err_low_1[id] * q2 / 6.0;
+    complex_t guesstimate_err = 1.0 + cache.A_had_err_low_0[id] + cache.A_had_err_low_1[id] * q2 / 6.0;
     double m_b = cache.m_b_PS + cache.alpha_s_mu_b * cache.Delta_M / (3 * PI);
     return 2 * RT2 * m_b * N(q2, bar) * std::sqrt(lambda(q2)) / q2 * T_perp_p_cached(q2, bar) * guesstimate_err;
 }
 
 complex_t BsPhiDecay::delta_A_par(double q2, double sign, bool bar) {
     size_t id = 2 + size_t (0.5 * (1 + sign));
-    double guesstimate_err = 1.0 + cache.A_had_err_low_0[id] + cache.A_had_err_low_1[id] * q2 / 6.0;
+    complex_t guesstimate_err = 1.0 + cache.A_had_err_low_0[id] + cache.A_had_err_low_1[id] * q2 / 6.0;
     double m_b = cache.m_b_PS + cache.alpha_s_mu_b * cache.Delta_M / (3 * PI);
     return -4 * RT2 * m_b * N(q2, bar) * (cache.m_Bs * cache.m_Bs - cache.m_phi * cache.m_phi) * cache.ff_calculator.E(q2) / (q2 * cache.m_Bs) * T_perp_m_cached(q2, bar) * guesstimate_err;
 }
@@ -349,7 +360,7 @@ complex_t BsPhiDecay::A_S_low(double q2, bool bar) {
 
 complex_t BsPhiDecay::delta_A_0(double q2, double sign, bool bar) {
     size_t id = 4 + size_t (0.5 * (1 + sign));
-    double guesstimate_err = 1.0 + cache.A_had_err_low_0[id] + cache.A_had_err_low_1[id] * q2 / 6.0;
+    complex_t guesstimate_err = 1.0 + cache.A_had_err_low_0[id] + cache.A_had_err_low_1[id] * q2 / 6.0;
 
     double mB2 = cache.m_Bs * cache.m_Bs;
     double mB3 = cache.m_Bs * mB2;
@@ -402,7 +413,7 @@ complex_t BsPhiDecay::A_perp_high(double q2, double sign, bool bar) {
     // printf("N = %.4e + %.4e i\n", real(N(q2, bar)), imag(N(q2, bar)));
     // printf("pref T = %.4e\n", 2. * cache.kappa * cache.m_b_m_b * cache.m_Bs / q2);
 
-    return N(q2, bar) * (C9 + sign * C10 + 2. * cache.kappa * cache.m_b_m_b * cache.m_Bs / q2 * C7) * cache.ff_calculator.get(BV_FF::F_PERP, q2) * (1 + cache.A_had_err_high[size_t (0.5 * (1 + sign))]);
+    return N(q2, bar) * (C9 + sign * C10 + 2. * cache.kappa * cache.m_b_m_b * cache.m_Bs / q2 * C7) * cache.ff_calculator.get(BV_FF::F_PERP, q2) * (1. + cache.A_had_err_high[size_t (0.5 * (1 + sign))]);
 }
 
 complex_t BsPhiDecay::A_par_high(double q2, double sign, bool bar) {
@@ -410,7 +421,7 @@ complex_t BsPhiDecay::A_par_high(double q2, double sign, bool bar) {
     complex_t C9 = C9_eff(q2, bar) - (!bar ? std::conj(cache.C[WCoef::CP9]) : cache.C[WCoef::CP9]);
     complex_t C10 = cache.C[WCoef::C10] - cache.C[WCoef::CP10];
     if (!bar) C10 = std::conj(C10);
-    return -N(q2, bar) * (C9 + sign * C10 + 2. * cache.kappa * cache.m_b_m_b * cache.m_Bs / q2 * C7) * cache.ff_calculator.get(BV_FF::F_PAR, q2) * (1 + cache.A_had_err_high[2 + size_t (0.5 * (1 + sign))]);
+    return -N(q2, bar) * (C9 + sign * C10 + 2. * cache.kappa * cache.m_b_m_b * cache.m_Bs / q2 * C7) * cache.ff_calculator.get(BV_FF::F_PAR, q2) * (1. + cache.A_had_err_high[2 + size_t (0.5 * (1 + sign))]);
 }
 
 complex_t BsPhiDecay::A_0_high(double q2, double sign, bool bar) {
@@ -418,7 +429,7 @@ complex_t BsPhiDecay::A_0_high(double q2, double sign, bool bar) {
     complex_t C9 = C9_eff(q2, bar) - (!bar ? std::conj(cache.C[WCoef::CP9]) : cache.C[WCoef::CP9]);
     complex_t C10 = cache.C[WCoef::C10] - cache.C[WCoef::CP10];
     if (!bar) C10 = std::conj(C10);
-    return -N(q2, bar) * (C9 + sign * C10 + 2. * cache.kappa * cache.m_b_m_b * cache.m_Bs / q2 * C7) * cache.ff_calculator.get(BV_FF::F_0, q2)  * (1 + cache.A_had_err_high[4 + size_t (0.5 * (1 + sign))]);
+    return -N(q2, bar) * (C9 + sign * C10 + 2. * cache.kappa * cache.m_b_m_b * cache.m_Bs / q2 * C7) * cache.ff_calculator.get(BV_FF::F_0, q2)  * (1. + cache.A_had_err_high[4 + size_t (0.5 * (1 + sign))]);
 }
 
 complex_t BsPhiDecay::A_t_high(double q2, bool bar) {
@@ -428,13 +439,13 @@ complex_t BsPhiDecay::A_t_high(double q2, bool bar) {
         C10 = std::conj(C10);
         CQ2 = std::conj(CQ2);
     }
-    return N(q2, bar) * sqrt(lambda(q2) / q2) * (2. * C10 + q2 / cache.m_l * CQ2 / (cache.m_b_m_b + cache.m_s)) * cache.ff_calculator.get(BV_FF::A0, q2) * (1 + cache.A_had_err_high[6]);
+    return N(q2, bar) * sqrt(lambda(q2) / q2) * (2. * C10 + q2 / cache.m_l * CQ2 / (cache.m_b_m_b + cache.m_s)) * cache.ff_calculator.get(BV_FF::A0, q2) * (1. + cache.A_had_err_high[6]);
 }
 
 complex_t BsPhiDecay::A_S_high(double q2, bool bar) {
     complex_t CQ1 = cache.C[WCoef::CQ1] - cache.C[WCoef::CPQ1];
     if (!bar) CQ1 = std::conj(CQ1);
-    return -2. * N(q2, bar) * sqrt(lambda(q2)) * CQ1 / (cache.m_b_m_b + cache.m_s) * cache.ff_calculator.get(BV_FF::A0, q2) * (1 + cache.A_had_err_high[7]);
+    return -2. * N(q2, bar) * sqrt(lambda(q2)) * CQ1 / (cache.m_b_m_b + cache.m_s) * cache.ff_calculator.get(BV_FF::A0, q2) * (1. + cache.A_had_err_high[7]);
 }
 
 complex_t BsPhiDecay::interpolate(double q2, complex_t val_low, complex_t val_high) {

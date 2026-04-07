@@ -406,6 +406,84 @@ LEGACY_TO_NEW_NUISANCE_MAP: Dict[str, NewTarget] = {
     # --- Kaon / rare-K auxiliary inputs ---
     "BR_KLgammagamma_exp": ("K_ll", "1"),
     "BR_KSgammagamma_exp": ("K_ll", "2"),
+
+    # --- B -> K* low-q2 non-factorizable nuisances ---
+    "BtoKstarlow_ALperp_err_noq2": ("B_Ks", "18_1_1"),
+    "BtoKstarlow_ARperp_err_noq2": ("B_Ks", "18_1_2"),
+    "BtoKstarlow_ALpar_err_noq2": ("B_Ks", "18_1_3"),
+    "BtoKstarlow_ARpar_err_noq2": ("B_Ks", "18_1_4"),
+    "BtoKstarlow_AL0_err_noq2": ("B_Ks", "18_1_5"),
+    "BtoKstarlow_AR0_err_noq2": ("B_Ks", "18_1_6"),
+    "BtoKstarlow_At_err_noq2": ("B_Ks", "18_1_7"),
+    "BtoKstarlow_AS_err_noq2": ("B_Ks", "18_1_8"),
+
+    # --- B -> K* low-q2 q2-dependent piece ---
+    "BtoKstarlow_ALperp_err_q2": ("B_Ks", "18_2_1"),
+    "BtoKstarlow_ARperp_err_q2": ("B_Ks", "18_2_2"),
+    "BtoKstarlow_ALpar_err_q2": ("B_Ks", "18_2_3"),
+    "BtoKstarlow_ARpar_err_q2": ("B_Ks", "18_2_4"),
+    "BtoKstarlow_AL0_err_q2": ("B_Ks", "18_2_5"),
+    "BtoKstarlow_AR0_err_q2": ("B_Ks", "18_2_6"),
+    "BtoKstarlow_At_err_q2": ("B_Ks", "18_2_7"),
+    "BtoKstarlow_AS_err_q2": ("B_Ks", "18_2_8"),
+
+    # --- B -> K* high-q2 piece ---
+    "BtoKstarhigh_ALperp_err": ("B_Ks", "18_3_1"),
+    "BtoKstarhigh_ARperp_err": ("B_Ks", "18_3_2"),
+    "BtoKstarhigh_ALpar_err": ("B_Ks", "18_3_3"),
+    "BtoKstarhigh_ARpar_err": ("B_Ks", "18_3_4"),
+    "BtoKstarhigh_AL0_err": ("B_Ks", "18_3_5"),
+    "BtoKstarhigh_AR0_err": ("B_Ks", "18_3_6"),
+    "BtoKstarhigh_At_err": ("B_Ks", "18_3_7"),
+    "BtoKstarhigh_AS_err": ("B_Ks", "18_3_8"),
+
+    # --- B -> K low-q2 non-factorizable nuisances ---
+    "BtoKlow_FV_err_noq2": ("B_K", "18_1_1"),
+    "BtoKlow_FA_err_noq2": ("B_K", "18_1_2"),
+    "BtoKlow_FS_err_noq2": ("B_K", "18_1_3"),
+    "BtoKlow_FP_err_noq2": ("B_K", "18_1_4"),
+
+    # --- B -> K low-q2 q2-dependent piece ---
+    "BtoKlow_FV_err_q2": ("B_K", "18_2_1"),
+    "BtoKlow_FA_err_q2": ("B_K", "18_2_2"),
+    "BtoKlow_FS_err_q2": ("B_K", "18_2_3"),
+    "BtoKlow_FP_err_q2": ("B_K", "18_2_4"),
+
+    # --- B -> K high-q2 piece ---
+    "BtoKhigh_FV_err": ("B_K", "18_3_1"),
+    "BtoKhigh_FA_err": ("B_K", "18_3_2"),
+    "BtoKhigh_FS_err": ("B_K", "18_3_3"),
+    "BtoKhigh_FP_err": ("B_K", "18_3_4"),
+
+     # --- Bs -> phi low-q2 non-factorizable nuisances ---
+    "Bstophilow_ALperp_err_noq2": ("B_phi", "18_1_1"),
+    "Bstophilow_ARperp_err_noq2": ("B_phi", "18_1_2"),
+    "Bstophilow_ALpar_err_noq2": ("B_phi", "18_1_3"),
+    "Bstophilow_ARpar_err_noq2": ("B_phi", "18_1_4"),
+    "Bstophilow_AL0_err_noq2": ("B_phi", "18_1_5"),
+    "Bstophilow_AR0_err_noq2": ("B_phi", "18_1_6"),
+    "Bstophilow_At_err_noq2": ("B_phi", "18_1_7"),
+    "Bstophilow_AS_err_noq2": ("B_phi", "18_1_8"),
+
+    # --- Bs -> phi low-q2 q2-dependent piece ---
+    "Bstophilow_ALperp_err_q2": ("B_phi", "18_2_1"),
+    "Bstophilow_ARperp_err_q2": ("B_phi", "18_2_2"),
+    "Bstophilow_ALpar_err_q2": ("B_phi", "18_2_3"),
+    "Bstophilow_ARpar_err_q2": ("B_phi", "18_2_4"),
+    "Bstophilow_AL0_err_q2": ("B_phi", "18_2_5"),
+    "Bstophilow_AR0_err_q2": ("B_phi", "18_2_6"),
+    "Bstophilow_At_err_q2": ("B_phi", "18_2_7"),
+    "Bstophilow_AS_err_q2": ("B_phi", "18_2_8"),
+
+    # --- Bs -> phi high-q2 piece ---
+    "Bstophihigh_ALperp_err": ("B_phi", "18_3_1"),
+    "Bstophihigh_ARperp_err": ("B_phi", "18_3_2"),
+    "Bstophihigh_ALpar_err": ("B_phi", "18_3_3"),
+    "Bstophihigh_ARpar_err": ("B_phi", "18_3_4"),
+    "Bstophihigh_AL0_err": ("B_phi", "18_3_5"),
+    "Bstophihigh_AR0_err": ("B_phi", "18_3_6"),
+    "Bstophihigh_At_err": ("B_phi", "18_3_7"),
+    "Bstophihigh_AS_err": ("B_phi", "18_3_8"),
 }
 
 
@@ -440,83 +518,7 @@ LEGACY_TO_NEW_MULTI_MAP: Dict[str, NewTargets] = {
 # ---------------------------------------------------------------------------
 
 COMPRESSED_OR_SHARED_MAP: Dict[str, NewTarget] = {
-    # --- B -> K* low-q2 non-factorizable nuisances ---
-    "BtoKstarlow_ALperp_err_noq2": ("B_Ks", "18_1"),
-    "BtoKstarlow_ARperp_err_noq2": ("B_Ks", "18_1"),
-    "BtoKstarlow_ALpar_err_noq2": ("B_Ks", "18_1"),
-    "BtoKstarlow_ARpar_err_noq2": ("B_Ks", "18_1"),
-    "BtoKstarlow_AL0_err_noq2": ("B_Ks", "18_1"),
-    "BtoKstarlow_AR0_err_noq2": ("B_Ks", "18_1"),
-    "BtoKstarlow_At_err_noq2": ("B_Ks", "18_1"),
-    "BtoKstarlow_AS_err_noq2": ("B_Ks", "18_1"),
-
-    # --- B -> K* low-q2 q2-dependent piece ---
-    "BtoKstarlow_ALperp_err_q2": ("B_Ks", "18_2"),
-    "BtoKstarlow_ARperp_err_q2": ("B_Ks", "18_2"),
-    "BtoKstarlow_ALpar_err_q2": ("B_Ks", "18_2"),
-    "BtoKstarlow_ARpar_err_q2": ("B_Ks", "18_2"),
-    "BtoKstarlow_AL0_err_q2": ("B_Ks", "18_2"),
-    "BtoKstarlow_AR0_err_q2": ("B_Ks", "18_2"),
-    "BtoKstarlow_At_err_q2": ("B_Ks", "18_2"),
-    "BtoKstarlow_AS_err_q2": ("B_Ks", "18_2"),
-
-    # --- B -> K* high-q2 piece ---
-    "BtoKstarhigh_ALperp_err": ("B_Ks", "18_3"),
-    "BtoKstarhigh_ARperp_err": ("B_Ks", "18_3"),
-    "BtoKstarhigh_ALpar_err": ("B_Ks", "18_3"),
-    "BtoKstarhigh_ARpar_err": ("B_Ks", "18_3"),
-    "BtoKstarhigh_AL0_err": ("B_Ks", "18_3"),
-    "BtoKstarhigh_AR0_err": ("B_Ks", "18_3"),
-    "BtoKstarhigh_At_err": ("B_Ks", "18_3"),
-    "BtoKstarhigh_AS_err": ("B_Ks", "18_3"),
-
-    # --- B -> K low-q2 non-factorizable nuisances ---
-    "BtoKlow_FV_err_noq2": ("B_K", "18_1"),
-    "BtoKlow_FA_err_noq2": ("B_K", "18_1"),
-    "BtoKlow_FS_err_noq2": ("B_K", "18_1"),
-    "BtoKlow_FP_err_noq2": ("B_K", "18_1"),
-
-    # --- B -> K low-q2 q2-dependent piece ---
-    "BtoKlow_FV_err_q2": ("B_K", "18_2"),
-    "BtoKlow_FA_err_q2": ("B_K", "18_2"),
-    "BtoKlow_FS_err_q2": ("B_K", "18_2"),
-    "BtoKlow_FP_err_q2": ("B_K", "18_2"),
-
-    # --- B -> K high-q2 piece ---
-    "BtoKhigh_FV_err": ("B_K", "18_3"),
-    "BtoKhigh_FA_err": ("B_K", "18_3"),
-    "BtoKhigh_FS_err": ("B_K", "18_3"),
-    "BtoKhigh_FP_err": ("B_K", "18_3"),
-
-     # --- Bs -> phi low-q2 non-factorizable nuisances ---
-    "Bstophilow_ALperp_err_noq2": ("B_phi", "18_1"),
-    "Bstophilow_ARperp_err_noq2": ("B_phi", "18_1"),
-    "Bstophilow_ALpar_err_noq2": ("B_phi", "18_1"),
-    "Bstophilow_ARpar_err_noq2": ("B_phi", "18_1"),
-    "Bstophilow_AL0_err_noq2": ("B_phi", "18_1"),
-    "Bstophilow_AR0_err_noq2": ("B_phi", "18_1"),
-    "Bstophilow_At_err_noq2": ("B_phi", "18_1"),
-    "Bstophilow_AS_err_noq2": ("B_phi", "18_1"),
-
-    # --- Bs -> phi low-q2 q2-dependent piece ---
-    "Bstophilow_ALperp_err_q2": ("B_phi", "18_2"),
-    "Bstophilow_ARperp_err_q2": ("B_phi", "18_2"),
-    "Bstophilow_ALpar_err_q2": ("B_phi", "18_2"),
-    "Bstophilow_ARpar_err_q2": ("B_phi", "18_2"),
-    "Bstophilow_AL0_err_q2": ("B_phi", "18_2"),
-    "Bstophilow_AR0_err_q2": ("B_phi", "18_2"),
-    "Bstophilow_At_err_q2": ("B_phi", "18_2"),
-    "Bstophilow_AS_err_q2": ("B_phi", "18_2"),
-
-    # --- Bs -> phi high-q2 piece ---
-    "Bstophihigh_ALperp_err": ("B_phi", "18_3"),
-    "Bstophihigh_ARperp_err": ("B_phi", "18_3"),
-    "Bstophihigh_ALpar_err": ("B_phi", "18_3"),
-    "Bstophihigh_ARpar_err": ("B_phi", "18_3"),
-    "Bstophihigh_AL0_err": ("B_phi", "18_3"),
-    "Bstophihigh_AR0_err": ("B_phi", "18_3"),
-    "Bstophihigh_At_err": ("B_phi", "18_3"),
-    "Bstophihigh_AS_err": ("B_phi", "18_3"),
+    
 }
 
 

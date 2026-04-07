@@ -38,9 +38,9 @@ struct BsPhiDecayCache {
     complex_t um, up;
 
     // Power corrections, guesstimate
-    std::array<double, 6> A_had_err_low_0;
-    std::array<double, 6> A_had_err_low_1;
-    std::array<double, 8> A_had_err_high;
+    std::array<complex_t, 6> A_had_err_low_0;
+    std::array<complex_t, 6> A_had_err_low_1;
+    std::array<complex_t, 8> A_had_err_high;
 
     // Lookups
     static inline constexpr size_t LOOKUP_SIZE = 50;

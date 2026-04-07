@@ -44,9 +44,9 @@ struct BKstarllCache {
     std::array<complex_t, 3> h_0_fit;
 
     // Power corrections, guesstimate
-    std::array<double, 6> A_had_err_low_0 {};
-    std::array<double, 6> A_had_err_low_1 {};
-    std::array<double, 8> A_had_err_high {};
+    std::array<complex_t, 6> A_had_err_low_0 {};
+    std::array<complex_t, 6> A_had_err_low_1 {};
+    std::array<complex_t, 8> A_had_err_high {};
 
     // NF Corrections, Van Dyk
     double tp_nf, t0_nf;

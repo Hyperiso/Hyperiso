@@ -80,6 +80,14 @@ void BKllDecay::load_params() {
     cache.q2_low = (*p)(ParamId{ParameterType::DECAY, "B_K", {15, 1}}, DataType::VALUE);
     cache.q2_high = (*p)(ParamId{ParameterType::DECAY, "B_K", {15, 2}}, DataType::VALUE);
 
+    complex_t eipi4 = std::exp(I * PI / 4.0);
+
+    for (size_t i = 0; i < 4; i++) {
+        cache.A_had_err_low_0[i] = (*p)(ParamId{ParameterType::DECAY, "B_K", {18, 1, i + 1}}, DataType::VALUE) * eipi4;
+        cache.A_had_err_low_1[i] = (*p)(ParamId{ParameterType::DECAY, "B_K", {18, 2, i + 1}}, DataType::VALUE) * eipi4;
+        cache.A_had_err_high[i] = (*p)(ParamId{ParameterType::DECAY, "B_K", {18, 3, i + 1}}, DataType::VALUE) * eipi4;
+    }
+
     load_cfg_dependent_params();
 
     // printf("alpha_em = %.4e\n", cache.alpha_em);
