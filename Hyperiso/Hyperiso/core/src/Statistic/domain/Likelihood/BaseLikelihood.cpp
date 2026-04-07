@@ -1,10 +1,8 @@
 #include "BaseLikelihood.h"
 
 BaseLikelihood::BaseLikelihood(const ModelFn& model, std::shared_ptr<LikelihoodContext> ctx, size_t p_dim) : p_dim(p_dim) {
-    LOG_INFO("1");
     this->ctx = std::move(ctx);
     this->model = model;
-    LOG_INFO("2");
 }
 
 double BaseLikelihood::nll(const std::vector<double>& theta) const {
