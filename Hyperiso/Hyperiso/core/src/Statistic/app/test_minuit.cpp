@@ -10,6 +10,7 @@
 struct ObservableUncertainty {
     double err_down; // erreur vers le bas
     double err_up;   // erreur vers le haut
+    double err_sym; // erreur vers tout
 };
 
 static ObservableUncertainty uncertainty_from_summary(const GaussianSummary& gs) {
@@ -31,7 +32,7 @@ static ObservableUncertainty uncertainty_from_summary(const GaussianSummary& gs)
             out.err_up   = std::abs(gs.sigma);
         }
     }
-
+    out.err_sym = gs.sigma;
     return out;
 }
 
@@ -65,7 +66,8 @@ static void write_observables_to_csv(
             << obs.bin->second << ","
             << obs.value       << ","
             << unc.err_down    << ","
-            << unc.err_up      << "\n";
+            << unc.err_up      << ","
+            << unc.err_sym      << "\n";
     }
 }
 
@@ -102,7 +104,7 @@ int main() {
     std::vector<ObservableValue> obs_val = oi->compute_observable(Observables::F_L_B__KSTAR_MU_MU);
 
     StatisticConfig sc = StatisticConfig();
-    sc.MC_draws = 500;
+    sc.MC_draws = 2000;
     StatisticInterface si = StatisticInterface(sc, oi);
 
     std::map<BinnedObservableId, GaussianSummary> unc_map = si.compute_uncertainties();
