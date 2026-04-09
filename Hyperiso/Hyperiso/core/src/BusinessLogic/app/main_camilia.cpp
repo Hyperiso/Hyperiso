@@ -86,19 +86,19 @@ int main() {
     // oi.compute_observable(Observables::TEST);
     std::vector<double> squares;
 
-    for (double x = 0.05; x<8.1; x+=0.1) {
+    for (double x = 0.05; x<8.1; x+=1) {
         squares.push_back(x);
     }
     {
         ScopedTimer t("add_observable loop");
         for (auto elem : squares) {
-        oi.add_observable(BinnedObservableId(ObservableMapper::to_id(Observables::DGAMMA_DQ2_BS__PHI_E_E), {elem, elem+0.1}), QCDOrder::NNLO, false);
+        oi.add_observable(BinnedObservableId(ObservableMapper::to_id(Observables::DBR_DQ2_B__K_MU_MU), {elem, elem+0.1}), QCDOrder::NNLO, false);
         }
     }
     std::vector<ObservableValue> obs_val;
     {
         ScopedTimer t("compute_observable(F_L)");
-        obs_val = oi.compute_observable(Observables::DGAMMA_DQ2_BS__PHI_E_E);
+        obs_val = oi.compute_observable(Observables::DBR_DQ2_B__K_MU_MU);
     }
 
     std::vector<ObservableUncertainty> uncertainties;
@@ -111,9 +111,9 @@ int main() {
 
     {
         ScopedTimer t("write csv");
-        write_observables_to_csv("dgamma_dq2.csv", obs_val, uncertainties);
+        write_observables_to_csv("DBR_DQ2_B__K_MU_MU.csv", obs_val, uncertainties);
     }
 
-    std::cout << "CSV écrit dans dgamma_dq2.csv\n";
+    std::cout << "CSV écrit dans DBR_DQ2_B__K_MU_MU.csv\n";
     return 0;
 }
