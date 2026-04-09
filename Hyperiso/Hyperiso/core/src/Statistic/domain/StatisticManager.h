@@ -84,6 +84,9 @@ public:
     std::map<BinnedObservableId, GaussianSummary> compute_uncertainties() {
         auto sums = this->compute_uncertainties_and_sampling();
 
+        std::ofstream fs;
+        fs.open("samples.csv");        
+
         std::map<BinnedObservableId, GaussianSummary> out;
         for (const auto& gs : sums.summary) {
             out[gs.id] = gs;

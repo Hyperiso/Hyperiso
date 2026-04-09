@@ -64,7 +64,20 @@ void BVFFCalculator::load_FF_params(BV_FF_Src src) {
 
     for (int i = 1; i <= 7; i++) {
         for (int j = 0; j <= sse_order; j++) {
-            ParamId PId {ParameterType::DECAY, src_block, {ff_id, i, j}};
+            ParamId PId;
+            if (src == BV_FF_Src::GRvDV || src == BV_FF_Src::GKvD_SR || src == BV_FF_Src::GKvD_SR_LAT) {
+                if (i == 3 && j == 0) {
+                    PId = {ParameterType::DECAY, src_block, {ff_id, 1, j}};
+                    this->alpha_ai[(BV_FF)(i - 1)][j] = (*iobspp_sm)(PId, DataType::VALUE) * (m_B2 - m_V2) / (8 * m_B * m_V);
+                    continue;
+                } else if (i == 6 && j == 0) {
+                    PId = {ParameterType::DECAY, src_block, {ff_id, 5, j}};
+                    this->alpha_ai[(BV_FF)(i - 1)][j] = (*iobspp_sm)(PId, DataType::VALUE);
+                    continue;
+                }
+            }
+
+            PId = {ParameterType::DECAY, src_block, {ff_id, i, j}};
             this->alpha_ai[(BV_FF)(i - 1)][j] = (*iobspp_sm)(PId, DataType::VALUE);
         }
     }

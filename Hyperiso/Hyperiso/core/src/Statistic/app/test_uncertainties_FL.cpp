@@ -50,6 +50,10 @@ int main() {
 
     StatisticConfig config;
     config.MC_draws = 1000;
+    config.override_nuisance_marginals = {
+        {ParamId{ParameterType::WILSON, "EW_SCALE", 1}, MarginalType::FLAT},
+        {ParamId{ParameterType::WILSON, "B_SCALE", 1}, MarginalType::FLAT},
+    };
 
     LOG_INFO("Creating StatisticManager.");
 
