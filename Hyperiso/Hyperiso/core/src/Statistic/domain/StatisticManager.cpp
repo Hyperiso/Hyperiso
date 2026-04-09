@@ -571,14 +571,202 @@
 #include "StatisticManager.h"
 
 #include <limits>
+#include <numeric>
+#include <set>
 
-namespace {
+
+bool starts_with(const std::string& s, const std::string& prefix) {
+    return s.size() >= prefix.size() &&
+           std::equal(prefix.begin(), prefix.end(), s.begin());
+}
 
 std::string param_name(const ParamId& pid) {
     std::ostringstream oss;
     oss << pid;
     return oss.str();
 }
+std::vector<std::size_t> select_indices_by_prefix(const std::vector<ParamId>& ids,
+                                                  const std::string& prefix)
+{
+    std::vector<std::size_t> out;
+    for (std::size_t i = 0; i < ids.size(); ++i) {
+        if (starts_with(param_name(ids[i]), prefix)) {
+            out.push_back(i);
+        }
+    }
+    return out;
+}
+
+std::vector<std::size_t> select_indices_by_names(const std::vector<ParamId>& ids,
+                                                 const std::set<std::string>& names)
+{
+    std::vector<std::size_t> out;
+    for (std::size_t i = 0; i < ids.size(); ++i) {
+        if (names.contains(param_name(ids[i]))) {
+            out.push_back(i);
+        }
+    }
+    return out;
+}
+
+RealMatrix principal_submatrix(const RealMatrix& M,
+                               const std::vector<std::size_t>& idx)
+{
+    RealMatrix out(idx.size(), idx.size());
+    for (std::size_t i = 0; i < idx.size(); ++i) {
+        for (std::size_t j = 0; j < idx.size(); ++j) {
+            out.at(i, j) = M.at(idx[i], idx[j]);
+        }
+    }
+    return out;
+}
+
+void log_smallest_mode(const RealMatrix& M,
+                       const std::vector<ParamId>& ids,
+                       const std::vector<std::size_t>& idx,
+                       const std::string& tag)
+{
+    std::cout << "[FIT] ---- " << tag << " ----\n";
+    std::cout << "[FIT] size=" << idx.size() << "\n";
+    if (idx.empty()) {
+        std::cout << "[FIT] empty block\n";
+        return;
+    }
+
+    RealMatrix S = principal_submatrix(M, idx);
+
+    double diag_min = std::numeric_limits<double>::infinity();
+    double diag_max = -std::numeric_limits<double>::infinity();
+    double max_abs_offdiag = 0.0;
+
+    for (std::size_t i = 0; i < S.rows(); ++i) {
+        diag_min = std::min(diag_min, S.at(i, i));
+        diag_max = std::max(diag_max, S.at(i, i));
+        for (std::size_t j = i + 1; j < S.cols(); ++j) {
+            max_abs_offdiag = std::max(max_abs_offdiag, std::abs(S.at(i, j)));
+        }
+    }
+
+    std::cout << "[FIT] diag_min=" << diag_min
+              << " diag_max=" << diag_max
+              << " max_abs_offdiag=" << max_abs_offdiag << "\n";
+
+    EigenSystem e = S.eig();
+
+    std::size_t imin = 0;
+    double evmin = e.D.at(0, 0);
+    for (std::size_t i = 1; i < S.rows(); ++i) {
+        if (e.D.at(i, i) < evmin) {
+            evmin = e.D.at(i, i);
+            imin = i;
+        }
+    }
+
+    std::cout << "[FIT] smallest_eigenvalue=" << evmin << "\n";
+
+    std::vector<std::pair<double, std::size_t>> comps;
+    for (std::size_t i = 0; i < idx.size(); ++i) {
+        comps.push_back({std::abs(e.P.at(i, imin)), i});
+    }
+
+    std::sort(comps.begin(), comps.end(),
+              [](const auto& a, const auto& b) { return a.first > b.first; });
+
+    std::cout << "[FIT] dominant entries of smallest mode:\n";
+    for (std::size_t k = 0; k < std::min<std::size_t>(10, comps.size()); ++k) {
+        const std::size_t local_i = comps[k].second;
+        const std::size_t global_i = idx[local_i];
+        std::cout << "[FIT]   " << ids[global_i]
+                  << " coeff=" << e.P.at(local_i, imin) << "\n";
+    }
+
+    std::cout << "[FIT] matrix entries:\n";
+    for (std::size_t i = 0; i < idx.size(); ++i) {
+        for (std::size_t j = 0; j < idx.size(); ++j) {
+            std::cout << "[FIT]   "
+                      << ids[idx[i]] << " | " << ids[idx[j]]
+                      << " = " << S.at(i, j) << "\n";
+        }
+    }
+}
+
+
+static void dump_matrix_sanity(const RealMatrix& M,
+                               const std::vector<ParamId>& ids,
+                               const std::string& name)
+{
+    std::cout << "[FIT] Matrix " << name
+              << " shape=" << M.rows() << "x" << M.cols()
+              << " symmetric=" << M.is_symmetric() << "\n";
+
+    double diag_min = std::numeric_limits<double>::infinity();
+    double diag_max = -std::numeric_limits<double>::infinity();
+    std::size_t nonpos_diag = 0;
+
+    double max_abs_offdiag = 0.0;
+    std::size_t n_abs_gt_1 = 0;
+    std::pair<std::size_t,std::size_t> argmax_offdiag{0,0};
+
+    for (std::size_t i = 0; i < M.rows(); ++i) {
+        const double d = M.at(i,i);
+        diag_min = std::min(diag_min, d);
+        diag_max = std::max(diag_max, d);
+        if (!(d > 0.0)) ++nonpos_diag;
+
+        for (std::size_t j = i + 1; j < M.cols(); ++j) {
+            const double a = std::abs(M.at(i,j));
+            if (a > max_abs_offdiag) {
+                max_abs_offdiag = a;
+                argmax_offdiag = {i,j};
+            }
+            if (a > 1.0 + 1e-10) ++n_abs_gt_1;
+        }
+    }
+
+    std::cout << "[FIT] " << name
+              << " diag_min=" << diag_min
+              << " diag_max=" << diag_max
+              << " nonpos_diag=" << nonpos_diag
+              << " max_abs_offdiag=" << max_abs_offdiag
+              << " n_abs_offdiag_gt_1=" << n_abs_gt_1
+              << "\n";
+
+    if (M.rows() == M.cols() && M.is_symmetric()) {
+        EigenSystem e = M.eig();
+
+        std::size_t imin = 0;
+        double evmin = e.D.at(0,0);
+        for (std::size_t i = 1; i < M.rows(); ++i) {
+            if (e.D.at(i,i) < evmin) {
+                evmin = e.D.at(i,i);
+                imin = i;
+            }
+        }
+
+        std::vector<std::pair<double,std::size_t>> comps;
+        for (std::size_t i = 0; i < M.rows(); ++i) {
+            comps.push_back({std::abs(e.P.at(i, imin)), i});
+        }
+        std::sort(comps.begin(), comps.end(),
+                  [](const auto& a, const auto& b) { return a.first > b.first; });
+
+        std::cout << "[FIT] " << name << " smallest_eigenvalue=" << evmin << "\n";
+        std::cout << "[FIT] " << name << " dominant entries of smallest mode:\n";
+        for (std::size_t k = 0; k < std::min<std::size_t>(10, comps.size()); ++k) {
+            std::size_t i = comps[k].second;
+            std::cout << "[FIT]   " << ids[i]
+                      << " coeff=" << e.P.at(i, imin) << "\n";
+        }
+    }
+}
+
+namespace {
+
+// std::string param_name(const ParamId& pid) {
+//     std::ostringstream oss;
+//     oss << pid;
+//     return oss.str();
+// }
 
 fit_app::ParameterDefinition make_fit_param_def(const ParamId& pid, double value, double sigma_hint) {
     fit_app::ParameterDefinition out;
@@ -833,6 +1021,34 @@ std::unique_ptr<JointDistribution> StatisticManager::build_exp_data_distribution
     return std::make_unique<JointDistribution>(std::move(marginals), std::move(copula));
 }
 
+static void scan_leave_one_out(const RealMatrix& M,
+                               const std::vector<ParamId>& ids,
+                               const std::vector<std::size_t>& idx,
+                               const std::string& tag)
+{
+    std::cout << "[FIT] ---- leave-one-out " << tag << " ----\n";
+    if (idx.size() <= 1) return;
+
+    for (std::size_t k = 0; k < idx.size(); ++k) {
+        std::vector<std::size_t> sub;
+        sub.reserve(idx.size() - 1);
+        for (std::size_t i = 0; i < idx.size(); ++i) {
+            if (i != k) sub.push_back(idx[i]);
+        }
+
+        RealMatrix S = principal_submatrix(M, sub);
+        EigenSystem e = S.eig();
+
+        double evmin = e.D.at(0,0);
+        for (std::size_t i = 1; i < S.rows(); ++i) {
+            evmin = std::min(evmin, e.D.at(i,i));
+        }
+
+        std::cout << "[FIT] remove " << ids[idx[k]]
+                  << " => smallest_eigenvalue = " << evmin << "\n";
+    }
+}
+
 FitResultWithMaps StatisticManager::compute_MLE(const std::vector<ParamId>& p_specs) {
     update_cache(p_specs);
 
@@ -844,11 +1060,75 @@ FitResultWithMaps StatisticManager::compute_MLE(const std::vector<ParamId>& p_sp
     auto unzipped_nuisances  = unzip(cache.eta_specs_real);
     auto unzipped_exp_obs    = unzip(cache.exp_obs);
 
+    {auto eta_ids = unzip(cache.eta_specs_real).ids;
+    RealMatrix Reta(unzip(cache.SigmaEta).vals);
+    dump_matrix_sanity(Reta, eta_ids, "SigmaEta");
+
+}
+
     const std::vector<ParamId> p_ids = unzipped_fit_params.ids;
     const std::vector<double> p0 = unzipped_fit_params.vals;
 
     const std::vector<ParamId> eta_ids = unzipped_nuisances.ids;
     const std::vector<double> eta0 = unzipped_nuisances.vals;
+    
+        RealMatrix SigmaEta(unzip(cache.SigmaEta).vals);
+
+    // bloc complet
+    {
+        std::vector<std::size_t> all_idx(eta_ids.size());
+        std::iota(all_idx.begin(), all_idx.end(), 0);
+        log_smallest_mode(SigmaEta, eta_ids, all_idx, "SigmaEta full");
+    }
+
+    // bloc B_Ks:1_*
+    {
+        auto idx = select_indices_by_prefix(eta_ids, "B_Ks:1_");
+        log_smallest_mode(SigmaEta, eta_ids, idx, "SigmaEta B_Ks:1_*");
+    }
+
+    // bloc B_Ks:18_*
+    {
+        auto idx = select_indices_by_prefix(eta_ids, "B_Ks:18_");
+        log_smallest_mode(SigmaEta, eta_ids, idx, "SigmaEta B_Ks:18_*");
+    }
+
+    // bloc mixte 1_* + {7_*, 8_*, 14}
+    {
+        std::set<std::string> names = {
+            "B_Ks:7_1", "B_Ks:7_2",
+            "B_Ks:8_1", "B_Ks:8_2",
+            "B_Ks:14"
+        };
+
+        auto idx1 = select_indices_by_prefix(eta_ids, "B_Ks:1_");
+        auto idx2 = select_indices_by_names(eta_ids, names);
+
+        std::vector<std::size_t> idx = idx1;
+        idx.insert(idx.end(), idx2.begin(), idx2.end());
+        std::sort(idx.begin(), idx.end());
+        idx.erase(std::unique(idx.begin(), idx.end()), idx.end());
+
+        log_smallest_mode(SigmaEta, eta_ids, idx, "SigmaEta B_Ks:1_* + {7,8,14}");
+    }
+
+    {
+        std::set<std::string> names = {
+            "B_Ks:1_2_1",
+            "B_Ks:1_5_1",
+            "B_Ks:1_5_2",
+            "B_Ks:1_6_2",
+            "B_Ks:1_2_2",
+            "B_Ks:1_4_1",
+            "B_Ks:1_3_1",
+            "B_Ks:1_1_1",
+            "B_Ks:1_4_2",
+            "B_Ks:1_3_2"
+        };
+        auto idx = select_indices_by_names(eta_ids, names);
+        log_smallest_mode(SigmaEta, eta_ids, idx, "SigmaEta suspects");
+        scan_leave_one_out(SigmaEta, eta_ids, idx, "SigmaEta suspects");
+    }
 
     log_selected_nuisance_diagnostics(eta_ids, cache.SigmaEta);
 
@@ -1148,6 +1428,16 @@ std::map<ParamId, double> StatisticManager::get_all_obss_deps() {
         LOG_INFO(pid, val);
     }
 
+    // for (auto it = eta_specs_real_leaf.begin(); it != eta_specs_real_leaf.end(); ) {
+    //     std::ostringstream oss;
+    //     oss << it->first;
+    //     if (oss.str() == "B_Ks:1_5_2") {
+    //         std::cout << "[FIT] DEBUG removing nuisance " << oss.str() << "\n";
+    //         it = eta_specs_real_leaf.erase(it);
+    //     } else {
+    //         ++it;
+    //     }
+    // }
     return eta_specs_real_leaf;
 }
 
