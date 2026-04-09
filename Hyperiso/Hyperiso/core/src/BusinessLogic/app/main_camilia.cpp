@@ -92,13 +92,13 @@ int main() {
     {
         ScopedTimer t("add_observable loop");
         for (auto elem : squares) {
-        oi.add_observable(BinnedObservableId(ObservableMapper::to_id(Observables::F_L_B__KSTAR_MU_MU), {elem, elem+0.1}), QCDOrder::NNLO, false);
+        oi.add_observable(BinnedObservableId(ObservableMapper::to_id(Observables::DGAMMA_DQ2_BS__PHI_E_E), {elem, elem+0.1}), QCDOrder::NNLO, false);
         }
     }
     std::vector<ObservableValue> obs_val;
     {
         ScopedTimer t("compute_observable(F_L)");
-        obs_val = oi.compute_observable(Observables::F_L_B__KSTAR_MU_MU);
+        obs_val = oi.compute_observable(Observables::DGAMMA_DQ2_BS__PHI_E_E);
     }
 
     std::vector<ObservableUncertainty> uncertainties;
