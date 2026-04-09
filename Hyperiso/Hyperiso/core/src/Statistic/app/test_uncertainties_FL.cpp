@@ -42,10 +42,14 @@ int main() {
         bin_low += bin_width; 
     }
 
+    BKstarllConfig cfg;
+    cfg.ff_src = BV_FF_Src::GRvDV;
+    oint->set_decay_config(Decays::B__Kstar_l_l, cfg);
+
     auto model = std::make_shared<ObservableInterfaceAdapterObs>(oint);
 
     StatisticConfig config;
-    config.MC_draws = 5000;
+    config.MC_draws = 1000;
 
     LOG_INFO("Creating StatisticManager.");
 
