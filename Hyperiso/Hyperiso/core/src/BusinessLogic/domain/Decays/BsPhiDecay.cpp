@@ -1127,10 +1127,11 @@ void BsPhiDecay::load_params() {
     fill_wilson_cache();
 
     cache.ff_calculator = BVFFCalculator(531, 333, p, cfg.ff_src);
+    cache.mu_b = (*p)(ParamId{ParameterType::WILSON, "B_SCALE", 1}, DataType::VALUE);
 
     cache.qcdf_calculator = BVQCDfCalculator(
         531, 333,
-        w_config.hadronic_scale,
+        cache.mu_b,
         cache.C,
         std::make_shared<BVFFCalculator>(cache.ff_calculator),
         cfg.ff_type,
@@ -1141,7 +1142,6 @@ void BsPhiDecay::load_params() {
     cache.alpha_em = (*p)(ParamId{ParameterType::SM, "EW", {1, 2}}, DataType::VALUE);
     cache.G_F = (*p)(ParamId{ParameterType::SM, "SMINPUTS", 2}, DataType::VALUE);
     cache.m_s = (*p)(ParamId{ParameterType::SM, "MASS", 3}, DataType::VALUE);
-    cache.mu_b = w_config.hadronic_scale;
     cache.alpha_s_mu_b = (*iobs_qcdp)(AlphasConfig(cache.mu_b, MassType::POLE, MassType::POLE));
     cache.m_c_m_c = (*p)(ParamId{ParameterType::SM, "MASS", 4}, DataType::VALUE);
     cache.m_b_mu_b = (*iobs_qcdp)(MassConfig(5, cache.mu_b, MassType::MSBAR, MassType::POLE));

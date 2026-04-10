@@ -2,12 +2,9 @@
 
 
 ObsManager::ObsManager(ObservablePortsConfig obs_port_conf, bool init_default_decays) : obs_port_conf(obs_port_conf) {
-
-
     auto& sm = *obs_port_conf.iobspp_sm;
-
-    double mu_W = 2. * sm(ParamId{ParameterType::SM, "MASS", 24}, DataType::VALUE); // 2 * m_W
-    double mu_b = sm(ParamId{ParameterType::SM, "QCD", LhaID(5, 2)}, DataType::VALUE) / 2; // m_b(pole) / 2
+    double mu_W = sm(ParamId{ParameterType::WILSON, "EW_SCALE", 1}, DataType::VALUE);
+    double mu_b = sm(ParamId{ParameterType::WILSON, "B_SCALE", 1}, DataType::VALUE);
     if (init_default_decays) {
         this->decays = {
             {DecayMapper::to_id(Decays::B__D_l_nu),             std::make_shared<BDlnuDecay>        (QCDOrder::NONE, mu_W, mu_b, obs_port_conf)},

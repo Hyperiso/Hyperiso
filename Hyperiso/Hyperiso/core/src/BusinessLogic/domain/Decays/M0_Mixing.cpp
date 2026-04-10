@@ -3,7 +3,7 @@
 void M0Mixing::load_params() {
     cache.G_F = (*p)(ParamId{ParameterType::SM, "SMINPUTS", 2}, DataType::VALUE);
     cache.m_W = (*p)(ParamId{ParameterType::SM, "MASS", 24}, DataType::VALUE);
-    cache.mu_W = w_config.matching_scale;
+    cache.mu_W = (*p)(ParamId{ParameterType::WILSON, "EW_SCALE", 1}, DataType::VALUE);
     cache.x_c = pow((*p)(ParamId{ParameterType::SM, "MASS", 4}, DataType::VALUE) / cache.m_W, 2);
     cache.x_t = std::pow((*iobs_qcdp)(MassConfig{6, cache.mu_W, MassType::POLE, MassType::POLE}) / cache.m_W, 2);
     cache.lambda_c = std::conj((*p)(ParamId{ParameterType::SM, "VCKM", {1, 0}}, DataType::VALUE)) * (*p)(ParamId{ParameterType::SM, "VCKM", {1, 1}}, DataType::VALUE);

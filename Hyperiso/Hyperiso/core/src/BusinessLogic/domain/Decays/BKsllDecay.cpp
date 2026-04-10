@@ -2344,7 +2344,7 @@ void BKstarllDecay::load_params() {
     cache.alpha_em = (*p)(ParamId{ParameterType::SM, "EW", {1, 2}}, DataType::VALUE);
     cache.G_F = (*p)(ParamId{ParameterType::SM, "SMINPUTS", 2}, DataType::VALUE);
     cache.m_s = (*p)(ParamId{ParameterType::SM, "MASS", 3}, DataType::VALUE);
-    cache.mu_b = w_config.hadronic_scale;
+    cache.mu_b = (*p)(ParamId{ParameterType::WILSON, "B_SCALE", 1}, DataType::VALUE);
     cache.alpha_s_mu_b = (*iobs_qcdp)(AlphasConfig(cache.mu_b, MassType::POLE, MassType::POLE));
     // cache.m_c_mu_b = (*ports.iobs_qcdp)(MassConfig(4, cache.mu_b, MassType::MSBAR, MassType::POLE));
     cache.m_c_mu_b = (*p)(ParamId{ParameterType::SM, "MASS", 4}, DataType::VALUE); // NF : To match SI, should probably be m_c(mu_b) instead
@@ -2453,7 +2453,7 @@ void BKstarllDecay::load_cfg_dependent_params() {
     cache.qcdf_calculator = BVQCDfCalculator(
         cfg.charge == Charge::B_0 ? 511 : 521,
         cfg.charge == Charge::B_0 ? 313 : 323,
-        w_config.hadronic_scale,
+        cache.mu_b,
         cache.C,
         std::make_shared<BVFFCalculator>(cache.ff_calculator),
         cfg.ff_type,

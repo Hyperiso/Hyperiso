@@ -9,8 +9,8 @@ void BXsDecay::load_params() {
     cache.m_b_mb = (*p)(ParamId{ParameterType::SM, "QCD", {5, 1}}, DataType::VALUE);
     cache.m_b_kin = (*p)(ParamId{ParameterType::SM, "QCD", {5, 4}}, DataType::VALUE);
     cache.ckm_factor = std::pow(std::abs(std::conj((*p)(ParamId{ParameterType::SM, "VCKM", {2, 1}}, DataType::VALUE)) * (*p)(ParamId{ParameterType::SM, "VCKM", {2, 2}}, DataType::VALUE) / (*p)(ParamId{ParameterType::SM, "VCKM", {1, 2}}, DataType::VALUE)), 2);
-    cache.mu_b = w_config.hadronic_scale;
-    cache.mu_W = w_config.matching_scale;
+    cache.mu_b = (*p)(ParamId{ParameterType::WILSON, "B_SCALE", 1}, DataType::VALUE);
+    cache.mu_W = (*p)(ParamId{ParameterType::WILSON, "EW_SCALE", 1}, DataType::VALUE);
     cache.beta_0 = (*iobs_qcdp).get_constants()->beta[5 - 1][0]; // TODO : compute n_f based on scale ?
     cache.alpha_s_mu_b = (*iobs_qcdp)(AlphasConfig(cache.mu_b, MassType::POLE, MassType::POLE));
     cache.alpha_s_upsilon = (*iobs_qcdp)(AlphasConfig(cache.m_b_kin, MassType::POLE, MassType::POLE));

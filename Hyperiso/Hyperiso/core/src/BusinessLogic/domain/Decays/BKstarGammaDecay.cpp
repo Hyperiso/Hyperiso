@@ -149,7 +149,7 @@ void BKstarGammaDecay::load_cfg_dependent_params() {
     cache.qcdf_calculator = BVQCDfCalculator(
         cfg.charge == Charge::B_0 ? 511 : 521,
         cfg.charge == Charge::B_0 ? 313 : 323,
-        w_config.hadronic_scale,
+        cache.mu_b,
         cache.C,
         std::make_shared<BVFFCalculator>(cache.ff_calculator),
         B_FF_Type::FULL,

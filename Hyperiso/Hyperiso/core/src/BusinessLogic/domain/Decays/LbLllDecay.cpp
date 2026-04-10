@@ -4,7 +4,7 @@ void LbLllDecay::load_params() {
     fill_wilson_cache();
 
     cache.ff_calculator = LbLFFCalculator(p, cfg.ff_src);
-    cache.m_b_mu_b = (*iobs_qcdp)(MassConfig(5, w_config.hadronic_scale, MassType::MSBAR, MassType::POLE));
+    cache.m_b_mu_b = (*iobs_qcdp)(MassConfig(5, (*p)(ParamId{ParameterType::WILSON, "B_SCALE", 1}, DataType::VALUE), MassType::MSBAR, MassType::POLE));
     cache.m_Lb = (*p)(ParamId{ParameterType::FLAVOR, "FMASS", 5122}, DataType::VALUE);
     cache.m_L = (*p)(ParamId{ParameterType::FLAVOR, "FMASS", 3122}, DataType::VALUE);
     cache.life_L = (*p)(ParamId{ParameterType::FLAVOR, "FLIFE", 5122}, DataType::VALUE);

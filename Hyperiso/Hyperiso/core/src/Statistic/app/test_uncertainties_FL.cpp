@@ -33,7 +33,7 @@ int main() {
 
     double q2_min = 0.05;
     double q2_max = 8.00;
-    int N = 100;
+    int N = 20;
     double bin_width = (q2_max - q2_min) / N;
     double bin_low = q2_min;
 
@@ -49,7 +49,7 @@ int main() {
     auto model = std::make_shared<ObservableInterfaceAdapterObs>(oint);
 
     StatisticConfig config;
-    config.MC_draws = 1000;
+    config.MC_draws = 500;
     config.override_nuisance_marginals = {
         {ParamId{ParameterType::WILSON, "EW_SCALE", 1}, MarginalType::FLAT},
         {ParamId{ParameterType::WILSON, "B_SCALE", 1}, MarginalType::FLAT},

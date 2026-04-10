@@ -17,10 +17,11 @@ void BXsllDecay::load_params() {
     complex_t V_cs = (*p)(ParamId{ParameterType::SM, "VCKM", {1, 1}}, DataType::VALUE);
     cache.m_c_hat = m_c / cache.m_b_1S;
     cache.m_D_hat = (*p)(ParamId{ParameterType::FLAVOR, "FMASS", 421}, DataType::VALUE) / cache.m_b_1S;
-    cache.alpha_s_mu_b = (*iobs_qcdp)(AlphasConfig(w_config.hadronic_scale, MassType::POLE, MassType::POLE));
+    double mu_b = (*p)(ParamId{ParameterType::WILSON, "B_SCALE", 1}, DataType::VALUE);
+    cache.alpha_s_mu_b = (*iobs_qcdp)(AlphasConfig(mu_b, MassType::POLE, MassType::POLE));
     cache.z = std::pow(cache.m_c_hat, 2);
-    cache.L_b = std::log(w_config.hadronic_scale / cache.m_b_1S);
-    cache.L_b_5GeV = std::log(w_config.hadronic_scale / 5.0);
+    cache.L_b = std::log(mu_b / cache.m_b_1S);
+    cache.L_b_5GeV = std::log(mu_b / 5.0);
 
     cache.pref_dB0_ds = 1. + 3. * (*p)(ParamId{ParameterType::DECAY, "B_Xs", 6}, DataType::VALUE) * g_lambda(cache.z) / (2. * pow(cache.m_b_1S, 2) * f(cache.z)) - (*p)(ParamId{ParameterType::DECAY, "B_Xsll", 2}, DataType::VALUE) * g_rho(cache.z) / (6. * pow(cache.m_b_1S, 3) * f(cache.z));
     cache.pref_dB_ds = (*p)(ParamId{ParameterType::DECAY, "B_Xs", 2}, DataType::VALUE) * std::pow(std::abs(V_tb * std::conj(V_ts) / V_cb), 2) / (std::pow(2 * PI / cache.alpha_em, 2) * f(cache.z) * kappa(cache.z));
