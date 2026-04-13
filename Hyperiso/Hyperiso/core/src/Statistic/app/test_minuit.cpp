@@ -51,7 +51,7 @@ static void write_observables_to_csv(
         throw std::runtime_error("Impossible d'ouvrir le fichier CSV: " + filename);
     }
 
-    out << "bin_low,bin_high,value,err_down,err_up\n";
+    out << "bin_low,bin_high,value,err_down,err_up,err_sym\n";
     out << std::setprecision(17);
 
     for (std::size_t i = 0; i < obs_val.size(); ++i) {
@@ -104,7 +104,7 @@ int main() {
     std::vector<ObservableValue> obs_val = oi->compute_observable(Observables::F_L_B__KSTAR_MU_MU);
 
     StatisticConfig sc = StatisticConfig();
-    sc.MC_draws = 2000;
+    sc.MC_draws = 10000;
     StatisticInterface si = StatisticInterface(sc, oi);
 
     std::map<BinnedObservableId, GaussianSummary> unc_map = si.compute_uncertainties();
