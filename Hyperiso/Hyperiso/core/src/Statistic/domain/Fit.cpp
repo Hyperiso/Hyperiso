@@ -481,20 +481,53 @@ double choose_profile_fd_step(const fit_app::ParameterDefinition& def,
     return h;
 }
 
+// RealMatrix regularize_spd(const RealMatrix& H, double rel_floor) {
+//     RealMatrix sym = 0.5 * (H + H.transpose());
+//     EigenSystem eig = sym.eig();
+
+//     double max_abs_eig = 0.0;
+//     for (std::size_t i = 0; i < eig.D.rows(); ++i) {
+//         max_abs_eig = std::max(max_abs_eig, std::abs(eig.D.at(i, i)));
+//     }
+
+//     const double floor = std::max(1e-10, rel_floor * std::max(1.0, max_abs_eig));
+
+//     RealMatrix Dreg(eig.D.rows(), eig.D.cols());
+//     for (std::size_t i = 0; i < eig.D.rows(); ++i) {
+//         Dreg.at(i, i) = std::max(eig.D.at(i, i), floor);
+//     }
+
+//     return eig.P * Dreg * eig.P.transpose();
+// }
+
 RealMatrix regularize_spd(const RealMatrix& H, double rel_floor) {
     RealMatrix sym = 0.5 * (H + H.transpose());
     EigenSystem eig = sym.eig();
 
-    double max_abs_eig = 0.0;
+    double max_pos_eig = 0.0;
+    double min_eig = std::numeric_limits<double>::infinity();
+
     for (std::size_t i = 0; i < eig.D.rows(); ++i) {
-        max_abs_eig = std::max(max_abs_eig, std::abs(eig.D.at(i, i)));
+        const double ev = eig.D.at(i, i);
+        min_eig = std::min(min_eig, ev);
+        if (ev > 0.0) {
+            max_pos_eig = std::max(max_pos_eig, ev);
+        }
     }
 
-    const double floor = std::max(1e-10, rel_floor * std::max(1.0, max_abs_eig));
+    if (!(max_pos_eig > 0.0)) {
+        std::ostringstream oss;
+        oss << "Numerical profile Hessian is not locally convex "
+            << "(all eigenvalues <= 0, min_eig=" << min_eig << ").";
+        throw std::runtime_error(oss.str());
+    }
+
+    const double floor = std::max(1e-10, rel_floor * max_pos_eig);
 
     RealMatrix Dreg(eig.D.rows(), eig.D.cols());
     for (std::size_t i = 0; i < eig.D.rows(); ++i) {
-        Dreg.at(i, i) = std::max(eig.D.at(i, i), floor);
+        const double ev = eig.D.at(i, i);
+        Dreg.at(i, i) = (ev > floor) ? ev : floor;
     }
 
     return eig.P * Dreg * eig.P.transpose();
@@ -528,6 +561,46 @@ double profiled_nll_at(const fit_app::IFitBackend& minimizer,
     return prof.diagnostics.fmin;
 }
 
+double stabilize_profile_step_1d(const fit_app::IFitBackend& minimizer,
+                                 const fit_app::IObjectiveFunction& objective,
+                                 const std::vector<fit_app::ParameterDefinition>& defs,
+                                 const std::vector<double>& theta_hat,
+                                 std::size_t p_dim,
+                                 std::size_t i,
+                                 double h0,
+                                 const fit_app::FitOptions& profile_opt,
+                                 double f0)
+{
+    double h = h0;
+    const std::vector<double> p_hat(theta_hat.begin(), theta_hat.begin() + p_dim);
+
+    for (int iter = 0; iter < 8; ++iter) {
+        auto p_plus = p_hat;
+        auto p_minus = p_hat;
+        p_plus[i] += h;
+        p_minus[i] -= h;
+
+        const double f_plus =
+            profiled_nll_at(minimizer, objective, defs, theta_hat, p_dim, p_plus, profile_opt);
+        const double f_minus =
+            profiled_nll_at(minimizer, objective, defs, theta_hat, p_dim, p_minus, profile_opt);
+
+        const double d2 = (f_plus - 2.0 * f0 + f_minus) / (h * h);
+
+        // On veut un pas local où la courbure diagonale est positive
+        // et où les points +/-h ne sont pas "meilleurs" que le centre
+        // au-delà du bruit numérique.
+        if (d2 > 0.0 && f_plus >= f0 - 1e-8 && f_minus >= f0 - 1e-8) {
+            return h;
+        }
+
+        h *= 0.5;
+        if (!(h > 0.0)) break;
+    }
+
+    return h;
+}
+
 RealMatrix numerical_profile_hessian(const fit_app::IFitBackend& minimizer,
                                      const fit_app::IObjectiveFunction& objective,
                                      const std::vector<fit_app::ParameterDefinition>& defs,
@@ -543,10 +616,21 @@ RealMatrix numerical_profile_hessian(const fit_app::IFitBackend& minimizer,
     std::vector<double> h(p_dim, 0.0);
 
     for (std::size_t i = 0; i < p_dim; ++i) {
-        h[i] = choose_profile_fd_step(defs[i], p_hat[i], step_scale);
+        double h0 = choose_profile_fd_step(defs[i], p_hat[i], step_scale);
+        if (!(h0 > 0.0)) {
+            std::ostringstream oss;
+            oss << "Cannot build profile Hessian: initial step collapsed for parameter "
+                << defs[i].name;
+            throw std::runtime_error(oss.str());
+        }
+
+        h[i] = stabilize_profile_step_1d(
+            minimizer, objective, defs, theta_hat, p_dim, i, h0, profile_opt, f0
+        );
+
         if (!(h[i] > 0.0)) {
             std::ostringstream oss;
-            oss << "Cannot build profile Hessian: finite-difference step collapsed for parameter "
+            oss << "Cannot build profile Hessian: stabilized step collapsed for parameter "
                 << defs[i].name;
             throw std::runtime_error(oss.str());
         }
@@ -593,6 +677,72 @@ RealMatrix numerical_profile_hessian(const fit_app::IFitBackend& minimizer,
 
     return 0.5 * (H + H.transpose());
 }
+
+// RealMatrix numerical_profile_hessian(const fit_app::IFitBackend& minimizer,
+//                                      const fit_app::IObjectiveFunction& objective,
+//                                      const std::vector<fit_app::ParameterDefinition>& defs,
+//                                      const std::vector<double>& theta_hat,
+//                                      std::size_t p_dim,
+//                                      const fit_app::FitOptions& profile_opt,
+//                                      double step_scale,
+//                                      double f0)
+// {
+//     RealMatrix H(p_dim, p_dim);
+
+//     std::vector<double> p_hat(theta_hat.begin(), theta_hat.begin() + p_dim);
+//     std::vector<double> h(p_dim, 0.0);
+
+//     for (std::size_t i = 0; i < p_dim; ++i) {
+//         h[i] = choose_profile_fd_step(defs[i], p_hat[i], step_scale);
+//         if (!(h[i] > 0.0)) {
+//             std::ostringstream oss;
+//             oss << "Cannot build profile Hessian: finite-difference step collapsed for parameter "
+//                 << defs[i].name;
+//             throw std::runtime_error(oss.str());
+//         }
+//     }
+
+//     for (std::size_t i = 0; i < p_dim; ++i) {
+//         auto p_plus = p_hat;
+//         auto p_minus = p_hat;
+//         p_plus[i] += h[i];
+//         p_minus[i] -= h[i];
+
+//         const double f_plus =
+//             profiled_nll_at(minimizer, objective, defs, theta_hat, p_dim, p_plus, profile_opt);
+//         const double f_minus =
+//             profiled_nll_at(minimizer, objective, defs, theta_hat, p_dim, p_minus, profile_opt);
+
+//         H.at(i, i) = (f_plus - 2.0 * f0 + f_minus) / (h[i] * h[i]);
+
+//         for (std::size_t j = i + 1; j < p_dim; ++j) {
+//             auto p_pp = p_hat;
+//             auto p_pm = p_hat;
+//             auto p_mp = p_hat;
+//             auto p_mm = p_hat;
+
+//             p_pp[i] += h[i]; p_pp[j] += h[j];
+//             p_pm[i] += h[i]; p_pm[j] -= h[j];
+//             p_mp[i] -= h[i]; p_mp[j] += h[j];
+//             p_mm[i] -= h[i]; p_mm[j] -= h[j];
+
+//             const double f_pp =
+//                 profiled_nll_at(minimizer, objective, defs, theta_hat, p_dim, p_pp, profile_opt);
+//             const double f_pm =
+//                 profiled_nll_at(minimizer, objective, defs, theta_hat, p_dim, p_pm, profile_opt);
+//             const double f_mp =
+//                 profiled_nll_at(minimizer, objective, defs, theta_hat, p_dim, p_mp, profile_opt);
+//             const double f_mm =
+//                 profiled_nll_at(minimizer, objective, defs, theta_hat, p_dim, p_mm, profile_opt);
+
+//             const double hij = (f_pp - f_pm - f_mp + f_mm) / (4.0 * h[i] * h[j]);
+//             H.at(i, j) = hij;
+//             H.at(j, i) = hij;
+//         }
+//     }
+
+//     return 0.5 * (H + H.transpose());
+// }
 
 } // namespace
 
@@ -641,6 +791,12 @@ FitResult MLFitter::maximum_likelihood_fit(const std::vector<double>& p0) {
                   << "[FIT] Define FIT_APP_HAS_RUN_MINOS only if your backend exposes opt.run_minos.\n";
     }
 #endif
+
+    if (fit_options_.trace_first_evals) {
+        like_->enable_debug_trace(fit_options_.trace_max_evals);
+    } else {
+        like_->disable_debug_trace();
+    }
 
     std::unique_ptr<fit_app::IFitBackend> minimizer = fit_app::make_minuit_backend();
     fit_app::BackendFitResult res = minimizer->minimize(f, theta0, opt);
@@ -873,9 +1029,40 @@ FitResult MLFitter::maximum_likelihood_fit(const std::vector<double>& p0) {
 //     return fr;
 // }
 
-Contour MLFitter::contour(std::size_t x_id, std::size_t y_id, double z, std::array<double, 4> bounds, ContourOptions options) const {
+// Contour MLFitter::contour(std::size_t x_id, std::size_t y_id, double z, std::array<double, 4> bounds, ContourOptions options) const {
+//     if (!this->master_fit_success)
+//         LOG_ERROR("InvalidState", "ML fit must have converged before contour computation is available.");
+
+//     ContourConfig cc;
+//     cc.fr = this->master_fit_result;
+//     cc.x_id = x_id;
+//     cc.y_id = y_id;
+//     cc.primary_contour_method = options.primary_contour_method;
+//     cc.fallback_contour_method = options.fallback_contour_method;
+//     cc.profiling_method = options.profiling_method;
+
+//     ContourEngine ce(this->like_, cc);
+//     Contour cl = ce.compute_contour(z, bounds, options.resolution);
+
+//     return cl;
+// }
+
+Contour MLFitter::contour(std::size_t x_id, std::size_t y_id, double z,
+                          std::array<double, 4> bounds, ContourOptions options) const {
     if (!this->master_fit_success)
         LOG_ERROR("InvalidState", "ML fit must have converged before contour computation is available.");
+
+    const bool bad_errors =
+        std::isnan(this->master_fit_result.p_hat_std.at(x_id)) ||
+        std::isnan(this->master_fit_result.p_hat_std.at(y_id));
+
+    if (bad_errors && options.primary_contour_method == ContourAlgorithm::MINUIT) {
+        std::cout << "[FIT] Minuit contour disabled because local covariance is unavailable; "
+                     "using fallback method directly.\n";
+        if (options.fallback_contour_method.has_value()) {
+            options.primary_contour_method = *options.fallback_contour_method;
+        }
+    }
 
     ContourConfig cc;
     cc.fr = this->master_fit_result;
@@ -886,7 +1073,5 @@ Contour MLFitter::contour(std::size_t x_id, std::size_t y_id, double z, std::arr
     cc.profiling_method = options.profiling_method;
 
     ContourEngine ce(this->like_, cc);
-    Contour cl = ce.compute_contour(z, bounds, options.resolution);
-
-    return cl;
+    return ce.compute_contour(z, bounds, options.resolution);
 }

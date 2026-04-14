@@ -58,7 +58,7 @@ Contour ContourEngine::compute_contour(double z, std::array<double, 4> bounds, s
 
     ContourRequest cr;
     cr.bounds = bounds;
-    cr.level = z * z / 2.0;// TODO : Niels -> On envoi déjà z * z /2 depuis MLEFitter::contour donc ca sert à rien non ?
+    cr.level = z * z / 2.0;
     cr.resolution = resolution;
 
     //TODO : Niels -> L'erreur c'était qu'on ne def pas les p ici

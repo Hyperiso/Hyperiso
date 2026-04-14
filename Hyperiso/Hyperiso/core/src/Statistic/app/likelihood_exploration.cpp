@@ -1,11 +1,15 @@
+#include <algorithm>
 #include <chrono>
+#include <cmath>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
+#include <limits>
 #include <map>
 #include <memory>
-#include <set>
+#include <sstream>
 #include <string>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -20,99 +24,16 @@
 #include "NuisanceReader.h"
 #include "DefaultNuisancePathsProvider.h"
 
-namespace {
-
-using Path = std::vector<std::pair<double, double>>;
-
-void print_fit_result(const FitResultWithMaps& fit) {
-    std::cout << std::setprecision(17);
-    std::cout << "fit_ok  = " << fit.fit_ok << "\n";
-    std::cout << "ell_hat = " << fit.ell_hat << "\n";
-
-    std::cout << "\np_hat:\n";
-    for (const auto& [pid, val] : fit.p_hat) {
-        std::cout << "  " << fit_app::to_string_any(pid) << " = " << val << "\n";
-    }
-
-    std::cout << "\neta_hat:\n";
-    for (const auto& [pid, val] : fit.eta_hat) {
-        std::cout << "  " << fit_app::to_string_any(pid) << " = " << val << "\n";
-    }
-
-    std::cout << "\np_hat_std:\n";
-    for (const auto& [pid, val] : fit.p_hat_std) {
-        std::cout << "  " << fit_app::to_string_any(pid) << " = " << val << "\n";
-    }
-
-    std::cout << "\np_correlations:\n";
-    for (const auto& [pi, row] : fit.p_correlations) {
-        for (const auto& [pj, corr] : row) {
-            std::cout << "  corr(" << fit_app::to_string_any(pi)
-                      << ", " << fit_app::to_string_any(pj)
-                      << ") = " << corr << "\n";
-        }
-    }
-}
-
-void save_bestfit_csv(const std::string& path, const FitResultWithMaps& fit) {
-    std::ofstream out(path);
-    out << "name,value,error\n";
-
-    for (const auto& [pid, val] : fit.p_hat) {
-        double err = 0.0;
-        auto it = fit.p_hat_std.find(pid);
-        if (it != fit.p_hat_std.end()) {
-            err = it->second;
-        }
-
-        out << fit_app::to_string_any(pid) << ","
-            << std::setprecision(17) << val << ","
-            << err << "\n";
-    }
-}
-
-void save_contour_csv(const std::string& path,
-                      const std::string& xname,
-                      const std::string& yname,
-                      const std::set<Path>& contour68,
-                      const std::set<Path>& contour95) {
-    std::ofstream out(path);
-    out << "# x=" << xname << "\n";
-    out << "# y=" << yname << "\n";
-    out << "cl,path_id,x,y\n";
-
-    std::size_t path_id = 0;
-    for (const auto& path_pts : contour68) {
-        for (const auto& p : path_pts) {
-            out << "0.683," << path_id << ","
-                << std::setprecision(17) << p.first << ","
-                << p.second << "\n";
-        }
-        ++path_id;
-    }
-
-    path_id = 0;
-    for (const auto& path_pts : contour95) {
-        for (const auto& p : path_pts) {
-            out << "0.95," << path_id << ","
-                << std::setprecision(17) << p.first << ","
-                << p.second << "\n";
-        }
-        ++path_id;
-    }
-}
-
-} 
-
 int main() {
     using namespace fit_app;
-    // Logger::getInstance()->setLevel(Logger::LogLevel::VERBOSE);
+
     HyperisoMaster hyp;
     HyperisoConfig config_hyp;
     config_hyp.model = Model::SM;
     hyp.init("lha/si_input.flha", config_hyp);
 
     auto oint = std::make_shared<ObservableInterface>();
+
     oint->add_observable(BinnedObservableId{ObservableMapper::to_id(Observables::F_L_B0__KSTAR0_MU_MU), {1.1, 2}}, QCDOrder::NNLO, true)
         .add_observable(BinnedObservableId{ObservableMapper::to_id(Observables::A_T_2_B0__KSTAR0_MU_MU), {1.1, 2}}, QCDOrder::NNLO, true)
         .add_observable(BinnedObservableId{ObservableMapper::to_id(Observables::P_2_B0__KSTAR0_MU_MU), {1.1, 2}}, QCDOrder::NNLO, true)
@@ -151,17 +72,9 @@ int main() {
     StatisticConfig config;
     config.MLE_max_iter = 120000;
     config.MLE_tol = 0.2;
-    config.MLE_trace_first_evals  = true;
-    config.MLE_trace_max_evals  = 20;
 
-    std::vector<ParamId> p_specs = {
-        ParamId{ParameterType::WILSON, GroupMapper::str(WGroup::B, ScaleType::HADRONIC), WCoefMapper::flha_full(WCoef::C9, QCDOrder::LO, ContributionType::BSM)},
-        ParamId{ParameterType::WILSON, GroupMapper::str(WGroup::B, ScaleType::HADRONIC), WCoefMapper::flha_full(WCoef::C10, QCDOrder::LO, ContributionType::BSM)}
-    };
-
-    LOG_INFO("Creating StatisticManager.");
-
-    std::shared_ptr<INuisancePathsProvider> npp = std::make_shared<DefaultNuisancePathsProvider>();
+    std::shared_ptr<INuisancePathsProvider> npp =
+        std::make_shared<DefaultNuisancePathsProvider>();
 
     StatisticManager stat(
         config,
@@ -173,48 +86,85 @@ int main() {
         std::make_shared<NuisanceReader>(npp)
     );
 
-    LOG_INFO("StatisticManager created.");
+    std::vector<ParamId> p_specs = {
+        ParamId{ParameterType::WILSON,
+                GroupMapper::str(WGroup::B, ScaleType::HADRONIC),
+                WCoefMapper::flha_full(WCoef::C9, QCDOrder::LO, ContributionType::TOTAL)},
+        ParamId{ParameterType::WILSON,
+                GroupMapper::str(WGroup::B, ScaleType::HADRONIC),
+                WCoefMapper::flha_full(WCoef::C10, QCDOrder::LO, ContributionType::TOTAL)}
+    };
 
-    auto t2 = std::chrono::steady_clock::now();
-    FitResultWithMaps fit = stat.compute_MLE(p_specs);
-    auto t3 = std::chrono::steady_clock::now();
+    stat.prepare_likelihood_for_scan(p_specs);
 
-    std::cout << "\nMLE done in "
-              << std::chrono::duration_cast<std::chrono::milliseconds>(t3 - t2).count()
-              << " ms\n\n";
+    std::map<ParamId, double> p_hat_manual = {
+        {p_specs[0], 3.8586816584445423},
+        {p_specs[1], -4.342464564024878}
+    };
 
-    if (!fit.fit_ok) {
-        std::cerr << "[ERROR] MLE fit failed.\n";
-        return 5;
-    }
 
-    print_fit_result(fit);
-    save_bestfit_csv("bestfit.csv", fit);
-    std::cout << "[INFO] Wrote bestfit.csv\n";
+    std::map<ParamId, double> eta_hat_manual = {
+        {ParamId{ParameterType::WILSON, "B_SCALE", LhaID(1)}, 7.0616412623634615},
 
-    if (p_specs.size() == 2) {
-        const ParamId p1 = p_specs[0];
-        const ParamId p2 = p_specs[1];
+        {ParamId{ParameterType::DECAY, "B_Ks", LhaID(1,1,1)}, -1.3194750934885218},
+        {ParamId{ParameterType::DECAY, "B_Ks", LhaID(1,1,2)},  0.55731952538812446},
+        {ParamId{ParameterType::DECAY, "B_Ks", LhaID(1,2,1)},  0.42794295488555201},
+        {ParamId{ParameterType::DECAY, "B_Ks", LhaID(1,2,2)},  1.3824396326751143},
+        {ParamId{ParameterType::DECAY, "B_Ks", LhaID(1,3,1)},  0.55297187610318355},
+        {ParamId{ParameterType::DECAY, "B_Ks", LhaID(1,3,2)},  0.63064666791673996},
+        {ParamId{ParameterType::DECAY, "B_Ks", LhaID(1,4,1)}, -1.1020600964364089},
+        {ParamId{ParameterType::DECAY, "B_Ks", LhaID(1,4,2)},  2.0650881994252286},
+        {ParamId{ParameterType::DECAY, "B_Ks", LhaID(1,5,1)}, -0.97034002393979002},
+        {ParamId{ParameterType::DECAY, "B_Ks", LhaID(1,5,2)},  1.3955789220459496},
+        {ParamId{ParameterType::DECAY, "B_Ks", LhaID(1,6,1)},  0.52904322583131957},
+        {ParamId{ParameterType::DECAY, "B_Ks", LhaID(1,6,2)},  1.6397824945976849},
+        {ParamId{ParameterType::DECAY, "B_Ks", LhaID(1,7,1)},  1.3404825108445939},
+        {ParamId{ParameterType::DECAY, "B_Ks", LhaID(1,7,2)},  3.4992796210570716},
 
-        std::array<double, 4> bounds = {-4, 4, -7, 7};
+        {ParamId{ParameterType::DECAY, "B_Ks", LhaID(7,1)}, 0.046984916688010275},
+        {ParamId{ParameterType::DECAY, "B_Ks", LhaID(7,2)}, 0.10307659688624525},
+        {ParamId{ParameterType::DECAY, "B_Ks", LhaID(8,1)}, 0.060283567240217828},
+        {ParamId{ParameterType::DECAY, "B_Ks", LhaID(8,2)}, 0.16002917156326671},
+        {ParamId{ParameterType::DECAY, "B_Ks", LhaID(14)},  0.47361707939582515},
 
-        ContourOptions  opt;
-        opt.fallback_contour_method = ContourAlgorithm::AMS;
-        auto c68 = stat.confidence_contour(p1, p2, 1, bounds, opt);
-        auto c95 = stat.confidence_contour(p1, p2, 2, bounds, opt);
+        {ParamId{ParameterType::DECAY, "B_Ks", LhaID(18,1,1)},  0.096779421539748903},
+        {ParamId{ParameterType::DECAY, "B_Ks", LhaID(18,1,2)},  0.03548473538478969},
+        {ParamId{ParameterType::DECAY, "B_Ks", LhaID(18,1,3)},  0.022403500826101146},
+        {ParamId{ParameterType::DECAY, "B_Ks", LhaID(18,1,4)},  0.026932380671486327},
+        {ParamId{ParameterType::DECAY, "B_Ks", LhaID(18,1,5)}, -0.011150073481602584},
+        {ParamId{ParameterType::DECAY, "B_Ks", LhaID(18,1,6)},  0.016123830166622971},
 
-        std::cout << "[INFO] contour 68% paths = " << c68.level << "\n";
-        std::cout << "[INFO] contour 95% paths = " << c95.level << "\n";
+        {ParamId{ParameterType::DECAY, "B_Ks", LhaID(18,2,1)},  0.36090946885144704},
+        {ParamId{ParameterType::DECAY, "B_Ks", LhaID(18,2,2)},  0.13795059765754347},
+        {ParamId{ParameterType::DECAY, "B_Ks", LhaID(18,2,3)},  0.16977339600345981},
+        {ParamId{ParameterType::DECAY, "B_Ks", LhaID(18,2,4)},  0.11216066278714854},
+        {ParamId{ParameterType::DECAY, "B_Ks", LhaID(18,2,5)}, -0.060833674931900818},
+        {ParamId{ParameterType::DECAY, "B_Ks", LhaID(18,2,6)},  0.046546022227100338},
 
-        save_contour_csv(
-            "contours_BKsmumu_ang.csv",
-            fit_app::to_string_any(p1),
-            fit_app::to_string_any(p2),
-            c68.paths,
-            c95.paths
-        );
-        std::cout << "[INFO] Wrote contours.csv\n";
-    }
+        {ParamId{ParameterType::DECAY, "B_Ks", LhaID(18,3,1)}, -0.018041968289152464},
+        {ParamId{ParameterType::DECAY, "B_Ks", LhaID(18,3,2)},  0.0008849972829968639},
+        {ParamId{ParameterType::DECAY, "B_Ks", LhaID(18,3,3)}, -0.063630276500820357},
+        {ParamId{ParameterType::DECAY, "B_Ks", LhaID(18,3,4)},  0.00018648240700748546},
+        {ParamId{ParameterType::DECAY, "B_Ks", LhaID(18,3,5)},  0.062387459629891652},
+        {ParamId{ParameterType::DECAY, "B_Ks", LhaID(18,3,6)},  0.00062480775226799617},
+        {ParamId{ParameterType::DECAY, "B_Ks", LhaID(18,3,7)},  5.2618056451280428e-07},
+        {ParamId{ParameterType::DECAY, "B_Ks", LhaID(18,3,8)}, -0.099938779409649459}
+    };
+
+
+    stat.set_manual_scan_point(p_hat_manual, eta_hat_manual);
+
+    auto grid = stat.scan_likelihood_around_current_point(
+        p_specs[0],
+        p_specs[1],
+        2.0,
+        2.5,
+        81,
+        81
+    );
+
+    stat.save_likelihood_scan_csv("scan_from_manual_point.csv", grid);
+    std::cout << "[INFO] Wrote scan_from_manual_point.csv\n";
 
     return 0;
 }

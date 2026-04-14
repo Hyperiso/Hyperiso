@@ -2119,10 +2119,31 @@ FitResultWithMaps StatisticManager::compute_MLE(const std::vector<ParamId>& p_sp
         return ordered_prediction_vector(obs_ids, pred_map);
     };
 
+    // last_ctx_ = ctx;
+    // last_like_ = std::make_shared<BaseLikelihood>(model_fn, ctx, p_ids.size());
+    // last_fitter_ = std::make_shared<MLFitter>(ctx, model_fn);
+
+    // last_fit_raw_ = last_fitter_->maximum_likelihood_fit(p0);
+
     last_ctx_ = ctx;
     last_like_ = std::make_shared<BaseLikelihood>(model_fn, ctx, p_ids.size());
-    last_fitter_ = std::make_shared<MLFitter>(ctx, model_fn);
 
+    MLFitOptions fitopt;
+    fitopt.run_hesse = config.MLE_run_hesse;
+    fitopt.request_minos = config.MLE_request_minos;
+    fitopt.verbose = config.MLE_verbose;
+    fitopt.strategy = config.MLE_strategy;
+    fitopt.max_fcn = static_cast<unsigned>(config.MLE_max_iter);
+    fitopt.tolerance = config.MLE_tol;
+
+    fitopt.allow_profile_hessian_fallback = config.MLE_allow_profile_hessian_fallback;
+    fitopt.profile_hessian_step_scale = config.MLE_profile_hessian_step_scale;
+    fitopt.profile_hessian_eig_floor_rel = config.MLE_profile_hessian_eig_floor_rel;
+
+    fitopt.trace_first_evals = config.MLE_trace_first_evals;
+    fitopt.trace_max_evals = config.MLE_trace_max_evals;
+
+    last_fitter_ = std::make_shared<MLFitter>(ctx, model_fn, fitopt);
     last_fit_raw_ = last_fitter_->maximum_likelihood_fit(p0);
 
     last_fit_param_ids_ = p_ids;
@@ -2618,4 +2639,228 @@ std::map<ExperimentObs, double> StatisticManager::get_obs_exp() {
         // out[obsId] = pspp->get_obs_param(obsId)->get_val();
     }
     return out;
+}
+
+void StatisticManager::prepare_likelihood_for_scan(const std::vector<ParamId>& p_specs) {
+    update_cache(p_specs);
+
+    if (cache.p_specs.empty()) {
+        throw std::invalid_argument("prepare_likelihood_for_scan called with an empty fit parameter list.");
+    }
+
+    auto unzipped_fit_params = unzip(cache.p_specs);
+    auto unzipped_nuisances  = unzip(cache.eta_specs_real);
+    auto unzipped_exp_obs    = unzip(cache.exp_obs);
+
+    const std::vector<ParamId> p_ids = unzipped_fit_params.ids;
+    const std::vector<double> p0     = unzipped_fit_params.vals;
+
+    const std::vector<ParamId> eta_ids = unzipped_nuisances.ids;
+    const std::vector<double> eta0     = unzipped_nuisances.vals;
+
+    const std::vector<ExperimentObs> obs_ids = unzipped_exp_obs.ids;
+    const std::vector<double> exp_obs_vals   = unzipped_exp_obs.vals;
+
+    auto ctx = std::make_shared<LikelihoodContext>();
+    ctx->nuisance_dist = build_nuisance_distribution();
+    ctx->exp_obs_dist  = build_exp_data_distribution();
+    ctx->exp_obs_values = exp_obs_vals;
+
+    ctx->fp_defs.reserve(p_ids.size());
+    for (std::size_t i = 0; i < p_ids.size(); ++i) {
+        double sigma = std::abs(pspp->get_param(p_ids[i])->get_combined_std().real());
+        ctx->fp_defs.emplace_back(make_fit_param_def(p_ids[i], p0[i], sigma));
+    }
+
+    ctx->nuis_defs.reserve(eta_ids.size());
+    for (std::size_t i = 0; i < eta_ids.size(); ++i) {
+        double sigma = std::abs(pspp->get_param(eta_ids[i])->get_combined_std().real());
+        ctx->nuis_defs.emplace_back(
+            make_nuisance_parameter_definition(eta_ids[i], eta0[i], sigma)
+        );
+    }
+
+    auto model_fn = [this, obs_ids, p_ids, eta_ids](
+        const std::vector<double>& p_vec,
+        const std::vector<double>& eta_vec) -> std::vector<double>
+    {
+        auto pred_map = this->obs_int->predict_optimized(
+            zip(p_ids, p_vec),
+            zip(eta_ids, eta_vec)
+        );
+
+        return ordered_prediction_vector(obs_ids, pred_map);
+    };
+
+    last_ctx_ = ctx;
+    last_like_ = std::make_shared<BaseLikelihood>(model_fn, ctx, p_ids.size());
+    last_fitter_ = std::make_shared<MLFitter>(ctx, model_fn);
+
+    last_fit_param_ids_ = p_ids;
+    last_nuisance_ids_ = eta_ids;
+    last_fit_param_index_.clear();
+    for (std::size_t i = 0; i < p_ids.size(); ++i) {
+        last_fit_param_index_[p_ids[i]] = i;
+    }
+
+    last_scan_p_ = p0;
+    last_scan_eta_ = eta0;
+    has_manual_scan_point_ = false;
+
+    std::cout << "[SCAN] Likelihood prepared without MLE.\n";
+    std::cout << "[SCAN] n_fit_params = " << p_ids.size()
+              << ", n_nuisances = " << eta_ids.size() << "\n";
+}
+
+void StatisticManager::set_manual_scan_point(const std::map<ParamId, double>& p_hat,
+                                             const std::map<ParamId, double>& eta_hat) {
+    if (!last_like_) {
+        throw std::runtime_error(
+            "Please call prepare_likelihood_for_scan(...) or compute_MLE(...) before set_manual_scan_point(...)."
+        );
+    }
+
+    last_scan_p_.resize(last_fit_param_ids_.size());
+    for (std::size_t i = 0; i < last_fit_param_ids_.size(); ++i) {
+        auto it = p_hat.find(last_fit_param_ids_[i]);
+        if (it == p_hat.end()) {
+            throw std::invalid_argument("Missing manual fit-parameter value for one scanned parameter.");
+        }
+        last_scan_p_[i] = it->second;
+    }
+
+    last_scan_eta_.resize(last_nuisance_ids_.size());
+    for (std::size_t i = 0; i < last_nuisance_ids_.size(); ++i) {
+        auto it = eta_hat.find(last_nuisance_ids_[i]);
+        if (it == eta_hat.end()) {
+            throw std::invalid_argument("Missing manual nuisance value for one nuisance parameter.");
+        }
+        last_scan_eta_[i] = it->second;
+    }
+
+    has_manual_scan_point_ = true;
+    std::cout << "[SCAN] Manual scan point loaded.\n";
+}
+
+LikelihoodScanGrid StatisticManager::scan_likelihood_around_current_point(
+    ParamId p1,
+    ParamId p2,
+    double x_half_width,
+    double y_half_width,
+    std::size_t nx,
+    std::size_t ny
+) const {
+    if (!last_like_) {
+        throw std::runtime_error(
+            "Please call prepare_likelihood_for_scan(...) or compute_MLE(...) before requesting a likelihood scan."
+        );
+    }
+
+    if (!last_fit_param_index_.contains(p1) || !last_fit_param_index_.contains(p2)) {
+        throw std::invalid_argument(
+            "Likelihood scan requested for parameters that are not in the current prepared parameter set."
+        );
+    }
+
+    if (p1 == p2) {
+        throw std::invalid_argument("Likelihood scan requires two distinct parameters.");
+    }
+
+    const std::size_t ix = last_fit_param_index_.at(p1);
+    const std::size_t iy = last_fit_param_index_.at(p2);
+
+    std::vector<double> p_ref;
+    std::vector<double> eta_ref;
+
+    if (has_manual_scan_point_) {
+        p_ref = last_scan_p_;
+        eta_ref = last_scan_eta_;
+    } else {
+        if (last_fit_raw_.p_hat.empty() || last_fit_raw_.eta_hat.empty()) {
+            throw std::runtime_error(
+                "No reference point available. Use compute_MLE(...) or set_manual_scan_point(...)."
+            );
+        }
+        p_ref = last_fit_raw_.p_hat;
+        eta_ref = last_fit_raw_.eta_hat;
+    }
+
+    if (ix >= p_ref.size() || iy >= p_ref.size()) {
+        throw std::runtime_error("Internal error: parameter index out of range.");
+    }
+
+    std::vector<double> theta0 = p_ref;
+    theta0.insert(theta0.end(), eta_ref.begin(), eta_ref.end());
+
+    const double nll0 = last_like_->nll(theta0);
+
+    LikelihoodScanGrid out;
+    out.x_param = p1;
+    out.y_param = p2;
+    out.x_center = p_ref[ix];
+    out.y_center = p_ref[iy];
+    out.nx = nx;
+    out.ny = ny;
+    out.points.reserve(nx * ny);
+
+    double nll_min = std::numeric_limits<double>::infinity();
+
+    const double x_min = out.x_center - x_half_width;
+    const double x_max = out.x_center + x_half_width;
+    const double y_min = out.y_center - y_half_width;
+    const double y_max = out.y_center + y_half_width;
+
+    for (std::size_t i = 0; i < nx; ++i) {
+        const double x = x_min + (x_max - x_min) * static_cast<double>(i) / static_cast<double>(nx - 1);
+
+        for (std::size_t j = 0; j < ny; ++j) {
+            const double y = y_min + (y_max - y_min) * static_cast<double>(j) / static_cast<double>(ny - 1);
+
+            std::vector<double> theta = theta0;
+            theta[ix] = x;
+            theta[iy] = y;
+
+            const double nll = last_like_->nll(theta);
+
+            LikelihoodScanPoint pt;
+            pt.x = x;
+            pt.y = y;
+            pt.nll = nll;
+
+            nll_min = std::min(nll_min, nll);
+            out.points.push_back(pt);
+        }
+    }
+
+    for (auto& pt : out.points) {
+        pt.delta_nll = pt.nll - nll_min;
+    }
+
+    std::cout << "[SCAN] Built likelihood scan around current point\n";
+    std::cout << "[SCAN] center x = " << out.x_center << "\n";
+    std::cout << "[SCAN] center y = " << out.y_center << "\n";
+    std::cout << "[SCAN] nll at reference point = " << nll0 << "\n";
+    std::cout << "[SCAN] min nll on grid        = " << nll_min << "\n";
+
+    return out;
+}
+
+void StatisticManager::save_likelihood_scan_csv(const std::string& path,
+                                                const LikelihoodScanGrid& grid) const {
+    std::ofstream out(path);
+    out << "# x=" << grid.x_param << "\n";
+    out << "# y=" << grid.y_param << "\n";
+    out << "# x_center=" << std::setprecision(17) << grid.x_center << "\n";
+    out << "# y_center=" << std::setprecision(17) << grid.y_center << "\n";
+    out << "# nx=" << grid.nx << "\n";
+    out << "# ny=" << grid.ny << "\n";
+    out << "x,y,nll,delta_nll\n";
+
+    out << std::setprecision(17);
+    for (const auto& pt : grid.points) {
+        out << pt.x << ","
+            << pt.y << ","
+            << pt.nll << ","
+            << pt.delta_nll << "\n";
+    }
 }

@@ -1,6 +1,8 @@
 #include "WilsonManager.h"
 #include "WilsonBlockNames.h"
 
+
+
 static int qcd_index(QCDOrder o) {
     switch (o) {
         case QCDOrder::LO:   return 0;
@@ -448,6 +450,48 @@ void CoefficientManager::compose_missing_from_calculation(
     }
 }
 
+// void CoefficientManager::ensure_sm_model_triplet_in_matching(
+//     const std::string& groupName,
+//     QCDOrder max_order
+// ) {
+//     WGroupId gid = GroupMapper::enum_elt(groupName);
+//     const std::string final_block = WilsonBlockNames::matching(gid);
+
+//     auto maybe_g = GroupMapper::enum_of(gid);
+//     if (!maybe_g) LOG_ERROR("LogicError", "Bad group id for " + groupName);
+//     const auto members = WCoefMapper::get_group(*maybe_g);
+
+//     for (auto o : orders_up_to(max_order)) {
+//         for (auto wcoef_enum : members) {
+//             auto base = WCoefMapper::flha_base(wcoef_enum);
+
+//             LhaID id_sm (base.first, base.second, qcd_index(o), 0);
+//             LhaID id_bsm(base.first, base.second, qcd_index(o), 1);
+//             LhaID id_tot(base.first, base.second, qcd_index(o), 2);
+
+//             ParamId pid_sm  { ParameterType::WILSON, final_block, id_sm  };
+//             ParamId pid_bsm { ParameterType::WILSON, final_block, id_bsm };
+//             ParamId pid_tot { ParameterType::WILSON, final_block, id_tot };
+
+//             ports_config.iblock_c->compose_parameter(
+//                 pid_bsm,
+//                 std::unordered_set<ParamId>{},
+//                 [](const ParamSrc&, std::shared_ptr<DependentParameter> dep) {
+//                     dep->set_expected(0.);
+//                 }
+//             );
+
+//             ports_config.iblock_c->compose_parameter(
+//                 pid_tot,
+//                 std::unordered_set<ParamId>{ pid_sm },
+//                 [pid_sm](const ParamSrc& src, std::shared_ptr<DependentParameter> dep) {
+//                     dep->set_expected(src.get_val(pid_sm));
+//                 }
+//             );
+//         }
+//     }
+// }
+
 void CoefficientManager::ensure_sm_model_triplet_in_matching(
     const std::string& groupName,
     QCDOrder max_order
@@ -475,15 +519,15 @@ void CoefficientManager::ensure_sm_model_triplet_in_matching(
                 pid_bsm,
                 std::unordered_set<ParamId>{},
                 [](const ParamSrc&, std::shared_ptr<DependentParameter> dep) {
-                    dep->set_expected(0.);
+                    dep->set_expected(0.0);
                 }
             );
 
             ports_config.iblock_c->compose_parameter(
                 pid_tot,
-                std::unordered_set<ParamId>{ pid_sm },
-                [pid_sm](const ParamSrc& src, std::shared_ptr<DependentParameter> dep) {
-                    dep->set_expected(src.get_val(pid_sm));
+                std::unordered_set<ParamId>{ pid_sm, pid_bsm },
+                [pid_sm, pid_bsm](const ParamSrc& src, std::shared_ptr<DependentParameter> dep) {
+                    dep->set_expected(src.get_val(pid_sm) + src.get_val(pid_bsm));
                 }
             );
         }
@@ -656,6 +700,9 @@ std::pair<WCoefId, std::pair<QCDOrder, ContributionType>> lha_wilson_deserialize
 }
 
 void CoefficientManager::init_group_hadronic(const std::string& groupName, const std::string& order, WilsonBasis basis) {
+
+    
+
     if (!this->coefficientGroups.contains(groupName)) {
         throw_no_group_error(groupName);
     }
@@ -675,6 +722,34 @@ void CoefficientManager::init_group_hadronic(const std::string& groupName, const
         if (it == raw.end() || !it->second) {
             return;
         }
+
+        auto maybe_dump_coef = [&](const char* tag,
+                            const std::unordered_map<ContributionType,
+                            std::unordered_map<QCDOrder,
+                            std::unordered_map<WCoefId, scalar_t>>>& M)
+    {
+        auto dump_one = [&](ContributionType ct, QCDOrder qo, WCoef wc, const char* name) {
+            auto it1 = M.find(ct);
+            if (it1 == M.end()) return;
+            auto it2 = it1->second.find(qo);
+            if (it2 == it1->second.end()) return;
+            auto it3 = it2->second.find(WCoefMapper::to_id(wc));
+            if (it3 == it2->second.end()) return;
+            std::cout << "[HADDBG] " << tag
+                    << " contrib=" << int(ct)
+                    << " order=" << int(qo)
+                    << " " << name
+                    << " = " << it3->second << "\n";
+        };
+
+        dump_one(ContributionType::SM,    QCDOrder::LO, WCoef::C9,  "C9");
+        dump_one(ContributionType::BSM,   QCDOrder::LO, WCoef::C9,  "C9");
+        dump_one(ContributionType::TOTAL, QCDOrder::LO, WCoef::C9,  "C9");
+        dump_one(ContributionType::SM,    QCDOrder::LO, WCoef::C10, "C10");
+        dump_one(ContributionType::BSM,   QCDOrder::LO, WCoef::C10, "C10");
+        dump_one(ContributionType::TOTAL, QCDOrder::LO, WCoef::C10, "C10");
+    };
+    
         auto matching_coeff = it->second->getItems();
         std::unordered_map<ContributionType, std::unordered_map<QCDOrder, std::unordered_map<WCoefId, scalar_t>>> matching_map;
         for (auto& coef : matching_coeff) {
@@ -684,6 +759,8 @@ void CoefficientManager::init_group_hadronic(const std::string& groupName, const
             const ContributionType& contrib = c.second.second;
             matching_map[contrib][order][wcoef] = coef.second->get_val();
         }
+
+        maybe_dump_coef("matching_map", matching_map);
         std::unordered_map<ContributionType, std::unordered_map<QCDOrder,std::unordered_map<WCoefId, scalar_t>>> res;
         for (auto contri : {ContributionType::SM, ContributionType::BSM, ContributionType::TOTAL}) {
             switch (ord)
@@ -704,6 +781,7 @@ void CoefficientManager::init_group_hadronic(const std::string& groupName, const
                     break;
                 }
         }
+        maybe_dump_coef("res", res);
         for (auto& [c_type, order_map] : res) { // Iterate over the contributions
             for (auto& [order, coef_map] : order_map) { // Iterate over the orders
                 for (auto& [coef_id, coef_val] : coef_map) { // Iterate over the coefficients

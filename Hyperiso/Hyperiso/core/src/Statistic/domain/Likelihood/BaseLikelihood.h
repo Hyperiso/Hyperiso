@@ -30,10 +30,54 @@ public:
 
     std::size_t dim() const override;
 
+    void enable_debug_trace(std::size_t max_evals = 25) {
+        debug_trace_enabled_ = true;
+        debug_trace_max_evals_ = max_evals;
+        debug_eval_count_ = 0;
+        debug_have_ref_theta_ = false;
+        debug_have_ref_res_ = false;
+        debug_ref_theta_.clear();
+        debug_ref_res_.clear();
+    }
+
+    void disable_debug_trace() {
+        debug_trace_enabled_ = false;
+    }
 protected:
     std::shared_ptr<LikelihoodContext> ctx;
     ModelFn model;
     std::size_t p_dim;
+
+    mutable bool debug_trace_enabled_ = false;
+    mutable std::size_t debug_trace_max_evals_ = 0;
+    mutable std::size_t debug_eval_count_ = 0;
+
+    mutable bool debug_have_ref_theta_ = false;
+    mutable bool debug_have_ref_res_ = false;
+    mutable std::vector<double> debug_ref_theta_;
+    mutable std::vector<double> debug_ref_res_;
+    
+private:
+    static double max_abs_diff(const std::vector<double>& a,
+                               const std::vector<double>& b) {
+        if (a.size() != b.size()) {
+            return std::numeric_limits<double>::quiet_NaN();
+        }
+
+        double out = 0.0;
+        for (std::size_t i = 0; i < a.size(); ++i) {
+            out = std::max(out, std::abs(a[i] - b[i]));
+        }
+        return out;
+    }
+
+    void maybe_log_debug_eval(const std::vector<double>& theta,
+                              const std::vector<double>& p,
+                              const std::vector<double>& eta,
+                              const std::vector<double>& res,
+                              double ell_obs,
+                              double ell_nuis,
+                              double nll_value) const;
 };
 
 #endif // __BASELIKELIHOOD_H__
