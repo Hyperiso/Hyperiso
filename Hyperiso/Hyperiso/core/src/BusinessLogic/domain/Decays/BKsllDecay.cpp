@@ -2442,6 +2442,28 @@ void BKstarllDecay::load_params() {
 //     for (auto id : bp_cached) cache.C.emplace(std::pair{id, bp_wilsons.at(id)});
 // }
 
+// void BKstarllDecay::fill_wilson_cache() {
+//     auto b_wilsons  = w_proxy->getAFR(WGroup::B, this->w_config.order);
+//     auto bp_wilsons = w_proxy->getAFR(WGroup::BPrime, this->w_config.order);
+//     auto bq_wilsons = w_proxy->getAFR(WGroup::BScalar, this->w_config.order);
+
+//     static std::size_t dbg = 0;
+//     if (dbg < 20) {
+//         std::cout << "[DECDBG] fill_wilson_cache call=" << dbg << "\n";
+//         std::cout << "[DECDBG] B:C9   = " << b_wilsons.at(WCoef::C9) << "\n";
+//         std::cout << "[DECDBG] B:C10  = " << b_wilsons.at(WCoef::C10) << "\n";
+//         std::cout << "[DECDBG] BP:CP9 = " << bp_wilsons.at(WCoef::CP9) << "\n";
+//         std::cout << "[DECDBG] BP:CP10= " << bp_wilsons.at(WCoef::CP10) << "\n";
+//     }
+//     ++dbg;
+
+//     WCoef bp_cached[5] {WCoef::CP7, WCoef::CP9, WCoef::CP10, WCoef::CPQ1, WCoef::CPQ2};
+
+//     for (auto p : b_wilsons) cache.C.emplace(p);
+//     for (auto p : bq_wilsons) cache.C.emplace(p);
+//     for (auto id : bp_cached) cache.C.emplace(std::pair{id, bp_wilsons.at(id)});
+// }
+
 void BKstarllDecay::fill_wilson_cache() {
     auto b_wilsons  = w_proxy->getAFR(WGroup::B, this->w_config.order);
     auto bp_wilsons = w_proxy->getAFR(WGroup::BPrime, this->w_config.order);
@@ -2450,18 +2472,34 @@ void BKstarllDecay::fill_wilson_cache() {
     static std::size_t dbg = 0;
     if (dbg < 20) {
         std::cout << "[DECDBG] fill_wilson_cache call=" << dbg << "\n";
-        std::cout << "[DECDBG] B:C9   = " << b_wilsons.at(WCoef::C9) << "\n";
-        std::cout << "[DECDBG] B:C10  = " << b_wilsons.at(WCoef::C10) << "\n";
-        std::cout << "[DECDBG] BP:CP9 = " << bp_wilsons.at(WCoef::CP9) << "\n";
-        std::cout << "[DECDBG] BP:CP10= " << bp_wilsons.at(WCoef::CP10) << "\n";
+        std::cout << "[DECDBG] source B:C9   = " << b_wilsons.at(WCoef::C9) << "\n";
+        std::cout << "[DECDBG] source B:C10  = " << b_wilsons.at(WCoef::C10) << "\n";
+        std::cout << "[DECDBG] source BP:CP9 = " << bp_wilsons.at(WCoef::CP9) << "\n";
+        std::cout << "[DECDBG] source BP:CP10= " << bp_wilsons.at(WCoef::CP10) << "\n";
     }
-    ++dbg;
+
+    // CRUCIAL: on repart d'un cache vide, sinon emplace garde les vieilles valeurs
+    cache.C.clear();
+
+    for (const auto& [coef, val] : b_wilsons) {
+        cache.C[coef] = val;
+    }
+    for (const auto& [coef, val] : bq_wilsons) {
+        cache.C[coef] = val;
+    }
 
     WCoef bp_cached[5] {WCoef::CP7, WCoef::CP9, WCoef::CP10, WCoef::CPQ1, WCoef::CPQ2};
+    for (auto coef : bp_cached) {
+        cache.C[coef] = bp_wilsons.at(coef);
+    }
 
-    for (auto p : b_wilsons) cache.C.emplace(p);
-    for (auto p : bq_wilsons) cache.C.emplace(p);
-    for (auto id : bp_cached) cache.C.emplace(std::pair{id, bp_wilsons.at(id)});
+    if (dbg < 20) {
+        std::cout << "[DECDBG] cache  B:C9   = " << cache.C.at(WCoef::C9) << "\n";
+        std::cout << "[DECDBG] cache  B:C10  = " << cache.C.at(WCoef::C10) << "\n";
+        std::cout << "[DECDBG] cache  BP:CP9 = " << cache.C.at(WCoef::CP9) << "\n";
+        std::cout << "[DECDBG] cache  BP:CP10= " << cache.C.at(WCoef::CP10) << "\n";
+    }
+    ++dbg;
 }
 
 void BKstarllDecay::load_cfg_dependent_params() {

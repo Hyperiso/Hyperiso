@@ -86,22 +86,29 @@ int main() {
         std::make_shared<NuisanceReader>(npp)
     );
 
+    const std::string had_bsm_block =
+        GroupMapper::str(WGroup::B, ScaleType::HADRONIC, WilsonBasis::B_STANDARD)
+        + "__BSM_INTERMEDIATE";
+
     std::vector<ParamId> p_specs = {
         ParamId{ParameterType::WILSON,
-                GroupMapper::str(WGroup::B, ScaleType::HADRONIC),
-                WCoefMapper::flha_full(WCoef::C9, QCDOrder::LO, ContributionType::TOTAL)},
+                had_bsm_block,
+                WCoefMapper::flha_full(WCoef::C9, QCDOrder::LO, ContributionType::BSM)},
         ParamId{ParameterType::WILSON,
-                GroupMapper::str(WGroup::B, ScaleType::HADRONIC),
-                WCoefMapper::flha_full(WCoef::C10, QCDOrder::LO, ContributionType::TOTAL)}
+                had_bsm_block,
+                WCoefMapper::flha_full(WCoef::C10, QCDOrder::LO, ContributionType::BSM)}
     };
 
     stat.prepare_likelihood_for_scan(p_specs);
 
+    // std::map<ParamId, double> p_hat_manual = {
+    //     {p_specs[0], 3.8586816584445423},
+    //     {p_specs[1], -4.342464564024878}
+    // };
     std::map<ParamId, double> p_hat_manual = {
-        {p_specs[0], 3.8586816584445423},
-        {p_specs[1], -4.342464564024878}
+        {p_specs[0], -0.55},
+        {p_specs[1], 0}
     };
-
 
     std::map<ParamId, double> eta_hat_manual = {
         {ParamId{ParameterType::WILSON, "B_SCALE", LhaID(1)}, 7.0616412623634615},
@@ -148,7 +155,48 @@ int main() {
         {ParamId{ParameterType::DECAY, "B_Ks", LhaID(18,3,5)},  0.062387459629891652},
         {ParamId{ParameterType::DECAY, "B_Ks", LhaID(18,3,6)},  0.00062480775226799617},
         {ParamId{ParameterType::DECAY, "B_Ks", LhaID(18,3,7)},  5.2618056451280428e-07},
-        {ParamId{ParameterType::DECAY, "B_Ks", LhaID(18,3,8)}, -0.099938779409649459}
+        {ParamId{ParameterType::DECAY, "B_Ks", LhaID(18,3,8)}, -0.099938779409649459},
+
+        // Nouvelles nuisances Wilson détectées après le fix des blocs intermédiaires
+        {ParamId{ParameterType::WILSON, had_bsm_block, LhaID(305,4422,0,1)}, 0.0},
+        {ParamId{ParameterType::WILSON, had_bsm_block, LhaID(305,4422,1,1)}, 0.0},
+        {ParamId{ParameterType::WILSON, had_bsm_block, LhaID(305,4422,2,1)}, 0.0},
+
+        {ParamId{ParameterType::WILSON, had_bsm_block, LhaID(305,6421,0,1)}, 0.0},
+        {ParamId{ParameterType::WILSON, had_bsm_block, LhaID(305,6421,1,1)}, 0.0},
+        {ParamId{ParameterType::WILSON, had_bsm_block, LhaID(305,6421,2,1)}, 0.0},
+
+        {ParamId{ParameterType::WILSON, had_bsm_block, LhaID(3040405,4141,0,1)}, 0.0},
+        {ParamId{ParameterType::WILSON, had_bsm_block, LhaID(3040405,4141,1,1)}, 0.0},
+        {ParamId{ParameterType::WILSON, had_bsm_block, LhaID(3040405,4141,2,1)}, 0.0},
+
+        {ParamId{ParameterType::WILSON, had_bsm_block, LhaID(3040405,6161,0,1)}, 0.0},
+        {ParamId{ParameterType::WILSON, had_bsm_block, LhaID(3040405,6161,1,1)}, 0.0},
+        {ParamId{ParameterType::WILSON, had_bsm_block, LhaID(3040405,6161,2,1)}, 0.0},
+
+        {ParamId{ParameterType::WILSON, had_bsm_block, LhaID(3050707,4133,0,1)}, 0.0},
+        {ParamId{ParameterType::WILSON, had_bsm_block, LhaID(3050707,4133,1,1)}, 0.0},
+        {ParamId{ParameterType::WILSON, had_bsm_block, LhaID(3050707,4133,2,1)}, 0.0},
+
+        {ParamId{ParameterType::WILSON, had_bsm_block, LhaID(3050707,4536,0,1)}, 0.0},
+        {ParamId{ParameterType::WILSON, had_bsm_block, LhaID(3050707,4536,1,1)}, 0.0},
+        {ParamId{ParameterType::WILSON, had_bsm_block, LhaID(3050707,4536,2,1)}, 0.0},
+
+        {ParamId{ParameterType::WILSON, had_bsm_block, LhaID(3050707,6153,0,1)}, 0.0},
+        {ParamId{ParameterType::WILSON, had_bsm_block, LhaID(3050707,6153,1,1)}, 0.0},
+        {ParamId{ParameterType::WILSON, had_bsm_block, LhaID(3050707,6153,2,1)}, 0.0},
+
+        {ParamId{ParameterType::WILSON, had_bsm_block, LhaID(3050707,6556,0,1)}, 0.0},
+        {ParamId{ParameterType::WILSON, had_bsm_block, LhaID(3050707,6556,1,1)}, 0.0},
+        {ParamId{ParameterType::WILSON, had_bsm_block, LhaID(3050707,6556,2,1)}, 0.0},
+
+        {ParamId{ParameterType::WILSON, had_bsm_block, LhaID(3051313,4133,1,1)}, 0.0},
+        {ParamId{ParameterType::WILSON, had_bsm_block, LhaID(3051313,4133,2,1)}, 0.0},
+
+        {ParamId{ParameterType::WILSON, had_bsm_block, LhaID(3051313,4137,1,1)}, 0.0},
+        {ParamId{ParameterType::WILSON, had_bsm_block, LhaID(3051313,4137,2,1)}, 0.0},
+
+        {ParamId{ParameterType::WILSON, "EW_SCALE", LhaID(1)}, 100.0},
     };
 
 
@@ -159,8 +207,8 @@ int main() {
         p_specs[1],
         2.0,
         2.5,
-        81,
-        81
+        5,
+        5
     );
 
     stat.save_likelihood_scan_csv("scan_from_manual_point.csv", grid);

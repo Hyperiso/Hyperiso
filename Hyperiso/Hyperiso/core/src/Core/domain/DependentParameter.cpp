@@ -67,9 +67,14 @@ void DependentParameter::update() {
     notifyObservers();
 }
 
+// scalar_t DependentParameter::get_val() const {
+//     const_cast<DependentParameter*>(this)->ensure_up_to_date();
+//     return expected;
+// }
+
 scalar_t DependentParameter::get_val() const {
     const_cast<DependentParameter*>(this)->ensure_up_to_date();
-    return expected;
+    return this->mode == ParameterMode::FIXED ? expected : expected + shift;
 }
 
 void DependentParameter::ensure_up_to_date() {

@@ -454,13 +454,65 @@ public:
     void save_likelihood_scan_csv(const std::string& path,
                                 const LikelihoodScanGrid& grid) const;
 
+    // void update_cache(const std::vector<ParamId>& p_specs = std::vector<ParamId>()) {
+    //     cache.p_specs = this->get_p_specs(p_specs);
+    //     for (const auto& [pid, _] : cache.p_specs) {
+    //     if (!pid.type.has_value()) {
+    //         continue;
+    //     }
+
+    //     dp->detach_block(pid.type.value(), pid.block);
+
+    //     dp->detach_parameter(pid.type.value(), pid.block, pid.code);
+    // }
+
+    //     cache.eta_specs_real = this->get_all_obss_deps();
+    //     for (const auto& [pid, _] : cache.p_specs)
+    //         cache.eta_specs_real.erase(pid);
+    //     cache.SigmaEta = this->get_all_correlations();
+    //     cache.exp_obs = this->get_obs_exp();
+    //     cache.SigmaObs = this->get_all_obs_correlations();
+    // }
+
     void update_cache(const std::vector<ParamId>& p_specs = std::vector<ParamId>()) {
+        for (const auto& [tp, block] : last_detached_fit_blocks_) {
+            dp->reattach_block(tp, block);
+        }
+        for (const auto& pid : last_detached_fit_params_) {
+            if (pid.type.has_value()) {
+                dp->reattach_parameter(pid.type.value(), pid.block, pid.code);
+            }
+        }
+        last_detached_fit_blocks_.clear();
+        last_detached_fit_params_.clear();
+
         cache.p_specs = this->get_p_specs(p_specs);
-        for (const auto& [pid, _] : cache.p_specs)
-            dp->detach_parameter(pid.type.value(), pid.block, pid.code);
+
+        std::unordered_set<std::string> seen_blocks;
+
+        for (const auto& [pid, _] : cache.p_specs) {
+            if (!pid.type.has_value()) {
+                continue;
+            }
+
+            const auto tp = pid.type.value();
+            const std::string block_key =
+                std::to_string(static_cast<int>(tp)) + "::" + pid.block.to_string();
+
+            if (!seen_blocks.contains(block_key)) {
+                dp->detach_block(tp, pid.block);
+                last_detached_fit_blocks_.push_back({tp, pid.block});
+                seen_blocks.insert(block_key);
+            }
+
+            dp->detach_parameter(tp, pid.block, pid.code);
+            last_detached_fit_params_.push_back(pid);
+        }
+
         cache.eta_specs_real = this->get_all_obss_deps();
         for (const auto& [pid, _] : cache.p_specs)
             cache.eta_specs_real.erase(pid);
+
         cache.SigmaEta = this->get_all_correlations();
         cache.exp_obs = this->get_obs_exp();
         cache.SigmaObs = this->get_all_obs_correlations();
@@ -601,6 +653,9 @@ private:
     std::vector<double> last_scan_p_;
     std::vector<double> last_scan_eta_;
     bool has_manual_scan_point_ = false;
+
+    std::vector<ParamId> last_detached_fit_params_;
+    std::vector<std::pair<ParameterType, std::string>> last_detached_fit_blocks_;
 };
 
 #endif

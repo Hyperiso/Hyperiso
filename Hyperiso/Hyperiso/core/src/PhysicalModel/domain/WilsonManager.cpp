@@ -17,6 +17,29 @@ static constexpr std::array<QCDOrder, 3> ALL_ORDERS = {
     QCDOrder::LO, QCDOrder::NLO, QCDOrder::NNLO
 };
 
+static std::string hadronic_final_block_name(const std::string& groupName, WilsonBasis basis) {
+    return GroupMapper::str(GroupMapper::enum_elt(groupName), ScaleType::HADRONIC, basis);
+}
+
+static std::string hadronic_sm_intermediate_block_name(const std::string& groupName, WilsonBasis basis) {
+    return hadronic_final_block_name(groupName, basis) + "__SM_INTERMEDIATE";
+}
+
+static std::string hadronic_bsm_intermediate_block_name(const std::string& groupName, WilsonBasis basis) {
+    return hadronic_final_block_name(groupName, basis) + "__BSM_INTERMEDIATE";
+}
+
+static scalar_t get_block_value_or_zero(
+    const std::map<LhaID, std::shared_ptr<Parameter>>& items,
+    const LhaID& id
+) {
+    auto it = items.find(id);
+    if (it == items.end() || !it->second) {
+        return 0.0;
+    }
+    return it->second->get_val();
+}
+
 static bool hard_coded_lo_enabled(const WilsonPortsConfig& pc) {
     return pc.hard_coded_lo && pc.hard_coded_lo->get();
 }
@@ -699,105 +722,275 @@ std::pair<WCoefId, std::pair<QCDOrder, ContributionType>> lha_wilson_deserialize
     return ret;
 }
 
-void CoefficientManager::init_group_hadronic(const std::string& groupName, const std::string& order, WilsonBasis basis) {
-
-    
-
+void CoefficientManager::init_group_hadronic(const std::string& groupName,
+                                            const std::string& order,
+                                            WilsonBasis basis) {
     if (!this->coefficientGroups.contains(groupName)) {
         throw_no_group_error(groupName);
     }
-    std::unordered_map<ParameterType, std::vector<std::string>> src = {};
-    fill_sources_for_group(groupName, order, src, basis);
-    QCDOrder ord = OrderMapper::enum_elt(order);
-    std::map<QCDOrder, std::function<std::unordered_map<WCoefId, scalar_t>(const std::unordered_map<QCDOrder, std::unordered_map<WCoefId, scalar_t>>&, const BlockSrc&)>> funcs = {
-        {QCDOrder::LO, this->coefficientGroups[groupName]->get_func(QCDOrder::LO, basis)},
-        {QCDOrder::NLO, this->coefficientGroups[groupName]->get_func(QCDOrder::NLO, basis)},
+
+    std::unordered_map<ParameterType, std::vector<std::string>> running_src = {};
+    fill_sources_for_group(groupName, order, running_src, basis);
+
+    const QCDOrder ord = OrderMapper::enum_elt(order);
+
+    const std::map<QCDOrder,
+        std::function<std::unordered_map<WCoefId, scalar_t>(
+            const std::unordered_map<QCDOrder, std::unordered_map<WCoefId, scalar_t>>&,
+            const BlockSrc&)>> funcs = {
+        {QCDOrder::LO,   this->coefficientGroups[groupName]->get_func(QCDOrder::LO, basis)},
+        {QCDOrder::NLO,  this->coefficientGroups[groupName]->get_func(QCDOrder::NLO, basis)},
         {QCDOrder::NNLO, this->coefficientGroups[groupName]->get_func(QCDOrder::NNLO, basis)}
     };
 
-    std::string matching_block_name = this->coefficientGroups[groupName]->get_matching_storage_block();
-    auto func = [matching_block_name, ord, funcs, groupName, basis] (const BlockSrc& src, std::shared_ptr<DependentBlock> dep_block) {
-        auto raw = src.raw();
-        auto it = raw.find(matching_block_name);
-        if (it == raw.end() || !it->second) {
-            return;
-        }
+    const std::string matching_block_name = this->coefficientGroups[groupName]->get_matching_storage_block();
 
-        auto maybe_dump_coef = [&](const char* tag,
-                            const std::unordered_map<ContributionType,
-                            std::unordered_map<QCDOrder,
-                            std::unordered_map<WCoefId, scalar_t>>>& M)
-    {
-        auto dump_one = [&](ContributionType ct, QCDOrder qo, WCoef wc, const char* name) {
-            auto it1 = M.find(ct);
-            if (it1 == M.end()) return;
-            auto it2 = it1->second.find(qo);
-            if (it2 == it1->second.end()) return;
-            auto it3 = it2->second.find(WCoefMapper::to_id(wc));
-            if (it3 == it2->second.end()) return;
-            std::cout << "[HADDBG] " << tag
-                    << " contrib=" << int(ct)
-                    << " order=" << int(qo)
-                    << " " << name
-                    << " = " << it3->second << "\n";
-        };
+    const std::string final_block_name = hadronic_final_block_name(groupName, basis);
+    const std::string sm_run_block_name = hadronic_sm_intermediate_block_name(groupName, basis);
+    const std::string bsm_run_block_name = hadronic_bsm_intermediate_block_name(groupName, basis);
 
-        dump_one(ContributionType::SM,    QCDOrder::LO, WCoef::C9,  "C9");
-        dump_one(ContributionType::BSM,   QCDOrder::LO, WCoef::C9,  "C9");
-        dump_one(ContributionType::TOTAL, QCDOrder::LO, WCoef::C9,  "C9");
-        dump_one(ContributionType::SM,    QCDOrder::LO, WCoef::C10, "C10");
-        dump_one(ContributionType::BSM,   QCDOrder::LO, WCoef::C10, "C10");
-        dump_one(ContributionType::TOTAL, QCDOrder::LO, WCoef::C10, "C10");
-    };
-    
-        auto matching_coeff = it->second->getItems();
-        std::unordered_map<ContributionType, std::unordered_map<QCDOrder, std::unordered_map<WCoefId, scalar_t>>> matching_map;
-        for (auto& coef : matching_coeff) {
-            std::pair<WCoefId, std::pair<QCDOrder, ContributionType>> c = lha_wilson_deserialize(coef.first);
-            const WCoefId& wcoef = c.first;
-            const QCDOrder& order = c.second.first;
-            const ContributionType& contrib = c.second.second;
-            matching_map[contrib][order][wcoef] = coef.second->get_val();
-        }
+    auto make_partial_running_func =
+        [matching_block_name, ord, funcs]
+        (ContributionType kept_contrib, const std::string& target_block_name) {
 
-        maybe_dump_coef("matching_map", matching_map);
-        std::unordered_map<ContributionType, std::unordered_map<QCDOrder,std::unordered_map<WCoefId, scalar_t>>> res;
-        for (auto contri : {ContributionType::SM, ContributionType::BSM, ContributionType::TOTAL}) {
-            switch (ord)
-                {
+        return [matching_block_name, ord, funcs, kept_contrib, target_block_name]
+               (const BlockSrc& src, std::shared_ptr<DependentBlock> dep_block) {
+            auto raw = src.raw();
+            auto it = raw.find(matching_block_name);
+            if (it == raw.end() || !it->second) {
+                return;
+            }
+
+            const auto& matching_coeff = it->second->getItems();
+
+            std::unordered_map<QCDOrder, std::unordered_map<WCoefId, scalar_t>> matching_one;
+            for (const auto& [lha_id, param] : matching_coeff) {
+                auto dec = lha_wilson_deserialize(lha_id);
+                const WCoefId& wcoef = dec.first;
+                const QCDOrder& qcd_order = dec.second.first;
+                const ContributionType& contrib = dec.second.second;
+
+                if (contrib != kept_contrib || !param) {
+                    continue;
+                }
+
+                matching_one[qcd_order][wcoef] = param->get_val();
+            }
+
+            std::unordered_map<QCDOrder, std::unordered_map<WCoefId, scalar_t>> res_one;
+
+            switch (ord) {
                 case QCDOrder::NNLO:
-                    res[contri][QCDOrder::NNLO] = funcs.at(QCDOrder::NNLO)(matching_map[contri], src);
+                    res_one[QCDOrder::NNLO] = funcs.at(QCDOrder::NNLO)(matching_one, src);
                     [[fallthrough]];
-                    
                 case QCDOrder::NLO:
-                    res[contri][QCDOrder::NLO] = funcs.at(QCDOrder::NLO)(matching_map[contri], src);
+                    res_one[QCDOrder::NLO] = funcs.at(QCDOrder::NLO)(matching_one, src);
                     [[fallthrough]];
-
                 case QCDOrder::LO:
-                    res[contri][QCDOrder::LO] = funcs.at(QCDOrder::LO)(matching_map[contri], src);
+                    res_one[QCDOrder::LO] = funcs.at(QCDOrder::LO)(matching_one, src);
                     break;
-
                 default:
                     break;
-                }
-        }
-        maybe_dump_coef("res", res);
-        for (auto& [c_type, order_map] : res) { // Iterate over the contributions
-            for (auto& [order, coef_map] : order_map) { // Iterate over the orders
-                for (auto& [coef_id, coef_val] : coef_map) { // Iterate over the coefficients
-                    LhaID coef_lha = WCoefMapper::flha_full(coef_id, order, c_type);
-                    ParamId pid {
-                        ParameterType::WILSON, 
-                        GroupMapper::str(GroupMapper::enum_elt(groupName), ScaleType::HADRONIC, basis), 
+            }
+
+            for (const auto& [qcd_order, coef_map] : res_one) {
+                for (const auto& [coef_id, coef_val] : coef_map) {
+                    const LhaID coef_lha = WCoefMapper::flha_full(coef_id, qcd_order, kept_contrib);
+                    const ParamId pid{
+                        ParameterType::WILSON,
+                        target_block_name,
                         coef_lha
                     };
-                    dep_block->store_or_assign(pid.code, std::make_shared<Parameter>(pid, coef_val, 0., (int)c_type));
+                    dep_block->store_or_assign(
+                        pid.code,
+                        std::make_shared<Parameter>(pid, coef_val, 0.0, static_cast<int>(kept_contrib))
+                    );
                 }
             }
-        }
+        };
     };
-    ports_config.iblock_c->compose_block(GroupMapper::str(GroupMapper::enum_elt(groupName), ScaleType::HADRONIC, basis), src, func);
+
+    auto sm_func  = make_partial_running_func(ContributionType::SM,  sm_run_block_name);
+    auto bsm_func = make_partial_running_func(ContributionType::BSM, bsm_run_block_name);
+
+    ports_config.iblock_c->compose_block(sm_run_block_name, running_src, sm_func);
+    ports_config.iblock_c->compose_block(bsm_run_block_name, running_src, bsm_func);
+
+    std::unordered_map<ParameterType, std::vector<std::string>> combine_src = {
+        { ParameterType::WILSON, { sm_run_block_name, bsm_run_block_name } }
+    };
+
+    auto combine_func =
+        [groupName, basis, ord, final_block_name, sm_run_block_name, bsm_run_block_name]
+        (const BlockSrc& src, std::shared_ptr<DependentBlock> dep_block) {
+            auto raw = src.raw();
+
+            auto it_sm  = raw.find(sm_run_block_name);
+            auto it_bsm = raw.find(bsm_run_block_name);
+
+            if (it_sm == raw.end() || !it_sm->second) {
+                return;
+            }
+            if (it_bsm == raw.end() || !it_bsm->second) {
+                return;
+            }
+
+            const auto& sm_items  = it_sm->second->getItems();
+            const auto& bsm_items = it_bsm->second->getItems();
+
+            auto maybe_g = GroupMapper::enum_of(GroupMapper::enum_elt(groupName));
+            if (!maybe_g) {
+                LOG_ERROR("LogicError", "Bad group id for " + groupName);
+            }
+
+            const auto members = WCoefMapper::get_group(*maybe_g);
+
+            for (auto qcd_order : ALL_ORDERS) {
+                if (qcd_index(qcd_order) > qcd_index(ord)) {
+                    continue;
+                }
+
+                for (auto wcoef_enum : members) {
+                    auto base = WCoefMapper::flha_base(wcoef_enum);
+
+                    const LhaID id_sm (base.first, base.second, qcd_index(qcd_order), 0);
+                    const LhaID id_bsm(base.first, base.second, qcd_index(qcd_order), 1);
+                    const LhaID id_tot(base.first, base.second, qcd_index(qcd_order), 2);
+
+                    const scalar_t sm_val  = get_block_value_or_zero(sm_items,  id_sm);
+                    const scalar_t bsm_val = get_block_value_or_zero(bsm_items, id_bsm);
+                    const scalar_t tot_val = sm_val + bsm_val;
+
+                    {
+                        const ParamId pid{ParameterType::WILSON, final_block_name, id_sm};
+                        dep_block->store_or_assign(
+                            pid.code,
+                            std::make_shared<Parameter>(pid, sm_val, 0.0, static_cast<int>(ContributionType::SM))
+                        );
+                    }
+                    {
+                        const ParamId pid{ParameterType::WILSON, final_block_name, id_bsm};
+                        dep_block->store_or_assign(
+                            pid.code,
+                            std::make_shared<Parameter>(pid, bsm_val, 0.0, static_cast<int>(ContributionType::BSM))
+                        );
+                    }
+                    {
+                        const ParamId pid{ParameterType::WILSON, final_block_name, id_tot};
+                        dep_block->store_or_assign(
+                            pid.code,
+                            std::make_shared<Parameter>(pid, tot_val, 0.0, static_cast<int>(ContributionType::TOTAL))
+                        );
+                    }
+                }
+            }
+        };
+
+    ports_config.iblock_c->compose_block(final_block_name, combine_src, combine_func);
+
+    std::cout << "[HADSPLIT] " << final_block_name
+              << " <- (" << sm_run_block_name << ") + (" << bsm_run_block_name << ")\n";
 }
+
+// void CoefficientManager::init_group_hadronic(const std::string& groupName, const std::string& order, WilsonBasis basis) {
+
+    
+
+//     if (!this->coefficientGroups.contains(groupName)) {
+//         throw_no_group_error(groupName);
+//     }
+//     std::unordered_map<ParameterType, std::vector<std::string>> src = {};
+//     fill_sources_for_group(groupName, order, src, basis);
+//     QCDOrder ord = OrderMapper::enum_elt(order);
+//     std::map<QCDOrder, std::function<std::unordered_map<WCoefId, scalar_t>(const std::unordered_map<QCDOrder, std::unordered_map<WCoefId, scalar_t>>&, const BlockSrc&)>> funcs = {
+//         {QCDOrder::LO, this->coefficientGroups[groupName]->get_func(QCDOrder::LO, basis)},
+//         {QCDOrder::NLO, this->coefficientGroups[groupName]->get_func(QCDOrder::NLO, basis)},
+//         {QCDOrder::NNLO, this->coefficientGroups[groupName]->get_func(QCDOrder::NNLO, basis)}
+//     };
+
+//     std::string matching_block_name = this->coefficientGroups[groupName]->get_matching_storage_block();
+//     auto func = [matching_block_name, ord, funcs, groupName, basis] (const BlockSrc& src, std::shared_ptr<DependentBlock> dep_block) {
+//         auto raw = src.raw();
+//         auto it = raw.find(matching_block_name);
+//         if (it == raw.end() || !it->second) {
+//             return;
+//         }
+
+//         auto maybe_dump_coef = [&](const char* tag,
+//                             const std::unordered_map<ContributionType,
+//                             std::unordered_map<QCDOrder,
+//                             std::unordered_map<WCoefId, scalar_t>>>& M)
+//     {
+//         auto dump_one = [&](ContributionType ct, QCDOrder qo, WCoef wc, const char* name) {
+//             auto it1 = M.find(ct);
+//             if (it1 == M.end()) return;
+//             auto it2 = it1->second.find(qo);
+//             if (it2 == it1->second.end()) return;
+//             auto it3 = it2->second.find(WCoefMapper::to_id(wc));
+//             if (it3 == it2->second.end()) return;
+//             std::cout << "[HADDBG] " << tag
+//                     << " contrib=" << int(ct)
+//                     << " order=" << int(qo)
+//                     << " " << name
+//                     << " = " << it3->second << "\n";
+//         };
+
+//         dump_one(ContributionType::SM,    QCDOrder::LO, WCoef::C9,  "C9");
+//         dump_one(ContributionType::BSM,   QCDOrder::LO, WCoef::C9,  "C9");
+//         dump_one(ContributionType::TOTAL, QCDOrder::LO, WCoef::C9,  "C9");
+//         dump_one(ContributionType::SM,    QCDOrder::LO, WCoef::C10, "C10");
+//         dump_one(ContributionType::BSM,   QCDOrder::LO, WCoef::C10, "C10");
+//         dump_one(ContributionType::TOTAL, QCDOrder::LO, WCoef::C10, "C10");
+//     };
+    
+//         auto matching_coeff = it->second->getItems();
+//         std::unordered_map<ContributionType, std::unordered_map<QCDOrder, std::unordered_map<WCoefId, scalar_t>>> matching_map;
+//         for (auto& coef : matching_coeff) {
+//             std::pair<WCoefId, std::pair<QCDOrder, ContributionType>> c = lha_wilson_deserialize(coef.first);
+//             const WCoefId& wcoef = c.first;
+//             const QCDOrder& order = c.second.first;
+//             const ContributionType& contrib = c.second.second;
+//             matching_map[contrib][order][wcoef] = coef.second->get_val();
+//         }
+
+//         maybe_dump_coef("matching_map", matching_map);
+//         std::unordered_map<ContributionType, std::unordered_map<QCDOrder,std::unordered_map<WCoefId, scalar_t>>> res;
+//         for (auto contri : {ContributionType::SM, ContributionType::BSM, ContributionType::TOTAL}) {
+//             switch (ord)
+//                 {
+//                 case QCDOrder::NNLO:
+//                     res[contri][QCDOrder::NNLO] = funcs.at(QCDOrder::NNLO)(matching_map[contri], src);
+//                     [[fallthrough]];
+                    
+//                 case QCDOrder::NLO:
+//                     res[contri][QCDOrder::NLO] = funcs.at(QCDOrder::NLO)(matching_map[contri], src);
+//                     [[fallthrough]];
+
+//                 case QCDOrder::LO:
+//                     res[contri][QCDOrder::LO] = funcs.at(QCDOrder::LO)(matching_map[contri], src);
+//                     break;
+
+//                 default:
+//                     break;
+//                 }
+//         }
+//         maybe_dump_coef("res", res);
+//         for (auto& [c_type, order_map] : res) { // Iterate over the contributions
+//             for (auto& [order, coef_map] : order_map) { // Iterate over the orders
+//                 for (auto& [coef_id, coef_val] : coef_map) { // Iterate over the coefficients
+//                     LhaID coef_lha = WCoefMapper::flha_full(coef_id, order, c_type);
+//                     ParamId pid {
+//                         ParameterType::WILSON, 
+//                         GroupMapper::str(GroupMapper::enum_elt(groupName), ScaleType::HADRONIC, basis), 
+//                         coef_lha
+//                     };
+//                     dep_block->store_or_assign(pid.code, std::make_shared<Parameter>(pid, coef_val, 0., (int)c_type));
+//                 }
+//             }
+//         }
+//     };
+//     ports_config.iblock_c->compose_block(GroupMapper::str(GroupMapper::enum_elt(groupName), ScaleType::HADRONIC, basis), src, func);
+// }
 
 void CoefficientManager::init_group_hadronic_all_bases(const std::string &groupName, const std::string &order) {
     if (OrderMapper::enum_elt(order) < QCDOrder::NNLO) {

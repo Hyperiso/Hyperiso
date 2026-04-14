@@ -27,16 +27,32 @@ void LbLllDecay::load_params() {
     // printf("h_tilde_+ = %.4e\n", cache.ff_calculator.get(LbL_FF::H_TILDE_PLUS, 1.0));
 }
 
+// void LbLllDecay::fill_wilson_cache() {
+//     auto b_wilsons = w_proxy->getAFR(WGroup::B, this->w_config.order);
+//     auto bp_wilsons = w_proxy->getAFR(WGroup::BPrime, this->w_config.order);
+
+//     cache.C.emplace(WCoef::C7, b_wilsons[WCoef::C7]);
+//     cache.C.emplace(WCoef::C9, b_wilsons[WCoef::C9]); 
+//     cache.C.emplace(WCoef::C10, b_wilsons[WCoef::C10]);
+//     cache.C.emplace(WCoef::CP7, b_wilsons[WCoef::CP7]);
+//     cache.C.emplace(WCoef::CP9, b_wilsons[WCoef::CP9]);
+//     cache.C.emplace(WCoef::CP10, b_wilsons[WCoef::CP10]);
+// }
+
 void LbLllDecay::fill_wilson_cache() {
-    auto b_wilsons = w_proxy->getAFR(WGroup::B, this->w_config.order);
+    cache.C.clear();
+
+    auto b_wilsons  = w_proxy->getAFR(WGroup::B, this->w_config.order);
     auto bp_wilsons = w_proxy->getAFR(WGroup::BPrime, this->w_config.order);
 
-    cache.C.emplace(WCoef::C7, b_wilsons[WCoef::C7]);
-    cache.C.emplace(WCoef::C9, b_wilsons[WCoef::C9]); 
-    cache.C.emplace(WCoef::C10, b_wilsons[WCoef::C10]);
-    cache.C.emplace(WCoef::CP7, b_wilsons[WCoef::CP7]);
-    cache.C.emplace(WCoef::CP9, b_wilsons[WCoef::CP9]);
-    cache.C.emplace(WCoef::CP10, b_wilsons[WCoef::CP10]);
+    cache.C[WCoef::C7]   = b_wilsons.at(WCoef::C7);
+    cache.C[WCoef::C9]   = b_wilsons.at(WCoef::C9);
+    cache.C[WCoef::C10]  = b_wilsons.at(WCoef::C10);
+
+    // Ici c'était faux avant : il fallait lire dans bp_wilsons
+    cache.C[WCoef::CP7]  = bp_wilsons.at(WCoef::CP7);
+    cache.C[WCoef::CP9]  = bp_wilsons.at(WCoef::CP9);
+    cache.C[WCoef::CP10] = bp_wilsons.at(WCoef::CP10);
 }
 
 void LbLllDecay::set_cfg_flags(LbLllConfig::Lepton gen) {
