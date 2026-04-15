@@ -54,6 +54,9 @@ struct MLFitOptions {
     bool allow_profile_hessian_fallback = true;
     double profile_hessian_step_scale = 1.0;
     double profile_hessian_eig_floor_rel = 1e-8;
+
+    bool trace_first_evals = false;
+    std::size_t trace_max_evals = 25;
 };
 
 // struct MLFitOptions {

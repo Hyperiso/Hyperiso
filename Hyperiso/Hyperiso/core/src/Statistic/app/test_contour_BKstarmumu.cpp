@@ -151,10 +151,17 @@ int main() {
     StatisticConfig config;
     config.MLE_max_iter = 120000;
     config.MLE_tol = 0.2;
+    config.MLE_trace_first_evals  = true;
+    config.MLE_trace_max_evals  = 20;
+
+
+    const std::string had_bsm_block =
+        GroupMapper::str(WGroup::B, ScaleType::HADRONIC, WilsonBasis::B_STANDARD)
+        + "__BSM_INTERMEDIATE";
 
     std::vector<ParamId> p_specs = {
-        ParamId{ParameterType::WILSON, GroupMapper::str(WGroup::B, ScaleType::HADRONIC), WCoefMapper::flha_full(WCoef::C9, QCDOrder::LO, ContributionType::SM)},
-        ParamId{ParameterType::WILSON, GroupMapper::str(WGroup::B, ScaleType::HADRONIC), WCoefMapper::flha_full(WCoef::C10, QCDOrder::LO, ContributionType::SM)}
+        ParamId{ParameterType::WILSON, had_bsm_block, WCoefMapper::flha_full(WCoef::C9, QCDOrder::LO, ContributionType::BSM)},
+        ParamId{ParameterType::WILSON, had_bsm_block, WCoefMapper::flha_full(WCoef::C10, QCDOrder::LO, ContributionType::BSM)}
     };
 
     LOG_INFO("Creating StatisticManager.");

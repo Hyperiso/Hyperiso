@@ -333,6 +333,31 @@ struct StatisticConfig {
 
     // Evite de diviser par des échelles trop petites quand une observable ~ 0
     double nuisance_sensitivity_scale_floor = 1e-3;
+
+    bool MLE_trace_first_evals = false;
+    std::size_t MLE_trace_max_evals = 25;
+
+    bool MLE_allow_profile_hessian_fallback = true;
+    double MLE_profile_hessian_step_scale = 1.0;
+    double MLE_profile_hessian_eig_floor_rel = 1e-8;
+
+};
+
+struct LikelihoodScanPoint {
+    double x = 0.0;
+    double y = 0.0;
+    double nll = 0.0;
+    double delta_nll = 0.0;
+};
+
+struct LikelihoodScanGrid {
+    ParamId x_param;
+    ParamId y_param;
+    double x_center = 0.0;
+    double y_center = 0.0;
+    std::size_t nx = 0;
+    std::size_t ny = 0;
+    std::vector<LikelihoodScanPoint> points;
 };
 
 struct FitResultWithMaps {
@@ -412,13 +437,82 @@ public:
 
     Contour confidence_contour(ParamId p1, ParamId p2, double z, std::array<double, 4> bounds, ContourOptions options);
 
+    void prepare_likelihood_for_scan(const std::vector<ParamId>& p_specs);
+
+    void set_manual_scan_point(const std::map<ParamId, double>& p_hat,
+                            const std::map<ParamId, double>& eta_hat);
+
+    LikelihoodScanGrid scan_likelihood_around_current_point(
+        ParamId p1,
+        ParamId p2,
+        double x_half_width,
+        double y_half_width,
+        std::size_t nx,
+        std::size_t ny
+    ) const;
+
+    void save_likelihood_scan_csv(const std::string& path,
+                                const LikelihoodScanGrid& grid) const;
+
+    // void update_cache(const std::vector<ParamId>& p_specs = std::vector<ParamId>()) {
+    //     cache.p_specs = this->get_p_specs(p_specs);
+    //     for (const auto& [pid, _] : cache.p_specs) {
+    //     if (!pid.type.has_value()) {
+    //         continue;
+    //     }
+
+    //     dp->detach_block(pid.type.value(), pid.block);
+
+    //     dp->detach_parameter(pid.type.value(), pid.block, pid.code);
+    // }
+
+    //     cache.eta_specs_real = this->get_all_obss_deps();
+    //     for (const auto& [pid, _] : cache.p_specs)
+    //         cache.eta_specs_real.erase(pid);
+    //     cache.SigmaEta = this->get_all_correlations();
+    //     cache.exp_obs = this->get_obs_exp();
+    //     cache.SigmaObs = this->get_all_obs_correlations();
+    // }
+
     void update_cache(const std::vector<ParamId>& p_specs = std::vector<ParamId>()) {
+        for (const auto& [tp, block] : last_detached_fit_blocks_) {
+            dp->reattach_block(tp, block);
+        }
+        for (const auto& pid : last_detached_fit_params_) {
+            if (pid.type.has_value()) {
+                dp->reattach_parameter(pid.type.value(), pid.block, pid.code);
+            }
+        }
+        last_detached_fit_blocks_.clear();
+        last_detached_fit_params_.clear();
+
         cache.p_specs = this->get_p_specs(p_specs);
-        for (const auto& [pid, _] : cache.p_specs)
-            dp->detach_parameter(pid.type.value(), pid.block, pid.code);
+
+        std::unordered_set<std::string> seen_blocks;
+
+        for (const auto& [pid, _] : cache.p_specs) {
+            if (!pid.type.has_value()) {
+                continue;
+            }
+
+            const auto tp = pid.type.value();
+            const std::string block_key =
+                std::to_string(static_cast<int>(tp)) + "::" + pid.block.to_string();
+
+            if (!seen_blocks.contains(block_key)) {
+                dp->detach_block(tp, pid.block);
+                last_detached_fit_blocks_.push_back({tp, pid.block});
+                seen_blocks.insert(block_key);
+            }
+
+            dp->detach_parameter(tp, pid.block, pid.code);
+            last_detached_fit_params_.push_back(pid);
+        }
+
         cache.eta_specs_real = this->get_all_obss_deps();
         for (const auto& [pid, _] : cache.p_specs)
             cache.eta_specs_real.erase(pid);
+
         cache.SigmaEta = this->get_all_correlations();
         cache.exp_obs = this->get_obs_exp();
         cache.SigmaObs = this->get_all_obs_correlations();
@@ -555,6 +649,13 @@ private:
     std::vector<ParamId> last_fit_param_ids_;
     std::vector<ParamId> last_nuisance_ids_;
     std::map<ParamId, std::size_t> last_fit_param_index_;
+
+    std::vector<double> last_scan_p_;
+    std::vector<double> last_scan_eta_;
+    bool has_manual_scan_point_ = false;
+
+    std::vector<ParamId> last_detached_fit_params_;
+    std::vector<std::pair<ParameterType, std::string>> last_detached_fit_blocks_;
 };
 
 #endif

@@ -117,15 +117,38 @@ void BKllDecay::load_params() {
     // printf("F_P(s = 1.0 GeV²) = %.4e + %.4e i\n", real(F_P(1.0)), imag(F_P(1.0)));
 }
 
+// void BKllDecay::fill_wilson_cache() {
+//     auto b_wilsons = w_proxy->getAFR(WGroup::B, this->w_config.order);
+//     auto bp_wilsons = w_proxy->getAFR(WGroup::BPrime, this->w_config.order);
+//     auto bq_wilsons = w_proxy->getAFR(WGroup::BScalar, this->w_config.order);
+//     WCoef bp_cached[6] {WCoef::CP7, WCoef::CP8, WCoef::CP9, WCoef::CP10, WCoef::CPQ1, WCoef::CPQ2};
+
+//     for (auto p : b_wilsons) cache.C.emplace(p); 
+//     for (auto p : bq_wilsons) cache.C.emplace(p);
+//     for (auto id : bp_cached) cache.C.emplace(std::pair{id, bp_wilsons.at(id)});
+// }
+
 void BKllDecay::fill_wilson_cache() {
-    auto b_wilsons = w_proxy->getAFR(WGroup::B, this->w_config.order);
+    cache.C.clear();
+
+    auto b_wilsons  = w_proxy->getAFR(WGroup::B, this->w_config.order);
     auto bp_wilsons = w_proxy->getAFR(WGroup::BPrime, this->w_config.order);
     auto bq_wilsons = w_proxy->getAFR(WGroup::BScalar, this->w_config.order);
-    WCoef bp_cached[6] {WCoef::CP7, WCoef::CP8, WCoef::CP9, WCoef::CP10, WCoef::CPQ1, WCoef::CPQ2};
 
-    for (auto p : b_wilsons) cache.C.emplace(p); 
-    for (auto p : bq_wilsons) cache.C.emplace(p);
-    for (auto id : bp_cached) cache.C.emplace(std::pair{id, bp_wilsons.at(id)});
+    WCoef bp_cached[6] {
+        WCoef::CP7, WCoef::CP8, WCoef::CP9,
+        WCoef::CP10, WCoef::CPQ1, WCoef::CPQ2
+    };
+
+    for (const auto& [id, val] : b_wilsons) {
+        cache.C[id] = val;
+    }
+    for (const auto& [id, val] : bq_wilsons) {
+        cache.C[id] = val;
+    }
+    for (auto id : bp_cached) {
+        cache.C[id] = bp_wilsons.at(id);
+    }
 }
 
 void BKllDecay::load_cfg_dependent_params() {

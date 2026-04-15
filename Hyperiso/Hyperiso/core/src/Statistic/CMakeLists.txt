@@ -194,6 +194,9 @@ target_link_libraries(BKSTARMUMU StatisticLib)
 add_executable(FL app/test_uncertainties_FL.cpp)
 target_link_libraries(FL StatisticLib)
 
+add_executable(LIKELIHOODEXP app/likelihood_exploration.cpp)
+target_link_libraries(LIKELIHOODEXP StatisticLib)
+
 include(GNUInstallDirs)
 
 install(TARGETS StatisticLib

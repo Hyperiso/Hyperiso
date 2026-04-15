@@ -111,16 +111,45 @@ void BXsllDecay::set_cfg_flags(BXsllConfig::Lepton gen) {
     }
 }
 
-void BXsllDecay::fill_wilson_cache() {
-    cache.C = w_proxy->getAFR(WGroup::B, w_config.order);
-    auto C_P = w_proxy->getAFR(WGroup::BPrime, w_config.order);
-    auto C_S = w_proxy->getAFR(WGroup::BScalar, w_config.order);
-    cache.C.insert(C_P.begin(), C_P.end());
-    cache.C.insert(C_S.begin(), C_S.end());
+// void BXsllDecay::fill_wilson_cache() {
+//     cache.C = w_proxy->getAFR(WGroup::B, w_config.order);
+//     auto C_P = w_proxy->getAFR(WGroup::BPrime, w_config.order);
+//     auto C_S = w_proxy->getAFR(WGroup::BScalar, w_config.order);
+//     cache.C.insert(C_P.begin(), C_P.end());
+//     cache.C.insert(C_S.begin(), C_S.end());
 
-    cache.C_LO = w_proxy->getAR(WGroup::B, QCDOrder::LO);
+//     cache.C_LO = w_proxy->getAR(WGroup::B, QCDOrder::LO);
+//     auto C_P_LO = w_proxy->getAR(WGroup::BPrime, QCDOrder::LO);
+//     cache.C_LO.insert(C_P_LO.begin(), C_P_LO.end());
+// }
+
+void BXsllDecay::fill_wilson_cache() {
+    cache.C.clear();
+    cache.C_LO.clear();
+
+    auto C_B   = w_proxy->getAFR(WGroup::B, w_config.order);
+    auto C_P   = w_proxy->getAFR(WGroup::BPrime, w_config.order);
+    auto C_S   = w_proxy->getAFR(WGroup::BScalar, w_config.order);
+
+    for (const auto& [id, val] : C_B) {
+        cache.C[id] = val;
+    }
+    for (const auto& [id, val] : C_P) {
+        cache.C[id] = val;
+    }
+    for (const auto& [id, val] : C_S) {
+        cache.C[id] = val;
+    }
+
+    auto C_B_LO = w_proxy->getAR(WGroup::B, QCDOrder::LO);
     auto C_P_LO = w_proxy->getAR(WGroup::BPrime, QCDOrder::LO);
-    cache.C_LO.insert(C_P_LO.begin(), C_P_LO.end());
+
+    for (const auto& [id, val] : C_B_LO) {
+        cache.C_LO[id] = val;
+    }
+    for (const auto& [id, val] : C_P_LO) {
+        cache.C_LO[id] = val;
+    }
 }
 
 void BXsllDecay::load_cfg_dep_params() {

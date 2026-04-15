@@ -100,42 +100,82 @@ std::vector<ObservableValue> BKstarGammaDecay::compute_observable(ObservableId o
     return compute_observable(ObservableMapper::enum_of(obs).value());
 }
 
+// void BKstarGammaDecay::fill_wilson_cache() {
+//     auto b_wilsons = w_proxy->getAFR(WGroup::B, this->w_config.order);
+//     auto bp_wilsons = w_proxy->getAFR(WGroup::BPrime, this->w_config.order);
+//     WCoef bp_cached[1] {WCoef::CP7};
+
+//     for (auto p : b_wilsons) cache.C.emplace(p); 
+//     for (auto id : bp_cached) cache.C.emplace(std::pair{id, bp_wilsons.at(id)});
+
+//     this->w_proxy->set_basis(WilsonBasis::B_TRADITIONAL);
+//     auto b_wilsons_trad = w_proxy->getAFR(WGroup::B, this->w_config.order);
+//     auto bp_wilsons_trad = w_proxy->getAFR(WGroup::BPrime, this->w_config.order);
+
+//     // cache.C_trad.emplace(WCoef::C1, b_wilsons_trad.at(WCoef::C1) /* + bp_wilsons_trad.at(WCoef::CP1) */ );
+//     // cache.C_trad.emplace(WCoef::C2, b_wilsons_trad.at(WCoef::C2) /* + bp_wilsons_trad.at(WCoef::CP2) */ );
+//     // cache.C_trad.emplace(WCoef::C3, b_wilsons_trad.at(WCoef::C3) /* + bp_wilsons_trad.at(WCoef::CP3) */ );
+//     // cache.C_trad.emplace(WCoef::C4, b_wilsons_trad.at(WCoef::C4) /* + bp_wilsons_trad.at(WCoef::CP4) */ );
+//     // cache.C_trad.emplace(WCoef::C5, b_wilsons_trad.at(WCoef::C5) /* + bp_wilsons_trad.at(WCoef::CP5) */ );
+//     // cache.C_trad.emplace(WCoef::C6, b_wilsons_trad.at(WCoef::C6) /* + bp_wilsons_trad.at(WCoef::CP6) */ );
+//     // cache.C_trad.emplace(WCoef::C7, b_wilsons_trad.at(WCoef::C7) + bp_wilsons_trad.at(WCoef::CP7));
+//     // cache.C_trad.emplace(WCoef::C8, b_wilsons_trad.at(WCoef::C8) + bp_wilsons_trad.at(WCoef::CP8));
+
+//     cache.C_trad.emplace(WCoef::C1, -8.3741e-2);
+//     cache.C_trad.emplace(WCoef::C2, 1.0281);
+//     cache.C_trad.emplace(WCoef::C3, 9.5354e-3);
+//     cache.C_trad.emplace(WCoef::C4, -2.8921e-2);
+//     cache.C_trad.emplace(WCoef::C5, 6.9522e-3);
+//     cache.C_trad.emplace(WCoef::C6, -3.0791e-2);
+//     cache.C_trad.emplace(WCoef::C7, -2.8010e-1);
+//     cache.C_trad.emplace(WCoef::C8, -1.6378e-1);
+
+//     // ObsParameterMutator().set(ParamId{ParameterType::WILSON, "B_SCALE", 1}, cache.mu_h);
+//     // cache.C2_h = w_proxy->getFR(WGroup::B, WCoef::C2, w_config.order) /* + w_proxy->getFR(WGroup::BPrime, WCoef::CP2, w_config.order) */;
+//     // cache.C8_h = w_proxy->getFR(WGroup::B, WCoef::C8, w_config.order) + w_proxy->getFR(WGroup::BPrime, WCoef::CP8, w_config.order);
+
+//     cache.C2_h = 9.8536e-1;
+//     cache.C8_h = -1.7263e-1;
+// }
+
 void BKstarGammaDecay::fill_wilson_cache() {
-    auto b_wilsons = w_proxy->getAFR(WGroup::B, this->w_config.order);
+    cache.C.clear();
+    cache.C_trad.clear();
+
+    // On force explicitement la base standard pour la partie "normale"
+    this->w_proxy->set_basis(WilsonBasis::B_STANDARD);
+
+    auto b_wilsons  = w_proxy->getAFR(WGroup::B, this->w_config.order);
     auto bp_wilsons = w_proxy->getAFR(WGroup::BPrime, this->w_config.order);
+
     WCoef bp_cached[1] {WCoef::CP7};
 
-    for (auto p : b_wilsons) cache.C.emplace(p); 
-    for (auto id : bp_cached) cache.C.emplace(std::pair{id, bp_wilsons.at(id)});
+    for (const auto& [id, val] : b_wilsons) {
+        cache.C[id] = val;
+    }
+    for (auto id : bp_cached) {
+        cache.C[id] = bp_wilsons.at(id);
+    }
 
     this->w_proxy->set_basis(WilsonBasis::B_TRADITIONAL);
-    auto b_wilsons_trad = w_proxy->getAFR(WGroup::B, this->w_config.order);
+    auto b_wilsons_trad  = w_proxy->getAFR(WGroup::B, this->w_config.order);
     auto bp_wilsons_trad = w_proxy->getAFR(WGroup::BPrime, this->w_config.order);
 
-    // cache.C_trad.emplace(WCoef::C1, b_wilsons_trad.at(WCoef::C1) /* + bp_wilsons_trad.at(WCoef::CP1) */ );
-    // cache.C_trad.emplace(WCoef::C2, b_wilsons_trad.at(WCoef::C2) /* + bp_wilsons_trad.at(WCoef::CP2) */ );
-    // cache.C_trad.emplace(WCoef::C3, b_wilsons_trad.at(WCoef::C3) /* + bp_wilsons_trad.at(WCoef::CP3) */ );
-    // cache.C_trad.emplace(WCoef::C4, b_wilsons_trad.at(WCoef::C4) /* + bp_wilsons_trad.at(WCoef::CP4) */ );
-    // cache.C_trad.emplace(WCoef::C5, b_wilsons_trad.at(WCoef::C5) /* + bp_wilsons_trad.at(WCoef::CP5) */ );
-    // cache.C_trad.emplace(WCoef::C6, b_wilsons_trad.at(WCoef::C6) /* + bp_wilsons_trad.at(WCoef::CP6) */ );
-    // cache.C_trad.emplace(WCoef::C7, b_wilsons_trad.at(WCoef::C7) + bp_wilsons_trad.at(WCoef::CP7));
-    // cache.C_trad.emplace(WCoef::C8, b_wilsons_trad.at(WCoef::C8) + bp_wilsons_trad.at(WCoef::CP8));
+    // On garde tes valeurs hardcodées pour le test
+    cache.C_trad[WCoef::C1] = -8.3741e-2;
+    cache.C_trad[WCoef::C2] =  1.0281;
+    cache.C_trad[WCoef::C3] =  9.5354e-3;
+    cache.C_trad[WCoef::C4] = -2.8921e-2;
+    cache.C_trad[WCoef::C5] =  6.9522e-3;
+    cache.C_trad[WCoef::C6] = -3.0791e-2;
+    cache.C_trad[WCoef::C7] = -2.8010e-1;
+    cache.C_trad[WCoef::C8] = -1.6378e-1;
 
-    cache.C_trad.emplace(WCoef::C1, -8.3741e-2);
-    cache.C_trad.emplace(WCoef::C2, 1.0281);
-    cache.C_trad.emplace(WCoef::C3, 9.5354e-3);
-    cache.C_trad.emplace(WCoef::C4, -2.8921e-2);
-    cache.C_trad.emplace(WCoef::C5, 6.9522e-3);
-    cache.C_trad.emplace(WCoef::C6, -3.0791e-2);
-    cache.C_trad.emplace(WCoef::C7, -2.8010e-1);
-    cache.C_trad.emplace(WCoef::C8, -1.6378e-1);
-
-    // ObsParameterMutator().set(ParamId{ParameterType::WILSON, "B_SCALE", 1}, cache.mu_h);
-    // cache.C2_h = w_proxy->getFR(WGroup::B, WCoef::C2, w_config.order) /* + w_proxy->getFR(WGroup::BPrime, WCoef::CP2, w_config.order) */;
-    // cache.C8_h = w_proxy->getFR(WGroup::B, WCoef::C8, w_config.order) + w_proxy->getFR(WGroup::BPrime, WCoef::CP8, w_config.order);
-
-    cache.C2_h = 9.8536e-1;
+    cache.C2_h =  9.8536e-1;
     cache.C8_h = -1.7263e-1;
+
+    // Important : on remet la base standard pour éviter les effets de bord
+    this->w_proxy->set_basis(WilsonBasis::B_STANDARD);
 }
 
 void BKstarGammaDecay::load_cfg_dependent_params() {
