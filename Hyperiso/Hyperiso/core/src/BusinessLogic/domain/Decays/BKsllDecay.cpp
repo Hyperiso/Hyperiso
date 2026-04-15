@@ -2359,15 +2359,16 @@ void BKstarllDecay::load_params() {
     cache.q2_low = (*p)(ParamId{ParameterType::DECAY, "B_Ks", {15, 1}}, DataType::VALUE);
     cache.q2_high = (*p)(ParamId{ParameterType::DECAY, "B_Ks", {15, 2}}, DataType::VALUE);
 
-    complex_t eipi4 = std::exp(I * PI / 4.0);
-
     for (size_t i = 0; i < 6; i++) {
-        cache.A_had_err_low_0[i] = (*p)(ParamId{ParameterType::DECAY, "B_Ks", {18, 1, i + 1}}, DataType::VALUE) * eipi4;
-        cache.A_had_err_low_1[i] = (*p)(ParamId{ParameterType::DECAY, "B_Ks", {18, 2, i + 1}}, DataType::VALUE) * eipi4;
+        cache.a_k_low[i] = (*p)(ParamId{ParameterType::DECAY, "B_Ks", {18, 1, i + 1}}, DataType::VALUE);
+        cache.b_k_low[i] = (*p)(ParamId{ParameterType::DECAY, "B_Ks", {18, 2, i + 1}}, DataType::VALUE);
+        cache.phi_k_low[i] = (*p)(ParamId{ParameterType::DECAY, "B_Ks", {18, 4, i + 1}}, DataType::VALUE);
+        cache.theta_k_low[i] = (*p)(ParamId{ParameterType::DECAY, "B_Ks", {18, 5, i + 1}}, DataType::VALUE);
     }
 
     for (size_t i = 0; i < 8; i++) {
-        cache.A_had_err_high[i] = (*p)(ParamId{ParameterType::DECAY, "B_Ks", {18, 3, i + 1}}, DataType::VALUE) * eipi4;
+        cache.a_k_high[i] = (*p)(ParamId{ParameterType::DECAY, "B_Ks", {18, 3, i + 1}}, DataType::VALUE);
+        cache.phi_k_high[i] = (*p)(ParamId{ParameterType::DECAY, "B_Ks", {18, 6, i + 1}}, DataType::VALUE);
     }
 
     load_cfg_dependent_params();
@@ -2573,8 +2574,10 @@ complex_t BKstarllDecay::delta_A_perp_QCDf(double q2, double sign, bool bar) {
         delta_A = 16.0 * PI2 * RT2 * N(q2, bar) * std::pow(cache.m_B, 3) * (h_p - h_m) / q2;
     } else {
         size_t id = size_t (0.5 * (1 + sign));
-        guesstimate_err = 1.0 + cache.A_had_err_low_0[id] + cache.A_had_err_low_1[id] * q2 / 6.0;
+        guesstimate_err = 1.0 + cache.a_k_low[id] * std::exp(I * cache.phi_k_low[id]) + cache.b_k_low[id] * std::exp(I * cache.theta_k_low[id]) * q2 / 6.0;
     }
+
+    // LOG_INFO("Guesstimate error in delta_A_perp_QCDf = ", guesstimate_err);
 
     return 2 * RT2 * (cache.m_b_PS + cache.alpha_s_mu_b * cache.Delta_M / (3 * PI)) * N(q2, bar) * std::sqrt(lambda(q2)) / q2 * T_perp_p_cached(q2, bar) * guesstimate_err + delta_A;
 }
@@ -2615,7 +2618,7 @@ complex_t BKstarllDecay::delta_A_par_QCDf(double q2, double sign, bool bar) {
         delta_A = 16.0 * PI2 * RT2 * N(q2, bar) * std::pow(cache.m_B, 3) * (h_p + h_m) / q2;
     } else {
         size_t id = 2 + size_t (0.5 * (1 + sign));
-        guesstimate_err = 1.0 + cache.A_had_err_low_0[id] + cache.A_had_err_low_1[id] * q2 / 6.0;
+        guesstimate_err = guesstimate_err = 1.0 + cache.a_k_low[id] * std::exp(I * cache.phi_k_low[id]) + cache.b_k_low[id] * std::exp(I * cache.theta_k_low[id]) * q2 / 6.0;
     }
 
     return -4 * RT2 * (cache.m_b_PS + cache.alpha_s_mu_b * cache.Delta_M / (3 * PI)) * N(q2, bar) * (cache.m_B * cache.m_B - cache.m_Ks * cache.m_Ks) * cache.ff_calculator.E(q2) / (q2 * cache.m_B) * T_perp_m_cached(q2, bar) * guesstimate_err + delta_A;
@@ -2646,7 +2649,7 @@ complex_t BKstarllDecay::A_perp_low(double q2, double sign, bool bar) {
         F = w * cache.ff_calculator.get(BV_FF::V, q2) / (cache.m_B + cache.m_Ks);
         F_T = T_perp_p_cached(q2, bar);
         size_t id = size_t (0.5 * (1 + sign));
-        had_err_factor = 1.0 + cache.A_had_err_low_0[id] + cache.A_had_err_low_1[id] * q2 / 6.0;
+        had_err_factor = 1.0 + cache.a_k_low[id] + cache.b_k_low[id] * q2 / 6.0;
         m_b_local = cache.m_b_PS;
     } else {
         F_T = (cache.C[WCoef::C7] + cache.C[WCoef::CP7]) * cache.ff_calculator.get(BV_FF::T1, q2);
@@ -2682,7 +2685,7 @@ complex_t BKstarllDecay::A_par_low(double q2, double sign, bool bar) {
         F = w * cache.ff_calculator.get(BV_FF::XI_PERP, q2) * 2. * cache.ff_calculator.E(q2) / (cache.m_B * cache.m_B - cache.m_Ks * cache.m_Ks);
         F_T = 2. * cache.ff_calculator.E(q2) * T_perp_m_cached(q2, bar) / cache.m_B;
         size_t id = 2 + size_t (0.5 * (1 + sign));
-        had_err_factor = 1.0 + cache.A_had_err_low_0[id] + cache.A_had_err_low_1[id] * q2 / 6.0;
+        had_err_factor = 1.0 + cache.a_k_low[id] + cache.b_k_low[id] * q2 / 6.0;
         m_b_local = cache.m_b_PS;
     } else {
         F_T = (cache.C[WCoef::C7] - cache.C[WCoef::CP7]) * cache.ff_calculator.get(BV_FF::T2, q2);
@@ -2723,7 +2726,7 @@ complex_t BKstarllDecay::A_0_low(double q2, double sign, bool bar) {
         );
         F_T = 2. * cache.ff_calculator.E(q2) * (mB2 + 3. * mK2 - q2) / cache.m_B * T_perp_m_cached(q2, bar) - lambda(q2) * (T_perp_m_cached(q2, bar) + T_par_m_cached(q2, bar)) / (mB2 - mK2);
         size_t id = 4 + size_t (0.5 * (1 + sign));
-        had_err_factor = 1.0 + cache.A_had_err_low_0[id] + cache.A_had_err_low_1[id] * q2 / 6.0;
+        had_err_factor = 1.0 + cache.a_k_low[id] + cache.b_k_low[id] * q2 / 6.0;
         m_b_local = cache.m_b_PS;
     } else {
         F_T = (cache.C[WCoef::C7] - cache.C[WCoef::CP7]) * 8. * cache.m_B * mK2 / (cache.m_B + cache.m_Ks) * cache.ff_calculator.get(BV_FF::T23, q2);
@@ -2801,7 +2804,7 @@ complex_t BKstarllDecay::delta_A_0_QCDf(double q2, double sign, bool bar) {
         delta_A_PC = 32.0 * PI2 * N(q2, bar) * std::pow(cache.m_B, 3) * h_0 / std::sqrt(q2);
     } else {
         size_t id = 4 + size_t (0.5 * (1 + sign));
-        guesstimate_err = 1.0 + cache.A_had_err_low_0[id] + cache.A_had_err_low_1[id] * q2 / 6.0;
+        guesstimate_err = 1.0 + cache.a_k_low[id] * std::exp(I * cache.phi_k_low[id]) + cache.b_k_low[id] * std::exp(I * cache.theta_k_low[id]) * q2 / 6.0;
     }
 
     const double mB2 = cache.m_B * cache.m_B;
@@ -2887,7 +2890,7 @@ complex_t BKstarllDecay::A_perp_high(double q2, double sign, bool bar) {
     // printf("C9eff = %.4e + %.4e i\n", std::real(C9_eff(q2, bar)), std::imag(C9_eff(q2, bar)));
     // printf("f_perp = %.4e\n", cache.ff_calculator.get(BV_FF::F_PERP, q2));
 
-    return N(q2, bar) * (C9 + sign * C10 + 2. * cache.kappa * cache.m_b_mu_b * cache.m_B / q2 * C7) * cache.ff_calculator.get(BV_FF::F_PERP, q2) * (1. + cache.A_had_err_high[size_t (0.5 * (1 + sign))]);
+    return N(q2, bar) * (C9 + sign * C10 + 2. * cache.kappa * cache.m_b_mu_b * cache.m_B / q2 * C7) * cache.ff_calculator.get(BV_FF::F_PERP, q2) * (1. + cache.a_k_high[size_t (0.5 * (1 + sign))] * std::exp(I * cache.phi_k_high[size_t (0.5 * (1 + sign))]));
 }
 
 complex_t BKstarllDecay::A_par_high(double q2, double sign, bool bar) {
@@ -2895,7 +2898,7 @@ complex_t BKstarllDecay::A_par_high(double q2, double sign, bool bar) {
     complex_t C9 = C9_eff(q2, bar) - (bar ? std::conj(cache.C[WCoef::CP9]) : cache.C[WCoef::CP9]);
     complex_t C10 = cache.C[WCoef::C10] - cache.C[WCoef::CP10];
     if (bar) C10 = std::conj(C10);
-    return -N(q2, bar) * (C9 + sign * C10 + 2. * cache.kappa * cache.m_b_mu_b * cache.m_B / q2 * C7) * cache.ff_calculator.get(BV_FF::F_PAR, q2) * (1. + cache.A_had_err_high[2 + size_t (0.5 * (1 + sign))]);
+    return -N(q2, bar) * (C9 + sign * C10 + 2. * cache.kappa * cache.m_b_mu_b * cache.m_B / q2 * C7) * cache.ff_calculator.get(BV_FF::F_PAR, q2) * (1. + cache.a_k_high[2 + size_t (0.5 * (1 + sign))] * std::exp(I * cache.phi_k_high[2 + size_t (0.5 * (1 + sign))]));
 }
 
 complex_t BKstarllDecay::A_0_high(double q2, double sign, bool bar) {
@@ -2903,7 +2906,7 @@ complex_t BKstarllDecay::A_0_high(double q2, double sign, bool bar) {
     complex_t C9 = C9_eff(q2, bar) - (bar ? std::conj(cache.C[WCoef::CP9]) : cache.C[WCoef::CP9]);
     complex_t C10 = cache.C[WCoef::C10] - cache.C[WCoef::CP10];
     if (bar) C10 = std::conj(C10);
-    return -N(q2, bar) * (C9 + sign * C10 + 2. * cache.kappa * cache.m_b_mu_b * cache.m_B / q2 * C7) * cache.ff_calculator.get(BV_FF::F_0, q2)  * (1. + cache.A_had_err_high[4 + size_t (0.5 * (1 + sign))]);
+    return -N(q2, bar) * (C9 + sign * C10 + 2. * cache.kappa * cache.m_b_mu_b * cache.m_B / q2 * C7) * cache.ff_calculator.get(BV_FF::F_0, q2)  * (1. + cache.a_k_high[4 + size_t (0.5 * (1 + sign))] * std::exp(I * cache.phi_k_high[4 + size_t (0.5 * (1 + sign))]));
 }
 
 complex_t BKstarllDecay::A_t_high(double q2, bool bar) {
@@ -2913,13 +2916,13 @@ complex_t BKstarllDecay::A_t_high(double q2, bool bar) {
         C10 = std::conj(C10);
         CQ2 = std::conj(CQ2);
     }
-    return N(q2, bar) * sqrt(lambda(q2) / q2) * (2. * C10 + q2 / cache.m_l * CQ2 / (cache.m_b_mu_b + cache.m_s)) * cache.ff_calculator.get(BV_FF::A0, q2) * (1. + cache.A_had_err_high[6]);
+    return N(q2, bar) * sqrt(lambda(q2) / q2) * (2. * C10 + q2 / cache.m_l * CQ2 / (cache.m_b_mu_b + cache.m_s)) * cache.ff_calculator.get(BV_FF::A0, q2) * (1. + cache.a_k_high[6] * std::exp(I * cache.phi_k_high[6]));
 }
 
 complex_t BKstarllDecay::A_S_high(double q2, bool bar) {
     complex_t CQ1 = cache.C[WCoef::CQ1] - cache.C[WCoef::CPQ1];
     if (bar) CQ1 = std::conj(CQ1);
-    return -2. * N(q2, bar) * sqrt(lambda(q2)) * CQ1 / (cache.m_b_mu_b + cache.m_s) * cache.ff_calculator.get(BV_FF::A0, q2) * (1. + cache.A_had_err_high[7]);
+    return -2. * N(q2, bar) * sqrt(lambda(q2)) * CQ1 / (cache.m_b_mu_b + cache.m_s) * cache.ff_calculator.get(BV_FF::A0, q2) * (1. + cache.a_k_high[7] * std::exp(I * cache.phi_k_high[7]));
 }
 
 complex_t BKstarllDecay::interpolate(double q2, complex_t val_low, complex_t val_high) {
@@ -3240,8 +3243,9 @@ void BKstarllDecay::compute_binned_J_i() {
 std::vector<ObservableValue> BKstarllDecay::dBR_dq2_binned(bool bar, Observables id, bool br) {
     std::vector<ObservableValue> out;
     auto J_i = bar ? cache.J_i_bar_binned : cache.J_i_binned;
+    double br_factor = br ? cache.life_B : 1.0;
     for (size_t i = 0; i < this->bins.value().size(); i++) {
-        double res = 0.75 * (cache.J_i_binned[0][i] + cache.J_i_bar_binned[0][i] - (2 * (cache.J_i_binned[1][i] + cache.J_i_bar_binned[1][i]) + cache.J_i_binned[2][i] + cache.J_i_bar_binned[2][i]) / 3.) * cache.life_B; 
+        double res = 0.75 * (cache.J_i_binned[0][i] + cache.J_i_bar_binned[0][i] - (2 * (cache.J_i_binned[1][i] + cache.J_i_bar_binned[1][i]) + cache.J_i_binned[2][i] + cache.J_i_bar_binned[2][i]) / 3.) * br_factor; 
         out.emplace_back(ObservableMapper::to_id(id), res, this->bins.value()[i]);
     }   
     return out;
@@ -3696,7 +3700,10 @@ std::vector<ObservableValue> BKstarllDecay::compute_observable(Observables obs) 
     switch (obs) {
     case Observables::DBR_DQ2_B__KSTAR_E_E:   
         set_lepton_gen_and_charge(BKstarllConfig::Lepton::E, BKstarllConfig::B_Charge::B_PLUS);
-        return dBR_dq2_binned(false, obs);   
+        return dBR_dq2_binned(false, obs, true);   
+    case Observables::DGAMMA_DQ2_B__KSTAR_E_E:   
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::E, BKstarllConfig::B_Charge::B_PLUS);
+        return dBR_dq2_binned(false, obs, false);   
     case Observables::A_FB_B__KSTAR_E_E:      
         set_lepton_gen_and_charge(BKstarllConfig::Lepton::E, BKstarllConfig::B_Charge::B_PLUS);
         return A_FB_binned(obs, false);
@@ -3870,7 +3877,10 @@ std::vector<ObservableValue> BKstarllDecay::compute_observable(Observables obs) 
         return Pp_i_binned(8, true, obs);
     case Observables::DBR_DQ2_B__KSTAR_MU_MU:   
         set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_PLUS);
-        return dBR_dq2_binned(false, obs);   
+        return dBR_dq2_binned(false, obs);  
+    case Observables::DGAMMA_DQ2_B__KSTAR_MU_MU:   
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_PLUS);
+        return dBR_dq2_binned(false, obs, false);    
     case Observables::A_FB_B__KSTAR_MU_MU:      
         set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_PLUS);
         return A_FB_binned(obs, false);
@@ -4045,6 +4055,9 @@ std::vector<ObservableValue> BKstarllDecay::compute_observable(Observables obs) 
     case Observables::DBR_DQ2_B__KSTAR_TAU_TAU:   
         set_lepton_gen_and_charge(BKstarllConfig::Lepton::TAU, BKstarllConfig::B_Charge::B_PLUS);
         return dBR_dq2_binned(false, obs);   
+    case Observables::DGAMMA_DQ2_B__KSTAR_TAU_TAU:   
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::TAU, BKstarllConfig::B_Charge::B_PLUS);
+        return dBR_dq2_binned(false, obs, false);   
     case Observables::A_FB_B__KSTAR_TAU_TAU:      
         set_lepton_gen_and_charge(BKstarllConfig::Lepton::TAU, BKstarllConfig::B_Charge::B_PLUS);
         return A_FB_binned(obs, false);
@@ -4219,6 +4232,9 @@ std::vector<ObservableValue> BKstarllDecay::compute_observable(Observables obs) 
     case Observables::DBR_DQ2_B0__KSTAR0_E_E:   
         set_lepton_gen_and_charge(BKstarllConfig::Lepton::E, BKstarllConfig::B_Charge::B_0);
         return dBR_dq2_binned(false, obs);   
+    case Observables::DGAMMA_DQ2_B0__KSTAR0_E_E:   
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::E, BKstarllConfig::B_Charge::B_0);
+        return dBR_dq2_binned(false, obs, false);   
     case Observables::A_FB_B0__KSTAR0_E_E:      
         set_lepton_gen_and_charge(BKstarllConfig::Lepton::E, BKstarllConfig::B_Charge::B_0);
         return A_FB_binned(obs, false);  
@@ -4393,6 +4409,9 @@ std::vector<ObservableValue> BKstarllDecay::compute_observable(Observables obs) 
     case Observables::DBR_DQ2_B0__KSTAR0_MU_MU:   
         set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_0);
         return dBR_dq2_binned(false, obs);   
+    case Observables::DGAMMA_DQ2_B0__KSTAR0_MU_MU:   
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_0);
+        return dBR_dq2_binned(false, obs, false);   
     case Observables::A_FB_B0__KSTAR0_MU_MU:      
         set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_0);
         return A_FB_binned(obs, false); 
@@ -4566,7 +4585,10 @@ std::vector<ObservableValue> BKstarllDecay::compute_observable(Observables obs) 
         return Pp_i_binned(8, true, obs);
     case Observables::DBR_DQ2_B0__KSTAR0_TAU_TAU:   
         set_lepton_gen_and_charge(BKstarllConfig::Lepton::TAU, BKstarllConfig::B_Charge::B_0);
-        return dBR_dq2_binned(false, obs);   
+        return dBR_dq2_binned(false, obs);  
+    case Observables::DGAMMA_DQ2_B0__KSTAR0_TAU_TAU:   
+        set_lepton_gen_and_charge(BKstarllConfig::Lepton::TAU, BKstarllConfig::B_Charge::B_0);
+        return dBR_dq2_binned(false, obs, false);    
     case Observables::A_FB_B0__KSTAR0_TAU_TAU:      
         set_lepton_gen_and_charge(BKstarllConfig::Lepton::TAU, BKstarllConfig::B_Charge::B_0);
         return A_FB_binned(obs, false);

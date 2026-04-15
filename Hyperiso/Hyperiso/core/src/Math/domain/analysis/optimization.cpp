@@ -100,6 +100,42 @@ double brent_root(const RealValuedFunction& f,
     throw std::runtime_error("brent_root: maximum iterations exceeded");
 }
 
+ScalarMinimizationResult minimize_scalar(RealValuedFunction f, const ScalarMinimizationContext &context) {
+    gsl_function gsl_f; 
+    gsl_f.function = &unwrap_lambda_unidim;
+    gsl_f.params = &f;
+
+    std::unique_ptr<gsl_min_fminimizer, void(*)(gsl_min_fminimizer*)>
+        s(gsl_min_fminimizer_alloc(gsl_min_fminimizer_quad_golden),
+                                    gsl_min_fminimizer_free);
+
+    int st = gsl_min_fminimizer_set(s.get(), &gsl_f, context.start, context.bracket[0], context.bracket[1]);
+
+    if (st)
+        throw std::runtime_error(std::string("gsl_min_fminimizer_set: ") + gsl_strerror(st));
+
+    double a, b, m;
+
+    std::size_t iter=0; int status; double size;
+    do {
+        ++iter; status = gsl_min_fminimizer_iterate(s.get());
+        if (status) break;
+
+        a = gsl_min_fminimizer_x_lower(s.get());
+        b = gsl_min_fminimizer_x_upper(s.get());
+        m = gsl_min_fminimizer_x_minimum(s.get());
+
+        status = gsl_min_test_interval(a, b, context.tol, 0.0);
+    } while (status == GSL_CONTINUE && iter < context.max_iter);
+
+    ScalarMinimizationResult mr;
+    mr.status = status;
+    mr.argmin = a;
+    mr.min = m;
+
+    return mr;
+}
+
 MinimizationResult minimize_NM(RealValuedForm f, const std::vector<double>& x0, const std::vector<double>& scales, const MinimizationContext& context) {
     ScaledForm f_scaled(f, x0, scales);
     MinimizationResult mr_scaled = minimize_NM(f_scaled, std::vector<double>(x0.size(), 0.0), context);

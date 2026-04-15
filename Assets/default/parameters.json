@@ -438,7 +438,7 @@
     },
     "14": {
       "central_value": 0.5,
-      "stat_error": 0.1,
+      "stat_error": 0.0,
       "syst_error": 0
     },
     "15_1": {
@@ -459,11 +459,6 @@
     "17": {
       "central_value": -1,
       "stat_error": 0,
-      "syst_error": 0
-    },
-    "18_1": {
-      "central_value": 0,
-      "stat_error": 0.1,
       "syst_error": 0
     },
     "18_1_1": {
@@ -506,11 +501,6 @@
       "stat_error": 0.1,
       "syst_error": 0
     },
-    "18_2": {
-      "central_value": 0,
-      "stat_error": 0.25,
-      "syst_error": 0
-    },
     "18_2_1": {
       "central_value": 0.0,
       "stat_error": 0.25,
@@ -551,11 +541,6 @@
       "stat_error": 0.25,
       "syst_error": 0
     },
-    "18_3": {
-      "central_value": 0,
-      "stat_error": 0.1,
-      "syst_error": 0
-    },
     "18_3_1": {
       "central_value": 0.0,
       "stat_error": 0.1,
@@ -594,6 +579,126 @@
     "18_3_8": {
       "central_value": 0.0,
       "stat_error": 0.1,
+      "syst_error": 0
+    },
+    "18_5_1": {
+      "central_value": 0.0,
+      "stat_error": 1.8138,
+      "syst_error": 0
+    },
+    "18_5_2": {
+      "central_value": 0.0,
+      "stat_error": 1.8138,
+      "syst_error": 0
+    },
+    "18_5_3": {
+      "central_value": 0.0,
+      "stat_error": 1.8138,
+      "syst_error": 0
+    },
+    "18_5_4": {
+      "central_value": 0.0,
+      "stat_error": 1.8138,
+      "syst_error": 0
+    },
+    "18_5_5": {
+      "central_value": 0.0,
+      "stat_error": 1.8138,
+      "syst_error": 0
+    },
+    "18_5_6": {
+      "central_value": 0.0,
+      "stat_error": 1.8138,
+      "syst_error": 0
+    },
+    "18_5_7": {
+      "central_value": 0.0,
+      "stat_error": 1.8138,
+      "syst_error": 0
+    },
+    "18_5_8": {
+      "central_value": 0.0,
+      "stat_error": 1.8138,
+      "syst_error": 0
+    },
+    "18_6_1": {
+      "central_value": 0.0,
+      "stat_error": 1.8138,
+      "syst_error": 0
+    },
+    "18_6_2": {
+      "central_value": 0.0,
+      "stat_error": 1.8138,
+      "syst_error": 0
+    },
+    "18_6_3": {
+      "central_value": 0.0,
+      "stat_error": 1.8138,
+      "syst_error": 0
+    },
+    "18_6_4": {
+      "central_value": 0.0,
+      "stat_error": 1.8138,
+      "syst_error": 0
+    },
+    "18_6_5": {
+      "central_value": 0.0,
+      "stat_error": 1.8138,
+      "syst_error": 0
+    },
+    "18_6_6": {
+      "central_value": 0.0,
+      "stat_error": 1.8138,
+      "syst_error": 0
+    },
+    "18_6_7": {
+      "central_value": 0.0,
+      "stat_error": 1.8138,
+      "syst_error": 0
+    },
+    "18_6_8": {
+      "central_value": 0.0,
+      "stat_error": 1.8138,
+      "syst_error": 0
+    },
+    "18_4_1": {
+      "central_value": 0.0,
+      "stat_error": 1.8138,
+      "syst_error": 0
+    },
+    "18_4_2": {
+      "central_value": 0.0,
+      "stat_error": 1.8138,
+      "syst_error": 0
+    },
+    "18_4_3": {
+      "central_value": 0.0,
+      "stat_error": 1.8138,
+      "syst_error": 0
+    },
+    "18_4_4": {
+      "central_value": 0.0,
+      "stat_error": 1.8138,
+      "syst_error": 0
+    },
+    "18_4_5": {
+      "central_value": 0.0,
+      "stat_error": 1.8138,
+      "syst_error": 0
+    },
+    "18_4_6": {
+      "central_value": 0.0,
+      "stat_error": 1.8138,
+      "syst_error": 0
+    },
+    "18_4_7": {
+      "central_value": 0.0,
+      "stat_error": 1.8138,
+      "syst_error": 0
+    },
+    "18_4_8": {
+      "central_value": 0.0,
+      "stat_error": 1.8138,
       "syst_error": 0
     },
     "19_1_1_0": {

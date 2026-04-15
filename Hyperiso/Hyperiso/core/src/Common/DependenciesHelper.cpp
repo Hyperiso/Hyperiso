@@ -131,6 +131,26 @@ const std::map<DecayId, std::unordered_set<ParamId>> DependenciesHelper::dep_lis
         ParamId{ParameterType::DECAY, "B_Ks", {18, 3, 6}},
         ParamId{ParameterType::DECAY, "B_Ks", {18, 3, 7}},
         ParamId{ParameterType::DECAY, "B_Ks", {18, 3, 8}},
+        ParamId{ParameterType::DECAY, "B_Ks", {18, 4, 1}},
+        ParamId{ParameterType::DECAY, "B_Ks", {18, 4, 2}},
+        ParamId{ParameterType::DECAY, "B_Ks", {18, 4, 3}},
+        ParamId{ParameterType::DECAY, "B_Ks", {18, 4, 4}},
+        ParamId{ParameterType::DECAY, "B_Ks", {18, 4, 5}},
+        ParamId{ParameterType::DECAY, "B_Ks", {18, 4, 6}},
+        ParamId{ParameterType::DECAY, "B_Ks", {18, 5, 1}},
+        ParamId{ParameterType::DECAY, "B_Ks", {18, 5, 2}},
+        ParamId{ParameterType::DECAY, "B_Ks", {18, 5, 3}},
+        ParamId{ParameterType::DECAY, "B_Ks", {18, 5, 4}},
+        ParamId{ParameterType::DECAY, "B_Ks", {18, 5, 5}},
+        ParamId{ParameterType::DECAY, "B_Ks", {18, 5, 6}},
+        ParamId{ParameterType::DECAY, "B_Ks", {18, 6, 1}},
+        ParamId{ParameterType::DECAY, "B_Ks", {18, 6, 2}},
+        ParamId{ParameterType::DECAY, "B_Ks", {18, 6, 3}},
+        ParamId{ParameterType::DECAY, "B_Ks", {18, 6, 4}},
+        ParamId{ParameterType::DECAY, "B_Ks", {18, 6, 5}},
+        ParamId{ParameterType::DECAY, "B_Ks", {18, 6, 6}},
+        ParamId{ParameterType::DECAY, "B_Ks", {18, 6, 7}},
+        ParamId{ParameterType::DECAY, "B_Ks", {18, 6, 8}},
         ParamId{ParameterType::WILSON, GroupMapper::str(WGroup::B, ScaleType::HADRONIC), WCoefMapper::flha_full(WCoef::C1, QCDOrder::LO, ContributionType::SM)},
         ParamId{ParameterType::WILSON, GroupMapper::str(WGroup::B, ScaleType::HADRONIC), WCoefMapper::flha_full(WCoef::C2, QCDOrder::LO, ContributionType::SM)},
         ParamId{ParameterType::WILSON, GroupMapper::str(WGroup::B, ScaleType::HADRONIC), WCoefMapper::flha_full(WCoef::C3, QCDOrder::LO, ContributionType::SM)},
@@ -287,6 +307,9 @@ bool DependenciesHelper::is_param_allowed(Observables id, ParamId pid) {
 
 std::unordered_set<ParamId> DependenciesHelper::get_allowed_parameters(ObservableId id) {
     std::optional<DecayId> did = DecayMapper::get_decay_id(id);
+    if (!did.has_value())
+        LOG_INFO("No decay found for obs", id.str());
+    LOG_INFO("Decay of obs", id.str(), ":", did.value().str());
     if (did.has_value()) {
         return dep_lists.at(did.value());
     } else {

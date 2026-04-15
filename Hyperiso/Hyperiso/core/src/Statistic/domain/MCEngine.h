@@ -34,11 +34,14 @@ public:
         // LOG_INFO("Sampling distribution took", time_sampling_ms, "ms.");
 
         // auto start_pred = std::chrono::steady_clock::now();
+        std::size_t i = 1;
         for (const auto& s : samples) {
+            LOG_INFO("Sample", i, "of", cfg_.draws);
             auto res = model_->predict_optimized(p, s);
             auto unzipped_res = flatten(res);
             std::map<BinnedObservableId, double> value = zip(unzipped_res.ids, unzipped_res.vals);
             out.emplace_back(std::move(value));
+            i++;
         }
         // auto stop_pred  = std::chrono::steady_clock::now();
         // auto time_prediction_ms = std::chrono::duration_cast<std::chrono::milliseconds>(stop_pred - start_pred).count();
@@ -49,6 +52,19 @@ public:
 
     MCResult summarize(const std::map<ParamId, double>& p) const {
         auto smpl = sample_predictions(p);
+
+        std::ofstream fs;
+        fs.open("obs_samples.csv");
+
+        for (auto &&[oid, v] : smpl.sampled_obss[0])
+            fs << oid.str() << ',';
+        fs << '\n';
+
+        for (auto &&ovec : smpl.sampled_obss) {
+            for (auto &&[oid, v] : ovec)
+                fs << v << ',';
+            fs << '\n';
+        }
 
         // auto start_sum = std::chrono::steady_clock::now();
         auto summary = gaussian_fit(smpl.sampled_obss, cfg_.skew_abs_threshold);

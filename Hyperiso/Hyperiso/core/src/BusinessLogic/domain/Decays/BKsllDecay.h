@@ -39,14 +39,17 @@ struct BKstarllCache {
     double q2_low, q2_high;
 
     // Power corrections, hadronic fit
-    std::array<complex_t, 3> h_p_fit;
-    std::array<complex_t, 3> h_m_fit; 
-    std::array<complex_t, 3> h_0_fit;
+    std::array<complex_t, 3> h_p_fit {};
+    std::array<complex_t, 3> h_m_fit {}; 
+    std::array<complex_t, 3> h_0_fit {};
 
     // Power corrections, guesstimate
-    std::array<complex_t, 6> A_had_err_low_0 {};
-    std::array<complex_t, 6> A_had_err_low_1 {};
-    std::array<complex_t, 8> A_had_err_high {};
+    std::array<complex_t, 6> a_k_low {};
+    std::array<complex_t, 6> b_k_low {};
+    std::array<complex_t, 8> a_k_high {};
+    std::array<complex_t, 6> phi_k_low {};
+    std::array<complex_t, 6> theta_k_low {};
+    std::array<complex_t, 8> phi_k_high {};
 
     // NF Corrections, Van Dyk
     double tp_nf, t0_nf;
