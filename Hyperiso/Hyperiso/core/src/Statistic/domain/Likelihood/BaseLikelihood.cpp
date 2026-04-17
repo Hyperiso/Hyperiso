@@ -82,21 +82,63 @@ void BaseLikelihood::maybe_log_debug_eval(const std::vector<double>& theta,
     ++debug_eval_count_;
 }
 
+// double BaseLikelihood::nll(const std::vector<double>& theta) const {
+//     std::vector<double> p(theta.begin(), theta.begin() + p_dim);
+//     std::vector<double> eta(theta.begin() + p_dim, theta.end());
+
+//     std::vector<double> res = model(p, eta);
+//     for (size_t i = 0; i < res.size(); i++) {
+//         res[i] -= this->ctx->exp_obs_values[i];
+//     }
+
+//     double ell_obs  = this->ctx->exp_obs_dist->logpdf(res);
+//     double ell_nuis = this->ctx->nuisance_dist->logpdf(eta);
+//     double out = -(ell_obs + ell_nuis);
+
+//     maybe_log_debug_eval(theta, p, eta, res, ell_obs, ell_nuis, out);
+//     return out;
+// }
+
 double BaseLikelihood::nll(const std::vector<double>& theta) const {
     std::vector<double> p(theta.begin(), theta.begin() + p_dim);
     std::vector<double> eta(theta.begin() + p_dim, theta.end());
 
-    std::vector<double> res = model(p, eta);
-    for (size_t i = 0; i < res.size(); i++) {
-        res[i] -= this->ctx->exp_obs_values[i];
+    try {
+        std::vector<double> res = model(p, eta);
+
+        for (size_t i = 0; i < res.size(); i++) {
+            if (!std::isfinite(res[i])) {
+                return 1e100;
+            }
+            res[i] -= this->ctx->exp_obs_values[i];
+            if (!std::isfinite(res[i])) {
+                return 1e100;
+            }
+        }
+
+        double ell_obs  = this->ctx->exp_obs_dist->logpdf(res);
+        double ell_nuis = this->ctx->nuisance_dist->logpdf(eta);
+
+        if (!std::isfinite(ell_obs) || !std::isfinite(ell_nuis)) {
+            return 1e100;
+        }
+
+        double out = -(ell_obs + ell_nuis);
+        if (!std::isfinite(out)) {
+            return 1e100;
+        }
+
+        maybe_log_debug_eval(theta, p, eta, res, ell_obs, ell_nuis, out);
+        return out;
     }
-
-    double ell_obs  = this->ctx->exp_obs_dist->logpdf(res);
-    double ell_nuis = this->ctx->nuisance_dist->logpdf(eta);
-    double out = -(ell_obs + ell_nuis);
-
-    maybe_log_debug_eval(theta, p, eta, res, ell_obs, ell_nuis, out);
-    return out;
+    catch (const std::exception& e) {
+        std::cout << "[FITDBG] model/nll exception: " << e.what() << "\n";
+        return 1e100;
+    }
+    catch (...) {
+        std::cout << "[FITDBG] model/nll unknown exception\n";
+        return 1e100;
+    }
 }
 
 std::size_t BaseLikelihood::dim() const {

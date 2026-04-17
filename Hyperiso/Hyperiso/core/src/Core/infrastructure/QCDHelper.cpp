@@ -47,7 +47,11 @@ void QCDHelper::Init() {
 
 double QCDHelper::alpha_s(double mu, MassType mass_b_type, MassType mass_t_type) {
     if (mu < (*Parameters::GetInstance())("MASS", 3)) {
-        LOG_ERROR("Scale Error", "Renormalisation scale for alpha_s calculation (", mu, ") is below strange mass (" , (*Parameters::GetInstance())("MASS", 3), ").");
+        std::ostringstream oss;
+        oss << "Renormalisation scale for alpha_s calculation (" << mu
+            << ") is below strange mass (" << (*Parameters::GetInstance())("MASS", 3) << ").";
+        throw std::domain_error(oss.str());
+        // LOG_ERROR("Scale Error", "Renormalisation scale for alpha_s calculation (", mu, ") is below strange mass (" , (*Parameters::GetInstance())("MASS", 3), ").");
     }
 
     return alpha_s_explicit(mu, get_lambda(mu, mass_b_type, mass_t_type), get_nf(mu, mass_b_type, mass_t_type));

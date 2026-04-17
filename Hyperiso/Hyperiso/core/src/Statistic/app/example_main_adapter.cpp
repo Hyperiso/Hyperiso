@@ -10,7 +10,7 @@
 #include "Fit.h"
 #include "BToMuMuToy.h"
 // #include "LinearAlgebra.h"
-#include "DistributionFactory.h"
+#include "MarginalFactory.h"
 #include "RvgNuisanceSampler.h"
 #include "HyperisoMaster.h"
 #include "BlockProxy.h"
@@ -129,7 +129,7 @@ int main() {
     std::cout << "creating RandomVectorGenerator" << std::endl;
 
     unsigned int seed = std::random_device{}();
-    auto dist = DistributionFactory::create(MarginalType::GAUSSIAN, GaussianMarginalCfg(0, 1));
+    auto dist = MarginalFactory::create(MarginalType::GAUSSIAN, GaussianMarginalCfg(0, 1));
     // auto decomp = std::make_unique<CholeskyDecomposition>();
     auto copul = CopulaFactory::create(CopulaType::GAUSSIAN, GaussianCopulaConfig());
 

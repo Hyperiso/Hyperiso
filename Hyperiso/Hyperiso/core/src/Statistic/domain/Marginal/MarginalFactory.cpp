@@ -1,4 +1,4 @@
-#include "DistributionFactory.h"
+#include "MarginalFactory.h"
 
 std::unique_ptr<IMarginalDistribution> make(unsigned int seed, MarginalConfig cfg) {
     return std::visit([seed](auto&& c) -> std::unique_ptr<IMarginalDistribution> {
@@ -14,7 +14,7 @@ std::unique_ptr<IMarginalDistribution> make(unsigned int seed, MarginalConfig cf
     }, cfg);
 }
 
-std::unique_ptr<IMarginalDistribution> DistributionFactory::create(MarginalType name, MarginalConfig cfg, unsigned int seed) {
+std::unique_ptr<IMarginalDistribution> MarginalFactory::create(MarginalType name, MarginalConfig cfg, unsigned int seed) {
     switch (name) {
         case MarginalType::GAUSSIAN:
             return make(seed, cfg);

@@ -7,7 +7,7 @@
 #include "INuisanceSampler.h"
 #include "JointDistribution.h"
 #include "MarginalType.h"
-#include "DistributionFactory.h"
+#include "MarginalFactory.h"
 #include "CopulaFactory.h"
 #include "Indexing.h"
 

@@ -14,12 +14,12 @@
 #include "SplitGaussianMarginal.h"
 
 /**
- * @file DistributionFactory.h
+ * @file MarginalFactory.h
  * @brief Factory for instantiating concrete marginal distributions.
  *
  * This header defines:
  * - @ref MarginalConfig, the variant of supported distribution configs,
- * - @ref DistributionFactory, which materializes a concrete
+ * - @ref MarginalFactory, which materializes a concrete
  *   @ref IMarginalDistribution from a @ref MarginalType and a compatible
  *   configuration object.
  *
@@ -40,7 +40,7 @@
 using MarginalConfig = std::variant<FlatMarginalCfg, GaussianMarginalCfg, SplitGaussianMarginalCfg, LikelihoodMarginalCfg>;
 
 /**
- * @class DistributionFactory
+ * @class MarginalFactory
  * @brief Static factory creating scalar marginal-distribution objects.
  *
  * This factory converts:
@@ -62,7 +62,7 @@ using MarginalConfig = std::variant<FlatMarginalCfg, GaussianMarginalCfg, SplitG
  * before reaching the generic variant-based constructor, so it is effectively
  * disabled through this API entry point.
  */
-class DistributionFactory {
+class MarginalFactory {
 public:
     /**
      * @brief Creates a concrete marginal-distribution object.

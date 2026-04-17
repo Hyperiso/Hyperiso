@@ -92,15 +92,15 @@ add_library(StatisticLib STATIC
     domain/Fit.cpp
     # domain/Likelihood.cpp
     domain/CovarianceTransformer.cpp
-    domain/Distribution/MarginalConfigFactory.cpp
+    domain/Marginal/MarginalConfigFactory.cpp
     domain/MCEngine.cpp
     domain/RvgNuisanceSampler.cpp
     domain/StatisticManager.cpp
-    domain/Distribution/DistributionFactory.cpp
-    domain/Distribution/GaussianMarginal.cpp
-    domain/Distribution/SplitGaussianMarginal.cpp
-    domain/Distribution/LikelihoodMarginal.cpp
-    domain/Distribution/FlatMarginal.cpp
+    domain/Marginal/MarginalFactory.cpp
+    domain/Marginal/GaussianMarginal.cpp
+    domain/Marginal/SplitGaussianMarginal.cpp
+    domain/Marginal/LikelihoodMarginal.cpp
+    domain/Marginal/FlatMarginal.cpp
     domain/Copula/CopulaFactory.cpp
     domain/Copula/GaussianCopula.cpp
     domain/Copula/GenericCopula.cpp
@@ -121,7 +121,7 @@ target_include_directories(StatisticLib
     # build
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/domain>
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/domain/Distribution>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/domain/Marginal>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/domain/Copula>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/domain/Likelihood>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/domain/Contour>
@@ -130,7 +130,7 @@ target_include_directories(StatisticLib
     # install
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/Statistic>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/Statistic/domain>
-    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/Statistic/domain/Distribution>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/Statistic/domain/Marginal>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/Statistic/domain/Copula>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/Statistic/domain/Likelihood>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/Statistic/domain/Contour>

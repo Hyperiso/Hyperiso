@@ -1,5 +1,5 @@
 #include "JointDistribution.h"
-#include "DistributionFactory.h"
+#include "MarginalFactory.h"
 #include "CopulaFactory.h"
 #include "Math.h"
 
@@ -66,7 +66,7 @@ int main(int argc, char** argv) {
 
         Matrix R = readMatrixFromStdin();
 
-        auto dist = DistributionFactory::create(MarginalType::GAUSSIAN, GaussianMarginalCfg(0., 1.), seed);
+        auto dist = MarginalFactory::create(MarginalType::GAUSSIAN, GaussianMarginalCfg(0., 1.), seed);
         // auto decomp = std::make_unique<CholeskyDecomposition>();
         auto copul = CopulaFactory::create(CopulaType::GAUSSIAN, GaussianCopulaConfig());
 

@@ -1,5 +1,5 @@
 #include "JointDistribution.h"
-#include "DistributionFactory.h"
+#include "MarginalFactory.h"
 #include "CopulaFactory.h"
 #include "Matrix.h"
 #include "FlatMarginal.h"
@@ -23,8 +23,8 @@ int main() {
     FlatMarginalCfg m_cfg_1 {1.0, 2.0};
     FlatMarginalCfg m_cfg_2 {2.0, 4.0}; 
 
-    auto m_1 = DistributionFactory::create(MarginalType::FLAT, m_cfg_1, seed);
-    auto m_2 = DistributionFactory::create(MarginalType::FLAT, m_cfg_2, seed);
+    auto m_1 = MarginalFactory::create(MarginalType::FLAT, m_cfg_1, seed);
+    auto m_2 = MarginalFactory::create(MarginalType::FLAT, m_cfg_2, seed);
     auto cop = CopulaFactory::create(CopulaType::GAUSSIAN, c_cfg, seed);
 
     std::vector<std::unique_ptr<IMarginalDistribution>> marginals;

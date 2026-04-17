@@ -135,12 +135,12 @@ void init_marginals(py::module_ &m) {
              py::arg("values"), py::arg("weights"), py::arg("seed"), py::arg("standardize") = false);
 
 
-    py::class_<DistributionFactory>(m, "DistributionFactory")
+    py::class_<MarginalFactory>(m, "MarginalFactory")
         .def_static(
             "create",
             [](MarginalType type, MarginalConfig cfg, py::object seed_obj) {
                 unsigned int seed = seed_obj.is_none() ? fresh_seed() : seed_obj.cast<unsigned int>();
-                auto up = DistributionFactory::create(type, std::move(cfg), seed);
+                auto up = MarginalFactory::create(type, std::move(cfg), seed);
                 return std::shared_ptr<IMarginalDistribution>(up.release());
             },
             py::arg("type"),
@@ -152,25 +152,25 @@ void init_marginals(py::module_ &m) {
 
         .def_static("create_gaussian", [](GaussianMarginalCfg cfg, py::object seed_obj) {
             unsigned int seed = seed_obj.is_none() ? fresh_seed() : seed_obj.cast<unsigned int>();
-            auto up = DistributionFactory::create(MarginalType::GAUSSIAN, MarginalConfig{cfg}, seed);
+            auto up = MarginalFactory::create(MarginalType::GAUSSIAN, MarginalConfig{cfg}, seed);
             return std::shared_ptr<IMarginalDistribution>(up.release());
         }, py::arg("cfg"), py::arg("seed") = py::none())
 
         .def_static("create_split_gaussian", [](SplitGaussianMarginalCfg cfg, py::object seed_obj) {
             unsigned int seed = seed_obj.is_none() ? fresh_seed() : seed_obj.cast<unsigned int>();
-            auto up = DistributionFactory::create(MarginalType::HALF_GAUSSIAN, MarginalConfig{cfg}, seed);
+            auto up = MarginalFactory::create(MarginalType::HALF_GAUSSIAN, MarginalConfig{cfg}, seed);
             return std::shared_ptr<IMarginalDistribution>(up.release());
         }, py::arg("cfg"), py::arg("seed") = py::none())
 
         .def_static("create_flat", [](FlatMarginalCfg cfg, py::object seed_obj) {
             unsigned int seed = seed_obj.is_none() ? fresh_seed() : seed_obj.cast<unsigned int>();
-            auto up = DistributionFactory::create(MarginalType::FLAT, MarginalConfig{cfg}, seed);
+            auto up = MarginalFactory::create(MarginalType::FLAT, MarginalConfig{cfg}, seed);
             return std::shared_ptr<IMarginalDistribution>(up.release());
         }, py::arg("cfg"), py::arg("seed") = py::none())
 
         .def_static("create_likelihood", [](LikelihoodMarginalCfg cfg, py::object seed_obj) {
             unsigned int seed = seed_obj.is_none() ? fresh_seed() : seed_obj.cast<unsigned int>();
-            auto up = DistributionFactory::create(MarginalType::LIKELIHOOD, MarginalConfig{cfg}, seed);
+            auto up = MarginalFactory::create(MarginalType::LIKELIHOOD, MarginalConfig{cfg}, seed);
             return std::shared_ptr<IMarginalDistribution>(up.release());
         }, py::arg("cfg"), py::arg("seed") = py::none());
 }
@@ -388,7 +388,7 @@ void init_joint_distribution(py::module_ &m) {
                 for (std::size_t i = 0; i < m_types.size(); ++i) {
                     unsigned int s = base_seed + static_cast<unsigned int>(i);
                     MarginalConfig cfg = to_marginal_config(m_cfgs[i]);
-                    auto up = DistributionFactory::create(m_types[i], std::move(cfg), s);
+                    auto up = MarginalFactory::create(m_types[i], std::move(cfg), s);
                     marginals.push_back(std::move(up));
                 }
 
@@ -427,7 +427,7 @@ void init_joint_distribution(py::module_ &m) {
 
                 for (std::size_t i = 0; i < m_types.size(); ++i) {
                     MarginalConfig cfg = to_marginal_config(m_cfgs[i]);
-                    auto up = DistributionFactory::create(m_types[i], std::move(cfg), m_seeds[i]);
+                    auto up = MarginalFactory::create(m_types[i], std::move(cfg), m_seeds[i]);
                     marginals.push_back(std::move(up));
                 }
 

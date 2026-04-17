@@ -277,7 +277,7 @@
 #include "JointDistribution.h"
 #include "RvgNuisanceSampler.h"
 #include "MCEngine.h"
-#include "DistributionFactory.h"
+#include "MarginalFactory.h"
 #include "CopulaFactory.h"
 #include "Fit.h"
 #include "MarginalConfigFactory.h"
@@ -318,7 +318,7 @@ struct StatisticConfig {
     bool MLE_request_minos = false;
     bool MLE_verbose = false;
 
-    double nuisance_relevance_cutoff = 1e-2;
+    double nuisance_relevance_cutoff = 1e-5;
 
     // Nouveau : pruning par sensibilité locale du modèle
     bool nuisance_sensitivity_pruning = true;
@@ -512,6 +512,17 @@ public:
         cache.eta_specs_real = this->get_all_obss_deps();
         for (const auto& [pid, _] : cache.p_specs)
             cache.eta_specs_real.erase(pid);
+        
+        for (auto it = cache.eta_specs_real.begin(); it != cache.eta_specs_real.end(); ) {
+            const ParamId& pid = it->first;
+
+            if (pid.block.to_string().find("__BSM") != std::string::npos) {
+                LOG_INFO("Dropping BSM nuisance from cache", pid);
+                it = cache.eta_specs_real.erase(it);
+            } else {
+                ++it;
+            }
+        }
 
         cache.SigmaEta = this->get_all_correlations();
         cache.exp_obs = this->get_obs_exp();

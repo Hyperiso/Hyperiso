@@ -41,6 +41,186 @@ void declare_parameter(py::module &m, const std::string &name) {
         .def("set_owner", &T::set_owner);
 }
 
+namespace py = pybind11;
+
+void bind_correlation_provider(py::module_& m) {
+    auto corr = py::class_<CorrelationProvider, std::shared_ptr<CorrelationProvider>>(m, "CorrelationProvider");
+
+    py::enum_<CorrelationProvider::CorrelationType>(corr, "CorrelationType")
+        .value("STAT", CorrelationProvider::CorrelationType::STAT)
+        .value("SYST", CorrelationProvider::CorrelationType::SYST)
+        .value("COMBINED", CorrelationProvider::CorrelationType::COMBINED);
+
+    corr
+        .def(py::init<>())
+
+        // ParamId / ParamId
+        .def(
+            "__call__",
+            py::overload_cast<
+                const ParamId&,
+                const ParamId&,
+                CorrelationProvider::CorrelationType
+            >(&CorrelationProvider::operator()),
+            py::arg("pid_1"),
+            py::arg("pid_2"),
+            py::arg("type")
+        )
+
+        // ExperimentObs / ExperimentObs
+        .def(
+            "__call__",
+            py::overload_cast<
+                const ExperimentObs&,
+                const ExperimentObs&,
+                CorrelationProvider::CorrelationType
+            >(&CorrelationProvider::operator()),
+            py::arg("obs_1"),
+            py::arg("obs_2"),
+            py::arg("type")
+        )
+
+        // experiment + Observables / Observables
+        .def(
+            "__call__",
+            py::overload_cast<
+                const std::string&,
+                const Observables&,
+                const Observables&,
+                CorrelationProvider::CorrelationType
+            >(&CorrelationProvider::operator()),
+            py::arg("experiment"),
+            py::arg("obs_1"),
+            py::arg("obs_2"),
+            py::arg("type")
+        )
+
+        // experiment + ObservableId / ObservableId
+        .def(
+            "__call__",
+            py::overload_cast<
+                const std::string&,
+                const ObservableId&,
+                const ObservableId&,
+                CorrelationProvider::CorrelationType
+            >(&CorrelationProvider::operator()),
+            py::arg("experiment"),
+            py::arg("obs_1"),
+            py::arg("obs_2"),
+            py::arg("type")
+        )
+
+        // experiment + BinnedObservableId / BinnedObservableId
+        .def(
+            "__call__",
+            py::overload_cast<
+                const std::string&,
+                const BinnedObservableId&,
+                const BinnedObservableId&,
+                CorrelationProvider::CorrelationType
+            >(&CorrelationProvider::operator()),
+            py::arg("experiment"),
+            py::arg("obs_1"),
+            py::arg("obs_2"),
+            py::arg("type")
+        )
+
+        // cross-experiment BinnedObservableId
+        .def(
+            "__call__",
+            py::overload_cast<
+                const std::string&,
+                const BinnedObservableId&,
+                const std::string&,
+                const BinnedObservableId&,
+                CorrelationProvider::CorrelationType
+            >(&CorrelationProvider::operator()),
+            py::arg("exp_1"),
+            py::arg("obs_1"),
+            py::arg("exp_2"),
+            py::arg("obs_2"),
+            py::arg("type")
+        )
+
+        // exists overloads
+        .def(
+            "exists",
+            py::overload_cast<
+                const ParamId&,
+                const ParamId&,
+                CorrelationProvider::CorrelationType
+            >(&CorrelationProvider::exists),
+            py::arg("pid_1"),
+            py::arg("pid_2"),
+            py::arg("type")
+        )
+        .def(
+            "exists",
+            py::overload_cast<
+                const ExperimentObs&,
+                const ExperimentObs&,
+                CorrelationProvider::CorrelationType
+            >(&CorrelationProvider::exists),
+            py::arg("obs_1"),
+            py::arg("obs_2"),
+            py::arg("type")
+        )
+        .def(
+            "exists",
+            py::overload_cast<
+                const std::string&,
+                const Observables&,
+                const Observables&,
+                CorrelationProvider::CorrelationType
+            >(&CorrelationProvider::exists),
+            py::arg("experiment"),
+            py::arg("obs_1"),
+            py::arg("obs_2"),
+            py::arg("type")
+        )
+        .def(
+            "exists",
+            py::overload_cast<
+                const std::string&,
+                const ObservableId&,
+                const ObservableId&,
+                CorrelationProvider::CorrelationType
+            >(&CorrelationProvider::exists),
+            py::arg("experiment"),
+            py::arg("obs_1"),
+            py::arg("obs_2"),
+            py::arg("type")
+        )
+        .def(
+            "exists",
+            py::overload_cast<
+                const std::string&,
+                const BinnedObservableId&,
+                const BinnedObservableId&,
+                CorrelationProvider::CorrelationType
+            >(&CorrelationProvider::exists),
+            py::arg("experiment"),
+            py::arg("obs_1"),
+            py::arg("obs_2"),
+            py::arg("type")
+        )
+        .def(
+            "exists",
+            py::overload_cast<
+                const std::string&,
+                const BinnedObservableId&,
+                const std::string&,
+                const BinnedObservableId&,
+                CorrelationProvider::CorrelationType
+            >(&CorrelationProvider::exists),
+            py::arg("exp_1"),
+            py::arg("obs_1"),
+            py::arg("exp_2"),
+            py::arg("obs_2"),
+            py::arg("type")
+        );
+}
+
 void init_core(py::module &m) {
 
     // py::class_<QCDHelper, std::shared_ptr<QCDHelper>>(m, "QCDHelper")
@@ -156,17 +336,19 @@ void init_core(py::module &m) {
         .def("log_all_blocks", &BlockProvider::log_all_blocks, py::arg("type"))
         .def("log_block", &BlockProvider::log_block, py::arg("type"), py::arg("blockname"));
 
-    py::enum_<CorrelationProvider::CorrelationType>(m, "CorrelationType")
-        .value("STAT", CorrelationProvider::CorrelationType::STAT)
-        .value("SYST", CorrelationProvider::CorrelationType::SYST)
-        .value("COMBINED", CorrelationProvider::CorrelationType::COMBINED)
-        .export_values();
+    // py::enum_<CorrelationProvider::CorrelationType>(m, "CorrelationType")
+    //     .value("STAT", CorrelationProvider::CorrelationType::STAT)
+    //     .value("SYST", CorrelationProvider::CorrelationType::SYST)
+    //     .value("COMBINED", CorrelationProvider::CorrelationType::COMBINED)
+    //     .export_values();
 
-    // CorrelationProvider
-    py::class_<CorrelationProvider, std::shared_ptr<CorrelationProvider>>(m, "CorrelationProvider")
-    .def(py::init<>())
-    .def("correlation_from_paramid", py::overload_cast<const ParamId&, const ParamId&, CorrelationProvider::CorrelationType>(&CorrelationProvider::operator()), py::arg("pid_1"), py::arg("pid_2"), py::arg("type"))
-    .def("correlation_from_observable", py::overload_cast<const Observables&, const Observables&, CorrelationProvider::CorrelationType>(&CorrelationProvider::operator()), py::arg("pid_1"), py::arg("pid_2"), py::arg("type"));
+    // // CorrelationProvider
+    // py::class_<CorrelationProvider, std::shared_ptr<CorrelationProvider>>(m, "CorrelationProvider")
+    // .def(py::init<>())
+    // .def("correlation_from_paramid", py::overload_cast<const ParamId&, const ParamId&, CorrelationProvider::CorrelationType>(&CorrelationProvider::operator()), py::arg("pid_1"), py::arg("pid_2"), py::arg("type"))
+    // .def("correlation_from_observable", py::overload_cast<const Observables&, const Observables&, CorrelationProvider::CorrelationType>(&CorrelationProvider::operator()), py::arg("pid_1"), py::arg("pid_2"), py::arg("type"));
+
+    bind_correlation_provider(m);
 
     // QCDProvider
     py::class_<QCDConstants>(m, "QCDConstants")
