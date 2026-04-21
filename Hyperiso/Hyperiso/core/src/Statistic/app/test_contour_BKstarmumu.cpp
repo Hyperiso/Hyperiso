@@ -203,8 +203,39 @@ int main() {
 
         std::array<double, 4> bounds = {-4, 4, -7, 7};
 
+        auto trace = std::make_shared<std::ofstream>("contour_trace.csv");
+        (*trace) << "type,level,path_id,point_id,x,y,n_paths,n_points,elapsed_s,message\n";
+
         ContourOptions  opt;
-        opt.fallback_contour_method = ContourAlgorithm::AMS;
+        opt.primary_contour_method = ContourAlgorithm::AMS;
+        opt.fallback_contour_method = std::nullopt;
+
+        opt.on_progress = [trace](const ContourProgressEvent& ev) {
+        if (!trace || !(*trace)) return;
+
+        const char* type_str = "";
+        switch (ev.type) {
+            case ContourProgressEventType::Started:      type_str = "started"; break;
+            case ContourProgressEventType::PathPoint:    type_str = "point"; break;
+            case ContourProgressEventType::PathFinished: type_str = "path_finished"; break;
+            case ContourProgressEventType::Finished:     type_str = "finished"; break;
+            case ContourProgressEventType::Failed:       type_str = "failed"; break;
+        }
+
+        (*trace)
+            << type_str << ","
+            << ev.level << ","
+            << ev.path_id << ","
+            << ev.point_id << ","
+            << ev.x << ","
+            << ev.y << ","
+            << ev.n_paths << ","
+            << ev.n_points << ","
+            << ev.elapsed_seconds << ","
+            << "\"" << ev.message << "\"\n";
+
+        trace->flush();
+    };
         auto c68 = stat.confidence_contour(p1, p2, 1, bounds, opt);
         auto c95 = stat.confidence_contour(p1, p2, 2, bounds, opt);
 

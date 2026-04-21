@@ -1,6 +1,8 @@
 #ifndef __CONTOURENGINE_H__
 #define __CONTOURENGINE_H__
 
+#include <chrono>
+
 #include "ILikelihood.h"
 #include "IProfilingStrategy.h"
 #include "IContourExtractor.h"
@@ -13,6 +15,7 @@
 #include "MnContourExtractor.h"
 #include "GaussianMarginal.h"
 #include "GaussianCopula.h"
+#include "ContourObserver.h"
 
 enum class ProfilingMethod {
     SLICE,
@@ -31,6 +34,8 @@ struct ContourConfig {
     ProfilingMethod profiling_method;
     ContourAlgorithm primary_contour_method;
     std::optional<ContourAlgorithm> fallback_contour_method;
+
+    ContourProgressCallback on_progress {};
 };
 
 class ContourEngine {

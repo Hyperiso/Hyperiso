@@ -41,6 +41,8 @@
 #include "IContourExtractor.h"
 #include "Math.h"
 #include "ContourEngine.h"
+#include "ContourObserver.h"
+
 
 struct MLFitOptions {
     bool run_hesse = true;
@@ -73,6 +75,8 @@ struct ContourOptions {
     ContourAlgorithm primary_contour_method = ContourAlgorithm::MINUIT;
     std::optional<ContourAlgorithm> fallback_contour_method;
     std::size_t resolution = 100;
+
+    ContourProgressCallback on_progress {};
 };
 
 class MLFitter {

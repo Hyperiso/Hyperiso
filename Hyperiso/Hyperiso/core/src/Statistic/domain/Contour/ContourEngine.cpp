@@ -1,5 +1,17 @@
 #include "ContourEngine.h"
 
+namespace {
+
+std::size_t count_total_points(const Contour& c) {
+    std::size_t n = 0;
+    for (const auto& path : c.paths) {
+        n += path.size();
+    }
+    return n;
+}
+
+}
+
 ContourEngine::ContourEngine(std::shared_ptr<ILikelihood> base, const ContourConfig &cfg) : cfg(cfg) {
     // TODO : Maybe allow to change fit backend, for now only Minuit hardcoded.
     std::shared_ptr<Profiler> profiler = std::make_shared<Profiler>(fit_app::make_minuit_backend());
@@ -52,6 +64,9 @@ ContourEngine::ContourEngine(std::shared_ptr<ILikelihood> base, const ContourCon
 // }
 
 Contour ContourEngine::compute_contour(double z, std::array<double, 4> bounds, std::size_t resolution) {
+    using clock = std::chrono::steady_clock;
+    const auto t0 = clock::now();
+
     ScalarField2D field = [this] (double x, double y) {
         return this->likelihood.profiled_nll(x, y) - this->cfg.fr.ell_hat;
     };
@@ -61,7 +76,6 @@ Contour ContourEngine::compute_contour(double z, std::array<double, 4> bounds, s
     cr.level = z * z / 2.0;
     cr.resolution = resolution;
 
-    //TODO : Niels -> L'erreur c'était qu'on ne def pas les p ici
     auto defs = this->likelihood.get_param_defs();
 
     defs[0].value = cfg.fr.p_hat.at(cfg.x_id);
@@ -75,8 +89,72 @@ Contour ContourEngine::compute_contour(double z, std::array<double, 4> bounds, s
     cr.p_defs[0] = defs[0];
     cr.p_defs[1] = defs[1];
 
-    return this->extractor->extract(field, cr);
+    if (cfg.on_progress) {
+        ContourProgressEvent ev;
+        ev.type = ContourProgressEventType::Started;
+        ev.level = cr.level;
+        ev.message = "Contour computation started";
+        cfg.on_progress(ev);
+    }
+
+    try {
+        Contour c = this->extractor->extract(field, cr);
+
+        if (cfg.on_progress) {
+            ContourProgressEvent ev;
+            ev.type = ContourProgressEventType::Finished;
+            ev.level = c.level;
+            ev.n_paths = c.paths.size();
+            ev.n_points = count_total_points(c);
+            ev.elapsed_seconds =
+                std::chrono::duration<double>(clock::now() - t0).count();
+            ev.message = c.success ? "Contour computation finished"
+                                   : "Contour computation finished but contour is marked unsuccessful";
+            cfg.on_progress(ev);
+        }
+
+        return c;
+    }
+    catch (const std::exception& e) {
+        if (cfg.on_progress) {
+            ContourProgressEvent ev;
+            ev.type = ContourProgressEventType::Failed;
+            ev.level = cr.level;
+            ev.elapsed_seconds =
+                std::chrono::duration<double>(clock::now() - t0).count();
+            ev.message = e.what();
+            cfg.on_progress(ev);
+        }
+        throw;
+    }
 }
+
+// Contour ContourEngine::compute_contour(double z, std::array<double, 4> bounds, std::size_t resolution) {
+//     ScalarField2D field = [this] (double x, double y) {
+//         return this->likelihood.profiled_nll(x, y) - this->cfg.fr.ell_hat;
+//     };
+
+//     ContourRequest cr;
+//     cr.bounds = bounds;
+//     cr.level = z * z / 2.0;
+//     cr.resolution = resolution;
+
+//     //TODO : Niels -> L'erreur c'était qu'on ne def pas les p ici
+//     auto defs = this->likelihood.get_param_defs();
+
+//     defs[0].value = cfg.fr.p_hat.at(cfg.x_id);
+//     defs[0].step_hint = std::max(cfg.fr.p_hat_std.at(cfg.x_id), 1e-3);
+//     defs[0].limits = std::make_pair(bounds[0], bounds[1]);
+
+//     defs[1].value = cfg.fr.p_hat.at(cfg.y_id);
+//     defs[1].step_hint = std::max(cfg.fr.p_hat_std.at(cfg.y_id), 1e-3);
+//     defs[1].limits = std::make_pair(bounds[2], bounds[3]);
+
+//     cr.p_defs[0] = defs[0];
+//     cr.p_defs[1] = defs[1];
+
+//     return this->extractor->extract(field, cr);
+// }
 
 std::shared_ptr<JointDistribution> ContourEngine::build_constraints_distribution() {
     std::vector<std::unique_ptr<IMarginalDistribution>> fitted_marginals;
@@ -94,12 +172,25 @@ std::shared_ptr<JointDistribution> ContourEngine::build_constraints_distribution
     return std::make_unique<JointDistribution>(std::move(fitted_marginals), std::move(fitted_copula));
 }
 
+// std::shared_ptr<IContourExtractor> ContourEngine::build_contour_extractor(
+//     ContourAlgorithm ca)
+// {
+//     switch (ca) {
+//     case ContourAlgorithm::AMS:
+//         return std::make_shared<AMSContourExtractor>();
+//     case ContourAlgorithm::MINUIT:
+//         return std::make_shared<MnContourExtractor>();
+//     default:
+//         throw std::invalid_argument("Unknown contouring algorithm.");
+//     }
+// }
+
 std::shared_ptr<IContourExtractor> ContourEngine::build_contour_extractor(
     ContourAlgorithm ca)
 {
     switch (ca) {
     case ContourAlgorithm::AMS:
-        return std::make_shared<AMSContourExtractor>();
+        return std::make_shared<AMSContourExtractor>(cfg.on_progress);
     case ContourAlgorithm::MINUIT:
         return std::make_shared<MnContourExtractor>();
     default:

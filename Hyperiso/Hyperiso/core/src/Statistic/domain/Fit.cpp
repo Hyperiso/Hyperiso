@@ -1071,7 +1071,8 @@ Contour MLFitter::contour(std::size_t x_id, std::size_t y_id, double z,
     cc.primary_contour_method = options.primary_contour_method;
     cc.fallback_contour_method = options.fallback_contour_method;
     cc.profiling_method = options.profiling_method;
-
+    cc.on_progress = options.on_progress;
+    
     ContourEngine ce(this->like_, cc);
     return ce.compute_contour(z, bounds, options.resolution);
 }
