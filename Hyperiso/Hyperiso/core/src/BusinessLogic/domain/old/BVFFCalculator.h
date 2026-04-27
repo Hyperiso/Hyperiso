@@ -18,7 +18,6 @@ private:
     std::map<BV_FF, std::array<double, 3>> alpha_ai;
     std::map<BV_FF, double> m_R;
     std::string src_block;
-    std::map<std::pair<int, double>, double> get_cache;
 
     static inline const std::map<LhaID, std::string> allowed_decays {
         {{511, 313}, "B_Ks"},

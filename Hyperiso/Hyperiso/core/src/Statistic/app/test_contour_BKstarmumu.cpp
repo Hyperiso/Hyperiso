@@ -207,7 +207,7 @@ int main() {
         (*trace) << "type,level,path_id,point_id,x,y,n_paths,n_points,elapsed_s,message\n";
 
         ContourOptions  opt;
-        opt.primary_contour_method = ContourAlgorithm::AMS;
+        opt.primary_contour_method = ContourAlgorithm::MINUIT;
         opt.fallback_contour_method = std::nullopt;
 
         opt.on_progress = [trace](const ContourProgressEvent& ev) {

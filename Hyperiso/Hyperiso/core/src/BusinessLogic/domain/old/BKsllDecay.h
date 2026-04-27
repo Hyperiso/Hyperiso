@@ -7,45 +7,22 @@
 #include "DefaultConfig.h"
 #include "BVQCDfCalculator.h"
 #include "BVFFCalculator.h"
-#include <unordered_map>
-#include <cstdint>
 
 struct BKstarllConfig : public DecayConfig {
     enum class Power_Corrections_Impl {BFS, BCvDV, KMPW};
     enum class B_Charge {B_0, B_PLUS};
     enum class Lepton {E, MU, TAU};
 
-    struct RuntimeOptions {
-        enum class EngineMode {HYPERISO_LOOKUP, SUPERISO_SCAN};
-        enum class QCDFLookupMode {LEGACY_SPLIT, SHARED_TRIPLET};
-        enum class LookupExecutionMode {SERIAL, PARALLEL_THREADS};
-        enum class ScanQuadratureMode {SIMPSON, GL24_DIRECT};
-
-        EngineMode engine_mode {EngineMode::HYPERISO_LOOKUP};
-        QCDFLookupMode qcdf_lookup_mode {QCDFLookupMode::SHARED_TRIPLET};
-        LookupExecutionMode lookup_execution_mode {LookupExecutionMode::PARALLEL_THREADS};
-        ScanQuadratureMode scan_quadrature_mode {ScanQuadratureMode::GL24_DIRECT};
-        size_t lookup_threads {0};   // 0 -> hardware_concurrency()
-        size_t superiso_nmax {10};   // used only when scan_quadrature_mode == SIMPSON
-        size_t scan_gl_panels {1};   // used only when scan_quadrature_mode == GL24_DIRECT
-    };
-
     BV_FF_Src ff_src {BV_FF_Src::BSZ_SR_LAT};
     B_FF_Type ff_type {B_FF_Type::FULL};
     Power_Corrections_Impl power_corr_impl {Power_Corrections_Impl::BFS};
     B_Charge charge {B_Charge::B_PLUS};
     Lepton gen {Lepton::MU};
-    RuntimeOptions runtime {};
 };
 
 struct BKstarllCache {
     std::map<WCoef, complex_t> C;
     BVFFCalculator ff_calculator;
-    std::shared_ptr<BVFFCalculator> ff_calculator_shared;
-    bool ff_calculator_ready {false};
-    int ff_B_id {0};
-    int ff_V_id {0};
-    BV_FF_Src ff_src_cached {BV_FF_Src::BSZ_SR_LAT};
     BVQCDfCalculator qcdf_calculator;
 
     double G_F, alpha_em;
@@ -88,7 +65,7 @@ struct BKstarllCache {
     std::array<double, 3> r2_M;
 
     // Lookups
-    static inline constexpr size_t LOOKUP_SIZE = 25;
+    static inline constexpr size_t LOOKUP_SIZE = 50;
     std::array<scalar_t, LOOKUP_SIZE> T_perp_p_lookup;
     std::array<scalar_t, LOOKUP_SIZE> T_perp_m_lookup;
     std::array<scalar_t, LOOKUP_SIZE> T_par_m_lookup;
@@ -98,14 +75,6 @@ struct BKstarllCache {
 
     std::array<std::vector<double>, 15> J_i_binned;
     std::array<std::vector<double>, 15> J_i_bar_binned; 
-
-    // Direct q2 evaluation cache for SUPERISO_SCAN mode
-    std::array<bool, 2> direct_triplet_ready {{false, false}};
-    std::array<double, 2> direct_triplet_q2 {{0.0, 0.0}};
-    std::array<BVQCDfCalculator::TTriplet, 2> direct_triplet {};
-
-    bool scan_triplet_cache_enabled {false};
-    std::array<std::unordered_map<std::uint64_t, BVQCDfCalculator::TTriplet>, 2> scan_triplet_cache {};
 };
 
 /**
@@ -196,8 +165,6 @@ protected:
     double J9(double q2, bool bar);
 
     void compute_binned_J_i();
-    void compute_binned_J_i_superiso_like();
-    void reset_direct_triplet_cache();
 
     std::vector<ObservableValue> dBR_dq2_binned(bool bar, Observables id, bool br=true);
     double dG_dq2_avg_bin(size_t bin);

@@ -179,10 +179,10 @@ std::vector<double> QCDHelper::getOrderedMasses(MassType mass_b_type, MassType m
     double mc = (*Parameters::GetInstance())("MASS", 4);
     double mu = (*Parameters::GetInstance())("MASS", 2);
     double md = (*Parameters::GetInstance())("MASS", 1);
-    // // double ms = (*Parameters::GetInstance())("MASS", 3); //Niels, wtf ?
-    // return {md, mu, ms, mc, m_b, m_t};
+    double ms = (*Parameters::GetInstance())("MASS", 3); //Niels, wtf ?
+    return {md, mu, ms, mc, m_b, m_t};
     // double ms = (*Parameters::GetInstance())("MASS", 3); //Niels, wtf ?
-    return {md, mu, md, mc, m_b, m_t};
+    // return {md, mu, md, mc, m_b, m_t};
 }
 
 double QCDHelper::match_lambda(double target_alpha, double Q, int nf) {
