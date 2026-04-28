@@ -93,7 +93,9 @@ int main() {
     cfg.ff_src = BV_FF_Src::GRvDV;
     oint->set_decay_config(Decays::B__Kstar_l_l, cfg);
 
-    auto model = std::make_shared<ObservableInterfaceAdapterObs>(oint);
+    std::shared_ptr<IStatParamOptimizerProxy> spop = std::make_shared<StatParamOptimizerProxy>();
+
+    auto model = std::make_shared<ObservableInterfaceAdapterObs>(oint, spop);
 
     StatisticConfig config;
     config.MC_draws = 1000;
@@ -132,7 +134,8 @@ int main() {
         std::make_shared<StatParameterProxy>(),
         std::make_shared<StatParamSourcesProxy>(),
         std::make_shared<StatDependencyPruner>(),
-        std::make_shared<NuisanceReader>(npp)
+        std::make_shared<NuisanceReader>(npp),
+        spop
     );
 
     auto start = std::chrono::steady_clock::now();

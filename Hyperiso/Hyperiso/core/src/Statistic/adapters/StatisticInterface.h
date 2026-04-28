@@ -13,14 +13,15 @@ class StatisticInterface {
 public:
     StatisticInterface(StatisticConfig config, std::shared_ptr<ObservableInterface> oi_) {
         std::shared_ptr<ObservableInterface> oi = oi_;
-        std::shared_ptr<IModel> oia= std::make_shared<ObservableInterfaceAdapterObs>(oi);
+        std::shared_ptr<IStatParamOptimizerProxy> spop = std::make_shared<StatParamOptimizerProxy>();
+        std::shared_ptr<IModel> oia= std::make_shared<ObservableInterfaceAdapterObs>(oi, spop);
         std::shared_ptr<IStatCorrelationProxy> pscp = std::make_shared<StatCorrelationProxy>();
         std::shared_ptr<IStatParameterProxy> pspp = std::make_shared<StatParameterProxy>();
         std::shared_ptr<IStatSourcesProxy> sp = std::make_shared<StatParamSourcesProxy>();
         std::shared_ptr<IStatDependencyPruner> sdp = std::make_shared<StatDependencyPruner>();
         std::shared_ptr<INuisancePathsProvider> npp = std::make_shared<DefaultNuisancePathsProvider>();
         std::shared_ptr<INuisanceReader> nr = std::make_shared<NuisanceReader>(npp);
-        manager = std::make_shared<StatisticManager>(config, oia, pscp, pspp, sp, sdp, nr);
+        manager = std::make_shared<StatisticManager>(config, oia, pscp, pspp, sp, sdp, nr, spop);
         manager->update_cache();
     }
 

@@ -5,6 +5,7 @@
 #include "ObservableInterface.h"
 #include "StatParamOptimizerProxy.h"
 #include "StatParameterProxy.h"
+#include "IStatParamOptimizerProxy.h"
 
 class ObservableInterfaceAdapterObs final : public IModel {
 public:
@@ -16,7 +17,7 @@ public:
         oi_ = obs;
     }
 
-    ObservableInterfaceAdapterObs(std::shared_ptr<ObservableInterface> obs) { oi_ = obs; }
+    ObservableInterfaceAdapterObs(std::shared_ptr<ObservableInterface> obs, std::shared_ptr<IStatParamOptimizerProxy> spop) { oi_ = obs; spop_ = spop;}
     std::size_t n_observables() const override { return oi_->get_current_observables().size(); }
 
     // void add_observables(std::map<ObservableId, QCDOrder> obs_ids) override {
@@ -127,17 +128,16 @@ public:
                 has_nonzero_fit_param = true;
             }
         }
-        StatParamOptimizerProxy spop = StatParamOptimizerProxy();
 
         for (auto p_elem : p) {
             const auto& s = p_elem.first;
-            spop.set_value(s.block, s.code, p_elem.second);
+            spop_->set_value(s.block, s.code, p_elem.second);
         }
         for (auto eta_elem : eta) {
             const auto& s = eta_elem.first;
-            spop.set_value(s.block, s.code, eta_elem.second);
+            spop_->set_value(s.block, s.code, eta_elem.second);
         }
-        spop.commit();
+        spop_->commit();
 
         // static std::size_t dbg_call = 0;
         // if (has_nonzero_fit_param && dbg_call < 40) {
@@ -235,5 +235,6 @@ public:
 
 private:
     std::shared_ptr<ObservableInterface> oi_;
+    std::shared_ptr<IStatParamOptimizerProxy> spop_;
     std::vector<ParamId> p_specs_, eta_specs_;
 };

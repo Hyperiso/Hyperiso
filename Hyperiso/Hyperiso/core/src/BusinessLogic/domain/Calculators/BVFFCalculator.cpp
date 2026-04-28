@@ -32,9 +32,12 @@ complex_t BVFFCalculator::z(double t, double t_p, double t_0) {
 }
 
 double BVFFCalculator::get(BV_FF a, double q2) {
+
+    // LOG_INFO("Calling for FF n°", (int)a);
     auto key = std::make_pair(static_cast<int>(a), q2);
     auto it = this->get_cache.find(key);
     if (it != this->get_cache.end()) {
+        // LOG_INFO("Already computed");
         return it->second;
     }
 
@@ -110,6 +113,7 @@ double BVFFCalculator::E(double q2) {
 }
 
 double BVFFCalculator::F_a(BV_FF a, double q2) {
+    // LOG_INFO("Computing FF n°", (int)a);
     auto ai = this->alpha_ai.at(a);
     double P = pole(q2, this->m_R.at(a));
     double Z = std::real(z(q2, this->t_p, this->t_0)) - this->z_0;

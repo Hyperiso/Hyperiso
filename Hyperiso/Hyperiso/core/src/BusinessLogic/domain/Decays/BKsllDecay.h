@@ -67,12 +67,12 @@ struct BKstarllCache {
     std::array<complex_t, 3> h_0_fit {};
 
     // Power corrections, guesstimate
-    std::array<complex_t, 6> a_k_low {};
-    std::array<complex_t, 6> b_k_low {};
-    std::array<complex_t, 8> a_k_high {};
-    std::array<complex_t, 6> phi_k_low {};
-    std::array<complex_t, 6> theta_k_low {};
-    std::array<complex_t, 8> phi_k_high {};
+    std::array<double, 6> a_k_low {};
+    std::array<double, 6> b_k_low {};
+    std::array<double, 8> a_k_high {};
+    std::array<double, 6> phi_k_low {};
+    std::array<double, 6> theta_k_low {};
+    std::array<double, 8> phi_k_high {};
 
     // NF Corrections, Van Dyk
     double tp_nf, t0_nf;

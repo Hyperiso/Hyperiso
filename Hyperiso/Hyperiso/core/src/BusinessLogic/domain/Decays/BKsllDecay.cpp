@@ -432,8 +432,7 @@ complex_t BKstarllDecay::delta_A_perp_QCDf(double q2, double sign, bool bar) {
         guesstimate_err = 1.0 + cache.a_k_low[id] * std::exp(I * cache.phi_k_low[id]) + cache.b_k_low[id] * std::exp(I * cache.theta_k_low[id]) * q2 / 6.0;
     }
 
-    // LOG_INFO("Guesstimate error in delta_A_perp_QCDf = ", guesstimate_err);
-
+    size_t id = size_t (0.5 * (1 + sign));
     return 2 * RT2 * (cache.m_b_PS + cache.alpha_s_mu_b * cache.Delta_M / (3 * PI)) * N(q2, bar) * std::sqrt(lambda(q2)) / q2 * T_perp_p_cached(q2, bar) * guesstimate_err + delta_A;
 }
 

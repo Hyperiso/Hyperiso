@@ -1711,7 +1711,7 @@ fit_app::ParameterDefinition make_nuisance_param_def(const ParamId& pid, double 
     if (nm.find("SMINPUTS:3") != std::string::npos) {
         out.limits = std::make_pair(0.05, 0.30);
     } else if (nm.find("MASS:") != std::string::npos ||
-               nm.find("FLIFE:") != std::string::npos ||
+            //    nm.find("FLIFE:") != std::string::npos ||
                nm.find("FCONST:") != std::string::npos ||
                nm.find("FMASS:") != std::string::npos ||
                nm.find("SMINPUTS:5") != std::string::npos ||
@@ -1800,13 +1800,15 @@ StatisticManager::StatisticManager(StatisticConfig config,
                                    std::shared_ptr<IStatParameterProxy> pspp,
                                    std::shared_ptr<IStatSourcesProxy> sp,
                                    std::shared_ptr<IStatDependencyPruner> dp,
-                                   std::shared_ptr<INuisanceReader> nuisance_reader)
+                                   std::shared_ptr<INuisanceReader> nuisance_reader,
+                                   std::shared_ptr<IStatParamOptimizerProxy> spop)
     : obs_int(std::move(obs_int)),
       pscp(std::move(pscp)),
       pspp(std::move(pspp)),
       sp(std::move(sp)),
       dp(std::move(dp)),
       nuisance_reader_(std::move(nuisance_reader)),
+      spop(std::move(spop)),
       config(std::move(config))
 {
     if (!nuisance_reader_) {
@@ -2428,6 +2430,18 @@ std::map<ParamId, double> StatisticManager::get_all_obss_deps() {
         !eta_specs_real_leaf.empty() &&
         !cache.p_specs.empty())
     {
+        // TODO : Makes fit unstable.
+        // std::unordered_set<ParamId> shifted {};
+        // // Shifting every zero nuisance to avoid false negatives
+        // for (auto& [pid, val]: eta_specs_real_leaf) {
+        //     if (fpeq(val, 0.0)) {
+        //         LOG_INFO("Shifting", pid);
+        //         double u_1sigma = std::abs(pspp->get_param(pid)->get_combined_std().real());
+        //         eta_specs_real_leaf.at(pid) = u_1sigma / 2;
+        //         shifted.emplace(pid);
+        //     }
+        // }
+
         const auto exp_obs_map = get_obs_exp();
         const auto unzipped_exp_obs = unzip(exp_obs_map);
         const std::vector<ExperimentObs> obs_ids = unzipped_exp_obs.ids;
@@ -2533,6 +2547,10 @@ std::map<ParamId, double> StatisticManager::get_all_obss_deps() {
                 screened_eta_specs[pid] = nominal;
             }
         }
+
+        // Shifting back to zero
+        // for (ParamId pid : shifted)
+        //     screened_eta_specs.at(pid) = 0.0;
 
         eta_specs_real_leaf = std::move(screened_eta_specs);
     }

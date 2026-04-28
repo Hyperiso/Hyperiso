@@ -283,7 +283,7 @@
 #include "MarginalConfigFactory.h"
 #include "INuisanceReader.h"
 #include "NuisanceSpec.h"
-
+#include "IStatParamOptimizerProxy.h"
 
 // struct StatisticConfig {
 //     std::map<ParamId, MarginalType> override_nuisance_marginals {};
@@ -387,7 +387,8 @@ public:
                      std::shared_ptr<IStatParameterProxy> pspp,
                      std::shared_ptr<IStatSourcesProxy> sp,
                      std::shared_ptr<IStatDependencyPruner> dp,
-                     std::shared_ptr<INuisanceReader> nuisance_reader);
+                     std::shared_ptr<INuisanceReader> nuisance_reader,
+                     std::shared_ptr<IStatParamOptimizerProxy> spop);
 
     std::vector<std::unique_ptr<IMarginalDistribution>> build_nuisance_marginal_distributions();
     std::unique_ptr<JointDistribution> build_nuisance_distribution();
@@ -643,7 +644,8 @@ private:
     std::shared_ptr<IStatSourcesProxy> sp;
     std::shared_ptr<IStatDependencyPruner> dp;
     std::shared_ptr<INuisanceReader> nuisance_reader_;
-
+    std::shared_ptr<IStatParamOptimizerProxy> spop;
+    
     StatisticConfig config;
     StatCache cache;
     
