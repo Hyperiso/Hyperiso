@@ -1993,7 +1993,9 @@ FitResultWithMaps StatisticManager::compute_MLE(const std::vector<ParamId>& p_sp
     if (cache.p_specs.empty()) {
         throw std::invalid_argument("compute_MLE called with an empty fit parameter list.");
     }
-
+    for (auto elem : cache.exp_obs) {
+        LOG_INFO("EXPERIMENT OBS : ", elem.first, elem.second);
+    }
     auto unzipped_fit_params = unzip(cache.p_specs);
     auto unzipped_nuisances  = unzip(cache.eta_specs_real);
     auto unzipped_exp_obs    = unzip(cache.exp_obs);
