@@ -318,7 +318,7 @@ struct StatisticConfig {
     bool MLE_request_minos = false;
     bool MLE_verbose = false;
 
-    double nuisance_relevance_cutoff = 1e-5;
+    double nuisance_relevance_cutoff = 1e-8;
 
     // Nouveau : pruning par sensibilité locale du modèle
     bool nuisance_sensitivity_pruning = true;
@@ -476,6 +476,9 @@ public:
     // }
 
     void update_cache(const std::vector<ParamId>& p_specs = std::vector<ParamId>()) {
+        for (auto elem : this->selected_experiments_.value()){
+            LOG_INFO("CHANGING OBS : ", elem);}
+
         for (const auto& [tp, block] : last_detached_fit_blocks_) {
             dp->reattach_block(tp, block);
         }
@@ -616,6 +619,15 @@ public:
     //     return out;
     // }
 
+    void select_experiment(const std::string& experiment);
+    void select_experiments(const std::set<std::string>& experiments);
+    void select_experiments(const std::vector<std::string>& experiments);
+
+    void select_experiments_all();
+
+    bool has_experiment_selection() const noexcept;
+    std::set<std::string> selected_experiments() const;
+
     std::map<ParamId, double> get_all_obss_deps();
     std::map<ParamId, double> get_p_specs(const std::vector<ParamId>& p_specs);
     std::map<ParamId, std::map<ParamId, double>> get_all_correlations();
@@ -669,6 +681,8 @@ private:
 
     std::vector<ParamId> last_detached_fit_params_;
     std::vector<std::pair<ParameterType, std::string>> last_detached_fit_blocks_;
+
+    std::optional<std::set<std::string>> selected_experiments_;
 };
 
 #endif

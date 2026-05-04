@@ -179,7 +179,8 @@ int main() {
         std::make_shared<NuisanceReader>(npp),
         spop
     );
-
+    stat.select_experiment("CMS");
+    
     LOG_INFO("StatisticManager created.");
 
     auto t2 = std::chrono::steady_clock::now();

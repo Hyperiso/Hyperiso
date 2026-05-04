@@ -554,7 +554,8 @@ int main(int argc, char** argv) {
         ParamId{ParameterType::FLAVOR, "FCONST", {531, 1}}
     };
 
-    auto model = std::make_shared<ObservableInterfaceAdapterObs>(oint);
+    std::shared_ptr<IStatParamOptimizerProxy> spop = std::make_shared<StatParamOptimizerProxy>();
+    auto model = std::make_shared<ObservableInterfaceAdapterObs>(oint, spop);
 
     std::shared_ptr<INuisancePathsProvider> npp = std::make_shared<DefaultNuisancePathsProvider>();
 
@@ -565,7 +566,8 @@ int main(int argc, char** argv) {
         std::make_shared<StatParameterProxy>(),
         std::make_shared<StatParamSourcesProxy>(),
         std::make_shared<StatDependencyPruner>(),
-        std::make_shared<NuisanceReader>(npp)
+        std::make_shared<NuisanceReader>(npp),
+        spop
     );
 
     LOG_INFO("fill_cache #1");
