@@ -312,7 +312,7 @@ struct StatisticConfig {
     double skew_abs_threshold = 0.2;
 
     std::size_t MLE_max_iter = 500;
-    double MLE_tol = 1e-6;
+    double MLE_tol = 1e-8;
     unsigned MLE_strategy = 2;
     bool MLE_run_hesse = true;
     bool MLE_request_minos = false;
@@ -328,8 +328,8 @@ struct StatisticConfig {
 
     // Une nuisance est gardée si son effet 1σ dépasse au moins
     // un des deux seuils ci-dessous.
-    double nuisance_sensitivity_rel_cutoff = 1e-4;
-    double nuisance_sensitivity_abs_cutoff = 1e-10;
+    double nuisance_sensitivity_rel_cutoff = 1e-6;
+    double nuisance_sensitivity_abs_cutoff = 1e-12;
 
     // Evite de diviser par des échelles trop petites quand une observable ~ 0
     double nuisance_sensitivity_scale_floor = 1e-3;
