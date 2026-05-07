@@ -2676,12 +2676,12 @@ std::map<ExperimentObs, double> StatisticManager::get_obs_exp() {
             out[exp_obs] = param->get_val();
         }
     }
-
-    if (out.empty()) {
-        throw std::runtime_error(
-            "StatisticManager::get_obs_exp: experiment selection matched no experimental observable."
-        );
-    }
+    //TODO : autruche
+    // if (out.empty()) {
+    //     throw std::runtime_error(
+    //         "StatisticManager::get_obs_exp: experiment selection matched no experimental observable."
+    //     );
+    // }
 
     return out;
 }

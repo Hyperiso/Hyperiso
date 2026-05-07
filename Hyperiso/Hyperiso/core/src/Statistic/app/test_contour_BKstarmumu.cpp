@@ -191,6 +191,7 @@ int main() {
         add_ang_bin(2.0, 4.3);
         add_ang_bin(4.3, 6.0);
         // add_ang_bin(6.0, 8.68); // à exclure pour reproduire Table 1
+        // add_ang_bin(10.09, 12.86);
         add_ang_bin(14.18, 16.0);
         // add_ang_bin(0.06, 0.98);
         // add_ang_bin(1.1, 2.5);
@@ -220,8 +221,13 @@ int main() {
         //         );
 
 
+    BKstarllConfig cfg;
+    cfg.ff_src = BV_FF_Src::GRvDV;
+    oint->set_decay_config(Decays::B__Kstar_l_l, cfg);
+
     std::shared_ptr<IStatParamOptimizerProxy> spop = std::make_shared<StatParamOptimizerProxy>();
     auto model = std::make_shared<ObservableInterfaceAdapterObs>(oint, spop);
+    
 
     StatisticConfig config;
     config.MLE_max_iter = 120000;

@@ -138,6 +138,8 @@ int main() {
         spop
     );
 
+    stat.select_experiment("CMS");
+
     auto start = std::chrono::steady_clock::now();
     auto pred_with_u = stat.compute_uncertainties();
     auto stop = std::chrono::steady_clock::now();

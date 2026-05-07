@@ -32,45 +32,24 @@ complex_t BVFFCalculator::z(double t, double t_p, double t_0) {
 }
 
 double BVFFCalculator::get(BV_FF a, double q2) {
-
-    // LOG_INFO("Calling for FF n°", (int)a);
-    auto key = std::make_pair(static_cast<int>(a), q2);
-    auto it = this->get_cache.find(key);
-    if (it != this->get_cache.end()) {
-        // LOG_INFO("Already computed");
-        return it->second;
-    }
-
-    double value = 0.0;
     switch (a) {
     case BV_FF::A2:
-        value = this->A_2(q2);
-        break;
+        return this->A_2(q2);
     case BV_FF::T3:
-        value = this->T_3(q2);
-        break;
+        return this->T_3(q2);
     case BV_FF::XI_PERP:
-        value = this->xi_perp(q2);
-        break;
+        return this->xi_perp(q2);
     case BV_FF::XI_PAR:
-        value = this->xi_par(q2);
-        break;
+        return this->xi_par(q2);
     case BV_FF::F_PERP:
-        value = this->f_perp(q2);
-        break;
+        return this->f_perp(q2);
     case BV_FF::F_PAR:
-        value = this->f_par(q2);
-        break;
+        return this->f_par(q2);
     case BV_FF::F_0:
-        value = this->f_0(q2);
-        break;
+        return this->f_0(q2);
     default:
-        value = this->F_a(a, q2);
-        break;
+        return this->F_a(a, q2);
     }
-
-    this->get_cache.emplace(key, value);
-    return value;
 }
 
 void BVFFCalculator::load_FF_params(BV_FF_Src src) {
@@ -113,7 +92,6 @@ double BVFFCalculator::E(double q2) {
 }
 
 double BVFFCalculator::F_a(BV_FF a, double q2) {
-    // LOG_INFO("Computing FF n°", (int)a);
     auto ai = this->alpha_ai.at(a);
     double P = pole(q2, this->m_R.at(a));
     double Z = std::real(z(q2, this->t_p, this->t_0)) - this->z_0;
