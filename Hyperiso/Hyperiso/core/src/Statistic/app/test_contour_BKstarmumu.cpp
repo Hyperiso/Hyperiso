@@ -192,13 +192,13 @@ int main() {
         add_ang_bin(4.3, 6.0);
         // add_ang_bin(6.0, 8.68); // à exclure pour reproduire Table 1
         add_ang_bin(14.18, 16.0);
-        add_ang_bin(0.06, 0.98);
-        add_ang_bin(1.1, 2.5);
-        add_ang_bin(2.5, 4.0);
-        add_ang_bin(4.0, 6.0);
-        // add_ang_bin(6.0, 8.0); // à exclure
-        add_ang_bin(15.0, 17.0);
-        add_ang_bin(17.0, 19.0);
+        // add_ang_bin(0.06, 0.98);
+        // add_ang_bin(1.1, 2.5);
+        // add_ang_bin(2.5, 4.0);
+        // add_ang_bin(4.0, 6.0);
+        // // add_ang_bin(6.0, 8.0); // à exclure
+        // add_ang_bin(15.0, 17.0);
+        // add_ang_bin(17.0, 19.0);
 
         // // // LHCb2025 config 2, en excluant [6, 8]
         // add_ang_bin(0.06, 0.98);
