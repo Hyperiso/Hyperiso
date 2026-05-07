@@ -113,45 +113,119 @@ int main() {
     hyp.init("lha/si_input.flha", config_hyp);
 
     auto oint = std::make_shared<ObservableInterface>();
-    oint->add_observable(BinnedObservableId{ObservableMapper::to_id(Observables::F_L_B0__KSTAR0_MU_MU), {1.1, 2}}, QCDOrder::NNLO, true)
-        .add_observable(BinnedObservableId{ObservableMapper::to_id(Observables::A_T_2_B0__KSTAR0_MU_MU), {1.1, 2}}, QCDOrder::NNLO, true)
-        .add_observable(BinnedObservableId{ObservableMapper::to_id(Observables::P_2_B0__KSTAR0_MU_MU), {1.1, 2}}, QCDOrder::NNLO, true)
-        .add_observable(BinnedObservableId{ObservableMapper::to_id(Observables::P_3_B0__KSTAR0_MU_MU), {1.1, 2}}, QCDOrder::NNLO, true)
-        .add_observable(BinnedObservableId{ObservableMapper::to_id(Observables::P_PRIME_4_B0__KSTAR0_MU_MU), {1.1, 2}}, QCDOrder::NNLO, true)
-        .add_observable(BinnedObservableId{ObservableMapper::to_id(Observables::P_PRIME_5_B0__KSTAR0_MU_MU), {1.1, 2}}, QCDOrder::NNLO, true)
-        .add_observable(BinnedObservableId{ObservableMapper::to_id(Observables::P_PRIME_6_B0__KSTAR0_MU_MU), {1.1, 2}}, QCDOrder::NNLO, true)
-        .add_observable(BinnedObservableId{ObservableMapper::to_id(Observables::P_PRIME_8_B0__KSTAR0_MU_MU), {1.1, 2}}, QCDOrder::NNLO, true)
-        .add_observable(BinnedObservableId{ObservableMapper::to_id(Observables::F_L_B0__KSTAR0_MU_MU), {2, 4.3}}, QCDOrder::NNLO, true)
-        .add_observable(BinnedObservableId{ObservableMapper::to_id(Observables::A_T_2_B0__KSTAR0_MU_MU), {2, 4.3}}, QCDOrder::NNLO, true)
-        .add_observable(BinnedObservableId{ObservableMapper::to_id(Observables::P_2_B0__KSTAR0_MU_MU), {2, 4.3}}, QCDOrder::NNLO, true)
-        .add_observable(BinnedObservableId{ObservableMapper::to_id(Observables::P_3_B0__KSTAR0_MU_MU), {2, 4.3}}, QCDOrder::NNLO, true)
-        .add_observable(BinnedObservableId{ObservableMapper::to_id(Observables::P_PRIME_4_B0__KSTAR0_MU_MU), {2, 4.3}}, QCDOrder::NNLO, true)
-        .add_observable(BinnedObservableId{ObservableMapper::to_id(Observables::P_PRIME_5_B0__KSTAR0_MU_MU), {2, 4.3}}, QCDOrder::NNLO, true)
-        .add_observable(BinnedObservableId{ObservableMapper::to_id(Observables::P_PRIME_6_B0__KSTAR0_MU_MU), {2, 4.3}}, QCDOrder::NNLO, true)
-        .add_observable(BinnedObservableId{ObservableMapper::to_id(Observables::P_PRIME_8_B0__KSTAR0_MU_MU), {2, 4.3}}, QCDOrder::NNLO, true)
-        .add_observable(BinnedObservableId{ObservableMapper::to_id(Observables::F_L_B0__KSTAR0_MU_MU), {4.3, 6}}, QCDOrder::NNLO, true)
-        .add_observable(BinnedObservableId{ObservableMapper::to_id(Observables::A_T_2_B0__KSTAR0_MU_MU), {4.3, 6}}, QCDOrder::NNLO, true)
-        .add_observable(BinnedObservableId{ObservableMapper::to_id(Observables::P_2_B0__KSTAR0_MU_MU), {4.3, 6}}, QCDOrder::NNLO, true)
-        .add_observable(BinnedObservableId{ObservableMapper::to_id(Observables::P_3_B0__KSTAR0_MU_MU), {4.3, 6}}, QCDOrder::NNLO, true)
-        .add_observable(BinnedObservableId{ObservableMapper::to_id(Observables::P_PRIME_4_B0__KSTAR0_MU_MU), {4.3, 6}}, QCDOrder::NNLO, true)
-        .add_observable(BinnedObservableId{ObservableMapper::to_id(Observables::P_PRIME_5_B0__KSTAR0_MU_MU), {4.3, 6}}, QCDOrder::NNLO, true)
-        .add_observable(BinnedObservableId{ObservableMapper::to_id(Observables::P_PRIME_6_B0__KSTAR0_MU_MU), {4.3, 6}}, QCDOrder::NNLO, true)
-        .add_observable(BinnedObservableId{ObservableMapper::to_id(Observables::P_PRIME_8_B0__KSTAR0_MU_MU), {4.3, 6}}, QCDOrder::NNLO, true)
-        .add_observable(BinnedObservableId{ObservableMapper::to_id(Observables::F_L_B0__KSTAR0_MU_MU), {14.18, 16}}, QCDOrder::NNLO, true)
-        .add_observable(BinnedObservableId{ObservableMapper::to_id(Observables::A_T_2_B0__KSTAR0_MU_MU), {14.18, 16}}, QCDOrder::NNLO, true)
-        .add_observable(BinnedObservableId{ObservableMapper::to_id(Observables::P_2_B0__KSTAR0_MU_MU), {14.18, 16}}, QCDOrder::NNLO, true)
-        .add_observable(BinnedObservableId{ObservableMapper::to_id(Observables::P_3_B0__KSTAR0_MU_MU), {14.18, 16}}, QCDOrder::NNLO, true)
-        .add_observable(BinnedObservableId{ObservableMapper::to_id(Observables::P_PRIME_4_B0__KSTAR0_MU_MU), {14.18, 16}}, QCDOrder::NNLO, true)
-        .add_observable(BinnedObservableId{ObservableMapper::to_id(Observables::P_PRIME_5_B0__KSTAR0_MU_MU), {14.18, 16}}, QCDOrder::NNLO, true)
-        .add_observable(BinnedObservableId{ObservableMapper::to_id(Observables::P_PRIME_6_B0__KSTAR0_MU_MU), {14.18, 16}}, QCDOrder::NNLO, true)
-        .add_observable(BinnedObservableId{ObservableMapper::to_id(Observables::P_PRIME_8_B0__KSTAR0_MU_MU), {14.18, 16}}, QCDOrder::NNLO, true);
+    // oint->add_observable(BinnedObservableId{ObservableMapper::to_id(Observables::F_L_B0__KSTAR0_MU_MU), {1.1, 2}}, QCDOrder::NNLO, true)
+    //     .add_observable(BinnedObservableId{ObservableMapper::to_id(Observables::P_1_CPV_B0__KSTAR0_MU_MU), {1.1, 2}}, QCDOrder::NNLO, true)
+    //     .add_observable(BinnedObservableId{ObservableMapper::to_id(Observables::P_2_B0__KSTAR0_MU_MU), {1.1, 2}}, QCDOrder::NNLO, true)
+    //     .add_observable(BinnedObservableId{ObservableMapper::to_id(Observables::P_3_B0__KSTAR0_MU_MU), {1.1, 2}}, QCDOrder::NNLO, true)
+    //     .add_observable(BinnedObservableId{ObservableMapper::to_id(Observables::P_PRIME_4_B0__KSTAR0_MU_MU), {1.1, 2}}, QCDOrder::NNLO, true)
+    //     .add_observable(BinnedObservableId{ObservableMapper::to_id(Observables::P_PRIME_5_B0__KSTAR0_MU_MU), {1.1, 2}}, QCDOrder::NNLO, true)
+    //     .add_observable(BinnedObservableId{ObservableMapper::to_id(Observables::P_PRIME_6_B0__KSTAR0_MU_MU), {1.1, 2}}, QCDOrder::NNLO, true)
+    //     .add_observable(BinnedObservableId{ObservableMapper::to_id(Observables::P_PRIME_8_B0__KSTAR0_MU_MU), {1.1, 2}}, QCDOrder::NNLO, true)
+    //     .add_observable(BinnedObservableId{ObservableMapper::to_id(Observables::F_L_B0__KSTAR0_MU_MU), {2, 4.3}}, QCDOrder::NNLO, true)
+    //     .add_observable(BinnedObservableId{ObservableMapper::to_id(Observables::P_1_CPV_B0__KSTAR0_MU_MU), {2, 4.3}}, QCDOrder::NNLO, true)
+    //     .add_observable(BinnedObservableId{ObservableMapper::to_id(Observables::P_2_B0__KSTAR0_MU_MU), {2, 4.3}}, QCDOrder::NNLO, true)
+    //     .add_observable(BinnedObservableId{ObservableMapper::to_id(Observables::P_3_B0__KSTAR0_MU_MU), {2, 4.3}}, QCDOrder::NNLO, true)
+    //     .add_observable(BinnedObservableId{ObservableMapper::to_id(Observables::P_PRIME_4_B0__KSTAR0_MU_MU), {2, 4.3}}, QCDOrder::NNLO, true)
+    //     .add_observable(BinnedObservableId{ObservableMapper::to_id(Observables::P_PRIME_5_B0__KSTAR0_MU_MU), {2, 4.3}}, QCDOrder::NNLO, true)
+    //     .add_observable(BinnedObservableId{ObservableMapper::to_id(Observables::P_PRIME_6_B0__KSTAR0_MU_MU), {2, 4.3}}, QCDOrder::NNLO, true)
+    //     .add_observable(BinnedObservableId{ObservableMapper::to_id(Observables::P_PRIME_8_B0__KSTAR0_MU_MU), {2, 4.3}}, QCDOrder::NNLO, true)
+    //     .add_observable(BinnedObservableId{ObservableMapper::to_id(Observables::F_L_B0__KSTAR0_MU_MU), {4.3, 6}}, QCDOrder::NNLO, true)
+    //     .add_observable(BinnedObservableId{ObservableMapper::to_id(Observables::P_1_CPV_B0__KSTAR0_MU_MU), {4.3, 6}}, QCDOrder::NNLO, true)
+    //     .add_observable(BinnedObservableId{ObservableMapper::to_id(Observables::P_2_B0__KSTAR0_MU_MU), {4.3, 6}}, QCDOrder::NNLO, true)
+    //     .add_observable(BinnedObservableId{ObservableMapper::to_id(Observables::P_3_B0__KSTAR0_MU_MU), {4.3, 6}}, QCDOrder::NNLO, true)
+    //     .add_observable(BinnedObservableId{ObservableMapper::to_id(Observables::P_PRIME_4_B0__KSTAR0_MU_MU), {4.3, 6}}, QCDOrder::NNLO, true)
+    //     .add_observable(BinnedObservableId{ObservableMapper::to_id(Observables::P_PRIME_5_B0__KSTAR0_MU_MU), {4.3, 6}}, QCDOrder::NNLO, true)
+    //     .add_observable(BinnedObservableId{ObservableMapper::to_id(Observables::P_PRIME_6_B0__KSTAR0_MU_MU), {4.3, 6}}, QCDOrder::NNLO, true)
+    //     .add_observable(BinnedObservableId{ObservableMapper::to_id(Observables::P_PRIME_8_B0__KSTAR0_MU_MU), {4.3, 6}}, QCDOrder::NNLO, true)
+    //     // .add_observable(BinnedObservableId{ObservableMapper::to_id(Observables::F_L_B0__KSTAR0_MU_MU), {6, 8.68}}, QCDOrder::NNLO, true)
+    //     // .add_observable(BinnedObservableId{ObservableMapper::to_id(Observables::P_1_CPV_B0__KSTAR0_MU_MU), {6, 8.68}}, QCDOrder::NNLO, true)
+    //     // .add_observable(BinnedObservableId{ObservableMapper::to_id(Observables::P_2_B0__KSTAR0_MU_MU), {6, 8.68}}, QCDOrder::NNLO, true)
+    //     // .add_observable(BinnedObservableId{ObservableMapper::to_id(Observables::P_3_B0__KSTAR0_MU_MU), {6, 8.68}}, QCDOrder::NNLO, true)
+    //     // .add_observable(BinnedObservableId{ObservableMapper::to_id(Observables::P_PRIME_4_B0__KSTAR0_MU_MU), {6, 8.68}}, QCDOrder::NNLO, true)
+    //     // .add_observable(BinnedObservableId{ObservableMapper::to_id(Observables::P_PRIME_5_B0__KSTAR0_MU_MU), {6, 8.68}}, QCDOrder::NNLO, true)
+    //     // .add_observable(BinnedObservableId{ObservableMapper::to_id(Observables::P_PRIME_6_B0__KSTAR0_MU_MU), {6, 8.68}}, QCDOrder::NNLO, true)
+    //     // .add_observable(BinnedObservableId{ObservableMapper::to_id(Observables::P_PRIME_8_B0__KSTAR0_MU_MU), {6, 8.68}}, QCDOrder::NNLO, true)
+    //     // .add_observable(BinnedObservableId{ObservableMapper::to_id(Observables::F_L_B0__KSTAR0_MU_MU), {10.09, 12.86}}, QCDOrder::NNLO, true)
+    //     // .add_observable(BinnedObservableId{ObservableMapper::to_id(Observables::P_1_CPV_B0__KSTAR0_MU_MU), {10.09, 12.86}}, QCDOrder::NNLO, true)
+    //     // .add_observable(BinnedObservableId{ObservableMapper::to_id(Observables::P_2_B0__KSTAR0_MU_MU), {10.09, 12.86}}, QCDOrder::NNLO, true)
+    //     // .add_observable(BinnedObservableId{ObservableMapper::to_id(Observables::P_3_B0__KSTAR0_MU_MU), {10.09, 12.86}}, QCDOrder::NNLO, true)
+    //     // .add_observable(BinnedObservableId{ObservableMapper::to_id(Observables::P_PRIME_4_B0__KSTAR0_MU_MU), {10.09, 12.86}}, QCDOrder::NNLO, true)
+    //     // .add_observable(BinnedObservableId{ObservableMapper::to_id(Observables::P_PRIME_5_B0__KSTAR0_MU_MU), {10.09, 12.86}}, QCDOrder::NNLO, true)
+    //     // .add_observable(BinnedObservableId{ObservableMapper::to_id(Observables::P_PRIME_6_B0__KSTAR0_MU_MU), {10.09, 12.86}}, QCDOrder::NNLO, true)
+    //     // .add_observable(BinnedObservableId{ObservableMapper::to_id(Observables::P_PRIME_8_B0__KSTAR0_MU_MU), {10.09, 12.86}}, QCDOrder::NNLO, true)
+    //     .add_observable(BinnedObservableId{ObservableMapper::to_id(Observables::F_L_B0__KSTAR0_MU_MU), {14.18, 16}}, QCDOrder::NNLO, true)
+    //     .add_observable(BinnedObservableId{ObservableMapper::to_id(Observables::P_1_CPV_B0__KSTAR0_MU_MU), {14.18, 16}}, QCDOrder::NNLO, true)
+    //     .add_observable(BinnedObservableId{ObservableMapper::to_id(Observables::P_2_B0__KSTAR0_MU_MU), {14.18, 16}}, QCDOrder::NNLO, true)
+    //     .add_observable(BinnedObservableId{ObservableMapper::to_id(Observables::P_3_B0__KSTAR0_MU_MU), {14.18, 16}}, QCDOrder::NNLO, true)
+    //     .add_observable(BinnedObservableId{ObservableMapper::to_id(Observables::P_PRIME_4_B0__KSTAR0_MU_MU), {14.18, 16}}, QCDOrder::NNLO, true)
+    //     .add_observable(BinnedObservableId{ObservableMapper::to_id(Observables::P_PRIME_5_B0__KSTAR0_MU_MU), {14.18, 16}}, QCDOrder::NNLO, true)
+    //     .add_observable(BinnedObservableId{ObservableMapper::to_id(Observables::P_PRIME_6_B0__KSTAR0_MU_MU), {14.18, 16}}, QCDOrder::NNLO, true)
+    //     .add_observable(BinnedObservableId{ObservableMapper::to_id(Observables::P_PRIME_8_B0__KSTAR0_MU_MU), {14.18, 16}}, QCDOrder::NNLO, true);
+
+        const std::vector<Observables> ang_obs = {
+            // Observables::DGAMMA_DQ2_B0__KSTAR0_MU_MU,
+            Observables::F_L_B0__KSTAR0_MU_MU,
+            Observables::P_1_B0__KSTAR0_MU_MU,
+            Observables::P_2_B0__KSTAR0_MU_MU,
+            Observables::P_3_B0__KSTAR0_MU_MU,
+            Observables::P_PRIME_4_B0__KSTAR0_MU_MU,
+            Observables::P_PRIME_5_B0__KSTAR0_MU_MU,
+            Observables::P_PRIME_6_B0__KSTAR0_MU_MU,
+            Observables::P_PRIME_8_B0__KSTAR0_MU_MU,
+            Observables::S_1C_B0__KSTAR0_MU_MU,
+            Observables::S_2S_B0__KSTAR0_MU_MU
+        };
+
+        auto add_ang_bin = [&](double q2min, double q2max) {
+            for (auto obs : ang_obs) {
+                oint->add_observable(
+                    BinnedObservableId{ObservableMapper::to_id(obs), {q2min, q2max}},
+                    QCDOrder::NNLO,
+                    true
+                );
+            }
+        };
+
+        // CMS, Table 1, en excluant le bin problématique [6, 8.68]
+        add_ang_bin(1.1, 2.0);
+        add_ang_bin(2.0, 4.3);
+        add_ang_bin(4.3, 6.0);
+        // add_ang_bin(6.0, 8.68); // à exclure pour reproduire Table 1
+        add_ang_bin(14.18, 16.0);
+        // add_ang_bin(0.06, 0.98);
+        // add_ang_bin(1.1, 2.5);
+        // add_ang_bin(2.5, 4.0);
+        // add_ang_bin(4.0, 6.0);
+        // // add_ang_bin(6.0, 8.0); // à exclure
+        // add_ang_bin(15.0, 17.0);
+        // add_ang_bin(17.0, 19.0);
+
+        // // // LHCb2025 config 2, en excluant [6, 8]
+        // add_ang_bin(0.06, 0.98);
+        // add_ang_bin(1.1, 2.5);
+        // add_ang_bin(2.5, 4.0);
+        // add_ang_bin(4.0, 6.0);
+        // // add_ang_bin(6.0, 8.0); // à exclure
+        // add_ang_bin(15.0, 17.0);
+        // add_ang_bin(17.0, 19.0);
+        // oint->add_observable(
+        //             BinnedObservableId{ObservableMapper::to_id(Observables::S_2S_B0__KSTAR0_MU_MU), {0.06, 0.98}},
+        //             QCDOrder::NNLO,
+        //             true
+        //         );
+        // oint->add_observable(
+        //             BinnedObservableId{ObservableMapper::to_id(Observables::S_6C_B0__KSTAR0_MU_MU), {0.06, 0.98}},
+        //             QCDOrder::NNLO,
+        //             true
+        //         );
+
 
     std::shared_ptr<IStatParamOptimizerProxy> spop = std::make_shared<StatParamOptimizerProxy>();
     auto model = std::make_shared<ObservableInterfaceAdapterObs>(oint, spop);
 
     StatisticConfig config;
     config.MLE_max_iter = 120000;
-    config.MLE_tol = 0.2;
+    config.MLE_tol = 0.1;
     config.MLE_trace_first_evals  = true;
     config.MLE_trace_max_evals  = 20;
 
@@ -164,6 +238,11 @@ int main() {
         ParamId{ParameterType::WILSON, had_bsm_block, WCoefMapper::flha_full(WCoef::C9, QCDOrder::LO, ContributionType::BSM)},
         ParamId{ParameterType::WILSON, had_bsm_block, WCoefMapper::flha_full(WCoef::C10, QCDOrder::LO, ContributionType::BSM)}
     };
+
+    // std::vector<ParamId> p_specs = {
+    //     // ParamId{ParameterType::WILSON, had_bsm_block, WCoefMapper::flha_full(WCoef::C9, QCDOrder::LO, ContributionType::BSM)},
+    //     ParamId{ParameterType::WILSON, had_bsm_block, WCoefMapper::flha_full(WCoef::C10, QCDOrder::LO, ContributionType::BSM)}
+    // };
 
     LOG_INFO("Creating StatisticManager.");
 
@@ -179,7 +258,13 @@ int main() {
         std::make_shared<NuisanceReader>(npp),
         spop
     );
-
+    // std::set<std::string> exp = {"CMS", "LHCb2020", "LHCb2025c2"};
+    // std::set<std::string> exp = {"LHCb2020"};
+    // std::set<std::string> exp = {"LHCb2025c2"};
+    // std::set<std::string> exp = {"CMS"};
+    std::set<std::string> exp = {"CMS", "LHCb2020"};
+    stat.select_experiments(exp);
+    
     LOG_INFO("StatisticManager created.");
 
     auto t2 = std::chrono::steady_clock::now();

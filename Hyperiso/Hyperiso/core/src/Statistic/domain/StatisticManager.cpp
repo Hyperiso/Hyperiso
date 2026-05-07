@@ -1993,7 +1993,9 @@ FitResultWithMaps StatisticManager::compute_MLE(const std::vector<ParamId>& p_sp
     if (cache.p_specs.empty()) {
         throw std::invalid_argument("compute_MLE called with an empty fit parameter list.");
     }
-
+    for (auto elem : cache.exp_obs) {
+        LOG_INFO("EXPERIMENT OBS : ", elem.first, elem.second);
+    }
     auto unzipped_fit_params = unzip(cache.p_specs);
     auto unzipped_nuisances  = unzip(cache.eta_specs_real);
     auto unzipped_exp_obs    = unzip(cache.exp_obs);
@@ -2646,16 +2648,41 @@ std::map<ExperimentObs, std::map<ExperimentObs, double>> StatisticManager::get_a
     return res;
 }
 
+// std::map<ExperimentObs, double> StatisticManager::get_obs_exp() {
+//     std::map<ExperimentObs, double> out;
+
+//     for (const auto& obsId : obs_int->get_obs_ids()) {
+//         auto _ = pspp->get_obs_param(obsId);
+//         for (auto _2 : _) {
+//             out[_2.first] = _2.second->get_val(); 
+//         }
+//         // out[obsId] = pspp->get_obs_param(obsId)->get_val();
+//     }
+//     return out;
+// }
+
 std::map<ExperimentObs, double> StatisticManager::get_obs_exp() {
     std::map<ExperimentObs, double> out;
 
     for (const auto& obsId : obs_int->get_obs_ids()) {
-        auto _ = pspp->get_obs_param(obsId);
-        for (auto _2 : _) {
-            out[_2.first] = _2.second->get_val(); 
+        auto exp_params = pspp->get_obs_param(obsId);
+
+        for (const auto& [exp_obs, param] : exp_params) {
+            if (selected_experiments_.has_value()
+                && !selected_experiments_->contains(exp_obs.experiment)) {
+                continue;
+            }
+
+            out[exp_obs] = param->get_val();
         }
-        // out[obsId] = pspp->get_obs_param(obsId)->get_val();
     }
+
+    if (out.empty()) {
+        throw std::runtime_error(
+            "StatisticManager::get_obs_exp: experiment selection matched no experimental observable."
+        );
+    }
+
     return out;
 }
 
@@ -2881,4 +2908,43 @@ void StatisticManager::save_likelihood_scan_csv(const std::string& path,
             << pt.nll << ","
             << pt.delta_nll << "\n";
     }
+}
+
+void StatisticManager::select_experiment(const std::string& experiment) {
+    select_experiments(std::set<std::string>{experiment});
+}
+
+void StatisticManager::select_experiments(const std::vector<std::string>& experiments) {
+    select_experiments(std::set<std::string>(
+        experiments.begin(),
+        experiments.end()
+    ));
+}
+
+void StatisticManager::select_experiments(const std::set<std::string>& experiments) {
+    if (experiments.empty()) {
+        throw std::invalid_argument(
+            "StatisticManager::select_experiments: empty experiment set."
+        );
+    }
+
+    selected_experiments_ = experiments;
+    invalidate_fit_state();
+}
+
+void StatisticManager::select_experiments_all() {
+    selected_experiments_.reset();
+    invalidate_fit_state();
+}
+
+bool StatisticManager::has_experiment_selection() const noexcept {
+    return selected_experiments_.has_value();
+}
+
+std::set<std::string> StatisticManager::selected_experiments() const {
+    if (!selected_experiments_) {
+        return {};
+    }
+
+    return *selected_experiments_;
 }

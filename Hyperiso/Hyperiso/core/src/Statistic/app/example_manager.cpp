@@ -116,7 +116,9 @@ int main() {
     oint->add_observable(ObservableMapper::to_id(Observables::BR_BS_MUMU_UNTAG), QCDOrder::LO, true)
         .add_observable(ObservableMapper::to_id(Observables::BR_BD_MUMU), QCDOrder::LO, true);
 
-    auto model = std::make_shared<ObservableInterfaceAdapterObs>(oint);
+    std::shared_ptr<IStatParamOptimizerProxy> spop = std::make_shared<StatParamOptimizerProxy>();
+
+    auto model = std::make_shared<ObservableInterfaceAdapterObs>(oint, spop);
 
     StatisticConfig config;
     config.MC_draws = 100;
@@ -137,7 +139,8 @@ int main() {
         std::make_shared<StatParameterProxy>(),
         std::make_shared<StatParamSourcesProxy>(),
         std::make_shared<StatDependencyPruner>(),
-        std::make_shared<NuisanceReader>(npp)
+        std::make_shared<NuisanceReader>(npp),
+        spop
     );
 
     auto t0 = std::chrono::steady_clock::now();

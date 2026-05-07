@@ -312,13 +312,13 @@ struct StatisticConfig {
     double skew_abs_threshold = 0.2;
 
     std::size_t MLE_max_iter = 500;
-    double MLE_tol = 1e-6;
+    double MLE_tol = 1e-8;
     unsigned MLE_strategy = 2;
     bool MLE_run_hesse = true;
     bool MLE_request_minos = false;
     bool MLE_verbose = false;
 
-    double nuisance_relevance_cutoff = 1e-5;
+    double nuisance_relevance_cutoff = 1e-8;
 
     // Nouveau : pruning par sensibilité locale du modèle
     bool nuisance_sensitivity_pruning = true;
@@ -328,8 +328,8 @@ struct StatisticConfig {
 
     // Une nuisance est gardée si son effet 1σ dépasse au moins
     // un des deux seuils ci-dessous.
-    double nuisance_sensitivity_rel_cutoff = 1e-4;
-    double nuisance_sensitivity_abs_cutoff = 1e-10;
+    double nuisance_sensitivity_rel_cutoff = 1e-6;
+    double nuisance_sensitivity_abs_cutoff = 1e-12;
 
     // Evite de diviser par des échelles trop petites quand une observable ~ 0
     double nuisance_sensitivity_scale_floor = 1e-3;
@@ -476,6 +476,9 @@ public:
     // }
 
     void update_cache(const std::vector<ParamId>& p_specs = std::vector<ParamId>()) {
+        for (auto elem : this->selected_experiments_.value()){
+            LOG_INFO("CHANGING OBS : ", elem);}
+
         for (const auto& [tp, block] : last_detached_fit_blocks_) {
             dp->reattach_block(tp, block);
         }
@@ -632,6 +635,15 @@ public:
     //     return out;
     // }
 
+    void select_experiment(const std::string& experiment);
+    void select_experiments(const std::set<std::string>& experiments);
+    void select_experiments(const std::vector<std::string>& experiments);
+
+    void select_experiments_all();
+
+    bool has_experiment_selection() const noexcept;
+    std::set<std::string> selected_experiments() const;
+
     std::map<ParamId, double> get_all_obss_deps();
     std::map<ParamId, double> get_p_specs(const std::vector<ParamId>& p_specs);
     std::map<ParamId, std::map<ParamId, double>> get_all_correlations();
@@ -685,6 +697,8 @@ private:
 
     std::vector<ParamId> last_detached_fit_params_;
     std::vector<std::pair<ParameterType, std::string>> last_detached_fit_blocks_;
+
+    std::optional<std::set<std::string>> selected_experiments_;
 };
 
 #endif
