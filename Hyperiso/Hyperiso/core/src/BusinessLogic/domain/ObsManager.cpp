@@ -224,3 +224,14 @@ void ObsManager::enable_obs() {
     for (auto& did : unique_decays)
         this->decays[did]->enable();
 }
+
+
+ObsManager ObsManager::set_bkstarll_threads(size_t n_threads) {
+    auto dec_id = DecayMapper::to_id(Decays::B__Kstar_l_l);
+    auto dec = std::dynamic_pointer_cast<BKstarllDecay>(this->decays.at(dec_id));
+    if (!dec) {
+        LOG_ERROR("TypeError", "Decay B__Kstar_l_l is not a BKstarllDecay");
+    }
+    dec->set_n_threads(n_threads);
+    return *this;
+}

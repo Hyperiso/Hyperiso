@@ -224,7 +224,7 @@ int main() {
     BKstarllConfig cfg;
     cfg.ff_src = BV_FF_Src::GRvDV;
     oint->set_decay_config(Decays::B__Kstar_l_l, cfg);
-
+    oint->set_bkstarll_threads(30);
     std::shared_ptr<IStatParamOptimizerProxy> spop = std::make_shared<StatParamOptimizerProxy>();
     auto model = std::make_shared<ObservableInterfaceAdapterObs>(oint, spop);
     
@@ -267,8 +267,8 @@ int main() {
     // std::set<std::string> exp = {"CMS", "LHCb2020", "LHCb2025c2"};
     // std::set<std::string> exp = {"LHCb2020"};
     // std::set<std::string> exp = {"LHCb2025c2"};
-    // std::set<std::string> exp = {"CMS"};
-    std::set<std::string> exp = {"CMS", "LHCb2020"};
+    std::set<std::string> exp = {"CMS"};
+    // std::set<std::string> exp = {"CMS", "LHCb2020"};
     stat.select_experiments(exp);
     
     LOG_INFO("StatisticManager created.");

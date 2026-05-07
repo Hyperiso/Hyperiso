@@ -1,6 +1,9 @@
 #ifndef __BKSTARLLDECAY_H__
 #define __BKSTARLLDECAY_H__
 
+#include <thread>
+#include <algorithm>
+
 #include "DecayParent.h"
 #include "Include.h"
 #include "ObsQCDProxy.h"
@@ -18,6 +21,8 @@ struct BKstarllConfig : public DecayConfig {
     Power_Corrections_Impl power_corr_impl {Power_Corrections_Impl::BFS};
     B_Charge charge {B_Charge::B_PLUS};
     Lepton gen {Lepton::MU};
+
+    size_t n_threads {1};
 };
 
 struct BKstarllCache {
@@ -92,6 +97,7 @@ public:
     std::vector<ObservableValue> compute_observable(ObservableId obs) override;
 
     void set_config_spe(BKstarllConfig config) override {this->cfg = config;}
+    void set_n_threads(size_t n_threads);
 
 private:
     BKstarllConfig cfg {};

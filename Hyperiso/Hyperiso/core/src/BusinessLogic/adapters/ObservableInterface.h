@@ -398,6 +398,15 @@ public:
     void set_decay_config(Decays dec, std::any config);
 
     /**
+     * @brief Set the thread option for the bkstarll decay
+     *
+     * Because bkstarll is the more time consuming calculation, multithreading is focused on it to improve calculation speed.
+     *
+     * @param n_threads Number of threads.
+     */
+    void set_bkstarll_threads(size_t n_threads);
+
+    /**
      * @brief Access the underlying ports configuration (advanced use).
      *
      * @details
