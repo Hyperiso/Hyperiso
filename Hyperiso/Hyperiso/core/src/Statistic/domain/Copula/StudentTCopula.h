@@ -95,6 +95,12 @@ public:
      */
     double log_density(std::vector<double> u) override;
 
+    RealMatrix dlog_density(std::vector<double> u) override;
+
+    RealMatrix ddlog_density(std::vector<double> u) override;
+
+    LogDensityDiff log_c_dc_ddc(std::vector<double> u) override { return LogDensityDiff(); }
+
 private:
     int nu;                 /// Degrees of freedom of the latent Student-t vector.
     RealMatrix R;           /// Correlation matrix used by the copula.

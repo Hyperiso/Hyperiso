@@ -55,6 +55,39 @@ double JointDistribution::logpdf(std::vector<double> x) const {
     return log_marg + copula_->log_density(u);    
 }
 
+RealMatrix JointDistribution::curvature(std::vector<double> x) const {
+    if (x.size() != marginals_.size()) 
+        throw std::invalid_argument("Wrong size of random vector.");
+
+    std::size_t d = x.size();
+
+    std::vector<double> u = std::vector<double>(d, 0.0);
+    RealMatrix W(d, d);
+    double marginal_term {0.0};
+    Vector f_i (d, 0.0);
+    Vector df_i (d, 0.0);
+    Vector ddf_i (d, 0.0);
+
+    for (size_t i = 0; i < marginals_.size(); i++) {
+        u[i] = std::clamp(marginals_[i]->cdf(x[i]), 1e-13, 1 - 1e-13);
+        PDFDiff fdf = marginals_[i]->f_df_ddf(x[i]);
+        f_i[i] = fdf.f;
+        df_i[i] = fdf.df;
+        ddf_i[i] = fdf.ddf;
+    }
+
+    LogDensityDiff cdc = copula_->log_c_dc_ddc(u);
+
+    for (size_t i = 0; i < d; i++) {
+        for (size_t j = 0; j < d; j++) {
+            W.at(i, j) = -cdc.ddlog_c.at(i, j) * f_i[i] * f_i[j];
+            if (i == j) W.at(i, j) += -cdc.dlog_c.at(i, 0) * df_i[i] - (ddf_i[i] / f_i[i] - std::pow(df_i[i] / f_i[i], 2));
+        }
+    }
+
+    return W;  
+}
+
 std::size_t JointDistribution::dim() {
     return marginals_.size();
 }

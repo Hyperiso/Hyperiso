@@ -17,6 +17,11 @@ double FlatMarginal::logpdf(double x) {
     return (x > a && x < b) ? std::log(gsl_ran_flat_pdf(x, a, b)) : -1e100;
 }
 
+PDFDiff FlatMarginal::f_df_ddf(double x) {
+    double f = logpdf(x);
+    return {f, 0.0, 0.0};
+}
+
 double FlatMarginal::cdf(double x) {
     return gsl_cdf_flat_P(x, a, b);
 }

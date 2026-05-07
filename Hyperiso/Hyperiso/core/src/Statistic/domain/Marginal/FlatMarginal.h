@@ -87,6 +87,8 @@ public:
     /// \copydoc IMarginalDistribution::logpdf
     double logpdf(double x) override;
 
+    PDFDiff f_df_ddf(double x) override;
+
     /// \copydoc IMarginalDistribution::cdf
     double cdf(double x) override;
 

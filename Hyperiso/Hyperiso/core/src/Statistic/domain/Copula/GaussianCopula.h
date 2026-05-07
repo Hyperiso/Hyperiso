@@ -1,6 +1,7 @@
 #ifndef GAUSSIANCOPULA_H
 #define GAUSSIANCOPULA_H
 
+#include "ICopula.h"
 #include "GenericCopula.h"
 #include "Matrix.h"
 #include "AbstractConfig.h"
@@ -94,6 +95,10 @@ public:
      * where \f$z_i = \Phi^{-1}(u_i)\f$.
      */
     double log_density(Vector u) override;
+    RealMatrix dlog_density(std::vector<double> u) override;
+    RealMatrix ddlog_density(std::vector<double> u) override;
+    LogDensityDiff log_c_dc_ddc(std::vector<double> u) override;
+
 
 private:
     

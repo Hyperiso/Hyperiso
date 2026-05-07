@@ -1,6 +1,14 @@
 #ifndef ICOPULA_H
 #define ICOPULA_H
 
+#include "Math.h"
+
+struct LogDensityDiff {
+    double log_c;
+    RealMatrix dlog_c;
+    RealMatrix ddlog_c;
+};
+
 /**
  * @file ICopula.h
  * @brief Abstract interface for multivariate copulas.
@@ -54,6 +62,30 @@ public:
      * @return \f$\log c(u)\f$, where \f$c\f$ is the copula density.
      */
     virtual double log_density(std::vector<double> u) = 0;
+
+    /**
+     * @brief Evaluates the gradient of the log-density of the copula at a point in the unit cube.
+     *
+     * @param u Point in \f$[0,1]^d\f$.
+     * @return \f$\nabla\log c(u)\f$, where \f$c\f$ is the copula density.
+     */
+    virtual RealMatrix dlog_density(std::vector<double> u) = 0;
+
+    /**
+     * @brief Evaluates the hessian of the log-density of the copula at a point in the unit cube.
+     *
+     * @param u Point in \f$[0,1]^d\f$.
+     * @return \f$\nabla^2\log c(u)\f$, where \f$c\f$ is the copula density.
+     */
+    virtual RealMatrix ddlog_density(std::vector<double> u) = 0;
+
+    /**
+     * @brief Evaluates the value, gradient and hessian of the log-density of the copula at a point in the unit cube.
+     *
+     * @param u Point in \f$[0,1]^d\f$.
+     * @return \f$\log c(u)\f$, \f$\nabla\log c(u)\f$, \f$\nabla^2\log c(u)\f$, where \f$c\f$ is the copula density.
+     */
+    virtual LogDensityDiff log_c_dc_ddc(std::vector<double> u) = 0;
 };
 
 #endif // ICOPULA_H

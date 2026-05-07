@@ -18,6 +18,7 @@
 #include "Include.h"
 #include "IMarginalDistribution.h"
 #include "ICopula.h"
+#include "Math.h"
 
 class JointDistribution {
 public:
@@ -27,6 +28,7 @@ public:
     std::vector<std::vector<double>> sample(std::size_t n) const;
     std::vector<double> sample() const;
     double logpdf(std::vector<double> x) const;
+    RealMatrix curvature(std::vector<double> x) const;
     std::size_t dim();
     std::vector<double> get_stds();
 

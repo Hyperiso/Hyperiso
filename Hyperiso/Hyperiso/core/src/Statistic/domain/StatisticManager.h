@@ -528,6 +528,22 @@ public:
         cache.SigmaEta = this->get_all_correlations();
         cache.exp_obs = this->get_obs_exp();
         cache.SigmaObs = this->get_all_obs_correlations();
+
+        std::ofstream fs;
+        fs.open("covariance.csv");
+        for (auto& [pid1, row] : cache.SigmaEta) {
+            double sigma_1 = std::abs(pspp->get_param(pid1)->get_combined_std().real());
+            for (auto& [pid2, corr] : row) {
+                double sigma_2 = std::abs(pspp->get_param(pid2)->get_combined_std().real());
+                if (pid2 == (*(--row.end())).first)
+                    fs << corr * sigma_1 * sigma_2;    
+                else
+                    fs << corr * sigma_1 * sigma_2 << ',';    
+            }
+            fs << '\n';
+        }
+
+        fs.close();
     }
 
     // std::map<ParamId, double> get_all_obss_deps() {
@@ -645,7 +661,7 @@ private:
     std::shared_ptr<IStatDependencyPruner> dp;
     std::shared_ptr<INuisanceReader> nuisance_reader_;
     std::shared_ptr<IStatParamOptimizerProxy> spop;
-    
+
     StatisticConfig config;
     StatCache cache;
     

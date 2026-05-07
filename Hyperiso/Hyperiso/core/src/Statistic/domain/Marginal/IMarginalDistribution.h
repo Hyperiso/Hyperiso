@@ -5,6 +5,12 @@
 #include <gsl/gsl_cdf.h>
 #include <gsl/gsl_rng.h>
 
+struct PDFDiff {
+    double f;
+    double df;
+    double ddf;
+};
+
 /**
  * @file IMarginalDistribution.h
  * @brief Interface for one-dimensional marginal probability distributions.
@@ -73,6 +79,8 @@ struct IMarginalDistribution {
      * @return Natural logarithm of the density (or implementation-defined proxy).
      */
     virtual double logpdf(double x) = 0;
+
+    virtual PDFDiff f_df_ddf(double x) = 0;
 
     /**
      * @brief Evaluates the cumulative distribution function at @p x.

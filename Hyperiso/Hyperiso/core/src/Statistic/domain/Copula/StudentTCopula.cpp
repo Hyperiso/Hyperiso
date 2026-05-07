@@ -60,3 +60,15 @@ double StudentTCopula::log_density(std::vector<double> u) {
 
     return log_t1 + log_td;
 }
+
+RealMatrix StudentTCopula::dlog_density(std::vector<double> u)
+{
+    // TODO
+    return RealMatrix();
+}
+
+RealMatrix StudentTCopula::ddlog_density(std::vector<double> u)
+{
+    // TODO
+    return RealMatrix();
+}

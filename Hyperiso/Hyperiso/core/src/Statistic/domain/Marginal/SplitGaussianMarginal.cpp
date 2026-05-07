@@ -22,6 +22,16 @@ double SplitGaussianMarginal::logpdf(double x) {
     return -0.5 * std::pow((x - mu) / sigma_local, 2);
 }
 
+PDFDiff SplitGaussianMarginal::f_df_ddf(double x) {
+    double sigma_local = x > mu ? sigma_p : sigma_m;
+    double s2 = sigma_local * sigma_local;
+    double f = N / std::sqrt(2 * PI) * std::exp(-0.5 * std::pow((x - mu) / sigma_local, 2));
+    double df = -(x - mu) / s2 * f;
+    double ddf = ((std::pow(x - mu / sigma_local, 2)) - 1) * f / s2;
+
+    return {f, df, ddf};
+}
+
 double SplitGaussianMarginal::cdf(double x) {
     if (x > mu) {
         return 2 * w * gsl_cdf_gaussian_P((x - mu) / sigma_m, 1);

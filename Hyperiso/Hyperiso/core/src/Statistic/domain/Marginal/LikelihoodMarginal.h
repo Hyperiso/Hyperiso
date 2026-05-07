@@ -96,6 +96,14 @@ public:
     double logpdf(double x) override { return 0.0; }
 
     /**
+     * @brief Placeholder density and derivatives implementation.
+     *
+     * @note The current implementation always returns 0.0.
+     *       This class is currently intended mainly as a sampler.
+     */
+    PDFDiff f_df_ddf(double x) override { return {0.0, 0.0, 0.0}; }
+
+    /**
      * @brief Placeholder CDF implementation.
      *
      * @note The current implementation always returns 0.0.
