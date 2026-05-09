@@ -280,7 +280,39 @@ install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
     PATTERN "CMakeFiles" EXCLUDE
 )
 
+# include(FetchContent)
+
+# FetchContent_Declare(minuit_cpp
+#   GIT_REPOSITORY https://github.com/doughague/minuit-cpp.git
+#   GIT_TAG b5f2558
+#   GIT_SHALLOW TRUE
+# )
+
+
+# FetchContent_MakeAvailable(minuit_cpp)
+
+# if(NOT TARGET MinuitCpp)
+#   add_library(MinuitCpp INTERFACE)
+
+#   if(TARGET minuit-cpp)
+#     target_link_libraries(MinuitCpp INTERFACE minuit-cpp)          # shared
+#   elseif(TARGET minuit-cpp-static)
+#     target_link_libraries(MinuitCpp INTERFACE minuit-cpp-static)   # static
+#   else()
+#     message(FATAL_ERROR "Targets minuit-cpp introuvables (minuit-cpp / minuit-cpp-static).")
+#   endif()
+
+#   target_include_directories(MinuitCpp INTERFACE
+#     ${minuit_cpp_SOURCE_DIR}/include
+#   )
+
+#   add_library(MinuitCpp::MinuitCpp ALIAS MinuitCpp)
+# endif()
+
+# target_link_libraries(ExternalIntegrationLib PUBLIC MinuitCpp::MinuitCpp)
+
 include(FetchContent)
+include(CheckIncludeFile)
 
 FetchContent_Declare(minuit_cpp
   GIT_REPOSITORY https://github.com/doughague/minuit-cpp.git
@@ -288,25 +320,57 @@ FetchContent_Declare(minuit_cpp
   GIT_SHALLOW TRUE
 )
 
-
-FetchContent_MakeAvailable(minuit_cpp)
-
-if(NOT TARGET MinuitCpp)
-  add_library(MinuitCpp INTERFACE)
-
-  if(TARGET minuit-cpp)
-    target_link_libraries(MinuitCpp INTERFACE minuit-cpp)          # shared
-  elseif(TARGET minuit-cpp-static)
-    target_link_libraries(MinuitCpp INTERFACE minuit-cpp-static)   # static
-  else()
-    message(FATAL_ERROR "Targets minuit-cpp introuvables (minuit-cpp / minuit-cpp-static).")
-  endif()
-
-  target_include_directories(MinuitCpp INTERFACE
-    ${minuit_cpp_SOURCE_DIR}/include
-  )
-
-  add_library(MinuitCpp::MinuitCpp ALIAS MinuitCpp)
+FetchContent_GetProperties(minuit_cpp)
+if(NOT minuit_cpp_POPULATED)
+  FetchContent_Populate(minuit_cpp)
 endif()
+
+check_include_file("getopt.h" HAVE_GETOPT_H)
+if(NOT HAVE_GETOPT_H)
+  set(HAVE_GETOPT_H 0)
+endif()
+
+set(MINUIT_CPP_MONIKER "minuit-cpp")
+set(MINUIT_CPP_TITLE "C++ Minimization Package")
+set(MINUIT_CPP_AUTHOR "Doug Hague")
+set(MINUIT_CPP_YEAR "2013")
+set(MINUIT_CPP_VERSION_MAJOR "5")
+set(MINUIT_CPP_VERSION_MINOR "29")
+set(MINUIT_CPP_VERSION_PATCH "00")
+set(MINUIT_CPP_VERSION "${MINUIT_CPP_VERSION_MAJOR}.${MINUIT_CPP_VERSION_MINOR}.${MINUIT_CPP_VERSION_PATCH}")
+set(MINUIT_CPP_SOURCE_DIR "${minuit_cpp_SOURCE_DIR}")
+set(MINUIT_CPP_BINARY_DIR "${minuit_cpp_BINARY_DIR}")
+
+set(_HYPERISO_SAVED_PROJECT_NAME "${PROJECT_NAME}")
+set(PROJECT_NAME "MINUIT_CPP")
+
+file(MAKE_DIRECTORY "${minuit_cpp_BINARY_DIR}/include/minuit-cpp")
+
+configure_file(
+  "${minuit_cpp_SOURCE_DIR}/src/Config.hh.in"
+  "${minuit_cpp_BINARY_DIR}/include/minuit-cpp/Config.hh"
+  @ONLY
+)
+
+set(PROJECT_NAME "${_HYPERISO_SAVED_PROJECT_NAME}")
+
+file(GLOB MINUIT_CPP_SOURCES CONFIGURE_DEPENDS
+  "${minuit_cpp_SOURCE_DIR}/src/lib/*.cxx"
+)
+
+add_library(MinuitCpp STATIC ${MINUIT_CPP_SOURCES})
+add_library(MinuitCpp::MinuitCpp ALIAS MinuitCpp)
+
+set_target_properties(MinuitCpp PROPERTIES
+  POSITION_INDEPENDENT_CODE ON
+)
+
+target_include_directories(MinuitCpp
+  PUBLIC
+    "${minuit_cpp_BINARY_DIR}/include"
+    "${minuit_cpp_SOURCE_DIR}/include"
+)
+
+target_compile_features(MinuitCpp PUBLIC cxx_std_20)
 
 target_link_libraries(ExternalIntegrationLib PUBLIC MinuitCpp::MinuitCpp)
