@@ -61,13 +61,13 @@ unsigned int fresh_seed() {
     return std::random_device{}();
 }
 
-void init_abstract_config(py::module_& m) {
-    // Utile si ce fichier est chargé seul. Si AbstractConfig est déjà exposée
-    // ailleurs dans le même module, on évite une double déclaration.
-    if (!py::hasattr(m, "AbstractConfig")) {
-        py::class_<AbstractConfig>(m, "AbstractConfig");
-    }
-}
+// void init_abstract_config(py::module_& m) {
+//     // Utile si ce fichier est chargé seul. Si AbstractConfig est déjà exposée
+//     // ailleurs dans le même module, on évite une double déclaration.
+//     if (!py::hasattr(m, "AbstractConfig")) {
+//         py::class_<AbstractConfig>(m, "AbstractConfig");
+//     }
+// }
 
 MarginalConfig to_marginal_config(const py::handle& obj) {
     if (py::isinstance<FlatMarginalCfg>(obj)) {
@@ -621,7 +621,7 @@ void init_statistic_interface(py::module_& m) {
 } // namespace
 
 void init_statistic(py::module_& m) {
-    init_abstract_config(m);
+    // init_abstract_config(m);
     init_marginals(m);
     init_marginal_config_factory(m);
     init_copulas(m);
