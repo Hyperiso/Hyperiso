@@ -476,8 +476,13 @@ public:
     // }
 
     void update_cache(const std::vector<ParamId>& p_specs = std::vector<ParamId>()) {
-        for (auto elem : this->selected_experiments_.value()){
-            LOG_INFO("CHANGING OBS : ", elem);}
+        if (selected_experiments_.has_value()) {
+            for (const auto& elem : *selected_experiments_) {
+                LOG_INFO("USING SELECTED EXPERIMENT: ", elem);
+            }
+        } else {
+            LOG_INFO("USING ALL EXPERIMENTS");
+        }
 
         for (const auto& [tp, block] : last_detached_fit_blocks_) {
             dp->reattach_block(tp, block);

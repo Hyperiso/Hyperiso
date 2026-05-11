@@ -14,15 +14,41 @@ public:
     StatisticInterface(StatisticConfig config, std::shared_ptr<ObservableInterface> oi_) {
         std::shared_ptr<ObservableInterface> oi = oi_;
         std::shared_ptr<IStatParamOptimizerProxy> spop = std::make_shared<StatParamOptimizerProxy>();
-        std::shared_ptr<IModel> oia= std::make_shared<ObservableInterfaceAdapterObs>(oi, spop);
+        std::shared_ptr<IModel> oia = std::make_shared<ObservableInterfaceAdapterObs>(oi, spop);
         std::shared_ptr<IStatCorrelationProxy> pscp = std::make_shared<StatCorrelationProxy>();
         std::shared_ptr<IStatParameterProxy> pspp = std::make_shared<StatParameterProxy>();
         std::shared_ptr<IStatSourcesProxy> sp = std::make_shared<StatParamSourcesProxy>();
         std::shared_ptr<IStatDependencyPruner> sdp = std::make_shared<StatDependencyPruner>();
         std::shared_ptr<INuisancePathsProvider> npp = std::make_shared<DefaultNuisancePathsProvider>();
         std::shared_ptr<INuisanceReader> nr = std::make_shared<NuisanceReader>(npp);
+
         manager = std::make_shared<StatisticManager>(config, oia, pscp, pspp, sp, sdp, nr, spop);
+
+        manager->select_experiments_all();
         manager->update_cache();
+    }
+
+    void select_experiment(const std::string& experiment) {
+        manager->select_experiment(experiment);
+        manager->update_cache();
+    }
+
+    void select_experiments(const std::vector<std::string>& experiments) {
+        manager->select_experiments(experiments);
+        manager->update_cache();
+    }
+
+    void select_experiments_all() {
+        manager->select_experiments_all();
+        manager->update_cache();
+    }
+
+    bool has_experiment_selection() const noexcept {
+        return manager->has_experiment_selection();
+    }
+
+    std::set<std::string> selected_experiments() const {
+        return manager->selected_experiments();
     }
 
     std::map<BinnedObservableId, GaussianSummary> compute_uncertainties() {

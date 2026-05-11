@@ -70,7 +70,7 @@ class DistributionFactoryWrapper:
         cpp_kind = kind.to_cpp()
         cpp_cfg = config.to_cpp()
 
-        cpp_dist = st.DistributionFactory.create(cpp_kind, cpp_cfg, seed)
+        cpp_dist = st.MarginalFactory.create(cpp_kind, cpp_cfg, seed)
         return MarginalDistribution.from_cpp(cpp_dist)
 
     @staticmethod

@@ -606,6 +606,11 @@ void init_statistic_interface(py::module_& m) {
     py::class_<StatisticInterface, std::shared_ptr<StatisticInterface>>(m, "StatisticInterface")
         .def(py::init<StatisticConfig, std::shared_ptr<ObservableInterface>>(),
              py::arg("config"), py::arg("observable_interface"))
+        .def("select_experiment", &StatisticInterface::select_experiment, py::arg("experiment"))
+        .def("select_experiments", &StatisticInterface::select_experiments, py::arg("experiments"))
+        .def("select_experiments_all", &StatisticInterface::select_experiments_all)
+        .def("has_experiment_selection", &StatisticInterface::has_experiment_selection)
+        .def("selected_experiments", &StatisticInterface::selected_experiments)
         .def("compute_uncertainties", &StatisticInterface::compute_uncertainties)
         .def("compute_uncertainties_and_sampling", &StatisticInterface::compute_uncertainties_and_sampling)
         .def("compute_MLE", &StatisticInterface::compute_MLE, py::arg("p_specs"))
