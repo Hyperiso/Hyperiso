@@ -1455,7 +1455,7 @@
   "B_SCALE": {
     "1": {
       "central_value": 4.7,
-      "stat_error": 0,
+      "stat_error": 1.9,
       "syst_error": 0
     }
   },

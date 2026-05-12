@@ -187,12 +187,12 @@ int main() {
         };
 
         // CMS, Table 1, en excluant le bin problématique [6, 8.68]
-        // add_ang_bin(1.1, 2.0);
-        // add_ang_bin(2.0, 4.3);
-        // add_ang_bin(4.3, 6.0);
+        add_ang_bin(1.1, 2.0);
+        add_ang_bin(2.0, 4.3);
+        add_ang_bin(4.3, 6.0);
         // add_ang_bin(6.0, 8.68); // à exclure pour reproduire Table 1
         // add_ang_bin(10.09, 12.86);
-        // add_ang_bin(14.18, 16.0);
+        add_ang_bin(14.18, 16.0);
         // add_ang_bin(0.06, 0.98);
         // add_ang_bin(1.1, 2.5);
         // add_ang_bin(2.5, 4.0);
@@ -201,14 +201,14 @@ int main() {
         // add_ang_bin(15.0, 17.0);
         // add_ang_bin(17.0, 19.0);
 
-        // // // LHCb2025 config 2, en excluant [6, 8]
-        add_ang_bin(0.06, 0.98);
-        add_ang_bin(1.1, 2.5);
-        add_ang_bin(2.5, 4.0);
-        add_ang_bin(4.0, 6.0);
-        // // add_ang_bin(6.0, 8.0); // à exclure
-        add_ang_bin(15.0, 17.0);
-        add_ang_bin(17.0, 19.0);
+        // // // // LHCb2025 config 2, en excluant [6, 8]
+        // add_ang_bin(0.06, 0.98);
+        // add_ang_bin(1.1, 2.5);
+        // add_ang_bin(2.5, 4.0);
+        // add_ang_bin(4.0, 6.0);
+        // // // add_ang_bin(6.0, 8.0); // à exclure
+        // add_ang_bin(15.0, 17.0);
+        // add_ang_bin(17.0, 19.0);
         // oint->add_observable(
         //             BinnedObservableId{ObservableMapper::to_id(Observables::S_2S_B0__KSTAR0_MU_MU), {0.06, 0.98}},
         //             QCDOrder::NNLO,
@@ -241,7 +241,7 @@ int main() {
         + "__BSM_INTERMEDIATE";
 
     std::vector<ParamId> p_specs = {
-        ParamId{ParameterType::WILSON, had_bsm_block, WCoefMapper::flha_full(WCoef::C9, QCDOrder::LO, ContributionType::BSM)},
+        ParamId{ParameterType::WILSON, had_bsm_block, WCoefMapper::flha_full(WCoef::C10, QCDOrder::LO, ContributionType::BSM)},
         // ParamId{ParameterType::WILSON, had_bsm_block, WCoefMapper::flha_full(WCoef::C10, QCDOrder::LO, ContributionType::BSM)}
     };
 
@@ -266,8 +266,8 @@ int main() {
     );
     // std::set<std::string> exp = {"CMS", "LHCb2020", "LHCb2025c2"};
     // std::set<std::string> exp = {"LHCb2020"};
-    std::set<std::string> exp = {"LHCb2025c2"};
-    // std::set<std::string> exp = {"CMS"};
+    // std::set<std::string> exp = {"LHCb2025c2"};
+    std::set<std::string> exp = {"CMS"};
     // std::set<std::string> exp = {"CMS", "LHCb2020"};
     stat.select_experiments(exp);
     
