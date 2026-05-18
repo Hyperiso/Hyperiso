@@ -14,8 +14,15 @@ std::size_t count_total_points(const Contour& c) {
 
 ContourEngine::ContourEngine(std::shared_ptr<ILikelihood> base, const ContourConfig &cfg) : cfg(cfg) {
     // TODO : Maybe allow to change fit backend, for now only Minuit hardcoded.
-    std::shared_ptr<Profiler> profiler = std::make_shared<Profiler>(fit_app::make_minuit_backend());
+    // std::shared_ptr<Profiler> profiler = std::make_shared<Profiler>(fit_app::make_minuit_backend());
     
+    ProfilerMode profiler_mode = cfg.profile_backend;
+    std::shared_ptr<Profiler> profiler =
+        std::make_shared<Profiler>(
+            fit_app::make_minuit_backend(),
+            profiler_mode
+        );
+
     std::shared_ptr<IProfilingStrategy> strategy;
     if (cfg.profiling_method == ProfilingMethod::SLICE) {
         strategy = std::make_shared<SliceProfilingStrategy>(cfg.x_id, cfg.y_id, cfg.fr);
@@ -67,8 +74,44 @@ Contour ContourEngine::compute_contour(double z, std::array<double, 4> bounds, s
     using clock = std::chrono::steady_clock;
     const auto t0 = clock::now();
 
-    ScalarField2D field = [this] (double x, double y) {
-        return this->likelihood.profiled_nll(x, y) - this->cfg.fr.ell_hat;
+    // ScalarField2D field = [this] (double x, double y) {
+    //     return this->likelihood.profiled_nll(x, y) - this->cfg.fr.ell_hat;
+    // };
+
+    const double x_ref = cfg.fr.p_hat.at(cfg.x_id);
+    const double y_ref = cfg.fr.p_hat.at(cfg.y_id);
+
+
+    const double reference_nll =
+        this->likelihood.profiled_nll(x_ref, y_ref);
+
+    // ScalarField2D field = [this, reference_nll](double x, double y) {
+    //     const double v = this->likelihood.profiled_nll(x, y);
+
+    //     if (!std::isfinite(v)) {
+    //         return 1e50;
+    //     }
+
+    //     return std::clamp(v - reference_nll, -1e50, 1e50);
+    // };
+
+    auto cache = std::make_shared<std::map<Point, double>>();
+
+    ScalarField2D field = [this, reference_nll, cache](double x, double y) {
+        Point key{x, y};
+
+        auto it = cache->find(key);
+        if (it != cache->end()) {
+            return it->second;
+        }
+
+        const double raw = this->likelihood.profiled_nll(x, y);
+        const double val = std::isfinite(raw)
+            ? std::clamp(raw - reference_nll, -1e50, 1e50)
+            : 1e50;
+
+        (*cache)[key] = val;
+        return val;
     };
 
     ContourRequest cr;

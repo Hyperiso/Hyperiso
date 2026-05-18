@@ -16,6 +16,7 @@
 #include "GaussianMarginal.h"
 #include "GaussianCopula.h"
 #include "ContourObserver.h"
+#include "Profiler.h"
 
 enum class ProfilingMethod {
     SLICE,
@@ -34,6 +35,7 @@ struct ContourConfig {
     ProfilingMethod profiling_method;
     ContourAlgorithm primary_contour_method;
     std::optional<ContourAlgorithm> fallback_contour_method;
+    ProfilerMode profile_backend;
 
     ContourProgressCallback on_progress {};
 };

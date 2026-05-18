@@ -144,3 +144,103 @@ double BaseLikelihood::nll(const std::vector<double>& theta) const {
 std::size_t BaseLikelihood::dim() const {
     return this->ctx->nuisance_dist->dim() + this->p_dim;
 }
+
+std::size_t BaseLikelihood::p_dimension() const {
+    return p_dim;
+}
+
+std::size_t BaseLikelihood::eta_dimension() const {
+    return ctx->nuis_defs.size();
+}
+
+std::vector<double> BaseLikelihood::central_p() const {
+    std::vector<double> out;
+    out.reserve(ctx->fp_defs.size());
+
+    for (const auto& def : ctx->fp_defs) {
+        out.push_back(def.value);
+    }
+
+    return out;
+}
+
+std::vector<double> BaseLikelihood::central_eta() const {
+    std::vector<double> out;
+    out.reserve(ctx->nuis_defs.size());
+
+    for (const auto& def : ctx->nuis_defs) {
+        out.push_back(def.value);
+    }
+
+    return out;
+}
+
+std::vector<double> BaseLikelihood::predict(
+    const std::vector<double>& p,
+    const std::vector<double>& eta
+) const {
+    return model(p, eta);
+}
+
+std::vector<double> BaseLikelihood::residuals(
+    const std::vector<double>& p,
+    const std::vector<double>& eta
+) const {
+    std::vector<double> pred = model(p, eta);
+
+    if (pred.size() != ctx->exp_obs_values.size()) {
+        throw std::runtime_error("BaseLikelihood::residuals: prediction/observation size mismatch");
+    }
+
+    for (std::size_t i = 0; i < pred.size(); ++i) {
+        pred[i] -= ctx->exp_obs_values[i];
+    }
+
+    return pred;
+}
+
+double BaseLikelihood::nll_from_split(
+    const std::vector<double>& p,
+    const std::vector<double>& eta
+) const {
+    std::vector<double> theta;
+    theta.reserve(p.size() + eta.size());
+    theta.insert(theta.end(), p.begin(), p.end());
+    theta.insert(theta.end(), eta.begin(), eta.end());
+
+    return nll(theta);
+}
+
+// RealMatrix BaseLikelihood::observable_curvature(
+//     const std::vector<double>& r
+// ) const {
+//     return ctx->exp_obs_dist->curvature(r);
+// }
+
+RealMatrix BaseLikelihood::observable_curvature(
+    const std::vector<double>& r
+) const {
+    RealMatrix W = ctx->exp_obs_dist->curvature(r);
+
+    for (std::size_t i = 0; i < W.rows(); ++i) {
+        for (std::size_t j = 0; j < W.cols(); ++j) {
+            if (!std::isfinite(W.at(i, j))) {
+                std::cout << "[WOBSDBG] non-finite W_obs("
+                          << i << "," << j << ")"
+                          << " r_i=" << r[i]
+                          << " r_j=" << r[j]
+                          << " exp_i=" << ctx->exp_obs_values[i]
+                          << " exp_j=" << ctx->exp_obs_values[j]
+                          << std::endl;
+            }
+        }
+    }
+
+    return W;
+}
+
+RealMatrix BaseLikelihood::nuisance_curvature(
+    const std::vector<double>& eta
+) const {
+    return ctx->nuisance_dist->curvature(eta);
+}

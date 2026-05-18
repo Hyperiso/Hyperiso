@@ -420,6 +420,17 @@ RealMatrix invert_or_throw(const RealMatrix& M, const std::string& label) {
     }
 }
 
+ProfilerMode to_profiler_mode(ProfileBackend b) {
+    switch (b) {
+    case ProfileBackend::MINUIT:
+        return ProfilerMode::MINUIT;
+    case ProfileBackend::LAPLACE_NUISANCE:
+        return ProfilerMode::LAPLACE_NUISANCE;
+    default:
+        return ProfilerMode::MINUIT;
+    }
+}
+
 } // namespace
 
 namespace {
@@ -1072,6 +1083,7 @@ Contour MLFitter::contour(std::size_t x_id, std::size_t y_id, double z,
     cc.fallback_contour_method = options.fallback_contour_method;
     cc.profiling_method = options.profiling_method;
     cc.on_progress = options.on_progress;
+    cc.profile_backend = to_profiler_mode(options.profile_backend);
     
     ContourEngine ce(this->like_, cc);
     return ce.compute_contour(z, bounds, options.resolution);

@@ -18,11 +18,27 @@ double GaussianMarginal::logpdf(double x) {
     return -0.5 * std::pow((x - mu) / sigma, 2);
 }
 
+// PDFDiff GaussianMarginal::f_df_ddf(double x) {
+//     double s2 = sigma * sigma;
+//     double f = std::exp(-std::pow((x - mu) / sigma, 2)) / std::sqrt(2 * PI) / sigma;
+//     double df = -(x - mu) / s2 * f;
+//     double ddf = ((std::pow(x - mu / sigma, 2)) - 1) * f / s2;
+
+//     return {f, df, ddf};
+// }
+
 PDFDiff GaussianMarginal::f_df_ddf(double x) {
-    double s2 = sigma * sigma;
-    double f = std::exp(-std::pow((x - mu) / sigma, 2)) / std::sqrt(2 * PI) / sigma;
-    double df = -(x - mu) / s2 * f;
-    double ddf = ((std::pow(x - mu / sigma, 2)) - 1) * f / s2;
+    const double s2 = sigma * sigma;
+    const double z = (x - mu) / sigma;
+
+    const double f =
+        std::exp(-0.5 * z * z) / (std::sqrt(2.0 * PI) * sigma);
+
+    const double df =
+        -(x - mu) / s2 * f;
+
+    const double ddf =
+        (z * z - 1.0) / s2 * f;
 
     return {f, df, ddf};
 }

@@ -241,8 +241,8 @@ int main() {
         + "__BSM_INTERMEDIATE";
 
     std::vector<ParamId> p_specs = {
-        ParamId{ParameterType::WILSON, had_bsm_block, WCoefMapper::flha_full(WCoef::C10, QCDOrder::LO, ContributionType::BSM)},
-        // ParamId{ParameterType::WILSON, had_bsm_block, WCoefMapper::flha_full(WCoef::C10, QCDOrder::LO, ContributionType::BSM)}
+        ParamId{ParameterType::WILSON, had_bsm_block, WCoefMapper::flha_full(WCoef::C9, QCDOrder::LO, ContributionType::BSM)},
+        ParamId{ParameterType::WILSON, had_bsm_block, WCoefMapper::flha_full(WCoef::C10, QCDOrder::LO, ContributionType::BSM)}
     };
 
     // std::vector<ParamId> p_specs = {
@@ -294,14 +294,16 @@ int main() {
         const ParamId p1 = p_specs[0];
         const ParamId p2 = p_specs[1];
 
-        std::array<double, 4> bounds = {-4, 4, -7, 7};
+        std::array<double, 4> bounds = {-8, 8, -8, 8};
 
         auto trace = std::make_shared<std::ofstream>("contour_trace.csv");
         (*trace) << "type,level,path_id,point_id,x,y,n_paths,n_points,elapsed_s,message\n";
 
         ContourOptions  opt;
-        opt.primary_contour_method = ContourAlgorithm::MINUIT;
-        opt.fallback_contour_method = std::nullopt;
+        opt.primary_contour_method = ContourAlgorithm::AMS;
+        opt.fallback_contour_method = ContourAlgorithm::MINUIT;
+        opt.profile_backend = ProfileBackend::LAPLACE_NUISANCE;
+        opt.resolution = 20;
 
         opt.on_progress = [trace](const ContourProgressEvent& ev) {
         if (!trace || !(*trace)) return;
@@ -330,7 +332,15 @@ int main() {
         trace->flush();
     };
         auto c68 = stat.confidence_contour(p1, p2, 1, bounds, opt);
+        std::cout << "finish first contour" << std::endl;
+
+        auto t4 = std::chrono::steady_clock::now();
         auto c95 = stat.confidence_contour(p1, p2, 2, bounds, opt);
+        auto t5 = std::chrono::steady_clock::now();
+
+        std::cout << "\nContour done in "
+                << std::chrono::duration_cast<std::chrono::milliseconds>(t5 - t4).count()
+                << " ms\n\n";
 
         std::cout << "[INFO] contour 68% paths = " << c68.level << "\n";
         std::cout << "[INFO] contour 95% paths = " << c95.level << "\n";

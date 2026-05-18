@@ -197,6 +197,9 @@ target_link_libraries(FL StatisticLib)
 add_executable(LIKELIHOODEXP app/likelihood_exploration.cpp)
 target_link_libraries(LIKELIHOODEXP StatisticLib)
 
+add_executable(NICELIKELIHOOD app/test_contour_method.cpp)
+target_link_libraries(NICELIKELIHOOD StatisticLib)
+
 include(GNUInstallDirs)
 
 install(TARGETS StatisticLib

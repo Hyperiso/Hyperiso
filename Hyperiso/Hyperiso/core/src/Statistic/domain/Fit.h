@@ -70,11 +70,17 @@ struct MLFitOptions {
 //     double tolerance = 0.0;     // <=0 => backend default
 // };
 
+enum class ProfileBackend {
+    MINUIT,
+    LAPLACE_NUISANCE
+};
+
 struct ContourOptions {
     ProfilingMethod profiling_method = ProfilingMethod::SLICE;
+    ProfileBackend profile_backend = ProfileBackend::LAPLACE_NUISANCE;
     ContourAlgorithm primary_contour_method = ContourAlgorithm::MINUIT;
     std::optional<ContourAlgorithm> fallback_contour_method;
-    std::size_t resolution = 100;
+    std::size_t resolution = 40;
 
     ContourProgressCallback on_progress {};
 };

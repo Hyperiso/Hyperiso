@@ -1,7 +1,13 @@
 #include "Profiler.h"
 
-Profiler::Profiler(std::shared_ptr<fit_app::IFitBackend> minimizer) 
-    : minimizer(std::move(minimizer)) {}
+#include <algorithm>
+#include <iomanip>
+#include <iostream>
+#include <limits>
+#include <stdexcept>
+#include <string>
+
+namespace {
 
 static bool acceptable_for_profile(const fit_app::BackendFitResult& r) {
     if (!r.diagnostics.has_valid_parameters) return false;
@@ -20,7 +26,113 @@ static bool acceptable_for_profile(const fit_app::BackendFitResult& r) {
     return false;
 }
 
-ProfileResult Profiler::profile(std::shared_ptr<ILikelihood> base, const ProfileRequest& pr) const {
+static ProfileResult full_theta_result_from_split(
+    const std::vector<double>& p,
+    const std::vector<double>& eta,
+    double nll_hat,
+    bool ok
+) {
+    ProfileResult out;
+    out.nll_hat = nll_hat;
+    out.converged = ok;
+
+    for (std::size_t i = 0; i < p.size(); ++i) {
+        out.theta_hat[i] = p[i];
+    }
+
+    for (std::size_t a = 0; a < eta.size(); ++a) {
+        out.theta_hat[p.size() + a] = eta[a];
+    }
+
+    return out;
+}
+
+} // namespace
+
+Profiler::Profiler(
+    std::shared_ptr<fit_app::IFitBackend> minimizer,
+    ProfilerMode mode
+)
+    : minimizer(std::move(minimizer)),
+      mode(mode)
+{}
+
+ProfileResult Profiler::profile(
+    std::shared_ptr<ILikelihood> base,
+    const ProfileRequest& pr
+) const {
+    if (mode == ProfilerMode::LAPLACE_NUISANCE) {
+        try {
+            return profile_laplace_nuisance(base, pr);
+        } catch (const std::exception& e) {
+            std::cout << "[LAPLACE PROFILE] failed, falling back to Minuit: "
+                      << e.what() << std::endl;
+            return profile_minuit(base, pr);
+        }
+    }
+
+    return profile_minuit(base, pr);
+}
+
+ProfileResult Profiler::profile_laplace_nuisance(
+    std::shared_ptr<ILikelihood> base,
+    const ProfileRequest& pr
+) const {
+    auto like = std::dynamic_pointer_cast<IProfileableLikelihood>(base);
+
+    if (!like) {
+        throw std::runtime_error("Likelihood does not implement IProfileableLikelihood");
+    }
+
+    const std::size_t p_dim = like->p_dimension();
+    const std::size_t eta_dim = like->eta_dimension();
+
+    if (p_dim + eta_dim != like->dim()) {
+        throw std::runtime_error("Inconsistent p/eta dimensions in likelihood");
+    }
+
+    // This fast profiler is meant for 2D slice contours: p is fixed and eta is profiled.
+    // If the requested strategy also frees a fit parameter, fall back to full Minuit.
+    for (std::size_t i : pr.free_params) {
+        if (i < p_dim) {
+            throw std::runtime_error(
+                "Laplace nuisance profiler only supports fixed fit parameters; "
+                "free fit parameters require Minuit fallback"
+            );
+        }
+    }
+
+    std::vector<double> p = like->central_p();
+
+    for (const auto& [idx, val] : pr.fixed_params) {
+        if (idx < p_dim) {
+            p[idx] = val;
+        }
+    }
+
+    LaplaceProfileOptions opts;
+    // These defaults are intentionally conservative:
+    // - auto-detect at most a few non-stationary nuisance directions;
+    // - correct them with cheap damped Newton steps, not an inner Minuit.
+    opts.stationarity_threshold = 5e-2;
+    opts.max_refined_eta = 4;
+    opts.max_refinement_iters = 2;
+    opts.max_newton_step_in_sigma = 1.0;
+    opts.use_direct_nll_for_final_value = false;
+
+    const LaplaceProfileComputation comp =
+        laplace_profile_eta_refined(*like, p, opts);
+
+    return full_theta_result_from_split(
+        p,
+        comp.eta_hat,
+        comp.nll_hat,
+        comp.ok
+    );
+}
+
+
+ProfileResult Profiler::profile_minuit(std::shared_ptr<ILikelihood> base, const ProfileRequest& pr) const {
     if (pr.fixed_params.size() + pr.free_params.size() != base->dim()) {
         LOG_ERROR("InvalidArgument", "Dimension mismatch in profiler. Fit dimension is", base->dim(),
                   ", found", pr.fixed_params.size(), "fixed params and", pr.free_params.size(), "free.");

@@ -144,12 +144,12 @@ int main() {
     );
 
     auto t0 = std::chrono::steady_clock::now();
-    auto unc = stat.compute_uncertainties();
+    // auto unc = stat.compute_uncertainties();
     auto t1 = std::chrono::steady_clock::now();
     std::cout << "Uncertainty pass done in "
               << std::chrono::duration_cast<std::chrono::milliseconds>(t1 - t0).count()
               << " ms\n";
-    std::cout << "Number of summarized observables = " << unc.size() << "\n";
+    // std::cout << "Number of summarized observables = " << unc.size() << "\n";
 
     auto t2 = std::chrono::steady_clock::now();
     FitResultWithMaps fit = stat.compute_MLE(p_specs);
@@ -180,11 +180,24 @@ int main() {
         const double z95_2d = std::sqrt(5.99);
 
         ContourOptions  opt;
-
+        
         opt.fallback_contour_method = ContourAlgorithm::AMS;
-
+        opt.primary_contour_method = ContourAlgorithm::MINUIT;
+        opt.profile_backend= ProfileBackend::LAPLACE_NUISANCE;
+        
         auto c68 = stat.confidence_contour(p1, p2, z68_2d, bounds, opt);
+
+        std::cout << "first contour done" << std::endl; 
+
+        auto t4 = std::chrono::steady_clock::now();
         auto c95 = stat.confidence_contour(p1, p2, z95_2d, bounds, opt);
+        auto t5 = std::chrono::steady_clock::now();
+
+        std::cout << "\nContour done in "
+                << std::chrono::duration_cast<std::chrono::milliseconds>(t5 - t4).count()
+                << " ms\n\n";
+
+        
 
         std::cout << "[INFO] contour 68% paths = " << c68.level << "\n";
         std::cout << "[INFO] contour 95% paths = " << c95.level << "\n";

@@ -77,7 +77,7 @@ RealMatrix GaussianCopula::ddlog_density(std::vector<double> u) {
     for (size_t i = 0; i < d; i++) {
         for (size_t j = 0; j < d; j++) {
             double num = -A.at(i, j);
-            if (i == j) num += Az.at(i, 0) * z.at(i, 0); 
+            if (i == j) num -= Az.at(i, 0) * z.at(i, 0); 
             double den = gsl_ran_ugaussian_pdf(z.at(i, 0)) * gsl_ran_ugaussian_pdf(z.at(j, 0));
             ddlogc.at(i, j) = num / den;
         }
@@ -107,7 +107,7 @@ LogDensityDiff GaussianCopula::log_c_dc_ddc(std::vector<double> u) {
 
         for (size_t j = 0; j < d; j++) {
             double num = -A.at(i, j);
-            if (i == j) num += Az.at(i, 0) * z.at(i, 0); 
+            if (i == j) num -= Az.at(i, 0) * z.at(i, 0); 
             double den = phi_z[i] * phi_z[j];
             ddlogc.at(i, j) = num / den;
         }

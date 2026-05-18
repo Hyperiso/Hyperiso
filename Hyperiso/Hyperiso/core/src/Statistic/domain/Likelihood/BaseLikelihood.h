@@ -1,7 +1,7 @@
-#ifndef __BASELIKELIHOOD_H__
-#define __BASELIKELIHOOD_H__
+#ifndef BASELIKELIHOOD_H
+#define BASELIKELIHOOD_H
 
-#include "ILikelihood.h"
+#include "IProfileableLikelihood.h"
 #include "JointDistribution.h"
 #include "Math.h"
 #include <memory>
@@ -17,7 +17,7 @@ struct LikelihoodContext {
     std::vector<fit_app::ParameterDefinition> fp_defs;
 };
 
-class BaseLikelihood : public ILikelihood {
+class BaseLikelihood : public IProfileableLikelihood {
 public:
     BaseLikelihood(const ModelFn& model, std::shared_ptr<LikelihoodContext> ctx, size_t p_dim);
     double nll(const std::vector<double>& theta) const override;
@@ -43,6 +43,30 @@ public:
     void disable_debug_trace() {
         debug_trace_enabled_ = false;
     }
+
+    std::size_t p_dimension() const override;
+    std::size_t eta_dimension() const override;
+    std::vector<double> central_p() const override;
+    std::vector<double> central_eta() const override;
+    std::vector<double> predict(
+        const std::vector<double>& p,
+        const std::vector<double>& eta
+    ) const override;
+    std::vector<double> residuals(
+        const std::vector<double>& p,
+        const std::vector<double>& eta
+    ) const override;
+    double nll_from_split(
+        const std::vector<double>& p,
+        const std::vector<double>& eta
+    ) const override;
+    RealMatrix observable_curvature(
+        const std::vector<double>& r
+    ) const override;
+    RealMatrix nuisance_curvature(
+        const std::vector<double>& eta
+    ) const override;
+
 protected:
     std::shared_ptr<LikelihoodContext> ctx;
     ModelFn model;
@@ -80,4 +104,4 @@ private:
                               double nll_value) const;
 };
 
-#endif // __BASELIKELIHOOD_H__
+#endif // BASELIKELIHOOD_H

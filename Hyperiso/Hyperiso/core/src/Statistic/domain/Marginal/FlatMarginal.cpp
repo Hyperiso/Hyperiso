@@ -18,7 +18,7 @@ double FlatMarginal::logpdf(double x) {
 }
 
 PDFDiff FlatMarginal::f_df_ddf(double x) {
-    double f = logpdf(x);
+    double f = logpdf(x); //TODO :: should be pdf not logpdf
     return {f, 0.0, 0.0};
 }
 

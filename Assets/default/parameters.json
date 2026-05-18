@@ -1455,7 +1455,7 @@
   "B_SCALE": {
     "1": {
       "central_value": 4.7,
-      "stat_error": 1.9,
+      "stat_error": 0,
       "syst_error": 0
     }
   },
@@ -2157,7 +2157,7 @@
   "EW_SCALE": {
     "1": {
       "central_value": 80,
-      "stat_error": 35,
+      "stat_error": 0,
       "syst_error": 0
     }
   },
