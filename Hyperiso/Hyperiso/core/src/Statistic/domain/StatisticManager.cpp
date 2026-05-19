@@ -1,4 +1,5 @@
 // #include "StatisticManager.h"
+#include "ChiSquaredLikelihood.h"
 
 // namespace {
 
@@ -569,6 +570,7 @@
 // }
 
 // #include "StatisticManager.h"
+#include "ChiSquaredLikelihood.h"
 
 // #include <limits>
 // #include <numeric>
@@ -1478,6 +1480,7 @@
 
 
 #include "StatisticManager.h"
+#include "ChiSquaredLikelihood.h"
 
 #include <limits>
 #include <numeric>
@@ -1747,6 +1750,151 @@ std::vector<double> ordered_prediction_vector(
 
     return out;
 }
+
+
+std::vector<BinnedObservableId> binned_ids_from_experiment_obs(
+    const std::vector<ExperimentObs>& obs_ids
+) {
+    std::vector<BinnedObservableId> out;
+    out.reserve(obs_ids.size());
+    for (const auto& oid : obs_ids) {
+        out.push_back(oid.obs);
+    }
+    return out;
+}
+
+
+RealMatrix symmetrize_covariance_matrix(RealMatrix cov) {
+    if (cov.rows() != cov.cols()) {
+        throw std::runtime_error("symmetrize_covariance_matrix: covariance must be square");
+    }
+
+    for (std::size_t i = 0; i < cov.rows(); ++i) {
+        for (std::size_t j = i + 1; j < cov.cols(); ++j) {
+            const double a = cov.at(i, j);
+            const double b = cov.at(j, i);
+
+            if (!std::isfinite(a) || !std::isfinite(b)) {
+                throw std::runtime_error("symmetrize_covariance_matrix: non-finite covariance entry");
+            }
+
+            const double v = 0.5 * (a + b);
+            cov.at(i, j) = v;
+            cov.at(j, i) = v;
+        }
+
+        if (!std::isfinite(cov.at(i, i))) {
+            throw std::runtime_error("symmetrize_covariance_matrix: non-finite covariance diagonal");
+        }
+    }
+
+    return cov;
+}
+
+RealMatrix inverse_covariance_with_ridge(
+    RealMatrix cov,
+    double ridge_rel,
+    double ridge_abs
+) {
+    cov = symmetrize_covariance_matrix(std::move(cov));
+
+    double trace = 0.0;
+    for (std::size_t i = 0; i < cov.rows(); ++i) {
+        trace += std::max(0.0, cov.at(i, i));
+    }
+
+    const double scale = cov.rows() > 0
+        ? trace / static_cast<double>(cov.rows())
+        : 1.0;
+
+    const double ridge = std::max(
+        ridge_abs,
+        ridge_rel * std::max(scale, 1.0)
+    );
+
+    for (std::size_t i = 0; i < cov.rows(); ++i) {
+        cov.at(i, i) += ridge;
+    }
+
+    cov = symmetrize_covariance_matrix(std::move(cov));
+    return cov.inv();
+}
+
+RealMatrix experimental_covariance_matrix(
+    const std::vector<ExperimentObs>& obs_ids,
+    const std::map<ExperimentObs, std::map<ExperimentObs, double>>& corr_obs,
+    const std::map<ExperimentObs, double>& sigma_obs
+) {
+    const std::size_t n = obs_ids.size();
+    RealMatrix cov(n, n);
+
+    for (std::size_t i = 0; i < n; ++i) {
+        const auto sig_i_it = sigma_obs.find(obs_ids[i]);
+        if (sig_i_it == sigma_obs.end()) {
+            std::ostringstream oss;
+            oss << "experimental_covariance_matrix: missing sigma for observable "
+                << obs_ids[i].str();
+            throw std::runtime_error(oss.str());
+        }
+
+        const double sigma_i = std::abs(sig_i_it->second);
+        if (!std::isfinite(sigma_i)) {
+            throw std::runtime_error("experimental_covariance_matrix: non-finite sigma_i");
+        }
+
+        for (std::size_t j = 0; j < n; ++j) {
+            const auto sig_j_it = sigma_obs.find(obs_ids[j]);
+            if (sig_j_it == sigma_obs.end()) {
+                std::ostringstream oss;
+                oss << "experimental_covariance_matrix: missing sigma for observable "
+                    << obs_ids[j].str();
+                throw std::runtime_error(oss.str());
+            }
+
+            const double sigma_j = std::abs(sig_j_it->second);
+            if (!std::isfinite(sigma_j)) {
+                throw std::runtime_error("experimental_covariance_matrix: non-finite sigma_j");
+            }
+
+            double corr = (i == j) ? 1.0 : 0.0;
+            auto row_it = corr_obs.find(obs_ids[i]);
+            if (row_it != corr_obs.end()) {
+                auto col_it = row_it->second.find(obs_ids[j]);
+                if (col_it != row_it->second.end()) {
+                    corr = col_it->second;
+                }
+            }
+
+            if (!std::isfinite(corr)) {
+                throw std::runtime_error("experimental_covariance_matrix: non-finite correlation");
+            }
+
+            cov.at(i, j) = corr * sigma_i * sigma_j;
+        }
+    }
+
+    return symmetrize_covariance_matrix(std::move(cov));
+}
+
+MLFitOptions make_mlfit_options_from_config(const StatisticConfig& config) {
+    MLFitOptions fitopt;
+    fitopt.run_hesse = config.MLE_run_hesse;
+    fitopt.request_minos = config.MLE_request_minos;
+    fitopt.verbose = config.MLE_verbose;
+    fitopt.strategy = config.MLE_strategy;
+    fitopt.max_fcn = static_cast<unsigned>(config.MLE_max_iter);
+    fitopt.tolerance = config.MLE_tol;
+
+    fitopt.allow_profile_hessian_fallback = config.MLE_allow_profile_hessian_fallback;
+    fitopt.profile_hessian_step_scale = config.MLE_profile_hessian_step_scale;
+    fitopt.profile_hessian_eig_floor_rel = config.MLE_profile_hessian_eig_floor_rel;
+
+    fitopt.trace_first_evals = config.MLE_trace_first_evals;
+    fitopt.trace_max_evals = config.MLE_trace_max_evals;
+
+    return fitopt;
+}
+
 
 
 void log_selected_nuisance_diagnostics(const std::vector<ParamId>& eta_ids,
@@ -2074,6 +2222,150 @@ FitResultWithMaps StatisticManager::compute_MLE(const std::vector<ParamId>& p_sp
 
     const std::vector<ExperimentObs> obs_ids = unzipped_exp_obs.ids;
     const std::vector<double> exp_obs_vals = unzipped_exp_obs.vals;
+
+    if (config.likelihood_mode == StatisticLikelihoodMode::CHI2_MC_COVARIANCE) {
+        std::cout << "[FIT] Using CHI2_MC_COVARIANCE likelihood backend.\n";
+
+        auto rvg = build_nuisance_distribution();
+        std::vector<ParamId> nuisance_ids = unzip(cache.eta_specs_real).ids;
+        RvgNuisanceSampler sampler(nuisance_ids, std::move(rvg));
+
+        MonteCarloEngine mc(
+            this->obs_int,
+            sampler,
+            {
+                this->config.MC_draws,
+                this->config.skew_abs_threshold,
+                this->config.chi2_covariance_ridge_rel,
+                this->config.chi2_covariance_ridge_abs
+            }
+        );
+
+        MCRealization mc_real = mc.sample_predictions(this->cache.p_specs);
+        const std::vector<BinnedObservableId> cov_ids =
+            binned_ids_from_experiment_obs(obs_ids);
+
+        MCObservableCovariance cov = covariance_from_obs_samples(
+            mc_real.sampled_obss,
+            cov_ids,
+            this->config.chi2_covariance_ridge_rel,
+            this->config.chi2_covariance_ridge_abs
+        );
+
+        std::map<ExperimentObs, double> exp_obs_sigmas;
+        for (const auto& model_obs_id : this->obs_int->get_obs_ids()) {
+            auto exp_params = pspp->get_obs_param(model_obs_id);
+            for (const auto& [exp_obs, param] : exp_params) {
+                if (selected_experiments_.has_value()
+                    && !selected_experiments_->contains(exp_obs.experiment)) {
+                    continue;
+                }
+                exp_obs_sigmas[exp_obs] =
+                    std::abs(param->get_combined_std().real());
+            }
+        }
+
+        const RealMatrix covariance_exp = experimental_covariance_matrix(
+            obs_ids,
+            this->cache.SigmaObs,
+            exp_obs_sigmas
+        );
+
+        RealMatrix covariance_total =
+            symmetrize_covariance_matrix(cov.covariance + covariance_exp);
+
+        //     for (std::size_t i = 0; i < covariance_total.rows(); ++i) {
+        //         for (std::size_t j = 0; j < covariance_total.cols(); ++j) {
+        //             if (i != j) {
+        //                 covariance_total.at(i, j) = 0.0;
+        //             }
+        //         }
+        //     }
+
+        RealMatrix covariance_total_inv = inverse_covariance_with_ridge(
+            covariance_total,
+            this->config.chi2_covariance_ridge_rel,
+            this->config.chi2_covariance_ridge_abs
+        );
+
+        std::cout << "[FIT] CHI2 covariance backend uses covariance_total = covariance_MC + covariance_exp.\n";
+
+        auto ctx = std::make_shared<LikelihoodContext>();
+        ctx->exp_obs_values = exp_obs_vals;
+        ctx->nuis_defs.clear();
+        ctx->fp_defs.reserve(p_ids.size());
+
+        for (std::size_t i = 0; i < p_ids.size(); ++i) {
+            double sigma = std::abs(pspp->get_param(p_ids[i])->get_combined_std().real());
+            ctx->fp_defs.emplace_back(make_fit_param_def(p_ids[i], p0[i], sigma));
+        }
+
+        // auto model_fn = [this, obs_ids, p_ids](
+        //     const std::vector<double>& p_vec,
+        //     const std::vector<double>& eta_vec) -> std::vector<double>
+        // {
+        //     if (!eta_vec.empty()) {
+        //         throw std::runtime_error("CHI2_MC_COVARIANCE model_fn expects empty eta vector");
+        //     }
+
+        //     auto pred_map = this->obs_int->predict_optimized(
+        //         zip(p_ids, p_vec),
+        //         std::map<ParamId, double>{}
+        //     );
+
+        //     return ordered_prediction_vector(obs_ids, pred_map);
+        // };
+
+        const std::map<ParamId, double> eta0_map = zip(eta_ids, eta0);
+
+        auto model_fn = [this, obs_ids, p_ids, eta0_map](
+            const std::vector<double>& p_vec,
+            const std::vector<double>& eta_vec) -> std::vector<double>
+        {
+            if (!eta_vec.empty()) {
+                throw std::runtime_error("CHI2_MC_COVARIANCE model_fn expects empty eta vector");
+            }
+
+            // Important : en mode chi2 zéro nuisance, on ne veut pas laisser
+            // les nuisances dans l'état du dernier tirage MC.
+            // On force explicitement les nuisances au point central eta0.
+            auto pred_map = this->obs_int->predict_optimized(
+                zip(p_ids, p_vec),
+                eta0_map
+            );
+
+            return ordered_prediction_vector(obs_ids, pred_map);
+        };
+        last_ctx_ = ctx;
+        last_like_ = std::make_shared<ChiSquaredLikelihood>(
+            model_fn,
+            ctx,
+            p_ids.size(),
+            covariance_total_inv
+        );
+
+        MLFitOptions fitopt = make_mlfit_options_from_config(config);
+        last_fitter_ = std::make_shared<MLFitter>(last_like_, fitopt);
+        last_fit_raw_ = last_fitter_->maximum_likelihood_fit(p0);
+
+        last_fit_param_ids_ = p_ids;
+        last_nuisance_ids_.clear();
+        last_fit_param_index_.clear();
+        for (std::size_t i = 0; i < p_ids.size(); ++i) {
+            last_fit_param_index_[p_ids[i]] = i;
+        }
+
+        FitResultWithMaps out;
+        out.fit_ok = !last_fit_raw_.p_hat.empty();
+        out.ell_hat = last_fit_raw_.ell_hat;
+        out.p_hat = zip(p_ids, last_fit_raw_.p_hat);
+        out.eta_hat.clear();
+        out.p_hat_std = zip(p_ids, last_fit_raw_.p_hat_std);
+        out.p_correlations = zip(p_ids, last_fit_raw_.p_hat_correlations);
+
+        cache.mle_result = out;
+        return out;
+    }
 
     auto ctx = std::make_shared<LikelihoodContext>();
     ctx->nuisance_dist = build_nuisance_distribution();

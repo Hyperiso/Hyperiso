@@ -764,6 +764,15 @@ MLFitter::MLFitter(std::shared_ptr<LikelihoodContext> ctx, const ModelFn& model,
     this->like_ = std::make_shared<BaseLikelihood>(model, ctx, p_dim);
 }
 
+MLFitter::MLFitter(std::shared_ptr<BaseLikelihood> like, MLFitOptions options)
+    : like_(std::move(like)),
+      fit_options_(options)
+{
+    if (!like_) {
+        throw std::invalid_argument("MLFitter: null likelihood");
+    }
+}
+
 FitResult MLFitter::maximum_likelihood_fit(const std::vector<double>& p0) {
     const auto defs = like_->get_param_defs();
     const std::size_t p_dim = p0.size();

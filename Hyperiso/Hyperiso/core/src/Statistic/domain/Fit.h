@@ -88,7 +88,8 @@ struct ContourOptions {
 class MLFitter {
 public:
     MLFitter(std::shared_ptr<LikelihoodContext> ctx, const ModelFn& model, MLFitOptions options = {});
-
+    explicit MLFitter(std::shared_ptr<BaseLikelihood> like, MLFitOptions options = {});
+    
     FitResult maximum_likelihood_fit(const std::vector<double>& p0);
     Contour contour(std::size_t x_id, std::size_t y_id, double z, std::array<double, 4> bounds, ContourOptions options) const;
 

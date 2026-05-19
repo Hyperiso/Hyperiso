@@ -20,6 +20,7 @@
 // #include "DistributionFactory.h"
 // #include "CopulaFactory.h"
 // #include "Fit.h"
+#include "ChiSquaredLikelihood.h"
 // #include "MarginalConfigFactory.h"
 // #include "INuisanceReader.h"
 // #include "NuisanceSpec.h"
@@ -280,10 +281,16 @@
 #include "MarginalFactory.h"
 #include "CopulaFactory.h"
 #include "Fit.h"
+#include "ChiSquaredLikelihood.h"
 #include "MarginalConfigFactory.h"
 #include "INuisanceReader.h"
 #include "NuisanceSpec.h"
 #include "IStatParamOptimizerProxy.h"
+
+enum class StatisticLikelihoodMode {
+    PROFILED_NUISANCE,
+    CHI2_MC_COVARIANCE
+};
 
 // struct StatisticConfig {
 //     std::map<ParamId, MarginalType> override_nuisance_marginals {};
@@ -340,6 +347,16 @@ struct StatisticConfig {
     bool MLE_allow_profile_hessian_fallback = true;
     double MLE_profile_hessian_step_scale = 1.0;
     double MLE_profile_hessian_eig_floor_rel = 1e-8;
+
+    // Choix du likelihood utilisé par compute_MLE.
+    // PROFILED_NUISANCE: ancien mode copula + nuisances explicites.
+    // CHI2_MC_COVARIANCE: mode rapide chi2 global, zéro nuisance.
+    // La covariance utilisée est Sigma_total = Sigma_MC(theorie) + Sigma_exp,
+    // puis on inverse Sigma_total avec une petite régularisation diagonale.
+    StatisticLikelihoodMode likelihood_mode = StatisticLikelihoodMode::PROFILED_NUISANCE;
+
+    double chi2_covariance_ridge_rel = 1e-8;
+    double chi2_covariance_ridge_abs = 1e-12;
 
 };
 

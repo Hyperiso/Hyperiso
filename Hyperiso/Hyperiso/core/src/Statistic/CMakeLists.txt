@@ -107,6 +107,7 @@ add_library(StatisticLib STATIC
     domain/Copula/StudentTCopula.cpp
     domain/Likelihood/BaseLikelihood.cpp
     domain/Likelihood/IProfilingStrategy.cpp
+    domain/Likelihood/ChiSquaredLikelihood.cpp
     domain/Likelihood/ProfiledLikelihood2D.cpp
     domain/Likelihood/Profiler.cpp
     domain/Likelihood/WithGaussianConstraints.cpp

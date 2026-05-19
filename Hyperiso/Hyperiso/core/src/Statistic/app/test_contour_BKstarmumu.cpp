@@ -186,20 +186,20 @@ int main() {
             }
         };
 
-        // CMS, Table 1, en excluant le bin problématique [6, 8.68]
-        add_ang_bin(1.1, 2.0);
-        add_ang_bin(2.0, 4.3);
-        add_ang_bin(4.3, 6.0);
-        // add_ang_bin(6.0, 8.68); // à exclure pour reproduire Table 1
-        // add_ang_bin(10.09, 12.86);
-        add_ang_bin(14.18, 16.0);
-        // add_ang_bin(0.06, 0.98);
-        // add_ang_bin(1.1, 2.5);
-        // add_ang_bin(2.5, 4.0);
-        // add_ang_bin(4.0, 6.0);
-        // // add_ang_bin(6.0, 8.0); // à exclure
-        // add_ang_bin(15.0, 17.0);
-        // add_ang_bin(17.0, 19.0);
+        // // CMS, Table 1, en excluant le bin problématique [6, 8.68]
+        // add_ang_bin(1.1, 2.0);
+        // add_ang_bin(2.0, 4.3);
+        // add_ang_bin(4.3, 6.0);
+        // // add_ang_bin(6.0, 8.68); // à exclure pour reproduire Table 1
+        // // add_ang_bin(10.09, 12.86);
+        // add_ang_bin(14.18, 16.0);
+        add_ang_bin(0.06, 0.98);
+        add_ang_bin(1.1, 2.5);
+        add_ang_bin(2.5, 4.0);
+        add_ang_bin(4.0, 6.0);
+        // add_ang_bin(6.0, 8.0); // à exclure
+        add_ang_bin(15.0, 17.0);
+        add_ang_bin(17.0, 19.0);
 
         // // // // LHCb2025 config 2, en excluant [6, 8]
         // add_ang_bin(0.06, 0.98);
@@ -234,8 +234,8 @@ int main() {
     config.MLE_tol = 0.1;
     config.MLE_trace_first_evals  = true;
     config.MLE_trace_max_evals  = 20;
-
-
+    config.likelihood_mode = StatisticLikelihoodMode::CHI2_MC_COVARIANCE;
+    config.MC_draws = 2000;
     const std::string had_bsm_block =
         GroupMapper::str(WGroup::B, ScaleType::HADRONIC, WilsonBasis::B_STANDARD)
         + "__BSM_INTERMEDIATE";
@@ -266,8 +266,8 @@ int main() {
     );
     // std::set<std::string> exp = {"CMS", "LHCb2020", "LHCb2025c2"};
     // std::set<std::string> exp = {"LHCb2020"};
-    // std::set<std::string> exp = {"LHCb2025c2"};
-    std::set<std::string> exp = {"CMS"};
+    std::set<std::string> exp = {"LHCb2025c2"};
+    // std::set<std::string> exp = {"CMS"};
     // std::set<std::string> exp = {"CMS", "LHCb2020"};
     stat.select_experiments(exp);
     
@@ -294,16 +294,20 @@ int main() {
         const ParamId p1 = p_specs[0];
         const ParamId p2 = p_specs[1];
 
-        std::array<double, 4> bounds = {-8, 8, -8, 8};
+        // std::array<double, 4> bounds = {-20, 20, -20, 20};
+        std::array<double, 4> bounds = {
+            -3.0, 2.0,
+            -2.5, 2.5
+        };
 
         auto trace = std::make_shared<std::ofstream>("contour_trace.csv");
         (*trace) << "type,level,path_id,point_id,x,y,n_paths,n_points,elapsed_s,message\n";
 
         ContourOptions  opt;
-        opt.primary_contour_method = ContourAlgorithm::AMS;
-        opt.fallback_contour_method = ContourAlgorithm::MINUIT;
-        opt.profile_backend = ProfileBackend::LAPLACE_NUISANCE;
-        opt.resolution = 20;
+        opt.primary_contour_method = ContourAlgorithm::MINUIT;
+        opt.fallback_contour_method = ContourAlgorithm::AMS;
+        opt.profile_backend = ProfileBackend::MINUIT;
+        opt.resolution = 40;
 
         opt.on_progress = [trace](const ContourProgressEvent& ev) {
         if (!trace || !(*trace)) return;
@@ -331,12 +335,13 @@ int main() {
 
         trace->flush();
     };
-        auto c68 = stat.confidence_contour(p1, p2, 1, bounds, opt);
-        std::cout << "finish first contour" << std::endl;
-
         auto t4 = std::chrono::steady_clock::now();
         auto c95 = stat.confidence_contour(p1, p2, 2, bounds, opt);
         auto t5 = std::chrono::steady_clock::now();
+        
+        auto c68 = stat.confidence_contour(p1, p2, 1, bounds, opt);
+        std::cout << "finish first contour" << std::endl;
+
 
         std::cout << "\nContour done in "
                 << std::chrono::duration_cast<std::chrono::milliseconds>(t5 - t4).count()

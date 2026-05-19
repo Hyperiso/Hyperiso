@@ -47,6 +47,39 @@ static ProfileResult full_theta_result_from_split(
     return out;
 }
 
+static ProfileResult direct_profile_no_free(
+    const std::shared_ptr<ILikelihood>& base,
+    const ProfileRequest& pr
+) {
+    ProfileResult out;
+    out.converged = false;
+    out.nll_hat = 1e300;
+
+    std::vector<double> theta = pr.start;
+    if (theta.empty()) {
+        theta.assign(base->dim(), 0.0);
+    }
+    if (theta.size() != base->dim()) {
+        throw std::runtime_error("direct_profile_no_free: bad start dimension");
+    }
+
+    for (const auto& [idx, val] : pr.fixed_params) {
+        if (idx >= theta.size()) {
+            throw std::runtime_error("direct_profile_no_free: fixed index out of range");
+        }
+        theta[idx] = val;
+    }
+
+    out.nll_hat = base->nll(theta);
+    out.converged = std::isfinite(out.nll_hat);
+
+    for (std::size_t i = 0; i < theta.size(); ++i) {
+        out.theta_hat[i] = theta[i];
+    }
+
+    return out;
+}
+
 } // namespace
 
 Profiler::Profiler(
@@ -61,6 +94,10 @@ ProfileResult Profiler::profile(
     std::shared_ptr<ILikelihood> base,
     const ProfileRequest& pr
 ) const {
+    if (pr.free_params.empty()) {
+        return direct_profile_no_free(base, pr);
+    }
+
     if (mode == ProfilerMode::LAPLACE_NUISANCE) {
         try {
             return profile_laplace_nuisance(base, pr);
