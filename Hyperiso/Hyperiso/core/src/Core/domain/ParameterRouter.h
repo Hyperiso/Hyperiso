@@ -45,7 +45,7 @@ struct ParameterBlockRepartition {
      * implemented in ParamRouter::GetType(block, id).
      */
     static inline const std::map<ParameterType, std::unordered_set<BlockName>> BLOCKS {
-        {ParameterType::SM, {"SMINPUTS", "MASS", "VCKMIN", "UPMNSIN", "UPMNS", "IMUPMNS", "VCKM", "GAUGE"}}, //TODO VCKM, GAUGE
+        {ParameterType::SM, {"SMINPUTS", "MASS", "VCKMIN", "UPMNSIN", "UPMNS", "VCKM", "GAUGE"}},
         {ParameterType::BSM, {"GAUGE", "MASS", "HMIX", "ALPHA", "MSOFT", "NMIX", "UMIX", "VMIX", "NMAMIX", "NMHMIX", "STOPMIX", "SBOTMIX", "STAUMIX", "AU", "AD", "AE", "YU", "YD", "YE", "MINPAR"}},
         {ParameterType::FLAVOR, {"FMASS", "FLIFE", "FCONST", "FCONSTRATIO", "FBAG", "FPARAM"}},
         {ParameterType::WILSON, {"FWCOEF", "IMFWCOEF", "EW_SCALE", "B_SCALE", "D_SCALE", "K_SCALE"}},

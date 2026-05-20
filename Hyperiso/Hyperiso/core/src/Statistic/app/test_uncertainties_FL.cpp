@@ -99,30 +99,10 @@ int main() {
 
     StatisticConfig config;
     config.MC_draws = 1000;
-    config.nuisance_relevance_cutoff = 1e-5;
+    config.nuisance_relevance_cutoff = 1e-10;
     config.override_nuisance_marginals = {
         {ParamId{ParameterType::WILSON, "EW_SCALE", 1}, MarginalType::FLAT},
         {ParamId{ParameterType::WILSON, "B_SCALE", 1}, MarginalType::FLAT},
-        {ParamId{ParameterType::DECAY, "B_Ks", {18, 4, 1}}, MarginalType::FLAT},
-        {ParamId{ParameterType::DECAY, "B_Ks", {18, 4, 2}}, MarginalType::FLAT},
-        {ParamId{ParameterType::DECAY, "B_Ks", {18, 4, 3}}, MarginalType::FLAT},
-        {ParamId{ParameterType::DECAY, "B_Ks", {18, 4, 4}}, MarginalType::FLAT},
-        {ParamId{ParameterType::DECAY, "B_Ks", {18, 4, 5}}, MarginalType::FLAT},
-        {ParamId{ParameterType::DECAY, "B_Ks", {18, 4, 6}}, MarginalType::FLAT},
-        {ParamId{ParameterType::DECAY, "B_Ks", {18, 5, 1}}, MarginalType::FLAT},
-        {ParamId{ParameterType::DECAY, "B_Ks", {18, 5, 2}}, MarginalType::FLAT},
-        {ParamId{ParameterType::DECAY, "B_Ks", {18, 5, 3}}, MarginalType::FLAT},
-        {ParamId{ParameterType::DECAY, "B_Ks", {18, 5, 4}}, MarginalType::FLAT},
-        {ParamId{ParameterType::DECAY, "B_Ks", {18, 5, 5}}, MarginalType::FLAT},
-        {ParamId{ParameterType::DECAY, "B_Ks", {18, 5, 6}}, MarginalType::FLAT},
-        {ParamId{ParameterType::DECAY, "B_Ks", {18, 6, 1}}, MarginalType::FLAT},
-        {ParamId{ParameterType::DECAY, "B_Ks", {18, 6, 2}}, MarginalType::FLAT},
-        {ParamId{ParameterType::DECAY, "B_Ks", {18, 6, 3}}, MarginalType::FLAT},
-        {ParamId{ParameterType::DECAY, "B_Ks", {18, 6, 4}}, MarginalType::FLAT},
-        {ParamId{ParameterType::DECAY, "B_Ks", {18, 6, 5}}, MarginalType::FLAT},
-        {ParamId{ParameterType::DECAY, "B_Ks", {18, 6, 6}}, MarginalType::FLAT},
-        {ParamId{ParameterType::DECAY, "B_Ks", {18, 6, 7}}, MarginalType::FLAT},
-        {ParamId{ParameterType::DECAY, "B_Ks", {18, 6, 8}}, MarginalType::FLAT},
     };
 
     std::shared_ptr<INuisancePathsProvider> npp = std::make_shared<DefaultNuisancePathsProvider>();

@@ -44,20 +44,9 @@ std::shared_ptr<Parameter> Parameters::get_parameter(const BlockName &block,
     return blockAccessor->at(block)->retrieve(pdgCode);
 }
 
-// bool Parameters::exist(const BlockName& block, LhaID id) {
-//     return blockAccessor->has_param(block, id);
-// }
-
-//TODO
 bool Parameters::exist(const BlockName& block, LhaID id) {
     if (!blockAccessor->contains(block)) return false;
     return blockAccessor->at(block)->contains(id);
-    // try {
-    //     blockAccessor->at(block)->retrieve(id);
-    //     return true;
-    // } catch (...) {
-    //     return false;
-    // }
 }
 
 void Parameters::setBlockValue(const BlockName& name, LhaID id, scalar_t value) {
@@ -119,10 +108,10 @@ std::unordered_set<BlockName> Parameters::init_blocks(ParameterType type) {
         blocks_to_extract.erase("IMFWCOEF");
     }
 
-    // TODO v1.1 : manage case of theoretical obs in lha. For now, assume only exp is given.
+    // FUTURE_UPDATE v1.1 : manage case of theoretical obs in lha. For now, assume only exp is given.
     if (type == ParameterType::OBSERVABLE &&
         MemoryManager::GetInstance()->cache.config.flags[ExternalFlag::HAS_TH_OBSERVABLE_INPUT]) {
-        return missing;
+        LOG_ERROR("NotImplementedError", "Theoretical observable input is not yet implemented.");
     }
 
     this->blockAccessor = MemoryManager::GetInstance()->extract_blocks(blocks_to_extract);
@@ -187,22 +176,6 @@ std::unordered_set<BlockName> SMModelStrategy::initializeParameters(Parameters& 
 }
 
 void SMModelStrategy::postInitialization(Parameters&) {
-    // Ask Nazila : Which value to use ? BSM (i.e. from spectrum ?) or SMINPUTS-derived (dependent block) ?
-    // auto gauge_update_func = [](std::shared_ptr<Block> src, std::shared_ptr<DependentBlock> dep_block) {
-    //     double e_em = std::sqrt(4 * PI / src->getValue(1));
-    //     double g_3 = std::sqrt(4 * PI * src->getValue(3));
-    //     // Add loop corrections to theta_w
-    //     double theta_w = 0.5 * std::asin(std::sqrt(4 * PI * INV_RT2 / (src->getValue(1) * src->getValue(2))) / src->getValue(4));
-    //     dep_block->setValue(1, e_em / std::sin(theta_w), true);
-    //     dep_block->setValue(2, e_em / std::cos(theta_w), true);
-    //     dep_block->setValue(3, std::sqrt(4 * PI * src->getValue(3)));
-    //     dep_block->setValue(4, e_em);
-    // };
-    // params.addDependantBlock("GAUGE", gauge_block, "SMINPUTS", gauge_update_func);
-    
-
-    // TODO : Initialize derived blocks RE/IMUPMNS
-    // Ask Nazila : Calculate W mass and store it somewhere
 
     QCDHelper::Init();  // Order matters : EWHelper needs QCDHelper to be initialized
     EWHelper::Init();
@@ -241,6 +214,43 @@ void SMModelStrategy::postInitialization(Parameters&) {
         };
 
         DependentBlockManager::addDependentBlock("VCKM", src_ckm, ParameterType::SM, func_ckm);
+    }
+
+    if (absent_blocks.contains("UPMNS")) {
+        std::unordered_map<ParameterType, std::vector<std::string>> src_pmns = {
+            {ParameterType::SM, {"UPMNSIN"}}
+        };
+    
+        auto func_pmns = [] (const BlockSrc& src, std::shared_ptr<DependentBlock> dep_block) {
+            double theta_12 = src.get_val("UPMNSIN", 1);
+            double theta_23 = src.get_val("UPMNSIN", 2);
+            double theta_13 = src.get_val("UPMNSIN", 3);
+            double delta = src.get_val("UPMNSIN", 4);
+            double alpha_1 = src.get_val("UPMNSIN", 5);
+            double alpha_2 = src.get_val("UPMNSIN", 6);
+
+            double s_12 = std::sin(theta_12);
+            double s_23 = std::sin(theta_23);
+            double s_13 = std::sin(theta_13);
+            double c_12 = std::sqrt(1 - s_12 * s_12);
+            double c_23 = std::sqrt(1 - s_23 * s_23);
+            double c_13 = std::sqrt(1 - s_13 * s_13);
+            complex_t exp_i_delta = std::exp(I * delta);
+            complex_t exp_i_alpha_1 = std::exp(I * alpha_1);
+            complex_t exp_i_alpha_2 = std::exp(I * alpha_2);
+
+            dep_block->store_or_assign(LhaID(0, 0), std::make_shared<Parameter>(ParamId{ParameterType::SM, "UPMNS", LhaID(0, 0)}, c_12 * c_13 * exp_i_alpha_1, 0., 0.));
+            dep_block->store_or_assign(LhaID(0, 1), std::make_shared<Parameter>(ParamId{ParameterType::SM, "UPMNS", LhaID(0, 1)}, s_12 * c_13 * exp_i_alpha_2, 0., 0.));
+            dep_block->store_or_assign(LhaID(0, 2), std::make_shared<Parameter>(ParamId{ParameterType::SM, "UPMNS", LhaID(0, 2)}, s_13 / exp_i_delta, 0., 0.));
+            dep_block->store_or_assign(LhaID(1, 0), std::make_shared<Parameter>(ParamId{ParameterType::SM, "UPMNS", LhaID(1, 0)}, (-s_12 * c_23 - c_12 * s_23 * s_13 * exp_i_delta) * exp_i_alpha_1, 0., 0.));
+            dep_block->store_or_assign(LhaID(1, 1), std::make_shared<Parameter>(ParamId{ParameterType::SM, "UPMNS", LhaID(1, 1)}, (c_12 * c_23 - s_12 * s_23 * s_13 * exp_i_delta) * exp_i_alpha_2, 0., 0.));
+            dep_block->store_or_assign(LhaID(1, 2), std::make_shared<Parameter>(ParamId{ParameterType::SM, "UPMNS", LhaID(1, 2)}, s_23 * c_13, 0., 0.));
+            dep_block->store_or_assign(LhaID(2, 0), std::make_shared<Parameter>(ParamId{ParameterType::SM, "UPMNS", LhaID(2, 0)}, (s_12 * s_23 - c_12 * c_23 * s_13 * exp_i_delta) * exp_i_alpha_1, 0., 0.));
+            dep_block->store_or_assign(LhaID(2, 1), std::make_shared<Parameter>(ParamId{ParameterType::SM, "UPMNS", LhaID(2, 1)}, (-c_12 * s_23 - s_12 * c_23 * s_13 * exp_i_delta) * exp_i_alpha_2, 0., 0.));
+            dep_block->store_or_assign(LhaID(2, 2), std::make_shared<Parameter>(ParamId{ParameterType::SM, "UPMNS", LhaID(2, 2)}, c_23 * c_13, 0., 0.));
+        };
+
+        DependentBlockManager::addDependentBlock("UPMNS", src_pmns, ParameterType::SM, func_pmns);
     }
 
     Parameters::GetInstance(ParameterType::WILSON);
@@ -302,9 +312,6 @@ void BSMModelStrategy::postInitialization(Parameters& params) {
 
     ensure_zero_7x7("USQMIX");
     ensure_zero_7x7("DSQMIX");
-
-
-    
  }
 
 std::unordered_set<BlockName> FlavorStrategy::initializeParameters(Parameters& params) {
@@ -315,70 +322,6 @@ std::unordered_set<BlockName> FlavorStrategy::initializeParameters(Parameters& p
 std::unordered_set<BlockName> WilsonInputStrategy::initializeParameters(Parameters &params) {
     auto absent_blocks = params.init_blocks(ParameterType::WILSON);
     return absent_blocks;
-
-    // TODO : Adapt WilsonBlock to MapBlock and rework the following code
-    // auto fill_wilson_block = [] (const std::string& block_name, const std::string& flha_name, double scale, int type, Parameters& params, std::vector<int>& nonzero) -> std::pair<double, int> {
-    //     params.addBlock(block_name, std::make_shared<WilsonBlock>());
-    //     auto lha = MemoryManager::GetInstance()->getReader();
-    //     auto block = lha->getBlock(flha_name);
-    //     if (!block) {
-    //         if (flha_name == "FWCOEF")
-    //             LOG_ERROR("Parameters", "Unable to find real parts of wilson coefficients (block FWCOEF not found in FLHA file)");
-    //         return {scale, type};
-    //     }
-    //     for (auto &e : *(block->getEntries())) {
-    //         int content = e->getId().parts[0];
-    //         int structure = e->getId().parts[1];
-    //         int order = e->getId().parts[2];
-
-    //         if (order >= 10) {
-    //             LOG_WARN("Found QED corrections to Wilson coefficient, skipping");
-    //             continue;
-    //         }
-            
-    //         auto c = static_cast<LhaElement<double>*>(e.get());
-    //         if (scale == -1)
-    //             scale = c->getScale();
-    //         else if (scale != c->getScale()) {
-    //             LOG_ERROR("Parameters", "All Wilson coefficients must be given at the same scale.");
-    //         }
-
-    //         if (type == -1)
-    //             type = e->getId().parts[3];
-    //         else if (type != e->getId().parts[3]) {
-    //             LOG_ERROR("Parameters", "All Wilson coefficients must be of the same type.");
-    //         }
-
-    //         params.setBlockValue(block_name, 10 * (int)WCoefMapper::from_flha(content, structure) + order, c->getValue());
-    //         nonzero.push_back((int)WCoefMapper::from_flha(content, structure));
-    //     }
-
-    //     params.setBlockValue(block_name, -1, scale);
-    //     params.setBlockValue(block_name, -2, type);
-    //     return {scale, type};
-    // };
-
-    // if (!MemoryManager::GetInstance()->hasWilsons()) {
-    //     LOG_ERROR("Parameters", "No Wilson coefficients were given in the input file.");
-    // }
-
-    // std::vector<int> nonzero_re = {};
-    // std::vector<int> nonzero_im = {};
-    // double scale = -1;
-    // int type = -1;
-    // auto p = fill_wilson_block("REWCOEF", "FWCOEF", scale, type, params, nonzero_re);
-    // scale = p.first;
-    // type = p.second;
-    // fill_wilson_block("IMWCOEF", "IMFWCOEF", scale, type, params, nonzero_im);
-
-    // for (int i = 0; i < WCoefMapper::n_wilsons(); i++) {
-    //     if (std::find(nonzero_re.begin(), nonzero_re.end(), i) == nonzero_re.end()) {
-    //         params.setBlockValue("REWCOEF", i * 10, 0);
-    //     }
-    //     if (std::find(nonzero_im.begin(), nonzero_im.end(), i) == nonzero_im.end()) {
-    //         params.setBlockValue("IMWCOEF", i * 10, 0);
-    //     }
-    // }   
 }
 
 void WilsonInputStrategy::postInitialization(Parameters& params) {
@@ -390,7 +333,6 @@ void WilsonInputStrategy::postInitialization(Parameters& params) {
 std::unordered_set<BlockName> DecayStrategy::initializeParameters(Parameters &params) {
     auto absent_blocks = params.init_blocks(ParameterType::DECAY);
     return absent_blocks;
-    // TODO : Export savestate to JSON
 }
 
 std::unordered_set<BlockName> ObservableStrategy::initializeParameters(Parameters &params) {
@@ -403,10 +345,9 @@ std::unordered_set<BlockName> PassthroughStrategy::initializeParameters(Paramete
     return absent_blocks;
 }
 
-
 void Parameters::changeParameterMode(const ParamId &, ParameterMode) {
     // blockAccessor->setMode(param_id.block, param_id.code, new_mode);
-    //TODO ?
+    // TODO ?
 }
 
 void Parameters::shiftParameter(const ParamId &param_id, scalar_t shift_value) {

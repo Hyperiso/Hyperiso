@@ -9,7 +9,6 @@ static double value_to_double(const DBNode::Value& v, double fallback = 0.0)
     return fallback;
 }
 
-//TODO : checking
 void ParamBlockLoader::load(std::shared_ptr<BlockAccessor> dest, fs::path src_file, bool block_in_blocks) {
     LOG_DEBUG("Loading parameter blocks from", src_file.string());
     auto np  = DBNodeProviderFactory::createDBNodeProvider(src_file);

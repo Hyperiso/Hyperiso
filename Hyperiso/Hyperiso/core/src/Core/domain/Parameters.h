@@ -449,7 +449,7 @@ public:
      * @brief Changes the mode of one parameter.
      *
      * @warning This is currently not implemented in the provided `.cpp`
-     *          (the method body is effectively a TODO/no-op).
+     *          (the method body is effectively a no-op).
      *
      * @param param_id Parameter identifier.
      * @param new_mode New parameter mode.
