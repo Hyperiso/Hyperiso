@@ -173,7 +173,8 @@ int main() {
             Observables::P_PRIME_6_B0__KSTAR0_MU_MU,
             Observables::P_PRIME_8_B0__KSTAR0_MU_MU,
             Observables::S_1C_B0__KSTAR0_MU_MU,
-            Observables::S_2S_B0__KSTAR0_MU_MU
+            // Observables::S_2S_B0__KSTAR0_MU_MU,
+            // Observables::S_6C_B0__KSTAR0_MU_MU
         };
 
         auto add_ang_bin = [&](double q2min, double q2max) {
@@ -194,12 +195,16 @@ int main() {
         // // add_ang_bin(10.09, 12.86);
         // add_ang_bin(14.18, 16.0);
         add_ang_bin(0.06, 0.98);
+        // add_ang_bin(0.1, 0.98);
+        // add_ang_bin(1.1, 1.6);
         add_ang_bin(1.1, 2.5);
         add_ang_bin(2.5, 4.0);
         add_ang_bin(4.0, 6.0);
         // add_ang_bin(6.0, 8.0); // à exclure
+        // add_ang_bin(11.0, 12.5);
         add_ang_bin(15.0, 17.0);
         add_ang_bin(17.0, 19.0);
+        // add_ang_bin(15.0, 19.0);
 
         // // // // LHCb2025 config 2, en excluant [6, 8]
         // add_ang_bin(0.06, 0.98);
@@ -209,33 +214,33 @@ int main() {
         // // // add_ang_bin(6.0, 8.0); // à exclure
         // add_ang_bin(15.0, 17.0);
         // add_ang_bin(17.0, 19.0);
-        // oint->add_observable(
-        //             BinnedObservableId{ObservableMapper::to_id(Observables::S_2S_B0__KSTAR0_MU_MU), {0.06, 0.98}},
-        //             QCDOrder::NNLO,
-        //             true
-        //         );
-        // oint->add_observable(
-        //             BinnedObservableId{ObservableMapper::to_id(Observables::S_6C_B0__KSTAR0_MU_MU), {0.06, 0.98}},
-        //             QCDOrder::NNLO,
-        //             true
-        //         );
+        oint->add_observable(
+                    BinnedObservableId{ObservableMapper::to_id(Observables::S_2S_B0__KSTAR0_MU_MU), {0.06, 0.98}},
+                    QCDOrder::NNLO,
+                    true
+                );
+        oint->add_observable(
+                    BinnedObservableId{ObservableMapper::to_id(Observables::S_6C_B0__KSTAR0_MU_MU), {0.06, 0.98}},
+                    QCDOrder::NNLO,
+                    true
+                );
 
 
     BKstarllConfig cfg;
     cfg.ff_src = BV_FF_Src::GRvDV;
     oint->set_decay_config(Decays::B__Kstar_l_l, cfg);
-    oint->set_bkstarll_threads(20);
+    oint->set_bkstarll_threads(25);
     std::shared_ptr<IStatParamOptimizerProxy> spop = std::make_shared<StatParamOptimizerProxy>();
     auto model = std::make_shared<ObservableInterfaceAdapterObs>(oint, spop);
     
 
     StatisticConfig config;
     config.MLE_max_iter = 120000;
-    config.MLE_tol = 0.1;
+    config.MLE_tol = 0.05;
     config.MLE_trace_first_evals  = true;
     config.MLE_trace_max_evals  = 20;
     config.likelihood_mode = StatisticLikelihoodMode::CHI2_MC_COVARIANCE;
-    config.MC_draws = 2000;
+    config.MC_draws = 1000;
     const std::string had_bsm_block =
         GroupMapper::str(WGroup::B, ScaleType::HADRONIC, WilsonBasis::B_STANDARD)
         + "__BSM_INTERMEDIATE";
@@ -307,7 +312,7 @@ int main() {
         opt.primary_contour_method = ContourAlgorithm::MINUIT;
         opt.fallback_contour_method = ContourAlgorithm::AMS;
         opt.profile_backend = ProfileBackend::MINUIT;
-        opt.resolution = 40;
+        opt.resolution = 10;
 
         opt.on_progress = [trace](const ContourProgressEvent& ev) {
         if (!trace || !(*trace)) return;

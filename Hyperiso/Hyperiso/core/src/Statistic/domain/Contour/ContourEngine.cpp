@@ -1,4 +1,5 @@
 #include "ContourEngine.h"
+#include <gsl/gsl_sf_erf.h>
 
 namespace {
 
@@ -117,6 +118,7 @@ Contour ContourEngine::compute_contour(double z, std::array<double, 4> bounds, s
     ContourRequest cr;
     cr.bounds = bounds;
     cr.level = z * z / 2.0;
+    cr.level = gsl_cdf_chisq_Pinv(gsl_sf_erf(z / std::sqrt(2.0)), 2) / 2.0;
     cr.resolution = resolution;
 
     auto defs = this->likelihood.get_param_defs();

@@ -13,6 +13,10 @@ struct MCConfig {
 
     double covariance_ridge_rel = 1e-8;
     double covariance_ridge_abs = 1e-12;
+
+    bool retry_failed_predictions = true;
+
+    std::size_t max_prediction_failures = 20000;
 };
 
 struct MCRealization {
@@ -126,30 +130,97 @@ public:
     : model_(model), sampler_(sampler), cfg_(cfg) {}
 
     MCRealization sample_predictions(const std::map<ParamId, double>& p) const {
-        ObsSamples out; 
+        ObsSamples out;
         out.reserve(cfg_.draws);
 
-        // auto start_smpl = std::chrono::steady_clock::now();
-        NuisanceSamples samples = sampler_.sample(cfg_.draws);
-        // auto stop_smpl  = std::chrono::steady_clock::now();
-        // auto time_sampling_ms = std::chrono::duration_cast<std::chrono::milliseconds>(stop_smpl - start_smpl).count();
-        // LOG_INFO("Sampling distribution took", time_sampling_ms, "ms.");
+        NuisanceSamples accepted_samples;
+        accepted_samples.reserve(cfg_.draws);
 
-        // auto start_pred = std::chrono::steady_clock::now();
-        std::size_t i = 1;
-        for (const auto& s : samples) {
-            LOG_INFO("Sample", i, "of", cfg_.draws);
-            auto res = model_->predict_optimized(p, s);
-            auto unzipped_res = flatten(res);
-            std::map<BinnedObservableId, double> value = zip(unzipped_res.ids, unzipped_res.vals);
-            out.emplace_back(std::move(value));
-            i++;
+        std::size_t accepted = 0;
+        std::size_t failures = 0;
+        std::size_t attempts = 0;
+
+        while (accepted < cfg_.draws) {
+            ++attempts;
+
+            std::map<ParamId, double> s = sampler_.sample();
+
+            try {
+                LOG_INFO("Sample", accepted + 1, "of", cfg_.draws);
+
+                auto res = model_->predict_optimized(p, s);
+                auto unzipped_res = flatten(res);
+                std::map<BinnedObservableId, double> value =
+                    zip(unzipped_res.ids, unzipped_res.vals);
+
+                bool finite = true;
+                for (const auto& [oid, v] : value) {
+                    if (!std::isfinite(v)) {
+                        finite = false;
+                        break;
+                    }
+                }
+
+                if (!finite) {
+                    throw std::runtime_error("MC prediction contains non-finite observable");
+                }
+
+                out.emplace_back(std::move(value));
+                accepted_samples.emplace_back(std::move(s));
+                ++accepted;
+
+            } catch (const std::exception& e) {
+                ++failures;
+
+                LOG_WARN(
+                    "Rejected MC nuisance sample",
+                    failures,
+                    "while trying to fill accepted sample",
+                    accepted + 1,
+                    "of",
+                    cfg_.draws,
+                    ":",
+                    e.what()
+                );
+
+                if (!cfg_.retry_failed_predictions ||
+                    failures > cfg_.max_prediction_failures) {
+                    throw;
+                }
+
+                continue;
+            } catch (...) {
+                ++failures;
+
+                LOG_WARN(
+                    "Rejected MC nuisance sample",
+                    failures,
+                    "with unknown exception while trying to fill accepted sample",
+                    accepted + 1,
+                    "of",
+                    cfg_.draws
+                );
+
+                if (!cfg_.retry_failed_predictions ||
+                    failures > cfg_.max_prediction_failures) {
+                    throw;
+                }
+
+                continue;
+            }
         }
-        // auto stop_pred  = std::chrono::steady_clock::now();
-        // auto time_prediction_ms = std::chrono::duration_cast<std::chrono::milliseconds>(stop_pred - start_pred).count();
-        // LOG_INFO("Predicting for sampled nuisances took", time_prediction_ms, "ms.");
 
-        return MCRealization {out, samples};
+        if (failures > 0) {
+            LOG_WARN(
+                "MC sampling finished with",
+                failures,
+                "rejected nuisance samples over",
+                attempts,
+                "attempts."
+            );
+        }
+
+        return MCRealization{out, accepted_samples};
     }
 
     MCResult summarize(const std::map<ParamId, double>& p) const {

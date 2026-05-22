@@ -92,7 +92,7 @@ int main() {
     BKstarllConfig cfg;
     cfg.ff_src = BV_FF_Src::GRvDV;
     oint->set_decay_config(Decays::B__Kstar_l_l, cfg);
-
+    oint->set_bkstarll_threads(25);
     std::shared_ptr<IStatParamOptimizerProxy> spop = std::make_shared<StatParamOptimizerProxy>();
 
     auto model = std::make_shared<ObservableInterfaceAdapterObs>(oint, spop);
@@ -118,7 +118,7 @@ int main() {
         spop
     );
 
-    stat.select_experiment("CMS");
+    // stat.select_experiment("CMS");
 
     auto start = std::chrono::steady_clock::now();
     auto pred_with_u = stat.compute_uncertainties();
