@@ -2107,12 +2107,49 @@ void BsPhiDecay::compute_binned_J_i() {
         return acc;
     };
 
+    // const auto& bins = this->bins.value();
+    // const size_t nbins = bins.size();
+    // clear_and_reserve(cache.f_J_i_binned, nbins);
+
+    // for (const auto& [q2_l, q2_u] : bins) {
+    //     const auto integ = integrate_bin(q2_l, q2_u);
+    //     for (size_t k = 0; k < cache.f_J_i_binned.size(); ++k) {
+    //         cache.f_J_i_binned[k].emplace_back(integ[k]);
+    //     }
+    // }
+    //TODO :: Niels, check this ? for 15-19 bin
+    const double endpoint_eps = 1e-5;
+    const double low_q2_eps = 1e-7;
+
     const auto& bins = this->bins.value();
     const size_t nbins = bins.size();
     clear_and_reserve(cache.f_J_i_binned, nbins);
 
-    for (const auto& [q2_l, q2_u] : bins) {
+    for (const auto& [q2_l_raw, q2_u_raw] : bins) {
+        const double q2_l = std::max(q2_l_raw, cache.q2_min + low_q2_eps);
+        const double q2_u = std::min(q2_u_raw, cache.q2_max - endpoint_eps);
+
+        if (!(q2_l < q2_u)) {
+            LOG_WARN(
+                "Skipping invalid BsPhi bin [",
+                q2_l_raw,
+                ",",
+                q2_u_raw,
+                "] clipped to [",
+                q2_l,
+                ",",
+                q2_u,
+                "]"
+            );
+
+            for (auto& v : cache.f_J_i_binned) {
+                v.emplace_back(std::numeric_limits<double>::quiet_NaN());
+            }
+            continue;
+        }
+
         const auto integ = integrate_bin(q2_l, q2_u);
+
         for (size_t k = 0; k < cache.f_J_i_binned.size(); ++k) {
             cache.f_J_i_binned[k].emplace_back(integ[k]);
         }

@@ -1197,6 +1197,7 @@ std::map<ParamId, double> StatisticManager::get_all_obss_deps() {
     }
 
     if (config.nuisance_sensitivity_pruning &&
+        config.nuisance_sensitivity_contexts >= 0 &&
         !eta_specs_real_leaf.empty() &&
         !cache.p_specs.empty())
     {

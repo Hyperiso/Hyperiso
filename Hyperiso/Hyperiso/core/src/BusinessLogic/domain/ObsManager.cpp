@@ -53,13 +53,177 @@ ObsManager ObsManager::remove_obs(Observables id) {
 }
 
 ObsManager ObsManager::add_obs(BinnedObservableId id, QCDOrder order, bool add_deps) {
-    if (!this->obss.contains(id.s))
-        add_obs(id.s, order, add_deps);
+    const std::string obs_name = ObservableMapper::str(id.s);
 
-    DecayId dec_id = DecayMapper::get_decay_id(id.s).value();
-    this->decays.at(dec_id)->add_bin(id.p);
+    LOG_INFO(
+        "Adding binned observable",
+        obs_name,
+        "with bin [",
+        id.p.first,
+        ",",
+        id.p.second,
+        "]"
+    );
+
+    auto maybe_obs_enum = ObservableMapper::enum_of(id.s);
+    if (!maybe_obs_enum.has_value()) {
+        LOG_WARN("Cannot recover enum for observable", obs_name);
+        return *this;
+    }
+
+    Decays decay_enum;
+    try {
+        decay_enum = DecayMapper::get_decay(maybe_obs_enum.value());
+    } catch (const std::exception& e) {
+        LOG_WARN(
+            "Cannot find decay for binned observable",
+            obs_name,
+            ":",
+            e.what()
+        );
+        return *this;
+    }
+
+    DecayId dec_id = DecayMapper::to_id(decay_enum);
+
+    auto dec_it = this->decays.find(dec_id);
+    if (dec_it == this->decays.end()) {
+        LOG_WARN(
+            "Decay",
+            dec_id.str(),
+            "not present in ObsManager for observable",
+            obs_name
+        );
+        return *this;
+    }
+
+    dec_it->second->set_order(order);
+
+    if (!this->obss.contains(id.s)) {
+        auto obs_ptr = std::make_shared<Observable>(
+            id.s,
+            dec_it->second,
+            obs_port_conf.iobspp_sm
+        );
+
+        obss.emplace(id.s, obs_ptr);
+
+        if (add_deps) {
+            add_all_obs_deps(id.s);
+        }
+    }
+
+    dec_it->second->add_bin(id.p);
+
+    LOG_INFO(
+        "Successfully added bin [",
+        id.p.first,
+        ",",
+        id.p.second,
+        "] for observable",
+        obs_name,
+        "in decay",
+        dec_id.str()
+    );
+
     return *this;
 }
+
+// ObsManager ObsManager::add_obs(BinnedObservableId id, QCDOrder order, bool add_deps) {
+//     const std::string obs_name = ObservableMapper::str(id.s);
+//     LOG_INFO(
+//         "Adding binned observable",
+//         obs_name,
+//         "with bin [",
+//         id.p.first,
+//         ",",
+//         id.p.second,
+//         "]"
+//     );
+//     try {
+//         if (!this->obss.contains(id.s)) {
+//             add_obs(id.s, order, add_deps);
+//         }
+
+//         auto maybe_dec_id = DecayMapper::get_decay_id(id.s);
+//         if (!maybe_dec_id.has_value()) {
+//             LOG_WARN("No decay id for binned observable", obs_name);
+//             return *this;
+//         }
+
+//         const DecayId dec_id = maybe_dec_id.value();
+
+//         LOG_INFO(
+//             "Resolved binned observable",
+//             obs_name,
+//             "to decay",
+//             dec_id.str()
+//         );
+
+//         auto dec_it = this->decays.find(dec_id);
+//         if (dec_it == this->decays.end()) {
+//             LOG_WARN(
+//                 "Decay",
+//                 dec_id.str(),
+//                 "not present in ObsManager for observable",
+//                 obs_name
+//             );
+//             return *this;
+//         }
+
+//         LOG_INFO(
+//             "Calling add_bin for",
+//             obs_name,
+//             "in decay",
+//             dec_id.str(),
+//             "with bin [",
+//             id.p.first,
+//             ",",
+//             id.p.second,
+//             "]"
+//         );
+
+//         dec_it->second->add_bin(id.p);
+
+//         LOG_INFO(
+//             "Successfully added bin [",
+//             id.p.first,
+//             ",",
+//             id.p.second,
+//             "] for observable",
+//             obs_name
+//         );
+
+//     } catch (const std::out_of_range& e) {
+//         LOG_WARN(
+//             "Skipping bin [",
+//             id.p.first,
+//             ",",
+//             id.p.second,
+//             "] for observable",
+//             obs_name,
+//             "because std::out_of_range was thrown:",
+//             e.what()
+//         );
+//     } catch (const std::exception& e) {
+//         LOG_WARN(
+//             "Skipping bin [",
+//             id.p.first,
+//             ",",
+//             id.p.second,
+//             "] for observable",
+//             obs_name,
+//             "because exception was thrown:",
+//             e.what()
+//         );
+//     }
+//     // if (!this->obss.contains(id.s))
+//     //     add_obs(id.s, order, add_deps);
+
+//     // DecayId dec_id = DecayMapper::get_decay_id(id.s).value();
+//     // this->decays.at(dec_id)->add_bin(id.p);
+//     return *this;
+// }
 
 ObsManager ObsManager::remove_obs(ObservableId id)
 {
@@ -132,9 +296,17 @@ void ObsManager::add_all_obs_deps(Observables id) {
 }
 
 void ObsManager::add_all_obs_deps(ObservableId id) {
-    auto allowed = DependenciesHelper::get_allowed_parameters(id);
-    LOG_DEBUG("Found", allowed.size(), "allowed parameters for observable", ObservableMapper::str(id));
-    obss.at(ensure_present(id))->add_dependences(allowed);
+    // auto allowed = DependenciesHelper::get_allowed_parameters(id);
+    // LOG_DEBUG("Found", allowed.size(), "allowed parameters for observable", ObservableMapper::str(id));
+    // obss.at(ensure_present(id))->add_dependences(allowed);
+    try {
+        auto allowed = DependenciesHelper::get_allowed_parameters(id);
+        LOG_DEBUG("Found", allowed.size(), "allowed parameters for observable", ObservableMapper::str(id));
+        obss.at(ensure_present(id))->add_dependences(allowed);
+    } catch (const std::out_of_range&) {
+        LOG_WARN("No dependency map for observable", ObservableMapper::str(id),
+                 "- adding it without automatic dependencies.");
+    }
 }
 
 std::unordered_set<ParamId> ObsManager::get_all_ops_deps(ObservableId id) {

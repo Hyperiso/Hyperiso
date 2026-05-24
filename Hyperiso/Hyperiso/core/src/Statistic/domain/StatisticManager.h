@@ -80,8 +80,8 @@ struct StatisticConfig {
     double chi2_covariance_ridge_rel = 1e-8;
     double chi2_covariance_ridge_abs = 1e-12;
 
-
-    std::size_t nuisance_sensitivity_contexts = 6;
+    // -1 disables the sensitivity check completely.
+    int nuisance_sensitivity_contexts = 2; //change to 6 later
     double nuisance_sensitivity_context_sigma = 0.35;
     unsigned nuisance_sensitivity_seed = 12345;
     bool nuisance_sensitivity_keep_on_failure = true;

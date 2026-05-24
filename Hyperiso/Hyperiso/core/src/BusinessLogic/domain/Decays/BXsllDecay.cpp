@@ -684,7 +684,14 @@ double BXsllDecay::delta_bremA(double s) {
     return 2. * real(c_78 * tau_78(s) + c_89 * tau_89(s) + 0.5 * c_88 * tau_88(s));
 }
 
+//TODO :: Niels check if I didn't break everything
 double BXsllDecay::delta_bremB_base(double s) {
+
+
+    constexpr double eps = 1e-6;
+
+    s = std::clamp(s, eps, 1.0 - eps);
+
     auto C_0 = cache.C_LO;
     auto CP_0 = cache.C_LO;
     complex_t C9_0 = C9_eff(s, QCDOrder::LO, false);
@@ -720,7 +727,9 @@ double BXsllDecay::delta_bremB_base(double s) {
         return real(w_22 * tau_22(s, w, D23, D27) + 2.0 * (w_27 * tau_27(s, w, D23, D27) + w_28 * tau_28(s, w, D23, D27) + w_29 * tau_29(s, w, D23, D27)));
     };
 
-    return integrate(f, s, 1, 1e-2);
+
+    return integrate(f, s, 1.0 - eps, 1e-2);
+    // return integrate(f, s, 1, 1e-2);
 }
 
 double BXsllDecay::delta_bremB(double s) {

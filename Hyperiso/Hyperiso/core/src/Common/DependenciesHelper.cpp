@@ -307,8 +307,10 @@ bool DependenciesHelper::is_param_allowed(Observables id, ParamId pid) {
 
 std::unordered_set<ParamId> DependenciesHelper::get_allowed_parameters(ObservableId id) {
     std::optional<DecayId> did = DecayMapper::get_decay_id(id);
-    if (!did.has_value())
-        LOG_INFO("No decay found for obs", id.str());
+    if (!did.has_value()) {
+        LOG_WARN("No decay found for obs", id.str());
+        return {};
+    }
     LOG_INFO("Decay of obs", id.str(), ":", did.value().str());
     if (did.has_value()) {
         return dep_lists.at(did.value());

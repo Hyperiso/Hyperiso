@@ -38,25 +38,58 @@ const std::unordered_set<ObservableId> BKllDecay::F_H_ids = {
     ObservableMapper::to_id(Observables::F_H_B__K_TAU_TAU)
 };
 
+// const std::map<Observables, std::pair<BKllConfig::Lepton, BKllConfig::B_Charge>> BKllDecay::cfg_map {
+//     {Observables::DBR_DQ2_B0__K0_E_E, {BKllConfig::Lepton::E, BKllConfig::B_Charge::B_0}},
+//     {Observables::A_FB_B0__K0_E_E, {BKllConfig::Lepton::E, BKllConfig::B_Charge::B_0}},
+//     {Observables::F_H_B0__K0_E_E, {BKllConfig::Lepton::E, BKllConfig::B_Charge::B_0}},
+//     {Observables::DBR_DQ2_B__K_E_E, {BKllConfig::Lepton::E, BKllConfig::B_Charge::B_PLUS}},
+//     {Observables::A_FB_B__K_E_E, {BKllConfig::Lepton::E, BKllConfig::B_Charge::B_PLUS}},
+//     {Observables::F_H_B__K_E_E, {BKllConfig::Lepton::E, BKllConfig::B_Charge::B_PLUS}},
+//     {Observables::DBR_DQ2_B0__K0_MU_MU, {BKllConfig::Lepton::MU, BKllConfig::B_Charge::B_0}},
+//     {Observables::A_FB_B0__K0_MU_MU, {BKllConfig::Lepton::MU, BKllConfig::B_Charge::B_0}},
+//     {Observables::F_H_B0__K0_MU_MU, {BKllConfig::Lepton::MU, BKllConfig::B_Charge::B_0}},
+//     {Observables::DBR_DQ2_B__K_MU_MU, {BKllConfig::Lepton::MU, BKllConfig::B_Charge::B_PLUS}},
+//     {Observables::A_FB_B__K_MU_MU, {BKllConfig::Lepton::MU, BKllConfig::B_Charge::B_PLUS}},
+//     {Observables::F_H_B__K_MU_MU, {BKllConfig::Lepton::MU, BKllConfig::B_Charge::B_PLUS}},
+//     {Observables::DBR_DQ2_B0__K0_TAU_TAU, {BKllConfig::Lepton::TAU, BKllConfig::B_Charge::B_0}},
+//     {Observables::A_FB_B0__K0_TAU_TAU, {BKllConfig::Lepton::TAU, BKllConfig::B_Charge::B_0}},
+//     {Observables::F_H_B0__K0_TAU_TAU, {BKllConfig::Lepton::TAU, BKllConfig::B_Charge::B_0}},
+//     {Observables::DBR_DQ2_B__K_TAU_TAU, {BKllConfig::Lepton::TAU, BKllConfig::B_Charge::B_PLUS}},
+//     {Observables::A_FB_B__K_TAU_TAU, {BKllConfig::Lepton::TAU, BKllConfig::B_Charge::B_PLUS}},
+//     {Observables::F_H_B__K_TAU_TAU, {BKllConfig::Lepton::TAU, BKllConfig::B_Charge::B_PLUS}},
+// };
+
+
 const std::map<Observables, std::pair<BKllConfig::Lepton, BKllConfig::B_Charge>> BKllDecay::cfg_map {
-    {Observables::DBR_DQ2_B0__K0_E_E, {BKllConfig::Lepton::E, BKllConfig::B_Charge::B_0}},
-    {Observables::A_FB_B0__K0_E_E, {BKllConfig::Lepton::E, BKllConfig::B_Charge::B_0}},
-    {Observables::F_H_B0__K0_E_E, {BKllConfig::Lepton::E, BKllConfig::B_Charge::B_0}},
-    {Observables::DBR_DQ2_B__K_E_E, {BKllConfig::Lepton::E, BKllConfig::B_Charge::B_PLUS}},
-    {Observables::A_FB_B__K_E_E, {BKllConfig::Lepton::E, BKllConfig::B_Charge::B_PLUS}},
-    {Observables::F_H_B__K_E_E, {BKllConfig::Lepton::E, BKllConfig::B_Charge::B_PLUS}},
-    {Observables::DBR_DQ2_B0__K0_MU_MU, {BKllConfig::Lepton::MU, BKllConfig::B_Charge::B_0}},
-    {Observables::A_FB_B0__K0_MU_MU, {BKllConfig::Lepton::MU, BKllConfig::B_Charge::B_0}},
-    {Observables::F_H_B0__K0_MU_MU, {BKllConfig::Lepton::MU, BKllConfig::B_Charge::B_0}},
-    {Observables::DBR_DQ2_B__K_MU_MU, {BKllConfig::Lepton::MU, BKllConfig::B_Charge::B_PLUS}},
-    {Observables::A_FB_B__K_MU_MU, {BKllConfig::Lepton::MU, BKllConfig::B_Charge::B_PLUS}},
-    {Observables::F_H_B__K_MU_MU, {BKllConfig::Lepton::MU, BKllConfig::B_Charge::B_PLUS}},
-    {Observables::DBR_DQ2_B0__K0_TAU_TAU, {BKllConfig::Lepton::TAU, BKllConfig::B_Charge::B_0}},
-    {Observables::A_FB_B0__K0_TAU_TAU, {BKllConfig::Lepton::TAU, BKllConfig::B_Charge::B_0}},
-    {Observables::F_H_B0__K0_TAU_TAU, {BKllConfig::Lepton::TAU, BKllConfig::B_Charge::B_0}},
-    {Observables::DBR_DQ2_B__K_TAU_TAU, {BKllConfig::Lepton::TAU, BKllConfig::B_Charge::B_PLUS}},
-    {Observables::A_FB_B__K_TAU_TAU, {BKllConfig::Lepton::TAU, BKllConfig::B_Charge::B_PLUS}},
-    {Observables::F_H_B__K_TAU_TAU, {BKllConfig::Lepton::TAU, BKllConfig::B_Charge::B_PLUS}},
+    {Observables::DGAMMA_DQ2_B0__K0_E_E, {BKllConfig::Lepton::E, BKllConfig::B_Charge::B_0}},
+    {Observables::DBR_DQ2_B0__K0_E_E,    {BKllConfig::Lepton::E, BKllConfig::B_Charge::B_0}},
+    {Observables::A_FB_B0__K0_E_E,       {BKllConfig::Lepton::E, BKllConfig::B_Charge::B_0}},
+    {Observables::F_H_B0__K0_E_E,        {BKllConfig::Lepton::E, BKllConfig::B_Charge::B_0}},
+
+    {Observables::DGAMMA_DQ2_B__K_E_E, {BKllConfig::Lepton::E, BKllConfig::B_Charge::B_PLUS}},
+    {Observables::DBR_DQ2_B__K_E_E,    {BKllConfig::Lepton::E, BKllConfig::B_Charge::B_PLUS}},
+    {Observables::A_FB_B__K_E_E,       {BKllConfig::Lepton::E, BKllConfig::B_Charge::B_PLUS}},
+    {Observables::F_H_B__K_E_E,        {BKllConfig::Lepton::E, BKllConfig::B_Charge::B_PLUS}},
+
+    {Observables::DGAMMA_DQ2_B0__K0_MU_MU, {BKllConfig::Lepton::MU, BKllConfig::B_Charge::B_0}},
+    {Observables::DBR_DQ2_B0__K0_MU_MU,    {BKllConfig::Lepton::MU, BKllConfig::B_Charge::B_0}},
+    {Observables::A_FB_B0__K0_MU_MU,       {BKllConfig::Lepton::MU, BKllConfig::B_Charge::B_0}},
+    {Observables::F_H_B0__K0_MU_MU,        {BKllConfig::Lepton::MU, BKllConfig::B_Charge::B_0}},
+
+    {Observables::DGAMMA_DQ2_B__K_MU_MU, {BKllConfig::Lepton::MU, BKllConfig::B_Charge::B_PLUS}},
+    {Observables::DBR_DQ2_B__K_MU_MU,    {BKllConfig::Lepton::MU, BKllConfig::B_Charge::B_PLUS}},
+    {Observables::A_FB_B__K_MU_MU,       {BKllConfig::Lepton::MU, BKllConfig::B_Charge::B_PLUS}},
+    {Observables::F_H_B__K_MU_MU,        {BKllConfig::Lepton::MU, BKllConfig::B_Charge::B_PLUS}},
+
+    {Observables::DGAMMA_DQ2_B0__K0_TAU_TAU, {BKllConfig::Lepton::TAU, BKllConfig::B_Charge::B_0}},
+    {Observables::DBR_DQ2_B0__K0_TAU_TAU,    {BKllConfig::Lepton::TAU, BKllConfig::B_Charge::B_0}},
+    {Observables::A_FB_B0__K0_TAU_TAU,       {BKllConfig::Lepton::TAU, BKllConfig::B_Charge::B_0}},
+    {Observables::F_H_B0__K0_TAU_TAU,        {BKllConfig::Lepton::TAU, BKllConfig::B_Charge::B_0}},
+
+    {Observables::DGAMMA_DQ2_B__K_TAU_TAU, {BKllConfig::Lepton::TAU, BKllConfig::B_Charge::B_PLUS}},
+    {Observables::DBR_DQ2_B__K_TAU_TAU,    {BKllConfig::Lepton::TAU, BKllConfig::B_Charge::B_PLUS}},
+    {Observables::A_FB_B__K_TAU_TAU,       {BKllConfig::Lepton::TAU, BKllConfig::B_Charge::B_PLUS}},
+    {Observables::F_H_B__K_TAU_TAU,        {BKllConfig::Lepton::TAU, BKllConfig::B_Charge::B_PLUS}},
 };
 
 void BKllDecay::load_params() {
@@ -371,11 +404,76 @@ double BKllDecay::c(double q2) {
     return -0.25 * N(q2) * lambda(q2) * std::pow(beta_l(q2), 2) * (std::pow(std::abs(F_A(q2)), 2) + std::pow(std::abs(F_V(q2)), 2));
 }
 
+//TODO :: Bravo Niels, bravo
+// void BKllDecay::compute_binned_abc() {
+//     for (auto [q2_l, q2_u] : this->bins.value()) {
+//         cache.abc_binned[0].emplace_back(integrate([&] (double q2) { return a(q2); }, q2_l, q2_u, 1e-3));    
+//         cache.abc_binned[1].emplace_back(integrate([&] (double q2) { return b(q2); }, q2_l, q2_u, 1e-3));
+//         cache.abc_binned[2].emplace_back(integrate([&] (double q2) { return c(q2); }, q2_l, q2_u, 1e-3));
+//     }
+// }
+
 void BKllDecay::compute_binned_abc() {
+    for (auto& v : cache.abc_binned) {
+        v.clear();
+    }
+
+    if (!this->bins.has_value()) {
+        LOG_WARN("BKllDecay::compute_binned_abc called without bins.");
+        return;
+    }
+
     for (auto [q2_l, q2_u] : this->bins.value()) {
-        cache.abc_binned[0].emplace_back(integrate([&] (double q2) { return a(q2); }, q2_l, q2_u, 1e-3));    
-        cache.abc_binned[1].emplace_back(integrate([&] (double q2) { return b(q2); }, q2_l, q2_u, 1e-3));
-        cache.abc_binned[2].emplace_back(integrate([&] (double q2) { return c(q2); }, q2_l, q2_u, 1e-3));
+        const double eps = 1e-8;
+
+        double low  = std::max(q2_l, cache.q2_min + eps);
+        double high = std::min(q2_u, cache.q2_max - eps);
+
+        // LOG_INFO(
+        //     "BKllDecay integrating bin [",
+        //     q2_l,
+        //     ",",
+        //     q2_u,
+        //     "] clipped to [",
+        //     low,
+        //     ",",
+        //     high,
+        //     "] for lepton=",
+        //     static_cast<int>(cfg.gen),
+        //     " charge=",
+        //     static_cast<int>(cfg.charge)
+        // );
+
+        if (!(low < high)) {
+            LOG_WARN(
+                "Skipping invalid BKll bin [",
+                q2_l,
+                ",",
+                q2_u,
+                "] after clipping to [",
+                low,
+                ",",
+                high,
+                "]"
+            );
+
+            cache.abc_binned[0].emplace_back(std::numeric_limits<double>::quiet_NaN());
+            cache.abc_binned[1].emplace_back(std::numeric_limits<double>::quiet_NaN());
+            cache.abc_binned[2].emplace_back(std::numeric_limits<double>::quiet_NaN());
+            continue;
+        }
+
+        cache.abc_binned[0].emplace_back(
+            integrate([&] (double q2) { return a(q2); }, low, high, 1e-3)
+        );
+
+        cache.abc_binned[1].emplace_back(
+            integrate([&] (double q2) { return b(q2); }, low, high, 1e-3)
+        );
+
+        cache.abc_binned[2].emplace_back(
+            integrate([&] (double q2) { return c(q2); }, low, high, 1e-3)
+        );
     }
 }
 
@@ -429,26 +527,62 @@ std::vector<ObservableValue> BKllDecay::Rm1_BK(Observables id, BKllConfig::B_Cha
 }
 
 std::vector<ObservableValue> BKllDecay::compute_observable(Observables obs) {
-    auto flags = BKllDecay::cfg_map.at(obs);
+    if (obs == Observables::R_1_B__K_L_L) {
+        return Rm1_BK(obs, BKllConfig::B_Charge::B_PLUS);
+    }
+
+    auto it = BKllDecay::cfg_map.find(obs);
+    if (it == BKllDecay::cfg_map.end()) {
+        LOG_ERROR(
+            "IndexError",
+            "Observable",
+            ObservableMapper::str(obs),
+            "is not configured in BKllDecay::cfg_map"
+        );
+        return {};
+    }
+
+    auto flags = it->second;
     set_lepton_gen_and_charge(flags.first, flags.second);
 
-    if (BKllDecay::dBR_dq2_ids.contains(ObservableMapper::to_id(obs))) 
-        return dBR_dq2(obs, true);
+    if (BKllDecay::dBR_dq2_ids.contains(ObservableMapper::to_id(obs))) return dBR_dq2(obs, true);
+    if (BKllDecay::dG_dq2_ids.contains(ObservableMapper::to_id(obs)))  return dBR_dq2(obs, false);
+    if (BKllDecay::A_FB_ids.contains(ObservableMapper::to_id(obs)))    return A_FB(obs);
+    if (BKllDecay::F_H_ids.contains(ObservableMapper::to_id(obs)))     return F_H(obs);
 
-    if (BKllDecay::dG_dq2_ids.contains(ObservableMapper::to_id(obs))) 
-        return dBR_dq2(obs, false);
+    LOG_ERROR(
+        "IndexError",
+        "Observable",
+        ObservableMapper::str(obs),
+        "doesn't belong to the decay",
+        DecayMapper::str(this->id)
+    );
 
-    if (BKllDecay::A_FB_ids.contains(ObservableMapper::to_id(obs))) 
-        return A_FB(obs);
-
-    if (BKllDecay::F_H_ids.contains(ObservableMapper::to_id(obs))) 
-        return F_H(obs);
-
-    if (obs == Observables::R_1_B__K_L_L) 
-        return Rm1_BK(obs, BKllConfig::B_Charge::B_PLUS);
-
-    LOG_ERROR("IndexError", "Observable", ObservableMapper::str(obs), "doesn't belong to the decay", DecayMapper::str(this->id));
+    return {};
 }
+
+//TODO : niels, check thisd, got std::out_of_range
+// std::vector<ObservableValue> BKllDecay::compute_observable(Observables obs) {
+//     auto flags = BKllDecay::cfg_map.at(obs);
+//     set_lepton_gen_and_charge(flags.first, flags.second);
+
+//     if (BKllDecay::dBR_dq2_ids.contains(ObservableMapper::to_id(obs))) 
+//         return dBR_dq2(obs, true);
+
+//     if (BKllDecay::dG_dq2_ids.contains(ObservableMapper::to_id(obs))) 
+//         return dBR_dq2(obs, false);
+
+//     if (BKllDecay::A_FB_ids.contains(ObservableMapper::to_id(obs))) 
+//         return A_FB(obs);
+
+//     if (BKllDecay::F_H_ids.contains(ObservableMapper::to_id(obs))) 
+//         return F_H(obs);
+
+//     if (obs == Observables::R_1_B__K_L_L) 
+//         return Rm1_BK(obs, BKllConfig::B_Charge::B_PLUS);
+
+//     LOG_ERROR("IndexError", "Observable", ObservableMapper::str(obs), "doesn't belong to the decay", DecayMapper::str(this->id));
+// }
 
 std::vector<ObservableValue> BKllDecay::compute_observable(ObservableId obs) {
     return compute_observable(ObservableMapper::enum_of(obs).value());
