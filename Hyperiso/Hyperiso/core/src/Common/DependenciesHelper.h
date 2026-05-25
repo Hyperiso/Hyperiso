@@ -90,6 +90,30 @@ private:
      * DependenciesHelper.cpp file.
      */
     static const std::map<DecayId, std::unordered_set<ParamId>> dep_lists;
+
+    /**
+     * @brief Static set of common dependencies to all decay channels.
+     *
+     * This set is defined and initialized in the corresponding
+     * DependenciesHelper.cpp file.
+     */
+    static const std::unordered_set<ParamId> common_deps;
+
+    /**
+     * @brief Static set of Wilson coefficients dependencies for all B meson neutral current decays.
+     *
+     * This set is defined and initialized in the corresponding
+     * DependenciesHelper.cpp file.
+     */
+    static const std::unordered_set<ParamId> B_nc_wilson_deps;
+
+    /**
+     * @brief Static set of Wilson coefficients dependencies for all B meson charged current decays.
+     *
+     * This set is defined and initialized in the corresponding
+     * DependenciesHelper.cpp file.
+     */
+    static const std::unordered_set<ParamId> B_cc_wilson_deps;
 };
 
 #endif

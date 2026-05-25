@@ -199,6 +199,21 @@
       "stat_error": 0.0,
       "syst_error": 0
     },
+    "2_0_1": {
+      "central_value": 5.412,
+      "stat_error": 0,
+      "syst_error": 0
+    },
+    "2_0_2": {
+      "central_value": 5.630,
+      "stat_error": 0,
+      "syst_error": 0
+    },
+    "2_0_3": {
+      "central_value": 5.412,
+      "stat_error": 0,
+      "syst_error": 0
+    },
     "2_1_0": {
       "central_value": 0.33196382,
       "stat_error": 0.010306670170331444,
@@ -213,6 +228,11 @@
       "central_value": -0.30273752,
       "stat_error": 0.08985931086982583,
       "syst_error": 0
+    },
+    "2_2_0": {
+      "central_value": 0.0,
+      "stat_error": 0.0,
+      "syst_error": 0.0
     },
     "2_2_1": {
       "central_value": 0.33478906,
@@ -239,6 +259,21 @@
       "stat_error": 0.34388168314116413,
       "syst_error": 0
     },
+    "3_0_1": {
+      "central_value": 5.412,
+      "stat_error": 0,
+      "syst_error": 0
+    },
+    "3_0_2": {
+      "central_value": 5.630,
+      "stat_error": 0,
+      "syst_error": 0
+    },
+    "3_0_3": {
+      "central_value": 5.412,
+      "stat_error": 0,
+      "syst_error": 0
+    },
     "3_1_0": {
       "central_value": 0.3290899285463681,
       "stat_error": 0.0277282191451161,
@@ -253,6 +288,11 @@
       "central_value": 0.0060956696733412,
       "stat_error": 0.7508262983344038,
       "syst_error": 0
+    },
+    "3_2_0": {
+      "central_value": 0.0,
+      "stat_error": 0.0,
+      "syst_error": 0.0
     },
     "3_2_1": {
       "central_value": 0.195117199570376,
@@ -279,6 +319,21 @@
       "stat_error": 0.8715760989774238,
       "syst_error": 0
     },
+    "4_0_1": {
+      "central_value": 5.412,
+      "stat_error": 0,
+      "syst_error": 0
+    },
+    "4_0_2": {
+      "central_value": 5.630,
+      "stat_error": 0,
+      "syst_error": 0
+    },
+    "4_0_3": {
+      "central_value": 5.412,
+      "stat_error": 0,
+      "syst_error": 0
+    },
     "4_1_0": {
       "central_value": 0.2655528728950212,
       "stat_error": 0.0800990560984796,
@@ -293,6 +348,11 @@
       "central_value": -0.1337677825631754,
       "stat_error": 5.753498788004086,
       "syst_error": 0
+    },
+    "4_2_0": {
+      "central_value": 0.0,
+      "stat_error": 0.0,
+      "syst_error": 0.0
     },
     "4_2_1": {
       "central_value": 0.3841222758978433,
@@ -317,6 +377,21 @@
     "4_3_2": {
       "central_value": 0.0999901466869552,
       "stat_error": 5.646020474170621,
+      "syst_error": 0
+    },
+    "5_0_1": {
+      "central_value": 5.4154,
+      "stat_error": 0,
+      "syst_error": 0
+    },
+    "5_0_2": {
+      "central_value": 5.718,
+      "stat_error": 0,
+      "syst_error": 0
+    },
+    "5_0_3": {
+      "central_value": 5.4154,
+      "stat_error": 0,
       "syst_error": 0
     },
     "5_1_0": {
@@ -344,6 +419,11 @@
       "stat_error": 0.15,
       "syst_error": 0
     },
+    "5_2_2": {
+      "central_value": 0.0,
+      "stat_error": 0.0,
+      "syst_error": 0.0
+    },
     "5_3_0": {
       "central_value": 0.455,
       "stat_error": 0.021,
@@ -358,6 +438,26 @@
       "central_value": -0.9,
       "stat_error": 1.3,
       "syst_error": 0
+    },
+    "6_0_1": {
+      "central_value": 5.4158,
+      "stat_error": 0,
+      "syst_error": 0
+    },
+    "6_0_2": {
+      "central_value": 5.729495,
+      "stat_error": 0,
+      "syst_error": 0
+    },
+    "6_0_3": {
+      "central_value": 5.4158,
+      "stat_error": 0,
+      "syst_error": 0
+    },
+    "6_1_0": {
+      "central_value": 0.0,
+      "stat_error": 0.0,
+      "syst_error": 0.0
     },
     "6_1_1": {
       "central_value": -0.71,
@@ -1846,6 +1946,21 @@
       "stat_error": 1.8,
       "syst_error": 0
     },
+    "2_0_1": {
+      "central_value": 5.366,
+      "stat_error": 0,
+      "syst_error": 0
+    },
+    "2_0_2": {
+      "central_value": 5.415,
+      "stat_error": 0,
+      "syst_error": 0
+    },
+    "2_0_3": {
+      "central_value": 5.829,
+      "stat_error": 0,
+      "syst_error": 0
+    },
     "2_1_0": {
       "central_value": 0.388675,
       "stat_error": 0.0454248,
@@ -1951,6 +2066,21 @@
       "stat_error": 2.24931,
       "syst_error": 0
     },
+    "3_0_1": {
+      "central_value": 5.367,
+      "stat_error": 0,
+      "syst_error": 0
+    },
+    "3_0_2": {
+      "central_value": 5.415,
+      "stat_error": 0,
+      "syst_error": 0
+    },
+    "3_0_3": {
+      "central_value": 5.829,
+      "stat_error": 0,
+      "syst_error": 0
+    },
     "3_1_0": {
       "central_value": 0.38000311,
       "stat_error": 0.041091335704744374,
@@ -2049,6 +2179,21 @@
     "6": {
       "central_value": 0.0,
       "stat_error": 0.05,
+      "syst_error": 0
+    },
+    "6_0_1": {
+      "central_value": 5.366,
+      "stat_error": 0,
+      "syst_error": 0
+    },
+    "6_0_2": {
+      "central_value": 5.411,
+      "stat_error": 0,
+      "syst_error": 0
+    },
+    "6_0_3": {
+      "central_value": 5.806,
+      "stat_error": 0,
       "syst_error": 0
     },
     "6_1_0": {
@@ -2483,33 +2628,6 @@
       "syst_error": 0
     }
   },
-  "IMUPMNS": {
-    "0": {
-      "central_value": 0,
-      "stat_error": 0,
-      "syst_error": 0
-    },
-    "1": {
-      "central_value": 0,
-      "stat_error": 0,
-      "syst_error": 0
-    },
-    "10": {
-      "central_value": 0,
-      "stat_error": 0,
-      "syst_error": 0
-    },
-    "11": {
-      "central_value": 0,
-      "stat_error": 0,
-      "syst_error": 0
-    },
-    "2": {
-      "central_value": 0,
-      "stat_error": 0,
-      "syst_error": 0
-    }
-  },
   "K_SCALE": {
     "1": {
       "central_value": 1.0,
@@ -2931,33 +3049,6 @@
     "7_2": {
       "central_value": 0.22348,
       "stat_error": 0.0001,
-      "syst_error": 0
-    }
-  },
-  "UPMNS": {
-    "0": {
-      "central_value": 1,
-      "stat_error": 0,
-      "syst_error": 0
-    },
-    "1": {
-      "central_value": 0,
-      "stat_error": 0,
-      "syst_error": 0
-    },
-    "10": {
-      "central_value": 0,
-      "stat_error": 0,
-      "syst_error": 0
-    },
-    "11": {
-      "central_value": 1,
-      "stat_error": 0,
-      "syst_error": 0
-    },
-    "2": {
-      "central_value": 0,
-      "stat_error": 0,
       "syst_error": 0
     }
   },

@@ -113,12 +113,10 @@ void BKllDecay::load_params() {
     cache.q2_low = (*p)(ParamId{ParameterType::DECAY, "B_K", {15, 1}}, DataType::VALUE);
     cache.q2_high = (*p)(ParamId{ParameterType::DECAY, "B_K", {15, 2}}, DataType::VALUE);
 
-    complex_t eipi4 = std::exp(I * PI / 4.0);
-
     for (size_t i = 0; i < 4; i++) {
-        cache.A_had_err_low_0[i] = (*p)(ParamId{ParameterType::DECAY, "B_K", {18, 1, i + 1}}, DataType::VALUE) * eipi4;
-        cache.A_had_err_low_1[i] = (*p)(ParamId{ParameterType::DECAY, "B_K", {18, 2, i + 1}}, DataType::VALUE) * eipi4;
-        cache.A_had_err_high[i] = (*p)(ParamId{ParameterType::DECAY, "B_K", {18, 3, i + 1}}, DataType::VALUE) * eipi4;
+        cache.A_had_err_low_0[i] = (*p)(ParamId{ParameterType::DECAY, "B_K", {18, 1, i + 1}}, DataType::VALUE);
+        cache.A_had_err_low_1[i] = (*p)(ParamId{ParameterType::DECAY, "B_K", {18, 2, i + 1}}, DataType::VALUE);
+        cache.A_had_err_high[i] = (*p)(ParamId{ParameterType::DECAY, "B_K", {18, 3, i + 1}}, DataType::VALUE);
     }
 
     load_cfg_dependent_params();
@@ -229,21 +227,6 @@ void BKllDecay::set_lepton_gen_and_charge(BKllConfig::Lepton gen, BKllConfig::B_
 complex_t BKllDecay::T_P_cached(double q2) {
     return lerp(q2, cache.T_P_lookup, cache.q2_min, cache.q2_high);
 }
-
-//TODO :: Niels check
-// double BKllDecay::beta_l(double q2) {
-//     return std::sqrt(1 - std::pow(2 * cache.m_l, 2) / q2);
-// }
-
-// double BKllDecay::lambda(double q2) {
-//     double mB2 = cache.m_B * cache.m_B;
-//     double mK2 = cache.m_K * cache.m_K;
-//     return mB2 * mB2 + mK2 * mK2 + q2 * q2 - 2. * (mB2 * mK2 + (mB2 + mK2) * q2);
-// }
-
-// double BKllDecay::N(double q2) {
-//     return cache.N_0 * std::sqrt(lambda(q2)) * beta_l(q2);
-// }
 
 double BKllDecay::beta_l(double q2) {
     const double x = 1.0 - std::pow(2.0 * cache.m_l, 2) / q2;

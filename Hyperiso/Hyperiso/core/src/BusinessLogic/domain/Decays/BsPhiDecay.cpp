@@ -1174,12 +1174,12 @@ void BsPhiDecay::load_params() {
     complex_t eipi4 = std::exp(I * PI / 4.0);
 
     for (size_t i = 0; i < 6; i++) {
-        cache.A_had_err_low_0[i] = (*p)(ParamId{ParameterType::DECAY, "B_phi", {18, 1, i + 1}}, DataType::VALUE) * eipi4;
-        cache.A_had_err_low_1[i] = (*p)(ParamId{ParameterType::DECAY, "B_phi", {18, 2, i + 1}}, DataType::VALUE) * eipi4;
+        cache.A_had_err_low_0[i] = (*p)(ParamId{ParameterType::DECAY, "B_phi", {18, 1, i + 1}}, DataType::VALUE);
+        cache.A_had_err_low_1[i] = (*p)(ParamId{ParameterType::DECAY, "B_phi", {18, 2, i + 1}}, DataType::VALUE);
     }
 
     for (size_t i = 0; i < 8; i++) {
-        cache.A_had_err_high[i] = (*p)(ParamId{ParameterType::DECAY, "B_phi", {18, 3, i + 1}}, DataType::VALUE) * eipi4;
+        cache.A_had_err_high[i] = (*p)(ParamId{ParameterType::DECAY, "B_phi", {18, 3, i + 1}}, DataType::VALUE);
     }
 
     load_cfg_dep_params();

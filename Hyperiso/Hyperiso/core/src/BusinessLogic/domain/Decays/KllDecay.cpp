@@ -30,8 +30,7 @@ void KllDecay::load_params() {
     cache.CQ1 = w_proxy->getFR(WGroup::K, WCoef::CKQ1, w_config.order) - w_proxy->getFR(WGroup::K, WCoef::CPKQ1, w_config.order);
     cache.CQ2 = w_proxy->getFR(WGroup::K, WCoef::CKQ2, w_config.order) - w_proxy->getFR(WGroup::K, WCoef::CPKQ2, w_config.order);
 
-
-    cache.C10 = -4.01480;
+    cache.C10 = -4.01480; // TODO : Theo
 
     // printf("C10m = %.5e\n", cache.C10);
 	// printf("CQ1m = %.5e\n", cache.CQ1);

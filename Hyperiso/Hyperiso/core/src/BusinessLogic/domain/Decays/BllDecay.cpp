@@ -2,10 +2,11 @@
 
 
 void BllDecay::load_params() {
-    // auto start = std::chrono::steady_clock::now();
     cache.G_F = (*p)(ParamId{ParameterType::SM, "SMINPUTS", 2}, DataType::VALUE);
     cache.alpha_em = (*p)(ParamId{ParameterType::SM, "EW", {1, 2}}, DataType::VALUE);
+    cache.m_e = (*p)(ParamId{ParameterType::SM, "MASS", 11}, DataType::VALUE);
     cache.m_mu = (*p)(ParamId{ParameterType::SM, "MASS", 13}, DataType::VALUE);
+    cache.m_tau = (*p)(ParamId{ParameterType::SM, "MASS", 15}, DataType::VALUE);
     cache.m_Bd = (*p)(ParamId{ParameterType::FLAVOR, "FMASS", 511}, DataType::VALUE);
     cache.m_Bs = (*p)(ParamId{ParameterType::FLAVOR, "FMASS", 531}, DataType::VALUE);
     cache.f_Bd = (*p)(ParamId{ParameterType::FLAVOR, "FCONST", {511, 1}}, DataType::VALUE);
@@ -16,14 +17,9 @@ void BllDecay::load_params() {
     cache.lambda_s = (*p)(ParamId{ParameterType::SM, "VCKM", {2, 2}}, DataType::VALUE) * std::conj((*p)(ParamId{ParameterType::SM, "VCKM", {2, 1}}, DataType::VALUE));
     cache.ys = (*p)(ParamId{ParameterType::DECAY, "B_ll", 1}, DataType::VALUE);
     cache.eta_BBS = (*p)(ParamId{ParameterType::DECAY, "B_ll", 2}, DataType::VALUE);
-    cache.x_d = cache.m_mu / cache.m_Bd;
-    cache.x_s = cache.m_mu / cache.m_Bs;
     cache.r_d = cache.m_Bd / ((*p)(ParamId{ParameterType::SM, "QCD", {5, 2}}, DataType::VALUE) + (*p)(ParamId{ParameterType::SM, "MASS", 1}, DataType::VALUE));
     cache.r_s = cache.m_Bs / ((*p)(ParamId{ParameterType::SM, "QCD", {5, 2}}, DataType::VALUE) + (*p)(ParamId{ParameterType::SM, "MASS", 3}, DataType::VALUE));
-    cache.beta_d = std::sqrt(1. - 4. * std::pow(cache.x_d, 2));
-    cache.beta_s = std::sqrt(1. - 4. * std::pow(cache.x_s, 2));
 
-    // start = std::chrono::steady_clock::now();
     cache.C10_SM = w_proxy->getFR(WGroup::B, WCoef::C10, w_config.order, ContributionType::SM);
     cache.C10 = w_proxy->getFR(WGroup::B, WCoef::C10, w_config.order);
     cache.CQ1 = w_proxy->getFR(WGroup::BScalar, WCoef::CQ1, w_config.order);
@@ -31,51 +27,73 @@ void BllDecay::load_params() {
     cache.C10_m = cache.C10 - w_proxy->getFR(WGroup::BPrime, WCoef::CP10, w_config.order);
     cache.CQ1_m = cache.CQ1 - w_proxy->getFR(WGroup::BPrime, WCoef::CPQ1, w_config.order);
     cache.CQ2_m = cache.CQ2 - w_proxy->getFR(WGroup::BPrime, WCoef::CPQ2, w_config.order);
-    // auto stop  = std::chrono::steady_clock::now();
-    // auto us = std::chrono::duration_cast<std::chrono::microseconds>(stop - start).count();
-    // LOG_INFO("load_params took", us, " µs");
 }
 
-double BllDecay::BR_avg_Bq_mumu(int q) {
-    if (q != 1 && q != 3) LOG_ERROR("ValueError", "In Bq > mu mu, q can only be d (1) or s (3), found", q);
+double BllDecay::BR_avg_Bq_ll(int q, int gen) {
+    if (q != 1 && q != 3) LOG_ERROR("ValueError", "In Bq > l l, q can only be d (1) or s (3), found", q);
+    
+    double m_B, f_B, tau_B, r_q;
+    complex_t lambda_q;
+    if (q == 1) {
+        m_B = cache.m_Bd;
+        f_B = cache.f_Bd;
+        tau_B = cache.tau_Bd;
+        lambda_q = cache.lambda_d;
+        r_q = cache.r_d;
+    } else {
+        m_B = cache.m_Bs;
+        f_B = cache.f_Bs;
+        tau_B = cache.tau_Bs;
+        lambda_q = cache.lambda_s;
+        r_q = cache.r_s;
+    }
+
+    double m_l = gen == 1 ? cache.m_e : gen == 2 ? cache.m_mu : cache.m_tau;
+    double x_l = m_l / m_B;
+    double beta_l = std::sqrt(1. - 4. * std::pow(x_l, 2));
 
     double pref = std::pow(cache.G_F * cache.alpha_em, 2) / (64 * std::pow(M_PI, 3)) * cache.eta_BBS;
-    if (q == 1) {
-        return pref * std::pow(cache.f_Bd * std::abs(cache.lambda_d), 2) * std::pow(cache.m_Bd, 3) * cache.tau_Bd * cache.beta_d * (
-            std::pow(cache.beta_d * std::abs(cache.r_d * cache.CQ1_m), 2) 
-          + std::pow(std::abs(cache.r_d * cache.CQ2_m + 2 * cache.x_d * cache.C10_m), 2)
-        );
-    } else {
-        return pref * std::pow(cache.f_Bs * std::abs(cache.lambda_s), 2) * std::pow(cache.m_Bs, 3) * cache.tau_Bs * cache.beta_s * (
-            std::pow(cache.beta_s * std::abs(cache.r_s * cache.CQ1_m), 2) 
-          + std::pow(std::abs(cache.r_s * cache.CQ2_m + 2 * cache.x_s * cache.C10_m), 2)
-        );
-    }
+    return pref * std::pow(f_B * std::abs(lambda_q), 2) * std::pow(m_B, 3) * tau_B * beta_l * (
+        std::pow(beta_l * std::abs(r_q * cache.CQ1_m), 2) 
+        + std::pow(std::abs(r_q * cache.CQ2_m + 2 * x_l * cache.C10_m), 2)
+    );
 }
 
-double BllDecay::BR_untag_Bs_mumu() {
-    double f = cache.r_s / (2. * cache.x_s);
-    complex_t S = cache.beta_s * f * cache.CQ1_m / cache.C10_SM;
+double BllDecay::BR_untag_Bs_ll(int gen) {
+    double m_l = gen == 1 ? cache.m_e : gen == 2 ? cache.m_mu : cache.m_tau;
+    double x_l = m_l / cache.m_Bs;
+    double beta_l = std::sqrt(1. - 4. * std::pow(x_l, 2));
+    double f = cache.r_s / (2. * x_l);
+    complex_t S = beta_l * f * cache.CQ1_m / cache.C10_SM;
     complex_t P = (cache.C10_m + f * cache.CQ2_m) / cache.C10_SM;
     double abs_S = std::pow(std::abs(S), 2);
     double abs_P = std::pow(std::abs(P), 2);
     double A = (abs_P * std::cos(2 * std::arg(P)) - abs_S * std::cos(2 * std::arg(S))) / (abs_P + abs_S);
 
     double untag_factor = (1. + A * cache.ys) / (1. - std::pow(cache.ys, 2));
-    return untag_factor * BR_avg_Bq_mumu(3);
+    return untag_factor * BR_avg_Bq_ll(3, gen);
 }
 
 std::vector<ObservableValue> BllDecay::compute_observable(Observables obs) {
     double value;
     switch (obs) {
     case Observables::BR_BD_MUMU:   
-        value = BR_avg_Bq_mumu(1);
+        value = BR_avg_Bq_ll(1, 2);
         break;
     case Observables::BR_BS_MUMU:   
-        value = BR_avg_Bq_mumu(3);
+        value = BR_avg_Bq_ll(3, 2);
         break;
     case Observables::BR_BS_MUMU_UNTAG:   
-        value = BR_untag_Bs_mumu();
+        value = BR_untag_Bs_ll(2);
+        break;
+    case Observables::BR_BD_EE:   
+        value = BR_avg_Bq_ll(1, 1);
+        break;
+    case Observables::BR_BS_EE:   
+        value = BR_avg_Bq_ll(3, 1);
+        break;
+    case Observables::BR_BS_EE_UNTAG:   
+        value = BR_untag_Bs_ll(1);
         break;
     default:
         LOG_ERROR("IndexError", "Observable", ObservableMapper::str(obs), "doesn't belong to the decay", DecayMapper::str(this->id));

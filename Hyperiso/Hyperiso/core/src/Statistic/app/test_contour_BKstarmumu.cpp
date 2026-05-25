@@ -927,10 +927,18 @@ int main() {
         // Observables: STRICTEMENT ceux du fichier "Texte collé(7).txt"
         // ============================================================
 
-        BKstarllConfig cfg;
-        cfg.ff_src = BV_FF_Src::GRvDV;
-        oint->set_decay_config(Decays::B__Kstar_l_l, cfg);
-        oint->set_bkstarll_threads(12);
+        BKstarllConfig cfg_BKs;
+        cfg_BKs.ff_src = BV_FF_Src::GRvDV;
+        oint->set_decay_config(Decays::B__Kstar_l_l, cfg_BKs);
+        oint->set_bkstarll_threads(6);
+
+        BsPhiConfig cfg_BsPhi;
+        cfg_BsPhi.ff_src = BV_FF_Src::GRvDV;
+        oint->set_decay_config(Decays::Bs__phi_l_l, cfg_BsPhi);
+
+        BKllConfig cfg_BK;
+        cfg_BK.ff_src = BP_FF_Src::GKvD_SR_LAT;
+        oint->set_decay_config(Decays::B__K_l_l, cfg_BK);
 
         using O = Observables;
         constexpr bool kAddDeps = false;
@@ -960,7 +968,7 @@ int main() {
         add_unbinned(O::IA_B__KSTAR_GAMMA); // 001 AI_BKstargamma
         add_unbinned(O::BR_B_XS_GAMMA); // 002 BR_BXsgamma
         add_unbinned(O::BR_BS_MUMU_UNTAG); // 003 BRuntag_Bsmumu
-        // add_unbinned(O::BR_BS_EE_UNTAG); // 004 BRuntag_Bsee //TODO : add this
+        add_unbinned(O::BR_BS_EE_UNTAG); // 004 BRuntag_Bsee //TODO : add this
         add_bin(O::BR_B__Xs_mu_mu, 1, 6); // 005 BR_BXsmumu_1_6
         add_bin(O::BR_B__Xs_mu_mu, 14.2, 22); // 006 BR_BXsmumu_14.2_22
         add_bin(O::BR_B__Xs_e_e, 1, 6); // 007 BR_BXsee_1_6

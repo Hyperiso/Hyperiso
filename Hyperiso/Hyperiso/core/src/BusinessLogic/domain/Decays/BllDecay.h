@@ -9,6 +9,8 @@ struct BllDecayCache {
     double G_F;
     double alpha_em;
     double m_mu;
+    double m_e;
+    double m_tau;
     double m_Bd;
     double m_Bs;
     double f_Bd;
@@ -19,12 +21,8 @@ struct BllDecayCache {
     complex_t lambda_s;
     double ys;
     double eta_BBS;
-    double x_d;
-    double x_s;
     double r_d;
     double r_s;
-    double beta_d;
-    double beta_s;
 
     complex_t C10_SM;
     complex_t C10;
@@ -43,8 +41,8 @@ private:
     BllDecayCache cache;
 
 protected:
-    double BR_avg_Bq_mumu(int q);
-    double BR_untag_Bs_mumu();
+    double BR_avg_Bq_ll(int q, int gen);
+    double BR_untag_Bs_ll(int gen);
 
 public:
     BllDecay(QCDOrder order, double matching_scale, double hadronic_scale, ObservablePortsConfig& ports) : DecayParentConfigurable(DecayMapper::to_id(Decays::B__l_l), matching_scale, hadronic_scale, order, ports) {

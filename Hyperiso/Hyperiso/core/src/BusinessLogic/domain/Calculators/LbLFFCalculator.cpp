@@ -2,7 +2,7 @@
 
 LbLFFCalculator::LbLFFCalculator(std::shared_ptr<IObsParameterProxy<ParamId, DataType, std::string, LhaID>> p, LbL_FF_Src src) : iobspp_sm(p) {
 
-                            double m_B = (*p)({ParameterType::FLAVOR, "FMASS", 521}, DataType::VALUE);
+    double m_B = (*p)({ParameterType::FLAVOR, "FMASS", 521}, DataType::VALUE);
     double m_K = (*p)({ParameterType::FLAVOR, "FMASS", 321}, DataType::VALUE);
     this->m_Lb = (*p)({ParameterType::FLAVOR, "FMASS", 5122}, DataType::VALUE);
     this->m_L = (*p)({ParameterType::FLAVOR, "FMASS", 3122}, DataType::VALUE);
