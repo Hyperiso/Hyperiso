@@ -3,8 +3,8 @@
 MCObservableCovariance covariance_from_obs_samples(
     const ObsSamples& S,
     const std::vector<BinnedObservableId>& ids,
-    double ridge_rel = 1e-8,
-    double ridge_abs = 1e-12
+    double ridge_rel,
+    double ridge_abs
 ) {
     if (S.empty()) {
         throw std::invalid_argument("covariance_from_obs_samples: no samples");

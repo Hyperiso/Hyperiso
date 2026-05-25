@@ -827,7 +827,7 @@ void StatisticManager::print_cache()
     std::cout << "SigmaObs size : " << this->cache.SigmaObs.size() << " | " << this->cache.SigmaObs.begin()->second.size() << std::endl;
 }
 
-void StatisticManager::update_cache(const std::vector<ParamId>& p_specs = std::vector<ParamId>()) {
+void StatisticManager::update_cache(const std::vector<ParamId>& p_specs) {
     if (selected_experiments_.has_value()) {
         for (const auto& elem : *selected_experiments_) {
             LOG_INFO("USING SELECTED EXPERIMENT: ", elem);
