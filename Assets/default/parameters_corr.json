@@ -2,6 +2,14 @@
   "correlations": [
     {
       "block_1": "B_K",
+      "id_1": "13",
+      "block_2": "B_Ks",
+      "id_2": "13",
+      "stat_correlation": 1.0,
+      "syst_correlation": 0.0
+    },
+    {
+      "block_1": "B_K",
       "id_1": "1_1_0",
       "block_2": "B_K",
       "id_2": "1_1_1",
@@ -14345,6 +14353,22 @@
       "syst_correlation": 0.0
     },
     {
+      "block_1": "FCONST",
+      "id_1": "311_1",
+      "block_2": "FCONST",
+      "id_2": "321_1",
+      "stat_correlation": 1.0,
+      "syst_correlation": 0.0
+    },
+    {
+      "block_1": "FCONST",
+      "id_1": "511_1",
+      "block_2": "FCONST",
+      "id_2": "521_1",
+      "stat_correlation": 1.0,
+      "syst_correlation": 0.0
+    },
+    {
       "block_1": "Lb_L",
       "id_1": "1_1_0",
       "block_2": "Lb_L",
@@ -15396,6 +15420,14 @@
       "block_1": "Lb_L",
       "id_1": "1_3_0",
       "block_2": "Lb_L",
+      "id_2": "1_6_0",
+      "stat_correlation": 1.0,
+      "syst_correlation": 0.0
+    },
+    {
+      "block_1": "Lb_L",
+      "id_1": "1_3_0",
+      "block_2": "Lb_L",
       "id_2": "1_6_1",
       "stat_correlation": -0.67,
       "syst_correlation": 0.0
@@ -16438,6 +16470,14 @@
       "block_2": "Lb_L",
       "id_2": "1_7_2",
       "stat_correlation": 0.1175,
+      "syst_correlation": 0.0
+    },
+    {
+      "block_1": "Lb_L",
+      "id_1": "1_7_0",
+      "block_2": "Lb_L",
+      "id_2": "1_8_0",
+      "stat_correlation": 1.0,
       "syst_correlation": 0.0
     },
     {
