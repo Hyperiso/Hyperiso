@@ -1,26 +1,62 @@
-#ifndef __INDEXING_H__
-#define __INDEXING_H__
+#ifndef INDEXING_H
+#define INDEXING_H
 
 #include <map>
 #include <vector>
 #include <stdexcept>
+
 #include "Matrix.h"
 #include "Include.h"
 #include "ObservableValue.h"
 #include "BinnedObservableId.h"
 
+/**
+ * @file Indexing.h
+ * @brief Helpers for converting between indexed maps and dense containers.
+ *
+ * The utilities in this file are used to keep the association between logical
+ * ids and numerical values while switching between STL maps, vectors, and matrix
+ * representations.
+ */
+
+/**
+ * @struct UnzipResult1D
+ * @brief Result of converting a one-dimensional indexed map to dense vectors.
+ *
+ * @tparam T Type of the ids.
+ * @tparam U Type of the associated values.
+ */
 template <typename T, typename U>
 struct UnzipResult1D {
-    std::vector<T> ids;
-    std::vector<U> vals;
+    std::vector<T> ids;     ///< Ids in map iteration order.
+    std::vector<U> vals;    ///< Values associated with @ref ids.
 };
 
+/**
+ * @struct UnzipResult2D
+ * @brief Result of converting a square indexed matrix to dense vectors.
+ *
+ * @tparam T Type of the row and column ids.
+ */
 template <typename T>
 struct UnzipResult2D {
-    std::vector<T> ids;
-    std::vector<std::vector<double>> vals;
+    std::vector<T> ids;                     ///< Row and column ids in map iteration order.
+    std::vector<std::vector<double>> vals;  ///< Dense square matrix values.
 };
 
+/**
+ * @brief Builds a map from parallel id and value vectors.
+ *
+ * @tparam T Id type.
+ * @tparam U Value type.
+ *
+ * @param ids Ordered ids.
+ * @param vals Values associated with @p ids.
+ *
+ * @return Map associating each id with the value at the same position.
+ *
+ * @throws std::invalid_argument if the two vectors do not have the same size.
+ */
 template<typename T, typename U>
 std::map<T, U> zip(const std::vector<T>& ids, const std::vector<U>& vals) {
     if (ids.size() != vals.size())
@@ -34,6 +70,20 @@ std::map<T, U> zip(const std::vector<T>& ids, const std::vector<U>& vals) {
     return indexed;    
 }
 
+/**
+ * @brief Builds a square nested map from ids and a dense matrix.
+ *
+ * @tparam T Row and column id type.
+ *
+ * @param ids Row and column ids.
+ * @param vals Dense square matrix represented as nested vectors.
+ *
+ * @return Nested map such that `out[row_id][col_id]` stores the corresponding
+ *         matrix entry.
+ *
+ * @throws std::invalid_argument if @p vals is empty, non-square with respect to
+ *         @p ids, or has incompatible dimensions.
+ */
 template<typename T>
 std::map<T, std::map<T, double>> zip(const std::vector<T>& ids, const std::vector<std::vector<double>>& vals) {
     if (vals.empty())
@@ -54,6 +104,17 @@ std::map<T, std::map<T, double>> zip(const std::vector<T>& ids, const std::vecto
     return indexed;    
 }
 
+/**
+ * @brief Flattens observable values into binned observable ids and values.
+ *
+ * Each input observable can contain several binned values. The output contains
+ * one @ref BinnedObservableId per value, using `(0, 0)` as the bin range when an
+ * observable value has no explicit bin.
+ *
+ * @param indexed Map from observable id to one or more observable values.
+ *
+ * @return Parallel vectors of binned ids and numerical values.
+ */
 inline UnzipResult1D<BinnedObservableId, double> flatten(std::map<ObservableId, std::vector<ObservableValue>> indexed) {
     std::vector<BinnedObservableId> ids;
     std::vector<double> vals;
@@ -71,6 +132,19 @@ inline UnzipResult1D<BinnedObservableId, double> flatten(std::map<ObservableId, 
     return UnzipResult1D {ids, vals};
 }
 
+/**
+ * @brief Builds a square nested map from ids and a @ref RealMatrix.
+ *
+ * @tparam T Row and column id type.
+ *
+ * @param ids Row and column ids.
+ * @param vals Dense square matrix.
+ *
+ * @return Nested map such that `out[row_id][col_id]` stores the corresponding
+ *         matrix entry.
+ *
+ * @throws std::invalid_argument if @p vals is not square with respect to @p ids.
+ */
 template<typename T>
 std::map<T, std::map<T, double>> zip(const std::vector<T>& ids, const RealMatrix& vals) {
     if (ids.size() != vals.rows() || ids.size() != vals.cols())
@@ -88,6 +162,16 @@ std::map<T, std::map<T, double>> zip(const std::vector<T>& ids, const RealMatrix
     return indexed;  
 }
 
+/**
+ * @brief Splits a map into parallel id and value vectors.
+ *
+ * @tparam T Id type.
+ * @tparam U Value type.
+ *
+ * @param indexed Input map.
+ *
+ * @return Parallel vectors in map iteration order.
+ */
 template<typename T, typename U>
 UnzipResult1D<T, U> unzip(const std::map<T, U>& indexed) {
     std::vector<T> ids;
@@ -101,6 +185,15 @@ UnzipResult1D<T, U> unzip(const std::map<T, U>& indexed) {
     return UnzipResult1D {ids, vals};
 }
 
+/**
+ * @brief Splits a nested square map into ids and a dense matrix.
+ *
+ * @tparam T Row and column id type.
+ *
+ * @param indexed Nested square map.
+ *
+ * @return Id vector and dense matrix values in map iteration order.
+ */
 template<typename T>
 UnzipResult2D<T> unzip(const std::map<T, std::map<T, double>>& indexed) {
     std::vector<T> ids;
@@ -118,4 +211,4 @@ UnzipResult2D<T> unzip(const std::map<T, std::map<T, double>>& indexed) {
     return UnzipResult2D {ids, vals};
 }
 
-#endif // __INDEXING_H__
+#endif // INDEXING_H

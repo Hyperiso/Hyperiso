@@ -14,7 +14,7 @@
 #include <vector>
 
 #include "StatisticManager.h"
-#include "ObservableInterfaceAdapter2.h"
+#include "ObservableInterfaceProxy.h"
 #include "StatCorrelationProxy.h"
 #include "StatParameterProxy.h"
 #include "ObservableInterface.h"

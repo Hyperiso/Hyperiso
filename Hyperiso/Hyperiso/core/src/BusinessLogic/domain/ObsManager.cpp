@@ -398,13 +398,20 @@ void ObsManager::enable_obs() {
 }
 
 
-ObsManager ObsManager::set_bkstarll_threads(size_t n_threads) {
-    // LOG_ERROR("NotImplementedError", "No multithreading implemented in old version");
-    auto dec_id = DecayMapper::to_id(Decays::B__Kstar_l_l);
-    auto dec = std::dynamic_pointer_cast<BKstarllDecay>(this->decays.at(dec_id));
-    if (!dec) {
-        LOG_ERROR("TypeError", "Decay B__Kstar_l_l is not a BKstarllDecay");
-    }
-    dec->set_n_threads(n_threads);
+ObsManager ObsManager::set_decay_threads(Decays dec, size_t n_threads) {
+    auto dec_id = DecayMapper::to_id(dec);
+    this->decays.at(dec_id)->set_n_threads(n_threads);
     return *this;
+}
+
+ObsManager ObsManager::set_bkstarll_threads(size_t n_threads) {
+    return set_decay_threads(Decays::B__Kstar_l_l, n_threads);
+}
+
+ObsManager ObsManager::set_bkll_threads(size_t n_threads) {
+    return set_decay_threads(Decays::B__K_l_l, n_threads);
+}
+
+ObsManager ObsManager::set_bsphi_threads(size_t n_threads) {
+    return set_decay_threads(Decays::Bs__phi_l_l, n_threads);
 }

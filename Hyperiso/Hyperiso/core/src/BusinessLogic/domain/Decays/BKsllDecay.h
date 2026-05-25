@@ -99,7 +99,7 @@ public:
     std::vector<ObservableValue> compute_observable(ObservableId obs) override;
 
     void set_config_spe(BKstarllConfig config) override {this->cfg = config;}
-    void set_n_threads(size_t n_threads);
+    void set_n_threads(size_t n_threads) override;
 
 private:
     BKstarllConfig cfg {};

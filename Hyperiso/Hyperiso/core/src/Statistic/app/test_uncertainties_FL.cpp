@@ -11,7 +11,7 @@
 
 #include "StatisticManager.h"
 #include "ObservableInterface.h"
-#include "ObservableInterfaceAdapter2.h"
+#include "ObservableInterfaceProxy.h"
 #include "StatCorrelationProxy.h"
 #include "StatParameterProxy.h"
 #include "StatParamSourcesProxy.h"
@@ -95,7 +95,7 @@ int main() {
     oint->set_bkstarll_threads(25);
     std::shared_ptr<IStatParamOptimizerProxy> spop = std::make_shared<StatParamOptimizerProxy>();
 
-    auto model = std::make_shared<ObservableInterfaceAdapterObs>(oint, spop);
+    auto model = std::make_shared<ObservableInterfaceProxy>(oint, spop);
 
     StatisticConfig config;
     config.MC_draws = 1000;

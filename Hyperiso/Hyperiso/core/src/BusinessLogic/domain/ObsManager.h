@@ -328,13 +328,36 @@ public:
     void set_decay_config(Decays dec, std::any config);
 
     /**
-     * @brief Set the thread option for the bkstarll decay
+     * @brief Set the thread option for a decay that supports parallel cache filling.
      *
-     * Because bkstarll is the more time consuming calculation, multithreading is focused on it to improve calculation speed.
+     * Passing 0 delegates to std::thread::hardware_concurrency for supported decays.
+     * Unsupported decays keep their default behavior and emit a warning.
+     *
+     * @param dec Decay enum.
+     * @param n_threads Number of threads.
+     */
+    ObsManager set_decay_threads(Decays dec, size_t n_threads);
+
+    /**
+     * @brief Set the thread option for the B -> K* l+ l- decay.
      *
      * @param n_threads Number of threads.
      */
     ObsManager set_bkstarll_threads(size_t n_threads);
+
+    /**
+     * @brief Set the thread option for the B -> K l+ l- decay.
+     *
+     * @param n_threads Number of threads.
+     */
+    ObsManager set_bkll_threads(size_t n_threads);
+
+    /**
+     * @brief Set the thread option for the Bs -> phi l+ l- decay.
+     *
+     * @param n_threads Number of threads.
+     */
+    ObsManager set_bsphi_threads(size_t n_threads);
 
 private:
     /// Registry of decay engines available to the manager.

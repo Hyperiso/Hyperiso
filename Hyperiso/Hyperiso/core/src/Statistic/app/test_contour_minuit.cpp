@@ -14,7 +14,7 @@
 #include <vector>
 
 #include "StatisticManager.h"
-#include "ObservableInterfaceAdapter2.h"
+#include "ObservableInterfaceProxy.h"
 #include "StatCorrelationProxy.h"
 #include "StatParameterProxy.h"
 #include "ObservableInterface.h"
@@ -781,13 +781,13 @@ struct BuiltProblem {
     std::vector<ParamId> eta_ids;
     std::vector<ExperimentObs> obs_ids;
     LikelihoodContext ctx;
-    std::shared_ptr<ObservableInterfaceAdapterObs> model;
+    std::shared_ptr<ObservableInterfaceProxy> model;
     Vector p0;
 };
 
 BuiltProblem build_problem(StatisticManager& stat,
                            const StatisticConfig& config,
-                           const std::shared_ptr<ObservableInterfaceAdapterObs>& model, std::vector<ParamId> p_specs) {
+                           const std::shared_ptr<ObservableInterfaceProxy>& model, std::vector<ParamId> p_specs) {
     LOG_INFO("fill_cache #1");
     // stat.fill_cache();
 
@@ -859,7 +859,7 @@ int main(int argc, char** argv) {
     };
 
     std::shared_ptr<IStatParamOptimizerProxy> spop = std::make_shared<StatParamOptimizerProxy>();
-    auto model = std::make_shared<ObservableInterfaceAdapterObs>(oint, spop);
+    auto model = std::make_shared<ObservableInterfaceProxy>(oint, spop);
 
     std::shared_ptr<INuisancePathsProvider> npp = std::make_shared<DefaultNuisancePathsProvider>();
 

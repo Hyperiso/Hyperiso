@@ -7,9 +7,9 @@
 #include "StatParameterProxy.h"
 #include "IStatParamOptimizerProxy.h"
 
-class ObservableInterfaceAdapterObs final : public IModel {
+class ObservableInterfaceProxy final : public IModel {
 public:
-    ObservableInterfaceAdapterObs(
+    ObservableInterfaceProxy(
     std::shared_ptr<ObservableInterface> obs,
     std::vector<ParamId> p_specs,
     std::vector<ParamId> eta_specs)
@@ -17,7 +17,7 @@ public:
         oi_ = obs;
     }
 
-    ObservableInterfaceAdapterObs(std::shared_ptr<ObservableInterface> obs, std::shared_ptr<IStatParamOptimizerProxy> spop) { oi_ = obs; spop_ = spop;}
+    ObservableInterfaceProxy(std::shared_ptr<ObservableInterface> obs, std::shared_ptr<IStatParamOptimizerProxy> spop) { oi_ = obs; spop_ = spop;}
     std::size_t n_observables() const override { return oi_->get_current_observables().size(); }
 
     // void add_observables(std::map<ObservableId, QCDOrder> obs_ids) override {

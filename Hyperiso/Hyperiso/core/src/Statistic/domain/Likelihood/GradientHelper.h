@@ -16,42 +16,80 @@
 #include "Math.h"
 #include "IProfileableLikelihood.h"
 
+/**
+ * @file GradientHelper.h
+ * @brief Numerical derivative and Laplace profiling helpers for nuisance parameters.
+ *
+ * The helpers in this header support fast profiling of nuisance parameters in
+ * likelihood scans. They provide finite-difference derivatives, Hessian
+ * regularization, stationarity diagnostics and a hybrid Laplace/Newton
+ * refinement scheme.
+ *
+ * @see IProfileableLikelihood
+ * @see Profiler
+ */
+
+/**
+ * @struct EtaDerivatives
+ * @brief First-order derivatives of the likelihood with respect to selected nuisance parameters.
+ *
+ * The vector @ref g_eta contains finite-difference derivatives of the NLL with
+ * respect to nuisance parameters. The matrix @ref J_eta contains the Jacobian
+ * of model predictions with respect to the same nuisance directions.
+ */
 struct EtaDerivatives {
-    std::vector<double> g_eta;
-    RealMatrix J_eta;
+    std::vector<double> g_eta;  ///< NLL gradient restricted to the selected nuisance directions.
+    RealMatrix J_eta;           ///< Observable Jacobian with rows as observables and columns as nuisance directions.
 };
 
+/**
+ * @struct LaplaceProfileComputation
+ * @brief Result of a Laplace nuisance-profile computation.
+ */
 struct LaplaceProfileComputation {
-    double nll_hat = 1e300;
-    std::vector<double> eta_hat;
-    bool ok = false;
+    double nll_hat = 1e300;         ///< Profiled or approximate profiled NLL value.
+    std::vector<double> eta_hat;    ///< Estimated profiled nuisance vector.
+    bool ok = false;                ///< True when the computation produced a finite, usable result.
 };
 
+/**
+ * @struct LaplaceProfileOptions
+ * @brief Numerical controls for the hybrid Laplace/Newton nuisance profiler.
+ */
 struct LaplaceProfileOptions {
     // If |dNLL/deta_i| * sigma_i is above this value after the analytic step,
     // the direction is considered locally ill-behaved and receives Newton refinement.
-    double stationarity_threshold = 5e-2;
+    double stationarity_threshold = 5e-2;           ///< Threshold on \f$|\partial\mathrm{NLL}/\partial\eta_i|\,\sigma_i\f$ above which a direction is refined.
 
     // Hard cap to avoid accidentally making a large expensive correction problem.
-    std::size_t max_refined_eta = 4;
+    std::size_t max_refined_eta = 4;                ///< Maximum number of nuisance directions corrected by Newton refinement.
 
     // Number of cheap outer correction cycles.
-    std::size_t max_refinement_iters = 2;
+    std::size_t max_refinement_iters = 2;           ///< Maximum number of outer correction cycles.
 
     // Damping line-search parameters for the Newton correction.
-    std::size_t max_line_search_halvings = 8;
-    double max_newton_step_in_sigma = 1.0;
+    std::size_t max_line_search_halvings = 8;       ///< Maximum number of backtracking halvings for a Newton step.
+    double max_newton_step_in_sigma = 1.0;          ///< Maximum Newton displacement measured in nuisance standard deviations.
 
-    double hessian_eig_floor_rel = 1e-8;
-    bool use_direct_nll_for_final_value = false;
+    double hessian_eig_floor_rel = 1e-8;            ///< Relative eigenvalue floor used when regularizing Hessians.
+    bool use_direct_nll_for_final_value = false;    ///< If true, use the direct NLL at the final profiled point as the reported value.
 
-    // Debug-only: print the first profiler calls to understand which nuisances
-    // pass pure Laplace and which ones are automatically refined.
-    bool debug_refinement = false;
-    std::size_t debug_top_eta = 8;
-    std::string debug_label {};
+    bool debug_refinement = false;                  ///< If true, print stationarity and refinement diagnostics.
+    std::size_t debug_top_eta = 8;                  ///< Maximum number of nuisance directions shown in debug output.
+    std::string debug_label {};                     ///< Optional label appended to debug messages.
 };
 
+/**
+ * @brief Computes a robust central finite-difference step.
+ *
+ * The step scales with the magnitude of @p x and is optionally limited by a
+ * parameter-specific step hint.
+ *
+ * @param x Point at which the derivative is evaluated.
+ * @param step_hint Optional scale hint, typically a parameter standard deviation.
+ *
+ * @return Positive finite-difference step.
+ */
 static double fd_step(double x, double step_hint) {
     const double abs_x = std::abs(x);
     const double abs_hint = std::abs(step_hint);
@@ -65,6 +103,19 @@ static double fd_step(double x, double step_hint) {
     return std::max(h, 1e-8);
 }
 
+/**
+ * @brief Computes a finite-difference step for a nuisance parameter.
+ *
+ * The returned step is reduced when parameter limits are present so that the
+ * symmetric finite-difference stencil remains inside the allowed interval.
+ *
+ * @param def Parameter definition containing step hints and optional limits.
+ * @param x Current nuisance value.
+ *
+ * @return Positive finite-difference step compatible with the parameter limits.
+ *
+ * @throws std::runtime_error if no finite positive step can be constructed.
+ */
 static double eta_fd_step_with_limits(
     const fit_app::ParameterDefinition& def,
     double x
@@ -89,6 +140,13 @@ static double eta_fd_step_with_limits(
     return h;
 }
 
+/**
+ * @brief Builds the ordered list of all nuisance indices.
+ *
+ * @param eta_dim Number of nuisance parameters.
+ *
+ * @return Vector containing indices from 0 to @p eta_dim - 1.
+ */
 static std::vector<std::size_t> all_eta_indices(std::size_t eta_dim) {
     std::vector<std::size_t> out(eta_dim);
     for (std::size_t i = 0; i < eta_dim; ++i) {
@@ -97,6 +155,14 @@ static std::vector<std::size_t> all_eta_indices(std::size_t eta_dim) {
     return out;
 }
 
+/**
+ * @brief Computes the complement of a nuisance-index subset.
+ *
+ * @param eta_dim Total number of nuisance parameters.
+ * @param excluded Indices to remove from the full set.
+ *
+ * @return Sorted vector containing all nuisance indices not listed in @p excluded.
+ */
 static std::vector<std::size_t> eta_index_complement(
     std::size_t eta_dim,
     const std::vector<std::size_t>& excluded
@@ -115,6 +181,14 @@ static std::vector<std::size_t> eta_index_complement(
     return out;
 }
 
+/**
+ * @brief Tests whether a nuisance-index list contains a given index.
+ *
+ * @param indices Candidate index list.
+ * @param idx Index to look for.
+ *
+ * @return True if @p idx is present in @p indices.
+ */
 static bool eta_index_contains(
     const std::vector<std::size_t>& indices,
     std::size_t idx
@@ -122,6 +196,14 @@ static bool eta_index_contains(
     return std::find(indices.begin(), indices.end(), idx) != indices.end();
 }
 
+/**
+ * @brief Extracts a principal submatrix using an explicit index list.
+ *
+ * @param M Source square matrix.
+ * @param idx Row and column indices retained in the output.
+ *
+ * @return Matrix containing \f$M_{ij}\f$ for all selected index pairs.
+ */
 static RealMatrix principal_submatrix_by_indices(
     const RealMatrix& M,
     const std::vector<std::size_t>& idx
@@ -137,6 +219,21 @@ static RealMatrix principal_submatrix_by_indices(
     return out;
 }
 
+/**
+ * @brief Computes nuisance derivatives for a selected subset of directions.
+ *
+ * For each nuisance direction, the function evaluates central finite
+ * differences of both the model prediction and the NLL.
+ *
+ * @param like Profileable likelihood to differentiate.
+ * @param p Fixed parameter-of-interest vector.
+ * @param eta_base Base nuisance point.
+ * @param eta_indices Nuisance directions to differentiate.
+ *
+ * @return NLL gradient and observable Jacobian restricted to @p eta_indices.
+ *
+ * @throws std::runtime_error if indices are invalid or model dimensions change.
+ */
 static EtaDerivatives compute_eta_derivatives_subset(
     const IProfileableLikelihood& like,
     const std::vector<double>& p,
@@ -192,6 +289,15 @@ static EtaDerivatives compute_eta_derivatives_subset(
     return out;
 }
 
+/**
+ * @brief Computes nuisance derivatives for all nuisance directions.
+ *
+ * @param like Profileable likelihood to differentiate.
+ * @param p Fixed parameter-of-interest vector.
+ * @param eta0 Base nuisance point.
+ *
+ * @return NLL gradient and observable Jacobian for the full nuisance vector.
+ */
 static EtaDerivatives compute_eta_derivatives(
     const IProfileableLikelihood& like,
     const std::vector<double>& p,
@@ -205,6 +311,18 @@ static EtaDerivatives compute_eta_derivatives(
     );
 }
 
+/**
+ * @brief Computes the finite-difference NLL gradient for selected nuisance parameters.
+ *
+ * @param like Profileable likelihood to differentiate.
+ * @param p Fixed parameter-of-interest vector.
+ * @param eta Nuisance point at which the gradient is evaluated.
+ * @param eta_indices Nuisance directions included in the output.
+ *
+ * @return Gradient vector ordered as @p eta_indices.
+ *
+ * @throws std::runtime_error if a nuisance index is out of range.
+ */
 static std::vector<double> eta_gradient_nll_subset(
     const IProfileableLikelihood& like,
     const std::vector<double>& p,
@@ -240,6 +358,15 @@ static std::vector<double> eta_gradient_nll_subset(
     return g;
 }
 
+/**
+ * @brief Computes the finite-difference NLL gradient for all nuisance parameters.
+ *
+ * @param like Profileable likelihood to differentiate.
+ * @param p Fixed parameter-of-interest vector.
+ * @param eta Nuisance point at which the gradient is evaluated.
+ *
+ * @return Full nuisance-gradient vector.
+ */
 static std::vector<double> eta_gradient_nll(
     const IProfileableLikelihood& like,
     const std::vector<double>& p,
@@ -253,6 +380,16 @@ static std::vector<double> eta_gradient_nll(
     );
 }
 
+/**
+ * @brief Multiplies a matrix by a vector.
+ *
+ * @param M Matrix operand.
+ * @param v Vector operand.
+ *
+ * @return Product \f$M v\f$.
+ *
+ * @throws std::runtime_error if dimensions are incompatible.
+ */
 static std::vector<double> matvec(const RealMatrix& M, const std::vector<double>& v) {
     if (M.cols() != v.size()) {
         throw std::runtime_error("matvec: dimension mismatch");
@@ -269,6 +406,16 @@ static std::vector<double> matvec(const RealMatrix& M, const std::vector<double>
     return out;
 }
 
+/**
+ * @brief Computes the Euclidean dot product of two vectors.
+ *
+ * @param a First vector.
+ * @param b Second vector.
+ *
+ * @return Dot product \f$a^\top b\f$.
+ *
+ * @throws std::runtime_error if vector sizes differ.
+ */
 static double dot(const std::vector<double>& a, const std::vector<double>& b) {
     if (a.size() != b.size()) {
         throw std::runtime_error("dot: dimension mismatch");
@@ -283,6 +430,19 @@ static double dot(const std::vector<double>& a, const std::vector<double>& b) {
     return out;
 }
 
+/**
+ * @brief Symmetrizes a square matrix after validating all entries.
+ *
+ * The function averages each matrix entry with its transpose counterpart and
+ * then enforces exact symmetry. Non-finite values are rejected explicitly.
+ *
+ * @param H Matrix to validate and symmetrize.
+ * @param label Human-readable label used in exception messages.
+ *
+ * @return Symmetric matrix.
+ *
+ * @throws std::runtime_error if @p H is non-square or contains non-finite entries.
+ */
 static RealMatrix force_symmetric_checked(
     const RealMatrix& H,
     const std::string& label = "matrix"
@@ -334,6 +494,22 @@ static RealMatrix force_symmetric_checked(
     return sym;
 }
 
+/**
+ * @brief Regularizes a symmetric matrix into a numerically positive-definite matrix.
+ *
+ * Eigenvalues below a relative floor are lifted while preserving the
+ * eigenvectors, then exact symmetry is restored.
+ *
+ * @param H Candidate Hessian matrix.
+ * @param rel_floor Relative eigenvalue floor with respect to the largest
+ *                  positive eigenvalue.
+ * @param label Human-readable label used in exception messages.
+ *
+ * @return Symmetric positive-definite regularized matrix.
+ *
+ * @throws std::runtime_error if eigendecomposition fails or no positive
+ *         eigenvalue is available.
+ */
 static RealMatrix regularize_spd_local(
     const RealMatrix& H,
     double rel_floor = 1e-10,
@@ -380,6 +556,18 @@ static RealMatrix regularize_spd_local(
     return force_symmetric_checked(out, label + " regularized");
 }
 
+/**
+ * @brief Ranks nuisance directions by scaled stationarity violation.
+ *
+ * The ranking score is \f$|\partial\mathrm{NLL}/\partial\eta_i|\,\sigma_i\f$
+ * when a finite scale is available, and the absolute gradient otherwise.
+ *
+ * @param like Profileable likelihood.
+ * @param p Fixed parameter-of-interest vector.
+ * @param eta Nuisance point to diagnose.
+ *
+ * @return Pairs of score and nuisance index sorted from largest to smallest score.
+ */
 static std::vector<std::pair<double, std::size_t>> rank_eta_stationarity(
     const IProfileableLikelihood& like,
     const std::vector<double>& p,
@@ -416,6 +604,20 @@ static std::vector<std::pair<double, std::size_t>> rank_eta_stationarity(
     return ranked;
 }
 
+/**
+ * @brief Selects nuisance directions requiring Newton refinement.
+ *
+ * Directions are ranked by scaled stationarity violation and filtered according
+ * to @ref LaplaceProfileOptions::stationarity_threshold and
+ * @ref LaplaceProfileOptions::max_refined_eta.
+ *
+ * @param like Profileable likelihood.
+ * @param p Fixed parameter-of-interest vector.
+ * @param eta Current nuisance point.
+ * @param options Refinement-selection options.
+ *
+ * @return Sorted nuisance-index list selected for refinement.
+ */
 static std::vector<std::size_t> select_nonstationary_eta_indices(
     const IProfileableLikelihood& like,
     const std::vector<double>& p,
@@ -451,6 +653,13 @@ static std::vector<std::size_t> select_nonstationary_eta_indices(
     return out;
 }
 
+/**
+ * @brief Formats a nuisance-index list for diagnostic output.
+ *
+ * @param indices Nuisance indices to format.
+ *
+ * @return Comma-separated list enclosed in braces.
+ */
 static std::string eta_index_list_string(
     const std::vector<std::size_t>& indices
 ) {
@@ -464,6 +673,19 @@ static std::string eta_index_list_string(
     return oss.str();
 }
 
+/**
+ * @brief Prints a compact stationarity and refinement diagnostic summary.
+ *
+ * Output is emitted only when @ref LaplaceProfileOptions::debug_refinement is enabled.
+ *
+ * @param like Profileable likelihood.
+ * @param p Fixed parameter-of-interest vector.
+ * @param eta Current nuisance point.
+ * @param options Debug and refinement options.
+ * @param iter Refinement iteration index.
+ * @param direct_nll Direct NLL evaluated at @p eta.
+ * @param bad Selected nuisance indices that will be refined.
+ */
 static void debug_print_stationarity_summary(
     const IProfileableLikelihood& like,
     const std::vector<double>& p,
@@ -508,6 +730,19 @@ static void debug_print_stationarity_summary(
     }
 }
 
+/**
+ * @brief Computes a finite-difference Hessian on selected nuisance directions.
+ *
+ * Diagonal terms are evaluated with a second-order central stencil and
+ * off-diagonal terms with a mixed central stencil.
+ *
+ * @param like Profileable likelihood.
+ * @param p Fixed parameter-of-interest vector.
+ * @param eta Nuisance point at which the Hessian is evaluated.
+ * @param eta_indices Nuisance directions retained in the Hessian.
+ *
+ * @return Symmetric finite-difference Hessian restricted to @p eta_indices.
+ */
 static RealMatrix numerical_eta_hessian_subset(
     const IProfileableLikelihood& like,
     const std::vector<double>& p,
@@ -572,6 +807,14 @@ static RealMatrix numerical_eta_hessian_subset(
     return force_symmetric_checked(H, "Newton finite-difference H_bad raw");
 }
 
+/**
+ * @brief Clamps nuisance values to their configured parameter limits.
+ *
+ * Parameters without explicit limits are left unchanged.
+ *
+ * @param like Profileable likelihood providing parameter definitions.
+ * @param eta Nuisance vector modified in place.
+ */
 static void clamp_eta_to_limits(
     const IProfileableLikelihood& like,
     std::vector<double>& eta
@@ -588,6 +831,18 @@ static void clamp_eta_to_limits(
     }
 }
 
+/**
+ * @brief Limits a Newton step in units of nuisance-parameter scale hints.
+ *
+ * The full correction vector is rescaled uniformly if any selected component
+ * exceeds the configured maximum step in sigma units.
+ *
+ * @param like Profileable likelihood providing parameter definitions.
+ * @param eta_indices Nuisance directions associated with @p delta.
+ * @param delta Newton correction vector modified in place.
+ * @param max_step_in_sigma Maximum allowed component-wise displacement in
+ *                          sigma units.
+ */
 static void clamp_eta_step_in_sigmas(
     const IProfileableLikelihood& like,
     const std::vector<std::size_t>& eta_indices,
@@ -621,6 +876,25 @@ static void clamp_eta_step_in_sigmas(
     }
 }
 
+/**
+ * @brief Applies the Laplace approximation to a subset of nuisance parameters.
+ *
+ * The method forms the approximate nuisance Hessian
+ * \f$J_\eta^\top W_{\mathrm{obs}}J_\eta + W_\eta\f$, regularizes it, and
+ * applies the standard quadratic-profile correction.
+ *
+ * @param like Profileable likelihood.
+ * @param p Fixed parameter-of-interest vector.
+ * @param eta_base Expansion point for the nuisance vector.
+ * @param laplace_eta_indices Nuisance directions treated by the Laplace step.
+ * @param hessian_eig_floor_rel Relative eigenvalue floor for Hessian regularization.
+ * @param hessian_label Label used in Hessian-related diagnostics.
+ *
+ * @return Approximate profiled NLL and profiled nuisance estimate.
+ *
+ * @throws std::runtime_error if the nuisance base point has the wrong dimension
+ *         or required matrix operations fail.
+ */
 static LaplaceProfileComputation laplace_profile_eta_subset(
     const IProfileableLikelihood& like,
     const std::vector<double>& p,
@@ -692,6 +966,20 @@ static LaplaceProfileComputation laplace_profile_eta_subset(
     return out;
 }
 
+/**
+ * @brief Profiles nuisance parameters with a hybrid Laplace/Newton procedure.
+ *
+ * The procedure first performs a full Laplace step, then detects directions
+ * with large residual stationarity violations and refines them with damped
+ * Newton corrections while retaining a Laplace approximation for the remaining
+ * directions.
+ *
+ * @param like Profileable likelihood.
+ * @param p Fixed parameter-of-interest vector.
+ * @param options Numerical and diagnostic options.
+ *
+ * @return Profiled NLL approximation and nuisance estimate.
+ */
 static LaplaceProfileComputation laplace_profile_eta_refined(
     const IProfileableLikelihood& like,
     const std::vector<double>& p,
@@ -846,6 +1134,14 @@ static LaplaceProfileComputation laplace_profile_eta_refined(
     return best;
 }
 
+/**
+ * @brief Convenience wrapper for nuisance profiling with default options.
+ *
+ * @param like Profileable likelihood.
+ * @param p Fixed parameter-of-interest vector.
+ *
+ * @return Profiled NLL approximation and nuisance estimate.
+ */
 static LaplaceProfileComputation laplace_profile_eta(
     const IProfileableLikelihood& like,
     const std::vector<double>& p

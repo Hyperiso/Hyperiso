@@ -234,6 +234,17 @@ public:
     virtual void set_config(std::any cfg) = 0;
 
     /**
+     * @brief Set the number of worker threads used by decays that support parallel cache filling.
+     *
+     * The default implementation warns and leaves the decay unchanged. Derived decays
+     * with long QCDf/integration caches can override this method. Passing 0 means
+     * "use hardware_concurrency" for decays that support it.
+     *
+     * @param n_threads Requested number of threads.
+     */
+    virtual void set_n_threads(size_t n_threads);
+    
+    /**
      * @brief Set the binning for the observables related to this decay.
      *
      * @param new_bins Desired binning in the form of {{q²_min, q²_max}, ...}

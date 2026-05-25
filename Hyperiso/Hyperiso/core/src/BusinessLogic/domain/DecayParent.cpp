@@ -56,6 +56,16 @@ void DecayParent::set_order(QCDOrder new_order) {
     }
 }
 
+void DecayParent::set_n_threads(size_t n_threads) {
+    LOG_WARN(
+        "Thread configuration is not implemented for decay",
+        DecayMapper::str(this->id),
+        ". Requested",
+        n_threads,
+        "threads."
+    );
+}
+
 void DecayParent::set_bins(std::vector<std::pair<double, double>> new_bins) {
     for (auto& [qmin, qmax] : new_bins)
         if (qmin > qmax)

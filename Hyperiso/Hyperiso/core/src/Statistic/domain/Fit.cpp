@@ -1,3 +1,8 @@
+/**
+ * @file Fit.cpp
+ * @brief Implementation of the high-level maximum-likelihood fitting workflow.
+ */
+
 #include "Fit.h"
 
 #include <algorithm>
@@ -259,9 +264,9 @@ double stabilize_profile_step_1d(const fit_app::IFitBackend& minimizer,
 
         const double d2 = (f_plus - 2.0 * f0 + f_minus) / (h * h);
 
-        // On veut un pas local où la courbure diagonale est positive
-        // et où les points +/-h ne sont pas "meilleurs" que le centre
-        // au-delà du bruit numérique.
+        // Accept a local finite-difference step only when the diagonal
+        // curvature is positive and the +/-h probe points do not improve
+        // the central value beyond numerical noise.
         if (d2 > 0.0 && f_plus >= f0 - 1e-8 && f_minus >= f0 - 1e-8) {
             return h;
         }
@@ -426,7 +431,6 @@ FitResult MLFitter::maximum_likelihood_fit(const std::vector<double>& p0) {
 
     bool have_profile_covariance = false;
 
-    // 1) Chemin nominal : covariance Minuit valide
     if (res.diagnostics.has_valid_covar) {
         try {
             RealMatrix H = invert_or_throw(res.covariance, "Minuit covariance");
@@ -471,7 +475,6 @@ FitResult MLFitter::maximum_likelihood_fit(const std::vector<double>& p0) {
         }
     }
 
-    // 2) Fallback propre : Hessienne numérique de la profile likelihood sur p
     if (!have_profile_covariance && fit_options_.allow_profile_hessian_fallback) {
         try {
             std::cout << "[FIT] Falling back to numerical profile Hessian on fit parameters.\n";
@@ -513,154 +516,15 @@ FitResult MLFitter::maximum_likelihood_fit(const std::vector<double>& p0) {
         }
     }
 
-    // 3) Si tout échoue, on garde le MLE mais on marque les erreurs comme indisponibles
     if (!have_profile_covariance) {
         std::cout << "[FIT] No covariance could be constructed. Returning MLE with NaN errors.\n";
         fill_nan_profile_errors(fr, p_dim);
     }
 
-    // Pour la suite du workflow, un minimum avec paramètres valides est déjà exploitable
     this->master_fit_success = res.diagnostics.has_valid_parameters;
     this->master_fit_result = fr;
     return fr;
 }
-
-// FitResult MLFitter::maximum_likelihood_fit(const std::vector<double>& p0) {
-//     const auto defs = like_->get_param_defs();
-//     const std::size_t p_dim = p0.size();
-//     const std::size_t dim = defs.size();
-
-//     std::vector<fit_app::ParameterDefinition> theta0 = defs;
-//     for (std::size_t i = 0; i < p_dim; ++i) {
-//         theta0[i].value = p0[i];
-//     }
-
-//     auto f = fit_app::LambdaObjectiveFunction(
-//         [this](const std::vector<double>& theta) {
-//             return like_->nll(theta);
-//         },
-//         0.5
-//     );
-
-//     fit_app::FitOptions opt;
-//     opt.run_hesse = fit_options_.run_hesse;
-//     opt.verbose = fit_options_.verbose;
-//     if (fit_options_.strategy > 0) {
-//         opt.strategy = fit_options_.strategy;
-//     }
-//     if (fit_options_.max_fcn > 0) {
-//         opt.max_fcn = fit_options_.max_fcn;
-//     }
-//     if (fit_options_.tolerance > 0.0) {
-//         opt.tolerance = fit_options_.tolerance;
-//     }
-
-// #ifdef FIT_APP_HAS_RUN_MINOS
-//     opt.run_minos = fit_options_.request_minos;
-// #else
-//     if (fit_options_.request_minos) {
-//         std::cout << "[FIT] MINOS was requested, but fit_app::FitOptions has no run_minos flag in this build.\n"
-//                   << "[FIT] Define FIT_APP_HAS_RUN_MINOS only if your backend exposes opt.run_minos.\n";
-//     }
-// #endif
-
-//     if (fit_options_.request_minos) {
-//         std::cout << "[FIT] Requesting MINOS for the master Minuit fit.\n";
-//     }
-//     if (!fit_options_.run_hesse) {
-//         std::cout << "[FIT] Warning: maximum_likelihood_fit() still uses the covariance matrix to build profiled errors.\n"
-//                   << "[FIT] Disabling HESSE may therefore make the fit fail if the backend does not return a valid covariance anyway.\n";
-//     }
-
-//     std::unique_ptr<fit_app::IFitBackend> minimizer = fit_app::make_minuit_backend();
-//     fit_app::BackendFitResult res = minimizer->minimize(f, theta0, opt);
-
-//     log_fit_diagnostics(res.diagnostics);
-//     log_matrix_diagnostics("Minuit covariance", res.covariance);
-
-//     if (!res.diagnostics.has_valid_covar) {
-//         throw std::runtime_error(
-//             "Minuit returned no valid covariance matrix. "
-//             "This usually means the likelihood has flat or redundant directions."
-//         );
-//     }
-
-//     FitResult fr;
-//     fr.ell_hat = res.diagnostics.fmin;
-//     fr.p_hat.assign(res.values.begin(), res.values.begin() + p_dim);
-//     fr.eta_hat.assign(res.values.begin() + p_dim, res.values.end());
-
-//     // bloc p×p de la covariance complète
-//     RealMatrix H = invert_or_throw(res.covariance, "Minuit covariance");
-//     RealMatrix H_p_p(p_dim, p_dim);
-//     RealMatrix H_p_eta(p_dim, dim - p_dim);
-//     RealMatrix H_eta_eta(dim - p_dim, dim - p_dim);
-
-//     for (std::size_t i = 0; i < p_dim; ++i) {
-//         for (std::size_t j = 0; j < p_dim; ++j) {
-//             H_p_p.at(i, j) = H.at(i, j);
-//         }
-//     }
-
-//     for (std::size_t i = 0; i < p_dim; ++i) {
-//         for (std::size_t j = p_dim; j < dim; ++j) {
-//             H_p_eta.at(i, j - p_dim) = H.at(i, j);
-//         }
-//     }
-
-//     for (std::size_t i = p_dim; i < dim; ++i) {
-//         for (std::size_t j = p_dim; j < dim; ++j) {
-//             H_eta_eta.at(i - p_dim, j - p_dim) = H.at(i, j);
-//         }
-//     }
-
-//     RealMatrix cov_prof;
-//     if (dim == p_dim) {
-//         cov_prof = invert_or_throw(H_p_p, "H_p_p (no nuisance block)");
-//     } else {
-//         RealMatrix H_eta_eta_inv = invert_or_throw(H_eta_eta, "H_eta_eta");
-//         RealMatrix H_prof = H_p_p - H_p_eta * H_eta_eta_inv * H_p_eta.transpose();
-//         log_matrix_diagnostics("H_prof", H_prof);
-//         cov_prof = invert_or_throw(H_prof, "H_prof");
-//     }
-
-//     fr.p_hat_std.resize(p_dim);
-//     fr.p_hat_correlations = RealMatrix(p_dim, p_dim);
-
-//     for (std::size_t i = 0; i < p_dim; ++i) {
-//         fr.p_hat_std[i] = std::sqrt(std::max(0.0, cov_prof.at(i, i)));
-//     }
-//     for (std::size_t i = 0; i < p_dim; ++i) {
-//         for (std::size_t j = 0; j < p_dim; ++j) {
-//             const double si = fr.p_hat_std[i];
-//             const double sj = fr.p_hat_std[j];
-//             fr.p_hat_correlations.at(i, j) =
-//                 (si > 0.0 && sj > 0.0) ? cov_prof.at(i, j) / (si * sj) : 0.0;
-//         }
-//     }
-
-//     this->master_fit_success = res.diagnostics.ok;
-//     this->master_fit_result = fr;
-//     return fr;
-// }
-
-// Contour MLFitter::contour(std::size_t x_id, std::size_t y_id, double z, std::array<double, 4> bounds, ContourOptions options) const {
-//     if (!this->master_fit_success)
-//         LOG_ERROR("InvalidState", "ML fit must have converged before contour computation is available.");
-
-//     ContourConfig cc;
-//     cc.fr = this->master_fit_result;
-//     cc.x_id = x_id;
-//     cc.y_id = y_id;
-//     cc.primary_contour_method = options.primary_contour_method;
-//     cc.fallback_contour_method = options.fallback_contour_method;
-//     cc.profiling_method = options.profiling_method;
-
-//     ContourEngine ce(this->like_, cc);
-//     Contour cl = ce.compute_contour(z, bounds, options.resolution);
-
-//     return cl;
-// }
 
 Contour MLFitter::contour(std::size_t x_id, std::size_t y_id, double z,
                           std::array<double, 4> bounds, ContourOptions options) const {

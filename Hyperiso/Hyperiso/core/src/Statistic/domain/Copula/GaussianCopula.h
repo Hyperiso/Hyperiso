@@ -95,8 +95,32 @@ public:
      * where \f$z_i = \Phi^{-1}(u_i)\f$.
      */
     double log_density(Vector u) override;
+
+    /**
+     * @brief Computes the gradient of the Gaussian copula log-density.
+     *
+     * @param u Uniform vector in \f$(0,1)^d\f$.
+     * @return Column matrix containing \f$\nabla_u \log c(u)\f$.
+     */
     RealMatrix dlog_density(std::vector<double> u) override;
+
+    /**
+     * @brief Computes the Hessian of the Gaussian copula log-density.
+     *
+     * @param u Uniform vector in \f$(0,1)^d\f$.
+     * @return Matrix containing second derivatives with respect to @p u.
+     */
     RealMatrix ddlog_density(std::vector<double> u) override;
+
+    /**
+     * @brief Computes the log-density and its first and second derivatives.
+     *
+     * This combined evaluation is intended to avoid repeated transformations of
+     * the same uniform vector when curvature information is required.
+     *
+     * @param u Uniform vector in \f$(0,1)^d\f$.
+     * @return Aggregated log-density, gradient and Hessian information.
+     */
     LogDensityDiff log_c_dc_ddc(std::vector<double> u) override;
 
 

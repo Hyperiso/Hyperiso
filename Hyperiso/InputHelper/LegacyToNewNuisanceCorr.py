@@ -9,7 +9,7 @@ import math
 import re
 import sys
 from dataclasses import asdict, dataclass
-from itertools import product
+from itertools import product, combinations
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple, Union
 
@@ -275,16 +275,17 @@ def make_report(
     parsed_lines: int,
     expanded_pairs: int,
     written_pairs: int,
+    multi_target_self_pairs_added: int,
     skipped: List[SkippedCorrelation],
     identical_duplicates: List[DuplicateCorrelation],
     conflicting_duplicates: List[DuplicateCorrelation],
 ) -> Dict[str, Any]:
-    blocks_written = sorted({d.target_block if hasattr(d, 'target_block') else None for d in []})
     return {
         "summary": {
             "legacy_lines_total": parsed_lines,
             "expanded_pairs": expanded_pairs,
             "written_pairs": written_pairs,
+            "multi_target_self_pairs_added": multi_target_self_pairs_added,
             "skipped": len(skipped),
             "conflicting_duplicates": len(conflicting_duplicates),
             "identical_duplicates": len(identical_duplicates),
@@ -293,6 +294,62 @@ def make_report(
         "conflicting_duplicates": [asdict(item) for item in conflicting_duplicates],
         "identical_duplicates": [asdict(item) for item in identical_duplicates],
     }
+
+
+def inject_multi_target_self_correlations(
+    module: Any,
+    existing: Dict[CanonicalPair, Dict[str, Any]],
+    conflicting_duplicates: List[DuplicateCorrelation],
+) -> int:
+    """
+    If one legacy nuisance is split into several new nuisance entries, those new
+    entries represent the same underlying random variable. Their mutual
+    correlation must therefore be +1 unless an existing/explicit entry says
+    something else, in which case we report a conflict.
+
+    Example:
+        old a0_HO_gpp_LbLll -> new Lb_L:1_3_0 and Lb_L:1_6_0
+        => add corr(Lb_L:1_3_0, Lb_L:1_6_0) = +1
+    """
+    added = 0
+    multi_map = getattr(module, "LEGACY_TO_NEW_MULTI_MAP", {}) or {}
+
+    for legacy_name, raw_targets in multi_map.items():
+        targets = normalize_targets(raw_targets)
+
+        for (block1, id1), (block2, id2) in combinations(targets, 2):
+            t1 = canonical_target(block1, id1)
+            t2 = canonical_target(block2, id2)
+            pair = canonical_pair(t1, t2)
+
+            if pair[0] == pair[1]:
+                continue
+
+            record = record_from_pair(pair, 1.0, 0.0)
+            previous = existing.get(pair)
+
+            if previous is None:
+                existing[pair] = record
+                added += 1
+                continue
+
+            if not records_equal(previous, record):
+                conflicting_duplicates.append(
+                    DuplicateCorrelation(
+                        line_no=0,
+                        raw_name_1=legacy_name,
+                        raw_name_2=legacy_name,
+                        block_1=pair[0][0],
+                        id_1=pair[0][1],
+                        block_2=pair[1][0],
+                        id_2=pair[1][1],
+                        reason="multi_target_self_correlation_conflict",
+                        previous=previous,
+                        new=record,
+                    )
+                )
+
+    return added
 
 
 def convert(
@@ -309,6 +366,12 @@ def convert(
     skipped: List[SkippedCorrelation] = []
     identical_duplicates: List[DuplicateCorrelation] = []
     conflicting_duplicates: List[DuplicateCorrelation] = []
+
+    multi_target_self_pairs_added = inject_multi_target_self_correlations(
+        module,
+        existing,
+        conflicting_duplicates,
+    )
 
     parsed_lines = 0
     expanded_pairs = 0
@@ -428,6 +491,7 @@ def convert(
         parsed_lines=parsed_lines,
         expanded_pairs=expanded_pairs,
         written_pairs=written_pairs,
+        multi_target_self_pairs_added=multi_target_self_pairs_added,
         skipped=skipped,
         identical_duplicates=identical_duplicates,
         conflicting_duplicates=conflicting_duplicates,
@@ -441,6 +505,7 @@ def convert(
     print(f"  total legacy lines     : {summary['legacy_lines_total']}")
     print(f"  expanded pairs         : {summary['expanded_pairs']}")
     print(f"  written pairs          : {summary['written_pairs']}")
+    print(f"  multi self pairs added : {summary['multi_target_self_pairs_added']}")
     print(f"  skipped                : {summary['skipped']}")
     print(f"  conflicting duplicates : {summary['conflicting_duplicates']}")
     print(f"  identical duplicates   : {summary['identical_duplicates']}")

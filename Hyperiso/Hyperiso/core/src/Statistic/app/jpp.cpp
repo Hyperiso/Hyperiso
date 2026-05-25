@@ -14,7 +14,7 @@
 
 #include "StatisticManager.h"
 #include "ObservableInterface.h"
-#include "ObservableInterfaceAdapter2.h"
+#include "ObservableInterfaceProxy.h"
 #include "StatCorrelationProxy.h"
 #include "StatParameterProxy.h"
 #include "StatParamSourcesProxy.h"
@@ -158,7 +158,7 @@ static std::vector<fit_app::ParameterDefinition> make_parameter_definitions(
 static BuiltProblem build_problem(
     StatisticManager& stat,
     const StatisticConfig& config,
-    const std::shared_ptr<ObservableInterfaceAdapterObs>& model, std::vector<ParamId> p_specs)
+    const std::shared_ptr<ObservableInterfaceProxy>& model, std::vector<ParamId> p_specs)
 {
     stat.compute_uncertainties();
     stat.update_cache(p_specs);
@@ -333,7 +333,7 @@ int main() {
     };
 
     std::shared_ptr<IStatParamOptimizerProxy> spop = std::make_shared<StatParamOptimizerProxy>();
-    auto model = std::make_shared<ObservableInterfaceAdapterObs>(oint, spop);
+    auto model = std::make_shared<ObservableInterfaceProxy>(oint, spop);
 
     std::shared_ptr<INuisancePathsProvider> npp = std::make_shared<DefaultNuisancePathsProvider>();
 

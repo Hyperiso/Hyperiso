@@ -13,7 +13,7 @@
 #include <vector>
 
 #include "StatisticManager.h"
-#include "ObservableInterfaceAdapter2.h"
+#include "ObservableInterfaceProxy.h"
 #include "StatCorrelationProxy.h"
 #include "StatParameterProxy.h"
 #include "ObservableInterface.h"
@@ -555,7 +555,7 @@ int main(int argc, char** argv) {
     };
 
     std::shared_ptr<IStatParamOptimizerProxy> spop = std::make_shared<StatParamOptimizerProxy>();
-    auto model = std::make_shared<ObservableInterfaceAdapterObs>(oint, spop);
+    auto model = std::make_shared<ObservableInterfaceProxy>(oint, spop);
 
     std::shared_ptr<INuisancePathsProvider> npp = std::make_shared<DefaultNuisancePathsProvider>();
 

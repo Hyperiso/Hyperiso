@@ -935,10 +935,12 @@ int main() {
         BsPhiConfig cfg_BsPhi;
         cfg_BsPhi.ff_src = BV_FF_Src::GRvDV;
         oint->set_decay_config(Decays::Bs__phi_l_l, cfg_BsPhi);
+        oint->set_bkll_threads(6);
 
         BKllConfig cfg_BK;
         cfg_BK.ff_src = BP_FF_Src::GKvD_SR_LAT;
         oint->set_decay_config(Decays::B__K_l_l, cfg_BK);
+        oint->set_bsphi_threads(6);
 
         using O = Observables;
         constexpr bool kAddDeps = false;

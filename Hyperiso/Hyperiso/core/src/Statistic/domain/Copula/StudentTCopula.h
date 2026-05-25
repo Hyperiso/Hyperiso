@@ -95,10 +95,31 @@ public:
      */
     double log_density(std::vector<double> u) override;
 
+    /**
+     * @brief Computes the gradient of the Student-t copula log-density.
+     *
+     * @param u Uniform vector in \f$(0,1)^d\f$.
+     * @return Column matrix containing \f$\nabla_u \log c(u)\f$.
+     */
     RealMatrix dlog_density(std::vector<double> u) override;
 
+    /**
+     * @brief Computes the Hessian of the Student-t copula log-density.
+     *
+     * @param u Uniform vector in \f$(0,1)^d\f$.
+     * @return Matrix containing second derivatives with respect to @p u.
+     */
     RealMatrix ddlog_density(std::vector<double> u) override;
 
+    /**
+     * @brief Computes the log-density and derivative bundle.
+     *
+     * @param u Uniform vector in \f$(0,1)^d\f$.
+     * @return Aggregated log-density derivative information. The current inline
+     *         implementation returns a default-constructed @ref LogDensityDiff.
+     *
+     * @todo Implement the combined Student-t copula derivative evaluation.
+     */
     LogDensityDiff log_c_dc_ddc(std::vector<double> u) override { return LogDensityDiff(); }
 
 private:

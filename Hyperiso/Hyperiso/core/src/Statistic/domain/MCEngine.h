@@ -1,277 +1,179 @@
-#pragma once
+#ifndef MC_ENGINE_H
+#define MC_ENGINE_H
+
 #include <vector>
 #include <random>
+
 #include "INuisanceSampler.h"
 #include "ports/IModel.h"
 #include "Statistics.h"
 #include "GaussianApprox.h"
 #include "Indexing.h"
 
+/**
+ * @file MCEngine.h
+ * @brief Monte Carlo propagation of nuisance-parameter uncertainties.
+ *
+ * The Monte Carlo engine samples nuisance parameters, evaluates model
+ * predictions, summarizes the resulting observable distributions, and builds a
+ * regularized observable covariance matrix.
+ *
+ * @see INuisanceSampler
+ * @see IModel
+ * @see GaussianSummary
+ */
+
+/**
+ * @struct MCConfig
+ * @brief Runtime configuration for Monte Carlo nuisance propagation.
+ */
 struct MCConfig {
+    /** Number of accepted Monte Carlo predictions to generate. */
     std::size_t draws = 10000;
+
+    /** Absolute skewness threshold below which a distribution is treated as symmetric. */
     double skew_abs_threshold = 0.2;
 
+    /** Relative diagonal ridge added before covariance inversion. */
     double covariance_ridge_rel = 1e-8;
+
+    /** Absolute diagonal ridge added before covariance inversion. */
     double covariance_ridge_abs = 1e-12;
 
+    /** Whether failed model evaluations should be rejected and retried. */
     bool retry_failed_predictions = true;
 
+    /** Maximum number of rejected model evaluations before aborting. */
     std::size_t max_prediction_failures = 20000;
 };
 
+/**
+ * @struct MCRealization
+ * @brief Raw Monte Carlo samples accepted by the engine.
+ */
 struct MCRealization {
+    /** Sampled observable values, one map per accepted draw. */
     ObsSamples sampled_obss;
+
+    /** Nuisance-parameter values used for each accepted draw. */
     NuisanceSamples sampled_params;
 };
 
+/**
+ * @struct MCObservableCovariance
+ * @brief Empirical observable covariance and its inverse.
+ */
 struct MCObservableCovariance {
+    /** Observable identifiers defining the ordering of matrix rows and columns. */
     std::vector<BinnedObservableId> ids;
+
+    /** Empirical mean for each observable in @ref ids order. */
     std::vector<double> mean;
+
+    /** Regularized empirical covariance matrix. */
     RealMatrix covariance;
+
+    /** Inverse of @ref covariance. */
     RealMatrix covariance_inv;
 };
 
-
-
-inline MCObservableCovariance covariance_from_obs_samples(
+/**
+ * @brief Builds a regularized empirical covariance matrix from observable samples.
+ *
+ * The samples are read in the order specified by @p ids.  A diagonal ridge
+ * equal to @c max(ridge_abs, ridge_rel * max(mean_variance, 1)) is added before
+ * inversion to improve numerical stability.
+ *
+ * @param S Monte Carlo observable samples.
+ * @param ids Observable identifiers defining the covariance ordering.
+ * @param ridge_rel Relative ridge factor.
+ * @param ridge_abs Absolute ridge floor.
+ * @return Empirical covariance, inverse covariance and column means.
+ *
+ * @throws std::invalid_argument if the sample set is empty, if @p ids is empty,
+ *         or if fewer than two samples are provided.
+ */
+MCObservableCovariance covariance_from_obs_samples(
     const ObsSamples& S,
     const std::vector<BinnedObservableId>& ids,
     double ridge_rel = 1e-8,
     double ridge_abs = 1e-12
-) {
-    if (S.empty()) {
-        throw std::invalid_argument("covariance_from_obs_samples: no samples");
-    }
-    if (ids.empty()) {
-        throw std::invalid_argument("covariance_from_obs_samples: no observable ids");
-    }
-    if (S.size() < 2) {
-        throw std::invalid_argument("covariance_from_obs_samples: need at least two samples");
-    }
+);
 
-    const std::size_t N = S.size();
-    const std::size_t D = ids.size();
-
-    std::vector<double> mean(D, 0.0);
-    for (const auto& row : S) {
-        for (std::size_t d = 0; d < D; ++d) {
-            mean[d] += row.at(ids[d]);
-        }
-    }
-    for (double& v : mean) {
-        v /= static_cast<double>(N);
-    }
-
-    RealMatrix cov(D, D);
-    for (std::size_t i = 0; i < D; ++i) {
-        for (std::size_t j = 0; j < D; ++j) {
-            double s = 0.0;
-            for (const auto& row : S) {
-                s += (row.at(ids[i]) - mean[i]) * (row.at(ids[j]) - mean[j]);
-            }
-            cov.at(i, j) = s / static_cast<double>(N - 1);
-        }
-    }
-
-    // Force symmetry.
-    for (std::size_t i = 0; i < D; ++i) {
-        for (std::size_t j = i + 1; j < D; ++j) {
-            const double v = 0.5 * (cov.at(i, j) + cov.at(j, i));
-            cov.at(i, j) = v;
-            cov.at(j, i) = v;
-        }
-    }
-
-    double trace = 0.0;
-    for (std::size_t i = 0; i < D; ++i) {
-        trace += std::max(0.0, cov.at(i, i));
-    }
-
-    const double scale = D > 0 ? trace / static_cast<double>(D) : 1.0;
-    const double ridge = std::max(ridge_abs, ridge_rel * std::max(scale, 1.0));
-
-    for (std::size_t i = 0; i < D; ++i) {
-        cov.at(i, i) += ridge;
-    }
-
-    MCObservableCovariance out;
-    out.ids = ids;
-    out.mean = mean;
-    out.covariance = cov;
-    out.covariance_inv = cov.inv();
-    return out;
-}
-
-inline std::vector<BinnedObservableId> covariance_ids_from_first_sample(
+/**
+ * @brief Extracts the observable ordering from the first Monte Carlo sample.
+ *
+ * @param S Monte Carlo observable samples.
+ * @return Observable identifiers present in the first sample.
+ *
+ * @throws std::invalid_argument if @p S is empty.
+ */
+std::vector<BinnedObservableId> covariance_ids_from_first_sample(
     const ObsSamples& S
-) {
-    if (S.empty()) {
-        throw std::invalid_argument("covariance_ids_from_first_sample: no samples");
-    }
+);
 
-    std::vector<BinnedObservableId> ids;
-    ids.reserve(S.front().size());
-    for (const auto& [id, _] : S.front()) {
-        ids.push_back(id);
-    }
-    return ids;
-}
-
+/**
+ * @struct MCResult
+ * @brief Complete output of a Monte Carlo propagation run.
+ */
 struct MCResult {
+    /** Raw accepted Monte Carlo predictions and nuisance samples. */
     MCRealization mc_real;
+
+    /** Gaussian or split-Gaussian summary of each observable distribution. */
     std::vector<GaussianSummary> summary;
 
+    /** Empirical observable covariance matrix and inverse. */
     MCObservableCovariance covariance;
 };
 
+/**
+ * @class MonteCarloEngine
+ * @brief Samples nuisance parameters and propagates them through a model.
+ *
+ * The engine repeatedly draws nuisance values from an @ref INuisanceSampler,
+ * calls @ref IModel::predict_optimized, rejects failed or non-finite
+ * predictions when configured to do so, and returns both raw and summarized
+ * Monte Carlo outputs.
+ */
 class MonteCarloEngine {
 public:
+    /**
+     * @brief Constructs the Monte Carlo engine.
+     *
+     * @param model Model used to compute predictions for each nuisance draw.
+     * @param sampler Nuisance sampler used to generate random parameter maps.
+     * @param cfg Monte Carlo configuration.
+     */
     MonteCarloEngine(const std::shared_ptr<IModel>& model, const INuisanceSampler& sampler, MCConfig cfg)
     : model_(model), sampler_(sampler), cfg_(cfg) {}
 
-    MCRealization sample_predictions(const std::map<ParamId, double>& p) const {
-        ObsSamples out;
-        out.reserve(cfg_.draws);
+    /**
+     * @brief Generates accepted model predictions for a fixed fit-parameter point.
+     *
+     * @param p Fit-parameter values held fixed during the Monte Carlo run.
+     * @return Raw accepted observable and nuisance samples.
+     *
+     * @throws std::exception Re-throws model or sampler failures once the retry
+     *         policy is exhausted.
+     */
+    MCRealization sample_predictions(const std::map<ParamId, double>& p) const;
 
-        NuisanceSamples accepted_samples;
-        accepted_samples.reserve(cfg_.draws);
-
-        std::size_t accepted = 0;
-        std::size_t failures = 0;
-        std::size_t attempts = 0;
-
-        while (accepted < cfg_.draws) {
-            ++attempts;
-
-            std::map<ParamId, double> s = sampler_.sample();
-
-            try {
-                LOG_INFO("Sample", accepted + 1, "of", cfg_.draws);
-
-                auto res = model_->predict_optimized(p, s);
-                auto unzipped_res = flatten(res);
-                std::map<BinnedObservableId, double> value =
-                    zip(unzipped_res.ids, unzipped_res.vals);
-
-                bool finite = true;
-                for (const auto& [oid, v] : value) {
-                    if (!std::isfinite(v)) {
-                        finite = false;
-                        break;
-                    }
-                }
-
-                if (!finite) {
-                    throw std::runtime_error("MC prediction contains non-finite observable");
-                }
-
-                out.emplace_back(std::move(value));
-                accepted_samples.emplace_back(std::move(s));
-                ++accepted;
-
-            } catch (const std::exception& e) {
-                ++failures;
-
-                LOG_WARN(
-                    "Rejected MC nuisance sample",
-                    failures,
-                    "while trying to fill accepted sample",
-                    accepted + 1,
-                    "of",
-                    cfg_.draws,
-                    ":",
-                    e.what()
-                );
-
-                if (!cfg_.retry_failed_predictions ||
-                    failures > cfg_.max_prediction_failures) {
-                    throw;
-                }
-
-                continue;
-            } catch (...) {
-                ++failures;
-
-                LOG_WARN(
-                    "Rejected MC nuisance sample",
-                    failures,
-                    "with unknown exception while trying to fill accepted sample",
-                    accepted + 1,
-                    "of",
-                    cfg_.draws
-                );
-
-                if (!cfg_.retry_failed_predictions ||
-                    failures > cfg_.max_prediction_failures) {
-                    throw;
-                }
-
-                continue;
-            }
-        }
-
-        if (failures > 0) {
-            LOG_WARN(
-                "MC sampling finished with",
-                failures,
-                "rejected nuisance samples over",
-                attempts,
-                "attempts."
-            );
-        }
-
-        return MCRealization{out, accepted_samples};
-    }
-
-    MCResult summarize(const std::map<ParamId, double>& p) const {
-        auto smpl = sample_predictions(p);
-
-        std::ofstream fs;
-        fs.open("obs_samples.csv");
-
-        for (auto &&[oid, v] : smpl.sampled_obss[0])
-            fs << oid.str() << ',';
-        fs << '\n';
-
-        for (auto &&ovec : smpl.sampled_obss) {
-            for (auto &&[oid, v] : ovec)
-                fs << v << ',';
-            fs << '\n';
-        }
-
-        // auto start_sum = std::chrono::steady_clock::now();
-        auto summary = gaussian_fit(smpl.sampled_obss, cfg_.skew_abs_threshold);
-        // auto stop_sum  = std::chrono::steady_clock::now();
-        // auto time_summarize_ms = std::chrono::duration_cast<std::chrono::milliseconds>(stop_sum - start_sum).count();
-        // LOG_INFO("Summarizing samples took", time_summarize_ms, "ms.");
-
-        const auto covariance_ids = covariance_ids_from_first_sample(smpl.sampled_obss);
-        auto covariance = covariance_from_obs_samples(
-            smpl.sampled_obss,
-            covariance_ids,
-            cfg_.covariance_ridge_rel,
-            cfg_.covariance_ridge_abs
-        );
-
-        return MCResult {smpl, summary, covariance};
-    }
+    /**
+     * @brief Runs Monte Carlo propagation and computes summary statistics.
+     *
+     * In addition to returning the result, the current implementation writes the
+     * accepted observable samples to @c obs_samples.csv.
+     *
+     * @param p Fit-parameter values held fixed during the Monte Carlo run.
+     * @return Raw samples, Gaussian summaries and empirical covariance.
+     */
+    MCResult summarize(const std::map<ParamId, double>& p) const;
 
 private:
-    const std::shared_ptr<IModel>& model_;
-    const INuisanceSampler& sampler_;
-    MCConfig cfg_;
+    const std::shared_ptr<IModel>& model_;  ///< Model evaluated for each accepted draw.
+    const INuisanceSampler& sampler_;       ///< Source of nuisance-parameter samples.
+    MCConfig cfg_;                          ///< Monte Carlo configuration.
 };
 
-
-// Samples_old sample_predictions(const Vec& p, std::mt19937& rng) const {
-    //     Samples_old out; out.reserve(cfg_.draws);
-    //     for (std::size_t s=0; s<cfg_.draws; ++s) {
-    //         Vec eta = sampler_.sample(mu2_, Sigma2_, rng);
-    //         std::vector<double> value = model_->predict(p, eta);
-    //         for (auto val : value) {
-    //             std::cout << val << std::endl;
-    //         }
-    //         out.emplace_back(value);
-    //     }
-    //     return out;
-    // }
+#endif

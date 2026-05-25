@@ -15,7 +15,7 @@
 
 #include "StatisticManager.h"
 #include "ObservableInterface.h"
-#include "ObservableInterfaceAdapter2.h"
+#include "ObservableInterfaceProxy.h"
 #include "StatCorrelationProxy.h"
 #include "StatParameterProxy.h"
 #include "StatParamSourcesProxy.h"
@@ -68,7 +68,7 @@ int main() {
         .add_observable(BinnedObservableId{ObservableMapper::to_id(Observables::P_PRIME_8_B0__KSTAR0_MU_MU), {14.18, 16}}, QCDOrder::NNLO, true);
 
     std::shared_ptr<IStatParamOptimizerProxy> spop = std::make_shared<StatParamOptimizerProxy>();
-    auto model = std::make_shared<ObservableInterfaceAdapterObs>(oint, spop);
+    auto model = std::make_shared<ObservableInterfaceProxy>(oint, spop);
 
     StatisticConfig config;
     config.MLE_max_iter = 120000;

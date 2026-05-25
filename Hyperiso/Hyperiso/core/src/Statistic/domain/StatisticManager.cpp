@@ -1,127 +1,11 @@
 
 #include "StatisticManager.h"
-#include "ChiSquaredLikelihood.h"
-
-#include <limits>
-#include <numeric>
-#include <set>
-#include <random>
-
-bool starts_with(const std::string& s, const std::string& prefix) {
-    return s.size() >= prefix.size() &&
-           std::equal(prefix.begin(), prefix.end(), s.begin());
-}
 
 std::string param_name(const ParamId& pid) {
     std::ostringstream oss;
     oss << pid;
     return oss.str();
 }
-std::vector<std::size_t> select_indices_by_prefix(const std::vector<ParamId>& ids,
-                                                  const std::string& prefix)
-{
-    std::vector<std::size_t> out;
-    for (std::size_t i = 0; i < ids.size(); ++i) {
-        if (starts_with(param_name(ids[i]), prefix)) {
-            out.push_back(i);
-        }
-    }
-    return out;
-}
-
-std::vector<std::size_t> select_indices_by_names(const std::vector<ParamId>& ids,
-                                                 const std::set<std::string>& names)
-{
-    std::vector<std::size_t> out;
-    for (std::size_t i = 0; i < ids.size(); ++i) {
-        if (names.contains(param_name(ids[i]))) {
-            out.push_back(i);
-        }
-    }
-    return out;
-}
-
-RealMatrix principal_submatrix(const RealMatrix& M,
-                               const std::vector<std::size_t>& idx)
-{
-    RealMatrix out(idx.size(), idx.size());
-    for (std::size_t i = 0; i < idx.size(); ++i) {
-        for (std::size_t j = 0; j < idx.size(); ++j) {
-            out.at(i, j) = M.at(idx[i], idx[j]);
-        }
-    }
-    return out;
-}
-
-void log_smallest_mode(const RealMatrix& M,
-                       const std::vector<ParamId>& ids,
-                       const std::vector<std::size_t>& idx,
-                       const std::string& tag)
-{
-    std::cout << "[FIT] ---- " << tag << " ----\n";
-    std::cout << "[FIT] size=" << idx.size() << "\n";
-    if (idx.empty()) {
-        std::cout << "[FIT] empty block\n";
-        return;
-    }
-
-    RealMatrix S = principal_submatrix(M, idx);
-
-    double diag_min = std::numeric_limits<double>::infinity();
-    double diag_max = -std::numeric_limits<double>::infinity();
-    double max_abs_offdiag = 0.0;
-
-    for (std::size_t i = 0; i < S.rows(); ++i) {
-        diag_min = std::min(diag_min, S.at(i, i));
-        diag_max = std::max(diag_max, S.at(i, i));
-        for (std::size_t j = i + 1; j < S.cols(); ++j) {
-            max_abs_offdiag = std::max(max_abs_offdiag, std::abs(S.at(i, j)));
-        }
-    }
-
-    std::cout << "[FIT] diag_min=" << diag_min
-              << " diag_max=" << diag_max
-              << " max_abs_offdiag=" << max_abs_offdiag << "\n";
-
-    EigenSystem e = S.eig();
-
-    std::size_t imin = 0;
-    double evmin = e.D.at(0, 0);
-    for (std::size_t i = 1; i < S.rows(); ++i) {
-        if (e.D.at(i, i) < evmin) {
-            evmin = e.D.at(i, i);
-            imin = i;
-        }
-    }
-
-    std::cout << "[FIT] smallest_eigenvalue=" << evmin << "\n";
-
-    std::vector<std::pair<double, std::size_t>> comps;
-    for (std::size_t i = 0; i < idx.size(); ++i) {
-        comps.push_back({std::abs(e.P.at(i, imin)), i});
-    }
-
-    std::sort(comps.begin(), comps.end(),
-              [](const auto& a, const auto& b) { return a.first > b.first; });
-
-    std::cout << "[FIT] dominant entries of smallest mode:\n";
-    for (std::size_t k = 0; k < std::min<std::size_t>(10, comps.size()); ++k) {
-        const std::size_t local_i = comps[k].second;
-        const std::size_t global_i = idx[local_i];
-        std::cout << "[FIT]   " << ids[global_i]
-                  << " coeff=" << e.P.at(local_i, imin) << "\n";
-    }
-
-    std::cout << "[FIT] matrix entries:\n";
-    for (std::size_t i = 0; i < idx.size(); ++i) {
-        for (std::size_t j = 0; j < idx.size(); ++j) {
-            std::cout << "[FIT]   "
-                      << ids[idx[i]] << " | " << ids[idx[j]]
-                      << " = " << S.at(i, j) << "\n";
-        }
-    }
-}
-
 
 static void dump_matrix_sanity(const RealMatrix& M,
                                const std::vector<ParamId>& ids,
@@ -243,34 +127,6 @@ fit_app::ParameterDefinition make_fit_param_def(const ParamId& pid, double value
 
     if (nm.find("FCONST") != std::string::npos) {
         out.limits = std::make_pair(0.05, 0.35);
-    }
-
-    return out;
-}
-
-fit_app::ParameterDefinition make_nuisance_param_def(const ParamId& pid, double value, double sigma_hint) {
-    fit_app::ParameterDefinition out;
-    out.name = param_name(pid);
-    out.value = value;
-
-    const double s = (std::isfinite(sigma_hint) && sigma_hint > 0.0)
-        ? std::abs(sigma_hint)
-        : std::max(1e-3, 0.01 * std::abs(value));
-
-    out.step_hint = s;
-
-    const std::string& nm = out.name;
-
-    // TODO : Very ugly
-    if (nm.find("SMINPUTS:3") != std::string::npos) {
-        out.limits = std::make_pair(0.05, 0.30);
-    } else if (nm.find("MASS:") != std::string::npos ||
-            //    nm.find("FLIFE:") != std::string::npos ||
-               nm.find("FCONST:") != std::string::npos ||
-               nm.find("FMASS:") != std::string::npos ||
-               nm.find("SMINPUTS:5") != std::string::npos ||
-               nm.find("SMINPUTS:6") != std::string::npos) {
-        out.limits = std::make_pair(std::max(1e-12, value - 5.0 * s), value + 5.0 * s);
     }
 
     return out;
@@ -447,50 +303,6 @@ MLFitOptions make_mlfit_options_from_config(const StatisticConfig& config) {
 }
 
 
-
-void log_selected_nuisance_diagnostics(const std::vector<ParamId>& eta_ids,
-                                      const std::map<ParamId, std::map<ParamId, double>>& sigma_eta) {
-    std::cout << "[FIT] Selected nuisance parameters: " << eta_ids.size() << std::endl;
-    for (const auto& pid : eta_ids) {
-        std::cout << "[FIT]   nuisance " << pid << std::endl;
-    }
-
-    if (sigma_eta.empty()) {
-        std::cout << "[FIT] SigmaEta is empty" << std::endl;
-        return;
-    }
-
-    try {
-        RealMatrix sigma = RealMatrix(unzip(sigma_eta).vals);
-        std::cout << "[FIT] SigmaEta shape=" << sigma.rows() << "x" << sigma.cols()
-                  << ", symmetric=" << sigma.is_symmetric() << std::endl;
-
-        RealMatrix sym = 0.5 * (sigma + sigma.transpose());
-        EigenSystem eig = sym.eig();
-
-        double min_eig = std::numeric_limits<double>::infinity();
-        double max_eig = -std::numeric_limits<double>::infinity();
-        std::size_t non_pos = 0;
-        std::size_t tiny = 0;
-
-        for (std::size_t i = 0; i < eig.D.rows(); ++i) {
-            const double lambda = eig.D.at(i, i);
-            min_eig = std::min(min_eig, lambda);
-            max_eig = std::max(max_eig, lambda);
-            if (!(lambda > 0.0)) ++non_pos;
-            if (std::abs(lambda) < 1e-12) ++tiny;
-        }
-
-        std::cout << "[FIT] SigmaEta eig_min=" << min_eig
-                  << ", eig_max=" << max_eig
-                  << ", non_positive=" << non_pos
-                  << ", tiny(|eig|<1e-12)=" << tiny
-                  << std::endl;
-    } catch (const std::exception& e) {
-        std::cout << "[FIT] SigmaEta diagnostics failed: " << e.what() << std::endl;
-    }
-}
-
 }
 
 StatisticManager::StatisticManager(StatisticConfig config,
@@ -651,32 +463,35 @@ std::unique_ptr<JointDistribution> StatisticManager::build_exp_data_distribution
     return std::make_unique<JointDistribution>(std::move(marginals), std::move(copula));
 }
 
-static void scan_leave_one_out(const RealMatrix& M,
-                               const std::vector<ParamId>& ids,
-                               const std::vector<std::size_t>& idx,
-                               const std::string& tag)
-{
-    std::cout << "[FIT] ---- leave-one-out " << tag << " ----\n";
-    if (idx.size() <= 1) return;
+std::map<BinnedObservableId, GaussianSummary> StatisticManager::compute_uncertainties() {
+    auto sums = this->compute_uncertainties_and_sampling();
 
-    for (std::size_t k = 0; k < idx.size(); ++k) {
-        std::vector<std::size_t> sub;
-        sub.reserve(idx.size() - 1);
-        for (std::size_t i = 0; i < idx.size(); ++i) {
-            if (i != k) sub.push_back(idx[i]);
-        }
-
-        RealMatrix S = principal_submatrix(M, sub);
-        EigenSystem e = S.eig();
-
-        double evmin = e.D.at(0,0);
-        for (std::size_t i = 1; i < S.rows(); ++i) {
-            evmin = std::min(evmin, e.D.at(i,i));
-        }
-
-        std::cout << "[FIT] remove " << ids[idx[k]]
-                  << " => smallest_eigenvalue = " << evmin << "\n";
+    for (auto elem : this->merged_nuisance_specs_) {
+        std::cout << elem.first << std::endl;
+        std::cout << elem.second << std::endl;
+        std::cout << "-------------------" << std::endl;
     }
+    std::ofstream fs;
+    fs.open("samples.csv");        
+
+    std::map<BinnedObservableId, GaussianSummary> out;
+    for (const auto& gs : sums.summary) {
+        out[gs.id] = gs;
+        std::cout << gs << std::endl;
+    }
+    return out;
+}
+
+MCResult StatisticManager::compute_uncertainties_and_sampling() {
+    update_cache();
+    auto rvg = build_nuisance_distribution();
+    std::vector<ParamId> nuisance_ids = unzip(cache.eta_specs_real).ids;
+    RvgNuisanceSampler sampler(nuisance_ids, std::move(rvg));
+    MonteCarloEngine mc(this->obs_int, sampler, {this->config.MC_draws, this->config.skew_abs_threshold});
+
+    auto sums = mc.summarize(this->cache.p_specs);
+
+    return sums;
 }
 
 FitResultWithMaps StatisticManager::compute_MLE(const std::vector<ParamId>& p_specs) {
@@ -1010,6 +825,85 @@ void StatisticManager::print_cache()
     std::cout << "p_specs size : " << this->cache.p_specs.size() << std::endl;
     std::cout << "exp_obs : " << this->cache.exp_obs.size() << std::endl;
     std::cout << "SigmaObs size : " << this->cache.SigmaObs.size() << " | " << this->cache.SigmaObs.begin()->second.size() << std::endl;
+}
+
+void StatisticManager::update_cache(const std::vector<ParamId>& p_specs = std::vector<ParamId>()) {
+    if (selected_experiments_.has_value()) {
+        for (const auto& elem : *selected_experiments_) {
+            LOG_INFO("USING SELECTED EXPERIMENT: ", elem);
+        }
+    } else {
+        LOG_INFO("USING ALL EXPERIMENTS");
+    }
+
+    for (const auto& [tp, block] : last_detached_fit_blocks_) {
+        dp->reattach_block(tp, block);
+    }
+    for (const auto& pid : last_detached_fit_params_) {
+        if (pid.type.has_value()) {
+            dp->reattach_parameter(pid.type.value(), pid.block, pid.code);
+        }
+    }
+    last_detached_fit_blocks_.clear();
+    last_detached_fit_params_.clear();
+
+    cache.p_specs = this->get_p_specs(p_specs);
+
+    std::unordered_set<std::string> seen_blocks;
+
+    for (const auto& [pid, _] : cache.p_specs) {
+        if (!pid.type.has_value()) {
+            continue;
+        }
+
+        const auto tp = pid.type.value();
+        const std::string block_key =
+            std::to_string(static_cast<int>(tp)) + "::" + pid.block.to_string();
+
+        if (!seen_blocks.contains(block_key)) {
+            dp->detach_block(tp, pid.block);
+            last_detached_fit_blocks_.push_back({tp, pid.block});
+            seen_blocks.insert(block_key);
+        }
+
+        dp->detach_parameter(tp, pid.block, pid.code);
+        last_detached_fit_params_.push_back(pid);
+    }
+
+    cache.eta_specs_real = this->get_all_obss_deps();
+    for (const auto& [pid, _] : cache.p_specs)
+        cache.eta_specs_real.erase(pid);
+    
+    for (auto it = cache.eta_specs_real.begin(); it != cache.eta_specs_real.end(); ) {
+        const ParamId& pid = it->first;
+
+        if (pid.block.to_string().find("__BSM") != std::string::npos) {
+            LOG_INFO("Dropping BSM nuisance from cache", pid);
+            it = cache.eta_specs_real.erase(it);
+        } else {
+            ++it;
+        }
+    }
+
+    cache.SigmaEta = this->get_all_correlations();
+    cache.exp_obs = this->get_obs_exp();
+    cache.SigmaObs = this->get_all_obs_correlations();
+
+    std::ofstream fs;
+    fs.open("covariance.csv");
+    for (auto& [pid1, row] : cache.SigmaEta) {
+        double sigma_1 = std::abs(pspp->get_param(pid1)->get_combined_std().real());
+        for (auto& [pid2, corr] : row) {
+            double sigma_2 = std::abs(pspp->get_param(pid2)->get_combined_std().real());
+            if (pid2 == (*(--row.end())).first)
+                fs << corr * sigma_1 * sigma_2;    
+            else
+                fs << corr * sigma_1 * sigma_2 << ',';    
+        }
+        fs << '\n';
+    }
+
+    fs.close();
 }
 
 void StatisticManager::reload_nuisance_specs() {

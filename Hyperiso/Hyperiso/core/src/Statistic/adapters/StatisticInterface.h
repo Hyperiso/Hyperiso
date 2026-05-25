@@ -1,6 +1,6 @@
 #pragma once
 #include "StatisticManager.h"
-#include "ObservableInterfaceAdapter2.h"
+#include "ObservableInterfaceProxy.h"
 #include "StatCorrelationProxy.h"
 #include "StatParameterProxy.h"
 #include "ObservableInterface.h"
@@ -14,7 +14,7 @@ public:
     StatisticInterface(StatisticConfig config, std::shared_ptr<ObservableInterface> oi_) {
         std::shared_ptr<ObservableInterface> oi = oi_;
         std::shared_ptr<IStatParamOptimizerProxy> spop = std::make_shared<StatParamOptimizerProxy>();
-        std::shared_ptr<IModel> oia = std::make_shared<ObservableInterfaceAdapterObs>(oi, spop);
+        std::shared_ptr<IModel> oia = std::make_shared<ObservableInterfaceProxy>(oi, spop);
         std::shared_ptr<IStatCorrelationProxy> pscp = std::make_shared<StatCorrelationProxy>();
         std::shared_ptr<IStatParameterProxy> pspp = std::make_shared<StatParameterProxy>();
         std::shared_ptr<IStatSourcesProxy> sp = std::make_shared<StatParamSourcesProxy>();

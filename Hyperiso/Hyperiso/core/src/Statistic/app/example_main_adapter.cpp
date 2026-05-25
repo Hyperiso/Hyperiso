@@ -4,7 +4,7 @@
 
 
 #include "ObservableInterface.h"
-#include "ObservableInterfaceAdapter2.h"
+#include "ObservableInterfaceProxy.h"
 #include "RvgNuisanceSampler.h"
 #include "MCEngine.h"
 #include "Fit.h"
@@ -123,7 +123,7 @@ int main() {
         std::cout << std::endl;
     }
 
-    std::shared_ptr<ObservableInterfaceAdapterObs> model = std::make_shared<ObservableInterfaceAdapterObs> (oi, p_specs, eta_specs_real_with_corr);
+    std::shared_ptr<ObservableInterfaceProxy> model = std::make_shared<ObservableInterfaceProxy> (oi, p_specs, eta_specs_real_with_corr);
 
     // model->add_observables(obs_ids);
     std::cout << "creating RandomVectorGenerator" << std::endl;

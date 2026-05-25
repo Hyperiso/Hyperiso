@@ -407,6 +407,24 @@ public:
     void set_bkstarll_threads(size_t n_threads);
 
     /**
+     * @brief Set the thread option for the bkll decay
+     *
+     * Because bkll is one of the most time consuming calculation, multithreading is focused on it to improve calculation speed.
+     *
+     * @param n_threads Number of threads.
+     */
+    void set_bkll_threads(size_t n_threads);
+
+    /**
+     * @brief Set the thread option for the bsphi decay
+     *
+     * Because bsphi is one of the most time consuming calculation, multithreading is focused on it to improve calculation speed.
+     *
+     * @param n_threads Number of threads.
+     */
+    void set_bsphi_threads(size_t n_threads);
+
+    /**
      * @brief Access the underlying ports configuration (advanced use).
      *
      * @details
