@@ -824,6 +824,7 @@
 #include "FitAbstraction.h"
 #include "NuisanceReader.h"
 #include "DefaultNuisancePathsProvider.h"
+#include "BlockProxy.h"
 
 namespace {
 
@@ -917,6 +918,10 @@ int main() {
     config_hyp.model = Model::SM;
     hyp.init("lha/si_input.flha", config_hyp);
 
+    
+
+    BlockProxy().log_block(ParameterType::DECAY, "B_Xsll");
+
     auto oint = std::make_shared<ObservableInterface>();
         // ============================================================
         // Observables: STRICTEMENT ceux du fichier "Texte collé(7).txt"
@@ -956,10 +961,10 @@ int main() {
         add_unbinned(O::BR_B_XS_GAMMA); // 002 BR_BXsgamma
         add_unbinned(O::BR_BS_MUMU_UNTAG); // 003 BRuntag_Bsmumu
         // add_unbinned(O::BR_BS_EE_UNTAG); // 004 BRuntag_Bsee //TODO : add this
-        // add_bin(O::BR_B__Xs_mu_mu, 1, 6); // 005 BR_BXsmumu_1_6
-        // add_bin(O::BR_B__Xs_mu_mu, 14.2, 22); // 006 BR_BXsmumu_14.2_22
-        // add_bin(O::BR_B__Xs_e_e, 1, 6); // 007 BR_BXsee_1_6
-        // add_bin(O::BR_B__Xs_e_e, 14.2, 22); // 008 BR_BXsee_14.2_22
+        add_bin(O::BR_B__Xs_mu_mu, 1, 6); // 005 BR_BXsmumu_1_6
+        add_bin(O::BR_B__Xs_mu_mu, 14.2, 22); // 006 BR_BXsmumu_14.2_22
+        add_bin(O::BR_B__Xs_e_e, 1, 6); // 007 BR_BXsee_1_6
+        add_bin(O::BR_B__Xs_e_e, 14.2, 22); // 008 BR_BXsee_14.2_22
         add_unbinned(O::BR_B0__KSTAR0_GAMMA); // 009 BR_B0Kstar0gamma
         add_unbinned(O::BR_B__KSTAR_GAMMA); // 010 BR_BKstargamma
         add_bin(O::DGAMMA_DQ2_B__KSTAR_MU_MU, 1.1, 6); // 011 dGamma/dq2_BKstarmumu_1.1_6
@@ -970,11 +975,11 @@ int main() {
         add_bin(O::R_1_B0__KSTAR0_L_L, 1.1, 6); // 016 R-1_B0Kstar0ll_1.1_6_Belle
         add_bin(O::R_1_B0__KSTAR0_L_L, 15, 19); // 017 R-1_B0Kstar0ll_15_19_Belle
         add_bin(O::DGAMMA_DQ2_B0__K0_MU_MU, 1.1, 6); // 018 dGamma/dq2_B0K0mumu_1.1_6
-        // add_bin(O::DGAMMA_DQ2_B0__K0_MU_MU, 15, 22); // 019 dGamma/dq2_B0K0mumu_15_22
+        add_bin(O::DGAMMA_DQ2_B0__K0_MU_MU, 15, 22); // 019 dGamma/dq2_B0K0mumu_15_22
         add_bin(O::DGAMMA_DQ2_B__K_MU_MU, 1.1, 6); // 020 dGamma/dq2_BKmumu_1.1_6
         add_bin(O::F_H_B__K_MU_MU, 1.1, 6); // 021 FH_BKmumu_1.1_6
-        // add_bin(O::DGAMMA_DQ2_B__K_MU_MU, 15, 22); // 022 dGamma/dq2_BKmumu_15_22
-        // add_bin(O::F_H_B__K_MU_MU, 15, 22); // 023 FH_BKmumu_15_22
+        add_bin(O::DGAMMA_DQ2_B__K_MU_MU, 15, 22); // 022 dGamma/dq2_BKmumu_15_22
+        add_bin(O::F_H_B__K_MU_MU, 15, 22); // 023 FH_BKmumu_15_22
         add_bin(O::R_1_B__K_L_L, 0.1, 1.1); // 024 R-1_BKll_0.1_1.1
         add_bin(O::R_1_B__K_L_L, 1.1, 6); // 025 R-1_BKll_1.1_6
         add_bin(O::DGAMMA_DQ2_BS__PHI_MU_MU, 0.1, 0.98); // 026 dGamma/dq2_Bsphimumu_0.1_0.98
@@ -1053,14 +1058,15 @@ int main() {
         add_bin(O::S_9_B__KSTAR_MU_MU, 17, 19); // 099 S9_BKstarmumu_17_19
         add_bin(O::R_1_B__KSTAR_L_L, 0.045, 6); // 100 R-1_BKstarll_0.045_6
         // // TODO missing enum/mapping: 101 R-1_B0K0ll_1.1_6
+        add_bin(O::R_1_B0__K0_L_L, 1.1, 6);
         add_bin(O::R_1_B__K_L_L, 1, 6); // 102 R-1_BKll_1_6_Belle
         add_bin(O::F_H_B__K_MU_MU, 1, 6); // 103 FH_BKmumu_1_6_CMS
 
 
-        // add_bin(O::DGAMMA_DQ2_B0__KSTAR0_E_E, 0.0009, 1); // 104 dGamma/dq2_B0Kstar0ee_0.0009_1 //[2026-05-24_01] [WARN] Rejected MC nuisance sample 1 while trying to fill accepted sample 1 of 1000 : MC prediction contains non-finite observable
-        // add_bin(O::F_L_B0__KSTAR0_E_E, 0.0008, 0.257); // 105 FL_B0Kstar0ee_0.0008_0.257 //Rejected MC nuisance sample 125 while trying to fill accepted sample 1 of 1000 : MC prediction contains non-finite observable
-        // add_bin(O::A_T_RE_B0__KSTAR0_E_E, 0.0008, 0.257); // 106 ATRe_B0Kstar0ee_0.0008_0.257 //[2026-05-24_01] [WARN] Rejected MC nuisance sample 1 while trying to fill accepted sample 1 of 1000 : MC prediction contains non-finite observable
-        // add_bin(O::A_T_2_B0__KSTAR0_E_E, 0.0008, 0.257); // 107 AT2_B0Kstar0ee_0.0008_0.257 // [2026-05-24_01] [WARN] Rejected MC nuisance sample 1 while trying to fill accepted sample 1 of 1000 : MC prediction contains non-finite observable
+        add_bin(O::DGAMMA_DQ2_B0__KSTAR0_E_E, 0.0009, 1); // 104 dGamma/dq2_B0Kstar0ee_0.0009_1 //[2026-05-24_01] [WARN] Rejected MC nuisance sample 1 while trying to fill accepted sample 1 of 1000 : MC prediction contains non-finite observable
+        add_bin(O::F_L_B0__KSTAR0_E_E, 0.0008, 0.257); // 105 FL_B0Kstar0ee_0.0008_0.257 //Rejected MC nuisance sample 125 while trying to fill accepted sample 1 of 1000 : MC prediction contains non-finite observable
+        add_bin(O::A_T_RE_B0__KSTAR0_E_E, 0.0008, 0.257); // 106 ATRe_B0Kstar0ee_0.0008_0.257 //[2026-05-24_01] [WARN] Rejected MC nuisance sample 1 while trying to fill accepted sample 1 of 1000 : MC prediction contains non-finite observable
+        add_bin(O::A_T_2_B0__KSTAR0_E_E, 0.0008, 0.257); // 107 AT2_B0Kstar0ee_0.0008_0.257 // [2026-05-24_01] [WARN] Rejected MC nuisance sample 1 while trying to fill accepted sample 1 of 1000 : MC prediction contains non-finite observable
         add_bin(O::DGAMMA_DQ2_B__K_MU_MU, 0.1, 0.98); // 108 dGamma/dq2_BKmumu_0.1_0.98_CMS
         add_bin(O::DGAMMA_DQ2_B__K_MU_MU, 1.1, 2); // 109 dGamma/dq2_BKmumu_1.1_2_CMS
         add_bin(O::DGAMMA_DQ2_B__K_MU_MU, 2, 3); // 110 dGamma/dq2_BKmumu_2_3_CMS
@@ -1071,7 +1077,7 @@ int main() {
         add_bin(O::DGAMMA_DQ2_B__K_MU_MU, 16, 17); // 115 dGamma/dq2_BKmumu_16_17_CMS
         add_bin(O::DGAMMA_DQ2_B__K_MU_MU, 17, 18); // 116 dGamma/dq2_BKmumu_17_18_CMS
         add_bin(O::DGAMMA_DQ2_B__K_MU_MU, 18, 19.24); // 117 dGamma/dq2_BKmumu_18_19.24_CMS
-        // add_bin(O::DGAMMA_DQ2_B__K_MU_MU, 19.24, 22.9); // 118 dGamma/dq2_BKmumu_19.24_22.9_CMS
+        add_bin(O::DGAMMA_DQ2_B__K_MU_MU, 19.24, 22.9); // 118 dGamma/dq2_BKmumu_19.24_22.9_CMS
 
         //FIRST STOP
         add_bin(O::R_1_B__K_L_L, 1.1, 6); // 119 R-1_BKll_1.1_6_CMS
@@ -1113,9 +1119,9 @@ int main() {
         add_bin(O::R_1_BS__PHI_L_L, 0.1, 1.1); // 155 R-1_Bsphill_0.1_1.1
         add_bin(O::R_1_BS__PHI_L_L, 1.1, 6); // 156 R-1_Bsphill_1.1_6
         add_bin(O::R_1_BS__PHI_L_L, 15, 19); // 157 R-1_Bsphill_15_19 //[2026-05-24_01] [WARN] Rejected MC nuisance sample 1 while trying to fill accepted sample 1 of 1000 : MC prediction contains non-finite observable
-        // add_bin(O::F_L_BS_PHI_E_E, 0.0009, 0.2615); // 158 FL_Bsphiee_0.0009_0.2615 //[2026-05-24_01] [WARN] Rejected MC nuisance sample 1 while trying to fill accepted sample 1 of 1000 : MC prediction contains non-finite observable
-        // add_bin(O::A_T_2_BS_PHI_E_E, 0.0009, 0.2615); // 159 AT2_Bsphiee_0.0009_0.2615 //[2026-05-24_01] [WARN] Rejected MC nuisance sample 1 while trying to fill accepted sample 1 of 1000 : MC prediction contains non-finite observable
-        // add_bin(O::A_T_2_B0__KSTAR0_E_E, 0.0008, 1.12); // 160 AT2_B0Kstar0ee_0.0008_1.12_Belle //[2026-05-24_01] [WARN] Rejected MC nuisance sample 1 while trying to fill accepted sample 1 of 1000 : MC prediction contains non-finite observable
+        add_bin(O::F_L_BS_PHI_E_E, 0.0009, 0.2615); // 158 FL_Bsphiee_0.0009_0.2615 //[2026-05-24_01] [WARN] Rejected MC nuisance sample 1 while trying to fill accepted sample 1 of 1000 : MC prediction contains non-finite observable
+        add_bin(O::A_T_2_BS_PHI_E_E, 0.0009, 0.2615); // 159 AT2_Bsphiee_0.0009_0.2615 //[2026-05-24_01] [WARN] Rejected MC nuisance sample 1 while trying to fill accepted sample 1 of 1000 : MC prediction contains non-finite observable
+        add_bin(O::A_T_2_B0__KSTAR0_E_E, 0.0008, 1.12); // 160 AT2_B0Kstar0ee_0.0008_1.12_Belle //[2026-05-24_01] [WARN] Rejected MC nuisance sample 1 while trying to fill accepted sample 1 of 1000 : MC prediction contains non-finite observable
         add_bin(O::F_L_B0__KSTAR0_E_E, 1.1, 6); // 161 FL_B0Kstar0ee_1.1_6
         add_bin(O::P_1_B0__KSTAR0_E_E, 1.1, 6); // 162 P1_B0Kstar0ee_1.1_6
         add_bin(O::P_2_B0__KSTAR0_E_E, 1.1, 6); // 163 P2_B0Kstar0ee_1.1_6
@@ -1197,7 +1203,7 @@ int main() {
     config.MLE_trace_first_evals  = true;
     config.MLE_trace_max_evals  = 20;
     config.likelihood_mode = StatisticLikelihoodMode::CHI2_MC_COVARIANCE;
-    config.MC_draws = 500;
+    config.MC_draws = 100;
     config.nuisance_sensitivity_contexts = -1;
     const std::string had_bsm_block =
         GroupMapper::str(WGroup::B, ScaleType::HADRONIC, WilsonBasis::B_STANDARD)

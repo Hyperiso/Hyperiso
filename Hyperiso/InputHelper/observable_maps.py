@@ -493,6 +493,7 @@ OBSERVABLE_MAPPING = {
     'R_1_BS__PHI_L_L': 'R-1_Bs__phi_l_l',
     'R_1_B__KSTAR_L_L': 'R-1_B__K*_l_l',
     'R_1_B__K_L_L': 'R-1_B__K_l_l',
+    'R_1_B0__K0_L_L': 'R-1_B0__K0_l_l',
 }
 
 OBSERVABLE_FLHA_MAPPING = {
@@ -984,6 +985,7 @@ OBSERVABLE_FLHA_MAPPING = {
     'R_1_BS__PHI_L_L': [531, 9121, 3, 333, 13, -13],
     'R_1_B__KSTAR_L_L': [521, 9121, 3, 323, 13, -13],
     'R_1_B__K_L_L': [521, 9121, 3, 321, 13, -13],
+    'R_1_B0__K0_L_L': [511, 9121, 3, 311, 13, -13],
 }
 
 MANUAL_LEGACY_ALIASES = {
@@ -1064,14 +1066,14 @@ MANUAL_LEGACY_ALIASES = {
     "S8_BKstarmumu": 'S_8_B__KSTAR_MU_MU',
     "S9_B0Kstar0ee": 'S_9_B0__KSTAR0_E_E',
     "S9_BKstarmumu": 'S_9_B__KSTAR_MU_MU',
-    "dGamma/dq2_B0K0mumu": 'DBR_DQ2_B0__K0_MU_MU',
-    "dGamma/dq2_BKee": 'DBR_DQ2_B__K_E_E',
-    "dGamma/dq2_BKmumu": 'DBR_DQ2_B__K_MU_MU',
+    "dGamma/dq2_B0K0mumu": 'DGAMMA_DQ2_B0__K0_MU_MU',
+    "dGamma/dq2_BKee": 'DGAMMA_DQ2_B__K_E_E',
+    "dGamma/dq2_BKmumu": 'DGAMMA_DQ2_B__K_MU_MU',
     "dGamma/dq2_BKstarmumu": 'DBR_DQ2_B__KSTAR_MU_MU',
-    "dGamma/dq2_Bsphiee": 'DBR_DQ2_BS__PHI_E_E',
-    "dGamma/dq2_Bsphimumu": 'DBR_DQ2_BS__PHI_MU_MU',
+    "dGamma/dq2_Bsphiee": 'DGAMMA_DQ2_BS__PHI_E_E',
+    "dGamma/dq2_Bsphimumu": 'DGAMMA_DQ2_BS__PHI_MU_MU',
     "dGamma/dq2_LambdabLambdamumu": 'DBR_DQ2_LAMBDA_B__LAMBDA_MU_MU',
-    'R-1_B0K0ll': 'R_1_B__K_L_L',
+    'R-1_B0K0ll': 'R_1_B0__K0_L_L',
     'R-1_B0Kstar0ll': 'R_1_B0__KSTAR0_L_L',
     'R-1_BKll': 'R_1_B__K_L_L',
     'R-1_BKstarll': 'R_1_B__KSTAR_L_L',

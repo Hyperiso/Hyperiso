@@ -230,14 +230,37 @@ complex_t BKllDecay::T_P_cached(double q2) {
     return lerp(q2, cache.T_P_lookup, cache.q2_min, cache.q2_high);
 }
 
+//TODO :: Niels check
+// double BKllDecay::beta_l(double q2) {
+//     return std::sqrt(1 - std::pow(2 * cache.m_l, 2) / q2);
+// }
+
+// double BKllDecay::lambda(double q2) {
+//     double mB2 = cache.m_B * cache.m_B;
+//     double mK2 = cache.m_K * cache.m_K;
+//     return mB2 * mB2 + mK2 * mK2 + q2 * q2 - 2. * (mB2 * mK2 + (mB2 + mK2) * q2);
+// }
+
+// double BKllDecay::N(double q2) {
+//     return cache.N_0 * std::sqrt(lambda(q2)) * beta_l(q2);
+// }
+
 double BKllDecay::beta_l(double q2) {
-    return std::sqrt(1 - std::pow(2 * cache.m_l, 2) / q2);
+    const double x = 1.0 - std::pow(2.0 * cache.m_l, 2) / q2;
+    return std::sqrt(std::max(0.0, x));
 }
 
 double BKllDecay::lambda(double q2) {
-    double mB2 = cache.m_B * cache.m_B;
-    double mK2 = cache.m_K * cache.m_K;
-    return mB2 * mB2 + mK2 * mK2 + q2 * q2 - 2. * (mB2 * mK2 + (mB2 + mK2) * q2);
+    const double mB2 = cache.m_B * cache.m_B;
+    const double mK2 = cache.m_K * cache.m_K;
+
+    const double lam =
+        mB2 * mB2
+        + mK2 * mK2
+        + q2 * q2
+        - 2.0 * (mB2 * mK2 + (mB2 + mK2) * q2);
+
+    return std::max(0.0, lam);
 }
 
 double BKllDecay::N(double q2) {
@@ -413,6 +436,149 @@ double BKllDecay::c(double q2) {
 //     }
 // }
 
+//TODO :: Niels check
+// void BKllDecay::compute_binned_abc() {
+//     for (auto& v : cache.abc_binned) {
+//         v.clear();
+//     }
+
+//     if (!this->bins.has_value()) {
+//         LOG_WARN("BKllDecay::compute_binned_abc called without bins.");
+//         return;
+//     }
+
+//     for (auto [q2_l, q2_u] : this->bins.value()) {
+//         const double eps = 1e-8;
+
+//         double low  = std::max(q2_l, cache.q2_min + eps);
+//         double high = std::min(q2_u, cache.q2_max - eps);
+
+//         // LOG_INFO(
+//         //     "BKllDecay integrating bin [",
+//         //     q2_l,
+//         //     ",",
+//         //     q2_u,
+//         //     "] clipped to [",
+//         //     low,
+//         //     ",",
+//         //     high,
+//         //     "] for lepton=",
+//         //     static_cast<int>(cfg.gen),
+//         //     " charge=",
+//         //     static_cast<int>(cfg.charge)
+//         // );
+
+//         if (!(low < high)) {
+//             LOG_WARN(
+//                 "Skipping invalid BKll bin [",
+//                 q2_l,
+//                 ",",
+//                 q2_u,
+//                 "] after clipping to [",
+//                 low,
+//                 ",",
+//                 high,
+//                 "]"
+//             );
+
+//             cache.abc_binned[0].emplace_back(std::numeric_limits<double>::quiet_NaN());
+//             cache.abc_binned[1].emplace_back(std::numeric_limits<double>::quiet_NaN());
+//             cache.abc_binned[2].emplace_back(std::numeric_limits<double>::quiet_NaN());
+//             continue;
+//         }
+
+//         cache.abc_binned[0].emplace_back(
+//             integrate([&] (double q2) { return a(q2); }, low, high, 1e-3)
+//         );
+
+//         cache.abc_binned[1].emplace_back(
+//             integrate([&] (double q2) { return b(q2); }, low, high, 1e-3)
+//         );
+
+//         cache.abc_binned[2].emplace_back(
+//             integrate([&] (double q2) { return c(q2); }, low, high, 1e-3)
+//         );
+//     }
+// }
+
+// void BKllDecay::compute_binned_abc() {
+//     for (auto& v : cache.abc_binned) {
+//         v.clear();
+//     }
+
+//     if (!this->bins.has_value()) {
+//         LOG_WARN("BKllDecay::compute_binned_abc called without bins.");
+//         return;
+//     }
+
+//     constexpr double q2_min_eps = 1e-8;
+//     constexpr double endpoint_eps = 1e-2; // important: pas 1e-8 près du endpoint
+
+//     for (auto [q2_l, q2_u] : this->bins.value()) {
+//         const double low = std::max(q2_l, cache.q2_min + q2_min_eps);
+//         const double high = std::min(q2_u, cache.q2_max - endpoint_eps);
+
+//         if (q2_u > cache.q2_max) {
+//             // LOG_WARN(
+//             //     "BKll bin [", q2_l, ",", q2_u,
+//             //     "] exceeds physical endpoint q2_max = ", cache.q2_max,
+//             //     ". Clipping to [", low, ",", high, "]"
+//             // );
+//         }
+
+//         if (!(low < high)) {
+//             LOG_WARN(
+//                 "Skipping invalid BKll bin [",
+//                 q2_l,
+//                 ",",
+//                 q2_u,
+//                 "] after clipping to [",
+//                 low,
+//                 ",",
+//                 high,
+//                 "]"
+//             );
+
+//             cache.abc_binned[0].emplace_back(std::numeric_limits<double>::quiet_NaN());
+//             cache.abc_binned[1].emplace_back(std::numeric_limits<double>::quiet_NaN());
+//             cache.abc_binned[2].emplace_back(std::numeric_limits<double>::quiet_NaN());
+//             continue;
+//         }
+
+//         try {
+//             cache.abc_binned[0].emplace_back(
+//                 integrate([&](double q2) { return a(q2); }, low, high, 1e-3)
+//             );
+
+//             cache.abc_binned[1].emplace_back(
+//                 integrate([&](double q2) { return b(q2); }, low, high, 1e-3)
+//             );
+
+//             cache.abc_binned[2].emplace_back(
+//                 integrate([&](double q2) { return c(q2); }, low, high, 1e-3)
+//             );
+//         } catch (const std::exception& e) {
+//             LOG_WARN(
+//                 "BKll integration failed for bin [",
+//                 q2_l,
+//                 ",",
+//                 q2_u,
+//                 "] clipped to [",
+//                 low,
+//                 ",",
+//                 high,
+//                 "]: ",
+//                 e.what()
+//             );
+
+//             cache.abc_binned[0].emplace_back(std::numeric_limits<double>::quiet_NaN());
+//             cache.abc_binned[1].emplace_back(std::numeric_limits<double>::quiet_NaN());
+//             cache.abc_binned[2].emplace_back(std::numeric_limits<double>::quiet_NaN());
+//         }
+//     }
+// }
+
+//TODO :: Niels wtf, cannot do otherwise
 void BKllDecay::compute_binned_abc() {
     for (auto& v : cache.abc_binned) {
         v.clear();
@@ -423,26 +589,29 @@ void BKllDecay::compute_binned_abc() {
         return;
     }
 
+    constexpr double q2_min_eps = 1e-8;
+    constexpr double endpoint_eps = 1e-2;
+    constexpr double shat_eps = 1e-3;
+
+    const double q2_qcdf_max = cache.m_b_PS * cache.m_b_PS * (1.0 - shat_eps);
+
     for (auto [q2_l, q2_u] : this->bins.value()) {
-        const double eps = 1e-8;
+        const double low = std::max(q2_l, cache.q2_min + q2_min_eps);
 
-        double low  = std::max(q2_l, cache.q2_min + eps);
-        double high = std::min(q2_u, cache.q2_max - eps);
+        const double high = std::min({
+            q2_u,
+            cache.q2_max - endpoint_eps,
+            q2_qcdf_max
+        });
 
-        // LOG_INFO(
-        //     "BKllDecay integrating bin [",
-        //     q2_l,
-        //     ",",
-        //     q2_u,
-        //     "] clipped to [",
-        //     low,
-        //     ",",
-        //     high,
-        //     "] for lepton=",
-        //     static_cast<int>(cfg.gen),
-        //     " charge=",
-        //     static_cast<int>(cfg.charge)
-        // );
+        if (q2_u > high) {
+            // LOG_WARN(
+            //     "BKll bin [", q2_l, ",", q2_u,
+            //     "] clipped to [", low, ",", high,
+            //     "] because q2_max = ", cache.q2_max,
+            //     " and m_b_PS^2 safe max = ", q2_qcdf_max
+            // );
+        }
 
         if (!(low < high)) {
             LOG_WARN(
@@ -463,17 +632,34 @@ void BKllDecay::compute_binned_abc() {
             continue;
         }
 
-        cache.abc_binned[0].emplace_back(
-            integrate([&] (double q2) { return a(q2); }, low, high, 1e-3)
-        );
+        try {
+            cache.abc_binned[0].emplace_back(
+                integrate([&](double q2) { return a(q2); }, low, high, 1e-3)
+            );
+            cache.abc_binned[1].emplace_back(
+                integrate([&](double q2) { return b(q2); }, low, high, 1e-3)
+            );
+            cache.abc_binned[2].emplace_back(
+                integrate([&](double q2) { return c(q2); }, low, high, 1e-3)
+            );
+        } catch (const std::exception& e) {
+            LOG_WARN(
+                "BKll integration failed for bin [",
+                q2_l,
+                ",",
+                q2_u,
+                "] clipped to [",
+                low,
+                ",",
+                high,
+                "]: ",
+                e.what()
+            );
 
-        cache.abc_binned[1].emplace_back(
-            integrate([&] (double q2) { return b(q2); }, low, high, 1e-3)
-        );
-
-        cache.abc_binned[2].emplace_back(
-            integrate([&] (double q2) { return c(q2); }, low, high, 1e-3)
-        );
+            cache.abc_binned[0].emplace_back(std::numeric_limits<double>::quiet_NaN());
+            cache.abc_binned[1].emplace_back(std::numeric_limits<double>::quiet_NaN());
+            cache.abc_binned[2].emplace_back(std::numeric_limits<double>::quiet_NaN());
+        }
     }
 }
 
@@ -529,6 +715,10 @@ std::vector<ObservableValue> BKllDecay::Rm1_BK(Observables id, BKllConfig::B_Cha
 std::vector<ObservableValue> BKllDecay::compute_observable(Observables obs) {
     if (obs == Observables::R_1_B__K_L_L) {
         return Rm1_BK(obs, BKllConfig::B_Charge::B_PLUS);
+    }
+    //TODO :: Niels check
+    if (obs == Observables::R_1_B0__K0_L_L) {
+        return Rm1_BK(obs, BKllConfig::B_Charge::B_0);
     }
 
     auto it = BKllDecay::cfg_map.find(obs);

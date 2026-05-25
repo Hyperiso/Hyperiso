@@ -9,6 +9,19 @@
 
 using Charge = BKstarllConfig::B_Charge;
 
+static double finite_or_nan(double x) {
+    return std::isfinite(x) ? x : std::numeric_limits<double>::quiet_NaN();
+}
+
+static double safe_div(double num, double den, const char* name) {
+    if (!std::isfinite(num) || !std::isfinite(den) || std::abs(den) < 1e-30) {
+        LOG_WARN(name, "non-finite/singular ratio: num =", num, "den =", den);
+        return std::numeric_limits<double>::quiet_NaN();
+    }
+
+    return num / den;
+}
+
 void BKstarllDecay::load_params() {
     fill_wilson_cache();
 
@@ -204,6 +217,7 @@ void BKstarllDecay::load_cfg_dependent_params() {
     cache.q2_min = 4 * std::pow(cache.m_l, 2);
     cache.q2_max = std::pow(cache.m_B - cache.m_Ks, 2);
 
+    cache.q2_lookup_min = std::max(cache.q2_min, 1e-4);
     if (cfg.ff_type == B_FF_Type::SOFT || cfg.power_corr_impl == BKstarllConfig::Power_Corrections_Impl::BFS) {
         auto requested_threads = cfg.n_threads;
         if (requested_threads == 0u) {
@@ -215,22 +229,44 @@ void BKstarllDecay::load_cfg_dependent_params() {
 
         const size_t npts = BKstarllCache::LOOKUP_SIZE;
         const size_t nworkers = std::min<size_t>(requested_threads, npts);
-
+        //TODO :: Niels : check
         if (nworkers <= 1u) {
             // Chemin original conservé tel quel quand n_threads == 1.
-            auto lam_T_perp_p = [this] (double q2, bool bar) { return cache.qcdf_calculator.T_perp_p(q2, bar); };
-            fill_cache(lam_T_perp_p, cache.q2_min, cache.q2_high, cache.T_perp_p_lookup, false);
-            fill_cache(lam_T_perp_p, cache.q2_min, cache.q2_high, cache.T_perp_p_bar_lookup, true);
+            // auto lam_T_perp_p = [this] (double q2, bool bar) { return cache.qcdf_calculator.T_perp_p(q2, bar); };
+            // fill_cache(lam_T_perp_p, cache.q2_min, cache.q2_high, cache.T_perp_p_lookup, false);
+            // fill_cache(lam_T_perp_p, cache.q2_min, cache.q2_high, cache.T_perp_p_bar_lookup, true);
 
-            auto lam_T_perp_m = [this] (double q2, bool bar) { return cache.qcdf_calculator.T_perp_m(q2, bar); };
-            fill_cache(lam_T_perp_m, cache.q2_min, cache.q2_high, cache.T_perp_m_lookup, false);
-            fill_cache(lam_T_perp_m, cache.q2_min, cache.q2_high, cache.T_perp_m_bar_lookup, true);
+            // auto lam_T_perp_m = [this] (double q2, bool bar) { return cache.qcdf_calculator.T_perp_m(q2, bar); };
+            // fill_cache(lam_T_perp_m, cache.q2_min, cache.q2_high, cache.T_perp_m_lookup, false);
+            // fill_cache(lam_T_perp_m, cache.q2_min, cache.q2_high, cache.T_perp_m_bar_lookup, true);
 
-            auto lam_T_par_m = [this] (double q2, bool bar) { return cache.qcdf_calculator.T_par_m(q2, bar); };
-            fill_cache(lam_T_par_m, cache.q2_min, cache.q2_high, cache.T_par_m_lookup, false);
-            fill_cache(lam_T_par_m, cache.q2_min, cache.q2_high, cache.T_par_m_bar_lookup, true);
+            // auto lam_T_par_m = [this] (double q2, bool bar) { return cache.qcdf_calculator.T_par_m(q2, bar); };
+            // fill_cache(lam_T_par_m, cache.q2_min, cache.q2_high, cache.T_par_m_lookup, false);
+            // fill_cache(lam_T_par_m, cache.q2_min, cache.q2_high, cache.T_par_m_bar_lookup, true);
+
+            auto lam_T_perp_p = [this] (double q2, bool bar) {
+                return cache.qcdf_calculator.T_perp_p(q2, bar);
+            };
+
+            fill_cache(lam_T_perp_p, cache.q2_lookup_min, cache.q2_high, cache.T_perp_p_lookup, false);
+            fill_cache(lam_T_perp_p, cache.q2_lookup_min, cache.q2_high, cache.T_perp_p_bar_lookup, true);
+
+            auto lam_T_perp_m = [this] (double q2, bool bar) {
+                return cache.qcdf_calculator.T_perp_m(q2, bar);
+            };
+
+            fill_cache(lam_T_perp_m, cache.q2_lookup_min, cache.q2_high, cache.T_perp_m_lookup, false);
+            fill_cache(lam_T_perp_m, cache.q2_lookup_min, cache.q2_high, cache.T_perp_m_bar_lookup, true);
+
+            auto lam_T_par_m = [this] (double q2, bool bar) {
+                return cache.qcdf_calculator.T_par_m(q2, bar);
+            };
+
+            fill_cache(lam_T_par_m, cache.q2_lookup_min, cache.q2_high, cache.T_par_m_lookup, false);
+            fill_cache(lam_T_par_m, cache.q2_lookup_min, cache.q2_high, cache.T_par_m_bar_lookup, true);
         } else {
-            const double x_min = cache.q2_min;
+            // const double x_min = cache.q2_min;
+            const double x_min = cache.q2_lookup_min;
             const double x_max = cache.q2_high;
             const double step = (x_max - x_min) / static_cast<double>(npts - 1);
 
@@ -352,31 +388,89 @@ void BKstarllDecay::set_lepton_gen_and_charge(BKstarllConfig::Lepton gen, BKstar
     }
 }
 
+//TODO :: Niels : check
+// complex_t BKstarllDecay::T_perp_p_cached(double q2, bool bar) {
+//     return lerp(q2, bar ? cache.T_perp_p_bar_lookup : cache.T_perp_p_lookup, cache.q2_min, cache.q2_high);
+// }
+
+// complex_t BKstarllDecay::T_perp_m_cached(double q2, bool bar) {
+//     return lerp(q2, bar ? cache.T_perp_m_bar_lookup : cache.T_perp_m_lookup, cache.q2_min, cache.q2_high);
+// }
+
+// complex_t BKstarllDecay::T_par_m_cached(double q2, bool bar) {
+//     return lerp(q2, bar ? cache.T_par_m_bar_lookup : cache.T_par_m_lookup, cache.q2_min, cache.q2_high);
+// }
+
 complex_t BKstarllDecay::T_perp_p_cached(double q2, bool bar) {
-    return lerp(q2, bar ? cache.T_perp_p_bar_lookup : cache.T_perp_p_lookup, cache.q2_min, cache.q2_high);
+    const double x = std::clamp(q2, cache.q2_lookup_min, cache.q2_high);
+    return lerp(
+        x,
+        bar ? cache.T_perp_p_bar_lookup : cache.T_perp_p_lookup,
+        cache.q2_lookup_min,
+        cache.q2_high
+    );
 }
 
 complex_t BKstarllDecay::T_perp_m_cached(double q2, bool bar) {
-    return lerp(q2, bar ? cache.T_perp_m_bar_lookup : cache.T_perp_m_lookup, cache.q2_min, cache.q2_high);
+    const double x = std::clamp(q2, cache.q2_lookup_min, cache.q2_high);
+    return lerp(
+        x,
+        bar ? cache.T_perp_m_bar_lookup : cache.T_perp_m_lookup,
+        cache.q2_lookup_min,
+        cache.q2_high
+    );
 }
 
 complex_t BKstarllDecay::T_par_m_cached(double q2, bool bar) {
-    return lerp(q2, bar ? cache.T_par_m_bar_lookup : cache.T_par_m_lookup, cache.q2_min, cache.q2_high);
+    const double x = std::clamp(q2, cache.q2_lookup_min, cache.q2_high);
+    return lerp(
+        x,
+        bar ? cache.T_par_m_bar_lookup : cache.T_par_m_lookup,
+        cache.q2_lookup_min,
+        cache.q2_high
+    );
 }
 
+//TODO :: Niels check
+// double BKstarllDecay::beta_l(double q2) {
+//     return std::sqrt(1 - 4. * cache.m_l * cache.m_l / q2);
+// }
+
+// double BKstarllDecay::lambda(double q2) {
+//     double mB2 = cache.m_B * cache.m_B;
+//     double mK2 = cache.m_Ks * cache.m_Ks;
+//     return mB2 * mB2 + mK2 * mK2 + q2 * q2 - 2. * (mB2 * mK2 + (mB2 + mK2) * q2);
+// }
+
+// complex_t BKstarllDecay::N(double q2, bool bar) {
+//     complex_t N0 = bar ? std::conj(cache.N_0) : cache.N_0; 
+//     return N0 * std::sqrt(q2 * beta_l(q2) * std::sqrt(lambda(q2)));
+// }
+
 double BKstarllDecay::beta_l(double q2) {
-    return std::sqrt(1 - 4. * cache.m_l * cache.m_l / q2);
+    const double x = 1.0 - 4.0 * cache.m_l * cache.m_l / q2;
+    return std::sqrt(std::max(0.0, x));
 }
 
 double BKstarllDecay::lambda(double q2) {
-    double mB2 = cache.m_B * cache.m_B;
-    double mK2 = cache.m_Ks * cache.m_Ks;
-    return mB2 * mB2 + mK2 * mK2 + q2 * q2 - 2. * (mB2 * mK2 + (mB2 + mK2) * q2);
+    const double mB2 = cache.m_B * cache.m_B;
+    const double mK2 = cache.m_Ks * cache.m_Ks;
+
+    const double lam =
+        mB2 * mB2
+        + mK2 * mK2
+        + q2 * q2
+        - 2.0 * (mB2 * mK2 + (mB2 + mK2) * q2);
+
+    return std::max(0.0, lam);
 }
 
 complex_t BKstarllDecay::N(double q2, bool bar) {
-    complex_t N0 = bar ? std::conj(cache.N_0) : cache.N_0; 
-    return N0 * std::sqrt(q2 * beta_l(q2) * std::sqrt(lambda(q2)));
+    const complex_t N0 = bar ? std::conj(cache.N_0) : cache.N_0;
+    const double b = beta_l(q2);
+    const double lam = lambda(q2);
+
+    return N0 * std::sqrt(std::max(0.0, q2 * b * std::sqrt(lam)));
 }
 
 complex_t BKstarllDecay::delta_A_perp_QCDf(double q2, double sign, bool bar) {
@@ -1108,14 +1202,33 @@ std::vector<ObservableValue> BKstarllDecay::A_CP_binned(Observables id) {
     return out;
 }
 
+//TODO :: Niels check
 std::vector<ObservableValue> BKstarllDecay::F_L_binned(Observables id) {
     std::vector<ObservableValue> out;
+
     for (size_t i = 0; i < this->bins.value().size(); i++) {
-        double res = (0.75 * (cache.J_i_binned[14][i] + cache.J_i_bar_binned[14][i]) - 0.25 * (cache.J_i_binned[2][i] + cache.J_i_bar_binned[2][i])) / dG_dq2_avg_bin(i); 
+        const double num =
+            0.75 * (cache.J_i_binned[14][i] + cache.J_i_bar_binned[14][i])
+            - 0.25 * (cache.J_i_binned[2][i] + cache.J_i_bar_binned[2][i]);
+
+        const double den = dG_dq2_avg_bin(i);
+
+        const double res = safe_div(num, den, "BKstarll F_L");
+
         out.emplace_back(ObservableMapper::to_id(id), res, this->bins.value()[i]);
-    }   
+    }
+
     return out;
 }
+
+// std::vector<ObservableValue> BKstarllDecay::F_L_binned(Observables id) {
+//     std::vector<ObservableValue> out;
+//     for (size_t i = 0; i < this->bins.value().size(); i++) {
+//         double res = (0.75 * (cache.J_i_binned[14][i] + cache.J_i_bar_binned[14][i]) - 0.25 * (cache.J_i_binned[2][i] + cache.J_i_bar_binned[2][i])) / dG_dq2_avg_bin(i); 
+//         out.emplace_back(ObservableMapper::to_id(id), res, this->bins.value()[i]);
+//     }   
+//     return out;
+// }
 
 std::vector<ObservableValue> BKstarllDecay::F_T_binned(Observables id) {
     std::vector<ObservableValue> out;
@@ -1143,12 +1256,28 @@ std::vector<ObservableValue> BKstarllDecay::A_T_1_binned(Observables id) {
     return out;
 }
 
+//TODO :: Niels check
+// std::vector<ObservableValue> BKstarllDecay::A_T_2_binned(Observables id) {
+//     std::vector<ObservableValue> out;
+//     for (size_t i = 0; i < this->bins.value().size(); i++) {
+//         double res = 0.5 * (cache.J_i_binned[3][i] + cache.J_i_bar_binned[3][i]) / (cache.J_i_binned[1][i] + cache.J_i_bar_binned[1][i]); 
+//         out.emplace_back(ObservableMapper::to_id(id), res, this->bins.value()[i]);
+//     }   
+//     return out;
+// }
+
 std::vector<ObservableValue> BKstarllDecay::A_T_2_binned(Observables id) {
     std::vector<ObservableValue> out;
+
     for (size_t i = 0; i < this->bins.value().size(); i++) {
-        double res = 0.5 * (cache.J_i_binned[3][i] + cache.J_i_bar_binned[3][i]) / (cache.J_i_binned[1][i] + cache.J_i_bar_binned[1][i]); 
+        const double num = 0.5 * (cache.J_i_binned[3][i] + cache.J_i_bar_binned[3][i]);
+        const double den = cache.J_i_binned[1][i] + cache.J_i_bar_binned[1][i];
+
+        const double res = safe_div(num, den, "BKstarll A_T_2");
+
         out.emplace_back(ObservableMapper::to_id(id), res, this->bins.value()[i]);
-    }   
+    }
+
     return out;
 }
 
@@ -1202,14 +1331,30 @@ std::vector<ObservableValue> BKstarllDecay::A_T_5_binned(Observables id) {
     return out;
 }
 
+//TODO :: Niels check
+// std::vector<ObservableValue> BKstarllDecay::A_T_Re_binned(Observables id) {
+//     std::vector<ObservableValue> out;
+//     for (size_t i = 0; i < this->bins.value().size(); i++) {
+//         double J2scp = cache.J_i_binned[1][i] + cache.J_i_bar_binned[1][i];
+//         double J6scp = cache.J_i_binned[8][i] + cache.J_i_bar_binned[8][i];
+//         double res = 0.25 * J6scp / J2scp;
+//         out.emplace_back(ObservableMapper::to_id(id), res, this->bins.value()[i]);
+//     }   
+//     return out;
+// }
+
 std::vector<ObservableValue> BKstarllDecay::A_T_Re_binned(Observables id) {
     std::vector<ObservableValue> out;
+
     for (size_t i = 0; i < this->bins.value().size(); i++) {
-        double J2scp = cache.J_i_binned[1][i] + cache.J_i_bar_binned[1][i];
-        double J6scp = cache.J_i_binned[8][i] + cache.J_i_bar_binned[8][i];
-        double res = 0.25 * J6scp / J2scp;
+        const double num = 0.25 * (cache.J_i_binned[8][i] + cache.J_i_bar_binned[8][i]);
+        const double den = cache.J_i_binned[1][i] + cache.J_i_bar_binned[1][i];
+
+        const double res = safe_div(num, den, "BKstarll A_T_Re");
+
         out.emplace_back(ObservableMapper::to_id(id), res, this->bins.value()[i]);
-    }   
+    }
+
     return out;
 }
 

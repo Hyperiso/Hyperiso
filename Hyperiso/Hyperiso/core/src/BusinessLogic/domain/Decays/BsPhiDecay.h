@@ -37,6 +37,9 @@ struct BsPhiDecayCache {
     double ys, phi_s;
     complex_t um, up;
 
+    //TODO :: Niels : good ?
+    double q2_lookup_min;
+    
     // Power corrections, guesstimate
     std::array<complex_t, 6> A_had_err_low_0;
     std::array<complex_t, 6> A_had_err_low_1;

@@ -42,6 +42,8 @@ struct BKstarllCache {
     complex_t N_0;
     double q2_min, q2_max;
     double q2_low, q2_high;
+    
+    double q2_lookup_min;
 
     // Power corrections, hadronic fit
     std::array<complex_t, 3> h_p_fit {};

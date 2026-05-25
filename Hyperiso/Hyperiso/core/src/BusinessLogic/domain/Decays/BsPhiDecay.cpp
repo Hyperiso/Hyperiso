@@ -1298,45 +1298,130 @@ void BsPhiDecay::set_cfg_flags(BsPhiConfig::Lepton gen) {
     }
 }
 
+// void BsPhiDecay::load_cfg_dep_params() {
+//     cache.m_l = (*p)(ParamId{ParameterType::SM, "MASS", 11 + 2 * (int)cfg.gen}, DataType::VALUE);
+//     cache.q2_min = 4 * std::pow(cache.m_l, 2);
+    
+//     auto lam_T_perp_p = [this] (double q2, bool bar) { return cache.qcdf_calculator.T_perp_p(q2, bar); };
+//     fill_cache(lam_T_perp_p, cache.q2_min, cache.q2_high, cache.T_perp_p_lookup, false); 
+//     fill_cache(lam_T_perp_p, cache.q2_min, cache.q2_high, cache.T_perp_p_bar_lookup, true); 
+
+//     auto lam_T_perp_m = [this] (double q2, bool bar) { return cache.qcdf_calculator.T_perp_m(q2, bar); };
+//     fill_cache(lam_T_perp_m, cache.q2_min, cache.q2_high, cache.T_perp_m_lookup, false); 
+//     fill_cache(lam_T_perp_m, cache.q2_min, cache.q2_high, cache.T_perp_m_bar_lookup, true);
+
+//     auto lam_T_par_m = [this] (double q2, bool bar) { return cache.qcdf_calculator.T_par_m(q2, bar); };
+//     fill_cache(lam_T_par_m, cache.q2_min, cache.q2_high, cache.T_par_m_lookup, false); 
+//     fill_cache(lam_T_par_m, cache.q2_min, cache.q2_high, cache.T_par_m_bar_lookup, true);
+
+//     compute_binned_J_i();
+// }
+
+//TODO :: Niels : check
 void BsPhiDecay::load_cfg_dep_params() {
-    cache.m_l = (*p)(ParamId{ParameterType::SM, "MASS", 11 + 2 * (int)cfg.gen}, DataType::VALUE);
+    cache.m_l = (*p)(
+        ParamId{ParameterType::SM, "MASS", 11 + 2 * (int)cfg.gen},
+        DataType::VALUE
+    );
+
     cache.q2_min = 4 * std::pow(cache.m_l, 2);
 
-    auto lam_T_perp_p = [this] (double q2, bool bar) { return cache.qcdf_calculator.T_perp_p(q2, bar); };
-    fill_cache(lam_T_perp_p, cache.q2_min, cache.q2_high, cache.T_perp_p_lookup, false); 
-    fill_cache(lam_T_perp_p, cache.q2_min, cache.q2_high, cache.T_perp_p_bar_lookup, true); 
+    // Évite de remplir les tables QCDf au voisinage exact q² = 0 pour les électrons.
+    cache.q2_lookup_min = std::max(cache.q2_min, 1e-4);
 
-    auto lam_T_perp_m = [this] (double q2, bool bar) { return cache.qcdf_calculator.T_perp_m(q2, bar); };
-    fill_cache(lam_T_perp_m, cache.q2_min, cache.q2_high, cache.T_perp_m_lookup, false); 
-    fill_cache(lam_T_perp_m, cache.q2_min, cache.q2_high, cache.T_perp_m_bar_lookup, true);
+    auto lam_T_perp_p = [this] (double q2, bool bar) {
+        return cache.qcdf_calculator.T_perp_p(q2, bar);
+    };
 
-    auto lam_T_par_m = [this] (double q2, bool bar) { return cache.qcdf_calculator.T_par_m(q2, bar); };
-    fill_cache(lam_T_par_m, cache.q2_min, cache.q2_high, cache.T_par_m_lookup, false); 
-    fill_cache(lam_T_par_m, cache.q2_min, cache.q2_high, cache.T_par_m_bar_lookup, true);
+    fill_cache(lam_T_perp_p, cache.q2_lookup_min, cache.q2_high, cache.T_perp_p_lookup, false);
+    fill_cache(lam_T_perp_p, cache.q2_lookup_min, cache.q2_high, cache.T_perp_p_bar_lookup, true);
+
+    auto lam_T_perp_m = [this] (double q2, bool bar) {
+        return cache.qcdf_calculator.T_perp_m(q2, bar);
+    };
+
+    fill_cache(lam_T_perp_m, cache.q2_lookup_min, cache.q2_high, cache.T_perp_m_lookup, false);
+    fill_cache(lam_T_perp_m, cache.q2_lookup_min, cache.q2_high, cache.T_perp_m_bar_lookup, true);
+
+    auto lam_T_par_m = [this] (double q2, bool bar) {
+        return cache.qcdf_calculator.T_par_m(q2, bar);
+    };
+
+    fill_cache(lam_T_par_m, cache.q2_lookup_min, cache.q2_high, cache.T_par_m_lookup, false);
+    fill_cache(lam_T_par_m, cache.q2_lookup_min, cache.q2_high, cache.T_par_m_bar_lookup, true);
 
     compute_binned_J_i();
 }
 
+// complex_t BsPhiDecay::T_perp_p_cached(double q2, bool bar) {
+//     return lerp(q2, bar ? cache.T_perp_p_bar_lookup : cache.T_perp_p_lookup, cache.q2_min, cache.q2_high);
+// }
+
+// complex_t BsPhiDecay::T_perp_m_cached(double q2, bool bar) {
+//     return lerp(q2, bar ? cache.T_perp_m_bar_lookup : cache.T_perp_m_lookup, cache.q2_min, cache.q2_high);
+// }
+
+// complex_t BsPhiDecay::T_par_m_cached(double q2, bool bar) {
+//     return lerp(q2, bar ? cache.T_par_m_bar_lookup : cache.T_par_m_lookup, cache.q2_min, cache.q2_high);
+// }
+
 complex_t BsPhiDecay::T_perp_p_cached(double q2, bool bar) {
-    return lerp(q2, bar ? cache.T_perp_p_bar_lookup : cache.T_perp_p_lookup, cache.q2_min, cache.q2_high);
+    const double x = std::max(q2, cache.q2_lookup_min);
+    return lerp(
+        x,
+        bar ? cache.T_perp_p_bar_lookup : cache.T_perp_p_lookup,
+        cache.q2_lookup_min,
+        cache.q2_high
+    );
 }
 
 complex_t BsPhiDecay::T_perp_m_cached(double q2, bool bar) {
-    return lerp(q2, bar ? cache.T_perp_m_bar_lookup : cache.T_perp_m_lookup, cache.q2_min, cache.q2_high);
+    const double x = std::max(q2, cache.q2_lookup_min);
+    return lerp(
+        x,
+        bar ? cache.T_perp_m_bar_lookup : cache.T_perp_m_lookup,
+        cache.q2_lookup_min,
+        cache.q2_high
+    );
 }
 
 complex_t BsPhiDecay::T_par_m_cached(double q2, bool bar) {
-    return lerp(q2, bar ? cache.T_par_m_bar_lookup : cache.T_par_m_lookup, cache.q2_min, cache.q2_high);
+    const double x = std::max(q2, cache.q2_lookup_min);
+    return lerp(
+        x,
+        bar ? cache.T_par_m_bar_lookup : cache.T_par_m_lookup,
+        cache.q2_lookup_min,
+        cache.q2_high
+    );
 }
 
+// double BsPhiDecay::beta_l(double q2) {
+//     return std::sqrt(1 - 4. * cache.m_l * cache.m_l / q2);
+// }
+
+// double BsPhiDecay::lambda(double q2) {
+//     double mB2 = cache.m_Bs * cache.m_Bs;
+//     double mphi2 = cache.m_phi * cache.m_phi;
+//     return mB2 * mB2 + mphi2 * mphi2 + q2 * q2 - 2. * (mB2 * mphi2 + (mB2 + mphi2) * q2);
+// }
+
+//TODO :: Niels check
 double BsPhiDecay::beta_l(double q2) {
-    return std::sqrt(1 - 4. * cache.m_l * cache.m_l / q2);
+    const double x = 1.0 - 4.0 * cache.m_l * cache.m_l / q2;
+    return std::sqrt(std::max(0.0, x));
 }
 
 double BsPhiDecay::lambda(double q2) {
-    double mB2 = cache.m_Bs * cache.m_Bs;
-    double mphi2 = cache.m_phi * cache.m_phi;
-    return mB2 * mB2 + mphi2 * mphi2 + q2 * q2 - 2. * (mB2 * mphi2 + (mB2 + mphi2) * q2);
+    const double mB2 = cache.m_Bs * cache.m_Bs;
+    const double mphi2 = cache.m_phi * cache.m_phi;
+
+    const double lam =
+        mB2 * mB2
+        + mphi2 * mphi2
+        + q2 * q2
+        - 2.0 * (mB2 * mphi2 + (mB2 + mphi2) * q2);
+
+    return std::max(0.0, lam);
 }
 
 complex_t BsPhiDecay::N(double q2, bool bar) {
@@ -2171,21 +2256,70 @@ double BsPhiDecay::dG_dq2_avg_bin(size_t bin) {
     return 0.75 * (cache.f_J_i_binned[0][bin] + cache.f_J_i_binned[1][bin]);
 }
 
+// std::vector<ObservableValue> BsPhiDecay::F_L(Observables id) {
+//     std::vector<ObservableValue> out;
+//     for (size_t i = 0; i < this->bins.value().size(); i++) {
+//         double res = -cache.f_J_i_binned[3][i] / dG_dq2_avg_bin(i); 
+//         out.emplace_back(ObservableMapper::to_id(id), res, this->bins.value()[i]);
+//     }   
+//     return out;
+// }
+
+// std::vector<ObservableValue> BsPhiDecay::A_T_2(Observables id) {
+//     std::vector<ObservableValue> out;
+//     for (size_t i = 0; i < this->bins.value().size(); i++) {
+//         double res = 0.5 * cache.f_J_i_binned[4][i] / cache.f_J_i_binned[2][i]; 
+//         out.emplace_back(ObservableMapper::to_id(id), res, this->bins.value()[i]);
+//     }   
+//     return out;
+// }
+
+static double safe_ratio(double num, double den, const char* name) {
+    if (!std::isfinite(num) || !std::isfinite(den) || std::abs(den) < 1e-30) {
+        LOG_WARN(
+            "Non-finite or singular denominator in",
+            name,
+            ": num =",
+            num,
+            "den =",
+            den
+        );
+        return std::numeric_limits<double>::quiet_NaN();
+    }
+
+    return num / den;
+}
+
+//TODO :: Niels check
 std::vector<ObservableValue> BsPhiDecay::F_L(Observables id) {
     std::vector<ObservableValue> out;
+
     for (size_t i = 0; i < this->bins.value().size(); i++) {
-        double res = -cache.f_J_i_binned[3][i] / dG_dq2_avg_bin(i); 
+        const double res = safe_ratio(
+            -cache.f_J_i_binned[3][i],
+            dG_dq2_avg_bin(i),
+            "BsPhi F_L"
+        );
+
         out.emplace_back(ObservableMapper::to_id(id), res, this->bins.value()[i]);
-    }   
+    }
+
     return out;
 }
 
 std::vector<ObservableValue> BsPhiDecay::A_T_2(Observables id) {
     std::vector<ObservableValue> out;
+
     for (size_t i = 0; i < this->bins.value().size(); i++) {
-        double res = 0.5 * cache.f_J_i_binned[4][i] / cache.f_J_i_binned[2][i]; 
+        const double res = safe_ratio(
+            0.5 * cache.f_J_i_binned[4][i],
+            cache.f_J_i_binned[2][i],
+            "BsPhi A_T_2"
+        );
+
         out.emplace_back(ObservableMapper::to_id(id), res, this->bins.value()[i]);
-    }   
+    }
+
     return out;
 }
 

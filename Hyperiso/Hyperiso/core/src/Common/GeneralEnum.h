@@ -516,7 +516,8 @@ enum class Observables {
     F_H_B__K_TAU_TAU,
 
     R_1_B__K_L_L,
-
+    R_1_B0__K0_L_L,
+    
     // Lambda_b > Lambda l l
     DGAMMA_DQ2_LAMBDA_B__LAMBDA_E_E,
     DBR_DQ2_LAMBDA_B__LAMBDA_E_E,

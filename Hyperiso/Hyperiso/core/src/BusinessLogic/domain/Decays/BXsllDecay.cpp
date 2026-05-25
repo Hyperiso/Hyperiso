@@ -157,7 +157,7 @@ void BXsllDecay::load_cfg_dep_params() {
     cache.L_l = -2 * std::log(cache.m_l_hat);
     
     for (size_t i = 0; i < 3; i++)
-        cache.rand_err[i] = (*p)(ParamId{ParameterType::SM, "B_Xsll", {3, 11 + 2 * (int)cfg.gen, i}}, DataType::VALUE);
+        cache.rand_err[i] = (*p)(ParamId{ParameterType::DECAY, "B_Xsll", {3, 11 + 2 * (int)cfg.gen, i}}, DataType::VALUE);
 }
 
 double BXsllDecay::f(double z) {
@@ -816,35 +816,132 @@ double BXsllDecay::dB_ds(double s, double ml_hat, double L_l) {
     return dB;
 }
 
+//TODO :: Niels check
+// std::vector<ObservableValue> BXsllDecay::BR_B_Xsll(Observables oid) {
+//     std::vector<ObservableValue> out;
+//     auto f = [&] (double s) {
+//         return dB_ds(s, cache.m_l_hat, cache.L_l);
+//     };
+
+//     for (size_t i = 0; i < this->bins.value().size(); i++) {
+//         double rand_err = this->bins.value()[i].second < 8.0 ? cache.rand_err[0] : this->bins.value()[i].first < 12.0 ? cache.rand_err[1] : cache.rand_err[2];
+//         double s_min = this->bins.value()[i].first / std::pow(cache.m_b_1S, 2);
+//         double s_max = this->bins.value()[i].second / std::pow(cache.m_b_1S, 2);
+//         double res = cache.pref_dB_ds * integrate(f, s_min, s_max, 1e-3); 
+//         out.emplace_back(ObservableMapper::to_id(oid), res, this->bins.value()[i]);
+//     }   
+
+//     return out;
+// }
+
 std::vector<ObservableValue> BXsllDecay::BR_B_Xsll(Observables oid) {
     std::vector<ObservableValue> out;
+
     auto f = [&] (double s) {
         return dB_ds(s, cache.m_l_hat, cache.L_l);
     };
 
+    constexpr double s_eps_low = 1e-8;
+    constexpr double s_eps_high = 1e-3; // ou 1e-2 si encore instable
+
     for (size_t i = 0; i < this->bins.value().size(); i++) {
-        double rand_err = this->bins.value()[i].second < 8.0 ? cache.rand_err[0] : this->bins.value()[i].first < 12.0 ? cache.rand_err[1] : cache.rand_err[2];
-        double s_min = this->bins.value()[i].first / std::pow(cache.m_b_1S, 2);
-        double s_max = this->bins.value()[i].second / std::pow(cache.m_b_1S, 2);
-        double res = cache.pref_dB_ds * integrate(f, s_min, s_max, 1e-3); 
-        out.emplace_back(ObservableMapper::to_id(oid), res, this->bins.value()[i]);
-    }   
+        const auto [q2_min, q2_max] = this->bins.value()[i];
+
+        double s_min_raw = q2_min / std::pow(cache.m_b_1S, 2);
+        double s_max_raw = q2_max / std::pow(cache.m_b_1S, 2);
+
+        double s_min = std::max(s_min_raw, s_eps_low);
+        double s_max = std::min(s_max_raw, 1.0 - s_eps_high);
+
+        if (s_max_raw >= 1.0) {
+            // LOG_WARN(
+            //     "BXsll bin [", q2_min, ",", q2_max,
+            //     "] has s_max = ", s_max_raw,
+            //     " >= 1 for m_b_1S = ", cache.m_b_1S,
+            //     ". Clipping to ", s_max
+            // );
+        }
+
+        if (!(s_min < s_max)) {
+            LOG_WARN(
+                "Skipping invalid BXsll bin [", q2_min, ",", q2_max,
+                "] after clipping s from [", s_min_raw, ",", s_max_raw,
+                "] to [", s_min, ",", s_max, "]"
+            );
+
+            out.emplace_back(
+                ObservableMapper::to_id(oid),
+                std::numeric_limits<double>::quiet_NaN(),
+                this->bins.value()[i]
+            );
+            continue;
+        }
+
+        double res = cache.pref_dB_ds * integrate(f, s_min, s_max, 1e-3);
+
+        out.emplace_back(
+            ObservableMapper::to_id(oid),
+            res,
+            this->bins.value()[i]
+        );
+    }
 
     return out;
 }
 
+//TODO :: Niels error
+// std::vector<ObservableValue> BXsllDecay::A_FB_B_Xsll(Observables oid) {
+//     std::vector<ObservableValue> out;
+//     auto f = [&] (double s) {
+//         return A_FB(s, cache.m_l_hat, cache.L_l);
+//     };
+
+//     for (size_t i = 0; i < this->bins.value().size(); i++) {
+//         double s_min = this->bins.value()[i].first / std::pow(cache.m_b_1S, 2);
+//         double s_max = this->bins.value()[i].second / std::pow(cache.m_b_1S, 2);
+//         double res = cache.pref_dB_ds * integrate(f, s_min, s_max, 1e-3); 
+//         out.emplace_back(ObservableMapper::to_id(oid), res, this->bins.value()[i]);
+//     }   
+
+//     return out;
+// }
+
 std::vector<ObservableValue> BXsllDecay::A_FB_B_Xsll(Observables oid) {
     std::vector<ObservableValue> out;
+
     auto f = [&] (double s) {
         return A_FB(s, cache.m_l_hat, cache.L_l);
     };
 
+    constexpr double s_eps_low = 1e-8;
+    constexpr double s_eps_high = 1e-3;
+
     for (size_t i = 0; i < this->bins.value().size(); i++) {
-        double s_min = this->bins.value()[i].first / std::pow(cache.m_b_1S, 2);
-        double s_max = this->bins.value()[i].second / std::pow(cache.m_b_1S, 2);
-        double res = cache.pref_dB_ds * integrate(f, s_min, s_max, 1e-3); 
-        out.emplace_back(ObservableMapper::to_id(oid), res, this->bins.value()[i]);
-    }   
+        const auto [q2_min, q2_max] = this->bins.value()[i];
+
+        double s_min_raw = q2_min / std::pow(cache.m_b_1S, 2);
+        double s_max_raw = q2_max / std::pow(cache.m_b_1S, 2);
+
+        double s_min = std::max(s_min_raw, s_eps_low);
+        double s_max = std::min(s_max_raw, 1.0 - s_eps_high);
+
+        if (!(s_min < s_max)) {
+            out.emplace_back(
+                ObservableMapper::to_id(oid),
+                std::numeric_limits<double>::quiet_NaN(),
+                this->bins.value()[i]
+            );
+            continue;
+        }
+
+        double res = cache.pref_dB_ds * integrate(f, s_min, s_max, 1e-3);
+
+        out.emplace_back(
+            ObservableMapper::to_id(oid),
+            res,
+            this->bins.value()[i]
+        );
+    }
 
     return out;
 }
