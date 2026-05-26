@@ -1,91 +1,68 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
-from typing import Any, List, Optional, Sequence, Tuple, Union, cast
+from typing import List, Optional, Sequence, Union
 
 from pyhyperiso.phyperiso.pyhyperiso import statistic as st
-
-
-from pyhyperiso.core.Statistic.MarginalDistribution import MarginalKind
+from pyhyperiso.core.Statistic.Copula import CopulaKind
+from pyhyperiso.core.Statistic.CopulaConfig import GaussianCopulaConfigPy as GaussianCopulaConfig, StudentTCopulaConfigPy as StudentTCopulaConfig
 from pyhyperiso.core.Statistic.MarginalConfig import (
-        FlatMarginalConfig,
-        GaussianMarginalConfig,
-        SplitGaussianMarginalConfig,
-        LikelihoodMarginalConfig,
-    )
-
-MarginalConfig = Union[
     FlatMarginalConfig,
     GaussianMarginalConfig,
-    SplitGaussianMarginalConfig,
     LikelihoodMarginalConfig,
-]
+    MarginalKind,
+    SplitGaussianMarginalConfig,
+)
 
 
-from pyhyperiso.core.Statistic.Copula import CopulaKind  
-
-from pyhyperiso.core.Statistic.CopulaConfig import (
-        GaussianCopulaConfigPy as GaussianCopulaConfig,
-        StudentTCopulaConfigPy as StudentTCopulaConfig,
-    )
-
+MarginalConfig = Union[FlatMarginalConfig, GaussianMarginalConfig, SplitGaussianMarginalConfig, LikelihoodMarginalConfig]
 CopulaConfig = Union[GaussianCopulaConfig, StudentTCopulaConfig]
 
 
-def _as_cpp_enum_marginal(x: Any) -> Any:
-    """Accept MarginalKind wrapper OR C++ enum st.MarginalType."""
-    if hasattr(x, "to_cpp") and callable(getattr(x, "to_cpp")):
-        return x.to_cpp()
-    return x
+def _require(value, typ, name: str):
+    if not isinstance(value, typ):
+        raise TypeError(f"{name} doit être {typ.__name__}, reçu {type(value)!r}.")
+    return value
 
 
-def _as_cpp_enum_copula(x: Any) -> Any:
-    """Accept CopulaKind wrapper OR C++ enum st.CopulaType."""
-    if hasattr(x, "to_cpp") and callable(getattr(x, "to_cpp")):
-        return x.to_cpp()
-    return x
+def _cpp_marginal_kind(kind: MarginalKind):
+    return _require(kind, MarginalKind, "MarginalKind").to_cpp()
 
 
-def _as_cpp_config(x: Any) -> Any:
-    """Accept config wrapper with to_cpp() OR already a C++ config object."""
-    if hasattr(x, "to_cpp") and callable(getattr(x, "to_cpp")):
-        return x.to_cpp()
-    return x
+def _cpp_copula_kind(kind: CopulaKind):
+    return _require(kind, CopulaKind, "CopulaKind").to_cpp()
+
+
+def _cpp_marginal_config(cfg: MarginalConfig):
+    if not isinstance(cfg, (FlatMarginalConfig, GaussianMarginalConfig, SplitGaussianMarginalConfig, LikelihoodMarginalConfig)):
+        raise TypeError(f"config marginale non supportée : {type(cfg)!r}.")
+    return cfg.to_cpp()
+
+
+def _cpp_copula_config(cfg: CopulaConfig):
+    if not isinstance(cfg, (GaussianCopulaConfig, StudentTCopulaConfig)):
+        raise TypeError(f"config copule non supportée : {type(cfg)!r}.")
+    return cfg.to_cpp()
 
 
 class JointDistribution:
-    """
-    Python wrapper for the C++ JointDistribution.
-
-    - All I/O is Python-native (lists, floats).
-    - Underlying C++ object is hidden in _cpp_obj.
-    """
-
     __slots__ = ("_cpp_obj",)
 
-    def __init__(self, cpp_obj: Any):
+    def __init__(self, cpp_obj) -> None:
         self._cpp_obj = cpp_obj
 
     @classmethod
-    def _from_cpp(cls, cpp_obj: Any) -> "JointDistribution":
-        inst = cls.__new__(cls)
-        inst._cpp_obj = cpp_obj
-        return inst
+    def from_cpp(cls, cpp_obj) -> "JointDistribution":
+        return cls(cpp_obj)
+
+    def _to_cpp(self):
+        return self._cpp_obj
 
     def sample(self, n: Optional[int] = None) -> Union[List[float], List[List[float]]]:
-        """
-        If n is None: returns one sample as List[float]
-        If n is int: returns n samples as List[List[float]]
-        """
         if n is None:
-            x = self._cpp_obj.sample()
-            return [float(v) for v in x]
-
-        n = int(n)
-        if n < 0:
-            raise ValueError("n must be >= 0")
-        X = self._cpp_obj.sample(n)
-        return [[float(v) for v in row] for row in X]
+            return [float(v) for v in self._cpp_obj.sample()]
+        if int(n) < 0:
+            raise ValueError("n doit être >= 0.")
+        return [[float(v) for v in row] for row in self._cpp_obj.sample(int(n))]
 
     def logpdf(self, x: Sequence[float]) -> float:
         return float(self._cpp_obj.logpdf([float(v) for v in x]))
@@ -100,86 +77,59 @@ class JointDistribution:
     def __repr__(self) -> str:
         return f"JointDistribution(dim={self.dim()})"
 
-    def to_cpp(self) -> Any:
-        """Optional: keep private in user-facing docs if you want 'no cpp leak'."""
-        return self._cpp_obj
-
-
 
 class JointDistributionFactory:
-    """
-    Pure-Python facade over the bound C++ static constructors:
-
-      - st.JointDistribution.create(...)
-      - st.JointDistribution.create_with_seeds(...)
-
-    Users pass wrapper enums/configs, and receive a JointDistribution wrapper.
-    """
-
     @staticmethod
     def create(
-        marginal_types: Sequence[Any],
-        marginal_configs: Sequence[Any],
-        copula_type: Any,
-        copula_config: Any,
+        marginal_types: Sequence[MarginalKind],
+        marginal_configs: Sequence[MarginalConfig],
+        copula_type: CopulaKind,
+        copula_config: CopulaConfig,
         *,
         seed: Optional[int] = None,
     ) -> JointDistribution:
         if len(marginal_types) != len(marginal_configs):
-            raise ValueError("marginal_types and marginal_configs must have the same length.")
-        if len(marginal_types) == 0:
-            raise ValueError("At least one marginal is required.")
-
-        m_types_cpp = [_as_cpp_enum_marginal(t) for t in marginal_types]
-        m_cfgs_cpp = [_as_cpp_config(c) for c in marginal_configs]
-        c_type_cpp = _as_cpp_enum_copula(copula_type)
-        c_cfg_cpp = _as_cpp_config(copula_config)
+            raise ValueError("marginal_types et marginal_configs doivent avoir la même taille.")
+        if not marginal_types:
+            raise ValueError("Au moins une marginale est requise.")
 
         cpp = st.JointDistribution.create(
-            m_types_cpp,
-            m_cfgs_cpp,
-            c_type_cpp,
-            c_cfg_cpp,
+            [_cpp_marginal_kind(t) for t in marginal_types],
+            [_cpp_marginal_config(c) for c in marginal_configs],
+            _cpp_copula_kind(copula_type),
+            _cpp_copula_config(copula_config),
             seed if seed is not None else None,
         )
-        return JointDistribution._from_cpp(cpp)
+        return JointDistribution.from_cpp(cpp)
 
     @staticmethod
     def create_with_seeds(
-        marginal_types: Sequence[Any],
-        marginal_configs: Sequence[Any],
+        marginal_types: Sequence[MarginalKind],
+        marginal_configs: Sequence[MarginalConfig],
         marginal_seeds: Sequence[int],
-        copula_type: Any,
-        copula_config: Any,
+        copula_type: CopulaKind,
+        copula_config: CopulaConfig,
         *,
         copula_seed: int,
     ) -> JointDistribution:
         if len(marginal_types) != len(marginal_configs) or len(marginal_types) != len(marginal_seeds):
-            raise ValueError("marginal_types, marginal_configs, marginal_seeds must have the same length.")
-        if len(marginal_types) == 0:
-            raise ValueError("At least one marginal is required.")
-
-        m_types_cpp = [_as_cpp_enum_marginal(t) for t in marginal_types]
-        m_cfgs_cpp = [_as_cpp_config(c) for c in marginal_configs]
-        m_seeds = [int(s) for s in marginal_seeds]
-        c_type_cpp = _as_cpp_enum_copula(copula_type)
-        c_cfg_cpp = _as_cpp_config(copula_config)
+            raise ValueError("marginal_types, marginal_configs et marginal_seeds doivent avoir la même taille.")
+        if not marginal_types:
+            raise ValueError("Au moins une marginale est requise.")
 
         cpp = st.JointDistribution.create_with_seeds(
-            m_types_cpp,
-            m_cfgs_cpp,
-            m_seeds,
-            c_type_cpp,
-            c_cfg_cpp,
+            [_cpp_marginal_kind(t) for t in marginal_types],
+            [_cpp_marginal_config(c) for c in marginal_configs],
+            [int(s) for s in marginal_seeds],
+            _cpp_copula_kind(copula_type),
+            _cpp_copula_config(copula_config),
             int(copula_seed),
         )
-        return JointDistribution._from_cpp(cpp)
+        return JointDistribution.from_cpp(cpp)
 
 
-__all__ = [
-    "JointDistribution",
-    "JointDistributionFactory",
-]
+__all__ = ["JointDistribution", "JointDistributionFactory"]
+
 
 if __name__ == "__main__":
     from pyhyperiso.core.Statistic.MarginalDistribution import MarginalKind

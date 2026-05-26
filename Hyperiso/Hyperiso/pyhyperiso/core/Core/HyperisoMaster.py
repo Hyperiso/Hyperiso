@@ -1,9 +1,9 @@
 from pyhyperiso.phyperiso.pyhyperiso.core import HyperisoMaster as _CppHyperisoMaster
 from pyhyperiso.core.Common.GeneralEnum import Model
-from pyhyperiso.core.Core.HyperisoConfig import PyHyperisoConfig, ExternalFlag
+from pyhyperiso.core.Core.HyperisoConfig import HyperisoConfig, ExternalFlag
 import os
 
-class PyHyperisoMaster:
+class HyperisoMaster:
     """High-level Python wrapper for the C++ HyperisoMaster class.
 
     Provides a Pythonic interface to initialize and monitor the Hyperiso system.
@@ -14,7 +14,7 @@ class PyHyperisoMaster:
         self._cpp_obj = _CppHyperisoMaster()
         self._config = None
         
-    def init(self, lha_file: str, config: PyHyperisoConfig = None):
+    def init(self, lha_file: str, config: HyperisoConfig = None):
         """Initializes Hyperiso with an LHA file and an optional config.
 
         Args:
@@ -33,7 +33,7 @@ class PyHyperisoMaster:
             self._cpp_obj.init(lha_file)
             self.config = PyHyperisoConfig()
 
-    def switch_lha(self, lha_file: str, config: PyHyperisoConfig = None):
+    def switch_lha(self, lha_file: str, config: HyperisoConfig = None):
         """Initializes Hyperiso with an LHA file and an optional config.
 
         Args:
@@ -82,7 +82,7 @@ if __name__ == "__main__":
 
     print("🔧 Initializing PyHyperisoMaster with custom PyHyperisoConfig...")
 
-    config = PyHyperisoConfig(
+    config = HyperisoConfig(
         flags={
             ExternalFlag.IS_LHA_SPECTRUM: True,
             ExternalFlag.HAS_WILSON_INPUT: False,
@@ -97,7 +97,7 @@ if __name__ == "__main__":
     print("🔧 PyHyperisoConfig content:")
     print(config)
 
-    hyp = PyHyperisoMaster()
+    hyp = HyperisoMaster()
     lha_file_path = "lha/camilia.flha"
 
     print("\n🚀 Calling init with config...")

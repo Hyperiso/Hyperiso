@@ -2,17 +2,19 @@
 
 from pyhyperiso.phyperiso.pyhyperiso.core import APIAdapter as _CppAPIAdapter
 from pyhyperiso.phyperiso.pyhyperiso.core import APIPath as _CppAPIPath
-from pyhyperiso.core.Common.General import BlockName, LhaID
+from pyhyperiso.core.Common.BlockName import BlockName
+from pyhyperiso.core.Common.LhaID import LhaID
 from pyhyperiso.core.Common.GeneralEnum import Model, ParameterType
 from pyhyperiso.core.Common.Configs import MassConfig, AlphasConfig
-from pyhyperiso.core.Core.QCDConstants import PyQCDConstants
+from pyhyperiso.core.Core.QCDConstants import QCDConstants
 from pyhyperiso.core.Core.HyperisoMaster import ExternalFlag
 from enum import Enum
 from pyhyperiso.core.Math.scalar import Scalar
 
 class APIPath(Enum):
     LHA_PATH = _CppAPIPath.LHA_PATH  
-class PyAPIAdapter:
+    
+class APIAdapter:
     """Wrapper for C++ PyParameterSetter."""
 
     def __init__(self):
@@ -42,13 +44,13 @@ class PyAPIAdapter:
     
      
 if __name__ == "__main__":
-    from pyhyperiso.core.Core.HyperisoMaster import PyHyperisoMaster
+    from pyhyperiso.core.Core.HyperisoMaster import HyperisoMaster
     from pathlib import Path
-    from pyhyperiso.core.Core.HyperisoConfig import PyHyperisoConfig, ExternalFlag
-    from pyhyperiso.core.Core.ParamaterProvider import PyParameterProvider
-    print("🔧 Initializing PyHyperisoMaster with custom PyHyperisoConfig...")
+    from pyhyperiso.core.Core.HyperisoConfig import HyperisoConfig, ExternalFlag
+    from pyhyperiso.core.Core.ParamaterProvider import ParameterProvider
+    print("🔧 Initializing PyHyperisoMaster with custom HyperisoConfig...")
 
-    config = PyHyperisoConfig(
+    config = HyperisoConfig(
         flags={
             ExternalFlag.IS_LHA_SPECTRUM: True,
             ExternalFlag.HAS_WILSON_INPUT: False,
@@ -63,13 +65,13 @@ if __name__ == "__main__":
     print("🔧 PyHyperisoConfig content:")
     print(config)
 
-    hyp = PyHyperisoMaster()
+    hyp = HyperisoMaster()
     lha_file_path = "lha/camilia.flha" 
 
     print("\n🚀 Calling init with config...")
     hyp.init(lha_file=lha_file_path, config=config)
     
-    api_adapter = PyAPIAdapter()
+    api_adapter = APIAdapter()
 
     print("all blocks : ", api_adapter.get_all_blocks())
     

@@ -1,6 +1,6 @@
 from pyhyperiso.phyperiso.pyhyperiso.core import QCDConstants as _CppQCDConstants
 
-class PyQCDConstants:
+class QCDConstants:
     def __init__(self, cpp_obj: _CppQCDConstants):
         self._cpp_obj = cpp_obj
 

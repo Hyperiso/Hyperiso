@@ -8,7 +8,7 @@ class MartyPath(Enum):
     TEMPLATE_DIR = _CppMartyPath.TEMPLATE_DIR
     PARAM_MAPPING_DIR = _CppMartyPath.PARAM_MAPPING_DIR
 
-class PyMartyAdapter:
+class MartyAdapter:
     """Wrapper for MartyAdapter (path + flags)."""
 
     def __init__(self):
@@ -28,12 +28,12 @@ class PyMartyAdapter:
     
     
 if __name__ == "__main__":
-    from pyhyperiso.core.Core.HyperisoMaster import PyHyperisoMaster
+    from pyhyperiso.core.Core.HyperisoMaster import HyperisoMaster
     from pathlib import Path
-    from pyhyperiso.core.Core.HyperisoConfig import PyHyperisoConfig, ExternalFlag
+    from pyhyperiso.core.Core.HyperisoConfig import HyperisoConfig, ExternalFlag
     print("🔧 Initializing PyHyperisoMaster with custom PyHyperisoConfig...")
 
-    config = PyHyperisoConfig(
+    config = HyperisoConfig(
         flags={
             ExternalFlag.IS_LHA_SPECTRUM: True,
             ExternalFlag.HAS_WILSON_INPUT: False,
@@ -48,13 +48,13 @@ if __name__ == "__main__":
     print("🔧 PyHyperisoConfig content:")
     print(config)
 
-    hyp = PyHyperisoMaster()
+    hyp = HyperisoMaster()
     lha_file_path = "lha/camilia.flha"
 
     print("\n🚀 Calling init with config...")
     hyp.init(lha_file=lha_file_path, config=config)
     
-    marty_adapt = PyMartyAdapter()
+    marty_adapt = MartyAdapter()
     
     print("model name : ", marty_adapt.get_model_name())
     print("moddel path : ", marty_adapt.get_path(MartyPath.MODEL_FILE))

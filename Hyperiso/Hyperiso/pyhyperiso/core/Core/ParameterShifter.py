@@ -1,10 +1,10 @@
 from pyhyperiso.phyperiso.pyhyperiso.core import ParameterShifter as _CppParameterShifter
-from pyhyperiso.core.Common.General import ParamId
+from pyhyperiso.core.Common.ParamId import ParamId
 from pyhyperiso.core.Common.GeneralEnum import Model, ParameterType
 from pyhyperiso.core.Math.scalar import Scalar, _to_scalar
 from pyhyperiso.core.Core.Parameter import ParameterMode
 
-class PyParameterShifter:
+class ParameterShifter:
     """Wrapper for C++ ParameterShifter."""
 
     def __init__(self):
@@ -17,18 +17,17 @@ class PyParameterShifter:
         self._cpp_obj.change_mode(pid._cpp_obj, mode.value)
         
 if __name__ == "__main__":
-    from pyhyperiso.core.Core.HyperisoMaster import PyHyperisoMaster
+    from pyhyperiso.core.Core.HyperisoMaster import HyperisoMaster
     from pathlib import Path
-    from pyhyperiso.core.Core.HyperisoConfig import PyHyperisoConfig, ExternalFlag
-    from pyhyperiso.core.Core.ParamaterProvider import PyParameterProvider
+    from pyhyperiso.core.Core.HyperisoConfig import HyperisoConfig, ExternalFlag
+    from pyhyperiso.core.Core.ParamaterProvider import ParameterProvider
     print("🔧 Initializing PyHyperisoMaster with custom PyHyperisoConfig...")
 
-    config = PyHyperisoConfig(
+    config = HyperisoConfig(
         flags={
             ExternalFlag.IS_LHA_SPECTRUM: True,
             ExternalFlag.HAS_WILSON_INPUT: False,
             ExternalFlag.HAS_TH_OBSERVABLE_INPUT: False,
-            # ExternalFlag.USE_MARTY: False
         },
         model=Model.SM,
         mty_model_name="MSSM_UFO",
@@ -38,14 +37,14 @@ if __name__ == "__main__":
     print("🔧 PyHyperisoConfig content:")
     print(config)
 
-    hyp = PyHyperisoMaster()
+    hyp = HyperisoMaster()
     lha_file_path = "lha/camilia.flha"
 
     print("\n🚀 Calling init with config...")
     hyp.init(lha_file=lha_file_path, config=config)
     
-    param_shifter = PyParameterShifter()
-    param_prov = PyParameterProvider(ParameterType.SM)
+    param_shifter = ParameterShifter()
+    param_prov = ParameterProvider(ParameterType.SM)
     
     print("param before mutate : ", param_prov.get_by_block("MASS", 24))
     param_shifter.mutate(ParamId(ParameterType.SM, "MASS", 24), 82)

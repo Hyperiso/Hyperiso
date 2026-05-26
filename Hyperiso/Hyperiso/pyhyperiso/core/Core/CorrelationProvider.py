@@ -1,6 +1,6 @@
 from pyhyperiso.phyperiso.pyhyperiso.core import CorrelationProvider as _CppCorrelationProvider
 from pyhyperiso.phyperiso.pyhyperiso.core import CorrelationType as _CppCorrelationType
-from pyhyperiso.core.Common.General import ParamId
+from pyhyperiso.core.Common.ParamId import ParamId
 from pyhyperiso.core.Common.GeneralEnum import Model, ParameterType, Observables
 from enum import Enum
 
@@ -9,8 +9,8 @@ class CorrelationType(Enum):
     SYST = _CppCorrelationType.SYST
     COMBINED = _CppCorrelationType.COMBINED
     
-class PyCorrelationProvider:
-    """Wrapper for C++ PyCorrelationProvider."""
+class CorrelationProvider:
+    """Wrapper for C++ CorrelationProvider."""
 
     def __init__(self):
         self._cpp_obj = _CppCorrelationProvider()
@@ -22,13 +22,13 @@ class PyCorrelationProvider:
         return self._cpp_obj.correlation_from_observable(obs_1.value, obs_2.value, corr_type.value)
         
 if __name__ == "__main__":
-    from pyhyperiso.core.Core.HyperisoMaster import PyHyperisoMaster
+    from pyhyperiso.core.Core.HyperisoMaster import HyperisoMaster
     from pathlib import Path
-    from pyhyperiso.core.Core.HyperisoConfig import PyHyperisoConfig, ExternalFlag
-    from pyhyperiso.core.Core.ParamaterProvider import PyParameterProvider
+    from pyhyperiso.core.Core.HyperisoConfig import HyperisoConfig, ExternalFlag
+    from pyhyperiso.core.Core.ParamaterProvider import ParameterProvider
     print("🔧 Initializing PyHyperisoMaster with custom PyHyperisoConfig...")
 
-    config = PyHyperisoConfig(
+    config = HyperisoConfig(
         flags={
             ExternalFlag.IS_LHA_SPECTRUM: True,
             ExternalFlag.HAS_WILSON_INPUT: False,
@@ -43,12 +43,12 @@ if __name__ == "__main__":
     print("🔧 PyHyperisoConfig content:")
     print(config)
 
-    hyp = PyHyperisoMaster()
+    hyp = HyperisoMaster()
     lha_file_path = "lha/camilia.flha" 
 
     print("\n🚀 Calling init with config...")
     hyp.init(lha_file=lha_file_path, config=config)
     
-    corr_provider = PyCorrelationProvider()
+    corr_provider = CorrelationProvider()
     
     print("correlation between two obs (same obs)", corr_provider.correlation_from_observable(Observables.BR_B_XS_GAMMA, Observables.BR_B_XS_GAMMA, CorrelationType.COMBINED))

@@ -15,7 +15,7 @@ class ExternalFlag(Enum):
     
 
 @dataclass
-class PyHyperisoConfig:
+class HyperisoConfig:
     """Python wrapper for the C++ Config struct."""
     flags: Dict[ExternalFlag, bool] = field(default_factory=lambda: {
         ExternalFlag.IS_LHA_SPECTRUM: False,
@@ -43,4 +43,4 @@ class PyHyperisoConfig:
         return cpp
     
     def __repr__(self):
-        return f"PyHyperisoConfig(model={self.model}, flags={self.flags})"
+        return f"HyperisoConfig(model={self.model}, flags={self.flags})"

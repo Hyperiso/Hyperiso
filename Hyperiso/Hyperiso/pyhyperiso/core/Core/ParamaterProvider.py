@@ -1,12 +1,12 @@
 from pyhyperiso.phyperiso.pyhyperiso.core import ParameterProvider as _CppParameterProvider
 from pyhyperiso.core.Common.GeneralEnum import ParameterType, DataType, Model
 from pyhyperiso.core.Common.ParamId import LhaID, ParamId
-from pyhyperiso.core.Core.Parameter import PyParameter
+from pyhyperiso.core.Core.Parameter import Parameter
 from typing import Dict, Optional, Union
 
 
 
-class PyParameterProvider:
+class ParameterProvider:
     """
     Python wrapper for the C++ ParameterProvider class.
     Provides dual access via ParamId or (block, code).
@@ -39,11 +39,11 @@ class PyParameterProvider:
             code = LhaID(code)
         return self._cpp_obj.exists(block, code._cpp_obj)
 
-    def get_parameter(self, pid: ParamId) -> PyParameter:
+    def get_parameter(self, pid: ParamId) -> Parameter:
         """Calls the `get_parameter` method (different from __call__)."""
         _cpp_param = self._cpp_obj.get_parameter(pid._cpp_obj)
         
-        return PyParameter.from_cpp(_cpp_param)
+        return Parameter.from_cpp(_cpp_param)
 
     def get_type(self) -> ParameterType:
         """Returns the ParameterType of this provider."""
@@ -55,12 +55,12 @@ class PyParameterProvider:
     
 if __name__ == "__main__" :
     
-    from pyhyperiso.core.Core.HyperisoMaster import PyHyperisoMaster
+    from pyhyperiso.core.Core.HyperisoMaster import HyperisoMaster
     from pathlib import Path
-    from pyhyperiso.core.Core.HyperisoConfig import PyHyperisoConfig, ExternalFlag
+    from pyhyperiso.core.Core.HyperisoConfig import HyperisoConfig, ExternalFlag
     print("🔧 Initializing PyHyperisoMaster with custom PyHyperisoConfig...")
 
-    config = PyHyperisoConfig(
+    config = HyperisoConfig(
         flags={
             ExternalFlag.IS_LHA_SPECTRUM: True,
             ExternalFlag.HAS_WILSON_INPUT: False,
@@ -75,13 +75,13 @@ if __name__ == "__main__" :
     print("🔧 PyHyperisoConfig content:")
     print(config)
 
-    hyp = PyHyperisoMaster()
+    hyp = HyperisoMaster()
     lha_file_path = "lha/camilia.flha"
 
     print("\n🚀 Calling init with config...")
     hyp.init(lha_file=lha_file_path, config=config)
     
-    provider = PyParameterProvider(ParameterType.SM)
+    provider = ParameterProvider(ParameterType.SM)
     pid = ParamId(type=ParameterType.SM, block="MASS", code=24)
 
     print("🔍 By ParamId")

@@ -3,8 +3,9 @@ from pyhyperiso.core.Common.ParamId import ParamId
 from pyhyperiso.core.Common.GeneralEnum import Model, QCDOrder, WCoeff, WGroup, ContributionType, WilsonBasis, ParameterType
 from pyhyperiso.core.Common.Configs import WilsonBuildConfig, WilsonRequest
 from pyhyperiso.core.Math.scalar import Scalar
-from pyhyperiso.core.Core.BlockProvider import PyBlockLogger
-class PyWilsonInterface:
+from pyhyperiso.core.Core.BlockProvider import BlockLogger
+
+class WilsonInterface:
     """User-facing Python wrapper for the C++ WilsonInterface class."""
 
     def __init__(self):
@@ -104,13 +105,13 @@ class PyWilsonInterface:
 
 
 if __name__ == "__main__":
-    from pyhyperiso.core.Core.HyperisoMaster import PyHyperisoMaster
+    from pyhyperiso.core.Core.HyperisoMaster import HyperisoMaster
     from pathlib import Path
-    from pyhyperiso.core.Core.HyperisoConfig import PyHyperisoConfig, ExternalFlag
-    from pyhyperiso.core.Core.ParamaterProvider import PyParameterProvider
+    from pyhyperiso.core.Core.HyperisoConfig import HyperisoConfig, ExternalFlag
+    from pyhyperiso.core.Core.ParamaterProvider import ParameterProvider
     print("🔧 Initializing PyHyperisoMaster with custom PyHyperisoConfig...")
 
-    config = PyHyperisoConfig(
+    config = HyperisoConfig(
         flags={
             ExternalFlag.IS_LHA_SPECTRUM: False,
             ExternalFlag.HAS_WILSON_INPUT: False,
@@ -125,7 +126,7 @@ if __name__ == "__main__":
     print("🔧 PyHyperisoConfig content:")
     print(config)
 
-    hyp = PyHyperisoMaster()
+    hyp = HyperisoMaster()
     lha_file_path = "lha/testinput_thdm.lha" 
     # lha_file_path = "/home/theo/hyperiso/Hyperiso/Hyperiso/core/Test/InputFiles/testInput.slha"
     print("\n🚀 Calling init with config...")
@@ -153,9 +154,9 @@ if __name__ == "__main__":
 
 
         
-    PyBlockLogger().log_all_blocks(ParameterType.WILSON)
+    BlockLogger().log_all_blocks(ParameterType.WILSON)
     print("trying to build wilsoninterface")
-    interface = PyWilsonInterface()
+    interface = WilsonInterface()
     interface.build(config)
     print("build successful")
     # interface.set_matching_scale(81.0)
@@ -191,8 +192,8 @@ if __name__ == "__main__":
     print(value)  # Scalar(...)
     
     test_values = []
-    from pyhyperiso.core.Core.ParameterSetter import PyParameterSetter, ParamId, ParameterType
-    py_set = PyParameterSetter()
+    from pyhyperiso.core.Core.ParameterSetter import ParameterSetter, ParamId, ParameterType
+    py_set = ParameterSetter()
     for i in range(1, 81):
         py_set.mutate(ParamId(ParameterType.WILSON, "EW_SCALE", 1), i)
         test_values.append(interface.get_FM(WilsonRequest(WGroup.B, WCoeff.C7, QCDOrder.NNLO, ContributionType.TOTAL)))

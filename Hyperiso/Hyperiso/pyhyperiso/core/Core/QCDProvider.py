@@ -1,10 +1,10 @@
 from pyhyperiso.phyperiso.pyhyperiso.core import QCDProvider as _CppQCDProvider
-from pyhyperiso.core.Common.General import ParamId
+from pyhyperiso.core.Common.ParamId import ParamId
 from pyhyperiso.core.Common.GeneralEnum import Model, MassType
 from pyhyperiso.core.Common.Configs import MassConfig, AlphasConfig
-from pyhyperiso.core.Core.QCDConstants import PyQCDConstants
+from pyhyperiso.core.Core.QCDConstants import QCDConstants
     
-class PyQCDProvider:
+class QCDProvider:
     """Wrapper for C++ PyParameterSetter."""
 
     def __init__(self):
@@ -18,37 +18,36 @@ class PyQCDProvider:
     
     def get_qcd_constants(self):
         cpp_constants = self._cpp_obj.get_constants()
-        return PyQCDConstants(cpp_constants)
+        return QCDConstants(cpp_constants)
         
 if __name__ == "__main__":
-    from pyhyperiso.core.Core.HyperisoMaster import PyHyperisoMaster
+    from pyhyperiso.core.Core.HyperisoMaster import HyperisoMaster
     from pathlib import Path
-    from pyhyperiso.core.Core.HyperisoConfig import PyHyperisoConfig, ExternalFlag
-    from pyhyperiso.core.Core.ParamaterProvider import PyParameterProvider
+    from pyhyperiso.core.Core.HyperisoConfig import HyperisoConfig, ExternalFlag
+
     print("🔧 Initializing PyHyperisoMaster with custom PyHyperisoConfig...")
 
-    config = PyHyperisoConfig(
+    config = HyperisoConfig(
         flags={
             ExternalFlag.IS_LHA_SPECTRUM: True,
             ExternalFlag.HAS_WILSON_INPUT: False,
             ExternalFlag.HAS_TH_OBSERVABLE_INPUT: False,
-            # ExternalFlag.USE_MARTY: False
         },
         model=Model.SM,
         mty_model_name="MSSM_UFO",
         mty_model_path=Path("/my/custom/marty/path")
     )
 
-    print("🔧 PyHyperisoConfig content:")
+    print("🔧 HyperisoConfig content:")
     print(config)
 
-    hyp = PyHyperisoMaster()
+    hyp = HyperisoMaster()
     lha_file_path = "lha/camilia.flha" 
 
     print("\n🚀 Calling init with config...")
     hyp.init(lha_file=lha_file_path, config=config)
     
-    qcd_params = PyQCDProvider()
+    qcd_params = QCDProvider()
 
     print("alphas_s at 42 GeV : ", qcd_params.get_alphas(AlphasConfig(42)))
     

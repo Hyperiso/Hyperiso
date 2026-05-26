@@ -1,54 +1,65 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Mapping, Optional, Sequence
+from enum import Enum
+from typing import Dict, List, Optional, Sequence
 
 from pyhyperiso.phyperiso.pyhyperiso import statistic as st
-from pyhyperiso.core.Common.GeneralEnum import QCDOrder
 from pyhyperiso.core.Common.BinnedObservableId import BinnedObservableId
+from pyhyperiso.core.Common.GeneralEnum import QCDOrder
 from pyhyperiso.core.Common.ParamId import ParamId
-from pyhyperiso.core.Statistic.MarginalConfig import MarginalKind
 from pyhyperiso.core.Statistic.Copula import CopulaKind
+from pyhyperiso.core.Statistic.ExperimentObs import ExperimentObs
+from pyhyperiso.core.Statistic.MarginalConfig import MarginalKind
 
 
-_CppStatisticConfig = st.StatisticConfig
+class StatisticLikelihoodMode(Enum):
+    PROFILED_NUISANCE = st.StatisticLikelihoodMode.PROFILED_NUISANCE
+    CHI2_MC_COVARIANCE = st.StatisticLikelihoodMode.CHI2_MC_COVARIANCE
+
+    def to_cpp(self):
+        return self.value
 
 
-def _to_cpp_obj(x: Any) -> Any:
-    if hasattr(x, "to_cpp") and callable(getattr(x, "to_cpp")):
-        return x.to_cpp()
-    if hasattr(x, "_cpp_obj"):
-        return x._cpp_obj
-    if hasattr(x, "_cpp"):
-        return x._cpp
-    return x
+def _require(value, typ, name: str):
+    if not isinstance(value, typ):
+        raise TypeError(f"{name} doit être {typ.__name__}, reçu {type(value)!r}.")
+    return value
 
 
-def _to_cpp_enum(x: Any) -> Any:
-    if hasattr(x, "to_cpp") and callable(getattr(x, "to_cpp")):
-        return x.to_cpp()
-    return x
+def _cpp_param_id(pid: ParamId):
+    return _require(pid, ParamId, "ParamId").to_cpp()
 
 
-def _marginal_override_map_to_cpp(values: Mapping[Any, Any]) -> Dict[Any, Any]:
-    return {
-        _to_cpp_obj(k): _to_cpp_enum(v)
-        for k, v in values.items()
-    }
+def _cpp_binned_observable_id(obs: BinnedObservableId):
+    return _require(obs, BinnedObservableId, "BinnedObservableId").to_cpp()
+
+
+def _cpp_marginal_kind(kind: MarginalKind):
+    return _require(kind, MarginalKind, "MarginalKind").to_cpp()
+
+
+def _cpp_copula_kind(kind: CopulaKind):
+    return _require(kind, CopulaKind, "CopulaKind").to_cpp()
+
+
+def _cpp_likelihood_mode(mode: StatisticLikelihoodMode):
+    return _require(mode, StatisticLikelihoodMode, "StatisticLikelihoodMode").to_cpp()
+
+
+def _cpp_experiment_obs(obs: ExperimentObs):
+    return _require(obs, ExperimentObs, "ExperimentObs").to_cpp()
 
 
 @dataclass
 class StatisticConfig:
-    # Conservé côté Python pour compatibilité avec ton ancienne API.
-    # N'est plus envoyé à StatisticConfig C++.
+    # Python-side only : sélection pratique pour tes workflows.
     obss: Dict[BinnedObservableId, QCDOrder] = field(default_factory=dict)
-
-    # Conservé côté Python comme liste par défaut pour compute_MLE().
-    # N'est plus envoyé à StatisticConfig C++.
     p_specs: List[ParamId] = field(default_factory=list)
+    selected_experiments: Optional[Sequence[str]] = None
 
     override_nuisance_marginals: Dict[ParamId, MarginalKind] = field(default_factory=dict)
-    override_exp_data_marginals: Dict[Any, MarginalKind] = field(default_factory=dict)
+    override_exp_data_marginals: Dict[ExperimentObs, MarginalKind] = field(default_factory=dict)
 
     nuisance_copula_type: CopulaKind = CopulaKind.GAUSSIAN
     exp_data_copula_type: CopulaKind = CopulaKind.GAUSSIAN
@@ -78,21 +89,29 @@ class StatisticConfig:
     MLE_profile_hessian_step_scale: float = 1.0
     MLE_profile_hessian_eig_floor_rel: float = 1e-8
 
-    # Option Python-side seulement, si tu exposes select_experiments côté C++.
-    selected_experiments: Optional[Sequence[str]] = None
+    likelihood_mode: StatisticLikelihoodMode = StatisticLikelihoodMode.PROFILED_NUISANCE
+    chi2_covariance_ridge_rel: float = 1e-8
+    chi2_covariance_ridge_abs: float = 1e-12
 
-    def to_cpp(self) -> _CppStatisticConfig:
-        cpp = _CppStatisticConfig()
+    nuisance_sensitivity_contexts: int = 2
+    nuisance_sensitivity_context_sigma: float = 0.35
+    nuisance_sensitivity_seed: int = 12345
+    nuisance_sensitivity_keep_on_failure: bool = True
 
-        cpp.override_nuisance_marginals = _marginal_override_map_to_cpp(
-            self.override_nuisance_marginals
-        )
-        cpp.override_exp_data_marginals = _marginal_override_map_to_cpp(
-            self.override_exp_data_marginals
-        )
+    def to_cpp(self):
+        cpp = st.StatisticConfig()
 
-        cpp.nuisance_copula_type = _to_cpp_enum(self.nuisance_copula_type)
-        cpp.exp_data_copula_type = _to_cpp_enum(self.exp_data_copula_type)
+        cpp.override_nuisance_marginals = {
+            _cpp_param_id(pid): _cpp_marginal_kind(kind)
+            for pid, kind in self.override_nuisance_marginals.items()
+        }
+        cpp.override_exp_data_marginals = {
+            _cpp_experiment_obs(obs): _cpp_marginal_kind(kind)
+            for obs, kind in self.override_exp_data_marginals.items()
+        }
+
+        cpp.nuisance_copula_type = _cpp_copula_kind(self.nuisance_copula_type)
+        cpp.exp_data_copula_type = _cpp_copula_kind(self.exp_data_copula_type)
 
         cpp.MC_draws = int(self.MC_draws)
         cpp.skew_abs_threshold = float(self.skew_abs_threshold)
@@ -119,24 +138,25 @@ class StatisticConfig:
         cpp.MLE_profile_hessian_step_scale = float(self.MLE_profile_hessian_step_scale)
         cpp.MLE_profile_hessian_eig_floor_rel = float(self.MLE_profile_hessian_eig_floor_rel)
 
+        cpp.likelihood_mode = _cpp_likelihood_mode(self.likelihood_mode)
+        cpp.chi2_covariance_ridge_rel = float(self.chi2_covariance_ridge_rel)
+        cpp.chi2_covariance_ridge_abs = float(self.chi2_covariance_ridge_abs)
+        cpp.nuisance_sensitivity_contexts = int(self.nuisance_sensitivity_contexts)
+        cpp.nuisance_sensitivity_context_sigma = float(self.nuisance_sensitivity_context_sigma)
+        cpp.nuisance_sensitivity_seed = int(self.nuisance_sensitivity_seed)
+        cpp.nuisance_sensitivity_keep_on_failure = bool(self.nuisance_sensitivity_keep_on_failure)
+
         return cpp
 
-    def __repr__(self) -> str:
-        return (
-            "StatisticConfig("
-            f"MC_draws={self.MC_draws}, "
-            f"skew_abs_threshold={self.skew_abs_threshold}, "
-            f"MLE_max_iter={self.MLE_max_iter}, "
-            f"MLE_tol={self.MLE_tol}, "
-            f"MLE_strategy={self.MLE_strategy}, "
-            f"MLE_run_hesse={self.MLE_run_hesse}, "
-            f"MLE_request_minos={self.MLE_request_minos}, "
-            f"MLE_verbose={self.MLE_verbose}, "
-            f"nuisance_relevance_cutoff={self.nuisance_relevance_cutoff}, "
-            f"nuisance_sensitivity_pruning={self.nuisance_sensitivity_pruning}, "
-            f"p_specs={self.p_specs}"
-            ")"
-        )
+    def selected_observables_to_cpp(self):
+        return {_cpp_binned_observable_id(obs): _require(order, QCDOrder, "QCDOrder").value for obs, order in self.obss.items()}
+
+    def p_specs_to_cpp(self):
+        return [_cpp_param_id(pid) for pid in self.p_specs]
+
+
+__all__ = ["StatisticConfig", "StatisticLikelihoodMode"]
+
 if __name__ == "__main__":
     a = StatisticConfig()
     print(a)

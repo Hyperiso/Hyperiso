@@ -12,7 +12,7 @@ class ParameterMode(Enum):
     FIXED = _CppParameterMode.FIXED
     SHIFTABLE = _CppParameterMode.SHIFTABLE
     
-class PyParameter:
+class Parameter:
     def __init__(
         self,
         pid: ParamId,
@@ -64,17 +64,17 @@ class PyParameter:
 
     def __repr__(self):
         return (
-            f"<PyParameter pid={self.pid}, value={self.value}, "
+            f"<Parameter pid={self.pid}, value={self.value}, "
             f"std={self.std}, combined_std={self.combined_std}>"
         )
     
     @staticmethod
     def from_cpp(cpp_obj):
-        param = PyParameter(ParamId(), 0, 0, 0)
+        param = Parameter(ParamId(), 0, 0, 0)
         param._cpp_obj = cpp_obj
         return param
 
-class PyDependentParameter(PyParameter):
+class PyDependentParameter(Parameter):
     """Python wrapper around DependentParameter."""
 
     def __init__(self, cpp_obj: _CppDependentParameter):
@@ -116,7 +116,7 @@ if __name__ == "__main__":
     print(f"sqrt({b}) =", e)
     
     pid = ParamId(type=ParameterType.SM, block="MASS", code=25)
-    param = PyParameter(pid, 125.0, 0.1, 0.2)
+    param = Parameter(pid, 125.0, 0.1, 0.2)
 
     print("Initial:", param)
     param.set_expected(126.5)

@@ -2,7 +2,7 @@ from pyhyperiso.phyperiso.pyhyperiso.core import BlockProvider as _CppBlockProvi
 from pyhyperiso.core.Common.ParamId import ParamId
 from pyhyperiso.core.Common.GeneralEnum import Model, ParameterType
 
-class PyBlockLogger:
+class BlockLogger:
     """Wrapper for C++ PyParameterSetter."""
 
     def __init__(self):
@@ -18,13 +18,13 @@ class PyBlockLogger:
         return self._cpp_obj.log_block(param_type.value, blockname)
         
 if __name__ == "__main__":
-    from pyhyperiso.core.Core.HyperisoMaster import PyHyperisoMaster
+    from pyhyperiso.core.Core.HyperisoMaster import HyperisoMaster
     from pathlib import Path
-    from pyhyperiso.core.Core.HyperisoConfig import PyHyperisoConfig, ExternalFlag
-    from pyhyperiso.core.Core.ParamaterProvider import PyParameterProvider
+    from pyhyperiso.core.Core.HyperisoConfig import HyperisoConfig, ExternalFlag
+    from pyhyperiso.core.Core.ParamaterProvider import ParameterProvider
     print("🔧 Initializing PyHyperisoMaster with custom PyHyperisoConfig...")
 
-    config = PyHyperisoConfig(
+    config = HyperisoConfig(
         flags={
             ExternalFlag.IS_LHA_SPECTRUM: True,
             ExternalFlag.HAS_WILSON_INPUT: False,
@@ -39,13 +39,13 @@ if __name__ == "__main__":
     print("🔧 PyHyperisoConfig content:")
     print(config)
 
-    hyp = PyHyperisoMaster()
+    hyp = HyperisoMaster()
     lha_file_path = "lha/camilia.flha" 
 
     print("\n🚀 Calling init with config...")
     hyp.init(lha_file=lha_file_path, config=config)
     
-    block_prov = PyBlockLogger()
+    block_prov = BlockLogger()
 
     print("block mass : ")
     block_prov.log_block(ParameterType.SM, "MASS")
