@@ -194,6 +194,10 @@ int main() {
     }
 
     {
+        // Observable::compute() does not enable the decay by itself.
+        // The direct Observable path therefore enables the decay explicitly first.
+        decay->enable();
+
         auto out = obs.compute();
         assert(out.size() == 1);
         assert(out[0].id == oid);

@@ -6,6 +6,7 @@
 #include <vector>
 #include <map>
 #include <any>
+#include <algorithm>
 
 #include "Include.h"
 
@@ -153,10 +154,10 @@ int main() {
     auto use_marty = std::make_shared<FakeCoreBool>(false);
     auto freezer = std::make_shared<DummyFreezer>();
 
-    ParamId pid_mW(ParameterType::SM, "MASS", 24);
-    ParamId pid_mb(ParameterType::SM, "QCD", LhaID(5,2));
-    pp_spy->values[pid_mW] = R(80.0);
-    pp_spy->values[pid_mb] = R(4.2);
+    ParamId pid_muW(ParameterType::WILSON, "EW_SCALE", 1);
+    ParamId pid_mub(ParameterType::WILSON, "B_SCALE", 1);
+    pp_spy->values[pid_muW] = R(160.0);
+    pp_spy->values[pid_mub] = R(4.8);
 
     ObservablePortsConfig ports(wb, p_sm, p_flav, qcd, use_marty, freezer);
 
@@ -169,8 +170,8 @@ int main() {
     mgr.add_custom_decay(did, std::make_shared<SimpleDecay>(did, ports));
 
     assert(pp_spy->calls >= 2);
-    assert(contains_pid(pp_spy->called_pids, pid_mW));
-    assert(contains_pid(pp_spy->called_pids, pid_mb));
+    assert(contains_pid(pp_spy->called_pids, pid_muW));
+    assert(contains_pid(pp_spy->called_pids, pid_mub));
 
     {
         const auto oid = BinnedObservableId(ObservableMapper::to_id(Observables::BR_BS_MUMU));
@@ -190,7 +191,7 @@ int main() {
         mgr.remove_obs(Observables::BR_BS_MUMU);
 
         auto cur = mgr.get_current_obss();
-        assert(std::count(cur.begin(), cur.end(), oid) == 1);
+        assert(std::count(cur.begin(), cur.end(), oid) == 0);
     }
 
     {

@@ -13,9 +13,10 @@ std::vector<double> GaussianMarginal::rvs(std::size_t n) {
     return z;
 }
 
+//TODO :: Niels pk on a changé la ?
 double GaussianMarginal::logpdf(double x) {
-    // return -0.5 * (std::log(2 * PI * sigma * sigma) + std::pow((x - mu) / sigma, 2));
-    return -0.5 * std::pow((x - mu) / sigma, 2);
+    return -0.5 * (std::log(2 * PI * sigma * sigma) + std::pow((x - mu) / sigma, 2));
+    // return -0.5 * std::pow((x - mu) / sigma, 2);
 }
 
 // PDFDiff GaussianMarginal::f_df_ddf(double x) {

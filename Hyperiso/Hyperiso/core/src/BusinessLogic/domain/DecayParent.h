@@ -170,7 +170,8 @@ public:
      *  4) Call @ref load_params (implemented by derived class)
      *  5) Mark the decay as enabled
      *
-     * Calling enable() multiple times is safe: if already enabled it does nothing.
+     * Calling enable() multiple times is safe: if already enabled, Wilson groups are not rebuilt,
+    *  but load_params() is called again to refresh cached inputs.
      */
     void enable();
 

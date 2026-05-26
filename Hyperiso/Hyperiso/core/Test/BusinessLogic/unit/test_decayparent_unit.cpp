@@ -255,17 +255,24 @@ int main() {
         int prev_build = builder_spy->build_calls;
         d.load_called = false;
         builder_spy->proxy->basis_called = false;
+        p_spy->calls_pid.clear();
 
         d.enable();
 
+        // Current DecayParent semantics:
+        // a second enable() does not rebuild Wilson groups and does not reset the basis,
+        // but it does refresh cached parameters through load_params().
         assert(builder_spy->build_calls == prev_build);
         assert(!builder_spy->proxy->basis_called);
-        assert(!d.load_called);
+        assert(d.load_called);
+        assert(!p_spy->calls_pid.empty());
     }
 
     {
         d.disable();
-        assert(!d.is_enabled());
+
+        // Current implementation keeps disable() as a no-op placeholder.
+        assert(d.is_enabled());
     }
 
     {

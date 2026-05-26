@@ -143,7 +143,7 @@ target_include_directories(StatisticLib
     ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-target_link_libraries(StatisticLib PUBLIC BusinessLogicLib PhysicalModelLib CoreLib CommonLib ConfiguredModule MathLib MinuitCpp::MinuitCpp)
+target_link_libraries(StatisticLib PUBLIC BusinessLogicLib PhysicalModelLib CoreLib CommonLib ConfiguredModule MathLib)
 
 add_executable(RNG_TEST app/main_rng.cpp)
 target_link_libraries(RNG_TEST StatisticLib)

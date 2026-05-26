@@ -362,6 +362,11 @@ target_link_libraries(testCopulasUnit StatisticLib UtilsLib)
 add_executable(testCopulasIntegration Statistic/integration/test_copulas_integration.cpp)
 target_link_libraries(testCopulasIntegration StatisticLib UtilsLib)
 
+add_executable(testJointDistributionUnit Statistic/unit/test_jointdistribution_unit.cpp)
+target_link_libraries(testJointDistributionUnit StatisticLib UtilsLib)
+
+add_executable(testJointDistributionIntegration Statistic/integration/test_jointdistribution_integration.cpp)
+target_link_libraries(testJointDistributionIntegration StatisticLib UtilsLib)
 # --------- Wilson ---------
 
 
@@ -635,6 +640,52 @@ set_tests_properties(testHasWilsonUnit PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1"
 
 add_test(NAME testHasWilsonIntegration COMMAND testHasWilsonIntegration)
 set_tests_properties(testHasWilsonIntegration PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "physicalmodel")
+
+#BusinessLogic
+
+add_test(NAME testObsWilsonHelperUnit COMMAND testObsWilsonHelperUnit)
+set_tests_properties(testObsWilsonHelperUnit PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "businesslogic")
+
+add_test(NAME testObsWilsonHelperIntegration COMMAND testObsWilsonHelperIntegration)
+set_tests_properties(testObsWilsonHelperIntegration PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "businesslogic")
+
+add_test(NAME testDecayParentUnit COMMAND testDecayParentUnit)
+set_tests_properties(testDecayParentUnit PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "businesslogic")
+
+add_test(NAME testDecayParentIntegration COMMAND testDecayParentIntegration)
+set_tests_properties(testDecayParentIntegration PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "businesslogic")
+
+add_test(NAME testObservableUnit COMMAND testObservableUnit)
+set_tests_properties(testObservableUnit PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "businesslogic")
+
+add_test(NAME testObservableIntegration COMMAND testObservableIntegration)
+set_tests_properties(testObservableIntegration PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "businesslogic")
+
+add_test(NAME testObsManagerUnit COMMAND testObsManagerUnit)
+set_tests_properties(testObsManagerUnit PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "businesslogic")
+
+add_test(NAME testObsManagerIntegration COMMAND testObsManagerIntegration)
+set_tests_properties(testObsManagerIntegration PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "businesslogic")
+
+#Statistic
+
+add_test(NAME testMarginalsUnit COMMAND testMarginalsUnit)
+set_tests_properties(testMarginalsUnit PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "statistic")
+
+add_test(NAME testMarginalsIntegration COMMAND testMarginalsIntegration)
+set_tests_properties(testMarginalsIntegration PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "statistic")
+
+add_test(NAME testCopulasUnit COMMAND testCopulasUnit)
+set_tests_properties(testCopulasUnit PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "statistic")
+
+add_test(NAME testCopulasIntegration COMMAND testCopulasIntegration)
+set_tests_properties(testCopulasIntegration PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "statistic")
+
+add_test(NAME testJointDistributionUnit COMMAND testJointDistributionUnit)
+set_tests_properties(testJointDistributionUnit PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "statistic")
+
+add_test(NAME testJointDistributionIntegration COMMAND testJointDistributionIntegration)
+set_tests_properties(testJointDistributionIntegration PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "statistic")
 
 #other testings
 add_test(NAME TestLHAReader COMMAND testReader)

@@ -367,10 +367,18 @@ set_target_properties(MinuitCpp PROPERTIES
 
 target_include_directories(MinuitCpp
   PUBLIC
-    "${minuit_cpp_BINARY_DIR}/include"
-    "${minuit_cpp_SOURCE_DIR}/include"
+    $<BUILD_INTERFACE:${minuit_cpp_BINARY_DIR}/include>
+    $<BUILD_INTERFACE:${minuit_cpp_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
 target_compile_features(MinuitCpp PUBLIC cxx_std_20)
 
-target_link_libraries(ExternalIntegrationLib PUBLIC MinuitCpp::MinuitCpp)
+target_link_libraries(ExternalIntegrationLib PRIVATE MinuitCpp::MinuitCpp)
+
+install(TARGETS MinuitCpp
+  EXPORT HyperisoTargets
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+)

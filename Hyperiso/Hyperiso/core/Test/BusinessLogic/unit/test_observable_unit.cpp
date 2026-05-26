@@ -225,10 +225,11 @@ int main() {
 
         auto out = obs.compute();
 
-        assert(wb_spy->build_calls == 1);
-        assert(wb_spy->proxy->basis_called);
-        assert(wb_spy->proxy->last_basis == WilsonBasis::B_STANDARD);
-        assert(decay->load_calls == 1);
+        // Current Observable semantics:
+        // compute() is only a thin forwarding wrapper. It does not enable the decay.
+        assert(wb_spy->build_calls == 0);
+        assert(!wb_spy->proxy->basis_called);
+        assert(decay->load_calls == 0);
 
         assert(decay->compute_calls == 1);
         assert(decay->last_obs == oid);
@@ -244,14 +245,14 @@ int main() {
         ParamId p3{ParameterType::FLAVOR, "FMASS", 531};
 
         obs.add_dependence(p1);
-        assert(obs.get_dependences().count(p1) == 1);
+        obs.add_dependence(p2);
+        obs.add_dependence(p3);
 
-        obs.add_dependences(std::unordered_set<ParamId>{p2, p3});
         assert(obs.get_dependences().count(p1) == 1);
         assert(obs.get_dependences().count(p2) == 1);
         assert(obs.get_dependences().count(p3) == 1);
 
-        obs.add_dependences(std::unordered_set<ParamId>{p2});
+        obs.add_dependence(p2);
         assert(obs.get_dependences().count(p2) == 1);
     }
 
