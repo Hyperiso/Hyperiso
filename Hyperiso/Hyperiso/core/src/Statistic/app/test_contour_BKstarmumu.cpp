@@ -1213,7 +1213,7 @@ int main() {
     config.MLE_trace_first_evals  = true;
     config.MLE_trace_max_evals  = 20;
     config.likelihood_mode = StatisticLikelihoodMode::CHI2_MC_COVARIANCE;
-    config.MC_draws = 100;
+    config.MC_draws = 200;
     config.nuisance_sensitivity_contexts = -1;
     const std::string had_bsm_block =
         GroupMapper::str(WGroup::B, ScaleType::HADRONIC, WilsonBasis::B_STANDARD)
