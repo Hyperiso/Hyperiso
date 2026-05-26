@@ -1,5 +1,5 @@
 #include "Include.h"
-#include "DistributionFactory.h"
+#include "MarginalFactory.h"
 
 #include <cassert>
 #include <cmath>
@@ -42,10 +42,10 @@ int main() {
     {
         std::vector<std::unique_ptr<IMarginalDistribution>> dists;
         dists.push_back(
-            DistributionFactory::create(MarginalType::GAUSSIAN, GaussianMarginalCfg{10.0, 2.0}, 123)
+            MarginalFactory::create(MarginalType::GAUSSIAN, GaussianMarginalCfg{10.0, 2.0}, 123)
         );
         dists.push_back(
-            DistributionFactory::create(MarginalType::FLAT, FlatMarginalCfg{-std::sqrt(3.0), std::sqrt(3.0)}, 456)
+            MarginalFactory::create(MarginalType::FLAT, FlatMarginalCfg{-std::sqrt(3.0), std::sqrt(3.0)}, 456)
         );
 
         assert(dists.size() == 2);
@@ -63,8 +63,8 @@ int main() {
     }
 
     {
-        auto d1 = DistributionFactory::create(MarginalType::GAUSSIAN, GaussianMarginalCfg{0.0, 1.0}, 999);
-        auto d2 = DistributionFactory::create(MarginalType::GAUSSIAN, GaussianMarginalCfg{0.0, 1.0}, 999);
+        auto d1 = MarginalFactory::create(MarginalType::GAUSSIAN, GaussianMarginalCfg{0.0, 1.0}, 999);
+        auto d2 = MarginalFactory::create(MarginalType::GAUSSIAN, GaussianMarginalCfg{0.0, 1.0}, 999);
 
         Vector s1 = d1->rvs(16);
         Vector s2 = d2->rvs(16);
@@ -73,8 +73,8 @@ int main() {
     }
 
     {
-        auto flat = DistributionFactory::create(MarginalType::FLAT, FlatMarginalCfg{-2.0, 2.0}, 77);
-        auto gaus = DistributionFactory::create(MarginalType::GAUSSIAN, GaussianMarginalCfg{0.0, 1.0}, 77);
+        auto flat = MarginalFactory::create(MarginalType::FLAT, FlatMarginalCfg{-2.0, 2.0}, 77);
+        auto gaus = MarginalFactory::create(MarginalType::GAUSSIAN, GaussianMarginalCfg{0.0, 1.0}, 77);
 
         Vector sf = flat->rvs(2000);
         Vector sg = gaus->rvs(4000);
@@ -96,7 +96,7 @@ int main() {
         };
 
         for (std::size_t i = 0; i < cfgs.size(); ++i) {
-            auto dist = DistributionFactory::create(kinds[i], cfgs[i], static_cast<unsigned int>(100 + i));
+            auto dist = MarginalFactory::create(kinds[i], cfgs[i], static_cast<unsigned int>(100 + i));
             assert(dist != nullptr);
 
             const double p = 0.3;

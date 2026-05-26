@@ -1,7 +1,7 @@
 #include "Include.h"
 #include "GaussianMarginal.h"
 #include "FlatMarginal.h"
-#include "DistributionFactory.h"
+#include "MarginalFactory.h"
 
 #include <cassert>
 #include <cmath>
@@ -98,7 +98,7 @@ int main() {
 
     {
         MarginalConfig cfg = GaussianMarginalCfg{2.0, 0.75};
-        auto dist = DistributionFactory::create(MarginalType::GAUSSIAN, cfg, 11);
+        auto dist = MarginalFactory::create(MarginalType::GAUSSIAN, cfg, 11);
 
         assert(dist != nullptr);
         assert(approx(dist->mean(), 2.0));
@@ -108,7 +108,7 @@ int main() {
 
     {
         MarginalConfig cfg = FlatMarginalCfg{-std::sqrt(3.0), std::sqrt(3.0)};
-        auto dist = DistributionFactory::create(MarginalType::FLAT, cfg, 17);
+        auto dist = MarginalFactory::create(MarginalType::FLAT, cfg, 17);
 
         assert(dist != nullptr);
         assert(approx(dist->mean(), 0.0, 1e-12));

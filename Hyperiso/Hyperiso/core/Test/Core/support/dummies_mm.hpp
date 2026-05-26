@@ -123,6 +123,15 @@ struct DummyBA : public IDataLoader<BlockAccessor> {
         vckmin->store(3, std::make_shared<Parameter>(ParamId("VCKMIN", 3), 0.135, 0.0, 0.0)); // rho
         vckmin->store(4, std::make_shared<Parameter>(ParamId("VCKMIN", 4), 0.349, 0.0, 0.0)); // eta
 
+        auto upmnsmin = std::make_shared<Block>();
+        upmnsmin->blockname = "UPMNSIN";
+        upmnsmin->store(1, std::make_shared<Parameter>(ParamId("UPMNSIN", 1), 0.5831, 0.0, 0.0));
+        upmnsmin->store(2, std::make_shared<Parameter>(ParamId("UPMNSIN", 2), 0.857,  0.0, 0.0));
+        upmnsmin->store(3, std::make_shared<Parameter>(ParamId("UPMNSIN", 3), 0.149, 0.0, 0.0));
+        upmnsmin->store(4, std::make_shared<Parameter>(ParamId("UPMNSIN", 4), 0.349, 0.0, 0.0));
+        upmnsmin->store(5, std::make_shared<Parameter>(ParamId("UPMNSIN", 5), 0, 0.0, 0.0));
+        upmnsmin->store(6, std::make_shared<Parameter>(ParamId("UPMNSIN", 6), 0, 0.0, 0.0));
+
         auto fobs = std::make_shared<Block>();
         fobs->blockname = "FOBS";
         fobs->store(1, std::make_shared<Parameter>(ParamId("FOBS", 1), 0.0, 0.0, 0.0));
@@ -151,6 +160,7 @@ struct DummyBA : public IDataLoader<BlockAccessor> {
         dest->emplace("SMINPUTS", sminputs);
         dest->emplace("QCD",      qcd);
         dest->emplace("VCKMIN",   vckmin);
+        dest->emplace("UPMNSIN",   upmnsmin);
         dest->emplace("FOBS",  fobs);
         dest->emplace("FWCOEF",fw);
         dest->emplace("EW_SCALE",few);
