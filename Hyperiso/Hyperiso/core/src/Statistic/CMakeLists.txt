@@ -86,6 +86,8 @@ add_library(StatisticLib STATIC
     adapters/StatParamSourcesProxy.cpp
     adapters/StatParamOptimizerProxy.cpp
     adapters/StatDependencyPruner.cpp
+    adapters/StatisticInterface.cpp
+    adapters/ObservableInterfaceProxy.cpp
     domain/NuisanceReader.cpp
     # domain/RNGHelper.cpp
     domain/JointDistribution.cpp

@@ -34,6 +34,7 @@
 #include "ILikelihood.h"
 #include "BaseLikelihood.h"
 #include "Fit.h"
+#include "MCEngine.h"
 #include "IProfilingStrategy.h"
 
 #if __has_include("Profiler.h")
@@ -487,6 +488,11 @@ void init_fit_and_contours(py::module_& m) {
         .value("MINUIT", ContourAlgorithm::MINUIT)
         .export_values();
 
+    py::enum_<ProfileBackend>(m, "ProfileBackend")
+        .value("MINUIT", ProfileBackend::MINUIT)
+        .value("LAPLACE_NUISANCE", ProfileBackend::LAPLACE_NUISANCE)
+        .export_values();
+
     py::class_<MLFitOptions>(m, "MLFitOptions")
         .def(py::init<>())
         .def_readwrite("run_hesse", &MLFitOptions::run_hesse)
@@ -504,6 +510,7 @@ void init_fit_and_contours(py::module_& m) {
     py::class_<ContourOptions>(m, "ContourOptions")
         .def(py::init<>())
         .def_readwrite("profiling_method", &ContourOptions::profiling_method)
+        .def_readwrite("profile_backend", &ContourOptions::profile_backend)
         .def_readwrite("primary_contour_method", &ContourOptions::primary_contour_method)
         .def_readwrite("fallback_contour_method", &ContourOptions::fallback_contour_method)
         .def_readwrite("resolution", &ContourOptions::resolution);
@@ -518,6 +525,33 @@ void init_fit_and_contours(py::module_& m) {
 }
 
 void init_statistic_data_structures(py::module_& m) {
+    py::enum_<StatisticLikelihoodMode>(m, "StatisticLikelihoodMode")
+        .value("PROFILED_NUISANCE", StatisticLikelihoodMode::PROFILED_NUISANCE)
+        .value("CHI2_MC_COVARIANCE", StatisticLikelihoodMode::CHI2_MC_COVARIANCE)
+        .export_values();
+
+    py::class_<MCConfig>(m, "MCConfig")
+        .def(py::init<>())
+        .def_readwrite("draws", &MCConfig::draws)
+        .def_readwrite("skew_abs_threshold", &MCConfig::skew_abs_threshold)
+        .def_readwrite("covariance_ridge_rel", &MCConfig::covariance_ridge_rel)
+        .def_readwrite("covariance_ridge_abs", &MCConfig::covariance_ridge_abs)
+        .def_readwrite("retry_failed_predictions", &MCConfig::retry_failed_predictions)
+        .def_readwrite("max_prediction_failures", &MCConfig::max_prediction_failures);
+
+    py::class_<MCObservableCovariance>(m, "MCObservableCovariance")
+        .def(py::init<>())
+        .def_readwrite("ids", &MCObservableCovariance::ids)
+        .def_readwrite("mean", &MCObservableCovariance::mean)
+        .def_readwrite("covariance", &MCObservableCovariance::covariance)
+        .def_readwrite("covariance_inv", &MCObservableCovariance::covariance_inv);
+
+    m.def("covariance_from_obs_samples", &covariance_from_obs_samples,
+          py::arg("samples"), py::arg("ids"),
+          py::arg("ridge_rel") = 1e-8, py::arg("ridge_abs") = 1e-12);
+    m.def("covariance_ids_from_first_sample", &covariance_ids_from_first_sample,
+          py::arg("samples"));
+
     py::class_<GaussianSummary>(m, "GaussianSummary")
         .def(py::init<>())
         .def_readwrite("id", &GaussianSummary::id)
@@ -547,7 +581,8 @@ void init_statistic_data_structures(py::module_& m) {
     py::class_<MCResult>(m, "MCResult")
         .def(py::init<>())
         .def_readwrite("mc_real", &MCResult::mc_real)
-        .def_readwrite("summary", &MCResult::summary);
+        .def_readwrite("summary", &MCResult::summary)
+        .def_readwrite("covariance", &MCResult::covariance);
 
     py::class_<StatisticConfig>(m, "StatisticConfig")
         .def(py::init<>())
@@ -573,7 +608,14 @@ void init_statistic_data_structures(py::module_& m) {
         .def_readwrite("MLE_trace_max_evals", &StatisticConfig::MLE_trace_max_evals)
         .def_readwrite("MLE_allow_profile_hessian_fallback", &StatisticConfig::MLE_allow_profile_hessian_fallback)
         .def_readwrite("MLE_profile_hessian_step_scale", &StatisticConfig::MLE_profile_hessian_step_scale)
-        .def_readwrite("MLE_profile_hessian_eig_floor_rel", &StatisticConfig::MLE_profile_hessian_eig_floor_rel);
+        .def_readwrite("MLE_profile_hessian_eig_floor_rel", &StatisticConfig::MLE_profile_hessian_eig_floor_rel)
+        .def_readwrite("likelihood_mode", &StatisticConfig::likelihood_mode)
+        .def_readwrite("chi2_covariance_ridge_rel", &StatisticConfig::chi2_covariance_ridge_rel)
+        .def_readwrite("chi2_covariance_ridge_abs", &StatisticConfig::chi2_covariance_ridge_abs)
+        .def_readwrite("nuisance_sensitivity_contexts", &StatisticConfig::nuisance_sensitivity_contexts)
+        .def_readwrite("nuisance_sensitivity_context_sigma", &StatisticConfig::nuisance_sensitivity_context_sigma)
+        .def_readwrite("nuisance_sensitivity_seed", &StatisticConfig::nuisance_sensitivity_seed)
+        .def_readwrite("nuisance_sensitivity_keep_on_failure", &StatisticConfig::nuisance_sensitivity_keep_on_failure);
 
     py::class_<FitResultWithMaps>(m, "FitResultWithMaps")
         .def(py::init<>())
@@ -620,7 +662,34 @@ void init_statistic_interface(py::module_& m) {
              py::arg("p2"),
              py::arg("z"),
              py::arg("bounds"),
-             py::arg("options") = ContourOptions{});
+             py::arg("options") = ContourOptions{})
+        .def("reload_nuisance_specs", &StatisticInterface::reload_nuisance_specs)
+        .def("set_nuisance_user_file", &StatisticInterface::set_nuisance_user_file,
+             py::arg("user_yaml_path"))
+        .def("clear_nuisance_user_file", &StatisticInterface::clear_nuisance_user_file)
+        .def("prepare_likelihood_for_scan", &StatisticInterface::prepare_likelihood_for_scan,
+             py::arg("p_specs"))
+        .def("set_manual_scan_point", &StatisticInterface::set_manual_scan_point,
+             py::arg("p_hat"), py::arg("eta_hat"))
+        .def("scan_likelihood_around_current_point",
+             &StatisticInterface::scan_likelihood_around_current_point,
+             py::arg("p1"),
+             py::arg("p2"),
+             py::arg("x_half_width"),
+             py::arg("y_half_width"),
+             py::arg("nx"),
+             py::arg("ny"))
+        .def("save_likelihood_scan_csv", &StatisticInterface::save_likelihood_scan_csv,
+             py::arg("path"), py::arg("grid"))
+        .def("update_cache", &StatisticInterface::update_cache,
+             py::arg("p_specs") = std::vector<ParamId>{})
+        .def("get_all_obss_deps", &StatisticInterface::get_all_obss_deps)
+        .def("get_p_specs", &StatisticInterface::get_p_specs,
+             py::arg("p_specs"))
+        .def("get_all_correlations", &StatisticInterface::get_all_correlations)
+        .def("get_all_obs_correlations", &StatisticInterface::get_all_obs_correlations)
+        .def("get_obs_exp", &StatisticInterface::get_obs_exp)
+        .def("print_cache", &StatisticInterface::print_cache);
 }
 
 } // namespace
