@@ -367,6 +367,54 @@ target_link_libraries(testJointDistributionUnit StatisticLib UtilsLib)
 
 add_executable(testJointDistributionIntegration Statistic/integration/test_jointdistribution_integration.cpp)
 target_link_libraries(testJointDistributionIntegration StatisticLib UtilsLib)
+
+add_executable(testLikelihoodBaseUnit Statistic/unit/test_likelihood_base_unit.cpp)
+target_link_libraries(testLikelihoodBaseUnit StatisticLib UtilsLib)
+
+add_executable(testLikelihoodBaseIntegration Statistic/integration/test_likelihood_base_integration.cpp)
+target_link_libraries(testLikelihoodBaseIntegration StatisticLib UtilsLib)
+
+add_executable(testGradientHelperUnit Statistic/unit/test_gradienthelper_unit.cpp)
+target_link_libraries(testGradientHelperUnit StatisticLib UtilsLib)
+
+add_executable(testGradientHelperIntegration Statistic/integration/test_gradienthelper_integration.cpp)
+target_link_libraries(testGradientHelperIntegration StatisticLib UtilsLib)
+
+add_executable(testProfilerUnit Statistic/unit/test_profiler_unit.cpp)
+target_link_libraries(testProfilerUnit StatisticLib UtilsLib)
+
+add_executable(testProfilerIntegration Statistic/integration/test_profiler_integration.cpp)
+target_link_libraries(testProfilerIntegration StatisticLib UtilsLib)
+
+add_executable(testIndexingUnit Statistic/unit/test_indexing_unit.cpp)
+target_link_libraries(testIndexingUnit StatisticLib UtilsLib)
+
+add_executable(testIndexingIntegration Statistic/integration/test_indexing_integration.cpp)
+target_link_libraries(testIndexingIntegration StatisticLib UtilsLib)
+
+add_executable(testChiSquaredLikelihoodUnit Statistic/unit/test_chisquaredlikelihood_unit.cpp)
+target_link_libraries(testChiSquaredLikelihoodUnit StatisticLib UtilsLib)
+
+add_executable(testChiSquaredLikelihoodIntegration Statistic/integration/test_chisquaredlikelihood_integration.cpp)
+target_link_libraries(testChiSquaredLikelihoodIntegration StatisticLib UtilsLib)
+
+add_executable(testProfilingStrategyUnit Statistic/unit/test_profilingstrategy_unit.cpp)
+target_link_libraries(testProfilingStrategyUnit StatisticLib UtilsLib)
+
+add_executable(testProfilingStrategyIntegration Statistic/integration/test_profilingstrategy_integration.cpp)
+target_link_libraries(testProfilingStrategyIntegration StatisticLib UtilsLib)
+
+add_executable(testProfiledLikelihood2DUnit Statistic/unit/test_profiledlikelihood2d_unit.cpp)
+target_link_libraries(testProfiledLikelihood2DUnit StatisticLib UtilsLib)
+
+add_executable(testProfiledLikelihood2DIntegration Statistic/integration/test_profiledlikelihood2d_integration.cpp)
+target_link_libraries(testProfiledLikelihood2DIntegration StatisticLib UtilsLib)
+
+add_executable(testWithGaussianConstraintsUnit Statistic/unit/test_withgaussianconstraints_unit.cpp)
+target_link_libraries(testWithGaussianConstraintsUnit StatisticLib UtilsLib)
+
+add_executable(testWithGaussianConstraintsIntegration Statistic/integration/test_withgaussianconstraints_integration.cpp)
+target_link_libraries(testWithGaussianConstraintsIntegration StatisticLib UtilsLib)
 # --------- Wilson ---------
 
 
@@ -687,6 +735,54 @@ set_tests_properties(testJointDistributionUnit PROPERTIES ENVIRONMENT "DISABLE_L
 add_test(NAME testJointDistributionIntegration COMMAND testJointDistributionIntegration)
 set_tests_properties(testJointDistributionIntegration PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "statistic")
 
+add_test(NAME testLikelihoodBaseUnit COMMAND testLikelihoodBaseUnit)
+set_tests_properties(testLikelihoodBaseUnit PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "statistic")
+
+add_test(NAME testLikelihoodBaseIntegration COMMAND testLikelihoodBaseIntegration)
+set_tests_properties(testLikelihoodBaseIntegration PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "statistic")
+
+add_test(NAME testGradientHelperUnit COMMAND testGradientHelperUnit)
+set_tests_properties(testGradientHelperUnit PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "statistic")
+
+add_test(NAME testGradientHelperIntegration COMMAND testGradientHelperIntegration)
+set_tests_properties(testGradientHelperIntegration PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "statistic")
+
+add_test(NAME testProfilerUnit COMMAND testProfilerUnit)
+set_tests_properties(testProfilerUnit PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "statistic")
+
+add_test(NAME testProfilerIntegration COMMAND testProfilerIntegration)
+set_tests_properties(testProfilerIntegration PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "statistic")
+
+add_test(NAME testIndexingUnit COMMAND testIndexingUnit)
+set_tests_properties(testIndexingUnit PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "statistic")
+
+add_test(NAME testIndexingIntegration COMMAND testIndexingIntegration)
+set_tests_properties(testIndexingIntegration PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "statistic")
+
+add_test(NAME testChiSquaredLikelihoodUnit COMMAND testChiSquaredLikelihoodUnit)
+set_tests_properties(testChiSquaredLikelihoodUnit PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "statistic")
+
+add_test(NAME testChiSquaredLikelihoodIntegration COMMAND testChiSquaredLikelihoodIntegration)
+set_tests_properties(testChiSquaredLikelihoodIntegration PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "statistic")
+
+add_test(NAME testProfilingStrategyUnit COMMAND testProfilingStrategyUnit)
+set_tests_properties(testProfilingStrategyUnit PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "statistic")
+
+add_test(NAME testProfilingStrategyIntegration COMMAND testProfilingStrategyIntegration)
+set_tests_properties(testProfilingStrategyIntegration PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "statistic")
+
+add_test(NAME testProfiledLikelihood2DUnit COMMAND testProfiledLikelihood2DUnit)
+set_tests_properties(testProfiledLikelihood2DUnit PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "statistic")
+
+add_test(NAME testProfiledLikelihood2DIntegration COMMAND testProfiledLikelihood2DIntegration)
+set_tests_properties(testProfiledLikelihood2DIntegration PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "statistic")
+
+add_test(NAME testWithGaussianConstraintsUnit COMMAND testWithGaussianConstraintsUnit)
+set_tests_properties(testWithGaussianConstraintsUnit PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "statistic")
+
+add_test(NAME testWithGaussianConstraintsIntegration COMMAND testWithGaussianConstraintsIntegration)
+set_tests_properties(testWithGaussianConstraintsIntegration PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "statistic")
+
 #other testings
 add_test(NAME TestLHAReader COMMAND testReader)
 set_tests_properties(TestLHAReader PROPERTIES ENVIRONMENT "DISABLE_LOGGER=1" LABELS "database")
@@ -736,6 +832,3 @@ if(BUILD_WITH_SOFTSUSY)
 else()
     message("Couldn't do the SUSY test, SoftSusy is not installed or not configured, use -DBUILD_WITH_SOFTSUSY=ON")
 endif()
-
-
-
