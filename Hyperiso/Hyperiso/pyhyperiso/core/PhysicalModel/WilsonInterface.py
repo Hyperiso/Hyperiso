@@ -1,114 +1,320 @@
+"""Python wrapper for Wilson-coefficient construction and queries.
+
+The C++ ``WilsonInterface`` builds Wilson-coefficient groups and exposes
+coefficients at the matching scale and at the hadronic, running scale. This
+module provides a Python-facing API based on ``WilsonBuildConfig`` and
+``WilsonRequest`` wrapper objects.
+
+Typical workflow:
+    1. Build the interface with a ``WilsonBuildConfig``.
+    2. Query matching coefficients with :meth:`WilsonInterface.get_M` or
+       :meth:`WilsonInterface.get_FM`.
+    3. Query running coefficients with :meth:`WilsonInterface.get_R` or
+       :meth:`WilsonInterface.get_FR`.
+
+Example:
+    >>> from pyhyperiso.core.Common.Configs import WilsonBuildConfig, WilsonRequest
+    >>> from pyhyperiso.core.Common.GeneralEnum import WGroup, WCoeff, QCDOrder, ContributionType
+    >>> wi = WilsonInterface()
+    >>> wi.build(WilsonBuildConfig(groups={WGroup.B}, order=QCDOrder.NNLO))
+    >>> req = WilsonRequest(WGroup.B, WCoeff.C9, QCDOrder.NNLO, ContributionType.TOTAL)
+    >>> c9 = wi.get_FM(req)
+"""
+
+from __future__ import annotations
+
+from typing import Dict
+
 from pyhyperiso.phyperiso.pyhyperiso.wilson.wilson_interface import WilsonInterface as _CppWilsonInterface
-from pyhyperiso.core.Common.ParamId import ParamId
-from pyhyperiso.core.Common.GeneralEnum import Model, QCDOrder, WCoeff, WGroup, ContributionType, WilsonBasis, ParameterType
+from pyhyperiso.core.Common.GeneralEnum import QCDOrder, WCoeff, WGroup, ContributionType, WilsonBasis, Model, ParameterType
 from pyhyperiso.core.Common.Configs import WilsonBuildConfig, WilsonRequest
 from pyhyperiso.core.Math.scalar import Scalar
-from pyhyperiso.core.Core.BlockProvider import BlockLogger
+
 
 class WilsonInterface:
-    """User-facing Python wrapper for the C++ WilsonInterface class."""
+    """User-facing wrapper for the C++ Wilson-coefficient interface.
 
-    def __init__(self):
+    The interface must be built before any coefficient query is made. The build
+    step instantiates the C++ Wilson pipeline for the requested groups, QCD
+    order, contribution model and scales. Additional groups can be added later
+    with :meth:`add_wilson_group`.
+
+    Coefficient naming mirrors the C++ API:
+        * ``M``: matching coefficient at the matching scale, fixed QCD order;
+        * ``FM``: full matching coefficient summed up to the requested order;
+        * ``R``: running coefficient at the hadronic scale, fixed QCD order;
+        * ``FR``: full running coefficient summed up to the requested order.
+
+    Notes:
+        When the MARTY backend is active, the underlying C++ layer may restrict
+        Wilson calculations to LO QCD even if a higher order is requested.
+    """
+
+    def __init__(self) -> None:
+        """Create an unbuilt Wilson interface."""
         self._cpp_obj = _CppWilsonInterface()
 
-    def build(self, config: WilsonBuildConfig):
-        """Initializes the WilsonInterface with a build config."""
-        print(config.to_cpp())
+    def build(self, config: WilsonBuildConfig) -> None:
+        """Build the C++ Wilson pipeline.
+
+        Args:
+            config: Build configuration containing Wilson groups, requested QCD
+                order, matching scale, hadronic scale and backend options.
+
+        Raises:
+            TypeError: Propagated from ``config.to_cpp()`` if ``config`` is not
+                a valid ``WilsonBuildConfig`` wrapper.
+        """
         self._cpp_obj.build(config.to_cpp())
 
-    def add_wilson_group(self, config: WilsonBuildConfig):
+    def add_wilson_group(self, config: WilsonBuildConfig) -> None:
+        """Add Wilson groups to an already built interface.
+
+        Args:
+            config: Build configuration whose ``groups`` field specifies the
+                additional Wilson groups to add. Scale and order fields are
+                forwarded to the C++ builder.
+
+        Raises:
+            RuntimeError: Propagated from C++ if the interface has not been
+                built before adding groups.
+        """
         self._cpp_obj.add_wilson_group(config.to_cpp())
-        
-    def set_matching_scale(self, mu_W: float):
-        """Sets the matching scale (μ_W)."""
+
+    def set_matching_scale(self, mu_W: float) -> None:
+        """Set the matching scale ``mu_W``.
+
+        Args:
+            mu_W: Matching scale used for matching coefficients.
+
+        Notes:
+            This forwards to the C++ scale setter. Dependent coefficient blocks
+            are updated by the underlying C++ provider according to its caching
+            rules.
+        """
         self._cpp_obj.set_matching_scale(mu_W)
 
-    def set_hadronic_scale(self, mu_h: float):
-        """Sets the hadronic scale (μ_h)."""
+    def set_hadronic_scale(self, mu_h: float) -> None:
+        """Set the hadronic running scale ``mu_h``.
+
+        Args:
+            mu_h: Hadronic scale used for running coefficients.
+        """
         self._cpp_obj.set_hadronic_scale(mu_h)
 
     def get_M(self, req: WilsonRequest) -> Scalar:
-        """Gets the matching coefficient (alias: getM)."""
+        """Return one matching coefficient at the requested QCD order.
+
+        Args:
+            req: Wilson request specifying group, coefficient, QCD order and
+                contribution component.
+
+        Returns:
+            Matching coefficient as a ``Scalar`` wrapper.
+        """
         return Scalar.from_cpp(
             self._cpp_obj.get_M(
                 req.group.value,
                 req.coefficient.value,
                 req.order.value,
-                req.contribution.value
+                req.contribution.value,
             )
         )
 
     def get_FM(self, req: WilsonRequest) -> Scalar:
-        """Gets the full matching coefficient (alias: getFM)."""
+        """Return one full matching coefficient summed up to ``req.order``.
+
+        Args:
+            req: Wilson request specifying group, coefficient, QCD order and
+                contribution component.
+
+        Returns:
+            Full matching coefficient as a ``Scalar`` wrapper.
+        """
         return Scalar.from_cpp(
             self._cpp_obj.get_FM(
                 req.group.value,
                 req.coefficient.value,
                 req.order.value,
-                req.contribution.value
+                req.contribution.value,
             )
         )
 
     def get_R(self, req: WilsonRequest) -> Scalar:
-        """Gets the running coefficient (alias: getR)."""
+        """Return one running coefficient at the requested QCD order.
+
+        Args:
+            req: Wilson request specifying group, coefficient, QCD order,
+                contribution component and Wilson basis.
+
+        Returns:
+            Hadronic-scale running coefficient as a ``Scalar`` wrapper.
+        """
         return Scalar.from_cpp(
             self._cpp_obj.get_R(
                 req.group.value,
                 req.coefficient.value,
                 req.order.value,
                 req.contribution.value,
-                req.wilson_basis.value
+                req.wilson_basis.value,
             )
         )
 
     def get_FR(self, req: WilsonRequest) -> Scalar:
-        """Gets the full running coefficient (alias: getFR)."""
+        """Return one full running coefficient summed up to ``req.order``.
+
+        Args:
+            req: Wilson request specifying group, coefficient, QCD order,
+                contribution component and Wilson basis.
+
+        Returns:
+            Full hadronic-scale running coefficient as a ``Scalar`` wrapper.
+        """
         return Scalar.from_cpp(
             self._cpp_obj.get_FR(
                 req.group.value,
                 req.coefficient.value,
                 req.order.value,
                 req.contribution.value,
-                req.wilson_basis.value
+                req.wilson_basis.value,
             )
         )
 
-    def get_sep_order_matching(self, group: WGroup, coeff: WCoeff, contribution: ContributionType) -> dict:
-        """Returns {QCDOrder: Scalar} for separate matching orders."""
+    def get_sep_order_matching(
+        self,
+        group: WGroup,
+        coeff: WCoeff,
+        contribution: ContributionType,
+    ) -> Dict[QCDOrder, Scalar]:
+        """Return matching coefficients separated by QCD order.
+
+        Args:
+            group: Wilson group, for example ``WGroup.B``.
+            coeff: Wilson coefficient identifier inside the group.
+            contribution: Contribution component to query, typically ``SM``,
+                ``BSM`` or ``TOTAL``.
+
+        Returns:
+            Dictionary mapping ``QCDOrder`` to matching coefficients.
+        """
         cpp_map = self._cpp_obj.get_sep_order_matching_coefficient(group.value, coeff.value, contribution.value)
         return {QCDOrder(order): Scalar.from_cpp(val) for order, val in cpp_map.items()}
 
-    def get_sep_order_running(self, group: WGroup, coeff: WCoeff, contribution: ContributionType, basis: WilsonBasis = WilsonBasis.STANDARD) -> dict:
-        """Returns {QCDOrder: Scalar} for separate running orders."""
+    def get_sep_order_running(
+        self,
+        group: WGroup,
+        coeff: WCoeff,
+        contribution: ContributionType,
+        basis: WilsonBasis = WilsonBasis.STANDARD,
+    ) -> Dict[QCDOrder, Scalar]:
+        """Return running coefficients separated by QCD order.
+
+        Args:
+            group: Wilson group, for example ``WGroup.B``.
+            coeff: Wilson coefficient identifier inside the group.
+            contribution: Contribution component to query.
+            basis: Operator basis used at the hadronic scale.
+
+        Returns:
+            Dictionary mapping ``QCDOrder`` to running coefficients.
+        """
         cpp_map = self._cpp_obj.get_sep_order_run_coefficient(group.value, coeff.value, contribution.value, basis.value)
         return {QCDOrder(order): Scalar.from_cpp(val) for order, val in cpp_map.items()}
 
-    def get_all_matching(self, group: WGroup, order: QCDOrder, contribution: ContributionType) -> dict:
-        """Returns {WCoeff: Scalar} for all matching coefficients."""
+    def get_all_matching(
+        self,
+        group: WGroup,
+        order: QCDOrder,
+        contribution: ContributionType,
+    ) -> Dict[WCoeff, Scalar]:
+        """Return all matching coefficients in a Wilson group.
+
+        Args:
+            group: Wilson group to iterate over.
+            order: QCD order to query.
+            contribution: Contribution component to query.
+
+        Returns:
+            Dictionary mapping each coefficient in ``group`` to its matching
+            coefficient.
+        """
         cpp_map = self._cpp_obj.get_all_matching_coefficient(group.value, order.value, contribution.value)
         return {WCoeff(k): Scalar.from_cpp(v) for k, v in cpp_map.items()}
 
-    def get_all_running(self, group: WGroup, order: QCDOrder, contribution: ContributionType, basis: WilsonBasis = WilsonBasis.STANDARD) -> dict:
-        """Returns {WCoeff: Scalar} for all running coefficients."""
+    def get_all_running(
+        self,
+        group: WGroup,
+        order: QCDOrder,
+        contribution: ContributionType,
+        basis: WilsonBasis = WilsonBasis.STANDARD,
+    ) -> Dict[WCoeff, Scalar]:
+        """Return all running coefficients in a Wilson group.
+
+        Args:
+            group: Wilson group to iterate over.
+            order: QCD order to query.
+            contribution: Contribution component to query.
+            basis: Operator basis used at the hadronic scale.
+
+        Returns:
+            Dictionary mapping each coefficient in ``group`` to its running
+            coefficient.
+        """
         cpp_map = self._cpp_obj.get_all_run_coefficient(group.value, order.value, contribution.value, basis.value)
         return {WCoeff(k): Scalar.from_cpp(v) for k, v in cpp_map.items()}
 
-    def get_all_full_matching(self, group: WGroup, order: QCDOrder, contribution: ContributionType) -> dict:
-        """Returns {WCoeff: Scalar} for full matching coefficients summed over QCD orders."""
+    def get_all_full_matching(
+        self,
+        group: WGroup,
+        order: QCDOrder,
+        contribution: ContributionType,
+    ) -> Dict[WCoeff, Scalar]:
+        """Return all full matching coefficients in a Wilson group.
+
+        Args:
+            group: Wilson group to iterate over.
+            order: Maximum QCD order included in the perturbative sum.
+            contribution: Contribution component to query.
+
+        Returns:
+            Dictionary mapping each coefficient in ``group`` to its full
+            matching coefficient.
+        """
         cpp_map = self._cpp_obj.get_all_full_matching_coefficient(group.value, order.value, contribution.value)
         return {WCoeff(k): Scalar.from_cpp(v) for k, v in cpp_map.items()}
 
-    def get_all_full_running(self, group: WGroup, order: QCDOrder, contribution: ContributionType, basis: WilsonBasis = WilsonBasis.STANDARD) -> dict:
-        """Returns {WCoeff: Scalar} for full running coefficients summed over QCD orders."""
+    def get_all_full_running(
+        self,
+        group: WGroup,
+        order: QCDOrder,
+        contribution: ContributionType,
+        basis: WilsonBasis = WilsonBasis.STANDARD,
+    ) -> Dict[WCoeff, Scalar]:
+        """Return all full running coefficients in a Wilson group.
+
+        Args:
+            group: Wilson group to iterate over.
+            order: Maximum QCD order included in the perturbative sum.
+            contribution: Contribution component to query.
+            basis: Operator basis used at the hadronic scale.
+
+        Returns:
+            Dictionary mapping each coefficient in ``group`` to its full running
+            coefficient.
+        """
         cpp_map = self._cpp_obj.get_all_full_run_coefficient(group.value, order.value, contribution.value, basis.value)
         return {WCoeff(k): Scalar.from_cpp(v) for k, v in cpp_map.items()}
 
+
+__all__ = ["WilsonInterface"]
 
 if __name__ == "__main__":
     from pyhyperiso.core.Core.HyperisoMaster import HyperisoMaster
     from pathlib import Path
     from pyhyperiso.core.Core.HyperisoConfig import HyperisoConfig, ExternalFlag
     from pyhyperiso.core.Core.ParamaterProvider import ParameterProvider
+    from pyhyperiso.core.Core.BlockProvider import BlockLogger
+    
     print("🔧 Initializing PyHyperisoMaster with custom PyHyperisoConfig...")
 
     config = HyperisoConfig(

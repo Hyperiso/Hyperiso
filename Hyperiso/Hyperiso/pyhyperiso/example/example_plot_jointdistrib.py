@@ -8,7 +8,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from statistics import NormalDist
 
-from pyhyperiso.core.Math.real_matrix import Matrix
+from pyhyperiso.core.Math.RealMatrix import Matrix
 
 
 # ---------------- Robust imports (selon tes modules) ----------------

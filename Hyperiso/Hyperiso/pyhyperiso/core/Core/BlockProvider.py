@@ -1,27 +1,70 @@
+"""Logging helpers for C++ parameter blocks.
+
+The C++ ``BlockProvider`` is primarily a diagnostic component: it can check
+whether a block exists and print block contents to the C++ logging stream. This
+Python wrapper keeps that behavior available to notebooks, scripts and tests.
+"""
+
+from __future__ import annotations
+
 from pyhyperiso.phyperiso.pyhyperiso.core import BlockProvider as _CppBlockProvider
-from pyhyperiso.core.Common.ParamId import ParamId
-from pyhyperiso.core.Common.GeneralEnum import Model, ParameterType
+from pyhyperiso.core.Common.GeneralEnum import ParameterType
+
 
 class BlockLogger:
-    """Wrapper for C++ PyParameterSetter."""
+    """Diagnostic wrapper around the C++ ``BlockProvider``.
 
-    def __init__(self):
+    The methods mirror C++ logging utilities. They are useful when inspecting
+    which parameter blocks were loaded after initializing Hyperiso.
+
+    Examples:
+        >>> logger = BlockLogger()
+        >>> logger.exists("SMINPUTS", ParameterType.SM)
+        True
+    """
+
+    def __init__(self) -> None:
+        """Create a block logger for the current C++ parameter storage."""
         self._cpp_obj = _CppBlockProvider()
 
-    def exists(self, blockname : str, param_type : ParameterType):
-        return self._cpp_obj.exists(blockname, param_type.value)
+    def exists(self, blockname: str, param_type: ParameterType) -> bool:
+        """Return whether a block exists in a parameter namespace.
 
-    def log_all_blocks(self, param_type : ParameterType):
+        Args:
+            blockname: LHA-style block name, for example ``"MASS"``.
+            param_type: Parameter namespace to inspect.
+
+        Returns:
+            ``True`` if the block exists, otherwise ``False``.
+        """
+        return bool(self._cpp_obj.exists(blockname, param_type.value))
+
+    def log_all_blocks(self, param_type: ParameterType) -> None:
+        """Print all blocks from a parameter namespace via the C++ logger.
+
+        Args:
+            param_type: Parameter namespace to print.
+        """
         return self._cpp_obj.log_all_blocks(param_type.value)
-        
-    def log_block(self, param_type : ParameterType, blockname : str):
+
+    def log_block(self, param_type: ParameterType, blockname: str) -> None:
+        """Print one block via the C++ logger.
+
+        Args:
+            param_type: Parameter namespace containing the block.
+            blockname: Block name to print.
+        """
         return self._cpp_obj.log_block(param_type.value, blockname)
+
+
+__all__ = ["BlockLogger"]
         
 if __name__ == "__main__":
     from pyhyperiso.core.Core.HyperisoMaster import HyperisoMaster
     from pathlib import Path
     from pyhyperiso.core.Core.HyperisoConfig import HyperisoConfig, ExternalFlag
-    from pyhyperiso.core.Core.ParamaterProvider import ParameterProvider
+    from pyhyperiso.core.Common.GeneralEnum import Model
+    
     print("🔧 Initializing PyHyperisoMaster with custom PyHyperisoConfig...")
 
     config = HyperisoConfig(

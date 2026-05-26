@@ -1,80 +1,123 @@
+"""High-level controller for initializing and switching Hyperiso sessions."""
+
+from __future__ import annotations
+
+import os
+from typing import Optional
+
 from pyhyperiso.phyperiso.pyhyperiso.core import HyperisoMaster as _CppHyperisoMaster
 from pyhyperiso.core.Common.GeneralEnum import Model
-from pyhyperiso.core.Core.HyperisoConfig import HyperisoConfig, ExternalFlag
-import os
+from pyhyperiso.core.Core.HyperisoConfig import ExternalFlag, HyperisoConfig
+
 
 class HyperisoMaster:
-    """High-level Python wrapper for the C++ HyperisoMaster class.
+    """High-level Python wrapper around the C++ ``HyperisoMaster``.
 
-    Provides a Pythonic interface to initialize and monitor the Hyperiso system.
+    ``HyperisoMaster`` owns the initialization lifecycle of the global C++
+    runtime. It loads an LHA file, applies a :class:`HyperisoConfig`, and makes
+    the model/flags available to the rest of the Python wrappers.
+
+    Examples:
+        >>> hyp = HyperisoMaster()
+        >>> hyp.init("lha/si_input.flha", HyperisoConfig())
+        >>> hyp.model
+        <Model.SM: ...>
     """
 
-    def __init__(self):
-        """Initializes a new Hyperiso controller."""
+    def __init__(self) -> None:
+        """Create an uninitialized Hyperiso controller."""
         self._cpp_obj = _CppHyperisoMaster()
-        self._config = None
-        
-    def init(self, lha_file: str, config: HyperisoConfig = None):
-        """Initializes Hyperiso with an LHA file and an optional config.
+        self.config: Optional[HyperisoConfig] = None
+
+    @staticmethod
+    def _resolve_lha_path(lha_file: str) -> str:
+        """Resolve project-relative LHA paths used by the historical wrapper.
 
         Args:
-            lha_file (str): Path to the LHA input file.
-            config (PyHyperisoConfig, optional): Config object with Hyperiso input flags. If not provided,
-                a default config will be used.
+            lha_file: Absolute path or path relative to the project ``Assets``
+                directory.
+
+        Returns:
+            Absolute path passed to the C++ layer.
         """
-        print("hein ?")
-        if not os.path.isabs(lha_file):
-            lha_file = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "..", "Assets", lha_file))
-            print(lha_file)
+        if os.path.isabs(lha_file):
+            return lha_file
+        return os.path.abspath(
+            os.path.join(
+                os.path.dirname(__file__),
+                "..",
+                "..",
+                "..",
+                "..",
+                "..",
+                "Assets",
+                lha_file,
+            )
+        )
+
+    def init(self, lha_file: str, config: Optional[HyperisoConfig] = None) -> None:
+        """Initialize Hyperiso with an LHA file.
+
+        Args:
+            lha_file: Absolute LHA path or project-relative path under
+                ``Assets``.
+            config: Optional initialization config. When omitted, the C++
+                default configuration is used and ``self.config`` is set to a
+                default :class:`HyperisoConfig` instance.
+        """
+        resolved_lha = self._resolve_lha_path(lha_file)
         if config is not None:
-            self._cpp_obj.init(lha_file, config.to_cpp())
+            self._cpp_obj.init(resolved_lha, config.to_cpp())
             self.config = config
         else:
-            self._cpp_obj.init(lha_file)
-            self.config = PyHyperisoConfig()
+            self._cpp_obj.init(resolved_lha)
+            self.config = HyperisoConfig()
 
-    def switch_lha(self, lha_file: str, config: HyperisoConfig = None):
-        """Initializes Hyperiso with an LHA file and an optional config.
+    def switch_lha(self, lha_file: str, config: Optional[HyperisoConfig] = None) -> None:
+        """Switch the active LHA input file.
 
         Args:
-            lha_file (str): Path to the LHA input file.
-            config (PyHyperisoConfig, optional): Basic Config with hyperiso flags inputs. If not provided,
-                a default config will be used.
+            lha_file: Path to the new LHA file. Unlike ``init()``, this method
+                forwards the path exactly as provided, matching the historical
+                C++ wrapper behavior.
+            config: Optional config to apply during the switch. If omitted, the
+                previously stored config is reused when available.
+
+        Raises:
+            RuntimeError: If no config is available for a config-less switch.
         """
         if config is not None:
             self._cpp_obj.switch_lha(lha_file, config.to_cpp())
             self.config = config
-        else:
-            self._cpp_obj.init(lha_file, self.config.to_cpp())
-            
-            
+            return
+
+        if self.config is None:
+            raise RuntimeError("HyperisoMaster.switch_lha() requires a config before init() has been called.")
+
+        self._cpp_obj.init(lha_file, self.config.to_cpp())
+
     def check_flag(self, flag: ExternalFlag) -> bool:
-        """Checks whether a specific external flag is active.
+        """Return whether an external flag is active.
 
         Args:
-            flag (ExternalFlag): The Python enum flag to query.
+            flag: External flag to query.
 
         Returns:
-            bool: True if the flag is set, False otherwise.
+            ``True`` when the flag is active in the current C++ runtime.
         """
-        return self._cpp_obj.check_flag(flag.value)
+        return bool(self._cpp_obj.check_flag(flag.value))
 
     @property
     def model(self) -> Model:
-        """Returns the physics model currently used.
-
-        Returns:
-            Model: Active model enumeration (e.g., Model.SM, Model.SUSY).
-        """
+        """Return the physics model currently active in C++."""
         return Model(self._cpp_obj.get_model())
 
     def __repr__(self) -> str:
-        """String representation of the PyHyperisoMaster instance.
-
-        Returns:
-            str: Descriptive string including the model.
-        """
+        """Return a compact representation including the active model."""
         return f"<PyHyperisoMaster model={self.model.name}>"
+
+
+__all__ = ["HyperisoMaster"]
     
     
 if __name__ == "__main__":

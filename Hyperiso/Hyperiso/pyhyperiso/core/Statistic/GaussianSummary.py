@@ -1,27 +1,37 @@
+"""Summary statistics for Monte-Carlo observable distributions."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
 from typing import Any
 
 from pyhyperiso.phyperiso.pyhyperiso import statistic as _cpp_stat
-from pyhyperiso.core.Common.BinnedObservableId import BinnedObservableId  # adapte l'import
+from pyhyperiso.core.Common.BinnedObservableId import BinnedObservableId
 
 
 @dataclass
 class GaussianSummary:
-    """Summary statistics of a (possibly split) Gaussian approximation.
+    """Gaussian or split-Gaussian approximation of one observable distribution.
 
-    Python wrapper around the C++ ``GaussianSummary`` struct.
+    This class mirrors the C++ ``GaussianSummary`` struct returned by the
+    Monte-Carlo uncertainty machinery. When the empirical skewness is small, the
+    distribution is summarized by ``mu`` and ``sigma``. Otherwise, the backend
+    also provides a mode and asymmetric widths ``sigma_p`` and ``sigma_m``.
 
     Attributes:
-        id (BinnedObservableId): Binned observable identifier (wrapper).
-        mu (float): Population mean.
-        sigma (float): Population standard deviation.
-        sigma_p (float): Right-side population std (split Gaussian).
-        sigma_m (float): Left-side population std (split Gaussian).
-        mode (float): Population mode.
-        skew (float): Sample skewness.
-        symmetric (bool): Whether the distribution is considered symmetric.
+        id: Binned observable identifier.
+        mu: Population mean of the sampled observable.
+        sigma: Unbiased standard deviation used in the symmetric approximation.
+        sigma_p: Right-side width for a split-Gaussian approximation.
+        sigma_m: Left-side width for a split-Gaussian approximation.
+        mode: Estimated population mode.
+        skew: Empirical skewness estimator.
+        symmetric: Whether the backend classified the sample as symmetric.
+
+    Examples:
+        >>> summary = GaussianSummary(id=obs_id, mu=1.0, sigma=0.1, symmetric=True)
+        >>> summary.mu, summary.sigma
+        (1.0, 0.1)
     """
 
     id: BinnedObservableId
@@ -35,7 +45,14 @@ class GaussianSummary:
 
     @classmethod
     def from_cpp(cls, cpp_obj: Any) -> "GaussianSummary":
-        """Wrap a bound C++ ``GaussianSummary`` instance."""
+        """Create a Python summary from a bound C++ summary.
+
+        Args:
+            cpp_obj: Bound C++ ``GaussianSummary`` instance.
+
+        Returns:
+            The equivalent Python dataclass.
+        """
         return cls(
             id=BinnedObservableId.from_cpp(cpp_obj.id),
             mu=float(cpp_obj.mu),
@@ -48,7 +65,11 @@ class GaussianSummary:
         )
 
     def to_cpp(self):
-        """Convert this wrapper into a bound C++ ``GaussianSummary`` instance."""
+        """Convert this dataclass to a bound C++ ``GaussianSummary``.
+
+        Returns:
+            A newly allocated bound C++ summary object.
+        """
         cpp = _cpp_stat.GaussianSummary()
         cpp.id = self.id.to_cpp()
         cpp.mu = float(self.mu)
