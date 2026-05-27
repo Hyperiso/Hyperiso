@@ -932,15 +932,19 @@ int main() {
         oint->set_decay_config(Decays::B__Kstar_l_l, cfg_BKs);
         oint->set_bkstarll_threads(6);
 
+        BKstarGammaConfig cfg_BKsgamma;
+        cfg_BKsgamma.ff_src = BV_FF_Src::GRvDV;
+        oint->set_decay_config(Decays::B__Kstar_gamma, cfg_BKsgamma);
+
         BsPhiConfig cfg_BsPhi;
         cfg_BsPhi.ff_src = BV_FF_Src::GRvDV;
         oint->set_decay_config(Decays::Bs__phi_l_l, cfg_BsPhi);
-        oint->set_bkll_threads(6);
+        oint->set_bsphi_threads(6);
 
         BKllConfig cfg_BK;
         cfg_BK.ff_src = BP_FF_Src::GKvD_SR_LAT;
         oint->set_decay_config(Decays::B__K_l_l, cfg_BK);
-        oint->set_bsphi_threads(6);
+        oint->set_bkll_threads(6);
 
         using O = Observables;
         constexpr bool kAddDeps = false;
@@ -970,7 +974,7 @@ int main() {
         add_unbinned(O::IA_B__KSTAR_GAMMA); // 001 AI_BKstargamma
         add_unbinned(O::BR_B_XS_GAMMA); // 002 BR_BXsgamma
         add_unbinned(O::BR_BS_MUMU_UNTAG); // 003 BRuntag_Bsmumu
-        add_unbinned(O::BR_BS_EE_UNTAG); // 004 BRuntag_Bsee //TODO : add this
+        add_unbinned(O::BR_BS_EE_UNTAG); // 004 BRuntag_Bsee
         add_bin(O::BR_B__Xs_mu_mu, 1, 6); // 005 BR_BXsmumu_1_6
         add_bin(O::BR_B__Xs_mu_mu, 14.2, 22); // 006 BR_BXsmumu_14.2_22
         add_bin(O::BR_B__Xs_e_e, 1, 6); // 007 BR_BXsee_1_6
@@ -978,37 +982,37 @@ int main() {
         add_unbinned(O::BR_B0__KSTAR0_GAMMA); // 009 BR_B0Kstar0gamma
         add_unbinned(O::BR_B__KSTAR_GAMMA); // 010 BR_BKstargamma
         add_bin(O::DGAMMA_DQ2_B__KSTAR_MU_MU, 1.1, 6); // 011 dGamma/dq2_BKstarmumu_1.1_6
-        add_bin(O::DGAMMA_DQ2_B__KSTAR_MU_MU, 15, 19); // 012 dGamma/dq2_BKstarmumu_15_19
+        add_bin(O::DBR_DQ2_B__KSTAR_MU_MU, 15, 19); // 012 dGamma/dq2_BKstarmumu_15_19
         add_bin(O::R_1_B0__KSTAR0_L_L, 0.1, 1.1); // 013 R-1_B0Kstar0ll_0.1_1.1
         add_bin(O::R_1_B0__KSTAR0_L_L, 1.1, 6); // 014 R-1_B0Kstar0ll_1.1_6
         add_bin(O::R_1_B0__KSTAR0_L_L, 0.045, 1.1); // 015 R-1_B0Kstar0ll_0.045_1.1_Belle
         add_bin(O::R_1_B0__KSTAR0_L_L, 1.1, 6); // 016 R-1_B0Kstar0ll_1.1_6_Belle
         add_bin(O::R_1_B0__KSTAR0_L_L, 15, 19); // 017 R-1_B0Kstar0ll_15_19_Belle
-        add_bin(O::DGAMMA_DQ2_B0__K0_MU_MU, 1.1, 6); // 018 dGamma/dq2_B0K0mumu_1.1_6
-        add_bin(O::DGAMMA_DQ2_B0__K0_MU_MU, 15, 22); // 019 dGamma/dq2_B0K0mumu_15_22
-        add_bin(O::DGAMMA_DQ2_B__K_MU_MU, 1.1, 6); // 020 dGamma/dq2_BKmumu_1.1_6
+        add_bin(O::DBR_DQ2_B0__K0_MU_MU, 1.1, 6); // 018 dGamma/dq2_B0K0mumu_1.1_6
+        add_bin(O::DBR_DQ2_B0__K0_MU_MU, 15, 22); // 019 dGamma/dq2_B0K0mumu_15_22
+        add_bin(O::DBR_DQ2_B__K_MU_MU, 1.1, 6); // 020 dGamma/dq2_BKmumu_1.1_6
         add_bin(O::F_H_B__K_MU_MU, 1.1, 6); // 021 FH_BKmumu_1.1_6
-        add_bin(O::DGAMMA_DQ2_B__K_MU_MU, 15, 22); // 022 dGamma/dq2_BKmumu_15_22
+        add_bin(O::DBR_DQ2_B__K_MU_MU, 15, 22); // 022 dGamma/dq2_BKmumu_15_22
         add_bin(O::F_H_B__K_MU_MU, 15, 22); // 023 FH_BKmumu_15_22
         add_bin(O::R_1_B__K_L_L, 0.1, 1.1); // 024 R-1_BKll_0.1_1.1
         add_bin(O::R_1_B__K_L_L, 1.1, 6); // 025 R-1_BKll_1.1_6
-        add_bin(O::DGAMMA_DQ2_BS__PHI_MU_MU, 0.1, 0.98); // 026 dGamma/dq2_Bsphimumu_0.1_0.98
+        add_bin(O::DBR_DQ2_BS__PHI_MU_MU, 0.1, 0.98); // 026 dGamma/dq2_Bsphimumu_0.1_0.98
         add_bin(O::F_L_BS_PHI_MU_MU, 0.1, 0.98); // 027 FL_Bsphimumu_0.1_0.98
         add_bin(O::S_3_BS_PHI_MU_MU, 0.1, 0.98); // 028 S3_Bsphimumu_0.1_0.98
         add_bin(O::S_4_BS_PHI_MU_MU, 0.1, 0.98); // 029 S4_Bsphimumu_0.1_0.98
         add_bin(O::S_7_BS_PHI_MU_MU, 0.1, 0.98); // 030 S7_Bsphimumu_0.1_0.98
-        add_bin(O::DGAMMA_DQ2_BS__PHI_MU_MU, 1.1, 2.5); // 031 dGamma/dq2_Bsphimumu_1.1_2.5
-        add_bin(O::DGAMMA_DQ2_BS__PHI_MU_MU, 2.5, 4); // 032 dGamma/dq2_Bsphimumu_2.5_4
+        add_bin(O::DBR_DQ2_BS__PHI_MU_MU, 1.1, 2.5); // 031 dGamma/dq2_Bsphimumu_1.1_2.5
+        add_bin(O::DBR_DQ2_BS__PHI_MU_MU, 2.5, 4); // 032 dGamma/dq2_Bsphimumu_2.5_4
         add_bin(O::F_L_BS_PHI_MU_MU, 1.1, 4); // 033 FL_Bsphimumu_1.1_4
         add_bin(O::S_3_BS_PHI_MU_MU, 1.1, 4); // 034 S3_Bsphimumu_1.1_4
         add_bin(O::S_4_BS_PHI_MU_MU, 1.1, 4); // 035 S4_Bsphimumu_1.1_4
         add_bin(O::S_7_BS_PHI_MU_MU, 1.1, 4); // 036 S7_Bsphimumu_1.1_4
-        add_bin(O::DGAMMA_DQ2_BS__PHI_MU_MU, 4, 6); // 037 dGamma/dq2_Bsphimumu_4_6
+        add_bin(O::DBR_DQ2_BS__PHI_MU_MU, 4, 6); // 037 dGamma/dq2_Bsphimumu_4_6
         add_bin(O::F_L_BS_PHI_MU_MU, 4, 6); // 038 FL_Bsphimumu_4_6
         add_bin(O::S_3_BS_PHI_MU_MU, 4, 6); // 039 S3_Bsphimumu_4_6
         add_bin(O::S_4_BS_PHI_MU_MU, 4, 6); // 040 S4_Bsphimumu_4_6
         add_bin(O::S_7_BS_PHI_MU_MU, 4, 6); // 041 S7_Bsphimumu_4_6
-        add_bin(O::DGAMMA_DQ2_BS__PHI_MU_MU, 15, 19); // 042 dGamma/dq2_Bsphimumu_15_19 // [2026-05-24_01] [WARN] Rejected MC nuisance sample 1 while trying to fill accepted sample 1 of 1000 : MC prediction contains non-finite observable
+        add_bin(O::DBR_DQ2_BS__PHI_MU_MU, 15, 19); // 042 dGamma/dq2_Bsphimumu_15_19 // [2026-05-24_01] [WARN] Rejected MC nuisance sample 1 while trying to fill accepted sample 1 of 1000 : MC prediction contains non-finite observable
         add_bin(O::F_L_BS_PHI_MU_MU, 15, 18.9); // 043 FL_Bsphimumu_15_18.9
         add_bin(O::S_3_BS_PHI_MU_MU, 15, 18.9); // 044 S3_Bsphimumu_15_18.9
         add_bin(O::S_4_BS_PHI_MU_MU, 15, 18.9); // 045 S4_Bsphimumu_15_18.9
@@ -1073,21 +1077,21 @@ int main() {
         add_bin(O::F_H_B__K_MU_MU, 1, 6); // 103 FH_BKmumu_1_6_CMS
 
 
-        add_bin(O::DGAMMA_DQ2_B0__KSTAR0_E_E, 0.0009, 1); // 104 dGamma/dq2_B0Kstar0ee_0.0009_1 //[2026-05-24_01] [WARN] Rejected MC nuisance sample 1 while trying to fill accepted sample 1 of 1000 : MC prediction contains non-finite observable
+        add_bin(O::DBR_DQ2_B0__KSTAR0_E_E, 0.0009, 1); // 104 dGamma/dq2_B0Kstar0ee_0.0009_1 //[2026-05-24_01] [WARN] Rejected MC nuisance sample 1 while trying to fill accepted sample 1 of 1000 : MC prediction contains non-finite observable
         add_bin(O::F_L_B0__KSTAR0_E_E, 0.0008, 0.257); // 105 FL_B0Kstar0ee_0.0008_0.257 //Rejected MC nuisance sample 125 while trying to fill accepted sample 1 of 1000 : MC prediction contains non-finite observable
         add_bin(O::A_T_RE_B0__KSTAR0_E_E, 0.0008, 0.257); // 106 ATRe_B0Kstar0ee_0.0008_0.257 //[2026-05-24_01] [WARN] Rejected MC nuisance sample 1 while trying to fill accepted sample 1 of 1000 : MC prediction contains non-finite observable
         add_bin(O::A_T_2_B0__KSTAR0_E_E, 0.0008, 0.257); // 107 AT2_B0Kstar0ee_0.0008_0.257 // [2026-05-24_01] [WARN] Rejected MC nuisance sample 1 while trying to fill accepted sample 1 of 1000 : MC prediction contains non-finite observable
-        add_bin(O::DGAMMA_DQ2_B__K_MU_MU, 0.1, 0.98); // 108 dGamma/dq2_BKmumu_0.1_0.98_CMS
-        add_bin(O::DGAMMA_DQ2_B__K_MU_MU, 1.1, 2); // 109 dGamma/dq2_BKmumu_1.1_2_CMS
-        add_bin(O::DGAMMA_DQ2_B__K_MU_MU, 2, 3); // 110 dGamma/dq2_BKmumu_2_3_CMS
-        add_bin(O::DGAMMA_DQ2_B__K_MU_MU, 3, 4); // 111 dGamma/dq2_BKmumu_3_4_CMS
-        add_bin(O::DGAMMA_DQ2_B__K_MU_MU, 4, 5); // 112 dGamma/dq2_BKmumu_4_5_CMS
-        add_bin(O::DGAMMA_DQ2_B__K_MU_MU, 5, 6); // 113 dGamma/dq2_BKmumu_5_6_CMS
-        add_bin(O::DGAMMA_DQ2_B__K_MU_MU, 14.82, 16); // 114 dGamma/dq2_BKmumu_14.82_16_CMS
-        add_bin(O::DGAMMA_DQ2_B__K_MU_MU, 16, 17); // 115 dGamma/dq2_BKmumu_16_17_CMS
-        add_bin(O::DGAMMA_DQ2_B__K_MU_MU, 17, 18); // 116 dGamma/dq2_BKmumu_17_18_CMS
-        add_bin(O::DGAMMA_DQ2_B__K_MU_MU, 18, 19.24); // 117 dGamma/dq2_BKmumu_18_19.24_CMS
-        add_bin(O::DGAMMA_DQ2_B__K_MU_MU, 19.24, 22.9); // 118 dGamma/dq2_BKmumu_19.24_22.9_CMS
+        add_bin(O::DBR_DQ2_B__K_MU_MU, 0.1, 0.98); // 108 dGamma/dq2_BKmumu_0.1_0.98_CMS
+        add_bin(O::DBR_DQ2_B__K_MU_MU, 1.1, 2); // 109 dGamma/dq2_BKmumu_1.1_2_CMS
+        add_bin(O::DBR_DQ2_B__K_MU_MU, 2, 3); // 110 dGamma/dq2_BKmumu_2_3_CMS
+        add_bin(O::DBR_DQ2_B__K_MU_MU, 3, 4); // 111 dGamma/dq2_BKmumu_3_4_CMS
+        add_bin(O::DBR_DQ2_B__K_MU_MU, 4, 5); // 112 dGamma/dq2_BKmumu_4_5_CMS
+        add_bin(O::DBR_DQ2_B__K_MU_MU, 5, 6); // 113 dGamma/dq2_BKmumu_5_6_CMS
+        add_bin(O::DBR_DQ2_B__K_MU_MU, 14.82, 16); // 114 dGamma/dq2_BKmumu_14.82_16_CMS
+        add_bin(O::DBR_DQ2_B__K_MU_MU, 16, 17); // 115 dGamma/dq2_BKmumu_16_17_CMS
+        add_bin(O::DBR_DQ2_B__K_MU_MU, 17, 18); // 116 dGamma/dq2_BKmumu_17_18_CMS
+        add_bin(O::DBR_DQ2_B__K_MU_MU, 18, 19.24); // 117 dGamma/dq2_BKmumu_18_19.24_CMS
+        add_bin(O::DBR_DQ2_B__K_MU_MU, 19.24, 22.9); // 118 dGamma/dq2_BKmumu_19.24_22.9_CMS
 
         //FIRST STOP
         add_bin(O::R_1_B__K_L_L, 1.1, 6); // 119 R-1_BKll_1.1_6_CMS
@@ -1123,9 +1127,9 @@ int main() {
         add_bin(O::P_PRIME_5_B0__KSTAR0_MU_MU, 14.18, 16); // 149 P5prime_B0Kstar0mumu_14.18_16_CMS
         add_bin(O::P_PRIME_6_B0__KSTAR0_MU_MU, 14.18, 16); // 150 P6prime_B0Kstar0mumu_14.18_16_CMS
         add_bin(O::P_PRIME_8_B0__KSTAR0_MU_MU, 14.18, 16); // 151 P8prime_B0Kstar0mumu_14.18_16_CMS
-        add_bin(O::DGAMMA_DQ2_BS__PHI_E_E, 0.1, 1.1); // 152 dGamma/dq2_Bsphiee_0.1_1.1
-        add_bin(O::DGAMMA_DQ2_BS__PHI_E_E, 1.1, 6); // 153 dGamma/dq2_Bsphiee_1.1_6
-        add_bin(O::DGAMMA_DQ2_BS__PHI_E_E, 15, 19); // 154 dGamma/dq2_Bsphiee_15_19 //[2026-05-24_01] [WARN] Rejected MC nuisance sample 1 while trying to fill accepted sample 1 of 1000 : MC prediction contains non-finite observable
+        add_bin(O::DBR_DQ2_BS__PHI_E_E, 0.1, 1.1); // 152 dGamma/dq2_Bsphiee_0.1_1.1
+        add_bin(O::DBR_DQ2_BS__PHI_E_E, 1.1, 6); // 153 dGamma/dq2_Bsphiee_1.1_6
+        add_bin(O::DBR_DQ2_BS__PHI_E_E, 15, 19); // 154 dGamma/dq2_Bsphiee_15_19 //[2026-05-24_01] [WARN] Rejected MC nuisance sample 1 while trying to fill accepted sample 1 of 1000 : MC prediction contains non-finite observable
         add_bin(O::R_1_BS__PHI_L_L, 0.1, 1.1); // 155 R-1_Bsphill_0.1_1.1
         add_bin(O::R_1_BS__PHI_L_L, 1.1, 6); // 156 R-1_Bsphill_1.1_6
         add_bin(O::R_1_BS__PHI_L_L, 15, 19); // 157 R-1_Bsphill_15_19 //[2026-05-24_01] [WARN] Rejected MC nuisance sample 1 while trying to fill accepted sample 1 of 1000 : MC prediction contains non-finite observable
@@ -1151,7 +1155,7 @@ int main() {
         add_bin(O::P_PRIME_6_B0__KSTAR0_MU_MU, 0.06, 0.98); // 177 P6prime_B0Kstar0mumu_0.06_0.98_LHCb2025c2
         add_bin(O::P_PRIME_8_B0__KSTAR0_MU_MU, 0.06, 0.98); // 178 P8prime_B0Kstar0mumu_0.06_0.98_LHCb2025c2
         add_bin(O::S_6C_B0__KSTAR0_MU_MU, 0.06, 0.98); // 179 S6c_B0Kstar0mumu_0.06_0.98_LHCb2025c2
-        add_bin(O::DGAMMA_DQ2_B0__KSTAR0_MU_MU, 0.06, 0.98); // 180 dGamma/dq2_B0Kstar0mumu_0.06_0.98_LHCb2025c2
+        add_bin(O::DBR_DQ2_B0__KSTAR0_MU_MU, 0.06, 0.98); // 180 dGamma/dq2_B0Kstar0mumu_0.06_0.98_LHCb2025c2
         add_bin(O::F_L_B0__KSTAR0_MU_MU, 1.1, 2.5); // 181 FL_B0Kstar0mumu_1.1_2.5_LHCb2025c2
         add_bin(O::S_1C_B0__KSTAR0_MU_MU, 1.1, 2.5); // 182 S1c_B0Kstar0mumu_1.1_2.5_LHCb2025c2
         add_bin(O::P_1_B0__KSTAR0_MU_MU, 1.1, 2.5); // 183 P1_B0Kstar0mumu_1.1_2.5_LHCb2025c2
@@ -1161,7 +1165,7 @@ int main() {
         add_bin(O::P_PRIME_5_B0__KSTAR0_MU_MU, 1.1, 2.5); // 187 P5prime_B0Kstar0mumu_1.1_2.5_LHCb2025c2
         add_bin(O::P_PRIME_6_B0__KSTAR0_MU_MU, 1.1, 2.5); // 188 P6prime_B0Kstar0mumu_1.1_2.5_LHCb2025c2
         add_bin(O::P_PRIME_8_B0__KSTAR0_MU_MU, 1.1, 2.5); // 189 P8prime_B0Kstar0mumu_1.1_2.5_LHCb2025c2
-        add_bin(O::DGAMMA_DQ2_B0__KSTAR0_MU_MU, 1.1, 2.5); // 190 dGamma/dq2_B0Kstar0mumu_1.1_2.5_LHCb2025c2
+        add_bin(O::DBR_DQ2_B0__KSTAR0_MU_MU, 1.1, 2.5); // 190 dGamma/dq2_B0Kstar0mumu_1.1_2.5_LHCb2025c2
         add_bin(O::F_L_B0__KSTAR0_MU_MU, 2.5, 4); // 191 FL_B0Kstar0mumu_2.5_4.0_LHCb2025c2
         add_bin(O::S_1C_B0__KSTAR0_MU_MU, 2.5, 4); // 192 S1c_B0Kstar0mumu_2.5_4.0_LHCb2025c2
         add_bin(O::P_1_B0__KSTAR0_MU_MU, 2.5, 4); // 193 P1_B0Kstar0mumu_2.5_4.0_LHCb2025c2
@@ -1171,7 +1175,7 @@ int main() {
         add_bin(O::P_PRIME_5_B0__KSTAR0_MU_MU, 2.5, 4); // 197 P5prime_B0Kstar0mumu_2.5_4.0_LHCb2025c2
         add_bin(O::P_PRIME_6_B0__KSTAR0_MU_MU, 2.5, 4); // 198 P6prime_B0Kstar0mumu_2.5_4.0_LHCb2025c2
         add_bin(O::P_PRIME_8_B0__KSTAR0_MU_MU, 2.5, 4); // 199 P8prime_B0Kstar0mumu_2.5_4.0_LHCb2025c2
-        add_bin(O::DGAMMA_DQ2_B0__KSTAR0_MU_MU, 2.5, 4); // 200 dGamma/dq2_B0Kstar0mumu_2.5_4.0_LHCb2025c2
+        add_bin(O::DBR_DQ2_B0__KSTAR0_MU_MU, 2.5, 4); // 200 dGamma/dq2_B0Kstar0mumu_2.5_4.0_LHCb2025c2
         add_bin(O::F_L_B0__KSTAR0_MU_MU, 4, 6); // 201 FL_B0Kstar0mumu_4.0_6.0_LHCb2025c2
         add_bin(O::S_1C_B0__KSTAR0_MU_MU, 4, 6); // 202 S1c_B0Kstar0mumu_4.0_6.0_LHCb2025c2
         add_bin(O::P_1_B0__KSTAR0_MU_MU, 4, 6); // 203 P1_B0Kstar0mumu_4.0_6.0_LHCb2025c2
@@ -1181,7 +1185,7 @@ int main() {
         add_bin(O::P_PRIME_5_B0__KSTAR0_MU_MU, 4, 6); // 207 P5prime_B0Kstar0mumu_4.0_6.0_LHCb2025c2
         add_bin(O::P_PRIME_6_B0__KSTAR0_MU_MU, 4, 6); // 208 P6prime_B0Kstar0mumu_4.0_6.0_LHCb2025c2
         add_bin(O::P_PRIME_8_B0__KSTAR0_MU_MU, 4, 6); // 209 P8prime_B0Kstar0mumu_4.0_6.0_LHCb2025c2
-        add_bin(O::DGAMMA_DQ2_B0__KSTAR0_MU_MU, 4, 6); // 210 dGamma/dq2_B0Kstar0mumu_4.0_6.0_LHCb2025c2
+        add_bin(O::DBR_DQ2_B0__KSTAR0_MU_MU, 4, 6); // 210 dGamma/dq2_B0Kstar0mumu_4.0_6.0_LHCb2025c2
         add_bin(O::F_L_B0__KSTAR0_MU_MU, 15, 17); // 211 FL_B0Kstar0mumu_15.0_17.0_LHCb2025c2
         add_bin(O::S_1C_B0__KSTAR0_MU_MU, 15, 17); // 212 S1c_B0Kstar0mumu_15.0_17.0_LHCb2025c2
         add_bin(O::P_1_B0__KSTAR0_MU_MU, 15, 17); // 213 P1_B0Kstar0mumu_15.0_17.0_LHCb2025c2
@@ -1191,7 +1195,7 @@ int main() {
         add_bin(O::P_PRIME_5_B0__KSTAR0_MU_MU, 15, 17); // 217 P5prime_B0Kstar0mumu_15.0_17.0_LHCb2025c2
         add_bin(O::P_PRIME_6_B0__KSTAR0_MU_MU, 15, 17); // 218 P6prime_B0Kstar0mumu_15.0_17.0_LHCb2025c2
         add_bin(O::P_PRIME_8_B0__KSTAR0_MU_MU, 15, 17); // 219 P8prime_B0Kstar0mumu_15.0_17.0_LHCb2025c2
-        add_bin(O::DGAMMA_DQ2_B0__KSTAR0_MU_MU, 15, 17); // 220 dGamma/dq2_B0Kstar0mumu_15.0_17.0_LHCb2025c2
+        add_bin(O::DBR_DQ2_B0__KSTAR0_MU_MU, 15, 17); // 220 dGamma/dq2_B0Kstar0mumu_15.0_17.0_LHCb2025c2
         add_bin(O::F_L_B0__KSTAR0_MU_MU, 17, 19); // 221 FL_B0Kstar0mumu_17.0_19.0_LHCb2025c2
         add_bin(O::S_1C_B0__KSTAR0_MU_MU, 17, 19); // 222 S1c_B0Kstar0mumu_17.0_19.0_LHCb2025c2
         add_bin(O::P_1_B0__KSTAR0_MU_MU, 17, 19); // 223 P1_B0Kstar0mumu_17.0_19.0_LHCb2025c2
@@ -1201,11 +1205,25 @@ int main() {
         add_bin(O::P_PRIME_5_B0__KSTAR0_MU_MU, 17, 19); // 227 P5prime_B0Kstar0mumu_17.0_19.0_LHCb2025c2
         add_bin(O::P_PRIME_6_B0__KSTAR0_MU_MU, 17, 19); // 228 P6prime_B0Kstar0mumu_17.0_19.0_LHCb2025c2
         add_bin(O::P_PRIME_8_B0__KSTAR0_MU_MU, 17, 19); // 229 P8prime_B0Kstar0mumu_17.0_19.0_LHCb2025c2
-        add_bin(O::DGAMMA_DQ2_B0__KSTAR0_MU_MU, 17, 19); // 230 dGamma/dq2_B0Kstar0mumu_17.0_19.0_LHCb2025c2
+        add_bin(O::DBR_DQ2_B0__KSTAR0_MU_MU, 17, 19); // 230 dGamma/dq2_B0Kstar0mumu_17.0_19.0_LHCb2025c2
 
     std::shared_ptr<IStatParamOptimizerProxy> spop = std::make_shared<StatParamOptimizerProxy>();
     auto model = std::make_shared<ObservableInterfaceProxy>(oint, spop);
     
+    LOG_INFO(oint->compute_observable(Observables::IA_B__KSTAR_GAMMA)[0].value);
+    LOG_INFO(oint->compute_observable(Observables::BR_B_XS_GAMMA)[0].value);
+    LOG_INFO(oint->compute_observable(Observables::BR_BS_EE_UNTAG)[0].value);
+    LOG_INFO(oint->compute_observable(Observables::BR_BS_MUMU_UNTAG)[0].value);
+    LOG_INFO(oint->compute_observable(Observables::BR_B__Xs_mu_mu)[0].value);
+    LOG_INFO(oint->compute_observable(Observables::BR_B__Xs_mu_mu)[1].value);
+    LOG_INFO(oint->compute_observable(Observables::BR_B__Xs_e_e)[0].value);
+    LOG_INFO(oint->compute_observable(Observables::BR_B__Xs_e_e)[1].value);
+    LOG_INFO(oint->compute_observable(Observables::BR_B0__KSTAR0_GAMMA)[0].value);
+    LOG_INFO(oint->compute_observable(Observables::BR_B__KSTAR_GAMMA)[0].value);
+    LOG_INFO(oint->compute_observable(Observables::DBR_DQ2_B__KSTAR_MU_MU)[0].value);
+    LOG_INFO(oint->compute_observable(Observables::DBR_DQ2_B__KSTAR_MU_MU)[1].value);
+
+    exit(0);
 
     StatisticConfig config;
     config.MLE_max_iter = 120000;

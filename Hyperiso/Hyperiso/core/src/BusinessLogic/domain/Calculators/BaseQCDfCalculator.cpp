@@ -214,14 +214,14 @@ complex_t BaseQCDfCalculator::C_perp_0(double q2, double sign, bool bar) {
     complex_t C7 = this->C[WCoef::C7] + sign * this->C[WCoef::CP7];
     if (bar) C7 = std::conj(C7);
 
-    if (fpeq(q2, 0.0)) return C7;
-
     // printf("Y(q2 = %.3f) = %.4e + %.4e i\n", q2, real(Y(q2)), imag(Y(q2)));
     // printf("Y_u(q2 = %.3f) = %.4e + %.4e i\n", q2, real(Y_u(q2)), imag(Y_u(q2)));
 
     if (ff_tp == B_FF_Type::FULL) {
+        if (fpeq(q2, 0.0)) return 0.0;
         return q2 * l_u * Y_u(q2) / (2. * this->m_b_PS * this->m_B);
     } else {
+        if (fpeq(q2, 0.0)) return C7;
         return C7 + q2 * (Y(q2) + l_u * Y_u(q2)) / (2. * this->m_b_PS * this->m_B);
     }
 }

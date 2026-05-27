@@ -171,10 +171,22 @@ void BKstarGammaDecay::fill_wilson_cache() {
     cache.C_trad[WCoef::C7] = -2.8010e-1;
     cache.C_trad[WCoef::C8] = -1.6378e-1;
 
-    cache.C2_h =  9.8536e-1;
-    cache.C8_h = -1.7263e-1;
+    for (const auto& [id, val] : b_wilsons_trad) {
+        cache.C_trad[id] = val;
+    }
+
+    cache.C_trad[WCoef::C7] += bp_wilsons_trad[WCoef::CP7];
+    cache.C_trad[WCoef::C8] += bp_wilsons_trad[WCoef::CP8];
+
+    ObsParameterMutator().set(ParamId{ParameterType::WILSON, "B_SCALE", 1}, cache.mu_h);
+    cache.C2_h = w_proxy->getFR(WGroup::B, WCoef::C2, w_config.order);
+    cache.C8_h = w_proxy->getFR(WGroup::B, WCoef::C8, w_config.order) + w_proxy->getFR(WGroup::BPrime, WCoef::CP8, w_config.order);
+
+    // cache.C2_h =  9.8536e-1;
+    // cache.C8_h = -1.7263e-1;
 
     // Important : on remet la base standard pour éviter les effets de bord
+    ObsParameterMutator().set(ParamId{ParameterType::WILSON, "B_SCALE", 1}, cache.mu_b);
     this->w_proxy->set_basis(WilsonBasis::B_STANDARD);
 }
 
