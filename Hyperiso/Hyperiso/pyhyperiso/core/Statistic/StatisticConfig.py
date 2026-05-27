@@ -1,20 +1,17 @@
-"""High-level configuration objects for the statistic workflow.
+"""High-level configuration object for the statistic workflow.
 
-``StatisticConfig`` is the Python entry point for controlling the C++ statistic
-manager. It groups observable selections, fit-parameter selections, nuisance
-marginal overrides, copula choices, Monte-Carlo settings and maximum-likelihood
-options.
+``StatisticConfig`` is the Python entry point for configuring the bound C++
+statistic manager. It mirrors the fields exposed by the pybind11
+``StatisticConfig`` binding.
 """
 
 from __future__ import annotations
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Dict, List, Optional, Sequence
+from typing import Dict
 
 from pyhyperiso.phyperiso.pyhyperiso import statistic as st
-from pyhyperiso.core.Common.BinnedObservableId import BinnedObservableId
-from pyhyperiso.core.Common.GeneralEnum import QCDOrder
 from pyhyperiso.core.Common.ParamId import ParamId
 from pyhyperiso.core.Statistic.Copula import CopulaKind
 from pyhyperiso.core.Statistic.ExperimentObs import ExperimentObs
@@ -22,12 +19,12 @@ from pyhyperiso.core.Statistic.MarginalConfig import MarginalKind
 
 
 class StatisticLikelihoodMode(Enum):
-    """Likelihood backend used by ``StatisticManager.compute_MLE``.
+    """Likelihood backend used by the statistic manager.
 
     Attributes:
-        PROFILED_NUISANCE: Full likelihood with explicit nuisance parameters,
-            nuisance copula and experimental-observable copula.
-        CHI2_MC_COVARIANCE: Faster chi-square backend with no explicit nuisance
+        PROFILED_NUISANCE: Full likelihood backend with explicit nuisance
+            parameters, nuisance copula and experimental-observable copula.
+        CHI2_MC_COVARIANCE: Chi-square backend without explicit nuisance
             coordinates. The covariance is estimated from Monte-Carlo theory
             propagation and combined with the experimental covariance.
     """
@@ -36,64 +33,111 @@ class StatisticLikelihoodMode(Enum):
     CHI2_MC_COVARIANCE = st.StatisticLikelihoodMode.CHI2_MC_COVARIANCE
 
     def to_cpp(self):
-        """Convert to the bound C++ ``StatisticLikelihoodMode`` enum."""
+        """Convert this Python enum wrapper to the bound C++ enum.
+
+        Returns:
+            Bound C++ ``StatisticLikelihoodMode`` value.
+        """
         return self.value
 
 
 def _require(value, typ, name: str):
-    """Validate a typed wrapper argument."""
+    """Validate that a value has the expected wrapper type.
+
+    Args:
+        value: Value to validate.
+        typ: Expected Python type.
+        name: Human-readable argument name.
+
+    Returns:
+        The validated value.
+
+    Raises:
+        TypeError: If ``value`` is not an instance of ``typ``.
+    """
     if not isinstance(value, typ):
-        raise TypeError(f"{name} doit être {typ.__name__}, reçu {type(value)!r}.")
+        raise TypeError(
+            f"{name} must be {typ.__name__}, got {type(value).__name__}."
+        )
     return value
 
 
 def _cpp_param_id(pid: ParamId):
-    """Convert a Python parameter id to C++."""
+    """Convert a Python ``ParamId`` wrapper to C++.
+
+    Args:
+        pid: Python parameter identifier.
+
+    Returns:
+        Bound C++ ``ParamId`` value.
+    """
     return _require(pid, ParamId, "ParamId").to_cpp()
 
 
-def _cpp_binned_observable_id(obs: BinnedObservableId):
-    """Convert a Python binned observable id to C++."""
-    return _require(obs, BinnedObservableId, "BinnedObservableId").to_cpp()
-
-
 def _cpp_marginal_kind(kind: MarginalKind):
-    """Convert a Python marginal kind to C++."""
+    """Convert a Python ``MarginalKind`` wrapper to C++.
+
+    Args:
+        kind: Python marginal kind enum.
+
+    Returns:
+        Bound C++ ``MarginalKind`` value.
+    """
     return _require(kind, MarginalKind, "MarginalKind").to_cpp()
 
 
 def _cpp_copula_kind(kind: CopulaKind):
-    """Convert a Python copula kind to C++."""
+    """Convert a Python ``CopulaKind`` wrapper to C++.
+
+    Args:
+        kind: Python copula kind enum.
+
+    Returns:
+        Bound C++ ``CopulaKind`` value.
+    """
     return _require(kind, CopulaKind, "CopulaKind").to_cpp()
 
 
 def _cpp_likelihood_mode(mode: StatisticLikelihoodMode):
-    """Convert a Python likelihood mode to C++."""
-    return _require(mode, StatisticLikelihoodMode, "StatisticLikelihoodMode").to_cpp()
+    """Convert a Python likelihood mode wrapper to C++.
+
+    Args:
+        mode: Python likelihood backend enum.
+
+    Returns:
+        Bound C++ ``StatisticLikelihoodMode`` value.
+    """
+    return _require(
+        mode,
+        StatisticLikelihoodMode,
+        "StatisticLikelihoodMode",
+    ).to_cpp()
 
 
 def _cpp_experiment_obs(obs: ExperimentObs):
-    """Convert a Python experimental observable wrapper to C++."""
+    """Convert a Python ``ExperimentObs`` wrapper to C++.
+
+    Args:
+        obs: Python experimental-observable wrapper.
+
+    Returns:
+        Bound C++ ``ExperimentObs`` value.
+    """
     return _require(obs, ExperimentObs, "ExperimentObs").to_cpp()
 
 
 @dataclass
 class StatisticConfig:
-    """Configuration of the Python/C++ statistic pipeline.
+    """Configuration of the bound C++ statistic pipeline.
+
+    This dataclass mirrors the fields exposed by the pybind11
+    ``StatisticConfig`` binding.
 
     Attributes:
-        obss: Python-side observable selection. Keys are binned observables and
-            values are QCD orders. This is convenient for higher-level workflows;
-            the C++ ``StatisticConfig`` itself does not store this field.
-        p_specs: Fit parameters to use by default when calling
-            ``StatisticInterface.compute_MLE`` or likelihood-scan methods without
-            an explicit parameter list.
-        selected_experiments: Optional initial experiment selection. When set,
-            ``StatisticInterface`` applies it after constructing the C++ manager.
         override_nuisance_marginals: Per-parameter overrides for nuisance
-            marginal families.
+            marginal distributions.
         override_exp_data_marginals: Per-observable overrides for experimental
-            data marginal families.
+            data marginal distributions.
         nuisance_copula_type: Copula used for nuisance-parameter correlations.
         exp_data_copula_type: Copula used for experimental-observable
             correlations.
@@ -101,14 +145,13 @@ class StatisticConfig:
             propagation.
         skew_abs_threshold: Skewness threshold used to choose symmetric versus
             split-Gaussian summaries.
-        MLE_max_iter: Maximum number of function calls/iterations passed to the
-            minimization backend.
+        MLE_max_iter: Maximum number of function calls or iterations passed to
+            the minimization backend.
         MLE_tol: Minimizer tolerance.
-        MLE_strategy: Backend minimization strategy. For the Minuit backend,
-            ``2`` is a more robust strategy.
-        MLE_run_hesse: Whether to ask the backend for a covariance/HESSE step.
+        MLE_strategy: Backend minimization strategy.
+        MLE_run_hesse: Whether to request a covariance/HESSE step.
         MLE_request_minos: Whether to request MINOS when supported by the build.
-        MLE_verbose: Whether to run the backend in verbose mode.
+        MLE_verbose: Whether to run the minimization backend in verbose mode.
         nuisance_relevance_cutoff: Relative uncertainty prefilter threshold for
             nuisance candidates.
         nuisance_sensitivity_pruning: Whether to prune nuisance candidates by
@@ -121,11 +164,11 @@ class StatisticConfig:
             keeping a nuisance parameter.
         nuisance_sensitivity_scale_floor: Minimum scale used when normalizing
             relative observable shifts.
-        MLE_trace_first_evals: Whether the likelihood should print the first NLL
-            evaluations for debugging.
+        MLE_trace_first_evals: Whether to print the first likelihood evaluations
+            for debugging.
         MLE_trace_max_evals: Maximum number of traced evaluations.
-        MLE_allow_profile_hessian_fallback: Whether the fitter may reconstruct
-            a profile covariance numerically when the backend covariance is
+        MLE_allow_profile_hessian_fallback: Whether the fitter may reconstruct a
+            profile covariance numerically when the backend covariance is
             unavailable.
         MLE_profile_hessian_step_scale: Finite-difference step scale used by the
             profile-Hessian fallback.
@@ -137,12 +180,12 @@ class StatisticConfig:
         chi2_covariance_ridge_abs: Absolute ridge used by the chi-square
             covariance backend.
         nuisance_sensitivity_contexts: Number of nuisance contexts used by
-            sensitivity pruning. A negative value disables the check in C++.
+            sensitivity pruning.
         nuisance_sensitivity_context_sigma: Width, in nuisance sigma units, used
             to randomize non-central sensitivity contexts.
         nuisance_sensitivity_seed: Random seed for sensitivity contexts.
-        nuisance_sensitivity_keep_on_failure: Whether a nuisance is kept when its
-            sensitivity evaluation fails.
+        nuisance_sensitivity_keep_on_failure: Whether a nuisance is kept when
+            its sensitivity evaluation fails.
 
     Examples:
         >>> cfg = StatisticConfig(
@@ -151,10 +194,6 @@ class StatisticConfig:
         ... )
         >>> cpp_cfg = cfg.to_cpp()
     """
-
-    obss: Dict[BinnedObservableId, QCDOrder] = field(default_factory=dict)
-    p_specs: List[ParamId] = field(default_factory=list)
-    selected_experiments: Optional[Sequence[str]] = None
 
     override_nuisance_marginals: Dict[ParamId, MarginalKind] = field(default_factory=dict)
     override_exp_data_marginals: Dict[ExperimentObs, MarginalKind] = field(default_factory=dict)
@@ -200,9 +239,7 @@ class StatisticConfig:
         """Convert this Python config to the bound C++ ``StatisticConfig``.
 
         Returns:
-            A bound C++ configuration object. Python-only fields such as
-            ``obss``, ``p_specs`` and ``selected_experiments`` are intentionally
-            not stored in the C++ object.
+            Bound C++ ``StatisticConfig`` object.
         """
         cpp = st.StatisticConfig()
 
@@ -210,6 +247,7 @@ class StatisticConfig:
             _cpp_param_id(pid): _cpp_marginal_kind(kind)
             for pid, kind in self.override_nuisance_marginals.items()
         }
+
         cpp.override_exp_data_marginals = {
             _cpp_experiment_obs(obs): _cpp_marginal_kind(kind)
             for obs, kind in self.override_exp_data_marginals.items()
@@ -246,44 +284,23 @@ class StatisticConfig:
         cpp.likelihood_mode = _cpp_likelihood_mode(self.likelihood_mode)
         cpp.chi2_covariance_ridge_rel = float(self.chi2_covariance_ridge_rel)
         cpp.chi2_covariance_ridge_abs = float(self.chi2_covariance_ridge_abs)
+
         cpp.nuisance_sensitivity_contexts = int(self.nuisance_sensitivity_contexts)
         cpp.nuisance_sensitivity_context_sigma = float(self.nuisance_sensitivity_context_sigma)
         cpp.nuisance_sensitivity_seed = int(self.nuisance_sensitivity_seed)
-        cpp.nuisance_sensitivity_keep_on_failure = bool(self.nuisance_sensitivity_keep_on_failure)
+        cpp.nuisance_sensitivity_keep_on_failure = bool(
+            self.nuisance_sensitivity_keep_on_failure
+        )
 
         return cpp
-
-    def selected_observables_to_cpp(self):
-        """Convert the Python-side observable selection to a C++ mapping.
-
-        Returns:
-            Mapping from C++ binned observable identifiers to C++ QCD order enum
-            values.
-        """
-        return {_cpp_binned_observable_id(obs): _require(order, QCDOrder, "QCDOrder").value for obs, order in self.obss.items()}
-
-    def p_specs_to_cpp(self):
-        """Convert the default fit-parameter list to C++ identifiers.
-
-        Returns:
-            List of C++ ``ParamId`` objects.
-        """
-        return [_cpp_param_id(pid) for pid in self.p_specs]
 
 
 __all__ = ["StatisticConfig", "StatisticLikelihoodMode"]
 
 
 if __name__ == "__main__":
-    a = StatisticConfig()
-    print(a)
-    
-    a.to_cpp()
-    
-    import pyhyperiso.phyperiso.pyhyperiso.common as cA
-    import pyhyperiso.phyperiso.pyhyperiso.common as cB
+    cfg = StatisticConfig()
+    print(cfg)
 
-    print("A:", cA.__file__)
-    print("B:", cB.__file__)
-    print("same QCDOrder object?", cA.QCDOrder is cB.QCDOrder)
-    print("same LO?", cA.QCDOrder.LO == cB.QCDOrder.LO)
+    cpp_cfg = cfg.to_cpp()
+    print(cpp_cfg)

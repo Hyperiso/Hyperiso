@@ -9,7 +9,7 @@ from pyhyperiso.phyperiso.pyhyperiso.core import DependentParameter as _CppDepen
 from pyhyperiso.phyperiso.pyhyperiso.core import Parameter as _CppParameter
 from pyhyperiso.phyperiso.pyhyperiso.core import ParameterMode as _CppParameterMode
 from pyhyperiso.core.Common.ParamId import ParamId
-from pyhyperiso.core.Math.scalar import Scalar, _to_scalar
+from pyhyperiso.core.Math.Scalar import Scalar, _to_scalar
 
 
 class ParameterMode(Enum):

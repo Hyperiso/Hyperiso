@@ -7,7 +7,7 @@ from typing import Union
 from pyhyperiso.phyperiso.pyhyperiso.core import ParameterSetter as _CppParameterSetter
 from pyhyperiso.core.Common.ParamId import ParamId
 from pyhyperiso.core.Core.Parameter import ParameterMode
-from pyhyperiso.core.Math.scalar import Scalar, _to_scalar
+from pyhyperiso.core.Math.Scalar import Scalar, _to_scalar
 
 
 class ParameterSetter:

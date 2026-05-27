@@ -197,6 +197,9 @@ void MemoryManager::switch_lha(const std::string& lhaFile, HyperisoConfig config
     cache.lha_path = lhaFile; 
     cache.config   = std::move(config);
     this->deduce_parameter_types(cache.config);
+
+    ParametersFactory::clear();
+    
     this->cache.flags[InternalFlag::PARAMS_CHANGED] = true;
 }
 

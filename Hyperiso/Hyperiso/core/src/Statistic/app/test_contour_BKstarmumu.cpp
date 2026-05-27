@@ -1223,7 +1223,7 @@ int main() {
     LOG_INFO(oint->compute_observable(Observables::DBR_DQ2_B__KSTAR_MU_MU)[0].value);
     LOG_INFO(oint->compute_observable(Observables::DBR_DQ2_B__KSTAR_MU_MU)[1].value);
 
-    exit(0);
+    // exit(0);
 
     StatisticConfig config;
     config.MLE_max_iter = 120000;

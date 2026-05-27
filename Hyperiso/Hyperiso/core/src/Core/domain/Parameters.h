@@ -660,6 +660,8 @@ public:
      * @throws Via logging/error handling if the repository does not exist.
      */
     static void removeParameters(ParameterType id);
+
+    static void clear();
 private:
     static std::map<ParameterType, std::shared_ptr<Parameters>> instances;  /// Static cache of repositories indexed by parameter type.
 

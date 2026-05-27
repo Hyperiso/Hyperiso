@@ -28,7 +28,7 @@ from typing import Dict
 from pyhyperiso.phyperiso.pyhyperiso.wilson.wilson_interface import WilsonInterface as _CppWilsonInterface
 from pyhyperiso.core.Common.GeneralEnum import QCDOrder, WCoeff, WGroup, ContributionType, WilsonBasis, Model, ParameterType
 from pyhyperiso.core.Common.Configs import WilsonBuildConfig, WilsonRequest
-from pyhyperiso.core.Math.scalar import Scalar
+from pyhyperiso.core.Math.Scalar import Scalar
 
 
 class WilsonInterface:
@@ -398,7 +398,7 @@ if __name__ == "__main__":
     print(value)  # Scalar(...)
     
     test_values = []
-    from pyhyperiso.core.Core.ParameterSetter import ParameterSetter, ParamId, ParameterType
+    from pyhyperiso.core.Core.ParameterSetter import ParameterSetter, ParamId
     py_set = ParameterSetter()
     for i in range(1, 81):
         py_set.mutate(ParamId(ParameterType.WILSON, "EW_SCALE", 1), i)

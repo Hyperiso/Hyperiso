@@ -393,6 +393,10 @@ std::shared_ptr<ModelStrategy> ParametersFactory::createStrategy(ParameterType i
     }
 }
 
+void ParametersFactory::clear() {
+    instances.clear();
+}
+
 void Parameters::print_block(const std::string blockname) {
     std::cout << this->blockAccessor->at(blockname) << std::endl;
 }

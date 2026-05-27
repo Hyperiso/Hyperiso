@@ -331,10 +331,47 @@ void init_core(py::module &m) {
     });
 
     py::class_<BlockProvider>(m, "BlockProvider")
-        .def(py::init<>())
-        .def("exists", &BlockProvider::exists, py::arg("blockname"), py::arg("type"))
-        .def("log_all_blocks", &BlockProvider::log_all_blocks, py::arg("type"))
-        .def("log_block", &BlockProvider::log_block, py::arg("type"), py::arg("blockname"));
+    .def(py::init<>())
+
+    .def(
+        "exists",
+        &BlockProvider::exists,
+        py::arg("blockname"),
+        py::arg("type"),
+        "Return whether a block exists for the given parameter type."
+    )
+
+    .def(
+        "log_all_blocks",
+        &BlockProvider::log_all_blocks,
+        py::arg("type"),
+        "Log all blocks for the given parameter type."
+    )
+
+    .def(
+        "log_block",
+        &BlockProvider::log_block,
+        py::arg("type"),
+        py::arg("blockname"),
+        "Log one block for the given parameter type."
+    )
+
+    .def(
+        "get_block",
+        &BlockProvider::get_block,
+        py::arg("type"),
+        py::arg("blockname"),
+        py::return_value_policy::move,
+        "Return the content of one block for the given parameter type."
+    )
+
+    .def(
+        "get_all_blocks",
+        &BlockProvider::get_all_blocks,
+        py::arg("type"),
+        py::return_value_policy::move,
+        "Return the names of all blocks for the given parameter type."
+    );
 
     // py::enum_<CorrelationProvider::CorrelationType>(m, "CorrelationType")
     //     .value("STAT", CorrelationProvider::CorrelationType::STAT)
