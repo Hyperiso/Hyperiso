@@ -203,6 +203,9 @@ target_link_libraries(LIKELIHOODEXP StatisticLib)
 add_executable(NICELIKELIHOOD app/test_contour_method.cpp)
 target_link_libraries(NICELIKELIHOOD StatisticLib)
 
+add_executable(OBS_TEST app/main_test_obs.cpp)
+target_link_libraries(OBS_TEST StatisticLib)
+
 include(GNUInstallDirs)
 
 install(TARGETS StatisticLib
