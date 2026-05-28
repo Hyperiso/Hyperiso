@@ -31,6 +31,10 @@ struct EncodedBin {
     long frac_digits;
 };
 
+static constexpr std::size_t kBinnedFlhaInsertPos = 2;
+static constexpr std::size_t kBinnedFlhaPartCount = 6;
+static constexpr long kMaxBinFracDigits = 12;
+
 static inline long pow10_long(long n) noexcept {
     long v = 1;
     while (n-- > 0) {
@@ -67,7 +71,6 @@ static inline EncodedBin encode_bin_gev(double x) {
 
     x = norm_zero(x);
 
-    constexpr int kMaxFracDigits = 12;
     constexpr long double kScale = 1.0e12L;
 
     long double xr = static_cast<long double>(x);
@@ -77,7 +80,7 @@ static inline EncodedBin encode_bin_gev(double x) {
     const long double ax = std::fabs(xr);
 
     std::ostringstream oss;
-    oss << std::fixed << std::setprecision(kMaxFracDigits) << ax;
+    oss << std::fixed << std::setprecision(kMaxBinFracDigits) << ax;
 
     std::string s = trim_decimal_string(oss.str());
 
@@ -106,8 +109,13 @@ static inline EncodedBin encode_bin_gev(double x) {
 }
 
 static inline double decode_bin_gev(long int_part, long frac_part, long frac_digits) {
-    if (frac_digits < 0) {
-        throw std::runtime_error("decode_bin_gev: negative frac_digits");
+    if (frac_digits < 0 || frac_digits > kMaxBinFracDigits) {
+        throw std::runtime_error("decode_bin_gev: invalid frac_digits");
+    }
+
+    const long scale = pow10_long(frac_digits);
+    if (std::labs(frac_part) >= scale && frac_digits > 0) {
+        throw std::runtime_error("decode_bin_gev: frac_part does not fit frac_digits");
     }
 
     const bool neg = (int_part < 0) || (frac_part < 0);
@@ -117,7 +125,6 @@ static inline double decode_bin_gev(long int_part, long frac_part, long frac_dig
     long double out = static_cast<long double>(abs_int);
 
     if (frac_digits > 0) {
-        const long scale = pow10_long(frac_digits);
         out += static_cast<long double>(abs_frac) / static_cast<long double>(scale);
     }
 
@@ -172,7 +179,7 @@ struct BinnedObservableId {
         };
 
         auto parts = unbinned_id.get_parts();
-        parts.insert(parts.begin() + 2, bin_parts.begin(), bin_parts.end());
+        parts.insert(parts.begin() + kBinnedFlhaInsertPos, bin_parts.begin(), bin_parts.end());
 
         return LhaID(parts);
     }
@@ -180,23 +187,23 @@ struct BinnedObservableId {
     static BinnedObservableId from_flha(LhaID const& id) {
         auto parts = id.get_parts();
 
-        if (parts.size() < 8) {
+        if (parts.size() < kBinnedFlhaInsertPos + kBinnedFlhaPartCount) {
             throw std::runtime_error("from_flha: LhaID has not enough parts to contain robust binning");
         }
 
-        const long low_int      = parts.at(2);
-        const long low_frac     = parts.at(3);
-        const long low_ndigits  = parts.at(4);
-        const long high_int     = parts.at(5);
-        const long high_frac    = parts.at(6);
-        const long high_ndigits = parts.at(7);
+        const long low_int      = parts.at(kBinnedFlhaInsertPos + 0);
+        const long low_frac     = parts.at(kBinnedFlhaInsertPos + 1);
+        const long low_ndigits  = parts.at(kBinnedFlhaInsertPos + 2);
+        const long high_int     = parts.at(kBinnedFlhaInsertPos + 3);
+        const long high_frac    = parts.at(kBinnedFlhaInsertPos + 4);
+        const long high_ndigits = parts.at(kBinnedFlhaInsertPos + 5);
 
-        parts.erase(parts.begin() + 2, parts.begin() + 8);
+        parts.erase(parts.begin() + kBinnedFlhaInsertPos,
+                    parts.begin() + kBinnedFlhaInsertPos + kBinnedFlhaPartCount);
         LhaID unbinned_id(parts);
 
         auto obs_opt = ObservableMapper::from_flha(unbinned_id);
         if (!obs_opt.has_value()) {
-            std::cout << unbinned_id << std::endl;
             throw std::runtime_error("from_flha: flha to ObservableId mapping unknown");
         }
 

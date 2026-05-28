@@ -289,6 +289,20 @@ public:
     scalar_t get_exp_value(ObservableId id);
 
     /**
+     * @brief Get experimental central value for an observable (id API).
+     * @param id Observable id with bin.
+     * @return Experimental central value.
+     */
+    scalar_t get_exp_value(BinnedObservableId id);
+
+    /**
+     * @brief Get experimental central value for an observable (id API).
+     * @param id Observable id with bin and experience name.
+     * @return Experimental central value.
+     */
+    scalar_t get_exp_value(ExperimentObs id);
+    
+    /**
      * @brief Get experimental uncertainty for an observable (enum API).
      *
      * @param id     Observable enum.
@@ -304,6 +318,22 @@ public:
      * @return Experimental uncertainty.
      */
     scalar_t get_exp_uncertainty(ObservableId id, UncertaintyType u_type=UncertaintyType::COMBINED);
+
+    /**
+     * @brief Get experimental uncertainty for an observable (id API).
+     * @param id     Observable id with bins.
+     * @param u_type Type of uncertainty requested.
+     * @return Experimental uncertainty.
+     */
+    scalar_t get_exp_uncertainty(BinnedObservableId id, UncertaintyType u_type=UncertaintyType::COMBINED);
+
+    /**
+     * @brief Get experimental uncertainty for an observable (id API).
+     * @param id     Observable id with bins and experience name.
+     * @param u_type Type of uncertainty requested.
+     * @return Experimental uncertainty.
+     */
+    scalar_t get_exp_uncertainty(ExperimentObs id, UncertaintyType u_type=UncertaintyType::COMBINED);
 
     /**
      * @brief Return the set of currently registered observables.

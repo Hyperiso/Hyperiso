@@ -1,4 +1,5 @@
 #include "observable_ids.hpp"
+#include "BinnedObservableId.h"
 #include "decay_ids.hpp"
 
 Observables ObservableMapper::enum_elt(std::string_view s){
@@ -21,6 +22,30 @@ std::optional<ObservableId> ObservableMapper::from_flha(const LhaID& ext){ retur
 
 std::optional<LhaID>        ObservableMapper::flha_of(const ObservableId& id){ return external_of(id); }
 
+std::optional<BinnedObservableId> ObservableMapper::from_binned_flha(const LhaID& ext){
+    try {
+        return BinnedObservableId::from_flha(ext);
+    } catch (const std::exception&) {
+        return std::nullopt;
+    }
+}
+
+std::optional<LhaID> ObservableMapper::binned_flha_of(const BinnedObservableId& id){
+    try {
+        return id.flha();
+    } catch (const std::exception&) {
+        return std::nullopt;
+    }
+}
+
+BinnedObservableId ObservableMapper::binned_from_flha(const LhaID& ext){
+    auto out = from_binned_flha(ext);
+    if (!out) {
+        throw std::runtime_error("Unknown binned observable (FLHA): " + ext.to_string());
+    }
+    return *out;
+}
+
 LhaID        ObservableMapper::flha(const Observables& id){ return observable_flha_mapping().at(id); }
 
 bool ObservableMapper::register_custom(const std::string& canonical,
@@ -39,6 +64,14 @@ bool ObservableMapper::register_custom(const std::string& canonical,
 LhaID ObservableMapper::flha(const ObservableId& id){
     auto k = flha_of(id);
     if (!k) throw std::runtime_error("Observable has no FLHA: " + id.str());
+    return *k;
+}
+
+LhaID ObservableMapper::flha(const BinnedObservableId& id){
+    auto k = binned_flha_of(id);
+    if (!k) {
+        throw std::runtime_error("BinnedObservableId has no FLHA: " + id.str());
+    }
     return *k;
 }
 

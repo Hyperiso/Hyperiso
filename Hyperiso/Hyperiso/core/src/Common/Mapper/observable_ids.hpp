@@ -6,6 +6,8 @@
 #include "LhaID.h"
 #include "decay_graph.h"
 
+#include <optional>
+
 /**
  * @file ObservableMapper.h
  * @brief Mapper for Observables <-> text ids <-> FLHA ids, with decay links.
@@ -20,6 +22,7 @@
 struct ObservableTag {};
 /** @brief Strongly typed identifier for observables. */
 using ObservableId = IdOf<ObservableTag>;
+struct BinnedObservableId;
 
 /**
  * @class ObservableMapper
@@ -104,6 +107,30 @@ public:
     static std::optional<LhaID>        flha_of(const ObservableId& id);
 
     /**
+     * @brief Shortcut: binned FLHA -> BinnedObservableId.
+     *
+     * Binned FLHA ids are normal observable FLHA ids where the 6 bin fields
+     * are inserted after the first two components:
+     *   low_int, low_frac, low_frac_digits, high_int, high_frac, high_frac_digits.
+     *
+     * Examples:
+     *   - 15_0_0 encodes 15
+     *   - 1_1_1 encodes 1.1
+     *   - 1_1_2 encodes 1.01
+     */
+    static std::optional<BinnedObservableId> from_binned_flha(const LhaID& ext);
+
+    /**
+     * @brief Shortcut: BinnedObservableId -> binned FLHA.
+     */
+    static std::optional<LhaID> binned_flha_of(const BinnedObservableId& id);
+
+    /**
+     * @brief Throwing variant of from_binned_flha().
+     */
+    static BinnedObservableId binned_from_flha(const LhaID& ext);
+
+    /**
      * @brief Returns the FLHA id associated with a builtin Observables enum.
      *
      * This uses the static FLHA mapping observable_flha_mapping().
@@ -150,6 +177,16 @@ public:
      * @throws std::runtime_error if no FLHA id is defined for @p id.
      */
     static LhaID flha(const ObservableId& id);
+
+    /**
+     * @brief Returns the binned FLHA id associated with a BinnedObservableId.
+     *
+     * The output keeps the same observable FLHA prefix/suffix as the unbinned id
+     * and inserts the 6 encoded bin fields after the first two components.
+     *
+     * @throws std::runtime_error if the underlying ObservableId has no FLHA id.
+     */
+    static LhaID flha(const BinnedObservableId& id);
 
     /**
      * @brief Convenience overload: register custom observable using a Decays enum.

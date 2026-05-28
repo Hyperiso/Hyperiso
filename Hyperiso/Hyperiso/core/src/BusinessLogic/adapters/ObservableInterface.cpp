@@ -111,19 +111,35 @@ void ObservableInterface::remove_observables(Decays dec) {
 };
 
 scalar_t ObservableInterface::get_exp_value(Observables id) {
-    return manager->get_obs(id)->get_exp_val();
+    return manager->get_obs(id)->get_exp_val({0,0}, "DEFAULT");
 };
 
 scalar_t ObservableInterface::get_exp_value(ObservableId id) {
-    return manager->get_obs(id)->get_exp_val();
+    return manager->get_obs(id)->get_exp_val({0,0}, "DEFAULT");
+};
+
+scalar_t ObservableInterface::get_exp_value(BinnedObservableId id) {
+    return manager->get_obs(id.s)->get_exp_val(id.p, "DEFAULT");
+};
+
+scalar_t ObservableInterface::get_exp_value(ExperimentObs id) {
+    return manager->get_obs(id.obs.s)->get_exp_val(id.obs.p, id.experiment);
 };
 
 scalar_t ObservableInterface::get_exp_uncertainty(Observables id, UncertaintyType u_type) {
-    return manager->get_obs(id)->get_exp_uncertainty(u_type);
+    return manager->get_obs(id)->get_exp_uncertainty({0,0}, "DEFAULT", u_type);
 }
 
 scalar_t ObservableInterface::get_exp_uncertainty(ObservableId id, UncertaintyType u_type) {
-    return manager->get_obs(id)->get_exp_uncertainty(u_type);
+    return manager->get_obs(id)->get_exp_uncertainty({0,0}, "DEFAULT", u_type);
+}
+
+scalar_t ObservableInterface::get_exp_uncertainty(BinnedObservableId id, UncertaintyType u_type) {
+    return manager->get_obs(id.s)->get_exp_uncertainty(id.p, "DEFAULT", u_type);
+}
+
+scalar_t ObservableInterface::get_exp_uncertainty(ExperimentObs id, UncertaintyType u_type) {
+    return manager->get_obs(id.obs.s)->get_exp_uncertainty(id.obs.p, id.experiment, u_type);
 }
 
 std::vector<BinnedObservableId> ObservableInterface::get_current_observables() {

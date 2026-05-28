@@ -1,11 +1,11 @@
 #include "Observable.h"
 
-scalar_t Observable::get_exp_val() const {
-    return (*iobspp_obs)(ParamId(ParameterType::OBSERVABLE, "FOBS", ObservableMapper::flha_of(this->id).value()), DataType::VALUE);
+scalar_t Observable::get_exp_val(std::pair<double, double> bins, std::string exp) const {
+    return (*iobspp_obs)(ParamId(ParameterType::OBSERVABLE, "FOBS_" + exp, BinnedObservableId(this->id, bins).flha()), DataType::VALUE);
 }
 
-scalar_t Observable::get_exp_uncertainty(UncertaintyType u_type) const {
-    return (*iobspp_obs)(ParamId(ParameterType::OBSERVABLE, "FOBS", ObservableMapper::flha_of(this->id).value()), UncertaintyTypeMapper::d_type(u_type));
+scalar_t Observable::get_exp_uncertainty(std::pair<double, double> bins, std::string exp, UncertaintyType u_type) const {
+    return (*iobspp_obs)(ParamId(ParameterType::OBSERVABLE, "FOBS_" + exp, BinnedObservableId(this->id, bins).flha()), UncertaintyTypeMapper::d_type(u_type));
 }
 
 std::vector<ObservableValue> Observable::compute() const {

@@ -92,20 +92,24 @@ public:
      * Reads from the observable parameter proxy using:
      *  - ParamId(ParameterType::OBSERVABLE, "FOBS", ObservableMapper::flha_of(id))
      *
+     * @param bins Experimental bins of the observable
+     * @param exp Experiment for the observable
      * @return Experimental central value (as @ref scalar_t).
      */
-    scalar_t get_exp_val() const;
+    scalar_t get_exp_val(std::pair<double, double> bins, std::string exp) const;
 
     /**
      * @brief Get the experimental uncertainty for this observable.
      *
      * The uncertainty type is mapped to a @ref DataType via @ref UncertaintyTypeMapper::d_type.
      * Typical values include combined/stat/sys depending on your implementation.
-     *
+     * 
+     * @param bins Experimental bins of the observable
+     * @param exp Experiment for the observable
      * @param u_type Which uncertainty component to request (default: combined).
      * @return Experimental uncertainty (as @ref scalar_t).
      */
-    scalar_t get_exp_uncertainty(UncertaintyType u_type=UncertaintyType::COMBINED) const;
+    scalar_t get_exp_uncertainty(std::pair<double, double> bins, std::string exp, UncertaintyType u_type=UncertaintyType::COMBINED) const;
 
     /**
      * @brief Compute the theory prediction for this observable.

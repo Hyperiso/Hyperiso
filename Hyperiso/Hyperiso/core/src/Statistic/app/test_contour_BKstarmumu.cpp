@@ -1211,6 +1211,7 @@ int main() {
     auto model = std::make_shared<ObservableInterfaceProxy>(oint, spop);
     
     LOG_INFO(oint->compute_observable(Observables::IA_B__KSTAR_GAMMA)[0].value);
+    LOG_INFO(oint->get_exp_value(Observables::IA_B__KSTAR_GAMMA));
     LOG_INFO(oint->compute_observable(Observables::BR_B_XS_GAMMA)[0].value);
     LOG_INFO(oint->compute_observable(Observables::BR_BS_EE_UNTAG)[0].value);
     LOG_INFO(oint->compute_observable(Observables::BR_BS_MUMU_UNTAG)[0].value);
