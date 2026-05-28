@@ -1,0 +1,619 @@
+
+/* ---------- Dark UI theme for Dash ---------- */
+:root{
+  --bg: #0b1020;
+  --panel: #0f172a;
+  --card: #111b34;
+  --card2: #0f1a30;
+  --border: rgba(148,163,184,0.18);
+  --text: #e5e7eb;
+  --muted: rgba(229,231,235,0.70);
+  --accent: #60a5fa;
+  --accent2: #a78bfa;
+  --good: #34d399;
+  --warn: #fbbf24;
+  --bad: #fb7185;
+  --shadow: 0 14px 35px rgba(0,0,0,0.35);
+  --radius: 18px;
+  --radius2: 14px;
+  --font: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+}
+
+html, body{
+  background: radial-gradient(1200px 700px at 20% -10%, rgba(96,165,250,0.18), transparent 50%),
+              radial-gradient(900px 600px at 120% 40%, rgba(167,139,250,0.14), transparent 55%),
+              radial-gradient(900px 700px at 40% 120%, rgba(52,211,153,0.10), transparent 55%),
+              var(--bg);
+  color: var(--text);
+  margin: 0;
+  font-family: var(--font);
+}
+
+a { color: var(--accent); }
+
+/* App shell */
+.app-shell{
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+}
+
+/* Sidebar */
+.sidebar{
+  width: 380px;
+  min-width: 340px;
+  max-width: 420px;
+  background: linear-gradient(180deg, rgba(15,23,42,0.95), rgba(15,23,42,0.80));
+  border-right: 1px solid var(--border);
+  padding: 16px 14px 14px 14px;
+  overflow-y: auto;
+}
+
+.brand{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.brand h1{
+  font-size: 18px;
+  margin: 0;
+  letter-spacing: 0.2px;
+}
+
+.badge{
+  font-size: 12px;
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: rgba(17,27,52,0.65);
+  color: var(--muted);
+}
+
+/* Content */
+.content{
+  flex: 1;
+  padding: 14px;
+  overflow-y: auto;
+}
+
+.grid{
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-row-gap: 12px;
+}
+
+/* Cards */
+.card{
+  background: linear-gradient(180deg, rgba(17,27,52,0.86), rgba(15,26,48,0.78));
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 12px;
+}
+
+.card-title{
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin: 0 0 8px 0;
+}
+
+.card-title h2{
+  font-size: 14px;
+  margin: 0;
+  color: rgba(229,231,235,0.92);
+  letter-spacing: 0.25px;
+}
+
+.card-title span{
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* Form controls */
+label, .label{
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 6px;
+  display: block;
+}
+
+input, select{
+  background: rgba(3, 7, 18, 0.55) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 12px !important;
+  color: var(--text) !important;
+  padding: 10px 12px !important;
+  outline: none !important;
+}
+
+input::placeholder{
+  color: rgba(229,231,235,0.35) !important;
+}
+
+/* Dash Dropdown */
+.Select-control, .Select-menu-outer, .Select-input, .Select-value, .Select-placeholder{
+  background: rgba(3, 7, 18, 0.55) !important;
+  color: var(--text) !important;
+  border-color: var(--border) !important;
+}
+.Select-menu-outer{
+  border: 1px solid var(--border) !important;
+  border-radius: 12px !important;
+  overflow: hidden !important;
+}
+.VirtualizedSelectOption{
+  background: rgba(15,23,42,0.9) !important;
+  color: var(--text) !important;
+}
+.VirtualizedSelectFocusedOption{
+  background: rgba(96,165,250,0.18) !important;
+}
+
+/* Checklist / radio */
+input[type="checkbox"], input[type="radio"]{
+  accent-color: var(--accent);
+}
+.checklist{
+  display: grid;
+  grid-template-columns: 1fr;
+  row-gap: 6px;
+}
+
+/* Button */
+button{
+  width: 100%;
+  padding: 12px 12px;
+  border: 1px solid rgba(96,165,250,0.35);
+  background: linear-gradient(90deg, rgba(96,165,250,0.22), rgba(167,139,250,0.18));
+  color: var(--text);
+  border-radius: 14px;
+  cursor: pointer;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  transition: transform .06s ease, border-color .2s ease, background .2s ease;
+}
+button:hover{
+  transform: translateY(-1px);
+  border-color: rgba(96,165,250,0.55);
+  background: linear-gradient(90deg, rgba(96,165,250,0.28), rgba(167,139,250,0.22));
+}
+button:active{
+  transform: translateY(0px);
+}
+
+/* Small helpers */
+.row{
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.row-3{
+  display: grid;
+  grid-template-columns: 120px 1fr 1fr;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.hr{
+  height: 1px;
+  background: var(--border);
+  border: none;
+  margin: 12px 0;
+}
+
+/* Graph cards */
+.graph-card{
+  padding: 10px 10px 4px 10px;
+}
+.graph-row{
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+.graph-row-2{
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 12px;
+}
+
+/* Status box */
+.status{
+  margin-top: 10px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  font-size: 12px;
+  color: rgba(229,231,235,0.80);
+  white-space: pre-wrap;
+  line-height: 1.35;
+  background: rgba(3, 7, 18, 0.35);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 10px 12px;
+}
+
+/* Plotly: remove white background flash */
+.js-plotly-plot .plotly .main-svg{
+  background: transparent !important;
+}
+
+
+/* ---------- Refinements v2 ---------- */
+:root{
+  --control-bg: rgba(2, 6, 23, 0.55);
+  --control-bg-2: rgba(2, 6, 23, 0.70);
+  --control-ring: rgba(96,165,250,0.35);
+  --text-strong: rgba(229,231,235,0.92);
+}
+
+.label{ color: rgba(229,231,235,0.70) !important; }
+.card-title h2{ color: var(--text-strong) !important; }
+
+/* Make sure ALL form controls keep dark background */
+input, textarea, select{
+  background: rgba(2, 6, 23, 0.62) !important;
+  color: var(--text-strong) !important;
+  border: 1px solid rgba(148,163,184,0.14) !important;
+  outline: none !important;
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,0.22) !important;
+}
+
+input:focus, textarea:focus, select:focus{
+  border-color: rgba(96,165,250,0.55) !important;
+  box-shadow: 0 0 0 3px rgba(96,165,250,0.16) !important;
+}
+
+/* Dash core components sometimes wrap inputs */
+.dash-input input,
+.dash-input textarea{
+  background: rgba(2, 6, 23, 0.62) !important;
+  color: var(--text-strong) !important;
+  border: 1px solid rgba(148,163,184,0.14) !important;
+  outline: none !important;
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,0.22) !important;
+}
+
+/* React-Select (dcc.Dropdown) — force dark + readable text */
+.Select-control{
+  background: rgba(2, 6, 23, 0.62) !important;
+  border: 1px solid rgba(148,163,184,0.14) !important;
+  border-radius: 12px !important;
+  color: var(--text-strong) !important;
+}
+.Select-control:hover{
+  border-color: rgba(96,165,250,0.45) !important;
+}
+.is-focused:not(.is-open) > .Select-control{
+  border-color: rgba(96,165,250,0.55) !important;
+  box-shadow: 0 0 0 3px rgba(96,165,250,0.16) !important;
+}
+.Select-placeholder{
+  color: rgba(229,231,235,0.40) !important;
+}
+.Select-value-label{
+  color: var(--text-strong) !important;
+}
+.Select-arrow-zone, .Select-clear-zone{
+  color: rgba(229,231,235,0.55) !important;
+}
+.Select-menu-outer{
+  background: rgba(15,23,42,0.95) !important;
+  border: 1px solid rgba(148,163,184,0.14) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 18px 40px rgba(0,0,0,0.45) !important;
+}
+.Select-option{
+  background: rgba(15,23,42,0.92) !important;
+  color: var(--text-strong) !important;
+}
+.Select-option.is-focused{
+  background: rgba(96,165,250,0.16) !important;
+}
+.Select-option.is-selected{
+  background: rgba(167,139,250,0.22) !important;
+}
+
+/* Checklist / radio labels: prevent black text */
+.checklist label{
+  color: rgba(229,231,235,0.86) !important;
+}
+.checklist label span{
+  color: rgba(229,231,235,0.86) !important;
+}
+
+/* Button palette coherence */
+button{
+  border: 1px solid rgba(96,165,250,0.45) !important;
+  background: linear-gradient(90deg, rgba(96,165,250,0.26), rgba(167,139,250,0.20)) !important;
+}
+button:focus{
+  outline: none !important;
+  box-shadow: 0 0 0 3px rgba(96,165,250,0.18) !important;
+}
+
+/* Tabs styling (for the new 2D/3D tabs) */
+.tabbar{
+  margin-bottom: 8px;
+}
+.tabbar .tab{
+  border: 1px solid rgba(148,163,184,0.20) !important;
+  background: rgba(2,6,23,0.25) !important;
+  color: rgba(229,231,235,0.80) !important;
+  border-radius: 999px !important;
+  padding: 8px 12px !important;
+  margin-right: 8px !important;
+}
+.tabbar .tab--selected{
+  border-color: rgba(96,165,250,0.55) !important;
+  background: rgba(96,165,250,0.16) !important;
+  color: rgba(229,231,235,0.92) !important;
+}
+
+/* Plotly modebar: stop it looking like a white sticker */
+.js-plotly-plot .modebar{
+  background: rgba(2,6,23,0.35) !important;
+  border: 1px solid rgba(148,163,184,0.20) !important;
+  border-radius: 12px !important;
+  padding: 3px 6px !important;
+}
+.js-plotly-plot .modebar-btn{
+  color: rgba(229,231,235,0.75) !important;
+}
+.js-plotly-plot .modebar-btn:hover{
+  color: rgba(229,231,235,0.95) !important;
+}
+
+/* Loading overlay: keep transparent */
+._dash-loading{
+  background: rgba(0,0,0,0) !important;
+}
+
+/* ---------- Refinements v3 ---------- */
+hr{
+  height: 1px;
+  border: none;
+  background: rgba(148,163,184,0.18);
+}
+
+
+/* ---------- Metrics ---------- */
+.metrics-row{
+  display: grid;
+  grid-template-columns: repeat(5, minmax(160px, 1fr));
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.metric{
+  background: linear-gradient(180deg, rgba(17,27,52,0.78), rgba(15,26,48,0.66));
+  border: 1px solid rgba(148,163,184,0.18);
+  border-radius: 18px;
+  box-shadow: 0 14px 35px rgba(0,0,0,0.30);
+  padding: 12px 12px;
+  min-height: 72px;
+}
+.metric .k{
+  font-size: 12px;
+  color: rgba(229,231,235,0.70);
+  margin-bottom: 6px;
+}
+.metric .v{
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: 0.2px;
+  color: rgba(229,231,235,0.92);
+}
+.metric .s{
+  margin-top: 4px;
+  font-size: 12px;
+  color: rgba(229,231,235,0.55);
+}
+.metric.good .v{ color: rgba(52,211,153,0.92); }
+.metric.warn .v{ color: rgba(251,191,36,0.92); }
+.metric.bad  .v{ color: rgba(251,113,133,0.92); }
+
+@media (max-width: 1200px){
+  .metrics-row{ grid-template-columns: repeat(2, 1fr); }
+}
+
+
+/* Hide native number steppers (if any remain) */
+input[type=number]::-webkit-outer-spin-button,
+input[type=number]::-webkit-inner-spin-button{
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type=number]{ -moz-appearance: textfield; }
+
+
+/* ---------- DataTable ---------- */
+.dash-table-container .dash-spreadsheet-container{
+  background: rgba(0,0,0,0) !important;
+}
+.dash-table-container .dash-spreadsheet{
+  background: rgba(2,6,23,0.25) !important;
+  border: 1px solid rgba(148,163,184,0.18) !important;
+  border-radius: 16px !important;
+  overflow: hidden !important;
+}
+.dash-table-container .dash-header{
+  background: rgba(15,23,42,0.92) !important;
+  color: rgba(229,231,235,0.92) !important;
+  font-weight: 700 !important;
+}
+.dash-table-container .dash-cell{
+  background: rgba(2,6,23,0.40) !important;
+  color: rgba(229,231,235,0.86) !important;
+  border-bottom: 1px solid rgba(148,163,184,0.12) !important;
+  border-right: 1px solid rgba(148,163,184,0.08) !important;
+}
+.dash-table-container .dash-cell.focused{
+  outline: none !important;
+  box-shadow: inset 0 0 0 2px rgba(96,165,250,0.35) !important;
+}
+.dash-table-container .dash-cell.selected{
+  background: rgba(96,165,250,0.16) !important;
+}
+
+/* ---------- Hyperiso Dash additions ---------- */
+.nav{
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+.nav-item{
+  display: block;
+  text-decoration: none;
+  color: rgba(229,231,235,0.88);
+  padding: 12px 12px;
+  border: 1px solid rgba(148,163,184,0.16);
+  border-radius: 16px;
+  background: rgba(2,6,23,0.30);
+}
+.nav-item:hover{
+  border-color: rgba(96,165,250,0.45);
+  background: rgba(96,165,250,0.10);
+}
+.nav-item b{
+  display: block;
+  font-size: 14px;
+  color: rgba(229,231,235,0.94);
+}
+.nav-item span{
+  display: block;
+  margin-top: 3px;
+  font-size: 12px;
+  color: rgba(229,231,235,0.58);
+}
+.small-note{
+  color: rgba(229,231,235,0.58);
+  font-size: 12px;
+  line-height: 1.45;
+}
+.page-title{
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+.page-title h1{
+  margin: 0;
+  font-size: 24px;
+  letter-spacing: 0.2px;
+}
+.page-title p{
+  margin: 5px 0 0 0;
+  color: rgba(229,231,235,0.62);
+}
+.page-grid{
+  display: grid;
+  grid-template-columns: 440px minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+}
+.page-grid-wide{
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+.form-grid-2{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.form-grid-3{
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+.form-grid-4{
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+.inline-actions{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.full-span{
+  grid-column: 1 / -1;
+}
+.kv-grid{
+  display: grid;
+  grid-template-columns: repeat(4, minmax(110px, 1fr));
+  gap: 10px;
+}
+.pill-row{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.pill{
+  font-size: 12px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(148,163,184,0.18);
+  background: rgba(2,6,23,0.32);
+  color: rgba(229,231,235,0.72);
+}
+.warn-box{
+  background: rgba(251,191,36,0.10);
+  border: 1px solid rgba(251,191,36,0.26);
+  color: rgba(253,230,138,0.90);
+  border-radius: 14px;
+  padding: 10px 12px;
+  font-size: 12px;
+  line-height: 1.45;
+}
+.error-box{
+  background: rgba(251,113,133,0.10);
+  border: 1px solid rgba(251,113,133,0.28);
+  color: rgba(254,205,211,0.92);
+  border-radius: 14px;
+  padding: 10px 12px;
+  font-size: 12px;
+  line-height: 1.45;
+}
+.success-box{
+  background: rgba(52,211,153,0.10);
+  border: 1px solid rgba(52,211,153,0.28);
+  color: rgba(187,247,208,0.92);
+  border-radius: 14px;
+  padding: 10px 12px;
+  font-size: 12px;
+  line-height: 1.45;
+}
+.upload-box{
+  border: 1px dashed rgba(148,163,184,0.35);
+  border-radius: 16px;
+  padding: 16px;
+  text-align: center;
+  background: rgba(2,6,23,0.24);
+  color: rgba(229,231,235,0.62);
+  cursor: pointer;
+}
+.upload-box:hover{
+  border-color: rgba(96,165,250,0.55);
+  color: rgba(229,231,235,0.86);
+}
+.section-title{
+  margin: 10px 0 8px 0;
+  font-size: 13px;
+  color: rgba(229,231,235,0.75);
+  font-weight: 800;
+  letter-spacing: 0.15px;
+}
+.dash-debug-menu{ display: none !important; }
+@media (max-width: 1450px){
+  .page-grid{ grid-template-columns: 1fr; }
+  .graph-row, .graph-row-2{ grid-template-columns: 1fr; }
+}
+@media (max-width: 900px){
+  .app-shell{ display: block; height: auto; }
+  .sidebar{ width: auto; max-width: none; min-width: 0; }
+  .content{ padding: 10px; }
+  .form-grid-2, .form-grid-3, .form-grid-4, .kv-grid{ grid-template-columns: 1fr; }
+}

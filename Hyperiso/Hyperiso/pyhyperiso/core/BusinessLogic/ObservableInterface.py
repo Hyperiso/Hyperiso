@@ -664,6 +664,23 @@ if __name__ == "__main__":
     print(interface.compute_observable(Observables.BR_B_XS_GAMMA))  # Scalar(...)
     print(interface.compute_observable(Observables.BR_BS_MUMU))  # Scalar(...)
     print(interface.compute_all())
+    
+    test_values = []
+    
+    from pyhyperiso.core.Core.ParameterSetter import ParameterSetter, ParamId
+    py_set = ParameterSetter()
+    for i in range(2, 6, 1):
+        py_set.mutate(ParamId(ParameterType.FLAVOR, "FLIFE", 511), i)
+        interface.enable_obs()
+        test_values.append(interface.compute_observable(Observables.BR_BS_MUMU)[0].value)
+    
+    import matplotlib
+    matplotlib.use("TkAgg")
+    import matplotlib.pyplot as plt
+    
+    plt.scatter(range(2, 6, 1), test_values)
+    
+    plt.show()
     # test_values = []
     # from pyhyperiso.core.Core.ParameterSetter import PyParameterSetter, ParamId, ParameterType
     # py_set = PyParameterSetter()
