@@ -617,3 +617,26 @@ input[type=number]{ -moz-appearance: textfield; }
   .content{ padding: 10px; }
   .form-grid-2, .form-grid-3, .form-grid-4, .kv-grid{ grid-template-columns: 1fr; }
 }
+
+
+/* ---------- Stable Plotly graph geometry ----------
+   Prevent dcc.Graph responsive height feedback loops observed on Firefox/Chrome
+   when a Plotly graph is nested in cards/grids without a hard vertical bound. */
+.graph-card{
+  overflow: hidden;
+  min-width: 0;
+}
+.stable-graph{
+  width: 100% !important;
+  min-width: 0 !important;
+  overflow: hidden !important;
+  flex: 0 0 auto !important;
+}
+.stable-graph .js-plotly-plot,
+.stable-graph .plot-container,
+.stable-graph .svg-container{
+  max-height: 100% !important;
+}
+.stable-graph .main-svg{
+  max-height: 100% !important;
+}

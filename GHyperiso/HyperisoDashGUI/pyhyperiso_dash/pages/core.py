@@ -3,7 +3,7 @@ from __future__ import annotations
 from dash import dcc, html
 
 from pyhyperiso_dash import services as svc
-from pyhyperiso_dash.components import card, data_table, dropdown, enum_options, field, metric, num_input, page_title, small_note, status_box, text_input
+from pyhyperiso_dash.components import card, data_table, dropdown, enum_options, field, graph, metric, num_input, page_title, small_note, status_box, text_input
 from pyhyperiso.core.Common.GeneralEnum import Model, ParameterType
 from pyhyperiso.core.Core.HyperisoConfig import ExternalFlag
 
@@ -64,9 +64,9 @@ def layout():
                         className="grid",
                         children=[
                             html.Div(id="core-metrics", className="metrics-row", children=[metric("Runtime", "OFF", "Hyperiso singleton", "bad"), metric("Model", "—", "active config"), metric("LHA", "—", "input"), metric("Wilson", "not built", "current session"), metric("Observables", "not built", "current session")]),
-                            card("Block inventory", "all ParameterType namespaces", dcc.Graph(id="core-block-inventory-fig"), className="card graph-card"),
+                            card("Block inventory", "all ParameterType namespaces", graph("core-block-inventory-fig", height=430), className="card graph-card"),
                             card("Block content", "values and uncertainties when available", data_table("core-block-table", ["code", "value", "stat_std", "syst_std", "combined_std", "scale", "bin"], page_size=16)),
-                            card("Block value distribution", "with combined uncertainty error bars if readable", dcc.Graph(id="core-block-values-fig"), className="card graph-card"),
+                            card("Block value distribution", "with combined uncertainty error bars if readable", graph("core-block-values-fig", height=430), className="card graph-card"),
                             small_note("The table reads values through BlockLogger and tries to enrich each row with ParameterProvider uncertainties. Scale/bin metadata is shown when the underlying bound parameter exposes it."),
                         ],
                     ),

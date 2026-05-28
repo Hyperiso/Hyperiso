@@ -3,7 +3,7 @@ from __future__ import annotations
 from dash import dcc, html
 
 from pyhyperiso_dash import services as svc
-from pyhyperiso_dash.components import card, data_table, dropdown, enum_options, field, num_input, page_title, small_note, status_box, text_input
+from pyhyperiso_dash.components import card, data_table, dropdown, enum_options, field, graph, num_input, page_title, small_note, status_box, text_input
 from pyhyperiso.core.Common.GeneralEnum import ContributionType, ParameterType, QCDOrder, WCoeff, WGroup, WilsonBasis
 
 METHOD_OPTIONS = [
@@ -107,7 +107,7 @@ def layout():
                     ),
                     html.Div(className="grid", children=[
                         card("Request result", "latest coefficient", data_table("wilson-result-table", ["method", "group", "coefficient", "order", "contribution", "basis", "component", "value", "scalar"], page_size=6)),
-                        card("Wilson scan plot", "1D scatter or 2D heatmap", dcc.Graph(id="wilson-scan-fig"), className="card graph-card"),
+                        card("Wilson scan plot", "1D scatter or 2D heatmap", graph("wilson-scan-fig", height=500), className="card graph-card"),
                         small_note("The scan code stores the original central value with ParameterProvider, mutates with ParameterSetter, evaluates the coefficient, then restores parameters in a finally block."),
                     ]),
                 ],

@@ -930,7 +930,7 @@ int main() {
         BKstarllConfig cfg_BKs;
         cfg_BKs.ff_src = BV_FF_Src::GRvDV;
         oint->set_decay_config(Decays::B__Kstar_l_l, cfg_BKs);
-        oint->set_bkstarll_threads(6);
+        oint->set_bkstarll_threads(24);
 
         BKstarGammaConfig cfg_BKsgamma;
         cfg_BKsgamma.ff_src = BV_FF_Src::GRvDV;
@@ -939,12 +939,12 @@ int main() {
         BsPhiConfig cfg_BsPhi;
         cfg_BsPhi.ff_src = BV_FF_Src::GRvDV;
         oint->set_decay_config(Decays::Bs__phi_l_l, cfg_BsPhi);
-        oint->set_bsphi_threads(6);
+        oint->set_bsphi_threads(24);
 
         BKllConfig cfg_BK;
         cfg_BK.ff_src = BP_FF_Src::GKvD_SR_LAT;
         oint->set_decay_config(Decays::B__K_l_l, cfg_BK);
-        oint->set_bkll_threads(6);
+        oint->set_bkll_threads(24);
 
         using O = Observables;
         constexpr bool kAddDeps = false;
@@ -1238,7 +1238,7 @@ int main() {
         + "__BSM_INTERMEDIATE";
 
     std::vector<ParamId> p_specs = {
-        ParamId{ParameterType::WILSON, had_bsm_block, WCoefMapper::flha_full(WCoef::C9, QCDOrder::LO, ContributionType::BSM)},
+        // ParamId{ParameterType::WILSON, had_bsm_block, WCoefMapper::flha_full(WCoef::C9, QCDOrder::LO, ContributionType::BSM)},
         ParamId{ParameterType::WILSON, had_bsm_block, WCoefMapper::flha_full(WCoef::C10, QCDOrder::LO, ContributionType::BSM)}
     };
 

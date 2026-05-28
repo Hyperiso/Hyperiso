@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dash import dcc, html
 
-from pyhyperiso_dash.components import card, data_table, dropdown, enum_options, field, num_input, page_title, small_note, status_box, text_input
+from pyhyperiso_dash.components import card, data_table, dropdown, enum_options, field, graph, num_input, page_title, small_note, status_box, text_input
 from pyhyperiso.core.Common.GeneralEnum import Decays, Observables, ParameterType, QCDOrder
 
 SELECT_MODE = [{"label": "Observable by observable", "value": "observable"}, {"label": "Whole decay", "value": "decay"}]
@@ -81,13 +81,13 @@ def layout():
             ]),
             html.Div(className="grid", children=[
                 card("Uncertainty table", "GaussianSummary", data_table("stat-uncertainty-table", ["observable", "bin_low", "bin_high", "central", "mu", "mode", "sigma", "sigma_minus", "sigma_plus", "skew", "symmetric"], page_size=16)),
-                card("Uncertainty plot", "central value plus uncertainty band", dcc.Graph(id="stat-uncertainty-fig"), className="card graph-card"),
+                card("Uncertainty plot", "central value plus uncertainty band", graph("stat-uncertainty-fig", height=480), className="card graph-card"),
                 html.Div(className="graph-row-2", children=[
                     card("Best-fit parameters", "p_hat", data_table("stat-fit-table", ["parameter", "best_fit", "std"], page_size=12)),
                     card("Profiled nuisances", "eta_hat", data_table("stat-eta-table", ["nuisance", "value"], page_size=12)),
                 ]),
-                card("Fit correlations", "p_correlations", dcc.Graph(id="stat-corr-fig"), className="card graph-card"),
-                card("2D likelihood contour", "ΔNLL scan around best fit", dcc.Graph(id="stat-contour-fig"), className="card graph-card"),
+                card("Fit correlations", "p_correlations", graph("stat-corr-fig", height=460), className="card graph-card"),
+                card("2D likelihood contour", "ΔNLL scan around best fit", graph("stat-contour-fig", height=520), className="card graph-card"),
                 small_note("MC_draws above 200 can make fit+scan slow. The GUI does not expose Laplace/Minuit-specific configuration, per your current constraint."),
             ]),
         ]),

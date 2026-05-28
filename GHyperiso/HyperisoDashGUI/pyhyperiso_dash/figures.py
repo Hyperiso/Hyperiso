@@ -7,6 +7,8 @@ import pandas as pd
 import plotly.graph_objects as go
 
 PLOT_FONT = dict(color="rgba(229,231,235,0.92)")
+DEFAULT_FIG_HEIGHT = 430
+
 
 
 def style_fig(fig: go.Figure, title: str | None = None) -> go.Figure:
@@ -15,6 +17,8 @@ def style_fig(fig: go.Figure, title: str | None = None) -> go.Figure:
         paper_bgcolor="rgba(0,0,0,0)",
         plot_bgcolor="rgba(0,0,0,0)",
         margin=dict(l=12, r=12, t=46 if title else 20, b=12),
+        height=DEFAULT_FIG_HEIGHT,
+        autosize=False,
         font=PLOT_FONT,
         legend=dict(bgcolor="rgba(0,0,0,0)", bordercolor="rgba(148,163,184,0.16)", borderwidth=1),
     )

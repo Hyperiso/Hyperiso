@@ -3,7 +3,7 @@ from __future__ import annotations
 from dash import dcc, html
 
 from pyhyperiso_dash import services as svc
-from pyhyperiso_dash.components import card, data_table, dropdown, enum_options, field, num_input, page_title, small_note, status_box, text_input
+from pyhyperiso_dash.components import card, data_table, dropdown, enum_options, field, graph, num_input, page_title, small_note, status_box, text_input
 from pyhyperiso.core.Common.GeneralEnum import Decays, Observables, ParameterType, QCDOrder
 
 SELECT_MODE = [{"label": "Observable by observable", "value": "observable"}, {"label": "Whole decay", "value": "decay"}]
@@ -95,7 +95,7 @@ def layout():
                 html.Div(className="grid", children=[
                     card("Configured observables", "selection expanded from decay and bins", data_table("obs-selection-table", ["observable", "bin_low", "bin_high", "order"], page_size=12)),
                     card("Predictions", "compute_all output", data_table("obs-result-table", ["observable_id", "bin_low", "bin_high", "value"], page_size=16)),
-                    card("Observable scan plot", "1D scatter or 2D heatmap", dcc.Graph(id="obs-scan-fig"), className="card graph-card"),
+                    card("Observable scan plot", "1D scatter or 2D heatmap", graph("obs-scan-fig", height=500), className="card graph-card"),
                     small_note("For smooth-binned plots, the backend constructs consecutive BinnedObservableId ranges from min to max with the requested step."),
                 ]),
             ]),

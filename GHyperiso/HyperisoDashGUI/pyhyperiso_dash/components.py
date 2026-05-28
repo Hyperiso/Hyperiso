@@ -5,6 +5,42 @@ from typing import Any, Iterable, Sequence
 from dash import dash_table, dcc, html
 
 
+GRAPH_CONFIG = {
+    "displaylogo": False,
+    "responsive": False,
+}
+
+
+def graph(id: str, height: int = 460):
+    """Create a Dash graph with a bounded height.
+
+    Dash/Plotly responsive graphs can enter a resize feedback loop when the
+    parent container has no explicit height. This helper keeps width fluid but
+    fixes the vertical geometry so Firefox/Chrome do not progressively stretch
+    the plot down the page.
+
+    Args:
+        id: Dash component id.
+        height: Fixed graph height in pixels.
+
+    Returns:
+        A configured ``dcc.Graph`` component.
+    """
+    h = f"{int(height)}px"
+    return dcc.Graph(
+        id=id,
+        className="stable-graph",
+        config=GRAPH_CONFIG,
+        responsive=False,
+        style={
+            "height": h,
+            "minHeight": h,
+            "maxHeight": h,
+            "width": "100%",
+        },
+    )
+
+
 def page_title(title: str, subtitle: str, badge: str | None = None):
     return html.Div(
         className="page-title",
