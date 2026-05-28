@@ -1003,9 +1003,9 @@ void CoefficientManager::init_group_hadronic_all_bases(const std::string &groupN
 }
 
 complex_t CoefficientManager::getMatchingCoefficient(const std::string& groupName, const std::string& coeffName, const std::string& order, ContributionType cont_type) {
-    if (!this->coefficientGroups.contains(groupName)) {
-        throw_no_group_error(groupName);
-    }
+    // if (!this->coefficientGroups.contains(groupName)) {
+    //     throw_no_group_error(groupName);
+    // }
 
     complex_t c = this->coefficientGroups.at(groupName)->get_matching_coefficient(coeffName, order, cont_type);
 
@@ -1023,9 +1023,9 @@ complex_t CoefficientManager::getFullMatchingCoefficient(const std::string& grou
 }
 
 complex_t CoefficientManager::getRunCoefficient(const std::string& groupName, const std::string& coeffName, const std::string& order, ContributionType cont_type, WilsonBasis basis) {
-    if (!this->coefficientGroups.contains(groupName)) {
-        throw_no_group_error(groupName);
-    }
+    // if (!this->coefficientGroups.contains(groupName)) {
+    //     throw_no_group_error(groupName);
+    // }
 
     complex_t c = this->coefficientGroups.at(groupName)->get_running_coefficient(coeffName, order, cont_type, basis);
     return c;

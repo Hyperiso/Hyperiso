@@ -669,16 +669,18 @@ if __name__ == "__main__":
     
     from pyhyperiso.core.Core.ParameterSetter import ParameterSetter, ParamId
     py_set = ParameterSetter()
-    for i in range(2, 6, 1):
-        py_set.mutate(ParamId(ParameterType.FLAVOR, "FLIFE", 511), i)
-        interface.enable_obs()
-        test_values.append(interface.compute_observable(Observables.BR_BS_MUMU)[0].value)
+    for i in range(50, 90, 10):
+        py_set.mutate(ParamId(ParameterType.SM, "MASS", 24), i)
+        print("aah : ", ParameterProvider().get_by_pid(ParamId(ParameterType.SM, "MASS", 24)))
+        # interface.enable_obs()
+        print("aah : ", ParameterProvider().get_by_pid(ParamId(ParameterType.SM, "MASS", 24)))
+        test_values.append(interface.compute_observable(Observables.BR_B_XS_GAMMA)[0].value)
     
     import matplotlib
     matplotlib.use("TkAgg")
     import matplotlib.pyplot as plt
     
-    plt.scatter(range(2, 6, 1), test_values)
+    plt.scatter(range(50, 90, 10), test_values)
     
     plt.show()
     # test_values = []

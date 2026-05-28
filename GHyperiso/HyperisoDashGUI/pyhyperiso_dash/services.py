@@ -64,6 +64,9 @@ class RuntimeState:
     lock: threading.RLock = field(default_factory=threading.RLock)
     last_wilson_config: WilsonBuildConfig | None = None
     last_observable_selection: list[dict] = field(default_factory=list)
+    observable_signature: tuple | None = None
+    scan_observable: ObservableInterface | None = None
+    scan_observable_signature: tuple | None = None
 
 
 RUNTIME = RuntimeState()
@@ -260,6 +263,9 @@ def init_or_switch_hyperiso(lha_path: str, flag_names: Sequence[str], model_name
         # Cached interfaces are tied to the old parameter store. Rebuild after switch.
         RUNTIME.wilson = None
         RUNTIME.observable = None
+        RUNTIME.observable_signature = None
+        RUNTIME.scan_observable = None
+        RUNTIME.scan_observable_signature = None
         RUNTIME.stat = None
     return {
         "action": action,
@@ -492,41 +498,191 @@ def make_binned_id(obs_name: str, low: float | None, high: float | None) -> Binn
     return BinnedObservableId(oid, (float(low), float(high)))
 
 
-def build_observable_interface(mode: str, obs_names: Sequence[str] | None, decay_names: Sequence[str] | None, order_name: str, add_dependencies: bool, bin_low: float | None = None, bin_high: float | None = None, bins: Sequence[tuple[float, float]] | None = None) -> tuple[ObservableInterface, list[dict]]:
-    require_initialized()
-    oi = ObservableInterface()
-    qcd_order = enum_by_name(QCDOrder, order_name)
+def _normalize_optional_float(value: Any) -> float | None:
+    """Normalize UI float-like values for stable observable signatures."""
+    if value in (None, ""):
+        return None
+    return float(value)
+
+
+def _observable_requested_rows(
+    mode: str,
+    obs_names: Sequence[str] | None,
+    decay_names: Sequence[str] | None,
+    order_name: str,
+    add_dependencies: bool,
+    bin_low: float | None = None,
+    bin_high: float | None = None,
+    bins: Sequence[tuple[float, float]] | None = None,
+) -> list[dict]:
+    """Build a pure-Python description of the requested observable selection.
+
+    This function intentionally does *not* touch the C++ ObservableInterface.
+    It lets the Dash layer compare the requested selection to the currently
+    registered one before calling ``add_observable`` again. Re-adding the same
+    observable/bin can leave the C++ manager in an inconsistent state for some
+    decay engines.
+    """
     selected = observable_names_from_selection(mode, obs_names, decay_names)
     if not selected:
         raise ValueError("Select at least one observable or decay")
+
     rows: list[dict] = []
     for obs_name in selected:
         if bins:
             for low, high in bins:
-                bid = make_binned_id(obs_name, low, high)
-                oi.add_binned_observable(bid, qcd_order, bool(add_dependencies))
-                rows.append({"observable": obs_name, "bin_low": low, "bin_high": high, "order": order_name})
+                rows.append({
+                    "observable": obs_name,
+                    "bin_low": float(low),
+                    "bin_high": float(high),
+                    "order": str(order_name),
+                    "dependencies": bool(add_dependencies),
+                })
         elif bin_low is not None and bin_high is not None:
-            bid = make_binned_id(obs_name, bin_low, bin_high)
-            oi.add_binned_observable(bid, qcd_order, bool(add_dependencies))
-            rows.append({"observable": obs_name, "bin_low": bin_low, "bin_high": bin_high, "order": order_name})
+            rows.append({
+                "observable": obs_name,
+                "bin_low": float(bin_low),
+                "bin_high": float(bin_high),
+                "order": str(order_name),
+                "dependencies": bool(add_dependencies),
+            })
         else:
-            oi.add_observable(enum_by_name(Observables, obs_name), qcd_order, bool(add_dependencies))
-            rows.append({"observable": obs_name, "bin_low": None, "bin_high": None, "order": order_name})
-    return oi, rows
+            rows.append({
+                "observable": obs_name,
+                "bin_low": None,
+                "bin_high": None,
+                "order": str(order_name),
+                "dependencies": bool(add_dependencies),
+            })
+
+    # Deduplicate while preserving order. This also prevents duplicate bins from
+    # being sent to C++ when a decay-level selection resolves to repeated obs ids.
+    unique: list[dict] = []
+    seen: set[tuple] = set()
+    for row in rows:
+        key = (
+            row["observable"],
+            row["bin_low"],
+            row["bin_high"],
+            row["order"],
+            row["dependencies"],
+        )
+        if key in seen:
+            continue
+        seen.add(key)
+        unique.append(row)
+    return unique
 
 
-def build_observables(mode: str, obs_names: Sequence[str] | None, decay_names: Sequence[str] | None, order_name: str, add_dependencies: bool, use_bin: bool, bin_low: Any, bin_high: Any, smooth: bool = False, smooth_min: Any = None, smooth_max: Any = None, smooth_step: Any = None) -> list[dict]:
+def _observable_signature(rows: Sequence[dict]) -> tuple:
+    """Return a stable immutable key for an observable selection."""
+    return tuple(
+        (
+            str(row.get("observable")),
+            None if row.get("bin_low") is None else float(row.get("bin_low")),
+            None if row.get("bin_high") is None else float(row.get("bin_high")),
+            str(row.get("order")),
+            bool(row.get("dependencies", False)),
+        )
+        for row in rows
+    )
+
+
+def _build_observable_interface_from_rows(rows: Sequence[dict]) -> ObservableInterface:
+    """Create a fresh C++ ObservableInterface and add each row exactly once."""
+    oi = ObservableInterface()
+    for row in rows:
+        obs_name = str(row["observable"])
+        qcd_order = enum_by_name(QCDOrder, str(row["order"]))
+        add_dependencies = bool(row.get("dependencies", False))
+        low = row.get("bin_low")
+        high = row.get("bin_high")
+        if low is not None and high is not None:
+            oi.add_binned_observable(
+                make_binned_id(obs_name, float(low), float(high)),
+                qcd_order,
+                add_dependencies,
+            )
+        else:
+            oi.add_observable(
+                enum_by_name(Observables, obs_name),
+                qcd_order,
+                add_dependencies,
+            )
+    return oi
+
+
+def build_observable_interface(
+    mode: str,
+    obs_names: Sequence[str] | None,
+    decay_names: Sequence[str] | None,
+    order_name: str,
+    add_dependencies: bool,
+    bin_low: float | None = None,
+    bin_high: float | None = None,
+    bins: Sequence[tuple[float, float]] | None = None,
+) -> tuple[ObservableInterface, list[dict]]:
+    require_initialized()
+    rows = _observable_requested_rows(
+        mode,
+        obs_names,
+        decay_names,
+        order_name,
+        add_dependencies,
+        bin_low,
+        bin_high,
+        bins,
+    )
+    return _build_observable_interface_from_rows(rows), rows
+
+
+def build_observables(
+    mode: str,
+    obs_names: Sequence[str] | None,
+    decay_names: Sequence[str] | None,
+    order_name: str,
+    add_dependencies: bool,
+    use_bin: bool,
+    bin_low: Any,
+    bin_high: Any,
+    smooth: bool = False,
+    smooth_min: Any = None,
+    smooth_max: Any = None,
+    smooth_step: Any = None,
+) -> list[dict]:
     bins = None
     low = high = None
     if smooth:
         bins = bins_from_step(smooth_min, smooth_max, smooth_step)
     elif use_bin:
-        low = float(bin_low)
-        high = float(bin_high)
+        low = _normalize_optional_float(bin_low)
+        high = _normalize_optional_float(bin_high)
+        if low is None or high is None:
+            raise ValueError("Both bin low and bin high are required when binning is enabled")
+
+    rows = _observable_requested_rows(
+        mode,
+        obs_names,
+        decay_names,
+        order_name,
+        add_dependencies,
+        low,
+        high,
+        bins,
+    )
+    signature = _observable_signature(rows)
+
     with RUNTIME.lock:
-        RUNTIME.observable, rows = build_observable_interface(mode, obs_names, decay_names, order_name, add_dependencies, low, high, bins)
-        RUNTIME.last_observable_selection = rows
+        # Idempotency guard: clicking the configure button repeatedly with the
+        # same selection must not call C++ add_observable/add_bin again.
+        if RUNTIME.observable is not None and RUNTIME.observable_signature == signature:
+            RUNTIME.last_observable_selection = list(rows)
+            return list(rows)
+
+        RUNTIME.observable = _build_observable_interface_from_rows(rows)
+        RUNTIME.observable_signature = signature
+        RUNTIME.last_observable_selection = list(rows)
+
     return rows
 
 
@@ -572,12 +728,68 @@ def compute_current_observables() -> list[dict]:
     return _observable_rows_from_cpp_compute_all(RUNTIME.observable)
 
 
-def evaluate_observable_float(obs_name: str, order_name: str, add_deps: bool, bin_low: float | None, bin_high: float | None) -> float:
-    oi, _ = build_observable_interface("observable", [obs_name], None, order_name, add_deps, bin_low, bin_high)
+def _refresh_observable_interface(oi: ObservableInterface) -> None:
+    """Compatibility hook kept for older code paths.
+
+    Do not call ``ObservableInterface.reload_params()`` here: in the current C++
+    implementation it loops over *all* decays and calls ``load_params()`` even
+    for decays that were never enabled.  ``compute_all()`` already calls
+    ``enable_obs()``, and enabled decays reload their parameters there, so scans
+    should simply mutate the global parameter store and then compute.
+    """
+    return None
+
+
+def _compute_observable_float_from_interface(oi: ObservableInterface) -> float:
+    """Compute the first value from an already configured observable interface."""
     rows = _observable_rows_from_cpp_compute_all(oi)
     if not rows:
         raise RuntimeError("Observable computation returned no value")
     return scalar_to_float(rows[0]["value"], "real")
+
+
+def _get_cached_scan_observable_interface(
+    obs_name: str,
+    order_name: str,
+    add_deps: bool,
+    bin_low: float | None,
+    bin_high: float | None,
+) -> ObservableInterface:
+    """Return an ObservableInterface for scans without re-adding duplicates.
+
+    If the main observable selection is exactly the scan target, reuse it.
+    Otherwise keep a dedicated scan interface and rebuild it only when the scan
+    target changes. This avoids repeated C++ ``add_observable`` calls on every
+    scan click while keeping scan configuration independent of the main table.
+    """
+    rows = _observable_requested_rows(
+        "observable",
+        [obs_name],
+        None,
+        order_name,
+        add_deps,
+        bin_low,
+        bin_high,
+        None,
+    )
+    signature = _observable_signature(rows)
+
+    if RUNTIME.observable is not None and RUNTIME.observable_signature == signature:
+        return RUNTIME.observable
+
+    if RUNTIME.scan_observable is not None and RUNTIME.scan_observable_signature == signature:
+        return RUNTIME.scan_observable
+
+    RUNTIME.scan_observable = _build_observable_interface_from_rows(rows)
+    RUNTIME.scan_observable_signature = signature
+    return RUNTIME.scan_observable
+
+
+def evaluate_observable_float(obs_name: str, order_name: str, add_deps: bool, bin_low: float | None, bin_high: float | None) -> float:
+    require_initialized()
+    with RUNTIME.lock:
+        oi = _get_cached_scan_observable_interface(obs_name, order_name, add_deps, bin_low, bin_high)
+        return _compute_observable_float_from_interface(oi)
 
 
 def observable_scan_1d(obs_name: str, order_name: str, add_deps: bool, bin_low: Any, bin_high: Any, ptype: str, block: str, code: Any, x_min: float, x_max: float, n_points: int) -> tuple[list[float], list[float]]:
@@ -586,15 +798,16 @@ def observable_scan_1d(obs_name: str, order_name: str, add_deps: bool, bin_low: 
     low = as_float(bin_low, None)
     high = as_float(bin_high, None)
     xs = linspace(x_min, x_max, n_points)
-    ys = []
+    ys: list[float] = []
     setter = ParameterSetter()
     restore: dict[str, float] = {}
     label = param_to_label(pid)
     with RUNTIME.lock:
+        oi = _get_cached_scan_observable_interface(obs_name, order_name, add_deps, low, high)
         try:
             for x in xs:
                 _mutate_param_temporarily(pid, float(x), restore, setter)
-                ys.append(evaluate_observable_float(obs_name, order_name, add_deps, low, high))
+                ys.append(_compute_observable_float_from_interface(oi))
         finally:
             _restore_params([(pid, label)], restore, setter)
     return xs, ys
@@ -608,18 +821,19 @@ def observable_scan_2d(obs_name: str, order_name: str, add_deps: bool, bin_low: 
     high = as_float(bin_high, None)
     xs = linspace(x_min, x_max, nx)
     ys = linspace(y_min, y_max, ny)
-    z = []
+    z: list[list[float]] = []
     setter = ParameterSetter()
     restore: dict[str, float] = {}
     labels = [(pid1, param_to_label(pid1)), (pid2, param_to_label(pid2))]
     with RUNTIME.lock:
+        oi = _get_cached_scan_observable_interface(obs_name, order_name, add_deps, low, high)
         try:
             for y in ys:
-                row = []
+                row: list[float] = []
                 _mutate_param_temporarily(pid2, float(y), restore, setter)
                 for x in xs:
                     _mutate_param_temporarily(pid1, float(x), restore, setter)
-                    row.append(evaluate_observable_float(obs_name, order_name, add_deps, low, high))
+                    row.append(_compute_observable_float_from_interface(oi))
                 z.append(row)
         finally:
             _restore_params(labels, restore, setter)

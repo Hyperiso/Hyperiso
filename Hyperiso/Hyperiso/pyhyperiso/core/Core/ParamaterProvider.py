@@ -54,7 +54,7 @@ class ParameterProvider:
         Returns:
             Requested parameter component as a float.
         """
-        return float(self._cpp_obj(pid._cpp_obj, dtype.value))
+        return float(self._cpp_obj(pid._cpp_obj, dtype.value).real())
 
     def get_by_block(
         self,
