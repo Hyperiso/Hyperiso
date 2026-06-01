@@ -976,7 +976,7 @@ void BKllDecay::load_cfg_dependent_params() {
     cache.m_l = (*p)(ParamId{ParameterType::SM, "MASS", 11 + 2 * (int)cfg.gen}, DataType::VALUE);
     cache.m_B = (*p)(ParamId{ParameterType::FLAVOR, "FMASS", B_id}, DataType::VALUE);
     cache.m_K = (*p)(ParamId{ParameterType::FLAVOR, "FMASS", P_id}, DataType::VALUE);
-    cache.life_B = (*p)(ParamId{ParameterType::FLAVOR, "FLIFE", B_id}, DataType::VALUE);
+    cache.life_B = (*p)(ParamId{ParameterType::FLAVOR, "FLIFE", B_id}, DataType::VALUE) / HBAR;
     cache.q2_min = 4 * std::pow(cache.m_l, 2);
     cache.q2_max = std::pow(cache.m_B - cache.m_K, 2);
     cache.q2_lookup_min = std::max(cache.q2_min, 1e-4);

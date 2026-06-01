@@ -236,6 +236,7 @@ struct BsPhiDecayCache {
     std::array<scalar_t, LOOKUP_SIZE> T_par_m_bar_lookup;
 
     std::array<std::vector<double>, 15> f_J_i_binned;
+    std::vector<double> bin_widths;  // effective integration widths for bin-averaged dBR/dq2 / dGamma/dq2
 };
 
 /**

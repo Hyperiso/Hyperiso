@@ -3866,7 +3866,7 @@ void BsPhiDecay::load_params() {
     cache.L_b = std::log(cache.mu_b / cache.m_b_PS);
     cache.m_Bs = (*p)(ParamId{ParameterType::FLAVOR, "FMASS", 531}, DataType::VALUE);
     cache.m_phi = (*p)(ParamId{ParameterType::FLAVOR, "FMASS", 333}, DataType::VALUE);
-    cache.life_Bs = (*p)(ParamId{ParameterType::FLAVOR, "FLIFE", 531}, DataType::VALUE);
+    cache.life_Bs = (*p)(ParamId{ParameterType::FLAVOR, "FLIFE", 531}, DataType::VALUE) / HBAR;
     cache.lambda_hat_u = std::conj((*p)(ParamId{ParameterType::SM, "VCKM", {0, 1}}, DataType::VALUE)) * (*p)(ParamId{ParameterType::SM, "VCKM", {0, 2}}, DataType::VALUE) 
                             / (std::conj((*p)(ParamId{ParameterType::SM, "VCKM", {2, 1}}, DataType::VALUE)) * (*p)(ParamId{ParameterType::SM, "VCKM", {2, 2}}, DataType::VALUE));
     cache.kappa = 1 - 2. * cache.alpha_s_mu_b / (3. * PI) * std::log(cache.mu_b / cache.m_b_m_b);
@@ -5007,6 +5007,8 @@ void BsPhiDecay::compute_binned_J_i() {
     const auto& bins = this->bins.value();
     const size_t nbins = bins.size();
     clear_and_reserve(cache.f_J_i_binned, nbins);
+    cache.bin_widths.clear();
+    cache.bin_widths.reserve(nbins);
 
     for (const auto& [q2_l_raw, q2_u_raw] : bins) {
         const double q2_l = std::max(q2_l_raw, cache.q2_min + low_q2_eps);
@@ -5028,10 +5030,14 @@ void BsPhiDecay::compute_binned_J_i() {
             for (auto& v : cache.f_J_i_binned) {
                 v.emplace_back(std::numeric_limits<double>::quiet_NaN());
             }
+            cache.bin_widths.emplace_back(std::numeric_limits<double>::quiet_NaN());
             continue;
         }
 
+        const double width = q2_u - q2_l;
         const auto integ = integrate_bin(q2_l, q2_u);
+
+        cache.bin_widths.emplace_back(width);
 
         for (size_t k = 0; k < cache.f_J_i_binned.size(); ++k) {
             cache.f_J_i_binned[k].emplace_back(integ[k]);
@@ -5042,11 +5048,27 @@ void BsPhiDecay::compute_binned_J_i() {
 std::vector<ObservableValue> BsPhiDecay::dBR_dq2_binned(bool bar, Observables id, bool br) {
     std::vector<ObservableValue> out;
     size_t idx = bar ? 1 : 0;
-    double br_factor = br ? cache.life_Bs : 1.0;
-    for (size_t i = 0; i < this->bins.value().size(); i++) {
-        double res = 0.75 * cache.f_J_i_binned[idx][i] / (1 - cache.ys * cache.ys) * br_factor; 
-        out.emplace_back(ObservableMapper::to_id(id), res, this->bins.value()[i]);
-    }   
+    const auto& bins = this->bins.value();
+    const double br_factor = br ? cache.life_Bs : 1.0;
+
+    for (size_t i = 0; i < bins.size(); i++) {
+        const double requested_width = bins[i].second - bins[i].first;
+        const double width =
+            (i < cache.bin_widths.size() && std::isfinite(cache.bin_widths[i]) && cache.bin_widths[i] > 0.0)
+            ? cache.bin_widths[i]
+            : requested_width;
+
+        const double integrated_rate =
+            0.75 * cache.f_J_i_binned[idx][i] / (1.0 - cache.ys * cache.ys);
+
+        const double res =
+            (std::isfinite(width) && width > 0.0)
+            ? integrated_rate * br_factor / width
+            : std::numeric_limits<double>::quiet_NaN();
+
+        out.emplace_back(ObservableMapper::to_id(id), res, bins[i]);
+    }
+
     return out;
 }
 
