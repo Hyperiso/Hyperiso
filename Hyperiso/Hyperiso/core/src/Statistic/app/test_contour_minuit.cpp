@@ -1286,10 +1286,10 @@ int main(int argc, char** argv) {
                       << r.row.label << "\n";
         }
 
-        oint->add_observable(BinnedObservableId(ObservableMapper::to_id(Observables::DGAMMA_DQ2_B0__KSTAR0_MU_MU), {17.0, 19.0}), QCDOrder::NNLO, true);
+        // oint->add_observable(BinnedObservableId(ObservableMapper::to_id(Observables::DGAMMA_DQ2_B0__KSTAR0_MU_MU), {17.0, 19.0}), QCDOrder::NNLO, true);
 
-        for (auto&& elem : oint->compute_observable(ObservableMapper::to_id(Observables::DBR_DQ2_B0__KSTAR0_MU_MU)))
-            LOG_INFO("[", elem.bin.value().first, ",", elem.bin.value().second, "]", elem.value);
+        // for (auto&& elem : oint->compute_observable(ObservableMapper::to_id(Observables::DBR_DQ2_B0__KSTAR0_MU_MU)))
+        //     LOG_INFO("[", elem.bin.value().first, ",", elem.bin.value().second, "]", elem.value);
             
         std::cout << "\n[INFO] Done. Pass an integer argument to change the number of printed rows, e.g. ./main_top_obs 20\n";
         return 0;
