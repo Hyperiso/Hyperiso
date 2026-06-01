@@ -1149,14 +1149,49 @@ void BKstarllDecay::compute_binned_J_i() {
     fill_binned(cache.J_i_bar_binned, true);
 }
 
+// std::vector<ObservableValue> BKstarllDecay::dBR_dq2_binned(bool bar, Observables id, bool br) {
+//     std::vector<ObservableValue> out;
+//     auto J_i = bar ? cache.J_i_bar_binned : cache.J_i_binned;
+//     double br_factor = br ? cache.life_B : 1.0;
+//     for (size_t i = 0; i < this->bins.value().size(); i++) {
+//         double res = 0.75 * (cache.J_i_binned[0][i] + cache.J_i_bar_binned[0][i] - (2 * (cache.J_i_binned[1][i] + cache.J_i_bar_binned[1][i]) + cache.J_i_binned[2][i] + cache.J_i_bar_binned[2][i]) / 3.) * br_factor; 
+//         out.emplace_back(ObservableMapper::to_id(id), res, this->bins.value()[i]);
+//     }   
+//     return out;
+// }
+
 std::vector<ObservableValue> BKstarllDecay::dBR_dq2_binned(bool bar, Observables id, bool br) {
+    (void)bar; // current public observables are CP-averaged: B + Bbar, then /2 below.
+
     std::vector<ObservableValue> out;
-    auto J_i = bar ? cache.J_i_bar_binned : cache.J_i_binned;
-    double br_factor = br ? cache.life_B : 1.0;
-    for (size_t i = 0; i < this->bins.value().size(); i++) {
-        double res = 0.75 * (cache.J_i_binned[0][i] + cache.J_i_bar_binned[0][i] - (2 * (cache.J_i_binned[1][i] + cache.J_i_bar_binned[1][i]) + cache.J_i_binned[2][i] + cache.J_i_bar_binned[2][i]) / 3.) * br_factor; 
-        out.emplace_back(ObservableMapper::to_id(id), res, this->bins.value()[i]);
-    }   
+    const auto& bins = this->bins.value();
+    const double br_factor = br ? cache.life_B : 1.0;
+
+    for (size_t i = 0; i < bins.size(); i++) {
+        const auto& [q2_l, q2_u] = bins[i];
+        const double width = q2_u - q2_l;
+
+        if (!std::isfinite(width) || width <= 0.0) {
+            LOG_WARN("BKstarll dBR/dq2: invalid bin width", q2_l, q2_u);
+            out.emplace_back(ObservableMapper::to_id(id),
+                             std::numeric_limits<double>::quiet_NaN(),
+                             bins[i]);
+            continue;
+        }
+
+        const double gamma_integrated_sum =
+            0.75 * (
+                cache.J_i_binned[0][i] + cache.J_i_bar_binned[0][i]
+                - (
+                    2.0 * (cache.J_i_binned[1][i] + cache.J_i_bar_binned[1][i])
+                    + cache.J_i_binned[2][i] + cache.J_i_bar_binned[2][i]
+                  ) / 3.0
+            );
+
+        const double res = 0.5 * gamma_integrated_sum * br_factor / width;
+        out.emplace_back(ObservableMapper::to_id(id), res, bins[i]);
+    }
+
     return out;
 }
 

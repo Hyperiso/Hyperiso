@@ -50,7 +50,7 @@ std::string csv_escape(const std::string& s) {
 }
 
 void write_num(std::ofstream& out, double x) {
-    if (finite(x)) out << std::setprecision(17) << x;
+    if (std::isfinite(x)) out << std::setprecision(17) << x;
     else out << "nan";
 }
 
@@ -73,6 +73,27 @@ std::string flha_key(const BinnedObservableId& id) {
         ss << parts[i];
     }
     return ss.str();
+}
+
+long flha_observable_code(const BinnedObservableId& id) {
+    const auto parts = id.flha().get_parts();
+    if (parts.size() < 2) return std::numeric_limits<long>::min();
+    // In the FLHA convention used here, parts[0] is the parent PDG id
+    // and parts[1] is the observable code: 1 = BR/dBR, 10 = Gamma/dGamma.
+    return parts[1];
+}
+
+std::string quantity_from_enum_name(const std::string& obs_name) {
+    if (obs_name.find("DBR_DQ2") != std::string::npos) return "dBR/dq2";
+    if (obs_name.find("DGAMMA_DQ2") != std::string::npos) return "dGamma/dq2";
+    return "";
+}
+
+bool flha_code_matches_enum_quantity(const std::string& obs_name, long flha_code) {
+    const std::string q = quantity_from_enum_name(obs_name);
+    if (q == "dBR/dq2") return flha_code == 1;
+    if (q == "dGamma/dq2") return flha_code == 10;
+    return true;
 }
 
 const std::unordered_set<std::string>& known_exp_keys(const std::string& experiment) {
@@ -797,43 +818,43 @@ int main(int argc, char** argv) {
         ADD_BIN(O::BR_B__Xs_e_e, 14.2, 22, "BR_BXsee_14.2_22", "DEFAULT"); // 008
         ADD_UNBINNED(O::BR_B0__KSTAR0_GAMMA, "BR_B0Kstar0gamma", "DEFAULT"); // 009
         ADD_UNBINNED(O::BR_B__KSTAR_GAMMA, "BR_BKstargamma", "DEFAULT"); // 010
-        ADD_BIN(O::DBR_DQ2_B__KSTAR_MU_MU, 1.1, 6, "dGamma/dq2_BKstarmumu_1.1_6", "DEFAULT"); // 011
-        ADD_BIN(O::DBR_DQ2_B__KSTAR_MU_MU, 15, 19, "dGamma/dq2_BKstarmumu_15_19", "DEFAULT"); // 012
+        ADD_BIN(O::DBR_DQ2_B__KSTAR_MU_MU, 1.1, 6, "dBR/dq2_BKstarmumu_1.1_6", "DEFAULT"); // 011
+        ADD_BIN(O::DBR_DQ2_B__KSTAR_MU_MU, 15, 19, "dBR/dq2_BKstarmumu_15_19", "DEFAULT"); // 012
         ADD_BIN(O::R_1_B0__KSTAR0_L_L, 0.1, 1.1, "R-1_B0Kstar0ll_0.1_1.1", "DEFAULT"); // 013
         ADD_BIN(O::R_1_B0__KSTAR0_L_L, 1.1, 6, "R-1_B0Kstar0ll_1.1_6", "DEFAULT"); // 014
         ADD_BIN(O::R_1_B0__KSTAR0_L_L, 0.045, 1.1, "R-1_B0Kstar0ll_0.045_1.1_Belle", "Belle"); // 015
         ADD_BIN(O::R_1_B0__KSTAR0_L_L, 1.1, 6, "R-1_B0Kstar0ll_1.1_6_Belle", "Belle"); // 016
         ADD_BIN(O::R_1_B0__KSTAR0_L_L, 15, 19, "R-1_B0Kstar0ll_15_19_Belle", "Belle"); // 017
-        ADD_BIN(O::DBR_DQ2_B0__K0_MU_MU, 1.1, 6, "dGamma/dq2_B0K0mumu_1.1_6", "DEFAULT"); // 018
-        ADD_BIN(O::DBR_DQ2_B0__K0_MU_MU, 15, 22, "dGamma/dq2_B0K0mumu_15_22", "DEFAULT"); // 019
-        ADD_BIN(O::DBR_DQ2_B__K_MU_MU, 1.1, 6, "dGamma/dq2_BKmumu_1.1_6", "DEFAULT"); // 020
+        ADD_BIN(O::DBR_DQ2_B0__K0_MU_MU, 1.1, 6, "dBR/dq2_B0K0mumu_1.1_6", "DEFAULT"); // 018
+        ADD_BIN(O::DBR_DQ2_B0__K0_MU_MU, 15, 22, "dBR/dq2_B0K0mumu_15_22", "DEFAULT"); // 019
+        ADD_BIN(O::DBR_DQ2_B__K_MU_MU, 1.1, 6, "dBR/dq2_BKmumu_1.1_6", "DEFAULT"); // 020
         ADD_BIN(O::F_H_B__K_MU_MU, 1.1, 6, "FH_BKmumu_1.1_6", "DEFAULT"); // 021
-        ADD_BIN(O::DBR_DQ2_B__K_MU_MU, 15, 22, "dGamma/dq2_BKmumu_15_22", "DEFAULT"); // 022
+        ADD_BIN(O::DBR_DQ2_B__K_MU_MU, 15, 22, "dBR/dq2_BKmumu_15_22", "DEFAULT"); // 022
         ADD_BIN(O::F_H_B__K_MU_MU, 15, 22, "FH_BKmumu_15_22", "DEFAULT"); // 023
         ADD_BIN(O::R_1_B__K_L_L, 0.1, 1.1, "R-1_BKll_0.1_1.1", "DEFAULT"); // 024
         ADD_BIN(O::R_1_B__K_L_L, 1.1, 6, "R-1_BKll_1.1_6", "DEFAULT"); // 025
-        ADD_BIN(O::DBR_DQ2_BS__PHI_MU_MU, 0.1, 0.98, "dGamma/dq2_Bsphimumu_0.1_0.98", "DEFAULT"); // 026
+        ADD_BIN(O::DBR_DQ2_BS__PHI_MU_MU, 0.1, 0.98, "dBR/dq2_Bsphimumu_0.1_0.98", "DEFAULT"); // 026
         ADD_BIN(O::F_L_BS_PHI_MU_MU, 0.1, 0.98, "FL_Bsphimumu_0.1_0.98", "DEFAULT"); // 027
         ADD_BIN(O::S_3_BS_PHI_MU_MU, 0.1, 0.98, "S3_Bsphimumu_0.1_0.98", "DEFAULT"); // 028
         ADD_BIN(O::S_4_BS_PHI_MU_MU, 0.1, 0.98, "S4_Bsphimumu_0.1_0.98", "DEFAULT"); // 029
         ADD_BIN(O::S_7_BS_PHI_MU_MU, 0.1, 0.98, "S7_Bsphimumu_0.1_0.98", "DEFAULT"); // 030
-        ADD_BIN(O::DBR_DQ2_BS__PHI_MU_MU, 1.1, 2.5, "dGamma/dq2_Bsphimumu_1.1_2.5", "DEFAULT"); // 031
-        ADD_BIN(O::DBR_DQ2_BS__PHI_MU_MU, 2.5, 4, "dGamma/dq2_Bsphimumu_2.5_4", "DEFAULT"); // 032
+        ADD_BIN(O::DBR_DQ2_BS__PHI_MU_MU, 1.1, 2.5, "dBR/dq2_Bsphimumu_1.1_2.5", "DEFAULT"); // 031
+        ADD_BIN(O::DBR_DQ2_BS__PHI_MU_MU, 2.5, 4, "dBR/dq2_Bsphimumu_2.5_4", "DEFAULT"); // 032
         ADD_BIN(O::F_L_BS_PHI_MU_MU, 1.1, 4, "FL_Bsphimumu_1.1_4", "DEFAULT"); // 033
         ADD_BIN(O::S_3_BS_PHI_MU_MU, 1.1, 4, "S3_Bsphimumu_1.1_4", "DEFAULT"); // 034
         ADD_BIN(O::S_4_BS_PHI_MU_MU, 1.1, 4, "S4_Bsphimumu_1.1_4", "DEFAULT"); // 035
         ADD_BIN(O::S_7_BS_PHI_MU_MU, 1.1, 4, "S7_Bsphimumu_1.1_4", "DEFAULT"); // 036
-        ADD_BIN(O::DBR_DQ2_BS__PHI_MU_MU, 4, 6, "dGamma/dq2_Bsphimumu_4_6", "DEFAULT"); // 037
+        ADD_BIN(O::DBR_DQ2_BS__PHI_MU_MU, 4, 6, "dBR/dq2_Bsphimumu_4_6", "DEFAULT"); // 037
         ADD_BIN(O::F_L_BS_PHI_MU_MU, 4, 6, "FL_Bsphimumu_4_6", "DEFAULT"); // 038
         ADD_BIN(O::S_3_BS_PHI_MU_MU, 4, 6, "S3_Bsphimumu_4_6", "DEFAULT"); // 039
         ADD_BIN(O::S_4_BS_PHI_MU_MU, 4, 6, "S4_Bsphimumu_4_6", "DEFAULT"); // 040
         ADD_BIN(O::S_7_BS_PHI_MU_MU, 4, 6, "S7_Bsphimumu_4_6", "DEFAULT"); // 041
-        ADD_BIN(O::DBR_DQ2_BS__PHI_MU_MU, 15, 19, "dGamma/dq2_Bsphimumu_15_19 // [2026-05-24_01] [WARN] Rejected MC nuisance sample 1 while trying to fill accepted sample 1 of 1000 : MC prediction contains non-finite observable", "DEFAULT"); // 042
+        ADD_BIN(O::DBR_DQ2_BS__PHI_MU_MU, 15, 19, "dBR/dq2_Bsphimumu_15_19 // [2026-05-24_01] [WARN] Rejected MC nuisance sample 1 while trying to fill accepted sample 1 of 1000 : MC prediction contains non-finite observable", "DEFAULT"); // 042
         ADD_BIN(O::F_L_BS_PHI_MU_MU, 15, 18.9, "FL_Bsphimumu_15_18.9", "DEFAULT"); // 043
         ADD_BIN(O::S_3_BS_PHI_MU_MU, 15, 18.9, "S3_Bsphimumu_15_18.9", "DEFAULT"); // 044
         ADD_BIN(O::S_4_BS_PHI_MU_MU, 15, 18.9, "S4_Bsphimumu_15_18.9", "DEFAULT"); // 045
         ADD_BIN(O::S_7_BS_PHI_MU_MU, 15, 18.9, "S7_Bsphimumu_15_18.9", "DEFAULT"); // 046
-        ADD_BIN(O::DBR_DQ2_LAMBDA_B__LAMBDA_MU_MU, 15, 20, "dGamma/dq2_LambdabLambdamumu_15_20", "DEFAULT"); // 047
+        ADD_BIN(O::DBR_DQ2_LAMBDA_B__LAMBDA_MU_MU, 15, 20, "dBR/dq2_LambdabLambdamumu_15_20", "DEFAULT"); // 047
         ADD_BIN(O::A_FB_L_LAMBDA_B__LAMBDA_MU_MU, 15, 20, "AlFB_LambdabLambdamumu_15_20", "DEFAULT"); // 048
         ADD_BIN(O::A_FB_H_LAMBDA_B__LAMBDA_MU_MU, 15, 20, "AhFB_LambdabLambdamumu_15_20", "DEFAULT"); // 049
         ADD_BIN(O::A_FB_LH_LAMBDA_B__LAMBDA_MU_MU, 15, 20, "AlhFB_LambdabLambdamumu_15_20", "DEFAULT"); // 050
@@ -890,21 +911,21 @@ int main(int argc, char** argv) {
         ADD_BIN(O::R_1_B0__K0_L_L, 1.1, 6, "R-1_B0K0ll_1.1_6", "DEFAULT"); // 101
         ADD_BIN(O::R_1_B__K_L_L, 1, 6, "R-1_BKll_1_6_Belle", "Belle"); // 102
         ADD_BIN(O::F_H_B__K_MU_MU, 1, 6, "FH_BKmumu_1_6_CMS", "CMS"); // 103
-        ADD_BIN(O::DBR_DQ2_B0__KSTAR0_E_E, 0.0009, 1, "dGamma/dq2_B0Kstar0ee_0.0009_1 //[2026-05-24_01] [WARN] Rejected MC nuisance sample 1 while trying to fill accepted sample 1 of 1000 : MC prediction contains non-finite observable", "DEFAULT"); // 104
+        ADD_BIN(O::DBR_DQ2_B0__KSTAR0_E_E, 0.0009, 1, "dBR/dq2_B0Kstar0ee_0.0009_1 //[2026-05-24_01] [WARN] Rejected MC nuisance sample 1 while trying to fill accepted sample 1 of 1000 : MC prediction contains non-finite observable", "DEFAULT"); // 104
         ADD_BIN(O::F_L_B0__KSTAR0_E_E, 0.0008, 0.257, "FL_B0Kstar0ee_0.0008_0.257 //Rejected MC nuisance sample 125 while trying to fill accepted sample 1 of 1000 : MC prediction contains non-finite observable", "DEFAULT"); // 105
         ADD_BIN(O::A_T_RE_B0__KSTAR0_E_E, 0.0008, 0.257, "ATRe_B0Kstar0ee_0.0008_0.257 //[2026-05-24_01] [WARN] Rejected MC nuisance sample 1 while trying to fill accepted sample 1 of 1000 : MC prediction contains non-finite observable", "DEFAULT"); // 106
         ADD_BIN(O::A_T_2_B0__KSTAR0_E_E, 0.0008, 0.257, "AT2_B0Kstar0ee_0.0008_0.257 // [2026-05-24_01] [WARN] Rejected MC nuisance sample 1 while trying to fill accepted sample 1 of 1000 : MC prediction contains non-finite observable", "DEFAULT"); // 107
-        ADD_BIN(O::DBR_DQ2_B__K_MU_MU, 0.1, 0.98, "dGamma/dq2_BKmumu_0.1_0.98_CMS", "CMS"); // 108
-        ADD_BIN(O::DBR_DQ2_B__K_MU_MU, 1.1, 2, "dGamma/dq2_BKmumu_1.1_2_CMS", "CMS"); // 109
-        ADD_BIN(O::DBR_DQ2_B__K_MU_MU, 2, 3, "dGamma/dq2_BKmumu_2_3_CMS", "CMS"); // 110
-        ADD_BIN(O::DBR_DQ2_B__K_MU_MU, 3, 4, "dGamma/dq2_BKmumu_3_4_CMS", "CMS"); // 111
-        ADD_BIN(O::DBR_DQ2_B__K_MU_MU, 4, 5, "dGamma/dq2_BKmumu_4_5_CMS", "CMS"); // 112
-        ADD_BIN(O::DBR_DQ2_B__K_MU_MU, 5, 6, "dGamma/dq2_BKmumu_5_6_CMS", "CMS"); // 113
-        ADD_BIN(O::DBR_DQ2_B__K_MU_MU, 14.82, 16, "dGamma/dq2_BKmumu_14.82_16_CMS", "CMS"); // 114
-        ADD_BIN(O::DBR_DQ2_B__K_MU_MU, 16, 17, "dGamma/dq2_BKmumu_16_17_CMS", "CMS"); // 115
-        ADD_BIN(O::DBR_DQ2_B__K_MU_MU, 17, 18, "dGamma/dq2_BKmumu_17_18_CMS", "CMS"); // 116
-        ADD_BIN(O::DBR_DQ2_B__K_MU_MU, 18, 19.24, "dGamma/dq2_BKmumu_18_19.24_CMS", "CMS"); // 117
-        ADD_BIN(O::DBR_DQ2_B__K_MU_MU, 19.24, 22.9, "dGamma/dq2_BKmumu_19.24_22.9_CMS", "CMS"); // 118
+        ADD_BIN(O::DBR_DQ2_B__K_MU_MU, 0.1, 0.98, "dBR/dq2_BKmumu_0.1_0.98_CMS", "CMS"); // 108
+        ADD_BIN(O::DBR_DQ2_B__K_MU_MU, 1.1, 2, "dBR/dq2_BKmumu_1.1_2_CMS", "CMS"); // 109
+        ADD_BIN(O::DBR_DQ2_B__K_MU_MU, 2, 3, "dBR/dq2_BKmumu_2_3_CMS", "CMS"); // 110
+        ADD_BIN(O::DBR_DQ2_B__K_MU_MU, 3, 4, "dBR/dq2_BKmumu_3_4_CMS", "CMS"); // 111
+        ADD_BIN(O::DBR_DQ2_B__K_MU_MU, 4, 5, "dBR/dq2_BKmumu_4_5_CMS", "CMS"); // 112
+        ADD_BIN(O::DBR_DQ2_B__K_MU_MU, 5, 6, "dBR/dq2_BKmumu_5_6_CMS", "CMS"); // 113
+        ADD_BIN(O::DBR_DQ2_B__K_MU_MU, 14.82, 16, "dBR/dq2_BKmumu_14.82_16_CMS", "CMS"); // 114
+        ADD_BIN(O::DBR_DQ2_B__K_MU_MU, 16, 17, "dBR/dq2_BKmumu_16_17_CMS", "CMS"); // 115
+        ADD_BIN(O::DBR_DQ2_B__K_MU_MU, 17, 18, "dBR/dq2_BKmumu_17_18_CMS", "CMS"); // 116
+        ADD_BIN(O::DBR_DQ2_B__K_MU_MU, 18, 19.24, "dBR/dq2_BKmumu_18_19.24_CMS", "CMS"); // 117
+        ADD_BIN(O::DBR_DQ2_B__K_MU_MU, 19.24, 22.9, "dBR/dq2_BKmumu_19.24_22.9_CMS", "CMS"); // 118
         ADD_BIN(O::R_1_B__K_L_L, 1.1, 6, "R-1_BKll_1.1_6_CMS", "CMS"); // 119
         ADD_BIN(O::F_L_B0__KSTAR0_MU_MU, 1.1, 2, "FL_B0Kstar0mumu_1.1_2_CMS", "CMS"); // 120
         ADD_BIN(O::P_1_B0__KSTAR0_MU_MU, 1.1, 2, "P1_B0Kstar0mumu_1.1_2_CMS", "CMS"); // 121
@@ -938,9 +959,9 @@ int main(int argc, char** argv) {
         ADD_BIN(O::P_PRIME_5_B0__KSTAR0_MU_MU, 14.18, 16, "P5prime_B0Kstar0mumu_14.18_16_CMS", "CMS"); // 149
         ADD_BIN(O::P_PRIME_6_B0__KSTAR0_MU_MU, 14.18, 16, "P6prime_B0Kstar0mumu_14.18_16_CMS", "CMS"); // 150
         ADD_BIN(O::P_PRIME_8_B0__KSTAR0_MU_MU, 14.18, 16, "P8prime_B0Kstar0mumu_14.18_16_CMS", "CMS"); // 151
-        ADD_BIN(O::DBR_DQ2_BS__PHI_E_E, 0.1, 1.1, "dGamma/dq2_Bsphiee_0.1_1.1", "DEFAULT"); // 152
-        ADD_BIN(O::DBR_DQ2_BS__PHI_E_E, 1.1, 6, "dGamma/dq2_Bsphiee_1.1_6", "DEFAULT"); // 153
-        ADD_BIN(O::DBR_DQ2_BS__PHI_E_E, 15, 19, "dGamma/dq2_Bsphiee_15_19 //[2026-05-24_01] [WARN] Rejected MC nuisance sample 1 while trying to fill accepted sample 1 of 1000 : MC prediction contains non-finite observable", "DEFAULT"); // 154
+        ADD_BIN(O::DBR_DQ2_BS__PHI_E_E, 0.1, 1.1, "dBR/dq2_Bsphiee_0.1_1.1", "DEFAULT"); // 152
+        ADD_BIN(O::DBR_DQ2_BS__PHI_E_E, 1.1, 6, "dBR/dq2_Bsphiee_1.1_6", "DEFAULT"); // 153
+        ADD_BIN(O::DBR_DQ2_BS__PHI_E_E, 15, 19, "dBR/dq2_Bsphiee_15_19 //[2026-05-24_01] [WARN] Rejected MC nuisance sample 1 while trying to fill accepted sample 1 of 1000 : MC prediction contains non-finite observable", "DEFAULT"); // 154
         ADD_BIN(O::R_1_BS__PHI_L_L, 0.1, 1.1, "R-1_Bsphill_0.1_1.1", "DEFAULT"); // 155
         ADD_BIN(O::R_1_BS__PHI_L_L, 1.1, 6, "R-1_Bsphill_1.1_6", "DEFAULT"); // 156
         ADD_BIN(O::R_1_BS__PHI_L_L, 15, 19, "R-1_Bsphill_15_19 //[2026-05-24_01] [WARN] Rejected MC nuisance sample 1 while trying to fill accepted sample 1 of 1000 : MC prediction contains non-finite observable", "DEFAULT"); // 157
@@ -966,7 +987,7 @@ int main(int argc, char** argv) {
         ADD_BIN(O::P_PRIME_6_B0__KSTAR0_MU_MU, 0.06, 0.98, "P6prime_B0Kstar0mumu_0.06_0.98_LHCb2025c2", "LHCb2025c2"); // 177
         ADD_BIN(O::P_PRIME_8_B0__KSTAR0_MU_MU, 0.06, 0.98, "P8prime_B0Kstar0mumu_0.06_0.98_LHCb2025c2", "LHCb2025c2"); // 178
         ADD_BIN(O::S_6C_B0__KSTAR0_MU_MU, 0.06, 0.98, "S6c_B0Kstar0mumu_0.06_0.98_LHCb2025c2", "LHCb2025c2"); // 179
-        ADD_BIN(O::DBR_DQ2_B0__KSTAR0_MU_MU, 0.06, 0.98, "dGamma/dq2_B0Kstar0mumu_0.06_0.98_LHCb2025c2", "LHCb2025c2"); // 180
+        ADD_BIN(O::DBR_DQ2_B0__KSTAR0_MU_MU, 0.06, 0.98, "dBR/dq2_B0Kstar0mumu_0.06_0.98_LHCb2025c2", "LHCb2025c2"); // 180
         ADD_BIN(O::F_L_B0__KSTAR0_MU_MU, 1.1, 2.5, "FL_B0Kstar0mumu_1.1_2.5_LHCb2025c2", "LHCb2025c2"); // 181
         ADD_BIN(O::S_1C_B0__KSTAR0_MU_MU, 1.1, 2.5, "S1c_B0Kstar0mumu_1.1_2.5_LHCb2025c2", "LHCb2025c2"); // 182
         ADD_BIN(O::P_1_B0__KSTAR0_MU_MU, 1.1, 2.5, "P1_B0Kstar0mumu_1.1_2.5_LHCb2025c2", "LHCb2025c2"); // 183
@@ -976,7 +997,7 @@ int main(int argc, char** argv) {
         ADD_BIN(O::P_PRIME_5_B0__KSTAR0_MU_MU, 1.1, 2.5, "P5prime_B0Kstar0mumu_1.1_2.5_LHCb2025c2", "LHCb2025c2"); // 187
         ADD_BIN(O::P_PRIME_6_B0__KSTAR0_MU_MU, 1.1, 2.5, "P6prime_B0Kstar0mumu_1.1_2.5_LHCb2025c2", "LHCb2025c2"); // 188
         ADD_BIN(O::P_PRIME_8_B0__KSTAR0_MU_MU, 1.1, 2.5, "P8prime_B0Kstar0mumu_1.1_2.5_LHCb2025c2", "LHCb2025c2"); // 189
-        ADD_BIN(O::DBR_DQ2_B0__KSTAR0_MU_MU, 1.1, 2.5, "dGamma/dq2_B0Kstar0mumu_1.1_2.5_LHCb2025c2", "LHCb2025c2"); // 190
+        ADD_BIN(O::DBR_DQ2_B0__KSTAR0_MU_MU, 1.1, 2.5, "dBR/dq2_B0Kstar0mumu_1.1_2.5_LHCb2025c2", "LHCb2025c2"); // 190
         ADD_BIN(O::F_L_B0__KSTAR0_MU_MU, 2.5, 4, "FL_B0Kstar0mumu_2.5_4.0_LHCb2025c2", "LHCb2025c2"); // 191
         ADD_BIN(O::S_1C_B0__KSTAR0_MU_MU, 2.5, 4, "S1c_B0Kstar0mumu_2.5_4.0_LHCb2025c2", "LHCb2025c2"); // 192
         ADD_BIN(O::P_1_B0__KSTAR0_MU_MU, 2.5, 4, "P1_B0Kstar0mumu_2.5_4.0_LHCb2025c2", "LHCb2025c2"); // 193
@@ -986,7 +1007,7 @@ int main(int argc, char** argv) {
         ADD_BIN(O::P_PRIME_5_B0__KSTAR0_MU_MU, 2.5, 4, "P5prime_B0Kstar0mumu_2.5_4.0_LHCb2025c2", "LHCb2025c2"); // 197
         ADD_BIN(O::P_PRIME_6_B0__KSTAR0_MU_MU, 2.5, 4, "P6prime_B0Kstar0mumu_2.5_4.0_LHCb2025c2", "LHCb2025c2"); // 198
         ADD_BIN(O::P_PRIME_8_B0__KSTAR0_MU_MU, 2.5, 4, "P8prime_B0Kstar0mumu_2.5_4.0_LHCb2025c2", "LHCb2025c2"); // 199
-        ADD_BIN(O::DBR_DQ2_B0__KSTAR0_MU_MU, 2.5, 4, "dGamma/dq2_B0Kstar0mumu_2.5_4.0_LHCb2025c2", "LHCb2025c2"); // 200
+        ADD_BIN(O::DBR_DQ2_B0__KSTAR0_MU_MU, 2.5, 4, "dBR/dq2_B0Kstar0mumu_2.5_4.0_LHCb2025c2", "LHCb2025c2"); // 200
         ADD_BIN(O::F_L_B0__KSTAR0_MU_MU, 4, 6, "FL_B0Kstar0mumu_4.0_6.0_LHCb2025c2", "LHCb2025c2"); // 201
         ADD_BIN(O::S_1C_B0__KSTAR0_MU_MU, 4, 6, "S1c_B0Kstar0mumu_4.0_6.0_LHCb2025c2", "LHCb2025c2"); // 202
         ADD_BIN(O::P_1_B0__KSTAR0_MU_MU, 4, 6, "P1_B0Kstar0mumu_4.0_6.0_LHCb2025c2", "LHCb2025c2"); // 203
@@ -996,7 +1017,7 @@ int main(int argc, char** argv) {
         ADD_BIN(O::P_PRIME_5_B0__KSTAR0_MU_MU, 4, 6, "P5prime_B0Kstar0mumu_4.0_6.0_LHCb2025c2", "LHCb2025c2"); // 207
         ADD_BIN(O::P_PRIME_6_B0__KSTAR0_MU_MU, 4, 6, "P6prime_B0Kstar0mumu_4.0_6.0_LHCb2025c2", "LHCb2025c2"); // 208
         ADD_BIN(O::P_PRIME_8_B0__KSTAR0_MU_MU, 4, 6, "P8prime_B0Kstar0mumu_4.0_6.0_LHCb2025c2", "LHCb2025c2"); // 209
-        ADD_BIN(O::DBR_DQ2_B0__KSTAR0_MU_MU, 4, 6, "dGamma/dq2_B0Kstar0mumu_4.0_6.0_LHCb2025c2", "LHCb2025c2"); // 210
+        ADD_BIN(O::DBR_DQ2_B0__KSTAR0_MU_MU, 4, 6, "dBR/dq2_B0Kstar0mumu_4.0_6.0_LHCb2025c2", "LHCb2025c2"); // 210
         ADD_BIN(O::F_L_B0__KSTAR0_MU_MU, 15, 17, "FL_B0Kstar0mumu_15.0_17.0_LHCb2025c2", "LHCb2025c2"); // 211
         ADD_BIN(O::S_1C_B0__KSTAR0_MU_MU, 15, 17, "S1c_B0Kstar0mumu_15.0_17.0_LHCb2025c2", "LHCb2025c2"); // 212
         ADD_BIN(O::P_1_B0__KSTAR0_MU_MU, 15, 17, "P1_B0Kstar0mumu_15.0_17.0_LHCb2025c2", "LHCb2025c2"); // 213
@@ -1006,7 +1027,7 @@ int main(int argc, char** argv) {
         ADD_BIN(O::P_PRIME_5_B0__KSTAR0_MU_MU, 15, 17, "P5prime_B0Kstar0mumu_15.0_17.0_LHCb2025c2", "LHCb2025c2"); // 217
         ADD_BIN(O::P_PRIME_6_B0__KSTAR0_MU_MU, 15, 17, "P6prime_B0Kstar0mumu_15.0_17.0_LHCb2025c2", "LHCb2025c2"); // 218
         ADD_BIN(O::P_PRIME_8_B0__KSTAR0_MU_MU, 15, 17, "P8prime_B0Kstar0mumu_15.0_17.0_LHCb2025c2", "LHCb2025c2"); // 219
-        ADD_BIN(O::DBR_DQ2_B0__KSTAR0_MU_MU, 15, 17, "dGamma/dq2_B0Kstar0mumu_15.0_17.0_LHCb2025c2", "LHCb2025c2"); // 220
+        ADD_BIN(O::DBR_DQ2_B0__KSTAR0_MU_MU, 15, 17, "dBR/dq2_B0Kstar0mumu_15.0_17.0_LHCb2025c2", "LHCb2025c2"); // 220
         ADD_BIN(O::F_L_B0__KSTAR0_MU_MU, 17, 19, "FL_B0Kstar0mumu_17.0_19.0_LHCb2025c2", "LHCb2025c2"); // 221
         ADD_BIN(O::S_1C_B0__KSTAR0_MU_MU, 17, 19, "S1c_B0Kstar0mumu_17.0_19.0_LHCb2025c2", "LHCb2025c2"); // 222
         ADD_BIN(O::P_1_B0__KSTAR0_MU_MU, 17, 19, "P1_B0Kstar0mumu_17.0_19.0_LHCb2025c2", "LHCb2025c2"); // 223
@@ -1016,7 +1037,7 @@ int main(int argc, char** argv) {
         ADD_BIN(O::P_PRIME_5_B0__KSTAR0_MU_MU, 17, 19, "P5prime_B0Kstar0mumu_17.0_19.0_LHCb2025c2", "LHCb2025c2"); // 227
         ADD_BIN(O::P_PRIME_6_B0__KSTAR0_MU_MU, 17, 19, "P6prime_B0Kstar0mumu_17.0_19.0_LHCb2025c2", "LHCb2025c2"); // 228
         ADD_BIN(O::P_PRIME_8_B0__KSTAR0_MU_MU, 17, 19, "P8prime_B0Kstar0mumu_17.0_19.0_LHCb2025c2", "LHCb2025c2"); // 229
-        ADD_BIN(O::DBR_DQ2_B0__KSTAR0_MU_MU, 17, 19, "dGamma/dq2_B0Kstar0mumu_17.0_19.0_LHCb2025c2", "LHCb2025c2"); // 230
+        ADD_BIN(O::DBR_DQ2_B0__KSTAR0_MU_MU, 17, 19, "dBR/dq2_B0Kstar0mumu_17.0_19.0_LHCb2025c2", "LHCb2025c2"); // 230
 
 #undef ADD_BIN
 #undef ADD_UNBINNED
@@ -1033,7 +1054,7 @@ int main(int argc, char** argv) {
             return 2;
         }
 
-        out << "index,label,observable,binned_observable,flha_key,requested_experiment,experiment,is_binned,q2_min,q2_max,"
+        out << "index,label,observable,binned_observable,flha_key,flha_obs_code,quantity_from_enum,flha_enum_ok,requested_experiment,experiment,is_binned,q2_min,q2_max,"
                "theory,exp,stat_unc,delta,pull,rel_delta,rel_stat_unc,"
                "theory_ok,exp_ok,stat_ok,error\n";
 
@@ -1048,10 +1069,19 @@ int main(int argc, char** argv) {
 
             std::ostringstream error;
             std::string key;
+            long flha_code = std::numeric_limits<long>::min();
+            std::string quantity = quantity_from_enum_name(row.obs_name);
+            bool flha_enum_ok = true;
             std::string experiment = row.experiment;
 
             try {
                 key = flha_key(row.id);
+                flha_code = flha_observable_code(row.id);
+                flha_enum_ok = flha_code_matches_enum_quantity(row.obs_name, flha_code);
+                if (!flha_enum_ok) {
+                    error << "flha_enum_quantity_mismatch:obs=" << row.obs_name
+                          << ",flha_code=" << flha_code << ";";
+                }
                 const std::string resolved = choose_available_experiment(row, key);
                 if (!resolved.empty()) {
                     experiment = resolved;
@@ -1082,7 +1112,7 @@ int main(int argc, char** argv) {
             if (!key.empty() && has_exp_key(experiment, key)) {
                 try {
                     exp = get_exp_value_for_row(oint, row, experiment);
-                    exp_ok = finite(exp);
+                    exp_ok = std::isfinite(exp);
                 } catch (const std::exception& e) {
                     error << "exp_exception:" << e.what() << ";";
                 } catch (...) {
@@ -1091,7 +1121,7 @@ int main(int argc, char** argv) {
 
                 try {
                     stat = get_exp_stat_for_row(oint, row, experiment);
-                    stat_ok = finite(stat);
+                    stat_ok = std::isfinite(stat);
                 } catch (const std::exception& e) {
                     error << "stat_exception:" << e.what() << ";";
                 } catch (...) {
@@ -1123,7 +1153,12 @@ int main(int argc, char** argv) {
                 << csv_escape(row.label) << ","
                 << csv_escape(row.obs_name) << ","
                 << csv_escape(row.id.str()) << ","
-                << csv_escape(key) << ","
+                << csv_escape(key) << ",";
+            if (flha_code == std::numeric_limits<long>::min()) out << "nan";
+            else out << flha_code;
+            out << ","
+                << csv_escape(quantity) << ","
+                << (flha_enum_ok ? 1 : 0) << ","
                 << csv_escape(row.experiment) << ","
                 << csv_escape(experiment) << ","
                 << (row.is_binned ? 1 : 0) << ",";

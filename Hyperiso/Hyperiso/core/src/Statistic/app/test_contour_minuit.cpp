@@ -1,1001 +1,1304 @@
 #include <algorithm>
-#include <chrono>
 #include <cmath>
+#include <cstdlib>
+#include <exception>
 #include <fstream>
-#include <functional>
 #include <iomanip>
 #include <iostream>
 #include <limits>
+#include <map>
 #include <memory>
+#include <set>
 #include <sstream>
-#include <stdexcept>
 #include <string>
+#include <tuple>
+#include <unordered_set>
 #include <utility>
 #include <vector>
 
-// #include "StatisticManager.h"
-// #include "ObservableInterfaceProxy.h"
-// #include "StatCorrelationProxy.h"
-// #include "StatParameterProxy.h"
-// #include "ObservableInterface.h"
-// #include "StatParamSourcesProxy.h"
-// #include "StatDependencyPruner.h"
-// #include "NuisanceReader.h"
-// #include "DefaultNuisancePathsProvider.h"
-
-// #include "Fit.h"
-// #include "BaseLikelihood.h"
-
-// #include "minuit-cpp/FCNBase.hh"
-// #include "minuit-cpp/FunctionMinimum.hh"
-// #include "minuit-cpp/MnContours.hh"
-// #include "minuit-cpp/MnEigen.hh"
-// #include "minuit-cpp/MnHesse.hh"
-// #include "minuit-cpp/MnMigrad.hh"
-// #include "minuit-cpp/MnUserCovariance.hh"
-// #include "minuit-cpp/MnUserParameters.hh"
-// #include "minuit-cpp/MnUserParameterState.hh"
-
-// namespace M2 = MinuitCpp;
-
-// namespace fit_app {
-
-// // -----------------------------------------------------------------------------
-// // Small utilities
-// // -----------------------------------------------------------------------------
-
-// // template <class T>
-// // std::string to_string_any(const T& x) {
-// //     std::ostringstream oss;
-// //     oss << x;
-// //     return oss.str();
-// // }
-
-// void print_vec(const std::vector<double>& vec) {
-//     std::cout << "[ ";
-//     for (std::size_t i = 0; i < vec.size(); ++i) {
-//         std::cout << std::setprecision(17) << vec[i]
-//                   << (i + 1 == vec.size() ? " " : ", ");
-//     }
-//     std::cout << "]\n";
-// }
-
-// // std::vector<double> linspace(double a, double b, std::size_t n) {
-// //     std::vector<double> out(n);
-// //     if (n == 0) return out;
-// //     if (n == 1) {
-// //         out[0] = a;
-// //         return out;
-// //     }
-// //     for (std::size_t i = 0; i < n; ++i) {
-// //         out[i] = a + (b - a) * double(i) / double(n - 1);
-// //     }
-// //     return out;
-// // }
-
-// // double safe_step(double value, double scale_hint) {
-// //     double a = std::fabs(value);
-// //     double s = std::fabs(scale_hint);
-
-// //     double step = 0.0;
-// //     if (std::isfinite(s) && s > 0.0) step = 0.05 * s;
-// //     if (std::isfinite(a) && a > 0.0) step = std::max(step, 0.01 * a);
-// //     if (!std::isfinite(step) || step <= 0.0) step = 1e-3;
-// //     return step;
-// // }
-
-// // -----------------------------------------------------------------------------
-// // CSV export
-// // -----------------------------------------------------------------------------
-
-// class CsvExporter {
-// public:
-//     static void save_bestfit(const std::string& path,
-//                              const std::vector<std::string>& names,
-//                              const Vector& vals,
-//                              const Vector& errs) {
-//         std::ofstream out(path);
-//         out << "name,value,error\n";
-//         for (std::size_t i = 0; i < vals.size(); ++i) {
-//             out << names[i] << ","
-//                 << std::setprecision(17) << vals[i] << ","
-//                 << errs[i] << "\n";
-//         }
-//     }
-
-//     static void save_contours(const std::string& path,
-//                               const std::string& xname,
-//                               const std::string& yname,
-//                               const std::vector<std::pair<double, double>>& c68,
-//                               const std::vector<std::pair<double, double>>& c95) {
-//         std::ofstream out(path);
-//         out << "# x=" << xname << "\n";
-//         out << "# y=" << yname << "\n";
-//         out << "cl,x,y\n";
-//         for (const auto& p : c68) {
-//             out << "0.683," << std::setprecision(17) << p.first << "," << p.second << "\n";
-//         }
-//         for (const auto& p : c95) {
-//             out << "0.95," << std::setprecision(17) << p.first << "," << p.second << "\n";
-//         }
-//     }
-
-//     static void save_grid(const std::string& path,
-//                           const std::string& xname,
-//                           const std::string& yname,
-//                           const std::vector<double>& xs,
-//                           const std::vector<double>& ys,
-//                           const std::vector<double>& z) {
-//         const std::size_t nx = xs.size();
-//         const std::size_t ny = ys.size();
-
-//         std::ofstream out(path);
-//         out << "# x=" << xname << "\n";
-//         out << "# y=" << yname << "\n";
-//         out << "x,y,delta_nll\n";
-//         out << std::setprecision(17);
-
-//         for (std::size_t iy = 0; iy < ny; ++iy) {
-//             for (std::size_t ix = 0; ix < nx; ++ix) {
-//                 out << xs[ix] << "," << ys[iy] << "," << z[iy * nx + ix] << "\n";
-//             }
-//         }
-//     }
-// };
-
-// // -----------------------------------------------------------------------------
-// // Minuit core
-// // -----------------------------------------------------------------------------
-
-// struct ParamLimit {
-//     std::size_t idx;
-//     double low;
-//     double high;
-// };
-
-// struct MinuitFitOptions {
-//     double up = 0.5;               // NLL => 0.5 for 1D 1σ
-//     unsigned strategy = 2;
-//     unsigned max_fcn = 100000;
-//     double tolerance = 0.2;
-//     bool run_hesse = true;
-//     unsigned hesse_maxcalls = 0;
-//     bool verbose = true;
-// };
-
-// struct MinuitJointFit {
-//     Vector x_hat;
-//     std::vector<double> x_err;
-//     std::vector<double> cov_eigs;
-//     double cond_number = std::numeric_limits<double>::infinity();
-
-//     double fmin = std::numeric_limits<double>::quiet_NaN();
-//     double edm  = std::numeric_limits<double>::quiet_NaN();
-//     int nfcn    = -1;
-
-//     bool ok = false;
-//     bool has_valid_covar = false;
-//     bool has_posdef_covar = false;
-//     bool has_accurate_covar = false;
-//     bool made_posdef = false;
-
-//     RealMatrix cov;
-//     std::shared_ptr<M2::FunctionMinimum> min;
-// };
-
-// class GenericFCN final : public M2::FCNBase {
-// public:
-//     GenericFCN(std::function<double(const std::vector<double>&)> f, double up)
-//         : f_(std::move(f)), up_(up) {}
-
-//     double operator()(const std::vector<double>& x) const override {
-//         try {
-//             const double v = f_(x);
-//             return std::isfinite(v) ? v : 1e300;
-//         } catch (...) {
-//             return 1e300;
-//         }
-//     }
-
-//     double Up() const override { return up_; }
-
-// private:
-//     std::function<double(const std::vector<double>&)> f_;
-//     double up_;
-// };
-
-// class MinuitRunner {
-// public:
-//     static MinuitJointFit fit(const std::function<double(const std::vector<double>&)>& f,
-//                               const std::vector<std::string>& names,
-//                               const std::vector<double>& x0,
-//                               const std::vector<double>& scale_hints,
-//                               const std::vector<ParamLimit>& limits,
-//                               const MinuitFitOptions& opt) {
-//         if (x0.size() != names.size() || x0.size() != scale_hints.size()) {
-//             throw std::invalid_argument("MinuitRunner::fit: names/x0/scale_hints size mismatch");
-//         }
-
-//         GenericFCN fcn(f, opt.up);
-
-//         M2::MnUserParameters upar;
-//         for (std::size_t i = 0; i < x0.size(); ++i) {
-//             const double step = safe_step(x0[i], scale_hints[i]);
-//             upar.Add(names[i].c_str(), x0[i], step);
-//         }
-
-//         for (const auto& lim : limits) {
-//             if (lim.idx < names.size()) {
-//                 upar.SetLimits(names[lim.idx].c_str(), lim.low, lim.high);
-//             }
-//         }
-
-//         M2::MnMigrad migrad(fcn, upar, opt.strategy);
-//         M2::FunctionMinimum min = migrad(opt.max_fcn, opt.tolerance);
-
-//         if (opt.run_hesse) {
-//             M2::MnHesse hesse(opt.strategy);
-//             hesse(fcn, min, opt.hesse_maxcalls);
-//         }
-
-//         if (opt.verbose) {
-//             log_summary("MIGRAD+HESSE", min);
-//         }
-
-//         return extract_result(min, names, x0.size(), opt.verbose);
-//     }
-
-//     static void log_summary(const std::string& tag, const M2::FunctionMinimum& min) {
-//         std::cout << "\n=== [" << tag << "] FunctionMinimum ===\n";
-//         std::cout << "IsValid            = " << min.IsValid() << "\n";
-//         std::cout << "HasValidParameters = " << min.HasValidParameters() << "\n";
-//         std::cout << "HasValidCovariance = " << min.HasValidCovariance() << "\n";
-//         std::cout << "HasAccurateCovar   = " << min.HasAccurateCovar() << "\n";
-//         std::cout << "HasPosDefCovar     = " << min.HasPosDefCovar() << "\n";
-//         std::cout << "HasMadePosDefCovar = " << min.HasMadePosDefCovar() << "\n";
-//         std::cout << "HesseFailed        = " << min.HesseFailed() << "\n";
-//         std::cout << "Fval               = " << std::setprecision(17) << min.Fval() << "\n";
-//         std::cout << "EDM                = " << std::setprecision(17) << min.Edm() << "\n";
-//         std::cout << "NFcn               = " << min.NFcn() << "\n";
-//         std::cout << "Up                 = " << min.Up() << "\n";
-//     }
-
-// private:
-//     static MinuitJointFit extract_result(const M2::FunctionMinimum& min,
-//                                          const std::vector<std::string>& names,
-//                                          std::size_t n,
-//                                          bool verbose) {
-//         std::vector<double> eigs;
-//         double cond = std::numeric_limits<double>::infinity();
-
-//         if (min.HasValidCovariance()) {
-//             M2::MnEigen eigen;
-//             eigs = eigen(min.UserState().Covariance());
-
-//             double min_pos = std::numeric_limits<double>::infinity();
-//             double max_pos = 0.0;
-//             for (double e : eigs) {
-//                 if (std::isfinite(e) && e > 0.0) {
-//                     min_pos = std::min(min_pos, e);
-//                     max_pos = std::max(max_pos, e);
-//                 }
-//             }
-//             if (min_pos < std::numeric_limits<double>::infinity() && max_pos > 0.0) {
-//                 cond = max_pos / min_pos;
-//             }
-
-//             if (verbose && !eigs.empty()) {
-//                 std::cout << "Cov eigen min/max = "
-//                           << std::setprecision(6) << eigs.front()
-//                           << " / " << eigs.back()
-//                           << "   (cond ~ " << cond << ")\n";
-//             }
-//         }
-
-//         MinuitJointFit out;
-//         out.fmin = min.Fval();
-//         out.edm  = min.Edm();
-//         out.nfcn = min.NFcn();
-//         out.ok   = min.IsValid();
-
-//         out.has_valid_covar    = min.HasValidCovariance();
-//         out.has_posdef_covar   = min.HasPosDefCovar();
-//         out.has_accurate_covar = min.HasAccurateCovar();
-//         out.made_posdef        = min.HasMadePosDefCovar();
-
-//         out.cov_eigs = std::move(eigs);
-//         out.cond_number = cond;
-//         out.min = std::make_shared<M2::FunctionMinimum>(min);
-
-//         const auto& st = min.UserState();
-//         out.x_hat.resize(n);
-//         out.x_err.assign(n, 0.0);
-//         out.cov = RealMatrix(n, n);
-
-//         for (std::size_t i = 0; i < n; ++i) {
-//             out.x_hat[i] = st.Value(names[i].c_str());
-//             out.x_err[i] = st.Error(names[i].c_str());
-//         }
-
-//         if (min.HasValidCovariance()) {
-//             const auto& cov = st.Covariance();
-//             for (std::size_t i = 0; i < n; ++i) {
-//                 for (std::size_t j = 0; j < n; ++j) {
-//                     out.cov.at(i, j) = cov(i, j);
-//                 }
-//             }
-//         }
-
-//         return out;
-//     }
-// };
-
-// // -----------------------------------------------------------------------------
-// // Problem / fit domain objects
-// // -----------------------------------------------------------------------------
-
-// struct JointLikelihoodProblem {
-//     std::vector<std::string> names;
-//     std::vector<double> x0;
-//     std::vector<double> scale_hints;
-//     std::vector<ParamLimit> limits;
-//     std::function<double(const std::vector<double>&)> f_joint;
-// };
-
-// struct JointFitOutput {
-//     FitResult fr;
-//     MinuitJointFit mj;
-//     JointLikelihoodProblem problem;
-// };
-
-// class MinuitMLEstimatorLocal {
-// public:
-//     // using ModelFn = ProfiledLikelihood::ModelFn;
-
-//     MinuitMLEstimatorLocal(LikelihoodContext ctx,
-//                            ModelFn model,
-//                            std::size_t max_fcn,
-//                            double tolerance,
-//                            unsigned strategy)
-//         : like_(std::move(ctx))
-//         , model_(std::move(model))
-//         , max_fcn_(max_fcn)
-//         , tolerance_(tolerance)
-//         , strategy_(strategy) {}
-
-//     std::function<double(const std::vector<double>&)> make_joint_f(std::size_t p_dim) const {
-//         return [this, p_dim](const std::vector<double>& x) -> double {
-//             Vector p(x.begin(), x.begin() + p_dim);
-//             Vector eta(x.begin() + p_dim, x.end());
-//             return nll(p, eta);
-//         };
-//     }
-
-//     JointFitOutput fit_joint_with_minuit(const std::vector<ParamId>& p_ids,
-//                                          const std::vector<ParamId>& eta_ids,
-//                                          const Vector& p0) const {
-//         const std::size_t p_dim = p0.size();
-//         // Vector eta0 = like_.nuisance_central_values;
-//         Vector eta0;
-//         for (auto elem : like_.nuis_defs) {
-//             eta0.push_back(elem.value);
-//         }
-//         Vector eta_scales = like_.nuisance_dist->get_stds();
-
-//         if (eta0.size() != eta_scales.size()) {
-//             throw std::runtime_error("eta central values and eta stds do not have same size");
-//         }
-
-//         JointLikelihoodProblem problem;
-//         problem.x0.reserve(p_dim + eta0.size());
-//         problem.x0.insert(problem.x0.end(), p0.begin(), p0.end());
-//         problem.x0.insert(problem.x0.end(), eta0.begin(), eta0.end());
-
-//         problem.scale_hints.reserve(problem.x0.size());
-//         for (std::size_t i = 0; i < p_dim; ++i) {
-//             double hint = std::fabs(p0[i]);
-//             if (hint < 1e-3) hint = 0.01;
-//             problem.scale_hints.push_back(hint);
-//         }
-//         for (double s : eta_scales) {
-//             problem.scale_hints.push_back(std::max(1e-12, std::fabs(s)));
-//         }
-
-//         problem.names.reserve(problem.x0.size());
-//         for (const auto& pid : p_ids) problem.names.push_back(to_string_any(pid));
-//         for (const auto& pid : eta_ids) problem.names.push_back(to_string_any(pid));
-
-//         for (std::size_t i = 0; i < p_dim; ++i) {
-//             if (problem.names[i].find("FCONST") != std::string::npos) {
-//                 problem.limits.push_back(ParamLimit{i, 0.05, 0.35});
-//             }
-//         }
-
-//         for (std::size_t i = p_dim; i < problem.names.size(); ++i) {
-//             const std::string& nm = problem.names[i];
-//             const double c = problem.x0[i];
-//             const double s = std::max(1e-12, std::fabs(problem.scale_hints[i]));
-
-//             if (nm.find("SMINPUTS:3") != std::string::npos) {
-//                 problem.limits.push_back(ParamLimit{i, 0.05, 0.30});
-//             } else if (nm.find("MASS:") != std::string::npos ||
-//                        nm.find("FLIFE:") != std::string::npos ||
-//                        nm.find("FCONST:") != std::string::npos ||
-//                        nm.find("FMASS:") != std::string::npos ||
-//                        nm.find("SMINPUTS:5") != std::string::npos ||
-//                        nm.find("SMINPUTS:6") != std::string::npos) {
-//                 problem.limits.push_back(ParamLimit{i, std::max(1e-12, c - 5.0 * s), c + 5.0 * s});
-//             }
-//         }
-
-//         problem.f_joint = make_joint_f(p_dim);
-
-//         MinuitFitOptions opt;
-//         opt.up = 0.5;
-//         opt.strategy = strategy_;
-//         opt.max_fcn = static_cast<unsigned>(max_fcn_);
-//         opt.tolerance = tolerance_;
-//         opt.run_hesse = true;
-//         opt.verbose = true;
-
-//         MinuitJointFit mj = MinuitRunner::fit(problem.f_joint,
-//                                               problem.names,
-//                                               problem.x0,
-//                                               problem.scale_hints,
-//                                               problem.limits,
-//                                               opt);
-
-//         FitResult fr;
-//         fr.ell_hat = mj.fmin;
-//         fr.p_hat.assign(mj.x_hat.begin(), mj.x_hat.begin() + p_dim);
-//         fr.eta_hat.assign(mj.x_hat.begin() + p_dim, mj.x_hat.end());
-//         fr.p_hat_std.assign(p_dim, 0.0);
-//         fr.p_hat_correlations = RealMatrix(p_dim, p_dim);
-
-//         if (mj.has_valid_covar) {
-//             for (std::size_t i = 0; i < p_dim; ++i) {
-//                 fr.p_hat_std[i] = std::sqrt(std::max(0.0, mj.cov.at(i, i)));
-//             }
-
-//             for (std::size_t i = 0; i < p_dim; ++i) {
-//                 for (std::size_t j = 0; j < p_dim; ++j) {
-//                     const double di = std::sqrt(std::max(0.0, mj.cov.at(i, i)));
-//                     const double dj = std::sqrt(std::max(0.0, mj.cov.at(j, j)));
-//                     fr.p_hat_correlations.at(i, j) =
-//                         (di > 0.0 && dj > 0.0) ? (mj.cov.at(i, j) / (di * dj)) : 0.0;
-//                 }
-//             }
-//         } else {
-//             for (std::size_t i = 0; i < p_dim && i < mj.x_err.size(); ++i) {
-//                 fr.p_hat_std[i] = mj.x_err[i];
-//                 fr.p_hat_correlations.at(i, i) = 1.0;
-//             }
-//         }
-
-//         return JointFitOutput{fr, mj, problem};
-//     }
-
-// private:
-//     double nll(const Vector& p, const Vector& eta) const {
-//         Vector pred = model_(p, eta);
-
-//         Vector r(pred.size());
-//         for (std::size_t i = 0; i < pred.size(); ++i) {
-//             r[i] = pred[i] - like_.exp_obs_values[i];
-//         }
-
-//         const double ell_obs = like_.exp_obs_dist->logpdf(r);
-//         const double ell_eta = like_.nuisance_dist->logpdf(eta);
-//         return -(ell_obs + ell_eta);
-//     }
-
-//     LikelihoodContext like_;
-//     ModelFn model_;
-//     std::size_t max_fcn_;
-//     double tolerance_;
-//     unsigned strategy_;
-// };
-
-// // -----------------------------------------------------------------------------
-// // Contour strategies
-// // -----------------------------------------------------------------------------
-
-// struct ContourComputationInput {
-//     std::string xname;
-//     std::string yname;
-//     unsigned px = 0;
-//     unsigned py = 1;
-//     double best_fval = 0.0;
-//     Vector p_hat;
-//     Vector p_std;
-//     JointLikelihoodProblem problem;
-//     MinuitJointFit best_fit;
-// };
-
-// struct ContourComputationResult {
-//     bool success = false;
-//     bool used_grid = false;
-//     std::vector<std::pair<double, double>> c68;
-//     std::vector<std::pair<double, double>> c95;
-//     std::vector<double> xs;
-//     std::vector<double> ys;
-//     std::vector<double> z;
-// };
-
-// struct ProfileXYResult {
-//     double fmin = 1e300;
-//     std::vector<double> x_hat;
-//     bool ok = false;
-// };
-
-// static ProfileXYResult profiled_fit_at_fixed_xy(
-//     const std::function<double(const std::vector<double>&)>& f_joint,
-//     const std::vector<std::string>& names,
-//     const std::vector<double>& x_start,
-//     const std::vector<double>& scale_hints,
-//     const std::vector<ParamLimit>& limits,
-//     unsigned px,
-//     unsigned py,
-//     double xval,
-//     double yval,
-//     unsigned strategy,
-//     unsigned max_fcn,
-//     double tolerance
-// ) {
-//     GenericFCN fcn(f_joint, 0.5);
-
-//     M2::MnUserParameters upar;
-//     for (std::size_t i = 0; i < x_start.size(); ++i) {
-//         upar.Add(names[i].c_str(), x_start[i], safe_step(x_start[i], scale_hints[i]));
-//     }
-
-//     for (const auto& lim : limits) {
-//         if (lim.idx < names.size()) {
-//             upar.SetLimits(names[lim.idx].c_str(), lim.low, lim.high);
-//         }
-//     }
-
-//     M2::MnMigrad migrad(fcn, upar, strategy);
-//     migrad.SetValue(px, xval);
-//     migrad.SetValue(py, yval);
-//     migrad.Fix(px);
-//     migrad.Fix(py);
-
-//     M2::FunctionMinimum min = migrad(max_fcn, tolerance);
-
-//     ProfileXYResult out;
-//     out.ok = min.IsValid();
-//     out.fmin = out.ok ? min.Fval() : 1e300;
-//     out.x_hat = x_start;
-
-//     if (out.ok) {
-//         const auto& st = min.UserState();
-//         for (std::size_t i = 0; i < x_start.size(); ++i) {
-//             out.x_hat[i] = st.Value(names[i].c_str());
-//         }
-//     } else {
-//         out.x_hat[px] = xval;
-//         out.x_hat[py] = yval;
-//         out.fmin = f_joint(out.x_hat);
-//     }
-
-//     return out;
-// }
-
-// class IContourStrategy {
-// public:
-//     virtual ~IContourStrategy() = default;
-//     virtual ContourComputationResult compute(const ContourComputationInput& input) const = 0;
-// };
-
-// class MnContoursStrategy final : public IContourStrategy {
-// public:
-//     struct Options {
-//         unsigned npoints = 80;
-//         unsigned refit_max_fcn = 30000;
-//         double tolerance = 0.2;
-//         unsigned strategy = 2;
-//     };
-
-//     MnContoursStrategy() = default;
-//     explicit MnContoursStrategy(const Options& options) : opt_(options) {}
-
-//     ContourComputationResult compute(const ContourComputationInput& input) const override {
-//         ContourComputationResult result;
-//         if (!input.best_fit.ok || !input.best_fit.min) {
-//             return result;
-//         }
-
-//         const bool ok68 = compute_single(input, 2.30 / 2.0, result.c68);
-//         const bool ok95 = compute_single(input, 5.99 / 2.0, result.c95);
-
-//         result.success = ok68 && ok95;
-//         result.used_grid = false;
-//         return result;
-//     }
-
-// private:
-//     bool compute_single(const ContourComputationInput& input,
-//                         double up_contour,
-//                         std::vector<std::pair<double, double>>& out_points) const {
-//         std::vector<double> refit_scales = input.problem.scale_hints;
-//         const double scale_factor = std::sqrt(up_contour / 0.5);
-
-//         for (std::size_t i = 0; i < refit_scales.size() && i < input.best_fit.x_err.size(); ++i) {
-//             const double err = std::fabs(input.best_fit.x_err[i]);
-//             if (std::isfinite(err) && err > 0.0) {
-//                 refit_scales[i] = std::max(refit_scales[i], err * scale_factor);
-//             }
-//         }
-
-//         MinuitFitOptions refit_opt;
-//         refit_opt.up = up_contour;
-//         refit_opt.strategy = opt_.strategy;
-//         refit_opt.max_fcn = opt_.refit_max_fcn;
-//         refit_opt.tolerance = opt_.tolerance;
-//         refit_opt.run_hesse = true;
-//         refit_opt.verbose = false;
-
-//         MinuitJointFit refit = MinuitRunner::fit(input.problem.f_joint,
-//                                                  input.problem.names,
-//                                                  input.best_fit.x_hat,
-//                                                  refit_scales,
-//                                                  input.problem.limits,
-//                                                  refit_opt);
-
-//         if (!refit.ok || !refit.min) {
-//             return false;
-//         }
-
-//         try {
-//             GenericFCN fcn(input.problem.f_joint, up_contour);
-//             M2::MnContours contours(fcn, *refit.min, 2);
-//             out_points = contours(input.px, input.py, opt_.npoints);
-//             return out_points.size() >= 4;
-//         } catch (...) {
-//             out_points.clear();
-//             return false;
-//         }
-//     }
-
-//     Options opt_{};
-// };
-
-// class GridProfileContourStrategy final : public IContourStrategy {
-// public:
-//     struct Options {
-//         std::size_t nx = 31;
-//         std::size_t ny = 31;
-//         unsigned strategy = 1;
-//         unsigned max_fcn = 1200;
-//         double tolerance = 0.5;
-//         double n_sigma_window = 4.0;
-//         double hard_low = 0.05;
-//         double hard_high = 0.35;
-//     };
-
-//     GridProfileContourStrategy() = default;
-//     explicit GridProfileContourStrategy(const Options& options) : opt_(options) {}
-
-//     ContourComputationResult compute(const ContourComputationInput& input) const override {
-//         ContourComputationResult result;
-//         result.used_grid = true;
-
-//         double x0 = input.p_hat.at(0);
-//         double y0 = input.p_hat.at(1);
-//         double sx = std::max(0.01, input.p_std.at(0));
-//         double sy = std::max(0.01, input.p_std.at(1));
-
-//         double xlo = std::max(opt_.hard_low, x0 - opt_.n_sigma_window * sx);
-//         double xhi = std::min(opt_.hard_high, x0 + opt_.n_sigma_window * sx);
-//         double ylo = std::max(opt_.hard_low, y0 - opt_.n_sigma_window * sy);
-//         double yhi = std::min(opt_.hard_high, y0 + opt_.n_sigma_window * sy);
-
-//         if (!(xhi > xlo)) { xlo = 0.10; xhi = 0.30; }
-//         if (!(yhi > ylo)) { ylo = 0.10; yhi = 0.30; }
-
-//         result.xs = linspace(xlo, xhi, opt_.nx);
-//         result.ys = linspace(ylo, yhi, opt_.ny);
-//         result.z.assign(opt_.nx * opt_.ny, 1e300);
-
-//         std::vector<double> seed = input.best_fit.x_hat;
-
-//         for (std::size_t iy = 0; iy < opt_.ny; ++iy) {
-//             const bool reverse = (iy % 2 == 1);
-
-//             if (!reverse) {
-//                 for (std::size_t ix = 0; ix < opt_.nx; ++ix) {
-//                     auto pr = profile_at_fixed_xy(input,
-//                                                   seed,
-//                                                   result.xs[ix],
-//                                                   result.ys[iy]);
-//                     result.z[iy * opt_.nx + ix] = pr.fmin - input.best_fval;
-//                     seed = pr.x_hat;
-//                 }
-//             } else {
-//                 for (std::size_t k = 0; k < opt_.nx; ++k) {
-//                     std::size_t ix = opt_.nx - 1 - k;
-//                     auto pr = profile_at_fixed_xy(input,
-//                                                   seed,
-//                                                   result.xs[ix],
-//                                                   result.ys[iy]);
-//                     result.z[iy * opt_.nx + ix] = pr.fmin - input.best_fval;
-//                     seed = pr.x_hat;
-//                 }
-//             }
-//         }
-
-//         result.success = true;
-//         return result;
-//     }
-
-// private:
-//     ProfileXYResult profile_at_fixed_xy(const ContourComputationInput& input,
-//                                         const std::vector<double>& seed,
-//                                         double xval,
-//                                         double yval) const {
-//         return profiled_fit_at_fixed_xy(input.problem.f_joint,
-//                                         input.problem.names,
-//                                         seed,
-//                                         input.problem.scale_hints,
-//                                         input.problem.limits,
-//                                         input.px,
-//                                         input.py,
-//                                         xval,
-//                                         yval,
-//                                         opt_.strategy,
-//                                         opt_.max_fcn,
-//                                         opt_.tolerance);
-//     }
-
-//     Options opt_{};
-// };
-
-// class FallbackContourStrategy final : public IContourStrategy {
-// public:
-//     FallbackContourStrategy(std::unique_ptr<IContourStrategy> primary,
-//                             std::unique_ptr<IContourStrategy> fallback)
-//         : primary_(std::move(primary)), fallback_(std::move(fallback)) {}
-
-//     ContourComputationResult compute(const ContourComputationInput& input) const override {
-//         ContourComputationResult primary_result = primary_->compute(input);
-//         if (primary_result.success) {
-//             return primary_result;
-//         }
-
-//         std::cerr << "[WARN] MnContours failed; fallback to grid scan.\n";
-//         return fallback_->compute(input);
-//     }
-
-// private:
-//     std::unique_ptr<IContourStrategy> primary_;
-//     std::unique_ptr<IContourStrategy> fallback_;
-// };
-
-// // -----------------------------------------------------------------------------
-// // Application bootstrap
-// // -----------------------------------------------------------------------------
-
-// struct BuiltProblem {
-//     std::vector<ParamId> p_ids;
-//     std::vector<ParamId> eta_ids;
-//     std::vector<ExperimentObs> obs_ids;
-//     LikelihoodContext ctx;
-//     std::shared_ptr<ObservableInterfaceProxy> model;
-//     Vector p0;
-// };
-
-// BuiltProblem build_problem(StatisticManager& stat,
-//                            const StatisticConfig& config,
-//                            const std::shared_ptr<ObservableInterfaceProxy>& model, std::vector<ParamId> p_specs) {
-//     LOG_INFO("fill_cache #1");
-//     // stat.fill_cache();
-
-//     auto start_u = std::chrono::steady_clock::now();
-//     stat.compute_uncertainties();
-//     auto stop_u = std::chrono::steady_clock::now();
-//     auto us_u = std::chrono::duration_cast<std::chrono::microseconds>(stop_u - start_u).count();
-//     std::cout << "Uncertainty estimation time: " << us_u << " us\n";
-
-//     LOG_INFO("fill_cache #2");
-//     // stat.fill_cache();
-
-//     auto p_specs_map = stat.get_p_specs(p_specs);
-//     auto eta_specs_real = stat.get_all_obss_deps();
-//     for (const auto& [pid, _] : p_specs_map) eta_specs_real.erase(pid);
-//     auto exp_obs_map = stat.get_obs_exp();
-
-//     auto unz_p   = unzip(p_specs_map);
-//     auto unz_eta = unzip(eta_specs_real);
-//     auto unz_obs = unzip(exp_obs_map);
-
-//     auto nuisance_dist = stat.build_nuisance_distribution();
-//     auto exp_obs_dist  = stat.build_exp_data_distribution();
-
-//     if (nuisance_dist->get_stds().size() != unz_eta.vals.size()) {
-//         throw std::runtime_error("nuisance std size and eta central size mismatch");
-//     }
-//     if (exp_obs_dist->dim() != unz_obs.vals.size()) {
-//         throw std::runtime_error("exp obs dim and exp obs values size mismatch");
-//     }
-
-//     LikelihoodContext ctx;
-//     ctx.nuisance_dist = std::move(nuisance_dist);
-//     ctx.exp_obs_dist  = std::move(exp_obs_dist);
-//     // ctx.nuisance_central_values = unz_eta.vals;
-//     ctx.exp_obs_values = unz_obs.vals;
-
-//     return BuiltProblem{
-//         unz_p.ids,
-//         unz_eta.ids,
-//         unz_obs.ids,
-//         std::move(ctx),
-//         model,
-//         unz_p.vals
-//     };
-// }
-
-// } // namespace fit_app
+#include "Include.h"
+#include "ObservableInterface.h"
+
+namespace {
+
+struct ObsRow {
+    std::size_t index;
+    BinnedObservableId id;
+    std::string obs_name;
+    bool is_binned;
+    std::string label;
+    std::string experiment;
+};
+
+double nan_value() {
+    return std::numeric_limits<double>::quiet_NaN();
+}
+
+
+bool same_double(double a, double b) {
+    const double scale = std::max(1.0, std::max(std::abs(a), std::abs(b)));
+    return std::abs(a - b) <= 1e-10 * scale;
+}
+
+std::string csv_escape(const std::string& s) {
+    std::string out = "\"";
+    for (char c : s) {
+        if (c == '\"') out += "\"\"";
+        else out += c;
+    }
+    out += "\"";
+    return out;
+}
+
+void write_num(std::ofstream& out, double x) {
+    if (std::isfinite(x)) out << std::setprecision(17) << x;
+    else out << "nan";
+}
+
+std::string resolve_experiment_from_label(const std::string& label,
+                                         const std::string& requested) {
+    // Évite les erreurs type: label *_Belle mais lookup dans FOBS_DEFAULT.
+    // On laisse explicitement le label décider quand il contient une source.
+    if (label.find("LHCb2025c2") != std::string::npos) return "LHCb2025c2";
+    if (label.find("Belle") != std::string::npos) return "Belle";
+    if (label.find("CMS") != std::string::npos) return "CMS";
+    return requested;
+}
+
+
+std::string flha_key(const BinnedObservableId& id) {
+    const auto parts = id.flha().get_parts();
+    std::ostringstream ss;
+    for (std::size_t i = 0; i < parts.size(); ++i) {
+        if (i != 0) ss << "_";
+        ss << parts[i];
+    }
+    return ss.str();
+}
+
+long flha_observable_code(const BinnedObservableId& id) {
+    const auto parts = id.flha().get_parts();
+    if (parts.size() < 2) return std::numeric_limits<long>::min();
+    // In the FLHA convention used here, parts[0] is the parent PDG id
+    // and parts[1] is the observable code: 1 = BR/dBR, 10 = Gamma/dGamma.
+    return parts[1];
+}
+
+std::string quantity_from_enum_name(const std::string& obs_name) {
+    if (obs_name.find("DBR_DQ2") != std::string::npos) return "dBR/dq2";
+    if (obs_name.find("DGAMMA_DQ2") != std::string::npos) return "dGamma/dq2";
+    return "";
+}
+
+bool flha_code_matches_enum_quantity(const std::string& obs_name, long flha_code) {
+    const std::string q = quantity_from_enum_name(obs_name);
+    if (q == "dBR/dq2") return flha_code == 1;
+    if (q == "dGamma/dq2") return flha_code == 10;
+    return true;
+}
+
+const std::unordered_set<std::string>& known_exp_keys(const std::string& experiment) {
+    if (experiment == "DEFAULT") {
+        static const std::unordered_set<std::string> keys = {
+        "130_1_0_0_0_0_0_0_2_13_-13",
+        "130_1_0_0_0_0_0_0_3_111_14_-14",
+        "310_1_0_0_0_0_0_0_2_13_-13",
+        "321_1_0_0_0_0_0_0_3_211_14_-14",
+        "421_1_0_0_0_0_0_0_2_11_-11",
+        "421_1_0_0_0_0_0_0_2_13_-13",
+        "511_1_0_0_0_0_0_0_2_11_-11",
+        "511_1_0_0_0_0_0_0_2_13_-13",
+        "511_1_0_0_0_0_0_0_2_313_22",
+        "511_1_0_1_1_2_0_0_3_311_13_-13",
+        "511_1_0_9_4_1_0_0_3_313_11_-11",
+        "511_1_11_0_0_12_5_1_3_311_13_-13",
+        "511_1_15_0_0_17_0_0_3_311_13_-13",
+        "511_1_15_0_0_22_0_0_3_311_13_-13",
+        "511_1_17_0_0_22_0_0_3_311_13_-13",
+        "511_1_1_1_1_6_0_0_3_311_13_-13",
+        "511_1_2_0_0_4_0_0_3_311_13_-13",
+        "511_1_4_0_0_6_0_0_3_311_13_-13",
+        "511_1_6_0_0_8_0_0_3_311_13_-13",
+        "511_5_1_1_1_6_0_0_3_313_11_-11",
+        "511_5_1_1_1_7_0_0_3_313_11_-11",
+        "511_9121_0_1_1_1_1_1_3_313_13_-13",
+        "511_9121_1_1_1_6_0_0_3_311_13_-13",
+        "511_9121_1_1_1_6_0_0_3_313_13_-13",
+        "511_931_0_8_4_0_257_3_3_313_11_-11",
+        "511_931_1_1_1_6_0_0_3_313_11_-11",
+        "511_931_1_1_1_7_0_0_3_313_11_-11",
+        "511_9412_0_8_4_0_257_3_3_313_11_-11",
+        "511_9416_0_8_4_0_257_3_3_313_11_-11",
+        "511_942_0_8_4_0_257_3_3_313_11_-11",
+        "511_9511_1_1_1_6_0_0_3_313_11_-11",
+        "511_9511_1_1_1_7_0_0_3_313_11_-11",
+        "511_9512_1_1_1_6_0_0_3_313_11_-11",
+        "511_9512_1_1_1_7_0_0_3_313_11_-11",
+        "511_9513_1_1_1_6_0_0_3_313_11_-11",
+        "511_9513_1_1_1_7_0_0_3_313_11_-11",
+        "511_9524_1_1_1_6_0_0_3_313_11_-11",
+        "511_9524_1_1_1_7_0_0_3_313_11_-11",
+        "511_9525_1_1_1_6_0_0_3_313_11_-11",
+        "511_9525_1_1_1_7_0_0_3_313_11_-11",
+        "511_9526_1_1_1_6_0_0_3_313_11_-11",
+        "511_9526_1_1_1_7_0_0_3_313_11_-11",
+        "511_9528_1_1_1_6_0_0_3_313_11_-11",
+        "511_9528_1_1_1_7_0_0_3_313_11_-11",
+        "511_9533_1_1_1_6_0_0_3_313_11_-11",
+        "511_9533_1_1_1_7_0_0_3_313_11_-11",
+        "511_9534_1_1_1_6_0_0_3_313_11_-11",
+        "511_9534_1_1_1_7_0_0_3_313_11_-11",
+        "511_9535_1_1_1_6_0_0_3_313_11_-11",
+        "511_9535_1_1_1_7_0_0_3_313_11_-11",
+        "511_9537_1_1_1_6_0_0_3_313_11_-11",
+        "511_9537_1_1_1_7_0_0_3_313_11_-11",
+        "511_9538_1_1_1_6_0_0_3_313_11_-11",
+        "511_9538_1_1_1_7_0_0_3_313_11_-11",
+        "511_9539_1_1_1_6_0_0_3_313_11_-11",
+        "511_9539_1_1_1_7_0_0_3_313_11_-11",
+        "5122_1_15_0_0_20_0_0_3_3122_13_-13",
+        "5122_51_15_0_0_20_0_0_3_3122_13_-13",
+        "5122_52_15_0_0_20_0_0_3_3122_13_-13",
+        "5122_53_15_0_0_20_0_0_3_3122_13_-13",
+        "5122_931_15_0_0_20_0_0_3_3122_13_-13",
+        "521_1_0_0_0_0_0_0_2_323_22",
+        "521_1_0_1_1_0_98_2_3_321_13_-13",
+        "521_1_0_1_1_2_0_0_3_323_13_-13",
+        "521_1_11_0_0_11_8_1_3_321_13_-13",
+        "521_1_11_0_0_12_5_1_3_323_13_-13",
+        "521_1_11_8_1_12_5_1_3_321_13_-13",
+        "521_1_15_0_0_16_0_0_3_321_13_-13",
+        "521_1_15_0_0_17_0_0_3_323_13_-13",
+        "521_1_15_0_0_19_0_0_3_323_13_-13",
+        "521_1_15_0_0_22_0_0_3_321_13_-13",
+        "521_1_16_0_0_17_0_0_3_321_13_-13",
+        "521_1_17_0_0_18_0_0_3_321_13_-13",
+        "521_1_17_0_0_19_0_0_3_323_13_-13",
+        "521_1_18_0_0_19_0_0_3_321_13_-13",
+        "521_1_19_0_0_20_0_0_3_321_13_-13",
+        "521_1_1_0_0_6_0_0_3_321_11_-11",
+        "521_1_1_1_1_2_0_0_3_321_13_-13",
+        "521_1_1_1_1_6_0_0_3_321_13_-13",
+        "521_1_1_1_1_6_0_0_3_323_13_-13",
+        "521_1_20_0_0_21_0_0_3_321_13_-13",
+        "521_1_21_0_0_22_0_0_3_321_13_-13",
+        "521_1_2_0_0_3_0_0_3_321_13_-13",
+        "521_1_2_0_0_4_0_0_3_323_13_-13",
+        "521_1_3_0_0_4_0_0_3_321_13_-13",
+        "521_1_4_0_0_5_0_0_3_321_13_-13",
+        "521_1_4_0_0_6_0_0_3_323_13_-13",
+        "521_1_5_0_0_6_0_0_3_321_13_-13",
+        "521_1_6_0_0_7_0_0_3_321_13_-13",
+        "521_1_6_0_0_8_0_0_3_323_13_-13",
+        "521_1_7_0_0_8_0_0_3_321_13_-13",
+        "521_3_0_1_1_0_98_2_3_321_13_-13",
+        "521_3_11_0_0_11_8_1_3_321_13_-13",
+        "521_3_11_8_1_12_5_1_3_321_13_-13",
+        "521_3_15_0_0_16_0_0_3_321_13_-13",
+        "521_3_16_0_0_17_0_0_3_321_13_-13",
+        "521_3_17_0_0_18_0_0_3_321_13_-13",
+        "521_3_18_0_0_19_0_0_3_321_13_-13",
+        "521_3_19_0_0_20_0_0_3_321_13_-13",
+        "521_3_1_1_1_2_0_0_3_321_13_-13",
+        "521_3_20_0_0_21_0_0_3_321_13_-13",
+        "521_3_21_0_0_22_0_0_3_321_13_-13",
+        "521_3_2_0_0_3_0_0_3_321_13_-13",
+        "521_3_3_0_0_4_0_0_3_321_13_-13",
+        "521_3_4_0_0_5_0_0_3_321_13_-13",
+        "521_3_5_0_0_6_0_0_3_321_13_-13",
+        "521_3_6_0_0_7_0_0_3_321_13_-13",
+        "521_3_7_0_0_8_0_0_3_321_13_-13",
+        "521_4_0_0_0_0_0_0_2_323_22",
+        "521_5_0_1_1_0_98_2_3_323_13_-13",
+        "521_5_11_0_0_12_5_1_3_323_13_-13",
+        "521_5_15_0_0_17_0_0_3_323_13_-13",
+        "521_5_15_0_0_19_0_0_3_323_13_-13",
+        "521_5_17_0_0_19_0_0_3_323_13_-13",
+        "521_5_1_1_1_2_5_1_3_323_13_-13",
+        "521_5_1_1_1_6_0_0_3_323_13_-13",
+        "521_5_2_5_1_4_0_0_3_323_13_-13",
+        "521_5_4_0_0_6_0_0_3_323_13_-13",
+        "521_5_6_0_0_8_0_0_3_323_13_-13",
+        "521_9121_0_1_1_1_1_1_3_321_13_-13",
+        "521_9121_0_45_3_6_0_0_3_323_13_-13",
+        "521_9121_1_1_1_6_0_0_3_321_13_-13",
+        "521_931_0_1_1_0_98_2_3_323_13_-13",
+        "521_931_11_0_0_12_5_1_3_323_13_-13",
+        "521_931_15_0_0_17_0_0_3_323_13_-13",
+        "521_931_15_0_0_19_0_0_3_323_13_-13",
+        "521_931_17_0_0_19_0_0_3_323_13_-13",
+        "521_931_1_1_1_2_5_1_3_323_13_-13",
+        "521_931_1_1_1_6_0_0_3_323_13_-13",
+        "521_931_2_5_1_4_0_0_3_323_13_-13",
+        "521_931_4_0_0_6_0_0_3_323_13_-13",
+        "521_931_6_0_0_8_0_0_3_323_13_-13",
+        "521_934_15_0_0_22_0_0_3_321_13_-13",
+        "521_934_1_1_1_6_0_0_3_321_13_-13",
+        "521_9511_0_1_1_0_98_2_3_323_13_-13",
+        "521_9511_11_0_0_12_5_1_3_323_13_-13",
+        "521_9511_15_0_0_17_0_0_3_323_13_-13",
+        "521_9511_15_0_0_19_0_0_3_323_13_-13",
+        "521_9511_17_0_0_19_0_0_3_323_13_-13",
+        "521_9511_1_1_1_2_5_1_3_323_13_-13",
+        "521_9511_1_1_1_6_0_0_3_323_13_-13",
+        "521_9511_2_5_1_4_0_0_3_323_13_-13",
+        "521_9511_4_0_0_6_0_0_3_323_13_-13",
+        "521_9511_6_0_0_8_0_0_3_323_13_-13",
+        "521_9512_0_1_1_0_98_2_3_323_13_-13",
+        "521_9512_11_0_0_12_5_1_3_323_13_-13",
+        "521_9512_15_0_0_17_0_0_3_323_13_-13",
+        "521_9512_15_0_0_19_0_0_3_323_13_-13",
+        "521_9512_17_0_0_19_0_0_3_323_13_-13",
+        "521_9512_1_1_1_2_5_1_3_323_13_-13",
+        "521_9512_1_1_1_6_0_0_3_323_13_-13",
+        "521_9512_2_5_1_4_0_0_3_323_13_-13",
+        "521_9512_4_0_0_6_0_0_3_323_13_-13",
+        "521_9512_6_0_0_8_0_0_3_323_13_-13",
+        "521_9513_0_1_1_0_98_2_3_323_13_-13",
+        "521_9513_11_0_0_12_5_1_3_323_13_-13",
+        "521_9513_15_0_0_17_0_0_3_323_13_-13",
+        "521_9513_15_0_0_19_0_0_3_323_13_-13",
+        "521_9513_17_0_0_19_0_0_3_323_13_-13",
+        "521_9513_1_1_1_2_5_1_3_323_13_-13",
+        "521_9513_1_1_1_6_0_0_3_323_13_-13",
+        "521_9513_2_5_1_4_0_0_3_323_13_-13",
+        "521_9513_4_0_0_6_0_0_3_323_13_-13",
+        "521_9513_6_0_0_8_0_0_3_323_13_-13",
+        "521_9524_0_1_1_0_98_2_3_323_13_-13",
+        "521_9524_11_0_0_12_5_1_3_323_13_-13",
+        "521_9524_15_0_0_17_0_0_3_323_13_-13",
+        "521_9524_15_0_0_19_0_0_3_323_13_-13",
+        "521_9524_17_0_0_19_0_0_3_323_13_-13",
+        "521_9524_1_1_1_2_5_1_3_323_13_-13",
+        "521_9524_1_1_1_6_0_0_3_323_13_-13",
+        "521_9524_2_5_1_4_0_0_3_323_13_-13",
+        "521_9524_4_0_0_6_0_0_3_323_13_-13",
+        "521_9524_6_0_0_8_0_0_3_323_13_-13",
+        "521_9525_0_1_1_0_98_2_3_323_13_-13",
+        "521_9525_11_0_0_12_5_1_3_323_13_-13",
+        "521_9525_15_0_0_17_0_0_3_323_13_-13",
+        "521_9525_15_0_0_19_0_0_3_323_13_-13",
+        "521_9525_17_0_0_19_0_0_3_323_13_-13",
+        "521_9525_1_1_1_2_5_1_3_323_13_-13",
+        "521_9525_1_1_1_6_0_0_3_323_13_-13",
+        "521_9525_2_5_1_4_0_0_3_323_13_-13",
+        "521_9525_4_0_0_6_0_0_3_323_13_-13",
+        "521_9525_6_0_0_8_0_0_3_323_13_-13",
+        "521_9526_0_1_1_0_98_2_3_323_13_-13",
+        "521_9526_11_0_0_12_5_1_3_323_13_-13",
+        "521_9526_15_0_0_17_0_0_3_323_13_-13",
+        "521_9526_15_0_0_19_0_0_3_323_13_-13",
+        "521_9526_17_0_0_19_0_0_3_323_13_-13",
+        "521_9526_1_1_1_2_5_1_3_323_13_-13",
+        "521_9526_1_1_1_6_0_0_3_323_13_-13",
+        "521_9526_2_5_1_4_0_0_3_323_13_-13",
+        "521_9526_4_0_0_6_0_0_3_323_13_-13",
+        "521_9526_6_0_0_8_0_0_3_323_13_-13",
+        "521_9528_0_1_1_0_98_2_3_323_13_-13",
+        "521_9528_11_0_0_12_5_1_3_323_13_-13",
+        "521_9528_15_0_0_17_0_0_3_323_13_-13",
+        "521_9528_15_0_0_19_0_0_3_323_13_-13",
+        "521_9528_17_0_0_19_0_0_3_323_13_-13",
+        "521_9528_1_1_1_2_5_1_3_323_13_-13",
+        "521_9528_1_1_1_6_0_0_3_323_13_-13",
+        "521_9528_2_5_1_4_0_0_3_323_13_-13",
+        "521_9528_4_0_0_6_0_0_3_323_13_-13",
+        "521_9528_6_0_0_8_0_0_3_323_13_-13",
+        "521_9533_0_1_1_0_98_2_3_323_13_-13",
+        "521_9533_11_0_0_12_5_1_3_323_13_-13",
+        "521_9533_15_0_0_17_0_0_3_323_13_-13",
+        "521_9533_15_0_0_19_0_0_3_323_13_-13",
+        "521_9533_17_0_0_19_0_0_3_323_13_-13",
+        "521_9533_1_1_1_2_5_1_3_323_13_-13",
+        "521_9533_1_1_1_6_0_0_3_323_13_-13",
+        "521_9533_2_5_1_4_0_0_3_323_13_-13",
+        "521_9533_4_0_0_6_0_0_3_323_13_-13",
+        "521_9533_6_0_0_8_0_0_3_323_13_-13",
+        "521_9534_0_1_1_0_98_2_3_323_13_-13",
+        "521_9534_11_0_0_12_5_1_3_323_13_-13",
+        "521_9534_15_0_0_17_0_0_3_323_13_-13",
+        "521_9534_15_0_0_19_0_0_3_323_13_-13",
+        "521_9534_17_0_0_19_0_0_3_323_13_-13",
+        "521_9534_1_1_1_2_5_1_3_323_13_-13",
+        "521_9534_1_1_1_6_0_0_3_323_13_-13",
+        "521_9534_2_5_1_4_0_0_3_323_13_-13",
+        "521_9534_4_0_0_6_0_0_3_323_13_-13",
+        "521_9534_6_0_0_8_0_0_3_323_13_-13",
+        "521_9535_0_1_1_0_98_2_3_323_13_-13",
+        "521_9535_11_0_0_12_5_1_3_323_13_-13",
+        "521_9535_15_0_0_17_0_0_3_323_13_-13",
+        "521_9535_15_0_0_19_0_0_3_323_13_-13",
+        "521_9535_17_0_0_19_0_0_3_323_13_-13",
+        "521_9535_1_1_1_2_5_1_3_323_13_-13",
+        "521_9535_1_1_1_6_0_0_3_323_13_-13",
+        "521_9535_2_5_1_4_0_0_3_323_13_-13",
+        "521_9535_4_0_0_6_0_0_3_323_13_-13",
+        "521_9535_6_0_0_8_0_0_3_323_13_-13",
+        "521_9537_0_1_1_0_98_2_3_323_13_-13",
+        "521_9537_11_0_0_12_5_1_3_323_13_-13",
+        "521_9537_15_0_0_17_0_0_3_323_13_-13",
+        "521_9537_15_0_0_19_0_0_3_323_13_-13",
+        "521_9537_17_0_0_19_0_0_3_323_13_-13",
+        "521_9537_1_1_1_2_5_1_3_323_13_-13",
+        "521_9537_1_1_1_6_0_0_3_323_13_-13",
+        "521_9537_2_5_1_4_0_0_3_323_13_-13",
+        "521_9537_4_0_0_6_0_0_3_323_13_-13",
+        "521_9537_6_0_0_8_0_0_3_323_13_-13",
+        "521_9538_0_1_1_0_98_2_3_323_13_-13",
+        "521_9538_11_0_0_12_5_1_3_323_13_-13",
+        "521_9538_15_0_0_17_0_0_3_323_13_-13",
+        "521_9538_15_0_0_19_0_0_3_323_13_-13",
+        "521_9538_17_0_0_19_0_0_3_323_13_-13",
+        "521_9538_1_1_1_2_5_1_3_323_13_-13",
+        "521_9538_1_1_1_6_0_0_3_323_13_-13",
+        "521_9538_2_5_1_4_0_0_3_323_13_-13",
+        "521_9538_4_0_0_6_0_0_3_323_13_-13",
+        "521_9538_6_0_0_8_0_0_3_323_13_-13",
+        "521_9539_0_1_1_0_98_2_3_323_13_-13",
+        "521_9539_11_0_0_12_5_1_3_323_13_-13",
+        "521_9539_15_0_0_17_0_0_3_323_13_-13",
+        "521_9539_15_0_0_19_0_0_3_323_13_-13",
+        "521_9539_17_0_0_19_0_0_3_323_13_-13",
+        "521_9539_1_1_1_2_5_1_3_323_13_-13",
+        "521_9539_1_1_1_6_0_0_3_323_13_-13",
+        "521_9539_2_5_1_4_0_0_3_323_13_-13",
+        "521_9539_4_0_0_6_0_0_3_323_13_-13",
+        "521_9539_6_0_0_8_0_0_3_323_13_-13",
+        "531_-5_0_1_1_0_98_2_3_333_13_-13",
+        "531_-5_11_0_0_12_5_1_3_333_13_-13",
+        "531_-5_15_0_0_18_9_1_3_333_13_-13",
+        "531_-5_1_1_1_4_0_0_3_333_13_-13",
+        "531_-5_1_1_1_6_0_0_3_333_13_-13",
+        "531_-5_4_0_0_6_0_0_3_333_13_-13",
+        "531_-5_6_0_0_8_0_0_3_333_13_-13",
+        "531_-9416_0_9_4_0_2615_4_3_333_11_-11",
+        "531_-9417_0_9_4_0_2615_4_3_333_11_-11",
+        "531_-9535_0_1_1_0_98_2_3_333_13_-13",
+        "531_-9535_11_0_0_12_5_1_3_333_13_-13",
+        "531_-9535_15_0_0_18_9_1_3_333_13_-13",
+        "531_-9535_1_1_1_4_0_0_3_333_13_-13",
+        "531_-9535_1_1_1_6_0_0_3_333_13_-13",
+        "531_-9535_4_0_0_6_0_0_3_333_13_-13",
+        "531_-9535_6_0_0_8_0_0_3_333_13_-13",
+        "531_-9538_0_1_1_0_98_2_3_333_13_-13",
+        "531_-9538_11_0_0_12_5_1_3_333_13_-13",
+        "531_-9538_15_0_0_18_9_1_3_333_13_-13",
+        "531_-9538_1_1_1_4_0_0_3_333_13_-13",
+        "531_-9538_1_1_1_6_0_0_3_333_13_-13",
+        "531_-9538_4_0_0_6_0_0_3_333_13_-13",
+        "531_-9538_6_0_0_8_0_0_3_333_13_-13",
+        "531_-9539_0_1_1_0_98_2_3_333_13_-13",
+        "531_-9539_11_0_0_12_5_1_3_333_13_-13",
+        "531_-9539_15_0_0_18_9_1_3_333_13_-13",
+        "531_-9539_1_1_1_4_0_0_3_333_13_-13",
+        "531_-9539_1_1_1_6_0_0_3_333_13_-13",
+        "531_-9539_4_0_0_6_0_0_3_333_13_-13",
+        "531_-9539_6_0_0_8_0_0_3_333_13_-13",
+        "531_15_0_0_0_0_0_0_2_11_-11",
+        "531_15_0_0_0_0_0_0_2_13_-13",
+        "531_1_0_1_1_0_98_2_3_333_13_-13",
+        "531_1_0_1_1_1_1_1_3_333_11_-11",
+        "531_1_11_0_0_12_5_1_3_333_13_-13",
+        "531_1_15_0_0_17_0_0_3_333_13_-13",
+        "531_1_15_0_0_19_0_0_3_333_11_-11",
+        "531_1_15_0_0_19_0_0_3_333_13_-13",
+        "531_1_17_0_0_19_0_0_3_333_13_-13",
+        "531_1_1_1_1_2_5_1_3_333_13_-13",
+        "531_1_1_1_1_6_0_0_3_333_11_-11",
+        "531_1_1_1_1_6_0_0_3_333_13_-13",
+        "531_1_2_5_1_4_0_0_3_333_13_-13",
+        "531_1_4_0_0_6_0_0_3_333_13_-13",
+        "531_1_6_0_0_8_0_0_3_333_13_-13",
+        "531_9121_0_1_1_1_1_1_3_333_13_-13",
+        "531_9121_15_0_0_19_0_0_3_333_13_-13",
+        "531_9121_1_1_1_6_0_0_3_333_13_-13",
+        "531_931_0_1_1_0_98_2_3_333_13_-13",
+        "531_931_0_9_4_0_2615_4_3_333_11_-11",
+        "531_931_11_0_0_12_5_1_3_333_13_-13",
+        "531_931_15_0_0_18_9_1_3_333_13_-13",
+        "531_931_1_1_1_4_0_0_3_333_13_-13",
+        "531_931_1_1_1_6_0_0_3_333_13_-13",
+        "531_931_4_0_0_6_0_0_3_333_13_-13",
+        "531_931_6_0_0_8_0_0_3_333_13_-13",
+        "531_9412_0_9_4_0_2615_4_3_333_11_-11",
+        "531_9533_0_1_1_0_98_2_3_333_13_-13",
+        "531_9533_11_0_0_12_5_1_3_333_13_-13",
+        "531_9533_15_0_0_18_9_1_3_333_13_-13",
+        "531_9533_1_1_1_4_0_0_3_333_13_-13",
+        "531_9533_1_1_1_6_0_0_3_333_13_-13",
+        "531_9533_4_0_0_6_0_0_3_333_13_-13",
+        "531_9533_6_0_0_8_0_0_3_333_13_-13",
+        "531_9534_0_1_1_0_98_2_3_333_13_-13",
+        "531_9534_11_0_0_12_5_1_3_333_13_-13",
+        "531_9534_15_0_0_18_9_1_3_333_13_-13",
+        "531_9534_1_1_1_4_0_0_3_333_13_-13",
+        "531_9534_1_1_1_6_0_0_3_333_13_-13",
+        "531_9534_4_0_0_6_0_0_3_333_13_-13",
+        "531_9534_6_0_0_8_0_0_3_333_13_-13",
+        "531_9537_0_1_1_0_98_2_3_333_13_-13",
+        "531_9537_11_0_0_12_5_1_3_333_13_-13",
+        "531_9537_15_0_0_18_9_1_3_333_13_-13",
+        "531_9537_1_1_1_4_0_0_3_333_13_-13",
+        "531_9537_1_1_1_6_0_0_3_333_13_-13",
+        "531_9537_4_0_0_6_0_0_3_333_13_-13",
+        "531_9537_6_0_0_8_0_0_3_333_13_-13",
+        "5_1_0_0_0_0_0_0_2_3_22",
+        "5_1_14_2_1_22_0_0_3_3_11_-11",
+        "5_1_14_2_1_22_0_0_3_3_13_-13",
+        "5_1_1_0_0_6_0_0_3_3_11_-11",
+        "5_1_1_0_0_6_0_0_3_3_13_-13"
+        };
+        return keys;
+    }
+    if (experiment == "Belle") {
+        static const std::unordered_set<std::string> keys = {
+        "511_9121_0_1_1_8_0_0_3_313_13_-13",
+        "511_9121_0_45_3_1_1_1_3_313_13_-13",
+        "511_9121_15_0_0_19_0_0_3_313_13_-13",
+        "511_9121_1_1_1_6_0_0_3_313_13_-13",
+        "511_9412_0_8_4_1_12_2_3_313_11_-11",
+        "511_942_0_8_4_1_12_2_3_313_11_-11",
+        "521_9121_0_1_1_4_0_0_3_321_13_-13",
+        "521_9121_10_2_1_12_8_1_3_321_13_-13",
+        "521_9121_14_18_2_22_0_0_3_321_13_-13",
+        "521_9121_1_0_0_6_0_0_3_321_13_-13",
+        "521_9121_4_0_0_8_12_2_3_321_13_-13"
+        };
+        return keys;
+    }
+    if (experiment == "CMS") {
+        static const std::unordered_set<std::string> keys = {
+        "511_931_10_9_2_12_86_2_3_313_13_-13",
+        "511_931_14_18_2_16_0_0_3_313_13_-13",
+        "511_931_1_1_1_2_0_0_3_313_13_-13",
+        "511_931_2_0_0_4_3_1_3_313_13_-13",
+        "511_931_4_3_1_6_0_0_3_313_13_-13",
+        "511_931_6_0_0_8_68_2_3_313_13_-13",
+        "511_9511_10_9_2_12_86_2_3_313_13_-13",
+        "511_9511_14_18_2_16_0_0_3_313_13_-13",
+        "511_9511_1_1_1_2_0_0_3_313_13_-13",
+        "511_9511_2_0_0_4_3_1_3_313_13_-13",
+        "511_9511_4_3_1_6_0_0_3_313_13_-13",
+        "511_9511_6_0_0_8_68_2_3_313_13_-13",
+        "511_9512_10_9_2_12_86_2_3_313_13_-13",
+        "511_9512_14_18_2_16_0_0_3_313_13_-13",
+        "511_9512_1_1_1_2_0_0_3_313_13_-13",
+        "511_9512_2_0_0_4_3_1_3_313_13_-13",
+        "511_9512_4_3_1_6_0_0_3_313_13_-13",
+        "511_9512_6_0_0_8_68_2_3_313_13_-13",
+        "511_9513_10_9_2_12_86_2_3_313_13_-13",
+        "511_9513_14_18_2_16_0_0_3_313_13_-13",
+        "511_9513_1_1_1_2_0_0_3_313_13_-13",
+        "511_9513_2_0_0_4_3_1_3_313_13_-13",
+        "511_9513_4_3_1_6_0_0_3_313_13_-13",
+        "511_9513_6_0_0_8_68_2_3_313_13_-13",
+        "511_9524_10_9_2_12_86_2_3_313_13_-13",
+        "511_9524_14_18_2_16_0_0_3_313_13_-13",
+        "511_9524_1_1_1_2_0_0_3_313_13_-13",
+        "511_9524_2_0_0_4_3_1_3_313_13_-13",
+        "511_9524_4_3_1_6_0_0_3_313_13_-13",
+        "511_9524_6_0_0_8_68_2_3_313_13_-13",
+        "511_9525_10_9_2_12_86_2_3_313_13_-13",
+        "511_9525_14_18_2_16_0_0_3_313_13_-13",
+        "511_9525_1_1_1_2_0_0_3_313_13_-13",
+        "511_9525_2_0_0_4_3_1_3_313_13_-13",
+        "511_9525_4_3_1_6_0_0_3_313_13_-13",
+        "511_9525_6_0_0_8_68_2_3_313_13_-13",
+        "511_9526_10_9_2_12_86_2_3_313_13_-13",
+        "511_9526_14_18_2_16_0_0_3_313_13_-13",
+        "511_9526_1_1_1_2_0_0_3_313_13_-13",
+        "511_9526_2_0_0_4_3_1_3_313_13_-13",
+        "511_9526_4_3_1_6_0_0_3_313_13_-13",
+        "511_9526_6_0_0_8_68_2_3_313_13_-13",
+        "511_9528_10_9_2_12_86_2_3_313_13_-13",
+        "511_9528_14_18_2_16_0_0_3_313_13_-13",
+        "511_9528_1_1_1_2_0_0_3_313_13_-13",
+        "511_9528_2_0_0_4_3_1_3_313_13_-13",
+        "511_9528_4_3_1_6_0_0_3_313_13_-13",
+        "511_9528_6_0_0_8_68_2_3_313_13_-13",
+        "521_1_0_1_1_0_98_2_3_321_13_-13",
+        "521_1_11_0_0_11_8_1_3_321_13_-13",
+        "521_1_11_8_1_12_5_1_3_321_13_-13",
+        "521_1_14_82_2_16_0_0_3_321_13_-13",
+        "521_1_16_0_0_17_0_0_3_321_13_-13",
+        "521_1_17_0_0_18_0_0_3_321_13_-13",
+        "521_1_18_0_0_19_24_2_3_321_13_-13",
+        "521_1_19_24_2_22_9_1_3_321_13_-13",
+        "521_1_1_1_1_2_0_0_3_321_13_-13",
+        "521_1_1_1_1_6_0_0_3_321_13_-13",
+        "521_1_2_0_0_3_0_0_3_321_13_-13",
+        "521_1_3_0_0_4_0_0_3_321_13_-13",
+        "521_1_4_0_0_5_0_0_3_321_13_-13",
+        "521_1_5_0_0_6_0_0_3_321_13_-13",
+        "521_1_6_0_0_7_0_0_3_321_13_-13",
+        "521_1_7_0_0_8_0_0_3_321_13_-13",
+        "521_9121_1_1_1_6_0_0_3_321_13_-13",
+        "521_934_1_0_0_6_0_0_3_321_13_-13"
+        };
+        return keys;
+    }
+    if (experiment == "LHCb2025c2") {
+        static const std::unordered_set<std::string> keys = {
+        "511_1_0_6_2_0_98_2_3_313_13_-13",
+        "511_1_11_0_0_12_5_1_3_313_13_-13",
+        "511_1_15_0_0_17_0_0_3_313_13_-13",
+        "511_1_15_0_0_19_0_0_3_313_13_-13",
+        "511_1_17_0_0_19_0_0_3_313_13_-13",
+        "511_1_1_1_1_2_5_1_3_313_13_-13",
+        "511_1_1_1_1_6_0_0_3_313_13_-13",
+        "511_1_2_5_1_4_0_0_3_313_13_-13",
+        "511_1_4_0_0_6_0_0_3_313_13_-13",
+        "511_1_6_0_0_8_0_0_3_313_13_-13",
+        "511_931_0_6_2_0_98_2_3_313_13_-13",
+        "511_931_11_0_0_12_5_1_3_313_13_-13",
+        "511_931_15_0_0_17_0_0_3_313_13_-13",
+        "511_931_15_0_0_19_0_0_3_313_13_-13",
+        "511_931_17_0_0_19_0_0_3_313_13_-13",
+        "511_931_1_1_1_2_5_1_3_313_13_-13",
+        "511_931_1_1_1_6_0_0_3_313_13_-13",
+        "511_931_2_5_1_4_0_0_3_313_13_-13",
+        "511_931_4_0_0_6_0_0_3_313_13_-13",
+        "511_931_6_0_0_8_0_0_3_313_13_-13",
+        "511_9511_0_6_2_0_98_2_3_313_13_-13",
+        "511_9511_11_0_0_12_5_1_3_313_13_-13",
+        "511_9511_15_0_0_17_0_0_3_313_13_-13",
+        "511_9511_15_0_0_19_0_0_3_313_13_-13",
+        "511_9511_17_0_0_19_0_0_3_313_13_-13",
+        "511_9511_1_1_1_2_5_1_3_313_13_-13",
+        "511_9511_1_1_1_6_0_0_3_313_13_-13",
+        "511_9511_2_5_1_4_0_0_3_313_13_-13",
+        "511_9511_4_0_0_6_0_0_3_313_13_-13",
+        "511_9511_6_0_0_8_0_0_3_313_13_-13",
+        "511_9512_0_6_2_0_98_2_3_313_13_-13",
+        "511_9512_11_0_0_12_5_1_3_313_13_-13",
+        "511_9512_15_0_0_17_0_0_3_313_13_-13",
+        "511_9512_15_0_0_19_0_0_3_313_13_-13",
+        "511_9512_17_0_0_19_0_0_3_313_13_-13",
+        "511_9512_1_1_1_2_5_1_3_313_13_-13",
+        "511_9512_1_1_1_6_0_0_3_313_13_-13",
+        "511_9512_2_5_1_4_0_0_3_313_13_-13",
+        "511_9512_4_0_0_6_0_0_3_313_13_-13",
+        "511_9512_6_0_0_8_0_0_3_313_13_-13",
+        "511_9513_0_6_2_0_98_2_3_313_13_-13",
+        "511_9513_11_0_0_12_5_1_3_313_13_-13",
+        "511_9513_15_0_0_17_0_0_3_313_13_-13",
+        "511_9513_15_0_0_19_0_0_3_313_13_-13",
+        "511_9513_17_0_0_19_0_0_3_313_13_-13",
+        "511_9513_1_1_1_2_5_1_3_313_13_-13",
+        "511_9513_1_1_1_6_0_0_3_313_13_-13",
+        "511_9513_2_5_1_4_0_0_3_313_13_-13",
+        "511_9513_4_0_0_6_0_0_3_313_13_-13",
+        "511_9513_6_0_0_8_0_0_3_313_13_-13",
+        "511_9524_0_6_2_0_98_2_3_313_13_-13",
+        "511_9524_11_0_0_12_5_1_3_313_13_-13",
+        "511_9524_15_0_0_17_0_0_3_313_13_-13",
+        "511_9524_15_0_0_19_0_0_3_313_13_-13",
+        "511_9524_17_0_0_19_0_0_3_313_13_-13",
+        "511_9524_1_1_1_2_5_1_3_313_13_-13",
+        "511_9524_1_1_1_6_0_0_3_313_13_-13",
+        "511_9524_2_5_1_4_0_0_3_313_13_-13",
+        "511_9524_4_0_0_6_0_0_3_313_13_-13",
+        "511_9524_6_0_0_8_0_0_3_313_13_-13",
+        "511_9525_0_6_2_0_98_2_3_313_13_-13",
+        "511_9525_11_0_0_12_5_1_3_313_13_-13",
+        "511_9525_15_0_0_17_0_0_3_313_13_-13",
+        "511_9525_15_0_0_19_0_0_3_313_13_-13",
+        "511_9525_17_0_0_19_0_0_3_313_13_-13",
+        "511_9525_1_1_1_2_5_1_3_313_13_-13",
+        "511_9525_1_1_1_6_0_0_3_313_13_-13",
+        "511_9525_2_5_1_4_0_0_3_313_13_-13",
+        "511_9525_4_0_0_6_0_0_3_313_13_-13",
+        "511_9525_6_0_0_8_0_0_3_313_13_-13",
+        "511_9526_0_6_2_0_98_2_3_313_13_-13",
+        "511_9526_11_0_0_12_5_1_3_313_13_-13",
+        "511_9526_15_0_0_17_0_0_3_313_13_-13",
+        "511_9526_15_0_0_19_0_0_3_313_13_-13",
+        "511_9526_17_0_0_19_0_0_3_313_13_-13",
+        "511_9526_1_1_1_2_5_1_3_313_13_-13",
+        "511_9526_1_1_1_6_0_0_3_313_13_-13",
+        "511_9526_2_5_1_4_0_0_3_313_13_-13",
+        "511_9526_4_0_0_6_0_0_3_313_13_-13",
+        "511_9526_6_0_0_8_0_0_3_313_13_-13",
+        "511_9528_0_6_2_0_98_2_3_313_13_-13",
+        "511_9528_11_0_0_12_5_1_3_313_13_-13",
+        "511_9528_15_0_0_17_0_0_3_313_13_-13",
+        "511_9528_15_0_0_19_0_0_3_313_13_-13",
+        "511_9528_17_0_0_19_0_0_3_313_13_-13",
+        "511_9528_1_1_1_2_5_1_3_313_13_-13",
+        "511_9528_1_1_1_6_0_0_3_313_13_-13",
+        "511_9528_2_5_1_4_0_0_3_313_13_-13",
+        "511_9528_4_0_0_6_0_0_3_313_13_-13",
+        "511_9528_6_0_0_8_0_0_3_313_13_-13",
+        "511_95312_0_6_2_0_98_2_3_313_13_-13",
+        "511_95312_11_0_0_12_5_1_3_313_13_-13",
+        "511_95312_15_0_0_17_0_0_3_313_13_-13",
+        "511_95312_15_0_0_19_0_0_3_313_13_-13",
+        "511_95312_17_0_0_19_0_0_3_313_13_-13",
+        "511_95312_1_1_1_2_5_1_3_313_13_-13",
+        "511_95312_1_1_1_6_0_0_3_313_13_-13",
+        "511_95312_2_5_1_4_0_0_3_313_13_-13",
+        "511_95312_4_0_0_6_0_0_3_313_13_-13",
+        "511_95312_6_0_0_8_0_0_3_313_13_-13",
+        "511_95321_0_6_2_0_98_2_3_313_13_-13",
+        "511_95362_0_6_2_0_98_2_3_313_13_-13"
+        };
+        return keys;
+    }
+    static const std::unordered_set<std::string> empty;
+    return empty;
+}
+
+bool has_exp_key(const std::string& experiment, const std::string& key) {
+    const auto& keys = known_exp_keys(experiment);
+    return keys.find(key) != keys.end();
+}
+
+void push_unique_exp(std::vector<std::string>& out, const std::string& exp) {
+    if (exp.empty()) return;
+    for (const auto& x : out) {
+        if (x == exp) return;
+    }
+    out.push_back(exp);
+}
+
+std::string choose_available_experiment(const ObsRow& row, const std::string& key) {
+    // Priorité : expérience demandée / label, puis les blocs FOBS usuels.
+    // Surtout, on ne tente pas get_exp_value sur une clé absente du bloc.
+    std::vector<std::string> order;
+    push_unique_exp(order, row.experiment);
+    push_unique_exp(order, resolve_experiment_from_label(row.label, ""));
+    push_unique_exp(order, "DEFAULT");
+    push_unique_exp(order, "Belle");
+    push_unique_exp(order, "CMS");
+    push_unique_exp(order, "LHCb2025c2");
+
+    for (const auto& exp : order) {
+        if (has_exp_key(exp, key)) return exp;
+    }
+    return "";
+}
+
+bool find_theory_value(const std::vector<ObservableValue>& values,
+                       const ObsRow& row,
+                       double& theory) {
+    if (values.empty()) return false;
+
+    if (!row.is_binned) {
+        theory = values.front().value;
+        return true;
+    }
+
+    for (const auto& v : values) {
+        if (!v.bin.has_value()) {
+            continue;
+        }
+        if (same_double(v.bin->first, row.id.p.first) &&
+            same_double(v.bin->second, row.id.p.second)) {
+            theory = v.value;
+            return true;
+        }
+    }
+
+    return false;
+}
+
+double get_exp_value_for_row(std::shared_ptr<ObservableInterface> oint,
+                             const ObsRow& row,
+                             const std::string& experiment) {
+    if (experiment == "DEFAULT") {
+        return oint->get_exp_value(row.id);
+    }
+    return oint->get_exp_value(ExperimentObs{experiment, row.id});
+}
+
+double get_exp_stat_for_row(std::shared_ptr<ObservableInterface> oint,
+                            const ObsRow& row,
+                            const std::string& experiment) {
+    if (experiment == "DEFAULT") {
+        return oint->get_exp_uncertainty(row.id, UncertaintyType::STAT);
+    }
+    return oint->get_exp_uncertainty(ExperimentObs{experiment, row.id},
+                                     UncertaintyType::STAT);
+}
+
+double get_exp_combined_for_row(std::shared_ptr<ObservableInterface> oint,
+                                const ObsRow& row,
+                                const std::string& experiment) {
+    if (experiment == "DEFAULT") {
+        return oint->get_exp_uncertainty(row.id, UncertaintyType::COMBINED);
+    }
+    return oint->get_exp_uncertainty(ExperimentObs{experiment, row.id},
+                                     UncertaintyType::COMBINED);
+}
+
+struct RankedObs {
+    ObsRow row;
+    std::string key;
+    std::string experiment;
+    long flha_code = std::numeric_limits<long>::min();
+    std::string quantity;
+    bool flha_enum_ok = true;
+
+    double theory = nan_value();
+    double exp = nan_value();
+    double stat = nan_value();
+    double combined = nan_value();
+    double syst_from_combined = nan_value();
+    double delta = nan_value();
+    double pull = nan_value();
+    double rel_delta = nan_value();
+    double ratio = nan_value();
+
+    bool theory_ok = false;
+    bool exp_ok = false;
+    bool stat_ok = false;
+    bool combined_ok = false;
+    bool usable = false;
+    std::string error;
+};
+
+std::string fmt_num(double x, int precision = 6) {
+    if (!std::isfinite(x)) return "nan";
+    std::ostringstream ss;
+    const double ax = std::abs(x);
+    if ((ax > 0.0 && ax < 1.0e-3) || ax >= 1.0e4) {
+        ss << std::scientific << std::setprecision(precision) << x;
+    } else {
+        ss << std::fixed << std::setprecision(precision) << x;
+    }
+    return ss.str();
+}
+
+std::string fmt_signed(double x, int precision = 6) {
+    if (!std::isfinite(x)) return "nan";
+    std::ostringstream ss;
+    if (x >= 0.0) ss << "+";
+    ss << fmt_num(x, precision);
+    return ss.str();
+}
+
+void print_ranked_obs_card(const RankedObs& r, std::size_t rank) {
+    std::cout << "\n";
+    std::cout << "======================================================================\n";
+    std::cout << "#" << rank
+              << "  |pull|=" << fmt_num(std::abs(r.pull), 3)
+              << "   pull=" << fmt_signed(r.pull, 3)
+              << "   |delta|=" << fmt_num(std::abs(r.delta), 6)
+              << "   th/exp=" << fmt_num(r.ratio, 6) << "\n";
+    std::cout << "----------------------------------------------------------------------\n";
+    std::cout << "label       : " << r.row.label << "\n";
+    std::cout << "observable  : " << r.row.obs_name << "\n";
+    std::cout << "id/bin      : " << r.row.id.str() << "\n";
+    std::cout << "experiment  : requested=" << r.row.experiment
+              << ", used=" << r.experiment << "\n";
+    std::cout << "FLHA        : key=" << r.key
+              << ", obs_code=";
+    if (r.flha_code == std::numeric_limits<long>::min()) std::cout << "nan";
+    else std::cout << r.flha_code;
+    std::cout << ", enum_quantity=" << (r.quantity.empty() ? "-" : r.quantity)
+              << ", convention_ok=" << (r.flha_enum_ok ? "yes" : "NO") << "\n";
+    std::cout << "values      : theory=" << fmt_num(r.theory, 8)
+              << "   exp=" << fmt_num(r.exp, 8)
+              << "   delta=" << fmt_signed(r.delta, 8) << "\n";
+    std::cout << "uncertainty : stat=" << fmt_num(r.stat, 8)
+              << "   combined=" << fmt_num(r.combined, 8)
+              << "   syst_est=sqrt(comb^2-stat^2)="
+              << fmt_num(r.syst_from_combined, 8) << "\n";
+    std::cout << "diagnostic  : rel_delta=" << fmt_signed(r.rel_delta, 6)
+              << "   stat/|exp|="
+              << ((std::isfinite(r.exp) && r.exp != 0.0 && std::isfinite(r.stat))
+                  ? fmt_num(r.stat / std::abs(r.exp), 6)
+                  : std::string("nan"))
+              << "\n";
+    if (!r.error.empty()) {
+        std::cout << "notes       : " << r.error << "\n";
+    }
+}
+
+} // namespace
 
 int main(int argc, char** argv) {
-    // using namespace fit_app;
+    const std::size_t top_n =
+        (argc >= 2) ? static_cast<std::size_t>(std::stoul(argv[1])) : 10U;
 
-    // HyperisoMaster hyp;
-    // HyperisoConfig config_hyp;
-    // config_hyp.model = Model::SM;
-    // hyp.init("lha/si_input.flha", config_hyp);
+    try {
+        HyperisoMaster hyp;
+        HyperisoConfig config_hyp;
+        config_hyp.model = Model::SM;
+        hyp.init("lha/si_input.flha", config_hyp);
 
-    // auto oint = std::make_shared<ObservableInterface>();
-    // oint->add_observable(ObservableMapper::to_id(Observables::BR_BS_MUMU_UNTAG), QCDOrder::LO, true)
-    //     .add_observable(ObservableMapper::to_id(Observables::BR_BD_MUMU), QCDOrder::LO, true);
+        auto oint = std::make_shared<ObservableInterface>();
 
-    // StatisticConfig config;
-    // config.MC_draws = 100;
-    // config.MLE_max_iter = 120000;
-    // config.MLE_tol = 0.2;
-    // std::vector<ParamId> p_specs = {
-    //     ParamId{ParameterType::FLAVOR, "FCONST", {511, 1}},
-    //     ParamId{ParameterType::FLAVOR, "FCONST", {531, 1}}
-    // };
+        BKstarllConfig cfg_BKs;
+        cfg_BKs.ff_src = BV_FF_Src::GRvDV;
+        oint->set_decay_config(Decays::B__Kstar_l_l, cfg_BKs);
+        oint->set_bkstarll_threads(24);
 
-    // std::shared_ptr<IStatParamOptimizerProxy> spop = std::make_shared<StatParamOptimizerProxy>();
-    // auto model = std::make_shared<ObservableInterfaceProxy>(oint, spop);
+        BKstarGammaConfig cfg_BKsgamma;
+        cfg_BKsgamma.ff_src = BV_FF_Src::GRvDV;
+        oint->set_decay_config(Decays::B__Kstar_gamma, cfg_BKsgamma);
 
-    // std::shared_ptr<INuisancePathsProvider> npp = std::make_shared<DefaultNuisancePathsProvider>();
+        BsPhiConfig cfg_BsPhi;
+        cfg_BsPhi.ff_src = BV_FF_Src::GRvDV;
+        oint->set_decay_config(Decays::Bs__phi_l_l, cfg_BsPhi);
+        oint->set_bsphi_threads(24);
 
-    // StatisticManager stat(
-    //     config,
-    //     model,
-    //     std::make_shared<StatCorrelationProxy>(),
-    //     std::make_shared<StatParameterProxy>(),
-    //     std::make_shared<StatParamSourcesProxy>(),
-    //     std::make_shared<StatDependencyPruner>(),
-    //     std::make_shared<NuisanceReader>(npp),
-    //     spop
-    // );
+        BKllConfig cfg_BK;
+        cfg_BK.ff_src = BP_FF_Src::GKvD_SR_LAT;
+        oint->set_decay_config(Decays::B__K_l_l, cfg_BK);
+        oint->set_bkll_threads(24);
 
-    // BuiltProblem built = build_problem(stat, config, model, p_specs);
+        using O = Observables;
+        constexpr bool kAddDeps = false;
 
-    // auto model_fn = [model, obs_ids = built.obs_ids, p_ids = built.p_ids, eta_ids = built.eta_ids]
-    //                 (const Vec& p_vec, const Vec& eta_vec) -> Vec {
-    //     auto pred_map = model->predict_optimized(zip(p_ids, p_vec), zip(eta_ids, eta_vec));
+        std::vector<ObsRow> rows;
+        std::set<Observables> seen_unbinned;
+        std::set<std::tuple<Observables, double, double>> seen_binned;
 
-    //     Vec out;
-    //     out.reserve(obs_ids.size());
+        auto add_unbinned = [&](Observables obs,
+                                const std::string& obs_name,
+                                const std::string& label,
+                                const std::string& experiment) {
+            if (seen_unbinned.insert(obs).second) {
+                oint->add_observable(ObservableMapper::to_id(obs),
+                                     QCDOrder::NNLO,
+                                     kAddDeps);
+            }
 
-    //     for (const auto& bid : obs_ids) {
-    //         const auto& vec = pred_map.at(bid.obs.s);
-    //         auto it = std::find_if(vec.begin(), vec.end(), [&](const ObservableValue& ov) {
-    //             auto bin = ov.bin.value_or(std::pair<double, double>{0., 0.});
-    //             return bin == bid.obs.p;
-    //         });
+            rows.push_back(ObsRow{
+                rows.size() + 1,
+                BinnedObservableId{ObservableMapper::to_id(obs)},
+                obs_name,
+                false,
+                label,
+                resolve_experiment_from_label(label, experiment)
+            });
+        };
 
-    //         if (it == vec.end()) {
-    //             throw std::runtime_error("Missing predicted observable/bin");
-    //         }
-    //         out.push_back(it->value);
-    //     }
+        auto add_bin = [&](Observables obs,
+                           const std::string& obs_name,
+                           double q2min,
+                           double q2max,
+                           const std::string& label,
+                           const std::string& experiment) {
+            const auto key = std::make_tuple(obs, q2min, q2max);
+            if (seen_binned.insert(key).second) {
+                oint->add_observable(
+                    BinnedObservableId{ObservableMapper::to_id(obs), {q2min, q2max}},
+                    QCDOrder::NNLO,
+                    kAddDeps
+                );
+            }
 
-    //     return out;
-    // };
+            rows.push_back(ObsRow{
+                rows.size() + 1,
+                BinnedObservableId{ObservableMapper::to_id(obs), {q2min, q2max}},
+                obs_name,
+                true,
+                label,
+                resolve_experiment_from_label(label, experiment)
+            });
+        };
 
-    // auto start_m = std::chrono::steady_clock::now();
-    // MinuitMLEstimatorLocal est(std::move(built.ctx), model_fn, config.MLE_max_iter, config.MLE_tol, 2);
-    // JointFitOutput fit_out = est.fit_joint_with_minuit(built.p_ids, built.eta_ids, built.p0);
-    // auto stop_m = std::chrono::steady_clock::now();
+#define ADD_UNBINNED(obs, label, experiment) add_unbinned((obs), #obs, (label), (experiment))
+#define ADD_BIN(obs, q2min, q2max, label, experiment) add_bin((obs), #obs, (q2min), (q2max), (label), (experiment))
 
-    // const auto& fr = fit_out.fr;
-    // const auto& mj = fit_out.mj;
+        ADD_UNBINNED(O::IA_B__KSTAR_GAMMA, "AI_BKstargamma", "DEFAULT"); // 001
+        ADD_UNBINNED(O::BR_B_XS_GAMMA, "BR_BXsgamma", "DEFAULT"); // 002
+        ADD_UNBINNED(O::BR_BS_MUMU_UNTAG, "BRuntag_Bsmumu", "DEFAULT"); // 003
+        ADD_UNBINNED(O::BR_BS_EE_UNTAG, "BRuntag_Bsee", "DEFAULT"); // 004
+        ADD_BIN(O::BR_B__Xs_mu_mu, 1, 6, "BR_BXsmumu_1_6", "DEFAULT"); // 005
+        ADD_BIN(O::BR_B__Xs_mu_mu, 14.2, 22, "BR_BXsmumu_14.2_22", "DEFAULT"); // 006
+        ADD_BIN(O::BR_B__Xs_e_e, 1, 6, "BR_BXsee_1_6", "DEFAULT"); // 007
+        ADD_BIN(O::BR_B__Xs_e_e, 14.2, 22, "BR_BXsee_14.2_22", "DEFAULT"); // 008
+        ADD_UNBINNED(O::BR_B0__KSTAR0_GAMMA, "BR_B0Kstar0gamma", "DEFAULT"); // 009
+        ADD_UNBINNED(O::BR_B__KSTAR_GAMMA, "BR_BKstargamma", "DEFAULT"); // 010
+        ADD_BIN(O::DBR_DQ2_B__KSTAR_MU_MU, 1.1, 6, "dBR/dq2_BKstarmumu_1.1_6", "DEFAULT"); // 011
+        ADD_BIN(O::DBR_DQ2_B__KSTAR_MU_MU, 15, 19, "dBR/dq2_BKstarmumu_15_19", "DEFAULT"); // 012
+        ADD_BIN(O::R_1_B0__KSTAR0_L_L, 0.1, 1.1, "R-1_B0Kstar0ll_0.1_1.1", "DEFAULT"); // 013
+        ADD_BIN(O::R_1_B0__KSTAR0_L_L, 1.1, 6, "R-1_B0Kstar0ll_1.1_6", "DEFAULT"); // 014
+        ADD_BIN(O::R_1_B0__KSTAR0_L_L, 0.045, 1.1, "R-1_B0Kstar0ll_0.045_1.1_Belle", "Belle"); // 015
+        ADD_BIN(O::R_1_B0__KSTAR0_L_L, 1.1, 6, "R-1_B0Kstar0ll_1.1_6_Belle", "Belle"); // 016
+        ADD_BIN(O::R_1_B0__KSTAR0_L_L, 15, 19, "R-1_B0Kstar0ll_15_19_Belle", "Belle"); // 017
+        ADD_BIN(O::DBR_DQ2_B0__K0_MU_MU, 1.1, 6, "dBR/dq2_B0K0mumu_1.1_6", "DEFAULT"); // 018
+        ADD_BIN(O::DBR_DQ2_B0__K0_MU_MU, 15, 22, "dBR/dq2_B0K0mumu_15_22", "DEFAULT"); // 019
+        ADD_BIN(O::DBR_DQ2_B__K_MU_MU, 1.1, 6, "dBR/dq2_BKmumu_1.1_6", "DEFAULT"); // 020
+        ADD_BIN(O::F_H_B__K_MU_MU, 1.1, 6, "FH_BKmumu_1.1_6", "DEFAULT"); // 021
+        ADD_BIN(O::DBR_DQ2_B__K_MU_MU, 15, 22, "dBR/dq2_BKmumu_15_22", "DEFAULT"); // 022
+        ADD_BIN(O::F_H_B__K_MU_MU, 15, 22, "FH_BKmumu_15_22", "DEFAULT"); // 023
+        ADD_BIN(O::R_1_B__K_L_L, 0.1, 1.1, "R-1_BKll_0.1_1.1", "DEFAULT"); // 024
+        ADD_BIN(O::R_1_B__K_L_L, 1.1, 6, "R-1_BKll_1.1_6", "DEFAULT"); // 025
+        ADD_BIN(O::DBR_DQ2_BS__PHI_MU_MU, 0.1, 0.98, "dBR/dq2_Bsphimumu_0.1_0.98", "DEFAULT"); // 026
+        ADD_BIN(O::F_L_BS_PHI_MU_MU, 0.1, 0.98, "FL_Bsphimumu_0.1_0.98", "DEFAULT"); // 027
+        ADD_BIN(O::S_3_BS_PHI_MU_MU, 0.1, 0.98, "S3_Bsphimumu_0.1_0.98", "DEFAULT"); // 028
+        ADD_BIN(O::S_4_BS_PHI_MU_MU, 0.1, 0.98, "S4_Bsphimumu_0.1_0.98", "DEFAULT"); // 029
+        ADD_BIN(O::S_7_BS_PHI_MU_MU, 0.1, 0.98, "S7_Bsphimumu_0.1_0.98", "DEFAULT"); // 030
+        ADD_BIN(O::DBR_DQ2_BS__PHI_MU_MU, 1.1, 2.5, "dBR/dq2_Bsphimumu_1.1_2.5", "DEFAULT"); // 031
+        ADD_BIN(O::DBR_DQ2_BS__PHI_MU_MU, 2.5, 4, "dBR/dq2_Bsphimumu_2.5_4", "DEFAULT"); // 032
+        ADD_BIN(O::F_L_BS_PHI_MU_MU, 1.1, 4, "FL_Bsphimumu_1.1_4", "DEFAULT"); // 033
+        ADD_BIN(O::S_3_BS_PHI_MU_MU, 1.1, 4, "S3_Bsphimumu_1.1_4", "DEFAULT"); // 034
+        ADD_BIN(O::S_4_BS_PHI_MU_MU, 1.1, 4, "S4_Bsphimumu_1.1_4", "DEFAULT"); // 035
+        ADD_BIN(O::S_7_BS_PHI_MU_MU, 1.1, 4, "S7_Bsphimumu_1.1_4", "DEFAULT"); // 036
+        ADD_BIN(O::DBR_DQ2_BS__PHI_MU_MU, 4, 6, "dBR/dq2_Bsphimumu_4_6", "DEFAULT"); // 037
+        ADD_BIN(O::F_L_BS_PHI_MU_MU, 4, 6, "FL_Bsphimumu_4_6", "DEFAULT"); // 038
+        ADD_BIN(O::S_3_BS_PHI_MU_MU, 4, 6, "S3_Bsphimumu_4_6", "DEFAULT"); // 039
+        ADD_BIN(O::S_4_BS_PHI_MU_MU, 4, 6, "S4_Bsphimumu_4_6", "DEFAULT"); // 040
+        ADD_BIN(O::S_7_BS_PHI_MU_MU, 4, 6, "S7_Bsphimumu_4_6", "DEFAULT"); // 041
+        ADD_BIN(O::DBR_DQ2_BS__PHI_MU_MU, 15, 19, "dBR/dq2_Bsphimumu_15_19 // [2026-05-24_01] [WARN] Rejected MC nuisance sample 1 while trying to fill accepted sample 1 of 1000 : MC prediction contains non-finite observable", "DEFAULT"); // 042
+        ADD_BIN(O::F_L_BS_PHI_MU_MU, 15, 18.9, "FL_Bsphimumu_15_18.9", "DEFAULT"); // 043
+        ADD_BIN(O::S_3_BS_PHI_MU_MU, 15, 18.9, "S3_Bsphimumu_15_18.9", "DEFAULT"); // 044
+        ADD_BIN(O::S_4_BS_PHI_MU_MU, 15, 18.9, "S4_Bsphimumu_15_18.9", "DEFAULT"); // 045
+        ADD_BIN(O::S_7_BS_PHI_MU_MU, 15, 18.9, "S7_Bsphimumu_15_18.9", "DEFAULT"); // 046
+        ADD_BIN(O::DBR_DQ2_LAMBDA_B__LAMBDA_MU_MU, 15, 20, "dBR/dq2_LambdabLambdamumu_15_20", "DEFAULT"); // 047
+        ADD_BIN(O::A_FB_L_LAMBDA_B__LAMBDA_MU_MU, 15, 20, "AlFB_LambdabLambdamumu_15_20", "DEFAULT"); // 048
+        ADD_BIN(O::A_FB_H_LAMBDA_B__LAMBDA_MU_MU, 15, 20, "AhFB_LambdabLambdamumu_15_20", "DEFAULT"); // 049
+        ADD_BIN(O::A_FB_LH_LAMBDA_B__LAMBDA_MU_MU, 15, 20, "AlhFB_LambdabLambdamumu_15_20", "DEFAULT"); // 050
+        ADD_BIN(O::F_L_LAMBDA_B__LAMBDA_MU_MU, 15, 20, "FL_LambdabLambdamumu_15_20", "DEFAULT"); // 051
+        ADD_BIN(O::F_L_B__KSTAR_MU_MU, 0.1, 0.98, "FL_BKstarmumu_0.1_0.98", "DEFAULT"); // 052
+        ADD_BIN(O::A_FB_B__KSTAR_MU_MU, 0.1, 0.98, "AFB_BKstarmumu_0.1_0.98", "DEFAULT"); // 053
+        ADD_BIN(O::S_3_B__KSTAR_MU_MU, 0.1, 0.98, "S3_BKstarmumu_0.1_0.98", "DEFAULT"); // 054
+        ADD_BIN(O::S_4_B__KSTAR_MU_MU, 0.1, 0.98, "S4_BKstarmumu_0.1_0.98", "DEFAULT"); // 055
+        ADD_BIN(O::S_5_B__KSTAR_MU_MU, 0.1, 0.98, "S5_BKstarmumu_0.1_0.98", "DEFAULT"); // 056
+        ADD_BIN(O::S_7_B__KSTAR_MU_MU, 0.1, 0.98, "S7_BKstarmumu_0.1_0.98", "DEFAULT"); // 057
+        ADD_BIN(O::S_8_B__KSTAR_MU_MU, 0.1, 0.98, "S8_BKstarmumu_0.1_0.98", "DEFAULT"); // 058
+        ADD_BIN(O::S_9_B__KSTAR_MU_MU, 0.1, 0.98, "S9_BKstarmumu_0.1_0.98", "DEFAULT"); // 059
+        ADD_BIN(O::F_L_B__KSTAR_MU_MU, 1.1, 2.5, "FL_BKstarmumu_1.1_2.5", "DEFAULT"); // 060
+        ADD_BIN(O::A_FB_B__KSTAR_MU_MU, 1.1, 2.5, "AFB_BKstarmumu_1.1_2.5", "DEFAULT"); // 061
+        ADD_BIN(O::S_3_B__KSTAR_MU_MU, 1.1, 2.5, "S3_BKstarmumu_1.1_2.5", "DEFAULT"); // 062
+        ADD_BIN(O::S_4_B__KSTAR_MU_MU, 1.1, 2.5, "S4_BKstarmumu_1.1_2.5", "DEFAULT"); // 063
+        ADD_BIN(O::S_5_B__KSTAR_MU_MU, 1.1, 2.5, "S5_BKstarmumu_1.1_2.5", "DEFAULT"); // 064
+        ADD_BIN(O::S_7_B__KSTAR_MU_MU, 1.1, 2.5, "S7_BKstarmumu_1.1_2.5", "DEFAULT"); // 065
+        ADD_BIN(O::S_8_B__KSTAR_MU_MU, 1.1, 2.5, "S8_BKstarmumu_1.1_2.5", "DEFAULT"); // 066
+        ADD_BIN(O::S_9_B__KSTAR_MU_MU, 1.1, 2.5, "S9_BKstarmumu_1.1_2.5", "DEFAULT"); // 067
+        ADD_BIN(O::F_L_B__KSTAR_MU_MU, 2.5, 4, "FL_BKstarmumu_2.5_4", "DEFAULT"); // 068
+        ADD_BIN(O::A_FB_B__KSTAR_MU_MU, 2.5, 4, "AFB_BKstarmumu_2.5_4", "DEFAULT"); // 069
+        ADD_BIN(O::S_3_B__KSTAR_MU_MU, 2.5, 4, "S3_BKstarmumu_2.5_4", "DEFAULT"); // 070
+        ADD_BIN(O::S_4_B__KSTAR_MU_MU, 2.5, 4, "S4_BKstarmumu_2.5_4", "DEFAULT"); // 071
+        ADD_BIN(O::S_5_B__KSTAR_MU_MU, 2.5, 4, "S5_BKstarmumu_2.5_4", "DEFAULT"); // 072
+        ADD_BIN(O::S_7_B__KSTAR_MU_MU, 2.5, 4, "S7_BKstarmumu_2.5_4", "DEFAULT"); // 073
+        ADD_BIN(O::S_8_B__KSTAR_MU_MU, 2.5, 4, "S8_BKstarmumu_2.5_4", "DEFAULT"); // 074
+        ADD_BIN(O::S_9_B__KSTAR_MU_MU, 2.5, 4, "S9_BKstarmumu_2.5_4", "DEFAULT"); // 075
+        ADD_BIN(O::F_L_B__KSTAR_MU_MU, 4, 6, "FL_BKstarmumu_4_6", "DEFAULT"); // 076
+        ADD_BIN(O::A_FB_B__KSTAR_MU_MU, 4, 6, "AFB_BKstarmumu_4_6", "DEFAULT"); // 077
+        ADD_BIN(O::S_3_B__KSTAR_MU_MU, 4, 6, "S3_BKstarmumu_4_6", "DEFAULT"); // 078
+        ADD_BIN(O::S_4_B__KSTAR_MU_MU, 4, 6, "S4_BKstarmumu_4_6", "DEFAULT"); // 079
+        ADD_BIN(O::S_5_B__KSTAR_MU_MU, 4, 6, "S5_BKstarmumu_4_6", "DEFAULT"); // 080
+        ADD_BIN(O::S_7_B__KSTAR_MU_MU, 4, 6, "S7_BKstarmumu_4_6", "DEFAULT"); // 081
+        ADD_BIN(O::S_8_B__KSTAR_MU_MU, 4, 6, "S8_BKstarmumu_4_6", "DEFAULT"); // 082
+        ADD_BIN(O::S_9_B__KSTAR_MU_MU, 4, 6, "S9_BKstarmumu_4_6", "DEFAULT"); // 083
+        ADD_BIN(O::F_L_B__KSTAR_MU_MU, 15, 17, "FL_BKstarmumu_15_17", "DEFAULT"); // 084
+        ADD_BIN(O::A_FB_B__KSTAR_MU_MU, 15, 17, "AFB_BKstarmumu_15_17", "DEFAULT"); // 085
+        ADD_BIN(O::S_3_B__KSTAR_MU_MU, 15, 17, "S3_BKstarmumu_15_17", "DEFAULT"); // 086
+        ADD_BIN(O::S_4_B__KSTAR_MU_MU, 15, 17, "S4_BKstarmumu_15_17", "DEFAULT"); // 087
+        ADD_BIN(O::S_5_B__KSTAR_MU_MU, 15, 17, "S5_BKstarmumu_15_17", "DEFAULT"); // 088
+        ADD_BIN(O::S_7_B__KSTAR_MU_MU, 15, 17, "S7_BKstarmumu_15_17", "DEFAULT"); // 089
+        ADD_BIN(O::S_8_B__KSTAR_MU_MU, 15, 17, "S8_BKstarmumu_15_17", "DEFAULT"); // 090
+        ADD_BIN(O::S_9_B__KSTAR_MU_MU, 15, 17, "S9_BKstarmumu_15_17", "DEFAULT"); // 091
+        ADD_BIN(O::F_L_B__KSTAR_MU_MU, 17, 19, "FL_BKstarmumu_17_19", "DEFAULT"); // 092
+        ADD_BIN(O::A_FB_B__KSTAR_MU_MU, 17, 19, "AFB_BKstarmumu_17_19", "DEFAULT"); // 093
+        ADD_BIN(O::S_3_B__KSTAR_MU_MU, 17, 19, "S3_BKstarmumu_17_19", "DEFAULT"); // 094
+        ADD_BIN(O::S_4_B__KSTAR_MU_MU, 17, 19, "S4_BKstarmumu_17_19", "DEFAULT"); // 095
+        ADD_BIN(O::S_5_B__KSTAR_MU_MU, 17, 19, "S5_BKstarmumu_17_19", "DEFAULT"); // 096
+        ADD_BIN(O::S_7_B__KSTAR_MU_MU, 17, 19, "S7_BKstarmumu_17_19", "DEFAULT"); // 097
+        ADD_BIN(O::S_8_B__KSTAR_MU_MU, 17, 19, "S8_BKstarmumu_17_19", "DEFAULT"); // 098
+        ADD_BIN(O::S_9_B__KSTAR_MU_MU, 17, 19, "S9_BKstarmumu_17_19", "DEFAULT"); // 099
+        ADD_BIN(O::R_1_B__KSTAR_L_L, 0.045, 6, "R-1_BKstarll_0.045_6", "DEFAULT"); // 100
+        ADD_BIN(O::R_1_B0__K0_L_L, 1.1, 6, "R-1_B0K0ll_1.1_6", "DEFAULT"); // 101
+        ADD_BIN(O::R_1_B__K_L_L, 1, 6, "R-1_BKll_1_6_Belle", "Belle"); // 102
+        ADD_BIN(O::F_H_B__K_MU_MU, 1, 6, "FH_BKmumu_1_6_CMS", "CMS"); // 103
+        ADD_BIN(O::DBR_DQ2_B0__KSTAR0_E_E, 0.0009, 1, "dBR/dq2_B0Kstar0ee_0.0009_1 //[2026-05-24_01] [WARN] Rejected MC nuisance sample 1 while trying to fill accepted sample 1 of 1000 : MC prediction contains non-finite observable", "DEFAULT"); // 104
+        ADD_BIN(O::F_L_B0__KSTAR0_E_E, 0.0008, 0.257, "FL_B0Kstar0ee_0.0008_0.257 //Rejected MC nuisance sample 125 while trying to fill accepted sample 1 of 1000 : MC prediction contains non-finite observable", "DEFAULT"); // 105
+        ADD_BIN(O::A_T_RE_B0__KSTAR0_E_E, 0.0008, 0.257, "ATRe_B0Kstar0ee_0.0008_0.257 //[2026-05-24_01] [WARN] Rejected MC nuisance sample 1 while trying to fill accepted sample 1 of 1000 : MC prediction contains non-finite observable", "DEFAULT"); // 106
+        ADD_BIN(O::A_T_2_B0__KSTAR0_E_E, 0.0008, 0.257, "AT2_B0Kstar0ee_0.0008_0.257 // [2026-05-24_01] [WARN] Rejected MC nuisance sample 1 while trying to fill accepted sample 1 of 1000 : MC prediction contains non-finite observable", "DEFAULT"); // 107
+        ADD_BIN(O::DBR_DQ2_B__K_MU_MU, 0.1, 0.98, "dBR/dq2_BKmumu_0.1_0.98_CMS", "CMS"); // 108
+        ADD_BIN(O::DBR_DQ2_B__K_MU_MU, 1.1, 2, "dBR/dq2_BKmumu_1.1_2_CMS", "CMS"); // 109
+        ADD_BIN(O::DBR_DQ2_B__K_MU_MU, 2, 3, "dBR/dq2_BKmumu_2_3_CMS", "CMS"); // 110
+        ADD_BIN(O::DBR_DQ2_B__K_MU_MU, 3, 4, "dBR/dq2_BKmumu_3_4_CMS", "CMS"); // 111
+        ADD_BIN(O::DBR_DQ2_B__K_MU_MU, 4, 5, "dBR/dq2_BKmumu_4_5_CMS", "CMS"); // 112
+        ADD_BIN(O::DBR_DQ2_B__K_MU_MU, 5, 6, "dBR/dq2_BKmumu_5_6_CMS", "CMS"); // 113
+        ADD_BIN(O::DBR_DQ2_B__K_MU_MU, 14.82, 16, "dBR/dq2_BKmumu_14.82_16_CMS", "CMS"); // 114
+        ADD_BIN(O::DBR_DQ2_B__K_MU_MU, 16, 17, "dBR/dq2_BKmumu_16_17_CMS", "CMS"); // 115
+        ADD_BIN(O::DBR_DQ2_B__K_MU_MU, 17, 18, "dBR/dq2_BKmumu_17_18_CMS", "CMS"); // 116
+        ADD_BIN(O::DBR_DQ2_B__K_MU_MU, 18, 19.24, "dBR/dq2_BKmumu_18_19.24_CMS", "CMS"); // 117
+        ADD_BIN(O::DBR_DQ2_B__K_MU_MU, 19.24, 22.9, "dBR/dq2_BKmumu_19.24_22.9_CMS", "CMS"); // 118
+        ADD_BIN(O::R_1_B__K_L_L, 1.1, 6, "R-1_BKll_1.1_6_CMS", "CMS"); // 119
+        ADD_BIN(O::F_L_B0__KSTAR0_MU_MU, 1.1, 2, "FL_B0Kstar0mumu_1.1_2_CMS", "CMS"); // 120
+        ADD_BIN(O::P_1_B0__KSTAR0_MU_MU, 1.1, 2, "P1_B0Kstar0mumu_1.1_2_CMS", "CMS"); // 121
+        ADD_BIN(O::P_2_B0__KSTAR0_MU_MU, 1.1, 2, "P2_B0Kstar0mumu_1.1_2_CMS", "CMS"); // 122
+        ADD_BIN(O::P_3_B0__KSTAR0_MU_MU, 1.1, 2, "P3_B0Kstar0mumu_1.1_2_CMS", "CMS"); // 123
+        ADD_BIN(O::P_PRIME_4_B0__KSTAR0_MU_MU, 1.1, 2, "P4prime_B0Kstar0mumu_1.1_2_CMS", "CMS"); // 124
+        ADD_BIN(O::P_PRIME_5_B0__KSTAR0_MU_MU, 1.1, 2, "P5prime_B0Kstar0mumu_1.1_2_CMS", "CMS"); // 125
+        ADD_BIN(O::P_PRIME_6_B0__KSTAR0_MU_MU, 1.1, 2, "P6prime_B0Kstar0mumu_1.1_2_CMS", "CMS"); // 126
+        ADD_BIN(O::P_PRIME_8_B0__KSTAR0_MU_MU, 1.1, 2, "P8prime_B0Kstar0mumu_1.1_2_CMS", "CMS"); // 127
+        ADD_BIN(O::F_L_B0__KSTAR0_MU_MU, 2, 4.3, "FL_B0Kstar0mumu_2_4.3_CMS", "CMS"); // 128
+        ADD_BIN(O::P_1_B0__KSTAR0_MU_MU, 2, 4.3, "P1_B0Kstar0mumu_2_4.3_CMS", "CMS"); // 129
+        ADD_BIN(O::P_2_B0__KSTAR0_MU_MU, 2, 4.3, "P2_B0Kstar0mumu_2_4.3_CMS", "CMS"); // 130
+        ADD_BIN(O::P_3_B0__KSTAR0_MU_MU, 2, 4.3, "P3_B0Kstar0mumu_2_4.3_CMS", "CMS"); // 131
+        ADD_BIN(O::P_PRIME_4_B0__KSTAR0_MU_MU, 2, 4.3, "P4prime_B0Kstar0mumu_2_4.3_CMS", "CMS"); // 132
+        ADD_BIN(O::P_PRIME_5_B0__KSTAR0_MU_MU, 2, 4.3, "P5prime_B0Kstar0mumu_2_4.3_CMS", "CMS"); // 133
+        ADD_BIN(O::P_PRIME_6_B0__KSTAR0_MU_MU, 2, 4.3, "P6prime_B0Kstar0mumu_2_4.3_CMS", "CMS"); // 134
+        ADD_BIN(O::P_PRIME_8_B0__KSTAR0_MU_MU, 2, 4.3, "P8prime_B0Kstar0mumu_2_4.3_CMS", "CMS"); // 135
+        ADD_BIN(O::F_L_B0__KSTAR0_MU_MU, 4.3, 6, "FL_B0Kstar0mumu_4.3_6_CMS", "CMS"); // 136
+        ADD_BIN(O::P_1_B0__KSTAR0_MU_MU, 4.3, 6, "P1_B0Kstar0mumu_4.3_6_CMS", "CMS"); // 137
+        ADD_BIN(O::P_2_B0__KSTAR0_MU_MU, 4.3, 6, "P2_B0Kstar0mumu_4.3_6_CMS", "CMS"); // 138
+        ADD_BIN(O::P_3_B0__KSTAR0_MU_MU, 4.3, 6, "P3_B0Kstar0mumu_4.3_6_CMS", "CMS"); // 139
+        ADD_BIN(O::P_PRIME_4_B0__KSTAR0_MU_MU, 4.3, 6, "P4prime_B0Kstar0mumu_4.3_6_CMS", "CMS"); // 140
+        ADD_BIN(O::P_PRIME_5_B0__KSTAR0_MU_MU, 4.3, 6, "P5prime_B0Kstar0mumu_4.3_6_CMS", "CMS"); // 141
+        ADD_BIN(O::P_PRIME_6_B0__KSTAR0_MU_MU, 4.3, 6, "P6prime_B0Kstar0mumu_4.3_6_CMS", "CMS"); // 142
+        ADD_BIN(O::P_PRIME_8_B0__KSTAR0_MU_MU, 4.3, 6, "P8prime_B0Kstar0mumu_4.3_6_CMS", "CMS"); // 143
+        ADD_BIN(O::F_L_B0__KSTAR0_MU_MU, 14.18, 16, "FL_B0Kstar0mumu_14.18_16_CMS", "CMS"); // 144
+        ADD_BIN(O::P_1_B0__KSTAR0_MU_MU, 14.18, 16, "P1_B0Kstar0mumu_14.18_16_CMS", "CMS"); // 145
+        ADD_BIN(O::P_2_B0__KSTAR0_MU_MU, 14.18, 16, "P2_B0Kstar0mumu_14.18_16_CMS", "CMS"); // 146
+        ADD_BIN(O::P_3_B0__KSTAR0_MU_MU, 14.18, 16, "P3_B0Kstar0mumu_14.18_16_CMS", "CMS"); // 147
+        ADD_BIN(O::P_PRIME_4_B0__KSTAR0_MU_MU, 14.18, 16, "P4prime_B0Kstar0mumu_14.18_16_CMS", "CMS"); // 148
+        ADD_BIN(O::P_PRIME_5_B0__KSTAR0_MU_MU, 14.18, 16, "P5prime_B0Kstar0mumu_14.18_16_CMS", "CMS"); // 149
+        ADD_BIN(O::P_PRIME_6_B0__KSTAR0_MU_MU, 14.18, 16, "P6prime_B0Kstar0mumu_14.18_16_CMS", "CMS"); // 150
+        ADD_BIN(O::P_PRIME_8_B0__KSTAR0_MU_MU, 14.18, 16, "P8prime_B0Kstar0mumu_14.18_16_CMS", "CMS"); // 151
+        ADD_BIN(O::DBR_DQ2_BS__PHI_E_E, 0.1, 1.1, "dBR/dq2_Bsphiee_0.1_1.1", "DEFAULT"); // 152
+        ADD_BIN(O::DBR_DQ2_BS__PHI_E_E, 1.1, 6, "dBR/dq2_Bsphiee_1.1_6", "DEFAULT"); // 153
+        ADD_BIN(O::DBR_DQ2_BS__PHI_E_E, 15, 19, "dBR/dq2_Bsphiee_15_19 //[2026-05-24_01] [WARN] Rejected MC nuisance sample 1 while trying to fill accepted sample 1 of 1000 : MC prediction contains non-finite observable", "DEFAULT"); // 154
+        ADD_BIN(O::R_1_BS__PHI_L_L, 0.1, 1.1, "R-1_Bsphill_0.1_1.1", "DEFAULT"); // 155
+        ADD_BIN(O::R_1_BS__PHI_L_L, 1.1, 6, "R-1_Bsphill_1.1_6", "DEFAULT"); // 156
+        ADD_BIN(O::R_1_BS__PHI_L_L, 15, 19, "R-1_Bsphill_15_19 //[2026-05-24_01] [WARN] Rejected MC nuisance sample 1 while trying to fill accepted sample 1 of 1000 : MC prediction contains non-finite observable", "DEFAULT"); // 157
+        ADD_BIN(O::F_L_BS_PHI_E_E, 0.0009, 0.2615, "FL_Bsphiee_0.0009_0.2615 //[2026-05-24_01] [WARN] Rejected MC nuisance sample 1 while trying to fill accepted sample 1 of 1000 : MC prediction contains non-finite observable", "DEFAULT"); // 158
+        ADD_BIN(O::A_T_2_BS_PHI_E_E, 0.0009, 0.2615, "AT2_Bsphiee_0.0009_0.2615 //[2026-05-24_01] [WARN] Rejected MC nuisance sample 1 while trying to fill accepted sample 1 of 1000 : MC prediction contains non-finite observable", "DEFAULT"); // 159
+        ADD_BIN(O::A_T_2_B0__KSTAR0_E_E, 0.0008, 1.12, "AT2_B0Kstar0ee_0.0008_1.12_Belle //[2026-05-24_01] [WARN] Rejected MC nuisance sample 1 while trying to fill accepted sample 1 of 1000 : MC prediction contains non-finite observable", "Belle"); // 160
+        ADD_BIN(O::F_L_B0__KSTAR0_E_E, 1.1, 6, "FL_B0Kstar0ee_1.1_6", "DEFAULT"); // 161
+        ADD_BIN(O::P_1_B0__KSTAR0_E_E, 1.1, 6, "P1_B0Kstar0ee_1.1_6", "DEFAULT"); // 162
+        ADD_BIN(O::P_2_B0__KSTAR0_E_E, 1.1, 6, "P2_B0Kstar0ee_1.1_6", "DEFAULT"); // 163
+        ADD_BIN(O::P_3_B0__KSTAR0_E_E, 1.1, 6, "P3_B0Kstar0ee_1.1_6", "DEFAULT"); // 164
+        ADD_BIN(O::P_PRIME_4_B0__KSTAR0_E_E, 1.1, 6, "P4prime_B0Kstar0ee_1.1_6", "DEFAULT"); // 165
+        ADD_BIN(O::P_PRIME_5_B0__KSTAR0_E_E, 1.1, 6, "P5prime_B0Kstar0ee_1.1_6", "DEFAULT"); // 166
+        ADD_BIN(O::P_PRIME_6_B0__KSTAR0_E_E, 1.1, 6, "P6prime_B0Kstar0ee_1.1_6", "DEFAULT"); // 167
+        ADD_BIN(O::P_PRIME_8_B0__KSTAR0_E_E, 1.1, 6, "P8prime_B0Kstar0ee_1.1_6", "DEFAULT"); // 168
+        ADD_BIN(O::F_L_B0__KSTAR0_MU_MU, 0.06, 0.98, "FL_B0Kstar0mumu_0.06_0.98_LHCb2025c2", "LHCb2025c2"); // 169
+        ADD_BIN(O::S_2S_B0__KSTAR0_MU_MU, 0.06, 0.98, "S2s_B0Kstar0mumu_0.06_0.98_LHCb2025c2", "LHCb2025c2"); // 170
+        ADD_BIN(O::S_1C_B0__KSTAR0_MU_MU, 0.06, 0.98, "S1c_B0Kstar0mumu_0.06_0.98_LHCb2025c2", "LHCb2025c2"); // 171
+        ADD_BIN(O::P_1_B0__KSTAR0_MU_MU, 0.06, 0.98, "P1_B0Kstar0mumu_0.06_0.98_LHCb2025c2", "LHCb2025c2"); // 172
+        ADD_BIN(O::P_2_B0__KSTAR0_MU_MU, 0.06, 0.98, "P2_B0Kstar0mumu_0.06_0.98_LHCb2025c2", "LHCb2025c2"); // 173
+        ADD_BIN(O::P_3_B0__KSTAR0_MU_MU, 0.06, 0.98, "P3_B0Kstar0mumu_0.06_0.98_LHCb2025c2", "LHCb2025c2"); // 174
+        ADD_BIN(O::P_PRIME_4_B0__KSTAR0_MU_MU, 0.06, 0.98, "P4prime_B0Kstar0mumu_0.06_0.98_LHCb2025c2", "LHCb2025c2"); // 175
+        ADD_BIN(O::P_PRIME_5_B0__KSTAR0_MU_MU, 0.06, 0.98, "P5prime_B0Kstar0mumu_0.06_0.98_LHCb2025c2", "LHCb2025c2"); // 176
+        ADD_BIN(O::P_PRIME_6_B0__KSTAR0_MU_MU, 0.06, 0.98, "P6prime_B0Kstar0mumu_0.06_0.98_LHCb2025c2", "LHCb2025c2"); // 177
+        ADD_BIN(O::P_PRIME_8_B0__KSTAR0_MU_MU, 0.06, 0.98, "P8prime_B0Kstar0mumu_0.06_0.98_LHCb2025c2", "LHCb2025c2"); // 178
+        ADD_BIN(O::S_6C_B0__KSTAR0_MU_MU, 0.06, 0.98, "S6c_B0Kstar0mumu_0.06_0.98_LHCb2025c2", "LHCb2025c2"); // 179
+        ADD_BIN(O::DBR_DQ2_B0__KSTAR0_MU_MU, 0.06, 0.98, "dBR/dq2_B0Kstar0mumu_0.06_0.98_LHCb2025c2", "LHCb2025c2"); // 180
+        ADD_BIN(O::F_L_B0__KSTAR0_MU_MU, 1.1, 2.5, "FL_B0Kstar0mumu_1.1_2.5_LHCb2025c2", "LHCb2025c2"); // 181
+        ADD_BIN(O::S_1C_B0__KSTAR0_MU_MU, 1.1, 2.5, "S1c_B0Kstar0mumu_1.1_2.5_LHCb2025c2", "LHCb2025c2"); // 182
+        ADD_BIN(O::P_1_B0__KSTAR0_MU_MU, 1.1, 2.5, "P1_B0Kstar0mumu_1.1_2.5_LHCb2025c2", "LHCb2025c2"); // 183
+        ADD_BIN(O::P_2_B0__KSTAR0_MU_MU, 1.1, 2.5, "P2_B0Kstar0mumu_1.1_2.5_LHCb2025c2", "LHCb2025c2"); // 184
+        ADD_BIN(O::P_3_B0__KSTAR0_MU_MU, 1.1, 2.5, "P3_B0Kstar0mumu_1.1_2.5_LHCb2025c2", "LHCb2025c2"); // 185
+        ADD_BIN(O::P_PRIME_4_B0__KSTAR0_MU_MU, 1.1, 2.5, "P4prime_B0Kstar0mumu_1.1_2.5_LHCb2025c2", "LHCb2025c2"); // 186
+        ADD_BIN(O::P_PRIME_5_B0__KSTAR0_MU_MU, 1.1, 2.5, "P5prime_B0Kstar0mumu_1.1_2.5_LHCb2025c2", "LHCb2025c2"); // 187
+        ADD_BIN(O::P_PRIME_6_B0__KSTAR0_MU_MU, 1.1, 2.5, "P6prime_B0Kstar0mumu_1.1_2.5_LHCb2025c2", "LHCb2025c2"); // 188
+        ADD_BIN(O::P_PRIME_8_B0__KSTAR0_MU_MU, 1.1, 2.5, "P8prime_B0Kstar0mumu_1.1_2.5_LHCb2025c2", "LHCb2025c2"); // 189
+        ADD_BIN(O::DBR_DQ2_B0__KSTAR0_MU_MU, 1.1, 2.5, "dBR/dq2_B0Kstar0mumu_1.1_2.5_LHCb2025c2", "LHCb2025c2"); // 190
+        ADD_BIN(O::F_L_B0__KSTAR0_MU_MU, 2.5, 4, "FL_B0Kstar0mumu_2.5_4.0_LHCb2025c2", "LHCb2025c2"); // 191
+        ADD_BIN(O::S_1C_B0__KSTAR0_MU_MU, 2.5, 4, "S1c_B0Kstar0mumu_2.5_4.0_LHCb2025c2", "LHCb2025c2"); // 192
+        ADD_BIN(O::P_1_B0__KSTAR0_MU_MU, 2.5, 4, "P1_B0Kstar0mumu_2.5_4.0_LHCb2025c2", "LHCb2025c2"); // 193
+        ADD_BIN(O::P_2_B0__KSTAR0_MU_MU, 2.5, 4, "P2_B0Kstar0mumu_2.5_4.0_LHCb2025c2", "LHCb2025c2"); // 194
+        ADD_BIN(O::P_3_B0__KSTAR0_MU_MU, 2.5, 4, "P3_B0Kstar0mumu_2.5_4.0_LHCb2025c2", "LHCb2025c2"); // 195
+        ADD_BIN(O::P_PRIME_4_B0__KSTAR0_MU_MU, 2.5, 4, "P4prime_B0Kstar0mumu_2.5_4.0_LHCb2025c2", "LHCb2025c2"); // 196
+        ADD_BIN(O::P_PRIME_5_B0__KSTAR0_MU_MU, 2.5, 4, "P5prime_B0Kstar0mumu_2.5_4.0_LHCb2025c2", "LHCb2025c2"); // 197
+        ADD_BIN(O::P_PRIME_6_B0__KSTAR0_MU_MU, 2.5, 4, "P6prime_B0Kstar0mumu_2.5_4.0_LHCb2025c2", "LHCb2025c2"); // 198
+        ADD_BIN(O::P_PRIME_8_B0__KSTAR0_MU_MU, 2.5, 4, "P8prime_B0Kstar0mumu_2.5_4.0_LHCb2025c2", "LHCb2025c2"); // 199
+        ADD_BIN(O::DBR_DQ2_B0__KSTAR0_MU_MU, 2.5, 4, "dBR/dq2_B0Kstar0mumu_2.5_4.0_LHCb2025c2", "LHCb2025c2"); // 200
+        ADD_BIN(O::F_L_B0__KSTAR0_MU_MU, 4, 6, "FL_B0Kstar0mumu_4.0_6.0_LHCb2025c2", "LHCb2025c2"); // 201
+        ADD_BIN(O::S_1C_B0__KSTAR0_MU_MU, 4, 6, "S1c_B0Kstar0mumu_4.0_6.0_LHCb2025c2", "LHCb2025c2"); // 202
+        ADD_BIN(O::P_1_B0__KSTAR0_MU_MU, 4, 6, "P1_B0Kstar0mumu_4.0_6.0_LHCb2025c2", "LHCb2025c2"); // 203
+        ADD_BIN(O::P_2_B0__KSTAR0_MU_MU, 4, 6, "P2_B0Kstar0mumu_4.0_6.0_LHCb2025c2", "LHCb2025c2"); // 204
+        ADD_BIN(O::P_3_B0__KSTAR0_MU_MU, 4, 6, "P3_B0Kstar0mumu_4.0_6.0_LHCb2025c2", "LHCb2025c2"); // 205
+        ADD_BIN(O::P_PRIME_4_B0__KSTAR0_MU_MU, 4, 6, "P4prime_B0Kstar0mumu_4.0_6.0_LHCb2025c2", "LHCb2025c2"); // 206
+        ADD_BIN(O::P_PRIME_5_B0__KSTAR0_MU_MU, 4, 6, "P5prime_B0Kstar0mumu_4.0_6.0_LHCb2025c2", "LHCb2025c2"); // 207
+        ADD_BIN(O::P_PRIME_6_B0__KSTAR0_MU_MU, 4, 6, "P6prime_B0Kstar0mumu_4.0_6.0_LHCb2025c2", "LHCb2025c2"); // 208
+        ADD_BIN(O::P_PRIME_8_B0__KSTAR0_MU_MU, 4, 6, "P8prime_B0Kstar0mumu_4.0_6.0_LHCb2025c2", "LHCb2025c2"); // 209
+        ADD_BIN(O::DBR_DQ2_B0__KSTAR0_MU_MU, 4, 6, "dBR/dq2_B0Kstar0mumu_4.0_6.0_LHCb2025c2", "LHCb2025c2"); // 210
+        ADD_BIN(O::F_L_B0__KSTAR0_MU_MU, 15, 17, "FL_B0Kstar0mumu_15.0_17.0_LHCb2025c2", "LHCb2025c2"); // 211
+        ADD_BIN(O::S_1C_B0__KSTAR0_MU_MU, 15, 17, "S1c_B0Kstar0mumu_15.0_17.0_LHCb2025c2", "LHCb2025c2"); // 212
+        ADD_BIN(O::P_1_B0__KSTAR0_MU_MU, 15, 17, "P1_B0Kstar0mumu_15.0_17.0_LHCb2025c2", "LHCb2025c2"); // 213
+        ADD_BIN(O::P_2_B0__KSTAR0_MU_MU, 15, 17, "P2_B0Kstar0mumu_15.0_17.0_LHCb2025c2", "LHCb2025c2"); // 214
+        ADD_BIN(O::P_3_B0__KSTAR0_MU_MU, 15, 17, "P3_B0Kstar0mumu_15.0_17.0_LHCb2025c2", "LHCb2025c2"); // 215
+        ADD_BIN(O::P_PRIME_4_B0__KSTAR0_MU_MU, 15, 17, "P4prime_B0Kstar0mumu_15.0_17.0_LHCb2025c2", "LHCb2025c2"); // 216
+        ADD_BIN(O::P_PRIME_5_B0__KSTAR0_MU_MU, 15, 17, "P5prime_B0Kstar0mumu_15.0_17.0_LHCb2025c2", "LHCb2025c2"); // 217
+        ADD_BIN(O::P_PRIME_6_B0__KSTAR0_MU_MU, 15, 17, "P6prime_B0Kstar0mumu_15.0_17.0_LHCb2025c2", "LHCb2025c2"); // 218
+        ADD_BIN(O::P_PRIME_8_B0__KSTAR0_MU_MU, 15, 17, "P8prime_B0Kstar0mumu_15.0_17.0_LHCb2025c2", "LHCb2025c2"); // 219
+        ADD_BIN(O::DBR_DQ2_B0__KSTAR0_MU_MU, 15, 17, "dBR/dq2_B0Kstar0mumu_15.0_17.0_LHCb2025c2", "LHCb2025c2"); // 220
+        ADD_BIN(O::F_L_B0__KSTAR0_MU_MU, 17, 19, "FL_B0Kstar0mumu_17.0_19.0_LHCb2025c2", "LHCb2025c2"); // 221
+        ADD_BIN(O::S_1C_B0__KSTAR0_MU_MU, 17, 19, "S1c_B0Kstar0mumu_17.0_19.0_LHCb2025c2", "LHCb2025c2"); // 222
+        ADD_BIN(O::P_1_B0__KSTAR0_MU_MU, 17, 19, "P1_B0Kstar0mumu_17.0_19.0_LHCb2025c2", "LHCb2025c2"); // 223
+        ADD_BIN(O::P_2_B0__KSTAR0_MU_MU, 17, 19, "P2_B0Kstar0mumu_17.0_19.0_LHCb2025c2", "LHCb2025c2"); // 224
+        ADD_BIN(O::P_3_B0__KSTAR0_MU_MU, 17, 19, "P3_B0Kstar0mumu_17.0_19.0_LHCb2025c2", "LHCb2025c2"); // 225
+        ADD_BIN(O::P_PRIME_4_B0__KSTAR0_MU_MU, 17, 19, "P4prime_B0Kstar0mumu_17.0_19.0_LHCb2025c2", "LHCb2025c2"); // 226
+        ADD_BIN(O::P_PRIME_5_B0__KSTAR0_MU_MU, 17, 19, "P5prime_B0Kstar0mumu_17.0_19.0_LHCb2025c2", "LHCb2025c2"); // 227
+        ADD_BIN(O::P_PRIME_6_B0__KSTAR0_MU_MU, 17, 19, "P6prime_B0Kstar0mumu_17.0_19.0_LHCb2025c2", "LHCb2025c2"); // 228
+        ADD_BIN(O::P_PRIME_8_B0__KSTAR0_MU_MU, 17, 19, "P8prime_B0Kstar0mumu_17.0_19.0_LHCb2025c2", "LHCb2025c2"); // 229
+        ADD_BIN(O::DBR_DQ2_B0__KSTAR0_MU_MU, 17, 19, "dBR/dq2_B0Kstar0mumu_17.0_19.0_LHCb2025c2", "LHCb2025c2"); // 230
 
-    // auto us_m = std::chrono::duration_cast<std::chrono::microseconds>(stop_m - start_m).count();
-    // std::cout << "\nMLE (Minuit) fitting time: " << us_m << " us\n";
+#undef ADD_BIN
+#undef ADD_UNBINNED
 
-    // std::cout << "ell_hat = " << std::setprecision(17) << fr.ell_hat << "\n";
-    // std::cout << "p_hat = "; print_vec(fr.p_hat);
-    // std::cout << "p_hat_std = "; print_vec(fr.p_hat_std);
-    // std::cout << "p_hat_correlations:\n" << fr.p_hat_correlations << "\n";
+        std::cout << "[INFO] Registered rows: " << rows.size() << "\n";
+        std::cout << "[INFO] Unique unbinned: " << seen_unbinned.size()
+                  << ", unique binned: " << seen_binned.size() << "\n";
 
-    // if (!mj.ok) {
-    //     std::cerr << "[ERROR] Minuit fit invalid.\n";
-    //     return 5;
-    // }
+        const auto all_theory = oint->compute_all();
 
-    // if (!mj.has_valid_covar || !mj.has_posdef_covar) {
-    //     std::cerr << "[WARN] Covariance is not fully healthy."
-    //               << " valid=" << mj.has_valid_covar
-    //               << " posdef=" << mj.has_posdef_covar
-    //               << " accurate=" << mj.has_accurate_covar
-    //               << " cond=" << mj.cond_number << "\n";
-    // }
+        std::vector<RankedObs> ranked;
+        ranked.reserve(rows.size());
 
-    // std::vector<std::string> p_names;
-    // for (const auto& pid : built.p_ids) p_names.push_back(to_string_any(pid));
-    // CsvExporter::save_bestfit("bestfit.csv", p_names, fr.p_hat, fr.p_hat_std);
-    // std::cout << "[INFO] Wrote bestfit.csv\n";
+        for (const auto& row : rows) {
+            RankedObs r;
+            r.row = row;
+            r.experiment = row.experiment;
+            std::ostringstream error;
 
-    // if (built.p_ids.size() == 2) {
-    //     ContourComputationInput contour_input;
-    //     contour_input.xname = to_string_any(built.p_ids[0]);
-    //     contour_input.yname = to_string_any(built.p_ids[1]);
-    //     contour_input.px = 0;
-    //     contour_input.py = 1;
-    //     contour_input.best_fval = fr.ell_hat;
-    //     contour_input.p_hat = fr.p_hat;
-    //     contour_input.p_std = fr.p_hat_std;
-    //     contour_input.problem = fit_out.problem;
-    //     contour_input.best_fit = fit_out.mj;
+            try {
+                r.key = flha_key(row.id);
+                r.flha_code = flha_observable_code(row.id);
+                r.quantity = quantity_from_enum_name(row.obs_name);
+                r.flha_enum_ok = flha_code_matches_enum_quantity(row.obs_name, r.flha_code);
+                if (!r.flha_enum_ok) {
+                    error << "flha_enum_quantity_mismatch:obs=" << row.obs_name
+                          << ",flha_code=" << r.flha_code << ";";
+                }
 
-    //     FallbackContourStrategy contour_strategy(
-    //         std::make_unique<MnContoursStrategy>(),
-    //         std::make_unique<GridProfileContourStrategy>()
-    //     );
+                const std::string resolved = choose_available_experiment(row, r.key);
+                if (!resolved.empty()) {
+                    r.experiment = resolved;
+                } else {
+                    error << "exp_key_not_found_in_known_FOBS_blocks:" << r.key << ";";
+                }
+            } catch (const std::exception& e) {
+                error << "flha_key_exception:" << e.what() << ";";
+            } catch (...) {
+                error << "flha_key_unknown_exception;";
+            }
 
-    //     ContourComputationResult contour_result = contour_strategy.compute(contour_input);
+            try {
+                const auto obs_id = row.id.s;
+                auto it = all_theory.find(obs_id);
+                if (it != all_theory.end()) {
+                    r.theory_ok = find_theory_value(it->second, row, r.theory);
+                }
+                if (!r.theory_ok) {
+                    error << "theory_not_found_for_bin;";
+                }
+            } catch (const std::exception& e) {
+                error << "theory_exception:" << e.what() << ";";
+            } catch (...) {
+                error << "theory_unknown_exception;";
+            }
 
-    //     if (!contour_result.success) {
-    //         std::cerr << "[ERROR] Contour computation failed.\n";
-    //         return 6;
-    //     }
+            if (!r.key.empty() && has_exp_key(r.experiment, r.key)) {
+                try {
+                    r.exp = get_exp_value_for_row(oint, row, r.experiment);
+                    r.exp_ok = std::isfinite(r.exp);
+                } catch (const std::exception& e) {
+                    error << "exp_exception:" << e.what() << ";";
+                } catch (...) {
+                    error << "exp_unknown_exception;";
+                }
 
-    //     if (contour_result.used_grid) {
-    //         CsvExporter::save_grid("grid.csv",
-    //                                contour_input.xname,
-    //                                contour_input.yname,
-    //                                contour_result.xs,
-    //                                contour_result.ys,
-    //                                contour_result.z);
-    //         std::cout << "[INFO] Wrote grid.csv\n";
+                try {
+                    r.stat = get_exp_stat_for_row(oint, row, r.experiment);
+                    r.stat_ok = std::isfinite(r.stat);
+                } catch (const std::exception& e) {
+                    error << "stat_exception:" << e.what() << ";";
+                } catch (...) {
+                    error << "stat_unknown_exception;";
+                }
 
-    //         double best_grid = 1e300;
-    //         std::size_t best_ix = 0;
-    //         std::size_t best_iy = 0;
-    //         const std::size_t nx = contour_result.xs.size();
-    //         const std::size_t ny = contour_result.ys.size();
+                try {
+                    r.combined = get_exp_combined_for_row(oint, row, r.experiment);
+                    r.combined_ok = std::isfinite(r.combined);
+                    if (r.combined_ok && r.stat_ok) {
+                        const double syst2 = r.combined * r.combined - r.stat * r.stat;
+                        r.syst_from_combined = (syst2 > 0.0) ? std::sqrt(syst2) : 0.0;
+                    }
+                } catch (const std::exception& e) {
+                    error << "combined_exception:" << e.what() << ";";
+                } catch (...) {
+                    error << "combined_unknown_exception;";
+                }
+            } else {
+                error << "skip_exp_lookup_missing_key;";
+            }
 
-    //         for (std::size_t iy = 0; iy < ny; ++iy) {
-    //             for (std::size_t ix = 0; ix < nx; ++ix) {
-    //                 double val = contour_result.z[iy * nx + ix];
-    //                 if (val < best_grid) {
-    //                     best_grid = val;
-    //                     best_ix = ix;
-    //                     best_iy = iy;
-    //                 }
-    //             }
-    //         }
+            if (r.theory_ok && r.exp_ok) {
+                r.delta = r.theory - r.exp;
+                if (r.exp != 0.0) {
+                    r.rel_delta = r.delta / r.exp;
+                    r.ratio = r.theory / r.exp;
+                }
+            }
 
-    //         std::cout << "[INFO] grid min delta_nll = " << best_grid
-    //                   << " at (" << contour_result.xs[best_ix] << ", "
-    //                   << contour_result.ys[best_iy] << ")\n";
-    //         std::cout << "[INFO] best-fit           = (" << fr.p_hat[0] << ", " << fr.p_hat[1] << ")\n";
-    //     } else {
-    //         CsvExporter::save_contours("contours.csv",
-    //                                    contour_input.xname,
-    //                                    contour_input.yname,
-    //                                    contour_result.c68,
-    //                                    contour_result.c95);
-    //         std::cout << "[INFO] Wrote contours.csv\n";
-    //     }
-    // }
+            if (r.theory_ok && r.exp_ok && r.stat_ok && r.stat > 0.0) {
+                r.pull = r.delta / r.stat;
+                r.usable = std::isfinite(r.pull);
+            }
 
-    return 0;
+            r.error = error.str();
+            if (r.usable) {
+                ranked.push_back(r);
+            }
+        }
+
+        std::sort(ranked.begin(), ranked.end(), [](const RankedObs& a, const RankedObs& b) {
+            const double ap = std::abs(a.pull);
+            const double bp = std::abs(b.pull);
+            if (ap != bp) return ap > bp;
+            return std::abs(a.delta) > std::abs(b.delta);
+        });
+
+        const std::size_t n = std::min(top_n, ranked.size());
+        std::cout << "\n";
+        std::cout << "########################################################################\n";
+        std::cout << "# TOP " << n << " largest theory/experiment discrepancies\n";
+        std::cout << "# Ranking: descending |pull| = |theory - exp| / stat_unc\n";
+        std::cout << "# Total usable rows: " << ranked.size() << " / " << rows.size() << "\n";
+        std::cout << "########################################################################\n";
+
+        for (std::size_t i = 0; i < n; ++i) {
+            print_ranked_obs_card(ranked[i], i + 1);
+        }
+
+        std::cout << "\n======================================================================\n";
+        std::cout << "Compact summary\n";
+        std::cout << "======================================================================\n";
+        std::cout << std::left
+                  << std::setw(5)  << "rank"
+                  << std::setw(9)  << "idx"
+                  << std::setw(14) << "|pull|"
+                  << std::setw(14) << "th/exp"
+                  << std::setw(16) << "delta"
+                  << std::setw(13) << "stat"
+                  << "label\n";
+        std::cout << std::string(110, '-') << "\n";
+        for (std::size_t i = 0; i < n; ++i) {
+            const RankedObs& r = ranked[i];
+            std::cout << std::left
+                      << std::setw(5)  << (i + 1)
+                      << std::setw(9)  << r.row.index
+                      << std::setw(14) << fmt_num(std::abs(r.pull), 4)
+                      << std::setw(14) << fmt_num(r.ratio, 4)
+                      << std::setw(16) << fmt_signed(r.delta, 4)
+                      << std::setw(13) << fmt_num(r.stat, 4)
+                      << r.row.label << "\n";
+        }
+
+        oint->add_observable(BinnedObservableId(ObservableMapper::to_id(Observables::DGAMMA_DQ2_B0__KSTAR0_MU_MU), {17.0, 19.0}), QCDOrder::NNLO, true);
+
+        for (auto&& elem : oint->compute_observable(ObservableMapper::to_id(Observables::DBR_DQ2_B0__KSTAR0_MU_MU)))
+            LOG_INFO("[", elem.bin.value().first, ",", elem.bin.value().second, "]", elem.value);
+            
+        std::cout << "\n[INFO] Done. Pass an integer argument to change the number of printed rows, e.g. ./main_top_obs 20\n";
+        return 0;
+
+    } catch (const std::exception& e) {
+        std::cerr << "[FATAL] " << e.what() << "\n";
+        return 1;
+    } catch (...) {
+        std::cerr << "[FATAL] Unknown exception\n";
+        return 1;
+    }
 }

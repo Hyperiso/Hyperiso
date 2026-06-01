@@ -173,7 +173,8 @@ struct BKllCache {
     // Lookups
     static inline constexpr size_t LOOKUP_SIZE = 50;
     std::array<scalar_t, LOOKUP_SIZE> T_P_lookup;
-    std::array<std::vector<double>, 3> abc_binned; 
+    std::array<std::vector<double>, 3> abc_binned;
+    std::vector<double> bin_widths;  // effective integration widths used for bin-averaged dBR/dq2 / dGamma/dq2
 };
 
 /**

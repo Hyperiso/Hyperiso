@@ -1415,6 +1415,7 @@ void BKllDecay::compute_binned_abc() {
     for (auto& v : cache.abc_binned) {
         v.clear();
     }
+    cache.bin_widths.clear();
 
     if (!this->bins.has_value()) {
         LOG_WARN("BKllDecay::compute_binned_abc called without bins.");
@@ -1461,8 +1462,11 @@ void BKllDecay::compute_binned_abc() {
             cache.abc_binned[0].emplace_back(std::numeric_limits<double>::quiet_NaN());
             cache.abc_binned[1].emplace_back(std::numeric_limits<double>::quiet_NaN());
             cache.abc_binned[2].emplace_back(std::numeric_limits<double>::quiet_NaN());
+            cache.bin_widths.emplace_back(std::numeric_limits<double>::quiet_NaN());
             continue;
         }
+
+        const double width = high - low;
 
         try {
             cache.abc_binned[0].emplace_back(
@@ -1474,6 +1478,8 @@ void BKllDecay::compute_binned_abc() {
             cache.abc_binned[2].emplace_back(
                 integrate([&](double q2) { return c(q2); }, low, high, 1e-3)
             );
+
+            cache.bin_widths.emplace_back(width);
         } catch (const std::exception& e) {
             LOG_WARN(
                 "BKll integration failed for bin [",
@@ -1491,6 +1497,7 @@ void BKllDecay::compute_binned_abc() {
             cache.abc_binned[0].emplace_back(std::numeric_limits<double>::quiet_NaN());
             cache.abc_binned[1].emplace_back(std::numeric_limits<double>::quiet_NaN());
             cache.abc_binned[2].emplace_back(std::numeric_limits<double>::quiet_NaN());
+            cache.bin_widths.emplace_back(std::numeric_limits<double>::quiet_NaN());
         }
     }
 }
@@ -1498,10 +1505,27 @@ void BKllDecay::compute_binned_abc() {
 std::vector<ObservableValue> BKllDecay::dBR_dq2(Observables oid, bool br) {
     std::vector<ObservableValue> out;
     double br_factor = br ? cache.life_B : 1.0;
+
     for (size_t i = 0; i < this->bins.value().size(); i++) {
-        double res = 2 * (cache.abc_binned[0][i] + cache.abc_binned[2][i] / 3.) * br_factor; 
+        const double integrated_rate = 2.0 * (cache.abc_binned[0][i] + cache.abc_binned[2][i] / 3.0);
+
+        // compute_binned_abc() integrates a,b,c over q².
+        // DBR_DQ2 / DGAMMA_DQ2 should be the bin-averaged differential quantity,
+        // i.e. (1 / Δq²_eff) * ∫_bin dBR/dq² dq².
+        const double requested_width = this->bins.value()[i].second - this->bins.value()[i].first;
+        const double width =
+            (i < cache.bin_widths.size() && std::isfinite(cache.bin_widths[i]) && cache.bin_widths[i] > 0.0)
+            ? cache.bin_widths[i]
+            : requested_width;
+
+        const double res =
+            (std::isfinite(width) && width > 0.0)
+            ? integrated_rate * br_factor / width
+            : std::numeric_limits<double>::quiet_NaN();
+
         out.emplace_back(ObservableMapper::to_id(oid), res, this->bins.value()[i]);
-    }   
+    }
+
     return out;
 }
 
