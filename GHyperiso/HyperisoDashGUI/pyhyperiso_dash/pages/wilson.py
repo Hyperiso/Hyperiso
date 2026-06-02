@@ -56,7 +56,7 @@ def layout():
                                         html.Button("Build / rebuild", id="wilson-build-btn", n_clicks=0),
                                         html.Button("Add selected groups", id="wilson-add-btn", n_clicks=0),
                                     ]),
-                                    status_box("wilson-build-status", "WilsonInterface is not built yet."),
+                                    status_box("wilson-build-status", svc.wilson_status_text()),
                                 ]),
                             ),
                             card(

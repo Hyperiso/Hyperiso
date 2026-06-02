@@ -10,6 +10,24 @@ from pyhyperiso.core.Core.HyperisoConfig import ExternalFlag
 FLAG_OPTIONS = enum_options(ExternalFlag, exclude={"HAS_TH_OBSERVABLE_INPUT"})
 
 
+def core_status_text():
+    s = svc.runtime_summary()
+    if not s["initialized"]:
+        return "Hyperiso is not initialized yet."
+    return f"Hyperiso is initialized. Model: {s['model']}. LHA: {s['lha_path']}"
+
+
+def runtime_metrics_children():
+    s = svc.runtime_summary()
+    return [
+        metric("Runtime", "ON" if s["initialized"] else "OFF", "Hyperiso singleton", "good" if s["initialized"] else "bad"),
+        metric("Model", s["model"], "active config"),
+        metric("LHA", "set" if s["lha_path"] != "—" else "—", s["lha_path"]),
+        metric("Wilson", "built" if s["wilson_built"] else "not built", "current session", "good" if s["wilson_built"] else ""),
+        metric("Observables", str(s.get("observable_count", 0)), "configured entries", "good" if s.get("observable_count", 0) else ""),
+    ]
+
+
 def layout():
     return html.Div(
         children=[
@@ -37,7 +55,7 @@ def layout():
                                         ),
                                         html.Div(id="core-marty-path-wrap", children=field("MARTY model path", text_input("core-marty-path", "/my/custom/marty/path"))),
                                         html.Button("Initialize / switch active LHA", id="core-init-btn", n_clicks=0),
-                                        status_box("core-status", "Hyperiso is not initialized yet."),
+                                        status_box("core-status", core_status_text()),
                                     ]
                                 ),
                             ),
@@ -63,7 +81,7 @@ def layout():
                     html.Div(
                         className="grid",
                         children=[
-                            html.Div(id="core-metrics", className="metrics-row", children=[metric("Runtime", "OFF", "Hyperiso singleton", "bad"), metric("Model", "—", "active config"), metric("LHA", "—", "input"), metric("Wilson", "not built", "current session"), metric("Observables", "not built", "current session")]),
+                            html.Div(id="core-metrics", className="metrics-row", children=runtime_metrics_children()),
                             card("Block inventory", "all ParameterType namespaces", graph("core-block-inventory-fig", height=430), className="card graph-card"),
                             card("Block content", "values and uncertainties when available", data_table("core-block-table", ["code", "value", "stat_std", "syst_std", "combined_std", "scale", "bin"], page_size=16)),
                             card("Block value distribution", "with combined uncertainty error bars if readable", graph("core-block-values-fig", height=430), className="card graph-card"),

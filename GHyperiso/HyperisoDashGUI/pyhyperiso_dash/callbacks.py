@@ -268,7 +268,7 @@ def register_callbacks(app):
     def build_observables(_, mode, obs, decays, order, deps, use_bin, low, high, smooth, sm_min, sm_max, sm_step):
         try:
             rows = svc.build_observables(mode, obs, decays, order, "deps" in (deps or []), "bin" in (use_bin or []), low, high, "smooth" in (smooth or []), sm_min, sm_max, sm_step)
-            return rows, f"Configured {len(rows)} observable/bin entries."
+            return rows, f"Configured {len(rows)} requested entries. {svc.observable_status_text()}"
         except Exception as exc:
             return [], _err("Observable configuration failed.", exc)
 
@@ -321,6 +321,44 @@ def register_callbacks(app):
             return empty_fig("Observable scan failed"), _err("Observable scan failed.", exc)
 
     # ---------- Stat ----------
+    @app.callback(
+        Output("stat-observable-table", "data"),
+        Output("stat-observable-status", "children"),
+        Input("stat-configure-obs-btn", "n_clicks"),
+        State("stat-obs-mode", "value"),
+        State("stat-obs-obs", "value"),
+        State("stat-obs-decays", "value"),
+        State("stat-obs-order", "value"),
+        State("stat-obs-deps", "value"),
+        State("stat-obs-bin-strategy", "value"),
+        State("stat-obs-bin-low", "value"),
+        State("stat-obs-bin-high", "value"),
+        State("stat-obs-smooth-min", "value"),
+        State("stat-obs-smooth-max", "value"),
+        State("stat-obs-smooth-step", "value"),
+        prevent_initial_call=True,
+    )
+    def configure_stat_observables(_, mode, obs, decays, order, deps, bin_strategy, bin_low, bin_high, sm_min, sm_max, sm_step):
+        try:
+            rows = svc.configure_stat_observables(
+                mode,
+                obs,
+                decays,
+                order,
+                "deps" in (deps or []),
+                bin_strategy,
+                bin_low,
+                bin_high,
+                sm_min,
+                sm_max,
+                sm_step,
+            )
+            for row in rows:
+                row["registered"] = True
+            return rows, f"Configured {len(rows)} requested entries. {svc.stat_observable_status_text()}"
+        except Exception as exc:
+            return [], _err("Statistic observable configuration failed.", exc)
+
     @app.callback(
         Output("stat-p-specs-table", "data"),
         Input("stat-add-pspec-btn", "n_clicks"),

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dash import dcc, html
 
+from pyhyperiso_dash import services as svc
 from pyhyperiso_dash.components import card, data_table, dropdown, enum_options, field, graph, num_input, page_title, small_note, status_box, text_input
 from pyhyperiso.core.Common.GeneralEnum import Decays, Observables, ParameterType, QCDOrder
 
@@ -58,7 +59,12 @@ def layout():
         page_title("Statistic interface", "χ² uncertainty propagation, best fits and two-parameter likelihood contours.", "Stat"),
         html.Div(className="page-grid", children=[
             html.Div(className="grid", children=[
-                card("Observable selection", "used by StatisticInterface", html.Div([observable_selection("stat-obs"), bin_controls("stat-obs")])) ,
+                card("Observable selection", "persistent Statistic ObservableInterface", html.Div([
+                    observable_selection("stat-obs"),
+                    bin_controls("stat-obs"),
+                    html.Button("Configure Statistic ObservableInterface", id="stat-configure-obs-btn", n_clicks=0),
+                    status_box("stat-observable-status", svc.stat_observable_status_text()),
+                ])),
                 card("StatisticConfig", "χ²-only controls", stat_config_controls()),
                 card("Uncertainty plot", "MC propagation", html.Div([
                     field("Uncertainty display", dcc.RadioItems(id="stat-uncertainty-mode", options=[{"label": "symmetric σ", "value": "sym"}, {"label": "asymmetric σ−/σ+", "value": "asym"}], value="sym", className="checklist")),
@@ -80,6 +86,7 @@ def layout():
                 ])),
             ]),
             html.Div(className="grid", children=[
+                card("Configured stat observables", "selection expanded from decay and bins", data_table("stat-observable-table", ["observable", "bin_low", "bin_high", "order", "registered"], page_size=12)),
                 card("Uncertainty table", "GaussianSummary", data_table("stat-uncertainty-table", ["observable", "bin_low", "bin_high", "central", "mu", "mode", "sigma", "sigma_minus", "sigma_plus", "skew", "symmetric"], page_size=16)),
                 card("Uncertainty plot", "central value plus uncertainty band", graph("stat-uncertainty-fig", height=480), className="card graph-card"),
                 html.Div(className="graph-row-2", children=[

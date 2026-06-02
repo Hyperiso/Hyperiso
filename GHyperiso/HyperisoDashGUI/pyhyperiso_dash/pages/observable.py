@@ -59,7 +59,7 @@ def layout():
                         observable_selection("obs-build"),
                         bin_controls("obs-build"),
                         html.Button("Configure ObservableInterface", id="obs-build-btn", n_clicks=0),
-                        status_box("obs-build-status", "No ObservableInterface configured yet."),
+                        status_box("obs-build-status", svc.observable_status_text()),
                     ])),
                     card("Compute", "current registered observables", html.Div([
                         html.Button("Compute current selection", id="obs-compute-btn", n_clicks=0),
@@ -93,7 +93,7 @@ def layout():
                     ])),
                 ]),
                 html.Div(className="grid", children=[
-                    card("Configured observables", "selection expanded from decay and bins", data_table("obs-selection-table", ["observable", "bin_low", "bin_high", "order"], page_size=12)),
+                    card("Configured observables", "selection expanded from decay and bins", data_table("obs-selection-table", ["observable", "bin_low", "bin_high", "order", "registered"], page_size=12)),
                     card("Predictions", "compute_all output", data_table("obs-result-table", ["observable_id", "bin_low", "bin_high", "value"], page_size=16)),
                     card("Observable scan plot", "1D scatter or 2D heatmap", graph("obs-scan-fig", height=500), className="card graph-card"),
                     small_note("For smooth-binned plots, the backend constructs consecutive BinnedObservableId ranges from min to max with the requested step."),

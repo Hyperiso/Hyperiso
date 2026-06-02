@@ -65,8 +65,17 @@ class RuntimeState:
     last_wilson_config: WilsonBuildConfig | None = None
     last_observable_selection: list[dict] = field(default_factory=list)
     observable_signature: tuple | None = None
+    observable_registered_keys: set[tuple] = field(default_factory=set)
+    observable_registered_decay_bins: set[tuple] = field(default_factory=set)
     scan_observable: ObservableInterface | None = None
     scan_observable_signature: tuple | None = None
+    scan_observable_registered_keys: set[tuple] = field(default_factory=set)
+    scan_observable_registered_decay_bins: set[tuple] = field(default_factory=set)
+    stat_observable: ObservableInterface | None = None
+    stat_observable_registered_keys: set[tuple] = field(default_factory=set)
+    stat_observable_registered_decay_bins: set[tuple] = field(default_factory=set)
+    last_stat_observable_selection: list[dict] = field(default_factory=list)
+    wilson_status: dict = field(default_factory=dict)
 
 
 RUNTIME = RuntimeState()
@@ -262,10 +271,31 @@ def init_or_switch_hyperiso(lha_path: str, flag_names: Sequence[str], model_name
         RUNTIME.block_logger = BlockLogger()
         # Cached interfaces are tied to the old parameter store. Rebuild after switch.
         RUNTIME.wilson = None
-        RUNTIME.observable = None
-        RUNTIME.observable_signature = None
+        RUNTIME.last_wilson_config = None
+        RUNTIME.wilson_status = {}
+        # Keep a long-lived ObservableInterface as soon as Hyperiso is initialized.
+        # The C++ ObsManager/DecayParent layer is stateful: repeated add_obs/add_bin
+        # calls on fresh or duplicated interfaces can leave decay-level bins and
+        # Wilson builders in inconsistent states.  Dash therefore adds only missing
+        # observables/bins to this persistent interface.
+        RUNTIME.observable = ObservableInterface()
+        RUNTIME.observable_signature = tuple()
+        RUNTIME.observable_registered_keys.clear()
+        RUNTIME.observable_registered_decay_bins.clear()
+        RUNTIME.last_observable_selection = []
+        # Scan and statistic workflows deliberately reuse the same persistent
+        # ObservableInterface as the Observable page. Creating a second C++
+        # ObservableInterface for the same observable can trigger a second
+        # ObsManager::add_obs / DecayParent::enable sequence and lead to
+        # std::map::at from stale C++ observable/decay state.
         RUNTIME.scan_observable = None
-        RUNTIME.scan_observable_signature = None
+        RUNTIME.scan_observable_signature = tuple()
+        RUNTIME.scan_observable_registered_keys.clear()
+        RUNTIME.scan_observable_registered_decay_bins.clear()
+        RUNTIME.stat_observable = None
+        RUNTIME.stat_observable_registered_keys.clear()
+        RUNTIME.stat_observable_registered_decay_bins.clear()
+        RUNTIME.last_stat_observable_selection = []
         RUNTIME.stat = None
     return {
         "action": action,
@@ -281,9 +311,48 @@ def runtime_summary() -> dict:
         "model": RUNTIME.config.model.name if RUNTIME.config else "—",
         "lha_path": RUNTIME.lha_path or "—",
         "wilson_built": RUNTIME.wilson is not None,
-        "observable_built": RUNTIME.observable is not None,
+        "wilson_status": dict(RUNTIME.wilson_status or {}),
+        "observable_built": bool(RUNTIME.observable_registered_keys),
+        "observable_count": len(RUNTIME.observable_registered_keys),
+        "stat_observable_count": len(RUNTIME.stat_observable_registered_keys or RUNTIME.observable_registered_keys),
         "stat_built": RUNTIME.stat is not None,
     }
+
+
+def wilson_status_text() -> str:
+    """Return a user-facing status string for the persistent WilsonInterface."""
+    if RUNTIME.wilson is None:
+        return "WilsonInterface is not built yet."
+    info = RUNTIME.wilson_status or {}
+    groups = ", ".join(info.get("groups", [])) or "configured"
+    action = info.get("action", "built")
+    order = info.get("order", "—")
+    return f"WilsonInterface {action}. Groups: {groups}. Order: {order}."
+
+
+def observable_status_text() -> str:
+    """Return a user-facing status string for the persistent ObservableInterface."""
+    if not RUNTIME.initialized:
+        return "Initialize Hyperiso on the Core page first."
+    if not RUNTIME.observable_registered_keys:
+        return "ObservableInterface is alive but no observable has been added yet."
+    return f"ObservableInterface ready with {len(RUNTIME.observable_registered_keys)} observable/bin entries."
+
+
+def stat_observable_status_text() -> str:
+    """Return a status string for the statistic observable selection.
+
+    Statistics intentionally reuse the main persistent ObservableInterface.
+    This avoids constructing another C++ ObsManager for the same selected
+    observables, which can duplicate add_obs/add_bin calls and provoke
+    std::map::at failures in the observable layer.
+    """
+    if not RUNTIME.initialized:
+        return "Initialize Hyperiso on the Core page first."
+    n = len(RUNTIME.stat_observable_registered_keys or RUNTIME.observable_registered_keys)
+    if not n:
+        return "Statistic workflow will reuse the main ObservableInterface; no observable has been added yet."
+    return f"Statistic workflow ready with {n} observable/bin entries on the shared ObservableInterface."
 
 
 def block_inventory_rows() -> list[dict]:
@@ -366,6 +435,18 @@ def build_wilson(groups: Sequence[str], matching_scale: float, hadronic_scale: f
             RUNTIME.wilson.add_wilson_group(cfg)
             action = "add_wilson_group"
         RUNTIME.last_wilson_config = cfg
+        existing = set(RUNTIME.wilson_status.get("groups", [])) if RUNTIME.wilson_status else set()
+        if add:
+            existing.update(str(g) for g in groups)
+        else:
+            existing = {str(g) for g in groups}
+        RUNTIME.wilson_status = {
+            "action": action,
+            "groups": sorted(existing),
+            "order": order_name,
+            "matching_scale": float(matching_scale),
+            "hadronic_scale": float(hadronic_scale),
+        }
     return {"action": action, "groups": list(groups), "order": order_name, "matching_scale": matching_scale, "hadronic_scale": hadronic_scale}
 
 
@@ -588,27 +669,107 @@ def _observable_signature(rows: Sequence[dict]) -> tuple:
     )
 
 
-def _build_observable_interface_from_rows(rows: Sequence[dict]) -> ObservableInterface:
-    """Create a fresh C++ ObservableInterface and add each row exactly once."""
-    oi = ObservableInterface()
+def _registry_signature(keys: set[tuple]) -> tuple:
+    """Return a deterministic, sortable signature for registry keys."""
+    return tuple(sorted(
+        (str(k[0]), "" if k[1] is None else f"{float(k[1]):.17g}", "" if k[2] is None else f"{float(k[2]):.17g}")
+        for k in keys
+    ))
+
+
+def _observable_add_key(row: Mapping[str, Any]) -> tuple:
+    """Key used to prevent repeated C++ add_observable/add_bin calls.
+
+    The C++ ObsManager stores bins at the decay level and ``DecayParent.add_bin``
+    blindly appends to a vector.  The key deliberately ignores QCD order and
+    dependency flags: once an observable/bin exists in a C++ manager, re-adding
+    it only to change metadata is unsafe.  Use a fresh Hyperiso/LHA session if
+    you need a different order for an already registered decay.
+    """
+    return (
+        str(row.get("observable")),
+        None if row.get("bin_low") is None else float(row.get("bin_low")),
+        None if row.get("bin_high") is None else float(row.get("bin_high")),
+    )
+
+
+def _decay_name_for_observable(obs_name: str) -> str:
+    """Return the decay enum name associated with an observable."""
+    obs = enum_by_name(Observables, obs_name)
+    try:
+        decay = DecayMapper.get_decay(obs)
+    except Exception:
+        decay = DecayMapper().get_decay(obs)
+    return decay.name
+
+
+def _decay_bin_key(row: Mapping[str, Any]) -> tuple | None:
+    low = row.get("bin_low")
+    high = row.get("bin_high")
+    if low is None or high is None:
+        return None
+    return (_decay_name_for_observable(str(row.get("observable"))), float(low), float(high))
+
+
+def _add_observable_rows_once(
+    oi: ObservableInterface,
+    rows: Sequence[dict],
+    registered_keys: set[tuple],
+    registered_decay_bins: set[tuple],
+) -> dict:
+    """Add only missing observables/bins to a long-lived C++ interface.
+
+    Important C++ details handled here:
+    * ``ObsManager.add_obs(ObservableId, ...)`` does not check whether the
+      observable was already present before touching the decay/order state.
+    * ``ObsManager.add_obs(BinnedObservableId, ...)`` always calls
+      ``DecayParent.add_bin``; bins are stored per decay, not per observable.
+      Therefore, for several observables in the same decay and same bin, only
+      the first one may go through the binned overload.  The following ones are
+      registered as regular observables and inherit the decay-level bins.
+    """
+    added: list[tuple] = []
+    skipped: list[tuple] = []
+
     for row in rows:
+        key = _observable_add_key(row)
+        if key in registered_keys:
+            skipped.append(key)
+            continue
+
         obs_name = str(row["observable"])
+        obs_enum = enum_by_name(Observables, obs_name)
         qcd_order = enum_by_name(QCDOrder, str(row["order"]))
         add_dependencies = bool(row.get("dependencies", False))
         low = row.get("bin_low")
         high = row.get("bin_high")
+
         if low is not None and high is not None:
-            oi.add_binned_observable(
-                make_binned_id(obs_name, float(low), float(high)),
-                qcd_order,
-                add_dependencies,
-            )
+            dkey = _decay_bin_key(row)
+            if dkey not in registered_decay_bins:
+                oi.add_binned_observable(
+                    make_binned_id(obs_name, float(low), float(high)),
+                    qcd_order,
+                    add_dependencies,
+                )
+                registered_decay_bins.add(dkey)
+            else:
+                # The decay already owns this bin.  Register only the observable
+                # to avoid appending the same bin again to DecayParent::bins.
+                oi.add_observable(obs_enum, qcd_order, add_dependencies)
         else:
-            oi.add_observable(
-                enum_by_name(Observables, obs_name),
-                qcd_order,
-                add_dependencies,
-            )
+            oi.add_observable(obs_enum, qcd_order, add_dependencies)
+
+        registered_keys.add(key)
+        added.append(key)
+
+    return {"added": added, "skipped": skipped, "total": len(registered_keys)}
+
+
+def _build_observable_interface_from_rows(rows: Sequence[dict]) -> ObservableInterface:
+    """Create a fresh C++ ObservableInterface and add rows safely once."""
+    oi = ObservableInterface()
+    _add_observable_rows_once(oi, rows, set(), set())
     return oi
 
 
@@ -670,20 +831,97 @@ def build_observables(
         high,
         bins,
     )
-    signature = _observable_signature(rows)
 
     with RUNTIME.lock:
-        # Idempotency guard: clicking the configure button repeatedly with the
-        # same selection must not call C++ add_observable/add_bin again.
-        if RUNTIME.observable is not None and RUNTIME.observable_signature == signature:
-            RUNTIME.last_observable_selection = list(rows)
-            return list(rows)
-
-        RUNTIME.observable = _build_observable_interface_from_rows(rows)
-        RUNTIME.observable_signature = signature
+        if RUNTIME.observable is None:
+            RUNTIME.observable = ObservableInterface()
+        info = _add_observable_rows_once(
+            RUNTIME.observable,
+            rows,
+            RUNTIME.observable_registered_keys,
+            RUNTIME.observable_registered_decay_bins,
+        )
         RUNTIME.last_observable_selection = list(rows)
+        RUNTIME.observable_signature = _registry_signature(RUNTIME.observable_registered_keys)
 
+    for row in rows:
+        row["registered"] = _observable_add_key(row) in RUNTIME.observable_registered_keys
     return rows
+
+
+def _cpp_observable_values(oi: ObservableInterface, obs_name: str):
+    """Compute one observable from the raw C++ interface when possible."""
+    obs = enum_by_name(Observables, obs_name)
+    raw = getattr(oi, "_to_cpp", lambda: None)()
+    if raw is not None:
+        return list(raw.compute_observable(obs.value))
+    return list(oi.compute_observable(obs))
+
+
+def _bin_tuple_from_cpp_value(value: Any) -> tuple[float | None, float | None]:
+    b = getattr(value, "bin", None)
+    if b is None:
+        return None, None
+    return float(b[0]), float(b[1])
+
+
+def _observable_rows_for_target(
+    oi: ObservableInterface,
+    obs_name: str,
+    bin_low: float | None = None,
+    bin_high: float | None = None,
+) -> list[dict]:
+    """Compute rows for one target observable, optionally filtering one bin."""
+    values = _cpp_observable_values(oi, obs_name)
+    rows: list[dict] = []
+    for value in values:
+        low, high = _bin_tuple_from_cpp_value(value)
+        if bin_low is not None and bin_high is not None:
+            if low is None or high is None:
+                continue
+            if abs(low - float(bin_low)) > 1e-12 or abs(high - float(bin_high)) > 1e-12:
+                continue
+        rows.append({
+            "observable_id": str(getattr(value, "id", obs_name)),
+            "bin_low": low,
+            "bin_high": high,
+            "value": scalar_to_float(getattr(value, "value"), "real"),
+        })
+
+    if bin_low is not None and bin_high is not None and not rows:
+        available = [
+            _bin_tuple_from_cpp_value(v) for v in values
+        ]
+        raise RuntimeError(
+            f"Observable {obs_name} did not return requested bin "
+            f"[{bin_low}, {bin_high}]. Available bins: {available}"
+        )
+    return rows
+
+
+def _observable_rows_for_selection(oi: ObservableInterface, rows: Sequence[dict]) -> list[dict]:
+    """Compute configured rows one target at a time.
+
+    This avoids relying on ``compute_all`` for interactive scans/computes, and
+    prevents one stale observable inside the C++ manager from breaking all UI
+    computations with ``map::at``.
+    """
+    out: list[dict] = []
+    seen: set[tuple] = set()
+    for row in rows:
+        key = _observable_add_key(row)
+        if key in seen:
+            continue
+        seen.add(key)
+        out.extend(
+            _observable_rows_for_target(
+                oi,
+                str(row["observable"]),
+                row.get("bin_low"),
+                row.get("bin_high"),
+            )
+        )
+    return out
 
 
 def _observable_rows_from_cpp_compute_all(oi: ObservableInterface) -> list[dict]:
@@ -723,9 +961,10 @@ def _observable_rows_from_cpp_compute_all(oi: ObservableInterface) -> list[dict]
 
 def compute_current_observables() -> list[dict]:
     require_initialized()
-    if RUNTIME.observable is None:
-        raise RuntimeError("ObservableInterface is not configured yet")
-    return _observable_rows_from_cpp_compute_all(RUNTIME.observable)
+    if RUNTIME.observable is None or not RUNTIME.last_observable_selection:
+        raise RuntimeError("ObservableInterface has no configured observables yet")
+    with RUNTIME.lock:
+        return _observable_rows_for_selection(RUNTIME.observable, RUNTIME.last_observable_selection)
 
 
 def _refresh_observable_interface(oi: ObservableInterface) -> None:
@@ -740,9 +979,9 @@ def _refresh_observable_interface(oi: ObservableInterface) -> None:
     return None
 
 
-def _compute_observable_float_from_interface(oi: ObservableInterface) -> float:
-    """Compute the first value from an already configured observable interface."""
-    rows = _observable_rows_from_cpp_compute_all(oi)
+def _compute_observable_float_from_interface(oi: ObservableInterface, obs_name: str, bin_low: float | None, bin_high: float | None) -> float:
+    """Compute one target value from an already configured observable interface."""
+    rows = _observable_rows_for_target(oi, obs_name, bin_low, bin_high)
     if not rows:
         raise RuntimeError("Observable computation returned no value")
     return scalar_to_float(rows[0]["value"], "real")
@@ -755,12 +994,11 @@ def _get_cached_scan_observable_interface(
     bin_low: float | None,
     bin_high: float | None,
 ) -> ObservableInterface:
-    """Return an ObservableInterface for scans without re-adding duplicates.
+    """Return the shared persistent ObservableInterface for scans.
 
-    If the main observable selection is exactly the scan target, reuse it.
-    Otherwise keep a dedicated scan interface and rebuild it only when the scan
-    target changes. This avoids repeated C++ ``add_observable`` calls on every
-    scan click while keeping scan configuration independent of the main table.
+    The scan target is added to the main interface only if it is not already
+    registered.  This prevents a second C++ ObservableInterface from emitting a
+    second ``Adding observable ...`` for the same target.
     """
     rows = _observable_requested_rows(
         "observable",
@@ -772,24 +1010,20 @@ def _get_cached_scan_observable_interface(
         bin_high,
         None,
     )
-    signature = _observable_signature(rows)
-
-    if RUNTIME.observable is not None and RUNTIME.observable_signature == signature:
-        return RUNTIME.observable
-
-    if RUNTIME.scan_observable is not None and RUNTIME.scan_observable_signature == signature:
-        return RUNTIME.scan_observable
-
-    RUNTIME.scan_observable = _build_observable_interface_from_rows(rows)
-    RUNTIME.scan_observable_signature = signature
-    return RUNTIME.scan_observable
+    oi = _ensure_rows_on_shared_observable_interface(rows)
+    RUNTIME.scan_observable = oi
+    RUNTIME.scan_observable_signature = _registry_signature(RUNTIME.observable_registered_keys)
+    # Keep aliases for UI/debug only; they are no longer independent registries.
+    RUNTIME.scan_observable_registered_keys = RUNTIME.observable_registered_keys
+    RUNTIME.scan_observable_registered_decay_bins = RUNTIME.observable_registered_decay_bins
+    return oi
 
 
 def evaluate_observable_float(obs_name: str, order_name: str, add_deps: bool, bin_low: float | None, bin_high: float | None) -> float:
     require_initialized()
     with RUNTIME.lock:
         oi = _get_cached_scan_observable_interface(obs_name, order_name, add_deps, bin_low, bin_high)
-        return _compute_observable_float_from_interface(oi)
+        return _compute_observable_float_from_interface(oi, obs_name, bin_low, bin_high)
 
 
 def observable_scan_1d(obs_name: str, order_name: str, add_deps: bool, bin_low: Any, bin_high: Any, ptype: str, block: str, code: Any, x_min: float, x_max: float, n_points: int) -> tuple[list[float], list[float]]:
@@ -807,7 +1041,7 @@ def observable_scan_1d(obs_name: str, order_name: str, add_deps: bool, bin_low: 
         try:
             for x in xs:
                 _mutate_param_temporarily(pid, float(x), restore, setter)
-                ys.append(_compute_observable_float_from_interface(oi))
+                ys.append(_compute_observable_float_from_interface(oi, obs_name, low, high))
         finally:
             _restore_params([(pid, label)], restore, setter)
     return xs, ys
@@ -833,7 +1067,7 @@ def observable_scan_2d(obs_name: str, order_name: str, add_deps: bool, bin_low: 
                 _mutate_param_temporarily(pid2, float(y), restore, setter)
                 for x in xs:
                     _mutate_param_temporarily(pid1, float(x), restore, setter)
-                    row.append(_compute_observable_float_from_interface(oi))
+                    row.append(_compute_observable_float_from_interface(oi, obs_name, low, high))
                 z.append(row)
         finally:
             _restore_params(labels, restore, setter)
@@ -866,7 +1100,19 @@ def make_stat_config(mc_draws: Any, skew_threshold: Any, ridge_rel: Any, ridge_a
     return cfg
 
 
-def build_stat_interface(mode: str, obs_names: Sequence[str] | None, decay_names: Sequence[str] | None, order_name: str, add_deps: bool, bin_strategy: str, bin_low: Any, bin_high: Any, smooth_min: Any, smooth_max: Any, smooth_step: Any, experiments: str | None, mc_draws: Any, skew_threshold: Any, ridge_rel: Any, ridge_abs: Any, nuisance_pruning: bool, nuisance_contexts: Any, nuisance_seed: Any, p_specs: Sequence[ParamId] | None = None) -> StatisticInterface:
+def _stat_rows_from_kwargs(
+    mode: str,
+    obs_names: Sequence[str] | None,
+    decay_names: Sequence[str] | None,
+    order_name: str,
+    add_deps: bool,
+    bin_strategy: str,
+    bin_low: Any,
+    bin_high: Any,
+    smooth_min: Any,
+    smooth_max: Any,
+    smooth_step: Any,
+) -> list[dict]:
     bins = None
     low = high = None
     if bin_strategy == "smooth":
@@ -874,12 +1120,69 @@ def build_stat_interface(mode: str, obs_names: Sequence[str] | None, decay_names
     elif bin_strategy == "single":
         low = as_float(bin_low, None)
         high = as_float(bin_high, None)
-    obs_int, _ = build_observable_interface(mode, obs_names, decay_names, order_name, add_deps, low, high, bins)
+    return _observable_requested_rows(mode, obs_names, decay_names, order_name, add_deps, low, high, bins)
+
+
+def _ensure_rows_on_shared_observable_interface(rows: Sequence[dict]) -> ObservableInterface:
+    """Add rows once to the single process-wide ObservableInterface.
+
+    All observable consumers -- direct compute, scans and statistics -- must use
+    this same interface.  The C++ ObservableInterface constructor builds a fresh
+    ObsManager and fresh decay/Wilson ports; for the current Hyperiso singleton,
+    duplicating those objects for the same observable can re-enter add_obs and
+    leave the underlying manager/proxy state inconsistent.
+    """
+    if RUNTIME.observable is None:
+        RUNTIME.observable = ObservableInterface()
+    _add_observable_rows_once(
+        RUNTIME.observable,
+        rows,
+        RUNTIME.observable_registered_keys,
+        RUNTIME.observable_registered_decay_bins,
+    )
+    RUNTIME.observable_signature = _registry_signature(RUNTIME.observable_registered_keys)
+    return RUNTIME.observable
+
+
+def configure_stat_observables(
+    mode: str,
+    obs_names: Sequence[str] | None,
+    decay_names: Sequence[str] | None,
+    order_name: str,
+    add_deps: bool,
+    bin_strategy: str,
+    bin_low: Any,
+    bin_high: Any,
+    smooth_min: Any,
+    smooth_max: Any,
+    smooth_step: Any,
+) -> list[dict]:
+    """Add statistic observables once to the persistent stat ObservableInterface."""
+    rows = _stat_rows_from_kwargs(
+        mode, obs_names, decay_names, order_name, add_deps,
+        bin_strategy, bin_low, bin_high, smooth_min, smooth_max, smooth_step,
+    )
+    with RUNTIME.lock:
+        oi = _ensure_rows_on_shared_observable_interface(rows)
+        RUNTIME.stat_observable = oi
+        RUNTIME.stat_observable_registered_keys = RUNTIME.observable_registered_keys
+        RUNTIME.stat_observable_registered_decay_bins = RUNTIME.observable_registered_decay_bins
+        RUNTIME.last_stat_observable_selection = list(rows)
+    return rows
+
+
+def build_stat_interface(mode: str, obs_names: Sequence[str] | None, decay_names: Sequence[str] | None, order_name: str, add_deps: bool, bin_strategy: str, bin_low: Any, bin_high: Any, smooth_min: Any, smooth_max: Any, smooth_step: Any, experiments: str | None, mc_draws: Any, skew_threshold: Any, ridge_rel: Any, ridge_abs: Any, nuisance_pruning: bool, nuisance_contexts: Any, nuisance_seed: Any, p_specs: Sequence[ParamId] | None = None) -> StatisticInterface:
+    rows = configure_stat_observables(
+        mode, obs_names, decay_names, order_name, add_deps,
+        bin_strategy, bin_low, bin_high, smooth_min, smooth_max, smooth_step,
+    )
+    if RUNTIME.observable is None:
+        raise RuntimeError("Shared ObservableInterface is not available")
     cfg = make_stat_config(mc_draws, skew_threshold, ridge_rel, ridge_abs, nuisance_pruning, nuisance_contexts, nuisance_seed)
     cfg.p_specs = list(p_specs or [])
     exps = split_csv(experiments)
     cfg.selected_experiments = exps or None
-    stat_int = StatisticInterface(cfg, observable_interface=obs_int)
+    stat_int = StatisticInterface(cfg, observable_interface=RUNTIME.observable)
     return stat_int
 
 
