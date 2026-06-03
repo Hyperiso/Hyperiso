@@ -34,6 +34,17 @@ def bin_controls(prefix: str):
     ])
 
 
+def pspec_controls():
+    return html.Div([
+        html.Div(className="form-grid-3", children=[
+            field("ParameterType", dropdown("stat-pspec-type", svc.parameter_type_options(), value=svc.default_parameter_type_name("FLAVOR"))),
+            field("Block", dropdown("stat-pspec-block", [], value=None, placeholder="Choose a block...")),
+            field("Code", dropdown("stat-pspec-code", [], value=None, placeholder="Choose a code...")),
+        ]),
+        html.Button("Add selected p_spec", id="stat-add-pspec-btn", n_clicks=0),
+    ])
+
+
 def stat_config_controls():
     return html.Div([
         html.Div(className="warn-box", children="χ²_MC_COVARIANCE is forced. Laplace/Minuit-only options are intentionally hidden for now."),
@@ -62,7 +73,10 @@ def layout():
                 card("Observable selection", "persistent Statistic ObservableInterface", html.Div([
                     observable_selection("stat-obs"),
                     bin_controls("stat-obs"),
-                    html.Button("Configure Statistic ObservableInterface", id="stat-configure-obs-btn", n_clicks=0),
+                    html.Div(className="inline-actions", children=[
+                        html.Button("Configure Statistic ObservableInterface", id="stat-configure-obs-btn", n_clicks=0),
+                        html.Button("Remove selected rows", id="stat-remove-obs-btn", n_clicks=0),
+                    ]),
                     status_box("stat-observable-status", svc.stat_observable_status_text()),
                 ])),
                 card("StatisticConfig", "χ²-only controls", stat_config_controls()),
@@ -72,8 +86,9 @@ def layout():
                     status_box("stat-uncertainty-status", "No uncertainty computation yet."),
                 ])),
                 card("Fit and contour", "max 10 p_specs; 2D enables contour scan", html.Div([
-                    data_table("stat-p-specs-table", p_spec_columns, data=default_p_specs, page_size=10, editable=True),
-                    html.Button("Add empty p_spec row", id="stat-add-pspec-btn", n_clicks=0),
+                    pspec_controls(),
+                    data_table("stat-p-specs-table", p_spec_columns, data=[], page_size=10, row_selectable="multi"),
+                    html.Button("Remove selected p_spec rows", id="stat-remove-pspec-btn", n_clicks=0),
                     html.Div(className="form-grid-4", children=[
                         field("x half width", num_input("stat-x-half-width", 1.0)),
                         field("y half width", num_input("stat-y-half-width", 1.0)),
@@ -86,7 +101,7 @@ def layout():
                 ])),
             ]),
             html.Div(className="grid", children=[
-                card("Configured stat observables", "selection expanded from decay and bins", data_table("stat-observable-table", ["observable", "bin_low", "bin_high", "order", "registered"], page_size=12)),
+                card("Configured stat observables", "selection expanded from decay and bins", data_table("stat-observable-table", ["observable", "bin_low", "bin_high", "order", "registered"], page_size=12, row_selectable="multi")),
                 card("Uncertainty table", "GaussianSummary", data_table("stat-uncertainty-table", ["observable", "bin_low", "bin_high", "central", "mu", "mode", "sigma", "sigma_minus", "sigma_plus", "skew", "symmetric"], page_size=16)),
                 card("Uncertainty plot", "central value plus uncertainty band", graph("stat-uncertainty-fig", height=480), className="card graph-card"),
                 html.Div(className="graph-row-2", children=[

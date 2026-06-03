@@ -35,7 +35,7 @@ from pyhyperiso.core.Common.GeneralEnum import (
     WGroup,
     WilsonBasis,
 )
-from pyhyperiso.core.Common.Mapper import DecayMapper, ObservableMapper
+from pyhyperiso.core.Common.Mapper import DecayMapper, ObservableMapper, WCoefMapper
 from pyhyperiso.core.Common.LhaID import LhaID
 from pyhyperiso.core.Common.ParamId import ParamId
 from pyhyperiso.core.Core.BlockProvider import BlockLogger
@@ -47,6 +47,20 @@ from pyhyperiso.core.Statistic.Copula import CopulaKind
 from pyhyperiso.core.Statistic.StatisticConfig import StatisticConfig, StatisticLikelihoodMode
 from pyhyperiso.core.Statistic.StatisticInterface import StatisticInterface
 from pyhyperiso.core.PhysicalModel.WilsonInterface import WilsonInterface
+
+
+# The current Python ParamId wrapper is a dataclass with value equality but no
+# __hash__.  The statistic wrapper converts C++ maps into dict[ParamId, ...],
+# so fits fail with ``TypeError: unhashable type: 'ParamId'`` unless the GUI
+# provides a stable value hash.  Keep the hash local and deterministic.
+def _param_id_hash(pid: ParamId) -> int:
+    return hash((pid.type.name if pid.type else None, str(pid.block), pid.code.to_string()))
+
+try:
+    if getattr(ParamId, "__hash__", None) is None:
+        ParamId.__hash__ = _param_id_hash  # type: ignore[method-assign]
+except Exception:
+    pass
 
 
 @dataclass
@@ -377,6 +391,45 @@ def block_name_options(param_type_name: str) -> list[dict]:
     return [{"label": b, "value": b} for b in blocks]
 
 
+def block_code_options(param_type_name: str, block_name: str | None) -> list[dict]:
+    """Return code dropdown options for a block using BlockLogger.
+
+    The values are the canonical LHA strings accepted by ``LhaID`` such as
+    ``"25"`` or ``"511_1"``.  This lets the UI constrain fit/scan parameters
+    to existing entries instead of free-typing invalid ids.
+    """
+    require_initialized()
+    if not block_name:
+        return []
+    pt = resolve_parameter_type(param_type_name, strict=False)
+    if pt is None:
+        return []
+    try:
+        values = (RUNTIME.block_logger or BlockLogger()).get_block(pt, str(block_name))
+    except Exception:
+        return []
+    seen: set[str] = set()
+    out: list[dict[str, str]] = []
+    for key in values.keys():
+        code = code_to_display(key_to_code(key))
+        if code in seen:
+            continue
+        seen.add(code)
+        out.append({"label": code, "value": code})
+    return sorted(out, key=lambda item: item["label"])
+
+
+def parameter_picker_options(param_type_name: str | None, block_name: str | None = None) -> tuple[list[dict], str | None, list[dict], str | None]:
+    """Return block/code options plus safe current values for cascaded pickers."""
+    ptype = param_type_name or default_parameter_type_name("SM")
+    block_opts = block_name_options(ptype)
+    block_values = {opt["value"] for opt in block_opts}
+    block_value = block_name if block_name in block_values else (block_opts[0]["value"] if block_opts else None)
+    code_opts = block_code_options(ptype, block_value) if block_value else []
+    code_value = code_opts[0]["value"] if code_opts else None
+    return block_opts, block_value, code_opts, code_value
+
+
 def block_table_rows(param_type_name: str, block_name: str) -> list[dict]:
     require_initialized()
     if not block_name:
@@ -415,6 +468,23 @@ def block_table_rows(param_type_name: str, block_name: str) -> list[dict]:
 
 
 # ---------- Wilson ----------
+
+_WILSON_GROUP_COEFFS: dict[str, list[str]] = {
+    "B": [f"C{i}" for i in range(1, 11)],
+    "BPrime": [*(f"CP{i}" for i in range(1, 11)), "CPQ1", "CPQ2"],
+    "BScalar": ["CQ1", "CQ2"],
+    "CC_bc": ["C_V1_bc", "C_V2_bc", "C_S1_bc", "C_S2_bc", "C_T_bc"],
+}
+
+
+def wilson_coeff_options_for_group(group_name: str | None) -> list[dict[str, str]]:
+    """Return coefficient options compatible with the selected Wilson group."""
+    names = _WILSON_GROUP_COEFFS.get(str(group_name or ""))
+    if not names:
+        names = [coef.name for coef in WCoeff]
+    valid = {coef.name for coef in WCoeff}
+    return [{"label": name, "value": name} for name in names if name in valid]
+
 
 def build_wilson(groups: Sequence[str], matching_scale: float, hadronic_scale: float, order_name: str, add: bool = False) -> dict:
     require_initialized()
@@ -959,6 +1029,79 @@ def _observable_rows_from_cpp_compute_all(oi: ObservableInterface) -> list[dict]
     return rows
 
 
+def _rows_union(*collections: Sequence[dict]) -> list[dict]:
+    """Return an ordered union of observable rows by C++ add key."""
+    out: list[dict] = []
+    seen: set[tuple] = set()
+    for rows in collections:
+        for row in rows or []:
+            key = _observable_add_key(row)
+            if key in seen:
+                continue
+            seen.add(key)
+            out.append(dict(row))
+    return out
+
+
+def _rebuild_shared_observable_interface(rows: Sequence[dict]) -> None:
+    """Replace the shared ObservableInterface and register the provided rows once."""
+    RUNTIME.observable = ObservableInterface()
+    RUNTIME.observable_registered_keys.clear()
+    RUNTIME.observable_registered_decay_bins.clear()
+    if rows:
+        _add_observable_rows_once(
+            RUNTIME.observable,
+            rows,
+            RUNTIME.observable_registered_keys,
+            RUNTIME.observable_registered_decay_bins,
+        )
+    RUNTIME.observable_signature = _registry_signature(RUNTIME.observable_registered_keys)
+    # Keep legacy aliases pointing to the shared registry.
+    RUNTIME.scan_observable = RUNTIME.observable
+    RUNTIME.stat_observable = RUNTIME.observable
+    RUNTIME.scan_observable_registered_keys = RUNTIME.observable_registered_keys
+    RUNTIME.scan_observable_registered_decay_bins = RUNTIME.observable_registered_decay_bins
+    RUNTIME.stat_observable_registered_keys = RUNTIME.observable_registered_keys
+    RUNTIME.stat_observable_registered_decay_bins = RUNTIME.observable_registered_decay_bins
+    RUNTIME.stat = None
+
+
+def remove_observable_rows(indices: Sequence[int] | None) -> list[dict]:
+    """Remove rows from the main observable selection and rebuild safely.
+
+    Since the C++ API can remove observables but not individual decay-level
+    bins, rebuilding the single shared ObservableInterface from the remaining
+    Python selection is the safest way to implement UI removal.
+    """
+    require_initialized()
+    if not indices:
+        return list(RUNTIME.last_observable_selection)
+    remove = {int(i) for i in indices}
+    with RUNTIME.lock:
+        RUNTIME.last_observable_selection = [
+            dict(row) for i, row in enumerate(RUNTIME.last_observable_selection) if i not in remove
+        ]
+        # Statistic rows may still be present; preserve them when rebuilding.
+        union_rows = _rows_union(RUNTIME.last_observable_selection, RUNTIME.last_stat_observable_selection)
+        _rebuild_shared_observable_interface(union_rows)
+    return list(RUNTIME.last_observable_selection)
+
+
+def remove_stat_observable_rows(indices: Sequence[int] | None) -> list[dict]:
+    """Remove rows from the statistic observable selection and rebuild safely."""
+    require_initialized()
+    if not indices:
+        return list(RUNTIME.last_stat_observable_selection)
+    remove = {int(i) for i in indices}
+    with RUNTIME.lock:
+        RUNTIME.last_stat_observable_selection = [
+            dict(row) for i, row in enumerate(RUNTIME.last_stat_observable_selection) if i not in remove
+        ]
+        union_rows = _rows_union(RUNTIME.last_observable_selection, RUNTIME.last_stat_observable_selection)
+        _rebuild_shared_observable_interface(union_rows)
+    return list(RUNTIME.last_stat_observable_selection)
+
+
 def compute_current_observables() -> list[dict]:
     require_initialized()
     if RUNTIME.observable is None or not RUNTIME.last_observable_selection:
@@ -1141,6 +1284,12 @@ def _ensure_rows_on_shared_observable_interface(rows: Sequence[dict]) -> Observa
         RUNTIME.observable_registered_decay_bins,
     )
     RUNTIME.observable_signature = _registry_signature(RUNTIME.observable_registered_keys)
+    RUNTIME.scan_observable = RUNTIME.observable
+    RUNTIME.stat_observable = RUNTIME.observable
+    RUNTIME.scan_observable_registered_keys = RUNTIME.observable_registered_keys
+    RUNTIME.scan_observable_registered_decay_bins = RUNTIME.observable_registered_decay_bins
+    RUNTIME.stat_observable_registered_keys = RUNTIME.observable_registered_keys
+    RUNTIME.stat_observable_registered_decay_bins = RUNTIME.observable_registered_decay_bins
     return RUNTIME.observable
 
 
@@ -1171,11 +1320,20 @@ def configure_stat_observables(
     return rows
 
 
-def build_stat_interface(mode: str, obs_names: Sequence[str] | None, decay_names: Sequence[str] | None, order_name: str, add_deps: bool, bin_strategy: str, bin_low: Any, bin_high: Any, smooth_min: Any, smooth_max: Any, smooth_step: Any, experiments: str | None, mc_draws: Any, skew_threshold: Any, ridge_rel: Any, ridge_abs: Any, nuisance_pruning: bool, nuisance_contexts: Any, nuisance_seed: Any, p_specs: Sequence[ParamId] | None = None) -> StatisticInterface:
-    rows = configure_stat_observables(
-        mode, obs_names, decay_names, order_name, add_deps,
-        bin_strategy, bin_low, bin_high, smooth_min, smooth_max, smooth_step,
-    )
+def build_stat_interface(mode: str, obs_names: Sequence[str] | None, decay_names: Sequence[str] | None, order_name: str, add_deps: bool, bin_strategy: str, bin_low: Any, bin_high: Any, smooth_min: Any, smooth_max: Any, smooth_step: Any, experiments: str | None, mc_draws: Any, skew_threshold: Any, ridge_rel: Any, ridge_abs: Any, nuisance_pruning: bool, nuisance_contexts: Any, nuisance_seed: Any, p_specs: Sequence[ParamId] | None = None, configured_rows: Sequence[dict] | None = None) -> StatisticInterface:
+    if configured_rows:
+        rows = [dict(row) for row in configured_rows]
+        with RUNTIME.lock:
+            oi = _ensure_rows_on_shared_observable_interface(rows)
+            RUNTIME.stat_observable = oi
+            RUNTIME.stat_observable_registered_keys = RUNTIME.observable_registered_keys
+            RUNTIME.stat_observable_registered_decay_bins = RUNTIME.observable_registered_decay_bins
+            RUNTIME.last_stat_observable_selection = list(rows)
+    else:
+        rows = configure_stat_observables(
+            mode, obs_names, decay_names, order_name, add_deps,
+            bin_strategy, bin_low, bin_high, smooth_min, smooth_max, smooth_step,
+        )
     if RUNTIME.observable is None:
         raise RuntimeError("Shared ObservableInterface is not available")
     cfg = make_stat_config(mc_draws, skew_threshold, ridge_rel, ridge_abs, nuisance_pruning, nuisance_contexts, nuisance_seed)

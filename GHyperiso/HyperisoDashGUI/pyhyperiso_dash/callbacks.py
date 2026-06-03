@@ -81,6 +81,97 @@ def _stat_kwargs(
 
 
 def register_callbacks(app):
+    # ---------- Cascading parameter and Wilson pickers ----------
+    parameter_prefixes = [
+        "wilson-x-param",
+        "wilson-y-param",
+        "obs-x-param",
+        "obs-y-param",
+    ]
+    for prefix in parameter_prefixes:
+        @app.callback(
+            Output(f"{prefix}-block", "options"),
+            Output(f"{prefix}-block", "value"),
+            Input(f"{prefix}-ptype", "value"),
+            Input("runtime-ping", "data"),
+            State(f"{prefix}-block", "value"),
+            prevent_initial_call=False,
+        )
+        def _update_param_blocks(ptype, _ping, current_block, _prefix=prefix):
+            try:
+                opts = svc.block_name_options(ptype) if ptype else []
+                valid = {o["value"] for o in opts}
+                value = current_block if current_block in valid else (opts[0]["value"] if opts else None)
+                return opts, value
+            except Exception:
+                return [], None
+
+        @app.callback(
+            Output(f"{prefix}-code", "options"),
+            Output(f"{prefix}-code", "value"),
+            Input(f"{prefix}-ptype", "value"),
+            Input(f"{prefix}-block", "value"),
+            Input("runtime-ping", "data"),
+            State(f"{prefix}-code", "value"),
+            prevent_initial_call=False,
+        )
+        def _update_param_codes(ptype, block, _ping, current_code, _prefix=prefix):
+            try:
+                opts = svc.block_code_options(ptype, block) if ptype and block else []
+                valid = {o["value"] for o in opts}
+                value = current_code if current_code in valid else (opts[0]["value"] if opts else None)
+                return opts, value
+            except Exception:
+                return [], None
+
+    @app.callback(
+        Output("stat-pspec-block", "options"),
+        Output("stat-pspec-block", "value"),
+        Input("stat-pspec-type", "value"),
+        Input("runtime-ping", "data"),
+        State("stat-pspec-block", "value"),
+        prevent_initial_call=False,
+    )
+    def update_stat_pspec_blocks(ptype, _ping, current_block):
+        try:
+            opts = svc.block_name_options(ptype) if ptype else []
+            valid = {o["value"] for o in opts}
+            value = current_block if current_block in valid else (opts[0]["value"] if opts else None)
+            return opts, value
+        except Exception:
+            return [], None
+
+    @app.callback(
+        Output("stat-pspec-code", "options"),
+        Output("stat-pspec-code", "value"),
+        Input("stat-pspec-type", "value"),
+        Input("stat-pspec-block", "value"),
+        Input("runtime-ping", "data"),
+        State("stat-pspec-code", "value"),
+        prevent_initial_call=False,
+    )
+    def update_stat_pspec_codes(ptype, block, _ping, current_code):
+        try:
+            opts = svc.block_code_options(ptype, block) if ptype and block else []
+            valid = {o["value"] for o in opts}
+            value = current_code if current_code in valid else (opts[0]["value"] if opts else None)
+            return opts, value
+        except Exception:
+            return [], None
+
+    @app.callback(
+        Output("wilson-request-coeff", "options"),
+        Output("wilson-request-coeff", "value"),
+        Input("wilson-request-group", "value"),
+        State("wilson-request-coeff", "value"),
+        prevent_initial_call=False,
+    )
+    def update_wilson_coeffs(group, current_coeff):
+        opts = svc.wilson_coeff_options_for_group(group)
+        valid = {o["value"] for o in opts}
+        value = current_coeff if current_coeff in valid else (opts[0]["value"] if opts else None)
+        return opts, value
+
     # ---------- Core ----------
     @app.callback(
         Output("core-lha-path", "value"),
@@ -273,6 +364,21 @@ def register_callbacks(app):
             return [], _err("Observable configuration failed.", exc)
 
     @app.callback(
+        Output("obs-selection-table", "data", allow_duplicate=True),
+        Output("obs-selection-table", "selected_rows"),
+        Output("obs-build-status", "children", allow_duplicate=True),
+        Input("obs-remove-btn", "n_clicks"),
+        State("obs-selection-table", "selected_rows"),
+        prevent_initial_call=True,
+    )
+    def remove_observable_rows(_, selected_rows):
+        try:
+            rows = svc.remove_observable_rows(selected_rows or [])
+            return rows, [], f"Removed selected rows. {svc.observable_status_text()}"
+        except Exception as exc:
+            return no_update, [], _err("Observable removal failed.", exc)
+
+    @app.callback(
         Output("obs-result-table", "data"),
         Output("obs-compute-status", "children"),
         Input("obs-compute-btn", "n_clicks"),
@@ -360,16 +466,48 @@ def register_callbacks(app):
             return [], _err("Statistic observable configuration failed.", exc)
 
     @app.callback(
-        Output("stat-p-specs-table", "data"),
-        Input("stat-add-pspec-btn", "n_clicks"),
-        State("stat-p-specs-table", "data"),
+        Output("stat-observable-table", "data", allow_duplicate=True),
+        Output("stat-observable-table", "selected_rows"),
+        Output("stat-observable-status", "children", allow_duplicate=True),
+        Input("stat-remove-obs-btn", "n_clicks"),
+        State("stat-observable-table", "selected_rows"),
         prevent_initial_call=True,
     )
-    def add_pspec_row(_, rows):
+    def remove_stat_observable_rows(_, selected_rows):
+        try:
+            rows = svc.remove_stat_observable_rows(selected_rows or [])
+            for row in rows:
+                row["registered"] = True
+            return rows, [], f"Removed selected rows. {svc.stat_observable_status_text()}"
+        except Exception as exc:
+            return no_update, [], _err("Statistic observable removal failed.", exc)
+
+    @app.callback(
+        Output("stat-p-specs-table", "data"),
+        Output("stat-p-specs-table", "selected_rows"),
+        Input("stat-add-pspec-btn", "n_clicks"),
+        Input("stat-remove-pspec-btn", "n_clicks"),
+        State("stat-pspec-type", "value"),
+        State("stat-pspec-block", "value"),
+        State("stat-pspec-code", "value"),
+        State("stat-p-specs-table", "data"),
+        State("stat-p-specs-table", "selected_rows"),
+        prevent_initial_call=True,
+    )
+    def edit_pspec_rows(_add, _remove, ptype, block, code, rows, selected_rows):
         rows = list(rows or [])
-        if len(rows) < 10:
-            rows.append({"type": "DECAY", "block": "", "code": ""})
-        return rows[:10]
+        triggered = callback_context.triggered[0]["prop_id"].split(".")[0]
+        if triggered == "stat-remove-pspec-btn":
+            remove = set(selected_rows or [])
+            rows = [row for i, row in enumerate(rows) if i not in remove]
+            return rows[:10], []
+        if not (ptype and block and code not in (None, "")):
+            return rows[:10], []
+        row = {"type": ptype, "block": block, "code": str(code)}
+        key = (row["type"], row["block"], row["code"])
+        if key not in {(r.get("type"), r.get("block"), str(r.get("code"))) for r in rows}:
+            rows.append(row)
+        return rows[:10], []
 
     @app.callback(
         Output("stat-uncertainty-table", "data"),
@@ -396,11 +534,14 @@ def register_callbacks(app):
         State("stat-nuisance-contexts", "value"),
         State("stat-nuisance-seed", "value"),
         State("stat-uncertainty-mode", "value"),
+        State("stat-observable-table", "data"),
         prevent_initial_call=True,
     )
-    def stat_uncertainty(_, mode, obs, decays, order, deps, bin_strategy, bin_low, bin_high, sm_min, sm_max, sm_step, experiments, mc_draws, skew, ridge_rel, ridge_abs, prune, contexts, seed, uncertainty_mode):
+    def stat_uncertainty(_, mode, obs, decays, order, deps, bin_strategy, bin_low, bin_high, sm_min, sm_max, sm_step, experiments, mc_draws, skew, ridge_rel, ridge_abs, prune, contexts, seed, uncertainty_mode, configured_rows):
         try:
             kwargs = _stat_kwargs(mode, obs, decays, order, deps, bin_strategy, bin_low, bin_high, sm_min, sm_max, sm_step, experiments, mc_draws, skew, ridge_rel, ridge_abs, prune, contexts, seed)
+            if configured_rows:
+                kwargs["configured_rows"] = configured_rows
             rows = svc.compute_uncertainty_rows(**kwargs)
             return rows, uncertainty_fig(rows, asymmetric=(uncertainty_mode == "asym")), f"Computed uncertainties for {len(rows)} observable/bin entries."
         except Exception as exc:
@@ -433,6 +574,7 @@ def register_callbacks(app):
         State("stat-nuisance-contexts", "value"),
         State("stat-nuisance-seed", "value"),
         State("stat-p-specs-table", "data"),
+        State("stat-observable-table", "data"),
         State("stat-do-contour", "value"),
         State("stat-x-half-width", "value"),
         State("stat-y-half-width", "value"),
@@ -440,13 +582,15 @@ def register_callbacks(app):
         State("stat-ny", "value"),
         prevent_initial_call=True,
     )
-    def stat_fit(_, mode, obs, decays, order, deps, bin_strategy, bin_low, bin_high, sm_min, sm_max, sm_step, experiments, mc_draws, skew, ridge_rel, ridge_abs, prune, contexts, seed, p_rows_in, do_contour, xhw, yhw, nx, ny):
+    def stat_fit(_, mode, obs, decays, order, deps, bin_strategy, bin_low, bin_high, sm_min, sm_max, sm_step, experiments, mc_draws, skew, ridge_rel, ridge_abs, prune, contexts, seed, p_rows_in, configured_rows, do_contour, xhw, yhw, nx, ny):
         try:
             if mc_draws and int(mc_draws) > 200:
                 warning = "Warning: MC_draws > 200 may be slow. "
             else:
                 warning = ""
             kwargs = _stat_kwargs(mode, obs, decays, order, deps, bin_strategy, bin_low, bin_high, sm_min, sm_max, sm_step, experiments, mc_draws, skew, ridge_rel, ridge_abs, prune, contexts, seed)
+            if configured_rows:
+                kwargs["configured_rows"] = configured_rows
             result = svc.run_fit_and_scan(kwargs, p_rows_in or [], "contour" in (do_contour or []), xhw, yhw, nx, ny)
             corr_fig = correlation_heatmap(result["corr_rows"], "Fit-parameter correlations")
             contour_fig = likelihood_contour(result["scan_points"], [2.30, 6.18, 11.83], "2D ΔNLL contour") if result["scan_points"] else empty_fig("No 2D contour: provide exactly two p_specs and enable contour")

@@ -26,8 +26,8 @@ def parameter_controls(prefix: str):
         className="form-grid-3",
         children=[
             field("ParameterType", dropdown(f"{prefix}-ptype", svc.parameter_type_options(), value=svc.default_parameter_type_name("WILSON"))),
-            field("Block", text_input(f"{prefix}-block", "EW_SCALE")),
-            field("Code", text_input(f"{prefix}-code", "1")),
+            field("Block", dropdown(f"{prefix}-block", [], value=None, placeholder="Choose a block...")),
+            field("Code", dropdown(f"{prefix}-code", [], value=None, placeholder="Choose a code...")),
         ],
     )
 

@@ -97,18 +97,31 @@ def status_box(id: str, text: str = "Ready."):
     return html.Pre(id=id, className="status", children=text)
 
 
-def data_table(id: str, columns: Sequence[str], data: Sequence[dict] | None = None, page_size: int = 12, editable: bool = False):
+def data_table(
+    id: str,
+    columns: Sequence[str],
+    data: Sequence[dict] | None = None,
+    page_size: int = 12,
+    editable: bool = False,
+    row_selectable: str | bool | None = None,
+    row_deletable: bool | None = None,
+):
+    table_kwargs = {}
+    if row_selectable:
+        table_kwargs["row_selectable"] = row_selectable
+        table_kwargs["selected_rows"] = []
     return dash_table.DataTable(
         id=id,
         columns=[{"name": c, "id": c, "editable": editable} for c in columns],
         data=list(data or []),
         page_size=page_size,
         editable=editable,
-        row_deletable=editable,
+        row_deletable=editable if row_deletable is None else bool(row_deletable),
         filter_action="native",
         sort_action="native",
         style_as_list_view=True,
         style_table={"overflowX": "auto"},
+        **table_kwargs,
     )
 
 
