@@ -69,7 +69,7 @@ def layout():
                                     ]),
                                     html.Div(className="form-grid-2", children=[
                                         field("Group", dropdown("wilson-request-group", enum_options(WGroup), value="B")),
-                                        field("Coefficient", dropdown("wilson-request-coeff", enum_options(WCoeff), value="C7")),
+                                        field("Coefficient", dropdown("wilson-request-coeff", svc.wilson_coeff_options_for_group("B"), value="C7")),
                                     ]),
                                     html.Div(className="form-grid-3", children=[
                                         field("Order", dropdown("wilson-request-order", enum_options(QCDOrder), value="NNLO")),
@@ -106,7 +106,7 @@ def layout():
                         ],
                     ),
                     html.Div(className="grid", children=[
-                        card("Request result", "latest coefficient", data_table("wilson-result-table", ["method", "group", "coefficient", "order", "contribution", "basis", "component", "value", "scalar"], page_size=6)),
+                        card("Request result", "latest coefficient", data_table("wilson-result-table", [{"name": "Coefficient", "id": "coefficient_latex"}, "method", "group", "coefficient", "order", "contribution", "basis", "component", "value", "scalar"], page_size=6)),
                         card("Wilson scan plot", "1D scatter or 2D heatmap", graph("wilson-scan-fig", height=500), className="card graph-card"),
                         small_note("The scan code stores the original central value with ParameterProvider, mutates with ParameterSetter, evaluates the coefficient, then restores parameters in a finally block."),
                     ]),

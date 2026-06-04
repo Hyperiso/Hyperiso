@@ -83,7 +83,7 @@ def layout():
                         children=[
                             html.Div(id="core-metrics", className="metrics-row", children=runtime_metrics_children()),
                             card("Block inventory", "all ParameterType namespaces", graph("core-block-inventory-fig", height=430), className="card graph-card"),
-                            card("Block content", "values and uncertainties when available", data_table("core-block-table", ["code", "value", "stat_std", "syst_std", "combined_std", "scale", "bin"], page_size=16)),
+                            card("Block content", "values and uncertainties when available", data_table("core-block-table", ["code", "name", "value", "stat_std", "syst_std", "combined_std", "scale", "bin"], page_size=16)),
                             card("Block value distribution", "with combined uncertainty error bars if readable", graph("core-block-values-fig", height=430), className="card graph-card"),
                             small_note("The table reads values through BlockLogger and tries to enrich each row with ParameterProvider uncertainties. Scale/bin metadata is shown when the underlying bound parameter exposes it."),
                         ],

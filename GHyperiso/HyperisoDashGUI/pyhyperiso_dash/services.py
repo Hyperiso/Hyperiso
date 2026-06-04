@@ -6,6 +6,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Iterable, Mapping, Sequence
 
+from pyhyperiso_dash import latex as lx
 from pyhyperiso_dash.domain import (
     as_float,
     as_int,
@@ -22,11 +23,12 @@ from pyhyperiso_dash.domain import (
 
 from pyhyperiso.core.BusinessLogic.ObservableInterface import ObservableInterface
 from pyhyperiso.core.Common.BinnedObservableId import BinnedObservableId
-from pyhyperiso.core.Common.Configs import WilsonBuildConfig, WilsonRequest
+from pyhyperiso.core.Common.Configs import AlphasConfig, MassConfig, WilsonBuildConfig, WilsonRequest
 from pyhyperiso.core.Common.GeneralEnum import (
     ContributionType,
     DataType,
     Decays,
+    MassType,
     Model,
     Observables,
     ParameterType,
@@ -43,6 +45,8 @@ from pyhyperiso.core.Core.HyperisoConfig import ExternalFlag, HyperisoConfig
 from pyhyperiso.core.Core.HyperisoMaster import HyperisoMaster
 from pyhyperiso.core.Core.ParamaterProvider import ParameterProvider
 from pyhyperiso.core.Core.ParameterSetter import ParameterSetter
+from pyhyperiso.core.Core.QCDProvider import QCDProvider
+from pyhyperiso.core.Core.QEDProvider import QEDProvider
 from pyhyperiso.core.Statistic.Copula import CopulaKind
 from pyhyperiso.core.Statistic.StatisticConfig import StatisticConfig, StatisticLikelihoodMode
 from pyhyperiso.core.Statistic.StatisticInterface import StatisticInterface
@@ -113,6 +117,23 @@ def make_param_id(param_type_name: str, block: str, code: Any) -> ParamId:
 def param_to_label(pid: ParamId) -> str:
     ptype = pid.type.name if pid.type else "None"
     return f"{ptype}:{pid.block}:{pid.code.to_string()}"
+
+
+def param_to_latex_label(pid: ParamId) -> str:
+    ptype = pid.type.name if pid.type else None
+    return lx.parameter_table_label(str(pid.block), pid.code.to_string(), param_to_label(pid), ptype)
+
+
+def parameter_display_label(block: str | None, code: Any, raw: str | None = None, param_type_name: str | None = None) -> str:
+    return lx.parameter_label(block, code, raw, param_type_name)
+
+
+def observable_display_label(obs_name: str | None) -> str:
+    return lx.observable_label(obs_name)
+
+
+def wilson_request_display_label(method: str, coeff: str, order: str, contribution: str) -> str:
+    return lx.wilson_request_latex(method, coeff, order, contribution)
 
 
 def _cpp_lhaid(code: Any):
@@ -215,6 +236,34 @@ def default_parameter_type_name(preferred: str = "SM") -> str:
     if preferred in names:
         return preferred
     return names[0] if names else preferred
+
+
+def decay_options() -> list[dict]:
+    """Return decay dropdown options with LaTeX labels."""
+    return [lx.decay_option(dec.name) for dec in Decays]
+
+
+def observable_options_for_decays(decay_names: Sequence[str] | None = None) -> list[dict]:
+    """Return observable dropdown options, optionally filtered by decay."""
+    names: list[str] = []
+    mapper = DecayMapper()
+    if decay_names:
+        for decay_name in decay_names:
+            try:
+                decay = enum_by_name(Decays, decay_name)
+                names.extend(obs.name for obs in mapper.get_observables(decay))
+            except Exception:
+                continue
+    else:
+        names = [obs.name for obs in Observables]
+    return [lx.observable_option(name) for name in dict.fromkeys(names)]
+
+
+def observable_is_in_decay(obs_name: str | None, decay_names: Sequence[str] | None) -> bool:
+    if not obs_name or not decay_names:
+        return True
+    valid = {opt["value"] for opt in observable_options_for_decays(decay_names)}
+    return str(obs_name) in valid
 
 
 def resolve_parameter_type(param_type_name: str, *, strict: bool = True) -> ParameterType | None:
@@ -409,14 +458,37 @@ def block_code_options(param_type_name: str, block_name: str | None) -> list[dic
     except Exception:
         return []
     seen: set[str] = set()
-    out: list[dict[str, str]] = []
+    codes: list[str] = []
     for key in values.keys():
         code = code_to_display(key_to_code(key))
         if code in seen:
             continue
         seen.add(code)
-        out.append({"label": code, "value": code})
-    return sorted(out, key=lambda item: item["label"])
+        codes.append(code)
+
+    def _code_sort_key(code: str):
+        parts = str(code).replace(",", "_").split("_")
+        parsed = []
+        for part in parts:
+            try:
+                parsed.append((0, int(part)))
+            except Exception:
+                parsed.append((1, part))
+        return parsed
+
+    out: list[dict] = []
+    for code in sorted(codes, key=_code_sort_key):
+        try:
+            option = lx.parameter_option(str(block_name), code, pt.name if pt else param_type_name)
+        except Exception:
+            # Never let a display-label problem make the dropdown look empty.
+            raw = f"{block_name}:{code}"
+            option = {"label": str(code), "value": str(code), "title": raw, "search": raw}
+        option.setdefault("value", str(code))
+        option.setdefault("title", f"{block_name}:{code}")
+        option.setdefault("search", f"{block_name}:{code}")
+        out.append(option)
+    return out
 
 
 def parameter_picker_options(param_type_name: str | None, block_name: str | None = None) -> tuple[list[dict], str | None, list[dict], str | None]:
@@ -443,7 +515,12 @@ def block_table_rows(param_type_name: str, block_name: str) -> list[dict]:
     rows = []
     for key, value in values.items():
         code = key_to_code(key)
-        row = {"code": code_to_display(code), "value": scalar_to_float(value)}
+        code_s = code_to_display(code)
+        row = {
+            "code": code_s,
+            "name": lx.parameter_label(block_name, code_s, f"{block_name}:{code_s}", pt.name if pt else param_type_name),
+            "value": scalar_to_float(value),
+        }
         for dtype, col in [
             (DataType.STD_STAT, "stat_std"),
             (DataType.STD_SYST, "syst_std"),
@@ -483,7 +560,7 @@ def wilson_coeff_options_for_group(group_name: str | None) -> list[dict[str, str
     if not names:
         names = [coef.name for coef in WCoeff]
     valid = {coef.name for coef in WCoeff}
-    return [{"label": name, "value": name} for name in names if name in valid]
+    return [lx.wilson_option(name) for name in names if name in valid]
 
 
 def build_wilson(groups: Sequence[str], matching_scale: float, hadronic_scale: float, order_name: str, add: bool = False) -> dict:
@@ -558,6 +635,7 @@ def query_wilson(method: str, group: str, coeff: str, order: str, contribution: 
         "method": method,
         "group": group,
         "coefficient": coeff,
+        "coefficient_latex": lx.wilson_request_table_latex(method, coeff, order, contribution),
         "order": order,
         "contribution": contribution,
         "basis": basis,
@@ -721,6 +799,8 @@ def _observable_requested_rows(
         if key in seen:
             continue
         seen.add(key)
+        row["observable_label"] = lx.observable_table_label(row["observable"])
+        row["observable_raw"] = row["observable"]
         unique.append(row)
     return unique
 
@@ -951,8 +1031,11 @@ def _observable_rows_for_target(
                 continue
             if abs(low - float(bin_low)) > 1e-12 or abs(high - float(bin_high)) > 1e-12:
                 continue
+        raw_obs = str(getattr(value, "id", obs_name))
         rows.append({
-            "observable_id": str(getattr(value, "id", obs_name)),
+            "observable_id": raw_obs,
+            "observable_label": lx.observable_table_label(obs_name),
+            "raw_observable": obs_name,
             "bin_low": low,
             "bin_high": high,
             "value": scalar_to_float(getattr(value, "value"), "real"),
@@ -1004,8 +1087,11 @@ def _observable_rows_from_cpp_compute_all(oi: ObservableInterface) -> list[dict]
                 low = high = None
                 if value.bin is not None:
                     low, high = value.bin
+                raw_obs = str(value.id)
                 rows.append({
-                    "observable_id": str(value.id),
+                    "observable_id": raw_obs,
+                    "observable_label": lx.observable_table_label(raw_obs),
+                    "raw_observable": raw_obs,
                     "bin_low": low,
                     "bin_high": high,
                     "value": scalar_to_float(value.value, "real"),
@@ -1020,8 +1106,11 @@ def _observable_rows_from_cpp_compute_all(oi: ObservableInterface) -> list[dict]
             b = getattr(value, "bin", None)
             if b is not None:
                 low, high = float(b[0]), float(b[1])
+            raw_obs = str(getattr(value, "id", _oid))
             rows.append({
-                "observable_id": str(getattr(value, "id", _oid)),
+                "observable_id": raw_obs,
+                "observable_label": lx.observable_table_label(raw_obs),
+                "raw_observable": raw_obs,
                 "bin_low": low,
                 "bin_high": high,
                 "value": scalar_to_float(getattr(value, "value"), "real"),
@@ -1354,6 +1443,8 @@ def compute_uncertainty_rows(**kwargs) -> list[dict]:
         low, high = bid.p
         row = {
             "observable": str(bid.s),
+            "observable_label": lx.observable_table_label(str(bid.s)),
+            "raw_observable": str(bid.s),
             "bin_low": None if float(low) == 0.0 and float(high) == 0.0 else float(low),
             "bin_high": None if float(low) == 0.0 and float(high) == 0.0 else float(high),
             "bin_center": None if float(low) == 0.0 and float(high) == 0.0 else 0.5 * (float(low) + float(high)),
@@ -1386,13 +1477,19 @@ def p_specs_from_rows(rows: Sequence[dict]) -> list[ParamId]:
 def fit_result_rows(fit) -> tuple[list[dict], list[dict], list[dict]]:
     p_rows = []
     for p, v in fit.p_hat.items():
-        label = param_to_label(p)
-        p_rows.append({"parameter": label, "best_fit": scalar_to_float(v, "real"), "std": scalar_to_float(fit.p_hat_std.get(p, float("nan")), "real") if fit.p_hat_std else None})
-    eta_rows = [{"nuisance": param_to_label(p), "value": scalar_to_float(v, "real")} for p, v in fit.eta_hat.items()]
+        raw = param_to_label(p)
+        label = lx.parameter_table_label(str(p.block), p.code.to_string(), raw, p.type.name if p.type else None)
+        p_rows.append({"parameter": label, "raw_parameter": raw, "best_fit": scalar_to_float(v, "real"), "std": scalar_to_float(fit.p_hat_std.get(p, float("nan")), "real") if fit.p_hat_std else None})
+    eta_rows = []
+    for p, v in fit.eta_hat.items():
+        raw = param_to_label(p)
+        eta_rows.append({"nuisance": lx.parameter_table_label(str(p.block), p.code.to_string(), raw, p.type.name if p.type else None), "raw_nuisance": raw, "value": scalar_to_float(v, "real")})
     corr_rows = []
     for p1, inner in fit.p_correlations.items():
         for p2, corr in inner.items():
-            corr_rows.append({"x": param_to_label(p1), "y": param_to_label(p2), "corr": scalar_to_float(corr, "real")})
+            raw1 = param_to_label(p1)
+            raw2 = param_to_label(p2)
+            corr_rows.append({"x": lx.parameter_table_label(str(p1.block), p1.code.to_string(), raw1, p1.type.name if p1.type else None), "y": lx.parameter_table_label(str(p2.block), p2.code.to_string(), raw2, p2.type.name if p2.type else None), "raw_x": raw1, "raw_y": raw2, "corr": scalar_to_float(corr, "real")})
     return p_rows, eta_rows, corr_rows
 
 
@@ -1409,8 +1506,13 @@ def run_fit_and_scan(stat_kwargs: dict, p_spec_rows: Sequence[dict], do_contour:
         p_rows, eta_rows, corr_rows = fit_result_rows(fit)
         points = []
         if do_contour and len(p_specs) == 2:
-            RUNTIME.stat.prepare_likelihood_for_scan(p_specs)
-            RUNTIME.stat.set_manual_scan_point(fit.p_hat, fit.eta_hat)
+            # CHI2_MC_COVARIANCE creates a zero-nuisance likelihood inside
+            # compute_MLE(). Calling prepare_likelihood_for_scan() here would
+            # rebuild a profiled-nuisance scan context, so fit.eta_hat from the
+            # chi2 fit would be incomplete and C++ would raise
+            # "Missing manual nuisance value...". Reuse the likelihood prepared
+            # by compute_MLE() and only set the two best-fit coordinates.
+            RUNTIME.stat.set_manual_scan_point(fit.p_hat, {})
             grid = RUNTIME.stat.scan_likelihood_around_current_point(
                 p_specs[0],
                 p_specs[1],
@@ -1428,3 +1530,122 @@ def run_fit_and_scan(stat_kwargs: dict, p_spec_rows: Sequence[dict], do_contour:
         "corr_rows": corr_rows,
         "scan_points": points,
     }
+
+
+# ---------- QCD / QED running ----------
+
+_PARTICLE_LABELS = {
+    1: "d quark",
+    2: "u quark",
+    3: "s quark",
+    4: "c quark",
+    5: "b quark",
+    6: "t quark",
+    11: "electron",
+    13: "muon",
+    15: "tau",
+}
+
+
+def mass_particle_options() -> list[dict[str, str | int]]:
+    """Return common PDG ids for the QCD mass calculator."""
+    return [{"label": f"{name} ({pid})", "value": pid} for pid, name in _PARTICLE_LABELS.items()]
+
+
+def mass_type_options() -> list[dict[str, str]]:
+    """Return MassType options usable by the running providers."""
+    return [{"label": mt.name, "value": mt.name} for mt in MassType]
+
+
+def _mass_type(name: str | None, fallback: str = "POLE") -> MassType:
+    return enum_by_name(MassType, name or fallback)
+
+
+def _qcd_provider() -> QCDProvider:
+    require_initialized()
+    return QCDProvider()
+
+
+def qcd_constants_rows(kind: str = "all") -> list[dict]:
+    """Return QCD constants as table rows."""
+    qcd = _qcd_provider()
+    consts = qcd.get_qcd_constants()
+    kind = str(kind or "all").lower()
+    rows = []
+    if kind in {"all", "color"}:
+        rows.extend([
+            {"quantity": "N_c", "index": "", "value": consts.Nc},
+            {"quantity": "C_F", "index": "", "value": consts.C_F},
+            {"quantity": "C_A", "index": "", "value": consts.C_A},
+        ])
+    if kind in {"all", "beta"}:
+        try:
+            for i, value in enumerate(list(consts.beta)):
+                rows.append({"quantity": "beta", "index": i, "value": value})
+        except Exception:
+            pass
+    if kind in {"all", "gamma"}:
+        try:
+            for i, value in enumerate(list(consts.gamma)):
+                rows.append({"quantity": "gamma", "index": i, "value": value})
+        except Exception:
+            pass
+    return rows
+
+
+def qcd_alphas(scale: float, mb_type: str = "POLE", mt_type: str = "POLE") -> float:
+    """Compute alpha_s at one scale."""
+    qcd = _qcd_provider()
+    value = qcd.get_alphas(AlphasConfig(float(scale), _mass_type(mb_type), _mass_type(mt_type)))
+    return scalar_to_float(value, "real")
+
+
+def qcd_alphaem(scale: float, mb_type: str = "POLE", mt_type: str = "POLE") -> float:
+    """Compute alpha_em at one scale through QEDProvider."""
+    require_initialized()
+    qed = QEDProvider()
+    value = qed.get_alpha_em(AlphasConfig(float(scale), _mass_type(mb_type), _mass_type(mt_type)))
+    return scalar_to_float(value, "real")
+
+
+def qcd_mass(scale: float, pdg_id: int, mb_type: str = "POLE", mt_type: str = "POLE") -> float:
+    """Compute the running mass for one PDG id and scale."""
+    qcd = _qcd_provider()
+    cfg = MassConfig(float(scale), _mass_type(mb_type), _mass_type(mt_type), int(pdg_id))
+    value = qcd.get_qcd_masses(cfg)
+    return scalar_to_float(value, "real")
+
+
+def qcd_scan_alphas(scale_min: float, scale_max: float, n_points: int, mb_type: str = "POLE", mt_type: str = "POLE") -> tuple[list[float], list[float]]:
+    """Compute alpha_s on a scale grid."""
+    xs = linspace(float(scale_min), float(scale_max), int(n_points or 1))
+    ys = [qcd_alphas(x, mb_type, mt_type) for x in xs]
+    return xs, ys
+
+
+def qcd_scan_alphaem(scale_min: float, scale_max: float, n_points: int, mb_type: str = "POLE", mt_type: str = "POLE") -> tuple[list[float], list[float]]:
+    """Compute alpha_em on a scale grid."""
+    xs = linspace(float(scale_min), float(scale_max), int(n_points or 1))
+    ys = [qcd_alphaem(x, mb_type, mt_type) for x in xs]
+    return xs, ys
+
+
+def qcd_scan_mass(scale_min: float, scale_max: float, n_points: int, pdg_id: int, mb_type: str = "POLE", mt_type: str = "POLE") -> tuple[list[float], list[float]]:
+    """Compute a running mass on a scale grid."""
+    xs = linspace(float(scale_min), float(scale_max), int(n_points or 1))
+    ys = [qcd_mass(x, int(pdg_id), mb_type, mt_type) for x in xs]
+    return xs, ys
+
+
+def qcd_single_result_rows(scale: float, pdg_id: int, mb_type: str = "POLE", mt_type: str = "POLE", include_qed: bool = False) -> list[dict]:
+    """Return a compact table containing alpha_s and one running mass."""
+    rows = [
+        {"quantity": r"$\alpha_s(\mu)$", "scale": float(scale), "pdg_id": "", "scheme": f"m_b={mb_type}, m_t={mt_type}", "value": qcd_alphas(scale, mb_type, mt_type)},
+        {"quantity": r"$m(\mu)$", "scale": float(scale), "pdg_id": int(pdg_id), "scheme": f"m_b={mb_type}, m_t={mt_type}", "value": qcd_mass(scale, int(pdg_id), mb_type, mt_type)},
+    ]
+    if include_qed:
+        try:
+            rows.append({"quantity": r"$\alpha_{\rm em}(\mu)$", "scale": float(scale), "pdg_id": "", "scheme": f"m_b={mb_type}, m_t={mt_type}", "value": qcd_alphaem(scale, mb_type, mt_type)})
+        except Exception as exc:
+            rows.append({"quantity": r"$\alpha_{\rm em}(\mu)$", "scale": float(scale), "pdg_id": "", "scheme": "unavailable", "value": str(exc)})
+    return rows

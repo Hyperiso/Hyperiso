@@ -17,6 +17,8 @@
 #include "ParameterShifter.h"
 #include "MartyAdapter.h"
 #include "BlockProvider.h"
+#include "QEDProvider.h"
+#include "DependantBlockInfoProvider.h"
 
 namespace py = pybind11;
 
@@ -387,6 +389,44 @@ void init_core(py::module &m) {
 
     bind_correlation_provider(m);
 
+    py::class_<DependantBlockInfoProvider, std::shared_ptr<DependantBlockInfoProvider>>(m, "DependantBlockInfoProvider")
+        .def(py::init<>())
+        .def(
+            "is_dependent_block",
+            &DependantBlockInfoProvider::is_dependent_block,
+            py::arg("type"),
+            py::arg("block_name"),
+            "Return whether the requested block is implemented as a dependent block."
+        )
+        .def(
+            "get_source_blocks",
+            &DependantBlockInfoProvider::get_source_blocks,
+            py::arg("type"),
+            py::arg("block_name"),
+            "Return the direct upstream/source blocks used by the requested block."
+        )
+        .def(
+            "get_dependent_blocks",
+            &DependantBlockInfoProvider::get_dependent_blocks,
+            py::arg("type"),
+            py::arg("block_name"),
+            "Return the direct downstream blocks depending on the requested block."
+        )
+        .def(
+            "get_all_source_blocks",
+            &DependantBlockInfoProvider::get_all_source_blocks,
+            py::arg("type"),
+            py::arg("block_name"),
+            "Return all transitive upstream/source blocks used by the requested block."
+        )
+        .def(
+            "get_all_dependent_blocks",
+            &DependantBlockInfoProvider::get_all_dependent_blocks,
+            py::arg("type"),
+            py::arg("block_name"),
+            "Return all transitive downstream blocks depending on the requested block."
+        );
+
     // QCDProvider
     py::class_<QCDConstants>(m, "QCDConstants")
         .def_readonly_static("Nc", &QCDConstants::Nc)
@@ -404,7 +444,11 @@ void init_core(py::module &m) {
         .def("get_constants", [](QCDProvider &self) {
             return self.get_constants();
         }, py::return_value_policy::reference);
-
+    
+    py::class_<QEDProvider, std::shared_ptr<QEDProvider>>(m, "QEDProvider")
+        .def(py::init<>())
+        .def("compute_alphaem", py::overload_cast<AlphasConfig>(&QEDProvider::operator()), py::arg("alpha_config"));
+        
     // APIAdapter
     py::class_<APIAdapter, std::shared_ptr<APIAdapter>>(m, "APIAdapter")
     .def(py::init<>())

@@ -50,7 +50,9 @@ add_library(CoreLib STATIC
     adapters/SpectrumCalculator.cpp
     adapters/CorrelationAdapter.cpp
     adapters/CompositeParamCreator.cpp
+    adapters/DependantBlockInfoProvider.cpp
     adapters/QCDProvider.cpp
+    adapters/QEDProvider.cpp
     adapters/ParameterSetter.cpp
     adapters/ParameterShifter.cpp
     adapters/Freezer.cpp

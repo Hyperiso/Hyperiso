@@ -172,6 +172,40 @@ def register_callbacks(app):
         value = current_coeff if current_coeff in valid else (opts[0]["value"] if opts else None)
         return opts, value
 
+    # ---------- Decay -> observable cascading selectors ----------
+    for prefix in ["obs-build", "stat-obs"]:
+        @app.callback(
+            Output(f"{prefix}-obs", "options"),
+            Output(f"{prefix}-obs", "value"),
+            Output(f"{prefix}-obs", "disabled"),
+            Input(f"{prefix}-decays", "value"),
+            Input(f"{prefix}-mode", "value"),
+            State(f"{prefix}-obs", "value"),
+            prevent_initial_call=False,
+        )
+        def _update_observables_for_decay(decays, mode, current, _prefix=prefix):
+            opts = svc.observable_options_for_decays(decays or [])
+            valid = {o["value"] for o in opts}
+            current_values = current if isinstance(current, list) else ([current] if current else [])
+            value = [x for x in current_values if x in valid]
+            if not value and opts and mode != "decay":
+                value = [opts[0]["value"]]
+            disabled = mode == "decay"
+            return opts, ([] if disabled else value), disabled
+
+    @app.callback(
+        Output("obs-scan-observable", "options"),
+        Output("obs-scan-observable", "value"),
+        Input("obs-scan-decay", "value"),
+        State("obs-scan-observable", "value"),
+        prevent_initial_call=False,
+    )
+    def update_scan_observables(decay, current):
+        opts = svc.observable_options_for_decays([decay] if decay else [])
+        valid = {o["value"] for o in opts}
+        value = current if current in valid else (opts[0]["value"] if opts else None)
+        return opts, value
+
     # ---------- Core ----------
     @app.callback(
         Output("core-lha-path", "value"),
@@ -331,9 +365,11 @@ def register_callbacks(app):
             component = component or "real"
             if dim == "2d":
                 xs, ys, z = svc.wilson_scan_2d(method, group, coeff, order, contribution, basis, component, (x_ptype, x_block, x_code), (y_ptype, y_block, y_code), x_min, x_max, x_n, y_min, y_max, y_n)
-                return heatmap_2d(xs, ys, z, f"{method} {group}:{coeff} [{component}]", f"{x_ptype}:{x_block}:{x_code}", f"{y_ptype}:{y_block}:{y_code}", f"Wilson {component}"), f"2D scan complete: {len(xs)}×{len(ys)} points."
+                title = svc.wilson_request_display_label(method, coeff, order, contribution) + f" [{component}]"
+                return heatmap_2d(xs, ys, z, title, svc.parameter_display_label(x_block, x_code, f"{x_ptype}:{x_block}:{x_code}", x_ptype), svc.parameter_display_label(y_block, y_code, f"{y_ptype}:{y_block}:{y_code}", y_ptype), f"Wilson {component}"), f"2D scan complete: {len(xs)}×{len(ys)} points."
             xs, ys = svc.wilson_scan_1d(method, group, coeff, order, contribution, basis, component, x_ptype, x_block, x_code, x_min, x_max, x_n)
-            return series_1d(xs, ys, f"{method} {group}:{coeff} [{component}]", f"{x_ptype}:{x_block}:{x_code}", f"Wilson {component}"), f"1D scan complete: {len(xs)} points."
+            title = svc.wilson_request_display_label(method, coeff, order, contribution) + f" [{component}]"
+            return series_1d(xs, ys, title, svc.parameter_display_label(x_block, x_code, f"{x_ptype}:{x_block}:{x_code}", x_ptype), f"Wilson {component}"), f"1D scan complete: {len(xs)} points."
         except Exception as exc:
             return empty_fig("Wilson scan failed"), _err("Wilson scan failed.", exc)
 
@@ -420,9 +456,9 @@ def register_callbacks(app):
             add_deps = "deps" in (deps or [])
             if dim == "2d":
                 xs, ys, z = svc.observable_scan_2d(obs, order, add_deps, bin_low, bin_high, (x_ptype, x_block, x_code), (y_ptype, y_block, y_code), x_min, x_max, x_n, y_min, y_max, y_n)
-                return heatmap_2d(xs, ys, z, obs, f"{x_ptype}:{x_block}:{x_code}", f"{y_ptype}:{y_block}:{y_code}", "observable"), f"2D observable scan complete: {len(xs)}×{len(ys)} points."
+                return heatmap_2d(xs, ys, z, svc.observable_display_label(obs), svc.parameter_display_label(x_block, x_code, f"{x_ptype}:{x_block}:{x_code}", x_ptype), svc.parameter_display_label(y_block, y_code, f"{y_ptype}:{y_block}:{y_code}", y_ptype), "observable"), f"2D observable scan complete: {len(xs)}×{len(ys)} points."
             xs, ys = svc.observable_scan_1d(obs, order, add_deps, bin_low, bin_high, x_ptype, x_block, x_code, x_min, x_max, x_n)
-            return series_1d(xs, ys, obs, f"{x_ptype}:{x_block}:{x_code}", "observable"), f"1D observable scan complete: {len(xs)} points."
+            return series_1d(xs, ys, svc.observable_display_label(obs), svc.parameter_display_label(x_block, x_code, f"{x_ptype}:{x_block}:{x_code}", x_ptype), "observable"), f"1D observable scan complete: {len(xs)} points."
         except Exception as exc:
             return empty_fig("Observable scan failed"), _err("Observable scan failed.", exc)
 
@@ -503,7 +539,7 @@ def register_callbacks(app):
             return rows[:10], []
         if not (ptype and block and code not in (None, "")):
             return rows[:10], []
-        row = {"type": ptype, "block": block, "code": str(code)}
+        row = {"parameter": svc.parameter_display_label(block, code, f"{ptype}:{block}:{code}", ptype), "type": ptype, "block": block, "code": str(code)}
         key = (row["type"], row["block"], row["code"])
         if key not in {(r.get("type"), r.get("block"), str(r.get("code"))) for r in rows}:
             rows.append(row)
@@ -598,3 +634,90 @@ def register_callbacks(app):
             return result["p_rows"], result["eta_rows"], corr_fig, contour_fig, status
         except Exception as exc:
             return [], [], empty_fig("Fit correlations unavailable"), empty_fig("Contour unavailable"), _err("Fit/contour failed.", exc)
+
+    # ---------- QCD ----------
+    @app.callback(
+        Output("qcd-result-table", "data"),
+        Output("qcd-compute-status", "children"),
+        Input("qcd-compute-btn", "n_clicks"),
+        State("qcd-single-scale", "value"),
+        State("qcd-mass-pdg", "value"),
+        State("qcd-single-mb-type", "value"),
+        State("qcd-single-mt-type", "value"),
+        State("qcd-include-qed", "value"),
+        prevent_initial_call=True,
+    )
+    def qcd_compute(_, scale, pdg_id, mb_type, mt_type, include_qed):
+        try:
+            rows = svc.qcd_single_result_rows(scale, pdg_id, mb_type, mt_type, include_qed="qed" in (include_qed or []))
+            return rows, f"Computed QCD values at μ={float(scale):.6g} GeV."
+        except Exception as exc:
+            return [], _err("QCD computation failed.", exc)
+
+    @app.callback(
+        Output("qcd-alpha-fig", "figure"),
+        Output("qcd-alpha-status", "children"),
+        Input("qcd-alpha-scan-btn", "n_clicks"),
+        State("qcd-alpha-min", "value"),
+        State("qcd-alpha-max", "value"),
+        State("qcd-alpha-n", "value"),
+        State("qcd-alpha-mb-type", "value"),
+        State("qcd-alpha-mt-type", "value"),
+        prevent_initial_call=True,
+    )
+    def qcd_alpha_scan(_, scale_min, scale_max, n_points, mb_type, mt_type):
+        try:
+            xs, ys = svc.qcd_scan_alphas(scale_min, scale_max, n_points, mb_type, mt_type)
+            return series_1d(xs, ys, r"$\alpha_s(\mu)$", r"$\mu\;[\mathrm{GeV}]$", r"$\alpha_s$"), f"Computed αs scan with {len(xs)} points."
+        except Exception as exc:
+            return empty_fig("αs scan failed"), _err("αs scan failed.", exc)
+
+    @app.callback(
+        Output("qcd-alphaem-fig", "figure"),
+        Output("qcd-alphaem-status", "children"),
+        Input("qcd-alphaem-scan-btn", "n_clicks"),
+        State("qcd-alphaem-min", "value"),
+        State("qcd-alphaem-max", "value"),
+        State("qcd-alphaem-n", "value"),
+        State("qcd-alphaem-mb-type", "value"),
+        State("qcd-alphaem-mt-type", "value"),
+        prevent_initial_call=True,
+    )
+    def qcd_alphaem_scan(_, scale_min, scale_max, n_points, mb_type, mt_type):
+        try:
+            xs, ys = svc.qcd_scan_alphaem(scale_min, scale_max, n_points, mb_type, mt_type)
+            return series_1d(xs, ys, r"$\alpha_{\mathrm{em}}(\mu)$", r"$\mu\;[\mathrm{GeV}]$", r"$\alpha_{\mathrm{em}}$"), f"Computed αem scan with {len(xs)} points."
+        except Exception as exc:
+            return empty_fig("αem scan failed"), _err("αem scan failed.", exc)
+
+    @app.callback(
+        Output("qcd-mass-fig", "figure"),
+        Output("qcd-mass-status", "children"),
+        Input("qcd-mass-scan-btn", "n_clicks"),
+        State("qcd-mass-min", "value"),
+        State("qcd-mass-max", "value"),
+        State("qcd-mass-n", "value"),
+        State("qcd-mass-scan-pdg", "value"),
+        State("qcd-mass-mb-type", "value"),
+        State("qcd-mass-mt-type", "value"),
+        prevent_initial_call=True,
+    )
+    def qcd_mass_scan(_, scale_min, scale_max, n_points, pdg_id, mb_type, mt_type):
+        try:
+            xs, ys = svc.qcd_scan_mass(scale_min, scale_max, n_points, pdg_id, mb_type, mt_type)
+            return series_1d(xs, ys, rf"$m_{{{pdg_id}}}(\mu)$", r"$\mu\;[\mathrm{GeV}]$", r"$m(\mu)$"), f"Computed mass scan with {len(xs)} points."
+        except Exception as exc:
+            return empty_fig("Mass scan failed"), _err("Mass scan failed.", exc)
+
+    @app.callback(
+        Output("qcd-constants-table", "data"),
+        Input("qcd-constants-btn", "n_clicks"),
+        State("qcd-constants-kind", "value"),
+        prevent_initial_call=True,
+    )
+    def qcd_constants(_, kind):
+        try:
+            return svc.qcd_constants_rows(kind or "all")
+        except Exception:
+            return []
+

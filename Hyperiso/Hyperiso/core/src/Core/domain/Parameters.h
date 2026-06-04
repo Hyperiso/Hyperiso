@@ -446,6 +446,69 @@ public:
     std::unordered_set<BlockName> get_blocks_list();
 
     /**
+     * @brief Checks whether one block is a dependent block.
+     *
+     * This delegates to @ref BlockAccessor::is_dependent_block on the repository
+     * owned by this @ref Parameters instance.
+     *
+     * @param blockName Block name or alias to inspect.
+     * @return True if the block is a @ref DependentBlock, false otherwise.
+     *
+     * @throws std::invalid_argument if the block cannot be resolved.
+     */
+    bool is_dependent_block(const BlockName& blockName) const;
+
+    /**
+     * @brief Returns the direct source blocks of one block.
+     *
+     * Direct source blocks are the upstream blocks immediately used by the
+     * inspected block. Plain blocks return an empty list.
+     *
+     * @param blockName Block name or alias to inspect.
+     * @return Sorted list of direct upstream/source block names.
+     *
+     * @throws std::invalid_argument if the block cannot be resolved.
+     */
+    std::vector<std::string> get_source_blocks(const BlockName& blockName) const;
+
+    /**
+     * @brief Returns the direct blocks depending on one block.
+     *
+     * This follows direct block observers and is the downstream counterpart of
+     * @ref get_source_blocks.
+     *
+     * @param blockName Block name or alias to inspect.
+     * @return Sorted list of direct downstream/dependent block names.
+     *
+     * @throws std::invalid_argument if the block cannot be resolved.
+     */
+    std::vector<std::string> get_dependent_blocks(const BlockName& blockName) const;
+
+    /**
+     * @brief Returns all transitive source blocks of one block.
+     *
+     * This recursively walks upstream through dependent-block source links.
+     *
+     * @param blockName Block name or alias to inspect.
+     * @return Sorted list of all upstream/source block names.
+     *
+     * @throws std::invalid_argument if the block cannot be resolved.
+     */
+    std::vector<std::string> get_all_source_blocks(const BlockName& blockName) const;
+
+    /**
+     * @brief Returns all transitive blocks depending on one block.
+     *
+     * This recursively walks downstream through block observers.
+     *
+     * @param blockName Block name or alias to inspect.
+     * @return Sorted list of all downstream/dependent block names.
+     *
+     * @throws std::invalid_argument if the block cannot be resolved.
+     */
+    std::vector<std::string> get_all_dependent_blocks(const BlockName& blockName) const;
+    
+    /**
      * @brief Changes the mode of one parameter.
      *
      * @warning This is currently not implemented in the provided `.cpp`

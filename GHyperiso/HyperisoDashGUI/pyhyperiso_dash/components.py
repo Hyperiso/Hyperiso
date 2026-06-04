@@ -32,6 +32,7 @@ def graph(id: str, height: int = 460):
         className="stable-graph",
         config=GRAPH_CONFIG,
         responsive=False,
+        mathjax=True,
         style={
             "height": h,
             "minHeight": h,
@@ -76,8 +77,8 @@ def num_input(id: str, value: float | int | None = None, placeholder: str = "", 
     return dcc.Input(id=id, value=value, placeholder=placeholder, type="number", debounce=debounce, style={"width": "100%"})
 
 
-def dropdown(id: str, options: Sequence[dict], value: Any = None, multi: bool = False, placeholder: str = "Select..."):
-    return dcc.Dropdown(id=id, options=list(options), value=value, multi=multi, placeholder=placeholder, clearable=True)
+def dropdown(id: str, options: Sequence[dict], value: Any = None, multi: bool = False, placeholder: str = "Select...", disabled: bool = False):
+    return dcc.Dropdown(id=id, options=list(options), value=value, multi=multi, placeholder=placeholder, clearable=True, disabled=disabled)
 
 
 def enum_options(enum_cls: type, include: Iterable[str] | None = None, exclude: Iterable[str] | None = None) -> list[dict[str, str]]:
@@ -110,9 +111,20 @@ def data_table(
     if row_selectable:
         table_kwargs["row_selectable"] = row_selectable
         table_kwargs["selected_rows"] = []
+    def _normalize_column(c):
+        col = dict(c) if isinstance(c, dict) else {"name": c, "id": c}
+        col.setdefault("editable", editable)
+        cid = str(col.get("id", ""))
+        cname = str(col.get("name", ""))
+        # Columns carrying LaTeX labels render better as Markdown cells; the
+        # app-level MathJax observer then typesets any $...$ fragments.
+        if any(token in cid.lower() for token in ("label", "latex", "parameter", "nuisance")) or cname.lower() in {"observable", "coefficient", "parameter", "nuisance"}:
+            col.setdefault("presentation", "markdown")
+        return col
+
     return dash_table.DataTable(
         id=id,
-        columns=[{"name": c, "id": c, "editable": editable} for c in columns],
+        columns=[_normalize_column(c) for c in columns],
         data=list(data or []),
         page_size=page_size,
         editable=editable,
@@ -120,6 +132,7 @@ def data_table(
         filter_action="native",
         sort_action="native",
         style_as_list_view=True,
+        markdown_options={"html": True},
         style_table={"overflowX": "auto"},
         **table_kwargs,
     )

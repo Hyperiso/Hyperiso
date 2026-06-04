@@ -6,7 +6,7 @@ import plotly.express as px
 from dash import Dash, Input, Output, dcc, html
 
 from pyhyperiso_dash.callbacks import register_callbacks
-from pyhyperiso_dash.pages import core, observable, stat, wilson
+from pyhyperiso_dash.pages import core, observable, qcd, stat, wilson
 
 px.defaults.template = "plotly_dark"
 px.defaults.color_discrete_sequence = px.colors.qualitative.Set2
@@ -17,6 +17,7 @@ PAGES = {
     "/wilson": wilson.layout,
     "/observable": observable.layout,
     "/stat": stat.layout,
+    "/qcd": qcd.layout,
 }
 
 NAV_ITEMS = [
@@ -24,6 +25,7 @@ NAV_ITEMS = [
     ("/wilson", "Wilson", "Build, requests, scans"),
     ("/observable", "Observable", "Predictions and parameter scans"),
     ("/stat", "Stat", "χ² uncertainty, fit and contours"),
+    ("/qcd", "QCD", "αs, masses, constants"),
 ]
 
 
@@ -40,6 +42,7 @@ def make_app() -> Dash:
         children=[
             dcc.Location(id="url"),
             dcc.Store(id="runtime-ping", data=0),
+            dcc.Markdown("$x$", mathjax=True, className="mathjax-loader"),
             html.Aside(
                 className="sidebar",
                 children=[

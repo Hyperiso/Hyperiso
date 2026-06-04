@@ -2,12 +2,13 @@
 
 A Dash application for driving the PyHyperiso workflow from a professional dark UI inspired by your HepMCGUI project.
 
-The application is organized around four pages:
+The application is organized around five pages:
 
 1. **Core** — initialize or switch the active LHA/SLHA/FLHA input and inspect loaded blocks by `ParameterType`.
 2. **Wilson** — build `WilsonInterface`, run matching/running requests, and scan one or two parameters with automatic restore.
 3. **Observable** — select observables or whole decays, handle binned observables, compute predictions and scan parameter dependence.
 4. **Stat** — χ²-only statistical workflow: uncertainty propagation, best fits, nuisance output, correlations and 2D ΔNLL contours.
+5. **QCD** — compute and plot `alpha_s`, running masses and backend QCD constants.
 
 ## Project structure
 
@@ -29,6 +30,7 @@ HyperisoDashGUI/
     └── pages/
         ├── core.py
         ├── observable.py
+        ├── qcd.py
         ├── stat.py
         └── wilson.py
 ```

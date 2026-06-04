@@ -640,3 +640,347 @@ input[type=number]{ -moz-appearance: textfield; }
 .stable-graph .main-svg{
   max-height: 100% !important;
 }
+
+/* Compact MathJax/LaTeX labels used inside dropdown options and tables. */
+.latex-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  min-width: 0;
+}
+.latex-inline,
+.latex-inline p {
+  display: inline;
+  margin: 0;
+  padding: 0;
+}
+.option-raw {
+  color: rgba(148, 163, 184, 0.85);
+  font-size: 0.78rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+}
+.dash-table-container .dash-cell div.markdown p {
+  margin: 0;
+}
+
+/* ---------- MathJax / LaTeX rendering helpers ---------- */
+.mathjax-loader{
+  display: none !important;
+}
+.latex-option{
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  max-width: 100%;
+}
+.latex-inline-math{
+  display: inline-block;
+  margin: 0;
+  line-height: 1.1;
+  color: rgba(229,231,235,0.96);
+  max-width: 100%;
+}
+.latex-inline-math p{
+  display: inline;
+  margin: 0;
+}
+.latex-inline-math mjx-container{
+  margin: 0 !important;
+}
+.option-raw{
+  color: rgba(229,231,235,0.46);
+  font-size: 11px;
+  white-space: nowrap;
+}
+.dash-cell mjx-container,
+.dash-table-container mjx-container{
+  margin: 0 !important;
+  color: rgba(229,231,235,0.92) !important;
+}
+.dash-cell .MathJax,
+.dash-table-container .MathJax{
+  color: rgba(229,231,235,0.92) !important;
+}
+
+/* ---------- Dropdown contrast and MathJax stability fixes ---------- */
+.Select-menu-outer,
+.Select-menu,
+.VirtualizedSelectGrid,
+.VirtualizedSelectOption,
+.Select-option{
+  background: rgba(15,23,42,0.98) !important;
+  color: rgba(229,231,235,0.96) !important;
+}
+.Select-option,
+.VirtualizedSelectOption{
+  border-bottom: 1px solid rgba(148,163,184,0.08) !important;
+}
+.Select-option.is-focused,
+.VirtualizedSelectFocusedOption{
+  background: rgba(96,165,250,0.26) !important;
+  color: #ffffff !important;
+}
+.Select-option.is-selected,
+.VirtualizedSelectSelectedOption{
+  background: rgba(96,165,250,0.42) !important;
+  color: #ffffff !important;
+}
+.Select-input,
+.Select-input > input,
+.Select-control input{
+  color: rgba(229,231,235,0.96) !important;
+  background: transparent !important;
+  -webkit-text-fill-color: rgba(229,231,235,0.96) !important;
+}
+.Select--single > .Select-control .Select-value,
+.Select--single > .Select-control .Select-value-label{
+  color: rgba(229,231,235,0.96) !important;
+}
+.Select-menu-outer .latex-inline-math,
+.VirtualizedSelectOption .latex-inline-math,
+.Select-option .latex-inline-math{
+  color: rgba(248,250,252,0.98) !important;
+}
+.Select-menu-outer .option-raw,
+.VirtualizedSelectOption .option-raw,
+.Select-option .option-raw{
+  color: rgba(203,213,225,0.72) !important;
+}
+.Select-value .option-raw,
+.Select-value-label .option-raw{
+  color: rgba(226,232,240,0.78) !important;
+}
+
+/* ---------- Robust parameter-code dropdown rendering ---------- */
+.parameter-code-option{
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  min-width: 0 !important;
+}
+.parameter-code-raw{
+  display: inline-block !important;
+  color: #f8fafc !important;
+  background: rgba(15,23,42,0.72) !important;
+  border: 1px solid rgba(148,163,184,0.28) !important;
+  border-radius: 7px !important;
+  padding: 2px 6px !important;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace !important;
+  font-size: 0.76rem !important;
+  line-height: 1.2 !important;
+  white-space: nowrap !important;
+}
+.parameter-code-latex{
+  color: #e5e7eb !important;
+  min-width: 0 !important;
+}
+.parameter-code-latex p{
+  margin: 0 !important;
+  display: inline !important;
+}
+.Select-value .parameter-code-raw,
+.Select-value-label .parameter-code-raw{
+  background: rgba(30,41,59,0.72) !important;
+  color: #f8fafc !important;
+}
+
+/* Dash may use either the legacy React-Select v1 classes (.Select-*) or the
+   newer class prefix (.Select__*).  Force both to the dark theme so searched
+   options never become light-gray text on a white menu. */
+.Select-menu-outer,
+.Select-menu-outer *,
+.Select-menu,
+.Select-menu *,
+.VirtualizedSelectGrid,
+.VirtualizedSelectGrid *,
+.VirtualizedSelectOption,
+.VirtualizedSelectOption *,
+.Select-option,
+.Select-option *,
+.Select__menu,
+.Select__menu *,
+.Select__menu-list,
+.Select__menu-list *,
+.Select__option,
+.Select__option *{
+  background-color: rgba(15,23,42,0.98) !important;
+  color: #e5e7eb !important;
+}
+.Select__option--is-focused,
+.Select__option--is-focused *,
+.Select-option.is-focused,
+.Select-option.is-focused *,
+.VirtualizedSelectFocusedOption,
+.VirtualizedSelectFocusedOption *{
+  background-color: rgba(96,165,250,0.30) !important;
+  color: #ffffff !important;
+}
+.Select__option--is-selected,
+.Select__option--is-selected *,
+.Select-option.is-selected,
+.Select-option.is-selected *,
+.VirtualizedSelectSelectedOption,
+.VirtualizedSelectSelectedOption *{
+  background-color: rgba(96,165,250,0.44) !important;
+  color: #ffffff !important;
+}
+.Select__control,
+.Select__control *,
+.Select__value-container,
+.Select__input-container,
+.Select__single-value,
+.Select__placeholder{
+  background-color: rgba(2,6,23,0.62) !important;
+  color: #e5e7eb !important;
+}
+.Select__input input,
+.Select-input input{
+  color: #f8fafc !important;
+  -webkit-text-fill-color: #f8fafc !important;
+  background: transparent !important;
+}
+
+
+/* ---------- Patch: dropdown menu readability + parameter option layout ---------- */
+.Select-menu-outer,
+.Select-menu,
+.VirtualizedSelectGrid,
+.Select__menu,
+.Select__menu-list{
+  background: #0f172a !important;
+  color: #e5e7eb !important;
+}
+.VirtualizedSelectOption,
+.Select-option,
+.Select__option{
+  background: #0f172a !important;
+  color: #e5e7eb !important;
+  min-height: 34px !important;
+  display: flex !important;
+  align-items: center !important;
+}
+.VirtualizedSelectFocusedOption,
+.Select-option.is-focused,
+.Select__option--is-focused{
+  background: #1e3a5f !important;
+  color: #ffffff !important;
+}
+.VirtualizedSelectSelectedOption,
+.Select-option.is-selected,
+.Select__option--is-selected{
+  background: #2563eb !important;
+  color: #ffffff !important;
+}
+.parameter-code-option{
+  width: 100% !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 14px !important;
+  min-width: 0 !important;
+  overflow: visible !important;
+}
+.parameter-code-latex{
+  flex: 0 1 auto !important;
+  min-width: 0 !important;
+  max-width: calc(100% - 90px) !important;
+  overflow: visible !important;
+  white-space: nowrap !important;
+}
+.parameter-code-raw{
+  flex: 0 0 auto !important;
+  color: rgba(203,213,225,0.82) !important;
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace !important;
+  font-size: 0.76rem !important;
+  line-height: 1.2 !important;
+  white-space: nowrap !important;
+}
+.Select-value .parameter-code-raw,
+.Select-value-label .parameter-code-raw{
+  background: transparent !important;
+  color: rgba(203,213,225,0.82) !important;
+}
+.Select-menu-outer .parameter-code-latex,
+.Select-menu-outer .parameter-code-latex *{
+  color: #f8fafc !important;
+  background: transparent !important;
+}
+.Select-menu-outer .parameter-code-raw,
+.Select-menu-outer .parameter-code-raw *{
+  color: rgba(203,213,225,0.82) !important;
+  background: transparent !important;
+}
+
+/* ---------- Patch: stable parameter-code option labels ----------
+   Parameter code dropdowns use static HTML <sub>/<sup> labels instead of
+   MathJax in the React-Select menu. This keeps the menu clickable while still
+   looking like rendered physics notation. */
+.parameter-code-option{
+  display: inline-flex !important;
+  align-items: baseline !important;
+  justify-content: flex-start !important;
+  gap: 22px !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  white-space: nowrap !important;
+}
+.parameter-code-latex-static{
+  flex: 0 1 auto !important;
+  color: #f8fafc !important;
+  font-size: 0.98rem !important;
+  line-height: 1.15 !important;
+  background: transparent !important;
+}
+.parameter-code-latex-static sub,
+.parameter-code-latex-static sup{
+  background: transparent !important;
+  color: inherit !important;
+  line-height: 0 !important;
+}
+.parameter-code-raw{
+  margin-left: auto !important;
+  flex: 0 0 auto !important;
+  color: rgba(203,213,225,0.86) !important;
+  background: transparent !important;
+  border: none !important;
+  padding: 0 4px !important;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace !important;
+  font-size: 0.76rem !important;
+}
+/* Stronger dark menu rules for both Dash React-Select generations. */
+.Select-menu-outer,
+.Select-menu,
+.Select-menu-outer > div,
+.Select-menu-outer .VirtualizedSelectGrid,
+.Select-menu-outer .VirtualizedSelectOption,
+.Select-menu-outer .Select-option,
+.Select__menu,
+.Select__menu-list,
+.Select__option{
+  background-color: #0f172a !important;
+  color: #e5e7eb !important;
+}
+.Select-menu-outer input,
+.Select-menu input,
+.Select__input input{
+  background-color: transparent !important;
+  color: #f8fafc !important;
+  -webkit-text-fill-color: #f8fafc !important;
+}
+.VirtualizedSelectFocusedOption,
+.Select-option.is-focused,
+.Select__option--is-focused{
+  background-color: #1e3a5f !important;
+  color: #ffffff !important;
+}
+.VirtualizedSelectSelectedOption,
+.Select-option.is-selected,
+.Select__option--is-selected{
+  background-color: #2563eb !important;
+  color: #ffffff !important;
+}

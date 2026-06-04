@@ -66,6 +66,26 @@ std::unordered_set<BlockName> Parameters::get_blocks_list()
     return blockAccessor->get_block_names();
 }
 
+bool Parameters::is_dependent_block(const BlockName& blockName) const {
+    return blockAccessor->is_dependent_block(blockName);
+}
+
+std::vector<std::string> Parameters::get_source_blocks(const BlockName& blockName) const {
+    return blockAccessor->get_source_block_names(blockName);
+}
+
+std::vector<std::string> Parameters::get_dependent_blocks(const BlockName& blockName) const {
+    return blockAccessor->get_dependent_block_names(blockName);
+}
+
+std::vector<std::string> Parameters::get_all_source_blocks(const BlockName& blockName) const {
+    return blockAccessor->get_all_source_block_names(blockName);
+}
+
+std::vector<std::string> Parameters::get_all_dependent_blocks(const BlockName& blockName) const {
+    return blockAccessor->get_all_dependent_block_names(blockName);
+}
+
 auto matches_block = [](const BlockName& expected, const BlockName& actual) {
     if (expected == actual) {
         return true;

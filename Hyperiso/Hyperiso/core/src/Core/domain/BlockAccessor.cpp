@@ -256,6 +256,106 @@ BlockAccessor::get_all_source_parameters(const std::unordered_set<ParamId>& para
     return result;
 }
 
+namespace {
+std::string block_info_name(const std::shared_ptr<Block>& block, const std::string& fallback = "") {
+    if (!block) {
+        return fallback;
+    }
+
+    const auto name = block->get_name().to_string();
+    return name.empty() ? fallback : name;
+}
+
+std::vector<std::string> sorted_block_info_names(const std::unordered_set<std::string>& names) {
+    std::vector<std::string> out(names.begin(), names.end());
+    std::sort(out.begin(), out.end());
+    return out;
+}
+
+void collect_source_block_names(
+    const std::shared_ptr<Block>& block,
+    std::unordered_set<const Block*>& visited,
+    std::unordered_set<std::string>& out
+) {
+    if (!block) {
+        return;
+    }
+
+    if (!visited.insert(block.get()).second) {
+        return;
+    }
+
+    for (const auto& [fallback_name, source_block] : block->get_source_blocks()) {
+        if (!source_block) {
+            continue;
+        }
+
+        out.insert(block_info_name(source_block, fallback_name));
+        collect_source_block_names(source_block, visited, out);
+    }
+}
+
+void collect_dependent_block_names(
+    const std::shared_ptr<Block>& block,
+    std::unordered_set<const Block*>& visited,
+    std::unordered_set<std::string>& out
+) {
+    if (!block) {
+        return;
+    }
+
+    if (!visited.insert(block.get()).second) {
+        return;
+    }
+
+    for (const auto& observer : block->getObservers()) {
+        if (!observer) {
+            continue;
+        }
+
+        out.insert(block_info_name(observer));
+        collect_dependent_block_names(observer, visited, out);
+    }
+}
+} // namespace
+
+bool BlockAccessor::is_dependent_block(const BlockName& block_name) const {
+    return std::dynamic_pointer_cast<DependentBlock>(this->at(block_name)) != nullptr;
+}
+
+std::vector<std::string> BlockAccessor::get_source_block_names(const BlockName& block_name) const {
+    std::unordered_set<std::string> names;
+    for (const auto& [fallback_name, source_block] : this->at(block_name)->get_source_blocks()) {
+        if (source_block) {
+            names.insert(block_info_name(source_block, fallback_name));
+        }
+    }
+    return sorted_block_info_names(names);
+}
+
+std::vector<std::string> BlockAccessor::get_dependent_block_names(const BlockName& block_name) const {
+    std::unordered_set<std::string> names;
+    for (const auto& observer : this->at(block_name)->getObservers()) {
+        if (observer) {
+            names.insert(block_info_name(observer));
+        }
+    }
+    return sorted_block_info_names(names);
+}
+
+std::vector<std::string> BlockAccessor::get_all_source_block_names(const BlockName& block_name) const {
+    std::unordered_set<const Block*> visited;
+    std::unordered_set<std::string> names;
+    collect_source_block_names(this->at(block_name), visited, names);
+    return sorted_block_info_names(names);
+}
+
+std::vector<std::string> BlockAccessor::get_all_dependent_block_names(const BlockName& block_name) const {
+    std::unordered_set<const Block*> visited;
+    std::unordered_set<std::string> names;
+    collect_dependent_block_names(this->at(block_name), visited, names);
+    return sorted_block_info_names(names);
+}
 
 
 void BlockAccessor::emplace(const BlockName& name, std::shared_ptr<Block> block) {

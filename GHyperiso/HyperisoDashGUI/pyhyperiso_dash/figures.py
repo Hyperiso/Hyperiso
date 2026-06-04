@@ -76,7 +76,10 @@ def uncertainty_fig(rows: Sequence[dict], asymmetric: bool = False) -> go.Figure
     if not rows:
         return empty_fig("Uncertainty")
     df = pd.DataFrame(rows)
-    x = df.get("bin_center") if "bin_center" in df else df.get("observable")
+    if "bin_center" in df and pd.to_numeric(df["bin_center"], errors="coerce").notna().any():
+        x = df["bin_center"]
+    else:
+        x = df.get("observable_label") if "observable_label" in df else df.get("observable")
     if x is None:
         x = list(range(len(df)))
     y = pd.to_numeric(df["central"], errors="coerce").to_numpy()
