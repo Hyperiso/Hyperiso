@@ -92,13 +92,15 @@ def layout():
                                     ]),
                                     html.Div(className="section-title", children="X parameter"),
                                     parameter_controls("wilson-x-param"),
-                                    html.Div(className="form-grid-3", children=[
+                                    html.Div(id="wilson-y-range-wrap", style={"display": "none"}, className="form-grid-3", children=[
                                         field("y min", num_input("wilson-y-min", 1.0)),
                                         field("y max", num_input("wilson-y-max", 10.0)),
                                         field("y points", num_input("wilson-y-n", 25)),
                                     ]),
-                                    html.Div(className="section-title", children="Y parameter for 2D only"),
-                                    parameter_controls("wilson-y-param"),
+                                    html.Div(id="wilson-y-param-wrap", style={"display": "none"}, children=[
+                                        html.Div(className="section-title", children="Y parameter"),
+                                        parameter_controls("wilson-y-param"),
+                                    ]),
                                     html.Button("Run Wilson scan", id="wilson-scan-btn", n_clicks=0),
                                     status_box("wilson-scan-status", "No scan yet."),
                                 ]),

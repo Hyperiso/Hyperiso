@@ -1,13 +1,14 @@
 from __future__ import annotations
 
-from dash import Input, Output, State, callback_context, no_update
+from dash import ALL, Input, Output, State, callback_context, dcc, html, no_update
 from dash.exceptions import PreventUpdate
 
 from pyhyperiso_dash import services as svc
-from pyhyperiso_dash.components import metric
+from pyhyperiso_dash.components import dropdown, field, metric, num_input, small_note
 from pyhyperiso_dash.figures import (
     block_size_bar,
     block_values_scatter,
+    dependency_graph,
     correlation_heatmap,
     empty_fig,
     heatmap_2d,
@@ -194,6 +195,34 @@ def register_callbacks(app):
             return opts, ([] if disabled else value), disabled
 
     @app.callback(
+        Output("obs-decay-config-decay", "options"),
+        Output("obs-decay-config-decay", "value"),
+        Input("obs-build-decays", "value"),
+        State("obs-decay-config-decay", "value"),
+        prevent_initial_call=False,
+    )
+    def update_obs_decay_config_target(decays, current):
+        selected = decays or []
+        opts = [o for o in svc.decay_options() if not selected or o["value"] in selected]
+        valid = {o["value"] for o in opts}
+        value = current if current in valid else (opts[0]["value"] if opts else None)
+        return opts, value
+
+    @app.callback(
+        Output("stat-decay-config-decay", "options"),
+        Output("stat-decay-config-decay", "value"),
+        Input("stat-obs-decays", "value"),
+        State("stat-decay-config-decay", "value"),
+        prevent_initial_call=False,
+    )
+    def update_stat_decay_config_target(decays, current):
+        selected = decays or []
+        opts = [o for o in svc.decay_options() if not selected or o["value"] in selected]
+        valid = {o["value"] for o in opts}
+        value = current if current in valid else (opts[0]["value"] if opts else None)
+        return opts, value
+
+    @app.callback(
         Output("obs-scan-observable", "options"),
         Output("obs-scan-observable", "value"),
         Input("obs-scan-decay", "value"),
@@ -205,6 +234,125 @@ def register_callbacks(app):
         valid = {o["value"] for o in opts}
         value = current if current in valid else (opts[0]["value"] if opts else None)
         return opts, value
+
+    # ---------- Progressive disclosure / expert controls ----------
+    def _visible(flag: bool) -> dict:
+        return {} if flag else {"display": "none"}
+
+    for prefix in ["obs", "stat"]:
+        @app.callback(
+            Output(f"{prefix}-decay-config-fields", "children"),
+            Input(f"{prefix}-decay-config-decay", "value"),
+            prevent_initial_call=False,
+        )
+        def _render_decay_config_fields(decay_name, _prefix=prefix):
+            specs = svc.decay_config_field_specs(decay_name)
+            if not specs:
+                return small_note("No typed decay configuration is exposed for this decay in the current binding.", tone="warn")
+            children = []
+            for spec in specs:
+                cid = {"type": "decay-config-field", "prefix": _prefix, "field": spec["name"]}
+                if spec["kind"] == "enum":
+                    component = dropdown(cid, spec.get("options", []), value=spec.get("value"), clearable=False)
+                else:
+                    component = num_input(cid, spec.get("value"))
+                children.append(field(spec["label"], component))
+            return html.Div(className="form-grid-2", children=children)
+
+    @app.callback(
+        Output("obs-decay-config-status", "children"),
+        Input("obs-apply-decay-config-btn", "n_clicks"),
+        State("obs-decay-config-decay", "value"),
+        State({"type": "decay-config-field", "prefix": "obs", "field": ALL}, "id"),
+        State({"type": "decay-config-field", "prefix": "obs", "field": ALL}, "value"),
+        prevent_initial_call=True,
+    )
+    def apply_obs_decay_config(_clicks, decay_name, ids, values):
+        try:
+            field_values = {str(i.get("field")): v for i, v in zip(ids or [], values or [])}
+            info = svc.apply_decay_config(decay_name, field_values)
+            return f"Applied {info['config']} to {info['decay']}: {info['values']}"
+        except Exception as exc:
+            return _err("Decay configuration failed.", exc)
+
+    @app.callback(
+        Output("stat-decay-config-status", "children"),
+        Input("stat-apply-decay-config-btn", "n_clicks"),
+        State("stat-decay-config-decay", "value"),
+        State({"type": "decay-config-field", "prefix": "stat", "field": ALL}, "id"),
+        State({"type": "decay-config-field", "prefix": "stat", "field": ALL}, "value"),
+        prevent_initial_call=True,
+    )
+    def apply_stat_decay_config(_clicks, decay_name, ids, values):
+        try:
+            field_values = {str(i.get("field")): v for i, v in zip(ids or [], values or [])}
+            info = svc.apply_decay_config(decay_name, field_values)
+            return f"Applied {info['config']} to {info['decay']}: {info['values']}"
+        except Exception as exc:
+            return _err("Decay configuration failed.", exc)
+
+    @app.callback(
+        Output("obs-expert-panel", "style"),
+        Input("obs-advanced-mode", "value"),
+        prevent_initial_call=False,
+    )
+    def toggle_obs_expert(values):
+        return _visible("advanced" in (values or []))
+
+    @app.callback(
+        Output("stat-expert-panel", "style"),
+        Output("stat-advanced-options-wrap", "style"),
+        Input("stat-advanced-mode", "value"),
+        prevent_initial_call=False,
+    )
+    def toggle_stat_advanced(values):
+        show = "advanced" in (values or [])
+        return _visible(show), _visible(show)
+
+    @app.callback(
+        Output("obs-build-bin-mode-wrap", "style"),
+        Output("obs-build-explicit-bin-wrap", "style"),
+        Output("obs-build-smooth-bin-wrap", "style"),
+        Input("obs-build-use-bin", "value"),
+        Input("obs-build-smooth", "value"),
+        prevent_initial_call=False,
+    )
+    def toggle_obs_build_bins(use_bin, smooth):
+        enabled = "bin" in (use_bin or [])
+        is_smooth = "smooth" in (smooth or [])
+        return _visible(enabled), _visible(enabled and not is_smooth), _visible(enabled and is_smooth)
+
+    @app.callback(
+        Output("stat-obs-bin-mode-wrap", "style"),
+        Output("stat-obs-explicit-bin-wrap", "style"),
+        Output("stat-obs-smooth-bin-wrap", "style"),
+        Input("stat-obs-use-bin", "value"),
+        Input("stat-obs-smooth", "value"),
+        prevent_initial_call=False,
+    )
+    def toggle_stat_bins(use_bin, smooth):
+        enabled = "bin" in (use_bin or [])
+        is_smooth = "smooth" in (smooth or [])
+        return _visible(enabled), _visible(enabled and not is_smooth), _visible(enabled and is_smooth)
+
+    @app.callback(
+        Output("obs-scan-bin-wrap", "style"),
+        Input("obs-scan-use-bin", "value"),
+        prevent_initial_call=False,
+    )
+    def toggle_obs_scan_bin(use_bin):
+        return _visible("bin" in (use_bin or []))
+
+    for prefix in ["wilson", "obs"]:
+        @app.callback(
+            Output(f"{prefix}-y-range-wrap", "style"),
+            Output(f"{prefix}-y-param-wrap", "style"),
+            Input(f"{prefix}-scan-dim", "value"),
+            prevent_initial_call=False,
+        )
+        def _toggle_y_scan(dim, _prefix=prefix):
+            show = dim == "2d"
+            return _visible(show), _visible(show)
 
     # ---------- Core ----------
     @app.callback(
@@ -244,7 +392,7 @@ def register_callbacks(app):
         Output("core-status", "children"),
         Output("core-metrics", "children"),
         Output("runtime-ping", "data"),
-        Input("core-init-btn", "n_clicks"),
+        Input("core-init-btn", "n_clicks_timestamp"),
         State("core-lha-path", "value"),
         State("core-flags", "value"),
         State("core-model", "value"),
@@ -253,8 +401,11 @@ def register_callbacks(app):
         State("runtime-ping", "data"),
         prevent_initial_call=True,
     )
-    def core_init(n, lha_path, flags, model, marty_name, marty_path, ping):
+    def core_init(click_ts, lha_path, flags, model, marty_name, marty_path, ping):
+        if click_ts in (None, -1) or int(click_ts) <= int(getattr(svc.RUNTIME, "last_core_init_ts", -1)):
+            raise PreventUpdate
         try:
+            svc.RUNTIME.last_core_init_ts = int(click_ts)
             info = svc.init_or_switch_hyperiso(lha_path, flags or [], model, marty_name, marty_path)
             return _ok("Hyperiso ready.", info), _runtime_metrics(), int(ping or 0) + 1
         except Exception as exc:
@@ -293,6 +444,54 @@ def register_callbacks(app):
             return rows, block_values_scatter(rows, f"{ptype}:{block_name}")
         except Exception as exc:
             return [], empty_fig(f"Cannot load {ptype}:{block_name}: {exc}")
+
+    @app.callback(
+        Output("core-dep-code", "options"),
+        Output("core-dep-code", "value"),
+        Input("core-block-ptype", "value"),
+        Input("core-block-name", "value"),
+        Input("runtime-ping", "data"),
+        State("core-dep-code", "value"),
+        prevent_initial_call=False,
+    )
+    def update_core_dependency_codes(ptype, block, _ping, current_code):
+        try:
+            opts = svc.block_code_options(ptype, block) if ptype and block else []
+            valid = {o["value"] for o in opts}
+            value = current_code if current_code in valid else (opts[0]["value"] if opts else None)
+            return opts, value
+        except Exception:
+            return [], None
+
+    @app.callback(
+        Output("core-dep-status", "children"),
+        Output("core-dep-table", "data"),
+        Output("core-dep-fig", "figure"),
+        Input("core-dep-refresh-btn", "n_clicks"),
+        Input("core-dep-apply-btn", "n_clicks"),
+        Input("core-block-name", "value"),
+        State("core-block-ptype", "value"),
+        State("core-dep-action", "value"),
+        State("core-dep-scope", "value"),
+        State("core-dep-code", "value"),
+        prevent_initial_call=True,
+    )
+    def refresh_or_prune_dependencies(_refresh, _apply, block_name, ptype, action, scope, code):
+        try:
+            trig = callback_context.triggered[0]["prop_id"].split(".")[0] if callback_context.triggered else ""
+            if trig == "core-dep-apply-btn":
+                data = svc.prune_dependency(action, scope, ptype, block_name, code)
+                last = data.get("last_action", {})
+                msg = f"Applied {last.get('action')} on {last.get('scope')} {ptype}:{block_name}"
+                if last.get("code"):
+                    msg += f":{last.get('code')}"
+            else:
+                data = svc.block_dependency_data(ptype, block_name)
+                msg = f"Loaded dependency component for {ptype}:{block_name}."
+            msg += f" Dependent block: {data.get('is_dependent')}. Nodes: {len(data.get('nodes', []))}. Edges: {len(data.get('edges', []))}."
+            return msg, data.get("rows", []), dependency_graph(data, f"Dependencies for {ptype}:{block_name}")
+        except Exception as exc:
+            return _err("Dependency inspection failed.", exc), [], empty_fig("Dependency graph unavailable")
 
     # ---------- Wilson ----------
     @app.callback(
@@ -435,6 +634,7 @@ def register_callbacks(app):
         State("obs-scan-observable", "value"),
         State("obs-scan-order", "value"),
         State("obs-scan-deps", "value"),
+        State("obs-scan-use-bin", "value"),
         State("obs-scan-bin-low", "value"),
         State("obs-scan-bin-high", "value"),
         State("obs-x-param-ptype", "value"),
@@ -451,9 +651,11 @@ def register_callbacks(app):
         State("obs-y-n", "value"),
         prevent_initial_call=True,
     )
-    def observable_scan(_, dim, obs, order, deps, bin_low, bin_high, x_ptype, x_block, x_code, x_min, x_max, x_n, y_ptype, y_block, y_code, y_min, y_max, y_n):
+    def observable_scan(_, dim, obs, order, deps, use_bin, bin_low, bin_high, x_ptype, x_block, x_code, x_min, x_max, x_n, y_ptype, y_block, y_code, y_min, y_max, y_n):
         try:
             add_deps = "deps" in (deps or [])
+            if "bin" not in (use_bin or []):
+                bin_low = bin_high = None
             if dim == "2d":
                 xs, ys, z = svc.observable_scan_2d(obs, order, add_deps, bin_low, bin_high, (x_ptype, x_block, x_code), (y_ptype, y_block, y_code), x_min, x_max, x_n, y_min, y_max, y_n)
                 return heatmap_2d(xs, ys, z, svc.observable_display_label(obs), svc.parameter_display_label(x_block, x_code, f"{x_ptype}:{x_block}:{x_code}", x_ptype), svc.parameter_display_label(y_block, y_code, f"{y_ptype}:{y_block}:{y_code}", y_ptype), "observable"), f"2D observable scan complete: {len(xs)}×{len(ys)} points."
@@ -472,16 +674,18 @@ def register_callbacks(app):
         State("stat-obs-decays", "value"),
         State("stat-obs-order", "value"),
         State("stat-obs-deps", "value"),
-        State("stat-obs-bin-strategy", "value"),
+        State("stat-obs-use-bin", "value"),
         State("stat-obs-bin-low", "value"),
         State("stat-obs-bin-high", "value"),
+        State("stat-obs-smooth", "value"),
         State("stat-obs-smooth-min", "value"),
         State("stat-obs-smooth-max", "value"),
         State("stat-obs-smooth-step", "value"),
         prevent_initial_call=True,
     )
-    def configure_stat_observables(_, mode, obs, decays, order, deps, bin_strategy, bin_low, bin_high, sm_min, sm_max, sm_step):
+    def configure_stat_observables(_, mode, obs, decays, order, deps, use_bin, bin_low, bin_high, smooth, sm_min, sm_max, sm_step):
         try:
+            bin_strategy = "smooth" if ("bin" in (use_bin or []) and "smooth" in (smooth or [])) else ("single" if "bin" in (use_bin or []) else "none")
             rows = svc.configure_stat_observables(
                 mode,
                 obs,
@@ -555,9 +759,10 @@ def register_callbacks(app):
         State("stat-obs-decays", "value"),
         State("stat-obs-order", "value"),
         State("stat-obs-deps", "value"),
-        State("stat-obs-bin-strategy", "value"),
+        State("stat-obs-use-bin", "value"),
         State("stat-obs-bin-low", "value"),
         State("stat-obs-bin-high", "value"),
+        State("stat-obs-smooth", "value"),
         State("stat-obs-smooth-min", "value"),
         State("stat-obs-smooth-max", "value"),
         State("stat-obs-smooth-step", "value"),
@@ -573,8 +778,9 @@ def register_callbacks(app):
         State("stat-observable-table", "data"),
         prevent_initial_call=True,
     )
-    def stat_uncertainty(_, mode, obs, decays, order, deps, bin_strategy, bin_low, bin_high, sm_min, sm_max, sm_step, experiments, mc_draws, skew, ridge_rel, ridge_abs, prune, contexts, seed, uncertainty_mode, configured_rows):
+    def stat_uncertainty(_, mode, obs, decays, order, deps, use_bin, bin_low, bin_high, smooth, sm_min, sm_max, sm_step, experiments, mc_draws, skew, ridge_rel, ridge_abs, prune, contexts, seed, uncertainty_mode, configured_rows):
         try:
+            bin_strategy = "smooth" if ("bin" in (use_bin or []) and "smooth" in (smooth or [])) else ("single" if "bin" in (use_bin or []) else "none")
             kwargs = _stat_kwargs(mode, obs, decays, order, deps, bin_strategy, bin_low, bin_high, sm_min, sm_max, sm_step, experiments, mc_draws, skew, ridge_rel, ridge_abs, prune, contexts, seed)
             if configured_rows:
                 kwargs["configured_rows"] = configured_rows
@@ -595,9 +801,10 @@ def register_callbacks(app):
         State("stat-obs-decays", "value"),
         State("stat-obs-order", "value"),
         State("stat-obs-deps", "value"),
-        State("stat-obs-bin-strategy", "value"),
+        State("stat-obs-use-bin", "value"),
         State("stat-obs-bin-low", "value"),
         State("stat-obs-bin-high", "value"),
+        State("stat-obs-smooth", "value"),
         State("stat-obs-smooth-min", "value"),
         State("stat-obs-smooth-max", "value"),
         State("stat-obs-smooth-step", "value"),
@@ -618,8 +825,9 @@ def register_callbacks(app):
         State("stat-ny", "value"),
         prevent_initial_call=True,
     )
-    def stat_fit(_, mode, obs, decays, order, deps, bin_strategy, bin_low, bin_high, sm_min, sm_max, sm_step, experiments, mc_draws, skew, ridge_rel, ridge_abs, prune, contexts, seed, p_rows_in, configured_rows, do_contour, xhw, yhw, nx, ny):
+    def stat_fit(_, mode, obs, decays, order, deps, use_bin, bin_low, bin_high, smooth, sm_min, sm_max, sm_step, experiments, mc_draws, skew, ridge_rel, ridge_abs, prune, contexts, seed, p_rows_in, configured_rows, do_contour, xhw, yhw, nx, ny):
         try:
+            bin_strategy = "smooth" if ("bin" in (use_bin or []) and "smooth" in (smooth or [])) else ("single" if "bin" in (use_bin or []) else "none")
             if mc_draws and int(mc_draws) > 200:
                 warning = "Warning: MC_draws > 200 may be slow. "
             else:

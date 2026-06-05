@@ -19,6 +19,7 @@
 #include "BlockProvider.h"
 #include "QEDProvider.h"
 #include "DependantBlockInfoProvider.h"
+#include "DependencyPruner.h"
 
 namespace py = pybind11;
 
@@ -425,6 +426,76 @@ void init_core(py::module &m) {
             py::arg("type"),
             py::arg("block_name"),
             "Return all transitive downstream blocks depending on the requested block."
+        );
+    
+    py::class_<DependencyPruner, std::shared_ptr<DependencyPruner>>(
+        m,
+        "DependencyPruner",
+        R"doc(Adapter used to detach and reattach dependency links in the parameter graph.
+
+This binding exposes the C++ DependencyPruner adapter to Python. Block names are
+accepted as strings and converted to BlockName on the C++ side. Parameter ids are
+expected to be bound LhaID instances.)doc"
+    )
+        .def(
+            py::init<>(),
+            R"doc(Create a dependency-pruning adapter backed by Parameters.)doc"
+        )
+        .def(
+            "detach_block",
+            [](DependencyPruner& self, ParameterType type, const std::string& block_name) {
+                self.detach_block(type, BlockName(block_name));
+            },
+            py::arg("type"),
+            py::arg("block_name"),
+            R"doc(Detach a dependent block from its upstream source blocks.
+
+Args:
+    type: Parameter namespace containing the block.
+    block_name: Name of the dependent block to detach.)doc"
+        )
+        .def(
+            "reattach_block",
+            [](DependencyPruner& self, ParameterType type, const std::string& block_name) {
+                self.reattach_block(type, BlockName(block_name));
+            },
+            py::arg("type"),
+            py::arg("block_name"),
+            R"doc(Reattach a previously detached dependent block to its sources.
+
+Args:
+    type: Parameter namespace containing the block.
+    block_name: Name of the dependent block to reattach.)doc"
+        )
+        .def(
+            "detach_parameter",
+            [](DependencyPruner& self, ParameterType type, const std::string& block_name, const LhaID& id) {
+                self.detach_parameter(type, BlockName(block_name), id);
+            },
+            py::arg("type"),
+            py::arg("block_name"),
+            py::arg("id"),
+            R"doc(Detach a dependent parameter from its upstream source parameters.
+
+Args:
+    type: Parameter namespace containing the parameter.
+    block_name: Name of the block containing the parameter.
+    id: LHA identifier of the dependent parameter.)doc"
+        )
+        .def(
+            "reattach_parameter",
+            [](DependencyPruner& self, ParameterType type, const std::string& block_name, const LhaID& id) {
+                self.reattach_parameter(type, BlockName(block_name), id);
+            },
+            py::arg("type"),
+            py::arg("block_name"),
+            py::arg("id"),
+            R"doc(Reattach a previously detached dependent parameter to its sources.
+
+Args:
+    type: Parameter namespace containing the parameter.
+    block_name: Name of the block containing the parameter.
+    id: LHA identifier of the dependent parameter.)doc"
         );
 
     // QCDProvider

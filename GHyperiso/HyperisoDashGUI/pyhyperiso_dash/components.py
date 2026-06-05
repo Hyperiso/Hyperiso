@@ -77,8 +77,8 @@ def num_input(id: str, value: float | int | None = None, placeholder: str = "", 
     return dcc.Input(id=id, value=value, placeholder=placeholder, type="number", debounce=debounce, style={"width": "100%"})
 
 
-def dropdown(id: str, options: Sequence[dict], value: Any = None, multi: bool = False, placeholder: str = "Select...", disabled: bool = False):
-    return dcc.Dropdown(id=id, options=list(options), value=value, multi=multi, placeholder=placeholder, clearable=True, disabled=disabled)
+def dropdown(id: str | dict, options: Sequence[dict], value: Any = None, multi: bool = False, placeholder: str = "Select...", disabled: bool = False, clearable: bool = True):
+    return dcc.Dropdown(id=id, options=list(options), value=value, multi=multi, placeholder=placeholder, clearable=clearable, disabled=disabled)
 
 
 def enum_options(enum_cls: type, include: Iterable[str] | None = None, exclude: Iterable[str] | None = None) -> list[dict[str, str]]:

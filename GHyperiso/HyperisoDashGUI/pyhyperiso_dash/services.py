@@ -22,6 +22,25 @@ from pyhyperiso_dash.domain import (
 )
 
 from pyhyperiso.core.BusinessLogic.ObservableInterface import ObservableInterface
+
+try:
+    from pyhyperiso.core.BusinessLogic.DecayConfig import (
+        DecayConfig,
+        BDlnuConfig, BDstarlnuConfig, BKllConfig, BKstarllConfig,
+        BKstarGammaConfig, BsPhiConfig, BXsllConfig, KllDecayConfig, LbLllConfig,
+        BDlnuBCharge, BDstarlnuBCharge, BKllBCharge, BKllLepton,
+        BKstarllPowerCorrectionsImpl, BKstarllBCharge, BKstarllLepton,
+        BKstarGammaBCharge, BsPhiLepton, BXsllLepton, LbLllLepton,
+        BFFType, BPFFSource, BVFFSource, LbLFFSource,
+    )
+except Exception:  # optional on older pyhyperiso builds
+    DecayConfig = None
+    BDlnuConfig = BDstarlnuConfig = BKllConfig = BKstarllConfig = None
+    BKstarGammaConfig = BsPhiConfig = BXsllConfig = KllDecayConfig = LbLllConfig = None
+    BDlnuBCharge = BDstarlnuBCharge = BKllBCharge = BKllLepton = None
+    BKstarllPowerCorrectionsImpl = BKstarllBCharge = BKstarllLepton = None
+    BKstarGammaBCharge = BsPhiLepton = BXsllLepton = LbLllLepton = None
+    BFFType = BPFFSource = BVFFSource = LbLFFSource = None
 from pyhyperiso.core.Common.BinnedObservableId import BinnedObservableId
 from pyhyperiso.core.Common.Configs import AlphasConfig, MassConfig, WilsonBuildConfig, WilsonRequest
 from pyhyperiso.core.Common.GeneralEnum import (
@@ -41,6 +60,14 @@ from pyhyperiso.core.Common.Mapper import DecayMapper, ObservableMapper, WCoefMa
 from pyhyperiso.core.Common.LhaID import LhaID
 from pyhyperiso.core.Common.ParamId import ParamId
 from pyhyperiso.core.Core.BlockProvider import BlockLogger
+try:
+    from pyhyperiso.core.Core.DependantBlockInfoProvider import DependantBlockInfoProvider
+except Exception:  # optional on older pyhyperiso builds
+    DependantBlockInfoProvider = None
+try:
+    from pyhyperiso.core.Core.DependencyPruner import DependencyPruner
+except Exception:  # optional on older pyhyperiso builds
+    DependencyPruner = None
 from pyhyperiso.core.Core.HyperisoConfig import ExternalFlag, HyperisoConfig
 from pyhyperiso.core.Core.HyperisoMaster import HyperisoMaster
 from pyhyperiso.core.Core.ParamaterProvider import ParameterProvider
@@ -76,6 +103,8 @@ class RuntimeState:
     lha_path: str | None = None
     initialized: bool = False
     block_logger: BlockLogger | None = None
+    dependency_info: Any | None = None
+    dependency_pruner: Any | None = None
     wilson: WilsonInterface | None = None
     observable: ObservableInterface | None = None
     stat: StatisticInterface | None = None
@@ -94,6 +123,7 @@ class RuntimeState:
     stat_observable_registered_decay_bins: set[tuple] = field(default_factory=set)
     last_stat_observable_selection: list[dict] = field(default_factory=list)
     wilson_status: dict = field(default_factory=dict)
+    decay_configs: dict[str, dict] = field(default_factory=dict)
 
 
 RUNTIME = RuntimeState()
@@ -266,6 +296,128 @@ def observable_is_in_decay(obs_name: str | None, decay_names: Sequence[str] | No
     return str(obs_name) in valid
 
 
+def _enum_choice_options(enum_cls: Any) -> list[dict[str, str]]:
+    """Return dropdown options for a Python Enum class."""
+    if enum_cls is None:
+        return []
+    return [{"label": item.name, "value": item.name} for item in enum_cls]
+
+
+_DECAY_CONFIG_SPECS: dict[str, dict[str, Any]] = {}
+
+def _build_decay_config_specs() -> dict[str, dict[str, Any]]:
+    """Build lazy decay-config metadata from the available wrapper classes."""
+    if _DECAY_CONFIG_SPECS:
+        return _DECAY_CONFIG_SPECS
+    if DecayConfig is None:
+        return _DECAY_CONFIG_SPECS
+
+    def add(decay: str, cls: Any, fields: list[tuple[str, str, str, Any, str]]):
+        if cls is not None:
+            _DECAY_CONFIG_SPECS[decay] = {"class": cls, "fields": fields}
+
+    add("B__D_l_nu", BDlnuConfig, [("charge", "B charge", "enum", BDlnuBCharge, "B-meson charge convention")])
+    add("B__Dstar_l_nu", BDstarlnuConfig, [("charge", "B charge", "enum", BDstarlnuBCharge, "B-meson charge convention")])
+    add("B__K_l_l", BKllConfig, [
+        ("ff_src", "Form-factor source", "enum", BPFFSource, "B → K form-factor source"),
+        ("ff_type", "Form-factor type", "enum", BFFType, "Full or soft form-factor treatment"),
+        ("charge", "B charge", "enum", BKllBCharge, "B-meson charge convention"),
+        ("gen", "Lepton", "enum", BKllLepton, "Lepton generation"),
+        ("n_threads", "Threads", "int", None, "Requested worker threads"),
+    ])
+    add("B__Kstar_l_l", BKstarllConfig, [
+        ("ff_src", "Form-factor source", "enum", BVFFSource, "B → K* form-factor source"),
+        ("ff_type", "Form-factor type", "enum", BFFType, "Full or soft form-factor treatment"),
+        ("power_corr_impl", "Power corrections", "enum", BKstarllPowerCorrectionsImpl, "Non-factorisable power-correction prescription"),
+        ("charge", "B charge", "enum", BKstarllBCharge, "B-meson charge convention"),
+        ("gen", "Lepton", "enum", BKstarllLepton, "Lepton generation"),
+        ("n_threads", "Threads", "int", None, "Requested worker threads"),
+    ])
+    add("B__Kstar_gamma", BKstarGammaConfig, [
+        ("ff_src", "Form-factor source", "enum", BVFFSource, "B → K* form-factor source"),
+        ("charge", "B charge", "enum", BKstarGammaBCharge, "B-meson charge convention"),
+    ])
+    add("Bs__phi_l_l", BsPhiConfig, [
+        ("ff_src", "Form-factor source", "enum", BVFFSource, "Bs → φ form-factor source"),
+        ("ff_type", "Form-factor type", "enum", BFFType, "Full or soft form-factor treatment"),
+        ("gen", "Lepton", "enum", BsPhiLepton, "Lepton generation"),
+        ("n_threads", "Threads", "int", None, "Requested worker threads"),
+    ])
+    add("B__Xs_l_l", BXsllConfig, [("gen", "Lepton", "enum", BXsllLepton, "Lepton generation")])
+    add("K__l_l", KllDecayConfig, [
+        ("N_L_sign", "N_L sign", "int", None, "Long-distance sign convention"),
+        ("gen", "Lepton generation", "int", None, "C++ integer lepton-generation convention"),
+    ])
+    add("Lambda_b__Lambda_l_l", LbLllConfig, [
+        ("ff_src", "Form-factor source", "enum", LbLFFSource, "Λb → Λ form-factor source"),
+        ("gen", "Lepton", "enum", LbLllLepton, "Lepton generation"),
+    ])
+    return _DECAY_CONFIG_SPECS
+
+
+def decay_config_field_specs(decay_name: str | None) -> list[dict[str, Any]]:
+    """Return UI metadata for the decay configuration associated with a decay."""
+    specs = _build_decay_config_specs()
+    entry = specs.get(str(decay_name or ""))
+    if not entry:
+        return []
+    cfg = entry["class"]()
+    out: list[dict[str, Any]] = []
+    for name, label, kind, enum_cls, help_text in entry["fields"]:
+        value = getattr(cfg, name)
+        if kind == "enum":
+            current = value.name if hasattr(value, "name") else str(value)
+            out.append({
+                "name": name,
+                "label": label,
+                "kind": kind,
+                "value": current,
+                "options": _enum_choice_options(enum_cls),
+                "help": help_text,
+            })
+        else:
+            out.append({
+                "name": name,
+                "label": label,
+                "kind": kind,
+                "value": int(value),
+                "options": [],
+                "help": help_text,
+            })
+    return out
+
+
+def apply_decay_config(decay_name: str | None, values: Mapping[str, Any]) -> dict[str, Any]:
+    """Apply a typed decay configuration to the shared ObservableInterface."""
+    require_initialized()
+    decay_name = str(decay_name or "")
+    specs = _build_decay_config_specs()
+    entry = specs.get(decay_name)
+    if not entry:
+        raise ValueError(f"Decay {decay_name or '—'} has no configurable options exposed by the current binding.")
+    kwargs: dict[str, Any] = {}
+    for name, _label, kind, enum_cls, _help in entry["fields"]:
+        raw = values.get(name)
+        if kind == "enum":
+            if enum_cls is None:
+                continue
+            kwargs[name] = enum_cls[str(raw)]
+        elif kind == "int":
+            kwargs[name] = int(raw)
+        else:
+            kwargs[name] = raw
+    cfg = entry["class"](**kwargs)
+    with RUNTIME.lock:
+        if RUNTIME.observable is None:
+            RUNTIME.observable = ObservableInterface()
+        RUNTIME.observable.set_decay_config(enum_by_name(Decays, decay_name), cfg)
+        # The statistic manager caches observables/nuisances; invalidate it so
+        # the next uncertainty/fit sees the new decay configuration.
+        RUNTIME.stat = None
+        RUNTIME.decay_configs[decay_name] = {"class": type(cfg).__name__, "values": dict(values)}
+    return {"decay": decay_name, "config": type(cfg).__name__, "values": dict(values)}
+
+
 def resolve_parameter_type(param_type_name: str, *, strict: bool = True) -> ParameterType | None:
     """Convert a dropdown value to a model-safe ``ParameterType``.
 
@@ -332,6 +484,8 @@ def init_or_switch_hyperiso(lha_path: str, flag_names: Sequence[str], model_name
         RUNTIME.lha_path = str(lha_path)
         RUNTIME.initialized = True
         RUNTIME.block_logger = BlockLogger()
+        RUNTIME.dependency_info = DependantBlockInfoProvider() if DependantBlockInfoProvider is not None else None
+        RUNTIME.dependency_pruner = DependencyPruner() if DependencyPruner is not None else None
         # Cached interfaces are tied to the old parameter store. Rebuild after switch.
         RUNTIME.wilson = None
         RUNTIME.last_wilson_config = None
@@ -360,6 +514,7 @@ def init_or_switch_hyperiso(lha_path: str, flag_names: Sequence[str], model_name
         RUNTIME.stat_observable_registered_decay_bins.clear()
         RUNTIME.last_stat_observable_selection = []
         RUNTIME.stat = None
+        RUNTIME.decay_configs.clear()
     return {
         "action": action,
         "model": cfg.model.name,
@@ -416,6 +571,28 @@ def stat_observable_status_text() -> str:
     if not n:
         return "Statistic workflow will reuse the main ObservableInterface; no observable has been added yet."
     return f"Statistic workflow ready with {n} observable/bin entries on the shared ObservableInterface."
+
+
+def current_observable_rows() -> list[dict]:
+    """Rows currently known by the Observable page table.
+
+    Dash rebuilds page layouts when navigating.  The live C++ ObservableInterface
+    stays in ``RUNTIME.observable``; these rows repopulate the table from the
+    process-local registry instead of showing an empty GUI after page changes.
+    """
+    return list(RUNTIME.last_observable_selection or [])
+
+
+def current_stat_observable_rows() -> list[dict]:
+    """Rows currently known by the Statistic observable table.
+
+    The statistic workflow reuses the main ObservableInterface.  If the stat page
+    has no separate selection yet, show the main observable rows so the GUI
+    reflects the true shared C++ state when navigating Observable ↔ Stat.
+    """
+    if RUNTIME.last_stat_observable_selection:
+        return list(RUNTIME.last_stat_observable_selection)
+    return [dict(row, registered=True) for row in (RUNTIME.last_observable_selection or [])]
 
 
 def block_inventory_rows() -> list[dict]:
@@ -519,6 +696,7 @@ def block_table_rows(param_type_name: str, block_name: str) -> list[dict]:
         row = {
             "code": code_s,
             "name": lx.parameter_label(block_name, code_s, f"{block_name}:{code_s}", pt.name if pt else param_type_name),
+            "dependent_block": is_dependent_block(pt.name if pt else param_type_name, block_name),
             "value": scalar_to_float(value),
         }
         for dtype, col in [
@@ -543,6 +721,152 @@ def block_table_rows(param_type_name: str, block_name: str) -> list[dict]:
         rows.append(row)
     return rows
 
+
+
+# ---------- Block dependencies ----------
+
+def _dependency_info_provider():
+    require_initialized()
+    if DependantBlockInfoProvider is None:
+        raise RuntimeError("DependantBlockInfoProvider is not available in this pyhyperiso build.")
+    if RUNTIME.dependency_info is None:
+        RUNTIME.dependency_info = DependantBlockInfoProvider()
+    return RUNTIME.dependency_info
+
+
+def _dependency_pruner():
+    require_initialized()
+    if DependencyPruner is None:
+        raise RuntimeError("DependencyPruner is not available in this pyhyperiso build.")
+    if RUNTIME.dependency_pruner is None:
+        RUNTIME.dependency_pruner = DependencyPruner()
+    return RUNTIME.dependency_pruner
+
+
+def is_dependent_block(param_type_name: str, block_name: str | None) -> bool:
+    """Safely report whether a block is a dependent block."""
+    if not block_name:
+        return False
+    try:
+        pt = resolve_parameter_type(param_type_name, strict=False)
+        if pt is None:
+            return False
+        return bool(_dependency_info_provider().is_dependent_block(pt, str(block_name)))
+    except Exception:
+        return False
+
+
+def block_dependency_data(param_type_name: str, block_name: str | None) -> dict:
+    """Return dependency rows and graph edges for one selected block.
+
+    The provider exposes direct and transitive upstream/downstream relations. To
+    draw the local connected tree, this helper takes the transitive component of
+    the selected block and then queries direct source/dependent links inside that
+    component.
+    """
+    require_initialized()
+    if not block_name:
+        raise ValueError("Select a block first.")
+    pt = resolve_parameter_type(param_type_name, strict=True)
+    provider = _dependency_info_provider()
+    block = str(block_name)
+
+    def _safe_list(fn, name):
+        try:
+            return sorted({str(x) for x in fn(pt, name)})
+        except Exception:
+            return []
+
+    direct_sources = _safe_list(provider.get_source_blocks, block)
+    direct_dependents = _safe_list(provider.get_dependent_blocks, block)
+    all_sources = _safe_list(provider.get_all_source_blocks, block)
+    all_dependents = _safe_list(provider.get_all_dependent_blocks, block)
+    dependent = bool(provider.is_dependent_block(pt, block))
+
+    nodes = {block, *direct_sources, *direct_dependents, *all_sources, *all_dependents}
+    edges: set[tuple[str, str]] = set()
+    for node in list(nodes):
+        for src in _safe_list(provider.get_source_blocks, node):
+            if src in nodes:
+                edges.add((src, node))
+        for dst in _safe_list(provider.get_dependent_blocks, node):
+            if dst in nodes:
+                edges.add((node, dst))
+
+    # Ensure the direct one-hop relations are present even if the implementation
+    # does not expose the reverse direction for a detached block.
+    for src in direct_sources:
+        edges.add((src, block))
+    for dst in direct_dependents:
+        edges.add((block, dst))
+
+    rows: list[dict] = []
+    for relation, values in [
+        ("direct upstream", direct_sources),
+        ("direct downstream", direct_dependents),
+        ("all upstream", all_sources),
+        ("all downstream", all_dependents),
+    ]:
+        if values:
+            rows.extend({"relation": relation, "block": value} for value in values)
+        else:
+            rows.append({"relation": relation, "block": "—"})
+
+    return {
+        "parameter_type": pt.name,
+        "block": block,
+        "is_dependent": dependent,
+        "direct_sources": direct_sources,
+        "direct_dependents": direct_dependents,
+        "all_sources": all_sources,
+        "all_dependents": all_dependents,
+        "nodes": sorted(nodes),
+        "edges": sorted(edges),
+        "rows": rows,
+    }
+
+
+def prune_dependency(action: str, scope: str, param_type_name: str, block_name: str | None, code: Any | None = None) -> dict:
+    """Detach or reattach a block/parameter dependency and return fresh graph data."""
+    require_initialized()
+    if not block_name:
+        raise ValueError("Select a block first.")
+    pt = resolve_parameter_type(param_type_name, strict=True)
+    pruner = _dependency_pruner()
+    action = str(action or "detach")
+    scope = str(scope or "block")
+    block = str(block_name)
+
+    if scope == "parameter":
+        if code in (None, ""):
+            raise ValueError("Select a parameter code for parameter-level pruning.")
+        raw = getattr(pruner, "_cpp_obj", None)
+        if raw is not None:
+            # The standalone Python LhaID wrapper may not expose to_cpp(); use
+            # the bound C++ object directly so parameter-level pruning works with
+            # both old and new pyhyperiso wrappers.
+            if action == "reattach":
+                raw.reattach_parameter(pt.value, block, _cpp_lhaid(code))
+            else:
+                raw.detach_parameter(pt.value, block, _cpp_lhaid(code))
+        else:
+            lhaid = LhaID(str(code))
+            if action == "reattach":
+                pruner.reattach_parameter(pt, block, lhaid)
+            else:
+                pruner.detach_parameter(pt, block, lhaid)
+    else:
+        if action == "reattach":
+            pruner.reattach_block(pt, block)
+        else:
+            pruner.detach_block(pt, block)
+
+    # Some providers cache C++ handles internally; recreate the info provider so
+    # the next graph reflects the current dependency state.
+    RUNTIME.dependency_info = DependantBlockInfoProvider() if DependantBlockInfoProvider is not None else None
+    data = block_dependency_data(pt.name, block)
+    data["last_action"] = {"action": action, "scope": scope, "block": block, "code": str(code) if code not in (None, "") else None}
+    return data
 
 # ---------- Wilson ----------
 

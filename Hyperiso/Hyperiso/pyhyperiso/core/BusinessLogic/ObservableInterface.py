@@ -28,7 +28,7 @@ from pyhyperiso.core.Common.GeneralEnum import Decays, Observables, ParameterTyp
 from pyhyperiso.core.Common.LhaID import LhaID
 from pyhyperiso.core.Common.ParamId import ParamId
 from pyhyperiso.core.Common.SymbolId import ObservableId
-
+from pyhyperiso.core.BusinessLogic.DecayConfig import DecayConfig
 
 def _require(value, typ, name: str):
     if not isinstance(value, typ):
@@ -531,6 +531,25 @@ class ObservableInterface:
         """
         return {_param_from_cpp(x) for x in self._cpp_obj.get_all_ops_deps(_cpp_observable_id(obs))}
 
+    def set_decay_config(self, decay: Decays, config: DecayConfig) -> "ObservableInterface":
+        """Set the concrete configuration object used by one decay engine.
+
+        Args:
+            decay: Decay family to configure.
+            config: Python decay-configuration wrapper. The concrete wrapper class
+                must match the selected decay engine, for example ``BKllConfig`` for
+                ``Decays.B__K_l_l`` or ``BKstarllConfig`` for
+                ``Decays.B__Kstar_l_l``.
+
+        Returns:
+            ``self`` to support fluent chaining.
+        """
+        if not isinstance(config, DecayConfig):
+            raise TypeError(f"config must inherit DecayConfig, got {type(config).__name__}.")
+        self._cpp_obj.set_decay_config(_cpp_decay(decay), config.to_cpp())
+        return self
+
+
     def set_param(self, pid: ParamId, value: float) -> None:
         """Set one model parameter in the C++ parameter store.
 
@@ -653,14 +672,17 @@ if __name__ == "__main__":
     hyp.init(lha_file=lha_file_path, config=config)
     
 
-
+    from pyhyperiso.core.BusinessLogic.DecayConfig import BKstarllConfig
+    
+    kstar_conf = BKstarllConfig()
+    
     interface = ObservableInterface()
     interface.add_observable(Observables.BR_B_XS_GAMMA, QCDOrder.NNLO, True)
     interface.add_observable(Observables.BR_BS_MUMU, QCDOrder.NNLO, True)
     interface.add_observable(Observables.BR_BD_MUMU, QCDOrder.NNLO, True)
     interface.add_observable(Observables.BR_B0__D_TAU_NU, QCDOrder.NNLO, True)
     interface.add_observable(Observables.BR_B__KSTAR_GAMMA, QCDOrder.NNLO, True)
-    
+    interface.set_decay_config(Decays.B__Kstar_l_l, kstar_conf)
     print(interface.compute_observable(Observables.BR_B_XS_GAMMA))  # Scalar(...)
     print(interface.compute_observable(Observables.BR_BS_MUMU))  # Scalar(...)
     print(interface.compute_all())

@@ -56,16 +56,33 @@ def observable_selection(prefix: str):
 
 def bin_controls(prefix: str):
     return html.Div([
-        field("Use one explicit bin", dcc.Checklist(id=f"{prefix}-use-bin", options=[{"label": "apply bin to selected observables", "value": "bin"}], value=[], className="checklist")),
-        html.Div(className="form-grid-2", children=[
+        field("Bins", dcc.Checklist(id=f"{prefix}-use-bin", options=[{"label": "apply bin to selected observables", "value": "bin"}], value=[], className="checklist")),
+        html.Div(id=f"{prefix}-bin-mode-wrap", style={"display": "none"}, children=[
+            field("Bin grid", dcc.Checklist(id=f"{prefix}-smooth", options=[{"label": "build bins from min/max/step", "value": "smooth"}], value=[], className="checklist")),
+        ]),
+        html.Div(id=f"{prefix}-explicit-bin-wrap", style={"display": "none"}, className="form-grid-2", children=[
             field("Bin low", num_input(f"{prefix}-bin-low", 1.0)),
             field("Bin high", num_input(f"{prefix}-bin-high", 6.0)),
         ]),
-        field("Smooth bins", dcc.Checklist(id=f"{prefix}-smooth", options=[{"label": "build bins from min/max/step", "value": "smooth"}], value=[], className="checklist")),
-        html.Div(className="form-grid-3", children=[
+        html.Div(id=f"{prefix}-smooth-bin-wrap", style={"display": "none"}, className="form-grid-3", children=[
             field("Smooth min", num_input(f"{prefix}-smooth-min", 1.0)),
             field("Smooth max", num_input(f"{prefix}-smooth-max", 6.0)),
             field("Step", num_input(f"{prefix}-smooth-step", 1.0)),
+        ]),
+    ])
+
+
+def expert_controls(prefix: str):
+    return html.Div([
+        field("Expert controls", dcc.Checklist(id=f"{prefix}-advanced-mode", options=[{"label": "show decay configuration controls", "value": "advanced"}], value=[], className="checklist")),
+        html.Div(id=f"{prefix}-expert-panel", style={"display": "none"}, children=[
+            small_note("Decay configuration is applied to the shared ObservableInterface before computations. Use it for form-factor sources, lepton generation, charges and thread hints when supported by the selected decay.", tone="info"),
+            field("Decay configuration target", dropdown(f"{prefix}-decay-config-decay", svc.decay_options(), value="B__l_l", multi=False)),
+            html.Div(id=f"{prefix}-decay-config-fields"),
+            html.Div(className="inline-actions", children=[
+                html.Button("Apply decay configuration", id=f"{prefix}-apply-decay-config-btn", n_clicks=0),
+            ]),
+            status_box(f"{prefix}-decay-config-status", "No decay configuration applied yet."),
         ]),
     ])
 
@@ -79,6 +96,7 @@ def layout():
                     card("Observable selection", "ObservableInterface", html.Div([
                         observable_selection("obs-build"),
                         bin_controls("obs-build"),
+                        expert_controls("obs"),
                         html.Div(className="inline-actions", children=[
                             html.Button("Configure ObservableInterface", id="obs-build-btn", n_clicks=0),
                             html.Button("Remove selected rows", id="obs-remove-btn", n_clicks=0),
@@ -93,12 +111,15 @@ def layout():
                         field("Plot dimension", dropdown("obs-scan-dim", DIM_OPTIONS, value="1d")),
                         field("Decay", dropdown("obs-scan-decay", svc.decay_options(), value="B__l_l", multi=False)),
                         field("Observable in selected decay", dropdown("obs-scan-observable", svc.observable_options_for_decays(["B__l_l"]), value="BR_BS_MUMU")),
-                        html.Div(className="form-grid-3", children=[
+                        html.Div(className="form-grid-2", children=[
                             field("Order", dropdown("obs-scan-order", enum_options(QCDOrder), value="NNLO")),
-                            field("Bin low", num_input("obs-scan-bin-low", None)),
-                            field("Bin high", num_input("obs-scan-bin-high", None)),
+                            field("Add dependencies", dcc.Checklist(id="obs-scan-deps", options=[{"label": "include dependencies", "value": "deps"}], value=["deps"], className="checklist")),
                         ]),
-                        field("Add dependencies", dcc.Checklist(id="obs-scan-deps", options=[{"label": "include dependencies", "value": "deps"}], value=["deps"], className="checklist")),
+                        field("Scan bin", dcc.Checklist(id="obs-scan-use-bin", options=[{"label": "apply bin to scanned observable", "value": "bin"}], value=[], className="checklist")),
+                        html.Div(id="obs-scan-bin-wrap", style={"display": "none"}, className="form-grid-2", children=[
+                            field("Bin low", num_input("obs-scan-bin-low", 1.0)),
+                            field("Bin high", num_input("obs-scan-bin-high", 6.0)),
+                        ]),
                         html.Div(className="form-grid-3", children=[
                             field("x min", num_input("obs-x-min", 0.0)),
                             field("x max", num_input("obs-x-max", 200.0)),
@@ -106,19 +127,21 @@ def layout():
                         ]),
                         html.Div(className="section-title", children="X parameter"),
                         parameter_controls("obs-x-param"),
-                        html.Div(className="form-grid-3", children=[
+                        html.Div(id="obs-y-range-wrap", style={"display": "none"}, className="form-grid-3", children=[
                             field("y min", num_input("obs-y-min", 0.0)),
                             field("y max", num_input("obs-y-max", 200.0)),
                             field("y points", num_input("obs-y-n", 20)),
                         ]),
-                        html.Div(className="section-title", children="Y parameter for 2D only"),
-                        parameter_controls("obs-y-param"),
+                        html.Div(id="obs-y-param-wrap", style={"display": "none"}, children=[
+                            html.Div(className="section-title", children="Y parameter"),
+                            parameter_controls("obs-y-param"),
+                        ]),
                         html.Button("Run observable scan", id="obs-scan-btn", n_clicks=0),
                         status_box("obs-scan-status", "No scan yet."),
                     ])),
                 ]),
                 html.Div(className="grid", children=[
-                    card("Configured observables", "selection expanded from decay and bins", data_table("obs-selection-table", OBS_SELECTION_COLUMNS, page_size=12, row_selectable="multi")),
+                    card("Configured observables", "selection expanded from decay and bins", data_table("obs-selection-table", OBS_SELECTION_COLUMNS, data=svc.current_observable_rows(), page_size=12, row_selectable="multi")),
                     card("Predictions", "compute output", data_table("obs-result-table", OBS_RESULT_COLUMNS, page_size=16)),
                     card("Observable scan plot", "1D scatter or 2D heatmap", graph("obs-scan-fig", height=500), className="card graph-card"),
                     small_note("LaTeX labels are shown in the main columns; raw enum/block/code values are kept in companion columns for traceability."),

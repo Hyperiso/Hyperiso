@@ -76,6 +76,27 @@ def layout():
                                     ]
                                 ),
                             ),
+                            card(
+                                "Block dependencies",
+                                "upstream/downstream and pruning",
+                                children=html.Div(
+                                    children=[
+                                        html.Div(
+                                            className="form-grid-3",
+                                            children=[
+                                                field("Action", dropdown("core-dep-action", [{"label": "Detach", "value": "detach"}, {"label": "Reattach", "value": "reattach"}], value="detach")),
+                                                field("Scope", dropdown("core-dep-scope", [{"label": "Whole block", "value": "block"}, {"label": "Single parameter", "value": "parameter"}], value="block")),
+                                                field("Parameter code", dropdown("core-dep-code", [], value=None, placeholder="Only for parameter scope")),
+                                            ],
+                                        ),
+                                        html.Div(className="inline-actions", children=[
+                                            html.Button("Refresh dependency graph", id="core-dep-refresh-btn", n_clicks=0),
+                                            html.Button("Apply dependency action", id="core-dep-apply-btn", n_clicks=0),
+                                        ]),
+                                        status_box("core-dep-status", "Select a block and refresh to inspect dependencies."),
+                                    ]
+                                ),
+                            ),
                         ],
                     ),
                     html.Div(
@@ -83,7 +104,9 @@ def layout():
                         children=[
                             html.Div(id="core-metrics", className="metrics-row", children=runtime_metrics_children()),
                             card("Block inventory", "all ParameterType namespaces", graph("core-block-inventory-fig", height=430), className="card graph-card"),
-                            card("Block content", "values and uncertainties when available", data_table("core-block-table", ["code", "name", "value", "stat_std", "syst_std", "combined_std", "scale", "bin"], page_size=16)),
+                            card("Block content", "values and uncertainties when available", data_table("core-block-table", ["code", "name", "dependent_block", "value", "stat_std", "syst_std", "combined_std", "scale", "bin"], page_size=16)),
+                            card("Dependency tree", "connected upstream/downstream component for the selected block", graph("core-dep-fig", height=470), className="card graph-card"),
+                            card("Dependency links", "direct and transitive relations", data_table("core-dep-table", ["relation", "block"], page_size=12)),
                             card("Block value distribution", "with combined uncertainty error bars if readable", graph("core-block-values-fig", height=430), className="card graph-card"),
                             small_note("The table reads values through BlockLogger and tries to enrich each row with ParameterProvider uncertainties. Scale/bin metadata is shown when the underlying bound parameter exposes it."),
                         ],

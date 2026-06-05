@@ -10,11 +10,6 @@ SELECT_MODE = [
     {"label": "Observable by observable", "value": "observable"},
     {"label": "Whole decay", "value": "decay"},
 ]
-BIN_STRATEGY = [
-    {"label": "No explicit bin", "value": "none"},
-    {"label": "Single bin applied to selected observables", "value": "single"},
-    {"label": "Smooth bin grid min/max/step", "value": "smooth"},
-]
 
 DEFAULT_DECAY = ["B__l_l"]
 DEFAULT_OBS = ["BR_BS_MUMU"]
@@ -74,9 +69,19 @@ def observable_selection(prefix: str):
 
 def bin_controls(prefix: str):
     return html.Div([
-        field("Bin strategy", dropdown(f"{prefix}-bin-strategy", BIN_STRATEGY, value="none")),
-        html.Div(className="form-grid-2", children=[field("Bin low", num_input(f"{prefix}-bin-low", 1.0)), field("Bin high", num_input(f"{prefix}-bin-high", 6.0))]),
-        html.Div(className="form-grid-3", children=[field("Smooth min", num_input(f"{prefix}-smooth-min", 1.0)), field("Smooth max", num_input(f"{prefix}-smooth-max", 6.0)), field("Step", num_input(f"{prefix}-smooth-step", 1.0))]),
+        field("Bins", dcc.Checklist(id=f"{prefix}-use-bin", options=[{"label": "apply bin to selected observables", "value": "bin"}], value=[], className="checklist")),
+        html.Div(id=f"{prefix}-bin-mode-wrap", style={"display": "none"}, children=[
+            field("Bin grid", dcc.Checklist(id=f"{prefix}-smooth", options=[{"label": "build bins from min/max/step", "value": "smooth"}], value=[], className="checklist")),
+        ]),
+        html.Div(id=f"{prefix}-explicit-bin-wrap", style={"display": "none"}, className="form-grid-2", children=[
+            field("Bin low", num_input(f"{prefix}-bin-low", 1.0)),
+            field("Bin high", num_input(f"{prefix}-bin-high", 6.0)),
+        ]),
+        html.Div(id=f"{prefix}-smooth-bin-wrap", style={"display": "none"}, className="form-grid-3", children=[
+            field("Smooth min", num_input(f"{prefix}-smooth-min", 1.0)),
+            field("Smooth max", num_input(f"{prefix}-smooth-max", 6.0)),
+            field("Step", num_input(f"{prefix}-smooth-step", 1.0)),
+        ]),
     ])
 
 
@@ -91,6 +96,21 @@ def pspec_controls():
     ])
 
 
+def expert_controls():
+    return html.Div([
+        field("Expert controls", dcc.Checklist(id="stat-advanced-mode", options=[{"label": "show decay and advanced statistic controls", "value": "advanced"}], value=[], className="checklist")),
+        html.Div(id="stat-expert-panel", style={"display": "none"}, children=[
+            small_note("Decay configuration is applied to the shared ObservableInterface used by both Observable and Stat pages.", tone="info"),
+            field("Decay configuration target", dropdown("stat-decay-config-decay", svc.decay_options(), value="B__l_l", multi=False)),
+            html.Div(id="stat-decay-config-fields"),
+            html.Div(className="inline-actions", children=[
+                html.Button("Apply decay configuration", id="stat-apply-decay-config-btn", n_clicks=0),
+            ]),
+            status_box("stat-decay-config-status", "No decay configuration applied yet."),
+        ]),
+    ])
+
+
 def layout():
     return html.Div(children=[
         page_title("Statistics", "χ² Monte-Carlo covariance workflow: configure observables, propagate uncertainty, and fit selected parameters.", "Stat"),
@@ -99,6 +119,7 @@ def layout():
                 card("Statistic observables", "shared ObservableInterface", html.Div([
                     observable_selection("stat-obs"),
                     bin_controls("stat-obs"),
+                    expert_controls(),
                     html.Div(className="inline-actions", children=[
                         html.Button("Configure Statistic ObservableInterface", id="stat-configure-obs-btn", n_clicks=0),
                         html.Button("Remove selected rows", id="stat-remove-obs-btn", n_clicks=0),
@@ -107,17 +128,19 @@ def layout():
                 ])),
                 card("Experiments and MC", "χ² backend only", html.Div([
                     field("Experiments", text_input("stat-experiments", "", placeholder="comma-separated; empty = all")),
-                    html.Div(className="form-grid-3", children=[
-                        field("MC draws", num_input("stat-mc-draws", 100)),
-                        field("Skew threshold", num_input("stat-skew-threshold", 0.2)),
-                        field("Nuisance contexts", num_input("stat-nuisance-contexts", 2)),
+                    field("MC draws", num_input("stat-mc-draws", 100)),
+                    html.Div(id="stat-advanced-options-wrap", style={"display": "none"}, children=[
+                        html.Div(className="form-grid-2", children=[
+                            field("Skew threshold", num_input("stat-skew-threshold", 0.2)),
+                            field("Nuisance contexts", num_input("stat-nuisance-contexts", 2)),
+                        ]),
+                        html.Div(className="form-grid-3", children=[
+                            field("Cov ridge rel", num_input("stat-ridge-rel", 1e-8)),
+                            field("Cov ridge abs", num_input("stat-ridge-abs", 1e-12)),
+                            field("Nuisance seed", num_input("stat-nuisance-seed", 12345)),
+                        ]),
+                        field("Nuisance pruning", dcc.Checklist(id="stat-nuisance-pruning", options=[{"label": "sensitivity pruning", "value": "prune"}], value=["prune"], className="checklist")),
                     ]),
-                    html.Div(className="form-grid-3", children=[
-                        field("Cov ridge rel", num_input("stat-ridge-rel", 1e-8)),
-                        field("Cov ridge abs", num_input("stat-ridge-abs", 1e-12)),
-                        field("Nuisance seed", num_input("stat-nuisance-seed", 12345)),
-                    ]),
-                    field("Nuisance pruning", dcc.Checklist(id="stat-nuisance-pruning", options=[{"label": "sensitivity pruning", "value": "prune"}], value=["prune"], className="checklist")),
                 ])),
                 card("Uncertainty", "GaussianSummary", html.Div([
                     field("Uncertainty display", dropdown("stat-uncertainty-mode", [{"label": "symmetric", "value": "sym"}, {"label": "asymmetric", "value": "asym"}], value="sym")),
@@ -140,7 +163,7 @@ def layout():
                 ])),
             ]),
             html.Div(className="grid", children=[
-                card("Configured stat observables", "selection expanded from decay and bins", data_table("stat-observable-table", OBS_COLUMNS, page_size=12, row_selectable="multi")),
+                card("Configured stat observables", "selection expanded from decay and bins", data_table("stat-observable-table", OBS_COLUMNS, data=svc.current_stat_observable_rows(), page_size=12, row_selectable="multi")),
                 card("Uncertainty table", "GaussianSummary", data_table("stat-uncertainty-table", UNC_COLUMNS, page_size=16)),
                 card("Uncertainty plot", "central value plus uncertainty band", graph("stat-uncertainty-fig", height=480), className="card graph-card"),
                 html.Div(className="graph-row-2", children=[

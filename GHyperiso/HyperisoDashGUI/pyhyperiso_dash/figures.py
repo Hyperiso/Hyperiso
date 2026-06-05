@@ -147,3 +147,87 @@ def likelihood_contour(points: Sequence[dict], levels: Sequence[float], title: s
         )
     fig.update_layout(xaxis_title="p₁", yaxis_title="p₂")
     return style_fig(fig, title)
+
+
+def dependency_graph(data: dict, title: str = "Block dependency graph") -> go.Figure:
+    """Draw the local dependency component for one selected block.
+
+    Edges are oriented upstream → downstream.  The selected block is placed in
+    the middle layer, transitive sources to the left, transitive dependents to
+    the right, and unrelated nodes in the component are spread around it.
+    """
+    if not data or not data.get("nodes"):
+        return empty_fig(title)
+    block = str(data.get("block", ""))
+    nodes = [str(x) for x in data.get("nodes", [])]
+    sources = set(map(str, data.get("all_sources", [])))
+    direct_sources = set(map(str, data.get("direct_sources", [])))
+    dependents = set(map(str, data.get("all_dependents", [])))
+    direct_dependents = set(map(str, data.get("direct_dependents", [])))
+    edges = [(str(a), str(b)) for a, b in data.get("edges", [])]
+
+    layers: dict[str, list[str]] = {"source": [], "selected": [], "dependent": [], "other": []}
+    for n in nodes:
+        if n == block:
+            layers["selected"].append(n)
+        elif n in sources:
+            layers["source"].append(n)
+        elif n in dependents:
+            layers["dependent"].append(n)
+        else:
+            layers["other"].append(n)
+
+    xpos = {"source": -1.0, "selected": 0.0, "other": 0.0, "dependent": 1.0}
+    pos: dict[str, tuple[float, float]] = {}
+    for layer, ns in layers.items():
+        ns = sorted(ns)
+        if not ns:
+            continue
+        if len(ns) == 1:
+            ys = [0.0]
+        else:
+            ys = list(np.linspace(0.82, -0.82, len(ns)))
+        for n, y in zip(ns, ys):
+            x = xpos[layer]
+            if layer == "other":
+                x = 0.0
+            pos[n] = (x, float(y))
+
+    fig = go.Figure()
+    for src, dst in edges:
+        if src not in pos or dst not in pos:
+            continue
+        x0, y0 = pos[src]
+        x1, y1 = pos[dst]
+        fig.add_trace(go.Scatter(x=[x0, x1], y=[y0, y1], mode="lines", line=dict(width=1.8), hoverinfo="skip", showlegend=False))
+        # Small arrow marker near downstream side.
+        xm = x0 + 0.78 * (x1 - x0)
+        ym = y0 + 0.78 * (y1 - y0)
+        fig.add_trace(go.Scatter(x=[xm], y=[ym], mode="markers", marker=dict(symbol="triangle-right", size=9), hoverinfo="skip", showlegend=False))
+
+    for layer, ns in layers.items():
+        if not ns:
+            continue
+        xs, ys, texts, hover = [], [], [], []
+        for n in sorted(ns):
+            if n not in pos:
+                continue
+            x, y = pos[n]
+            xs.append(x); ys.append(y); texts.append(n)
+            tags = []
+            if n == block:
+                tags.append("selected")
+            if n in direct_sources:
+                tags.append("direct upstream")
+            elif n in sources:
+                tags.append("upstream")
+            if n in direct_dependents:
+                tags.append("direct downstream")
+            elif n in dependents:
+                tags.append("downstream")
+            hover.append(f"{n}<br>{', '.join(tags) if tags else layer}")
+        fig.add_trace(go.Scatter(x=xs, y=ys, mode="markers+text", text=texts, textposition="top center", hovertext=hover, hoverinfo="text", name=layer, marker=dict(size=18 if layer == "selected" else 13, line=dict(width=1.2))))
+
+    fig.update_xaxes(visible=False, range=[-1.35, 1.35])
+    fig.update_yaxes(visible=False, range=[-1.12, 1.12])
+    return style_fig(fig, title)

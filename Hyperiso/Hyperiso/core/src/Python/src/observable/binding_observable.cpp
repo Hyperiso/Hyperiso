@@ -11,9 +11,246 @@
 
 #include "ObservableInterface.h"
 
+
+#include "DefaultConfig.h"
+#include "BDlnuDecay.h"
+#include "BDstarlnuDecay.h"
+#include "BKllDecay.h"
+#include "BKsllDecay.h"
+#include "BKstarGammaDecay.h"
+#include "BllDecay.h"
+#include "BsPhiDecay.h"
+#include "BXsDecay.h"
+#include "BXsllDecay.h"
+#include "DlnuDecay.h"
+#include "DslnuDecay.h"
+#include "KllDecay.h"
+#include "KlnuDecay.h"
+#include "KPinunuDecay.h"
+#include "LbLllDecay.h"
+#include "M0_Mixing.h"
+
 namespace py = pybind11;
 
+namespace {
+
+void bind_decay_config_types(py::module& m) {
+    py::class_<DecayConfig>(m, "DecayConfig", R"pbdoc(
+Base decay-configuration marker used by configurable decay implementations.
+
+This type has no fields by itself. Some concrete decay configuration objects
+inherit from it in C++, while other legacy config structs are stored directly in
+``std::any``. All of them are passed to ``ObservableInterface.set_decay_config``
+through typed pybind11 overloads.
+)pbdoc")
+        .def(py::init<>(), R"pbdoc(Create an empty base decay configuration.)pbdoc");
+
+    py::enum_<B_FF_Type>(m, "B_FF_Type", R"pbdoc(
+Choice of form-factor scheme for exclusive B decays.
+)pbdoc")
+        .value("FULL", B_FF_Type::FULL, R"pbdoc(Use full form factors.)pbdoc")
+        .value("SOFT", B_FF_Type::SOFT, R"pbdoc(Use soft form-factor approximation.)pbdoc");
+
+    py::enum_<BP_FF_Src>(m, "BP_FF_Src", R"pbdoc(
+Source of B -> pseudoscalar form factors used by BKllConfig.
+)pbdoc")
+        .value("AS", BP_FF_Src::AS)
+        .value("GRvDV", BP_FF_Src::GRvDV)
+        .value("GKvD_SR_LAT", BP_FF_Src::GKvD_SR_LAT)
+        .value("GKvD_SR", BP_FF_Src::GKvD_SR)
+        .value("FLAG24", BP_FF_Src::FLAG24)
+        .value("HPQCD22", BP_FF_Src::HPQCD22);
+
+    py::enum_<BV_FF_Src>(m, "BV_FF_Src", R"pbdoc(
+Source of B -> vector form factors used by BKstarllConfig, BKstarGammaConfig and BsPhiConfig.
+)pbdoc")
+        .value("BSZ_SR_LAT", BV_FF_Src::BSZ_SR_LAT)
+        .value("BSZ_SR", BV_FF_Src::BSZ_SR)
+        .value("GRvDV", BV_FF_Src::GRvDV)
+        .value("GKvD_SR_LAT", BV_FF_Src::GKvD_SR_LAT)
+        .value("GKvD_SR", BV_FF_Src::GKvD_SR)
+        .value("HLMW", BV_FF_Src::HLMW);
+
+    py::enum_<LbL_FF_Src>(m, "LbL_FF_Src", R"pbdoc(
+Source of Lambda_b -> Lambda form factors used by LbLllConfig.
+
+Only values available in the current C++ headers are exposed here.
+)pbdoc")
+        .value("DM", LbL_FF_Src::DM);
+
+    auto bdlnu_cfg = py::class_<BDlnuConfig, DecayConfig>(m, "BDlnuConfig", R"pbdoc(
+Configuration for the B -> D l nu decay engine.
+
+Attributes:
+    charge: B-meson charge convention used by the decay implementation.
+)pbdoc");
+    py::enum_<BDlnuConfig::B_Charge>(bdlnu_cfg, "BCharge", R"pbdoc(B charge option for BDlnuConfig.)pbdoc")
+        .value("B_0", BDlnuConfig::B_Charge::B_0)
+        .value("B_PLUS", BDlnuConfig::B_Charge::B_PLUS);
+    bdlnu_cfg
+        .def(py::init<>(), R"pbdoc(Create a B -> D l nu configuration with backend defaults.)pbdoc")
+        .def_readwrite("charge", &BDlnuConfig::charge, R"pbdoc(B-meson charge option.)pbdoc");
+
+    auto bdstarlnu_cfg = py::class_<BDstarlnuConfig, DecayConfig>(m, "BDstarlnuConfig", R"pbdoc(
+Configuration for the B -> D* l nu decay engine.
+
+Attributes:
+    charge: B-meson charge convention used by the decay implementation.
+)pbdoc");
+    py::enum_<BDstarlnuConfig::B_Charge>(bdstarlnu_cfg, "BCharge", R"pbdoc(B charge option for BDstarlnuConfig.)pbdoc")
+        .value("B_0", BDstarlnuConfig::B_Charge::B_0)
+        .value("B_PLUS", BDstarlnuConfig::B_Charge::B_PLUS);
+    bdstarlnu_cfg
+        .def(py::init<>(), R"pbdoc(Create a B -> D* l nu configuration with backend defaults.)pbdoc")
+        .def_readwrite("charge", &BDstarlnuConfig::charge, R"pbdoc(B-meson charge option.)pbdoc");
+
+    auto bkll_cfg = py::class_<BKllConfig, DecayConfig>(m, "BKllConfig", R"pbdoc(
+Configuration for the exclusive B -> K l+ l- decay engine.
+
+Attributes:
+    ff_src: Source of B -> K form factors.
+    ff_type: Full or soft form-factor treatment.
+    charge: B-meson charge convention.
+    gen: Lepton generation.
+    n_threads: Number of worker threads requested by the decay implementation.
+)pbdoc");
+    py::enum_<BKllConfig::B_Charge>(bkll_cfg, "BCharge", R"pbdoc(B charge option for BKllConfig.)pbdoc")
+        .value("B_0", BKllConfig::B_Charge::B_0)
+        .value("B_PLUS", BKllConfig::B_Charge::B_PLUS);
+    py::enum_<BKllConfig::Lepton>(bkll_cfg, "Lepton", R"pbdoc(Lepton generation option for BKllConfig.)pbdoc")
+        .value("E", BKllConfig::Lepton::E)
+        .value("MU", BKllConfig::Lepton::MU)
+        .value("TAU", BKllConfig::Lepton::TAU);
+    bkll_cfg
+        .def(py::init<>(), R"pbdoc(Create a B -> K l+ l- configuration with backend defaults.)pbdoc")
+        .def_readwrite("ff_src", &BKllConfig::ff_src, R"pbdoc(B -> pseudoscalar form-factor source.)pbdoc")
+        .def_readwrite("ff_type", &BKllConfig::ff_type, R"pbdoc(Form-factor treatment, full or soft.)pbdoc")
+        .def_readwrite("charge", &BKllConfig::charge, R"pbdoc(B-meson charge option.)pbdoc")
+        .def_readwrite("gen", &BKllConfig::gen, R"pbdoc(Lepton generation.)pbdoc")
+        .def_readwrite("n_threads", &BKllConfig::n_threads, R"pbdoc(Number of worker threads.)pbdoc");
+
+    auto bkstarll_cfg = py::class_<BKstarllConfig, DecayConfig>(m, "BKstarllConfig", R"pbdoc(
+Configuration for the exclusive B -> K* l+ l- decay engine.
+
+Attributes:
+    ff_src: Source of B -> K* form factors.
+    ff_type: Full or soft form-factor treatment.
+    power_corr_impl: Non-factorisable power-correction prescription.
+    charge: B-meson charge convention.
+    gen: Lepton generation.
+    n_threads: Number of worker threads requested by the decay implementation.
+)pbdoc");
+    py::enum_<BKstarllConfig::Power_Corrections_Impl>(bkstarll_cfg, "PowerCorrectionsImpl", R"pbdoc(Power-correction model for BKstarllConfig.)pbdoc")
+        .value("BFS", BKstarllConfig::Power_Corrections_Impl::BFS)
+        .value("BCvDV", BKstarllConfig::Power_Corrections_Impl::BCvDV)
+        .value("KMPW", BKstarllConfig::Power_Corrections_Impl::KMPW);
+    py::enum_<BKstarllConfig::B_Charge>(bkstarll_cfg, "BCharge", R"pbdoc(B charge option for BKstarllConfig.)pbdoc")
+        .value("B_0", BKstarllConfig::B_Charge::B_0)
+        .value("B_PLUS", BKstarllConfig::B_Charge::B_PLUS);
+    py::enum_<BKstarllConfig::Lepton>(bkstarll_cfg, "Lepton", R"pbdoc(Lepton generation option for BKstarllConfig.)pbdoc")
+        .value("E", BKstarllConfig::Lepton::E)
+        .value("MU", BKstarllConfig::Lepton::MU)
+        .value("TAU", BKstarllConfig::Lepton::TAU);
+    bkstarll_cfg
+        .def(py::init<>(), R"pbdoc(Create a B -> K* l+ l- configuration with backend defaults.)pbdoc")
+        .def_readwrite("ff_src", &BKstarllConfig::ff_src, R"pbdoc(B -> vector form-factor source.)pbdoc")
+        .def_readwrite("ff_type", &BKstarllConfig::ff_type, R"pbdoc(Form-factor treatment, full or soft.)pbdoc")
+        .def_readwrite("power_corr_impl", &BKstarllConfig::power_corr_impl, R"pbdoc(Power-correction prescription.)pbdoc")
+        .def_readwrite("charge", &BKstarllConfig::charge, R"pbdoc(B-meson charge option.)pbdoc")
+        .def_readwrite("gen", &BKstarllConfig::gen, R"pbdoc(Lepton generation.)pbdoc")
+        .def_readwrite("n_threads", &BKstarllConfig::n_threads, R"pbdoc(Number of worker threads.)pbdoc");
+
+    auto bkstargamma_cfg = py::class_<BKstarGammaConfig, DecayConfig>(m, "BKstarGammaConfig", R"pbdoc(
+Configuration for the exclusive B -> K* gamma decay engine.
+
+Attributes:
+    ff_src: Source of B -> K* form factors.
+    charge: B-meson charge convention.
+)pbdoc");
+    py::enum_<BKstarGammaConfig::B_Charge>(bkstargamma_cfg, "BCharge", R"pbdoc(B charge option for BKstarGammaConfig.)pbdoc")
+        .value("B_0", BKstarGammaConfig::B_Charge::B_0)
+        .value("B_PLUS", BKstarGammaConfig::B_Charge::B_PLUS);
+    bkstargamma_cfg
+        .def(py::init<>(), R"pbdoc(Create a B -> K* gamma configuration with backend defaults.)pbdoc")
+        .def_readwrite("ff_src", &BKstarGammaConfig::ff_src, R"pbdoc(B -> vector form-factor source.)pbdoc")
+        .def_readwrite("charge", &BKstarGammaConfig::charge, R"pbdoc(B-meson charge option.)pbdoc");
+
+    auto bsphi_cfg = py::class_<BsPhiConfig>(m, "BsPhiConfig", R"pbdoc(
+Configuration for the exclusive Bs -> phi l+ l- decay engine.
+
+Attributes:
+    ff_src: Source of Bs -> phi form factors.
+    ff_type: Full or soft form-factor treatment.
+    gen: Lepton generation.
+    n_threads: Number of worker threads requested by the decay implementation.
+)pbdoc");
+    py::enum_<BsPhiConfig::Lepton>(bsphi_cfg, "Lepton", R"pbdoc(Lepton generation option for BsPhiConfig.)pbdoc")
+        .value("E", BsPhiConfig::Lepton::E)
+        .value("MU", BsPhiConfig::Lepton::MU)
+        .value("TAU", BsPhiConfig::Lepton::TAU);
+    bsphi_cfg
+        .def(py::init<>(), R"pbdoc(Create a Bs -> phi l+ l- configuration with backend defaults.)pbdoc")
+        .def_readwrite("ff_src", &BsPhiConfig::ff_src, R"pbdoc(Bs -> phi form-factor source.)pbdoc")
+        .def_readwrite("ff_type", &BsPhiConfig::ff_type, R"pbdoc(Form-factor treatment, full or soft.)pbdoc")
+        .def_readwrite("gen", &BsPhiConfig::gen, R"pbdoc(Lepton generation.)pbdoc")
+        .def_readwrite("n_threads", &BsPhiConfig::n_threads, R"pbdoc(Number of worker threads.)pbdoc");
+
+    auto bxsll_cfg = py::class_<BXsllConfig, DecayConfig>(m, "BXsllConfig", R"pbdoc(
+Configuration for the inclusive B -> X_s l+ l- decay engine.
+
+Attributes:
+    gen: Lepton generation.
+)pbdoc");
+    py::enum_<BXsllConfig::Lepton>(bxsll_cfg, "Lepton", R"pbdoc(Lepton generation option for BXsllConfig.)pbdoc")
+        .value("E", BXsllConfig::Lepton::E)
+        .value("MU", BXsllConfig::Lepton::MU)
+        .value("TAU", BXsllConfig::Lepton::TAU);
+    bxsll_cfg
+        .def(py::init<>(), R"pbdoc(Create a B -> X_s l+ l- configuration with backend defaults.)pbdoc")
+        .def_readwrite("gen", &BXsllConfig::gen, R"pbdoc(Lepton generation.)pbdoc");
+
+    py::class_<KllDecayConfig>(m, "KllDecayConfig", R"pbdoc(
+Configuration for the K_L,S -> l+ l- decay engine.
+
+Attributes:
+    N_L_sign: Sign convention for the K_L -> gamma gamma long-distance term.
+    gen: Lepton generation encoded as the integer convention used by the C++ backend.
+)pbdoc")
+        .def(py::init<>(), R"pbdoc(Create a K -> l+ l- configuration with backend defaults.)pbdoc")
+        .def_readwrite("N_L_sign", &KllDecayConfig::N_L_sign, R"pbdoc(Sign convention for the long-distance K_L contribution.)pbdoc")
+        .def_readwrite("gen", &KllDecayConfig::gen, R"pbdoc(Lepton-generation integer used by the backend.)pbdoc");
+
+    auto lblll_cfg = py::class_<LbLllConfig>(m, "LbLllConfig", R"pbdoc(
+Configuration for the Lambda_b -> Lambda l+ l- decay engine.
+
+Attributes:
+    ff_src: Source of Lambda_b -> Lambda form factors.
+    gen: Lepton generation.
+)pbdoc");
+    py::enum_<LbLllConfig::Lepton>(lblll_cfg, "Lepton", R"pbdoc(Lepton generation option for LbLllConfig.)pbdoc")
+        .value("E", LbLllConfig::Lepton::E)
+        .value("MU", LbLllConfig::Lepton::MU)
+        .value("TAU", LbLllConfig::Lepton::TAU);
+    lblll_cfg
+        .def(py::init<>(), R"pbdoc(Create a Lambda_b -> Lambda l+ l- configuration with backend defaults.)pbdoc")
+        .def_readwrite("ff_src", &LbLllConfig::ff_src, R"pbdoc(Lambda_b -> Lambda form-factor source.)pbdoc")
+        .def_readwrite("gen", &LbLllConfig::gen, R"pbdoc(Lepton generation.)pbdoc");
+}
+
+template <typename ConfigT>
+ObservableInterface& set_decay_config_typed(ObservableInterface& self, Decays decay, const ConfigT& config) {
+    self.set_decay_config(decay, config);
+    return self;
+}
+
+} // namespace
+
+
+
+
 void init_observable(py::module &m) {
+
+    bind_decay_config_types(m);
 
     
     py::class_<ObservableValue>(m, "ObservableValue")
@@ -138,6 +375,67 @@ void init_observable(py::module &m) {
           py::arg("block"), py::arg("code"), py::arg("type"))
      .def("reload_params", &ObservableInterface::reload_params)
      .def("enable_obs", &ObservableInterface::enable_obs)
+
+     .def("set_decay_config",
+          [](ObservableInterface& self, Decays decay, const BDlnuConfig& config) -> ObservableInterface& {
+              return set_decay_config_typed(self, decay, config);
+          },
+          py::arg("decay"), py::arg("config"), py::return_value_policy::reference_internal,
+          R"pbdoc(Set the B -> D l nu decay configuration.)pbdoc")
+     .def("set_decay_config",
+          [](ObservableInterface& self, Decays decay, const BDstarlnuConfig& config) -> ObservableInterface& {
+              return set_decay_config_typed(self, decay, config);
+          },
+          py::arg("decay"), py::arg("config"), py::return_value_policy::reference_internal,
+          R"pbdoc(Set the B -> D* l nu decay configuration.)pbdoc")
+     .def("set_decay_config",
+          [](ObservableInterface& self, Decays decay, const BKllConfig& config) -> ObservableInterface& {
+              return set_decay_config_typed(self, decay, config);
+          },
+          py::arg("decay"), py::arg("config"), py::return_value_policy::reference_internal,
+          R"pbdoc(Set the B -> K l+ l- decay configuration.)pbdoc")
+     .def("set_decay_config",
+          [](ObservableInterface& self, Decays decay, const BKstarllConfig& config) -> ObservableInterface& {
+              return set_decay_config_typed(self, decay, config);
+          },
+          py::arg("decay"), py::arg("config"), py::return_value_policy::reference_internal,
+          R"pbdoc(Set the B -> K* l+ l- decay configuration.)pbdoc")
+     .def("set_decay_config",
+          [](ObservableInterface& self, Decays decay, const BKstarGammaConfig& config) -> ObservableInterface& {
+              return set_decay_config_typed(self, decay, config);
+          },
+          py::arg("decay"), py::arg("config"), py::return_value_policy::reference_internal,
+          R"pbdoc(Set the B -> K* gamma decay configuration.)pbdoc")
+     .def("set_decay_config",
+          [](ObservableInterface& self, Decays decay, const BsPhiConfig& config) -> ObservableInterface& {
+              return set_decay_config_typed(self, decay, config);
+          },
+          py::arg("decay"), py::arg("config"), py::return_value_policy::reference_internal,
+          R"pbdoc(Set the Bs -> phi l+ l- decay configuration.)pbdoc")
+     .def("set_decay_config",
+          [](ObservableInterface& self, Decays decay, const BXsllConfig& config) -> ObservableInterface& {
+              return set_decay_config_typed(self, decay, config);
+          },
+          py::arg("decay"), py::arg("config"), py::return_value_policy::reference_internal,
+          R"pbdoc(Set the B -> X_s l+ l- decay configuration.)pbdoc")
+     .def("set_decay_config",
+          [](ObservableInterface& self, Decays decay, const KllDecayConfig& config) -> ObservableInterface& {
+              return set_decay_config_typed(self, decay, config);
+          },
+          py::arg("decay"), py::arg("config"), py::return_value_policy::reference_internal,
+          R"pbdoc(Set the K -> l+ l- decay configuration.)pbdoc")
+     .def("set_decay_config",
+          [](ObservableInterface& self, Decays decay, const LbLllConfig& config) -> ObservableInterface& {
+              return set_decay_config_typed(self, decay, config);
+          },
+          py::arg("decay"), py::arg("config"), py::return_value_policy::reference_internal,
+          R"pbdoc(Set the Lambda_b -> Lambda l+ l- decay configuration.)pbdoc")
+     .def("set_decay_config",
+          [](ObservableInterface& self, Decays decay, const DecayConfig& config) -> ObservableInterface& {
+              return set_decay_config_typed(self, decay, config);
+          },
+          py::arg("decay"), py::arg("config"), py::return_value_policy::reference_internal,
+          R"pbdoc(Set a generic, empty decay configuration for a configurable decay.)pbdoc")
      .def("set_bkstarll_threads", &ObservableInterface::set_bkstarll_threads,
           py::arg("n_threads"))
      .def("set_bkll_threads", &ObservableInterface::set_bkll_threads,
