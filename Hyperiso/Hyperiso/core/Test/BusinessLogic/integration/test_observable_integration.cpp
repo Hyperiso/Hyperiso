@@ -178,8 +178,8 @@ int main() {
 
     auto obspp = std::make_shared<SpyObsParamProxy>();
     const ObservableId oid = ObservableMapper::to_id(Observables::BR_BS_MUMU);
-    const auto flha = ObservableMapper::flha_of(oid).value();
-    ParamId pid_obs(ParameterType::OBSERVABLE, "FOBS", flha);
+    const auto flha = ObservableMapper::binned_flha_of({oid, {0.,0.}}).value();
+    ParamId pid_obs(ParameterType::OBSERVABLE, "FOBS_DEFAULT", flha);
 
     obspp->table[{pid_obs, DataType::VALUE}] = scalar_t{2.34, 0.0};
     obspp->table[{pid_obs, UncertaintyTypeMapper::d_type(UncertaintyType::COMBINED)}] = scalar_t{0.10,0.0};

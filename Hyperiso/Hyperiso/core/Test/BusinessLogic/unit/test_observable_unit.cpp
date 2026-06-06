@@ -183,8 +183,8 @@ int main() {
     {
         obspp_spy->calls = 0;
 
-        const auto flha = ObservableMapper::flha_of(oid).value();
-        ParamId pid(ParameterType::OBSERVABLE, "FOBS", flha);
+        const auto flha = ObservableMapper::binned_flha_of({oid, {0.,0.}}).value();
+        ParamId pid(ParameterType::OBSERVABLE, "FOBS_DEFAULT", flha);
 
         obspp_spy->table[{pid, DataType::VALUE}] = scalar_t{1.23, 0.0};
 
@@ -200,13 +200,13 @@ int main() {
     {
         obspp_spy->calls = 0;
 
-        const auto flha = ObservableMapper::flha_of(oid).value();
-        ParamId pid(ParameterType::OBSERVABLE, "FOBS", flha);
+        const auto flha = ObservableMapper::binned_flha_of({oid, {0.,0.}}).value();
+        ParamId pid(ParameterType::OBSERVABLE, "FOBS_DEFAULT", flha);
         const auto dt = UncertaintyTypeMapper::d_type(UncertaintyType::COMBINED);
 
         obspp_spy->table[{pid, dt}] = scalar_t{0.11, 0.0};
 
-        auto u = obs.get_exp_uncertainty(UncertaintyType::COMBINED);
+        auto u = obs.get_exp_uncertainty({0.0, 0.}, "DEFAULT", UncertaintyType::COMBINED);
         assert(std::abs(u.real() - 0.11) < 1e-12);
         assert(std::abs(u.imag()) < 1e-12);
 

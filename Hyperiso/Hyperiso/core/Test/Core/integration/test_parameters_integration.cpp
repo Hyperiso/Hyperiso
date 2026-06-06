@@ -46,7 +46,7 @@ int main() {
   // cfg2.flags[ExternalFlag::USE_MARTY] = true;
   mm->switch_lha(lha2.string(), cfg2);
 
-  sm1->CleanupInstance(ParameterType::SM);
+  sm1.reset();
   auto sm2 = Parameters::GetInstance(ParameterType::SM);
 
   double v2 = (*sm2)("GAUGE", LhaID(1)).real();

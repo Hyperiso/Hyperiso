@@ -96,7 +96,7 @@ public:
      * @param exp Experiment for the observable
      * @return Experimental central value (as @ref scalar_t).
      */
-    scalar_t get_exp_val(std::pair<double, double> bins, std::string exp) const;
+    scalar_t get_exp_val(std::pair<double, double> bins = {0.,0.}, std::string exp = "DEFAULT") const;
 
     /**
      * @brief Get the experimental uncertainty for this observable.
@@ -109,7 +109,7 @@ public:
      * @param u_type Which uncertainty component to request (default: combined).
      * @return Experimental uncertainty (as @ref scalar_t).
      */
-    scalar_t get_exp_uncertainty(std::pair<double, double> bins, std::string exp, UncertaintyType u_type=UncertaintyType::COMBINED) const;
+    scalar_t get_exp_uncertainty(std::pair<double, double> bins = {0.,0.}, std::string exp = "DEFAULT", UncertaintyType u_type=UncertaintyType::COMBINED) const;
 
     /**
      * @brief Compute the theory prediction for this observable.
