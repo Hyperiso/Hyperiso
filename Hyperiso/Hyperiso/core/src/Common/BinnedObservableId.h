@@ -312,6 +312,24 @@ struct BinnedObservableId {
     BinnedObservableId(ObservableId id, std::pair<double, double> bin) : s(id), p(bin) {}
 
     /**
+     * @brief Constructs an unbinned observable identifier.
+     *
+     * The observable is initialized from @p id and the bin boundaries are set
+     * to {0.0, 0.0}, which is used here as the default unbinned interval.
+     *
+     * @param id Identifier of the observable.
+     */
+    BinnedObservableId(Observables id) : s(ObservableMapper::to_id(id)), p({0.0, 0.0}) {}
+
+    /**
+     * @brief Constructs a binned observable identifier.
+     *
+     * @param id Identifier of the observable.
+     * @param bin Pair containing the lower and upper bin boundaries.
+     */
+    BinnedObservableId(Observables id, std::pair<double, double> bin) : s(ObservableMapper::to_id(id)), p(bin) {}
+
+    /**
      * @brief Equality comparison operator.
      *
      * Two BinnedObservableId objects are equal if they refer to the same
