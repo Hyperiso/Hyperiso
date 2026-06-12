@@ -8,6 +8,7 @@
 #include <cstdio>
 #include <memory>
 #include <array>
+#include <stdexcept>
 
 #include "Include.h"
 
@@ -32,7 +33,12 @@
  * to `std::cerr`.
  *
  * @param command Shell command to execute.
- * @return `true` if the command exited with status 0, `false` otherwise.
+ * @return `true` if the command exited with status 0.
+ *
+ * @throws std::runtime_error if the command cannot be started or exits with
+ *         a non-zero status. This intentionally stops the MARTY pipeline at
+ *         the first failing command instead of cascading into missing-file
+ *         errors.
  */
 bool executeCommand(const std::string& command);
 

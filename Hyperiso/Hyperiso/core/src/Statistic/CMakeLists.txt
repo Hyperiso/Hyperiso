@@ -4,7 +4,7 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 project(Statistic)
-add_compile_options(-O3)
+add_compile_options(-O1)
 
 if (NOT DEFINED BUILD_WITH_SOFTSUSY)
     option(BUILD_WITH_SOFTSUSY "Build project with SOFTSUSY support" OFF)

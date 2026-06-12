@@ -1,4 +1,5 @@
 #include "GeneralModelModifier.h"
+#include "MartyRuntimeConfig.h"
 
 GeneralModelModifier::GeneralModelModifier(std::string wilson, std::string model, std::string model_path) {this->wilson = wilson;
         this->model = model;
@@ -6,7 +7,11 @@ GeneralModelModifier::GeneralModelModifier(std::string wilson, std::string model
         std::transform(model_l.begin(), model_l.end(), model_l.begin(), 
         [](unsigned char c){return std::tolower(c);});
         this->model_path = model_path;
-        this->marty_path = project_tp_root.data() + std::string() + "MARTY/MARTY_INSTALL/include/marty.h";
+
+        const auto marty = MartyRuntimeConfig::require_available("GeneralModelModifier");
+        if (marty.valid) {
+            this->marty_path = marty.marty_header.string();
+        }
     }
 
 void GeneralModelModifier::modifyLine(std::string& line) {

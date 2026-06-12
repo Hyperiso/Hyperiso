@@ -123,6 +123,10 @@ fs::path MemoryManager::calculate_spectrum(fs::path input_lha_path, const Hyperi
         return input_lha_path;
     }
 
+    if(config.flags.at(ExternalFlag::IS_LHA_SPECTRUM)) {
+        return input_lha_path;
+    }
+
     if (!sc) {
         LOG_WARN("MemoryManager", "No ISpectrumCalculator provided, skipping spectrum calculation.");
         return input_lha_path;
@@ -141,7 +145,7 @@ MemoryManager* MemoryManager::GetInstance() {
     return MemoryManager::instance;
 }
 
-MemoryManager::MemoryManager(std::shared_ptr<IDataLoader<BlockAccessor>> loader, std::shared_ptr<IDataLoader<CorrelationMatrixPair<ParamId>>> param_corr, std::shared_ptr<IDataLoader<CorrelationMatrixPair<ExperimentObs>>> obs_corr, std::shared_ptr<ISpectrumCalculator> spectrum_c, std::shared_ptr<IPathsProvider> paths_provider_) : memento(DBMemento()) {
+MemoryManager::MemoryManager(std::shared_ptr<IDataLoader<BlockAccessor>> loader, std::shared_ptr<IDataLoader<CorrelationMatrixPair<ParamId>>> param_corr, std::shared_ptr<IDataLoader<CorrelationMatrixPair<ExperimentObs>>> obs_corr, std::shared_ptr<ISpectrumCalculator> spectrum_c, std::shared_ptr<IPathsProvider> paths_provider_, std::shared_ptr<ILhaPrototypeRegistry> lha_prototype_registry_) : memento(DBMemento()) {
     this->sc = spectrum_c;
     
     this->dl_ba = loader;
@@ -149,14 +153,71 @@ MemoryManager::MemoryManager(std::shared_ptr<IDataLoader<BlockAccessor>> loader,
     this->dl_cmp_o = obs_corr;
 
     this->paths_provider = paths_provider_;
+    this->lha_prototype_registry = lha_prototype_registry_;
     this->cache.is_ready = false;
 }
 
-MemoryManager* MemoryManager::Create(std::shared_ptr<IDataLoader<BlockAccessor>> loader, std::shared_ptr<IDataLoader<CorrelationMatrixPair<ParamId>>> param_corr, std::shared_ptr<IDataLoader<CorrelationMatrixPair<ExperimentObs>>> obs_corr, std::shared_ptr<ISpectrumCalculator> spectrum_c, std::shared_ptr<IPathsProvider> paths_provider) {
+// MemoryManager* MemoryManager::Create(std::shared_ptr<IDataLoader<BlockAccessor>> loader, std::shared_ptr<IDataLoader<CorrelationMatrixPair<ParamId>>> param_corr, std::shared_ptr<IDataLoader<CorrelationMatrixPair<ExperimentObs>>> obs_corr, std::shared_ptr<ISpectrumCalculator> spectrum_c, std::shared_ptr<IPathsProvider> paths_provider) {
+//     if (!MemoryManager::instance) {
+//         MemoryManager::instance = new MemoryManager(loader, param_corr, obs_corr, spectrum_c, paths_provider);
+//     }
+//     return MemoryManager::instance;
+// }
+
+MemoryManager* MemoryManager::Create(std::shared_ptr<IDataLoader<BlockAccessor>> loader, std::shared_ptr<IDataLoader<CorrelationMatrixPair<ParamId>>> param_corr, std::shared_ptr<IDataLoader<CorrelationMatrixPair<ExperimentObs>>> obs_corr, std::shared_ptr<ISpectrumCalculator> spectrum_c, std::shared_ptr<IPathsProvider> paths_provider, std::shared_ptr<ILhaPrototypeRegistry> lha_prototype_registry) {
     if (!MemoryManager::instance) {
-        MemoryManager::instance = new MemoryManager(loader, param_corr, obs_corr, spectrum_c, paths_provider);
+        MemoryManager::instance = new MemoryManager(loader, param_corr, obs_corr, spectrum_c, paths_provider, lha_prototype_registry);
+    } else if (!MemoryManager::instance->dl_ba && !MemoryManager::instance->cache.is_ready) {
+        // Allows a default-created singleton to be wired later through ports.
+        MemoryManager::instance->dl_ba = loader;
+        MemoryManager::instance->dl_cmp_p = param_corr;
+        MemoryManager::instance->dl_cmp_o = obs_corr;
+        MemoryManager::instance->sc = spectrum_c;
+        MemoryManager::instance->paths_provider = paths_provider;
+        MemoryManager::instance->lha_prototype_registry = lha_prototype_registry;
     }
     return MemoryManager::instance;
+}
+
+void MemoryManager::add_lha_prototype(BlockName blockName,
+                                      size_t itemCount,
+                                      size_t valueIdx,
+                                      int scaleIdx,
+                                      int rgIdx,
+                                      int binIdx,
+                                      bool globalScale)
+{
+    if (cache.is_ready) {
+        LOG_WARN("MemoryManager", "add_lha_prototype called after init; it will only affect future LHA reloads.");
+    }
+
+    if (!lha_prototype_registry) {
+        LOG_ERROR("MemoryManager", "No ILhaPrototypeRegistry port was provided.");
+        return;
+    }
+
+    lha_prototype_registry->add_lha_prototype(blockName,
+                                              itemCount,
+                                              valueIdx,
+                                              scaleIdx,
+                                              rgIdx,
+                                              binIdx,
+                                              globalScale);
+
+    ParameterBlockRepartition::register_custom_bsm_block(blockName);
+}
+
+void MemoryManager::add_lha_prototypes(const std::vector<LhaPrototypeSpec>& prototypes)
+{
+    for (const auto& prototype : prototypes) {
+        add_lha_prototype(prototype.blockName,
+                          prototype.itemCount,
+                          prototype.valueIdx,
+                          prototype.scaleIdx,
+                          prototype.rgIdx,
+                          prototype.binIdx,
+                          prototype.globalScale);
+    }
 }
 
 void MemoryManager::init(const std::string& lhaFile, HyperisoConfig config) {
@@ -185,7 +246,9 @@ void MemoryManager::deduce_parameter_types(const HyperisoConfig &config) {
                              ParameterType::OBSERVABLE,
                              ParameterType::PASSTHROUGH,
                              ParameterType::WILSON};
-    if (config.model != Model::SM) {
+    const bool has_custom_bsm_blocks = !ParameterBlockRepartition::custom_bsm_blocks().empty();
+
+    if (config.model != Model::SM || has_custom_bsm_blocks) {
         cache.parameter_types.push_back(ParameterType::BSM);
     }
 }

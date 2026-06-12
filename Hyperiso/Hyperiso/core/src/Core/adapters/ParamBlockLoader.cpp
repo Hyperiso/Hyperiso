@@ -1,4 +1,6 @@
 #include "ParamBlockLoader.h"
+#include "LhaDBNodeProvider.h"
+
 
 static double value_to_double(const DBNode::Value& v, double fallback = 0.0)
 {
@@ -9,9 +11,52 @@ static double value_to_double(const DBNode::Value& v, double fallback = 0.0)
     return fallback;
 }
 
+void ParamBlockLoader::add_lha_prototype(BlockName blockName,
+                                           size_t itemCount,
+                                           size_t valueIdx,
+                                           int scaleIdx,
+                                           int rgIdx,
+                                           int binIdx,
+                                           bool globalScale)
+{
+    lha_prototypes.push_back({blockName, itemCount, valueIdx, scaleIdx, rgIdx, binIdx, globalScale});
+}
+
+void ParamBlockLoader::add_lha_prototypes(const std::vector<LhaPrototypeSpec>& prototypes)
+{
+    for (const auto& prototype : prototypes) {
+        add_lha_prototype(prototype.blockName,
+                          prototype.itemCount,
+                          prototype.valueIdx,
+                          prototype.scaleIdx,
+                          prototype.rgIdx,
+                          prototype.binIdx,
+                          prototype.globalScale);
+    }
+}
+
+void ParamBlockLoader::apply_lha_prototypes(std::shared_ptr<IDBNodeProvider> provider) const
+{
+    auto lha_provider = std::dynamic_pointer_cast<LhaDBNodeProvider>(provider);
+    if (!lha_provider) {
+        return;
+    }
+
+    for (const auto& prototype : lha_prototypes) {
+        lha_provider->add_lha_prototype(prototype.blockName,
+                                        prototype.itemCount,
+                                        prototype.valueIdx,
+                                        prototype.scaleIdx,
+                                        prototype.rgIdx,
+                                        prototype.binIdx,
+                                        prototype.globalScale);
+    }
+}
+
 void ParamBlockLoader::load(std::shared_ptr<BlockAccessor> dest, fs::path src_file, bool block_in_blocks) {
     LOG_DEBUG("Loading parameter blocks from", src_file.string());
     auto np  = DBNodeProviderFactory::createDBNodeProvider(src_file);
+    apply_lha_prototypes(np);
     auto src = np->provide_db_as_node();
     
     if (block_in_blocks) {

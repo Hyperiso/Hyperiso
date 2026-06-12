@@ -8,12 +8,16 @@
 int main() {
     std::cout << "here ! " << std::endl;
     auto hyp = HyperisoMaster();  // Initialize program manager with LHA file containing SMINPUTS block
+
+    hyp.pre_init_add_block("SOFTSUSY");
+
     HyperisoConfig config;
-    config.model = Model::SM;
+    config.model = Model::SUSY;
+    config.flags[ExternalFlag::IS_LHA_SPECTRUM] = true;
     std::cout << "here ! " << std::endl;
     hyp.init("Test/InputFiles/testInput.slha", config);
     auto sm_params = Parameters::GetInstance(ParameterType::SM); // SM Model
-    // auto susy_params = Parameters::GetInstance(ParameterType::BSM); // SUSY Model
+    auto susy_params = Parameters::GetInstance(ParameterType::BSM); // SUSY Model
     
     std::shared_ptr<BlockAccessor> truc = sm_params->get_block_accessor();
 
@@ -33,9 +37,9 @@ int main() {
         std::cout << "Alpha_s(MZ): " << alpha_s_MZ << std::endl;
 
         std::cout << "mass up quark : " << (*sm_params)("MASS", 2) << std::endl;
-        std::cout << "first element of ckm (real part) : " << (*sm_params)("RECKM", 0) << std::endl;
+        std::cout << "first element of ckm : " << (*sm_params)("VCKM", {0,1}) << std::endl;
         //  double susy_mass = (*susy_params)("MASS", 1000021); // Example PDG code for a SUSY particle
-        // std::cout << "SUSY Particle Mass: " << susy_mass << std::endl;
+        std::cout << "SUSY Particle Mass: " << (*susy_params)("SOFTSUSY", 1) << std::endl;
 
 
     } catch (const std::exception& e) {
@@ -52,8 +56,10 @@ int main() {
     // mm2->init();
     // auto thdm_params = Parameters::GetInstance(2); // THDM Model
     // std::cout << "THDM matrice yu : " << (*thdm_params)("YU", 22) << std::endl;
-    BlockProvider().log_all_blocks(ParameterType::OBSERVABLE);
-    LOG_INFO(CorrelationProvider()("DEFAULT", Observables::BR_BS_MUMU_UNTAG, Observables::BR_BD_MUMU, CorrelationProvider::CorrelationType::COMBINED));
-    LOG_INFO(CorrelationProvider()("DEFAULT2", Observables::BR_BS_MUMU_UNTAG, Observables::BR_BD_MUMU, CorrelationProvider::CorrelationType::COMBINED));
+    // BlockProvider().log_all_blocks(ParameterType::OBSERVABLE);
+    // LOG_INFO(CorrelationProvider()("DEFAULT", Observables::BR_BS_MUMU_UNTAG, Observables::BR_BD_MUMU, CorrelationProvider::CorrelationType::COMBINED));
+    // LOG_INFO(CorrelationProvider()("DEFAULT2", Observables::BR_BS_MUMU_UNTAG, Observables::BR_BD_MUMU, CorrelationProvider::CorrelationType::COMBINED));
+
+
     return 0;
 }

@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import os
-from typing import Optional
+from typing import Optional, Union
 
 from pyhyperiso.phyperiso.pyhyperiso.core import HyperisoMaster as _CppHyperisoMaster
 from pyhyperiso.core.Common.GeneralEnum import Model
@@ -72,6 +72,80 @@ class HyperisoMaster:
         else:
             self._cpp_obj.init(resolved_lha)
             self.config = HyperisoConfig()
+
+    def pre_init_add_block(
+        self,
+        block_name: str,
+        item_count: int = 2,
+        value_idx: int = 1,
+        scale_idx: int = -1,
+        rg_idx: int = -1,
+        bin_idx: int = -1,
+        global_scale: bool = False,
+    ) -> None:
+        """Register an additional LHA block prototype before initialization.
+
+        This method must be called before :meth:`init` for the prototype to be
+        available during the first LHA parsing pass. The registered block is
+        routed to ``Parameters::BSM`` by default on the C++ side. To register
+        several custom blocks, call this method several times before ``init``.
+
+        Args:
+            block_name: Name of the LHA block to register.
+            item_count: Number of columns expected on each data line.
+            value_idx: Zero-based index of the central value column.
+            scale_idx: Zero-based index of the scale column, or ``-1`` when the
+                block has no per-entry scale column.
+            rg_idx: Zero-based index of the renormalization-scheme column, or
+                ``-1`` when the block has no such column.
+            bin_idx: Zero-based index of the bin lower-edge column, or ``-1``
+                when the block is not binned. When provided, the following
+                column is interpreted as the bin upper edge.
+            global_scale: Whether the block uses a global ``Q=`` scale in its
+                header.
+
+        Raises:
+            RuntimeError: If the underlying C++ layer rejects the prototype.
+        """
+        self._cpp_obj.pre_init_add_block(
+            block_name,
+            item_count,
+            value_idx,
+            scale_idx,
+            rg_idx,
+            bin_idx,
+            global_scale,
+        )
+
+    def pre_init_set_marty_path(self, marty_path: Union[str, os.PathLike[str]]) -> None:
+        """Register an existing MARTY installation before initialization.
+
+        Use this when MARTY is already installed by the user and Hyperiso was
+        not built with the bundled ``-DBUILD_WITH_MARTY=ON`` installation. The
+        path is validated by the C++ layer and then reused by the generated
+        MARTY compilation commands.
+
+        The accepted path can be the MARTY install prefix itself, a parent
+        directory containing ``MARTY_INSTALL`` or ``install``, the ``include``
+        directory, the ``lib`` directory, the ``marty.h`` header, or a
+        ``libmarty`` library file. A valid installation must contain
+        ``include/marty.h`` and one of ``lib/libmarty.so``,
+        ``lib/libmarty.dylib``, or ``lib/libmarty.a``.
+
+        Args:
+            marty_path: Path to an existing MARTY installation or to one of its
+                recognizable subpaths/files.
+
+        Raises:
+            RuntimeError: If the underlying C++ layer rejects the MARTY
+                installation path.
+
+        Examples:
+            >>> hyp = HyperisoMaster()
+            >>> hyp.pre_init_set_marty_path("/opt/marty/MARTY_INSTALL")
+            >>> hyp.init("lha/si_input.flha", config)
+        """
+        self._cpp_obj.pre_init_set_marty_path(os.path.abspath(os.fspath(marty_path)))
 
     def switch_lha(self, lha_file: str, config: Optional[HyperisoConfig] = None) -> None:
         """Switch the active LHA input file.

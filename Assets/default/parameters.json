@@ -1552,13 +1552,6 @@
       "syst_error": 0
     }
   },
-  "B_SCALE": {
-    "1": {
-      "central_value": 4.7,
-      "stat_error": 0,
-      "syst_error": 0
-    }
-  },
   "B_Xs": {
     "1": {
       "central_value": 1.6,
@@ -2292,16 +2285,23 @@
       "syst_error": 0
     }
   },
-  "D_SCALE": {
+  "EW_SCALE": {
     "1": {
-      "central_value": 1.5,
+      "central_value": 81,
       "stat_error": 0,
       "syst_error": 0
     }
   },
-  "EW_SCALE": {
+  "B_SCALE": {
     "1": {
-      "central_value": 81,
+      "central_value": 4.7,
+      "stat_error": 0,
+      "syst_error": 0
+    }
+  },
+  "D_SCALE": {
+    "1": {
+      "central_value": 1.5,
       "stat_error": 0,
       "syst_error": 0
     }

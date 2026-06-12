@@ -58,7 +58,8 @@ public:
      * The command line typically includes:
      *  - `-L<MARTY_INSTALL>/lib`
      *  - `-Wl,-rpath,<MARTY_INSTALL>/lib`
-     *  - `-lmarty -lgfortran`
+     *  - `-lmarty`
+     *  - the absolute `libgfortran.so` path discovered from g++/gfortran
      *
      * @param sourceFile    Path to the generated C++ source.
      * @param outputBinary  Path/name of the executable to produce.

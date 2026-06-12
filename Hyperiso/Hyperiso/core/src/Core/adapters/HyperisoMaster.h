@@ -1,15 +1,19 @@
 #ifndef HYPERISO_MASTER_H
 #define HYPERISO_MASTER_H
 
+#include <vector>
+#include <string>
+
 #include "IMonitor.h"
 #include "MemoryManager.h"
 #include "ParamBlockLoader.h"
 #include "CorrelationAdapter.h"
 #include "SpectrumCalculator.h"
 #include "DefaultPathsProvider.h"
+#include "MartyRuntimeConfig.h"
 
 /**
- * @file ConfigProvider.h
+ * @file HyperisoMaster.h
  * @brief High-level helpers for initializing and monitoring the Hyperiso framework.
  *
  * This header declares:
@@ -53,6 +57,11 @@
  * @see DefaultPathsProvider
  */
 class HyperisoMaster : public IMonitor<ExternalFlag> {
+private:
+    void ensure_memory_manager_created();
+    bool should_validate_marty_runtime(const HyperisoConfig& config) const;
+    bool validate_marty_runtime_if_needed(const HyperisoConfig& config, const std::string& context) const;
+
 public:
 
     /**
@@ -69,6 +78,34 @@ public:
      * @param config Configuration settings to drive initialization.
      */
     void init(const std::string &lhaFile, HyperisoConfig config);
+
+    /**
+     * @brief Registers one additional LHA block prototype before init().
+     *
+     * Must be called before init() to affect the first LHA parsing.
+     */
+    void pre_init_add_block(BlockName blockName,
+                            size_t itemCount=2,
+                            size_t valueIdx=1,
+                            int scaleIdx=-1,
+                            int rgIdx=-1,
+                            int binIdx=-1,
+                            bool globalScale=false);
+
+    /**
+     * @brief Registers several additional LHA block prototypes before init().
+     */
+    void pre_init_add_blocks(const std::vector<LhaPrototypeSpec>& prototypes);
+
+    /**
+     * @brief Registers an existing MARTY installation before init().
+     *
+     * The path may point to the MARTY install prefix itself, or to a nearby
+     * include/, lib/, MARTY_INSTALL/, install/, marty.h, or libmarty file. The
+     * normalized installation is validated immediately and reused by the MARTY
+     * code-generation layer instead of the bundled Third_party/MARTY path.
+     */
+    void pre_init_set_marty_path(const std::string& martyInstallPath);
 
     /**
      * @brief Initializes Hyperiso with only the LHA file, using default config.
@@ -116,4 +153,4 @@ public:
     void switch_lha(const std::string &lhaFile, HyperisoConfig config);
 };
 
-#endif // CONFIGPROVIDER_H
+#endif // HYPERISO_MASTER_H

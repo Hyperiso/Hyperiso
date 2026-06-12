@@ -107,7 +107,7 @@ std::unordered_set<BlockName> Parameters::init_blocks(ParameterType type) {
     const auto available_blocks =
         MemoryManager::GetInstance()->input_cache->get_block_names();
 
-    for (const auto& expected : ParameterBlockRepartition::BLOCKS.at(type)) {
+    for (const auto& expected : ParamRouter::GetOwnedBlocks(type)) {
         bool found = false;
 
         for (const auto& actual : available_blocks) {
@@ -195,10 +195,86 @@ std::unordered_set<BlockName> SMModelStrategy::initializeParameters(Parameters& 
     return absent_blocks;
 }
 
+namespace {
+
+double superiso_scale(double ref_mass, double x_log2)
+{
+    return (x_log2 > 0.0)
+        ? std::pow(2.0, x_log2) * ref_mass
+        : ref_mass;
+}
+
+void add_wilson_ew_scale_from_nuisance()
+{
+    std::unordered_map<ParameterType, std::vector<std::string>> src = {
+        {ParameterType::SM,     {"MASS"}},
+        {ParameterType::WILSON, {"SCALE_NUIS"}}
+    };
+
+    auto ew_scale_func =
+        [] (const BlockSrc& src, std::shared_ptr<DependentBlock> dep_block)
+    {
+        const double x_W = src.get_val("SCALE_NUIS", 1);
+        const double m_W = src.get_val("MASS", 24);
+
+        const double mu_W = superiso_scale(m_W, x_W);
+
+        dep_block->store_or_assign(
+            1,
+            std::make_shared<Parameter>(
+                ParamId{ParameterType::WILSON, "EW_SCALE", 1},
+                mu_W, 0.0, 0.0
+            )
+        );
+    };
+
+    DependentBlockManager::addDependentBlock(
+        "EW_SCALE",
+        src,
+        ParameterType::WILSON,
+        ew_scale_func
+    );
+}
+
+void add_wilson_b_scale_from_nuisance()
+{
+    std::unordered_map<ParameterType, std::vector<std::string>> src = {
+        {ParameterType::SM,     {"QCD"}},
+        {ParameterType::WILSON, {"SCALE_NUIS"}}
+    };
+
+    auto b_scale_func =
+        [] (const BlockSrc& src, std::shared_ptr<DependentBlock> dep_block)
+    {
+        const double x_b = src.get_val("SCALE_NUIS", 2);
+
+        // QCDHelper::Init() doit déjà avoir créé ce bloc.
+        const double m_b_pole = src.get_val("QCD", LhaID(5, 2));
+
+        const double mu_b = superiso_scale(m_b_pole, x_b);
+
+        dep_block->store_or_assign(
+            1,
+            std::make_shared<Parameter>(
+                ParamId{ParameterType::WILSON, "B_SCALE", 1},
+                mu_b, 0.0, 0.0
+            )
+        );
+    };
+
+    DependentBlockManager::addDependentBlock(
+        "B_SCALE",
+        src,
+        ParameterType::WILSON,
+        b_scale_func
+    );
+}
+
+}
+
 void SMModelStrategy::postInitialization(Parameters&) {
 
-    QCDHelper::Init();  // Order matters : EWHelper needs QCDHelper to be initialized
-    EWHelper::Init();
+    
 
     if (absent_blocks.contains("VCKM")) {
         std::unordered_map<ParameterType, std::vector<std::string>> src_ckm = {
@@ -273,7 +349,43 @@ void SMModelStrategy::postInitialization(Parameters&) {
         DependentBlockManager::addDependentBlock("UPMNS", src_pmns, ParameterType::SM, func_pmns);
     }
 
-    Parameters::GetInstance(ParameterType::WILSON);
+    auto wilson_params = Parameters::GetInstance(ParameterType::WILSON);
+
+    const bool has_ew_scale = wilson_params->exist("EW_SCALE", 1);
+    const bool has_b_scale  = wilson_params->exist("B_SCALE", 1);
+
+    const bool has_x_w = wilson_params->exist("SCALE_NUIS", 1);
+    const bool has_x_b = wilson_params->exist("SCALE_NUIS", 2);
+
+    if (!has_ew_scale) {
+        if (!has_x_w) {
+            LOG_ERROR(
+                "MissingScale",
+                "WILSON::EW_SCALE[1] is absent and WILSON::SCALE_NUIS[1] is absent. "
+                "Provide either EW_SCALE directly or SCALE_NUIS[1] to derive it."
+            );
+        }
+
+        add_wilson_ew_scale_from_nuisance();
+    }
+
+    QCDHelper::Init();
+
+    if (!has_b_scale) {
+        if (!has_x_b) {
+            LOG_ERROR(
+                "MissingScale",
+                "WILSON::B_SCALE[1] is absent and WILSON::SCALE_NUIS[2] is absent. "
+                "Provide either B_SCALE directly or SCALE_NUIS[2] to derive it."
+            );
+        }
+
+        add_wilson_b_scale_from_nuisance();
+    }
+
+    EWHelper::Init();
+
+
     std::unordered_map<ParameterType, std::vector<std::string>> src = {
         {ParameterType::SM, {"QCD"}},
         {ParameterType::WILSON, {"EW_SCALE"}}

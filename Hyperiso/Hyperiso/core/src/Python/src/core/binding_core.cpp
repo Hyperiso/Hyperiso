@@ -279,12 +279,54 @@ void init_core(py::module &m) {
 
     // HyperisoMaster
     py::class_<HyperisoMaster, std::shared_ptr<HyperisoMaster>>(m, "HyperisoMaster")
-    .def(py::init<>())
-    .def("init", py::overload_cast<const std::string&, HyperisoConfig>(&HyperisoMaster::init))
-    .def("init", py::overload_cast<const std::string&>(&HyperisoMaster::init))
-    .def("check_flag", &HyperisoMaster::check_flag)
-    .def("get_model", &HyperisoMaster::get_model)
-    .def("switch_lha",  py::overload_cast<const std::string&, HyperisoConfig>(&HyperisoMaster::switch_lha));
+        .def(py::init<>())
+        .def("init", py::overload_cast<const std::string&, HyperisoConfig>(&HyperisoMaster::init))
+        .def("init", py::overload_cast<const std::string&>(&HyperisoMaster::init))
+        .def(
+            "pre_init_add_block",
+            [](HyperisoMaster& self,
+            const std::string& block_name,
+            size_t item_count,
+            size_t value_idx,
+            int scale_idx,
+            int rg_idx,
+            int bin_idx,
+            bool global_scale) {
+                self.pre_init_add_block(BlockName(block_name),
+                                        item_count,
+                                        value_idx,
+                                        scale_idx,
+                                        rg_idx,
+                                        bin_idx,
+                                        global_scale);
+            },
+            py::arg("block_name"),
+            py::arg("item_count") = 2,
+            py::arg("value_idx") = 1,
+            py::arg("scale_idx") = -1,
+            py::arg("rg_idx") = -1,
+            py::arg("bin_idx") = -1,
+            py::arg("global_scale") = false,
+            R"doc(Register an additional LHA block prototype before initialization.
+
+    The block is added to the LHA parser prototype registry and is routed to the
+    BSM parameter namespace by default. Call this before init(). Multiple custom
+    blocks can be registered by calling this method several times.)doc"
+        )
+        .def(
+            "pre_init_set_marty_path",
+            &HyperisoMaster::pre_init_set_marty_path,
+            py::arg("marty_path"),
+            R"doc(Register an existing MARTY installation before initialization.
+
+    The path may point to the MARTY install prefix, to a directory containing
+    MARTY_INSTALL/ or install/, to include/, to lib/, to marty.h, or to a libmarty
+    library file. Hyperiso validates include/marty.h and lib/libmarty.* before MARTY
+    mode is allowed to initialize.)doc"
+        )
+        .def("check_flag", &HyperisoMaster::check_flag)
+        .def("get_model", &HyperisoMaster::get_model)
+        .def("switch_lha",  py::overload_cast<const std::string&, HyperisoConfig>(&HyperisoMaster::switch_lha));
 
     // ParameterSetter
     py::class_<ParameterShifter, std::shared_ptr<ParameterShifter>>(m, "ParameterShifter")

@@ -932,19 +932,19 @@ int main() {
         oint->set_decay_config(Decays::B__Kstar_l_l, cfg_BKs);
         oint->set_bkstarll_threads(24);
 
-        BKstarGammaConfig cfg_BKsgamma;
-        cfg_BKsgamma.ff_src = BV_FF_Src::GRvDV;
-        oint->set_decay_config(Decays::B__Kstar_gamma, cfg_BKsgamma);
+        // BKstarGammaConfig cfg_BKsgamma;
+        // cfg_BKsgamma.ff_src = BV_FF_Src::GRvDV;
+        // oint->set_decay_config(Decays::B__Kstar_gamma, cfg_BKsgamma);
 
-        BsPhiConfig cfg_BsPhi;
-        cfg_BsPhi.ff_src = BV_FF_Src::GRvDV;
-        oint->set_decay_config(Decays::Bs__phi_l_l, cfg_BsPhi);
-        oint->set_bsphi_threads(24);
+        // BsPhiConfig cfg_BsPhi;
+        // cfg_BsPhi.ff_src = BV_FF_Src::GRvDV;
+        // oint->set_decay_config(Decays::Bs__phi_l_l, cfg_BsPhi);
+        // oint->set_bsphi_threads(15);
 
-        BKllConfig cfg_BK;
-        cfg_BK.ff_src = BP_FF_Src::GKvD_SR_LAT;
-        oint->set_decay_config(Decays::B__K_l_l, cfg_BK);
-        oint->set_bkll_threads(24);
+        // BKllConfig cfg_BK;
+        // cfg_BK.ff_src = BP_FF_Src::GKvD_SR_LAT;
+        // oint->set_decay_config(Decays::B__K_l_l, cfg_BK);
+        // oint->set_bkll_threads(15);
 
         using O = Observables;
         constexpr bool kAddDeps = false;
@@ -1094,7 +1094,7 @@ int main() {
         add_bin(O::DBR_DQ2_B__K_MU_MU, 19.24, 22.9); // 118 dGamma/dq2_BKmumu_19.24_22.9_CMS
 
         //FIRST STOP
-        add_bin(O::R_1_B__K_L_L, 1.1, 6); // 119 R-1_BKll_1.1_6_CMS
+        // add_bin(O::R_1_B__K_L_L, 1.1, 6); // 119 R-1_BKll_1.1_6_CMS
         add_bin(O::F_L_B0__KSTAR0_MU_MU, 1.1, 2); // 120 FL_B0Kstar0mumu_1.1_2_CMS
         add_bin(O::P_1_B0__KSTAR0_MU_MU, 1.1, 2); // 121 P1_B0Kstar0mumu_1.1_2_CMS
         add_bin(O::P_2_B0__KSTAR0_MU_MU, 1.1, 2); // 122 P2_B0Kstar0mumu_1.1_2_CMS
@@ -1210,23 +1210,25 @@ int main() {
     std::shared_ptr<IStatParamOptimizerProxy> spop = std::make_shared<StatParamOptimizerProxy>();
     auto model = std::make_shared<ObservableInterfaceProxy>(oint, spop);
     
-    LOG_INFO(oint->compute_observable(Observables::IA_B__KSTAR_GAMMA)[0].value);
-    LOG_INFO(oint->get_exp_value(Observables::IA_B__KSTAR_GAMMA));
-    LOG_INFO(oint->compute_observable(Observables::BR_B_XS_GAMMA)[0].value);
-    LOG_INFO(oint->compute_observable(Observables::BR_BS_EE_UNTAG)[0].value);
-    LOG_INFO(oint->compute_observable(Observables::BR_BS_MUMU_UNTAG)[0].value);
-    LOG_INFO(oint->compute_observable(Observables::BR_B__Xs_mu_mu)[0].value);
-    LOG_INFO(oint->compute_observable(Observables::BR_B__Xs_mu_mu)[1].value);
-    LOG_INFO(oint->compute_observable(Observables::BR_B__Xs_e_e)[0].value);
-    LOG_INFO(oint->compute_observable(Observables::BR_B__Xs_e_e)[1].value);
-    LOG_INFO(oint->compute_observable(Observables::BR_B0__KSTAR0_GAMMA)[0].value);
-    LOG_INFO(oint->compute_observable(Observables::BR_B__KSTAR_GAMMA)[0].value);
-    LOG_INFO(oint->compute_observable(Observables::DBR_DQ2_B__KSTAR_MU_MU)[0].value);
-    LOG_INFO(oint->compute_observable(Observables::DBR_DQ2_B__KSTAR_MU_MU)[1].value);
+    // LOG_INFO(oint->compute_observable(Observables::IA_B__KSTAR_GAMMA)[0].value);
+    // LOG_INFO(oint->get_exp_value(Observables::IA_B__KSTAR_GAMMA));
+    // LOG_INFO(oint->compute_observable(Observables::BR_B_XS_GAMMA)[0].value);
+    // LOG_INFO(oint->compute_observable(Observables::BR_BS_EE_UNTAG)[0].value);
+    // LOG_INFO(oint->compute_observable(Observables::BR_BS_MUMU_UNTAG)[0].value);
+    // LOG_INFO(oint->compute_observable(Observables::BR_B__Xs_mu_mu)[0].value);
+    // LOG_INFO(oint->compute_observable(Observables::BR_B__Xs_mu_mu)[1].value);
+    // LOG_INFO(oint->compute_observable(Observables::BR_B__Xs_e_e)[0].value);
+    // LOG_INFO(oint->compute_observable(Observables::BR_B__Xs_e_e)[1].value);
+    // LOG_INFO(oint->compute_observable(Observables::BR_B0__KSTAR0_GAMMA)[0].value);
+    // LOG_INFO(oint->compute_observable(Observables::BR_B__KSTAR_GAMMA)[0].value);
+    // LOG_INFO(oint->compute_observable(Observables::DBR_DQ2_B__KSTAR_MU_MU)[0].value);
+    // LOG_INFO(oint->compute_observable(Observables::DBR_DQ2_B__KSTAR_MU_MU)[1].value);
 
     // exit(0);
 
     StatisticConfig config;
+    config.chi2_covariance_ridge_rel = 1e-8;
+    config.chi2_covariance_ridge_abs = 0.0;
     config.MLE_max_iter = 120000;
     config.MLE_tol = 0.05;
     config.MLE_trace_first_evals  = true;

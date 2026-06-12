@@ -110,3 +110,7 @@ install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
 add_executable(TEST_MARTY main_marty.cpp)
 
 target_link_libraries(TEST_MARTY MartyInterfaceLib)
+
+add_executable(TEST_PREINIT main_marty_preinit.cpp)
+
+target_link_libraries(TEST_PREINIT MartyInterfaceLib)

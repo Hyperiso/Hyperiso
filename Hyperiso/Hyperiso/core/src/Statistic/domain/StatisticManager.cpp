@@ -198,34 +198,34 @@ RealMatrix symmetrize_covariance_matrix(RealMatrix cov) {
     return cov;
 }
 
-RealMatrix inverse_covariance_with_ridge(
-    RealMatrix cov,
-    double ridge_rel,
-    double ridge_abs
-) {
-    cov = symmetrize_covariance_matrix(std::move(cov));
+// RealMatrix inverse_covariance_with_ridge(
+//     RealMatrix cov,
+//     double ridge_rel,
+//     double ridge_abs
+// ) {
+//     cov = symmetrize_covariance_matrix(std::move(cov));
 
-    double trace = 0.0;
-    for (std::size_t i = 0; i < cov.rows(); ++i) {
-        trace += std::max(0.0, cov.at(i, i));
-    }
+//     double trace = 0.0;
+//     for (std::size_t i = 0; i < cov.rows(); ++i) {
+//         trace += std::max(0.0, cov.at(i, i));
+//     }
 
-    const double scale = cov.rows() > 0
-        ? trace / static_cast<double>(cov.rows())
-        : 1.0;
+//     const double scale = cov.rows() > 0
+//         ? trace / static_cast<double>(cov.rows())
+//         : 1.0;
 
-    const double ridge = std::max(
-        ridge_abs,
-        ridge_rel * std::max(scale, 1.0)
-    );
+//     const double ridge = std::max(
+//         ridge_abs,
+//         ridge_rel * std::max(scale, 1.0)
+//     );
 
-    for (std::size_t i = 0; i < cov.rows(); ++i) {
-        cov.at(i, i) += ridge;
-    }
+//     for (std::size_t i = 0; i < cov.rows(); ++i) {
+//         cov.at(i, i) += ridge;
+//     }
 
-    cov = symmetrize_covariance_matrix(std::move(cov));
-    return cov.inv();
-}
+//     cov = symmetrize_covariance_matrix(std::move(cov));
+//     return cov.inv();
+// }
 
 RealMatrix experimental_covariance_matrix(
     const std::vector<ExperimentObs>& obs_ids,
@@ -281,6 +281,65 @@ RealMatrix experimental_covariance_matrix(
     }
 
     return symmetrize_covariance_matrix(std::move(cov));
+}
+
+RealMatrix inverse_covariance_with_ridge(
+    RealMatrix cov,
+    double ridge_rel,
+    double ridge_abs
+) {
+    cov = symmetrize_covariance_matrix(std::move(cov));
+
+    const std::size_t n = cov.rows();
+    if (n != cov.cols()) {
+        throw std::runtime_error("inverse_covariance_with_ridge: covariance must be square");
+    }
+
+    std::vector<double> sigma(n);
+
+    for (std::size_t i = 0; i < n; ++i) {
+        const double vii = cov.at(i, i);
+
+        if (!std::isfinite(vii) || vii <= 0.0) {
+            std::ostringstream oss;
+            oss << "inverse_covariance_with_ridge: non-positive variance at i="
+                << i << ", variance=" << vii;
+            throw std::runtime_error(oss.str());
+        }
+
+        sigma[i] = std::sqrt(vii);
+    }
+
+    // Build dimensionless correlation matrix.
+    RealMatrix corr(n, n);
+    for (std::size_t i = 0; i < n; ++i) {
+        for (std::size_t j = 0; j < n; ++j) {
+            corr.at(i, j) = cov.at(i, j) / (sigma[i] * sigma[j]);
+        }
+    }
+
+    corr = symmetrize_covariance_matrix(std::move(corr));
+
+    // Ridge in correlation space, dimensionless.
+    const double ridge = std::max(ridge_rel, ridge_abs);
+
+    for (std::size_t i = 0; i < n; ++i) {
+        corr.at(i, i) += ridge;
+    }
+
+    corr = symmetrize_covariance_matrix(std::move(corr));
+
+    RealMatrix corr_inv = corr.inv();
+
+    // Convert back: Cov^{-1} = D^{-1} Corr^{-1} D^{-1}
+    RealMatrix cov_inv(n, n);
+    for (std::size_t i = 0; i < n; ++i) {
+        for (std::size_t j = 0; j < n; ++j) {
+            cov_inv.at(i, j) = corr_inv.at(i, j) / (sigma[i] * sigma[j]);
+        }
+    }
+
+    return symmetrize_covariance_matrix(std::move(cov_inv));
 }
 
 MLFitOptions make_mlfit_options_from_config(const StatisticConfig& config) {

@@ -2,6 +2,7 @@
 #include "ModelAPI.h"
 #include "MartyParameterProxy.h"
 #include "DefaultInterpreterPortsFactory.h"
+#include "MartyRuntimeConfig.h"
 
 namespace fs = std::filesystem;
 
@@ -15,7 +16,9 @@ MartyInterface::MartyInterface() {
 
 
 void MartyInterface::compile_run(std::string wilson, std::string model) {
-    
+    if (!MartyRuntimeConfig::require_available("MartyInterface::compile_run").valid) {
+        return;
+    }
 
     GppCompilerStrategy compiler(model, wilson);
     if (!this->already_run(FileNameManager::getInstance(wilson, model)->getNumGeneratedFileName())){
@@ -24,6 +27,9 @@ void MartyInterface::compile_run(std::string wilson, std::string model) {
 }
 
 void MartyInterface::generate(std::string wilson, std::string model, std::string model_path) {
+    if (!MartyRuntimeConfig::require_available("MartyInterface::generate").valid) {
+        return;
+    }
 
     std::unique_ptr<ModelModifier> smModifier;
     smModifier = std::make_unique<GeneralModelModifier>(wilson, model, model_path);
@@ -38,6 +44,10 @@ void MartyInterface::generate(std::string wilson, std::string model, std::string
 }
 
 void MartyInterface::generate_numlib(std::string wilson, std::string model) {
+    if (!MartyRuntimeConfig::require_available("MartyInterface::generate_numlib").valid) {
+        return;
+    }
+
     bool forceMode = false;
     std::unique_ptr<SMParamSetter> sm_p_setter = std::make_unique<SMParamSetter>(model, specials_block, param_proxy_sm, param_proxy_bsm);
     std::unique_ptr<GeneralNumModelModifier> ModelModifier = std::make_unique<GeneralNumModelModifier>(wilson, model, std::move(sm_p_setter), core_api, ports, forceMode);
@@ -52,6 +62,9 @@ void MartyInterface::generate_numlib(std::string wilson, std::string model) {
 }
 
 void MartyInterface::compile_run_libs(std::string wilson, std::string model, double Q_match) {
+    if (!MartyRuntimeConfig::require_available("MartyInterface::compile_run_libs").valid) {
+        return;
+    }
 
     MakeCompilerStrategy compiler(model, wilson);
     compiler.set_Q_match(Q_match);
@@ -59,6 +72,9 @@ void MartyInterface::compile_run_libs(std::string wilson, std::string model, dou
 }
 
 void MartyInterface::calculate(std::string wilson, std::string model, double Q_match, std::string model_path) {
+    if (!MartyRuntimeConfig::require_available("MartyInterface::calculate").valid) {
+        return;
+    }
 
     generate(wilson, model, model_path);
     compile_run(wilson, model);

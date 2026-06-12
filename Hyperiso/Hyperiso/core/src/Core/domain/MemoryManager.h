@@ -12,6 +12,7 @@
 #include "ISpectrumCalculator.h"
 #include "IDataLoader.h"
 #include "IPathsProvider.h"
+#include "ILhaPrototypeRegistry.h"
 #include "Config.h"
 
 /**
@@ -75,6 +76,7 @@ private:
     std::shared_ptr<IDataLoader<CorrelationMatrixPair<ParamId>>> dl_cmp_p;      ///< Loader for parameter correlations.
     std::shared_ptr<IDataLoader<CorrelationMatrixPair<ExperimentObs>>> dl_cmp_o; ///< Loader for observable correlations.
     std::shared_ptr<IPathsProvider> paths_provider;                             ///< Provider for filesystem paths.
+    std::shared_ptr<ILhaPrototypeRegistry> lha_prototype_registry;              ///< Port used to register LHA prototypes before parsing.
 
     /**
      * @brief Private default constructor to enforce singleton pattern.
@@ -88,7 +90,8 @@ private:
         std::shared_ptr<IDataLoader<CorrelationMatrixPair<ParamId>>> param_corr, 
         std::shared_ptr<IDataLoader<CorrelationMatrixPair<ExperimentObs>>> obs_corr, 
         std::shared_ptr<ISpectrumCalculator> spectrum_c,
-        std::shared_ptr<IPathsProvider> paths_provider_);
+        std::shared_ptr<IPathsProvider> paths_provider_,
+        std::shared_ptr<ILhaPrototypeRegistry> lha_prototype_registry_);
 
     /**
      * @brief Ensures the memory manager is initialized before usage.
@@ -173,7 +176,8 @@ public:
         std::shared_ptr<IDataLoader<CorrelationMatrixPair<ParamId>>> param_corr, 
         std::shared_ptr<IDataLoader<CorrelationMatrixPair<ExperimentObs>>> obs_corr, 
         std::shared_ptr<ISpectrumCalculator> spectrum_c,
-        std::shared_ptr<IPathsProvider> paths_provider);
+        std::shared_ptr<IPathsProvider> paths_provider,
+        std::shared_ptr<ILhaPrototypeRegistry> lha_prototype_registry=nullptr);
 
     /**
      * @brief Initializes the memory manager with the provided LHA file and configuration.
@@ -184,6 +188,29 @@ public:
      * @param config  Configuration settings to use.
      */
     void init(const std::string &lhaFile, HyperisoConfig config);
+    
+    /**
+     * @brief Registers an additional LHA block prototype before LHA parsing.
+     *
+     * The prototype is stored by MemoryManager and also forwarded to the
+     * ParamBlockLoader when that concrete loader is available.
+     */
+    void add_lha_prototype(BlockName blockName,
+                           size_t itemCount=2,
+                           size_t valueIdx=1,
+                           int scaleIdx=-1,
+                           int rgIdx=-1,
+                           int binIdx=-1,
+                           bool globalScale=false);
+
+    /**
+     * @brief Registers several additional LHA block prototypes through the injected port.
+     */
+    void add_lha_prototypes(const std::vector<LhaPrototypeSpec>& prototypes);
+
+    /**
+     * @brief Registers several additional LHA block prototypes.
+     */
 
     /**
      * @brief Switches to a different LHA file, reloading associated parameters and spectrum.
@@ -225,6 +252,11 @@ public:
      * @return A const reference to the internal MemoryCache.
      */
     inline const MemoryCache& getMemoryCache() { check_if_ready(); return cache; }
+    
+    /**
+     * @brief Returns whether MemoryManager has already completed init().
+     */
+    inline bool is_ready() const { return cache.is_ready; }
 
     /**
      * @brief Extracts specific blocks from the cached input.

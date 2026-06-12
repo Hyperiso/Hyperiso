@@ -48,7 +48,7 @@ struct ParameterBlockRepartition {
         {ParameterType::SM, {"SMINPUTS", "MASS", "VCKMIN", "UPMNSIN", "UPMNS", "VCKM", "GAUGE"}},
         {ParameterType::BSM, {"GAUGE", "MASS", "HMIX", "ALPHA", "MSOFT", "NMIX", "UMIX", "VMIX", "NMAMIX", "NMHMIX", "STOPMIX", "SBOTMIX", "STAUMIX", "AU", "AD", "AE", "YU", "YD", "YE", "MINPAR"}},
         {ParameterType::FLAVOR, {"FMASS", "FLIFE", "FCONST", "FCONSTRATIO", "FBAG", "FPARAM"}},
-        {ParameterType::WILSON, {"FWCOEF", "IMFWCOEF", "EW_SCALE", "B_SCALE", "D_SCALE", "K_SCALE"}},
+        {ParameterType::WILSON, {"FWCOEF", "IMFWCOEF", "EW_SCALE", "B_SCALE", "D_SCALE", "K_SCALE", "SCALE_NUIS"}},
         {ParameterType::DECAY, {"B_Ks", "B_ll", "B_Xs", "B_Dlnu", "B_Dslnu", "B_Xsll", "B_Ksll", "M0_Mix", "B_phi", "B_K", "K_ll", "K_pi", "K_lnu", "Lb_L"}},
         {ParameterType::OBSERVABLE, {"FOBS", "FOBSERR", "FOBSSM", "FOBSSMERR", "FDIPOLE"}},
         {ParameterType::PASSTHROUGH, {"MODSEL", "SPINFO", "FMODSEL", "FCINFO", "EXTPAR"}}
@@ -67,6 +67,40 @@ struct ParameterBlockRepartition {
      * @return A list of block names considered as custom blocks.
      */
     static std::vector<BlockName> filter_custom_blocks(const std::vector<BlockName>& source);
+
+    /**
+     * @brief Runtime-registered blocks that should be treated as BSM blocks.
+     *
+     * This is used by HyperisoMaster::pre_init() / ILhaPrototypeRegistry to make
+     * additional LHA prototypes available through Parameters::GetInstance(BSM)
+     * without hard-coding their names in the static BLOCKS table.
+     */
+    static inline std::unordered_set<BlockName> CUSTOM_BSM_BLOCKS {};
+
+    /**
+     * @brief Registers one runtime block as BSM-owned.
+     */
+    static void register_custom_bsm_block(BlockName blockName);
+
+    /**
+     * @brief Registers several runtime blocks as BSM-owned.
+     */
+    static void register_custom_bsm_blocks(const std::vector<BlockName>& blockNames);
+
+    /**
+     * @brief Checks whether one block was registered dynamically as BSM-owned.
+     */
+    static bool is_custom_bsm_block(BlockName blockName);
+
+    /**
+     * @brief Returns the registered runtime BSM blocks.
+     */
+    static const std::unordered_set<BlockName>& custom_bsm_blocks();
+
+    /**
+     * @brief Returns the static blocks plus runtime BSM blocks when relevant.
+     */
+    static std::unordered_set<BlockName> get_blocks(ParameterType type);
 };
 
 /**
@@ -172,7 +206,7 @@ public:
     /**
      * @brief Retrieves all blocks owned by a given ParameterType.
      *
-     * Thin wrapper around ParameterBlockRepartition::BLOCKS.at(ptype).
+     * Returns the static routing table, enriched with runtime BSM blocks.
      *
      * @param ptype The ParameterType of interest.
      * @return A set of block names belonging to the specified type.

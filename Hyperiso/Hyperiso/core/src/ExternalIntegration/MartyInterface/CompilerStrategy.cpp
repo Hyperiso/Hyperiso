@@ -1,22 +1,32 @@
 #include "CompilerStrategy.h"
 
+#include <stdexcept>
+#include <sys/wait.h>
+
 bool executeCommand(const std::string& command) {
     std::array<char, 128> buffer;
     std::string result;
+
     FILE* pipe = popen((command + " 2>&1").c_str(), "r");
     if (!pipe) {
-        std::cerr << "Error while pipe oppening !" << std::endl;
-        return false;
+        throw std::runtime_error("Error while opening command pipe for: " + command);
     }
+
     while (fgets(buffer.data(), buffer.size(), pipe) != nullptr) {
         result += buffer.data();
     }
-    int returnCode = pclose(pipe);
-    
-    if (returnCode != 0) {
-        std::cerr << "Error while command execution :\n" << result;
-        return false;
+
+    const int status = pclose(pipe);
+    const bool ok = WIFEXITED(status) && WEXITSTATUS(status) == 0;
+
+    if (!ok) {
+        std::string message = "Command failed:\n" + command + "\n";
+        if (!result.empty()) {
+            message += "Output:\n" + result;
+        }
+        throw std::runtime_error(message);
     }
+
     return true;
 }
 
