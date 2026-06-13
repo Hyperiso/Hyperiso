@@ -144,7 +144,7 @@ int handleObservableOptions(int argc, char* argv[]) {
 
         try { std::cout << "  model         = " << parser.getValue("model") << "\n"; } catch (...) {}
         try {
-            auto ws = parser.getValues("observable");
+            auto ws = parser.getValues("observables");
             std::cout << "  observable        = ";
             for (size_t i = 0; i < ws.size(); ++i) std::cout << ws[i] << (i + 1 < ws.size() ? ", " : "");
             std::cout << "\n";
@@ -184,15 +184,36 @@ int handleObservableOptions(int argc, char* argv[]) {
         
         ObservableInterface oi;
 
-        auto obs_str = parser.getValues("observables");
-        auto order = OrderMapper::enum_elt(parser.getValue("qcd_order"));
-        std::map<ObservableId, QCDOrder> obs;
+        const auto order = OrderMapper::enum_elt(parser.getValue("qcd_order"));
 
-        for (auto elem : obs_str) {
-            obs[ObservableMapper::id_of(elem)] = order;
-            
+        std::vector<std::string> obs_str;
+        try {
+            obs_str = parser.getValues("observables");
+        } catch (...) {
+            obs_str = {};
         }
-        oi.add_observables(obs);
+
+        if (!obs_str.empty()) {
+            std::map<ObservableId, QCDOrder> obs;
+
+            for (const auto& elem : obs_str) {
+                obs[ObservableMapper::id_of(elem)] = order;
+            }
+
+            oi.add_observables(obs);
+        } else {
+            const std::string decay = parser.getValue("decay");
+
+            if (decay.empty() || decay == "None") {
+                throw std::runtime_error(
+                    "No observable selected. Use --observables/-os or --decay/-d."
+                );
+            }
+
+            oi.add_observables(DecayMapper::enum_elt(decay), order);
+        }
+
+        oi.enable_obs();
 
         std::string scan_yaml_path = parser.getValue("scan");
 
@@ -204,13 +225,13 @@ int handleObservableOptions(int argc, char* argv[]) {
 
         if (scan_params.size() == 0) {
             for (auto elem : oi.get_current_observables()) {
-                auto val = oi.compute_observable(elem);
+                auto val = oi.compute_observable(elem.s);
 
                 if (val.size() < 2) {
-                    std::cout << "Observable " << elem.str() << " = " << val[0].value << std::endl;
+                    std::cout << "Observable " << elem.s.str() << " = " << val[0].value << std::endl;
                 } else {
                     for (auto v : val) {
-                        std::cout << "Observable " << elem.str() << " bin["<< v.bin.value().first << "," << v.bin.value().second << "] = " << v.value << std::endl;
+                        std::cout << "Observable " << elem.s.str() << " bin["<< v.bin.value().first << "," << v.bin.value().second << "] = " << v.value << std::endl;
                     }
                 }
             }
@@ -230,7 +251,7 @@ int handleObservableOptions(int argc, char* argv[]) {
             OutputSpec spec2;
             spec2.csv_write_header = true;
 
-            std::vector<YamlScanParam> scan_params = YamlInputReader("scan.yml").get_scan_params();
+            std::vector<YamlScanParam> scan_params = YamlInputReader(scan_yaml_path).get_scan_params();
 
 
             ScanRunner runner(*upp, scan_params, wilsonExtractor);

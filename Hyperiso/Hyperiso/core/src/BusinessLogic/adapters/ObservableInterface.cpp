@@ -64,6 +64,12 @@ void ObservableInterface::add_observables(Decays decay, QCDOrder order, bool add
     }
 }
 
+void ObservableInterface::add_observables(DecayId decay, QCDOrder order, bool add_dependencies) {  
+    for (auto &obs : DecayMapper::get_observables(decay)) {
+        add_observable(obs, order, add_dependencies);
+    }
+}
+
 void ObservableInterface::add_observable_parameter(Observables obs, ParamId pid) {
     manager->add_obs_dep(obs, pid);
 }
@@ -88,6 +94,9 @@ std::vector<ObservableValue> ObservableInterface::compute_observable(ObservableI
     return manager->evaluate(obs);
 }
 
+ObservableValue ObservableInterface::compute_observable(BinnedObservableId obs) const {
+    return manager->evaluate(obs);
+}
 
 void ObservableInterface::remove_observable(Observables id) {
     manager->remove_obs(id);

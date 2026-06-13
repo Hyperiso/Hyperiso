@@ -100,9 +100,15 @@ template<class Tag, class EnumT,
 IdOf<Tag> GenericMapperNoExt<Tag, EnumT,
           MapFn>::to_id(EnumT e){ return IdOf<Tag>(str(e)); }
 
+/**
+ * @brief Recover a builtin enum value from a dynamic id.
+ *
+ * This fallback only scans the static `MapFn()` table.  It does not use custom
+ * registry entries because custom ids cannot be represented by `EnumT`.
+ */
 template<class Tag, class EnumT,
          const std::map<EnumT, std::string>& (*MapFn)()>
-std::optional<EnumT> enum_of(const IdOf<Tag>& id){
+std::optional<EnumT> GenericMapperNoExt<Tag, EnumT, MapFn>::enum_of(const IdOf<Tag>& id){
     auto key = nk(id.str());
     for (auto& [e,name] : MapFn()) if (nk(name)==key) return e;
     return std::nullopt;

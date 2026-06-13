@@ -17,7 +17,20 @@ int main() {
     QCDOrder order = QCDOrder::NNLO;
     ObservableInterface oi;
 
-    DecayMapper::register_custom("Wilson");
+    // DecayMapper::register_custom("Wilson");
+
+    DecayMapper::register_custom_with_observables(
+    "Wilson",
+    {"Wilson2"},
+    {
+        CustomObservableSpec{
+            .canonical = "C7",
+            .aliases = {"C_7"},
+            .ext = std::nullopt
+        }
+    }
+);
+
     auto wilson_decay = std::make_shared<WilsonDecay>(DecayMapper::id_of("Wilson"), order, 81, 5, oi.get_ports());
     oi.add_custom_decay(DecayMapper::id_of("Wilson"), wilson_decay);
     ObservableId o = ObservableMapper::id_of("C7");

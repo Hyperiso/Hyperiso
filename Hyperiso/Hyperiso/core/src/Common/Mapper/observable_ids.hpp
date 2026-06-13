@@ -1,47 +1,51 @@
 #ifndef OBSERVABLE_IDS_H
 #define OBSERVABLE_IDS_H
 
+#include <optional>
+#include <string>
+#include <string_view>
+#include <vector>
+
 #include "generic_mapper.h"
 #include "Map.h"
 #include "LhaID.h"
 #include "decay_graph.h"
 
-#include <optional>
-
 /**
- * @file ObservableMapper.h
- * @brief Mapper for Observables <-> text ids <-> FLHA ids, with decay links.
+ * @file observable_ids.hpp
+ * @brief Mapper for builtin and runtime observable identifiers.
  *
- * This mapper combines:
- *   - the builtin mapping Observables <-> string names,
- *   - the FLHA mapping Observables <-> LhaID,
- *   - a dynamic registry for custom observables and aliases,
- *   - a link to DecayGraph to record which observables belong to which decay.
+ * The observable layer has two representations:
+ *
+ *   - `Observables`: the historical static enum, valid only for builtin
+ *     observables present in `observable_mapping()`;
+ *   - `ObservableId`: a string-based, case-insensitive identifier that can
+ *     represent both builtin and custom observables.
+ *
+ * New code should use `ObservableId` for user-facing and dynamic paths.  The
+ * static enum remains useful for legacy code and for places where a builtin
+ * observable is explicitly required.
  */
 
 struct ObservableTag {};
-/** @brief Strongly typed identifier for observables. */
+
+/** @brief Strongly typed dynamic identifier for observables. */
 using ObservableId = IdOf<ObservableTag>;
+
 struct BinnedObservableId;
 
 /**
  * @class ObservableMapper
- * @brief High-level mapping for observables, including FLHA and decay associations.
+ * @brief High-level mapper for observable names, FLHA ids and parent decays.
  *
- * Inherits from GenericMapperWithExt with:
- *   - Tag         = ObservableTag
- *   - EnumT       = Observables
- *   - ExternalKey = LhaID (FLHA identifier)
- *   - Hash        = std::hash<LhaID>
- *   - MapFn       = observable_mapping
- *   - ExtFn       = observable_flha_mapping
+ * `ObservableMapper` combines:
+ *   - builtin enum <-> string mappings from `observable_mapping()`,
+ *   - optional FLHA ids from `observable_flha_mapping()`,
+ *   - runtime registration through `DynamicRegistry`,
+ *   - parent decay links through `DecayGraph`.
  *
- * Provided functionality includes:
- *   - string (case-insensitive) <-> ObservableId,
- *   - Observables <-> ObservableId,
- *   - LhaID (FLHA) <-> ObservableId,
- *   - helper overloads enum_elt() from string or from FLHA,
- *   - registration of custom observables optionally attached to a decay.
+ * @important A custom observable must always be registered with a parent decay.
+ * This is enforced by the public `register_custom()` overloads below.
  */
 class ObservableMapper
 : public GenericMapperWithExt<
@@ -55,144 +59,130 @@ class ObservableMapper
 {
 public:
     using Base = GenericMapperWithExt<
-        ObservableTag, Observables, LhaID, std::hash<LhaID>,
-        observable_mapping, observable_flha_mapping
+        ObservableTag,
+        Observables,
+        LhaID,
+        std::hash<LhaID>,
+        observable_mapping,
+        observable_flha_mapping
     >;
 
     using Base::init_builtins;
-    using Base::id_of;           // string -> ObservableId
-    using Base::str;             // str(ObservableId), str(Observables)
-    using Base::to_id;           // Observables -> ObservableId
-    using Base::enum_of;         // ObservableId -> optional<Observables>
+    using Base::id_of;           ///< Dynamic string/alias -> ObservableId.
+    using Base::enum_elt;        ///< Alias kept for generic code: string -> ObservableId.
+    using Base::str;             ///< str(ObservableId) or str(Observables).
+    using Base::to_id;           ///< Builtin Observables -> ObservableId.
+    using Base::enum_of;         ///< ObservableId -> optional builtin Observables.
     using Base::list_all;
-    using Base::from_external;   // LhaID -> optional<ObservableId>
-    using Base::external_of;     // ObservableId -> optional<LhaID>
+    using Base::from_external;   ///< LhaID -> optional ObservableId.
+    using Base::external_of;     ///< ObservableId -> optional LhaID.
     using Base::set_external;
 
     /**
-     * @brief Legacy lookup: name -> Observables (builtin only).
+     * @brief Legacy builtin-only lookup from string to enum.
      *
-     * Performs a case-insensitive search over observable_mapping()
-     * and returns the corresponding enum value.
+     * This function deliberately ignores custom observables because a custom
+     * observable cannot be represented by the static `Observables` enum.  Use
+     * `id_of()` for all dynamic/user-facing lookup.
      *
-     * @param s Observable name.
-     * @return Matching Observables enum value.
+     * @param s Builtin observable name or alias present in `observable_mapping()`.
+     * @return Matching builtin enum value.
      *
-     * @throws std::out_of_range if the name is unknown.
+     * @throws std::out_of_range if @p s is not a builtin observable.
      */
-    static Observables enum_elt(std::string_view s);
+    static Observables enum_elt_legacy(std::string_view s);
 
     /**
-     * @brief Lookup from FLHA identifier to Observables enum (builtin only).
+     * @brief Legacy builtin-only lookup from FLHA id to enum.
      *
-     * This first resolves the FLHA id to an ObservableId via from_external(),
-     * then maps that id to its builtin enum value via enum_of().
+     * This first resolves the FLHA id to an `ObservableId`, then attempts to
+     * recover the corresponding builtin enum.  Custom observables with a FLHA id
+     * can be resolved through `from_flha()` but cannot necessarily be converted
+     * to `Observables`.
      *
-     * @param ext FLHA identifier (LhaID).
-     * @return Matching Observables enum value.
+     * @param ext FLHA identifier.
+     * @return Matching builtin enum value.
      *
-     * @throws std::out_of_range if the FLHA id is unknown or not mapped
-     *         to a builtin enum.
+     * @throws std::out_of_range if @p ext is unknown or points to a custom id.
      */
     static Observables enum_elt(const LhaID& ext);
 
     /**
-     * @brief Shortcut: FLHA -> ObservableId (dynamic + builtin).
+     * @brief Resolve a FLHA id to a dynamic observable id.
+     *
+     * @param ext FLHA identifier.
+     * @return Observable id if the FLHA id is known.
      */
     static std::optional<ObservableId> from_flha(const LhaID& ext);
 
     /**
-     * @brief Shortcut: ObservableId -> FLHA (dynamic + builtin).
+     * @brief Return the FLHA id attached to an observable id, if any.
+     *
+     * @param id Observable identifier.
+     * @return FLHA id if @p id has one.
      */
-    static std::optional<LhaID>        flha_of(const ObservableId& id);
+    static std::optional<LhaID> flha_of(const ObservableId& id);
 
     /**
-     * @brief Shortcut: binned FLHA -> BinnedObservableId.
+     * @brief Decode a binned FLHA id into a binned observable id.
      *
-     * Binned FLHA ids are normal observable FLHA ids where the 6 bin fields
-     * are inserted after the first two components:
-     *   low_int, low_frac, low_frac_digits, high_int, high_frac, high_frac_digits.
+     * Binned FLHA ids are normal observable FLHA ids where six integer fields
+     * encoding the two bin boundaries are inserted after the first two fields.
      *
-     * Examples:
-     *   - 15_0_0 encodes 15
-     *   - 1_1_1 encodes 1.1
-     *   - 1_1_2 encodes 1.01
+     * @param ext Binned FLHA identifier.
+     * @return Decoded binned observable id, or nullopt if decoding fails.
      */
     static std::optional<BinnedObservableId> from_binned_flha(const LhaID& ext);
 
     /**
-     * @brief Shortcut: BinnedObservableId -> binned FLHA.
+     * @brief Encode a binned observable id into its FLHA representation.
+     *
+     * @param id Binned observable identifier.
+     * @return Encoded FLHA id, or nullopt if the observable has no FLHA id.
      */
     static std::optional<LhaID> binned_flha_of(const BinnedObservableId& id);
 
     /**
-     * @brief Throwing variant of from_binned_flha().
+     * @brief Throwing variant of `from_binned_flha()`.
+     *
+     * @param ext Binned FLHA identifier.
+     * @return Decoded binned observable id.
+     *
+     * @throws std::runtime_error if @p ext cannot be decoded.
      */
     static BinnedObservableId binned_from_flha(const LhaID& ext);
 
     /**
-     * @brief Returns the FLHA id associated with a builtin Observables enum.
+     * @brief Return the FLHA id associated with a builtin enum value.
      *
-     * This uses the static FLHA mapping observable_flha_mapping().
+     * @param id Builtin observable enum.
+     * @return FLHA id from `observable_flha_mapping()`.
      *
-     * @param id Observables enum value.
-     * @return Corresponding LhaID.
-     *
-     * @throws std::out_of_range if @p id is not present in the mapping.
+     * @throws std::out_of_range if @p id has no static FLHA entry.
      */
-    static LhaID        flha(const Observables& id);
+    static LhaID flha(const Observables& id);
 
     /**
-     * @brief Registers a custom observable, optionally attached to a decay.
+     * @brief Register a custom observable and attach it to a parent decay.
      *
-     * The observable is inserted in the dynamic registry with:
-     *   - canonical name,
-     *   - optional aliases,
-     *   - optional FLHA identifier.
+     * @param canonical Canonical observable name.
+     * @param aliases Case-insensitive aliases for lookup.
+     * @param ext Optional FLHA id.
+     * @param parent_decay Parent decay id. It must already be registered, either
+     *                     as builtin or custom.
+     * @return true on success, false if registration is blocked by a builtin.
      *
-     * If @p parent_decay is provided and registration succeeds, a link
-     * is also recorded in DecayGraph so that:
-     *   - DecayGraph::observables_of(parent_decay) includes the new observable.
-     *
-     * @param canonical    Canonical name for the observable.
-     * @param aliases      Optional aliases for name lookup.
-     * @param ext          Optional FLHA identifier.
-     * @param parent_decay Optional parent decay identifier.
-     * @return true if registration succeeded, false if blocked by a builtin.
+     * @throws std::runtime_error if @p parent_decay is unknown.
+     * @throws std::runtime_error if the observable is already linked to another
+     *                            decay.
      */
     static bool register_custom(const std::string& canonical,
-                            std::vector<std::string> aliases = {},
-                            std::optional<LhaID> ext = std::nullopt,
-                            std::optional<DecayId> parent_decay = std::nullopt);
+                                std::vector<std::string> aliases,
+                                std::optional<LhaID> ext,
+                                const DecayId& parent_decay);
 
     /**
-     * @brief Returns the FLHA id associated with a given ObservableId.
-     *
-     * This queries the dynamic registry. If the observable has no FLHA
-     * attached, an exception is thrown.
-     *
-     * @param id Observable identifier.
-     * @return LhaID corresponding to @p id.
-     *
-     * @throws std::runtime_error if no FLHA id is defined for @p id.
-     */
-    static LhaID flha(const ObservableId& id);
-
-    /**
-     * @brief Returns the binned FLHA id associated with a BinnedObservableId.
-     *
-     * The output keeps the same observable FLHA prefix/suffix as the unbinned id
-     * and inserts the 6 encoded bin fields after the first two components.
-     *
-     * @throws std::runtime_error if the underlying ObservableId has no FLHA id.
-     */
-    static LhaID flha(const BinnedObservableId& id);
-
-    /**
-     * @brief Convenience overload: register custom observable using a Decays enum.
-     *
-     * Same semantics as the generic register_custom(), but the parent decay
-     * is specified via its enum value instead of a DecayId string.
+     * @brief Register a custom observable under a builtin parent decay.
      */
     static bool register_custom(const std::string& canonical,
                                 std::vector<std::string> aliases,
@@ -200,16 +190,32 @@ public:
                                 Decays parent_decay_enum);
 
     /**
-     * @brief Convenience overload: register custom observable using a decay name.
-     *
-     * Same semantics as the generic register_custom(), but the parent decay
-     * is specified as a string (to be resolved to a DecayId) instead of a
-     * DecayId or Decays enum.
+     * @brief Register a custom observable under a parent decay resolved by name.
      */
     static bool register_custom(const std::string& canonical,
                                 std::vector<std::string> aliases,
                                 std::optional<LhaID> ext,
                                 std::string_view parent_decay_str);
+
+    /**
+     * @brief Return the FLHA id associated with an observable id.
+     *
+     * @param id Observable id.
+     * @return FLHA id.
+     *
+     * @throws std::runtime_error if @p id has no FLHA id.
+     */
+    static LhaID flha(const ObservableId& id);
+
+    /**
+     * @brief Return the binned FLHA id associated with a binned observable id.
+     *
+     * @param id Binned observable id.
+     * @return Binned FLHA id.
+     *
+     * @throws std::runtime_error if encoding fails.
+     */
+    static LhaID flha(const BinnedObservableId& id);
 };
 
-#endif
+#endif // OBSERVABLE_IDS_H

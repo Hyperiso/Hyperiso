@@ -165,6 +165,17 @@ public:
     std::vector<ObservableValue> evaluate(ObservableId id);
 
     /**
+     * @brief Evaluate a single observable (internal ObservableId).
+     *
+     * This selects (enables) the observable's decay and disables others
+     * (see @ref select_decay), then runs @ref Observable::compute.
+     *
+     * @param id Observable internal id with bin information.
+     * @return Computed value with bin and id information inside ObservableValue.
+     */
+    ObservableValue evaluate(BinnedObservableId id);
+
+    /**
      * @brief Evaluate all currently registered observables.
      *
      * Iterates over @ref obss and calls @ref Observable::compute for each.

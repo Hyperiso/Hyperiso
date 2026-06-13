@@ -505,4 +505,18 @@ struct std::hash<BinnedObservableId> {
     }
 };
 
+/**
+ * @brief Streams a human-readable binned observable identifier.
+ *
+ * The stream representation is the same as @ref BinnedObservableId::str(),
+ * i.e. "observable [low, high]".
+ *
+ * @param os Output stream.
+ * @param id Binned observable identifier to print.
+ * @return Reference to @p os.
+ */
+inline std::ostream& operator<<(std::ostream& os, BinnedObservableId const& id) {
+    return os << id.str();
+}
+
 #endif // BINNEDOBSERVABLEID_H

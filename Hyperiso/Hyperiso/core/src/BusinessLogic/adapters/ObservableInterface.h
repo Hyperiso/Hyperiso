@@ -179,6 +179,15 @@ public:
      */
     void add_observables(Decays decay, QCDOrder order, bool add_dependencies=false);
 
+    /**
+     * @brief Add all observables belonging to a decay.
+     *
+     * @param decay           Decay dynamic enum.
+     * @param order           Maximum QCD order requested for this decay.
+     * @param add_dependencies If true, add allowed dependences for each observable.
+     */
+    void add_observables(DecayId decay, QCDOrder order, bool add_dependencies=false);
+
      /**
      * @brief Manually add a single parameter dependence to an observable (enum API).
      *
@@ -244,6 +253,13 @@ public:
      * @return Vector of predicted values (possibly binned).
      */
     std::vector<ObservableValue> compute_observable(ObservableId obs) const;
+
+    /**
+     * @brief Compute a theory prediction for an observable (id API).
+     * @param obs Observable id with its bin.
+     * @return Predicted value.
+     */
+    ObservableValue compute_observable(BinnedObservableId obs) const;
 
     /**
      * @brief Remove an observable from the manager (enum API).

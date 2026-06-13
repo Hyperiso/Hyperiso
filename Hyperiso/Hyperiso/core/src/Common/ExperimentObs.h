@@ -128,7 +128,7 @@ struct ExperimentObs {
  */
 inline std::ostream& operator<<(std::ostream& os, ExperimentObs const& x) {
     os << x.experiment << " :: " << x.obs.str();
-    return os;
+    return os << x.str();
 }
 
 /**
@@ -157,5 +157,6 @@ struct std::hash<ExperimentObs> {
         return h;
     }
 };
+
 
 #endif // EXPERIMENT_OBS_H

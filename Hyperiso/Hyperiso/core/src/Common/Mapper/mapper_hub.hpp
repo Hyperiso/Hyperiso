@@ -2,9 +2,12 @@
 #define MAPPER_HUB_H
 
 #include <memory>
-#include <vector>
+#include <optional>
 #include <string>
 #include <string_view>
+#include <utility>
+#include <vector>
+
 #include "observable_ids.hpp"
 #include "wcoef_ids.hpp"
 #include "wgroup_ids.hpp"
@@ -19,25 +22,20 @@
 #include "qcdorder_ids.hpp"
 
 /**
- * @file mapper_hub.h
- * @brief Unified view and minimal interface for all mapper types.
+ * @file mapper_hub.hpp
+ * @brief Non-templated façade over the project mapper families.
  *
- * This header defines:
- *   - MapperKind: an enum selecting which mapper family to use,
- *   - IMapperView: a minimal common interface (canonicalization, listing, registration),
- *   - MapperViewNoExt / MapperViewWithExt: adapters from concrete mappers to IMapperView,
- *   - mapper_view(): factory returning a reference to the appropriate adapter,
- *   - helper functions (canonical_of, list_all, register_custom, register_custom_wcoef).
+ * The individual mappers are template-based and expose slightly different
+ * registration APIs.  `mapper_hub.hpp` provides a small common interface for
+ * generic tooling such as CLI completion, validation or configuration parsing.
  *
- * It is intended for code that needs to interact generically with
- * different mapper types without templating on each of them.
+ * @note Generic registration is intentionally conservative.  Mappers requiring
+ * extra semantic information, such as a parent decay for observables, expose
+ * dedicated helper functions instead of using `IMapperView::register_custom()`.
  */
 
 /**
- * @brief Enumeration of all supported mapper kinds.
- *
- * Each entry corresponds to a concrete mapper type, e.g. ObservableMapper,
- * WCoefMapper, GroupMapper, etc.
+ * @brief Enumeration of mapper families supported by the hub.
  */
 enum class MapperKind {
     Observable,
@@ -55,154 +53,226 @@ enum class MapperKind {
 };
 
 /**
- * @brief Minimal non-templated interface for mapper operations.
- *
- * This interface exposes only:
- *   - canonical: normalize/resolve a string to its canonical name,
- *   - list_all: list all known canonical names,
- *   - register_custom: register a user-defined symbol with aliases.
+ * @brief Minimal runtime-polymorphic view over a mapper.
  */
 struct IMapperView {
     virtual ~IMapperView() = default;
 
-    /// Resolves a name (case-insensitive) to the canonical string.
+    /**
+     * @brief Resolve a name or alias to its canonical string.
+     *
+     * @param s Input name or alias.
+     * @return Canonical string stored by the mapper.
+     */
     virtual std::string canonical(std::string_view s) const = 0;
 
-    /// Returns all canonical names known to this mapper.
+    /**
+     * @brief List all known canonical strings.
+     *
+     * @return Builtin and custom canonical strings known to the mapper.
+     */
     virtual std::vector<std::string> list_all() const = 0;
 
-    /// Registers a custom symbol with aliases (no external key).
-    virtual bool register_custom(std::string canonical, std::vector<std::string> aliases) = 0;
+    /**
+     * @brief Generic custom registration hook.
+     *
+     * This is supported only for mappers whose custom symbols need no additional
+     * semantic information.  For observables and decays, use the dedicated helper
+     * functions below so invariants are preserved.
+     *
+     * @param canonical Canonical name.
+     * @param aliases Aliases.
+     * @return true on success, false if unsupported or rejected.
+     */
+    virtual bool register_custom(std::string canonical,
+                                 std::vector<std::string> aliases) = 0;
 };
 
 /**
- * @brief Adapter for mappers without external keys.
+ * @brief Adapter for mappers with simple no-extra-data registration.
  *
- * The Concrete type is expected to expose:
- *   - enum_elt(std::string_view)
- *   - str(id)
- *   - list_all()
- *   - register_custom(std::string, std::vector<std::string>)
+ * The concrete mapper must expose:
+ *   - `id_of(std::string_view)`,
+ *   - `str(id)`,
+ *   - `list_all()`,
+ *   - `register_custom(std::string, std::vector<std::string>)`.
  */
-template<class Concrete> struct MapperViewNoExt : IMapperView {
+template<class Concrete>
+struct MapperViewSimple : IMapperView {
     std::string canonical(std::string_view s) const override {
-        auto id = Concrete::enum_elt(s);
+        auto id = Concrete::id_of(s);
         return Concrete::str(id);
     }
+
     std::vector<std::string> list_all() const override {
         std::vector<std::string> out;
-        for (auto& id : Concrete::list_all()) out.push_back(Concrete::str(id));
+        for (auto& id : Concrete::list_all()) {
+            out.push_back(Concrete::str(id));
+        }
         return out;
     }
-    bool register_custom(std::string canonical, std::vector<std::string> aliases) override {
+
+    bool register_custom(std::string canonical,
+                         std::vector<std::string> aliases) override
+    {
         return Concrete::register_custom(std::move(canonical), std::move(aliases));
     }
 };
 
 /**
- * @brief Adapter for mappers with external keys.
+ * @brief Adapter for mappers that can be queried generically but not registered.
  *
- * The Concrete type is expected to expose:
- *   - enum_elt(std::string_view)
- *   - str(id)
- *   - list_all()
- *
- * By default, register_custom returns false here; a dedicated overload
- * (e.g. register_custom_wcoef) is provided for specific types that
- * require an external key.
+ * Use this for mapper families that need extra metadata during registration,
+ * for example observables requiring a parent decay.
  */
-template<class Concrete> struct MapperViewWithExt : IMapperView {
+template<class Concrete>
+struct MapperViewReadOnly : IMapperView {
     std::string canonical(std::string_view s) const override {
-        auto id = Concrete::enum_elt(s);
+        auto id = Concrete::id_of(s);
         return Concrete::str(id);
     }
+
     std::vector<std::string> list_all() const override {
         std::vector<std::string> out;
-        for (auto& id : Concrete::list_all()) out.push_back(Concrete::str(id));
+        for (auto& id : Concrete::list_all()) {
+            out.push_back(Concrete::str(id));
+        }
         return out;
     }
-    bool register_custom(std::string canonical, std::vector<std::string> aliases) override {
-        // Registration requiring an external key is not supported through this interface.
+
+    bool register_custom(std::string, std::vector<std::string>) override {
         return false;
     }
 };
 
 /**
- * @brief Returns a reference to the IMapperView corresponding to the given kind.
+ * @brief Return the mapper view associated with a mapper kind.
  *
- * The returned object is a static adapter (no ownership transfer) and
- * must not be deleted by the caller.
+ * @param k Mapper family.
+ * @return Reference to a static adapter instance.
  */
-inline IMapperView& mapper_view(MapperKind k){
-    static MapperViewNoExt<ObservableMapper>      obs;
-    static MapperViewWithExt<WCoefMapper>         wcoef;
-    static MapperViewNoExt<GroupMapper>           group;
-    static MapperViewNoExt<ParameterTypeMapper>   ptype;
-    static MapperViewNoExt<ModelMapper>           model;
-    static MapperViewNoExt<WilsonBasisMapper>     basis;
-    static MapperViewNoExt<ContributionTypeMapper>contri;
-    static MapperViewNoExt<MassTypeMapper>        mass;
-    static MapperViewNoExt<ScaleTypeMapper>       scale;
-    static MapperViewNoExt<UncertaintyTypeMapper> unc;
-    static MapperViewNoExt<DecayMapper>           decay;
-    static MapperViewNoExt<OrderMapper>           qcd;
+inline IMapperView& mapper_view(MapperKind k) {
+    static MapperViewReadOnly<ObservableMapper>      obs;
+    static MapperViewReadOnly<WCoefMapper>           wcoef;
+    static MapperViewSimple<GroupMapper>             group;
+    static MapperViewSimple<ParameterTypeMapper>     ptype;
+    static MapperViewSimple<ModelMapper>             model;
+    static MapperViewSimple<WilsonBasisMapper>       basis;
+    static MapperViewSimple<ContributionTypeMapper>  contri;
+    static MapperViewSimple<MassTypeMapper>          mass;
+    static MapperViewSimple<ScaleTypeMapper>         scale;
+    static MapperViewSimple<UncertaintyTypeMapper>   unc;
+    static MapperViewReadOnly<DecayMapper>           decay;
+    static MapperViewSimple<OrderMapper>             qcd;
 
-    switch (k){
-        case MapperKind::Observable:     return obs;
-        case MapperKind::WCoef:          return wcoef;
-        case MapperKind::Group:          return group;
-        case MapperKind::ParameterType:  return ptype;
-        case MapperKind::Model:          return model;
-        case MapperKind::WilsonBasis:    return basis;
+    switch (k) {
+        case MapperKind::Observable:      return obs;
+        case MapperKind::WCoef:           return wcoef;
+        case MapperKind::Group:           return group;
+        case MapperKind::ParameterType:   return ptype;
+        case MapperKind::Model:           return model;
+        case MapperKind::WilsonBasis:     return basis;
         case MapperKind::ContributionType:return contri;
-        case MapperKind::MassType:       return mass;
-        case MapperKind::ScaleType:      return scale;
-        case MapperKind::UncertaintyType:return unc;
-        case MapperKind::Decay:          return decay;
-        case MapperKind::QCDOrder:       return qcd;
+        case MapperKind::MassType:        return mass;
+        case MapperKind::ScaleType:       return scale;
+        case MapperKind::UncertaintyType: return unc;
+        case MapperKind::Decay:           return decay;
+        case MapperKind::QCDOrder:        return qcd;
     }
-    // Fallback: should not happen, default to observable mapper.
+
     return obs;
 }
 
-// ------------------------------------------------------------------
-// Helper free functions that delegate to the selected mapper.
-// ------------------------------------------------------------------
-
 /**
- * @brief Resolves a name to its canonical representation for a given mapper kind.
+ * @brief Resolve a name to its canonical representation for a mapper kind.
  */
-inline std::string canonical_of(MapperKind k, std::string_view s){
+inline std::string canonical_of(MapperKind k, std::string_view s) {
     return mapper_view(k).canonical(s);
 }
 
 /**
- * @brief Lists all canonical names for a given mapper kind.
+ * @brief List all canonical names known to a mapper kind.
  */
-inline std::vector<std::string> list_all(MapperKind k){
+inline std::vector<std::string> list_all(MapperKind k) {
     return mapper_view(k).list_all();
 }
 
 /**
- * @brief Registers a custom symbol (no external key) for a given mapper kind.
+ * @brief Generic registration helper for simple mapper kinds.
+ *
+ * @return false for mapper kinds that require dedicated registration metadata.
  */
-inline bool register_custom(MapperKind k, std::string canonical, std::vector<std::string> aliases){
+inline bool register_custom(MapperKind k,
+                            std::string canonical,
+                            std::vector<std::string> aliases)
+{
     return mapper_view(k).register_custom(std::move(canonical), std::move(aliases));
 }
 
 /**
- * @brief Specialized registration helper for WCoef with a FLHA base key.
+ * @brief Specialized registration helper for Wilson coefficients.
  *
- * This bypasses the generic IMapperView interface to allow passing the
- * external FLHA pair (a,b) required by WCoefMapper.
- *
- * @param canonical Canonical name of the Wilson coefficient.
- * @param aliases   Alias names.
- * @param flha      FLHA base indices (a,b).
- * @return true if registration succeeded, false otherwise.
+ * @param canonical Canonical coefficient name.
+ * @param aliases Optional aliases.
+ * @param flha FLHA base pair.
+ * @return true on success.
  */
-inline bool register_custom_wcoef(std::string canonical, std::vector<std::string> aliases, std::pair<int,int> flha){
-    return WCoefMapper::register_custom(std::move(canonical), std::move(aliases), flha);
+inline bool register_custom_wcoef(std::string canonical,
+                                  std::vector<std::string> aliases,
+                                  std::pair<int,int> flha)
+{
+    return WCoefMapper::register_custom(
+        std::move(canonical),
+        std::move(aliases),
+        flha
+    );
 }
 
-#endif
+/**
+ * @brief Specialized registration helper for custom observables.
+ *
+ * A custom observable must always be attached to a parent decay.
+ *
+ * @param canonical Canonical observable name.
+ * @param aliases Optional aliases.
+ * @param ext Optional FLHA id.
+ * @param parent_decay Parent decay name or alias.
+ * @return true on success.
+ */
+inline bool register_custom_observable(std::string canonical,
+                                       std::vector<std::string> aliases,
+                                       std::optional<LhaID> ext,
+                                       std::string_view parent_decay)
+{
+    return ObservableMapper::register_custom(
+        canonical,
+        std::move(aliases),
+        std::move(ext),
+        parent_decay
+    );
+}
+
+/**
+ * @brief Specialized registration helper for a custom decay with observables.
+ *
+ * This enforces the project invariant that a decay must have at least one
+ * observable.
+ *
+ * @param canonical Canonical decay name.
+ * @param aliases Optional decay aliases.
+ * @param observables Custom observable definitions to attach.
+ * @return true on success.
+ */
+inline bool register_custom_decay_with_observables(
+    std::string canonical,
+    std::vector<std::string> aliases,
+    std::vector<CustomObservableSpec> observables)
+{
+    return DecayMapper::register_custom_with_observables(
+        std::move(canonical),
+        std::move(aliases),
+        std::move(observables)
+    );
+}
+
+#endif // MAPPER_HUB_H

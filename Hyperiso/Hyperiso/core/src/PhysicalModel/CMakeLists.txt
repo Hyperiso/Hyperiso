@@ -142,7 +142,6 @@ target_include_directories(PhysicalModelLib
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/PhysicalModel/domain/WCoef>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/PhysicalModel/domain/WCoef/BSM>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/PhysicalModel/domain/WGroup>
-    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/PhysicalModel/domain/WGroup/BSM>
   PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
 )
