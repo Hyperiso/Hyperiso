@@ -7,6 +7,11 @@
 #include "Map.h"
 #include "Include.h"
 #include "Configs.h"
+#include "observable_ids.hpp"
+#include "decay_ids.hpp"
+#include "BinnedObservableId.h"
+#include <optional>
+#include <stdexcept>
 
 using DH = DependenciesHelper;
 
@@ -39,16 +44,27 @@ void bind_symbol_id(py::module_& m, const char* py_name)
         .def(py::init<>())
         .def(py::init<std::string>(), py::arg("name"))
         .def_property_readonly("name", [](const IdT& id){ return id.str(); })
+        .def("str", [](const IdT& id){ return id.str(); })
         .def("__str__", [](const IdT& id){ return id.str(); })
         .def("__repr__", [py_name](const IdT& id){
             return std::string("<") + py_name + " '" + id.str() + "'>";
         })
+        // Keep Python equality/hash consistent with SymbolId's C++ semantics
+        // (case-insensitive through normalize_key()).
         .def("__hash__", [](const IdT& id){
-            return py::hash(py::str(id.str()));
+            return std::hash<IdT>{}(id);
         })
         .def("__eq__", [](const IdT& a, const IdT& b){
-            return a.str() == b.str();
+            return a == b;
         });
+}
+
+static std::optional<LhaID> optional_lhaid_from_py(py::object obj)
+{
+    if (obj.is_none()) {
+        return std::nullopt;
+    }
+    return obj.cast<LhaID>();
 }
 
 void init_common(py::module &m) {
@@ -819,29 +835,88 @@ void init_common(py::module &m) {
     bind_symbol_id<ObservableId>(m, "_CppObservableId");
     bind_symbol_id<DecayId>(m, "_CppDecayId");
     py::class_<ObservableMapper, std::shared_ptr<ObservableMapper>>(m, "ObservableMapper")
+        // Legacy builtin enum API.
         .def_static("str",
             py::overload_cast<Observables>(&ObservableMapper::str),
             py::arg("obs"))
-        .def_static("enum_elt",   &ObservableMapper::enum_elt_legacy, py::arg("name"))
-        .def_static("get_str",    &ObservableMapper::get_str)
-        .def_static("get_enum",   &ObservableMapper::get_enum)
-        .def_static("get_str_all",&ObservableMapper::get_str_all)
+        .def_static("enum_elt_legacy", &ObservableMapper::enum_elt_legacy, py::arg("name"))
+        .def_static("enum_elt",        &ObservableMapper::enum_elt_legacy, py::arg("name"))
+        .def_static("get_str",         &ObservableMapper::get_str)
+        .def_static("get_enum",        &ObservableMapper::get_enum)
+        .def_static("get_str_all",     &ObservableMapper::get_str_all)
 
-        // runtime id/ext
-        .def_static("to_id",        &ObservableMapper::to_id,        py::arg("name"))
-        .def_static("id_of",        &ObservableMapper::id_of,         py::arg("name"))
+        // Dynamic id API.
+        .def_static("to_id",
+            py::overload_cast<Observables>(&ObservableMapper::to_id),
+            py::arg("obs"))
+        .def_static("id_of",        &ObservableMapper::id_of, py::arg("name"))
+        .def_static("enum_elt_dynamic", &ObservableMapper::id_of, py::arg("name"))
         .def_static("canonical",
             py::overload_cast<const ObservableId&>(&ObservableMapper::str),
             py::arg("id"))
-        .def_static("from_flha",    &ObservableMapper::from_flha,     py::arg("lha"))
 
-        // ⬇️ DISAMBIGUATION: bind the "id -> LhaID" overload
+        // FLHA API.
+        .def_static("from_flha",    &ObservableMapper::from_flha, py::arg("lha"))
         .def_static("flha",
             py::overload_cast<const ObservableId&>(&ObservableMapper::flha),
             py::arg("id"))
         .def_static("flha",
             py::overload_cast<const Observables&>(&ObservableMapper::flha),
-            py::arg("id"));
+            py::arg("obs"))
+
+        // Custom observable registration.
+        // Python signature: register_custom(canonical, parent_decay, aliases=[], ext=None)
+        .def_static("register_custom",
+            [](const std::string& canonical,
+               const std::string& parent_decay,
+               const std::vector<std::string>& aliases,
+               py::object ext)
+            {
+                return ObservableMapper::register_custom(
+                    canonical,
+                    aliases,
+                    optional_lhaid_from_py(ext),
+                    std::string_view(parent_decay)
+                );
+            },
+            py::arg("canonical"),
+            py::arg("parent_decay"),
+            py::arg("aliases") = std::vector<std::string>{},
+            py::arg("ext") = py::none())
+        .def_static("register_custom_with_decay_id",
+            [](const std::string& canonical,
+               const DecayId& parent_decay,
+               const std::vector<std::string>& aliases,
+               py::object ext)
+            {
+                return ObservableMapper::register_custom(
+                    canonical,
+                    aliases,
+                    optional_lhaid_from_py(ext),
+                    parent_decay
+                );
+            },
+            py::arg("canonical"),
+            py::arg("parent_decay"),
+            py::arg("aliases") = std::vector<std::string>{},
+            py::arg("ext") = py::none())
+        .def_static("register_custom_with_decay_enum",
+            [](const std::string& canonical,
+               Decays parent_decay,
+               const std::vector<std::string>& aliases,
+               py::object ext)
+            {
+                return ObservableMapper::register_custom(
+                    canonical,
+                    aliases,
+                    optional_lhaid_from_py(ext),
+                    parent_decay
+                );
+            },
+            py::arg("canonical"),
+            py::arg("parent_decay"),
+            py::arg("aliases") = std::vector<std::string>{},
+            py::arg("ext") = py::none());
     // py::class_<WCoefMapper, std::shared_ptr<WCoefMapper>>(m, "WCoefMapper")
     //     .def_static("str", &WCoefMapper::str, py::arg("coef"))
     //     .def_static("enum_elt", &WCoefMapper::enum_elt, py::arg("name"))
@@ -967,24 +1042,89 @@ void init_common(py::module &m) {
     //     .def_static("get_observables", &DecayMapper::get_observables, py::arg("decay"))
     //     .def_static("get_decay", &DecayMapper::get_decay, py::arg("observable"));
 
+    py::class_<CustomObservableSpec>(m, "CustomObservableSpec")
+        .def(py::init<>())
+        .def(py::init([](const std::string& canonical,
+                         const std::vector<std::string>& aliases,
+                         py::object ext)
+        {
+            CustomObservableSpec spec;
+            spec.canonical = canonical;
+            spec.aliases = aliases;
+            spec.ext = optional_lhaid_from_py(ext);
+            return spec;
+        }),
+            py::arg("canonical"),
+            py::arg("aliases") = std::vector<std::string>{},
+            py::arg("ext") = py::none())
+        .def_readwrite("canonical", &CustomObservableSpec::canonical)
+        .def_readwrite("aliases",   &CustomObservableSpec::aliases)
+        .def_readwrite("ext",       &CustomObservableSpec::ext);
+
     py::class_<DecayMapper, std::shared_ptr<DecayMapper>>(m, "DecayMapper")
-        .def_static("str",        py::overload_cast<Decays>(&DecayMapper::str), py::arg("type"))
-        .def_static("enum_elt",   &DecayMapper::enum_elt_legacy, py::arg("name"))
-        .def_static("get_str",    &DecayMapper::get_str)
-        .def_static("get_enum",   &DecayMapper::get_enum)
-        .def_static("get_str_all",&DecayMapper::get_str_all)
+        // Legacy builtin enum API.
+        .def_static("str",
+            py::overload_cast<Decays>(&DecayMapper::str),
+            py::arg("decay"))
+        .def_static("enum_elt_legacy", &DecayMapper::enum_elt_legacy, py::arg("name"))
+        .def_static("enum_elt",        &DecayMapper::enum_elt_legacy, py::arg("name"))
+        .def_static("get_str",         &DecayMapper::get_str)
+        .def_static("get_enum",        &DecayMapper::get_enum)
+        .def_static("get_str_all",     &DecayMapper::get_str_all)
 
-        // métier (comme avant)
-        .def_static("get_observables", &DecayMapper::get_observables, py::arg("decay"))
-        .def_static("get_decay",       &DecayMapper::get_decay,       py::arg("observable"))
+        // Dynamic id API.
+        .def_static("to_id",
+            py::overload_cast<Decays>(&DecayMapper::to_id),
+            py::arg("decay"))
+        .def_static("id_of",        &DecayMapper::id_of, py::arg("name"))
+        .def_static("enum_elt_dynamic", &DecayMapper::id_of, py::arg("name"))
+        .def_static("canonical",
+            py::overload_cast<const DecayId&>(&DecayMapper::str),
+            py::arg("id"))
+        .def_static("from_external", &DecayMapper::from_external, py::arg("lha"))
+        .def_static("external_of",   &DecayMapper::external_of,   py::arg("id"))
+        .def_static("set_external",  &DecayMapper::set_external,  py::arg("id"), py::arg("lha"))
 
-        // (optionnel) runtime id/ext
-        .def_static("to_id",        &DecayMapper::to_id,        py::arg("name"))
-        .def_static("id_of",        &DecayMapper::id_of,         py::arg("name"))
-        .def_static("canonical",    py::overload_cast<const DecayId&>(&DecayMapper::str), py::arg("id"))
-        .def_static("from_external",&DecayMapper::from_external, py::arg("lha"))
-        .def_static("external_of",  &DecayMapper::external_of,   py::arg("id"))
-        .def_static("set_external", &DecayMapper::set_external,  py::arg("id"), py::arg("lha"));
+        // Decay <-> observable relations.
+        .def_static("get_observables",
+            py::overload_cast<Decays>(&DecayMapper::get_observables),
+            py::arg("decay"))
+        .def_static("get_observables",
+            py::overload_cast<const DecayId&>(&DecayMapper::get_observables),
+            py::arg("decay"))
+        .def_static("get_observables_by_name",
+            [](const std::string& decay_name) {
+                return DecayMapper::get_observables(std::string_view(decay_name));
+            },
+            py::arg("decay"))
+        .def_static("get_observable_ids", &DecayMapper::get_observable_ids, py::arg("decay"))
+        .def_static("get_decay",         &DecayMapper::get_decay,          py::arg("observable"))
+        .def_static("get_decay_id",
+            py::overload_cast<const ObservableId&>(&DecayMapper::get_decay_id),
+            py::arg("observable"))
+        .def_static("get_decay_id",
+            py::overload_cast<Observables>(&DecayMapper::get_decay_id),
+            py::arg("observable"))
+        .def_static("get_decay_id_or_throw", &DecayMapper::get_decay_id_or_throw, py::arg("observable"))
+        .def_static("has_observables",       &DecayMapper::has_observables,       py::arg("decay"))
+        .def_static("require_observables",   &DecayMapper::require_observables,   py::arg("decay"))
+
+        // Custom decay registration. Python signature:
+        // register_custom_with_observables(canonical, observables, aliases=[])
+        .def_static("register_custom_with_observables",
+            [](const std::string& canonical,
+               const std::vector<CustomObservableSpec>& observables,
+               const std::vector<std::string>& aliases)
+            {
+                return DecayMapper::register_custom_with_observables(
+                    canonical,
+                    aliases,
+                    observables
+                );
+            },
+            py::arg("canonical"),
+            py::arg("observables"),
+            py::arg("aliases") = std::vector<std::string>{});
  
     py::class_<LhaID>(m, "LhaID")
     .def(py::init<const std::string&>(), py::arg("parts"))

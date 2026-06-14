@@ -6,13 +6,11 @@
 #include "BlockProxy.h"
 
 int main() {
-    auto hyp = HyperisoMaster(); // Create the interface for hyperiso.
-
-    HyperisoConfig config_hyp; // Config struct where we can put all the options we want for Hyperiso (general options)
-
-    config_hyp.model = Model::SM; // The model we want to use, SM by default. If not THDM or SUSY, MARTY is needed.
-
-    hyp.init("lha/si_input.flha", config_hyp); // Initialize program manager with LHA file and the config. Search in the Assets directory if relative path.
+    
+    auto hyp = HyperisoMaster();
+    HyperisoConfig config_hyp;
+    config_hyp.model = Model::SM;
+    hyp.init("lha/si_input.flha", config_hyp);
 
     auto wi = WilsonInterface(); // Initialize interface for wilson coefficient calculation.
 
