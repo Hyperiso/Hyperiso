@@ -134,6 +134,26 @@ class ParamId:
         """
         return f"ParamId(type={self.type}, block='{self.block}', code={self.code})"
     
+    def __eq__(self, other):
+        if not isinstance(other, ParamId):
+            return NotImplemented
+        return (
+            self.type,
+            str(self.block),
+            self.code.to_string(),
+        ) == (
+            other.type,
+            str(other.block),
+            other.code.to_string(),
+        )
+
+    def __hash__(self):
+        return hash((
+            self.type,
+            str(self.block),
+            self.code.to_string(),
+        ))
+    
 if __name__ == "__main__":
     
     print("\n🧬 Testing ParamId...")

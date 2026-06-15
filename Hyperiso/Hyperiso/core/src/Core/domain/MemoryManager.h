@@ -180,6 +180,28 @@ public:
         std::shared_ptr<ILhaPrototypeRegistry> lha_prototype_registry=nullptr);
 
     /**
+     * @brief Replaces the filesystem path provider used by the manager.
+     *
+     * Intended for pre-init customization through HyperisoMaster. If called
+     * after init(), it only affects future reload/switch operations that read
+     * paths again.
+     *
+     * @param paths_provider_ New provider to use for all IPathsProvider-backed paths.
+     */
+    void set_paths_provider(std::shared_ptr<IPathsProvider> paths_provider_);
+
+    /**
+     * @brief Retrieves a public API path from the runtime cache or path provider.
+     *
+     * LHA_PATH comes from the current MemoryCache. All other paths are delegated
+     * to the active IPathsProvider.
+     *
+     * @param path_name Public path identifier.
+     * @return The corresponding filesystem path.
+     */
+    fs::path get_path(APIPath path_name);
+
+    /**
      * @brief Initializes the memory manager with the provided LHA file and configuration.
      *
      * Must be called before using any Parameters instances.

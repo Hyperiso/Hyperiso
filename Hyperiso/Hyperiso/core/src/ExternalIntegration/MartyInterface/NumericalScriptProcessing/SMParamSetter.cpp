@@ -33,6 +33,8 @@ std::unordered_map<std::string, double> SMParamSetter::setParam(const std::strin
         } else {
             params[name] = (*sm_proxy)("MASS_EW_SCALE", 6);
         }
+    } else if (interpretedParam.block == "GAUGE" && interpretedParam.code == LhaID(4)) {
+        params[name] = calculateValue(interpretedParam);
     } else {
         if (interpretedParam.is_bsm) {
             if (interpretedParam.is_complex) {
@@ -69,6 +71,10 @@ scalar_t SMParamSetter::calculateValue(const InterpretedParam& interpretedParam)
     if (interpretedParam.block == "BETA") {
         return atan((*bsm_proxy)("MINPAR", 3));
     }
-
+    if(interpretedParam.block == "GAUGE") {
+        if (interpretedParam.code == LhaID(4)) { //std::sqrt(G_F * std::sqrt(2)) * m_Z * std::sin(2 * params.theta_W);
+            return std::sqrt((*sm_proxy)("SMINPUTS", 2) * std::sqrt(2)) * (*sm_proxy)("MASS", 23) * std::sin(2 * asin(sqrt((*sm_proxy)("SMINPUTS", LhaID(7, 1)))));
+        }
+    }
     return 1.0;
 }

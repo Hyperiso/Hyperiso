@@ -7,6 +7,7 @@
 #include "Include.h"
 #include "IMonitor.h"
 #include "IPathProvider.h"
+#include "IPathsProvider.h"
 #include "IDataMonitor.h"
 #include "MemoryManager.h"
 #include "Parameters.h"
@@ -22,24 +23,13 @@
  */
 
 /**
- * @enum APIPath
- * @brief Enumerates API-exposed paths.
- *
- * - LHA_PATH: path to the currently used LHA input (or spectrum) file.
- */
-enum class APIPath {
-    LHA_PATH,    ///< Path to the active LHA file.
-};
-
-
-/**
  * @class APIAdapter
  * @ingroup DataMonitoringModule
  * @brief Concrete adapter combining monitoring and path providing functionalities.
  *
  * This class provides a unified, high-level API to:
  *  - query external flags (via IMonitor<ExternalFlag>),
- *  - retrieve important paths like the LHA file path (via IPathProvider<APIPath>),
+ *  - retrieve important runtime and provider-backed paths (via IPathProvider<APIPath>),
  *  - inspect parameter blocks and values (via IDataMonitor).
  *
  * It is intended for external tools (CLI, GUI, REST API) that need a
@@ -52,6 +42,7 @@ enum class APIPath {
  *   auto sm_mass_blocks = api.get_blocks_list(ParameterType::SM);
  *   auto mass_values = api.get_block_infos("MASS", ParameterType::SM);
  *   auto lha_path = api.get_path(APIPath::LHA_PATH);
+ *   auto sm_yaml = api.get_path(APIPath::USER_SM_PARAMS);
  * @endcode
  *
  * @see IDataMonitor
@@ -71,10 +62,11 @@ public:
     bool check_flag(ExternalFlag flag);
 
     /**
-     * @brief Retrieves a specific filesystem path (e.g., LHA file path).
+     * @brief Retrieves a specific filesystem path exposed by APIPath.
      *
-     * For APIPath::LHA_PATH, this returns the LHA or spectrum file path stored in
-     * MemoryManager::getMemoryCache().lha_path.
+     * APIPath::LHA_PATH returns the LHA or spectrum path stored in
+     * MemoryManager::getMemoryCache().lha_path. Provider-backed entries return
+     * the active IPathsProvider values, including pre-init overrides.
      *
      * @param path_name The requested path.
      * @return The filesystem path corresponding to the enum.

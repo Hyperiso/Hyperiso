@@ -20,17 +20,36 @@ from pyhyperiso.core.Common.BlockName import BlockName
 from pyhyperiso.core.Common.GeneralEnum import ParameterType
 from pyhyperiso.core.Common.LhaID import LhaID
 from pyhyperiso.core.Core.HyperisoMaster import ExternalFlag
-from pyhyperiso.core.Math.scalar import Scalar
+from pyhyperiso.core.Math.Scalar import Scalar
 
 
 class APIPath(Enum):
     """Known path keys exposed by the C++ API adapter.
 
-    Attributes:
-        LHA_PATH: Path to the active LHA input file.
+    ``LHA_PATH`` is runtime state set by ``HyperisoMaster.init(...)`` or
+    ``switch_lha(...)``. All other entries are backed by the active C++
+    ``IPathsProvider`` and can be overridden before initialization with
+    ``HyperisoMaster.pre_init_set_paths(...)``.
     """
 
     LHA_PATH = _CppAPIPath.LHA_PATH
+    ASSETS_ROOT = _CppAPIPath.ASSETS_ROOT
+
+    DEFAULT_PARAM_VALUES = _CppAPIPath.DEFAULT_PARAM_VALUES
+    DEFAULT_OBS_VALUES = _CppAPIPath.DEFAULT_OBS_VALUES
+    DEFAULT_PARAM_CORR = _CppAPIPath.DEFAULT_PARAM_CORR
+    DEFAULT_OBS_CORR = _CppAPIPath.DEFAULT_OBS_CORR
+
+    USER_SM_PARAMS = _CppAPIPath.USER_SM_PARAMS
+    USER_FLAVOR_PARAMS = _CppAPIPath.USER_FLAVOR_PARAMS
+    USER_DECAY_PARAMS = _CppAPIPath.USER_DECAY_PARAMS
+    USER_OBS_VALUES = _CppAPIPath.USER_OBS_VALUES
+    USER_PARAM_CORR = _CppAPIPath.USER_PARAM_CORR
+    USER_OBS_CORR = _CppAPIPath.USER_OBS_CORR
+
+    PARAM_MAPPING_DIR = _CppAPIPath.PARAM_MAPPING_DIR
+    TEMPLATE_DIR = _CppAPIPath.TEMPLATE_DIR
+    SPECTRUM_DIR = _CppAPIPath.SPECTRUM_DIR
 
 
 class APIAdapter:
@@ -48,6 +67,8 @@ class APIAdapter:
         >>> api = APIAdapter()
         >>> api.check_flag(ExternalFlag.IS_LHA_SPECTRUM)
         False
+        >>> api.get_path(APIPath.USER_SM_PARAMS)
+        '/path/to/user_sm_params.yaml'
         >>> "MASS" in {str(b) for b in api.get_blocks_list(ParameterType.SM)}
         True
     """
@@ -75,7 +96,9 @@ class APIAdapter:
             path_type: Path key to query.
 
         Returns:
-            Path string associated with ``path_type``.
+            Path string associated with ``path_type``. Provider-backed paths
+            reflect any valid pre-init override registered through
+            ``HyperisoMaster.pre_init_set_paths(...)``.
         """
         return str(self._cpp_obj.get_path(path_type.value))
 

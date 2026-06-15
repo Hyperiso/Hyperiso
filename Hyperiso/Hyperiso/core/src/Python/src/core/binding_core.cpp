@@ -252,6 +252,20 @@ void init_core(py::module &m) {
     // APIPath enum
     py::enum_<APIPath>(m, "APIPath")
     .value("LHA_PATH", APIPath::LHA_PATH)
+    .value("ASSETS_ROOT", APIPath::ASSETS_ROOT)
+    .value("DEFAULT_PARAM_VALUES", APIPath::DEFAULT_PARAM_VALUES)
+    .value("DEFAULT_OBS_VALUES", APIPath::DEFAULT_OBS_VALUES)
+    .value("DEFAULT_PARAM_CORR", APIPath::DEFAULT_PARAM_CORR)
+    .value("DEFAULT_OBS_CORR", APIPath::DEFAULT_OBS_CORR)
+    .value("USER_SM_PARAMS", APIPath::USER_SM_PARAMS)
+    .value("USER_FLAVOR_PARAMS", APIPath::USER_FLAVOR_PARAMS)
+    .value("USER_DECAY_PARAMS", APIPath::USER_DECAY_PARAMS)
+    .value("USER_OBS_VALUES", APIPath::USER_OBS_VALUES)
+    .value("USER_PARAM_CORR", APIPath::USER_PARAM_CORR)
+    .value("USER_OBS_CORR", APIPath::USER_OBS_CORR)
+    .value("PARAM_MAPPING_DIR", APIPath::PARAM_MAPPING_DIR)
+    .value("TEMPLATE_DIR", APIPath::TEMPLATE_DIR)
+    .value("SPECTRUM_DIR", APIPath::SPECTRUM_DIR)
     .export_values();
     
     py::enum_<ParameterMode>(m, "ParameterMode")
@@ -323,6 +337,22 @@ void init_core(py::module &m) {
     MARTY_INSTALL/ or install/, to include/, to lib/, to marty.h, or to a libmarty
     library file. Hyperiso validates include/marty.h and lib/libmarty.* before MARTY
     mode is allowed to initialize.)doc"
+        )
+        .def(
+            "pre_init_set_paths",
+            [](HyperisoMaster& self, const std::map<APIPath, std::string>& path_overrides) {
+                self.pre_init_set_paths(path_overrides);
+            },
+            py::arg("path_overrides"),
+            R"doc(Override selected Hyperiso filesystem paths before initialization.
+
+    Args:
+        path_overrides: Mapping from APIPath to filesystem path. Default input
+            files must be existing .json files, user input files must be existing
+            .yaml/.yml files, and directory entries must be existing directories.
+
+    LHA_PATH is intentionally not accepted here because the active LHA file is
+    provided through init() or switch_lha().)doc"
         )
         .def("check_flag", &HyperisoMaster::check_flag)
         .def("get_model", &HyperisoMaster::get_model)

@@ -12,7 +12,7 @@ from pyhyperiso.phyperiso.pyhyperiso.core import ParameterProvider as _CppParame
 from pyhyperiso.core.Common.GeneralEnum import DataType, ParameterType
 from pyhyperiso.core.Common.ParamId import LhaID, ParamId
 from pyhyperiso.core.Core.Parameter import Parameter
-
+from pyhyperiso.core.Math.Scalar import Scalar
 
 class ParameterProvider:
     """Read parameter values and metadata from a C++ parameter namespace.
@@ -44,7 +44,7 @@ class ParameterProvider:
             else _CppParameterProvider()
         )
 
-    def get_by_pid(self, pid: ParamId, dtype: DataType = DataType.VALUE) -> float:
+    def get_by_pid(self, pid: ParamId, dtype: DataType = DataType.VALUE) -> Scalar:
         """Return a parameter component addressed by ``ParamId``.
 
         Args:
@@ -52,16 +52,16 @@ class ParameterProvider:
             dtype: Component to read, for example central value or uncertainty.
 
         Returns:
-            Requested parameter component as a float.
+            Requested parameter component as a Scalar (real,complex).
         """
-        return float(self._cpp_obj(pid._cpp_obj, dtype.value).real())
+        return Scalar.from_cpp(self._cpp_obj(pid._cpp_obj, dtype.value))
 
     def get_by_block(
         self,
         block: str,
         code: Union[int, str, list, LhaID],
         dtype: DataType = DataType.VALUE,
-    ) -> float:
+    ) -> Scalar:
         """Return a parameter component addressed by block and LHA code.
 
         Args:
@@ -70,11 +70,11 @@ class ParameterProvider:
             dtype: Component to read.
 
         Returns:
-            Requested parameter component as a float.
+            Requested parameter component as a Scalar (real,complex).
         """
         if not isinstance(code, LhaID):
             code = LhaID(code)
-        return float(self._cpp_obj(block, code._cpp_obj, dtype.value))
+        return Scalar.from_cpp(self._cpp_obj(block, code._cpp_obj, dtype.value))
 
     def exists_by_pid(self, pid: ParamId) -> bool:
         """Return whether a parameter exists for a full ``ParamId``."""

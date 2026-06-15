@@ -13,13 +13,7 @@ bool APIAdapter::check_flag(ExternalFlag flag) {
 }
 
 fs::path APIAdapter::get_path(APIPath path_name) {
-    switch (path_name) {
-    case APIPath::LHA_PATH:
-        return MemoryManager::GetInstance()->getMemoryCache().lha_path;
-        break;
-    default:
-        LOG_ERROR("ValueError", "Unknown path for APIAdapter.");
-    };
+    return MemoryManager::GetInstance()->get_path(path_name);
 }
 
 std::unordered_set<BlockName> APIAdapter::get_all_blocks()

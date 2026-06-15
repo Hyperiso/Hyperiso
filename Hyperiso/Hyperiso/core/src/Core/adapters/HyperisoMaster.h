@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <string>
+#include <map>
 
 #include "IMonitor.h"
 #include "MemoryManager.h"
@@ -58,6 +59,8 @@
  */
 class HyperisoMaster : public IMonitor<ExternalFlag> {
 private:
+    std::map<APIPath, fs::path> path_overrides; ///< Validated pre-init path overrides.
+
     void ensure_memory_manager_created();
     bool should_validate_marty_runtime(const HyperisoConfig& config) const;
     bool validate_marty_runtime_if_needed(const HyperisoConfig& config, const std::string& context) const;
@@ -106,6 +109,22 @@ public:
      * code-generation layer instead of the bundled Third_party/MARTY path.
      */
     void pre_init_set_marty_path(const std::string& martyInstallPath);
+
+    /**
+     * @brief Overrides selected HyperISO filesystem paths before init().
+     *
+     * Each entry is validated before being installed: default input files must
+     * exist and use the .json extension, user input files must exist and use
+     * .yaml or .yml, and directory entries must exist as directories.
+     * LHA_PATH is intentionally excluded because the active LHA file is provided
+     * directly to init() or switch_lha().
+     *
+     * Calling this after init() is supported only for future reload/switch
+     * operations and emits a warning.
+     *
+     * @param pathOverrides Map from APIPath values to replacement filesystem paths.
+     */
+    void pre_init_set_paths(const std::map<APIPath, std::string>& pathOverrides);
 
     /**
      * @brief Initializes Hyperiso with only the LHA file, using default config.

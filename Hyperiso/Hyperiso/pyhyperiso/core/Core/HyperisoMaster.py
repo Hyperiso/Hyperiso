@@ -3,11 +3,41 @@
 from __future__ import annotations
 
 import os
-from typing import Optional, Union
+from enum import Enum
+from typing import Any, Mapping, Optional, Union
 
 from pyhyperiso.phyperiso.pyhyperiso.core import HyperisoMaster as _CppHyperisoMaster
+from pyhyperiso.phyperiso.pyhyperiso.core import APIPath as _CppAPIPath
 from pyhyperiso.core.Common.GeneralEnum import Model
 from pyhyperiso.core.Core.HyperisoConfig import ExternalFlag, HyperisoConfig
+
+
+class APIPath(Enum):
+    """Filesystem path keys accepted by ``HyperisoMaster.pre_init_set_paths``.
+
+    ``LHA_PATH`` is exposed for read-only diagnostics through ``APIAdapter`` but
+    is intentionally rejected by ``pre_init_set_paths`` because the active LHA
+    file is provided through ``init(...)`` or ``switch_lha(...)``.
+    """
+
+    LHA_PATH = _CppAPIPath.LHA_PATH
+    ASSETS_ROOT = _CppAPIPath.ASSETS_ROOT
+
+    DEFAULT_PARAM_VALUES = _CppAPIPath.DEFAULT_PARAM_VALUES
+    DEFAULT_OBS_VALUES = _CppAPIPath.DEFAULT_OBS_VALUES
+    DEFAULT_PARAM_CORR = _CppAPIPath.DEFAULT_PARAM_CORR
+    DEFAULT_OBS_CORR = _CppAPIPath.DEFAULT_OBS_CORR
+
+    USER_SM_PARAMS = _CppAPIPath.USER_SM_PARAMS
+    USER_FLAVOR_PARAMS = _CppAPIPath.USER_FLAVOR_PARAMS
+    USER_DECAY_PARAMS = _CppAPIPath.USER_DECAY_PARAMS
+    USER_OBS_VALUES = _CppAPIPath.USER_OBS_VALUES
+    USER_PARAM_CORR = _CppAPIPath.USER_PARAM_CORR
+    USER_OBS_CORR = _CppAPIPath.USER_OBS_CORR
+
+    PARAM_MAPPING_DIR = _CppAPIPath.PARAM_MAPPING_DIR
+    TEMPLATE_DIR = _CppAPIPath.TEMPLATE_DIR
+    SPECTRUM_DIR = _CppAPIPath.SPECTRUM_DIR
 
 
 class HyperisoMaster:
@@ -54,6 +84,17 @@ class HyperisoMaster:
                 lha_file,
             )
         )
+
+    @staticmethod
+    def _to_cpp_api_path(path_key: Any) -> Any:
+        """Convert a Python APIPath-like value to the bound C++ enum value."""
+        cpp_value = getattr(path_key, "value", path_key)
+        if isinstance(cpp_value, str):
+            try:
+                return getattr(_CppAPIPath, cpp_value)
+            except AttributeError as exc:
+                raise ValueError(f"Unknown APIPath name: {cpp_value}") from exc
+        return cpp_value
 
     def init(self, lha_file: str, config: Optional[HyperisoConfig] = None) -> None:
         """Initialize Hyperiso with an LHA file.
@@ -147,6 +188,39 @@ class HyperisoMaster:
         """
         self._cpp_obj.pre_init_set_marty_path(os.path.abspath(os.fspath(marty_path)))
 
+    def pre_init_set_paths(
+        self,
+        path_overrides: Mapping[Any, Union[str, os.PathLike[str]]],
+    ) -> None:
+        """Override selected Hyperiso filesystem paths before initialization.
+
+        Args:
+            path_overrides: Mapping from ``APIPath`` keys to replacement paths.
+                Keys may be this wrapper's ``APIPath`` enum, the low-level C++
+                ``APIPath`` enum, another wrapper enum exposing a ``.value``
+                C++ enum, or a string matching an ``APIPath`` name. Values may
+                be strings or ``os.PathLike`` objects.
+
+        Validation is performed by the C++ layer: default input files must
+        exist and end in ``.json``, user input files must exist and end in
+        ``.yaml`` or ``.yml``, and directory entries must be existing
+        directories. ``LHA_PATH`` is intentionally rejected here; pass LHA files
+        to ``init(...)`` or ``switch_lha(...)`` instead.
+
+        Examples:
+            >>> from pathlib import Path
+            >>> hyp = HyperisoMaster()
+            >>> hyp.pre_init_set_paths({
+            ...     APIPath.USER_SM_PARAMS: Path("/tmp/custom_sm.yaml"),
+            ...     APIPath.SPECTRUM_DIR: "/tmp/hyperiso_spectra",
+            ... })
+        """
+        cpp_overrides = {
+            self._to_cpp_api_path(path_key): os.path.abspath(os.fspath(path_value))
+            for path_key, path_value in path_overrides.items()
+        }
+        self._cpp_obj.pre_init_set_paths(cpp_overrides)
+
     def switch_lha(self, lha_file: str, config: Optional[HyperisoConfig] = None) -> None:
         """Switch the active LHA input file.
 
@@ -191,7 +265,7 @@ class HyperisoMaster:
         return f"<PyHyperisoMaster model={self.model.name}>"
 
 
-__all__ = ["HyperisoMaster"]
+__all__ = ["HyperisoMaster", "APIPath"]
     
     
 if __name__ == "__main__":

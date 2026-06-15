@@ -431,8 +431,8 @@ class StatisticInterface:
         _require(observable_interface, ObservableInterface, "observable_interface")
         self.config = config
         self._cpp = st.StatisticInterface(config.to_cpp(), observable_interface._to_cpp())
-        if config.selected_experiments is not None:
-            self.select_experiments(config.selected_experiments)
+        # if config.selected_experiments is not None:
+        #     self.select_experiments(config.selected_experiments)
 
     def _to_cpp(self):
         """Return the underlying C++ statistic interface."""

@@ -179,6 +179,67 @@ MemoryManager* MemoryManager::Create(std::shared_ptr<IDataLoader<BlockAccessor>>
     return MemoryManager::instance;
 }
 
+void MemoryManager::set_paths_provider(std::shared_ptr<IPathsProvider> paths_provider_) {
+    if (!paths_provider_) {
+        LOG_ERROR("MemoryManager", "Cannot install a null IPathsProvider.");
+        return;
+    }
+
+    if (cache.is_ready) {
+        LOG_WARN("MemoryManager", "set_paths_provider called after init; it will only affect future reload or switch operations.");
+    }
+
+    this->paths_provider = std::move(paths_provider_);
+}
+
+fs::path MemoryManager::get_path(APIPath path_name) {
+    if (path_name == APIPath::LHA_PATH) {
+        check_if_ready();
+        return cache.lha_path;
+    }
+
+    if (!paths_provider) {
+        LOG_ERROR("MemoryManager", "No IPathsProvider was provided.");
+        return {};
+    }
+
+    switch (path_name) {
+    case APIPath::ASSETS_ROOT:
+        return paths_provider->assets_root();
+    case APIPath::DEFAULT_PARAM_VALUES:
+        return paths_provider->default_param_values();
+    case APIPath::DEFAULT_OBS_VALUES:
+        return paths_provider->default_obs_values();
+    case APIPath::DEFAULT_PARAM_CORR:
+        return paths_provider->default_param_corr();
+    case APIPath::DEFAULT_OBS_CORR:
+        return paths_provider->default_obs_corr();
+    case APIPath::USER_SM_PARAMS:
+        return paths_provider->user_sm_params();
+    case APIPath::USER_FLAVOR_PARAMS:
+        return paths_provider->user_flavor_params();
+    case APIPath::USER_DECAY_PARAMS:
+        return paths_provider->user_decay_params();
+    case APIPath::USER_OBS_VALUES:
+        return paths_provider->user_obs_values();
+    case APIPath::USER_PARAM_CORR:
+        return paths_provider->user_param_corr();
+    case APIPath::USER_OBS_CORR:
+        return paths_provider->user_obs_corr();
+    case APIPath::PARAM_MAPPING_DIR:
+        return paths_provider->param_mapping_dir_path();
+    case APIPath::TEMPLATE_DIR:
+        return paths_provider->template_dir_path();
+    case APIPath::SPECTRUM_DIR:
+        return paths_provider->spectrum_dir();
+    case APIPath::LHA_PATH:
+        break;
+    }
+
+    LOG_ERROR("MemoryManager", "Unknown path for APIAdapter.");
+    return {};
+}
+
 void MemoryManager::add_lha_prototype(BlockName blockName,
                                       size_t itemCount,
                                       size_t valueIdx,

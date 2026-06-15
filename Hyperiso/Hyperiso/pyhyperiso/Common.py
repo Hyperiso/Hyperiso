@@ -11,8 +11,11 @@ from pyhyperiso.core.Common.GeneralEnum import (
     WCoeff,
     WGroup,
     WilsonBasis,
+    DataType,
 )
 
 from pyhyperiso.core.Common.LhaID import LhaID
 from pyhyperiso.core.Common.BinnedObservableId import BinnedObservableId
 from pyhyperiso.core.Common.ParamId import ParamId
+
+from pyhyperiso.core.Core.CorrelationProvider import CorrelationType
