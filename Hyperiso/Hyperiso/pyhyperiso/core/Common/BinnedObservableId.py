@@ -4,6 +4,7 @@ from typing import Tuple, Union, Any
 from pyhyperiso.phyperiso.pyhyperiso import common
 from pyhyperiso.core.Common.SymbolId import ObservableId
 from pyhyperiso.core.Common.Mapper import ObservableMapper
+from pyhyperiso.core.Common.GeneralEnum import Observables
 
 @dataclass
 class BinnedObservableId:
@@ -50,14 +51,22 @@ class BinnedObservableId:
         # Normalize s to ObservableId wrapper
         if isinstance(self.s, str):
             self.s = ObservableId(self.s)
+        elif isinstance(self.s, Observables):
+            self.s = ObservableMapper.to_id(self.s)
         elif not isinstance(self.s, ObservableId):
             raise TypeError(f"s must be ObservableId or str, got {type(self.s)}")
 
         # Normalize p to (float, float)
-        if not (isinstance(self.p, (tuple, list)) and len(self.p) == 2):
+        if not (isinstance(self.p, (tuple, list, set)) and len(self.p) == 2):
             raise TypeError("p must be a (low, high) pair")
-        low = float(self.p[0])
-        high = float(self.p[1])
+        if (isinstance(self.p, set)):
+            low = self.p.pop()
+            high = self.p.pop()
+            print(low, high)
+        else:
+            low = float(self.p[0])
+            high = float(self.p[1])
+
         self.p = (low, high)
 
         # Build C++ instance

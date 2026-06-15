@@ -15,3 +15,4 @@ from pyhyperiso.core.Common.GeneralEnum import (
 
 from pyhyperiso.core.Common.LhaID import LhaID
 from pyhyperiso.core.Common.BinnedObservableId import BinnedObservableId
+from pyhyperiso.core.Common.ParamId import ParamId

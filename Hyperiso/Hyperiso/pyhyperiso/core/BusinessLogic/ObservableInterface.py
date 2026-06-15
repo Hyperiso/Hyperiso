@@ -139,7 +139,7 @@ class ObservableInterface:
         self,
         obs: Observables,
         qcd_order: QCDOrder,
-        add_dependencies: bool = False,
+        add_dependencies: bool = True,
     ) -> "ObservableInterface":
         """Register an observable using the public observable enum.
 
@@ -159,7 +159,7 @@ class ObservableInterface:
         self,
         obs: ObservableId,
         qcd_order: QCDOrder,
-        add_dependencies: bool = False,
+        add_dependencies: bool = True,
     ) -> "ObservableInterface":
         """Register an observable using an internal ``ObservableId``.
 
@@ -179,7 +179,7 @@ class ObservableInterface:
         self,
         obs: BinnedObservableId,
         qcd_order: QCDOrder,
-        add_dependencies: bool = False,
+        add_dependencies: bool = True,
     ) -> "ObservableInterface":
         """Register a single binned observable.
 
@@ -199,7 +199,7 @@ class ObservableInterface:
     def add_observables(
         self,
         obs_names: Mapping[Observables, QCDOrder],
-        add_dependencies: bool = False,
+        add_dependencies: bool = True,
     ) -> "ObservableInterface":
         """Register several enum-based observables at once.
 
@@ -225,7 +225,7 @@ class ObservableInterface:
     def add_observable_ids(
         self,
         obs_names: Mapping[ObservableId, QCDOrder],
-        add_dependencies: bool = False,
+        add_dependencies: bool = True,
     ) -> "ObservableInterface":
         """Register several id-based observables at once.
 
@@ -246,7 +246,7 @@ class ObservableInterface:
         self,
         decay: Decays,
         qcd_order: QCDOrder,
-        add_dependencies: bool = False,
+        add_dependencies: bool = True,
     ) -> "ObservableInterface":
         """Register every observable attached to a decay channel.
 
